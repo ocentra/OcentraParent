@@ -1,0 +1,59 @@
+{
+  "name": "@ocentra-parent/workspace",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "packageManager": "npm@11.7.0",
+  "engines": {
+    "node": ">=22.15.0"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "node scripts/dev/dev-stack.mjs",
+    "dev:lan": "node scripts/dev/dev-stack.mjs --lan",
+    "dev:agent": "node scripts/dev/dev-agent.mjs",
+    "dev:agent:lan": "node scripts/dev/dev-agent.mjs --lan",
+    "dev:portal": "npm run build:contracts && node scripts/dev/dev-portal.mjs",
+    "dev:portal:lan": "npm run build:contracts && node scripts/dev/dev-portal.mjs --lan",
+    "build:contracts": "npm run build --workspace @ocentra-parent/schema-domain && npm run build --workspace @ocentra-parent/logging-domain && npm run build --workspace @ocentra-parent/agent-protocol-domain && npm run build --workspace @ocentra-parent/text-domain && npm run build --workspace @ocentra-parent/portal-domain",
+    "prepare": "node scripts/git-hooks/install-pre-commit.mjs",
+    "hooks:install": "node scripts/git-hooks/install-pre-commit.mjs",
+    "precommit": "node scripts/git-hooks/run-precommit-validation.mjs",
+    "ci:local": "npm run security:scan-repo && npm run format:check && npm run validate && npm run build",
+    "playwright:install": "playwright install chromium",
+    "release:version": "node scripts/release/validate-version.mjs",
+    "release:package:windows": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/release/windows/build-agent-package.ps1",
+    "security:scan-staged": "node scripts/security/scan-staged-secrets.mjs",
+    "security:scan-repo": "node scripts/security/scan-staged-secrets.mjs --repo",
+    "build": "turbo run build",
+    "test:tooling": "node --test scripts/test/*.test.mjs",
+    "test:unit": "turbo run test",
+    "test:contract": "turbo run test --filter=@ocentra-parent/logging-domain --filter=@ocentra-parent/agent-protocol-domain --filter=@ocentra-parent/portal-domain --filter=@ocentra-parent/text-domain",
+    "test:integration": "npm run build:contracts && cargo build -p ocentra-parent-agent-service && node scripts/test/websocket-local-smoke.mjs && node scripts/test/websocket-lan-smoke.mjs",
+    "test:e2e": "npm run build:contracts && cargo build -p ocentra-parent-agent-service && node scripts/test/portal-local-smoke.mjs && npm run test:e2e --workspace @ocentra-parent/portal",
+    "lint:schema-boundaries": "node scripts/check-no-zod-source.mjs && node scripts/check-no-naked-domain-strings.mjs && node scripts/check-no-app-string-literals.mjs && node scripts/check-rust-string-boundaries.mjs && node scripts/check-required-tests.mjs && node scripts/check-no-test-doubles.mjs && node scripts/check-source-shape.mjs && node scripts/check-ai-rule-index.mjs",
+    "lint": "npm run lint:schema-boundaries && turbo run lint:exec type-check",
+    "type-check": "turbo run type-check",
+    "test": "npm run test:tooling && npm run test:unit && npm run test:contract",
+    "validate:rust": "cargo check --workspace && cargo test --workspace",
+    "validate": "npm run release:version && npm run lint && npm run test && npm run validate:rust && npm run test:integration && npm run test:e2e",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.36.0",
+    "@playwright/test": "^1.60.0",
+    "@types/node": "^24.6.0",
+    "eslint": "^9.36.0",
+    "globals": "^16.4.0",
+    "prettier": "^3.6.2",
+    "tsx": "^4.20.6",
+    "turbo": "^2.5.8",
+    "typescript": "^6.0.2",
+    "typescript-eslint": "^8.58.0",
+    "vitest": "^4.1.0"
+  }
+}

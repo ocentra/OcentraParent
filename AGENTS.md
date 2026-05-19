@@ -1,0 +1,68 @@
+# Ocentra Parent Agent Guide
+
+This repo follows Ocentra-style scaffold discipline. Keep changes narrow, contract-first, and validated.
+
+## Ocentra AI Rule Map
+
+Before coding, read `.ocentra-ai/rules/ocentra-parent-rules.mdc`. It routes work to granular rule files for tests, domain boundaries, protocol/WebSocket, Rust service, portal, logging/redaction, localhost security, source shape, and validation.
+
+When writing or changing tests, also read `.ocentra-ai/rules/ocentra-parent-test-rules.mdc`. Test doubles are forbidden; tests must use real contracts, parsers, services, transports, or UI paths.
+
+When changing multiple layers, use `.ocentra-ai/skills/ocentra-parent-rule-router/SKILL.md` as the lookup workflow instead of loading every rule file at once.
+
+Local dev ports are fixed: Rust agent on `127.0.0.1:4477`, Vite portal on `127.0.0.1:4478`. LAN dev uses the same ports with explicit `npm run dev:lan` binding and origin allowlists. Use managed scripts; they reclaim only stale Ocentra Parent processes and must not take over Ocentra Games editor ports.
+
+## Non-Negotiable Boundaries
+
+- Do not put shared API paths, route ids, event names, log shapes, policy ids, or device identifiers directly in app or crate code.
+- Add shared TypeScript contracts under `packages/*-domain`.
+- Add Rust-facing protocol shapes under `crates/agent-protocol` only after the TypeScript contract is explicit and test-backed.
+- Use Effect Schema for TypeScript runtime validation.
+- Do not add Zod.
+- Do not create manual `string & { readonly __brand: ... }` aliases.
+- Branded strings must come from Effect Schema brands and decode helpers.
+- App/runtime source must not contain inline string literals. Text, ids, routes, fields, commands, and events live in domain packages.
+- App/runtime TypeScript source must not annotate values as raw `string`; use a branded domain type or keep external input as `unknown` until parsed.
+- Rust service/core source must not contain inline string literals. Runtime strings live in `crates/agent-protocol` constants.
+- Do not create god files or god classes. Source shape validation warns at 80% of a file/function budget and fails past the hard limit.
+- Do not use mocks, fakes, stubs, spies, MSW, Nock, Sinon, `vi.mock`, `vi.fn`, or equivalent test doubles. Tests must exercise real domain contracts, parsers, services, and local transports.
+- Every source workspace and Rust crate needs tests from the beginning.
+- Rust service code should stay async and use Tokio's multithreaded runtime unless a specific boundary requires otherwise.
+- Do not add core recorder, blocking, AI, notification delivery, or product portal UI code during scaffold-only tasks.
+- Dev portal screens are allowed only when they prove local protocol and runtime visibility.
+
+## Package Responsibilities
+
+| Package                                 | Owns                                                                          |
+| --------------------------------------- | ----------------------------------------------------------------------------- |
+| `@ocentra-parent/schema-domain`         | Shared Effect Schema wrappers and decode helpers.                             |
+| `@ocentra-parent/endpoint-domain`       | API path, route id, header, query, and endpoint brands.                       |
+| `@ocentra-parent/agent-protocol-domain` | WebSocket command/event contracts shared by portal and Rust.                  |
+| `@ocentra-parent/text-domain`           | Schema-backed display text tokens.                                            |
+| `@ocentra-parent/portal-domain`         | Portal routes, DOM constants, and dev command button contracts.               |
+| `@ocentra-parent/parent-domain`         | Parent/family/device product contracts when implementation starts.            |
+| `@ocentra-parent/activity-domain`       | Device activity event schemas and query contracts when implementation starts. |
+| `@ocentra-parent/logging-domain`        | Operational app/service logging contracts shared by TypeScript and Rust.      |
+
+## Validation
+
+Run:
+
+```powershell
+npm run validate
+```
+
+The root gate runs release version alignment, schema-boundary checks, Turbo lint/type-check/test tasks, Rust workspace checks/tests, integration smoke, local portal smoke, and Playwright UI coverage against the real Rust service.
+
+ESLint includes local Ocentra Parent rules. Editors with ESLint enabled should report app string literals, raw app `string` annotations, manual brands, and naked domain string aliases before validation runs.
+
+`scripts/check-source-shape.mjs` enforces source file/function/class/export budgets. Treat an 80% warning as a request to split ownership before adding more behavior.
+
+`scripts/check-no-test-doubles.mjs` rejects fake-green testing patterns in app, package, and crate source. Build real seams and test real boundaries instead of replacing behavior.
+
+## Testing Standard
+
+- Tests specify behavior.
+- Weak tests are not useful.
+- Prefer flat test files with one top-level module description.
+- Add tests for every contract, parser, path helper, Rust protocol conversion, and local transport loop once those exist.

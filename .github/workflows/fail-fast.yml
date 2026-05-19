@@ -1,0 +1,33 @@
+name: Fail Fast
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fail-fast:
+    name: Format, Lint, Types, Rust Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/setup-ci
+
+      - name: Format check
+        run: npm run format:check
+
+      - name: Release version policy
+        run: npm run release:version
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type check
+        run: npm run type-check
+
+      - name: Rust check
+        run: cargo check --workspace

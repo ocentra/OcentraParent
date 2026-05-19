@@ -1,0 +1,63 @@
+---
+description: Localhost service security, child-device threat model, and external input rules.
+globs: apps/**/*.{ts,tsx}, packages/**/*.ts, crates/**/*.rs, scripts/security/**/*.mjs
+alwaysApply: false
+---
+
+# Ocentra Parent Security and Local Network Rules
+
+Localhost is a boundary, not a trust guarantee. LAN mode is a larger boundary and must be treated as exposed to other local devices.
+
+## Base Assumptions
+
+- Every portal command is untrusted input.
+- Every WebSocket payload is untrusted input.
+- Child-device local users may try to stop, confuse, or bypass the service.
+- Parent portal access will later cross device and network boundaries.
+- Internal APIs must still parse and reject invalid input.
+
+## Current v0 Security Scope
+
+Allowed now:
+
+- schema validation
+- unknown command rejection
+- no secret logging
+- explicit disconnected state
+- explicit loopback versus LAN bind mode
+- allowlisted browser origins for local-network HTTP and WebSocket access
+- local smoke tests
+- repo secret scan
+
+## LAN Rules
+
+- Default dev must remain loopback-only.
+- Non-loopback binds require an explicit enable flag.
+- Do not use permissive CORS for exposed agent endpoints.
+- WebSocket upgrades with an `Origin` header must pass the same allowlist as HTTP.
+- LAN smoke tests must exercise real service bind behavior, not just config parsing.
+
+Not allowed without a separate plan:
+
+- claims that the app cannot be removed
+- privilege escalation
+- startup persistence
+- device lockdown
+- content blocking
+- bypass resistance
+- cloud auth
+
+## Security Tests
+
+When security behavior is added, tests must assert rejection or final safe state. Do not test "no crash" as security evidence.
+
+Security tests must cover applicable cases:
+
+- missing fields
+- extra fields
+- wrong command type
+- malformed JSON
+- unknown schema version
+- oversized payload
+- disconnected/reconnect behavior
+- sensitive data not emitted in logs

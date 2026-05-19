@@ -1,0 +1,44 @@
+---
+description: Endpoint, localhost API, and bidirectional WebSocket protocol rules.
+globs: packages/endpoint-domain/**/*.ts, packages/agent-protocol-domain/**/*.ts, packages/portal-domain/**/*.ts, crates/agent-protocol/**/*.rs, crates/agent-service/**/*.rs, apps/portal/src/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Ocentra Parent Protocol and WebSocket Rules
+
+The portal and agent communicate through explicit contracts. Do not treat WebSocket messages as ad hoc JSON.
+
+## Protocol Change Order
+
+1. Define command or event in `@ocentra-parent/agent-protocol-domain`.
+2. Add or update Effect Schema tests for accepted and rejected shapes.
+3. Mirror the message shape in `crates/agent-protocol`.
+4. Add or update Rust serialization tests.
+5. Wire `crates/agent-service`.
+6. Wire `apps/portal` through `@ocentra-parent/portal-domain`.
+7. Run contract, Rust, integration, and e2e smoke tests.
+
+## Message Rules
+
+- Every command and event has a stable domain-owned type.
+- Every payload has a schema, even when currently empty.
+- Every field name comes from a domain/protocol constant.
+- Version protocol shapes before changing existing semantics.
+- Prefer additive events over changing historical event meaning.
+
+## Bidirectional Assumption
+
+Design for two-way communication from the start:
+
+- portal asks agent for state
+- agent reports observations
+- agent reports policy decisions
+- future remote portal can address multiple devices
+
+Do not hard-code a single-device future into protocol names.
+
+## Local Routes Are Still Boundaries
+
+The portal is not trusted just because it runs on localhost or the same LAN. Parse every inbound command and reject unknown event/command types.
+
+Protocol routes must distinguish loopback, LAN, and future cloud relay paths. Do not overload `localhost` for cross-device LAN access.

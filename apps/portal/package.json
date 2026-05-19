@@ -1,0 +1,23 @@
+{
+  "name": "@ocentra-parent/portal",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 4478 --strictPort",
+    "build": "tsc -p tsconfig.json --noEmit && vite build",
+    "type-check": "tsc -p tsconfig.json --noEmit",
+    "lint": "npx turbo run lint:exec --filter=@ocentra-parent/portal",
+    "lint:exec": "eslint --cache src tests e2e playwright.config.ts && tsc -p tsconfig.json --noEmit",
+    "test": "vitest run tests",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "@ocentra-parent/agent-protocol-domain": "file:../../packages/agent-protocol-domain",
+    "@ocentra-parent/logging-domain": "file:../../packages/logging-domain",
+    "@ocentra-parent/portal-domain": "file:../../packages/portal-domain"
+  },
+  "devDependencies": {
+    "vite": "^7.2.7"
+  }
+}

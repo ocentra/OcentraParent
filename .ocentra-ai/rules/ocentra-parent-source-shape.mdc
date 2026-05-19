@@ -1,0 +1,37 @@
+---
+description: File size, function size, ownership, and no god object rules.
+globs: apps/**/*.{ts,tsx}, packages/**/*.ts, crates/**/*.rs, scripts/**/*.mjs
+alwaysApply: false
+---
+
+# Ocentra Parent Source Shape Rules
+
+Small files are not the goal. Clear ownership is the goal.
+
+## No God Files
+
+Split before a file owns unrelated concerns. Common split points:
+
+- schema definitions
+- constants
+- transport
+- rendering
+- state
+- command handlers
+- platform adapters
+- tests by contract boundary
+
+## Guardrail
+
+`scripts/check-source-shape.mjs` warns near 80 percent of the configured budget and fails past the hard limit.
+
+Treat a warning as a design prompt. Do not wait for hard failure before splitting if the file is taking on a second responsibility.
+
+## AI Rule
+
+Do not solve source shape warnings by moving code into random helper files. The new file must have a name and ownership boundary that explains why it exists.
+
+## Docs and Rules
+
+Rule files must stay granular. If a rule document becomes hard to scan, split it by task instead of adding sections forever.
+

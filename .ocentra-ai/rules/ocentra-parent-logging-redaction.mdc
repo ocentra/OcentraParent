@@ -1,0 +1,47 @@
+---
+description: Structured logging, redaction, and child-safety telemetry rules.
+globs: packages/logging-domain/**/*.ts, crates/agent-service/**/*.rs, crates/agent-protocol/**/*.rs, apps/portal/src/**/*.ts
+alwaysApply: false
+---
+
+# Ocentra Parent Logging and Redaction Rules
+
+Logs are product data boundaries. This project may eventually observe child-device activity, so logging must be conservative from the start.
+
+## Structured Logs Only
+
+- Use `@ocentra-parent/logging-domain` for TypeScript log shapes.
+- Use `crates/agent-protocol` constants and structs for Rust log snapshots.
+- Do not add raw console logging in app/runtime code.
+- Do not invent log fields at call sites.
+
+## Redaction First
+
+Never log:
+
+- child names
+- account secrets
+- auth tokens
+- raw screenshots
+- raw URLs from browsing activity
+- full process command lines
+- keystrokes
+- clipboard content
+- message contents
+
+If a field might later contain sensitive activity, store a stable category, status, or redacted summary instead.
+
+## Diagnostics
+
+Dev diagnostics must be useful without leaking private data:
+
+- service version
+- platform
+- mode
+- feature enabled flags
+- correlation ids
+- schema versions
+- event types
+
+Add tests when adding log shapes or redaction behavior.
+

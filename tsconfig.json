@@ -1,0 +1,41 @@
+{
+  "files": [],
+  "references": [
+    {
+      "path": "./packages/schema-domain"
+    },
+    {
+      "path": "./packages/endpoint-domain"
+    },
+    {
+      "path": "./packages/parent-domain"
+    },
+    {
+      "path": "./packages/activity-domain"
+    },
+    {
+      "path": "./packages/logging-domain"
+    },
+    {
+      "path": "./packages/agent-protocol-domain"
+    },
+    {
+      "path": "./packages/text-domain"
+    },
+    {
+      "path": "./packages/portal-domain"
+    }
+  ],
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "exactOptionalPropertyTypes": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitReturns": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noUncheckedIndexedAccess": true
+  }
+}

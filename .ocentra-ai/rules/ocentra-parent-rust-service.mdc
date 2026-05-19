@@ -1,0 +1,48 @@
+---
+description: Rust agent service architecture, async runtime, platform isolation, and service boundaries.
+globs: crates/**/*.rs, Cargo.toml, crates/**/Cargo.toml
+alwaysApply: false
+---
+
+# Ocentra Parent Rust Service Rules
+
+The Rust agent is a service runtime, not a UI app.
+
+The Rust agent must remain headless. Any visible local surface belongs in the web portal.
+
+## Runtime
+
+- Use Tokio's multithreaded runtime for the service.
+- Keep request handlers async.
+- Do not add blocking IO inside async handlers without an explicit blocking boundary.
+- Keep shared mutable state small, typed, and lock-scoped.
+- Do not parallelize ordered state transitions for performance.
+
+## Platform Boundaries
+
+Current implementation focus is Windows desktop. The architecture must still leave room for:
+
+- macOS desktop
+- Linux desktop
+- Android
+- iOS
+
+Put platform-neutral domain contracts in shared crates. Put platform-specific collection/enforcement code behind modules or traits.
+
+## Service Boundary
+
+The service may expose local health, log snapshot, and WebSocket dev endpoints during scaffold work. Loopback is the default. LAN exposure must go through the explicit network policy module and origin allowlist.
+
+Do not add these without an explicit plan:
+
+- startup persistence
+- anti-tamper behavior
+- content capture
+- process blocking
+- notification delivery
+- AI classification
+- cloud sync
+
+## Rust String Boundary
+
+Do not add inline runtime strings in `agent-service` or `agent-core`. Promote command names, event names, field names, stable messages, and mode labels into `agent-protocol`.

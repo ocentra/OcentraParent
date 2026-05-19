@@ -1,0 +1,48 @@
+---
+description: Domain package ownership, Effect Schema, branded types, and no naked strings.
+globs: apps/**/*.ts, apps/**/*.tsx, packages/**/*.ts, crates/**/*.rs
+alwaysApply: false
+---
+
+# Ocentra Parent Domain Boundaries
+
+Shared meaning lives in domain packages and protocol crates, not in app code.
+
+## TypeScript Rules
+
+- Use Effect Schema for runtime validation.
+- Do not add Zod.
+- Do not create manual `string & { readonly __brand: ... }` aliases.
+- Use Effect Schema brands and decode helpers.
+- Keep external input as `unknown` until parsed.
+- Do not annotate app/runtime values as raw `string` when a domain brand exists.
+- Do not place runtime text, route ids, event names, field names, or endpoint paths in app source.
+
+## Package Ownership
+
+| Package | Owns |
+| --- | --- |
+| `@ocentra-parent/schema-domain` | Effect Schema helpers and branded decode helpers |
+| `@ocentra-parent/endpoint-domain` | endpoint paths, route ids, headers, query brands |
+| `@ocentra-parent/agent-protocol-domain` | WebSocket command and event contracts |
+| `@ocentra-parent/text-domain` | schema-backed display text tokens |
+| `@ocentra-parent/portal-domain` | portal route ids, DOM ids, dev command descriptors |
+| `@ocentra-parent/logging-domain` | structured log contracts shared across runtimes |
+| `@ocentra-parent/parent-domain` | family, parent, child, and device product contracts |
+| `@ocentra-parent/activity-domain` | activity event and policy observation contracts |
+
+## Rust Rules
+
+- Runtime strings live in `crates/agent-protocol` constants.
+- Serde structs live beside the protocol boundary.
+- The Rust service should consume protocol constants and structs, not invent local strings.
+- Platform-neutral concepts belong outside Windows-specific modules.
+
+## Change Order
+
+1. Add or update domain contract.
+2. Add or update parser/brand tests.
+3. Mirror into Rust protocol if the Rust service crosses the boundary.
+4. Update portal/service consumers.
+5. Run the validation gate.
+

@@ -1,0 +1,48 @@
+---
+description: Required validation commands and local service verification.
+globs: package.json, turbo.json, .github/**/*.yml, scripts/**/*.mjs, apps/**/*.ts, packages/**/*.ts, crates/**/*.rs
+alwaysApply: false
+---
+
+# Ocentra Parent Validation Rules
+
+Run the smallest useful check while working. Before handing off, run the full gate unless the user asked for analysis only.
+
+## Main Gate
+
+```powershell
+npm run validate
+```
+
+This runs:
+
+- schema and string boundary checks
+- no test double check
+- source shape check
+- Turbo lint/type-check/test
+- TypeScript unit and contract tests
+- Rust check and tests
+- real local WebSocket smoke
+- real LAN bind/origin smoke
+- real portal smoke
+
+## Supporting Gates
+
+```powershell
+npm run build
+npm run format:check
+npm run security:scan-repo
+cargo test
+```
+
+## Stale Dev Services
+
+If `cargo build` or `cargo test` cannot overwrite the service binary on Windows, check whether the dev service is still running on port `4477` and stop it before rebuilding.
+
+Parent fixed ports are `4477` for the headless Rust agent and `4478` for the Vite portal. LAN mode uses the same ports through `npm run dev:lan`. Do not use generic Vite port `5173` or the Ocentra Games asset-editor port `5174`.
+
+If smoke tests need ports, make sure stale processes are not providing a fake pass. Use the managed scripts in `scripts/dev/` so only clearly Ocentra Parent processes are reclaimed.
+
+## Validation Reports
+
+Report exact commands run and exact failures. Do not summarize a failed gate as "mostly passing".

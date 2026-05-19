@@ -1,0 +1,30 @@
+name: Setup Ocentra Parent CI
+description: Install shared CI runtime dependencies for Ocentra Parent workflows.
+
+inputs:
+  install-mode:
+    description: Use "ci" to run npm ci or "skip" to only configure runtimes.
+    required: false
+    default: ci
+  install-rust:
+    description: Install the stable Rust toolchain.
+    required: false
+    default: 'true'
+
+runs:
+  using: composite
+  steps:
+    - name: Setup Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22
+        cache: npm
+
+    - name: Setup Rust
+      if: inputs.install-rust == 'true'
+      uses: dtolnay/rust-toolchain@stable
+
+    - name: Install npm dependencies
+      if: inputs.install-mode != 'skip'
+      shell: bash
+      run: npm ci

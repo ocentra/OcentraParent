@@ -1,0 +1,70 @@
+# Validation Gates
+
+## Root Gate
+
+`npm run validate` is the default local confidence gate.
+
+It runs:
+
+- release version alignment
+- schema-boundary checks
+- package lint
+- package type-check
+- package tests
+- Rust workspace check
+- Rust workspace tests
+- WebSocket integration smoke
+- LAN bind and origin smoke
+- portal local smoke
+- portal Playwright UI check against the real Rust service
+
+`npm run build` is the portal/package build gate and should pass before any scaffold is considered usable.
+
+## Boundary Checks
+
+The scaffold rejects:
+
+- direct Zod source usage
+- direct Zod package dependencies
+- manual string brands
+- naked domain string aliases for identifiers, paths, names, routes, hashes, urls, statuses, and similar domain values
+- inline app runtime string literals
+- raw `string` annotations in app runtime TypeScript source
+- inline Rust service/core string literals
+- source workspaces or Rust crates without tests
+- mocks, fakes, stubs, spies, MSW, Nock, Sinon, `vi.mock`, `vi.fn`, and equivalent test doubles
+- oversized source files, oversized functions, too many classes, or too many exports in one file
+
+String values are allowed inside domain-owned schema/constant/text packages because that is where runtime values become named, validated contracts.
+
+Source size checks use two levels:
+
+- At 80% of the limit, validation prints a warning so the next change can split the file before it becomes a problem.
+- Past the hard limit, validation fails.
+
+Documentation is not governed by the same source-code length limits. Long-form docs should still be organized, but the god-file guard is aimed at code ownership and behavior concentration.
+
+## Test Reality
+
+Tests must use real domain contracts, real parsers, real local service processes, and real transport loops. If a dependency is too hard to test without replacement, the production design needs a smaller real boundary rather than a fake test path.
+
+## Editor Lint
+
+`eslint.config.js` loads local rules from `eslint-rules/` so editor integrations and package lint tasks fail on the same Ocentra-specific boundaries:
+
+- `ocentra-parent/no-app-string-literals`
+- `ocentra-parent/no-runtime-string-types`
+- `ocentra-parent/no-naked-domain-string-types`
+
+These rules are tested by `npm run test:tooling`, which is part of `npm run test` and `npm run validate`.
+
+## Rust Gate
+
+Rust validation runs across the entire Cargo workspace.
+
+```powershell
+cargo check --workspace
+cargo test --workspace
+```
+
+The service binary must use Tokio's multithreaded runtime and async request handling. Blocking work has to be isolated behind explicit adapters before it enters command handlers.

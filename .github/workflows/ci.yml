@@ -1,0 +1,57 @@
+name: CI Gate
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ocentra-parent-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  fail-fast:
+    uses: ./.github/workflows/fail-fast.yml
+
+  secret-scan:
+    needs: [fail-fast]
+    uses: ./.github/workflows/secret-scan.yml
+
+  validate:
+    needs: [secret-scan]
+    uses: ./.github/workflows/validate.yml
+
+  build:
+    needs: [secret-scan]
+    uses: ./.github/workflows/build.yml
+
+  release:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [validate, build]
+    runs-on: windows-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/setup-ci
+
+      - name: Build Windows service package
+        shell: pwsh
+        run: ./scripts/release/windows/build-agent-package.ps1
+
+      - name: Create GitHub release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: ./scripts/release/windows/create-github-release.ps1

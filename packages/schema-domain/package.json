@@ -1,0 +1,23 @@
+{
+  "name": "@ocentra-parent/schema-domain",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Shared Effect Schema validation helpers.",
+  "exports": {
+    "./effect": {
+      "import": "./dist/effect.js",
+      "types": "./dist/effect.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist",
+    "type-check": "tsc -p tsconfig.json --noEmit",
+    "lint": "npx turbo run lint:exec --filter=@ocentra-parent/schema-domain",
+    "lint:exec": "eslint --cache src tests && tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "effect": "^3.21.2"
+  }
+}
