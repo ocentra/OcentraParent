@@ -45,6 +45,8 @@ test('Windows release package builder emits MSI, bootstrap, manifest, and checks
   assert.match(builder, /OCENTRA_PARENT_UPDATE_SIGNING_KEY_BASE64/u);
   assert.match(builder, /sign-manifest/u);
   assert.match(builder, /WixToolset\.Util\.wixext\/6\.0\.2/u);
+  assert.match(builder, /\$extensionList = @\(dotnet wix extension list\)/u);
+  assert.match(builder, /\$extensionList\.Count -eq 0/u);
   assert.match(builder, /winsw\/winsw\/releases\/download\/v\$WinSwVersion\/\$WinSwAssetName/u);
   assert.match(builder, /05B82D46AD331CC16BDC00DE5C6332C1EF818DF8CEEFCD49C726553209B3A0DA/u);
   assert.match(builder, /latest-windows\.json/u);

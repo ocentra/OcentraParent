@@ -39,8 +39,9 @@ function Install-WixTooling {
   dotnet tool restore
   Assert-Success 'WiX dotnet tool restore failed.'
 
-  $extensionList = dotnet wix extension list
-  if ($extensionList -notmatch 'WixToolset\.Util\.wixext\s+6\.0\.2') {
+  $extensionList = @(dotnet wix extension list)
+  $extensionListText = $extensionList -join "`n"
+  if ($extensionList.Count -eq 0 -or $extensionListText -notmatch 'WixToolset\.Util\.wixext\s+6\.0\.2') {
     dotnet wix extension add $WixUtilExtension
     Assert-Success 'WiX Util extension install failed.'
   }
