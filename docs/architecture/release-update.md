@@ -89,7 +89,7 @@ The updater binary is compiled with the trusted public key from `OCENTRA_PARENT_
 After the first release exists, a Windows test machine can run this from an elevated PowerShell session:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -Command "irm https://github.com/SujanMishra/OcentraParent/releases/latest/download/install-ocentra-parent-agent-windows.ps1 | iex"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "irm https://github.com/ocentra/OcentraParent/releases/latest/download/install-ocentra-parent-agent-windows.ps1 | iex"
 ```
 
 The MSI can also be downloaded from the GitHub Release and installed directly:

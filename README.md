@@ -77,7 +77,7 @@ Pushes to `main` run the CI gate first. If validation and build pass, the releas
 Once a release exists, install on another Windows PC from an elevated PowerShell session:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -Command "irm https://github.com/SujanMishra/OcentraParent/releases/latest/download/install-ocentra-parent-agent-windows.ps1 | iex"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "irm https://github.com/ocentra/OcentraParent/releases/latest/download/install-ocentra-parent-agent-windows.ps1 | iex"
 ```
 
 See `docs/architecture/release-update.md` for the updater boundary. The MSI installs the headless service under `%ProgramFiles%\Ocentra\Ocentra Parent Agent`, registers it as `OcentraParentAgent`, starts it on install, and gives Windows a normal uninstall/upgrade entry. It also installs `OcentraParentUpdater`, a separate signed-manifest updater service that checks GitHub Release metadata and runs quiet MSI upgrades.

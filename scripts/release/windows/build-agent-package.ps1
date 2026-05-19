@@ -1,6 +1,6 @@
 param(
   [string] $Version,
-  [string] $Owner = 'SujanMishra',
+  [string] $Owner = 'ocentra',
   [string] $Repository = 'OcentraParent',
   [string] $OutputRoot,
   [string] $SigningKeyBase64

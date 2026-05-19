@@ -78,7 +78,7 @@ fn sample_payload(version: &str) -> UpdateManifestPayload {
             name: "ocentra-parent-agent-windows-x64-v0.2.0.msi".to_owned(),
             sha256: "A".repeat(64),
             download_url:
-                "https://github.com/SujanMishra/OcentraParent/releases/download/v0.2.0/agent.msi"
+                "https://github.com/ocentra/OcentraParent/releases/download/v0.2.0/agent.msi"
                     .to_owned(),
         },
         generated_at: "2026-05-19T00:00:00Z".to_owned(),

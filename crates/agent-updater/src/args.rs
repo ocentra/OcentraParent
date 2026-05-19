@@ -117,7 +117,8 @@ mod tests {
         let parsed = parse_args_from(vec![
             "run-once".to_owned(),
             "--manifest-url".to_owned(),
-            "https://github.com/SujanMishra/OcentraParent/releases/latest/download/latest-windows.json".to_owned(),
+            "https://github.com/ocentra/OcentraParent/releases/latest/download/latest-windows.json"
+                .to_owned(),
             "--dry-run".to_owned(),
             "--current-version".to_owned(),
             "0.1.0".to_owned(),

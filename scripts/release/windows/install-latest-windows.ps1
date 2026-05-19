@@ -1,7 +1,7 @@
 #Requires -RunAsAdministrator
 
 param(
-  [string] $Owner = 'SujanMishra',
+  [string] $Owner = 'ocentra',
   [string] $Repository = 'OcentraParent',
   [switch] $Quiet
 )

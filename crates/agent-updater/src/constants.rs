@@ -1,5 +1,5 @@
 pub const DEFAULT_MANIFEST_URL: &str =
-    "https://github.com/SujanMishra/OcentraParent/releases/latest/download/latest-windows.json";
+    "https://github.com/ocentra/OcentraParent/releases/latest/download/latest-windows.json";
 pub const MANIFEST_URL_ENV: &str = "OCENTRA_PARENT_UPDATE_MANIFEST_URL";
 pub const INTERVAL_SECONDS_ENV: &str = "OCENTRA_PARENT_UPDATE_INTERVAL_SECONDS";
 pub const INITIAL_DELAY_SECONDS_ENV: &str = "OCENTRA_PARENT_UPDATE_INITIAL_DELAY_SECONDS";
