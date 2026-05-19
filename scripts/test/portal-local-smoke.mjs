@@ -1,6 +1,5 @@
 import { spawn } from 'node:child_process';
 import { setTimeout as delay } from 'node:timers/promises';
-import path from 'node:path';
 
 import {
   ParentDevEnv,
@@ -15,6 +14,7 @@ import {
   isLikelyParentPortalOccupant,
 } from '../dev/local-dev-config.mjs';
 import { ensurePortFree } from '../dev/port-utils.mjs';
+import { resolveDebugAgentServicePath, spawnVitePortal } from './agent-service-process.mjs';
 
 const agentPort = ParentDevPort.PortalSmokeAgent;
 const portalPort = ParentDevPort.PortalSmokePortal;
@@ -22,7 +22,7 @@ const portalPort = ParentDevPort.PortalSmokePortal;
 await ensurePortFree(agentPort, isLikelyParentAgentOccupant, console.log);
 await ensurePortFree(portalPort, isLikelyParentPortalOccupant, console.log);
 
-const agent = spawn('.\\target\\debug\\ocentra-parent-agent-service.exe', [], {
+const agent = spawn(resolveDebugAgentServicePath(), [], {
   cwd: process.cwd(),
   env: {
     ...process.env,
@@ -32,13 +32,9 @@ const agent = spawn('.\\target\\debug\\ocentra-parent-agent-service.exe', [], {
   stdio: ['ignore', 'pipe', 'pipe'],
 });
 
-const portal = spawn('cmd.exe', ['/c', `npm exec -- vite --host 127.0.0.1 --port ${portalPort} --strictPort`], {
-  cwd: path.join(process.cwd(), 'apps', 'portal'),
-  env: {
-    ...process.env,
-    [ParentDevEnv.PortalAgentWebSocketUrl]: createAgentWebSocketUrl(agentPort),
-  },
-  stdio: ['ignore', 'pipe', 'pipe'],
+const portal = spawnVitePortal(portalPort, {
+  ...process.env,
+  [ParentDevEnv.PortalAgentWebSocketUrl]: createAgentWebSocketUrl(agentPort),
 });
 
 try {

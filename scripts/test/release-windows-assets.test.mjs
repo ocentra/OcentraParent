@@ -48,6 +48,7 @@ test('Windows release package builder emits MSI, bootstrap, manifest, and checks
   assert.match(builder, /winsw\/winsw\/releases\/download\/v\$WinSwVersion\/\$WinSwAssetName/u);
   assert.match(builder, /05B82D46AD331CC16BDC00DE5C6332C1EF818DF8CEEFCD49C726553209B3A0DA/u);
   assert.match(builder, /latest-windows\.json/u);
+  assert.match(builder, /ocentra-parent-agent-windows-x64-latest\.msi/u);
   assert.match(builder, /install-ocentra-parent-agent-windows\.ps1/u);
   assert.match(builder, /\.sha256/u);
 });
@@ -60,4 +61,13 @@ test('Windows latest installer consumes MSI release assets', () => {
   assert.match(installer, /msiexec\.exe/u);
   assert.match(installer, /\/passive/u);
   assert.match(installer, /\/qn/u);
+});
+
+test('Windows GitHub release publisher uploads stable latest MSI assets', () => {
+  const publisher = readReleaseFile('create-github-release.ps1');
+
+  assert.match(publisher, /ocentra-parent-agent-windows-x64-latest\.msi/u);
+  assert.match(publisher, /LatestArtifactPath/u);
+  assert.match(publisher, /LatestChecksumPath/u);
+  assert.match(publisher, /gh release create \$Tag .* \$LatestArtifactPath \$LatestChecksumPath/u);
 });

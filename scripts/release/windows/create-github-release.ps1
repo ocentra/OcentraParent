@@ -23,12 +23,14 @@ try {
 
   $Tag = "v$Version"
   $ArtifactPath = Join-Path $PackageRoot "ocentra-parent-agent-windows-x64-v$Version.msi"
+  $LatestArtifactPath = Join-Path $PackageRoot 'ocentra-parent-agent-windows-x64-latest.msi'
   $ChecksumPath = "$ArtifactPath.sha256"
+  $LatestChecksumPath = "$LatestArtifactPath.sha256"
   $ManifestPath = Join-Path $PackageRoot 'latest-windows.json'
   $BootstrapPath = Join-Path $PackageRoot 'install-ocentra-parent-agent-windows.ps1'
   $NotesPath = Join-Path $PackageRoot "release-notes-v$Version.md"
 
-  foreach ($Path in @($ArtifactPath, $ChecksumPath, $ManifestPath, $BootstrapPath)) {
+  foreach ($Path in @($ArtifactPath, $ChecksumPath, $LatestArtifactPath, $LatestChecksumPath, $ManifestPath, $BootstrapPath)) {
     if (-not (Test-Path -LiteralPath $Path)) {
       throw "Release asset missing: $Path"
     }
@@ -54,6 +56,10 @@ Windows MSI:
 msiexec /i ocentra-parent-agent-windows-x64-v$Version.msi
 ````
 
+Stable latest MSI download:
+
+https://github.com/$Owner/$Repository/releases/latest/download/ocentra-parent-agent-windows-x64-latest.msi
+
 Windows latest-release bootstrap:
 
 ````powershell
@@ -63,7 +69,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -Command "irm https://github.com/$
 This release contains the headless Windows agent MSI, checksum, bootstrap installer, and update manifest.
 "@
 
-  gh release create $Tag $ArtifactPath $ChecksumPath $ManifestPath $BootstrapPath --repo "$Owner/$Repository" --title "Ocentra Parent $Version" --notes-file $NotesPath
+  gh release create $Tag $ArtifactPath $ChecksumPath $LatestArtifactPath $LatestChecksumPath $ManifestPath $BootstrapPath --repo "$Owner/$Repository" --title "Ocentra Parent $Version" --notes-file $NotesPath
   if ($LASTEXITCODE -ne 0) {
     throw "GitHub release creation failed for $Tag"
   }

@@ -130,10 +130,13 @@ try {
   Assert-Success 'Cargo updater release build failed.'
 
   $ArtifactName = "ocentra-parent-agent-windows-x64-v$Version.msi"
+  $LatestArtifactName = 'ocentra-parent-agent-windows-x64-latest.msi'
   $MsiPath = Join-Path $OutputRoot $ArtifactName
+  $LatestMsiPath = Join-Path $OutputRoot $LatestArtifactName
   $ManifestPath = Join-Path $OutputRoot 'latest-windows.json'
   $ManifestPayloadPath = Join-Path $OutputRoot 'latest-windows.payload.json'
   $ChecksumPath = "$MsiPath.sha256"
+  $LatestChecksumPath = "$LatestMsiPath.sha256"
   $BootstrapPath = Join-Path $OutputRoot 'install-ocentra-parent-agent-windows.ps1'
   $WinSwCacheRoot = Join-Path $OutputRoot 'tool-cache\winsw'
   $WixIntermediateRoot = Join-Path $OutputRoot 'wix-obj'
@@ -145,6 +148,8 @@ try {
   $ServiceWrapperPath = Resolve-WinSwWrapper -CacheRoot $WinSwCacheRoot
 
   Remove-Item -LiteralPath $MsiPath -Force -ErrorAction SilentlyContinue
+  Remove-Item -LiteralPath $LatestMsiPath -Force -ErrorAction SilentlyContinue
+  Remove-Item -LiteralPath $LatestChecksumPath -Force -ErrorAction SilentlyContinue
   Remove-Item -LiteralPath (Join-Path $OutputRoot "ocentra-parent-agent-windows-x64-v$Version.zip") -Force -ErrorAction SilentlyContinue
   Remove-Item -LiteralPath (Join-Path $OutputRoot "ocentra-parent-agent-windows-x64-v$Version.zip.sha256") -Force -ErrorAction SilentlyContinue
   Remove-Item -LiteralPath (Join-Path $OutputRoot "ocentra-parent-agent-windows-x64-v$Version") -Recurse -Force -ErrorAction SilentlyContinue
@@ -166,6 +171,8 @@ try {
 
   $ArtifactHash = (Get-FileHash -Algorithm SHA256 -Path $MsiPath).Hash.ToUpperInvariant()
   Set-Content -LiteralPath $ChecksumPath -Encoding utf8 -Value "$ArtifactHash  $ArtifactName"
+  Copy-Item -LiteralPath $MsiPath -Destination $LatestMsiPath -Force
+  Set-Content -LiteralPath $LatestChecksumPath -Encoding utf8 -Value "$ArtifactHash  $LatestArtifactName"
   Copy-Item -LiteralPath 'scripts\release\windows\install-latest-windows.ps1' -Destination $BootstrapPath -Force
 
   $ManifestPayload = [ordered]@{
@@ -211,11 +218,14 @@ try {
     Add-Content -LiteralPath $env:GITHUB_OUTPUT -Value "version=$Version"
     Add-Content -LiteralPath $env:GITHUB_OUTPUT -Value "artifact_path=$MsiPath"
     Add-Content -LiteralPath $env:GITHUB_OUTPUT -Value "checksum_path=$ChecksumPath"
+    Add-Content -LiteralPath $env:GITHUB_OUTPUT -Value "latest_artifact_path=$LatestMsiPath"
+    Add-Content -LiteralPath $env:GITHUB_OUTPUT -Value "latest_checksum_path=$LatestChecksumPath"
     Add-Content -LiteralPath $env:GITHUB_OUTPUT -Value "manifest_path=$ManifestPath"
     Add-Content -LiteralPath $env:GITHUB_OUTPUT -Value "bootstrap_path=$BootstrapPath"
   }
 
   Write-Host "Built $MsiPath"
+  Write-Host "Built $LatestMsiPath"
   Write-Host "Built $ManifestPath"
   Write-Host "Built $BootstrapPath"
 } finally {

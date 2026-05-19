@@ -13,6 +13,7 @@ import {
   isLikelyParentAgentOccupant,
 } from '../dev/local-dev-config.mjs';
 import { ensurePortFree } from '../dev/port-utils.mjs';
+import { resolveDebugAgentServicePath } from './agent-service-process.mjs';
 
 const port = ParentDevPort.LanWebSocketSmokeAgent;
 const allowedOrigin = createHttpOrigin(ParentDevHost.Loopback);
@@ -21,7 +22,7 @@ const wsUrl = createAgentWebSocketUrl(port);
 
 await ensurePortFree(port, isLikelyParentAgentOccupant, console.log, ParentDevHost.Wildcard);
 
-const service = spawn('.\\target\\debug\\ocentra-parent-agent-service.exe', [], {
+const service = spawn(resolveDebugAgentServicePath(), [], {
   cwd: process.cwd(),
   env: {
     ...process.env,

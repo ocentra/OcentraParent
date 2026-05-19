@@ -133,6 +133,14 @@ Source and release-affecting pushes to `main` run the CI gate first. If validati
 
 Once a release exists, install on another Windows PC from an elevated PowerShell session:
 
+Latest Windows MSI download:
+
+https://github.com/ocentra/OcentraParent/releases/latest/download/ocentra-parent-agent-windows-x64-latest.msi
+
+That URL is intended for a future `family.ocentra.ca` download button. A browser click downloads the MSI; Windows still requires the parent to open it and approve the installer.
+
+Support/admin one-line install:
+
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -Command "irm https://github.com/ocentra/OcentraParent/releases/latest/download/install-ocentra-parent-agent-windows.ps1 | iex"
 ```
