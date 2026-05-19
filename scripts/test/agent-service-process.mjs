@@ -15,7 +15,25 @@ export function spawnVitePortal(port, env) {
 
   return spawn(command, args, {
     cwd: join(process.cwd(), 'apps', 'portal'),
+    detached: process.platform !== 'win32',
     env,
     stdio: ['ignore', 'pipe', 'pipe'],
   });
+}
+
+export function stopProcessTree(child) {
+  if (child.pid === undefined) {
+    return;
+  }
+
+  if (process.platform === 'win32') {
+    spawn('taskkill', ['/PID', String(child.pid), '/T', '/F'], { stdio: 'ignore' });
+    return;
+  }
+
+  try {
+    process.kill(-child.pid, 'SIGTERM');
+  } catch {
+    child.kill('SIGTERM');
+  }
 }

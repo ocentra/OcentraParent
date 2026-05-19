@@ -14,7 +14,7 @@ import {
   isLikelyParentPortalOccupant,
 } from '../dev/local-dev-config.mjs';
 import { ensurePortFree } from '../dev/port-utils.mjs';
-import { resolveDebugAgentServicePath, spawnVitePortal } from './agent-service-process.mjs';
+import { resolveDebugAgentServicePath, spawnVitePortal, stopProcessTree } from './agent-service-process.mjs';
 
 const agentPort = ParentDevPort.PortalSmokeAgent;
 const portalPort = ParentDevPort.PortalSmokePortal;
@@ -66,9 +66,5 @@ async function waitForHttp(url) {
 }
 
 function stopProcess(child) {
-  if (process.platform === 'win32' && child.pid !== undefined) {
-    spawn('taskkill', ['/PID', String(child.pid), '/T', '/F'], { stdio: 'ignore' });
-    return;
-  }
-  child.kill();
+  stopProcessTree(child);
 }

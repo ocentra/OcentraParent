@@ -59,6 +59,7 @@ function prepareBuildOutputs() {
 function spawnAgent() {
   return spawn(agentBinaryPath(), [], {
     cwd: repoRoot,
+    detached: process.platform !== 'win32',
     env: {
       ...process.env,
       [ParentDevEnv.AgentAddress]: createAgentAddress(agentPort),
@@ -107,6 +108,7 @@ function spawnCommand(command, args, options) {
 
   return spawn(command, args, {
     ...options,
+    detached: process.platform !== 'win32',
     stdio: ['ignore', 'inherit', 'inherit'],
   });
 }
@@ -139,10 +141,17 @@ function shutdown() {
 
 function stopChildren() {
   for (const child of children) {
-    if (process.platform === 'win32' && child.pid !== undefined) {
+    if (child.pid === undefined) {
+      continue;
+    }
+    if (process.platform === 'win32') {
       spawn('taskkill', ['/PID', String(child.pid), '/T', '/F'], { stdio: 'ignore' });
     } else {
-      child.kill();
+      try {
+        process.kill(-child.pid, 'SIGTERM');
+      } catch {
+        child.kill('SIGTERM');
+      }
     }
   }
 }
