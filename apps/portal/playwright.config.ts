@@ -1,7 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
 
-const portalUrl = 'http://127.0.0.1:4490/#/commands';
-
 export default defineConfig({
   expect: {
     timeout: 10000,
@@ -23,11 +21,5 @@ export default defineConfig({
     baseURL: 'http://127.0.0.1:4490',
     screenshot: 'only-on-failure',
     trace: 'retain-on-failure',
-  },
-  webServer: {
-    command: 'node ../../scripts/test/portal-playwright-server.mjs',
-    reuseExistingServer: false,
-    timeout: 60000,
-    url: portalUrl,
   },
 });

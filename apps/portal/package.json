@@ -10,7 +10,7 @@
     "lint": "npx turbo run lint:exec --filter=@ocentra-parent/portal",
     "lint:exec": "eslint --cache src tests e2e playwright.config.ts && tsc -p tsconfig.json --noEmit",
     "test": "vitest run tests",
-    "test:e2e": "playwright test"
+    "test:e2e": "node ../../scripts/test/portal-playwright-runner.mjs"
   },
   "dependencies": {
     "@ocentra-parent/agent-protocol-domain": "file:../../packages/agent-protocol-domain",

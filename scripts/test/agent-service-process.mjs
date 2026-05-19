@@ -1,12 +1,12 @@
 import { spawn } from 'node:child_process';
 import { join } from 'node:path';
 
-export function resolveDebugAgentServicePath() {
+export function resolveDebugAgentServicePath(repoRoot = process.cwd()) {
   const binaryName = process.platform === 'win32' ? 'ocentra-parent-agent-service.exe' : 'ocentra-parent-agent-service';
-  return join(process.cwd(), 'target', 'debug', binaryName);
+  return join(repoRoot, 'target', 'debug', binaryName);
 }
 
-export function spawnVitePortal(port, env) {
+export function spawnVitePortal(port, env, repoRoot = process.cwd()) {
   const command = process.platform === 'win32' ? 'cmd.exe' : 'npm';
   const args =
     process.platform === 'win32'
@@ -14,7 +14,7 @@ export function spawnVitePortal(port, env) {
       : ['exec', '--', 'vite', '--host', '127.0.0.1', '--port', String(port), '--strictPort'];
 
   return spawn(command, args, {
-    cwd: join(process.cwd(), 'apps', 'portal'),
+    cwd: join(repoRoot, 'apps', 'portal'),
     detached: process.platform !== 'win32',
     env,
     stdio: ['ignore', 'pipe', 'pipe'],
