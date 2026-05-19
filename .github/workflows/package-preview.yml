@@ -13,7 +13,7 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 25
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: ./.github/actions/setup-ci
 
@@ -29,7 +29,7 @@ jobs:
         run: ./scripts/release/windows/build-agent-package.ps1
 
       - name: Upload Windows MSI preview
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ocentra-parent-windows-x64-preview
           path: |
@@ -43,7 +43,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: ./.github/actions/setup-ci
 
@@ -51,7 +51,7 @@ jobs:
         run: bash scripts/release/linux/build-agent-package.sh
 
       - name: Upload Linux package preview
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ocentra-parent-linux-amd64-preview
           path: |
@@ -63,7 +63,7 @@ jobs:
     runs-on: macos-latest
     timeout-minutes: 25
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: ./.github/actions/setup-ci
 
@@ -71,7 +71,7 @@ jobs:
         run: bash scripts/release/macos/build-agent-package.sh
 
       - name: Upload macOS package preview
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ocentra-parent-macos-preview
           path: |
@@ -83,7 +83,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: ./.github/actions/setup-ci
 
@@ -105,7 +105,7 @@ jobs:
         run: node scripts/release/android/build-agent-package.mjs
 
       - name: Upload Android package preview
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ocentra-parent-android-preview
           path: |
@@ -117,7 +117,7 @@ jobs:
     runs-on: macos-latest
     timeout-minutes: 25
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: ./.github/actions/setup-ci
 
@@ -125,7 +125,7 @@ jobs:
         run: bash scripts/release/ios/build-simulator-app.sh
 
       - name: Upload iOS simulator preview
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ocentra-parent-ios-simulator-preview
           path: |
