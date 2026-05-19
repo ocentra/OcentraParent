@@ -129,7 +129,7 @@ cmd /c npm run release:version
 cmd /c npm run release:package:windows
 ```
 
-Pushes to `main` run the CI gate first. If validation and build pass, the release job builds the Windows x64 MSI, creates tag `v<version>`, and publishes GitHub Release assets.
+Source and release-affecting pushes to `main` run the CI gate first. If validation and build pass, the release job builds the Windows x64 MSI, creates tag `v<version>`, and publishes GitHub Release assets. README-only, Markdown-only, and `docs/**` pushes are ignored by CI so documentation changes do not publish installer releases.
 
 Once a release exists, install on another Windows PC from an elevated PowerShell session:
 

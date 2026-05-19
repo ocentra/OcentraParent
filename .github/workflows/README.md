@@ -22,6 +22,10 @@ graph LR
 
 On pushes to `main`, the orchestrator creates a GitHub Release only after validation and build pass. The release job requires the repository version to be unique and aligned across npm and Cargo sources, then publishes the Windows x64 MSI, checksum, signed update manifest, and bootstrap installer.
 
+Documentation-only pushes do not run this workflow. Changes limited to Markdown files or `docs/**` are ignored by `ci.yml`, so README and planning updates cannot accidentally trigger a Windows release. Use `workflow_dispatch` when a manual CI run is still wanted for a docs-only change.
+
+For emergency or intentional bypasses on a code-touching commit, GitHub's native skip marker is also available. Include `[skip ci]` in the commit message only when you are deliberately bypassing the gate and do not want a release from that push.
+
 The release job requires `OCENTRA_PARENT_UPDATE_SIGNING_KEY_BASE64` as a repository secret. The updater binary is built with the matching public key and rejects unsigned or incorrectly signed manifests.
 
 ## Local Parity
