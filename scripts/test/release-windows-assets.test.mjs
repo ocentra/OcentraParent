@@ -18,17 +18,32 @@ test('Windows service wrapper config uses the Ocentra Parent service identity', 
   assert.match(config, /ocentra-parent-agent-service\.exe/u);
 });
 
-test('Windows installer pins the service wrapper download by hash', () => {
-  const installer = readReleaseFile('install-service.ps1');
+test('Windows MSI definition installs the Ocentra Parent service identity', () => {
+  const installer = readReleaseFile('OcentraParentAgent.wxs');
 
-  assert.match(installer, /winsw\/winsw\/releases\/download\/v2\.12\.0\/WinSW-x64\.exe/u);
-  assert.match(installer, /05B82D46AD331CC16BDC00DE5C6332C1EF818DF8CEEFCD49C726553209B3A0DA/u);
+  assert.match(installer, /UpgradeCode="0143F5A1-4C10-4C0F-97BE-55EDAF5012BB"/u);
+  assert.match(installer, /Name="OcentraParentAgent"/u);
+  assert.match(installer, /DisplayName="Ocentra Parent Agent"/u);
+  assert.match(installer, /FirstFailureActionType="restart"/u);
 });
 
-test('Windows release package builder emits bootstrap, manifest, and checksum assets', () => {
+test('Windows release package builder emits MSI, bootstrap, manifest, and checksum assets', () => {
   const builder = readReleaseFile('build-agent-package.ps1');
 
+  assert.match(builder, /ocentra-parent-agent-windows-x64-v\$Version\.msi/u);
+  assert.match(builder, /WixToolset\.Util\.wixext\/6\.0\.2/u);
+  assert.match(builder, /winsw\/winsw\/releases\/download\/v\$WinSwVersion\/\$WinSwAssetName/u);
+  assert.match(builder, /05B82D46AD331CC16BDC00DE5C6332C1EF818DF8CEEFCD49C726553209B3A0DA/u);
   assert.match(builder, /latest-windows\.json/u);
   assert.match(builder, /install-ocentra-parent-agent-windows\.ps1/u);
   assert.match(builder, /\.sha256/u);
+});
+
+test('Windows latest installer consumes MSI release assets', () => {
+  const installer = readReleaseFile('install-latest-windows.ps1');
+
+  assert.match(installer, /manifest\.installer\.type -ne 'msi'/u);
+  assert.match(installer, /msiexec\.exe/u);
+  assert.match(installer, /\/passive/u);
+  assert.match(installer, /\/qn/u);
 });

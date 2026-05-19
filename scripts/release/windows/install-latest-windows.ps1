@@ -3,7 +3,7 @@
 param(
   [string] $Owner = 'SujanMishra',
   [string] $Repository = 'OcentraParent',
-  [string] $InstallDirectory = "$env:ProgramFiles\Ocentra Parent\Agent"
+  [switch] $Quiet
 )
 
 $ErrorActionPreference = 'Stop'
@@ -33,6 +33,20 @@ function Assert-FileHash {
   }
 }
 
+function Invoke-MsiInstall {
+  param(
+    [Parameter(Mandatory = $true)] [string] $Path,
+    [Parameter(Mandatory = $true)] [bool] $Silent
+  )
+
+  $uiMode = if ($Silent) { '/qn' } else { '/passive' }
+  $arguments = "/i `"$Path`" $uiMode /norestart"
+  $process = Start-Process -FilePath msiexec.exe -ArgumentList $arguments -Wait -PassThru
+  if ($process.ExitCode -ne 0 -and $process.ExitCode -ne 3010) {
+    throw "MSI install failed with exit code $($process.ExitCode)."
+  }
+}
+
 $release = Invoke-RestMethod -Uri "https://api.github.com/repos/$Owner/$Repository/releases/latest"
 $manifestAsset = Get-ReleaseAsset -Release $release -Name 'latest-windows.json'
 $tempRoot = Join-Path ([System.IO.Path]::GetTempPath()) "ocentra-parent-agent-$([Guid]::NewGuid().ToString('N'))"
@@ -43,18 +57,16 @@ New-Item -ItemType Directory -Path $tempRoot -Force | Out-Null
 try {
   Invoke-WebRequest -Uri $manifestAsset.browser_download_url -OutFile $manifestPath
   $manifest = Get-Content -Raw -LiteralPath $manifestPath | ConvertFrom-Json
+  if ($manifest.installer.type -ne 'msi') {
+    throw "Unsupported Windows installer type: $($manifest.installer.type)"
+  }
+
   $artifactAsset = Get-ReleaseAsset -Release $release -Name $manifest.artifact.name
   $artifactPath = Join-Path $tempRoot $manifest.artifact.name
-  $extractPath = Join-Path $tempRoot 'package'
 
   Invoke-WebRequest -Uri $artifactAsset.browser_download_url -OutFile $artifactPath
   Assert-FileHash -Path $artifactPath -ExpectedSha256 $manifest.artifact.sha256
-
-  Expand-Archive -LiteralPath $artifactPath -DestinationPath $extractPath -Force
-  & (Join-Path $extractPath 'install\windows\install-service.ps1') -InstallDirectory $InstallDirectory
-  if ($LASTEXITCODE -ne 0) {
-    throw 'Ocentra Parent agent installer failed.'
-  }
+  Invoke-MsiInstall -Path $artifactPath -Silent $Quiet.IsPresent
 } finally {
   Remove-Item -LiteralPath $tempRoot -Recurse -Force -ErrorAction SilentlyContinue
 }

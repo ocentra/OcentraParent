@@ -22,7 +22,7 @@ try {
   }
 
   $Tag = "v$Version"
-  $ArtifactPath = Join-Path $PackageRoot "ocentra-parent-agent-windows-x64-v$Version.zip"
+  $ArtifactPath = Join-Path $PackageRoot "ocentra-parent-agent-windows-x64-v$Version.msi"
   $ChecksumPath = "$ArtifactPath.sha256"
   $ManifestPath = Join-Path $PackageRoot 'latest-windows.json'
   $BootstrapPath = Join-Path $PackageRoot 'install-ocentra-parent-agent-windows.ps1'
@@ -48,13 +48,19 @@ try {
   Set-Content -LiteralPath $NotesPath -Encoding utf8 -Value @"
 Ocentra Parent $Version
 
-Windows install bootstrap:
+Windows MSI:
+
+````powershell
+msiexec /i ocentra-parent-agent-windows-x64-v$Version.msi
+````
+
+Windows latest-release bootstrap:
 
 ````powershell
 powershell -NoProfile -ExecutionPolicy Bypass -Command "irm https://github.com/$Owner/$Repository/releases/latest/download/install-ocentra-parent-agent-windows.ps1 | iex"
 ````
 
-This release contains the headless Windows agent service package and update manifest.
+This release contains the headless Windows agent MSI, checksum, bootstrap installer, and update manifest.
 "@
 
   gh release create $Tag $ArtifactPath $ChecksumPath $ManifestPath $BootstrapPath --repo "$Owner/$Repository" --title "Ocentra Parent $Version" --notes-file $NotesPath

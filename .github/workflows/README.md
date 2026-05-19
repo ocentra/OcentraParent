@@ -7,7 +7,7 @@ graph LR
   FF["Fail Fast<br/>format, lint, types, Rust check"] --> SS["Secret Scan<br/>custom scanner + Gitleaks"]
   SS --> V["Validate<br/>tests, Rust, local smoke, LAN smoke"]
   SS --> B["Build<br/>portal and packages"]
-  V --> R["Release<br/>Windows agent service package"]
+  V --> R["Release<br/>Windows agent MSI"]
   B --> R
 ```
 
@@ -20,7 +20,7 @@ graph LR
 - `build.yml`: runs `npm run build`.
 - `.github/actions/setup-ci`: shared Node/Rust/npm setup.
 
-On pushes to `main`, the orchestrator creates a GitHub Release only after validation and build pass. The release job requires the repository version to be unique and aligned across npm and Cargo sources, then publishes the Windows service package, checksum, update manifest, and bootstrap installer.
+On pushes to `main`, the orchestrator creates a GitHub Release only after validation and build pass. The release job requires the repository version to be unique and aligned across npm and Cargo sources, then publishes the Windows x64 MSI, checksum, update manifest, and bootstrap installer.
 
 ## Local Parity
 

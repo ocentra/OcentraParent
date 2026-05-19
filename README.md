@@ -72,7 +72,7 @@ cmd /c npm run release:version
 cmd /c npm run release:package:windows
 ```
 
-Pushes to `main` run the CI gate first. If validation and build pass, the release job builds the Windows agent service package, creates tag `v<version>`, and publishes GitHub Release assets.
+Pushes to `main` run the CI gate first. If validation and build pass, the release job builds the Windows x64 MSI, creates tag `v<version>`, and publishes GitHub Release assets.
 
 Once a release exists, install on another Windows PC from an elevated PowerShell session:
 
@@ -80,7 +80,7 @@ Once a release exists, install on another Windows PC from an elevated PowerShell
 powershell -NoProfile -ExecutionPolicy Bypass -Command "irm https://github.com/SujanMishra/OcentraParent/releases/latest/download/install-ocentra-parent-agent-windows.ps1 | iex"
 ```
 
-See `docs/architecture/release-update.md` for the updater boundary. The scaffold has the release package and service installer; the automatic update helper is the next implementation slice.
+See `docs/architecture/release-update.md` for the updater boundary. The MSI installs the headless service under `%ProgramFiles%\Ocentra\Ocentra Parent Agent`, registers it as `OcentraParentAgent`, starts it on install, and gives Windows a normal uninstall/upgrade entry. The automatic update helper is still the next implementation slice.
 
 ## Local Dev Loop
 

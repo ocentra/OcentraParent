@@ -46,7 +46,12 @@ jobs:
 
       - uses: ./.github/actions/setup-ci
 
-      - name: Build Windows service package
+      - name: Setup .NET for WiX
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Build Windows MSI package
         shell: pwsh
         run: ./scripts/release/windows/build-agent-package.ps1
 
