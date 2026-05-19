@@ -4,6 +4,7 @@ on:
   pull_request:
     branches:
       - main
+      - production
     paths-ignore:
       - '**/*.md'
       - 'docs/**'
@@ -38,33 +39,6 @@ jobs:
     needs: [secret-scan]
     uses: ./.github/workflows/build.yml
 
-  release:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+  package-preview:
     needs: [validate, build]
-    runs-on: windows-latest
-    timeout-minutes: 20
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - uses: ./.github/actions/setup-ci
-
-      - name: Setup .NET for WiX
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 8.0.x
-
-      - name: Build Windows MSI package
-        shell: pwsh
-        env:
-          OCENTRA_PARENT_UPDATE_SIGNING_KEY_BASE64: ${{ secrets.OCENTRA_PARENT_UPDATE_SIGNING_KEY_BASE64 }}
-        run: ./scripts/release/windows/build-agent-package.ps1
-
-      - name: Create GitHub release
-        shell: pwsh
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: ./scripts/release/windows/create-github-release.ps1
+    uses: ./.github/workflows/package-preview.yml

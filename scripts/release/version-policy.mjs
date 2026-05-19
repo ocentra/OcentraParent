@@ -73,8 +73,41 @@ export function collectCargoVersions(repoRoot, cargoMetadataText) {
   }));
 }
 
+export function collectPlatformVersions(repoRoot) {
+  const versions = [];
+  const androidBuildPath = join(repoRoot, 'platforms', 'android', 'agent', 'app', 'build.gradle');
+  if (existsSync(androidBuildPath)) {
+    const source = readFileSync(androidBuildPath, 'utf8');
+    const match = source.match(/versionName\s*(?:=\s*)?['"]([^'"]+)['"]/u);
+    if (match?.[1]) {
+      versions.push({
+        source: androidBuildPath,
+        version: match[1],
+      });
+    }
+  }
+
+  const iosProjectPath = join(repoRoot, 'platforms', 'ios', 'OcentraParentAgent.xcodeproj', 'project.pbxproj');
+  if (existsSync(iosProjectPath)) {
+    const source = readFileSync(iosProjectPath, 'utf8');
+    const matches = [...source.matchAll(/MARKETING_VERSION\s*=\s*([^;]+);/gu)].map((match) => match[1].trim());
+    for (const version of [...new Set(matches)]) {
+      versions.push({
+        source: iosProjectPath,
+        version,
+      });
+    }
+  }
+
+  return versions;
+}
+
 export function evaluateReleaseVersionPolicy(repoRoot, options = {}) {
-  const versions = [...collectNodeVersions(repoRoot), ...collectCargoVersions(repoRoot, options.cargoMetadataText)];
+  const versions = [
+    ...collectNodeVersions(repoRoot),
+    ...collectCargoVersions(repoRoot, options.cargoMetadataText),
+    ...collectPlatformVersions(repoRoot),
+  ];
   const findings = [];
   const distinctVersions = [...new Set(versions.map((entry) => entry.version))];
   const version = versions[0]?.version;

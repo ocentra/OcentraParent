@@ -43,6 +43,8 @@ test('Windows release package builder emits MSI, bootstrap, manifest, and checks
 
   assert.match(builder, /ocentra-parent-agent-windows-x64-v\$Version\.msi/u);
   assert.match(builder, /OCENTRA_PARENT_UPDATE_SIGNING_KEY_BASE64/u);
+  assert.match(builder, /OCENTRA_PARENT_ALLOW_EPHEMERAL_UPDATE_KEY/u);
+  assert.match(builder, /AllowEphemeralSigningKey/u);
   assert.match(builder, /sign-manifest/u);
   assert.match(builder, /WixToolset\.Util\.wixext\/6\.0\.2/u);
   assert.match(builder, /\$extensionList = @\(dotnet wix extension list\)/u);

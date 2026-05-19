@@ -1,0 +1,65 @@
+name: Production Release
+
+on:
+  push:
+    branches:
+      - production
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ocentra-parent-production-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  fail-fast:
+    uses: ./.github/workflows/fail-fast.yml
+
+  secret-scan:
+    needs: [fail-fast]
+    uses: ./.github/workflows/secret-scan.yml
+
+  validate:
+    needs: [secret-scan]
+    uses: ./.github/workflows/validate.yml
+
+  build:
+    needs: [secret-scan]
+    uses: ./.github/workflows/build.yml
+
+  package-preview:
+    needs: [validate, build]
+    uses: ./.github/workflows/package-preview.yml
+
+  release-windows:
+    if: github.event_name == 'workflow_dispatch' || github.event.before != '0000000000000000000000000000000000000000'
+    needs: [package-preview]
+    runs-on: windows-latest
+    timeout-minutes: 25
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/setup-ci
+
+      - name: Setup .NET for WiX
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Build signed Windows MSI package
+        shell: pwsh
+        env:
+          OCENTRA_PARENT_UPDATE_SIGNING_KEY_BASE64: ${{ secrets.OCENTRA_PARENT_UPDATE_SIGNING_KEY_BASE64 }}
+        run: ./scripts/release/windows/build-agent-package.ps1
+
+      - name: Create GitHub release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: ./scripts/release/windows/create-github-release.ps1

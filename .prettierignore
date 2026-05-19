@@ -6,3 +6,12 @@ coverage/
 target/
 package-lock.json
 *.wxs
+
+# Native platform build outputs
+platforms/android/**/.gradle/
+platforms/android/**/.kotlin/
+platforms/android/**/build/
+platforms/android/**/local.properties
+platforms/android/**/*.iml
+platforms/ios/**/DerivedData/
+platforms/ios/**/*.xcuserdata/

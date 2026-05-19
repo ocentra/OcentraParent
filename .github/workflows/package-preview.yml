@@ -1,0 +1,133 @@
+name: Package Preview
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows-msi:
+    name: Windows MSI Preview
+    runs-on: windows-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/setup-ci
+
+      - name: Setup .NET for WiX
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Build preview Windows MSI
+        shell: pwsh
+        env:
+          OCENTRA_PARENT_ALLOW_EPHEMERAL_UPDATE_KEY: 'true'
+        run: ./scripts/release/windows/build-agent-package.ps1
+
+      - name: Upload Windows MSI preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: ocentra-parent-windows-x64-preview
+          path: |
+            target/release-packages/*.msi
+            target/release-packages/*.sha256
+            target/release-packages/latest-windows.json
+            target/release-packages/install-ocentra-parent-agent-windows.ps1
+
+  linux-deb:
+    name: Linux DEB Preview
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/setup-ci
+
+      - name: Build Linux DEB package
+        run: bash scripts/release/linux/build-agent-package.sh
+
+      - name: Upload Linux package preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: ocentra-parent-linux-amd64-preview
+          path: |
+            target/release-packages/linux/*.deb
+            target/release-packages/linux/*.sha256
+
+  macos-pkg:
+    name: macOS PKG Preview
+    runs-on: macos-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/setup-ci
+
+      - name: Build macOS PKG package
+        run: bash scripts/release/macos/build-agent-package.sh
+
+      - name: Upload macOS package preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: ocentra-parent-macos-preview
+          path: |
+            target/release-packages/macos/*.pkg
+            target/release-packages/macos/*.sha256
+
+  android-apk:
+    name: Android APK Preview
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/setup-ci
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: android-actions/setup-android@v3
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.11.1
+
+      - name: Install Android SDK packages
+        run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
+
+      - name: Build Android APK
+        run: node scripts/release/android/build-agent-package.mjs
+
+      - name: Upload Android package preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: ocentra-parent-android-preview
+          path: |
+            target/release-packages/android/*.apk
+            target/release-packages/android/*.sha256
+
+  ios-simulator:
+    name: iOS Simulator App Preview
+    runs-on: macos-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/setup-ci
+
+      - name: Build iOS simulator app
+        run: bash scripts/release/ios/build-simulator-app.sh
+
+      - name: Upload iOS simulator preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: ocentra-parent-ios-simulator-preview
+          path: |
+            target/release-packages/ios/*.zip
+            target/release-packages/ios/*.sha256

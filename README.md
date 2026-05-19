@@ -26,7 +26,7 @@ Ocentra Parent has two main product surfaces:
 - Child devices run a headless local agent.
 - Parents use a web/mobile control surface.
 
-The first proof is Windows-focused and local-first. The Rust service hosts local development endpoints so the portal can command and observe the agent on the same machine or LAN. Later, the same model can grow into Cloudflare-backed sync, remote parent access, notifications, mobile agents, desktop agents for macOS/Linux, and AI-assisted policy.
+The first proof is Windows-focused and local-first. The Rust service hosts local development endpoints so the portal can command and observe the agent on the same machine or LAN. The repository now keeps real package scaffolds for Windows, Linux, macOS, Android, and iOS so platform build breakage shows up early, while feature implementation still lands honestly one platform at a time.
 
 The core data pipeline is:
 
@@ -105,7 +105,10 @@ crates/
   agent-protocol/  Rust protocol structs matching shared contracts.
   agent-service/   Rust local API smoke service.
 scripts/
-  validation and git hook guardrails.
+  validation, platform packaging, and git hook guardrails.
+platforms/
+  android/      Android APK scaffold with a foreground agent service.
+  ios/          iOS simulator app scaffold with an Xcode project.
 docs/
   architecture and decisions.
 ```
@@ -129,7 +132,9 @@ cmd /c npm run release:version
 cmd /c npm run release:package:windows
 ```
 
-Source and release-affecting pushes to `main` run the CI gate first. If validation and build pass, the release job builds the Windows x64 MSI, creates tag `v<version>`, and publishes GitHub Release assets. README-only, Markdown-only, and `docs/**` pushes are ignored by CI so documentation changes do not publish installer releases.
+Source pushes to `main` run the CI gate and build package-preview artifacts for Windows, Linux, macOS, Android, and iOS simulator, but they do not publish GitHub Releases. README-only, Markdown-only, and `docs/**` pushes are ignored by CI.
+
+Production releases happen from the `production` branch only. After `main` is green and the version is intentionally bumped, pushing/merging to `production` builds the signed Windows release, creates tag `v<version>`, and publishes GitHub Release assets. Package previews for Linux, macOS, Android, and iOS stay as CI artifacts until their signing/store/update paths are deliberately promoted.
 
 Once a release exists, install on another Windows PC from an elevated PowerShell session:
 

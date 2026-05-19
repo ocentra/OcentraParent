@@ -39,7 +39,7 @@ try {
   git fetch --tags origin
   $existingTag = git tag --list $Tag
   if (-not [string]::IsNullOrWhiteSpace($existingTag)) {
-    throw "Release tag already exists: $Tag. Bump the version before merging to main."
+    throw "Release tag already exists: $Tag. Bump the version before publishing from production."
   }
 
   git config user.name 'github-actions[bot]'

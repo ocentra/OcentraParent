@@ -10,10 +10,12 @@ The repository uses one release version across:
 - root `package-lock.json`
 - app and package `package.json` files
 - Cargo workspace crates
+- Android `versionName`
+- iOS `MARKETING_VERSION`
 
-`npm run release:version` validates that all sources are aligned and use SemVer. A push to `main` is expected to carry a new version. If the matching release tag already exists, the release job fails and the next main push must bump the version first.
+`npm run release:version` validates that all sources are aligned and use SemVer. A push to `production` is expected to carry a new version. If the matching release tag already exists, the release job fails and the next production push must bump the version first.
 
-## Main-Branch Release Flow
+## Branch and Release Flow
 
 ```text
 push to main
@@ -21,7 +23,17 @@ push to main
   -> fail fast
   -> secret scan
   -> validate and build
-  -> Windows release package
+  -> package previews for Windows, Linux, macOS, Android, and iOS simulator
+  -> no GitHub Release
+  -> no trusted update manifest
+
+push to production
+  -> Production Release Gate
+  -> fail fast
+  -> secret scan
+  -> validate and build
+  -> package previews for Windows, Linux, macOS, Android, and iOS simulator
+  -> signed Windows release package
   -> git tag vX.Y.Z
   -> GitHub Release assets
 ```
@@ -32,6 +44,18 @@ The release assets are:
 - `ocentra-parent-agent-windows-x64-vX.Y.Z.msi`
 - `ocentra-parent-agent-windows-x64-vX.Y.Z.msi.sha256`
 - `latest-windows.json`
+
+Preview artifacts are CI build outputs for testing. They are not store submissions and are not the trusted production update channel.
+
+Current platform package preview status:
+
+- Windows: real x64 MSI with WinSW services and updater scaffold.
+- Linux: real amd64 `.deb` with a systemd service.
+- macOS: real `.pkg` with a launchd daemon.
+- Android: real debug APK with a foreground service scaffold.
+- iOS: real simulator app build from an Xcode project.
+
+Android device-owner policy, iOS Family Controls entitlements, macOS notarization, Apple App Store submission, Google Play submission, Linux rpm packaging, and non-Windows updater installers are intentionally not claimed yet.
 
 The bootstrap installer downloads signed `latest-windows.json`, verifies that the manifest has a signature envelope, verifies the MSI hash from the signed payload, and runs Windows Installer in passive mode.
 
@@ -80,7 +104,7 @@ The updater is separate from the main agent so the main service does not replace
 }
 ```
 
-The release builder requires `OCENTRA_PARENT_UPDATE_SIGNING_KEY_BASE64` in CI. Local builds can generate a local-only development signing key under `target/release-packages`; that key is ignored and must not be used for production releases.
+The production release builder requires `OCENTRA_PARENT_UPDATE_SIGNING_KEY_BASE64` in CI. Local builds can generate a local-only development signing key under `target/release-packages`; package previews can generate an explicit ephemeral signing key; neither key is trusted for production releases.
 
 The updater binary is compiled with the trusted public key from `OCENTRA_PARENT_UPDATE_PUBLIC_KEY_BASE64`. It refuses to process update manifests without a valid Ed25519 signature from that key.
 
@@ -115,4 +139,4 @@ updater service loop
   -> Windows Installer stops/replaces/restarts services
 ```
 
-The current scaffold creates the MSI, signed manifest, checksum, bootstrap installer, and dedicated updater service. Later hardening should add release channels, certificate-backed MSI signing, and parent-visible update policy.
+The current production release scaffold creates the MSI, signed manifest, checksum, bootstrap installer, and dedicated updater service. Package previews also build Linux, macOS, Android, and iOS simulator artifacts so platform breakage is visible early. Later hardening should add release channels, certificate-backed Windows MSI signing, macOS Developer ID signing/notarization, mobile store signing, non-Windows updater installers, and parent-visible update policy.

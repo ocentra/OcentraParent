@@ -1,0 +1,16 @@
+[Unit]
+Description=Ocentra Parent Agent
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/opt/ocentra/ocentra-parent-agent/bin/ocentra-parent-agent-service
+Restart=always
+RestartSec=10
+User=root
+WorkingDirectory=/var/lib/ocentra/ocentra-parent-agent
+Environment=OCENTRA_PARENT_AGENT_ADDRESS=127.0.0.1:4477
+
+[Install]
+WantedBy=multi-user.target

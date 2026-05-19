@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">Ocentra Parent Agent</string>
+    <string name="agent_status">Ocentra Parent Agent service scaffold is running.</string>
+    <string name="notification_channel_name">Ocentra Parent Agent</string>
+    <string name="notification_text">Local family safety agent is active.</string>
+</resources>

@@ -3,7 +3,8 @@ param(
   [string] $Owner = 'ocentra',
   [string] $Repository = 'OcentraParent',
   [string] $OutputRoot,
-  [string] $SigningKeyBase64
+  [string] $SigningKeyBase64,
+  [switch] $AllowEphemeralSigningKey
 )
 
 $ErrorActionPreference = 'Stop'
@@ -81,12 +82,24 @@ function Get-UpdateSigningKey {
   if (-not [string]::IsNullOrWhiteSpace($env:OCENTRA_PARENT_UPDATE_SIGNING_KEY_BASE64)) {
     return $env:OCENTRA_PARENT_UPDATE_SIGNING_KEY_BASE64.Trim()
   }
+  if ($AllowEphemeralSigningKey -or $env:OCENTRA_PARENT_ALLOW_EPHEMERAL_UPDATE_KEY -eq 'true') {
+    return New-LocalUpdateSigningKey -KeyPath $KeyPath -Reason 'Generated an ephemeral preview update signing key.'
+  }
   if ($env:GITHUB_ACTIONS -eq 'true') {
     throw 'Missing OCENTRA_PARENT_UPDATE_SIGNING_KEY_BASE64. CI releases must use the production update signing key.'
   }
   if (Test-Path -LiteralPath $KeyPath) {
     return (Get-Content -Raw -LiteralPath $KeyPath).Trim()
   }
+
+  return New-LocalUpdateSigningKey -KeyPath $KeyPath -Reason 'Generated a local-only update signing key.'
+}
+
+function New-LocalUpdateSigningKey {
+  param(
+    [Parameter(Mandatory = $true)] [string] $KeyPath,
+    [Parameter(Mandatory = $true)] [string] $Reason
+  )
 
   $keygenOutput = Invoke-UpdaterTool -Arguments @('keygen')
   $privateLine = $keygenOutput | Where-Object { $_ -like 'privateKeyBase64=*' } | Select-Object -First 1
@@ -95,7 +108,7 @@ function Get-UpdateSigningKey {
   }
   $localKey = $privateLine.Substring('privateKeyBase64='.Length).Trim()
   Set-Content -LiteralPath $KeyPath -Encoding utf8 -Value $localKey
-  Write-Warning "Generated a local-only update signing key at $KeyPath. Do not use this key for CI releases."
+  Write-Warning "$Reason Key path: $KeyPath. Do not use this key for production releases."
   return $localKey
 }
 
