@@ -1,18 +1,75 @@
 # Ocentra Parent
 
-Ocentra Parent is the family-safety product line for Ocentra, intended to live at `family.ocentra.ca`.
+Ocentra Parent is a family-safety product from Ocentra, intended to live at `family.ocentra.ca`.
 
-This repository is currently in scaffold-first mode. The first milestone is infrastructure and visibility only: workspace layout, domain boundaries, validation gates, test structure, Rust crate boundaries, local and LAN dev APIs, a minimal Vite portal, and documentation. No Windows capture logic, policy engine, product portal UI, AI classification, blocking, notification delivery, or cloud runtime is implemented yet.
+The product exists for a real parent problem: children live inside browsers, games, chats, short-form video, school apps, and social feeds, while parents often only see the outside story. A child can look like they are studying while bouncing between TikTok, Snapchat, Discord, games, adult content, or other distracting and unsafe parts of the internet. Parents need a way to understand what is happening, set sane boundaries, give permissions, enforce timeouts, and get alerted when something needs attention.
 
-## Product Direction
+The goal is not to start with a flashy dashboard or vague AI promises. The first job is to build a trustworthy local recorder: a headless agent on the child device that can observe useful activity signals, normalize them into strict schemas, store raw evidence safely, and make that evidence queryable. Once that recorder is honest, policy, blocking, alerts, and AI-assisted guidance can be built on top of facts instead of guesses.
+
+## What We Are Solving
+
+Parents should not have to choose between blind trust and invasive guessing. Ocentra Parent aims to make family device safety practical by answering basic questions clearly:
+
+- What apps and sites are active on the child device?
+- Is the child spending time on school work, games, social media, video platforms, or adult content?
+- Which domains and apps are consuming time and bandwidth?
+- When should the parent permit, limit, timeout, or block an activity?
+- What happened before an alert or policy decision?
+- Can the system explain its evidence instead of producing a magic AI verdict?
+
+The long-term product is an agentic safety system: local device agents gather evidence, parent portals expose control and visibility, and AI helps classify, explain, and recommend action. The v0 foundation is intentionally simpler: capture trustworthy events first.
+
+## Architecture Direction
+
+Ocentra Parent has two main product surfaces:
 
 - Child devices run a headless local agent.
 - Parents use a web/mobile control surface.
-- The first proof is Windows-focused and local-first.
-- The Rust service hosts local development endpoints so the portal can command and observe the agent on the same machine or LAN.
-- Cloudflare, remote sync, notifications, AI, and enforcement come after the recorder foundation is measured.
 
-## Scaffold Principles
+The first proof is Windows-focused and local-first. The Rust service hosts local development endpoints so the portal can command and observe the agent on the same machine or LAN. Later, the same model can grow into Cloudflare-backed sync, remote parent access, notifications, mobile agents, desktop agents for macOS/Linux, and AI-assisted policy.
+
+The core data pipeline is:
+
+```text
+capture -> NDJSON journal -> ingester -> DuckDB warehouse -> portal/reports/policy
+```
+
+NDJSON is the append-only source of truth. It is easy to inspect, replay, rotate, and recover from. DuckDB is the query layer for time windows, joins, summaries, and reports. The hot capture path should stay resilient and boring; analysis and policy should happen after events are safely written.
+
+## V0 Milestone
+
+The first real milestone is a Windows network/activity recorder.
+
+Definition of done:
+
+- Runs as a Windows background service.
+- Starts through a normal MSI installer.
+- Emits one schema-versioned event per observation.
+- Writes append-only NDJSON with safe flushing and rotation.
+- Ingests events into DuckDB for local queries.
+- Exposes a minimal local/LAN portal for visibility.
+- Can summarize top processes, domains, time windows, and suspicious unknowns.
+- Does no blocking, no AI classification, and no content inspection yet.
+
+The event model is intent-first, not packet-first. We care about normalized activity such as `chrome.exe connected to youtube.com:443`, not raw TCP packets or decrypted HTTPS payloads.
+
+## Current Repository State
+
+This repository is currently in scaffold-first mode. The first committed foundation includes workspace layout, domain boundaries, validation gates, test structure, Rust crate boundaries, local and LAN dev APIs, a minimal Vite portal, MSI release packaging, and signed updater scaffolding.
+
+Not implemented yet:
+
+- Windows Filtering Platform capture.
+- Activity classification.
+- Blocking or enforcement.
+- Parent policy UI.
+- Cloud sync.
+- Notification delivery.
+- AI guidance.
+- Browser extension URL context.
+- Mobile agents.
+
+## Engineering Principles
 
 - Domain packages own shared contracts.
 - Runtime apps and Rust crates consume contracts instead of inventing local strings.
