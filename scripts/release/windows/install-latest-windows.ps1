@@ -57,15 +57,18 @@ New-Item -ItemType Directory -Path $tempRoot -Force | Out-Null
 try {
   Invoke-WebRequest -Uri $manifestAsset.browser_download_url -OutFile $manifestPath
   $manifest = Get-Content -Raw -LiteralPath $manifestPath | ConvertFrom-Json
-  if ($manifest.installer.type -ne 'msi') {
-    throw "Unsupported Windows installer type: $($manifest.installer.type)"
+  if ($null -eq $manifest.payload -or $null -eq $manifest.signature) {
+    throw 'Release manifest is not signed.'
+  }
+  if ($manifest.payload.installer.type -ne 'msi') {
+    throw "Unsupported Windows installer type: $($manifest.payload.installer.type)"
   }
 
-  $artifactAsset = Get-ReleaseAsset -Release $release -Name $manifest.artifact.name
-  $artifactPath = Join-Path $tempRoot $manifest.artifact.name
+  $artifactAsset = Get-ReleaseAsset -Release $release -Name $manifest.payload.artifact.name
+  $artifactPath = Join-Path $tempRoot $manifest.payload.artifact.name
 
   Invoke-WebRequest -Uri $artifactAsset.browser_download_url -OutFile $artifactPath
-  Assert-FileHash -Path $artifactPath -ExpectedSha256 $manifest.artifact.sha256
+  Assert-FileHash -Path $artifactPath -ExpectedSha256 $manifest.payload.artifact.sha256
   Invoke-MsiInstall -Path $artifactPath -Silent $Quiet.IsPresent
 } finally {
   Remove-Item -LiteralPath $tempRoot -Recurse -Force -ErrorAction SilentlyContinue

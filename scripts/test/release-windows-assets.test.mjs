@@ -18,12 +18,23 @@ test('Windows service wrapper config uses the Ocentra Parent service identity', 
   assert.match(config, /ocentra-parent-agent-service\.exe/u);
 });
 
+test('Windows updater wrapper config uses a separate signed updater identity', () => {
+  const config = readReleaseFile('OcentraParentUpdaterService.xml');
+
+  assert.match(config, /<id>OcentraParentUpdater<\/id>/u);
+  assert.match(config, /<name>Ocentra Parent Updater<\/name>/u);
+  assert.match(config, /ocentra-parent-agent-updater\.exe/u);
+  assert.match(config, /run-loop/u);
+});
+
 test('Windows MSI definition installs the Ocentra Parent service identity', () => {
   const installer = readReleaseFile('OcentraParentAgent.wxs');
 
   assert.match(installer, /UpgradeCode="0143F5A1-4C10-4C0F-97BE-55EDAF5012BB"/u);
   assert.match(installer, /Name="OcentraParentAgent"/u);
   assert.match(installer, /DisplayName="Ocentra Parent Agent"/u);
+  assert.match(installer, /Name="OcentraParentUpdater"/u);
+  assert.match(installer, /DisplayName="Ocentra Parent Updater"/u);
   assert.match(installer, /FirstFailureActionType="restart"/u);
 });
 
@@ -31,6 +42,8 @@ test('Windows release package builder emits MSI, bootstrap, manifest, and checks
   const builder = readReleaseFile('build-agent-package.ps1');
 
   assert.match(builder, /ocentra-parent-agent-windows-x64-v\$Version\.msi/u);
+  assert.match(builder, /OCENTRA_PARENT_UPDATE_SIGNING_KEY_BASE64/u);
+  assert.match(builder, /sign-manifest/u);
   assert.match(builder, /WixToolset\.Util\.wixext\/6\.0\.2/u);
   assert.match(builder, /winsw\/winsw\/releases\/download\/v\$WinSwVersion\/\$WinSwAssetName/u);
   assert.match(builder, /05B82D46AD331CC16BDC00DE5C6332C1EF818DF8CEEFCD49C726553209B3A0DA/u);
@@ -42,7 +55,8 @@ test('Windows release package builder emits MSI, bootstrap, manifest, and checks
 test('Windows latest installer consumes MSI release assets', () => {
   const installer = readReleaseFile('install-latest-windows.ps1');
 
-  assert.match(installer, /manifest\.installer\.type -ne 'msi'/u);
+  assert.match(installer, /Release manifest is not signed/u);
+  assert.match(installer, /manifest\.payload\.installer\.type -ne 'msi'/u);
   assert.match(installer, /msiexec\.exe/u);
   assert.match(installer, /\/passive/u);
   assert.match(installer, /\/qn/u);

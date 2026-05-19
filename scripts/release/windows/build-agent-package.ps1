@@ -2,7 +2,8 @@ param(
   [string] $Version,
   [string] $Owner = 'SujanMishra',
   [string] $Repository = 'OcentraParent',
-  [string] $OutputRoot
+  [string] $OutputRoot,
+  [string] $SigningKeyBase64
 )
 
 $ErrorActionPreference = 'Stop'
@@ -62,6 +63,48 @@ function Resolve-WinSwWrapper {
   return $wrapperPath
 }
 
+function Invoke-UpdaterTool {
+  param([Parameter(Mandatory = $true)] [string[]] $Arguments)
+
+  $output = & cargo run --quiet -p ocentra-parent-agent-maintenance --bin ocentra-parent-agent-tool -- @Arguments
+  Assert-Success 'Updater release tool failed.'
+  return $output
+}
+
+function Get-UpdateSigningKey {
+  param([Parameter(Mandatory = $true)] [string] $KeyPath)
+
+  if (-not [string]::IsNullOrWhiteSpace($SigningKeyBase64)) {
+    return $SigningKeyBase64.Trim()
+  }
+  if (-not [string]::IsNullOrWhiteSpace($env:OCENTRA_PARENT_UPDATE_SIGNING_KEY_BASE64)) {
+    return $env:OCENTRA_PARENT_UPDATE_SIGNING_KEY_BASE64.Trim()
+  }
+  if ($env:GITHUB_ACTIONS -eq 'true') {
+    throw 'Missing OCENTRA_PARENT_UPDATE_SIGNING_KEY_BASE64. CI releases must use the production update signing key.'
+  }
+  if (Test-Path -LiteralPath $KeyPath) {
+    return (Get-Content -Raw -LiteralPath $KeyPath).Trim()
+  }
+
+  $keygenOutput = Invoke-UpdaterTool -Arguments @('keygen')
+  $privateLine = $keygenOutput | Where-Object { $_ -like 'privateKeyBase64=*' } | Select-Object -First 1
+  if ([string]::IsNullOrWhiteSpace($privateLine)) {
+    throw 'Updater key generation did not return a private key.'
+  }
+  $localKey = $privateLine.Substring('privateKeyBase64='.Length).Trim()
+  Set-Content -LiteralPath $KeyPath -Encoding utf8 -Value $localKey
+  Write-Warning "Generated a local-only update signing key at $KeyPath. Do not use this key for CI releases."
+  return $localKey
+}
+
+function Get-UpdatePublicKey {
+  param([Parameter(Mandatory = $true)] [string] $PrivateKeyBase64)
+
+  $publicKey = Invoke-UpdaterTool -Arguments @('derive-public-key', '--private-key-base64', $PrivateKeyBase64)
+  return ($publicKey | Select-Object -Last 1).Trim()
+}
+
 Push-Location $RepoRoot
 try {
   if ([string]::IsNullOrWhiteSpace($Version)) {
@@ -70,26 +113,37 @@ try {
     & node scripts/release/validate-version.mjs | Out-Host
   }
 
-  & cargo build --release -p ocentra-parent-agent-service
-  Assert-Success 'Cargo release build failed.'
-
   if ([string]::IsNullOrWhiteSpace($OutputRoot)) {
     $OutputRoot = Join-Path $RepoRoot 'target\release-packages'
   }
 
+  New-Item -ItemType Directory -Path $OutputRoot -Force | Out-Null
+  $LocalSigningKeyPath = Join-Path $OutputRoot 'local-dev-update-signing-key.base64.txt'
+  $UpdateSigningKeyBase64 = Get-UpdateSigningKey -KeyPath $LocalSigningKeyPath
+  $UpdatePublicKeyBase64 = Get-UpdatePublicKey -PrivateKeyBase64 $UpdateSigningKeyBase64
+  $previousPublicKey = $env:OCENTRA_PARENT_UPDATE_PUBLIC_KEY_BASE64
+  $env:OCENTRA_PARENT_UPDATE_PUBLIC_KEY_BASE64 = $UpdatePublicKeyBase64
+
+  & cargo build --release -p ocentra-parent-agent-service
+  Assert-Success 'Cargo service release build failed.'
+  & cargo build --release -p ocentra-parent-agent-maintenance --bin ocentra-parent-agent-updater
+  Assert-Success 'Cargo updater release build failed.'
+
   $ArtifactName = "ocentra-parent-agent-windows-x64-v$Version.msi"
   $MsiPath = Join-Path $OutputRoot $ArtifactName
   $ManifestPath = Join-Path $OutputRoot 'latest-windows.json'
+  $ManifestPayloadPath = Join-Path $OutputRoot 'latest-windows.payload.json'
   $ChecksumPath = "$MsiPath.sha256"
   $BootstrapPath = Join-Path $OutputRoot 'install-ocentra-parent-agent-windows.ps1'
   $WinSwCacheRoot = Join-Path $OutputRoot 'tool-cache\winsw'
   $WixIntermediateRoot = Join-Path $OutputRoot 'wix-obj'
   $WixSourcePath = Join-Path $RepoRoot 'scripts\release\windows\OcentraParentAgent.wxs'
   $AgentBinaryPath = Join-Path $RepoRoot 'target\release\ocentra-parent-agent-service.exe'
+  $UpdaterBinaryPath = Join-Path $RepoRoot 'target\release\ocentra-parent-agent-updater.exe'
   $ServiceConfigPath = Join-Path $RepoRoot 'scripts\release\windows\OcentraParentAgentService.xml'
+  $UpdaterConfigPath = Join-Path $RepoRoot 'scripts\release\windows\OcentraParentUpdaterService.xml'
   $ServiceWrapperPath = Resolve-WinSwWrapper -CacheRoot $WinSwCacheRoot
 
-  New-Item -ItemType Directory -Path $OutputRoot -Force | Out-Null
   Remove-Item -LiteralPath $MsiPath -Force -ErrorAction SilentlyContinue
   Remove-Item -LiteralPath (Join-Path $OutputRoot "ocentra-parent-agent-windows-x64-v$Version.zip") -Force -ErrorAction SilentlyContinue
   Remove-Item -LiteralPath (Join-Path $OutputRoot "ocentra-parent-agent-windows-x64-v$Version.zip.sha256") -Force -ErrorAction SilentlyContinue
@@ -102,8 +156,10 @@ try {
     -arch x64 `
     -d "ProductVersion=$Version" `
     -d "AgentBinaryPath=$AgentBinaryPath" `
+    -d "UpdaterBinaryPath=$UpdaterBinaryPath" `
     -d "ServiceWrapperPath=$ServiceWrapperPath" `
     -d "ServiceConfigPath=$ServiceConfigPath" `
+    -d "UpdaterConfigPath=$UpdaterConfigPath" `
     -intermediatefolder $WixIntermediateRoot `
     -out $MsiPath
   Assert-Success 'WiX MSI build failed.'
@@ -112,7 +168,7 @@ try {
   Set-Content -LiteralPath $ChecksumPath -Encoding utf8 -Value "$ArtifactHash  $ArtifactName"
   Copy-Item -LiteralPath 'scripts\release\windows\install-latest-windows.ps1' -Destination $BootstrapPath -Force
 
-  $Manifest = [ordered]@{
+  $ManifestPayload = [ordered]@{
     schemaVersion = 1
     product = 'Ocentra Parent'
     package = 'ocentra-parent-agent'
@@ -130,6 +186,8 @@ try {
       name = 'Ocentra Parent Agent'
       wrapper = 'WinSW'
       wrapperVersion = $WinSwVersion
+      updaterId = 'OcentraParentUpdater'
+      updaterName = 'Ocentra Parent Updater'
     }
     artifact = [ordered]@{
       name = $ArtifactName
@@ -138,7 +196,16 @@ try {
     }
     generatedAt = (Get-Date).ToUniversalTime().ToString('o')
   }
-  $Manifest | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $ManifestPath -Encoding utf8
+  $ManifestPayload | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $ManifestPayloadPath -Encoding utf8
+  Invoke-UpdaterTool -Arguments @(
+    'sign-manifest',
+    '--payload',
+    $ManifestPayloadPath,
+    '--out',
+    $ManifestPath,
+    '--private-key-base64',
+    $UpdateSigningKeyBase64
+  ) | Out-Host
 
   if ($env:GITHUB_OUTPUT) {
     Add-Content -LiteralPath $env:GITHUB_OUTPUT -Value "version=$Version"
@@ -152,5 +219,10 @@ try {
   Write-Host "Built $ManifestPath"
   Write-Host "Built $BootstrapPath"
 } finally {
+  if ($null -eq $previousPublicKey) {
+    Remove-Item Env:\OCENTRA_PARENT_UPDATE_PUBLIC_KEY_BASE64 -ErrorAction SilentlyContinue
+  } else {
+    $env:OCENTRA_PARENT_UPDATE_PUBLIC_KEY_BASE64 = $previousPublicKey
+  }
   Pop-Location
 }

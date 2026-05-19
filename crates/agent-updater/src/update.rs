@@ -1,0 +1,102 @@
+use std::env;
+use std::path::PathBuf;
+use std::time::Duration;
+
+use semver::Version;
+use tokio::time::sleep;
+
+use crate::constants::{
+    built_in_public_key_base64, INITIAL_DELAY_SECONDS_ENV, INTERVAL_SECONDS_ENV, PUBLIC_KEY_ENV,
+};
+use crate::error::UpdaterError;
+use crate::hash::assert_sha256_file;
+use crate::installer::start_msi_upgrade;
+use crate::manifest::{parse_signed_manifest, verify_manifest};
+use crate::network::{download_file, fetch_text};
+
+pub enum UpdateOutcome {
+    Current { version: String },
+    WouldInstall { current: String, latest: String },
+    InstallerStarted { current: String, latest: String },
+}
+
+pub async fn run_once(
+    manifest_url: &str,
+    current_version: &str,
+    dry_run: bool,
+) -> Result<UpdateOutcome, UpdaterError> {
+    let public_key = trusted_public_key()?;
+    let manifest_text = fetch_text(manifest_url).await?;
+    let manifest = parse_signed_manifest(&manifest_text)?;
+    let payload = verify_manifest(manifest, &public_key)?;
+    let current = Version::parse(current_version)?;
+    let latest = Version::parse(&payload.version)?;
+    if latest <= current {
+        return Ok(UpdateOutcome::Current {
+            version: current.to_string(),
+        });
+    }
+    if dry_run {
+        return Ok(UpdateOutcome::WouldInstall {
+            current: current.to_string(),
+            latest: latest.to_string(),
+        });
+    }
+
+    let artifact_path = artifact_temp_path(&payload.artifact.name);
+    download_file(&payload.artifact.download_url, &artifact_path).await?;
+    assert_sha256_file(&artifact_path, &payload.artifact.sha256)?;
+    start_msi_upgrade(&artifact_path).await?;
+    Ok(UpdateOutcome::InstallerStarted {
+        current: current.to_string(),
+        latest: latest.to_string(),
+    })
+}
+
+pub async fn run_loop(manifest_url: &str, interval_seconds: u64) -> Result<(), UpdaterError> {
+    sleep(Duration::from_secs(initial_delay_seconds())).await;
+    loop {
+        match run_once(manifest_url, env!("CARGO_PKG_VERSION"), false).await {
+            Ok(UpdateOutcome::InstallerStarted { .. }) => return Ok(()),
+            Ok(_) => {}
+            Err(error) => eprintln!("updater check failed: {error}"),
+        }
+        sleep(Duration::from_secs(effective_interval_seconds(
+            interval_seconds,
+        )))
+        .await;
+    }
+}
+
+fn trusted_public_key() -> Result<String, UpdaterError> {
+    if let Ok(value) = env::var(PUBLIC_KEY_ENV) {
+        if !value.trim().is_empty() {
+            return Ok(value);
+        }
+    }
+    let built_in = built_in_public_key_base64();
+    if built_in.trim().is_empty() {
+        return Err(UpdaterError::Policy(
+            "updater has no trusted manifest public key".to_owned(),
+        ));
+    }
+    Ok(built_in.to_owned())
+}
+
+fn artifact_temp_path(name: &str) -> PathBuf {
+    env::temp_dir().join(name)
+}
+
+fn initial_delay_seconds() -> u64 {
+    env::var(INITIAL_DELAY_SECONDS_ENV)
+        .ok()
+        .and_then(|value| value.parse().ok())
+        .unwrap_or(120)
+}
+
+fn effective_interval_seconds(interval_seconds: u64) -> u64 {
+    env::var(INTERVAL_SECONDS_ENV)
+        .ok()
+        .and_then(|value| value.parse().ok())
+        .unwrap_or(interval_seconds)
+}

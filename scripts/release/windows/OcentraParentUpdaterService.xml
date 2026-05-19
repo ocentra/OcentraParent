@@ -1,0 +1,23 @@
+<service>
+  <id>OcentraParentUpdater</id>
+  <name>Ocentra Parent Updater</name>
+  <description>Signed background updater for the Ocentra Parent Agent.</description>
+  <workingdirectory>%BASE%</workingdirectory>
+  <executable>%BASE%\ocentra-parent-agent-updater.exe</executable>
+  <arguments>run-loop</arguments>
+  <env
+    name="OCENTRA_PARENT_UPDATE_MANIFEST_URL"
+    value="https://github.com/SujanMishra/OcentraParent/releases/latest/download/latest-windows.json"
+  />
+  <env name="OCENTRA_PARENT_UPDATE_INITIAL_DELAY_SECONDS" value="120" />
+  <env name="OCENTRA_PARENT_UPDATE_INTERVAL_SECONDS" value="3600" />
+  <startmode>Automatic</startmode>
+  <delayedAutoStart>true</delayedAutoStart>
+  <onfailure action="restart" delay="60 sec" />
+  <onfailure action="restart" delay="5 min" />
+  <resetfailure>1 hour</resetfailure>
+  <log mode="roll-by-size-time">
+    <sizeThreshold>10485760</sizeThreshold>
+    <keepFiles>8</keepFiles>
+  </log>
+</service>

@@ -83,6 +83,59 @@
           KeyPath="yes"
         />
       </Component>
+
+      <Component Id="AgentUpdaterExecutable" Guid="990F9374-1E88-4837-BA01-9F80B71EE6C4">
+        <File
+          Id="AgentUpdaterExecutableFile"
+          Source="$(var.UpdaterBinaryPath)"
+          Name="ocentra-parent-agent-updater.exe"
+          KeyPath="yes"
+        />
+      </Component>
+
+      <Component Id="AgentUpdaterServiceWrapper" Guid="C5C4825C-110F-45E5-AFE2-A19780A88B5C">
+        <File
+          Id="AgentUpdaterServiceWrapperFile"
+          Source="$(var.ServiceWrapperPath)"
+          Name="OcentraParentUpdaterService.exe"
+          KeyPath="yes"
+        />
+        <ServiceInstall
+          Id="OcentraParentUpdaterServiceInstall"
+          Type="ownProcess"
+          Name="OcentraParentUpdater"
+          DisplayName="Ocentra Parent Updater"
+          Description="Signed background updater for the Ocentra Parent Agent."
+          Start="auto"
+          ErrorControl="normal"
+          Account="LocalSystem"
+        >
+          <util:ServiceConfig
+            FirstFailureActionType="restart"
+            SecondFailureActionType="restart"
+            ThirdFailureActionType="restart"
+            ResetPeriodInDays="1"
+            RestartServiceDelayInSeconds="60"
+          />
+        </ServiceInstall>
+        <ServiceControl
+          Id="OcentraParentUpdaterServiceControl"
+          Name="OcentraParentUpdater"
+          Start="install"
+          Stop="both"
+          Remove="uninstall"
+          Wait="yes"
+        />
+      </Component>
+
+      <Component Id="AgentUpdaterServiceWrapperConfig" Guid="8BBE4297-5AC2-444D-AC87-2D66402515C8">
+        <File
+          Id="AgentUpdaterServiceWrapperConfigFile"
+          Source="$(var.UpdaterConfigPath)"
+          Name="OcentraParentUpdaterService.xml"
+          KeyPath="yes"
+        />
+      </Component>
     </ComponentGroup>
   </Fragment>
 

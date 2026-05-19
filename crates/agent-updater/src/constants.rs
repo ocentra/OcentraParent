@@ -1,0 +1,16 @@
+pub const DEFAULT_MANIFEST_URL: &str =
+    "https://github.com/SujanMishra/OcentraParent/releases/latest/download/latest-windows.json";
+pub const MANIFEST_URL_ENV: &str = "OCENTRA_PARENT_UPDATE_MANIFEST_URL";
+pub const INTERVAL_SECONDS_ENV: &str = "OCENTRA_PARENT_UPDATE_INTERVAL_SECONDS";
+pub const INITIAL_DELAY_SECONDS_ENV: &str = "OCENTRA_PARENT_UPDATE_INITIAL_DELAY_SECONDS";
+pub const PUBLIC_KEY_ENV: &str = "OCENTRA_PARENT_UPDATE_PUBLIC_KEY_BASE64";
+pub const SIGNING_KEY_ENV: &str = "OCENTRA_PARENT_UPDATE_SIGNING_KEY_BASE64";
+pub const ED25519_ALGORITHM: &str = "Ed25519";
+pub const WINDOWS_X64_TARGET: &str = "windows-x64";
+pub const MSI_INSTALLER_TYPE: &str = "msi";
+pub const DEFAULT_INTERVAL_SECONDS: u64 = 3600;
+pub const DEFAULT_INITIAL_DELAY_SECONDS: u64 = 120;
+
+pub fn built_in_public_key_base64() -> &'static str {
+    option_env!("OCENTRA_PARENT_UPDATE_PUBLIC_KEY_BASE64").unwrap_or("")
+}

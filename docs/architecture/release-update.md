@@ -33,7 +33,7 @@ The release assets are:
 - `ocentra-parent-agent-windows-x64-vX.Y.Z.msi.sha256`
 - `latest-windows.json`
 
-The bootstrap installer downloads `latest-windows.json`, verifies the MSI hash, and runs Windows Installer in passive mode.
+The bootstrap installer downloads signed `latest-windows.json`, verifies that the manifest has a signature envelope, verifies the MSI hash from the signed payload, and runs Windows Installer in passive mode.
 
 ## Windows Service Strategy
 
@@ -48,6 +48,41 @@ The release builder pins WinSW `v2.12.0`, verifies its SHA256 while building the
 - app data root: `%ProgramData%\Ocentra\Ocentra Parent Agent`
 
 The MSI owns service registration, start-on-install, stop-on-uninstall, major upgrades, and uninstall registration in Windows Installed Apps.
+
+The MSI also installs a separate updater service:
+
+- service id: `OcentraParentUpdater`
+- service name: `Ocentra Parent Updater`
+- executable: `ocentra-parent-agent-updater.exe`
+- mode: `run-loop`
+- default cadence: initial delay of 120 seconds, then every 3600 seconds
+
+The updater is separate from the main agent so the main service does not replace its own executable in-process.
+
+## Signed Update Manifests
+
+`latest-windows.json` is a signed envelope:
+
+```json
+{
+  "payload": {
+    "schemaVersion": 1,
+    "version": "0.1.0",
+    "target": "windows-x64",
+    "installer": { "type": "msi" },
+    "artifact": { "sha256": "..." }
+  },
+  "signature": {
+    "algorithm": "Ed25519",
+    "keyId": "...",
+    "value": "..."
+  }
+}
+```
+
+The release builder requires `OCENTRA_PARENT_UPDATE_SIGNING_KEY_BASE64` in CI. Local builds can generate a local-only development signing key under `target/release-packages`; that key is ignored and must not be used for production releases.
+
+The updater binary is compiled with the trusted public key from `OCENTRA_PARENT_UPDATE_PUBLIC_KEY_BASE64`. It refuses to process update manifests without a valid Ed25519 signature from that key.
 
 ## Install Command
 
@@ -65,18 +100,19 @@ msiexec /i ocentra-parent-agent-windows-x64-vX.Y.Z.msi
 
 ## Auto-Update Target
 
-The installed service should not replace its own executable in-process. The MSI is upgrade-ready through `MajorUpgrade`, so a newer signed-and-verified MSI can replace the old install. The durable automatic update shape is:
+The MSI is upgrade-ready through `MajorUpgrade`, so a newer signed-and-verified MSI can replace the old install. The durable automatic update shape is:
 
 ```text
 agent service startup
-  -> check update policy
+  -> keeps serving local parent-control APIs
+
+updater service loop
   -> fetch signed update manifest
+  -> verify Ed25519 manifest signature
   -> compare installed version
-  -> delegate to updater helper
-  -> helper stops service
-  -> helper verifies artifact hash/signature
-  -> helper installs new package
-  -> helper restarts service
+  -> verify artifact policy and SHA256
+  -> start quiet MSI upgrade
+  -> Windows Installer stops/replaces/restarts services
 ```
 
-The current scaffold creates the MSI, manifest, checksum, and installer link. The next update slice should add a dedicated updater helper boundary before the agent starts performing automatic updates.
+The current scaffold creates the MSI, signed manifest, checksum, bootstrap installer, and dedicated updater service. Later hardening should add release channels, certificate-backed MSI signing, and parent-visible update policy.

@@ -20,7 +20,9 @@ graph LR
 - `build.yml`: runs `npm run build`.
 - `.github/actions/setup-ci`: shared Node/Rust/npm setup.
 
-On pushes to `main`, the orchestrator creates a GitHub Release only after validation and build pass. The release job requires the repository version to be unique and aligned across npm and Cargo sources, then publishes the Windows x64 MSI, checksum, update manifest, and bootstrap installer.
+On pushes to `main`, the orchestrator creates a GitHub Release only after validation and build pass. The release job requires the repository version to be unique and aligned across npm and Cargo sources, then publishes the Windows x64 MSI, checksum, signed update manifest, and bootstrap installer.
+
+The release job requires `OCENTRA_PARENT_UPDATE_SIGNING_KEY_BASE64` as a repository secret. The updater binary is built with the matching public key and rejects unsigned or incorrectly signed manifests.
 
 ## Local Parity
 

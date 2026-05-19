@@ -3,7 +3,8 @@ resolver = "2"
 members = [
   "crates/agent-core",
   "crates/agent-protocol",
-  "crates/agent-service"
+  "crates/agent-service",
+  "crates/agent-updater"
 ]
 
 [workspace.package]
@@ -13,4 +14,3 @@ license = "UNLICENSED"
 
 [workspace.lints.rust]
 unsafe_code = "forbid"
-
