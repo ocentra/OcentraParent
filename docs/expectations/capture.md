@@ -11,6 +11,7 @@ Capture features create real observations from a child device.
 - Failure reason when the OS capability is unavailable.
 - Journal write path from real observations.
 - Query-store ingest path from real observations.
+- Local AI evaluation input when an observation is intended for safety decisioning.
 - Dev portal visibility for captured evidence.
 
 ## Acceptance
@@ -20,6 +21,7 @@ Capture features create real observations from a child device.
 - Capture can be disabled in dev.
 - Capture failures do not crash the service.
 - Platform claims are scoped to real tested behavior.
+- Captured page, video-link, app, or domain context is explicit about what was observed and what was not observed.
 
 ## Windows Process And Window Capture
 
@@ -44,7 +46,7 @@ Expected:
 ## Non-Goals
 
 - Do not add blocking.
-- Do not add AI classification.
+- Do not add untyped AI classification.
 - Do not add stealth or anti-tamper behavior.
 - Do not claim unsupported OS capabilities.
 

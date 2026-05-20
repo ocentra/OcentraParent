@@ -14,7 +14,7 @@ Ocentra Parent helps parents understand and guide what children do on connected 
 - Can the system explain the evidence behind a decision?
 - Can parents set boundaries without needing to become device administrators or network experts?
 
-The long-term product is an agentic family-safety system. Child devices run local agents, parent surfaces show visibility and controls, and AI helps classify, explain, and recommend actions. The foundation must be evidence-first: capture facts, store them safely, query them locally, then build policy, blocking, sync, notifications, and AI on top.
+The long-term product is an agentic family-safety system. Child devices run local agents with local AI safety evaluation, parent surfaces show visibility and controls, and API AI may later help with richer parent reports and remote summaries. The foundation must be evidence-first: capture facts, store them safely, query them locally, then run local AI and typed policy decisions before blocking, timing, asking the parent, syncing, or notifying.
 
 ## Current Position
 
@@ -57,6 +57,10 @@ Rules:
 - SQLite is the default query/index store on every platform.
 - Query stores are rebuildable from the journal.
 - Portal and policy code talk to typed service/query APIs, not directly to SQLite files.
+- Child-device local AI is the default safety evaluator for page, video-link, app, domain, and activity context.
+- Local AI receives typed evidence plus parent rules and returns typed decisions such as allow, warn, block, time-limit, or ask-parent.
+- Enforcement adapters act only on schema-valid decisions and record audit events.
+- API AI is optional and secondary: parent assistant, richer reports, unknown classification, or cloud summaries after privacy boundaries are explicit.
 - DuckDB may return later as an optional analytics/export adapter, but not as the default app database.
 - Web does not run the child-device agent. The portal talks to local, LAN, or cloud-routed agents.
 
@@ -210,7 +214,7 @@ Out of scope:
 
 - Blocking.
 - Content inspection.
-- AI classification.
+- Local AI decisioning, which begins at V0.6/V0.7 after capture evidence exists.
 - Stealth or anti-tamper behavior.
 
 ### V0.4 Windows Network And Domain Observation
@@ -275,14 +279,15 @@ Acceptance:
 - Portal validates all service payloads through Effect Schema.
 - Playwright covers health, recent activity, copy, and log visibility.
 
-### V0.6 Policy Contracts
+### V0.6 Local AI Safety Decision Contracts
 
 Purpose:
 
-Define rules before enforcing anything.
+Define the child-device local AI decision boundary before enforcing anything.
 
 Expectation links:
 
+- [AI feature expectations](expectations/ai.md)
 - [Policy feature expectations](expectations/policy.md)
 - [Contract feature expectations](expectations/contracts.md)
 - [Evidence storage expectations](expectations/evidence-storage.md)
@@ -294,41 +299,51 @@ Deliverables:
 - App/site/category policy contracts.
 - Time window contracts.
 - Permission request contracts.
+- Local AI input contract: evidence, URL/page/video/app context, parent rules, recent activity context.
+- Local AI output contract: allow, warn, block, time-limit, ask-parent, unknown, confidence, reason, evidence references.
 - Policy decision event contracts.
 - Rust protocol parity.
 
 Acceptance:
 
 - Policies are schema-versioned.
+- Local AI decision inputs and outputs are schema-versioned.
 - Invalid policies are rejected at boundaries.
+- Invalid AI decisions are rejected at boundaries.
 - Policy events can be stored in the journal.
+- API AI is not required for child-device decisions.
 - No blocking behavior yet.
 
-### V0.7 Local Policy Evaluator
+### V0.7 Local AI Policy Evaluator
 
 Purpose:
 
-Evaluate activity against parent rules and explain decisions.
+Run local AI against captured activity and parent rules, then produce typed policy decisions.
 
 Expectation links:
 
+- [AI feature expectations](expectations/ai.md)
 - [Policy feature expectations](expectations/policy.md)
 - [Evidence storage expectations](expectations/evidence-storage.md)
 - [Portal feature expectations](expectations/portal.md)
 
 Deliverables:
 
-- Local policy evaluator crate/module.
+- Local model/provider adapter boundary.
+- Local AI policy evaluator crate/module.
 - Allowed/limited/blocked decision model.
 - Reason codes.
 - Evidence references.
+- Time-limit/timer decision model.
+- Ask-parent decision model.
 - Dry-run mode.
 - Portal policy preview.
 
 Acceptance:
 
-- Evaluator decisions are deterministic.
-- Tests cover allow, timeout, blocked, unknown, and conflicting-policy cases.
+- AI outputs are parsed into deterministic typed decisions.
+- Explicit parent rules override ambiguous AI output.
+- Tests cover allow, timeout, block, ask-parent, unknown, and conflicting-policy cases.
 - Portal can show why a decision happened.
 - Enforcement is still disabled by default.
 
@@ -352,6 +367,7 @@ Deliverables:
 - Process block/terminate mode where appropriate.
 - Network/domain block mode where appropriate.
 - Timeout mode.
+- Timer-backed temporary block/unblock flow.
 - Manual override/permission command.
 - Enforcement audit events.
 - Safety rollback path.
@@ -418,7 +434,7 @@ Deliverables:
 - Encrypted journal.
 - SQLite query store.
 - Activity timeline.
-- Basic policy dry-run.
+- Basic local AI policy dry-run.
 - Local-only reports.
 - Update scaffold ready for production releases.
 
@@ -426,6 +442,7 @@ Acceptance:
 
 - A parent can install on a Windows child PC.
 - The parent can open the local/LAN portal and see real activity.
+- The child-device agent can evaluate a narrow page, video-link, app, or domain observation against parent rules locally.
 - The app can survive restart and continue writing evidence.
 - The database can be rebuilt from journal.
 - CI is green on `main`.
@@ -488,11 +505,11 @@ Acceptance:
 - Provider failures are logged and retryable.
 - Parents can tune noise.
 
-### V4 AI Classification And Explanation
+### V4 API AI Parent Assistant And Advanced Explanation
 
 Purpose:
 
-Use AI to classify activity and explain risk without replacing evidence.
+Use API AI for richer parent assistance and advanced explanation without replacing local child-device safety decisions.
 
 Expectation links:
 
@@ -503,18 +520,18 @@ Expectation links:
 
 Deliverables:
 
-- Classification contract.
-- Local classifier adapter where feasible.
+- Parent assistant contract.
 - API model adapter.
 - Prompt/version governance.
 - Evidence-grounded explanation.
+- Cross-device and long-window summary support.
 - Human override feedback loop.
 
 Acceptance:
 
-- AI output references stored evidence.
-- Policy does not depend on untraceable AI verdicts.
-- Classifier failures degrade to unknown, not unsafe allow.
+- API AI output references stored evidence.
+- Child-device blocking does not require API AI availability.
+- API classifier failures degrade to local-only evaluation, unknown, or ask-parent.
 - Tests cover schema and decision boundaries.
 
 ### V5 Parent Policy Product
@@ -684,6 +701,8 @@ Web:
 - Encrypt the append-only journal.
 - Make query stores rebuildable.
 - Record evidence references for policy and AI decisions.
+- Run child-device safety decisions locally by default.
+- Send evidence to API AI only through explicit privacy, parent, and cloud boundaries.
 - Avoid decrypted content capture unless a future explicit product/legal decision approves a specific boundary.
 - Make data export and deletion first-class before paid production launch.
 

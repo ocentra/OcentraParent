@@ -4,7 +4,7 @@ Ocentra Parent is a family-safety product from Ocentra, intended to live at `fam
 
 The product exists for a real parent problem: children live inside browsers, games, chats, short-form video, school apps, and social feeds, while parents often only see the outside story. A child can look like they are studying while bouncing between TikTok, Snapchat, Discord, games, adult content, or other distracting and unsafe parts of the internet. Parents need a way to understand what is happening, set sane boundaries, give permissions, enforce timeouts, and get alerted when something needs attention.
 
-The goal is not to start with a flashy dashboard or vague AI promises. The first job is to build a trustworthy local recorder: a headless agent on the child device that can observe useful activity signals, normalize them into strict schemas, store raw evidence safely, and make that evidence queryable. Once that recorder is honest, policy, blocking, alerts, and AI-assisted guidance can be built on top of facts instead of guesses.
+The goal is not to start with a flashy dashboard or vague AI promises. The first job is to build a trustworthy local recorder: a headless agent on the child device that can observe useful activity signals, normalize them into strict schemas, store raw evidence safely, and make that evidence queryable. The product decision loop then runs on the child device: local AI evaluates observed pages, video links, apps, domains, and parent rules; typed policy decisions explain allow, warn, block, timeout, or ask-parent outcomes; enforcement adapters perform the actual blocking or timing behavior.
 
 ## What We Are Solving
 
@@ -17,7 +17,7 @@ Parents should not have to choose between blind trust and invasive guessing. Oce
 - What happened before an alert or policy decision?
 - Can the system explain its evidence instead of producing a magic AI verdict?
 
-The long-term product is an agentic safety system: local device agents gather evidence, parent portals expose control and visibility, and AI helps classify, explain, and recommend action. The v0 foundation is intentionally simpler: capture trustworthy events first.
+The long-term product is an agentic safety system: local device agents gather evidence, run local AI safety evaluation, enforce typed decisions, and let parent portals expose control and visibility. API AI may assist with richer parent reports, unknown classification, and remote summaries later, but the default child safety decision path is local-first.
 
 The detailed product roadmap lives in [`docs/product-roadmap.md`](docs/product-roadmap.md). Feature acceptance expectations live in [`docs/feature-expectations.md`](docs/feature-expectations.md).
 
@@ -36,7 +36,7 @@ The core data pipeline is:
 capture -> NDJSON journal -> ingester -> SQLite query store -> portal/reports/policy
 ```
 
-NDJSON is the append-only source of truth. It is easy to inspect, replay, rotate, and recover from. SQLite is the default cross-platform query/index layer for time windows, joins, summaries, and reports. The hot capture path should stay resilient and boring; analysis and policy should happen after events are safely written.
+NDJSON is the append-only source of truth. It is easy to inspect, replay, rotate, and recover from. SQLite is the default cross-platform query/index layer for time windows, joins, summaries, and reports. The hot capture path should stay resilient and boring; local AI and policy evaluation should happen after events are safely written or from a typed observation that will be written.
 
 ## V0 Milestone
 
@@ -51,7 +51,8 @@ Definition of done:
 - Ingests events into SQLite for local queries.
 - Exposes a minimal local/LAN portal for visibility.
 - Can summarize top processes, domains, time windows, and suspicious unknowns.
-- Does no blocking, no AI classification, and no content inspection yet.
+- Does no blocking and no content inspection yet.
+- Reserves the local AI decision boundary, but does not need to run a model until the AI safety-evaluator milestone.
 
 The event model is intent-first, not packet-first. We care about normalized activity such as `chrome.exe connected to youtube.com:443`, not raw TCP packets or decrypted HTTPS payloads.
 
@@ -62,12 +63,12 @@ This repository is currently in scaffold-first mode. The committed foundation in
 Not implemented yet:
 
 - Windows Filtering Platform capture.
-- Activity classification.
+- Local AI safety evaluation.
 - Blocking or enforcement.
 - Parent policy UI.
 - Cloud sync.
 - Notification delivery.
-- AI guidance.
+- API AI parent-assistant/reporting.
 - Browser extension URL context.
 - Mobile agents.
 - Production mobile store distribution.
