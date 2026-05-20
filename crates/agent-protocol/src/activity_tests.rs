@@ -1,0 +1,47 @@
+use super::{
+    ActivityEvent, ActivityEventKind, ActivityEvidenceKind, ActivityEvidenceRef, ActivityObserver,
+    ActivitySource, ActivitySubject, ActivitySubjectKind, LogFieldValue, LogFields,
+    ACTIVITY_SCHEMA_VERSION,
+};
+
+#[test]
+fn activity_event_serializes_to_typescript_contract_shape() {
+    let mut fields = LogFields::new();
+    fields.insert("pid".to_string(), LogFieldValue::Number(4242.0));
+    fields.insert("foreground".to_string(), LogFieldValue::Boolean(true));
+
+    let event = ActivityEvent {
+        schema_version: ACTIVITY_SCHEMA_VERSION,
+        event_id: "activity-event-1".to_string(),
+        observed_at: "2026-05-20T00:00:00Z".to_string(),
+        source: ActivitySource {
+            device_id: "child-device-1".to_string(),
+            platform: "windows".to_string(),
+            observer: ActivityObserver::WindowsProcess,
+            source_id: "windows-process-adapter".to_string(),
+        },
+        kind: ActivityEventKind::ProcessObserved,
+        subject: ActivitySubject {
+            kind: ActivitySubjectKind::Process,
+            subject_id: "process-4242".to_string(),
+            display_name: Some("chrome.exe".to_string()),
+        },
+        fields,
+        evidence: vec![ActivityEvidenceRef {
+            evidence_id: "journal-entry-1".to_string(),
+            kind: ActivityEvidenceKind::JournalEntry,
+            digest: Some("sha256:process-event-digest".to_string()),
+            uri: None,
+        }],
+    };
+
+    let serialized = serde_json::to_value(event).expect("activity event serializes");
+
+    assert_eq!(serialized["schemaVersion"], 1);
+    assert_eq!(serialized["source"]["observer"], "windows-process");
+    assert_eq!(serialized["kind"], "activity.process.observed");
+    assert_eq!(serialized["subject"]["displayName"], "chrome.exe");
+    assert_eq!(serialized["fields"]["foreground"], true);
+    assert_eq!(serialized["evidence"][0]["kind"], "journal-entry");
+    assert!(serialized["evidence"][0]["uri"].is_null());
+}
