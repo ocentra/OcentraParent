@@ -30,11 +30,13 @@ export const ParentDevEnv = {
   AgentAddress: 'OCENTRA_PARENT_AGENT_ADDR',
   AgentAllowedOrigins: 'OCENTRA_PARENT_AGENT_ALLOWED_ORIGINS',
   AgentLocalNetworkEnabled: 'OCENTRA_PARENT_AGENT_LOCAL_NETWORK_ENABLED',
+  AgentPort: 'OCENTRA_PARENT_AGENT_PORT',
   ActivityDbPath: 'OCENTRA_PARENT_ACTIVITY_DB_PATH',
   DevLogDir: 'OCENTRA_PARENT_DEV_LOG_DIR',
   DevNetworkMode: 'OCENTRA_PARENT_DEV_NETWORK',
   LanHost: 'OCENTRA_PARENT_LAN_HOST',
   PortalAgentWebSocketUrl: 'VITE_AGENT_WS_URL',
+  PortalPort: 'OCENTRA_PARENT_PORTAL_PORT',
 };
 
 export const ParentDevValue = {
@@ -47,23 +49,27 @@ export function resolveParentDevNetworkConfig(
   args = process.argv
 ) {
   const mode = resolveParentDevNetworkMode(env, args);
+  const agentPort = resolveParentDevPort(env[ParentDevEnv.AgentPort], ParentDevPort.Agent, ParentDevEnv.AgentPort);
+  const portalPort = resolveParentDevPort(env[ParentDevEnv.PortalPort], ParentDevPort.Portal, ParentDevEnv.PortalPort);
   const lanHost =
     mode === ParentDevNetworkMode.Lan
       ? resolveParentLanHost(env[ParentDevEnv.LanHost], interfaces)
       : ParentDevHost.Loopback;
   const agentBindHost = mode === ParentDevNetworkMode.Lan ? ParentDevHost.Wildcard : ParentDevHost.Loopback;
   const portalBindHost = mode === ParentDevNetworkMode.Lan ? ParentDevHost.Wildcard : ParentDevHost.Loopback;
-  const allowedOrigins = createAllowedOrigins(lanHost);
+  const allowedOrigins = createAllowedOrigins(lanHost, portalPort);
 
   return {
     mode,
     lanHost,
+    agentPort,
+    portalPort,
     agentBindHost,
     portalBindHost,
-    agentAddress: createAgentAddress(ParentDevPort.Agent, agentBindHost),
-    agentHealthUrl: createAgentHealthUrl(ParentDevPort.Agent, lanHost),
-    agentWebSocketUrl: createAgentWebSocketUrl(ParentDevPort.Agent, lanHost),
-    portalCommandsUrl: createPortalCommandsUrl(ParentDevPort.Portal, lanHost),
+    agentAddress: createAgentAddress(agentPort, agentBindHost),
+    agentHealthUrl: createAgentHealthUrl(agentPort, lanHost),
+    agentWebSocketUrl: createAgentWebSocketUrl(agentPort, lanHost),
+    portalCommandsUrl: createPortalCommandsUrl(portalPort, lanHost),
     allowedOrigins,
     localNetworkEnabled: mode === ParentDevNetworkMode.Lan,
   };
@@ -92,12 +98,24 @@ export function resolveParentLanHost(explicitHost, interfaces = os.networkInterf
   throw new Error(`Cannot resolve LAN host. Set ${ParentDevEnv.LanHost} to this PC's local network IP.`);
 }
 
-export function createAllowedOrigins(host) {
+export function resolveParentDevPort(value, defaultPort, envName) {
+  if (value === undefined || value.trim().length === 0) {
+    return defaultPort;
+  }
+
+  const port = Number(value.trim());
+  if (!Number.isInteger(port) || port < 1 || port > 65535) {
+    throw new Error(`${envName} must be an integer TCP port between 1 and 65535.`);
+  }
+  return port;
+}
+
+export function createAllowedOrigins(host, port = ParentDevPort.Portal) {
   return [
     ...new Set([
-      createHttpOrigin(ParentDevHost.Loopback),
-      createHttpOrigin(ParentDevHost.Localhost),
-      createHttpOrigin(host),
+      createHttpOrigin(ParentDevHost.Loopback, port),
+      createHttpOrigin(ParentDevHost.Localhost, port),
+      createHttpOrigin(host, port),
     ]),
   ];
 }

@@ -3,7 +3,6 @@ import { spawn } from 'node:child_process';
 
 import {
   ParentDevEnv,
-  ParentDevPort,
   ParentDevValue,
   isLikelyParentAgentOccupant,
   resolveParentDevNetworkConfig,
@@ -15,7 +14,7 @@ function log(message) {
 }
 
 const network = resolveParentDevNetworkConfig();
-const port = ParentDevPort.Agent;
+const port = network.agentPort;
 const agentEnv = {
   [ParentDevEnv.AgentAddress]: network.agentAddress,
   [ParentDevEnv.AgentAllowedOrigins]: network.allowedOrigins.join(','),
