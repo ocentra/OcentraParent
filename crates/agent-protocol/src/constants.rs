@@ -112,16 +112,20 @@ pub mod error {
 }
 
 pub mod delimiter {
+    pub const CLOSE_BRACKET: char = ']';
     pub const COLON: char = ':';
     pub const DOT: char = '.';
     pub const HYPHEN: char = '-';
     pub const LIST: char = ',';
     pub const NEWLINE: char = '\n';
+    pub const OPEN_BRACKET: char = '[';
 }
 
 pub mod test_network {
     pub const LOOPBACK_ANY_PORT: &str = "127.0.0.1:0";
     pub const LOOPBACK_IP: &str = "127.0.0.1";
+    pub const NETSTAT_TCP_ESTABLISHED_ROW: &str =
+        "TCP    127.0.0.1:4242        127.0.0.1:443          ESTABLISHED     4242";
     pub const SUBJECT_ID: &str = "network-destination-127.0.0.1-443";
 }
 

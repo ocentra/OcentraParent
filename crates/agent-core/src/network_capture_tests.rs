@@ -4,7 +4,7 @@ use ocentra_parent_agent_protocol::{
     LogFieldValue,
 };
 
-use super::{collect_network_snapshot, network_observation_event, NetworkObservation};
+use super::{network_observation_event, NetworkObservation};
 
 #[test]
 fn network_observation_event_maps_ip_only_socket_contract() {
@@ -93,6 +93,35 @@ fn network_observation_event_maps_degraded_status_contract() {
     assert!(!event.fields.contains_key(constants::field::DESTINATION_IP));
 }
 
+#[test]
+fn netstat_parser_maps_tcp_connection_to_network_observation() {
+    let process_names = std::collections::BTreeMap::from([(
+        4242,
+        constants::activity_store::TEST_PROCESS_SUBJECT_NAME.to_string(),
+    )]);
+    let observations = super::network_capture_netstat::netstat_observations(
+        constants::test_network::NETSTAT_TCP_ESTABLISHED_ROW,
+        &process_names,
+    );
+
+    assert_eq!(observations.len(), 1);
+    assert_eq!(observations[0].protocol, Some(ActivityNetworkProtocol::Tcp));
+    assert_eq!(
+        observations[0].tcp_state,
+        Some(ActivityNetworkTcpState::Established)
+    );
+    assert_eq!(
+        observations[0].destination_ip,
+        Some(constants::test_network::LOOPBACK_IP.to_string())
+    );
+    assert_eq!(observations[0].destination_port, Some(443));
+    assert_eq!(observations[0].pid, Some(4242));
+    assert_eq!(
+        observations[0].process_name,
+        Some(constants::activity_store::TEST_PROCESS_SUBJECT_NAME.to_string())
+    );
+}
+
 #[cfg(windows)]
 #[test]
 fn collect_network_snapshot_observes_current_process_socket() {
@@ -104,7 +133,7 @@ fn collect_network_snapshot_observes_current_process_socket() {
         .port();
     let current_pid = std::process::id();
 
-    let observations = collect_network_snapshot(usize::MAX);
+    let observations = super::collect_network_snapshot(usize::MAX);
 
     assert!(observations.iter().any(|observation| {
         observation.pid == Some(current_pid) && observation.local_port == Some(local_port)

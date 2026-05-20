@@ -18,4 +18,3 @@ sysinfo = { version = "0.37.2", default-features = false, features = ["system"] 
 
 [target.'cfg(windows)'.dependencies]
 active-win-pos-rs = "0.10.1"
-netstat2 = "0.11.2"
