@@ -16,8 +16,5 @@
   <onfailure action="restart" delay="60 sec" />
   <onfailure action="restart" delay="5 min" />
   <resetfailure>1 hour</resetfailure>
-  <log mode="roll-by-size-time">
-    <sizeThreshold>10485760</sizeThreshold>
-    <keepFiles>8</keepFiles>
-  </log>
+  <log mode="roll"></log>
 </service>

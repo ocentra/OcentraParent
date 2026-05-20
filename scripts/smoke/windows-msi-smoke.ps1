@@ -37,6 +37,9 @@ try {
         if ($service.Name -ne $serviceName) {
             throw "Unexpected service identity for $serviceName"
         }
+        if ($service.Status -ne 'Running') {
+            throw "Service did not start after install: $serviceName status=$($service.Status)"
+        }
     }
 } finally {
     if ($installed) {

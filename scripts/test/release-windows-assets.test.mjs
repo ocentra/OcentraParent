@@ -27,6 +27,20 @@ test('Windows updater wrapper config uses a separate signed updater identity', (
   assert.match(config, /run-loop/u);
 });
 
+test('Windows service wrapper configs use WinSW v2 compatible logging', () => {
+  const configs = [
+    readReleaseFile('OcentraParentAgentService.xml'),
+    readReleaseFile('OcentraParentUpdaterService.xml'),
+  ];
+
+  for (const config of configs) {
+    assert.match(config, /<log mode="roll"><\/log>/u);
+    assert.doesNotMatch(config, /roll-by-size-time/u);
+    assert.doesNotMatch(config, /sizeThreshold/u);
+    assert.doesNotMatch(config, /keepFiles/u);
+  }
+});
+
 test('Windows MSI definition installs the Ocentra Parent service identity', () => {
   const installer = readReleaseFile('OcentraParentAgent.wxs');
 
