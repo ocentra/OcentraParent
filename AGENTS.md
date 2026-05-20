@@ -10,6 +10,8 @@ Before editing or committing, run `npm run lanes:status`, `npm run lanes:guard`,
 
 When starting in a worker lane, run `npm run hub:inbox` and acknowledge the latest hub instruction with `npm run hub:ack` before committing. Before editing files, claim your intended ownership with `npm run hub:lock -- --paths "path/or/package,other/path" --reason "short scope"`. Report progress back to the hub with `npm run hub:report -- --summary "short status" --details "validation, blockers, touched files"`.
 
+When a worker lane should receive follow-up work from the primary hub without another manual prompt, leave `npm run hub:watch -- --interval-ms 5000` running in that worker checkout. Use `--ack` only when the worker intentionally accepts displayed messages as read.
+
 When writing or changing tests, also read `.ocentra-ai/rules/ocentra-parent-test-rules.mdc`. Test doubles are forbidden; tests must use real contracts, parsers, services, transports, or UI paths.
 
 When changing multiple layers, use `.ocentra-ai/skills/ocentra-parent-rule-router/SKILL.md` as the lookup workflow instead of loading every rule file at once.

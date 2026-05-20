@@ -13,6 +13,7 @@ export const HubCommand = Object.freeze({
   Report: 'report',
   Status: 'status',
   Unlock: 'unlock',
+  Watch: 'watch',
 });
 
 const hubDirectoryName = 'ocentra-parent-hub';
@@ -125,8 +126,13 @@ export function messageLane({ body, hubRoot, lane, now = new Date(), subject }) 
 
 export function acknowledgeLane({ hubRoot, lane, messageId = 'latest', now = new Date() }) {
   const mailbox = readOrCreateMailbox(hubRoot, lane, now);
-  const message = findMessage(mailbox, messageId);
-  message.acknowledgedAt = now.toISOString();
+  const { index, message } = findMessageWithIndex(mailbox, messageId);
+  const acknowledgedAt = now.toISOString();
+  for (const candidate of mailbox.messages.slice(0, index + 1)) {
+    if (typeof candidate.acknowledgedAt !== 'string' || candidate.acknowledgedAt.length === 0) {
+      candidate.acknowledgedAt = acknowledgedAt;
+    }
+  }
   mailbox.lastAcknowledgedMessageId = message.id;
   mailbox.updatedAt = now.toISOString();
   writeMailbox(hubRoot, mailbox);
@@ -217,6 +223,19 @@ export function formatInbox(mailbox) {
   return formatInboxMarkdown(mailbox);
 }
 
+export function unreadMessages(mailbox) {
+  const acknowledgedIndex =
+    mailbox.lastAcknowledgedMessageId.length === 0
+      ? -1
+      : mailbox.messages.findIndex((message) => message.id === mailbox.lastAcknowledgedMessageId);
+  if (acknowledgedIndex >= 0) {
+    return mailbox.messages.slice(acknowledgedIndex + 1);
+  }
+  return mailbox.messages.filter(
+    (message) => typeof message.acknowledgedAt !== 'string' || message.acknowledgedAt.length === 0
+  );
+}
+
 export function splitPathList(value) {
   if (typeof value !== 'string') {
     return [];
@@ -268,13 +287,13 @@ function latestReport(mailbox) {
   return mailbox.reports.at(-1);
 }
 
-function findMessage(mailbox, messageId) {
-  const message =
-    messageId === 'latest' ? latestMessage(mailbox) : mailbox.messages.find((item) => item.id === messageId);
-  if (message === undefined) {
+function findMessageWithIndex(mailbox, messageId) {
+  const index =
+    messageId === 'latest' ? mailbox.messages.length - 1 : mailbox.messages.findIndex((item) => item.id === messageId);
+  if (index < 0) {
     throw new Error(`Unknown hub message: ${messageId}`);
   }
-  return message;
+  return { index, message: mailbox.messages[index] };
 }
 
 function validateChangedPaths(lane, mailbox, changedPaths) {
@@ -341,7 +360,8 @@ function formatInboxMarkdown(mailbox) {
   }
 
   for (const message of mailbox.messages) {
-    const read = message.id === mailbox.lastAcknowledgedMessageId ? 'acknowledged' : 'unread';
+    const read =
+      typeof message.acknowledgedAt === 'string' && message.acknowledgedAt.length > 0 ? 'acknowledged' : 'unread';
     lines.push(
       `## ${message.subject}`,
       '',

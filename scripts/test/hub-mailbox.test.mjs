@@ -14,6 +14,7 @@ import {
   readOrCreateMailbox,
   reportLane,
   splitPathList,
+  unreadMessages,
   validateHubContext,
 } from '../dev/hub-mailbox-lib.mjs';
 import { claimLane, createDefaultLedger } from '../dev/worktree-lanes-lib.mjs';
@@ -182,10 +183,52 @@ test('hub args and path list parsing support command scripts', () => {
     lane: 'codex-a',
     subject: 'Scope',
   });
+  assert.deepEqual(parseHubArgs(['watch', '--once', '--interval-ms', '1000']), {
+    command: 'watch',
+    once: true,
+    'interval-ms': '1000',
+  });
   assert.deepEqual(splitPathList('crates/agent-service, packages/activity-domain'), [
     'crates/agent-service',
     'packages/activity-domain',
   ]);
+});
+
+test('hub acknowledgement advances the unread message window', () => {
+  const hubRoot = tempHubRoot();
+  const ledger = claimedLedger();
+  const lane = ledger.lanes.find((candidate) => candidate.id === 'codex-a');
+
+  const first = messageLane({
+    body: 'Read primary handoff.',
+    hubRoot,
+    lane,
+    now: fixedDate,
+    subject: 'First',
+  }).message;
+  const second = messageLane({
+    body: 'Start watcher.',
+    hubRoot,
+    lane,
+    now: new Date('2026-05-20T16:01:00.000Z'),
+    subject: 'Second',
+  }).message;
+
+  assert.deepEqual(
+    unreadMessages(readOrCreateMailbox(hubRoot, lane, fixedDate)).map((message) => message.id),
+    [first.id, second.id]
+  );
+
+  acknowledgeLane({ hubRoot, lane, messageId: first.id, now: fixedDate });
+  assert.deepEqual(
+    unreadMessages(readOrCreateMailbox(hubRoot, lane, fixedDate)).map((message) => message.id),
+    [second.id]
+  );
+
+  acknowledgeLane({ hubRoot, lane, now: fixedDate });
+  const inbox = readFileSync(join(hubRoot, 'lanes', 'codex-a', 'inbox.md'), 'utf8');
+  assert.equal(unreadMessages(readOrCreateMailbox(hubRoot, lane, fixedDate)).length, 0);
+  assert.equal([...inbox.matchAll(/status: acknowledged/gu)].length, 2);
 });
 
 test('hub inbox renders latest message text', () => {

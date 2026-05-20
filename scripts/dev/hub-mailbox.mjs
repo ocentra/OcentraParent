@@ -14,6 +14,7 @@ import {
   readOrCreateMailbox,
   reportLane,
   splitPathList,
+  unreadMessages,
   unlockLanePaths,
   validateHubContext,
 } from './hub-mailbox-lib.mjs';
@@ -57,6 +58,15 @@ function requireOption(options, key) {
   return value;
 }
 
+function parseWatchIntervalMs(options) {
+  const rawValue = options['interval-ms'] ?? options.interval ?? '5000';
+  const parsed = Number.parseInt(rawValue, 10);
+  if (!Number.isFinite(parsed) || parsed < 1000) {
+    throw new Error('--interval-ms must be an integer of at least 1000.');
+  }
+  return parsed;
+}
+
 function handleStatus(options) {
   const { hubRoot, ledger } = context(options);
   console.log(`hub-root=${hubRoot}`);
@@ -67,6 +77,57 @@ function handleInbox(options) {
   const { hubRoot, ledger, root } = context(options);
   const lane = typeof options.lane === 'string' ? findLane(ledger, options.lane) : currentLane(ledger, root);
   console.log(formatInbox(readOrCreateMailbox(hubRoot, lane)));
+}
+
+function handleWatch(options) {
+  const { hubRoot, ledger, root } = context(options);
+  const lane = typeof options.lane === 'string' ? findLane(ledger, options.lane) : currentLane(ledger, root);
+  const intervalMs = parseWatchIntervalMs(options);
+  const once = options.once === true;
+  const autoAck = options.ack === true;
+  const quiet = options.quiet === true;
+  const printedMessageIds = new Set();
+
+  console.log(`hub-watch-start: lane=${lane.id} interval-ms=${intervalMs} ack=${autoAck ? 'on' : 'off'}`);
+
+  const checkInbox = () => {
+    const now = new Date();
+    const mailbox = readOrCreateMailbox(hubRoot, lane, now);
+    const unread = unreadMessages(mailbox);
+    const newUnread = unread.filter((message) => !printedMessageIds.has(message.id));
+
+    for (const message of newUnread) {
+      printedMessageIds.add(message.id);
+      console.log(formatWatchMessage({ lane, message }));
+    }
+
+    if (autoAck && unread.length > 0) {
+      const latestUnread = unread.at(-1);
+      acknowledgeLane({ hubRoot, lane, messageId: latestUnread.id, now });
+      console.log(`hub-watch-ack=${latestUnread.id}`);
+    } else if (newUnread.length === 0 && !quiet) {
+      console.log(`hub-watch-waiting: lane=${lane.id} unread=${unread.length} checked=${now.toISOString()}`);
+    }
+
+    if (once) {
+      process.exit(0);
+    }
+  };
+
+  checkInbox();
+  if (!once) {
+    setInterval(checkInbox, intervalMs);
+  }
+}
+
+function formatWatchMessage({ lane, message }) {
+  return [
+    `hub-watch-message: lane=${lane.id} id=${message.id}`,
+    `subject=${message.subject}`,
+    `created=${message.createdAt}`,
+    '',
+    message.body,
+  ].join('\n');
 }
 
 function handleMessage(options) {
@@ -155,6 +216,10 @@ export function runHubCli(argv = process.argv.slice(2)) {
   }
   if (options.command === HubCommand.Inbox) {
     handleInbox(options);
+    return;
+  }
+  if (options.command === HubCommand.Watch) {
+    handleWatch(options);
     return;
   }
   if (options.command === HubCommand.Message) {

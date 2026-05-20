@@ -55,6 +55,14 @@ Read the current lane inbox:
 npm run hub:inbox
 ```
 
+Watch the current lane inbox for new hub instructions:
+
+```powershell
+npm run hub:watch
+```
+
+Use `npm run hub:watch -- --interval-ms 5000` to choose a polling interval. Add `--ack` only when the worker is intentionally treating displayed messages as read; otherwise acknowledge manually after reading with `npm run hub:ack`.
+
 Send a hub message to a lane:
 
 ```powershell
@@ -131,10 +139,11 @@ Before editing in a claimed lane:
 3. Confirm the branch base is the intended branch, usually `origin/main`.
 4. Run `npm run lanes:guard` from that worktree.
 5. Run `npm run hub:inbox` and acknowledge current instructions with `npm run hub:ack`.
-6. Claim file ownership with `npm run hub:lock`.
-7. Run focused local validation while coding.
-8. Report progress with `npm run hub:report`.
-9. Run the full PR gate only when the branch is ready to integrate.
+6. Leave `npm run hub:watch -- --interval-ms 5000` running when the primary hub should be able to send follow-up instructions without a manual prompt.
+7. Claim file ownership with `npm run hub:lock`.
+8. Run focused local validation while coding.
+9. Report progress with `npm run hub:report`.
+10. Run the full PR gate only when the branch is ready to integrate.
 
 ## Owner And Thread Fields
 
