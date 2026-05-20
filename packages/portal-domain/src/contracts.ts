@@ -158,4 +158,16 @@ export const PortalCommandButtons = [
     resultEvent: AgentEvent.WatchStatusReported,
     payload: {},
   },
+  {
+    label: resolvePortalDevText(PortalDevTextToken.GetActivityIngestStatus),
+    command: AgentCommand.ActivityIngestStatusGet,
+    resultEvent: AgentEvent.ActivityIngestStatusReported,
+    payload: {},
+  },
+  {
+    label: resolvePortalDevText(PortalDevTextToken.GetRecentActivitySummary),
+    command: AgentCommand.ActivityRecentSummaryGet,
+    resultEvent: AgentEvent.ActivityRecentSummaryReported,
+    payload: {},
+  },
 ] as const;

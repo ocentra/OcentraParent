@@ -1,7 +1,11 @@
 #![forbid(unsafe_code)]
 
+mod activity_api;
+mod activity_payload;
+mod activity_store_path;
 mod app;
 mod dev_log;
+mod event_builder;
 mod fields;
 mod network;
 mod snapshot;

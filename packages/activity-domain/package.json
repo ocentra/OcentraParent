@@ -28,6 +28,10 @@
     "./primitives": {
       "import": "./dist/primitives.js",
       "types": "./dist/primitives.d.ts"
+    },
+    "./query": {
+      "import": "./dist/query.js",
+      "types": "./dist/query.d.ts"
     }
   },
   "scripts": {

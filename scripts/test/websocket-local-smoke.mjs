@@ -27,6 +27,7 @@ const service = spawn(resolveDebugAgentServicePath(), [], {
   env: {
     ...process.env,
     [ParentDevEnv.AgentAddress]: createAgentAddress(port),
+    [ParentDevEnv.ActivityDbPath]: join(devLogDir, 'activity.duckdb'),
     [ParentDevEnv.DevLogDir]: devLogDir,
   },
   stdio: ['ignore', 'pipe', 'pipe'],
@@ -39,6 +40,9 @@ try {
   const received = await runWebSocketSmoke();
   if (!received.includes('agent.health.reported')) {
     throw new Error(`Expected health event, received ${received.join(',')}`);
+  }
+  if (!received.includes('agent.activity.ingest.status.reported')) {
+    throw new Error(`Expected activity ingest status event, received ${received.join(',')}`);
   }
   await assertAgentDevLogWritten();
   console.log(`websocket-local-smoke-ok:${received.join(',')}`);
@@ -89,6 +93,19 @@ function runWebSocketSmoke() {
       const parsed = AgentEventEnvelopeSchema.parse(JSON.parse(String(message.data)));
       events.push(parsed.event);
       if (parsed.event === 'agent.health.reported') {
+        socket.send(
+          JSON.stringify({
+            schemaVersion: 1,
+            messageId: 'cmd-integration-activity-ingest-status',
+            sentAt: new Date().toISOString(),
+            source: { peerId: 'portal-dev', role: 'portal' },
+            target: { deviceId: 'local-dev-agent', platform: 'windows', route: 'localhost' },
+            command: 'agent.activity.ingest.status.get',
+            payload: {},
+          })
+        );
+      }
+      if (parsed.event === 'agent.activity.ingest.status.reported') {
         clearTimeout(timer);
         socket.close();
         resolve(events);

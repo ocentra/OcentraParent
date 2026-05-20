@@ -22,6 +22,8 @@ async function assertCommandControls(page: Page): Promise<void> {
   await expect(page.getByRole('button', { name: 'Get log snapshot' })).toBeEnabled();
   await expect(page.getByRole('button', { name: 'Echo portal ping' })).toBeEnabled();
   await expect(page.getByRole('button', { name: 'Get watcher status' })).toBeEnabled();
+  await expect(page.getByRole('button', { name: 'Get activity ingest status' })).toBeEnabled();
+  await expect(page.getByRole('button', { name: 'Get recent activity summary' })).toBeEnabled();
   await expect(page.getByRole('heading', { name: 'Command result' })).toBeVisible();
   await expect(page.locator('.summary')).toHaveCount(1);
 
@@ -48,6 +50,14 @@ async function assertTabbedCommandResults(page: Page): Promise<void> {
   await page.getByRole('button', { name: 'Get watcher status' }).click();
   await expect(commandResult.getByText('agent.watch.status.reported')).toHaveCount(1);
   await expect(commandResult.locator('.log')).toHaveCount(1);
+  await page.getByRole('button', { name: 'Get activity ingest status' }).click();
+  await page.getByRole('button', { name: 'Get activity ingest status' }).click();
+  await expect(commandResult.getByText('agent.activity.ingest.status.reported')).toHaveCount(1);
+  await expect(commandResult.locator('.log')).toHaveCount(1);
+  await page.getByRole('button', { name: 'Get recent activity summary' }).click();
+  await page.getByRole('button', { name: 'Get recent activity summary' }).click();
+  await expect(commandResult.getByText('agent.activity.recent.summary.reported')).toHaveCount(1);
+  await expect(commandResult.locator('.log')).toHaveCount(1);
   await page.getByRole('button', { name: 'Check health' }).click();
   await expect(commandResult.getByText('agent.health.reported')).toHaveCount(1);
   await expect(commandResult.locator('.log')).toHaveCount(1);
@@ -62,6 +72,8 @@ async function assertRawEventLog(page: Page): Promise<void> {
   await expect(page.getByText('agent.log.snapshot.reported')).toHaveCount(2);
   await expect(page.getByText('agent.dev.echoed')).toHaveCount(2);
   await expect(page.getByText('agent.watch.status.reported')).toHaveCount(2);
+  await expect(page.getByText('agent.activity.ingest.status.reported')).toHaveCount(2);
+  await expect(page.getByText('agent.activity.recent.summary.reported')).toHaveCount(2);
 }
 
 async function assertOverview(page: Page): Promise<void> {

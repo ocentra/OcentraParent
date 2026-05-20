@@ -78,6 +78,10 @@ pub enum AgentCommandName {
     AgentDevEcho,
     #[serde(rename = "agent.watch.status.get")]
     AgentWatchStatusGet,
+    #[serde(rename = "agent.activity.ingest.status.get")]
+    AgentActivityIngestStatusGet,
+    #[serde(rename = "agent.activity.recent.summary.get")]
+    AgentActivityRecentSummaryGet,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -94,6 +98,10 @@ pub enum AgentEventName {
     AgentDevEchoed,
     #[serde(rename = "agent.watch.status.reported")]
     AgentWatchStatusReported,
+    #[serde(rename = "agent.activity.ingest.status.reported")]
+    AgentActivityIngestStatusReported,
+    #[serde(rename = "agent.activity.recent.summary.reported")]
+    AgentActivityRecentSummaryReported,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

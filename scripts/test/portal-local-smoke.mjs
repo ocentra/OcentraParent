@@ -32,6 +32,7 @@ const agent = spawn(resolveDebugAgentServicePath(), [], {
     ...process.env,
     [ParentDevEnv.AgentAddress]: createAgentAddress(agentPort),
     [ParentDevEnv.AgentAllowedOrigins]: createHttpOrigin(ParentDevHost.Loopback, portalPort),
+    [ParentDevEnv.ActivityDbPath]: join(devLogDir, 'activity.duckdb'),
     [ParentDevEnv.DevLogDir]: devLogDir,
   },
   stdio: ['ignore', 'pipe', 'pipe'],
