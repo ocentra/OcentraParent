@@ -85,6 +85,10 @@ export function writeLedger(ledgerPath, ledger) {
 
 export function normalizeBranchName(input) {
   const trimmed = input.trim();
+  if (trimmed === 'main' || trimmed === 'production') {
+    return trimmed;
+  }
+
   const withoutPrefix = trimmed.replace(/^codex[\\/\s:_-]+/iu, '');
   const slug = withoutPrefix
     .toLowerCase()

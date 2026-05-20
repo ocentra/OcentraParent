@@ -20,6 +20,8 @@ test('worktree lane branch normalization accepts milestone names', () => {
     'codex/v0.3-windows-process-and-window-activity-capture'
   );
   assert.equal(normalizeBranchName('codex/V0.7 Local AI Policy Evaluator'), 'codex/v0.7-local-ai-policy-evaluator');
+  assert.equal(normalizeBranchName('main'), 'main');
+  assert.equal(normalizeBranchName('production'), 'production');
 });
 
 test('worktree lane defaults keep the primary checkout protected', () => {
