@@ -1,6 +1,7 @@
 #![forbid(unsafe_code)]
 
 mod activity;
+mod activity_capture;
 mod activity_conversions;
 mod activity_query;
 pub mod constants;
@@ -9,6 +10,7 @@ mod logging;
 mod transport;
 
 pub use activity::*;
+pub use activity_capture::*;
 pub use activity_query::*;
 pub use journal::*;
 pub use logging::*;

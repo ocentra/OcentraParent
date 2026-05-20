@@ -7,6 +7,10 @@ mod journal;
 mod journal_crypto;
 mod journal_error;
 mod journal_rotation;
+mod network_capture;
+mod network_capture_adapter;
+mod network_capture_event;
+mod network_capture_event_fields;
 mod process_capture;
 mod window_capture;
 mod window_capture_event;
@@ -16,6 +20,8 @@ pub use activity_store_error::ActivityStoreError;
 pub use journal::ActivityJournal;
 pub use journal_crypto::{JournalKey, JOURNAL_KEY_BYTES};
 pub use journal_error::JournalError;
+pub use network_capture::{collect_network_snapshot, NetworkObservation};
+pub use network_capture_event::{network_observation_event, network_snapshot_events};
 pub use process_capture::{
     collect_process_snapshot, process_observation_event, process_snapshot_events,
     ProcessObservation,
@@ -31,6 +37,8 @@ pub fn crate_name() -> &'static str {
 mod activity_store_tests;
 #[cfg(test)]
 mod journal_tests;
+#[cfg(test)]
+mod network_capture_tests;
 #[cfg(test)]
 mod process_capture_tests;
 #[cfg(test)]

@@ -40,54 +40,8 @@ pub mod event_id {
     pub const UNKNOWN_COMMAND: &str = "unknown-command";
 }
 
-pub mod field {
-    pub const AVAILABLE: &str = "available";
-    pub const ACTIVITY_DIGEST: &str = "activityDigest";
-    pub const CAPTURE_ENABLED: &str = "captureEnabled";
-    pub const CIPHER: &str = "cipher";
-    pub const CIPHERTEXT: &str = "ciphertext";
-    pub const COMMAND: &str = "command";
-    pub const DATABASE_READY: &str = "databaseReady";
-    pub const DUPLICATE_EVENTS: &str = "duplicateEvents";
-    pub const ENTRIES: &str = "entries";
-    pub const EVENTS_INGESTED: &str = "eventsIngested";
-    pub const EVENTS_STORED: &str = "eventsStored";
-    pub const ENTRY_ID: &str = "entryId";
-    pub const EVENT_ID: &str = "eventId";
-    pub const FIRST_OBSERVED_AT: &str = "firstObservedAt";
-    pub const LAST_EVENT_ID: &str = "lastEventId";
-    pub const LAST_OBSERVED_AT: &str = "lastObservedAt";
-    pub const LIMIT: &str = "limit";
-    pub const MAX_SEGMENT_BYTES: &str = "maxSegmentBytes";
-    pub const MODE: &str = "mode";
-    pub const MOST_RECENT_KIND: &str = "mostRecentKind";
-    pub const MOST_RECENT_OBSERVER: &str = "mostRecentObserver";
-    pub const MOST_RECENT_SUBJECT_ID: &str = "mostRecentSubjectId";
-    pub const MOST_RECENT_SUBJECT_KIND: &str = "mostRecentSubjectKind";
-    pub const MOST_RECENT_SUBJECT_NAME: &str = "mostRecentSubjectName";
-    pub const NETWORK_MODE: &str = "networkMode";
-    pub const NONCE: &str = "nonce";
-    pub const NOTE: &str = "note";
-    pub const ADAPTER_ID: &str = "adapterId";
-    pub const APP_NAME: &str = "appName";
-    pub const CAPABILITY_STATUS: &str = "capabilityStatus";
-    pub const FOREGROUND: &str = "foreground";
-    pub const OBSERVATION_MODE: &str = "observationMode";
-    pub const ONLINE: &str = "online";
-    pub const PID: &str = "pid";
-    pub const POLICY_ENGINE_ENABLED: &str = "policyEngineEnabled";
-    pub const PROCESS_NAME: &str = "processName";
-    pub const PROCESS_PATH: &str = "processPath";
-    pub const REASON: &str = "reason";
-    pub const REMOTE_SYNC: &str = "remoteSync";
-    pub const RETURNED: &str = "returned";
-    pub const SCHEMA_VERSION: &str = "schemaVersion";
-    pub const SEGMENT_ID: &str = "segmentId";
-    pub const TRANSPORT: &str = "transport";
-    pub const WINDOW_ID: &str = "windowId";
-    pub const WINDOW_TITLE: &str = "windowTitle";
-    pub const WRITTEN_AT: &str = "writtenAt";
-}
+#[path = "constants/field.rs"]
+pub mod field;
 
 pub mod dev_log {
     pub const AGENT_FILE_PREFIX: &str = "agent-service";
@@ -153,13 +107,22 @@ pub mod error {
     pub const ACTIVITY_CAPTURE_RECORDS: &str = "activity capture records";
     pub const ACTIVITY_CAPTURE_REJECTS_INVALID_KEY: &str =
         "activity capture rejects invalid journal key";
+    pub const NETWORK_CAPTURE_OBSERVES_SOCKET: &str =
+        "network capture observes the current process socket";
 }
 
 pub mod delimiter {
+    pub const COLON: char = ':';
     pub const DOT: char = '.';
     pub const HYPHEN: char = '-';
     pub const LIST: char = ',';
     pub const NEWLINE: char = '\n';
+}
+
+pub mod test_network {
+    pub const LOOPBACK_ANY_PORT: &str = "127.0.0.1:0";
+    pub const LOOPBACK_IP: &str = "127.0.0.1";
+    pub const SUBJECT_ID: &str = "network-destination-127.0.0.1-443";
 }
 
 pub mod byte {
