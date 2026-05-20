@@ -1,4 +1,8 @@
-import type { AgentCommandName, AgentProtocolLogFields } from '@ocentra-parent/agent-protocol-domain/contracts';
+import type {
+  AgentCommandName,
+  AgentEventEnvelope,
+  AgentProtocolLogFields,
+} from '@ocentra-parent/agent-protocol-domain/contracts';
 import type { AgentLogSnapshot } from '@ocentra-parent/logging-domain/contracts';
 import {
   PortalCommandButtons,
@@ -15,6 +19,7 @@ import {
   type PortalDisplayText,
   type PortalRoute as PortalRouteValue,
 } from '@ocentra-parent/portal-domain/contracts';
+import { latestCommandResults, latestPortalEvents } from './event-results';
 import type { PortalRuntimeState } from './portal-state';
 
 export interface PortalRenderActions {
@@ -78,7 +83,7 @@ function renderState(state: PortalRuntimeState, actions: PortalRenderActions): H
     return container;
   }
   if (route === PortalRoute.Events) {
-    renderEvents(container, state);
+    renderEvents(container, latestPortalEvents(state.events));
     return container;
   }
 
@@ -122,7 +127,7 @@ function renderCommands(container: HTMLElement, state: PortalRuntimeState, actio
 
   panel.append(title, commandGrid);
   container.append(panel);
-  renderEvents(container, state);
+  renderEvents(container, latestCommandResults(state.events));
 }
 
 function commandButton(
@@ -144,7 +149,7 @@ function commandButton(
   return button;
 }
 
-function renderEvents(container: HTMLElement, state: PortalRuntimeState): void {
+function renderEvents(container: HTMLElement, events: readonly AgentEventEnvelope[]): void {
   const title = document.createElement(PortalDom.Tags.HeadingTwo);
   title.textContent = PortalText.Resolve(PortalTextToken.AgentEvents);
   container.append(title);
@@ -152,7 +157,7 @@ function renderEvents(container: HTMLElement, state: PortalRuntimeState): void {
   const list = document.createElement(PortalDom.Tags.OrderedList);
   list.className = PortalDom.Classes.LogList;
 
-  for (const event of state.events) {
+  for (const event of events) {
     const item = document.createElement(PortalDom.Tags.ListItem);
     item.className = [PortalDom.Classes.Log, `${PortalDom.Classes.LogLevelPrefix}${event.severity}`].join(
       PortalDom.Classes.ClassNameSeparator

@@ -124,6 +124,15 @@ export const AgentCommand = {
   WatchStatusGet: AgentCommandNameSchema.parse('agent.watch.status.get'),
 } as const;
 
+export const AgentEvent = {
+  ConnectionReady: AgentEventNameSchema.parse('agent.connection.ready'),
+  CommandRejected: AgentEventNameSchema.parse('agent.command.rejected'),
+  HealthReported: AgentEventNameSchema.parse('agent.health.reported'),
+  LogSnapshotReported: AgentEventNameSchema.parse('agent.log.snapshot.reported'),
+  DevEchoed: AgentEventNameSchema.parse('agent.dev.echoed'),
+  WatchStatusReported: AgentEventNameSchema.parse('agent.watch.status.reported'),
+} as const;
+
 export const AgentProtocolDefaults = {
   SchemaVersion: AgentProtocolSchemaVersion,
   WebSocketUrl: decodeAgentWebSocketUrl('ws://127.0.0.1:4477/api/dev/ws'),
