@@ -1,7 +1,8 @@
 pub const DEFAULT_RECENT_LIMIT: u64 = 10;
-pub const DEFAULT_FILE_NAME: &str = "activity.duckdb";
-pub const FILE_EXTENSION: &str = "duckdb";
-pub const WAL_EXTENSION: &str = "duckdb.wal";
+pub const DEFAULT_FILE_NAME: &str = "activity.sqlite";
+pub const FILE_EXTENSION: &str = "sqlite";
+pub const WAL_FILE_EXTENSION: &str = "sqlite-wal";
+pub const SHM_FILE_EXTENSION: &str = "sqlite-shm";
 pub const TEST_FILE_PREFIX: &str = "ocentra-parent-activity-store-test-";
 pub const TEST_FIRST_OBSERVED_AT: &str = "2026-05-20T00:00:00Z";
 pub const TEST_SECOND_OBSERVED_AT: &str = "2026-05-20T00:01:00Z";

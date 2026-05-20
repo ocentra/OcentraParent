@@ -8,7 +8,7 @@ import {
 } from '../src/query';
 
 describe('activity query contracts', () => {
-  it('parses DuckDB ingest status with a nullable last event', () => {
+  it('parses query store ingest status with a nullable last event', () => {
     const status = ActivityIngestStatusSchema.parse({
       schemaVersion: ActivityQuerySchemaVersion,
       databaseReady: true,

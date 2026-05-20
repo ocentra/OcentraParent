@@ -27,7 +27,7 @@ const service = spawn(resolveDebugAgentServicePath(), [], {
   env: {
     ...process.env,
     [ParentDevEnv.AgentAddress]: createAgentAddress(port),
-    [ParentDevEnv.ActivityDbPath]: join(devLogDir, 'activity.duckdb'),
+    [ParentDevEnv.ActivityDbPath]: join(devLogDir, 'activity.sqlite'),
     [ParentDevEnv.DevLogDir]: devLogDir,
   },
   stdio: ['ignore', 'pipe', 'pipe'],

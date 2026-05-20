@@ -9,7 +9,7 @@ use ocentra_parent_agent_protocol::{
 use super::{ActivityJournal, ActivityStore, JournalKey, JOURNAL_KEY_BYTES};
 
 #[test]
-fn activity_store_ingests_journal_replay_into_duckdb() {
+fn activity_store_ingests_journal_replay_into_sqlite() {
     let journal_path = temp_path(
         constants::activity_store::TEST_JOURNAL_SUFFIX,
         constants::journal::FILE_EXTENSION,
@@ -132,8 +132,11 @@ fn cleanup_paths(journal_path: &std::path::PathBuf, store_path: &std::path::Path
     let _ = remove_file(journal_path);
     let _ = remove_file(store_path);
     let mut store_wal_path = store_path.clone();
-    store_wal_path.set_extension(constants::activity_store::WAL_EXTENSION);
+    store_wal_path.set_extension(constants::activity_store::WAL_FILE_EXTENSION);
     let _ = remove_file(store_wal_path);
+    let mut store_shm_path = store_path.clone();
+    store_shm_path.set_extension(constants::activity_store::SHM_FILE_EXTENSION);
+    let _ = remove_file(store_shm_path);
     for index in 1..=3 {
         let mut rotated_path = journal_path.clone();
         let mut extension = index.to_string();

@@ -128,8 +128,8 @@ pub mod activity_store;
 #[path = "constants/activity_subject_kind.rs"]
 pub mod activity_subject_kind;
 
-#[path = "constants/duckdb.rs"]
-pub mod duckdb;
+#[path = "constants/sqlite.rs"]
+pub mod sqlite;
 
 pub mod error {
     pub const AGENT_ADDR_SOCKET_ADDRESS: &str =
@@ -145,9 +145,9 @@ pub mod error {
     pub const JOURNAL_DECRYPTS: &str = "activity journal decrypts";
     pub const JOURNAL_OPENS: &str = "activity journal opens";
     pub const JOURNAL_READS: &str = "activity journal reads";
-    pub const ACTIVITY_STORE_OPENS: &str = "activity DuckDB store opens";
-    pub const ACTIVITY_STORE_INGESTS: &str = "activity DuckDB store ingests";
-    pub const ACTIVITY_STORE_QUERIES: &str = "activity DuckDB store queries";
+    pub const ACTIVITY_STORE_OPENS: &str = "activity SQLite store opens";
+    pub const ACTIVITY_STORE_INGESTS: &str = "activity SQLite store ingests";
+    pub const ACTIVITY_STORE_QUERIES: &str = "activity SQLite store queries";
 }
 
 pub mod delimiter {

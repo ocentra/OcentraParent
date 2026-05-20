@@ -2,13 +2,13 @@ use crate::JournalError;
 
 #[derive(Debug)]
 pub enum ActivityStoreError {
-    Database(duckdb::Error),
+    Database(rusqlite::Error),
     Journal(JournalError),
     Json(serde_json::Error),
 }
 
-impl From<duckdb::Error> for ActivityStoreError {
-    fn from(error: duckdb::Error) -> Self {
+impl From<rusqlite::Error> for ActivityStoreError {
+    fn from(error: rusqlite::Error) -> Self {
         Self::Database(error)
     }
 }

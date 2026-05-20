@@ -1,13 +1,13 @@
 use std::path::Path;
 
-use duckdb::{params, Connection};
 use ocentra_parent_agent_protocol::{
     constants, ActivityEvent, ActivityIngestStatus, ActivityRecentSummary, ActivityStoreRow,
     ACTIVITY_QUERY_SCHEMA_VERSION,
 };
+use rusqlite::{params, Connection};
 
 use crate::{
-    activity_store_rows::{row_from_duckdb, summary_from_rows},
+    activity_store_rows::{row_from_sqlite, summary_from_rows},
     ActivityJournal, ActivityStoreError,
 };
 
@@ -83,7 +83,7 @@ impl ActivityStore {
 
     fn has_event_id(&self, event_id: &str) -> Result<bool, ActivityStoreError> {
         let count: i64 = self.connection.query_row(
-            constants::duckdb::COUNT_ACTIVITY_EVENT_ID,
+            constants::sqlite::COUNT_ACTIVITY_EVENT_ID,
             params![event_id],
             |row| row.get(0),
         )?;
@@ -94,7 +94,7 @@ impl ActivityStore {
         let fields_json = serde_json::to_string(&event.fields)?;
         let evidence_json = serde_json::to_string(&event.evidence)?;
         self.connection.execute(
-            constants::duckdb::INSERT_ACTIVITY_EVENT,
+            constants::sqlite::INSERT_ACTIVITY_EVENT,
             params![
                 &event.event_id,
                 &event.observed_at,
@@ -115,7 +115,7 @@ impl ActivityStore {
     fn event_count(&self) -> Result<u64, ActivityStoreError> {
         let count: i64 =
             self.connection
-                .query_row(constants::duckdb::COUNT_ACTIVITY_EVENTS, [], |row| {
+                .query_row(constants::sqlite::COUNT_ACTIVITY_EVENTS, [], |row| {
                     row.get(0)
                 })?;
         Ok(count as u64)
@@ -124,7 +124,7 @@ impl ActivityStore {
     fn last_event_id(&self) -> Result<Option<String>, ActivityStoreError> {
         let mut statement = self
             .connection
-            .prepare(constants::duckdb::LAST_ACTIVITY_EVENT_ID)?;
+            .prepare(constants::sqlite::LAST_ACTIVITY_EVENT_ID)?;
         let mut rows = statement.query([])?;
         match rows.next()? {
             Some(row) => Ok(Some(row.get(0)?)),
@@ -135,8 +135,8 @@ impl ActivityStore {
     fn recent_rows(&self, limit: u64) -> Result<Vec<ActivityStoreRow>, ActivityStoreError> {
         let mut statement = self
             .connection
-            .prepare(constants::duckdb::SELECT_RECENT_ACTIVITY)?;
-        let rows = statement.query_map(params![limit as i64], row_from_duckdb)?;
+            .prepare(constants::sqlite::SELECT_RECENT_ACTIVITY)?;
+        let rows = statement.query_map(params![limit as i64], row_from_sqlite)?;
         let mut results = Vec::new();
         for row in rows {
             results.push(row?);
@@ -146,6 +146,6 @@ impl ActivityStore {
 }
 
 fn initialize_connection(connection: &Connection) -> Result<(), ActivityStoreError> {
-    connection.execute_batch(constants::duckdb::CREATE_ACTIVITY_EVENTS_TABLE)?;
+    connection.execute_batch(constants::sqlite::INITIALIZE_ACTIVITY_STORE)?;
     Ok(())
 }

@@ -31,10 +31,10 @@ The first proof is Windows-focused and local-first. The Rust service hosts local
 The core data pipeline is:
 
 ```text
-capture -> NDJSON journal -> ingester -> DuckDB warehouse -> portal/reports/policy
+capture -> NDJSON journal -> ingester -> SQLite query store -> portal/reports/policy
 ```
 
-NDJSON is the append-only source of truth. It is easy to inspect, replay, rotate, and recover from. DuckDB is the query layer for time windows, joins, summaries, and reports. The hot capture path should stay resilient and boring; analysis and policy should happen after events are safely written.
+NDJSON is the append-only source of truth. It is easy to inspect, replay, rotate, and recover from. SQLite is the default cross-platform query/index layer for time windows, joins, summaries, and reports. The hot capture path should stay resilient and boring; analysis and policy should happen after events are safely written.
 
 ## V0 Milestone
 
@@ -46,7 +46,7 @@ Definition of done:
 - Starts through a normal MSI installer.
 - Emits one schema-versioned event per observation.
 - Writes append-only NDJSON with safe flushing and rotation.
-- Ingests events into DuckDB for local queries.
+- Ingests events into SQLite for local queries.
 - Exposes a minimal local/LAN portal for visibility.
 - Can summarize top processes, domains, time windows, and suspicious unknowns.
 - Does no blocking, no AI classification, and no content inspection yet.
@@ -83,7 +83,7 @@ Not implemented yet:
 - Tests are required for every source workspace and Rust crate from the start.
 - Rust service execution is async and Tokio multithreaded by default.
 - NDJSON is the append-only evidence journal.
-- DuckDB is the local query warehouse.
+- SQLite is the default local query store.
 - Tests and validation gates are part of the scaffold, not an afterthought.
 
 ## Current Shape

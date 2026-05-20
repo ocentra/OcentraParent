@@ -52,7 +52,7 @@ Command handlers should be async and nonblocking. If a future platform capabilit
 agent service
   -> normalized local event
   -> NDJSON journal
-  -> DuckDB ingest
+  -> SQLite ingest
   -> local API
   -> parent portal
 ```

@@ -1,10 +1,10 @@
-use duckdb::Row;
 use ocentra_parent_agent_protocol::{
     ActivityEventKind, ActivityObserver, ActivityRecentSummary, ActivityStoreRow,
     ActivitySubjectKind, ACTIVITY_QUERY_SCHEMA_VERSION,
 };
+use rusqlite::Row;
 
-pub fn row_from_duckdb(row: &Row<'_>) -> duckdb::Result<ActivityStoreRow> {
+pub fn row_from_sqlite(row: &Row<'_>) -> rusqlite::Result<ActivityStoreRow> {
     Ok(ActivityStoreRow {
         event_id: row.get(0)?,
         observed_at: row.get(1)?,

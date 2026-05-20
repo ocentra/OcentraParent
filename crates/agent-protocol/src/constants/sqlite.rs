@@ -1,4 +1,6 @@
-pub const CREATE_ACTIVITY_EVENTS_TABLE: &str = "
+pub const INITIALIZE_ACTIVITY_STORE: &str = "
+PRAGMA foreign_keys = ON;
+PRAGMA journal_mode = WAL;
 CREATE TABLE IF NOT EXISTS activity_events (
   event_id TEXT PRIMARY KEY,
   observed_at TEXT NOT NULL,
@@ -11,7 +13,9 @@ CREATE TABLE IF NOT EXISTS activity_events (
   subject_display_name TEXT,
   fields_json TEXT NOT NULL,
   evidence_json TEXT NOT NULL
-);";
+);
+CREATE INDEX IF NOT EXISTS activity_events_recent_idx
+  ON activity_events (observed_at DESC, event_id DESC);";
 
 pub const INSERT_ACTIVITY_EVENT: &str = "
 INSERT INTO activity_events (
@@ -26,10 +30,10 @@ INSERT INTO activity_events (
   subject_display_name,
   fields_json,
   evidence_json
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11);";
 
 pub const COUNT_ACTIVITY_EVENT_ID: &str =
-    "SELECT COUNT(*) FROM activity_events WHERE event_id = ?;";
+    "SELECT COUNT(*) FROM activity_events WHERE event_id = ?1;";
 pub const COUNT_ACTIVITY_EVENTS: &str = "SELECT COUNT(*) FROM activity_events;";
 pub const LAST_ACTIVITY_EVENT_ID: &str =
     "SELECT event_id FROM activity_events ORDER BY observed_at DESC, event_id DESC LIMIT 1;";
@@ -47,4 +51,4 @@ SELECT
   subject_display_name
 FROM activity_events
 ORDER BY observed_at DESC, event_id DESC
-LIMIT ?;";
+LIMIT ?1;";
