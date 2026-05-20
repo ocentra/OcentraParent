@@ -45,8 +45,8 @@ function releaseVersion() {
 
 function runGradle() {
   const projectPath = join(repoRoot, 'platforms', 'android', 'agent');
-  const command = process.platform === 'win32' ? 'cmd.exe' : 'gradle';
-  const args = process.platform === 'win32' ? ['/d', '/s', '/c', 'gradle assembleDebug'] : ['assembleDebug'];
+  const command = process.platform === 'win32' ? 'cmd.exe' : './gradlew';
+  const args = process.platform === 'win32' ? ['/d', '/s', '/c', 'gradlew.bat assembleDebug'] : ['assembleDebug'];
   const result = spawnSync(command, args, {
     cwd: projectPath,
     stdio: 'inherit',

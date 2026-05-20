@@ -28,6 +28,10 @@ jobs:
           OCENTRA_PARENT_ALLOW_EPHEMERAL_UPDATE_KEY: 'true'
         run: ./scripts/release/windows/build-agent-package.ps1
 
+      - name: Smoke Windows MSI install and uninstall
+        shell: pwsh
+        run: ./scripts/smoke/windows-msi-smoke.ps1 -MsiPath ./target/release-packages/ocentra-parent-agent-windows-x64-latest.msi
+
       - name: Upload Windows MSI preview
         uses: actions/upload-artifact@v6
         with:
@@ -50,6 +54,9 @@ jobs:
       - name: Build Linux DEB package
         run: bash scripts/release/linux/build-agent-package.sh
 
+      - name: Smoke Linux DEB install and remove
+        run: bash scripts/smoke/linux-deb-smoke.sh target/release-packages/linux/ocentra-parent-agent-linux-amd64-latest.deb
+
       - name: Upload Linux package preview
         uses: actions/upload-artifact@v6
         with:
@@ -69,6 +76,9 @@ jobs:
 
       - name: Build macOS PKG package
         run: bash scripts/release/macos/build-agent-package.sh
+
+      - name: Smoke macOS PKG payload
+        run: bash scripts/smoke/macos-pkg-smoke.sh target/release-packages/macos/ocentra-parent-agent-macos-latest.pkg
 
       - name: Upload macOS package preview
         uses: actions/upload-artifact@v6
@@ -94,15 +104,22 @@ jobs:
 
       - uses: android-actions/setup-android@v3
 
-      - uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: 8.11.1
+      - name: Setup Gradle cache
+        uses: gradle/actions/setup-gradle@v4
 
       - name: Install Android SDK packages
         run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
 
       - name: Build Android APK
         run: node scripts/release/android/build-agent-package.mjs
+
+      - name: Smoke Android APK in emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          script: bash scripts/smoke/android-apk-smoke.sh target/release-packages/android/ocentra-parent-agent-android-debug-latest.apk
 
       - name: Upload Android package preview
         uses: actions/upload-artifact@v6
@@ -123,6 +140,9 @@ jobs:
 
       - name: Build iOS simulator app
         run: bash scripts/release/ios/build-simulator-app.sh
+
+      - name: Smoke iOS simulator app install and launch
+        run: bash scripts/smoke/ios-simulator-smoke.sh target/ios-derived-data/Build/Products/Debug-iphonesimulator/OcentraParentAgent.app
 
       - name: Upload iOS simulator preview
         uses: actions/upload-artifact@v6

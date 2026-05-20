@@ -7,7 +7,10 @@
 It runs:
 
 - release version alignment
+- repository secret scan
+- dependency security and license policy in CI
 - schema-boundary checks
+- Rust format and clippy warnings as errors
 - package lint
 - package type-check
 - package tests
@@ -19,6 +22,14 @@ It runs:
 - portal Playwright UI check against the real Rust service
 
 `npm run build` is the portal/package build gate and should pass before any scaffold is considered usable.
+
+CI adds installer/package reality checks after the root gate:
+
+- Windows MSI install, service presence check, and uninstall.
+- Linux DEB install, systemd unit check, and remove.
+- macOS PKG payload expansion and launchd payload check.
+- Android APK emulator install and launch.
+- iOS simulator app install and launch.
 
 ## Boundary Checks
 
@@ -63,8 +74,9 @@ These rules are tested by `npm run test:tooling`, which is part of `npm run test
 Rust validation runs across the entire Cargo workspace.
 
 ```powershell
-cargo check --workspace
-cargo test --workspace
+npm run format:rust
+npm run lint:rust
+npm run validate:rust
 ```
 
 The service binary must use Tokio's multithreaded runtime and async request handling. Blocking work has to be isolated behind explicit adapters before it enters command handlers.

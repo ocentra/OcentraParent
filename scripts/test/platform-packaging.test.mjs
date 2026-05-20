@@ -13,9 +13,13 @@ test('production release workflow publishes only from production branch', () => 
   const workflow = readRepoFile('.github/workflows/release.yml');
 
   assert.match(workflow, /branches:\s+- production/u);
+  assert.match(workflow, /release-decision:/u);
+  assert.match(workflow, /node scripts\/release\/decide-production-release\.mjs/u);
+  assert.match(workflow, /if: needs\.release-decision\.outputs\.release-required == 'true'/u);
   assert.match(workflow, /Build signed Windows MSI package/u);
+  assert.match(workflow, /Check production release secrets/u);
   assert.match(workflow, /OCENTRA_PARENT_UPDATE_SIGNING_KEY_BASE64/u);
-  assert.match(workflow, /github\.event\.before != '0000000000000000000000000000000000000000'/u);
+  assert.match(workflow, /scripts\/smoke\/windows-msi-smoke\.ps1/u);
 });
 
 test('package preview workflow builds every scaffolded platform', () => {
@@ -29,6 +33,38 @@ test('package preview workflow builds every scaffolded platform', () => {
   assert.match(workflow, /scripts\/release\/macos\/build-agent-package\.sh/u);
   assert.match(workflow, /scripts\/release\/android\/build-agent-package\.mjs/u);
   assert.match(workflow, /scripts\/release\/ios\/build-simulator-app\.sh/u);
+  assert.match(workflow, /scripts\/smoke\/windows-msi-smoke\.ps1/u);
+  assert.match(workflow, /scripts\/smoke\/linux-deb-smoke\.sh/u);
+  assert.match(workflow, /scripts\/smoke\/macos-pkg-smoke\.sh/u);
+  assert.match(workflow, /scripts\/smoke\/android-apk-smoke\.sh/u);
+  assert.match(workflow, /scripts\/smoke\/ios-simulator-smoke\.sh/u);
+  assert.match(workflow, /reactivecircus\/android-emulator-runner@v2/u);
+});
+
+test('dependency policy workflow audits dependencies and writes SBOM metadata', () => {
+  const workflow = readRepoFile('.github/workflows/dependency-policy.yml');
+  const packageJson = readRepoFile('package.json');
+
+  assert.match(workflow, /cargo install cargo-audit --locked/u);
+  assert.match(workflow, /npm run security:deps/u);
+  assert.match(workflow, /npm run security:sbom/u);
+  assert.match(workflow, /target\/security\/\*\.json/u);
+  assert.match(readRepoFile('scripts/security/write-sbom.mjs'), /--sbom-format=cyclonedx/u);
+  assert.match(packageJson, /"security:deps": "node scripts\/security\/check-dependency-policy\.mjs"/u);
+  assert.match(packageJson, /"security:sbom": "node scripts\/security\/write-sbom\.mjs"/u);
+});
+
+test('toolchains are pinned for Rust and Android packaging', () => {
+  const rustToolchain = readRepoFile('rust-toolchain.toml');
+  const setupCi = readRepoFile('.github/actions/setup-ci/action.yml');
+  const androidBuilder = readRepoFile('scripts/release/android/build-agent-package.mjs');
+  const gradleWrapper = readRepoFile('platforms/android/agent/gradle/wrapper/gradle-wrapper.properties');
+
+  assert.match(rustToolchain, /channel = "1\.90\.0"/u);
+  assert.match(setupCi, /rust-toolchain\.toml/u);
+  assert.match(androidBuilder, /gradlew\.bat assembleDebug/u);
+  assert.match(androidBuilder, /\.\/gradlew/u);
+  assert.match(gradleWrapper, /gradle-8\.12\.1-bin\.zip/u);
 });
 
 test('Linux and macOS packages install real service managers', () => {

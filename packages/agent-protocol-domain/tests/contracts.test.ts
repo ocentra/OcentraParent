@@ -1,5 +1,10 @@
 import { expect, it } from 'vitest';
-import { AgentCommandEnvelopeSchema, AgentEventEnvelopeSchema, AgentProtocolDefaults } from '../src/contracts';
+import {
+  AgentCommandEnvelopeSchema,
+  AgentEventEnvelopeSchema,
+  AgentPairingProofSchema,
+  AgentProtocolDefaults,
+} from '../src/contracts';
 
 it('AgentCommandEnvelopeSchema: accepts a portal command for a Windows localhost agent', () => {
   const parsed = AgentCommandEnvelopeSchema.safeParse({
@@ -72,4 +77,24 @@ it('AgentCommandEnvelopeSchema: rejects unknown commands', () => {
   });
 
   expect(parsed.success).toBe(false);
+});
+
+it('AgentRouteSecurityPolicySchema: forbids anonymous local-network control', () => {
+  expect(AgentProtocolDefaults.RouteSecurity.Localhost.allowsAnonymousControl).toBe(true);
+  expect(AgentProtocolDefaults.RouteSecurity.LocalNetwork.requiresPairing).toBe(true);
+  expect(AgentProtocolDefaults.RouteSecurity.LocalNetwork.allowsAnonymousControl).toBe(false);
+  expect(AgentProtocolDefaults.RouteSecurity.CloudRelay.allowsAnonymousControl).toBe(false);
+});
+
+it('AgentPairingProofSchema: accepts hashed pairing proof without raw token transport', () => {
+  const parsed = AgentPairingProofSchema.safeParse({
+    pairingId: 'pairing-local-dev',
+    deviceId: 'local-dev-agent',
+    parentPeerId: 'portal-dev',
+    issuedAt: '2026-05-19T00:00:00Z',
+    expiresAt: '2026-05-19T00:05:00Z',
+    tokenHash: 'sha256:local-dev-token-hash',
+  });
+
+  expect(parsed.success).toBe(true);
 });

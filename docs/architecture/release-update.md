@@ -13,7 +13,7 @@ The repository uses one release version across:
 - Android `versionName`
 - iOS `MARKETING_VERSION`
 
-`npm run release:version` validates that all sources are aligned and use SemVer. A push to `production` is expected to carry a new version. If the matching release tag already exists, the release job fails and the next production push must bump the version first.
+`npm run release:version` validates that all sources are aligned and use SemVer. A push to `production` is expected to carry a new version when publishing is intended. The production workflow first checks whether tag `vX.Y.Z` already exists; if it exists, the release publish job is skipped instead of creating duplicate assets. This lets the branch absorb scaffold-only workflow updates without accidentally republishing the same installer.
 
 ## Branch and Release Flow
 
@@ -22,8 +22,9 @@ push to main
   -> CI Gate
   -> fail fast
   -> secret scan
+  -> dependency policy and SBOM
   -> validate and build
-  -> package previews for Windows, Linux, macOS, Android, and iOS simulator
+  -> package previews and smoke checks for Windows, Linux, macOS, Android, and iOS simulator
   -> no GitHub Release
   -> no trusted update manifest
 
@@ -31,9 +32,11 @@ push to production
   -> Production Release Gate
   -> fail fast
   -> secret scan
+  -> dependency policy and SBOM
   -> validate and build
-  -> package previews for Windows, Linux, macOS, Android, and iOS simulator
-  -> signed Windows release package
+  -> package previews and smoke checks for Windows, Linux, macOS, Android, and iOS simulator
+  -> release decision checks for a missing vX.Y.Z tag
+  -> signed Windows release package when a release is required
   -> git tag vX.Y.Z
   -> GitHub Release assets
 ```
@@ -49,11 +52,11 @@ Preview artifacts are CI build outputs for testing. They are not store submissio
 
 Current platform package preview status:
 
-- Windows: real x64 MSI with WinSW services and updater scaffold.
-- Linux: real amd64 `.deb` with a systemd service.
-- macOS: real `.pkg` with a launchd daemon.
-- Android: real debug APK with a foreground service scaffold.
-- iOS: real simulator app build from an Xcode project.
+- Windows: real x64 MSI with WinSW services and updater scaffold; CI installs and uninstalls it.
+- Linux: real amd64 `.deb` with a systemd service; CI installs and removes it.
+- macOS: real `.pkg` with a launchd daemon; CI expands and validates the payload.
+- Android: real debug APK with a foreground service scaffold; CI installs and launches it in an emulator.
+- iOS: real simulator app build from an Xcode project; CI installs and launches it in a simulator.
 
 Android device-owner policy, iOS Family Controls entitlements, macOS notarization, Apple App Store submission, Google Play submission, Linux rpm packaging, and non-Windows updater installers are intentionally not claimed yet.
 
@@ -107,6 +110,20 @@ The updater is separate from the main agent so the main service does not replace
 The production release builder requires `OCENTRA_PARENT_UPDATE_SIGNING_KEY_BASE64` in CI. Local builds can generate a local-only development signing key under `target/release-packages`; package previews can generate an explicit ephemeral signing key; neither key is trusted for production releases.
 
 The updater binary is compiled with the trusted public key from `OCENTRA_PARENT_UPDATE_PUBLIC_KEY_BASE64`. It refuses to process update manifests without a valid Ed25519 signature from that key.
+
+## Signing and Store Secrets
+
+The current production release requires one live secret:
+
+- `OCENTRA_PARENT_UPDATE_SIGNING_KEY_BASE64`
+
+The workflow also documents but does not require future signing secrets for Windows Authenticode, macOS Developer ID, Apple App Store submission, and Android release keystores. Those remain planned until the matching signing and distribution workflows are real.
+
+## Dependency Policy
+
+CI runs `npm audit --audit-level=high`, `cargo audit --deny warnings`, an npm license allowlist, and SBOM metadata generation before package previews. SBOM outputs are uploaded from `target/security/*.json`.
+
+Rust uses the version pinned in `rust-toolchain.toml`. Android package builds use `platforms/android/agent/gradlew` so the preview build does not depend on a globally installed Gradle version.
 
 ## Install Command
 

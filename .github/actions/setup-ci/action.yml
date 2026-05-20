@@ -7,7 +7,7 @@ inputs:
     required: false
     default: ci
   install-rust:
-    description: Install the stable Rust toolchain.
+    description: Install the Rust toolchain pinned by rust-toolchain.toml.
     required: false
     default: 'true'
 
@@ -22,7 +22,11 @@ runs:
 
     - name: Setup Rust
       if: inputs.install-rust == 'true'
-      uses: dtolnay/rust-toolchain@stable
+      shell: bash
+      run: |
+        rust_channel="$(node -e "const fs=require('node:fs'); const text=fs.readFileSync('rust-toolchain.toml','utf8'); const match=text.match(/channel\\s*=\\s*['\\\"]([^'\\\"]+)['\\\"]/); if (!match) process.exit(1); process.stdout.write(match[1]);")"
+        rustup toolchain install "$rust_channel" --profile minimal --component clippy --component rustfmt --no-self-update
+        rustup default "$rust_channel"
 
     - name: Install npm dependencies
       if: inputs.install-mode != 'skip'

@@ -29,12 +29,43 @@ pub enum AgentRoute {
     CloudRelay,
 }
 
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum AgentPairingState {
+    #[serde(rename = "unpaired")]
+    Unpaired,
+    #[serde(rename = "pairing")]
+    Pairing,
+    #[serde(rename = "paired")]
+    Paired,
+    #[serde(rename = "revoked")]
+    Revoked,
+}
+
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AgentMessageTarget {
     pub device_id: String,
     pub platform: String,
     pub route: AgentRoute,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AgentPairingProof {
+    pub pairing_id: String,
+    pub device_id: String,
+    pub parent_peer_id: String,
+    pub issued_at: String,
+    pub expires_at: String,
+    pub token_hash: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AgentRouteSecurityPolicy {
+    pub route: AgentRoute,
+    pub requires_pairing: bool,
+    pub allows_anonymous_control: bool,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

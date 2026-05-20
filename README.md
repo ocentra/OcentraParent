@@ -55,7 +55,7 @@ The event model is intent-first, not packet-first. We care about normalized acti
 
 ## Current Repository State
 
-This repository is currently in scaffold-first mode. The first committed foundation includes workspace layout, domain boundaries, validation gates, test structure, Rust crate boundaries, local and LAN dev APIs, a minimal Vite portal, MSI release packaging, and signed updater scaffolding.
+This repository is currently in scaffold-first mode. The committed foundation includes workspace layout, domain boundaries, validation gates, test structure, Rust crate boundaries, local and LAN dev APIs, a minimal Vite portal, MSI release packaging, package-preview scaffolds for every target platform, signed updater scaffolding, dependency/security gates, and SBOM generation.
 
 Not implemented yet:
 
@@ -68,6 +68,7 @@ Not implemented yet:
 - AI guidance.
 - Browser extension URL context.
 - Mobile agents.
+- Production mobile store distribution.
 
 ## Engineering Principles
 
@@ -105,7 +106,7 @@ crates/
   agent-protocol/  Rust protocol structs matching shared contracts.
   agent-service/   Rust local API smoke service.
 scripts/
-  validation, platform packaging, and git hook guardrails.
+  validation, dependency policy, platform packaging, smoke, and git hook guardrails.
 platforms/
   android/      Android APK scaffold with a foreground agent service.
   ios/          iOS simulator app scaffold with an Xcode project.
@@ -134,7 +135,9 @@ cmd /c npm run release:package:windows
 
 Source pushes to `main` run the CI gate and build package-preview artifacts for Windows, Linux, macOS, Android, and iOS simulator, but they do not publish GitHub Releases. README-only, Markdown-only, and `docs/**` pushes are ignored by CI.
 
-Production releases happen from the `production` branch only. After `main` is green and the version is intentionally bumped, pushing/merging to `production` builds the signed Windows release, creates tag `v<version>`, and publishes GitHub Release assets. Package previews for Linux, macOS, Android, and iOS stay as CI artifacts until their signing/store/update paths are deliberately promoted.
+Production releases happen from the `production` branch only. After `main` is green and the version is intentionally bumped, pushing/merging to `production` builds the signed Windows release, creates tag `v<version>`, and publishes GitHub Release assets. If the version tag already exists, the production workflow still runs its gates and package previews, then skips publishing. Package previews for Linux, macOS, Android, and iOS stay as CI artifacts until their signing/store/update paths are deliberately promoted.
+
+Package previews are not just archive builds. CI now performs install or launch smoke checks for each scaffolded platform: MSI install/uninstall on Windows, DEB install/remove on Linux, PKG payload validation on macOS, APK install/launch in Android emulator, and app install/launch in iOS simulator.
 
 Once a release exists, install on another Windows PC from an elevated PowerShell session:
 
@@ -151,6 +154,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -Command "irm https://github.com/o
 ```
 
 See `docs/architecture/release-update.md` for the updater boundary. The MSI installs the headless service under `%ProgramFiles%\Ocentra\Ocentra Parent Agent`, registers it as `OcentraParentAgent`, starts it on install, and gives Windows a normal uninstall/upgrade entry. It also installs `OcentraParentUpdater`, a separate signed-manifest updater service that checks GitHub Release metadata and runs quiet MSI upgrades.
+
+The production Windows update manifest requires `OCENTRA_PARENT_UPDATE_SIGNING_KEY_BASE64`. Future platform signing secrets for Authenticode, macOS, Android store, and Apple store distribution are documented in the repo but are not required until those release paths are implemented.
 
 ## Local Dev Loop
 

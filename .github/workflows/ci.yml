@@ -39,6 +39,10 @@ jobs:
     needs: [secret-scan]
     uses: ./.github/workflows/build.yml
 
+  dependency-policy:
+    needs: [secret-scan]
+    uses: ./.github/workflows/dependency-policy.yml
+
   package-preview:
-    needs: [validate, build]
+    needs: [validate, build, dependency-policy]
     uses: ./.github/workflows/package-preview.yml

@@ -1,8 +1,8 @@
 use super::{
     crate_name, AgentCommandEnvelope, AgentCommandName, AgentEventEnvelope, AgentEventName,
-    AgentIdentity, AgentLogEntry, AgentLogSnapshot, AgentMessageTarget, AgentPeer, AgentPeerRole,
-    AgentRoute, LogFieldValue, LogFields, LogLevel, LogSource, AGENT_PROTOCOL_SCHEMA_VERSION,
-    LOG_SCHEMA_VERSION,
+    AgentIdentity, AgentLogEntry, AgentLogSnapshot, AgentMessageTarget, AgentPairingProof,
+    AgentPeer, AgentPeerRole, AgentRoute, AgentRouteSecurityPolicy, LogFieldValue, LogFields,
+    LogLevel, LogSource, AGENT_PROTOCOL_SCHEMA_VERSION, LOG_SCHEMA_VERSION,
 };
 
 #[test]
@@ -78,6 +78,40 @@ fn local_network_route_serializes_to_typescript_contract_shape() {
     let serialized = serde_json::to_value(AgentRoute::LocalNetwork).expect("route serializes");
 
     assert_eq!(serialized, "local-network");
+}
+
+#[test]
+fn local_network_route_security_rejects_anonymous_control() {
+    let policy = AgentRouteSecurityPolicy {
+        route: AgentRoute::LocalNetwork,
+        requires_pairing: true,
+        allows_anonymous_control: false,
+    };
+
+    let serialized = serde_json::to_value(policy).expect("route security serializes");
+
+    assert_eq!(serialized["route"], "local-network");
+    assert_eq!(serialized["requiresPairing"], true);
+    assert_eq!(serialized["allowsAnonymousControl"], false);
+}
+
+#[test]
+fn pairing_proof_serializes_without_raw_pairing_token() {
+    let proof = AgentPairingProof {
+        pairing_id: "pairing-local-dev".to_string(),
+        device_id: "local-dev-agent".to_string(),
+        parent_peer_id: "portal-dev".to_string(),
+        issued_at: "2026-05-19T00:00:00Z".to_string(),
+        expires_at: "2026-05-19T00:05:00Z".to_string(),
+        token_hash: "sha256:local-dev-token-hash".to_string(),
+    };
+
+    let serialized = serde_json::to_value(proof).expect("pairing proof serializes");
+    let serialized_text =
+        serde_json::to_string(&serialized).expect("pairing proof serializes to text");
+
+    assert_eq!(serialized["tokenHash"], "sha256:local-dev-token-hash");
+    assert!(!serialized_text.contains("rawToken"));
 }
 
 #[test]

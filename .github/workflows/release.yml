@@ -29,13 +29,39 @@ jobs:
     needs: [secret-scan]
     uses: ./.github/workflows/build.yml
 
+  dependency-policy:
+    needs: [secret-scan]
+    uses: ./.github/workflows/dependency-policy.yml
+
   package-preview:
-    needs: [validate, build]
+    needs: [validate, build, dependency-policy]
     uses: ./.github/workflows/package-preview.yml
 
-  release-windows:
-    if: github.event_name == 'workflow_dispatch' || github.event.before != '0000000000000000000000000000000000000000'
+  release-decision:
     needs: [package-preview]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      release-required: ${{ steps.decision.outputs.release_required }}
+      version: ${{ steps.decision.outputs.version }}
+      tag: ${{ steps.decision.outputs.tag }}
+      reason: ${{ steps.decision.outputs.reason }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/setup-ci
+
+      - name: Decide whether production should publish
+        id: decision
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/release/decide-production-release.mjs
+
+  release-windows:
+    if: needs.release-decision.outputs.release-required == 'true'
+    needs: [release-decision]
     runs-on: windows-latest
     timeout-minutes: 25
     permissions:
@@ -52,11 +78,21 @@ jobs:
         with:
           dotnet-version: 8.0.x
 
+      - name: Check production release secrets
+        shell: pwsh
+        env:
+          OCENTRA_PARENT_UPDATE_SIGNING_KEY_BASE64: ${{ secrets.OCENTRA_PARENT_UPDATE_SIGNING_KEY_BASE64 }}
+        run: node scripts/release/check-production-secrets.mjs --release windows
+
       - name: Build signed Windows MSI package
         shell: pwsh
         env:
           OCENTRA_PARENT_UPDATE_SIGNING_KEY_BASE64: ${{ secrets.OCENTRA_PARENT_UPDATE_SIGNING_KEY_BASE64 }}
         run: ./scripts/release/windows/build-agent-package.ps1
+
+      - name: Smoke signed Windows MSI install and uninstall
+        shell: pwsh
+        run: ./scripts/smoke/windows-msi-smoke.ps1 -MsiPath ./target/release-packages/ocentra-parent-agent-windows-x64-latest.msi
 
       - name: Create GitHub release
         shell: pwsh

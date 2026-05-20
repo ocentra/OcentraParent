@@ -7,39 +7,60 @@ import {
   type LogLevel,
 } from '@ocentra-parent/logging-domain/contracts';
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  AgentCorrelationIdSchema,
+  AgentEventIdSchema,
+  AgentMessageIdSchema,
+  AgentMessageTargetSchema,
+  AgentPeerSchema,
+  AgentProtocolSchemaVersion,
+  AgentTimestampSchema,
+  AgentWebSocketUrlSchema,
+  SerializedAgentMessageSchema,
+} from './primitives';
+import { AgentPairingStateSchema, AgentRouteSecurityPolicySchema } from './security';
 
-export const AgentProtocolSchemaVersion = 1;
-
-const NonEmptyProtocolText = Schema.String.pipe(Schema.minLength(1));
-
-export const AgentPeerIdSchema = NonEmptyProtocolText.pipe(Schema.brand('AgentPeerId'));
-export const AgentDeviceIdSchema = NonEmptyProtocolText.pipe(Schema.brand('AgentDeviceId'));
-export const AgentPlatformSchema = NonEmptyProtocolText.pipe(Schema.brand('AgentPlatform'));
-export const AgentMessageIdSchema = NonEmptyProtocolText.pipe(Schema.brand('AgentMessageId'));
-export const AgentEventIdSchema = NonEmptyProtocolText.pipe(Schema.brand('AgentEventId'));
-export const AgentCorrelationIdSchema = NonEmptyProtocolText.pipe(Schema.brand('AgentCorrelationId'));
-export const AgentTimestampSchema = NonEmptyProtocolText.pipe(Schema.brand('AgentTimestamp'));
-export const AgentWebSocketUrlSchema = NonEmptyProtocolText.pipe(Schema.brand('AgentWebSocketUrl'));
-export const SerializedAgentMessageSchema = NonEmptyProtocolText.pipe(Schema.brand('SerializedAgentMessage'));
-
-export const AgentPeerRoleSchema = withParser(Schema.Literal('portal', 'agent-service', 'cloud-relay'));
-
-export const AgentRouteSchema = withParser(Schema.Literal('localhost', 'local-network', 'cloud-relay'));
-
-export const AgentPeerSchema = withParser(
-  Schema.Struct({
-    peerId: AgentPeerIdSchema,
-    role: AgentPeerRoleSchema,
-  })
-);
-
-export const AgentMessageTargetSchema = withParser(
-  Schema.Struct({
-    deviceId: AgentDeviceIdSchema,
-    platform: AgentPlatformSchema,
-    route: AgentRouteSchema,
-  })
-);
+export {
+  AgentCorrelationIdSchema,
+  AgentDeviceIdSchema,
+  AgentEventIdSchema,
+  AgentMessageIdSchema,
+  AgentMessageTargetSchema,
+  AgentPeerIdSchema,
+  AgentPeerRoleSchema,
+  AgentPeerSchema,
+  AgentPlatformSchema,
+  AgentProtocolSchemaVersion,
+  AgentRouteSchema,
+  AgentTimestampSchema,
+  AgentWebSocketUrlSchema,
+  SerializedAgentMessageSchema,
+  type AgentCorrelationId,
+  type AgentDeviceId,
+  type AgentEventId,
+  type AgentMessageId,
+  type AgentMessageTarget,
+  type AgentPeer,
+  type AgentPeerId,
+  type AgentPeerRole,
+  type AgentPlatform,
+  type AgentRoute,
+  type AgentTimestamp,
+  type AgentWebSocketUrl,
+  type SerializedAgentMessage,
+} from './primitives';
+export {
+  AgentPairingIdSchema,
+  AgentPairingProofSchema,
+  AgentPairingStateSchema,
+  AgentPairingTokenHashSchema,
+  AgentRouteSecurityPolicySchema,
+  type AgentPairingId,
+  type AgentPairingProof,
+  type AgentPairingState,
+  type AgentPairingTokenHash,
+  type AgentRouteSecurityPolicy,
+} from './security';
 
 export const AgentCommandNameSchema = withParser(
   Schema.Literal('agent.health.check', 'agent.log.snapshot.get', 'agent.dev.echo', 'agent.watch.status.get')
@@ -83,19 +104,6 @@ export const AgentEventEnvelopeSchema = withParser(
   })
 );
 
-export type AgentPeerRole = Infer<typeof AgentPeerRoleSchema>;
-export type AgentRoute = Infer<typeof AgentRouteSchema>;
-export type AgentPeerId = typeof AgentPeerIdSchema.Type;
-export type AgentDeviceId = typeof AgentDeviceIdSchema.Type;
-export type AgentPlatform = typeof AgentPlatformSchema.Type;
-export type AgentMessageId = typeof AgentMessageIdSchema.Type;
-export type AgentEventId = typeof AgentEventIdSchema.Type;
-export type AgentCorrelationId = typeof AgentCorrelationIdSchema.Type;
-export type AgentTimestamp = typeof AgentTimestampSchema.Type;
-export type AgentWebSocketUrl = typeof AgentWebSocketUrlSchema.Type;
-export type SerializedAgentMessage = typeof SerializedAgentMessageSchema.Type;
-export type AgentPeer = Infer<typeof AgentPeerSchema>;
-export type AgentMessageTarget = Infer<typeof AgentMessageTargetSchema>;
 export type AgentCommandName = Infer<typeof AgentCommandNameSchema>;
 export type AgentEventName = Infer<typeof AgentEventNameSchema>;
 export type AgentCommandEnvelope = Infer<typeof AgentCommandEnvelopeSchema>;
@@ -136,6 +144,29 @@ export const AgentProtocolDefaults = {
       deviceId: 'local-dev-agent',
       platform: 'windows',
       route: 'local-network',
+    }),
+  },
+  PairingState: {
+    Unpaired: AgentPairingStateSchema.parse('unpaired'),
+    Pairing: AgentPairingStateSchema.parse('pairing'),
+    Paired: AgentPairingStateSchema.parse('paired'),
+    Revoked: AgentPairingStateSchema.parse('revoked'),
+  },
+  RouteSecurity: {
+    Localhost: AgentRouteSecurityPolicySchema.parse({
+      route: 'localhost',
+      requiresPairing: false,
+      allowsAnonymousControl: true,
+    }),
+    LocalNetwork: AgentRouteSecurityPolicySchema.parse({
+      route: 'local-network',
+      requiresPairing: true,
+      allowsAnonymousControl: false,
+    }),
+    CloudRelay: AgentRouteSecurityPolicySchema.parse({
+      route: 'cloud-relay',
+      requiresPairing: true,
+      allowsAnonymousControl: false,
     }),
   },
   Host: {

@@ -5,6 +5,10 @@
   "type": "module",
   "description": "Parent product contract boundary placeholder.",
   "exports": {
+    "./capabilities": {
+      "import": "./dist/capabilities.js",
+      "types": "./dist/capabilities.d.ts"
+    },
     "./package-info": {
       "import": "./dist/package-info.js",
       "types": "./dist/package-info.d.ts"
@@ -16,5 +20,8 @@
     "lint": "npx turbo run lint:exec --filter=@ocentra-parent/parent-domain",
     "lint:exec": "eslint --cache src tests && tsc -p tsconfig.json --noEmit",
     "test": "vitest run"
+  },
+  "dependencies": {
+    "@ocentra-parent/schema-domain": "file:../schema-domain"
   }
 }

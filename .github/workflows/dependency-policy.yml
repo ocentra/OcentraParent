@@ -1,0 +1,33 @@
+name: Dependency Policy
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  dependency-policy:
+    name: Dependency Audit, Licenses, SBOM
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
+
+      - name: Install cargo-audit
+        run: cargo install cargo-audit --locked
+
+      - name: Dependency and license policy
+        run: npm run security:deps
+
+      - name: Write SBOM metadata
+        run: npm run security:sbom
+
+      - name: Upload SBOM metadata
+        uses: actions/upload-artifact@v6
+        with:
+          name: ocentra-parent-security-sbom
+          path: target/security/*.json

@@ -52,9 +52,9 @@ Run:
 npm run validate
 ```
 
-The root gate runs release version alignment, schema-boundary checks, Turbo lint/type-check/test tasks, Rust workspace checks/tests, integration smoke, local portal smoke, and Playwright UI coverage against the real Rust service.
+The root gate runs release version alignment, schema-boundary checks, Turbo lint/type-check/test tasks, Rust format, Rust clippy, Rust workspace checks/tests, integration smoke, local portal smoke, and Playwright UI coverage against the real Rust service. CI also runs dependency policy, SBOM generation, and package install/launch smoke checks.
 
-`main` is a CI and package-preview branch. It must not publish GitHub Releases. Production installer publishing belongs to the `production` branch workflow, and package-preview jobs should stay honest about platform scope: build real Windows/Linux/macOS/mobile artifacts, but do not claim signing, stores, device-owner policy, or iOS Family Controls until those credentials and entitlements are actually wired.
+`main` is a CI and package-preview branch. It must not publish GitHub Releases. Production installer publishing belongs to the `production` branch workflow and only runs when the aligned version tag is missing. Package-preview jobs should stay honest about platform scope: build and smoke-check real Windows/Linux/macOS/mobile artifacts, but do not claim signing, stores, device-owner policy, or iOS Family Controls until those credentials and entitlements are actually wired.
 
 ESLint includes local Ocentra Parent rules. Editors with ESLint enabled should report app string literals, raw app `string` annotations, manual brands, and naked domain string aliases before validation runs.
 

@@ -25,7 +25,11 @@ test('CI gate builds package previews but does not publish releases from main', 
 
   assert.match(
     workflow,
-    /package-preview:\s+needs: \[validate, build\]\s+uses: \.\/\.github\/workflows\/package-preview\.yml/u
+    /package-preview:\s+needs: \[validate, build, dependency-policy\]\s+uses: \.\/\.github\/workflows\/package-preview\.yml/u
+  );
+  assert.match(
+    workflow,
+    /dependency-policy:\s+needs: \[secret-scan\]\s+uses: \.\/\.github\/workflows\/dependency-policy\.yml/u
   );
   assert.equal(workflow.includes('Create GitHub release'), false);
 });
