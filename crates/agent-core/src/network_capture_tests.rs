@@ -93,6 +93,7 @@ fn network_observation_event_maps_degraded_status_contract() {
     assert!(!event.fields.contains_key(constants::field::DESTINATION_IP));
 }
 
+#[cfg(windows)]
 #[test]
 fn netstat_parser_maps_tcp_connection_to_network_observation() {
     let process_names = std::collections::BTreeMap::from([(

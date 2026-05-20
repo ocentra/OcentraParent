@@ -11,6 +11,7 @@ mod network_capture;
 mod network_capture_adapter;
 mod network_capture_event;
 mod network_capture_event_fields;
+#[cfg(windows)]
 mod network_capture_netstat;
 mod process_capture;
 mod window_capture;
