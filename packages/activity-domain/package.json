@@ -28,5 +28,8 @@
     "lint": "npx turbo run lint:exec --filter=@ocentra-parent/activity-domain",
     "lint:exec": "eslint --cache src tests && tsc -p tsconfig.json --noEmit",
     "test": "vitest run"
+  },
+  "dependencies": {
+    "@ocentra-parent/schema-domain": "file:../schema-domain"
   }
 }
