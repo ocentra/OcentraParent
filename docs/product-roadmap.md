@@ -2,7 +2,7 @@
 
 This roadmap describes the product we are building, the order we intend to build it in, and the acceptance bar for each stage. It is intentionally product-facing and implementation-facing: every milestone should produce a real vertical slice, not a fake demo.
 
-Per-feature acceptance expectations live in [`feature-expectations.md`](feature-expectations.md). Use that document to decide what a feature must prove without over-prescribing how it must be implemented.
+Per-feature acceptance expectations live in [`feature-expectations.md`](feature-expectations.md). Each milestone below links to the expectation files that define what the feature must prove without over-prescribing how it must be implemented.
 
 ## Product Goal
 
@@ -99,6 +99,15 @@ Purpose:
 
 Create the repo, contracts, and runtime boundaries that make future product code hard to fake.
 
+Expectation links:
+
+- [Feature request expectations](expectations/feature-request.md)
+- [Universal done definition](expectations/universal-done.md)
+- [Code quality expectations](expectations/code-quality.md)
+- [Static analysis and security expectations](expectations/static-analysis-security.md)
+- [Contract feature expectations](expectations/contracts.md)
+- [Release and installer expectations](expectations/release-installer.md)
+
 Deliverables:
 
 - Workspace scaffold.
@@ -128,6 +137,13 @@ Status:
 Purpose:
 
 Make the agent able to write and query trusted local facts before capture or blocking exists.
+
+Expectation links:
+
+- [Evidence storage expectations](expectations/evidence-storage.md)
+- [Contract feature expectations](expectations/contracts.md)
+- [Portal feature expectations](expectations/portal.md)
+- [Static analysis and security expectations](expectations/static-analysis-security.md)
 
 Deliverables:
 
@@ -159,6 +175,14 @@ Status:
 Purpose:
 
 Start observing useful local activity without blocking, AI, or invasive content inspection.
+
+Expectation links:
+
+- [Capture feature expectations](expectations/capture.md)
+- [Evidence storage expectations](expectations/evidence-storage.md)
+- [Contract feature expectations](expectations/contracts.md)
+- [Portal feature expectations](expectations/portal.md)
+- [Platform expectations](expectations/platforms.md)
 
 Deliverables:
 
@@ -192,6 +216,14 @@ Purpose:
 
 Observe network/domain activity enough to answer what services and sites are being used.
 
+Expectation links:
+
+- [Capture feature expectations](expectations/capture.md)
+- [Evidence storage expectations](expectations/evidence-storage.md)
+- [Contract feature expectations](expectations/contracts.md)
+- [Portal feature expectations](expectations/portal.md)
+- [Platform expectations](expectations/platforms.md)
+
 Deliverables:
 
 - Windows network observation adapter.
@@ -216,6 +248,13 @@ Purpose:
 
 Turn dev command proof into a usable local parent visibility surface.
 
+Expectation links:
+
+- [Portal feature expectations](expectations/portal.md)
+- [Evidence storage expectations](expectations/evidence-storage.md)
+- [Contract feature expectations](expectations/contracts.md)
+- [Documentation expectations](expectations/documentation.md)
+
 Deliverables:
 
 - Activity timeline.
@@ -238,6 +277,12 @@ Acceptance:
 Purpose:
 
 Define rules before enforcing anything.
+
+Expectation links:
+
+- [Policy feature expectations](expectations/policy.md)
+- [Contract feature expectations](expectations/contracts.md)
+- [Evidence storage expectations](expectations/evidence-storage.md)
 
 Deliverables:
 
@@ -262,6 +307,12 @@ Purpose:
 
 Evaluate activity against parent rules and explain decisions.
 
+Expectation links:
+
+- [Policy feature expectations](expectations/policy.md)
+- [Evidence storage expectations](expectations/evidence-storage.md)
+- [Portal feature expectations](expectations/portal.md)
+
 Deliverables:
 
 - Local policy evaluator crate/module.
@@ -283,6 +334,14 @@ Acceptance:
 Purpose:
 
 Start enforcing simple local decisions after policy evaluation is trusted.
+
+Expectation links:
+
+- [Enforcement feature expectations](expectations/enforcement.md)
+- [Policy feature expectations](expectations/policy.md)
+- [Evidence storage expectations](expectations/evidence-storage.md)
+- [Platform expectations](expectations/platforms.md)
+- [Static analysis and security expectations](expectations/static-analysis-security.md)
 
 Deliverables:
 
@@ -308,6 +367,13 @@ Purpose:
 
 Let a parent device control or observe another child device on the same local network.
 
+Expectation links:
+
+- [LAN pairing expectations](expectations/lan-pairing.md)
+- [Contract feature expectations](expectations/contracts.md)
+- [Portal feature expectations](expectations/portal.md)
+- [Static analysis and security expectations](expectations/static-analysis-security.md)
+
 Deliverables:
 
 - Device discovery.
@@ -329,6 +395,15 @@ Acceptance:
 Purpose:
 
 Ship a usable Windows-first local product for a parent to install and observe activity.
+
+Expectation links:
+
+- [Evidence storage expectations](expectations/evidence-storage.md)
+- [Capture feature expectations](expectations/capture.md)
+- [Portal feature expectations](expectations/portal.md)
+- [Policy feature expectations](expectations/policy.md)
+- [Release and installer expectations](expectations/release-installer.md)
+- [Platform expectations](expectations/platforms.md)
 
 Deliverables:
 
@@ -360,6 +435,13 @@ Purpose:
 
 Support the parent-away-from-home use case.
 
+Expectation links:
+
+- [Cloud feature expectations](expectations/cloud.md)
+- [Sync and export expectations](expectations/sync-export.md)
+- [LAN pairing expectations](expectations/lan-pairing.md)
+- [Static analysis and security expectations](expectations/static-analysis-security.md)
+
 Deliverables:
 
 - Cloudflare control plane.
@@ -382,6 +464,12 @@ Purpose:
 
 Notify parents when attention is needed.
 
+Expectation links:
+
+- [Notification feature expectations](expectations/notifications.md)
+- [Policy feature expectations](expectations/policy.md)
+- [Evidence storage expectations](expectations/evidence-storage.md)
+
 Deliverables:
 
 - Notification domain contracts.
@@ -402,6 +490,13 @@ Acceptance:
 Purpose:
 
 Use AI to classify activity and explain risk without replacing evidence.
+
+Expectation links:
+
+- [AI feature expectations](expectations/ai.md)
+- [Evidence storage expectations](expectations/evidence-storage.md)
+- [Policy feature expectations](expectations/policy.md)
+- [Contract feature expectations](expectations/contracts.md)
 
 Deliverables:
 
@@ -424,6 +519,13 @@ Acceptance:
 Purpose:
 
 Make policy management usable for non-technical parents.
+
+Expectation links:
+
+- [Policy feature expectations](expectations/policy.md)
+- [Portal feature expectations](expectations/portal.md)
+- [Sync and export expectations](expectations/sync-export.md)
+- [Billing and subscription expectations](expectations/billing.md)
 
 Deliverables:
 
@@ -449,6 +551,13 @@ Purpose:
 
 Extend child-device support beyond Windows.
 
+Expectation links:
+
+- [Platform expectations](expectations/platforms.md)
+- [Capture feature expectations](expectations/capture.md)
+- [Evidence storage expectations](expectations/evidence-storage.md)
+- [Release and installer expectations](expectations/release-installer.md)
+
 Deliverables:
 
 - Android foreground/device-admin path where allowed.
@@ -468,6 +577,13 @@ Acceptance:
 Purpose:
 
 Turn the product into a sellable service.
+
+Expectation links:
+
+- [Billing and subscription expectations](expectations/billing.md)
+- [Portal feature expectations](expectations/portal.md)
+- [Cloud feature expectations](expectations/cloud.md)
+- [Static analysis and security expectations](expectations/static-analysis-security.md)
 
 Deliverables:
 
@@ -489,6 +605,14 @@ Acceptance:
 Purpose:
 
 Make the product reliable, secure, supportable, and maintainable.
+
+Expectation links:
+
+- [Release and installer expectations](expectations/release-installer.md)
+- [Sync and export expectations](expectations/sync-export.md)
+- [Static analysis and security expectations](expectations/static-analysis-security.md)
+- [Documentation expectations](expectations/documentation.md)
+- [Code quality expectations](expectations/code-quality.md)
 
 Deliverables:
 
