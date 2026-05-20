@@ -1,6 +1,7 @@
 import { type AgentCommandName, type AgentProtocolLogFields } from '@ocentra-parent/agent-protocol-domain/contracts';
 import { PortalConnectionState, PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import { createAgentCommand, parseAgentEventMessage, serializeAgentCommand } from './agent-client';
+import { isCommandResultEvent } from './event-results';
 import type { PortalRuntimeState } from './portal-state';
 
 export type PortalRefresh = () => void;
@@ -21,6 +22,9 @@ export function connectWebSocket(state: PortalRuntimeState, refresh: PortalRefre
   nextSocket.addEventListener(PortalDom.Events.Message, (message) => {
     const event = parseAgentEventMessage(message.data);
     state.events.unshift(event);
+    if (isCommandResultEvent(event.event)) {
+      state.selectedCommandResultEvent = event.event;
+    }
     if (event.snapshot !== null) {
       state.latestSnapshot = event.snapshot;
     }

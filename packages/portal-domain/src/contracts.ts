@@ -1,4 +1,4 @@
-import { AgentCommand, AgentProtocolDefaults } from '@ocentra-parent/agent-protocol-domain/contracts';
+import { AgentCommand, AgentEvent, AgentProtocolDefaults } from '@ocentra-parent/agent-protocol-domain/contracts';
 import { decodeDisplayText, type DisplayText } from '@ocentra-parent/text-domain/contracts';
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/text-domain/portal-dev';
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
@@ -60,6 +60,10 @@ export const PortalDom = {
   Classes: {
     ClassNameSeparator: ' ',
     CommandGrid: 'command-grid',
+    CommandResultEmpty: 'command-result-empty',
+    CommandResultPanel: 'command-result-panel',
+    CommandResultTab: 'command-result-tab',
+    CommandResultTabActive: 'command-result-tab-active',
     Header: 'header',
     Log: 'log',
     LogLevelPrefix: 'log-',
@@ -115,16 +119,19 @@ export const PortalCommandButtons = [
   {
     label: resolvePortalDevText(PortalDevTextToken.CheckHealth),
     command: AgentCommand.HealthCheck,
+    resultEvent: AgentEvent.HealthReported,
     payload: {},
   },
   {
     label: resolvePortalDevText(PortalDevTextToken.GetLogSnapshot),
     command: AgentCommand.LogSnapshotGet,
+    resultEvent: AgentEvent.LogSnapshotReported,
     payload: {},
   },
   {
     label: resolvePortalDevText(PortalDevTextToken.EchoPortalPing),
     command: AgentCommand.DevEcho,
+    resultEvent: AgentEvent.DevEchoed,
     payload: {
       [AgentProtocolDefaults.Field.Message]: resolvePortalDevText(PortalDevTextToken.EchoPortalPing),
     },
@@ -132,6 +139,7 @@ export const PortalCommandButtons = [
   {
     label: resolvePortalDevText(PortalDevTextToken.GetWatcherStatus),
     command: AgentCommand.WatchStatusGet,
+    resultEvent: AgentEvent.WatchStatusReported,
     payload: {},
   },
 ] as const;

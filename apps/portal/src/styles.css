@@ -135,6 +135,27 @@ dd {
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
 }
 
+.command-result-panel {
+  margin-top: 16px;
+}
+
+.command-result-tab {
+  background: #ffffff;
+  border-color: #d8dde4;
+  color: #17202a;
+}
+
+.command-result-tab-active {
+  background: #17202a;
+  border-color: #17202a;
+  color: #ffffff;
+}
+
+.command-result-empty {
+  color: #5d6978;
+  margin: 0;
+}
+
 .log-list {
   display: grid;
   gap: 12px;

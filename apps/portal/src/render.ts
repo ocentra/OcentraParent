@@ -1,15 +1,9 @@
-import type {
-  AgentCommandName,
-  AgentEventEnvelope,
-  AgentProtocolLogFields,
-} from '@ocentra-parent/agent-protocol-domain/contracts';
 import type { AgentLogSnapshot } from '@ocentra-parent/logging-domain/contracts';
 import {
   PortalCommandButtons,
   PortalConnectionState,
   PortalDetails,
   PortalDom,
-  PortalFormatting,
   PortalRoute,
   PortalRoutes,
   PortalText,
@@ -19,13 +13,10 @@ import {
   type PortalDisplayText,
   type PortalRoute as PortalRouteValue,
 } from '@ocentra-parent/portal-domain/contracts';
-import { latestCommandResults, latestPortalEvents } from './event-results';
+import { renderCommandResultPanel } from './command-result-panel';
+import { renderEvents } from './event-list';
+import type { PortalRenderActions } from './portal-actions';
 import type { PortalRuntimeState } from './portal-state';
-
-export interface PortalRenderActions {
-  reconnect(): void;
-  sendCommand(command: AgentCommandName, payload: AgentProtocolLogFields): void;
-}
 
 export function renderShell(app: HTMLDivElement, state: PortalRuntimeState, actions: PortalRenderActions): void {
   clear(app);
@@ -83,7 +74,7 @@ function renderState(state: PortalRuntimeState, actions: PortalRenderActions): H
     return container;
   }
   if (route === PortalRoute.Events) {
-    renderEvents(container, latestPortalEvents(state.events));
+    renderEvents(container, state.events);
     return container;
   }
 
@@ -126,61 +117,34 @@ function renderCommands(container: HTMLElement, state: PortalRuntimeState, actio
   commandGrid.append(...PortalCommandButtons.map((command) => commandButton(command, state, actions)));
 
   panel.append(title, commandGrid);
+  renderCommandResultPanel(panel, state);
   container.append(panel);
-  renderEvents(container, latestCommandResults(state.events));
 }
 
 function commandButton(
-  command: {
-    readonly label: PortalDisplayText;
-    readonly command: AgentCommandName;
-    readonly payload: AgentProtocolLogFields;
-  },
+  command: (typeof PortalCommandButtons)[number],
   state: PortalRuntimeState,
   actions: PortalRenderActions
 ): HTMLButtonElement {
   const button = document.createElement(PortalDom.Tags.Button);
   button.type = PortalDom.ButtonType.Button;
   button.textContent = command.label;
+  button.className = activeCommandButtonClass(command.resultEvent === state.selectedCommandResultEvent);
   button.disabled = state.socket?.readyState !== WebSocket.OPEN;
   button.addEventListener(PortalDom.Events.Click, () => {
+    actions.selectCommandResult(command.resultEvent);
     actions.sendCommand(command.command, command.payload);
   });
   return button;
 }
 
-function renderEvents(container: HTMLElement, events: readonly AgentEventEnvelope[]): void {
-  const title = document.createElement(PortalDom.Tags.HeadingTwo);
-  title.textContent = PortalText.Resolve(PortalTextToken.AgentEvents);
-  container.append(title);
-
-  const list = document.createElement(PortalDom.Tags.OrderedList);
-  list.className = PortalDom.Classes.LogList;
-
-  for (const event of events) {
-    const item = document.createElement(PortalDom.Tags.ListItem);
-    item.className = [PortalDom.Classes.Log, `${PortalDom.Classes.LogLevelPrefix}${event.severity}`].join(
-      PortalDom.Classes.ClassNameSeparator
-    );
-
-    const message = document.createElement(PortalDom.Tags.Strong);
-    message.textContent = event.event;
-
-    const detail = document.createElement(PortalDom.Tags.Span);
-    detail.textContent = [
-      event.sentAt,
-      event.source.peerId,
-      `${PortalFormatting.CorrelationPrefix}${event.correlationId}`,
-    ].join(PortalFormatting.EventDetailSeparator);
-
-    const fields = document.createElement(PortalDom.Tags.Code);
-    fields.textContent = JSON.stringify(event.payload, null, 2);
-
-    item.append(message, detail, fields);
-    list.append(item);
+function activeCommandButtonClass(active: boolean) {
+  if (!active) {
+    return PortalDom.Classes.CommandResultTab;
   }
-
-  container.append(list);
+  return [PortalDom.Classes.CommandResultTab, PortalDom.Classes.CommandResultTabActive].join(
+    PortalDom.Classes.ClassNameSeparator
+  );
 }
 
 function renderSnapshot(container: HTMLElement, snapshot: AgentLogSnapshot): void {

@@ -9,6 +9,7 @@ describe('portal domain contracts', () => {
 
   it('PortalCommandButtons: maps each button to a typed command', () => {
     expect(PortalCommandButtons.map((button) => button.command)).toContain('agent.health.check');
+    expect(PortalCommandButtons.map((button) => button.resultEvent)).toContain('agent.health.reported');
   });
 
   it('PortalConnectionState: exposes connected state token', () => {
