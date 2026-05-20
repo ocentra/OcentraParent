@@ -1,5 +1,6 @@
 use super::{
-    ActivityEvent, ActivityEventKind, ActivityEvidenceKind, ActivityEvidenceRef, ActivityObserver,
+    constants, ActivityCaptureCapabilityStatus, ActivityEvent, ActivityEventKind,
+    ActivityEvidenceKind, ActivityEvidenceRef, ActivityObservationMode, ActivityObserver,
     ActivitySource, ActivitySubject, ActivitySubjectKind, LogFieldValue, LogFields,
     ACTIVITY_SCHEMA_VERSION,
 };
@@ -44,4 +45,25 @@ fn activity_event_serializes_to_typescript_contract_shape() {
     assert_eq!(serialized["fields"]["foreground"], true);
     assert_eq!(serialized["evidence"][0]["kind"], "journal-entry");
     assert!(serialized["evidence"][0]["uri"].is_null());
+}
+
+#[test]
+fn capture_status_values_serialize_to_typescript_contract_shape() {
+    let mode = serde_json::to_value(ActivityObservationMode::ActiveWindow)
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let status = serde_json::to_value(ActivityCaptureCapabilityStatus::NoActiveWindow)
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+
+    assert_eq!(
+        mode,
+        constants::activity_capture::OBSERVATION_MODE_ACTIVE_WINDOW
+    );
+    assert_eq!(
+        status,
+        constants::activity_capture::CAPABILITY_STATUS_NO_ACTIVE_WINDOW
+    );
+    assert_eq!(
+        ActivityCaptureCapabilityStatus::AdapterError.as_protocol_str(),
+        constants::activity_capture::CAPABILITY_STATUS_ADAPTER_ERROR
+    );
 }

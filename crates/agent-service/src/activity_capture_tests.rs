@@ -3,7 +3,7 @@ use std::fs::{read, remove_file, write};
 use ocentra_parent_agent_core::{ActivityJournal, ActivityStore};
 use ocentra_parent_agent_protocol::{constants, ActivityEventKind, ActivityObserver};
 
-use crate::activity_capture::{record_process_snapshot_to_paths, ActivityCaptureError};
+use crate::activity_capture::{record_activity_capture_to_paths, ActivityCaptureError};
 
 #[test]
 fn record_process_snapshot_writes_encrypted_journal_and_sqlite_rows() {
@@ -21,7 +21,7 @@ fn record_process_snapshot_writes_encrypted_journal_and_sqlite_rows() {
     );
     cleanup_paths(&journal_path, &key_path, &store_path);
 
-    let status = record_process_snapshot_to_paths(&journal_path, &key_path, &store_path, 1)
+    let status = record_activity_capture_to_paths(&journal_path, &key_path, &store_path, 1)
         .expect(constants::error::ACTIVITY_CAPTURE_RECORDS);
     let journal_bytes = read(&journal_path).expect(constants::error::JOURNAL_READS);
     let store = ActivityStore::open(&store_path).expect(constants::error::ACTIVITY_STORE_OPENS);
@@ -31,17 +31,17 @@ fn record_process_snapshot_writes_encrypted_journal_and_sqlite_rows() {
 
     cleanup_paths(&journal_path, &key_path, &store_path);
 
-    assert_eq!(status.events_ingested, 1);
-    assert_eq!(status.events_stored, 1);
+    assert_eq!(status.events_ingested, 2);
+    assert_eq!(status.events_stored, 2);
     assert!(!String::from_utf8_lossy(&journal_bytes)
         .contains(constants::activity_store::TEST_PROCESS_SUBJECT_NAME));
     assert_eq!(
         summary.most_recent_kind,
-        Some(ActivityEventKind::ProcessObserved)
+        Some(ActivityEventKind::WindowFocused)
     );
     assert_eq!(
         summary.most_recent_observer,
-        Some(ActivityObserver::WindowsProcess)
+        Some(ActivityObserver::WindowsWindow)
     );
 }
 
@@ -61,7 +61,7 @@ fn record_process_snapshot_reuses_journal_key_for_replay() {
     );
     cleanup_paths(&journal_path, &key_path, &store_path);
 
-    record_process_snapshot_to_paths(&journal_path, &key_path, &store_path, 1)
+    record_activity_capture_to_paths(&journal_path, &key_path, &store_path, 1)
         .expect(constants::error::ACTIVITY_CAPTURE_RECORDS);
     let key_bytes = read(&key_path).expect(constants::error::JOURNAL_READS);
     let mut key = [0; ocentra_parent_agent_core::JOURNAL_KEY_BYTES];
@@ -72,14 +72,25 @@ fn record_process_snapshot_reuses_journal_key_for_replay() {
     )
     .expect(constants::error::JOURNAL_OPENS);
     let lines = journal.lines().expect(constants::error::JOURNAL_READS);
-    let event = journal
+    let process_event = journal
         .decrypt_line(&lines[0])
+        .expect(constants::error::JOURNAL_DECRYPTS);
+    let window_event = journal
+        .decrypt_line(&lines[1])
         .expect(constants::error::JOURNAL_DECRYPTS);
 
     cleanup_paths(&journal_path, &key_path, &store_path);
 
-    assert_eq!(event.kind, ActivityEventKind::ProcessObserved);
-    assert_eq!(event.source.observer, ActivityObserver::WindowsProcess);
+    assert_eq!(process_event.kind, ActivityEventKind::ProcessObserved);
+    assert_eq!(
+        process_event.source.observer,
+        ActivityObserver::WindowsProcess
+    );
+    assert_eq!(window_event.kind, ActivityEventKind::WindowFocused);
+    assert_eq!(
+        window_event.source.observer,
+        ActivityObserver::WindowsWindow
+    );
 }
 
 #[test]
@@ -99,7 +110,7 @@ fn record_process_snapshot_rejects_invalid_journal_key() {
     cleanup_paths(&journal_path, &key_path, &store_path);
     write(&key_path, []).expect(constants::error::JOURNAL_APPENDS);
 
-    let error = record_process_snapshot_to_paths(&journal_path, &key_path, &store_path, 1)
+    let error = record_activity_capture_to_paths(&journal_path, &key_path, &store_path, 1)
         .expect_err(constants::error::ACTIVITY_CAPTURE_REJECTS_INVALID_KEY);
 
     cleanup_paths(&journal_path, &key_path, &store_path);

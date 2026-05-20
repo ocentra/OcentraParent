@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::LogFields;
+use crate::{constants, LogFields};
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ActivityObserver {
@@ -60,6 +60,49 @@ pub enum ActivityEvidenceKind {
     StorageObject,
     #[serde(rename = "local-db-row")]
     LocalDbRow,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ActivityObservationMode {
+    #[serde(rename = "snapshot")]
+    Snapshot,
+    #[serde(rename = "active-window")]
+    ActiveWindow,
+}
+
+impl ActivityObservationMode {
+    pub fn as_protocol_str(&self) -> &'static str {
+        match self {
+            Self::Snapshot => constants::activity_capture::OBSERVATION_MODE_SNAPSHOT,
+            Self::ActiveWindow => constants::activity_capture::OBSERVATION_MODE_ACTIVE_WINDOW,
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ActivityCaptureCapabilityStatus {
+    #[serde(rename = "available")]
+    Available,
+    #[serde(rename = "unavailable")]
+    Unavailable,
+    #[serde(rename = "access-denied")]
+    AccessDenied,
+    #[serde(rename = "no-active-window")]
+    NoActiveWindow,
+    #[serde(rename = "adapter-error")]
+    AdapterError,
+}
+
+impl ActivityCaptureCapabilityStatus {
+    pub fn as_protocol_str(&self) -> &'static str {
+        match self {
+            Self::Available => constants::activity_capture::CAPABILITY_STATUS_AVAILABLE,
+            Self::Unavailable => constants::activity_capture::CAPABILITY_STATUS_UNAVAILABLE,
+            Self::AccessDenied => constants::activity_capture::CAPABILITY_STATUS_ACCESS_DENIED,
+            Self::NoActiveWindow => constants::activity_capture::CAPABILITY_STATUS_NO_ACTIVE_WINDOW,
+            Self::AdapterError => constants::activity_capture::CAPABILITY_STATUS_ADAPTER_ERROR,
+        }
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

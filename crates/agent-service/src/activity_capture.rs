@@ -1,8 +1,8 @@
 use std::{fs, path::Path};
 
 use ocentra_parent_agent_core::{
-    process_snapshot_events, ActivityJournal, ActivityStore, ActivityStoreError, JournalError,
-    JournalKey, JOURNAL_KEY_BYTES,
+    foreground_window_event, process_snapshot_events, ActivityJournal, ActivityStore,
+    ActivityStoreError, JournalError, JournalKey, JOURNAL_KEY_BYTES,
 };
 use ocentra_parent_agent_protocol::{constants, ActivityIngestStatus, LogFieldValue};
 
@@ -66,7 +66,7 @@ pub fn spawn_startup_process_snapshot_capture() {
 }
 
 pub fn record_process_snapshot_once() -> Result<ActivityIngestStatus, ActivityCaptureError> {
-    record_process_snapshot_to_paths(
+    record_activity_capture_to_paths(
         &activity_journal_path(),
         &activity_journal_key_path(),
         &activity_db_path(),
@@ -84,7 +84,7 @@ fn windows_process_capture_supported() -> bool {
     false
 }
 
-pub fn record_process_snapshot_to_paths(
+pub fn record_activity_capture_to_paths(
     journal_path: &Path,
     key_path: &Path,
     store_path: &Path,
@@ -92,7 +92,8 @@ pub fn record_process_snapshot_to_paths(
 ) -> Result<ActivityIngestStatus, ActivityCaptureError> {
     let key = load_or_create_journal_key(key_path)?;
     let observed_at = timestamp_now();
-    let events = process_snapshot_events(&observed_at, limit);
+    let mut events = process_snapshot_events(&observed_at, limit);
+    events.push(foreground_window_event(&observed_at));
     let mut journal = ActivityJournal::open(journal_path.to_path_buf(), key)?;
     for event in &events {
         journal.append(event)?;

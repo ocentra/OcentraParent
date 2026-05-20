@@ -68,17 +68,24 @@ pub mod field {
     pub const NETWORK_MODE: &str = "networkMode";
     pub const NONCE: &str = "nonce";
     pub const NOTE: &str = "note";
+    pub const ADAPTER_ID: &str = "adapterId";
+    pub const APP_NAME: &str = "appName";
+    pub const CAPABILITY_STATUS: &str = "capabilityStatus";
+    pub const FOREGROUND: &str = "foreground";
     pub const OBSERVATION_MODE: &str = "observationMode";
     pub const ONLINE: &str = "online";
     pub const PID: &str = "pid";
     pub const POLICY_ENGINE_ENABLED: &str = "policyEngineEnabled";
     pub const PROCESS_NAME: &str = "processName";
+    pub const PROCESS_PATH: &str = "processPath";
     pub const REASON: &str = "reason";
     pub const REMOTE_SYNC: &str = "remoteSync";
     pub const RETURNED: &str = "returned";
     pub const SCHEMA_VERSION: &str = "schemaVersion";
     pub const SEGMENT_ID: &str = "segmentId";
     pub const TRANSPORT: &str = "transport";
+    pub const WINDOW_ID: &str = "windowId";
+    pub const WINDOW_TITLE: &str = "windowTitle";
     pub const WRITTEN_AT: &str = "writtenAt";
 }
 

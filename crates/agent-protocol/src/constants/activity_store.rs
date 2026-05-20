@@ -21,3 +21,6 @@ pub const TEST_JOURNAL_SUFFIX: &str = "journal";
 pub const TEST_PROCESS_SUBJECT_ID: &str = "process-4242";
 pub const TEST_PROCESS_SUBJECT_NAME: &str = "chrome.exe";
 pub const TEST_STORE_SUFFIX: &str = "store";
+pub const TEST_WINDOW_ID: &str = "HWND(4242)";
+pub const TEST_WINDOW_SUBJECT_ID: &str = "window-HWND(4242)";
+pub const TEST_WINDOW_TITLE: &str = "Ocentra Parent";

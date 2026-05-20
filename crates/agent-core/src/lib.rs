@@ -8,6 +8,8 @@ mod journal_crypto;
 mod journal_error;
 mod journal_rotation;
 mod process_capture;
+mod window_capture;
+mod window_capture_event;
 
 pub use activity_store::ActivityStore;
 pub use activity_store_error::ActivityStoreError;
@@ -18,6 +20,8 @@ pub use process_capture::{
     collect_process_snapshot, process_observation_event, process_snapshot_events,
     ProcessObservation,
 };
+pub use window_capture::{collect_foreground_window_observation, ForegroundWindowObservation};
+pub use window_capture_event::{foreground_window_event, foreground_window_observation_event};
 
 pub fn crate_name() -> &'static str {
     env!("CARGO_PKG_NAME")
@@ -27,6 +31,10 @@ pub fn crate_name() -> &'static str {
 mod activity_store_tests;
 #[cfg(test)]
 mod journal_tests;
+#[cfg(test)]
+mod process_capture_tests;
+#[cfg(test)]
+mod window_capture_tests;
 
 #[cfg(test)]
 mod tests {
