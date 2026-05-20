@@ -6,6 +6,8 @@ This repo follows Ocentra-style scaffold discipline. Keep changes narrow, contra
 
 Before coding, read `.ocentra-ai/rules/ocentra-parent-rules.mdc`. It routes work to granular rule files for tests, domain boundaries, protocol/WebSocket, Rust service, portal, logging/redaction, localhost security, source shape, and validation.
 
+Before editing or committing, run `npm run lanes:status` and `npm run lanes:guard` from the checkout you are using. Each active worktree lane must be claimed in `C:\Users\sujan\.codex\ocentra-parent-worktrees.json` with the lane owner, thread label, branch, task, and next action. The pre-commit hook runs the lane guard automatically.
+
 When writing or changing tests, also read `.ocentra-ai/rules/ocentra-parent-test-rules.mdc`. Test doubles are forbidden; tests must use real contracts, parsers, services, transports, or UI paths.
 
 When changing multiple layers, use `.ocentra-ai/skills/ocentra-parent-rule-router/SKILL.md` as the lookup workflow instead of loading every rule file at once.

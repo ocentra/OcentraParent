@@ -7,11 +7,13 @@ import {
   LaneCommand,
   claimLane,
   defaultLedgerPath,
+  defaultLaneOwner,
   ensureLedger,
   formatLedgerSummary,
   freeLane,
   parseLaneArgs,
   readLedger,
+  validateLaneContext,
   writeLedger,
 } from './worktree-lanes-lib.mjs';
 
@@ -104,14 +106,45 @@ function handleClaim(options) {
     task,
     base: options.base ?? 'origin/main',
     force: options.force === true,
+    notes: typeof options.notes === 'string' ? options.notes : '',
+    owner: typeof options.owner === 'string' ? options.owner : defaultLaneOwner(),
+    thread: typeof options.thread === 'string' ? options.thread : '',
   });
 
-  assertCleanExistingWorktree(lane.path);
+  if (options.force !== true) {
+    assertCleanExistingWorktree(lane.path);
+  }
   createWorktreeIfRequested(lane, options);
   writeLedger(ledgerPath, ledger);
   console.log(`claimed=${lane.id}`);
   console.log(`branch=${lane.branch}`);
   console.log(`path=${lane.path}`);
+}
+
+function handleGuard(options) {
+  const ledgerPath = options.ledger ?? defaultLedgerPath();
+  const ledger = ensureLedger({ ledgerPath, repoRoot: repoRoot(), repoBranch: currentBranch() });
+  const result = validateLaneContext(ledger, {
+    branch: currentBranch(),
+    laneId: typeof options.lane === 'string' ? options.lane : undefined,
+    owner: typeof options.owner === 'string' ? options.owner : undefined,
+    repoRoot: repoRoot(),
+  });
+
+  if (!result.ok) {
+    console.error('lane-guard-failed');
+    for (const finding of result.findings) {
+      console.error(`- ${finding}`);
+    }
+    console.error('Run npm run lanes:status, then claim or update the correct lane before editing or committing.');
+    process.exit(1);
+  }
+
+  console.log(
+    `lane-guard-ok: lane=${result.lane.id} owner=${result.lane.owner || '-'} thread=${
+      result.lane.thread || '-'
+    } branch=${result.lane.branch}`
+  );
 }
 
 function handleFree(options) {
@@ -141,6 +174,10 @@ export function runLaneCli(argv = process.argv.slice(2)) {
   }
   if (options.command === LaneCommand.Free) {
     handleFree(options);
+    return;
+  }
+  if (options.command === LaneCommand.Guard) {
+    handleGuard(options);
     return;
   }
   throw new Error(`Unknown lane command: ${options.command}`);
