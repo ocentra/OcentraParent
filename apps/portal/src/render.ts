@@ -122,6 +122,7 @@ function renderCommands(container: HTMLElement, state: PortalRuntimeState, actio
 
   panel.append(title, commandGrid);
   container.append(panel);
+  renderEvents(container, state);
 }
 
 function commandButton(

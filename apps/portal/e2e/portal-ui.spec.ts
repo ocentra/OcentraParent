@@ -14,8 +14,11 @@ test('portal UI connects to the real agent and renders command results', async (
   await expect(page.getByRole('button', { name: 'Get watcher status' })).toBeEnabled();
 
   await page.getByRole('button', { name: 'Check health' }).click();
+  await expect(page.getByText('agent.health.reported')).toBeVisible();
   await page.getByRole('button', { name: 'Get log snapshot' }).click();
+  await expect(page.getByText('agent.log.snapshot.reported')).toBeVisible();
   await page.getByRole('button', { name: 'Get watcher status' }).click();
+  await expect(page.getByText('agent.watch.status.reported')).toBeVisible();
 
   await page.getByRole('link', { name: 'events' }).click();
   await expect(page.getByRole('heading', { name: 'Agent events' })).toBeVisible();
