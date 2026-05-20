@@ -228,6 +228,7 @@ Observe network/domain activity enough to answer what services and sites are bei
 Expectation links:
 
 - [Capture feature expectations](expectations/capture.md)
+- [Network flow evidence expectations](expectations/network-flow-evidence.md)
 - [Evidence storage expectations](expectations/evidence-storage.md)
 - [Contract feature expectations](expectations/contracts.md)
 - [Portal feature expectations](expectations/portal.md)
@@ -240,6 +241,9 @@ Deliverables:
 - DNS/domain attribution where available.
 - Process-to-network correlation where feasible.
 - Unknown/suspicious destination categorization placeholder.
+- Flow summaries for connection counts, first/last seen, bytes sent/received
+  where available, top destinations, and unusual traffic digests.
+- VPN/proxy/tunnel indicator status where available.
 - Portal recent network activity view.
 
 Acceptance:
@@ -247,6 +251,9 @@ Acceptance:
 - The agent records real network observations.
 - Event model remains intent-first, not raw packet-first.
 - No decrypted HTTPS payload capture.
+- No raw packet dump as the normal evidence store.
+- AI consumes only stored flow evidence references or agent-generated network
+  digests; AI does not sniff packets or invent traffic.
 - Portal can show recent domains and processes.
 - Local tests prove parser/contract behavior.
 - Integration smoke proves the service remains responsive while observing.

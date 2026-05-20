@@ -71,6 +71,13 @@ foreground time, and only then let local AI or policy consume those stored
 digests. AI is not the scanner and must not invent that a process is a game or
 that it ran for two hours without evidence.
 
+Network evidence is metadata-first. The Rust agent may record process-attributed
+flows, destinations, DNS/domain hints, bandwidth/count summaries where
+available, and VPN/proxy/tunnel indicators, then generate AI-readable digests.
+It must not rely on decrypted HTTPS payloads or raw packet dumps as normal
+evidence, and AI must not sniff traffic or invent what happened inside encrypted
+connections.
+
 ## Current Repository State
 
 This repository is currently in scaffold-first mode. The committed foundation includes workspace layout, domain boundaries, validation gates, test structure, Rust crate boundaries, local and LAN dev APIs, a minimal Vite portal, MSI release packaging, package-preview scaffolds for every target platform, signed updater scaffolding, dependency/security gates, and SBOM generation.

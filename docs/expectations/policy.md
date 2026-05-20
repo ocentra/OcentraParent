@@ -40,6 +40,9 @@ Policy input may include:
 - App, process, window, URL, domain, category, video, channel, and recent activity evidence when those capture contracts exist.
 - App/game session summaries, running time, foreground time, category candidates,
   and evidence-backed unknown states when app/game evidence exists.
+- Network flow summaries, destination/category candidates, VPN/proxy/tunnel
+  indicators, bandwidth/count summaries, and evidence-backed unknown states when
+  network flow evidence exists.
 - Parent-authored rules, schedules, overrides, grace periods, and permission-request state.
 - Local AI safety result references and confidence/degraded state when AI contributes.
 - Time budget state, active timers, and previous policy decisions.
@@ -95,6 +98,9 @@ The evaluator must define and test conflict resolution before enforcement is pos
 - Category/app/site/domain target contracts.
 - Game/app session target contracts for app, process, launcher, game title,
   category, running-time budget, and foreground-time budget.
+- Network flow target contracts for process, domain, IP, protocol, destination
+  category, VPN/proxy/tunnel indicator, bandwidth/count budget, and
+  unusual-traffic digest.
 - Permission request contracts.
 - Decision reason codes.
 - Local AI decision input and output contracts when the policy is context-heavy.

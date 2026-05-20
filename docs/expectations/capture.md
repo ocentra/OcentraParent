@@ -44,6 +44,11 @@ Data scope:
 - Network/domain capture, when implemented, may record normalized
   domain/IP/port/process correlation where available, but not decrypted HTTPS
   content.
+- Network flow capture may record process-attributed flow metadata, connection
+  counts, first/last seen, bytes sent/received where available, DNS/domain
+  attribution, VPN/proxy/tunnel indicators, and unusual-traffic summaries. It
+  must not store raw packet dumps as the normal evidence model or claim exact
+  browser URLs from flow metadata.
 - Browser URL/tab capture, when implemented, may record supported browser,
   running status, profile/window/tab ids where available, active tab state, exact
   URL, normalized domain, page title, observation timestamp, evidence id, source
@@ -138,8 +143,15 @@ Useful parent-facing examples:
 V0.4 expected behavior:
 
 - Observe domain/IP/port/process correlation where available.
+- Observe process-attributed network flow metadata such as protocol, local and
+  remote endpoints, connection state, timestamps, counts, and bytes where the
+  adapter supports them.
+- Derive queryable summaries such as top processes, top destinations, high-volume
+  flows, new destinations, and unusual VPN/proxy/tunnel indicators.
 - Prefer normalized intent events over raw packet dumps.
 - Do not decrypt HTTPS payloads.
+- Do not claim full browser URLs, page content, chat content, or search terms
+  from network flow metadata.
 - Do not claim content inspection.
 - Record unknown attribution clearly instead of guessing.
 - Keep network/domain observation as a separate adapter and contract slice from

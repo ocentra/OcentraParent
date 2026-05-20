@@ -35,6 +35,9 @@ Billing in V7 may gate paid product value, but billing must stay outside core sa
 - Game/app time-limit enforcement may terminate or block a native app/game
   process after a typed policy decision references stored app/game session
   evidence.
+- Network enforcement may block or terminate only after a typed policy decision
+  references stored network flow evidence or a network digest. It must not depend
+  on AI-invented packet or content claims.
 - macOS, Linux, Android, and iOS require platform-specific adapter contracts and proof before claiming enforcement.
 - Web is not an enforcement platform. Web can show status and author intents only.
 
@@ -53,6 +56,9 @@ Enforcement input may include:
 - For game/app enforcement: app/game session id, process id, process name,
   executable path/signature/hash where available, running time, foreground time,
   parent rule reference, and permission-request state when relevant.
+- For network enforcement: flow summary id, process reference, destination
+  reference, protocol, domain/IP attribution status, VPN/proxy/tunnel indicator
+  where available, and parent rule reference.
 
 Enforcement output must include:
 
@@ -66,6 +72,9 @@ Enforcement output must include:
   observe-only mode.
 - For game/app enforcement: child-facing result text reference such as stopped by
   parent policy, ask parent for permission, or time limit reached.
+- For network enforcement: whether the flow/process/domain was blocked,
+  terminated, unavailable, already ended, or left running because policy is in
+  observe-only mode.
 - Recovery state when the adapter could not enforce or had to rollback.
 
 ## Trust Boundary
