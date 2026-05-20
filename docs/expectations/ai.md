@@ -2,6 +2,8 @@
 
 AI is a core child-device product layer. The safety evaluator for child activity runs locally on the child device against typed evidence and parent rules. API AI is secondary and may assist with parent reports, unknown classification, and remote summaries after privacy boundaries are explicit, but it is not the normal decision maker for blocking, timing, or asking the parent.
 
+The parent portal does not run the child-safety model. It authors rules and shows explanations; the child-device agent runs the local model and converts model output into typed decisions.
+
 ## Expected Deliverables
 
 - AI input contract.
@@ -45,6 +47,7 @@ captured page/video/app/domain evidence
 - Do not let untyped or untraceable AI output directly enforce blocking.
 - Do not hide model/provider calls inside unrelated modules.
 - Do not make cloud/API AI mandatory for local child-device safety.
+- Do not run the child-safety model in the parent portal.
 - Do not upload child activity to API AI without explicit privacy and parent-control boundaries.
 
 ## Done Signal

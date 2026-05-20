@@ -8,7 +8,7 @@ Cloud features support parent-away-from-home use cases.
 - Authenticated parent identity.
 - Authenticated device identity.
 - Device heartbeat.
-- Command/event relay.
+- Rule/query/approval event relay.
 - Sync queue.
 - Retry/backoff behavior.
 - Conflict handling.
@@ -17,7 +17,7 @@ Cloud features support parent-away-from-home use cases.
 ## Acceptance
 
 - Local operation works when cloud is unavailable.
-- Remote commands are authenticated and auditable.
+- Remote rule updates, queries, approvals, and device events are authenticated and auditable.
 - Device state cannot be overwritten silently by stale cloud state.
 - Cloud logs do not leak sensitive child activity beyond intended product data.
 - Cloud behavior reuses shared contracts instead of inventing parallel payloads.
@@ -30,4 +30,4 @@ Cloud features support parent-away-from-home use cases.
 
 ## Done Signal
 
-A parent can remotely see device health or send a scoped command through authenticated cloud routing while the child-device agent remains local-first.
+A parent can remotely see device health or send a scoped rule, query, or approval intent through authenticated cloud routing while the child-device agent remains local-first and owns execution.

@@ -4,7 +4,7 @@ Ocentra Parent is a family-safety product from Ocentra, intended to live at `fam
 
 The product exists for a real parent problem: children live inside browsers, games, chats, short-form video, school apps, and social feeds, while parents often only see the outside story. A child can look like they are studying while bouncing between TikTok, Snapchat, Discord, games, adult content, or other distracting and unsafe parts of the internet. Parents need a way to understand what is happening, set sane boundaries, give permissions, enforce timeouts, and get alerted when something needs attention.
 
-The goal is not to start with a flashy dashboard or vague AI promises. The first job is to build a trustworthy local recorder: a headless agent on the child device that can observe useful activity signals, normalize them into strict schemas, store raw evidence safely, and make that evidence queryable. The product decision loop then runs on the child device: local AI evaluates observed pages, video links, apps, domains, and parent rules; typed policy decisions explain allow, warn, block, timeout, or ask-parent outcomes; enforcement adapters perform the actual blocking or timing behavior.
+The goal is not to start with a flashy dashboard or vague AI promises. The first job is to build a trustworthy local recorder: a headless agent on the child device that can observe useful activity signals, normalize them into strict schemas, store raw evidence safely, and make that evidence queryable. The product decision loop then runs on the child device: local AI evaluates observed pages, video links, apps, domains, and parent rules; typed policy decisions explain allow, warn, block, timeout, or ask-parent outcomes; enforcement adapters perform the actual blocking or timing behavior. The parent portal is a remote-control and observability surface. It lets parents set rules, approve requests, inspect evidence, and see outcomes, but it does not run capture, AI, scripts, policy evaluation, or enforcement.
 
 ## What We Are Solving
 
@@ -17,7 +17,7 @@ Parents should not have to choose between blind trust and invasive guessing. Oce
 - What happened before an alert or policy decision?
 - Can the system explain its evidence instead of producing a magic AI verdict?
 
-The long-term product is an agentic safety system: local device agents gather evidence, run local AI safety evaluation, enforce typed decisions, and let parent portals expose control and visibility. The child-device safety decision path is local-only: API AI may assist with richer parent reports, unknown classification, and remote summaries later, but it does not sit in the normal blocking path.
+The long-term product is an agentic safety system: local device agents gather evidence, run local AI safety evaluation, enforce typed decisions, and let parent portals expose control and visibility. The child-device safety decision path is local-only: API AI may assist with richer parent reports, unknown classification, and remote summaries later, but it does not sit in the normal blocking path. Parent surfaces author rules and decisions for devices to consume; devices validate and execute those rules locally.
 
 The detailed product roadmap lives in [`docs/product-roadmap.md`](docs/product-roadmap.md). Feature acceptance expectations live in [`docs/feature-expectations.md`](docs/feature-expectations.md).
 
@@ -26,14 +26,14 @@ The detailed product roadmap lives in [`docs/product-roadmap.md`](docs/product-r
 Ocentra Parent has two main product surfaces:
 
 - Child devices run a headless local agent.
-- Parents use a web/mobile control surface.
+- Parents use a web/mobile control and observability surface.
 
-The first proof is Windows-focused and local-first. The Rust service hosts local development endpoints so the portal can command and observe the agent on the same machine or LAN. The repository now keeps real package scaffolds for Windows, Linux, macOS, Android, and iOS so platform build breakage shows up early, while feature implementation still lands honestly one platform at a time.
+The first proof is Windows-focused and local-first. The Rust service hosts local development endpoints so the portal can query health, send typed rule/approval intents, and observe the agent on the same machine or LAN. The repository now keeps real package scaffolds for Windows, Linux, macOS, Android, and iOS so platform build breakage shows up early, while feature implementation still lands honestly one platform at a time.
 
 The core data pipeline is:
 
 ```text
-capture -> NDJSON journal -> ingester -> SQLite query store -> portal/reports/policy
+capture -> NDJSON journal -> ingester -> SQLite query store -> local AI/policy/enforcement -> local API -> portal/reports
 ```
 
 NDJSON is the append-only source of truth. It is easy to inspect, replay, rotate, and recover from. SQLite is the default cross-platform query/index layer for time windows, joins, summaries, and reports. The hot capture path should stay resilient and boring; local AI and policy evaluation should happen after events are safely written or from a typed observation that will be written.
@@ -98,9 +98,9 @@ apps/
 packages/
   schema-domain/     Shared Effect Schema helpers.
   endpoint-domain/   Endpoint/path/header brand boundaries.
-  agent-protocol-domain/ WebSocket command/event contracts.
+  agent-protocol-domain/ WebSocket intent/event contracts.
   text-domain/       Schema-backed display text tokens.
-  portal-domain/     Portal route, DOM, and dev command contracts.
+  portal-domain/     Portal route, DOM, and dev intent contracts.
   parent-domain/     Parent product contract placeholder.
   activity-domain/   Device activity contract placeholder.
   logging-domain/    Effect Schema operational logging contracts.
@@ -175,7 +175,7 @@ cmd /c npm run dev:agent
 cmd /c npm run dev:portal
 ```
 
-The portal connects to `ws://127.0.0.1:4477/api/dev/ws`, sends typed command envelopes from `@ocentra-parent/agent-protocol-domain`, and validates returned events through Effect Schema. The Rust service still exposes `http://127.0.0.1:4477/api/dev/log-snapshot` as a plain HTTP smoke endpoint.
+The portal connects to `ws://127.0.0.1:4477/api/dev/ws`, sends typed intent envelopes from `@ocentra-parent/agent-protocol-domain`, and validates returned events through Effect Schema. The Rust service still exposes `http://127.0.0.1:4477/api/dev/log-snapshot` as a plain HTTP smoke endpoint.
 
 Local development uses fixed Ocentra Parent ports:
 

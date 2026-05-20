@@ -2,17 +2,17 @@
 
 ## Runtime Surfaces
 
-| Surface               | First Role                          | Later Role                                              |
-| --------------------- | ----------------------------------- | ------------------------------------------------------- |
-| Windows agent service | Headless local process scaffold     | Capture, local queue, health, enforcement               |
-| Local/LAN control API | Rust-hosted local query/control API | Parent portal bridge and future Cloudflare parity layer |
-| Portal                | Web-first parent-facing scaffold    | Reports, rules, devices, alerts, mobile/desktop shells  |
-| Cloudflare            | Out of v0 scaffold scope            | Remote control plane, sync, auth, device fleet          |
-| Notification adapters | Out of v0 scaffold scope            | WhatsApp, push, email, SMS, or provider-specific alerts |
+| Surface               | First Role                          | Later Role                                                      |
+| --------------------- | ----------------------------------- | --------------------------------------------------------------- |
+| Windows agent service | Headless local process scaffold     | Capture, local queue, health, enforcement                       |
+| Local/LAN control API | Rust-hosted local query/control API | Parent portal bridge and future Cloudflare parity layer         |
+| Portal                | Web-first parent-facing scaffold    | Reports, rule authoring, devices, alerts, mobile/desktop shells |
+| Cloudflare            | Out of v0 scaffold scope            | Remote control plane, sync, auth, device fleet                  |
+| Notification adapters | Out of v0 scaffold scope            | WhatsApp, push, email, SMS, or provider-specific alerts         |
 
 ## Platform Strategy
 
-The v0 implementation target is Windows desktop service plus local portal. The Rust service owns the first API and WebSocket endpoint so the portal can command and observe the agent before real capture, policy, or storage work begins.
+The v0 implementation target is Windows desktop service plus local portal. The Rust service owns the first API and WebSocket endpoint so the portal can query, configure, and observe the agent before real capture, policy, or storage work begins.
 
 Shared domains and contracts must still be platform-neutral. They should leave room for:
 
@@ -24,18 +24,20 @@ Shared domains and contracts must still be platform-neutral. They should leave r
 
 ## Local Command Channel
 
-The local portal talks to the Rust service through WebSocket command/event envelopes. Loopback mode is private by default; LAN mode is explicit and exposes the same dev protocol to another device on the local network.
+The local portal talks to the Rust service through WebSocket intent/event envelopes. Loopback mode is private by default; LAN mode is explicit and exposes the same dev protocol to another device on the local network.
 
 ```text
-portal command button
+portal query or rule intent
   -> AgentCommandEnvelope
   -> ws://127.0.0.1:4477/api/dev/ws or ws://<lan-ip>:4477/api/dev/ws
-  -> Rust command dispatcher
+  -> Rust agent validator and dispatcher
   -> AgentEventEnvelope
   -> portal event log and read model
 ```
 
-This keeps the long-term shape compatible with multiple devices. Loopback and LAN are the first routes; later Cloudflare can relay the same command/event envelope to a remote device service.
+This keeps the long-term shape compatible with multiple devices. Loopback and LAN are the first routes; later Cloudflare can relay the same typed query, rule, approval, and event envelopes to a remote device service.
+
+The portal is not an execution boundary. It can request status, author rules, send parent approvals, and display outcomes. The child-device agent validates those requests, runs local AI and policy evaluation, owns timers, and performs enforcement through platform adapters. Browser, mobile, and future desktop portal shells must not run OS commands, capture adapters, child-safety AI, policy evaluators, enforcement logic, or arbitrary scripts.
 
 LAN mode has its own guardrails:
 
@@ -55,6 +57,7 @@ agent service
   -> SQLite ingest
   -> local AI safety evaluation
   -> typed policy decision
+  -> local enforcement adapter when action is required
   -> local API
   -> parent portal
 ```

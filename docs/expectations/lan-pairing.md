@@ -9,11 +9,12 @@ LAN features expose the child-device agent beyond loopback and must be treated a
 - Pairing proof contract.
 - Trusted device registry.
 - Device identity display.
-- Multi-device command routing.
+- Multi-device rule/query/approval routing.
 
 ## Acceptance
 
 - Anonymous LAN control is rejected.
+- Paired portals can send only typed rule, query, and approval intents; execution remains agent-side.
 - Loopback remains the default.
 - Pairing state is auditable.
 - Portal can distinguish devices.
@@ -28,4 +29,4 @@ LAN features expose the child-device agent beyond loopback and must be treated a
 
 ## Done Signal
 
-A parent portal can discover or pair with a local agent only through explicit trusted flow, and the agent rejects anonymous or incorrectly routed LAN commands.
+A parent portal can discover or pair with a local agent only through explicit trusted flow, and the agent rejects anonymous or incorrectly routed LAN rule, query, and approval intents.

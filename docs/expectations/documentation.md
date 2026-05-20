@@ -6,7 +6,7 @@ Docs must change when the product claim changes.
 
 - Roadmap status.
 - Architecture boundaries.
-- Public commands or contracts.
+- Public intents or contracts.
 - Storage model.
 - Platform support claims.
 - Installer/update behavior.

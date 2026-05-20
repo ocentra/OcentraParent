@@ -5,7 +5,7 @@ Capture features create real observations from a child device.
 ## Expected Deliverables
 
 - Platform-specific adapter behind a platform-neutral boundary.
-- Capability/status command.
+- Capability/status intent.
 - Observation event mapping.
 - Source id and observer id.
 - Failure reason when the OS capability is unavailable.
@@ -30,7 +30,7 @@ Expected:
 - Observe process identity.
 - Observe foreground window/app when available.
 - Record timestamps and source ids.
-- Avoid blocking the WebSocket command loop.
+- Avoid blocking the WebSocket intent loop.
 - Do not claim browser URL visibility from process/window capture alone.
 
 ## Windows Network And Domain Observation

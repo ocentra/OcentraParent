@@ -10,7 +10,7 @@ Contract features define meaning shared across runtimes.
 - Exact valid and invalid TypeScript tests.
 - Rust protocol struct when Rust sends or receives the shape.
 - Rust serialization/parity test with exact field names and values.
-- Protocol constants for commands, events, fields, ids, and stable strings.
+- Protocol constants for intents, events, fields, ids, and stable strings.
 
 ## Acceptance
 

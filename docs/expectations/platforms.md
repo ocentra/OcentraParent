@@ -36,6 +36,7 @@ Platform claims must match real OS capabilities. Scaffolded support is not the s
 
 - Parent portal and control surface only.
 - Does not run the child-device agent.
+- Does not run child-device AI, policy evaluation, enforcement, timers, capture adapters, or scripts.
 - Talks to local, LAN, or cloud-routed agents through typed service contracts.
 
 ## Done Signal

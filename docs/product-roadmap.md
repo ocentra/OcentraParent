@@ -14,7 +14,7 @@ Ocentra Parent helps parents understand and guide what children do on connected 
 - Can the system explain the evidence behind a decision?
 - Can parents set boundaries without needing to become device administrators or network experts?
 
-The long-term product is an agentic family-safety system. Child devices run local agents with local AI safety evaluation, parent surfaces show visibility and controls, and API AI may later help with richer parent reports and remote summaries. The child-device safety decision path stays local: capture facts, store them safely, query them locally, then run local AI and typed policy decisions before blocking, timing, asking the parent, syncing, or notifying.
+The long-term product is an agentic family-safety system. Child devices run local agents with local AI safety evaluation, parent surfaces show visibility and controls, and API AI may later help with richer parent reports and remote summaries. The parent surface is a rule-setting, approval, and observability layer; it does not execute capture, AI, scripts, policy evaluation, or enforcement. The child-device safety decision path stays local: capture facts, store them safely, query them locally, then run local AI and typed policy decisions before blocking, timing, asking the parent, syncing, or notifying.
 
 ## Current Position
 
@@ -25,7 +25,7 @@ Completed foundation:
 - Repository scaffold with TypeScript workspaces, Rust crates, platform package scaffolds, validation gates, security scans, pre-commit hooks, and CI.
 - Local Rust agent service and Vite portal using fixed ports.
 - Loopback and LAN development modes with origin checks.
-- WebSocket command/event protocol between portal and agent.
+- WebSocket intent/event protocol between portal and agent.
 - TypeScript domain contracts using Effect Schema.
 - Rust protocol parity for shared contracts.
 - Encrypted append-only activity journal.
@@ -48,7 +48,7 @@ Next product slice:
 The storage architecture is:
 
 ```text
-capture -> encrypted NDJSON journal -> SQLite query store -> local API -> portal/policy/reports
+capture -> encrypted NDJSON journal -> SQLite query store -> local AI/policy/enforcement -> local API -> portal/reports
 ```
 
 Rules:
@@ -56,13 +56,15 @@ Rules:
 - The encrypted journal is the required source of truth on every platform.
 - SQLite is the default query/index store on every platform.
 - Query stores are rebuildable from the journal.
-- Portal and policy code talk to typed service/query APIs, not directly to SQLite files.
+- Portal code talks to typed service/query APIs, not directly to SQLite files.
+- Portal code authors rules, approvals, and visibility requests; child-device agents validate and execute them.
+- Portal code must not run OS commands, capture adapters, AI safety evaluation, policy evaluation, enforcement, timers, or scripts.
 - Child-device local AI is the required safety evaluator for page, video-link, app, domain, and activity context.
 - Local AI receives typed evidence plus parent rules and returns typed decisions such as allow, warn, block, time-limit, or ask-parent.
 - Enforcement adapters act only on schema-valid decisions and record audit events.
 - API AI is optional and secondary: parent assistant, richer reports, unknown classification, or cloud summaries after privacy boundaries are explicit. It cannot replace the child-device local safety evaluator.
 - DuckDB may return later as an optional analytics/export adapter, but not as the default app database.
-- Web does not run the child-device agent. The portal talks to local, LAN, or cloud-routed agents.
+- Web does not run the child-device agent or any child-device workflow. The portal talks to local, LAN, or cloud-routed agents through typed contracts.
 
 ## Execution Standard
 
@@ -161,7 +163,7 @@ Deliverables:
 - Duplicate event protection.
 - Recent activity summary API.
 - Ingest status API.
-- Portal command buttons for journal/query health.
+- Portal health/query controls for journal and ingest status.
 
 Acceptance:
 
@@ -198,7 +200,7 @@ Deliverables:
 - Process lifecycle/activity events.
 - Foreground app/window activity events.
 - Activity source IDs for adapter, host, and observation mode.
-- Capture health/status command.
+- Capture health/status intent.
 - Journal write path from real observations.
 - SQLite ingest path from real observations.
 
@@ -207,7 +209,7 @@ Acceptance:
 - The agent records real process/window observations on Windows.
 - Events use existing activity contracts or deliberate contract extensions.
 - Capture does not block the WebSocket service.
-- Tests cover adapter mapping and service command behavior.
+- Tests cover adapter mapping and service intent behavior.
 - Manual local run shows current process/window evidence in the portal.
 
 Out of scope:
@@ -253,7 +255,7 @@ Acceptance:
 
 Purpose:
 
-Turn dev command proof into a usable local parent visibility surface.
+Turn dev protocol proof into a usable local parent visibility surface.
 
 Expectation links:
 
@@ -368,7 +370,7 @@ Deliverables:
 - Network/domain block mode where appropriate.
 - Timeout mode.
 - Timer-backed temporary block/unblock flow.
-- Manual override/permission command.
+- Parent override/permission intent.
 - Enforcement audit events.
 - Safety rollback path.
 
@@ -384,7 +386,7 @@ Acceptance:
 
 Purpose:
 
-Let a parent device control or observe another child device on the same local network.
+Let a parent device configure and observe another child device on the same local network while execution remains on the child-device agent.
 
 Expectation links:
 
@@ -399,7 +401,7 @@ Deliverables:
 - Pairing flow.
 - Pairing proof contract.
 - Trusted-device registry.
-- LAN command routing.
+- LAN rule/query/approval routing.
 - Multi-device portal selector.
 
 Acceptance:
@@ -466,7 +468,7 @@ Deliverables:
 
 - Cloudflare control plane.
 - Authenticated device registry.
-- Remote command/event relay.
+- Remote rule/query/approval event relay.
 - Sync queue.
 - Conflict handling.
 - Device heartbeat.
@@ -476,7 +478,7 @@ Acceptance:
 
 - Parent can see device health remotely.
 - Local-first operation still works if cloud is unavailable.
-- Device commands are authenticated and auditable.
+- Device rule updates, approval decisions, and visibility requests are authenticated and auditable.
 
 ### V3 Notifications
 
@@ -692,7 +694,8 @@ Web:
 
 - Parent portal/control surface.
 - Does not run the child-device agent.
-- Talks to local/LAN/cloud-routed services.
+- Does not run child-device capture, AI, policy evaluation, enforcement, timers, or scripts.
+- Talks to local/LAN/cloud-routed services through typed rule, approval, query, and event contracts.
 
 ## Data And Privacy Principles
 

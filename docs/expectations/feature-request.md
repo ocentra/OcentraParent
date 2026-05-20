@@ -9,7 +9,7 @@ Every feature request should make these expectations explicit before implementat
 - Platform scope: Windows, macOS, Linux, Android, iOS, web portal, Cloudflare, or shared domain only.
 - Data scope: what data is observed, stored, queried, synced, or displayed.
 - Trust boundary: local-only, LAN, cloud-routed, authenticated parent, unauthenticated dev, or installer/update path.
-- Contract boundary: TypeScript domain, Rust protocol, service command/event, portal UI, release asset, or external provider.
+- Contract boundary: TypeScript domain, Rust protocol, service intent/event, portal UI, release asset, or external provider.
 - Delivery boundary: feature branch, final PR to `main`, or explicit product release request.
 - Success evidence: exact behavior that proves the feature works.
 - Failure behavior: what happens when permissions, OS APIs, network, storage, cloud, provider, or model calls fail.
