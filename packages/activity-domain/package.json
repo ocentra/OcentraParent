@@ -5,9 +5,21 @@
   "type": "module",
   "description": "Device activity contract boundary placeholder.",
   "exports": {
+    "./contracts": {
+      "import": "./dist/contracts.js",
+      "types": "./dist/contracts.d.ts"
+    },
+    "./kinds": {
+      "import": "./dist/kinds.js",
+      "types": "./dist/kinds.d.ts"
+    },
     "./package-info": {
       "import": "./dist/package-info.js",
       "types": "./dist/package-info.d.ts"
+    },
+    "./primitives": {
+      "import": "./dist/primitives.js",
+      "types": "./dist/primitives.d.ts"
     }
   },
   "scripts": {
@@ -16,5 +28,8 @@
     "lint": "npx turbo run lint:exec --filter=@ocentra-parent/activity-domain",
     "lint:exec": "eslint --cache src tests && tsc -p tsconfig.json --noEmit",
     "test": "vitest run"
+  },
+  "dependencies": {
+    "@ocentra-parent/schema-domain": "file:../schema-domain"
   }
 }
