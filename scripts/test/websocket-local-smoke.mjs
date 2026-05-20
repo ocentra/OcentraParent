@@ -1,4 +1,7 @@
 import { spawn } from 'node:child_process';
+import { mkdtemp, readdir, readFile, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
 import { AgentEventEnvelopeSchema } from '@ocentra-parent/agent-protocol-domain/contracts';
 import {
@@ -15,6 +18,7 @@ import { resolveDebugAgentServicePath } from './agent-service-process.mjs';
 const port = ParentDevPort.WebSocketSmokeAgent;
 const healthUrl = createAgentHealthUrl(port);
 const wsUrl = createAgentWebSocketUrl(port);
+const devLogDir = await mkdtemp(join(tmpdir(), 'ocentra-parent-dev-log-'));
 
 await ensurePortFree(port, isLikelyParentAgentOccupant, console.log);
 
@@ -23,6 +27,7 @@ const service = spawn(resolveDebugAgentServicePath(), [], {
   env: {
     ...process.env,
     [ParentDevEnv.AgentAddress]: createAgentAddress(port),
+    [ParentDevEnv.DevLogDir]: devLogDir,
   },
   stdio: ['ignore', 'pipe', 'pipe'],
 });
@@ -35,9 +40,11 @@ try {
   if (!received.includes('agent.health.reported')) {
     throw new Error(`Expected health event, received ${received.join(',')}`);
   }
+  await assertAgentDevLogWritten();
   console.log(`websocket-local-smoke-ok:${received.join(',')}`);
 } finally {
   stopProcess(service);
+  await rm(devLogDir, { recursive: true, force: true });
 }
 
 async function waitForHttp(url) {
@@ -108,4 +115,17 @@ function collectOutput(child) {
   child.stdout.on('data', (chunk) => chunks.push(String(chunk)));
   child.stderr.on('data', (chunk) => chunks.push(String(chunk)));
   return () => chunks.join('');
+}
+
+async function assertAgentDevLogWritten() {
+  const files = await readdir(devLogDir);
+  const agentLog = files.find((file) => file.startsWith('agent-service-') && file.endsWith('.ndjson'));
+  if (agentLog === undefined) {
+    throw new Error(`Agent dev log was not written in ${devLogDir}`);
+  }
+
+  const content = await readFile(join(devLogDir, agentLog), 'utf8');
+  if (!content.includes('Agent health endpoint requested.')) {
+    throw new Error(`Agent dev log did not include health request entry:\n${content}`);
+  }
 }

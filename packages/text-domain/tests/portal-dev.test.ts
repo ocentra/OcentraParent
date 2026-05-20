@@ -8,5 +8,6 @@ describe('portal dev text', () => {
     expect(decodeDisplayText(title)).toBe(title);
     expect(title).toBe('Ocentra Parent');
     expect(PortalDevText[PortalDevTextToken.CommandResult]).toBe('Command result');
+    expect(PortalDevText[PortalDevTextToken.CopyResult]).toBe('Copy result');
   });
 });

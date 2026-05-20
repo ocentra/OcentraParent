@@ -1,4 +1,7 @@
 import { spawn } from 'node:child_process';
+import { mkdtemp, readdir, readFile, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
 
 import {
@@ -18,6 +21,7 @@ import { resolveDebugAgentServicePath, spawnVitePortal, stopProcessTree } from '
 
 const agentPort = ParentDevPort.PortalSmokeAgent;
 const portalPort = ParentDevPort.PortalSmokePortal;
+const devLogDir = await mkdtemp(join(tmpdir(), 'ocentra-parent-portal-log-'));
 
 await ensurePortFree(agentPort, isLikelyParentAgentOccupant, console.log);
 await ensurePortFree(portalPort, isLikelyParentPortalOccupant, console.log);
@@ -28,6 +32,7 @@ const agent = spawn(resolveDebugAgentServicePath(), [], {
     ...process.env,
     [ParentDevEnv.AgentAddress]: createAgentAddress(agentPort),
     [ParentDevEnv.AgentAllowedOrigins]: createHttpOrigin(ParentDevHost.Loopback, portalPort),
+    [ParentDevEnv.DevLogDir]: devLogDir,
   },
   stdio: ['ignore', 'pipe', 'pipe'],
 });
@@ -35,6 +40,7 @@ const agent = spawn(resolveDebugAgentServicePath(), [], {
 const portal = spawnVitePortal(portalPort, {
   ...process.env,
   [ParentDevEnv.PortalAgentWebSocketUrl]: createAgentWebSocketUrl(agentPort),
+  [ParentDevEnv.DevLogDir]: devLogDir,
 });
 
 try {
@@ -44,10 +50,12 @@ try {
   if (!html.includes('Ocentra Parent Dev Portal')) {
     throw new Error('Portal HTML shell did not include the expected title.');
   }
+  await assertDevServerLogWritten();
   console.log('portal-local-smoke-ok');
 } finally {
   stopProcess(portal);
   stopProcess(agent);
+  await rm(devLogDir, { recursive: true, force: true });
 }
 
 async function waitForHttp(url) {
@@ -67,4 +75,17 @@ async function waitForHttp(url) {
 
 function stopProcess(child) {
   stopProcessTree(child);
+}
+
+async function assertDevServerLogWritten() {
+  const files = await readdir(devLogDir);
+  const devServerLog = files.find((file) => file.startsWith('dev-server-') && file.endsWith('.ndjson'));
+  if (devServerLog === undefined) {
+    throw new Error(`Vite dev server log was not written in ${devLogDir}`);
+  }
+
+  const content = await readFile(join(devLogDir, devServerLog), 'utf8');
+  if (!content.includes('Vite dev server started.')) {
+    throw new Error(`Vite dev server log did not include startup entry:\n${content}`);
+  }
 }

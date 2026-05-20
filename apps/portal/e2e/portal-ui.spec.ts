@@ -1,8 +1,9 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Locator, type Page } from '@playwright/test';
 
-test('portal UI connects to the real agent and renders command results', async ({ page }) => {
+test('portal UI connects to the real agent and renders command results', async ({ context, page }) => {
   const browserFailures = collectBrowserFailures(page);
 
+  await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: 'http://127.0.0.1:4490' });
   await page.goto('/#/commands');
   await expect(page.getByRole('heading', { name: 'Ocentra Parent' })).toBeVisible();
   await expect(page.getByText('Local agent WebSocket command and event scaffold')).toBeVisible();
@@ -50,6 +51,7 @@ async function assertTabbedCommandResults(page: Page): Promise<void> {
   await page.getByRole('button', { name: 'Check health' }).click();
   await expect(commandResult.getByText('agent.health.reported')).toHaveCount(1);
   await expect(commandResult.locator('.log')).toHaveCount(1);
+  await assertCopyButton(page, commandResult, 'agent.health.reported');
 }
 
 async function assertRawEventLog(page: Page): Promise<void> {
@@ -70,6 +72,15 @@ async function assertOverview(page: Page): Promise<void> {
   await expect(page.locator('dt').filter({ hasText: 'Version' }).locator('xpath=following-sibling::dd[1]')).toHaveText(
     /\b\d+\.\d+\.\d+\b/u
   );
+}
+
+async function assertCopyButton(page: Page, commandResult: Locator, eventName: string): Promise<void> {
+  await commandResult.getByRole('button', { name: 'Copy result' }).click();
+  await expect(commandResult.getByRole('button', { name: 'Copied' })).toBeVisible();
+
+  const copiedText = await page.evaluate(() => navigator.clipboard.readText());
+  expect(copiedText).toContain(eventName);
+  expect(copiedText).toContain('"payload"');
 }
 
 function collectBrowserFailures(page: Page): string[] {

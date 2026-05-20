@@ -5,9 +5,12 @@ use axum::{
     routing::get,
     Json, Router,
 };
-use ocentra_parent_agent_protocol::{constants, AgentLogSnapshot};
+use ocentra_parent_agent_protocol::{constants, AgentLogSnapshot, LogFields};
 
-use crate::{network::NetworkPolicy, snapshot::build_dev_log_snapshot, websocket::handle_socket};
+use crate::{
+    dev_log::write_agent_info, network::NetworkPolicy, snapshot::build_dev_log_snapshot,
+    websocket::handle_socket,
+};
 
 pub fn router(network: NetworkPolicy) -> Router {
     let cors_layer = network.cors_layer();
@@ -20,6 +23,10 @@ pub fn router(network: NetworkPolicy) -> Router {
 }
 
 async fn health() -> Json<AgentLogSnapshot> {
+    let _ = write_agent_info(
+        constants::dev_log_message::AGENT_HEALTH_REQUESTED,
+        LogFields::new(),
+    );
     Json(build_dev_log_snapshot())
 }
 

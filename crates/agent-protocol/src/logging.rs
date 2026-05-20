@@ -25,6 +25,8 @@ pub enum LogLevel {
 pub enum LogSource {
     #[serde(rename = "agent-service")]
     AgentService,
+    #[serde(rename = "dev-server")]
+    DevServer,
     #[serde(rename = "local-api")]
     LocalApi,
     #[serde(rename = "portal")]
@@ -59,4 +61,16 @@ pub struct AgentLogSnapshot {
     pub schema_version: u16,
     pub agent: AgentIdentity,
     pub entries: Vec<AgentLogEntry>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DevLogEntry {
+    pub schema_version: u16,
+    pub id: String,
+    pub timestamp: String,
+    pub level: LogLevel,
+    pub source: LogSource,
+    pub message: String,
+    pub fields: LogFields,
 }

@@ -1,5 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { PortalCommandButtons, PortalConnectionState, PortalRouteSchema, PortalRoutes } from '../src/contracts';
+import {
+  PortalClipboard,
+  PortalCommandButtons,
+  PortalConnectionState,
+  PortalDom,
+  PortalRouteSchema,
+  PortalRoutes,
+  PortalTiming,
+  decodePortalClipboardText,
+} from '../src/contracts';
 
 describe('portal domain contracts', () => {
   it('PortalRouteSchema: accepts only declared dev routes', () => {
@@ -15,5 +24,9 @@ describe('portal domain contracts', () => {
   it('PortalConnectionState: exposes connected state token', () => {
     expect(PortalRoutes).toContain('overview');
     expect(PortalConnectionState.Connected).toBe('connected');
+    expect(PortalTiming.CopyFeedbackMs).toBeGreaterThan(0);
+    expect(PortalClipboard.CommandCopy).toBe('copy');
+    expect(PortalDom.Tags.TextArea).toBe('textarea');
+    expect(decodePortalClipboardText('copy payload')).toBe('copy payload');
   });
 });

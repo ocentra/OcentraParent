@@ -1,6 +1,7 @@
 #![forbid(unsafe_code)]
 
 mod app;
+mod dev_log;
 mod fields;
 mod network;
 mod snapshot;
@@ -17,6 +18,10 @@ async fn main() {
     let listener = tokio::net::TcpListener::bind(network.bind_address())
         .await
         .expect(constants::error::LOCALHOST_BIND_SUCCEEDS);
+    let _ = dev_log::write_agent_info(
+        constants::dev_log_message::AGENT_SERVICE_STARTED,
+        Default::default(),
+    );
 
     axum::serve(listener, app::router(network))
         .await
