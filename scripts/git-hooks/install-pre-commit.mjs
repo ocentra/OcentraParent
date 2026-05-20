@@ -10,6 +10,17 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
+if [ "$OCENTRA_PARENT_SKIP_LANE_GUARD" != "1" ]; then
+  echo "[lanes] Checking Ocentra Parent worktree lane ownership..."
+  node scripts/dev/worktree-lanes.mjs guard
+  if [ $? -ne 0 ]; then
+    echo ""
+    echo "[lanes] Pre-commit hook rejected this commit because the checkout is not claimed correctly."
+    echo "[lanes] Run npm run lanes:status and npm run lanes:claim for this branch, or set OCENTRA_PARENT_SKIP_LANE_GUARD=1 only for deliberate emergency bypass."
+    exit 1
+  fi
+fi
+
 echo "[validation] Running Ocentra Parent pre-commit gate..."
 node scripts/git-hooks/run-precommit-validation.mjs
 if [ $? -ne 0 ]; then

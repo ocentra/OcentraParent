@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
-import { dirname, join } from 'node:path';
+import { dirname, join, normalize } from 'node:path';
 
 export const LaneStatus = Object.freeze({
   Blocked: 'blocked',
@@ -18,6 +18,7 @@ export const LaneRole = Object.freeze({
 export const LaneCommand = Object.freeze({
   Claim: 'claim',
   Free: 'free',
+  Guard: 'guard',
   Init: 'init',
   Status: 'status',
 });
@@ -42,6 +43,8 @@ export function createDefaultLedger({ repoRoot, repoBranch = 'main', now = new D
         path: repoRoot,
         status: LaneStatus.Occupied,
         branch: repoBranch,
+        owner: 'user',
+        thread: 'primary',
         task: 'user primary checkout',
         nextAction: 'Do not repurpose without explicit user direction.',
       },
@@ -59,7 +62,10 @@ export function createReusableLane(id, path) {
     path,
     status: LaneStatus.FreeWarm,
     branch: '',
+    owner: '',
+    thread: '',
     task: '',
+    notes: '',
     nextAction: 'Claim with a clean milestone branch before editing.',
   };
 }
@@ -127,9 +133,23 @@ export function parseLaneArgs(argv) {
   return options;
 }
 
+export function defaultLaneOwner(env = process.env) {
+  return env.OCENTRA_PARENT_LANE_OWNER ?? env.USERNAME ?? env.USER ?? 'codex';
+}
+
 export function claimLane(
   ledger,
-  { laneId, branchInput, task, base = 'origin/main', now = new Date(), force = false }
+  {
+    laneId,
+    branchInput,
+    task,
+    base = 'origin/main',
+    now = new Date(),
+    force = false,
+    owner = defaultLaneOwner(),
+    thread = '',
+    notes = '',
+  }
 ) {
   const lane = findLane(ledger, laneId);
   if (lane.role === LaneRole.Primary && force !== true) {
@@ -142,7 +162,10 @@ export function claimLane(
   lane.status = LaneStatus.Occupied;
   lane.branch = normalizeBranchName(branchInput);
   lane.base = base;
+  lane.owner = owner;
+  lane.thread = thread;
   lane.task = task;
+  lane.notes = notes;
   lane.claimedAt = now.toISOString();
   lane.nextAction = 'Work in this lane until the branch is merged, parked, or explicitly freed.';
   ledger.updatedAt = now.toISOString();
@@ -154,13 +177,49 @@ export function freeLane(ledger, { laneId, nextAction = 'Reusable after fresh st
   lane.status = LaneStatus.FreeWarm;
   lane.previousBranch = lane.branch;
   lane.branch = '';
+  lane.owner = '';
+  lane.thread = '';
   lane.task = '';
+  lane.notes = '';
   lane.base = '';
   lane.claimedAt = '';
   lane.freedAt = now.toISOString();
   lane.nextAction = nextAction;
   ledger.updatedAt = now.toISOString();
   return { ledger, lane };
+}
+
+export function validateLaneContext(ledger, { repoRoot, branch, laneId, owner }) {
+  const lane = laneId === undefined ? findLaneByPath(ledger, repoRoot) : findLane(ledger, laneId);
+  const findings = [];
+
+  if (normalizeLanePath(lane.path) !== normalizeLanePath(repoRoot)) {
+    findings.push(`lane ${lane.id} points at ${lane.path}, not current checkout ${repoRoot}`);
+  }
+  if (lane.status !== LaneStatus.Occupied) {
+    findings.push(`lane ${lane.id} is ${lane.status}, not ${LaneStatus.Occupied}`);
+  }
+  if (lane.branch !== branch) {
+    findings.push(`lane ${lane.id} expects branch ${lane.branch || '-'}, current branch is ${branch}`);
+  }
+  if (owner !== undefined && lane.owner !== owner) {
+    findings.push(`lane ${lane.id} owner is ${lane.owner || '-'}, not ${owner}`);
+  }
+
+  return { lane, findings, ok: findings.length === 0 };
+}
+
+export function findLaneByPath(ledger, repoRoot) {
+  const normalizedRoot = normalizeLanePath(repoRoot);
+  const lane = ledger.lanes.find((candidate) => normalizeLanePath(candidate.path) === normalizedRoot);
+  if (lane === undefined) {
+    throw new Error(`Current checkout is not registered in lane ledger: ${repoRoot}`);
+  }
+  return lane;
+}
+
+function normalizeLanePath(path) {
+  return normalize(path).replace(/\\/gu, '/').toLowerCase();
 }
 
 export function findLane(ledger, laneId) {
@@ -177,7 +236,12 @@ export function formatLedgerSummary(ledger, liveStates = []) {
     .map((lane) => {
       const live = liveByLane.get(lane.id);
       const liveText = live === undefined ? 'live=not-checked' : `live=${live.summary}`;
-      return `${lane.id} | ${lane.status} | ${lane.branch || '-'} | ${lane.task || '-'} | ${liveText}`;
+      const ownerText = lane.owner === undefined || lane.owner.length === 0 ? '-' : lane.owner;
+      const threadText = lane.thread === undefined || lane.thread.length === 0 ? '-' : lane.thread;
+      const nextText = lane.nextAction === undefined || lane.nextAction.length === 0 ? '-' : lane.nextAction;
+      return `${lane.id} | ${lane.status} | owner=${ownerText} | thread=${threadText} | ${lane.branch || '-'} | ${
+        lane.task || '-'
+      } | next=${nextText} | ${liveText}`;
     })
     .join('\n');
 }

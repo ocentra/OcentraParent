@@ -10,6 +10,7 @@ import {
   freeLane,
   normalizeBranchName,
   parseLaneArgs,
+  validateLaneContext,
 } from '../dev/worktree-lanes-lib.mjs';
 import { runLaneCli } from '../dev/worktree-lanes.mjs';
 
@@ -55,11 +56,17 @@ test('worktree lane claim records branch task and base', () => {
     task: 'V0.4 network observation',
     base: 'origin/main',
     now: fixedDate,
+    notes: 'adapter lane',
+    owner: 'codex-agent',
+    thread: 'thread-42',
   });
 
   assert.equal(lane.status, LaneStatus.Occupied);
   assert.equal(lane.branch, 'codex/v0.4-windows-network-and-domain-observation');
   assert.equal(lane.task, 'V0.4 network observation');
+  assert.equal(lane.owner, 'codex-agent');
+  assert.equal(lane.thread, 'thread-42');
+  assert.equal(lane.notes, 'adapter lane');
   assert.equal(lane.base, 'origin/main');
   assert.equal(lane.claimedAt, fixedDate.toISOString());
 });
@@ -96,6 +103,8 @@ test('worktree lane free parks previous branch and clears task', () => {
   assert.equal(lane.status, LaneStatus.FreeWarm);
   assert.equal(lane.previousBranch, 'codex/v0.5-live-activity-portal-view');
   assert.equal(lane.branch, '');
+  assert.equal(lane.owner, '');
+  assert.equal(lane.thread, '');
   assert.equal(lane.task, '');
   assert.equal(lane.nextAction, 'Ready for next milestone.');
 });
@@ -117,10 +126,38 @@ test('worktree lane summary includes live status when supplied', () => {
   const ledger = createDefaultLedger({ repoRoot: 'E:\\OcentraParent', now: fixedDate });
   const summary = formatLedgerSummary(ledger, [{ id: 'primary', summary: '## main' }]);
 
-  assert.match(summary, /primary \| occupied \| main \| user primary checkout \| live=## main/u);
-  assert.match(summary, /codex-a \| free-warm \| - \| - \| live=not-checked/u);
+  assert.match(summary, /primary \| occupied \| owner=user \| thread=primary \| main/u);
+  assert.match(summary, /codex-a \| free-warm \| owner=- \| thread=- \| - \| -/u);
+  assert.match(summary, /live=## main/u);
+  assert.match(summary, /live=not-checked/u);
 });
 
 test('worktree lane CLI rejects unknown commands before git execution', () => {
   assert.throws(() => runLaneCli(['unknown-command']), /Unknown lane command/u);
+});
+
+test('worktree lane guard accepts matching occupied checkout', () => {
+  const ledger = createDefaultLedger({ repoRoot: 'E:\\OcentraParent', repoBranch: 'main', now: fixedDate });
+  const result = validateLaneContext(ledger, {
+    branch: 'main',
+    owner: 'user',
+    repoRoot: 'e:/ocentraparent',
+  });
+
+  assert.equal(result.ok, true);
+  assert.equal(result.lane.id, 'primary');
+  assert.deepEqual(result.findings, []);
+});
+
+test('worktree lane guard reports branch and owner drift', () => {
+  const ledger = createDefaultLedger({ repoRoot: 'E:\\OcentraParent', repoBranch: 'main', now: fixedDate });
+  const result = validateLaneContext(ledger, {
+    branch: 'codex/wrong',
+    owner: 'other-agent',
+    repoRoot: 'E:\\OcentraParent',
+  });
+
+  assert.equal(result.ok, false);
+  assert.match(result.findings.join('\n'), /expects branch main/u);
+  assert.match(result.findings.join('\n'), /owner is user/u);
 });
