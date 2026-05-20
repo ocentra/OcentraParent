@@ -2,6 +2,40 @@
 
 LAN features expose the child-device agent beyond loopback and must be treated as trust-boundary work.
 
+## Parent Outcome
+
+A parent can use a trusted device on the same local network to find, pair with, select, query, and configure a child-device agent without needing cloud availability. The parent should understand which child device is selected, whether the link is local/LAN, and whether a command was accepted, rejected, or waiting for pairing.
+
+## Child-Device Outcome
+
+The child-device agent stays the execution authority. It accepts only schema-valid rule, query, and approval intents from a paired parent device, records pairing and control events for audit, and rejects anonymous or incorrectly routed LAN requests.
+
+## Platform Scope
+
+- Windows is the first required implementation target because the first local product is Windows-first.
+- Other desktop or mobile platforms may reuse the pairing contracts only after their local agent transport, device identity, and package permissions are proven.
+- Browser-only web surfaces are parent portals. They do not become child-device agents because a browser can reach a LAN URL.
+
+## Data Scope
+
+LAN pairing may exchange device identity, pairing proof, parent-device identity, selected child-device id, route id, intent id, command status, and minimal health/query payloads. It must not expose raw journals, SQLite files, local filesystem paths, decrypted evidence blobs, or unrelated device telemetry through pairing endpoints.
+
+## Trust Boundary
+
+Loopback remains the default. LAN mode is explicit and must require both network exposure enablement and a pairing proof. Pairing proof material must be scoped to a device relationship, not a broad LAN admin credential. Origin checks, route checks, and intent validation stay active after pairing.
+
+## Contract Boundary
+
+Pairing contracts belong in shared domain packages before runtime code consumes them. Expected contract families include device discovery, pairing challenge/proof, trusted-device registry entry, route target, parent intent envelope, child-agent response, rejection reason, and audit event. Rust protocol shapes must mirror the TypeScript contracts before the Rust service accepts or emits the payloads.
+
+## Failure Behavior
+
+- Unpaired LAN callers receive an explicit rejection reason and no control surface.
+- Expired, replayed, malformed, wrong-device, or wrong-origin pairing proofs are rejected and audited.
+- If LAN discovery fails, direct local address entry may be allowed only through the same pairing and origin checks.
+- If a paired device is unavailable, the portal shows offline or stale status instead of silently falling back to another child device.
+- Pairing revocation takes effect before any new rule, query, or approval intent is accepted.
+
 ## Expected Deliverables
 
 - Explicit LAN enablement.
@@ -10,6 +44,9 @@ LAN features expose the child-device agent beyond loopback and must be treated a
 - Trusted device registry.
 - Device identity display.
 - Multi-device rule/query/approval routing.
+- Pairing revocation path.
+- Pairing audit events in the local evidence pipeline.
+- Parent-visible selected-device state.
 
 ## Acceptance
 
@@ -20,6 +57,17 @@ LAN features expose the child-device agent beyond loopback and must be treated a
 - Portal can distinguish devices.
 - Tests cover rejected and accepted routes.
 - Parent-visible UI makes the selected device clear.
+- The same command sent to the wrong paired device is rejected rather than applied to the currently selected device by accident.
+- Pairing state survives service restart through an explicit local registry or produces a safe unpaired state.
+- Sensitive child activity details are not included in discovery beacons or pairing challenge previews.
+
+## Validation Gates
+
+- TypeScript contract tests for valid and invalid pairing payloads.
+- Rust protocol parity tests for pairing, route, rejection, and audit shapes.
+- Local service integration tests for anonymous rejection, successful pairing, wrong-origin rejection, wrong-device rejection, revocation, and service restart behavior.
+- Portal Playwright coverage for discovery or direct-address entry, selected-device display, accepted route, rejected route, and offline/stale state.
+- Security/static-analysis gates because LAN exposure and device identity are security-sensitive.
 
 ## Non-Goals
 

@@ -1,10 +1,118 @@
 # AI Feature Expectations
 
-AI is a core child-device product layer. The safety evaluator for child activity runs locally on the child device against typed evidence and parent rules. API AI is secondary and may assist with parent reports, unknown classification, and remote summaries after privacy boundaries are explicit, but it is not the normal decision maker for blocking, timing, or asking the parent.
+AI is a child-device safety layer first. The normal safety evaluator runs locally on the child device against typed evidence and parent rules. API AI is secondary and may assist with parent reports, unknown classification, and remote summaries only after privacy and cloud boundaries are explicit. API AI is not the normal decision maker for blocking, timing, or asking the parent.
 
-The parent portal does not run the child-safety model. It authors rules and shows explanations; the child-device agent runs the local model and converts model output into typed decisions.
+The parent portal does not run child-safety AI. It authors rules, approvals, and questions; the child-device agent validates local context, runs the local evaluator, and converts model output into typed decisions.
 
 TabAgent and TabAgentServer are reference systems for the future local AI runtime, browser evidence capture, native bridge, model cache, execution-provider, memory, and knowledge-graph direction. The detailed reuse boundary lives in [Local AI And TabAgent Reuse](../architecture/local-ai-and-tabagent-reuse.md). Reuse must happen behind Ocentra Parent-owned contracts; TabAgent must not redefine the parent portal or child-agent safety boundary.
+
+## Roadmap Scope
+
+V0.6 defines contracts before runtime AI affects policy or enforcement.
+
+V0.7 runs a local AI policy evaluator in dry-run and decision-producing modes while enforcement remains disabled by default.
+
+V4 may add API AI parent assistant and advanced explanation. V4 cannot replace local child-device safety decisions.
+
+## Parent Outcome
+
+- Parent can understand why an activity was classified as allowed, warned, blocked, time-limited, ask-parent, or unknown.
+- Parent can see the stored evidence, parent rules, local model status, and reason codes behind an AI-assisted decision.
+- Parent can ask for richer explanations later through API AI without changing the local safety decision that already happened.
+- Parent can distinguish "local evaluator unavailable", "low confidence", "missing evidence", "policy conflict", and "remote assistant unavailable" states.
+
+## Child-Device Outcome
+
+- The child-device agent can evaluate a narrow page, video link, app, domain, or recent activity window locally.
+- The local evaluator consumes only typed evidence, typed parent rules, recent local context, and optional evidence-backed memory or graph references.
+- The local evaluator returns a schema-valid result that policy can deterministically consume.
+- The child-device agent records the local AI result, its model/runtime status reference, evidence references, and degraded state before policy or enforcement acts on it.
+
+## Platform Scope
+
+- Windows is first for local model runtime proof because Windows is the first production-grade child-agent platform.
+- macOS, Linux, Android, and iOS must not claim local AI parity until model runtime, storage, permissions, and resource behavior are proven on those platforms.
+- Web is parent portal only. Web may display AI status and explanations, but it does not run child-device safety models, policy evaluation, timers, or enforcement.
+
+## Data Scope
+
+AI input may include:
+
+- Current typed observation: app, process, window, URL, page, video, domain, category, or network context when those capture slices exist.
+- Stored evidence references from the encrypted journal and SQLite query store.
+- Parent rule references, policy version, child profile reference, device reference, schedule window, and recent activity summary.
+- Local memory references and knowledge-graph references only when those references cite source evidence, policy versions, or parent actions.
+- Local model/provider status and prompt/template version.
+
+AI input must not include:
+
+- Raw unbounded browser or OS content by default.
+- Decrypted HTTPS payloads unless a future explicit legal/product boundary approves a specific capture mode.
+- Data uploaded to API AI without explicit privacy, parent-control, and cloud-routing contracts.
+- Derived memory or graph claims that cannot point back to source evidence.
+
+## Contract Boundary
+
+V0.6 must define Effect Schema contracts in the owning domain packages before runtime code consumes them. The expected contract families are:
+
+- `LocalAiEvaluationInput`: schema version, request id, child profile reference, device reference, current observation reference, evidence references, parent rule references, recent activity window, optional memory references, optional graph references, model request metadata, and prompt/template version.
+- `LocalAiSafetyResult`: schema version, action, confidence, unknown/degraded state, reason codes, explanation token or text reference, evidence references, parent rule references, optional memory/graph references, model runtime reference, prompt/template version, and expiry/timer fields when the action is time-based.
+- `LocalModelRuntimeStatus`: provider, model id, local path or opaque model reference, load state, capability flags, resource class, degraded state, last checked time, and unavailable reason.
+- `LocalProviderCapability`: available providers, hardware/resource constraints, supported tasks, privacy mode, and fallback order.
+- `LocalMemoryReference` and `LocalGraphReference`: reference id, reference type, source evidence references, source policy version or parent action when applicable, generated time, confidence, and derived-index version.
+- `ApiAiParentAssistantRequest` and `ApiAiParentAssistantResult` for V4: parent question, permitted evidence references, privacy boundary, model/prompt version, answer, cited evidence references, uncertainty, and failure state.
+
+Rust protocol parity is required when Rust sends, receives, stores, or journals these shapes. Field names, enum values, schema versions, and reason codes must be tested on both sides before runtime behavior depends on them.
+
+## Local Agent Intelligence
+
+The child-device agent may maintain local, evidence-backed intelligence:
+
+- Evidence memory: immutable observations and AI/policy decision references.
+- Recent activity memory: current session and short-window behavior context.
+- Policy memory: parent rules, overrides, schedules, and prior parent decisions.
+- Semantic memory: local indexes or embeddings for topic, intent, and risk grouping.
+- Knowledge graph: typed relationships between child, device, app, site, domain, video, channel, category, policy, decision, evidence, incident, and parent approval.
+
+Memory and graph output are derived indexes, not source truth. They must cite stored evidence, policy versions, or parent actions before they can influence AI, policy, or explanations. If the agent cannot explain which evidence or rule a remembered fact came from, that fact cannot drive blocking. It may only contribute to unknown, ask-parent, warn, or another explicit safe state.
+
+## Local AI Flow
+
+```text
+captured page/video/app/domain evidence
+  -> encrypted journal and SQLite query store
+  -> parent rules and recent context
+  -> optional evidence-backed memory and graph references
+  -> child-device local model
+  -> schema-valid AI safety result
+  -> deterministic policy evaluator
+  -> dry-run result, parent approval path, or enforcement adapter
+  -> auditable decision event
+```
+
+## API AI Parent Assistant Boundary
+
+V4 API AI may produce richer explanations, trend summaries, parent Q&A, and unknown classification suggestions. It must remain outside the normal blocking path.
+
+Acceptance for API AI:
+
+- Requests cite the stored evidence the parent is allowed to send.
+- Responses cite stored evidence references and mark uncertainty.
+- API failures degrade to local-only explanation, unknown, or ask-parent.
+- API output cannot override a stricter local parent rule or a typed local policy decision.
+- Remote model prompts and versions are governed and auditable.
+- No child activity leaves the device without explicit cloud/privacy contracts.
+
+## Failure Behavior
+
+- Invalid AI input is rejected before model invocation.
+- Invalid model output is rejected before policy consumes it.
+- Local model unavailable or overloaded returns an explicit degraded result.
+- Low-confidence or contradictory output returns unknown, warn, or ask-parent unless an explicit parent rule gives a stricter deterministic answer.
+- Missing evidence prevents AI from claiming content understanding.
+- Memory or graph references without source evidence are ignored for decisioning.
+- API AI outage does not disable local child-device evaluation.
+- Model cache corruption or missing model files must not lose captured evidence; the agent keeps writing evidence and reports evaluator unavailable.
 
 ## Expected Deliverables
 
@@ -25,29 +133,6 @@ TabAgent and TabAgentServer are reference systems for the future local AI runtim
 - Failure/degraded behavior.
 - Human override feedback path where relevant.
 
-The local flow is:
-
-```text
-captured page/video/app/domain evidence
-  -> parent rules and recent context
-  -> local memory and knowledge-graph context
-  -> child-device local model
-  -> typed allow/warn/block/time-limit/ask-parent/unknown decision
-  -> local enforcement adapter or parent approval path
-```
-
-## Local Agent Intelligence
-
-The child-device agent should become smarter over time by maintaining local, evidence-backed memory:
-
-- Evidence memory: immutable observations and AI/policy decision references.
-- Recent activity memory: current session and short-window behavior context.
-- Policy memory: parent rules, overrides, schedules, and prior parent decisions.
-- Semantic memory: local indexes or embeddings for topic, intent, and risk grouping.
-- Knowledge graph: typed relationships between child, device, app, site, domain, video, channel, category, policy, decision, evidence, incident, and parent approval.
-
-Memory and graph output are derived indexes, not source truth. They must cite stored evidence, policy versions, or parent actions before they can influence AI, policy, or explanations. If the agent cannot explain which evidence or rule a remembered fact came from, that fact cannot drive blocking.
-
 ## Acceptance
 
 - Local AI output is schema-validated before any policy or enforcement code consumes it.
@@ -62,6 +147,16 @@ Memory and graph output are derived indexes, not source truth. They must cite st
 - API AI responses cannot override a stricter local parent rule.
 - Tests cover parser behavior and decision integration without mocking provider truth.
 - Tests cover replay from stored evidence into AI context when a feature adds memory or graph behavior.
+
+## Validation Gates
+
+- TypeScript schema tests prove valid and invalid AI input/output, runtime status, memory references, graph references, and API assistant payloads.
+- Rust parity tests prove identical field names, enum values, schema versions, and serialization for every Rust-crossing AI shape.
+- Stored-evidence integration tests build a safety context from the real encrypted journal and SQLite query store.
+- Provider lifecycle tests exercise real local provider status, unavailable, load failure, and degraded states without faking model truth.
+- Policy integration tests prove ambiguous AI output cannot override explicit parent rules.
+- API assistant tests prove remote output remains evidence-cited and outside the child-device blocking path.
+- Validation reports exact commands and failures.
 
 ## Non-Goals
 

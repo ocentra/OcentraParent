@@ -11,6 +11,18 @@ This does not mean copying TabAgent wholesale into Ocentra Parent. Ocentra Paren
 - The parent portal must not run child-safety AI, browser capture, scripts, timers, policy evaluation, or enforcement.
 - API AI can help with parent reports, summaries, and assistant workflows later, but it cannot replace the child-device local evaluator in the normal blocking path.
 
+## Reference Evidence Inspected
+
+The following TabAgent and TabAgentServer files are useful evidence for future reuse planning. They are references, not accepted Ocentra Parent contracts:
+
+| Area                     | Reference files                                                                                                                                                                                                                                                                                                                                                           | Reuse lesson                                                                                                                                                                                   |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Browser-to-native bridge | `E:\Desktop\TabAgent\src\Controllers\NativeHostManager.ts`, `E:\Desktop\TabAgent\src\types\native.ts`, `E:\Desktop\TabAgent\TabAgentServer\Rust\native-messaging\src\router.rs`, `E:\Desktop\TabAgent\TabAgentServer\Rust\native-messaging\src\protocol.rs`                                                                                                               | Persistent native connection, queued messages, reconnect state, route metadata, and request/response envelopes are worth studying for child-device bridge status and typed local API behavior. |
+| Model lifecycle          | `E:\Desktop\TabAgent\src\backgroundModelManager.ts`, `E:\Desktop\TabAgent\src\Controllers\services\NativeModelService.ts`, `E:\Desktop\TabAgent\src\Controllers\services\NativeInferenceService.ts`, `E:\Desktop\TabAgent\TabAgentServer\Rust\native-messaging\src\routes\models.rs`, `E:\Desktop\TabAgent\TabAgentServer\Rust\native-messaging\src\routes\generation.rs` | Load, unload, progress, generation, halt, and degraded state need explicit status contracts in Ocentra Parent before policy consumes model output.                                             |
+| Model cache              | `E:\Desktop\TabAgent\src\DB\idbModel.ts`, `E:\Desktop\TabAgent\TabAgentServer\Rust\model-cache\README.md`, `E:\Desktop\TabAgent\TabAgentServer\Rust\model-cache\src\lib.rs`                                                                                                                                                                                               | Chunked download, manifests, quant status, progressive callbacks, and cache statistics are useful patterns, but Ocentra Parent must keep evidence storage separate from model cache storage.   |
+| Execution providers      | `E:\Desktop\TabAgent\TabAgentServer\Rust\execution-providers\README.md`, `E:\Desktop\TabAgent\TabAgentServer\Rust\execution-providers\src\lib.rs`                                                                                                                                                                                                                         | Provider capability, availability checks, fallback ordering, and hardware-specific adapters should become explicit local provider contracts, not hidden runtime choices.                       |
+| Memory and graph         | `E:\Desktop\TabAgent\src\DB\idbKnowledgeGraph.ts`, `E:\Desktop\TabAgent\TabAgentServer\Rust\docs\mia_memory.md`, `E:\Desktop\TabAgent\TabAgentServer\Rust\docs\KnowledgeWeaver.md`, `E:\Desktop\TabAgent\TabAgentServer\Rust\knowledge-graph\src\lib.rs`, `E:\Desktop\TabAgent\TabAgentServer\Rust\storage\src\knowledge.rs`                                              | Derived memory, graph edges, semantic indexes, and asynchronous enrichment are useful only when every derived fact cites source evidence, policy versions, or parent actions.                  |
+
 ## TabAgent Pieces To Reuse Or Study
 
 - Browser evidence capture: content scripts, page extraction, video/page metadata extraction, temp-tab fallback, and URL context capture.
@@ -19,6 +31,28 @@ This does not mean copying TabAgent wholesale into Ocentra Parent. Ocentra Paren
 - Memory system: durable facts, semantic recall, task context, and relationship indexing that can help the child agent reason over more than the latest page.
 - Knowledge graph: typed relationships between child, device, app, site, domain, video, channel, category, policy, decision, evidence, and incident.
 - Route/test structure: typed route metadata, handler registration, and route-level test cases that make unsupported behavior hard to sneak in.
+
+## What Not To Copy
+
+- Do not copy TabAgent UI, dashboard, assistant persona, or broad agent workflows into Ocentra Parent.
+- Do not copy stringly route ids, model ids, provider names, or field names into app/runtime code. Ocentra Parent domain packages and Rust protocol constants own those names.
+- Do not copy a memory graph as a source of truth. Ocentra Parent source truth remains encrypted NDJSON journal plus SQLite ingest.
+- Do not copy API AI or remote model behavior into the child-device blocking path.
+- Do not copy broad model runtime subsystems before V0.6 contracts and Rust parity tests exist.
+- Do not use TabAgent's browser extension boundary to claim unsupported OS-level capture or enforcement.
+
+## Ocentra Ownership Boundaries
+
+The reusable ideas map to Ocentra-owned boundaries:
+
+| Ocentra boundary                                                    | Owns                                                                                                                               |
+| ------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `@ocentra-parent/agent-protocol-domain` and `crates/agent-protocol` | Local AI request/result envelopes when the Rust service sends, receives, or journals them.                                         |
+| `@ocentra-parent/parent-domain`                                     | Family, parent, child profile, device, approval, and parent action references.                                                     |
+| `@ocentra-parent/activity-domain`                                   | Activity evidence references, observation context, local AI decision events, policy decision events, and enforcement audit events. |
+| Future local AI runtime crate/module                                | Provider lifecycle, model cache references, local model status, generation status, and degraded states.                            |
+| Future policy evaluator crate/module                                | Deterministic policy decisioning over parent rules, evidence, and local AI result.                                                 |
+| Future enforcement adapter crate/module                             | Platform-specific execution of typed policy decisions and rollback/unavailable reporting.                                          |
 
 ## Child-Agent Memory And Knowledge Graph Expectations
 
@@ -31,6 +65,21 @@ The agent should eventually maintain multiple local memory layers:
 - Knowledge graph: typed entities and typed edges that connect activity, evidence, rules, AI decisions, enforcement actions, and parent approvals.
 
 Derived memory must never become unexplained truth. Every graph edge, summary, semantic match, or remembered pattern that affects a decision must point back to source evidence, a policy version, or a parent action. If the agent cannot cite the facts it used, the decision must degrade to unknown, ask-parent, warn, or another explicit safe state.
+
+## Required Reference Shape
+
+Any local memory or graph reference that influences AI, policy, enforcement, or parent explanation must carry:
+
+- Reference id.
+- Reference kind: evidence memory, recent activity, policy memory, semantic memory, graph entity, or graph edge.
+- Source evidence references from the encrypted journal/query store.
+- Source policy version or parent action reference when applicable.
+- Derived index version.
+- Generated time.
+- Confidence or match score when the reference is probabilistic.
+- Expiry or invalidation rule for short-window context.
+
+No derived memory or graph reference may drive a block, timeout, or ask-parent decision unless it can cite source evidence or parent intent.
 
 ## Target Local AI Flow
 
@@ -58,6 +107,56 @@ The local model should not receive raw unbounded data by default. The safety con
 - Prefer a shared crate/workspace strategy for stable runtime pieces if TabAgent and Ocentra Parent will be co-developed.
 - Keep storage responsibilities separate: Ocentra Parent's evidence source of truth remains encrypted NDJSON plus SQLite ingest. TabAgent-style memory or graph indexes are derived local indexes, not a replacement for the evidence journal.
 - Browser-extension capture belongs on the child device and talks to the child-device agent through a typed native or local API bridge.
+
+## Staged Integration Plan
+
+### Stage 1: V0.6 Contracts
+
+- Define local AI input/result, local model status, provider capability, memory reference, graph reference, policy decision, and enforcement audit event contracts.
+- Add parser tests and Rust parity tests before runtime code consumes the shapes.
+- Add reason code and degraded-state enums that distinguish unavailable model, invalid output, missing evidence, low confidence, and policy conflict.
+- Keep API AI contracts separate from child-device local AI contracts.
+
+### Stage 2: V0.7 Dry-Run Evaluator
+
+- Build a safety context builder from real stored evidence, parent rules, and optional evidence-backed memory references.
+- Add provider lifecycle status using lessons from TabAgent model load/unload/progress and execution-provider availability.
+- Parse local model output into typed safety results.
+- Run deterministic policy evaluation in dry-run first.
+- Journal AI and policy decision events with evidence references.
+
+### Stage 3: V0.8 Enforcement Handoff
+
+- Keep enforcement disabled by default until dry-run evidence proves expected behavior.
+- Allow enforcement adapters to consume only typed policy decisions.
+- Add timer, ask-parent, rollback, unavailable, and audit event paths.
+- Validate service restart and adapter unavailable behavior.
+
+### Stage 4: V4 Parent Assistant
+
+- Add API AI only as a parent-facing explanation and summary layer.
+- Require evidence-cited API responses.
+- Degrade to local-only explanation or unknown when API AI is unavailable.
+- Prevent API AI from overriding local policy decisions or stricter parent rules.
+
+## Security And Privacy Risks
+
+- Model prompts may accidentally include sensitive child activity; keep prompt inputs minimal and evidence-referenced.
+- Memory and graph indexes may amplify stale or incorrect derived facts; require source references and invalidation.
+- Provider caches may store large model files; keep model cache separate from evidence storage and report cache corruption without losing evidence.
+- Native/browser bridges can become control channels; require typed contracts, origin/device checks, request ids, and capability reporting.
+- API AI can leak child activity if introduced too early; require explicit privacy and parent-control boundaries before remote calls.
+- Billing and entitlements must not sit inside the child-device safety decision path.
+
+## Validation Expectations
+
+- Contract parser tests for every local AI, model status, memory reference, graph reference, policy decision, and enforcement event shape.
+- Rust parity tests for every Rust-crossing shape.
+- Replay/integration tests that build AI context from real journal and SQLite evidence.
+- Provider lifecycle tests that exercise unavailable, loading, loaded, degraded, and failed states.
+- Dry-run evaluator tests for allow, warn, block, time-limit, ask-parent, unknown, low-confidence, missing evidence, and conflict cases.
+- Memory/graph tests proving derived references cannot influence decisions without source evidence.
+- No test doubles for model truth, policy decisions, or local transport behavior.
 
 ## Implementation Guardrails
 
