@@ -290,6 +290,7 @@ Define the child-device local AI decision boundary before enforcing anything.
 Expectation links:
 
 - [AI feature expectations](expectations/ai.md)
+- [Local AI and TabAgent reuse architecture](architecture/local-ai-and-tabagent-reuse.md)
 - [Policy feature expectations](expectations/policy.md)
 - [Contract feature expectations](expectations/contracts.md)
 - [Evidence storage expectations](expectations/evidence-storage.md)
@@ -303,6 +304,8 @@ Deliverables:
 - Permission request contracts.
 - Local AI input contract: evidence, URL/page/video/app context, parent rules, recent activity context.
 - Local AI output contract: allow, warn, block, time-limit, ask-parent, unknown, confidence, reason, evidence references.
+- Local model/runtime status contracts inspired by TabAgentServer, but owned by Ocentra Parent.
+- Memory and knowledge-graph reference contracts for future evidence-backed agent intelligence.
 - Policy decision event contracts.
 - Rust protocol parity.
 
@@ -310,6 +313,7 @@ Acceptance:
 
 - Policies are schema-versioned.
 - Local AI decision inputs and outputs are schema-versioned.
+- Memory and graph references are schema-versioned and optional until implemented.
 - Invalid policies are rejected at boundaries.
 - Invalid AI decisions are rejected at boundaries.
 - Policy events can be stored in the journal.
@@ -325,6 +329,7 @@ Run local AI against captured activity and parent rules, then produce typed poli
 Expectation links:
 
 - [AI feature expectations](expectations/ai.md)
+- [Local AI and TabAgent reuse architecture](architecture/local-ai-and-tabagent-reuse.md)
 - [Policy feature expectations](expectations/policy.md)
 - [Evidence storage expectations](expectations/evidence-storage.md)
 - [Portal feature expectations](expectations/portal.md)
@@ -332,6 +337,8 @@ Expectation links:
 Deliverables:
 
 - Local model/provider adapter boundary.
+- TabAgentServer reuse review for model cache, execution providers, provider lifecycle, memory, and knowledge-graph ideas.
+- Safety context builder from stored evidence, parent rules, recent activity, and local memory or graph references.
 - Local AI policy evaluator crate/module.
 - Allowed/limited/blocked decision model.
 - Reason codes.
@@ -344,6 +351,7 @@ Deliverables:
 Acceptance:
 
 - AI outputs are parsed into deterministic typed decisions.
+- Memory and knowledge-graph-derived context points back to source evidence before it can influence a decision.
 - Explicit parent rules override ambiguous AI output.
 - Tests cover allow, timeout, block, ask-parent, unknown, and conflicting-policy cases.
 - Portal can show why a decision happened.
