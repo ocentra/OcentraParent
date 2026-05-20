@@ -10,6 +10,14 @@ C:\Users\<you>\.codex\ocentra-parent-worktrees.json
 
 This file is not committed because it records local paths, active tasks, owner/thread hints, and temporary branch ownership.
 
+Cross-chat hub messages, lane reports, and file ownership locks are stored in:
+
+```text
+C:\Users\<you>\.codex\ocentra-parent-hub
+```
+
+That hub folder is also machine-local. It is the coordination layer between Codex chats opened in different worktree folders.
+
 ## Lanes
 
 - `primary`: the user's main checkout. Do not repurpose without explicit direction.
@@ -34,6 +42,50 @@ npm run lanes:guard
 ```
 
 The pre-commit hook runs this guard automatically. If a chat is in the wrong worktree, on the wrong branch, or using an unclaimed lane, the commit fails before validation.
+
+Show cross-chat hub state:
+
+```powershell
+npm run hub:status
+```
+
+Read the current lane inbox:
+
+```powershell
+npm run hub:inbox
+```
+
+Send a hub message to a lane:
+
+```powershell
+npm run hub:message -- --lane codex-a --subject "V0.3 scope" --body "Stay inside process/window capture and report touched files."
+```
+
+Acknowledge the latest hub message in the current lane:
+
+```powershell
+npm run hub:ack
+```
+
+Lock files or package roots before editing:
+
+```powershell
+npm run hub:lock -- --paths "crates/agent-service,packages/activity-domain" --reason "V0.3 capture implementation"
+```
+
+Report progress from a worker lane:
+
+```powershell
+npm run hub:report -- --summary "Capture adapter mapped" --details "Touched crates/agent-service. Focused Rust tests pass."
+```
+
+Guard the current lane mailbox and file locks:
+
+```powershell
+npm run hub:guard
+```
+
+The pre-commit hook runs the hub guard automatically. It fails when the lane has an unread hub message or when changed files are outside the lane's hub lock. `primary` may coordinate without a lock, but worker lanes should always lock their intended paths before editing.
 
 Initialize the lane ledger if it does not exist:
 
@@ -78,8 +130,11 @@ Before editing in a claimed lane:
 2. Confirm the lane ledger says the lane is yours.
 3. Confirm the branch base is the intended branch, usually `origin/main`.
 4. Run `npm run lanes:guard` from that worktree.
-5. Run focused local validation while coding.
-6. Run the full PR gate only when the branch is ready to integrate.
+5. Run `npm run hub:inbox` and acknowledge current instructions with `npm run hub:ack`.
+6. Claim file ownership with `npm run hub:lock`.
+7. Run focused local validation while coding.
+8. Report progress with `npm run hub:report`.
+9. Run the full PR gate only when the branch is ready to integrate.
 
 ## Owner And Thread Fields
 
@@ -91,3 +146,13 @@ Every active lane should record:
 - `nextAction`: the next concrete step for anyone who resumes the lane.
 
 When handing work to another chat, update the lane with `npm run lanes:claim -- --force ...` instead of relying on chat history.
+
+## Hub Mailbox Files
+
+Each lane gets:
+
+- `inbox.md`: human-readable hub messages for that lane.
+- `status.md`: latest lane report and current file locks.
+- `ownership.json`: machine-readable ack, report, and lock state used by `npm run hub:guard`.
+
+Do not hand-edit `ownership.json` unless the mailbox script is broken. Prefer the `npm run hub:*` commands so the Markdown and guard state stay in sync.

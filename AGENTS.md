@@ -6,7 +6,9 @@ This repo follows Ocentra-style scaffold discipline. Keep changes narrow, contra
 
 Before coding, read `.ocentra-ai/rules/ocentra-parent-rules.mdc`. It routes work to granular rule files for tests, domain boundaries, protocol/WebSocket, Rust service, portal, logging/redaction, localhost security, source shape, and validation.
 
-Before editing or committing, run `npm run lanes:status` and `npm run lanes:guard` from the checkout you are using. Each active worktree lane must be claimed in `C:\Users\sujan\.codex\ocentra-parent-worktrees.json` with the lane owner, thread label, branch, task, and next action. The pre-commit hook runs the lane guard automatically.
+Before editing or committing, run `npm run lanes:status`, `npm run lanes:guard`, `npm run hub:status`, and `npm run hub:guard` from the checkout you are using. Each active worktree lane must be claimed in `C:\Users\sujan\.codex\ocentra-parent-worktrees.json` with the lane owner, thread label, branch, task, and next action. Cross-chat instructions, reports, and file locks live under `C:\Users\sujan\.codex\ocentra-parent-hub`. The pre-commit hook runs both guards automatically.
+
+When starting in a worker lane, run `npm run hub:inbox` and acknowledge the latest hub instruction with `npm run hub:ack` before committing. Before editing files, claim your intended ownership with `npm run hub:lock -- --paths "path/or/package,other/path" --reason "short scope"`. Report progress back to the hub with `npm run hub:report -- --summary "short status" --details "validation, blockers, touched files"`.
 
 When writing or changing tests, also read `.ocentra-ai/rules/ocentra-parent-test-rules.mdc`. Test doubles are forbidden; tests must use real contracts, parsers, services, transports, or UI paths.
 
