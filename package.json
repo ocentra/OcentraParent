@@ -33,7 +33,7 @@
     "hub:lock": "node scripts/dev/hub-mailbox.mjs lock",
     "hub:unlock": "node scripts/dev/hub-mailbox.mjs unlock",
     "hub:guard": "node scripts/dev/hub-mailbox.mjs guard",
-    "build:contracts": "npm run build --workspace @ocentra-parent/schema-domain && npm run build --workspace @ocentra-parent/logging-domain && npm run build --workspace @ocentra-parent/agent-protocol-domain && npm run build --workspace @ocentra-parent/text-domain && npm run build --workspace @ocentra-parent/portal-domain",
+    "build:contracts": "npm run build --workspace @ocentra-parent/schema-domain && npm run build --workspace @ocentra-parent/logging-domain && npm run build --workspace @ocentra-parent/activity-domain && npm run build --workspace @ocentra-parent/agent-protocol-domain && npm run build --workspace @ocentra-parent/text-domain && npm run build --workspace @ocentra-parent/portal-domain",
     "prepare": "node scripts/git-hooks/install-pre-commit.mjs",
     "hooks:install": "node scripts/git-hooks/install-pre-commit.mjs",
     "precommit": "node scripts/git-hooks/run-precommit-validation.mjs",

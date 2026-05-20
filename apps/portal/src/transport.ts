@@ -1,5 +1,5 @@
 import { type AgentCommandName, type AgentProtocolLogFields } from '@ocentra-parent/agent-protocol-domain/contracts';
-import { PortalConnectionState, PortalDom } from '@ocentra-parent/portal-domain/contracts';
+import { PortalConnectionState, PortalDom, PortalOverviewCommands } from '@ocentra-parent/portal-domain/contracts';
 import { createAgentCommand, parseAgentEventMessage, serializeAgentCommand } from './agent-client';
 import { DevLogField, DevLogMessage, writePortalDevLog } from './dev-logger';
 import { isCommandResultEvent } from './event-results';
@@ -20,6 +20,7 @@ export function connectWebSocket(state: PortalRuntimeState, refresh: PortalRefre
     writePortalDevLog(DevLogMessage.PortalEventReceived, {
       [DevLogField.ConnectionState]: state.connectionState,
     });
+    sendOverviewCommands(nextSocket, state);
     refresh();
   });
 
@@ -64,7 +65,22 @@ export function sendCommand(
     return;
   }
 
-  state.socket.send(serializeAgentCommand(createAgentCommand(command, payload, state.target)));
+  sendSocketCommand(state.socket, state, command, payload);
+}
+
+function sendOverviewCommands(socket: WebSocket, state: PortalRuntimeState): void {
+  for (const overviewCommand of PortalOverviewCommands) {
+    sendSocketCommand(socket, state, overviewCommand.command, overviewCommand.payload);
+  }
+}
+
+function sendSocketCommand(
+  socket: WebSocket,
+  state: PortalRuntimeState,
+  command: AgentCommandName,
+  payload: AgentProtocolLogFields
+): void {
+  socket.send(serializeAgentCommand(createAgentCommand(command, payload, state.target)));
   writePortalDevLog(DevLogMessage.PortalCommandSent, {
     [DevLogField.Command]: command,
   });

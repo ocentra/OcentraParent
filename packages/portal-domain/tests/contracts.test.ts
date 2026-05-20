@@ -4,6 +4,7 @@ import {
   PortalCommandButtons,
   PortalConnectionState,
   PortalDom,
+  PortalOverviewCommands,
   PortalRouteSchema,
   PortalRoutes,
   PortalTiming,
@@ -23,6 +24,12 @@ describe('portal domain contracts', () => {
     expect(PortalCommandButtons.map((button) => button.resultEvent)).toContain(
       'agent.activity.recent.summary.reported'
     );
+    expect(PortalOverviewCommands.map((button) => button.command)).toEqual([
+      'agent.health.check',
+      'agent.log.snapshot.get',
+      'agent.activity.ingest.status.get',
+      'agent.activity.recent.summary.get',
+    ]);
   });
 
   it('PortalConnectionState: exposes connected state token', () => {

@@ -9,12 +9,12 @@ import {
   PortalText,
   PortalTextToken,
   decodePortalDetailValue,
-  type PortalDetailValue,
-  type PortalDisplayText,
   type PortalRoute as PortalRouteValue,
 } from '@ocentra-parent/portal-domain/contracts';
 import { renderCommandResultPanel } from './command-result-panel';
+import { appendDetail } from './detail-list';
 import { renderEvents } from './event-list';
+import { renderLiveActivityOverview } from './live-activity-panel';
 import type { PortalRenderActions } from './portal-actions';
 import type { PortalRuntimeState } from './portal-state';
 
@@ -87,18 +87,25 @@ function renderOverview(container: HTMLElement, state: PortalRuntimeState): void
   status.className = PortalDom.Classes.Summary;
 
   const title = document.createElement(PortalDom.Tags.HeadingTwo);
-  title.textContent =
-    state.connectionState === PortalConnectionState.Connected
-      ? PortalText.Resolve(PortalTextToken.Connected)
-      : PortalText.Resolve(PortalTextToken.Unavailable);
+  title.textContent = PortalText.Resolve(PortalTextToken.LiveActivity);
 
   const metadata = document.createElement(PortalDom.Tags.DefinitionList);
+  appendDetail(
+    metadata,
+    PortalDetails.Status,
+    decodePortalDetailValue(
+      state.connectionState === PortalConnectionState.Connected
+        ? PortalText.Resolve(PortalTextToken.Connected)
+        : PortalText.Resolve(PortalTextToken.Unavailable)
+    )
+  );
   appendDetail(metadata, PortalDetails.Transport, decodePortalDetailValue(state.agentWsUrl));
   appendDetail(metadata, PortalDetails.State, decodePortalDetailValue(state.connectionState));
   appendDetail(metadata, PortalDetails.Events, decodePortalDetailValue(String(state.events.length)));
 
   status.append(title, metadata);
   container.append(status);
+  renderLiveActivityOverview(container, state);
 
   if (state.latestSnapshot !== null) {
     renderSnapshot(container, state.latestSnapshot);
@@ -163,16 +170,6 @@ function renderSnapshot(container: HTMLElement, snapshot: AgentLogSnapshot): voi
 
   summary.append(title, metadata);
   container.append(summary);
-}
-
-function appendDetail(list: HTMLDListElement, label: PortalDisplayText, value: PortalDetailValue): void {
-  const term = document.createElement(PortalDom.Tags.DefinitionTerm);
-  term.textContent = label;
-
-  const detail = document.createElement(PortalDom.Tags.DefinitionDescription);
-  detail.textContent = value;
-
-  list.append(term, detail);
 }
 
 function getRoute(): PortalRouteValue {

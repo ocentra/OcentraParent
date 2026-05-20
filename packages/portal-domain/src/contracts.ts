@@ -1,7 +1,8 @@
 import { AgentCommand, AgentEvent, AgentProtocolDefaults } from '@ocentra-parent/agent-protocol-domain/contracts';
-import { decodeDisplayText, type DisplayText } from '@ocentra-parent/text-domain/contracts';
+import { type DisplayText } from '@ocentra-parent/text-domain/contracts';
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/text-domain/portal-dev';
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+export { PortalDetails } from './details';
 
 const NonEmptyPortalText = Schema.String.pipe(Schema.minLength(1));
 
@@ -120,16 +121,24 @@ export const PortalText = {
 } as const;
 export const PortalTextToken = PortalDevTextToken;
 
-export const PortalDetails = {
-  Transport: decodeDisplayText('Transport'),
-  State: decodeDisplayText('State'),
-  Events: decodeDisplayText('Events'),
-  Device: decodeDisplayText('Device'),
-  Host: decodeDisplayText('Host'),
-  Platform: decodeDisplayText('Platform'),
-  Version: decodeDisplayText('Version'),
-  Schema: decodeDisplayText('Schema'),
-} as const;
+export const PortalOverviewCommands = [
+  {
+    command: AgentCommand.HealthCheck,
+    payload: {},
+  },
+  {
+    command: AgentCommand.LogSnapshotGet,
+    payload: {},
+  },
+  {
+    command: AgentCommand.ActivityIngestStatusGet,
+    payload: {},
+  },
+  {
+    command: AgentCommand.ActivityRecentSummaryGet,
+    payload: {},
+  },
+] as const;
 
 export const PortalCommandButtons = [
   {
