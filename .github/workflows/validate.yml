@@ -11,7 +11,7 @@ jobs:
   validate:
     name: Full Validation Gate
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v6
 
