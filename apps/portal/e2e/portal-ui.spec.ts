@@ -80,6 +80,8 @@ async function assertOverview(page: Page): Promise<void> {
   await expect(page.getByRole('heading', { name: 'Evidence store' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Recent activity' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Device diagnostics' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Activity timeline' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Service dev log' })).toBeVisible();
   await expect(
     page.locator('dt').filter({ hasText: 'Events stored' }).locator('xpath=following-sibling::dd[1]')
   ).toHaveText(/\d+/u);
@@ -87,10 +89,13 @@ async function assertOverview(page: Page): Promise<void> {
     page.locator('dt').filter({ hasText: 'Rows returned' }).locator('xpath=following-sibling::dd[1]')
   ).toHaveText(/\d+/u);
   await expect(page.getByRole('heading', { name: 'Latest agent snapshot' })).toBeVisible();
-  await expect(page.getByText('local-dev-agent')).toBeVisible();
+  await expect(page.locator('dt').filter({ hasText: 'Device' }).locator('xpath=following-sibling::dd[1]')).toHaveText(
+    'local-dev-agent'
+  );
   await expect(page.locator('dt').filter({ hasText: 'Version' }).locator('xpath=following-sibling::dd[1]')).toHaveText(
     /\b\d+\.\d+\.\d+\b/u
   );
+  await assertDiagnosticsCopy(page);
 }
 
 async function assertCopyButton(page: Page, commandResult: Locator, eventName: string): Promise<void> {
@@ -100,6 +105,17 @@ async function assertCopyButton(page: Page, commandResult: Locator, eventName: s
   const copiedText = await page.evaluate(() => navigator.clipboard.readText());
   expect(copiedText).toContain(eventName);
   expect(copiedText).toContain('"payload"');
+}
+
+async function assertDiagnosticsCopy(page: Page): Promise<void> {
+  await page.getByRole('button', { name: 'Copy diagnostics' }).click();
+  await expect(page.getByRole('button', { name: 'Diagnostics copied' })).toBeVisible();
+
+  const copiedText = await page.evaluate(() => navigator.clipboard.readText());
+  expect(copiedText).toContain('"agentUrl"');
+  expect(copiedText).toContain('"connectionState"');
+  expect(copiedText).toContain('"events"');
+  expect(copiedText).toContain('"recentSummary"');
 }
 
 function collectBrowserFailures(page: Page): string[] {
