@@ -10,6 +10,7 @@ import {
   type PortalDisplayText,
 } from '@ocentra-parent/portal-domain/contracts';
 import { appendDetail } from './detail-list';
+import { renderDiagnosticsPanel } from './diagnostics-panel';
 import { resolveLiveActivityState, type PortalLiveActivityState } from './live-activity-state';
 import type { PortalRuntimeState } from './portal-state';
 
@@ -17,7 +18,7 @@ export function renderLiveActivityOverview(container: HTMLElement, state: Portal
   const liveActivity = resolveLiveActivityState(state.events);
   renderEvidenceStore(container, liveActivity);
   renderRecentActivity(container, liveActivity);
-  renderDiagnostics(container, state);
+  renderDiagnosticsPanel(container, state);
 }
 
 function renderEvidenceStore(container: HTMLElement, liveActivity: PortalLiveActivityState): void {
@@ -67,19 +68,6 @@ function renderRecentActivity(container: HTMLElement, liveActivity: PortalLiveAc
     panel.append(emptyMessage(PortalText.Resolve(PortalTextToken.NoRecentActivity)));
   }
 
-  container.append(panel);
-}
-
-function renderDiagnostics(container: HTMLElement, state: PortalRuntimeState): void {
-  const panel = panelWithTitle(PortalText.Resolve(PortalTextToken.DeviceDiagnostics));
-  const metadata = document.createElement(PortalDom.Tags.DefinitionList);
-  const latestEvent = state.events[0] ?? null;
-
-  appendDetail(metadata, PortalDetails.AgentUrl, decodePortalDetailValue(state.agentWsUrl));
-  appendDetail(metadata, PortalDetails.State, decodePortalDetailValue(state.connectionState));
-  appendDetail(metadata, PortalDetails.Events, detailFromValue(state.events.length));
-  appendDetail(metadata, PortalDetails.LastEvent, detailFromValue(latestEvent?.event ?? null));
-  panel.append(metadata);
   container.append(panel);
 }
 

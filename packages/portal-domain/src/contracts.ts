@@ -3,6 +3,7 @@ import { type DisplayText } from '@ocentra-parent/text-domain/contracts';
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/text-domain/portal-dev';
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 export { PortalDetails } from './details';
+export { PortalDiagnostics } from './diagnostics';
 
 const NonEmptyPortalText = Schema.String.pipe(Schema.minLength(1));
 

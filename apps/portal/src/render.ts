@@ -1,4 +1,3 @@
-import type { AgentLogSnapshot } from '@ocentra-parent/logging-domain/contracts';
 import {
   PortalCommandButtons,
   PortalConnectionState,
@@ -11,8 +10,11 @@ import {
   decodePortalDetailValue,
   type PortalRoute as PortalRouteValue,
 } from '@ocentra-parent/portal-domain/contracts';
+import { renderActivityTimeline } from './activity-timeline';
+import { renderAgentSnapshotPanel } from './agent-snapshot-panel';
 import { renderCommandResultPanel } from './command-result-panel';
 import { appendDetail } from './detail-list';
+import { renderDevLogPanel } from './dev-log-panel';
 import { renderEvents } from './event-list';
 import { renderLiveActivityOverview } from './live-activity-panel';
 import type { PortalRenderActions } from './portal-actions';
@@ -106,10 +108,9 @@ function renderOverview(container: HTMLElement, state: PortalRuntimeState): void
   status.append(title, metadata);
   container.append(status);
   renderLiveActivityOverview(container, state);
-
-  if (state.latestSnapshot !== null) {
-    renderSnapshot(container, state.latestSnapshot);
-  }
+  renderActivityTimeline(container, state.events);
+  renderDevLogPanel(container, state.latestSnapshot);
+  renderAgentSnapshotPanel(container, state.latestSnapshot);
 }
 
 function renderCommands(container: HTMLElement, state: PortalRuntimeState, actions: PortalRenderActions): void {
@@ -152,24 +153,6 @@ function activeCommandButtonClass(active: boolean) {
   return [PortalDom.Classes.CommandResultTab, PortalDom.Classes.CommandResultTabActive].join(
     PortalDom.Classes.ClassNameSeparator
   );
-}
-
-function renderSnapshot(container: HTMLElement, snapshot: AgentLogSnapshot): void {
-  const summary = document.createElement(PortalDom.Tags.Division);
-  summary.className = PortalDom.Classes.Summary;
-
-  const title = document.createElement(PortalDom.Tags.HeadingTwo);
-  title.textContent = PortalText.Resolve(PortalTextToken.LatestSnapshot);
-
-  const metadata = document.createElement(PortalDom.Tags.DefinitionList);
-  appendDetail(metadata, PortalDetails.Device, decodePortalDetailValue(snapshot.agent.deviceId));
-  appendDetail(metadata, PortalDetails.Host, decodePortalDetailValue(snapshot.agent.hostname));
-  appendDetail(metadata, PortalDetails.Platform, decodePortalDetailValue(snapshot.agent.platform));
-  appendDetail(metadata, PortalDetails.Version, decodePortalDetailValue(snapshot.agent.serviceVersion));
-  appendDetail(metadata, PortalDetails.Schema, decodePortalDetailValue(String(snapshot.schemaVersion)));
-
-  summary.append(title, metadata);
-  container.append(summary);
 }
 
 function getRoute(): PortalRouteValue {
