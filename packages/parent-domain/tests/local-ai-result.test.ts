@@ -22,25 +22,27 @@ const runtimeStatus = {
 };
 
 describe('local AI safety result contracts', () => {
+  const validSafetyResult = {
+    schemaVersion: 'v0.6',
+    resultId: 'ai-result-1',
+    requestId: 'request-1',
+    action: 'ask-parent',
+    confidence: 0.61,
+    unknownState: 'low-confidence',
+    degradedState: 'none',
+    reasonCodes: ['low-confidence-video-domain'],
+    explanationReference: 'explanation-1',
+    evidenceReferences: [evidenceReference],
+    parentRuleReferences: ['rule-1'],
+    memoryReferences: [],
+    graphReferences: [],
+    modelRuntime: runtimeStatus,
+    promptVersion: 'prompt-v1',
+    expiresAt: null,
+  };
+
   it('LocalAiSafetyResultSchema: parses safe degraded output without enabling enforcement', () => {
-    const parsed = LocalAiSafetyResultSchema.parse({
-      schemaVersion: 'v0.6',
-      resultId: 'ai-result-1',
-      requestId: 'request-1',
-      action: 'ask-parent',
-      confidence: 0.61,
-      unknownState: 'low-confidence',
-      degradedState: 'none',
-      reasonCodes: ['low-confidence-video-domain'],
-      explanationReference: 'explanation-1',
-      evidenceReferences: [evidenceReference],
-      parentRuleReferences: ['rule-1'],
-      memoryReferences: [],
-      graphReferences: [],
-      modelRuntime: runtimeStatus,
-      promptVersion: 'prompt-v1',
-      expiresAt: null,
-    });
+    const parsed = LocalAiSafetyResultSchema.parse(validSafetyResult);
 
     expect(parsed.action).toBe('ask-parent');
     expect(parsed.modelRuntime.loadState).toBe('loaded');
@@ -49,27 +51,28 @@ describe('local AI safety result contracts', () => {
 
   it('LocalAiSafetyResultSchema: rejects model output actions outside the typed decision set', () => {
     const result = LocalAiSafetyResultSchema.safeParse({
-      schemaVersion: 'v0.6',
-      resultId: 'ai-result-1',
-      requestId: 'request-1',
+      ...validSafetyResult,
       action: 'silently-monitor',
-      confidence: 0.61,
-      unknownState: 'low-confidence',
-      degradedState: 'none',
       reasonCodes: ['bad-action'],
-      explanationReference: null,
-      evidenceReferences: [evidenceReference],
-      parentRuleReferences: ['rule-1'],
-      memoryReferences: [],
-      graphReferences: [],
-      modelRuntime: runtimeStatus,
-      promptVersion: 'prompt-v1',
-      expiresAt: null,
     });
 
     expect(result.success).toBe(false);
     if (!result.success) {
       expect([...new Set(result.error.issues.map((issue) => issue.path.join('.')))]).toEqual(['action']);
+    }
+  });
+
+  it('LocalAiSafetyResultSchema: rejects confidence below zero and above one', () => {
+    for (const confidence of [-0.01, 1.01]) {
+      const result = LocalAiSafetyResultSchema.safeParse({
+        ...validSafetyResult,
+        confidence,
+      });
+
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect([...new Set(result.error.issues.map((issue) => issue.path.join('.')))]).toEqual(['confidence']);
+      }
     }
   });
 });

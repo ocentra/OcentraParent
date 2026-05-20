@@ -3,6 +3,7 @@ import { ParentEvidenceReferenceSchema } from './references';
 import { ParentPolicyVersionSchema } from './reference-primitives';
 import {
   LocalAiContextKindSchema,
+  LocalAiConfidenceSchema,
   LocalAiDerivedIndexVersionSchema,
   LocalAiGraphReferenceIdSchema,
   LocalAiGraphReferenceKindSchema,
@@ -25,7 +26,7 @@ export const LocalAiMemoryReferenceSchema = withParser(
     sourceEvidenceReferences: Schema.Array(ParentEvidenceReferenceSchema),
     sourcePolicyVersion: Schema.Union(ParentPolicyVersionSchema, Schema.Null),
     generatedAt: LocalAiTimestampSchema,
-    confidence: Schema.Number,
+    confidence: LocalAiConfidenceSchema,
     derivedIndexVersion: LocalAiDerivedIndexVersionSchema,
   })
 );
@@ -37,7 +38,7 @@ export const LocalAiGraphReferenceSchema = withParser(
     sourceEvidenceReferences: Schema.Array(ParentEvidenceReferenceSchema),
     sourcePolicyVersion: Schema.Union(ParentPolicyVersionSchema, Schema.Null),
     generatedAt: LocalAiTimestampSchema,
-    confidence: Schema.Number,
+    confidence: LocalAiConfidenceSchema,
     derivedIndexVersion: LocalAiDerivedIndexVersionSchema,
   })
 );

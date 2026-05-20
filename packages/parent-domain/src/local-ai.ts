@@ -4,6 +4,7 @@ import { ChildProfileReferenceSchema, ParentDeviceReferenceSchema, ParentEvidenc
 import { ParentContractSchemaVersionSchema } from './reference-primitives';
 import {
   LocalAiDegradedStateSchema,
+  LocalAiConfidenceSchema,
   LocalAiEvaluationRequestIdSchema,
   LocalAiExplanationReferenceSchema,
   LocalAiPromptVersionSchema,
@@ -40,7 +41,7 @@ export const LocalAiSafetyResultSchema = withParser(
     resultId: LocalAiResultIdSchema,
     requestId: LocalAiEvaluationRequestIdSchema,
     action: PolicyActionSchema,
-    confidence: Schema.Number,
+    confidence: LocalAiConfidenceSchema,
     unknownState: LocalAiUnknownStateSchema,
     degradedState: LocalAiDegradedStateSchema,
     reasonCodes: Schema.Array(PolicyReasonCodeSchema),

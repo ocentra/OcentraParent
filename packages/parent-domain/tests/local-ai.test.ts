@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { LocalAiEvaluationInputSchema } from '../src/local-ai';
+import { LocalAiGraphReferenceSchema, LocalAiMemoryReferenceSchema } from '../src/local-ai-references';
 
 const evidenceReference = {
   evidenceReferenceId: 'evidence-1',
@@ -47,5 +48,33 @@ describe('local AI safety decision contracts', () => {
     expect(parsed.currentObservation.contextKind).toBe('domain');
     expect(parsed.memoryReferences[0]?.sourceEvidenceReferences).toEqual([evidenceReference]);
     expect(parsed.graphReferences[0]?.sourcePolicyVersion).toBe('policy-v1');
+  });
+
+  it('LocalAiMemoryReferenceSchema: rejects confidence below zero and above one', () => {
+    for (const confidence of [-0.01, 1.01]) {
+      const result = LocalAiMemoryReferenceSchema.safeParse({
+        ...memoryReference,
+        confidence,
+      });
+
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect([...new Set(result.error.issues.map((issue) => issue.path.join('.')))]).toEqual(['confidence']);
+      }
+    }
+  });
+
+  it('LocalAiGraphReferenceSchema: rejects confidence below zero and above one', () => {
+    for (const confidence of [-0.01, 1.01]) {
+      const result = LocalAiGraphReferenceSchema.safeParse({
+        ...graphReference,
+        confidence,
+      });
+
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect([...new Set(result.error.issues.map((issue) => issue.path.join('.')))]).toEqual(['confidence']);
+      }
+    }
   });
 });

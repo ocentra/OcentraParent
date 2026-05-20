@@ -15,6 +15,7 @@ export const LocalAiRuntimeReferenceIdSchema = NonEmptyAiText.pipe(Schema.brand(
 export const LocalAiTimestampSchema = NonEmptyAiText.pipe(Schema.brand('AiTimestamp'));
 export const LocalAiDerivedIndexVersionSchema = NonEmptyAiText.pipe(Schema.brand('LocalAiDerivedIndexVersion'));
 export const LocalAiUnavailableReasonSchema = NonEmptyAiText.pipe(Schema.brand('LocalAiUnavailableReason'));
+export const LocalAiConfidenceSchema = Schema.Number.pipe(Schema.between(0, 1));
 
 export const LocalAiContextKindSchema = withParser(
   Schema.Literal('app', 'process', 'window', 'url', 'page', 'video', 'domain', 'network', 'recent-activity')
@@ -54,6 +55,7 @@ export type LocalAiExplanationReference = typeof LocalAiExplanationReferenceSche
 export type LocalAiMemoryReferenceId = typeof LocalAiMemoryReferenceIdSchema.Type;
 export type LocalAiGraphReferenceId = typeof LocalAiGraphReferenceIdSchema.Type;
 export type LocalAiRuntimeReferenceId = typeof LocalAiRuntimeReferenceIdSchema.Type;
+export type LocalAiConfidence = typeof LocalAiConfidenceSchema.Type;
 export type LocalAiContextKind = Infer<typeof LocalAiContextKindSchema>;
 export type LocalAiModelLoadState = Infer<typeof LocalAiModelLoadStateSchema>;
 export type LocalAiCapabilityFlag = Infer<typeof LocalAiCapabilityFlagSchema>;
