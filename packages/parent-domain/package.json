@@ -9,9 +9,37 @@
       "import": "./dist/capabilities.js",
       "types": "./dist/capabilities.d.ts"
     },
+    "./local-ai": {
+      "import": "./dist/local-ai.js",
+      "types": "./dist/local-ai.d.ts"
+    },
+    "./local-ai-primitives": {
+      "import": "./dist/local-ai-primitives.js",
+      "types": "./dist/local-ai-primitives.d.ts"
+    },
+    "./local-ai-references": {
+      "import": "./dist/local-ai-references.js",
+      "types": "./dist/local-ai-references.d.ts"
+    },
+    "./local-ai-runtime": {
+      "import": "./dist/local-ai-runtime.js",
+      "types": "./dist/local-ai-runtime.d.ts"
+    },
     "./package-info": {
       "import": "./dist/package-info.js",
       "types": "./dist/package-info.d.ts"
+    },
+    "./policy": {
+      "import": "./dist/policy.js",
+      "types": "./dist/policy.d.ts"
+    },
+    "./reference-primitives": {
+      "import": "./dist/reference-primitives.js",
+      "types": "./dist/reference-primitives.d.ts"
+    },
+    "./references": {
+      "import": "./dist/references.js",
+      "types": "./dist/references.d.ts"
     }
   },
   "scripts": {
