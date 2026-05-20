@@ -14,9 +14,15 @@ test -x "$binary_path"
 
 sudo dpkg -r "$package_name"
 
-if dpkg-query -W "$package_name" >/dev/null 2>&1; then
-  echo "Package remained installed after remove: $package_name" >&2
+package_state="$(dpkg-query -W -f='${db:Status-Abbrev}' "$package_name" 2>/dev/null || true)"
+if [[ "$package_state" == i* ]]; then
+  echo "Package remained installed after remove: $package_name [$package_state]" >&2
   exit 1
 fi
+if [[ -e "$binary_path" ]]; then
+  echo "Agent executable remained after remove." >&2
+  exit 1
+fi
+sudo dpkg -P "$package_name" >/dev/null 2>&1 || true
 
 echo "linux-deb-smoke-ok:$package_path"

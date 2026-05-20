@@ -39,6 +39,19 @@ test('package preview workflow builds every scaffolded platform', () => {
   assert.match(workflow, /scripts\/smoke\/android-apk-smoke\.sh/u);
   assert.match(workflow, /scripts\/smoke\/ios-simulator-smoke\.sh/u);
   assert.match(workflow, /reactivecircus\/android-emulator-runner@v2/u);
+  assert.match(workflow, /Enable KVM for Android emulator/u);
+  assert.match(workflow, /emulator-boot-timeout: 900/u);
+  assert.match(workflow, /Upload Windows MSI smoke logs/u);
+});
+
+test('package smoke scripts check real uninstall and emit diagnostics', () => {
+  const linuxSmoke = readRepoFile('scripts/smoke/linux-deb-smoke.sh');
+  const windowsSmoke = readRepoFile('scripts/smoke/windows-msi-smoke.ps1');
+
+  assert.match(linuxSmoke, /\$\{db:Status-Abbrev\}/u);
+  assert.match(linuxSmoke, /Agent executable remained after remove/u);
+  assert.match(windowsSmoke, /windows-msi-install\.log/u);
+  assert.match(windowsSmoke, /\/L\*v/u);
 });
 
 test('dependency policy workflow audits dependencies and writes SBOM metadata', () => {

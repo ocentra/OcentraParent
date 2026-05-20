@@ -94,6 +94,13 @@ jobs:
         shell: pwsh
         run: ./scripts/smoke/windows-msi-smoke.ps1 -MsiPath ./target/release-packages/ocentra-parent-agent-windows-x64-latest.msi
 
+      - name: Upload signed Windows MSI smoke logs
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: ocentra-parent-signed-windows-msi-smoke-logs
+          path: target/release-packages/smoke/*.log
+
       - name: Create GitHub release
         shell: pwsh
         env:

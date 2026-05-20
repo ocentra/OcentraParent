@@ -6,19 +6,30 @@ param(
 $ErrorActionPreference = 'Stop'
 $resolvedMsi = (Resolve-Path -LiteralPath $MsiPath).Path
 $serviceNames = @('OcentraParentAgent', 'OcentraParentUpdater')
+$smokeLogRoot = Join-Path (Split-Path -Parent $resolvedMsi) 'smoke'
+$installLogPath = Join-Path $smokeLogRoot 'windows-msi-install.log'
+$uninstallLogPath = Join-Path $smokeLogRoot 'windows-msi-uninstall.log'
 $installed = $false
 
-function Invoke-MsiExec {
-    param([string[]] $Arguments)
+New-Item -ItemType Directory -Path $smokeLogRoot -Force | Out-Null
 
-    $process = Start-Process -FilePath 'msiexec.exe' -ArgumentList $Arguments -Wait -PassThru -WindowStyle Hidden
+function Invoke-MsiExec {
+    param(
+        [string[]] $Arguments,
+        [string] $LogPath
+    )
+
+    $process = Start-Process -FilePath 'msiexec.exe' -ArgumentList ($Arguments + @('/L*v', $LogPath)) -Wait -PassThru -WindowStyle Hidden
     if (($process.ExitCode -ne 0) -and ($process.ExitCode -ne 3010)) {
-        throw "msiexec failed with exit code $($process.ExitCode): $($Arguments -join ' ')"
+        if (Test-Path -LiteralPath $LogPath) {
+            Get-Content -LiteralPath $LogPath -Tail 200 | Write-Host
+        }
+        throw "msiexec failed with exit code $($process.ExitCode): $($Arguments -join ' ') log=$LogPath"
     }
 }
 
 try {
-    Invoke-MsiExec -Arguments @('/i', $resolvedMsi, '/qn', '/norestart')
+    Invoke-MsiExec -Arguments @('/i', $resolvedMsi, '/qn', '/norestart') -LogPath $installLogPath
     $installed = $true
 
     foreach ($serviceName in $serviceNames) {
@@ -29,7 +40,7 @@ try {
     }
 } finally {
     if ($installed) {
-        Invoke-MsiExec -Arguments @('/x', $resolvedMsi, '/qn', '/norestart')
+        Invoke-MsiExec -Arguments @('/x', $resolvedMsi, '/qn', '/norestart') -LogPath $uninstallLogPath
     }
 }
 
