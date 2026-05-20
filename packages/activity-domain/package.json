@@ -13,6 +13,10 @@
       "import": "./dist/kinds.js",
       "types": "./dist/kinds.d.ts"
     },
+    "./journal": {
+      "import": "./dist/journal.js",
+      "types": "./dist/journal.d.ts"
+    },
     "./package-info": {
       "import": "./dist/package-info.js",
       "types": "./dist/package-info.d.ts"

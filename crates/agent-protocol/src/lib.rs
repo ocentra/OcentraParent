@@ -2,10 +2,12 @@
 
 mod activity;
 pub mod constants;
+mod journal;
 mod logging;
 mod transport;
 
 pub use activity::*;
+pub use journal::*;
 pub use logging::*;
 pub use transport::*;
 
@@ -13,6 +15,7 @@ pub const CRATE_NAME: &str = "ocentra-parent-agent-protocol";
 pub const LOG_SCHEMA_VERSION: u16 = 1;
 pub const AGENT_PROTOCOL_SCHEMA_VERSION: u16 = 1;
 pub const ACTIVITY_SCHEMA_VERSION: u16 = 1;
+pub const ACTIVITY_JOURNAL_SCHEMA_VERSION: u16 = 1;
 
 pub fn crate_name() -> &'static str {
     CRATE_NAME
@@ -20,5 +23,7 @@ pub fn crate_name() -> &'static str {
 
 #[cfg(test)]
 mod activity_tests;
+#[cfg(test)]
+mod journal_tests;
 #[cfg(test)]
 mod tests;
