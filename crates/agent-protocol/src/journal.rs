@@ -11,6 +11,7 @@ pub enum ActivityJournalCipher {
 pub struct ActivityJournalLine {
     pub schema_version: u16,
     pub entry_id: String,
+    pub segment_id: String,
     pub written_at: String,
     pub event_id: String,
     pub cipher: ActivityJournalCipher,
@@ -26,5 +27,14 @@ pub struct ActivityJournalStatus {
     pub encrypted: bool,
     pub entries_written: u64,
     pub bytes_written: u64,
+    pub active_segment_id: String,
+    pub segment_count: u64,
+    pub rotation_max_bytes: u64,
     pub last_entry_id: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ActivityJournalRotationPolicy {
+    pub max_segment_bytes: u64,
 }

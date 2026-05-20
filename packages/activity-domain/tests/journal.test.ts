@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   ActivityJournalCipher,
   ActivityJournalLineSchema,
+  ActivityJournalRotationPolicySchema,
   ActivityJournalSchemaVersion,
   ActivityJournalStatusSchema,
 } from '../src/journal';
@@ -11,6 +12,7 @@ describe('activity journal contracts', () => {
     const line = ActivityJournalLineSchema.parse({
       schemaVersion: ActivityJournalSchemaVersion,
       entryId: 'journal-entry-1',
+      segmentId: 'journal-segment-1',
       writtenAt: '2026-05-20T00:00:00Z',
       eventId: 'activity-event-1',
       cipher: ActivityJournalCipher.XChaCha20Poly1305,
@@ -29,6 +31,7 @@ describe('activity journal contracts', () => {
     const result = ActivityJournalLineSchema.safeParse({
       schemaVersion: ActivityJournalSchemaVersion,
       entryId: 'journal-entry-1',
+      segmentId: 'journal-segment-1',
       writtenAt: '2026-05-20T00:00:00Z',
       eventId: 'activity-event-1',
       cipher: 'plaintext-json',
@@ -46,11 +49,23 @@ describe('activity journal contracts', () => {
       encrypted: true,
       entriesWritten: 2,
       bytesWritten: 512,
+      activeSegmentId: 'journal-segment-1',
+      segmentCount: 1,
+      rotationMaxBytes: 1048576,
       lastEntryId: 'journal-entry-2',
     });
 
     expect(status.encrypted).toBe(true);
     expect(status.entriesWritten).toBe(2);
+    expect(status.activeSegmentId).toBe('journal-segment-1');
     expect(status.lastEntryId).toBe('journal-entry-2');
+  });
+
+  it('parses local rotation policy contracts', () => {
+    const policy = ActivityJournalRotationPolicySchema.parse({
+      maxSegmentBytes: 4096,
+    });
+
+    expect(policy.maxSegmentBytes).toBe(4096);
   });
 });
