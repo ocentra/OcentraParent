@@ -337,6 +337,7 @@ path for this milestone.
 Expectation links:
 
 - [Browser URL and tab evidence expectations](expectations/browser-evidence.md)
+- [Browser URL and tab evidence capture architecture](architecture/browser-url-tab-evidence-capture.md)
 - [Capture feature expectations](expectations/capture.md)
 - [Evidence storage expectations](expectations/evidence-storage.md)
 - [Contract feature expectations](expectations/contracts.md)

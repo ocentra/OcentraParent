@@ -6,6 +6,9 @@ is active. Network/domain capture may prove network destinations. Neither one
 proves which browser tab is open, which URL is active, or what page title the
 child is seeing.
 
+The focused implementation architecture lives in
+[Browser URL And Tab Evidence Capture Architecture](../architecture/browser-url-tab-evidence-capture.md).
+
 ## Outcome Bar
 
 Parent outcome:

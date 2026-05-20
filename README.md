@@ -256,6 +256,7 @@ Not implemented yet:
 - [Portal Feature Expectations](docs/expectations/portal.md)
 - [Capture Feature Expectations](docs/expectations/capture.md)
 - [Browser URL And Tab Evidence Expectations](docs/expectations/browser-evidence.md)
+- [Browser URL And Tab Evidence Capture Architecture](docs/architecture/browser-url-tab-evidence-capture.md)
 - [App And Game Evidence Expectations](docs/expectations/app-game-evidence.md)
 - [Network Flow Evidence Expectations](docs/expectations/network-flow-evidence.md)
 - [Screen Evidence Analysis Expectations](docs/expectations/screen-evidence.md)
