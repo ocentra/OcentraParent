@@ -1,10 +1,15 @@
 # Sync And Export Expectations
 
-Sync/export features move family data across boundaries and need privacy discipline.
+Sync/export features move family data across boundaries and need privacy
+discipline. Ocentra-hosted infrastructure is not the default sync destination.
+The normal remote-continuity target is parent-owned storage such as Google Drive,
+OneDrive, iCloud Drive, Dropbox, a NAS, or a local folder chosen by the parent.
 
 ## Parent Outcome
 
-A parent can intentionally move scoped family data for backup, migration, support, or remote continuity and can understand what moved, when it moved, where it went, and how to delete or retain it.
+A parent can intentionally move scoped family data for backup, migration,
+support, or remote continuity and can understand what moved, when it moved, where
+it went, who owns the destination, and how to delete or retain it.
 
 ## Child-Device Outcome
 
@@ -13,21 +18,43 @@ The child-device agent remains the source of truth for local evidence. Sync and 
 ## Platform Scope
 
 - Windows proves the first local export and sync queue behavior.
-- Cloud sync is allowed only after the cloud identity and relay boundaries are explicit.
+- Parent-owned storage sync is allowed only after connector identity, storage
+  scope, encryption, retention, and conflict boundaries are explicit.
+- Ocentra-hosted cloud may coordinate account/auth/subscription, connector
+  status, and stateless report compilation, but it must not become the default
+  family-data store.
 - Android, iOS, macOS, and Linux can claim sync/export support only for the data classes and storage permissions they actually implement.
 - Web surfaces initiate parent-authorized export, import, delete, or sync operations through typed service/cloud contracts; web code does not read local evidence files directly.
 
 ## Data Scope
 
-Sync/export must distinguish raw encrypted journal segments, derived SQLite query rows, parent rules, approval decisions, device registry entries, notification history, audit events, and generated summaries. Each export format must declare whether it is encrypted machine-readable data, encrypted support bundle, or intentionally human-readable parent report.
+Sync/export must distinguish raw encrypted journal segments, derived SQLite query
+rows, parent rules, approval decisions, device registry entries, notification
+history, audit events, and generated summaries. Each export format must declare
+whether it is encrypted machine-readable data, encrypted support bundle, or
+intentionally human-readable parent report. Each sync target must declare whether
+it is child-local, parent-device local, parent-owned external storage, provider
+notification state, or Ocentra-hosted non-activity metadata.
 
 ## Trust Boundary
 
-Exports require explicit parent action or a preconfigured sync policy. Cross-device sync requires authenticated family and device identity. Support bundles must minimize sensitive details by default and make any included child activity evidence obvious before export. Delete and retention behavior must be tied to the same family/device scope as the data.
+Exports require explicit parent action or a preconfigured sync policy.
+Cross-device sync requires authenticated family and device identity.
+Parent-owned storage connectors require least-privilege scopes, visible provider
+account/folder status, and revocation behavior. Support bundles must minimize
+sensitive details by default and make any included child activity evidence
+obvious before export. Delete and retention behavior must be tied to the same
+family/device/storage scope as the data.
 
 ## Contract Boundary
 
-Expected contracts include export manifest, export item descriptor, encryption metadata, schema version, retention policy, sync cursor, sync batch, conflict record, import result, delete request, delete result, and audit event. Importers must validate schema versions before applying data. Cloud sync must reuse the cloud route and identity contracts rather than introducing a second trust model.
+Expected contracts include export manifest, export item descriptor, encryption
+metadata, schema version, retention policy, storage provider reference, sync
+cursor, sync batch, conflict record, report compile request, report compile
+result, import result, delete request, delete result, and audit event. Importers
+must validate schema versions before applying data. Remote sync and report
+compilation must reuse the cloud route, storage connector, and identity contracts
+rather than introducing a second trust model.
 
 ## Failure Behavior
 
@@ -36,6 +63,10 @@ Expected contracts include export manifest, export item descriptor, encryption m
 - Import failures report the exact rejected schema/version/scope and do not partially apply untrusted data.
 - Conflict handling is deterministic and parent-visible when parent-owned settings differ.
 - Delete failures report the affected data class and leave an audit record.
+- External storage outage or revoked access leaves local safety behavior intact
+  and reports connector status to the parent.
+- Ocentra report compiler failure leaves source data and parent-owned storage
+  unchanged.
 
 ## Expected Deliverables
 
@@ -44,7 +75,9 @@ Expected contracts include export manifest, export item descriptor, encryption m
 - Retention policy.
 - Import/replay behavior.
 - Sync status.
+- Parent-owned storage connector status.
 - Conflict model.
+- Stateless report compilation status where remote reporting exists.
 - Parent-visible export/delete controls before paid production.
 - Import validation and replay behavior.
 - Sync cursor and retry queue.
@@ -56,8 +89,13 @@ Expected contracts include export manifest, export item descriptor, encryption m
 - Import validates schema versions.
 - Sync failures do not corrupt local evidence.
 - Parent can understand what data moved where.
+- Parent can distinguish local device data, parent-owned storage data, and
+  Ocentra-hosted non-activity metadata.
 - Delete/retention behavior is explicit.
-- Raw evidence is not silently uploaded before privacy and cloud boundaries are approved.
+- Raw evidence is not silently uploaded anywhere, including parent-owned storage,
+  before parent sync settings and privacy boundaries are explicit.
+- Ocentra-hosted infrastructure does not retain synced child evidence or
+  generated reports by default.
 - Query stores remain rebuildable from journal data after import or restore.
 - Parent rules and approval decisions resolve conflicts without silently overwriting newer local state.
 - Exported files declare product version, schema version, family/device scope, and data classes.
@@ -67,15 +105,24 @@ Expected contracts include export manifest, export item descriptor, encryption m
 - Contract tests for manifests, data classes, encryption metadata, sync cursor, conflict records, and import/delete results.
 - Real export/import tests using the encrypted journal and SQLite rebuild path.
 - Retry/conflict tests covering interruption, duplicate batch, stale cursor, and newer local state.
+- Parent-owned storage connector tests for revoked grants, wrong account/folder,
+  partial upload, restore, delete, and retry.
 - Portal or CLI smoke for parent-visible export status, sync status, and delete/retention controls when those surfaces exist.
 - Security/static-analysis review because export, sync, deletion, and retention move sensitive family data.
 
 ## Non-Goals
 
-- Do not silently upload raw evidence before cloud privacy decisions are made.
+- Do not silently upload raw evidence before parent-owned storage, privacy, and
+  data-custody decisions are made.
 - Do not make sync the only way to preserve local evidence.
 - Do not create export formats without versioning.
+- Do not use Ocentra-hosted storage as the default sync destination for family
+  activity data.
+- Do not retain generated reports in Ocentra systems unless a future explicit
+  retention feature is designed and approved.
 
 ## Done Signal
 
-The parent can intentionally export, import, or sync scoped data with clear status, schema validation, and no corruption of local evidence.
+The parent can intentionally export, import, sync, or compile reports from scoped
+data with clear status, schema validation, explicit destination ownership, and no
+corruption of local evidence or default Ocentra custody of family activity data.

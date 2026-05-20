@@ -2,10 +2,13 @@
 
 Portal features must exercise the real agent path.
 
-The portal is a parent-facing control and observability surface. It does not
-execute child-device work. It sends typed queries, rule updates, approval
-decisions, and visibility requests to the child-device agent, then renders
-validated events and read models returned by that agent.
+The portal is a parent-facing control and observability surface. In production,
+the main household portal should be a local packaged app or mobile parent app,
+with Tauri as the preferred desktop-shell candidate unless a later architecture
+decision replaces it. It does not execute child-device work. It sends typed
+queries, rule updates, approval decisions, and visibility requests to the
+child-device agent, then renders validated events and read models returned by
+that agent.
 
 The portal is also where sensitive capabilities become parent-controlled product
 options. It should show what is enabled, disabled, observe-only, dry-run, or
@@ -23,6 +26,9 @@ Parent outcome:
   out of scope.
 - The portal lets a parent review and change supported observation, cadence,
   trigger, retention, rule, and enforcement settings through typed intents.
+- The portal shows whether data came from a live local/LAN child agent, parent
+  device cache, parent-owned storage, or an Ocentra-hosted stateless compile
+  request.
 
 Child-device outcome:
 
@@ -35,6 +41,12 @@ Platform scope:
 - V0.5 focuses on web portal visibility for the Windows-first local agent.
 - The same portal contracts should work over loopback and explicit LAN mode.
 - Web does not become a child-device agent.
+- The current Vite app is a development scaffold for exercising the real service
+  path. The production parent portal should be packaged for parent devices
+  before it is represented as the real product portal.
+- `family.ocentra.ca` is a public/download/account/subscription surface and may
+  host authenticated status or stateless report compilation. It is not the
+  default child-activity data store.
 
 Data scope:
 
@@ -45,6 +57,8 @@ Data scope:
 - Out of scope for V0.5: raw journal file browsing, raw SQLite file browsing,
   decrypted content payloads, screenshots, keystrokes, chat text, and hidden
   surveillance views.
+- Out of scope by default: storing child activity evidence, reports, or parent
+  rules in Ocentra-hosted web infrastructure.
 
 Trust boundary:
 
@@ -52,6 +66,9 @@ Trust boundary:
 - The portal validates returned payloads through Effect Schema before rendering.
 - Copy/debug output is for troubleshooting and handoff, not a private data
   export feature.
+- Hosted web surfaces may authenticate, download, manage billing, show connector
+  status, or invoke stateless report compilation, but they do not own child
+  evidence or policy execution.
 
 Contract boundary:
 
@@ -74,6 +91,8 @@ Contract boundary:
 - Explicit rule/query/approval intent contracts for any parent action.
 - Explicit parent-control views for sensitive features that show current
   setting, actor, effective device/child, and last result.
+- Source/custody indicators for live local/LAN, parent cache, parent-owned
+  storage, Ocentra-hosted non-activity metadata, and unavailable states.
 - Playwright coverage when UI behavior changes.
 
 ## Acceptance
@@ -91,6 +110,8 @@ Contract boundary:
   proven harmless and documented.
 - Empty, loading, stale, degraded, and failure states are visible and do not look
   like successful fake data.
+- Hosted views do not present Ocentra-stored child activity when the source is
+  actually local cache, parent-owned storage, or unavailable.
 
 ## V0.2 Through V0.5 Expectations
 
@@ -165,6 +186,10 @@ V0.5 live activity portal:
 - Do not show fake activity data as if it came from the child device.
 - Do not implement blocking, content inspection, stealth behavior, or local AI
   decisions in V0.5 portal work.
+- Do not present `family.ocentra.ca` as the source-of-truth parent portal for
+  child activity data.
+- Do not cache or retain child reports in Ocentra-hosted infrastructure unless a
+  future explicit data-custody feature is approved.
 
 ## Validation Gates
 

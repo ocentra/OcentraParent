@@ -1,8 +1,14 @@
 # Billing And Subscription Expectations
 
-Billing features should gate paid product value without breaking local child safety irresponsibly.
+Billing features should gate paid product value without breaking local child
+safety irresponsibly. Billing and subscription systems are allowed Ocentra-hosted
+services, but they are not child-activity data systems.
 
-Billing is not a child-device safety engine. It must stay outside capture, journal, local AI decisioning, policy evaluation, timers, and enforcement adapters. Paid product features can be entitlement-gated, but the system must describe how local safety behaves when billing checks are delayed, unavailable, expired, or disputed.
+Billing is not a child-device safety engine. It must stay outside capture,
+journal, local AI decisioning, policy evaluation, timers, and enforcement
+adapters. Paid product features can be entitlement-gated, but the system must
+describe how local safety behaves when billing checks are delayed, unavailable,
+expired, or disputed.
 
 ## Roadmap Scope
 
@@ -38,10 +44,15 @@ Billing data may include:
 
 - Plan id, subscription status, trial state, grace state, renewal status, cancellation state, device limits, feature entitlements, family/account reference, and billing audit events.
 - Stripe customer/subscription/payment references stored behind a backend boundary.
+- Download/update/license audit references that contain no child activity
+  evidence.
 
 Billing data must not include:
 
 - Raw child activity evidence.
+- Generated child activity reports.
+- Browser URL history, screen evidence, app/game sessions, or network flow
+  details.
 - Local AI prompts or model outputs.
 - Enforcement adapter internals.
 - Secrets in portal source, child-device source, logs, docs examples, or committed config.

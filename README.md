@@ -1,98 +1,237 @@
 # Ocentra Parent
 
-Ocentra Parent is a family-safety product from Ocentra, intended to live at `family.ocentra.ca`.
+Ocentra Parent is a local-first family-safety system from Ocentra. It is designed
+to run mostly inside the household: a child-device agent records real activity
+evidence locally, parent-owned apps and devices show visibility/control, and
+Ocentra-hosted services stay out of child-activity data custody by default.
 
-The product exists for a real parent problem: children live inside browsers, games, chats, short-form video, school apps, and social feeds, while parents often only see the outside story. A child can look like they are studying while bouncing between TikTok, Snapchat, Discord, games, adult content, or other distracting and unsafe parts of the internet. Parents need a way to understand what is happening, set sane boundaries, give permissions, enforce timeouts, and get alerted when something needs attention.
+`family.ocentra.ca` is the public website, download, account, subscription, docs,
+update, and optional stateless report-compile surface. It is not the source of
+truth for child activity data.
 
-The goal is not to start with a flashy dashboard or vague AI promises. The first job is to build a trustworthy local recorder: a headless agent on the child device that can observe useful activity signals, normalize them into strict schemas, store raw evidence safely, and make that evidence queryable. The product decision loop then runs on the child device: local AI evaluates observed pages, video links, apps, domains, and parent rules; typed policy decisions explain allow, warn, block, timeout, or ask-parent outcomes; enforcement adapters perform the actual blocking or timing behavior. The parent portal is a remote-control and observability surface. It lets parents set rules, approve requests, inspect evidence, and see outcomes, but it does not run capture, AI, scripts, policy evaluation, or enforcement.
+## Contents
 
-## What We Are Solving
+- [What This App Is](#what-this-app-is)
+- [Data Custody Rule](#data-custody-rule)
+- [How The System Works](#how-the-system-works)
+- [Remote Parent Access](#remote-parent-access)
+- [Security And Privacy Model](#security-and-privacy-model)
+- [Current Repository State](#current-repository-state)
+- [Important Docs](#important-docs)
+- [Commands](#commands)
+- [Release Scaffold](#release-scaffold)
+- [Local Dev Loop](#local-dev-loop)
+- [LAN Dev Loop](#lan-dev-loop)
 
-Parents should not have to choose between blind trust and invasive guessing. Ocentra Parent aims to make family device safety practical by answering basic questions clearly:
+## What This App Is
 
-- What apps and sites are active on the child device?
-- Is the child spending time on school work, games, social media, video platforms, or adult content?
-- Which domains and apps are consuming time and bandwidth?
-- When should the parent permit, limit, timeout, or block an activity?
-- What happened before an alert or policy decision?
-- Can the system explain its evidence instead of producing a magic AI verdict?
+The product exists for a real parent problem: children live inside browsers,
+games, chats, short-form video, school apps, and social feeds, while parents
+often only see the outside story. A child can look like they are studying while
+bouncing between TikTok, Snapchat, Discord, games, adult content, or other
+distracting and unsafe parts of the internet.
 
-The long-term product is an agentic safety system: local device agents gather evidence, run local AI safety evaluation, enforce typed decisions, and let parent portals expose control and visibility. The child-device safety decision path is local-only: API AI may assist with richer parent reports, unknown classification, and remote summaries later, but it does not sit in the normal blocking path. Parent surfaces author rules and decisions for devices to consume; devices validate and execute those rules locally.
+Ocentra Parent is not trying to be a cloud surveillance platform. The core
+product is:
+
+- a headless local agent on the child device,
+- a local evidence journal and SQLite query store,
+- local AI and deterministic policy evaluation,
+- parent-controlled rules and approvals,
+- local/LAN parent visibility,
+- optional parent-owned sync/report storage,
+- minimal remote alerts and account/subscription services.
 
 Product posture is parent-controlled, not Ocentra-moralized. Ocentra provides
 transparent capabilities, honest status, typed rules, local privacy boundaries,
 and auditable outcomes. Parents decide which observation modes, schedules,
-categories, time limits, and enforcement actions fit their child and household.
+categories, time limits, report paths, and enforcement actions fit their child
+and household.
 
-The detailed product roadmap lives in [`docs/product-roadmap.md`](docs/product-roadmap.md). Feature acceptance expectations live in [`docs/feature-expectations.md`](docs/feature-expectations.md).
+## Data Custody Rule
 
-## Architecture Direction
+Ocentra does not store child activity evidence by default.
 
-Ocentra Parent has two main product surfaces:
+| Data or service                  | Default owner/location                  | Ocentra-hosted by default |
+| -------------------------------- | --------------------------------------- | ------------------------- |
+| Raw evidence journal             | Child device                            | No                        |
+| SQLite activity query store      | Child device                            | No                        |
+| Browser URL/tab evidence         | Child device local store                | No                        |
+| App/game/process sessions        | Child device local store                | No                        |
+| Screen-analysis temporary images | Child device encrypted temp queue       | No                        |
+| Local AI and policy decisions    | Child device                            | No                        |
+| Parent rules and approvals       | Child/parent devices                    | No                        |
+| Generated family reports         | Parent device or parent-owned storage   | No                        |
+| Parent-owned cloud sync          | Google Drive, OneDrive, iCloud, etc.    | No                        |
+| Downloads, billing, entitlements | Ocentra-hosted account/control plane    | Yes, no child evidence    |
+| Notification delivery metadata   | Provider/Ocentra minimal route boundary | Minimal only              |
+| Stateless report compilation     | Ocentra-hosted transient worker         | No retained family data   |
 
-- Child devices run a headless local agent.
-- Parents use a web/mobile control and observability surface.
+Parent-owned storage means the parent configures the destination: Google Drive,
+OneDrive, iCloud Drive, Dropbox, a NAS, or another explicit storage target.
+Ocentra may provide connectors and schemas, but it must not silently become the
+family-data warehouse.
 
-The first proof is Windows-focused and local-first. The Rust service hosts local development endpoints so the portal can query health, send typed rule/approval intents, and observe the agent on the same machine or LAN. The repository now keeps real package scaffolds for Windows, Linux, macOS, Android, and iOS so platform build breakage shows up early, while feature implementation still lands honestly one platform at a time.
+See [Data Custody And Local-First Expectations](docs/expectations/data-custody.md)
+for the full rule.
 
-The core data pipeline is:
+## How The System Works
 
-```text
-capture -> NDJSON journal -> ingester -> SQLite query store -> local AI/policy/enforcement -> local API -> portal/reports
+The normal product path is local:
+
+```mermaid
+flowchart LR
+  subgraph Child["Child PC local authority"]
+    Agent["Rust child agent"]
+    Journal["Encrypted NDJSON journal"]
+    SQLite["SQLite query store"]
+    LocalAI["Local AI and policy"]
+    Enforcement["Local enforcement adapters"]
+  end
+
+  subgraph ParentHome["Parent device at home"]
+    ParentApp["Parent portal app"]
+  end
+
+  Agent -->|"captures typed evidence"| Journal
+  Journal -->|"replays into"| SQLite
+  SQLite -->|"summaries and evidence refs"| LocalAI
+  LocalAI -->|"typed policy decision"| Enforcement
+  ParentApp -->|"typed rule and approval intents over loopback or LAN"| Agent
+  Agent -->|"validated health, evidence, decisions, audit state"| ParentApp
 ```
 
-NDJSON is the append-only source of truth. It is easy to inspect, replay, rotate, and recover from. SQLite is the default cross-platform query/index layer for time windows, joins, summaries, and reports. The hot capture path should stay resilient and boring; local AI and policy evaluation should happen after events are safely written or from a typed observation that will be written.
+The current repo uses a Vite web portal as a development scaffold so the Rust
+agent path can be tested. The production parent portal should be packaged for
+parent-owned devices. Tauri is the preferred desktop-shell candidate unless a
+later architecture decision replaces it.
 
-## V0 Milestone
+The evidence pipeline is intentionally boring and replayable:
 
-The first real milestone is a Windows network/activity recorder.
+```text
+capture -> encrypted NDJSON journal -> SQLite query store -> local AI/policy/enforcement -> local API -> parent portal/reports
+```
 
-Definition of done:
+NDJSON is the append-only source of truth. SQLite is the default cross-platform
+query/index layer for time windows, joins, summaries, and reports. Local AI and
+policy evaluation happen after evidence is written or from a typed observation
+that will be written.
 
-- Runs as a Windows background service.
-- Starts through a normal MSI installer.
-- Emits one schema-versioned event per observation.
-- Writes append-only NDJSON with safe flushing and rotation.
-- Ingests events into SQLite for local queries.
-- Exposes a minimal local/LAN portal for visibility.
-- Can summarize top processes, domains, time windows, and suspicious unknowns.
-- Does no blocking and no content inspection yet.
-- Reserves the child-device local AI decision boundary, but does not need to run a model until the AI safety-evaluator milestone.
+## Remote Parent Access
 
-The event model is intent-first, not packet-first. We care about normalized activity such as `chrome.exe connected to youtube.com:443`, not raw TCP packets or decrypted HTTPS payloads.
+Away-from-home use should not require Ocentra to store child data.
 
-Browser URL visibility is a separate managed-browser boundary. Process/window
-capture can prove that a browser is running, and network/domain capture can show
-destinations, but neither proves the exact tab URL. Ocentra should launch and
-observe approved browsers through an Ocentra-managed local bridge/profile, with
-no browser extension requirement. A normal browser instance outside that managed
-path is treated as unmanaged browser use: observation mode reports it clearly,
-and later enforcement may block or terminate it according to parent policy.
+```mermaid
+flowchart LR
+  subgraph Home["Home or child device"]
+    ChildAgent["Child agent"]
+    LocalStore["Local encrypted evidence"]
+    Exporter["Parent-approved sync or report export"]
+  end
 
-Native games and apps follow the same evidence-first rule. The Rust agent should
-observe process/window/install/launcher evidence, write it to the journal and
-SQLite store, derive queryable session summaries such as running time and
-foreground time, and only then let local AI or policy consume those stored
-digests. AI is not the scanner and must not invent that a process is a game or
-that it ran for two hours without evidence.
+  subgraph ParentOwned["Parent-owned storage"]
+    Drive["Google Drive or other chosen storage"]
+  end
 
-Network evidence is metadata-first. The Rust agent may record process-attributed
-flows, destinations, DNS/domain hints, bandwidth/count summaries where
-available, and VPN/proxy/tunnel indicators, then generate AI-readable digests.
-It must not rely on decrypted HTTPS payloads or raw packet dumps as normal
-evidence, and AI must not sniff traffic or invent what happened inside encrypted
-connections.
+  subgraph OcentraCloud["Ocentra-hosted services"]
+    Auth["Auth, billing, entitlement"]
+    Notify["Minimal notification routing"]
+    Compile["Optional stateless report compiler"]
+  end
 
-Screen evidence is local-only and high sensitivity. If a parent enables it, the
-Rust agent may queue encrypted temporary screenshots on a configurable cadence or
-trigger, process them with a local OCR/vision model, store only typed summaries
-and evidence references, then delete the image. Screenshots do not leave the
-child PC under this feature. The portal must present this as an explicit
-parent-controlled option with clear current settings, status, and audit history.
+  subgraph ParentAway["Parent away from home"]
+    App["Parent desktop or mobile app"]
+    Cache["Parent device cache"]
+  end
+
+  ChildAgent --> LocalStore
+  LocalStore -->|"encrypted export or summary bundle"| Exporter
+  Exporter -->|"parent-configured destination"| Drive
+  Notify -->|"minimal alert, no raw evidence"| App
+  Cache -->|"cached reports"| App
+  Drive -->|"report bundle"| App
+  App -->|"account and entitlement checks"| Auth
+  App -->|"parent-authorized compile request"| Compile
+  Compile -->|"reads scoped source and returns result without retention"| App
+```
+
+Remote modes must label the source clearly:
+
+- live child agent over local/LAN,
+- authenticated relay to a reachable child agent,
+- parent device cache,
+- parent-owned storage,
+- Ocentra-hosted account/subscription metadata,
+- unavailable/stale/degraded.
+
+Push, WhatsApp, email, SMS, or in-app notifications carry minimal detail by
+default. Sensitive context stays behind the authenticated parent app, local/LAN
+access, or parent-owned storage.
+
+## Security And Privacy Model
+
+The security model is transparent custody plus typed control:
+
+```mermaid
+flowchart TD
+  Parent["Parent decision"]
+  Settings["Typed settings and rules"]
+  Agent["Child-device agent validator"]
+  Evidence["Local encrypted evidence"]
+  AI["Local AI classification"]
+  Policy["Deterministic policy decision"]
+  Audit["Audit trail"]
+  External["External boundary"]
+
+  Parent --> Settings
+  Settings --> Agent
+  Agent --> Evidence
+  Evidence --> AI
+  AI --> Policy
+  Policy --> Audit
+  Evidence -.->|"only by explicit parent export or connector"| External
+```
+
+Security and privacy commitments:
+
+- Child-device safety decisions run locally.
+- Ocentra-hosted services do not store raw child evidence or generated reports
+  by default.
+- Parent rules are household decisions, not hidden Ocentra value judgments.
+- Every sensitive mode needs visible settings, status, and audit history.
+- Network evidence is metadata-first; no decrypted HTTPS payloads or normal raw
+  packet dumps.
+- Browser URL evidence requires a managed-browser boundary; process/window or
+  network metadata alone cannot prove exact tab URL.
+- Screen evidence, when enabled by the parent, is local-only: encrypted temporary
+  queue, local OCR/vision, typed summary, then image deletion.
+- Parent-owned storage connectors use explicit scopes and visible destination
+  status.
+- Notifications minimize child detail and link back to authenticated parent
+  surfaces for sensitive context.
+- Future Ocentra-hosted child-data custody would require a separate product,
+  security, privacy, retention, deletion, and validation design before code.
 
 ## Current Repository State
 
-This repository is currently in scaffold-first mode. The committed foundation includes workspace layout, domain boundaries, validation gates, test structure, Rust crate boundaries, local and LAN dev APIs, a minimal Vite portal, MSI release packaging, package-preview scaffolds for every target platform, signed updater scaffolding, dependency/security gates, and SBOM generation.
+This repository is currently in scaffold-first mode. The committed foundation
+includes workspace layout, domain boundaries, validation gates, test structure,
+Rust crate boundaries, local and LAN dev APIs, a minimal Vite portal, MSI release
+packaging, package-preview scaffolds for every target platform, signed updater
+scaffolding, dependency/security gates, and SBOM generation.
+
+Implemented foundation:
+
+- TypeScript workspaces and Rust crates.
+- Effect Schema domain contracts.
+- Rust protocol parity for shared contracts.
+- Encrypted append-only activity journal.
+- SQLite activity query direction.
+- Local Rust service and WebSocket intent/event scaffold.
+- Local and LAN dev scripts with fixed ports.
+- Windows MSI and updater scaffold.
+- Package-preview scaffolds for Linux, macOS, Android, and iOS.
+- Security scans, dependency policy, validation gates, and CI.
 
 Not implemented yet:
 
@@ -100,34 +239,57 @@ Not implemented yet:
 - Local AI safety evaluation.
 - Blocking or enforcement.
 - Parent policy UI.
-- Cloud sync.
+- Parent-owned storage sync and remote report compilation.
 - Notification delivery.
-- API AI parent-assistant/reporting.
 - Browser URL/tab evidence capture.
+- Production Tauri parent portal.
 - Mobile agents.
 - Production mobile store distribution.
+
+## Important Docs
+
+- [Product Roadmap](docs/product-roadmap.md)
+- [Feature Expectations](docs/feature-expectations.md)
+- [Data Custody And Local-First Expectations](docs/expectations/data-custody.md)
+- [Cloud Feature Expectations](docs/expectations/cloud.md)
+- [Sync And Export Expectations](docs/expectations/sync-export.md)
+- [Portal Feature Expectations](docs/expectations/portal.md)
+- [Capture Feature Expectations](docs/expectations/capture.md)
+- [Browser URL And Tab Evidence Expectations](docs/expectations/browser-evidence.md)
+- [App And Game Evidence Expectations](docs/expectations/app-game-evidence.md)
+- [Network Flow Evidence Expectations](docs/expectations/network-flow-evidence.md)
+- [Screen Evidence Analysis Expectations](docs/expectations/screen-evidence.md)
+- [Policy Feature Expectations](docs/expectations/policy.md)
+- [Enforcement Feature Expectations](docs/expectations/enforcement.md)
+- [System Boundaries](docs/architecture/system-boundaries.md)
+- [Release And Update Architecture](docs/architecture/release-update.md)
 
 ## Engineering Principles
 
 - Domain packages own shared contracts.
-- Runtime apps and Rust crates consume contracts instead of inventing local strings.
+- Runtime apps and Rust crates consume contracts instead of inventing local
+  strings.
 - Effect Schema is the TypeScript validation standard.
 - Branded strings must come from schema decoders.
-- Runtime source does not own inline string literals; domains own text, ids, routes, commands, events, fields, and protocol names.
-- Runtime app TypeScript does not annotate values as raw `string`; app code receives branded domain values or parses external `unknown` input at the boundary.
-- Source files and functions have shape budgets. Validation warns at 80% and fails when a module becomes too large.
-- Test doubles are forbidden. Tests must exercise real contracts, parsers, localhost services, and transport boundaries.
+- Runtime source does not own inline string literals; domains own text, ids,
+  routes, commands, events, fields, and protocol names.
+- Runtime app TypeScript does not annotate values as raw `string`; app code
+  receives branded domain values or parses external `unknown` input at the
+  boundary.
+- Source files and functions have shape budgets. Validation warns at 80% and
+  fails when a module becomes too large.
+- Test doubles are forbidden. Tests must exercise real contracts, parsers,
+  localhost services, and transport boundaries.
 - Tests are required for every source workspace and Rust crate from the start.
 - Rust service execution is async and Tokio multithreaded by default.
 - NDJSON is the append-only evidence journal.
 - SQLite is the default local query store.
-- Tests and validation gates are part of the scaffold, not an afterthought.
 
 ## Current Shape
 
 ```text
 apps/
-  portal/        Minimal Vite dev portal for local and LAN agent visibility.
+  portal/        Vite dev portal for local and LAN agent visibility.
   local-api/     Reserved local query/control API package placeholder.
 packages/
   schema-domain/     Shared Effect Schema helpers.
@@ -148,7 +310,7 @@ platforms/
   android/      Android APK scaffold with a foreground agent service.
   ios/          iOS simulator app scaffold with an Xcode project.
 docs/
-  architecture and decisions.
+  architecture and expectations.
 ```
 
 ## Commands
@@ -163,26 +325,41 @@ Use `cmd /c npm ...` on Windows if PowerShell execution policy blocks npm shims.
 
 ## Release Scaffold
 
-Releases are part of the scaffold because the Windows agent needs a repeatable install/update path from the beginning.
+Releases are part of the scaffold because the Windows agent needs a repeatable
+install/update path from the beginning.
 
 ```powershell
 cmd /c npm run release:version
 cmd /c npm run release:package:windows
 ```
 
-Source pushes to `main` run the CI gate and build package-preview artifacts for Windows, Linux, macOS, Android, and iOS simulator, but they do not publish GitHub Releases. README-only, Markdown-only, and `docs/**` pushes are ignored by CI.
+Source pushes to `main` run the CI gate and build package-preview artifacts for
+Windows, Linux, macOS, Android, and iOS simulator, but they do not publish GitHub
+Releases. README-only, Markdown-only, and `docs/**` pushes are ignored by CI.
 
-Production releases happen from the `production` branch only. After `main` is green and the version is intentionally bumped, pushing/merging to `production` builds the signed Windows release, creates tag `v<version>`, and publishes GitHub Release assets. If the version tag already exists, the production workflow still runs its gates and package previews, then skips publishing. Package previews for Linux, macOS, Android, and iOS stay as CI artifacts until their signing/store/update paths are deliberately promoted.
+Production releases happen from the `production` branch only. After `main` is
+green and the version is intentionally bumped, pushing/merging to `production`
+builds the signed Windows release, creates tag `v<version>`, and publishes
+GitHub Release assets. If the version tag already exists, the production
+workflow still runs its gates and package previews, then skips publishing.
+Package previews for Linux, macOS, Android, and iOS stay as CI artifacts until
+their signing/store/update paths are deliberately promoted.
 
-Package previews are not just archive builds. CI now performs install or launch smoke checks for each scaffolded platform: MSI install/uninstall on Windows, DEB install/remove on Linux, PKG payload validation on macOS, APK install/launch in Android emulator, and app install/launch in iOS simulator.
+Package previews are not just archive builds. CI now performs install or launch
+smoke checks for each scaffolded platform: MSI install/uninstall on Windows, DEB
+install/remove on Linux, PKG payload validation on macOS, APK install/launch in
+Android emulator, and app install/launch in iOS simulator.
 
-Once a release exists, install on another Windows PC from an elevated PowerShell session:
+Once a release exists, install on another Windows PC from an elevated PowerShell
+session:
 
 Latest Windows MSI download:
 
 https://github.com/ocentra/OcentraParent/releases/latest/download/ocentra-parent-agent-windows-x64-latest.msi
 
-That URL is intended for a future `family.ocentra.ca` download button. A browser click downloads the MSI; Windows still requires the parent to open it and approve the installer.
+That URL is intended for a future `family.ocentra.ca` download button. A browser
+click downloads the MSI; Windows still requires the parent to open it and approve
+the installer.
 
 Support/admin one-line install:
 
@@ -190,9 +367,18 @@ Support/admin one-line install:
 powershell -NoProfile -ExecutionPolicy Bypass -Command "irm https://github.com/ocentra/OcentraParent/releases/latest/download/install-ocentra-parent-agent-windows.ps1 | iex"
 ```
 
-See `docs/architecture/release-update.md` for the updater boundary. The MSI installs the headless service under `%ProgramFiles%\Ocentra\Ocentra Parent Agent`, registers it as `OcentraParentAgent`, starts it on install, and gives Windows a normal uninstall/upgrade entry. It also installs `OcentraParentUpdater`, a separate signed-manifest updater service that checks GitHub Release metadata and runs quiet MSI upgrades.
+See [Release And Update Architecture](docs/architecture/release-update.md) for
+the updater boundary. The MSI installs the headless service under
+`%ProgramFiles%\Ocentra\Ocentra Parent Agent`, registers it as
+`OcentraParentAgent`, starts it on install, and gives Windows a normal
+uninstall/upgrade entry. It also installs `OcentraParentUpdater`, a separate
+signed-manifest updater service that checks GitHub Release metadata and runs
+quiet MSI upgrades.
 
-The production Windows update manifest requires `OCENTRA_PARENT_UPDATE_SIGNING_KEY_BASE64`. Future platform signing secrets for Authenticode, macOS, Android store, and Apple store distribution are documented in the repo but are not required until those release paths are implemented.
+The production Windows update manifest requires
+`OCENTRA_PARENT_UPDATE_SIGNING_KEY_BASE64`. Future platform signing secrets for
+Authenticode, macOS, Android store, and Apple store distribution are documented
+in the repo but are not required until those release paths are implemented.
 
 ## Local Dev Loop
 
@@ -209,14 +395,20 @@ cmd /c npm run dev:agent
 cmd /c npm run dev:portal
 ```
 
-The portal connects to `ws://127.0.0.1:4477/api/dev/ws`, sends typed intent envelopes from `@ocentra-parent/agent-protocol-domain`, and validates returned events through Effect Schema. The Rust service still exposes `http://127.0.0.1:4477/api/dev/log-snapshot` as a plain HTTP smoke endpoint.
+The portal connects to `ws://127.0.0.1:4477/api/dev/ws`, sends typed intent
+envelopes from `@ocentra-parent/agent-protocol-domain`, and validates returned
+events through Effect Schema. The Rust service still exposes
+`http://127.0.0.1:4477/api/dev/log-snapshot` as a plain HTTP smoke endpoint.
 
 Local development uses fixed Ocentra Parent ports:
 
 - Rust agent service: `127.0.0.1:4477`
 - Vite portal: `127.0.0.1:4478`
 
-Use `npm run dev`, `npm run dev:agent`, or `npm run dev:portal` so `scripts/dev/*` can reclaim only stale Ocentra Parent processes. Do not run the portal on generic Vite ports like `5173` or the Ocentra Games asset-editor port `5174`.
+Use `npm run dev`, `npm run dev:agent`, or `npm run dev:portal` so
+`scripts/dev/*` can reclaim only stale Ocentra Parent processes. Do not run the
+portal on generic Vite ports like `5173` or the Ocentra Games asset-editor port
+`5174`.
 
 Parallel worker lanes can override those defaults without rewriting commands:
 
@@ -226,7 +418,8 @@ $env:OCENTRA_PARENT_PORTAL_PORT = "4678"
 cmd /c npm run dev
 ```
 
-With those overrides, the portal opens at `http://127.0.0.1:4678/#/commands` and connects to `ws://127.0.0.1:4677/api/dev/ws`.
+With those overrides, the portal opens at `http://127.0.0.1:4678/#/commands`
+and connects to `ws://127.0.0.1:4677/api/dev/ws`.
 
 ## LAN Dev Loop
 
@@ -238,16 +431,24 @@ cmd /c npm run dev:lan
 
 LAN mode keeps the same ports but binds both dev surfaces to the network:
 
-- Rust agent service bind: `0.0.0.0:4477` by default, or `OCENTRA_PARENT_AGENT_PORT`
-- Vite portal bind: `0.0.0.0:4478` by default, or `OCENTRA_PARENT_PORTAL_PORT`
-- Portal URL from another device: `http://<this-pc-lan-ip>:4478/#/commands` by default
-- Agent WebSocket URL from the portal: `ws://<this-pc-lan-ip>:4477/api/dev/ws` by default
+- Rust agent service bind: `0.0.0.0:4477` by default, or
+  `OCENTRA_PARENT_AGENT_PORT`
+- Vite portal bind: `0.0.0.0:4478` by default, or
+  `OCENTRA_PARENT_PORTAL_PORT`
+- Portal URL from another device: `http://<this-pc-lan-ip>:4478/#/commands` by
+  default
+- Agent WebSocket URL from the portal: `ws://<this-pc-lan-ip>:4477/api/dev/ws`
+  by default
 
-The managed scripts auto-detect the first non-internal IPv4 address. If Windows has multiple active network adapters, set the host explicitly:
+The managed scripts auto-detect the first non-internal IPv4 address. If Windows
+has multiple active network adapters, set the host explicitly:
 
 ```powershell
 $env:OCENTRA_PARENT_LAN_HOST = "192.168.1.25"
 cmd /c npm run dev:lan
 ```
 
-LAN mode is explicit because it exposes the agent to other devices on the network. The Rust service refuses non-loopback binds unless `OCENTRA_PARENT_AGENT_LOCAL_NETWORK_ENABLED=true`, and browser origins are restricted through `OCENTRA_PARENT_AGENT_ALLOWED_ORIGINS`.
+LAN mode is explicit because it exposes the agent to other devices on the
+network. The Rust service refuses non-loopback binds unless
+`OCENTRA_PARENT_AGENT_LOCAL_NETWORK_ENABLED=true`, and browser origins are
+restricted through `OCENTRA_PARENT_AGENT_ALLOWED_ORIGINS`.

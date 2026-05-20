@@ -30,7 +30,8 @@ Child-device outcome:
 - The Rust agent captures screenshots only on the child device or local/LAN
   boundary approved for this product.
 - The local OCR/vision model analyzes queued images locally. Screen images do
-  not leave the child PC for API AI or cloud processing under this feature.
+  not leave the child PC for remote/API AI or cloud processing under this
+  feature.
 - The Rust agent stores structured summaries and evidence references in the
   journal/query store, then deletes the temporary image after successful
   processing.
@@ -56,7 +57,7 @@ Screen evidence must not record these by default. They require a later explicit
 parent-controlled feature and matching technical/privacy boundary:
 
 - Permanent raw screenshot retention.
-- Cloud/API AI upload of screenshots.
+- Cloud/remote/API AI upload of screenshots.
 - Password fields, secure desktop, lock screen, credential prompts, or OS-protected
   surfaces.
 - Keystrokes, microphone audio, camera video, decrypted network payloads, browser

@@ -2,13 +2,14 @@
 
 ## Runtime Surfaces
 
-| Surface               | First Role                          | Later Role                                                      |
-| --------------------- | ----------------------------------- | --------------------------------------------------------------- |
-| Windows agent service | Headless local process scaffold     | Capture, local queue, health, enforcement                       |
-| Local/LAN control API | Rust-hosted local query/control API | Parent portal bridge and future Cloudflare parity layer         |
-| Portal                | Web-first parent-facing scaffold    | Reports, rule authoring, devices, alerts, mobile/desktop shells |
-| Cloudflare            | Out of v0 scaffold scope            | Remote control plane, sync, auth, device fleet                  |
-| Notification adapters | Out of v0 scaffold scope            | WhatsApp, push, email, SMS, or provider-specific alerts         |
+| Surface               | First Role                          | Later Role                                                    |
+| --------------------- | ----------------------------------- | ------------------------------------------------------------- |
+| Windows agent service | Headless local process scaffold     | Capture, local queue, health, enforcement                     |
+| Local/LAN control API | Rust-hosted local query/control API | Parent portal bridge and future Cloudflare parity layer       |
+| Portal                | Web-first dev scaffold              | Tauri/mobile parent apps, reports, rules, devices, alerts     |
+| Cloudflare            | Out of v0 scaffold scope            | Auth, billing, relay, notifications, stateless compile status |
+| Parent-owned storage  | Out of v0 scaffold scope            | Google Drive, OneDrive, iCloud, Dropbox, NAS, local exports   |
+| Notification adapters | Out of v0 scaffold scope            | WhatsApp, push, email, SMS, or provider-specific alerts       |
 
 ## Platform Strategy
 
@@ -18,9 +19,15 @@ Shared domains and contracts must still be platform-neutral. They should leave r
 
 - desktop service agents: Windows first, then macOS and Linux
 - mobile service agents: Android and iOS where platform rules allow it
-- portal shells: web first, then mobile and desktop wrappers
-- remote access: Cloudflare later for the parent-away-from-home use case
+- parent portal shells: packaged desktop/mobile first for product use; the Vite
+  web portal remains a dev scaffold until a packaged app exists
+- remote access: parent-owned storage, authenticated relay, and minimal
+  notification routing for the parent-away-from-home use case
 - outbound notifications: provider adapters later, not core service logic
+
+The public website at `family.ocentra.ca` is a download, account, subscription,
+documentation, and optional stateless report-compile surface. It must not become
+the default custody layer for child activity data.
 
 ## Local Command Channel
 
@@ -35,7 +42,10 @@ portal query or rule intent
   -> portal event log and read model
 ```
 
-This keeps the long-term shape compatible with multiple devices. Loopback and LAN are the first routes; later Cloudflare can relay the same typed query, rule, approval, and event envelopes to a remote device service.
+This keeps the long-term shape compatible with multiple devices. Loopback and
+LAN are the first routes; later Cloudflare can relay typed query, rule, approval,
+and event envelopes to a remote device service without storing child evidence as
+the default product model.
 
 The portal is not an execution boundary. It can request status, author rules, send parent approvals, and display outcomes. The child-device agent validates those requests, runs local AI and policy evaluation, owns timers, and performs enforcement through platform adapters. Browser, mobile, and future desktop portal shells must not run OS commands, capture adapters, child-safety AI, policy evaluators, enforcement logic, or arbitrary scripts.
 
@@ -62,7 +72,26 @@ agent service
   -> parent portal
 ```
 
-The scaffold does not implement the capture or local AI safety-evaluation flow yet. It only reserves the boundaries where the flow will live. The product target is local-first: child-device safety decisions run on the child device, while API AI is reserved for later parent assistant, reporting, or cloud-supported workflows with explicit privacy boundaries.
+The scaffold does not implement the capture or local AI safety-evaluation flow
+yet. It only reserves the boundaries where the flow will live. The product
+target is local-first: child-device safety decisions run on the child device,
+while any remote assistant, report compilation, or cloud-supported workflow is
+reserved for later parent-authorized data-custody boundaries.
+
+## Data Custody Target
+
+```text
+child evidence -> child device journal and SQLite
+parent settings -> child or parent device, then optional parent-owned storage
+parent reports -> parent device cache or parent-owned storage
+Ocentra services -> account, billing, downloads, update metadata, relay, minimal notifications
+```
+
+Ocentra-hosted services should not store raw journals, SQLite evidence stores,
+screen images, browser history, generated reports, or parent rules by default.
+If a future feature needs Ocentra-hosted family data custody, that feature needs
+its own explicit product, security, privacy, retention, deletion, and validation
+design before implementation.
 
 ## Contract Rule
 

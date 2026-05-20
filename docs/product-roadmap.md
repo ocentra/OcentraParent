@@ -14,12 +14,26 @@ Ocentra Parent helps parents understand and guide what children do on connected 
 - Can the system explain the evidence behind a decision?
 - Can parents set boundaries without needing to become device administrators or network experts?
 
-The long-term product is an agentic family-safety system. Child devices run local agents with local AI safety evaluation, parent surfaces show visibility and controls, and API AI may later help with richer parent reports and remote summaries. The parent surface is a rule-setting, approval, and observability layer; it does not execute capture, AI, scripts, policy evaluation, or enforcement. The child-device safety decision path stays local: capture facts, store them safely, query them locally, then run local AI and typed policy decisions before blocking, timing, asking the parent, syncing, or notifying.
+The long-term product is an agentic family-safety system. Child devices run local
+agents with local AI safety evaluation, parent-owned surfaces show visibility and
+controls, and remote services may later help with subscription, notification,
+relay, or stateless report compilation. The parent surface is a rule-setting,
+approval, and observability layer; it does not execute capture, AI, scripts,
+policy evaluation, or enforcement. The child-device safety decision path stays
+local: capture facts, store them safely, query them locally, then run local AI
+and typed policy decisions before blocking, timing, asking the parent, syncing,
+or notifying.
 
 Ocentra does not decide the household rulebook. The product provides transparent
 capabilities, local-first data handling, typed controls, and audit trails. Parents
 decide which observation modes, schedules, categories, limits, and enforcement
 actions are appropriate for their child and home.
+
+Ocentra also does not own family data by default. Child activity evidence lives
+on the child device, parent device, LAN, or a parent-configured storage provider.
+Ocentra-hosted services are for downloads, account/subscription, entitlement,
+update metadata, minimal notification routing, authenticated relay, and optional
+stateless compile/report operations that do not retain child activity data.
 
 ## Current Position
 
@@ -66,12 +80,25 @@ Rules:
 - Portal code must not run OS commands, capture adapters, AI safety evaluation, policy evaluation, enforcement, timers, or scripts.
 - Parent-authored rules decide household outcomes. Product defaults and category
   labels are evidence and control aids, not hidden Ocentra value judgments.
+- Production parent portals are parent-owned local packaged apps or mobile apps
+  first. Tauri is the preferred desktop-shell candidate; the current Vite portal
+  is a dev scaffold until the packaged app exists.
+- `family.ocentra.ca` is a public/download/account/subscription surface and may
+  host authenticated status or stateless report compilation. It is not the
+  default child-activity data store.
+- Ocentra-hosted storage must not retain raw evidence, generated reports,
+  screenshots, browser history, or parent rules by default.
 - Child-device local AI is the required safety evaluator for page, video-link, app, domain, and activity context.
 - Local AI receives typed evidence plus parent rules and returns typed decisions such as allow, warn, block, time-limit, or ask-parent.
 - Enforcement adapters act only on schema-valid decisions and record audit events.
-- API AI is optional and secondary: parent assistant, richer reports, unknown classification, or cloud summaries after privacy boundaries are explicit. It cannot replace the child-device local safety evaluator.
+- Remote/API AI or hosted report compilation is optional and secondary: parent
+  assistant, richer reports, unknown classification, or remote summaries only
+  after explicit parent-controlled storage/privacy boundaries exist. It cannot
+  replace the child-device local safety evaluator.
 - DuckDB may return later as an optional analytics/export adapter, but not as the default app database.
-- Web does not run the child-device agent or any child-device workflow. The portal talks to local, LAN, or cloud-routed agents through typed contracts.
+- Web does not run the child-device agent or any child-device workflow. Parent
+  surfaces talk to local, LAN, parent-owned storage, or cloud-routed services
+  through typed contracts.
 
 ## Execution Standard
 
@@ -156,6 +183,7 @@ Make the agent able to write and query trusted local facts before capture or blo
 
 Expectation links:
 
+- [Data custody and local-first expectations](expectations/data-custody.md)
 - [Evidence storage expectations](expectations/evidence-storage.md)
 - [Contract feature expectations](expectations/contracts.md)
 - [Portal feature expectations](expectations/portal.md)
@@ -426,7 +454,7 @@ Deliverables:
 
 Acceptance:
 
-- Screen images do not leave the child PC for API AI or cloud processing.
+- Screen images do not leave the child PC for remote/API AI or cloud processing.
 - Temporary images are encrypted while queued and deleted after successful local
   analysis or TTL expiry.
 - Rust validates AI JSON before journal/query ingest or policy use.
@@ -473,7 +501,7 @@ Acceptance:
 - Invalid policies are rejected at boundaries.
 - Invalid AI decisions are rejected at boundaries.
 - Policy events can be stored in the journal.
-- API AI is not required for child-device decisions.
+- Remote/API AI is not required for child-device decisions.
 - No blocking behavior yet.
 
 ### V0.7 Local AI Policy Evaluator
@@ -621,14 +649,16 @@ Acceptance:
 
 ## Post-MVP Roadmap
 
-### V2 Cloud Relay And Remote Parent Access
+### V2 Parent-Owned Remote Access And Cloud Relay
 
 Purpose:
 
-Support the parent-away-from-home use case.
+Support the parent-away-from-home use case without making Ocentra the family-data
+store.
 
 Expectation links:
 
+- [Data custody and local-first expectations](expectations/data-custody.md)
 - [Cloud feature expectations](expectations/cloud.md)
 - [Sync and export expectations](expectations/sync-export.md)
 - [LAN pairing expectations](expectations/lan-pairing.md)
@@ -639,16 +669,23 @@ Deliverables:
 - Cloudflare control plane.
 - Authenticated device registry.
 - Remote rule/query/approval event relay.
-- Sync queue.
+- Parent-owned storage connector contracts.
+- Sync queue for parent-owned storage or local cache.
+- Stateless report compile contract where remote compilation exists.
 - Conflict handling.
 - Device heartbeat.
-- Remote portal at `family.ocentra.ca`.
+- `family.ocentra.ca` download/account/subscription/status surface.
+- Packaged parent portal direction, with Tauri as preferred desktop candidate.
 
 Acceptance:
 
-- Parent can see device health remotely.
+- Parent can see device/account health remotely.
+- Parent can view reports from local cache, reachable child agent, or
+  parent-owned storage with source/custody clearly labeled.
 - Local-first operation still works if cloud is unavailable.
 - Device rule updates, approval decisions, and visibility requests are authenticated and auditable.
+- Ocentra-hosted infrastructure does not retain child activity evidence or
+  generated reports by default.
 
 ### V3 Notifications
 
@@ -674,17 +711,22 @@ Deliverables:
 Acceptance:
 
 - Alerts explain evidence and policy reason.
+- Alert bodies minimize child details and link back to an authenticated parent
+  surface for sensitive context.
 - Provider failures are logged and retryable.
 - Parents can tune noise.
 
-### V4 API AI Parent Assistant And Advanced Explanation
+### V4 Parent-Owned Reports And Optional Assistant
 
 Purpose:
 
-Use API AI for richer parent assistance and advanced explanation without replacing local child-device safety decisions.
+Use local or explicitly parent-authorized report/assistant flows for richer
+parent explanations without replacing local child-device safety decisions or
+creating default Ocentra custody of child data.
 
 Expectation links:
 
+- [Data custody and local-first expectations](expectations/data-custody.md)
 - [AI feature expectations](expectations/ai.md)
 - [Evidence storage expectations](expectations/evidence-storage.md)
 - [Policy feature expectations](expectations/policy.md)
@@ -693,16 +735,19 @@ Expectation links:
 Deliverables:
 
 - Parent assistant contract.
-- API model adapter.
+- Local assistant and optional API model adapter boundaries.
 - Prompt/version governance.
 - Evidence-grounded explanation.
-- Cross-device and long-window summary support.
+- Cross-device and long-window summary support from parent-owned storage or
+  local cache.
+- Stateless report compile request/result contracts.
 - Human override feedback loop.
 
 Acceptance:
 
-- API AI output references stored evidence.
-- Child-device blocking does not require API AI availability.
+- Report/assistant output references stored evidence without copying raw evidence
+  into Ocentra-hosted storage by default.
+- Child-device blocking does not require remote/API AI availability.
 - API classifier failures degrade to local-only evaluation, unknown, or ask-parent.
 - Tests cover schema and decision boundaries.
 
@@ -730,12 +775,15 @@ Deliverables:
 - Schedules.
 - Reports.
 - Audit history.
+- Source/custody indicators for local, LAN, parent-owned storage, and
+  Ocentra-hosted non-activity metadata.
 
 Acceptance:
 
 - Parent can configure common rules without editing files.
 - Child activity and policy decisions are explainable.
-- Settings sync safely across devices.
+- Settings sync safely across devices through local or parent-owned storage
+  boundaries.
 
 ### V6 Mobile Agents
 
@@ -875,7 +923,8 @@ Web:
 - Make query stores rebuildable.
 - Record evidence references for policy and AI decisions.
 - Run child-device safety decisions locally on the child device.
-- Send evidence to API AI only through explicit privacy, parent, and cloud boundaries.
+- Send evidence to remote/API AI only through explicit parent action,
+  data-custody, privacy, retention, and deletion boundaries.
 - Avoid decrypted content capture unless a future explicit product/legal decision approves a specific boundary.
 - Make data export and deletion first-class before paid production launch.
 

@@ -1,6 +1,9 @@
 # Notification Feature Expectations
 
-Notification features should reduce parent anxiety, not create noise.
+Notification features should reduce parent anxiety, not create noise. They also
+cross provider boundaries, so notification content must be minimal by default
+and must not turn WhatsApp, push, email, SMS, or Ocentra-hosted routing into a
+child-activity data store.
 
 ## Parent Outcome
 
@@ -8,21 +11,37 @@ A parent receives a small number of timely, explainable alerts when attention is
 
 ## Child-Device Outcome
 
-The child-device agent or trusted backend creates notification intents from typed evidence, policy decisions, health state, or sync/cloud status. Raw observation noise does not become a parent notification until it passes through an explicit alert rule and reason-code contract.
+The child-device agent or trusted backend creates notification intents from typed
+evidence references, policy decisions, health state, or sync/cloud status. Raw
+observation noise does not become a parent notification until it passes through
+an explicit alert rule and reason-code contract.
 
 ## Platform Scope
 
 - The notification domain should support provider adapters for push, email, SMS, WhatsApp, or in-app delivery without hardcoding one provider into policy logic.
 - Web and mobile parent surfaces may display notification history and preferences.
 - Child-device agents record notification intents and audit references but do not embed third-party provider details in core policy decisions.
+- Ocentra-hosted notification routing may carry delivery metadata and minimal
+  alert bodies only. Sensitive detail belongs behind authenticated parent app,
+  local/LAN, or parent-owned storage access.
 
 ## Data Scope
 
-Notification payloads carry alert id, family/device scope, severity, reason code, evidence reference, policy reference, delivery channel, delivery status, retry state, and parent action link or intent reference. Provider-facing bodies should minimize child activity details and avoid sensitive URLs, titles, message text, filenames, or raw evidence unless a later explicit policy allows it.
+Notification payloads carry alert id, family/device scope, severity, reason
+code, evidence reference, policy reference, delivery channel, delivery status,
+retry state, and parent action link or intent reference. Provider-facing bodies
+should minimize child activity details and avoid sensitive URLs, titles, message
+text, filenames, raw evidence, screenshots, or generated reports unless a later
+explicit policy allows it.
 
 ## Trust Boundary
 
-Notification delivery crosses third-party provider boundaries. Provider adapters receive only the minimal formatted content needed for that channel. Parent authentication is required before viewing sensitive detail behind an alert. Provider webhooks, tokens, templates, and delivery receipts are security-sensitive.
+Notification delivery crosses third-party provider boundaries. Provider adapters
+receive only the minimal formatted content needed for that channel. Parent
+authentication is required before viewing sensitive detail behind an alert.
+Provider webhooks, tokens, templates, and delivery receipts are
+security-sensitive. Ocentra-hosted routing should retain only delivery state and
+short operational logs, not child evidence.
 
 ## Contract Boundary
 
@@ -55,6 +74,8 @@ Expected contracts include alert rule, notification intent, alert reason code, p
 - Provider failure is visible and retryable.
 - Parents can tune frequency.
 - Sensitive details are minimized in push, WhatsApp, email, or SMS bodies.
+- Ocentra-hosted notification routing does not retain child activity detail by
+  default.
 - Notification history is auditable.
 - Raw unclassified activity does not produce alerts by itself.
 - Alert rules can distinguish policy violation, ask-parent request, suspicious unknown, device offline, sync failure, and provider failure.
@@ -74,6 +95,8 @@ Expected contracts include alert rule, notification intent, alert reason code, p
 - Do not send alerts from raw unclassified noise.
 - Do not hardcode one provider into core policy logic.
 - Do not expose sensitive evidence in third-party notification previews unless explicitly approved.
+- Do not store generated child reports or raw evidence in notification provider
+  metadata.
 
 ## Done Signal
 

@@ -11,6 +11,8 @@ Every feature must move Ocentra Parent toward a trustworthy family-safety produc
   controls, evidence, and audit trails instead of hard-coded value judgments.
 - Child-device evidence is real, typed, timestamped, and auditable.
 - Data is protected locally before it is queried, synced, classified, or acted on.
+- Ocentra-hosted services do not become the default store for child activity,
+  journals, screenshots, reports, or parent rules.
 - Product claims never exceed what the implementation can prove.
 - Validation must make lazy or fake implementations fail.
 
@@ -29,6 +31,7 @@ If a change cannot explain what parent problem it solves, what evidence it creat
 
 - [Contract feature expectations](expectations/contracts.md)
 - [Evidence storage expectations](expectations/evidence-storage.md)
+- [Data custody and local-first expectations](expectations/data-custody.md)
 - [Capture feature expectations](expectations/capture.md)
 - [Network flow evidence expectations](expectations/network-flow-evidence.md)
 - [Browser URL and tab evidence expectations](expectations/browser-evidence.md)

@@ -6,9 +6,16 @@ Accepted.
 
 ## Context
 
-Ocentra Parent will become a local-first parental-control system with a Windows-first agent and parent portal. The foundation has to be reliable before capture, local AI safety evaluation, policy decisions, enforcement, notifications, or cloud sync are implemented.
+Ocentra Parent will become a local-first parental-control system with a
+Windows-first agent and parent-owned portal surfaces. The foundation has to be
+reliable before capture, local AI safety evaluation, policy decisions,
+enforcement, notifications, parent-owned sync, or remote relay/report flows are
+implemented.
 
-The first service target is a Rust Windows desktop agent with local loopback and LAN control surfaces. The shared contracts should still be platform-neutral so later desktop, mobile, portal, and Cloudflare surfaces can reuse the same domain language.
+The first service target is a Rust Windows desktop agent with local loopback and
+LAN control surfaces. The shared contracts should still be platform-neutral so
+later desktop, mobile, parent-owned portal, storage connector, and Cloudflare
+surfaces can reuse the same domain language.
 
 ## Decision
 

@@ -15,7 +15,9 @@ Every feature must state the parent outcome, child-device outcome, supported pla
 - Windows network/domain observation must not decrypt HTTPS payloads, inspect page contents, or imply packet-content monitoring unless a later explicit product/legal/security boundary approves it.
 - Process-to-network correlation may be unavailable or partial. Unknown process, unknown domain, and IP-only observations must be recorded honestly instead of guessed.
 - Windows LAN mode must remain explicit, origin-checked, and paired before accepting remote parent control from another device.
-- Windows cloud relay, sync/export, and notifications must preserve local-first operation when remote services or providers fail.
+- Windows cloud relay, sync/export, and notifications must preserve local-first
+  operation when remote services or providers fail, and must not require
+  Ocentra-hosted storage of child activity data.
 - Validation needs real Windows adapter tests or guarded integration/manual evidence for each claimed OS capability, plus contract tests for every event shape crossing TypeScript and Rust.
 
 ## macOS
@@ -54,12 +56,29 @@ Every feature must state the parent outcome, child-device outcome, supported pla
 
 ## Web
 
-- Parent portal and control surface only.
+- Public/download/account/subscription surface first.
+- Development portal scaffold only until a packaged parent portal exists.
 - Does not run the child-device agent.
 - Does not run child-device AI, policy evaluation, enforcement, timers, capture adapters, or scripts.
 - Talks to local, LAN, or cloud-routed agents through typed service contracts.
-- Web may show network/domain, LAN, cloud, sync/export, and notification state only when returned by typed local, LAN, or cloud-routed services.
+- Web may show network/domain, LAN, cloud, sync/export, notification, and
+  connector state only when returned by typed local, LAN, parent-owned storage,
+  or cloud-routed services.
 - Web must not claim offline child-device monitoring when no reachable child-device agent or cloud relay is connected.
+- Web must not store child activity evidence, generated reports, screenshots, or
+  parent rules in Ocentra-hosted infrastructure by default.
+
+## Parent Desktop App
+
+- Production parent portal should be packaged for parent-owned devices. Tauri is
+  the preferred desktop-shell candidate until an architecture decision says
+  otherwise.
+- The parent desktop app may connect over loopback, LAN pairing, authenticated
+  relay, local parent cache, or parent-owned storage connectors.
+- The parent desktop app still does not run child-device capture, local AI
+  safety evaluation, policy execution, enforcement adapters, timers, or scripts.
+- It should label data source and custody clearly: live local/LAN, parent cache,
+  parent-owned storage, Ocentra-hosted non-activity metadata, or unavailable.
 
 ## Validation Gates
 

@@ -8,7 +8,9 @@ Every feature request should make these expectations explicit before implementat
 - Child-device outcome: what changes on the child device, if anything.
 - Platform scope: Windows, macOS, Linux, Android, iOS, web portal, Cloudflare, or shared domain only.
 - Data scope: what data is observed, stored, queried, synced, or displayed.
-- Trust boundary: local-only, LAN, cloud-routed, authenticated parent, unauthenticated dev, or installer/update path.
+- Trust boundary: local-only, LAN, parent-owned storage, cloud-routed,
+  authenticated parent, unauthenticated dev, notification provider, stateless
+  compile, or installer/update path.
 - Contract boundary: TypeScript domain, Rust protocol, service intent/event, portal UI, release asset, or external provider.
 - Delivery boundary: feature branch, final PR to `main`, or explicit product release request.
 - Success evidence: exact behavior that proves the feature works.

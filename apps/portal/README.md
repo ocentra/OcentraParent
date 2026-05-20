@@ -4,6 +4,12 @@ Minimal Vite dev portal for local and LAN agent visibility.
 
 This is not the product portal. It exists so the Rust agent service can be seen and validated while the repo is still in scaffold mode.
 
+The product parent portal should become a packaged parent-owned desktop/mobile
+surface. Tauri is the preferred desktop-shell candidate unless a later
+architecture decision replaces it. `family.ocentra.ca` is for downloads, account,
+subscription, docs, status, and optional stateless report compilation, not for
+default custody of child activity data.
+
 ```powershell
 cmd /c npm run dev:agent
 cmd /c npm run dev:portal

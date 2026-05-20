@@ -27,12 +27,15 @@ Treat these changes as security-sensitive:
 
 - LAN exposure.
 - Cloud relay.
+- Parent-owned storage connectors.
+- Stateless report compilation.
 - Pairing.
 - Device identity.
 - Installer/update logic.
 - Secrets, signing, tokens, credentials, or provider webhooks.
 - Enforcement or blocking behavior.
 - Data export, sync, deletion, or retention.
+- Any feature that could move child activity data into Ocentra-hosted systems.
 
 ## Done Signal
 

@@ -1,6 +1,11 @@
 # AI Feature Expectations
 
-AI is a child-device safety layer first. The normal safety evaluator runs locally on the child device against typed evidence and parent rules. API AI is secondary and may assist with parent reports, unknown classification, and remote summaries only after privacy and cloud boundaries are explicit. API AI is not the normal decision maker for blocking, timing, or asking the parent.
+AI is a child-device safety layer first. The normal safety evaluator runs locally
+on the child device against typed evidence and parent rules. Remote/API AI is not
+part of the normal child safety path and must not receive child activity by
+default. Any future remote assistant or report compiler must be explicitly
+parent-authorized, evidence-cited, data-custody reviewed, and outside blocking,
+timing, or ask-parent decisions.
 
 The parent portal does not run child-safety AI. It authors rules, approvals, and questions; the child-device agent validates local context, runs the local evaluator, and converts model output into typed decisions.
 
@@ -16,13 +21,17 @@ V0.6 defines contracts before runtime AI affects policy or enforcement.
 
 V0.7 runs a local AI policy evaluator in dry-run and decision-producing modes while enforcement remains disabled by default.
 
-V4 may add API AI parent assistant and advanced explanation. V4 cannot replace local child-device safety decisions.
+V4 may add parent-owned report assistance or optional remote/API explanation.
+V4 cannot replace local child-device safety decisions and cannot create default
+Ocentra custody of child activity data.
 
 ## Parent Outcome
 
 - Parent can understand why an activity was classified as allowed, warned, blocked, time-limited, ask-parent, or unknown.
 - Parent can see the stored evidence, parent rules, local model status, and reason codes behind an AI-assisted decision.
-- Parent can ask for richer explanations later through API AI without changing the local safety decision that already happened.
+- Parent can ask for richer explanations later through local reports,
+  parent-owned storage, or an explicitly authorized remote assistant without
+  changing the local safety decision that already happened.
 - Parent can distinguish "local evaluator unavailable", "low confidence", "missing evidence", "policy conflict", and "remote assistant unavailable" states.
 
 ## Child-Device Outcome
@@ -71,7 +80,8 @@ AI input must not include:
 - Permanent raw screenshot retention or cloud/API AI upload of screenshots under
   the screen-evidence feature.
 - Decrypted HTTPS payloads unless a future explicit legal/product boundary approves a specific capture mode.
-- Data uploaded to API AI without explicit privacy, parent-control, and cloud-routing contracts.
+- Data uploaded to remote/API AI without explicit parent action, data-custody
+  contract, privacy boundary, and no-retention or parent-owned-storage behavior.
 - Derived memory or graph claims that cannot point back to source evidence.
 
 ## Contract Boundary
@@ -83,7 +93,10 @@ V0.6 must define Effect Schema contracts in the owning domain packages before ru
 - `LocalModelRuntimeStatus`: provider, model id, local path or opaque model reference, load state, capability flags, resource class, degraded state, last checked time, and unavailable reason.
 - `LocalProviderCapability`: available providers, hardware/resource constraints, supported tasks, privacy mode, and fallback order.
 - `LocalMemoryReference` and `LocalGraphReference`: reference id, reference type, source evidence references, source policy version or parent action when applicable, generated time, confidence, and derived-index version.
-- `ApiAiParentAssistantRequest` and `ApiAiParentAssistantResult` for V4: parent question, permitted evidence references, privacy boundary, model/prompt version, answer, cited evidence references, uncertainty, and failure state.
+- `RemoteAssistantRequest` and `RemoteAssistantResult` for V4 if needed: parent
+  question, parent-approved source, permitted evidence references, data-custody
+  boundary, model/prompt version, answer, cited evidence references,
+  uncertainty, retention state, and failure state.
 
 Rust protocol parity is required when Rust sends, receives, stores, or journals these shapes. Field names, enum values, schema versions, and reason codes must be tested on both sides before runtime behavior depends on them.
 
@@ -116,18 +129,24 @@ captured page/video/app/domain evidence
   -> auditable decision event
 ```
 
-## API AI Parent Assistant Boundary
+## Remote Assistant Boundary
 
-V4 API AI may produce richer explanations, trend summaries, parent Q&A, and unknown classification suggestions. It must remain outside the normal blocking path.
+V4 remote assistance may produce richer explanations, trend summaries, parent
+Q&A, and unknown classification suggestions. It must remain outside the normal
+blocking path and must not store child activity in Ocentra-hosted infrastructure
+by default.
 
-Acceptance for API AI:
+Acceptance for remote assistance:
 
-- Requests cite the stored evidence the parent is allowed to send.
+- Requests cite the stored evidence or parent-owned report bundle the parent is
+  allowed to use.
 - Responses cite stored evidence references and mark uncertainty.
-- API failures degrade to local-only explanation, unknown, or ask-parent.
-- API output cannot override a stricter local parent rule or a typed local policy decision.
+- Remote failures degrade to local-only explanation, unknown, or ask-parent.
+- Remote output cannot override a stricter local parent rule or a typed local
+  policy decision.
 - Remote model prompts and versions are governed and auditable.
-- No child activity leaves the device without explicit cloud/privacy contracts.
+- No child activity leaves the device or parent-owned storage without explicit
+  parent action, data-custody contract, and retention behavior.
 
 ## Failure Behavior
 
@@ -137,7 +156,7 @@ Acceptance for API AI:
 - Low-confidence or contradictory output returns unknown, warn, or ask-parent unless an explicit parent rule gives a stricter deterministic answer.
 - Missing evidence prevents AI from claiming content understanding.
 - Memory or graph references without source evidence are ignored for decisioning.
-- API AI outage does not disable local child-device evaluation.
+- Remote/API assistant outage does not disable local child-device evaluation.
 - Model cache corruption or missing model files must not lose captured evidence; the agent keeps writing evidence and reports evaluator unavailable.
 
 ## Expected Deliverables
@@ -145,7 +164,8 @@ Acceptance for API AI:
 - AI input contract.
 - AI output contract.
 - Local model/provider adapter boundary.
-- API model/provider adapter boundary only when a feature explicitly needs remote AI.
+- Remote/API model/provider adapter boundary only when a feature explicitly needs
+  remote AI and satisfies the data-custody expectations.
 - Local AI runtime status contract: provider, model id, load state, capability, degraded state, and last checked time.
 - Local memory reference contract.
 - Local knowledge-graph reference contract.
@@ -168,20 +188,22 @@ Acceptance for API AI:
 - The safety context builder can be tested from real stored evidence and rules, not handwritten fake context.
 - Unknown or failed classification is safe and explicit.
 - Policy can explain the local AI decision, the evidence, and the parent rule context.
-- API AI is never required for normal child-device blocking.
-- API AI is never required for time-limit or temporary-block decisions.
-- API AI responses cannot override a stricter local parent rule.
+- Remote/API AI is never required for normal child-device blocking.
+- Remote/API AI is never required for time-limit or temporary-block decisions.
+- Remote/API AI responses cannot override a stricter local parent rule.
 - Tests cover parser behavior and decision integration without mocking provider truth.
 - Tests cover replay from stored evidence into AI context when a feature adds memory or graph behavior.
 
 ## Validation Gates
 
-- TypeScript schema tests prove valid and invalid AI input/output, runtime status, memory references, graph references, and API assistant payloads.
+- TypeScript schema tests prove valid and invalid AI input/output, runtime
+  status, memory references, graph references, and remote assistant payloads.
 - Rust parity tests prove identical field names, enum values, schema versions, and serialization for every Rust-crossing AI shape.
 - Stored-evidence integration tests build a safety context from the real encrypted journal and SQLite query store.
 - Provider lifecycle tests exercise real local provider status, unavailable, load failure, and degraded states without faking model truth.
 - Policy integration tests prove ambiguous AI output cannot override explicit parent rules.
-- API assistant tests prove remote output remains evidence-cited and outside the child-device blocking path.
+- Remote assistant tests prove remote output remains evidence-cited, respects
+  data-custody boundaries, and stays outside the child-device blocking path.
 - Validation reports exact commands and failures.
 
 ## Non-Goals
@@ -189,9 +211,10 @@ Acceptance for API AI:
 - Do not claim AI can see content that was not captured.
 - Do not let untyped or untraceable AI output directly enforce blocking.
 - Do not hide model/provider calls inside unrelated modules.
-- Do not make cloud/API AI mandatory for local child-device safety.
+- Do not make cloud/remote/API AI mandatory for local child-device safety.
 - Do not run the child-safety model in the parent portal.
-- Do not upload child activity to API AI without explicit privacy and parent-control boundaries.
+- Do not upload child activity to remote/API AI or Ocentra-hosted workers without
+  explicit parent action, data-custody contract, and retention/deletion behavior.
 - Do not let local memory, embeddings, or graph edges become unexplained truth.
 - Do not replace the encrypted journal and SQLite ingest source of truth with a memory or graph subsystem.
 - Do not copy broad TabAgentServer subsystems unless the Ocentra Parent contract boundary is explicit and tested.

@@ -9,7 +9,10 @@ This does not mean copying TabAgent wholesale into Ocentra Parent. Ocentra Paren
 - The child-device Rust agent owns capture, memory, local AI, policy evaluation, timers, and enforcement.
 - The parent portal owns visibility, rule authoring, approvals, and explanations.
 - The parent portal must not run child-safety AI, browser capture, scripts, timers, policy evaluation, or enforcement.
-- API AI can help with parent reports, summaries, and assistant workflows later, but it cannot replace the child-device local evaluator in the normal blocking path.
+- Remote/API AI may help with parent reports, summaries, and assistant workflows
+  later only through explicit parent action and data-custody boundaries. It
+  cannot replace the child-device local evaluator in the normal blocking path and
+  must not create default Ocentra custody of child activity data.
 
 ## Reference Evidence Inspected
 
@@ -37,7 +40,8 @@ The following TabAgent and TabAgentServer files are useful evidence for future r
 - Do not copy TabAgent UI, dashboard, assistant persona, or broad agent workflows into Ocentra Parent.
 - Do not copy stringly route ids, model ids, provider names, or field names into app/runtime code. Ocentra Parent domain packages and Rust protocol constants own those names.
 - Do not copy a memory graph as a source of truth. Ocentra Parent source truth remains encrypted NDJSON journal plus SQLite ingest.
-- Do not copy API AI or remote model behavior into the child-device blocking path.
+- Do not copy remote/API AI or remote model behavior into the child-device blocking
+  path.
 - Do not copy broad model runtime subsystems before V0.6 contracts and Rust parity tests exist.
 - Do not use TabAgent's browser extension boundary to claim unsupported OS-level capture or enforcement.
 
@@ -115,7 +119,8 @@ The local model should not receive raw unbounded data by default. The safety con
 - Define local AI input/result, local model status, provider capability, memory reference, graph reference, policy decision, and enforcement audit event contracts.
 - Add parser tests and Rust parity tests before runtime code consumes the shapes.
 - Add reason code and degraded-state enums that distinguish unavailable model, invalid output, missing evidence, low confidence, and policy conflict.
-- Keep API AI contracts separate from child-device local AI contracts.
+- Keep remote/API assistant contracts separate from child-device local AI
+  contracts, and make data custody explicit before any remote model call exists.
 
 ### Stage 2: V0.7 Dry-Run Evaluator
 
@@ -134,10 +139,14 @@ The local model should not receive raw unbounded data by default. The safety con
 
 ### Stage 4: V4 Parent Assistant
 
-- Add API AI only as a parent-facing explanation and summary layer.
-- Require evidence-cited API responses.
-- Degrade to local-only explanation or unknown when API AI is unavailable.
-- Prevent API AI from overriding local policy decisions or stricter parent rules.
+- Add remote/API AI only as a parent-facing explanation and summary layer after
+  parent-owned storage or explicit stateless compile boundaries exist.
+- Require evidence-cited remote responses.
+- Degrade to local-only explanation or unknown when remote/API AI is unavailable.
+- Prevent remote/API AI from overriding local policy decisions or stricter parent
+  rules.
+- Prevent Ocentra-hosted infrastructure from retaining child activity prompts,
+  source bundles, or generated reports by default.
 
 ## Security And Privacy Risks
 
@@ -145,7 +154,9 @@ The local model should not receive raw unbounded data by default. The safety con
 - Memory and graph indexes may amplify stale or incorrect derived facts; require source references and invalidation.
 - Provider caches may store large model files; keep model cache separate from evidence storage and report cache corruption without losing evidence.
 - Native/browser bridges can become control channels; require typed contracts, origin/device checks, request ids, and capability reporting.
-- API AI can leak child activity if introduced too early; require explicit privacy and parent-control boundaries before remote calls.
+- Remote/API AI can leak child activity if introduced too early; require explicit
+  parent action, data-custody, privacy, retention, and deletion boundaries before
+  remote calls.
 - Billing and entitlements must not sit inside the child-device safety decision path.
 
 ## Validation Expectations

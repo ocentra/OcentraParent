@@ -1,83 +1,183 @@
 # Cloud Feature Expectations
 
-Cloud features support parent-away-from-home use cases.
+Cloud features support parent-away-from-home use cases without turning Ocentra
+into the custody layer for child activity data.
+
+Ocentra-hosted cloud is a control plane, distribution surface, subscription/auth
+boundary, notification route, and optional stateless report compiler. It is not
+the default storage system for raw evidence, journals, screenshots, browser
+history, generated reports, or parent rules.
 
 ## Parent Outcome
 
-A parent away from home can see child-device health, send scoped rule/query/approval intents, and receive audited results without needing to expose the child device directly to the public internet.
+A parent away from home can receive minimal alerts, authenticate, check account
+or subscription state, download/install Ocentra Parent, and optionally compile or
+view reports from parent-owned storage. The parent should always know whether a
+view came from local cache, LAN/live child agent, parent-owned cloud storage, or
+an Ocentra-hosted stateless compile request.
 
 ## Child-Device Outcome
 
-The child-device agent remains local-first. It owns capture, evidence storage, local AI/policy evaluation, and enforcement. Cloud routing delivers authenticated intents and status, but the child device validates and executes the request locally.
+The child-device agent remains local-first. It owns capture, evidence storage,
+local AI/policy evaluation, timers, and enforcement. Cloud routing may deliver
+authenticated typed intents or status envelopes, but the child device validates
+and executes requests locally. Cloud unavailability must not stop already
+configured local safety behavior.
 
 ## Platform Scope
 
-- The remote parent portal may live at `family.ocentra.ca`.
-- Cloud routing is a control-plane and relay boundary, not a replacement for the local agent.
-- Windows is the first child-agent target expected to prove remote health and scoped routing.
-- Mobile parent apps may consume the same cloud contracts when those app surfaces exist; mobile child agents must not claim desktop-level behavior until platform capability is proven.
+- `family.ocentra.ca` is the public/download/account/subscription surface first.
+- The production parent portal should be a local packaged app or mobile app
+  surface for household control. Tauri is the preferred desktop-shell candidate
+  unless a later architecture decision replaces it.
+- A browser-hosted Ocentra page may support login, download, billing, docs,
+  device/account status, notification drill-in, and parent-authorized stateless
+  report compilation, but it must not become the source-of-truth child portal.
+- Cloud routing is a control-plane and relay boundary, not a replacement for the
+  local agent or parent-owned storage.
+- Windows is the first child-agent target expected to prove remote health and
+  scoped routing.
+- Mobile parent apps may consume the same cloud and storage contracts when those
+  app surfaces exist.
 
 ## Data Scope
 
-Cloud may carry device registration, parent identity, child-device identity, heartbeat, capability/status summaries, sync cursors, scoped visibility query requests, rule updates, approval decisions, delivery status, and audit references. Raw evidence, decrypted journals, SQLite files, screen contents, browser contents, and packet payloads stay local unless a later privacy-reviewed contract explicitly permits a narrow export or summary.
+Ocentra-hosted cloud may carry:
+
+- Parent identity, account, subscription, entitlement, license, and billing
+  references.
+- Device registration metadata, pairing route metadata, heartbeat status,
+  capability/status summaries, and relay delivery status.
+- Minimal notification metadata: alert id, severity, reason code, delivery
+  channel, delivery state, and parent action link.
+- Parent-authorized connector metadata for external storage, such as provider
+  name, connected account hint, folder id/reference, sync cursor, and last
+  success/failure status.
+- Short-lived report-compile request ids, job status, and operational telemetry
+  that avoids child activity detail.
+
+Ocentra-hosted cloud must not store by default:
+
+- Raw encrypted journal segments.
+- SQLite evidence databases.
+- Screenshots, screen-analysis images, or raw visual evidence.
+- Browser URL history, page titles, page contents, chat contents, keystrokes, or
+  decrypted network payloads.
+- Long-term child activity reports or generated summaries.
+- Parent rules and approval history as the source of truth.
+- Parent-owned storage contents or long-lived provider tokens unless a future
+  explicit encrypted token-vault feature is designed, reviewed, and linked here.
 
 ## Trust Boundary
 
-Cloud access requires authenticated parent identity and authenticated device identity. Every remote request must be scoped to a family, child device, route, intent type, and request id. The relay must not accept anonymous device commands, development-only bypass tokens, or stale parent sessions. Cloud logs should minimize child activity detail and prefer ids, status, reason codes, and evidence references.
+Cloud access requires authenticated parent identity and authenticated device or
+storage-source identity. Every remote request must be scoped to a family, child
+device or storage source, route, intent type, and request id. The relay must not
+accept anonymous device commands, development-only bypass tokens, stale parent
+sessions, or wrong-family route ids.
+
+Ocentra-hosted report compilation, if implemented, must be stateless by default:
+
+- Parent grants access to a parent-owned source such as Google Drive, OneDrive,
+  iCloud Drive, Dropbox, NAS gateway, or a local upload.
+- Compiler reads only the requested data class and time window.
+- Compiler returns a report to the parent session or writes it back to the
+  parent-owned destination.
+- Compiler deletes temporary input/output and records only minimal operational
+  status with a short TTL.
 
 ## Contract Boundary
 
-Cloud contracts reuse or extend shared domain packages. Expected contract families include parent account identity, family membership, device registration, device heartbeat, cloud route envelope, remote visibility query, remote rule update, remote approval decision, relay delivery status, sync cursor, conflict outcome, and audit event. Worker/cloud runtime code must consume those contracts instead of inventing parallel JSON payloads.
+Cloud contracts reuse or extend shared domain packages. Expected contract
+families include parent account identity, entitlement snapshot, device
+registration, device heartbeat, cloud route envelope, remote visibility query,
+remote rule update, remote approval decision, relay delivery status,
+parent-owned storage connector, report compile request/result, sync cursor,
+conflict outcome, and audit event.
+
+Worker/cloud runtime code must consume those contracts instead of inventing
+parallel JSON payloads.
 
 ## Failure Behavior
 
-- Local observation, local policy, local enforcement, and local portal operation continue when cloud is unavailable.
+- Local observation, local policy, local enforcement, local portal operation, and
+  local parent cache continue when cloud is unavailable.
 - Cloud outages show explicit stale/offline/queued status to the parent.
-- Remote rule updates and approvals are idempotent and auditable; retries cannot apply stale state silently.
-- A device receiving an expired, revoked, malformed, wrong-family, or wrong-device command rejects it and records a safe audit event.
-- Cloud relay failure does not delete or mutate local evidence.
+- Remote rule updates and approvals are idempotent and auditable; retries cannot
+  apply stale state silently.
+- A device receiving an expired, revoked, malformed, wrong-family, or
+  wrong-device command rejects it and records a safe audit event.
+- Parent-owned storage connector failures show provider/folder/status errors
+  without deleting local evidence.
+- Report compiler failure does not mutate source evidence, parent-owned storage,
+  or local child-device data.
 
 ## Expected Deliverables
 
 - Cloudflare control-plane boundary.
 - Authenticated parent identity.
 - Authenticated device identity.
-- Device heartbeat.
+- Device heartbeat and route status.
 - Rule/query/approval event relay.
-- Sync queue.
+- Parent-owned storage connector contracts.
+- Stateless report compiler contracts where remote compilation exists.
 - Retry/backoff behavior.
 - Conflict handling.
 - Local-first fallback.
 - Family/device authorization model.
-- Auditable relay delivery status.
+- Auditable relay and compiler status.
 - Sensitive-detail minimization policy for cloud logs.
 
 ## Acceptance
 
 - Local operation works when cloud is unavailable.
-- Remote rule updates, queries, approvals, and device events are authenticated and auditable.
+- Remote rule updates, queries, approvals, and device events are authenticated
+  and auditable.
 - Device state cannot be overwritten silently by stale cloud state.
-- Cloud logs do not leak sensitive child activity beyond intended product data.
+- Ocentra-hosted databases do not store child activity evidence or reports by
+  default.
+- Parent-owned storage connectors are explicit and parent-visible.
+- Cloud logs do not leak sensitive child activity beyond minimal operational
+  metadata.
 - Cloud behavior reuses shared contracts instead of inventing parallel payloads.
-- Remote parent actions are represented as typed intents and executed only by the child-device agent.
+- Remote parent actions are represented as typed intents and executed only by the
+  child-device agent.
 - Heartbeat and stale-device states are visible to the parent.
-- Conflict outcomes are explicit: accepted, rejected as stale, queued, superseded, or needs parent review.
-- Cloud relay does not require API AI availability for child-device safety behavior.
+- Conflict outcomes are explicit: accepted, rejected as stale, queued,
+  superseded, or needs parent review.
+- Cloud relay does not require remote/API AI availability for child-device safety
+  behavior.
 
 ## Validation Gates
 
-- Contract tests for identity, route, heartbeat, relay, conflict, and audit payloads.
-- Cloud runtime tests using real route handlers and auth validation boundaries, not unauthenticated happy-path fixtures.
-- Child-agent integration tests for accepted remote intent, rejected stale intent, rejected wrong-device intent, queued retry, and local-first fallback.
-- Portal coverage for remote health, queued or stale state, and explicit command result.
-- Secret scan, dependency policy, and security review for auth, tokens, provider configuration, and logs.
+- Contract tests for identity, route, heartbeat, relay, connector, compiler,
+  conflict, and audit payloads.
+- Cloud runtime tests using real route handlers and auth validation boundaries,
+  not unauthenticated happy-path fixtures.
+- Child-agent integration tests for accepted remote intent, rejected stale
+  intent, rejected wrong-device intent, queued retry, and local-first fallback.
+- Parent-owned storage connector tests for least-privilege scope, expired grant,
+  revoked grant, wrong folder, malformed export, and retry behavior.
+- Portal/app coverage for remote health, queued or stale state, connector status,
+  report compile status, and explicit command result.
+- Secret scan, dependency policy, and security review for auth, tokens, provider
+  configuration, billing, and logs.
 
 ## Non-Goals
 
-- Do not replace local evidence storage with cloud-only storage.
+- Do not replace local evidence storage with Ocentra cloud storage.
+- Do not use Cloudflare KV, D1, R2, queues, analytics, or logs as the default
+  family-data warehouse.
+- Do not store raw child activity evidence, generated reports, screenshots, or
+  parent rules in Ocentra-hosted infrastructure by default.
 - Do not add paid provider requirements to local development.
 - Do not route production family data through unauthenticated dev endpoints.
+- Do not retain parent-owned storage tokens or source data beyond the explicit
+  connector/compile contract.
 
 ## Done Signal
 
-A parent can remotely see device health or send a scoped rule, query, or approval intent through authenticated cloud routing while the child-device agent remains local-first and owns execution.
+A parent can remotely authenticate, receive minimal status or alerts, use
+parent-owned storage or a reachable child agent for family data, and send scoped
+rule/query/approval intents while the child-device agent remains local-first and
+Ocentra-hosted infrastructure does not become the child-activity store.
