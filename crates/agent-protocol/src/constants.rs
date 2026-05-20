@@ -37,21 +37,30 @@ pub mod event_id {
 
 pub mod field {
     pub const AVAILABLE: &str = "available";
+    pub const ACTIVITY_DIGEST: &str = "activityDigest";
     pub const CAPTURE_ENABLED: &str = "captureEnabled";
+    pub const CIPHER: &str = "cipher";
+    pub const CIPHERTEXT: &str = "ciphertext";
     pub const COMMAND: &str = "command";
     pub const ENTRIES: &str = "entries";
+    pub const ENTRY_ID: &str = "entryId";
+    pub const EVENT_ID: &str = "eventId";
     pub const MODE: &str = "mode";
     pub const NETWORK_MODE: &str = "networkMode";
+    pub const NONCE: &str = "nonce";
     pub const NOTE: &str = "note";
     pub const ONLINE: &str = "online";
     pub const PID: &str = "pid";
     pub const POLICY_ENGINE_ENABLED: &str = "policyEngineEnabled";
     pub const REASON: &str = "reason";
     pub const REMOTE_SYNC: &str = "remoteSync";
+    pub const SCHEMA_VERSION: &str = "schemaVersion";
     pub const TRANSPORT: &str = "transport";
+    pub const WRITTEN_AT: &str = "writtenAt";
 }
 
 pub mod value {
+    pub const ACTIVITY_JOURNAL_CIPHER: &str = "xchacha20poly1305";
     pub const DEV_MODE: &str = "dev";
     pub const LOCAL_NETWORK_MODE: &str = "lan";
     pub const LOOPBACK_MODE: &str = "loopback";
@@ -76,6 +85,16 @@ pub mod dev_log_message {
     pub const AGENT_HEALTH_REQUESTED: &str = "Agent health endpoint requested.";
 }
 
+pub mod journal {
+    pub const ENTRY_ID_PREFIX: &str = "journal-entry-";
+    pub const FILE_EXTENSION: &str = "ndjson";
+    pub const TEST_FILE_PREFIX: &str = "ocentra-parent-journal-test-";
+    pub const TEST_APPEND_SUFFIX: &str = "append";
+    pub const TEST_REPLAY_SUFFIX: &str = "replay";
+    pub const TEST_TAMPER_SUFFIX: &str = "tamper";
+    pub const XCHACHA20_NONCE_BYTES: usize = 24;
+}
+
 pub mod error {
     pub const AGENT_ADDR_SOCKET_ADDRESS: &str =
         "OCENTRA_PARENT_AGENT_ADDR must be a socket address";
@@ -86,6 +105,10 @@ pub mod error {
     pub const AGENT_SERVICE_RUNS: &str = "agent service runs";
     pub const DEV_LOG_SERIALIZES: &str = "dev log serializes";
     pub const AGENT_EVENT_SERIALIZES: &str = "agent event serializes";
+    pub const JOURNAL_APPENDS: &str = "activity journal appends";
+    pub const JOURNAL_DECRYPTS: &str = "activity journal decrypts";
+    pub const JOURNAL_OPENS: &str = "activity journal opens";
+    pub const JOURNAL_READS: &str = "activity journal reads";
 }
 
 pub mod delimiter {
@@ -93,4 +116,8 @@ pub mod delimiter {
     pub const HYPHEN: char = '-';
     pub const LIST: char = ',';
     pub const NEWLINE: char = '\n';
+}
+
+pub mod byte {
+    pub const NEWLINE: u8 = b'\n';
 }
