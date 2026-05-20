@@ -69,6 +69,14 @@ Watch worker reports from the primary hub checkout:
 npm run hub:watch -- --reports --interval-ms 5000
 ```
 
+Codex lifecycle hooks are configured in `.codex/hooks.json` and execute `npm run --silent hub:hook`, which routes to `scripts/dev/codex-hub-hook.mjs`:
+
+- `SessionStart` and `UserPromptSubmit` add current lane, inbox, lock, and report state to the agent context.
+- `PostToolUse` reminds worker lanes to lock paths when edits create dirty files without hub ownership.
+- `Stop` continues worker turns when unread hub messages still need acknowledgement or dirty worker changes need lock/report handling.
+
+Hooks are not a background daemon and do not wake an idle chat on file changes. They make the next worker turn hub-aware without opening separate watcher consoles. Review/trust project hooks in Codex settings if the app lists them as pending.
+
 Send a hub message to a lane:
 
 ```powershell

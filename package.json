@@ -26,6 +26,7 @@
     "hub:status": "node scripts/dev/hub-mailbox.mjs status",
     "hub:inbox": "node scripts/dev/hub-mailbox.mjs inbox",
     "hub:watch": "node scripts/dev/hub-mailbox.mjs watch",
+    "hub:hook": "node scripts/dev/codex-hub-hook.mjs",
     "hub:message": "node scripts/dev/hub-mailbox.mjs message",
     "hub:ack": "node scripts/dev/hub-mailbox.mjs ack",
     "hub:report": "node scripts/dev/hub-mailbox.mjs report",
