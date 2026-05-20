@@ -1,7 +1,7 @@
 {
   "name": "@ocentra-parent/logging-domain",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "description": "Operational logging contract boundary placeholder.",
   "exports": {
