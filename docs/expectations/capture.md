@@ -27,8 +27,8 @@ Platform scope:
 - Windows network/domain observation is V0.4 and must remain separate from
   process/window capture unless contracts explicitly join them.
 - Browser URL/tab evidence is a separate post-foundation capture slice. It must
-  use a deliberate browser integration boundary and must not be inferred from
-  process/window or network/domain capture alone.
+  use an Ocentra-managed browser integration boundary and must not be inferred
+  from process/window or network/domain capture alone.
 - Other platforms may expose capability status or scaffolded adapters, but must
   not claim capture parity until real OS behavior and tests exist.
 
@@ -50,6 +50,10 @@ Data scope:
   id, adapter id, and capability status. It must not record page body text,
   screenshots, keystrokes, form values, browser secrets, or decrypted HTTPS
   payloads.
+- Browser instances outside the managed Ocentra browser boundary are not URL
+  evidence. They must be reported as unmanaged browser use with explicit
+  capability status and, in later enforcement milestones, may be blocked or
+  terminated according to parent policy.
 
 Trust boundary:
 
@@ -144,8 +148,8 @@ Expected behavior:
 - Identify the active browser tab.
 - Record exact URL, page title, normalized domain, timestamp, evidence id,
   source id, adapter id, and capability status.
-- Report unsupported browser, missing extension or bridge, missing permission,
-  stale evidence, and adapter-error states explicitly.
+- Report unsupported browser, unmanaged browser, missing managed bridge, missing
+  permission, stale evidence, and adapter-error states explicitly.
 - Store browser evidence through journal and query-store paths before portal or
   AI use.
 - Keep browser evidence separate from process/window and network/domain capture

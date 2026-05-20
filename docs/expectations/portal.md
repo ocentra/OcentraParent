@@ -103,6 +103,15 @@ V0.4 network/domain visibility:
   and contracts exist.
 - Keeps unknown attribution visible instead of inventing category labels.
 
+Browser evidence visibility:
+
+- Shows managed-browser URL/tab evidence only when supplied by typed browser
+  evidence.
+- Labels unmanaged browser use as possible bypass instead of pretending exact
+  URL visibility exists.
+- Shows missing bridge, unsupported browser, stale evidence, and permission
+  states as explicit capability status.
+
 V0.5 live activity portal:
 
 - Provides a usable local parent visibility surface with health, activity,

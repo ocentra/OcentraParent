@@ -56,6 +56,14 @@ Definition of done:
 
 The event model is intent-first, not packet-first. We care about normalized activity such as `chrome.exe connected to youtube.com:443`, not raw TCP packets or decrypted HTTPS payloads.
 
+Browser URL visibility is a separate managed-browser boundary. Process/window
+capture can prove that a browser is running, and network/domain capture can show
+destinations, but neither proves the exact tab URL. Ocentra should launch and
+observe approved browsers through an Ocentra-managed local bridge/profile, with
+no browser extension requirement. A normal browser instance outside that managed
+path is treated as unmanaged browser use: observation mode reports it clearly,
+and later enforcement may block or terminate it according to parent policy.
+
 ## Current Repository State
 
 This repository is currently in scaffold-first mode. The committed foundation includes workspace layout, domain boundaries, validation gates, test structure, Rust crate boundaries, local and LAN dev APIs, a minimal Vite portal, MSI release packaging, package-preview scaffolds for every target platform, signed updater scaffolding, dependency/security gates, and SBOM generation.

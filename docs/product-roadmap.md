@@ -288,6 +288,9 @@ Purpose:
 Add the missing browser evidence layer that proves which supported browser tab is
 open, which URL is active, and what page/domain is being observed. This is the
 core product bridge before local AI can make useful page/site safety decisions.
+The preferred boundary is an Ocentra-managed browser launch/profile with a
+local browser-supported bridge. Browser extensions are not the default product
+path for this milestone.
 
 Expectation links:
 
@@ -302,12 +305,15 @@ Deliverables:
 
 - Supported-browser detection contract.
 - Running-browser detection contract.
+- Ocentra-managed browser launch/profile contract.
 - Browser window/tab evidence contract.
 - Active-tab evidence contract.
 - Exact URL, page title, normalized domain, timestamp, evidence id, source id,
   adapter id, and capability status.
-- Browser integration status for unsupported, missing bridge/extension, missing
+- Browser integration status for unsupported, unmanaged browser, missing bridge,
   permission, stale evidence, and adapter-error states.
+- Unmanaged-browser detection event for normal or alternate browsers that are
+  running outside the managed Ocentra browser boundary.
 - Journal/query-store ingest for browser evidence.
 - Portal recent browser activity view.
 - Local AI input references to browser evidence ids.
@@ -317,8 +323,11 @@ Acceptance:
 - The system distinguishes "browser process is active" from "active tab URL is
   known."
 - A supported browser can produce real active-tab URL/title/domain evidence in a
-  local run.
+  local run through an Ocentra-managed browser session.
 - Unsupported or permission-limited browser states are visible and typed.
+- A supported or browser-like process running outside the managed browser
+  boundary is reported as unmanaged browser use and possible bypass, not as a
+  successful URL capture.
 - Browser evidence is stored before portal or AI use.
 - Local AI contracts can reference browser evidence without requiring page body
   content.
@@ -420,6 +429,9 @@ Deliverables:
 - Windows enforcement adapter.
 - Process block/terminate mode where appropriate.
 - Network/domain block mode where appropriate.
+- Managed-browser-only enforcement mode.
+- Unmanaged-browser terminate/block mode for browser-like processes outside the
+  Ocentra-managed browser boundary.
 - Timeout mode.
 - Timer-backed temporary block/unblock flow.
 - Parent override/permission intent.
@@ -431,6 +443,9 @@ Acceptance:
 - Enforcement actions produce journal evidence.
 - Parent can tell what was blocked and why.
 - Blocks are scoped to configured policy.
+- Unmanaged browser termination records the detected process, path/signature
+  evidence where available, policy reason, result, and rollback/unavailable
+  state.
 - Service remains uninstallable and debuggable in dev builds.
 - No hidden anti-tamper claims until explicitly designed.
 

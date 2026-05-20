@@ -30,6 +30,8 @@ Billing in V7 may gate paid product value, but billing must stay outside core sa
 
 - Windows is first for enforcement adapters.
 - Windows enforcement may start with one narrow mode, such as process block/terminate, domain/network block, temporary block, or timeout, depending on the preceding policy slice.
+- Managed-browser-only mode may terminate or block browser-like processes that
+  are outside the Ocentra-managed browser boundary.
 - macOS, Linux, Android, and iOS require platform-specific adapter contracts and proof before claiming enforcement.
 - Web is not an enforcement platform. Web can show status and author intents only.
 
@@ -42,6 +44,9 @@ Enforcement input may include:
 - Target reference, adapter kind, enforcement mode, timer/expiry, and rollback token.
 - Parent approval or override reference where applicable.
 - Platform capability status.
+- For unmanaged browser enforcement: detected process id, process name,
+  executable path/signature/hash where available, managed-browser session id if
+  relevant, and possible-bypass reason.
 
 Enforcement output must include:
 
@@ -50,6 +55,9 @@ Enforcement output must include:
 - Reason code and user-visible explanation reference.
 - Evidence, policy, AI, and parent-action references.
 - Timer event for temporary blocks and time budgets.
+- For unmanaged browser enforcement: whether the process was terminated,
+  blocked, already exited, unavailable, or left running because policy is in
+  observe-only mode.
 - Recovery state when the adapter could not enforce or had to rollback.
 
 ## Trust Boundary
