@@ -1,0 +1,28 @@
+import { decodeDisplayText } from '@ocentra-parent/text-domain/contracts';
+
+export const PortalDetails = {
+  Transport: decodeDisplayText('Transport'),
+  State: decodeDisplayText('State'),
+  Events: decodeDisplayText('Events'),
+  AgentUrl: decodeDisplayText('Agent URL'),
+  ActivityKind: decodeDisplayText('Activity kind'),
+  Database: decodeDisplayText('Database'),
+  Device: decodeDisplayText('Device'),
+  DuplicateEvents: decodeDisplayText('Duplicate events'),
+  EventsIngested: decodeDisplayText('Events ingested'),
+  EventsStored: decodeDisplayText('Events stored'),
+  FirstObserved: decodeDisplayText('First observed'),
+  Host: decodeDisplayText('Host'),
+  LastEvent: decodeDisplayText('Last event'),
+  LastObserved: decodeDisplayText('Last observed'),
+  Observer: decodeDisplayText('Observer'),
+  Platform: decodeDisplayText('Platform'),
+  Reason: decodeDisplayText('Reason'),
+  RowsReturned: decodeDisplayText('Rows returned'),
+  Version: decodeDisplayText('Version'),
+  Schema: decodeDisplayText('Schema'),
+  Status: decodeDisplayText('Status'),
+  Subject: decodeDisplayText('Subject'),
+  SubjectId: decodeDisplayText('Subject ID'),
+  SubjectKind: decodeDisplayText('Subject kind'),
+} as const;
