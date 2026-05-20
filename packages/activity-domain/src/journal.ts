@@ -1,10 +1,11 @@
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-import { ActivityEventIdSchema, ActivityEvidenceDigestSchema, ActivityTimestampSchema } from './primitives';
 import {
   ActivityJournalCiphertextSchema,
   ActivityJournalEntryIdSchema,
   ActivityJournalNonceSchema,
-} from './primitives';
+  ActivityJournalSegmentIdSchema,
+} from './journal-primitives';
+import { ActivityEventIdSchema, ActivityEvidenceDigestSchema, ActivityTimestampSchema } from './primitives';
 
 export const ActivityJournalSchemaVersion = 1;
 
@@ -14,6 +15,7 @@ export const ActivityJournalLineSchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal(ActivityJournalSchemaVersion),
     entryId: ActivityJournalEntryIdSchema,
+    segmentId: ActivityJournalSegmentIdSchema,
     writtenAt: ActivityTimestampSchema,
     eventId: ActivityEventIdSchema,
     cipher: ActivityJournalCipherSchema,
@@ -29,13 +31,23 @@ export const ActivityJournalStatusSchema = withParser(
     encrypted: Schema.Boolean,
     entriesWritten: Schema.Number,
     bytesWritten: Schema.Number,
+    activeSegmentId: ActivityJournalSegmentIdSchema,
+    segmentCount: Schema.Number,
+    rotationMaxBytes: Schema.Number,
     lastEntryId: Schema.Union(ActivityJournalEntryIdSchema, Schema.Null),
+  })
+);
+
+export const ActivityJournalRotationPolicySchema = withParser(
+  Schema.Struct({
+    maxSegmentBytes: Schema.Number,
   })
 );
 
 export type ActivityJournalCipher = Infer<typeof ActivityJournalCipherSchema>;
 export type ActivityJournalLine = Infer<typeof ActivityJournalLineSchema>;
 export type ActivityJournalStatus = Infer<typeof ActivityJournalStatusSchema>;
+export type ActivityJournalRotationPolicy = Infer<typeof ActivityJournalRotationPolicySchema>;
 
 export const ActivityJournalCipher = {
   XChaCha20Poly1305: ActivityJournalCipherSchema.parse('xchacha20poly1305'),

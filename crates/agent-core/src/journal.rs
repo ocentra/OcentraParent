@@ -1,42 +1,61 @@
 use std::{
     fs::{create_dir_all, File, OpenOptions},
     io::{BufRead, BufReader, Write},
-    path::PathBuf,
+    path::{Path, PathBuf},
     time::{SystemTime, UNIX_EPOCH},
 };
 
 use ocentra_parent_agent_protocol::{
-    constants, ActivityEvent, ActivityJournalCipher, ActivityJournalLine, ActivityJournalStatus,
-    ACTIVITY_JOURNAL_SCHEMA_VERSION,
+    constants, ActivityEvent, ActivityJournalCipher, ActivityJournalLine,
+    ActivityJournalRotationPolicy, ActivityJournalStatus, ACTIVITY_JOURNAL_SCHEMA_VERSION,
 };
 
 use crate::{
     journal_crypto::{decrypt_payload, encrypt_payload, JournalKey},
     journal_error::JournalError,
+    journal_rotation::{
+        active_segment_id, default_rotation_policy, rotate_if_needed, segment_paths,
+    },
 };
 
 pub struct ActivityJournal {
     path: PathBuf,
     key: JournalKey,
+    rotation_policy: ActivityJournalRotationPolicy,
     status: ActivityJournalStatus,
 }
 
 impl ActivityJournal {
     pub fn open(path: PathBuf, key: JournalKey) -> Result<Self, JournalError> {
+        Self::open_with_policy(path, key, default_rotation_policy())
+    }
+
+    pub fn open_with_policy(
+        path: PathBuf,
+        key: JournalKey,
+        rotation_policy: ActivityJournalRotationPolicy,
+    ) -> Result<Self, JournalError> {
         if let Some(parent) = path.parent() {
             create_dir_all(parent)?;
         }
         OpenOptions::new().create(true).append(true).open(&path)?;
-        let status = status_from_path(&path)?;
-        Ok(Self { path, key, status })
+        let status = status_from_path(&path, &rotation_policy)?;
+        Ok(Self {
+            path,
+            key,
+            rotation_policy,
+            status,
+        })
     }
 
     pub fn append(&mut self, event: &ActivityEvent) -> Result<ActivityJournalLine, JournalError> {
+        rotate_if_needed(&self.path, &self.rotation_policy)?;
         let plaintext = serde_json::to_vec(event)?;
         let encrypted = encrypt_payload(&self.key, &plaintext)?;
         let line = ActivityJournalLine {
             schema_version: ACTIVITY_JOURNAL_SCHEMA_VERSION,
             entry_id: entry_id_from_nonce(&encrypted.nonce),
+            segment_id: active_segment_id(&self.path)?,
             written_at: journal_timestamp(),
             event_id: event.event_id.clone(),
             cipher: ActivityJournalCipher::XChaCha20Poly1305,
@@ -53,14 +72,12 @@ impl ActivityJournal {
         file.write_all(&[constants::byte::NEWLINE])?;
         file.sync_data()?;
 
-        self.status.entries_written += 1;
-        self.status.bytes_written = file.metadata()?.len();
-        self.status.last_entry_id = Some(line.entry_id.clone());
+        self.status = status_from_path(&self.path, &self.rotation_policy)?;
         Ok(line)
     }
 
     pub fn lines(&self) -> Result<Vec<ActivityJournalLine>, JournalError> {
-        lines_from_path(&self.path)
+        lines_from_paths(&segment_paths(&self.path)?)
     }
 
     pub fn decrypt_line(&self, line: &ActivityJournalLine) -> Result<ActivityEvent, JournalError> {
@@ -73,25 +90,30 @@ impl ActivityJournal {
     }
 }
 
-fn status_from_path(path: &PathBuf) -> Result<ActivityJournalStatus, JournalError> {
-    let lines = lines_from_path(path)?;
+fn status_from_path(
+    path: &Path,
+    rotation_policy: &ActivityJournalRotationPolicy,
+) -> Result<ActivityJournalStatus, JournalError> {
+    let paths = segment_paths(path)?;
+    let lines = lines_from_paths(&paths)?;
     let last_entry_id = lines.last().map(|line| line.entry_id.clone());
-    Ok(ActivityJournalStatus {
-        schema_version: ACTIVITY_JOURNAL_SCHEMA_VERSION,
-        encrypted: true,
-        entries_written: lines.len() as u64,
-        bytes_written: File::open(path)?.metadata()?.len(),
+    crate::journal_rotation::status_from_path(
+        path,
+        rotation_policy,
+        lines.len() as u64,
         last_entry_id,
-    })
+    )
 }
 
-fn lines_from_path(path: &PathBuf) -> Result<Vec<ActivityJournalLine>, JournalError> {
-    let reader = BufReader::new(File::open(path)?);
+fn lines_from_paths(paths: &[PathBuf]) -> Result<Vec<ActivityJournalLine>, JournalError> {
     let mut lines = Vec::new();
-    for line in reader.lines() {
-        let line = line?;
-        if !line.is_empty() {
-            lines.push(serde_json::from_str(&line)?);
+    for path in paths {
+        let reader = BufReader::new(File::open(path)?);
+        for line in reader.lines() {
+            let line = line?;
+            if !line.is_empty() {
+                lines.push(serde_json::from_str(&line)?);
+            }
         }
     }
     Ok(lines)

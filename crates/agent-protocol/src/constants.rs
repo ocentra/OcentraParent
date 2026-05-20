@@ -45,6 +45,7 @@ pub mod field {
     pub const ENTRIES: &str = "entries";
     pub const ENTRY_ID: &str = "entryId";
     pub const EVENT_ID: &str = "eventId";
+    pub const MAX_SEGMENT_BYTES: &str = "maxSegmentBytes";
     pub const MODE: &str = "mode";
     pub const NETWORK_MODE: &str = "networkMode";
     pub const NONCE: &str = "nonce";
@@ -55,6 +56,7 @@ pub mod field {
     pub const REASON: &str = "reason";
     pub const REMOTE_SYNC: &str = "remoteSync";
     pub const SCHEMA_VERSION: &str = "schemaVersion";
+    pub const SEGMENT_ID: &str = "segmentId";
     pub const TRANSPORT: &str = "transport";
     pub const WRITTEN_AT: &str = "writtenAt";
 }
@@ -86,12 +88,16 @@ pub mod dev_log_message {
 }
 
 pub mod journal {
+    pub const DEFAULT_MAX_SEGMENT_BYTES: u64 = 1048576;
     pub const ENTRY_ID_PREFIX: &str = "journal-entry-";
     pub const FILE_EXTENSION: &str = "ndjson";
+    pub const SEGMENT_ID_PREFIX: &str = "journal-segment-";
     pub const TEST_FILE_PREFIX: &str = "ocentra-parent-journal-test-";
     pub const TEST_APPEND_SUFFIX: &str = "append";
     pub const TEST_REPLAY_SUFFIX: &str = "replay";
+    pub const TEST_ROTATION_SUFFIX: &str = "rotation";
     pub const TEST_TAMPER_SUFFIX: &str = "tamper";
+    pub const TEST_ROTATION_BYTES: u64 = 1;
     pub const XCHACHA20_NONCE_BYTES: usize = 24;
 }
 

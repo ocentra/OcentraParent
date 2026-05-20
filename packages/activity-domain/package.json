@@ -17,6 +17,10 @@
       "import": "./dist/journal.js",
       "types": "./dist/journal.d.ts"
     },
+    "./journal-primitives": {
+      "import": "./dist/journal-primitives.js",
+      "types": "./dist/journal-primitives.d.ts"
+    },
     "./package-info": {
       "import": "./dist/package-info.js",
       "types": "./dist/package-info.d.ts"
