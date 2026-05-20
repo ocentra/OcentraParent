@@ -5,6 +5,11 @@ what the child is visibly doing when browser, app/game, and network evidence are
 ambiguous, but it must be local-first, disclosed, encrypted while queued, and
 summarized into typed evidence before policy or enforcement uses it.
 
+This feature is parent-controlled. Ocentra provides the capability, local privacy
+boundary, schema validation, deletion/audit trail, and portal controls; the
+parent decides whether to enable it, how often it runs, which triggers are active,
+and what household policy should happen from the resulting evidence.
+
 ## Outcome Bar
 
 Parent outcome:
@@ -14,6 +19,8 @@ Parent outcome:
   screen analysis supports that claim.
 - A parent can see a local text/JSON summary, confidence, source evidence
   references, and policy result.
+- A parent can enable or disable screen analysis, choose supported cadence and
+  trigger options, and see the current setting before it affects policy.
 - A parent can tell whether the original image was deleted after analysis,
   expired without analysis, or retained only because an explicit future retention
   policy allows it.
@@ -29,6 +36,8 @@ Child-device outcome:
   processing.
 - The Rust agent applies policy only after validating structured AI output and
   resolving parent rules.
+- The Rust agent treats portal settings as typed parent intent; it does not
+  silently enable screen capture because the code path exists.
 
 ## Data Scope
 
@@ -43,7 +52,8 @@ Screen evidence may record:
   references.
 - Image digest/hash and deletion status after processing.
 
-Screen evidence must not record unless a later milestone explicitly approves it:
+Screen evidence must not record these by default. They require a later explicit
+parent-controlled feature and matching technical/privacy boundary:
 
 - Permanent raw screenshot retention.
 - Cloud/API AI upload of screenshots.
@@ -65,6 +75,8 @@ Screen evidence must not record unless a later milestone explicitly approves it:
   consume it.
 - Parent rules and deterministic policy decide whether to allow, warn, block,
   time-limit, ask-parent, or do nothing.
+- Ocentra-owned defaults may provide conservative capability states and category
+  labels, but household actions come from parent-authored rules.
 - Parent portal displays summaries, decision evidence, and disclosure; it does
   not capture screenshots.
 
@@ -79,8 +91,11 @@ Screen evidence must not record unless a later milestone explicitly approves it:
 - Policy target contract for visible activity categories and screen-derived risk
   signals.
 - Enforcement handoff from validated policy decisions only.
+- Parent-control contracts for enablement, cadence, triggers, strict mode,
+  retention/deletion behavior, and dry-run versus enforcement.
 - Portal summary view that does not expose raw images by default.
-- Disclosure copy that accurately explains local-only screen analysis.
+- Disclosure copy that accurately explains local-only, parent-controlled screen
+  analysis.
 
 ## Runtime Flow
 
@@ -126,6 +141,8 @@ The common local screen-analysis path should be:
 - Strict mode may allow one-minute cadence when the parent explicitly enables it.
 - Triggered captures may be more useful than fixed cadence for foreground window,
   managed URL, app/game, or unusual-network changes.
+- Parent settings decide whether cadence capture, trigger capture, strict mode,
+  and policy use are enabled.
 - Temporary images are encrypted at rest while queued.
 - Temporary images are deleted after successful local analysis.
 - Failed jobs retry only within a short TTL, then delete the image and record
@@ -139,12 +156,15 @@ The common local screen-analysis path should be:
   without sending the image off the child PC.
 - The stored summary has schema-valid categories, confidence, evidence refs, and
   deletion state.
+- The portal can show current parent-selected settings, who changed them, and
+  whether screen analysis is observe-only, dry-run, or enforcement-eligible.
 - Policy can consume screen-derived categories in dry-run without enforcing.
 - Enforcement, when enabled, requires a typed policy decision and cannot act on
   raw AI text.
 - Low-confidence, invalid, failed, expired, or unavailable analysis produces
   unknown, warn, ask-parent, or no-op according to parent rules.
-- Parent-facing UI/docs disclose local screen analysis clearly.
+- Parent-facing UI/docs present local screen analysis as an explicit
+  parent-controlled option, not a hidden default.
 
 ## Done Signal
 

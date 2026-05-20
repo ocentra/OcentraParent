@@ -4,6 +4,10 @@ Enforcement features change device behavior and therefore need a higher bar.
 
 Only the child-device agent performs enforcement. Parent surfaces may send typed rules, approvals, overrides, or requests, but the agent validates the request and executes through a platform adapter.
 
+Enforcement exists to carry out parent-authored household rules. Ocentra provides
+the adapter, validation, audit trail, rollback behavior, and clear status; it
+does not silently decide which lawful household activities should be blocked.
+
 ## Roadmap Scope
 
 V0.8 starts enforcement after local evidence, policy decisions, and AI decision contracts are trusted. Enforcement must begin with simple, scoped local decisions and must produce auditable evidence.
@@ -18,6 +22,7 @@ Billing in V7 may gate paid product value, but billing must stay outside core sa
 - Parent can see the policy decision, local AI reference when applicable, evidence references, adapter result, timer state, and rollback/unavailable state.
 - Parent can override or approve through typed intents that are validated by the child-device agent.
 - Parent can distinguish "would enforce in dry-run" from "actually enforced".
+- Parent can see which parent-authored rule caused an enforcement action.
 
 ## Child-Device Outcome
 
@@ -167,6 +172,8 @@ Before an adapter can change device behavior:
 - Do not execute enforcement, timers, rollback, or scripts from the parent portal.
 - Do not claim persistence-hardening without explicit product/security design.
 - Do not block without an auditable policy decision.
+- Do not block from a category label alone without a matching parent-authored
+  rule.
 - Do not put Stripe or billing provider logic inside enforcement adapters.
 
 ## Done Signal

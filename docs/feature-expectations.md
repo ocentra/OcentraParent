@@ -7,6 +7,8 @@ This is the entry point for feature expectations. It tells future AI agents and 
 Every feature must move Ocentra Parent toward a trustworthy family-safety product:
 
 - Parents get clear, useful visibility and control.
+- Parents own household rules. Ocentra provides transparent options, typed
+  controls, evidence, and audit trails instead of hard-coded value judgments.
 - Child-device evidence is real, typed, timestamped, and auditable.
 - Data is protected locally before it is queried, synced, classified, or acted on.
 - Product claims never exceed what the implementation can prove.

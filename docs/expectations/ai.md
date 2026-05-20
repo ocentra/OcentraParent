@@ -4,6 +4,10 @@ AI is a child-device safety layer first. The normal safety evaluator runs locall
 
 The parent portal does not run child-safety AI. It authors rules, approvals, and questions; the child-device agent validates local context, runs the local evaluator, and converts model output into typed decisions.
 
+AI classification is evidence, not household authority. Ocentra can provide local
+models, categories, confidence, and explanations, but parent-authored policy
+decides whether a category becomes allow, warn, time-limit, ask-parent, or block.
+
 TabAgent and TabAgentServer are reference systems for the future local AI runtime, browser evidence capture, native bridge, model cache, execution-provider, memory, and knowledge-graph direction. The detailed reuse boundary lives in [Local AI And TabAgent Reuse](../architecture/local-ai-and-tabagent-reuse.md). Reuse must happen behind Ocentra Parent-owned contracts; TabAgent must not redefine the parent portal or child-agent safety boundary.
 
 ## Roadmap Scope
@@ -30,6 +34,8 @@ V4 may add API AI parent assistant and advanced explanation. V4 cannot replace l
   files, windows, or browser state itself.
 - The local evaluator returns a schema-valid result that policy can deterministically consume.
 - The child-device agent records the local AI result, its model/runtime status reference, evidence references, and degraded state before policy or enforcement acts on it.
+- The local evaluator cannot turn a category label into enforcement without a
+  matching parent-authored policy rule.
 
 ## Platform Scope
 

@@ -13,6 +13,8 @@ Parent outcome:
   source attribution.
 - A parent can tell when capture is unavailable, disabled, degraded, or only
   partially supported on the current platform.
+- A parent can explicitly enable, disable, and review sensitive capture modes
+  such as screen analysis through typed portal controls.
 
 Child-device outcome:
 
@@ -67,8 +69,8 @@ Data scope:
 - Screen evidence capture, when enabled, may record encrypted temporary image
   queue jobs, local OCR/vision summaries, categories, confidence, source evidence
   references, image digest, and deletion status. Long-term evidence should be the
-  structured summary, not permanent screenshots, unless a later milestone
-  explicitly approves retention.
+  structured summary, not permanent screenshots, unless a later milestone adds an
+  explicit parent-controlled retention feature.
 
 Trust boundary:
 
@@ -78,6 +80,8 @@ Trust boundary:
   service responses.
 - The portal requests and displays capture status and evidence; it does not run
   capture adapters or OS commands.
+- Sensitive capture modes are disabled or observe-only until a parent enables
+  them through typed controls that the child-device agent validates.
 
 Contract boundary:
 
@@ -115,6 +119,8 @@ Contract boundary:
 - Tests prove mapping from adapter observation to activity event.
 - Service remains responsive while capture is active.
 - Capture can be disabled in dev and reports that state clearly.
+- Sensitive capture modes show parent-selected settings and capability status
+  rather than pretending they are always active.
 - Capture failures do not crash the service.
 - Platform claims are scoped to real tested behavior.
 - Captured page, video-link, app, domain, process, or window context is explicit

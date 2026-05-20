@@ -16,6 +16,11 @@ Ocentra Parent helps parents understand and guide what children do on connected 
 
 The long-term product is an agentic family-safety system. Child devices run local agents with local AI safety evaluation, parent surfaces show visibility and controls, and API AI may later help with richer parent reports and remote summaries. The parent surface is a rule-setting, approval, and observability layer; it does not execute capture, AI, scripts, policy evaluation, or enforcement. The child-device safety decision path stays local: capture facts, store them safely, query them locally, then run local AI and typed policy decisions before blocking, timing, asking the parent, syncing, or notifying.
 
+Ocentra does not decide the household rulebook. The product provides transparent
+capabilities, local-first data handling, typed controls, and audit trails. Parents
+decide which observation modes, schedules, categories, limits, and enforcement
+actions are appropriate for their child and home.
+
 ## Current Position
 
 We are currently in the evidence storage track.
@@ -59,6 +64,8 @@ Rules:
 - Portal code talks to typed service/query APIs, not directly to SQLite files.
 - Portal code authors rules, approvals, and visibility requests; child-device agents validate and execute them.
 - Portal code must not run OS commands, capture adapters, AI safety evaluation, policy evaluation, enforcement, timers, or scripts.
+- Parent-authored rules decide household outcomes. Product defaults and category
+  labels are evidence and control aids, not hidden Ocentra value judgments.
 - Child-device local AI is the required safety evaluator for page, video-link, app, domain, and activity context.
 - Local AI receives typed evidence plus parent rules and returns typed decisions such as allow, warn, block, time-limit, or ask-parent.
 - Enforcement adapters act only on schema-valid decisions and record audit events.
@@ -414,7 +421,8 @@ Deliverables:
   and unusual network changes.
 - Policy target support for visible activity categories and screen-derived risk
   signals.
-- Parent-visible disclosure and summary view.
+- Parent-controlled enablement, cadence, trigger, retention/deletion settings,
+  disclosure, and summary view.
 
 Acceptance:
 
@@ -423,7 +431,9 @@ Acceptance:
   analysis or TTL expiry.
 - Rust validates AI JSON before journal/query ingest or policy use.
 - Enforcement acts only from typed policy decisions, not raw AI text.
-- Parent-facing UI/docs disclose local screen analysis clearly.
+- Parent-facing UI/docs show whether screen analysis is enabled, who enabled it,
+  the current cadence/triggers, retention/deletion status, and resulting policy
+  decisions.
 
 ### V0.6 Local AI Safety Decision Contracts
 

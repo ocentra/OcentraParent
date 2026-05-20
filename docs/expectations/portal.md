@@ -7,6 +7,11 @@ execute child-device work. It sends typed queries, rule updates, approval
 decisions, and visibility requests to the child-device agent, then renders
 validated events and read models returned by that agent.
 
+The portal is also where sensitive capabilities become parent-controlled product
+options. It should show what is enabled, disabled, observe-only, dry-run, or
+enforcement-eligible, and it should make clear that household rules come from the
+parent, not hidden Ocentra defaults.
+
 ## Outcome Bar
 
 Parent outcome:
@@ -16,6 +21,8 @@ Parent outcome:
   the connected child-device agent.
 - The portal makes it clear when data is live, stale, degraded, unavailable, or
   out of scope.
+- The portal lets a parent review and change supported observation, cadence,
+  trigger, retention, rule, and enforcement settings through typed intents.
 
 Child-device outcome:
 
@@ -65,6 +72,8 @@ Contract boundary:
 - Copy/debug affordance for sharing current result, connection state, and recent
   typed diagnostics.
 - Explicit rule/query/approval intent contracts for any parent action.
+- Explicit parent-control views for sensitive features that show current
+  setting, actor, effective device/child, and last result.
 - Playwright coverage when UI behavior changes.
 
 ## Acceptance
@@ -117,8 +126,12 @@ Screen evidence visibility:
 - Shows local screen-analysis summaries, confidence, categories, source evidence
   refs, and policy result without exposing raw images by default.
 - Shows whether the temporary image was deleted, expired, failed, or unavailable.
-- Clearly discloses that local screen analysis may run on the child device and
-  that images do not leave the child PC under this feature.
+- Shows whether screen analysis is enabled, disabled, observe-only, dry-run, or
+  enforcement-eligible, plus current cadence, trigger, and retention/deletion
+  settings.
+- Clearly explains that local screen analysis runs on the child device only when
+  parent-controlled settings enable it, and that images do not leave the child
+  PC under this feature.
 
 V0.5 live activity portal:
 
@@ -146,6 +159,7 @@ V0.5 live activity portal:
   evaluation, enforcement, timers, or scripts in the portal.
 - Do not let portal code become the source of truth for whether a child activity
   is allowed or blocked.
+- Do not hide sensitive capability settings behind developer defaults.
 - Do not create a polished marketing dashboard before the underlying data path
   exists.
 - Do not show fake activity data as if it came from the child device.

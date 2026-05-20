@@ -19,6 +19,11 @@ Parents should not have to choose between blind trust and invasive guessing. Oce
 
 The long-term product is an agentic safety system: local device agents gather evidence, run local AI safety evaluation, enforce typed decisions, and let parent portals expose control and visibility. The child-device safety decision path is local-only: API AI may assist with richer parent reports, unknown classification, and remote summaries later, but it does not sit in the normal blocking path. Parent surfaces author rules and decisions for devices to consume; devices validate and execute those rules locally.
 
+Product posture is parent-controlled, not Ocentra-moralized. Ocentra provides
+transparent capabilities, honest status, typed rules, local privacy boundaries,
+and auditable outcomes. Parents decide which observation modes, schedules,
+categories, time limits, and enforcement actions fit their child and household.
+
 The detailed product roadmap lives in [`docs/product-roadmap.md`](docs/product-roadmap.md). Feature acceptance expectations live in [`docs/feature-expectations.md`](docs/feature-expectations.md).
 
 ## Architecture Direction
@@ -78,12 +83,12 @@ It must not rely on decrypted HTTPS payloads or raw packet dumps as normal
 evidence, and AI must not sniff traffic or invent what happened inside encrypted
 connections.
 
-Screen evidence is local-only and high sensitivity. If enabled, the Rust agent
-may queue encrypted temporary screenshots on a configurable cadence or trigger,
-process them with a local OCR/vision model, store only typed summaries and
-evidence references, then delete the image. Screenshots do not leave the child PC
-under this feature, and the product must disclose the local screen-analysis
-behavior clearly.
+Screen evidence is local-only and high sensitivity. If a parent enables it, the
+Rust agent may queue encrypted temporary screenshots on a configurable cadence or
+trigger, process them with a local OCR/vision model, store only typed summaries
+and evidence references, then delete the image. Screenshots do not leave the
+child PC under this feature. The portal must present this as an explicit
+parent-controlled option with clear current settings, status, and audit history.
 
 ## Current Repository State
 

@@ -4,6 +4,11 @@ Policy features define what parents want the local child-device AI evaluator to 
 
 Parent surfaces author policy rules and expectations. The child-device agent owns policy validation, conflict resolution, local AI integration, timers, dry-run previews, and enforcement handoff.
 
+Ocentra does not hard-code the household's value judgments. It provides typed
+targets, evidence categories, preview behavior, and safe execution boundaries;
+parents decide which categories, apps, sites, schedules, and actions apply to
+their child.
+
 ## Roadmap Scope
 
 V0.6 defines parent, child, device, rule, schedule, permission-request, local AI decision, and policy decision contracts.
@@ -15,6 +20,8 @@ V5 turns rule management into a parent-facing product with family setup, child p
 ## Parent Outcome
 
 - Parent can configure common rules for apps, sites, domains, categories, schedules, time budgets, permission requests, and overrides without editing files.
+- Parent can choose whether a category is allowed, warned, time-limited,
+  ask-parent, or blocked for a child profile and schedule.
 - Parent can preview what a rule would do before enabling enforcement.
 - Parent can see which evidence, parent rule, local AI result, schedule, and conflict-resolution reason produced a decision.
 - Parent can approve, deny, or time-box ask-parent requests through typed approvals that the child-device agent validates locally.
@@ -76,6 +83,8 @@ The evaluator must define and test conflict resolution before enforcement is pos
 
 - Explicit parent block or time-limit rules beat ambiguous local AI allow output.
 - Explicit parent allow can permit a known safe target unless a stricter safety or legal policy says otherwise.
+- Category labels by themselves do not enforce anything; action requires a
+  matching parent-authored rule.
 - Ask-parent decisions are used when rule intent is clear but parent approval is required.
 - Unknown is used when evidence, rule, or AI state is insufficient for a safe decision.
 - Time windows and active timers must be evaluated from the child-device clock and recorded with the decision.
@@ -121,6 +130,8 @@ The evaluator must define and test conflict resolution before enforcement is pos
 - Parent-facing explanation is stable and testable.
 - Dry-run mode can explain what would happen without enforcing it.
 - Explicit parent rules override ambiguous AI output.
+- Evidence categories are labels for parent rules, not hidden product-level
+  blocks.
 
 ## Validation Gates
 
