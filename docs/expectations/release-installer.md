@@ -16,6 +16,9 @@ Release features are product features because parents need install/update paths 
 
 - `main` builds previews and does not publish production releases.
 - `production` publishes only by explicit promotion.
+- Feature branches may be pushed regularly but do not publish product releases.
+- Final PRs into `main` are CI integration events, not release events.
+- Product releases can intentionally batch multiple completed milestones.
 - Installer paths are documented.
 - Update paths reject unsigned or incorrectly signed manifests once signing is enabled.
 - Package claims match real artifacts.
@@ -25,8 +28,9 @@ Release features are product features because parents need install/update paths 
 
 - Do not claim store distribution, notarization, or full signing before credentials and workflows exist.
 - Do not publish production releases from `main`.
+- Do not treat every milestone merge as a product release.
 - Do not bypass update signature checks in production code.
 
 ## Done Signal
 
-The target platform has a real install/update/uninstall path, CI or local packaging proves the artifact, and docs describe the current production boundary honestly.
+The target platform has a real install/update/uninstall path, CI or local packaging proves the artifact, and docs describe the current branch, PR, and production release boundary honestly.

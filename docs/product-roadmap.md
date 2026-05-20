@@ -62,22 +62,25 @@ Rules:
 
 ## Execution Standard
 
-Each product slice should be small and real.
+Each product slice should be small and real, but roadmap milestones such as V0.1, V0.2, and V0.3 are feature-branch units, not automatic product releases.
 
 Slice workflow:
 
 - Start from clean `main`.
 - Create a `codex/<slice-slug>` branch.
-- Build the smallest useful production slice.
+- Build the smallest useful production slice inside that branch.
 - Use focused local gates while developing.
+- Commit locally as meaningful sub-slices are completed.
+- Push the feature branch regularly when useful for backup, review, or remote CI signal.
+- Do not treat every local sub-slice as a separate product release.
+- Open or refresh the PR when the feature/milestone is ready to integrate.
 - Run full local validation and build before PR merge.
-- Commit locally after the slice is validated.
-- Push PR branch when the slice is ready for CI.
-- Fix CI failures on the same branch.
+- Use PR and `main` CI as integration gates, not production release gates.
+- Fix PR CI failures on the same branch.
 - Squash merge green PRs to `main`.
 - Pull clean `main` before starting the next slice.
 
-Production releases stay manual. Do not push or merge to `production` unless explicitly requested.
+Production releases stay manual. Do not push or merge to `production` unless explicitly requested. It is valid to merge multiple milestones to `main` first, then create a product release later when requested for real install/download testing.
 
 Validation expectations:
 
@@ -691,11 +694,27 @@ Main branch:
 - CI integration branch.
 - Builds and validates package previews.
 - Does not publish production releases.
+- Can contain multiple completed milestones before any product release is made.
+
+Feature branches:
+
+- Own active milestone work such as V0.2 evidence storage or V0.3 Windows capture.
+- May contain several local commits.
+- May be pushed regularly for backup, review, or remote CI signal.
+- Should open a final PR when the milestone is ready to merge to `main`.
+- Should not publish product releases.
 
 Production branch:
 
 - Manual promotion only.
 - Publishes versioned releases when secrets and version tags are ready.
+- Used only when explicitly requested for a real product release or install/download test.
+
+Product release cadence:
+
+- Product releases are deliberate checkpoints, not every merge to `main`.
+- A release may include one milestone or a batch of milestones, such as V0.1 through V0.5, depending on what is useful to install and test.
+- When a release is requested, first confirm `main` is green, versioning is intentional, release notes match actual behavior, and production signing/update requirements are satisfied or explicitly scoped.
 
 Local development:
 

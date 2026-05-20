@@ -9,6 +9,7 @@ When an AI agent starts a feature, it should identify:
 - Current branch and worktree cleanliness.
 - Relevant roadmap milestone.
 - Feature expectation sections that apply.
+- Whether the current work is local-only, pushed feature branch work, PR integration work, or explicit product release work.
 - Existing contracts and tests.
 - Exact focused gates for iteration.
 - Final gate before merge.
@@ -24,6 +25,7 @@ When an AI agent finishes a feature, it should report:
 - What remains intentionally out of scope.
 - Exact validations run.
 - Current git state.
+- Whether anything was pushed, PR'd, merged, or released.
 
 ## Blocker Handling
 

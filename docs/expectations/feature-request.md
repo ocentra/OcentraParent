@@ -10,6 +10,7 @@ Every feature request should make these expectations explicit before implementat
 - Data scope: what data is observed, stored, queried, synced, or displayed.
 - Trust boundary: local-only, LAN, cloud-routed, authenticated parent, unauthenticated dev, or installer/update path.
 - Contract boundary: TypeScript domain, Rust protocol, service command/event, portal UI, release asset, or external provider.
+- Delivery boundary: feature branch, final PR to `main`, or explicit product release request.
 - Success evidence: exact behavior that proves the feature works.
 - Failure behavior: what happens when permissions, OS APIs, network, storage, cloud, provider, or model calls fail.
 - Non-goals: what the feature must not claim or implement yet.
@@ -25,4 +26,4 @@ Every feature request should make these expectations explicit before implementat
 
 ## Done Signal
 
-A feature request is ready for implementation when an agent can name the relevant expectation files, the product claim, the real behavior to prove, and the validation gate without guessing.
+A feature request is ready for implementation when an agent can name the relevant expectation files, the product claim, the real behavior to prove, the branch/release boundary, and the validation gate without guessing.
