@@ -259,6 +259,7 @@ Not implemented yet:
 - [Browser URL And Tab Evidence Capture Architecture](docs/architecture/browser-url-tab-evidence-capture.md)
 - [App And Game Evidence Expectations](docs/expectations/app-game-evidence.md)
 - [Network Flow Evidence Expectations](docs/expectations/network-flow-evidence.md)
+- [Network Flow Evidence Capture Architecture](docs/architecture/network-flow-evidence-capture.md)
 - [Screen Evidence Analysis Expectations](docs/expectations/screen-evidence.md)
 - [Policy Feature Expectations](docs/expectations/policy.md)
 - [Enforcement Feature Expectations](docs/expectations/enforcement.md)

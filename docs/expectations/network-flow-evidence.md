@@ -5,6 +5,9 @@ app, or window evidence alone. The Rust agent may observe network metadata,
 derive summaries, and give AI/policy an evidence-backed digest. AI does not sniff
 traffic, inspect packets, or decrypt content.
 
+The focused implementation architecture lives in
+[Network Flow Evidence Capture Architecture](../architecture/network-flow-evidence-capture.md).
+
 ## Outcome Bar
 
 Parent outcome:
