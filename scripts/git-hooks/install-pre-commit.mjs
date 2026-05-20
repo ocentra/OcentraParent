@@ -1,8 +1,8 @@
+import { execFileSync } from 'node:child_process';
 import { chmodSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { dirname, resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
 
-const hookDir = join(process.cwd(), '.git', 'hooks');
-const hookPath = join(hookDir, 'pre-commit');
 const hook = `#!/bin/sh
 node scripts/security/scan-staged-secrets.mjs
 if [ $? -ne 0 ]; then
@@ -43,10 +43,39 @@ fi
 exit 0
 `;
 
-if (!existsSync(hookDir)) {
-  mkdirSync(hookDir, { recursive: true });
+export function resolvePreCommitHookPath(repoRoot = process.cwd()) {
+  const topLevel = git(repoRoot, ['rev-parse', '--show-toplevel']);
+  const hookPath = git(topLevel, ['rev-parse', '--git-path', 'hooks/pre-commit']);
+  return resolve(topLevel, hookPath);
 }
 
-writeFileSync(hookPath, hook, 'utf8');
-chmodSync(hookPath, 0o755);
-console.log(`[validation] Installed ${hookPath}`);
+export function installPreCommitHook(repoRoot = process.cwd()) {
+  const hookPath = resolvePreCommitHookPath(repoRoot);
+  const hookDir = dirname(hookPath);
+
+  if (!existsSync(hookDir)) {
+    mkdirSync(hookDir, { recursive: true });
+  }
+
+  writeFileSync(hookPath, hook, 'utf8');
+  chmodSync(hookPath, 0o755);
+  return hookPath;
+}
+
+function git(cwd, args) {
+  return execFileSync('git', args, {
+    cwd,
+    encoding: 'utf8',
+    env: cleanGitEnv(),
+    stdio: ['ignore', 'pipe', 'pipe'],
+  }).trim();
+}
+
+function cleanGitEnv() {
+  return Object.fromEntries(Object.entries(process.env).filter(([key]) => !key.startsWith('GIT_')));
+}
+
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+  const hookPath = installPreCommitHook();
+  console.log(`[validation] Installed ${hookPath}`);
+}

@@ -21,7 +21,20 @@ function runScanner(cwd, args = []) {
   return spawnSync(process.execPath, [scannerPath, ...args], {
     cwd,
     encoding: 'utf8',
+    env: cleanGitEnv(),
   });
+}
+
+function runGit(cwd, args) {
+  return spawnSync('git', args, {
+    cwd,
+    encoding: 'utf8',
+    env: cleanGitEnv(),
+  });
+}
+
+function cleanGitEnv() {
+  return Object.fromEntries(Object.entries(process.env).filter(([key]) => !key.startsWith('GIT_')));
 }
 
 test('repository secret scan rejects forbidden sensitive filenames', () => {
@@ -37,9 +50,9 @@ test('repository secret scan rejects forbidden sensitive filenames', () => {
 
 test('staged secret scan rejects forbidden sensitive filenames', () => {
   withTempRepo((root) => {
-    assert.equal(spawnSync('git', ['init'], { cwd: root }).status, 0);
+    assert.equal(runGit(root, ['init']).status, 0);
     writeFileSync(join(root, '.env'), 'OCENTRA_PARENT_TOKEN=local-only\n', 'utf8');
-    assert.equal(spawnSync('git', ['add', '.env'], { cwd: root }).status, 0);
+    assert.equal(runGit(root, ['add', '.env']).status, 0);
 
     const result = runScanner(root);
 

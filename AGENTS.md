@@ -20,7 +20,7 @@ When writing or changing tests, also read `.ocentra-ai/rules/ocentra-parent-test
 
 When changing multiple layers, use `.ocentra-ai/skills/ocentra-parent-rule-router/SKILL.md` as the lookup workflow instead of loading every rule file at once.
 
-Local dev ports are fixed: Rust agent on `127.0.0.1:4477`, Vite portal on `127.0.0.1:4478`. LAN dev uses the same ports with explicit `npm run dev:lan` binding and origin allowlists. Use managed scripts; they reclaim only stale Ocentra Parent processes and must not take over Ocentra Games editor ports.
+Local dev ports default to fixed values: Rust agent on `127.0.0.1:4477`, Vite portal on `127.0.0.1:4478`. Worker lanes that need visible demos can set `OCENTRA_PARENT_AGENT_PORT` and `OCENTRA_PARENT_PORTAL_PORT` before `npm run dev`, `npm run dev:agent`, `npm run dev:portal`, or `npm run dev:lan`; for example codex-b uses agent `4677` and portal `4678`. LAN dev uses the same selected ports with explicit `npm run dev:lan` binding and origin allowlists. Use managed scripts; they reclaim only stale Ocentra Parent processes and must not take over Ocentra Games editor ports.
 
 ## Non-Negotiable Boundaries
 

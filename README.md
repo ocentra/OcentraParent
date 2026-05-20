@@ -184,6 +184,16 @@ Local development uses fixed Ocentra Parent ports:
 
 Use `npm run dev`, `npm run dev:agent`, or `npm run dev:portal` so `scripts/dev/*` can reclaim only stale Ocentra Parent processes. Do not run the portal on generic Vite ports like `5173` or the Ocentra Games asset-editor port `5174`.
 
+Parallel worker lanes can override those defaults without rewriting commands:
+
+```powershell
+$env:OCENTRA_PARENT_AGENT_PORT = "4677"
+$env:OCENTRA_PARENT_PORTAL_PORT = "4678"
+cmd /c npm run dev
+```
+
+With those overrides, the portal opens at `http://127.0.0.1:4678/#/commands` and connects to `ws://127.0.0.1:4677/api/dev/ws`.
+
 ## LAN Dev Loop
 
 Run the same scaffold over your local network:
@@ -194,10 +204,10 @@ cmd /c npm run dev:lan
 
 LAN mode keeps the same ports but binds both dev surfaces to the network:
 
-- Rust agent service bind: `0.0.0.0:4477`
-- Vite portal bind: `0.0.0.0:4478`
-- Portal URL from another device: `http://<this-pc-lan-ip>:4478/#/commands`
-- Agent WebSocket URL from the portal: `ws://<this-pc-lan-ip>:4477/api/dev/ws`
+- Rust agent service bind: `0.0.0.0:4477` by default, or `OCENTRA_PARENT_AGENT_PORT`
+- Vite portal bind: `0.0.0.0:4478` by default, or `OCENTRA_PARENT_PORTAL_PORT`
+- Portal URL from another device: `http://<this-pc-lan-ip>:4478/#/commands` by default
+- Agent WebSocket URL from the portal: `ws://<this-pc-lan-ip>:4477/api/dev/ws` by default
 
 The managed scripts auto-detect the first non-internal IPv4 address. If Windows has multiple active network adapters, set the host explicitly:
 

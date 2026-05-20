@@ -39,6 +39,55 @@ test('LAN dev mode binds services to the network without changing fixed ports', 
   assert.deepEqual(config.allowedOrigins, createAllowedOrigins('192.168.50.25'));
 });
 
+test('dev port config supports explicit lane port overrides', () => {
+  const config = resolveParentDevNetworkConfig(
+    {
+      [ParentDevEnv.AgentPort]: '4677',
+      [ParentDevEnv.PortalPort]: '4678',
+    },
+    {},
+    []
+  );
+
+  assert.equal(config.mode, ParentDevNetworkMode.Loopback);
+  assert.equal(config.agentPort, 4677);
+  assert.equal(config.portalPort, 4678);
+  assert.equal(config.agentAddress, '127.0.0.1:4677');
+  assert.equal(config.agentHealthUrl, 'http://127.0.0.1:4677/health');
+  assert.equal(config.agentWebSocketUrl, 'ws://127.0.0.1:4677/api/dev/ws');
+  assert.equal(config.portalCommandsUrl, 'http://127.0.0.1:4678/#/commands');
+  assert.deepEqual(config.allowedOrigins, ['http://127.0.0.1:4678', 'http://localhost:4678']);
+});
+
+test('dev port config uses portal override for LAN origins', () => {
+  const config = resolveParentDevNetworkConfig(
+    {
+      [ParentDevEnv.DevNetworkMode]: ParentDevNetworkMode.Lan,
+      [ParentDevEnv.AgentPort]: '4777',
+      [ParentDevEnv.PortalPort]: '4778',
+    },
+    { Ethernet: [{ family: 'IPv4', internal: false, address: '192.168.50.25' }] },
+    []
+  );
+
+  assert.equal(config.agentAddress, '0.0.0.0:4777');
+  assert.equal(config.agentWebSocketUrl, 'ws://192.168.50.25:4777/api/dev/ws');
+  assert.equal(config.portalCommandsUrl, 'http://192.168.50.25:4778/#/commands');
+  assert.deepEqual(config.allowedOrigins, [
+    'http://127.0.0.1:4778',
+    'http://localhost:4778',
+    'http://192.168.50.25:4778',
+  ]);
+});
+
+test('dev port config rejects invalid explicit port overrides', () => {
+  assert.throws(
+    () => resolveParentDevNetworkConfig({ [ParentDevEnv.AgentPort]: 'not-a-port' }, {}, []),
+    /OCENTRA_PARENT_AGENT_PORT/u
+  );
+  assert.throws(() => resolveParentDevNetworkConfig({ [ParentDevEnv.PortalPort]: '70000' }, {}, []), /65535/u);
+});
+
 test('dev port occupant predicates only match Ocentra Parent processes', () => {
   assert.equal(
     isLikelyParentAgentOccupant({

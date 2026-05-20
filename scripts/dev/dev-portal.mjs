@@ -1,12 +1,7 @@
 #!/usr/bin/env node
 import { spawn } from 'node:child_process';
 
-import {
-  ParentDevEnv,
-  ParentDevPort,
-  isLikelyParentPortalOccupant,
-  resolveParentDevNetworkConfig,
-} from './local-dev-config.mjs';
+import { ParentDevEnv, isLikelyParentPortalOccupant, resolveParentDevNetworkConfig } from './local-dev-config.mjs';
 import { ensurePortFree } from './port-utils.mjs';
 
 function log(message) {
@@ -14,7 +9,7 @@ function log(message) {
 }
 
 const network = resolveParentDevNetworkConfig();
-const port = ParentDevPort.Portal;
+const port = network.portalPort;
 const isFree = await ensurePortFree(port, isLikelyParentPortalOccupant, log, network.portalBindHost);
 if (!isFree) {
   throw new Error(`Cannot start Ocentra Parent portal because port ${port} is not available.`);
