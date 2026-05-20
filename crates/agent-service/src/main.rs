@@ -1,6 +1,9 @@
 #![forbid(unsafe_code)]
 
 mod activity_api;
+mod activity_capture;
+#[cfg(test)]
+mod activity_capture_tests;
 mod activity_payload;
 mod activity_store_path;
 mod app;
@@ -26,6 +29,7 @@ async fn main() {
         constants::dev_log_message::AGENT_SERVICE_STARTED,
         Default::default(),
     );
+    activity_capture::spawn_startup_process_snapshot_capture();
 
     axum::serve(listener, app::router(network))
         .await

@@ -1,0 +1,17 @@
+pub const CAPABILITY_STATUS_ACCESS_DENIED: &str = "access-denied";
+pub const CAPABILITY_STATUS_ADAPTER_ERROR: &str = "adapter-error";
+pub const CAPABILITY_STATUS_AVAILABLE: &str = "available";
+pub const CAPABILITY_STATUS_NO_ACTIVE_WINDOW: &str = "no-active-window";
+pub const CAPABILITY_STATUS_UNAVAILABLE: &str = "unavailable";
+pub const OBSERVATION_MODE_ACTIVE_WINDOW: &str = "active-window";
+pub const OBSERVATION_MODE_SNAPSHOT: &str = "snapshot";
+pub const PROCESS_ADAPTER_ID: &str = "windows-process-snapshot-adapter";
+pub const PROCESS_EVENT_ID_PREFIX: &str = "activity-process-observed-";
+pub const PROCESS_SNAPSHOT_LIMIT: usize = 25;
+pub const PROCESS_SUBJECT_ID_PREFIX: &str = "process-";
+pub const WINDOW_ADAPTER_ID: &str = "windows-foreground-window-adapter";
+pub const WINDOW_EVENT_ID_PREFIX: &str = "activity-window-focused-";
+pub const WINDOW_STATUS_SUBJECT_ID_PREFIX: &str = "window-status-";
+pub const WINDOW_SUBJECT_ID_PREFIX: &str = "window-";
+pub const WINDOWS_PROCESS_SOURCE_ID: &str = "windows-process-snapshot";
+pub const WINDOWS_WINDOW_SOURCE_ID: &str = "windows-foreground-window";
