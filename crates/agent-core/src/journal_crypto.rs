@@ -21,6 +21,10 @@ impl JournalKey {
     pub fn from_bytes(bytes: [u8; JOURNAL_KEY_BYTES]) -> Self {
         Self(bytes)
     }
+
+    pub fn as_bytes(&self) -> &[u8; JOURNAL_KEY_BYTES] {
+        &self.0
+    }
 }
 
 pub struct EncryptedPayload {

@@ -11,7 +11,7 @@ pub fn build_dev_log_snapshot() -> AgentLogSnapshot {
     let mut fields = LogFields::new();
     fields.insert(
         constants::field::CAPTURE_ENABLED.to_string(),
-        LogFieldValue::Boolean(false),
+        LogFieldValue::Boolean(capture_enabled()),
     );
     fields.insert(
         constants::field::POLICY_ENGINE_ENABLED.to_string(),
@@ -53,6 +53,16 @@ fn hostname() -> String {
     env::var(constants::env_var::COMPUTER_NAME)
         .or_else(|_| env::var(constants::env_var::HOSTNAME))
         .unwrap_or_else(|_| constants::value::UNKNOWN_HOST.to_string())
+}
+
+#[cfg(windows)]
+fn capture_enabled() -> bool {
+    true
+}
+
+#[cfg(not(windows))]
+fn capture_enabled() -> bool {
+    false
 }
 
 #[cfg(test)]

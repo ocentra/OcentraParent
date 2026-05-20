@@ -9,6 +9,8 @@ pub mod env_var {
     pub const AGENT_ADDR: &str = "OCENTRA_PARENT_AGENT_ADDR";
     pub const AGENT_LOCAL_NETWORK_ENABLED: &str = "OCENTRA_PARENT_AGENT_LOCAL_NETWORK_ENABLED";
     pub const ACTIVITY_DB_PATH: &str = "OCENTRA_PARENT_ACTIVITY_DB_PATH";
+    pub const ACTIVITY_JOURNAL_KEY_PATH: &str = "OCENTRA_PARENT_ACTIVITY_JOURNAL_KEY_PATH";
+    pub const ACTIVITY_JOURNAL_PATH: &str = "OCENTRA_PARENT_ACTIVITY_JOURNAL_PATH";
     pub const COMPUTER_NAME: &str = "COMPUTERNAME";
     pub const DEV_LOG_DIR: &str = "OCENTRA_PARENT_DEV_LOG_DIR";
     pub const HOSTNAME: &str = "HOSTNAME";
@@ -66,9 +68,11 @@ pub mod field {
     pub const NETWORK_MODE: &str = "networkMode";
     pub const NONCE: &str = "nonce";
     pub const NOTE: &str = "note";
+    pub const OBSERVATION_MODE: &str = "observationMode";
     pub const ONLINE: &str = "online";
     pub const PID: &str = "pid";
     pub const POLICY_ENGINE_ENABLED: &str = "policyEngineEnabled";
+    pub const PROCESS_NAME: &str = "processName";
     pub const REASON: &str = "reason";
     pub const REMOTE_SYNC: &str = "remoteSync";
     pub const RETURNED: &str = "returned";
@@ -76,20 +80,6 @@ pub mod field {
     pub const SEGMENT_ID: &str = "segmentId";
     pub const TRANSPORT: &str = "transport";
     pub const WRITTEN_AT: &str = "writtenAt";
-}
-
-pub mod value {
-    pub const ACTIVITY_JOURNAL_CIPHER: &str = "xchacha20poly1305";
-    pub const DEV_MODE: &str = "dev";
-    pub const LOCAL_NETWORK_MODE: &str = "lan";
-    pub const LOOPBACK_MODE: &str = "loopback";
-    pub const TRANSPORT_WEBSOCKET: &str = "websocket";
-    pub const TRUE: &str = "true";
-    pub const UNKNOWN_HOST: &str = "unknown-host";
-    pub const WATCHER_STATUS_ONLY: &str =
-        "Watcher status endpoint is available; watcher runtime is not active.";
-    pub const LOCALHOST_API_REACHABLE: &str = "Agent service localhost API is reachable.";
-    pub const ACTIVITY_STORE_UNAVAILABLE: &str = "Activity store is unavailable.";
 }
 
 pub mod dev_log {
@@ -101,6 +91,7 @@ pub mod dev_log {
 }
 
 pub mod dev_log_message {
+    pub const ACTIVITY_CAPTURE_FAILED: &str = "Agent activity capture failed.";
     pub const AGENT_SERVICE_STARTED: &str = "Agent service dev runtime started.";
     pub const AGENT_HEALTH_REQUESTED: &str = "Agent health endpoint requested.";
 }
@@ -119,6 +110,8 @@ pub mod journal {
     pub const XCHACHA20_NONCE_BYTES: usize = 24;
 }
 
+#[path = "constants/activity_capture.rs"]
+pub mod activity_capture;
 #[path = "constants/activity_event_kind.rs"]
 pub mod activity_event_kind;
 #[path = "constants/activity_observer.rs"]
@@ -130,6 +123,8 @@ pub mod activity_subject_kind;
 
 #[path = "constants/sqlite.rs"]
 pub mod sqlite;
+#[path = "constants/value.rs"]
+pub mod value;
 
 pub mod error {
     pub const AGENT_ADDR_SOCKET_ADDRESS: &str =
@@ -148,6 +143,9 @@ pub mod error {
     pub const ACTIVITY_STORE_OPENS: &str = "activity SQLite store opens";
     pub const ACTIVITY_STORE_INGESTS: &str = "activity SQLite store ingests";
     pub const ACTIVITY_STORE_QUERIES: &str = "activity SQLite store queries";
+    pub const ACTIVITY_CAPTURE_RECORDS: &str = "activity capture records";
+    pub const ACTIVITY_CAPTURE_REJECTS_INVALID_KEY: &str =
+        "activity capture rejects invalid journal key";
 }
 
 pub mod delimiter {

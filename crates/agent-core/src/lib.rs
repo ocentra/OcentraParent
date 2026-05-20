@@ -7,12 +7,17 @@ mod journal;
 mod journal_crypto;
 mod journal_error;
 mod journal_rotation;
+mod process_capture;
 
 pub use activity_store::ActivityStore;
 pub use activity_store_error::ActivityStoreError;
 pub use journal::ActivityJournal;
 pub use journal_crypto::{JournalKey, JOURNAL_KEY_BYTES};
 pub use journal_error::JournalError;
+pub use process_capture::{
+    collect_process_snapshot, process_observation_event, process_snapshot_events,
+    ProcessObservation,
+};
 
 pub fn crate_name() -> &'static str {
     env!("CARGO_PKG_NAME")
