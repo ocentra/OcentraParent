@@ -21,6 +21,8 @@ export const PortalDevTextToken = {
   GetLogSnapshot: decodeTextTokenId('portal.dev.command.getLogSnapshot'),
   EchoPortalPing: decodeTextTokenId('portal.dev.command.echoPortalPing'),
   GetWatcherStatus: decodeTextTokenId('portal.dev.command.getWatcherStatus'),
+  GetActivityIngestStatus: decodeTextTokenId('portal.dev.command.getActivityIngestStatus'),
+  GetRecentActivitySummary: decodeTextTokenId('portal.dev.command.getRecentActivitySummary'),
   RootMissing: decodeTextTokenId('portal.dev.rootMissing'),
 } as const;
 
@@ -47,6 +49,8 @@ export const PortalDevText: Record<PortalDevTextTokenValue, DisplayText> = {
   [PortalDevTextToken.GetLogSnapshot]: decodeDisplayText('Get log snapshot'),
   [PortalDevTextToken.EchoPortalPing]: decodeDisplayText('Echo portal ping'),
   [PortalDevTextToken.GetWatcherStatus]: decodeDisplayText('Get watcher status'),
+  [PortalDevTextToken.GetActivityIngestStatus]: decodeDisplayText('Get activity ingest status'),
+  [PortalDevTextToken.GetRecentActivitySummary]: decodeDisplayText('Get recent activity summary'),
   [PortalDevTextToken.RootMissing]: decodeDisplayText('Portal root element is missing.'),
 };
 

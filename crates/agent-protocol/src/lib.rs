@@ -1,12 +1,15 @@
 #![forbid(unsafe_code)]
 
 mod activity;
+mod activity_conversions;
+mod activity_query;
 pub mod constants;
 mod journal;
 mod logging;
 mod transport;
 
 pub use activity::*;
+pub use activity_query::*;
 pub use journal::*;
 pub use logging::*;
 pub use transport::*;
@@ -16,11 +19,14 @@ pub const LOG_SCHEMA_VERSION: u16 = 1;
 pub const AGENT_PROTOCOL_SCHEMA_VERSION: u16 = 1;
 pub const ACTIVITY_SCHEMA_VERSION: u16 = 1;
 pub const ACTIVITY_JOURNAL_SCHEMA_VERSION: u16 = 1;
+pub const ACTIVITY_QUERY_SCHEMA_VERSION: u16 = 1;
 
 pub fn crate_name() -> &'static str {
     CRATE_NAME
 }
 
+#[cfg(test)]
+mod activity_query_tests;
 #[cfg(test)]
 mod activity_tests;
 #[cfg(test)]

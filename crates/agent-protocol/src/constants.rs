@@ -8,6 +8,7 @@ pub mod env_var {
     pub const AGENT_ALLOWED_ORIGINS: &str = "OCENTRA_PARENT_AGENT_ALLOWED_ORIGINS";
     pub const AGENT_ADDR: &str = "OCENTRA_PARENT_AGENT_ADDR";
     pub const AGENT_LOCAL_NETWORK_ENABLED: &str = "OCENTRA_PARENT_AGENT_LOCAL_NETWORK_ENABLED";
+    pub const ACTIVITY_DB_PATH: &str = "OCENTRA_PARENT_ACTIVITY_DB_PATH";
     pub const COMPUTER_NAME: &str = "COMPUTERNAME";
     pub const DEV_LOG_DIR: &str = "OCENTRA_PARENT_DEV_LOG_DIR";
     pub const HOSTNAME: &str = "HOSTNAME";
@@ -31,6 +32,8 @@ pub mod event_id {
     pub const LOG_SNAPSHOT_REPORTED: &str = "log-snapshot-reported";
     pub const DEV_ECHOED: &str = "dev-echoed";
     pub const WATCH_STATUS_REPORTED: &str = "watch-status-reported";
+    pub const ACTIVITY_INGEST_STATUS_REPORTED: &str = "activity-ingest-status-reported";
+    pub const ACTIVITY_RECENT_SUMMARY_REPORTED: &str = "activity-recent-summary-reported";
     pub const DEV_LOCALHOST_API_READY: &str = "dev-localhost-api-ready";
     pub const UNKNOWN_COMMAND: &str = "unknown-command";
 }
@@ -42,11 +45,24 @@ pub mod field {
     pub const CIPHER: &str = "cipher";
     pub const CIPHERTEXT: &str = "ciphertext";
     pub const COMMAND: &str = "command";
+    pub const DATABASE_READY: &str = "databaseReady";
+    pub const DUPLICATE_EVENTS: &str = "duplicateEvents";
     pub const ENTRIES: &str = "entries";
+    pub const EVENTS_INGESTED: &str = "eventsIngested";
+    pub const EVENTS_STORED: &str = "eventsStored";
     pub const ENTRY_ID: &str = "entryId";
     pub const EVENT_ID: &str = "eventId";
+    pub const FIRST_OBSERVED_AT: &str = "firstObservedAt";
+    pub const LAST_EVENT_ID: &str = "lastEventId";
+    pub const LAST_OBSERVED_AT: &str = "lastObservedAt";
+    pub const LIMIT: &str = "limit";
     pub const MAX_SEGMENT_BYTES: &str = "maxSegmentBytes";
     pub const MODE: &str = "mode";
+    pub const MOST_RECENT_KIND: &str = "mostRecentKind";
+    pub const MOST_RECENT_OBSERVER: &str = "mostRecentObserver";
+    pub const MOST_RECENT_SUBJECT_ID: &str = "mostRecentSubjectId";
+    pub const MOST_RECENT_SUBJECT_KIND: &str = "mostRecentSubjectKind";
+    pub const MOST_RECENT_SUBJECT_NAME: &str = "mostRecentSubjectName";
     pub const NETWORK_MODE: &str = "networkMode";
     pub const NONCE: &str = "nonce";
     pub const NOTE: &str = "note";
@@ -55,6 +71,7 @@ pub mod field {
     pub const POLICY_ENGINE_ENABLED: &str = "policyEngineEnabled";
     pub const REASON: &str = "reason";
     pub const REMOTE_SYNC: &str = "remoteSync";
+    pub const RETURNED: &str = "returned";
     pub const SCHEMA_VERSION: &str = "schemaVersion";
     pub const SEGMENT_ID: &str = "segmentId";
     pub const TRANSPORT: &str = "transport";
@@ -72,6 +89,7 @@ pub mod value {
     pub const WATCHER_STATUS_ONLY: &str =
         "Watcher status endpoint is available; watcher runtime is not active.";
     pub const LOCALHOST_API_REACHABLE: &str = "Agent service localhost API is reachable.";
+    pub const ACTIVITY_STORE_UNAVAILABLE: &str = "Activity store is unavailable.";
 }
 
 pub mod dev_log {
@@ -101,6 +119,18 @@ pub mod journal {
     pub const XCHACHA20_NONCE_BYTES: usize = 24;
 }
 
+#[path = "constants/activity_event_kind.rs"]
+pub mod activity_event_kind;
+#[path = "constants/activity_observer.rs"]
+pub mod activity_observer;
+#[path = "constants/activity_store.rs"]
+pub mod activity_store;
+#[path = "constants/activity_subject_kind.rs"]
+pub mod activity_subject_kind;
+
+#[path = "constants/sqlite.rs"]
+pub mod sqlite;
+
 pub mod error {
     pub const AGENT_ADDR_SOCKET_ADDRESS: &str =
         "OCENTRA_PARENT_AGENT_ADDR must be a socket address";
@@ -115,6 +145,9 @@ pub mod error {
     pub const JOURNAL_DECRYPTS: &str = "activity journal decrypts";
     pub const JOURNAL_OPENS: &str = "activity journal opens";
     pub const JOURNAL_READS: &str = "activity journal reads";
+    pub const ACTIVITY_STORE_OPENS: &str = "activity SQLite store opens";
+    pub const ACTIVITY_STORE_INGESTS: &str = "activity SQLite store ingests";
+    pub const ACTIVITY_STORE_QUERIES: &str = "activity SQLite store queries";
 }
 
 pub mod delimiter {

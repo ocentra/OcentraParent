@@ -1,0 +1,80 @@
+use crate::{constants, ActivityEventKind, ActivityObserver, ActivitySubjectKind};
+
+impl ActivityObserver {
+    pub fn as_protocol_str(&self) -> &'static str {
+        match self {
+            Self::AgentService => constants::activity_observer::AGENT_SERVICE,
+            Self::WindowsProcess => constants::activity_observer::WINDOWS_PROCESS,
+            Self::WindowsWindow => constants::activity_observer::WINDOWS_WINDOW,
+            Self::WindowsNetwork => constants::activity_observer::WINDOWS_NETWORK,
+            Self::BrowserExtension => constants::activity_observer::BROWSER_EXTENSION,
+            Self::LocalAi => constants::activity_observer::LOCAL_AI,
+        }
+    }
+
+    pub fn from_protocol_str(value: &str) -> Option<Self> {
+        match value {
+            constants::activity_observer::AGENT_SERVICE => Some(Self::AgentService),
+            constants::activity_observer::WINDOWS_PROCESS => Some(Self::WindowsProcess),
+            constants::activity_observer::WINDOWS_WINDOW => Some(Self::WindowsWindow),
+            constants::activity_observer::WINDOWS_NETWORK => Some(Self::WindowsNetwork),
+            constants::activity_observer::BROWSER_EXTENSION => Some(Self::BrowserExtension),
+            constants::activity_observer::LOCAL_AI => Some(Self::LocalAi),
+            _ => None,
+        }
+    }
+}
+
+impl ActivityEventKind {
+    pub fn as_protocol_str(&self) -> &'static str {
+        match self {
+            Self::ProcessObserved => constants::activity_event_kind::PROCESS_OBSERVED,
+            Self::WindowFocused => constants::activity_event_kind::WINDOW_FOCUSED,
+            Self::DomainObserved => constants::activity_event_kind::DOMAIN_OBSERVED,
+            Self::UrlObserved => constants::activity_event_kind::URL_OBSERVED,
+            Self::VideoObserved => constants::activity_event_kind::VIDEO_OBSERVED,
+            Self::DeviceIdleStateObserved => {
+                constants::activity_event_kind::DEVICE_IDLE_STATE_OBSERVED
+            }
+        }
+    }
+
+    pub fn from_protocol_str(value: &str) -> Option<Self> {
+        match value {
+            constants::activity_event_kind::PROCESS_OBSERVED => Some(Self::ProcessObserved),
+            constants::activity_event_kind::WINDOW_FOCUSED => Some(Self::WindowFocused),
+            constants::activity_event_kind::DOMAIN_OBSERVED => Some(Self::DomainObserved),
+            constants::activity_event_kind::URL_OBSERVED => Some(Self::UrlObserved),
+            constants::activity_event_kind::VIDEO_OBSERVED => Some(Self::VideoObserved),
+            constants::activity_event_kind::DEVICE_IDLE_STATE_OBSERVED => {
+                Some(Self::DeviceIdleStateObserved)
+            }
+            _ => None,
+        }
+    }
+}
+
+impl ActivitySubjectKind {
+    pub fn as_protocol_str(&self) -> &'static str {
+        match self {
+            Self::Process => constants::activity_subject_kind::PROCESS,
+            Self::Window => constants::activity_subject_kind::WINDOW,
+            Self::Domain => constants::activity_subject_kind::DOMAIN,
+            Self::Url => constants::activity_subject_kind::URL,
+            Self::Video => constants::activity_subject_kind::VIDEO,
+            Self::Device => constants::activity_subject_kind::DEVICE,
+        }
+    }
+
+    pub fn from_protocol_str(value: &str) -> Option<Self> {
+        match value {
+            constants::activity_subject_kind::PROCESS => Some(Self::Process),
+            constants::activity_subject_kind::WINDOW => Some(Self::Window),
+            constants::activity_subject_kind::DOMAIN => Some(Self::Domain),
+            constants::activity_subject_kind::URL => Some(Self::Url),
+            constants::activity_subject_kind::VIDEO => Some(Self::Video),
+            constants::activity_subject_kind::DEVICE => Some(Self::Device),
+            _ => None,
+        }
+    }
+}

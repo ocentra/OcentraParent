@@ -9,6 +9,8 @@ const CommandResultEvents = new Set<AgentEventName>([
   AgentEvent.LogSnapshotReported,
   AgentEvent.DevEchoed,
   AgentEvent.WatchStatusReported,
+  AgentEvent.ActivityIngestStatusReported,
+  AgentEvent.ActivityRecentSummaryReported,
 ]);
 
 export function latestCommandResult(

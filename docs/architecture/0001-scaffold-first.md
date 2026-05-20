@@ -6,7 +6,7 @@ Accepted.
 
 ## Context
 
-Ocentra Parent will become a local-first parental-control system with a Windows-first agent and parent portal. The foundation has to be reliable before capture, policy, AI, notifications, or cloud sync are implemented.
+Ocentra Parent will become a local-first parental-control system with a Windows-first agent and parent portal. The foundation has to be reliable before capture, local AI safety evaluation, policy decisions, enforcement, notifications, or cloud sync are implemented.
 
 The first service target is a Rust Windows desktop agent with local loopback and LAN control surfaces. The shared contracts should still be platform-neutral so later desktop, mobile, portal, and Cloudflare surfaces can reuse the same domain language.
 
@@ -30,7 +30,7 @@ The first commit should establish:
 - CI
 - architecture docs
 
-It must not implement recorder logic, product portal UI, capture hooks, policy rules, AI, blocking, notification delivery, or Cloudflare runtime behavior.
+It must not implement recorder logic, product portal UI, capture hooks, policy rules, local AI model runtime, blocking, notification delivery, or Cloudflare runtime behavior.
 
 ## Consequences
 

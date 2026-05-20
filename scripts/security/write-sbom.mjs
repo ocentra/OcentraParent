@@ -13,6 +13,7 @@ console.log(`SBOM and dependency metadata written to ${outputRoot}`);
 function runToFile(command, args, outputPath) {
   const result = spawnSync(command, args, {
     encoding: 'utf8',
+    maxBuffer: 64 * 1024 * 1024,
     shell: process.platform === 'win32',
   });
 

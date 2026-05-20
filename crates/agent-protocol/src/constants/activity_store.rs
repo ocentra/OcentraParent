@@ -1,0 +1,12 @@
+pub const DEFAULT_RECENT_LIMIT: u64 = 10;
+pub const DEFAULT_FILE_NAME: &str = "activity.sqlite";
+pub const FILE_EXTENSION: &str = "sqlite";
+pub const WAL_FILE_EXTENSION: &str = "sqlite-wal";
+pub const SHM_FILE_EXTENSION: &str = "sqlite-shm";
+pub const TEST_FILE_PREFIX: &str = "ocentra-parent-activity-store-test-";
+pub const TEST_FIRST_OBSERVED_AT: &str = "2026-05-20T00:00:00Z";
+pub const TEST_SECOND_OBSERVED_AT: &str = "2026-05-20T00:01:00Z";
+pub const TEST_JOURNAL_SUFFIX: &str = "journal";
+pub const TEST_PROCESS_SUBJECT_ID: &str = "process-4242";
+pub const TEST_PROCESS_SUBJECT_NAME: &str = "chrome.exe";
+pub const TEST_STORE_SUFFIX: &str = "store";
