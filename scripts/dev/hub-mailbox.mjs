@@ -81,32 +81,29 @@ function handleInbox(options) {
 
 function handleWatch(options) {
   const { hubRoot, ledger, root } = context(options);
-  const lane = typeof options.lane === 'string' ? findLane(ledger, options.lane) : currentLane(ledger, root);
   const intervalMs = parseWatchIntervalMs(options);
   const once = options.once === true;
   const autoAck = options.ack === true;
   const quiet = options.quiet === true;
+  const watchReports = options.reports === true;
+  const lanes = watchReports
+    ? reportWatchLanes({ ledger, options, root })
+    : [watchMessageLane({ ledger, options, root })];
   const printedMessageIds = new Set();
+  const printedReportIds = new Set();
 
-  console.log(`hub-watch-start: lane=${lane.id} interval-ms=${intervalMs} ack=${autoAck ? 'on' : 'off'}`);
+  console.log(
+    `hub-watch-start: mode=${watchReports ? 'reports' : 'messages'} lanes=${lanes
+      .map((lane) => lane.id)
+      .join(',')} interval-ms=${intervalMs} ack=${autoAck ? 'on' : 'off'}`
+  );
 
-  const checkInbox = () => {
+  const checkHub = () => {
     const now = new Date();
-    const mailbox = readOrCreateMailbox(hubRoot, lane, now);
-    const unread = unreadMessages(mailbox);
-    const newUnread = unread.filter((message) => !printedMessageIds.has(message.id));
-
-    for (const message of newUnread) {
-      printedMessageIds.add(message.id);
-      console.log(formatWatchMessage({ lane, message }));
-    }
-
-    if (autoAck && unread.length > 0) {
-      const latestUnread = unread.at(-1);
-      acknowledgeLane({ hubRoot, lane, messageId: latestUnread.id, now });
-      console.log(`hub-watch-ack=${latestUnread.id}`);
-    } else if (newUnread.length === 0 && !quiet) {
-      console.log(`hub-watch-waiting: lane=${lane.id} unread=${unread.length} checked=${now.toISOString()}`);
+    if (watchReports) {
+      checkReports({ hubRoot, lanes, now, printedReportIds, quiet });
+    } else {
+      checkInbox({ autoAck, hubRoot, lane: lanes[0], now, printedMessageIds, quiet });
     }
 
     if (once) {
@@ -114,9 +111,63 @@ function handleWatch(options) {
     }
   };
 
-  checkInbox();
+  checkHub();
   if (!once) {
-    setInterval(checkInbox, intervalMs);
+    setInterval(checkHub, intervalMs);
+  }
+}
+
+function watchMessageLane({ ledger, options, root }) {
+  return typeof options.lane === 'string' ? findLane(ledger, options.lane) : currentLane(ledger, root);
+}
+
+function reportWatchLanes({ ledger, options, root }) {
+  if (typeof options.lane === 'string') {
+    return [findLane(ledger, options.lane)];
+  }
+  const lane = currentLane(ledger, root);
+  if (lane.id !== 'primary') {
+    return [lane];
+  }
+  return ledger.lanes.filter((candidate) => candidate.id !== 'primary');
+}
+
+function checkInbox({ autoAck, hubRoot, lane, now, printedMessageIds, quiet }) {
+  const mailbox = readOrCreateMailbox(hubRoot, lane, now);
+  const unread = unreadMessages(mailbox);
+  const newUnread = unread.filter((message) => !printedMessageIds.has(message.id));
+
+  for (const message of newUnread) {
+    printedMessageIds.add(message.id);
+    console.log(formatWatchMessage({ lane, message }));
+  }
+
+  if (autoAck && unread.length > 0) {
+    const latestUnread = unread.at(-1);
+    acknowledgeLane({ hubRoot, lane, messageId: latestUnread.id, now });
+    console.log(`hub-watch-ack=${latestUnread.id}`);
+  } else if (newUnread.length === 0 && !quiet) {
+    console.log(`hub-watch-waiting: lane=${lane.id} unread=${unread.length} checked=${now.toISOString()}`);
+  }
+}
+
+function checkReports({ hubRoot, lanes, now, printedReportIds, quiet }) {
+  let printedCount = 0;
+  for (const lane of lanes) {
+    const mailbox = readOrCreateMailbox(hubRoot, lane, now);
+    for (const report of mailbox.reports) {
+      if (!printedReportIds.has(report.id)) {
+        printedReportIds.add(report.id);
+        printedCount += 1;
+        console.log(formatWatchReport({ lane, report }));
+      }
+    }
+  }
+
+  if (printedCount === 0 && !quiet) {
+    console.log(
+      `hub-watch-waiting: mode=reports lanes=${lanes.map((lane) => lane.id).join(',')} checked=${now.toISOString()}`
+    );
   }
 }
 
@@ -127,6 +178,16 @@ function formatWatchMessage({ lane, message }) {
     `created=${message.createdAt}`,
     '',
     message.body,
+  ].join('\n');
+}
+
+function formatWatchReport({ lane, report }) {
+  return [
+    `hub-watch-report: lane=${lane.id} id=${report.id}`,
+    `summary=${report.summary}`,
+    `created=${report.createdAt}`,
+    '',
+    report.details,
   ].join('\n');
 }
 

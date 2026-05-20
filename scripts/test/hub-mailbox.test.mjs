@@ -188,6 +188,11 @@ test('hub args and path list parsing support command scripts', () => {
     once: true,
     'interval-ms': '1000',
   });
+  assert.deepEqual(parseHubArgs(['watch', '--reports', '--once']), {
+    command: 'watch',
+    reports: true,
+    once: true,
+  });
   assert.deepEqual(splitPathList('crates/agent-service, packages/activity-domain'), [
     'crates/agent-service',
     'packages/activity-domain',

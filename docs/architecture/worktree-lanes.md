@@ -63,6 +63,12 @@ npm run hub:watch
 
 Use `npm run hub:watch -- --interval-ms 5000` to choose a polling interval. Add `--ack` only when the worker is intentionally treating displayed messages as read; otherwise acknowledge manually after reading with `npm run hub:ack`.
 
+Watch worker reports from the primary hub checkout:
+
+```powershell
+npm run hub:watch -- --reports --interval-ms 5000
+```
+
 Send a hub message to a lane:
 
 ```powershell
