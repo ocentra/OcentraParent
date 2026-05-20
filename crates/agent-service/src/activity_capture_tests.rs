@@ -21,7 +21,7 @@ fn record_process_snapshot_writes_encrypted_journal_and_sqlite_rows() {
     );
     cleanup_paths(&journal_path, &key_path, &store_path);
 
-    let status = record_activity_capture_to_paths(&journal_path, &key_path, &store_path, 1)
+    let status = record_activity_capture_to_paths(&journal_path, &key_path, &store_path, 1, 1)
         .expect(constants::error::ACTIVITY_CAPTURE_RECORDS);
     let journal_bytes = read(&journal_path).expect(constants::error::JOURNAL_READS);
     let store = ActivityStore::open(&store_path).expect(constants::error::ACTIVITY_STORE_OPENS);
@@ -31,8 +31,8 @@ fn record_process_snapshot_writes_encrypted_journal_and_sqlite_rows() {
 
     cleanup_paths(&journal_path, &key_path, &store_path);
 
-    assert_eq!(status.events_ingested, 2);
-    assert_eq!(status.events_stored, 2);
+    assert_eq!(status.events_ingested, 3);
+    assert_eq!(status.events_stored, 3);
     assert!(!String::from_utf8_lossy(&journal_bytes)
         .contains(constants::activity_store::TEST_PROCESS_SUBJECT_NAME));
     assert_eq!(
@@ -61,7 +61,7 @@ fn record_process_snapshot_reuses_journal_key_for_replay() {
     );
     cleanup_paths(&journal_path, &key_path, &store_path);
 
-    record_activity_capture_to_paths(&journal_path, &key_path, &store_path, 1)
+    record_activity_capture_to_paths(&journal_path, &key_path, &store_path, 1, 1)
         .expect(constants::error::ACTIVITY_CAPTURE_RECORDS);
     let key_bytes = read(&key_path).expect(constants::error::JOURNAL_READS);
     let mut key = [0; ocentra_parent_agent_core::JOURNAL_KEY_BYTES];
@@ -78,6 +78,9 @@ fn record_process_snapshot_reuses_journal_key_for_replay() {
     let window_event = journal
         .decrypt_line(&lines[1])
         .expect(constants::error::JOURNAL_DECRYPTS);
+    let network_event = journal
+        .decrypt_line(&lines[2])
+        .expect(constants::error::JOURNAL_DECRYPTS);
 
     cleanup_paths(&journal_path, &key_path, &store_path);
 
@@ -90,6 +93,11 @@ fn record_process_snapshot_reuses_journal_key_for_replay() {
     assert_eq!(
         window_event.source.observer,
         ActivityObserver::WindowsWindow
+    );
+    assert_eq!(network_event.kind, ActivityEventKind::DomainObserved);
+    assert_eq!(
+        network_event.source.observer,
+        ActivityObserver::WindowsNetwork
     );
 }
 
@@ -110,7 +118,7 @@ fn record_process_snapshot_rejects_invalid_journal_key() {
     cleanup_paths(&journal_path, &key_path, &store_path);
     write(&key_path, []).expect(constants::error::JOURNAL_APPENDS);
 
-    let error = record_activity_capture_to_paths(&journal_path, &key_path, &store_path, 1)
+    let error = record_activity_capture_to_paths(&journal_path, &key_path, &store_path, 1, 1)
         .expect_err(constants::error::ACTIVITY_CAPTURE_REJECTS_INVALID_KEY);
 
     cleanup_paths(&journal_path, &key_path, &store_path);

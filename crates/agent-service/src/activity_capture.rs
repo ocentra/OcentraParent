@@ -1,8 +1,8 @@
 use std::{fs, path::Path};
 
 use ocentra_parent_agent_core::{
-    foreground_window_event, process_snapshot_events, ActivityJournal, ActivityStore,
-    ActivityStoreError, JournalError, JournalKey, JOURNAL_KEY_BYTES,
+    foreground_window_event, network_snapshot_events, process_snapshot_events, ActivityJournal,
+    ActivityStore, ActivityStoreError, JournalError, JournalKey, JOURNAL_KEY_BYTES,
 };
 use ocentra_parent_agent_protocol::{constants, ActivityIngestStatus, LogFieldValue};
 
@@ -49,10 +49,10 @@ impl From<std::io::Error> for ActivityCaptureError {
     }
 }
 
-pub fn spawn_startup_process_snapshot_capture() {
-    if windows_process_capture_supported() {
+pub fn spawn_startup_activity_capture() {
+    if windows_activity_capture_supported() {
         tokio::task::spawn_blocking(|| {
-            if let Err(error) = record_process_snapshot_once() {
+            if let Err(error) = record_activity_capture_once() {
                 let _ = crate::dev_log::write_agent_info(
                     constants::dev_log_message::ACTIVITY_CAPTURE_FAILED,
                     fields_from_pairs(vec![(
@@ -65,22 +65,23 @@ pub fn spawn_startup_process_snapshot_capture() {
     }
 }
 
-pub fn record_process_snapshot_once() -> Result<ActivityIngestStatus, ActivityCaptureError> {
+pub fn record_activity_capture_once() -> Result<ActivityIngestStatus, ActivityCaptureError> {
     record_activity_capture_to_paths(
         &activity_journal_path(),
         &activity_journal_key_path(),
         &activity_db_path(),
         constants::activity_capture::PROCESS_SNAPSHOT_LIMIT,
+        constants::activity_capture::NETWORK_SNAPSHOT_LIMIT,
     )
 }
 
 #[cfg(windows)]
-fn windows_process_capture_supported() -> bool {
+fn windows_activity_capture_supported() -> bool {
     true
 }
 
 #[cfg(not(windows))]
-fn windows_process_capture_supported() -> bool {
+fn windows_activity_capture_supported() -> bool {
     false
 }
 
@@ -88,12 +89,14 @@ pub fn record_activity_capture_to_paths(
     journal_path: &Path,
     key_path: &Path,
     store_path: &Path,
-    limit: usize,
+    process_limit: usize,
+    network_limit: usize,
 ) -> Result<ActivityIngestStatus, ActivityCaptureError> {
     let key = load_or_create_journal_key(key_path)?;
     let observed_at = timestamp_now();
-    let mut events = process_snapshot_events(&observed_at, limit);
+    let mut events = process_snapshot_events(&observed_at, process_limit);
     events.push(foreground_window_event(&observed_at));
+    events.extend(network_snapshot_events(&observed_at, network_limit));
     let mut journal = ActivityJournal::open(journal_path.to_path_buf(), key)?;
     for event in &events {
         journal.append(event)?;

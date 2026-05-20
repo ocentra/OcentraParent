@@ -1,0 +1,57 @@
+use ocentra_parent_agent_protocol::{
+    constants, ActivityEvent, ActivityEventKind, ActivityObserver, ActivitySource, ActivitySubject,
+    ActivitySubjectKind, ACTIVITY_SCHEMA_VERSION,
+};
+
+use crate::network_capture::{collect_network_snapshot, NetworkObservation};
+use crate::network_capture_event_fields::{
+    network_display_name, network_fields, network_subject_id,
+};
+
+pub fn network_snapshot_events(observed_at: &str, limit: usize) -> Vec<ActivityEvent> {
+    collect_network_snapshot(limit)
+        .into_iter()
+        .enumerate()
+        .map(|(index, observation)| network_observation_event(observation, observed_at, index))
+        .collect()
+}
+
+pub fn network_observation_event(
+    observation: NetworkObservation,
+    observed_at: &str,
+    sequence_index: usize,
+) -> ActivityEvent {
+    ActivityEvent {
+        schema_version: ACTIVITY_SCHEMA_VERSION,
+        event_id: network_event_id(&observation, observed_at, sequence_index),
+        observed_at: observed_at.to_string(),
+        source: ActivitySource {
+            device_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
+            platform: std::env::consts::OS.to_string(),
+            observer: ActivityObserver::WindowsNetwork,
+            source_id: constants::activity_capture::WINDOWS_NETWORK_SOURCE_ID.to_string(),
+        },
+        kind: ActivityEventKind::DomainObserved,
+        subject: ActivitySubject {
+            kind: ActivitySubjectKind::Domain,
+            subject_id: network_subject_id(&observation),
+            display_name: network_display_name(&observation),
+        },
+        fields: network_fields(&observation),
+        evidence: Vec::new(),
+    }
+}
+
+fn network_event_id(
+    observation: &NetworkObservation,
+    observed_at: &str,
+    sequence_index: usize,
+) -> String {
+    let mut event_id = String::from(constants::activity_capture::NETWORK_EVENT_ID_PREFIX);
+    event_id.push_str(observation.status.as_protocol_str());
+    event_id.push(constants::delimiter::HYPHEN);
+    event_id.push_str(&sequence_index.to_string());
+    event_id.push(constants::delimiter::HYPHEN);
+    event_id.push_str(observed_at);
+    event_id
+}

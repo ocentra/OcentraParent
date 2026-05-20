@@ -29,7 +29,7 @@ async fn main() {
         constants::dev_log_message::AGENT_SERVICE_STARTED,
         Default::default(),
     );
-    activity_capture::spawn_startup_process_snapshot_capture();
+    activity_capture::spawn_startup_activity_capture();
 
     axum::serve(listener, app::router(network))
         .await

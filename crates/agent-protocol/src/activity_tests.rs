@@ -1,8 +1,9 @@
 use super::{
-    constants, ActivityCaptureCapabilityStatus, ActivityEvent, ActivityEventKind,
-    ActivityEvidenceKind, ActivityEvidenceRef, ActivityObservationMode, ActivityObserver,
-    ActivitySource, ActivitySubject, ActivitySubjectKind, LogFieldValue, LogFields,
-    ACTIVITY_SCHEMA_VERSION,
+    constants, ActivityCaptureCapabilityStatus, ActivityDomainAttributionStatus, ActivityEvent,
+    ActivityEventKind, ActivityEvidenceKind, ActivityEvidenceRef, ActivityNetworkProtocol,
+    ActivityNetworkTcpState, ActivityObservationMode, ActivityObserver,
+    ActivityProcessAttributionStatus, ActivitySource, ActivitySubject, ActivitySubjectKind,
+    LogFieldValue, LogFields, ACTIVITY_SCHEMA_VERSION,
 };
 
 #[test]
@@ -65,5 +66,39 @@ fn capture_status_values_serialize_to_typescript_contract_shape() {
     assert_eq!(
         ActivityCaptureCapabilityStatus::AdapterError.as_protocol_str(),
         constants::activity_capture::CAPABILITY_STATUS_ADAPTER_ERROR
+    );
+    assert_eq!(
+        ActivityCaptureCapabilityStatus::NoNetworkObservations.as_protocol_str(),
+        constants::activity_capture::CAPABILITY_STATUS_NO_NETWORK_OBSERVATIONS
+    );
+    assert_eq!(
+        ActivityObservationMode::NetworkSnapshot.as_protocol_str(),
+        constants::activity_capture::OBSERVATION_MODE_NETWORK_SNAPSHOT
+    );
+}
+
+#[test]
+fn network_domain_values_serialize_to_typescript_contract_shape() {
+    let protocol = serde_json::to_value(ActivityNetworkProtocol::Tcp)
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let tcp_state = serde_json::to_value(ActivityNetworkTcpState::Established)
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let domain_status = serde_json::to_value(ActivityDomainAttributionStatus::IpOnly)
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let process_status = serde_json::to_value(ActivityProcessAttributionStatus::ProcessAttributed)
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+
+    assert_eq!(protocol, constants::activity_capture::NETWORK_PROTOCOL_TCP);
+    assert_eq!(
+        tcp_state,
+        constants::activity_capture::TCP_STATE_ESTABLISHED
+    );
+    assert_eq!(
+        domain_status,
+        constants::activity_capture::DOMAIN_ATTRIBUTION_STATUS_IP_ONLY
+    );
+    assert_eq!(
+        process_status,
+        constants::activity_capture::PROCESS_ATTRIBUTION_STATUS_ATTRIBUTED
     );
 }
