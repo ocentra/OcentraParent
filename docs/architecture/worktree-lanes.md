@@ -72,10 +72,11 @@ npm run hub:watch -- --reports --interval-ms 5000
 Codex lifecycle hooks are configured in `.codex/hooks.json` and execute `npm run --silent hub:hook`, which routes to `scripts/dev/codex-hub-hook.mjs`:
 
 - `SessionStart` and `UserPromptSubmit` add current lane, inbox, lock, and report state to the agent context.
+- `SessionStart` and `UserPromptSubmit` record Codex's current `session_id` as the lane's active session, while preserving the human `thread` label.
 - `PostToolUse` reminds worker lanes to lock paths when edits create dirty files without hub ownership.
 - `Stop` continues worker turns when unread hub messages still need acknowledgement or dirty worker changes need lock/report handling.
 
-Hooks are not a background daemon and do not wake an idle chat on file changes. They make the next worker turn hub-aware without opening separate watcher consoles. Review/trust project hooks in Codex settings if the app lists them as pending.
+Hooks are not a background daemon and do not wake an idle chat on file changes. They make the next turn hub-aware without opening separate watcher consoles. If the primary or a worker chat gets too long, open a new chat in the same worktree. The startup hook will register the new Codex session, show the current lane, latest message, last acknowledged message, locks, and latest report, and explicitly tells the chat not to rerun already acknowledged hub messages. Review/trust project hooks in Codex settings if the app lists them as pending.
 
 Send a hub message to a lane:
 
@@ -165,10 +166,11 @@ Every active lane should record:
 
 - `owner`: the person or agent responsible for the lane.
 - `thread`: a short chat/thread label so parallel Codex chats can identify their own lane.
+- `activeSessionId`: the actual current Codex session id, updated automatically by hooks when a chat starts or submits a prompt in that worktree.
 - `task`: the product or workflow slice being implemented.
 - `nextAction`: the next concrete step for anyone who resumes the lane.
 
-When handing work to another chat, update the lane with `npm run lanes:claim -- --force ...` instead of relying on chat history.
+When handing work to another chat in the same lane, open the new chat in that worktree and let the hook register its `session_id`. The primary hub can send a lane message asking a worker to rotate to a fresh chat, but the user still opens the new Codex chat in that worktree; the hook handles identity and already-done message state after the new chat starts. When changing lane ownership, branch, or task scope, update the lane with `npm run lanes:claim -- --force ...` instead of relying on chat history.
 
 ## Hub Mailbox Files
 

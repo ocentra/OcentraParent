@@ -9,7 +9,13 @@ import {
   readOrCreateMailbox,
   unreadMessages,
 } from './hub-mailbox-lib.mjs';
-import { defaultLedgerPath, ensureLedger, findLaneByPath } from './worktree-lanes-lib.mjs';
+import {
+  defaultLedgerPath,
+  ensureLedger,
+  findLaneByPath,
+  recordLaneSession,
+  writeLedger,
+} from './worktree-lanes-lib.mjs';
 
 const HookEvent = Object.freeze({
   PostToolUse: 'PostToolUse',
@@ -20,7 +26,7 @@ const HookEvent = Object.freeze({
 
 export function buildHookResponse(input, context = undefined) {
   const eventName = normalizeEventName(input.hook_event_name);
-  const hubContext = context ?? loadHubContext(input.cwd);
+  const hubContext = context ?? loadHubContext(input, eventName);
 
   if (eventName === HookEvent.SessionStart || eventName === HookEvent.UserPromptSubmit) {
     return additionalContextResponse(eventName, formatAgentContext(hubContext));
@@ -79,6 +85,7 @@ export function formatAgentContext(context) {
     return [
       'Ocentra Parent hub context:',
       `- Current lane: primary (${context.branch}). This chat coordinates workers and integrates finished work; do not do feature coding here unless explicitly instructed.`,
+      ...formatSessionLines(context),
       '- Worker summary:',
       indent(context.hubSummary),
       '- To send work: npm run hub:message -- --lane codex-a --subject "..." --body "..."',
@@ -103,11 +110,18 @@ export function formatAgentContext(context) {
     context.latestReport === undefined
       ? '- Latest worker report: none.'
       : `- Latest worker report: ${context.latestReport.id} (${context.latestReport.summary}).`;
+  const acknowledgedMessage =
+    typeof context.mailbox.lastAcknowledgedMessageId === 'string' &&
+    context.mailbox.lastAcknowledgedMessageId.length > 0
+      ? `- Latest acknowledged hub message: ${context.mailbox.lastAcknowledgedMessageId}.`
+      : '- Latest acknowledged hub message: none.';
 
   return [
     'Ocentra Parent worker hub context:',
     `- Current lane: ${context.lane.id}; thread=${context.lane.thread || '-'}; branch=${context.branch}.`,
+    ...formatSessionLines(context),
     latestText,
+    acknowledgedMessage,
     unreadText,
     `- Current locks: ${context.mailbox.lockedPaths.length === 0 ? '-' : context.mailbox.lockedPaths.join(', ')}.`,
     latestReport,
@@ -132,14 +146,25 @@ export function formatPostToolContext(context) {
   ].join(' ');
 }
 
-function loadHubContext(cwd) {
+function loadHubContext(input, eventName) {
+  const cwd = typeof input.cwd === 'string' && input.cwd.length > 0 ? input.cwd : process.cwd();
   const repoRoot = git(cwd, ['rev-parse', '--show-toplevel']);
   const branch = git(repoRoot, ['rev-parse', '--abbrev-ref', 'HEAD']);
   const ledgerPath = defaultLedgerPath();
   const ledger = ensureLedger({ ledgerPath, repoRoot, repoBranch: branch });
+  const lane = findLaneByPath(ledger, repoRoot);
+  const sessionId = typeof input.session_id === 'string' ? input.session_id : '';
+  const sessionSource = sessionSourceText({ eventName, source: input.source });
+  const shouldRecordSession = eventName === HookEvent.SessionStart || eventName === HookEvent.UserPromptSubmit;
+  const sessionRecord =
+    sessionId.length === 0 || !shouldRecordSession
+      ? { changed: false, previousSessionId: lane.activeSessionId ?? '' }
+      : recordLaneSession(ledger, { laneId: lane.id, sessionId, source: sessionSource });
+  if (sessionRecord.changed) {
+    writeLedger(ledgerPath, ledger);
+  }
   const hubRoot = defaultHubRoot();
   ensureHub({ hubRoot, ledger });
-  const lane = findLaneByPath(ledger, repoRoot);
   const mailbox = readOrCreateMailbox(hubRoot, lane);
   return {
     branch,
@@ -149,6 +174,10 @@ function loadHubContext(cwd) {
     lane,
     latestReport: mailbox.reports.at(-1),
     mailbox,
+    previousSessionId: sessionRecord.previousSessionId,
+    sessionId,
+    sessionRecordChanged: sessionRecord.changed,
+    sessionSource,
     unread: unreadMessages(mailbox),
   };
 }
@@ -181,6 +210,30 @@ function continueTurn(reason) {
 
 function formatMessageList(messages) {
   return messages.map((message) => `${message.id} (${message.subject})`).join(', ');
+}
+
+function formatSessionLines(context) {
+  const sessionId = context.sessionId || context.lane.activeSessionId || context.mailbox.activeSessionId || '';
+  if (sessionId.length === 0) {
+    return [];
+  }
+
+  const previousSessionId =
+    context.previousSessionId || context.lane.previousSessionId || context.mailbox.previousSessionId || '';
+  const sourceText = context.sessionSource || context.lane.sessionSource || context.mailbox.sessionSource || '-';
+  const lines = [`- Active Codex thread/session: ${sessionId} (${sourceText}).`];
+  if (context.sessionRecordChanged === true && previousSessionId.length > 0 && previousSessionId !== sessionId) {
+    lines.push(`- This is a new chat for the same lane; previous active session was ${previousSessionId}.`);
+  }
+  lines.push(
+    '- Use hub ack/report state and git status as source of truth; do not rerun already acknowledged hub messages just because this chat is new.'
+  );
+  return lines;
+}
+
+function sessionSourceText({ eventName, source }) {
+  const sourceText = typeof source === 'string' && source.length > 0 ? source : 'unknown';
+  return `${eventName || 'Unknown'}:${sourceText}`;
 }
 
 function indent(value) {

@@ -17,7 +17,7 @@ import {
   unreadMessages,
   validateHubContext,
 } from '../dev/hub-mailbox-lib.mjs';
-import { claimLane, createDefaultLedger } from '../dev/worktree-lanes-lib.mjs';
+import { claimLane, createDefaultLedger, recordLaneSession } from '../dev/worktree-lanes-lib.mjs';
 
 const fixedDate = new Date('2026-05-20T16:00:00.000Z');
 
@@ -94,6 +94,32 @@ test('hub mailbox syncs lane owner thread and branch changes', () => {
   assert.equal(mailbox.owner, 'new-owner');
   assert.equal(mailbox.thread, 'new-thread');
   assert.equal(mailbox.branch, 'codex/new-branch');
+});
+
+test('hub mailbox syncs active Codex session identity', () => {
+  const hubRoot = tempHubRoot();
+  const ledger = claimedLedger();
+  const lane = ledger.lanes.find((candidate) => candidate.id === 'codex-a');
+
+  recordLaneSession(ledger, {
+    laneId: 'codex-a',
+    now: fixedDate,
+    sessionId: '019e-worker-old',
+    source: 'SessionStart:startup',
+  });
+  ensureHub({ hubRoot, ledger, now: fixedDate });
+  recordLaneSession(ledger, {
+    laneId: 'codex-a',
+    now: new Date('2026-05-20T16:05:00.000Z'),
+    sessionId: '019e-worker-new',
+    source: 'SessionStart:startup',
+  });
+
+  const mailbox = readOrCreateMailbox(hubRoot, lane, fixedDate);
+  assert.equal(mailbox.thread, 'v0.3-capture');
+  assert.equal(mailbox.activeSessionId, '019e-worker-new');
+  assert.equal(mailbox.previousSessionId, '019e-worker-old');
+  assert.equal(mailbox.sessionSource, 'SessionStart:startup');
 });
 
 test('hub guard enforces changed files against lane locks', () => {

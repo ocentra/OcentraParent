@@ -64,6 +64,10 @@ export function createReusableLane(id, path) {
     branch: '',
     owner: '',
     thread: '',
+    activeSessionId: '',
+    previousSessionId: '',
+    sessionSource: '',
+    sessionUpdatedAt: '',
     task: '',
     notes: '',
     nextAction: 'Claim with a clean milestone branch before editing.',
@@ -164,6 +168,10 @@ export function claimLane(
   lane.base = base;
   lane.owner = owner;
   lane.thread = thread;
+  lane.activeSessionId = '';
+  lane.previousSessionId = '';
+  lane.sessionSource = '';
+  lane.sessionUpdatedAt = '';
   lane.task = task;
   lane.notes = notes;
   lane.claimedAt = now.toISOString();
@@ -179,6 +187,10 @@ export function freeLane(ledger, { laneId, nextAction = 'Reusable after fresh st
   lane.branch = '';
   lane.owner = '';
   lane.thread = '';
+  lane.activeSessionId = '';
+  lane.previousSessionId = '';
+  lane.sessionSource = '';
+  lane.sessionUpdatedAt = '';
   lane.task = '';
   lane.notes = '';
   lane.base = '';
@@ -187,6 +199,30 @@ export function freeLane(ledger, { laneId, nextAction = 'Reusable after fresh st
   lane.nextAction = nextAction;
   ledger.updatedAt = now.toISOString();
   return { ledger, lane };
+}
+
+export function recordLaneSession(ledger, { laneId, now = new Date(), sessionId, source = '' }) {
+  if (typeof sessionId !== 'string' || sessionId.length === 0) {
+    return { changed: false, lane: findLane(ledger, laneId), previousSessionId: '' };
+  }
+
+  const lane = findLane(ledger, laneId);
+  const previousSessionId = lane.activeSessionId ?? '';
+  const sessionChanged = previousSessionId !== sessionId;
+  const sourceChanged = (lane.sessionSource ?? '') !== source;
+
+  if (!sessionChanged && !sourceChanged) {
+    return { changed: false, lane, previousSessionId };
+  }
+
+  if (sessionChanged) {
+    lane.previousSessionId = previousSessionId;
+  }
+  lane.activeSessionId = sessionId;
+  lane.sessionSource = source;
+  lane.sessionUpdatedAt = now.toISOString();
+  ledger.updatedAt = now.toISOString();
+  return { changed: true, lane, previousSessionId };
 }
 
 export function validateLaneContext(ledger, { repoRoot, branch, laneId, owner }) {
@@ -239,9 +275,11 @@ export function formatLedgerSummary(ledger, liveStates = []) {
       const ownerText = lane.owner === undefined || lane.owner.length === 0 ? '-' : lane.owner;
       const threadText = lane.thread === undefined || lane.thread.length === 0 ? '-' : lane.thread;
       const nextText = lane.nextAction === undefined || lane.nextAction.length === 0 ? '-' : lane.nextAction;
+      const sessionText =
+        lane.activeSessionId === undefined || lane.activeSessionId.length === 0 ? '-' : lane.activeSessionId;
       return `${lane.id} | ${lane.status} | owner=${ownerText} | thread=${threadText} | ${lane.branch || '-'} | ${
         lane.task || '-'
-      } | next=${nextText} | ${liveText}`;
+      } | next=${nextText} | session=${sessionText} | ${liveText}`;
     })
     .join('\n');
 }

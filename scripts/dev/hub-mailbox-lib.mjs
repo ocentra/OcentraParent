@@ -64,6 +64,10 @@ export function createLaneMailbox(lane, now = new Date()) {
     laneId: lane.id,
     owner: lane.owner ?? '',
     thread: lane.thread ?? '',
+    activeSessionId: lane.activeSessionId ?? '',
+    previousSessionId: lane.previousSessionId ?? '',
+    sessionSource: lane.sessionSource ?? '',
+    sessionUpdatedAt: lane.sessionUpdatedAt ?? '',
     branch: lane.branch ?? '',
     messages: [],
     reports: [],
@@ -117,6 +121,7 @@ export function messageLane({ body, hubRoot, lane, now = new Date(), subject }) 
   };
   mailbox.owner = lane.owner ?? mailbox.owner;
   mailbox.thread = lane.thread ?? mailbox.thread;
+  syncMailboxSessionFromLane(mailbox, lane);
   mailbox.branch = lane.branch ?? mailbox.branch;
   mailbox.messages.push(message);
   mailbox.updatedAt = now.toISOString();
@@ -149,6 +154,7 @@ export function reportLane({ details = '', hubRoot, lane, now = new Date(), summ
   };
   mailbox.owner = lane.owner ?? mailbox.owner;
   mailbox.thread = lane.thread ?? mailbox.thread;
+  syncMailboxSessionFromLane(mailbox, lane);
   mailbox.branch = lane.branch ?? mailbox.branch;
   mailbox.reports.push(report);
   mailbox.updatedAt = now.toISOString();
@@ -214,7 +220,8 @@ export function formatHubSummary({ hubRoot, ledger, now = new Date() }) {
       const ackText = mailbox.lastAcknowledgedMessageId || '-';
       const locksText = mailbox.lockedPaths.length === 0 ? '-' : mailbox.lockedPaths.join(',');
       const reportText = latestReport(mailbox)?.summary ?? '-';
-      return `${lane.id} | thread=${lane.thread || '-'} | ${latestText} | ack=${ackText} | locks=${locksText} | report=${reportText}`;
+      const sessionText = mailbox.activeSessionId || '-';
+      return `${lane.id} | thread=${lane.thread || '-'} | session=${sessionText} | ${latestText} | ack=${ackText} | locks=${locksText} | report=${reportText}`;
     })
     .join('\n');
 }
@@ -257,14 +264,37 @@ function syncMailboxFromLane(mailbox, lane, now) {
   const nextOwner = lane.owner ?? '';
   const nextThread = lane.thread ?? '';
   const nextBranch = lane.branch ?? '';
-  if (mailbox.owner === nextOwner && mailbox.thread === nextThread && mailbox.branch === nextBranch) {
+  const nextActiveSessionId = lane.activeSessionId ?? '';
+  const nextPreviousSessionId = lane.previousSessionId ?? '';
+  const nextSessionSource = lane.sessionSource ?? '';
+  const nextSessionUpdatedAt = lane.sessionUpdatedAt ?? '';
+  if (
+    mailbox.owner === nextOwner &&
+    mailbox.thread === nextThread &&
+    mailbox.branch === nextBranch &&
+    mailbox.activeSessionId === nextActiveSessionId &&
+    mailbox.previousSessionId === nextPreviousSessionId &&
+    mailbox.sessionSource === nextSessionSource &&
+    mailbox.sessionUpdatedAt === nextSessionUpdatedAt
+  ) {
     return false;
   }
   mailbox.owner = nextOwner;
   mailbox.thread = nextThread;
   mailbox.branch = nextBranch;
+  mailbox.activeSessionId = nextActiveSessionId;
+  mailbox.previousSessionId = nextPreviousSessionId;
+  mailbox.sessionSource = nextSessionSource;
+  mailbox.sessionUpdatedAt = nextSessionUpdatedAt;
   mailbox.updatedAt = now.toISOString();
   return true;
+}
+
+function syncMailboxSessionFromLane(mailbox, lane) {
+  mailbox.activeSessionId = lane.activeSessionId ?? mailbox.activeSessionId ?? '';
+  mailbox.previousSessionId = lane.previousSessionId ?? mailbox.previousSessionId ?? '';
+  mailbox.sessionSource = lane.sessionSource ?? mailbox.sessionSource ?? '';
+  mailbox.sessionUpdatedAt = lane.sessionUpdatedAt ?? mailbox.sessionUpdatedAt ?? '';
 }
 
 function createMessageId(laneId, index, now) {
@@ -352,6 +382,7 @@ function formatInboxMarkdown(mailbox) {
     '',
     `Owner: ${mailbox.owner || '-'}`,
     `Thread: ${mailbox.thread || '-'}`,
+    `Active session: ${mailbox.activeSessionId || '-'}`,
     '',
   ];
   if (mailbox.messages.length === 0) {
@@ -382,6 +413,9 @@ function formatStatusMarkdown(mailbox) {
     '',
     `Owner: ${mailbox.owner || '-'}`,
     `Thread: ${mailbox.thread || '-'}`,
+    `Active session: ${mailbox.activeSessionId || '-'}`,
+    `Previous session: ${mailbox.previousSessionId || '-'}`,
+    `Session source: ${mailbox.sessionSource || '-'}`,
     `Branch: ${mailbox.branch || '-'}`,
     `Locks: ${mailbox.lockedPaths.length === 0 ? '-' : mailbox.lockedPaths.join(', ')}`,
     `Lock reason: ${mailbox.lockReason || '-'}`,

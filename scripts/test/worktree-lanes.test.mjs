@@ -10,6 +10,7 @@ import {
   freeLane,
   normalizeBranchName,
   parseLaneArgs,
+  recordLaneSession,
   validateLaneContext,
 } from '../dev/worktree-lanes-lib.mjs';
 import { runLaneCli } from '../dev/worktree-lanes.mjs';
@@ -107,6 +108,40 @@ test('worktree lane free parks previous branch and clears task', () => {
   assert.equal(lane.thread, '');
   assert.equal(lane.task, '');
   assert.equal(lane.nextAction, 'Ready for next milestone.');
+});
+
+test('worktree lane session registration preserves lane label and tracks replacements', () => {
+  const ledger = createDefaultLedger({ repoRoot: 'E:\\OcentraParent', now: fixedDate });
+  claimLane(ledger, {
+    laneId: 'codex-a',
+    branchInput: 'V0.3 Windows Process And Window Activity Capture',
+    task: 'capture',
+    now: fixedDate,
+    thread: 'v0.3-capture',
+  });
+
+  const first = recordLaneSession(ledger, {
+    laneId: 'codex-a',
+    now: fixedDate,
+    sessionId: '019e-worker-old',
+    source: 'SessionStart:startup',
+  });
+  assert.equal(first.changed, true);
+  assert.equal(first.lane.thread, 'v0.3-capture');
+  assert.equal(first.lane.activeSessionId, '019e-worker-old');
+  assert.equal(first.lane.previousSessionId, '');
+
+  const second = recordLaneSession(ledger, {
+    laneId: 'codex-a',
+    now: new Date('2026-05-20T14:05:00.000Z'),
+    sessionId: '019e-worker-new',
+    source: 'SessionStart:startup',
+  });
+  assert.equal(second.changed, true);
+  assert.equal(second.previousSessionId, '019e-worker-old');
+  assert.equal(second.lane.thread, 'v0.3-capture');
+  assert.equal(second.lane.activeSessionId, '019e-worker-new');
+  assert.equal(second.lane.previousSessionId, '019e-worker-old');
 });
 
 test('worktree lane args parse boolean and value options', () => {

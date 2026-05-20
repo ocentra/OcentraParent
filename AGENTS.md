@@ -14,7 +14,7 @@ When a worker lane should receive follow-up work from the primary hub without an
 
 When the primary hub should notice worker reports without manual polling, leave `npm run hub:watch -- --reports --interval-ms 5000` running in the primary checkout.
 
-Repo-local Codex hooks live in `.codex/hooks.json` and route through `npm run --silent hub:hook` to `scripts/dev/codex-hub-hook.mjs`. They inject hub context on session start and user prompts, remind dirty worker lanes to lock files after tool use, and continue worker turns at stop time when unread hub messages or unguarded dirty paths still need attention. If the Codex Hooks settings page asks for trust review, review and enable the project hooks before relying on automatic hub context.
+Repo-local Codex hooks live in `.codex/hooks.json` and route through `npm run --silent hub:hook` to `scripts/dev/codex-hub-hook.mjs`. They inject hub context on session start and user prompts, record the active Codex `session_id` for the current lane, remind dirty worker lanes to lock files after tool use, and continue worker turns at stop time when unread hub messages or unguarded dirty paths still need attention. If the primary or a worker chat gets too long, start a new chat in the same worktree; the hook will identify the lane, show already acknowledged hub messages and latest reports, and prevent repeating completed inbox setup. If the Codex Hooks settings page asks for trust review, review and enable the project hooks before relying on automatic hub context.
 
 When writing or changing tests, also read `.ocentra-ai/rules/ocentra-parent-test-rules.mdc`. Test doubles are forbidden; tests must use real contracts, parsers, services, transports, or UI paths.
 

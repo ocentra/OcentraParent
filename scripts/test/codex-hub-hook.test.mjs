@@ -28,9 +28,13 @@ function workerContext(overrides = {}) {
     },
     latestReport: undefined,
     mailbox: {
+      activeSessionId: '',
+      lastAcknowledgedMessageId: '',
       lockedPaths: [],
       messages: [message],
+      previousSessionId: '',
       reports: [],
+      sessionSource: '',
     },
     unread: [message],
     ...overrides,
@@ -46,14 +50,20 @@ function primaryContext() {
       'primary | thread=primary | message=- | ack=- | locks=- | report=-\n' +
       'codex-a | thread=v0.3-capture | message=codex-a-msg-1 | ack=codex-a-msg-1 | locks=- | report=ready',
     lane: {
+      activeSessionId: '',
       id: 'primary',
+      previousSessionId: '',
       thread: 'primary',
     },
     latestReport: undefined,
     mailbox: {
+      activeSessionId: '',
+      lastAcknowledgedMessageId: '',
       lockedPaths: [],
       messages: [],
+      previousSessionId: '',
       reports: [],
+      sessionSource: '',
     },
     unread: [],
   };
@@ -67,6 +77,30 @@ test('hub hook injects primary coordination context', () => {
   assert.match(context, /hub:watch -- --reports/u);
 });
 
+test('hub hook marks replacement primary chats as coordination continuations', () => {
+  const context = formatAgentContext({
+    ...primaryContext(),
+    mailbox: {
+      activeSessionId: '019e-primary-new',
+      lastAcknowledgedMessageId: '',
+      lockedPaths: [],
+      messages: [],
+      previousSessionId: '019e-primary-old',
+      reports: [],
+      sessionSource: 'SessionStart:startup',
+    },
+    previousSessionId: '019e-primary-old',
+    sessionId: '019e-primary-new',
+    sessionRecordChanged: true,
+    sessionSource: 'SessionStart:startup',
+  });
+
+  assert.match(context, /Current lane: primary/u);
+  assert.match(context, /Active Codex thread\/session: 019e-primary-new/u);
+  assert.match(context, /previous active session was 019e-primary-old/u);
+  assert.match(context, /Worker summary/u);
+});
+
 test('hub hook injects worker inbox context', () => {
   const context = formatAgentContext(workerContext());
 
@@ -74,6 +108,32 @@ test('hub hook injects worker inbox context', () => {
   assert.match(context, /Unread hub message/u);
   assert.match(context, /npm run hub:ack/u);
   assert.match(context, /npm run hub:report/u);
+});
+
+test('hub hook marks replacement worker chats as lane continuations', () => {
+  const context = formatAgentContext(
+    workerContext({
+      mailbox: {
+        activeSessionId: '019e-worker-new',
+        lastAcknowledgedMessageId: 'codex-a-msg-1',
+        lockedPaths: [],
+        messages: [],
+        previousSessionId: '019e-worker-old',
+        reports: [],
+        sessionSource: 'SessionStart:startup',
+      },
+      previousSessionId: '019e-worker-old',
+      sessionId: '019e-worker-new',
+      sessionRecordChanged: true,
+      sessionSource: 'SessionStart:startup',
+      unread: [],
+    })
+  );
+
+  assert.match(context, /Active Codex thread\/session: 019e-worker-new/u);
+  assert.match(context, /previous active session was 019e-worker-old/u);
+  assert.match(context, /do not rerun already acknowledged hub messages/u);
+  assert.match(context, /Latest acknowledged hub message: codex-a-msg-1/u);
 });
 
 test('hub stop hook continues worker turns with unread hub messages', () => {
