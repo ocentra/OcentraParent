@@ -64,6 +64,11 @@ Data scope:
   launcher manifest hints, and queryable session summaries such as run count,
   running time, foreground time, first seen, and last seen. AI must not be the
   scanner for these facts.
+- Screen evidence capture, when enabled, may record encrypted temporary image
+  queue jobs, local OCR/vision summaries, categories, confidence, source evidence
+  references, image digest, and deletion status. Long-term evidence should be the
+  structured summary, not permanent screenshots, unless a later milestone
+  explicitly approves retention.
 
 Trust boundary:
 
@@ -99,6 +104,7 @@ Contract boundary:
 - Recent activity read model for portal visibility.
 - App/game session read model for duration, foreground time, and category-ready
   evidence when app/game capture is in scope.
+- Screen-analysis queue and summary read model when screen evidence is in scope.
 - Local AI evaluation input only when a later milestone explicitly introduces a
   dry-run policy or AI preview contract.
 - Dev/local portal visibility for captured evidence through the real service

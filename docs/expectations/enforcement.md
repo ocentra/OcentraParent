@@ -38,6 +38,9 @@ Billing in V7 may gate paid product value, but billing must stay outside core sa
 - Network enforcement may block or terminate only after a typed policy decision
   references stored network flow evidence or a network digest. It must not depend
   on AI-invented packet or content claims.
+- Screen-derived enforcement may act only after a typed policy decision
+  references a schema-valid local screen-analysis summary. It must not act on raw
+  AI text or retained screenshots.
 - macOS, Linux, Android, and iOS require platform-specific adapter contracts and proof before claiming enforcement.
 - Web is not an enforcement platform. Web can show status and author intents only.
 
@@ -59,6 +62,9 @@ Enforcement input may include:
 - For network enforcement: flow summary id, process reference, destination
   reference, protocol, domain/IP attribution status, VPN/proxy/tunnel indicator
   where available, and parent rule reference.
+- For screen-derived enforcement: screen-analysis id, source evidence refs,
+  category/risk signal, confidence, image deletion state, and parent rule
+  reference.
 
 Enforcement output must include:
 
@@ -75,6 +81,8 @@ Enforcement output must include:
 - For network enforcement: whether the flow/process/domain was blocked,
   terminated, unavailable, already ended, or left running because policy is in
   observe-only mode.
+- For screen-derived enforcement: whether action was taken, skipped for low
+  confidence, degraded to ask-parent, or left in observe-only mode.
 - Recovery state when the adapter could not enforce or had to rollback.
 
 ## Trust Boundary

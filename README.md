@@ -78,6 +78,13 @@ It must not rely on decrypted HTTPS payloads or raw packet dumps as normal
 evidence, and AI must not sniff traffic or invent what happened inside encrypted
 connections.
 
+Screen evidence is local-only and high sensitivity. If enabled, the Rust agent
+may queue encrypted temporary screenshots on a configurable cadence or trigger,
+process them with a local OCR/vision model, store only typed summaries and
+evidence references, then delete the image. Screenshots do not leave the child PC
+under this feature, and the product must disclose the local screen-analysis
+behavior clearly.
+
 ## Current Repository State
 
 This repository is currently in scaffold-first mode. The committed foundation includes workspace layout, domain boundaries, validation gates, test structure, Rust crate boundaries, local and LAN dev APIs, a minimal Vite portal, MSI release packaging, package-preview scaffolds for every target platform, signed updater scaffolding, dependency/security gates, and SBOM generation.

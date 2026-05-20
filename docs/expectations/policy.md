@@ -43,6 +43,8 @@ Policy input may include:
 - Network flow summaries, destination/category candidates, VPN/proxy/tunnel
   indicators, bandwidth/count summaries, and evidence-backed unknown states when
   network flow evidence exists.
+- Local screen-analysis summaries, visible category candidates, risk signals,
+  confidence, and deletion state when screen evidence exists.
 - Parent-authored rules, schedules, overrides, grace periods, and permission-request state.
 - Local AI safety result references and confidence/degraded state when AI contributes.
 - Time budget state, active timers, and previous policy decisions.
@@ -101,6 +103,8 @@ The evaluator must define and test conflict resolution before enforcement is pos
 - Network flow target contracts for process, domain, IP, protocol, destination
   category, VPN/proxy/tunnel indicator, bandwidth/count budget, and
   unusual-traffic digest.
+- Screen-derived category/risk target contracts for visible activity categories,
+  confidence thresholds, and local-only evidence requirements.
 - Permission request contracts.
 - Decision reason codes.
 - Local AI decision input and output contracts when the policy is context-heavy.

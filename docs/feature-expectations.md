@@ -31,6 +31,7 @@ If a change cannot explain what parent problem it solves, what evidence it creat
 - [Network flow evidence expectations](expectations/network-flow-evidence.md)
 - [Browser URL and tab evidence expectations](expectations/browser-evidence.md)
 - [App and game evidence expectations](expectations/app-game-evidence.md)
+- [Screen evidence analysis expectations](expectations/screen-evidence.md)
 - [Portal feature expectations](expectations/portal.md)
 - [Policy feature expectations](expectations/policy.md)
 - [Enforcement feature expectations](expectations/enforcement.md)

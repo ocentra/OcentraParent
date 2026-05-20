@@ -112,6 +112,14 @@ Browser evidence visibility:
 - Shows missing bridge, unsupported browser, stale evidence, and permission
   states as explicit capability status.
 
+Screen evidence visibility:
+
+- Shows local screen-analysis summaries, confidence, categories, source evidence
+  refs, and policy result without exposing raw images by default.
+- Shows whether the temporary image was deleted, expired, failed, or unavailable.
+- Clearly discloses that local screen analysis may run on the child device and
+  that images do not leave the child PC under this feature.
+
 V0.5 live activity portal:
 
 - Provides a usable local parent visibility surface with health, activity,

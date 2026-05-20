@@ -383,6 +383,48 @@ Acceptance:
 - Child-facing status can explain that a game/app was stopped by parent policy
   and ask for parent permission when enforcement is enabled.
 
+### V0.5.3 Local Screen Evidence Analysis Queue
+
+Purpose:
+
+Add an optional local visual evidence layer for ambiguous activity. The Rust
+agent captures screen/window images on a configurable cadence or trigger, stores
+them only as encrypted temporary queue jobs, lets a local OCR/vision model
+produce typed JSON summaries, then deletes the image. Policy consumes only
+schema-valid summaries and evidence references.
+
+Expectation links:
+
+- [Screen evidence analysis expectations](expectations/screen-evidence.md)
+- [Capture feature expectations](expectations/capture.md)
+- [Evidence storage expectations](expectations/evidence-storage.md)
+- [AI feature expectations](expectations/ai.md)
+- [Policy feature expectations](expectations/policy.md)
+- [Enforcement feature expectations](expectations/enforcement.md)
+- [Portal feature expectations](expectations/portal.md)
+
+Deliverables:
+
+- Screen capture capability/status contract.
+- Encrypted temporary screen-analysis queue contract with TTL and retry state.
+- Local OCR/vision result contract with summary, categories, confidence, risk
+  signals, source evidence refs, image digest, and deletion state.
+- Configurable cadence, such as five-minute default and one-minute strict mode.
+- Triggered capture hooks for foreground app, managed URL, game/app foreground,
+  and unusual network changes.
+- Policy target support for visible activity categories and screen-derived risk
+  signals.
+- Parent-visible disclosure and summary view.
+
+Acceptance:
+
+- Screen images do not leave the child PC for API AI or cloud processing.
+- Temporary images are encrypted while queued and deleted after successful local
+  analysis or TTL expiry.
+- Rust validates AI JSON before journal/query ingest or policy use.
+- Enforcement acts only from typed policy decisions, not raw AI text.
+- Parent-facing UI/docs disclose local screen analysis clearly.
+
 ### V0.6 Local AI Safety Decision Contracts
 
 Purpose:
@@ -406,6 +448,8 @@ Deliverables:
 - Permission request contracts.
 - Local AI input contract: evidence, URL/page/video/app context, parent rules, recent activity context.
 - Local AI output contract: allow, warn, block, time-limit, ask-parent, unknown, confidence, reason, evidence references.
+- Local screen-analysis summary reference contract for OCR/vision results when
+  that capture slice exists.
 - Local model/runtime status contracts inspired by TabAgentServer, but owned by Ocentra Parent.
 - Memory and knowledge-graph reference contracts for future evidence-backed agent intelligence.
 - Policy decision event contracts.

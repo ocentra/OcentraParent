@@ -48,6 +48,9 @@ AI input may include:
 - Agent-generated network flow summaries and unusual-traffic digests, including
   process references, destinations, counts, bytes where available, VPN/proxy
   indicators, and unknown/encrypted states.
+- Local screen-analysis summaries generated from encrypted temporary screen
+  queue jobs, including categories, confidence, risk signals, source evidence
+  refs, image digest, and deletion state.
 - Parent rule references, policy version, child profile reference, device reference, schedule window, and recent activity summary.
 - Local memory references and knowledge-graph references only when those references cite source evidence, policy versions, or parent actions.
 - Local model/provider status and prompt/template version.
@@ -59,6 +62,8 @@ AI input must not include:
   runtime.
 - Direct packet sniffing, raw packet dumps, decrypted payloads, or network
   content capture by the AI runtime.
+- Permanent raw screenshot retention or cloud/API AI upload of screenshots under
+  the screen-evidence feature.
 - Decrypted HTTPS payloads unless a future explicit legal/product boundary approves a specific capture mode.
 - Data uploaded to API AI without explicit privacy, parent-control, and cloud-routing contracts.
 - Derived memory or graph claims that cannot point back to source evidence.
@@ -95,6 +100,7 @@ captured page/video/app/domain evidence
   -> encrypted journal and SQLite query store
   -> agent-generated summaries or digests
   -> network flow summaries or unusual-traffic digests
+  -> optional local screen-analysis summaries
   -> parent rules and recent context
   -> optional evidence-backed memory and graph references
   -> child-device local model
