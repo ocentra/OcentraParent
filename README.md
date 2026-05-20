@@ -64,6 +64,13 @@ no browser extension requirement. A normal browser instance outside that managed
 path is treated as unmanaged browser use: observation mode reports it clearly,
 and later enforcement may block or terminate it according to parent policy.
 
+Native games and apps follow the same evidence-first rule. The Rust agent should
+observe process/window/install/launcher evidence, write it to the journal and
+SQLite store, derive queryable session summaries such as running time and
+foreground time, and only then let local AI or policy consume those stored
+digests. AI is not the scanner and must not invent that a process is a game or
+that it ran for two hours without evidence.
+
 ## Current Repository State
 
 This repository is currently in scaffold-first mode. The committed foundation includes workspace layout, domain boundaries, validation gates, test structure, Rust crate boundaries, local and LAN dev APIs, a minimal Vite portal, MSI release packaging, package-preview scaffolds for every target platform, signed updater scaffolding, dependency/security gates, and SBOM generation.

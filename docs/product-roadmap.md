@@ -334,6 +334,48 @@ Acceptance:
 - No page body text, screenshots, keystrokes, form values, browser secrets, or
   decrypted HTTPS payloads are captured.
 
+### V0.5.2 App And Game Evidence Sessions
+
+Purpose:
+
+Make native app and game usage queryable before AI or enforcement depends on it.
+The Rust agent observes processes, foreground windows, installed app/game
+metadata, launcher hints, and local session duration. AI may classify unknown or
+ambiguous evidence from stored digests, but it does not scan the machine and it
+does not invent duration.
+
+Expectation links:
+
+- [App and game evidence expectations](expectations/app-game-evidence.md)
+- [Capture feature expectations](expectations/capture.md)
+- [Evidence storage expectations](expectations/evidence-storage.md)
+- [Policy feature expectations](expectations/policy.md)
+- [Enforcement feature expectations](expectations/enforcement.md)
+- [Portal feature expectations](expectations/portal.md)
+
+Deliverables:
+
+- Installed app/game inventory contract.
+- Running process app/game observation contract.
+- Foreground app/game session contract.
+- App/game session summary contract with running time, foreground time, run
+  count, first/last seen, and evidence references.
+- Deterministic known-game catalog match before AI classification.
+- AI digest/input contract that references stored app/game evidence.
+- Policy target contract for app, process, launcher, game title, and category.
+- Dry-run enforcement handoff for block, terminate, time-limit, and ask-parent.
+
+Acceptance:
+
+- The system can distinguish "Steam is running" from "a Steam game is running"
+  when launcher/library/process evidence makes that distinction possible.
+- Running time and foreground time come from journal/query evidence, not portal
+  state or AI guesses.
+- AI consumes only stored evidence references or agent-generated digests.
+- Parent game/category time-limit rules can evaluate the session summary.
+- Child-facing status can explain that a game/app was stopped by parent policy
+  and ask for parent permission when enforcement is enabled.
+
 ### V0.6 Local AI Safety Decision Contracts
 
 Purpose:

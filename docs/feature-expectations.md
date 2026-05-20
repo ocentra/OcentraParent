@@ -28,6 +28,8 @@ If a change cannot explain what parent problem it solves, what evidence it creat
 - [Contract feature expectations](expectations/contracts.md)
 - [Evidence storage expectations](expectations/evidence-storage.md)
 - [Capture feature expectations](expectations/capture.md)
+- [Browser URL and tab evidence expectations](expectations/browser-evidence.md)
+- [App and game evidence expectations](expectations/app-game-evidence.md)
 - [Portal feature expectations](expectations/portal.md)
 - [Policy feature expectations](expectations/policy.md)
 - [Enforcement feature expectations](expectations/enforcement.md)

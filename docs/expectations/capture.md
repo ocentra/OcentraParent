@@ -54,6 +54,11 @@ Data scope:
   evidence. They must be reported as unmanaged browser use with explicit
   capability status and, in later enforcement milestones, may be blocked or
   terminated according to parent policy.
+- App/game capture may record process, executable path, publisher/signature/hash
+  where available, foreground state, window title, installed app/game metadata,
+  launcher manifest hints, and queryable session summaries such as run count,
+  running time, foreground time, first seen, and last seen. AI must not be the
+  scanner for these facts.
 
 Trust boundary:
 
@@ -87,6 +92,8 @@ Contract boundary:
 - Journal write path from real observations.
 - Query-store ingest path from real observations.
 - Recent activity read model for portal visibility.
+- App/game session read model for duration, foreground time, and category-ready
+  evidence when app/game capture is in scope.
 - Local AI evaluation input only when a later milestone explicitly introduces a
   dry-run policy or AI preview contract.
 - Dev/local portal visibility for captured evidence through the real service

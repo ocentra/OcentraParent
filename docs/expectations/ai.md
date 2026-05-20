@@ -25,6 +25,9 @@ V4 may add API AI parent assistant and advanced explanation. V4 cannot replace l
 
 - The child-device agent can evaluate a narrow page, video link, app, domain, or recent activity window locally.
 - The local evaluator consumes only typed evidence, typed parent rules, recent local context, and optional evidence-backed memory or graph references.
+- The local evaluator reads app/game observations, duration summaries, and
+  structured digests produced by the Rust agent; it does not scan processes,
+  files, windows, or browser state itself.
 - The local evaluator returns a schema-valid result that policy can deterministically consume.
 - The child-device agent records the local AI result, its model/runtime status reference, evidence references, and degraded state before policy or enforcement acts on it.
 
@@ -40,6 +43,8 @@ AI input may include:
 
 - Current typed observation: app, process, window, URL, page, video, domain, category, or network context when those capture slices exist.
 - Stored evidence references from the encrypted journal and SQLite query store.
+- Agent-generated app/game session summaries and digests, including running
+  time, foreground time, evidence ids, category candidates, and unknown states.
 - Parent rule references, policy version, child profile reference, device reference, schedule window, and recent activity summary.
 - Local memory references and knowledge-graph references only when those references cite source evidence, policy versions, or parent actions.
 - Local model/provider status and prompt/template version.
@@ -47,6 +52,8 @@ AI input may include:
 AI input must not include:
 
 - Raw unbounded browser or OS content by default.
+- Direct OS, process, window, browser, launcher, or filesystem scanning by the AI
+  runtime.
 - Decrypted HTTPS payloads unless a future explicit legal/product boundary approves a specific capture mode.
 - Data uploaded to API AI without explicit privacy, parent-control, and cloud-routing contracts.
 - Derived memory or graph claims that cannot point back to source evidence.
@@ -81,6 +88,7 @@ Memory and graph output are derived indexes, not source truth. They must cite st
 ```text
 captured page/video/app/domain evidence
   -> encrypted journal and SQLite query store
+  -> agent-generated summaries or digests
   -> parent rules and recent context
   -> optional evidence-backed memory and graph references
   -> child-device local model
