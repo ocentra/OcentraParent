@@ -11,6 +11,7 @@ import {
   normalizeBranchName,
   parseLaneArgs,
 } from '../dev/worktree-lanes-lib.mjs';
+import { runLaneCli } from '../dev/worktree-lanes.mjs';
 
 const fixedDate = new Date('2026-05-20T14:00:00.000Z');
 
@@ -118,4 +119,8 @@ test('worktree lane summary includes live status when supplied', () => {
 
   assert.match(summary, /primary \| occupied \| main \| user primary checkout \| live=## main/u);
   assert.match(summary, /codex-a \| free-warm \| - \| - \| live=not-checked/u);
+});
+
+test('worktree lane CLI rejects unknown commands before git execution', () => {
+  assert.throws(() => runLaneCli(['unknown-command']), /Unknown lane command/u);
 });
