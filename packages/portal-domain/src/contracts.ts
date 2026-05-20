@@ -1,4 +1,4 @@
-import { AgentCommand, AgentProtocolDefaults } from '@ocentra-parent/agent-protocol-domain/contracts';
+import { AgentCommand, AgentEvent, AgentProtocolDefaults } from '@ocentra-parent/agent-protocol-domain/contracts';
 import { decodeDisplayText, type DisplayText } from '@ocentra-parent/text-domain/contracts';
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/text-domain/portal-dev';
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
@@ -9,10 +9,13 @@ export const PortalRouteSchema = withParser(Schema.Literal('overview', 'commands
 export type PortalRoute = Infer<typeof PortalRouteSchema>;
 
 export const PortalDetailValueSchema = withParser(NonEmptyPortalText.pipe(Schema.brand('PortalDetailValue')));
+export const PortalClipboardTextSchema = withParser(NonEmptyPortalText.pipe(Schema.brand('PortalClipboardText')));
 export type PortalDetailValue = Infer<typeof PortalDetailValueSchema>;
+export type PortalClipboardText = Infer<typeof PortalClipboardTextSchema>;
 export type PortalDisplayText = DisplayText;
 
 export const decodePortalDetailValue = PortalDetailValueSchema.parse;
+export const decodePortalClipboardText = PortalClipboardTextSchema.parse;
 
 export const PortalConnectionStateSchema = withParser(
   Schema.Literal('disconnected', 'connecting', 'connected', 'error')
@@ -56,10 +59,18 @@ export const PortalDom = {
     Section: 'section',
     Strong: 'strong',
     Span: 'span',
+    TextArea: 'textarea',
   },
   Classes: {
+    ClipboardBuffer: 'clipboard-buffer',
     ClassNameSeparator: ' ',
     CommandGrid: 'command-grid',
+    CommandResultEmpty: 'command-result-empty',
+    CommandResultHeader: 'command-result-header',
+    CommandResultPanel: 'command-result-panel',
+    CommandResultTab: 'command-result-tab',
+    CommandResultTabActive: 'command-result-tab-active',
+    CopyResultButton: 'copy-result-button',
     Header: 'header',
     Log: 'log',
     LogLevelPrefix: 'log-',
@@ -72,6 +83,7 @@ export const PortalDom = {
   Attributes: {
     AriaCurrent: 'aria-current',
     Page: 'page',
+    ReadOnly: 'readonly',
   },
   Events: {
     Click: 'click',
@@ -86,9 +98,17 @@ export const PortalDom = {
   },
 } as const;
 
+export const PortalClipboard = {
+  CommandCopy: 'copy',
+} as const;
+
 export const PortalFormatting = {
   EventDetailSeparator: ' | ',
   CorrelationPrefix: 'correlation ',
+} as const;
+
+export const PortalTiming = {
+  CopyFeedbackMs: 1200,
 } as const;
 
 export const PortalEnvironment = {
@@ -115,16 +135,19 @@ export const PortalCommandButtons = [
   {
     label: resolvePortalDevText(PortalDevTextToken.CheckHealth),
     command: AgentCommand.HealthCheck,
+    resultEvent: AgentEvent.HealthReported,
     payload: {},
   },
   {
     label: resolvePortalDevText(PortalDevTextToken.GetLogSnapshot),
     command: AgentCommand.LogSnapshotGet,
+    resultEvent: AgentEvent.LogSnapshotReported,
     payload: {},
   },
   {
     label: resolvePortalDevText(PortalDevTextToken.EchoPortalPing),
     command: AgentCommand.DevEcho,
+    resultEvent: AgentEvent.DevEchoed,
     payload: {
       [AgentProtocolDefaults.Field.Message]: resolvePortalDevText(PortalDevTextToken.EchoPortalPing),
     },
@@ -132,6 +155,7 @@ export const PortalCommandButtons = [
   {
     label: resolvePortalDevText(PortalDevTextToken.GetWatcherStatus),
     command: AgentCommand.WatchStatusGet,
+    resultEvent: AgentEvent.WatchStatusReported,
     payload: {},
   },
 ] as const;

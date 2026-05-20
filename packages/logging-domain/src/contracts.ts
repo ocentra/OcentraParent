@@ -21,7 +21,7 @@ export const LogFieldsSchema = withParser(
 
 export const LogLevelSchema = withParser(Schema.Literal('trace', 'debug', 'info', 'warn', 'error'));
 
-export const LogSourceSchema = withParser(Schema.Literal('agent-service', 'local-api', 'portal'));
+export const LogSourceSchema = withParser(Schema.Literal('agent-service', 'dev-server', 'local-api', 'portal'));
 
 export const AgentIdentitySchema = withParser(
   Schema.Struct({
@@ -51,6 +51,18 @@ export const AgentLogSnapshotSchema = withParser(
   })
 );
 
+export const DevLogEntrySchema = withParser(
+  Schema.Struct({
+    schemaVersion: Schema.Literal(1),
+    id: LogEntryIdSchema,
+    timestamp: LogTimestampSchema,
+    level: LogLevelSchema,
+    source: LogSourceSchema,
+    message: LogMessageSchema,
+    fields: LogFieldsSchema,
+  })
+);
+
 export type LogFieldValue = Infer<typeof LogFieldValueSchema>;
 export type LogFields = Infer<typeof LogFieldsSchema>;
 export type LogLevel = Infer<typeof LogLevelSchema>;
@@ -65,3 +77,68 @@ export type LogMessage = typeof LogMessageSchema.Type;
 export type AgentIdentity = Infer<typeof AgentIdentitySchema>;
 export type AgentLogEntry = Infer<typeof AgentLogEntrySchema>;
 export type AgentLogSnapshot = Infer<typeof AgentLogSnapshotSchema>;
+export type DevLogEntry = Infer<typeof DevLogEntrySchema>;
+
+export const decodeLogEntryId = Schema.decodeUnknownSync(LogEntryIdSchema);
+export const decodeLogMessage = Schema.decodeUnknownSync(LogMessageSchema);
+export const decodeLogTimestamp = Schema.decodeUnknownSync(LogTimestampSchema);
+
+export const LogLevel = {
+  Trace: LogLevelSchema.parse('trace'),
+  Debug: LogLevelSchema.parse('debug'),
+  Info: LogLevelSchema.parse('info'),
+  Warn: LogLevelSchema.parse('warn'),
+  Error: LogLevelSchema.parse('error'),
+} as const;
+
+export const LogSource = {
+  AgentService: LogSourceSchema.parse('agent-service'),
+  DevServer: LogSourceSchema.parse('dev-server'),
+  LocalApi: LogSourceSchema.parse('local-api'),
+  Portal: LogSourceSchema.parse('portal'),
+} as const;
+
+export const DevLogEndpoint = {
+  Write: '/__ocentra-parent-dev-log',
+} as const;
+
+export const DevLogHttp = {
+  MethodPost: 'POST',
+  HeaderContentType: 'Content-Type',
+  ContentTypeJson: 'application/json',
+  CredentialsSameOrigin: 'same-origin',
+} as const;
+
+export const DevLogEnvironment = {
+  Directory: 'OCENTRA_PARENT_DEV_LOG_DIR',
+} as const;
+
+export const DevLogFile = {
+  DirectoryName: 'dev',
+  Extension: 'ndjson',
+  AgentServicePrefix: 'agent-service',
+  PortalPrefix: 'portal',
+  DevServerPrefix: 'dev-server',
+} as const;
+
+export const DevLogField = {
+  AgentWebSocketUrl: 'agentWebSocketUrl',
+  Command: 'command',
+  ConnectionState: 'connectionState',
+  Event: 'event',
+  EventsBuffered: 'eventsBuffered',
+  Port: 'port',
+} as const;
+
+export const DevLogIdPrefix = {
+  Portal: 'portal-log-',
+  DevServer: 'dev-server-log-',
+} as const;
+
+export const DevLogMessage = {
+  PortalStarted: decodeLogMessage('Portal dev runtime started.'),
+  PortalCommandSent: decodeLogMessage('Portal command sent.'),
+  PortalEventReceived: decodeLogMessage('Portal WebSocket event received.'),
+  PortalResultCopied: decodeLogMessage('Portal command result copied.'),
+  DevServerStarted: decodeLogMessage('Vite dev server started.'),
+} as const;

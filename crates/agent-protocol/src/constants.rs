@@ -9,6 +9,7 @@ pub mod env_var {
     pub const AGENT_ADDR: &str = "OCENTRA_PARENT_AGENT_ADDR";
     pub const AGENT_LOCAL_NETWORK_ENABLED: &str = "OCENTRA_PARENT_AGENT_LOCAL_NETWORK_ENABLED";
     pub const COMPUTER_NAME: &str = "COMPUTERNAME";
+    pub const DEV_LOG_DIR: &str = "OCENTRA_PARENT_DEV_LOG_DIR";
     pub const HOSTNAME: &str = "HOSTNAME";
 }
 
@@ -37,6 +38,7 @@ pub mod event_id {
 pub mod field {
     pub const AVAILABLE: &str = "available";
     pub const CAPTURE_ENABLED: &str = "captureEnabled";
+    pub const COMMAND: &str = "command";
     pub const ENTRIES: &str = "entries";
     pub const MODE: &str = "mode";
     pub const NETWORK_MODE: &str = "networkMode";
@@ -61,6 +63,19 @@ pub mod value {
     pub const LOCALHOST_API_REACHABLE: &str = "Agent service localhost API is reachable.";
 }
 
+pub mod dev_log {
+    pub const AGENT_FILE_PREFIX: &str = "agent-service";
+    pub const DATE_CHARS: usize = 10;
+    pub const DEFAULT_DIR: &str = ".logs/dev";
+    pub const FILE_EXTENSION: &str = "ndjson";
+    pub const ID_PREFIX: &str = "agent-log-";
+}
+
+pub mod dev_log_message {
+    pub const AGENT_SERVICE_STARTED: &str = "Agent service dev runtime started.";
+    pub const AGENT_HEALTH_REQUESTED: &str = "Agent health endpoint requested.";
+}
+
 pub mod error {
     pub const AGENT_ADDR_SOCKET_ADDRESS: &str =
         "OCENTRA_PARENT_AGENT_ADDR must be a socket address";
@@ -69,9 +84,13 @@ pub mod error {
         "non-loopback bind requires OCENTRA_PARENT_AGENT_LOCAL_NETWORK_ENABLED=true";
     pub const LOCALHOST_BIND_SUCCEEDS: &str = "agent service localhost bind succeeds";
     pub const AGENT_SERVICE_RUNS: &str = "agent service runs";
+    pub const DEV_LOG_SERIALIZES: &str = "dev log serializes";
     pub const AGENT_EVENT_SERIALIZES: &str = "agent event serializes";
 }
 
 pub mod delimiter {
+    pub const DOT: char = '.';
+    pub const HYPHEN: char = '-';
     pub const LIST: char = ',';
+    pub const NEWLINE: char = '\n';
 }

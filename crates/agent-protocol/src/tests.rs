@@ -1,8 +1,8 @@
 use super::{
     crate_name, AgentCommandEnvelope, AgentCommandName, AgentEventEnvelope, AgentEventName,
     AgentIdentity, AgentLogEntry, AgentLogSnapshot, AgentMessageTarget, AgentPairingProof,
-    AgentPeer, AgentPeerRole, AgentRoute, AgentRouteSecurityPolicy, LogFieldValue, LogFields,
-    LogLevel, LogSource, AGENT_PROTOCOL_SCHEMA_VERSION, LOG_SCHEMA_VERSION,
+    AgentPeer, AgentPeerRole, AgentRoute, AgentRouteSecurityPolicy, DevLogEntry, LogFieldValue,
+    LogFields, LogLevel, LogSource, AGENT_PROTOCOL_SCHEMA_VERSION, LOG_SCHEMA_VERSION,
 };
 
 #[test]
@@ -145,4 +145,23 @@ fn websocket_event_envelope_serializes_to_typescript_contract_shape() {
     assert_eq!(serialized["event"], "agent.health.reported");
     assert_eq!(serialized["payload"]["online"], true);
     assert!(serialized["snapshot"].is_null());
+}
+
+#[test]
+fn dev_log_entry_serializes_to_typescript_ndjson_shape() {
+    let entry = DevLogEntry {
+        schema_version: LOG_SCHEMA_VERSION,
+        id: "agent-log-1".to_string(),
+        timestamp: "2026-05-20T00:00:00Z".to_string(),
+        level: LogLevel::Info,
+        source: LogSource::AgentService,
+        message: "Agent service dev runtime started.".to_string(),
+        fields: LogFields::new(),
+    };
+
+    let serialized = serde_json::to_value(entry).expect("dev log serializes");
+
+    assert_eq!(serialized["schemaVersion"], 1);
+    assert_eq!(serialized["source"], "agent-service");
+    assert_eq!(serialized["message"], "Agent service dev runtime started.");
 }

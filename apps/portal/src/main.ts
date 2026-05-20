@@ -1,7 +1,9 @@
 import { AgentProtocolDefaults, decodeAgentWebSocketUrl } from '@ocentra-parent/agent-protocol-domain/contracts';
 import { PortalDom, PortalEnvironment, PortalText, PortalTextToken } from '@ocentra-parent/portal-domain/contracts';
+import { DevLogField, DevLogMessage, writePortalDevLog } from './dev-logger';
+import type { PortalRenderActions } from './portal-actions';
 import { createPortalRuntimeState } from './portal-state';
-import { renderShell, type PortalRenderActions } from './render';
+import { renderShell } from './render';
 import { connectWebSocket, sendCommand } from './transport';
 import './styles.css';
 
@@ -11,9 +13,17 @@ const agentWsUrl = decodeAgentWebSocketUrl(
 const app = requirePortalRoot();
 const state = createPortalRuntimeState(agentWsUrl);
 
+writePortalDevLog(DevLogMessage.PortalStarted, {
+  [DevLogField.AgentWebSocketUrl]: agentWsUrl,
+});
+
 const actions: PortalRenderActions = {
   reconnect() {
     connectWebSocket(state, refresh);
+  },
+  selectCommandResult(resultEvent) {
+    state.selectedCommandResultEvent = resultEvent;
+    refresh();
   },
   sendCommand(command, payload) {
     sendCommand(state, refresh, command, payload);

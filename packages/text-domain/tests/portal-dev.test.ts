@@ -7,5 +7,7 @@ describe('portal dev text', () => {
     const title = PortalDevText[PortalDevTextToken.AppTitle];
     expect(decodeDisplayText(title)).toBe(title);
     expect(title).toBe('Ocentra Parent');
+    expect(PortalDevText[PortalDevTextToken.CommandResult]).toBe('Command result');
+    expect(PortalDevText[PortalDevTextToken.CopyResult]).toBe('Copy result');
   });
 });

@@ -1,6 +1,8 @@
 import {
+  AgentEvent,
   AgentProtocolDefaults,
   type AgentEventEnvelope,
+  type AgentEventName,
   type AgentMessageTarget,
   type AgentWebSocketUrl,
 } from '@ocentra-parent/agent-protocol-domain/contracts';
@@ -15,6 +17,7 @@ export interface PortalRuntimeState {
   readonly target: AgentMessageTarget;
   socket: WebSocket | null;
   connectionState: PortalConnectionStateValue;
+  selectedCommandResultEvent: AgentEventName;
   latestSnapshot: AgentLogSnapshot | null;
   readonly events: AgentEventEnvelope[];
 }
@@ -25,6 +28,7 @@ export function createPortalRuntimeState(agentWsUrl: AgentWebSocketUrl): PortalR
     target: resolveAgentTarget(agentWsUrl),
     socket: null,
     connectionState: PortalConnectionState.Disconnected,
+    selectedCommandResultEvent: AgentEvent.HealthReported,
     latestSnapshot: null,
     events: [],
   };

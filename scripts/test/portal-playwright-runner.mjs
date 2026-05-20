@@ -1,5 +1,7 @@
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
+import { mkdtemp, readdir, readFile, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
@@ -23,6 +25,7 @@ const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'
 const portalRoot = path.join(repoRoot, 'apps', 'portal');
 const agentPort = ParentDevPort.PortalSmokeAgent;
 const portalPort = ParentDevPort.PortalSmokePortal;
+const devLogDir = await mkdtemp(path.join(tmpdir(), 'ocentra-parent-e2e-log-'));
 const children = [];
 
 let exitCode = 1;
@@ -40,6 +43,7 @@ try {
     portalPort,
     {
       ...process.env,
+      [ParentDevEnv.DevLogDir]: devLogDir,
       [ParentDevEnv.PortalAgentWebSocketUrl]: createAgentWebSocketUrl(agentPort),
     },
     repoRoot
@@ -48,9 +52,13 @@ try {
   await waitForHttp(createPortalCommandsUrl(portalPort));
 
   exitCode = await runPlaywright();
+  if (exitCode === 0) {
+    await assertPortalDevLogWritten();
+  }
 } finally {
   stopping = true;
   await stopChildren();
+  await rm(devLogDir, { recursive: true, force: true });
 }
 
 process.exit(exitCode);
@@ -63,6 +71,7 @@ function spawnAgent() {
       ...process.env,
       [ParentDevEnv.AgentAddress]: createAgentAddress(agentPort),
       [ParentDevEnv.AgentAllowedOrigins]: createHttpOrigin(ParentDevHost.Loopback, portalPort),
+      [ParentDevEnv.DevLogDir]: devLogDir,
     },
     stdio: ['ignore', 'inherit', 'inherit'],
   });
@@ -83,7 +92,10 @@ function runPlaywright() {
   const cliPath = path.join(repoRoot, 'node_modules', '@playwright', 'test', 'cli.js');
   const child = spawn(process.execPath, [cliPath, 'test', '--config', path.join(portalRoot, 'playwright.config.ts')], {
     cwd: portalRoot,
-    env: process.env,
+    env: {
+      ...process.env,
+      [ParentDevEnv.DevLogDir]: devLogDir,
+    },
     stdio: 'inherit',
   });
 
@@ -108,6 +120,29 @@ async function waitForHttp(url) {
     }
   }
   throw new Error(`Timed out waiting for ${url}`);
+}
+
+async function assertPortalDevLogWritten() {
+  const content = await waitForDevLogContent('portal-', 'Portal command sent.');
+  if (!content.includes('Portal WebSocket event received.')) {
+    throw new Error(`Portal dev log did not include WebSocket event entry:\n${content}`);
+  }
+}
+
+async function waitForDevLogContent(prefix, expectedText) {
+  const startedAt = Date.now();
+  while (Date.now() - startedAt < 10000) {
+    const files = await readdir(devLogDir);
+    const logFile = files.find((file) => file.startsWith(prefix) && file.endsWith('.ndjson'));
+    if (logFile !== undefined) {
+      const content = await readFile(path.join(devLogDir, logFile), 'utf8');
+      if (content.includes(expectedText)) {
+        return content;
+      }
+    }
+    await delay(250);
+  }
+  throw new Error(`Timed out waiting for dev log ${prefix} in ${devLogDir}`);
 }
 
 async function stopChildren() {

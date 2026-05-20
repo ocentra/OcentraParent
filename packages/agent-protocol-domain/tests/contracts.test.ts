@@ -1,6 +1,7 @@
 import { expect, it } from 'vitest';
 import {
   AgentCommandEnvelopeSchema,
+  AgentEvent,
   AgentEventEnvelopeSchema,
   AgentPairingProofSchema,
   AgentProtocolDefaults,
@@ -56,6 +57,13 @@ it('AgentEventEnvelopeSchema: accepts a Rust response event with an optional sna
   });
 
   expect(parsed.success).toBe(true);
+});
+
+it('AgentEvent: exposes typed constants for portal result rendering', () => {
+  expect(AgentEvent.HealthReported).toBe('agent.health.reported');
+  expect(AgentEvent.LogSnapshotReported).toBe('agent.log.snapshot.reported');
+  expect(AgentEvent.DevEchoed).toBe('agent.dev.echoed');
+  expect(AgentEvent.WatchStatusReported).toBe('agent.watch.status.reported');
 });
 
 it('AgentCommandEnvelopeSchema: rejects unknown commands', () => {

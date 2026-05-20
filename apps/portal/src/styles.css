@@ -135,6 +135,49 @@ dd {
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
 }
 
+.command-result-panel {
+  margin-top: 16px;
+}
+
+.command-result-header {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.command-result-tab {
+  background: #ffffff;
+  border-color: #d8dde4;
+  color: #17202a;
+}
+
+.command-result-tab-active {
+  background: #17202a;
+  border-color: #17202a;
+  color: #ffffff;
+}
+
+.command-result-empty {
+  color: #5d6978;
+  margin: 0;
+}
+
+.copy-result-button {
+  min-width: 112px;
+  padding: 0.375rem 0.625rem;
+}
+
+.clipboard-buffer {
+  position: fixed;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
 .log-list {
   display: grid;
   gap: 12px;
