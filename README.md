@@ -19,7 +19,7 @@ Parents should not have to choose between blind trust and invasive guessing. Oce
 
 The long-term product is an agentic safety system: local device agents gather evidence, parent portals expose control and visibility, and AI helps classify, explain, and recommend action. The v0 foundation is intentionally simpler: capture trustworthy events first.
 
-The detailed product roadmap lives in [`docs/product-roadmap.md`](docs/product-roadmap.md).
+The detailed product roadmap lives in [`docs/product-roadmap.md`](docs/product-roadmap.md). Feature acceptance expectations live in [`docs/feature-expectations.md`](docs/feature-expectations.md).
 
 ## Architecture Direction
 

@@ -2,6 +2,8 @@
 
 This roadmap describes the product we are building, the order we intend to build it in, and the acceptance bar for each stage. It is intentionally product-facing and implementation-facing: every milestone should produce a real vertical slice, not a fake demo.
 
+Per-feature acceptance expectations live in [`feature-expectations.md`](feature-expectations.md). Use that document to decide what a feature must prove without over-prescribing how it must be implemented.
+
 ## Product Goal
 
 Ocentra Parent helps parents understand and guide what children do on connected devices. The product should answer concrete parent questions:
