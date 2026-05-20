@@ -4,6 +4,95 @@ Enforcement features change device behavior and therefore need a higher bar.
 
 Only the child-device agent performs enforcement. Parent surfaces may send typed rules, approvals, overrides, or requests, but the agent validates the request and executes through a platform adapter.
 
+## Roadmap Scope
+
+V0.8 starts enforcement after local evidence, policy decisions, and AI decision contracts are trusted. Enforcement must begin with simple, scoped local decisions and must produce auditable evidence.
+
+V5 parent policy product may make enforcement easier to configure, but it still does not move enforcement into the portal.
+
+Billing in V7 may gate paid product value, but billing must stay outside core safety enforcement logic.
+
+## Parent Outcome
+
+- Parent can tell what was blocked, warned, time-limited, allowed, or sent for approval.
+- Parent can see the policy decision, local AI reference when applicable, evidence references, adapter result, timer state, and rollback/unavailable state.
+- Parent can override or approve through typed intents that are validated by the child-device agent.
+- Parent can distinguish "would enforce in dry-run" from "actually enforced".
+
+## Child-Device Outcome
+
+- The child-device agent executes only schema-valid policy decisions.
+- Enforcement is scoped to configured targets and time windows.
+- Every action, failure, expiry, rollback, and parent override writes an auditable event.
+- The service remains uninstallable, debuggable, and honest about unavailable capabilities.
+
+## Platform Scope
+
+- Windows is first for enforcement adapters.
+- Windows enforcement may start with one narrow mode, such as process block/terminate, domain/network block, temporary block, or timeout, depending on the preceding policy slice.
+- macOS, Linux, Android, and iOS require platform-specific adapter contracts and proof before claiming enforcement.
+- Web is not an enforcement platform. Web can show status and author intents only.
+
+## Data Scope
+
+Enforcement input may include:
+
+- Typed policy decision id and version.
+- Evidence references and local AI result references used by the policy decision.
+- Target reference, adapter kind, enforcement mode, timer/expiry, and rollback token.
+- Parent approval or override reference where applicable.
+- Platform capability status.
+
+Enforcement output must include:
+
+- Enforcement action event.
+- Adapter result: succeeded, failed, unavailable, expired, rolled back, superseded, or no-op.
+- Reason code and user-visible explanation reference.
+- Evidence, policy, AI, and parent-action references.
+- Timer event for temporary blocks and time budgets.
+- Recovery state when the adapter could not enforce or had to rollback.
+
+## Trust Boundary
+
+- Parent portal actions are intents, not authority by themselves.
+- The child-device agent validates rule version, device identity, child profile, target, schedule, policy decision, and adapter capability before enforcing.
+- Local AI output cannot directly call an enforcement adapter.
+- Enforcement adapters cannot invent policy decisions.
+- Adapter code stays platform-specific behind a shared interface.
+
+## Contract Boundary
+
+Expected contract families are:
+
+- `EnforcementIntent`: source, policy decision reference, target reference, requested action, parent approval reference when needed, and idempotency key.
+- `EnforcementAction`: adapter kind, platform, target, action, timer/expiry, reason code, policy decision reference, AI result reference, evidence references, and dry-run flag.
+- `EnforcementResult`: status, adapter result code, started/completed time, rollback token, unavailable reason, and next check time when retryable.
+- `EnforcementAuditEvent`: action reference, result reference, policy version, evidence references, parent override reference, actor/source, and journal sequence.
+- `EnforcementCapabilityStatus`: platform, adapter kind, permission state, installed dependency state, degraded reason, last checked time, and supported actions.
+- `EnforcementTimerEvent`: timer created, extended, expired, cancelled, rollback requested, rollback completed, or unavailable.
+
+Rust protocol parity is required for every shape the service sends, receives, journals, or exposes to the portal.
+
+## Dry-Run Before Enforcement
+
+Before an adapter can change device behavior:
+
+- The policy evaluator must produce the same typed decision shape in dry-run.
+- The adapter must expose capability status.
+- The portal must label preview state as dry-run.
+- Tests must prove no adapter action executes in dry-run.
+- The journal must record preview decisions separately from actual enforcement events.
+
+## Failure Behavior
+
+- Invalid or stale policy decision: reject and journal the rejection.
+- Adapter unavailable: return unavailable, keep local evidence capture running, and show parent-visible status.
+- Partial adapter success: journal partial result and rollback plan where possible.
+- Timer failure: journal failure and degrade to explicit unavailable or ask-parent state.
+- Parent approval unavailable: keep local decision pending or degrade according to policy expiry; do not silently allow or block unless a deterministic rule says so.
+- Service restart: restore active timers and current enforcement state from journal/query store or emit recovery-needed status.
+- Billing unavailable: continue critical local safety behavior according to documented grace rules; do not silently disable enforcement.
+
 ## Expected Deliverables
 
 - Adapter boundary per platform.
@@ -27,6 +116,16 @@ Only the child-device agent performs enforcement. Parent surfaces may send typed
 - Time-limited blocks expire or unblock through a typed timer path.
 - Enforcement tests cover allowed, blocked, timeout, ask-parent, unavailable, expiry, and rollback paths where feasible.
 
+## Validation Gates
+
+- Contract tests prove valid/invalid enforcement intents, actions, results, audit events, capability statuses, and timer events.
+- Rust parity tests prove exact platform adapter payload field names and enum values.
+- Adapter tests exercise real platform boundaries where feasible; unsupported platform tests must prove honest unavailable status.
+- Integration tests use real policy decisions and stored evidence references.
+- Timer tests cover create, expire, restart recovery, cancel, and rollback paths.
+- Portal E2E tests, when UI exists, prove it sends typed intents and never runs enforcement itself.
+- Dev builds remain uninstallable and debuggable.
+
 ## Non-Goals
 
 - Do not add stealth behavior.
@@ -34,6 +133,8 @@ Only the child-device agent performs enforcement. Parent surfaces may send typed
 - Do not add privilege escalation.
 - Do not execute enforcement, timers, rollback, or scripts from the parent portal.
 - Do not claim persistence-hardening without explicit product/security design.
+- Do not block without an auditable policy decision.
+- Do not put Stripe or billing provider logic inside enforcement adapters.
 
 ## Done Signal
 

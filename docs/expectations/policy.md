@@ -2,7 +2,87 @@
 
 Policy features define what parents want the local child-device AI evaluator to allow, limit, warn about, block, or send back for parent approval.
 
-Parent surfaces author policy rules and expectations. The child-device agent owns policy evaluation, conflict resolution, local AI integration, timers, and enforcement handoff.
+Parent surfaces author policy rules and expectations. The child-device agent owns policy validation, conflict resolution, local AI integration, timers, dry-run previews, and enforcement handoff.
+
+## Roadmap Scope
+
+V0.6 defines parent, child, device, rule, schedule, permission-request, local AI decision, and policy decision contracts.
+
+V0.7 runs the evaluator against captured evidence, parent rules, and local AI output. It must support dry-run before enforcement.
+
+V5 turns rule management into a parent-facing product with family setup, child profiles, schedules, reports, and audit history. V5 improves authoring and sync; it does not move evaluation into the portal.
+
+## Parent Outcome
+
+- Parent can configure common rules for apps, sites, domains, categories, schedules, time budgets, permission requests, and overrides without editing files.
+- Parent can preview what a rule would do before enabling enforcement.
+- Parent can see which evidence, parent rule, local AI result, schedule, and conflict-resolution reason produced a decision.
+- Parent can approve, deny, or time-box ask-parent requests through typed approvals that the child-device agent validates locally.
+
+## Child-Device Outcome
+
+- The child-device agent evaluates typed rules against typed local evidence.
+- The evaluator produces deterministic decisions even when local AI output is ambiguous.
+- The evaluator records policy decision events with evidence references, rule references, and local AI references when AI contributed.
+- The evaluator can run in dry-run mode and explain what would happen without enforcing it.
+
+## Platform Scope
+
+- Windows is first for policy evaluation tied to capture and enforcement.
+- Other child-device platforms must reuse the same contracts but claim support only after platform-specific validation exists.
+- Web is a rule-authoring, preview, and explanation surface. It does not evaluate policy, run timers, execute scripts, or enforce rules.
+
+## Data Scope
+
+Policy input may include:
+
+- Parent account, family, child profile, and device references.
+- App, process, window, URL, domain, category, video, channel, and recent activity evidence when those capture contracts exist.
+- Parent-authored rules, schedules, overrides, grace periods, and permission-request state.
+- Local AI safety result references and confidence/degraded state when AI contributes.
+- Time budget state, active timers, and previous policy decisions.
+
+Policy input must not include:
+
+- Billing provider state inside the evaluator.
+- Portal-only UI state as a decision source.
+- Untyped model text or unvalidated API AI output.
+- Derived memory or graph claims unless they carry evidence references.
+
+## Contract Boundary
+
+Policy contracts should live in the owning domain packages before runtime behavior consumes them. Expected contract families are:
+
+- `FamilyPolicySet`: schema version, family reference, child profile references, device references, rule list, schedule list, and policy version.
+- `PolicyRule`: rule id, target type, target reference, action, schedule reference, priority, reason code, created-by reference, effective window, and enabled state.
+- `PolicyTarget`: app/process, domain/site, category, video/channel, activity type, device, child profile, or future platform-specific target.
+- `PolicySchedule` and `TimeBudget`: local time zone, recurrence, active windows, budget duration, reset behavior, grace period, and expiry.
+- `PermissionRequest`: evidence reference, requested target/action, child-device context, parent response state, expiry, and audit references.
+- `PolicyDecision`: action, reason codes, evidence references, rule references, AI result reference when used, timer/expiry fields, conflict-resolution explanation, dry-run flag, and enforcement handoff state.
+- `PolicyAuditEvent`: previous policy version, new policy version, actor reference, source surface, timestamp, and validation result.
+
+Parent-authored contracts and child-device evaluator contracts must stay separated. Parent surfaces send intents and rule sets; child-device agents validate and execute local decisions.
+
+## Deterministic Decisioning
+
+The evaluator must define and test conflict resolution before enforcement is possible:
+
+- Explicit parent block or time-limit rules beat ambiguous local AI allow output.
+- Explicit parent allow can permit a known safe target unless a stricter safety or legal policy says otherwise.
+- Ask-parent decisions are used when rule intent is clear but parent approval is required.
+- Unknown is used when evidence, rule, or AI state is insufficient for a safe decision.
+- Time windows and active timers must be evaluated from the child-device clock and recorded with the decision.
+- Dry-run returns the same decision shape as enforcement mode, with enforcement disabled and explanation marked as preview.
+
+## Failure Behavior
+
+- Invalid rules fail schema validation and are not activated.
+- Rule-set version mismatch returns a typed rejection.
+- Missing evidence returns unknown, ask-parent, or no-op according to explicit parent rules; it must not invent content claims.
+- Local AI unavailable falls back to deterministic rule behavior, unknown, ask-parent, or warn.
+- Timer state loss must be recoverable from journaled decision and timer events where the feature has enabled timers.
+- Portal or cloud unavailability does not stop local evaluation of already validated local rules.
+- Billing failures do not silently disable critical local safety behavior.
 
 ## Expected Deliverables
 
@@ -28,12 +108,23 @@ Parent surfaces author policy rules and expectations. The child-device agent own
 - Dry-run mode can explain what would happen without enforcing it.
 - Explicit parent rules override ambiguous AI output.
 
+## Validation Gates
+
+- TypeScript schema tests prove valid/invalid policy sets, rules, schedules, targets, permission requests, decisions, and audit events.
+- Rust parity tests cover every Rust-crossing policy shape and exact enum values.
+- Evaluator tests cover allow, warn, block, time-limit, ask-parent, unknown, disabled rule, expired rule, active schedule, inactive schedule, and conflicting-policy cases.
+- Integration tests use real stored evidence and real policy contracts, not mocks or fake provider output.
+- Dry-run tests prove preview and enforcement modes return consistent decisions with different enforcement handoff state.
+- Portal tests, when UI exists, prove rule authoring sends typed intents and does not run evaluation in the browser.
+
 ## Non-Goals
 
 - Do not enforce policy until the evaluator is trusted.
 - Do not evaluate or enforce policy in the portal/browser.
 - Do not make untyped or untraceable AI the source of a policy decision.
 - Do not mix billing entitlements into policy logic.
+- Do not make cloud availability required for local evaluation of already validated local rules.
+- Do not create broad catch-all rules that hide missing target contracts.
 
 ## Done Signal
 
