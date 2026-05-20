@@ -17,7 +17,7 @@ Parents should not have to choose between blind trust and invasive guessing. Oce
 - What happened before an alert or policy decision?
 - Can the system explain its evidence instead of producing a magic AI verdict?
 
-The long-term product is an agentic safety system: local device agents gather evidence, run local AI safety evaluation, enforce typed decisions, and let parent portals expose control and visibility. API AI may assist with richer parent reports, unknown classification, and remote summaries later, but the default child safety decision path is local-first.
+The long-term product is an agentic safety system: local device agents gather evidence, run local AI safety evaluation, enforce typed decisions, and let parent portals expose control and visibility. The child-device safety decision path is local-only: API AI may assist with richer parent reports, unknown classification, and remote summaries later, but it does not sit in the normal blocking path.
 
 The detailed product roadmap lives in [`docs/product-roadmap.md`](docs/product-roadmap.md). Feature acceptance expectations live in [`docs/feature-expectations.md`](docs/feature-expectations.md).
 
@@ -52,7 +52,7 @@ Definition of done:
 - Exposes a minimal local/LAN portal for visibility.
 - Can summarize top processes, domains, time windows, and suspicious unknowns.
 - Does no blocking and no content inspection yet.
-- Reserves the local AI decision boundary, but does not need to run a model until the AI safety-evaluator milestone.
+- Reserves the child-device local AI decision boundary, but does not need to run a model until the AI safety-evaluator milestone.
 
 The event model is intent-first, not packet-first. We care about normalized activity such as `chrome.exe connected to youtube.com:443`, not raw TCP packets or decrypted HTTPS payloads.
 

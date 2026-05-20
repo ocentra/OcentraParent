@@ -59,7 +59,7 @@ agent service
   -> parent portal
 ```
 
-The scaffold does not implement the capture or local AI safety-evaluation flow yet. It only reserves the boundaries where the flow will live. The product target is local-first: child-device safety decisions should run on the child device by default, while API AI is reserved for later parent assistant, reporting, or cloud-supported workflows with explicit privacy boundaries.
+The scaffold does not implement the capture or local AI safety-evaluation flow yet. It only reserves the boundaries where the flow will live. The product target is local-first: child-device safety decisions run on the child device, while API AI is reserved for later parent assistant, reporting, or cloud-supported workflows with explicit privacy boundaries.
 
 ## Contract Rule
 

@@ -14,7 +14,7 @@ Ocentra Parent helps parents understand and guide what children do on connected 
 - Can the system explain the evidence behind a decision?
 - Can parents set boundaries without needing to become device administrators or network experts?
 
-The long-term product is an agentic family-safety system. Child devices run local agents with local AI safety evaluation, parent surfaces show visibility and controls, and API AI may later help with richer parent reports and remote summaries. The foundation must be evidence-first: capture facts, store them safely, query them locally, then run local AI and typed policy decisions before blocking, timing, asking the parent, syncing, or notifying.
+The long-term product is an agentic family-safety system. Child devices run local agents with local AI safety evaluation, parent surfaces show visibility and controls, and API AI may later help with richer parent reports and remote summaries. The child-device safety decision path stays local: capture facts, store them safely, query them locally, then run local AI and typed policy decisions before blocking, timing, asking the parent, syncing, or notifying.
 
 ## Current Position
 
@@ -57,10 +57,10 @@ Rules:
 - SQLite is the default query/index store on every platform.
 - Query stores are rebuildable from the journal.
 - Portal and policy code talk to typed service/query APIs, not directly to SQLite files.
-- Child-device local AI is the default safety evaluator for page, video-link, app, domain, and activity context.
+- Child-device local AI is the required safety evaluator for page, video-link, app, domain, and activity context.
 - Local AI receives typed evidence plus parent rules and returns typed decisions such as allow, warn, block, time-limit, or ask-parent.
 - Enforcement adapters act only on schema-valid decisions and record audit events.
-- API AI is optional and secondary: parent assistant, richer reports, unknown classification, or cloud summaries after privacy boundaries are explicit.
+- API AI is optional and secondary: parent assistant, richer reports, unknown classification, or cloud summaries after privacy boundaries are explicit. It cannot replace the child-device local safety evaluator.
 - DuckDB may return later as an optional analytics/export adapter, but not as the default app database.
 - Web does not run the child-device agent. The portal talks to local, LAN, or cloud-routed agents.
 
@@ -701,7 +701,7 @@ Web:
 - Encrypt the append-only journal.
 - Make query stores rebuildable.
 - Record evidence references for policy and AI decisions.
-- Run child-device safety decisions locally by default.
+- Run child-device safety decisions locally on the child device.
 - Send evidence to API AI only through explicit privacy, parent, and cloud boundaries.
 - Avoid decrypted content capture unless a future explicit product/legal decision approves a specific boundary.
 - Make data export and deletion first-class before paid production launch.

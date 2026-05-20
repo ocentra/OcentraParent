@@ -1,6 +1,6 @@
 # AI Feature Expectations
 
-AI is a core child-device product layer. The default safety evaluator runs locally on the child device against typed evidence and parent rules. API AI is secondary and may assist with parent reports, unknown classification, and remote summaries after privacy boundaries are explicit.
+AI is a core child-device product layer. The safety evaluator for child activity runs locally on the child device against typed evidence and parent rules. API AI is secondary and may assist with parent reports, unknown classification, and remote summaries after privacy boundaries are explicit, but it is not the normal decision maker for blocking, timing, or asking the parent.
 
 ## Expected Deliverables
 
@@ -17,6 +17,16 @@ AI is a core child-device product layer. The default safety evaluator runs local
 - Failure/degraded behavior.
 - Human override feedback path where relevant.
 
+The local flow is:
+
+```text
+captured page/video/app/domain evidence
+  -> parent rules and recent context
+  -> child-device local model
+  -> typed allow/warn/block/time-limit/ask-parent/unknown decision
+  -> local enforcement adapter or parent approval path
+```
+
 ## Acceptance
 
 - Local AI output is schema-validated before any policy or enforcement code consumes it.
@@ -25,6 +35,7 @@ AI is a core child-device product layer. The default safety evaluator runs local
 - Unknown or failed classification is safe and explicit.
 - Policy can explain the local AI decision, the evidence, and the parent rule context.
 - API AI is never required for normal child-device blocking.
+- API AI is never required for time-limit or temporary-block decisions.
 - API AI responses cannot override a stricter local parent rule.
 - Tests cover parser behavior and decision integration without mocking provider truth.
 
