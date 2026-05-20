@@ -281,6 +281,50 @@ Acceptance:
 - Portal validates all service payloads through Effect Schema.
 - Playwright covers health, recent activity, copy, and log visibility.
 
+### V0.5.1 Browser URL And Tab Evidence Capture
+
+Purpose:
+
+Add the missing browser evidence layer that proves which supported browser tab is
+open, which URL is active, and what page/domain is being observed. This is the
+core product bridge before local AI can make useful page/site safety decisions.
+
+Expectation links:
+
+- [Browser URL and tab evidence expectations](expectations/browser-evidence.md)
+- [Capture feature expectations](expectations/capture.md)
+- [Evidence storage expectations](expectations/evidence-storage.md)
+- [Contract feature expectations](expectations/contracts.md)
+- [Portal feature expectations](expectations/portal.md)
+- [Platform expectations](expectations/platforms.md)
+
+Deliverables:
+
+- Supported-browser detection contract.
+- Running-browser detection contract.
+- Browser window/tab evidence contract.
+- Active-tab evidence contract.
+- Exact URL, page title, normalized domain, timestamp, evidence id, source id,
+  adapter id, and capability status.
+- Browser integration status for unsupported, missing bridge/extension, missing
+  permission, stale evidence, and adapter-error states.
+- Journal/query-store ingest for browser evidence.
+- Portal recent browser activity view.
+- Local AI input references to browser evidence ids.
+
+Acceptance:
+
+- The system distinguishes "browser process is active" from "active tab URL is
+  known."
+- A supported browser can produce real active-tab URL/title/domain evidence in a
+  local run.
+- Unsupported or permission-limited browser states are visible and typed.
+- Browser evidence is stored before portal or AI use.
+- Local AI contracts can reference browser evidence without requiring page body
+  content.
+- No page body text, screenshots, keystrokes, form values, browser secrets, or
+  decrypted HTTPS payloads are captured.
+
 ### V0.6 Local AI Safety Decision Contracts
 
 Purpose:

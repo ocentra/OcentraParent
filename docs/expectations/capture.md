@@ -26,6 +26,9 @@ Platform scope:
 - Windows process and foreground-window activity are the V0.3 required target.
 - Windows network/domain observation is V0.4 and must remain separate from
   process/window capture unless contracts explicitly join them.
+- Browser URL/tab evidence is a separate post-foundation capture slice. It must
+  use a deliberate browser integration boundary and must not be inferred from
+  process/window or network/domain capture alone.
 - Other platforms may expose capability status or scaffolded adapters, but must
   not claim capture parity until real OS behavior and tests exist.
 
@@ -41,6 +44,12 @@ Data scope:
 - Network/domain capture, when implemented, may record normalized
   domain/IP/port/process correlation where available, but not decrypted HTTPS
   content.
+- Browser URL/tab capture, when implemented, may record supported browser,
+  running status, profile/window/tab ids where available, active tab state, exact
+  URL, normalized domain, page title, observation timestamp, evidence id, source
+  id, adapter id, and capability status. It must not record page body text,
+  screenshots, keystrokes, form values, browser secrets, or decrypted HTTPS
+  payloads.
 
 Trust boundary:
 
@@ -124,6 +133,32 @@ V0.4 expected behavior:
 - Record unknown attribution clearly instead of guessing.
 - Keep network/domain observation as a separate adapter and contract slice from
   process/window capture unless a deliberate join contract exists.
+
+## Browser URL And Tab Evidence
+
+Expected behavior:
+
+- Enumerate supported browser integrations.
+- Detect supported browsers that are running.
+- Observe browser windows and tabs where the browser integration permits it.
+- Identify the active browser tab.
+- Record exact URL, page title, normalized domain, timestamp, evidence id,
+  source id, adapter id, and capability status.
+- Report unsupported browser, missing extension or bridge, missing permission,
+  stale evidence, and adapter-error states explicitly.
+- Store browser evidence through journal and query-store paths before portal or
+  AI use.
+- Keep browser evidence separate from process/window and network/domain capture
+  unless a deliberate join contract links evidence ids.
+
+Useful parent-facing examples:
+
+- "Chrome is running" is process evidence.
+- "Chrome connected to youtube.com" is network/domain evidence.
+- "The active Chrome tab is https://www.youtube.com/watch?v=..." is browser
+  URL/tab evidence.
+- "The video content is unsafe" is a later AI/policy classification, not raw
+  browser capture.
 
 ## Service Responsiveness
 

@@ -69,7 +69,7 @@ Not implemented yet:
 - Cloud sync.
 - Notification delivery.
 - API AI parent-assistant/reporting.
-- Browser extension URL context.
+- Browser URL/tab evidence capture.
 - Mobile agents.
 - Production mobile store distribution.
 
