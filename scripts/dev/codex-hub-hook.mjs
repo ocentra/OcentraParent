@@ -44,6 +44,10 @@ export function buildHookResponse(input, context = undefined) {
   return undefined;
 }
 
+export function shouldRecordSessionForHook({ eventName, sessionId }) {
+  return eventName.length > 0 && sessionId.length > 0;
+}
+
 export function buildStopResponse({ context, stopHookActive = false }) {
   if (stopHookActive) {
     return { continue: true };
@@ -155,11 +159,10 @@ function loadHubContext(input, eventName) {
   const lane = findLaneByPath(ledger, repoRoot);
   const sessionId = typeof input.session_id === 'string' ? input.session_id : '';
   const sessionSource = sessionSourceText({ eventName, source: input.source });
-  const shouldRecordSession = eventName === HookEvent.SessionStart || eventName === HookEvent.UserPromptSubmit;
-  const sessionRecord =
-    sessionId.length === 0 || !shouldRecordSession
-      ? { changed: false, previousSessionId: lane.activeSessionId ?? '' }
-      : recordLaneSession(ledger, { laneId: lane.id, sessionId, source: sessionSource });
+  const shouldRecordSession = shouldRecordSessionForHook({ eventName, sessionId });
+  const sessionRecord = !shouldRecordSession
+    ? { changed: false, previousSessionId: lane.activeSessionId ?? '' }
+    : recordLaneSession(ledger, { laneId: lane.id, sessionId, source: sessionSource });
   if (sessionRecord.changed) {
     writeLedger(ledgerPath, ledger);
   }

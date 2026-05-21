@@ -6,6 +6,7 @@ import {
   buildStopResponse,
   formatAgentContext,
   formatPostToolContext,
+  shouldRecordSessionForHook,
 } from '../dev/codex-hub-hook.mjs';
 
 function workerContext(overrides = {}) {
@@ -166,4 +167,13 @@ test('hub hook formats session response with additional context', () => {
 
   assert.equal(response.hookSpecificOutput.hookEventName, 'SessionStart');
   assert.match(response.hookSpecificOutput.additionalContext, /Ocentra Parent hub context/u);
+});
+
+test('hub hook records sessions from any hook event carrying a session id', () => {
+  assert.equal(shouldRecordSessionForHook({ eventName: 'SessionStart', sessionId: '019e-worker' }), true);
+  assert.equal(shouldRecordSessionForHook({ eventName: 'UserPromptSubmit', sessionId: '019e-worker' }), true);
+  assert.equal(shouldRecordSessionForHook({ eventName: 'PostToolUse', sessionId: '019e-worker' }), true);
+  assert.equal(shouldRecordSessionForHook({ eventName: 'Stop', sessionId: '019e-worker' }), true);
+  assert.equal(shouldRecordSessionForHook({ eventName: 'Stop', sessionId: '' }), false);
+  assert.equal(shouldRecordSessionForHook({ eventName: '', sessionId: '019e-worker' }), false);
 });
