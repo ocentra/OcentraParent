@@ -10,6 +10,7 @@ mod activity_store_error;
 mod activity_store_network_flow;
 mod activity_store_network_flow_rows;
 mod activity_store_rows;
+mod activity_store_screen_evidence;
 mod browser_bridge_event;
 mod browser_bridge_fields;
 mod browser_bridge_http;
@@ -27,6 +28,7 @@ mod network_capture_event_fields;
 #[cfg(windows)]
 mod network_capture_netstat;
 mod process_capture;
+mod screen_evidence_queue;
 mod window_capture;
 mod window_capture_event;
 
@@ -52,6 +54,7 @@ pub use process_capture::{
     collect_process_snapshot, process_observation_event, process_snapshot_events,
     ProcessObservation,
 };
+pub use screen_evidence_queue::ScreenEvidenceQueue;
 pub use window_capture::{collect_foreground_window_observation, ForegroundWindowObservation};
 pub use window_capture_event::{foreground_window_event, foreground_window_observation_event};
 
@@ -66,6 +69,8 @@ mod activity_store_browser_tests;
 #[cfg(test)]
 mod activity_store_network_flow_tests;
 #[cfg(test)]
+mod activity_store_screen_evidence_tests;
+#[cfg(test)]
 mod activity_store_tests;
 #[cfg(test)]
 mod browser_bridge_poll_tests;
@@ -79,6 +84,8 @@ mod journal_tests;
 mod network_capture_tests;
 #[cfg(test)]
 mod process_capture_tests;
+#[cfg(test)]
+mod screen_evidence_queue_tests;
 #[cfg(test)]
 mod window_capture_tests;
 

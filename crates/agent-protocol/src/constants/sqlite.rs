@@ -90,3 +90,15 @@ WHERE kind = ?1
   AND observer = ?2
 ORDER BY observed_at DESC, event_id DESC
 LIMIT ?3;";
+
+pub const SELECT_RECENT_SCREEN_ANALYSIS_ACTIVITY: &str = "
+SELECT
+  event_id,
+  observed_at,
+  fields_json,
+  evidence_json
+FROM activity_events
+WHERE kind = ?1
+  AND observer = ?2
+ORDER BY observed_at DESC, event_id DESC
+LIMIT ?3;";
