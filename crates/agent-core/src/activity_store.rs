@@ -2,12 +2,14 @@ use std::path::Path;
 
 use ocentra_parent_agent_protocol::{
     constants, ActivityEvent, ActivityIngestStatus, ActivityRecentSummary, ActivityStoreRow,
-    BrowserEvidenceRecentSummary, ACTIVITY_QUERY_SCHEMA_VERSION,
+    AppGameSessionReport, BrowserEvidenceRecentSummary, ACTIVITY_QUERY_SCHEMA_VERSION,
 };
 use rusqlite::{params, Connection};
 
 use crate::{
+    activity_store_app_game::app_game_session_report,
     activity_store_browser::browser_recent_summary,
+    activity_store_connection::initialize_connection,
     activity_store_rows::{row_from_sqlite, summary_from_rows},
     ActivityJournal, ActivityStoreError,
 };
@@ -71,6 +73,13 @@ impl ActivityStore {
         &self,
     ) -> Result<BrowserEvidenceRecentSummary, ActivityStoreError> {
         browser_recent_summary(&self.connection)
+    }
+
+    pub fn app_game_session_report(
+        &self,
+        limit: u64,
+    ) -> Result<AppGameSessionReport, ActivityStoreError> {
+        app_game_session_report(&self.connection, limit)
     }
 
     fn status_with_counts(
@@ -150,9 +159,4 @@ impl ActivityStore {
         }
         Ok(results)
     }
-}
-
-fn initialize_connection(connection: &Connection) -> Result<(), ActivityStoreError> {
-    connection.execute_batch(constants::sqlite::INITIALIZE_ACTIVITY_STORE)?;
-    Ok(())
 }

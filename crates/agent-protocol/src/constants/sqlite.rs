@@ -63,3 +63,17 @@ WHERE kind = ?1
   AND observer = ?2
 ORDER BY observed_at DESC, event_id DESC
 LIMIT 1;";
+
+pub const SELECT_RECENT_APP_GAME_ACTIVITY: &str = "
+SELECT
+  event_id,
+  observed_at,
+  kind,
+  subject_id,
+  subject_display_name,
+  fields_json,
+  evidence_json
+FROM activity_events
+WHERE kind IN (?1, ?2)
+ORDER BY observed_at DESC, event_id DESC
+LIMIT ?3;";

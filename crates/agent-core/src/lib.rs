@@ -1,7 +1,11 @@
 #![forbid(unsafe_code)]
 
 mod activity_store;
+mod activity_store_app_game;
+mod activity_store_app_game_observation;
+mod activity_store_app_game_rows;
 mod activity_store_browser;
+mod activity_store_connection;
 mod activity_store_error;
 mod activity_store_rows;
 mod browser_bridge_event;
@@ -42,6 +46,8 @@ pub fn crate_name() -> &'static str {
     env!("CARGO_PKG_NAME")
 }
 
+#[cfg(test)]
+mod activity_store_app_game_tests;
 #[cfg(test)]
 mod activity_store_browser_tests;
 #[cfg(test)]
