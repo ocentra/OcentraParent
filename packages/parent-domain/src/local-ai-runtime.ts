@@ -13,8 +13,6 @@ import {
   LocalAiUnavailableReasonSchema,
 } from './local-ai-primitives';
 
-export * from './local-ai-model-artifacts';
-
 export const LocalAiProviderPrivacyModeSchema = withParser(Schema.Literal('local-only'));
 
 export const LocalAiAdapterBoundarySchema = withParser(
