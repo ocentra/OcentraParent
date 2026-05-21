@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{LocalAiDegradedState, LocalModelRuntimeStatus};
 
-use super::{policy_constants, ParentActionReference, ParentEvidenceReference, PolicyAction};
+use super::{policy_constants, ParentEvidenceReference, PolicyAction};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum LocalAiUnknownState {
@@ -57,7 +57,6 @@ pub struct LocalAiMemoryReference {
     pub kind: LocalAiMemoryReferenceKind,
     pub source_evidence_references: Vec<ParentEvidenceReference>,
     pub source_policy_version: Option<String>,
-    pub source_parent_action_references: Vec<ParentActionReference>,
     pub generated_at: String,
     pub confidence: f64,
     pub derived_index_version: String,
@@ -70,7 +69,6 @@ pub struct LocalAiGraphReference {
     pub kind: LocalAiGraphReferenceKind,
     pub source_evidence_references: Vec<ParentEvidenceReference>,
     pub source_policy_version: Option<String>,
-    pub source_parent_action_references: Vec<ParentActionReference>,
     pub generated_at: String,
     pub confidence: f64,
     pub derived_index_version: String,

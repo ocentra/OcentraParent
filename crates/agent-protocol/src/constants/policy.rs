@@ -69,7 +69,6 @@ pub const TEST_AI_REQUEST_ID: &str = "request-1";
 pub const TEST_TARGET_ID: &str = "target-1";
 pub const TEST_TARGET_VALUE: &str = "video.example";
 pub const TEST_PARENT_ACTOR_ID: &str = "parent-1";
-pub const TEST_PARENT_ACTION_REFERENCE_ID: &str = "parent-action-1";
 pub const TEST_POLICY_VERSION: &str = "policy-v1";
 pub const TEST_PARENT_RULE_CONTEXT_REF_ID: &str = "parent-rule-context-1";
 pub const TEST_PARENT_RULE_CONTEXT_CUSTODY: &str = "child-device-query-store";

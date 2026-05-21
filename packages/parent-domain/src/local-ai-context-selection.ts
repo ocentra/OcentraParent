@@ -70,75 +70,25 @@ function hasSelectedEvidenceGrounding(
   return selectedReferenceIds.has(reference.evidenceReferenceId);
 }
 
-function selectedPolicyVersions(
-  selectedParentRuleContextReferences: readonly LocalAiParentRuleContextRef[]
-): Set<string> {
-  return new Set(selectedParentRuleContextReferences.map((reference) => reference.policyVersion));
-}
-
-function hasSelectedEvidenceCitationGrounding(
-  reference: LocalAiMemoryReference | LocalAiGraphReference,
-  selectedReferenceIds: ReadonlySet<string>
-): boolean {
-  return reference.sourceEvidenceReferences.every((sourceReference) =>
-    hasSelectedEvidenceGrounding(sourceReference, selectedReferenceIds)
-  );
-}
-
-function hasSelectedPolicyCitationGrounding(
-  reference: LocalAiMemoryReference | LocalAiGraphReference,
-  selectedPolicyVersionSet: ReadonlySet<string>
-): boolean {
-  return reference.sourcePolicyVersion === null || selectedPolicyVersionSet.has(reference.sourcePolicyVersion);
-}
-
-function hasSelectedParentActionCitationGrounding(
-  reference: LocalAiMemoryReference | LocalAiGraphReference,
-  selectedPolicyVersionSet: ReadonlySet<string>
-): boolean {
-  return reference.sourceParentActionReferences.every((sourceReference) =>
-    selectedPolicyVersionSet.has(sourceReference.policyVersion)
-  );
-}
-
-function hasSourceCitation(reference: LocalAiMemoryReference | LocalAiGraphReference): boolean {
-  return (
-    reference.sourceEvidenceReferences.length > 0 ||
-    reference.sourcePolicyVersion !== null ||
-    reference.sourceParentActionReferences.length > 0
-  );
-}
-
-function hasSelectedCitationGrounding(
-  reference: LocalAiMemoryReference | LocalAiGraphReference,
-  selectedReferenceIds: ReadonlySet<string>,
-  selectedPolicyVersionSet: ReadonlySet<string>
-): boolean {
-  return (
-    hasSourceCitation(reference) &&
-    hasSelectedEvidenceCitationGrounding(reference, selectedReferenceIds) &&
-    hasSelectedPolicyCitationGrounding(reference, selectedPolicyVersionSet) &&
-    hasSelectedParentActionCitationGrounding(reference, selectedPolicyVersionSet)
-  );
-}
-
 function selectGroundedMemoryReferences(
   input: LocalAiStoredEvidenceContextBuildInput,
-  selectedReferenceIds: ReadonlySet<string>,
-  selectedPolicyVersionSet: ReadonlySet<string>
+  selectedReferenceIds: ReadonlySet<string>
 ): LocalAiMemoryReference[] {
   return input.memoryReferences.filter((reference) =>
-    hasSelectedCitationGrounding(reference, selectedReferenceIds, selectedPolicyVersionSet)
+    reference.sourceEvidenceReferences.every((sourceReference) =>
+      hasSelectedEvidenceGrounding(sourceReference, selectedReferenceIds)
+    )
   );
 }
 
 function selectGroundedGraphReferences(
   input: LocalAiStoredEvidenceContextBuildInput,
-  selectedReferenceIds: ReadonlySet<string>,
-  selectedPolicyVersionSet: ReadonlySet<string>
+  selectedReferenceIds: ReadonlySet<string>
 ): LocalAiGraphReference[] {
   return input.graphReferences.filter((reference) =>
-    hasSelectedCitationGrounding(reference, selectedReferenceIds, selectedPolicyVersionSet)
+    reference.sourceEvidenceReferences.every((sourceReference) =>
+      hasSelectedEvidenceGrounding(sourceReference, selectedReferenceIds)
+    )
   );
 }
 
@@ -192,14 +142,9 @@ export function selectLocalAiEvidenceContextInput(
   );
   const selectedRuntimeReferences = selectRuntimeReferences(input);
   const selectedReferenceIds = selectedEvidenceReferenceIds(selectedEvidenceReferences);
+  const selectedMemoryReferences = selectGroundedMemoryReferences(input, selectedReferenceIds);
+  const selectedGraphReferences = selectGroundedGraphReferences(input, selectedReferenceIds);
   const selectedParentRuleContextReferences = selectGroundedParentRuleContextReferences(input, selectedReferenceIds);
-  const selectedPolicyVersionSet = selectedPolicyVersions(selectedParentRuleContextReferences);
-  const selectedMemoryReferences = selectGroundedMemoryReferences(
-    input,
-    selectedReferenceIds,
-    selectedPolicyVersionSet
-  );
-  const selectedGraphReferences = selectGroundedGraphReferences(input, selectedReferenceIds, selectedPolicyVersionSet);
   const ungroundedParentRuleContextReferences = input.request.parentRuleContextReferences.filter(
     (reference) => !parentRuleHasSelectedEvidenceGrounding(reference, selectedReferenceIds)
   );

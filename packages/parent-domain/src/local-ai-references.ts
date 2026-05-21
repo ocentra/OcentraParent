@@ -1,5 +1,5 @@
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-import { ParentActionReferenceSchema, ParentEvidenceReferenceSchema } from './references';
+import { ParentEvidenceReferenceSchema } from './references';
 import { ParentPolicyVersionSchema } from './reference-primitives';
 import {
   LocalAiContextKindSchema,
@@ -11,20 +11,6 @@ import {
   LocalAiMemoryReferenceKindSchema,
   LocalAiTimestampSchema,
 } from './local-ai-primitives';
-
-interface LocalAiDerivedSourceCitation {
-  readonly sourceEvidenceReferences: readonly unknown[];
-  readonly sourcePolicyVersion: unknown | null;
-  readonly sourceParentActionReferences: readonly unknown[];
-}
-
-function hasDerivedSourceCitation(reference: LocalAiDerivedSourceCitation): boolean {
-  return (
-    reference.sourceEvidenceReferences.length > 0 ||
-    reference.sourcePolicyVersion !== null ||
-    reference.sourceParentActionReferences.length > 0
-  );
-}
 
 export const LocalAiObservationReferenceSchema = withParser(
   Schema.Struct({
@@ -39,15 +25,12 @@ export const LocalAiMemoryReferenceSchema = withParser(
     kind: LocalAiMemoryReferenceKindSchema,
     sourceEvidenceReferences: Schema.Array(ParentEvidenceReferenceSchema),
     sourcePolicyVersion: Schema.Union(ParentPolicyVersionSchema, Schema.Null),
-    sourceParentActionReferences: Schema.Array(ParentActionReferenceSchema),
     generatedAt: LocalAiTimestampSchema,
     confidence: LocalAiConfidenceSchema,
     derivedIndexVersion: LocalAiDerivedIndexVersionSchema,
   }).pipe(
     Schema.filter(
-      (reference) =>
-        hasDerivedSourceCitation(reference) ||
-        'Expected local AI memory to cite stored evidence, policy version, or parent action'
+      (reference) => reference.sourceEvidenceReferences.length > 0 || 'Expected local AI memory to cite stored evidence'
     )
   )
 );
@@ -58,15 +41,12 @@ export const LocalAiGraphReferenceSchema = withParser(
     kind: LocalAiGraphReferenceKindSchema,
     sourceEvidenceReferences: Schema.Array(ParentEvidenceReferenceSchema),
     sourcePolicyVersion: Schema.Union(ParentPolicyVersionSchema, Schema.Null),
-    sourceParentActionReferences: Schema.Array(ParentActionReferenceSchema),
     generatedAt: LocalAiTimestampSchema,
     confidence: LocalAiConfidenceSchema,
     derivedIndexVersion: LocalAiDerivedIndexVersionSchema,
   }).pipe(
     Schema.filter(
-      (reference) =>
-        hasDerivedSourceCitation(reference) ||
-        'Expected local AI graph to cite stored evidence, policy version, or parent action'
+      (reference) => reference.sourceEvidenceReferences.length > 0 || 'Expected local AI graph to cite stored evidence'
     )
   )
 );

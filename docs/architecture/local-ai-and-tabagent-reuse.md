@@ -85,25 +85,6 @@ Any local memory or graph reference that influences AI, policy, enforcement, or 
 
 No derived memory or graph reference may drive a block, timeout, or ask-parent decision unless it can cite source evidence or parent intent.
 
-## Current Knowledge Graph Adaptation Slice
-
-The first Ocentra Parent adaptation should not port TabAgent's graph store or
-MIA's weaver/runtime crates directly. The useful part to adopt now is the
-provenance boundary:
-
-- TabAgent's IndexedDB graph has node and edge identity, metadata, optional
-  embedding links, and asynchronous lookup/update patterns. Ocentra Parent should
-  keep those as future index implementation ideas, not as product source truth.
-- MIA's memory docs separate source databases from derived indexes and describe
-  asynchronous enrichment. Ocentra Parent should mirror that recovery model by
-  treating memory and graph data as rebuildable from encrypted journal and SQLite
-  read models.
-- Ocentra's narrow contract prototype keeps `LocalAiMemoryReference` and
-  `LocalAiGraphReference` as citation-gated derived references. A reference may
-  cite selected evidence, a selected policy version, or a selected parent action;
-  uncited or ungrounded memory/graph references are excluded from local AI
-  context and recorded as degraded context.
-
 ## Target Local AI Flow
 
 ```text

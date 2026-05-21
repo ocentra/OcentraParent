@@ -8,9 +8,9 @@ use crate::{
 use super::{
     policy_constants as policy, LocalAiGraphReference, LocalAiGraphReferenceKind,
     LocalAiMemoryReference, LocalAiMemoryReferenceKind, LocalAiSafetyResult, LocalAiUnknownState,
-    ParentActionReference, ParentActorReference, ParentActorRole, ParentEvidenceReference,
-    ParentEvidenceReferenceKind, PolicyAction, PolicyDecision, PolicyDecisionHandoffState,
-    PolicyRule, PolicyTarget, PolicyTargetType, POLICY_DRY_RUN_SCHEMA_VERSION,
+    ParentActorReference, ParentActorRole, ParentEvidenceReference, ParentEvidenceReferenceKind,
+    PolicyAction, PolicyDecision, PolicyDecisionHandoffState, PolicyRule, PolicyTarget,
+    PolicyTargetType, POLICY_DRY_RUN_SCHEMA_VERSION,
 };
 
 #[test]
@@ -81,10 +81,6 @@ fn local_ai_safety_result_serializes_policy_signal_shape() {
         policy::MEMORY_KIND_RECENT_ACTIVITY
     );
     assert_eq!(
-        serialized["memoryReferences"][0]["sourceParentActionReferences"][0]["policyVersion"],
-        policy::TEST_POLICY_VERSION
-    );
-    assert_eq!(
         serialized["graphReferences"][0]["kind"],
         policy::GRAPH_KIND_ENTITY
     );
@@ -124,18 +120,6 @@ fn evidence() -> ParentEvidenceReference {
     }
 }
 
-fn parent_action() -> ParentActionReference {
-    ParentActionReference {
-        action_reference_id: policy::TEST_PARENT_ACTION_REFERENCE_ID.to_string(),
-        actor: ParentActorReference {
-            actor_id: policy::TEST_PARENT_ACTOR_ID.to_string(),
-            role: ParentActorRole::Parent,
-        },
-        policy_version: policy::TEST_POLICY_VERSION.to_string(),
-        created_at: policy::TEST_EVALUATED_AT.to_string(),
-    }
-}
-
 fn local_ai_result(
     action: PolicyAction,
     unknown_state: LocalAiUnknownState,
@@ -157,7 +141,6 @@ fn local_ai_result(
             kind: LocalAiMemoryReferenceKind::RecentActivity,
             source_evidence_references: vec![evidence()],
             source_policy_version: Some(policy::TEST_POLICY_VERSION.to_string()),
-            source_parent_action_references: vec![parent_action()],
             generated_at: policy::TEST_EVALUATED_AT.to_string(),
             confidence: 0.82,
             derived_index_version: policy::TEST_DERIVED_INDEX_VERSION.to_string(),
@@ -167,7 +150,6 @@ fn local_ai_result(
             kind: LocalAiGraphReferenceKind::GraphEntity,
             source_evidence_references: vec![evidence()],
             source_policy_version: Some(policy::TEST_POLICY_VERSION.to_string()),
-            source_parent_action_references: vec![parent_action()],
             generated_at: policy::TEST_EVALUATED_AT.to_string(),
             confidence: 0.78,
             derived_index_version: policy::TEST_DERIVED_INDEX_VERSION.to_string(),

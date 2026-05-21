@@ -3,9 +3,9 @@ use ocentra_parent_agent_protocol::{
     LocalAiDegradedState, LocalAiExecutionState, LocalAiGraphReference, LocalAiGraphReferenceKind,
     LocalAiMemoryReference, LocalAiMemoryReferenceKind, LocalAiModelLoadState,
     LocalAiProviderPrivacyMode, LocalAiProviderSource, LocalAiResourceClass, LocalAiSafetyResult,
-    LocalAiUnknownState, LocalModelRuntimeStatus, ParentActionReference, ParentActorReference,
-    ParentActorRole, ParentEvidenceReference, ParentEvidenceReferenceKind, PolicyAction,
-    PolicyRule, PolicyTarget, PolicyTargetType,
+    LocalAiUnknownState, LocalModelRuntimeStatus, ParentActorReference, ParentActorRole,
+    ParentEvidenceReference, ParentEvidenceReferenceKind, PolicyAction, PolicyRule, PolicyTarget,
+    PolicyTargetType,
 };
 
 use super::PolicyDryRunEvaluationInput;
@@ -58,18 +58,6 @@ pub(crate) fn evidence() -> ParentEvidenceReference {
     }
 }
 
-fn parent_action() -> ParentActionReference {
-    ParentActionReference {
-        action_reference_id: policy::TEST_PARENT_ACTION_REFERENCE_ID.to_string(),
-        actor: ParentActorReference {
-            actor_id: policy::TEST_PARENT_ACTOR_ID.to_string(),
-            role: ParentActorRole::Parent,
-        },
-        policy_version: policy::TEST_POLICY_VERSION.to_string(),
-        created_at: policy::TEST_EVALUATED_AT.to_string(),
-    }
-}
-
 pub(crate) fn local_ai_result(
     action: PolicyAction,
     unknown_state: LocalAiUnknownState,
@@ -92,7 +80,6 @@ pub(crate) fn local_ai_result(
             kind: LocalAiMemoryReferenceKind::RecentActivity,
             source_evidence_references: vec![evidence()],
             source_policy_version: Some(policy::TEST_POLICY_VERSION.to_string()),
-            source_parent_action_references: vec![parent_action()],
             generated_at: policy::TEST_EVALUATED_AT.to_string(),
             confidence: 0.82,
             derived_index_version: policy::TEST_DERIVED_INDEX_VERSION.to_string(),
@@ -102,7 +89,6 @@ pub(crate) fn local_ai_result(
             kind: LocalAiGraphReferenceKind::GraphEntity,
             source_evidence_references: vec![evidence()],
             source_policy_version: Some(policy::TEST_POLICY_VERSION.to_string()),
-            source_parent_action_references: vec![parent_action()],
             generated_at: policy::TEST_EVALUATED_AT.to_string(),
             confidence: 0.78,
             derived_index_version: policy::TEST_DERIVED_INDEX_VERSION.to_string(),
