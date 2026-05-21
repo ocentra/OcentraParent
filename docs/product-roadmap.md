@@ -983,6 +983,8 @@ Current completed-on-main foundation:
 - V0.5.1 browser URL/tab managed bridge implementation plan.
 - V0.5.1 managed browser bridge runtime boundary with typed browser state
   contracts, local evidence storage, and portal read visibility.
+- V0.5.1 managed browser launcher/profile runtime status with loopback
+  Chromium DevTools polling, service status reporting, and portal visibility.
 - V0.5.2 app/game evidence sessions research/spec.
 - V0.5.2 app/game session runtime read model with typed contracts, Rust
   protocol mirror, and SQLite-backed process/window evidence summaries.
@@ -994,12 +996,10 @@ Current completed-on-main foundation:
 
 Next coordinator slices:
 
-1. Review and merge the V0.5.1 managed browser launcher/profile follow-up after
-   it rebases cleanly on latest `main`.
-2. Implement network flow evidence runtime read models and portal visibility
+1. Implement network flow evidence runtime read models and portal visibility
    from stored flow evidence, without claiming exact browser URL/tab or
    decrypted content.
-3. Implement the local screen evidence queue after the browser and app/game read
-   paths have stable evidence references.
-4. Start the local AI dry-run evaluator only after browser, app/game, network,
+2. Review the local screen evidence queue runtime branch after network flow
+   integration lands or clearly stops conflicting with it.
+3. Start the local AI dry-run evaluator only after browser, app/game, network,
    and screen evidence references can all be read through typed local contracts.

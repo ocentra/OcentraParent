@@ -106,6 +106,7 @@ Current completed-on-main baseline includes:
 - V0.5 live activity portal visibility;
 - V0.5.1 browser URL/tab evidence research/spec;
 - V0.5.1 browser bridge runtime boundary;
+- V0.5.1 managed browser launcher/profile runtime status;
 - V0.5.2 app/game evidence sessions research/spec;
 - V0.5.2 app/game session runtime read model;
 - network flow evidence research/spec;
@@ -117,11 +118,10 @@ Current completed-on-main baseline includes:
 
 Correct active implementation order:
 
-1. V0.5.1 managed browser launcher/profile follow-up.
-2. Network flow evidence runtime.
-3. Local screen evidence queue after browser and app/game read paths have stable
+1. Network flow evidence runtime.
+2. Local screen evidence queue after browser and app/game read paths have stable
    evidence references.
-4. V0.7 local AI dry-run evaluator only after browser, app/game, network, and
+3. V0.7 local AI dry-run evaluator only after browser, app/game, network, and
    screen evidence references can all be read through typed local contracts.
 
 Do not start V0.7 local AI runtime/evaluator early. V0.6 contracts can exist,
@@ -131,8 +131,8 @@ but evaluator work waits for the evidence bridges.
 
 Expected lane ownership:
 
-- `codex-a`: V0.5.1 managed browser bridge runtime on
-  `codex/v0.5.1-browser-managed-launcher-runtime`.
+- `codex-a`: free-warm after V0.5.1 managed browser launcher/profile runtime
+  merge.
 - `codex-b`: V0.5.3 local screen evidence queue runtime on
   `codex/v0.5.3-local-screen-evidence-runtime`.
 - `codex-c`: network flow evidence runtime on
