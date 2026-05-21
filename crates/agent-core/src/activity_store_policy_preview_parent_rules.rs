@@ -4,6 +4,7 @@ use ocentra_parent_agent_protocol::{
 
 pub(crate) fn parent_rule_contexts_for_row(
     target: &PolicyTarget,
+    target_aliases: &[PolicyTarget],
     evidence_references: &[ParentEvidenceReference],
     generated_at: &str,
     parent_rule_contexts: &[LocalAiParentRuleContextRef],
@@ -11,7 +12,13 @@ pub(crate) fn parent_rule_contexts_for_row(
     parent_rule_contexts
         .iter()
         .filter(|context| {
-            parent_rule_context_matches(context, target, evidence_references, generated_at)
+            parent_rule_context_matches(
+                context,
+                target,
+                target_aliases,
+                evidence_references,
+                generated_at,
+            )
         })
         .cloned()
         .collect()
@@ -20,13 +27,25 @@ pub(crate) fn parent_rule_contexts_for_row(
 fn parent_rule_context_matches(
     context: &LocalAiParentRuleContextRef,
     target: &PolicyTarget,
+    target_aliases: &[PolicyTarget],
     evidence_references: &[ParentEvidenceReference],
     generated_at: &str,
 ) -> bool {
     context.rule.enabled
-        && context_matches_target(context, target)
+        && context_matches_target_or_alias(context, target, target_aliases)
         && context_is_current(context, generated_at)
         && context_references_evidence(context, evidence_references)
+}
+
+fn context_matches_target_or_alias(
+    context: &LocalAiParentRuleContextRef,
+    target: &PolicyTarget,
+    target_aliases: &[PolicyTarget],
+) -> bool {
+    context_matches_target(context, target)
+        || target_aliases
+            .iter()
+            .any(|target_alias| context_matches_target(context, target_alias))
 }
 
 fn context_matches_target(context: &LocalAiParentRuleContextRef, target: &PolicyTarget) -> bool {
@@ -46,7 +65,7 @@ fn context_references_evidence(
     evidence_references: &[ParentEvidenceReference],
 ) -> bool {
     !context.target_evidence_refs.is_empty()
-        && context.target_evidence_refs.iter().any(|target_ref| {
+        && context.target_evidence_refs.iter().all(|target_ref| {
             evidence_references
                 .iter()
                 .any(|evidence| evidence.evidence_reference_id == *target_ref)
