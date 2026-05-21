@@ -7,7 +7,7 @@ use ocentra_parent_agent_protocol::{
 use crate::{
     activity_api::{
         build_activity_ingest_status_report, build_activity_recent_summary_report,
-        build_browser_evidence_recent_report,
+        build_browser_evidence_recent_report, build_network_flow_read_model_report,
     },
     browser_runtime::build_browser_managed_status_report,
     event_builder::{build_event, portal_peer},
@@ -100,6 +100,9 @@ async fn handle_command(command: AgentCommandEnvelope) -> AgentEventEnvelope {
         }
         AgentCommandName::AgentBrowserManagedBridgePoll => {
             build_browser_managed_status_report(command).await
+        }
+        AgentCommandName::AgentNetworkFlowReadModelGet => {
+            build_network_flow_read_model_report(command).await
         }
     }
 }

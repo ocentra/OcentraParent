@@ -86,6 +86,8 @@ pub enum AgentCommandName {
     AgentBrowserEvidenceRecentGet,
     #[serde(rename = "agent.browser.managed.bridge.poll")]
     AgentBrowserManagedBridgePoll,
+    #[serde(rename = "agent.network.flow.read-model.get")]
+    AgentNetworkFlowReadModelGet,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -110,6 +112,8 @@ pub enum AgentEventName {
     AgentBrowserEvidenceRecentReported,
     #[serde(rename = "agent.browser.managed.status.reported")]
     AgentBrowserManagedStatusReported,
+    #[serde(rename = "agent.network.flow.read-model.reported")]
+    AgentNetworkFlowReadModelReported,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

@@ -31,12 +31,17 @@ describe('portal domain contracts', () => {
     );
     expect(PortalCommandButtons.map((button) => button.command)).toContain('agent.browser.managed.bridge.poll');
     expect(PortalCommandButtons.map((button) => button.resultEvent)).toContain('agent.browser.managed.status.reported');
+    expect(PortalCommandButtons.map((button) => button.command)).toContain('agent.network.flow.read-model.get');
+    expect(PortalCommandButtons.map((button) => button.resultEvent)).toContain(
+      'agent.network.flow.read-model.reported'
+    );
     expect(PortalOverviewCommands.map((button) => button.command)).toEqual([
       'agent.health.check',
       'agent.log.snapshot.get',
       'agent.activity.ingest.status.get',
       'agent.activity.recent.summary.get',
       'agent.browser.evidence.recent.get',
+      'agent.network.flow.read-model.get',
     ]);
   });
 

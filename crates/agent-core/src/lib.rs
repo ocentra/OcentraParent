@@ -7,6 +7,8 @@ mod activity_store_app_game_rows;
 mod activity_store_browser;
 mod activity_store_connection;
 mod activity_store_error;
+mod activity_store_network_flow;
+mod activity_store_network_flow_rows;
 mod activity_store_rows;
 mod browser_bridge_event;
 mod browser_bridge_fields;
@@ -61,6 +63,8 @@ pub fn crate_name() -> &'static str {
 mod activity_store_app_game_tests;
 #[cfg(test)]
 mod activity_store_browser_tests;
+#[cfg(test)]
+mod activity_store_network_flow_tests;
 #[cfg(test)]
 mod activity_store_tests;
 #[cfg(test)]

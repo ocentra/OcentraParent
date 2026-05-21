@@ -17,6 +17,7 @@ export const PortalDiagnostics = {
     Health: 'health',
     IngestStatus: 'ingestStatus',
     LogAgent: 'logAgent',
+    NetworkFlowReadModel: 'networkFlowReadModel',
     Online: 'online',
     Payload: 'payload',
     RecentSummary: 'recentSummary',
