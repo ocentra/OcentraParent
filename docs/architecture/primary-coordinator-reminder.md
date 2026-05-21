@@ -138,9 +138,8 @@ Expected lane ownership:
 
 - `codex-a`: V0.7 local AI dry-run evaluator contract/runtime skeleton on
   `codex/v0.7-local-ai-dry-run-evaluator`.
-- `codex-b`: free-warm after V0.5.3 local screen evidence runtime merge; hold
-  for targeted fixes or later portal policy preview once evaluator contracts
-  are stable.
+- `codex-b`: V0.7 local AI evidence context-builder contract/runtime skeleton
+  on `codex/v0.7-ai-evidence-context-builder-runtime`.
 - `codex-c`: V0.7 local AI provider/runtime status and TabAgent reuse boundary
   on `codex/v0.7-local-ai-provider-runtime-status`.
 
