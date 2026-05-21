@@ -66,6 +66,15 @@ pub struct ParentEvidenceReference {
     pub observed_at: String,
 }
 
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ParentActionReference {
+    pub action_reference_id: String,
+    pub actor: ParentActorReference,
+    pub policy_version: String,
+    pub created_at: String,
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum PolicyAction {
     #[serde(rename = "allow")]
