@@ -27,6 +27,7 @@ async function assertCommandControls(page: Page): Promise<void> {
   await expect(page.getByRole('button', { name: 'Get browser evidence' })).toBeEnabled();
   await expect(page.getByRole('button', { name: 'Poll managed browser bridge' })).toBeEnabled();
   await expect(page.getByRole('button', { name: 'Get network flow' })).toBeEnabled();
+  await expect(page.getByRole('button', { name: 'Get local AI runtime' })).toBeEnabled();
   await expect(page.getByRole('heading', { name: 'Command result' })).toBeVisible();
   await expect(page.locator('.summary')).toHaveCount(1);
 }
@@ -66,6 +67,7 @@ async function assertTabbedCommandResults(page: Page): Promise<void> {
     'agent.browser.managed.status.reported'
   );
   await assertNetworkFlowResult(page, commandResult);
+  await assertCommandResult(page, commandResult, 'Get local AI runtime', 'agent.local-ai.runtime.status.reported');
   await page.getByRole('button', { name: 'Check health' }).click();
   await expect(commandResult.getByText('agent.health.reported')).toHaveCount(1);
   await expect(commandResult.locator('.log')).toHaveCount(1);
@@ -92,6 +94,7 @@ async function assertRawEventLog(page: Page): Promise<void> {
   await expect(page.getByText('agent.browser.evidence.recent.reported')).toHaveCount(3);
   await expect(page.getByText('agent.browser.managed.status.reported')).toHaveCount(2);
   await expect(page.getByText('agent.network.flow.read-model.reported')).toHaveCount(3);
+  await expect(page.getByText('agent.local-ai.runtime.status.reported')).toHaveCount(2);
 }
 
 async function assertCommandResult(

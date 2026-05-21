@@ -46,6 +46,7 @@ export const PortalDevTextToken = {
   GetBrowserEvidenceRecent: decodeTextTokenId('portal.dev.command.getBrowserEvidenceRecent'),
   PollManagedBrowserBridge: decodeTextTokenId('portal.dev.command.pollManagedBrowserBridge'),
   GetNetworkFlowReadModel: decodeTextTokenId('portal.dev.command.getNetworkFlowReadModel'),
+  GetLocalAiRuntimeStatus: decodeTextTokenId('portal.dev.command.getLocalAiRuntimeStatus'),
   RootMissing: decodeTextTokenId('portal.dev.rootMissing'),
 } as const;
 
@@ -97,6 +98,7 @@ export const PortalDevText: Record<PortalDevTextTokenValue, DisplayText> = {
   [PortalDevTextToken.GetBrowserEvidenceRecent]: decodeDisplayText('Get browser evidence'),
   [PortalDevTextToken.PollManagedBrowserBridge]: decodeDisplayText('Poll managed browser bridge'),
   [PortalDevTextToken.GetNetworkFlowReadModel]: decodeDisplayText('Get network flow'),
+  [PortalDevTextToken.GetLocalAiRuntimeStatus]: decodeDisplayText('Get local AI runtime'),
   [PortalDevTextToken.RootMissing]: decodeDisplayText('Portal root element is missing.'),
 };
 

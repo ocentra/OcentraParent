@@ -17,6 +17,10 @@ mod browser_runtime_tests;
 mod dev_log;
 mod event_builder;
 mod fields;
+mod local_ai_runtime_payload;
+mod local_ai_runtime_status;
+#[cfg(test)]
+mod local_ai_runtime_status_tests;
 mod network;
 mod snapshot;
 mod time;

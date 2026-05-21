@@ -72,7 +72,8 @@ export const AgentCommandNameSchema = withParser(
     'agent.activity.recent.summary.get',
     'agent.browser.evidence.recent.get',
     'agent.browser.managed.bridge.poll',
-    'agent.network.flow.read-model.get'
+    'agent.network.flow.read-model.get',
+    'agent.local-ai.runtime.status.get'
   )
 );
 
@@ -88,7 +89,8 @@ export const AgentEventNameSchema = withParser(
     'agent.activity.recent.summary.reported',
     'agent.browser.evidence.recent.reported',
     'agent.browser.managed.status.reported',
-    'agent.network.flow.read-model.reported'
+    'agent.network.flow.read-model.reported',
+    'agent.local-ai.runtime.status.reported'
   )
 );
 
@@ -142,6 +144,7 @@ export const AgentCommand = {
   BrowserEvidenceRecentGet: AgentCommandNameSchema.parse('agent.browser.evidence.recent.get'),
   BrowserManagedBridgePoll: AgentCommandNameSchema.parse('agent.browser.managed.bridge.poll'),
   NetworkFlowReadModelGet: AgentCommandNameSchema.parse('agent.network.flow.read-model.get'),
+  LocalAiRuntimeStatusGet: AgentCommandNameSchema.parse('agent.local-ai.runtime.status.get'),
 } as const;
 
 export const AgentEvent = {
@@ -156,4 +159,5 @@ export const AgentEvent = {
   BrowserEvidenceRecentReported: AgentEventNameSchema.parse('agent.browser.evidence.recent.reported'),
   BrowserManagedStatusReported: AgentEventNameSchema.parse('agent.browser.managed.status.reported'),
   NetworkFlowReadModelReported: AgentEventNameSchema.parse('agent.network.flow.read-model.reported'),
+  LocalAiRuntimeStatusReported: AgentEventNameSchema.parse('agent.local-ai.runtime.status.reported'),
 } as const;

@@ -9,6 +9,7 @@ mod browser;
 mod browser_managed;
 pub mod constants;
 mod journal;
+mod local_ai_runtime;
 mod logging;
 mod network_flow;
 mod screen_evidence;
@@ -21,6 +22,7 @@ pub use app_game::*;
 pub use browser::*;
 pub use browser_managed::*;
 pub use journal::*;
+pub use local_ai_runtime::*;
 pub use logging::*;
 pub use network_flow::*;
 pub use screen_evidence::*;
@@ -50,6 +52,8 @@ mod app_game_tests;
 mod browser_managed_tests;
 #[cfg(test)]
 mod journal_tests;
+#[cfg(test)]
+mod local_ai_runtime_tests;
 #[cfg(test)]
 mod network_flow_tests;
 #[cfg(test)]
