@@ -125,16 +125,23 @@ Current completed-on-main baseline includes:
   and Rust service parity;
 - V0.7 portal policy-preview read-model wiring with typed service result
   rendering and preview-only enforcement messaging;
+- V0.7 parent-rule context preview bridge from context-builder/read-model
+  references into the typed service/API response;
+- V0.7 local provider/runtime status contract hardening with explicit privacy,
+  adapter-boundary, execution-state, and provider-source fields that remain
+  unavailable/local-only by default;
 - hub hook session hardening;
 - roadmap runtime order update.
 
 Correct active implementation order:
 
-1. V0.7 local provider/runtime work must stay local-only and
+1. V0.7 portal visibility should expose the newly typed local runtime boundary
+   fields and parent-rule context reference details without adding enforcement.
+2. V0.7 parent-rule/context integration should populate preview references from
+   local parent-authored rule sources, but must not enable enforcement.
+3. V0.7 local provider/runtime adapter work must stay local-only and
    unavailable/degraded by default until a real adapter is reviewed.
-2. V0.7 parent-rule/context integration gaps may be planned or contracted, but
-   must not enable enforcement.
-3. V0.8 enforcement adapters only after V0.7 preview decisions are typed,
+4. V0.8 enforcement adapters only after V0.7 preview decisions are typed,
    evidence-cited, visible, and validated on `main`.
 
 The V0.7 start gate is now satisfied because browser, app/game, network, and
@@ -144,13 +151,16 @@ contracts/read paths. Do not start enforcement early.
 ## Current Lane Intent
 
 The previous V0.7 foundation, preview-shell, context-builder read-path,
-service/API read-path, and portal read-model wiring batches are merged. Current
-lane ownership should be kept full from clean, pulled `main`:
+service/API read-path, portal read-model wiring, parent-rule context bridge, and
+local provider status hardening batches are merged. Current lane ownership
+should be kept full from clean, pulled `main`:
 
-- one lane for local provider/runtime adapter planning or status hardening that
-  stays local-only and degraded/unavailable by default;
-- one lane for the next V0.7 parent-rule/context integration gap needed for
-  preview quality, without starting enforcement.
+- one lane for portal visibility over local runtime boundary fields and
+  parent-rule context reference details;
+- one lane for parent-rule/context resolver integration needed for preview
+  quality, without starting enforcement;
+- one lane for local provider/runtime adapter planning or a status probe that
+  stays local-only and degraded/unavailable by default.
 
 If the lane ledger and live branch disagree, send one targeted hub message and
 state which worker chat/worktree needs attention. Do not spam duplicate

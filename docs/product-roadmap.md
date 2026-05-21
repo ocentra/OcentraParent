@@ -45,8 +45,10 @@ The first V0.7 foundations are also on `main`: local AI runtime/provider status,
 typed evidence context-builder contracts, a deterministic dry-run policy
 evaluator, context-builder read-path hardening, the portal policy-preview shell,
 the typed policy-preview service/API read path, and portal read-model wiring for
-the service result. The next V0.7 work is local-provider boundary hardening and
-parent-rule/context service integration, not enforcement.
+the service result. The parent-rule context preview bridge and local
+provider/runtime status contract hardening are also on `main`. The next V0.7
+work is portal visibility for those new boundary fields plus parent-rule context
+population, not enforcement.
 
 Completed foundation:
 
@@ -70,10 +72,12 @@ Current local slice:
 
 Next product slice:
 
-- V0.7 local provider/runtime adapter boundary work that remains local-only and
-  unavailable/degraded by default until a real adapter is reviewed.
-- V0.7 parent-rule/context service integration needed for preview quality
+- V0.7 portal visibility for local provider/runtime boundary fields and
+  parent-rule context reference details.
+- V0.7 parent-rule/context resolver integration needed for preview quality
   without enabling enforcement.
+- V0.7 local-provider adapter planning or probes that remain local-only and
+  unavailable/degraded by default until a real adapter is reviewed.
 
 ## Architecture Commitments
 
@@ -1026,12 +1030,20 @@ Current completed-on-main foundation:
 - V0.7 portal read-model wiring to request and render the typed policy-preview
   service result, including decision, reason, rule, evidence, dry-run, and
   enforcement-handoff fields without enabling enforcement.
+- V0.7 parent-rule context preview bridge from context-builder/read-model
+  references into the typed service/API response, with enforcement still
+  disabled.
+- V0.7 local provider/runtime status contract hardening with explicit privacy,
+  adapter-boundary, execution-state, and provider-source fields that remain
+  unavailable/local-only by default.
 
 Next coordinator slices:
 
-1. Keep provider runtime work local-only and unavailable/degraded by default
+1. Add portal visibility for the newly typed local runtime boundary fields and
+   parent-rule context reference details in policy-preview results.
+2. Populate parent-rule context references from local parent-authored rule
+   sources for preview quality without starting enforcement.
+3. Keep provider adapter work local-only and unavailable/degraded by default
    until an actual local model adapter is reviewed.
-2. Define the next parent-rule/context integration gap needed for V0.7 preview
-   quality without starting enforcement.
-3. Keep enforcement out of scope until V0.7 preview decisions are typed,
+4. Keep enforcement out of scope until V0.7 preview decisions are typed,
    evidence-cited, visible, and validated on `main`.
