@@ -57,6 +57,8 @@ mod local_ai_runtime_tests;
 #[cfg(test)]
 mod network_flow_tests;
 #[cfg(test)]
+mod policy_preview_tests;
+#[cfg(test)]
 mod screen_evidence_tests;
 #[cfg(test)]
 mod tests;

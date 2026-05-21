@@ -9,6 +9,8 @@ mod activity_store_connection;
 mod activity_store_error;
 mod activity_store_network_flow;
 mod activity_store_network_flow_rows;
+mod activity_store_policy_preview;
+mod activity_store_policy_preview_rows;
 mod activity_store_rows;
 mod activity_store_screen_evidence;
 mod browser_bridge_event;
@@ -70,6 +72,8 @@ mod activity_store_app_game_tests;
 mod activity_store_browser_tests;
 #[cfg(test)]
 mod activity_store_network_flow_tests;
+#[cfg(test)]
+mod activity_store_policy_preview_tests;
 #[cfg(test)]
 mod activity_store_screen_evidence_tests;
 #[cfg(test)]

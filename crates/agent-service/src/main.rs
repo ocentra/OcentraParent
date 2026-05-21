@@ -22,6 +22,10 @@ mod local_ai_runtime_status;
 #[cfg(test)]
 mod local_ai_runtime_status_tests;
 mod network;
+mod policy_preview_api;
+mod policy_preview_payload;
+#[cfg(test)]
+mod policy_preview_tests;
 mod snapshot;
 mod time;
 mod websocket;

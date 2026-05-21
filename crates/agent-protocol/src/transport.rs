@@ -90,6 +90,8 @@ pub enum AgentCommandName {
     AgentNetworkFlowReadModelGet,
     #[serde(rename = "agent.local-ai.runtime.status.get")]
     AgentLocalAiRuntimeStatusGet,
+    #[serde(rename = "agent.policy.preview.read-model.get")]
+    AgentPolicyPreviewReadModelGet,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -118,6 +120,8 @@ pub enum AgentEventName {
     AgentNetworkFlowReadModelReported,
     #[serde(rename = "agent.local-ai.runtime.status.reported")]
     AgentLocalAiRuntimeStatusReported,
+    #[serde(rename = "agent.policy.preview.read-model.reported")]
+    AgentPolicyPreviewReadModelReported,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
