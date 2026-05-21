@@ -19,6 +19,7 @@ pub(crate) fn input_with_rules(
         decision_id: policy::TEST_DECISION_ID.to_string(),
         evaluated_at: policy::TEST_EVALUATED_AT.to_string(),
         observed_target: target(),
+        observed_target_aliases: Vec::new(),
         parent_rules,
         local_ai_result,
         evidence_references,

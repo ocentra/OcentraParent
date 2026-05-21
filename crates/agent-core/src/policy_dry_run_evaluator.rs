@@ -8,6 +8,7 @@ pub struct PolicyDryRunEvaluationInput {
     pub decision_id: String,
     pub evaluated_at: String,
     pub observed_target: PolicyTarget,
+    pub observed_target_aliases: Vec<PolicyTarget>,
     pub parent_rules: Vec<PolicyRule>,
     pub local_ai_result: Option<LocalAiSafetyResult>,
     pub evidence_references: Vec<ParentEvidenceReference>,
@@ -70,8 +71,16 @@ fn applicable_rules(input: &PolicyDryRunEvaluationInput) -> Vec<&PolicyRule> {
 
 fn rule_applies(input: &PolicyDryRunEvaluationInput, rule: &PolicyRule) -> bool {
     rule.enabled
-        && target_matches(&input.observed_target, &rule.target)
+        && target_applies(input, &rule.target)
         && rule_is_effective_at(&input.evaluated_at, rule)
+}
+
+fn target_applies(input: &PolicyDryRunEvaluationInput, rule_target: &PolicyTarget) -> bool {
+    target_matches(&input.observed_target, rule_target)
+        || input
+            .observed_target_aliases
+            .iter()
+            .any(|target| target_matches(target, rule_target))
 }
 
 fn target_matches(observed: &PolicyTarget, rule_target: &PolicyTarget) -> bool {

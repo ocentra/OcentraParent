@@ -1,8 +1,7 @@
 use ocentra_parent_agent_protocol::{
-    constants, policy_constants as policy, ActivityEvidenceKind, ActivityEvidenceRef,
-    LocalAiParentRuleContextRef, LogFieldValue, LogFields, ParentEvidenceReference,
-    ParentEvidenceReferenceKind, PolicyPreviewReadModel, PolicyPreviewReadModelRow, PolicyTarget,
-    PolicyTargetType, POLICY_DRY_RUN_SCHEMA_VERSION,
+    policy_constants as policy, ActivityEvidenceKind, ActivityEvidenceRef,
+    LocalAiParentRuleContextRef, ParentEvidenceReference, ParentEvidenceReferenceKind,
+    PolicyPreviewReadModel, PolicyPreviewReadModelRow, POLICY_DRY_RUN_SCHEMA_VERSION,
 };
 use rusqlite::Connection;
 
@@ -12,6 +11,8 @@ use crate::{
     activity_store_policy_preview_rows::{policy_preview_rows, PolicyPreviewStoreRow},
     evaluate_policy_dry_run, ActivityStoreError, PolicyDryRunEvaluationInput,
 };
+
+use crate::activity_store_policy_preview_targets::targets_from_row;
 
 pub(crate) fn policy_preview_read_model(
     connection: &Connection,
@@ -47,10 +48,12 @@ fn preview_row(
     generated_at: &str,
     parent_rule_contexts: &[LocalAiParentRuleContextRef],
 ) -> Option<PolicyPreviewReadModelRow> {
-    let target = target_from_row(&row)?;
+    let targets = targets_from_row(&row)?;
+    let target = targets.primary;
     let evidence_references = evidence_references_from_row(&row);
     let parent_rule_context_references = parent_rule_contexts_for_row(
         &target,
+        &targets.aliases,
         &evidence_references,
         generated_at,
         parent_rule_contexts,
@@ -63,6 +66,7 @@ fn preview_row(
         decision_id: prefixed_id(policy::PREVIEW_DECISION_ID_PREFIX, &row.event_id),
         evaluated_at: generated_at.to_string(),
         observed_target: target.clone(),
+        observed_target_aliases: targets.aliases,
         parent_rules,
         local_ai_result: None,
         evidence_references: evidence_references.clone(),
@@ -78,75 +82,6 @@ fn preview_row(
         parent_rule_context_references,
         decision,
     })
-}
-
-fn target_from_row(row: &PolicyPreviewStoreRow) -> Option<PolicyTarget> {
-    let (target_type, target_value) =
-        target_type_and_value(row.subject_kind.as_str(), &row.fields, row)?;
-    Some(PolicyTarget {
-        target_id: row.subject_id.clone(),
-        target_type,
-        target_value,
-    })
-}
-
-fn target_type_and_value(
-    subject_kind: &str,
-    fields: &LogFields,
-    row: &PolicyPreviewStoreRow,
-) -> Option<(PolicyTargetType, String)> {
-    match subject_kind {
-        constants::activity_subject_kind::PROCESS => Some((
-            PolicyTargetType::Process,
-            field_or_subject_value(fields, constants::field::PROCESS_NAME, row),
-        )),
-        constants::activity_subject_kind::WINDOW => Some((
-            PolicyTargetType::Window,
-            field_or_subject_value(fields, constants::field::WINDOW_TITLE, row),
-        )),
-        constants::activity_subject_kind::DOMAIN => Some((
-            PolicyTargetType::Domain,
-            domain_or_subject_value(fields, row),
-        )),
-        constants::activity_subject_kind::URL => url_target(fields, row),
-        constants::activity_subject_kind::VIDEO => {
-            Some((PolicyTargetType::Video, subject_value(row)))
-        }
-        constants::activity_subject_kind::DEVICE => {
-            Some((PolicyTargetType::Device, subject_value(row)))
-        }
-        _ => None,
-    }
-}
-
-fn url_target(
-    fields: &LogFields,
-    row: &PolicyPreviewStoreRow,
-) -> Option<(PolicyTargetType, String)> {
-    if let Some(domain) = string_field(fields, constants::field::DOMAIN) {
-        return Some((PolicyTargetType::Domain, domain));
-    }
-
-    Some((
-        PolicyTargetType::Site,
-        string_field(fields, constants::field::URL).unwrap_or_else(|| subject_value(row)),
-    ))
-}
-
-fn domain_or_subject_value(fields: &LogFields, row: &PolicyPreviewStoreRow) -> String {
-    string_field(fields, constants::field::DESTINATION_DOMAIN)
-        .or_else(|| string_field(fields, constants::field::DOMAIN))
-        .unwrap_or_else(|| subject_value(row))
-}
-
-fn field_or_subject_value(fields: &LogFields, key: &str, row: &PolicyPreviewStoreRow) -> String {
-    string_field(fields, key).unwrap_or_else(|| subject_value(row))
-}
-
-fn subject_value(row: &PolicyPreviewStoreRow) -> String {
-    row.subject_display_name
-        .clone()
-        .unwrap_or_else(|| row.subject_id.clone())
 }
 
 fn evidence_references_from_row(row: &PolicyPreviewStoreRow) -> Vec<ParentEvidenceReference> {
@@ -191,13 +126,6 @@ fn push_unique_reference(
         .any(|existing| existing.evidence_reference_id == reference.evidence_reference_id)
     {
         references.push(reference);
-    }
-}
-
-fn string_field(fields: &LogFields, key: &str) -> Option<String> {
-    match fields.get(key) {
-        Some(LogFieldValue::String(value)) => Some(value.clone()),
-        _ => None,
     }
 }
 
