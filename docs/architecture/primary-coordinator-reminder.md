@@ -25,6 +25,7 @@ Run these on a full coordination pass:
 
 ```powershell
 npm run hub:status
+npm run hub:heartbeats
 npm run lanes:status
 git status --short --branch
 gh pr list --state open --json number,title,headRefName,isDraft,statusCheckRollup,url
@@ -113,28 +114,35 @@ Current completed-on-main baseline includes:
 - network flow evidence contract/read-model groundwork;
 - network flow evidence runtime read model;
 - V0.5.3 local screen evidence spec;
+- V0.5.3 local screen evidence queue runtime;
 - V0.6 local AI safety decision contracts and context-builder plan;
 - hub hook session hardening;
 - roadmap runtime order update.
 
 Correct active implementation order:
 
-1. Local screen evidence queue after rebasing on the network-flow runtime merge.
-2. V0.7 local AI dry-run evaluator only after browser, app/game, network, and
-   screen evidence references can all be read through typed local contracts.
+1. V0.7 local AI dry-run evaluator from clean, pulled `main`.
+2. Keep early V0.7 slices disjoint: contract/evaluator skeleton,
+   provider/runtime status, and later portal preview should not fight over the
+   same files unless the primary explicitly coordinates that overlap.
+3. V0.8 enforcement adapters only after V0.7 dry-run decisions are typed,
+   evidence-cited, and validated.
 
-Do not start V0.7 local AI runtime/evaluator early. V0.6 contracts can exist,
-but evaluator work waits for the evidence bridges.
+The V0.7 start gate is now satisfied because browser, app/game, network, and
+screen evidence references have all landed on `main` through typed local
+contracts/read paths. Do not start enforcement early.
 
 ## Current Lane Intent
 
 Expected lane ownership:
 
-- `codex-a`: free-warm after V0.5.1 managed browser launcher/profile runtime
-  merge.
-- `codex-b`: V0.5.3 local screen evidence queue runtime on
-  `codex/v0.5.3-local-screen-evidence-runtime`.
-- `codex-c`: free-warm after network flow evidence runtime merge.
+- `codex-a`: V0.7 local AI dry-run evaluator contract/runtime skeleton on
+  `codex/v0.7-local-ai-dry-run-evaluator`.
+- `codex-b`: free-warm after V0.5.3 local screen evidence runtime merge; hold
+  for targeted fixes or later portal policy preview once evaluator contracts
+  are stable.
+- `codex-c`: V0.7 local AI provider/runtime status and TabAgent reuse boundary
+  on `codex/v0.7-local-ai-provider-runtime-status`.
 
 If the lane ledger and live branch disagree, send one targeted hub message and
 state which worker chat/worktree needs attention. Do not spam duplicate

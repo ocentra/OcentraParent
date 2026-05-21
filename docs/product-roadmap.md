@@ -37,7 +37,11 @@ stateless compile/report operations that do not retain child activity data.
 
 ## Current Position
 
-We are currently in the evidence storage track.
+We are currently entering the local AI dry-run evaluator track. The required
+pre-AI evidence bridges now exist on `main`: browser URL/tab state, app/game
+sessions, network flow summaries, and local screen-analysis queue summaries can
+all be represented through typed local contracts and Rust protocol/read-model
+paths.
 
 Completed foundation:
 
@@ -53,14 +57,16 @@ Completed foundation:
 
 Current local slice:
 
-- SQLite-backed activity query store replacing the earlier DuckDB direction.
-- Encrypted journal remains the source of truth.
-- SQLite is the default cross-platform local query/index store.
-- DuckDB is not a core runtime dependency.
+- V0.7 local AI policy evaluator in dry-run mode.
+- Safety context builder over stored browser, app/game, network, screen,
+  parent-rule, and local runtime evidence references.
+- Typed local AI result and deterministic policy decision paths before
+  enforcement.
 
 Next product slice:
 
-- Windows process/window activity capture.
+- V0.8 enforcement adapters only after V0.7 dry-run decisions are typed,
+  evidence-cited, and validated.
 
 ## Architecture Commitments
 
@@ -989,6 +995,9 @@ Current completed-on-main foundation:
 - V0.5.2 app/game session runtime read model with typed contracts, Rust
   protocol mirror, and SQLite-backed process/window evidence summaries.
 - V0.5.3 local screen evidence analysis queue research/spec.
+- V0.5.3 local screen evidence queue runtime with typed contracts, encrypted
+  temporary queue state, Rust protocol parity, SQLite/journal-backed summary
+  read path, and portal visibility.
 - Network flow evidence research/spec.
 - Network flow evidence contract/read-model groundwork.
 - Network flow evidence runtime read model with typed protocol, SQLite/journal
@@ -998,7 +1007,8 @@ Current completed-on-main foundation:
 
 Next coordinator slices:
 
-1. Review the local screen evidence queue runtime branch after rebasing it on
-   the network-flow runtime merge.
-2. Start the local AI dry-run evaluator only after browser, app/game, network,
-   and screen evidence references can all be read through typed local contracts.
+1. Start V0.7 local AI dry-run evaluator work from clean, pulled `main`.
+2. Split early V0.7 work so contract/evaluator skeleton, provider/runtime
+   status, and later portal preview do not overlap files unnecessarily.
+3. Keep enforcement out of scope until V0.7 decisions are typed,
+   evidence-cited, and validated.
