@@ -1,8 +1,9 @@
 use ocentra_parent_agent_protocol::{
     constants, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, LocalAiAdapterBoundary,
-    LocalAiAdapterProbeState, LocalAiDegradedState, LocalAiExecutionState, LocalAiModelLoadState,
-    LocalAiProviderConfigurationState, LocalAiProviderPrivacyMode, LocalAiProviderSource,
-    LocalAiResourceClass, LocalModelRuntimeStatus, LocalProviderAdapterProbe, LogLevel,
+    LocalAiAdapterProbeState, LocalAiAdapterReadinessState, LocalAiDegradedState,
+    LocalAiExecutionState, LocalAiModelLoadState, LocalAiProviderConfigurationState,
+    LocalAiProviderPrivacyMode, LocalAiProviderSource, LocalAiResourceClass,
+    LocalModelRuntimeStatus, LocalProviderAdapterProbe, LogLevel,
 };
 
 use crate::{
@@ -41,6 +42,7 @@ pub fn unavailable_local_provider_adapter_probe(checked_at: String) -> LocalProv
         provider_source: LocalAiProviderSource::Unavailable,
         probe_state: LocalAiAdapterProbeState::ProbeUnavailable,
         configuration_state: LocalAiProviderConfigurationState::LocalProviderUnconfigured,
+        readiness_state: LocalAiAdapterReadinessState::AdapterNotReady,
         execution_allowed: false,
         last_checked_at: checked_at,
         unavailable_reason: Some(

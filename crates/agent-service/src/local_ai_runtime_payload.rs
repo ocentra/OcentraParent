@@ -78,6 +78,10 @@ fn adapter_probe_fields(probe: &LocalProviderAdapterProbe) -> Vec<(&'static str,
             constants::field::LOCAL_AI_PROVIDER_CONFIGURATION_STATE,
             probe.configuration_state.as_protocol_str(),
         ),
+        protocol_field(
+            constants::field::LOCAL_AI_ADAPTER_READINESS_STATE,
+            probe.readiness_state.as_protocol_str(),
+        ),
         bool_field(
             constants::field::LOCAL_AI_EXECUTION_ALLOWED,
             probe.execution_allowed,

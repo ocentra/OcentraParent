@@ -111,6 +111,7 @@ export const AgentProtocolDefaults = {
     LocalAiProviderSource: 'providerSource',
     LocalAiAdapterProbeState: 'probeState',
     LocalAiProviderConfigurationState: 'configurationState',
+    LocalAiAdapterReadinessState: 'readinessState',
     LocalAiExecutionAllowed: 'executionAllowed',
     LocalAiResultId: 'localAiResultId',
     ManagedBrowserSessionId: 'managedBrowserSessionId',

@@ -81,6 +81,7 @@ it('AgentProtocolDefaults.Field: exposes read-model payload fields', () => {
   expect(AgentProtocolDefaults.Field.LocalAiProviderSource).toBe('providerSource');
   expect(AgentProtocolDefaults.Field.LocalAiAdapterProbeState).toBe('probeState');
   expect(AgentProtocolDefaults.Field.LocalAiProviderConfigurationState).toBe('configurationState');
+  expect(AgentProtocolDefaults.Field.LocalAiAdapterReadinessState).toBe('readinessState');
   expect(AgentProtocolDefaults.Field.LocalAiExecutionAllowed).toBe('executionAllowed');
   expect(AgentProtocolDefaults.Field.BrowserEvidenceId).toBe('browserEvidenceId');
   expect(AgentProtocolDefaults.Field.ManagedState).toBe('managedState');

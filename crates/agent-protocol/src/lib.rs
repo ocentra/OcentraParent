@@ -57,6 +57,8 @@ mod journal_tests;
 #[cfg(test)]
 mod local_ai_runtime_tests;
 #[cfg(test)]
+mod local_provider_adapter_readiness_tests;
+#[cfg(test)]
 mod network_flow_tests;
 #[cfg(test)]
 mod policy_preview_tests;

@@ -56,6 +56,7 @@ const unconfiguredAdapterProbe = {
   providerSource: 'unavailable',
   probeState: 'probe-unavailable',
   configurationState: 'local-provider-unconfigured',
+  readinessState: 'adapter-not-ready',
   executionAllowed: false,
   lastCheckedAt: '2026-05-21T14:45:00.000Z',
   unavailableReason: 'local-ai-provider-unconfigured',
@@ -77,6 +78,24 @@ describe('local AI runtime contracts', () => {
       LocalProviderAdapterProbeSchema.safeParse({
         ...unconfiguredAdapterProbe,
         executionAllowed: 'false',
+      }).success
+    ).toBe(false);
+  });
+
+  it('adapter probe schema: rejects execution when readiness is not ready', () => {
+    expect(
+      LocalProviderAdapterProbeSchema.safeParse({
+        ...unconfiguredAdapterProbe,
+        executionAllowed: true,
+      }).success
+    ).toBe(false);
+  });
+
+  it('adapter probe schema: rejects ready state without configured local provider boundary', () => {
+    expect(
+      LocalProviderAdapterProbeSchema.safeParse({
+        ...unconfiguredAdapterProbe,
+        readinessState: 'adapter-ready',
       }).success
     ).toBe(false);
   });

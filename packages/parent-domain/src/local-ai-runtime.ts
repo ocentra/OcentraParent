@@ -33,39 +33,77 @@ export const LocalAiProviderConfigurationStateSchema = withParser(
   Schema.Literal('local-provider-unconfigured', 'local-provider-configured', 'local-provider-config-invalid')
 );
 
-export const LocalModelRuntimeStatusSchema = withParser(
-  Schema.Struct({
-    runtimeReferenceId: LocalAiRuntimeReferenceIdSchema,
-    providerId: LocalAiProviderIdSchema,
-    modelId: LocalAiModelIdSchema,
-    modelReference: LocalAiModelReferenceSchema,
-    privacyMode: LocalAiProviderPrivacyModeSchema,
-    adapterBoundary: LocalAiAdapterBoundarySchema,
-    executionState: LocalAiExecutionStateSchema,
-    providerSource: LocalAiProviderSourceSchema,
-    loadState: LocalAiModelLoadStateSchema,
-    capabilityFlags: Schema.Array(LocalAiCapabilityFlagSchema),
-    resourceClass: LocalAiResourceClassSchema,
-    degradedState: LocalAiDegradedStateSchema,
-    lastCheckedAt: LocalAiTimestampSchema,
-    unavailableReason: Schema.Union(LocalAiUnavailableReasonSchema, Schema.Null),
-  })
+export const LocalAiAdapterReadinessStateSchema = withParser(
+  Schema.Literal('adapter-not-ready', 'adapter-ready', 'adapter-readiness-invalid')
 );
 
+const LocalModelRuntimeStatusBaseSchema = Schema.Struct({
+  runtimeReferenceId: LocalAiRuntimeReferenceIdSchema,
+  providerId: LocalAiProviderIdSchema,
+  modelId: LocalAiModelIdSchema,
+  modelReference: LocalAiModelReferenceSchema,
+  privacyMode: LocalAiProviderPrivacyModeSchema,
+  adapterBoundary: LocalAiAdapterBoundarySchema,
+  executionState: LocalAiExecutionStateSchema,
+  providerSource: LocalAiProviderSourceSchema,
+  loadState: LocalAiModelLoadStateSchema,
+  capabilityFlags: Schema.Array(LocalAiCapabilityFlagSchema),
+  resourceClass: LocalAiResourceClassSchema,
+  degradedState: LocalAiDegradedStateSchema,
+  lastCheckedAt: LocalAiTimestampSchema,
+  unavailableReason: Schema.Union(LocalAiUnavailableReasonSchema, Schema.Null),
+});
+
+const LocalProviderAdapterProbeBaseSchema = Schema.Struct({
+  providerId: LocalAiProviderIdSchema,
+  privacyMode: LocalAiProviderPrivacyModeSchema,
+  adapterBoundary: LocalAiAdapterBoundarySchema,
+  executionState: LocalAiExecutionStateSchema,
+  providerSource: LocalAiProviderSourceSchema,
+  probeState: LocalAiAdapterProbeStateSchema,
+  configurationState: LocalAiProviderConfigurationStateSchema,
+  readinessState: LocalAiAdapterReadinessStateSchema,
+  executionAllowed: Schema.Boolean,
+  lastCheckedAt: LocalAiTimestampSchema,
+  unavailableReason: Schema.Union(LocalAiUnavailableReasonSchema, Schema.Null),
+});
+
+type LocalProviderAdapterProbeCandidate = Infer<typeof LocalProviderAdapterProbeBaseSchema>;
+
+export const LocalModelRuntimeStatusSchema = withParser(LocalModelRuntimeStatusBaseSchema);
+
 export const LocalProviderAdapterProbeSchema = withParser(
-  Schema.Struct({
-    providerId: LocalAiProviderIdSchema,
-    privacyMode: LocalAiProviderPrivacyModeSchema,
-    adapterBoundary: LocalAiAdapterBoundarySchema,
-    executionState: LocalAiExecutionStateSchema,
-    providerSource: LocalAiProviderSourceSchema,
-    probeState: LocalAiAdapterProbeStateSchema,
-    configurationState: LocalAiProviderConfigurationStateSchema,
-    executionAllowed: Schema.Boolean,
-    lastCheckedAt: LocalAiTimestampSchema,
-    unavailableReason: Schema.Union(LocalAiUnavailableReasonSchema, Schema.Null),
-  })
+  LocalProviderAdapterProbeBaseSchema.pipe(
+    Schema.filter(
+      (probe) =>
+        localProviderAdapterProbeReadinessIsConsistent(probe) ||
+        'Expected local provider adapter readiness to match execution permission'
+    )
+  )
 );
+
+function localProviderAdapterProbeReadinessIsConsistent(probe: LocalProviderAdapterProbeCandidate): boolean {
+  if (probe.readinessState === 'adapter-not-ready') {
+    return probe.executionAllowed === false;
+  }
+
+  if (probe.readinessState === 'adapter-ready') {
+    return (
+      probe.executionAllowed === true &&
+      probe.probeState === 'probe-ready' &&
+      probe.configurationState === 'local-provider-configured' &&
+      probe.adapterBoundary === 'local-adapter-ready' &&
+      probe.executionState === 'dry-run-ready' &&
+      probe.providerSource !== 'unavailable' &&
+      probe.unavailableReason === null
+    );
+  }
+
+  return (
+    probe.executionAllowed === false &&
+    (probe.probeState === 'probe-failed' || probe.configurationState === 'local-provider-config-invalid')
+  );
+}
 
 export const LocalProviderCapabilitySchema = withParser(
   Schema.Struct({
@@ -95,3 +133,4 @@ export type LocalAiExecutionState = Infer<typeof LocalAiExecutionStateSchema>;
 export type LocalAiProviderSource = Infer<typeof LocalAiProviderSourceSchema>;
 export type LocalAiAdapterProbeState = Infer<typeof LocalAiAdapterProbeStateSchema>;
 export type LocalAiProviderConfigurationState = Infer<typeof LocalAiProviderConfigurationStateSchema>;
+export type LocalAiAdapterReadinessState = Infer<typeof LocalAiAdapterReadinessStateSchema>;

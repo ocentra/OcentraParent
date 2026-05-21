@@ -133,3 +133,25 @@ impl LocalAiProviderConfigurationState {
         }
     }
 }
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum LocalAiAdapterReadinessState {
+    #[serde(rename = "adapter-not-ready")]
+    AdapterNotReady,
+    #[serde(rename = "adapter-ready")]
+    AdapterReady,
+    #[serde(rename = "adapter-readiness-invalid")]
+    AdapterReadinessInvalid,
+}
+
+impl LocalAiAdapterReadinessState {
+    pub fn as_protocol_str(&self) -> &'static str {
+        match self {
+            Self::AdapterNotReady => constants::local_ai_runtime::ADAPTER_READINESS_STATE_NOT_READY,
+            Self::AdapterReady => constants::local_ai_runtime::ADAPTER_READINESS_STATE_READY,
+            Self::AdapterReadinessInvalid => {
+                constants::local_ai_runtime::ADAPTER_READINESS_STATE_INVALID
+            }
+        }
+    }
+}
