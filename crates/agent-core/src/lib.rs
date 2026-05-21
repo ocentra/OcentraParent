@@ -21,6 +21,7 @@ mod browser_bridge_fields;
 mod browser_bridge_http;
 mod browser_bridge_ids;
 mod browser_bridge_poll;
+mod browser_managed_discovery;
 mod browser_managed_session;
 mod journal;
 mod journal_crypto;
@@ -46,6 +47,10 @@ pub use browser_bridge_event::{
 pub use browser_bridge_poll::{
     poll_chromium_bridge, BrowserBridgePollConfig, BrowserBridgePollError,
     BrowserBridgePollSnapshot,
+};
+pub use browser_managed_discovery::{
+    managed_browser_executable_identity, unmanaged_browser_processes,
+    BrowserManagedExecutableIdentity, BrowserUnmanagedProcessObservation,
 };
 pub use browser_managed_session::{
     launch_managed_browser, managed_browser_launch_plan, BrowserManagedLaunch,

@@ -1,5 +1,5 @@
 import { spawn } from 'node:child_process';
-import { mkdtemp, readdir, readFile, rm } from 'node:fs/promises';
+import { mkdtemp, readdir, readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
@@ -17,7 +17,12 @@ import {
   isLikelyParentPortalOccupant,
 } from '../dev/local-dev-config.mjs';
 import { ensurePortFree } from '../dev/port-utils.mjs';
-import { resolveDebugAgentServicePath, spawnVitePortal, stopProcessTree } from './agent-service-process.mjs';
+import {
+  removeDirectoryWithRetry,
+  resolveDebugAgentServicePath,
+  spawnVitePortal,
+  stopProcessTreeAndWait,
+} from './agent-service-process.mjs';
 
 const agentPort = ParentDevPort.PortalSmokeAgent;
 const portalPort = ParentDevPort.PortalSmokePortal;
@@ -54,9 +59,8 @@ try {
   await assertDevServerLogWritten();
   console.log('portal-local-smoke-ok');
 } finally {
-  stopProcess(portal);
-  stopProcess(agent);
-  await rm(devLogDir, { recursive: true, force: true });
+  await Promise.all([stopProcess(portal), stopProcess(agent)]);
+  await removeDirectoryWithRetry(devLogDir);
 }
 
 async function waitForHttp(url) {
@@ -74,8 +78,8 @@ async function waitForHttp(url) {
   throw new Error(`Timed out waiting for ${url}`);
 }
 
-function stopProcess(child) {
-  stopProcessTree(child);
+async function stopProcess(child) {
+  await stopProcessTreeAndWait(child);
 }
 
 async function assertDevServerLogWritten() {

@@ -5,8 +5,9 @@ use std::{
 };
 
 use ocentra_parent_agent_core::{
-    launch_managed_browser, poll_chromium_bridge, BrowserBridgePollConfig,
-    BrowserManagedLaunchConfig,
+    collect_process_snapshot, launch_managed_browser, poll_chromium_bridge,
+    unmanaged_browser_processes, BrowserBridgePollConfig, BrowserManagedLaunchConfig,
+    BrowserUnmanagedProcessObservation,
 };
 use ocentra_parent_agent_protocol::{
     constants, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, BrowserCapabilityStatus,
@@ -20,6 +21,7 @@ use crate::{
     browser_runtime_status::{
         bridge_disconnected_status, connected_status, missing_browser_status,
         profile_missing_status, running_managed_status, status_with_error,
+        unmanaged_browser_status,
     },
     event_builder::build_event,
     time::timestamp_now,
@@ -86,7 +88,7 @@ fn bridge_poll_status(checked_at: String, port: u16) -> BrowserManagedSessionSta
                 checked_at,
                 snapshot.browser_version,
                 BrowserCapabilityStatus::TabListOnly,
-                None,
+                browser_target_degraded_reason(snapshot.page_target_count),
             )
         }
         Err(error) => bridge_disconnected_status(checked_at, error.reason()),
@@ -95,6 +97,14 @@ fn bridge_poll_status(checked_at: String, port: u16) -> BrowserManagedSessionSta
 
 fn launch_or_missing_status(checked_at: String) -> BrowserManagedSessionStatus {
     let Ok(executable) = env::var(constants::env_var::MANAGED_BROWSER_EXECUTABLE) else {
+        if let Some(process) = first_unmanaged_browser_process() {
+            return unmanaged_browser_status(
+                checked_at,
+                process.process_id,
+                process.browser_family,
+                process.browser_channel,
+            );
+        }
         return missing_browser_status(checked_at);
     };
     let Ok(profile_dir) = env::var(constants::env_var::MANAGED_BROWSER_PROFILE_DIR) else {
@@ -108,9 +118,29 @@ fn launch_or_missing_status(checked_at: String) -> BrowserManagedSessionStatus {
     };
 
     match launch_managed_browser(config) {
-        Ok(launch) => running_managed_status(checked_at, launch.process_id),
+        Ok(launch) => running_managed_status(
+            checked_at,
+            launch.process_id,
+            launch.browser_family,
+            launch.browser_channel,
+        ),
         Err(error) => status_with_error(checked_at, error.reason()),
     }
+}
+
+fn browser_target_degraded_reason(page_target_count: usize) -> Option<String> {
+    if page_target_count == 0 {
+        return Some(constants::value::BROWSER_BRIDGE_NO_PAGE_TARGETS.to_string());
+    }
+    None
+}
+
+fn first_unmanaged_browser_process() -> Option<BrowserUnmanagedProcessObservation> {
+    let observations =
+        collect_process_snapshot(constants::browser::PROCESS_SCAN_LIMIT_BROWSER_DISCOVERY);
+    unmanaged_browser_processes(&observations, None)
+        .into_iter()
+        .next()
 }
 
 fn configured_bridge_port() -> Result<Option<u16>, &'static str> {

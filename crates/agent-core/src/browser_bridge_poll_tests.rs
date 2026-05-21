@@ -36,12 +36,47 @@ fn poll_chromium_bridge_maps_page_targets_to_browser_activity_events() {
         snapshot.browser_version,
         Some(constants::browser::DEVTOOLS_TEST_BROWSER_VERSION.to_string())
     );
+    assert_eq!(snapshot.page_target_count, 1);
     assert_eq!(snapshot.events.len(), 1);
     assert_eq!(snapshot.events[0].kind, ActivityEventKind::UrlObserved);
     assert_eq!(
         snapshot.events[0].fields[constants::field::URL],
         LogFieldValue::String(constants::activity_store::TEST_BROWSER_URL.to_string())
     );
+    assert_eq!(
+        snapshot.events[0].fields[constants::field::ACTIVE_STATE],
+        LogFieldValue::String(constants::browser::ACTIVE_STATE_UNKNOWN.to_string())
+    );
+    assert_eq!(
+        snapshot.events[0].fields[constants::field::CAPABILITY_STATUS],
+        LogFieldValue::String(constants::browser::CAPABILITY_STATUS_TAB_LIST_ONLY.to_string())
+    );
+}
+
+#[test]
+fn poll_chromium_bridge_reports_empty_page_target_discovery() {
+    let endpoint = serve_devtools(
+        constants::browser::DEVTOOLS_TEST_VERSION_BODY,
+        constants::browser::DEVTOOLS_TEST_EMPTY_LIST_BODY,
+    );
+    let config = BrowserBridgePollConfig {
+        endpoint,
+        managed_browser_session_id: constants::browser::SESSION_ID_DEV.to_string(),
+        profile_id: constants::browser::PROFILE_ID_DEV.to_string(),
+        process_id: constants::browser::PROCESS_ID_UNKNOWN,
+        browser_family: BrowserFamily::Edge,
+        browser_channel: BrowserChannel::Beta,
+    };
+
+    let snapshot = poll_chromium_bridge(
+        config,
+        constants::activity_store::TEST_FIRST_OBSERVED_AT,
+        constants::activity_store::TEST_SECOND_OBSERVED_AT,
+    )
+    .expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET);
+
+    assert_eq!(snapshot.page_target_count, 0);
+    assert!(snapshot.events.is_empty());
 }
 
 #[test]
