@@ -116,17 +116,23 @@ Current completed-on-main baseline includes:
 - V0.5.3 local screen evidence spec;
 - V0.5.3 local screen evidence queue runtime;
 - V0.6 local AI safety decision contracts and context-builder plan;
+- V0.7 local AI provider/runtime status command;
+- V0.7 local AI evidence context-builder contracts;
+- V0.7 local AI dry-run policy evaluator;
 - hub hook session hardening;
 - roadmap runtime order update.
 
 Correct active implementation order:
 
-1. V0.7 local AI dry-run evaluator from clean, pulled `main`.
-2. Keep early V0.7 slices disjoint: contract/evaluator skeleton,
-   provider/runtime status, and later portal preview should not fight over the
-   same files unless the primary explicitly coordinates that overlap.
-3. V0.8 enforcement adapters only after V0.7 dry-run decisions are typed,
-   evidence-cited, and validated.
+1. V0.7 service/API read paths that assemble typed evidence context and
+   dry-run policy results from stored local evidence.
+2. V0.7 portal policy preview that shows runtime status, decision action,
+   reason codes, evidence references, unknown/degraded states, and no
+   enforcement.
+3. V0.7 local provider/runtime work must stay local-only and
+   unavailable/degraded by default until a real adapter is reviewed.
+4. V0.8 enforcement adapters only after V0.7 preview decisions are typed,
+   evidence-cited, visible, and validated on `main`.
 
 The V0.7 start gate is now satisfied because browser, app/game, network, and
 screen evidence references have all landed on `main` through typed local
@@ -134,14 +140,13 @@ contracts/read paths. Do not start enforcement early.
 
 ## Current Lane Intent
 
-Expected lane ownership:
+The previous A/B/C V0.7 foundation batch is merged. Expected next lane
+ownership should be assigned from clean, pulled `main`:
 
-- `codex-a`: V0.7 local AI dry-run evaluator contract/runtime skeleton on
-  `codex/v0.7-local-ai-dry-run-evaluator`.
-- `codex-b`: V0.7 local AI evidence context-builder contract/runtime skeleton
-  on `codex/v0.7-ai-evidence-context-builder-runtime`.
-- `codex-c`: V0.7 local AI provider/runtime status and TabAgent reuse boundary
-  on `codex/v0.7-local-ai-provider-runtime-status`.
+- one lane for V0.7 local evidence-context service/API read path;
+- one lane for V0.7 portal policy preview and typed display contracts;
+- one lane for V0.7 local provider/runtime adapter planning or status hardening
+  that stays local-only and degraded/unavailable by default.
 
 If the lane ledger and live branch disagree, send one targeted hub message and
 state which worker chat/worktree needs attention. Do not spam duplicate

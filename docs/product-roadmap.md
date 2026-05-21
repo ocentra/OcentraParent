@@ -37,11 +37,13 @@ stateless compile/report operations that do not retain child activity data.
 
 ## Current Position
 
-We are currently entering the local AI dry-run evaluator track. The required
-pre-AI evidence bridges now exist on `main`: browser URL/tab state, app/game
-sessions, network flow summaries, and local screen-analysis queue summaries can
-all be represented through typed local contracts and Rust protocol/read-model
-paths.
+We are currently in the local AI dry-run evaluator track. The required pre-AI
+evidence bridges now exist on `main`: browser URL/tab state, app/game sessions,
+network flow summaries, and local screen-analysis queue summaries can all be
+represented through typed local contracts and Rust protocol/read-model paths.
+The first V0.7 foundations are also on `main`: local AI runtime/provider status,
+typed evidence context-builder contracts, and a deterministic dry-run policy
+evaluator. The next V0.7 work is integration and preview, not enforcement.
 
 Completed foundation:
 
@@ -65,8 +67,9 @@ Current local slice:
 
 Next product slice:
 
-- V0.8 enforcement adapters only after V0.7 dry-run decisions are typed,
-  evidence-cited, and validated.
+- V0.7 service and portal policy preview that reads typed local evidence,
+  context-builder output, local runtime status, and dry-run decisions without
+  enabling enforcement.
 
 ## Architecture Commitments
 
@@ -1004,11 +1007,20 @@ Current completed-on-main foundation:
   query-store read path, service command/event, and portal visibility.
 - V0.6 local AI safety decision contract groundwork.
 - V0.6 local AI evidence context-builder reconciliation plan.
+- V0.7 local AI provider/runtime status command and portal visibility.
+- V0.7 local AI evidence context-builder contracts with allowed-custody
+  validation.
+- V0.7 local AI dry-run policy evaluator with evidence-cited typed decisions
+  and enforcement handoff disabled.
 
 Next coordinator slices:
 
-1. Start V0.7 local AI dry-run evaluator work from clean, pulled `main`.
-2. Split early V0.7 work so contract/evaluator skeleton, provider/runtime
-   status, and later portal preview do not overlap files unnecessarily.
-3. Keep enforcement out of scope until V0.7 decisions are typed,
-   evidence-cited, and validated.
+1. Wire V0.7 service/API read paths that can assemble local evidence context
+   and dry-run policy results from stored evidence without inventing rows.
+2. Add V0.7 portal policy preview visibility for context, runtime status,
+   decision action, reason codes, evidence references, and degraded/unknown
+   states.
+3. Keep provider runtime work local-only and unavailable/degraded by default
+   until an actual local model adapter is reviewed.
+4. Keep enforcement out of scope until V0.7 preview decisions are typed,
+   evidence-cited, visible, and validated on `main`.
