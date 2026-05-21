@@ -1,5 +1,13 @@
 use serde::{Deserialize, Serialize};
 
+#[path = "policy.rs"]
+mod policy;
+pub use policy::*;
+
+#[path = "local_ai.rs"]
+mod local_ai;
+pub use local_ai::*;
+
 use crate::LogFields;
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -104,3 +112,7 @@ pub struct ActivityEvent {
     pub fields: LogFields,
     pub evidence: Vec<ActivityEvidenceRef>,
 }
+
+#[cfg(test)]
+#[path = "policy_tests.rs"]
+mod policy_tests;
