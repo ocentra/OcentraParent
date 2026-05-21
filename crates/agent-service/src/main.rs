@@ -4,6 +4,7 @@ mod activity_api;
 mod activity_capture;
 #[cfg(test)]
 mod activity_capture_tests;
+mod activity_network_flow_payload;
 mod activity_payload;
 mod activity_store_path;
 mod app;

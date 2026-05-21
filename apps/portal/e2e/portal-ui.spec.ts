@@ -26,6 +26,7 @@ async function assertCommandControls(page: Page): Promise<void> {
   await expect(page.getByRole('button', { name: 'Get recent activity summary' })).toBeEnabled();
   await expect(page.getByRole('button', { name: 'Get browser evidence' })).toBeEnabled();
   await expect(page.getByRole('button', { name: 'Poll managed browser bridge' })).toBeEnabled();
+  await expect(page.getByRole('button', { name: 'Get network flow' })).toBeEnabled();
   await expect(page.getByRole('heading', { name: 'Command result' })).toBeVisible();
   await expect(page.locator('.summary')).toHaveCount(1);
 }
@@ -57,20 +58,25 @@ async function assertTabbedCommandResults(page: Page): Promise<void> {
   await page.getByRole('button', { name: 'Get recent activity summary' }).click();
   await expect(commandResult.getByText('agent.activity.recent.summary.reported')).toHaveCount(1);
   await expect(commandResult.locator('.log')).toHaveCount(1);
-  await page.getByRole('button', { name: 'Get browser evidence' }).click();
-  await page.getByRole('button', { name: 'Get browser evidence' }).click();
-  await expect(commandResult.getByText('agent.browser.evidence.recent.reported')).toHaveCount(1);
-  await expect(commandResult.locator('.log')).toHaveCount(1);
+  await assertCommandResult(page, commandResult, 'Get browser evidence', 'agent.browser.evidence.recent.reported');
   await assertCommandResult(
     page,
     commandResult,
     'Poll managed browser bridge',
     'agent.browser.managed.status.reported'
   );
+  await assertNetworkFlowResult(page, commandResult);
   await page.getByRole('button', { name: 'Check health' }).click();
   await expect(commandResult.getByText('agent.health.reported')).toHaveCount(1);
   await expect(commandResult.locator('.log')).toHaveCount(1);
   await assertCopyButton(page, commandResult, 'agent.health.reported');
+}
+
+async function assertNetworkFlowResult(page: Page, commandResult: Locator): Promise<void> {
+  await page.getByRole('button', { name: 'Get network flow' }).click();
+  await page.getByRole('button', { name: 'Get network flow' }).click();
+  await expect(commandResult.getByText('agent.network.flow.read-model.reported')).toHaveCount(1);
+  await expect(commandResult.locator('.log')).toHaveCount(1);
 }
 
 async function assertRawEventLog(page: Page): Promise<void> {
@@ -85,6 +91,7 @@ async function assertRawEventLog(page: Page): Promise<void> {
   await expect(page.getByText('agent.activity.recent.summary.reported')).toHaveCount(3);
   await expect(page.getByText('agent.browser.evidence.recent.reported')).toHaveCount(3);
   await expect(page.getByText('agent.browser.managed.status.reported')).toHaveCount(2);
+  await expect(page.getByText('agent.network.flow.read-model.reported')).toHaveCount(3);
 }
 
 async function assertCommandResult(
@@ -106,6 +113,7 @@ async function assertOverview(page: Page): Promise<void> {
   await expect(page.getByRole('heading', { name: 'Evidence store' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Managed browser' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Browser evidence' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Network flow' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Recent activity' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Device diagnostics' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Activity timeline' })).toBeVisible();
@@ -150,6 +158,7 @@ async function assertDiagnosticsCopy(page: Page): Promise<void> {
   expect(copiedText).toContain('"connectionState"');
   expect(copiedText).toContain('"events"');
   expect(copiedText).toContain('"recentSummary"');
+  expect(copiedText).toContain('"networkFlowReadModel"');
 }
 
 function collectBrowserFailures(page: Page): string[] {

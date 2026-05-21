@@ -22,6 +22,10 @@ export const PortalOverviewCommands = [
     command: AgentCommand.BrowserEvidenceRecentGet,
     payload: {},
   },
+  {
+    command: AgentCommand.NetworkFlowReadModelGet,
+    payload: {},
+  },
 ] as const;
 
 export const PortalCommandButtons = [
@@ -73,6 +77,12 @@ export const PortalCommandButtons = [
     label: resolvePortalDevText(PortalDevTextToken.PollManagedBrowserBridge),
     command: AgentCommand.BrowserManagedBridgePoll,
     resultEvent: AgentEvent.BrowserManagedStatusReported,
+    payload: {},
+  },
+  {
+    label: resolvePortalDevText(PortalDevTextToken.GetNetworkFlowReadModel),
+    command: AgentCommand.NetworkFlowReadModelGet,
+    resultEvent: AgentEvent.NetworkFlowReadModelReported,
     payload: {},
   },
 ] as const;

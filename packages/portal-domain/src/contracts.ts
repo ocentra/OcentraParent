@@ -107,6 +107,7 @@ export const PortalClipboard = {
 export const PortalFormatting = {
   EventDetailSeparator: ' | ',
   CorrelationPrefix: 'correlation ',
+  EndpointSeparator: ':',
 } as const;
 
 export const PortalTiming = {

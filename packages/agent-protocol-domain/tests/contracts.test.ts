@@ -67,12 +67,14 @@ it('AgentEvent: exposes typed constants for portal result rendering', () => {
   expect(AgentCommand.BrowserManagedBridgePoll).toBe('agent.browser.managed.bridge.poll');
   expect(AgentProtocolDefaults.Field.BridgeEndpointRef).toBe('bridgeEndpointRef');
   expect(AgentProtocolDefaults.Field.BridgeKind).toBe('bridgeKind');
+  expect(AgentCommand.NetworkFlowReadModelGet).toBe('agent.network.flow.read-model.get');
   expect(AgentProtocolDefaults.Field.DatabaseReady).toBe('databaseReady');
   expect(AgentProtocolDefaults.Field.BrowserEvidenceId).toBe('browserEvidenceId');
   expect(AgentProtocolDefaults.Field.ManagedState).toBe('managedState');
   expect(AgentProtocolDefaults.Field.ProfilePathRef).toBe('profilePathRef');
   expect(AgentProtocolDefaults.Field.QueryVisibility).toBe('queryVisibility');
   expect(AgentProtocolDefaults.Field.CapabilityStatus).toBe('capabilityStatus');
+  expect(AgentProtocolDefaults.Field.DestinationDomain).toBe('destinationDomain');
   expect(AgentProtocolDefaults.Field.MostRecentSubjectName).toBe('mostRecentSubjectName');
   expect(AgentEvent.HealthReported).toBe('agent.health.reported');
   expect(AgentEvent.LogSnapshotReported).toBe('agent.log.snapshot.reported');
@@ -82,6 +84,7 @@ it('AgentEvent: exposes typed constants for portal result rendering', () => {
   expect(AgentEvent.ActivityRecentSummaryReported).toBe('agent.activity.recent.summary.reported');
   expect(AgentEvent.BrowserEvidenceRecentReported).toBe('agent.browser.evidence.recent.reported');
   expect(AgentEvent.BrowserManagedStatusReported).toBe('agent.browser.managed.status.reported');
+  expect(AgentEvent.NetworkFlowReadModelReported).toBe('agent.network.flow.read-model.reported');
 });
 
 it('AgentCommandEnvelopeSchema: rejects unknown commands', () => {

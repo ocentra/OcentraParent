@@ -26,6 +26,7 @@ export function buildDiagnosticsExport(state: PortalRuntimeState): PortalClipboa
     [PortalDiagnostics.Field.Activity]: {
       [PortalDiagnostics.Field.IngestStatus]: liveActivity.ingestStatus,
       [PortalDiagnostics.Field.RecentSummary]: liveActivity.recentSummary,
+      [PortalDiagnostics.Field.NetworkFlowReadModel]: liveActivity.networkFlowReadModel,
     },
     [PortalDiagnostics.Field.Events]: state.events
       .slice(0, PortalDiagnostics.TimelineLimit)

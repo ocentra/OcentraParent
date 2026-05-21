@@ -10,6 +10,7 @@ mod browser_managed;
 pub mod constants;
 mod journal;
 mod logging;
+mod network_flow;
 mod transport;
 
 pub use activity::*;
@@ -20,6 +21,7 @@ pub use browser::*;
 pub use browser_managed::*;
 pub use journal::*;
 pub use logging::*;
+pub use network_flow::*;
 pub use transport::*;
 
 pub const CRATE_NAME: &str = "ocentra-parent-agent-protocol";
@@ -29,6 +31,7 @@ pub const ACTIVITY_SCHEMA_VERSION: u16 = 1;
 pub const ACTIVITY_JOURNAL_SCHEMA_VERSION: u16 = 1;
 pub const ACTIVITY_QUERY_SCHEMA_VERSION: u16 = 1;
 pub const BROWSER_EVIDENCE_SCHEMA_VERSION: u16 = 1;
+pub const NETWORK_FLOW_SCHEMA_VERSION: u16 = 1;
 
 pub fn crate_name() -> &'static str {
     CRATE_NAME
@@ -44,5 +47,7 @@ mod app_game_tests;
 mod browser_managed_tests;
 #[cfg(test)]
 mod journal_tests;
+#[cfg(test)]
+mod network_flow_tests;
 #[cfg(test)]
 mod tests;
