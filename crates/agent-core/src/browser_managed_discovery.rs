@@ -76,8 +76,9 @@ fn unmanaged_browser_process(
 }
 
 fn executable_name_normalized(path: &Path) -> String {
-    path.file_name()
-        .map(|name| name.to_string_lossy().to_ascii_lowercase())
+    normalized_component_names(path)
+        .last()
+        .cloned()
         .unwrap_or_default()
 }
 
@@ -114,7 +115,9 @@ fn browser_channel_from_path(path: &Path) -> BrowserChannel {
 }
 
 fn normalized_component_names(path: &Path) -> Vec<String> {
-    path.components()
-        .map(|component| component.as_os_str().to_string_lossy().to_ascii_lowercase())
+    path.to_string_lossy()
+        .split(['/', '\\'])
+        .filter(|component| !component.is_empty())
+        .map(str::to_ascii_lowercase)
         .collect()
 }
