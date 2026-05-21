@@ -21,6 +21,22 @@ pub fn local_ai_runtime_status_payload(status: &LocalModelRuntimeStatus) -> LogF
             LogFieldValue::String(status.model_reference.clone()),
         ),
         (
+            constants::field::LOCAL_AI_PRIVACY_MODE,
+            LogFieldValue::String(status.privacy_mode.as_protocol_str().to_string()),
+        ),
+        (
+            constants::field::LOCAL_AI_ADAPTER_BOUNDARY,
+            LogFieldValue::String(status.adapter_boundary.as_protocol_str().to_string()),
+        ),
+        (
+            constants::field::LOCAL_AI_EXECUTION_STATE,
+            LogFieldValue::String(status.execution_state.as_protocol_str().to_string()),
+        ),
+        (
+            constants::field::LOCAL_AI_PROVIDER_SOURCE,
+            LogFieldValue::String(status.provider_source.as_protocol_str().to_string()),
+        ),
+        (
             constants::field::LOAD_STATE,
             LogFieldValue::String(status.load_state.as_protocol_str().to_string()),
         ),

@@ -10,6 +10,10 @@ describe('local AI runtime contracts', () => {
         providerId: 'local-provider',
         modelId: 'safety-model',
         modelReference: 'local-model-cache/safety-model',
+        privacyMode: 'local-only',
+        adapterBoundary: 'local-adapter-ready',
+        executionState: 'dry-run-ready',
+        providerSource: 'local-model-cache',
         loadState: 'loaded',
         capabilityFlags: ['safety-decision', 'classification'],
         resourceClass: 'cpu',
@@ -18,6 +22,24 @@ describe('local AI runtime contracts', () => {
         unavailableReason: null,
       }).loadState
     ).toBe('loaded');
+    expect(
+      LocalModelRuntimeStatusSchema.parse({
+        runtimeReferenceId: 'runtime-unconfigured',
+        providerId: 'local-provider-unconfigured',
+        modelId: 'safety-model-unconfigured',
+        modelReference: 'local-model-cache-unconfigured',
+        privacyMode: 'local-only',
+        adapterBoundary: 'local-adapter-unavailable',
+        executionState: 'disabled',
+        providerSource: 'unavailable',
+        loadState: 'unavailable',
+        capabilityFlags: [],
+        resourceClass: 'cpu',
+        degradedState: LocalAiDegradedState.ProviderUnavailable,
+        lastCheckedAt: '2026-05-20T20:44:00.000Z',
+        unavailableReason: 'local-ai-provider-unconfigured',
+      }).executionState
+    ).toBe('disabled');
     expect(
       LocalProviderCapabilitySchema.parse({
         providerId: 'local-provider',

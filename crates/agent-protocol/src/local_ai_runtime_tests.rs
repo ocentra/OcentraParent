@@ -1,8 +1,9 @@
 use super::{
     constants, AgentCommandEnvelope, AgentCommandName, AgentMessageTarget, AgentPeer,
-    AgentPeerRole, AgentRoute, LocalAiCapabilityFlag, LocalAiDegradedState, LocalAiModelLoadState,
-    LocalAiProviderPrivacyMode, LocalAiResourceClass, LocalModelRuntimeStatus,
-    LocalProviderCapability, LogFields, AGENT_PROTOCOL_SCHEMA_VERSION,
+    AgentPeerRole, AgentRoute, LocalAiAdapterBoundary, LocalAiCapabilityFlag, LocalAiDegradedState,
+    LocalAiExecutionState, LocalAiModelLoadState, LocalAiProviderPrivacyMode,
+    LocalAiProviderSource, LocalAiResourceClass, LocalModelRuntimeStatus, LocalProviderCapability,
+    LogFields, AGENT_PROTOCOL_SCHEMA_VERSION,
 };
 
 #[test]
@@ -13,6 +14,10 @@ fn local_model_runtime_status_serializes_to_typescript_contract_shape() {
         provider_id: constants::local_ai_runtime::PROVIDER_ID_UNCONFIGURED.to_string(),
         model_id: constants::local_ai_runtime::MODEL_ID_UNCONFIGURED.to_string(),
         model_reference: constants::local_ai_runtime::MODEL_REFERENCE_UNCONFIGURED.to_string(),
+        privacy_mode: LocalAiProviderPrivacyMode::LocalOnly,
+        adapter_boundary: LocalAiAdapterBoundary::LocalAdapterUnavailable,
+        execution_state: LocalAiExecutionState::Disabled,
+        provider_source: LocalAiProviderSource::Unavailable,
         load_state: LocalAiModelLoadState::Unavailable,
         capability_flags: vec![],
         resource_class: LocalAiResourceClass::Cpu,
@@ -32,6 +37,22 @@ fn local_model_runtime_status_serializes_to_typescript_contract_shape() {
     assert_eq!(
         serialized["loadState"],
         constants::local_ai_runtime::LOAD_STATE_UNAVAILABLE
+    );
+    assert_eq!(
+        serialized["privacyMode"],
+        constants::local_ai_runtime::PRIVACY_MODE_LOCAL_ONLY
+    );
+    assert_eq!(
+        serialized["adapterBoundary"],
+        constants::local_ai_runtime::ADAPTER_BOUNDARY_LOCAL_ADAPTER_UNAVAILABLE
+    );
+    assert_eq!(
+        serialized["executionState"],
+        constants::local_ai_runtime::EXECUTION_STATE_DISABLED
+    );
+    assert_eq!(
+        serialized["providerSource"],
+        constants::local_ai_runtime::PROVIDER_SOURCE_UNAVAILABLE
     );
     assert_eq!(
         serialized["degradedState"],
