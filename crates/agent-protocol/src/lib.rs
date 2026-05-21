@@ -4,6 +4,7 @@ mod activity;
 mod activity_capture;
 mod activity_conversions;
 mod activity_query;
+mod app_game;
 mod browser;
 pub mod constants;
 mod journal;
@@ -13,6 +14,7 @@ mod transport;
 pub use activity::*;
 pub use activity_capture::*;
 pub use activity_query::*;
+pub use app_game::*;
 pub use browser::*;
 pub use journal::*;
 pub use logging::*;
@@ -34,6 +36,8 @@ pub fn crate_name() -> &'static str {
 mod activity_query_tests;
 #[cfg(test)]
 mod activity_tests;
+#[cfg(test)]
+mod app_game_tests;
 #[cfg(test)]
 mod journal_tests;
 #[cfg(test)]
