@@ -87,3 +87,49 @@ impl LocalAiProviderSource {
         }
     }
 }
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum LocalAiAdapterProbeState {
+    #[serde(rename = "probe-unavailable")]
+    ProbeUnavailable,
+    #[serde(rename = "probe-ready")]
+    ProbeReady,
+    #[serde(rename = "probe-failed")]
+    ProbeFailed,
+}
+
+impl LocalAiAdapterProbeState {
+    pub fn as_protocol_str(&self) -> &'static str {
+        match self {
+            Self::ProbeUnavailable => constants::local_ai_runtime::ADAPTER_PROBE_STATE_UNAVAILABLE,
+            Self::ProbeReady => constants::local_ai_runtime::ADAPTER_PROBE_STATE_READY,
+            Self::ProbeFailed => constants::local_ai_runtime::ADAPTER_PROBE_STATE_FAILED,
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum LocalAiProviderConfigurationState {
+    #[serde(rename = "local-provider-unconfigured")]
+    LocalProviderUnconfigured,
+    #[serde(rename = "local-provider-configured")]
+    LocalProviderConfigured,
+    #[serde(rename = "local-provider-config-invalid")]
+    LocalProviderConfigInvalid,
+}
+
+impl LocalAiProviderConfigurationState {
+    pub fn as_protocol_str(&self) -> &'static str {
+        match self {
+            Self::LocalProviderUnconfigured => {
+                constants::local_ai_runtime::PROVIDER_CONFIGURATION_UNCONFIGURED
+            }
+            Self::LocalProviderConfigured => {
+                constants::local_ai_runtime::PROVIDER_CONFIGURATION_CONFIGURED
+            }
+            Self::LocalProviderConfigInvalid => {
+                constants::local_ai_runtime::PROVIDER_CONFIGURATION_INVALID
+            }
+        }
+    }
+}

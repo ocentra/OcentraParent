@@ -1,8 +1,10 @@
-use ocentra_parent_agent_protocol::{constants, LogFieldValue};
+use ocentra_parent_agent_protocol::{constants, LogFieldValue, LogFields};
 
 use crate::{
     local_ai_runtime_payload::local_ai_runtime_status_payload,
-    local_ai_runtime_status::unavailable_local_ai_runtime_status,
+    local_ai_runtime_status::{
+        unavailable_local_ai_runtime_status, unavailable_local_provider_adapter_probe,
+    },
 };
 
 #[test]
@@ -43,11 +45,37 @@ fn unavailable_local_ai_runtime_status_reports_safe_unconfigured_state() {
 }
 
 #[test]
-fn local_ai_runtime_status_payload_exposes_status_without_model_execution() {
-    let status = unavailable_local_ai_runtime_status(
+fn unavailable_local_provider_adapter_probe_reports_no_execution_boundary() {
+    let probe = unavailable_local_provider_adapter_probe(
         constants::local_ai_runtime::TEST_CHECKED_AT.to_string(),
     );
-    let payload = local_ai_runtime_status_payload(&status);
+
+    assert_eq!(
+        probe.adapter_boundary.as_protocol_str(),
+        constants::local_ai_runtime::ADAPTER_BOUNDARY_STATUS_ONLY
+    );
+    assert_eq!(
+        probe.execution_state.as_protocol_str(),
+        constants::local_ai_runtime::EXECUTION_STATE_DISABLED
+    );
+    assert_eq!(
+        probe.provider_source.as_protocol_str(),
+        constants::local_ai_runtime::PROVIDER_SOURCE_UNAVAILABLE
+    );
+    assert_eq!(
+        probe.probe_state.as_protocol_str(),
+        constants::local_ai_runtime::ADAPTER_PROBE_STATE_UNAVAILABLE
+    );
+    assert_eq!(
+        probe.configuration_state.as_protocol_str(),
+        constants::local_ai_runtime::PROVIDER_CONFIGURATION_UNCONFIGURED
+    );
+    assert!(!probe.execution_allowed);
+}
+
+#[test]
+fn local_ai_runtime_status_payload_exposes_runtime_status_without_model_execution() {
+    let payload = unconfigured_status_payload();
 
     assert_eq!(
         payload.get(constants::field::LOCAL_AI_RUNTIME_REFERENCE_ID),
@@ -85,6 +113,28 @@ fn local_ai_runtime_status_payload_exposes_status_without_model_execution() {
             constants::local_ai_runtime::PROVIDER_SOURCE_UNAVAILABLE.to_string()
         ))
     );
+}
+
+#[test]
+fn local_ai_runtime_status_payload_exposes_probe_fields_without_execution() {
+    let payload = unconfigured_status_payload();
+
+    assert_eq!(
+        payload.get(constants::field::LOCAL_AI_ADAPTER_PROBE_STATE),
+        Some(&LogFieldValue::String(
+            constants::local_ai_runtime::ADAPTER_PROBE_STATE_UNAVAILABLE.to_string()
+        ))
+    );
+    assert_eq!(
+        payload.get(constants::field::LOCAL_AI_PROVIDER_CONFIGURATION_STATE),
+        Some(&LogFieldValue::String(
+            constants::local_ai_runtime::PROVIDER_CONFIGURATION_UNCONFIGURED.to_string()
+        ))
+    );
+    assert_eq!(
+        payload.get(constants::field::LOCAL_AI_EXECUTION_ALLOWED),
+        Some(&LogFieldValue::Boolean(false))
+    );
     assert_eq!(
         payload.get(constants::field::LOCAL_AI_CAPABILITY_FLAGS),
         Some(&LogFieldValue::String(
@@ -97,4 +147,14 @@ fn local_ai_runtime_status_payload_exposes_status_without_model_execution() {
             constants::local_ai_runtime::UNAVAILABLE_REASON_UNCONFIGURED.to_string()
         ))
     );
+}
+
+fn unconfigured_status_payload() -> LogFields {
+    let status = unavailable_local_ai_runtime_status(
+        constants::local_ai_runtime::TEST_CHECKED_AT.to_string(),
+    );
+    let probe = unavailable_local_provider_adapter_probe(
+        constants::local_ai_runtime::TEST_CHECKED_AT.to_string(),
+    );
+    local_ai_runtime_status_payload(&status, &probe)
 }
