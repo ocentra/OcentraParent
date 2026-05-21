@@ -106,6 +106,9 @@ The local model should not receive raw unbounded data by default. The safety con
 ## Reuse Strategy
 
 - Start with Ocentra Parent-owned contracts for local AI input, local AI output, memory references, graph references, model status, and provider status.
+- Keep the provider/runtime adapter boundary explicit through
+  [Local AI Provider Runtime Boundary](local-ai-provider-runtime-boundary.md)
+  before model execution exists.
 - Add Rust parity structs before runtime code consumes those contracts.
 - Integrate or extract TabAgentServer runtime pieces only after the contract boundary is explicit and tested.
 - Prefer a shared crate/workspace strategy for stable runtime pieces if TabAgent and Ocentra Parent will be co-developed.

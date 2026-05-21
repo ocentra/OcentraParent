@@ -1,0 +1,166 @@
+# Local AI Provider Runtime Boundary
+
+Status: V0.7 boundary plan. This document defines the next safe local
+provider/runtime adapter shape before any model execution is added. It does not
+enable local AI execution, remote AI, policy enforcement, or portal-side
+evaluation.
+
+## Purpose
+
+Ocentra Parent needs a local model/runtime boundary that can eventually host a
+child-device safety model. The boundary must remain explicit before runtime
+code exists:
+
+- provider status can be reported while the adapter is unconfigured;
+- local-only custody is the only accepted child-device safety mode;
+- unavailable and degraded states are first-class status, not failures to hide;
+- model execution stays disabled until a reviewed adapter slice adds it behind
+  typed contracts;
+- remote/API providers stay out of the child-device safety path.
+
+The current runtime status command is therefore a status surface, not a model
+runner. It is allowed to report an unavailable local provider so the context
+builder, policy preview, portal, and tests can display why local AI is not ready.
+
+## Current Baseline
+
+The repo already has these V0.7 pieces on `main`:
+
+- `LocalModelRuntimeStatus` and `LocalProviderCapability` contracts in
+  `@ocentra-parent/parent-domain`.
+- Rust protocol parity for local AI runtime status.
+- `agent.local-ai.runtime.status.get` and
+  `agent.local-ai.runtime.status.reported` protocol names.
+- A Rust service read path that reports an unconfigured provider with
+  `loadState = unavailable`, no capability flags, and
+  `degradedState = provider-unavailable`.
+- Portal policy-preview UI that displays the reported runtime status and keeps
+  enforcement disabled.
+
+That baseline is intentionally conservative. It proves visibility without
+claiming model cache, local inference, provider selection, or policy influence.
+
+## Boundary Contract
+
+The provider/runtime adapter boundary should be treated as three separate
+surfaces.
+
+| Surface             | Owns                                                                                                                           | Must not own                                                              |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------- |
+| Runtime status      | Provider id, model id/ref, load state, capability flags, resource class, degraded state, unavailable reason, last checked time | Model output, policy action, evidence selection, enforcement              |
+| Provider capability | Local-only privacy mode, supported task categories, resource class, fallback order                                             | Remote/API provider credentials, remote routing, child activity custody   |
+| Adapter execution   | Future local model load/generate lifecycle after separate review                                                               | Hidden model calls inside capture, portal, policy, or enforcement modules |
+
+Status and capability are safe to expose before execution exists. Adapter
+execution is not safe to add until the following are true:
+
+- the provider is local-only;
+- the model artifact/cache boundary is explicit;
+- execution has timeout, output schema, and failure contracts;
+- output is parsed into typed local AI results;
+- tests prove unavailable, degraded, failed load, invalid output, and timeout
+  states without using test doubles;
+- the deterministic policy evaluator consumes only schema-valid results and
+  remains dry-run until enforcement work starts.
+
+## Required Default State
+
+Until a real local adapter lands, every runtime status response must be safe by
+default:
+
+| Field               | Required default                                |
+| ------------------- | ----------------------------------------------- |
+| `loadState`         | `unavailable`                                   |
+| `capabilityFlags`   | empty                                           |
+| `resourceClass`     | local hardware class only, normally `cpu`       |
+| `degradedState`     | `provider-unavailable`                          |
+| `unavailableReason` | explicit unconfigured-provider reason           |
+| privacy             | local-only when provider capability is reported |
+| remote/API provider | not present                                     |
+| execution           | not attempted                                   |
+
+The status command must not probe external APIs, fetch model manifests, start a
+model process, load a model into memory, or infer provider readiness from files
+unless a later adapter slice adds that behavior with tests.
+
+## Future Status Hardening
+
+The next code slice may harden the status contract with explicit fields if the
+primary coordinator approves the edit scope:
+
+- `privacyMode`: `local-only` for child-device safety runtime status.
+- `adapterBoundary`: `status-only`, `local-adapter-unavailable`, or a future
+  reviewed local adapter state.
+- `executionState`: `disabled`, `dry-run-ready`, `running`, `failed`, or
+  another reviewed local-only lifecycle state.
+- `providerSource`: local config, local model cache, OS capability probe, or
+  unavailable.
+
+Those fields should be added contract-first in `packages/parent-domain`, mirrored
+into `crates/agent-protocol` only when the Rust service reports them, exposed
+through `packages/agent-protocol-domain` defaults only when the portal reads
+them, and rendered by the portal as status. They must not trigger model
+execution.
+
+## Prohibited Shortcuts
+
+- Do not add a remote provider as fallback for child-device safety decisions.
+- Do not treat billing, account, entitlement, notification, or release metadata
+  as model/runtime evidence.
+- Do not make the parent portal execute model calls or build prompts.
+- Do not hide provider calls inside capture, query-store, policy, or enforcement
+  modules.
+- Do not let provider availability erase raw evidence, missing-evidence states,
+  or parent rule conflicts.
+- Do not use model output as policy authority without deterministic rule
+  evaluation and evidence references.
+
+## Adapter Slice Entry Criteria
+
+A future adapter implementation may start only after this boundary is explicit
+in code and tests:
+
+1. Local provider/runtime status still reports unavailable when unconfigured.
+2. Provider capability proves local-only custody and no remote fallback.
+3. Model artifact references are opaque and do not expose local filesystem
+   secrets to the portal.
+4. Execution input is produced by the evidence context builder, not by a
+   provider scanning the OS.
+5. Output is parsed through the local AI safety result schema before policy use.
+6. Invalid output, timeout, unavailable provider, and degraded provider all
+   produce explicit degraded or unknown states.
+7. Enforcement remains disabled by default.
+
+## Validation Plan
+
+For a docs-only boundary update:
+
+```powershell
+cmd /c npm run format:check
+git diff --check
+cmd /c npm run lanes:guard
+cmd /c npm run hub:guard
+```
+
+For a future contract/status hardening update:
+
+```powershell
+cmd /c npm --workspace @ocentra-parent/parent-domain run test
+cmd /c npm --workspace @ocentra-parent/parent-domain run lint:exec
+cmd /c npm --workspace @ocentra-parent/agent-protocol-domain run test
+cmd /c npm --workspace @ocentra-parent/agent-protocol-domain run lint:exec
+cargo test -p ocentra-parent-agent-protocol local_ai_runtime
+cargo test -p ocentra-parent-agent-service local_ai_runtime
+node scripts/check-source-shape.mjs
+git diff --check
+cmd /c npm run lanes:guard
+cmd /c npm run hub:guard
+```
+
+## Done Signal
+
+This boundary is ready for the next reviewed slice when the repo can explain,
+through contracts or documentation, that local provider status is visible,
+unconfigured is safe, local-only custody is required, remote AI is not part of
+child-device safety, and no model execution happens before a dedicated adapter
+implementation is reviewed.
