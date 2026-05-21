@@ -91,6 +91,8 @@ pub mod activity_store;
 pub mod activity_subject_kind;
 #[path = "constants/browser.rs"]
 pub mod browser;
+#[path = "constants/network_flow.rs"]
+pub mod network_flow;
 
 #[path = "constants/sqlite.rs"]
 pub mod sqlite;
