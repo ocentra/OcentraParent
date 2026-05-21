@@ -1,6 +1,6 @@
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:net';
-import { mkdir, rm, stat, writeFile } from 'node:fs/promises';
+import { mkdir, stat, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { setTimeout as delay } from 'node:timers/promises';
@@ -800,6 +800,25 @@ async function installedUnsupportedBrowsers() {
   const candidates = browserCandidates().filter((candidate) => !candidate.supported);
   const installed = [];
   for (const candidate of candidates) {
+    if (candidate.appxPackageNamePattern !== undefined) {
+      const packageInfo = await findWindowsAppPackage(candidate.appxPackageNamePattern);
+      if (packageInfo !== null) {
+        installed.push({
+          browser: {
+            id: candidate.id,
+            family: candidate.family,
+            channel: candidate.channel,
+            packageName: packageInfo.Name,
+            packageFamilyName: packageInfo.PackageFamilyName,
+            version: packageInfo.Version,
+            installLocation: packageInfo.InstallLocation,
+          },
+          status: candidate.unsupportedStatus,
+          reason: candidate.reason,
+        });
+      }
+      continue;
+    }
     if (await fileExists(candidate.executablePath)) {
       installed.push({
         browser: {
@@ -808,7 +827,8 @@ async function installedUnsupportedBrowsers() {
           channel: candidate.channel,
           executablePath: candidate.executablePath,
         },
-        status: 'unsupported-by-current-matrix',
+        status: candidate.unsupportedStatus,
+        reason: candidate.reason,
       });
     }
   }
@@ -823,8 +843,42 @@ function browserCandidates() {
   return [
     ...windowsRoots().flatMap((root) => [
       chromiumCandidate('edge-stable', 'edge', join(root, 'Microsoft', 'Edge', 'Application', 'msedge.exe')),
+      chromiumCandidate('edge-beta', 'edge', join(root, 'Microsoft', 'Edge Beta', 'Application', 'msedge.exe')),
+      chromiumCandidate('edge-dev', 'edge', join(root, 'Microsoft', 'Edge Dev', 'Application', 'msedge.exe')),
+      chromiumCandidate('edge-canary', 'edge', join(root, 'Microsoft', 'Edge SxS', 'Application', 'msedge.exe')),
       chromiumCandidate('chrome-stable', 'chrome', join(root, 'Google', 'Chrome', 'Application', 'chrome.exe')),
+      chromiumCandidate('chrome-beta', 'chrome', join(root, 'Google', 'Chrome Beta', 'Application', 'chrome.exe')),
+      chromiumCandidate('chrome-dev', 'chrome', join(root, 'Google', 'Chrome Dev', 'Application', 'chrome.exe')),
+      chromiumCandidate('chrome-canary', 'chrome', join(root, 'Google', 'Chrome SxS', 'Application', 'chrome.exe')),
+      chromiumCandidate(
+        'brave-stable',
+        'brave',
+        join(root, 'BraveSoftware', 'Brave-Browser', 'Application', 'brave.exe')
+      ),
+      chromiumCandidate('vivaldi-stable', 'vivaldi', join(root, 'Vivaldi', 'Application', 'vivaldi.exe')),
+      chromiumCandidate('opera-stable', 'opera', join(root, 'Opera', 'opera.exe')),
+      chromiumCandidate('chromium-stable', 'chromium', join(root, 'Chromium', 'Application', 'chrome.exe')),
       firefoxCandidate('firefox-stable', join(root, 'Mozilla Firefox', 'firefox.exe')),
+      firefoxCandidate('firefox-developer', join(root, 'Firefox Developer Edition', 'firefox.exe')),
+      firefoxCandidate('firefox-nightly', join(root, 'Firefox Nightly', 'firefox.exe')),
+      unsupportedExecutableCandidate(
+        'tor-browser',
+        'tor-browser',
+        join(root, 'Tor Browser', 'Browser', 'firefox.exe'),
+        'unsupported-privacy-browser-without-managed-adapter'
+      ),
+      unsupportedExecutableCandidate(
+        'safari-windows-legacy',
+        'safari',
+        join(root, 'Safari', 'Safari.exe'),
+        'unsupported-legacy-windows-safari'
+      ),
+      unsupportedExecutableCandidate(
+        'internet-explorer-legacy',
+        'internet-explorer',
+        join(root, 'Internet Explorer', 'iexplore.exe'),
+        'unsupported-legacy-browser'
+      ),
     ]),
     chromiumCandidate(
       'edge-local',
@@ -836,7 +890,41 @@ function browserCandidates() {
       'chrome',
       join(process.env.LOCALAPPDATA ?? '', 'Google', 'Chrome', 'Application', 'chrome.exe')
     ),
+    chromiumCandidate(
+      'chrome-canary-local',
+      'chrome',
+      join(process.env.LOCALAPPDATA ?? '', 'Google', 'Chrome SxS', 'Application', 'chrome.exe')
+    ),
+    chromiumCandidate(
+      'brave-local',
+      'brave',
+      join(process.env.LOCALAPPDATA ?? '', 'BraveSoftware', 'Brave-Browser', 'Application', 'brave.exe')
+    ),
+    chromiumCandidate(
+      'vivaldi-local',
+      'vivaldi',
+      join(process.env.LOCALAPPDATA ?? '', 'Vivaldi', 'Application', 'vivaldi.exe')
+    ),
+    chromiumCandidate('opera-local', 'opera', join(process.env.LOCALAPPDATA ?? '', 'Programs', 'Opera', 'opera.exe')),
+    chromiumCandidate(
+      'opera-gx-local',
+      'opera-gx',
+      join(process.env.LOCALAPPDATA ?? '', 'Programs', 'Opera GX', 'opera.exe')
+    ),
     firefoxCandidate('firefox-local', join(process.env.LOCALAPPDATA ?? '', 'Mozilla Firefox', 'firefox.exe')),
+    firefoxCandidate(
+      'firefox-developer-local',
+      join(process.env.LOCALAPPDATA ?? '', 'Firefox Developer Edition', 'firefox.exe')
+    ),
+    firefoxCandidate('firefox-nightly-local', join(process.env.LOCALAPPDATA ?? '', 'Firefox Nightly', 'firefox.exe')),
+    ...extraChromiumCandidates(),
+    ...extraFirefoxCandidates(),
+    unsupportedAppxCandidate(
+      'duckduckgo-windows-appx',
+      'duckduckgo',
+      'DuckDuckGo*',
+      'managed-shell-or-block-only-until-webview2-host-adapter-exists'
+    ),
   ];
 }
 
@@ -860,6 +948,42 @@ function firefoxCandidate(id, executablePath) {
     supported: true,
     bridge: 'webdriver-bidi',
   };
+}
+
+function unsupportedExecutableCandidate(id, family, executablePath, reason) {
+  return {
+    id,
+    family,
+    channel: channelFromPath(executablePath),
+    executablePath,
+    supported: false,
+    unsupportedStatus: 'installed-unsupported',
+    reason,
+  };
+}
+
+function unsupportedAppxCandidate(id, family, appxPackageNamePattern, reason) {
+  return {
+    id,
+    family,
+    channel: 'stable',
+    appxPackageNamePattern,
+    supported: false,
+    unsupportedStatus: 'installed-unsupported',
+    reason,
+  };
+}
+
+function extraChromiumCandidates() {
+  return envList('OCENTRA_PARENT_MANAGED_BROWSER_MATRIX_EXTRA_CHROMIUM_PATHS', []).map((executablePath, index) =>
+    chromiumCandidate(`extra-chromium-${index + 1}`, 'extra-chromium', executablePath)
+  );
+}
+
+function extraFirefoxCandidates() {
+  return envList('OCENTRA_PARENT_MANAGED_BROWSER_MATRIX_EXTRA_FIREFOX_PATHS', []).map((executablePath, index) =>
+    firefoxCandidate(`extra-firefox-${index + 1}`, executablePath)
+  );
 }
 
 function windowsRoots() {
@@ -889,6 +1013,60 @@ async function fileExists(pathValue) {
   } catch {
     return false;
   }
+}
+
+const appxPackageCache = new Map();
+
+async function findWindowsAppPackage(namePattern) {
+  if (process.platform !== 'win32') {
+    return null;
+  }
+  if (appxPackageCache.has(namePattern)) {
+    return appxPackageCache.get(namePattern);
+  }
+  const script = [
+    "$pattern = [Environment]::GetEnvironmentVariable('OCENTRA_PARENT_APPX_PATTERN')",
+    'Get-AppxPackage -Name $pattern | Select-Object -First 1 Name,PackageFamilyName,Version,InstallLocation | ConvertTo-Json -Compress',
+  ].join('; ');
+  const output = await collectProcessOutput(
+    'powershell.exe',
+    ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', script],
+    {
+      ...process.env,
+      OCENTRA_PARENT_APPX_PATTERN: namePattern,
+    }
+  );
+  const packageInfo = parsePackageInfo(output);
+  appxPackageCache.set(namePattern, packageInfo);
+  return packageInfo;
+}
+
+function parsePackageInfo(output) {
+  const trimmed = output.trim();
+  if (trimmed.length === 0) {
+    return null;
+  }
+  try {
+    const parsed = JSON.parse(trimmed);
+    return typeof parsed === 'object' && parsed !== null ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+function collectProcessOutput(command, args, env) {
+  return new Promise((resolve) => {
+    const child = spawn(command, args, {
+      env,
+      windowsHide: true,
+    });
+    let stdout = '';
+    child.stdout.on('data', (chunk) => {
+      stdout += chunk.toString();
+    });
+    child.once('exit', () => resolve(stdout));
+    child.once('error', () => resolve(''));
+  });
 }
 
 async function freePort() {
@@ -991,7 +1169,13 @@ function printSummary(evidence, evidencePath) {
     }
   }
   for (const item of evidence.unsupportedInstalledBrowsers) {
-    console.log(`unsupported=${item.browser.family} path=${item.browser.executablePath} status=${item.status}`);
+    const locator =
+      item.browser.executablePath ??
+      item.browser.packageFamilyName ??
+      item.browser.packageName ??
+      item.browser.installLocation ??
+      'unknown';
+    console.log(`unsupported=${item.browser.family} locator=${locator} status=${item.status} reason=${item.reason}`);
   }
   for (const failure of evidence.summary.failures) {
     console.error(`failure=${failure}`);

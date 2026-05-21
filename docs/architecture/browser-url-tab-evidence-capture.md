@@ -29,51 +29,125 @@ URL evidence.
 
 Official browser and OS docs establish the implementation boundary:
 
-| Fact                                                                                                                                                                                                              | Product impact                                                                                                                   | Source                                                                                                                                                                                                                                |
-| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Chrome 136 and newer ignore remote debugging switches against the default Chrome data directory unless a non-standard `--user-data-dir` is supplied.                                                              | The managed browser must use an Ocentra-owned non-default profile and must not attach to the child's real default profile.       | [Chrome remote debugging security update](https://developer.chrome.com/blog/remote-debugging-port)                                                                                                                                    |
-| Chrome DevTools Protocol exposes `/json/version`, `/json/list`, target ids, target titles, target URLs, and WebSocket debugger URLs when Chrome starts with a remote debugging port.                              | A managed Chromium-family browser can produce tab target URL/title evidence through a local bridge.                              | [Chrome DevTools Protocol HTTP endpoints](https://chromedevtools.github.io/devtools-protocol/)                                                                                                                                        |
-| Microsoft Edge DevTools Protocol matches Chrome DevTools Protocol and supports `--remote-debugging-port`, `--user-data-dir`, `/json/version`, and `/json/list`.                                                   | Edge is a strong Windows MVP candidate for the same managed-browser bridge pattern.                                              | [Microsoft Edge DevTools Protocol](https://learn.microsoft.com/en-us/microsoft-edge/devtools/protocol/)                                                                                                                               |
-| Chrome extension `tabs` permission grants access to sensitive `tabs.Tab` properties such as `url`, `pendingUrl`, `title`, and `favIconUrl`; `activeTab` grants temporary host permission after a user invocation. | Extension capture can provide strong active-tab semantics, but it adds permission and distribution requirements.                 | [Chrome tabs API](https://developer.chrome.com/docs/extensions/reference/api/tabs)                                                                                                                                                    |
-| Chrome and Edge native messaging use a registered native host over stdin/stdout with length-prefixed JSON and allowed extension origins.                                                                          | An extension-to-native bridge is viable, but it becomes a separate trust and lifecycle boundary from the managed browser bridge. | [Chrome native messaging](https://developer.chrome.com/docs/extensions/develop/concepts/native-messaging), [Edge native messaging](https://learn.microsoft.com/en-us/microsoft-edge/extensions/developer-guide/native-messaging)      |
-| Firefox WebExtensions expose a tabs API with URL/title permission requirements, and Firefox WebDriver BiDi can be enabled with `--remote-debugging-port` on `127.0.0.1`.                                          | Firefox should be a later adapter with separate proof, not assumed equivalent to Chromium CDP.                                   | [MDN tabs API](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/tabs), [MDN WebDriver BiDi connection](https://developer.mozilla.org/en-US/docs/Web/WebDriver/How_to/Create_BiDi_connection)                |
-| Win32 `GetForegroundWindow` returns the foreground window handle. Windows Filtering Platform is a network traffic processing platform.                                                                            | OS foreground and network adapters cannot prove exact browser tab URL by themselves.                                             | [GetForegroundWindow](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getforegroundwindow), [Windows Filtering Platform](https://learn.microsoft.com/en-us/windows/win32/fwp/about-windows-filtering-platform) |
+| Fact                                                                                                                                                                                                              | Product impact                                                                                                                     | Source                                                                                                                                                                                                                                                                               |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Chrome 136 and newer ignore remote debugging switches against the default Chrome data directory unless a non-standard `--user-data-dir` is supplied.                                                              | The managed browser must use an Ocentra-owned non-default profile and must not attach to the child's real default profile.         | [Chrome remote debugging security update](https://developer.chrome.com/blog/remote-debugging-port)                                                                                                                                                                                   |
+| Chrome DevTools Protocol exposes `/json/version`, `/json/list`, target ids, target titles, target URLs, and WebSocket debugger URLs when Chrome starts with a remote debugging port.                              | A managed Chromium-family browser can produce tab target URL/title evidence through a local bridge.                                | [Chrome DevTools Protocol HTTP endpoints](https://chromedevtools.github.io/devtools-protocol/)                                                                                                                                                                                       |
+| Microsoft Edge DevTools Protocol matches Chrome DevTools Protocol and supports `--remote-debugging-port`, `--user-data-dir`, `/json/version`, and `/json/list`.                                                   | Edge is a strong Windows MVP candidate for the same managed-browser bridge pattern.                                                | [Microsoft Edge DevTools Protocol](https://learn.microsoft.com/en-us/microsoft-edge/devtools/protocol/)                                                                                                                                                                              |
+| Chrome extension `tabs` permission grants access to sensitive `tabs.Tab` properties such as `url`, `pendingUrl`, `title`, and `favIconUrl`; `activeTab` grants temporary host permission after a user invocation. | Extension capture can provide strong active-tab semantics, but it adds permission and distribution requirements.                   | [Chrome tabs API](https://developer.chrome.com/docs/extensions/reference/api/tabs)                                                                                                                                                                                                   |
+| Chrome and Edge native messaging use a registered native host over stdin/stdout with length-prefixed JSON and allowed extension origins.                                                                          | An extension-to-native bridge is viable, but it becomes a separate trust and lifecycle boundary from the managed browser bridge.   | [Chrome native messaging](https://developer.chrome.com/docs/extensions/develop/concepts/native-messaging), [Edge native messaging](https://learn.microsoft.com/en-us/microsoft-edge/extensions/developer-guide/native-messaging)                                                     |
+| Firefox WebExtensions expose a tabs API with URL/title permission requirements, and Firefox WebDriver BiDi can be enabled with `--remote-debugging-port` on `127.0.0.1`.                                          | Firefox should be a later adapter with separate proof, not assumed equivalent to Chromium CDP.                                     | [MDN tabs API](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/tabs), [MDN WebDriver BiDi connection](https://developer.mozilla.org/en-US/docs/Web/WebDriver/How_to/Create_BiDi_connection)                                                               |
+| Win32 `GetForegroundWindow` returns the foreground window handle. Windows Filtering Platform is a network traffic processing platform.                                                                            | OS foreground and network adapters cannot prove exact browser tab URL by themselves.                                               | [GetForegroundWindow](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getforegroundwindow), [Windows Filtering Platform](https://learn.microsoft.com/en-us/windows/win32/fwp/about-windows-filtering-platform)                                                |
+| WebView2 hosts accept additional browser arguments, but WebView2 can ignore important switches such as `--user-data-dir`.                                                                                         | WebView2-based browsers should not be treated as directly manageable unless Ocentra owns the WebView2 host or adapter proof.       | [CoreWebView2EnvironmentOptions](https://learn.microsoft.com/en-us/microsoft-edge/webview2/reference/winrt/microsoft_web_webview2_core/corewebview2environmentoptions)                                                                                                               |
+| Windows App Control for Business and AppLocker can control which applications users can run; AppLocker can apply user or group-specific rules.                                                                    | Disallowing unmanaged browsers requires OS application control, not URL/tab inference.                                             | [App Control and AppLocker overview](https://learn.microsoft.com/en-us/windows/security/application-security/application-control/windows-defender-application-control/wdac-and-applocker-overview)                                                                                   |
+| Safari WebDriver uses `safaridriver` and isolated automation windows; Apple Managed Settings works with Family Controls and Device Activity for parent-authorized device constraints.                             | Safari-family support is platform-specific: WebDriver is test automation, while production child-device control needs Apple APIs.  | [Apple Safari WebDriver](https://developer.apple.com/documentation/safari-developer-tools/webdriver), [Apple Managed Settings](https://developer.apple.com/documentation/ManagedSettings)                                                                                            |
+| Android managed configurations can allow or block URLs for a browser, DevicePolicyManager can hide packages for managed devices, and WebView debugging is a production security liability unless intentional.     | Android browser control needs Android Enterprise/device-owner APIs or an Ocentra-owned browser shell, not desktop CDP assumptions. | [Android managed configurations](https://developer.android.com/work/managed-configurations), [DevicePolicyManager](https://developer.android.com/reference/android/app/admin/DevicePolicyManager), [Android WebView](https://developer.android.com/reference/android/webkit/WebView) |
+| DuckDuckGo's Windows browser is distributed as an MSIX app, and DuckDuckGo states its regular Windows browser uses a modified Microsoft WebView2.                                                                 | DuckDuckGo on Windows is managed-shell or block-only until an owned WebView2 adapter proves launch/profile/URL control.            | [DuckDuckGo Windows install](https://duckduckgo.com/duckduckgo-help-pages/get-duckduckgo/get-duckduckgo-browser-on-windows/), [DuckDuckGo Windows crash report note](https://duckduckgo.com/duckduckgo-help-pages/r-legal/duckduckgo-preview-crash-report/)                          |
 
 ## MVP Browser Support
 
-Phase 1 should be Windows plus Chromium-family managed sessions:
+Phase 1 should be Windows plus directly manageable browser sessions:
 
 - Microsoft Edge Stable: primary Windows MVP candidate.
 - Google Chrome or Chrome for Testing: supported after managed non-default
   profile launch, loopback bridge behavior, and version detection are proven.
-- Brave only after executable identity, launch flags, bridge behavior, and
-  managed-profile storage are proven.
+- Firefox: supported after the managed-profile WebDriver BiDi proof because it
+  has a different bridge and error surface from Chromium.
+- Brave, Vivaldi, Opera, Opera GX, Chromium, Edge Beta/Dev/Canary, Chrome
+  Beta/Dev/Canary: candidate Chromium-family adapters once the exact installed
+  executable passes the managed-profile matrix.
 
 Other browsers are explicit states:
 
-- Firefox: candidate later through WebDriver BiDi or WebExtensions plus native
-  messaging after a separate adapter proof.
-- Opera, Arc, portable browsers, embedded WebView, and unknown Chromium forks:
-  unsupported or unmanaged until executable identity, profile isolation, bridge
-  behavior, and validation are proven.
+- DuckDuckGo Windows, Arc Windows, packaged browsers, embedded WebView, and
+  unknown Chromium forks: managed-shell or block-only until executable identity,
+  profile isolation, bridge behavior, and validation are proven.
+- Safari: macOS/iOS platform-specific. Safari WebDriver is useful for automation
+  proof, but production control needs Apple device-management or an Ocentra
+  WebKit shell.
+- Tor Browser and privacy browsers: block-only unless the parent explicitly
+  allows them and a separate adapter proves a managed, non-default profile
+  without weakening the browser's safety model.
 - Any supported browser running outside the managed Ocentra session:
   unmanaged browser use and possible bypass.
 
 The support matrix must be represented as data, not prose-only assumptions:
 
-| Browser family            | V0.5.1 state                     | URL/title support path                            | Active-tab support path                                        |
-| ------------------------- | -------------------------------- | ------------------------------------------------- | -------------------------------------------------------------- |
-| Microsoft Edge            | Supported MVP target             | Managed Chromium DevTools Protocol profile        | Proven CDP focus/target signal, or marked unknown until proven |
-| Chrome/Chrome for Testing | Supported MVP target after proof | Managed Chromium DevTools Protocol profile        | Proven CDP focus/target signal, or marked unknown until proven |
-| Brave                     | Candidate after proof            | Managed Chromium bridge if launch/profile matches | Same as Chromium only after executable and adapter proof       |
-| Firefox                   | Later adapter                    | WebDriver BiDi or managed extension/native host   | Separate proof required                                        |
-| Opera/Arc/forks/WebView   | Unsupported or unmanaged         | None in MVP                                       | None in MVP                                                    |
-| Portable/unknown          | Unmanaged possible bypass        | None                                              | None                                                           |
+| Browser family                | V0.5.1 state                | URL/title support path                                 | Active-tab support path                                        |
+| ----------------------------- | --------------------------- | ------------------------------------------------------ | -------------------------------------------------------------- |
+| Microsoft Edge                | Direct managed adapter      | Managed Chromium DevTools Protocol profile             | Proven CDP focus/target signal, or marked unknown until proven |
+| Chrome/Chrome for Testing     | Direct managed adapter      | Managed Chromium DevTools Protocol profile             | Proven CDP focus/target signal, or marked unknown until proven |
+| Firefox                       | Direct managed adapter      | Managed WebDriver BiDi profile                         | Proven BiDi activation/focus signal, or marked unknown         |
+| Brave/Vivaldi/Opera/Chromium  | Candidate direct adapter    | Managed Chromium bridge after executable proof         | Same as Chromium only after adapter proof                      |
+| DuckDuckGo Windows/WebView2   | Managed-shell or block-only | Ocentra-owned WebView2 shell, not arbitrary app attach | Ocentra shell event model only                                 |
+| Safari/WebKit                 | Platform-specific           | Safari WebDriver for tests; WebKit shell or Apple APIs | Platform adapter only                                          |
+| Arc/packaged/portable/unknown | Block-only until proven     | None until inventory and adapter proof                 | None until adapter proof                                       |
+| Tor Browser/privacy browsers  | Block-only by default       | None in normal parent-control mode                     | None                                                           |
 
 Browser family, channel, version, executable identity, managed support state,
 and reason codes should be queryable by the portal so parents can distinguish
 "installed but unsupported" from "supported but not managed" and "managed but
 degraded".
+
+## Parent-Facing Browser Inventory
+
+The parent portal should ask the child agent for a browser inventory read model,
+not only for current tab rows. The read model should be generated by the Rust
+child app from registry uninstall entries, AppX/MSIX packages, known browser
+install locations, Start Menu shortcuts, configured Ocentra managed profiles,
+and running process observations.
+
+Each detected browser row should include:
+
+- browser id, family, product name, channel, version, install type, executable
+  path or package family name, and publisher where available;
+- management tier: `direct-managed-adapter`, `candidate-direct-adapter`,
+  `managed-shell-required`, `block-only`, or `unsupported-platform`;
+- current state: `not-installed`, `installed-supported`,
+  `installed-unsupported`, `managed-profile-ready`, `running-managed`,
+  `running-unmanaged`, `blocked-by-parent`, `block-policy-missing`,
+  `bridge-connected`, `bridge-disconnected`, `adapter-error`, or `stale`;
+- capability flags for URL/title, active tab, visited URL journal,
+  managed-profile launch, install/provision action, and OS block action;
+- reason codes explaining limits, such as `cdp-profile-required`,
+  `bidi-profile-required`, `webview2-host-not-owned`,
+  `app-control-required`, `platform-api-required`, or
+  `adapter-not-proven`.
+
+The portal can then show "how many browsers are installed" separately from "how
+many can be managed." If the parent chooses to disallow unmanaged browsers, the
+child app should require at least one `direct-managed-adapter` or
+`managed-shell-required` option to be provisioned first, then apply OS blocking
+or report `block-policy-missing` if the operating system cannot enforce it.
+
+## Launch Mediation Model
+
+The child should experience "I opened my browser" while Ocentra still keeps the
+managed boundary. The product route is launch mediation plus OS policy, not
+secret attachment to arbitrary browser profiles:
+
+1. Ocentra installs or provisions managed browser profiles and/or an Ocentra
+   managed browser shell.
+2. Ocentra registers the child-facing launcher/protocol handler/shortcut as the
+   default entry for allowed web browsing where the platform permits it.
+3. When the child opens a URL or browser shortcut, the Rust service launches the
+   selected managed browser family with an Ocentra-owned profile and loopback
+   bridge, or opens the Ocentra managed shell.
+4. The service records the managed session identity, bridge endpoint, profile
+   root, and policy revision, then streams URL/title/tab evidence only from that
+   managed session.
+5. If a browser-like process starts outside the managed session, the service
+   records `running-unmanaged` bypass evidence. If the parent disallowed
+   unmanaged browsers and the device has app-control capability, the service
+   should apply or verify an OS block policy for those executables/packages.
+
+On Windows, production enforcement should prefer App Control for Business or
+AppLocker for blocking unmanaged executables/packages. Protocol handlers,
+shortcuts, and pinned entries provide the smooth "same browser launched" user
+experience; App Control/AppLocker provide the real prevention path. Process
+hijack techniques such as Image File Execution Options are not the default
+product path because they look like malware-style interception and are brittle
+across updates.
 
 ## Components
 
@@ -527,18 +601,21 @@ Managed profile matrix validation:
 cmd /c npm run test:managed-browser-matrix
 ```
 
-The matrix harness opens real installed Chrome, Edge, and Firefox executables
-when available, creates Ocentra-owned profiles `managed-browser-profile-a`,
+The matrix harness opens real installed direct-adapter browser executables when
+available, creates Ocentra-owned profiles `managed-browser-profile-a`,
 `managed-browser-profile-b`, and `managed-browser-profile-c`, launches each
 profile with a loopback bridge, opens the configured test URLs in separate tabs,
-and writes a JSON evidence artifact under
+records unsupported installed browser/package detections where the current
+matrix cannot manage them, and writes a JSON evidence artifact under
 `test-results/managed-browser-profile-matrix`. Profiles run sequentially for
 stability; the goal is evidence quality, not load testing browser startup.
 
-Chrome and Edge use Chromium DevTools Protocol. The harness does not stop at
-`/json/list`: it attaches to each page target, enables `Page`/`Runtime`, captures
-current URL/title, activates one target with `Page.bringToFront`, verifies
-runtime focus/visibility with `document.hasFocus()` and
+Chromium-family candidates use Chromium DevTools Protocol. The built-in Windows
+search covers Edge, Edge Beta/Dev/Canary, Chrome, Chrome Beta/Dev/Canary, Brave,
+Vivaldi, Opera, Opera GX, and Chromium install paths. The harness does not stop
+at `/json/list`: it attaches to each page target, enables `Page`/`Runtime`,
+captures current URL/title, activates one target with `Page.bringToFront`,
+verifies runtime focus/visibility with `document.hasFocus()` and
 `document.visibilityState`, then navigates each tab to a probe URL while
 journaling `Page.frameNavigated`, same-document navigation, and post-navigation
 snapshots. It waits for `document.readyState === "complete"` around navigation
@@ -550,7 +627,8 @@ tabs with `browsingContext.create`, navigates them with
 `browsingContext.navigate`, activates one context with `browsingContext.activate`,
 captures the tab tree with `browsingContext.getTree`, evaluates title/focus
 state with `script.evaluate`, and journals `browsingContext` navigation/load
-events.
+events. The built-in Windows search covers Firefox Stable, Developer Edition,
+and Nightly install paths.
 
 The default URLs are:
 
@@ -565,12 +643,24 @@ $env:OCENTRA_PARENT_MANAGED_BROWSER_MATRIX_URLS = 'https://example.com/,https://
 cmd /c npm run test:managed-browser-matrix
 ```
 
+Probe extra local browser executables without changing the harness by passing
+comma-separated executable paths:
+
+```powershell
+$env:OCENTRA_PARENT_MANAGED_BROWSER_MATRIX_EXTRA_CHROMIUM_PATHS = 'C:\Path\To\SomeChromiumBrowser.exe'
+$env:OCENTRA_PARENT_MANAGED_BROWSER_MATRIX_EXTRA_FIREFOX_PATHS = 'C:\Path\To\SomeFirefoxFamilyBrowser.exe'
+cmd /c npm run test:managed-browser-matrix
+```
+
 This proves managed-profile connection, visible page targets, URL visibility,
 page title visibility where available, active tab evidence for a
 protocol-activated tab, and visited URL journaling across a navigation sequence.
 External site failures remain evidence, not success claims: the JSON artifact
 records Firefox BiDi navigation errors separately when a managed Firefox profile
 captures a requested URL but the browser cannot complete the network load.
+DuckDuckGo Windows AppX/MSIX, legacy Safari for Windows, Internet Explorer, and
+Tor Browser are reported as unsupported or block-only detections when found by
+the current harness; that is not a claim that their URLs are capturable.
 Longer-term production history should persist these protocol events in the
 encrypted journal instead of relying on a one-shot current-tab snapshot.
 
