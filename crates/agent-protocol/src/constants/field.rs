@@ -53,6 +53,7 @@ pub const LOCAL_AI_EXECUTION_STATE: &str = "executionState";
 pub const LOCAL_AI_PROVIDER_SOURCE: &str = "providerSource";
 pub const LOCAL_AI_ADAPTER_PROBE_STATE: &str = "probeState";
 pub const LOCAL_AI_PROVIDER_CONFIGURATION_STATE: &str = "configurationState";
+pub const LOCAL_AI_ADAPTER_READINESS_STATE: &str = "readinessState";
 pub const LOCAL_AI_EXECUTION_ALLOWED: &str = "executionAllowed";
 pub const LOCAL_AI_CAPABILITY_FLAGS: &str = "capabilityFlags";
 pub const LOCAL_AI_RESOURCE_CLASS: &str = "resourceClass";

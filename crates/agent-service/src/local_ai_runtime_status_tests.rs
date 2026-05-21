@@ -70,6 +70,10 @@ fn unavailable_local_provider_adapter_probe_reports_no_execution_boundary() {
         probe.configuration_state.as_protocol_str(),
         constants::local_ai_runtime::PROVIDER_CONFIGURATION_UNCONFIGURED
     );
+    assert_eq!(
+        probe.readiness_state.as_protocol_str(),
+        constants::local_ai_runtime::ADAPTER_READINESS_STATE_NOT_READY
+    );
     assert!(!probe.execution_allowed);
 }
 
@@ -129,6 +133,12 @@ fn local_ai_runtime_status_payload_exposes_probe_fields_without_execution() {
         payload.get(constants::field::LOCAL_AI_PROVIDER_CONFIGURATION_STATE),
         Some(&LogFieldValue::String(
             constants::local_ai_runtime::PROVIDER_CONFIGURATION_UNCONFIGURED.to_string()
+        ))
+    );
+    assert_eq!(
+        payload.get(constants::field::LOCAL_AI_ADAPTER_READINESS_STATE),
+        Some(&LogFieldValue::String(
+            constants::local_ai_runtime::ADAPTER_READINESS_STATE_NOT_READY.to_string()
         ))
     );
     assert_eq!(

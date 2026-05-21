@@ -35,7 +35,8 @@ The repo has these V0.7 pieces in the local provider/runtime boundary track:
   `loadState = unavailable`, no capability flags, and
   `degradedState = provider-unavailable`.
 - A no-execution adapter probe shape that reports provider configuration state,
-  probe state, and `executionAllowed = false` without loading a model.
+  probe state, readiness state, and `executionAllowed = false` without loading a
+  model.
 - Portal policy-preview UI that displays the reported runtime status and keeps
   enforcement disabled.
 
@@ -93,6 +94,7 @@ the child-device service. In the default branch state, that means:
 
 - `probeState = probe-unavailable`;
 - `configurationState = local-provider-unconfigured`;
+- `readinessState = adapter-not-ready`;
 - runtime `adapterBoundary = local-adapter-unavailable`;
 - probe contract `adapterBoundary = status-only`;
 - `executionState = disabled`;
@@ -108,6 +110,13 @@ adapter implementation can change the probe from unavailable to ready only when
 local configuration, model artifact references, timeout behavior, output
 parsing, and degraded states are all contract-backed and tested.
 
+Readiness is a separate guard from the probe result. `adapter-not-ready` must
+keep `executionAllowed = false`. `adapter-ready` is valid only when the provider
+is configured, the probe is ready, the adapter boundary is a reviewed local
+adapter, execution is dry-run-ready, the provider source is not unavailable, and
+there is no unavailable reason. Invalid configuration or failed probes must stay
+non-executable.
+
 ## Future Status Hardening
 
 The current status contract carries these explicit boundary fields:
@@ -119,6 +128,8 @@ The current status contract carries these explicit boundary fields:
   another reviewed local-only lifecycle state.
 - `providerSource`: local config, local model cache, OS capability probe, or
   unavailable.
+- `readinessState`: not ready, ready, or invalid readiness for the adapter
+  probe.
 
 Future code slices should follow the same order: add fields contract-first in
 `packages/parent-domain`, mirror into `crates/agent-protocol` only when the Rust

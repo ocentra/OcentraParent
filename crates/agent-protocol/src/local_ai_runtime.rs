@@ -2,8 +2,9 @@ use serde::{Deserialize, Serialize};
 
 use crate::constants;
 use crate::{
-    LocalAiAdapterBoundary, LocalAiAdapterProbeState, LocalAiExecutionState,
-    LocalAiProviderConfigurationState, LocalAiProviderPrivacyMode, LocalAiProviderSource,
+    LocalAiAdapterBoundary, LocalAiAdapterProbeState, LocalAiAdapterReadinessState,
+    LocalAiExecutionState, LocalAiProviderConfigurationState, LocalAiProviderPrivacyMode,
+    LocalAiProviderSource,
 };
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -133,6 +134,7 @@ pub struct LocalProviderAdapterProbe {
     pub provider_source: LocalAiProviderSource,
     pub probe_state: LocalAiAdapterProbeState,
     pub configuration_state: LocalAiProviderConfigurationState,
+    pub readiness_state: LocalAiAdapterReadinessState,
     pub execution_allowed: bool,
     pub last_checked_at: String,
     pub unavailable_reason: Option<String>,
