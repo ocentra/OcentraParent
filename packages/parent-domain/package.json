@@ -21,6 +21,10 @@
       "import": "./dist/local-ai-context-builder.js",
       "types": "./dist/local-ai-context-builder.d.ts"
     },
+    "./local-ai-model-artifacts": {
+      "import": "./dist/local-ai-model-artifacts.js",
+      "types": "./dist/local-ai-model-artifacts.d.ts"
+    },
     "./local-ai-primitives": {
       "import": "./dist/local-ai-primitives.js",
       "types": "./dist/local-ai-primitives.d.ts"
