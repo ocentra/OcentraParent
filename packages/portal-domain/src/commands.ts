@@ -69,4 +69,10 @@ export const PortalCommandButtons = [
     resultEvent: AgentEvent.BrowserEvidenceRecentReported,
     payload: {},
   },
+  {
+    label: resolvePortalDevText(PortalDevTextToken.PollManagedBrowserBridge),
+    command: AgentCommand.BrowserManagedBridgePoll,
+    resultEvent: AgentEvent.BrowserManagedStatusReported,
+    payload: {},
+  },
 ] as const;

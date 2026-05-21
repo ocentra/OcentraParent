@@ -1,11 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import {
   BrowserActiveTabState,
+  BrowserBridgeKind,
   BrowserCapabilityStatus,
   BrowserChannel,
   BrowserCustodyLabel,
   BrowserEvidenceSchemaVersion,
   BrowserFamily,
+  BrowserManagedSessionStatusSchema,
+  BrowserManagedState,
   BrowserQueryVisibilityLabel,
   BrowserTabEvidenceSchema,
   BrowserUrlSchema,
@@ -56,5 +59,63 @@ describe('browser evidence contracts', () => {
 
     expect(parsed.success).toBe(false);
     expect(decodeBrowserUrl('https://example.test/path')).toBe('https://example.test/path');
+  });
+});
+
+describe('browser managed session status contracts', () => {
+  it('accepts managed browser session status without leaking raw bridge endpoints', () => {
+    const parsed = BrowserManagedSessionStatusSchema.safeParse({
+      schemaVersion: BrowserEvidenceSchemaVersion,
+      checkedAt: '2026-05-21T03:30:00Z',
+      managedBrowserSessionId: 'managed-browser-session-1',
+      browserFamily: BrowserFamily.Chrome,
+      browserChannel: BrowserChannel.Stable,
+      browserVersion: '125.0.0',
+      profileId: 'managed-profile-child',
+      profilePathRef: 'managed-profile-redacted',
+      processId: 4242,
+      bridgeKind: BrowserBridgeKind.ChromiumDevtoolsProtocol,
+      bridgeEndpointRef: 'managed-loopback-devtools-redacted',
+      managedState: BrowserManagedState.BridgeConnected,
+      capabilityStatus: BrowserCapabilityStatus.TabListOnly,
+      degradedReason: null,
+      startedAt: '2026-05-21T03:29:50Z',
+      custodyLabel: BrowserCustodyLabel.ChildDeviceLocal,
+      queryVisibility: BrowserQueryVisibilityLabel.LiveLocal,
+    });
+
+    expect(parsed.success).toBe(true);
+    if (parsed.success) {
+      expect(parsed.data.managedState).toBe('bridge-connected');
+      expect(parsed.data.bridgeEndpointRef).toBe('managed-loopback-devtools-redacted');
+    }
+  });
+
+  it('accepts bridge-missing managed browser status as typed degraded state', () => {
+    const parsed = BrowserManagedSessionStatusSchema.safeParse({
+      schemaVersion: BrowserEvidenceSchemaVersion,
+      checkedAt: '2026-05-21T03:30:00Z',
+      managedBrowserSessionId: null,
+      browserFamily: null,
+      browserChannel: null,
+      browserVersion: null,
+      profileId: null,
+      profilePathRef: null,
+      processId: null,
+      bridgeKind: null,
+      bridgeEndpointRef: null,
+      managedState: BrowserManagedState.NotInstalled,
+      capabilityStatus: BrowserCapabilityStatus.ManagedProfileMissing,
+      degradedReason: 'managed-browser-executable-missing',
+      startedAt: null,
+      custodyLabel: BrowserCustodyLabel.Unavailable,
+      queryVisibility: BrowserQueryVisibilityLabel.Unavailable,
+    });
+
+    expect(parsed.success).toBe(true);
+    if (parsed.success) {
+      expect(parsed.data.capabilityStatus).toBe('managed-profile-missing');
+      expect(parsed.data.browserFamily).toBeNull();
+    }
   });
 });

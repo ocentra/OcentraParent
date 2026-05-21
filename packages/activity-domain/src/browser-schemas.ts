@@ -67,6 +67,9 @@ export const BrowserQueryVisibilityLabelSchema = withParser(
 );
 
 export const BrowserAdapterIdSchema = withParser(NonEmptyBrowserText.pipe(Schema.brand('BrowserAdapterId')));
+export const BrowserBridgeEndpointRefSchema = withParser(
+  NonEmptyBrowserText.pipe(Schema.brand('BrowserBridgeEndpointRef'))
+);
 export const BrowserDegradedReasonSchema = withParser(NonEmptyBrowserText.pipe(Schema.brand('BrowserDegradedReason')));
 export const BrowserDomainSchema = withParser(NonEmptyBrowserText.pipe(Schema.brand('BrowserDomain')));
 export const BrowserManagedSessionIdSchema = withParser(
@@ -75,9 +78,11 @@ export const BrowserManagedSessionIdSchema = withParser(
 export const BrowserOriginSchema = withParser(NonEmptyBrowserText.pipe(Schema.brand('BrowserOrigin')));
 export const BrowserPageTitleSchema = withParser(NonEmptyBrowserText.pipe(Schema.brand('BrowserPageTitle')));
 export const BrowserProfileIdSchema = withParser(NonEmptyBrowserText.pipe(Schema.brand('BrowserProfileId')));
+export const BrowserProfilePathRefSchema = withParser(NonEmptyBrowserText.pipe(Schema.brand('BrowserProfilePathRef')));
 export const BrowserTabIdSchema = withParser(NonEmptyBrowserText.pipe(Schema.brand('BrowserTabId')));
 export const BrowserTargetIdSchema = withParser(NonEmptyBrowserText.pipe(Schema.brand('BrowserTargetId')));
 export const BrowserUrlSchema = withParser(BrowserUrlText.pipe(Schema.brand('BrowserUrl')));
+export const BrowserVersionSchema = withParser(NonEmptyBrowserText.pipe(Schema.brand('BrowserVersion')));
 export const BrowserWindowIdSchema = withParser(NonEmptyBrowserText.pipe(Schema.brand('BrowserWindowId')));
 
 export const BrowserTabEvidenceSchema = withParser(
@@ -131,6 +136,28 @@ export const BrowserEvidenceRecentSummarySchema = withParser(
   })
 );
 
+export const BrowserManagedSessionStatusSchema = withParser(
+  Schema.Struct({
+    schemaVersion: Schema.Literal(BrowserEvidenceSchemaVersion),
+    checkedAt: ActivityTimestampSchema,
+    managedBrowserSessionId: Schema.Union(BrowserManagedSessionIdSchema, Schema.Null),
+    browserFamily: Schema.Union(BrowserFamilySchema, Schema.Null),
+    browserChannel: Schema.Union(BrowserChannelSchema, Schema.Null),
+    browserVersion: Schema.Union(BrowserVersionSchema, Schema.Null),
+    profileId: Schema.Union(BrowserProfileIdSchema, Schema.Null),
+    profilePathRef: Schema.Union(BrowserProfilePathRefSchema, Schema.Null),
+    processId: Schema.Union(Schema.Number, Schema.Null),
+    bridgeKind: Schema.Union(BrowserBridgeKindSchema, Schema.Null),
+    bridgeEndpointRef: Schema.Union(BrowserBridgeEndpointRefSchema, Schema.Null),
+    managedState: BrowserManagedStateSchema,
+    capabilityStatus: BrowserCapabilityStatusSchema,
+    degradedReason: Schema.Union(BrowserDegradedReasonSchema, Schema.Null),
+    startedAt: Schema.Union(ActivityTimestampSchema, Schema.Null),
+    custodyLabel: BrowserCustodyLabelSchema,
+    queryVisibility: BrowserQueryVisibilityLabelSchema,
+  })
+);
+
 export type BrowserFamily = Infer<typeof BrowserFamilySchema>;
 export type BrowserChannel = Infer<typeof BrowserChannelSchema>;
 export type BrowserCapabilityStatus = Infer<typeof BrowserCapabilityStatusSchema>;
@@ -141,6 +168,7 @@ export type BrowserCustodyLabel = Infer<typeof BrowserCustodyLabelSchema>;
 export type BrowserQueryVisibilityLabel = Infer<typeof BrowserQueryVisibilityLabelSchema>;
 export type BrowserTabEvidence = Infer<typeof BrowserTabEvidenceSchema>;
 export type BrowserEvidenceRecentSummary = Infer<typeof BrowserEvidenceRecentSummarySchema>;
+export type BrowserManagedSessionStatus = Infer<typeof BrowserManagedSessionStatusSchema>;
 
 export const decodeBrowserUrl = Schema.decodeUnknownSync(BrowserUrlSchema);
 

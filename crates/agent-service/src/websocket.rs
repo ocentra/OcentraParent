@@ -9,6 +9,7 @@ use crate::{
         build_activity_ingest_status_report, build_activity_recent_summary_report,
         build_browser_evidence_recent_report,
     },
+    browser_runtime::build_browser_managed_status_report,
     event_builder::{build_event, portal_peer},
     fields::fields_from_pairs,
     snapshot::build_dev_log_snapshot,
@@ -96,6 +97,9 @@ async fn handle_command(command: AgentCommandEnvelope) -> AgentEventEnvelope {
         }
         AgentCommandName::AgentBrowserEvidenceRecentGet => {
             build_browser_evidence_recent_report(command).await
+        }
+        AgentCommandName::AgentBrowserManagedBridgePoll => {
+            build_browser_managed_status_report(command).await
         }
     }
 }

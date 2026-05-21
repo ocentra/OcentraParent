@@ -4,7 +4,9 @@ use ocentra_parent_agent_core::{
     foreground_window_event, network_snapshot_events, process_snapshot_events, ActivityJournal,
     ActivityStore, ActivityStoreError, JournalError, JournalKey, JOURNAL_KEY_BYTES,
 };
-use ocentra_parent_agent_protocol::{constants, ActivityIngestStatus, LogFieldValue};
+use ocentra_parent_agent_protocol::{
+    constants, ActivityEvent, ActivityIngestStatus, LogFieldValue,
+};
 
 use crate::{
     activity_store_path::{activity_db_path, activity_journal_key_path, activity_journal_path},
@@ -92,17 +94,26 @@ pub fn record_activity_capture_to_paths(
     process_limit: usize,
     network_limit: usize,
 ) -> Result<ActivityIngestStatus, ActivityCaptureError> {
-    let key = load_or_create_journal_key(key_path)?;
     let observed_at = timestamp_now();
     let mut events = process_snapshot_events(&observed_at, process_limit);
     events.push(foreground_window_event(&observed_at));
     events.extend(network_snapshot_events(&observed_at, network_limit));
+    record_activity_events_to_paths(journal_path, key_path, store_path, &events)
+}
+
+pub(crate) fn record_activity_events_to_paths(
+    journal_path: &Path,
+    key_path: &Path,
+    store_path: &Path,
+    events: &[ActivityEvent],
+) -> Result<ActivityIngestStatus, ActivityCaptureError> {
+    let key = load_or_create_journal_key(key_path)?;
     let mut journal = ActivityJournal::open(journal_path.to_path_buf(), key)?;
-    for event in &events {
+    for event in events {
         journal.append(event)?;
     }
     let store = ActivityStore::open(store_path)?;
-    Ok(store.ingest_events(&events)?)
+    Ok(store.ingest_events(events)?)
 }
 
 fn load_or_create_journal_key(path: &Path) -> Result<JournalKey, ActivityCaptureError> {

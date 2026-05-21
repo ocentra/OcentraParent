@@ -64,8 +64,14 @@ it('AgentEvent: exposes typed constants for portal result rendering', () => {
   expect(AgentCommand.ActivityIngestStatusGet).toBe('agent.activity.ingest.status.get');
   expect(AgentCommand.ActivityRecentSummaryGet).toBe('agent.activity.recent.summary.get');
   expect(AgentCommand.BrowserEvidenceRecentGet).toBe('agent.browser.evidence.recent.get');
+  expect(AgentCommand.BrowserManagedBridgePoll).toBe('agent.browser.managed.bridge.poll');
+  expect(AgentProtocolDefaults.Field.BridgeEndpointRef).toBe('bridgeEndpointRef');
+  expect(AgentProtocolDefaults.Field.BridgeKind).toBe('bridgeKind');
   expect(AgentProtocolDefaults.Field.DatabaseReady).toBe('databaseReady');
   expect(AgentProtocolDefaults.Field.BrowserEvidenceId).toBe('browserEvidenceId');
+  expect(AgentProtocolDefaults.Field.ManagedState).toBe('managedState');
+  expect(AgentProtocolDefaults.Field.ProfilePathRef).toBe('profilePathRef');
+  expect(AgentProtocolDefaults.Field.QueryVisibility).toBe('queryVisibility');
   expect(AgentProtocolDefaults.Field.CapabilityStatus).toBe('capabilityStatus');
   expect(AgentProtocolDefaults.Field.MostRecentSubjectName).toBe('mostRecentSubjectName');
   expect(AgentEvent.HealthReported).toBe('agent.health.reported');
@@ -75,6 +81,7 @@ it('AgentEvent: exposes typed constants for portal result rendering', () => {
   expect(AgentEvent.ActivityIngestStatusReported).toBe('agent.activity.ingest.status.reported');
   expect(AgentEvent.ActivityRecentSummaryReported).toBe('agent.activity.recent.summary.reported');
   expect(AgentEvent.BrowserEvidenceRecentReported).toBe('agent.browser.evidence.recent.reported');
+  expect(AgentEvent.BrowserManagedStatusReported).toBe('agent.browser.managed.status.reported');
 });
 
 it('AgentCommandEnvelopeSchema: rejects unknown commands', () => {
