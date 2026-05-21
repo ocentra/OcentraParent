@@ -94,7 +94,7 @@ async function assertRawEventLog(page: Page): Promise<void> {
   await expect(page.getByText('agent.browser.evidence.recent.reported')).toHaveCount(3);
   await expect(page.getByText('agent.browser.managed.status.reported')).toHaveCount(2);
   await expect(page.getByText('agent.network.flow.read-model.reported')).toHaveCount(3);
-  await expect(page.getByText('agent.local-ai.runtime.status.reported')).toHaveCount(2);
+  await expect(page.getByText('agent.local-ai.runtime.status.reported')).toHaveCount(3);
 }
 
 async function assertCommandResult(
@@ -117,6 +117,9 @@ async function assertOverview(page: Page): Promise<void> {
   await expect(page.getByRole('heading', { name: 'Managed browser' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Browser evidence' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Network flow' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Policy preview' })).toBeVisible();
+  await expect(page.getByText('Enforcement disabled; preview only.')).toBeVisible();
+  await expect(page.getByText('Policy preview read path has not reported a dry-run decision yet.')).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Recent activity' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Device diagnostics' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Activity timeline' })).toBeVisible();

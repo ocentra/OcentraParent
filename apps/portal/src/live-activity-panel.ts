@@ -14,6 +14,7 @@ import { renderBrowserManagedStatus } from './browser-status-panel';
 import { renderDiagnosticsPanel } from './diagnostics-panel';
 import { resolveLiveActivityState, type PortalLiveActivityState } from './live-activity-state';
 import { renderNetworkFlow } from './live-network-flow-panel';
+import { renderPolicyPreview } from './policy-preview-panel';
 import type { PortalRuntimeState } from './portal-state';
 
 export function renderLiveActivityOverview(container: HTMLElement, state: PortalRuntimeState): void {
@@ -22,6 +23,7 @@ export function renderLiveActivityOverview(container: HTMLElement, state: Portal
   renderBrowserManagedStatus(container, liveActivity);
   renderBrowserEvidence(container, liveActivity);
   renderNetworkFlow(container, liveActivity);
+  renderPolicyPreview(container, state, liveActivity);
   renderRecentActivity(container, liveActivity);
   renderDiagnosticsPanel(container, state);
 }

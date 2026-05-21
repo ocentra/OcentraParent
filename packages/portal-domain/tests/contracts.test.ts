@@ -46,6 +46,7 @@ describe('portal domain contracts', () => {
       'agent.activity.recent.summary.get',
       'agent.browser.evidence.recent.get',
       'agent.network.flow.read-model.get',
+      'agent.local-ai.runtime.status.get',
     ]);
   });
 
