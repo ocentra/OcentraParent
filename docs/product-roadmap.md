@@ -42,8 +42,10 @@ evidence bridges now exist on `main`: browser URL/tab state, app/game sessions,
 network flow summaries, and local screen-analysis queue summaries can all be
 represented through typed local contracts and Rust protocol/read-model paths.
 The first V0.7 foundations are also on `main`: local AI runtime/provider status,
-typed evidence context-builder contracts, and a deterministic dry-run policy
-evaluator. The next V0.7 work is integration and preview, not enforcement.
+typed evidence context-builder contracts, a deterministic dry-run policy
+evaluator, context-builder read-path hardening, and the portal policy-preview
+shell. The next V0.7 work is service/API integration and preview wiring, not
+enforcement.
 
 Completed foundation:
 
@@ -67,9 +69,10 @@ Current local slice:
 
 Next product slice:
 
-- V0.7 service and portal policy preview that reads typed local evidence,
-  context-builder output, local runtime status, and dry-run decisions without
-  enabling enforcement.
+- V0.7 policy preview service/API read path with TypeScript protocol contracts
+  first, then Rust protocol/service parity, followed by portal wiring to read
+  typed local evidence, context-builder output, runtime status, and dry-run
+  decisions without enabling enforcement.
 
 ## Architecture Commitments
 
@@ -1012,14 +1015,19 @@ Current completed-on-main foundation:
   validation.
 - V0.7 local AI dry-run policy evaluator with evidence-cited typed decisions
   and enforcement handoff disabled.
+- V0.7 context-builder runtime read-path hardening that filters custody,
+  runtime, memory, and graph references before model input.
+- V0.7 portal policy-preview shell that shows runtime status, candidate
+  evidence references, explicit not-reported decision fields, and preview-only
+  enforcement messaging.
 
 Next coordinator slices:
 
-1. Wire V0.7 service/API read paths that can assemble local evidence context
-   and dry-run policy results from stored evidence without inventing rows.
-2. Add V0.7 portal policy preview visibility for context, runtime status,
-   decision action, reason codes, evidence references, and degraded/unknown
-   states.
+1. Finish V0.7 policy-preview service/API read path with TypeScript protocol
+   contracts before Rust mirrors, then assemble stored local evidence and
+   dry-run policy results without inventing rows.
+2. Wire the existing V0.7 portal policy-preview shell to the typed service
+   read-model once the service/API branch lands.
 3. Keep provider runtime work local-only and unavailable/degraded by default
    until an actual local model adapter is reviewed.
 4. Keep enforcement out of scope until V0.7 preview decisions are typed,
