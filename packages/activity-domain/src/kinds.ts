@@ -6,6 +6,7 @@ export const ActivityObserverSchema = withParser(
     'windows-process',
     'windows-window',
     'windows-network',
+    'managed-browser-bridge',
     'browser-extension',
     'local-ai'
   )
@@ -40,6 +41,7 @@ export const ActivityObserver = {
   WindowsProcess: ActivityObserverSchema.parse('windows-process'),
   WindowsWindow: ActivityObserverSchema.parse('windows-window'),
   WindowsNetwork: ActivityObserverSchema.parse('windows-network'),
+  ManagedBrowserBridge: ActivityObserverSchema.parse('managed-browser-bridge'),
   BrowserExtension: ActivityObserverSchema.parse('browser-extension'),
   LocalAi: ActivityObserverSchema.parse('local-ai'),
 } as const;

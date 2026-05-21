@@ -69,7 +69,8 @@ export const AgentCommandNameSchema = withParser(
     'agent.dev.echo',
     'agent.watch.status.get',
     'agent.activity.ingest.status.get',
-    'agent.activity.recent.summary.get'
+    'agent.activity.recent.summary.get',
+    'agent.browser.evidence.recent.get'
   )
 );
 
@@ -82,7 +83,8 @@ export const AgentEventNameSchema = withParser(
     'agent.dev.echoed',
     'agent.watch.status.reported',
     'agent.activity.ingest.status.reported',
-    'agent.activity.recent.summary.reported'
+    'agent.activity.recent.summary.reported',
+    'agent.browser.evidence.recent.reported'
   )
 );
 
@@ -133,6 +135,7 @@ export const AgentCommand = {
   WatchStatusGet: AgentCommandNameSchema.parse('agent.watch.status.get'),
   ActivityIngestStatusGet: AgentCommandNameSchema.parse('agent.activity.ingest.status.get'),
   ActivityRecentSummaryGet: AgentCommandNameSchema.parse('agent.activity.recent.summary.get'),
+  BrowserEvidenceRecentGet: AgentCommandNameSchema.parse('agent.browser.evidence.recent.get'),
 } as const;
 
 export const AgentEvent = {
@@ -144,4 +147,5 @@ export const AgentEvent = {
   WatchStatusReported: AgentEventNameSchema.parse('agent.watch.status.reported'),
   ActivityIngestStatusReported: AgentEventNameSchema.parse('agent.activity.ingest.status.reported'),
   ActivityRecentSummaryReported: AgentEventNameSchema.parse('agent.activity.recent.summary.reported'),
+  BrowserEvidenceRecentReported: AgentEventNameSchema.parse('agent.browser.evidence.recent.reported'),
 } as const;

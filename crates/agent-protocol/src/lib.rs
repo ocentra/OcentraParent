@@ -4,6 +4,7 @@ mod activity;
 mod activity_capture;
 mod activity_conversions;
 mod activity_query;
+mod browser;
 pub mod constants;
 mod journal;
 mod logging;
@@ -12,6 +13,7 @@ mod transport;
 pub use activity::*;
 pub use activity_capture::*;
 pub use activity_query::*;
+pub use browser::*;
 pub use journal::*;
 pub use logging::*;
 pub use transport::*;
@@ -22,6 +24,7 @@ pub const AGENT_PROTOCOL_SCHEMA_VERSION: u16 = 1;
 pub const ACTIVITY_SCHEMA_VERSION: u16 = 1;
 pub const ACTIVITY_JOURNAL_SCHEMA_VERSION: u16 = 1;
 pub const ACTIVITY_QUERY_SCHEMA_VERSION: u16 = 1;
+pub const BROWSER_EVIDENCE_SCHEMA_VERSION: u16 = 1;
 
 pub fn crate_name() -> &'static str {
     CRATE_NAME

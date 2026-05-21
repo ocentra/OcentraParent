@@ -17,6 +17,7 @@ import type { PortalRuntimeState } from './portal-state';
 export function renderLiveActivityOverview(container: HTMLElement, state: PortalRuntimeState): void {
   const liveActivity = resolveLiveActivityState(state.events);
   renderEvidenceStore(container, liveActivity);
+  renderBrowserEvidence(container, liveActivity);
   renderRecentActivity(container, liveActivity);
   renderDiagnosticsPanel(container, state);
 }
@@ -39,6 +40,60 @@ function renderEvidenceStore(container: HTMLElement, liveActivity: PortalLiveAct
   appendDetail(metadata, PortalDetails.DuplicateEvents, detailFromValue(liveActivity.ingestStatus.duplicateEvents));
   appendDetail(metadata, PortalDetails.LastEvent, detailFromValue(liveActivity.ingestStatus.lastEventId));
   panel.append(metadata);
+  container.append(panel);
+}
+
+function renderBrowserEvidence(container: HTMLElement, liveActivity: PortalLiveActivityState): void {
+  const panel = panelWithTitle(PortalText.Resolve(PortalTextToken.BrowserEvidence));
+  const metadata = document.createElement(PortalDom.Tags.DefinitionList);
+
+  appendDetail(metadata, PortalDetails.Status, eventStatus(liveActivity.browserEvidenceEvent));
+  if (liveActivity.browserEvidenceSummary === null) {
+    appendDetail(metadata, PortalDetails.Reason, eventReason(liveActivity.browserEvidenceEvent));
+    panel.append(metadata, emptyMessage(PortalText.Resolve(PortalTextToken.NoBrowserEvidence)));
+    container.append(panel);
+    return;
+  }
+
+  appendDetail(metadata, PortalDetails.RowsReturned, detailFromValue(liveActivity.browserEvidenceSummary.returned));
+  appendDetail(
+    metadata,
+    PortalDetails.LastObserved,
+    detailFromValue(liveActivity.browserEvidenceSummary.latestObservedAt)
+  );
+  appendDetail(metadata, PortalDetails.EventId, detailFromValue(liveActivity.browserEvidenceSummary.latestEventId));
+  appendDetail(
+    metadata,
+    PortalDetails.BrowserEvidence,
+    detailFromValue(liveActivity.browserEvidenceSummary.browserEvidenceId)
+  );
+  appendDetail(
+    metadata,
+    PortalDetails.BrowserFamily,
+    detailFromValue(liveActivity.browserEvidenceSummary.browserFamily)
+  );
+  appendDetail(metadata, PortalDetails.Domain, detailFromValue(liveActivity.browserEvidenceSummary.domain));
+  appendDetail(metadata, PortalDetails.Url, detailFromValue(liveActivity.browserEvidenceSummary.url));
+  appendDetail(metadata, PortalDetails.Title, detailFromValue(liveActivity.browserEvidenceSummary.title));
+  appendDetail(metadata, PortalDetails.ActiveState, detailFromValue(liveActivity.browserEvidenceSummary.activeState));
+  appendDetail(
+    metadata,
+    PortalDetails.Capability,
+    detailFromValue(liveActivity.browserEvidenceSummary.capabilityStatus)
+  );
+  appendDetail(metadata, PortalDetails.Custody, detailFromValue(liveActivity.browserEvidenceSummary.custodyLabel));
+  appendDetail(metadata, PortalDetails.Source, detailFromValue(liveActivity.browserEvidenceSummary.sourceId));
+  appendDetail(
+    metadata,
+    PortalDetails.ManagedSession,
+    detailFromValue(liveActivity.browserEvidenceSummary.managedBrowserSessionId)
+  );
+  panel.append(metadata);
+
+  if (liveActivity.browserEvidenceSummary.returned === 0) {
+    panel.append(emptyMessage(PortalText.Resolve(PortalTextToken.NoBrowserEvidence)));
+  }
+
   container.append(panel);
 }
 

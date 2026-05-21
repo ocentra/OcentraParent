@@ -7,6 +7,7 @@ impl ActivityObserver {
             Self::WindowsProcess => constants::activity_observer::WINDOWS_PROCESS,
             Self::WindowsWindow => constants::activity_observer::WINDOWS_WINDOW,
             Self::WindowsNetwork => constants::activity_observer::WINDOWS_NETWORK,
+            Self::ManagedBrowserBridge => constants::activity_observer::MANAGED_BROWSER_BRIDGE,
             Self::BrowserExtension => constants::activity_observer::BROWSER_EXTENSION,
             Self::LocalAi => constants::activity_observer::LOCAL_AI,
         }
@@ -18,6 +19,9 @@ impl ActivityObserver {
             constants::activity_observer::WINDOWS_PROCESS => Some(Self::WindowsProcess),
             constants::activity_observer::WINDOWS_WINDOW => Some(Self::WindowsWindow),
             constants::activity_observer::WINDOWS_NETWORK => Some(Self::WindowsNetwork),
+            constants::activity_observer::MANAGED_BROWSER_BRIDGE => {
+                Some(Self::ManagedBrowserBridge)
+            }
             constants::activity_observer::BROWSER_EXTENSION => Some(Self::BrowserExtension),
             constants::activity_observer::LOCAL_AI => Some(Self::LocalAi),
             _ => None,

@@ -4,12 +4,15 @@ import { resolveLiveActivityState } from '../src/live-activity-state';
 
 describe('portal live activity state', () => {
   it('parses real service ingest and recent-summary payload fields', () => {
-    const state = resolveLiveActivityState([recentSummaryEvent(), ingestStatusEvent()]);
+    const state = resolveLiveActivityState([browserEvidenceEvent(), recentSummaryEvent(), ingestStatusEvent()]);
 
     expect(state.ingestStatus?.databaseReady).toBe(true);
     expect(state.ingestStatus?.eventsStored).toBe(1);
     expect(state.recentSummary?.returned).toBe(1);
     expect(state.recentSummary?.mostRecentSubjectName).toBe('notepad.exe');
+    expect(state.browserEvidenceSummary?.returned).toBe(1);
+    expect(state.browserEvidenceSummary?.url).toBe('https://example.test/learn');
+    expect(state.browserEvidenceSummary?.capabilityStatus).toBe('tab-list-only');
   });
 
   it('keeps unavailable activity-store responses visible without inventing rows', () => {
@@ -19,6 +22,14 @@ describe('portal live activity state', () => {
     expect(state.recentSummary).toBeNull();
     expect(state.recentSummaryEvent?.severity).toBe('error');
     expect(state.recentSummaryEvent?.payload['reason']).toBe('Activity store is unavailable.');
+  });
+
+  it('keeps empty browser evidence summaries visible without inventing a URL', () => {
+    const state = resolveLiveActivityState([emptyBrowserEvidenceEvent()]);
+
+    expect(state.browserEvidenceSummary?.returned).toBe(0);
+    expect(state.browserEvidenceSummary?.url).toBeNull();
+    expect(state.browserEvidenceSummary?.capabilityStatus).toBeNull();
   });
 });
 
@@ -76,6 +87,80 @@ function ingestStatusEvent() {
       eventsStored: 1,
       duplicateEvents: 0,
       lastEventId: 'activity-event-1',
+    },
+    snapshot: null,
+  });
+}
+
+function browserEvidenceEvent() {
+  return AgentEventEnvelopeSchema.parse({
+    schemaVersion: 1,
+    eventId: 'evt-browser',
+    correlationId: 'cmd-browser',
+    sentAt: '2026-05-21T01:00:01Z',
+    source: {
+      peerId: 'local-dev-agent',
+      role: 'agent-service',
+    },
+    target: {
+      peerId: 'portal-dev',
+      role: 'portal',
+    },
+    event: 'agent.browser.evidence.recent.reported',
+    severity: 'info',
+    payload: {
+      returned: 1,
+      latestEventId: 'activity-browser-url-observed-1',
+      latestObservedAt: '2026-05-21T01:00:00Z',
+      browserEvidenceId: 'browser-evidence-1',
+      sourceId: 'managed-chromium-devtools',
+      adapterId: 'managed-chromium-devtools-adapter',
+      managedBrowserSessionId: 'managed-browser-session-1',
+      browserFamily: 'edge',
+      activeState: 'unknown',
+      url: 'https://example.test/learn',
+      origin: 'https://example.test',
+      domain: 'example.test',
+      title: 'Example learning page',
+      capabilityStatus: 'tab-list-only',
+      custodyLabel: 'child-device-local',
+    },
+    snapshot: null,
+  });
+}
+
+function emptyBrowserEvidenceEvent() {
+  return AgentEventEnvelopeSchema.parse({
+    schemaVersion: 1,
+    eventId: 'evt-browser',
+    correlationId: 'cmd-browser',
+    sentAt: '2026-05-21T01:00:01Z',
+    source: {
+      peerId: 'local-dev-agent',
+      role: 'agent-service',
+    },
+    target: {
+      peerId: 'portal-dev',
+      role: 'portal',
+    },
+    event: 'agent.browser.evidence.recent.reported',
+    severity: 'info',
+    payload: {
+      returned: 0,
+      latestEventId: null,
+      latestObservedAt: null,
+      browserEvidenceId: null,
+      sourceId: null,
+      adapterId: null,
+      managedBrowserSessionId: null,
+      browserFamily: null,
+      activeState: null,
+      url: null,
+      origin: null,
+      domain: null,
+      title: null,
+      capabilityStatus: null,
+      custodyLabel: null,
     },
     snapshot: null,
   });

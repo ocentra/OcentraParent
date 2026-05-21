@@ -82,6 +82,8 @@ pub enum AgentCommandName {
     AgentActivityIngestStatusGet,
     #[serde(rename = "agent.activity.recent.summary.get")]
     AgentActivityRecentSummaryGet,
+    #[serde(rename = "agent.browser.evidence.recent.get")]
+    AgentBrowserEvidenceRecentGet,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -102,6 +104,8 @@ pub enum AgentEventName {
     AgentActivityIngestStatusReported,
     #[serde(rename = "agent.activity.recent.summary.reported")]
     AgentActivityRecentSummaryReported,
+    #[serde(rename = "agent.browser.evidence.recent.reported")]
+    AgentBrowserEvidenceRecentReported,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

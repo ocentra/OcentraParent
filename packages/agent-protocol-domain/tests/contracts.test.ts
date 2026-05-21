@@ -63,7 +63,10 @@ it('AgentEventEnvelopeSchema: accepts a Rust response event with an optional sna
 it('AgentEvent: exposes typed constants for portal result rendering', () => {
   expect(AgentCommand.ActivityIngestStatusGet).toBe('agent.activity.ingest.status.get');
   expect(AgentCommand.ActivityRecentSummaryGet).toBe('agent.activity.recent.summary.get');
+  expect(AgentCommand.BrowserEvidenceRecentGet).toBe('agent.browser.evidence.recent.get');
   expect(AgentProtocolDefaults.Field.DatabaseReady).toBe('databaseReady');
+  expect(AgentProtocolDefaults.Field.BrowserEvidenceId).toBe('browserEvidenceId');
+  expect(AgentProtocolDefaults.Field.CapabilityStatus).toBe('capabilityStatus');
   expect(AgentProtocolDefaults.Field.MostRecentSubjectName).toBe('mostRecentSubjectName');
   expect(AgentEvent.HealthReported).toBe('agent.health.reported');
   expect(AgentEvent.LogSnapshotReported).toBe('agent.log.snapshot.reported');
@@ -71,6 +74,7 @@ it('AgentEvent: exposes typed constants for portal result rendering', () => {
   expect(AgentEvent.WatchStatusReported).toBe('agent.watch.status.reported');
   expect(AgentEvent.ActivityIngestStatusReported).toBe('agent.activity.ingest.status.reported');
   expect(AgentEvent.ActivityRecentSummaryReported).toBe('agent.activity.recent.summary.reported');
+  expect(AgentEvent.BrowserEvidenceRecentReported).toBe('agent.browser.evidence.recent.reported');
 });
 
 it('AgentCommandEnvelopeSchema: rejects unknown commands', () => {
