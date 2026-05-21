@@ -136,19 +136,22 @@ Current completed-on-main baseline includes:
   evidence without enabling enforcement;
 - V0.7 local provider adapter probe status with probe/configuration state and
   execution-allowed flags, still no model execution;
+- V0.7 network-flow v4 reconciliation with digest payload rollups and direct
+  unusual-indicator evidence, still local/read-model only;
+- V0.7 parent-rule preview quality/coverage with target aliases and fully
+  grounded local parent-rule context matching, still dry-run only;
 - hub hook session hardening;
 - roadmap runtime order update.
 
-Correct active implementation order:
+Correct active checkpoint order:
 
-1. Reconcile `origin/codex/network-flow-v4` against current `main` before more
-   network-flow work; it was pushed separately and is not contained in `main`.
-2. V0.7 parent-rule/context work may improve preview quality and coverage from
-   local parent-authored rule sources, but must not enable enforcement.
-3. V0.7 local provider/runtime adapter work must stay local-only and
-   unavailable/degraded by default until a real adapter is reviewed.
+1. Pull and validate current `main` after the V0.7 preview-completion merges.
+2. Prepare the manual test pass for local service, portal, evidence read models,
+   and LAN development flows across the available PCs.
+3. Keep workers parked unless a validation failure or explicit follow-up slice
+   needs a branch.
 4. V0.8 enforcement adapters only after V0.7 preview decisions are typed,
-   evidence-cited, visible, validated on `main`, and adapter readiness has been
+   evidence-cited, visible, validated on `main`, and the checkpoint has been
    deliberately reviewed.
 
 The V0.7 start gate is now satisfied because browser, app/game, network, and
@@ -160,15 +163,10 @@ contracts/read paths. Do not start enforcement early.
 The previous V0.7 foundation, preview-shell, context-builder read-path,
 service/API read-path, portal read-model wiring, parent-rule context bridge,
 local provider status hardening, portal boundary visibility, parent-rule
-context resolver, and local provider adapter probe batches are merged. Current
-lane ownership should be kept full from clean, pulled `main`:
-
-- one lane for reconciling `origin/codex/network-flow-v4` against current
-  network-flow runtime on `main`;
-- one lane for parent-rule preview quality/coverage from local parent-authored
-  rule sources, without starting enforcement;
-- one lane for local provider adapter readiness review/hardening that stays
-  local-only and degraded/unavailable by default.
+context resolver, local provider adapter probe, network-flow reconciliation,
+and parent-rule preview quality batches are merged. Current lane ownership
+should stay parked unless validation finds a bug or the user explicitly resumes
+implementation.
 
 If the lane ledger and live branch disagree, send one targeted hub message and
 state which worker chat/worktree needs attention. Do not spam duplicate

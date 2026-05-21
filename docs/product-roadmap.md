@@ -41,16 +41,15 @@ We are currently in the local AI dry-run evaluator track. The required pre-AI
 evidence bridges now exist on `main`: browser URL/tab state, app/game sessions,
 network flow summaries, and local screen-analysis queue summaries can all be
 represented through typed local contracts and Rust protocol/read-model paths.
-The first V0.7 foundations are also on `main`: local AI runtime/provider status,
-typed evidence context-builder contracts, a deterministic dry-run policy
-evaluator, context-builder read-path hardening, the portal policy-preview shell,
-the typed policy-preview service/API read path, and portal read-model wiring for
-the service result. The parent-rule context preview bridge, local
-provider/runtime status contract hardening, portal boundary-field visibility,
-parent-rule context resolver integration, and local provider adapter probe
-status are also on `main`. The next V0.7 work is reconciliation and completion
-around local model adapter readiness, parent-rule preview quality, and any
-unmerged evidence branches before enforcement.
+The V0.7 dry-run preview foundations are also on `main`: local AI
+runtime/provider status, typed evidence context-builder contracts, a
+deterministic dry-run policy evaluator, context-builder read-path hardening,
+the portal policy-preview shell, the typed policy-preview service/API read path,
+and portal read-model wiring for the service result. The parent-rule context
+preview bridge, local provider/runtime status contract hardening, portal
+boundary-field visibility, parent-rule context resolver integration, local
+provider adapter probe status, network-flow v4 reconciliation, and parent-rule
+preview quality/coverage batch are also on `main`.
 
 Completed foundation:
 
@@ -72,16 +71,15 @@ Current local slice:
 - Typed local AI result and deterministic policy decision paths before
   enforcement.
 
-Next product slice:
+Next product checkpoint:
 
-- V0.7 reconcile the unmerged `codex/network-flow-v4` branch against the
-  current network-flow runtime on `main` before assigning more network work.
-- V0.7 improve parent-rule preview quality and coverage from local
-  parent-authored rule sources without enabling enforcement.
-- V0.7 review and harden the local-provider adapter readiness path while
-  keeping model execution unavailable/degraded until a real adapter is reviewed.
-- V0.7 keep portal preview visibility evidence-cited and explicit about
-  dry-run-only status.
+- Pull and validate current `main` after the V0.7 preview-completion merges.
+- Manually test the local child-device/parent-device surfaces before starting
+  more AI or enforcement work.
+- Keep portal preview visibility evidence-cited and explicit about dry-run-only
+  status.
+- Keep V0.8 enforcement out of scope until the V0.7 checkpoint is reviewed on
+  real local/LAN flows.
 
 ## Architecture Commitments
 
@@ -1047,15 +1045,15 @@ Current completed-on-main foundation:
   enforcement.
 - V0.7 local provider adapter probe status with explicit probe/configuration
   state and execution-allowed flags while keeping model execution unavailable.
+- V0.7 network-flow v4 reconciliation with digest payload rollups and direct
+  unusual-indicator evidence, still local/read-model only.
+- V0.7 parent-rule preview quality/coverage with target aliases and fully
+  grounded local parent-rule context matching, still dry-run only.
 
 Next coordinator slices:
 
-1. Reconcile `origin/codex/network-flow-v4` against current `main`; the branch
-   was pushed separately and is not contained in `main`.
-2. Improve parent-rule preview quality and coverage from local parent-authored
-   rule sources without starting enforcement.
-3. Review and harden local-provider adapter readiness while keeping model
-   execution unavailable/degraded until an actual local adapter is reviewed.
-4. Keep enforcement out of scope until V0.7 preview decisions are typed,
-   evidence-cited, visible, validated on `main`, and adapter readiness is
-   deliberately reviewed.
+1. Run the V0.7 checkpoint validation from current `main`.
+2. Prepare the manual test pass for local service, portal, evidence read models,
+   and LAN development flows across the available PCs.
+3. Do not start V0.8 enforcement or real model execution until the checkpoint
+   is reviewed and the user explicitly resumes implementation.
