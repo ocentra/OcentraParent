@@ -37,7 +37,7 @@ stateless compile/report operations that do not retain child activity data.
 
 ## Current Position
 
-We are currently in the evidence storage track.
+We are currently past the evidence storage and process/window foundation and moving through the network observation track.
 
 Completed foundation:
 
@@ -51,7 +51,7 @@ Completed foundation:
 - Journal rotation and replay validation.
 - Windows MSI, updater scaffold, package-preview workflow, and production-branch release separation.
 
-Current local slice:
+Completed local slice:
 
 - SQLite-backed activity query store replacing the earlier DuckDB direction.
 - Encrypted journal remains the source of truth.
@@ -60,7 +60,7 @@ Current local slice:
 
 Next product slice:
 
-- Windows process/window activity capture.
+- Windows network/domain observation.
 
 ## Architecture Commitments
 
@@ -173,7 +173,7 @@ Acceptance:
 
 Status:
 
-- Mostly complete.
+- Complete.
 
 ### V0.2 Trusted Local Evidence Store
 
@@ -212,7 +212,7 @@ Acceptance:
 
 Status:
 
-- In progress. SQLite pivot is local.
+- Complete.
 
 ### V0.3 Windows Process And Window Activity Capture
 
@@ -246,6 +246,10 @@ Acceptance:
 - Capture does not block the WebSocket service.
 - Tests cover adapter mapping and service intent behavior.
 - Manual local run shows current process/window evidence in the portal.
+
+Status:
+
+- Complete.
 
 Out of scope:
 
@@ -975,8 +979,7 @@ Local development:
 
 Current completed-on-main foundation:
 
-- V0.1/V0.2 scaffold, contracts, encrypted journal, and SQLite query store.
-- V0.3 Windows process/window capture.
+- V0.1/V0.2/V0.3 scaffold, contracts, encrypted journal, and SQLite query store.
 - V0.4 Windows network/domain observation foundation.
 - V0.5 live activity portal visibility.
 - V0.5.1 browser URL/tab evidence research/spec.

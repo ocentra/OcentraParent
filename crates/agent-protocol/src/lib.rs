@@ -9,6 +9,7 @@ mod browser;
 pub mod constants;
 mod journal;
 mod logging;
+mod network_flow;
 mod transport;
 
 pub use activity::*;
@@ -18,6 +19,7 @@ pub use app_game::*;
 pub use browser::*;
 pub use journal::*;
 pub use logging::*;
+pub use network_flow::*;
 pub use transport::*;
 
 pub const CRATE_NAME: &str = "ocentra-parent-agent-protocol";
@@ -40,5 +42,7 @@ mod activity_tests;
 mod app_game_tests;
 #[cfg(test)]
 mod journal_tests;
+#[cfg(test)]
+mod network_flow_tests;
 #[cfg(test)]
 mod tests;

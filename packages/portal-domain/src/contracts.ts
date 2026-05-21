@@ -54,6 +54,7 @@ export const PortalDom = {
     Header: 'header',
     HeadingOne: 'h1',
     HeadingTwo: 'h2',
+    HeadingThree: 'h3',
     ListItem: 'li',
     Navigation: 'nav',
     OrderedList: 'ol',

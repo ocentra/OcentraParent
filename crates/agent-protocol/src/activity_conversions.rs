@@ -1,4 +1,8 @@
-use crate::{constants, ActivityEventKind, ActivityObserver, ActivitySubjectKind};
+use crate::{
+    constants, ActivityCaptureCapabilityStatus, ActivityDomainAttributionStatus, ActivityEventKind,
+    ActivityNetworkProtocol, ActivityNetworkTcpState, ActivityObserver,
+    ActivityProcessAttributionStatus, ActivitySubjectKind,
+};
 
 impl ActivityObserver {
     pub fn as_protocol_str(&self) -> &'static str {
@@ -78,6 +82,88 @@ impl ActivitySubjectKind {
             constants::activity_subject_kind::URL => Some(Self::Url),
             constants::activity_subject_kind::VIDEO => Some(Self::Video),
             constants::activity_subject_kind::DEVICE => Some(Self::Device),
+            _ => None,
+        }
+    }
+}
+
+impl ActivityCaptureCapabilityStatus {
+    pub fn from_protocol_str(value: &str) -> Option<Self> {
+        match value {
+            constants::activity_capture::CAPABILITY_STATUS_AVAILABLE => Some(Self::Available),
+            constants::activity_capture::CAPABILITY_STATUS_UNAVAILABLE => Some(Self::Unavailable),
+            constants::activity_capture::CAPABILITY_STATUS_ACCESS_DENIED => {
+                Some(Self::AccessDenied)
+            }
+            constants::activity_capture::CAPABILITY_STATUS_NO_ACTIVE_WINDOW => {
+                Some(Self::NoActiveWindow)
+            }
+            constants::activity_capture::CAPABILITY_STATUS_NO_NETWORK_OBSERVATIONS => {
+                Some(Self::NoNetworkObservations)
+            }
+            constants::activity_capture::CAPABILITY_STATUS_ADAPTER_ERROR => {
+                Some(Self::AdapterError)
+            }
+            _ => None,
+        }
+    }
+}
+
+impl ActivityNetworkProtocol {
+    pub fn from_protocol_str(value: &str) -> Option<Self> {
+        match value {
+            constants::activity_capture::NETWORK_PROTOCOL_TCP => Some(Self::Tcp),
+            constants::activity_capture::NETWORK_PROTOCOL_UDP => Some(Self::Udp),
+            _ => None,
+        }
+    }
+}
+
+impl ActivityNetworkTcpState {
+    pub fn from_protocol_str(value: &str) -> Option<Self> {
+        match value {
+            constants::activity_capture::TCP_STATE_CLOSED => Some(Self::Closed),
+            constants::activity_capture::TCP_STATE_LISTEN => Some(Self::Listen),
+            constants::activity_capture::TCP_STATE_SYN_SENT => Some(Self::SynSent),
+            constants::activity_capture::TCP_STATE_SYN_RECEIVED => Some(Self::SynReceived),
+            constants::activity_capture::TCP_STATE_ESTABLISHED => Some(Self::Established),
+            constants::activity_capture::TCP_STATE_FIN_WAIT_1 => Some(Self::FinWait1),
+            constants::activity_capture::TCP_STATE_FIN_WAIT_2 => Some(Self::FinWait2),
+            constants::activity_capture::TCP_STATE_CLOSE_WAIT => Some(Self::CloseWait),
+            constants::activity_capture::TCP_STATE_CLOSING => Some(Self::Closing),
+            constants::activity_capture::TCP_STATE_LAST_ACK => Some(Self::LastAck),
+            constants::activity_capture::TCP_STATE_TIME_WAIT => Some(Self::TimeWait),
+            constants::activity_capture::TCP_STATE_DELETE_TCB => Some(Self::DeleteTcb),
+            constants::activity_capture::TCP_STATE_UNKNOWN => Some(Self::Unknown),
+            _ => None,
+        }
+    }
+}
+
+impl ActivityDomainAttributionStatus {
+    pub fn from_protocol_str(value: &str) -> Option<Self> {
+        match value {
+            constants::activity_capture::DOMAIN_ATTRIBUTION_STATUS_DOMAIN_OBSERVED => {
+                Some(Self::DomainObserved)
+            }
+            constants::activity_capture::DOMAIN_ATTRIBUTION_STATUS_IP_ONLY => Some(Self::IpOnly),
+            constants::activity_capture::DOMAIN_ATTRIBUTION_STATUS_UNAVAILABLE => {
+                Some(Self::Unavailable)
+            }
+            _ => None,
+        }
+    }
+}
+
+impl ActivityProcessAttributionStatus {
+    pub fn from_protocol_str(value: &str) -> Option<Self> {
+        match value {
+            constants::activity_capture::PROCESS_ATTRIBUTION_STATUS_ATTRIBUTED => {
+                Some(Self::ProcessAttributed)
+            }
+            constants::activity_capture::PROCESS_ATTRIBUTION_STATUS_UNKNOWN => {
+                Some(Self::ProcessUnknown)
+            }
             _ => None,
         }
     }

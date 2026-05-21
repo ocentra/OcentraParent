@@ -10,6 +10,7 @@ use crate::{
     activity_store_app_game::app_game_session_report,
     activity_store_browser::browser_recent_summary,
     activity_store_connection::initialize_connection,
+    activity_store_network::{recent_network_rows, NetworkStoreRow},
     activity_store_rows::{row_from_sqlite, summary_from_rows},
     ActivityJournal, ActivityStoreError,
 };
@@ -80,6 +81,13 @@ impl ActivityStore {
         limit: u64,
     ) -> Result<AppGameSessionReport, ActivityStoreError> {
         app_game_session_report(&self.connection, limit)
+    }
+
+    pub fn recent_network_rows(
+        &self,
+        limit: u64,
+    ) -> Result<Vec<NetworkStoreRow>, ActivityStoreError> {
+        recent_network_rows(&self.connection, limit)
     }
 
     fn status_with_counts(

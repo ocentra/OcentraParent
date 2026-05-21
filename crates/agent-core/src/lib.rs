@@ -7,6 +7,7 @@ mod activity_store_app_game_rows;
 mod activity_store_browser;
 mod activity_store_connection;
 mod activity_store_error;
+mod activity_store_network;
 mod activity_store_rows;
 mod browser_bridge_event;
 mod browser_bridge_fields;
@@ -27,6 +28,7 @@ mod window_capture_event;
 
 pub use activity_store::ActivityStore;
 pub use activity_store_error::ActivityStoreError;
+pub use activity_store_network::NetworkStoreRow;
 pub use browser_bridge_event::{
     browser_tab_observation_event, BrowserBridgeEventError, BrowserBridgeTargetObservation,
 };
@@ -51,11 +53,23 @@ mod activity_store_app_game_tests;
 #[cfg(test)]
 mod activity_store_browser_tests;
 #[cfg(test)]
+mod activity_store_network_tests;
+#[cfg(test)]
 mod activity_store_tests;
 #[cfg(test)]
 mod browser_bridge_tests;
 #[cfg(test)]
 mod journal_tests;
+#[cfg(test)]
+mod network_capture_attribution_tests;
+#[cfg(test)]
+mod network_capture_event_tests;
+#[cfg(test)]
+mod network_capture_netstat_tests;
+#[cfg(test)]
+mod network_capture_snapshot_tests;
+#[cfg(test)]
+mod network_capture_subject_tests;
 #[cfg(test)]
 mod network_capture_tests;
 #[cfg(test)]
