@@ -14,6 +14,7 @@ const CommandResultEvents = new Set<AgentEventName>([
   AgentEvent.BrowserEvidenceRecentReported,
   AgentEvent.BrowserManagedStatusReported,
   AgentEvent.NetworkFlowReadModelReported,
+  AgentEvent.LocalAiRuntimeStatusReported,
 ]);
 
 export function latestCommandResult(

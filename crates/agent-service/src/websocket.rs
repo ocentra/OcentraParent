@@ -12,6 +12,7 @@ use crate::{
     browser_runtime::build_browser_managed_status_report,
     event_builder::{build_event, portal_peer},
     fields::fields_from_pairs,
+    local_ai_runtime_status::build_local_ai_runtime_status_report,
     snapshot::build_dev_log_snapshot,
 };
 
@@ -103,6 +104,9 @@ async fn handle_command(command: AgentCommandEnvelope) -> AgentEventEnvelope {
         }
         AgentCommandName::AgentNetworkFlowReadModelGet => {
             build_network_flow_read_model_report(command).await
+        }
+        AgentCommandName::AgentLocalAiRuntimeStatusGet => {
+            build_local_ai_runtime_status_report(command)
         }
     }
 }

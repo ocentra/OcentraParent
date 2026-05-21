@@ -42,6 +42,7 @@ pub mod event_id {
     pub const BROWSER_EVIDENCE_RECENT_REPORTED: &str = "browser-evidence-recent-reported";
     pub const BROWSER_MANAGED_STATUS_REPORTED: &str = "browser-managed-status-reported";
     pub const NETWORK_FLOW_READ_MODEL_REPORTED: &str = "network-flow-read-model-reported";
+    pub const LOCAL_AI_RUNTIME_STATUS_REPORTED: &str = "local-ai-runtime-status-reported";
     pub const DEV_LOCALHOST_API_READY: &str = "dev-localhost-api-ready";
     pub const UNKNOWN_COMMAND: &str = "unknown-command";
 }
@@ -120,6 +121,9 @@ pub mod error {
     pub const BROWSER_BRIDGE_MAPS_TARGET: &str = "browser bridge maps target";
     pub const BROWSER_BRIDGE_REJECTS_INVALID_URL: &str = "browser bridge rejects invalid URL";
 }
+
+#[path = "constants/local_ai_runtime.rs"]
+pub mod local_ai_runtime;
 
 pub mod delimiter {
     pub const CLOSE_BRACKET: char = ']';

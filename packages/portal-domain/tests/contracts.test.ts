@@ -35,6 +35,10 @@ describe('portal domain contracts', () => {
     expect(PortalCommandButtons.map((button) => button.resultEvent)).toContain(
       'agent.network.flow.read-model.reported'
     );
+    expect(PortalCommandButtons.map((button) => button.command)).toContain('agent.local-ai.runtime.status.get');
+    expect(PortalCommandButtons.map((button) => button.resultEvent)).toContain(
+      'agent.local-ai.runtime.status.reported'
+    );
     expect(PortalOverviewCommands.map((button) => button.command)).toEqual([
       'agent.health.check',
       'agent.log.snapshot.get',

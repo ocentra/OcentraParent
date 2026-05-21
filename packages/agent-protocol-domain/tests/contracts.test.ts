@@ -68,7 +68,10 @@ it('AgentEvent: exposes typed constants for portal result rendering', () => {
   expect(AgentProtocolDefaults.Field.BridgeEndpointRef).toBe('bridgeEndpointRef');
   expect(AgentProtocolDefaults.Field.BridgeKind).toBe('bridgeKind');
   expect(AgentCommand.NetworkFlowReadModelGet).toBe('agent.network.flow.read-model.get');
+  expect(AgentCommand.LocalAiRuntimeStatusGet).toBe('agent.local-ai.runtime.status.get');
   expect(AgentProtocolDefaults.Field.DatabaseReady).toBe('databaseReady');
+  expect(AgentProtocolDefaults.Field.LocalAiRuntimeReferenceId).toBe('runtimeReferenceId');
+  expect(AgentProtocolDefaults.Field.LocalAiUnavailableReason).toBe('unavailableReason');
   expect(AgentProtocolDefaults.Field.BrowserEvidenceId).toBe('browserEvidenceId');
   expect(AgentProtocolDefaults.Field.ManagedState).toBe('managedState');
   expect(AgentProtocolDefaults.Field.ProfilePathRef).toBe('profilePathRef');
@@ -85,6 +88,7 @@ it('AgentEvent: exposes typed constants for portal result rendering', () => {
   expect(AgentEvent.BrowserEvidenceRecentReported).toBe('agent.browser.evidence.recent.reported');
   expect(AgentEvent.BrowserManagedStatusReported).toBe('agent.browser.managed.status.reported');
   expect(AgentEvent.NetworkFlowReadModelReported).toBe('agent.network.flow.read-model.reported');
+  expect(AgentEvent.LocalAiRuntimeStatusReported).toBe('agent.local-ai.runtime.status.reported');
 });
 
 it('AgentCommandEnvelopeSchema: rejects unknown commands', () => {

@@ -85,4 +85,10 @@ export const PortalCommandButtons = [
     resultEvent: AgentEvent.NetworkFlowReadModelReported,
     payload: {},
   },
+  {
+    label: resolvePortalDevText(PortalDevTextToken.GetLocalAiRuntimeStatus),
+    command: AgentCommand.LocalAiRuntimeStatusGet,
+    resultEvent: AgentEvent.LocalAiRuntimeStatusReported,
+    payload: {},
+  },
 ] as const;
