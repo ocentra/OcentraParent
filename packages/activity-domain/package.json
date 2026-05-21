@@ -21,6 +21,10 @@
       "import": "./dist/kinds.js",
       "types": "./dist/kinds.d.ts"
     },
+    "./network-flow": {
+      "import": "./dist/network-flow.js",
+      "types": "./dist/network-flow.d.ts"
+    },
     "./journal": {
       "import": "./dist/journal.js",
       "types": "./dist/journal.d.ts"
