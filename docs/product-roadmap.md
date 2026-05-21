@@ -76,6 +76,10 @@ Next product checkpoint:
 - Pull and validate current `main` after the V0.7 preview-completion merges.
 - Manually test the local child-device/parent-device surfaces before starting
   more AI or enforcement work.
+- Complete a cross-platform deliverables planning pass before more AI or
+  enforcement work: Windows local first, Linux through CI plus WSL/Docker,
+  macOS on the Mac system, Android through emulator/device proof, and iOS
+  through Mac/Xcode/TestFlight or entitlement notes.
 - Keep portal preview visibility evidence-cited and explicit about dry-run-only
   status.
 - Keep V0.8 enforcement out of scope until the V0.7 checkpoint is reviewed on
@@ -163,9 +167,11 @@ Create the repo, contracts, and runtime boundaries that make future product code
 
 Expectation links:
 
+- [V0.1 milestone expectations](expectations/roadmap-v0-1-foundation-and-evidence-contracts.md)
 - [Feature request expectations](expectations/feature-request.md)
 - [Universal done definition](expectations/universal-done.md)
 - [Code quality expectations](expectations/code-quality.md)
+- [Platform deliverables expectations](expectations/platform-deliverables.md)
 - [Static analysis and security expectations](expectations/static-analysis-security.md)
 - [Contract feature expectations](expectations/contracts.md)
 - [Release and installer expectations](expectations/release-installer.md)
@@ -202,6 +208,7 @@ Make the agent able to write and query trusted local facts before capture or blo
 
 Expectation links:
 
+- [V0.2 milestone expectations](expectations/roadmap-v0-2-trusted-local-evidence-store.md)
 - [Data custody and local-first expectations](expectations/data-custody.md)
 - [Evidence storage expectations](expectations/evidence-storage.md)
 - [Contract feature expectations](expectations/contracts.md)
@@ -241,11 +248,13 @@ Start observing useful local activity without blocking, AI, or invasive content 
 
 Expectation links:
 
+- [V0.3 milestone expectations](expectations/roadmap-v0-3-windows-process-window-activity-capture.md)
 - [Capture feature expectations](expectations/capture.md)
 - [Evidence storage expectations](expectations/evidence-storage.md)
 - [Contract feature expectations](expectations/contracts.md)
 - [Portal feature expectations](expectations/portal.md)
 - [Platform expectations](expectations/platforms.md)
+- [Platform deliverables expectations](expectations/platform-deliverables.md)
 
 Deliverables:
 
@@ -281,12 +290,14 @@ Observe network/domain activity enough to answer what services and sites are bei
 
 Expectation links:
 
+- [V0.4 milestone expectations](expectations/roadmap-v0-4-windows-network-domain-observation.md)
 - [Capture feature expectations](expectations/capture.md)
 - [Network flow evidence expectations](expectations/network-flow-evidence.md)
 - [Evidence storage expectations](expectations/evidence-storage.md)
 - [Contract feature expectations](expectations/contracts.md)
 - [Portal feature expectations](expectations/portal.md)
 - [Platform expectations](expectations/platforms.md)
+- [Platform deliverables expectations](expectations/platform-deliverables.md)
 
 Deliverables:
 
@@ -320,6 +331,7 @@ Turn dev protocol proof into a usable local parent visibility surface.
 
 Expectation links:
 
+- [V0.5 milestone expectations](expectations/roadmap-v0-5-live-activity-portal.md)
 - [Portal feature expectations](expectations/portal.md)
 - [Evidence storage expectations](expectations/evidence-storage.md)
 - [Contract feature expectations](expectations/contracts.md)
@@ -355,6 +367,7 @@ path for this milestone.
 
 Expectation links:
 
+- [V0.5.1 milestone expectations](expectations/roadmap-v0-5-1-browser-url-tab-evidence-capture.md)
 - [Browser URL and tab evidence expectations](expectations/browser-evidence.md)
 - [Browser URL and tab evidence capture architecture](architecture/browser-url-tab-evidence-capture.md)
 - [Capture feature expectations](expectations/capture.md)
@@ -362,6 +375,7 @@ Expectation links:
 - [Contract feature expectations](expectations/contracts.md)
 - [Portal feature expectations](expectations/portal.md)
 - [Platform expectations](expectations/platforms.md)
+- [Platform deliverables expectations](expectations/platform-deliverables.md)
 
 Deliverables:
 
@@ -408,6 +422,7 @@ does not invent duration.
 
 Expectation links:
 
+- [V0.5.2 milestone expectations](expectations/roadmap-v0-5-2-app-game-evidence-sessions.md)
 - [App and game evidence expectations](expectations/app-game-evidence.md)
 - [App and game evidence sessions architecture](architecture/app-game-evidence-sessions.md)
 - [Capture feature expectations](expectations/capture.md)
@@ -415,6 +430,8 @@ Expectation links:
 - [Policy feature expectations](expectations/policy.md)
 - [Enforcement feature expectations](expectations/enforcement.md)
 - [Portal feature expectations](expectations/portal.md)
+- [Platform expectations](expectations/platforms.md)
+- [Platform deliverables expectations](expectations/platform-deliverables.md)
 
 Deliverables:
 
@@ -451,6 +468,7 @@ schema-valid summaries and evidence references.
 
 Expectation links:
 
+- [V0.5.3 milestone expectations](expectations/roadmap-v0-5-3-local-screen-evidence-analysis-queue.md)
 - [Screen evidence analysis expectations](expectations/screen-evidence.md)
 - [Local screen evidence analysis queue architecture](architecture/local-screen-evidence-analysis-queue.md)
 - [Capture feature expectations](expectations/capture.md)
@@ -459,6 +477,8 @@ Expectation links:
 - [Policy feature expectations](expectations/policy.md)
 - [Enforcement feature expectations](expectations/enforcement.md)
 - [Portal feature expectations](expectations/portal.md)
+- [Platform expectations](expectations/platforms.md)
+- [Platform deliverables expectations](expectations/platform-deliverables.md)
 
 Deliverables:
 
@@ -498,11 +518,14 @@ Define the child-device local AI decision boundary before enforcing anything.
 
 Expectation links:
 
+- [V0.6 milestone expectations](expectations/roadmap-v0-6-local-ai-safety-decision-contracts.md)
 - [AI feature expectations](expectations/ai.md)
 - [Local AI and TabAgent reuse architecture](architecture/local-ai-and-tabagent-reuse.md)
 - [Policy feature expectations](expectations/policy.md)
 - [Contract feature expectations](expectations/contracts.md)
 - [Evidence storage expectations](expectations/evidence-storage.md)
+- [Platform expectations](expectations/platforms.md)
+- [Platform deliverables expectations](expectations/platform-deliverables.md)
 
 Deliverables:
 
@@ -539,11 +562,14 @@ Run local AI against captured activity and parent rules, then produce typed poli
 
 Expectation links:
 
+- [V0.7 milestone expectations](expectations/roadmap-v0-7-local-ai-policy-evaluator.md)
 - [AI feature expectations](expectations/ai.md)
 - [Local AI and TabAgent reuse architecture](architecture/local-ai-and-tabagent-reuse.md)
 - [Policy feature expectations](expectations/policy.md)
 - [Evidence storage expectations](expectations/evidence-storage.md)
 - [Portal feature expectations](expectations/portal.md)
+- [Platform expectations](expectations/platforms.md)
+- [Platform deliverables expectations](expectations/platform-deliverables.md)
 
 Deliverables:
 
@@ -576,10 +602,12 @@ Start enforcing simple local decisions after policy evaluation is trusted.
 
 Expectation links:
 
+- [V0.8 milestone expectations](expectations/roadmap-v0-8-enforcement-adapters.md)
 - [Enforcement feature expectations](expectations/enforcement.md)
 - [Policy feature expectations](expectations/policy.md)
 - [Evidence storage expectations](expectations/evidence-storage.md)
 - [Platform expectations](expectations/platforms.md)
+- [Platform deliverables expectations](expectations/platform-deliverables.md)
 - [Static analysis and security expectations](expectations/static-analysis-security.md)
 
 Deliverables:
@@ -615,9 +643,12 @@ Let a parent device configure and observe another child device on the same local
 
 Expectation links:
 
+- [V0.9 milestone expectations](expectations/roadmap-v0-9-lan-pairing-multi-device-local-control.md)
 - [LAN pairing expectations](expectations/lan-pairing.md)
 - [Contract feature expectations](expectations/contracts.md)
 - [Portal feature expectations](expectations/portal.md)
+- [Platform expectations](expectations/platforms.md)
+- [Platform deliverables expectations](expectations/platform-deliverables.md)
 - [Static analysis and security expectations](expectations/static-analysis-security.md)
 
 Deliverables:
@@ -644,12 +675,14 @@ Ship a usable Windows-first local product for a parent to install and observe ac
 
 Expectation links:
 
+- [V1.0 milestone expectations](expectations/roadmap-v1-0-local-mvp.md)
 - [Evidence storage expectations](expectations/evidence-storage.md)
 - [Capture feature expectations](expectations/capture.md)
 - [Portal feature expectations](expectations/portal.md)
 - [Policy feature expectations](expectations/policy.md)
 - [Release and installer expectations](expectations/release-installer.md)
 - [Platform expectations](expectations/platforms.md)
+- [Platform deliverables expectations](expectations/platform-deliverables.md)
 
 Deliverables:
 
@@ -685,6 +718,7 @@ store.
 
 Expectation links:
 
+- [V2 milestone expectations](expectations/roadmap-v2-parent-owned-remote-access-cloud-relay.md)
 - [Data custody and local-first expectations](expectations/data-custody.md)
 - [Cloud feature expectations](expectations/cloud.md)
 - [Sync and export expectations](expectations/sync-export.md)
@@ -722,6 +756,7 @@ Notify parents when attention is needed.
 
 Expectation links:
 
+- [V3 milestone expectations](expectations/roadmap-v3-notifications.md)
 - [Notification feature expectations](expectations/notifications.md)
 - [Policy feature expectations](expectations/policy.md)
 - [Evidence storage expectations](expectations/evidence-storage.md)
@@ -753,6 +788,7 @@ creating default Ocentra custody of child data.
 
 Expectation links:
 
+- [V4 milestone expectations](expectations/roadmap-v4-parent-owned-reports-optional-assistant.md)
 - [Data custody and local-first expectations](expectations/data-custody.md)
 - [AI feature expectations](expectations/ai.md)
 - [Evidence storage expectations](expectations/evidence-storage.md)
@@ -786,6 +822,7 @@ Make policy management usable for non-technical parents.
 
 Expectation links:
 
+- [V5 milestone expectations](expectations/roadmap-v5-parent-policy-product.md)
 - [Policy feature expectations](expectations/policy.md)
 - [Portal feature expectations](expectations/portal.md)
 - [Sync and export expectations](expectations/sync-export.md)
@@ -820,10 +857,12 @@ Extend child-device support beyond Windows.
 
 Expectation links:
 
+- [V6 milestone expectations](expectations/roadmap-v6-mobile-agents.md)
 - [Platform expectations](expectations/platforms.md)
 - [Capture feature expectations](expectations/capture.md)
 - [Evidence storage expectations](expectations/evidence-storage.md)
 - [Release and installer expectations](expectations/release-installer.md)
+- [Platform deliverables expectations](expectations/platform-deliverables.md)
 
 Deliverables:
 
@@ -847,6 +886,7 @@ Turn the product into a sellable service.
 
 Expectation links:
 
+- [V7 milestone expectations](expectations/roadmap-v7-subscription-monetization.md)
 - [Billing and subscription expectations](expectations/billing.md)
 - [Portal feature expectations](expectations/portal.md)
 - [Cloud feature expectations](expectations/cloud.md)
@@ -875,11 +915,13 @@ Make the product reliable, secure, supportable, and maintainable.
 
 Expectation links:
 
+- [V8 milestone expectations](expectations/roadmap-v8-production-hardening.md)
 - [Release and installer expectations](expectations/release-installer.md)
 - [Sync and export expectations](expectations/sync-export.md)
 - [Static analysis and security expectations](expectations/static-analysis-security.md)
 - [Documentation expectations](expectations/documentation.md)
 - [Code quality expectations](expectations/code-quality.md)
+- [Platform deliverables expectations](expectations/platform-deliverables.md)
 
 Deliverables:
 
@@ -904,22 +946,34 @@ Acceptance:
 
 ## Platform Strategy
 
+Platform deliverables are tracked separately for Windows, macOS, Linux,
+Android, and iOS. The shared Rust/domain/query/protocol core should stay
+portable, and CI should prove as much of that portability as possible. OS
+capture, network, permissions, packaging, and enforcement still require real
+platform proof before product claims.
+
 Windows:
 
 - First real implementation target.
 - MSI installer, service autostart, local capture, local policy, local enforcement.
+- Validate locally on the downstairs Windows PC before the pre-AI checkpoint is
+  accepted.
 
 macOS:
 
 - Scaffolded early.
 - Capture/enforcement depends on approved system APIs and permissions.
 - Do not claim parity until proven.
+- Use the Mac system for package, permission, launchd, signing/notarization, and
+  future iOS-related proof.
 
 Linux:
 
 - Scaffolded early.
 - Useful for CI and local testing.
 - Desktop capture/enforcement adapters can be added after Windows.
+- Use GitHub Actions plus WSL or Docker for shared Rust/domain/package
+  portability before relying on AI layers across platforms.
 
 Android:
 
@@ -927,6 +981,7 @@ Android:
 - Likely foreground service plus OS-approved management APIs.
 - SQLite should be the default local query store.
 - Store/device-owner restrictions must be handled honestly.
+- Separate parent Android app claims from child Android agent claims.
 
 iOS:
 
@@ -934,6 +989,7 @@ iOS:
 - Most restrictive child-device platform.
 - Use Apple-approved capabilities only.
 - Do not claim capture or enforcement beyond what entitlements allow.
+- Separate parent iOS app claims from child iOS agent claims.
 
 Web:
 
@@ -989,6 +1045,9 @@ Local development:
 - Focused gates while coding.
 - Full validation and build before PR merge.
 - Do not wait idly on long CI if an independent slice can progress.
+- Use PR and `main` CI as the cross-platform worker for shared Rust/domain,
+  package-preview, and smoke coverage, then backfill real OS proof where CI
+  cannot observe permissions, services, LAN, signing, or mobile policy.
 
 ## Current Next Actions
 
@@ -1052,8 +1111,11 @@ Current completed-on-main foundation:
 
 Next coordinator slices:
 
-1. Run the V0.7 checkpoint validation from current `main`.
-2. Prepare the manual test pass for local service, portal, evidence read models,
+1. Finish the roadmap expectation docs and platform-deliverables planning docs.
+2. Run the V0.7 checkpoint validation from current `main`.
+3. Prepare the manual test pass for local service, portal, evidence read models,
    and LAN development flows across the available PCs.
-3. Do not start V0.8 enforcement or real model execution until the checkpoint
+4. Prepare the cross-platform planning session covering Windows, Linux,
+   macOS, Android, and iOS deliverables before further AI work.
+5. Do not start V0.8 enforcement or real model execution until the checkpoint
    is reviewed and the user explicitly resumes implementation.

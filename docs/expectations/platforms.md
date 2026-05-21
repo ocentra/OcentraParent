@@ -2,9 +2,30 @@
 
 Platform claims must match real OS capabilities. Scaffolded support is not the same as product support.
 
+For the deliverable matrix, CI strategy, and pre-AI platform checkpoint, also
+read [platform deliverables expectations](platform-deliverables.md).
+
 ## Cross-Platform Claim Rule
 
 Every feature must state the parent outcome, child-device outcome, supported platform, data scope, trust boundary, failure behavior, and validation that proves the claim. A scaffolded package, app shell, package-preview artifact, or CI launch smoke is not enough to claim capture, monitoring, enforcement, remote access, or notification support.
+
+Shared Rust crates, TypeScript contracts, journal format, SQLite query shape, and
+protocol events should stay portable by default. OS-specific capture,
+permission, packaging, service-manager, foreground/background, and enforcement
+behavior belongs behind platform adapters and must be proved per platform.
+
+## CI And Manual Proof
+
+- GitHub Actions should build, test, and package as much of Windows, macOS,
+  Linux, Android, and iOS as the repo can honestly automate.
+- CI failures should be treated as cross-platform integration work, not ignored
+  until release time.
+- CI does not replace real host proof for OS permissions, service managers,
+  LAN behavior, signing/notarization, store review, device-owner policy, or
+  mobile entitlements.
+- Before starting more AI or enforcement work, run a cross-platform planning
+  checkpoint that separates implemented, scaffold-only, unavailable, blocked,
+  and degraded behavior for each deliverable platform.
 
 ## Windows
 
