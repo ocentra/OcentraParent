@@ -5,6 +5,10 @@
   "type": "module",
   "description": "Device activity contract boundary placeholder.",
   "exports": {
+    "./app-game": {
+      "import": "./dist/app-game.js",
+      "types": "./dist/app-game.d.ts"
+    },
     "./contracts": {
       "import": "./dist/contracts.js",
       "types": "./dist/contracts.d.ts"
