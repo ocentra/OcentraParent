@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{ParentEvidenceReference, PolicyDecision, PolicyTarget};
+use crate::{LocalAiParentRuleContextRef, ParentEvidenceReference, PolicyDecision, PolicyTarget};
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -10,6 +10,7 @@ pub struct PolicyPreviewReadModelRow {
     pub observed_at: String,
     pub target: PolicyTarget,
     pub evidence_references: Vec<ParentEvidenceReference>,
+    pub parent_rule_context_references: Vec<LocalAiParentRuleContextRef>,
     pub decision: PolicyDecision,
 }
 

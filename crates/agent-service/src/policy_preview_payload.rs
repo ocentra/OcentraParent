@@ -1,5 +1,6 @@
 use ocentra_parent_agent_protocol::{
-    constants, LogFieldValue, LogFields, PolicyPreviewReadModel, PolicyPreviewReadModelRow,
+    constants, policy_constants as policy, LogFieldValue, LogFields, PolicyPreviewReadModel,
+    PolicyPreviewReadModelRow,
 };
 
 use crate::fields::fields_from_pairs;
@@ -73,6 +74,14 @@ fn row_pairs(row: Option<&PolicyPreviewReadModelRow>) -> Vec<FieldPair> {
             constants::field::POLICY_EVIDENCE_REFERENCE_COUNT,
             optional_u64(row.map(|value| value.evidence_references.len() as u64)),
         ),
+        (
+            policy::PARENT_RULE_CONTEXT_REFERENCE_COUNT_FIELD,
+            optional_u64(row.map(|value| value.parent_rule_context_references.len() as u64)),
+        ),
+        (
+            policy::PARENT_RULE_CONTEXT_REF_IDS_FIELD,
+            optional_parent_rule_context_ref_ids(row),
+        ),
     ]
 }
 
@@ -130,6 +139,20 @@ fn optional_list(value: Option<&[String]>) -> LogFieldValue {
         Some(values) if !values.is_empty() => {
             LogFieldValue::String(values.join(&constants::delimiter::LIST.to_string()))
         }
+        _ => LogFieldValue::Null(()),
+    }
+}
+
+fn optional_parent_rule_context_ref_ids(row: Option<&PolicyPreviewReadModelRow>) -> LogFieldValue {
+    match row {
+        Some(value) if !value.parent_rule_context_references.is_empty() => LogFieldValue::String(
+            value
+                .parent_rule_context_references
+                .iter()
+                .map(|reference| reference.parent_rule_ref_id.as_str())
+                .collect::<Vec<_>>()
+                .join(&constants::delimiter::LIST.to_string()),
+        ),
         _ => LogFieldValue::Null(()),
     }
 }
