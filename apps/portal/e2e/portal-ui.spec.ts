@@ -1,8 +1,7 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
-
+import { collectBrowserFailures } from './browser-failures';
 test('portal UI connects to the real agent and renders command results', async ({ context, page }) => {
   const browserFailures = collectBrowserFailures(page);
-
   await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: 'http://127.0.0.1:4490' });
   await page.goto('/#/commands');
   await expect(page.getByRole('heading', { name: 'Ocentra Parent' })).toBeVisible();
@@ -28,6 +27,7 @@ async function assertCommandControls(page: Page): Promise<void> {
   await expect(page.getByRole('button', { name: 'Poll managed browser bridge' })).toBeEnabled();
   await expect(page.getByRole('button', { name: 'Get network flow' })).toBeEnabled();
   await expect(page.getByRole('button', { name: 'Get local AI runtime' })).toBeEnabled();
+  await expect(page.getByRole('button', { name: 'Get policy preview' })).toBeEnabled();
   await expect(page.getByRole('heading', { name: 'Command result' })).toBeVisible();
   await expect(page.locator('.summary')).toHaveCount(1);
 }
@@ -68,6 +68,7 @@ async function assertTabbedCommandResults(page: Page): Promise<void> {
   );
   await assertNetworkFlowResult(page, commandResult);
   await assertCommandResult(page, commandResult, 'Get local AI runtime', 'agent.local-ai.runtime.status.reported');
+  await assertCommandResult(page, commandResult, 'Get policy preview', 'agent.policy.preview.read-model.reported');
   await page.getByRole('button', { name: 'Check health' }).click();
   await expect(commandResult.getByText('agent.health.reported')).toHaveCount(1);
   await expect(commandResult.locator('.log')).toHaveCount(1);
@@ -95,6 +96,7 @@ async function assertRawEventLog(page: Page): Promise<void> {
   await expect(page.getByText('agent.browser.managed.status.reported')).toHaveCount(2);
   await expect(page.getByText('agent.network.flow.read-model.reported')).toHaveCount(3);
   await expect(page.getByText('agent.local-ai.runtime.status.reported')).toHaveCount(3);
+  await expect(page.getByText('agent.policy.preview.read-model.reported')).toHaveCount(3);
 }
 
 async function assertCommandResult(
@@ -119,7 +121,18 @@ async function assertOverview(page: Page): Promise<void> {
   await expect(page.getByRole('heading', { name: 'Network flow' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Policy preview' })).toBeVisible();
   await expect(page.getByText('Enforcement disabled; preview only.')).toBeVisible();
-  await expect(page.getByText('Policy preview read path has not reported a dry-run decision yet.')).toBeVisible();
+  const policyPreview = page
+    .locator('section.summary')
+    .filter({ has: page.getByRole('heading', { name: 'Policy preview' }) });
+  await expect(
+    policyPreview.locator('dt').filter({ hasText: 'Preview status' }).locator('xpath=following-sibling::dd[1]')
+  ).not.toHaveText('');
+  await expect(
+    policyPreview.locator('dt').filter({ hasText: 'Rows returned' }).locator('xpath=following-sibling::dd[1]')
+  ).not.toHaveText('');
+  await expect(
+    policyPreview.locator('dt').filter({ hasText: 'Unknown state' }).locator('xpath=following-sibling::dd[1]')
+  ).toHaveText('Not reported');
   await expect(page.getByRole('heading', { name: 'Recent activity' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Device diagnostics' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Activity timeline' })).toBeVisible();
@@ -165,17 +178,4 @@ async function assertDiagnosticsCopy(page: Page): Promise<void> {
   expect(copiedText).toContain('"events"');
   expect(copiedText).toContain('"recentSummary"');
   expect(copiedText).toContain('"networkFlowReadModel"');
-}
-
-function collectBrowserFailures(page: Page): string[] {
-  const failures: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'error') {
-      failures.push(message.text());
-    }
-  });
-  page.on('pageerror', (error) => {
-    failures.push(error.message);
-  });
-  return failures;
 }
