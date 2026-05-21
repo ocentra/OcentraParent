@@ -11,6 +11,7 @@ mod app;
 mod browser_evidence_payload;
 mod browser_payload;
 mod browser_runtime;
+mod browser_runtime_paths;
 mod browser_runtime_status;
 #[cfg(test)]
 mod browser_runtime_tests;

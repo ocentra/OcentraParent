@@ -49,8 +49,9 @@ pub use browser_bridge_poll::{
     BrowserBridgePollSnapshot,
 };
 pub use browser_managed_discovery::{
-    managed_browser_executable_identity, unmanaged_browser_processes,
-    BrowserManagedExecutableIdentity, BrowserUnmanagedProcessObservation,
+    installed_managed_browser_candidates, managed_browser_executable_identity,
+    unmanaged_browser_processes, BrowserManagedExecutableIdentity, BrowserManagedInstallCandidate,
+    BrowserUnmanagedProcessObservation,
 };
 pub use browser_managed_session::{
     launch_managed_browser, managed_browser_launch_plan, BrowserManagedLaunch,

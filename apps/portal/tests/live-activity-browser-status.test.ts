@@ -10,6 +10,15 @@ describe('portal live browser status', () => {
     expect(state.browserManagedStatus?.bridgeEndpointRef).toBe('managed-loopback-devtools-redacted');
     expect(state.browserManagedStatus?.queryVisibility).toBe('live-local');
   });
+
+  it('parses unmanaged browser status as supported install with unmanaged capability', () => {
+    const state = resolveLiveActivityState([unmanagedBrowserStatusEvent()]);
+
+    expect(state.browserManagedStatus?.managedBrowserSessionId).toBeNull();
+    expect(state.browserManagedStatus?.managedState).toBe('installed-supported');
+    expect(state.browserManagedStatus?.capabilityStatus).toBe('unmanaged-browser');
+    expect(state.browserManagedStatus?.degradedReason).toBe('managed-browser-unmanaged-process');
+  });
 });
 
 function browserManagedStatusEvent() {
@@ -45,6 +54,44 @@ function browserManagedStatusEvent() {
       startedAt: null,
       custodyLabel: 'child-device-local',
       queryVisibility: 'live-local',
+    },
+    snapshot: null,
+  });
+}
+
+function unmanagedBrowserStatusEvent() {
+  return AgentEventEnvelopeSchema.parse({
+    schemaVersion: 1,
+    eventId: 'evt-browser-unmanaged',
+    correlationId: 'cmd-browser-managed',
+    sentAt: '2026-05-21T03:30:01Z',
+    source: {
+      peerId: 'local-dev-agent',
+      role: 'agent-service',
+    },
+    target: {
+      peerId: 'portal-dev',
+      role: 'portal',
+    },
+    event: 'agent.browser.managed.status.reported',
+    severity: 'warn',
+    payload: {
+      checkedAt: '2026-05-21T03:30:00Z',
+      managedBrowserSessionId: null,
+      browserFamily: 'chrome',
+      browserChannel: 'stable',
+      browserVersion: null,
+      profileId: null,
+      profilePathRef: null,
+      processId: 5150,
+      bridgeKind: null,
+      bridgeEndpointRef: null,
+      managedState: 'installed-supported',
+      capabilityStatus: 'unmanaged-browser',
+      reason: 'managed-browser-unmanaged-process',
+      startedAt: null,
+      custodyLabel: 'child-device-local',
+      queryVisibility: 'unavailable',
     },
     snapshot: null,
   });

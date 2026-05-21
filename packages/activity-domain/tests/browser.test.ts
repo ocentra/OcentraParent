@@ -64,25 +64,7 @@ describe('browser evidence contracts', () => {
 
 describe('browser managed session status contracts', () => {
   it('accepts managed browser session status without leaking raw bridge endpoints', () => {
-    const parsed = BrowserManagedSessionStatusSchema.safeParse({
-      schemaVersion: BrowserEvidenceSchemaVersion,
-      checkedAt: '2026-05-21T03:30:00Z',
-      managedBrowserSessionId: 'managed-browser-session-1',
-      browserFamily: BrowserFamily.Chrome,
-      browserChannel: BrowserChannel.Stable,
-      browserVersion: '125.0.0',
-      profileId: 'managed-profile-child',
-      profilePathRef: 'managed-profile-redacted',
-      processId: 4242,
-      bridgeKind: BrowserBridgeKind.ChromiumDevtoolsProtocol,
-      bridgeEndpointRef: 'managed-loopback-devtools-redacted',
-      managedState: BrowserManagedState.BridgeConnected,
-      capabilityStatus: BrowserCapabilityStatus.TabListOnly,
-      degradedReason: null,
-      startedAt: '2026-05-21T03:29:50Z',
-      custodyLabel: BrowserCustodyLabel.ChildDeviceLocal,
-      queryVisibility: BrowserQueryVisibilityLabel.LiveLocal,
-    });
+    const parsed = BrowserManagedSessionStatusSchema.safeParse(bridgeConnectedStatus());
 
     expect(parsed.success).toBe(true);
     if (parsed.success) {
@@ -92,25 +74,7 @@ describe('browser managed session status contracts', () => {
   });
 
   it('accepts bridge-missing managed browser status as typed degraded state', () => {
-    const parsed = BrowserManagedSessionStatusSchema.safeParse({
-      schemaVersion: BrowserEvidenceSchemaVersion,
-      checkedAt: '2026-05-21T03:30:00Z',
-      managedBrowserSessionId: null,
-      browserFamily: null,
-      browserChannel: null,
-      browserVersion: null,
-      profileId: null,
-      profilePathRef: null,
-      processId: null,
-      bridgeKind: null,
-      bridgeEndpointRef: null,
-      managedState: BrowserManagedState.NotInstalled,
-      capabilityStatus: BrowserCapabilityStatus.ManagedProfileMissing,
-      degradedReason: 'managed-browser-executable-missing',
-      startedAt: null,
-      custodyLabel: BrowserCustodyLabel.Unavailable,
-      queryVisibility: BrowserQueryVisibilityLabel.Unavailable,
-    });
+    const parsed = BrowserManagedSessionStatusSchema.safeParse(browserMissingStatus());
 
     expect(parsed.success).toBe(true);
     if (parsed.success) {
@@ -118,4 +82,82 @@ describe('browser managed session status contracts', () => {
       expect(parsed.data.browserFamily).toBeNull();
     }
   });
+
+  it('accepts unmanaged browser process status as bypass evidence without a managed session', () => {
+    const parsed = BrowserManagedSessionStatusSchema.safeParse(unmanagedBrowserStatus());
+
+    expect(parsed.success).toBe(true);
+    if (parsed.success) {
+      expect(parsed.data.managedBrowserSessionId).toBeNull();
+      expect(parsed.data.managedState).toBe('installed-supported');
+      expect(parsed.data.capabilityStatus).toBe('unmanaged-browser');
+      expect(parsed.data.degradedReason).toBe('managed-browser-unmanaged-process');
+    }
+  });
 });
+
+function bridgeConnectedStatus() {
+  return {
+    schemaVersion: BrowserEvidenceSchemaVersion,
+    checkedAt: '2026-05-21T03:30:00Z',
+    managedBrowserSessionId: 'managed-browser-session-1',
+    browserFamily: BrowserFamily.Chrome,
+    browserChannel: BrowserChannel.Stable,
+    browserVersion: '125.0.0',
+    profileId: 'managed-profile-child',
+    profilePathRef: 'managed-profile-redacted',
+    processId: 4242,
+    bridgeKind: BrowserBridgeKind.ChromiumDevtoolsProtocol,
+    bridgeEndpointRef: 'managed-loopback-devtools-redacted',
+    managedState: BrowserManagedState.BridgeConnected,
+    capabilityStatus: BrowserCapabilityStatus.TabListOnly,
+    degradedReason: null,
+    startedAt: '2026-05-21T03:29:50Z',
+    custodyLabel: BrowserCustodyLabel.ChildDeviceLocal,
+    queryVisibility: BrowserQueryVisibilityLabel.LiveLocal,
+  };
+}
+
+function browserMissingStatus() {
+  return {
+    schemaVersion: BrowserEvidenceSchemaVersion,
+    checkedAt: '2026-05-21T03:30:00Z',
+    managedBrowserSessionId: null,
+    browserFamily: null,
+    browserChannel: null,
+    browserVersion: null,
+    profileId: null,
+    profilePathRef: null,
+    processId: null,
+    bridgeKind: null,
+    bridgeEndpointRef: null,
+    managedState: BrowserManagedState.NotInstalled,
+    capabilityStatus: BrowserCapabilityStatus.ManagedProfileMissing,
+    degradedReason: 'managed-browser-executable-missing',
+    startedAt: null,
+    custodyLabel: BrowserCustodyLabel.Unavailable,
+    queryVisibility: BrowserQueryVisibilityLabel.Unavailable,
+  };
+}
+
+function unmanagedBrowserStatus() {
+  return {
+    schemaVersion: BrowserEvidenceSchemaVersion,
+    checkedAt: '2026-05-21T03:30:00Z',
+    managedBrowserSessionId: null,
+    browserFamily: BrowserFamily.Chrome,
+    browserChannel: BrowserChannel.Stable,
+    browserVersion: null,
+    profileId: null,
+    profilePathRef: null,
+    processId: 5150,
+    bridgeKind: null,
+    bridgeEndpointRef: null,
+    managedState: BrowserManagedState.InstalledSupported,
+    capabilityStatus: BrowserCapabilityStatus.UnmanagedBrowser,
+    degradedReason: 'managed-browser-unmanaged-process',
+    startedAt: null,
+    custodyLabel: BrowserCustodyLabel.ChildDeviceLocal,
+    queryVisibility: BrowserQueryVisibilityLabel.Unavailable,
+  };
+}

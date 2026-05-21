@@ -41,7 +41,7 @@ fn unmanaged_browser_status_reports_discoverable_but_unmanaged_process() {
 
     assert_eq!(
         status.managed_state,
-        BrowserManagedState::InstalledUnsupported
+        BrowserManagedState::InstalledSupported
     );
     assert_eq!(
         status.capability_status,

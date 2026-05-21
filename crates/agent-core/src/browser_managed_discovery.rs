@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use ocentra_parent_agent_protocol::{constants, BrowserChannel, BrowserFamily};
 
@@ -15,6 +15,13 @@ pub struct BrowserManagedExecutableIdentity {
 pub struct BrowserUnmanagedProcessObservation {
     pub process_id: u32,
     pub process_name: String,
+    pub browser_family: BrowserFamily,
+    pub browser_channel: BrowserChannel,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct BrowserManagedInstallCandidate {
+    pub executable_path: PathBuf,
     pub browser_family: BrowserFamily,
     pub browser_channel: BrowserChannel,
 }
@@ -45,6 +52,15 @@ pub fn managed_browser_executable_identity(path: &Path) -> BrowserManagedExecuta
     }
 }
 
+pub fn installed_managed_browser_candidates(
+    candidate_paths: &[PathBuf],
+) -> Vec<BrowserManagedInstallCandidate> {
+    candidate_paths
+        .iter()
+        .filter_map(|path| installed_managed_browser_candidate(path))
+        .collect()
+}
+
 pub fn unmanaged_browser_processes(
     observations: &[ProcessObservation],
     managed_process_id: Option<u32>,
@@ -53,6 +69,22 @@ pub fn unmanaged_browser_processes(
         .iter()
         .filter_map(|observation| unmanaged_browser_process(observation, managed_process_id))
         .collect()
+}
+
+fn installed_managed_browser_candidate(path: &Path) -> Option<BrowserManagedInstallCandidate> {
+    if !path.is_file() {
+        return None;
+    }
+    let identity = managed_browser_executable_identity(path);
+    if !identity.supports_managed_cdp {
+        return None;
+    }
+
+    Some(BrowserManagedInstallCandidate {
+        executable_path: path.to_path_buf(),
+        browser_family: identity.browser_family,
+        browser_channel: identity.browser_channel,
+    })
 }
 
 fn unmanaged_browser_process(
