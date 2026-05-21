@@ -53,6 +53,19 @@ FROM activity_events
 ORDER BY observed_at DESC, event_id DESC
 LIMIT ?1;";
 
+pub const SELECT_POLICY_PREVIEW_ACTIVITY: &str = "
+SELECT
+  event_id,
+  observed_at,
+  subject_kind,
+  subject_id,
+  subject_display_name,
+  fields_json,
+  evidence_json
+FROM activity_events
+ORDER BY observed_at DESC, event_id DESC
+LIMIT ?1;";
+
 pub const SELECT_LATEST_BROWSER_ACTIVITY: &str = "
 SELECT
   event_id,

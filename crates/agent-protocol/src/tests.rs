@@ -74,6 +74,17 @@ fn websocket_command_envelope_serializes_to_typescript_contract_shape() {
 }
 
 #[test]
+fn policy_preview_command_and_event_names_serialize_to_contract_shape() {
+    let command = serde_json::to_value(AgentCommandName::AgentPolicyPreviewReadModelGet)
+        .expect("command serializes");
+    let event = serde_json::to_value(AgentEventName::AgentPolicyPreviewReadModelReported)
+        .expect("event serializes");
+
+    assert_eq!(command, "agent.policy.preview.read-model.get");
+    assert_eq!(event, "agent.policy.preview.read-model.reported");
+}
+
+#[test]
 fn local_network_route_serializes_to_typescript_contract_shape() {
     let serialized = serde_json::to_value(AgentRoute::LocalNetwork).expect("route serializes");
 

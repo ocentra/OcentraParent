@@ -4,6 +4,10 @@ use serde::{Deserialize, Serialize};
 mod policy;
 pub use policy::*;
 
+#[path = "policy_preview.rs"]
+mod policy_preview;
+pub use policy_preview::*;
+
 #[path = "local_ai.rs"]
 mod local_ai;
 pub use local_ai::*;

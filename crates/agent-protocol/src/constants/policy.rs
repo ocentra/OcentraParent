@@ -52,6 +52,12 @@ pub const REASON_MISSING_EVIDENCE: &str = "missing-evidence";
 pub const REASON_NO_MATCHING_PARENT_RULE: &str = "no-matching-parent-rule";
 pub const REASON_POLICY_CONFLICT: &str = "policy-conflict";
 
+pub const PREVIEW_CUSTODY_ACTIVITY_STORE: &str = "child-device-activity-store";
+pub const PREVIEW_CAPABILITY_READY: &str = "ready";
+pub const PREVIEW_CAPABILITY_NO_EVIDENCE: &str = "no-stored-evidence";
+pub const PREVIEW_ID_PREFIX: &str = "policy-preview-";
+pub const PREVIEW_DECISION_ID_PREFIX: &str = "policy-preview-decision-";
+
 pub const TEST_DECISION_ID: &str = "decision-1";
 pub const TEST_EVALUATED_AT: &str = "2026-05-20T20:45:00.000Z";
 pub const TEST_EXPIRES_AT: &str = "2026-05-20T21:00:00.000Z";
@@ -84,3 +90,4 @@ pub const TEST_PROMPT_VERSION: &str = "prompt-v1";
 pub const TEST_MEMORY_REFERENCE_ID: &str = "memory-1";
 pub const TEST_GRAPH_REFERENCE_ID: &str = "graph-1";
 pub const TEST_DERIVED_INDEX_VERSION: &str = "derived-index-v1";
+pub const TEST_PREVIEW_ID: &str = "policy-preview-1";
