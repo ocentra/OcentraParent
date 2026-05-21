@@ -28,7 +28,11 @@ export const LocalAiMemoryReferenceSchema = withParser(
     generatedAt: LocalAiTimestampSchema,
     confidence: LocalAiConfidenceSchema,
     derivedIndexVersion: LocalAiDerivedIndexVersionSchema,
-  })
+  }).pipe(
+    Schema.filter(
+      (reference) => reference.sourceEvidenceReferences.length > 0 || 'Expected local AI memory to cite stored evidence'
+    )
+  )
 );
 
 export const LocalAiGraphReferenceSchema = withParser(
@@ -40,7 +44,11 @@ export const LocalAiGraphReferenceSchema = withParser(
     generatedAt: LocalAiTimestampSchema,
     confidence: LocalAiConfidenceSchema,
     derivedIndexVersion: LocalAiDerivedIndexVersionSchema,
-  })
+  }).pipe(
+    Schema.filter(
+      (reference) => reference.sourceEvidenceReferences.length > 0 || 'Expected local AI graph to cite stored evidence'
+    )
+  )
 );
 
 export type LocalAiObservationReference = Infer<typeof LocalAiObservationReferenceSchema>;

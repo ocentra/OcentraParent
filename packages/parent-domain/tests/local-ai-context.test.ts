@@ -97,6 +97,7 @@ describe('local AI evidence context builder contracts', () => {
       memoryReferenceCount: 0,
       graphReferenceCount: 0,
       forbiddenCustodyReferenceCount: 0,
+      unallowedCustodyReferenceCount: 0,
     });
     expect(result.auditEvidenceReferences.map((reference) => reference.evidenceReferenceId)).toEqual([
       'stored-browser-ref-1',

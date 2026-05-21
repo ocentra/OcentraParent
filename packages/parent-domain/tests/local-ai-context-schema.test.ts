@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { LocalAiEvidenceContextSourceRefSchema } from '../src/local-ai-context';
+import { LocalAiGraphReferenceSchema, LocalAiMemoryReferenceSchema } from '../src/local-ai-references';
 
 const childProfile = { childProfileId: 'child-1', displayName: 'Sam' };
 const device = { deviceId: 'device-1', childProfileId: 'child-1', label: 'Sam Windows PC', platform: 'windows' };
@@ -52,5 +53,29 @@ describe('local AI evidence context source schema', () => {
     if (!invalidConfidence.success) {
       expect([...new Set(invalidConfidence.error.issues.map((issue) => issue.path.join('.')))]).toEqual(['confidence']);
     }
+  });
+
+  it('rejects memory and graph references without source evidence', () => {
+    const missingMemorySource = LocalAiMemoryReferenceSchema.safeParse({
+      memoryReferenceId: 'memory-schema-1',
+      kind: 'evidence-memory',
+      sourceEvidenceReferences: [],
+      sourcePolicyVersion: null,
+      generatedAt: observedAt,
+      confidence: 0.8,
+      derivedIndexVersion: 'memory-index-v1',
+    });
+    const missingGraphSource = LocalAiGraphReferenceSchema.safeParse({
+      graphReferenceId: 'graph-schema-1',
+      kind: 'graph-edge',
+      sourceEvidenceReferences: [],
+      sourcePolicyVersion: null,
+      generatedAt: observedAt,
+      confidence: 0.8,
+      derivedIndexVersion: 'graph-index-v1',
+    });
+
+    expect(missingMemorySource.success).toBe(false);
+    expect(missingGraphSource.success).toBe(false);
   });
 });
