@@ -24,6 +24,7 @@ pub struct BrowserBridgePollConfig {
 #[derive(Clone, Debug, PartialEq)]
 pub struct BrowserBridgePollSnapshot {
     pub browser_version: Option<String>,
+    pub page_target_count: usize,
     pub events: Vec<ActivityEvent>,
 }
 
@@ -63,6 +64,7 @@ pub fn poll_chromium_bridge(
 
     Ok(BrowserBridgePollSnapshot {
         browser_version,
+        page_target_count: events.len(),
         events,
     })
 }

@@ -34,9 +34,33 @@ pub fn profile_missing_status(checked_at: String) -> BrowserManagedSessionStatus
     status
 }
 
-pub fn running_managed_status(checked_at: String, process_id: u32) -> BrowserManagedSessionStatus {
+pub fn unmanaged_browser_status(
+    checked_at: String,
+    process_id: u32,
+    browser_family: BrowserFamily,
+    browser_channel: BrowserChannel,
+) -> BrowserManagedSessionStatus {
+    let mut status = missing_browser_status(checked_at);
+    status.process_id = Some(process_id);
+    status.browser_family = Some(browser_family);
+    status.browser_channel = Some(browser_channel);
+    status.managed_state = BrowserManagedState::InstalledUnsupported;
+    status.capability_status = BrowserCapabilityStatus::UnmanagedBrowser;
+    status.degraded_reason = Some(constants::value::MANAGED_BROWSER_UNMANAGED_PROCESS.to_string());
+    status.custody_label = BrowserCustodyLabel::ChildDeviceLocal;
+    status
+}
+
+pub fn running_managed_status(
+    checked_at: String,
+    process_id: u32,
+    browser_family: BrowserFamily,
+    browser_channel: BrowserChannel,
+) -> BrowserManagedSessionStatus {
     let mut status = base_managed_status(checked_at);
     status.process_id = Some(process_id);
+    status.browser_family = Some(browser_family);
+    status.browser_channel = Some(browser_channel);
     status.managed_state = BrowserManagedState::RunningManaged;
     status.capability_status = BrowserCapabilityStatus::BridgeMissing;
     status.started_at = Some(status.checked_at.clone());
