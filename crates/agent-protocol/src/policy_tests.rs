@@ -1,6 +1,7 @@
 use crate::constants;
 use crate::{
-    LocalAiCapabilityFlag, LocalAiDegradedState, LocalAiModelLoadState, LocalAiResourceClass,
+    LocalAiAdapterBoundary, LocalAiCapabilityFlag, LocalAiDegradedState, LocalAiExecutionState,
+    LocalAiModelLoadState, LocalAiProviderPrivacyMode, LocalAiProviderSource, LocalAiResourceClass,
     LocalModelRuntimeStatus,
 };
 
@@ -158,6 +159,10 @@ fn local_ai_result(
             provider_id: policy::TEST_PROVIDER_ID.to_string(),
             model_id: policy::TEST_MODEL_ID.to_string(),
             model_reference: policy::TEST_MODEL_REFERENCE.to_string(),
+            privacy_mode: LocalAiProviderPrivacyMode::LocalOnly,
+            adapter_boundary: LocalAiAdapterBoundary::LocalAdapterReady,
+            execution_state: LocalAiExecutionState::DryRunReady,
+            provider_source: LocalAiProviderSource::LocalModelCache,
             load_state: LocalAiModelLoadState::Loaded,
             capability_flags: vec![LocalAiCapabilityFlag::SafetyDecision],
             resource_class: LocalAiResourceClass::Cpu,

@@ -1,9 +1,11 @@
 use ocentra_parent_agent_protocol::{
-    policy_constants as policy, LocalAiCapabilityFlag, LocalAiDegradedState, LocalAiGraphReference,
-    LocalAiGraphReferenceKind, LocalAiMemoryReference, LocalAiMemoryReferenceKind,
-    LocalAiModelLoadState, LocalAiResourceClass, LocalAiSafetyResult, LocalAiUnknownState,
-    LocalModelRuntimeStatus, ParentActorReference, ParentActorRole, ParentEvidenceReference,
-    ParentEvidenceReferenceKind, PolicyAction, PolicyRule, PolicyTarget, PolicyTargetType,
+    policy_constants as policy, LocalAiAdapterBoundary, LocalAiCapabilityFlag,
+    LocalAiDegradedState, LocalAiExecutionState, LocalAiGraphReference, LocalAiGraphReferenceKind,
+    LocalAiMemoryReference, LocalAiMemoryReferenceKind, LocalAiModelLoadState,
+    LocalAiProviderPrivacyMode, LocalAiProviderSource, LocalAiResourceClass, LocalAiSafetyResult,
+    LocalAiUnknownState, LocalModelRuntimeStatus, ParentActorReference, ParentActorRole,
+    ParentEvidenceReference, ParentEvidenceReferenceKind, PolicyAction, PolicyRule, PolicyTarget,
+    PolicyTargetType,
 };
 
 use super::PolicyDryRunEvaluationInput;
@@ -95,6 +97,10 @@ pub(crate) fn local_ai_result(
             provider_id: policy::TEST_PROVIDER_ID.to_string(),
             model_id: policy::TEST_MODEL_ID.to_string(),
             model_reference: policy::TEST_MODEL_REFERENCE.to_string(),
+            privacy_mode: LocalAiProviderPrivacyMode::LocalOnly,
+            adapter_boundary: LocalAiAdapterBoundary::LocalAdapterReady,
+            execution_state: LocalAiExecutionState::DryRunReady,
+            provider_source: LocalAiProviderSource::LocalModelCache,
             load_state: LocalAiModelLoadState::Loaded,
             capability_flags: vec![LocalAiCapabilityFlag::SafetyDecision],
             resource_class: LocalAiResourceClass::Cpu,

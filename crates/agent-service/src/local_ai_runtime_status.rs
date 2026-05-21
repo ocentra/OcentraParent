@@ -1,6 +1,7 @@
 use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, LocalAiDegradedState,
-    LocalAiModelLoadState, LocalAiResourceClass, LocalModelRuntimeStatus, LogLevel,
+    constants, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, LocalAiAdapterBoundary,
+    LocalAiDegradedState, LocalAiExecutionState, LocalAiModelLoadState, LocalAiProviderPrivacyMode,
+    LocalAiProviderSource, LocalAiResourceClass, LocalModelRuntimeStatus, LogLevel,
 };
 
 use crate::{
@@ -15,6 +16,10 @@ pub fn unavailable_local_ai_runtime_status(checked_at: String) -> LocalModelRunt
         provider_id: constants::local_ai_runtime::PROVIDER_ID_UNCONFIGURED.to_string(),
         model_id: constants::local_ai_runtime::MODEL_ID_UNCONFIGURED.to_string(),
         model_reference: constants::local_ai_runtime::MODEL_REFERENCE_UNCONFIGURED.to_string(),
+        privacy_mode: LocalAiProviderPrivacyMode::LocalOnly,
+        adapter_boundary: LocalAiAdapterBoundary::LocalAdapterUnavailable,
+        execution_state: LocalAiExecutionState::Disabled,
+        provider_source: LocalAiProviderSource::Unavailable,
         load_state: LocalAiModelLoadState::Unavailable,
         capability_flags: vec![],
         resource_class: LocalAiResourceClass::Cpu,

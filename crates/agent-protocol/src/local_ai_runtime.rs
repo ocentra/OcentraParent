@@ -1,6 +1,10 @@
 use serde::{Deserialize, Serialize};
 
 use crate::constants;
+use crate::{
+    LocalAiAdapterBoundary, LocalAiExecutionState, LocalAiProviderPrivacyMode,
+    LocalAiProviderSource,
+};
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum LocalAiModelLoadState {
@@ -107,18 +111,16 @@ pub struct LocalModelRuntimeStatus {
     pub provider_id: String,
     pub model_id: String,
     pub model_reference: String,
+    pub privacy_mode: LocalAiProviderPrivacyMode,
+    pub adapter_boundary: LocalAiAdapterBoundary,
+    pub execution_state: LocalAiExecutionState,
+    pub provider_source: LocalAiProviderSource,
     pub load_state: LocalAiModelLoadState,
     pub capability_flags: Vec<LocalAiCapabilityFlag>,
     pub resource_class: LocalAiResourceClass,
     pub degraded_state: LocalAiDegradedState,
     pub last_checked_at: String,
     pub unavailable_reason: Option<String>,
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub enum LocalAiProviderPrivacyMode {
-    #[serde(rename = "local-only")]
-    LocalOnly,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
