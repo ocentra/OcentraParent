@@ -85,6 +85,7 @@ export const LocalAiEvidenceContextValidationSummarySchema = withParser(
     memoryReferenceCount: LocalAiContextNonNegativeCountSchema,
     graphReferenceCount: LocalAiContextNonNegativeCountSchema,
     forbiddenCustodyReferenceCount: LocalAiContextNonNegativeCountSchema,
+    unallowedCustodyReferenceCount: LocalAiContextNonNegativeCountSchema,
   })
 );
 

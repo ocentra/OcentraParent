@@ -11,12 +11,16 @@ import {
   type LocalAiEvidenceContextKind,
   type LocalAiEvidenceContextRefId,
   type LocalAiEvidenceContextSummary,
-  type LocalAiEvidenceContextSourceRef,
   type LocalAiEvidenceContextValidationSummary,
-  type LocalAiEvidenceCustody,
   type LocalAiRejectedField,
   type LocalAiStoredEvidenceContextBuildInput,
 } from './local-ai-context';
+import {
+  refIdsForKind,
+  selectLocalAiEvidenceContextInput,
+  uniqueCustodyLabels,
+  uniqueReasonCodes,
+} from './local-ai-context-selection';
 
 const decodeRejectedField = Schema.decodeUnknownSync(LocalAiRejectedFieldSchema);
 const decodeContextSummary = Schema.decodeUnknownSync(LocalAiEvidenceContextSummarySchema);
@@ -34,29 +38,10 @@ const StoredEvidenceSummary = decodeContextSummary('context uses only child-devi
 const PartialContextGate = decodeContextSummary('partial context built with explicit missing evidence kinds');
 const ReadyContextGate = decodeContextSummary('ready stored-evidence context for local-only model input');
 
-function refIdsForKind(
-  evidenceReferences: readonly LocalAiEvidenceContextSourceRef[],
-  evidenceKind: LocalAiEvidenceContextKind
-): LocalAiEvidenceContextRefId[] {
-  return evidenceReferences
-    .filter((reference) => reference.evidenceKind === evidenceKind)
-    .map((reference) => reference.evidenceRefId);
-}
-
-function uniqueCustodyLabels(evidenceReferences: readonly LocalAiEvidenceContextSourceRef[]): LocalAiEvidenceCustody[] {
-  return [...new Set(evidenceReferences.map((reference) => reference.custody))];
-}
-
-function uniqueReasonCodes(
-  evidenceReferences: readonly LocalAiEvidenceContextSourceRef[],
-  reasonKey: 'degradedReasons' | 'unknownReasons'
-): LocalAiContextReasonCode[] {
-  return [...new Set(evidenceReferences.flatMap((reference) => reference[reasonKey]))];
-}
-
 function validationSummary(
   input: LocalAiStoredEvidenceContextBuildInput,
-  forbiddenCustodyReferenceCount: number
+  forbiddenCustodyReferenceCount: number,
+  unallowedCustodyReferenceCount: number
 ): LocalAiEvidenceContextValidationSummary {
   const sourceEvidenceReferenceCount = input.evidenceReferences.reduce(
     (count, reference) => count + reference.sourceEvidenceReferences.length,
@@ -69,12 +54,15 @@ function validationSummary(
     memoryReferenceCount: input.memoryReferences.length,
     graphReferenceCount: input.graphReferences.length,
     forbiddenCustodyReferenceCount,
+    unallowedCustodyReferenceCount,
   };
 }
 
 function contextForInput(
   input: LocalAiStoredEvidenceContextBuildInput,
-  forbiddenCustodyReferenceCount: number
+  forbiddenCustodyReferenceCount: number,
+  unallowedCustodyReferenceCount: number,
+  additionalDegradedReasons: readonly LocalAiContextReasonCode[]
 ): LocalAiEvidenceContext {
   return {
     schemaVersion: input.request.schemaVersion,
@@ -94,9 +82,9 @@ function contextForInput(
     localModelRuntimeRefs: input.runtimeReferences.map((reference) => reference.runtimeReferenceId),
     promptVersion: input.request.promptVersion,
     custodyLabels: uniqueCustodyLabels(input.evidenceReferences),
-    degradedReasons: uniqueReasonCodes(input.evidenceReferences, 'degradedReasons'),
+    degradedReasons: uniqueReasonCodes(input.evidenceReferences, 'degradedReasons', additionalDegradedReasons),
     unknownReasons: uniqueReasonCodes(input.evidenceReferences, 'unknownReasons'),
-    validationSummary: validationSummary(input, forbiddenCustodyReferenceCount),
+    validationSummary: validationSummary(input, forbiddenCustodyReferenceCount, unallowedCustodyReferenceCount),
   };
 }
 
@@ -126,64 +114,69 @@ function resultFor(
 
 export function buildLocalAiEvidenceContext(input: unknown): LocalAiEvidenceContextBuildResult {
   const parsed = LocalAiStoredEvidenceContextBuildInputSchema.parse(input);
-  const forbiddenCustodyReferences = parsed.evidenceReferences.filter(
-    (reference) => reference.custody === 'ocentra-hosted-non-activity'
-  );
-  if (forbiddenCustodyReferences.length > 0) {
+  const selection = selectLocalAiEvidenceContextInput(parsed);
+  if (selection.forbiddenCustodyReferences.length > 0) {
     return resultFor(
       parsed,
       'rejected',
       null,
       [EvidenceReferencesField],
       [],
-      forbiddenCustodyReferences.map((reference) => reference.evidenceRefId),
+      selection.forbiddenCustodyReferences.map((reference) => reference.evidenceRefId),
       HostedCustodySummary,
       HostedCustodyGate
     );
   }
-  const allowedCustody = new Set(parsed.request.allowedCustody);
-  const unallowedCustodyReferences = parsed.evidenceReferences.filter(
-    (reference) => !allowedCustody.has(reference.custody)
-  );
-  if (unallowedCustodyReferences.length > 0) {
+  const selectedInput: LocalAiStoredEvidenceContextBuildInput = {
+    ...parsed,
+    evidenceReferences: selection.selectedEvidenceReferences,
+    runtimeReferences: selection.selectedRuntimeReferences,
+    memoryReferences: selection.selectedMemoryReferences,
+    graphReferences: selection.selectedGraphReferences,
+  };
+  if (selectedInput.evidenceReferences.length === 0 && selection.unallowedCustodyReferences.length > 0) {
     return resultFor(
       parsed,
       'rejected',
       null,
       [EvidenceReferencesField],
-      [],
-      unallowedCustodyReferences.map((reference) => reference.evidenceRefId),
+      selection.missingEvidenceKinds,
+      selection.degradedSourceRefs,
       UnallowedCustodySummary,
       UnallowedCustodyGate
     );
   }
 
-  const missingEvidenceKinds = parsed.request.requiredEvidenceKinds.filter(
-    (evidenceKind) => refIdsForKind(parsed.evidenceReferences, evidenceKind).length === 0
-  );
   const context =
-    parsed.evidenceReferences.length > 0 ? contextForInput(parsed, forbiddenCustodyReferences.length) : null;
-  if (parsed.evidenceReferences.length === 0) {
+    selectedInput.evidenceReferences.length > 0
+      ? contextForInput(
+          selectedInput,
+          selection.forbiddenCustodyReferences.length,
+          selection.unallowedCustodyReferences.length,
+          selection.additionalDegradedReasons
+        )
+      : null;
+  if (selectedInput.evidenceReferences.length === 0) {
     return resultFor(
       parsed,
       'insufficient',
       null,
       [],
-      missingEvidenceKinds,
+      selection.missingEvidenceKinds,
       [],
       NoEvidenceSummary,
       InsufficientEvidenceGate
     );
   }
-  if (missingEvidenceKinds.length > 0) {
+  if (selection.missingEvidenceKinds.length > 0 || selection.additionalDegradedReasons.length > 0) {
     return resultFor(
       parsed,
       'partial',
       context,
-      [],
-      missingEvidenceKinds,
-      [],
-      StoredEvidenceSummary,
+      selection.unallowedCustodyReferences.length > 0 ? [EvidenceReferencesField] : [],
+      selection.missingEvidenceKinds,
+      selection.degradedSourceRefs,
+      selection.unallowedCustodyReferences.length > 0 ? UnallowedCustodySummary : StoredEvidenceSummary,
       PartialContextGate
     );
   }
