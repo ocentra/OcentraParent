@@ -25,11 +25,16 @@ describe('portal domain contracts', () => {
     expect(PortalCommandButtons.map((button) => button.resultEvent)).toContain(
       'agent.activity.recent.summary.reported'
     );
+    expect(PortalCommandButtons.map((button) => button.command)).toContain('agent.browser.evidence.recent.get');
+    expect(PortalCommandButtons.map((button) => button.resultEvent)).toContain(
+      'agent.browser.evidence.recent.reported'
+    );
     expect(PortalOverviewCommands.map((button) => button.command)).toEqual([
       'agent.health.check',
       'agent.log.snapshot.get',
       'agent.activity.ingest.status.get',
       'agent.activity.recent.summary.get',
+      'agent.browser.evidence.recent.get',
     ]);
   });
 

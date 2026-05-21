@@ -1,4 +1,9 @@
 import {
+  BrowserEvidenceRecentSummarySchema,
+  BrowserEvidenceSchemaVersion,
+  type BrowserEvidenceRecentSummary,
+} from '@ocentra-parent/activity-domain/browser';
+import {
   ActivityIngestStatusSchema,
   ActivityQuerySchemaVersion,
   ActivityRecentSummarySchema,
@@ -18,17 +23,23 @@ export interface PortalLiveActivityState {
   readonly ingestStatus: ActivityIngestStatus | null;
   readonly recentSummaryEvent: AgentEventEnvelope | null;
   readonly recentSummary: ActivityRecentSummary | null;
+  readonly browserEvidenceEvent: AgentEventEnvelope | null;
+  readonly browserEvidenceSummary: BrowserEvidenceRecentSummary | null;
 }
 
 export function resolveLiveActivityState(events: readonly AgentEventEnvelope[]): PortalLiveActivityState {
   const ingestEvent = latestEvent(events, AgentEvent.ActivityIngestStatusReported);
   const recentSummaryEvent = latestEvent(events, AgentEvent.ActivityRecentSummaryReported);
+  const browserEvidenceEvent = latestEvent(events, AgentEvent.BrowserEvidenceRecentReported);
 
   return {
     ingestEvent,
     ingestStatus: ingestEvent === null ? null : parseIngestStatus(ingestEvent.payload),
     recentSummaryEvent,
     recentSummary: recentSummaryEvent === null ? null : parseRecentSummary(recentSummaryEvent.payload),
+    browserEvidenceEvent,
+    browserEvidenceSummary:
+      browserEvidenceEvent === null ? null : parseBrowserEvidenceSummary(browserEvidenceEvent.payload),
   };
 }
 
@@ -65,6 +76,32 @@ function parseRecentSummary(payload: AgentProtocolLogFields): ActivityRecentSumm
     mostRecentSubjectKind: payload[AgentProtocolDefaults.Field.MostRecentSubjectKind],
     mostRecentSubjectId: payload[AgentProtocolDefaults.Field.MostRecentSubjectId],
     mostRecentSubjectName: payload[AgentProtocolDefaults.Field.MostRecentSubjectName],
+  });
+
+  if (!parsed.success) {
+    return null;
+  }
+  return parsed.data;
+}
+
+function parseBrowserEvidenceSummary(payload: AgentProtocolLogFields): BrowserEvidenceRecentSummary | null {
+  const parsed = BrowserEvidenceRecentSummarySchema.safeParse({
+    schemaVersion: BrowserEvidenceSchemaVersion,
+    returned: payload[AgentProtocolDefaults.Field.Returned],
+    latestEventId: payload[AgentProtocolDefaults.Field.LatestEventId],
+    latestObservedAt: payload[AgentProtocolDefaults.Field.LatestObservedAt],
+    browserEvidenceId: payload[AgentProtocolDefaults.Field.BrowserEvidenceId],
+    sourceId: payload[AgentProtocolDefaults.Field.SourceId],
+    adapterId: payload[AgentProtocolDefaults.Field.AdapterId],
+    managedBrowserSessionId: payload[AgentProtocolDefaults.Field.ManagedBrowserSessionId],
+    browserFamily: payload[AgentProtocolDefaults.Field.BrowserFamily],
+    activeState: payload[AgentProtocolDefaults.Field.ActiveState],
+    url: payload[AgentProtocolDefaults.Field.Url],
+    origin: payload[AgentProtocolDefaults.Field.Origin],
+    domain: payload[AgentProtocolDefaults.Field.Domain],
+    title: payload[AgentProtocolDefaults.Field.Title],
+    capabilityStatus: payload[AgentProtocolDefaults.Field.CapabilityStatus],
+    custodyLabel: payload[AgentProtocolDefaults.Field.CustodyLabel],
   });
 
   if (!parsed.success) {

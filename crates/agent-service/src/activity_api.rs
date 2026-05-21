@@ -6,7 +6,8 @@ use ocentra_parent_agent_protocol::{
 
 use crate::{
     activity_payload::{
-        activity_store_error_payload, ingest_status_payload, recent_summary_payload,
+        activity_store_error_payload, browser_evidence_recent_payload, ingest_status_payload,
+        recent_summary_payload,
     },
     activity_store_path::activity_db_path,
     event_builder::build_event,
@@ -54,6 +55,27 @@ pub async fn build_activity_recent_summary_report(
     }
 }
 
+pub async fn build_browser_evidence_recent_report(
+    command: AgentCommandEnvelope,
+) -> AgentEventEnvelope {
+    match load_browser_evidence_recent_summary().await {
+        Some(summary) => build_event(
+            constants::event_id::BROWSER_EVIDENCE_RECENT_REPORTED,
+            &command.message_id,
+            command.source,
+            AgentEventName::AgentBrowserEvidenceRecentReported,
+            LogLevel::Info,
+            browser_evidence_recent_payload(&summary),
+            None,
+        ),
+        None => activity_store_error_event(
+            command,
+            constants::event_id::BROWSER_EVIDENCE_RECENT_REPORTED,
+            AgentEventName::AgentBrowserEvidenceRecentReported,
+        ),
+    }
+}
+
 async fn load_activity_ingest_status() -> Option<ActivityIngestStatus> {
     let path = activity_db_path();
     tokio::task::spawn_blocking(move || {
@@ -72,6 +94,18 @@ async fn load_activity_recent_summary() -> Option<ActivityRecentSummary> {
         store
             .recent_summary(constants::activity_store::DEFAULT_RECENT_LIMIT)
             .ok()
+    })
+    .await
+    .ok()
+    .flatten()
+}
+
+async fn load_browser_evidence_recent_summary(
+) -> Option<ocentra_parent_agent_protocol::BrowserEvidenceRecentSummary> {
+    let path = activity_db_path();
+    tokio::task::spawn_blocking(move || {
+        let store = ActivityStore::open(path).ok()?;
+        store.browser_recent_summary().ok()
     })
     .await
     .ok()

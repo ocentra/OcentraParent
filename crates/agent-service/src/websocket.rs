@@ -5,7 +5,10 @@ use ocentra_parent_agent_protocol::{
 };
 
 use crate::{
-    activity_api::{build_activity_ingest_status_report, build_activity_recent_summary_report},
+    activity_api::{
+        build_activity_ingest_status_report, build_activity_recent_summary_report,
+        build_browser_evidence_recent_report,
+    },
     event_builder::{build_event, portal_peer},
     fields::fields_from_pairs,
     snapshot::build_dev_log_snapshot,
@@ -90,6 +93,9 @@ async fn handle_command(command: AgentCommandEnvelope) -> AgentEventEnvelope {
         }
         AgentCommandName::AgentActivityRecentSummaryGet => {
             build_activity_recent_summary_report(command).await
+        }
+        AgentCommandName::AgentBrowserEvidenceRecentGet => {
+            build_browser_evidence_recent_report(command).await
         }
     }
 }

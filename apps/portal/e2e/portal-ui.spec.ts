@@ -24,6 +24,7 @@ async function assertCommandControls(page: Page): Promise<void> {
   await expect(page.getByRole('button', { name: 'Get watcher status' })).toBeEnabled();
   await expect(page.getByRole('button', { name: 'Get activity ingest status' })).toBeEnabled();
   await expect(page.getByRole('button', { name: 'Get recent activity summary' })).toBeEnabled();
+  await expect(page.getByRole('button', { name: 'Get browser evidence' })).toBeEnabled();
   await expect(page.getByRole('heading', { name: 'Command result' })).toBeVisible();
   await expect(page.locator('.summary')).toHaveCount(1);
 }
@@ -55,6 +56,10 @@ async function assertTabbedCommandResults(page: Page): Promise<void> {
   await page.getByRole('button', { name: 'Get recent activity summary' }).click();
   await expect(commandResult.getByText('agent.activity.recent.summary.reported')).toHaveCount(1);
   await expect(commandResult.locator('.log')).toHaveCount(1);
+  await page.getByRole('button', { name: 'Get browser evidence' }).click();
+  await page.getByRole('button', { name: 'Get browser evidence' }).click();
+  await expect(commandResult.getByText('agent.browser.evidence.recent.reported')).toHaveCount(1);
+  await expect(commandResult.locator('.log')).toHaveCount(1);
   await page.getByRole('button', { name: 'Check health' }).click();
   await expect(commandResult.getByText('agent.health.reported')).toHaveCount(1);
   await expect(commandResult.locator('.log')).toHaveCount(1);
@@ -71,6 +76,7 @@ async function assertRawEventLog(page: Page): Promise<void> {
   await expect(page.getByText('agent.watch.status.reported')).toHaveCount(2);
   await expect(page.getByText('agent.activity.ingest.status.reported')).toHaveCount(3);
   await expect(page.getByText('agent.activity.recent.summary.reported')).toHaveCount(3);
+  await expect(page.getByText('agent.browser.evidence.recent.reported')).toHaveCount(3);
 }
 
 async function assertOverview(page: Page): Promise<void> {
@@ -78,6 +84,7 @@ async function assertOverview(page: Page): Promise<void> {
   await expect(page.getByRole('heading', { name: 'Live activity' })).toBeVisible();
   await expect(page.getByText('Agent WebSocket connected')).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Evidence store' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Browser evidence' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Recent activity' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Device diagnostics' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Activity timeline' })).toBeVisible();
@@ -85,8 +92,11 @@ async function assertOverview(page: Page): Promise<void> {
   await expect(
     page.locator('dt').filter({ hasText: 'Events stored' }).locator('xpath=following-sibling::dd[1]')
   ).toHaveText(/\d+/u);
+  const recentActivity = page
+    .locator('section.summary')
+    .filter({ has: page.getByRole('heading', { name: 'Recent activity' }) });
   await expect(
-    page.locator('dt').filter({ hasText: 'Rows returned' }).locator('xpath=following-sibling::dd[1]')
+    recentActivity.locator('dt').filter({ hasText: 'Rows returned' }).locator('xpath=following-sibling::dd[1]')
   ).toHaveText(/\d+/u);
   await expect(page.getByRole('heading', { name: 'Latest agent snapshot' })).toBeVisible();
   await expect(page.locator('dt').filter({ hasText: 'Device' }).locator('xpath=following-sibling::dd[1]')).toHaveText(

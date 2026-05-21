@@ -3,7 +3,9 @@ use super::{
     ActivityEventKind, ActivityEvidenceKind, ActivityEvidenceRef, ActivityNetworkProtocol,
     ActivityNetworkTcpState, ActivityObservationMode, ActivityObserver,
     ActivityProcessAttributionStatus, ActivitySource, ActivitySubject, ActivitySubjectKind,
-    LogFieldValue, LogFields, ACTIVITY_SCHEMA_VERSION,
+    BrowserActiveTabState, BrowserCapabilityStatus, BrowserChannel, BrowserCustodyLabel,
+    BrowserEvidenceRecentSummary, BrowserFamily, LogFieldValue, LogFields, ACTIVITY_SCHEMA_VERSION,
+    BROWSER_EVIDENCE_SCHEMA_VERSION,
 };
 
 #[test]
@@ -100,5 +102,71 @@ fn network_domain_values_serialize_to_typescript_contract_shape() {
     assert_eq!(
         process_status,
         constants::activity_capture::PROCESS_ATTRIBUTION_STATUS_ATTRIBUTED
+    );
+}
+
+#[test]
+fn browser_evidence_values_serialize_to_typescript_contract_shape() {
+    let family =
+        serde_json::to_value(BrowserFamily::Edge).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let channel = serde_json::to_value(BrowserChannel::Stable)
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let active_state = serde_json::to_value(BrowserActiveTabState::Unknown)
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let capability = serde_json::to_value(BrowserCapabilityStatus::TabListOnly)
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let custody = serde_json::to_value(BrowserCustodyLabel::ChildDeviceLocal)
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+
+    assert_eq!(family, constants::browser::FAMILY_EDGE);
+    assert_eq!(channel, constants::browser::CHANNEL_STABLE);
+    assert_eq!(active_state, constants::browser::ACTIVE_STATE_UNKNOWN);
+    assert_eq!(
+        capability,
+        constants::browser::CAPABILITY_STATUS_TAB_LIST_ONLY
+    );
+    assert_eq!(custody, constants::browser::CUSTODY_CHILD_DEVICE_LOCAL);
+    assert_eq!(
+        ActivityObserver::ManagedBrowserBridge.as_protocol_str(),
+        constants::activity_observer::MANAGED_BROWSER_BRIDGE
+    );
+    assert_eq!(
+        ActivityObserver::from_protocol_str(constants::activity_observer::MANAGED_BROWSER_BRIDGE),
+        Some(ActivityObserver::ManagedBrowserBridge)
+    );
+}
+
+#[test]
+fn browser_evidence_recent_summary_serializes_to_contract_shape() {
+    let summary = BrowserEvidenceRecentSummary {
+        schema_version: BROWSER_EVIDENCE_SCHEMA_VERSION,
+        returned: 1,
+        latest_event_id: Some(constants::browser::EVENT_ID_PREFIX.to_string()),
+        latest_observed_at: Some(constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string()),
+        browser_evidence_id: Some(constants::browser::EVIDENCE_ID_PREFIX.to_string()),
+        source_id: Some(constants::browser::SOURCE_ID_MANAGED_CHROMIUM_DEVTOOLS.to_string()),
+        adapter_id: Some(constants::browser::ADAPTER_ID_MANAGED_CHROMIUM_DEVTOOLS.to_string()),
+        managed_browser_session_id: Some(constants::browser::SESSION_ID_DEV.to_string()),
+        browser_family: Some(constants::browser::FAMILY_EDGE.to_string()),
+        active_state: Some(constants::browser::ACTIVE_STATE_UNKNOWN.to_string()),
+        url: Some(constants::activity_store::TEST_BROWSER_URL.to_string()),
+        origin: Some(constants::activity_store::TEST_BROWSER_ORIGIN.to_string()),
+        domain: Some(constants::activity_store::TEST_BROWSER_DOMAIN.to_string()),
+        title: Some(constants::activity_store::TEST_BROWSER_TITLE.to_string()),
+        capability_status: Some(constants::browser::CAPABILITY_STATUS_TAB_LIST_ONLY.to_string()),
+        custody_label: Some(constants::browser::CUSTODY_CHILD_DEVICE_LOCAL.to_string()),
+    };
+
+    let serialized = serde_json::to_value(summary).expect(constants::error::AGENT_EVENT_SERIALIZES);
+
+    assert_eq!(serialized["schemaVersion"], BROWSER_EVIDENCE_SCHEMA_VERSION);
+    assert_eq!(serialized["browserFamily"], constants::browser::FAMILY_EDGE);
+    assert_eq!(
+        serialized["url"],
+        constants::activity_store::TEST_BROWSER_URL
+    );
+    assert_eq!(
+        serialized["capabilityStatus"],
+        constants::browser::CAPABILITY_STATUS_TAB_LIST_ONLY
     );
 }

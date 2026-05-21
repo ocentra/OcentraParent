@@ -36,6 +36,7 @@ pub mod event_id {
     pub const WATCH_STATUS_REPORTED: &str = "watch-status-reported";
     pub const ACTIVITY_INGEST_STATUS_REPORTED: &str = "activity-ingest-status-reported";
     pub const ACTIVITY_RECENT_SUMMARY_REPORTED: &str = "activity-recent-summary-reported";
+    pub const BROWSER_EVIDENCE_RECENT_REPORTED: &str = "browser-evidence-recent-reported";
     pub const DEV_LOCALHOST_API_READY: &str = "dev-localhost-api-ready";
     pub const UNKNOWN_COMMAND: &str = "unknown-command";
 }
@@ -81,6 +82,8 @@ pub mod activity_observer;
 pub mod activity_store;
 #[path = "constants/activity_subject_kind.rs"]
 pub mod activity_subject_kind;
+#[path = "constants/browser.rs"]
+pub mod browser;
 
 #[path = "constants/sqlite.rs"]
 pub mod sqlite;
@@ -109,6 +112,8 @@ pub mod error {
         "activity capture rejects invalid journal key";
     pub const NETWORK_CAPTURE_OBSERVES_SOCKET: &str =
         "network capture observes the current process socket";
+    pub const BROWSER_BRIDGE_MAPS_TARGET: &str = "browser bridge maps target";
+    pub const BROWSER_BRIDGE_REJECTS_INVALID_URL: &str = "browser bridge rejects invalid URL";
 }
 
 pub mod delimiter {
@@ -119,6 +124,8 @@ pub mod delimiter {
     pub const LIST: char = ',';
     pub const NEWLINE: char = '\n';
     pub const OPEN_BRACKET: char = '[';
+    pub const SLASH: char = '/';
+    pub const AT: char = '@';
 }
 
 pub mod test_network {

@@ -12,6 +12,8 @@ pub enum ActivityObserver {
     WindowsWindow,
     #[serde(rename = "windows-network")]
     WindowsNetwork,
+    #[serde(rename = "managed-browser-bridge")]
+    ManagedBrowserBridge,
     #[serde(rename = "browser-extension")]
     BrowserExtension,
     #[serde(rename = "local-ai")]

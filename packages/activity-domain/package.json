@@ -9,6 +9,10 @@
       "import": "./dist/contracts.js",
       "types": "./dist/contracts.d.ts"
     },
+    "./browser": {
+      "import": "./dist/browser.js",
+      "types": "./dist/browser.d.ts"
+    },
     "./capture": {
       "import": "./dist/capture.js",
       "types": "./dist/capture.d.ts"
