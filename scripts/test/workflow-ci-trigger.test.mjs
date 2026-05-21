@@ -10,14 +10,12 @@ function readCiWorkflow() {
   return readFileSync(ciWorkflowPath, 'utf8');
 }
 
-test('CI gate ignores documentation-only pull requests and pushes', () => {
+test('CI gate runs for documentation and expectation changes', () => {
   const workflow = readCiWorkflow();
 
-  assert.match(
-    workflow,
-    /pull_request:\s+branches:\s+- main\s+- production\s+paths-ignore:\s+- '\*\*\/\*\.md'\s+- 'docs\/\*\*'/u
-  );
-  assert.match(workflow, /push:\s+branches:\s+- main\s+paths-ignore:\s+- '\*\*\/\*\.md'\s+- 'docs\/\*\*'/u);
+  assert.match(workflow, /pull_request:\s+branches:\s+- main\s+- production/u);
+  assert.match(workflow, /push:\s+branches:\s+- main/u);
+  assert.equal(workflow.includes('paths-ignore'), false);
 });
 
 test('CI gate builds package previews but does not publish releases from main', () => {

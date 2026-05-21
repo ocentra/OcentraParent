@@ -3,7 +3,8 @@
 Platform claims must match real OS capabilities. Scaffolded support is not the same as product support.
 
 For the deliverable matrix, CI strategy, and pre-AI platform checkpoint, also
-read [platform deliverables expectations](platform-deliverables.md).
+read [platform deliverables expectations](platform-deliverables.md) and
+[real evidence proof expectations](real-evidence-proof.md).
 
 ## Cross-Platform Claim Rule
 
@@ -26,6 +27,9 @@ behavior belongs behind platform adapters and must be proved per platform.
 - Before starting more AI or enforcement work, run a cross-platform planning
   checkpoint that separates implemented, scaffold-only, unavailable, blocked,
   and degraded behavior for each deliverable platform.
+- Hosted CI proves repeatable mechanics. Real machines and provisioned devices
+  prove privileged OS/device capabilities before product claims call them fully
+  working.
 
 ## Windows
 
@@ -104,6 +108,7 @@ behavior belongs behind platform adapters and must be proved per platform.
 ## Validation Gates
 
 - Platform claim matrix in release notes or feature handoff for each completed platform-facing slice.
+- Pre-AI proof matrix entry for each completed runtime claim.
 - Real package install or launch smoke for scaffold claims.
 - Real OS capability tests, guarded integration tests, or documented manual evidence for capture, network/domain observation, pairing, enforcement, notifications, and background behavior.
 - Contract and Rust parity tests for every platform event or command shape.

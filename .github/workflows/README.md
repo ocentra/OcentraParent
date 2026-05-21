@@ -6,10 +6,11 @@ The pipeline uses the same modular shape as other Ocentra repositories, scaled t
 graph LR
   FF["Fail Fast<br/>format, lint, types, Rust check"] --> SS["Secret Scan<br/>custom scanner + Gitleaks"]
   SS --> DP["Dependency Policy<br/>npm audit, cargo audit, SBOM"]
-  SS --> V["Validate<br/>tests, Rust, local smoke, LAN smoke"]
+  SS --> V["Validate<br/>proof matrix, tests, Rust, local smoke, LAN smoke"]
+  V --> E2E["Desktop E2E<br/>real portal to Rust on Windows, Linux, macOS"]
   SS --> B["Build<br/>portal and packages"]
   DP --> P["Package Preview<br/>install and launch smoke"]
-  V --> P
+  E2E --> P
   B --> P
   P --> RD["Release Decision<br/>missing version tag only"]
   RD --> R["Production Release<br/>production branch only"]
@@ -21,7 +22,7 @@ graph LR
 - `fail-fast.yml`: catches broken formatting, lint, TypeScript, and Rust check failures early.
 - `secret-scan.yml`: runs the repo scanner plus Gitleaks.
 - `dependency-policy.yml`: runs npm audit, cargo audit, npm license policy, and SBOM metadata generation.
-- `validate.yml`: runs `npm run validate`.
+- `validate.yml`: runs `npm run test:pre-ai-proof`, `npm run validate`, and real portal-to-Rust E2E on Windows, Linux, and macOS runners.
 - `build.yml`: runs `npm run build`.
 - `package-preview.yml`: builds installable preview artifacts for Windows, Linux, macOS, Android, and iOS simulator, then smoke-checks installation or launch.
 - `release.yml`: publishes production GitHub Releases from the `production` branch only when the version tag is missing.
@@ -31,7 +32,7 @@ Pushes to `main` run validation and package previews, but they do not create Git
 
 Pushes to `production` run the production release workflow. That workflow runs the same gates, builds package previews, then checks whether the aligned version tag already exists. If the tag is missing, it publishes the signed Windows x64 MSI, checksum, signed update manifest, and bootstrap installer. If the tag exists, the publish job is skipped.
 
-Documentation-only pushes to `main` do not run the CI workflow. Changes limited to Markdown files or `docs/**` are ignored by `ci.yml`, so README and planning updates cannot trigger package previews. Use `workflow_dispatch` when a manual CI run is still wanted for a docs-only change.
+Documentation and expectation changes run the CI workflow because the pre-AI proof matrix is part of the release-quality gate. Use `[skip ci]` only for an intentional bypass that should not refresh validation or package previews.
 
 For emergency or intentional bypasses on a code-touching commit, GitHub's native skip marker is also available. Include `[skip ci]` in the commit message only when you are deliberately bypassing the gate and do not want a release from that push.
 

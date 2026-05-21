@@ -1,0 +1,321 @@
+{
+  "schemaVersion": 1,
+  "title": "Pre-AI Real Evidence Proof Matrix",
+  "realEvidenceExpectation": "docs/expectations/real-evidence-proof.md",
+  "requiredCompletedClaimIds": [
+    "v0.1-foundation",
+    "v0.2-evidence-store",
+    "v0.3-windows-process-window",
+    "v0.4-windows-network-domain",
+    "v0.5-live-activity-portal",
+    "v0.5.1-browser-url-tab",
+    "v0.5.2-app-game-sessions",
+    "v0.5.3-screen-evidence-queue",
+    "v0.6-local-ai-contracts",
+    "v0.7-dry-run-policy-preview",
+    "package-preview-platforms"
+  ],
+  "claims": [
+    {
+      "id": "v0.1-foundation",
+      "roadmapSlice": "V0.1 Foundation And Evidence Contracts",
+      "expectationFiles": [
+        "docs/expectations/roadmap-v0-1-foundation-and-evidence-contracts.md",
+        "docs/expectations/contracts.md",
+        "docs/expectations/release-installer.md"
+      ],
+      "claim": "Repository, TypeScript/Rust contracts, service/portal scaffold, validation, CI, and package-preview foundation exist.",
+      "privilegedCapability": false,
+      "ciProof": {
+        "commands": ["npm run validate", "npm run build", "npm run test:pre-ai-proof"],
+        "jobs": ["Full Validation Gate", "Package Preview"]
+      },
+      "platformCoverage": {
+        "windows": "ci-mechanical-proof",
+        "linux": "ci-mechanical-proof",
+        "macos": "ci-mechanical-proof",
+        "android": "ci-mechanical-proof",
+        "ios": "ci-mechanical-proof"
+      },
+      "knownGaps": ["Package-preview launch smoke is not store signing, notarization, or managed-device proof."],
+      "manualProofChecklist": []
+    },
+    {
+      "id": "v0.2-evidence-store",
+      "roadmapSlice": "V0.2 Trusted Local Evidence Store",
+      "expectationFiles": [
+        "docs/expectations/roadmap-v0-2-trusted-local-evidence-store.md",
+        "docs/expectations/evidence-storage.md"
+      ],
+      "claim": "Encrypted journal, replay, SQLite ingest/query, service status, and portal visibility use real storage code paths.",
+      "privilegedCapability": false,
+      "ciProof": {
+        "commands": ["npm run validate", "npm run test:integration", "npm run test:e2e"],
+        "jobs": ["Full Validation Gate", "Real Portal To Rust E2E"]
+      },
+      "platformCoverage": {
+        "windows": "ci-mechanical-proof",
+        "linux": "ci-mechanical-proof",
+        "macos": "ci-mechanical-proof",
+        "android": "ci-mechanical-proof",
+        "ios": "ci-mechanical-proof"
+      },
+      "knownGaps": [
+        "Mobile storage parity is package/runtime compatibility proof until mobile parent/child data flows exist."
+      ],
+      "manualProofChecklist": []
+    },
+    {
+      "id": "v0.3-windows-process-window",
+      "roadmapSlice": "V0.3 Windows Process And Window Activity Capture",
+      "expectationFiles": [
+        "docs/expectations/roadmap-v0-3-windows-process-window-activity-capture.md",
+        "docs/expectations/capture.md"
+      ],
+      "claim": "Windows process/window observations are captured, stored, queried, and visible through the parent portal.",
+      "privilegedCapability": true,
+      "ciProof": {
+        "commands": ["npm run validate", "npm run test:e2e"],
+        "jobs": ["Full Validation Gate", "Real Portal To Rust E2E"]
+      },
+      "platformCoverage": {
+        "windows": "manual-required",
+        "linux": "not-applicable",
+        "macos": "not-yet-proven",
+        "android": "not-applicable",
+        "ios": "not-applicable"
+      },
+      "knownGaps": [
+        "Hosted CI can prove service/UI mechanics but not real foreground-window capture on a parent-approved child PC."
+      ],
+      "manualProofChecklist": [
+        "Launch the Rust agent on Windows with the current commit.",
+        "Request process/window activity from the parent portal.",
+        "Verify returned activity matches real running processes or foreground window state.",
+        "Capture portal diagnostics and Rust logs with the commit SHA."
+      ]
+    },
+    {
+      "id": "v0.4-windows-network-domain",
+      "roadmapSlice": "V0.4 Windows Network And Domain Observation",
+      "expectationFiles": [
+        "docs/expectations/roadmap-v0-4-windows-network-domain-observation.md",
+        "docs/expectations/network-flow-evidence.md",
+        "docs/expectations/capture.md"
+      ],
+      "claim": "Network/domain and flow summaries are represented, persisted, queried, and shown without decrypted payload claims.",
+      "privilegedCapability": true,
+      "ciProof": {
+        "commands": ["npm run validate", "npm run test:e2e"],
+        "jobs": ["Full Validation Gate", "Real Portal To Rust E2E"]
+      },
+      "platformCoverage": {
+        "windows": "manual-required",
+        "linux": "not-yet-proven",
+        "macos": "not-yet-proven",
+        "android": "not-yet-proven",
+        "ios": "not-yet-proven"
+      },
+      "knownGaps": ["Admin, kernel, driver, VPN, or OS-specific network visibility requires real host/device proof."],
+      "manualProofChecklist": [
+        "Run the agent on Windows while generating normal network activity.",
+        "Request network flow evidence from the parent portal.",
+        "Verify domains, endpoints, unknown attribution, and no-content-inspection boundaries.",
+        "Capture portal diagnostics and Rust logs with the commit SHA."
+      ]
+    },
+    {
+      "id": "v0.5-live-activity-portal",
+      "roadmapSlice": "V0.5 Live Activity Portal",
+      "expectationFiles": ["docs/expectations/roadmap-v0-5-live-activity-portal.md", "docs/expectations/portal.md"],
+      "claim": "The parent portal sends real typed requests to the Rust service and renders validated service state.",
+      "privilegedCapability": false,
+      "ciProof": {
+        "commands": ["npm run validate", "npm run test:e2e"],
+        "jobs": ["Full Validation Gate", "Real Portal To Rust E2E"]
+      },
+      "platformCoverage": {
+        "windows": "ci-mechanical-proof",
+        "linux": "ci-mechanical-proof",
+        "macos": "ci-mechanical-proof",
+        "android": "scaffold-only",
+        "ios": "scaffold-only"
+      },
+      "knownGaps": ["Mobile parent app parity is not claimed by the current Vite development portal."],
+      "manualProofChecklist": []
+    },
+    {
+      "id": "v0.5.1-browser-url-tab",
+      "roadmapSlice": "V0.5.1 Browser URL And Tab Evidence Capture",
+      "expectationFiles": [
+        "docs/expectations/roadmap-v0-5-1-browser-url-tab-evidence-capture.md",
+        "docs/expectations/browser-evidence.md"
+      ],
+      "claim": "Managed browser URL/tab evidence and unmanaged/degraded states are typed, stored, queried, and visible.",
+      "privilegedCapability": true,
+      "ciProof": {
+        "commands": ["npm run validate", "npm run test:e2e"],
+        "jobs": ["Full Validation Gate", "Real Portal To Rust E2E"]
+      },
+      "platformCoverage": {
+        "windows": "manual-required",
+        "linux": "not-yet-proven",
+        "macos": "not-yet-proven",
+        "android": "not-yet-proven",
+        "ios": "not-yet-proven"
+      },
+      "knownGaps": [
+        "Existing personal browser profiles/tabs are not proven unless the managed-browser boundary produces real evidence."
+      ],
+      "manualProofChecklist": [
+        "Launch the managed browser path from the app or documented dev command.",
+        "Open a known URL and request browser evidence from the parent portal.",
+        "Verify URL, title/domain, managed/unmanaged state, and stale/degraded states are real.",
+        "Capture portal diagnostics and Rust logs with the commit SHA."
+      ]
+    },
+    {
+      "id": "v0.5.2-app-game-sessions",
+      "roadmapSlice": "V0.5.2 App And Game Evidence Sessions",
+      "expectationFiles": [
+        "docs/expectations/roadmap-v0-5-2-app-game-evidence-sessions.md",
+        "docs/expectations/app-game-evidence.md"
+      ],
+      "claim": "App/game session summaries use stored activity evidence rather than portal state or AI guesses.",
+      "privilegedCapability": true,
+      "ciProof": {
+        "commands": ["npm run validate", "npm run test:e2e"],
+        "jobs": ["Full Validation Gate", "Real Portal To Rust E2E"]
+      },
+      "platformCoverage": {
+        "windows": "manual-required",
+        "linux": "not-yet-proven",
+        "macos": "not-yet-proven",
+        "android": "not-yet-proven",
+        "ios": "not-yet-proven"
+      },
+      "knownGaps": ["Long-running real app/game behavior needs host-specific observation over time."],
+      "manualProofChecklist": [
+        "Run a known app or game on Windows while the agent is active.",
+        "Request app/game session evidence from the parent portal.",
+        "Verify running time, foreground time, first/last seen, and source evidence refs.",
+        "Capture portal diagnostics and Rust logs with the commit SHA."
+      ]
+    },
+    {
+      "id": "v0.5.3-screen-evidence-queue",
+      "roadmapSlice": "V0.5.3 Local Screen Evidence Analysis Queue",
+      "expectationFiles": [
+        "docs/expectations/roadmap-v0-5-3-local-screen-evidence-analysis-queue.md",
+        "docs/expectations/screen-evidence.md"
+      ],
+      "claim": "Screen evidence queue/read-model state is typed, local-only, parent-visible, and honest about disabled or permission-limited capture.",
+      "privilegedCapability": true,
+      "ciProof": {
+        "commands": ["npm run validate", "npm run test:e2e"],
+        "jobs": ["Full Validation Gate", "Real Portal To Rust E2E"]
+      },
+      "platformCoverage": {
+        "windows": "manual-required",
+        "linux": "not-yet-proven",
+        "macos": "manual-required",
+        "android": "not-yet-proven",
+        "ios": "not-yet-proven"
+      },
+      "knownGaps": ["Real screen capture and permission prompts cannot be certified by hosted CI."],
+      "manualProofChecklist": [
+        "Enable the supported local screen evidence setting on a real host.",
+        "Request screen evidence state from the parent portal.",
+        "Verify permission, queue, deletion, summary, and disabled/degraded states are real.",
+        "Capture portal diagnostics and Rust logs with the commit SHA."
+      ]
+    },
+    {
+      "id": "v0.6-local-ai-contracts",
+      "roadmapSlice": "V0.6 Local AI Safety Decision Contracts",
+      "expectationFiles": [
+        "docs/expectations/roadmap-v0-6-local-ai-safety-decision-contracts.md",
+        "docs/expectations/ai.md",
+        "docs/expectations/policy.md"
+      ],
+      "claim": "Local AI, policy, runtime, parent-rule, and evidence-reference contracts reject invalid or degraded states before enforcement.",
+      "privilegedCapability": false,
+      "ciProof": {
+        "commands": ["npm run validate"],
+        "jobs": ["Full Validation Gate"]
+      },
+      "platformCoverage": {
+        "windows": "ci-mechanical-proof",
+        "linux": "ci-mechanical-proof",
+        "macos": "ci-mechanical-proof",
+        "android": "ci-mechanical-proof",
+        "ios": "ci-mechanical-proof"
+      },
+      "knownGaps": ["Contracts are not model execution or enforcement proof."],
+      "manualProofChecklist": []
+    },
+    {
+      "id": "v0.7-dry-run-policy-preview",
+      "roadmapSlice": "V0.7 Local AI Policy Evaluator",
+      "expectationFiles": [
+        "docs/expectations/roadmap-v0-7-local-ai-policy-evaluator.md",
+        "docs/expectations/ai.md",
+        "docs/expectations/policy.md",
+        "docs/expectations/portal.md"
+      ],
+      "claim": "Dry-run policy preview reads stored evidence references and parent rules through typed service/API paths with enforcement disabled.",
+      "privilegedCapability": false,
+      "ciProof": {
+        "commands": ["npm run validate", "npm run test:e2e"],
+        "jobs": ["Full Validation Gate", "Real Portal To Rust E2E"]
+      },
+      "platformCoverage": {
+        "windows": "ci-mechanical-proof",
+        "linux": "ci-mechanical-proof",
+        "macos": "ci-mechanical-proof",
+        "android": "scaffold-only",
+        "ios": "scaffold-only"
+      },
+      "knownGaps": ["V0.7 remains dry-run; enforcement adapters and real model execution are not claimed."],
+      "manualProofChecklist": []
+    },
+    {
+      "id": "package-preview-platforms",
+      "roadmapSlice": "Cross-platform package preview",
+      "expectationFiles": [
+        "docs/expectations/platforms.md",
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/release-installer.md"
+      ],
+      "claim": "Preview artifacts build and install or launch-smoke on the target runner family without claiming stores, signing, or privileged capture.",
+      "privilegedCapability": false,
+      "ciProof": {
+        "commands": [
+          "npm run release:package:windows",
+          "npm run release:package:linux",
+          "npm run release:package:macos",
+          "npm run release:package:android",
+          "npm run release:package:ios"
+        ],
+        "jobs": [
+          "Windows MSI Preview",
+          "Linux DEB Preview",
+          "macOS PKG Preview",
+          "Android APK Preview",
+          "iOS Simulator App Preview"
+        ]
+      },
+      "platformCoverage": {
+        "windows": "ci-mechanical-proof",
+        "linux": "ci-mechanical-proof",
+        "macos": "ci-mechanical-proof",
+        "android": "ci-mechanical-proof",
+        "ios": "ci-mechanical-proof"
+      },
+      "knownGaps": [
+        "Preview packaging is not production signing, app store, TestFlight, notarization, or device-owner proof."
+      ],
+      "manualProofChecklist": []
+    }
+  ]
+}
