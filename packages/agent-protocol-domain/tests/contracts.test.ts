@@ -60,15 +60,18 @@ it('AgentEventEnvelopeSchema: accepts a Rust response event with an optional sna
   expect(parsed.success).toBe(true);
 });
 
-it('AgentEvent: exposes typed constants for portal result rendering', () => {
+it('AgentCommand: exposes typed command constants for portal requests', () => {
   expect(AgentCommand.ActivityIngestStatusGet).toBe('agent.activity.ingest.status.get');
   expect(AgentCommand.ActivityRecentSummaryGet).toBe('agent.activity.recent.summary.get');
   expect(AgentCommand.BrowserEvidenceRecentGet).toBe('agent.browser.evidence.recent.get');
   expect(AgentCommand.BrowserManagedBridgePoll).toBe('agent.browser.managed.bridge.poll');
-  expect(AgentProtocolDefaults.Field.BridgeEndpointRef).toBe('bridgeEndpointRef');
-  expect(AgentProtocolDefaults.Field.BridgeKind).toBe('bridgeKind');
   expect(AgentCommand.NetworkFlowReadModelGet).toBe('agent.network.flow.read-model.get');
   expect(AgentCommand.LocalAiRuntimeStatusGet).toBe('agent.local-ai.runtime.status.get');
+});
+
+it('AgentProtocolDefaults.Field: exposes read-model payload fields', () => {
+  expect(AgentProtocolDefaults.Field.BridgeEndpointRef).toBe('bridgeEndpointRef');
+  expect(AgentProtocolDefaults.Field.BridgeKind).toBe('bridgeKind');
   expect(AgentProtocolDefaults.Field.DatabaseReady).toBe('databaseReady');
   expect(AgentProtocolDefaults.Field.LocalAiRuntimeReferenceId).toBe('runtimeReferenceId');
   expect(AgentProtocolDefaults.Field.LocalAiUnavailableReason).toBe('unavailableReason');
@@ -79,6 +82,9 @@ it('AgentEvent: exposes typed constants for portal result rendering', () => {
   expect(AgentProtocolDefaults.Field.CapabilityStatus).toBe('capabilityStatus');
   expect(AgentProtocolDefaults.Field.DestinationDomain).toBe('destinationDomain');
   expect(AgentProtocolDefaults.Field.MostRecentSubjectName).toBe('mostRecentSubjectName');
+});
+
+it('AgentEvent: exposes typed constants for portal result rendering', () => {
   expect(AgentEvent.HealthReported).toBe('agent.health.reported');
   expect(AgentEvent.LogSnapshotReported).toBe('agent.log.snapshot.reported');
   expect(AgentEvent.DevEchoed).toBe('agent.dev.echoed');
