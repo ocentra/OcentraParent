@@ -433,6 +433,7 @@ schema-valid summaries and evidence references.
 Expectation links:
 
 - [Screen evidence analysis expectations](expectations/screen-evidence.md)
+- [Local screen evidence analysis queue architecture](architecture/local-screen-evidence-analysis-queue.md)
 - [Capture feature expectations](expectations/capture.md)
 - [Evidence storage expectations](expectations/evidence-storage.md)
 - [AI feature expectations](expectations/ai.md)
@@ -446,6 +447,9 @@ Deliverables:
 - Encrypted temporary screen-analysis queue contract with TTL and retry state.
 - Local OCR/vision result contract with summary, categories, confidence, risk
   signals, source evidence refs, image digest, and deletion state.
+- Parent opt-in settings for disabled-by-default enablement, cadence, triggers,
+  strict mode, OCR snippets, redaction, TTL, deletion behavior, and policy-use
+  state.
 - Configurable cadence, such as five-minute default and one-minute strict mode.
 - Triggered capture hooks for foreground app, managed URL, game/app foreground,
   and unusual network changes.
@@ -457,6 +461,8 @@ Deliverables:
 Acceptance:
 
 - Screen images do not leave the child PC for remote/API AI or cloud processing.
+- Ocentra-hosted services do not store child screenshots, screen summaries,
+  journals, SQLite evidence, generated reports, or parent rules by default.
 - Temporary images are encrypted while queued and deleted after successful local
   analysis or TTL expiry.
 - Rust validates AI JSON before journal/query ingest or policy use.
@@ -975,17 +981,16 @@ Current completed-on-main foundation:
 - V0.5 live activity portal visibility.
 - V0.5.1 browser URL/tab evidence research/spec.
 - V0.5.2 app/game evidence sessions research/spec.
+- V0.5.3 local screen evidence analysis queue research/spec.
 - Network flow evidence research/spec.
 - V0.6 local AI safety decision contract groundwork.
 
 Next coordinator slices:
 
-1. Finish local screen evidence analysis queue research/spec before AI uses screen
-   summaries.
-2. Turn the browser URL/tab evidence spec into an implementation-ready managed
+1. Turn the browser URL/tab evidence spec into an implementation-ready managed
    browser bridge plan.
-3. Reconcile local AI context-builder contracts with browser, app/game, network,
+2. Reconcile local AI context-builder contracts with browser, app/game, network,
    and screen evidence references, including confidence and custody boundaries.
-4. After those docs/spec slices merge, assign runtime implementation in evidence
+3. After those docs/spec slices merge, assign runtime implementation in evidence
    order: browser bridge, app/game session read model, screen queue, then local
    AI dry-run evaluator.

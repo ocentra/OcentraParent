@@ -10,6 +10,11 @@ boundary, schema validation, deletion/audit trail, and portal controls; the
 parent decides whether to enable it, how often it runs, which triggers are active,
 and what household policy should happen from the resulting evidence.
 
+Implementation planning lives in
+[Local Screen Evidence Analysis Queue Architecture](../architecture/local-screen-evidence-analysis-queue.md).
+That architecture is docs/spec only until a later runtime slice adds contracts,
+queue storage, capture, OCR/vision, portal, policy, or enforcement code.
+
 ## Outcome Bar
 
 Parent outcome:
@@ -39,6 +44,9 @@ Child-device outcome:
   resolving parent rules.
 - The Rust agent treats portal settings as typed parent intent; it does not
   silently enable screen capture because the code path exists.
+- Ocentra-hosted services do not store or process child screen images,
+  screen-analysis summaries, SQLite evidence, journals, reports, or parent rules
+  by default.
 
 ## Data Scope
 
@@ -84,6 +92,8 @@ parent-controlled feature and matching technical/privacy boundary:
 ## Expected Deliverables
 
 - Screen capture capability/status contract.
+- Parent opt-in settings contract for enablement, cadence, triggers, strict
+  mode, OCR snippets, redaction, TTL, deletion, and policy-use state.
 - Screen analysis queue contract with encrypted image reference, TTL, retry
   count, source evidence refs, and status.
 - Local screen analysis result contract with summary, categories, confidence,
@@ -97,6 +107,10 @@ parent-controlled feature and matching technical/privacy boundary:
 - Portal summary view that does not expose raw images by default.
 - Disclosure copy that accurately explains local-only, parent-controlled screen
   analysis.
+- Source/custody labels for child-device temp queue, child-device journal,
+  child-device query store, local/LAN service response, parent-device cache,
+  parent-owned export, Ocentra-hosted non-activity metadata, and unavailable
+  states.
 
 ## Runtime Flow
 
@@ -148,6 +162,8 @@ The common local screen-analysis path should be:
 - Temporary images are deleted after successful local analysis.
 - Failed jobs retry only within a short TTL, then delete the image and record
   `screen-analysis-failed` or `screen-analysis-expired`.
+- Delete-pending or delete-failed jobs are visible health states and must not
+  become silent long-term image retention.
 - Stored long-term evidence should be the structured summary, confidence,
   evidence refs, image digest, and deletion state, not the raw image.
 
