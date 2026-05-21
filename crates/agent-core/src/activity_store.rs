@@ -3,7 +3,8 @@ use std::path::Path;
 use ocentra_parent_agent_protocol::{
     constants, ActivityEvent, ActivityIngestStatus, ActivityNetworkFlowReadModel,
     ActivityRecentSummary, ActivityStoreRow, AppGameSessionReport, BrowserEvidenceRecentSummary,
-    PolicyPreviewReadModel, ScreenEvidenceRecentSummary, ACTIVITY_QUERY_SCHEMA_VERSION,
+    LocalAiParentRuleContextRef, PolicyPreviewReadModel, ScreenEvidenceRecentSummary,
+    ACTIVITY_QUERY_SCHEMA_VERSION,
 };
 use rusqlite::{params, Connection};
 
@@ -12,6 +13,7 @@ use crate::{
     activity_store_browser::browser_recent_summary,
     activity_store_connection::initialize_connection,
     activity_store_network_flow::network_flow_read_model,
+    activity_store_parent_rule_context::replace_parent_rule_contexts,
     activity_store_policy_preview::policy_preview_read_model,
     activity_store_rows::{row_from_sqlite, summary_from_rows},
     activity_store_screen_evidence::screen_evidence_recent_summary,
@@ -108,6 +110,13 @@ impl ActivityStore {
         generated_at: &str,
     ) -> Result<PolicyPreviewReadModel, ActivityStoreError> {
         policy_preview_read_model(&self.connection, limit, generated_at)
+    }
+
+    pub fn replace_parent_rule_contexts(
+        &self,
+        contexts: &[LocalAiParentRuleContextRef],
+    ) -> Result<(), ActivityStoreError> {
+        replace_parent_rule_contexts(&self.connection, contexts)
     }
 
     fn status_with_counts(
