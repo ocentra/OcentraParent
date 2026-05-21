@@ -1,5 +1,6 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 import { collectBrowserFailures } from './browser-failures';
+import { assertPolicyPreviewBoundaryDetails } from './policy-preview-assertions';
 test('portal UI connects to the real agent and renders command results', async ({ context, page }) => {
   const browserFailures = collectBrowserFailures(page);
   await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: 'http://127.0.0.1:4490' });
@@ -130,6 +131,7 @@ async function assertOverview(page: Page): Promise<void> {
   await expect(
     policyPreview.locator('dt').filter({ hasText: 'Rows returned' }).locator('xpath=following-sibling::dd[1]')
   ).not.toHaveText('');
+  await assertPolicyPreviewBoundaryDetails(policyPreview);
   await expect(
     policyPreview.locator('dt').filter({ hasText: 'Unknown state' }).locator('xpath=following-sibling::dd[1]')
   ).toHaveText('Not reported');

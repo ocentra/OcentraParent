@@ -3,6 +3,7 @@ import {
   PortalClipboard,
   PortalCommandButtons,
   PortalConnectionState,
+  PortalDetails,
   PortalDiagnostics,
   PortalDom,
   PortalOverviewCommands,
@@ -62,6 +63,12 @@ describe('portal domain contracts', () => {
     expect(PortalDiagnostics.SchemaVersion).toBe(1);
     expect(PortalDiagnostics.Field.AgentUrl).toBe('agentUrl');
     expect(PortalClipboard.CommandCopy).toBe('copy');
+    expect(PortalDetails.PrivacyMode).toBe('Privacy mode');
+    expect(PortalDetails.AdapterBoundary).toBe('Adapter boundary');
+    expect(PortalDetails.ExecutionState).toBe('Execution state');
+    expect(PortalDetails.ProviderSource).toBe('Provider source');
+    expect(PortalDetails.ParentRuleContextReferences).toBe('Parent rule context references');
+    expect(PortalDetails.ParentRuleContextRefIds).toBe('Parent rule context ref IDs');
     expect(PortalDom.Tags.TextArea).toBe('textarea');
     expect(decodePortalClipboardText('copy payload')).toBe('copy payload');
   });
