@@ -967,8 +967,25 @@ Local development:
 
 ## Current Next Actions
 
-1. Finish the SQLite activity query store PR.
-2. Merge it after CI is green.
-3. Start Windows process/window activity capture.
-4. Add portal activity visibility for real captured events.
-5. Then move into Windows network/domain observation.
+Current completed-on-main foundation:
+
+- V0.1/V0.2 scaffold, contracts, encrypted journal, and SQLite query store.
+- V0.3 Windows process/window capture.
+- V0.4 Windows network/domain observation foundation.
+- V0.5 live activity portal visibility.
+- V0.5.1 browser URL/tab evidence research/spec.
+- V0.5.2 app/game evidence sessions research/spec.
+- Network flow evidence research/spec.
+- V0.6 local AI safety decision contract groundwork.
+
+Next coordinator slices:
+
+1. Finish local screen evidence analysis queue research/spec before AI uses screen
+   summaries.
+2. Turn the browser URL/tab evidence spec into an implementation-ready managed
+   browser bridge plan.
+3. Reconcile local AI context-builder contracts with browser, app/game, network,
+   and screen evidence references, including confidence and custody boundaries.
+4. After those docs/spec slices merge, assign runtime implementation in evidence
+   order: browser bridge, app/game session read model, screen queue, then local
+   AI dry-run evaluator.
