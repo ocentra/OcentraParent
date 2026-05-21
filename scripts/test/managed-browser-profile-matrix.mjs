@@ -1,7 +1,7 @@
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:net';
 import { mkdir, rm, stat, writeFile } from 'node:fs/promises';
-import { basename, join } from 'node:path';
+import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { setTimeout as delay } from 'node:timers/promises';
 
@@ -11,88 +11,151 @@ const defaultUrls = ['https://example.com/', 'https://www.wikipedia.org/', 'http
 const defaultProfiles = ['managed-browser-profile-a', 'managed-browser-profile-b', 'managed-browser-profile-c'];
 const runId = new Date().toISOString().replaceAll(':', '-').replaceAll('.', '-');
 const evidenceDirectory = join(process.cwd(), 'test-results', 'managed-browser-profile-matrix');
+const screenshotDirectory = join(evidenceDirectory, `${runId}-screenshots`);
 const probeRoot = join(tmpdir(), `ocentra-parent-managed-browser-profile-matrix-${process.pid}`);
 
 const urls = envList('OCENTRA_PARENT_MANAGED_BROWSER_MATRIX_URLS', defaultUrls);
 const profiles = envList('OCENTRA_PARENT_MANAGED_BROWSER_MATRIX_PROFILES', defaultProfiles);
-const timeoutMs = envNumber('OCENTRA_PARENT_MANAGED_BROWSER_MATRIX_TIMEOUT_MS', 30_000);
+const timeoutMs = envNumber('OCENTRA_PARENT_MANAGED_BROWSER_MATRIX_TIMEOUT_MS', 45_000);
+const commandTimeoutMs = envNumber('OCENTRA_PARENT_MANAGED_BROWSER_MATRIX_COMMAND_TIMEOUT_MS', 15_000);
+const readyTimeoutMs = envNumber('OCENTRA_PARENT_MANAGED_BROWSER_MATRIX_READY_TIMEOUT_MS', 15_000);
 
-const supportedBrowsers = await installedSupportedBrowsers();
-const unsupportedBrowsers = await installedUnsupportedBrowsers();
+async function main() {
+  const supportedBrowsers = await installedSupportedBrowsers();
+  const unsupportedBrowsers = await installedUnsupportedBrowsers();
 
-if (supportedBrowsers.length === 0) {
-  throw new Error('No installed Chrome or Edge executable found for managed browser matrix proof.');
-}
-
-await mkdir(evidenceDirectory, { recursive: true });
-await mkdir(probeRoot, { recursive: true });
-
-const browserResults = [];
-try {
-  for (const browser of supportedBrowsers) {
-    browserResults.push(await runBrowserMatrix(browser));
+  if (supportedBrowsers.length === 0) {
+    throw new Error('No installed Chrome, Edge, or Firefox executable found for managed browser matrix proof.');
   }
-} finally {
-  await stopWindowsProcessesByCommandLineFragment(probeRoot);
-  await removeDirectoryWithRetry(probeRoot, { attempts: 20, delayMs: 250 });
-}
 
-const evidence = {
-  schemaVersion: 1,
-  generatedAt: new Date().toISOString(),
-  urls,
-  profiles,
-  supportedBrowsers: browserResults,
-  unsupportedInstalledBrowsers: unsupportedBrowsers,
-  summary: summarize(browserResults, unsupportedBrowsers),
-};
+  await mkdir(evidenceDirectory, { recursive: true });
+  await mkdir(screenshotDirectory, { recursive: true });
+  await mkdir(probeRoot, { recursive: true });
 
-const evidencePath = join(evidenceDirectory, `${runId}.json`);
-await writeFile(evidencePath, `${JSON.stringify(evidence, null, 2)}\n`);
+  const browserResults = [];
+  try {
+    for (const browser of supportedBrowsers) {
+      browserResults.push(await runBrowserMatrix(browser));
+    }
+  } finally {
+    await stopWindowsProcessesByCommandLineFragment(probeRoot);
+    await removeDirectoryWithRetry(probeRoot, { attempts: 20, delayMs: 250 });
+  }
 
-printSummary(evidence, evidencePath);
+  const evidence = {
+    schemaVersion: 2,
+    generatedAt: new Date().toISOString(),
+    urls,
+    historyProbeUrls: urls.map((url, index) => historyProbeUrl(url, index)),
+    profiles,
+    supportedBrowsers: browserResults,
+    unsupportedInstalledBrowsers: unsupportedBrowsers,
+    summary: summarize(browserResults, unsupportedBrowsers),
+  };
 
-if (evidence.summary.failures.length > 0) {
-  process.exitCode = 1;
+  const evidencePath = join(evidenceDirectory, `${runId}.json`);
+  await writeFile(evidencePath, `${JSON.stringify(evidence, null, 2)}\n`);
+
+  printSummary(evidence, evidencePath);
+
+  if (evidence.summary.failures.length > 0) {
+    process.exitCode = 1;
+  }
 }
 
 async function runBrowserMatrix(browser) {
-  const profileRuns = await Promise.all(profiles.map((profileName) => launchProfile(browser, profileName)));
-  try {
-    const observations = [];
-    for (const profileRun of profileRuns) {
-      observations.push(await observeProfile(browser, profileRun));
-    }
-    return {
-      browser,
-      profiles: observations,
-    };
-  } finally {
-    for (const profileRun of profileRuns) {
+  if (browser.bridge === 'webdriver-bidi') {
+    return runFirefoxBrowserMatrix(browser);
+  }
+  return runChromiumBrowserMatrix(browser);
+}
+
+async function runChromiumBrowserMatrix(browser) {
+  const observations = [];
+  for (const profileName of profiles) {
+    const profileRun = await launchChromiumProfile(browser, profileName);
+    try {
+      observations.push(await observeChromiumProfile(browser, profileRun));
+    } finally {
       await cleanupProfileRun(profileRun);
     }
   }
+  return {
+    browser,
+    profiles: observations,
+  };
 }
 
-async function launchProfile(browser, profileName) {
+async function runFirefoxBrowserMatrix(browser) {
+  const observations = [];
+  for (const profileName of profiles) {
+    const profileRun = await launchFirefoxProfile(browser, profileName);
+    try {
+      observations.push(await observeFirefoxProfile(browser, profileRun));
+    } finally {
+      await cleanupProfileRun(profileRun);
+    }
+  }
+  return {
+    browser,
+    profiles: observations,
+  };
+}
+
+async function waitForChromiumReady(client, expectedFragment = null) {
+  const deadline = Date.now() + readyTimeoutMs;
+  while (Date.now() < deadline) {
+    const state = await evaluateString(client, 'document.readyState').catch(() => '');
+    const href = await evaluateString(client, 'location.href').catch(() => '');
+    if (state === 'complete' && (expectedFragment === null || href.includes(expectedFragment))) {
+      return { readyState: state, url: href };
+    }
+    await delay(500);
+  }
+  return {
+    readyState: await evaluateString(client, 'document.readyState').catch(() => 'unknown'),
+    url: await evaluateString(client, 'location.href').catch(() => ''),
+  };
+}
+
+async function waitForFirefoxReady(bidi, context, expectedFragment = null) {
+  const deadline = Date.now() + readyTimeoutMs;
+  while (Date.now() < deadline) {
+    const state = await evaluateFirefoxString(bidi, context, 'document.readyState').catch(() => '');
+    const href = await evaluateFirefoxString(bidi, context, 'location.href').catch(() => '');
+    if (state === 'complete' && (expectedFragment === null || href.includes(expectedFragment))) {
+      return { readyState: state, url: href };
+    }
+    await delay(500);
+  }
+  return {
+    readyState: await evaluateFirefoxString(bidi, context, 'document.readyState').catch(() => 'unknown'),
+    url: await evaluateFirefoxString(bidi, context, 'location.href').catch(() => ''),
+  };
+}
+
+async function launchChromiumProfile(browser, profileName) {
   const port = await freePort();
   const profileDir = join(probeRoot, browser.id, profileName);
   await mkdir(profileDir, { recursive: true });
 
-  const args = [
-    '--remote-debugging-address=127.0.0.1',
-    `--remote-debugging-port=${port}`,
-    `--user-data-dir=${profileDir}`,
-    '--profile-directory=OcentraManagedChild',
-    '--no-first-run',
-    '--no-default-browser-check',
-    '--new-window',
-    ...urls,
-  ];
-  const child = spawn(browser.executablePath, args, {
-    stdio: 'ignore',
-    windowsHide: true,
-  });
+  const child = spawn(
+    browser.executablePath,
+    [
+      '--remote-debugging-address=127.0.0.1',
+      `--remote-debugging-port=${port}`,
+      `--user-data-dir=${profileDir}`,
+      '--profile-directory=OcentraManagedChild',
+      '--no-first-run',
+      '--no-default-browser-check',
+      '--new-window',
+      ...urls,
+    ],
+    {
+      stdio: 'ignore',
+      windowsHide: true,
+    }
+  );
 
   return {
     child,
@@ -102,41 +165,307 @@ async function launchProfile(browser, profileName) {
   };
 }
 
-async function observeProfile(browser, profileRun) {
+async function launchFirefoxProfile(browser, profileName) {
+  const port = await freePort();
+  const profileDir = join(probeRoot, browser.id, profileName);
+  await mkdir(profileDir, { recursive: true });
+
+  const child = spawn(
+    browser.executablePath,
+    ['--no-remote', '--new-instance', '-profile', profileDir, '--remote-debugging-port', String(port), 'about:blank'],
+    {
+      stdio: 'ignore',
+      windowsHide: true,
+    }
+  );
+
+  return {
+    child,
+    port,
+    profileName,
+    profileDir,
+  };
+}
+
+async function observeChromiumProfile(browser, profileRun) {
   const version = await waitForJson(profileRun.port, '/json/version');
-  const targets = await waitForTargets(profileRun.port);
-  const pageTargets = targets
-    .filter((target) => target.type === 'page')
-    .map((target) => ({
-      targetId: String(target.id ?? ''),
-      type: String(target.type ?? ''),
-      url: String(target.url ?? ''),
-      title: target.title === undefined ? null : String(target.title),
-      urlCapture: capturedUrl(target.url),
-      titleCapture: capturedTitle(target.title),
-    }));
-  const siteEvidence = urls.map((url) => siteEvidenceForUrl(url, pageTargets));
+  const initialTargets = await waitForTargets(profileRun.port);
+  const initialPageTargets = pageTargetsFromChromiumList(initialTargets);
+  const clients = [];
+  const visitedUrlJournal = [];
+  const activeTabChecks = [];
+  const screenshots = [];
+  let activeTargetId = null;
+
+  try {
+    for (const target of initialPageTargets) {
+      if (target.webSocketDebuggerUrl === null) {
+        continue;
+      }
+      const client = await DevToolsClient.connect(target.webSocketDebuggerUrl);
+      clients.push(client);
+      client.onEvent((event) => {
+        const url = eventUrlFromChromiumEvent(event);
+        if (url !== null) {
+          visitedUrlJournal.push({
+            source: 'cdp-event',
+            method: event.method,
+            targetId: target.targetId,
+            url,
+            observedAt: new Date().toISOString(),
+          });
+        }
+      });
+      await client.command('Page.enable', {});
+      await client.command('Runtime.enable', {});
+      await waitForChromiumReady(client);
+      visitedUrlJournal.push({
+        source: 'initial-snapshot',
+        method: 'Runtime.evaluate',
+        targetId: target.targetId,
+        url: await evaluateString(client, 'location.href'),
+        observedAt: new Date().toISOString(),
+      });
+    }
+
+    const targetToActivate = firstMatchingClient(initialPageTargets, clients) ?? clients.at(-1) ?? null;
+    if (targetToActivate !== null) {
+      await targetToActivate.client.command('Page.bringToFront', {});
+      await delay(750);
+      activeTargetId = targetToActivate.target.targetId;
+    }
+
+    for (const pair of pairTargetsWithClients(initialPageTargets, clients)) {
+      activeTabChecks.push(await chromiumActiveTabCheck(pair.target, pair.client));
+    }
+
+    for (const pair of pairTargetsWithClients(initialPageTargets, clients)) {
+      const currentUrl = capturedUrl(pair.target.url)
+        ? pair.target.url
+        : await evaluateString(pair.client, 'location.href');
+      const nextUrl = historyProbeUrl(currentUrl, visitedUrlJournal.length);
+      await pair.client.command('Page.navigate', { url: nextUrl }).catch((error) => {
+        visitedUrlJournal.push({
+          source: 'cdp-navigation-error',
+          method: 'Page.navigate',
+          targetId: pair.target.targetId,
+          url: nextUrl,
+          error: String(error.message ?? error),
+          observedAt: new Date().toISOString(),
+        });
+      });
+      await waitForChromiumReady(pair.client, 'ocentra_history_probe=');
+    }
+
+    await delay(1500);
+
+    for (const pair of pairTargetsWithClients(initialPageTargets, clients)) {
+      visitedUrlJournal.push({
+        source: 'post-navigation-snapshot',
+        method: 'Runtime.evaluate',
+        targetId: pair.target.targetId,
+        url: await evaluateString(pair.client, 'location.href'),
+        observedAt: new Date().toISOString(),
+      });
+      screenshots.push(await captureChromiumScreenshot(browser, profileRun.profileName, pair.target, pair.client));
+    }
+  } finally {
+    for (const client of clients) {
+      client.close();
+    }
+  }
+
+  const finalTargets = await waitForTargets(profileRun.port);
+  const pageTargets = pageTargetsFromChromiumList(finalTargets);
+  for (const target of pageTargets) {
+    if (capturedUrl(target.url)) {
+      visitedUrlJournal.push({
+        source: 'final-target-list-snapshot',
+        method: '/json/list',
+        targetId: target.targetId,
+        url: target.url,
+        observedAt: new Date().toISOString(),
+      });
+    }
+  }
+  const siteEvidence = urls.map((url) => siteEvidenceForUrl(url, pageTargets, visitedUrlJournal));
+  const activeProof = activeTabProof(activeTabChecks, activeTargetId);
+  const historyProof = visitedHistoryProof(visitedUrlJournal, urls);
 
   return {
     profileName: profileRun.profileName,
     profilePathContainsManagedPrefix: profileRun.profileDir.includes('managed-browser-profile'),
     browserVersion: String(version.Browser ?? ''),
     protocolVersion: version['Protocol-Version'] === undefined ? null : String(version['Protocol-Version']),
+    bridge: browser.bridge,
     devtoolsEndpoint: 'loopback-redacted',
     pageTargetCount: pageTargets.length,
     pageTargets,
+    activeTabChecks,
+    screenshots,
+    visitedUrlJournal,
     siteEvidence,
     assertions: {
       canConnectManagedProfile: Boolean(version.Browser),
       canSeeTabs: pageTargets.length >= urls.length,
       canSeeUrls: siteEvidence.every((site) => site.captured),
       canMatchRequestedSites: siteEvidence.every((site) => site.matchedRequestedHost),
-      activeTabProof: 'not-proven-by-json-list',
-      visitedHistoryProof: 'not-proven-by-json-list',
+      canProveActiveTab: activeProof.proven,
+      activeTabProof: activeProof.reason,
+      canJournalVisitedUrls: historyProof.proven,
+      visitedHistoryProof: historyProof.reason,
     },
     browserFamily: browser.family,
     browserChannel: browser.channel,
   };
+}
+
+async function observeFirefoxProfile(browser, profileRun) {
+  const bidi = await FirefoxBidiClient.connect(`ws://127.0.0.1:${profileRun.port}/session`, timeoutMs);
+  const visitedUrlJournal = [];
+  const activeTabChecks = [];
+  const screenshots = [];
+  const navigationErrors = [];
+  const contexts = [];
+  let activeContext = null;
+
+  try {
+    const session = await bidi.command('session.new', { capabilities: {} });
+    await bidi.command('session.subscribe', {
+      events: [
+        'browsingContext.contextCreated',
+        'browsingContext.navigationStarted',
+        'browsingContext.navigationCommitted',
+        'browsingContext.historyUpdated',
+        'browsingContext.load',
+      ],
+    });
+    bidi.onEvent((event) => {
+      const url = event.params?.url;
+      if (typeof url === 'string' && url.length > 0) {
+        visitedUrlJournal.push({
+          source: 'bidi-event',
+          method: event.method,
+          context: event.params?.context ?? null,
+          url,
+          observedAt: new Date().toISOString(),
+        });
+      }
+    });
+
+    for (const url of urls) {
+      const created = await bidi.command('browsingContext.create', { type: 'tab' });
+      contexts.push(created.context);
+      await bidi
+        .command('browsingContext.navigate', { context: created.context, url, wait: 'complete' })
+        .catch((error) => {
+          navigationErrors.push({
+            context: created.context,
+            url,
+            error: String(error.message ?? error),
+          });
+        });
+      await waitForFirefoxReady(bidi, created.context);
+    }
+
+    activeContext = contexts.at(-1) ?? null;
+    if (activeContext !== null) {
+      await bidi.command('browsingContext.activate', { context: activeContext }).catch((error) => {
+        navigationErrors.push({
+          context: activeContext,
+          url: null,
+          error: `activate failed: ${String(error.message ?? error)}`,
+        });
+      });
+      await delay(750);
+    }
+
+    for (const context of contexts) {
+      activeTabChecks.push(await firefoxActiveTabCheck(context, bidi));
+    }
+
+    for (const context of contexts) {
+      const currentUrl = await evaluateFirefoxString(bidi, context, 'location.href');
+      const nextUrl = historyProbeUrl(currentUrl, visitedUrlJournal.length);
+      await bidi.command('browsingContext.navigate', { context, url: nextUrl, wait: 'complete' }).catch((error) => {
+        navigationErrors.push({
+          context,
+          url: nextUrl,
+          error: String(error.message ?? error),
+        });
+        visitedUrlJournal.push({
+          source: 'bidi-navigation-error',
+          method: 'browsingContext.navigate',
+          context,
+          url: nextUrl,
+          error: String(error.message ?? error),
+          observedAt: new Date().toISOString(),
+        });
+      });
+      await waitForFirefoxReady(bidi, context, 'ocentra_history_probe=');
+    }
+
+    await delay(1500);
+
+    const tree = await bidi.command('browsingContext.getTree', {});
+    const pageTargets = flattenContexts(tree.contexts ?? [])
+      .filter((context) => context.parent === undefined || context.parent === null)
+      .map((context) => ({
+        targetId: String(context.context ?? ''),
+        type: 'page',
+        url: String(context.url ?? ''),
+        title: null,
+        userContext: context.userContext === undefined ? null : String(context.userContext),
+        urlCapture: capturedUrl(context.url),
+        titleCapture: false,
+      }));
+
+    for (const context of contexts) {
+      visitedUrlJournal.push({
+        source: 'post-navigation-snapshot',
+        method: 'script.evaluate',
+        context,
+        url: await evaluateFirefoxString(bidi, context, 'location.href'),
+        observedAt: new Date().toISOString(),
+      });
+      screenshots.push(await captureFirefoxScreenshot(browser, profileRun.profileName, context, bidi));
+    }
+
+    const siteEvidence = urls.map((url) => siteEvidenceForUrl(url, pageTargets, visitedUrlJournal));
+    const activeProof = activeTabProof(activeTabChecks, activeContext);
+    const historyProof = visitedHistoryProof(visitedUrlJournal, urls);
+
+    return {
+      profileName: profileRun.profileName,
+      profilePathContainsManagedPrefix: profileRun.profileDir.includes('managed-browser-profile'),
+      browserVersion: browser.id,
+      protocolVersion: session.capabilities?.browserVersion ?? null,
+      bridge: browser.bridge,
+      devtoolsEndpoint: 'loopback-redacted',
+      pageTargetCount: pageTargets.length,
+      pageTargets,
+      activeTabChecks,
+      screenshots,
+      visitedUrlJournal,
+      navigationErrors,
+      siteEvidence,
+      assertions: {
+        canConnectManagedProfile: true,
+        canSeeTabs: pageTargets.length >= urls.length,
+        canSeeUrls: siteEvidence.every((site) => site.captured),
+        canMatchRequestedSites: siteEvidence.every((site) => site.matchedRequestedHost),
+        canProveActiveTab: activeProof.proven,
+        activeTabProof: activeProof.reason,
+        canJournalVisitedUrls: historyProof.proven,
+        visitedHistoryProof: historyProof.reason,
+      },
+      browserFamily: browser.family,
+      browserChannel: browser.channel,
+    };
+  } finally {
+    await bidi.command('browser.close', {}).catch(() => undefined);
+    bidi.close();
+  }
 }
 
 async function cleanupProfileRun(profileRun) {
@@ -147,19 +476,243 @@ async function cleanupProfileRun(profileRun) {
   await removeDirectoryWithRetry(profileRun.profileDir, { attempts: 20, delayMs: 250 });
 }
 
-function siteEvidenceForUrl(requestedUrl, pageTargets) {
+function pageTargetsFromChromiumList(targets) {
+  return targets
+    .filter((target) => target.type === 'page')
+    .map((target) => ({
+      targetId: String(target.id ?? ''),
+      type: String(target.type ?? ''),
+      url: String(target.url ?? ''),
+      title: target.title === undefined ? null : String(target.title),
+      webSocketDebuggerUrl:
+        typeof target.webSocketDebuggerUrl === 'string' && target.webSocketDebuggerUrl.length > 0
+          ? target.webSocketDebuggerUrl
+          : null,
+      urlCapture: capturedUrl(target.url),
+      titleCapture: capturedTitle(target.title),
+    }));
+}
+
+function siteEvidenceForUrl(requestedUrl, pageTargets, visitedUrlJournal) {
   const requested = new URL(requestedUrl);
   const matchedTarget = pageTargets.find((target) => hostMatches(requested.hostname, target.url));
+  const matchedJournalEntry = visitedUrlJournal.find((entry) => hostMatches(requested.hostname, entry.url));
   const fallbackTarget = pageTargets.find((target) => target.url === requestedUrl) ?? null;
   const target = matchedTarget ?? fallbackTarget;
+  const journalEntry = matchedJournalEntry ?? null;
   return {
     requestedUrl,
     requestedHost: requested.hostname,
-    captured: target !== undefined && target !== null && capturedUrl(target.url),
-    matchedRequestedHost: matchedTarget !== undefined,
-    observedUrl: target?.url ?? null,
+    captured:
+      (target !== undefined && target !== null && capturedUrl(target.url)) ||
+      (journalEntry !== null && capturedUrl(journalEntry.url)),
+    matchedRequestedHost: matchedTarget !== undefined || matchedJournalEntry !== undefined,
+    observedUrl: target?.url ?? journalEntry?.url ?? null,
     observedTitle: target?.title ?? null,
+    journaled: journalEntry !== null,
   };
+}
+
+function activeTabProof(activeTabChecks, expectedActiveId) {
+  const focused = activeTabChecks.filter((check) => check.hasFocus === true);
+  const visible = activeTabChecks.filter((check) => check.visibilityState === 'visible');
+  const expected = activeTabChecks.find(
+    (check) => check.targetId === expectedActiveId || check.context === expectedActiveId
+  );
+  if (expected !== undefined && expected.hasFocus === true && expected.visibilityState === 'visible') {
+    return {
+      proven: true,
+      reason: 'protocol-activated-tab-reported-visible-and-focused',
+    };
+  }
+  if (focused.length === 1) {
+    return {
+      proven: true,
+      reason: 'single-runtime-focused-tab-observed',
+    };
+  }
+  if (visible.length === 1) {
+    return {
+      proven: true,
+      reason: 'single-runtime-visible-tab-observed',
+    };
+  }
+  return {
+    proven: false,
+    reason: `ambiguous-runtime-active-state focused=${focused.length} visible=${visible.length}`,
+  };
+}
+
+function visitedHistoryProof(visitedUrlJournal, requestedUrls) {
+  const journaledUrls = visitedUrlJournal.filter((entry) => capturedUrl(entry.url)).map((entry) => entry.url);
+  const matchedRequestedCount = requestedUrls.filter((url) =>
+    journaledUrls.some((journaledUrl) => hostMatches(new URL(url).hostname, journaledUrl))
+  ).length;
+  const probeCount = journaledUrls.filter((url) => url.includes('ocentra_history_probe=')).length;
+  if (matchedRequestedCount >= requestedUrls.length && probeCount >= requestedUrls.length) {
+    return {
+      proven: true,
+      reason: 'event-and-snapshot-journal-captured-initial-and-probe-navigation-urls',
+    };
+  }
+  return {
+    proven: false,
+    reason: `journal-incomplete requestedMatches=${matchedRequestedCount}/${requestedUrls.length} probeCount=${probeCount}`,
+  };
+}
+
+async function chromiumActiveTabCheck(target, client) {
+  return {
+    targetId: target.targetId,
+    url: await evaluateString(client, 'location.href'),
+    title: await evaluateString(client, 'document.title'),
+    visibilityState: await evaluateString(client, 'document.visibilityState'),
+    hasFocus: await evaluateBoolean(client, 'document.hasFocus()'),
+  };
+}
+
+async function firefoxActiveTabCheck(context, bidi) {
+  return {
+    context,
+    url: await evaluateFirefoxString(bidi, context, 'location.href'),
+    title: await evaluateFirefoxString(bidi, context, 'document.title'),
+    visibilityState: await evaluateFirefoxString(bidi, context, 'document.visibilityState'),
+    hasFocus: await evaluateFirefoxBoolean(bidi, context, 'document.hasFocus()'),
+  };
+}
+
+async function evaluateString(client, expression) {
+  const result = await client.command('Runtime.evaluate', {
+    expression,
+    returnByValue: true,
+  });
+  const value = result.result?.value;
+  return typeof value === 'string' ? value : String(value ?? '');
+}
+
+async function evaluateBoolean(client, expression) {
+  const result = await client.command('Runtime.evaluate', {
+    expression,
+    returnByValue: true,
+  });
+  return result.result?.value === true;
+}
+
+async function evaluateFirefoxString(bidi, context, expression) {
+  const result = await bidi.command('script.evaluate', {
+    expression,
+    target: { context },
+    awaitPromise: false,
+  });
+  const value = result.result?.value;
+  return typeof value === 'string' ? value : String(value ?? '');
+}
+
+async function evaluateFirefoxBoolean(bidi, context, expression) {
+  const result = await bidi.command('script.evaluate', {
+    expression,
+    target: { context },
+    awaitPromise: false,
+  });
+  return result.result?.value === true;
+}
+
+async function captureChromiumScreenshot(browser, profileName, target, client) {
+  await client.command('Page.bringToFront', {}).catch(() => undefined);
+  await delay(500);
+  const result = await client
+    .command('Page.captureScreenshot', {
+      format: 'png',
+      fromSurface: true,
+    })
+    .catch((error) => ({ error: String(error.message ?? error) }));
+  if (typeof result.data !== 'string') {
+    return {
+      targetId: target.targetId,
+      url: await evaluateString(client, 'location.href').catch(() => target.url),
+      captured: false,
+      error: result.error ?? 'missing screenshot data',
+    };
+  }
+  const path = await saveScreenshot(browser, profileName, target.targetId, result.data);
+  return {
+    targetId: target.targetId,
+    url: await evaluateString(client, 'location.href').catch(() => target.url),
+    captured: true,
+    path,
+  };
+}
+
+async function captureFirefoxScreenshot(browser, profileName, context, bidi) {
+  const result = await bidi.command('browsingContext.captureScreenshot', { context }).catch((error) => ({
+    error: String(error.message ?? error),
+  }));
+  if (typeof result.data !== 'string') {
+    return {
+      context,
+      url: await evaluateFirefoxString(bidi, context, 'location.href').catch(() => ''),
+      captured: false,
+      error: result.error ?? 'missing screenshot data',
+    };
+  }
+  const path = await saveScreenshot(browser, profileName, context, result.data);
+  return {
+    context,
+    url: await evaluateFirefoxString(bidi, context, 'location.href').catch(() => ''),
+    captured: true,
+    path,
+  };
+}
+
+async function saveScreenshot(browser, profileName, targetId, base64Data) {
+  const filename = `${sanitizeFilePart(browser.id)}-${sanitizeFilePart(profileName)}-${sanitizeFilePart(targetId)}.png`;
+  const path = join(screenshotDirectory, filename);
+  await writeFile(path, Buffer.from(base64Data, 'base64'));
+  return path;
+}
+
+function sanitizeFilePart(value) {
+  return String(value).replace(/[^a-zA-Z0-9._-]+/g, '_');
+}
+
+function eventUrlFromChromiumEvent(event) {
+  if (event.method === 'Page.frameNavigated' && typeof event.params?.frame?.url === 'string') {
+    return event.params.frame.url;
+  }
+  if (event.method === 'Page.navigatedWithinDocument' && typeof event.params?.url === 'string') {
+    return event.params.url;
+  }
+  if (event.method === 'Page.frameRequestedNavigation' && typeof event.params?.url === 'string') {
+    return event.params.url;
+  }
+  return null;
+}
+
+function firstMatchingClient(targets, clients) {
+  for (const pair of pairTargetsWithClients(targets, clients)) {
+    if (urls.some((url) => hostMatches(new URL(url).hostname, pair.target.url))) {
+      return pair;
+    }
+  }
+  return null;
+}
+
+function pairTargetsWithClients(targets, clients) {
+  return targets
+    .map((target) => ({
+      target,
+      client: clients.find((candidate) => candidate.url === target.webSocketDebuggerUrl) ?? null,
+    }))
+    .filter((pair) => pair.client !== null);
+}
+
+function flattenContexts(contexts) {
+  const output = [];
+  for (const context of contexts) {
+    output.push(context);
+    output.push(...flattenContexts(context.children ?? []));
+  }
+  return output;
 }
 
 async function waitForTargets(port) {
@@ -200,7 +753,7 @@ async function jsonRequest(port, path) {
 }
 
 function capturedUrl(value) {
-  return typeof value === 'string' && value.startsWith('http');
+  return typeof value === 'string' && (value.startsWith('http://') || value.startsWith('https://'));
 }
 
 function capturedTitle(value) {
@@ -220,12 +773,24 @@ function normalizeHost(host) {
   return host.toLowerCase().replace(/^www\./, '');
 }
 
+function historyProbeUrl(url, index) {
+  if (!capturedUrl(url)) {
+    return url;
+  }
+  const parsed = new URL(url);
+  parsed.hash = `ocentra_history_probe=${index + 1}`;
+  return parsed.toString();
+}
+
 async function installedSupportedBrowsers() {
   const candidates = browserCandidates().filter((candidate) => candidate.supported);
   const installed = [];
+  const seen = new Set();
   for (const candidate of candidates) {
-    if (await fileExists(candidate.executablePath)) {
+    const key = `${candidate.id}:${candidate.executablePath.toLowerCase()}`;
+    if (!seen.has(key) && (await fileExists(candidate.executablePath))) {
       installed.push(candidate);
+      seen.add(key);
     }
   }
   return installed;
@@ -243,7 +808,7 @@ async function installedUnsupportedBrowsers() {
           channel: candidate.channel,
           executablePath: candidate.executablePath,
         },
-        status: 'unsupported-by-current-chromium-devtools-bridge',
+        status: 'unsupported-by-current-matrix',
       });
     }
   }
@@ -259,7 +824,7 @@ function browserCandidates() {
     ...windowsRoots().flatMap((root) => [
       chromiumCandidate('edge-stable', 'edge', join(root, 'Microsoft', 'Edge', 'Application', 'msedge.exe')),
       chromiumCandidate('chrome-stable', 'chrome', join(root, 'Google', 'Chrome', 'Application', 'chrome.exe')),
-      unsupportedCandidate('firefox-stable', 'firefox', join(root, 'Mozilla Firefox', 'firefox.exe')),
+      firefoxCandidate('firefox-stable', join(root, 'Mozilla Firefox', 'firefox.exe')),
     ]),
     chromiumCandidate(
       'edge-local',
@@ -271,11 +836,7 @@ function browserCandidates() {
       'chrome',
       join(process.env.LOCALAPPDATA ?? '', 'Google', 'Chrome', 'Application', 'chrome.exe')
     ),
-    unsupportedCandidate(
-      'firefox-local',
-      'firefox',
-      join(process.env.LOCALAPPDATA ?? '', 'Mozilla Firefox', 'firefox.exe')
-    ),
+    firefoxCandidate('firefox-local', join(process.env.LOCALAPPDATA ?? '', 'Mozilla Firefox', 'firefox.exe')),
   ];
 }
 
@@ -290,14 +851,14 @@ function chromiumCandidate(id, family, executablePath) {
   };
 }
 
-function unsupportedCandidate(id, family, executablePath) {
+function firefoxCandidate(id, executablePath) {
   return {
     id,
-    family,
-    channel: 'stable',
+    family: 'firefox',
+    channel: channelFromPath(executablePath),
     executablePath,
-    supported: false,
-    bridge: 'unsupported',
+    supported: true,
+    bridge: 'webdriver-bidi',
   };
 }
 
@@ -372,6 +933,14 @@ function summarize(browserResults, unsupported) {
       ),
     0
   );
+  const activeProofCount = browserResults.reduce(
+    (count, browser) => count + browser.profiles.filter((profile) => profile.assertions.canProveActiveTab).length,
+    0
+  );
+  const historyProofCount = browserResults.reduce(
+    (count, browser) => count + browser.profiles.filter((profile) => profile.assertions.canJournalVisitedUrls).length,
+    0
+  );
   for (const browser of browserResults) {
     for (const profile of browser.profiles) {
       if (!profile.assertions.canConnectManagedProfile) {
@@ -383,6 +952,12 @@ function summarize(browserResults, unsupported) {
       if (!profile.assertions.canSeeUrls) {
         failures.push(`${browser.browser.id}/${profile.profileName}: one or more tab URLs were not captured`);
       }
+      if (!profile.assertions.canProveActiveTab) {
+        failures.push(`${browser.browser.id}/${profile.profileName}: active tab proof failed`);
+      }
+      if (!profile.assertions.canJournalVisitedUrls) {
+        failures.push(`${browser.browser.id}/${profile.profileName}: visited URL journal proof failed`);
+      }
     }
   }
 
@@ -392,6 +967,8 @@ function summarize(browserResults, unsupported) {
     managedProfileCount: profileCount,
     requestedUrlCount: urls.length,
     capturedUrlCount: capturedUrls,
+    activeProofCount,
+    historyProofCount,
     failures,
   };
 }
@@ -400,15 +977,17 @@ function printSummary(evidence, evidencePath) {
   console.log(`managed-browser-profile-matrix-ok=${evidence.summary.failures.length === 0}`);
   console.log(`evidence=${evidencePath}`);
   console.log(
-    `supportedBrowsers=${evidence.summary.supportedBrowserCount} managedProfiles=${evidence.summary.managedProfileCount} capturedUrls=${evidence.summary.capturedUrlCount}`
+    `supportedBrowsers=${evidence.summary.supportedBrowserCount} managedProfiles=${evidence.summary.managedProfileCount} capturedUrls=${evidence.summary.capturedUrlCount} activeProofs=${evidence.summary.activeProofCount} historyProofs=${evidence.summary.historyProofCount}`
   );
   for (const browser of evidence.supportedBrowsers) {
-    console.log(`${browser.browser.id} ${browser.browser.executablePath}`);
+    console.log(`${browser.browser.id} ${browser.browser.bridge} ${browser.browser.executablePath}`);
     for (const profile of browser.profiles) {
       const urlsForProfile = profile.siteEvidence
         .map((site) => `${site.requestedHost}=>${site.observedUrl}`)
         .join(' | ');
-      console.log(`  ${profile.profileName}: tabs=${profile.pageTargetCount} urls=${urlsForProfile}`);
+      console.log(
+        `  ${profile.profileName}: tabs=${profile.pageTargetCount} active=${profile.assertions.activeTabProof} history=${profile.assertions.visitedHistoryProof} urls=${urlsForProfile}`
+      );
     }
   }
   for (const item of evidence.unsupportedInstalledBrowsers) {
@@ -434,3 +1013,162 @@ function envNumber(name, fallback) {
   const parsed = Number(process.env[name]);
   return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
 }
+
+class DevToolsClient {
+  static async connect(url) {
+    const webSocket = await connectWebSocket(url, timeoutMs);
+    return new DevToolsClient(url, webSocket);
+  }
+
+  constructor(url, webSocket) {
+    this.url = url;
+    this.webSocket = webSocket;
+    this.commandId = 0;
+    this.pending = new Map();
+    this.eventHandlers = [];
+    this.webSocket.addEventListener('message', (message) => this.handleMessage(message));
+  }
+
+  command(method, params) {
+    const id = ++this.commandId;
+    const payload = { id, method, params };
+    const promise = new Promise((resolve, reject) => {
+      this.pending.set(id, { resolve, reject });
+      setTimeout(() => {
+        if (this.pending.delete(id)) {
+          reject(new Error(`Timed out waiting for ${method}`));
+        }
+      }, commandTimeoutMs).unref();
+    });
+    this.webSocket.send(JSON.stringify(payload));
+    return promise;
+  }
+
+  onEvent(handler) {
+    this.eventHandlers.push(handler);
+  }
+
+  close() {
+    this.webSocket.close();
+  }
+
+  handleMessage(message) {
+    const data = JSON.parse(message.data);
+    if (data.id !== undefined) {
+      const pending = this.pending.get(data.id);
+      if (pending === undefined) {
+        return;
+      }
+      this.pending.delete(data.id);
+      if (data.error !== undefined) {
+        pending.reject(new Error(JSON.stringify(data.error)));
+      } else {
+        pending.resolve(data.result ?? {});
+      }
+      return;
+    }
+    for (const handler of this.eventHandlers) {
+      handler(data);
+    }
+  }
+}
+
+class FirefoxBidiClient {
+  static async connect(url, timeout) {
+    const webSocket = await connectWebSocket(url, timeout);
+    return new FirefoxBidiClient(webSocket);
+  }
+
+  constructor(webSocket) {
+    this.webSocket = webSocket;
+    this.commandId = 0;
+    this.pending = new Map();
+    this.eventHandlers = [];
+    this.webSocket.addEventListener('message', (message) => this.handleMessage(message));
+  }
+
+  command(method, params) {
+    const id = ++this.commandId;
+    const payload = { id, method, params };
+    const promise = new Promise((resolve, reject) => {
+      this.pending.set(id, { resolve, reject });
+      setTimeout(() => {
+        if (this.pending.delete(id)) {
+          reject(new Error(`Timed out waiting for ${method}`));
+        }
+      }, commandTimeoutMs).unref();
+    });
+    this.webSocket.send(JSON.stringify(payload));
+    return promise;
+  }
+
+  onEvent(handler) {
+    this.eventHandlers.push(handler);
+  }
+
+  close() {
+    this.webSocket.close();
+  }
+
+  handleMessage(message) {
+    const data = JSON.parse(message.data);
+    if (data.type === 'event') {
+      for (const handler of this.eventHandlers) {
+        handler(data);
+      }
+      return;
+    }
+    const pending = this.pending.get(data.id);
+    if (pending === undefined) {
+      return;
+    }
+    this.pending.delete(data.id);
+    if (data.type === 'success') {
+      pending.resolve(data.result ?? {});
+    } else {
+      pending.reject(new Error(JSON.stringify(data)));
+    }
+  }
+}
+
+async function connectWebSocket(url, timeout) {
+  const deadline = Date.now() + timeout;
+  let lastError;
+  while (Date.now() < deadline) {
+    try {
+      return await openWebSocket(url);
+    } catch (error) {
+      lastError = error;
+      await delay(250);
+    }
+  }
+  throw lastError;
+}
+
+function openWebSocket(url) {
+  return new Promise((resolve, reject) => {
+    const webSocket = new WebSocket(url);
+    const timer = setTimeout(() => {
+      webSocket.close();
+      reject(new Error(`Timed out connecting to ${url}`));
+    }, 3000);
+    webSocket.addEventListener(
+      'open',
+      () => {
+        clearTimeout(timer);
+        resolve(webSocket);
+      },
+      { once: true }
+    );
+    webSocket.addEventListener(
+      'error',
+      () => {
+        clearTimeout(timer);
+        reject(new Error(`WebSocket error for ${url}`));
+      },
+      { once: true }
+    );
+  });
+}
+
+await main();

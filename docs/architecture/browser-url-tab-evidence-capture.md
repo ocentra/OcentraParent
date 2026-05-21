@@ -527,12 +527,30 @@ Managed profile matrix validation:
 cmd /c npm run test:managed-browser-matrix
 ```
 
-The matrix harness opens real installed Chrome and Edge executables when
-available, creates Ocentra-owned profiles `managed-browser-profile-a`,
+The matrix harness opens real installed Chrome, Edge, and Firefox executables
+when available, creates Ocentra-owned profiles `managed-browser-profile-a`,
 `managed-browser-profile-b`, and `managed-browser-profile-c`, launches each
-profile with a loopback Chromium DevTools Protocol bridge, opens the configured
-test URLs in separate tabs, queries `/json/version` and `/json/list`, and writes
-a JSON evidence artifact under `test-results/managed-browser-profile-matrix`.
+profile with a loopback bridge, opens the configured test URLs in separate tabs,
+and writes a JSON evidence artifact under
+`test-results/managed-browser-profile-matrix`. Profiles run sequentially for
+stability; the goal is evidence quality, not load testing browser startup.
+
+Chrome and Edge use Chromium DevTools Protocol. The harness does not stop at
+`/json/list`: it attaches to each page target, enables `Page`/`Runtime`, captures
+current URL/title, activates one target with `Page.bringToFront`, verifies
+runtime focus/visibility with `document.hasFocus()` and
+`document.visibilityState`, then navigates each tab to a probe URL while
+journaling `Page.frameNavigated`, same-document navigation, and post-navigation
+snapshots. It waits for `document.readyState === "complete"` around navigation
+probes and saves per-tab protocol screenshots beside the JSON artifact.
+
+Firefox uses WebDriver BiDi. The harness launches Firefox with
+`--remote-debugging-port`, connects to `ws://127.0.0.1:<port>/session`, creates
+tabs with `browsingContext.create`, navigates them with
+`browsingContext.navigate`, activates one context with `browsingContext.activate`,
+captures the tab tree with `browsingContext.getTree`, evaluates title/focus
+state with `script.evaluate`, and journals `browsingContext` navigation/load
+events.
 
 The default URLs are:
 
@@ -548,10 +566,13 @@ cmd /c npm run test:managed-browser-matrix
 ```
 
 This proves managed-profile connection, visible page targets, URL visibility,
-and page title visibility where the browser target reports a title. It does not
-prove active-tab focus or browser history; `/json/list` is a current target-list
-snapshot only. Firefox is reported as installed-but-unsupported by this harness
-until a separate WebDriver BiDi or managed-extension adapter is added.
+page title visibility where available, active tab evidence for a
+protocol-activated tab, and visited URL journaling across a navigation sequence.
+External site failures remain evidence, not success claims: the JSON artifact
+records Firefox BiDi navigation errors separately when a managed Firefox profile
+captures a requested URL but the browser cannot complete the network load.
+Longer-term production history should persist these protocol events in the
+encrypted journal instead of relying on a one-shot current-tab snapshot.
 
 ## Implementation Phases
 
