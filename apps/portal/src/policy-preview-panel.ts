@@ -1,25 +1,19 @@
-import {
-  AgentEvent,
-  AgentProtocolDefaults,
-  type AgentEventEnvelope,
-} from '@ocentra-parent/agent-protocol-domain/contracts';
-import type { LogFieldValue } from '@ocentra-parent/logging-domain/contracts';
+import { AgentEvent, type AgentEventEnvelope } from '@ocentra-parent/agent-protocol-domain/contracts';
 import {
   PortalDetails,
   PortalDom,
-  PortalFormatting,
   PortalText,
   PortalTextToken,
-  decodePortalDetailValue,
-  type PortalDetailValue,
   type PortalDisplayText,
 } from '@ocentra-parent/portal-domain/contracts';
 import { appendDetail } from './detail-list';
+import { detailFromValue } from './event-detail-values';
 import { latestCommandResult } from './event-results';
+import { appendRuntimeDetails } from './local-ai-runtime-details';
 import type { PortalLiveActivityState } from './live-activity-state';
 import type { PortalRuntimeState } from './portal-state';
-
-type AgentPayloadField = (typeof AgentProtocolDefaults.Field)[keyof typeof AgentProtocolDefaults.Field];
+import { appendDecisionPreviewDetails, appendReadModelDetails } from './policy-preview-details';
+import type { PortalPolicyPreviewReadModel } from './policy-preview-read-model';
 
 export function renderPolicyPreview(
   container: HTMLElement,
@@ -27,83 +21,24 @@ export function renderPolicyPreview(
   liveActivity: PortalLiveActivityState
 ): void {
   const runtimeEvent = latestCommandResult(state.events, AgentEvent.LocalAiRuntimeStatusReported);
+  const policyEvent = liveActivity.policyPreviewEvent;
+  const policyReadModel = liveActivity.policyPreviewReadModel;
   const panel = panelWithTitle(PortalText.Resolve(PortalTextToken.PolicyPreview));
   const metadata = document.createElement(PortalDom.Tags.DefinitionList);
 
   appendRuntimeDetails(metadata, runtimeEvent);
-  appendDecisionPreviewDetails(metadata, liveActivity);
+  appendReadModelDetails(metadata, policyEvent, policyReadModel);
+  appendDecisionPreviewDetails(metadata, policyReadModel);
   appendDetail(
     metadata,
     PortalDetails.Enforcement,
-    decodePortalDetailValue(PortalText.Resolve(PortalTextToken.PolicyPreviewNoEnforcement))
+    detailFromValue(PortalText.Resolve(PortalTextToken.PolicyPreviewNoEnforcement))
   );
 
   panel.append(metadata);
   appendRuntimeEmptyState(panel, runtimeEvent);
-  panel.append(emptyMessage(PortalText.Resolve(PortalTextToken.NoPolicyPreview)));
+  appendPolicyPreviewState(panel, policyEvent, policyReadModel);
   container.append(panel);
-}
-
-function appendRuntimeDetails(metadata: HTMLDListElement, runtimeEvent: AgentEventEnvelope | null): void {
-  appendDetail(metadata, PortalDetails.Status, eventStatus(runtimeEvent));
-  appendDetail(
-    metadata,
-    PortalDetails.RuntimeReference,
-    payloadDetail(runtimeEvent, AgentProtocolDefaults.Field.LocalAiRuntimeReferenceId)
-  );
-  appendDetail(
-    metadata,
-    PortalDetails.Provider,
-    payloadDetail(runtimeEvent, AgentProtocolDefaults.Field.LocalAiProviderId)
-  );
-  appendDetail(metadata, PortalDetails.Model, payloadDetail(runtimeEvent, AgentProtocolDefaults.Field.LocalAiModelId));
-  appendDetail(metadata, PortalDetails.LoadState, payloadDetail(runtimeEvent, AgentProtocolDefaults.Field.LoadState));
-  appendDetail(
-    metadata,
-    PortalDetails.Capability,
-    payloadDetail(runtimeEvent, AgentProtocolDefaults.Field.LocalAiCapabilityFlags)
-  );
-  appendDetail(
-    metadata,
-    PortalDetails.ResourceClass,
-    payloadDetail(runtimeEvent, AgentProtocolDefaults.Field.LocalAiResourceClass)
-  );
-  appendDetail(
-    metadata,
-    PortalDetails.DegradedState,
-    payloadDetail(runtimeEvent, AgentProtocolDefaults.Field.LocalAiDegradedState)
-  );
-  appendDetail(metadata, PortalDetails.LastChecked, payloadDetail(runtimeEvent, AgentProtocolDefaults.Field.CheckedAt));
-  appendDetail(
-    metadata,
-    PortalDetails.Reason,
-    payloadDetail(runtimeEvent, AgentProtocolDefaults.Field.LocalAiUnavailableReason)
-  );
-}
-
-function appendDecisionPreviewDetails(metadata: HTMLDListElement, liveActivity: PortalLiveActivityState): void {
-  appendDetail(metadata, PortalDetails.DecisionAction, notReported());
-  appendDetail(metadata, PortalDetails.ReasonCodes, notReported());
-  appendDetail(metadata, PortalDetails.EvidenceReferences, evidenceReferencesDetail(liveActivity));
-  appendDetail(metadata, PortalDetails.UnknownState, notReported());
-}
-
-function evidenceReferencesDetail(liveActivity: PortalLiveActivityState): PortalDetailValue {
-  const references: LogFieldValue[] = [];
-  appendReference(references, liveActivity.browserEvidenceSummary?.browserEvidenceId);
-  appendReference(references, liveActivity.networkFlowReadModel?.rows[0]?.eventId);
-  appendReference(references, liveActivity.recentSummary?.lastEventId);
-  if (references.length === 0) {
-    return notReported();
-  }
-  return decodePortalDetailValue(references.map(String).join(PortalFormatting.EventDetailSeparator));
-}
-
-function appendReference(references: LogFieldValue[], reference: LogFieldValue | undefined): void {
-  if (reference === undefined || reference === null) {
-    return;
-  }
-  references.push(reference);
 }
 
 function panelWithTitle(titleText: PortalDisplayText): HTMLElement {
@@ -130,27 +65,16 @@ function appendRuntimeEmptyState(panel: HTMLElement, runtimeEvent: AgentEventEnv
   }
 }
 
-function eventStatus(event: AgentEventEnvelope | null): PortalDetailValue {
-  if (event === null) {
-    return notReported();
+function appendPolicyPreviewState(
+  panel: HTMLElement,
+  event: AgentEventEnvelope | null,
+  readModel: PortalPolicyPreviewReadModel | null
+): void {
+  if (event === null || readModel === null || hasNoRows(readModel)) {
+    panel.append(emptyMessage(PortalText.Resolve(PortalTextToken.NoPolicyPreview)));
   }
-  return decodePortalDetailValue(event.severity);
 }
 
-function payloadDetail(event: AgentEventEnvelope | null, field: AgentPayloadField): PortalDetailValue {
-  if (event === null) {
-    return notReported();
-  }
-  return detailFromValue(event.payload[field]);
-}
-
-function detailFromValue(value: LogFieldValue | undefined): PortalDetailValue {
-  if (value === undefined || value === null) {
-    return notReported();
-  }
-  return decodePortalDetailValue(String(value));
-}
-
-function notReported(): PortalDetailValue {
-  return decodePortalDetailValue(PortalText.Resolve(PortalTextToken.NotReported));
+function hasNoRows(readModel: PortalPolicyPreviewReadModel): boolean {
+  return readModel.returned === 0;
 }

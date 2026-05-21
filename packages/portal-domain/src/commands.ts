@@ -30,6 +30,10 @@ export const PortalOverviewCommands = [
     command: AgentCommand.LocalAiRuntimeStatusGet,
     payload: {},
   },
+  {
+    command: AgentCommand.PolicyPreviewReadModelGet,
+    payload: {},
+  },
 ] as const;
 
 export const PortalCommandButtons = [
@@ -93,6 +97,12 @@ export const PortalCommandButtons = [
     label: resolvePortalDevText(PortalDevTextToken.GetLocalAiRuntimeStatus),
     command: AgentCommand.LocalAiRuntimeStatusGet,
     resultEvent: AgentEvent.LocalAiRuntimeStatusReported,
+    payload: {},
+  },
+  {
+    label: resolvePortalDevText(PortalDevTextToken.GetPolicyPreviewReadModel),
+    command: AgentCommand.PolicyPreviewReadModelGet,
+    resultEvent: AgentEvent.PolicyPreviewReadModelReported,
     payload: {},
   },
 ] as const;

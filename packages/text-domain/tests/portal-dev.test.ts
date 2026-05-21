@@ -11,6 +11,7 @@ describe('portal dev text', () => {
     expect(PortalDevText[PortalDevTextToken.RecentActivity]).toBe('Recent activity');
     expect(PortalDevText[PortalDevTextToken.PolicyPreview]).toBe('Policy preview');
     expect(PortalDevText[PortalDevTextToken.PolicyPreviewNoEnforcement]).toBe('Enforcement disabled; preview only.');
+    expect(PortalDevText[PortalDevTextToken.GetPolicyPreviewReadModel]).toBe('Get policy preview');
     expect(PortalDevText[PortalDevTextToken.CommandResult]).toBe('Command result');
     expect(PortalDevText[PortalDevTextToken.CopyResult]).toBe('Copy result');
   });

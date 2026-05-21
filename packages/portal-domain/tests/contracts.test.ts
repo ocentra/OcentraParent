@@ -39,6 +39,10 @@ describe('portal domain contracts', () => {
     expect(PortalCommandButtons.map((button) => button.resultEvent)).toContain(
       'agent.local-ai.runtime.status.reported'
     );
+    expect(PortalCommandButtons.map((button) => button.command)).toContain('agent.policy.preview.read-model.get');
+    expect(PortalCommandButtons.map((button) => button.resultEvent)).toContain(
+      'agent.policy.preview.read-model.reported'
+    );
     expect(PortalOverviewCommands.map((button) => button.command)).toEqual([
       'agent.health.check',
       'agent.log.snapshot.get',
@@ -47,6 +51,7 @@ describe('portal domain contracts', () => {
       'agent.browser.evidence.recent.get',
       'agent.network.flow.read-model.get',
       'agent.local-ai.runtime.status.get',
+      'agent.policy.preview.read-model.get',
     ]);
   });
 
