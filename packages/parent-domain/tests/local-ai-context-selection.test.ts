@@ -6,10 +6,34 @@ const device = { deviceId: 'device-1', childProfileId: 'child-1', label: 'Sam Wi
 const observedAt = '2026-05-21T09:10:00.000Z';
 const ingestedAt = '2026-05-21T09:10:01.000Z';
 const freshUntil = '2026-05-21T09:15:00.000Z';
+const family = { familyId: 'family-1' };
 const sourceEvidence = {
   evidenceReferenceId: 'journal-event-1',
   kind: 'journal-event',
   observedAt,
+};
+const parentRuleContextReference = {
+  parentRuleRefId: 'parent-rule-context-selection',
+  policyVersion: 'policy-v1',
+  family,
+  childProfile,
+  device,
+  rule: {
+    ruleId: 'rule-safe-search',
+    target: { targetId: 'target-browser-1', targetType: 'category', targetValue: 'browser-safety' },
+    action: 'warn',
+    scheduleId: null,
+    priority: 10,
+    reasonCode: 'parent-rule-browser-safety',
+    createdBy: { actorId: 'parent-1', role: 'parent' },
+    enabled: true,
+    effectiveFrom: null,
+    effectiveUntil: null,
+  },
+  targetEvidenceRefs: ['browser-ref-1'],
+  custody: 'parent-device-cache',
+  updatedAt: observedAt,
+  expiresAt: null,
 };
 const buildRequest = {
   schemaVersion: 'v0.6',
@@ -19,7 +43,7 @@ const buildRequest = {
   device,
   requestedEvaluationKind: 'mixed-context',
   requiredEvidenceKinds: ['browser'],
-  parentRuleReferences: ['rule-safe-search'],
+  parentRuleContextReferences: [parentRuleContextReference],
   modelTaskRequirements: ['safety-decision'],
   allowedCustody: ['child-device-query-store'],
   promptVersion: 'prompt-v1',
