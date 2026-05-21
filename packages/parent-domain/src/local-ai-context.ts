@@ -1,7 +1,12 @@
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-import { PolicyRuleIdSchema } from './policy';
-import { ChildProfileReferenceSchema, ParentDeviceReferenceSchema, ParentEvidenceReferenceSchema } from './references';
-import { ParentContractSchemaVersionSchema } from './reference-primitives';
+import { PolicyRuleIdSchema, PolicyRuleSchema } from './policy';
+import {
+  ChildProfileReferenceSchema,
+  FamilyReferenceSchema,
+  ParentDeviceReferenceSchema,
+  ParentEvidenceReferenceSchema,
+} from './references';
+import { ParentContractSchemaVersionSchema, ParentPolicyVersionSchema } from './reference-primitives';
 import {
   LocalAiCapabilityFlagSchema,
   LocalAiConfidenceSchema,
@@ -26,6 +31,7 @@ import {
   LocalAiEvidenceCustodySchema,
   LocalAiEvidenceRetentionStateSchema,
   LocalAiEvidenceSourceIdSchema,
+  LocalAiParentRuleContextRefIdSchema,
   LocalAiRejectedFieldSchema,
   LocalAiRequestedEvaluationKindSchema,
 } from './local-ai-context-primitives';
@@ -61,6 +67,26 @@ export const LocalAiEvidenceContextSourceRefSchema = withParser(
   )
 );
 
+export const LocalAiParentRuleContextRefSchema = withParser(
+  Schema.Struct({
+    parentRuleRefId: LocalAiParentRuleContextRefIdSchema,
+    policyVersion: ParentPolicyVersionSchema,
+    family: FamilyReferenceSchema,
+    childProfile: ChildProfileReferenceSchema,
+    device: ParentDeviceReferenceSchema,
+    rule: PolicyRuleSchema,
+    targetEvidenceRefs: Schema.Array(LocalAiEvidenceContextRefIdSchema),
+    custody: LocalAiEvidenceCustodySchema,
+    updatedAt: LocalAiTimestampSchema,
+    expiresAt: Schema.Union(LocalAiTimestampSchema, Schema.Null),
+  }).pipe(
+    Schema.filter(
+      (reference) =>
+        reference.targetEvidenceRefs.length > 0 || 'Expected parent rule context to cite target evidence refs'
+    )
+  )
+);
+
 export const LocalAiEvidenceContextBuildRequestSchema = withParser(
   Schema.Struct({
     schemaVersion: ParentContractSchemaVersionSchema,
@@ -70,7 +96,7 @@ export const LocalAiEvidenceContextBuildRequestSchema = withParser(
     device: ParentDeviceReferenceSchema,
     requestedEvaluationKind: LocalAiRequestedEvaluationKindSchema,
     requiredEvidenceKinds: Schema.Array(LocalAiEvidenceContextKindSchema),
-    parentRuleReferences: Schema.Array(PolicyRuleIdSchema),
+    parentRuleContextReferences: Schema.Array(LocalAiParentRuleContextRefSchema),
     modelTaskRequirements: Schema.Array(LocalAiCapabilityFlagSchema),
     allowedCustody: Schema.Array(LocalAiEvidenceCustodySchema),
     promptVersion: LocalAiPromptVersionSchema,
@@ -84,6 +110,8 @@ export const LocalAiEvidenceContextValidationSummarySchema = withParser(
     runtimeReferenceCount: LocalAiContextNonNegativeCountSchema,
     memoryReferenceCount: LocalAiContextNonNegativeCountSchema,
     graphReferenceCount: LocalAiContextNonNegativeCountSchema,
+    parentRuleReferenceCount: LocalAiContextNonNegativeCountSchema,
+    ungroundedParentRuleReferenceCount: LocalAiContextNonNegativeCountSchema,
     forbiddenCustodyReferenceCount: LocalAiContextNonNegativeCountSchema,
     unallowedCustodyReferenceCount: LocalAiContextNonNegativeCountSchema,
   })
@@ -102,6 +130,7 @@ export const LocalAiEvidenceContextSchema = withParser(
     networkFlowEvidenceRefs: Schema.Array(LocalAiEvidenceContextRefIdSchema),
     screenSummaryRefs: Schema.Array(LocalAiEvidenceContextRefIdSchema),
     parentRuleReferences: Schema.Array(PolicyRuleIdSchema),
+    parentRuleContextReferences: Schema.Array(LocalAiParentRuleContextRefSchema),
     recentActivitySummaryRefs: Schema.Array(LocalAiEvidenceContextRefIdSchema),
     memoryReferences: Schema.Array(LocalAiMemoryReferenceSchema),
     graphReferences: Schema.Array(LocalAiGraphReferenceSchema),
@@ -141,6 +170,7 @@ export const LocalAiStoredEvidenceContextBuildInputSchema = withParser(
 );
 
 export type LocalAiEvidenceContextSourceRef = Infer<typeof LocalAiEvidenceContextSourceRefSchema>;
+export type LocalAiParentRuleContextRef = Infer<typeof LocalAiParentRuleContextRefSchema>;
 export type LocalAiEvidenceContextBuildRequest = Infer<typeof LocalAiEvidenceContextBuildRequestSchema>;
 export type LocalAiEvidenceContextValidationSummary = Infer<typeof LocalAiEvidenceContextValidationSummarySchema>;
 export type LocalAiEvidenceContext = Infer<typeof LocalAiEvidenceContextSchema>;

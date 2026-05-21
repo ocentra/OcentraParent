@@ -4,6 +4,7 @@ import type {
   LocalAiEvidenceContextRefId,
   LocalAiEvidenceContextSourceRef,
   LocalAiEvidenceCustody,
+  LocalAiParentRuleContextRef,
   LocalAiStoredEvidenceContextBuildInput,
 } from './local-ai-context';
 import type { LocalAiGraphReference, LocalAiMemoryReference } from './local-ai-references';
@@ -18,6 +19,8 @@ export interface LocalAiEvidenceContextSelection {
   selectedRuntimeReferences: LocalModelRuntimeStatus[];
   selectedMemoryReferences: LocalAiMemoryReference[];
   selectedGraphReferences: LocalAiGraphReference[];
+  selectedParentRuleContextReferences: LocalAiParentRuleContextRef[];
+  ungroundedParentRuleContextReferences: LocalAiParentRuleContextRef[];
   missingEvidenceKinds: LocalAiEvidenceContextKind[];
   degradedSourceRefs: LocalAiEvidenceContextRefId[];
   additionalDegradedReasons: LocalAiContextReasonCode[];
@@ -49,6 +52,7 @@ export function uniqueReasonCodes(
 function selectedEvidenceReferenceIds(evidenceReferences: readonly LocalAiEvidenceContextSourceRef[]): Set<string> {
   const referenceIds = new Set<string>();
   for (const reference of evidenceReferences) {
+    referenceIds.add(reference.evidenceRefId);
     referenceIds.add(reference.evidence.evidenceReferenceId);
     for (const sourceReference of reference.sourceEvidenceReferences) {
       referenceIds.add(sourceReference.evidenceReferenceId);
@@ -88,6 +92,22 @@ function selectGroundedGraphReferences(
   );
 }
 
+function parentRuleHasSelectedEvidenceGrounding(
+  reference: LocalAiParentRuleContextRef,
+  selectedReferenceIds: ReadonlySet<string>
+): boolean {
+  return reference.targetEvidenceRefs.every((targetEvidenceRef) => selectedReferenceIds.has(targetEvidenceRef));
+}
+
+function selectGroundedParentRuleContextReferences(
+  input: LocalAiStoredEvidenceContextBuildInput,
+  selectedReferenceIds: ReadonlySet<string>
+): LocalAiParentRuleContextRef[] {
+  return input.request.parentRuleContextReferences.filter((reference) =>
+    parentRuleHasSelectedEvidenceGrounding(reference, selectedReferenceIds)
+  );
+}
+
 function selectRuntimeReferences(input: LocalAiStoredEvidenceContextBuildInput): LocalModelRuntimeStatus[] {
   if (input.request.modelTaskRequirements.length === 0) {
     return [...input.runtimeReferences];
@@ -124,6 +144,10 @@ export function selectLocalAiEvidenceContextInput(
   const selectedReferenceIds = selectedEvidenceReferenceIds(selectedEvidenceReferences);
   const selectedMemoryReferences = selectGroundedMemoryReferences(input, selectedReferenceIds);
   const selectedGraphReferences = selectGroundedGraphReferences(input, selectedReferenceIds);
+  const selectedParentRuleContextReferences = selectGroundedParentRuleContextReferences(input, selectedReferenceIds);
+  const ungroundedParentRuleContextReferences = input.request.parentRuleContextReferences.filter(
+    (reference) => !parentRuleHasSelectedEvidenceGrounding(reference, selectedReferenceIds)
+  );
   const additionalDegradedReasons: LocalAiContextReasonCode[] = [];
   if (unallowedCustodyReferences.length > 0) {
     pushReasonCode(additionalDegradedReasons, 'custody-unavailable');
@@ -137,6 +161,9 @@ export function selectLocalAiEvidenceContextInput(
   if (selectedGraphReferences.length !== input.graphReferences.length) {
     pushReasonCode(additionalDegradedReasons, 'graph-ungrounded');
   }
+  if (selectedParentRuleContextReferences.length === 0) {
+    pushReasonCode(additionalDegradedReasons, 'parent-rule-missing');
+  }
   return {
     selectedEvidenceReferences,
     forbiddenCustodyReferences,
@@ -144,6 +171,8 @@ export function selectLocalAiEvidenceContextInput(
     selectedRuntimeReferences,
     selectedMemoryReferences,
     selectedGraphReferences,
+    selectedParentRuleContextReferences,
+    ungroundedParentRuleContextReferences,
     missingEvidenceKinds: input.request.requiredEvidenceKinds.filter(
       (evidenceKind) => refIdsForKind(selectedEvidenceReferences, evidenceKind).length === 0
     ),

@@ -5,6 +5,9 @@ const LocalAiContextText = Schema.String.pipe(Schema.minLength(1));
 export const LocalAiContextNonNegativeCountSchema = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
 export const LocalAiEvidenceContextIdSchema = LocalAiContextText.pipe(Schema.brand('LocalAiEvidenceContextId'));
 export const LocalAiEvidenceContextRefIdSchema = LocalAiContextText.pipe(Schema.brand('LocalAiEvidenceContextRefId'));
+export const LocalAiParentRuleContextRefIdSchema = LocalAiContextText.pipe(
+  Schema.brand('LocalAiParentRuleContextRefId')
+);
 export const LocalAiEvidenceSourceIdSchema = LocalAiContextText.pipe(Schema.brand('LocalAiEvidenceSourceId'));
 export const LocalAiEvidenceAdapterIdSchema = LocalAiContextText.pipe(Schema.brand('LocalAiEvidenceAdapterId'));
 export const LocalAiEvidenceContextSummarySchema = LocalAiContextText.pipe(
@@ -109,6 +112,7 @@ export const LocalAiContextBuildStateSchema = withParser(
 
 export type LocalAiEvidenceContextId = typeof LocalAiEvidenceContextIdSchema.Type;
 export type LocalAiEvidenceContextRefId = typeof LocalAiEvidenceContextRefIdSchema.Type;
+export type LocalAiParentRuleContextRefId = typeof LocalAiParentRuleContextRefIdSchema.Type;
 export type LocalAiEvidenceSourceId = typeof LocalAiEvidenceSourceIdSchema.Type;
 export type LocalAiEvidenceAdapterId = typeof LocalAiEvidenceAdapterIdSchema.Type;
 export type LocalAiEvidenceContextSummary = typeof LocalAiEvidenceContextSummarySchema.Type;

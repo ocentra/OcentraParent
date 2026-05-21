@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { LocalAiEvidenceContextSourceRefSchema } from '../src/local-ai-context';
+import { LocalAiEvidenceContextSourceRefSchema, LocalAiParentRuleContextRefSchema } from '../src/local-ai-context';
 import { LocalAiGraphReferenceSchema, LocalAiMemoryReferenceSchema } from '../src/local-ai-references';
 
 const childProfile = { childProfileId: 'child-1', displayName: 'Sam' };
 const device = { deviceId: 'device-1', childProfileId: 'child-1', label: 'Sam Windows PC', platform: 'windows' };
+const family = { familyId: 'family-1' };
 const observedAt = '2026-05-21T09:10:00.000Z';
 const sourceEvidence = {
   evidenceReferenceId: 'journal-event-1',
@@ -35,6 +36,30 @@ const contextSourceRef = {
   degradedReasons: [],
   unknownReasons: [],
   sourceEvidenceReferences: [sourceEvidence],
+};
+
+const parentRuleContextReference = {
+  parentRuleRefId: 'parent-rule-context-schema',
+  policyVersion: 'policy-v1',
+  family,
+  childProfile,
+  device,
+  rule: {
+    ruleId: 'rule-safe-search',
+    target: { targetId: 'target-browser-1', targetType: 'category', targetValue: 'browser-safety' },
+    action: 'warn',
+    scheduleId: null,
+    priority: 10,
+    reasonCode: 'parent-rule-browser-safety',
+    createdBy: { actorId: 'parent-1', role: 'parent' },
+    enabled: true,
+    effectiveFrom: null,
+    effectiveUntil: null,
+  },
+  targetEvidenceRefs: ['schema-ref-1'],
+  custody: 'parent-device-cache',
+  updatedAt: observedAt,
+  expiresAt: null,
 };
 
 describe('local AI evidence context source schema', () => {
@@ -77,5 +102,14 @@ describe('local AI evidence context source schema', () => {
 
     expect(missingMemorySource.success).toBe(false);
     expect(missingGraphSource.success).toBe(false);
+  });
+
+  it('rejects parent rule context without target evidence refs', () => {
+    const missingTargetRefs = LocalAiParentRuleContextRefSchema.safeParse({
+      ...parentRuleContextReference,
+      targetEvidenceRefs: [],
+    });
+
+    expect(missingTargetRefs.success).toBe(false);
   });
 });

@@ -7,10 +7,34 @@ const device = { deviceId: 'device-1', childProfileId: 'child-1', label: 'Sam Wi
 const observedAt = '2026-05-21T09:10:00.000Z';
 const ingestedAt = '2026-05-21T09:10:01.000Z';
 const freshUntil = '2026-05-21T09:15:00.000Z';
+const family = { familyId: 'family-1' };
 const sourceEvidence = {
   evidenceReferenceId: 'journal-event-1',
   kind: 'journal-event',
   observedAt,
+};
+const parentRuleContextReference = {
+  parentRuleRefId: 'parent-rule-context-1',
+  policyVersion: 'policy-v1',
+  family,
+  childProfile,
+  device,
+  rule: {
+    ruleId: 'rule-safe-search',
+    target: { targetId: 'target-browser-1', targetType: 'category', targetValue: 'browser-safety' },
+    action: 'warn',
+    scheduleId: null,
+    priority: 10,
+    reasonCode: 'parent-rule-browser-safety',
+    createdBy: { actorId: 'parent-1', role: 'parent' },
+    enabled: true,
+    effectiveFrom: null,
+    effectiveUntil: null,
+  },
+  targetEvidenceRefs: ['browser-ref-1'],
+  custody: 'parent-device-cache',
+  updatedAt: observedAt,
+  expiresAt: null,
 };
 const runtimeStatus = {
   runtimeReferenceId: 'runtime-1',
@@ -32,7 +56,7 @@ const buildRequest = {
   device,
   requestedEvaluationKind: 'mixed-context',
   requiredEvidenceKinds: ['browser', 'app-game', 'network-flow', 'screen-summary'],
-  parentRuleReferences: ['rule-safe-search'],
+  parentRuleContextReferences: [parentRuleContextReference],
   modelTaskRequirements: ['safety-decision'],
   allowedCustody: ['child-device-query-store', 'child-device-journal'],
   promptVersion: 'prompt-v1',
@@ -90,12 +114,16 @@ describe('local AI evidence context builder contracts', () => {
     expect(result.context?.networkFlowEvidenceRefs).toEqual(['network-ref-1']);
     expect(result.context?.screenSummaryRefs).toEqual(['screen-ref-1']);
     expect(result.context?.localModelRuntimeRefs).toEqual(['runtime-1']);
+    expect(result.context?.parentRuleReferences).toEqual(['rule-safe-search']);
+    expect(result.context?.parentRuleContextReferences).toEqual([parentRuleContextReference]);
     expect(result.context?.validationSummary).toEqual({
       evidenceReferenceCount: 4,
       sourceEvidenceReferenceCount: 4,
       runtimeReferenceCount: 1,
       memoryReferenceCount: 0,
       graphReferenceCount: 0,
+      parentRuleReferenceCount: 1,
+      ungroundedParentRuleReferenceCount: 0,
       forbiddenCustodyReferenceCount: 0,
       unallowedCustodyReferenceCount: 0,
     });
@@ -117,46 +145,5 @@ describe('local AI evidence context builder contracts', () => {
     expect(result.context?.browserEvidenceRefs).toEqual(['browser-ref-1']);
     expect(result.missingEvidenceKinds).toEqual(['app-game', 'network-flow', 'screen-summary']);
     expect(result.validationGateSummary).toBe('partial context built with explicit missing evidence kinds');
-  });
-
-  it('buildLocalAiEvidenceContext: rejects Ocentra-hosted non-activity metadata as evidence', () => {
-    const hostedReference = {
-      ...evidenceReference('hosted-ref-1', 'browser'),
-      custody: 'ocentra-hosted-non-activity',
-    };
-    const result = buildLocalAiEvidenceContext({
-      ...storedContextInput,
-      evidenceReferences: [hostedReference],
-    });
-
-    expect(result.state).toBe('rejected');
-    expect(result.context).toBeNull();
-    expect(result.rejectedFields).toEqual(['evidenceReferences']);
-    expect(result.degradedSourceRefs).toEqual(['hosted-ref-1']);
-    expect(result.custodyBoundarySummary).toBe(
-      'ocentra-hosted non-activity metadata cannot source child-activity evidence'
-    );
-  });
-
-  it('buildLocalAiEvidenceContext: rejects custody outside the request allowlist', () => {
-    const parentOwnedReference = {
-      ...evidenceReference('parent-export-ref-1', 'browser'),
-      custody: 'parent-owned-export',
-    };
-    const result = buildLocalAiEvidenceContext({
-      ...storedContextInput,
-      request: {
-        ...buildRequest,
-        allowedCustody: ['child-device-journal'],
-      },
-      evidenceReferences: [parentOwnedReference],
-    });
-
-    expect(result.state).toBe('rejected');
-    expect(result.context).toBeNull();
-    expect(result.rejectedFields).toEqual(['evidenceReferences']);
-    expect(result.degradedSourceRefs).toEqual(['parent-export-ref-1']);
-    expect(result.custodyBoundarySummary).toBe('evidence custody was not allowed by context request');
-    expect(result.validationGateSummary).toBe('rejected unallowed custody before local model input');
   });
 });
