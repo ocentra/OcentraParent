@@ -15,7 +15,15 @@ CREATE TABLE IF NOT EXISTS activity_events (
   evidence_json TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS activity_events_recent_idx
-  ON activity_events (observed_at DESC, event_id DESC);";
+  ON activity_events (observed_at DESC, event_id DESC);
+CREATE TABLE IF NOT EXISTS parent_rule_contexts (
+  parent_rule_ref_id TEXT PRIMARY KEY,
+  updated_at TEXT NOT NULL,
+  expires_at TEXT,
+  context_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS parent_rule_contexts_recent_idx
+  ON parent_rule_contexts (updated_at DESC, parent_rule_ref_id DESC);";
 
 pub const INSERT_ACTIVITY_EVENT: &str = "
 INSERT INTO activity_events (
@@ -115,3 +123,22 @@ WHERE kind = ?1
   AND observer = ?2
 ORDER BY observed_at DESC, event_id DESC
 LIMIT ?3;";
+
+pub const DELETE_PARENT_RULE_CONTEXTS: &str = "DELETE FROM parent_rule_contexts;";
+
+pub const UPSERT_PARENT_RULE_CONTEXT: &str = "
+INSERT INTO parent_rule_contexts (
+  parent_rule_ref_id,
+  updated_at,
+  expires_at,
+  context_json
+) VALUES (?1, ?2, ?3, ?4)
+ON CONFLICT(parent_rule_ref_id) DO UPDATE SET
+  updated_at = excluded.updated_at,
+  expires_at = excluded.expires_at,
+  context_json = excluded.context_json;";
+
+pub const SELECT_PARENT_RULE_CONTEXTS: &str = "
+SELECT context_json
+FROM parent_rule_contexts
+ORDER BY updated_at DESC, parent_rule_ref_id DESC;";

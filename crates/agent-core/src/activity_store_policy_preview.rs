@@ -1,12 +1,14 @@
 use ocentra_parent_agent_protocol::{
     constants, policy_constants as policy, ActivityEvidenceKind, ActivityEvidenceRef,
-    LogFieldValue, LogFields, ParentEvidenceReference, ParentEvidenceReferenceKind,
-    PolicyPreviewReadModel, PolicyPreviewReadModelRow, PolicyTarget, PolicyTargetType,
-    POLICY_DRY_RUN_SCHEMA_VERSION,
+    LocalAiParentRuleContextRef, LogFieldValue, LogFields, ParentEvidenceReference,
+    ParentEvidenceReferenceKind, PolicyPreviewReadModel, PolicyPreviewReadModelRow, PolicyTarget,
+    PolicyTargetType, POLICY_DRY_RUN_SCHEMA_VERSION,
 };
 use rusqlite::Connection;
 
 use crate::{
+    activity_store_parent_rule_context::parent_rule_contexts,
+    activity_store_policy_preview_parent_rules::parent_rule_contexts_for_row,
     activity_store_policy_preview_rows::{policy_preview_rows, PolicyPreviewStoreRow},
     evaluate_policy_dry_run, ActivityStoreError, PolicyDryRunEvaluationInput,
 };
@@ -17,9 +19,10 @@ pub(crate) fn policy_preview_read_model(
     generated_at: &str,
 ) -> Result<PolicyPreviewReadModel, ActivityStoreError> {
     let rows = policy_preview_rows(connection, limit)?;
+    let parent_rule_contexts = parent_rule_contexts(connection)?;
     let preview_rows = rows
         .into_iter()
-        .filter_map(|row| preview_row(row, generated_at))
+        .filter_map(|row| preview_row(row, generated_at, &parent_rule_contexts))
         .collect::<Vec<_>>();
 
     let capability_status = if preview_rows.is_empty() {
@@ -42,14 +45,25 @@ pub(crate) fn policy_preview_read_model(
 fn preview_row(
     row: PolicyPreviewStoreRow,
     generated_at: &str,
+    parent_rule_contexts: &[LocalAiParentRuleContextRef],
 ) -> Option<PolicyPreviewReadModelRow> {
     let target = target_from_row(&row)?;
     let evidence_references = evidence_references_from_row(&row);
+    let parent_rule_context_references = parent_rule_contexts_for_row(
+        &target,
+        &evidence_references,
+        generated_at,
+        parent_rule_contexts,
+    );
+    let parent_rules = parent_rule_context_references
+        .iter()
+        .map(|reference| reference.rule.clone())
+        .collect::<Vec<_>>();
     let decision = evaluate_policy_dry_run(PolicyDryRunEvaluationInput {
         decision_id: prefixed_id(policy::PREVIEW_DECISION_ID_PREFIX, &row.event_id),
         evaluated_at: generated_at.to_string(),
         observed_target: target.clone(),
-        parent_rules: Vec::new(),
+        parent_rules,
         local_ai_result: None,
         evidence_references: evidence_references.clone(),
         expires_at: None,
@@ -61,7 +75,7 @@ fn preview_row(
         observed_at: row.observed_at,
         target,
         evidence_references,
-        parent_rule_context_references: Vec::new(),
+        parent_rule_context_references,
         decision,
     })
 }
