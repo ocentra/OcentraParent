@@ -123,19 +123,18 @@ Current completed-on-main baseline includes:
 - V0.7 portal policy-preview shell;
 - V0.7 policy-preview service/API read path with TypeScript protocol contracts
   and Rust service parity;
+- V0.7 portal policy-preview read-model wiring with typed service result
+  rendering and preview-only enforcement messaging;
 - hub hook session hardening;
 - roadmap runtime order update.
 
 Correct active implementation order:
 
-1. V0.7 portal policy preview integration against the typed service read-model,
-   keeping decision action, reason codes, evidence references,
-   unknown/degraded states, and no-enforcement messaging visible.
-2. V0.7 local provider/runtime work must stay local-only and
+1. V0.7 local provider/runtime work must stay local-only and
    unavailable/degraded by default until a real adapter is reviewed.
-3. V0.7 parent-rule/context integration gaps may be planned or contracted, but
+2. V0.7 parent-rule/context integration gaps may be planned or contracted, but
    must not enable enforcement.
-4. V0.8 enforcement adapters only after V0.7 preview decisions are typed,
+3. V0.8 enforcement adapters only after V0.7 preview decisions are typed,
    evidence-cited, visible, and validated on `main`.
 
 The V0.7 start gate is now satisfied because browser, app/game, network, and
@@ -144,11 +143,10 @@ contracts/read paths. Do not start enforcement early.
 
 ## Current Lane Intent
 
-The previous V0.7 foundation, preview-shell, context-builder read-path, and
-service/API read-path batches are merged. Current lane ownership should be kept
-full from clean, pulled `main`:
+The previous V0.7 foundation, preview-shell, context-builder read-path,
+service/API read-path, and portal read-model wiring batches are merged. Current
+lane ownership should be kept full from clean, pulled `main`:
 
-- one lane for portal wiring to the policy-preview service read-model;
 - one lane for local provider/runtime adapter planning or status hardening that
   stays local-only and degraded/unavailable by default;
 - one lane for the next V0.7 parent-rule/context integration gap needed for
