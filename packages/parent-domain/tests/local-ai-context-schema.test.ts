@@ -11,6 +11,12 @@ const sourceEvidence = {
   kind: 'journal-event',
   observedAt,
 };
+const sourceParentAction = {
+  actionReferenceId: 'parent-action-schema-1',
+  actor: { actorId: 'parent-1', role: 'parent' },
+  policyVersion: 'policy-v1',
+  createdAt: observedAt,
+};
 
 const contextSourceRef = {
   evidenceRefId: 'schema-ref-1',
@@ -80,12 +86,13 @@ describe('local AI evidence context source schema', () => {
     }
   });
 
-  it('rejects memory and graph references without source evidence', () => {
+  it('rejects memory and graph references without any source citation', () => {
     const missingMemorySource = LocalAiMemoryReferenceSchema.safeParse({
       memoryReferenceId: 'memory-schema-1',
       kind: 'evidence-memory',
       sourceEvidenceReferences: [],
       sourcePolicyVersion: null,
+      sourceParentActionReferences: [],
       generatedAt: observedAt,
       confidence: 0.8,
       derivedIndexVersion: 'memory-index-v1',
@@ -95,6 +102,7 @@ describe('local AI evidence context source schema', () => {
       kind: 'graph-edge',
       sourceEvidenceReferences: [],
       sourcePolicyVersion: null,
+      sourceParentActionReferences: [],
       generatedAt: observedAt,
       confidence: 0.8,
       derivedIndexVersion: 'graph-index-v1',
@@ -102,6 +110,32 @@ describe('local AI evidence context source schema', () => {
 
     expect(missingMemorySource.success).toBe(false);
     expect(missingGraphSource.success).toBe(false);
+  });
+
+  it('accepts memory and graph references cited by policy version or parent action', () => {
+    const policyCitedMemory = LocalAiMemoryReferenceSchema.safeParse({
+      memoryReferenceId: 'memory-schema-policy',
+      kind: 'policy-memory',
+      sourceEvidenceReferences: [],
+      sourcePolicyVersion: 'policy-v1',
+      sourceParentActionReferences: [],
+      generatedAt: observedAt,
+      confidence: 0.8,
+      derivedIndexVersion: 'memory-index-v1',
+    });
+    const actionCitedGraph = LocalAiGraphReferenceSchema.safeParse({
+      graphReferenceId: 'graph-schema-action',
+      kind: 'graph-edge',
+      sourceEvidenceReferences: [],
+      sourcePolicyVersion: null,
+      sourceParentActionReferences: [sourceParentAction],
+      generatedAt: observedAt,
+      confidence: 0.8,
+      derivedIndexVersion: 'graph-index-v1',
+    });
+
+    expect(policyCitedMemory.success).toBe(true);
+    expect(actionCitedGraph.success).toBe(true);
   });
 
   it('rejects parent rule context without target evidence refs', () => {

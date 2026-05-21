@@ -11,11 +11,18 @@ const evidenceReference = {
 const childProfile = { childProfileId: 'child-1', displayName: 'Sam' };
 const device = { deviceId: 'device-1', childProfileId: 'child-1', label: 'Sam Windows PC', platform: 'windows' };
 const modelRequest = { providerId: 'local-provider', modelId: 'safety-model', promptVersion: 'prompt-v1' };
+const parentActionReference = {
+  actionReferenceId: 'parent-action-1',
+  actor: { actorId: 'parent-1', role: 'parent' },
+  policyVersion: 'policy-v1',
+  createdAt: '2026-05-20T20:45:30.000Z',
+};
 const memoryReference = {
   memoryReferenceId: 'memory-1',
   kind: 'recent-activity',
   sourceEvidenceReferences: [evidenceReference],
   sourcePolicyVersion: 'policy-v1',
+  sourceParentActionReferences: [parentActionReference],
   generatedAt: '2026-05-20T20:46:00.000Z',
   confidence: 0.82,
   derivedIndexVersion: 'memory-index-v1',
@@ -25,6 +32,7 @@ const graphReference = {
   kind: 'graph-entity',
   sourceEvidenceReferences: [evidenceReference],
   sourcePolicyVersion: 'policy-v1',
+  sourceParentActionReferences: [parentActionReference],
   generatedAt: '2026-05-20T20:46:00.000Z',
   confidence: 0.78,
   derivedIndexVersion: 'graph-index-v1',
@@ -47,6 +55,7 @@ describe('local AI safety decision contracts', () => {
 
     expect(parsed.currentObservation.contextKind).toBe('domain');
     expect(parsed.memoryReferences[0]?.sourceEvidenceReferences).toEqual([evidenceReference]);
+    expect(parsed.memoryReferences[0]?.sourceParentActionReferences).toEqual([parentActionReference]);
     expect(parsed.graphReferences[0]?.sourcePolicyVersion).toBe('policy-v1');
   });
 
