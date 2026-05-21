@@ -29,6 +29,10 @@
       "import": "./dist/local-ai-derived-knowledge-selection.js",
       "types": "./dist/local-ai-derived-knowledge-selection.d.ts"
     },
+    "./local-ai-derived-knowledge-store": {
+      "import": "./dist/local-ai-derived-knowledge-store.js",
+      "types": "./dist/local-ai-derived-knowledge-store.d.ts"
+    },
     "./local-ai-primitives": {
       "import": "./dist/local-ai-primitives.js",
       "types": "./dist/local-ai-primitives.d.ts"
