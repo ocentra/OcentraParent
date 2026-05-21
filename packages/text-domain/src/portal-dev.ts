@@ -16,9 +16,11 @@ export const PortalDevTextToken = {
   DevLog: decodeTextTokenId('portal.dev.devLog'),
   EvidenceStore: decodeTextTokenId('portal.dev.evidenceStore'),
   BrowserEvidence: decodeTextTokenId('portal.dev.browserEvidence'),
+  BrowserManagedStatus: decodeTextTokenId('portal.dev.browserManagedStatus'),
   LiveActivity: decodeTextTokenId('portal.dev.liveActivity'),
   NoActivityStatus: decodeTextTokenId('portal.dev.noActivityStatus'),
   NoBrowserEvidence: decodeTextTokenId('portal.dev.noBrowserEvidence'),
+  NoBrowserManagedStatus: decodeTextTokenId('portal.dev.noBrowserManagedStatus'),
   NoDevLog: decodeTextTokenId('portal.dev.noDevLog'),
   NoEvents: decodeTextTokenId('portal.dev.noEvents'),
   NoRecentActivity: decodeTextTokenId('portal.dev.noRecentActivity'),
@@ -40,6 +42,7 @@ export const PortalDevTextToken = {
   GetActivityIngestStatus: decodeTextTokenId('portal.dev.command.getActivityIngestStatus'),
   GetRecentActivitySummary: decodeTextTokenId('portal.dev.command.getRecentActivitySummary'),
   GetBrowserEvidenceRecent: decodeTextTokenId('portal.dev.command.getBrowserEvidenceRecent'),
+  PollManagedBrowserBridge: decodeTextTokenId('portal.dev.command.pollManagedBrowserBridge'),
   RootMissing: decodeTextTokenId('portal.dev.rootMissing'),
 } as const;
 
@@ -61,9 +64,11 @@ export const PortalDevText: Record<PortalDevTextTokenValue, DisplayText> = {
   [PortalDevTextToken.DevLog]: decodeDisplayText('Service dev log'),
   [PortalDevTextToken.EvidenceStore]: decodeDisplayText('Evidence store'),
   [PortalDevTextToken.BrowserEvidence]: decodeDisplayText('Browser evidence'),
+  [PortalDevTextToken.BrowserManagedStatus]: decodeDisplayText('Managed browser'),
   [PortalDevTextToken.LiveActivity]: decodeDisplayText('Live activity'),
   [PortalDevTextToken.NoActivityStatus]: decodeDisplayText('Activity status has not been reported yet.'),
   [PortalDevTextToken.NoBrowserEvidence]: decodeDisplayText('No browser evidence rows returned yet.'),
+  [PortalDevTextToken.NoBrowserManagedStatus]: decodeDisplayText('Managed browser status has not been reported yet.'),
   [PortalDevTextToken.NoDevLog]: decodeDisplayText('No service log snapshot has been reported yet.'),
   [PortalDevTextToken.NoEvents]: decodeDisplayText('No service events have been reported yet.'),
   [PortalDevTextToken.NoRecentActivity]: decodeDisplayText('No recent activity rows returned yet.'),
@@ -85,6 +90,7 @@ export const PortalDevText: Record<PortalDevTextTokenValue, DisplayText> = {
   [PortalDevTextToken.GetActivityIngestStatus]: decodeDisplayText('Get activity ingest status'),
   [PortalDevTextToken.GetRecentActivitySummary]: decodeDisplayText('Get recent activity summary'),
   [PortalDevTextToken.GetBrowserEvidenceRecent]: decodeDisplayText('Get browser evidence'),
+  [PortalDevTextToken.PollManagedBrowserBridge]: decodeDisplayText('Poll managed browser bridge'),
   [PortalDevTextToken.RootMissing]: decodeDisplayText('Portal root element is missing.'),
 };
 

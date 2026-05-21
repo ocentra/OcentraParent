@@ -29,6 +29,8 @@ describe('portal domain contracts', () => {
     expect(PortalCommandButtons.map((button) => button.resultEvent)).toContain(
       'agent.browser.evidence.recent.reported'
     );
+    expect(PortalCommandButtons.map((button) => button.command)).toContain('agent.browser.managed.bridge.poll');
+    expect(PortalCommandButtons.map((button) => button.resultEvent)).toContain('agent.browser.managed.status.reported');
     expect(PortalOverviewCommands.map((button) => button.command)).toEqual([
       'agent.health.check',
       'agent.log.snapshot.get',

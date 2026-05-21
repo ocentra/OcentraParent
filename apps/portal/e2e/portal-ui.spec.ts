@@ -25,6 +25,7 @@ async function assertCommandControls(page: Page): Promise<void> {
   await expect(page.getByRole('button', { name: 'Get activity ingest status' })).toBeEnabled();
   await expect(page.getByRole('button', { name: 'Get recent activity summary' })).toBeEnabled();
   await expect(page.getByRole('button', { name: 'Get browser evidence' })).toBeEnabled();
+  await expect(page.getByRole('button', { name: 'Poll managed browser bridge' })).toBeEnabled();
   await expect(page.getByRole('heading', { name: 'Command result' })).toBeVisible();
   await expect(page.locator('.summary')).toHaveCount(1);
 }
@@ -60,6 +61,12 @@ async function assertTabbedCommandResults(page: Page): Promise<void> {
   await page.getByRole('button', { name: 'Get browser evidence' }).click();
   await expect(commandResult.getByText('agent.browser.evidence.recent.reported')).toHaveCount(1);
   await expect(commandResult.locator('.log')).toHaveCount(1);
+  await assertCommandResult(
+    page,
+    commandResult,
+    'Poll managed browser bridge',
+    'agent.browser.managed.status.reported'
+  );
   await page.getByRole('button', { name: 'Check health' }).click();
   await expect(commandResult.getByText('agent.health.reported')).toHaveCount(1);
   await expect(commandResult.locator('.log')).toHaveCount(1);
@@ -77,6 +84,19 @@ async function assertRawEventLog(page: Page): Promise<void> {
   await expect(page.getByText('agent.activity.ingest.status.reported')).toHaveCount(3);
   await expect(page.getByText('agent.activity.recent.summary.reported')).toHaveCount(3);
   await expect(page.getByText('agent.browser.evidence.recent.reported')).toHaveCount(3);
+  await expect(page.getByText('agent.browser.managed.status.reported')).toHaveCount(2);
+}
+
+async function assertCommandResult(
+  page: Page,
+  commandResult: Locator,
+  commandName: string,
+  eventName: string
+): Promise<void> {
+  await page.getByRole('button', { name: commandName }).click();
+  await page.getByRole('button', { name: commandName }).click();
+  await expect(commandResult.getByText(eventName)).toHaveCount(1);
+  await expect(commandResult.locator('.log')).toHaveCount(1);
 }
 
 async function assertOverview(page: Page): Promise<void> {
@@ -84,6 +104,7 @@ async function assertOverview(page: Page): Promise<void> {
   await expect(page.getByRole('heading', { name: 'Live activity' })).toBeVisible();
   await expect(page.getByText('Agent WebSocket connected')).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Evidence store' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Managed browser' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Browser evidence' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Recent activity' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Device diagnostics' })).toBeVisible();
@@ -99,12 +120,15 @@ async function assertOverview(page: Page): Promise<void> {
     recentActivity.locator('dt').filter({ hasText: 'Rows returned' }).locator('xpath=following-sibling::dd[1]')
   ).toHaveText(/\d+/u);
   await expect(page.getByRole('heading', { name: 'Latest agent snapshot' })).toBeVisible();
-  await expect(page.locator('dt').filter({ hasText: 'Device' }).locator('xpath=following-sibling::dd[1]')).toHaveText(
-    'local-dev-agent'
-  );
-  await expect(page.locator('dt').filter({ hasText: 'Version' }).locator('xpath=following-sibling::dd[1]')).toHaveText(
-    /\b\d+\.\d+\.\d+\b/u
-  );
+  const snapshotPanel = page
+    .locator('.summary')
+    .filter({ has: page.getByRole('heading', { name: 'Latest agent snapshot' }) });
+  await expect(
+    snapshotPanel.locator('dt').filter({ hasText: 'Device' }).locator('xpath=following-sibling::dd[1]')
+  ).toHaveText('local-dev-agent');
+  await expect(
+    snapshotPanel.locator('dt').filter({ hasText: 'Version' }).locator('xpath=following-sibling::dd[1]')
+  ).toHaveText(/\b\d+\.\d+\.\d+\b/u);
   await assertDiagnosticsCopy(page);
 }
 

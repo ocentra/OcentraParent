@@ -10,7 +10,10 @@ mod activity_store_error;
 mod activity_store_rows;
 mod browser_bridge_event;
 mod browser_bridge_fields;
+mod browser_bridge_http;
 mod browser_bridge_ids;
+mod browser_bridge_poll;
+mod browser_managed_session;
 mod journal;
 mod journal_crypto;
 mod journal_error;
@@ -29,6 +32,14 @@ pub use activity_store::ActivityStore;
 pub use activity_store_error::ActivityStoreError;
 pub use browser_bridge_event::{
     browser_tab_observation_event, BrowserBridgeEventError, BrowserBridgeTargetObservation,
+};
+pub use browser_bridge_poll::{
+    poll_chromium_bridge, BrowserBridgePollConfig, BrowserBridgePollError,
+    BrowserBridgePollSnapshot,
+};
+pub use browser_managed_session::{
+    launch_managed_browser, managed_browser_launch_plan, BrowserManagedLaunch,
+    BrowserManagedLaunchConfig, BrowserManagedLaunchError, BrowserManagedLaunchPlan,
 };
 pub use journal::ActivityJournal;
 pub use journal_crypto::{JournalKey, JOURNAL_KEY_BYTES};
@@ -53,7 +64,11 @@ mod activity_store_browser_tests;
 #[cfg(test)]
 mod activity_store_tests;
 #[cfg(test)]
+mod browser_bridge_poll_tests;
+#[cfg(test)]
 mod browser_bridge_tests;
+#[cfg(test)]
+mod browser_managed_session_tests;
 #[cfg(test)]
 mod journal_tests;
 #[cfg(test)]

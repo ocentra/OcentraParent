@@ -12,6 +12,7 @@ const CommandResultEvents = new Set<AgentEventName>([
   AgentEvent.ActivityIngestStatusReported,
   AgentEvent.ActivityRecentSummaryReported,
   AgentEvent.BrowserEvidenceRecentReported,
+  AgentEvent.BrowserManagedStatusReported,
 ]);
 
 export function latestCommandResult(

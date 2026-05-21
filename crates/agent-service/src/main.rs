@@ -7,6 +7,12 @@ mod activity_capture_tests;
 mod activity_payload;
 mod activity_store_path;
 mod app;
+mod browser_evidence_payload;
+mod browser_payload;
+mod browser_runtime;
+mod browser_runtime_status;
+#[cfg(test)]
+mod browser_runtime_tests;
 mod dev_log;
 mod event_builder;
 mod fields;

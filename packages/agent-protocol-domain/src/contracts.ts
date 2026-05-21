@@ -70,7 +70,8 @@ export const AgentCommandNameSchema = withParser(
     'agent.watch.status.get',
     'agent.activity.ingest.status.get',
     'agent.activity.recent.summary.get',
-    'agent.browser.evidence.recent.get'
+    'agent.browser.evidence.recent.get',
+    'agent.browser.managed.bridge.poll'
   )
 );
 
@@ -84,7 +85,8 @@ export const AgentEventNameSchema = withParser(
     'agent.watch.status.reported',
     'agent.activity.ingest.status.reported',
     'agent.activity.recent.summary.reported',
-    'agent.browser.evidence.recent.reported'
+    'agent.browser.evidence.recent.reported',
+    'agent.browser.managed.status.reported'
   )
 );
 
@@ -136,6 +138,7 @@ export const AgentCommand = {
   ActivityIngestStatusGet: AgentCommandNameSchema.parse('agent.activity.ingest.status.get'),
   ActivityRecentSummaryGet: AgentCommandNameSchema.parse('agent.activity.recent.summary.get'),
   BrowserEvidenceRecentGet: AgentCommandNameSchema.parse('agent.browser.evidence.recent.get'),
+  BrowserManagedBridgePoll: AgentCommandNameSchema.parse('agent.browser.managed.bridge.poll'),
 } as const;
 
 export const AgentEvent = {
@@ -148,4 +151,5 @@ export const AgentEvent = {
   ActivityIngestStatusReported: AgentEventNameSchema.parse('agent.activity.ingest.status.reported'),
   ActivityRecentSummaryReported: AgentEventNameSchema.parse('agent.activity.recent.summary.reported'),
   BrowserEvidenceRecentReported: AgentEventNameSchema.parse('agent.browser.evidence.recent.reported'),
+  BrowserManagedStatusReported: AgentEventNameSchema.parse('agent.browser.managed.status.reported'),
 } as const;

@@ -1,7 +1,9 @@
 import {
   BrowserEvidenceRecentSummarySchema,
   BrowserEvidenceSchemaVersion,
+  BrowserManagedSessionStatusSchema,
   type BrowserEvidenceRecentSummary,
+  type BrowserManagedSessionStatus,
 } from '@ocentra-parent/activity-domain/browser';
 import {
   ActivityIngestStatusSchema,
@@ -25,12 +27,15 @@ export interface PortalLiveActivityState {
   readonly recentSummary: ActivityRecentSummary | null;
   readonly browserEvidenceEvent: AgentEventEnvelope | null;
   readonly browserEvidenceSummary: BrowserEvidenceRecentSummary | null;
+  readonly browserManagedEvent: AgentEventEnvelope | null;
+  readonly browserManagedStatus: BrowserManagedSessionStatus | null;
 }
 
 export function resolveLiveActivityState(events: readonly AgentEventEnvelope[]): PortalLiveActivityState {
   const ingestEvent = latestEvent(events, AgentEvent.ActivityIngestStatusReported);
   const recentSummaryEvent = latestEvent(events, AgentEvent.ActivityRecentSummaryReported);
   const browserEvidenceEvent = latestEvent(events, AgentEvent.BrowserEvidenceRecentReported);
+  const browserManagedEvent = latestEvent(events, AgentEvent.BrowserManagedStatusReported);
 
   return {
     ingestEvent,
@@ -40,6 +45,8 @@ export function resolveLiveActivityState(events: readonly AgentEventEnvelope[]):
     browserEvidenceEvent,
     browserEvidenceSummary:
       browserEvidenceEvent === null ? null : parseBrowserEvidenceSummary(browserEvidenceEvent.payload),
+    browserManagedEvent,
+    browserManagedStatus: browserManagedEvent === null ? null : parseBrowserManagedStatus(browserManagedEvent.payload),
   };
 }
 
@@ -102,6 +109,33 @@ function parseBrowserEvidenceSummary(payload: AgentProtocolLogFields): BrowserEv
     title: payload[AgentProtocolDefaults.Field.Title],
     capabilityStatus: payload[AgentProtocolDefaults.Field.CapabilityStatus],
     custodyLabel: payload[AgentProtocolDefaults.Field.CustodyLabel],
+  });
+
+  if (!parsed.success) {
+    return null;
+  }
+  return parsed.data;
+}
+
+function parseBrowserManagedStatus(payload: AgentProtocolLogFields): BrowserManagedSessionStatus | null {
+  const parsed = BrowserManagedSessionStatusSchema.safeParse({
+    schemaVersion: BrowserEvidenceSchemaVersion,
+    checkedAt: payload[AgentProtocolDefaults.Field.CheckedAt],
+    managedBrowserSessionId: payload[AgentProtocolDefaults.Field.ManagedBrowserSessionId],
+    browserFamily: payload[AgentProtocolDefaults.Field.BrowserFamily],
+    browserChannel: payload[AgentProtocolDefaults.Field.BrowserChannel],
+    browserVersion: payload[AgentProtocolDefaults.Field.BrowserVersion],
+    profileId: payload[AgentProtocolDefaults.Field.ProfileId],
+    profilePathRef: payload[AgentProtocolDefaults.Field.ProfilePathRef],
+    processId: payload[AgentProtocolDefaults.Field.ProcessId],
+    bridgeKind: payload[AgentProtocolDefaults.Field.BridgeKind],
+    bridgeEndpointRef: payload[AgentProtocolDefaults.Field.BridgeEndpointRef],
+    managedState: payload[AgentProtocolDefaults.Field.ManagedState],
+    capabilityStatus: payload[AgentProtocolDefaults.Field.CapabilityStatus],
+    degradedReason: payload[AgentProtocolDefaults.Field.Reason],
+    startedAt: payload[AgentProtocolDefaults.Field.StartedAt],
+    custodyLabel: payload[AgentProtocolDefaults.Field.CustodyLabel],
+    queryVisibility: payload[AgentProtocolDefaults.Field.QueryVisibility],
   });
 
   if (!parsed.success) {

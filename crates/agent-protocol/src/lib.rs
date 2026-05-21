@@ -6,6 +6,7 @@ mod activity_conversions;
 mod activity_query;
 mod app_game;
 mod browser;
+mod browser_managed;
 pub mod constants;
 mod journal;
 mod logging;
@@ -16,6 +17,7 @@ pub use activity_capture::*;
 pub use activity_query::*;
 pub use app_game::*;
 pub use browser::*;
+pub use browser_managed::*;
 pub use journal::*;
 pub use logging::*;
 pub use transport::*;
@@ -38,6 +40,8 @@ mod activity_query_tests;
 mod activity_tests;
 #[cfg(test)]
 mod app_game_tests;
+#[cfg(test)]
+mod browser_managed_tests;
 #[cfg(test)]
 mod journal_tests;
 #[cfg(test)]

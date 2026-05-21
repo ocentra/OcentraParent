@@ -10,6 +10,7 @@ import {
   type PortalDisplayText,
 } from '@ocentra-parent/portal-domain/contracts';
 import { appendDetail } from './detail-list';
+import { renderBrowserManagedStatus } from './browser-status-panel';
 import { renderDiagnosticsPanel } from './diagnostics-panel';
 import { resolveLiveActivityState, type PortalLiveActivityState } from './live-activity-state';
 import type { PortalRuntimeState } from './portal-state';
@@ -17,6 +18,7 @@ import type { PortalRuntimeState } from './portal-state';
 export function renderLiveActivityOverview(container: HTMLElement, state: PortalRuntimeState): void {
   const liveActivity = resolveLiveActivityState(state.events);
   renderEvidenceStore(container, liveActivity);
+  renderBrowserManagedStatus(container, liveActivity);
   renderBrowserEvidence(container, liveActivity);
   renderRecentActivity(container, liveActivity);
   renderDiagnosticsPanel(container, state);
