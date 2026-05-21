@@ -27,6 +27,7 @@ mod network_capture_event;
 mod network_capture_event_fields;
 #[cfg(windows)]
 mod network_capture_netstat;
+mod policy_dry_run_evaluator;
 mod process_capture;
 mod screen_evidence_queue;
 mod window_capture;
@@ -50,6 +51,7 @@ pub use journal_crypto::{JournalKey, JOURNAL_KEY_BYTES};
 pub use journal_error::JournalError;
 pub use network_capture::{collect_network_snapshot, NetworkObservation};
 pub use network_capture_event::{network_observation_event, network_snapshot_events};
+pub use policy_dry_run_evaluator::{evaluate_policy_dry_run, PolicyDryRunEvaluationInput};
 pub use process_capture::{
     collect_process_snapshot, process_observation_event, process_snapshot_events,
     ProcessObservation,
@@ -82,6 +84,12 @@ mod browser_managed_session_tests;
 mod journal_tests;
 #[cfg(test)]
 mod network_capture_tests;
+#[cfg(test)]
+mod policy_dry_run_evaluator_edge_tests;
+#[cfg(test)]
+mod policy_dry_run_evaluator_fixture;
+#[cfg(test)]
+mod policy_dry_run_evaluator_rule_tests;
 #[cfg(test)]
 mod process_capture_tests;
 #[cfg(test)]
