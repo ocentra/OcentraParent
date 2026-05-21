@@ -2,8 +2,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::constants;
 use crate::{
-    LocalAiAdapterBoundary, LocalAiExecutionState, LocalAiProviderPrivacyMode,
-    LocalAiProviderSource,
+    LocalAiAdapterBoundary, LocalAiAdapterProbeState, LocalAiExecutionState,
+    LocalAiProviderConfigurationState, LocalAiProviderPrivacyMode, LocalAiProviderSource,
 };
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -119,6 +119,21 @@ pub struct LocalModelRuntimeStatus {
     pub capability_flags: Vec<LocalAiCapabilityFlag>,
     pub resource_class: LocalAiResourceClass,
     pub degraded_state: LocalAiDegradedState,
+    pub last_checked_at: String,
+    pub unavailable_reason: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LocalProviderAdapterProbe {
+    pub provider_id: String,
+    pub privacy_mode: LocalAiProviderPrivacyMode,
+    pub adapter_boundary: LocalAiAdapterBoundary,
+    pub execution_state: LocalAiExecutionState,
+    pub provider_source: LocalAiProviderSource,
+    pub probe_state: LocalAiAdapterProbeState,
+    pub configuration_state: LocalAiProviderConfigurationState,
+    pub execution_allowed: bool,
     pub last_checked_at: String,
     pub unavailable_reason: Option<String>,
 }

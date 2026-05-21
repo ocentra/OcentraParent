@@ -25,6 +25,14 @@ export const LocalAiProviderSourceSchema = withParser(
   Schema.Literal('unavailable', 'local-config', 'local-model-cache', 'os-capability-probe')
 );
 
+export const LocalAiAdapterProbeStateSchema = withParser(
+  Schema.Literal('probe-unavailable', 'probe-ready', 'probe-failed')
+);
+
+export const LocalAiProviderConfigurationStateSchema = withParser(
+  Schema.Literal('local-provider-unconfigured', 'local-provider-configured', 'local-provider-config-invalid')
+);
+
 export const LocalModelRuntimeStatusSchema = withParser(
   Schema.Struct({
     runtimeReferenceId: LocalAiRuntimeReferenceIdSchema,
@@ -39,6 +47,21 @@ export const LocalModelRuntimeStatusSchema = withParser(
     capabilityFlags: Schema.Array(LocalAiCapabilityFlagSchema),
     resourceClass: LocalAiResourceClassSchema,
     degradedState: LocalAiDegradedStateSchema,
+    lastCheckedAt: LocalAiTimestampSchema,
+    unavailableReason: Schema.Union(LocalAiUnavailableReasonSchema, Schema.Null),
+  })
+);
+
+export const LocalProviderAdapterProbeSchema = withParser(
+  Schema.Struct({
+    providerId: LocalAiProviderIdSchema,
+    privacyMode: LocalAiProviderPrivacyModeSchema,
+    adapterBoundary: LocalAiAdapterBoundarySchema,
+    executionState: LocalAiExecutionStateSchema,
+    providerSource: LocalAiProviderSourceSchema,
+    probeState: LocalAiAdapterProbeStateSchema,
+    configurationState: LocalAiProviderConfigurationStateSchema,
+    executionAllowed: Schema.Boolean,
     lastCheckedAt: LocalAiTimestampSchema,
     unavailableReason: Schema.Union(LocalAiUnavailableReasonSchema, Schema.Null),
   })
@@ -63,9 +86,12 @@ export const LocalAiModelRequestMetadataSchema = withParser(
 );
 
 export type LocalModelRuntimeStatus = Infer<typeof LocalModelRuntimeStatusSchema>;
+export type LocalProviderAdapterProbe = Infer<typeof LocalProviderAdapterProbeSchema>;
 export type LocalProviderCapability = Infer<typeof LocalProviderCapabilitySchema>;
 export type LocalAiModelRequestMetadata = Infer<typeof LocalAiModelRequestMetadataSchema>;
 export type LocalAiProviderPrivacyMode = Infer<typeof LocalAiProviderPrivacyModeSchema>;
 export type LocalAiAdapterBoundary = Infer<typeof LocalAiAdapterBoundarySchema>;
 export type LocalAiExecutionState = Infer<typeof LocalAiExecutionStateSchema>;
 export type LocalAiProviderSource = Infer<typeof LocalAiProviderSourceSchema>;
+export type LocalAiAdapterProbeState = Infer<typeof LocalAiAdapterProbeStateSchema>;
+export type LocalAiProviderConfigurationState = Infer<typeof LocalAiProviderConfigurationStateSchema>;

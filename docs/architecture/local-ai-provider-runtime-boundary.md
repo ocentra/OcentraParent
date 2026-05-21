@@ -24,7 +24,7 @@ builder, policy preview, portal, and tests can display why local AI is not ready
 
 ## Current Baseline
 
-The repo already has these V0.7 pieces on `main`:
+The repo has these V0.7 pieces in the local provider/runtime boundary track:
 
 - `LocalModelRuntimeStatus` and `LocalProviderCapability` contracts in
   `@ocentra-parent/parent-domain`.
@@ -34,6 +34,8 @@ The repo already has these V0.7 pieces on `main`:
 - A Rust service read path that reports an unconfigured provider with
   `loadState = unavailable`, no capability flags, and
   `degradedState = provider-unavailable`.
+- A no-execution adapter probe shape that reports provider configuration state,
+  probe state, and `executionAllowed = false` without loading a model.
 - Portal policy-preview UI that displays the reported runtime status and keeps
   enforcement disabled.
 
@@ -83,10 +85,32 @@ The status command must not probe external APIs, fetch model manifests, start a
 model process, load a model into memory, or infer provider readiness from files
 unless a later adapter slice adds that behavior with tests.
 
+## No-Execution Adapter Probe Slice
+
+The first adapter probe is deliberately narrower than a runtime adapter. It may
+report only local configuration and capability state that is already known to
+the child-device service. In the default branch state, that means:
+
+- `probeState = probe-unavailable`;
+- `configurationState = local-provider-unconfigured`;
+- runtime `adapterBoundary = local-adapter-unavailable`;
+- probe contract `adapterBoundary = status-only`;
+- `executionState = disabled`;
+- `providerSource = unavailable`;
+- `executionAllowed = false`;
+- no capability flags and no model-cache claim.
+
+This probe path is allowed to travel with the existing
+`agent.local-ai.runtime.status.reported` event as flattened status fields. It is
+not allowed to start a model process, read prompt input, emit model output,
+select evidence, call a remote provider, or influence policy decisions. A later
+adapter implementation can change the probe from unavailable to ready only when
+local configuration, model artifact references, timeout behavior, output
+parsing, and degraded states are all contract-backed and tested.
+
 ## Future Status Hardening
 
-The next code slice may harden the status contract with explicit fields if the
-primary coordinator approves the edit scope:
+The current status contract carries these explicit boundary fields:
 
 - `privacyMode`: `local-only` for child-device safety runtime status.
 - `adapterBoundary`: `status-only`, `local-adapter-unavailable`, or a future
@@ -96,11 +120,11 @@ primary coordinator approves the edit scope:
 - `providerSource`: local config, local model cache, OS capability probe, or
   unavailable.
 
-Those fields should be added contract-first in `packages/parent-domain`, mirrored
-into `crates/agent-protocol` only when the Rust service reports them, exposed
-through `packages/agent-protocol-domain` defaults only when the portal reads
-them, and rendered by the portal as status. They must not trigger model
-execution.
+Future code slices should follow the same order: add fields contract-first in
+`packages/parent-domain`, mirror into `crates/agent-protocol` only when the Rust
+service reports them, expose through `packages/agent-protocol-domain` defaults
+only when a consumer reads them, and render by the portal as status. They must
+not trigger model execution.
 
 ## Prohibited Shortcuts
 
