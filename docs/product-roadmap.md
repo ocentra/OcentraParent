@@ -991,15 +991,14 @@ Current completed-on-main foundation:
 - V0.5.3 local screen evidence analysis queue research/spec.
 - Network flow evidence research/spec.
 - Network flow evidence contract/read-model groundwork.
+- Network flow evidence runtime read model with typed protocol, SQLite/journal
+  query-store read path, service command/event, and portal visibility.
 - V0.6 local AI safety decision contract groundwork.
 - V0.6 local AI evidence context-builder reconciliation plan.
 
 Next coordinator slices:
 
-1. Implement network flow evidence runtime read models and portal visibility
-   from stored flow evidence, without claiming exact browser URL/tab or
-   decrypted content.
-2. Review the local screen evidence queue runtime branch after network flow
-   integration lands or clearly stops conflicting with it.
-3. Start the local AI dry-run evaluator only after browser, app/game, network,
+1. Review the local screen evidence queue runtime branch after rebasing it on
+   the network-flow runtime merge.
+2. Start the local AI dry-run evaluator only after browser, app/game, network,
    and screen evidence references can all be read through typed local contracts.

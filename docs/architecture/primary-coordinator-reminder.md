@@ -111,6 +111,7 @@ Current completed-on-main baseline includes:
 - V0.5.2 app/game session runtime read model;
 - network flow evidence research/spec;
 - network flow evidence contract/read-model groundwork;
+- network flow evidence runtime read model;
 - V0.5.3 local screen evidence spec;
 - V0.6 local AI safety decision contracts and context-builder plan;
 - hub hook session hardening;
@@ -118,10 +119,8 @@ Current completed-on-main baseline includes:
 
 Correct active implementation order:
 
-1. Network flow evidence runtime.
-2. Local screen evidence queue after browser and app/game read paths have stable
-   evidence references.
-3. V0.7 local AI dry-run evaluator only after browser, app/game, network, and
+1. Local screen evidence queue after rebasing on the network-flow runtime merge.
+2. V0.7 local AI dry-run evaluator only after browser, app/game, network, and
    screen evidence references can all be read through typed local contracts.
 
 Do not start V0.7 local AI runtime/evaluator early. V0.6 contracts can exist,
@@ -135,8 +134,7 @@ Expected lane ownership:
   merge.
 - `codex-b`: V0.5.3 local screen evidence queue runtime on
   `codex/v0.5.3-local-screen-evidence-runtime`.
-- `codex-c`: network flow evidence runtime on
-  `codex/network-flow-runtime-read-model`.
+- `codex-c`: free-warm after network flow evidence runtime merge.
 
 If the lane ledger and live branch disagree, send one targeted hub message and
 state which worker chat/worktree needs attention. Do not spam duplicate
