@@ -986,6 +986,7 @@ Current completed-on-main foundation:
 - V0.5.2 app/game evidence sessions research/spec.
 - V0.5.3 local screen evidence analysis queue research/spec.
 - Network flow evidence research/spec.
+- Network flow evidence contract/read-model groundwork.
 - V0.6 local AI safety decision contract groundwork.
 - V0.6 local AI evidence context-builder reconciliation plan.
 
