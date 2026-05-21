@@ -7,6 +7,7 @@
 It runs:
 
 - release version alignment
+- pre-AI real evidence proof matrix
 - repository secret scan
 - dependency security and license policy in CI
 - schema-boundary checks
@@ -24,6 +25,10 @@ It runs:
 `npm run build` is the portal/package build gate and should pass before any scaffold is considered usable.
 
 CI adds installer/package reality checks after the root gate:
+
+- Pre-AI proof matrix check for completed runtime claims and platform proof
+  status.
+- Real portal-to-Rust E2E on Windows, Linux, and macOS runners.
 
 - Windows MSI install, service presence check, and uninstall.
 - Linux DEB install, systemd unit check, and remove.
@@ -58,6 +63,12 @@ Documentation is not governed by the same source-code length limits. Long-form d
 ## Test Reality
 
 Tests must use real domain contracts, real parsers, real local service processes, and real transport loops. If a dependency is too hard to test without replacement, the production design needs a smaller real boundary rather than a fake test path.
+
+Runtime proof follows
+[`docs/expectations/real-evidence-proof.md`](../expectations/real-evidence-proof.md).
+Temporary runtime directories, journal paths, SQLite paths, and keys are allowed
+as setup. Manually inserted rows, replaced service responses, or portal-local
+success state are not valid proof for a completed runtime claim.
 
 ## Editor Lint
 

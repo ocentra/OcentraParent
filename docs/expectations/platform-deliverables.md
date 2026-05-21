@@ -3,6 +3,7 @@
 Platform work is a product-deliverable matrix, not a single "cross-platform"
 claim. CI should do as much repeatable work as possible, but real OS capture,
 permission, packaging, and enforcement behavior still needs platform evidence.
+Runtime proof also follows the [real evidence proof expectations](real-evidence-proof.md).
 
 ## Outcome
 
@@ -36,6 +37,11 @@ CI is not enough for:
 - LAN discovery across real machines, parent/child device pairing, or network
   visibility that depends on local router/firewall behavior.
 
+For those cases, CI must still prove mechanics: the app/package launches, the
+service reports honest capability state, typed requests route through the real
+local service, and the portal renders the returned state. Real machines or
+devices then prove the privileged capability with recorded evidence.
+
 ## Pre-AI Platform Checkpoint
 
 Before adding more AI capability or enforcement behavior, pause for a platform
@@ -51,6 +57,8 @@ deliverables planning pass:
 - Use Mac/Xcode/TestFlight or entitlement review notes for iOS claims.
 - Record which evidence is implemented, scaffold-only, unavailable, or blocked
   per platform before starting the next AI/enforcement slice.
+- Keep `docs/expectations/pre-ai-proof-matrix.json` current so every completed
+  runtime claim has an honest CI and manual proof level.
 
 ## Windows Deliverables
 
@@ -110,3 +118,5 @@ Every platform-facing roadmap slice must state:
 - Scaffold-only behavior.
 - Known unavailable/degraded states.
 - CI jobs and manual checks that support the claim.
+- Proof matrix status: CI mechanical proof, manual-required, scaffold-only,
+  not-yet-proven, or not-applicable.

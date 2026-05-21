@@ -12,6 +12,7 @@ A feature is done only when every relevant expectation is true.
 - No naked domain strings are introduced.
 - No test doubles are introduced.
 - Tests prove behavior with real parsers, real storage, real service boundaries, or real UI automation.
+- Runtime claims follow the [real evidence proof expectations](real-evidence-proof.md): Rust launches, the portal uses the real local transport, and results come from real capture or real persisted product state.
 - Failure paths are specified and tested where feasible.
 - Dev logs or status surfaces expose enough information to debug without guessing.
 - Docs are updated when a feature changes product behavior, architecture, release behavior, or platform claims.
@@ -28,4 +29,4 @@ Before PR merge, the feature must have:
 
 ## Not Done
 
-A feature is not done if it only compiles, only renders a UI shell, only updates docs, only adds a contract without using it where the requested behavior needs runtime proof, or only demonstrates behavior through fake data.
+A feature is not done if it only compiles, only renders a UI shell, only updates docs, only adds a contract without using it where the requested behavior needs runtime proof, or only demonstrates behavior through fake data. Privileged OS/device behavior is not done until CI proves the mechanics and real-machine evidence proves the capability.

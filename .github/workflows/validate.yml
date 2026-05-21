@@ -8,8 +8,21 @@ permissions:
   contents: read
 
 jobs:
+  pre-ai-proof:
+    name: Pre-AI Proof Matrix
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
+
+      - name: Check pre-AI proof matrix
+        run: npm run test:pre-ai-proof
+
   validate:
     name: Full Validation Gate
+    needs: [pre-ai-proof]
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -22,3 +35,27 @@ jobs:
 
       - name: Validate
         run: npm run validate
+
+  desktop-real-e2e:
+    name: Real Portal To Rust E2E (${{ matrix.os }})
+    needs: [pre-ai-proof]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
+
+      - name: Install Playwright Chromium
+        run: npx playwright install chromium
+
+      - name: Install Playwright Linux dependencies
+        if: runner.os == 'Linux'
+        run: npx playwright install-deps chromium
+
+      - name: Run real portal-to-Rust E2E
+        run: npm run test:e2e

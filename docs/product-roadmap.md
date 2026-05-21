@@ -2,7 +2,7 @@
 
 This roadmap describes the product we are building, the order we intend to build it in, and the acceptance bar for each stage. It is intentionally product-facing and implementation-facing: every milestone should produce a real vertical slice, not a fake demo.
 
-Per-feature acceptance expectations live in [`feature-expectations.md`](feature-expectations.md). Each milestone below links to the expectation files that define what the feature must prove without over-prescribing how it must be implemented.
+Per-feature acceptance expectations live in [`feature-expectations.md`](feature-expectations.md). Each milestone below links to the expectation files that define what the feature must prove without over-prescribing how it must be implemented. Runtime claims also follow the [real evidence proof expectations](expectations/real-evidence-proof.md) and the [pre-AI proof matrix](expectations/pre-ai-proof-matrix.json).
 
 ## Product Goal
 
@@ -74,6 +74,8 @@ Current local slice:
 Next product checkpoint:
 
 - Pull and validate current `main` after the V0.7 preview-completion merges.
+- Run the pre-AI real evidence proof gate and final CI before more AI or
+  enforcement work.
 - Manually test the local child-device/parent-device surfaces before starting
   more AI or enforcement work.
 - Complete a cross-platform deliverables planning pass before more AI or
@@ -147,6 +149,11 @@ Production releases stay manual. Do not push or merge to `production` unless exp
 
 Validation expectations:
 
+- Runtime claims use the real Rust service, real local transport, real capture
+  or persisted product state, and parent UI rendering as described in
+  [real evidence proof expectations](expectations/real-evidence-proof.md).
+- Completed runtime claims are mapped in
+  [pre-AI proof matrix](expectations/pre-ai-proof-matrix.json).
 - TypeScript contracts use Effect Schema.
 - Rust protocol structs mirror shared contract shape.
 - No Zod.
