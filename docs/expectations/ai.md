@@ -15,6 +15,11 @@ decides whether a category becomes allow, warn, time-limit, ask-parent, or block
 
 TabAgent and TabAgentServer are reference systems for the future local AI runtime, browser evidence capture, native bridge, model cache, execution-provider, memory, and knowledge-graph direction. The detailed reuse boundary lives in [Local AI And TabAgent Reuse](../architecture/local-ai-and-tabagent-reuse.md). Reuse must happen behind Ocentra Parent-owned contracts; TabAgent must not redefine the parent portal or child-agent safety boundary.
 
+The V0.6 evidence-context reconciliation for browser, app/game, network, screen,
+parent-rule, local-runtime, memory, graph, confidence, degraded-state, and
+custody boundaries lives in
+[Local AI Evidence Context Builder](../architecture/local-ai-evidence-context-builder.md).
+
 ## Roadmap Scope
 
 V0.6 defines contracts before runtime AI affects policy or enforcement.
@@ -69,6 +74,8 @@ AI input may include:
 - Parent rule references, policy version, child profile reference, device reference, schedule window, and recent activity summary.
 - Local memory references and knowledge-graph references only when those references cite source evidence, policy versions, or parent actions.
 - Local model/provider status and prompt/template version.
+- Explicit source/custody labels for every evidence, rule, runtime, memory, and
+  graph reference used by the context builder.
 
 AI input must not include:
 
@@ -83,6 +90,8 @@ AI input must not include:
 - Data uploaded to remote/API AI without explicit parent action, data-custody
   contract, privacy boundary, and no-retention or parent-owned-storage behavior.
 - Derived memory or graph claims that cannot point back to source evidence.
+- Ocentra-hosted child-activity storage, screenshots, browser history, SQLite
+  evidence, reports, journals, or parent rules by default.
 
 ## Contract Boundary
 
@@ -93,6 +102,10 @@ V0.6 must define Effect Schema contracts in the owning domain packages before ru
 - `LocalModelRuntimeStatus`: provider, model id, local path or opaque model reference, load state, capability flags, resource class, degraded state, last checked time, and unavailable reason.
 - `LocalProviderCapability`: available providers, hardware/resource constraints, supported tasks, privacy mode, and fallback order.
 - `LocalMemoryReference` and `LocalGraphReference`: reference id, reference type, source evidence references, source policy version or parent action when applicable, generated time, confidence, and derived-index version.
+- `LocalAiEvidenceContextBuildRequest`, `LocalAiEvidenceContext`, and
+  `LocalAiEvidenceContextBuildResult`: request scope, evidence refs, parent rule
+  refs, local runtime refs, memory/graph refs, confidence validation,
+  unknown/degraded states, custody labels, and build-state outcome.
 - `RemoteAssistantRequest` and `RemoteAssistantResult` for V4 if needed: parent
   question, parent-approved source, permitted evidence references, data-custody
   boundary, model/prompt version, answer, cited evidence references,
@@ -170,6 +183,8 @@ Acceptance for remote assistance:
 - Local memory reference contract.
 - Local knowledge-graph reference contract.
 - Safety context builder that assembles typed evidence, parent rules, recent activity, and relevant memory references.
+- Context-builder custody checks that reject Ocentra-hosted non-activity
+  metadata as child-activity evidence.
 - Prompt/version ownership.
 - Evidence references.
 - Parent rule references.
@@ -197,7 +212,8 @@ Acceptance for remote assistance:
 ## Validation Gates
 
 - TypeScript schema tests prove valid and invalid AI input/output, runtime
-  status, memory references, graph references, and remote assistant payloads.
+  status, context-builder requests/results, memory references, graph
+  references, confidence `0..1` validation, and remote assistant payloads.
 - Rust parity tests prove identical field names, enum values, schema versions, and serialization for every Rust-crossing AI shape.
 - Stored-evidence integration tests build a safety context from the real encrypted journal and SQLite query store.
 - Provider lifecycle tests exercise real local provider status, unavailable, load failure, and degraded states without faking model truth.
