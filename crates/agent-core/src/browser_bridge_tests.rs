@@ -61,6 +61,24 @@ fn browser_target_observation_maps_to_managed_url_activity_event() {
             constants::browser::CAPABILITY_STATUS_TAB_LIST_ONLY.to_string()
         ))
     );
+    assert_eq!(
+        event.fields.get(constants::field::QUERY_VISIBILITY),
+        Some(&LogFieldValue::String(
+            constants::browser::QUERY_VISIBILITY_LIVE_LOCAL.to_string()
+        ))
+    );
+    assert_eq!(
+        event.fields.get(constants::field::FRESH_UNTIL),
+        Some(&LogFieldValue::String(
+            constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string()
+        ))
+    );
+    assert_eq!(
+        event.fields.get(constants::field::STALE_AT),
+        Some(&LogFieldValue::String(
+            constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string()
+        ))
+    );
 }
 
 #[test]

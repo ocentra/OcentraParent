@@ -84,9 +84,13 @@ it('AgentProtocolDefaults.Field: exposes read-model payload fields', () => {
   expect(AgentProtocolDefaults.Field.LocalAiAdapterReadinessState).toBe('readinessState');
   expect(AgentProtocolDefaults.Field.LocalAiExecutionAllowed).toBe('executionAllowed');
   expect(AgentProtocolDefaults.Field.BrowserEvidenceId).toBe('browserEvidenceId');
+  expect(AgentProtocolDefaults.Field.FreshUntil).toBe('freshUntil');
   expect(AgentProtocolDefaults.Field.ManagedState).toBe('managedState');
   expect(AgentProtocolDefaults.Field.ProfilePathRef).toBe('profilePathRef');
   expect(AgentProtocolDefaults.Field.QueryVisibility).toBe('queryVisibility');
+  expect(AgentProtocolDefaults.Field.StaleAt).toBe('staleAt');
+  expect(AgentProtocolDefaults.Field.TabId).toBe('tabId');
+  expect(AgentProtocolDefaults.Field.WindowId).toBe('windowId');
   expect(AgentProtocolDefaults.Field.CapabilityStatus).toBe('capabilityStatus');
   expect(AgentProtocolDefaults.Field.DestinationDomain).toBe('destinationDomain');
   expect(AgentProtocolDefaults.Field.MostRecentSubjectName).toBe('mostRecentSubjectName');

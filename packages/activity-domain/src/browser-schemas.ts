@@ -136,6 +136,21 @@ export const BrowserEvidenceRecentSummarySchema = withParser(
   })
 );
 
+export const BrowserEvidenceReadModelSchema = withParser(
+  Schema.Struct({
+    schemaVersion: Schema.Literal(BrowserEvidenceSchemaVersion),
+    generatedAt: ActivityTimestampSchema,
+    limit: Schema.Number,
+    returned: Schema.Number,
+    latestEventId: Schema.Union(ActivityEventIdSchema, Schema.Null),
+    latestObservedAt: Schema.Union(ActivityTimestampSchema, Schema.Null),
+    capabilityStatus: Schema.Union(BrowserCapabilityStatusSchema, Schema.Null),
+    custodyLabel: BrowserCustodyLabelSchema,
+    queryVisibility: BrowserQueryVisibilityLabelSchema,
+    rows: Schema.Array(BrowserTabEvidenceSchema),
+  })
+);
+
 export const BrowserManagedSessionStatusSchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal(BrowserEvidenceSchemaVersion),
@@ -168,6 +183,7 @@ export type BrowserCustodyLabel = Infer<typeof BrowserCustodyLabelSchema>;
 export type BrowserQueryVisibilityLabel = Infer<typeof BrowserQueryVisibilityLabelSchema>;
 export type BrowserTabEvidence = Infer<typeof BrowserTabEvidenceSchema>;
 export type BrowserEvidenceRecentSummary = Infer<typeof BrowserEvidenceRecentSummarySchema>;
+export type BrowserEvidenceReadModel = Infer<typeof BrowserEvidenceReadModelSchema>;
 export type BrowserManagedSessionStatus = Infer<typeof BrowserManagedSessionStatusSchema>;
 
 export const decodeBrowserUrl = Schema.decodeUnknownSync(BrowserUrlSchema);

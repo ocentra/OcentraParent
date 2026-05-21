@@ -2,7 +2,7 @@ use std::path::Path;
 
 use ocentra_parent_agent_protocol::{
     constants, ActivityEvent, ActivityIngestStatus, ActivityNetworkFlowReadModel,
-    ActivityRecentSummary, ActivityStoreRow, AppGameSessionReport, BrowserEvidenceRecentSummary,
+    ActivityRecentSummary, ActivityStoreRow, AppGameSessionReport, BrowserEvidenceReadModel,
     LocalAiParentRuleContextRef, PolicyPreviewReadModel, ScreenEvidenceRecentSummary,
     ACTIVITY_QUERY_SCHEMA_VERSION,
 };
@@ -10,7 +10,7 @@ use rusqlite::{params, Connection};
 
 use crate::{
     activity_store_app_game::app_game_session_report,
-    activity_store_browser::browser_recent_summary,
+    activity_store_browser::browser_evidence_read_model,
     activity_store_connection::initialize_connection,
     activity_store_network_flow::network_flow_read_model,
     activity_store_parent_rule_context::replace_parent_rule_contexts,
@@ -75,10 +75,12 @@ impl ActivityStore {
         Ok(summary_from_rows(limit, &rows))
     }
 
-    pub fn browser_recent_summary(
+    pub fn browser_evidence_read_model(
         &self,
-    ) -> Result<BrowserEvidenceRecentSummary, ActivityStoreError> {
-        browser_recent_summary(&self.connection)
+        limit: u64,
+        generated_at: &str,
+    ) -> Result<BrowserEvidenceReadModel, ActivityStoreError> {
+        browser_evidence_read_model(&self.connection, limit, generated_at)
     }
 
     pub fn app_game_session_report(
