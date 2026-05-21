@@ -980,17 +980,20 @@ Current completed-on-main foundation:
 - V0.4 Windows network/domain observation foundation.
 - V0.5 live activity portal visibility.
 - V0.5.1 browser URL/tab evidence research/spec.
+- V0.5.1 browser URL/tab managed bridge implementation plan.
 - V0.5.2 app/game evidence sessions research/spec.
 - V0.5.3 local screen evidence analysis queue research/spec.
 - Network flow evidence research/spec.
 - V0.6 local AI safety decision contract groundwork.
+- V0.6 local AI evidence context-builder reconciliation plan.
 
 Next coordinator slices:
 
-1. Turn the browser URL/tab evidence spec into an implementation-ready managed
-   browser bridge plan.
-2. Reconcile local AI context-builder contracts with browser, app/game, network,
-   and screen evidence references, including confidence and custody boundaries.
-3. After those docs/spec slices merge, assign runtime implementation in evidence
-   order: browser bridge, app/game session read model, screen queue, then local
-   AI dry-run evaluator.
+1. Implement the managed browser bridge runtime boundary first, including typed
+   browser state contracts, local evidence storage, and portal read visibility.
+2. Implement the app/game session read model after browser evidence is underway,
+   keeping process/window capture as input evidence rather than proof by itself.
+3. Implement the local screen evidence queue after the browser and app/game read
+   paths have stable evidence references.
+4. Start the local AI dry-run evaluator only after browser, app/game, network,
+   and screen evidence references can all be read through typed local contracts.
