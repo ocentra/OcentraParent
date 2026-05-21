@@ -7,6 +7,8 @@ import { findLaneByPath } from './worktree-lanes-lib.mjs';
 export const HubCommand = Object.freeze({
   Ack: 'ack',
   Guard: 'guard',
+  Heartbeat: 'heartbeat',
+  Heartbeats: 'heartbeats',
   Inbox: 'inbox',
   Lock: 'lock',
   Message: 'message',
@@ -51,6 +53,7 @@ export function laneHubPaths(hubRoot, laneId) {
   const laneRoot = join(hubRoot, 'lanes', laneId);
   return {
     inbox: join(laneRoot, 'inbox.md'),
+    heartbeat: join(laneRoot, 'heartbeat.ndjson'),
     laneRoot,
     ownership: join(laneRoot, 'ownership.json'),
     status: join(laneRoot, 'status.md'),

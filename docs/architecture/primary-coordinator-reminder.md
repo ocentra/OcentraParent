@@ -1,0 +1,258 @@
+# Primary Coordinator Reminder
+
+This is the full reminder for the primary Ocentra Parent coordinator thread.
+The minute heartbeat should stay short and read this file only when a worker is
+stale, blocked, done, on the wrong branch, has unread mail after a wake, or when
+five minutes or more have passed since the last full coordination pass.
+
+## Role
+
+The primary checkout coordinates and reviews. It does not implement feature
+code unless the user explicitly redirects.
+
+The primary coordinator owns:
+
+- worker assignment and retargeting;
+- hub and lane health checks;
+- review of worker `DONE` reports;
+- PR creation and CI watching when a branch is ready;
+- merge timing after green CI;
+- post-merge `main` sync, roadmap status, and next assignments.
+
+## Required Checks
+
+Run these on a full coordination pass:
+
+```powershell
+npm run hub:status
+npm run lanes:status
+git status --short --branch
+gh pr list --state open --json number,title,headRefName,isDraft,statusCheckRollup,url
+gh run list --limit 5 --json databaseId,headBranch,headSha,status,conclusion,workflowName,displayTitle,createdAt,url
+```
+
+Run guards before editing coordination files or making commits:
+
+```powershell
+npm run lanes:guard
+npm run hub:guard
+```
+
+Also check relevant worker worktree `git status --short --branch` when a worker
+is stale, blocked, done, or on a branch that does not match the lane ledger.
+
+## Coordinator Timeline Log
+
+Keep a compact local NDJSON timeline for primary coordination memory:
+
+```text
+C:\Users\sujan\.codex\ocentra-parent-hub\primary-coordinator-timeline.ndjson
+```
+
+This file is machine-local hub state, not product source. Append one JSON object
+after meaningful coordinator events and at least every 15-20 minutes while this
+monitor is actively coordinating.
+
+Each line should stay compact and include:
+
+- `ts`: UTC timestamp;
+- `kind`: `snapshot`, `assignment`, `blocker`, `review`, `pr`, `merge`, or
+  `handoff`;
+- `summary`: one short sentence;
+- `main`: branch, dirty state, PR/CI state when relevant;
+- `workers`: A/B/C assignment, branch, report state, locks/blockers;
+- `next`: short list of next coordinator actions;
+- `risks`: short list of current risks or expected conflicts.
+
+When waking after a long gap, read the tail of this file before doing a full
+coordination pass. Do not paste the whole log into user-facing responses.
+
+## Worker Heartbeat Log
+
+Worker liveness is separate from semantic reports. `hub:report` is reserved for
+`STARTED`, meaningful progress, `BLOCKED`, and `DONE`. Minute worker wakeups
+append local-only heartbeat entries instead:
+
+```powershell
+npm run hub:heartbeat -- --state alive --note "minute wake"
+npm run hub:heartbeat -- --state idle --note "waiting for instruction"
+```
+
+The primary coordinator can inspect the latest heartbeat for each worker:
+
+```powershell
+npm run hub:heartbeats
+```
+
+Local-only heartbeat files:
+
+```text
+C:\Users\sujan\.codex\ocentra-parent-hub\worker-heartbeats.ndjson
+C:\Users\sujan\.codex\ocentra-parent-hub\lanes\<lane>\heartbeat.ndjson
+```
+
+Use `hub:status` for work state and `hub:heartbeats` for liveness. If a worker
+has a fresh heartbeat but its report is `BLOCKED`, it is alive and blocked. If a
+worker has a stale heartbeat for two or more minute cycles, treat the worker
+thread or heartbeat automation as stale and retarget/open it.
+
+## Active Roadmap Order
+
+Current completed-on-main baseline includes:
+
+- V0.1/V0.2 scaffold, contracts, encrypted journal, SQLite query store;
+- V0.3 Windows process/window capture;
+- V0.4 Windows network/domain observation foundation;
+- V0.5 live activity portal visibility;
+- V0.5.1 browser URL/tab evidence research/spec;
+- V0.5.2 app/game evidence sessions research/spec;
+- network flow evidence research/spec;
+- V0.5.3 local screen evidence spec;
+- V0.6 local AI safety decision contracts and context-builder plan;
+- hub hook session hardening;
+- roadmap runtime order update.
+
+Correct active implementation order:
+
+1. V0.5.1 managed browser bridge runtime.
+2. V0.5.2 app/game session runtime after browser evidence is underway.
+3. Network flow evidence runtime.
+4. Local screen evidence queue after browser and app/game read paths have stable
+   evidence references.
+5. V0.7 local AI dry-run evaluator only after browser, app/game, network, and
+   screen evidence references can all be read through typed local contracts.
+
+Do not start V0.7 local AI runtime/evaluator early. V0.6 contracts can exist,
+but evaluator work waits for the evidence bridges.
+
+## Current Lane Intent
+
+Expected lane ownership:
+
+- `codex-a`: V0.5.1 managed browser bridge runtime on
+  `codex/v0.5.1-browser-bridge-runtime`.
+- `codex-b`: V0.5.2 app/game session runtime on
+  `codex/v0.5.2-app-game-session-runtime`.
+- `codex-c`: network flow evidence runtime on
+  `codex/network-flow-evidence-runtime`.
+
+If the lane ledger and live branch disagree, send one targeted hub message and
+state which worker chat/worktree needs attention. Do not spam duplicate
+messages when unread mail already exists.
+
+## Worker Protocol
+
+Workers must:
+
+- check mailbox every wake;
+- acknowledge latest hub mail;
+- report `STARTED` before work;
+- lock exact paths before edits;
+- report `waiting for instruction` only when the lane has no active assignment
+  from primary, and do that through `hub:heartbeat`, not `hub:report`;
+- keep routine reports short unless hub mail asks for detail;
+- verify and run requested lint/tests before `DONE`;
+- make local commits only when hub mail allows or asks for it;
+- never open PRs or merge unless primary asks;
+- never delete per-minute worker heartbeats.
+
+Worker minute heartbeats must not overwrite useful state. If a lane has an
+active assignment and there is no unread mail, the worker should append liveness
+with `hub:heartbeat`, then continue useful assigned work, report real
+progress/`BLOCKED`/`DONE`, or stay quiet. It should not replace `STARTED`,
+`BLOCKED`, or `DONE` with `waiting for instruction`.
+
+`DONE` and PR-ready handoffs must include detailed scope:
+
+- what changed;
+- touched packages/files;
+- validation commands/results;
+- commit state;
+- known gaps/risks;
+- roadmap slice completed;
+- PR body outline when relevant.
+
+## Stale Or Blocked Workers
+
+Treat these as action signals:
+
+- `session=-`;
+- unread hub mail persists after a worker wake;
+- latest report is `waiting for instruction` despite active assignment;
+- latest heartbeat is stale for two or more minute cycles;
+- live branch does not match lane ledger;
+- worker reports `BLOCKED`;
+- locks overlap or block another active lane.
+
+Actions:
+
+1. Check `hub:status`, `lanes:status`, and the worker worktree Git status.
+2. If unread assignment already exists, do not send duplicates; state the worker
+   chat/worktree must be opened or retargeted.
+3. If a worker is on the wrong branch, send one command-style hub message:
+   fetch/pull main, switch/create the assigned branch from `origin/main`, run
+   hub/lanes guards, then report `STARTED` or `BLOCKED`.
+4. If a worker is blocked on locks, compare path ownership and either tell it to
+   wait, retarget to non-overlapping files, or ask the lock owner for a status.
+
+## Review And PR Lifecycle
+
+When a worker reports `DONE`:
+
+1. Inspect branch diff against the intended base.
+2. Confirm touched paths match assignment and locks.
+3. Confirm validation commands/results.
+4. Confirm detailed scope is present.
+5. Ask for fixes if scope, tests, or behavior are weak.
+6. Create/update PR only after local validation and pushed branch are acceptable.
+
+PR bodies must include detailed scope, validation, known gaps/risks, touched
+packages/files, and roadmap slice.
+
+Watch PR CI. If CI fails, route fixes to the owning worker unless the failure is
+clearly a coordinator-only integration issue. Merge only after green CI and
+acceptable review.
+
+After merge:
+
+1. Pull latest `main` in primary.
+2. Update roadmap/lane/hub state.
+3. Free or retarget the completed lane.
+4. Tell active workers to fetch/rebase latest `main`.
+5. Include detailed post-merge scope plus PR/merge state and next roadmap action.
+
+## Conflict Rule
+
+Workers resolve conflicts on their own branches after fetching/rebasing latest
+`main`. Primary resolves only integration conflicts it owns and must keep the
+worker informed.
+
+## Product Boundaries
+
+Browser URL/tab evidence, app/game evidence sessions, network flow evidence, and
+local screen evidence are required pre-AI product bridges. Process/window and
+basic network/domain observations are foundation only; they are not proof of
+exact active URL/tab, native game duration, decrypted network content, or
+complete page semantics.
+
+Ocentra-hosted services are account/control-plane/notification/stateless-compile
+surfaces, not the default store for child activity, journals, screenshots,
+reports, browser history, or parent rules.
+
+Ocentra provides typed evidence and parent-controlled rules/settings. It must
+not hard-code hidden moral judgments as policy.
+
+## Minute Heartbeat Behavior
+
+The minute heartbeat should be small:
+
+- check the last visible state;
+- check whether workers are stale, blocked, done, or on the wrong branch;
+- read the latest timeline entries when state feels disconnected;
+- check `npm run hub:heartbeats` when worker liveness is unclear;
+- append a compact timeline snapshot after major state changes or every 15-20
+  minutes while active;
+- if action is needed, do the smallest targeted coordination action;
+- if five minutes or more have passed since the last full pass, run the full
+  coordination checks above;
+- otherwise stay quiet.

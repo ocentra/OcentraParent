@@ -29,6 +29,8 @@
     "hub:hook": "node scripts/dev/codex-hub-hook.mjs",
     "hub:message": "node scripts/dev/hub-mailbox.mjs message",
     "hub:ack": "node scripts/dev/hub-mailbox.mjs ack",
+    "hub:heartbeat": "node scripts/dev/hub-mailbox.mjs heartbeat",
+    "hub:heartbeats": "node scripts/dev/hub-mailbox.mjs heartbeats",
     "hub:report": "node scripts/dev/hub-mailbox.mjs report",
     "hub:lock": "node scripts/dev/hub-mailbox.mjs lock",
     "hub:unlock": "node scripts/dev/hub-mailbox.mjs unlock",

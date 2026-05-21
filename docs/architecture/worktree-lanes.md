@@ -63,6 +63,33 @@ npm run hub:watch
 
 Use `npm run hub:watch -- --interval-ms 5000` to choose a polling interval. Add `--ack` only when the worker is intentionally treating displayed messages as read; otherwise acknowledge manually after reading with `npm run hub:ack`.
 
+Worker minute heartbeats are standing mailbox checks, not disposable task reminders. A worker should not delete, pause, or replace its per-minute heartbeat just because there is no unread hub mail or active assignment. Routine liveness belongs in the heartbeat log, not in semantic hub reports:
+
+```powershell
+npm run hub:heartbeat -- --state alive --note "minute wake"
+```
+
+If the lane is idle or parked, use:
+
+```powershell
+npm run hub:heartbeat -- --state idle --note "waiting for instruction"
+```
+
+Do not overwrite `STARTED`, `BLOCKED`, or `DONE` reports with idle/waiting text. If a lane has an active assignment, the heartbeat should append liveness and the worker should continue useful assigned work, report real progress/`BLOCKED`/`DONE`, or stay quiet.
+
+The primary coordinator can inspect worker liveness without losing report state:
+
+```powershell
+npm run hub:heartbeats
+```
+
+The underlying local-only files are:
+
+```text
+C:\Users\<you>\.codex\ocentra-parent-hub\worker-heartbeats.ndjson
+C:\Users\<you>\.codex\ocentra-parent-hub\lanes\<lane>\heartbeat.ndjson
+```
+
 Watch worker reports from the primary hub checkout:
 
 ```powershell
@@ -71,7 +98,7 @@ npm run hub:watch -- --reports --interval-ms 5000
 
 Codex lifecycle hooks are configured in `.codex/hooks.json` and execute `npm run --silent hub:hook`, which routes to `scripts/dev/codex-hub-hook.mjs`:
 
-- `SessionStart` and `UserPromptSubmit` add current lane, inbox, lock, and report state to the agent context.
+- `SessionStart` and `UserPromptSubmit` add current lane, inbox, lock, report state, and the worker start/idle/reporting protocol to the agent context.
 - `SessionStart` and `UserPromptSubmit` record Codex's current `session_id` as the lane's active session, while preserving the human `thread` label.
 - `PostToolUse` reminds worker lanes to lock paths when edits create dirty files without hub ownership.
 - `Stop` continues worker turns when unread hub messages still need acknowledgement or dirty worker changes need lock/report handling.
@@ -102,6 +129,10 @@ Report progress from a worker lane:
 npm run hub:report -- --summary "Capture adapter mapped" --details "Touched crates/agent-service. Focused Rust tests pass."
 ```
 
+Before starting or resuming assigned work, report a short `STARTED` status so the primary coordinator can see that the instruction was accepted. When work is done, verify it, run the lint/tests requested by the hub mail, make a local commit only when instructed, and report `DONE` with exact commands, commit state, touched packages/files, known gaps/risks, and detailed scope of what changed. Keep routine reports short unless the hub mail asks for detail; `DONE` and PR-ready handoffs are expected to include enough scope for review.
+
+Do not use `hub:report` for per-minute "I am alive" chatter. Use `hub:heartbeat` for that local-only liveness stream so a `DONE` or `BLOCKED` report remains visible until a real work-state report replaces it.
+
 Guard the current lane mailbox and file locks:
 
 ```powershell
@@ -109,6 +140,42 @@ npm run hub:guard
 ```
 
 The pre-commit hook runs the hub guard automatically. It fails when the lane has an unread hub message or when changed files are outside the lane's hub lock. `primary` may coordinate without a lock, but worker lanes should always lock their intended paths before editing.
+
+## Primary Coordinator Lifecycle
+
+The primary coordinator is responsible for assignment, review, PR/CI watching, merge timing, and post-merge sync. Before assigning or integrating roadmap work, read:
+
+- `AGENTS.md`
+- `.ocentra-ai/rules/ocentra-parent-rules.mdc`
+- `docs/architecture/worktree-lanes.md`
+- `docs/architecture/primary-coordinator-reminder.md`
+- `docs/product-roadmap.md`
+- any feature-specific architecture or expectation doc named in the hub assignment
+
+On every coordination pass:
+
+1. Run `npm run hub:status`.
+2. Run `npm run lanes:status`.
+3. Check `git status --short --branch` in primary and relevant worker worktrees.
+4. Check open PRs and CI/check state when branches are pushed.
+5. Check latest worker reports before sending new instructions.
+
+When assigning work, tell the worker to fetch/pull or rebase latest `main` first, acknowledge hub mail, report `STARTED`, lock intended paths, and keep routine reports short. The hub message should name the branch, task, relevant docs, validation expectation, whether a local commit is expected, and that `DONE` or PR-ready handoffs need detailed scope.
+
+When a worker reports `DONE`, review the branch before creating or merging anything:
+
+1. Inspect the diff against the intended base.
+2. Confirm file locks and touched paths match the assignment.
+3. Confirm validation commands and results are credible.
+4. Confirm the worker provided detailed scope: what changed, touched packages/files, validation, known gaps/risks, and roadmap slice.
+5. Ask the worker for fixes if the diff, tests, docs, or scope are not acceptable.
+6. Create or update a PR only after local validation is acceptable and the branch is pushed.
+
+After a PR is open, the primary coordinator watches CI. The PR body must clearly state the detailed scope, validation, known gaps/risks, and roadmap slice completed. If CI fails, route the failure back to the owning worker unless the fix is clearly an integration-only coordinator change. Merge only after CI is green and the reviewed diff is acceptable.
+
+After merging, pull latest `main` in primary, update roadmap/lane/hub state, free or retarget the completed lane, and tell active workers to fetch/rebase latest `main` before continuing. The post-merge hub report must include detailed scope, validation, PR/merge state, known gaps/risks, and the next roadmap action. Do not assign new stacked work from a stale base unless that stacking is intentional and recorded in the hub message.
+
+Merge conflicts should be resolved in the branch that owns the work. A worker resolves conflicts after fetching/rebasing latest `main` in its own worktree and reports the resolution plus validation. Primary resolves conflicts only when it owns the integration branch or the conflict is purely in coordinator-maintained files, and it must keep the worker informed.
 
 Initialize the lane ledger if it does not exist:
 
@@ -154,11 +221,13 @@ Before editing in a claimed lane:
 3. Confirm the branch base is the intended branch, usually `origin/main`.
 4. Run `npm run lanes:guard` from that worktree.
 5. Run `npm run hub:inbox` and acknowledge current instructions with `npm run hub:ack`.
-6. Leave `npm run hub:watch -- --interval-ms 5000` running when the primary hub should be able to send follow-up instructions without a manual prompt.
-7. Claim file ownership with `npm run hub:lock`.
-8. Run focused local validation while coding.
-9. Report progress with `npm run hub:report`.
-10. Run the full PR gate only when the branch is ready to integrate.
+6. Report `STARTED` before doing the assigned work.
+7. Leave `npm run hub:watch -- --interval-ms 5000` running when the primary hub should be able to send follow-up instructions without a manual prompt.
+8. Claim file ownership with `npm run hub:lock`.
+9. Run focused local validation while coding.
+10. Report progress with `npm run hub:report`.
+11. When done, verify, run requested lint/tests, make a local commit only if instructed, and report `DONE` with validation and commit state.
+12. Run the full PR gate only when the branch is ready to integrate.
 
 ## Owner And Thread Fields
 

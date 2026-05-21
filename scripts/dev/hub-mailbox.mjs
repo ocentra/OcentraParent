@@ -18,6 +18,7 @@ import {
   unlockLanePaths,
   validateHubContext,
 } from './hub-mailbox-lib.mjs';
+import { formatHeartbeatSummary, recordLaneHeartbeat } from './hub-heartbeat-lib.mjs';
 import { defaultLedgerPath, ensureLedger, findLane, findLaneByPath } from './worktree-lanes-lib.mjs';
 
 function git(args) {
@@ -226,6 +227,32 @@ function handleReport(options) {
   console.log(`hub-report=${report.id}`);
 }
 
+function handleHeartbeat(options) {
+  const { hubRoot, ledger, root } = context(options);
+  const lane = typeof options.lane === 'string' ? findLane(ledger, options.lane) : currentLane(ledger, root);
+  const { aggregatePath, entry, lanePath } = recordLaneHeartbeat({
+    event: typeof options.event === 'string' ? options.event : 'manual',
+    hubRoot,
+    lane,
+    note: typeof options.note === 'string' ? options.note : '',
+    state: typeof options.state === 'string' ? options.state : 'alive',
+  });
+  console.log(`hub-heartbeat=${entry.lane} ts=${entry.ts} state=${entry.state}`);
+  console.log(`lane-heartbeat=${lanePath}`);
+  if (entry.lane !== 'primary') {
+    console.log(`worker-heartbeats=${aggregatePath}`);
+  }
+}
+
+function handleHeartbeats(options) {
+  const { hubRoot, ledger } = context(options);
+  const lanes =
+    typeof options.lane === 'string'
+      ? [findLane(ledger, options.lane)]
+      : ledger.lanes.filter((lane) => lane.id !== 'primary');
+  console.log(formatHeartbeatSummary({ hubRoot, lanes }));
+}
+
 function handleLock(options) {
   const { hubRoot, ledger, root } = context(options);
   const lane = typeof options.lane === 'string' ? findLane(ledger, options.lane) : currentLane(ledger, root);
@@ -289,6 +316,14 @@ export function runHubCli(argv = process.argv.slice(2)) {
   }
   if (options.command === HubCommand.Ack) {
     handleAck(options);
+    return;
+  }
+  if (options.command === HubCommand.Heartbeat) {
+    handleHeartbeat(options);
+    return;
+  }
+  if (options.command === HubCommand.Heartbeats) {
+    handleHeartbeats(options);
     return;
   }
   if (options.command === HubCommand.Report) {

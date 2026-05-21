@@ -75,6 +75,11 @@ test('hub hook injects primary coordination context', () => {
 
   assert.match(context, /Current lane: primary/u);
   assert.match(context, /coordinates workers/u);
+  assert.match(context, /docs\/architecture\/worktree-lanes\.md/u);
+  assert.match(context, /docs\/architecture\/primary-coordinator-reminder\.md/u);
+  assert.match(context, /merge only after green CI/u);
+  assert.match(context, /PR bodies, merge notes, and post-merge hub reports/u);
+  assert.match(context, /workers resolve conflicts on their own branches/u);
   assert.match(context, /hub:watch -- --reports/u);
 });
 
@@ -108,7 +113,12 @@ test('hub hook injects worker inbox context', () => {
   assert.match(context, /Current lane: codex-a/u);
   assert.match(context, /Unread hub message/u);
   assert.match(context, /npm run hub:ack/u);
+  assert.match(context, /codex-a STARTED <task>/u);
   assert.match(context, /npm run hub:report/u);
+  assert.match(context, /run requested lint\/tests/u);
+  assert.match(context, /detailed scope of what changed/u);
+  assert.match(context, /keep the primary hub informed/u);
+  assert.match(context, /do not delete per-minute heartbeats/u);
 });
 
 test('hub hook marks replacement worker chats as lane continuations', () => {
@@ -135,6 +145,8 @@ test('hub hook marks replacement worker chats as lane continuations', () => {
   assert.match(context, /previous active session was 019e-worker-old/u);
   assert.match(context, /do not rerun already acknowledged hub messages/u);
   assert.match(context, /Latest acknowledged hub message: codex-a-msg-1/u);
+  assert.match(context, /hub:heartbeat/u);
+  assert.match(context, /waiting for instruction/u);
 });
 
 test('hub stop hook continues worker turns with unread hub messages', () => {
@@ -142,6 +154,8 @@ test('hub stop hook continues worker turns with unread hub messages', () => {
 
   assert.equal(response.decision, 'block');
   assert.match(response.reason, /Unread hub message/u);
+  assert.match(response.reason, /STARTED <task>/u);
+  assert.match(response.reason, /commit only if the hub mail instructs it/u);
 });
 
 test('hub stop hook allows already continued turns', () => {

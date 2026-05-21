@@ -17,6 +17,7 @@ import {
   unreadMessages,
   validateHubContext,
 } from '../dev/hub-mailbox-lib.mjs';
+import { formatHeartbeatSummary, recordLaneHeartbeat } from '../dev/hub-heartbeat-lib.mjs';
 import { claimLane, createDefaultLedger, recordLaneSession } from '../dev/worktree-lanes-lib.mjs';
 
 const fixedDate = new Date('2026-05-20T16:00:00.000Z');
@@ -202,6 +203,45 @@ test('hub report and summary expose latest lane state', () => {
   assert.match(status, /Mapped adapter boundary/u);
 });
 
+test('hub heartbeat records liveness without overwriting reports', () => {
+  const hubRoot = tempHubRoot();
+  const ledger = claimedLedger();
+  const lane = ledger.lanes.find((candidate) => candidate.id === 'codex-a');
+
+  reportLane({
+    details: 'Waiting for another lock to clear.',
+    hubRoot,
+    lane,
+    now: fixedDate,
+    summary: 'codex-a BLOCKED on locks',
+  });
+
+  const { aggregatePath, entry, lanePath } = recordLaneHeartbeat({
+    hubRoot,
+    lane,
+    note: 'minute wake',
+    now: new Date('2026-05-20T16:01:00.000Z'),
+    state: 'alive',
+  });
+
+  const mailbox = readOrCreateMailbox(hubRoot, lane, fixedDate);
+  assert.equal(mailbox.reports.length, 1);
+  assert.equal(mailbox.reports[0].summary, 'codex-a BLOCKED on locks');
+  assert.equal(entry.latestReport, 'codex-a BLOCKED on locks');
+  assert.equal(entry.note, 'minute wake');
+  assert.equal(JSON.parse(readFileSync(lanePath, 'utf8').trim()).state, 'alive');
+  assert.equal(JSON.parse(readFileSync(aggregatePath, 'utf8').trim()).lane, 'codex-a');
+
+  const summary = formatHeartbeatSummary({
+    hubRoot,
+    lanes: [lane],
+    now: new Date('2026-05-20T16:01:30.000Z'),
+  });
+  assert.match(summary, /codex-a/u);
+  assert.match(summary, /state=alive/u);
+  assert.match(summary, /age=30s/u);
+});
+
 test('hub args and path list parsing support command scripts', () => {
   assert.deepEqual(parseHubArgs(['message', '--lane', 'codex-a', '--subject', 'Scope', '--body', 'Read docs.']), {
     body: 'Read docs.',
@@ -218,6 +258,11 @@ test('hub args and path list parsing support command scripts', () => {
     command: 'watch',
     reports: true,
     once: true,
+  });
+  assert.deepEqual(parseHubArgs(['heartbeat', '--state', 'idle', '--note', 'waiting for instruction']), {
+    command: 'heartbeat',
+    note: 'waiting for instruction',
+    state: 'idle',
   });
   assert.deepEqual(splitPathList('crates/agent-service, packages/activity-domain'), [
     'crates/agent-service',

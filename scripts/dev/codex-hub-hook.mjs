@@ -9,6 +9,7 @@ import {
   readOrCreateMailbox,
   unreadMessages,
 } from './hub-mailbox-lib.mjs';
+import { recordLaneHeartbeat } from './hub-heartbeat-lib.mjs';
 import {
   defaultLedgerPath,
   ensureLedger,
@@ -58,7 +59,7 @@ export function buildStopResponse({ context, stopHookActive = false }) {
       [
         `Hub coordination is not complete for ${context.lane.id}.`,
         `Unread hub message(s): ${formatMessageList(context.unread)}.`,
-        'Run npm run hub:inbox, acknowledge with npm run hub:ack, follow the instruction, and report with npm run hub:report when done.',
+        `Run npm run hub:inbox, acknowledge with npm run hub:ack, report ${context.lane.id} STARTED <task> with npm run hub:report before starting work, follow the instruction, verify and run requested lint/tests when done, commit only if the hub mail instructs it, and keep hub reports short unless the message asks for detail.`,
       ].join(' ')
     );
   }
@@ -90,6 +91,10 @@ export function formatAgentContext(context) {
       'Ocentra Parent hub context:',
       `- Current lane: primary (${context.branch}). This chat coordinates workers and integrates finished work; do not do feature coding here unless explicitly instructed.`,
       ...formatSessionLines(context),
+      '- Primary coordinator docs: AGENTS.md, .ocentra-ai/rules/ocentra-parent-rules.mdc, docs/architecture/worktree-lanes.md, docs/architecture/primary-coordinator-reminder.md, and docs/product-roadmap.md.',
+      '- Primary workflow: check hub/lane/git/PR/CI state, assign workers with pull/rebase-main instructions, review DONE branch diffs and validation, request fixes when needed, create/watch PRs only after acceptable local validation, merge only after green CI, then pull latest main and update lane/hub roadmap state.',
+      '- PR and merge scope rule: PR bodies, merge notes, and post-merge hub reports must clearly describe what changed, touched packages/files, validation run, known gaps/risks, and the roadmap slice completed.',
+      '- Conflict rule: workers resolve conflicts on their own branches after fetching/rebasing latest main; primary resolves only integration conflicts it owns and must keep the worker informed.',
       '- Worker summary:',
       indent(context.hubSummary),
       '- To send work: npm run hub:message -- --lane codex-a --subject "..." --body "..."',
@@ -99,11 +104,16 @@ export function formatAgentContext(context) {
 
   const unreadText =
     context.unread.length === 0
-      ? '- No unread hub messages for this worker lane.'
+      ? [
+          '- No unread hub messages for this worker lane.',
+          '- If there is no active assignment or the worker is stale, append liveness with npm run hub:heartbeat -- --state idle --note "waiting for instruction" and do not start unrelated work.',
+          '- Keep npm run hub:report for semantic states only: STARTED, meaningful progress, BLOCKED, and DONE.',
+        ].join('\n')
       : [
           `- Unread hub message(s): ${formatMessageList(context.unread)}.`,
           '- Before doing other work: run npm run hub:inbox, then npm run hub:ack after reading.',
-          '- Follow the latest hub instruction, then report back with npm run hub:report.',
+          `- Before starting or resuming assigned work, report ${context.lane.id} STARTED <task> with npm run hub:report so the start is logged.`,
+          '- Follow the latest hub instruction; when done, verify, run requested lint/tests, commit only if instructed, and report DONE back to the primary hub with npm run hub:report, including detailed scope of what changed, touched packages/files, validation, and risks/gaps.',
         ].join('\n');
   const latestMessage = context.mailbox.messages.at(-1);
   const latestText =
@@ -129,7 +139,7 @@ export function formatAgentContext(context) {
     unreadText,
     `- Current locks: ${context.mailbox.lockedPaths.length === 0 ? '-' : context.mailbox.lockedPaths.join(', ')}.`,
     latestReport,
-    '- Worker protocol: acknowledge hub messages, lock intended paths before editing, validate locally, report back with npm run hub:report, and do not merge to main.',
+    '- Worker protocol: acknowledge hub messages, report STARTED before work, lock intended paths before editing, validate locally, run requested lint/tests, make a local commit only when hub mail asks for it, include detailed scope in DONE/PR-ready handoffs, keep the primary hub informed, keep reports short unless asked for detail, use npm run hub:heartbeat for idle/liveness checks instead of overwriting hub reports, do not delete per-minute heartbeats, and do not merge to main.',
   ].join('\n');
 }
 
@@ -169,6 +179,16 @@ function loadHubContext(input, eventName) {
   const hubRoot = defaultHubRoot();
   ensureHub({ hubRoot, ledger });
   const mailbox = readOrCreateMailbox(hubRoot, lane);
+  if (lane.id !== 'primary') {
+    recordLaneHeartbeat({
+      event: eventName || 'hook',
+      hubRoot,
+      lane,
+      mailbox,
+      note: 'codex hook',
+      state: 'hook',
+    });
+  }
   return {
     branch,
     changedPaths: gitLines(repoRoot, ['diff', '--name-only', 'HEAD']),
