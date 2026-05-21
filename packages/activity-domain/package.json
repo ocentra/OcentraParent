@@ -29,6 +29,10 @@
       "import": "./dist/network-flow.js",
       "types": "./dist/network-flow.d.ts"
     },
+    "./screen-evidence": {
+      "import": "./dist/screen-evidence.js",
+      "types": "./dist/screen-evidence.d.ts"
+    },
     "./journal": {
       "import": "./dist/journal.js",
       "types": "./dist/journal.d.ts"

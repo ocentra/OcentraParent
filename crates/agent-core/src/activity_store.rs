@@ -3,7 +3,7 @@ use std::path::Path;
 use ocentra_parent_agent_protocol::{
     constants, ActivityEvent, ActivityIngestStatus, ActivityNetworkFlowReadModel,
     ActivityRecentSummary, ActivityStoreRow, AppGameSessionReport, BrowserEvidenceRecentSummary,
-    ACTIVITY_QUERY_SCHEMA_VERSION,
+    ScreenEvidenceRecentSummary, ACTIVITY_QUERY_SCHEMA_VERSION,
 };
 use rusqlite::{params, Connection};
 
@@ -13,6 +13,7 @@ use crate::{
     activity_store_connection::initialize_connection,
     activity_store_network_flow::network_flow_read_model,
     activity_store_rows::{row_from_sqlite, summary_from_rows},
+    activity_store_screen_evidence::screen_evidence_recent_summary,
     ActivityJournal, ActivityStoreError,
 };
 
@@ -90,6 +91,14 @@ impl ActivityStore {
         generated_at: &str,
     ) -> Result<ActivityNetworkFlowReadModel, ActivityStoreError> {
         network_flow_read_model(&self.connection, limit, generated_at)
+    }
+
+    pub fn screen_evidence_recent_summary(
+        &self,
+        limit: u64,
+        generated_at: &str,
+    ) -> Result<ScreenEvidenceRecentSummary, ActivityStoreError> {
+        screen_evidence_recent_summary(&self.connection, limit, generated_at)
     }
 
     fn status_with_counts(

@@ -40,6 +40,9 @@ impl ActivityEventKind {
             Self::DeviceIdleStateObserved => {
                 constants::activity_event_kind::DEVICE_IDLE_STATE_OBSERVED
             }
+            Self::ScreenAnalysisSummarized => {
+                constants::activity_event_kind::SCREEN_ANALYSIS_SUMMARIZED
+            }
         }
     }
 
@@ -52,6 +55,9 @@ impl ActivityEventKind {
             constants::activity_event_kind::VIDEO_OBSERVED => Some(Self::VideoObserved),
             constants::activity_event_kind::DEVICE_IDLE_STATE_OBSERVED => {
                 Some(Self::DeviceIdleStateObserved)
+            }
+            constants::activity_event_kind::SCREEN_ANALYSIS_SUMMARIZED => {
+                Some(Self::ScreenAnalysisSummarized)
             }
             _ => None,
         }

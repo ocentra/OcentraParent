@@ -1,0 +1,153 @@
+use ocentra_parent_agent_protocol::{
+    constants, ActivityEvidenceRef, LogFieldValue, LogFields, ScreenAnalysisResult,
+    ScreenCategoryCandidate, ScreenEvidenceQueueHealth, ScreenEvidenceRecentSummary,
+    SCREEN_CUSTODY_QUERY_STORE, SCREEN_EVIDENCE_SCHEMA_VERSION, SCREEN_QUEUE_STATUS_DELETED,
+};
+use rusqlite::{params, Connection};
+
+use crate::ActivityStoreError;
+
+pub(crate) fn screen_evidence_recent_summary(
+    connection: &Connection,
+    limit: u64,
+    generated_at: &str,
+) -> Result<ScreenEvidenceRecentSummary, ActivityStoreError> {
+    let mut statement =
+        connection.prepare(constants::sqlite::SELECT_RECENT_SCREEN_ANALYSIS_ACTIVITY)?;
+    let rows = statement.query_map(
+        params![
+            constants::activity_event_kind::SCREEN_ANALYSIS_SUMMARIZED,
+            constants::activity_observer::LOCAL_AI,
+            limit as i64
+        ],
+        |row| {
+            Ok((
+                row.get::<_, String>(0)?,
+                row.get::<_, String>(1)?,
+                row.get::<_, String>(2)?,
+                row.get::<_, String>(3)?,
+            ))
+        },
+    )?;
+    let mut results = Vec::new();
+    for row in rows {
+        let (_event_id, observed_at, fields_json, evidence_json) = row?;
+        let fields = serde_json::from_str::<LogFields>(&fields_json)?;
+        let evidence = serde_json::from_str::<Vec<ActivityEvidenceRef>>(&evidence_json)?;
+        if let Some(result) = result_from_fields(observed_at, &fields, evidence) {
+            results.push(result);
+        }
+    }
+    Ok(summary_from_results(limit, generated_at, results))
+}
+
+fn summary_from_results(
+    limit: u64,
+    generated_at: &str,
+    results: Vec<ScreenAnalysisResult>,
+) -> ScreenEvidenceRecentSummary {
+    let latest = results.first();
+    ScreenEvidenceRecentSummary {
+        schema_version: SCREEN_EVIDENCE_SCHEMA_VERSION,
+        generated_at: generated_at.to_string(),
+        custody_state: SCREEN_CUSTODY_QUERY_STORE.to_string(),
+        limit,
+        returned: results.len() as u64,
+        queue_health: queue_health(generated_at, latest),
+        latest_result_id: latest.map(|result| result.screen_analysis_result_id.clone()),
+        latest_summary: latest.map(|result| result.summary.clone()),
+        latest_primary_category: latest.and_then(|result| result.primary_category.clone()),
+        latest_confidence: latest.map(|result| result.confidence),
+        latest_image_deletion_state: latest.map(|result| result.image_deletion_state.clone()),
+        latest_policy_eligible: latest.map(|result| result.policy_eligible),
+        evidence: latest
+            .map(|result| result.source_evidence_refs.clone())
+            .unwrap_or_default(),
+        results,
+    }
+}
+
+fn queue_health(
+    generated_at: &str,
+    latest: Option<&ScreenAnalysisResult>,
+) -> ScreenEvidenceQueueHealth {
+    ScreenEvidenceQueueHealth {
+        schema_version: SCREEN_EVIDENCE_SCHEMA_VERSION,
+        generated_at: generated_at.to_string(),
+        custody_state: SCREEN_CUSTODY_QUERY_STORE.to_string(),
+        pending_count: 0,
+        expired_count: 0,
+        delete_pending_count: 0,
+        delete_failed_count: 0,
+        latest_queue_job_id: latest.map(|result| result.queue_job_id.clone()),
+        latest_status: latest.map(|_| SCREEN_QUEUE_STATUS_DELETED.to_string()),
+        last_successful_analysis_at: latest.map(|result| result.analyzed_at.clone()),
+    }
+}
+
+fn result_from_fields(
+    observed_at: String,
+    fields: &LogFields,
+    evidence: Vec<ActivityEvidenceRef>,
+) -> Option<ScreenAnalysisResult> {
+    let confidence = number_field(fields, constants::field::SCREEN_CONFIDENCE)?;
+    let primary_category = string_field(fields, constants::field::SCREEN_PRIMARY_CATEGORY)?;
+    Some(ScreenAnalysisResult {
+        schema_version: SCREEN_EVIDENCE_SCHEMA_VERSION,
+        screen_analysis_result_id: string_field(
+            fields,
+            constants::field::SCREEN_ANALYSIS_RESULT_ID,
+        )?,
+        queue_job_id: string_field(fields, constants::field::SCREEN_QUEUE_JOB_ID)?,
+        analyzed_at: observed_at,
+        model_runtime_ref: string_field(fields, constants::field::SCREEN_MODEL_RUNTIME_REF)?,
+        model_id: string_field(fields, constants::field::SCREEN_MODEL_ID)?,
+        provider_kind: string_field(fields, constants::field::SCREEN_PROVIDER_KIND)?,
+        prompt_or_template_version: string_field(
+            fields,
+            constants::field::SCREEN_TEMPLATE_VERSION,
+        )?,
+        capture_reason: string_field(fields, constants::field::SCREEN_CAPTURE_REASON)?,
+        capture_scope: string_field(fields, constants::field::SCREEN_CAPTURE_SCOPE)?,
+        capability_status: string_field(fields, constants::field::CAPABILITY_STATUS)?,
+        summary: string_field(fields, constants::field::SCREEN_SUMMARY)?,
+        visible_category_candidates: vec![ScreenCategoryCandidate {
+            category: primary_category.clone(),
+            confidence,
+            evidence_refs: evidence.clone(),
+        }],
+        primary_category: Some(primary_category),
+        risk_signals: Vec::new(),
+        ocr_text_snippets: Vec::new(),
+        redaction_notes: Vec::new(),
+        confidence,
+        uncertainty_reason: None,
+        source_evidence_refs: evidence,
+        image_digest: string_field(fields, constants::field::SCREEN_IMAGE_DIGEST)?,
+        raw_image_retained: false,
+        image_deletion_state: string_field(fields, constants::field::SCREEN_IMAGE_DELETION_STATE)?,
+        custody_state: string_field(fields, constants::field::SCREEN_CUSTODY_STATE)?,
+        policy_eligible: bool_field(fields, constants::field::SCREEN_POLICY_ELIGIBLE)?,
+    })
+}
+
+fn string_field(fields: &LogFields, key: &str) -> Option<String> {
+    match fields.get(key) {
+        Some(LogFieldValue::String(value)) => Some(value.clone()),
+        _ => None,
+    }
+}
+
+fn number_field(fields: &LogFields, key: &str) -> Option<f64> {
+    match fields.get(key) {
+        Some(LogFieldValue::Number(value)) => Some(*value),
+        _ => None,
+    }
+}
+
+fn bool_field(fields: &LogFields, key: &str) -> Option<bool> {
+    match fields.get(key) {
+        Some(LogFieldValue::Boolean(value)) => Some(*value),
+        _ => None,
+    }
+}

@@ -34,6 +34,8 @@ pub enum ActivityEventKind {
     VideoObserved,
     #[serde(rename = "activity.device.idle-state-observed")]
     DeviceIdleStateObserved,
+    #[serde(rename = "activity.screen.analysis.summarized")]
+    ScreenAnalysisSummarized,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
