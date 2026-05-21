@@ -136,7 +136,7 @@ Portal read model:
 
 - Displays only typed service data.
 - Shows exact URLs only for managed browser evidence.
-- Labels unmanaged browser use as possible bypass.
+- Labels unmanaged browser use as bypass or non-compliance evidence.
 - Shows missing bridge, unsupported browser, stale evidence, and adapter errors
   as first-class states.
 
@@ -503,7 +503,7 @@ Storage tests:
 Portal tests:
 
 - recent browser panel shows managed evidence from the real service path;
-- unmanaged browser status appears as possible bypass;
+- unmanaged browser status appears as bypass or non-compliance evidence;
 - missing bridge and stale evidence are visible;
 - copy/debug output redacts bridge/profile details and includes evidence ids.
 - install, permission, unsupported, stale, degraded, and custody/source labels
@@ -520,6 +520,38 @@ Manual Windows validation:
 7. Confirm the service records unmanaged browser use with no exact URL.
 8. Open the portal on the lane-specific port and verify visible status, evidence
    rows, stale/degraded states, and redacted copy/debug output.
+
+Managed profile matrix validation:
+
+```powershell
+cmd /c npm run test:managed-browser-matrix
+```
+
+The matrix harness opens real installed Chrome and Edge executables when
+available, creates Ocentra-owned profiles `managed-browser-profile-a`,
+`managed-browser-profile-b`, and `managed-browser-profile-c`, launches each
+profile with a loopback Chromium DevTools Protocol bridge, opens the configured
+test URLs in separate tabs, queries `/json/version` and `/json/list`, and writes
+a JSON evidence artifact under `test-results/managed-browser-profile-matrix`.
+
+The default URLs are:
+
+- `https://example.com/`
+- `https://www.wikipedia.org/`
+- `https://www.youtube.com/`
+
+Override them for an offline or site-specific run with:
+
+```powershell
+$env:OCENTRA_PARENT_MANAGED_BROWSER_MATRIX_URLS = 'https://example.com/,https://www.youtube.com/'
+cmd /c npm run test:managed-browser-matrix
+```
+
+This proves managed-profile connection, visible page targets, URL visibility,
+and page title visibility where the browser target reports a title. It does not
+prove active-tab focus or browser history; `/json/list` is a current target-list
+snapshot only. Firefox is reported as installed-but-unsupported by this harness
+until a separate WebDriver BiDi or managed-extension adapter is added.
 
 ## Implementation Phases
 
