@@ -130,19 +130,26 @@ Current completed-on-main baseline includes:
 - V0.7 local provider/runtime status contract hardening with explicit privacy,
   adapter-boundary, execution-state, and provider-source fields that remain
   unavailable/local-only by default;
+- V0.7 portal boundary-field visibility for policy-preview local runtime and
+  parent-rule context details;
+- V0.7 parent-rule context resolver integration from local rule/read-model
+  evidence without enabling enforcement;
+- V0.7 local provider adapter probe status with probe/configuration state and
+  execution-allowed flags, still no model execution;
 - hub hook session hardening;
 - roadmap runtime order update.
 
 Correct active implementation order:
 
-1. V0.7 portal visibility should expose the newly typed local runtime boundary
-   fields and parent-rule context reference details without adding enforcement.
-2. V0.7 parent-rule/context integration should populate preview references from
+1. Reconcile `origin/codex/network-flow-v4` against current `main` before more
+   network-flow work; it was pushed separately and is not contained in `main`.
+2. V0.7 parent-rule/context work may improve preview quality and coverage from
    local parent-authored rule sources, but must not enable enforcement.
 3. V0.7 local provider/runtime adapter work must stay local-only and
    unavailable/degraded by default until a real adapter is reviewed.
 4. V0.8 enforcement adapters only after V0.7 preview decisions are typed,
-   evidence-cited, visible, and validated on `main`.
+   evidence-cited, visible, validated on `main`, and adapter readiness has been
+   deliberately reviewed.
 
 The V0.7 start gate is now satisfied because browser, app/game, network, and
 screen evidence references have all landed on `main` through typed local
@@ -151,16 +158,17 @@ contracts/read paths. Do not start enforcement early.
 ## Current Lane Intent
 
 The previous V0.7 foundation, preview-shell, context-builder read-path,
-service/API read-path, portal read-model wiring, parent-rule context bridge, and
-local provider status hardening batches are merged. Current lane ownership
-should be kept full from clean, pulled `main`:
+service/API read-path, portal read-model wiring, parent-rule context bridge,
+local provider status hardening, portal boundary visibility, parent-rule
+context resolver, and local provider adapter probe batches are merged. Current
+lane ownership should be kept full from clean, pulled `main`:
 
-- one lane for portal visibility over local runtime boundary fields and
-  parent-rule context reference details;
-- one lane for parent-rule/context resolver integration needed for preview
-  quality, without starting enforcement;
-- one lane for local provider/runtime adapter planning or a status probe that
-  stays local-only and degraded/unavailable by default.
+- one lane for reconciling `origin/codex/network-flow-v4` against current
+  network-flow runtime on `main`;
+- one lane for parent-rule preview quality/coverage from local parent-authored
+  rule sources, without starting enforcement;
+- one lane for local provider adapter readiness review/hardening that stays
+  local-only and degraded/unavailable by default.
 
 If the lane ledger and live branch disagree, send one targeted hub message and
 state which worker chat/worktree needs attention. Do not spam duplicate

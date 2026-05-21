@@ -45,10 +45,12 @@ The first V0.7 foundations are also on `main`: local AI runtime/provider status,
 typed evidence context-builder contracts, a deterministic dry-run policy
 evaluator, context-builder read-path hardening, the portal policy-preview shell,
 the typed policy-preview service/API read path, and portal read-model wiring for
-the service result. The parent-rule context preview bridge and local
-provider/runtime status contract hardening are also on `main`. The next V0.7
-work is portal visibility for those new boundary fields plus parent-rule context
-population, not enforcement.
+the service result. The parent-rule context preview bridge, local
+provider/runtime status contract hardening, portal boundary-field visibility,
+parent-rule context resolver integration, and local provider adapter probe
+status are also on `main`. The next V0.7 work is reconciliation and completion
+around local model adapter readiness, parent-rule preview quality, and any
+unmerged evidence branches before enforcement.
 
 Completed foundation:
 
@@ -72,12 +74,14 @@ Current local slice:
 
 Next product slice:
 
-- V0.7 portal visibility for local provider/runtime boundary fields and
-  parent-rule context reference details.
-- V0.7 parent-rule/context resolver integration needed for preview quality
-  without enabling enforcement.
-- V0.7 local-provider adapter planning or probes that remain local-only and
-  unavailable/degraded by default until a real adapter is reviewed.
+- V0.7 reconcile the unmerged `codex/network-flow-v4` branch against the
+  current network-flow runtime on `main` before assigning more network work.
+- V0.7 improve parent-rule preview quality and coverage from local
+  parent-authored rule sources without enabling enforcement.
+- V0.7 review and harden the local-provider adapter readiness path while
+  keeping model execution unavailable/degraded until a real adapter is reviewed.
+- V0.7 keep portal preview visibility evidence-cited and explicit about
+  dry-run-only status.
 
 ## Architecture Commitments
 
@@ -1036,14 +1040,22 @@ Current completed-on-main foundation:
 - V0.7 local provider/runtime status contract hardening with explicit privacy,
   adapter-boundary, execution-state, and provider-source fields that remain
   unavailable/local-only by default.
+- V0.7 portal visibility for local runtime boundary fields and parent-rule
+  context reference details in policy-preview results.
+- V0.7 parent-rule context resolver integration that populates policy-preview
+  context references from local rule/read-model evidence without enabling
+  enforcement.
+- V0.7 local provider adapter probe status with explicit probe/configuration
+  state and execution-allowed flags while keeping model execution unavailable.
 
 Next coordinator slices:
 
-1. Add portal visibility for the newly typed local runtime boundary fields and
-   parent-rule context reference details in policy-preview results.
-2. Populate parent-rule context references from local parent-authored rule
-   sources for preview quality without starting enforcement.
-3. Keep provider adapter work local-only and unavailable/degraded by default
-   until an actual local model adapter is reviewed.
+1. Reconcile `origin/codex/network-flow-v4` against current `main`; the branch
+   was pushed separately and is not contained in `main`.
+2. Improve parent-rule preview quality and coverage from local parent-authored
+   rule sources without starting enforcement.
+3. Review and harden local-provider adapter readiness while keeping model
+   execution unavailable/degraded until an actual local adapter is reviewed.
 4. Keep enforcement out of scope until V0.7 preview decisions are typed,
-   evidence-cited, visible, and validated on `main`.
+   evidence-cited, visible, validated on `main`, and adapter readiness is
+   deliberately reviewed.
