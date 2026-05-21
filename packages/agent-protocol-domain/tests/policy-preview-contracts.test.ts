@@ -54,6 +54,8 @@ it('AgentEventEnvelopeSchema: accepts a policy preview read-model report payload
       [AgentProtocolDefaults.Field.PolicyAction]: 'allow',
       [AgentProtocolDefaults.Field.PolicyDryRun]: true,
       [AgentProtocolDefaults.Field.PolicyEvidenceReferenceCount]: 1,
+      [AgentProtocolDefaults.Field.PolicyParentRuleContextReferenceCount]: 1,
+      [AgentProtocolDefaults.Field.PolicyParentRuleContextRefIds]: 'parent-rule-context-1',
       [AgentProtocolDefaults.Field.PolicyHandoffState]: 'disabled',
       [AgentProtocolDefaults.Field.PolicyReasonCodes]: 'no-matching-parent-rule',
       [AgentProtocolDefaults.Field.PolicyRuleIds]: 'rule-allow',
@@ -69,6 +71,9 @@ it('AgentEventEnvelopeSchema: accepts a policy preview read-model report payload
   if (parsed.success) {
     expect(parsed.data.event).toBe('agent.policy.preview.read-model.reported');
     expect(parsed.data.payload[AgentProtocolDefaults.Field.PolicyHandoffState]).toBe('disabled');
+    expect(parsed.data.payload[AgentProtocolDefaults.Field.PolicyParentRuleContextRefIds]).toBe(
+      'parent-rule-context-1'
+    );
   }
 });
 
@@ -78,6 +83,8 @@ it('AgentProtocolDefaults.Field: exposes policy preview payload fields', () => {
   expect(AgentProtocolDefaults.Field.PolicyDecisionId).toBe('policyDecisionId');
   expect(AgentProtocolDefaults.Field.PolicyDryRun).toBe('dryRun');
   expect(AgentProtocolDefaults.Field.PolicyEvidenceReferenceCount).toBe('evidenceReferenceCount');
+  expect(AgentProtocolDefaults.Field.PolicyParentRuleContextReferenceCount).toBe('parentRuleContextReferenceCount');
+  expect(AgentProtocolDefaults.Field.PolicyParentRuleContextRefIds).toBe('parentRuleContextRefIds');
   expect(AgentProtocolDefaults.Field.PolicyHandoffState).toBe('enforcementHandoffState');
   expect(AgentProtocolDefaults.Field.PolicyPreviewId).toBe('policyPreviewId');
   expect(AgentProtocolDefaults.Field.PolicyReasonCodes).toBe('reasonCodes');

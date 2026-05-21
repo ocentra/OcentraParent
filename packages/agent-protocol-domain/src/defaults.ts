@@ -123,6 +123,8 @@ export const AgentProtocolDefaults = {
     PolicyDecisionId: 'policyDecisionId',
     PolicyDryRun: 'dryRun',
     PolicyEvidenceReferenceCount: 'evidenceReferenceCount',
+    PolicyParentRuleContextReferenceCount: 'parentRuleContextReferenceCount',
+    PolicyParentRuleContextRefIds: 'parentRuleContextRefIds',
     ProfileId: 'profileId',
     ProfilePathRef: 'profilePathRef',
     PolicyHandoffState: 'enforcementHandoffState',
