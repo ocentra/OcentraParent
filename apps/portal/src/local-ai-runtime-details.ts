@@ -16,6 +16,26 @@ export function appendRuntimeDetails(metadata: HTMLDListElement, runtimeEvent: A
     payloadDetail(runtimeEvent, AgentProtocolDefaults.Field.LocalAiProviderId)
   );
   appendDetail(metadata, PortalDetails.Model, payloadDetail(runtimeEvent, AgentProtocolDefaults.Field.LocalAiModelId));
+  appendDetail(
+    metadata,
+    PortalDetails.PrivacyMode,
+    payloadDetail(runtimeEvent, AgentProtocolDefaults.Field.LocalAiPrivacyMode)
+  );
+  appendDetail(
+    metadata,
+    PortalDetails.AdapterBoundary,
+    payloadDetail(runtimeEvent, AgentProtocolDefaults.Field.LocalAiAdapterBoundary)
+  );
+  appendDetail(
+    metadata,
+    PortalDetails.ExecutionState,
+    payloadDetail(runtimeEvent, AgentProtocolDefaults.Field.LocalAiExecutionState)
+  );
+  appendDetail(
+    metadata,
+    PortalDetails.ProviderSource,
+    payloadDetail(runtimeEvent, AgentProtocolDefaults.Field.LocalAiProviderSource)
+  );
   appendDetail(metadata, PortalDetails.LoadState, payloadDetail(runtimeEvent, AgentProtocolDefaults.Field.LoadState));
   appendDetail(
     metadata,

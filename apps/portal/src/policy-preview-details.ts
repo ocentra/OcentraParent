@@ -25,6 +25,11 @@ const PolicyPreviewValueResolvers = new Map<AgentPayloadField, PolicyPreviewValu
   [AgentProtocolDefaults.Field.PolicyTargetType, (readModel) => readModel.targetType],
   [AgentProtocolDefaults.Field.PolicyTargetValue, (readModel) => readModel.targetValue],
   [AgentProtocolDefaults.Field.PolicyEvidenceReferenceCount, (readModel) => readModel.evidenceReferenceCount],
+  [
+    AgentProtocolDefaults.Field.PolicyParentRuleContextReferenceCount,
+    (readModel) => readModel.parentRuleContextReferenceCount,
+  ],
+  [AgentProtocolDefaults.Field.PolicyParentRuleContextRefIds, (readModel) => readModel.parentRuleContextRefIds],
   [AgentProtocolDefaults.Field.PolicyDecisionId, (readModel) => readModel.decisionId],
   [AgentProtocolDefaults.Field.PolicyAction, (readModel) => readModel.decisionAction],
   [AgentProtocolDefaults.Field.PolicyReasonCodes, (readModel) => readModel.reasonCodes],
@@ -99,6 +104,16 @@ export function appendDecisionPreviewDetails(
     readModelDetail(readModel, AgentProtocolDefaults.Field.PolicyReasonCodes)
   );
   appendDetail(metadata, PortalDetails.RuleIds, readModelDetail(readModel, AgentProtocolDefaults.Field.PolicyRuleIds));
+  appendDetail(
+    metadata,
+    PortalDetails.ParentRuleContextReferences,
+    readModelDetail(readModel, AgentProtocolDefaults.Field.PolicyParentRuleContextReferenceCount)
+  );
+  appendDetail(
+    metadata,
+    PortalDetails.ParentRuleContextRefIds,
+    readModelDetail(readModel, AgentProtocolDefaults.Field.PolicyParentRuleContextRefIds)
+  );
   appendDetail(
     metadata,
     PortalDetails.EvidenceReferences,

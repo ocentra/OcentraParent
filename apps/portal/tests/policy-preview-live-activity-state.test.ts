@@ -11,8 +11,18 @@ describe('portal policy-preview live activity state', () => {
     expect(state.policyPreviewReadModel?.previewId).toBe('policy-preview-1');
     expect(state.policyPreviewReadModel?.targetValue).toBe('https://example.test/learn');
     expect(state.policyPreviewReadModel?.decisionAction).toBe('allow');
+    expect(state.policyPreviewReadModel?.parentRuleContextReferenceCount).toBe(1);
+    expect(state.policyPreviewReadModel?.parentRuleContextRefIds).toBe('parent-rule-context-1');
     expect(state.policyPreviewReadModel?.dryRun).toBe(true);
     expect(state.policyPreviewReadModel?.enforcementHandoffState).toBe('disabled-preview-only');
+  });
+
+  it('parses service policy schema versions without weakening typed payload fields', () => {
+    const state = resolveLiveActivityState([policyPreviewEventWith({ schemaVersion: 'v0.6' })]);
+
+    expect(state.policyPreviewReadModel?.schemaVersion).toBe('v0.6');
+    expect(state.policyPreviewReadModel?.returned).toBe(1);
+    expect(state.policyPreviewReadModel?.parentRuleContextReferenceCount).toBe(1);
   });
 
   it('keeps empty policy-preview read models visible without inventing a decision', () => {
@@ -76,6 +86,8 @@ function policyPreviewEventWith(payloadOverrides: Record<string, unknown>) {
       targetType: 'url',
       targetValue: 'https://example.test/learn',
       evidenceReferenceCount: 1,
+      parentRuleContextReferenceCount: 1,
+      parentRuleContextRefIds: 'parent-rule-context-1',
       policyDecisionId: 'policy-decision-1',
       policyAction: 'allow',
       reasonCodes: 'educational-domain',
@@ -119,6 +131,8 @@ function emptyPolicyPreviewEvent() {
       targetType: null,
       targetValue: null,
       evidenceReferenceCount: null,
+      parentRuleContextReferenceCount: null,
+      parentRuleContextRefIds: null,
       policyDecisionId: null,
       policyAction: null,
       reasonCodes: null,

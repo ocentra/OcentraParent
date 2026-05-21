@@ -2,12 +2,13 @@ import { AgentProtocolDefaults, type AgentProtocolLogFields } from '@ocentra-par
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 
 const NullableTextSchema = Schema.Union(Schema.String, Schema.Null);
+const NullableSchemaVersionSchema = Schema.Union(Schema.String, Schema.Number, Schema.Null);
 const NullableNumberSchema = Schema.Union(Schema.Number, Schema.Null);
 const NullableBooleanSchema = Schema.Union(Schema.Boolean, Schema.Null);
 
 const PortalPolicyPreviewReadModelSchema = withParser(
   Schema.Struct({
-    schemaVersion: NullableNumberSchema,
+    schemaVersion: NullableSchemaVersionSchema,
     generatedAt: NullableTextSchema,
     custody: NullableTextSchema,
     limit: NullableNumberSchema,
@@ -20,6 +21,8 @@ const PortalPolicyPreviewReadModelSchema = withParser(
     targetType: NullableTextSchema,
     targetValue: NullableTextSchema,
     evidenceReferenceCount: NullableNumberSchema,
+    parentRuleContextReferenceCount: NullableNumberSchema,
+    parentRuleContextRefIds: NullableTextSchema,
     decisionId: NullableTextSchema,
     decisionAction: NullableTextSchema,
     reasonCodes: NullableTextSchema,
@@ -47,6 +50,10 @@ export function parsePolicyPreviewReadModel(payload: AgentProtocolLogFields): Po
     targetType: valueOrNull(payload[AgentProtocolDefaults.Field.PolicyTargetType]),
     targetValue: valueOrNull(payload[AgentProtocolDefaults.Field.PolicyTargetValue]),
     evidenceReferenceCount: valueOrNull(payload[AgentProtocolDefaults.Field.PolicyEvidenceReferenceCount]),
+    parentRuleContextReferenceCount: valueOrNull(
+      payload[AgentProtocolDefaults.Field.PolicyParentRuleContextReferenceCount]
+    ),
+    parentRuleContextRefIds: valueOrNull(payload[AgentProtocolDefaults.Field.PolicyParentRuleContextRefIds]),
     decisionId: valueOrNull(payload[AgentProtocolDefaults.Field.PolicyDecisionId]),
     decisionAction: valueOrNull(payload[AgentProtocolDefaults.Field.PolicyAction]),
     reasonCodes: valueOrNull(payload[AgentProtocolDefaults.Field.PolicyReasonCodes]),
