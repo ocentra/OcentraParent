@@ -37,6 +37,7 @@ pub mod event_id {
     pub const ACTIVITY_INGEST_STATUS_REPORTED: &str = "activity-ingest-status-reported";
     pub const ACTIVITY_RECENT_SUMMARY_REPORTED: &str = "activity-recent-summary-reported";
     pub const BROWSER_EVIDENCE_RECENT_REPORTED: &str = "browser-evidence-recent-reported";
+    pub const NETWORK_FLOW_REPORTED: &str = "network-flow-reported";
     pub const DEV_LOCALHOST_API_READY: &str = "dev-localhost-api-ready";
     pub const UNKNOWN_COMMAND: &str = "unknown-command";
 }
@@ -84,6 +85,8 @@ pub mod activity_store;
 pub mod activity_subject_kind;
 #[path = "constants/browser.rs"]
 pub mod browser;
+#[path = "constants/network_flow.rs"]
+pub mod network_flow;
 
 #[path = "constants/sqlite.rs"]
 pub mod sqlite;
@@ -131,9 +134,31 @@ pub mod delimiter {
 pub mod test_network {
     pub const LOOPBACK_ANY_PORT: &str = "127.0.0.1:0";
     pub const LOOPBACK_IP: &str = "127.0.0.1";
+    pub const NETWORK_EVENT_ID: &str = "activity-domain-observed-1";
+    pub const NETWORK_EVIDENCE_ID: &str = "journal-entry-network-1";
+    pub const NETWORK_EVIDENCE_DIGEST: &str = "sha256:network-flow-digest";
     pub const NETSTAT_TCP_ESTABLISHED_ROW: &str =
         "TCP    127.0.0.1:4242        127.0.0.1:443          ESTABLISHED     4242";
     pub const SUBJECT_ID: &str = "network-destination-127.0.0.1-443";
+    pub const TEST_DOMAIN: &str = "example.com";
+    pub const TEST_SEQUENCE_INDEX_STR: &str = "7";
+    pub const LOOPBACK_IP_WITH_PORT: &str = "127.0.0.1:443";
+    pub const NETSTAT_UDP_ROW: &str =
+        "UDP    127.0.0.1:5353         *:*                                     1234";
+    pub const NETSTAT_TCP_LISTENING_ROW: &str =
+        "TCP    0.0.0.0:80             0.0.0.0:0              LISTENING       888";
+    pub const NETSTAT_TCP_STATE_ROW_PREFIX: &str =
+        "TCP    127.0.0.1:1234         127.0.0.1:443          ";
+    pub const NETSTAT_TCP_STATE_ROW_SUFFIX: &str = "       0";
+    pub const TEST_BOGUS_STATE: &str = "BOGUS_STATE";
+    pub const NETSTAT_MULTILINE_OUTPUT: &str = "\n\
+        Active Connections\n\
+        \n\
+          Proto  Local Address          Foreign Address        State           PID\n\
+        TCP    127.0.0.1:4242        127.0.0.1:443          ESTABLISHED     0\n";
+    pub const NETSTAT_ORDERING_OUTPUT: &str =
+        "TCP    127.0.0.1:9000         127.0.0.1:443          ESTABLISHED     0\n\
+         TCP    127.0.0.1:1000         127.0.0.1:80           ESTABLISHED     0";
 }
 
 pub mod byte {

@@ -65,6 +65,7 @@ export const AgentProtocolDefaults = {
     BrowserEvidenceId: 'browserEvidenceId',
     BrowserFamily: 'browserFamily',
     CapabilityStatus: 'capabilityStatus',
+    ActivityDigest: 'activityDigest',
     CustodyLabel: 'custodyLabel',
     DatabaseReady: 'databaseReady',
     Domain: 'domain',

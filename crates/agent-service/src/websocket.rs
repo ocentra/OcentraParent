@@ -11,6 +11,7 @@ use crate::{
     },
     event_builder::{build_event, portal_peer},
     fields::fields_from_pairs,
+    network_flow_api::build_network_flow_report,
     snapshot::build_dev_log_snapshot,
 };
 
@@ -97,6 +98,7 @@ async fn handle_command(command: AgentCommandEnvelope) -> AgentEventEnvelope {
         AgentCommandName::AgentBrowserEvidenceRecentGet => {
             build_browser_evidence_recent_report(command).await
         }
+        AgentCommandName::AgentNetworkFlowGet => build_network_flow_report(command).await,
     }
 }
 

@@ -8,6 +8,7 @@ use rusqlite::{params, Connection};
 
 use crate::{
     activity_store_browser::browser_recent_summary,
+    activity_store_network::{recent_network_rows, NetworkStoreRow},
     activity_store_rows::{row_from_sqlite, summary_from_rows},
     ActivityJournal, ActivityStoreError,
 };
@@ -71,6 +72,13 @@ impl ActivityStore {
         &self,
     ) -> Result<BrowserEvidenceRecentSummary, ActivityStoreError> {
         browser_recent_summary(&self.connection)
+    }
+
+    pub fn recent_network_rows(
+        &self,
+        limit: u64,
+    ) -> Result<Vec<NetworkStoreRow>, ActivityStoreError> {
+        recent_network_rows(&self.connection, limit)
     }
 
     fn status_with_counts(

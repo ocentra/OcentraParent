@@ -11,6 +11,14 @@ mod dev_log;
 mod event_builder;
 mod fields;
 mod network;
+mod network_flow_api;
+#[cfg(test)]
+mod network_flow_api_tests;
+mod network_flow_digest;
+mod network_flow_indicator_helpers;
+mod network_flow_indicators;
+mod network_flow_parse;
+mod network_flow_rollups;
 mod snapshot;
 mod time;
 mod websocket;

@@ -4,6 +4,10 @@ import {
   type BrowserEvidenceRecentSummary,
 } from '@ocentra-parent/activity-domain/browser';
 import {
+  ActivityNetworkFlowDigestSchema,
+  type ActivityNetworkFlowDigest,
+} from '@ocentra-parent/activity-domain/network-flow';
+import {
   ActivityIngestStatusSchema,
   ActivityQuerySchemaVersion,
   ActivityRecentSummarySchema,
@@ -17,6 +21,7 @@ import {
   type AgentEventName,
   type AgentProtocolLogFields,
 } from '@ocentra-parent/agent-protocol-domain/contracts';
+import { type PortalDetailValue } from '@ocentra-parent/portal-domain/contracts';
 
 export interface PortalLiveActivityState {
   readonly ingestEvent: AgentEventEnvelope | null;
@@ -25,12 +30,15 @@ export interface PortalLiveActivityState {
   readonly recentSummary: ActivityRecentSummary | null;
   readonly browserEvidenceEvent: AgentEventEnvelope | null;
   readonly browserEvidenceSummary: BrowserEvidenceRecentSummary | null;
+  readonly networkFlowEvent: AgentEventEnvelope | null;
+  readonly networkFlowDigest: ActivityNetworkFlowDigest | null;
 }
 
 export function resolveLiveActivityState(events: readonly AgentEventEnvelope[]): PortalLiveActivityState {
   const ingestEvent = latestEvent(events, AgentEvent.ActivityIngestStatusReported);
   const recentSummaryEvent = latestEvent(events, AgentEvent.ActivityRecentSummaryReported);
   const browserEvidenceEvent = latestEvent(events, AgentEvent.BrowserEvidenceRecentReported);
+  const networkFlowEvent = latestEvent(events, AgentEvent.NetworkFlowReported);
 
   return {
     ingestEvent,
@@ -40,6 +48,8 @@ export function resolveLiveActivityState(events: readonly AgentEventEnvelope[]):
     browserEvidenceEvent,
     browserEvidenceSummary:
       browserEvidenceEvent === null ? null : parseBrowserEvidenceSummary(browserEvidenceEvent.payload),
+    networkFlowEvent,
+    networkFlowDigest: networkFlowEvent === null ? null : parseNetworkFlowDigest(networkFlowEvent.payload),
   };
 }
 
@@ -108,4 +118,28 @@ function parseBrowserEvidenceSummary(payload: AgentProtocolLogFields): BrowserEv
     return null;
   }
   return parsed.data;
+}
+
+function parseNetworkFlowDigest(payload: AgentProtocolLogFields): ActivityNetworkFlowDigest | null {
+  const digestValue = payload[AgentProtocolDefaults.Field.ActivityDigest];
+  if (!isStringValue(digestValue)) {
+    return null;
+  }
+
+  let parsedDigest: unknown;
+  try {
+    parsedDigest = JSON.parse(digestValue);
+  } catch {
+    return null;
+  }
+
+  const parsed = ActivityNetworkFlowDigestSchema.safeParse(parsedDigest);
+  if (!parsed.success) {
+    return null;
+  }
+  return parsed.data;
+}
+
+function isStringValue(value: unknown): value is PortalDetailValue {
+  return typeof value === AgentProtocolDefaults.Primitive.String;
 }

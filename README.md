@@ -20,6 +20,7 @@ truth for child activity data.
 - [Important Docs](#important-docs)
 - [Commands](#commands)
 - [Release Scaffold](#release-scaffold)
+- [Getting Started](#getting-started)
 - [Local Dev Loop](#local-dev-loop)
 - [LAN Dev Loop](#lan-dev-loop)
 
@@ -381,6 +382,59 @@ The production Windows update manifest requires
 `OCENTRA_PARENT_UPDATE_SIGNING_KEY_BASE64`. Future platform signing secrets for
 Authenticode, macOS, Android store, and Apple store distribution are documented
 in the repo but are not required until those release paths are implemented.
+
+## Getting Started
+
+One command bootstraps the full developer environment from a clean checkout:
+
+```powershell
+npm run setup
+```
+
+This will:
+
+1. Verify Node.js ≥ 22.15.0 is installed.
+2. Detect or install the Rust/Cargo toolchain via `winget` (Windows) or prompt for `rustup` (macOS/Linux).
+3. Run `npm install` for all workspace packages.
+4. Install the pre-commit Git hooks (`npm run hooks:install`).
+5. Install Playwright's Chromium browser for E2E tests.
+6. Run the full `npm run validate` gate to confirm everything is wired correctly.
+
+### Prerequisites
+
+| Tool         | Required version | Install                                                            |
+| ------------ | ---------------- | ------------------------------------------------------------------ |
+| Node.js      | ≥ 22.15.0        | [nodejs.org](https://nodejs.org)                                   |
+| npm          | ≥ 11.7.0         | Bundled with Node.js                                               |
+| Rust / Cargo | stable (latest)  | `winget install Rustlang.Rustup` or [rustup.rs](https://rustup.rs) |
+| Git          | any recent       | [git-scm.com](https://git-scm.com)                                 |
+
+### Windows SmartScreen / Trust Warning for `ocentra-parent-agent-service.exe`
+
+The local dev build of `ocentra-parent-agent-service.exe` is compiled from
+source by `cargo build` on your own machine. It is **not** Authenticode-signed
+in development. Windows SmartScreen and antivirus tools may show a trust
+warning the first time you run or encounter the binary.
+
+**Why this happens**: Windows marks binaries as untrusted when they lack a
+code-signing certificate or when they are new to the SmartScreen reputation
+database.
+
+**How to handle it in dev**:
+
+- Click **"More info" → "Run anyway"** in the SmartScreen dialog for a
+  one-time allow.
+- Alternatively, right-click the exe → Properties → **Unblock** → OK. This
+  removes the `Zone.Identifier` mark-of-the-web flag on that specific binary.
+- The dev scripts (`npm run dev:agent`) invoke the binary directly via `cargo
+run` or the compiled path, so Windows only challenges it on first run from
+  a new build path.
+
+**For production releases**: The `production` branch workflow signs Windows
+binaries using Authenticode (`OCENTRA_PARENT_UPDATE_SIGNING_KEY_BASE64`) and
+bundles them via the MSI installer. Signed installer packages do not trigger
+SmartScreen for end users. See [Release Scaffold](#release-scaffold) for
+details.
 
 ## Local Dev Loop
 

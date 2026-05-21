@@ -22,8 +22,10 @@ export const PortalDevTextToken = {
   NoDevLog: decodeTextTokenId('portal.dev.noDevLog'),
   NoEvents: decodeTextTokenId('portal.dev.noEvents'),
   NoRecentActivity: decodeTextTokenId('portal.dev.noRecentActivity'),
+  NoNetworkFlow: decodeTextTokenId('portal.dev.noNetworkFlow'),
   NotReported: decodeTextTokenId('portal.dev.notReported'),
   RecentActivity: decodeTextTokenId('portal.dev.recentActivity'),
+  NetworkFlow: decodeTextTokenId('portal.dev.networkFlow'),
   CommandResult: decodeTextTokenId('portal.dev.commandResult'),
   CopyDiagnostics: decodeTextTokenId('portal.dev.copyDiagnostics'),
   CopiedDiagnostics: decodeTextTokenId('portal.dev.copiedDiagnostics'),
@@ -40,6 +42,7 @@ export const PortalDevTextToken = {
   GetActivityIngestStatus: decodeTextTokenId('portal.dev.command.getActivityIngestStatus'),
   GetRecentActivitySummary: decodeTextTokenId('portal.dev.command.getRecentActivitySummary'),
   GetBrowserEvidenceRecent: decodeTextTokenId('portal.dev.command.getBrowserEvidenceRecent'),
+  GetNetworkFlowDigest: decodeTextTokenId('portal.dev.command.getNetworkFlowDigest'),
   RootMissing: decodeTextTokenId('portal.dev.rootMissing'),
 } as const;
 
@@ -67,8 +70,10 @@ export const PortalDevText: Record<PortalDevTextTokenValue, DisplayText> = {
   [PortalDevTextToken.NoDevLog]: decodeDisplayText('No service log snapshot has been reported yet.'),
   [PortalDevTextToken.NoEvents]: decodeDisplayText('No service events have been reported yet.'),
   [PortalDevTextToken.NoRecentActivity]: decodeDisplayText('No recent activity rows returned yet.'),
+  [PortalDevTextToken.NoNetworkFlow]: decodeDisplayText('No network flow rows returned yet.'),
   [PortalDevTextToken.NotReported]: decodeDisplayText('Not reported'),
   [PortalDevTextToken.RecentActivity]: decodeDisplayText('Recent activity'),
+  [PortalDevTextToken.NetworkFlow]: decodeDisplayText('Network flow'),
   [PortalDevTextToken.CommandResult]: decodeDisplayText('Command result'),
   [PortalDevTextToken.CopyDiagnostics]: decodeDisplayText('Copy diagnostics'),
   [PortalDevTextToken.CopiedDiagnostics]: decodeDisplayText('Diagnostics copied'),
@@ -85,6 +90,7 @@ export const PortalDevText: Record<PortalDevTextTokenValue, DisplayText> = {
   [PortalDevTextToken.GetActivityIngestStatus]: decodeDisplayText('Get activity ingest status'),
   [PortalDevTextToken.GetRecentActivitySummary]: decodeDisplayText('Get recent activity summary'),
   [PortalDevTextToken.GetBrowserEvidenceRecent]: decodeDisplayText('Get browser evidence'),
+  [PortalDevTextToken.GetNetworkFlowDigest]: decodeDisplayText('Get network flow digest'),
   [PortalDevTextToken.RootMissing]: decodeDisplayText('Portal root element is missing.'),
 };
 
