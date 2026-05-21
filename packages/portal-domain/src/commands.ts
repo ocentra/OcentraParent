@@ -26,6 +26,10 @@ export const PortalOverviewCommands = [
     command: AgentCommand.NetworkFlowReadModelGet,
     payload: {},
   },
+  {
+    command: AgentCommand.LocalAiRuntimeStatusGet,
+    payload: {},
+  },
 ] as const;
 
 export const PortalCommandButtons = [
