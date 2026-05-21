@@ -121,19 +121,20 @@ Current completed-on-main baseline includes:
 - V0.7 local AI dry-run policy evaluator;
 - V0.7 context-builder runtime read-path hardening;
 - V0.7 portal policy-preview shell;
+- V0.7 policy-preview service/API read path with TypeScript protocol contracts
+  and Rust service parity;
 - hub hook session hardening;
 - roadmap runtime order update.
 
 Correct active implementation order:
 
-1. V0.7 policy-preview service/API read path with TypeScript protocol
-   contracts before Rust mirrors, then dry-run policy results from stored local
-   evidence.
-2. V0.7 portal policy preview integration against the typed service read-model,
+1. V0.7 portal policy preview integration against the typed service read-model,
    keeping decision action, reason codes, evidence references,
    unknown/degraded states, and no-enforcement messaging visible.
-3. V0.7 local provider/runtime work must stay local-only and
+2. V0.7 local provider/runtime work must stay local-only and
    unavailable/degraded by default until a real adapter is reviewed.
+3. V0.7 parent-rule/context integration gaps may be planned or contracted, but
+   must not enable enforcement.
 4. V0.8 enforcement adapters only after V0.7 preview decisions are typed,
    evidence-cited, visible, and validated on `main`.
 
@@ -143,22 +144,15 @@ contracts/read paths. Do not start enforcement early.
 
 ## Current Lane Intent
 
-The previous V0.7 foundation and preview-shell batches are merged. Current lane
-ownership:
-
-- codex-a owns the V0.7 policy-preview service/API read path and must finish
-  the TypeScript protocol contract fix before PR review;
-- codex-b is free-warm after the context-builder read-path hardening merge;
-- codex-c is free-warm after the portal policy-preview shell merge.
-
-Expected next lane ownership after codex-a lands should be assigned from clean,
-pulled `main`:
+The previous V0.7 foundation, preview-shell, context-builder read-path, and
+service/API read-path batches are merged. Current lane ownership should be kept
+full from clean, pulled `main`:
 
 - one lane for portal wiring to the policy-preview service read-model;
 - one lane for local provider/runtime adapter planning or status hardening that
   stays local-only and degraded/unavailable by default;
-- one lane for the next V0.7 evidence-context integration gap found during
-  service/API review.
+- one lane for the next V0.7 parent-rule/context integration gap needed for
+  preview quality, without starting enforcement.
 
 If the lane ledger and live branch disagree, send one targeted hub message and
 state which worker chat/worktree needs attention. Do not spam duplicate

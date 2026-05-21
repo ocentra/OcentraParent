@@ -44,7 +44,8 @@ represented through typed local contracts and Rust protocol/read-model paths.
 The first V0.7 foundations are also on `main`: local AI runtime/provider status,
 typed evidence context-builder contracts, a deterministic dry-run policy
 evaluator, context-builder read-path hardening, and the portal policy-preview
-shell. The next V0.7 work is service/API integration and preview wiring, not
+shell, and the typed policy-preview service/API read path. The next V0.7 work
+is portal read-model wiring and local-provider boundary hardening, not
 enforcement.
 
 Completed foundation:
@@ -69,10 +70,11 @@ Current local slice:
 
 Next product slice:
 
-- V0.7 policy preview service/API read path with TypeScript protocol contracts
-  first, then Rust protocol/service parity, followed by portal wiring to read
-  typed local evidence, context-builder output, runtime status, and dry-run
-  decisions without enabling enforcement.
+- V0.7 portal wiring to read the typed policy-preview service/API result for
+  local evidence, context-builder output, runtime status, and dry-run decisions
+  without enabling enforcement.
+- V0.7 local provider/runtime adapter boundary work that remains local-only and
+  unavailable/degraded by default until a real adapter is reviewed.
 
 ## Architecture Commitments
 
@@ -1020,15 +1022,16 @@ Current completed-on-main foundation:
 - V0.7 portal policy-preview shell that shows runtime status, candidate
   evidence references, explicit not-reported decision fields, and preview-only
   enforcement messaging.
+- V0.7 policy-preview service/API read path with TypeScript protocol contracts,
+  Rust protocol/service parity, and typed local dry-run result reporting.
 
 Next coordinator slices:
 
-1. Finish V0.7 policy-preview service/API read path with TypeScript protocol
-   contracts before Rust mirrors, then assemble stored local evidence and
-   dry-run policy results without inventing rows.
-2. Wire the existing V0.7 portal policy-preview shell to the typed service
-   read-model once the service/API branch lands.
-3. Keep provider runtime work local-only and unavailable/degraded by default
+1. Wire the existing V0.7 portal policy-preview shell to the typed service
+   read-model now that the service/API branch is on `main`.
+2. Keep provider runtime work local-only and unavailable/degraded by default
    until an actual local model adapter is reviewed.
+3. Define the next parent-rule/context integration gap needed for V0.7 preview
+   quality without starting enforcement.
 4. Keep enforcement out of scope until V0.7 preview decisions are typed,
    evidence-cited, visible, and validated on `main`.
