@@ -390,6 +390,7 @@ does not invent duration.
 Expectation links:
 
 - [App and game evidence expectations](expectations/app-game-evidence.md)
+- [App and game evidence sessions architecture](architecture/app-game-evidence-sessions.md)
 - [Capture feature expectations](expectations/capture.md)
 - [Evidence storage expectations](expectations/evidence-storage.md)
 - [Policy feature expectations](expectations/policy.md)

@@ -6,6 +6,9 @@ games are covered by managed browser URL/tab evidence. Native games and launcher
 need process, window, install, launcher, and session evidence that the Rust agent
 stores locally before AI, policy, or enforcement uses it.
 
+Detailed architecture and phased contract planning live in
+[App And Game Evidence Sessions Architecture](../architecture/app-game-evidence-sessions.md).
+
 ## Outcome Bar
 
 Parent outcome:
