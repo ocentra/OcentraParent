@@ -115,11 +115,7 @@ export function appendDecisionPreviewDetails(
     PortalDetails.EnforcementHandoff,
     readModelDetail(readModel, AgentProtocolDefaults.Field.PolicyHandoffState)
   );
-  appendDetail(
-    metadata,
-    PortalDetails.UnknownState,
-    readModelDetail(readModel, AgentProtocolDefaults.Field.PolicyAction)
-  );
+  appendDetail(metadata, PortalDetails.UnknownState, notReported());
 }
 
 function readModelDetail(readModel: PortalPolicyPreviewReadModel | null, field: AgentPayloadField): PortalDetailValue {

@@ -30,9 +30,23 @@ describe('portal policy-preview live activity state', () => {
     expect(state.policyPreviewEvent?.severity).toBe('error');
     expect(state.policyPreviewEvent?.payload['reason']).toBe('Policy preview store is unavailable.');
   });
+
+  it('rejects flattened policy-preview payloads with untyped numeric and boolean fields', () => {
+    const returnedAsText = resolveLiveActivityState([policyPreviewEventWith({ returned: '1' })]);
+    const countAsText = resolveLiveActivityState([policyPreviewEventWith({ evidenceReferenceCount: '1' })]);
+    const dryRunAsText = resolveLiveActivityState([policyPreviewEventWith({ dryRun: 'true' })]);
+
+    expect(returnedAsText.policyPreviewReadModel).toBeNull();
+    expect(countAsText.policyPreviewReadModel).toBeNull();
+    expect(dryRunAsText.policyPreviewReadModel).toBeNull();
+  });
 });
 
 function policyPreviewEvent() {
+  return policyPreviewEventWith({});
+}
+
+function policyPreviewEventWith(payloadOverrides: Record<string, unknown>) {
   return AgentEventEnvelopeSchema.parse({
     schemaVersion: 1,
     eventId: 'evt-policy-preview',
@@ -69,6 +83,7 @@ function policyPreviewEvent() {
       localAiResultId: 'local-ai-result-1',
       dryRun: true,
       enforcementHandoffState: 'disabled-preview-only',
+      ...payloadOverrides,
     },
     snapshot: null,
   });

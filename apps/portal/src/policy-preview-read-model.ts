@@ -1,43 +1,44 @@
 import { AgentProtocolDefaults, type AgentProtocolLogFields } from '@ocentra-parent/agent-protocol-domain/contracts';
-import type { LogFieldValue } from '@ocentra-parent/logging-domain/contracts';
+import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 
-type PolicyPreviewValue = LogFieldValue;
+const NullableTextSchema = Schema.Union(Schema.String, Schema.Null);
+const NullableNumberSchema = Schema.Union(Schema.Number, Schema.Null);
+const NullableBooleanSchema = Schema.Union(Schema.Boolean, Schema.Null);
 
-export interface PortalPolicyPreviewReadModel {
-  readonly schemaVersion: PolicyPreviewValue;
-  readonly generatedAt: PolicyPreviewValue;
-  readonly custody: PolicyPreviewValue;
-  readonly limit: PolicyPreviewValue;
-  readonly returned: PolicyPreviewValue;
-  readonly capabilityStatus: PolicyPreviewValue;
-  readonly previewId: PolicyPreviewValue;
-  readonly latestEventId: PolicyPreviewValue;
-  readonly latestObservedAt: PolicyPreviewValue;
-  readonly targetId: PolicyPreviewValue;
-  readonly targetType: PolicyPreviewValue;
-  readonly targetValue: PolicyPreviewValue;
-  readonly evidenceReferenceCount: PolicyPreviewValue;
-  readonly decisionId: PolicyPreviewValue;
-  readonly decisionAction: PolicyPreviewValue;
-  readonly reasonCodes: PolicyPreviewValue;
-  readonly ruleIds: PolicyPreviewValue;
-  readonly localAiResultId: PolicyPreviewValue;
-  readonly dryRun: PolicyPreviewValue;
-  readonly enforcementHandoffState: PolicyPreviewValue;
-}
+const PortalPolicyPreviewReadModelSchema = withParser(
+  Schema.Struct({
+    schemaVersion: NullableNumberSchema,
+    generatedAt: NullableTextSchema,
+    custody: NullableTextSchema,
+    limit: NullableNumberSchema,
+    returned: Schema.Number,
+    capabilityStatus: NullableTextSchema,
+    previewId: NullableTextSchema,
+    latestEventId: NullableTextSchema,
+    latestObservedAt: NullableTextSchema,
+    targetId: NullableTextSchema,
+    targetType: NullableTextSchema,
+    targetValue: NullableTextSchema,
+    evidenceReferenceCount: NullableNumberSchema,
+    decisionId: NullableTextSchema,
+    decisionAction: NullableTextSchema,
+    reasonCodes: NullableTextSchema,
+    ruleIds: NullableTextSchema,
+    localAiResultId: NullableTextSchema,
+    dryRun: NullableBooleanSchema,
+    enforcementHandoffState: NullableTextSchema,
+  })
+);
+
+export type PortalPolicyPreviewReadModel = Infer<typeof PortalPolicyPreviewReadModelSchema>;
 
 export function parsePolicyPreviewReadModel(payload: AgentProtocolLogFields): PortalPolicyPreviewReadModel | null {
-  const returned = payload[AgentProtocolDefaults.Field.Returned];
-  if (returned === undefined || returned === null) {
-    return null;
-  }
-
-  return {
+  const parsed = PortalPolicyPreviewReadModelSchema.safeParse({
     schemaVersion: valueOrNull(payload[AgentProtocolDefaults.Field.SchemaVersion]),
     generatedAt: valueOrNull(payload[AgentProtocolDefaults.Field.GeneratedAt]),
     custody: valueOrNull(payload[AgentProtocolDefaults.Field.Custody]),
     limit: valueOrNull(payload[AgentProtocolDefaults.Field.Limit]),
-    returned,
+    returned: payload[AgentProtocolDefaults.Field.Returned],
     capabilityStatus: valueOrNull(payload[AgentProtocolDefaults.Field.CapabilityStatus]),
     previewId: valueOrNull(payload[AgentProtocolDefaults.Field.PolicyPreviewId]),
     latestEventId: valueOrNull(payload[AgentProtocolDefaults.Field.LatestEventId]),
@@ -53,9 +54,14 @@ export function parsePolicyPreviewReadModel(payload: AgentProtocolLogFields): Po
     localAiResultId: valueOrNull(payload[AgentProtocolDefaults.Field.LocalAiResultId]),
     dryRun: valueOrNull(payload[AgentProtocolDefaults.Field.PolicyDryRun]),
     enforcementHandoffState: valueOrNull(payload[AgentProtocolDefaults.Field.PolicyHandoffState]),
-  };
+  });
+
+  if (!parsed.success) {
+    return null;
+  }
+  return parsed.data;
 }
 
-function valueOrNull(value: LogFieldValue | undefined): LogFieldValue {
+function valueOrNull(value: unknown): unknown {
   return value === undefined ? null : value;
 }

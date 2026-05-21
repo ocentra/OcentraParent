@@ -1,4 +1,5 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
+import { collectBrowserFailures } from './browser-failures';
 test('portal UI connects to the real agent and renders command results', async ({ context, page }) => {
   const browserFailures = collectBrowserFailures(page);
   await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: 'http://127.0.0.1:4490' });
@@ -129,6 +130,9 @@ async function assertOverview(page: Page): Promise<void> {
   await expect(
     policyPreview.locator('dt').filter({ hasText: 'Rows returned' }).locator('xpath=following-sibling::dd[1]')
   ).not.toHaveText('');
+  await expect(
+    policyPreview.locator('dt').filter({ hasText: 'Unknown state' }).locator('xpath=following-sibling::dd[1]')
+  ).toHaveText('Not reported');
   await expect(page.getByRole('heading', { name: 'Recent activity' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Device diagnostics' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Activity timeline' })).toBeVisible();
@@ -174,17 +178,4 @@ async function assertDiagnosticsCopy(page: Page): Promise<void> {
   expect(copiedText).toContain('"events"');
   expect(copiedText).toContain('"recentSummary"');
   expect(copiedText).toContain('"networkFlowReadModel"');
-}
-
-function collectBrowserFailures(page: Page): string[] {
-  const failures: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'error') {
-      failures.push(message.text());
-    }
-  });
-  page.on('pageerror', (error) => {
-    failures.push(error.message);
-  });
-  return failures;
 }
