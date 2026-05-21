@@ -13,6 +13,14 @@
       "import": "./dist/local-ai.js",
       "types": "./dist/local-ai.d.ts"
     },
+    "./local-ai-context": {
+      "import": "./dist/local-ai-context.js",
+      "types": "./dist/local-ai-context.d.ts"
+    },
+    "./local-ai-context-builder": {
+      "import": "./dist/local-ai-context-builder.js",
+      "types": "./dist/local-ai-context-builder.d.ts"
+    },
     "./local-ai-primitives": {
       "import": "./dist/local-ai-primitives.js",
       "types": "./dist/local-ai-primitives.d.ts"
