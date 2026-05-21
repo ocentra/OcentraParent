@@ -981,6 +981,8 @@ Current completed-on-main foundation:
 - V0.5 live activity portal visibility.
 - V0.5.1 browser URL/tab evidence research/spec.
 - V0.5.1 browser URL/tab managed bridge implementation plan.
+- V0.5.1 managed browser bridge runtime boundary with typed browser state
+  contracts, local evidence storage, and portal read visibility.
 - V0.5.2 app/game evidence sessions research/spec.
 - V0.5.3 local screen evidence analysis queue research/spec.
 - Network flow evidence research/spec.
@@ -989,11 +991,14 @@ Current completed-on-main foundation:
 
 Next coordinator slices:
 
-1. Implement the managed browser bridge runtime boundary first, including typed
-   browser state contracts, local evidence storage, and portal read visibility.
-2. Implement the app/game session read model after browser evidence is underway,
-   keeping process/window capture as input evidence rather than proof by itself.
-3. Implement the local screen evidence queue after the browser and app/game read
+1. Rebase active app/game and network evidence branches on latest `main` after
+   the V0.5.1 browser bridge runtime merge.
+2. Implement the app/game session read model next, keeping process/window
+   capture as input evidence rather than proof by itself.
+3. Implement network flow evidence runtime read models and portal visibility
+   from stored flow evidence, without claiming exact browser URL/tab or
+   decrypted content.
+4. Implement the local screen evidence queue after the browser and app/game read
    paths have stable evidence references.
-4. Start the local AI dry-run evaluator only after browser, app/game, network,
+5. Start the local AI dry-run evaluator only after browser, app/game, network,
    and screen evidence references can all be read through typed local contracts.
