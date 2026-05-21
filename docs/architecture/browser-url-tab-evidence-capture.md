@@ -43,8 +43,9 @@ Official browser and OS docs establish the implementation boundary:
 
 Phase 1 should be Windows plus Chromium-family managed sessions:
 
-- Microsoft Edge Stable.
-- Google Chrome or Chrome for Testing.
+- Microsoft Edge Stable: primary Windows MVP candidate.
+- Google Chrome or Chrome for Testing: supported after managed non-default
+  profile launch, loopback bridge behavior, and version detection are proven.
 - Brave only after executable identity, launch flags, bridge behavior, and
   managed-profile storage are proven.
 
@@ -57,6 +58,22 @@ Other browsers are explicit states:
   behavior, and validation are proven.
 - Any supported browser running outside the managed Ocentra session:
   unmanaged browser use and possible bypass.
+
+The support matrix must be represented as data, not prose-only assumptions:
+
+| Browser family            | V0.5.1 state                     | URL/title support path                            | Active-tab support path                                        |
+| ------------------------- | -------------------------------- | ------------------------------------------------- | -------------------------------------------------------------- |
+| Microsoft Edge            | Supported MVP target             | Managed Chromium DevTools Protocol profile        | Proven CDP focus/target signal, or marked unknown until proven |
+| Chrome/Chrome for Testing | Supported MVP target after proof | Managed Chromium DevTools Protocol profile        | Proven CDP focus/target signal, or marked unknown until proven |
+| Brave                     | Candidate after proof            | Managed Chromium bridge if launch/profile matches | Same as Chromium only after executable and adapter proof       |
+| Firefox                   | Later adapter                    | WebDriver BiDi or managed extension/native host   | Separate proof required                                        |
+| Opera/Arc/forks/WebView   | Unsupported or unmanaged         | None in MVP                                       | None in MVP                                                    |
+| Portable/unknown          | Unmanaged possible bypass        | None                                              | None                                                           |
+
+Browser family, channel, version, executable identity, managed support state,
+and reason codes should be queryable by the portal so parents can distinguish
+"installed but unsupported" from "supported but not managed" and "managed but
+degraded".
 
 ## Components
 
@@ -84,6 +101,21 @@ Browser bridge adapter:
 - Emits raw adapter observations into typed mapping code.
 - Must never connect to a default personal profile or an unmanaged browser
   bridge.
+
+Managed extension and native host adapter, if needed:
+
+- Is optional for V0.5.1 and must be explicitly designed before runtime work.
+- May be installed only into an Ocentra-managed profile or policy-managed
+  browser scope.
+- Uses browser extension APIs for active tab/window events and URL/title access
+  only after the required permissions are present.
+- Uses a registered native messaging host to deliver length-prefixed JSON to the
+  local agent boundary.
+- Records extension id, native host id, install state, permission state,
+  browser family, profile id, managed session id, and last heartbeat.
+- Must reject messages from unregistered extension origins, unmanaged profiles,
+  unknown native hosts, stale sessions, or schema-invalid payloads.
+- Must not expand data scope beyond URL/title/domain/tab/window metadata.
 
 Evidence mapper:
 
@@ -115,6 +147,51 @@ Local AI reference provider:
 - Does not pass page body text, cookies, storage, screenshots, or decrypted
   network payloads.
 
+## State Model
+
+Browser integration state should be explicit enough that the portal, policy, and
+AI layers never need to infer capability from missing rows.
+
+Capability status values:
+
+- `available`: current managed evidence is fresh and schema-valid.
+- `tab-list-only`: managed tab targets are known, but active tab is not proven.
+- `unsupported-browser`: browser family or channel has no approved adapter.
+- `unmanaged-browser`: browser-like process is outside the managed boundary.
+- `managed-profile-missing`: profile setup has not completed.
+- `bridge-missing`: the managed bridge is not reachable.
+- `permission-limited`: a required browser or extension permission is absent.
+- `stale`: last known evidence is past its freshness window.
+- `adapter-error`: the adapter failed and reported a typed reason.
+- `disabled-by-parent`: parent-controlled setting disabled browser capture.
+
+Managed install and bridge state values:
+
+- `not-installed`.
+- `installed-unsupported`.
+- `installed-supported`.
+- `managed-profile-ready`.
+- `launch-pending`.
+- `running-managed`.
+- `bridge-connected`.
+- `bridge-disconnected`.
+- `extension-missing`, if the extension adapter is used.
+- `native-host-missing`, if the extension adapter is used.
+- `permission-required`.
+- `stopped`.
+- `error`.
+
+Evidence freshness rules:
+
+- Every observation has `observedAt`.
+- Every active-tab claim has `freshUntil` or an equivalent expiry window.
+- Consumers must treat evidence as stale after expiry even if the last known URL
+  is still in SQLite.
+- A bridge disconnect immediately creates a degraded status and must not leave
+  the last active URL displayed as current.
+- Journal replay must recreate stale/degraded status from timestamps and status
+  events instead of relying on portal memory.
+
 ## Managed Browser Launch Contract
 
 A managed browser session should include:
@@ -135,6 +212,8 @@ A managed browser session should include:
 - `degradedReason` when applicable.
 - `parentSettingRef` or setup action reference when launch is enabled by a
   parent-controlled setting.
+- `custodyLabel`, such as `child-device-local`.
+- `permissionState`, when an extension/native host is in use.
 
 Launch rules:
 
@@ -154,6 +233,7 @@ evidence:
 
 - Supported browser capability snapshot.
 - Running browser state.
+- Managed install and permission state.
 - Managed browser session started/stopped/degraded.
 - Browser tab target observation.
 - Active browser tab evidence.
@@ -167,6 +247,7 @@ Browser tab evidence should include:
 - Evidence id.
 - Schema version.
 - Observed at timestamp.
+- Fresh-until timestamp or stale-after duration.
 - Source id and adapter id.
 - Device/host reference.
 - Browser family, channel, and managed session id.
@@ -182,6 +263,9 @@ Browser tab evidence should include:
 - Capability status.
 - Degraded reason when status is not fully available.
 - Staleness/expiry timestamp.
+- Custody label, normally `child-device-local`.
+- Query visibility label for local/LAN, parent cache, parent-owned export, or
+  unavailable state.
 
 Unmanaged browser evidence should include:
 
@@ -193,6 +277,20 @@ Unmanaged browser evidence should include:
 - Reason: unsupported browser, supported browser outside managed session,
   portable browser, bridge missing, policy bypass candidate, or adapter error.
 - No exact URL field.
+
+Identifier rules:
+
+- Evidence ids are generated by the child-device agent before journal write and
+  are stable through SQLite replay.
+- Source ids identify the browser evidence source, such as managed Chromium CDP,
+  managed extension/native host, or unmanaged-process detector.
+- Adapter ids identify the concrete platform adapter implementation and version.
+- Managed browser session ids are scoped to one launched managed browser
+  session.
+- Profile ids are stable references to Ocentra-owned profiles and must not be
+  raw private profile paths in portal/debug output.
+- Window, tab, and target ids are browser-provided when available and should be
+  treated as adapter-scoped, not globally stable household identifiers.
 
 ## Active Tab Truth Ladder
 
@@ -256,6 +354,17 @@ inspection features. The first implementation must:
 - treat any raw protocol error payload as diagnostic data that requires
   redaction before portal copy/export.
 
+If a managed extension/native host is added, the implementation must also:
+
+- declare the minimum browser permissions needed for URL/title/tab state;
+- record extension install, enabled, disabled, permission-required, and
+  native-host-missing states;
+- validate the extension origin against the registered native messaging host;
+- use schema validation before journal write;
+- report service-worker sleep or missed heartbeat as stale/degraded evidence;
+- provide parent/admin setup status without showing extension secrets or raw
+  browser internals.
+
 ## Journal And Query Flow
 
 Browser evidence follows the same evidence custody path as other activity:
@@ -278,6 +387,20 @@ SQLite read models should be rebuildable from the journal and should expose:
 - stale/degraded bridge status;
 - unmanaged browser detections;
 - evidence ids for local AI/policy references.
+- custody/source label for each read-model row.
+- install, permission, and bridge state history needed for support/debug views.
+
+Minimum local journal flow:
+
+1. Adapter emits a raw local observation with adapter id and source id.
+2. Mapper validates URL/title/domain, ids, timestamps, and capability status.
+3. Agent assigns or validates the evidence id.
+4. Agent writes a browser evidence envelope to the encrypted NDJSON journal.
+5. SQLite ingest consumes the journal event and updates read models.
+6. Portal, policy, and AI consumers query typed service/read-model APIs.
+
+Portal, policy, and AI consumers must be able to reference `browserEvidenceId`
+without receiving raw protocol payloads or direct browser/profile access.
 
 Portal and local AI paths must not read browser profile files, DevTools state,
 journal files, or SQLite files directly.
@@ -293,6 +416,8 @@ The portal should show:
 - active tab only when active state is proven and fresh;
 - unmanaged browser use as possible bypass;
 - stale evidence as stale, not current;
+- managed install state and permission state;
+- data source/custody label, normally live local/LAN child agent for the MVP;
 - copy/debug output with event ids, timestamps, source ids, capability status,
   and redacted bridge/profile references.
 
@@ -305,25 +430,66 @@ The portal must not:
 - read journal or SQLite files;
 - infer exact URL from window title or network destination.
 
+## Portal, Policy, And AI Handoff
+
+Portal handoff:
+
+- The portal queries browser read models from the agent service.
+- It shows exact URL/title/domain only for managed, journaled browser evidence.
+- It marks unsupported, unmanaged, stale, missing bridge, permission-limited,
+  disabled, and adapter-error states distinctly.
+- It labels local/LAN, parent device cache, parent-owned storage/export, and
+  unavailable sources so hosted surfaces do not appear to store child activity.
+
+Policy handoff:
+
+- Policy evaluation receives browser evidence references and normalized
+  URL/origin/domain fields from the local agent path.
+- Policy rules may target browser family, managed/unmanaged state, normalized
+  domain/origin, URL pattern, capability status, and stale/degraded state.
+- Enforcement cannot act on guessed URLs. It may act on unmanaged-browser
+  bypass status only after a later enforcement milestone defines that policy.
+
+AI handoff:
+
+- Local AI inputs may reference browser evidence ids, URL/title/domain metadata,
+  active-state certainty, timestamps, and recent local context.
+- Local AI must treat `tab-list-only`, `unknown-active`, stale, degraded, and
+  unmanaged browser states differently from proven active-tab evidence.
+- Remote/API AI and hosted report compilation are optional later flows and must
+  use explicit parent-controlled custody boundaries. They are not required for
+  child-device browser safety decisions.
+- AI does not receive page body text, screenshots, cookies, storage, browser
+  secrets, raw DevTools protocol dumps, or decrypted network payloads from this
+  feature.
+
 ## Acceptance Tests And Manual Validation
 
 Contract tests:
 
 - valid and invalid supported-browser snapshots;
 - valid and invalid managed session payloads;
+- managed install and permission state transitions;
 - URL/title/domain parsing and normalization;
 - stale evidence state;
 - unsupported/degraded/missing-bridge states;
 - unmanaged browser detected without exact URL;
 - local AI evidence reference shape.
+- custody/source labels for local, LAN, parent cache, parent-owned export, and
+  unavailable states.
 
 Rust/adapter tests:
 
 - managed launch rejects default profile configuration;
+- managed launch records profile id, session id, process id, source id, and
+  adapter id;
 - bridge endpoint is loopback-only and redacted in diagnostics;
 - Chromium target-list payload maps into tab evidence;
 - active state remains unknown unless proven;
 - adapter errors become typed degraded status.
+- unmanaged bridge endpoints and stale managed session ids are rejected.
+- extension/native host payloads, if added, reject unknown origins, missing
+  permissions, and schema-invalid messages.
 
 Storage tests:
 
@@ -331,6 +497,8 @@ Storage tests:
 - SQLite ingest rebuilds browser read models from journal replay;
 - duplicate browser evidence ids do not double-count;
 - stale/degraded evidence survives replay accurately.
+- portal/policy/AI read APIs see only journaled evidence references and typed
+  summaries.
 
 Portal tests:
 
@@ -338,6 +506,8 @@ Portal tests:
 - unmanaged browser status appears as possible bypass;
 - missing bridge and stale evidence are visible;
 - copy/debug output redacts bridge/profile details and includes evidence ids.
+- install, permission, unsupported, stale, degraded, and custody/source labels
+  are visible and do not look like successful URL capture.
 
 Manual Windows validation:
 

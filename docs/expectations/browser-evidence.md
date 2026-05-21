@@ -15,12 +15,17 @@ Parent outcome:
 
 - A parent can see which supported browsers are installed or detectable.
 - A parent can see which supported browsers are running.
+- A parent can see which browsers are supported for managed URL capture now,
+  which are installed but unsupported, and which require a later adapter.
 - A parent can see open browser windows and tabs where the browser integration
   permits it.
 - A parent can see the active browser tab, exact URL, page title, normalized
   domain, timestamp, evidence id, and source integration id.
 - A parent can tell when browser URL/tab evidence is unavailable, permission
   limited, unsupported, stale, or degraded.
+- A parent can tell whether evidence came from a live managed browser session,
+  a stale managed session, an unmanaged browser detection, local cache, or a
+  parent-owned export/report path.
 
 Child-device outcome:
 
@@ -33,6 +38,9 @@ Child-device outcome:
 - Browser evidence collection must not block the service event loop.
 - Browser-like processes outside the managed Ocentra browser boundary are
   reported as unmanaged browser use and possible bypass.
+- The child-device agent stores browser evidence locally before any portal,
+  policy, or AI consumer receives it. Ocentra-hosted services are not the
+  default store for URL history, titles, browser evidence, reports, or rules.
 
 ## Data Scope
 
@@ -40,15 +48,19 @@ Browser evidence may record:
 
 - Browser family and supported status.
 - Browser process/running status.
+- Browser channel and browser version where available.
 - Browser profile id where available and safe.
 - Managed/unmanaged browser status.
+- Managed browser session id and bridge capability status.
 - Window id and tab id where available.
+- Browser target id where available.
 - Active/inactive state for windows and tabs.
 - Exact tab URL.
 - Normalized domain and origin.
 - Page title.
-- Observation timestamp.
+- Observation timestamp and freshness/expiry timestamp.
 - Evidence id, source id, adapter id, and capability status.
+- Managed install state, permission state, bridge state, and degraded reason.
 
 Browser evidence must not record unless a later milestone explicitly approves it:
 
@@ -66,6 +78,10 @@ Browser evidence must not record unless a later milestone explicitly approves it
 - The Ocentra-managed browser boundary owns exact URL/tab evidence. Native
   process/window and network/domain adapters may detect unmanaged browser use,
   but must not infer exact URLs from that evidence.
+- A browser extension may supplement the managed bridge only when it is installed
+  into an Ocentra-managed profile, talks to a registered native host, and reports
+  permission/install state through typed contracts. It must not be the default
+  product path for unmanaged personal profiles.
 - Native process/window and network/domain adapters must not guess browser tab
   URLs.
 - Mapping code normalizes browser evidence into shared activity/evidence
@@ -79,6 +95,7 @@ Browser evidence must not record unless a later milestone explicitly approves it
 - Supported-browser capability contract.
 - Browser running-state contract.
 - Managed browser launcher/profile contract.
+- Managed install and permission state contract.
 - Browser window/tab evidence contract.
 - Active-tab evidence contract.
 - URL/title/domain normalization contract.
@@ -99,8 +116,11 @@ The Windows Rust agent should follow this procedure for browser URL/tab evidence
    Detect Chrome, Edge, Brave, Firefox, Opera, and other browser-like executables
    where practical. Record browser family, version, executable path,
    signature/hash where available, and whether the browser is supported for
-   managed URL capture. MVP URL/tab capture should start with Chromium-family
-   browsers that expose a browser-supported local debugging bridge.
+   managed URL capture. MVP URL/tab capture should start with Edge Stable and
+   Chrome or Chrome for Testing. Brave may follow after executable identity,
+   managed-profile launch flags, and bridge behavior are proven. Firefox, Opera,
+   portable browsers, embedded WebViews, and unknown Chromium forks remain
+   unsupported or unmanaged states until a separate adapter proof exists.
 
 2. Create an Ocentra-managed browser profile.
 
@@ -109,6 +129,9 @@ The Windows Rust agent should follow this procedure for browser URL/tab evidence
    profile is separate from the child's normal browser profile. Modern Chrome
    requires a non-default user data directory for remote debugging, so exact
    URL/tab capture must not depend on attaching to the default user profile.
+   The profile needs a stable `profileId`, an internal `profilePathRef`, and a
+   parent-visible custody label that says the profile is local to the child
+   device.
 
 3. Launch the browser through Ocentra.
 
@@ -123,6 +146,9 @@ The Windows Rust agent should follow this procedure for browser URL/tab evidence
    port over a fixed public convention such as `9222`. Track the launched
    process id, executable path, profile path, bridge port, managed session id,
    and browser family.
+   Record managed install state such as installed, not installed,
+   installed-but-unsupported, managed-profile-ready, bridge-unavailable,
+   permission-limited, or adapter-error.
 
 4. Connect to the browser bridge.
 
@@ -136,6 +162,9 @@ The Windows Rust agent should follow this procedure for browser URL/tab evidence
    `/json/version` identifies the browser and protocol endpoint. `/json/list`
    provides page/tab targets with ids, titles, URLs, target types, and WebSocket
    debugger URLs where the browser supports them.
+   The agent must connect only to a bridge it launched for the managed session.
+   It must reject unmanaged bridge endpoints, default-profile bridges, wildcard
+   remote origins, and stale session ids.
 
 5. Capture browser evidence.
 
@@ -145,6 +174,9 @@ The Windows Rust agent should follow this procedure for browser URL/tab evidence
    page title, timestamp, evidence id, source id, adapter id, and capability
    status. Store that evidence through the encrypted journal and SQLite query
    store before the portal or local AI consumes it.
+   Active state must be `known-active`, `known-inactive`, or `unknown`. A target
+   list is not enough to claim an active tab unless the adapter has separate
+   proof for focus/activation.
 
 6. Detect unmanaged browsers.
 
@@ -154,6 +186,8 @@ The Windows Rust agent should follow this procedure for browser URL/tab evidence
    session, record `unmanaged-browser-detected` with process id, process name,
    executable path, signature/hash where available, and possible-bypass reason.
    This is not successful URL/tab evidence.
+   The event must not include an exact URL, browser history, page body, cookies,
+   or form data.
 
 7. Make the managed browser the normal child path.
 
@@ -164,6 +198,14 @@ The Windows Rust agent should follow this procedure for browser URL/tab evidence
    browser sessions provide exact URLs; unmanaged browser sessions are bypass
    evidence and, in enforcement mode, may be blocked or terminated.
 
+8. Hand off stored evidence to portal, policy, and AI consumers.
+
+   The portal reads browser status and recent activity through typed service read
+   models. Policy and local AI receive browser evidence ids, timestamps,
+   normalized domain/origin, URL/title summaries where allowed, capability
+   status, and custody/source labels. They do not read browser profiles,
+   DevTools endpoints, journal files, SQLite files, or raw protocol payloads.
+
 ## Acceptance
 
 - The system can distinguish "Chrome is the foreground app" from "the active
@@ -172,14 +214,17 @@ The Windows Rust agent should follow this procedure for browser URL/tab evidence
   id, source id, and adapter id.
 - Unsupported browsers and missing permissions are typed states, not silent
   failures.
+- Managed install, profile, bridge, permission, stale, and degraded states are
+  visible through contracts and portal read models.
 - A normal or alternate browser running outside the managed Ocentra browser
   boundary is reported as unmanaged browser use; it is not counted as successful
   URL/tab capture.
 - Browser evidence survives journal/query-store round trip before portal or AI
   use.
 - Local AI input contracts can reference browser evidence by id.
-- Tests prove invalid URLs, missing required ids, and out-of-range/stale states
-  are rejected or marked degraded.
+- Tests prove invalid URLs, missing required ids, unsupported browsers,
+  unmanaged browser detections, stale evidence, permission-limited states, and
+  degraded bridge states are rejected or marked degraded.
 - No page body, screenshots, keystrokes, browser secrets, or decrypted traffic
   are captured.
 
