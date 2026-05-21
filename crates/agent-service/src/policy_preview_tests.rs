@@ -1,7 +1,9 @@
 use ocentra_parent_agent_protocol::{
-    constants, policy_constants as policy, LogFieldValue, ParentEvidenceReference,
-    ParentEvidenceReferenceKind, PolicyAction, PolicyDecision, PolicyDecisionHandoffState,
-    PolicyPreviewReadModel, PolicyPreviewReadModelRow, PolicyTarget, PolicyTargetType,
+    constants, policy_constants as policy, ChildProfileReference, FamilyReference,
+    LocalAiParentRuleContextRef, LogFieldValue, ParentActorReference, ParentActorRole,
+    ParentDeviceReference, ParentEvidenceReference, ParentEvidenceReferenceKind, PolicyAction,
+    PolicyDecision, PolicyDecisionHandoffState, PolicyPreviewReadModel, PolicyPreviewReadModelRow,
+    PolicyRule, PolicyTarget, PolicyTargetType,
 };
 
 use crate::policy_preview_payload::policy_preview_read_model_payload;
@@ -29,6 +31,7 @@ fn policy_preview_payload_exposes_latest_dry_run_decision_without_enforcement() 
                 kind: ParentEvidenceReferenceKind::ActivityEvent,
                 observed_at: policy::TEST_EVALUATED_AT.to_string(),
             }],
+            parent_rule_context_references: vec![parent_rule_context()],
             decision: PolicyDecision {
                 schema_version: policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
                 decision_id: policy::TEST_DECISION_ID.to_string(),
@@ -73,4 +76,57 @@ fn policy_preview_payload_exposes_latest_dry_run_decision_without_enforcement() 
         payload.get(constants::field::LOCAL_AI_RESULT_ID),
         Some(&LogFieldValue::Null(()))
     );
+    assert_eq!(
+        payload.get(policy::PARENT_RULE_CONTEXT_REFERENCE_COUNT_FIELD),
+        Some(&LogFieldValue::Number(1.0))
+    );
+    assert_eq!(
+        payload.get(policy::PARENT_RULE_CONTEXT_REF_IDS_FIELD),
+        Some(&LogFieldValue::String(
+            policy::TEST_PARENT_RULE_CONTEXT_REF_ID.to_string()
+        ))
+    );
+}
+
+fn parent_rule_context() -> LocalAiParentRuleContextRef {
+    LocalAiParentRuleContextRef {
+        parent_rule_ref_id: policy::TEST_PARENT_RULE_CONTEXT_REF_ID.to_string(),
+        policy_version: policy::TEST_POLICY_VERSION.to_string(),
+        family: FamilyReference {
+            family_id: policy::TEST_FAMILY_ID.to_string(),
+        },
+        child_profile: ChildProfileReference {
+            child_profile_id: policy::TEST_CHILD_PROFILE_ID.to_string(),
+            display_name: policy::TEST_CHILD_PROFILE_DISPLAY_NAME.to_string(),
+        },
+        device: ParentDeviceReference {
+            device_id: policy::TEST_PARENT_DEVICE_ID.to_string(),
+            child_profile_id: Some(policy::TEST_CHILD_PROFILE_ID.to_string()),
+            label: policy::TEST_PARENT_DEVICE_LABEL.to_string(),
+            platform: policy::TEST_PARENT_DEVICE_PLATFORM_WINDOWS.to_string(),
+        },
+        rule: PolicyRule {
+            rule_id: policy::TEST_BLOCK_RULE_ID.to_string(),
+            target: PolicyTarget {
+                target_id: policy::TEST_TARGET_ID.to_string(),
+                target_type: PolicyTargetType::Domain,
+                target_value: policy::TEST_TARGET_VALUE.to_string(),
+            },
+            action: PolicyAction::Block,
+            schedule_id: None,
+            priority: 10,
+            reason_code: policy::TEST_REASON_PARENT_BLOCK.to_string(),
+            created_by: ParentActorReference {
+                actor_id: policy::TEST_PARENT_ACTOR_ID.to_string(),
+                role: ParentActorRole::Parent,
+            },
+            enabled: true,
+            effective_from: None,
+            effective_until: None,
+        },
+        target_evidence_refs: vec![policy::TEST_EVIDENCE_ID.to_string()],
+        custody: policy::TEST_PARENT_RULE_CONTEXT_CUSTODY.to_string(),
+        updated_at: policy::TEST_EVALUATED_AT.to_string(),
+        expires_at: None,
+    }
 }

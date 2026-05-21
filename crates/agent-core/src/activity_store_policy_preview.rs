@@ -61,6 +61,7 @@ fn preview_row(
         observed_at: row.observed_at,
         target,
         evidence_references,
+        parent_rule_context_references: Vec::new(),
         decision,
     })
 }
