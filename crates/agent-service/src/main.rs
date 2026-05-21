@@ -22,6 +22,13 @@ mod local_ai_runtime_status;
 #[cfg(test)]
 mod local_ai_runtime_status_tests;
 mod network;
+mod network_flow_digest;
+mod network_flow_digest_indicators;
+mod network_flow_digest_rollups;
+#[cfg(test)]
+mod network_flow_digest_tests;
+#[cfg(test)]
+mod network_flow_payload_tests;
 mod policy_preview_api;
 mod policy_preview_payload;
 #[cfg(test)]

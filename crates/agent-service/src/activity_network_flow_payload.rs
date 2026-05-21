@@ -3,7 +3,7 @@ use ocentra_parent_agent_protocol::{
     LogFields,
 };
 
-use crate::fields::fields_from_pairs;
+use crate::{fields::fields_from_pairs, network_flow_digest::network_flow_digest};
 
 type FieldPair = (&'static str, LogFieldValue);
 
@@ -38,6 +38,13 @@ fn read_model_pairs(read_model: &ActivityNetworkFlowReadModel) -> Vec<FieldPair>
         (
             constants::field::CAPABILITY_STATUS,
             LogFieldValue::String(read_model.capability_status.clone()),
+        ),
+        (
+            constants::field::ACTIVITY_DIGEST,
+            LogFieldValue::String(
+                serde_json::to_string(&network_flow_digest(read_model))
+                    .expect(constants::error::AGENT_EVENT_SERIALIZES),
+            ),
         ),
     ]
 }
