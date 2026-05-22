@@ -18,6 +18,7 @@ pub mod env_var {
     pub const PROGRAM_FILES: &str = "PROGRAMFILES";
     pub const PROGRAM_FILES_X86: &str = "ProgramFiles(x86)";
     pub const LOCAL_AI_RUNTIME_BINARY: &str = "OCENTRA_PARENT_LOCAL_AI_RUNTIME_BINARY";
+    pub const LOCAL_AI_MODEL_ID: &str = "OCENTRA_PARENT_LOCAL_AI_MODEL_ID";
     pub const LOCAL_AI_MODEL_FILE: &str = "OCENTRA_PARENT_LOCAL_AI_MODEL_FILE";
     pub const LOCAL_AI_MODEL_ARTIFACT_REF: &str = "OCENTRA_PARENT_LOCAL_AI_MODEL_ARTIFACT_REF";
     pub const LOCAL_AI_MODEL_MANIFEST_REF: &str = "OCENTRA_PARENT_LOCAL_AI_MODEL_MANIFEST_REF";
@@ -28,9 +29,22 @@ pub mod env_var {
         "OCENTRA_PARENT_LOCAL_AI_GENERATION_MAX_TOKENS";
     pub const LOCAL_AI_RUNTIME_DEVICE: &str = "OCENTRA_PARENT_LOCAL_AI_RUNTIME_DEVICE";
     pub const LOCAL_AI_GPU_LAYERS: &str = "OCENTRA_PARENT_LOCAL_AI_GPU_LAYERS";
+    pub const LOCAL_AI_SPLIT_MODE: &str = "OCENTRA_PARENT_LOCAL_AI_SPLIT_MODE";
+    pub const LOCAL_AI_TENSOR_SPLIT: &str = "OCENTRA_PARENT_LOCAL_AI_TENSOR_SPLIT";
+    pub const LOCAL_AI_MAIN_GPU: &str = "OCENTRA_PARENT_LOCAL_AI_MAIN_GPU";
+    pub const LOCAL_AI_FIT: &str = "OCENTRA_PARENT_LOCAL_AI_FIT";
+    pub const LOCAL_AI_FIT_TARGET: &str = "OCENTRA_PARENT_LOCAL_AI_FIT_TARGET";
+    pub const LOCAL_AI_OP_OFFLOAD: &str = "OCENTRA_PARENT_LOCAL_AI_OP_OFFLOAD";
+    pub const LOCAL_AI_CPU_MOE: &str = "OCENTRA_PARENT_LOCAL_AI_CPU_MOE";
+    pub const LOCAL_AI_CPU_MOE_LAYERS: &str = "OCENTRA_PARENT_LOCAL_AI_CPU_MOE_LAYERS";
+    pub const LOCAL_AI_LLAMA_CPP_RELEASE_TAG: &str =
+        "OCENTRA_PARENT_LOCAL_AI_LLAMA_CPP_RELEASE_TAG";
+    pub const LOCAL_AI_RUNTIME_CACHE_DIR: &str = "OCENTRA_PARENT_LOCAL_AI_RUNTIME_CACHE_DIR";
     pub const COMPUTER_NAME: &str = "COMPUTERNAME";
     pub const DEV_LOG_DIR: &str = "OCENTRA_PARENT_DEV_LOG_DIR";
+    pub const HOME: &str = "HOME";
     pub const HOSTNAME: &str = "HOSTNAME";
+    pub const USERPROFILE: &str = "USERPROFILE";
 }
 
 pub mod bind {
@@ -140,6 +154,8 @@ pub mod error {
     pub const BROWSER_BRIDGE_MAPS_TARGET: &str = "browser bridge maps target";
     pub const BROWSER_BRIDGE_REJECTS_INVALID_URL: &str = "browser bridge rejects invalid URL";
     pub const LOCAL_AI_RUNTIME_SPAWNS: &str = "local AI runtime process spawns";
+    pub const LOCAL_AI_CHAT_REQUEST_PARSES: &str = "local AI chat request parses";
+    pub const LOCAL_AI_CACHE_ROOT_EXISTS: &str = "local AI cache root exists";
 }
 
 #[path = "constants/local_ai_runtime.rs"]

@@ -6,9 +6,13 @@ use ocentra_parent_agent_protocol::{
 use tokio::{process::Command, time::Instant};
 
 use crate::{
+    local_ai_chat_generation_args::llama_acceleration_args,
     local_ai_chat_generation_request::LocalAiChatGenerationRequest,
     local_ai_chat_generation_result::{failed_result, unavailable_result, LocalAiFailedGeneration},
     local_ai_runtime_config::LocalAiRuntimeConfigSnapshot,
+    local_ai_runtime_model_selection::{
+        model_reference_for_request, requested_model_unavailable_reason,
+    },
     local_ai_runtime_status::local_ai_runtime_is_executable,
 };
 
@@ -17,6 +21,10 @@ pub(crate) async fn run_local_ai_chat_generation(
     request: LocalAiChatGenerationRequest,
     config: &LocalAiRuntimeConfigSnapshot,
 ) -> LocalAiChatGenerationResult {
+    if let Some(reason) = requested_model_unavailable_reason(config, &request.model_id) {
+        return unavailable_result(message_id, config, request, reason);
+    }
+
     if !local_ai_runtime_is_executable(config) {
         return unavailable_result(
             message_id,
@@ -52,6 +60,7 @@ pub(crate) fn unavailable_result_for_command(
     reason: &'static str,
 ) -> LocalAiChatGenerationResult {
     let request = LocalAiChatGenerationRequest {
+        model_id: config.model_id().to_string(),
         prompt: String::new(),
         max_output_tokens: config.generation_max_tokens(),
         timeout_ms: config.generation_timeout_ms(),
@@ -168,8 +177,8 @@ fn complete_or_failed_result(
         runtime_reference_id: constants::local_ai_runtime::RUNTIME_REFERENCE_LOCAL_LLAMA_CLI
             .to_string(),
         provider_id: constants::local_ai_runtime::PROVIDER_ID_LOCAL_LLAMA_CLI.to_string(),
-        model_id: constants::local_ai_runtime::MODEL_ID_LOCAL_GGUF_CONFIGURED.to_string(),
-        model_reference: config.artifact_ref().to_string(),
+        model_id: request.model_id.clone(),
+        model_reference: model_reference_for_request(config, &request.model_id).to_string(),
         generation_state: LocalAiGenerationState::Complete,
         output_text: Some(output_text),
         prompt_char_count: request.prompt.chars().count() as u64,
@@ -187,15 +196,7 @@ fn elapsed_ms(started_at: Instant) -> u64 {
 }
 
 fn append_acceleration_args(command: &mut Command, config: &LocalAiRuntimeConfigSnapshot) {
-    if let Some(runtime_device) = config.runtime_device() {
-        command
-            .arg(constants::local_ai_runtime::LLAMA_ARG_DEVICE)
-            .arg(runtime_device);
-    }
-
-    if let Some(gpu_layers) = config.gpu_layers() {
-        command
-            .arg(constants::local_ai_runtime::LLAMA_ARG_GPU_LAYERS)
-            .arg(gpu_layers);
+    for arg in llama_acceleration_args(config) {
+        command.arg(arg);
     }
 }

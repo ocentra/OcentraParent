@@ -23,9 +23,18 @@ import { resolveDebugAgentServicePath, stopProcessTreeAndWait } from './agent-se
 
 const LocalAiEnv = {
   RuntimeBinary: 'OCENTRA_PARENT_LOCAL_AI_RUNTIME_BINARY',
+  RequestedModelId: 'OCENTRA_PARENT_LOCAL_AI_REQUESTED_MODEL_ID',
   ModelFile: 'OCENTRA_PARENT_LOCAL_AI_MODEL_FILE',
   RuntimeDevice: 'OCENTRA_PARENT_LOCAL_AI_RUNTIME_DEVICE',
   GpuLayers: 'OCENTRA_PARENT_LOCAL_AI_GPU_LAYERS',
+  SplitMode: 'OCENTRA_PARENT_LOCAL_AI_SPLIT_MODE',
+  TensorSplit: 'OCENTRA_PARENT_LOCAL_AI_TENSOR_SPLIT',
+  MainGpu: 'OCENTRA_PARENT_LOCAL_AI_MAIN_GPU',
+  Fit: 'OCENTRA_PARENT_LOCAL_AI_FIT',
+  FitTarget: 'OCENTRA_PARENT_LOCAL_AI_FIT_TARGET',
+  OpOffload: 'OCENTRA_PARENT_LOCAL_AI_OP_OFFLOAD',
+  CpuMoe: 'OCENTRA_PARENT_LOCAL_AI_CPU_MOE',
+  CpuMoeLayers: 'OCENTRA_PARENT_LOCAL_AI_CPU_MOE_LAYERS',
   ExecutionEnabled: 'OCENTRA_PARENT_LOCAL_AI_EXECUTION_ENABLED',
   MaxTokens: 'OCENTRA_PARENT_LOCAL_AI_GENERATION_MAX_TOKENS',
   TimeoutMs: 'OCENTRA_PARENT_LOCAL_AI_GENERATION_TIMEOUT_MS',
@@ -35,8 +44,9 @@ const LocalAiEnv = {
   ProofTimeoutMs: 'OCENTRA_PARENT_LOCAL_AI_PROOF_TIMEOUT_MS',
 };
 
-const runtimeBinary = requiredExistingPath(LocalAiEnv.RuntimeBinary);
-const modelFile = requiredExistingPath(LocalAiEnv.ModelFile);
+const runtimeBinary = optionalExistingPath(LocalAiEnv.RuntimeBinary);
+const modelFile = optionalExistingPath(LocalAiEnv.ModelFile);
+const requestedModelId = optionalTrimmedEnv(LocalAiEnv.RequestedModelId);
 const port = ParentDevPort.WebSocketSmokeAgent;
 const healthUrl = createAgentHealthUrl(port);
 const wsUrl = createAgentWebSocketUrl(port);
@@ -55,12 +65,23 @@ const service = spawn(resolveDebugAgentServicePath(), [], {
     [ParentDevEnv.AgentAddress]: createAgentAddress(port),
     [ParentDevEnv.ActivityDbPath]: join(devLogDir, 'activity.sqlite'),
     [ParentDevEnv.DevLogDir]: devLogDir,
-    [LocalAiEnv.RuntimeBinary]: runtimeBinary,
-    [LocalAiEnv.ModelFile]: modelFile,
     [LocalAiEnv.ExecutionEnabled]: 'true',
     [LocalAiEnv.MaxTokens]: process.env[LocalAiEnv.MaxTokens] ?? '32',
     [LocalAiEnv.TimeoutMs]: process.env[LocalAiEnv.TimeoutMs] ?? '180000',
-    ...optionalProcessEnv(LocalAiEnv.RuntimeDevice, LocalAiEnv.GpuLayers),
+    ...optionalPathEnv(LocalAiEnv.RuntimeBinary, runtimeBinary),
+    ...optionalPathEnv(LocalAiEnv.ModelFile, modelFile),
+    ...optionalProcessEnv(
+      LocalAiEnv.RuntimeDevice,
+      LocalAiEnv.GpuLayers,
+      LocalAiEnv.SplitMode,
+      LocalAiEnv.TensorSplit,
+      LocalAiEnv.MainGpu,
+      LocalAiEnv.Fit,
+      LocalAiEnv.FitTarget,
+      LocalAiEnv.OpOffload,
+      LocalAiEnv.CpuMoe,
+      LocalAiEnv.CpuMoeLayers
+    ),
   },
   stdio: ['ignore', 'pipe', 'pipe'],
 });
@@ -106,7 +127,9 @@ function runLocalAiProof() {
 
     socket.addEventListener('open', () => {
       socket.send(
-        JSON.stringify(commandEnvelope('cmd-local-ai-runtime-status', AgentCommand.LocalAiRuntimeStatusGet, {}))
+        JSON.stringify(
+          commandEnvelope('cmd-local-ai-runtime-status', AgentCommand.LocalAiRuntimeStatusGet, modelRequestPayload())
+        )
       );
     });
 
@@ -118,6 +141,7 @@ function runLocalAiProof() {
           socket.send(
             JSON.stringify(
               commandEnvelope('cmd-local-ai-chat-proof', AgentCommand.LocalAiChatGenerate, {
+                ...modelRequestPayload(),
                 [AgentProtocolDefaults.Field.LocalAiPrompt]: proofPrompt,
                 [AgentProtocolDefaults.Field.LocalAiMaxOutputTokens]: 32,
                 [AgentProtocolDefaults.Field.LocalAiTimeoutMs]: proofTimeoutMs,
@@ -165,6 +189,10 @@ function commandEnvelope(messageId, command, payload) {
   };
 }
 
+function modelRequestPayload() {
+  return requestedModelId === undefined ? {} : { [AgentProtocolDefaults.Field.LocalAiModelId]: requestedModelId };
+}
+
 function assertRuntimeReady(payload) {
   if (
     payload[AgentProtocolDefaults.Field.LocalAiExecutionAllowed] !== true ||
@@ -195,15 +223,20 @@ async function waitForHttp(url) {
   throw new Error(`Timed out waiting for ${url}\n${serviceOutput()}`);
 }
 
-function requiredExistingPath(envName) {
+function optionalExistingPath(envName) {
   const value = process.env[envName]?.trim();
   if (value === undefined || value.length === 0) {
-    throw new Error(`${envName} must point to a local runtime/model file for this proof.`);
+    return undefined;
   }
   if (!existsSync(value)) {
     throw new Error(`${envName} does not exist: ${value}`);
   }
   return value;
+}
+
+function optionalTrimmedEnv(envName) {
+  const value = process.env[envName]?.trim();
+  return value === undefined || value.length === 0 ? undefined : value;
 }
 
 function positiveIntegerEnv(envName, fallback) {
@@ -215,6 +248,10 @@ function optionalProcessEnv(...envNames) {
   return Object.fromEntries(
     envNames.filter((envName) => process.env[envName] !== undefined).map((envName) => [envName, process.env[envName]])
   );
+}
+
+function optionalPathEnv(envName, value) {
+  return value === undefined ? {} : { [envName]: value };
 }
 
 function collectOutput(child) {

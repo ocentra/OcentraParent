@@ -21,26 +21,48 @@ mod browser_runtime_tests;
 mod dev_log;
 mod event_builder;
 mod fields;
+mod local_ai_cache_root;
 mod local_ai_chat_generation;
+mod local_ai_chat_generation_args;
 mod local_ai_chat_generation_request;
+#[cfg(test)]
+mod local_ai_chat_generation_request_tests;
 mod local_ai_chat_generation_result;
 mod local_ai_chat_generation_runner;
 #[cfg(test)]
 mod local_ai_chat_generation_tests;
 mod local_ai_generation_payload;
+mod local_ai_model_registry;
+#[cfg(test)]
+mod local_ai_model_registry_tests;
+#[cfg(test)]
+mod local_ai_model_request_status_tests;
+mod local_ai_runtime_acceleration_config;
 #[cfg(test)]
 mod local_ai_runtime_acceleration_tests;
 mod local_ai_runtime_cache_status;
 mod local_ai_runtime_config;
+mod local_ai_runtime_config_environment;
+mod local_ai_runtime_config_parts;
 mod local_ai_runtime_config_path;
 mod local_ai_runtime_config_values;
 mod local_ai_runtime_configured_status;
+mod local_ai_runtime_distribution;
+mod local_ai_runtime_distribution_assets;
+#[cfg(test)]
+mod local_ai_runtime_distribution_tests;
+mod local_ai_runtime_install_plan;
+#[cfg(test)]
+mod local_ai_runtime_install_plan_tests;
+mod local_ai_runtime_model_selection;
 mod local_ai_runtime_payload;
 #[cfg(test)]
 mod local_ai_runtime_payload_tests;
+mod local_ai_runtime_readiness;
 mod local_ai_runtime_status;
 #[cfg(test)]
 mod local_ai_runtime_status_tests;
+mod local_ai_runtime_status_unavailable;
 mod network;
 mod network_flow_digest;
 mod network_flow_digest_indicators;

@@ -74,7 +74,7 @@ fn local_ai_runtime_status_payload_exposes_model_cache_fields_without_paths() {
     assert_eq!(
         payload.get(constants::field::LOCAL_AI_MODEL_ARTIFACT_REF),
         Some(&LogFieldValue::String(
-            constants::local_ai_runtime::MODEL_REFERENCE_LOCAL_GGUF_CONFIGURED.to_string()
+            constants::local_ai_runtime::MODEL_REFERENCE_DEFAULT_GEMMA_4.to_string()
         ))
     );
     assert_eq!(

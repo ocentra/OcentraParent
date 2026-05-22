@@ -5,7 +5,10 @@ use ocentra_parent_agent_protocol::{
     LocalAiResourceClass, LocalModelRuntimeStatus, LocalProviderAdapterProbe,
 };
 
-use crate::local_ai_runtime_config::LocalAiRuntimeConfigSnapshot;
+use crate::{
+    local_ai_runtime_config::LocalAiRuntimeConfigSnapshot,
+    local_ai_runtime_model_selection::uses_gpu_resource,
+};
 
 pub(crate) fn configured_local_ai_runtime_status(
     checked_at: String,
@@ -15,7 +18,7 @@ pub(crate) fn configured_local_ai_runtime_status(
         runtime_reference_id: constants::local_ai_runtime::RUNTIME_REFERENCE_LOCAL_LLAMA_CLI
             .to_string(),
         provider_id: constants::local_ai_runtime::PROVIDER_ID_LOCAL_LLAMA_CLI.to_string(),
-        model_id: constants::local_ai_runtime::MODEL_ID_LOCAL_GGUF_CONFIGURED.to_string(),
+        model_id: config.model_id().to_string(),
         model_reference: config.artifact_ref().to_string(),
         privacy_mode: LocalAiProviderPrivacyMode::LocalOnly,
         adapter_boundary: LocalAiAdapterBoundary::StatusOnly,
@@ -61,7 +64,7 @@ pub(crate) fn executable_local_ai_runtime_status(
         runtime_reference_id: constants::local_ai_runtime::RUNTIME_REFERENCE_LOCAL_LLAMA_CLI
             .to_string(),
         provider_id: constants::local_ai_runtime::PROVIDER_ID_LOCAL_LLAMA_CLI.to_string(),
-        model_id: constants::local_ai_runtime::MODEL_ID_LOCAL_GGUF_CONFIGURED.to_string(),
+        model_id: config.model_id().to_string(),
         model_reference: config.artifact_ref().to_string(),
         privacy_mode: LocalAiProviderPrivacyMode::LocalOnly,
         adapter_boundary: LocalAiAdapterBoundary::LocalAdapterReady,
@@ -81,7 +84,7 @@ pub(crate) fn executable_local_ai_runtime_status(
 }
 
 fn local_ai_resource_class(config: &LocalAiRuntimeConfigSnapshot) -> LocalAiResourceClass {
-    if config.uses_gpu_resource() {
+    if uses_gpu_resource(config) {
         LocalAiResourceClass::Gpu
     } else {
         LocalAiResourceClass::Cpu
