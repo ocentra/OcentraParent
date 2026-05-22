@@ -9,9 +9,11 @@ describe('portal dev text', () => {
     expect(title).toBe('Ocentra Parent');
     expect(PortalDevText[PortalDevTextToken.LiveActivity]).toBe('Live activity');
     expect(PortalDevText[PortalDevTextToken.RecentActivity]).toBe('Recent activity');
+    expect(PortalDevText[PortalDevTextToken.BrowserIntervention]).toBe('Browser intervention');
     expect(PortalDevText[PortalDevTextToken.PolicyPreview]).toBe('Policy preview');
     expect(PortalDevText[PortalDevTextToken.PolicyPreviewNoEnforcement]).toBe('Enforcement disabled; preview only.');
     expect(PortalDevText[PortalDevTextToken.GetPolicyPreviewReadModel]).toBe('Get policy preview');
+    expect(PortalDevText[PortalDevTextToken.GetBrowserInterventionReadModel]).toBe('Get browser intervention');
     expect(PortalDevText[PortalDevTextToken.CommandResult]).toBe('Command result');
     expect(PortalDevText[PortalDevTextToken.CopyResult]).toBe('Copy result');
   });

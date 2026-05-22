@@ -66,6 +66,7 @@ it('AgentCommand: exposes typed command constants for portal requests', () => {
   expect(AgentCommand.ActivityMemoryGraphGet).toBe('agent.activity.memory-graph.get');
   expect(AgentCommand.BrowserEvidenceRecentGet).toBe('agent.browser.evidence.recent.get');
   expect(AgentCommand.BrowserManagedBridgePoll).toBe('agent.browser.managed.bridge.poll');
+  expect(AgentCommand.BrowserInterventionReadModelGet).toBe('agent.browser.intervention.read-model.get');
   expect(AgentCommand.NetworkFlowReadModelGet).toBe('agent.network.flow.read-model.get');
   expect(AgentCommand.LocalAiRuntimeStatusGet).toBe('agent.local-ai.runtime.status.get');
   expect(AgentCommand.LocalAiChatGenerate).toBe('agent.local-ai.chat.generate');
@@ -114,16 +115,27 @@ it('AgentProtocolDefaults.Field: exposes read-model payload fields', () => {
   expect(AgentProtocolDefaults.Field.ActivityDigest).toBe('activityDigest');
   expect(AgentProtocolDefaults.Field.DatabaseReady).toBe('databaseReady');
   expect(AgentProtocolDefaults.Field.BrowserEvidenceId).toBe('browserEvidenceId');
+  expect(AgentProtocolDefaults.Field.BrowserInterventionId).toBe('browserInterventionId');
+  expect(AgentProtocolDefaults.Field.DecisionSource).toBe('decisionSource');
   expect(AgentProtocolDefaults.Field.FreshUntil).toBe('freshUntil');
+  expect(AgentProtocolDefaults.Field.InterventionAction).toBe('interventionAction');
+  expect(AgentProtocolDefaults.Field.InterventionMechanism).toBe('interventionMechanism');
+  expect(AgentProtocolDefaults.Field.InterventionOutcome).toBe('interventionOutcome');
+  expect(AgentProtocolDefaults.Field.InterventionTargetType).toBe('interventionTargetType');
+  expect(AgentProtocolDefaults.Field.InterventionTargetValue).toBe('interventionTargetValue');
+  expect(AgentProtocolDefaults.Field.ManagedSessionInterventionCapability).toBe('managedSessionInterventionCapability');
   expect(AgentProtocolDefaults.Field.ManagedState).toBe('managedState');
+  expect(AgentProtocolDefaults.Field.ObservedUrl).toBe('observedUrl');
   expect(AgentProtocolDefaults.Field.ProfilePathRef).toBe('profilePathRef');
   expect(AgentProtocolDefaults.Field.QueryVisibility).toBe('queryVisibility');
+  expect(AgentProtocolDefaults.Field.RequestedUrl).toBe('requestedUrl');
   expect(AgentProtocolDefaults.Field.StaleAt).toBe('staleAt');
   expect(AgentProtocolDefaults.Field.TabId).toBe('tabId');
   expect(AgentProtocolDefaults.Field.WindowId).toBe('windowId');
   expect(AgentProtocolDefaults.Field.CapabilityStatus).toBe('capabilityStatus');
   expect(AgentProtocolDefaults.Field.DestinationDomain).toBe('destinationDomain');
   expect(AgentProtocolDefaults.Field.MostRecentSubjectName).toBe('mostRecentSubjectName');
+  expect(AgentProtocolDefaults.Field.UnmanagedBrowserEnforcement).toBe('unmanagedBrowserEnforcement');
 });
 
 it('AgentEvent: exposes typed constants for portal result rendering', () => {
@@ -136,6 +148,7 @@ it('AgentEvent: exposes typed constants for portal result rendering', () => {
   expect(AgentEvent.ActivityMemoryGraphReported).toBe('agent.activity.memory-graph.reported');
   expect(AgentEvent.BrowserEvidenceRecentReported).toBe('agent.browser.evidence.recent.reported');
   expect(AgentEvent.BrowserManagedStatusReported).toBe('agent.browser.managed.status.reported');
+  expect(AgentEvent.BrowserInterventionReadModelReported).toBe('agent.browser.intervention.read-model.reported');
   expect(AgentEvent.NetworkFlowReadModelReported).toBe('agent.network.flow.read-model.reported');
   expect(AgentEvent.LocalAiRuntimeStatusReported).toBe('agent.local-ai.runtime.status.reported');
   expect(AgentEvent.LocalAiChatGenerationReported).toBe('agent.local-ai.chat.generation.reported');

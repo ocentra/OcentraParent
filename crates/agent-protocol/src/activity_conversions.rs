@@ -37,6 +37,9 @@ impl ActivityEventKind {
             Self::DomainObserved => constants::activity_event_kind::DOMAIN_OBSERVED,
             Self::UrlObserved => constants::activity_event_kind::URL_OBSERVED,
             Self::VideoObserved => constants::activity_event_kind::VIDEO_OBSERVED,
+            Self::BrowserInterventionApplied => {
+                constants::activity_event_kind::BROWSER_INTERVENTION_APPLIED
+            }
             Self::DeviceIdleStateObserved => {
                 constants::activity_event_kind::DEVICE_IDLE_STATE_OBSERVED
             }
@@ -53,6 +56,9 @@ impl ActivityEventKind {
             constants::activity_event_kind::DOMAIN_OBSERVED => Some(Self::DomainObserved),
             constants::activity_event_kind::URL_OBSERVED => Some(Self::UrlObserved),
             constants::activity_event_kind::VIDEO_OBSERVED => Some(Self::VideoObserved),
+            constants::activity_event_kind::BROWSER_INTERVENTION_APPLIED => {
+                Some(Self::BrowserInterventionApplied)
+            }
             constants::activity_event_kind::DEVICE_IDLE_STATE_OBSERVED => {
                 Some(Self::DeviceIdleStateObserved)
             }
@@ -73,6 +79,7 @@ impl ActivitySubjectKind {
             Self::Url => constants::activity_subject_kind::URL,
             Self::Video => constants::activity_subject_kind::VIDEO,
             Self::Device => constants::activity_subject_kind::DEVICE,
+            Self::Intervention => constants::activity_subject_kind::INTERVENTION,
         }
     }
 
@@ -84,6 +91,7 @@ impl ActivitySubjectKind {
             constants::activity_subject_kind::URL => Some(Self::Url),
             constants::activity_subject_kind::VIDEO => Some(Self::Video),
             constants::activity_subject_kind::DEVICE => Some(Self::Device),
+            constants::activity_subject_kind::INTERVENTION => Some(Self::Intervention),
             _ => None,
         }
     }

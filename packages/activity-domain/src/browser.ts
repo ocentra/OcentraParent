@@ -53,6 +53,30 @@ export {
   BrowserWindowIdSchema,
   decodeBrowserUrl,
 } from './browser-schemas';
+export {
+  BrowserInterventionAction,
+  BrowserInterventionActionSchema,
+  BrowserInterventionCapabilityState,
+  BrowserInterventionCapabilityStateSchema,
+  BrowserInterventionDecisionSource,
+  BrowserInterventionDecisionSourceSchema,
+  BrowserInterventionIdSchema,
+  BrowserInterventionMechanism,
+  BrowserInterventionMechanismSchema,
+  BrowserInterventionOutcome,
+  BrowserInterventionOutcomeSchema,
+  BrowserInterventionReadModelSchema,
+  BrowserInterventionRowSchema,
+  BrowserInterventionSchemaVersion,
+  BrowserInterventionTargetType,
+  BrowserInterventionTargetTypeSchema,
+  BrowserPolicyDecisionIdSchema,
+  BrowserTargetValueSchema,
+  BrowserUnmanagedEnforcementState,
+  BrowserUnmanagedEnforcementStateSchema,
+  type BrowserInterventionReadModel,
+  type BrowserInterventionRow,
+} from './browser-intervention';
 
 export type BrowserActiveTabState = BrowserActiveTabStateType;
 export type BrowserBridgeKind = BrowserBridgeKindType;

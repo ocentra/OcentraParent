@@ -5,6 +5,7 @@ mod activity_store_app_game;
 mod activity_store_app_game_observation;
 mod activity_store_app_game_rows;
 mod activity_store_browser;
+mod activity_store_browser_intervention;
 mod activity_store_connection;
 mod activity_store_error;
 mod activity_store_memory_graph;
@@ -28,6 +29,7 @@ mod browser_bridge_fields;
 mod browser_bridge_http;
 mod browser_bridge_ids;
 mod browser_bridge_poll;
+mod browser_intervention_event;
 mod browser_managed_discovery;
 mod browser_managed_session;
 mod journal;
@@ -54,6 +56,9 @@ pub use browser_bridge_event::{
 pub use browser_bridge_poll::{
     poll_chromium_bridge, BrowserBridgePollConfig, BrowserBridgePollError,
     BrowserBridgePollSnapshot,
+};
+pub use browser_intervention_event::{
+    browser_intervention_applied_event, BrowserInterventionObservation,
 };
 pub use browser_managed_discovery::{
     installed_managed_browser_candidates, managed_browser_executable_identity,
@@ -84,6 +89,8 @@ pub fn crate_name() -> &'static str {
 
 #[cfg(test)]
 mod activity_store_app_game_tests;
+#[cfg(test)]
+mod activity_store_browser_intervention_tests;
 #[cfg(test)]
 mod activity_store_browser_tests;
 #[cfg(test)]

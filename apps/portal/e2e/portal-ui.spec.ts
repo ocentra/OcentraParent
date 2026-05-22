@@ -26,6 +26,7 @@ async function assertCommandControls(page: Page): Promise<void> {
   await expect(page.getByRole('button', { name: 'Get recent activity summary' })).toBeEnabled();
   await expect(page.getByRole('button', { name: 'Get browser evidence' })).toBeEnabled();
   await expect(page.getByRole('button', { name: 'Get activity memory graph' })).toBeEnabled();
+  await expect(page.getByRole('button', { name: 'Get browser intervention' })).toBeEnabled();
   await expect(page.getByRole('button', { name: 'Poll managed browser bridge' })).toBeEnabled();
   await expect(page.getByRole('button', { name: 'Get network flow' })).toBeEnabled();
   await expect(page.getByRole('button', { name: 'Get local AI runtime' })).toBeEnabled();
@@ -65,16 +66,26 @@ async function assertTabbedCommandResults(page: Page): Promise<void> {
   await assertCommandResult(
     page,
     commandResult,
+    'Get browser intervention',
+    'agent.browser.intervention.read-model.reported'
+  );
+  await assertCommandResult(
+    page,
+    commandResult,
     'Poll managed browser bridge',
     'agent.browser.managed.status.reported'
   );
   await assertNetworkFlowResult(page, commandResult);
   await assertCommandResult(page, commandResult, 'Get local AI runtime', 'agent.local-ai.runtime.status.reported');
   await assertCommandResult(page, commandResult, 'Get policy preview', 'agent.policy.preview.read-model.reported');
+  await assertHealthResultForCopy(page, commandResult);
+  await assertCopyButton(page, commandResult, 'agent.health.reported');
+}
+
+async function assertHealthResultForCopy(page: Page, commandResult: Locator): Promise<void> {
   await page.getByRole('button', { name: 'Check health' }).click();
   await expect(commandResult.getByText('agent.health.reported')).toHaveCount(1);
   await expect(commandResult.locator('.log')).toHaveCount(1);
-  await assertCopyButton(page, commandResult, 'agent.health.reported');
 }
 
 async function assertNetworkFlowResult(page: Page, commandResult: Locator): Promise<void> {
@@ -101,6 +112,7 @@ async function assertRawEventLog(page: Page): Promise<void> {
   await expect(page.getByText('agent.activity.recent.summary.reported')).toHaveCount(3);
   await expect(page.getByText('agent.browser.evidence.recent.reported')).toHaveCount(3);
   await expect(page.getByText('agent.activity.memory-graph.reported')).toHaveCount(3);
+  await expect(page.getByText('agent.browser.intervention.read-model.reported')).toHaveCount(3);
   await expect(page.getByText('agent.browser.managed.status.reported')).toHaveCount(2);
   await expect(page.getByText('agent.network.flow.read-model.reported')).toHaveCount(3);
   await expect(page.getByText('agent.local-ai.runtime.status.reported')).toHaveCount(3);
@@ -127,6 +139,7 @@ async function assertOverview(page: Page): Promise<void> {
   await expect(page.getByRole('heading', { name: 'Managed browser' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Browser evidence' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Activity memory graph' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Browser intervention' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Network flow' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Policy preview' })).toBeVisible();
   await expect(page.getByText('Enforcement disabled; preview only.')).toBeVisible();

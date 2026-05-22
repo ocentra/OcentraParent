@@ -5,6 +5,7 @@ import {
   BrowserManagedSessionStatusSchema,
   BrowserQueryVisibilityLabel,
   type BrowserEvidenceReadModel,
+  type BrowserInterventionReadModel,
   type BrowserManagedSessionStatus,
 } from '@ocentra-parent/activity-domain/browser';
 import {
@@ -26,6 +27,7 @@ import {
   parseActivityMemoryGraphReadModel,
   type PortalActivityMemoryGraphReadModel,
 } from '@ocentra-parent/portal-domain/contracts';
+import { parseBrowserInterventionReadModel } from './browser-intervention-read-model';
 import { parseNetworkFlowReadModel } from './network-flow-read-model';
 import { parsePolicyPreviewReadModel, type PortalPolicyPreviewReadModel } from './policy-preview-read-model';
 
@@ -40,6 +42,8 @@ export interface PortalLiveActivityState {
   readonly browserManagedStatus: BrowserManagedSessionStatus | null;
   readonly activityMemoryGraphEvent: AgentEventEnvelope | null;
   readonly activityMemoryGraphReadModel: PortalActivityMemoryGraphReadModel | null;
+  readonly browserInterventionEvent: AgentEventEnvelope | null;
+  readonly browserInterventionReadModel: BrowserInterventionReadModel | null;
   readonly networkFlowEvent: AgentEventEnvelope | null;
   readonly networkFlowReadModel: ActivityNetworkFlowReadModel | null;
   readonly policyPreviewEvent: AgentEventEnvelope | null;
@@ -52,6 +56,7 @@ export function resolveLiveActivityState(events: readonly AgentEventEnvelope[]):
   const browserEvidenceEvent = latestEvent(events, AgentEvent.BrowserEvidenceRecentReported);
   const browserManagedEvent = latestEvent(events, AgentEvent.BrowserManagedStatusReported);
   const activityMemoryGraphEvent = latestEvent(events, AgentEvent.ActivityMemoryGraphReported);
+  const browserInterventionEvent = latestEvent(events, AgentEvent.BrowserInterventionReadModelReported);
   const networkFlowEvent = latestEvent(events, AgentEvent.NetworkFlowReadModelReported);
   const policyPreviewEvent = latestEvent(events, AgentEvent.PolicyPreviewReadModelReported);
 
@@ -68,6 +73,9 @@ export function resolveLiveActivityState(events: readonly AgentEventEnvelope[]):
     activityMemoryGraphEvent,
     activityMemoryGraphReadModel:
       activityMemoryGraphEvent === null ? null : parseActivityMemoryGraphReadModel(activityMemoryGraphEvent.payload),
+    browserInterventionEvent,
+    browserInterventionReadModel:
+      browserInterventionEvent === null ? null : parseBrowserInterventionReadModel(browserInterventionEvent.payload),
     networkFlowEvent,
     networkFlowReadModel: networkFlowEvent === null ? null : parseNetworkFlowReadModel(networkFlowEvent.payload),
     policyPreviewEvent,

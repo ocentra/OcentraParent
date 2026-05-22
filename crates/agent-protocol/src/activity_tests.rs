@@ -4,8 +4,10 @@ use super::{
     ActivityNetworkTcpState, ActivityObservationMode, ActivityObserver,
     ActivityProcessAttributionStatus, ActivitySource, ActivitySubject, ActivitySubjectKind,
     BrowserActiveTabState, BrowserCapabilityStatus, BrowserChannel, BrowserCustodyLabel,
-    BrowserEvidenceRecentSummary, BrowserFamily, LogFieldValue, LogFields, ACTIVITY_SCHEMA_VERSION,
-    BROWSER_EVIDENCE_SCHEMA_VERSION,
+    BrowserEvidenceRecentSummary, BrowserFamily, BrowserInterventionAction,
+    BrowserInterventionCapabilityState, BrowserInterventionDecisionSource,
+    BrowserInterventionMechanism, BrowserUnmanagedEnforcementState, LogFieldValue, LogFields,
+    ACTIVITY_SCHEMA_VERSION, BROWSER_EVIDENCE_SCHEMA_VERSION,
 };
 
 #[test]
@@ -133,6 +135,34 @@ fn browser_evidence_values_serialize_to_typescript_contract_shape() {
     assert_eq!(
         ActivityObserver::from_protocol_str(constants::activity_observer::MANAGED_BROWSER_BRIDGE),
         Some(ActivityObserver::ManagedBrowserBridge)
+    );
+    assert_eq!(
+        ActivityEventKind::BrowserInterventionApplied.as_protocol_str(),
+        constants::activity_event_kind::BROWSER_INTERVENTION_APPLIED
+    );
+    assert_eq!(
+        ActivitySubjectKind::Intervention.as_protocol_str(),
+        constants::activity_subject_kind::INTERVENTION
+    );
+    assert_eq!(
+        BrowserInterventionAction::Block.as_protocol_str(),
+        constants::browser::INTERVENTION_ACTION_BLOCK
+    );
+    assert_eq!(
+        BrowserInterventionDecisionSource::ParentRule.as_protocol_str(),
+        constants::browser::INTERVENTION_DECISION_SOURCE_PARENT_RULE
+    );
+    assert_eq!(
+        BrowserInterventionMechanism::ChromiumCdpFetch.as_protocol_str(),
+        constants::browser::INTERVENTION_MECHANISM_CHROMIUM_CDP_FETCH
+    );
+    assert_eq!(
+        BrowserInterventionCapabilityState::Ready.as_protocol_str(),
+        constants::browser::INTERVENTION_CAPABILITY_READY
+    );
+    assert_eq!(
+        BrowserUnmanagedEnforcementState::RequiresOsAppControl.as_protocol_str(),
+        constants::browser::UNMANAGED_ENFORCEMENT_REQUIRES_OS_APP_CONTROL
     );
 }
 
