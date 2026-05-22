@@ -129,7 +129,15 @@ fn insert_state_fields(
         LogFieldValue::String(observation.custody_label.as_protocol_str().to_string()),
     );
     fields.insert(
-        constants::field::LAST_OBSERVED_AT.to_string(),
+        constants::field::QUERY_VISIBILITY.to_string(),
+        LogFieldValue::String(constants::browser::QUERY_VISIBILITY_LIVE_LOCAL.to_string()),
+    );
+    fields.insert(
+        constants::field::FRESH_UNTIL.to_string(),
+        LogFieldValue::String(fresh_until.to_string()),
+    );
+    fields.insert(
+        constants::field::STALE_AT.to_string(),
         LogFieldValue::String(fresh_until.to_string()),
     );
 }

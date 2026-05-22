@@ -11,34 +11,42 @@ use super::{
 };
 
 #[test]
-fn activity_store_reports_latest_browser_evidence_from_ingested_events() {
+fn activity_store_reports_typed_browser_tab_read_model_from_ingested_events() {
     let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
     let event = browser_event();
 
     store
         .ingest_events(std::slice::from_ref(&event))
         .expect(constants::error::ACTIVITY_STORE_INGESTS);
-    let summary = store
-        .browser_recent_summary()
+    let read_model = store
+        .browser_evidence_read_model(
+            constants::activity_store::DEFAULT_RECENT_LIMIT,
+            constants::activity_store::TEST_SECOND_OBSERVED_AT,
+        )
         .expect(constants::error::ACTIVITY_STORE_QUERIES);
 
-    assert_eq!(summary.returned, 1);
-    assert_eq!(summary.latest_event_id, Some(event.event_id));
+    assert_eq!(read_model.returned, 1);
+    assert_eq!(read_model.latest_event_id, Some(event.event_id));
     assert_eq!(
-        summary.browser_family,
-        Some(constants::browser::FAMILY_EDGE.to_string())
+        read_model.capability_status,
+        Some(BrowserCapabilityStatus::TabListOnly)
+    );
+    let row = &read_model.rows[0];
+    assert_eq!(
+        row.browser_evidence_id,
+        string_field(&event.fields, constants::field::BROWSER_EVIDENCE_ID)
+            .expect(constants::error::ACTIVITY_STORE_QUERIES)
+    );
+    assert_eq!(row.active_state, BrowserActiveTabState::Unknown);
+    assert_eq!(row.capability_status, BrowserCapabilityStatus::TabListOnly);
+    assert_eq!(row.url, constants::activity_store::TEST_BROWSER_URL);
+    assert_eq!(
+        row.fresh_until,
+        constants::activity_store::TEST_SECOND_OBSERVED_AT
     );
     assert_eq!(
-        summary.active_state,
-        Some(constants::browser::ACTIVE_STATE_UNKNOWN.to_string())
-    );
-    assert_eq!(
-        summary.url,
-        Some(constants::activity_store::TEST_BROWSER_URL.to_string())
-    );
-    assert_eq!(
-        summary.domain,
-        Some(constants::activity_store::TEST_BROWSER_DOMAIN.to_string())
+        row.stale_at,
+        constants::activity_store::TEST_SECOND_OBSERVED_AT
     );
 }
 
@@ -68,19 +76,23 @@ fn activity_store_replays_browser_evidence_from_encrypted_journal() {
     let status = store
         .ingest_journal(&reader)
         .expect(constants::error::ACTIVITY_STORE_INGESTS);
-    let summary = store
-        .browser_recent_summary()
+    let read_model = store
+        .browser_evidence_read_model(
+            constants::activity_store::DEFAULT_RECENT_LIMIT,
+            constants::activity_store::TEST_SECOND_OBSERVED_AT,
+        )
         .expect(constants::error::ACTIVITY_STORE_QUERIES);
     cleanup_paths(&journal_path, &store_path);
 
     assert_eq!(status.events_ingested, 1);
     assert_eq!(
-        summary.browser_evidence_id,
+        read_model.rows[0].browser_evidence_id,
         string_field(&event.fields, constants::field::BROWSER_EVIDENCE_ID)
+            .expect(constants::error::ACTIVITY_STORE_QUERIES)
     );
     assert_eq!(
-        summary.url,
-        Some(constants::activity_store::TEST_BROWSER_URL.to_string())
+        read_model.rows[0].url,
+        constants::activity_store::TEST_BROWSER_URL
     );
     assert!(!String::from_utf8_lossy(&journal_bytes)
         .contains(constants::activity_store::TEST_BROWSER_URL));
@@ -90,14 +102,16 @@ fn activity_store_replays_browser_evidence_from_encrypted_journal() {
 fn activity_store_reports_empty_browser_evidence_without_inventing_rows() {
     let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
 
-    let summary = store
-        .browser_recent_summary()
+    let read_model = store
+        .browser_evidence_read_model(
+            constants::activity_store::DEFAULT_RECENT_LIMIT,
+            constants::activity_store::TEST_SECOND_OBSERVED_AT,
+        )
         .expect(constants::error::ACTIVITY_STORE_QUERIES);
 
-    assert_eq!(summary.returned, 0);
-    assert_eq!(summary.latest_event_id, None);
-    assert_eq!(summary.url, None);
-    assert_eq!(summary.capability_status, None);
+    assert_eq!(read_model.returned, 0);
+    assert_eq!(read_model.rows.len(), 0);
+    assert_eq!(read_model.capability_status, None);
 }
 
 fn browser_event() -> ActivityEvent {

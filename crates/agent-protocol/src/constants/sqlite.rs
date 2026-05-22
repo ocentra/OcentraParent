@@ -85,6 +85,18 @@ WHERE kind = ?1
 ORDER BY observed_at DESC, event_id DESC
 LIMIT 1;";
 
+pub const SELECT_RECENT_BROWSER_ACTIVITY: &str = "
+SELECT
+  event_id,
+  observed_at,
+  device_id,
+  fields_json
+FROM activity_events
+WHERE kind = ?1
+  AND observer = ?2
+ORDER BY observed_at DESC, event_id DESC
+LIMIT ?3;";
+
 pub const SELECT_RECENT_APP_GAME_ACTIVITY: &str = "
 SELECT
   event_id,

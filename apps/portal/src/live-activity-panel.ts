@@ -1,3 +1,4 @@
+import type { BrowserEvidenceReadModel, BrowserTabEvidence } from '@ocentra-parent/activity-domain/browser';
 import { AgentProtocolDefaults, type AgentEventEnvelope } from '@ocentra-parent/agent-protocol-domain/contracts';
 import type { LogFieldValue } from '@ocentra-parent/logging-domain/contracts';
 import {
@@ -54,53 +55,58 @@ function renderBrowserEvidence(container: HTMLElement, liveActivity: PortalLiveA
   const metadata = document.createElement(PortalDom.Tags.DefinitionList);
 
   appendDetail(metadata, PortalDetails.Status, eventStatus(liveActivity.browserEvidenceEvent));
-  if (liveActivity.browserEvidenceSummary === null) {
+  if (liveActivity.browserEvidenceReadModel === null) {
     appendDetail(metadata, PortalDetails.Reason, eventReason(liveActivity.browserEvidenceEvent));
     panel.append(metadata, emptyMessage(PortalText.Resolve(PortalTextToken.NoBrowserEvidence)));
     container.append(panel);
     return;
   }
-
-  appendDetail(metadata, PortalDetails.RowsReturned, detailFromValue(liveActivity.browserEvidenceSummary.returned));
-  appendDetail(
-    metadata,
-    PortalDetails.LastObserved,
-    detailFromValue(liveActivity.browserEvidenceSummary.latestObservedAt)
-  );
-  appendDetail(metadata, PortalDetails.EventId, detailFromValue(liveActivity.browserEvidenceSummary.latestEventId));
-  appendDetail(
-    metadata,
-    PortalDetails.BrowserEvidence,
-    detailFromValue(liveActivity.browserEvidenceSummary.browserEvidenceId)
-  );
-  appendDetail(
-    metadata,
-    PortalDetails.BrowserFamily,
-    detailFromValue(liveActivity.browserEvidenceSummary.browserFamily)
-  );
-  appendDetail(metadata, PortalDetails.Domain, detailFromValue(liveActivity.browserEvidenceSummary.domain));
-  appendDetail(metadata, PortalDetails.Url, detailFromValue(liveActivity.browserEvidenceSummary.url));
-  appendDetail(metadata, PortalDetails.Title, detailFromValue(liveActivity.browserEvidenceSummary.title));
-  appendDetail(metadata, PortalDetails.ActiveState, detailFromValue(liveActivity.browserEvidenceSummary.activeState));
-  appendDetail(
-    metadata,
-    PortalDetails.Capability,
-    detailFromValue(liveActivity.browserEvidenceSummary.capabilityStatus)
-  );
-  appendDetail(metadata, PortalDetails.Custody, detailFromValue(liveActivity.browserEvidenceSummary.custodyLabel));
-  appendDetail(metadata, PortalDetails.Source, detailFromValue(liveActivity.browserEvidenceSummary.sourceId));
-  appendDetail(
-    metadata,
-    PortalDetails.ManagedSession,
-    detailFromValue(liveActivity.browserEvidenceSummary.managedBrowserSessionId)
-  );
+  appendBrowserEvidenceReadModelDetails(metadata, liveActivity.browserEvidenceReadModel);
   panel.append(metadata);
 
-  if (liveActivity.browserEvidenceSummary.returned === 0) {
+  if (liveActivity.browserEvidenceReadModel.returned === 0) {
     panel.append(emptyMessage(PortalText.Resolve(PortalTextToken.NoBrowserEvidence)));
   }
 
   container.append(panel);
+}
+
+function appendBrowserEvidenceReadModelDetails(metadata: HTMLDListElement, readModel: BrowserEvidenceReadModel): void {
+  const latestRow = readModel.rows[0] ?? null;
+  appendDetail(metadata, PortalDetails.RowsReturned, detailFromValue(readModel.returned));
+  appendDetail(metadata, PortalDetails.LastObserved, detailFromValue(readModel.latestObservedAt));
+  appendDetail(metadata, PortalDetails.GeneratedAt, detailFromValue(readModel.generatedAt));
+  appendDetail(metadata, PortalDetails.EventId, detailFromValue(readModel.latestEventId));
+  appendBrowserEvidenceRowIdentity(metadata, latestRow);
+  appendBrowserEvidenceRowTarget(metadata, latestRow);
+  appendBrowserEvidenceRowState(metadata, readModel, latestRow);
+}
+
+function appendBrowserEvidenceRowIdentity(metadata: HTMLDListElement, latestRow: BrowserTabEvidence | null): void {
+  appendDetail(metadata, PortalDetails.BrowserEvidence, detailFromValue(latestRow?.browserEvidenceId));
+  appendDetail(metadata, PortalDetails.BrowserFamily, detailFromValue(latestRow?.browserFamily));
+  appendDetail(metadata, PortalDetails.BrowserChannel, detailFromValue(latestRow?.browserChannel));
+  appendDetail(metadata, PortalDetails.Source, detailFromValue(latestRow?.sourceId));
+  appendDetail(metadata, PortalDetails.ManagedSession, detailFromValue(latestRow?.managedBrowserSessionId));
+  appendDetail(metadata, PortalDetails.Profile, detailFromValue(latestRow?.profileId));
+}
+
+function appendBrowserEvidenceRowTarget(metadata: HTMLDListElement, latestRow: BrowserTabEvidence | null): void {
+  appendDetail(metadata, PortalDetails.Domain, detailFromValue(latestRow?.domain));
+  appendDetail(metadata, PortalDetails.Url, detailFromValue(latestRow?.url));
+  appendDetail(metadata, PortalDetails.Title, detailFromValue(latestRow?.title));
+  appendDetail(metadata, PortalDetails.ProcessId, detailFromValue(latestRow?.processId));
+  appendDetail(metadata, PortalDetails.TargetId, detailFromValue(latestRow?.targetId));
+}
+
+function appendBrowserEvidenceRowState(
+  metadata: HTMLDListElement,
+  readModel: BrowserEvidenceReadModel,
+  latestRow: BrowserTabEvidence | null
+): void {
+  appendDetail(metadata, PortalDetails.ActiveState, detailFromValue(latestRow?.activeState));
+  appendDetail(metadata, PortalDetails.Capability, detailFromValue(readModel.capabilityStatus));
+  appendDetail(metadata, PortalDetails.Custody, detailFromValue(readModel.custodyLabel));
 }
 
 function renderRecentActivity(container: HTMLElement, liveActivity: PortalLiveActivityState): void {

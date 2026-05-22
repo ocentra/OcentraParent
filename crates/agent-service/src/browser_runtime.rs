@@ -1,7 +1,6 @@
 use std::{
     env,
     net::{IpAddr, Ipv4Addr, SocketAddr},
-    path::PathBuf,
 };
 
 use ocentra_parent_agent_core::{
@@ -18,6 +17,7 @@ use crate::{
     activity_capture::record_activity_events_to_paths,
     activity_store_path::{activity_db_path, activity_journal_key_path, activity_journal_path},
     browser_payload::browser_managed_status_payload,
+    browser_runtime_paths::{managed_browser_executable_path, managed_browser_profile_dir},
     browser_runtime_status::{
         bridge_disconnected_status, connected_status, missing_browser_status,
         profile_missing_status, running_managed_status, status_with_error,
@@ -96,7 +96,7 @@ fn bridge_poll_status(checked_at: String, port: u16) -> BrowserManagedSessionSta
 }
 
 fn launch_or_missing_status(checked_at: String) -> BrowserManagedSessionStatus {
-    let Ok(executable) = env::var(constants::env_var::MANAGED_BROWSER_EXECUTABLE) else {
+    let Some(executable) = managed_browser_executable_path() else {
         if let Some(process) = first_unmanaged_browser_process() {
             return unmanaged_browser_status(
                 checked_at,
@@ -107,13 +107,14 @@ fn launch_or_missing_status(checked_at: String) -> BrowserManagedSessionStatus {
         }
         return missing_browser_status(checked_at);
     };
-    let Ok(profile_dir) = env::var(constants::env_var::MANAGED_BROWSER_PROFILE_DIR) else {
+
+    let Ok(profile_dir) = managed_browser_profile_dir() else {
         return profile_missing_status(checked_at);
     };
 
     let config = BrowserManagedLaunchConfig {
-        executable_path: PathBuf::from(executable),
-        profile_dir: PathBuf::from(profile_dir),
+        executable_path: executable,
+        profile_dir,
         bridge_port: constants::browser::DEVTOOLS_DEFAULT_BRIDGE_PORT,
     };
 

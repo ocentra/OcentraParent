@@ -7,6 +7,8 @@ mod activity_query;
 mod app_game;
 mod browser;
 mod browser_managed;
+mod browser_read_model;
+mod browser_values;
 pub mod constants;
 mod journal;
 mod local_ai_runtime;
@@ -22,6 +24,7 @@ pub use activity_query::*;
 pub use app_game::*;
 pub use browser::*;
 pub use browser_managed::*;
+pub use browser_read_model::*;
 pub use journal::*;
 pub use local_ai_runtime::*;
 pub use local_ai_runtime_boundary::*;
@@ -52,6 +55,8 @@ mod activity_tests;
 mod app_game_tests;
 #[cfg(test)]
 mod browser_managed_tests;
+#[cfg(test)]
+mod browser_read_model_tests;
 #[cfg(test)]
 mod journal_tests;
 #[cfg(test)]

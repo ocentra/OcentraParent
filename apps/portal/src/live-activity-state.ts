@@ -1,8 +1,10 @@
 import {
-  BrowserEvidenceRecentSummarySchema,
+  BrowserCustodyLabel,
+  BrowserEvidenceReadModelSchema,
   BrowserEvidenceSchemaVersion,
   BrowserManagedSessionStatusSchema,
-  type BrowserEvidenceRecentSummary,
+  BrowserQueryVisibilityLabel,
+  type BrowserEvidenceReadModel,
   type BrowserManagedSessionStatus,
 } from '@ocentra-parent/activity-domain/browser';
 import {
@@ -29,7 +31,7 @@ export interface PortalLiveActivityState {
   readonly recentSummaryEvent: AgentEventEnvelope | null;
   readonly recentSummary: ActivityRecentSummary | null;
   readonly browserEvidenceEvent: AgentEventEnvelope | null;
-  readonly browserEvidenceSummary: BrowserEvidenceRecentSummary | null;
+  readonly browserEvidenceReadModel: BrowserEvidenceReadModel | null;
   readonly browserManagedEvent: AgentEventEnvelope | null;
   readonly browserManagedStatus: BrowserManagedSessionStatus | null;
   readonly networkFlowEvent: AgentEventEnvelope | null;
@@ -52,8 +54,8 @@ export function resolveLiveActivityState(events: readonly AgentEventEnvelope[]):
     recentSummaryEvent,
     recentSummary: recentSummaryEvent === null ? null : parseRecentSummary(recentSummaryEvent.payload),
     browserEvidenceEvent,
-    browserEvidenceSummary:
-      browserEvidenceEvent === null ? null : parseBrowserEvidenceSummary(browserEvidenceEvent.payload),
+    browserEvidenceReadModel:
+      browserEvidenceEvent === null ? null : parseBrowserEvidenceReadModel(browserEvidenceEvent.payload),
     browserManagedEvent,
     browserManagedStatus: browserManagedEvent === null ? null : parseBrowserManagedStatus(browserManagedEvent.payload),
     networkFlowEvent,
@@ -105,30 +107,56 @@ function parseRecentSummary(payload: AgentProtocolLogFields): ActivityRecentSumm
   return parsed.data;
 }
 
-function parseBrowserEvidenceSummary(payload: AgentProtocolLogFields): BrowserEvidenceRecentSummary | null {
-  const parsed = BrowserEvidenceRecentSummarySchema.safeParse({
+function parseBrowserEvidenceReadModel(payload: AgentProtocolLogFields): BrowserEvidenceReadModel | null {
+  const returned = payload[AgentProtocolDefaults.Field.Returned];
+  const rows = returned === 0 ? [] : [browserTabEvidence(payload)];
+  const parsed = BrowserEvidenceReadModelSchema.safeParse({
     schemaVersion: BrowserEvidenceSchemaVersion,
+    generatedAt: payload[AgentProtocolDefaults.Field.GeneratedAt],
+    limit: payload[AgentProtocolDefaults.Field.Limit],
     returned: payload[AgentProtocolDefaults.Field.Returned],
     latestEventId: payload[AgentProtocolDefaults.Field.LatestEventId],
     latestObservedAt: payload[AgentProtocolDefaults.Field.LatestObservedAt],
-    browserEvidenceId: payload[AgentProtocolDefaults.Field.BrowserEvidenceId],
-    sourceId: payload[AgentProtocolDefaults.Field.SourceId],
-    adapterId: payload[AgentProtocolDefaults.Field.AdapterId],
-    managedBrowserSessionId: payload[AgentProtocolDefaults.Field.ManagedBrowserSessionId],
-    browserFamily: payload[AgentProtocolDefaults.Field.BrowserFamily],
-    activeState: payload[AgentProtocolDefaults.Field.ActiveState],
-    url: payload[AgentProtocolDefaults.Field.Url],
-    origin: payload[AgentProtocolDefaults.Field.Origin],
-    domain: payload[AgentProtocolDefaults.Field.Domain],
-    title: payload[AgentProtocolDefaults.Field.Title],
-    capabilityStatus: payload[AgentProtocolDefaults.Field.CapabilityStatus],
-    custodyLabel: payload[AgentProtocolDefaults.Field.CustodyLabel],
+    capabilityStatus: nullIfMissing(payload[AgentProtocolDefaults.Field.CapabilityStatus]),
+    custodyLabel: payload[AgentProtocolDefaults.Field.CustodyLabel] ?? BrowserCustodyLabel.Unavailable,
+    queryVisibility: payload[AgentProtocolDefaults.Field.QueryVisibility] ?? BrowserQueryVisibilityLabel.Unavailable,
+    rows,
   });
 
   if (!parsed.success) {
     return null;
   }
   return parsed.data;
+}
+
+function browserTabEvidence(payload: AgentProtocolLogFields) {
+  return {
+    schemaVersion: BrowserEvidenceSchemaVersion,
+    browserEvidenceId: payload[AgentProtocolDefaults.Field.BrowserEvidenceId],
+    observedAt: payload[AgentProtocolDefaults.Field.LatestObservedAt],
+    freshUntil: payload[AgentProtocolDefaults.Field.FreshUntil],
+    sourceId: payload[AgentProtocolDefaults.Field.SourceId],
+    adapterId: payload[AgentProtocolDefaults.Field.AdapterId],
+    deviceId: AgentProtocolDefaults.Target.LocalhostWindowsAgent.deviceId,
+    managedBrowserSessionId: payload[AgentProtocolDefaults.Field.ManagedBrowserSessionId],
+    browserFamily: payload[AgentProtocolDefaults.Field.BrowserFamily],
+    browserChannel: payload[AgentProtocolDefaults.Field.BrowserChannel],
+    profileId: payload[AgentProtocolDefaults.Field.ProfileId],
+    processId: payload[AgentProtocolDefaults.Field.ProcessId],
+    windowId: nullIfMissing(payload[AgentProtocolDefaults.Field.WindowId]),
+    tabId: nullIfMissing(payload[AgentProtocolDefaults.Field.TabId]),
+    targetId: nullIfMissing(payload[AgentProtocolDefaults.Field.TargetId]),
+    activeState: payload[AgentProtocolDefaults.Field.ActiveState],
+    url: payload[AgentProtocolDefaults.Field.Url],
+    origin: payload[AgentProtocolDefaults.Field.Origin],
+    domain: payload[AgentProtocolDefaults.Field.Domain],
+    title: nullIfMissing(payload[AgentProtocolDefaults.Field.Title]),
+    capabilityStatus: payload[AgentProtocolDefaults.Field.CapabilityStatus],
+    degradedReason: nullIfMissing(payload[AgentProtocolDefaults.Field.Reason]),
+    staleAt: payload[AgentProtocolDefaults.Field.StaleAt],
+    custodyLabel: payload[AgentProtocolDefaults.Field.CustodyLabel],
+    queryVisibility: payload[AgentProtocolDefaults.Field.QueryVisibility],
+  };
 }
 
 function parseBrowserManagedStatus(payload: AgentProtocolLogFields): BrowserManagedSessionStatus | null {
@@ -156,4 +184,8 @@ function parseBrowserManagedStatus(payload: AgentProtocolLogFields): BrowserMana
     return null;
   }
   return parsed.data;
+}
+
+function nullIfMissing(value: AgentProtocolLogFields[keyof AgentProtocolLogFields] | undefined) {
+  return value === undefined ? null : value;
 }

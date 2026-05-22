@@ -1,87 +1,142 @@
 use ocentra_parent_agent_protocol::{
-    constants, BrowserEvidenceRecentSummary, LogFieldValue, LogFields,
-    BROWSER_EVIDENCE_SCHEMA_VERSION,
+    constants, BrowserActiveTabState, BrowserCapabilityStatus, BrowserChannel, BrowserCustodyLabel,
+    BrowserEvidenceReadModel, BrowserFamily, BrowserQueryVisibilityLabel, BrowserTabEvidence,
+    LogFieldValue, LogFields, BROWSER_EVIDENCE_SCHEMA_VERSION,
 };
-use rusqlite::{params, Connection, OptionalExtension};
+use rusqlite::{params, Connection, Row};
 
 use crate::ActivityStoreError;
 
-pub(crate) fn browser_recent_summary(
+pub(crate) fn browser_evidence_read_model(
     connection: &Connection,
-) -> Result<BrowserEvidenceRecentSummary, ActivityStoreError> {
-    let mut statement = connection.prepare(constants::sqlite::SELECT_LATEST_BROWSER_ACTIVITY)?;
-    let row = statement
-        .query_row(
-            params![
-                constants::activity_event_kind::URL_OBSERVED,
-                constants::activity_observer::MANAGED_BROWSER_BRIDGE
-            ],
-            |row| {
-                Ok((
-                    row.get::<_, String>(0)?,
-                    row.get::<_, String>(1)?,
-                    row.get::<_, String>(2)?,
-                ))
-            },
-        )
-        .optional()?;
+    limit: u64,
+    generated_at: &str,
+) -> Result<BrowserEvidenceReadModel, ActivityStoreError> {
+    let rows = browser_store_rows(connection, limit)?;
+    let read_rows = rows
+        .into_iter()
+        .filter_map(browser_read_row_from_store)
+        .collect::<Vec<_>>();
+    let latest = read_rows.first();
+    let capability_status = latest.map(|row| row.evidence.capability_status.clone());
+    let custody_label = latest
+        .map(|row| row.evidence.custody_label.clone())
+        .unwrap_or(BrowserCustodyLabel::Unavailable);
+    let query_visibility = latest
+        .map(|row| row.evidence.query_visibility.clone())
+        .unwrap_or(BrowserQueryVisibilityLabel::Unavailable);
+    let latest_event_id = latest.map(|row| row.event_id.clone());
+    let latest_observed_at = latest.map(|row| row.observed_at.clone());
+    let evidence_rows = read_rows
+        .into_iter()
+        .map(|row| row.evidence)
+        .collect::<Vec<_>>();
 
-    match row {
-        Some((event_id, observed_at, fields_json)) => {
-            let fields = serde_json::from_str::<LogFields>(&fields_json)?;
-            Ok(summary_from_fields(event_id, observed_at, &fields))
-        }
-        None => Ok(empty_browser_summary()),
-    }
+    Ok(BrowserEvidenceReadModel {
+        schema_version: BROWSER_EVIDENCE_SCHEMA_VERSION,
+        generated_at: generated_at.to_string(),
+        limit,
+        returned: evidence_rows.len() as u64,
+        latest_event_id,
+        latest_observed_at,
+        capability_status,
+        custody_label,
+        query_visibility,
+        rows: evidence_rows,
+    })
 }
 
-fn summary_from_fields(
+struct BrowserStoreRow {
     event_id: String,
     observed_at: String,
-    fields: &LogFields,
-) -> BrowserEvidenceRecentSummary {
-    BrowserEvidenceRecentSummary {
+    device_id: String,
+    fields: LogFields,
+}
+
+struct BrowserReadRow {
+    event_id: String,
+    observed_at: String,
+    evidence: BrowserTabEvidence,
+}
+
+fn browser_store_rows(
+    connection: &Connection,
+    limit: u64,
+) -> Result<Vec<BrowserStoreRow>, ActivityStoreError> {
+    let mut statement = connection.prepare(constants::sqlite::SELECT_RECENT_BROWSER_ACTIVITY)?;
+    let rows = statement.query_map(
+        params![
+            constants::activity_event_kind::URL_OBSERVED,
+            constants::activity_observer::MANAGED_BROWSER_BRIDGE,
+            limit as i64
+        ],
+        browser_store_row_from_sqlite,
+    )?;
+    let mut results = Vec::new();
+    for row in rows {
+        results.push(row?);
+    }
+    Ok(results)
+}
+
+fn browser_store_row_from_sqlite(row: &Row<'_>) -> rusqlite::Result<BrowserStoreRow> {
+    let fields_json: String = row.get(3)?;
+    let fields = serde_json::from_str::<LogFields>(&fields_json)
+        .map_err(|error| rusqlite::Error::ToSqlConversionFailure(Box::new(error)))?;
+
+    Ok(BrowserStoreRow {
+        event_id: row.get(0)?,
+        observed_at: row.get(1)?,
+        device_id: row.get(2)?,
+        fields,
+    })
+}
+
+fn browser_read_row_from_store(row: BrowserStoreRow) -> Option<BrowserReadRow> {
+    let fields = &row.fields;
+    let fresh_until = string_field(fields, constants::field::FRESH_UNTIL)
+        .or_else(|| string_field(fields, constants::field::LAST_OBSERVED_AT))
+        .unwrap_or_else(|| row.observed_at.clone());
+    let stale_at =
+        string_field(fields, constants::field::STALE_AT).unwrap_or_else(|| fresh_until.clone());
+    let evidence = BrowserTabEvidence {
         schema_version: BROWSER_EVIDENCE_SCHEMA_VERSION,
-        returned: 1,
-        latest_event_id: Some(event_id),
-        latest_observed_at: Some(observed_at),
-        browser_evidence_id: string_field(fields, constants::field::BROWSER_EVIDENCE_ID),
-        source_id: string_field(fields, constants::field::SOURCE_ID),
-        adapter_id: string_field(fields, constants::field::ADAPTER_ID),
+        browser_evidence_id: string_field(fields, constants::field::BROWSER_EVIDENCE_ID)?,
+        observed_at: row.observed_at.clone(),
+        fresh_until,
+        source_id: string_field(fields, constants::field::SOURCE_ID)?,
+        adapter_id: string_field(fields, constants::field::ADAPTER_ID)?,
+        device_id: row.device_id,
+        browser_family: browser_family_field(fields)?,
+        browser_channel: browser_channel_field(fields).unwrap_or(BrowserChannel::Unknown),
         managed_browser_session_id: string_field(
             fields,
             constants::field::MANAGED_BROWSER_SESSION_ID,
-        ),
-        browser_family: string_field(fields, constants::field::BROWSER_FAMILY),
-        active_state: string_field(fields, constants::field::ACTIVE_STATE),
-        url: string_field(fields, constants::field::URL),
-        origin: string_field(fields, constants::field::ORIGIN),
-        domain: string_field(fields, constants::field::DOMAIN),
+        )?,
+        profile_id: string_field(fields, constants::field::PROFILE_ID)?,
+        process_id: u32_field(fields, constants::field::PROCESS_ID)
+            .unwrap_or(constants::browser::PROCESS_ID_UNKNOWN),
+        window_id: string_field(fields, constants::field::WINDOW_ID),
+        tab_id: string_field(fields, constants::field::TAB_ID),
+        target_id: string_field(fields, constants::field::TARGET_ID),
+        active_state: active_state_field(fields)?,
+        url: string_field(fields, constants::field::URL)?,
+        origin: string_field(fields, constants::field::ORIGIN)?,
+        domain: string_field(fields, constants::field::DOMAIN)?,
         title: string_field(fields, constants::field::TITLE),
-        capability_status: string_field(fields, constants::field::CAPABILITY_STATUS),
-        custody_label: string_field(fields, constants::field::CUSTODY_LABEL),
-    }
-}
+        capability_status: capability_status_field(fields)?,
+        degraded_reason: string_field(fields, constants::field::REASON),
+        stale_at,
+        custody_label: custody_label_field(fields).unwrap_or(BrowserCustodyLabel::ChildDeviceLocal),
+        query_visibility: query_visibility_field(fields)
+            .unwrap_or(BrowserQueryVisibilityLabel::LiveLocal),
+    };
 
-fn empty_browser_summary() -> BrowserEvidenceRecentSummary {
-    BrowserEvidenceRecentSummary {
-        schema_version: BROWSER_EVIDENCE_SCHEMA_VERSION,
-        returned: 0,
-        latest_event_id: None,
-        latest_observed_at: None,
-        browser_evidence_id: None,
-        source_id: None,
-        adapter_id: None,
-        managed_browser_session_id: None,
-        browser_family: None,
-        active_state: None,
-        url: None,
-        origin: None,
-        domain: None,
-        title: None,
-        capability_status: None,
-        custody_label: None,
-    }
+    Some(BrowserReadRow {
+        event_id: row.event_id,
+        observed_at: row.observed_at,
+        evidence,
+    })
 }
 
 fn string_field(fields: &LogFields, key: &str) -> Option<String> {
@@ -89,4 +144,43 @@ fn string_field(fields: &LogFields, key: &str) -> Option<String> {
         Some(LogFieldValue::String(value)) => Some(value.clone()),
         _ => None,
     }
+}
+
+fn u32_field(fields: &LogFields, key: &str) -> Option<u32> {
+    match fields.get(key) {
+        Some(LogFieldValue::Number(value)) if value.is_finite() && *value >= 0.0 => {
+            u32::try_from(*value as u64).ok()
+        }
+        _ => None,
+    }
+}
+
+fn browser_family_field(fields: &LogFields) -> Option<BrowserFamily> {
+    string_field(fields, constants::field::BROWSER_FAMILY)
+        .and_then(|value| BrowserFamily::from_protocol_str(&value))
+}
+
+fn browser_channel_field(fields: &LogFields) -> Option<BrowserChannel> {
+    string_field(fields, constants::field::BROWSER_CHANNEL)
+        .and_then(|value| BrowserChannel::from_protocol_str(&value))
+}
+
+fn active_state_field(fields: &LogFields) -> Option<BrowserActiveTabState> {
+    string_field(fields, constants::field::ACTIVE_STATE)
+        .and_then(|value| BrowserActiveTabState::from_protocol_str(&value))
+}
+
+fn capability_status_field(fields: &LogFields) -> Option<BrowserCapabilityStatus> {
+    string_field(fields, constants::field::CAPABILITY_STATUS)
+        .and_then(|value| BrowserCapabilityStatus::from_protocol_str(&value))
+}
+
+fn custody_label_field(fields: &LogFields) -> Option<BrowserCustodyLabel> {
+    string_field(fields, constants::field::CUSTODY_LABEL)
+        .and_then(|value| BrowserCustodyLabel::from_protocol_str(&value))
+}
+
+fn query_visibility_field(fields: &LogFields) -> Option<BrowserQueryVisibilityLabel> {
+    string_field(fields, constants::field::QUERY_VISIBILITY)
+        .and_then(|value| BrowserQueryVisibilityLabel::from_protocol_str(&value))
 }

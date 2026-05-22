@@ -44,7 +44,7 @@ pub fn unmanaged_browser_status(
     status.process_id = Some(process_id);
     status.browser_family = Some(browser_family);
     status.browser_channel = Some(browser_channel);
-    status.managed_state = BrowserManagedState::InstalledUnsupported;
+    status.managed_state = BrowserManagedState::InstalledSupported;
     status.capability_status = BrowserCapabilityStatus::UnmanagedBrowser;
     status.degraded_reason = Some(constants::value::MANAGED_BROWSER_UNMANAGED_PROCESS.to_string());
     status.custody_label = BrowserCustodyLabel::ChildDeviceLocal;

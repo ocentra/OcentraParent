@@ -14,6 +14,7 @@ import type {
   BrowserCapabilityStatus as BrowserCapabilityStatusType,
   BrowserChannel as BrowserChannelType,
   BrowserCustodyLabel as BrowserCustodyLabelType,
+  BrowserEvidenceReadModel,
   BrowserEvidenceRecentSummary,
   BrowserFamily as BrowserFamilyType,
   BrowserManagedSessionStatus,
@@ -32,6 +33,7 @@ export {
   BrowserCustodyLabelSchema,
   BrowserDegradedReasonSchema,
   BrowserDomainSchema,
+  BrowserEvidenceReadModelSchema,
   BrowserEvidenceRecentSummarySchema,
   BrowserEvidenceSchemaVersion,
   BrowserFamilySchema,
@@ -57,7 +59,7 @@ export type BrowserBridgeKind = BrowserBridgeKindType;
 export type BrowserCapabilityStatus = BrowserCapabilityStatusType;
 export type BrowserChannel = BrowserChannelType;
 export type BrowserCustodyLabel = BrowserCustodyLabelType;
-export type { BrowserEvidenceRecentSummary, BrowserManagedSessionStatus, BrowserTabEvidence };
+export type { BrowserEvidenceReadModel, BrowserEvidenceRecentSummary, BrowserManagedSessionStatus, BrowserTabEvidence };
 export type BrowserFamily = BrowserFamilyType;
 export type BrowserManagedState = BrowserManagedStateType;
 export type BrowserQueryVisibilityLabel = BrowserQueryVisibilityLabelType;

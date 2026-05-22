@@ -3,8 +3,9 @@ use std::path::PathBuf;
 use ocentra_parent_agent_protocol::{constants, BrowserChannel, BrowserFamily};
 
 use crate::{
-    managed_browser_executable_identity, managed_browser_launch_plan, unmanaged_browser_processes,
-    BrowserManagedLaunchConfig, BrowserManagedLaunchError, ProcessObservation,
+    installed_managed_browser_candidates, managed_browser_executable_identity,
+    managed_browser_launch_plan, unmanaged_browser_processes, BrowserManagedLaunchConfig,
+    BrowserManagedLaunchError, ProcessObservation,
 };
 
 #[test]
@@ -143,4 +144,44 @@ fn unmanaged_browser_processes_detects_supported_unmanaged_browser_processes() {
     );
     assert_eq!(unmanaged[0].browser_family, BrowserFamily::Chrome);
     assert_eq!(unmanaged[0].browser_channel, BrowserChannel::Stable);
+}
+
+#[test]
+fn installed_managed_browser_candidates_require_existing_supported_executables() {
+    let root = std::env::temp_dir()
+        .join(constants::browser::DEVTOOLS_TEST_INSTALLED_BROWSER_DIR)
+        .join(std::process::id().to_string());
+    let edge = root
+        .join(constants::browser::PATH_SEGMENT_EDGE_BETA)
+        .join(constants::browser::PATH_SEGMENT_APPLICATION)
+        .join(constants::browser::EXECUTABLE_MSEDGE_WINDOWS);
+    let unsupported = root
+        .join(constants::browser::PATH_SEGMENT_APPLICATION)
+        .join(constants::browser::DEVTOOLS_TEST_UNSUPPORTED_EXECUTABLE_PATH);
+    std::fs::create_dir_all(
+        edge.parent()
+            .expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET),
+    )
+    .expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET);
+    std::fs::write(&edge, []).expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET);
+    std::fs::create_dir_all(
+        unsupported
+            .parent()
+            .expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET),
+    )
+    .expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET);
+    std::fs::write(&unsupported, []).expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET);
+
+    let candidates = installed_managed_browser_candidates(&[
+        edge.clone(),
+        unsupported,
+        root.join(constants::browser::EXECUTABLE_CHROME_WINDOWS),
+    ]);
+
+    assert_eq!(candidates.len(), 1);
+    assert_eq!(candidates[0].executable_path, edge);
+    assert_eq!(candidates[0].browser_family, BrowserFamily::Edge);
+    assert_eq!(candidates[0].browser_channel, BrowserChannel::Beta);
+
+    let _ = std::fs::remove_dir_all(root);
 }

@@ -10,9 +10,10 @@ describe('portal live activity state', () => {
     expect(state.ingestStatus?.eventsStored).toBe(1);
     expect(state.recentSummary?.returned).toBe(1);
     expect(state.recentSummary?.mostRecentSubjectName).toBe('notepad.exe');
-    expect(state.browserEvidenceSummary?.returned).toBe(1);
-    expect(state.browserEvidenceSummary?.url).toBe('https://example.test/learn');
-    expect(state.browserEvidenceSummary?.capabilityStatus).toBe('tab-list-only');
+    expect(state.browserEvidenceReadModel?.returned).toBe(1);
+    expect(state.browserEvidenceReadModel?.rows.at(0)?.url).toBe('https://example.test/learn');
+    expect(state.browserEvidenceReadModel?.rows.at(0)?.activeState).toBe('unknown');
+    expect(state.browserEvidenceReadModel?.capabilityStatus).toBe('tab-list-only');
   });
 
   it('keeps unavailable activity-store responses visible without inventing rows', () => {
@@ -27,9 +28,9 @@ describe('portal live activity state', () => {
   it('keeps empty browser evidence summaries visible without inventing a URL', () => {
     const state = resolveLiveActivityState([emptyBrowserEvidenceEvent()]);
 
-    expect(state.browserEvidenceSummary?.returned).toBe(0);
-    expect(state.browserEvidenceSummary?.url).toBeNull();
-    expect(state.browserEvidenceSummary?.capabilityStatus).toBeNull();
+    expect(state.browserEvidenceReadModel?.returned).toBe(0);
+    expect(state.browserEvidenceReadModel?.rows.length).toBe(0);
+    expect(state.browserEvidenceReadModel?.capabilityStatus).toBeNull();
   });
 });
 
@@ -109,6 +110,8 @@ function browserEvidenceEvent() {
     event: 'agent.browser.evidence.recent.reported',
     severity: 'info',
     payload: {
+      generatedAt: '2026-05-21T01:00:01Z',
+      limit: 10,
       returned: 1,
       latestEventId: 'activity-browser-url-observed-1',
       latestObservedAt: '2026-05-21T01:00:00Z',
@@ -117,13 +120,22 @@ function browserEvidenceEvent() {
       adapterId: 'managed-chromium-devtools-adapter',
       managedBrowserSessionId: 'managed-browser-session-1',
       browserFamily: 'edge',
+      browserChannel: 'stable',
+      profileId: 'managed-browser-profile-dev',
+      processId: 4242,
+      windowId: null,
+      tabId: null,
+      targetId: 'target-1',
       activeState: 'unknown',
       url: 'https://example.test/learn',
       origin: 'https://example.test',
       domain: 'example.test',
       title: 'Example learning page',
+      freshUntil: '2026-05-21T01:00:30Z',
+      staleAt: '2026-05-21T01:00:30Z',
       capabilityStatus: 'tab-list-only',
       custodyLabel: 'child-device-local',
+      queryVisibility: 'live-local',
     },
     snapshot: null,
   });
@@ -146,6 +158,8 @@ function emptyBrowserEvidenceEvent() {
     event: 'agent.browser.evidence.recent.reported',
     severity: 'info',
     payload: {
+      generatedAt: '2026-05-21T01:00:01Z',
+      limit: 10,
       returned: 0,
       latestEventId: null,
       latestObservedAt: null,
@@ -161,6 +175,7 @@ function emptyBrowserEvidenceEvent() {
       title: null,
       capabilityStatus: null,
       custodyLabel: null,
+      queryVisibility: null,
     },
     snapshot: null,
   });
