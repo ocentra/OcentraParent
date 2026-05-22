@@ -1,0 +1,202 @@
+import { spawn } from 'node:child_process';
+import { existsSync } from 'node:fs';
+import { mkdtemp, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { setTimeout as delay } from 'node:timers/promises';
+import {
+  AgentCommand,
+  AgentEvent,
+  AgentEventEnvelopeSchema,
+  AgentProtocolDefaults,
+} from '@ocentra-parent/agent-protocol-domain/contracts';
+import {
+  ParentDevEnv,
+  ParentDevPort,
+  createAgentAddress,
+  createAgentHealthUrl,
+  createAgentWebSocketUrl,
+  isLikelyParentAgentOccupant,
+} from '../dev/local-dev-config.mjs';
+import { ensurePortFree } from '../dev/port-utils.mjs';
+import { resolveDebugAgentServicePath, stopProcessTreeAndWait } from './agent-service-process.mjs';
+
+const LocalAiEnv = {
+  RuntimeBinary: 'OCENTRA_PARENT_LOCAL_AI_RUNTIME_BINARY',
+  ModelFile: 'OCENTRA_PARENT_LOCAL_AI_MODEL_FILE',
+  ExecutionEnabled: 'OCENTRA_PARENT_LOCAL_AI_EXECUTION_ENABLED',
+  MaxTokens: 'OCENTRA_PARENT_LOCAL_AI_GENERATION_MAX_TOKENS',
+  TimeoutMs: 'OCENTRA_PARENT_LOCAL_AI_GENERATION_TIMEOUT_MS',
+  ProofPrompt: 'OCENTRA_PARENT_LOCAL_AI_PROOF_PROMPT',
+  ProofTimeoutMs: 'OCENTRA_PARENT_LOCAL_AI_PROOF_TIMEOUT_MS',
+};
+
+const runtimeBinary = requiredExistingPath(LocalAiEnv.RuntimeBinary);
+const modelFile = requiredExistingPath(LocalAiEnv.ModelFile);
+const port = ParentDevPort.WebSocketSmokeAgent;
+const healthUrl = createAgentHealthUrl(port);
+const wsUrl = createAgentWebSocketUrl(port);
+const devLogDir = await mkdtemp(join(tmpdir(), 'ocentra-parent-local-ai-proof-'));
+const proofPrompt = process.env[LocalAiEnv.ProofPrompt] ?? 'Reply with the exact phrase local-ok.';
+const proofTimeoutMs = positiveIntegerEnv(LocalAiEnv.ProofTimeoutMs, 120000);
+
+await ensurePortFree(port, isLikelyParentAgentOccupant, console.log);
+
+const service = spawn(resolveDebugAgentServicePath(), [], {
+  cwd: process.cwd(),
+  env: {
+    ...process.env,
+    [ParentDevEnv.AgentAddress]: createAgentAddress(port),
+    [ParentDevEnv.ActivityDbPath]: join(devLogDir, 'activity.sqlite'),
+    [ParentDevEnv.DevLogDir]: devLogDir,
+    [LocalAiEnv.RuntimeBinary]: runtimeBinary,
+    [LocalAiEnv.ModelFile]: modelFile,
+    [LocalAiEnv.ExecutionEnabled]: 'true',
+    [LocalAiEnv.MaxTokens]: process.env[LocalAiEnv.MaxTokens] ?? '32',
+    [LocalAiEnv.TimeoutMs]: process.env[LocalAiEnv.TimeoutMs] ?? '180000',
+  },
+  stdio: ['ignore', 'pipe', 'pipe'],
+});
+
+const serviceOutput = collectOutput(service);
+
+try {
+  await waitForHttp(healthUrl);
+  const result = await runLocalAiProof();
+  console.log(`local-ai-chat-proof-ok:${result.slice(0, 200)}`);
+} finally {
+  await stopProcessTreeAndWait(service);
+  await rm(devLogDir, { recursive: true, force: true });
+}
+
+function runLocalAiProof() {
+  return new Promise((resolve, reject) => {
+    const socket = new WebSocket(wsUrl);
+    let settled = false;
+    const timer = setTimeout(() => {
+      fail(new Error('Local AI chat proof timed out'));
+    }, proofTimeoutMs);
+
+    const fail = (error) => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      clearTimeout(timer);
+      socket.close();
+      reject(error);
+    };
+
+    const complete = (outputText) => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      clearTimeout(timer);
+      socket.close();
+      resolve(outputText);
+    };
+
+    socket.addEventListener('open', () => {
+      socket.send(
+        JSON.stringify(commandEnvelope('cmd-local-ai-runtime-status', AgentCommand.LocalAiRuntimeStatusGet, {}))
+      );
+    });
+
+    socket.addEventListener('message', (message) => {
+      try {
+        const parsed = AgentEventEnvelopeSchema.parse(JSON.parse(String(message.data)));
+        if (parsed.event === AgentEvent.LocalAiRuntimeStatusReported) {
+          assertRuntimeReady(parsed.payload);
+          socket.send(
+            JSON.stringify(
+              commandEnvelope('cmd-local-ai-chat-proof', AgentCommand.LocalAiChatGenerate, {
+                [AgentProtocolDefaults.Field.LocalAiPrompt]: proofPrompt,
+                [AgentProtocolDefaults.Field.LocalAiMaxOutputTokens]: 32,
+                [AgentProtocolDefaults.Field.LocalAiTimeoutMs]: proofTimeoutMs,
+              })
+            )
+          );
+        }
+
+        if (parsed.event === AgentEvent.LocalAiChatGenerationReported) {
+          const outputText = parsed.payload[AgentProtocolDefaults.Field.LocalAiOutputText];
+          if (
+            parsed.payload[AgentProtocolDefaults.Field.LocalAiGenerationState] !== 'complete' ||
+            typeof outputText !== 'string' ||
+            outputText.trim() === ''
+          ) {
+            fail(new Error(`Local AI chat did not complete: ${JSON.stringify(parsed.payload)}`));
+            return;
+          }
+          complete(outputText.trim());
+        }
+      } catch (error) {
+        fail(error instanceof Error ? error : new Error(String(error)));
+      }
+    });
+
+    socket.addEventListener('error', () => {
+      fail(new Error('Local AI chat proof WebSocket failed'));
+    });
+  });
+}
+
+function commandEnvelope(messageId, command, payload) {
+  return {
+    schemaVersion: 1,
+    messageId,
+    sentAt: new Date().toISOString(),
+    source: { peerId: 'portal-dev', role: 'portal' },
+    target: { deviceId: 'local-dev-agent', platform: 'windows', route: 'localhost' },
+    command,
+    payload,
+  };
+}
+
+function assertRuntimeReady(payload) {
+  if (
+    payload[AgentProtocolDefaults.Field.LocalAiExecutionAllowed] !== true ||
+    payload[AgentProtocolDefaults.Field.LocalAiExecutionState] !== 'dry-run-ready'
+  ) {
+    throw new Error(`Local AI runtime is not execution-ready: ${JSON.stringify(payload)}`);
+  }
+}
+
+async function waitForHttp(url) {
+  const startedAt = Date.now();
+  while (Date.now() - startedAt < 30000) {
+    try {
+      const response = await fetch(url);
+      if (response.ok) {
+        return;
+      }
+    } catch {
+      await delay(250);
+    }
+  }
+  throw new Error(`Timed out waiting for ${url}\n${serviceOutput()}`);
+}
+
+function requiredExistingPath(envName) {
+  const value = process.env[envName]?.trim();
+  if (value === undefined || value.length === 0) {
+    throw new Error(`${envName} must point to a local runtime/model file for this proof.`);
+  }
+  if (!existsSync(value)) {
+    throw new Error(`${envName} does not exist: ${value}`);
+  }
+  return value;
+}
+
+function positiveIntegerEnv(envName, fallback) {
+  const value = Number.parseInt(process.env[envName] ?? '', 10);
+  return Number.isFinite(value) && value > 0 ? value : fallback;
+}
+
+function collectOutput(child) {
+  const chunks = [];
+  child.stdout.on('data', (chunk) => chunks.push(String(chunk)));
+  child.stderr.on('data', (chunk) => chunks.push(String(chunk)));
+  return () => chunks.join('');
+}

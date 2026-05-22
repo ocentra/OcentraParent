@@ -1,9 +1,15 @@
-use ocentra_parent_agent_protocol::{constants, LogFieldValue, LogFields};
+use ocentra_parent_agent_protocol::constants;
+use std::{
+    fs,
+    path::PathBuf,
+    time::{SystemTime, UNIX_EPOCH},
+};
 
 use crate::{
-    local_ai_runtime_payload::local_ai_runtime_status_payload,
+    local_ai_runtime_config::LocalAiRuntimeConfigSnapshot,
     local_ai_runtime_status::{
-        unavailable_local_ai_runtime_status, unavailable_local_provider_adapter_probe,
+        local_ai_runtime_status_from_config, unavailable_local_ai_runtime_status,
+        unavailable_local_provider_adapter_probe,
     },
 };
 
@@ -33,14 +39,6 @@ fn unavailable_local_ai_runtime_status_reports_safe_unconfigured_state() {
         status.execution_state.as_protocol_str(),
         constants::local_ai_runtime::EXECUTION_STATE_DISABLED
     );
-    assert_eq!(
-        status.provider_source.as_protocol_str(),
-        constants::local_ai_runtime::PROVIDER_SOURCE_UNAVAILABLE
-    );
-    assert_eq!(
-        status.unavailable_reason,
-        Some(constants::local_ai_runtime::UNAVAILABLE_REASON_UNCONFIGURED.to_string())
-    );
     assert!(status.capability_flags.is_empty());
 }
 
@@ -53,14 +51,6 @@ fn unavailable_local_provider_adapter_probe_reports_no_execution_boundary() {
     assert_eq!(
         probe.adapter_boundary.as_protocol_str(),
         constants::local_ai_runtime::ADAPTER_BOUNDARY_STATUS_ONLY
-    );
-    assert_eq!(
-        probe.execution_state.as_protocol_str(),
-        constants::local_ai_runtime::EXECUTION_STATE_DISABLED
-    );
-    assert_eq!(
-        probe.provider_source.as_protocol_str(),
-        constants::local_ai_runtime::PROVIDER_SOURCE_UNAVAILABLE
     );
     assert_eq!(
         probe.probe_state.as_protocol_str(),
@@ -78,93 +68,150 @@ fn unavailable_local_provider_adapter_probe_reports_no_execution_boundary() {
 }
 
 #[test]
-fn local_ai_runtime_status_payload_exposes_runtime_status_without_model_execution() {
-    let payload = unconfigured_status_payload();
+fn configured_local_ai_runtime_reports_local_binary_and_model_without_enabling_execution() {
+    let binary = write_temp_file(constants::local_ai_runtime::PROVIDER_ID_LOCAL_LLAMA_CLI);
+    let model = write_temp_file(constants::local_ai_runtime::MODEL_ID_LOCAL_GGUF_CONFIGURED);
+    let config = LocalAiRuntimeConfigSnapshot::from_parts(
+        Some(binary.clone()),
+        Some(model.clone()),
+        None,
+        None,
+    );
+
+    let (status, probe, cache) = local_ai_runtime_status_from_config(
+        constants::local_ai_runtime::TEST_CHECKED_AT.to_string(),
+        &config,
+    );
 
     assert_eq!(
-        payload.get(constants::field::LOCAL_AI_RUNTIME_REFERENCE_ID),
-        Some(&LogFieldValue::String(
-            constants::local_ai_runtime::RUNTIME_REFERENCE_DEV_UNCONFIGURED.to_string()
-        ))
+        status.provider_id,
+        constants::local_ai_runtime::PROVIDER_ID_LOCAL_LLAMA_CLI
     );
     assert_eq!(
-        payload.get(constants::field::LOAD_STATE),
-        Some(&LogFieldValue::String(
-            constants::local_ai_runtime::LOAD_STATE_UNAVAILABLE.to_string()
-        ))
+        status.execution_state.as_protocol_str(),
+        constants::local_ai_runtime::EXECUTION_STATE_DISABLED
     );
     assert_eq!(
-        payload.get(constants::field::LOCAL_AI_PRIVACY_MODE),
-        Some(&LogFieldValue::String(
-            constants::local_ai_runtime::PRIVACY_MODE_LOCAL_ONLY.to_string()
-        ))
+        probe.probe_state.as_protocol_str(),
+        constants::local_ai_runtime::ADAPTER_PROBE_STATE_READY
+    );
+    assert!(!probe.execution_allowed);
+    assert_eq!(
+        cache.source_policy.as_protocol_str(),
+        constants::local_ai_runtime::SOURCE_POLICY_PARENT_INSTALLED
     );
     assert_eq!(
-        payload.get(constants::field::LOCAL_AI_ADAPTER_BOUNDARY),
-        Some(&LogFieldValue::String(
-            constants::local_ai_runtime::ADAPTER_BOUNDARY_LOCAL_ADAPTER_UNAVAILABLE.to_string()
-        ))
+        cache.cache_state.as_protocol_str(),
+        constants::local_ai_runtime::CACHE_STATE_DEGRADED
     );
-    assert_eq!(
-        payload.get(constants::field::LOCAL_AI_EXECUTION_STATE),
-        Some(&LogFieldValue::String(
-            constants::local_ai_runtime::EXECUTION_STATE_DISABLED.to_string()
-        ))
-    );
-    assert_eq!(
-        payload.get(constants::field::LOCAL_AI_PROVIDER_SOURCE),
-        Some(&LogFieldValue::String(
-            constants::local_ai_runtime::PROVIDER_SOURCE_UNAVAILABLE.to_string()
-        ))
-    );
+
+    remove_temp_file(binary);
+    remove_temp_file(model);
 }
 
 #[test]
-fn local_ai_runtime_status_payload_exposes_probe_fields_without_execution() {
-    let payload = unconfigured_status_payload();
+fn execution_enabled_local_ai_runtime_reports_explicit_ready_boundary() {
+    let binary = write_temp_file(constants::local_ai_runtime::PROVIDER_ID_LOCAL_LLAMA_CLI);
+    let model = write_temp_file(constants::local_ai_runtime::MODEL_ID_LOCAL_GGUF_CONFIGURED);
+    let config = LocalAiRuntimeConfigSnapshot::from_parts_with_execution(
+        Some(binary.clone()),
+        Some(model.clone()),
+        None,
+        None,
+        true,
+        constants::local_ai_runtime::DEFAULT_GENERATION_TIMEOUT_MS,
+        constants::local_ai_runtime::DEFAULT_GENERATION_MAX_TOKENS,
+    );
+
+    let (status, probe, _cache) = local_ai_runtime_status_from_config(
+        constants::local_ai_runtime::TEST_CHECKED_AT.to_string(),
+        &config,
+    );
 
     assert_eq!(
-        payload.get(constants::field::LOCAL_AI_ADAPTER_PROBE_STATE),
-        Some(&LogFieldValue::String(
-            constants::local_ai_runtime::ADAPTER_PROBE_STATE_UNAVAILABLE.to_string()
-        ))
+        status.adapter_boundary.as_protocol_str(),
+        constants::local_ai_runtime::ADAPTER_BOUNDARY_LOCAL_ADAPTER_READY
     );
     assert_eq!(
-        payload.get(constants::field::LOCAL_AI_PROVIDER_CONFIGURATION_STATE),
-        Some(&LogFieldValue::String(
-            constants::local_ai_runtime::PROVIDER_CONFIGURATION_UNCONFIGURED.to_string()
-        ))
+        status.execution_state.as_protocol_str(),
+        constants::local_ai_runtime::EXECUTION_STATE_DRY_RUN_READY
     );
+    assert_eq!(status.unavailable_reason, None);
+    assert!(status
+        .capability_flags
+        .iter()
+        .any(|flag| flag.as_protocol_str()
+            == constants::local_ai_runtime::CAPABILITY_CHAT_COMPLETION));
     assert_eq!(
-        payload.get(constants::field::LOCAL_AI_ADAPTER_READINESS_STATE),
-        Some(&LogFieldValue::String(
-            constants::local_ai_runtime::ADAPTER_READINESS_STATE_NOT_READY.to_string()
-        ))
+        probe.readiness_state.as_protocol_str(),
+        constants::local_ai_runtime::ADAPTER_READINESS_STATE_READY
     );
-    assert_eq!(
-        payload.get(constants::field::LOCAL_AI_EXECUTION_ALLOWED),
-        Some(&LogFieldValue::Boolean(false))
-    );
-    assert_eq!(
-        payload.get(constants::field::LOCAL_AI_CAPABILITY_FLAGS),
-        Some(&LogFieldValue::String(
-            constants::local_ai_runtime::CAPABILITY_FLAGS_NONE.to_string()
-        ))
-    );
-    assert_eq!(
-        payload.get(constants::field::LOCAL_AI_UNAVAILABLE_REASON),
-        Some(&LogFieldValue::String(
-            constants::local_ai_runtime::UNAVAILABLE_REASON_UNCONFIGURED.to_string()
-        ))
-    );
+    assert!(probe.execution_allowed);
+    remove_temp_file(binary);
+    remove_temp_file(model);
 }
 
-fn unconfigured_status_payload() -> LogFields {
-    let status = unavailable_local_ai_runtime_status(
+#[test]
+fn missing_model_file_keeps_runtime_unavailable_without_leaking_configured_path() {
+    let binary = write_temp_file(constants::local_ai_runtime::PROVIDER_ID_LOCAL_LLAMA_CLI);
+    let model = unused_temp_path();
+    let config =
+        LocalAiRuntimeConfigSnapshot::from_parts(Some(binary.clone()), Some(model), None, None);
+
+    let (status, probe, cache) = local_ai_runtime_status_from_config(
         constants::local_ai_runtime::TEST_CHECKED_AT.to_string(),
+        &config,
     );
-    let probe = unavailable_local_provider_adapter_probe(
-        constants::local_ai_runtime::TEST_CHECKED_AT.to_string(),
+
+    assert_eq!(
+        status.unavailable_reason,
+        Some(constants::local_ai_runtime::UNAVAILABLE_REASON_MODEL_FILE_MISSING.to_string())
     );
-    local_ai_runtime_status_payload(&status, &probe)
+    assert_eq!(
+        probe.unavailable_reason,
+        Some(constants::local_ai_runtime::UNAVAILABLE_REASON_MODEL_FILE_MISSING.to_string())
+    );
+    assert_eq!(
+        cache
+            .unavailable_reason
+            .as_ref()
+            .map(|reason| reason.as_protocol_str()),
+        Some(constants::local_ai_runtime::CACHE_UNAVAILABLE_ARTIFACT_NOT_INSTALLED)
+    );
+    assert_eq!(cache.cache_byte_size, 0);
+
+    remove_temp_file(binary);
+}
+
+pub(crate) fn write_temp_file(prefix: &str) -> PathBuf {
+    let path = unique_temp_path(prefix);
+    fs::write(&path, constants::local_ai_runtime::TEST_CHECKED_AT)
+        .expect(constants::error::LOCALHOST_BIND_SUCCEEDS);
+    path
+}
+
+pub(crate) fn unused_temp_path() -> PathBuf {
+    unique_temp_path(constants::local_ai_runtime::MODEL_ID_LOCAL_GGUF_CONFIGURED)
+}
+
+fn unique_temp_path(prefix: &str) -> PathBuf {
+    let mut name = prefix.to_string();
+    name.push(constants::delimiter::HYPHEN);
+    name.push_str(&std::process::id().to_string());
+    name.push(constants::delimiter::HYPHEN);
+    name.push_str(&nanos_now().to_string());
+    let mut path = std::env::temp_dir();
+    path.push(name);
+    path
+}
+
+fn nanos_now() -> u128 {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .expect(constants::error::AGENT_EVENT_SERIALIZES)
+        .as_nanos()
+}
+
+pub(crate) fn remove_temp_file(path: PathBuf) {
+    let _ = fs::remove_file(path);
 }
