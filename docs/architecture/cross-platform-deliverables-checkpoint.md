@@ -142,6 +142,85 @@ The shared gate must prove:
 - encrypted journal and SQLite paths use product code;
 - unavailable or degraded platform capability states remain explicit.
 
+## Manual Proof Runbook
+
+Use this runbook as the operator checklist for the pre-AI checkpoint. Create one
+evidence record per platform or scenario. Do not upgrade
+`docs/expectations/pre-ai-proof-matrix.json` until the matching evidence record
+exists.
+
+For every run, record:
+
+- proof owner and date;
+- commit SHA, branch, package/app version, and artifact source;
+- proof target: CI, Windows PC, Linux WSL/Docker, macOS host, Android emulator,
+  Android device, iOS simulator, iOS TestFlight/device, LAN pair, or package
+  lifecycle;
+- commands or UI actions performed;
+- log, screenshot, package, or copied diagnostic artifact path;
+- CI proof level and manual proof level;
+- final proof state label;
+- gap owner and next action for `manual-required`, `permission-required`,
+  `scaffold-only`, `not-yet-proven`, or `blocked` rows.
+
+CI can prove only repeatable mechanics:
+
+- contracts, schemas, source-shape, lint, type-check, and tests;
+- Rust crate portability and service launch;
+- local and single-machine LAN smoke through the real service;
+- package preview build, install, or launch smoke where runners support it;
+- typed unavailable, degraded, disabled, or scaffold-only capability states.
+
+CI cannot prove privileged or household behavior:
+
+- real foreground window, browser, screen, network, app/game, or service-manager
+  behavior that depends on an OS permission or real host state;
+- two-device LAN pairing across local router and firewall behavior;
+- Windows service autostart after a real install and reboot;
+- launchd behavior, macOS permissions, signing, notarization, or stores;
+- Android UsageStats, accessibility, VPN/DNS, foreground-service durability,
+  device-owner, or managed-profile behavior;
+- iOS Family Controls, DeviceActivity, Screen Time, Network Extension,
+  notifications, background execution, TestFlight, or entitlement review.
+
+Operator checklist:
+
+1. Pull the target commit, confirm the checkout is clean, and record the SHA.
+2. Run the shared baseline gate or record exactly why a command was omitted.
+3. Capture current CI/package-preview state for Windows, Linux, macOS, Android,
+   and iOS.
+4. Run the Windows real-PC proof first and record evidence-backed read-model
+   results before any platform claim is upgraded.
+5. Run LAN proof with a paired request and a failed unpaired request.
+6. Run Linux WSL/Docker proof for package and service mechanics, keeping
+   capture, network, and enforcement as unavailable or not-yet-proven unless a
+   real adapter proof exists.
+7. Run macOS host proof for package launch, loopback reachability, launchd or
+   permission states, and signing/notarization gaps.
+8. Run Android emulator proof, then physical-device proof when available,
+   without merging parent-app and child-agent claims.
+9. Run iOS simulator proof, then TestFlight/device or entitlement notes when
+   available, without treating simulator launch as entitlement proof.
+10. Run install, autostart, update, reboot, uninstall, and data-retention checks
+    for each installable artifact.
+11. For every unsupported or unproved capability, record the honest proof state
+    label instead of writing a success-shaped note.
+12. Update proof matrix and roadmap checkpoint language only after evidence
+    records exist.
+
+Minimum artifact checklist:
+
+- `format:check`, `test:pre-ai-proof`, and `validate` output or omission notes;
+- CI/package-preview job links or copied logs per target platform;
+- service health/status payload from the real Rust service;
+- parent UI screenshot or copied diagnostic output for evidence-backed preview
+  state;
+- Rust service or app log snippet for each manual runtime claim;
+- install, launch, reboot, autostart, update, uninstall, and data-retention
+  notes for each package proof;
+- permission, entitlement, signing, store, firewall, and pairing notes where
+  those states determine the proof label.
+
 ## Windows Local PC Proof
 
 Windows is the first production-grade child-agent target. Run this proof on the
@@ -356,8 +435,11 @@ When this planning slice is turned into a PR, use this outline:
 
 ```text
 Scope
-- Added cross-platform deliverables checkpoint plan for V0.7 review.
-- Linked the roadmap checkpoint bullet to the plan.
+- Tightened the cross-platform deliverables checkpoint into an executable
+  manual proof runbook for V0.7 review.
+- Clarified what CI can prove versus what requires real OS/device proof.
+- Linked the roadmap next actions to executing the proof pass and recording
+  evidence.
 - Kept scope docs-only; no portal, package, proof harness, AI, or enforcement
   implementation.
 
@@ -376,5 +458,5 @@ Known gaps and risks
   Android, iOS, and LAN devices before support claims are upgraded.
 
 Roadmap slice
-- V0.7 pre-AI/enforcement cross-platform deliverables planning checkpoint.
+- V0.7 pre-AI/enforcement cross-platform deliverables manual proof checkpoint.
 ```
