@@ -25,6 +25,8 @@ mod local_ai_chat_generation_runner;
 #[cfg(test)]
 mod local_ai_chat_generation_tests;
 mod local_ai_generation_payload;
+#[cfg(test)]
+mod local_ai_runtime_acceleration_tests;
 mod local_ai_runtime_cache_status;
 mod local_ai_runtime_config;
 mod local_ai_runtime_config_path;

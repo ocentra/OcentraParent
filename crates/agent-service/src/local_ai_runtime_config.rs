@@ -5,7 +5,8 @@ use ocentra_parent_agent_protocol::constants;
 use crate::{
     local_ai_runtime_config_path::ConfiguredLocalPath,
     local_ai_runtime_config_values::{
-        env_flag, env_path, env_u32, env_u64, env_value, safe_ref_or_default,
+        env_flag, env_llama_device, env_llama_gpu_layers, env_path, env_u32, env_u64, env_value,
+        safe_ref_or_default,
     },
 };
 
@@ -18,6 +19,8 @@ pub struct LocalAiRuntimeConfigSnapshot {
     execution_enabled: bool,
     generation_timeout_ms: u64,
     generation_max_tokens: u32,
+    runtime_device: Option<String>,
+    gpu_layers: Option<String>,
 }
 
 impl LocalAiRuntimeConfigSnapshot {
@@ -36,6 +39,10 @@ impl LocalAiRuntimeConfigSnapshot {
                 constants::env_var::LOCAL_AI_GENERATION_MAX_TOKENS,
                 constants::local_ai_runtime::DEFAULT_GENERATION_MAX_TOKENS,
             ),
+        )
+        .with_acceleration(
+            env_llama_device(constants::env_var::LOCAL_AI_RUNTIME_DEVICE),
+            env_llama_gpu_layers(constants::env_var::LOCAL_AI_GPU_LAYERS),
         )
     }
 
@@ -81,7 +88,19 @@ impl LocalAiRuntimeConfigSnapshot {
             execution_enabled,
             generation_timeout_ms,
             generation_max_tokens,
+            runtime_device: None,
+            gpu_layers: None,
         }
+    }
+
+    pub fn with_acceleration(
+        mut self,
+        runtime_device: Option<String>,
+        gpu_layers: Option<String>,
+    ) -> Self {
+        self.runtime_device = runtime_device;
+        self.gpu_layers = gpu_layers;
+        self
     }
 
     pub fn unconfigured() -> Self {
@@ -115,4 +134,29 @@ impl LocalAiRuntimeConfigSnapshot {
     pub fn generation_max_tokens(&self) -> u32 {
         self.generation_max_tokens
     }
+
+    pub fn runtime_device(&self) -> Option<&str> {
+        self.runtime_device.as_deref()
+    }
+
+    pub fn gpu_layers(&self) -> Option<&str> {
+        self.gpu_layers.as_deref()
+    }
+
+    pub fn uses_gpu_resource(&self) -> bool {
+        self.runtime_device().is_some()
+            || self
+                .gpu_layers()
+                .map(gpu_layers_request_acceleration)
+                .unwrap_or(false)
+    }
+}
+
+fn gpu_layers_request_acceleration(value: &str) -> bool {
+    value == constants::local_ai_runtime::LLAMA_GPU_LAYERS_ALL
+        || value == constants::local_ai_runtime::LLAMA_GPU_LAYERS_AUTO
+        || value
+            .parse::<u32>()
+            .map(|layers| layers > 0)
+            .unwrap_or(true)
 }

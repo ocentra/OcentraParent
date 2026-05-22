@@ -23,7 +23,7 @@ pub(crate) fn configured_local_ai_runtime_status(
         provider_source: LocalAiProviderSource::LocalConfig,
         load_state: LocalAiModelLoadState::Unavailable,
         capability_flags: vec![],
-        resource_class: LocalAiResourceClass::Cpu,
+        resource_class: local_ai_resource_class(config),
         degraded_state: LocalAiDegradedState::None,
         last_checked_at: checked_at,
         unavailable_reason: Some(
@@ -73,10 +73,18 @@ pub(crate) fn executable_local_ai_runtime_status(
             LocalAiCapabilityFlag::Summarization,
             LocalAiCapabilityFlag::SafetyDecision,
         ],
-        resource_class: LocalAiResourceClass::Cpu,
+        resource_class: local_ai_resource_class(config),
         degraded_state: LocalAiDegradedState::None,
         last_checked_at: checked_at,
         unavailable_reason: None,
+    }
+}
+
+fn local_ai_resource_class(config: &LocalAiRuntimeConfigSnapshot) -> LocalAiResourceClass {
+    if config.uses_gpu_resource() {
+        LocalAiResourceClass::Gpu
+    } else {
+        LocalAiResourceClass::Cpu
     }
 }
 

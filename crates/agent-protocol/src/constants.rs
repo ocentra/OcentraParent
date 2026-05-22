@@ -26,6 +26,8 @@ pub mod env_var {
         "OCENTRA_PARENT_LOCAL_AI_GENERATION_TIMEOUT_MS";
     pub const LOCAL_AI_GENERATION_MAX_TOKENS: &str =
         "OCENTRA_PARENT_LOCAL_AI_GENERATION_MAX_TOKENS";
+    pub const LOCAL_AI_RUNTIME_DEVICE: &str = "OCENTRA_PARENT_LOCAL_AI_RUNTIME_DEVICE";
+    pub const LOCAL_AI_GPU_LAYERS: &str = "OCENTRA_PARENT_LOCAL_AI_GPU_LAYERS";
     pub const COMPUTER_NAME: &str = "COMPUTERNAME";
     pub const DEV_LOG_DIR: &str = "OCENTRA_PARENT_DEV_LOG_DIR";
     pub const HOSTNAME: &str = "HOSTNAME";
@@ -152,6 +154,7 @@ pub mod delimiter {
     pub const OPEN_BRACKET: char = '[';
     pub const SLASH: char = '/';
     pub const AT: char = '@';
+    pub const UNDERSCORE: char = '_';
 }
 
 pub mod test_network {
