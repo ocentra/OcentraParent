@@ -1119,11 +1119,19 @@ Current completed-on-main foundation:
 
 Next coordinator slices:
 
-1. Finish the roadmap expectation docs and platform-deliverables planning docs.
-2. Run the V0.7 checkpoint validation from current `main`.
-3. Prepare the manual test pass for local service, portal, evidence read models,
-   and LAN development flows across the available PCs.
-4. Prepare the cross-platform planning session covering Windows, Linux,
-   macOS, Android, and iOS deliverables before further AI work.
-5. Do not start V0.8 enforcement or real model execution until the checkpoint
-   is reviewed and the user explicitly resumes implementation.
+1. Pull current `main`, run the V0.7 checkpoint validation gate, and record the
+   exact commands or omission notes.
+2. Execute the
+   [cross-platform deliverables checkpoint runbook](architecture/cross-platform-deliverables-checkpoint.md)
+   as the manual proof pass for Windows, Linux, macOS, Android, iOS, LAN, and
+   package lifecycle coverage.
+3. Separate CI mechanical proof from real OS/device proof in every evidence
+   record before updating proof-matrix status.
+4. Gather local service, portal, evidence read-model, and LAN artifacts from
+   real product paths, including paired and failed-unpaired LAN checks.
+5. Keep unavailable, degraded, permission-required, scaffold-only, blocked, and
+   manual-required states explicit for platform behavior that CI or the current
+   code cannot prove.
+6. Do not start V0.8 enforcement, platform adapters, or real model execution
+   until the checkpoint is reviewed and the user explicitly resumes
+   implementation.
