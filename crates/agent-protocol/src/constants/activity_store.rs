@@ -1,4 +1,8 @@
 pub const DEFAULT_RECENT_LIMIT: u64 = 10;
+pub const MEMORY_GRAPH_INDEX_REFRESH_LIMIT: u64 = 10000;
+pub const MEMORY_GRAPH_NODE_ENTRY_KIND: &str = "node";
+pub const MEMORY_GRAPH_EDGE_ENTRY_KIND: &str = "edge";
+pub const MEMORY_GRAPH_DERIVATION_RUN_ID: &str = "activity-memory-graph-derived-index";
 pub const DEFAULT_FILE_NAME: &str = "activity.sqlite";
 pub const DEFAULT_JOURNAL_FILE_NAME: &str = "activity.ndjson";
 pub const DEFAULT_JOURNAL_KEY_FILE_NAME: &str = "activity-journal.key";
@@ -28,6 +32,7 @@ pub const TEST_BROWSER_URL: &str = "https://example.test/learn";
 pub const TEST_INVALID_BROWSER_URL: &str = "not-a-browser-url";
 pub const TEST_JOURNAL_SUFFIX: &str = "journal";
 pub const TEST_MEMORY_GRAPH_JOURNAL_SUFFIX: &str = "memory-graph-journal";
+pub const TEST_MEMORY_GRAPH_INDEX_STORE_SUFFIX: &str = "memory-graph-index-store";
 pub const TEST_MEMORY_GRAPH_STORE_SUFFIX: &str = "memory-graph-store";
 pub const TEST_PROCESS_SUBJECT_ID: &str = "process-4242";
 pub const TEST_PROCESS_SUBJECT_NAME: &str = "chrome.exe";

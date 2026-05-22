@@ -1,3 +1,8 @@
+#[path = "sqlite_activity_memory_graph.rs"]
+mod sqlite_activity_memory_graph;
+
+pub use sqlite_activity_memory_graph::*;
+
 pub const INITIALIZE_ACTIVITY_STORE: &str = "
 PRAGMA foreign_keys = ON;
 PRAGMA journal_mode = WAL;
@@ -110,24 +115,6 @@ FROM activity_events
 WHERE kind IN (?1, ?2)
 ORDER BY observed_at DESC, event_id DESC
 LIMIT ?3;";
-
-pub const SELECT_RECENT_MEMORY_GRAPH_ACTIVITY: &str = "
-SELECT
-  event_id,
-  observed_at,
-  device_id,
-  platform,
-  observer,
-  kind,
-  subject_kind,
-  subject_id,
-  subject_display_name,
-  fields_json,
-  evidence_json
-FROM activity_events
-WHERE kind IN (?1, ?2, ?3)
-ORDER BY observed_at DESC, event_id DESC
-LIMIT ?4;";
 
 pub const SELECT_RECENT_NETWORK_FLOW_ACTIVITY: &str = "
 SELECT

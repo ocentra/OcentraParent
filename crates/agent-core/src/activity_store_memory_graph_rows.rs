@@ -15,18 +15,17 @@ pub(crate) struct MemoryGraphStoreRow {
     pub evidence: Vec<ActivityEvidenceRef>,
 }
 
-pub(crate) fn memory_graph_rows(
+pub(crate) fn memory_graph_index_rows(
     connection: &Connection,
-    limit: u64,
 ) -> Result<Vec<MemoryGraphStoreRow>, ActivityStoreError> {
     let mut statement =
-        connection.prepare(constants::sqlite::SELECT_RECENT_MEMORY_GRAPH_ACTIVITY)?;
+        connection.prepare(constants::sqlite::SELECT_MEMORY_GRAPH_ACTIVITY_FOR_INDEX)?;
     let rows = statement.query_map(
         params![
             constants::activity_event_kind::URL_OBSERVED,
             constants::activity_event_kind::VIDEO_OBSERVED,
             constants::activity_event_kind::WINDOW_FOCUSED,
-            limit as i64
+            constants::activity_store::MEMORY_GRAPH_INDEX_REFRESH_LIMIT as i64
         ],
         row_from_sqlite,
     )?;

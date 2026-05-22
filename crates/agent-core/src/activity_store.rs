@@ -22,7 +22,7 @@ use crate::{
 };
 
 pub struct ActivityStore {
-    connection: Connection,
+    pub(crate) connection: Connection,
 }
 
 impl ActivityStore {

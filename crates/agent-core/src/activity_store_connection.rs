@@ -5,5 +5,6 @@ use crate::ActivityStoreError;
 
 pub(crate) fn initialize_connection(connection: &Connection) -> Result<(), ActivityStoreError> {
     connection.execute_batch(constants::sqlite::INITIALIZE_ACTIVITY_STORE)?;
+    connection.execute_batch(constants::sqlite::INITIALIZE_ACTIVITY_MEMORY_GRAPH_INDEX)?;
     Ok(())
 }

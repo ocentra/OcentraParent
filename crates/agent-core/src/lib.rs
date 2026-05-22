@@ -9,6 +9,9 @@ mod activity_store_connection;
 mod activity_store_error;
 mod activity_store_memory_graph;
 mod activity_store_memory_graph_builder;
+mod activity_store_memory_graph_index;
+mod activity_store_memory_graph_index_persist;
+mod activity_store_memory_graph_index_query;
 mod activity_store_memory_graph_nodes;
 mod activity_store_memory_graph_rows;
 mod activity_store_network_flow;
@@ -83,6 +86,10 @@ pub fn crate_name() -> &'static str {
 mod activity_store_app_game_tests;
 #[cfg(test)]
 mod activity_store_browser_tests;
+#[cfg(test)]
+mod activity_store_memory_graph_index_test_api;
+#[cfg(test)]
+mod activity_store_memory_graph_index_tests;
 #[cfg(test)]
 mod activity_store_memory_graph_tests;
 #[cfg(test)]
