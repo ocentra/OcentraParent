@@ -1,3 +1,8 @@
+#[path = "sqlite_activity_memory_graph.rs"]
+mod sqlite_activity_memory_graph;
+
+pub use sqlite_activity_memory_graph::*;
+
 pub const INITIALIZE_ACTIVITY_STORE: &str = "
 PRAGMA foreign_keys = ON;
 PRAGMA journal_mode = WAL;

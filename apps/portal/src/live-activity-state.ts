@@ -22,6 +22,10 @@ import {
   type AgentEventName,
   type AgentProtocolLogFields,
 } from '@ocentra-parent/agent-protocol-domain/contracts';
+import {
+  parseActivityMemoryGraphReadModel,
+  type PortalActivityMemoryGraphReadModel,
+} from '@ocentra-parent/portal-domain/contracts';
 import { parseNetworkFlowReadModel } from './network-flow-read-model';
 import { parsePolicyPreviewReadModel, type PortalPolicyPreviewReadModel } from './policy-preview-read-model';
 
@@ -34,6 +38,8 @@ export interface PortalLiveActivityState {
   readonly browserEvidenceReadModel: BrowserEvidenceReadModel | null;
   readonly browserManagedEvent: AgentEventEnvelope | null;
   readonly browserManagedStatus: BrowserManagedSessionStatus | null;
+  readonly activityMemoryGraphEvent: AgentEventEnvelope | null;
+  readonly activityMemoryGraphReadModel: PortalActivityMemoryGraphReadModel | null;
   readonly networkFlowEvent: AgentEventEnvelope | null;
   readonly networkFlowReadModel: ActivityNetworkFlowReadModel | null;
   readonly policyPreviewEvent: AgentEventEnvelope | null;
@@ -45,6 +51,7 @@ export function resolveLiveActivityState(events: readonly AgentEventEnvelope[]):
   const recentSummaryEvent = latestEvent(events, AgentEvent.ActivityRecentSummaryReported);
   const browserEvidenceEvent = latestEvent(events, AgentEvent.BrowserEvidenceRecentReported);
   const browserManagedEvent = latestEvent(events, AgentEvent.BrowserManagedStatusReported);
+  const activityMemoryGraphEvent = latestEvent(events, AgentEvent.ActivityMemoryGraphReported);
   const networkFlowEvent = latestEvent(events, AgentEvent.NetworkFlowReadModelReported);
   const policyPreviewEvent = latestEvent(events, AgentEvent.PolicyPreviewReadModelReported);
 
@@ -58,6 +65,9 @@ export function resolveLiveActivityState(events: readonly AgentEventEnvelope[]):
       browserEvidenceEvent === null ? null : parseBrowserEvidenceReadModel(browserEvidenceEvent.payload),
     browserManagedEvent,
     browserManagedStatus: browserManagedEvent === null ? null : parseBrowserManagedStatus(browserManagedEvent.payload),
+    activityMemoryGraphEvent,
+    activityMemoryGraphReadModel:
+      activityMemoryGraphEvent === null ? null : parseActivityMemoryGraphReadModel(activityMemoryGraphEvent.payload),
     networkFlowEvent,
     networkFlowReadModel: networkFlowEvent === null ? null : parseNetworkFlowReadModel(networkFlowEvent.payload),
     policyPreviewEvent,

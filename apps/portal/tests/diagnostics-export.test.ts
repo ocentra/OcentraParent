@@ -24,6 +24,7 @@ describe('portal diagnostics export', () => {
     expect(copied.events[0].eventId).toBe('evt-network');
     expect(copied.events[0].payload).toBeUndefined();
     expect(copied.activity.recentSummary.mostRecentSubjectName).toBe('notepad.exe');
+    expect(copied.activity.activityMemoryGraphReadModel).toBeNull();
     expect(copied.activity.networkFlowReadModel.rows[0].destinationDomain).toBe('example-network.test');
   });
 });

@@ -12,6 +12,9 @@ import {
   LocalAiTimestampSchema,
 } from './local-ai-primitives';
 
+export * from './local-ai-activity-memory-graph';
+export * from './local-ai-activity-memory-graph-read';
+
 export const LocalAiObservationReferenceSchema = withParser(
   Schema.Struct({
     contextKind: LocalAiContextKindSchema,

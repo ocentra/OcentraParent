@@ -62,6 +62,7 @@ export const AgentProtocolDefaults = {
     Available: 'available',
     ActiveState: 'activeState',
     AdapterId: 'adapterId',
+    ActivityDigest: 'activityDigest',
     BridgeEndpointRef: 'bridgeEndpointRef',
     BridgeKind: 'bridgeKind',
     BrowserEvidenceId: 'browserEvidenceId',
