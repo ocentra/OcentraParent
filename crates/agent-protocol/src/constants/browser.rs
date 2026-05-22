@@ -35,6 +35,7 @@ pub const FAMILY_UNKNOWN: &str = "unknown";
 pub const FAMILY_UNKNOWN_CHROMIUM: &str = "unknown-chromium";
 pub const HTTP_BODY_SEPARATOR: &str = "\r\n\r\n";
 pub const HTTP_CONNECTION_CLOSE: &str = "Connection: close";
+pub const HTTP_HEADER_CONTENT_LENGTH: &str = "content-length:";
 pub const HTTP_GET_JSON_LIST: &str = "GET /json/list HTTP/1.1";
 pub const HTTP_GET_JSON_VERSION: &str = "GET /json/version HTTP/1.1";
 pub const HTTP_HEADER_HOST_LOOPBACK: &str = "Host: 127.0.0.1";
