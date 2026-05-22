@@ -30,6 +30,8 @@ describe('portal domain contracts', () => {
     expect(PortalCommandButtons.map((button) => button.resultEvent)).toContain(
       'agent.browser.evidence.recent.reported'
     );
+    expect(PortalCommandButtons.map((button) => button.command)).toContain('agent.activity.memory-graph.get');
+    expect(PortalCommandButtons.map((button) => button.resultEvent)).toContain('agent.activity.memory-graph.reported');
     expect(PortalCommandButtons.map((button) => button.command)).toContain('agent.browser.managed.bridge.poll');
     expect(PortalCommandButtons.map((button) => button.resultEvent)).toContain('agent.browser.managed.status.reported');
     expect(PortalCommandButtons.map((button) => button.command)).toContain('agent.network.flow.read-model.get');
@@ -50,6 +52,7 @@ describe('portal domain contracts', () => {
       'agent.activity.ingest.status.get',
       'agent.activity.recent.summary.get',
       'agent.browser.evidence.recent.get',
+      'agent.activity.memory-graph.get',
       'agent.network.flow.read-model.get',
       'agent.local-ai.runtime.status.get',
       'agent.policy.preview.read-model.get',

@@ -115,7 +115,7 @@ export const LocalAiActivityMemoryGraphQuerySchema = withParser(
   Schema.Struct({
     queryId: LocalAiActivityMemoryGraphQueryIdSchema,
     queryKind: LocalAiActivityMemoryGraphQueryKindSchema,
-    childProfile: ChildProfileReferenceSchema,
+    childProfile: Schema.Union(ChildProfileReferenceSchema, Schema.Null),
     device: ParentDeviceReferenceSchema,
     timeRange: LocalAiActivityMemoryTimeRangeSchema,
     asOf: LocalAiTimestampSchema,

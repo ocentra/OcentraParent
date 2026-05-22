@@ -1,10 +1,10 @@
 use std::path::Path;
 
 use ocentra_parent_agent_protocol::{
-    constants, ActivityEvent, ActivityIngestStatus, ActivityNetworkFlowReadModel,
-    ActivityRecentSummary, ActivityStoreRow, AppGameSessionReport, BrowserEvidenceReadModel,
-    LocalAiParentRuleContextRef, PolicyPreviewReadModel, ScreenEvidenceRecentSummary,
-    ACTIVITY_QUERY_SCHEMA_VERSION,
+    constants, ActivityEvent, ActivityIngestStatus, ActivityMemoryGraphReadModel,
+    ActivityNetworkFlowReadModel, ActivityRecentSummary, AppGameSessionReport,
+    BrowserEvidenceReadModel, LocalAiParentRuleContextRef, PolicyPreviewReadModel,
+    ScreenEvidenceRecentSummary, ACTIVITY_QUERY_SCHEMA_VERSION,
 };
 use rusqlite::{params, Connection};
 
@@ -12,6 +12,7 @@ use crate::{
     activity_store_app_game::app_game_session_report,
     activity_store_browser::browser_evidence_read_model,
     activity_store_connection::initialize_connection,
+    activity_store_memory_graph::activity_memory_graph_read_model,
     activity_store_network_flow::network_flow_read_model,
     activity_store_parent_rule_context::replace_parent_rule_contexts,
     activity_store_policy_preview::policy_preview_read_model,
@@ -71,7 +72,14 @@ impl ActivityStore {
     }
 
     pub fn recent_summary(&self, limit: u64) -> Result<ActivityRecentSummary, ActivityStoreError> {
-        let rows = self.recent_rows(limit)?;
+        let mut statement = self
+            .connection
+            .prepare(constants::sqlite::SELECT_RECENT_ACTIVITY)?;
+        let mapped_rows = statement.query_map(params![limit as i64], row_from_sqlite)?;
+        let mut rows = Vec::new();
+        for row in mapped_rows {
+            rows.push(row?);
+        }
         Ok(summary_from_rows(limit, &rows))
     }
 
@@ -88,6 +96,14 @@ impl ActivityStore {
         limit: u64,
     ) -> Result<AppGameSessionReport, ActivityStoreError> {
         app_game_session_report(&self.connection, limit)
+    }
+
+    pub fn activity_memory_graph_read_model(
+        &self,
+        limit: u64,
+        generated_at: &str,
+    ) -> Result<ActivityMemoryGraphReadModel, ActivityStoreError> {
+        activity_memory_graph_read_model(&self.connection, limit, generated_at)
     }
 
     pub fn network_flow_read_model(
@@ -185,17 +201,5 @@ impl ActivityStore {
             Some(row) => Ok(Some(row.get(0)?)),
             None => Ok(None),
         }
-    }
-
-    fn recent_rows(&self, limit: u64) -> Result<Vec<ActivityStoreRow>, ActivityStoreError> {
-        let mut statement = self
-            .connection
-            .prepare(constants::sqlite::SELECT_RECENT_ACTIVITY)?;
-        let rows = statement.query_map(params![limit as i64], row_from_sqlite)?;
-        let mut results = Vec::new();
-        for row in rows {
-            results.push(row?);
-        }
-        Ok(results)
     }
 }

@@ -4,6 +4,13 @@ import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/ef
 export { PortalCommandButtons, PortalOverviewCommands } from './commands';
 export { PortalDetails } from './details';
 export { PortalDiagnostics } from './diagnostics';
+export {
+  parseActivityMemoryGraphReadModel,
+  type PortalActivityMemoryGraphEdge,
+  type PortalActivityMemoryGraphNode,
+  type PortalActivityMemoryGraphNodeId,
+  type PortalActivityMemoryGraphReadModel,
+} from './activity-memory-graph';
 
 const NonEmptyPortalText = Schema.String.pipe(Schema.minLength(1));
 
@@ -50,6 +57,7 @@ export const PortalDom = {
     DefinitionDescription: 'dd',
     DefinitionList: 'dl',
     DefinitionTerm: 'dt',
+    Details: 'details',
     Division: 'div',
     Header: 'header',
     HeadingOne: 'h1',
@@ -60,6 +68,7 @@ export const PortalDom = {
     Paragraph: 'p',
     Section: 'section',
     Strong: 'strong',
+    SummaryTag: 'summary',
     Span: 'span',
     TextArea: 'textarea',
   },
@@ -108,6 +117,7 @@ export const PortalFormatting = {
   EventDetailSeparator: ' | ',
   CorrelationPrefix: 'correlation ',
   EndpointSeparator: ':',
+  GraphEdgeSeparator: ' -> ',
 } as const;
 
 export const PortalTiming = {
