@@ -25,10 +25,13 @@ const LocalAiEnv = {
   RuntimeBinary: 'OCENTRA_PARENT_LOCAL_AI_RUNTIME_BINARY',
   ModelFile: 'OCENTRA_PARENT_LOCAL_AI_MODEL_FILE',
   ExecutionEnabled: 'OCENTRA_PARENT_LOCAL_AI_EXECUTION_ENABLED',
+  RuntimeDevice: 'OCENTRA_PARENT_LOCAL_AI_RUNTIME_DEVICE',
+  GpuLayers: 'OCENTRA_PARENT_LOCAL_AI_GPU_LAYERS',
   MaxTokens: 'OCENTRA_PARENT_LOCAL_AI_GENERATION_MAX_TOKENS',
   TimeoutMs: 'OCENTRA_PARENT_LOCAL_AI_GENERATION_TIMEOUT_MS',
   ProofPrompt: 'OCENTRA_PARENT_LOCAL_AI_PROOF_PROMPT',
   ProofExpectedText: 'OCENTRA_PARENT_LOCAL_AI_PROOF_EXPECTED_TEXT',
+  ProofExpectedResourceClass: 'OCENTRA_PARENT_LOCAL_AI_PROOF_EXPECTED_RESOURCE_CLASS',
   ProofTimeoutMs: 'OCENTRA_PARENT_LOCAL_AI_PROOF_TIMEOUT_MS',
 };
 
@@ -40,6 +43,7 @@ const wsUrl = createAgentWebSocketUrl(port);
 const devLogDir = await mkdtemp(join(tmpdir(), 'ocentra-parent-local-ai-proof-'));
 const proofPrompt = process.env[LocalAiEnv.ProofPrompt] ?? 'Reply with the exact phrase local-ok.';
 const proofExpectedText = process.env[LocalAiEnv.ProofExpectedText] ?? 'local-ok';
+const proofExpectedResourceClass = process.env[LocalAiEnv.ProofExpectedResourceClass];
 const proofTimeoutMs = positiveIntegerEnv(LocalAiEnv.ProofTimeoutMs, 120000);
 
 await ensurePortFree(port, isLikelyParentAgentOccupant, console.log);
@@ -54,6 +58,8 @@ const service = spawn(resolveDebugAgentServicePath(), [], {
     [LocalAiEnv.RuntimeBinary]: runtimeBinary,
     [LocalAiEnv.ModelFile]: modelFile,
     [LocalAiEnv.ExecutionEnabled]: 'true',
+    ...optionalEnv(LocalAiEnv.RuntimeDevice),
+    ...optionalEnv(LocalAiEnv.GpuLayers),
     [LocalAiEnv.MaxTokens]: process.env[LocalAiEnv.MaxTokens] ?? '32',
     [LocalAiEnv.TimeoutMs]: process.env[LocalAiEnv.TimeoutMs] ?? '180000',
   },
@@ -167,6 +173,12 @@ function assertRuntimeReady(payload) {
   ) {
     throw new Error(`Local AI runtime is not execution-ready: ${JSON.stringify(payload)}`);
   }
+  if (
+    proofExpectedResourceClass !== undefined &&
+    payload[AgentProtocolDefaults.Field.LocalAiResourceClass] !== proofExpectedResourceClass
+  ) {
+    throw new Error(`Local AI runtime resource class mismatch: ${JSON.stringify(payload)}`);
+  }
 }
 
 async function waitForHttp(url) {
@@ -198,6 +210,11 @@ function requiredExistingPath(envName) {
 function positiveIntegerEnv(envName, fallback) {
   const value = Number.parseInt(process.env[envName] ?? '', 10);
   return Number.isFinite(value) && value > 0 ? value : fallback;
+}
+
+function optionalEnv(envName) {
+  const value = process.env[envName]?.trim();
+  return value === undefined || value.length === 0 ? {} : { [envName]: value };
 }
 
 function collectOutput(child) {

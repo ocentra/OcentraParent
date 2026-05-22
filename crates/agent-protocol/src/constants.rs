@@ -19,6 +19,8 @@ pub mod env_var {
     pub const LOCAL_AI_MODEL_ARTIFACT_REF: &str = "OCENTRA_PARENT_LOCAL_AI_MODEL_ARTIFACT_REF";
     pub const LOCAL_AI_MODEL_MANIFEST_REF: &str = "OCENTRA_PARENT_LOCAL_AI_MODEL_MANIFEST_REF";
     pub const LOCAL_AI_EXECUTION_ENABLED: &str = "OCENTRA_PARENT_LOCAL_AI_EXECUTION_ENABLED";
+    pub const LOCAL_AI_RUNTIME_DEVICE: &str = "OCENTRA_PARENT_LOCAL_AI_RUNTIME_DEVICE";
+    pub const LOCAL_AI_GPU_LAYERS: &str = "OCENTRA_PARENT_LOCAL_AI_GPU_LAYERS";
     pub const LOCAL_AI_GENERATION_TIMEOUT_MS: &str =
         "OCENTRA_PARENT_LOCAL_AI_GENERATION_TIMEOUT_MS";
     pub const LOCAL_AI_GENERATION_MAX_TOKENS: &str =
@@ -149,6 +151,7 @@ pub mod delimiter {
     pub const OPEN_BRACKET: char = '[';
     pub const SLASH: char = '/';
     pub const AT: char = '@';
+    pub const UNDERSCORE: char = '_';
 }
 
 pub mod test_network {

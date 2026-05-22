@@ -28,6 +28,14 @@ pub(crate) fn env_u32(key: &str, fallback: u32) -> u32 {
         .unwrap_or(fallback)
 }
 
+pub(crate) fn env_llama_device(key: &str) -> Option<String> {
+    env_value(key).filter(|value| is_safe_llama_device(value))
+}
+
+pub(crate) fn env_llama_gpu_layers(key: &str) -> Option<String> {
+    env_value(key).filter(|value| is_safe_llama_gpu_layers(value))
+}
+
 pub(crate) fn safe_ref_or_default(
     candidate: Option<String>,
     prefix: &str,
@@ -60,4 +68,20 @@ fn is_safe_ref_body(body: &str) -> bool {
     body.chars().all(|value| {
         value.is_ascii_lowercase() || value.is_ascii_digit() || value == '_' || value == '-'
     })
+}
+
+fn is_safe_llama_device(candidate: &str) -> bool {
+    candidate.len() <= 64
+        && candidate.chars().all(|value| {
+            value.is_ascii_alphanumeric()
+                || value == constants::delimiter::LIST
+                || value == constants::delimiter::HYPHEN
+                || value == constants::delimiter::UNDERSCORE
+        })
+}
+
+fn is_safe_llama_gpu_layers(candidate: &str) -> bool {
+    candidate == constants::local_ai_runtime::LLAMA_GPU_LAYERS_ALL
+        || candidate == constants::local_ai_runtime::LLAMA_GPU_LAYERS_AUTO
+        || candidate.parse::<u32>().is_ok()
 }

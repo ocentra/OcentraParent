@@ -81,6 +81,7 @@ async fn execute_llama_cli(
         .arg(constants::local_ai_runtime::LLAMA_ARG_SINGLE_TURN)
         .stdin(Stdio::null())
         .kill_on_drop(true);
+    append_acceleration_args(&mut command, config);
 
     let output =
         match tokio::time::timeout(Duration::from_millis(request.timeout_ms), command.output())
@@ -184,4 +185,17 @@ fn complete_or_failed_result(
 
 fn elapsed_ms(started_at: Instant) -> u64 {
     started_at.elapsed().as_millis() as u64
+}
+
+fn append_acceleration_args(command: &mut Command, config: &LocalAiRuntimeConfigSnapshot) {
+    if let Some(device) = config.runtime_device() {
+        command
+            .arg(constants::local_ai_runtime::LLAMA_ARG_DEVICE)
+            .arg(device);
+    }
+    if let Some(gpu_layers) = config.gpu_layers() {
+        command
+            .arg(constants::local_ai_runtime::LLAMA_ARG_GPU_LAYERS)
+            .arg(gpu_layers);
+    }
 }

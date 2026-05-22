@@ -5,7 +5,8 @@ use ocentra_parent_agent_protocol::constants;
 use crate::{
     local_ai_runtime_config_path::ConfiguredLocalPath,
     local_ai_runtime_config_values::{
-        env_flag, env_path, env_u32, env_u64, env_value, safe_ref_or_default,
+        env_flag, env_llama_device, env_llama_gpu_layers, env_path, env_u32, env_u64, env_value,
+        safe_ref_or_default,
     },
 };
 
@@ -16,18 +17,22 @@ pub struct LocalAiRuntimeConfigSnapshot {
     artifact_ref: String,
     manifest_ref: Option<String>,
     execution_enabled: bool,
+    runtime_device: Option<String>,
+    gpu_layers: Option<String>,
     generation_timeout_ms: u64,
     generation_max_tokens: u32,
 }
 
 impl LocalAiRuntimeConfigSnapshot {
     pub fn from_environment() -> Self {
-        Self::from_parts_with_execution(
+        Self::from_parts_with_acceleration(
             env_path(constants::env_var::LOCAL_AI_RUNTIME_BINARY),
             env_path(constants::env_var::LOCAL_AI_MODEL_FILE),
             env_value(constants::env_var::LOCAL_AI_MODEL_ARTIFACT_REF),
             env_value(constants::env_var::LOCAL_AI_MODEL_MANIFEST_REF),
             env_flag(constants::env_var::LOCAL_AI_EXECUTION_ENABLED),
+            env_llama_device(constants::env_var::LOCAL_AI_RUNTIME_DEVICE),
+            env_llama_gpu_layers(constants::env_var::LOCAL_AI_GPU_LAYERS),
             env_u64(
                 constants::env_var::LOCAL_AI_GENERATION_TIMEOUT_MS,
                 constants::local_ai_runtime::DEFAULT_GENERATION_TIMEOUT_MS,
@@ -45,12 +50,14 @@ impl LocalAiRuntimeConfigSnapshot {
         artifact_ref: Option<String>,
         manifest_ref: Option<String>,
     ) -> Self {
-        Self::from_parts_with_execution(
+        Self::from_parts_with_acceleration(
             runtime_binary,
             model_file,
             artifact_ref,
             manifest_ref,
             false,
+            None,
+            None,
             constants::local_ai_runtime::DEFAULT_GENERATION_TIMEOUT_MS,
             constants::local_ai_runtime::DEFAULT_GENERATION_MAX_TOKENS,
         )
@@ -62,6 +69,30 @@ impl LocalAiRuntimeConfigSnapshot {
         artifact_ref: Option<String>,
         manifest_ref: Option<String>,
         execution_enabled: bool,
+        generation_timeout_ms: u64,
+        generation_max_tokens: u32,
+    ) -> Self {
+        Self::from_parts_with_acceleration(
+            runtime_binary,
+            model_file,
+            artifact_ref,
+            manifest_ref,
+            execution_enabled,
+            None,
+            None,
+            generation_timeout_ms,
+            generation_max_tokens,
+        )
+    }
+
+    pub fn from_parts_with_acceleration(
+        runtime_binary: Option<PathBuf>,
+        model_file: Option<PathBuf>,
+        artifact_ref: Option<String>,
+        manifest_ref: Option<String>,
+        execution_enabled: bool,
+        runtime_device: Option<String>,
+        gpu_layers: Option<String>,
         generation_timeout_ms: u64,
         generation_max_tokens: u32,
     ) -> Self {
@@ -79,6 +110,8 @@ impl LocalAiRuntimeConfigSnapshot {
                 constants::local_ai_runtime::MODEL_MANIFEST_REFERENCE_LOCAL_GGUF_CONFIGURED,
             )),
             execution_enabled,
+            runtime_device,
+            gpu_layers,
             generation_timeout_ms,
             generation_max_tokens,
         }
@@ -106,6 +139,18 @@ impl LocalAiRuntimeConfigSnapshot {
 
     pub fn execution_enabled(&self) -> bool {
         self.execution_enabled
+    }
+
+    pub fn runtime_device(&self) -> Option<&str> {
+        self.runtime_device.as_deref()
+    }
+
+    pub fn gpu_layers(&self) -> Option<&str> {
+        self.gpu_layers.as_deref()
+    }
+
+    pub fn uses_gpu_resource(&self) -> bool {
+        self.runtime_device.is_some() || self.gpu_layers.is_some()
     }
 
     pub fn generation_timeout_ms(&self) -> u64 {
