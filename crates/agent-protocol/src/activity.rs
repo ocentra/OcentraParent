@@ -48,6 +48,8 @@ pub enum ActivityEventKind {
     UrlObserved,
     #[serde(rename = "activity.video.observed")]
     VideoObserved,
+    #[serde(rename = "activity.browser.intervention.applied")]
+    BrowserInterventionApplied,
     #[serde(rename = "activity.device.idle-state-observed")]
     DeviceIdleStateObserved,
     #[serde(rename = "activity.screen.analysis.summarized")]
@@ -68,6 +70,8 @@ pub enum ActivitySubjectKind {
     Video,
     #[serde(rename = "device")]
     Device,
+    #[serde(rename = "intervention")]
+    Intervention,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

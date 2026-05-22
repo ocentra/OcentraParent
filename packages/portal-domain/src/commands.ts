@@ -27,6 +27,10 @@ export const PortalOverviewCommands = [
     payload: {},
   },
   {
+    command: AgentCommand.BrowserInterventionReadModelGet,
+    payload: {},
+  },
+  {
     command: AgentCommand.NetworkFlowReadModelGet,
     payload: {},
   },
@@ -89,6 +93,12 @@ export const PortalCommandButtons = [
     label: resolvePortalDevText(PortalDevTextToken.GetActivityMemoryGraph),
     command: AgentCommand.ActivityMemoryGraphGet,
     resultEvent: AgentEvent.ActivityMemoryGraphReported,
+    payload: {},
+  },
+  {
+    label: resolvePortalDevText(PortalDevTextToken.GetBrowserInterventionReadModel),
+    command: AgentCommand.BrowserInterventionReadModelGet,
+    resultEvent: AgentEvent.BrowserInterventionReadModelReported,
     payload: {},
   },
   {

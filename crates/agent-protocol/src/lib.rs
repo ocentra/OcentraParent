@@ -7,8 +7,12 @@ mod activity_memory_graph;
 mod activity_query;
 mod app_game;
 mod browser;
+mod browser_intervention;
+mod browser_intervention_parse;
+mod browser_intervention_values;
 mod browser_managed;
 mod browser_read_model;
+mod browser_unmanaged_enforcement;
 mod browser_values;
 pub mod constants;
 mod journal;
@@ -25,8 +29,11 @@ pub use activity_memory_graph::*;
 pub use activity_query::*;
 pub use app_game::*;
 pub use browser::*;
+pub use browser_intervention::*;
+pub use browser_intervention_values::*;
 pub use browser_managed::*;
 pub use browser_read_model::*;
+pub use browser_unmanaged_enforcement::*;
 pub use journal::*;
 pub use local_ai_runtime::*;
 pub use local_ai_runtime_boundary::*;
@@ -43,6 +50,7 @@ pub const ACTIVITY_JOURNAL_SCHEMA_VERSION: u16 = 1;
 pub const ACTIVITY_QUERY_SCHEMA_VERSION: u16 = 1;
 pub const ACTIVITY_MEMORY_GRAPH_SCHEMA_VERSION: u16 = 1;
 pub const BROWSER_EVIDENCE_SCHEMA_VERSION: u16 = 1;
+pub const BROWSER_INTERVENTION_SCHEMA_VERSION: u16 = 1;
 pub const NETWORK_FLOW_SCHEMA_VERSION: u16 = 1;
 pub const SCREEN_EVIDENCE_SCHEMA_VERSION: u16 = 1;
 
@@ -58,6 +66,8 @@ mod activity_query_tests;
 mod activity_tests;
 #[cfg(test)]
 mod app_game_tests;
+#[cfg(test)]
+mod browser_intervention_tests;
 #[cfg(test)]
 mod browser_managed_tests;
 #[cfg(test)]

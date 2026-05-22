@@ -1,0 +1,72 @@
+use serde_json::json;
+
+use crate::{
+    constants, BrowserChannel, BrowserCustodyLabel, BrowserFamily, BrowserInterventionAction,
+    BrowserInterventionCapabilityState, BrowserInterventionDecisionSource,
+    BrowserInterventionMechanism, BrowserInterventionOutcome, BrowserInterventionReadModel,
+    BrowserInterventionRow, BrowserInterventionTargetType, BrowserQueryVisibilityLabel,
+    BrowserUnmanagedEnforcementState, BROWSER_INTERVENTION_SCHEMA_VERSION,
+};
+
+#[test]
+fn browser_intervention_read_model_serializes_decision_source_and_enforcement_state() {
+    let read_model = BrowserInterventionReadModel {
+        schema_version: BROWSER_INTERVENTION_SCHEMA_VERSION,
+        generated_at: constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string(),
+        limit: 5,
+        returned: 1,
+        latest_event_id: Some(
+            constants::activity_store::TEST_BROWSER_INTERVENTION_EVENT_ID.to_string(),
+        ),
+        latest_observed_at: Some(constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string()),
+        managed_session_intervention_capability: BrowserInterventionCapabilityState::Ready,
+        unmanaged_browser_enforcement: BrowserUnmanagedEnforcementState::RequiresOsAppControl,
+        rows: vec![BrowserInterventionRow {
+            schema_version: BROWSER_INTERVENTION_SCHEMA_VERSION,
+            browser_intervention_id: constants::activity_store::TEST_BROWSER_INTERVENTION_ID
+                .to_string(),
+            observed_at: constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
+            source_id: constants::browser::INTERVENTION_SOURCE_ID_MANAGED_BROWSER.to_string(),
+            device_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
+            browser_family: Some(BrowserFamily::Chrome),
+            browser_channel: Some(BrowserChannel::Stable),
+            managed_browser_session_id: Some(constants::browser::SESSION_ID_DEV.to_string()),
+            profile_id: Some(constants::browser::PROFILE_ID_DEV.to_string()),
+            process_id: Some(constants::activity_store::TEST_BROWSER_PROCESS_ID),
+            policy_decision_id: Some(
+                constants::activity_store::TEST_POLICY_DECISION_ID.to_string(),
+            ),
+            decision_source: BrowserInterventionDecisionSource::ParentRule,
+            intervention_action: BrowserInterventionAction::Block,
+            intervention_target_type: BrowserInterventionTargetType::Video,
+            intervention_target_value: constants::activity_store::TEST_BROWSER_URL.to_string(),
+            requested_url: Some(constants::activity_store::TEST_BROWSER_URL.to_string()),
+            observed_url: Some(constants::activity_store::TEST_BROWSER_URL.to_string()),
+            intervention_mechanism: BrowserInterventionMechanism::ChromiumCdpFetch,
+            intervention_outcome: BrowserInterventionOutcome::Blocked,
+            reason: Some(constants::activity_store::TEST_BROWSER_INTERVENTION_REASON.to_string()),
+            custody_label: BrowserCustodyLabel::ChildDeviceLocal,
+            query_visibility: BrowserQueryVisibilityLabel::LiveLocal,
+        }],
+    };
+
+    let serialized =
+        serde_json::to_value(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES);
+
+    assert_eq!(
+        serialized["managedSessionInterventionCapability"],
+        json!(constants::browser::INTERVENTION_CAPABILITY_READY)
+    );
+    assert_eq!(
+        serialized["unmanagedBrowserEnforcement"],
+        json!(constants::browser::UNMANAGED_ENFORCEMENT_REQUIRES_OS_APP_CONTROL)
+    );
+    assert_eq!(
+        serialized["rows"][0]["decisionSource"],
+        json!(constants::browser::INTERVENTION_DECISION_SOURCE_PARENT_RULE)
+    );
+    assert_eq!(
+        serialized["rows"][0]["interventionMechanism"],
+        json!(constants::browser::INTERVENTION_MECHANISM_CHROMIUM_CDP_FETCH)
+    );
+}

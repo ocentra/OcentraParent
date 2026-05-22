@@ -32,6 +32,10 @@ describe('portal domain contracts', () => {
     );
     expect(PortalCommandButtons.map((button) => button.command)).toContain('agent.activity.memory-graph.get');
     expect(PortalCommandButtons.map((button) => button.resultEvent)).toContain('agent.activity.memory-graph.reported');
+    expect(PortalCommandButtons.map((button) => button.command)).toContain('agent.browser.intervention.read-model.get');
+    expect(PortalCommandButtons.map((button) => button.resultEvent)).toContain(
+      'agent.browser.intervention.read-model.reported'
+    );
     expect(PortalCommandButtons.map((button) => button.command)).toContain('agent.browser.managed.bridge.poll');
     expect(PortalCommandButtons.map((button) => button.resultEvent)).toContain('agent.browser.managed.status.reported');
     expect(PortalCommandButtons.map((button) => button.command)).toContain('agent.network.flow.read-model.get');
@@ -53,6 +57,7 @@ describe('portal domain contracts', () => {
       'agent.activity.recent.summary.get',
       'agent.browser.evidence.recent.get',
       'agent.activity.memory-graph.get',
+      'agent.browser.intervention.read-model.get',
       'agent.network.flow.read-model.get',
       'agent.local-ai.runtime.status.get',
       'agent.policy.preview.read-model.get',
@@ -70,6 +75,9 @@ describe('portal domain contracts', () => {
     expect(PortalDetails.AdapterBoundary).toBe('Adapter boundary');
     expect(PortalDetails.ExecutionState).toBe('Execution state');
     expect(PortalDetails.ProviderSource).toBe('Provider source');
+    expect(PortalDetails.DecisionSource).toBe('Decision source');
+    expect(PortalDetails.ManagedSessionIntervention).toBe('Managed session intervention');
+    expect(PortalDetails.UnmanagedBrowserEnforcement).toBe('Unmanaged browser enforcement');
     expect(PortalDetails.ParentRuleContextReferences).toBe('Parent rule context references');
     expect(PortalDetails.ParentRuleContextRefIds).toBe('Parent rule context ref IDs');
     expect(PortalDom.Tags.TextArea).toBe('textarea');

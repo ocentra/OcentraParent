@@ -7,6 +7,10 @@ pub const BROWSER_BRIDGE_INVALID_RESPONSE: &str = "browser-bridge-invalid-respon
 pub const BROWSER_BRIDGE_IO_ERROR: &str = "browser-bridge-io-error";
 pub const BROWSER_BRIDGE_NO_PAGE_TARGETS: &str = "browser-bridge-no-page-targets";
 pub const BROWSER_BRIDGE_NON_LOOPBACK_ENDPOINT: &str = "browser-bridge-non-loopback-endpoint";
+pub const BROWSER_INTERVENTION_MANAGED_SESSION_REQUIRED: &str =
+    "browser-intervention-managed-session-required";
+pub const BROWSER_INTERVENTION_OS_APP_CONTROL_REQUIRED: &str =
+    "browser-intervention-os-app-control-required";
 pub const MANAGED_BROWSER_EXECUTABLE_MISSING: &str = "managed-browser-executable-missing";
 pub const MANAGED_BROWSER_INVALID_BRIDGE_PORT: &str = "managed-browser-invalid-bridge-port";
 pub const MANAGED_BROWSER_INVALID_PROFILE: &str = "managed-browser-invalid-profile";

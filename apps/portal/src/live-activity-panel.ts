@@ -12,6 +12,7 @@ import {
 } from '@ocentra-parent/portal-domain/contracts';
 import { appendDetail } from './detail-list';
 import { renderActivityMemoryGraph } from './activity-memory-graph-panel';
+import { renderBrowserIntervention } from './browser-intervention-panel';
 import { renderBrowserManagedStatus } from './browser-status-panel';
 import { renderDiagnosticsPanel } from './diagnostics-panel';
 import { resolveLiveActivityState, type PortalLiveActivityState } from './live-activity-state';
@@ -25,6 +26,7 @@ export function renderLiveActivityOverview(container: HTMLElement, state: Portal
   renderBrowserManagedStatus(container, liveActivity);
   renderBrowserEvidence(container, liveActivity);
   renderActivityMemoryGraph(container, liveActivity);
+  renderBrowserIntervention(container, liveActivity);
   renderNetworkFlow(container, liveActivity);
   renderPolicyPreview(container, state, liveActivity);
   renderRecentActivity(container, liveActivity);

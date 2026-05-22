@@ -19,13 +19,14 @@ export const ActivityEventKindSchema = withParser(
     'activity.domain.observed',
     'activity.url.observed',
     'activity.video.observed',
+    'activity.browser.intervention.applied',
     'activity.device.idle-state-observed',
     'activity.screen.analysis.summarized'
   )
 );
 
 export const ActivitySubjectKindSchema = withParser(
-  Schema.Literal('process', 'window', 'domain', 'url', 'video', 'device')
+  Schema.Literal('process', 'window', 'domain', 'url', 'video', 'device', 'intervention')
 );
 
 export const ActivityEvidenceKindSchema = withParser(
@@ -53,6 +54,7 @@ export const ActivityEventKind = {
   DomainObserved: ActivityEventKindSchema.parse('activity.domain.observed'),
   UrlObserved: ActivityEventKindSchema.parse('activity.url.observed'),
   VideoObserved: ActivityEventKindSchema.parse('activity.video.observed'),
+  BrowserInterventionApplied: ActivityEventKindSchema.parse('activity.browser.intervention.applied'),
   DeviceIdleStateObserved: ActivityEventKindSchema.parse('activity.device.idle-state-observed'),
   ScreenAnalysisSummarized: ActivityEventKindSchema.parse('activity.screen.analysis.summarized'),
 } as const;
@@ -64,6 +66,7 @@ export const ActivitySubjectKind = {
   Url: ActivitySubjectKindSchema.parse('url'),
   Video: ActivitySubjectKindSchema.parse('video'),
   Device: ActivitySubjectKindSchema.parse('device'),
+  Intervention: ActivitySubjectKindSchema.parse('intervention'),
 } as const;
 
 export const ActivityEvidenceKind = {

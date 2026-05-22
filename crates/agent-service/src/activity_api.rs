@@ -5,7 +5,6 @@ use ocentra_parent_agent_protocol::{
 };
 
 use crate::{
-    activity_memory_graph_payload::activity_memory_graph_payload,
     activity_network_flow_payload::network_flow_read_model_payload,
     activity_payload::{
         activity_store_error_payload, ingest_status_payload, recent_summary_payload,
@@ -15,6 +14,13 @@ use crate::{
     event_builder::build_event,
     time::timestamp_now,
 };
+
+mod activity_memory_graph_report;
+mod browser_intervention_payload;
+mod browser_intervention_report;
+
+pub use activity_memory_graph_report::build_activity_memory_graph_report;
+pub use browser_intervention_report::build_browser_intervention_read_model_report;
 
 pub async fn build_activity_ingest_status_report(
     command: AgentCommandEnvelope,
@@ -54,27 +60,6 @@ pub async fn build_activity_recent_summary_report(
             command,
             constants::event_id::ACTIVITY_RECENT_SUMMARY_REPORTED,
             AgentEventName::AgentActivityRecentSummaryReported,
-        ),
-    }
-}
-
-pub async fn build_activity_memory_graph_report(
-    command: AgentCommandEnvelope,
-) -> AgentEventEnvelope {
-    match load_activity_memory_graph().await {
-        Some(read_model) => build_event(
-            constants::event_id::ACTIVITY_MEMORY_GRAPH_REPORTED,
-            &command.message_id,
-            command.source,
-            AgentEventName::AgentActivityMemoryGraphReported,
-            LogLevel::Info,
-            activity_memory_graph_payload(&read_model),
-            None,
-        ),
-        None => activity_store_error_event(
-            command,
-            constants::event_id::ACTIVITY_MEMORY_GRAPH_REPORTED,
-            AgentEventName::AgentActivityMemoryGraphReported,
         ),
     }
 }
@@ -162,23 +147,6 @@ async fn load_browser_evidence_read_model(
     .flatten()
 }
 
-async fn load_activity_memory_graph(
-) -> Option<ocentra_parent_agent_protocol::ActivityMemoryGraphReadModel> {
-    let path = activity_db_path();
-    tokio::task::spawn_blocking(move || {
-        let store = ActivityStore::open(path).ok()?;
-        store
-            .activity_memory_graph_read_model(
-                constants::activity_store::DEFAULT_RECENT_LIMIT,
-                &timestamp_now(),
-            )
-            .ok()
-    })
-    .await
-    .ok()
-    .flatten()
-}
-
 async fn load_network_flow_read_model(
 ) -> Option<ocentra_parent_agent_protocol::ActivityNetworkFlowReadModel> {
     let path = activity_db_path();
@@ -196,7 +164,7 @@ async fn load_network_flow_read_model(
     .flatten()
 }
 
-fn activity_store_error_event(
+pub(super) fn activity_store_error_event(
     command: AgentCommandEnvelope,
     event_id_suffix: &str,
     event: AgentEventName,
