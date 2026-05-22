@@ -15,6 +15,220 @@
     "v0.7-dry-run-policy-preview",
     "package-preview-platforms"
   ],
+  "checkpointScenarios": [
+    {
+      "id": "managed-browser-exact-url-active-tab",
+      "title": "Managed Browser Exact URL And Active Tab Proof",
+      "claimIds": ["v0.5.1-browser-url-tab"],
+      "expectationFiles": ["docs/expectations/browser-evidence.md", "docs/expectations/real-evidence-proof.md"],
+      "proofMode": "manual-required",
+      "realEvidencePath": [
+        "Start the Rust agent from the current commit.",
+        "Launch an Ocentra-managed browser profile through the documented product or dev path.",
+        "Open a known URL in the managed profile and request browser evidence through the service path.",
+        "Verify exact URL, title, normalized domain, managed profile state, and active-tab certainty or explicit tab-list-only state."
+      ],
+      "ciCommands": ["npm run test:managed-browser-matrix", "npm run test:e2e"],
+      "requiredArtifacts": [
+        "Commit SHA and platform name.",
+        "Managed browser proof JSON from test-results or copied service diagnostics.",
+        "Rust service log snippet showing the managed browser evidence request.",
+        "Parent-visible diagnostic output or screenshot showing the same evidence."
+      ],
+      "knownGaps": [
+        "Hosted CI can prove managed-profile launch mechanics but not a household managed-browser session.",
+        "Active foreground tab certainty must remain unknown or tab-list-only when CDP targets cannot prove foreground focus."
+      ],
+      "notProof": [
+        "A browser process name without URL/title evidence.",
+        "A URL typed directly into a test fixture or portal-local state.",
+        "Evidence from a default or unmanaged personal browser profile."
+      ]
+    },
+    {
+      "id": "foreground-process-window",
+      "title": "Foreground Process And Window Proof",
+      "claimIds": ["v0.3-windows-process-window"],
+      "expectationFiles": ["docs/expectations/capture.md", "docs/expectations/real-evidence-proof.md"],
+      "proofMode": "manual-required",
+      "realEvidencePath": [
+        "Start the Rust agent on a Windows host from the current commit.",
+        "Bring a known application window to the foreground.",
+        "Request process/window activity through the service or parent surface.",
+        "Verify foreground app/window identity, process snapshot state, observation mode, and degraded status when no active window is available."
+      ],
+      "ciCommands": ["npm run validate", "npm run test:e2e"],
+      "requiredArtifacts": [
+        "Commit SHA and Windows build.",
+        "Rust service log snippet showing process/window observation.",
+        "Copied parent diagnostic output or screenshot showing the foreground observation.",
+        "Name of the real foreground application used during the run."
+      ],
+      "knownGaps": [
+        "Hosted CI cannot certify real Windows foreground-window capture.",
+        "Non-Windows hosts must report typed unavailable or not-applicable states."
+      ],
+      "notProof": [
+        "A hardcoded process/window row inserted into SQLite.",
+        "A portal-only label that is not returned by the Rust service.",
+        "A snapshot-only observation presented as active foreground-window proof."
+      ]
+    },
+    {
+      "id": "network-domain-attribution",
+      "title": "Network And Domain Attribution Proof",
+      "claimIds": ["v0.4-windows-network-domain"],
+      "expectationFiles": ["docs/expectations/network-flow-evidence.md", "docs/expectations/real-evidence-proof.md"],
+      "proofMode": "manual-required",
+      "realEvidencePath": [
+        "Start the Rust agent on a real host while normal network activity is generated.",
+        "Request network/domain flow evidence through the service path.",
+        "Verify destination domain or endpoint, process attribution when available, unknown attribution when not available, and no decrypted payload capture.",
+        "Record degraded states for VPN, proxy, permission, or OS visibility limits."
+      ],
+      "ciCommands": ["npm run validate", "npm run test:e2e"],
+      "requiredArtifacts": [
+        "Commit SHA and platform name.",
+        "Rust service log snippet showing the network evidence query.",
+        "Copied parent diagnostic output or screenshot showing domains or endpoint summaries.",
+        "Description of the real network action used to generate the flow."
+      ],
+      "knownGaps": [
+        "Administrator, kernel, VPN, driver, or packet visibility cannot be certified by hosted CI.",
+        "Unknown process or domain attribution must stay explicitly unknown rather than being inferred."
+      ],
+      "notProof": [
+        "A manually inserted domain row.",
+        "A packet payload or decrypted HTTPS content claim.",
+        "A process-to-domain association invented by test code."
+      ]
+    },
+    {
+      "id": "app-game-duration",
+      "title": "App And Game Duration Proof",
+      "claimIds": ["v0.5.2-app-game-sessions"],
+      "expectationFiles": ["docs/expectations/app-game-evidence.md", "docs/expectations/real-evidence-proof.md"],
+      "proofMode": "manual-required",
+      "realEvidencePath": [
+        "Run a known app or game while the Rust agent is active.",
+        "Let the app remain active long enough to produce first-seen and last-seen evidence.",
+        "Request app/game session evidence from the real service path.",
+        "Verify duration, foreground time where available, executable/app identity, source evidence ids, and unknown classification boundaries."
+      ],
+      "ciCommands": ["npm run validate", "npm run test:e2e"],
+      "requiredArtifacts": [
+        "Commit SHA and platform name.",
+        "Rust service log snippet showing app/game session query.",
+        "Copied parent diagnostic output or screenshot showing duration evidence.",
+        "Observed wall-clock start and stop times for the manual run."
+      ],
+      "knownGaps": [
+        "Long-running app/game behavior requires a real host over time.",
+        "Unknown or ambiguous app classification must not be upgraded to game evidence without stored support."
+      ],
+      "notProof": [
+        "Duration calculated from a portal timer only.",
+        "AI-guessed app/game classification without stored evidence references.",
+        "A manually inserted session summary row."
+      ]
+    },
+    {
+      "id": "screen-evidence-queue",
+      "title": "Screen Evidence Queue Proof",
+      "claimIds": ["v0.5.3-screen-evidence-queue"],
+      "expectationFiles": ["docs/expectations/screen-evidence.md", "docs/expectations/real-evidence-proof.md"],
+      "proofMode": "manual-required",
+      "realEvidencePath": [
+        "Enable the supported local screen evidence setting on a real host.",
+        "Start the Rust agent from the current commit.",
+        "Request screen evidence queue state through the service path.",
+        "Verify permission, disabled, queued, summarized, deletion, and degraded states without exposing raw screenshots by default."
+      ],
+      "ciCommands": ["npm run validate", "npm run test:e2e"],
+      "requiredArtifacts": [
+        "Commit SHA and platform permission state.",
+        "Rust service log snippet showing screen evidence queue state.",
+        "Copied parent diagnostic output or screenshot showing queue state.",
+        "Queue state before and after one supported local screen evidence action."
+      ],
+      "knownGaps": [
+        "Hosted CI cannot grant or certify screen recording permissions.",
+        "Permission-limited hosts must report typed unavailable or permission-required states."
+      ],
+      "notProof": [
+        "A screenshot file placed directly in a test directory.",
+        "A queue summary not produced by the Rust service or product state path.",
+        "A raw screen capture claim without permission and deletion-state evidence."
+      ]
+    },
+    {
+      "id": "lan-smoke",
+      "title": "Local And LAN Smoke Proof",
+      "claimIds": ["v0.2-evidence-store", "v0.5-live-activity-portal"],
+      "expectationFiles": ["docs/expectations/portal.md", "docs/expectations/real-evidence-proof.md"],
+      "proofMode": "ci-mechanical-proof",
+      "realEvidencePath": [
+        "Build contracts and the Rust service.",
+        "Run localhost smoke against the real Rust service.",
+        "Run LAN bind and origin smoke against the real Rust service.",
+        "Confirm the smoke uses managed ports and does not accept an unrelated stale service."
+      ],
+      "ciCommands": ["npm run test:integration", "npm run test:e2e"],
+      "requiredArtifacts": [
+        "CI or local smoke log showing websocket-local-smoke-ok.",
+        "CI or local smoke log showing websocket-lan-smoke-ok.",
+        "Command output naming the commit under test."
+      ],
+      "knownGaps": [
+        "Single-machine LAN bind smoke is not proof of household multi-device pairing.",
+        "Pairing, trusted-device registry, and remote routing remain later milestones."
+      ],
+      "notProof": [
+        "A Vite-only portal run without the Rust service.",
+        "A stale process on the expected port that was not launched by the test.",
+        "A cloud or relay path presented as LAN pairing proof."
+      ]
+    },
+    {
+      "id": "package-installed-service-autostart-gaps",
+      "title": "Package Installed Service And Autostart Gap Tracking",
+      "claimIds": ["package-preview-platforms"],
+      "expectationFiles": [
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/release-installer.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "proofMode": "scaffold-gap",
+      "realEvidencePath": [
+        "Build package previews for each runner family.",
+        "Run package launch or install smoke where the runner supports it.",
+        "Record which platforms have mechanical package proof only.",
+        "Keep installed service autostart, signing, store, notarization, and device-owner proof out of completed runtime claims until real host/device artifacts exist."
+      ],
+      "ciCommands": [
+        "npm run release:package:windows",
+        "npm run release:package:linux",
+        "npm run release:package:macos",
+        "npm run release:package:android",
+        "npm run release:package:ios"
+      ],
+      "requiredArtifacts": [
+        "Package preview job logs for each platform family.",
+        "Installer or launch-smoke output where available.",
+        "Explicit gap note for service autostart, signing, notarization, stores, device-owner mode, and TestFlight."
+      ],
+      "knownGaps": [
+        "Preview packaging is not production signing or store distribution.",
+        "Installed Windows service autostart is not proven until an installed package is exercised on a real host.",
+        "Android device-owner and iOS entitlement behavior remain unproven until real device or approved entitlement proof exists."
+      ],
+      "notProof": [
+        "A successful archive build presented as installed service autostart.",
+        "A simulator launch presented as device-owner, TestFlight, or entitlement proof.",
+        "Unsigned preview artifacts presented as production release readiness."
+      ]
+    }
+  ],
   "claims": [
     {
       "id": "v0.1-foundation",

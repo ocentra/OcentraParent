@@ -86,3 +86,27 @@ A runtime claim is done only when the proof matrix names the claim, maps it to
 CI and manual proof levels, and records honest platform coverage. If CI cannot
 exercise a privileged capability, the matrix must say `manual-required`,
 `scaffold-only`, or `not-yet-proven` instead of presenting fake certainty.
+
+## V0.7 Checkpoint Scenarios
+
+The pre-AI checkpoint also carries explicit scenario records in
+`pre-ai-proof-matrix.json`. These records are not feature claims by themselves;
+they are the runbook and gate metadata that separates real product proof from
+scaffold, read-model, or packaging-only proof.
+
+Required checkpoint scenarios cover:
+
+- managed-browser exact URL, title, domain, managed profile, and active-tab or
+  tab-list-only proof;
+- foreground process/window proof on a real Windows host;
+- network/domain attribution proof with unknown and degraded states preserved;
+- app/game duration proof from stored evidence, not portal timers or AI guesses;
+- screen evidence queue proof with permission and deletion-state visibility;
+- localhost/LAN smoke using the real Rust service and managed ports;
+- package preview, installed-service autostart, signing, store, notarization,
+  device-owner, and entitlement gaps.
+
+Each scenario must name the claims it supports, the real product path, CI
+commands that prove repeatable mechanics, required manual artifacts where
+privileged OS behavior is involved, known gaps, and patterns that do not count
+as proof.

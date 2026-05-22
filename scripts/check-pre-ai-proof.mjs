@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { validateCheckpointScenarios } from './test/real-evidence-proof-checkpoint.mjs';
 
 const repoRoot = process.cwd();
 const matrixPath = join(repoRoot, 'docs', 'expectations', 'pre-ai-proof-matrix.json');
@@ -135,12 +136,17 @@ function validateMatrix(matrix) {
   for (const claim of matrix.claims) {
     validateClaim(claim);
   }
+
+  return validateCheckpointScenarios(matrix, { repoRoot });
 }
 
 try {
   const matrix = readMatrix();
-  validateMatrix(matrix);
-  console.log(`pre-ai-proof-ok: ${matrix.claims.length} claims checked across ${requiredPlatforms.length} platforms.`);
+  const checkpointSummary = validateMatrix(matrix);
+  console.log(
+    `pre-ai-proof-ok: ${matrix.claims.length} claims checked across ${requiredPlatforms.length} platforms; ` +
+      `${checkpointSummary.scenarioCount} checkpoint scenarios checked.`
+  );
 } catch (error) {
   console.error('pre-ai-proof-failed');
   console.error(error.message);
