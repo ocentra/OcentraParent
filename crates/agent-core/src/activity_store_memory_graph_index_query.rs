@@ -160,7 +160,11 @@ fn time_range_from_edges(
             .unwrap_or_else(|| generated_at.to_string()),
         observed_until: edges
             .first()
-            .map(|edge| edge.observed_from.clone())
+            .map(|edge| {
+                edge.observed_until
+                    .clone()
+                    .unwrap_or_else(|| edge.observed_from.clone())
+            })
             .unwrap_or_else(|| generated_at.to_string()),
     }
 }

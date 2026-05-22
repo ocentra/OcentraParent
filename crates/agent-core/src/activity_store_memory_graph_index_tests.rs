@@ -3,6 +3,7 @@ use std::fs::remove_file;
 use ocentra_parent_agent_protocol::{constants, ActivityMemoryGraphEdgeKind};
 
 use super::{
+    activity_store_memory_graph_index_persist::persist_read_model,
     activity_store_policy_preview_test_fixture::{active_window_event, browser_event},
     ActivityStore,
 };
@@ -88,6 +89,44 @@ fn durable_memory_graph_index_applies_query_limit_without_dropping_stored_edges(
     assert_eq!(limited.omitted_edge_count, 1);
     assert_eq!(expanded.returned_edge_count, 2);
     assert_eq!(expanded.omitted_edge_count, 0);
+}
+
+#[test]
+fn durable_memory_graph_index_time_range_uses_persisted_edge_observed_until() {
+    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+    store
+        .ingest_events(&[browser_event(), active_window_event()])
+        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+    let mut projected = store
+        .activity_memory_graph_read_model(
+            constants::activity_store::DEFAULT_RECENT_LIMIT,
+            constants::activity_store::TEST_THIRD_OBSERVED_AT,
+        )
+        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+
+    assert_eq!(projected.returned_edge_count, 2);
+    projected.edges.truncate(1);
+    projected.edges[0].observed_until =
+        Some(constants::activity_store::TEST_THIRD_OBSERVED_AT.to_string());
+    persist_read_model(&store.connection, &projected, projected.edges.len() as u64)
+        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+    store
+        .delete_activity_events_for_memory_graph_test()
+        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+
+    let indexed = store
+        .activity_memory_graph_read_model(1, constants::activity_store::TEST_THIRD_OBSERVED_AT)
+        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+
+    assert_eq!(indexed.returned_edge_count, 1);
+    assert_eq!(
+        indexed.query.time_range.observed_from,
+        constants::activity_store::TEST_SECOND_OBSERVED_AT
+    );
+    assert_eq!(
+        indexed.query.time_range.observed_until,
+        constants::activity_store::TEST_THIRD_OBSERVED_AT
+    );
 }
 
 fn temp_path(suffix: &str, extension: &str) -> std::path::PathBuf {
