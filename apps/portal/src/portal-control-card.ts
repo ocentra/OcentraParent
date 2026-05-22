@@ -46,6 +46,7 @@ export function renderControlDeck(
 function controlCard(card: ControlCardSpec): HTMLElement {
   const article = document.createElement(PortalDom.Tags.Section);
   article.className = [PortalDom.Classes.ControlCard, card.accent].join(PortalDom.Classes.ClassNameSeparator);
+  article.tabIndex = 0;
 
   const header = document.createElement(PortalDom.Tags.Division);
   header.className = PortalDom.Classes.ControlCardHeader;

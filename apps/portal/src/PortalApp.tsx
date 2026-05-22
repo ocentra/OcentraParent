@@ -25,7 +25,7 @@ export function PortalApp(props: PortalAppProps): ReactElement {
   const [authOpen, setAuthOpen] = useState(false);
   return (
     <div className={PortalDom.Classes.AppFrame}>
-      <UnifiedHeaderChrome activeRoute={props.route} onAuthOpen={() => setAuthOpen(true)} />
+      <UnifiedHeaderChrome onAuthOpen={() => setAuthOpen(true)} />
       <PortalSidebar actions={props.actions} route={props.route} state={props.state} />
       <main className={PortalDom.Classes.AppMain}>
         <PageHeader route={props.route} />

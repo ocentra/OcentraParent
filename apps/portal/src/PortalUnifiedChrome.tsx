@@ -4,21 +4,12 @@ import {
   PortalDom,
   PortalExternalLinks,
   PortalRoute,
-  PortalRouteDescriptors,
   PortalText,
   PortalTextToken,
   PortalUnifiedChrome,
-  type PortalRoute as PortalRouteValue,
-  type PortalRouteDescriptor,
 } from '@ocentra-parent/portal-domain/contracts';
 
-export function UnifiedHeaderChrome({
-  activeRoute,
-  onAuthOpen,
-}: {
-  readonly activeRoute: PortalRouteValue;
-  readonly onAuthOpen: () => void;
-}): ReactElement {
+export function UnifiedHeaderChrome({ onAuthOpen }: { readonly onAuthOpen: () => void }): ReactElement {
   return (
     <header className={PortalUnifiedChrome.Classes.Header}>
       <div className={PortalUnifiedChrome.Classes.HeaderBar}>
@@ -41,7 +32,6 @@ export function UnifiedHeaderChrome({
           <span>{PortalText.Resolve(PortalTextToken.HeaderLogin)}</span>
         </button>
       </div>
-      <HeaderNavigation activeRoute={activeRoute} />
     </header>
   );
 }
@@ -92,40 +82,5 @@ function HeaderBrand(): ReactElement {
         </span>
       </div>
     </div>
-  );
-}
-
-function HeaderNavigation({ activeRoute }: { readonly activeRoute: PortalRouteValue }): ReactElement {
-  return (
-    <nav className={PortalUnifiedChrome.Classes.HeaderNav}>
-      {PortalRouteDescriptors.map((descriptor) => (
-        <HeaderNavigationLink activeRoute={activeRoute} descriptor={descriptor} key={descriptor.route} />
-      ))}
-    </nav>
-  );
-}
-
-function HeaderNavigationLink({
-  activeRoute,
-  descriptor,
-}: {
-  readonly activeRoute: PortalRouteValue;
-  readonly descriptor: PortalRouteDescriptor;
-}): ReactElement {
-  const isActive = descriptor.route === activeRoute;
-  const className = isActive
-    ? [PortalUnifiedChrome.Classes.HeaderNavLink, PortalUnifiedChrome.Classes.HeaderNavLinkActive].join(
-        PortalDom.Classes.ClassNameSeparator
-      )
-    : PortalUnifiedChrome.Classes.HeaderNavLink;
-  return (
-    <a
-      aria-current={isActive ? PortalDom.Attributes.Page : undefined}
-      className={className}
-      href={`${PortalDom.HashPrefix}${descriptor.route}`}
-    >
-      <span className={PortalUnifiedChrome.Classes.HeaderNavLabel}>{descriptor.label}</span>
-      <span className={PortalUnifiedChrome.Classes.HeaderNavDescription}>{descriptor.description}</span>
-    </a>
   );
 }

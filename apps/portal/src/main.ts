@@ -19,6 +19,8 @@ import { applyTheme, resolveTheme } from './portal-theme';
 import { connectWebSocket, sendCommand } from './transport';
 import './styles.css';
 import './portal-unified-chrome.css';
+import './styles/deck-frame-fit.css';
+import './styles/control-card-frame.css';
 
 const agentWsUrl = decodeAgentWebSocketUrl(
   import.meta.env[PortalEnvironment.AgentWebSocketUrl] ?? AgentProtocolDefaults.WebSocketUrl
