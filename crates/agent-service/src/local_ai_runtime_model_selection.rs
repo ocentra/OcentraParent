@@ -32,18 +32,5 @@ pub(crate) fn model_reference_for_request<'a>(
 }
 
 pub(crate) fn uses_gpu_resource(config: &LocalAiRuntimeConfigSnapshot) -> bool {
-    config.runtime_device().is_some()
-        || config
-            .gpu_layers()
-            .map(gpu_layers_request_acceleration)
-            .unwrap_or(false)
-}
-
-fn gpu_layers_request_acceleration(value: &str) -> bool {
-    value == constants::local_ai_runtime::LLAMA_GPU_LAYERS_ALL
-        || value == constants::local_ai_runtime::LLAMA_GPU_LAYERS_AUTO
-        || value
-            .parse::<u32>()
-            .map(|layers| layers > 0)
-            .unwrap_or(true)
+    config.acceleration().uses_gpu_runtime()
 }

@@ -6,6 +6,7 @@ use std::{
 
 use ocentra_parent_agent_protocol::constants;
 
+use crate::local_ai_runtime_acceleration_config::LocalAiRuntimeAccelerationConfig;
 use crate::local_ai_runtime_distribution::LocalAiRuntimeTarget;
 use crate::local_ai_runtime_install_plan::{
     default_install_plan_for_target, LocalAiRequiredArtifactStatus,
@@ -19,8 +20,7 @@ fn install_plan_reports_missing_required_runtime_and_default_model() {
         &root,
         target,
         constants::local_ai_runtime::DEFAULT_LLAMA_CPP_RELEASE_TAG,
-        None,
-        Some(constants::local_ai_runtime::LLAMA_GPU_LAYERS_ALL),
+        &gpu_acceleration_config(),
     );
     let runtime = plan
         .runtime
@@ -51,8 +51,7 @@ fn install_plan_reports_installed_after_cache_artifacts_exist() {
         &root,
         target,
         constants::local_ai_runtime::DEFAULT_LLAMA_CPP_RELEASE_TAG,
-        None,
-        Some(constants::local_ai_runtime::LLAMA_GPU_LAYERS_ALL),
+        &gpu_acceleration_config(),
     );
     write_required_files(&initial);
 
@@ -60,8 +59,7 @@ fn install_plan_reports_installed_after_cache_artifacts_exist() {
         &root,
         target,
         constants::local_ai_runtime::DEFAULT_LLAMA_CPP_RELEASE_TAG,
-        None,
-        Some(constants::local_ai_runtime::LLAMA_GPU_LAYERS_ALL),
+        &gpu_acceleration_config(),
     );
 
     assert_eq!(
@@ -90,8 +88,7 @@ fn unsupported_runtime_target_does_not_guess_binary() {
         &root,
         target,
         constants::local_ai_runtime::DEFAULT_LLAMA_CPP_RELEASE_TAG,
-        None,
-        None,
+        &LocalAiRuntimeAccelerationConfig::default(),
     );
 
     assert_eq!(plan.runtime, None);
@@ -112,8 +109,7 @@ fn install_plan_creates_managed_cache_directories() {
         &root,
         windows_x64_target(),
         constants::local_ai_runtime::DEFAULT_LLAMA_CPP_RELEASE_TAG,
-        None,
-        Some(constants::local_ai_runtime::LLAMA_GPU_LAYERS_ALL),
+        &gpu_acceleration_config(),
     );
 
     assert!(plan.ensure_cache_directories().is_ok());
@@ -149,6 +145,13 @@ fn windows_x64_target() -> LocalAiRuntimeTarget {
         os: constants::local_ai_runtime::PLATFORM_OS_WINDOWS,
         arch: constants::local_ai_runtime::PLATFORM_ARCH_X86_64,
     }
+}
+
+fn gpu_acceleration_config() -> LocalAiRuntimeAccelerationConfig {
+    LocalAiRuntimeAccelerationConfig::basic(
+        None,
+        Some(constants::local_ai_runtime::LLAMA_GPU_LAYERS_ALL.to_string()),
+    )
 }
 
 fn runtime_binary_suffix() -> PathBuf {

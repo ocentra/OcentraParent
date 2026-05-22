@@ -2,6 +2,7 @@ use std::path::PathBuf;
 
 use ocentra_parent_agent_protocol::constants;
 
+use crate::local_ai_runtime_acceleration_config::LocalAiRuntimeAccelerationConfig;
 use crate::local_ai_runtime_distribution::{
     requested_runtime_acceleration, select_llama_runtime_distribution, LlamaRuntimeAcceleration,
     LocalAiRuntimeTarget,
@@ -23,8 +24,10 @@ fn windows_x64_gpu_request_selects_vulkan_asset() {
     };
     let acceleration = requested_runtime_acceleration(
         target,
-        None,
-        Some(constants::local_ai_runtime::LLAMA_GPU_LAYERS_ALL),
+        &LocalAiRuntimeAccelerationConfig::basic(
+            None,
+            Some(constants::local_ai_runtime::LLAMA_GPU_LAYERS_ALL.to_string()),
+        ),
     );
     let distribution = select_llama_runtime_distribution(
         target,
@@ -56,8 +59,10 @@ fn windows_x64_cuda_device_selects_cuda_asset() {
     };
     let acceleration = requested_runtime_acceleration(
         target,
-        Some(constants::local_ai_runtime::TEST_RUNTIME_DEVICE_CUDA0),
-        None,
+        &LocalAiRuntimeAccelerationConfig::basic(
+            Some(constants::local_ai_runtime::TEST_RUNTIME_DEVICE_CUDA0.to_string()),
+            None,
+        ),
     );
     let distribution = select_llama_runtime_distribution(
         target,
@@ -70,6 +75,35 @@ fn windows_x64_cuda_device_selects_cuda_asset() {
     assert_eq!(
         distribution.asset_name,
         expected_asset_name(constants::local_ai_runtime::LLAMA_ASSET_WIN_CUDA_12_4_X64_SUFFIX)
+    );
+}
+
+#[test]
+fn windows_x64_tensor_split_request_selects_vulkan_asset() {
+    let target = LocalAiRuntimeTarget {
+        os: constants::local_ai_runtime::PLATFORM_OS_WINDOWS,
+        arch: constants::local_ai_runtime::PLATFORM_ARCH_X86_64,
+    };
+    let acceleration = requested_runtime_acceleration(
+        target,
+        &LocalAiRuntimeAccelerationConfig {
+            split_mode: Some(constants::local_ai_runtime::LLAMA_SPLIT_MODE_LAYER.to_string()),
+            tensor_split: Some(constants::local_ai_runtime::TEST_TENSOR_SPLIT_DUAL.to_string()),
+            main_gpu: Some(constants::local_ai_runtime::TEST_MAIN_GPU_1.to_string()),
+            ..LocalAiRuntimeAccelerationConfig::default()
+        },
+    );
+    let distribution = select_llama_runtime_distribution(
+        target,
+        acceleration,
+        constants::local_ai_runtime::DEFAULT_LLAMA_CPP_RELEASE_TAG,
+    )
+    .expect(constants::error::LOCAL_AI_RUNTIME_SPAWNS);
+
+    assert_eq!(acceleration, LlamaRuntimeAcceleration::Vulkan);
+    assert_eq!(
+        distribution.asset_name,
+        expected_asset_name(constants::local_ai_runtime::LLAMA_ASSET_WIN_VULKAN_X64_SUFFIX)
     );
 }
 

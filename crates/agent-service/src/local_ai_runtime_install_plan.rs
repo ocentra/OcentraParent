@@ -8,6 +8,7 @@ use ocentra_parent_agent_protocol::constants;
 use crate::{
     local_ai_cache_root::local_ai_cache_root,
     local_ai_model_registry::{default_local_ai_model, LocalAiKnownModel},
+    local_ai_runtime_acceleration_config::LocalAiRuntimeAccelerationConfig,
     local_ai_runtime_distribution::{
         requested_runtime_acceleration, select_llama_runtime_distribution,
         LlamaRuntimeDistribution, LocalAiRuntimeTarget,
@@ -65,16 +66,14 @@ impl LocalAiRuntimeInstallPlan {
 
 pub(crate) fn default_install_plan_from_environment(
     release_tag: &str,
-    runtime_device: Option<&str>,
-    gpu_layers: Option<&str>,
+    acceleration_config: &LocalAiRuntimeAccelerationConfig,
 ) -> Option<LocalAiRuntimeInstallPlan> {
     let cache_root = local_ai_cache_root()?;
     Some(default_install_plan_for_target(
         &cache_root,
         LocalAiRuntimeTarget::current(),
         release_tag,
-        runtime_device,
-        gpu_layers,
+        acceleration_config,
     ))
 }
 
@@ -82,10 +81,9 @@ pub(crate) fn default_install_plan_for_target(
     cache_root: &Path,
     target: LocalAiRuntimeTarget,
     release_tag: &str,
-    runtime_device: Option<&str>,
-    gpu_layers: Option<&str>,
+    acceleration_config: &LocalAiRuntimeAccelerationConfig,
 ) -> LocalAiRuntimeInstallPlan {
-    let acceleration = requested_runtime_acceleration(target, runtime_device, gpu_layers);
+    let acceleration = requested_runtime_acceleration(target, acceleration_config);
     let runtime = select_llama_runtime_distribution(target, acceleration, release_tag)
         .map(|distribution| runtime_requirement(cache_root, distribution));
     let runtime_status = runtime

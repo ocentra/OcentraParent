@@ -6,6 +6,7 @@ use ocentra_parent_agent_protocol::{
 use tokio::{process::Command, time::Instant};
 
 use crate::{
+    local_ai_chat_generation_args::llama_acceleration_args,
     local_ai_chat_generation_request::LocalAiChatGenerationRequest,
     local_ai_chat_generation_result::{failed_result, unavailable_result, LocalAiFailedGeneration},
     local_ai_runtime_config::LocalAiRuntimeConfigSnapshot,
@@ -195,15 +196,7 @@ fn elapsed_ms(started_at: Instant) -> u64 {
 }
 
 fn append_acceleration_args(command: &mut Command, config: &LocalAiRuntimeConfigSnapshot) {
-    if let Some(runtime_device) = config.runtime_device() {
-        command
-            .arg(constants::local_ai_runtime::LLAMA_ARG_DEVICE)
-            .arg(runtime_device);
-    }
-
-    if let Some(gpu_layers) = config.gpu_layers() {
-        command
-            .arg(constants::local_ai_runtime::LLAMA_ARG_GPU_LAYERS)
-            .arg(gpu_layers);
+    for arg in llama_acceleration_args(config) {
+        command.arg(arg);
     }
 }

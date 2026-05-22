@@ -2,11 +2,12 @@ use ocentra_parent_agent_protocol::constants;
 
 use crate::{
     local_ai_model_registry::known_model_for_id,
+    local_ai_runtime_acceleration_config::LocalAiRuntimeAccelerationConfig,
     local_ai_runtime_config::LocalAiRuntimeConfigSnapshot,
     local_ai_runtime_config_parts::{LocalAiRuntimeConfigParts, LocalAiRuntimeModelConfig},
     local_ai_runtime_config_values::{
-        env_flag, env_llama_device, env_llama_gpu_layers, env_llama_release_tag,
-        env_local_ai_model_id, env_path, env_u32, env_u64, env_value,
+        env_flag, env_llama_release_tag, env_local_ai_model_id, env_path, env_u32, env_u64,
+        env_value,
     },
     local_ai_runtime_install_plan::{
         default_install_plan_from_environment, LocalAiRequiredArtifactStatus,
@@ -16,14 +17,9 @@ use crate::{
 pub(crate) fn runtime_config_from_environment() -> LocalAiRuntimeConfigSnapshot {
     let release_tag = env_llama_release_tag(constants::env_var::LOCAL_AI_LLAMA_CPP_RELEASE_TAG);
     let model_id = env_local_ai_model_id(constants::env_var::LOCAL_AI_MODEL_ID);
-    let runtime_device = env_llama_device(constants::env_var::LOCAL_AI_RUNTIME_DEVICE);
-    let gpu_layers = env_llama_gpu_layers(constants::env_var::LOCAL_AI_GPU_LAYERS);
+    let acceleration = LocalAiRuntimeAccelerationConfig::from_environment();
     let execution_enabled = env_flag(constants::env_var::LOCAL_AI_EXECUTION_ENABLED);
-    let install_plan = default_install_plan_from_environment(
-        &release_tag,
-        runtime_device.as_deref(),
-        gpu_layers.as_deref(),
-    );
+    let install_plan = default_install_plan_from_environment(&release_tag, &acceleration);
     if let Some(plan) = install_plan.as_ref() {
         if plan.runtime_status != LocalAiRequiredArtifactStatus::Unsupported {
             let _ = plan.ensure_cache_directories();
@@ -58,7 +54,7 @@ pub(crate) fn runtime_config_from_environment() -> LocalAiRuntimeConfigSnapshot 
             constants::local_ai_runtime::DEFAULT_GENERATION_MAX_TOKENS,
         ),
     })
-    .with_acceleration(runtime_device, gpu_layers)
+    .with_acceleration_config(acceleration)
 }
 
 fn runtime_model_config(

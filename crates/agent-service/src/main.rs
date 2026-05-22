@@ -23,6 +23,7 @@ mod event_builder;
 mod fields;
 mod local_ai_cache_root;
 mod local_ai_chat_generation;
+mod local_ai_chat_generation_args;
 mod local_ai_chat_generation_request;
 #[cfg(test)]
 mod local_ai_chat_generation_request_tests;
@@ -36,6 +37,7 @@ mod local_ai_model_registry;
 mod local_ai_model_registry_tests;
 #[cfg(test)]
 mod local_ai_model_request_status_tests;
+mod local_ai_runtime_acceleration_config;
 #[cfg(test)]
 mod local_ai_runtime_acceleration_tests;
 mod local_ai_runtime_cache_status;

@@ -2,6 +2,7 @@ use std::path::{Path, PathBuf};
 
 use ocentra_parent_agent_protocol::constants;
 
+use crate::local_ai_runtime_acceleration_config::LocalAiRuntimeAccelerationConfig;
 use crate::local_ai_runtime_distribution_assets::{
     asset_name, asset_suffix, download_url, executable_name,
 };
@@ -73,22 +74,23 @@ pub(crate) fn select_llama_runtime_distribution(
 
 pub(crate) fn requested_runtime_acceleration(
     target: LocalAiRuntimeTarget,
-    runtime_device: Option<&str>,
-    gpu_layers: Option<&str>,
+    acceleration_config: &LocalAiRuntimeAccelerationConfig,
 ) -> LlamaRuntimeAcceleration {
-    if runtime_device
+    if acceleration_config
+        .runtime_device
+        .as_deref()
         .map(|value| value.starts_with(constants::local_ai_runtime::LLAMA_DEVICE_CUDA_PREFIX))
         .unwrap_or(false)
     {
         return LlamaRuntimeAcceleration::Cuda;
     }
 
-    if runtime_device
+    if acceleration_config
+        .runtime_device
+        .as_deref()
         .map(|value| value.starts_with(constants::local_ai_runtime::LLAMA_DEVICE_VULKAN_PREFIX))
         .unwrap_or(false)
-        || gpu_layers
-            .map(gpu_layers_request_acceleration)
-            .unwrap_or(false)
+        || acceleration_config.uses_gpu_runtime()
     {
         return preferred_gpu_acceleration(target);
     }
@@ -104,13 +106,4 @@ fn preferred_gpu_acceleration(target: LocalAiRuntimeTarget) -> LlamaRuntimeAccel
     } else {
         LlamaRuntimeAcceleration::Cpu
     }
-}
-
-fn gpu_layers_request_acceleration(value: &str) -> bool {
-    value == constants::local_ai_runtime::LLAMA_GPU_LAYERS_ALL
-        || value == constants::local_ai_runtime::LLAMA_GPU_LAYERS_AUTO
-        || value
-            .parse::<u32>()
-            .map(|layers| layers > 0)
-            .unwrap_or(false)
 }

@@ -3,6 +3,7 @@ use std::path::PathBuf;
 use ocentra_parent_agent_protocol::constants;
 
 use crate::{
+    local_ai_runtime_acceleration_config::LocalAiRuntimeAccelerationConfig,
     local_ai_runtime_config_environment::runtime_config_from_environment,
     local_ai_runtime_config_parts::{LocalAiRuntimeConfigParts, LocalAiRuntimeModelConfig},
     local_ai_runtime_config_path::ConfiguredLocalPath,
@@ -19,8 +20,7 @@ pub struct LocalAiRuntimeConfigSnapshot {
     execution_enabled: bool,
     generation_timeout_ms: u64,
     generation_max_tokens: u32,
-    runtime_device: Option<String>,
-    gpu_layers: Option<String>,
+    acceleration: LocalAiRuntimeAccelerationConfig,
 }
 
 impl LocalAiRuntimeConfigSnapshot {
@@ -94,18 +94,25 @@ impl LocalAiRuntimeConfigSnapshot {
             execution_enabled: parts.execution_enabled,
             generation_timeout_ms: parts.generation_timeout_ms,
             generation_max_tokens: parts.generation_max_tokens,
-            runtime_device: None,
-            gpu_layers: None,
+            acceleration: LocalAiRuntimeAccelerationConfig::default(),
         }
     }
 
+    #[cfg(test)]
     pub fn with_acceleration(
         mut self,
         runtime_device: Option<String>,
         gpu_layers: Option<String>,
     ) -> Self {
-        self.runtime_device = runtime_device;
-        self.gpu_layers = gpu_layers;
+        self.acceleration = LocalAiRuntimeAccelerationConfig::basic(runtime_device, gpu_layers);
+        self
+    }
+
+    pub(crate) fn with_acceleration_config(
+        mut self,
+        acceleration: LocalAiRuntimeAccelerationConfig,
+    ) -> Self {
+        self.acceleration = acceleration;
         self
     }
 
@@ -145,11 +152,17 @@ impl LocalAiRuntimeConfigSnapshot {
         self.generation_max_tokens
     }
 
-    pub fn runtime_device(&self) -> Option<&str> {
-        self.runtime_device.as_deref()
+    #[cfg(test)]
+    pub fn gpu_layers(&self) -> Option<&str> {
+        self.acceleration.gpu_layers.as_deref()
     }
 
-    pub fn gpu_layers(&self) -> Option<&str> {
-        self.gpu_layers.as_deref()
+    pub(crate) fn acceleration(&self) -> &LocalAiRuntimeAccelerationConfig {
+        &self.acceleration
+    }
+
+    #[cfg(test)]
+    pub fn runtime_device(&self) -> Option<&str> {
+        self.acceleration.runtime_device.as_deref()
     }
 }
