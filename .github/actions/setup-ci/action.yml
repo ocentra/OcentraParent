@@ -28,6 +28,22 @@ runs:
         rustup toolchain install "$rust_channel" --profile minimal --component clippy --component rustfmt --no-self-update
         rustup default "$rust_channel"
 
+    - name: Install Linux Tauri system dependencies
+      if: runner.os == 'Linux' && inputs.install-rust == 'true'
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install --no-install-recommends --yes \
+          build-essential \
+          curl \
+          file \
+          libayatana-appindicator3-dev \
+          librsvg2-dev \
+          libssl-dev \
+          libwebkit2gtk-4.1-dev \
+          libxdo-dev \
+          wget
+
     - name: Install npm dependencies
       if: inputs.install-mode != 'skip'
       shell: bash
