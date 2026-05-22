@@ -28,6 +28,7 @@ const LocalAiEnv = {
   MaxTokens: 'OCENTRA_PARENT_LOCAL_AI_GENERATION_MAX_TOKENS',
   TimeoutMs: 'OCENTRA_PARENT_LOCAL_AI_GENERATION_TIMEOUT_MS',
   ProofPrompt: 'OCENTRA_PARENT_LOCAL_AI_PROOF_PROMPT',
+  ProofExpectedText: 'OCENTRA_PARENT_LOCAL_AI_PROOF_EXPECTED_TEXT',
   ProofTimeoutMs: 'OCENTRA_PARENT_LOCAL_AI_PROOF_TIMEOUT_MS',
 };
 
@@ -38,6 +39,7 @@ const healthUrl = createAgentHealthUrl(port);
 const wsUrl = createAgentWebSocketUrl(port);
 const devLogDir = await mkdtemp(join(tmpdir(), 'ocentra-parent-local-ai-proof-'));
 const proofPrompt = process.env[LocalAiEnv.ProofPrompt] ?? 'Reply with the exact phrase local-ok.';
+const proofExpectedText = process.env[LocalAiEnv.ProofExpectedText] ?? 'local-ok';
 const proofTimeoutMs = positiveIntegerEnv(LocalAiEnv.ProofTimeoutMs, 120000);
 
 await ensurePortFree(port, isLikelyParentAgentOccupant, console.log);
@@ -127,6 +129,10 @@ function runLocalAiProof() {
             outputText.trim() === ''
           ) {
             fail(new Error(`Local AI chat did not complete: ${JSON.stringify(parsed.payload)}`));
+            return;
+          }
+          if (!outputText.includes(proofExpectedText)) {
+            fail(new Error(`Local AI chat did not include expected text ${JSON.stringify(proofExpectedText)}`));
             return;
           }
           complete(outputText.trim());
