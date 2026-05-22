@@ -40,6 +40,7 @@ mod local_ai_model_request_status_tests;
 mod local_ai_runtime_acceleration_tests;
 mod local_ai_runtime_cache_status;
 mod local_ai_runtime_config;
+mod local_ai_runtime_config_environment;
 mod local_ai_runtime_config_parts;
 mod local_ai_runtime_config_path;
 mod local_ai_runtime_config_values;
@@ -48,6 +49,9 @@ mod local_ai_runtime_distribution;
 mod local_ai_runtime_distribution_assets;
 #[cfg(test)]
 mod local_ai_runtime_distribution_tests;
+mod local_ai_runtime_install_plan;
+#[cfg(test)]
+mod local_ai_runtime_install_plan_tests;
 mod local_ai_runtime_model_selection;
 mod local_ai_runtime_payload;
 #[cfg(test)]

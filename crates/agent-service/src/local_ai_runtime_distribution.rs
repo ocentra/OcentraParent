@@ -2,11 +2,8 @@ use std::path::{Path, PathBuf};
 
 use ocentra_parent_agent_protocol::constants;
 
-use crate::{
-    local_ai_cache_root::local_ai_cache_root,
-    local_ai_runtime_distribution_assets::{
-        asset_name, asset_suffix, download_url, executable_name,
-    },
+use crate::local_ai_runtime_distribution_assets::{
+    asset_name, asset_suffix, download_url, executable_name,
 };
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -42,6 +39,13 @@ pub(crate) struct LlamaRuntimeDistribution {
 }
 
 impl LlamaRuntimeDistribution {
+    pub(crate) fn archive_path(&self, cache_root: &Path) -> PathBuf {
+        let mut path = cache_root.to_path_buf();
+        path.push(constants::local_ai_runtime::LLAMA_CPP_CACHE_DIR);
+        path.push(&self.asset_name);
+        path
+    }
+
     pub(crate) fn extracted_binary_path(&self, cache_root: &Path) -> PathBuf {
         let mut path = cache_root.to_path_buf();
         path.push(constants::local_ai_runtime::LLAMA_CPP_CACHE_DIR);
@@ -49,21 +53,6 @@ impl LlamaRuntimeDistribution {
         path.push(self.executable_name);
         path
     }
-}
-
-pub(crate) fn selected_cached_llama_runtime_path(
-    release_tag: &str,
-    runtime_device: Option<&str>,
-    gpu_layers: Option<&str>,
-) -> Option<PathBuf> {
-    let cache_root = local_ai_cache_root()?;
-    let target = LocalAiRuntimeTarget::current();
-    select_llama_runtime_distribution(
-        target,
-        requested_runtime_acceleration(target, runtime_device, gpu_layers),
-        release_tag,
-    )
-    .map(|distribution| distribution.extracted_binary_path(&cache_root))
 }
 
 pub(crate) fn select_llama_runtime_distribution(

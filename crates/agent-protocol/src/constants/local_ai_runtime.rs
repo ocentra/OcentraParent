@@ -131,6 +131,11 @@ pub const DEFAULT_LLAMA_CPP_RELEASE_TAG: &str = "b9279";
 pub const LLAMA_CPP_CACHE_DIR: &str = "llama.cpp";
 pub const LOCAL_AI_MODELS_CACHE_DIR: &str = "local-ai-models";
 pub const DEFAULT_GEMMA_4_MODEL_FILE_NAME: &str = "gemma-4-E2B-it-Q4_K_M.gguf";
+pub const REQUIRED_ARTIFACT_RUNTIME: &str = "runtime-binary";
+pub const REQUIRED_ARTIFACT_DEFAULT_MODEL: &str = "default-model";
+pub const REQUIRED_ARTIFACT_STATUS_INSTALLED: &str = "installed";
+pub const REQUIRED_ARTIFACT_STATUS_MISSING: &str = "missing";
+pub const REQUIRED_ARTIFACT_STATUS_UNSUPPORTED: &str = "unsupported";
 pub const LLAMA_CPP_RELEASE_DOWNLOAD_BASE_URL: &str =
     "https://github.com/ggml-org/llama.cpp/releases/download";
 pub const LLAMA_CLI_EXECUTABLE_UNIX: &str = "llama-cli";

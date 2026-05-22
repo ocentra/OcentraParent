@@ -2,14 +2,21 @@ use std::path::PathBuf;
 
 use ocentra_parent_agent_protocol::constants;
 
-use crate::local_ai_cache_root::local_ai_cache_root;
-
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) struct LocalAiKnownModel {
     pub(crate) model_id: &'static str,
     pub(crate) artifact_ref: &'static str,
     pub(crate) manifest_ref: &'static str,
     file_name: &'static str,
+}
+
+impl LocalAiKnownModel {
+    pub(crate) fn cache_path(&self, cache_root: PathBuf) -> PathBuf {
+        let mut path = cache_root;
+        path.push(constants::local_ai_runtime::LOCAL_AI_MODELS_CACHE_DIR);
+        path.push(self.file_name);
+        path
+    }
 }
 
 pub(crate) fn default_local_ai_model() -> LocalAiKnownModel {
@@ -28,12 +35,4 @@ pub(crate) fn known_model_for_id(model_id: &str) -> Option<LocalAiKnownModel> {
     } else {
         None
     }
-}
-
-pub(crate) fn selected_cached_local_ai_model_path(model_id: &str) -> Option<PathBuf> {
-    let model = known_model_for_id(model_id)?;
-    let mut path = local_ai_cache_root()?;
-    path.push(constants::local_ai_runtime::LOCAL_AI_MODELS_CACHE_DIR);
-    path.push(model.file_name);
-    Some(path)
 }

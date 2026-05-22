@@ -138,6 +138,27 @@ fn extracted_runtime_path_uses_release_cache_directory() {
     assert_eq!(distribution.extracted_binary_path(&cache_root), expected);
 }
 
+#[test]
+fn runtime_archive_path_uses_asset_name_under_runtime_cache() {
+    let target = LocalAiRuntimeTarget {
+        os: constants::local_ai_runtime::PLATFORM_OS_WINDOWS,
+        arch: constants::local_ai_runtime::PLATFORM_ARCH_X86_64,
+    };
+    let distribution = select_llama_runtime_distribution(
+        target,
+        LlamaRuntimeAcceleration::Vulkan,
+        constants::local_ai_runtime::DEFAULT_LLAMA_CPP_RELEASE_TAG,
+    )
+    .expect(constants::error::LOCAL_AI_RUNTIME_SPAWNS);
+    let mut cache_root = PathBuf::new();
+    cache_root.push(constants::local_ai_runtime::OCENTRA_PARENT_CACHE_DIR);
+    let mut expected = cache_root.clone();
+    expected.push(constants::local_ai_runtime::LLAMA_CPP_CACHE_DIR);
+    expected.push(&distribution.asset_name);
+
+    assert_eq!(distribution.archive_path(&cache_root), expected);
+}
+
 fn expected_asset_name(suffix: &str) -> String {
     let mut name = constants::local_ai_runtime::LLAMA_ASSET_PREFIX.to_string();
     name.push_str(constants::local_ai_runtime::DEFAULT_LLAMA_CPP_RELEASE_TAG);

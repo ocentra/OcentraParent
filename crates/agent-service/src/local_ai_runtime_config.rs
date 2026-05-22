@@ -3,15 +3,10 @@ use std::path::PathBuf;
 use ocentra_parent_agent_protocol::constants;
 
 use crate::{
-    local_ai_model_registry::{known_model_for_id, selected_cached_local_ai_model_path},
+    local_ai_runtime_config_environment::runtime_config_from_environment,
     local_ai_runtime_config_parts::{LocalAiRuntimeConfigParts, LocalAiRuntimeModelConfig},
     local_ai_runtime_config_path::ConfiguredLocalPath,
-    local_ai_runtime_config_values::{
-        env_flag, env_llama_device, env_llama_gpu_layers, env_llama_release_tag,
-        env_local_ai_model_id, env_path, env_u32, env_u64, env_value, is_safe_local_ai_model_id,
-        safe_ref_or_default,
-    },
-    local_ai_runtime_distribution::selected_cached_llama_runtime_path,
+    local_ai_runtime_config_values::{is_safe_local_ai_model_id, safe_ref_or_default},
 };
 
 #[derive(Clone, Debug)]
@@ -30,54 +25,7 @@ pub struct LocalAiRuntimeConfigSnapshot {
 
 impl LocalAiRuntimeConfigSnapshot {
     pub fn from_environment() -> Self {
-        let release_tag = env_llama_release_tag(constants::env_var::LOCAL_AI_LLAMA_CPP_RELEASE_TAG);
-        let model_id = env_local_ai_model_id(constants::env_var::LOCAL_AI_MODEL_ID);
-        let runtime_device = env_llama_device(constants::env_var::LOCAL_AI_RUNTIME_DEVICE);
-        let gpu_layers = env_llama_gpu_layers(constants::env_var::LOCAL_AI_GPU_LAYERS);
-        let execution_enabled = env_flag(constants::env_var::LOCAL_AI_EXECUTION_ENABLED);
-        let runtime_binary = env_path(constants::env_var::LOCAL_AI_RUNTIME_BINARY).or_else(|| {
-            selected_cached_llama_runtime_path(
-                &release_tag,
-                runtime_device.as_deref(),
-                gpu_layers.as_deref(),
-            )
-        });
-        let known_model = known_model_for_id(&model_id);
-        let model_file = env_path(constants::env_var::LOCAL_AI_MODEL_FILE).or_else(|| {
-            if execution_enabled {
-                selected_cached_local_ai_model_path(&model_id)
-            } else {
-                None
-            }
-        });
-        let default_artifact_ref = known_model
-            .map(|model| model.artifact_ref)
-            .unwrap_or(constants::local_ai_runtime::MODEL_REFERENCE_LOCAL_GGUF_CONFIGURED);
-        let default_manifest_ref = known_model
-            .map(|model| model.manifest_ref)
-            .unwrap_or(constants::local_ai_runtime::MODEL_MANIFEST_REFERENCE_LOCAL_GGUF_CONFIGURED);
-
-        Self::from_config_parts(LocalAiRuntimeConfigParts {
-            runtime_binary,
-            model: LocalAiRuntimeModelConfig {
-                model_id,
-                model_file,
-                artifact_ref: env_value(constants::env_var::LOCAL_AI_MODEL_ARTIFACT_REF),
-                manifest_ref: env_value(constants::env_var::LOCAL_AI_MODEL_MANIFEST_REF),
-                default_artifact_ref,
-                default_manifest_ref,
-            },
-            execution_enabled,
-            generation_timeout_ms: env_u64(
-                constants::env_var::LOCAL_AI_GENERATION_TIMEOUT_MS,
-                constants::local_ai_runtime::DEFAULT_GENERATION_TIMEOUT_MS,
-            ),
-            generation_max_tokens: env_u32(
-                constants::env_var::LOCAL_AI_GENERATION_MAX_TOKENS,
-                constants::local_ai_runtime::DEFAULT_GENERATION_MAX_TOKENS,
-            ),
-        })
-        .with_acceleration(runtime_device, gpu_layers)
+        runtime_config_from_environment()
     }
 
     pub fn from_parts(
@@ -123,7 +71,7 @@ impl LocalAiRuntimeConfigSnapshot {
         })
     }
 
-    fn from_config_parts(parts: LocalAiRuntimeConfigParts) -> Self {
+    pub(crate) fn from_config_parts(parts: LocalAiRuntimeConfigParts) -> Self {
         let model_id = if is_safe_local_ai_model_id(&parts.model.model_id) {
             parts.model.model_id
         } else {
