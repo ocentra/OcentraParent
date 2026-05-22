@@ -26,7 +26,7 @@ export const LocalAiModelLoadStateSchema = withParser(
 );
 
 export const LocalAiCapabilityFlagSchema = withParser(
-  Schema.Literal('classification', 'summarization', 'embedding', 'safety-decision')
+  Schema.Literal('classification', 'summarization', 'embedding', 'safety-decision', 'chat-completion')
 );
 
 export const LocalAiResourceClassSchema = withParser(Schema.Literal('cpu', 'gpu', 'npu', 'remote-unavailable'));

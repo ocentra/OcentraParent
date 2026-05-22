@@ -74,6 +74,7 @@ export const AgentCommandNameSchema = withParser(
     'agent.browser.managed.bridge.poll',
     'agent.network.flow.read-model.get',
     'agent.local-ai.runtime.status.get',
+    'agent.local-ai.chat.generate',
     'agent.policy.preview.read-model.get'
   )
 );
@@ -92,6 +93,7 @@ export const AgentEventNameSchema = withParser(
     'agent.browser.managed.status.reported',
     'agent.network.flow.read-model.reported',
     'agent.local-ai.runtime.status.reported',
+    'agent.local-ai.chat.generation.reported',
     'agent.policy.preview.read-model.reported'
   )
 );
@@ -147,6 +149,7 @@ export const AgentCommand = {
   BrowserManagedBridgePoll: AgentCommandNameSchema.parse('agent.browser.managed.bridge.poll'),
   NetworkFlowReadModelGet: AgentCommandNameSchema.parse('agent.network.flow.read-model.get'),
   LocalAiRuntimeStatusGet: AgentCommandNameSchema.parse('agent.local-ai.runtime.status.get'),
+  LocalAiChatGenerate: AgentCommandNameSchema.parse('agent.local-ai.chat.generate'),
   PolicyPreviewReadModelGet: AgentCommandNameSchema.parse('agent.policy.preview.read-model.get'),
 } as const;
 
@@ -163,5 +166,6 @@ export const AgentEvent = {
   BrowserManagedStatusReported: AgentEventNameSchema.parse('agent.browser.managed.status.reported'),
   NetworkFlowReadModelReported: AgentEventNameSchema.parse('agent.network.flow.read-model.reported'),
   LocalAiRuntimeStatusReported: AgentEventNameSchema.parse('agent.local-ai.runtime.status.reported'),
+  LocalAiChatGenerationReported: AgentEventNameSchema.parse('agent.local-ai.chat.generation.reported'),
   PolicyPreviewReadModelReported: AgentEventNameSchema.parse('agent.policy.preview.read-model.reported'),
 } as const;

@@ -22,7 +22,7 @@ fn local_model_runtime_status_serializes_to_typescript_contract_shape() {
         capability_flags: vec![],
         resource_class: LocalAiResourceClass::Cpu,
         degraded_state: LocalAiDegradedState::ProviderUnavailable,
-        last_checked_at: "2026-05-21T09:18:00.000Z".to_string(),
+        last_checked_at: constants::local_ai_runtime::TEST_CHECKED_AT.to_string(),
         unavailable_reason: Some(
             constants::local_ai_runtime::UNAVAILABLE_REASON_UNCONFIGURED.to_string(),
         ),

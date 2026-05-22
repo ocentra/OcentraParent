@@ -67,12 +67,25 @@ it('AgentCommand: exposes typed command constants for portal requests', () => {
   expect(AgentCommand.BrowserManagedBridgePoll).toBe('agent.browser.managed.bridge.poll');
   expect(AgentCommand.NetworkFlowReadModelGet).toBe('agent.network.flow.read-model.get');
   expect(AgentCommand.LocalAiRuntimeStatusGet).toBe('agent.local-ai.runtime.status.get');
+  expect(AgentCommand.LocalAiChatGenerate).toBe('agent.local-ai.chat.generate');
 });
 
-it('AgentProtocolDefaults.Field: exposes read-model payload fields', () => {
-  expect(AgentProtocolDefaults.Field.BridgeEndpointRef).toBe('bridgeEndpointRef');
-  expect(AgentProtocolDefaults.Field.BridgeKind).toBe('bridgeKind');
-  expect(AgentProtocolDefaults.Field.DatabaseReady).toBe('databaseReady');
+it('AgentProtocolDefaults.Field: exposes local AI model cache payload fields', () => {
+  expect(AgentProtocolDefaults.Field.LocalAiModelArtifactRef).toBe('artifactRef');
+  expect(AgentProtocolDefaults.Field.LocalAiModelManifestRef).toBe('manifestRef');
+  expect(AgentProtocolDefaults.Field.LocalAiModelSourcePolicy).toBe('sourcePolicy');
+  expect(AgentProtocolDefaults.Field.LocalAiModelCacheState).toBe('cacheState');
+  expect(AgentProtocolDefaults.Field.LocalAiModelCacheHealth).toBe('cacheHealth');
+  expect(AgentProtocolDefaults.Field.LocalAiModelManifestIntegrity).toBe('manifestIntegrity');
+  expect(AgentProtocolDefaults.Field.LocalAiModelDownloadEnabled).toBe('downloadEnabled');
+  expect(AgentProtocolDefaults.Field.LocalAiModelDownloadStatus).toBe('downloadStatus');
+  expect(AgentProtocolDefaults.Field.LocalAiModelCacheByteSize).toBe('cacheByteSize');
+  expect(AgentProtocolDefaults.Field.LocalAiModelCacheUnavailableReason).toBe('cacheUnavailableReason');
+  expect(AgentProtocolDefaults.Field.LocalAiModelCacheStorageError).toBe('storageError');
+  expect(AgentProtocolDefaults.Field.LocalAiModelCacheCorruptionReason).toBe('corruptionReason');
+});
+
+it('AgentProtocolDefaults.Field: exposes local AI runtime payload fields', () => {
   expect(AgentProtocolDefaults.Field.LocalAiRuntimeReferenceId).toBe('runtimeReferenceId');
   expect(AgentProtocolDefaults.Field.LocalAiUnavailableReason).toBe('unavailableReason');
   expect(AgentProtocolDefaults.Field.LocalAiPrivacyMode).toBe('privacyMode');
@@ -83,6 +96,21 @@ it('AgentProtocolDefaults.Field: exposes read-model payload fields', () => {
   expect(AgentProtocolDefaults.Field.LocalAiProviderConfigurationState).toBe('configurationState');
   expect(AgentProtocolDefaults.Field.LocalAiAdapterReadinessState).toBe('readinessState');
   expect(AgentProtocolDefaults.Field.LocalAiExecutionAllowed).toBe('executionAllowed');
+  expect(AgentProtocolDefaults.Field.LocalAiGenerationState).toBe('generationState');
+  expect(AgentProtocolDefaults.Field.LocalAiOutputText).toBe('outputText');
+  expect(AgentProtocolDefaults.Field.LocalAiPrompt).toBe('prompt');
+  expect(AgentProtocolDefaults.Field.LocalAiPromptCharCount).toBe('promptCharCount');
+  expect(AgentProtocolDefaults.Field.LocalAiMaxOutputTokens).toBe('maxOutputTokens');
+  expect(AgentProtocolDefaults.Field.LocalAiTimeoutMs).toBe('timeoutMs');
+  expect(AgentProtocolDefaults.Field.LocalAiDurationMs).toBe('durationMs');
+  expect(AgentProtocolDefaults.Field.LocalAiExitCode).toBe('exitCode');
+  expect(AgentProtocolDefaults.Field.LocalAiStderrByteSize).toBe('stderrByteSize');
+});
+
+it('AgentProtocolDefaults.Field: exposes read-model payload fields', () => {
+  expect(AgentProtocolDefaults.Field.BridgeEndpointRef).toBe('bridgeEndpointRef');
+  expect(AgentProtocolDefaults.Field.BridgeKind).toBe('bridgeKind');
+  expect(AgentProtocolDefaults.Field.DatabaseReady).toBe('databaseReady');
   expect(AgentProtocolDefaults.Field.BrowserEvidenceId).toBe('browserEvidenceId');
   expect(AgentProtocolDefaults.Field.ManagedState).toBe('managedState');
   expect(AgentProtocolDefaults.Field.ProfilePathRef).toBe('profilePathRef');
@@ -103,6 +131,7 @@ it('AgentEvent: exposes typed constants for portal result rendering', () => {
   expect(AgentEvent.BrowserManagedStatusReported).toBe('agent.browser.managed.status.reported');
   expect(AgentEvent.NetworkFlowReadModelReported).toBe('agent.network.flow.read-model.reported');
   expect(AgentEvent.LocalAiRuntimeStatusReported).toBe('agent.local-ai.runtime.status.reported');
+  expect(AgentEvent.LocalAiChatGenerationReported).toBe('agent.local-ai.chat.generation.reported');
 });
 
 it('AgentCommandEnvelopeSchema: rejects unknown commands', () => {
