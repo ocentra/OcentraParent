@@ -35,7 +35,7 @@ const LocalAiEnv = {
   ProofTimeoutMs: 'OCENTRA_PARENT_LOCAL_AI_PROOF_TIMEOUT_MS',
 };
 
-const runtimeBinary = requiredExistingPath(LocalAiEnv.RuntimeBinary);
+const runtimeBinary = optionalExistingPath(LocalAiEnv.RuntimeBinary);
 const modelFile = requiredExistingPath(LocalAiEnv.ModelFile);
 const port = ParentDevPort.WebSocketSmokeAgent;
 const healthUrl = createAgentHealthUrl(port);
@@ -55,11 +55,11 @@ const service = spawn(resolveDebugAgentServicePath(), [], {
     [ParentDevEnv.AgentAddress]: createAgentAddress(port),
     [ParentDevEnv.ActivityDbPath]: join(devLogDir, 'activity.sqlite'),
     [ParentDevEnv.DevLogDir]: devLogDir,
-    [LocalAiEnv.RuntimeBinary]: runtimeBinary,
     [LocalAiEnv.ModelFile]: modelFile,
     [LocalAiEnv.ExecutionEnabled]: 'true',
     [LocalAiEnv.MaxTokens]: process.env[LocalAiEnv.MaxTokens] ?? '32',
     [LocalAiEnv.TimeoutMs]: process.env[LocalAiEnv.TimeoutMs] ?? '180000',
+    ...optionalPathEnv(LocalAiEnv.RuntimeBinary, runtimeBinary),
     ...optionalProcessEnv(LocalAiEnv.RuntimeDevice, LocalAiEnv.GpuLayers),
   },
   stdio: ['ignore', 'pipe', 'pipe'],
@@ -206,6 +206,17 @@ function requiredExistingPath(envName) {
   return value;
 }
 
+function optionalExistingPath(envName) {
+  const value = process.env[envName]?.trim();
+  if (value === undefined || value.length === 0) {
+    return undefined;
+  }
+  if (!existsSync(value)) {
+    throw new Error(`${envName} does not exist: ${value}`);
+  }
+  return value;
+}
+
 function positiveIntegerEnv(envName, fallback) {
   const value = Number.parseInt(process.env[envName] ?? '', 10);
   return Number.isFinite(value) && value > 0 ? value : fallback;
@@ -215,6 +226,10 @@ function optionalProcessEnv(...envNames) {
   return Object.fromEntries(
     envNames.filter((envName) => process.env[envName] !== undefined).map((envName) => [envName, process.env[envName]])
   );
+}
+
+function optionalPathEnv(envName, value) {
+  return value === undefined ? {} : { [envName]: value };
 }
 
 function collectOutput(child) {

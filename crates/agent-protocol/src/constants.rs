@@ -28,9 +28,14 @@ pub mod env_var {
         "OCENTRA_PARENT_LOCAL_AI_GENERATION_MAX_TOKENS";
     pub const LOCAL_AI_RUNTIME_DEVICE: &str = "OCENTRA_PARENT_LOCAL_AI_RUNTIME_DEVICE";
     pub const LOCAL_AI_GPU_LAYERS: &str = "OCENTRA_PARENT_LOCAL_AI_GPU_LAYERS";
+    pub const LOCAL_AI_LLAMA_CPP_RELEASE_TAG: &str =
+        "OCENTRA_PARENT_LOCAL_AI_LLAMA_CPP_RELEASE_TAG";
+    pub const LOCAL_AI_RUNTIME_CACHE_DIR: &str = "OCENTRA_PARENT_LOCAL_AI_RUNTIME_CACHE_DIR";
     pub const COMPUTER_NAME: &str = "COMPUTERNAME";
     pub const DEV_LOG_DIR: &str = "OCENTRA_PARENT_DEV_LOG_DIR";
+    pub const HOME: &str = "HOME";
     pub const HOSTNAME: &str = "HOSTNAME";
+    pub const USERPROFILE: &str = "USERPROFILE";
 }
 
 pub mod bind {

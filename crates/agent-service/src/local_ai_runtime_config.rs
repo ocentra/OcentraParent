@@ -5,9 +5,10 @@ use ocentra_parent_agent_protocol::constants;
 use crate::{
     local_ai_runtime_config_path::ConfiguredLocalPath,
     local_ai_runtime_config_values::{
-        env_flag, env_llama_device, env_llama_gpu_layers, env_path, env_u32, env_u64, env_value,
-        safe_ref_or_default,
+        env_flag, env_llama_device, env_llama_gpu_layers, env_llama_release_tag, env_path, env_u32,
+        env_u64, env_value, safe_ref_or_default,
     },
+    local_ai_runtime_distribution::selected_cached_llama_runtime_path,
 };
 
 #[derive(Clone, Debug)]
@@ -25,8 +26,19 @@ pub struct LocalAiRuntimeConfigSnapshot {
 
 impl LocalAiRuntimeConfigSnapshot {
     pub fn from_environment() -> Self {
+        let release_tag = env_llama_release_tag(constants::env_var::LOCAL_AI_LLAMA_CPP_RELEASE_TAG);
+        let runtime_device = env_llama_device(constants::env_var::LOCAL_AI_RUNTIME_DEVICE);
+        let gpu_layers = env_llama_gpu_layers(constants::env_var::LOCAL_AI_GPU_LAYERS);
+        let runtime_binary = env_path(constants::env_var::LOCAL_AI_RUNTIME_BINARY).or_else(|| {
+            selected_cached_llama_runtime_path(
+                &release_tag,
+                runtime_device.as_deref(),
+                gpu_layers.as_deref(),
+            )
+        });
+
         Self::from_parts_with_execution(
-            env_path(constants::env_var::LOCAL_AI_RUNTIME_BINARY),
+            runtime_binary,
             env_path(constants::env_var::LOCAL_AI_MODEL_FILE),
             env_value(constants::env_var::LOCAL_AI_MODEL_ARTIFACT_REF),
             env_value(constants::env_var::LOCAL_AI_MODEL_MANIFEST_REF),
@@ -40,10 +52,7 @@ impl LocalAiRuntimeConfigSnapshot {
                 constants::local_ai_runtime::DEFAULT_GENERATION_MAX_TOKENS,
             ),
         )
-        .with_acceleration(
-            env_llama_device(constants::env_var::LOCAL_AI_RUNTIME_DEVICE),
-            env_llama_gpu_layers(constants::env_var::LOCAL_AI_GPU_LAYERS),
-        )
+        .with_acceleration(runtime_device, gpu_layers)
     }
 
     pub fn from_parts(

@@ -35,6 +35,10 @@ mod local_ai_runtime_config;
 mod local_ai_runtime_config_path;
 mod local_ai_runtime_config_values;
 mod local_ai_runtime_configured_status;
+mod local_ai_runtime_distribution;
+mod local_ai_runtime_distribution_assets;
+#[cfg(test)]
+mod local_ai_runtime_distribution_tests;
 mod local_ai_runtime_payload;
 #[cfg(test)]
 mod local_ai_runtime_payload_tests;
