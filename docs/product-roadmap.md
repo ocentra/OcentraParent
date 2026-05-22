@@ -78,10 +78,11 @@ Next product checkpoint:
   enforcement work.
 - Manually test the local child-device/parent-device surfaces before starting
   more AI or enforcement work.
-- Complete a cross-platform deliverables planning pass before more AI or
-  enforcement work: Windows local first, Linux through CI plus WSL/Docker,
-  macOS on the Mac system, Android through emulator/device proof, and iOS
-  through Mac/Xcode/TestFlight or entitlement notes.
+- Complete the
+  [cross-platform deliverables checkpoint plan](architecture/cross-platform-deliverables-checkpoint.md)
+  before more AI or enforcement work: Windows local first, Linux through CI plus
+  WSL/Docker, macOS on the Mac system, Android through emulator/device proof,
+  and iOS through Mac/Xcode/TestFlight or entitlement notes.
 - Keep portal preview visibility evidence-cited and explicit about dry-run-only
   status.
 - Keep V0.8 enforcement out of scope until the V0.7 checkpoint is reviewed on
