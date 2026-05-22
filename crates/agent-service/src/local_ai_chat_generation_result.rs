@@ -5,6 +5,7 @@ use ocentra_parent_agent_protocol::{
 use crate::{
     local_ai_chat_generation_request::LocalAiChatGenerationRequest,
     local_ai_runtime_config::LocalAiRuntimeConfigSnapshot,
+    local_ai_runtime_model_selection::model_reference_for_request,
     local_ai_runtime_status::local_ai_runtime_status_from_config, time::timestamp_now,
 };
 
@@ -19,8 +20,8 @@ pub(crate) fn unavailable_result(
         local_ai_result_id: result_id(message_id),
         runtime_reference_id: status.runtime_reference_id,
         provider_id: status.provider_id,
-        model_id: status.model_id,
-        model_reference: status.model_reference,
+        model_id: request.model_id.clone(),
+        model_reference: model_reference_for_request(config, &request.model_id).to_string(),
         generation_state: LocalAiGenerationState::Unavailable,
         output_text: None,
         prompt_char_count: request.prompt.chars().count() as u64,
@@ -52,8 +53,8 @@ pub(crate) fn failed_result(
         runtime_reference_id: constants::local_ai_runtime::RUNTIME_REFERENCE_LOCAL_LLAMA_CLI
             .to_string(),
         provider_id: constants::local_ai_runtime::PROVIDER_ID_LOCAL_LLAMA_CLI.to_string(),
-        model_id: constants::local_ai_runtime::MODEL_ID_LOCAL_GGUF_CONFIGURED.to_string(),
-        model_reference: config.artifact_ref().to_string(),
+        model_id: request.model_id.clone(),
+        model_reference: model_reference_for_request(config, &request.model_id).to_string(),
         generation_state: failure.generation_state,
         output_text: None,
         prompt_char_count: request.prompt.chars().count() as u64,

@@ -11,6 +11,10 @@ fn local_ai_chat_generation_command_serializes_to_typescript_contract_shape() {
         constants::field::LOCAL_AI_PROMPT.to_string(),
         LogFieldValue::String(constants::local_ai_runtime::TEST_PROMPT.to_string()),
     );
+    payload.insert(
+        constants::field::LOCAL_AI_MODEL_ID.to_string(),
+        LogFieldValue::String(constants::local_ai_runtime::MODEL_ID_DEFAULT_GEMMA_4.to_string()),
+    );
 
     let command = AgentCommandEnvelope {
         schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
@@ -36,6 +40,10 @@ fn local_ai_chat_generation_command_serializes_to_typescript_contract_shape() {
         serialized["payload"][constants::field::LOCAL_AI_PROMPT],
         constants::local_ai_runtime::TEST_PROMPT
     );
+    assert_eq!(
+        serialized["payload"][constants::field::LOCAL_AI_MODEL_ID],
+        constants::local_ai_runtime::MODEL_ID_DEFAULT_GEMMA_4
+    );
 }
 
 #[test]
@@ -45,9 +53,8 @@ fn local_ai_chat_generation_result_serializes_without_model_paths() {
         runtime_reference_id: constants::local_ai_runtime::RUNTIME_REFERENCE_LOCAL_LLAMA_CLI
             .to_string(),
         provider_id: constants::local_ai_runtime::PROVIDER_ID_LOCAL_LLAMA_CLI.to_string(),
-        model_id: constants::local_ai_runtime::MODEL_ID_LOCAL_GGUF_CONFIGURED.to_string(),
-        model_reference: constants::local_ai_runtime::MODEL_REFERENCE_LOCAL_GGUF_CONFIGURED
-            .to_string(),
+        model_id: constants::local_ai_runtime::MODEL_ID_DEFAULT_GEMMA_4.to_string(),
+        model_reference: constants::local_ai_runtime::MODEL_REFERENCE_DEFAULT_GEMMA_4.to_string(),
         generation_state: LocalAiGenerationState::Complete,
         output_text: Some("local-ok".to_string()),
         prompt_char_count: constants::local_ai_runtime::TEST_PROMPT.chars().count() as u64,
@@ -66,8 +73,12 @@ fn local_ai_chat_generation_result_serializes_without_model_paths() {
         constants::local_ai_runtime::RUNTIME_REFERENCE_LOCAL_LLAMA_CLI
     );
     assert_eq!(
+        serialized["modelId"],
+        constants::local_ai_runtime::MODEL_ID_DEFAULT_GEMMA_4
+    );
+    assert_eq!(
         serialized["modelReference"],
-        constants::local_ai_runtime::MODEL_REFERENCE_LOCAL_GGUF_CONFIGURED
+        constants::local_ai_runtime::MODEL_REFERENCE_DEFAULT_GEMMA_4
     );
     assert_eq!(
         serialized["generationState"],

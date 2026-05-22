@@ -1,9 +1,13 @@
 use ocentra_parent_agent_protocol::{constants, AgentCommandEnvelope, LogFieldValue};
 
-use crate::local_ai_runtime_config::LocalAiRuntimeConfigSnapshot;
+use crate::{
+    local_ai_runtime_config::LocalAiRuntimeConfigSnapshot,
+    local_ai_runtime_config_values::is_safe_local_ai_model_id,
+};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) struct LocalAiChatGenerationRequest {
+    pub(crate) model_id: String,
     pub(crate) prompt: String,
     pub(crate) max_output_tokens: u32,
     pub(crate) timeout_ms: u64,
@@ -28,7 +32,10 @@ pub(crate) fn parse_generation_request(
         return Err(constants::local_ai_runtime::UNAVAILABLE_REASON_PROMPT_TOO_LARGE);
     }
 
+    let model_id = requested_model_id(command, config)?;
+
     Ok(LocalAiChatGenerationRequest {
+        model_id,
         prompt,
         max_output_tokens: numeric_field_u32(
             command
@@ -41,6 +48,24 @@ pub(crate) fn parse_generation_request(
             config.generation_timeout_ms(),
         ),
     })
+}
+
+fn requested_model_id(
+    command: &AgentCommandEnvelope,
+    config: &LocalAiRuntimeConfigSnapshot,
+) -> Result<String, &'static str> {
+    match command.payload.get(constants::field::LOCAL_AI_MODEL_ID) {
+        Some(LogFieldValue::String(value)) => {
+            let model_id = value.trim();
+            if is_safe_local_ai_model_id(model_id) {
+                Ok(model_id.to_string())
+            } else {
+                Err(constants::local_ai_runtime::UNAVAILABLE_REASON_MODEL_ID_INVALID)
+            }
+        }
+        Some(_) => Err(constants::local_ai_runtime::UNAVAILABLE_REASON_MODEL_ID_INVALID),
+        None => Ok(config.model_id().to_string()),
+    }
 }
 
 fn numeric_field_u32(value: Option<&LogFieldValue>, fallback: u32) -> u32 {

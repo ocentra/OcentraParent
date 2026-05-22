@@ -23,6 +23,7 @@ import { resolveDebugAgentServicePath, stopProcessTreeAndWait } from './agent-se
 
 const LocalAiEnv = {
   RuntimeBinary: 'OCENTRA_PARENT_LOCAL_AI_RUNTIME_BINARY',
+  RequestedModelId: 'OCENTRA_PARENT_LOCAL_AI_REQUESTED_MODEL_ID',
   ModelFile: 'OCENTRA_PARENT_LOCAL_AI_MODEL_FILE',
   RuntimeDevice: 'OCENTRA_PARENT_LOCAL_AI_RUNTIME_DEVICE',
   GpuLayers: 'OCENTRA_PARENT_LOCAL_AI_GPU_LAYERS',
@@ -36,7 +37,8 @@ const LocalAiEnv = {
 };
 
 const runtimeBinary = optionalExistingPath(LocalAiEnv.RuntimeBinary);
-const modelFile = requiredExistingPath(LocalAiEnv.ModelFile);
+const modelFile = optionalExistingPath(LocalAiEnv.ModelFile);
+const requestedModelId = optionalTrimmedEnv(LocalAiEnv.RequestedModelId);
 const port = ParentDevPort.WebSocketSmokeAgent;
 const healthUrl = createAgentHealthUrl(port);
 const wsUrl = createAgentWebSocketUrl(port);
@@ -55,11 +57,11 @@ const service = spawn(resolveDebugAgentServicePath(), [], {
     [ParentDevEnv.AgentAddress]: createAgentAddress(port),
     [ParentDevEnv.ActivityDbPath]: join(devLogDir, 'activity.sqlite'),
     [ParentDevEnv.DevLogDir]: devLogDir,
-    [LocalAiEnv.ModelFile]: modelFile,
     [LocalAiEnv.ExecutionEnabled]: 'true',
     [LocalAiEnv.MaxTokens]: process.env[LocalAiEnv.MaxTokens] ?? '32',
     [LocalAiEnv.TimeoutMs]: process.env[LocalAiEnv.TimeoutMs] ?? '180000',
     ...optionalPathEnv(LocalAiEnv.RuntimeBinary, runtimeBinary),
+    ...optionalPathEnv(LocalAiEnv.ModelFile, modelFile),
     ...optionalProcessEnv(LocalAiEnv.RuntimeDevice, LocalAiEnv.GpuLayers),
   },
   stdio: ['ignore', 'pipe', 'pipe'],
@@ -106,7 +108,9 @@ function runLocalAiProof() {
 
     socket.addEventListener('open', () => {
       socket.send(
-        JSON.stringify(commandEnvelope('cmd-local-ai-runtime-status', AgentCommand.LocalAiRuntimeStatusGet, {}))
+        JSON.stringify(
+          commandEnvelope('cmd-local-ai-runtime-status', AgentCommand.LocalAiRuntimeStatusGet, modelRequestPayload())
+        )
       );
     });
 
@@ -118,6 +122,7 @@ function runLocalAiProof() {
           socket.send(
             JSON.stringify(
               commandEnvelope('cmd-local-ai-chat-proof', AgentCommand.LocalAiChatGenerate, {
+                ...modelRequestPayload(),
                 [AgentProtocolDefaults.Field.LocalAiPrompt]: proofPrompt,
                 [AgentProtocolDefaults.Field.LocalAiMaxOutputTokens]: 32,
                 [AgentProtocolDefaults.Field.LocalAiTimeoutMs]: proofTimeoutMs,
@@ -165,6 +170,10 @@ function commandEnvelope(messageId, command, payload) {
   };
 }
 
+function modelRequestPayload() {
+  return requestedModelId === undefined ? {} : { [AgentProtocolDefaults.Field.LocalAiModelId]: requestedModelId };
+}
+
 function assertRuntimeReady(payload) {
   if (
     payload[AgentProtocolDefaults.Field.LocalAiExecutionAllowed] !== true ||
@@ -195,17 +204,6 @@ async function waitForHttp(url) {
   throw new Error(`Timed out waiting for ${url}\n${serviceOutput()}`);
 }
 
-function requiredExistingPath(envName) {
-  const value = process.env[envName]?.trim();
-  if (value === undefined || value.length === 0) {
-    throw new Error(`${envName} must point to a local runtime/model file for this proof.`);
-  }
-  if (!existsSync(value)) {
-    throw new Error(`${envName} does not exist: ${value}`);
-  }
-  return value;
-}
-
 function optionalExistingPath(envName) {
   const value = process.env[envName]?.trim();
   if (value === undefined || value.length === 0) {
@@ -215,6 +213,11 @@ function optionalExistingPath(envName) {
     throw new Error(`${envName} does not exist: ${value}`);
   }
   return value;
+}
+
+function optionalTrimmedEnv(envName) {
+  const value = process.env[envName]?.trim();
+  return value === undefined || value.length === 0 ? undefined : value;
 }
 
 function positiveIntegerEnv(envName, fallback) {

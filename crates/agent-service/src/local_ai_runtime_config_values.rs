@@ -46,6 +46,12 @@ pub(crate) fn env_llama_release_tag(key: &str) -> String {
         .unwrap_or_else(|| constants::local_ai_runtime::DEFAULT_LLAMA_CPP_RELEASE_TAG.to_string())
 }
 
+pub(crate) fn env_local_ai_model_id(key: &str) -> String {
+    env_value(key)
+        .filter(|value| is_safe_local_ai_model_id(value))
+        .unwrap_or_else(|| constants::local_ai_runtime::MODEL_ID_DEFAULT_GEMMA_4.to_string())
+}
+
 pub(crate) fn safe_ref_or_default(
     candidate: Option<String>,
     prefix: &str,
@@ -78,6 +84,23 @@ fn is_safe_ref_body(body: &str) -> bool {
     body.chars().all(|value| {
         value.is_ascii_lowercase() || value.is_ascii_digit() || value == '_' || value == '-'
     })
+}
+
+pub(crate) fn is_safe_local_ai_model_id(candidate: &str) -> bool {
+    candidate
+        .chars()
+        .next()
+        .map(|first| first.is_ascii_alphanumeric())
+        .unwrap_or(false)
+        && candidate.len() <= 128
+        && candidate.chars().all(|value| {
+            value.is_ascii_alphanumeric()
+                || value == constants::delimiter::COLON
+                || value == constants::delimiter::DOT
+                || value == constants::delimiter::HYPHEN
+                || value == constants::delimiter::SLASH
+                || value == constants::delimiter::UNDERSCORE
+        })
 }
 
 fn is_safe_llama_selector(candidate: &str) -> bool {

@@ -18,6 +18,7 @@ pub mod env_var {
     pub const PROGRAM_FILES: &str = "PROGRAMFILES";
     pub const PROGRAM_FILES_X86: &str = "ProgramFiles(x86)";
     pub const LOCAL_AI_RUNTIME_BINARY: &str = "OCENTRA_PARENT_LOCAL_AI_RUNTIME_BINARY";
+    pub const LOCAL_AI_MODEL_ID: &str = "OCENTRA_PARENT_LOCAL_AI_MODEL_ID";
     pub const LOCAL_AI_MODEL_FILE: &str = "OCENTRA_PARENT_LOCAL_AI_MODEL_FILE";
     pub const LOCAL_AI_MODEL_ARTIFACT_REF: &str = "OCENTRA_PARENT_LOCAL_AI_MODEL_ARTIFACT_REF";
     pub const LOCAL_AI_MODEL_MANIFEST_REF: &str = "OCENTRA_PARENT_LOCAL_AI_MODEL_MANIFEST_REF";
@@ -145,6 +146,8 @@ pub mod error {
     pub const BROWSER_BRIDGE_MAPS_TARGET: &str = "browser bridge maps target";
     pub const BROWSER_BRIDGE_REJECTS_INVALID_URL: &str = "browser bridge rejects invalid URL";
     pub const LOCAL_AI_RUNTIME_SPAWNS: &str = "local AI runtime process spawns";
+    pub const LOCAL_AI_CHAT_REQUEST_PARSES: &str = "local AI chat request parses";
+    pub const LOCAL_AI_CACHE_ROOT_EXISTS: &str = "local AI cache root exists";
 }
 
 #[path = "constants/local_ai_runtime.rs"]

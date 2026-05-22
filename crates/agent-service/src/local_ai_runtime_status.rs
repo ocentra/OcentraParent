@@ -14,7 +14,14 @@ use crate::{
         configured_local_ai_runtime_status, configured_local_provider_adapter_probe,
         executable_local_ai_runtime_status, executable_local_provider_adapter_probe,
     },
+    local_ai_runtime_model_selection::requested_model_unavailable_reason,
     local_ai_runtime_payload::local_ai_runtime_status_payload,
+    local_ai_runtime_readiness::runtime_configuration_unavailable_reason,
+    local_ai_runtime_status_unavailable::{
+        unavailable_local_ai_runtime_status_for_model,
+        unavailable_local_ai_runtime_status_with_config,
+        unavailable_local_provider_adapter_probe_with_reason,
+    },
     time::timestamp_now,
 };
 
@@ -66,60 +73,38 @@ pub fn local_ai_runtime_status_from_config(
     LocalProviderAdapterProbe,
     LocalAiModelCacheStatus,
 ) {
+    local_ai_runtime_status_for_model_from_config(checked_at, config, None)
+}
+
+pub fn local_ai_runtime_status_for_model_from_config(
+    checked_at: String,
+    config: &LocalAiRuntimeConfigSnapshot,
+    requested_model_id: Option<&str>,
+) -> (
+    LocalModelRuntimeStatus,
+    LocalProviderAdapterProbe,
+    LocalAiModelCacheStatus,
+) {
     let cache = local_ai_model_cache_status_from_config(checked_at.clone(), config);
-
-    if !config.runtime_binary().is_configured() {
-        return (
-            unavailable_local_ai_runtime_status_with_reason(
-                checked_at.clone(),
-                constants::local_ai_runtime::UNAVAILABLE_REASON_RUNTIME_BINARY_UNCONFIGURED,
-            ),
-            unavailable_local_provider_adapter_probe_with_reason(
-                checked_at,
-                constants::local_ai_runtime::UNAVAILABLE_REASON_RUNTIME_BINARY_UNCONFIGURED,
-            ),
-            cache,
-        );
+    if let Some(model_id) = requested_model_id {
+        if let Some(reason) = requested_model_unavailable_reason(config, model_id) {
+            return (
+                unavailable_local_ai_runtime_status_for_model(
+                    checked_at.clone(),
+                    config,
+                    model_id,
+                    reason,
+                ),
+                unavailable_local_provider_adapter_probe_with_reason(checked_at, reason),
+                cache,
+            );
+        }
     }
 
-    if !config.runtime_binary().exists() {
+    if let Some(reason) = runtime_configuration_unavailable_reason(config) {
         return (
-            unavailable_local_ai_runtime_status_with_reason(
-                checked_at.clone(),
-                constants::local_ai_runtime::UNAVAILABLE_REASON_RUNTIME_BINARY_MISSING,
-            ),
-            unavailable_local_provider_adapter_probe_with_reason(
-                checked_at,
-                constants::local_ai_runtime::UNAVAILABLE_REASON_RUNTIME_BINARY_MISSING,
-            ),
-            cache,
-        );
-    }
-
-    if !config.model_file().is_configured() {
-        return (
-            unavailable_local_ai_runtime_status_with_reason(
-                checked_at.clone(),
-                constants::local_ai_runtime::UNAVAILABLE_REASON_MODEL_FILE_UNCONFIGURED,
-            ),
-            unavailable_local_provider_adapter_probe_with_reason(
-                checked_at,
-                constants::local_ai_runtime::UNAVAILABLE_REASON_MODEL_FILE_UNCONFIGURED,
-            ),
-            cache,
-        );
-    }
-
-    if !config.model_file().exists() {
-        return (
-            unavailable_local_ai_runtime_status_with_reason(
-                checked_at.clone(),
-                constants::local_ai_runtime::UNAVAILABLE_REASON_MODEL_FILE_MISSING,
-            ),
-            unavailable_local_provider_adapter_probe_with_reason(
-                checked_at,
-                constants::local_ai_runtime::UNAVAILABLE_REASON_MODEL_FILE_MISSING,
-            ),
+            unavailable_local_ai_runtime_status_with_config(checked_at.clone(), config, reason),
+            unavailable_local_provider_adapter_probe_with_reason(checked_at, reason),
             cache,
         );
     }
@@ -150,7 +135,9 @@ pub async fn build_local_ai_runtime_status_report(
     let config = tokio::task::spawn_blocking(LocalAiRuntimeConfigSnapshot::from_environment)
         .await
         .unwrap_or_else(|_| LocalAiRuntimeConfigSnapshot::unconfigured());
-    let (status, probe, cache) = local_ai_runtime_status_from_config(checked_at, &config);
+    let requested_model_id = requested_model_id_from_command(&command);
+    let (status, probe, cache) =
+        local_ai_runtime_status_for_model_from_config(checked_at, &config, requested_model_id);
     build_event(
         constants::event_id::LOCAL_AI_RUNTIME_STATUS_REPORTED,
         &command.message_id,
@@ -162,20 +149,9 @@ pub async fn build_local_ai_runtime_status_report(
     )
 }
 
-fn unavailable_local_ai_runtime_status_with_reason(
-    checked_at: String,
-    reason: &'static str,
-) -> LocalModelRuntimeStatus {
-    let mut status = unavailable_local_ai_runtime_status(checked_at);
-    status.unavailable_reason = Some(reason.to_string());
-    status
-}
-
-fn unavailable_local_provider_adapter_probe_with_reason(
-    checked_at: String,
-    reason: &'static str,
-) -> LocalProviderAdapterProbe {
-    let mut probe = unavailable_local_provider_adapter_probe(checked_at);
-    probe.unavailable_reason = Some(reason.to_string());
-    probe
+fn requested_model_id_from_command(command: &AgentCommandEnvelope) -> Option<&str> {
+    match command.payload.get(constants::field::LOCAL_AI_MODEL_ID) {
+        Some(ocentra_parent_agent_protocol::LogFieldValue::String(value)) => Some(value.trim()),
+        _ => None,
+    }
 }

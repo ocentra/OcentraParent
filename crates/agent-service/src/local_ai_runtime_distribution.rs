@@ -3,7 +3,7 @@ use std::path::{Path, PathBuf};
 use ocentra_parent_agent_protocol::constants;
 
 use crate::{
-    local_ai_runtime_config_values::env_path,
+    local_ai_cache_root::local_ai_cache_root,
     local_ai_runtime_distribution_assets::{
         asset_name, asset_suffix, download_url, executable_name,
     },
@@ -56,7 +56,7 @@ pub(crate) fn selected_cached_llama_runtime_path(
     runtime_device: Option<&str>,
     gpu_layers: Option<&str>,
 ) -> Option<PathBuf> {
-    let cache_root = runtime_cache_root()?;
+    let cache_root = local_ai_cache_root()?;
     let target = LocalAiRuntimeTarget::current();
     select_llama_runtime_distribution(
         target,
@@ -124,14 +124,4 @@ fn gpu_layers_request_acceleration(value: &str) -> bool {
             .parse::<u32>()
             .map(|layers| layers > 0)
             .unwrap_or(false)
-}
-
-fn runtime_cache_root() -> Option<PathBuf> {
-    env_path(constants::env_var::LOCAL_AI_RUNTIME_CACHE_DIR).or_else(|| {
-        let mut path = env_path(constants::env_var::HOME)
-            .or_else(|| env_path(constants::env_var::USERPROFILE))?;
-        path.push(constants::local_ai_runtime::USER_CACHE_DIR);
-        path.push(constants::local_ai_runtime::OCENTRA_PARENT_CACHE_DIR);
-        Some(path)
-    })
 }

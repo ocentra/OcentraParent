@@ -3,10 +3,13 @@ use std::path::PathBuf;
 use ocentra_parent_agent_protocol::constants;
 
 use crate::{
+    local_ai_model_registry::{known_model_for_id, selected_cached_local_ai_model_path},
+    local_ai_runtime_config_parts::{LocalAiRuntimeConfigParts, LocalAiRuntimeModelConfig},
     local_ai_runtime_config_path::ConfiguredLocalPath,
     local_ai_runtime_config_values::{
-        env_flag, env_llama_device, env_llama_gpu_layers, env_llama_release_tag, env_path, env_u32,
-        env_u64, env_value, safe_ref_or_default,
+        env_flag, env_llama_device, env_llama_gpu_layers, env_llama_release_tag,
+        env_local_ai_model_id, env_path, env_u32, env_u64, env_value, is_safe_local_ai_model_id,
+        safe_ref_or_default,
     },
     local_ai_runtime_distribution::selected_cached_llama_runtime_path,
 };
@@ -14,6 +17,7 @@ use crate::{
 #[derive(Clone, Debug)]
 pub struct LocalAiRuntimeConfigSnapshot {
     runtime_binary: ConfiguredLocalPath,
+    model_id: String,
     model_file: ConfiguredLocalPath,
     artifact_ref: String,
     manifest_ref: Option<String>,
@@ -27,8 +31,10 @@ pub struct LocalAiRuntimeConfigSnapshot {
 impl LocalAiRuntimeConfigSnapshot {
     pub fn from_environment() -> Self {
         let release_tag = env_llama_release_tag(constants::env_var::LOCAL_AI_LLAMA_CPP_RELEASE_TAG);
+        let model_id = env_local_ai_model_id(constants::env_var::LOCAL_AI_MODEL_ID);
         let runtime_device = env_llama_device(constants::env_var::LOCAL_AI_RUNTIME_DEVICE);
         let gpu_layers = env_llama_gpu_layers(constants::env_var::LOCAL_AI_GPU_LAYERS);
+        let execution_enabled = env_flag(constants::env_var::LOCAL_AI_EXECUTION_ENABLED);
         let runtime_binary = env_path(constants::env_var::LOCAL_AI_RUNTIME_BINARY).or_else(|| {
             selected_cached_llama_runtime_path(
                 &release_tag,
@@ -36,22 +42,41 @@ impl LocalAiRuntimeConfigSnapshot {
                 gpu_layers.as_deref(),
             )
         });
+        let known_model = known_model_for_id(&model_id);
+        let model_file = env_path(constants::env_var::LOCAL_AI_MODEL_FILE).or_else(|| {
+            if execution_enabled {
+                selected_cached_local_ai_model_path(&model_id)
+            } else {
+                None
+            }
+        });
+        let default_artifact_ref = known_model
+            .map(|model| model.artifact_ref)
+            .unwrap_or(constants::local_ai_runtime::MODEL_REFERENCE_LOCAL_GGUF_CONFIGURED);
+        let default_manifest_ref = known_model
+            .map(|model| model.manifest_ref)
+            .unwrap_or(constants::local_ai_runtime::MODEL_MANIFEST_REFERENCE_LOCAL_GGUF_CONFIGURED);
 
-        Self::from_parts_with_execution(
+        Self::from_config_parts(LocalAiRuntimeConfigParts {
             runtime_binary,
-            env_path(constants::env_var::LOCAL_AI_MODEL_FILE),
-            env_value(constants::env_var::LOCAL_AI_MODEL_ARTIFACT_REF),
-            env_value(constants::env_var::LOCAL_AI_MODEL_MANIFEST_REF),
-            env_flag(constants::env_var::LOCAL_AI_EXECUTION_ENABLED),
-            env_u64(
+            model: LocalAiRuntimeModelConfig {
+                model_id,
+                model_file,
+                artifact_ref: env_value(constants::env_var::LOCAL_AI_MODEL_ARTIFACT_REF),
+                manifest_ref: env_value(constants::env_var::LOCAL_AI_MODEL_MANIFEST_REF),
+                default_artifact_ref,
+                default_manifest_ref,
+            },
+            execution_enabled,
+            generation_timeout_ms: env_u64(
                 constants::env_var::LOCAL_AI_GENERATION_TIMEOUT_MS,
                 constants::local_ai_runtime::DEFAULT_GENERATION_TIMEOUT_MS,
             ),
-            env_u32(
+            generation_max_tokens: env_u32(
                 constants::env_var::LOCAL_AI_GENERATION_MAX_TOKENS,
                 constants::local_ai_runtime::DEFAULT_GENERATION_MAX_TOKENS,
             ),
-        )
+        })
         .with_acceleration(runtime_device, gpu_layers)
     }
 
@@ -81,22 +106,46 @@ impl LocalAiRuntimeConfigSnapshot {
         generation_timeout_ms: u64,
         generation_max_tokens: u32,
     ) -> Self {
-        Self {
-            runtime_binary: ConfiguredLocalPath::from_path(runtime_binary.as_deref()),
-            model_file: ConfiguredLocalPath::from_path(model_file.as_deref()),
-            artifact_ref: safe_ref_or_default(
+        Self::from_config_parts(LocalAiRuntimeConfigParts {
+            runtime_binary,
+            model: LocalAiRuntimeModelConfig {
+                model_id: constants::local_ai_runtime::MODEL_ID_DEFAULT_GEMMA_4.to_string(),
+                model_file,
                 artifact_ref,
-                constants::local_ai_runtime::MODEL_ARTIFACT_REF_PREFIX,
-                constants::local_ai_runtime::MODEL_REFERENCE_LOCAL_GGUF_CONFIGURED,
-            ),
-            manifest_ref: Some(safe_ref_or_default(
                 manifest_ref,
-                constants::local_ai_runtime::MODEL_MANIFEST_REF_PREFIX,
-                constants::local_ai_runtime::MODEL_MANIFEST_REFERENCE_LOCAL_GGUF_CONFIGURED,
-            )),
+                default_artifact_ref: constants::local_ai_runtime::MODEL_REFERENCE_DEFAULT_GEMMA_4,
+                default_manifest_ref:
+                    constants::local_ai_runtime::MODEL_MANIFEST_REFERENCE_DEFAULT_GEMMA_4,
+            },
             execution_enabled,
             generation_timeout_ms,
             generation_max_tokens,
+        })
+    }
+
+    fn from_config_parts(parts: LocalAiRuntimeConfigParts) -> Self {
+        let model_id = if is_safe_local_ai_model_id(&parts.model.model_id) {
+            parts.model.model_id
+        } else {
+            constants::local_ai_runtime::MODEL_ID_DEFAULT_GEMMA_4.to_string()
+        };
+        Self {
+            runtime_binary: ConfiguredLocalPath::from_path(parts.runtime_binary.as_deref()),
+            model_id,
+            model_file: ConfiguredLocalPath::from_path(parts.model.model_file.as_deref()),
+            artifact_ref: safe_ref_or_default(
+                parts.model.artifact_ref,
+                constants::local_ai_runtime::MODEL_ARTIFACT_REF_PREFIX,
+                parts.model.default_artifact_ref,
+            ),
+            manifest_ref: Some(safe_ref_or_default(
+                parts.model.manifest_ref,
+                constants::local_ai_runtime::MODEL_MANIFEST_REF_PREFIX,
+                parts.model.default_manifest_ref,
+            )),
+            execution_enabled: parts.execution_enabled,
+            generation_timeout_ms: parts.generation_timeout_ms,
+            generation_max_tokens: parts.generation_max_tokens,
             runtime_device: None,
             gpu_layers: None,
         }
@@ -118,6 +167,10 @@ impl LocalAiRuntimeConfigSnapshot {
 
     pub fn runtime_binary(&self) -> &ConfiguredLocalPath {
         &self.runtime_binary
+    }
+
+    pub fn model_id(&self) -> &str {
+        &self.model_id
     }
 
     pub fn model_file(&self) -> &ConfiguredLocalPath {
@@ -151,21 +204,4 @@ impl LocalAiRuntimeConfigSnapshot {
     pub fn gpu_layers(&self) -> Option<&str> {
         self.gpu_layers.as_deref()
     }
-
-    pub fn uses_gpu_resource(&self) -> bool {
-        self.runtime_device().is_some()
-            || self
-                .gpu_layers()
-                .map(gpu_layers_request_acceleration)
-                .unwrap_or(false)
-    }
-}
-
-fn gpu_layers_request_acceleration(value: &str) -> bool {
-    value == constants::local_ai_runtime::LLAMA_GPU_LAYERS_ALL
-        || value == constants::local_ai_runtime::LLAMA_GPU_LAYERS_AUTO
-        || value
-            .parse::<u32>()
-            .map(|layers| layers > 0)
-            .unwrap_or(true)
 }
