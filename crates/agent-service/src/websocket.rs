@@ -6,8 +6,9 @@ use ocentra_parent_agent_protocol::{
 
 use crate::{
     activity_api::{
-        build_activity_ingest_status_report, build_activity_recent_summary_report,
-        build_browser_evidence_recent_report, build_network_flow_read_model_report,
+        build_activity_ingest_status_report, build_activity_memory_graph_report,
+        build_activity_recent_summary_report, build_browser_evidence_recent_report,
+        build_network_flow_read_model_report,
     },
     browser_runtime::build_browser_managed_status_report,
     event_builder::{build_event, portal_peer},
@@ -96,6 +97,9 @@ async fn handle_command(command: AgentCommandEnvelope) -> AgentEventEnvelope {
         }
         AgentCommandName::AgentActivityRecentSummaryGet => {
             build_activity_recent_summary_report(command).await
+        }
+        AgentCommandName::AgentActivityMemoryGraphGet => {
+            build_activity_memory_graph_report(command).await
         }
         AgentCommandName::AgentBrowserEvidenceRecentGet => {
             build_browser_evidence_recent_report(command).await

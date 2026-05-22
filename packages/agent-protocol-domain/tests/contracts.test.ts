@@ -63,6 +63,7 @@ it('AgentEventEnvelopeSchema: accepts a Rust response event with an optional sna
 it('AgentCommand: exposes typed command constants for portal requests', () => {
   expect(AgentCommand.ActivityIngestStatusGet).toBe('agent.activity.ingest.status.get');
   expect(AgentCommand.ActivityRecentSummaryGet).toBe('agent.activity.recent.summary.get');
+  expect(AgentCommand.ActivityMemoryGraphGet).toBe('agent.activity.memory-graph.get');
   expect(AgentCommand.BrowserEvidenceRecentGet).toBe('agent.browser.evidence.recent.get');
   expect(AgentCommand.BrowserManagedBridgePoll).toBe('agent.browser.managed.bridge.poll');
   expect(AgentCommand.NetworkFlowReadModelGet).toBe('agent.network.flow.read-model.get');
@@ -72,6 +73,7 @@ it('AgentCommand: exposes typed command constants for portal requests', () => {
 it('AgentProtocolDefaults.Field: exposes read-model payload fields', () => {
   expect(AgentProtocolDefaults.Field.BridgeEndpointRef).toBe('bridgeEndpointRef');
   expect(AgentProtocolDefaults.Field.BridgeKind).toBe('bridgeKind');
+  expect(AgentProtocolDefaults.Field.ActivityDigest).toBe('activityDigest');
   expect(AgentProtocolDefaults.Field.DatabaseReady).toBe('databaseReady');
   expect(AgentProtocolDefaults.Field.LocalAiRuntimeReferenceId).toBe('runtimeReferenceId');
   expect(AgentProtocolDefaults.Field.LocalAiUnavailableReason).toBe('unavailableReason');
@@ -99,6 +101,7 @@ it('AgentEvent: exposes typed constants for portal result rendering', () => {
   expect(AgentEvent.WatchStatusReported).toBe('agent.watch.status.reported');
   expect(AgentEvent.ActivityIngestStatusReported).toBe('agent.activity.ingest.status.reported');
   expect(AgentEvent.ActivityRecentSummaryReported).toBe('agent.activity.recent.summary.reported');
+  expect(AgentEvent.ActivityMemoryGraphReported).toBe('agent.activity.memory-graph.reported');
   expect(AgentEvent.BrowserEvidenceRecentReported).toBe('agent.browser.evidence.recent.reported');
   expect(AgentEvent.BrowserManagedStatusReported).toBe('agent.browser.managed.status.reported');
   expect(AgentEvent.NetworkFlowReadModelReported).toBe('agent.network.flow.read-model.reported');

@@ -82,6 +82,8 @@ pub enum AgentCommandName {
     AgentActivityIngestStatusGet,
     #[serde(rename = "agent.activity.recent.summary.get")]
     AgentActivityRecentSummaryGet,
+    #[serde(rename = "agent.activity.memory-graph.get")]
+    AgentActivityMemoryGraphGet,
     #[serde(rename = "agent.browser.evidence.recent.get")]
     AgentBrowserEvidenceRecentGet,
     #[serde(rename = "agent.browser.managed.bridge.poll")]
@@ -112,6 +114,8 @@ pub enum AgentEventName {
     AgentActivityIngestStatusReported,
     #[serde(rename = "agent.activity.recent.summary.reported")]
     AgentActivityRecentSummaryReported,
+    #[serde(rename = "agent.activity.memory-graph.reported")]
+    AgentActivityMemoryGraphReported,
     #[serde(rename = "agent.browser.evidence.recent.reported")]
     AgentBrowserEvidenceRecentReported,
     #[serde(rename = "agent.browser.managed.status.reported")]

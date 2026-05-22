@@ -3,6 +3,7 @@
 mod activity;
 mod activity_capture;
 mod activity_conversions;
+mod activity_memory_graph;
 mod activity_query;
 mod app_game;
 mod browser;
@@ -18,6 +19,7 @@ mod transport;
 
 pub use activity::*;
 pub use activity_capture::*;
+pub use activity_memory_graph::*;
 pub use activity_query::*;
 pub use app_game::*;
 pub use browser::*;
@@ -36,6 +38,7 @@ pub const AGENT_PROTOCOL_SCHEMA_VERSION: u16 = 1;
 pub const ACTIVITY_SCHEMA_VERSION: u16 = 1;
 pub const ACTIVITY_JOURNAL_SCHEMA_VERSION: u16 = 1;
 pub const ACTIVITY_QUERY_SCHEMA_VERSION: u16 = 1;
+pub const ACTIVITY_MEMORY_GRAPH_SCHEMA_VERSION: u16 = 1;
 pub const BROWSER_EVIDENCE_SCHEMA_VERSION: u16 = 1;
 pub const NETWORK_FLOW_SCHEMA_VERSION: u16 = 1;
 pub const SCREEN_EVIDENCE_SCHEMA_VERSION: u16 = 1;
@@ -44,6 +47,8 @@ pub fn crate_name() -> &'static str {
     CRATE_NAME
 }
 
+#[cfg(test)]
+mod activity_memory_graph_tests;
 #[cfg(test)]
 mod activity_query_tests;
 #[cfg(test)]

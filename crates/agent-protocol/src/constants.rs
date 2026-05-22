@@ -39,6 +39,7 @@ pub mod event_id {
     pub const WATCH_STATUS_REPORTED: &str = "watch-status-reported";
     pub const ACTIVITY_INGEST_STATUS_REPORTED: &str = "activity-ingest-status-reported";
     pub const ACTIVITY_RECENT_SUMMARY_REPORTED: &str = "activity-recent-summary-reported";
+    pub const ACTIVITY_MEMORY_GRAPH_REPORTED: &str = "activity-memory-graph-reported";
     pub const BROWSER_EVIDENCE_RECENT_REPORTED: &str = "browser-evidence-recent-reported";
     pub const BROWSER_MANAGED_STATUS_REPORTED: &str = "browser-managed-status-reported";
     pub const NETWORK_FLOW_READ_MODEL_REPORTED: &str = "network-flow-read-model-reported";

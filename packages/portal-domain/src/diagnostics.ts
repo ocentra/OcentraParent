@@ -7,6 +7,7 @@ export const PortalDiagnostics = {
     Activity: 'activity',
     Agent: 'agent',
     AgentUrl: 'agentUrl',
+    ActivityMemoryGraphReadModel: 'activityMemoryGraphReadModel',
     ConnectionState: 'connectionState',
     CorrelationId: 'correlationId',
     DevLog: 'devLog',

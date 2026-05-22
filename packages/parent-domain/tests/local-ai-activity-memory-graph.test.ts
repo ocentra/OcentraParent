@@ -141,6 +141,15 @@ describe('local AI activity memory graph contracts', () => {
     }
   });
 
+  it('LocalAiActivityMemoryGraphQuerySchema: accepts device-only local queries without child identity', () => {
+    const result = LocalAiActivityMemoryGraphQuerySchema.safeParse({
+      ...query,
+      childProfile: null,
+    });
+
+    expect(result.success).toBe(true);
+  });
+
   it('readLocalAiActivityMemoryGraph: returns only fresh visited edges grounded in selected source refs', () => {
     const result = readLocalAiActivityMemoryGraph(mixedActivityGraphReadInput);
 
