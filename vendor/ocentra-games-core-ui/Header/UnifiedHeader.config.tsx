@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { ReactNode } from 'react';
 import type { AvatarInfo } from '../types/avatarInfo';
 import { schema } from '@ocentra/schema-domain/effect-builder';

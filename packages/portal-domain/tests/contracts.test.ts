@@ -115,7 +115,14 @@ describe('portal shared constants', () => {
     expect(PortalDetails.ParentRuleContextRefIds).toBe('Parent rule context ref IDs');
     expect(PortalDom.Tags.TextArea).toBe('textarea');
     expect(PortalUnifiedChrome.Tags.Footer).toBe('footer');
+    expect(PortalUnifiedChrome.Classes.Shell).toBe('portal-unified-shell');
+    expect(PortalUnifiedChrome.Classes.ShellWork).toBe('portal-shell-work');
     expect(PortalUnifiedChrome.Classes.Header).toBe('ocentra-game-header');
+    expect(PortalUnifiedChrome.DynamicDataKeys.GameName).toBe('gameName');
+    expect(PortalUnifiedChrome.DynamicDataKeys.Tagline).toBe('tagline');
+    expect(PortalUnifiedChrome.HeaderProfile.MainScreen).toBe('main_screen');
+    expect(PortalUnifiedChrome.HeaderCenter.ModeA).toBe('A');
+    expect(PortalUnifiedChrome.Version.App).toBe('0.1.1');
     expect(PortalAuthChrome.Classes.Dialog).toBe('portal-auth-dialog');
     expect(PortalAuthChrome.Assets.Google).toBe('/ocentra-game-assets/auth/google.png');
     expect(PortalAuthChrome.Modes.SignIn).toBe('signin');

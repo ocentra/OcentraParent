@@ -9,29 +9,14 @@
 
 .app-frame {
   gap: 0;
-  grid-template-areas:
-    'unified-header unified-header'
-    'sidebar main'
-    'unified-footer unified-footer';
+  grid-template-areas: 'sidebar main';
   grid-template-columns: var(--portal-rail-width) minmax(0, 1fr);
-  grid-template-rows: auto minmax(0, 1fr) auto;
-  height: 100dvh;
+  grid-template-rows: minmax(0, 1fr);
+  height: 100%;
   max-width: none;
   overflow: hidden;
   padding: var(--portal-shell-edge);
-  width: 100vw;
-}
-
-.ocentra-game-header {
-  margin-bottom: 0;
-}
-
-.ocentra-game-header__nav {
-  display: none;
-}
-
-.ocentra-game-header__bar {
-  min-height: clamp(58px, 8.4dvh, 76px);
+  width: 100%;
 }
 
 .app-sidebar,
@@ -323,13 +308,11 @@
   .app-frame {
     gap: 8px;
     grid-template-areas:
-      'unified-header'
       'sidebar'
-      'main'
-      'unified-footer';
+      'main';
     grid-template-columns: 1fr;
     height: auto;
-    min-height: 100dvh;
+    min-height: 100%;
     overflow: auto;
   }
 
@@ -369,10 +352,6 @@
 @media (max-width: 640px) {
   .app-frame {
     padding: 6px;
-  }
-
-  .ocentra-game-header__bar {
-    min-height: 56px;
   }
 
   .app-main,

@@ -83,6 +83,7 @@ export const PortalProductText: Record<PortalProductTextTokenValue, DisplayText>
   [PortalProductTextToken.ThemeDark]: decodeDisplayText('Dark'),
   [PortalProductTextToken.HeaderHome]: decodeDisplayText('Home'),
   [PortalProductTextToken.HeaderLogin]: decodeDisplayText('Login'),
+  [PortalProductTextToken.HeaderTagline]: decodeDisplayText('Your House Your Rule'),
   [PortalProductTextToken.HeaderBrandLeft]: decodeDisplayText("O'centra"),
   [PortalProductTextToken.HeaderBrandRight]: decodeDisplayText('Parent'),
   [PortalProductTextToken.FooterMadeWith]: decodeDisplayText('Made with'),

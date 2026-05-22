@@ -1,234 +1,38 @@
-.app-frame {
-  --space-1: 0.35rem;
-  --space-2: 0.75rem;
-  grid-template-areas:
-    'unified-header unified-header'
-    'sidebar main'
-    'unified-footer unified-footer';
-  grid-template-columns: 252px minmax(0, 1fr);
-  grid-template-rows: auto minmax(0, 1fr) auto;
-  height: 100dvh;
+.portal-unified-shell {
+  background:
+    radial-gradient(circle at 18% 4%, rgb(57 178 221 / 16%), transparent 22rem),
+    radial-gradient(circle at 76% 12%, rgb(255 208 82 / 12%), transparent 20rem), var(--app-bg);
+}
+
+.portal-shell-work {
+  min-height: 0;
   overflow: hidden;
-  padding: 8px;
+  padding: 0;
+}
+
+.portal-shell-work > * {
+  height: 100%;
+  min-height: 0;
   width: 100%;
 }
 
-.ocentra-game-header {
-  grid-area: unified-header;
-  max-width: 100%;
-  min-width: 0;
-  pointer-events: auto;
-  position: relative;
-  z-index: 10;
-}
-
-.ocentra-game-header__bar {
-  align-items: center;
-  background:
-    linear-gradient(90deg, rgb(0 191 255 / 18%), transparent 16%, transparent 84%, rgb(0 191 255 / 18%)),
-    linear-gradient(180deg, rgb(1 18 35 / 92%), rgb(0 7 18 / 96%));
-  border: 1px solid rgb(217 247 231 / 54%);
-  box-shadow:
-    0 0 22px rgb(0 191 255 / 22%),
-    inset 0 0 0 1px rgb(0 191 255 / 16%);
-  display: grid;
-  gap: 6px;
-  grid-template-columns: minmax(82px, 118px) minmax(176px, 1fr) minmax(116px, 160px);
-  min-height: 75px;
-  min-width: 0;
-  padding: 9px 12px;
-  position: relative;
-}
-
-.ocentra-game-header__bar::before,
-.ocentra-game-header__bar::after {
-  background: linear-gradient(90deg, transparent, rgb(34 255 136 / 54%), transparent);
-  content: '';
-  height: 1px;
-  left: 18px;
-  pointer-events: none;
-  position: absolute;
-  right: 18px;
-}
-
-.ocentra-game-header__bar::before {
-  top: 6px;
-}
-
-.ocentra-game-header__bar::after {
-  bottom: 6px;
-}
-
-.ocentra-game-header__home,
-.ocentra-game-header__profile {
-  align-items: center;
-  background: linear-gradient(180deg, rgb(255 255 255 / 8%), rgb(0 191 255 / 7%)), rgb(0 0 0 / 18%);
-  border: 1px solid rgb(217 247 231 / 52%);
-  color: #ffffff;
-  display: inline-flex;
-  font-size: 13px;
-  font-weight: 700;
-  gap: 9px;
-  justify-content: center;
-  min-height: 56px;
-  min-width: 0;
-  padding: 0 14px;
-  text-decoration: none;
-  text-transform: none;
-  transition:
-    border-color 140ms ease,
-    box-shadow 140ms ease,
-    transform 140ms ease;
-}
-
-.ocentra-game-header__home {
-  clip-path: polygon(0 18%, 10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
-}
-
-.ocentra-game-header__profile {
-  border-radius: 0;
-  clip-path: polygon(10px 0, 100% 0, 100% 82%, calc(100% - 10px) 100%, 0 100%);
-  cursor: pointer;
-}
-
-.ocentra-game-header__home:hover,
-.ocentra-game-header__profile:hover,
-.ocentra-game-header__nav-link:hover {
-  border-color: #22ff88;
-  box-shadow: 0 0 18px rgb(26 255 140 / 18%);
-  transform: translateY(-1px);
-}
-
-.ocentra-game-header__center {
-  align-items: center;
-  display: flex;
-  justify-content: center;
-  min-width: 0;
-}
-
-.ocentra-game-header__title {
-  align-items: center;
-  display: grid;
-  gap: 14px;
-  grid-template-columns: minmax(0, 1fr) 50px minmax(0, 1fr);
-  justify-items: center;
-  max-width: 360px;
-  min-width: min(100%, 176px);
-}
-
-.ocentra-game-header__title-part,
-.ocentra-game-header__title-part-muted {
-  color: #ffffff;
-  font-family: Didot, 'Bodoni 72', 'Bodoni MT', Georgia, serif;
-  font-size: clamp(1.15rem, 0.96rem + 0.62vw, 1.62rem);
-  font-weight: 650;
-  letter-spacing: 1.5px;
-  line-height: 1;
-  min-width: 0;
+.app-frame {
+  grid-template-areas: 'sidebar main';
+  grid-template-columns: 252px minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  height: 100%;
+  min-height: 0;
   overflow: hidden;
-  text-overflow: ellipsis;
-  text-shadow:
-    -1px 0 #0044ff,
-    0 1px #0044ff,
-    1px 0 #0044ff,
-    0 -1px #0044ff;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.ocentra-game-header__title-part {
-  justify-self: end;
-}
-
-.ocentra-game-header__title-part-muted {
-  justify-self: start;
-}
-
-.ocentra-game-header__logo,
-.ocentra-game-header__profile-image {
-  display: block;
-  object-fit: contain;
-}
-
-.ocentra-game-header__logo {
-  filter: drop-shadow(0 0 12px rgb(0 191 255 / 62%));
-  height: 50px;
-  width: 50px;
-}
-
-.ocentra-game-header__profile-image {
-  border: 1px solid rgb(217 247 231 / 42%);
-  border-radius: 999px;
-  height: 30px;
-  width: 30px;
-}
-
-.ocentra-game-header__nav {
-  background: linear-gradient(90deg, transparent, rgb(0 191 255 / 16%), transparent), rgb(0 7 18 / 82%);
-  border: 1px solid rgb(0 191 255 / 44%);
-  border-top: 0;
-  box-shadow: inset 0 0 0 1px rgb(217 247 231 / 8%);
-  display: grid;
-  gap: 5px;
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(110px, 1fr);
-  min-height: 40px;
-  min-width: 0;
-  overflow-x: auto;
-  padding: 4px;
-  scrollbar-color: rgb(84 226 255 / 58%) rgb(0 9 21 / 60%);
-}
-
-.ocentra-game-header__nav-link {
-  align-items: center;
-  background: rgb(255 255 255 / 4%);
-  border: 1px solid transparent;
-  color: var(--app-muted);
-  display: grid;
-  gap: 1px;
-  min-width: 0;
-  padding: 5px 9px;
-  text-decoration: none;
-}
-
-.ocentra-game-header__nav-link-active {
-  background: linear-gradient(90deg, rgb(255 216 107 / 24%), rgb(84 226 255 / 16%)), rgb(0 191 255 / 12%);
-  border-color: rgb(255 216 107 / 72%);
-  color: #ffffff;
-  box-shadow: inset 0 0 0 1px rgb(255 216 107 / 16%);
-}
-
-.ocentra-game-header__nav-label {
-  font-size: 0.74rem;
-  font-weight: 800;
-  line-height: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.ocentra-game-header__nav-description {
-  font-size: 0.62rem;
-  line-height: 1.1;
-  opacity: 0.78;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  width: 100%;
 }
 
 .app-sidebar {
   grid-area: sidebar;
-  height: 100%;
-  max-height: none;
-  min-height: 0;
-  overflow: hidden;
   min-width: 0;
 }
 
 .app-main {
   grid-area: main;
-  min-height: 0;
   min-width: 0;
 }
 
@@ -250,157 +54,37 @@
   min-height: auto;
 }
 
-.oc-unified-footer {
-  grid-area: unified-footer;
-  pointer-events: auto;
-  width: 100%;
-}
-
-.oc-unified-footer__bar {
-  align-items: center;
-  background: var(--footer-bg, rgb(3 10 7 / 82%));
-  border-top: 1px solid var(--footer-border, rgb(141 255 176 / 18%));
-  backdrop-filter: blur(var(--footer-blur, 16px));
-  display: flex;
-  justify-content: center;
-  min-height: clamp(1.75rem, 3.25dvh, 2.5rem);
-  padding: 0 var(--space-2);
-  position: relative;
-}
-
-.oc-unified-footer__content {
-  align-items: center;
-  display: flex;
-  justify-content: center;
-  max-width: 100%;
-  min-width: 0;
-}
-
-.oc-unified-footer__text {
-  align-items: center;
-  color: rgb(255 255 255 / 64%);
-  display: inline-flex;
-  font-size: clamp(0.68rem, 0.64rem + 0.16vw, 0.8rem);
-  font-weight: 500;
-  gap: 0.3rem;
-  justify-content: center;
-  line-height: 1;
-  max-width: 100%;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.oc-unified-footer__heart {
-  animation: oc-unified-footer-heartbeat 1.5s ease-in-out infinite;
-  color: #ff4b61;
-  display: inline-block;
-  font-size: 0;
-  height: 0.72rem;
-  position: relative;
-  width: 0.72rem;
-}
-
-.oc-unified-footer__heart::before {
-  content: '\2665';
-  font-size: 0.72rem;
-  inset: 0;
-  line-height: 1;
-  position: absolute;
-}
-
-.oc-unified-footer__link {
-  color: rgb(102 126 234 / 92%);
-  font-weight: 600;
-  min-width: 0;
-  overflow: hidden;
-  text-decoration: none;
-  text-overflow: ellipsis;
-}
-
-.oc-unified-footer__link:hover {
-  color: #7f9cff;
-}
-
-.oc-unified-footer__version {
-  opacity: 0.88;
-}
-
-@keyframes oc-unified-footer-heartbeat {
-  0%,
-  100% {
-    transform: scale(1);
-  }
-
-  15% {
-    transform: scale(1.12);
-  }
-
-  30% {
-    transform: scale(1);
-  }
-
-  45% {
-    transform: scale(1.08);
-  }
-
-  60% {
-    transform: scale(1);
-  }
-}
-
-:root[data-theme='light'] .ocentra-game-header__bar {
-  background:
-    linear-gradient(90deg, rgb(8 126 164 / 14%), transparent 16%, transparent 84%, rgb(8 126 164 / 14%)),
-    linear-gradient(180deg, rgb(235 249 255 / 96%), rgb(203 232 244 / 94%));
-}
-
-:root[data-theme='light'] .ocentra-game-header__home,
-:root[data-theme='light'] .ocentra-game-header__profile,
-:root[data-theme='light'] .ocentra-game-header__nav-link-active {
-  color: #071624;
-}
-
-:root[data-theme='light'] .ocentra-game-header__nav,
-:root[data-theme='light'] .oc-unified-footer__bar {
-  background: rgb(240 249 253 / 92%);
-}
-
-:root[data-theme='light'] .oc-unified-footer__text {
-  color: rgb(11 34 52 / 72%);
-}
-
 @media (max-width: 1080px) {
   .app-frame {
     grid-template-columns: 224px minmax(0, 1fr);
   }
-
-  .ocentra-game-header__bar {
-    grid-template-columns: 92px minmax(0, 1fr) 118px;
-  }
-
-  .ocentra-game-header__nav {
-    grid-auto-columns: minmax(96px, 1fr);
-  }
 }
 
 @media (max-width: 980px) {
-  .app-frame {
-    grid-template-areas:
-      'unified-header'
-      'sidebar'
-      'main'
-      'unified-footer';
-    grid-template-columns: 1fr;
+  .portal-unified-shell {
     height: auto;
     min-height: 100dvh;
-    overflow: auto;
-    max-width: 100vw;
   }
 
-  .ocentra-game-header__bar {
-    grid-template-columns: 86px minmax(0, 1fr) 102px;
+  .portal-shell-work {
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .app-frame {
+    gap: 8px;
+    grid-template-areas:
+      'sidebar'
+      'main';
+    grid-template-columns: 1fr;
+    height: auto;
+    min-height: 100%;
+    overflow: visible;
+  }
+
+  .app-sidebar,
+  .app-main {
+    height: auto;
   }
 }
 
@@ -412,61 +96,9 @@
   .app-frame {
     max-width: 100vw;
     overflow-x: hidden;
-    width: 100vw;
-  }
-
-  .ocentra-game-header__bar {
-    gap: 4px;
-    grid-template-columns: 56px minmax(0, 1fr) 72px;
-    min-height: 56px;
-    padding: 6px;
-  }
-
-  .ocentra-game-header__home,
-  .ocentra-game-header__profile {
-    font-size: 0.64rem;
-    gap: 4px;
-    min-height: 38px;
-    padding: 0 7px;
-  }
-
-  .ocentra-game-header__title {
-    gap: 5px;
-    grid-template-columns: minmax(0, 1fr) 34px minmax(0, 1fr);
-    min-width: 0;
-  }
-
-  .ocentra-game-header__title-part,
-  .ocentra-game-header__title-part-muted {
-    font-size: 0.82rem;
-    letter-spacing: 0;
-  }
-
-  .ocentra-game-header__logo {
-    height: 34px;
-    width: 34px;
-  }
-
-  .ocentra-game-header__profile-image {
-    height: 22px;
-    width: 22px;
-  }
-
-  .ocentra-game-header__nav {
-    grid-auto-columns: minmax(76px, 30vw);
-    width: 100%;
-  }
-
-  .ocentra-game-header__nav-link {
-    padding: 5px 6px;
-  }
-
-  .ocentra-game-header__nav-description {
-    display: none;
   }
 
   .app-sidebar {
-    height: auto;
     overflow: hidden;
   }
 
@@ -503,14 +135,5 @@
 
   .app-sidebar .product-sidebar-panel {
     display: none;
-  }
-
-  .oc-unified-footer__bar {
-    min-height: clamp(1.5rem, 2.75dvh, 2.1rem);
-  }
-
-  .oc-unified-footer__text {
-    font-size: clamp(0.64rem, 0.62rem + 0.12vw, 0.74rem);
-    gap: 0.22rem;
   }
 }

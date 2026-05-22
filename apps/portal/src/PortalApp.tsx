@@ -10,7 +10,7 @@ import { renderRouteContent } from './portal-route-content';
 import type { PortalRuntimeState } from './portal-state';
 import { PortalAuthDialog } from './PortalAuthDialog';
 import { PortalSidebar } from './PortalSidebar';
-import { UnifiedFooterChrome, UnifiedHeaderChrome } from './PortalUnifiedChrome';
+import { PortalUnifiedShell } from './PortalUnifiedChrome';
 
 type PortalAppProps = {
   readonly actions: PortalRenderActions;
@@ -24,23 +24,25 @@ type PortalAppProps = {
 export function PortalApp(props: PortalAppProps): ReactElement {
   const [authOpen, setAuthOpen] = useState(false);
   return (
-    <div className={PortalDom.Classes.AppFrame}>
-      <UnifiedHeaderChrome onAuthOpen={() => setAuthOpen(true)} />
-      <PortalSidebar actions={props.actions} route={props.route} state={props.state} />
-      <main className={PortalDom.Classes.AppMain}>
-        <PageHeader route={props.route} />
-        <RouteContentMount
-          actions={props.actions}
-          rerender={props.rerender}
-          revision={props.revision}
-          route={props.route}
-          state={props.state}
-          theme={props.theme}
-        />
-      </main>
-      <UnifiedFooterChrome />
+    <>
+      <PortalUnifiedShell onAuthOpen={() => setAuthOpen(true)}>
+        <div className={PortalDom.Classes.AppFrame}>
+          <PortalSidebar actions={props.actions} route={props.route} state={props.state} />
+          <main className={PortalDom.Classes.AppMain}>
+            <PageHeader route={props.route} />
+            <RouteContentMount
+              actions={props.actions}
+              rerender={props.rerender}
+              revision={props.revision}
+              route={props.route}
+              state={props.state}
+              theme={props.theme}
+            />
+          </main>
+        </div>
+      </PortalUnifiedShell>
       {authOpen ? <PortalAuthDialog onClose={() => setAuthOpen(false)} /> : null}
-    </div>
+    </>
   );
 }
 

@@ -27,7 +27,6 @@ export function PortalSidebar({
   const activeGroup = routeDescriptor(route).group;
   return (
     <aside className={PortalDom.Classes.AppSidebar}>
-      <Brand />
       <nav className={PortalDom.Classes.Routes} role={PortalDom.Attributes.TabList}>
         <RouteGroup activeGroup={activeGroup} activeRoute={route} group={PortalRouteGroup.Monitor} />
         <RouteGroup activeGroup={activeGroup} activeRoute={route} group={PortalRouteGroup.Guide} />
@@ -35,16 +34,6 @@ export function PortalSidebar({
       </nav>
       <SidebarStatus actions={actions} state={state} />
     </aside>
-  );
-}
-
-function Brand(): ReactElement {
-  return (
-    <div className={PortalDom.Classes.ProductBrand}>
-      <span className={PortalDom.Classes.ProductBrandMark} />
-      <h1>{PortalText.Resolve(PortalTextToken.AppTitle)}</h1>
-      <p>{PortalText.Resolve(PortalTextToken.Subtitle)}</p>
-    </div>
   );
 }
 

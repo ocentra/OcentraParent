@@ -4,6 +4,8 @@ export const PortalUnifiedChrome = {
     Image: 'img',
   },
   Classes: {
+    Shell: 'portal-unified-shell',
+    ShellWork: 'portal-shell-work',
     Header: 'ocentra-game-header',
     HeaderBar: 'ocentra-game-header__bar',
     HeaderHome: 'ocentra-game-header__home',
@@ -26,6 +28,20 @@ export const PortalUnifiedChrome = {
     FooterHeart: 'oc-unified-footer__heart',
     FooterLink: 'oc-unified-footer__link',
     FooterVersion: 'oc-unified-footer__version',
+  },
+  DynamicDataKeys: {
+    GameName: 'gameName',
+    Tagline: 'tagline',
+  },
+  HeaderProfile: {
+    MainScreen: 'main_screen',
+    Contained: 'contained',
+  },
+  HeaderCenter: {
+    ModeA: 'A',
+  },
+  Version: {
+    App: '0.1.1',
   },
 } as const;
 

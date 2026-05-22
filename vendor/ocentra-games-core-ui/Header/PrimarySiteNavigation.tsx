@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useEffect, useMemo, useRef, useState, type Dispatch, type SetStateAction } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { PublicRouteKey, PublicRoutePath } from '@ocentra/endpoint-domain/constants/public-routes';

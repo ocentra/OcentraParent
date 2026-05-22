@@ -1,9 +1,25 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
     "jsx": "react-jsx",
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "noEmit": true,
+    "paths": {
+      "@ocentra/app-assets/auth": ["../../vendor/ocentra-games-core-ui/shims/ocentra-app-assets-auth.ts"],
+      "@ocentra/app-assets/avatars": ["../../vendor/ocentra-games-core-ui/shims/ocentra-app-assets-avatars.ts"],
+      "@ocentra/app-assets/commons": ["../../vendor/ocentra-games-core-ui/shims/ocentra-app-assets-commons.ts"],
+      "@ocentra/endpoint-domain/constants/local": [
+        "../../vendor/ocentra-games-core-ui/shims/ocentra-local-endpoints.ts"
+      ],
+      "@ocentra/endpoint-domain/constants/public-routes": [
+        "../../vendor/ocentra-games-core-ui/shims/ocentra-public-routes.ts"
+      ],
+      "@ocentra/schema-domain/effect-builder": ["../../vendor/ocentra-games-core-ui/schema-domain/effect-builder.ts"],
+      "@tauri-apps/api/core": ["../../vendor/ocentra-games-core-ui/shims/tauri-core.ts"],
+      "react-router-dom": ["../../vendor/ocentra-games-core-ui/shims/react-router-dom.ts"]
+    },
     "types": ["vite/client", "node", "@playwright/test"]
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "tests/**/*.ts", "e2e/**/*.ts", "playwright.config.ts"]

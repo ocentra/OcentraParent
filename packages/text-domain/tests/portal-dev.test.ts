@@ -12,6 +12,7 @@ describe('portal dev text', () => {
     expect(PortalDevText[PortalDevTextToken.SettingsRules]).toBe('Settings');
     expect(PortalDevText[PortalDevTextToken.HeaderBrandLeft]).toBe("O'centra");
     expect(PortalDevText[PortalDevTextToken.HeaderBrandRight]).toBe('Parent');
+    expect(PortalDevText[PortalDevTextToken.HeaderTagline]).toBe('Your House Your Rule');
     expect(PortalDevText[PortalDevTextToken.FooterVersion]).toBe('[ alpha v0.1.1 ]');
     expect(PortalDevText[PortalDevTextToken.AuthTitle]).toBe('Protect the family console');
     expect(PortalDevText[PortalDevTextToken.AuthUnavailable]).toBe(

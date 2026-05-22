@@ -54,6 +54,7 @@ export const PortalProductTextToken = {
   ThemeDark: decodeTextTokenId('portal.dev.theme.dark'),
   HeaderHome: decodeTextTokenId('portal.dev.header.home'),
   HeaderLogin: decodeTextTokenId('portal.dev.header.login'),
+  HeaderTagline: decodeTextTokenId('portal.dev.header.tagline'),
   HeaderBrandLeft: decodeTextTokenId('portal.dev.header.brandLeft'),
   HeaderBrandRight: decodeTextTokenId('portal.dev.header.brandRight'),
   FooterMadeWith: decodeTextTokenId('portal.dev.footer.madeWith'),

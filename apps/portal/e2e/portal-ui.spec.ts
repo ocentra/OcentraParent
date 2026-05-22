@@ -6,8 +6,9 @@ test('portal UI connects to the real agent and renders command results', async (
   const browserFailures = collectBrowserFailures(page);
   await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: 'http://127.0.0.1:4490' });
   await page.goto('/#/commands');
-  await expect(page.getByRole('heading', { name: 'Ocentra Parent' })).toBeVisible();
-  await expect(page.getByText('Family safety for local child devices')).toBeVisible();
+  await expect(page.getByRole('button', { exact: true, name: 'Home' })).toBeVisible();
+  await expect(page.getByRole('button', { exact: true, name: 'Login' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Controls' })).toBeVisible();
 
   await assertAuthDialog(page);
   await assertCommandControls(page);
