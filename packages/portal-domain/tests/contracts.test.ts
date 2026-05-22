@@ -3,22 +3,53 @@ import {
   PortalClipboard,
   PortalCommandButtons,
   PortalConnectionState,
+  PortalAuthChrome,
   PortalDetails,
   PortalDiagnostics,
   PortalDom,
+  PortalAssets,
+  PortalExternalLinks,
   PortalOverviewCommands,
+  PortalRouteDescriptors,
+  PortalRouteGroup,
   PortalRouteSchema,
   PortalRoutes,
   PortalTiming,
+  PortalUnifiedChrome,
   decodePortalClipboardText,
 } from '../src/contracts';
 
-describe('portal domain contracts', () => {
+describe('portal route contracts', () => {
   it('PortalRouteSchema: accepts only declared dev routes', () => {
+    expect(PortalRoutes).toEqual([
+      'overview',
+      'activity',
+      'browser',
+      'policy',
+      'privacy-design',
+      'memory',
+      'ai-runtime',
+      'devices',
+      'notifications',
+      'drive-connections',
+      'diagnostics',
+      'settings-rules',
+      'commands',
+      'events',
+    ]);
     expect(PortalRouteSchema.safeParse('commands').success).toBe(true);
-    expect(PortalRouteSchema.safeParse('settings').success).toBe(false);
+    expect(PortalRouteSchema.safeParse('settings-rules').success).toBe(true);
+    expect(PortalRouteSchema.safeParse('billing').success).toBe(false);
+    expect(PortalRouteDescriptors.map((descriptor) => descriptor.group)).toContain(PortalRouteGroup.Monitor);
+    expect(PortalRouteDescriptors.map((descriptor) => descriptor.label)).toContain('Activity');
+    expect(PortalRouteDescriptors.map((descriptor) => descriptor.label)).toContain('Private by design');
+    expect(PortalRouteDescriptors.map((descriptor) => descriptor.label)).toContain('Notifications');
+    expect(PortalRouteDescriptors.map((descriptor) => descriptor.label)).toContain('Connect your drives');
+    expect(PortalRouteDescriptors.map((descriptor) => descriptor.label)).toContain('Settings');
   });
+});
 
+describe('portal command contracts', () => {
   it('PortalCommandButtons: maps each button to a typed command', () => {
     expect(PortalCommandButtons.map((button) => button.command)).toContain('agent.health.check');
     expect(PortalCommandButtons.map((button) => button.resultEvent)).toContain('agent.health.reported');
@@ -63,7 +94,9 @@ describe('portal domain contracts', () => {
       'agent.policy.preview.read-model.get',
     ]);
   });
+});
 
+describe('portal shared constants', () => {
   it('PortalConnectionState: exposes connected state token', () => {
     expect(PortalRoutes).toContain('overview');
     expect(PortalConnectionState.Connected).toBe('connected');
@@ -81,6 +114,13 @@ describe('portal domain contracts', () => {
     expect(PortalDetails.ParentRuleContextReferences).toBe('Parent rule context references');
     expect(PortalDetails.ParentRuleContextRefIds).toBe('Parent rule context ref IDs');
     expect(PortalDom.Tags.TextArea).toBe('textarea');
+    expect(PortalUnifiedChrome.Tags.Footer).toBe('footer');
+    expect(PortalUnifiedChrome.Classes.Header).toBe('ocentra-game-header');
+    expect(PortalAuthChrome.Classes.Dialog).toBe('portal-auth-dialog');
+    expect(PortalAuthChrome.Assets.Google).toBe('/ocentra-game-assets/auth/google.png');
+    expect(PortalAuthChrome.Modes.SignIn).toBe('signin');
+    expect(PortalAssets.HeaderLogo).toBe('/ocentra-game-assets/commons/OcentraLogo.svg');
+    expect(PortalExternalLinks.Ocentra).toBe('https://ocentra.ca');
     expect(decodePortalClipboardText('copy payload')).toBe('copy payload');
   });
 });

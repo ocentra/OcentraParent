@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 
 import { DevLogField, DevLogMessage } from '@ocentra-parent/logging-domain/contracts';
 
@@ -10,6 +11,7 @@ function resolveConfiguredPort(server) {
 
 export default defineConfig({
   plugins: [
+    react(),
     {
       name: 'ocentra-parent-dev-logs',
       async configureServer(server) {

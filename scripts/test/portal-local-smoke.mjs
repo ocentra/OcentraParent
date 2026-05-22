@@ -53,7 +53,7 @@ try {
   await waitForHttp(createAgentHealthUrl(agentPort));
   const portalResponse = await waitForHttp(createPortalCommandsUrl(portalPort));
   const html = await portalResponse.text();
-  if (!html.includes('Ocentra Parent Dev Portal')) {
+  if (!html.includes('Ocentra Parent')) {
     throw new Error('Portal HTML shell did not include the expected title.');
   }
   await assertDevServerLogWritten();

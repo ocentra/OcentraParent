@@ -36,7 +36,7 @@ Local dev ports default to fixed values: Rust agent on `127.0.0.1:4477`, Vite po
 - App/runtime source must not contain inline string literals. Text, ids, routes, fields, commands, and events live in domain packages.
 - App/runtime TypeScript source must not annotate values as raw `string`; use a branded domain type or keep external input as `unknown` until parsed.
 - Rust service/core source must not contain inline string literals. Runtime strings live in `crates/agent-protocol` constants.
-- Do not create god files or god classes. Source shape validation warns at 80% of a file/function budget and fails past the hard limit.
+- Do not create god files or god classes. Source shape validation warns on file-size advisory bands and near function/class/export/type limits, then fails past the hard limit.
 - Do not use mocks, fakes, stubs, spies, MSW, Nock, Sinon, `vi.mock`, `vi.fn`, or equivalent test doubles. Tests must exercise real domain contracts, parsers, services, and local transports.
 - Every source workspace and Rust crate needs tests from the beginning.
 - Rust service code should stay async and use Tokio's multithreaded runtime unless a specific boundary requires otherwise.
@@ -70,7 +70,7 @@ The root gate runs release version alignment, schema-boundary checks, Turbo lint
 
 ESLint includes local Ocentra Parent rules. Editors with ESLint enabled should report app string literals, raw app `string` annotations, manual brands, and naked domain string aliases before validation runs.
 
-`scripts/check-source-shape.mjs` enforces source file/function/class/export budgets. Treat an 80% warning as a request to split ownership before adding more behavior.
+`scripts/check-source-shape.mjs` enforces source file/function/class/export budgets. File-size warnings begin at 250-line advisory bands; function/class/export/type warnings remain near the configured hard limit. Treat warnings as a request to split ownership before adding more behavior.
 
 `scripts/check-no-test-doubles.mjs` rejects fake-green testing patterns in app, package, and crate source. Build real seams and test real boundaries instead of replacing behavior.
 

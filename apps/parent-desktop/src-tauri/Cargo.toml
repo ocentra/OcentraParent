@@ -1,0 +1,21 @@
+[package]
+name = "ocentra-parent-desktop"
+version = "0.1.1"
+description = "Ocentra Parent desktop portal shell"
+edition = "2021"
+license = "UNLICENSED"
+
+[lib]
+name = "ocentra_parent_desktop"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+
+[lints.rust]
+unsafe_code = "forbid"
+
+[workspace]

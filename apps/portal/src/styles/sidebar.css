@@ -1,0 +1,744 @@
+﻿@media (max-width: 1080px) {
+  .app-frame {
+    grid-template-columns: 190px minmax(0, 1fr);
+  }
+
+  .app-toolbar {
+    position: static;
+  }
+
+  .page-header {
+    padding-right: 16px;
+  }
+}
+
+@media (max-width: 980px) {
+  .app-frame {
+    grid-template-columns: 1fr;
+    overflow: auto;
+  }
+
+  .app-sidebar {
+    min-height: auto;
+  }
+
+  .routes {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    overflow: visible;
+  }
+
+  .route-group {
+    display: contents;
+  }
+
+  .route-link {
+    min-width: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .routes {
+    display: flex;
+    overflow-x: auto;
+  }
+
+  .route-group {
+    display: flex;
+  }
+
+  .route-link {
+    min-width: 124px;
+  }
+
+  .app-toolbar {
+    justify-content: flex-start;
+  }
+}
+
+:root[data-theme='light'] .route-link {
+  background: linear-gradient(90deg, rgb(8 126 164 / 12%), transparent 62%), rgb(255 255 255 / 94%);
+  border-color: rgb(8 126 164 / 24%);
+  color: #102235;
+}
+
+:root[data-theme='light'] .route-link:hover {
+  background: linear-gradient(90deg, rgb(8 126 164 / 18%), rgb(255 255 255 / 96%)), #ffffff;
+}
+
+:root[data-theme='light'] .route-link[aria-current='page'] {
+  background: linear-gradient(90deg, rgb(8 126 164 / 86%), rgb(22 144 181 / 72%)), #087ea4;
+  border-color: rgb(3 93 125 / 64%);
+  color: #ffffff;
+}
+
+:root[data-theme='light'] .product-sidebar-panel {
+  background:
+    radial-gradient(circle at 86% 0, rgb(8 126 164 / 13%), transparent 68%),
+    linear-gradient(180deg, rgb(255 255 255 / 96%), rgb(226 241 249 / 96%));
+  color: #102235;
+}
+
+:root[data-theme='light'] .product-sidebar-panel p {
+  color: #415d72;
+}
+
+@media (max-width: 980px) {
+  .app-sidebar {
+    display: grid;
+    grid-template-rows: auto auto auto;
+    height: auto;
+    max-height: none;
+    min-height: auto;
+    overflow: visible;
+  }
+
+  .routes {
+    height: auto;
+    min-height: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .app-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .app-toolbar > button,
+  .app-toolbar > a,
+  .app-toolbar > span,
+  .theme-toggle {
+    flex: 1 1 calc(50% - 8px);
+    min-width: 0;
+    width: auto;
+  }
+
+  .theme-toggle {
+    display: flex;
+  }
+
+  .theme-toggle-button {
+    flex: 1 1 0;
+  }
+}
+
+/* Sidebar-owned connection controls; no duplicated top control strip. */
+.app-main {
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.page-header {
+  padding-right: 16px;
+  width: 100%;
+}
+
+.product-shell-hero,
+.summary,
+.control-deck,
+.product-metric,
+.control-card {
+  counter-increment: none;
+}
+
+.product-badge strong {
+  color: var(--app-text);
+  display: block;
+  font-size: 0.72rem;
+  line-height: 1.15;
+  margin-top: 4px;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.device-rule-scope-panel {
+  grid-column: span 2;
+}
+
+.device-rule-scope-panel .capability-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 900px) {
+  .device-rule-scope-panel {
+    grid-column: 1 / -1;
+  }
+
+  .device-rule-scope-panel .capability-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.product-shell-hero::before,
+.summary::before,
+.control-deck::before,
+.product-metric::before,
+.control-card::before {
+  content: none;
+}
+
+.product-sidebar-panel {
+  gap: 8px;
+}
+
+.sidebar-actions {
+  display: grid;
+  gap: 7px;
+  position: relative;
+}
+
+.sidebar-status-button,
+.sidebar-reconnect-button {
+  background: linear-gradient(180deg, rgb(84 226 255 / 24%), rgb(5 29 50 / 72%)), rgb(3 16 30 / 86%);
+  border-color: rgb(84 226 255 / 42%);
+  color: #f5fcff;
+  justify-content: flex-start;
+  min-height: 32px;
+  padding: 0.48rem 0.58rem;
+  width: 100%;
+}
+
+.sidebar-reconnect-button {
+  background: linear-gradient(180deg, rgb(255 211 106 / 22%), rgb(5 29 50 / 72%)), rgb(3 16 30 / 86%);
+  border-color: rgb(255 211 106 / 36%);
+}
+
+.settings-theme-panel {
+  min-height: auto;
+}
+
+.settings-theme-panel .theme-toggle {
+  display: inline-flex;
+  justify-self: start;
+  margin-block: 2px 6px;
+}
+
+@media (min-width: 900px) {
+  .app-header {
+    max-width: none;
+  }
+}
+
+:root[data-theme='light'] .sidebar-status-button,
+:root[data-theme='light'] .sidebar-reconnect-button {
+  background: linear-gradient(180deg, rgb(255 255 255 / 96%), rgb(218 239 249 / 92%)), #eef8fc;
+  border-color: rgb(8 126 164 / 24%);
+  color: #0f4963;
+}
+
+/* Shop-style selected rail pointer. */
+@media (min-width: 981px) {
+  .app-sidebar {
+    gap: 8px;
+    overflow: visible;
+    padding: 8px;
+    z-index: 5;
+  }
+
+  .product-brand {
+    gap: 7px 9px;
+    grid-template-columns: 44px minmax(0, 1fr);
+    min-height: 88px;
+    padding: 8px;
+  }
+
+  .product-brand-mark {
+    height: 44px;
+    width: 44px;
+  }
+
+  .product-brand h1 {
+    font-size: 0.78rem;
+  }
+
+  .product-brand p {
+    font-size: 0.64rem;
+    line-height: 1.2;
+  }
+
+  .routes {
+    gap: 7px;
+    overflow: visible;
+  }
+
+  .route-group {
+    gap: 5px;
+  }
+
+  .route-group-label {
+    font-size: 0.61rem;
+    line-height: 1;
+  }
+
+  .route-group,
+  .route-link {
+    overflow: visible;
+  }
+
+  .app-main {
+    position: relative;
+    z-index: 1;
+  }
+
+  .route-link {
+    gap: 7px;
+    grid-template-columns: 32px minmax(0, 1fr);
+    min-height: 42px;
+    padding: 5px 7px;
+    z-index: 1;
+  }
+
+  .route-link::before {
+    height: 32px;
+    width: 32px;
+  }
+
+  .route-link-label {
+    font-size: 0.78rem;
+  }
+
+  .route-link::after {
+    background: transparent;
+    border: 1px solid transparent;
+    box-shadow: none;
+    clip-path: polygon(0 0, 100% 50%, 0 100%);
+    content: '';
+    filter: none;
+    height: 42px;
+    opacity: 0;
+    pointer-events: none;
+    position: absolute;
+    right: -30px;
+    top: calc(50% - 21px);
+    transform: none;
+    transition:
+      opacity 120ms ease,
+      right 120ms ease;
+    width: 34px;
+    z-index: 8;
+  }
+
+  .route-link[aria-current='page'] {
+    z-index: 7;
+  }
+
+  .route-link[aria-current='page']::after {
+    background:
+      linear-gradient(90deg, rgb(84 226 255 / 88%), rgb(74 206 255 / 72%) 52%, transparent 53%),
+      linear-gradient(135deg, rgb(84 226 255 / 94%), rgb(124 245 255 / 68%));
+    border-color: rgb(126 240 255 / 78%);
+    box-shadow:
+      0 0 18px rgb(84 226 255 / 42%),
+      0 0 34px rgb(84 226 255 / 22%);
+    filter: drop-shadow(0 0 12px rgb(84 226 255 / 48%));
+    opacity: 1;
+    right: -31px;
+  }
+
+  :root[data-theme='light'] .route-link[aria-current='page']::after {
+    background:
+      linear-gradient(90deg, rgb(8 126 164 / 88%), rgb(28 172 213 / 74%) 52%, transparent 53%),
+      linear-gradient(135deg, rgb(8 126 164 / 92%), rgb(116 226 255 / 72%));
+    border-color: rgb(8 126 164 / 48%);
+  }
+
+  .product-sidebar-panel {
+    gap: 6px;
+    min-height: auto;
+    padding: 7px;
+  }
+
+  .product-sidebar-panel strong {
+    font-size: 0.68rem;
+    line-height: 1;
+  }
+
+  .product-sidebar-panel p {
+    font-size: 0.62rem;
+    line-height: 1.15;
+  }
+
+  .sidebar-actions {
+    gap: 5px;
+  }
+
+  .sidebar-status-button,
+  .sidebar-reconnect-button {
+    font-size: 0.7rem;
+    min-height: 28px;
+    padding: 0.38rem 0.5rem;
+  }
+}
+
+@media (max-width: 980px) {
+  .route-link::after {
+    display: none;
+  }
+}
+
+/* Sidebar foldout groups. */
+.route-group {
+  transition: gap 120ms ease;
+}
+
+.route-group-label {
+  align-items: center;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  list-style: none;
+  min-height: 22px;
+  user-select: none;
+}
+
+.route-group-label::-webkit-details-marker {
+  display: none;
+}
+
+.route-group-label::after {
+  background: rgb(84 226 255 / 72%);
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+  content: '';
+  height: 8px;
+  margin-left: 8px;
+  transform: rotate(0deg);
+  transition:
+    background 120ms ease,
+    transform 120ms ease;
+  width: 8px;
+}
+
+.route-group[open] > .route-group-label::after {
+  background: #ffd36a;
+  transform: rotate(90deg);
+}
+
+.route-group:not([open]) {
+  gap: 0;
+}
+
+.route-group:not([open]) > .route-group-label {
+  background: linear-gradient(90deg, rgb(84 226 255 / 9%), transparent 72%), rgb(3 17 32 / 42%);
+  border: 1px solid rgb(84 226 255 / 16%);
+  border-radius: 7px;
+  color: rgb(222 244 255 / 88%);
+  min-height: 31px;
+  padding: 0 8px;
+}
+
+.route-group:not([open]) > .route-group-label:hover {
+  border-color: rgb(84 226 255 / 42%);
+  color: #ffffff;
+}
+
+:root[data-theme='light'] .route-group:not([open]) > .route-group-label {
+  background: linear-gradient(90deg, rgb(8 126 164 / 10%), transparent 72%), rgb(255 255 255 / 70%);
+  border-color: rgb(8 126 164 / 18%);
+  color: #31566d;
+}
+
+/* Shared leaderboard deck-side frame for the primary parent navigation rail. */
+.app-frame {
+  grid-template-columns: 248px minmax(0, 1fr);
+}
+
+.app-sidebar {
+  background:
+    url('/leaderboard-side-panel-frame.svg') center / 100% 100% no-repeat,
+    radial-gradient(circle at 50% 0, rgb(84 226 255 / 18%), transparent 25%),
+    linear-gradient(180deg, rgb(4 34 54 / 94%), rgb(1 10 21 / 98%) 40%, rgb(0 7 17 / 99%));
+  border: 0;
+  border-radius: 0;
+  box-shadow:
+    0 0 28px rgb(84 226 255 / 20%),
+    inset 0 0 0 1px rgb(255 255 255 / 3%);
+  clip-path: polygon(
+    22px 0,
+    calc(100% - 22px) 0,
+    100% 26px,
+    100% calc(100% - 26px),
+    calc(100% - 22px) 100%,
+    22px 100%,
+    0 calc(100% - 26px),
+    0 26px
+  );
+  gap: 9px;
+  min-height: calc(100dvh - 18px);
+  overflow: visible;
+  padding: 22px 14px 16px;
+}
+
+.app-sidebar::before,
+.app-sidebar::after {
+  content: none;
+}
+
+.app-sidebar > * {
+  position: relative;
+  z-index: 1;
+}
+
+.product-brand {
+  background:
+    radial-gradient(circle at 24px 26px, rgb(84 226 255 / 22%), transparent 44px),
+    linear-gradient(90deg, rgb(9 61 88 / 82%), rgb(3 17 31 / 86%));
+  border-color: rgb(88 227 255 / 52%);
+  border-radius: 0;
+  box-shadow:
+    0 0 16px rgb(84 226 255 / 14%),
+    inset 0 0 0 1px rgb(255 255 255 / 5%);
+  clip-path: polygon(13px 0, 100% 0, 100% calc(100% - 13px), calc(100% - 13px) 100%, 0 100%, 0 13px);
+  margin-inline: 2px 5px;
+  min-height: 92px;
+}
+
+.product-brand h1 {
+  font-size: 0.86rem;
+  line-height: 1.04;
+}
+
+.product-brand p {
+  color: #d8eff8;
+  font-size: 0.68rem;
+  line-height: 1.22;
+}
+
+.routes {
+  gap: 8px;
+  min-height: 0;
+  overflow: visible;
+}
+
+.route-group {
+  gap: 5px;
+  overflow: visible;
+}
+
+.route-group-label {
+  color: #ffd36a;
+  font-size: 0.66rem;
+  font-weight: 950;
+  letter-spacing: 0;
+  line-height: 1;
+  min-height: 22px;
+  padding-inline: 4px 7px;
+}
+
+.route-link {
+  background: linear-gradient(90deg, rgb(16 85 119 / 78%), rgb(5 22 40 / 92%)), rgb(3 17 32 / 94%);
+  border-color: rgb(86 217 255 / 46%);
+  border-radius: 0;
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 3%),
+    0 0 12px rgb(84 226 255 / 8%);
+  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 50%, calc(100% - 18px) 100%, 0 100%);
+  gap: 8px;
+  grid-template-columns: 38px minmax(0, 1fr);
+  margin-inline: 2px 8px;
+  min-height: 48px;
+  overflow: visible;
+  padding: 5px 8px;
+}
+
+.route-link::before {
+  background:
+    var(--route-icon) center / 27px 27px no-repeat,
+    radial-gradient(circle at 50% 50%, rgb(84 226 255 / 26%), transparent 60%),
+    linear-gradient(135deg, rgb(84 226 255 / 50%), rgb(71 242 154 / 16%));
+  border-color: rgb(114 236 255 / 52%);
+  border-radius: 0;
+  clip-path: polygon(9px 0, 100% 0, 100% calc(100% - 9px), calc(100% - 9px) 100%, 0 100%, 0 9px);
+  height: 36px;
+  width: 36px;
+}
+
+.route-link:hover {
+  background: linear-gradient(90deg, rgb(42 158 204 / 52%), rgb(7 35 60 / 98%)), rgb(6 29 52 / 98%);
+  border-color: rgb(122 239 255 / 68%);
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 7%),
+    0 0 16px rgb(84 226 255 / 18%);
+}
+
+.route-link[aria-current='page'] {
+  background: linear-gradient(90deg, rgb(69 204 248 / 76%), rgb(26 97 138 / 96%)), rgb(5 41 72 / 98%);
+  border-color: rgb(255 211 106 / 86%);
+  box-shadow:
+    0 0 22px rgb(84 226 255 / 24%),
+    inset 0 0 0 1px rgb(255 255 255 / 12%);
+  margin-right: -16px;
+  transform: translateX(4px);
+}
+
+.route-link[aria-current='page']::before {
+  background:
+    var(--route-icon) center / 28px 28px no-repeat,
+    radial-gradient(circle at 50% 50%, rgb(255 211 106 / 30%), transparent 62%),
+    linear-gradient(135deg, rgb(84 226 255 / 72%), rgb(71 242 154 / 26%));
+}
+
+.route-link::after {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+  content: '';
+  filter: none;
+  height: 46px;
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  right: -42px;
+  top: calc(50% - 23px);
+  transition:
+    opacity 120ms ease,
+    right 120ms ease;
+  width: 48px;
+  z-index: 8;
+}
+
+.route-link[aria-current='page']::after {
+  background:
+    linear-gradient(90deg, rgb(84 226 255 / 88%), rgb(84 226 255 / 70%) 48%, transparent 49%),
+    linear-gradient(135deg, rgb(99 236 255 / 96%), rgb(123 245 255 / 72%));
+  border: 1px solid rgb(139 242 255 / 76%);
+  box-shadow:
+    0 0 18px rgb(84 226 255 / 42%),
+    0 0 34px rgb(84 226 255 / 22%);
+  filter: drop-shadow(0 0 12px rgb(84 226 255 / 48%));
+  opacity: 1;
+  right: -43px;
+}
+
+.route-link-label {
+  font-size: 0.83rem;
+  line-height: 1.05;
+}
+
+.product-sidebar-panel {
+  background:
+    radial-gradient(circle at 87% 0, rgb(84 226 255 / 16%), transparent 68%),
+    linear-gradient(180deg, rgb(12 65 92 / 76%), rgb(3 18 34 / 94%));
+  border-color: rgb(84 226 255 / 45%);
+  border-radius: 0;
+  clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+  margin-inline: 2px 5px;
+  min-height: 82px;
+}
+
+:root[data-theme='light'] .app-sidebar {
+  background:
+    url('/leaderboard-side-panel-frame.svg') center / 100% 100% no-repeat,
+    radial-gradient(circle at 50% 0, rgb(8 126 164 / 16%), transparent 25%),
+    linear-gradient(180deg, rgb(230 247 255 / 96%), rgb(198 229 243 / 94%) 42%, rgb(238 249 253 / 98%));
+  box-shadow:
+    0 0 28px rgb(8 126 164 / 14%),
+    inset 0 0 0 1px rgb(255 255 255 / 58%);
+}
+
+:root[data-theme='light'] .product-brand,
+:root[data-theme='light'] .product-sidebar-panel {
+  background: linear-gradient(180deg, rgb(255 255 255 / 88%), rgb(221 242 250 / 82%)), rgb(238 249 253 / 96%);
+  border-color: rgb(8 126 164 / 28%);
+}
+
+:root[data-theme='light'] .product-brand h1,
+:root[data-theme='light'] .product-sidebar-panel strong {
+  color: #0d3046;
+}
+
+:root[data-theme='light'] .product-brand p,
+:root[data-theme='light'] .product-sidebar-panel p {
+  color: #345d75;
+}
+
+:root[data-theme='light'] .route-link {
+  background: linear-gradient(90deg, rgb(216 243 255 / 86%), rgb(255 255 255 / 94%)), #ffffff;
+  border-color: rgb(8 126 164 / 24%);
+  color: #123247;
+}
+
+:root[data-theme='light'] .route-link:hover {
+  background: linear-gradient(90deg, rgb(189 235 252 / 94%), rgb(255 255 255 / 98%)), #ffffff;
+}
+
+:root[data-theme='light'] .route-link[aria-current='page'] {
+  background: linear-gradient(90deg, rgb(40 153 191 / 88%), rgb(230 247 255 / 96%)), #d8f3ff;
+  border-color: rgb(11 104 137 / 54%);
+  color: #082f43;
+}
+
+:root[data-theme='light'] .route-link[aria-current='page']::after {
+  background:
+    linear-gradient(90deg, rgb(8 126 164 / 88%), rgb(28 172 213 / 74%) 48%, transparent 49%),
+    linear-gradient(135deg, rgb(8 126 164 / 92%), rgb(116 226 255 / 72%));
+  border-color: rgb(8 126 164 / 48%);
+}
+
+@media (min-width: 981px) {
+  .app-frame {
+    grid-template-columns: 252px minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 980px) {
+  .app-frame {
+    grid-template-columns: 1fr;
+  }
+
+  .app-sidebar {
+    background:
+      radial-gradient(circle at 0 0, rgb(84 226 255 / 14%), transparent 34%),
+      linear-gradient(180deg, rgb(4 34 54 / 94%), rgb(1 10 21 / 98%));
+    border: 1px solid rgb(84 226 255 / 34%);
+    border-radius: 10px;
+    clip-path: none;
+    min-height: auto;
+    overflow: hidden;
+    padding: 12px;
+  }
+
+  .route-link[aria-current='page'] {
+    transform: none;
+  }
+
+  .route-link::after {
+    display: none;
+  }
+}
+
+@media (max-width: 980px) {
+  .app-sidebar {
+    max-height: none;
+    position: relative;
+    top: auto;
+  }
+
+  .routes {
+    display: grid;
+    gap: 8px;
+    grid-template-columns: 1fr;
+    overflow: visible;
+    padding: 0;
+  }
+
+  .route-group {
+    display: grid;
+    gap: 6px;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .route-group-label {
+    justify-content: space-between;
+    min-height: 42px;
+    width: 100%;
+  }
+
+  .route-link {
+    min-width: 0;
+    width: 100%;
+  }
+}

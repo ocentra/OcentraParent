@@ -1,0 +1,75 @@
+export const PortalAuthChrome = {
+  Classes: {
+    Backdrop: 'portal-auth-backdrop',
+    Dialog: 'portal-auth-dialog',
+    FrameSvg: 'portal-auth-frame-svg',
+    FrameOuter: 'portal-auth-frame-outer',
+    FrameInset: 'portal-auth-frame-inset',
+    FrameRail: 'portal-auth-frame-rail',
+    FrameCorner: 'portal-auth-frame-corner',
+    Panel: 'portal-auth-panel',
+    CloseButton: 'portal-auth-close',
+    Brand: 'portal-auth-brand',
+    BrandMark: 'portal-auth-brand-mark',
+    BrandText: 'portal-auth-brand-text',
+    Eyebrow: 'portal-auth-eyebrow',
+    Title: 'portal-auth-title',
+    Body: 'portal-auth-body',
+    ModeTabs: 'portal-auth-tabs',
+    ModeTab: 'portal-auth-tab',
+    ModeTabActive: 'portal-auth-tab-active',
+    Form: 'portal-auth-form',
+    Field: 'portal-auth-field',
+    FieldLabel: 'portal-auth-label',
+    FieldInput: 'portal-auth-input',
+    PrimaryButton: 'portal-auth-primary',
+    SocialPanel: 'portal-auth-social',
+    SocialButton: 'portal-auth-social-button',
+    SocialIcon: 'portal-auth-social-icon',
+    TrustPanel: 'portal-auth-trust',
+    Status: 'portal-auth-status',
+  },
+  Assets: {
+    Logo: '/ocentra-game-assets/commons/OcentraLogo.svg',
+    Guest: '/ocentra-game-assets/auth/annon.png',
+    Google: '/ocentra-game-assets/auth/google.png',
+    Facebook: '/ocentra-game-assets/auth/facebook.png',
+  },
+  Svg: {
+    ViewBox: '0 0 781 1406',
+    PreserveAspectRatio: 'none',
+    OuterPath:
+      'M87 1 H694 L780 87 V448 L741 493 V913 L780 958 V1319 L694 1405 H87 L1 1319 V958 L40 913 V493 L1 448 V87 Z',
+    InsetPath: 'M119 103 H662 L728 169 V1237 L662 1303 H119 L53 1237 V169 Z',
+    LeftRailPath: 'M64 246 H96 V1160 H64 V998 L83 970 V438 L64 410 Z',
+    RightRailPath: 'M717 246 H685 V1160 H717 V998 L698 970 V438 L717 410 Z',
+    CornerRadius: 12,
+    CornerTop: 87,
+    CornerBottom: 1319,
+    CornerLeft: 87,
+    CornerRight: 694,
+  },
+  Roles: {
+    Dialog: 'dialog',
+    Status: 'status',
+  },
+  Modes: {
+    SignIn: 'signin',
+    SignUp: 'signup',
+  },
+  InputTypes: {
+    Email: 'email',
+    Password: 'password',
+    Text: 'text',
+  },
+  AutoComplete: {
+    Email: 'email',
+    CurrentPassword: 'current-password',
+    NewPassword: 'new-password',
+    Name: 'name',
+  },
+} as const;
+
+export type PortalAuthMode = (typeof PortalAuthChrome.Modes)[keyof typeof PortalAuthChrome.Modes];
+export type PortalAuthInputType = (typeof PortalAuthChrome.InputTypes)[keyof typeof PortalAuthChrome.InputTypes];
+export type PortalAuthAutoComplete = (typeof PortalAuthChrome.AutoComplete)[keyof typeof PortalAuthChrome.AutoComplete];
