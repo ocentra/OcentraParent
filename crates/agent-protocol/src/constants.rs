@@ -17,6 +17,17 @@ pub mod env_var {
     pub const MANAGED_BROWSER_PROFILE_DIR: &str = "OCENTRA_PARENT_MANAGED_BROWSER_PROFILE_DIR";
     pub const PROGRAM_FILES: &str = "PROGRAMFILES";
     pub const PROGRAM_FILES_X86: &str = "ProgramFiles(x86)";
+    pub const LOCAL_AI_RUNTIME_BINARY: &str = "OCENTRA_PARENT_LOCAL_AI_RUNTIME_BINARY";
+    pub const LOCAL_AI_MODEL_FILE: &str = "OCENTRA_PARENT_LOCAL_AI_MODEL_FILE";
+    pub const LOCAL_AI_MODEL_ARTIFACT_REF: &str = "OCENTRA_PARENT_LOCAL_AI_MODEL_ARTIFACT_REF";
+    pub const LOCAL_AI_MODEL_MANIFEST_REF: &str = "OCENTRA_PARENT_LOCAL_AI_MODEL_MANIFEST_REF";
+    pub const LOCAL_AI_EXECUTION_ENABLED: &str = "OCENTRA_PARENT_LOCAL_AI_EXECUTION_ENABLED";
+    pub const LOCAL_AI_GENERATION_TIMEOUT_MS: &str =
+        "OCENTRA_PARENT_LOCAL_AI_GENERATION_TIMEOUT_MS";
+    pub const LOCAL_AI_GENERATION_MAX_TOKENS: &str =
+        "OCENTRA_PARENT_LOCAL_AI_GENERATION_MAX_TOKENS";
+    pub const LOCAL_AI_RUNTIME_DEVICE: &str = "OCENTRA_PARENT_LOCAL_AI_RUNTIME_DEVICE";
+    pub const LOCAL_AI_GPU_LAYERS: &str = "OCENTRA_PARENT_LOCAL_AI_GPU_LAYERS";
     pub const COMPUTER_NAME: &str = "COMPUTERNAME";
     pub const DEV_LOG_DIR: &str = "OCENTRA_PARENT_DEV_LOG_DIR";
     pub const HOSTNAME: &str = "HOSTNAME";
@@ -46,6 +57,7 @@ pub mod event_id {
     pub const BROWSER_MANAGED_STATUS_REPORTED: &str = "browser-managed-status-reported";
     pub const NETWORK_FLOW_READ_MODEL_REPORTED: &str = "network-flow-read-model-reported";
     pub const LOCAL_AI_RUNTIME_STATUS_REPORTED: &str = "local-ai-runtime-status-reported";
+    pub const LOCAL_AI_CHAT_GENERATION_REPORTED: &str = "local-ai-chat-generation-reported";
     pub const POLICY_PREVIEW_READ_MODEL_REPORTED: &str = "policy-preview-read-model-reported";
     pub const DEV_LOCALHOST_API_READY: &str = "dev-localhost-api-ready";
     pub const UNKNOWN_COMMAND: &str = "unknown-command";
@@ -126,6 +138,7 @@ pub mod error {
         "network capture observes the current process socket";
     pub const BROWSER_BRIDGE_MAPS_TARGET: &str = "browser bridge maps target";
     pub const BROWSER_BRIDGE_REJECTS_INVALID_URL: &str = "browser bridge rejects invalid URL";
+    pub const LOCAL_AI_RUNTIME_SPAWNS: &str = "local AI runtime process spawns";
 }
 
 #[path = "constants/local_ai_runtime.rs"]
@@ -141,6 +154,7 @@ pub mod delimiter {
     pub const OPEN_BRACKET: char = '[';
     pub const SLASH: char = '/';
     pub const AT: char = '@';
+    pub const UNDERSCORE: char = '_';
 }
 
 pub mod test_network {

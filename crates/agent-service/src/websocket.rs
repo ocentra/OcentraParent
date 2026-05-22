@@ -12,6 +12,7 @@ use crate::{
     browser_runtime::build_browser_managed_status_report,
     event_builder::{build_event, portal_peer},
     fields::fields_from_pairs,
+    local_ai_chat_generation::build_local_ai_chat_generation_report,
     local_ai_runtime_status::build_local_ai_runtime_status_report,
     policy_preview_api::build_policy_preview_read_model_report,
     snapshot::build_dev_log_snapshot,
@@ -107,7 +108,10 @@ async fn handle_command(command: AgentCommandEnvelope) -> AgentEventEnvelope {
             build_network_flow_read_model_report(command).await
         }
         AgentCommandName::AgentLocalAiRuntimeStatusGet => {
-            build_local_ai_runtime_status_report(command)
+            build_local_ai_runtime_status_report(command).await
+        }
+        AgentCommandName::AgentLocalAiChatGenerate => {
+            build_local_ai_chat_generation_report(command).await
         }
         AgentCommandName::AgentPolicyPreviewReadModelGet => {
             build_policy_preview_read_model_report(command).await

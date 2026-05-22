@@ -1,5 +1,6 @@
 use ocentra_parent_agent_protocol::{
-    constants, LocalModelRuntimeStatus, LocalProviderAdapterProbe, LogFieldValue, LogFields,
+    constants, LocalAiModelCacheStatus, LocalModelRuntimeStatus, LocalProviderAdapterProbe,
+    LogFieldValue, LogFields,
 };
 
 use crate::fields::fields_from_pairs;
@@ -7,9 +8,11 @@ use crate::fields::fields_from_pairs;
 pub fn local_ai_runtime_status_payload(
     status: &LocalModelRuntimeStatus,
     probe: &LocalProviderAdapterProbe,
+    cache: &LocalAiModelCacheStatus,
 ) -> LogFields {
     let mut pairs = runtime_status_fields(status);
     pairs.extend(adapter_probe_fields(probe));
+    pairs.extend(model_cache_status_fields(cache));
     fields_from_pairs(pairs)
 }
 
@@ -89,6 +92,77 @@ fn adapter_probe_fields(probe: &LocalProviderAdapterProbe) -> Vec<(&'static str,
     ]
 }
 
+fn model_cache_status_fields(
+    cache: &LocalAiModelCacheStatus,
+) -> Vec<(&'static str, LogFieldValue)> {
+    vec![
+        string_field(
+            constants::field::LOCAL_AI_MODEL_ARTIFACT_REF,
+            cache.artifact_ref.clone(),
+        ),
+        (
+            constants::field::LOCAL_AI_MODEL_MANIFEST_REF,
+            optional_string(&cache.manifest_ref),
+        ),
+        protocol_field(
+            constants::field::LOCAL_AI_MODEL_SOURCE_POLICY,
+            cache.source_policy.as_protocol_str(),
+        ),
+        protocol_field(
+            constants::field::LOCAL_AI_MODEL_CACHE_STATE,
+            cache.cache_state.as_protocol_str(),
+        ),
+        protocol_field(
+            constants::field::LOCAL_AI_MODEL_CACHE_HEALTH,
+            cache.cache_health.as_protocol_str(),
+        ),
+        protocol_field(
+            constants::field::LOCAL_AI_MODEL_MANIFEST_INTEGRITY,
+            cache.manifest_integrity.as_protocol_str(),
+        ),
+        bool_field(
+            constants::field::LOCAL_AI_MODEL_DOWNLOAD_ENABLED,
+            cache.download_enabled,
+        ),
+        protocol_field(
+            constants::field::LOCAL_AI_MODEL_DOWNLOAD_STATUS,
+            cache.download_status.as_protocol_str(),
+        ),
+        number_field(
+            constants::field::LOCAL_AI_MODEL_CACHE_BYTE_SIZE,
+            cache.cache_byte_size,
+        ),
+        string_field(constants::field::CHECKED_AT, cache.checked_at.clone()),
+        (
+            constants::field::LOCAL_AI_MODEL_CACHE_UNAVAILABLE_REASON,
+            optional_protocol(
+                cache
+                    .unavailable_reason
+                    .as_ref()
+                    .map(|value| value.as_protocol_str()),
+            ),
+        ),
+        (
+            constants::field::LOCAL_AI_MODEL_CACHE_STORAGE_ERROR,
+            optional_protocol(
+                cache
+                    .storage_error
+                    .as_ref()
+                    .map(|value| value.as_protocol_str()),
+            ),
+        ),
+        (
+            constants::field::LOCAL_AI_MODEL_CACHE_CORRUPTION_REASON,
+            optional_protocol(
+                cache
+                    .corruption_reason
+                    .as_ref()
+                    .map(|value| value.as_protocol_str()),
+            ),
+        ),
+    ]
+}
+
 fn string_field(key: &'static str, value: String) -> (&'static str, LogFieldValue) {
     (key, LogFieldValue::String(value))
 }
@@ -99,6 +173,10 @@ fn protocol_field(key: &'static str, value: &'static str) -> (&'static str, LogF
 
 fn bool_field(key: &'static str, value: bool) -> (&'static str, LogFieldValue) {
     (key, LogFieldValue::Boolean(value))
+}
+
+fn number_field(key: &'static str, value: u64) -> (&'static str, LogFieldValue) {
+    (key, LogFieldValue::Number(value as f64))
 }
 
 fn capability_flags(status: &LocalModelRuntimeStatus) -> String {
@@ -118,6 +196,13 @@ fn capability_flags(status: &LocalModelRuntimeStatus) -> String {
 fn optional_string(value: &Option<String>) -> LogFieldValue {
     match value {
         Some(text) => LogFieldValue::String(text.clone()),
+        None => LogFieldValue::Null(()),
+    }
+}
+
+fn optional_protocol(value: Option<&'static str>) -> LogFieldValue {
+    match value {
+        Some(text) => LogFieldValue::String(text.to_string()),
         None => LogFieldValue::Null(()),
     }
 }
