@@ -1,6 +1,7 @@
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import {
   AgentDeviceIdSchema,
+  AgentEventIdSchema,
   AgentPeerIdSchema,
   AgentPlatformSchema,
   AgentProtocolSchemaVersion,
@@ -14,6 +15,7 @@ export const AgentPairingIdSchema = NonEmptySecurityText.pipe(Schema.brand('Agen
 export const AgentPairingTokenHashSchema = NonEmptySecurityText.pipe(Schema.brand('AgentPairingTokenHash'));
 export const AgentLanPairingAddressRefSchema = NonEmptySecurityText.pipe(Schema.brand('AgentLanPairingAddressRef'));
 export const AgentLanPairingChallengeIdSchema = NonEmptySecurityText.pipe(Schema.brand('AgentLanPairingChallengeId'));
+export const AgentLanPairingIntentIdSchema = NonEmptySecurityText.pipe(Schema.brand('AgentLanPairingIntentId'));
 export const AgentLanPairingProofDigestSchema = NonEmptySecurityText.pipe(Schema.brand('AgentLanPairingProofDigest'));
 export const AgentLanPairingRouteIdSchema = NonEmptySecurityText.pipe(Schema.brand('AgentLanPairingRouteId'));
 
@@ -24,6 +26,27 @@ export const AgentPairingStateSchema = withParser(
 export const AgentLanSelectedDeviceReachabilitySchema = withParser(Schema.Literal('online', 'offline', 'stale'));
 export const AgentLanPairingNetworkModeSchema = withParser(Schema.Literal('loopback', 'local-network'));
 export const AgentLanPairingRuntimeSupportStatusSchema = withParser(Schema.Literal('planned-unsupported'));
+export const AgentLanPairingIntentKindSchema = withParser(
+  Schema.Literal('health-query', 'rule-query', 'rule-update', 'approval-decision', 'configuration-update')
+);
+export const AgentLanPairingResponseStateSchema = withParser(
+  Schema.Literal('accepted', 'rejected', 'queued', 'completed')
+);
+export const AgentLanPairingRejectionReasonSchema = withParser(
+  Schema.Literal(
+    'anonymous',
+    'wrong-origin',
+    'wrong-device',
+    'expired',
+    'replayed',
+    'malformed',
+    'stale',
+    'offline',
+    'revoked',
+    'unsupported-route',
+    'unselected-device'
+  )
+);
 
 export const AgentLanPairingDeviceRefSchema = withParser(
   Schema.Struct({
@@ -77,6 +100,34 @@ export const AgentLanPairingProofPreviewSchema = withParser(
   })
 );
 
+export const AgentLanParentIntentEnvelopeSchema = withParser(
+  Schema.Struct({
+    schemaVersion: Schema.Literal(AgentProtocolSchemaVersion),
+    intentId: AgentLanPairingIntentIdSchema,
+    intentKind: AgentLanPairingIntentKindSchema,
+    targetChildDeviceId: AgentDeviceIdSchema,
+    routeId: AgentLanPairingRouteIdSchema,
+    pairingId: AgentPairingIdSchema,
+    proofDigest: AgentLanPairingProofDigestSchema,
+    origin: NonEmptySecurityText,
+    issuedAt: AgentTimestampSchema,
+    expiresAt: AgentTimestampSchema,
+  })
+);
+
+export const AgentLanChildAgentResponseSchema = withParser(
+  Schema.Struct({
+    schemaVersion: Schema.Literal(AgentProtocolSchemaVersion),
+    intentId: AgentLanPairingIntentIdSchema,
+    targetChildDeviceId: AgentDeviceIdSchema,
+    routeId: AgentLanPairingRouteIdSchema,
+    state: AgentLanPairingResponseStateSchema,
+    rejectionReason: Schema.Union(AgentLanPairingRejectionReasonSchema, Schema.Null),
+    auditEventId: AgentEventIdSchema,
+    respondedAt: AgentTimestampSchema,
+  })
+);
+
 export const AgentPairingProofSchema = withParser(
   Schema.Struct({
     pairingId: AgentPairingIdSchema,
@@ -102,13 +153,19 @@ export type AgentPairingState = Infer<typeof AgentPairingStateSchema>;
 export type AgentLanSelectedDeviceReachability = Infer<typeof AgentLanSelectedDeviceReachabilitySchema>;
 export type AgentLanPairingAddressRef = typeof AgentLanPairingAddressRefSchema.Type;
 export type AgentLanPairingChallengeId = typeof AgentLanPairingChallengeIdSchema.Type;
+export type AgentLanPairingIntentId = typeof AgentLanPairingIntentIdSchema.Type;
 export type AgentLanPairingDeviceRef = Infer<typeof AgentLanPairingDeviceRefSchema>;
 export type AgentLanPairingDiscoveryDevice = Infer<typeof AgentLanPairingDiscoveryDeviceSchema>;
 export type AgentLanPairingChallenge = Infer<typeof AgentLanPairingChallengeSchema>;
+export type AgentLanPairingIntentKind = Infer<typeof AgentLanPairingIntentKindSchema>;
 export type AgentLanPairingNetworkMode = Infer<typeof AgentLanPairingNetworkModeSchema>;
 export type AgentLanPairingProofDigest = typeof AgentLanPairingProofDigestSchema.Type;
 export type AgentLanPairingProofPreview = Infer<typeof AgentLanPairingProofPreviewSchema>;
+export type AgentLanPairingRejectionReason = Infer<typeof AgentLanPairingRejectionReasonSchema>;
+export type AgentLanPairingResponseState = Infer<typeof AgentLanPairingResponseStateSchema>;
 export type AgentLanPairingRouteId = typeof AgentLanPairingRouteIdSchema.Type;
 export type AgentLanPairingRuntimeSupportStatus = Infer<typeof AgentLanPairingRuntimeSupportStatusSchema>;
+export type AgentLanChildAgentResponse = Infer<typeof AgentLanChildAgentResponseSchema>;
+export type AgentLanParentIntentEnvelope = Infer<typeof AgentLanParentIntentEnvelopeSchema>;
 export type AgentPairingProof = Infer<typeof AgentPairingProofSchema>;
 export type AgentRouteSecurityPolicy = Infer<typeof AgentRouteSecurityPolicySchema>;

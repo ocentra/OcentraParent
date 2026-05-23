@@ -53,6 +53,7 @@ pub const LAN_CHILD_DEVICE_ID: &str = "childDeviceId";
 pub const LAN_CONTROL_STATE: &str = "controlState";
 pub const LAN_DISCOVERY_STATUS: &str = "discoveryStatus";
 pub const LAN_INTENT_ID: &str = "intentId";
+pub const LAN_INTENT_KIND: &str = "intentKind";
 pub const LAN_PAIRING_ID: &str = "pairingId";
 pub const LAN_PAIRING_STATE: &str = "pairingState";
 pub const LAN_PARENT_DEVICE_ID: &str = "parentDeviceId";

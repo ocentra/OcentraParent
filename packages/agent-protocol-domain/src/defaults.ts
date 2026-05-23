@@ -6,8 +6,10 @@ import {
   AgentWebSocketUrlSchema,
 } from './primitives';
 import {
+  AgentLanPairingIntentKindSchema,
   AgentLanSelectedDeviceReachabilitySchema,
   AgentLanPairingRuntimeSupportStatusSchema,
+  AgentLanPairingResponseStateSchema,
   AgentPairingStateSchema,
   AgentRouteSecurityPolicySchema,
 } from './security';
@@ -50,6 +52,19 @@ export const AgentProtocolDefaults = {
   },
   LanRuntimeSupportStatus: {
     PlannedUnsupported: AgentLanPairingRuntimeSupportStatusSchema.parse('planned-unsupported'),
+  },
+  LanIntentKind: {
+    HealthQuery: AgentLanPairingIntentKindSchema.parse('health-query'),
+    RuleQuery: AgentLanPairingIntentKindSchema.parse('rule-query'),
+    RuleUpdate: AgentLanPairingIntentKindSchema.parse('rule-update'),
+    ApprovalDecision: AgentLanPairingIntentKindSchema.parse('approval-decision'),
+    ConfigurationUpdate: AgentLanPairingIntentKindSchema.parse('configuration-update'),
+  },
+  LanResponseState: {
+    Accepted: AgentLanPairingResponseStateSchema.parse('accepted'),
+    Rejected: AgentLanPairingResponseStateSchema.parse('rejected'),
+    Queued: AgentLanPairingResponseStateSchema.parse('queued'),
+    Completed: AgentLanPairingResponseStateSchema.parse('completed'),
   },
   RouteSecurity: {
     Localhost: AgentRouteSecurityPolicySchema.parse({
@@ -120,12 +135,14 @@ export const AgentProtocolDefaults = {
     LanControlState: 'controlState',
     LanDiscoveryStatus: 'discoveryStatus',
     LanIntentId: 'intentId',
+    LanIntentKind: 'intentKind',
     LanPairingId: 'pairingId',
     LanPairingState: 'pairingState',
     LanParentDeviceId: 'parentDeviceId',
     LanProofDigest: 'proofDigest',
     LanProofPreviewStatus: 'proofPreviewStatus',
     LanRejectionReason: 'rejectionReason',
+    LanResponseState: 'state',
     LanRevokedDeviceIds: 'revokedDeviceIds',
     LanRouteId: 'routeId',
     LanSelectedChildDeviceId: 'selectedChildDeviceId',

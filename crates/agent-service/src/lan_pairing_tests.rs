@@ -8,8 +8,9 @@ use crate::{
     lan_pairing_test_support::{
         assert_accepted_control, assert_rejection, assert_selected_device_reachability,
         assert_status_selection, assert_status_support_surface, command_for_target, health_command,
-        intent_payload, intent_payload_for_pairing, local_network_target, paired_runtime,
-        route_revoke_command, serialize_command, status_command,
+        health_command_for_target, intent_payload, intent_payload_for_kind,
+        intent_payload_for_pairing, local_network_target, paired_runtime, route_revoke_command,
+        serialize_command, status_command,
     },
     websocket::handle_command_text_for_test,
 };
@@ -58,6 +59,7 @@ async fn lan_pairing_rejects_anonymous_wrong_origin_wrong_device_and_revoked_rou
             constants::lan_pairing::ROUTE_ID_UNSUPPORTED,
             constants::lan_pairing::PROOF_DIGEST,
             constants::lan_pairing::EXPIRES_AT,
+            constants::value::LAN_INTENT_HEALTH_QUERY,
         ))),
         runtime.clone(),
         Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
@@ -77,6 +79,94 @@ async fn lan_pairing_rejects_anonymous_wrong_origin_wrong_device_and_revoked_rou
         &unsupported_route,
         constants::value::LAN_REASON_UNSUPPORTED_ROUTE,
     );
+}
+
+#[tokio::test]
+async fn lan_pairing_accepts_typed_rule_query_rule_update_and_approval_intents_child_side() {
+    let runtime = paired_runtime().await;
+    let rule_query = handle_command_text_for_test(
+        &serialize_command(health_command(intent_payload_for_kind(
+            constants::lan_pairing::RULE_QUERY_INTENT_ID,
+            constants::lan_pairing::CHILD_DEVICE_ID,
+            constants::lan_pairing::PROOF_DIGEST,
+            constants::lan_pairing::EXPIRES_AT,
+            constants::value::LAN_INTENT_RULE_QUERY,
+        ))),
+        runtime.clone(),
+        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+    )
+    .await;
+    let rule_update = handle_command_text_for_test(
+        &serialize_command(health_command(intent_payload_for_kind(
+            constants::lan_pairing::RULE_UPDATE_INTENT_ID,
+            constants::lan_pairing::CHILD_DEVICE_ID,
+            constants::lan_pairing::PROOF_DIGEST,
+            constants::lan_pairing::EXPIRES_AT,
+            constants::value::LAN_INTENT_RULE_UPDATE,
+        ))),
+        runtime.clone(),
+        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+    )
+    .await;
+    let approval_decision = handle_command_text_for_test(
+        &serialize_command(health_command(intent_payload_for_kind(
+            constants::lan_pairing::APPROVAL_DECISION_INTENT_ID,
+            constants::lan_pairing::CHILD_DEVICE_ID,
+            constants::lan_pairing::PROOF_DIGEST,
+            constants::lan_pairing::EXPIRES_AT,
+            constants::value::LAN_INTENT_APPROVAL_DECISION,
+        ))),
+        runtime,
+        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+    )
+    .await;
+
+    assert_eq!(rule_query.event, AgentEventName::AgentHealthReported);
+    assert_eq!(rule_update.event, AgentEventName::AgentHealthReported);
+    assert_eq!(approval_decision.event, AgentEventName::AgentHealthReported);
+    assert_eq!(
+        rule_query.payload.get(constants::field::LAN_INTENT_KIND),
+        Some(&LogFieldValue::String(
+            constants::value::LAN_INTENT_RULE_QUERY.to_string()
+        ))
+    );
+    assert_eq!(
+        rule_update.payload.get(constants::field::LAN_INTENT_KIND),
+        Some(&LogFieldValue::String(
+            constants::value::LAN_INTENT_RULE_UPDATE.to_string()
+        ))
+    );
+    assert_eq!(
+        approval_decision
+            .payload
+            .get(constants::field::LAN_INTENT_KIND),
+        Some(&LogFieldValue::String(
+            constants::value::LAN_INTENT_APPROVAL_DECISION.to_string()
+        ))
+    );
+}
+
+#[tokio::test]
+async fn lan_pairing_rejects_wrong_command_target_before_child_agent_execution() {
+    let runtime = paired_runtime().await;
+    let wrong_target = handle_command_text_for_test(
+        &serialize_command(health_command_for_target(
+            constants::lan_pairing::SECOND_CHILD_DEVICE_ID,
+            intent_payload_for_kind(
+                constants::lan_pairing::RULE_QUERY_INTENT_ID,
+                constants::lan_pairing::CHILD_DEVICE_ID,
+                constants::lan_pairing::PROOF_DIGEST,
+                constants::lan_pairing::EXPIRES_AT,
+                constants::value::LAN_INTENT_RULE_QUERY,
+            ),
+        )),
+        runtime,
+        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+    )
+    .await;
+
+    assert_rejection(&wrong_target, constants::value::LAN_REASON_WRONG_DEVICE);
+    assert_ne!(wrong_target.event, AgentEventName::AgentHealthReported);
 }
 
 #[tokio::test]
