@@ -44,10 +44,21 @@ const LeaderboardNavItemSchema = schema
     detail: schema.string(),
     icon: LeaderboardIconNameSchema,
     tabId: LeaderboardTabIdSchema,
+    groupId: schema.string().min(1).optional(),
     tone: LeaderboardPageToneSchema.optional(),
+    routePath: schema.string().optional(),
   })
   .strict();
 export type LeaderboardNavItem = schema.infer<typeof LeaderboardNavItemSchema>;
+
+const LeaderboardNavGroupSchema = schema
+  .object({
+    id: schema.string().min(1),
+    label: schema.string().min(1),
+    detail: schema.string(),
+  })
+  .strict();
+export type LeaderboardNavGroup = schema.infer<typeof LeaderboardNavGroupSchema>;
 
 const LeaderboardTabDetailSchema = schema
   .object({
@@ -92,6 +103,47 @@ const LeaderboardQuickGameSchema = schema
   })
   .strict();
 export type LeaderboardQuickGame = schema.infer<typeof LeaderboardQuickGameSchema>;
+
+const LeaderboardGuidePageSchema = schema
+  .object({
+    eyebrow: schema.string(),
+    title: schema.string().min(1),
+    body: schema.string(),
+    steps: schema.array(schema.string()),
+  })
+  .strict();
+export type LeaderboardGuidePage = schema.infer<typeof LeaderboardGuidePageSchema>;
+
+const LeaderboardGuideNoteSchema = schema
+  .object({
+    label: schema.string().min(1),
+    body: schema.string(),
+    tone: LeaderboardPageToneSchema,
+    targetPage: schema.number().optional(),
+    targetTopicId: schema.string().optional(),
+    targetNavLabel: schema.string().optional(),
+    targetRoutePath: schema.string().optional(),
+  })
+  .strict();
+export type LeaderboardGuideNote = schema.infer<typeof LeaderboardGuideNoteSchema>;
+
+const LeaderboardGuideTopicSchema = schema
+  .object({
+    id: schema.string().min(1),
+    navLabel: schema.string().min(1),
+    rank: schema.number(),
+    title: schema.string().min(1),
+    subtitle: schema.string(),
+    detail: schema.string(),
+    tone: LeaderboardPageToneSchema,
+    category: schema.string(),
+    subcategory: schema.string(),
+    pages: schema.array(LeaderboardGuidePageSchema),
+    tips: schema.array(LeaderboardGuideNoteSchema),
+    actions: schema.array(LeaderboardGuideNoteSchema),
+  })
+  .strict();
+export type LeaderboardGuideTopic = schema.infer<typeof LeaderboardGuideTopicSchema>;
 
 const LeaderboardRowSchema = schema
   .object({
@@ -174,6 +226,7 @@ const LeaderboardUiCopySchema = schema
 export const LeaderboardPageContentDataSchema = schema
   .object({
     tabs: schema.array(LeaderboardTabSchema),
+    navGroups: schema.array(LeaderboardNavGroupSchema),
     navItems: schema.array(LeaderboardNavItemSchema),
     tabDetails: schema
       .object({
@@ -186,6 +239,7 @@ export const LeaderboardPageContentDataSchema = schema
       .strict(),
     topGames: schema.array(LeaderboardGameOptionSchema),
     quickGames: schema.array(LeaderboardQuickGameSchema),
+    guideTopics: schema.array(LeaderboardGuideTopicSchema),
     fallbackRows: schema.array(LeaderboardRowSchema),
     aiBenchmarkRows: schema.array(LeaderboardRowSchema),
     distributionLabels: schema.array(schema.string()),

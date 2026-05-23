@@ -3,6 +3,7 @@ import {
   PARENT_LEADERBOARD_COPY_CONTENT,
   PARENT_LEADERBOARD_COPY_ROUTE,
   PARENT_LEADERBOARD_COPY_ROWS,
+  PortalDom,
   PortalConnectionState,
   parentLeaderboardCopyRouteContext,
   type PortalRoute as PortalRouteValue,
@@ -37,6 +38,12 @@ export function ParentLeaderboardCopyRoute({ actions, route, state }: ParentLead
         initialSelectedGameId={routeContext.selectedControlId}
         onRefreshLeaderboard={actions.reconnect}
         onMatchmaking={actions.reconnect}
+        onNavigate={(routePath) => {
+          if (!routePath.startsWith(PortalDom.HashPrefix)) {
+            return;
+          }
+          window.location.hash = routePath;
+        }}
       />
     </div>
   );

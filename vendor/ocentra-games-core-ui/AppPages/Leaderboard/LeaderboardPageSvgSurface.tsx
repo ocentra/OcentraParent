@@ -43,7 +43,10 @@ import {
 import {
   normalizeLeaderboardPageContent,
   type LeaderboardGameOption,
+  type LeaderboardGuideNote,
+  type LeaderboardGuideTopic,
   type LeaderboardIconName,
+  type LeaderboardNavGroup,
   type LeaderboardNavItem,
   type LeaderboardPageContentData,
   type LeaderboardQuickGame,
@@ -104,6 +107,16 @@ type LeaderboardTopCardItem =
       value: string;
       detail: string;
       tone: Tone;
+    }
+  | {
+      kind: 'guide';
+      key: string;
+      topic: LeaderboardGuideTopic;
+      title: string;
+      subtitle: string;
+      value: string;
+      detail: string;
+      tone: Tone;
     };
 type TournamentAd = {
   id: string;
@@ -146,11 +159,16 @@ type LeaderboardPageSvgSurfaceProps = {
   initialSelectedGameId?: string;
   onRefreshLeaderboard: (gameType: number) => void;
   onMatchmaking: () => void;
+  onNavigate?: (routePath: string) => void;
 };
 
 type NavItem = Omit<LeaderboardNavItem, 'icon'> & {
   icon: IconComponent;
   imageUrl: string;
+};
+
+type NavGroup = LeaderboardNavGroup & {
+  items: NavItem[];
 };
 
 type TabDetail = LeaderboardTabDetail;
@@ -714,6 +732,57 @@ function initialNavLabelForTab(navItems: NavItem[], tab: LeaderboardTabId): stri
   return navItems.find((item) => item.tabId === tab)?.label ?? navItems[0]?.label ?? '';
 }
 
+function groupedLeaderboardNavItems(navGroups: LeaderboardNavGroup[], navItems: NavItem[]): NavGroup[] {
+  const groupIds = new Set(navGroups.map((group) => group.id));
+  const groups = navGroups.map((group) => ({
+    ...group,
+    items: navItems.filter((item) => item.groupId === group.id),
+  }));
+  const ungroupedItems = navItems.filter((item) => !item.groupId || !groupIds.has(item.groupId));
+  if (ungroupedItems.length === 0) return groups.filter((group) => group.items.length > 0);
+  return [
+    ...groups.filter((group) => group.items.length > 0),
+    {
+      id: 'menu',
+      label: 'MENU',
+      detail: 'Navigation',
+      items: ungroupedItems,
+    },
+  ];
+}
+
+function navGroupIdForNavLabel(navGroups: NavGroup[], navLabel: string): string {
+  return navGroups.find((group) => group.items.some((item) => item.label === navLabel))?.id ?? navGroups[0]?.id ?? '';
+}
+
+function initialOpenNavGroupIds(navGroups: NavGroup[], navLabel: string): Record<string, boolean> {
+  const activeGroupId = navGroupIdForNavLabel(navGroups, navLabel);
+  return Object.fromEntries(
+    navGroups.map((group, index) => [group.id, group.id === activeGroupId || (!activeGroupId && index === 0)])
+  );
+}
+
+function ensureOpenNavGroupIds(
+  current: Record<string, boolean>,
+  navGroups: NavGroup[],
+  navLabel: string
+): Record<string, boolean> {
+  const activeGroupId = navGroupIdForNavLabel(navGroups, navLabel);
+  return Object.fromEntries(
+    navGroups.map((group) => [group.id, Boolean(current[group.id]) || group.id === activeGroupId])
+  );
+}
+
+function toggleOpenNavGroupId(
+  current: Record<string, boolean>,
+  navGroups: NavGroup[],
+  groupId: string
+): Record<string, boolean> {
+  return Object.fromEntries(
+    navGroups.map((group) => [group.id, group.id === groupId ? !current[group.id] : Boolean(current[group.id])])
+  );
+}
+
 function normalizeSelectionId(value?: string): string {
   return (value ?? '').trim().toLowerCase();
 }
@@ -744,6 +813,10 @@ function isLeaderboardGameEntry(game: Pick<LeaderboardQuickGame, 'id' | 'name' |
   if (name === 'quick-access' || name === 'all-games') return false;
   if (game.routePath === '/leaderboard' || game.routePath === '/games/card-games') return false;
   return true;
+}
+
+function isHashRoutePath(routePath?: string): routePath is string {
+  return typeof routePath === 'string' && routePath.startsWith('#/');
 }
 
 function rowSourceForPageMode(
@@ -925,6 +998,19 @@ function gameTopCard(game: TopGame | QuickGame, statsGame?: TopGame, index = 0):
     value,
     detail,
     tone: game.tone,
+  };
+}
+
+function guideTopCard(topic: LeaderboardGuideTopic): LeaderboardTopCardItem {
+  return {
+    kind: 'guide',
+    key: `guide:${normalizeSelectionId(topic.id)}`,
+    topic,
+    title: topic.title,
+    subtitle: topic.subtitle,
+    value: topic.category,
+    detail: topic.detail,
+    tone: topic.tone,
   };
 }
 
@@ -2316,38 +2402,218 @@ function NavRow({
   );
 }
 
-function TournamentAdCarouselPanel({
+function NavGroupHeader({
+  group,
+  open,
+  x,
+  w,
+  y,
+  h,
+  onToggle,
+  cfg,
+}: {
+  group: NavGroup;
+  open: boolean;
+  x: number;
+  w: number;
+  y: number;
+  h: number;
+  onToggle: () => void;
+  cfg: LeaderboardPageSvgControls;
+}) {
+  const [hovered, setHovered] = useState(false);
+  const rowX = x + 14;
+  const rowW = w - 28;
+  const lit = open || hovered;
+  const labelW = rowW - 58;
+  const labelSize = fitSingleLineTextSize(group.label, labelW, 9.2, 12.2, 0.58);
+  const detailSize = fitSingleLineTextSize(group.detail, labelW, 7.2, 8.8, 0.58);
+  const chevronX = rowX + rowW - 26;
+  const chevronY = y + h / 2;
+  return (
+    <g
+      className="leaderboard-page-svg-clickable"
+      onClick={(event) => {
+        event.stopPropagation();
+        onToggle();
+      }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onKeyDown={(event) => {
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        event.preventDefault();
+        event.stopPropagation();
+        onToggle();
+      }}
+      role="button"
+      tabIndex={0}
+      aria-label={`${open ? 'Collapse' : 'Expand'} ${group.label}`}
+      aria-expanded={open}
+    >
+      <path
+        d={cutRectPath(rowX, y, rowW, h, 7)}
+        fill={lit ? 'url(#leaderboardPanelBlue)' : 'rgba(8, 28, 45, 0.3)'}
+        stroke={cfg.colors.cyan}
+        strokeWidth={lit ? 1.2 : 0.8}
+        opacity={lit ? 0.92 : 0.72}
+      />
+      <line
+        x1={rowX + 10}
+        y1={y + h - 4}
+        x2={rowX + rowW - 12}
+        y2={y + h - 4}
+        stroke={cfg.colors.cyan}
+        strokeWidth={0.8}
+        opacity={lit ? 0.48 : 0.28}
+      />
+      <text x={rowX + 10} y={y + h * 0.44} fontSize={labelSize} fontWeight={900} fill={cfg.colors.bodyText}>
+        {group.label}
+      </text>
+      <text x={rowX + 10} y={y + h * 0.76} fontSize={detailSize} fontWeight={680} fill={cfg.colors.mutedText}>
+        {group.detail}
+      </text>
+      <path
+        d={
+          open
+            ? `M ${chevronX - 5} ${chevronY - 2} L ${chevronX} ${chevronY + 4} L ${chevronX + 5} ${chevronY - 2}`
+            : `M ${chevronX - 2} ${chevronY - 5} L ${chevronX + 4} ${chevronY} L ${chevronX - 2} ${chevronY + 5}`
+        }
+        fill="none"
+        stroke={cfg.colors.bodyText}
+        strokeWidth={1.7}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        opacity={lit ? 0.96 : 0.72}
+      />
+    </g>
+  );
+}
+
+function ChatDockPanel({
   x,
   y,
   w,
   h,
+  active,
+  onOpen,
   cfg,
 }: {
   x: number;
   y: number;
   w: number;
   h: number;
+  active: boolean;
+  onOpen: () => void;
   cfg: LeaderboardPageSvgControls;
 }) {
+  const [hovered, setHovered] = useState(false);
+  const lit = active || hovered;
+  const color = active ? cfg.colors.gold : cfg.colors.cyan;
+  const labelSize = fitSingleLineTextSize('CHAT', w - 92, 13, 18, 0.58);
   return (
-    <SurfacePanel x={x} y={y} w={w} h={h} tone="cyan" frame="deckSide" frameCornerThicknessScale={0.5} cfg={cfg} />
+    <SurfacePanel
+      x={x}
+      y={y}
+      w={w}
+      h={h}
+      tone={active ? 'gold' : 'cyan'}
+      frame="deckSide"
+      frameCornerThicknessScale={0.5}
+      cfg={cfg}
+    >
+      <g
+        className="leaderboard-page-svg-clickable"
+        role="button"
+        tabIndex={0}
+        aria-label="Open parent chat"
+        aria-pressed={active}
+        onClick={(event) => {
+          event.stopPropagation();
+          onOpen();
+        }}
+        onKeyDown={(event) => {
+          if (event.key !== 'Enter' && event.key !== ' ') return;
+          event.preventDefault();
+          event.stopPropagation();
+          onOpen();
+        }}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+      >
+        {lit ? (
+          <>
+            <path
+              d={cutRectPath(x + 13, y + 11, w - 26, h - 22, 10)}
+              fill="none"
+              stroke={color}
+              strokeWidth={active ? 2.2 : 1.8}
+              opacity={active ? 0.52 : 0.38}
+              filter={active ? 'url(#leaderboardGoldGlow)' : 'url(#leaderboardGlow)'}
+            />
+            <path
+              d={`M ${x + w - 19} ${y + 18} L ${x + w + 11} ${y + h / 2} L ${x + w - 19} ${y + h - 18} Z`}
+              fill={color}
+              opacity={active ? 0.82 : 0.58}
+              filter={active ? 'url(#leaderboardGoldGlow)' : 'url(#leaderboardGlow)'}
+            />
+          </>
+        ) : null}
+        <path
+          d={cutRectPath(x + 17, y + 15, w - 34, h - 30, 9)}
+          fill={lit ? colorAlpha(color, active ? '2f' : '20') : 'rgba(5, 19, 32, 0.18)'}
+          stroke={lit ? color : cfg.colors.cyan}
+          strokeWidth={lit ? 1.4 : 0.8}
+          strokeOpacity={lit ? 0.92 : 0.5}
+          pointerEvents="all"
+        />
+        <path
+          d={cutRectPath(x + 29, y + 24, 43, h - 48, 7)}
+          fill={colorAlpha(color, lit ? '22' : '12')}
+          stroke={color}
+          strokeWidth={1}
+          strokeOpacity={lit ? 0.82 : 0.5}
+        />
+        <path
+          d={`M ${x + 42} ${y + h / 2 - 7} H ${x + 60} M ${x + 42} ${y + h / 2} H ${x + 56} M ${x + 42} ${y + h / 2 + 7} H ${x + 62}`}
+          stroke={color}
+          strokeWidth={2}
+          strokeLinecap="round"
+          opacity={lit ? 0.95 : 0.72}
+        />
+        <text x={x + 84} y={y + h / 2 - 4} fontSize={labelSize} fontWeight={950} fill={cfg.colors.bodyText}>
+          CHAT
+        </text>
+        <text x={x + 84} y={y + h / 2 + 15} fontSize={9.2} fontWeight={760} fill={cfg.colors.mutedText}>
+          Parent assistant
+        </text>
+      </g>
+    </SurfacePanel>
   );
 }
 
 function NavPanel({
   activeNavLabel,
-  navItems,
+  navGroups,
+  openGroupIds,
+  onNavGroupToggle,
   onNavItemSelect,
+  onChatOpen,
   cfg,
 }: {
   activeNavLabel: string;
-  navItems: NavItem[];
+  navGroups: NavGroup[];
+  openGroupIds: Record<string, boolean>;
+  onNavGroupToggle: (groupId: string) => void;
   onNavItemSelect: (item: NavItem) => void;
+  onChatOpen: () => void;
   cfg: LeaderboardPageSvgControls;
 }) {
   const { outerPad, leftW, topY, bottomH } = cfg.layout;
+  const navItems = navGroups.flatMap((group) => group.items);
   const rowH = 48;
-  const rowStep = navItems.length > 8 ? 51 : 56;
+  const rowStep = navItems.length > 8 ? 49 : 52;
+  const groupH = 34;
+  const groupGap = 6;
   const iconSize = 48;
   const dockH = Math.max(62, Math.round(bottomH * 1.1));
   const seasonY = cfg.canvas.height - dockH;
@@ -2356,25 +2622,61 @@ function NavPanel({
   const rowTop = sideTopY + 28;
   const sidePanelGap = 8;
   const navH = Math.max(300, seasonY - sideTopY - sidePanelGap);
+  let cursorY = rowTop;
   return (
     <g>
       <SurfacePanel x={outerPad} y={sideTopY} w={leftW} h={navH} tone="cyan" frame="deckSide" cfg={cfg}>
-        {navItems.map((item, index) => (
-          <NavRow
-            key={item.label}
-            item={item}
-            active={item.label === activeNavLabel}
-            x={outerPad}
-            w={leftW}
-            y={rowTop + index * rowStep}
-            rowH={rowH}
-            iconSize={iconSize}
-            onSelect={() => onNavItemSelect(item)}
-            cfg={cfg}
-          />
-        ))}
+        {navGroups.map((group) => {
+          const groupY = cursorY;
+          cursorY += groupH;
+          const open = Boolean(openGroupIds[group.id]);
+          const rows = open
+            ? group.items.map((item) => {
+                const itemY = cursorY;
+                cursorY += rowStep;
+                return (
+                  <NavRow
+                    key={item.label}
+                    item={item}
+                    active={item.label === activeNavLabel}
+                    x={outerPad}
+                    w={leftW}
+                    y={itemY}
+                    rowH={rowH}
+                    iconSize={iconSize}
+                    onSelect={() => onNavItemSelect(item)}
+                    cfg={cfg}
+                  />
+                );
+              })
+            : null;
+          cursorY += groupGap;
+          return (
+            <g key={group.id}>
+              <NavGroupHeader
+                group={group}
+                open={open}
+                x={outerPad}
+                w={leftW}
+                y={groupY}
+                h={groupH}
+                onToggle={() => onNavGroupToggle(group.id)}
+                cfg={cfg}
+              />
+              {rows}
+            </g>
+          );
+        })}
       </SurfacePanel>
-      <TournamentAdCarouselPanel x={outerPad} y={seasonY} w={leftW} h={seasonH} cfg={cfg} />
+      <ChatDockPanel
+        x={outerPad}
+        y={seasonY}
+        w={leftW}
+        h={seasonH}
+        active={activeNavLabel === 'CHAT'}
+        onOpen={onChatOpen}
+        cfg={cfg}
+      />
     </g>
   );
 }
@@ -2555,6 +2857,12 @@ function ParentPortalDetailPanel({
   detail,
   rows,
   selectedGameName,
+  guideTopic,
+  guidePage,
+  onGuidePageChange,
+  quickPanelMode,
+  onQuickPanelModeChange,
+  onGuideNoteSelect,
   cfg,
 }: {
   x: number;
@@ -2565,8 +2873,31 @@ function ParentPortalDetailPanel({
   detail: TabDetail;
   rows: DisplayRow[];
   selectedGameName: string;
+  guideTopic?: LeaderboardGuideTopic | null;
+  guidePage: number;
+  onGuidePageChange: (page: number) => void;
+  quickPanelMode: 'read' | 'action';
+  onQuickPanelModeChange: (mode: 'read' | 'action') => void;
+  onGuideNoteSelect: (note: LeaderboardGuideNote) => void;
   cfg: LeaderboardPageSvgControls;
 }) {
+  if (guideTopic) {
+    return (
+      <GuideTopicDetailPanel
+        x={x}
+        y={y}
+        w={w}
+        h={h}
+        topic={guideTopic}
+        page={guidePage}
+        onPageChange={onGuidePageChange}
+        quickPanelMode={quickPanelMode}
+        onQuickPanelModeChange={onQuickPanelModeChange}
+        onNoteSelect={onGuideNoteSelect}
+        cfg={cfg}
+      />
+    );
+  }
   const color = toneColor(detail.tone, cfg);
   const cardGap = 12;
   const usableH = Math.max(120, h);
@@ -2660,6 +2991,902 @@ function ParentPortalDetailPanel({
               </text>
             ))}
           </SurfacePanel>
+        );
+      })}
+    </g>
+  );
+}
+
+type ParentChatAction = {
+  readonly label: string;
+  readonly detail: string;
+  readonly routePath: string;
+  readonly tone: Tone;
+};
+
+function ParentChatActionCard({
+  x,
+  y,
+  w,
+  h,
+  action,
+  onOpen,
+  cfg,
+}: {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  action: ParentChatAction;
+  onOpen: (routePath: string) => void;
+  cfg: LeaderboardPageSvgControls;
+}) {
+  const [hovered, setHovered] = useState(false);
+  const color = toneColor(action.tone, cfg);
+  const labelSize = fitSingleLineTextSize(action.label, w - 32, 10, 13.5, 0.58);
+  const detailLines = wrapCardText(action.detail, w - 32, 10, h > 62 ? 2 : 1);
+  return (
+    <g
+      className="leaderboard-page-svg-clickable"
+      role="button"
+      tabIndex={0}
+      aria-label={`Open ${action.label}`}
+      onClick={(event) => {
+        event.stopPropagation();
+        onOpen(action.routePath);
+      }}
+      onKeyDown={(event) => {
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        event.preventDefault();
+        event.stopPropagation();
+        onOpen(action.routePath);
+      }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onFocus={() => setHovered(true)}
+      onBlur={() => setHovered(false)}
+    >
+      {hovered ? (
+        <>
+          <path
+            d={cutRectPath(x - 4, y - 4, w + 8, h + 8, 10)}
+            fill="none"
+            stroke={color}
+            strokeWidth={1.7}
+            opacity={0.38}
+            filter="url(#leaderboardGlow)"
+          />
+          <path
+            d={`M ${x + w - 11} ${y + 14} L ${x + w + 8} ${y + h / 2} L ${x + w - 11} ${y + h - 14} Z`}
+            fill={color}
+            opacity={0.64}
+            filter="url(#leaderboardGlow)"
+          />
+        </>
+      ) : null}
+      <path
+        d={cutRectPath(x, y, w, h, 8)}
+        fill={hovered ? colorAlpha(color, '32') : colorAlpha(color, '18')}
+        stroke={hovered ? color : cfg.colors.panelStroke}
+        strokeWidth={hovered ? 1.18 : 0.78}
+        strokeOpacity={hovered ? 0.92 : 0.64}
+      />
+      <path
+        d={cutRectPath(x + 9, y + 10, 26, h - 20, 6)}
+        fill={colorAlpha(color, hovered ? '38' : '20')}
+        stroke={color}
+        strokeWidth={0.8}
+        strokeOpacity={0.82}
+      />
+      <text x={x + 22} y={y + h / 2 + 4} textAnchor="middle" fontSize={12} fontWeight={950} fill={color}>
+        +
+      </text>
+      <text x={x + 45} y={y + 23} fontSize={labelSize} fontWeight={950} fill={cfg.colors.bodyText}>
+        {truncateTextForWidth(action.label.toUpperCase(), w - 66, labelSize, 0.58)}
+      </text>
+      {detailLines.map((line, index) => (
+        <text
+          key={`${action.label}:detail:${index}`}
+          x={x + 45}
+          y={y + 42 + index * 13}
+          fontSize={10}
+          fontWeight={720}
+          fill={cfg.colors.mutedText}
+        >
+          {line}
+        </text>
+      ))}
+    </g>
+  );
+}
+
+function ParentChatPanel({
+  x,
+  y,
+  w,
+  h,
+  onNavigate,
+  cfg,
+}: {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  onNavigate?: (routePath: string) => void;
+  cfg: LeaderboardPageSvgControls;
+}) {
+  const compact = w < 860;
+  const gap = compact ? 10 : 14;
+  const sideW = compact ? w : clampValue(w * 0.28, 250, 360);
+  const chatW = compact ? w : w - sideW - gap;
+  const chatH = compact ? Math.max(220, h * 0.58) : h;
+  const sideX = compact ? x : x + chatW + gap;
+  const sideY = compact ? y + chatH + gap : y;
+  const sideH = compact ? Math.max(150, h - chatH - gap) : h;
+  const primaryColor = cfg.colors.cyan;
+  const messageW = chatW - 42;
+  const actions: ParentChatAction[] = [
+    {
+      label: 'Today report',
+      detail: 'Open stored activity and summary evidence.',
+      routePath: '#/activity',
+      tone: 'cyan',
+    },
+    {
+      label: 'Browser state',
+      detail: 'Supported browsers, unmanaged risk, web evidence.',
+      routePath: '#/browser',
+      tone: 'gold',
+    },
+    { label: 'Rules', detail: 'House rules, allow, ask, explain, block.', routePath: '#/policy', tone: 'red' },
+    { label: 'AI setup', detail: 'Local AI, API providers, model state.', routePath: '#/ai-runtime', tone: 'purple' },
+    {
+      label: 'Drives',
+      detail: 'Connect parent-owned exports and custody.',
+      routePath: '#/drive-connections',
+      tone: 'gold',
+    },
+    {
+      label: 'Support/API',
+      detail: 'Diagnostics, route status, support bundles.',
+      routePath: '#/diagnostics',
+      tone: 'cyan',
+    },
+  ];
+  const visibleActions = actions.slice(0, compact ? 4 : 6);
+  const actionGap = 9;
+  const actionH = Math.max(
+    54,
+    Math.min(74, (sideH - 86 - actionGap * (visibleActions.length - 1)) / visibleActions.length)
+  );
+  const promptLines = wrapCardText(
+    'Ask about activity, browser evidence, rules, reports, AI setup, subscriptions, alerts, or drive custody. Answers stay tied to local evidence and citations.',
+    messageW - 34,
+    12,
+    compact ? 3 : 4
+  );
+  const assistantLines = wrapCardText(
+    'I can explain what happened, where the evidence came from, what risk remains, and which parent control page can change it.',
+    messageW - 34,
+    12,
+    compact ? 3 : 4
+  );
+  const onOpen = (routePath: string) => {
+    onNavigate?.(routePath);
+  };
+  return (
+    <g>
+      <SurfacePanel x={x} y={y} w={chatW} h={chatH} tone="cyan" cfg={cfg}>
+        <text x={x + 18} y={y + 30} fontSize={19} fontWeight={950} fill={cfg.colors.bodyText}>
+          PARENT ASSISTANT
+        </text>
+        <text x={x + 18} y={y + 52} fontSize={11.5} fontWeight={780} fill={cfg.colors.mutedText}>
+          Local evidence chat for family controls and reports
+        </text>
+        <path d={`M ${x + 18} ${y + 68} H ${x + chatW - 18}`} stroke={primaryColor} strokeWidth={0.9} opacity={0.48} />
+        <path
+          d={cutRectPath(x + 18, y + 88, messageW, Math.max(86, promptLines.length * 17 + 44), 10)}
+          fill="rgba(3, 12, 22, 0.82)"
+          stroke={primaryColor}
+          strokeWidth={0.9}
+          strokeOpacity={0.74}
+        />
+        <text x={x + 35} y={y + 114} fontSize={10} fontWeight={950} fill={primaryColor}>
+          WHAT YOU CAN ASK
+        </text>
+        {promptLines.map((line, index) => (
+          <text
+            key={`chat-prompt:${index}`}
+            x={x + 35}
+            y={y + 139 + index * 17}
+            fontSize={12}
+            fontWeight={720}
+            fill={cfg.colors.mutedText}
+          >
+            {line}
+          </text>
+        ))}
+        <path
+          d={cutRectPath(x + 18, y + 194, messageW, Math.max(92, assistantLines.length * 17 + 50), 10)}
+          fill={colorAlpha(cfg.colors.gold, '12')}
+          stroke={cfg.colors.gold}
+          strokeWidth={0.9}
+          strokeOpacity={0.72}
+        />
+        <text x={x + 35} y={y + 221} fontSize={10} fontWeight={950} fill={cfg.colors.gold}>
+          ANSWER STYLE
+        </text>
+        {assistantLines.map((line, index) => (
+          <text
+            key={`chat-answer:${index}`}
+            x={x + 35}
+            y={y + 246 + index * 17}
+            fontSize={12}
+            fontWeight={720}
+            fill={cfg.colors.bodyText}
+          >
+            {line}
+          </text>
+        ))}
+        <path
+          d={cutRectPath(x + 18, y + chatH - 62, chatW - 36, 42, 9)}
+          fill="rgba(5, 18, 31, 0.9)"
+          stroke={primaryColor}
+          strokeWidth={0.9}
+          strokeOpacity={0.72}
+        />
+        <text x={x + 35} y={y + chatH - 36} fontSize={12} fontWeight={760} fill={cfg.colors.mutedText}>
+          Ask about web, apps, rules, AI, reports, alerts, subscriptions...
+        </text>
+        <path
+          d={cutRectPath(x + chatW - 126, y + chatH - 54, 88, 26, 7)}
+          fill={colorAlpha(primaryColor, '22')}
+          stroke={primaryColor}
+          strokeWidth={0.8}
+        />
+        <text
+          x={x + chatW - 82}
+          y={y + chatH - 37}
+          textAnchor="middle"
+          fontSize={10.5}
+          fontWeight={950}
+          fill={primaryColor}
+        >
+          LOCAL
+        </text>
+      </SurfacePanel>
+      <SurfacePanel x={sideX} y={sideY} w={sideW} h={sideH} tone="gold" cfg={cfg}>
+        <text x={sideX + 16} y={sideY + 27} fontSize={13.5} fontWeight={950} fill={cfg.colors.bodyText}>
+          QUICK ACTION
+        </text>
+        <text x={sideX + 16} y={sideY + 47} fontSize={10.5} fontWeight={760} fill={cfg.colors.mutedText}>
+          Jump to the control page
+        </text>
+        <path
+          d={`M ${sideX + 16} ${sideY + 61} H ${sideX + sideW - 16}`}
+          stroke={cfg.colors.gold}
+          strokeWidth={0.85}
+          opacity={0.5}
+        />
+        {visibleActions.map((action, index) => (
+          <ParentChatActionCard
+            key={action.label}
+            x={sideX + 14}
+            y={sideY + 78 + index * (actionH + actionGap)}
+            w={sideW - 28}
+            h={actionH}
+            action={action}
+            onOpen={onOpen}
+            cfg={cfg}
+          />
+        ))}
+      </SurfacePanel>
+    </g>
+  );
+}
+
+function GuideQuickTab({
+  x,
+  y,
+  w,
+  h,
+  label,
+  active,
+  tone,
+  onClick,
+  cfg,
+}: {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  label: string;
+  active: boolean;
+  tone: Tone;
+  onClick: () => void;
+  cfg: LeaderboardPageSvgControls;
+}) {
+  const [hovered, setHovered] = useState(false);
+  const color = toneColor(tone, cfg);
+  const lit = active || hovered;
+  return (
+    <g
+      className="leaderboard-page-svg-clickable"
+      role="button"
+      tabIndex={0}
+      aria-label={`Show ${label}`}
+      aria-pressed={active}
+      onClick={(event) => {
+        event.stopPropagation();
+        onClick();
+      }}
+      onKeyDown={(event) => {
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        event.preventDefault();
+        event.stopPropagation();
+        onClick();
+      }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <ClickableCardHoverChrome x={x} y={y} w={w} h={h} color={color} active={active} hovered={hovered} arrow={false} />
+      <path
+        d={cutRectPath(x, y, w, h, 7)}
+        fill={lit ? colorAlpha(color, active ? '42' : '24') : 'rgba(5, 19, 32, 0.86)'}
+        stroke={lit ? color : cfg.colors.panelStroke}
+        strokeWidth={active ? 1.25 : 0.85}
+      />
+      <text
+        x={x + w / 2}
+        y={y + h / 2 + 4}
+        textAnchor="middle"
+        fontSize={fitSingleLineTextSize(label, w - 12, 8.8, 10.8, 0.58)}
+        fontWeight={950}
+        fill={lit ? cfg.colors.bodyText : cfg.colors.mutedText}
+      >
+        {label}
+      </text>
+    </g>
+  );
+}
+
+function GuideNoteCard({
+  x,
+  y,
+  w,
+  h,
+  note,
+  mode,
+  onSelect,
+  cfg,
+}: {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  note: LeaderboardGuideNote;
+  mode: 'read' | 'action';
+  onSelect: (note: LeaderboardGuideNote) => void;
+  cfg: LeaderboardPageSvgControls;
+}) {
+  const [hovered, setHovered] = useState(false);
+  const noteColor = toneColor(note.tone, cfg);
+  const actionable =
+    mode === 'action' ||
+    Boolean(note.targetRoutePath || note.targetNavLabel || note.targetTopicId || typeof note.targetPage === 'number');
+  const lit = actionable && (hovered || mode === 'action');
+  const labelSize = fitSingleLineTextSize(note.label, w - 20, 9.5, 12.5, 0.58);
+  const noteLines = wrapCardText(note.body, w - 24, 10.2, h > 66 ? 3 : 2);
+  return (
+    <g
+      className={actionable ? 'leaderboard-page-svg-clickable' : undefined}
+      role={actionable ? 'button' : undefined}
+      tabIndex={actionable ? 0 : undefined}
+      aria-label={actionable ? `Open ${note.label}` : undefined}
+      onClick={(event) => {
+        if (!actionable) return;
+        event.stopPropagation();
+        onSelect(note);
+      }}
+      onKeyDown={(event) => {
+        if (!actionable || (event.key !== 'Enter' && event.key !== ' ')) return;
+        event.preventDefault();
+        event.stopPropagation();
+        onSelect(note);
+      }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onFocus={() => setHovered(true)}
+      onBlur={() => setHovered(false)}
+    >
+      {lit ? (
+        <>
+          <path
+            d={cutRectPath(x - 4, y - 4, w + 8, h + 8, 10)}
+            fill="none"
+            stroke={noteColor}
+            strokeWidth={hovered ? 1.7 : 1.2}
+            opacity={hovered ? 0.42 : 0.28}
+            filter="url(#leaderboardGlow)"
+          />
+          {hovered ? (
+            <path
+              d={`M ${x + w - 10} ${y + 15} L ${x + w + 8} ${y + h / 2} L ${x + w - 10} ${y + h - 15} Z`}
+              fill={noteColor}
+              opacity={0.64}
+              filter="url(#leaderboardGlow)"
+            />
+          ) : null}
+        </>
+      ) : null}
+      <path
+        d={cutRectPath(x, y, w, h, 8)}
+        fill={lit ? colorAlpha(noteColor, hovered ? '2f' : '24') : colorAlpha(noteColor, '16')}
+        stroke={lit ? noteColor : cfg.colors.panelStroke}
+        strokeWidth={lit ? 1.16 : 0.78}
+        strokeOpacity={lit ? 0.9 : 0.62}
+      />
+      <text x={x + 12} y={y + 19} fontSize={labelSize} fontWeight={950} fill={lit ? cfg.colors.bodyText : noteColor}>
+        {truncateTextForWidth(note.label.toUpperCase(), w - (actionable ? 72 : 24), labelSize, 0.58)}
+      </text>
+      {actionable ? (
+        <text x={x + w - 12} y={y + 19} textAnchor="end" fontSize={8.4} fontWeight={950} fill="#fff3b2">
+          OPEN
+        </text>
+      ) : null}
+      {noteLines.map((line, lineIndex) => (
+        <text
+          key={`${note.label}:note:${lineIndex}`}
+          x={x + 12}
+          y={y + 38 + lineIndex * 13}
+          fontSize={10.2}
+          fontWeight={720}
+          fill={cfg.colors.mutedText}
+        >
+          {line}
+        </text>
+      ))}
+    </g>
+  );
+}
+
+function GuideTopicDetailPanel({
+  x,
+  y,
+  w,
+  h,
+  topic,
+  page,
+  onPageChange,
+  quickPanelMode,
+  onQuickPanelModeChange,
+  onNoteSelect,
+  cfg,
+}: {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  topic: LeaderboardGuideTopic;
+  page: number;
+  onPageChange: (page: number) => void;
+  quickPanelMode: 'read' | 'action';
+  onQuickPanelModeChange: (mode: 'read' | 'action') => void;
+  onNoteSelect: (note: LeaderboardGuideNote) => void;
+  cfg: LeaderboardPageSvgControls;
+}) {
+  const color = toneColor(topic.tone, cfg);
+  const pageCount = Math.max(1, topic.pages.length);
+  const safePage = clampValue(page, 0, pageCount - 1);
+  const currentPage = topic.pages[safePage] ??
+    topic.pages[0] ?? {
+      eyebrow: topic.category,
+      title: topic.title,
+      body: topic.detail,
+      steps: [topic.subtitle],
+    };
+  const compact = w < 760;
+  const gap = compact ? 10 : 14;
+  const sideW = compact ? w : clampValue(w * 0.25, 235, 330);
+  const mainW = compact ? w : Math.max(280, w - sideW - gap);
+  const mainH = compact ? Math.max(210, h * 0.62) : h;
+  const sideX = compact ? x : x + mainW + gap;
+  const sideY = compact ? y + mainH + gap : y;
+  const sideH = compact ? Math.max(160, h - mainH - gap) : h;
+  const titleSize = fitSingleLineTextSize(topic.title, mainW - 36, 17, 25, 0.58);
+  const subtitleLines = wrapCardText(topic.subtitle, mainW - 36, 12, 2);
+  const bodyLines = wrapCardText(currentPage.body, mainW - 44, 12.3, compact ? 4 : 5);
+  const stepStartY = y + 168 + bodyLines.length * 17;
+  const stepGap = compact ? 42 : 46;
+  const maxSteps = Math.max(2, Math.min(currentPage.steps.length, Math.floor((y + mainH - 44 - stepStartY) / stepGap)));
+  const visibleSteps = currentPage.steps.slice(0, maxSteps);
+  const quickNotes = quickPanelMode === 'action' ? topic.actions : topic.tips;
+  const noteGap = 9;
+  const noteHeaderH = 58;
+  const noteH =
+    quickNotes.length > 0 ? Math.max(54, Math.min(82, (sideH - noteHeaderH - 28) / quickNotes.length - 1)) : 56;
+  const visibleNotes = quickNotes.slice(0, Math.max(1, Math.floor((sideH - noteHeaderH - 14) / (noteH + noteGap))));
+  return (
+    <g>
+      <SurfacePanel x={x} y={y} w={mainW} h={mainH} tone={topic.tone} cfg={cfg}>
+        <text x={x + 18} y={y + 28} fontSize={9.8} fontWeight={950} fill={color}>
+          {currentPage.eyebrow}
+        </text>
+        <text x={x + 18} y={y + 58} fontSize={titleSize} fontWeight={950} fill={cfg.colors.bodyText}>
+          {truncateTextForWidth(topic.title, mainW - 36, titleSize, 0.58)}
+        </text>
+        {subtitleLines.map((line, index) => (
+          <text
+            key={`${topic.id}:subtitle:${index}`}
+            x={x + 18}
+            y={y + 79 + index * 16}
+            fontSize={12}
+            fontWeight={760}
+            fill={cfg.colors.mutedText}
+          >
+            {line}
+          </text>
+        ))}
+        <path d={`M ${x + 18} ${y + 104} H ${x + mainW - 18}`} stroke={color} strokeWidth={0.9} opacity={0.45} />
+        <text x={x + 18} y={y + 127} fontSize={15} fontWeight={950} fill={cfg.colors.bodyText}>
+          {truncateTextForWidth(currentPage.title, mainW - 36, 15, 0.58)}
+        </text>
+        {bodyLines.map((line, index) => (
+          <text
+            key={`${topic.id}:body:${index}`}
+            x={x + 18}
+            y={y + 151 + index * 17}
+            fontSize={12.3}
+            fontWeight={720}
+            fill={cfg.colors.mutedText}
+          >
+            {line}
+          </text>
+        ))}
+        {visibleSteps.map((step, index) => {
+          const stepY = stepStartY + index * stepGap;
+          const stepLines = wrapCardText(step, mainW - 76, 11.5, 2);
+          return (
+            <g key={`${topic.id}:step:${index}`}>
+              <path
+                d={cutRectPath(x + 18, stepY - 14, 32, 28, 7)}
+                fill={colorAlpha(color, '2a')}
+                stroke={color}
+                strokeWidth={0.85}
+              />
+              <text x={x + 34} y={stepY + 5} textAnchor="middle" fontSize={11} fontWeight={950} fill={color}>
+                {index + 1}
+              </text>
+              {stepLines.map((line, lineIndex) => (
+                <text
+                  key={`${topic.id}:step:${index}:${lineIndex}`}
+                  x={x + 62}
+                  y={stepY + lineIndex * 15}
+                  fontSize={11.5}
+                  fontWeight={760}
+                  fill={lineIndex === 0 ? cfg.colors.bodyText : cfg.colors.mutedText}
+                >
+                  {line}
+                </text>
+              ))}
+            </g>
+          );
+        })}
+        {pageCount > 1 ? (
+          <g>
+            {topic.pages.map((item, index) => {
+              const pillW = 30;
+              const pillX = x + mainW - 18 - (pageCount - index) * (pillW + 6);
+              const selected = index === safePage;
+              return (
+                <g
+                  key={`${topic.id}:page:${item.title}`}
+                  className="leaderboard-page-svg-clickable"
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`Show guide page ${index + 1}`}
+                  aria-pressed={selected}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onPageChange(index);
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.key !== 'Enter' && event.key !== ' ') return;
+                    event.preventDefault();
+                    event.stopPropagation();
+                    onPageChange(index);
+                  }}
+                >
+                  <path
+                    d={cutRectPath(pillX, y + mainH - 30, pillW, 18, 5)}
+                    fill={selected ? colorAlpha(color, '44') : 'rgba(3, 12, 22, 0.82)'}
+                    stroke={selected ? '#ffe187' : color}
+                    strokeWidth={selected ? 1.2 : 0.75}
+                  />
+                  <text
+                    x={pillX + pillW / 2}
+                    y={y + mainH - 17}
+                    textAnchor="middle"
+                    fontSize={9}
+                    fontWeight={950}
+                    fill={selected ? '#fff3b2' : cfg.colors.mutedText}
+                  >
+                    {index + 1}
+                  </text>
+                </g>
+              );
+            })}
+          </g>
+        ) : null}
+      </SurfacePanel>
+      <SurfacePanel x={sideX} y={sideY} w={sideW} h={sideH} tone={topic.tone} cfg={cfg}>
+        <GuideQuickTab
+          x={sideX + 14}
+          y={sideY + 14}
+          w={(sideW - 34) / 2}
+          h={28}
+          label="QUICK READ"
+          active={quickPanelMode === 'read'}
+          tone={topic.tone}
+          onClick={() => onQuickPanelModeChange('read')}
+          cfg={cfg}
+        />
+        <GuideQuickTab
+          x={sideX + 20 + (sideW - 34) / 2}
+          y={sideY + 14}
+          w={(sideW - 34) / 2}
+          h={28}
+          label="QUICK ACTION"
+          active={quickPanelMode === 'action'}
+          tone="gold"
+          onClick={() => onQuickPanelModeChange('action')}
+          cfg={cfg}
+        />
+        <path
+          d={`M ${sideX + 16} ${sideY + 50} H ${sideX + sideW - 16}`}
+          stroke={color}
+          strokeWidth={0.85}
+          opacity={0.42}
+        />
+        {visibleNotes.map((note, index) => (
+          <GuideNoteCard
+            key={`${topic.id}:note:${quickPanelMode}:${note.label}:${index}`}
+            x={sideX + 14}
+            y={sideY + noteHeaderH + index * (noteH + noteGap)}
+            w={sideW - 28}
+            h={noteH}
+            note={note}
+            mode={quickPanelMode}
+            onSelect={onNoteSelect}
+            cfg={cfg}
+          />
+        ))}
+      </SurfacePanel>
+    </g>
+  );
+}
+
+function GuideOverviewDashboard({
+  x,
+  y,
+  w,
+  h,
+  topics,
+  selectedTopicId,
+  onSelect,
+  cfg,
+}: {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  topics: LeaderboardGuideTopic[];
+  selectedTopicId: string;
+  onSelect: (topic: LeaderboardGuideTopic) => void;
+  cfg: LeaderboardPageSvgControls;
+}) {
+  const setupTopic = topics.find((topic) => normalizeSelectionId(topic.id) === 'setup-overall') ?? topics[0];
+  const cards = topics.filter((topic) => topic !== setupTopic);
+  const columns = w > 1220 ? 4 : w > 900 ? 3 : w > 340 ? 2 : 1;
+  const denseTopicMap = columns === 1 || cards.length > 10;
+  const introSplit = w > 720;
+  const introH = h > 390 ? (denseTopicMap ? 78 : 92) : denseTopicMap ? 58 : 70;
+  const gap = denseTopicMap ? 7 : 12;
+  const rows = Math.max(1, Math.ceil(cards.length / columns));
+  const cardW = (w - gap * Math.max(0, columns - 1)) / columns;
+  const rawCardH = (h - introH - gap * Math.max(0, rows - 1)) / rows;
+  const cardH = clampValue(rawCardH, columns === 1 ? 34 : denseTopicMap ? 58 : 84, denseTopicMap ? 104 : 130);
+  const setupColor = setupTopic ? toneColor(setupTopic.tone, cfg) : cfg.colors.cyan;
+  const introTitleSize = fitSingleLineTextSize(setupTopic?.title ?? '', introSplit ? w * 0.42 : w - 36, 15, 20, 0.58);
+  const [hoveredTopicId, setHoveredTopicId] = useState<string | null>(null);
+  return (
+    <g>
+      {setupTopic ? (
+        <g
+          className="leaderboard-page-svg-clickable"
+          role="button"
+          tabIndex={0}
+          aria-label={`Open ${setupTopic.title}`}
+          onClick={(event) => {
+            event.stopPropagation();
+            onSelect(setupTopic);
+          }}
+          onKeyDown={(event) => {
+            if (event.key !== 'Enter' && event.key !== ' ') return;
+            event.preventDefault();
+            event.stopPropagation();
+            onSelect(setupTopic);
+          }}
+          onMouseEnter={() => setHoveredTopicId(setupTopic.id)}
+          onMouseLeave={() => setHoveredTopicId(null)}
+          onFocus={() => setHoveredTopicId(setupTopic.id)}
+          onBlur={() => setHoveredTopicId(null)}
+        >
+          <ClickableCardHoverChrome
+            x={x}
+            y={y}
+            w={w}
+            h={introH - 10}
+            color={setupColor}
+            active={normalizeSelectionId(setupTopic.id) === normalizeSelectionId(selectedTopicId)}
+            hovered={hoveredTopicId === setupTopic.id}
+          />
+          <path
+            d={cutRectPath(x, y, w, introH - 10, 12)}
+            fill={colorAlpha(setupColor, '1f')}
+            stroke={setupColor}
+            strokeWidth={1.1}
+            strokeOpacity={0.72}
+            filter="url(#leaderboardGlow)"
+          />
+          <text x={x + 18} y={y + 28} fontSize={10} fontWeight={950} fill={setupColor}>
+            FIRST SETUP
+          </text>
+          <text
+            x={x + 18}
+            y={y + (introH < 68 ? 50 : 56)}
+            fontSize={introTitleSize}
+            fontWeight={950}
+            fill={cfg.colors.bodyText}
+          >
+            {truncateTextForWidth(setupTopic.title, introSplit ? w * 0.42 : w - 36, introTitleSize, 0.58)}
+          </text>
+          {introSplit ? (
+            <>
+              <text
+                x={x + Math.max(300, w * 0.38)}
+                y={y + 35}
+                fontSize={12.4}
+                fontWeight={760}
+                fill={cfg.colors.mutedText}
+              >
+                {truncateTextForWidth(setupTopic.subtitle, Math.max(220, w * 0.5), 12.4, 0.58)}
+              </text>
+              <text
+                x={x + Math.max(300, w * 0.38)}
+                y={y + 58}
+                fontSize={11.6}
+                fontWeight={720}
+                fill={cfg.colors.mutedText}
+              >
+                {truncateTextForWidth(setupTopic.detail, Math.max(220, w * 0.5), 11.6, 0.58)}
+              </text>
+            </>
+          ) : null}
+        </g>
+      ) : null}
+      {cards.map((topic, index) => {
+        const col = index % columns;
+        const row = Math.floor(index / columns);
+        const cardX = x + col * (cardW + gap);
+        const cardY = y + introH + row * (cardH + gap);
+        const color = toneColor(topic.tone, cfg);
+        const selected = normalizeSelectionId(topic.id) === normalizeSelectionId(selectedTopicId);
+        const compactCard = cardH < 70 || cardW < 220;
+        const denseCard = cardH < 58;
+        const badgeY = denseCard ? cardY + 5 : cardY + 14;
+        const badgeH = denseCard ? 24 : 28;
+        const titleSize = fitSingleLineTextSize(
+          topic.title,
+          cardW - 62,
+          compactCard ? 9.8 : 12,
+          compactCard ? 13.5 : 16,
+          0.58
+        );
+        const subtitleLines = compactCard ? [] : wrapCardText(topic.subtitle, cardW - 34, 10.6, cardH > 105 ? 2 : 1);
+        const detailSize = compactCard ? 8.8 : 9.6;
+        const titleY = denseCard ? cardY + cardH / 2 + 4 : cardY + (compactCard ? 31 : 32);
+        return (
+          <g
+            key={topic.id}
+            className="leaderboard-page-svg-clickable"
+            role="button"
+            tabIndex={0}
+            aria-label={`Open ${topic.title}`}
+            aria-pressed={selected}
+            onClick={(event) => {
+              event.stopPropagation();
+              onSelect(topic);
+            }}
+            onKeyDown={(event) => {
+              if (event.key !== 'Enter' && event.key !== ' ') return;
+              event.preventDefault();
+              event.stopPropagation();
+              onSelect(topic);
+            }}
+            onMouseEnter={() => setHoveredTopicId(topic.id)}
+            onMouseLeave={() => setHoveredTopicId(null)}
+            onFocus={() => setHoveredTopicId(topic.id)}
+            onBlur={() => setHoveredTopicId(null)}
+          >
+            <ClickableCardHoverChrome
+              x={cardX}
+              y={cardY}
+              w={cardW}
+              h={cardH}
+              color={color}
+              active={selected}
+              hovered={hoveredTopicId === topic.id}
+            />
+            <path
+              d={cutRectPath(cardX, cardY, cardW, cardH, 10)}
+              fill={selected ? colorAlpha(color, '2e') : 'rgba(5, 18, 31, 0.86)'}
+              stroke={selected ? '#ffe187' : color}
+              strokeWidth={selected ? 1.7 : 0.95}
+              strokeOpacity={selected ? 0.92 : 0.62}
+              filter={selected ? 'url(#leaderboardGoldGlow)' : undefined}
+            />
+            <path
+              d={cutRectPath(cardX + 12, badgeY, 34, badgeH, 7)}
+              fill={colorAlpha(color, '2a')}
+              stroke={color}
+              strokeWidth={0.8}
+            />
+            <text
+              x={cardX + 29}
+              y={badgeY + badgeH / 2 + 4}
+              textAnchor="middle"
+              fontSize={denseCard ? 10 : 11}
+              fontWeight={950}
+              fill={color}
+            >
+              {topic.rank}
+            </text>
+            <text x={cardX + 56} y={titleY} fontSize={titleSize} fontWeight={950} fill={cfg.colors.bodyText}>
+              {truncateTextForWidth(topic.title, cardW - 70, titleSize, 0.58)}
+            </text>
+            {subtitleLines.map((line, lineIndex) => (
+              <text
+                key={`${topic.id}:dashboard-subtitle:${lineIndex}`}
+                x={cardX + 16}
+                y={cardY + 62 + lineIndex * 15}
+                fontSize={10.6}
+                fontWeight={720}
+                fill={cfg.colors.mutedText}
+              >
+                {line}
+              </text>
+            ))}
+            {!compactCard ? (
+              <path
+                d={`M ${cardX + 16} ${cardY + cardH - 25} H ${cardX + cardW - 16}`}
+                stroke={color}
+                strokeWidth={0.8}
+                opacity={0.36}
+              />
+            ) : null}
+            {!denseCard ? (
+              <text
+                x={cardX + 16}
+                y={cardY + cardH - (compactCard ? 8 : 10)}
+                fontSize={detailSize}
+                fontWeight={900}
+                fill={color}
+              >
+                {truncateTextForWidth(topic.detail.toUpperCase(), cardW - 32, detailSize, 0.58)}
+              </text>
+            ) : null}
+          </g>
         );
       })}
     </g>
@@ -3127,6 +4354,13 @@ function LeaderboardTopCarouselCard({
   const leaderDrawAvatarX = scaleFromCenter(leaderAvatarX, leaderScaleCx);
   const leaderDrawAvatarY = scaleFromCenter(leaderAvatarY, leaderScaleCy);
   const leaderAvatarUrl = item.kind === 'leader' ? playerAvatarImageUrl(item.row.player) : '';
+  const guidePad = Math.max(12, Math.min(18, w * 0.045));
+  const guideRankW = 42;
+  const guideTitleX = x + guidePad + guideRankW + 10;
+  const guideTitleW = Math.max(60, w - guidePad * 2 - guideRankW - 12);
+  const guideTitleSize = fitSingleLineTextSize(item.title, guideTitleW, 13, 18, 0.56);
+  const guideSubtitleLines = wrapCardText(item.subtitle, guideTitleW, 10.6, 2);
+  const guideDetailLines = wrapCardText(item.detail, w - guidePad * 2, 10.2, h > 102 ? 2 : 1);
   const leaderHoverStrokeWidth = hovered ? 2.4 : selected ? 1.35 : 1.5;
   const leaderHoverOuterOpacity = hovered ? 0.72 : selected ? 0.34 : 0.38;
   const leaderHoverInnerOpacity = hovered ? 0.82 : selected ? 0.48 : 0.52;
@@ -3152,7 +4386,13 @@ function LeaderboardTopCarouselCard({
       className="leaderboard-page-svg-clickable"
       role="button"
       tabIndex={0}
-      aria-label={item.kind === 'game' ? `Show ${item.title} controls` : `Show ${item.title} control row`}
+      aria-label={
+        item.kind === 'game'
+          ? `Show ${item.title} controls`
+          : item.kind === 'guide'
+            ? `Show ${item.title} guide`
+            : `Show ${item.title} control row`
+      }
       aria-pressed={selected}
       onClick={(event) => {
         event.stopPropagation();
@@ -3266,6 +4506,96 @@ function LeaderboardTopCarouselCard({
           >
             {item.detail}
           </text>
+        </>
+      ) : item.kind === 'guide' ? (
+        <>
+          <path
+            d={cutRectPath(x, y, w, h, 12)}
+            fill={active ? colorAlpha(color, selected ? '2e' : '20') : 'rgba(5, 17, 30, 0.88)'}
+            stroke={selected ? '#ffe187' : color}
+            strokeWidth={selected ? 2 : hovered ? 1.55 : 1.05}
+            strokeOpacity={selected ? 0.92 : hovered ? 0.8 : 0.56}
+            filter={selected ? 'url(#leaderboardGoldGlow)' : hovered ? 'url(#leaderboardGlow)' : undefined}
+            pointerEvents="none"
+          />
+          <path
+            d={cutRectPath(x + 5, y + 5, w - 10, h - 10, 10)}
+            fill="url(#leaderboardFrameGlass)"
+            stroke={color}
+            strokeWidth={0.75}
+            strokeOpacity={active ? 0.48 : 0.26}
+            pointerEvents="none"
+          />
+          <path
+            d={bottomCutRectPath(x + w * 0.34, y - 5, w * 0.32, 12, 5)}
+            fill={color}
+            fillOpacity={active ? 0.42 : 0.24}
+            stroke={selected ? '#ffe187' : color}
+            strokeWidth={1}
+            filter="url(#leaderboardGlow)"
+            pointerEvents="none"
+          />
+          <path
+            d={cutRectPath(x + guidePad, y + 17, guideRankW, 30, 7)}
+            fill={colorAlpha(color, selected ? '44' : '28')}
+            stroke={selected ? '#ffe187' : color}
+            strokeWidth={selected ? 1.2 : 0.8}
+            pointerEvents="none"
+          />
+          <text
+            x={x + guidePad + guideRankW / 2}
+            y={y + 37}
+            textAnchor="middle"
+            fontSize={13}
+            fontWeight={950}
+            fill={selected ? '#fff3b2' : color}
+            pointerEvents="none"
+          >
+            {item.topic.rank}
+          </text>
+          <text
+            x={guideTitleX}
+            y={y + 32}
+            fontSize={guideTitleSize}
+            fontWeight={950}
+            fill={cfg.colors.bodyText}
+            pointerEvents="none"
+          >
+            {truncateTextForWidth(item.title, guideTitleW, guideTitleSize, 0.56)}
+          </text>
+          {guideSubtitleLines.map((line, index) => (
+            <text
+              key={`${item.key}:subtitle:${index}`}
+              x={guideTitleX}
+              y={y + 51 + index * 14}
+              fontSize={10.5}
+              fontWeight={760}
+              fill={cfg.colors.mutedText}
+              pointerEvents="none"
+            >
+              {line}
+            </text>
+          ))}
+          <path
+            d={`M ${x + guidePad} ${y + h - 42} H ${x + w - guidePad}`}
+            stroke={color}
+            strokeWidth={0.8}
+            opacity={active ? 0.5 : 0.28}
+            pointerEvents="none"
+          />
+          {guideDetailLines.map((line, index) => (
+            <text
+              key={`${item.key}:detail:${index}`}
+              x={x + guidePad}
+              y={y + h - 25 + index * 13}
+              fontSize={10.2}
+              fontWeight={800}
+              fill={index === 0 ? color : cfg.colors.mutedText}
+              pointerEvents="none"
+            >
+              {line}
+            </text>
+          ))}
         </>
       ) : (
         <>
@@ -3736,6 +5066,7 @@ function GameCategoryCard({
       onMouseLeave={() => setHovered(false)}
     >
       <rect x={x - 3} y={y - 3} width={w + 6} height={h + 6} fill="transparent" pointerEvents="all" />
+      <ClickableCardHoverChrome x={x} y={y} w={w} h={h} color={color} active={selected} hovered={hovered} />
       <path
         d={cutRectPath(x, y, w, h, 8)}
         fill={selected ? colorAlpha(color, '30') : hovered ? colorAlpha(color, '22') : 'rgba(4, 16, 28, 0.78)'}
@@ -4030,6 +5361,50 @@ function PagerControl({
   );
 }
 
+function ClickableCardHoverChrome({
+  x,
+  y,
+  w,
+  h,
+  color,
+  active,
+  hovered,
+  arrow = true,
+}: {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  color: string;
+  active: boolean;
+  hovered: boolean;
+  arrow?: boolean;
+}) {
+  if (!active && !hovered) return null;
+  return (
+    <>
+      <path
+        d={cutRectPath(x - 4, y - 4, w + 8, h + 8, 10)}
+        fill="none"
+        stroke={color}
+        strokeWidth={active ? 1.9 : 1.45}
+        opacity={active ? 0.42 : 0.32}
+        filter="url(#leaderboardGlow)"
+        pointerEvents="none"
+      />
+      {arrow ? (
+        <path
+          d={`M ${x + w - 10} ${y + 14} L ${x + w + 10} ${y + h / 2} L ${x + w - 10} ${y + h - 14} Z`}
+          fill={color}
+          opacity={active ? 0.72 : 0.56}
+          filter="url(#leaderboardGlow)"
+          pointerEvents="none"
+        />
+      ) : null}
+    </>
+  );
+}
+
 function PagerArrow({
   x,
   y,
@@ -4187,12 +5562,14 @@ function Pagination({
 
 function MainBoard({
   activeNavLabel,
+  activeNavGroupId,
   activeTab,
   rows,
   tabs,
   tabDetails,
   topGames,
   quickGames,
+  guideTopics,
   season,
   uiCopy,
   selectedGameId,
@@ -4209,6 +5586,8 @@ function MainBoard({
   onDetailOpen,
   onDetailClose,
   onGameSelect,
+  onNavigate,
+  onSelectNavLabel,
   onRefresh,
   onMatchmaking,
   cfg,
@@ -4220,12 +5599,14 @@ function MainBoard({
   rightW,
 }: {
   activeNavLabel: string;
+  activeNavGroupId: string;
   activeTab: LeaderboardTabId;
   rows: DisplayRow[];
   tabs: LeaderboardPageContentData['tabs'];
   tabDetails: LeaderboardPageContentData['tabDetails'];
   topGames: TopGame[];
   quickGames: QuickGame[];
+  guideTopics: LeaderboardPageContentData['guideTopics'];
   season: LeaderboardPageContentData['season'];
   uiCopy: LeaderboardPageContentData['uiCopy'];
   selectedGameId: string;
@@ -4242,6 +5623,8 @@ function MainBoard({
   onDetailOpen: (mode: DetailMode) => void;
   onDetailClose: () => void;
   onGameSelect: (gameId: string) => void;
+  onNavigate?: (routePath: string) => void;
+  onSelectNavLabel: (navLabel: string) => void;
   onRefresh: () => void;
   onMatchmaking: () => void;
   cfg: LeaderboardPageSvgControls;
@@ -4258,13 +5641,94 @@ function MainBoard({
   const detail = detailForNav(activeNavLabel, tabDetails[activeTab]);
   const rankingTitle = activeTab === 'overall' ? 'PARENT CONTROL SNAPSHOT' : activeTabConfig.title;
   const activeNavKey = assetKey(activeNavLabel);
-  const focusedSectionTitle = activeNavKey.includes('overview')
-    ? 'PARENT OVERVIEW'
-    : activeNavKey.includes('today')
-      ? 'TODAY'
-      : activeNavKey.includes('global') || activeNavKey.includes('overall')
-        ? rankingTitle
-        : activeNavLabel || rankingTitle;
+  const chatMode = activeNavKey.includes('chat');
+  const guideOverviewMode = activeNavKey.includes('start-here');
+  const guideEligible = !chatMode && activeNavGroupId === 'guide';
+  const guideTopicPool = useMemo(
+    () =>
+      guideEligible
+        ? guideOverviewMode
+          ? guideTopics
+          : guideTopics.filter((topic) => assetKey(topic.navLabel) === activeNavKey)
+        : [],
+    [activeNavKey, guideEligible, guideOverviewMode, guideTopics]
+  );
+  const guideMode = guideTopicPool.length > 0;
+  const [selectedGuideTopicId, setSelectedGuideTopicId] = useState(() => guideTopicPool[0]?.id ?? '');
+  const [guidePage, setGuidePage] = useState(0);
+  const [guideQuickPanelMode, setGuideQuickPanelMode] = useState<'read' | 'action'>('read');
+  const [guideDashboardDrilldown, setGuideDashboardDrilldown] = useState(false);
+  const selectedGuideTopic =
+    guideTopicPool.find((topic) => normalizeSelectionId(topic.id) === normalizeSelectionId(selectedGuideTopicId)) ??
+    guideTopicPool[0] ??
+    null;
+  const guideDashboardMode = guideOverviewMode && !guideDashboardDrilldown;
+  useEffect(() => {
+    const firstTopic = guideTopicPool[0];
+    if (!firstTopic) return;
+    const selectedStillVisible = guideTopicPool.some(
+      (topic) => normalizeSelectionId(topic.id) === normalizeSelectionId(selectedGuideTopicId)
+    );
+    if (selectedStillVisible) return;
+    setSelectedGuideTopicId(firstTopic.id);
+    setGuidePage(0);
+  }, [guideTopicPool, selectedGuideTopicId]);
+  useEffect(() => {
+    setGuideDashboardDrilldown(false);
+    setGuidePage(0);
+    setGuideQuickPanelMode('read');
+  }, [activeNavKey]);
+  useEffect(() => {
+    setGuideQuickPanelMode('read');
+  }, [selectedGuideTopicId]);
+  const guideTopicById = useMemo(
+    () => new Map(guideTopics.map((topic) => [normalizeSelectionId(topic.id), topic])),
+    [guideTopics]
+  );
+  const handleGuideNoteSelect = (note: LeaderboardGuideNote) => {
+    if (normalizeSelectionId(note.targetNavLabel ?? '') === 'chat') {
+      onTabChange('aiBenchmarks');
+      onSelectNavLabel('CHAT');
+      setGuideDashboardDrilldown(false);
+      return;
+    }
+    if (isHashRoutePath(note.targetRoutePath)) {
+      if (note.targetNavLabel) onSelectNavLabel(note.targetNavLabel);
+      onNavigate?.(note.targetRoutePath);
+      return;
+    }
+    if (note.targetTopicId) {
+      const targetTopic = guideTopicById.get(normalizeSelectionId(note.targetTopicId));
+      if (targetTopic) {
+        onSelectNavLabel(note.targetNavLabel ?? targetTopic.navLabel);
+        setSelectedGuideTopicId(targetTopic.id);
+        setGuidePage(typeof note.targetPage === 'number' ? note.targetPage : 0);
+        setGuideDashboardDrilldown(true);
+        setGuideQuickPanelMode('read');
+        return;
+      }
+    }
+    if (note.targetNavLabel) {
+      onSelectNavLabel(note.targetNavLabel);
+    }
+    if (typeof note.targetPage === 'number') {
+      setGuidePage(clampValue(note.targetPage, 0, Math.max(0, (selectedGuideTopic?.pages.length ?? 1) - 1)));
+      setGuideDashboardDrilldown(true);
+    }
+  };
+  const focusedSectionTitle = chatMode
+    ? 'PARENT CHAT'
+    : activeNavKey.includes('overview')
+      ? 'PARENT OVERVIEW'
+      : activeNavKey.includes('today')
+        ? 'TODAY'
+        : activeNavKey.includes('global') || activeNavKey.includes('overall')
+          ? rankingTitle
+          : guideDashboardMode
+            ? 'START HERE'
+            : guideMode
+              ? 'GUIDE TOPICS'
+              : activeNavLabel || rankingTitle;
   const tableVariant = tableVariantForContext(activeNavLabel, activeTab);
   const baseTableTitle = tableTitleForVariant(tableVariant, activeNavLabel, selectedGameName);
   const isOverviewContext = activeNavKey.includes('overview') || activeNavKey.includes('today');
@@ -4302,17 +5766,21 @@ function MainBoard({
   const perCategoryMode = activeNavKey.includes('category');
   const aiBrowserMode = tableVariant === 'ai' && (activeNavKey.includes('game') || activeNavKey.includes('category'));
   const categoryBrowserMode = perCategoryMode || activeNavKey.includes('ai-by-category');
-  const gameBrowserMode = tableVariant === 'games' || aiBrowserMode;
+  const gameBrowserMode = !guideMode && (tableVariant === 'games' || aiBrowserMode || activeNavGroupId === 'manage');
   const expandedGameCategory =
     gameBrowserMode && selectedCategory && expandedCategoryId === selectedCategory.id ? selectedCategory : null;
   const selectedTableScopeName = categoryBrowserMode ? selectedCategoryLabel : selectedGameName;
-  const tableTitle = activeNavKey.includes('ai-by-game')
-    ? `${selectedGameName.toUpperCase()} AI BENCHMARKS`
-    : activeNavKey.includes('ai-by-category')
-      ? `${selectedCategoryLabel.toUpperCase()} AI BENCHMARKS`
-      : perCategoryMode
-        ? `${selectedCategoryLabel.toUpperCase()} CATEGORY LADDER`
-        : baseTableTitle;
+  const tableTitle = chatMode
+    ? 'PARENT ASSISTANT CHAT'
+    : guideMode && selectedGuideTopic
+      ? `${selectedGuideTopic.title.toUpperCase()} GUIDE`
+      : activeNavKey.includes('ai-by-game')
+        ? `${selectedGameName.toUpperCase()} AI BENCHMARKS`
+        : activeNavKey.includes('ai-by-category')
+          ? `${selectedCategoryLabel.toUpperCase()} AI BENCHMARKS`
+          : perCategoryMode
+            ? `${selectedCategoryLabel.toUpperCase()} CATEGORY LADDER`
+            : baseTableTitle;
   const filteredCategoryGames = quickGames.filter(
     (game) => assetKey(gameCategoryLabel(game)) === selectedGameCategoryId
   );
@@ -4332,14 +5800,30 @@ function MainBoard({
       : (a.gameType ?? Number.MAX_SAFE_INTEGER) - (b.gameType ?? Number.MAX_SAFE_INTEGER) ||
         a.name.localeCompare(b.name)
   );
-  const gameBrowserPool = gameBrowserMode ? sortedCategoryGames : quickGames;
+  const gameBrowserPoolBase = gameBrowserMode ? sortedCategoryGames : quickGames;
+  const gameBrowserPool =
+    activeNavGroupId === 'manage'
+      ? [
+          ...gameBrowserPoolBase.filter(
+            (game) => normalizeSelectionId(game.id) === normalizeSelectionId(selectedGameId)
+          ),
+          ...gameBrowserPoolBase.filter(
+            (game) => normalizeSelectionId(game.id) !== normalizeSelectionId(selectedGameId)
+          ),
+        ]
+      : gameBrowserPoolBase;
   const topGamesById = new Map(topGames.map((game) => [normalizeSelectionId(game.id), game]));
-  const topItems: LeaderboardTopCardItem[] = gameBrowserMode
-    ? gameBrowserPool.map((game, index) => gameTopCard(game, topGamesById.get(normalizeSelectionId(game.id)), index))
-    : sortedRows.slice(0, isOverviewContext ? 3 : 10).map(leaderTopCard);
-  const selectedTopKey = gameBrowserMode
-    ? `game:${normalizeSelectionId(selectedGameId)}`
-    : `leader:${selectedPlayerId}`;
+  const topItems: LeaderboardTopCardItem[] = guideMode
+    ? guideTopicPool.map(guideTopCard)
+    : gameBrowserMode
+      ? gameBrowserPool.map((game, index) => gameTopCard(game, topGamesById.get(normalizeSelectionId(game.id)), index))
+      : sortedRows.slice(0, isOverviewContext ? 3 : 10).map(leaderTopCard);
+  const selectedTopKey =
+    guideMode && selectedGuideTopic
+      ? `guide:${normalizeSelectionId(selectedGuideTopic.id)}`
+      : gameBrowserMode
+        ? `game:${normalizeSelectionId(selectedGameId)}`
+        : `leader:${selectedPlayerId}`;
   const focusContextKey = `${activeNavLabel}:${activeTab}`;
   const [focusState, setFocusState] = useState<{ contextKey: string; section: LeaderboardFocusSection }>(() => ({
     contextKey: focusContextKey,
@@ -4353,17 +5837,23 @@ function MainBoard({
   const expandedTopPanelH = Math.max(276, Math.min(mainH - 210, clampValue(mainH * 0.46, 276, 334)));
   const hoverTopPanelH = Math.max(242, Math.min(mainH - 210, clampValue(mainH * 0.4, 242, 292)));
   const compactTopPanelH = Math.max(178, Math.min(mainH - 250, clampValue(mainH * 0.29, 178, 214)));
-  const topPanelH = tableFocused
+  const topPanelH = chatMode
     ? 0
-    : gameBrowserMode
-      ? hoveredTopGameKey
-        ? Math.max(hoverTopPanelH, expandedGameCategory ? expandedTopPanelH : 0)
-        : expandedGameCategory
-          ? expandedTopPanelH
-          : compactTopPanelH
-      : clampValue(mainH * 0.39, 260, 294);
-  const bottomPanelY = tableFocused ? mainY : mainY + topPanelH + sectionGap;
-  const bottomPanelH = tableFocused ? mainH : mainH - topPanelH - sectionGap;
+    : tableFocused
+      ? 0
+      : guideDashboardMode
+        ? mainH
+        : guideMode
+          ? clampValue(mainH * 0.24, 164, 220)
+          : gameBrowserMode
+            ? hoveredTopGameKey
+              ? Math.max(hoverTopPanelH, expandedGameCategory ? expandedTopPanelH : 0)
+              : expandedGameCategory
+                ? expandedTopPanelH
+                : compactTopPanelH
+            : clampValue(mainH * 0.39, 260, 294);
+  const bottomPanelY = chatMode || tableFocused ? mainY : mainY + topPanelH + sectionGap;
+  const bottomPanelH = chatMode || tableFocused ? mainH : mainH - topPanelH - sectionGap;
   const showGameLeaderStrip = gameBrowserMode && !tableFocused && !hoveredTopGameKey;
   const gameLeaderStripH = showGameLeaderStrip ? clampValue(bottomPanelH * 0.38, 128, 154) : 0;
   const selectorHandleGutter = LEADERBOARD_SIDE_HANDLE_W;
@@ -4427,7 +5917,7 @@ function MainBoard({
   };
   const [podiumPage, setPodiumPage] = useState(0);
   const topCardGap = 10;
-  const topCardMinW = gameBrowserMode ? LEADERBOARD_GAME_CARD_MIN_W : LEADERBOARD_TOP_CARD_MIN_W;
+  const topCardMinW = guideMode ? 250 : gameBrowserMode ? LEADERBOARD_GAME_CARD_MIN_W : LEADERBOARD_TOP_CARD_MIN_W;
   const topCarouselAvailableW = gameBrowserMode
     ? Math.max(1, selectorInnerW - rowHandleReserve)
     : Math.max(1, selectorW - 56);
@@ -4473,6 +5963,12 @@ function MainBoard({
   };
   const routeTopItemToBottom = (item: LeaderboardTopCardItem) => {
     setFocusedSection('podium');
+    if (item.kind === 'guide') {
+      setSelectedGuideTopicId(item.topic.id);
+      setGuidePage(0);
+      onPageChange(1);
+      return;
+    }
     if (item.kind === 'game') {
       const nextCategoryId = assetKey(gameCategoryLabel(item.game));
       setSelectedCategoryIdOverride(nextCategoryId);
@@ -4516,28 +6012,47 @@ function MainBoard({
       ariaLabel="Show podium section"
       cfg={cfg}
     />
+  ) : guideOverviewMode && guideDashboardDrilldown ? (
+    <LeaderboardHeaderAction
+      x={mainX + mainW - 118}
+      y={tableHeaderButtonY + 2}
+      w={98}
+      h={25}
+      tone="cyan"
+      active
+      label="MAP"
+      onClick={() => setGuideDashboardDrilldown(false)}
+      ariaLabel="Show guide setup map"
+      cfg={cfg}
+    />
   ) : null;
   return (
     <g>
-      {!tableFocused ? (
+      {!tableFocused && !chatMode ? (
         <LeaderboardSectionFrame
           x={selectorX}
           y={mainY}
           w={selectorW}
           h={topPanelH}
           title={focusedSectionTitle}
-          subtitle={`${detail.eyebrow} / ${detail.primary}`}
+          subtitle={
+            guideDashboardMode
+              ? 'Set up parent app, child devices, controls, privacy, alerts, and storage'
+              : guideMode && selectedGuideTopic
+                ? `${selectedGuideTopic.subtitle} / ${selectedGuideTopic.detail}`
+                : `${detail.eyebrow} / ${detail.primary}`
+          }
           count="1"
           tone="cyan"
           headerH={gameBrowserMode ? 48 : 40}
-          footerH={gameBrowserMode ? 22 : 30}
+          footerH={guideDashboardMode ? 18 : gameBrowserMode ? 22 : 30}
           innerStrokeOpacity={gameBrowserMode ? 0.24 : undefined}
           bodyStrokeOpacity={gameBrowserMode ? 0 : undefined}
           bodyFill={gameBrowserMode ? 'transparent' : undefined}
           footerLineOpacity={gameBrowserMode ? 0 : undefined}
           headerRight={null}
-          showSideHandles={!gameBrowserMode}
-          sideDisabled={framePageCount <= 1}
+          showSideHandles={!gameBrowserMode && !guideDashboardMode}
+          sideDisabled={guideDashboardMode || framePageCount <= 1}
           onPrevious={() => shiftFramePage(-1)}
           onNext={() => shiftFramePage(1)}
           selected={focusedSection === 'podium'}
@@ -4545,14 +6060,16 @@ function MainBoard({
           ariaLabel="Focus parent control selector"
           footer={(footerRect) => (
             <>
-              <LeaderboardFrameDots
-                x={footerRect.x + footerRect.w / 2}
-                y={footerRect.y + (gameBrowserMode ? 14 : 18)}
-                page={framePage}
-                pageCount={framePageCount}
-                onPageChange={setPodiumPage}
-                cfg={cfg}
-              />
+              {guideDashboardMode ? null : (
+                <LeaderboardFrameDots
+                  x={footerRect.x + footerRect.w / 2}
+                  y={footerRect.y + (gameBrowserMode ? 14 : 18)}
+                  page={framePage}
+                  pageCount={framePageCount}
+                  onPageChange={setPodiumPage}
+                  cfg={cfg}
+                />
+              )}
               <text
                 x={footerRect.x + footerRect.w - 22}
                 y={footerRect.y + (gameBrowserMode ? 18 : 23)}
@@ -4561,7 +6078,11 @@ function MainBoard({
                 fontWeight={900}
                 fill={cfg.colors.mutedText}
               >
-                {gameBrowserMode ? 'AREAS' : isOverviewContext ? 'READY' : 'ITEMS'} {framePage + 1}/{framePageCount}
+                {guideDashboardMode
+                  ? `GUIDES ${guideTopicPool.length}`
+                  : `${guideMode ? 'TOPICS' : gameBrowserMode ? 'AREAS' : isOverviewContext ? 'READY' : 'ITEMS'} ${
+                      framePage + 1
+                    }/${framePageCount}`}
               </text>
             </>
           )}
@@ -4598,7 +6119,22 @@ function MainBoard({
             return (
               <g onWheel={handlePodiumWheel}>
                 <rect x={contentX - 4} y={contentY - 4} width={contentW + 8} height={contentH + 8} fill="transparent" />
-                {gameBrowserMode ? (
+                {guideDashboardMode ? (
+                  <GuideOverviewDashboard
+                    x={contentX + 10}
+                    y={contentY + 10}
+                    w={contentW - 20}
+                    h={contentH - 18}
+                    topics={guideTopicPool}
+                    selectedTopicId={selectedGuideTopicId}
+                    onSelect={(topic) => {
+                      setSelectedGuideTopicId(topic.id);
+                      setGuidePage(0);
+                      setGuideDashboardDrilldown(true);
+                    }}
+                    cfg={cfg}
+                  />
+                ) : gameBrowserMode ? (
                   <GameCategoryGrid
                     x={contentX}
                     y={contentY}
@@ -4615,7 +6151,7 @@ function MainBoard({
                     cfg={cfg}
                   />
                 ) : null}
-                {expandedCategory ? (
+                {!guideDashboardMode && expandedCategory ? (
                   <GameSubcategoryGrid
                     x={carouselTrackX}
                     y={subcategoryY}
@@ -4627,7 +6163,7 @@ function MainBoard({
                     cfg={cfg}
                   />
                 ) : null}
-                {gameBrowserMode ? (
+                {!guideDashboardMode && gameBrowserMode ? (
                   <>
                     <LeaderboardFrameSideHandle
                       x={rowHandleLeftX}
@@ -4651,7 +6187,7 @@ function MainBoard({
                     />
                   </>
                 ) : null}
-                {gameBrowserMode && gameBrowserView === 'list' ? (
+                {!guideDashboardMode && gameBrowserMode && gameBrowserView === 'list' ? (
                   <LeaderboardGameList
                     x={carouselTrackX}
                     y={carouselY}
@@ -4664,7 +6200,7 @@ function MainBoard({
                     onSelect={routeTopItemToBottom}
                     cfg={cfg}
                   />
-                ) : (
+                ) : !guideDashboardMode ? (
                   <LeaderboardTopCarousel
                     x={carouselTrackX}
                     y={gameBrowserMode ? carouselY : contentY}
@@ -4678,42 +6214,61 @@ function MainBoard({
                     minCardW={topCardMinW}
                     cfg={cfg}
                   />
-                )}
+                ) : null}
               </g>
             );
           }}
         </LeaderboardSectionFrame>
       ) : null}
-      <LeaderboardSectionFrame
-        x={mainX}
-        y={bottomPanelY}
-        w={mainW}
-        h={bottomPanelH}
-        title={tableTitle}
-        count="2"
-        tone="cyan"
-        headerRight={tableHeaderAction}
-        bodyStrokeOpacity={0}
-        bodyFill="transparent"
-        selected={tableFocused}
-        onSelect={() => setFocusedSection('table')}
-        ariaLabel={tableFocused ? 'Expanded parent detail panel' : 'Expand parent detail panel'}
-        cfg={cfg}
-      >
-        {(body) => (
-          <ParentPortalDetailPanel
-            x={body.x + 18}
-            y={body.y + 18}
-            w={body.w - 36}
-            h={body.h - 36}
-            activeNavLabel={activeNavLabel}
-            detail={detail}
-            rows={tableRows}
-            selectedGameName={selectedGameName}
-            cfg={cfg}
-          />
-        )}
-      </LeaderboardSectionFrame>
+      {!guideDashboardMode ? (
+        <LeaderboardSectionFrame
+          x={mainX}
+          y={bottomPanelY}
+          w={mainW}
+          h={bottomPanelH}
+          title={tableTitle}
+          count="2"
+          tone="cyan"
+          headerRight={tableHeaderAction}
+          bodyStrokeOpacity={0}
+          bodyFill="transparent"
+          selected={tableFocused}
+          onSelect={() => setFocusedSection('table')}
+          ariaLabel={tableFocused ? 'Expanded parent detail panel' : 'Expand parent detail panel'}
+          cfg={cfg}
+        >
+          {(body) =>
+            chatMode ? (
+              <ParentChatPanel
+                x={body.x + 18}
+                y={body.y + 18}
+                w={body.w - 36}
+                h={body.h - 36}
+                onNavigate={onNavigate}
+                cfg={cfg}
+              />
+            ) : (
+              <ParentPortalDetailPanel
+                x={body.x + 18}
+                y={body.y + 18}
+                w={body.w - 36}
+                h={body.h - 36}
+                activeNavLabel={activeNavLabel}
+                detail={detail}
+                rows={tableRows}
+                selectedGameName={selectedGameName}
+                guideTopic={selectedGuideTopic}
+                guidePage={guidePage}
+                onGuidePageChange={setGuidePage}
+                quickPanelMode={guideQuickPanelMode}
+                onQuickPanelModeChange={setGuideQuickPanelMode}
+                onGuideNoteSelect={handleGuideNoteSelect}
+                cfg={cfg}
+              />
+            )
+          }
+        </LeaderboardSectionFrame>
+      ) : null}
       {detailMode ? (
         <DetailOverlay
           x={mainX + 18}
@@ -5847,6 +7402,7 @@ export function LeaderboardPageSvgSurface({
   initialSelectedGameId,
   onRefreshLeaderboard,
   onMatchmaking,
+  onNavigate,
 }: LeaderboardPageSvgSurfaceProps) {
   const mainRef = useRef<HTMLElement | null>(null);
   const baseCfg = useMemo(() => normalizeLeaderboardPageSvgControls(controls), [controls]);
@@ -5861,6 +7417,10 @@ export function LeaderboardPageSvgSurface({
         imageUrl: navItemImageUrl(item),
       })),
     [pageContent.navItems]
+  );
+  const navGroups = useMemo(
+    () => groupedLeaderboardNavItems(pageContent.navGroups, navItems),
+    [navItems, pageContent.navGroups]
   );
   const topGames = pageContent.topGames;
   const quickGames = useMemo<QuickGame[]>(() => {
@@ -5913,6 +7473,9 @@ export function LeaderboardPageSvgSurface({
   const [activeNavLabel, setActiveNavLabel] = useState(
     () => initialNavItem?.label ?? initialNavLabelForTab(navItems, pageModeTab)
   );
+  const [openNavGroupIds, setOpenNavGroupIds] = useState(() =>
+    initialOpenNavGroupIds(navGroups, initialNavItem?.label ?? initialNavLabelForTab(navItems, pageModeTab))
+  );
   const [selectedGameId, setSelectedGameId] = useState(
     initialSelectedGameId ?? initialGameIdForPageMode(pageMode, pageContent, gameId)
   );
@@ -5942,12 +7505,14 @@ export function LeaderboardPageSvgSurface({
   useEffect(() => {
     const nextNavItem = navItems.find((item) => item.label === initialNavLabel);
     const nextTab = nextNavItem?.tabId ?? pageModeTab;
+    const nextNavLabel = nextNavItem?.label ?? initialNavLabelForTab(navItems, nextTab);
     setActiveTab(nextTab);
-    setActiveNavLabel(nextNavItem?.label ?? initialNavLabelForTab(navItems, nextTab));
+    setActiveNavLabel(nextNavLabel);
+    setOpenNavGroupIds((current) => ensureOpenNavGroupIds(current, navGroups, nextNavLabel));
     setSelectedGameId(initialSelectedGameId ?? initialGameIdForPageMode(pageMode, pageContent, gameId));
     setDetailMode(null);
     setPage(1);
-  }, [gameId, initialNavLabel, initialSelectedGameId, navItems, pageContent, pageMode, pageModeTab]);
+  }, [gameId, initialNavLabel, initialSelectedGameId, navGroups, navItems, pageContent, pageMode, pageModeTab]);
 
   useEffect(() => {
     const target = mainRef.current;
@@ -5979,21 +7544,40 @@ export function LeaderboardPageSvgSurface({
   const boardY = cfg.layout.topY;
   const mainW = rightX - mainX;
   const mainH = cfg.canvas.height - boardY - 6;
+  const activeNavGroupId = navGroupIdForNavLabel(navGroups, activeNavLabel);
+  const activateNavLabel = (navLabel: string) => {
+    setActiveNavLabel(navLabel);
+    setOpenNavGroupIds((current) => ensureOpenNavGroupIds(current, navGroups, navLabel));
+  };
   const changeTab = (tab: LeaderboardTabId) => {
+    const nextNavLabel = initialNavLabelForTab(navItems, tab);
     setActiveTab(tab);
-    setActiveNavLabel(initialNavLabelForTab(navItems, tab));
+    activateNavLabel(nextNavLabel);
     setDetailMode(null);
     setPage(1);
   };
   const selectNavItem = (item: NavItem) => {
     setActiveTab(item.tabId);
-    setActiveNavLabel(item.label);
+    activateNavLabel(item.label);
+    setDetailMode(null);
+    setPage(1);
+    if (isHashRoutePath(item.routePath)) {
+      onNavigate?.(item.routePath);
+    }
+  };
+  const toggleNavGroup = (groupId: string) => {
+    setOpenNavGroupIds((current) => toggleOpenNavGroupId(current, navGroups, groupId));
+  };
+  const selectQuickAccessHub = () => {
+    const nextNavLabel = initialNavLabelForTab(navItems, 'overall');
+    setActiveTab('overall');
+    activateNavLabel(nextNavLabel);
     setDetailMode(null);
     setPage(1);
   };
-  const selectQuickAccessHub = () => {
-    setActiveTab('overall');
-    setActiveNavLabel(initialNavLabelForTab(navItems, 'overall'));
+  const selectChat = () => {
+    setActiveTab('aiBenchmarks');
+    activateNavLabel('CHAT');
     setDetailMode(null);
     setPage(1);
   };
@@ -6005,17 +7589,21 @@ export function LeaderboardPageSvgSurface({
     setSelectedGameId(gameIdValue);
     const game = findSelectedGame(pageContent, gameIdValue);
     const tab =
-      game?.routePath === '/leaderboard/ai-benchmarks'
+      game?.routePath === '#/ai-runtime' || assetKey(game?.category ?? '').includes('ai')
         ? 'aiBenchmarks'
-        : game?.routePath === '/leaderboard'
+        : game?.routePath === '#/overview'
           ? 'overall'
           : 'perGame';
+    const nextNavLabel = initialNavLabelForTab(navItems, tab);
     setActiveTab(tab);
-    setActiveNavLabel(initialNavLabelForTab(navItems, tab));
+    activateNavLabel(nextNavLabel);
     setDetailMode(null);
     setPage(1);
     if (pageMode === 'gameLeaderboard' && typeof game?.gameType === 'number') {
       onRefreshLeaderboard(game.gameType);
+    }
+    if (isHashRoutePath(game?.routePath)) {
+      onNavigate?.(game.routePath);
     }
   };
   const cycleRowsPerPage = () => {
@@ -6031,15 +7619,25 @@ export function LeaderboardPageSvgSurface({
         preserveAspectRatio="xMidYMin meet"
       >
         <Defs />
-        <NavPanel activeNavLabel={activeNavLabel} navItems={navItems} onNavItemSelect={selectNavItem} cfg={cfg} />
+        <NavPanel
+          activeNavLabel={activeNavLabel}
+          navGroups={navGroups}
+          openGroupIds={openNavGroupIds}
+          onNavGroupToggle={toggleNavGroup}
+          onNavItemSelect={selectNavItem}
+          onChatOpen={selectChat}
+          cfg={cfg}
+        />
         <MainBoard
           activeNavLabel={activeNavLabel}
+          activeNavGroupId={activeNavGroupId}
           activeTab={activeTab}
           rows={rows}
           tabs={tabs}
           tabDetails={tabDetails}
           topGames={topGames}
           quickGames={quickGames}
+          guideTopics={pageContent.guideTopics}
           season={pageContent.season}
           uiCopy={pageContent.uiCopy}
           selectedGameId={selectedGameId}
@@ -6056,6 +7654,15 @@ export function LeaderboardPageSvgSurface({
           onDetailOpen={setDetailMode}
           onDetailClose={() => setDetailMode(null)}
           onGameSelect={selectGame}
+          onNavigate={onNavigate}
+          onSelectNavLabel={(navLabel) => {
+            const item = navItems.find((entry) => entry.label === navLabel);
+            if (item) {
+              selectNavItem(item);
+              return;
+            }
+            activateNavLabel(navLabel);
+          }}
           onRefresh={() => onRefreshLeaderboard(gameType)}
           onMatchmaking={onMatchmaking}
           cfg={cfg}
