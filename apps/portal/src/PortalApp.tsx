@@ -23,6 +23,7 @@ import {
   frameHostClassName,
   goldenCardStyle,
 } from './portal-frame-layout';
+import type { PortalFrameContentTargetLayout, PortalFrameLayout } from './portal-frame-layout';
 import { usePortalFrameLayout } from './use-portal-frame-layout';
 
 type PortalAppProps = {
@@ -40,30 +41,34 @@ export function PortalApp(props: PortalAppProps): ReactElement {
   const isDevProtocolRoute = props.route === PortalRoute.Commands || props.route === PortalRoute.Events;
   const isProductRoute = !isFrameTuner && !isDevProtocolRoute;
   const [frameLayout, setFrameLayout] = usePortalFrameLayout(!isFrameTuner && import.meta.env.DEV);
+  const routeFrameLayout = useMemo(
+    () => frameLayoutVisibleForProtocolRoute(frameLayout, isDevProtocolRoute),
+    [frameLayout, isDevProtocolRoute]
+  );
   const appFrameStyle = useMemo<CSSProperties>(
     () => ({
-      columnGap: frameLayout.shell.frameGap,
-      gridTemplateColumns: `${frameLayout.shell.sidebarWidth}px minmax(0, 1fr)`,
-      padding: frameLayout.shell.shellEdge,
-      ...carouselStyle(frameLayout.carousel),
-      ...goldenCardStyle(frameLayout.goldenCard),
-      [PortalFrameTuner.CssVar.SideBottomHeight]: `${frameLayout.shell.sideBottomHeight}px`,
-      [PortalFrameTuner.CssVar.SideStackGap]: `${frameLayout.shell.sideStackGap}px`,
+      columnGap: routeFrameLayout.shell.frameGap,
+      gridTemplateColumns: `${routeFrameLayout.shell.sidebarWidth}px minmax(0, 1fr)`,
+      padding: routeFrameLayout.shell.shellEdge,
+      ...carouselStyle(routeFrameLayout.carousel),
+      ...goldenCardStyle(routeFrameLayout.goldenCard),
+      [PortalFrameTuner.CssVar.SideBottomHeight]: `${routeFrameLayout.shell.sideBottomHeight}px`,
+      [PortalFrameTuner.CssVar.SideStackGap]: `${routeFrameLayout.shell.sideStackGap}px`,
     }),
     [
-      frameLayout.shell.frameGap,
-      frameLayout.carousel,
-      frameLayout.goldenCard,
-      frameLayout.shell.shellEdge,
-      frameLayout.shell.sidebarWidth,
-      frameLayout.shell.sideBottomHeight,
-      frameLayout.shell.sideStackGap,
+      routeFrameLayout.shell.frameGap,
+      routeFrameLayout.carousel,
+      routeFrameLayout.goldenCard,
+      routeFrameLayout.shell.shellEdge,
+      routeFrameLayout.shell.sidebarWidth,
+      routeFrameLayout.shell.sideBottomHeight,
+      routeFrameLayout.shell.sideStackGap,
     ]
   );
-  const mainContent = frameContentTarget(frameLayout, PortalFrameTuner.FrameTarget.Main);
+  const mainContent = frameContentTarget(routeFrameLayout, PortalFrameTuner.FrameTarget.Main);
   const appMainStyle = useMemo<CSSProperties>(
-    () => frameContentStyle(mainContent, frameLayout.main) as CSSProperties,
-    [frameLayout.main, mainContent]
+    () => frameContentStyle(mainContent, routeFrameLayout.main) as CSSProperties,
+    [routeFrameLayout.main, mainContent]
   );
   const appMainClassName = useMemo(() => frameHostClassName(PortalDom.Classes.AppMain, mainContent), [mainContent]);
   if (isFrameTuner) {
@@ -88,9 +93,14 @@ export function PortalApp(props: PortalAppProps): ReactElement {
     <>
       <PortalUnifiedShell onAuthOpen={() => setAuthOpen(true)}>
         <div className={PortalDom.Classes.AppFrame} style={appFrameStyle}>
-          <PortalSidebar actions={props.actions} frameLayout={frameLayout} route={props.route} state={props.state} />
+          <PortalSidebar
+            actions={props.actions}
+            frameLayout={routeFrameLayout}
+            route={props.route}
+            state={props.state}
+          />
           <main aria-label={PortalFrameTuner.Text.TargetMain} className={appMainClassName} style={appMainStyle}>
-            <PortalFrameBackdrop ariaLabel={PortalFrameTuner.Text.PreviewMain} controls={frameLayout.main} />
+            <PortalFrameBackdrop ariaLabel={PortalFrameTuner.Text.PreviewMain} controls={routeFrameLayout.main} />
             <PortalFrameBoundsOverlay content={mainContent} />
             <div className={PortalFrameTuner.Classes.FrameContent}>
               <PageHeader route={props.route} />
@@ -109,6 +119,24 @@ export function PortalApp(props: PortalAppProps): ReactElement {
       {authOpen ? <PortalAuthDialog onClose={() => setAuthOpen(false)} /> : null}
     </>
   );
+}
+
+function frameLayoutVisibleForProtocolRoute(layout: PortalFrameLayout, isDevProtocolRoute: boolean): PortalFrameLayout {
+  if (!isDevProtocolRoute) {
+    return layout;
+  }
+  return {
+    ...layout,
+    content: {
+      sideTop: visibleContentTarget(layout.content.sideTop),
+      sideBottom: visibleContentTarget(layout.content.sideBottom),
+      main: visibleContentTarget(layout.content.main),
+    },
+  };
+}
+
+function visibleContentTarget(content: PortalFrameContentTargetLayout): PortalFrameContentTargetLayout {
+  return content.showContent ? content : { ...content, showContent: true };
 }
 
 function PageHeader({ route }: { readonly route: PortalRouteValue }): ReactElement {
