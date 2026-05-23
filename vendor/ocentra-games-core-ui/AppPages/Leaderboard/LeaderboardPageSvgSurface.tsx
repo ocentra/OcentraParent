@@ -200,7 +200,7 @@ const LEADERBOARD_RESPONSIVE_MIN_LEFT_W = 210;
 const LEADERBOARD_RESPONSIVE_MIN_RIGHT_W = 250;
 const LEADERBOARD_RESPONSIVE_MIN_MAIN_W = 560;
 const LEADERBOARD_RESPONSIVE_COMPACT_SURFACE_W = 1600;
-const LEADERBOARD_RESPONSIVE_MAX_CANVAS_W = 4096;
+const LEADERBOARD_RESPONSIVE_MAX_CANVAS_W = 8192;
 const LEADERBOARD_RESPONSIVE_MAX_CANVAS_H = 2800;
 const LEADERBOARD_TOP_CAROUSEL_MAX_VISIBLE = 5;
 const LEADERBOARD_SIDE_HANDLE_W = 15;
@@ -334,7 +334,6 @@ function leaderboardCanvasWidthForSurface(
 ): number {
   if (surfaceSize.width <= 0 || surfaceSize.height <= 0) return cfg.canvas.width;
   const minimumWidth = minimumLeaderboardCanvasWidth(cfg);
-  if (surfaceSize.width <= minimumWidth) return minimumWidth;
   const ratioWidth = Math.round(cfg.canvas.height * (surfaceSize.width / surfaceSize.height));
   return Math.max(minimumWidth, Math.min(LEADERBOARD_RESPONSIVE_MAX_CANVAS_W, ratioWidth));
 }
