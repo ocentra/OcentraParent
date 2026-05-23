@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::LanPairingTrustState;
+use crate::{LanPairingDiscoveryRuntimeStatus, LanPairingTrustState};
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
@@ -65,6 +65,9 @@ pub struct LanPairingRuntimeSupportSurface {
     pub unsupported_http_endpoints: Vec<LanPairingUnsupportedHttpEndpoint>,
     pub pairing_state: LanPairingTrustState,
     pub trusted_device_count: u32,
+    pub discovery_status: LanPairingDiscoveryRuntimeStatus,
+    pub challenge_status: LanPairingDiscoveryRuntimeStatus,
+    pub proof_preview_status: LanPairingDiscoveryRuntimeStatus,
     pub persistence_mode: LanPairingPersistenceMode,
     pub proof_mode: LanPairingProofMode,
     pub route_requirements: Vec<LanPairingRouteRequirement>,

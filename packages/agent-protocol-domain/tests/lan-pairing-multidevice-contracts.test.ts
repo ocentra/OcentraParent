@@ -2,6 +2,9 @@ import { describe, expect, it } from 'vitest';
 import {
   AgentCommand,
   AgentCommandEnvelopeSchema,
+  AgentLanPairingChallengeSchema,
+  AgentLanPairingDiscoveryDeviceSchema,
+  AgentLanPairingProofPreviewSchema,
   AgentLanPairingSupportedWebSocketCommand,
   AgentProtocolDefaults,
 } from '../src/contracts';
@@ -16,6 +19,10 @@ describe('LAN pairing multi-device protocol contracts', () => {
       'agent.lan-pairing.status.get',
     ]);
     expect(Object.values(AgentLanPairingSupportedWebSocketCommand)).not.toContain('agent.lan-pairing.discovery.http');
+    expect(Object.values(AgentLanPairingSupportedWebSocketCommand)).not.toContain('agent.lan-pairing.challenge.http');
+    expect(Object.values(AgentLanPairingSupportedWebSocketCommand)).not.toContain(
+      'agent.lan-pairing.proof-preview.http'
+    );
   });
 
   it('AgentPairingStateSchema: distinguishes unauthenticated, unpaired, and paired LAN states', () => {
@@ -52,4 +59,78 @@ describe('LAN pairing multi-device protocol contracts', () => {
 
     expect(parsed.success).toBe(true);
   });
+
+  it('LAN discovery, challenge, and proof preview schemas stay contract-only and omit raw proof material', () => {
+    const discovery = AgentLanPairingDiscoveryDeviceSchema.safeParse(lanDiscoveryDevice());
+    const challenge = AgentLanPairingChallengeSchema.safeParse(lanChallenge());
+    const preview = AgentLanPairingProofPreviewSchema.safeParse(lanProofPreview('sha256:proof-preview-digest'));
+    const invalidPreview = AgentLanPairingProofPreviewSchema.safeParse(lanProofPreview(''));
+
+    expect(discovery.success).toBe(true);
+    expect(challenge.success).toBe(true);
+    expect(preview.success).toBe(true);
+    expect(JSON.stringify(preview)).not.toContain('rawToken');
+    expect(invalidPreview.success).toBe(false);
+  });
 });
+
+function lanDeviceRef() {
+  return {
+    deviceId: 'child-device-1',
+    childProfileId: 'child-profile-1',
+    label: 'Child Windows device',
+    platform: 'windows',
+  };
+}
+
+function parentDeviceRef() {
+  return {
+    deviceId: 'parent-device-1',
+    childProfileId: null,
+    label: 'Parent Windows device',
+    platform: 'windows',
+  };
+}
+
+function lanDiscoveryDevice() {
+  return {
+    schemaVersion: AgentProtocolDefaults.SchemaVersion,
+    discoveredAt: '2026-05-23T22:40:00Z',
+    childDevice: lanDeviceRef(),
+    agentPeerId: 'child-agent-1',
+    routeId: 'lan-route-child-1',
+    networkMode: 'local-network',
+    reachability: AgentProtocolDefaults.LanSelectedDeviceReachability.Stale,
+    addressRef: 'lan-address-ref-unproven',
+    discoveryStatus: AgentProtocolDefaults.LanRuntimeSupportStatus.PlannedUnsupported,
+  };
+}
+
+function lanChallenge() {
+  return {
+    schemaVersion: AgentProtocolDefaults.SchemaVersion,
+    challengeId: 'challenge-child-1',
+    childDevice: lanDeviceRef(),
+    parentDevice: parentDeviceRef(),
+    routeId: 'lan-route-child-1',
+    origin: 'http://127.0.0.1:4678',
+    issuedAt: '2026-05-23T22:40:00Z',
+    expiresAt: '2026-05-23T22:45:00Z',
+    challengeStatus: AgentProtocolDefaults.LanRuntimeSupportStatus.PlannedUnsupported,
+  };
+}
+
+function lanProofPreview(proofDigest: unknown) {
+  return {
+    schemaVersion: AgentProtocolDefaults.SchemaVersion,
+    challengeId: 'challenge-child-1',
+    childDeviceId: 'child-device-1',
+    parentDeviceId: 'parent-device-1',
+    routeId: 'lan-route-child-1',
+    origin: 'http://127.0.0.1:4678',
+    proofDigest,
+    issuedAt: '2026-05-23T22:40:00Z',
+    expiresAt: '2026-05-23T22:45:00Z',
+    proofPreviewStatus: AgentProtocolDefaults.LanRuntimeSupportStatus.PlannedUnsupported,
+  };
+}

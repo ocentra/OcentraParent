@@ -30,6 +30,7 @@ pub const PLANNED_HTTP_ENDPOINT_PATHS: &[&str] = &[
 ];
 
 pub const SUPPORT_PLANNED_UNSUPPORTED: &str = "planned-unsupported";
+pub const ADDRESS_REF_UNPROVEN: &str = "lan-address-ref-unproven";
 pub const ROUTE_REQUIREMENT_PAIRED_DEVICE: &str = "paired-device";
 pub const ROUTE_REQUIREMENT_ALLOWED_ORIGIN: &str = "allowed-origin";
 pub const ROUTE_REQUIREMENT_TARGET_DEVICE_MATCH: &str = "target-device-match";

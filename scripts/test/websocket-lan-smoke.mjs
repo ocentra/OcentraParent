@@ -136,6 +136,9 @@ function assertLanSupportSurface(payload) {
     'unsupportedHttpEndpoints',
     '/api/lan-pairing/discovery,/api/lan-pairing/challenge,/api/lan-pairing/proof,/api/lan-pairing/control,/api/lan-pairing/registry'
   );
+  assertPayloadValue(payload, 'discoveryStatus', 'planned-unsupported');
+  assertPayloadValue(payload, 'challengeStatus', 'planned-unsupported');
+  assertPayloadValue(payload, 'proofPreviewStatus', 'planned-unsupported');
   assertPayloadValue(payload, 'persistenceMode', 'in-memory-fail-closed');
   assertPayloadValue(payload, 'proofMode', 'direct-proof-submit');
   assertPayloadValue(

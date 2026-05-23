@@ -1,12 +1,14 @@
 use super::{
     constants, policy_constants, LanChildAgentResponse, LanPairingAuditEvent,
-    LanPairingAuditEventType, LanPairingAuthenticationState, LanPairingDeviceReachability,
-    LanPairingDeviceRef, LanPairingHttpEndpointSupport, LanPairingIntentKind,
+    LanPairingAuditEventType, LanPairingAuthenticationState, LanPairingChallenge,
+    LanPairingDeviceReachability, LanPairingDeviceRef, LanPairingDiscoveryDevice,
+    LanPairingDiscoveryRuntimeStatus, LanPairingHttpEndpointSupport, LanPairingIntentKind,
     LanPairingManualProofGap, LanPairingNetworkMode, LanPairingPersistenceMode, LanPairingProof,
-    LanPairingProofMode, LanPairingRejectionReason, LanPairingResponseState,
-    LanPairingRouteRequirement, LanPairingRouteSelectionRequest, LanPairingRoutingDecision,
-    LanPairingRuntimeSupportSurface, LanPairingTransport, LanPairingUnsupportedHttpEndpoint,
-    LanTrustedDeviceRegistryEntry, LanTrustedDeviceRegistrySnapshot,
+    LanPairingProofMode, LanPairingProofPreview, LanPairingRejectionReason,
+    LanPairingResponseState, LanPairingRouteRequirement, LanPairingRouteSelectionRequest,
+    LanPairingRoutingDecision, LanPairingRuntimeSupportSurface, LanPairingTransport,
+    LanPairingUnsupportedHttpEndpoint, LanTrustedDeviceRegistryEntry,
+    LanTrustedDeviceRegistrySnapshot,
 };
 
 #[test]
@@ -86,6 +88,75 @@ fn lan_pairing_audit_event_records_rejection_reason_without_raw_secret() {
 }
 
 #[test]
+fn lan_pairing_discovery_challenge_and_proof_preview_make_unsupported_status_explicit() {
+    let discovery = LanPairingDiscoveryDevice {
+        schema_version: constants::lan_pairing::SCHEMA_VERSION,
+        discovered_at: constants::lan_pairing::OBSERVED_AT.to_string(),
+        child_device: child_device(),
+        agent_peer_id: constants::lan_pairing::PARENT_PEER_ID.to_string(),
+        route_id: constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK.to_string(),
+        network_mode: LanPairingNetworkMode::LocalNetwork,
+        reachability: LanPairingDeviceReachability::Stale,
+        address_ref: constants::lan_pairing::ADDRESS_REF_UNPROVEN.to_string(),
+        discovery_status: LanPairingDiscoveryRuntimeStatus::PlannedUnsupported,
+    };
+    let challenge = LanPairingChallenge {
+        schema_version: constants::lan_pairing::SCHEMA_VERSION,
+        challenge_id: constants::lan_pairing::CHALLENGE_ID.to_string(),
+        child_device: child_device(),
+        parent_device: parent_device(),
+        route_id: constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK.to_string(),
+        origin: constants::lan_pairing::ALLOWED_ORIGIN.to_string(),
+        issued_at: constants::lan_pairing::ISSUED_AT.to_string(),
+        expires_at: constants::lan_pairing::EXPIRES_AT.to_string(),
+        challenge_status: LanPairingDiscoveryRuntimeStatus::PlannedUnsupported,
+    };
+    let preview = LanPairingProofPreview {
+        schema_version: constants::lan_pairing::SCHEMA_VERSION,
+        challenge_id: constants::lan_pairing::CHALLENGE_ID.to_string(),
+        child_device_id: constants::lan_pairing::CHILD_DEVICE_ID.to_string(),
+        parent_device_id: constants::lan_pairing::PARENT_DEVICE_ID.to_string(),
+        route_id: constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK.to_string(),
+        origin: constants::lan_pairing::ALLOWED_ORIGIN.to_string(),
+        proof_digest: constants::lan_pairing::PROOF_DIGEST.to_string(),
+        issued_at: constants::lan_pairing::ISSUED_AT.to_string(),
+        expires_at: constants::lan_pairing::EXPIRES_AT.to_string(),
+        proof_preview_status: LanPairingDiscoveryRuntimeStatus::PlannedUnsupported,
+    };
+
+    let discovery_json =
+        serde_json::to_value(discovery).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let challenge_json =
+        serde_json::to_value(challenge).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let preview_json =
+        serde_json::to_value(preview).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let preview_text =
+        serde_json::to_string(&preview_json).expect(constants::error::AGENT_EVENT_SERIALIZES);
+
+    assert_eq!(
+        discovery_json["discoveryStatus"],
+        constants::lan_pairing::SUPPORT_PLANNED_UNSUPPORTED
+    );
+    assert_eq!(
+        discovery_json["addressRef"],
+        constants::lan_pairing::ADDRESS_REF_UNPROVEN
+    );
+    assert_eq!(
+        challenge_json["challengeStatus"],
+        constants::lan_pairing::SUPPORT_PLANNED_UNSUPPORTED
+    );
+    assert_eq!(
+        preview_json["proofPreviewStatus"],
+        constants::lan_pairing::SUPPORT_PLANNED_UNSUPPORTED
+    );
+    assert_eq!(
+        preview_json["proofDigest"],
+        constants::lan_pairing::PROOF_DIGEST
+    );
+    assert!(!preview_text.contains("rawToken"));
+}
+
+#[test]
 fn lan_pairing_read_model_values_keep_local_network_state_explicit() {
     let selected = super::LanSelectedRouteTarget {
         schema_version: constants::lan_pairing::SCHEMA_VERSION,
@@ -130,6 +201,9 @@ fn lan_pairing_runtime_support_surface_serializes_supported_and_planned_api_clai
         unsupported_http_endpoints: planned_http_endpoints(),
         pairing_state: super::LanPairingTrustState::Unpaired,
         trusted_device_count: 0,
+        discovery_status: LanPairingDiscoveryRuntimeStatus::PlannedUnsupported,
+        challenge_status: LanPairingDiscoveryRuntimeStatus::PlannedUnsupported,
+        proof_preview_status: LanPairingDiscoveryRuntimeStatus::PlannedUnsupported,
         persistence_mode: LanPairingPersistenceMode::InMemoryFailClosed,
         proof_mode: LanPairingProofMode::DirectProofSubmit,
         route_requirements: vec![
@@ -167,6 +241,18 @@ fn lan_pairing_runtime_support_surface_serializes_supported_and_planned_api_clai
     );
     assert_eq!(
         support_json["unsupportedHttpEndpoints"][0]["support"],
+        constants::lan_pairing::SUPPORT_PLANNED_UNSUPPORTED
+    );
+    assert_eq!(
+        support_json["discoveryStatus"],
+        constants::lan_pairing::SUPPORT_PLANNED_UNSUPPORTED
+    );
+    assert_eq!(
+        support_json["challengeStatus"],
+        constants::lan_pairing::SUPPORT_PLANNED_UNSUPPORTED
+    );
+    assert_eq!(
+        support_json["proofPreviewStatus"],
         constants::lan_pairing::SUPPORT_PLANNED_UNSUPPORTED
     );
     assert_eq!(
