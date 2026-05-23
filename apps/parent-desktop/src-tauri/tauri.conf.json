@@ -1,0 +1,34 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Ocentra Parent",
+  "version": "0.1.1",
+  "identifier": "com.ocentra.parent.portal",
+  "build": {
+    "beforeDevCommand": "npm run portal:dev",
+    "devUrl": "http://127.0.0.1:4478",
+    "beforeBuildCommand": "npm run portal:build",
+    "frontendDist": "../../portal/dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "Ocentra Parent",
+        "width": 1280,
+        "height": 860,
+        "minWidth": 1024,
+        "minHeight": 720,
+        "center": true,
+        "resizable": true
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; connect-src 'self' ws://127.0.0.1:4477 http://127.0.0.1:4477 ws://localhost:4477 http://localhost:4477; img-src 'self' asset: https://asset.localhost; script-src 'self'; style-src 'self' 'unsafe-inline'"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "category": "Lifestyle"
+  }
+}

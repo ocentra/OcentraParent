@@ -1,0 +1,20 @@
+<svg width="160" height="160" viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Control glyph">
+  <defs>
+    <linearGradient id="plate" x1="18" y1="16" x2="140" y2="144">
+      <stop offset="0" stop-color="#54e2ff"/>
+      <stop offset="0.5" stop-color="#47f29a"/>
+      <stop offset="1" stop-color="#ffd36a"/>
+    </linearGradient>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <path d="M30 18h72l28 28v68l-28 28H30L2 114V46L30 18z" fill="#031629" stroke="url(#plate)" stroke-width="4" filter="url(#glow)"/>
+  <path d="M80 35l34 14v29c0 25-13 45-34 56-21-11-34-31-34-56V49l34-14z" fill="#05243d" stroke="#effcff" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M58 80l16 16 31-39" fill="none" stroke="#47f29a" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M22 46h24M114 46h24M22 114h24M114 114h24" stroke="#54e2ff" stroke-width="4" stroke-linecap="round" opacity="0.8"/>
+</svg>

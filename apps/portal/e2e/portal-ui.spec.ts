@@ -1,36 +1,49 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 import { collectBrowserFailures } from './browser-failures';
-import { assertPolicyPreviewBoundaryDetails } from './policy-preview-assertions';
+import { assertRouteScaffolds } from './portal-route-scaffold-assertions';
 test('portal UI connects to the real agent and renders command results', async ({ context, page }) => {
   const browserFailures = collectBrowserFailures(page);
   await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: 'http://127.0.0.1:4490' });
   await page.goto('/#/commands');
-  await expect(page.getByRole('heading', { name: 'Ocentra Parent' })).toBeVisible();
-  await expect(page.getByText('Local agent WebSocket command and event scaffold')).toBeVisible();
+  await expect(page.getByRole('button', { exact: true, name: 'Home' })).toBeVisible();
+  await expect(page.getByRole('button', { exact: true, name: 'Login' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Controls' })).toBeVisible();
 
+  await assertAuthDialog(page);
   await assertCommandControls(page);
   await assertTabbedCommandResults(page);
   await assertRawEventLog(page);
   await assertOverview(page);
+  await assertRouteScaffolds(page);
 
   expect(browserFailures).toEqual([]);
 });
+
+async function assertAuthDialog(page: Page): Promise<void> {
+  await page.getByRole('button', { exact: true, name: 'Login' }).click();
+  await expect(page.getByRole('dialog', { name: 'Protect the family console' })).toBeVisible();
+  await expect(page.getByText('Trusted sign-in options')).toBeVisible();
+  await page.getByRole('button', { exact: true, name: 'Continue' }).click();
+  await expect(page.getByText('Parent identity is not connected on this device yet.')).toBeVisible();
+  await page.getByRole('button', { exact: true, name: 'Close parent sign in' }).click();
+  await expect(page.getByRole('dialog', { name: 'Protect the family console' })).toHaveCount(0);
+}
 
 async function assertCommandControls(page: Page): Promise<void> {
   await expect(page.getByRole('button', { name: 'Reconnect' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Check health' })).toBeEnabled();
   await expect(page.getByRole('button', { name: 'Get log snapshot' })).toBeEnabled();
-  await expect(page.getByRole('button', { name: 'Echo portal ping' })).toBeEnabled();
-  await expect(page.getByRole('button', { name: 'Get watcher status' })).toBeEnabled();
-  await expect(page.getByRole('button', { name: 'Get activity ingest status' })).toBeEnabled();
-  await expect(page.getByRole('button', { name: 'Get recent activity summary' })).toBeEnabled();
-  await expect(page.getByRole('button', { name: 'Get browser evidence' })).toBeEnabled();
-  await expect(page.getByRole('button', { name: 'Get activity memory graph' })).toBeEnabled();
-  await expect(page.getByRole('button', { name: 'Get browser intervention' })).toBeEnabled();
-  await expect(page.getByRole('button', { name: 'Poll managed browser bridge' })).toBeEnabled();
-  await expect(page.getByRole('button', { name: 'Get network flow' })).toBeEnabled();
-  await expect(page.getByRole('button', { name: 'Get local AI runtime' })).toBeEnabled();
-  await expect(page.getByRole('button', { name: 'Get policy preview' })).toBeEnabled();
+  await expect(page.getByRole('button', { name: 'Send connectivity check' })).toBeEnabled();
+  await expect(page.getByRole('button', { name: 'Refresh browser watcher' })).toBeEnabled();
+  await expect(page.getByRole('button', { name: 'Refresh activity ingest' })).toBeEnabled();
+  await expect(page.getByRole('button', { name: 'Refresh recent activity' })).toBeEnabled();
+  await expect(page.getByRole('button', { name: 'Refresh web evidence' })).toBeEnabled();
+  await expect(page.getByRole('button', { name: 'Refresh memory links' })).toBeEnabled();
+  await expect(page.getByRole('button', { name: 'Refresh browser protection' })).toBeEnabled();
+  await expect(page.getByRole('button', { name: 'Refresh managed browser' })).toBeEnabled();
+  await expect(page.getByRole('button', { name: 'Refresh network activity' })).toBeEnabled();
+  await expect(page.getByRole('button', { name: 'Refresh local AI' })).toBeEnabled();
+  await expect(page.getByRole('button', { name: 'Refresh policy decision' })).toBeEnabled();
   await expect(page.getByRole('heading', { name: 'Command result' })).toBeVisible();
   await expect(page.locator('.summary')).toHaveCount(1);
 }
@@ -46,38 +59,33 @@ async function assertTabbedCommandResults(page: Page): Promise<void> {
   await expect(commandResult.getByText('agent.log.snapshot.reported')).toHaveCount(1);
   await expect(commandResult.getByText('agent.health.reported')).toHaveCount(0);
   await expect(commandResult.locator('.log')).toHaveCount(1);
-  await page.getByRole('button', { name: 'Echo portal ping' }).click();
-  await page.getByRole('button', { name: 'Echo portal ping' }).click();
+  await page.getByRole('button', { name: 'Send connectivity check' }).click();
+  await page.getByRole('button', { name: 'Send connectivity check' }).click();
   await expect(commandResult.getByText('agent.dev.echoed')).toHaveCount(1);
   await expect(commandResult.locator('.log')).toHaveCount(1);
-  await page.getByRole('button', { name: 'Get watcher status' }).click();
-  await page.getByRole('button', { name: 'Get watcher status' }).click();
+  await page.getByRole('button', { name: 'Refresh browser watcher' }).click();
+  await page.getByRole('button', { name: 'Refresh browser watcher' }).click();
   await expect(commandResult.getByText('agent.watch.status.reported')).toHaveCount(1);
   await expect(commandResult.locator('.log')).toHaveCount(1);
-  await page.getByRole('button', { name: 'Get activity ingest status' }).click();
-  await page.getByRole('button', { name: 'Get activity ingest status' }).click();
+  await page.getByRole('button', { name: 'Refresh activity ingest' }).click();
+  await page.getByRole('button', { name: 'Refresh activity ingest' }).click();
   await expect(commandResult.getByText('agent.activity.ingest.status.reported')).toHaveCount(1);
   await expect(commandResult.locator('.log')).toHaveCount(1);
-  await page.getByRole('button', { name: 'Get recent activity summary' }).click();
-  await page.getByRole('button', { name: 'Get recent activity summary' }).click();
+  await page.getByRole('button', { name: 'Refresh recent activity' }).click();
+  await page.getByRole('button', { name: 'Refresh recent activity' }).click();
   await expect(commandResult.getByText('agent.activity.recent.summary.reported')).toHaveCount(1);
   await expect(commandResult.locator('.log')).toHaveCount(1);
   await assertActivityReadModelResults(page, commandResult);
   await assertCommandResult(
     page,
     commandResult,
-    'Get browser intervention',
+    'Refresh browser protection',
     'agent.browser.intervention.read-model.reported'
   );
-  await assertCommandResult(
-    page,
-    commandResult,
-    'Poll managed browser bridge',
-    'agent.browser.managed.status.reported'
-  );
+  await assertCommandResult(page, commandResult, 'Refresh managed browser', 'agent.browser.managed.status.reported');
   await assertNetworkFlowResult(page, commandResult);
-  await assertCommandResult(page, commandResult, 'Get local AI runtime', 'agent.local-ai.runtime.status.reported');
-  await assertCommandResult(page, commandResult, 'Get policy preview', 'agent.policy.preview.read-model.reported');
+  await assertCommandResult(page, commandResult, 'Refresh local AI', 'agent.local-ai.runtime.status.reported');
+  await assertCommandResult(page, commandResult, 'Refresh policy decision', 'agent.policy.preview.read-model.reported');
   await assertHealthResultForCopy(page, commandResult);
   await assertCopyButton(page, commandResult, 'agent.health.reported');
 }
@@ -89,20 +97,20 @@ async function assertHealthResultForCopy(page: Page, commandResult: Locator): Pr
 }
 
 async function assertNetworkFlowResult(page: Page, commandResult: Locator): Promise<void> {
-  await page.getByRole('button', { name: 'Get network flow' }).click();
-  await page.getByRole('button', { name: 'Get network flow' }).click();
+  await page.getByRole('button', { name: 'Refresh network activity' }).click();
+  await page.getByRole('button', { name: 'Refresh network activity' }).click();
   await expect(commandResult.getByText('agent.network.flow.read-model.reported')).toHaveCount(1);
   await expect(commandResult.locator('.log')).toHaveCount(1);
 }
 
 async function assertActivityReadModelResults(page: Page, commandResult: Locator): Promise<void> {
-  await assertCommandResult(page, commandResult, 'Get browser evidence', 'agent.browser.evidence.recent.reported');
-  await assertCommandResult(page, commandResult, 'Get activity memory graph', 'agent.activity.memory-graph.reported');
+  await assertCommandResult(page, commandResult, 'Refresh web evidence', 'agent.browser.evidence.recent.reported');
+  await assertCommandResult(page, commandResult, 'Refresh memory links', 'agent.activity.memory-graph.reported');
 }
 
 async function assertRawEventLog(page: Page): Promise<void> {
-  await page.getByRole('link', { name: 'events' }).click();
-  await expect(page.getByRole('heading', { name: 'Agent events' })).toBeVisible();
+  await page.goto('/#/events');
+  await expect(page.getByRole('heading', { name: 'Device audit' })).toBeVisible();
   await expect(page.getByText('agent.connection.ready')).toHaveCount(1);
   await expect(page.getByText('agent.health.reported')).toHaveCount(4);
   await expect(page.getByText('agent.log.snapshot.reported')).toHaveCount(3);
@@ -132,54 +140,12 @@ async function assertCommandResult(
 }
 
 async function assertOverview(page: Page): Promise<void> {
-  await page.getByRole('link', { name: 'overview' }).click();
-  await expect(page.getByRole('heading', { name: 'Live activity' })).toBeVisible();
-  await expect(page.getByText('Agent WebSocket connected')).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Evidence store' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Managed browser' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Browser evidence' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Activity memory graph' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Browser intervention' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Network flow' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Policy preview' })).toBeVisible();
-  await expect(page.getByText('Enforcement disabled; preview only.')).toBeVisible();
-  const policyPreview = page
-    .locator('section.summary')
-    .filter({ has: page.getByRole('heading', { name: 'Policy preview' }) });
-  await expect(
-    policyPreview.locator('dt').filter({ hasText: 'Preview status' }).locator('xpath=following-sibling::dd[1]')
-  ).not.toHaveText('');
-  await expect(
-    policyPreview.locator('dt').filter({ hasText: 'Rows returned' }).locator('xpath=following-sibling::dd[1]')
-  ).not.toHaveText('');
-  await assertPolicyPreviewBoundaryDetails(policyPreview);
-  await expect(
-    policyPreview.locator('dt').filter({ hasText: 'Unknown state' }).locator('xpath=following-sibling::dd[1]')
-  ).toHaveText('Not reported');
-  await expect(page.getByRole('heading', { name: 'Recent activity' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Device diagnostics' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Activity timeline' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Service dev log' })).toBeVisible();
-  await expect(
-    page.locator('dt').filter({ hasText: 'Events stored' }).locator('xpath=following-sibling::dd[1]')
-  ).toHaveText(/\d+/u);
-  const recentActivity = page
-    .locator('section.summary')
-    .filter({ has: page.getByRole('heading', { name: 'Recent activity' }) });
-  await expect(
-    recentActivity.locator('dt').filter({ hasText: 'Rows returned' }).locator('xpath=following-sibling::dd[1]')
-  ).toHaveText(/\d+/u);
-  await expect(page.getByRole('heading', { name: 'Latest agent snapshot' })).toBeVisible();
-  const snapshotPanel = page
-    .locator('.summary')
-    .filter({ has: page.getByRole('heading', { name: 'Latest agent snapshot' }) });
-  await expect(
-    snapshotPanel.locator('dt').filter({ hasText: 'Device' }).locator('xpath=following-sibling::dd[1]')
-  ).toHaveText('local-dev-agent');
-  await expect(
-    snapshotPanel.locator('dt').filter({ hasText: 'Version' }).locator('xpath=following-sibling::dd[1]')
-  ).toHaveText(/\b\d+\.\d+\.\d+\b/u);
-  await assertDiagnosticsCopy(page);
+  await page.goto('/#/overview');
+  const surface = page.locator('svg.leaderboard-page-svg-surface');
+  await expect(surface).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: 'TODAY CONTROL SNAPSHOT' }).first()).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: 'WHAT PARENTS CONTROL' }).first()).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: 'DATA CUSTODY' }).first()).toBeVisible();
 }
 
 async function assertCopyButton(page: Page, commandResult: Locator, eventName: string): Promise<void> {
@@ -189,17 +155,4 @@ async function assertCopyButton(page: Page, commandResult: Locator, eventName: s
   const copiedText = await page.evaluate(() => navigator.clipboard.readText());
   expect(copiedText).toContain(eventName);
   expect(copiedText).toContain('"payload"');
-}
-
-async function assertDiagnosticsCopy(page: Page): Promise<void> {
-  await page.getByRole('button', { name: 'Copy diagnostics' }).click();
-  await expect(page.getByRole('button', { name: 'Diagnostics copied' })).toBeVisible();
-
-  const copiedText = await page.evaluate(() => navigator.clipboard.readText());
-  expect(copiedText).toContain('"agentUrl"');
-  expect(copiedText).toContain('"connectionState"');
-  expect(copiedText).toContain('"events"');
-  expect(copiedText).toContain('"recentSummary"');
-  expect(copiedText).toContain('"networkFlowReadModel"');
-  expect(copiedText).toContain('"activityMemoryGraphReadModel"');
 }

@@ -23,7 +23,9 @@ Split before a file owns unrelated concerns. Common split points:
 
 ## Guardrail
 
-`scripts/check-source-shape.mjs` warns near 80 percent of the configured budget and fails past the hard limit.
+`scripts/check-source-shape.mjs` warns on file-size advisory bands starting at 250 lines and fails past the hard
+file limit. Function, class, export, type, and Rust function-count budgets still warn near 80 percent and fail past
+their configured hard limits.
 
 Treat a warning as a design prompt. Do not wait for hard failure before splitting if the file is taking on a second responsibility.
 
@@ -34,4 +36,3 @@ Do not solve source shape warnings by moving code into random helper files. The 
 ## Docs and Rules
 
 Rule files must stay granular. If a rule document becomes hard to scan, split it by task instead of adding sections forever.
-

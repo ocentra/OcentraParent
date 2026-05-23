@@ -1,0 +1,195 @@
+.oc-unified-shell {
+  position: relative;
+  width: 100%;
+  min-height: 100dvh;
+  height: 100dvh;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.oc-unified-shell--viewport-locked,
+.oc-unified-shell--embedded {
+  min-height: 0;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.oc-unified-shell--embedded {
+  height: 100%;
+}
+
+.oc-unified-shell__background {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.oc-unified-shell__chrome {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-rows:
+    var(--oc-shell-header-h, 0px)
+    auto
+    minmax(0, 1fr)
+    auto;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+.oc-unified-shell__slot {
+  min-width: 0;
+}
+
+.oc-unified-shell__slot--header {
+  grid-row: 1;
+}
+
+.oc-unified-shell__slot--toolbar {
+  grid-row: 2;
+}
+
+.oc-unified-shell__slot--footer {
+  grid-row: 4;
+  position: relative;
+  z-index: 20;
+}
+
+.oc-unified-shell__work {
+  position: relative;
+  grid-row: 3;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.oc-unified-shell--work-scroll .oc-unified-shell__work {
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.oc-unified-shell--viewport-locked .oc-unified-shell__work,
+.oc-unified-shell--embedded .oc-unified-shell__work {
+  overflow: hidden;
+}
+
+.lb-page {
+  background: transparent;
+}
+
+.lb-top-divider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(88, 191, 255, 0.44) 18%,
+    rgba(125, 73, 255, 0.36) 50%,
+    rgba(88, 191, 255, 0.44) 82%,
+    transparent
+  );
+  box-shadow: 0 0 18px rgba(88, 191, 255, 0.24);
+}
+
+.lb-shell-work {
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.lb-shell-work > * {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+.lb-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: clamp(1rem, 2dvw, 2rem);
+  background: rgba(2, 8, 16, 0.72);
+  backdrop-filter: blur(0.5rem);
+}
+
+.lb-modal-card {
+  width: min(42rem, 100%);
+  max-height: min(48rem, calc(100dvh - 2rem));
+  overflow: auto;
+  border: 1px solid rgba(95, 216, 255, 0.34);
+  border-radius: var(--radius-lg, 0.75rem);
+  padding: clamp(1rem, 2dvw, 1.5rem);
+  background: linear-gradient(180deg, rgba(8, 23, 38, 0.98), rgba(5, 13, 24, 0.98));
+  box-shadow:
+    0 1.5rem 4rem rgba(0, 0, 0, 0.38),
+    0 0 2.25rem rgba(36, 206, 255, 0.12);
+}
+
+.lb-modal-title {
+  margin: 0 0 1rem;
+  color: #edf7ff;
+  font-size: clamp(1.15rem, 2dvw, 1.5rem);
+}
+
+.lb-label,
+.lb-checkbox-row {
+  display: block;
+  margin-top: 0.75rem;
+  color: #b8d5e5;
+  font-size: 0.82rem;
+  font-weight: 750;
+}
+
+.lb-input {
+  width: 100%;
+  min-height: 2.45rem;
+  margin-top: 0.35rem;
+  border: 1px solid rgba(95, 216, 255, 0.26);
+  border-radius: var(--radius-md, 0.5rem);
+  padding: 0 0.75rem;
+  background: rgba(3, 13, 24, 0.92);
+  color: #edf7ff;
+  font: inherit;
+}
+
+.lb-input:disabled {
+  opacity: 0.48;
+}
+
+.lb-checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.lb-modal-actions {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  background: linear-gradient(180deg, rgba(5, 13, 24, 0), rgba(5, 13, 24, 1) 28%);
+}
+
+.lb-btn {
+  min-height: 2.5rem;
+  border: 1px solid rgba(95, 216, 255, 0.3);
+  border-radius: var(--radius-md, 0.5rem);
+  padding: 0 1rem;
+  color: #edf7ff;
+  font-weight: 850;
+}
+
+.lb-btn-primary {
+  background: linear-gradient(135deg, #0b82a8, #5620b8);
+}
+
+.lb-btn-secondary {
+  background: rgba(12, 28, 43, 0.92);
+}

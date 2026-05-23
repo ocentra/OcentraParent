@@ -1,12 +1,10 @@
 import type { BrowserEvidenceReadModel, BrowserTabEvidence } from '@ocentra-parent/activity-domain/browser';
 import { AgentProtocolDefaults, type AgentEventEnvelope } from '@ocentra-parent/agent-protocol-domain/contracts';
-import type { LogFieldValue } from '@ocentra-parent/logging-domain/contracts';
 import {
   PortalDetails,
   PortalDom,
   PortalText,
   PortalTextToken,
-  decodePortalDetailValue,
   type PortalDetailValue,
   type PortalDisplayText,
 } from '@ocentra-parent/portal-domain/contracts';
@@ -19,6 +17,7 @@ import { resolveLiveActivityState, type PortalLiveActivityState } from './live-a
 import { renderNetworkFlow } from './live-network-flow-panel';
 import { renderPolicyPreview } from './policy-preview-panel';
 import type { PortalRuntimeState } from './portal-state';
+import { detailFromValue, notReported } from './event-detail-values';
 
 export function renderLiveActivityOverview(container: HTMLElement, state: PortalRuntimeState): void {
   const liveActivity = resolveLiveActivityState(state.events);
@@ -33,7 +32,7 @@ export function renderLiveActivityOverview(container: HTMLElement, state: Portal
   renderDiagnosticsPanel(container, state);
 }
 
-function renderEvidenceStore(container: HTMLElement, liveActivity: PortalLiveActivityState): void {
+export function renderEvidenceStore(container: HTMLElement, liveActivity: PortalLiveActivityState): void {
   const panel = panelWithTitle(PortalText.Resolve(PortalTextToken.EvidenceStore));
   const metadata = document.createElement(PortalDom.Tags.DefinitionList);
 
@@ -54,7 +53,7 @@ function renderEvidenceStore(container: HTMLElement, liveActivity: PortalLiveAct
   container.append(panel);
 }
 
-function renderBrowserEvidence(container: HTMLElement, liveActivity: PortalLiveActivityState): void {
+export function renderBrowserEvidence(container: HTMLElement, liveActivity: PortalLiveActivityState): void {
   const panel = panelWithTitle(PortalText.Resolve(PortalTextToken.BrowserEvidence));
   const metadata = document.createElement(PortalDom.Tags.DefinitionList);
 
@@ -113,7 +112,7 @@ function appendBrowserEvidenceRowState(
   appendDetail(metadata, PortalDetails.Custody, detailFromValue(readModel.custodyLabel));
 }
 
-function renderRecentActivity(container: HTMLElement, liveActivity: PortalLiveActivityState): void {
+export function renderRecentActivity(container: HTMLElement, liveActivity: PortalLiveActivityState): void {
   const panel = panelWithTitle(PortalText.Resolve(PortalTextToken.RecentActivity));
   const metadata = document.createElement(PortalDom.Tags.DefinitionList);
 
@@ -164,7 +163,7 @@ function eventStatus(event: AgentEventEnvelope | null): PortalDetailValue {
   if (event === null) {
     return notReported();
   }
-  return decodePortalDetailValue(event.severity);
+  return detailFromValue(event.severity);
 }
 
 function eventReason(event: AgentEventEnvelope | null): PortalDetailValue {
@@ -172,15 +171,4 @@ function eventReason(event: AgentEventEnvelope | null): PortalDetailValue {
     return notReported();
   }
   return detailFromValue(event.payload[AgentProtocolDefaults.Field.Reason]);
-}
-
-function detailFromValue(value: LogFieldValue | undefined): PortalDetailValue {
-  if (value === undefined || value === null) {
-    return notReported();
-  }
-  return decodePortalDetailValue(String(value));
-}
-
-function notReported(): PortalDetailValue {
-  return decodePortalDetailValue(PortalText.Resolve(PortalTextToken.NotReported));
 }

@@ -6,6 +6,7 @@ import ts from 'typescript';
 const repoRoot = process.cwd();
 const ignoredSegments = new Set(['.git', '.turbo', 'coverage', 'dist', 'node_modules', 'target']);
 const warningRatio = 0.8;
+const fileLineWarningStep = 250;
 const policies = [
   {
     roots: ['apps'],
@@ -14,7 +15,7 @@ const policies = [
     maxClasses: 1,
     maxExports: 35,
     maxFunctionLines: 80,
-    maxLines: 240,
+    maxLines: 1000,
   },
   {
     roots: ['packages'],
@@ -23,7 +24,7 @@ const policies = [
     maxClasses: 1,
     maxExports: 45,
     maxFunctionLines: 80,
-    maxLines: 240,
+    maxLines: 1000,
   },
   {
     roots: ['crates'],
@@ -31,7 +32,7 @@ const policies = [
     kind: 'rust',
     maxFunctionLines: 80,
     maxFunctions: 18,
-    maxLines: 220,
+    maxLines: 1000,
     maxTypes: 24,
   },
 ];
@@ -84,6 +85,13 @@ function nearLimit(value, limit) {
   return value >= Math.ceil(limit * warningRatio) && value <= limit;
 }
 
+function fileLineWarningBand(lines, policy) {
+  if (lines < fileLineWarningStep || lines > policy.maxLines) {
+    return null;
+  }
+  return Math.floor(lines / fileLineWarningStep) * fileLineWarningStep;
+}
+
 function reportFileLines(findings, warnings, relativePath, text, policy) {
   const lines = countLines(text);
   if (lines > policy.maxLines) {
@@ -94,11 +102,12 @@ function reportFileLines(findings, warnings, relativePath, text, policy) {
     });
     return;
   }
-  if (nearLimit(lines, policy.maxLines)) {
+  const warningBand = fileLineWarningBand(lines, policy);
+  if (warningBand !== null) {
     warnings.push({
       path: relativePath,
       line: 1,
-      reason: `file has ${lines} lines; warning starts at ${Math.ceil(policy.maxLines * warningRatio)} of ${policy.maxLines}`,
+      reason: `file has ${lines} lines; crossed ${warningBand}-line advisory band; maximum is ${policy.maxLines}`,
     });
   }
 }

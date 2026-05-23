@@ -1,6 +1,11 @@
 import { AgentProtocolDefaults, type AgentEventEnvelope } from '@ocentra-parent/agent-protocol-domain/contracts';
 import type { LogFieldValue } from '@ocentra-parent/logging-domain/contracts';
-import { PortalDetails, type PortalDetailValue } from '@ocentra-parent/portal-domain/contracts';
+import {
+  PortalDetails,
+  PortalText,
+  PortalTextToken,
+  type PortalDetailValue,
+} from '@ocentra-parent/portal-domain/contracts';
 import { appendDetail } from './detail-list';
 import {
   detailFromValue,
@@ -18,10 +23,10 @@ const PolicyPreviewValueResolvers = new Map<AgentPayloadField, PolicyPreviewValu
   [AgentProtocolDefaults.Field.Custody, (readModel) => readModel.custody],
   [AgentProtocolDefaults.Field.Returned, (readModel) => readModel.returned],
   [AgentProtocolDefaults.Field.CapabilityStatus, (readModel) => readModel.capabilityStatus],
-  [AgentProtocolDefaults.Field.PolicyPreviewId, (readModel) => readModel.previewId],
-  [AgentProtocolDefaults.Field.LatestEventId, (readModel) => readModel.latestEventId],
+  [AgentProtocolDefaults.Field.PolicyPreviewId, (readModel) => linkedPolicyDecision(readModel.previewId)],
+  [AgentProtocolDefaults.Field.LatestEventId, (readModel) => linkedActivityRecord(readModel.latestEventId)],
   [AgentProtocolDefaults.Field.LatestObservedAt, (readModel) => readModel.latestObservedAt],
-  [AgentProtocolDefaults.Field.TargetId, (readModel) => readModel.targetId],
+  [AgentProtocolDefaults.Field.TargetId, (readModel) => linkedActivityRecord(readModel.targetId)],
   [AgentProtocolDefaults.Field.PolicyTargetType, (readModel) => readModel.targetType],
   [AgentProtocolDefaults.Field.PolicyTargetValue, (readModel) => readModel.targetValue],
   [AgentProtocolDefaults.Field.PolicyEvidenceReferenceCount, (readModel) => readModel.evidenceReferenceCount],
@@ -30,13 +35,13 @@ const PolicyPreviewValueResolvers = new Map<AgentPayloadField, PolicyPreviewValu
     (readModel) => readModel.parentRuleContextReferenceCount,
   ],
   [AgentProtocolDefaults.Field.PolicyParentRuleContextRefIds, (readModel) => readModel.parentRuleContextRefIds],
-  [AgentProtocolDefaults.Field.PolicyDecisionId, (readModel) => readModel.decisionId],
+  [AgentProtocolDefaults.Field.PolicyDecisionId, (readModel) => linkedPolicyDecision(readModel.decisionId)],
   [AgentProtocolDefaults.Field.PolicyAction, (readModel) => readModel.decisionAction],
   [AgentProtocolDefaults.Field.PolicyReasonCodes, (readModel) => readModel.reasonCodes],
   [AgentProtocolDefaults.Field.PolicyRuleIds, (readModel) => readModel.ruleIds],
   [AgentProtocolDefaults.Field.LocalAiResultId, (readModel) => readModel.localAiResultId],
-  [AgentProtocolDefaults.Field.PolicyDryRun, (readModel) => readModel.dryRun],
-  [AgentProtocolDefaults.Field.PolicyHandoffState, (readModel) => readModel.enforcementHandoffState],
+  [AgentProtocolDefaults.Field.PolicyDryRun, (readModel) => policyMode(readModel.dryRun)],
+  [AgentProtocolDefaults.Field.PolicyHandoffState, (readModel) => policyMode(readModel.dryRun)],
 ]);
 
 export function appendReadModelDetails(
@@ -138,4 +143,25 @@ function readModelDetail(readModel: PortalPolicyPreviewReadModel | null, field: 
     return notReported();
   }
   return detailFromValue(PolicyPreviewValueResolvers.get(field)?.(readModel));
+}
+
+function policyMode(dryRun: boolean | null): LogFieldValue {
+  if (dryRun === false) {
+    return PortalText.Resolve(PortalTextToken.PolicyModeActive);
+  }
+  return PortalText.Resolve(PortalTextToken.PolicyModeAdvisory);
+}
+
+function linkedPolicyDecision(value: LogFieldValue | undefined): LogFieldValue | undefined {
+  if (value === undefined || value === null) {
+    return value;
+  }
+  return PortalText.Resolve(PortalTextToken.ProductSurfaceWired);
+}
+
+function linkedActivityRecord(value: LogFieldValue | undefined): LogFieldValue | undefined {
+  if (value === undefined || value === null) {
+    return value;
+  }
+  return PortalText.Resolve(PortalTextToken.ProductStatusLocalOnly);
 }

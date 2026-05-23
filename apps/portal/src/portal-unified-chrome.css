@@ -1,0 +1,139 @@
+.portal-unified-shell {
+  background:
+    radial-gradient(circle at 18% 4%, rgb(57 178 221 / 16%), transparent 22rem),
+    radial-gradient(circle at 76% 12%, rgb(255 208 82 / 12%), transparent 20rem), var(--app-bg);
+}
+
+.portal-shell-work {
+  min-height: 0;
+  overflow: hidden;
+  padding: 0;
+}
+
+.portal-shell-work > * {
+  height: 100%;
+  min-height: 0;
+  width: 100%;
+}
+
+.app-frame {
+  grid-template-areas: 'sidebar main';
+  grid-template-columns: 252px minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  width: 100%;
+}
+
+.app-sidebar {
+  grid-area: sidebar;
+  min-width: 0;
+}
+
+.app-main {
+  grid-area: main;
+  min-width: 0;
+}
+
+.app-sidebar .routes {
+  min-height: 0;
+  overflow: visible auto;
+  padding-right: 3px;
+}
+
+.app-sidebar .route-link {
+  min-height: 38px;
+}
+
+.app-sidebar .route-link-description {
+  display: none;
+}
+
+.app-sidebar .product-sidebar-panel {
+  min-height: auto;
+}
+
+@media (max-width: 1080px) {
+  .app-frame {
+    grid-template-columns: 224px minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 980px) {
+  .portal-unified-shell {
+    height: auto;
+    min-height: 100dvh;
+  }
+
+  .portal-shell-work {
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .app-frame {
+    gap: 8px;
+    grid-template-areas:
+      'sidebar'
+      'main';
+    grid-template-columns: 1fr;
+    height: auto;
+    min-height: 100%;
+    overflow: visible;
+  }
+
+  .app-sidebar,
+  .app-main {
+    height: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  body {
+    overflow-x: hidden;
+  }
+
+  .app-frame {
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+
+  .app-sidebar {
+    overflow: hidden;
+  }
+
+  .app-sidebar .routes {
+    display: grid;
+    gap: 8px;
+    grid-template-columns: 1fr;
+    overflow: visible;
+    padding: 0;
+  }
+
+  .app-sidebar .route-group {
+    display: grid;
+    gap: 6px;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .app-sidebar .route-group:not([open]) {
+    min-width: 0;
+  }
+
+  .app-sidebar .route-group-label {
+    justify-content: space-between;
+    min-width: 0;
+    padding: 8px;
+    width: 100%;
+  }
+
+  .app-sidebar .route-link {
+    min-height: 46px;
+    width: 100%;
+  }
+
+  .app-sidebar .product-sidebar-panel {
+    display: none;
+  }
+}

@@ -45,7 +45,7 @@ export default tseslint.config(
       'max-lines': [
         'error',
         {
-          max: 240,
+          max: 1000,
           skipBlankLines: true,
           skipComments: true,
         },

@@ -1,4 +1,4 @@
-import { decodeDisplayText } from '@ocentra-parent/text-domain/contracts';
+import { decodeDisplayText, type DisplayText } from '@ocentra-parent/text-domain/contracts';
 
 export const PortalDetails = {
   Transport: decodeDisplayText('Transport'),
@@ -48,7 +48,7 @@ export const PortalDetails = {
   DecisionSource: decodeDisplayText('Decision source'),
   DecisionId: decodeDisplayText('Decision ID'),
   DegradedState: decodeDisplayText('Degraded state'),
-  DryRun: decodeDisplayText('Dry run'),
+  DryRun: decodeDisplayText('Mode'),
   SentAt: decodeDisplayText('Sent at'),
   Severity: decodeDisplayText('Severity'),
   Enforcement: decodeDisplayText('Enforcement'),
@@ -65,8 +65,8 @@ export const PortalDetails = {
   Platform: decodeDisplayText('Platform'),
   ParentRuleContextReferences: decodeDisplayText('Parent rule context references'),
   ParentRuleContextRefIds: decodeDisplayText('Parent rule context ref IDs'),
-  PolicyPreview: decodeDisplayText('Policy preview'),
-  PreviewStatus: decodeDisplayText('Preview status'),
+  PolicyPreview: decodeDisplayText('Policy check'),
+  PreviewStatus: decodeDisplayText('Decision status'),
   Profile: decodeDisplayText('Profile'),
   Process: decodeDisplayText('Process'),
   ProcessAttribution: decodeDisplayText('Process attribution'),
@@ -99,4 +99,34 @@ export const PortalDetails = {
   Title: decodeDisplayText('Title'),
   UnknownState: decodeDisplayText('Unknown state'),
   Url: decodeDisplayText('URL'),
+} as const;
+
+export const PortalReadableValues: Readonly<Record<string, DisplayText>> = {
+  available: decodeDisplayText('Available'),
+  blocked: decodeDisplayText('Blocked'),
+  disabled: decodeDisplayText('Off'),
+  empty: decodeDisplayText('No activity'),
+  error: decodeDisplayText('Needs attention'),
+  false: decodeDisplayText('Off'),
+  info: decodeDisplayText('Available'),
+  ready: decodeDisplayText('Ready'),
+  true: decodeDisplayText('Ready'),
+  unavailable: decodeDisplayText('Unavailable'),
+  unknown: decodeDisplayText('Unknown'),
+  warn: decodeDisplayText('Review'),
+  'bridge-connected': decodeDisplayText('Connected'),
+  'child-device-local': decodeDisplayText('Child device'),
+  'child-device-query-store': decodeDisplayText('Child device'),
+  'disabled-preview-only': decodeDisplayText('Advisory'),
+  'domain-observed': decodeDisplayText('Domain observed'),
+  'installed-supported': decodeDisplayText('Installed'),
+  'live-local': decodeDisplayText('Live local'),
+  'local-adapter-unavailable': decodeDisplayText('Local adapter not connected'),
+  'local-only': decodeDisplayText('Local only'),
+  'managed-browser-unmanaged-process': decodeDisplayText('Open outside managed web profile'),
+  'no-network-observations': decodeDisplayText('No network activity'),
+  'process-attributed': decodeDisplayText('Matched to app'),
+  'requires-os-app-control': decodeDisplayText('Requires OS app control'),
+  'tab-list-only': decodeDisplayText('Tab visibility'),
+  'unmanaged-browser': decodeDisplayText('Unmanaged web session'),
 } as const;

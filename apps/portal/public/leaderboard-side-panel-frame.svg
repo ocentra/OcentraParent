@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 900" preserveAspectRatio="none">
+  <defs>
+    <filter id="cyanGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="6" />
+    </filter>
+    <linearGradient id="cyanStroke" x1="0" y1="0" x2="260" y2="900" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#6df2ff" />
+      <stop offset="0.48" stop-color="#33cfff" />
+      <stop offset="1" stop-color="#42f4ff" />
+    </linearGradient>
+    <linearGradient id="deepStroke" x1="0" y1="0" x2="0" y2="900" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0b6788" stop-opacity="0.92" />
+      <stop offset="0.5" stop-color="#17405d" stop-opacity="0.72" />
+      <stop offset="1" stop-color="#0b6788" stop-opacity="0.92" />
+    </linearGradient>
+  </defs>
+  <g fill="none" stroke-linejoin="round" stroke-linecap="round">
+    <path
+      d="M37 10 H223 L250 37 V863 L223 890 H37 L10 863 V37 Z"
+      stroke="#54e2ff"
+      stroke-opacity="0.36"
+      stroke-width="11"
+      filter="url(#cyanGlow)"
+    />
+    <path
+      d="M37 10 H223 L250 37 V863 L223 890 H37 L10 863 V37 Z"
+      stroke="url(#deepStroke)"
+      stroke-width="9"
+      opacity="0.82"
+    />
+    <path
+      d="M37 10 H223 L250 37 V863 L223 890 H37 L10 863 V37 Z"
+      stroke="url(#cyanStroke)"
+      stroke-width="3.5"
+      opacity="0.96"
+    />
+    <path
+      d="M48 29 H212 L232 49 V851 L212 871 H48 L28 851 V49 Z"
+      stroke="#54e2ff"
+      stroke-width="1.7"
+      opacity="0.58"
+    />
+    <path
+      d="M48 29 H212 M232 49 V851 M212 871 H48 M28 851 V49"
+      stroke="#d9fbff"
+      stroke-width="0.7"
+      opacity="0.46"
+    />
+    <path
+      d="M42 9 H82 M178 9 H218 M42 891 H82 M178 891 H218"
+      stroke="#55e9ff"
+      stroke-width="7"
+      opacity="0.7"
+    />
+    <path
+      d="M10 168 V249 M10 650 V731 M250 168 V249 M250 650 V731"
+      stroke="#55e9ff"
+      stroke-width="6"
+      opacity="0.46"
+    />
+    <path
+      d="M31 18 L18 31 M229 18 L242 31 M31 882 L18 869 M229 882 L242 869"
+      stroke="#9cf9ff"
+      stroke-width="2"
+      opacity="0.72"
+    />
+  </g>
+</svg>

@@ -17,9 +17,14 @@
     "@ocentra-parent/agent-protocol-domain": "file:../../packages/agent-protocol-domain",
     "@ocentra-parent/logging-domain": "file:../../packages/logging-domain",
     "@ocentra-parent/portal-domain": "file:../../packages/portal-domain",
-    "@ocentra-parent/schema-domain": "file:../../packages/schema-domain"
+    "@ocentra-parent/schema-domain": "file:../../packages/schema-domain",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6"
   },
   "devDependencies": {
+    "@types/react": "^19.2.15",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.1.1",
     "vite": "^7.2.7"
   }
 }
