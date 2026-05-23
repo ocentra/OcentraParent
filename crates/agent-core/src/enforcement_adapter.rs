@@ -1,9 +1,12 @@
 use ocentra_parent_agent_protocol::{
     constants::enforcement as enforcement_constants, policy_constants, EnforcementAdapterKind,
     EnforcementAdapterResultCode, EnforcementCapabilityState, EnforcementCapabilityStatus,
-    EnforcementDependencyState, EnforcementMode, EnforcementPermissionState,
-    EnforcementResultStatus, ParentPlatform,
+    EnforcementDependencyState, EnforcementPermissionState, EnforcementResultStatus,
+    ParentPlatform,
 };
+
+#[cfg(windows)]
+use ocentra_parent_agent_protocol::EnforcementMode;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct EnforcementAdapterOutcome {
