@@ -2,8 +2,9 @@ use ocentra_parent_agent_protocol::{
     constants::enforcement as enforcement_constants, EnforcementAction, EnforcementAdapterKind,
     EnforcementAdapterResultCode, EnforcementAuditEvent, EnforcementAuditEventKind,
     EnforcementCapabilityState, EnforcementCapabilityStatus, EnforcementIntent, EnforcementMode,
-    EnforcementResult, EnforcementResultStatus, EnforcementTimerEvent, EnforcementTimerEventKind,
-    ParentEvidenceReference, ParentPlatform, PolicyAction, PolicyDecision, PolicyTargetType,
+    EnforcementResult, EnforcementResultStatus, EnforcementRollbackState, EnforcementTimerEvent,
+    EnforcementTimerEventKind, ParentEvidenceReference, ParentPlatform, PolicyAction,
+    PolicyDecision, PolicyTargetType,
 };
 
 use super::enforcement_adapter::EnforcementAdapterOutcome;
@@ -47,6 +48,7 @@ struct EnforcementResultParts {
     unavailable_reason: Option<String>,
     failed_reason: Option<String>,
     rollback_token: Option<String>,
+    rollback_state: EnforcementRollbackState,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -196,6 +198,7 @@ fn enforcement_result(
                 ),
                 failed_reason: None,
                 rollback_token: action.rollback_token.clone(),
+                rollback_state: EnforcementRollbackState::Unavailable,
             },
         ));
     }
@@ -221,6 +224,7 @@ fn dry_run_result(
             unavailable_reason: None,
             failed_reason: None,
             rollback_token: action.rollback_token.clone(),
+            rollback_state: EnforcementRollbackState::NotRequired,
         },
     )
 }
@@ -240,6 +244,7 @@ fn capability_state_result(
                 unavailable_reason: input.capability.degraded_reason.clone(),
                 failed_reason: None,
                 rollback_token: action.rollback_token.clone(),
+                rollback_state: EnforcementRollbackState::Unavailable,
             },
         )),
         EnforcementCapabilityState::ObserveOnly => Some(result(
@@ -252,6 +257,7 @@ fn capability_state_result(
                 unavailable_reason: None,
                 failed_reason: None,
                 rollback_token: action.rollback_token.clone(),
+                rollback_state: EnforcementRollbackState::NotRequired,
             },
         )),
         EnforcementCapabilityState::Supported
@@ -279,6 +285,7 @@ fn no_adapter_action_result(
                 unavailable_reason: None,
                 failed_reason: None,
                 rollback_token: action.rollback_token.clone(),
+                rollback_state: EnforcementRollbackState::NotRequired,
             },
         )
     })
@@ -301,6 +308,7 @@ fn adapter_completed_result(
             rollback_token: adapter_outcome
                 .rollback_token
                 .or_else(|| action.rollback_token.clone()),
+            rollback_state: adapter_outcome.rollback_state,
         },
     )
 }
@@ -319,6 +327,7 @@ fn result(
         started_at: input.requested_at.clone(),
         completed_at: parts.completed_at,
         rollback_token: parts.rollback_token,
+        rollback_state: parts.rollback_state,
         unavailable_reason: parts.unavailable_reason,
         failed_reason: parts.failed_reason,
         next_check_at: action.expires_at.clone(),

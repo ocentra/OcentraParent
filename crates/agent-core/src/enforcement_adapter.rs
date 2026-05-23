@@ -2,7 +2,7 @@ use ocentra_parent_agent_protocol::{
     constants::enforcement as enforcement_constants, policy_constants, EnforcementAdapterKind,
     EnforcementAdapterResultCode, EnforcementCapabilityState, EnforcementCapabilityStatus,
     EnforcementDependencyState, EnforcementPermissionState, EnforcementResultStatus,
-    ParentPlatform,
+    EnforcementRollbackState, ParentPlatform,
 };
 
 #[cfg(windows)]
@@ -16,6 +16,7 @@ pub struct EnforcementAdapterOutcome {
     pub unavailable_reason: Option<String>,
     pub failed_reason: Option<String>,
     pub rollback_token: Option<String>,
+    pub rollback_state: EnforcementRollbackState,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -85,6 +86,7 @@ fn terminate_owned_process_impl(
             None,
             None,
             None,
+            EnforcementRollbackState::NotRequired,
         );
     };
 
@@ -96,6 +98,7 @@ fn terminate_owned_process_impl(
             None,
             Some(enforcement_constants::REJECTION_TARGET_MISMATCH.to_string()),
             None,
+            EnforcementRollbackState::Failed,
         );
     }
 
@@ -107,6 +110,7 @@ fn terminate_owned_process_impl(
             None,
             None,
             None,
+            EnforcementRollbackState::NotRequired,
         )
     } else {
         adapter_outcome(
@@ -116,6 +120,7 @@ fn terminate_owned_process_impl(
             None,
             Some(enforcement_constants::ADAPTER_FAILED.to_string()),
             None,
+            EnforcementRollbackState::Failed,
         )
     }
 }
@@ -132,6 +137,7 @@ fn terminate_owned_process_impl(
         Some(enforcement_constants::ADAPTER_UNSUPPORTED_PLATFORM.to_string()),
         None,
         None,
+        EnforcementRollbackState::Unavailable,
     )
 }
 
@@ -142,6 +148,7 @@ fn adapter_outcome(
     unavailable_reason: Option<String>,
     failed_reason: Option<String>,
     rollback_token: Option<String>,
+    rollback_state: EnforcementRollbackState,
 ) -> EnforcementAdapterOutcome {
     EnforcementAdapterOutcome {
         status,
@@ -150,6 +157,7 @@ fn adapter_outcome(
         unavailable_reason,
         failed_reason,
         rollback_token,
+        rollback_state,
     }
 }
 

@@ -218,6 +218,35 @@ impl EnforcementResultStatus {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum EnforcementRollbackState {
+    #[serde(rename = "not-required")]
+    NotRequired,
+    #[serde(rename = "available")]
+    Available,
+    #[serde(rename = "requested")]
+    Requested,
+    #[serde(rename = "completed")]
+    Completed,
+    #[serde(rename = "unavailable")]
+    Unavailable,
+    #[serde(rename = "failed")]
+    Failed,
+}
+
+impl EnforcementRollbackState {
+    pub fn as_protocol_str(&self) -> &'static str {
+        match self {
+            Self::NotRequired => enforcement_constants::ROLLBACK_NOT_REQUIRED,
+            Self::Available => enforcement_constants::ROLLBACK_AVAILABLE,
+            Self::Requested => enforcement_constants::ROLLBACK_REQUESTED,
+            Self::Completed => enforcement_constants::ROLLBACK_COMPLETED,
+            Self::Unavailable => enforcement_constants::ROLLBACK_UNAVAILABLE,
+            Self::Failed => enforcement_constants::ROLLBACK_FAILED,
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum EnforcementAdapterResultCode {
     #[serde(rename = "process-terminated")]
     ProcessTerminated,
@@ -399,6 +428,7 @@ pub struct EnforcementResult {
     pub started_at: String,
     pub completed_at: Option<String>,
     pub rollback_token: Option<String>,
+    pub rollback_state: EnforcementRollbackState,
     pub unavailable_reason: Option<String>,
     pub failed_reason: Option<String>,
     pub next_check_at: Option<String>,

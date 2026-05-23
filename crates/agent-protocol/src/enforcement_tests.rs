@@ -3,9 +3,10 @@ use super::{
     EnforcementAdapterKind, EnforcementAdapterResultCode, EnforcementAuditEvent,
     EnforcementAuditEventKind, EnforcementCapabilityState, EnforcementCapabilityStatus,
     EnforcementDependencyState, EnforcementIntent, EnforcementIntentSource, EnforcementMode,
-    EnforcementPermissionState, EnforcementResult, EnforcementResultStatus, EnforcementTimerEvent,
-    EnforcementTimerEventKind, ParentDeviceReference, ParentEvidenceReference,
-    ParentEvidenceReferenceKind, ParentPlatform, PolicyAction, PolicyTarget, PolicyTargetType,
+    EnforcementPermissionState, EnforcementResult, EnforcementResultStatus,
+    EnforcementRollbackState, EnforcementTimerEvent, EnforcementTimerEventKind,
+    ParentDeviceReference, ParentEvidenceReference, ParentEvidenceReferenceKind, ParentPlatform,
+    PolicyAction, PolicyTarget, PolicyTargetType,
 };
 
 #[test]
@@ -55,6 +56,10 @@ fn enforcement_shapes_serialize_to_parent_domain_contract_names() {
         enforcement::RESULT_ACTUALLY_ENFORCED
     );
     assert_eq!(
+        serialized_audit["result"]["rollbackState"],
+        enforcement::ROLLBACK_AVAILABLE
+    );
+    assert_eq!(
         serialized_audit["result"]["capability"]["capabilityState"],
         enforcement::CAPABILITY_SUPPORTED
     );
@@ -76,6 +81,7 @@ fn unsupported_status_values_do_not_deserialize() {
         "startedAt": policy::TEST_EVALUATED_AT,
         "completedAt": null,
         "rollbackToken": null,
+        "rollbackState": enforcement::ROLLBACK_NOT_REQUIRED,
         "unavailableReason": null,
         "failedReason": null,
         "nextCheckAt": null,
@@ -155,6 +161,7 @@ fn enforcement_result(
         started_at: policy::TEST_EVALUATED_AT.to_string(),
         completed_at: Some(policy::TEST_EVALUATED_AT.to_string()),
         rollback_token: action.rollback_token.clone(),
+        rollback_state: EnforcementRollbackState::Available,
         unavailable_reason: None,
         failed_reason: None,
         next_check_at: None,

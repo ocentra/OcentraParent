@@ -40,6 +40,13 @@ pub const RESULT_ROLLED_BACK: &str = "rolled-back";
 pub const RESULT_SUPERSEDED: &str = "superseded";
 pub const RESULT_NO_OP: &str = "no-op";
 
+pub const ROLLBACK_NOT_REQUIRED: &str = "not-required";
+pub const ROLLBACK_AVAILABLE: &str = "available";
+pub const ROLLBACK_REQUESTED: &str = "requested";
+pub const ROLLBACK_COMPLETED: &str = "completed";
+pub const ROLLBACK_UNAVAILABLE: &str = "unavailable";
+pub const ROLLBACK_FAILED: &str = "failed";
+
 pub const ADAPTER_PROCESS_TERMINATED: &str = "process-terminated";
 pub const ADAPTER_PROCESS_ALREADY_EXITED: &str = "process-already-exited";
 pub const ADAPTER_LEFT_RUNNING_OBSERVE_ONLY: &str = "left-running-observe-only";
