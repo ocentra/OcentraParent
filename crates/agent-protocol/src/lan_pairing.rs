@@ -35,6 +35,12 @@ pub enum LanPairingDeviceReachability {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
+pub enum LanPairingDiscoveryRuntimeStatus {
+    PlannedUnsupported,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
 pub enum LanPairingIntentKind {
     HealthQuery,
     RuleQuery,
@@ -113,6 +119,7 @@ pub struct LanPairingDiscoveryDevice {
     pub network_mode: LanPairingNetworkMode,
     pub reachability: LanPairingDeviceReachability,
     pub address_ref: String,
+    pub discovery_status: LanPairingDiscoveryRuntimeStatus,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -126,6 +133,22 @@ pub struct LanPairingChallenge {
     pub origin: String,
     pub issued_at: String,
     pub expires_at: String,
+    pub challenge_status: LanPairingDiscoveryRuntimeStatus,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LanPairingProofPreview {
+    pub schema_version: u16,
+    pub challenge_id: String,
+    pub child_device_id: String,
+    pub parent_device_id: String,
+    pub route_id: String,
+    pub origin: String,
+    pub proof_digest: String,
+    pub issued_at: String,
+    pub expires_at: String,
+    pub proof_preview_status: LanPairingDiscoveryRuntimeStatus,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

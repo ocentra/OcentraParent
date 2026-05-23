@@ -73,6 +73,18 @@ fn support_surface_pairs() -> Vec<(&'static str, LogFieldValue)> {
             ),
         ),
         (
+            constants::field::LAN_DISCOVERY_STATUS,
+            LogFieldValue::String(constants::lan_pairing::SUPPORT_PLANNED_UNSUPPORTED.to_string()),
+        ),
+        (
+            constants::field::LAN_CHALLENGE_STATUS,
+            LogFieldValue::String(constants::lan_pairing::SUPPORT_PLANNED_UNSUPPORTED.to_string()),
+        ),
+        (
+            constants::field::LAN_PROOF_PREVIEW_STATUS,
+            LogFieldValue::String(constants::lan_pairing::SUPPORT_PLANNED_UNSUPPORTED.to_string()),
+        ),
+        (
             constants::field::LAN_PERSISTENCE_MODE,
             LogFieldValue::String(
                 constants::value::LAN_PERSISTENCE_IN_MEMORY_FAIL_CLOSED.to_string(),

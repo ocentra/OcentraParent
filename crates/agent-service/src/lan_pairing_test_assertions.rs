@@ -67,6 +67,26 @@ pub(crate) fn assert_status_support_surface(event: &AgentEventEnvelope) {
         ))
     );
     assert_eq!(
+        event.payload.get(constants::field::LAN_DISCOVERY_STATUS),
+        Some(&LogFieldValue::String(
+            constants::lan_pairing::SUPPORT_PLANNED_UNSUPPORTED.to_string()
+        ))
+    );
+    assert_eq!(
+        event.payload.get(constants::field::LAN_CHALLENGE_STATUS),
+        Some(&LogFieldValue::String(
+            constants::lan_pairing::SUPPORT_PLANNED_UNSUPPORTED.to_string()
+        ))
+    );
+    assert_eq!(
+        event
+            .payload
+            .get(constants::field::LAN_PROOF_PREVIEW_STATUS),
+        Some(&LogFieldValue::String(
+            constants::lan_pairing::SUPPORT_PLANNED_UNSUPPORTED.to_string()
+        ))
+    );
+    assert_eq!(
         event.payload.get(constants::field::LAN_PERSISTENCE_MODE),
         Some(&LogFieldValue::String(
             constants::value::LAN_PERSISTENCE_IN_MEMORY_FAIL_CLOSED.to_string()

@@ -203,6 +203,38 @@ async fn lan_pairing_status_reports_stale_and_offline_selected_device_state() {
 }
 
 #[tokio::test]
+async fn lan_pairing_status_marks_discovery_planned_while_anonymous_control_stays_rejected() {
+    let runtime = paired_runtime().await;
+    let loopback_status = handle_command_text_for_test(
+        &serialize_command(command_for_target(
+            AgentCommandName::AgentLanPairingStatusGet,
+            AgentMessageTarget {
+                device_id: constants::lan_pairing::CHILD_DEVICE_ID.to_string(),
+                platform: policy_constants::TEST_PARENT_DEVICE_PLATFORM_WINDOWS.to_string(),
+                route: AgentRoute::Localhost,
+            },
+            LogFields::new(),
+        )),
+        runtime.clone(),
+        None,
+    )
+    .await;
+    let anonymous_control = handle_command_text_for_test(
+        &serialize_command(health_command(LogFields::new())),
+        runtime,
+        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+    )
+    .await;
+
+    assert_eq!(
+        loopback_status.event,
+        AgentEventName::AgentLanPairingStatusReported
+    );
+    assert_status_support_surface(&loopback_status);
+    assert_rejection(&anonymous_control, constants::value::LAN_REASON_ANONYMOUS);
+}
+
+#[tokio::test]
 async fn lan_pairing_rejects_stale_and_replayed_routes() {
     let runtime = paired_runtime().await;
     let stale = handle_command_text_for_test(
