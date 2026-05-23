@@ -142,6 +142,8 @@ type LeaderboardPageSvgSurfaceProps = {
   error?: string | null;
   controls?: Partial<LeaderboardPageSvgControls> | null;
   content?: PartialLeaderboardPageContentData | null;
+  initialNavLabel?: string;
+  initialSelectedGameId?: string;
   onRefreshLeaderboard: (gameType: number) => void;
   onMatchmaking: () => void;
 };
@@ -204,39 +206,26 @@ const LEADERBOARD_TOP_CAROUSEL_MAX_VISIBLE = 5;
 const LEADERBOARD_SIDE_HANDLE_W = 15;
 const LEADERBOARD_SIDE_HANDLE_OVERLAP = 1;
 const LEADERBOARD_CATEGORY_LABELS = [
-  'Abstract strategy',
-  'Accumulation',
-  'Banking',
-  'Climbing',
-  'Domino',
-  'Fishing',
-  'Gambling',
-  'Matching',
-  'Miscellaneous',
-  'Other',
-  'Patience',
-  'Poker',
-  'Race',
-  'Rummy',
-  'Shedding',
-  'Social',
-  'Tile',
-  'Trick-taking',
-  'Unknown',
-  'Vying',
-  'War',
+  'Browser',
+  'Policy',
+  'Activity',
+  'Privacy',
+  'Memory',
+  'AI',
+  'Devices',
+  'Support',
 ] as const;
 
 const leaderboardTableColumnLabels: Record<
   LeaderboardTableVariant,
   [string, string, string, string, string, string, string, string, string]
 > = {
-  players: ['RANK', 'PLAYER', 'GLOBAL RATING', 'GAMES PLAYED', 'WINS', 'WIN RATE', 'BEST GAME', 'BADGES', 'TREND'],
-  games: ['RANK', 'GAME LEADER', 'GAME RATING', 'MATCHES', 'WINS', 'WIN RATE', 'GAME', 'BADGES', 'TREND'],
-  ai: ['RANK', 'MODEL', 'MODEL SCORE', 'RUNS', 'WINS', 'SUCCESS', 'BENCHMARK', 'SIGNALS', 'DELTA'],
-  events: ['RANK', 'ENTRY', 'EVENT SCORE', 'MATCHES', 'WINS', 'ADVANCE', 'EVENT', 'MEDALS', 'TREND'],
-  social: ['RANK', 'MEMBER', 'SOCIAL SCORE', 'GAMES', 'WINS', 'WIN RATE', 'GROUP', 'BADGES', 'TREND'],
-  creators: ['RANK', 'CREATOR', 'PUBLISHED SCORE', 'TABLES', 'WINS', 'RATING', 'TOP TABLE', 'BADGES', 'TREND'],
+  players: ['#', 'CONTROL', 'READINESS', 'CHECKS', 'READY', 'STATE', 'AREA', 'SIGNALS', 'NEXT'],
+  games: ['#', 'CONTROL', 'READINESS', 'CHECKS', 'READY', 'STATE', 'AREA', 'SIGNALS', 'NEXT'],
+  ai: ['#', 'LOCAL AI', 'READINESS', 'RUNS', 'READY', 'STATE', 'BOUNDARY', 'SIGNALS', 'NEXT'],
+  events: ['#', 'ROUTINE', 'READINESS', 'CHECKS', 'READY', 'STATE', 'DEVICE', 'SIGNALS', 'NEXT'],
+  social: ['#', 'SUPPORT', 'READINESS', 'CHECKS', 'READY', 'STATE', 'CHANNEL', 'SIGNALS', 'NEXT'],
+  creators: ['#', 'OWNER', 'READINESS', 'CHECKS', 'READY', 'STATE', 'SURFACE', 'SIGNALS', 'NEXT'],
 };
 
 function clampValue(value: number, min: number, max: number): number {
@@ -812,13 +801,13 @@ function tableTitleForVariant(
   selectedGameName: string
 ): string {
   const key = assetKey(activeNavLabel);
-  if (key.includes('overview')) return 'LIVE RANKING SNAPSHOT';
-  if (variant === 'games') return `${selectedGameName.toUpperCase()} GAME LADDER`;
-  if (variant === 'ai') return 'AI MODEL STANDINGS TABLE';
-  if (variant === 'events') return key.includes('reward') ? 'SEASON REWARD TRACK TABLE' : 'TOURNAMENT LEADERS TABLE';
-  if (variant === 'social') return key.includes('guild') ? 'GUILD LADDER TABLE' : 'FRIENDS RANKING TABLE';
-  if (variant === 'creators') return 'CREATOR TABLES RANKING';
-  return 'GLOBAL PLAYER RANKING TABLE';
+  if (key.includes('overview') || key.includes('today')) return 'TODAY CONTROL SNAPSHOT';
+  if (variant === 'games') return `${selectedGameName.toUpperCase()} CONTROL DETAIL`;
+  if (variant === 'ai') return 'LOCAL AI AND MEMORY READINESS';
+  if (variant === 'events') return 'DEVICE ROUTINE AND APPROVALS';
+  if (variant === 'social') return 'SUPPORT EXPORTS AND DRIVE CONNECTIONS';
+  if (variant === 'creators') return 'PARENT OWNERSHIP DETAIL';
+  return 'PARENT CONTROL DETAIL';
 }
 
 function tableBestLabelForVariant(
@@ -829,9 +818,9 @@ function tableBestLabelForVariant(
 ): string {
   const key = assetKey(activeNavLabel);
   if (variant === 'games') return selectedGameName;
-  if (variant === 'ai') return row.bestGame === 'Mixed' ? 'Model suite' : row.bestGame;
-  if (variant === 'events') return key.includes('reward') ? 'Reward track' : 'Tournament';
-  if (variant === 'social') return key.includes('guild') ? 'Guild ladder' : 'Friends';
+  if (variant === 'ai') return row.bestGame === 'Mixed' ? 'Local AI' : row.bestGame;
+  if (variant === 'events') return key.includes('settings') ? 'Family defaults' : 'Device routine';
+  if (variant === 'social') return key.includes('drive') ? 'Drive export' : 'Support';
   return row.bestGame;
 }
 
@@ -883,7 +872,7 @@ function leaderTopCard(row: DisplayRow): LeaderboardTopCardItem {
     title: row.player,
     subtitle: `Rank ${row.rank} / ${row.bestGame}`,
     value: row.rating,
-    detail: `${row.winRate} win rate`,
+    detail: `${row.winRate} ready`,
     tone: row.tone,
   };
 }
@@ -900,18 +889,15 @@ function titleCaseGameName(value: string): string {
 function gameCategoryLabel(game: Pick<TopGame | QuickGame, 'id' | 'name'> & { category?: string }): string {
   if (game.category) return game.category;
   const key = assetKey(`${game.id} ${game.name}`);
-  if (key.includes('domino')) return 'Domino';
-  if (key.includes('patience') || key.includes('solitaire')) return 'Patience';
-  if (key.includes('war')) return 'War';
-  if (key.includes('shedding') || key.includes('crazy-eights') || key.includes('uno')) return 'Shedding';
-  if (key.includes('climbing') || key.includes('president')) return 'Climbing';
-  if (key.includes('fishing') || key.includes('casino')) return 'Fishing';
-  if (key.includes('spades') || key.includes('claim') || key.includes('call-break')) return 'Trick-taking';
-  if (key.includes('rummy')) return 'Rummy';
-  if (key.includes('poker')) return 'Poker';
-  if (key.includes('blackjack')) return 'Banking';
-  if (key.includes('brag') || key.includes('teen-patti')) return 'Vying';
-  return 'Card Games';
+  if (key.includes('browser') || key.includes('web')) return 'Browser';
+  if (key.includes('policy') || key.includes('rule')) return 'Policy';
+  if (key.includes('activity') || key.includes('evidence')) return 'Activity';
+  if (key.includes('privacy') || key.includes('private')) return 'Privacy';
+  if (key.includes('memory')) return 'Memory';
+  if (key.includes('ai')) return 'AI';
+  if (key.includes('device') || key.includes('notification') || key.includes('setting')) return 'Devices';
+  if (key.includes('support') || key.includes('export') || key.includes('drive')) return 'Support';
+  return 'Controls';
 }
 
 function taxonomyLeafLabel(value: string): string {
@@ -1018,15 +1004,16 @@ function buildGameCategorySummaries(games: QuickGame[]): GameCategorySummary[] {
 }
 
 function detailForNav(activeNavLabel: string, detail: TabDetail): TabDetail {
-  if (!assetKey(activeNavLabel).includes('overview')) return detail;
+  const key = assetKey(activeNavLabel);
+  if (!key.includes('overview') && !key.includes('today')) return detail;
   return {
     ...detail,
-    eyebrow: 'Leaderboard overview',
-    title: 'Command center',
-    summary: 'Snapshot of ranked population, top games, selected player, and live movement.',
-    primary: 'Ranked play snapshot',
-    secondary: 'Top games, leaders, and live movement',
-    action: 'Inspect leaders',
+    eyebrow: 'Family command',
+    title: 'Today',
+    summary: 'Snapshot of child-device connection, evidence readiness, browser controls, and setup gaps.',
+    primary: 'Current device state',
+    secondary: 'Controls, evidence, privacy, and setup',
+    action: 'Review today',
     tone: 'cyan',
   };
 }
@@ -1543,9 +1530,9 @@ function LeaderboardGameBrowserToolbar({
             }}
           />
           <input
-            aria-label="Search leaderboard games"
+            aria-label="Search parent controls"
             value={search}
-            placeholder="Search games..."
+            placeholder="Search controls..."
             onChange={(event) => onSearchChange(event.currentTarget.value)}
             style={{
               width: '100%',
@@ -2560,6 +2547,146 @@ function GameLeaderStrip({
   );
 }
 
+function ParentPortalDetailPanel({
+  x,
+  y,
+  w,
+  h,
+  activeNavLabel,
+  detail,
+  rows,
+  selectedGameName,
+  cfg,
+}: {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  activeNavLabel: string;
+  detail: TabDetail;
+  rows: DisplayRow[];
+  selectedGameName: string;
+  cfg: LeaderboardPageSvgControls;
+}) {
+  const color = toneColor(detail.tone, cfg);
+  const cardGap = 12;
+  const usableH = Math.max(120, h);
+  const title = activeNavLabel || detail.title;
+  const bodyLines = wrapCardText(detail.summary, w - 40, 12, 2);
+  const featureCards = [
+    {
+      label: 'WHAT PARENTS CONTROL',
+      value: detail.primary,
+      body: detail.secondary,
+      tone: detail.tone,
+    },
+    {
+      label: 'CURRENT AREA',
+      value: selectedGameName,
+      body: 'Open this area per child device, then wire real service state as each adapter lands.',
+      tone: 'cyan',
+    },
+    {
+      label: 'DATA CUSTODY',
+      value: 'LOCAL FIRST',
+      body: 'No cloud sharing by default. Drive exports and support bundles are parent opt-in.',
+      tone: 'gold',
+    },
+    ...rows.slice(0, 3).map((row) => ({
+      label: row.bestGame.toUpperCase(),
+      value: row.player,
+      body: `${row.trend} / ${row.winRate}`,
+      tone: row.tone,
+    })),
+  ];
+  const visibleCards = featureCards.slice(0, usableH < 300 ? 3 : 6);
+  const columnCount = w > 1220 ? 3 : w > 760 ? 2 : 1;
+  const rowCount = Math.max(1, Math.ceil(visibleCards.length / columnCount));
+  const headerH = bodyLines.length > 1 ? 78 : 62;
+  const cardW = (w - cardGap * Math.max(0, columnCount - 1)) / columnCount;
+  const cardH = clampValue((usableH - headerH - cardGap * Math.max(0, rowCount - 1)) / rowCount, 74, 118);
+  const titleSize = fitSingleLineTextSize(title, w - 40, 16, 26, 0.58);
+  return (
+    <g>
+      <text x={x} y={y + 24} fontSize={titleSize} fontWeight={950} fill={cfg.colors.bodyText}>
+        {title}
+      </text>
+      <path d={`M ${x} ${y + 39} H ${x + w}`} stroke={color} strokeWidth={1.1} opacity={0.5} />
+      {bodyLines.map((line, index) => (
+        <text
+          key={`${line}:${index}`}
+          x={x}
+          y={y + 58 + index * 17}
+          fontSize={12}
+          fontWeight={760}
+          fill={cfg.colors.mutedText}
+        >
+          {line}
+        </text>
+      ))}
+      {visibleCards.map((card, index) => {
+        const col = index % columnCount;
+        const row = Math.floor(index / columnCount);
+        const cardX = x + col * (cardW + cardGap);
+        const cardY = y + headerH + row * (cardH + cardGap);
+        const cardColor = toneColor(card.tone, cfg);
+        const valueSize = fitSingleLineTextSize(card.value, cardW - 34, 12, 17, 0.58);
+        const cardBodyLines = wrapCardText(card.body, cardW - 34, 10.5, cardH > 92 ? 2 : 1);
+        return (
+          <SurfacePanel
+            key={`${card.label}:${index}`}
+            x={cardX}
+            y={cardY}
+            w={cardW}
+            h={cardH}
+            tone={card.tone}
+            cfg={cfg}
+          >
+            <text x={cardX + 16} y={cardY + 25} fontSize={9.8} fontWeight={900} fill={cardColor}>
+              {card.label}
+            </text>
+            <text x={cardX + 16} y={cardY + 49} fontSize={valueSize} fontWeight={950} fill={cfg.colors.bodyText}>
+              {truncateTextForWidth(card.value, cardW - 34, valueSize, 0.58)}
+            </text>
+            {cardBodyLines.map((line, lineIndex) => (
+              <text
+                key={`${line}:${lineIndex}`}
+                x={cardX + 16}
+                y={cardY + 70 + lineIndex * 15}
+                fontSize={10.5}
+                fontWeight={720}
+                fill={cfg.colors.mutedText}
+              >
+                {line}
+              </text>
+            ))}
+          </SurfacePanel>
+        );
+      })}
+    </g>
+  );
+}
+
+function wrapCardText(text: string, width: number, fontSize: number, maxLines: number): string[] {
+  const words = text.trim().split(/\s+/).filter(Boolean);
+  const lines: string[] = [];
+  let current = '';
+  for (const word of words) {
+    const next = current ? `${current} ${word}` : word;
+    if (next.length * fontSize * 0.55 <= width || !current) {
+      current = next;
+      continue;
+    }
+    lines.push(current);
+    current = word;
+    if (lines.length >= maxLines) break;
+  }
+  if (current && lines.length < maxLines) lines.push(current);
+  return lines.map((line, index) =>
+    index === maxLines - 1 ? truncateTextForWidth(line, width, fontSize, 0.55) : line
+  );
+}
+
 function TableRow({
   row,
   x,
@@ -3026,7 +3153,7 @@ function LeaderboardTopCarouselCard({
       className="leaderboard-page-svg-clickable"
       role="button"
       tabIndex={0}
-      aria-label={item.kind === 'game' ? `Show ${item.title} leaders` : `Show ${item.title} leaderboard row`}
+      aria-label={item.kind === 'game' ? `Show ${item.title} controls` : `Show ${item.title} control row`}
       aria-pressed={selected}
       onClick={(event) => {
         event.stopPropagation();
@@ -3098,6 +3225,48 @@ function LeaderboardTopCarouselCard({
             filter={active ? (selected ? 'url(#leaderboardGoldGlow)' : 'url(#leaderboardGlow)') : undefined}
             pointerEvents="none"
           />
+          <text
+            x={leaderDrawFrameX + leaderDrawFrameW * 0.13}
+            y={leaderDrawFrameY + leaderDrawFrameH * 0.36}
+            fontSize={Math.max(12, leaderDrawFrameH * 0.1)}
+            fontWeight={950}
+            fill={cfg.colors.bodyText}
+            pointerEvents="none"
+          >
+            {item.title}
+          </text>
+          <text
+            x={leaderDrawFrameX + leaderDrawFrameW * 0.13}
+            y={leaderDrawFrameY + leaderDrawFrameH * 0.52}
+            fontSize={Math.max(8, leaderDrawFrameH * 0.064)}
+            fontWeight={820}
+            fill={cfg.colors.mutedText}
+            pointerEvents="none"
+          >
+            {item.row.bestGame}
+          </text>
+          <text
+            x={leaderDrawFrameX + leaderDrawFrameW * 0.72}
+            y={leaderDrawFrameY + leaderDrawFrameH * 0.42}
+            textAnchor="middle"
+            fontSize={Math.max(11, leaderDrawFrameH * 0.082)}
+            fontWeight={950}
+            fill={color}
+            pointerEvents="none"
+          >
+            {item.row.trend}
+          </text>
+          <text
+            x={leaderDrawFrameX + leaderDrawFrameW * 0.72}
+            y={leaderDrawFrameY + leaderDrawFrameH * 0.56}
+            textAnchor="middle"
+            fontSize={Math.max(8, leaderDrawFrameH * 0.056)}
+            fontWeight={760}
+            fill={cfg.colors.mutedText}
+            pointerEvents="none"
+          >
+            {item.detail}
+          </text>
         </>
       ) : (
         <>
@@ -3416,7 +3585,7 @@ function LeaderboardGameList({
             className="leaderboard-page-svg-clickable"
             role="button"
             tabIndex={0}
-            aria-label={item.kind === 'game' ? `Show ${item.title} leaders` : `Show ${item.title}`}
+            aria-label={item.kind === 'game' ? `Show ${item.title} controls` : `Show ${item.title}`}
             aria-pressed={selected}
             onClick={(event) => {
               event.stopPropagation();
@@ -3551,7 +3720,7 @@ function GameCategoryCard({
       className="leaderboard-page-svg-clickable"
       role="button"
       tabIndex={0}
-      aria-label={`Show ${category.label} games`}
+      aria-label={`Show ${category.label} controls`}
       aria-pressed={selected}
       transform={hovered ? `translate(${cx} ${cy}) scale(1.018) translate(${-cx} ${-cy})` : undefined}
       onClick={(event) => {
@@ -4088,16 +4257,18 @@ function MainBoard({
   const rawTableClipId = useId();
   const tableClipId = `leaderboard-table-clip-${rawTableClipId.replace(/[^a-zA-Z0-9_-]/g, '')}`;
   const detail = detailForNav(activeNavLabel, tabDetails[activeTab]);
-  const rankingTitle = activeTab === 'overall' ? 'RANKED BY GLOBAL RATING' : activeTabConfig.title;
+  const rankingTitle = activeTab === 'overall' ? 'PARENT CONTROL SNAPSHOT' : activeTabConfig.title;
   const activeNavKey = assetKey(activeNavLabel);
   const focusedSectionTitle = activeNavKey.includes('overview')
-    ? 'LEADERBOARD OVERVIEW'
-    : activeNavKey.includes('global') || activeNavKey.includes('overall')
-      ? rankingTitle
-      : activeNavLabel || rankingTitle;
+    ? 'PARENT OVERVIEW'
+    : activeNavKey.includes('today')
+      ? 'TODAY'
+      : activeNavKey.includes('global') || activeNavKey.includes('overall')
+        ? rankingTitle
+        : activeNavLabel || rankingTitle;
   const tableVariant = tableVariantForContext(activeNavLabel, activeTab);
   const baseTableTitle = tableTitleForVariant(tableVariant, activeNavLabel, selectedGameName);
-  const isOverviewContext = activeNavKey.includes('overview');
+  const isOverviewContext = activeNavKey.includes('overview') || activeNavKey.includes('today');
   const sortedRows = useMemo(() => [...rows].sort((a, b) => a.rank - b.rank), [rows]);
   const gameScopedRows = useMemo(
     () => rowsForGameScope(sortedRows, selectedGameName, selectedGameId),
@@ -4372,7 +4543,7 @@ function MainBoard({
           onNext={() => shiftFramePage(1)}
           selected={focusedSection === 'podium'}
           onSelect={() => setFocusedSection('podium')}
-          ariaLabel="Focus leaderboard selector"
+          ariaLabel="Focus parent control selector"
           footer={(footerRect) => (
             <>
               <LeaderboardFrameDots
@@ -4391,7 +4562,7 @@ function MainBoard({
                 fontWeight={900}
                 fill={cfg.colors.mutedText}
               >
-                {gameBrowserMode ? 'GAMES' : isOverviewContext ? 'TOP 3' : 'TOP 10'} {framePage + 1}/{framePageCount}
+                {gameBrowserMode ? 'AREAS' : isOverviewContext ? 'READY' : 'ITEMS'} {framePage + 1}/{framePageCount}
               </text>
             </>
           )}
@@ -4527,20 +4698,21 @@ function MainBoard({
         bodyFill="transparent"
         selected={tableFocused}
         onSelect={() => setFocusedSection('table')}
-        ariaLabel={tableFocused ? 'Expanded leaderboard ranking table' : 'Expand leaderboard ranking table'}
+        ariaLabel={tableFocused ? 'Expanded parent detail panel' : 'Expand parent detail panel'}
         cfg={cfg}
       >
         {(body) => (
-          <g aria-hidden="true">
-            <rect
-              x={body.x + 4}
-              y={body.y + 4}
-              width={body.w - 8}
-              height={body.h - 8}
-              fill="transparent"
-              pointerEvents="all"
-            />
-          </g>
+          <ParentPortalDetailPanel
+            x={body.x + 18}
+            y={body.y + 18}
+            w={body.w - 36}
+            h={body.h - 36}
+            activeNavLabel={activeNavLabel}
+            detail={detail}
+            rows={tableRows}
+            selectedGameName={selectedGameName}
+            cfg={cfg}
+          />
         )}
       </LeaderboardSectionFrame>
       {detailMode ? (
@@ -5200,7 +5372,7 @@ function RightRail({
         title={uiCopy.topGamesTitle}
         subtitle={`${detail.eyebrow} / ${selectedGame?.name ?? selectedGameId}`}
         onClick={openGames}
-        ariaLabel="Open all game leaderboards"
+        ariaLabel="Open all parent controls"
         cfg={cfg}
       >
         {(bounds) => (
@@ -5229,7 +5401,7 @@ function RightRail({
         title={uiCopy.distributionTitle}
         subtitle={`${uiCopy.distributionCenterLabel} / ${totalPlayersValue}`}
         onClick={openDistribution}
-        ariaLabel="Open rating distribution detail"
+        ariaLabel="Open data custody detail"
         cfg={cfg}
       >
         {(bounds) => (
@@ -5285,7 +5457,7 @@ function RightRail({
         title={uiCopy.feedTitle}
         subtitle={`${selectedGame?.name ?? 'Leaderboard'} / ${detail.primary}`}
         onClick={() => onDetailOpen('player')}
-        ariaLabel="Open live leaderboard feed"
+        ariaLabel="Open live device feed"
         cfg={cfg}
       >
         {(bounds) => (
@@ -5327,7 +5499,7 @@ function RightRail({
                     {line}
                   </text>
                   <text x={bounds.x + 48} y={eventY + 27} fontSize={8.8} fontWeight={760} fill={cfg.colors.mutedText}>
-                    {index === 0 ? 'Live rating movement' : 'Leaderboard scope changed'}
+                    {index === 0 ? 'Live device movement' : 'Control scope changed'}
                   </text>
                 </g>
               );
@@ -5672,6 +5844,8 @@ export function LeaderboardPageSvgSurface({
   error = null,
   controls,
   content,
+  initialNavLabel,
+  initialSelectedGameId,
   onRefreshLeaderboard,
   onMatchmaking,
 }: LeaderboardPageSvgSurfaceProps) {
@@ -5734,9 +5908,15 @@ export function LeaderboardPageSvgSurface({
     [baseCfg, canvasSize.height, canvasSize.width, columns.leftW, columns.rightW]
   );
   const pageModeTab = initialTabForPageMode(pageMode, pageContent);
-  const [activeTab, setActiveTab] = useState<LeaderboardTabId>(pageModeTab);
-  const [activeNavLabel, setActiveNavLabel] = useState(() => initialNavLabelForTab(navItems, pageModeTab));
-  const [selectedGameId, setSelectedGameId] = useState(initialGameIdForPageMode(pageMode, pageContent, gameId));
+  const initialNavItem = navItems.find((item) => item.label === initialNavLabel);
+  const initialTab = initialNavItem?.tabId ?? pageModeTab;
+  const [activeTab, setActiveTab] = useState<LeaderboardTabId>(initialTab);
+  const [activeNavLabel, setActiveNavLabel] = useState(
+    () => initialNavItem?.label ?? initialNavLabelForTab(navItems, pageModeTab)
+  );
+  const [selectedGameId, setSelectedGameId] = useState(
+    initialSelectedGameId ?? initialGameIdForPageMode(pageMode, pageContent, gameId)
+  );
   const selectedGame = findSelectedGame(pageContent, selectedGameId);
   const selectedGameName = selectedGame?.name ?? formatRouteScope(gameId);
   const baseSourceRows = useMemo(
@@ -5759,6 +5939,16 @@ export function LeaderboardPageSvgSurface({
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [detailMode, setDetailMode] = useState<DetailMode | null>(null);
+
+  useEffect(() => {
+    const nextNavItem = navItems.find((item) => item.label === initialNavLabel);
+    const nextTab = nextNavItem?.tabId ?? pageModeTab;
+    setActiveTab(nextTab);
+    setActiveNavLabel(nextNavItem?.label ?? initialNavLabelForTab(navItems, nextTab));
+    setSelectedGameId(initialSelectedGameId ?? initialGameIdForPageMode(pageMode, pageContent, gameId));
+    setDetailMode(null);
+    setPage(1);
+  }, [gameId, initialNavLabel, initialSelectedGameId, navItems, pageContent, pageMode, pageModeTab]);
 
   useEffect(() => {
     const target = mainRef.current;
@@ -5838,7 +6028,7 @@ export function LeaderboardPageSvgSurface({
         viewBox={`0 0 ${cfg.canvas.width} ${cfg.canvas.height}`}
         className="leaderboard-page-svg-surface"
         role="img"
-        aria-label="Ocentra leaderboard dashboard"
+        aria-label="Ocentra parent dashboard"
         preserveAspectRatio="xMidYMin meet"
       >
         <Defs />

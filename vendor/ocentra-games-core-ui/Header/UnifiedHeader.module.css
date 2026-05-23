@@ -29,6 +29,12 @@
   height: 100%;
   display: block;
   pointer-events: auto;
+  shape-rendering: geometricPrecision;
+  text-rendering: geometricPrecision;
+}
+
+.headerSvg image {
+  image-rendering: auto;
 }
 
 .headerSvgFrame {

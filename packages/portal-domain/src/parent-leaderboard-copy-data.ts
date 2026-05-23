@@ -1,3 +1,5 @@
+import { PortalRoute, type PortalRoute as PortalRouteValue } from './routes';
+
 export type ParentLeaderboardCopyTone = 'cyan' | 'gold' | 'purple' | 'red' | 'muted';
 export type ParentLeaderboardCopyTabId = 'overall' | 'perGame' | 'aiBenchmarks' | 'tournaments' | 'friends';
 export type ParentLeaderboardCopyIconName =
@@ -17,6 +19,7 @@ export type ParentLeaderboardCopyIconName =
   | 'trophy'
   | 'users';
 export type ParentLeaderboardCopyRowSource = 'api' | 'fallbackRows' | 'aiBenchmarkRows';
+export type ParentLeaderboardCopyPageMode = 'leaderboard' | 'gameLeaderboard' | 'aiBenchmarkLeaderboard';
 
 export type ParentLeaderboardCopyRow = {
   user_id: string;
@@ -141,6 +144,12 @@ export type ParentLeaderboardCopyContent = {
   };
 };
 
+export type ParentLeaderboardCopyRouteContext = {
+  readonly pageMode: ParentLeaderboardCopyPageMode;
+  readonly navLabel: string;
+  readonly selectedControlId: string;
+};
+
 export const PARENT_LEADERBOARD_COPY_ROUTE = {
   ClassName: 'parent-leaderboard-copy-route',
   PageMode: 'leaderboard',
@@ -152,6 +161,28 @@ export const PARENT_LEADERBOARD_COPY_ROUTE = {
     Offline: 'OFFLINE',
   },
 } as const;
+
+export const PARENT_LEADERBOARD_COPY_ROUTE_CONTEXT: Readonly<
+  Partial<Record<PortalRouteValue, ParentLeaderboardCopyRouteContext>>
+> = {
+  [PortalRoute.Overview]: routeContext('leaderboard', 'TODAY', 'managed-web'),
+  [PortalRoute.LeaderboardCopy]: routeContext('leaderboard', 'TODAY', 'managed-web'),
+  [PortalRoute.Activity]: routeContext('leaderboard', 'TODAY', 'activity-store'),
+  [PortalRoute.Browser]: routeContext('gameLeaderboard', 'BROWSERS', 'managed-web'),
+  [PortalRoute.Policy]: routeContext('gameLeaderboard', 'RULES', 'policy-action'),
+  [PortalRoute.PrivacyDesign]: routeContext('aiBenchmarkLeaderboard', 'PRIVATE', 'privacy-design'),
+  [PortalRoute.Memory]: routeContext('aiBenchmarkLeaderboard', 'MEMORY', 'memory-citations'),
+  [PortalRoute.AiRuntime]: routeContext('aiBenchmarkLeaderboard', 'LOCAL AI', 'local-ai'),
+  [PortalRoute.Devices]: routeContext('gameLeaderboard', 'DEVICES', 'device-pairing'),
+  [PortalRoute.Notifications]: routeContext('gameLeaderboard', 'ALERTS', 'notifications'),
+  [PortalRoute.DriveConnections]: routeContext('gameLeaderboard', 'DRIVES', 'drive-exports'),
+  [PortalRoute.Diagnostics]: routeContext('gameLeaderboard', 'SUPPORT', 'support-exports'),
+  [PortalRoute.SettingsRules]: routeContext('gameLeaderboard', 'SETTINGS', 'family-settings'),
+} as const;
+
+export function parentLeaderboardCopyRouteContext(route: PortalRouteValue): ParentLeaderboardCopyRouteContext {
+  return PARENT_LEADERBOARD_COPY_ROUTE_CONTEXT[route] ?? routeContext('leaderboard', 'TODAY', 'managed-web');
+}
 
 export const PARENT_LEADERBOARD_COPY_ROWS: ParentLeaderboardCopyRow[] = [
   {
@@ -234,6 +265,26 @@ export const PARENT_LEADERBOARD_COPY_ROWS: ParentLeaderboardCopyRow[] = [
     trend: 'Opt in',
     tone: 'cyan',
   },
+  {
+    user_id: 'Notifications',
+    rank: 9,
+    score: 2400,
+    wins: 4,
+    losses: 1,
+    bestGame: 'Parent Alerts',
+    trend: 'Opt in',
+    tone: 'red',
+  },
+  {
+    user_id: 'Private by Design',
+    rank: 10,
+    score: 2320,
+    wins: 4,
+    losses: 0,
+    bestGame: 'Data Custody',
+    trend: 'Local',
+    tone: 'gold',
+  },
 ];
 
 export const PARENT_LEADERBOARD_COPY_CONTENT: ParentLeaderboardCopyContent = {
@@ -247,11 +298,14 @@ export const PARENT_LEADERBOARD_COPY_CONTENT: ParentLeaderboardCopyContent = {
   navItems: [
     { label: 'TODAY', detail: 'Recent child-device state', icon: 'activity', tabId: 'overall', tone: 'cyan' },
     { label: 'BROWSERS', detail: 'Supported and unsupported', icon: 'shield', tabId: 'perGame', tone: 'cyan' },
-    { label: 'RULES', detail: 'Allow, ask, explain, block', icon: 'grid', tabId: 'perGame', tone: 'cyan' },
+    { label: 'RULES', detail: 'Allow, ask, explain, block', icon: 'grid', tabId: 'perGame', tone: 'gold' },
     { label: 'MEMORY', detail: 'Cited local knowledge', icon: 'circle', tabId: 'aiBenchmarks', tone: 'purple' },
     { label: 'LOCAL AI', detail: 'Private explanations', icon: 'bot', tabId: 'aiBenchmarks', tone: 'cyan' },
+    { label: 'PRIVATE', detail: 'Data stays local', icon: 'shield', tabId: 'aiBenchmarks', tone: 'gold' },
     { label: 'DEVICES', detail: 'Child device pairing', icon: 'gamepad', tabId: 'tournaments', tone: 'cyan' },
-    { label: 'EXPORTS', detail: 'Diagnostics and drives', icon: 'trophy', tabId: 'friends', tone: 'cyan' },
+    { label: 'ALERTS', detail: 'Parent notifications', icon: 'gift', tabId: 'tournaments', tone: 'red' },
+    { label: 'DRIVES', detail: 'Connect your drives', icon: 'trophy', tabId: 'friends', tone: 'gold' },
+    { label: 'SUPPORT', detail: 'Diagnostics and help', icon: 'users', tabId: 'friends', tone: 'cyan' },
     { label: 'SETTINGS', detail: 'Family defaults', icon: 'crown', tabId: 'tournaments', tone: 'cyan' },
   ],
   tabDetails: {
@@ -362,6 +416,54 @@ export const PARENT_LEADERBOARD_COPY_CONTENT: ParentLeaderboardCopyContent = {
       gameType: 5,
       routePath: '/parent/drive-exports',
     },
+    {
+      id: 'privacy-design',
+      rank: 6,
+      name: 'Private by Design',
+      matches: 'Local first',
+      growth: 'No cloud share',
+      tone: 'gold',
+      category: 'Privacy',
+      subcategory: 'Data custody',
+      gameType: 6,
+      routePath: '/parent/privacy-design',
+    },
+    {
+      id: 'memory-citations',
+      rank: 7,
+      name: 'Memory Citations',
+      matches: 'Cited links',
+      growth: 'Freshness gated',
+      tone: 'purple',
+      category: 'Memory',
+      subcategory: 'Local knowledge',
+      gameType: 7,
+      routePath: '/parent/memory',
+    },
+    {
+      id: 'notifications',
+      rank: 8,
+      name: 'Notifications',
+      matches: 'Parent only',
+      growth: 'Opt in',
+      tone: 'red',
+      category: 'Devices',
+      subcategory: 'Parent alerts',
+      gameType: 8,
+      routePath: '/parent/notifications',
+    },
+    {
+      id: 'family-settings',
+      rank: 9,
+      name: 'Family Settings',
+      matches: 'Defaults',
+      growth: 'Per device',
+      tone: 'cyan',
+      category: 'Devices',
+      subcategory: 'Family defaults',
+      gameType: 9,
+      routePath: '/parent/settings',
+    },
   ],
   quickGames: [
     {
@@ -398,6 +500,28 @@ export const PARENT_LEADERBOARD_COPY_CONTENT: ParentLeaderboardCopyContent = {
       routePath: '/parent/local-ai',
     },
     {
+      id: 'privacy-design',
+      name: 'PRIVATE BY DESIGN',
+      detail: 'Local-first custody',
+      icon: 'shield',
+      tone: 'gold',
+      category: 'Privacy',
+      subcategory: 'Data custody',
+      gameType: 6,
+      routePath: '/parent/privacy-design',
+    },
+    {
+      id: 'memory-citations',
+      name: 'MEMORY CITATIONS',
+      detail: 'Cited local knowledge',
+      icon: 'circle',
+      tone: 'purple',
+      category: 'Memory',
+      subcategory: 'Freshness gated',
+      gameType: 7,
+      routePath: '/parent/memory',
+    },
+    {
       id: 'device-pairing',
       name: 'DEVICE PAIRING',
       detail: 'Child device trust',
@@ -407,6 +531,28 @@ export const PARENT_LEADERBOARD_COPY_CONTENT: ParentLeaderboardCopyContent = {
       subcategory: 'Pairing and status',
       gameType: 7,
       routePath: '/parent/device-pairing',
+    },
+    {
+      id: 'notifications',
+      name: 'NOTIFICATIONS',
+      detail: 'Parent alert routing',
+      icon: 'gift',
+      tone: 'red',
+      category: 'Devices',
+      subcategory: 'Opt-in parent alerts',
+      gameType: 8,
+      routePath: '/parent/notifications',
+    },
+    {
+      id: 'family-settings',
+      name: 'FAMILY SETTINGS',
+      detail: 'Defaults and overrides',
+      icon: 'crown',
+      tone: 'cyan',
+      category: 'Devices',
+      subcategory: 'Per-device rules',
+      gameType: 9,
+      routePath: '/parent/settings',
     },
     {
       id: 'support-exports',
@@ -484,7 +630,7 @@ export const PARENT_LEADERBOARD_COPY_CONTENT: ParentLeaderboardCopyContent = {
     liveLabel: 'LIVE',
     viewAllLabel: 'VIEW ALL',
     refreshLabel: 'REFRESH',
-    queueLabel: 'REQUEST',
+    queueLabel: 'RECONNECT',
     showLabel: 'SHOW',
     pageLabel: 'PAGE',
     selectedPlayerLabel: 'SELECTED CONTROL',
@@ -508,7 +654,7 @@ export const PARENT_LEADERBOARD_COPY_CONTENT: ParentLeaderboardCopyContent = {
     gameLeaderboard: {
       defaultTab: 'perGame',
       selectedGameId: 'managed-web',
-      title: 'Control Area',
+      title: 'Control Detail',
       routeLabel: '/parent/:area',
       rowSource: 'fallbackRows',
     },
@@ -521,3 +667,11 @@ export const PARENT_LEADERBOARD_COPY_CONTENT: ParentLeaderboardCopyContent = {
     },
   },
 };
+
+function routeContext(
+  pageMode: ParentLeaderboardCopyPageMode,
+  navLabel: string,
+  selectedControlId: string
+): ParentLeaderboardCopyRouteContext {
+  return { pageMode, navLabel, selectedControlId };
+}

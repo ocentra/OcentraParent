@@ -1,131 +1,39 @@
 import { expect, type Page } from '@playwright/test';
 
-const sidebarGroupLabel = {
-  Guide: 'Guide',
-  Manage: 'Manage',
-} as const;
-
-type SidebarGroupLabel = (typeof sidebarGroupLabel)[keyof typeof sidebarGroupLabel];
+const productRoutes = [
+  { path: '/#/overview', nav: 'TODAY', title: 'TODAY CONTROL SNAPSHOT' },
+  { path: '/#/activity', nav: 'TODAY', title: 'TODAY CONTROL SNAPSHOT' },
+  { path: '/#/browser', nav: 'BROWSERS', title: 'MANAGED WEB CONTROL DETAIL' },
+  { path: '/#/policy', nav: 'RULES', title: 'POLICY ACTION CONTROL DETAIL' },
+  { path: '/#/privacy-design', nav: 'PRIVATE', title: 'LOCAL AI AND MEMORY READINESS' },
+  { path: '/#/memory', nav: 'MEMORY', title: 'LOCAL AI AND MEMORY READINESS' },
+  { path: '/#/ai-runtime', nav: 'LOCAL AI', title: 'LOCAL AI AND MEMORY READINESS' },
+  { path: '/#/devices', nav: 'DEVICES', title: 'DEVICE ROUTINE AND APPROVALS' },
+  { path: '/#/notifications', nav: 'ALERTS', title: 'DEVICE ROUTINE AND APPROVALS' },
+  { path: '/#/drive-connections', nav: 'DRIVES', title: 'SUPPORT EXPORTS AND DRIVE CONNECTIONS' },
+  { path: '/#/diagnostics', nav: 'SUPPORT', title: 'SUPPORT EXPORTS AND DRIVE CONNECTIONS' },
+  { path: '/#/settings-rules', nav: 'SETTINGS', title: 'DEVICE ROUTINE AND APPROVALS' },
+] as const;
 
 export async function assertRouteScaffolds(page: Page): Promise<void> {
-  await page.getByRole('tab', { name: /^Activity/u }).click();
-  await expect(page.getByRole('heading', { name: 'Network activity' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'App and game sessions' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Screen analysis' })).toBeVisible();
-
-  await page.getByRole('tab', { name: /^Web/u }).click();
-  await expect(page.getByRole('heading', { name: 'Managed browser' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Browser evidence' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Browser protection' })).toBeVisible();
-
-  await ensureSidebarGroupOpen(page, sidebarGroupLabel.Guide);
-  await page.getByRole('tab', { name: /^Policy/u }).click();
-  await expect(page.getByRole('heading', { name: 'Policy decision' })).toBeVisible();
-  await assertParentControls(page);
-  await assertDeviceRuleScope(page);
-
-  await assertPrivacyDesignRoute(page);
-
-  await page.getByRole('tab', { name: /^Memory/u }).click();
-  await expect(page.getByRole('heading', { name: 'Memory links' })).toBeVisible();
-  await expect(page.locator('.control-deck-header h2').filter({ hasText: /^Memory$/u })).toBeVisible();
-
-  await page.getByRole('tab', { name: /^Local AI/u }).click();
-  await expect(page.locator('section.summary h2').filter({ hasText: /^Local AI$/u })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Private by design' })).toBeVisible();
-
-  await ensureSidebarGroupOpen(page, sidebarGroupLabel.Manage);
-  await assertNotificationsRoute(page);
-  await assertDriveConnectionsRoute(page);
-  await assertDeviceRoute(page);
-  await assertDiagnosticsRoute(page);
-  await assertSettingsRoute(page);
+  for (const route of productRoutes) {
+    await assertProductRoute(page, route.path, route.nav, route.title);
+  }
   await assertFrameTunerRoute(page);
 }
 
-async function ensureSidebarGroupOpen(page: Page, label: SidebarGroupLabel): Promise<void> {
-  const groupLabel = page.locator('summary.route-group-label').filter({ hasText: label });
-  const isOpen = await groupLabel.evaluate(
-    (node) => node.parentElement instanceof HTMLDetailsElement && node.parentElement.open
-  );
-  if (!isOpen) {
-    await groupLabel.click();
-  }
-}
-
-async function assertParentControls(page: Page): Promise<void> {
-  const parentControls = page.locator('.control-deck').filter({
-    has: page.locator('.control-deck-header h2').filter({ hasText: /^Parent controls$/u }),
-  });
-  await expect(parentControls.getByRole('heading', { name: 'Rule builder' })).toBeVisible();
-  await expect(parentControls.getByRole('heading', { name: 'Schedules and budgets' })).toBeVisible();
-  await expect(parentControls.locator('.control-card h2').filter({ hasText: /^Approvals$/u })).toHaveCount(1);
-}
-
-async function assertDeviceRuleScope(page: Page): Promise<void> {
-  const deviceScope = page
-    .locator('.summary')
-    .filter({ has: page.getByRole('heading', { name: 'Device rule scope' }) });
-  await expect(deviceScope.getByRole('heading', { name: 'Device rule scope' })).toBeVisible();
-  await expect(deviceScope.getByRole('heading', { name: 'Managed web' })).toBeVisible();
-  await expect(deviceScope.locator('.product-badge').filter({ hasText: /^Child device/u })).toBeVisible();
-}
-
-async function assertPrivacyDesignRoute(page: Page): Promise<void> {
-  await page.getByRole('tab', { name: /^Private by design/u }).click();
-  await expect(page.locator('.control-deck-header h2').filter({ hasText: /^Private by design$/u })).toBeVisible();
-}
-
-async function assertNotificationsRoute(page: Page): Promise<void> {
-  await page.getByRole('tab', { name: /^Notifications/u }).click();
-  await expect(page.locator('.control-deck-header h2').filter({ hasText: /^Notifications$/u })).toBeVisible();
-}
-
-async function assertDriveConnectionsRoute(page: Page): Promise<void> {
-  await page.getByRole('tab', { name: /^Connect your drives/u }).click();
-  await expect(page.locator('.control-deck-header h2').filter({ hasText: /^Connect your drives$/u })).toBeVisible();
-}
-
-async function assertDeviceRoute(page: Page): Promise<void> {
-  await page.getByRole('tab', { name: /^Devices/u }).click();
-  await expect(page.getByRole('heading', { name: 'Device diagnostics' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Latest device snapshot' })).toBeVisible();
-  const deviceDeck = page.locator('.control-deck').filter({
-    has: page.locator('.control-deck-header h2').filter({ hasText: /^Devices$/u }),
-  });
-  await expect(deviceDeck.getByRole('heading', { name: 'Device inventory' })).toBeVisible();
-  await expect(deviceDeck.getByRole('heading', { name: 'Pairing' })).toBeVisible();
-  await expect(deviceDeck.locator('.control-card h2').filter({ hasText: /^Mobile app$/u })).toHaveCount(1);
-
-  const snapshotPanel = page
-    .locator('.summary')
-    .filter({ has: page.getByRole('heading', { name: 'Latest device snapshot' }) });
-  await expect(
-    snapshotPanel.locator('dt').filter({ hasText: 'Device' }).locator('xpath=following-sibling::dd[1]')
-  ).toHaveText('local-dev-agent');
-  await expect(
-    snapshotPanel.locator('dt').filter({ hasText: 'Version' }).locator('xpath=following-sibling::dd[1]')
-  ).toHaveText(/\b\d+\.\d+\.\d+\b/u);
-}
-
-async function assertDiagnosticsRoute(page: Page): Promise<void> {
-  await page.getByRole('tab', { name: /^Support/u }).click();
-  await expect(page.getByRole('heading', { name: 'Service log' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Device controls' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Device audit' })).toBeVisible();
-  await expect(page.locator('dt').filter({ hasText: 'Events' }).locator('xpath=following-sibling::dd[1]')).toHaveText(
-    /\d+/u
-  );
-  await assertDiagnosticsCopy(page);
-}
-
-async function assertSettingsRoute(page: Page): Promise<void> {
-  await page.getByRole('tab', { name: /^Settings/u }).click();
-  await expect(page.getByRole('heading', { name: 'Display theme' })).toBeVisible();
+async function assertProductRoute(page: Page, path: string, navLabel: string, panelTitle: string): Promise<void> {
+  await page.goto(path);
+  const surface = page.locator('svg.leaderboard-page-svg-surface');
+  await expect(surface).toBeVisible();
+  await expect(surface).toHaveAttribute('aria-label', 'Ocentra parent dashboard');
+  await expect(surface.locator('text').filter({ hasText: navLabel }).first()).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: panelTitle }).first()).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: 'WHAT PARENTS CONTROL' }).first()).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: 'DATA CUSTODY' }).first()).toBeVisible();
 }
 
 async function assertFrameTunerRoute(page: Page): Promise<void> {
-  await expect(page.getByRole('tab', { name: /^Frame tuner/u })).toHaveCount(0);
   await page.goto('/#/frame-tuner');
   await expect(page.getByRole('heading', { name: 'Frame tuner' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Save JSON' })).toBeVisible();
@@ -145,17 +53,4 @@ async function assertFrameTunerRoute(page: Page): Promise<void> {
   await expect(page.getByText('Golden card content')).toBeVisible();
   await page.getByRole('tab', { name: 'Save and JSON' }).click();
   await expect(page.getByText('Saved JSON preview')).toBeVisible();
-}
-
-async function assertDiagnosticsCopy(page: Page): Promise<void> {
-  await page.getByRole('button', { name: 'Copy diagnostics' }).click();
-  await expect(page.getByRole('button', { name: 'Diagnostics copied' })).toBeVisible();
-
-  const copiedText = await page.evaluate(() => navigator.clipboard.readText());
-  expect(copiedText).toContain('"agentUrl"');
-  expect(copiedText).toContain('"connectionState"');
-  expect(copiedText).toContain('"events"');
-  expect(copiedText).toContain('"recentSummary"');
-  expect(copiedText).toContain('"networkFlowReadModel"');
-  expect(copiedText).toContain('"activityMemoryGraphReadModel"');
 }

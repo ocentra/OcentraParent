@@ -37,7 +37,8 @@ type PortalAppProps = {
 export function PortalApp(props: PortalAppProps): ReactElement {
   const [authOpen, setAuthOpen] = useState(false);
   const isFrameTuner = props.route === PortalRoute.FrameTuner;
-  const isLeaderboardCopy = props.route === PortalRoute.LeaderboardCopy;
+  const isDevProtocolRoute = props.route === PortalRoute.Commands || props.route === PortalRoute.Events;
+  const isProductRoute = !isFrameTuner && !isDevProtocolRoute;
   const [frameLayout, setFrameLayout] = usePortalFrameLayout(!isFrameTuner && import.meta.env.DEV);
   const appFrameStyle = useMemo<CSSProperties>(
     () => ({
@@ -68,11 +69,16 @@ export function PortalApp(props: PortalAppProps): ReactElement {
   if (isFrameTuner) {
     return <PortalFrameTunerRoute layout={frameLayout} onLayoutChange={setFrameLayout} />;
   }
-  if (isLeaderboardCopy) {
+  if (isProductRoute) {
     return (
       <>
         <PortalUnifiedShell onAuthOpen={() => setAuthOpen(true)}>
-          <ParentLeaderboardCopyRoute actions={props.actions} state={props.state} />
+          <ParentLeaderboardCopyRoute
+            key={props.route}
+            actions={props.actions}
+            route={props.route}
+            state={props.state}
+          />
         </PortalUnifiedShell>
         {authOpen ? <PortalAuthDialog onClose={() => setAuthOpen(false)} /> : null}
       </>

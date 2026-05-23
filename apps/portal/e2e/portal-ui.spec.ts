@@ -1,6 +1,5 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 import { collectBrowserFailures } from './browser-failures';
-import { assertPolicyPreviewBoundaryDetails } from './policy-preview-assertions';
 import { assertRouteScaffolds } from './portal-route-scaffold-assertions';
 test('portal UI connects to the real agent and renders command results', async ({ context, page }) => {
   const browserFailures = collectBrowserFailures(page);
@@ -141,36 +140,12 @@ async function assertCommandResult(
 }
 
 async function assertOverview(page: Page): Promise<void> {
-  await page.getByRole('tab', { name: /^Overview/u }).click();
-  await expect(page.getByRole('heading', { name: 'Overview' })).toBeVisible();
-  await expect(page.getByText('Family command center')).toBeVisible();
-  const overviewBadges = page.locator('.product-shell-hero .app-status-bar');
-  await expect(overviewBadges).toContainText('Child device connected');
-  await expect(overviewBadges).toContainText('Private device data');
-  await expect(overviewBadges).toContainText('Advisory mode');
-  await expect(page.getByRole('heading', { name: 'Evidence store' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Policy decision' })).toBeVisible();
-  await expect(page.getByText('Protection mode: advisory.')).toBeVisible();
-  const policyPreview = page
-    .locator('section.summary')
-    .filter({ has: page.getByRole('heading', { name: 'Policy decision' }) });
-  await expect(
-    policyPreview.locator('dt').filter({ hasText: 'Decision status' }).locator('xpath=following-sibling::dd[1]')
-  ).not.toHaveText('');
-  await expect(
-    policyPreview.locator('dt').filter({ hasText: 'Rows returned' }).locator('xpath=following-sibling::dd[1]')
-  ).not.toHaveText('');
-  await assertPolicyPreviewBoundaryDetails(policyPreview);
-  await expect(
-    policyPreview.locator('dt').filter({ hasText: 'Unknown state' }).locator('xpath=following-sibling::dd[1]')
-  ).toHaveText('Not reported');
-  await expect(page.getByRole('heading', { name: 'Recent activity' })).toBeVisible();
-  const recentActivity = page
-    .locator('section.summary')
-    .filter({ has: page.getByRole('heading', { name: 'Recent activity' }) });
-  await expect(
-    recentActivity.locator('dt').filter({ hasText: 'Rows returned' }).locator('xpath=following-sibling::dd[1]')
-  ).toHaveText(/\d+/u);
+  await page.goto('/#/overview');
+  const surface = page.locator('svg.leaderboard-page-svg-surface');
+  await expect(surface).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: 'TODAY CONTROL SNAPSHOT' }).first()).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: 'WHAT PARENTS CONTROL' }).first()).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: 'DATA CUSTODY' }).first()).toBeVisible();
 }
 
 async function assertCopyButton(page: Page, commandResult: Locator, eventName: string): Promise<void> {

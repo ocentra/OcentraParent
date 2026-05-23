@@ -52,11 +52,15 @@ export { PortalAssets, PortalExternalLinks, PortalUnifiedChrome } from './unifie
 export {
   PARENT_LEADERBOARD_COPY_CONTENT,
   PARENT_LEADERBOARD_COPY_ROUTE,
+  PARENT_LEADERBOARD_COPY_ROUTE_CONTEXT,
   PARENT_LEADERBOARD_COPY_ROWS,
+  parentLeaderboardCopyRouteContext,
   type ParentLeaderboardCopyContent,
   type ParentLeaderboardCopyIconName,
+  type ParentLeaderboardCopyPageMode,
   type ParentLeaderboardCopyRow,
   type ParentLeaderboardCopyRowSource,
+  type ParentLeaderboardCopyRouteContext,
   type ParentLeaderboardCopyTabId,
   type ParentLeaderboardCopyTone,
 } from './parent-leaderboard-copy-data';

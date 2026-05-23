@@ -4,6 +4,8 @@ import {
   PARENT_LEADERBOARD_COPY_ROUTE,
   PARENT_LEADERBOARD_COPY_ROWS,
   PortalConnectionState,
+  parentLeaderboardCopyRouteContext,
+  type PortalRoute as PortalRouteValue,
   type PortalConnectionState as PortalConnectionStateValue,
 } from '@ocentra-parent/portal-domain/contracts';
 import { LeaderboardPageSvgSurface } from '../../../vendor/ocentra-games-core-ui/AppPages/Leaderboard/LeaderboardPageSvgSurface';
@@ -13,14 +15,16 @@ import './styles/parent-leaderboard-copy-route.css';
 
 type ParentLeaderboardCopyRouteProps = {
   readonly actions: PortalRenderActions;
+  readonly route: PortalRouteValue;
   readonly state: PortalRuntimeState;
 };
 
-export function ParentLeaderboardCopyRoute({ actions, state }: ParentLeaderboardCopyRouteProps): ReactElement {
+export function ParentLeaderboardCopyRoute({ actions, route, state }: ParentLeaderboardCopyRouteProps): ReactElement {
+  const routeContext = parentLeaderboardCopyRouteContext(route);
   return (
     <div className={PARENT_LEADERBOARD_COPY_ROUTE.ClassName}>
       <LeaderboardPageSvgSurface
-        pageMode={PARENT_LEADERBOARD_COPY_ROUTE.PageMode}
+        pageMode={routeContext.pageMode}
         gameType={1}
         seasonId={seasonLabelForConnection(state.connectionState)}
         lastUpdated={latestReportedAt(state)}
@@ -29,6 +33,8 @@ export function ParentLeaderboardCopyRoute({ actions, state }: ParentLeaderboard
         nearbyAbove={[]}
         nearbyBelow={[]}
         content={PARENT_LEADERBOARD_COPY_CONTENT}
+        initialNavLabel={routeContext.navLabel}
+        initialSelectedGameId={routeContext.selectedControlId}
         onRefreshLeaderboard={actions.reconnect}
         onMatchmaking={actions.reconnect}
       />
