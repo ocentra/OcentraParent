@@ -334,6 +334,8 @@ pub enum EnforcementTimerEventKind {
     RollbackRequested,
     #[serde(rename = "rollback-completed")]
     RollbackCompleted,
+    #[serde(rename = "recovery-needed")]
+    RecoveryNeeded,
     #[serde(rename = "unavailable")]
     Unavailable,
 }
@@ -348,6 +350,7 @@ impl EnforcementTimerEventKind {
             Self::RestartRecovered => enforcement_constants::TIMER_RESTART_RECOVERED,
             Self::RollbackRequested => enforcement_constants::TIMER_ROLLBACK_REQUESTED,
             Self::RollbackCompleted => enforcement_constants::TIMER_ROLLBACK_COMPLETED,
+            Self::RecoveryNeeded => enforcement_constants::TIMER_RECOVERY_NEEDED,
             Self::Unavailable => enforcement_constants::TIMER_UNAVAILABLE,
         }
     }
@@ -507,5 +510,5 @@ pub struct EnforcementTimerEvent {
     pub effective_at: Option<String>,
     pub rollback_token: Option<String>,
     pub recovered_after_restart: bool,
-    pub unavailable_reason: Option<String>,
+    pub unavailable_reason: Option<EnforcementUnavailableReason>,
 }

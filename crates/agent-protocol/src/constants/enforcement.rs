@@ -72,6 +72,7 @@ pub const TIMER_CANCELLED: &str = "cancelled";
 pub const TIMER_RESTART_RECOVERED: &str = "restart-recovered";
 pub const TIMER_ROLLBACK_REQUESTED: &str = "rollback-requested";
 pub const TIMER_ROLLBACK_COMPLETED: &str = "rollback-completed";
+pub const TIMER_RECOVERY_NEEDED: &str = "recovery-needed";
 pub const TIMER_UNAVAILABLE: &str = "unavailable";
 
 pub const AUDIT_ATTEMPTED: &str = "attempted";

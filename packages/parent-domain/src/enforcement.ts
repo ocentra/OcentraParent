@@ -105,6 +105,7 @@ const EnforcementTimerEventKindSchema = withParser(
     'restart-recovered',
     'rollback-requested',
     'rollback-completed',
+    'recovery-needed',
     'unavailable'
   )
 );
@@ -239,21 +240,39 @@ export const EnforcementAuditEventSchema = withParser(
   })
 );
 
+const EnforcementTimerEventBaseSchema = Schema.Struct({
+  schemaVersion: ParentContractSchemaVersionSchema,
+  timerEventId: EnforcementTimerEventIdSchema,
+  timerEventKind: EnforcementTimerEventKindSchema,
+  actionId: EnforcementActionIdSchema,
+  policyDecisionId: PolicyDecisionIdSchema,
+  evidenceReferences: Schema.Array(ParentEvidenceReferenceSchema),
+  scheduledAt: ParentTimestampSchema,
+  effectiveAt: Schema.Union(ParentTimestampSchema, Schema.Null),
+  rollbackToken: Schema.Union(EnforcementRollbackTokenSchema, Schema.Null),
+  recoveredAfterRestart: Schema.Boolean,
+  unavailableReason: Schema.Union(EnforcementUnavailableReasonSchema, Schema.Null),
+});
+
+type EnforcementTimerEventCandidate = Infer<typeof EnforcementTimerEventBaseSchema>;
+
 export const EnforcementTimerEventSchema = withParser(
-  Schema.Struct({
-    schemaVersion: ParentContractSchemaVersionSchema,
-    timerEventId: EnforcementTimerEventIdSchema,
-    timerEventKind: EnforcementTimerEventKindSchema,
-    actionId: EnforcementActionIdSchema,
-    policyDecisionId: PolicyDecisionIdSchema,
-    evidenceReferences: Schema.Array(ParentEvidenceReferenceSchema),
-    scheduledAt: ParentTimestampSchema,
-    effectiveAt: Schema.Union(ParentTimestampSchema, Schema.Null),
-    rollbackToken: Schema.Union(EnforcementRollbackTokenSchema, Schema.Null),
-    recoveredAfterRestart: Schema.Boolean,
-    unavailableReason: Schema.Union(EnforcementStatusReasonSchema, Schema.Null),
-  })
+  EnforcementTimerEventBaseSchema.pipe(
+    Schema.filter(
+      (timerEvent) =>
+        enforcementTimerUnavailableReasonIsConsistent(timerEvent) ||
+        'Expected unavailable enforcement timer events to include typed unavailable reason'
+    )
+  )
 );
+
+function enforcementTimerUnavailableReasonIsConsistent(timerEvent: EnforcementTimerEventCandidate): boolean {
+  if (timerEvent.timerEventKind === 'unavailable') {
+    return timerEvent.unavailableReason !== null;
+  }
+
+  return timerEvent.unavailableReason === null;
+}
 
 export type EnforcementCapabilityStatus = Infer<typeof EnforcementCapabilityStatusSchema>;
 export type EnforcementUnavailableStatus = Infer<typeof EnforcementUnavailableStatusSchema>;
@@ -344,6 +363,7 @@ export const EnforcementTimerEventKind = {
   RestartRecovered: EnforcementTimerEventKindSchema.parse('restart-recovered'),
   RollbackRequested: EnforcementTimerEventKindSchema.parse('rollback-requested'),
   RollbackCompleted: EnforcementTimerEventKindSchema.parse('rollback-completed'),
+  RecoveryNeeded: EnforcementTimerEventKindSchema.parse('recovery-needed'),
   Unavailable: EnforcementTimerEventKindSchema.parse('unavailable'),
 } as const;
 

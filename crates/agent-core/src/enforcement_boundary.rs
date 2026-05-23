@@ -7,8 +7,10 @@ use ocentra_parent_agent_protocol::{
     ParentPlatform, PolicyAction, PolicyDecision, PolicyTargetType,
 };
 
+mod enforcement_timer_event;
 mod enforcement_unavailable_status;
 
+use enforcement_timer_event::timer_event;
 use enforcement_unavailable_status::{
     adapter_unavailable_reason, build_unavailable_status, capability_unavailable_reason,
 };
@@ -29,6 +31,7 @@ pub struct EnforcementBoundaryInput {
     pub requested_at: String,
     pub completed_at: Option<String>,
     pub adapter_outcome: Option<EnforcementAdapterOutcome>,
+    pub timer_event_kind: Option<EnforcementTimerEventKind>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -93,8 +96,8 @@ pub fn evaluate_enforcement_boundary(
     validate_intent_decision(&input.intent, &input.decision)?;
     let mode = enforcement_mode(&input.intent)?;
     let action = enforcement_action(&input, mode);
-    let timer_event = timer_event(&input, &action);
     let result = enforcement_result(&input, &action)?;
+    let timer_event = timer_event(&input, &action, &result);
     let audit_event = enforcement_audit_event(&input, &action, &result);
     let adapter_request = adapter_request(&action, &result);
 
@@ -379,28 +382,6 @@ fn enforcement_audit_event(
             .clone()
             .unwrap_or_else(|| input.requested_at.clone()),
     }
-}
-
-fn timer_event(
-    input: &EnforcementBoundaryInput,
-    action: &EnforcementAction,
-) -> Option<EnforcementTimerEvent> {
-    action
-        .expires_at
-        .as_ref()
-        .map(|expires_at| EnforcementTimerEvent {
-            schema_version: input.decision.schema_version.clone(),
-            timer_event_id: input.timer_event_id.clone(),
-            timer_event_kind: EnforcementTimerEventKind::Created,
-            action_id: action.action_id.clone(),
-            policy_decision_id: action.policy_decision_id.clone(),
-            evidence_references: action.evidence_references.clone(),
-            scheduled_at: input.requested_at.clone(),
-            effective_at: Some(expires_at.clone()),
-            rollback_token: action.rollback_token.clone(),
-            recovered_after_restart: false,
-            unavailable_reason: None,
-        })
 }
 
 fn adapter_request(

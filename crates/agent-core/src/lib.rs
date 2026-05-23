@@ -133,6 +133,8 @@ mod browser_managed_session_tests;
 #[cfg(test)]
 mod enforcement_tests;
 #[cfg(test)]
+mod enforcement_timer_tests;
+#[cfg(test)]
 mod journal_tests;
 #[cfg(test)]
 mod network_capture_tests;
