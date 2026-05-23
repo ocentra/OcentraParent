@@ -100,6 +100,8 @@ pub enum AgentCommandName {
     AgentPolicyPreviewReadModelGet,
     #[serde(rename = "agent.lan-pairing.proof.submit")]
     AgentLanPairingProofSubmit,
+    #[serde(rename = "agent.lan-pairing.route.select")]
+    AgentLanPairingRouteSelect,
     #[serde(rename = "agent.lan-pairing.status.get")]
     AgentLanPairingStatusGet,
 }

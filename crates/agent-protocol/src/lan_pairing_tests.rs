@@ -1,11 +1,12 @@
 use super::{
     constants, policy_constants, LanChildAgentResponse, LanPairingAuditEvent,
-    LanPairingAuditEventType, LanPairingDeviceReachability, LanPairingDeviceRef,
-    LanPairingHttpEndpointSupport, LanPairingIntentKind, LanPairingManualProofGap,
-    LanPairingNetworkMode, LanPairingPersistenceMode, LanPairingProof, LanPairingProofMode,
-    LanPairingRejectionReason, LanPairingResponseState, LanPairingRouteRequirement,
+    LanPairingAuditEventType, LanPairingAuthenticationState, LanPairingDeviceReachability,
+    LanPairingDeviceRef, LanPairingHttpEndpointSupport, LanPairingIntentKind,
+    LanPairingManualProofGap, LanPairingNetworkMode, LanPairingPersistenceMode, LanPairingProof,
+    LanPairingProofMode, LanPairingRejectionReason, LanPairingResponseState,
+    LanPairingRouteRequirement, LanPairingRouteSelectionRequest, LanPairingRoutingDecision,
     LanPairingRuntimeSupportSurface, LanPairingTransport, LanPairingUnsupportedHttpEndpoint,
-    LanTrustedDeviceRegistryEntry,
+    LanTrustedDeviceRegistryEntry, LanTrustedDeviceRegistrySnapshot,
 };
 
 #[test]
@@ -156,6 +157,10 @@ fn lan_pairing_runtime_support_surface_serializes_supported_and_planned_api_clai
         constants::lan_pairing::COMMAND_PROOF_SUBMIT
     );
     assert_eq!(
+        support_json["supportedWebSocketCommands"][1],
+        constants::lan_pairing::COMMAND_ROUTE_SELECT
+    );
+    assert_eq!(
         support_json["unsupportedHttpEndpoints"][0]["support"],
         constants::lan_pairing::SUPPORT_PLANNED_UNSUPPORTED
     );
@@ -163,6 +168,69 @@ fn lan_pairing_runtime_support_surface_serializes_supported_and_planned_api_clai
         support_json["persistenceMode"],
         constants::value::LAN_PERSISTENCE_IN_MEMORY_FAIL_CLOSED
     );
+}
+
+#[test]
+fn lan_pairing_registry_snapshot_and_route_decision_make_selection_explicit() {
+    let selected = super::LanSelectedRouteTarget {
+        schema_version: constants::lan_pairing::SCHEMA_VERSION,
+        selected_child_device_id: constants::lan_pairing::CHILD_DEVICE_ID.to_string(),
+        route_id: constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK.to_string(),
+        pairing_id: Some(constants::lan_pairing::PAIRING_ID.to_string()),
+        network_mode: LanPairingNetworkMode::LocalNetwork,
+        reachability: LanPairingDeviceReachability::Online,
+        stale_at: None,
+    };
+    let snapshot = LanTrustedDeviceRegistrySnapshot {
+        schema_version: constants::lan_pairing::SCHEMA_VERSION,
+        entries: vec![trusted_entry(
+            constants::lan_pairing::PAIRING_ID,
+            child_device(),
+        )],
+        selected_target: Some(selected),
+        authentication_state: LanPairingAuthenticationState::Paired,
+        trusted_device_count: 1,
+        updated_at: constants::lan_pairing::OBSERVED_AT.to_string(),
+    };
+    let selection = LanPairingRouteSelectionRequest {
+        schema_version: constants::lan_pairing::SCHEMA_VERSION,
+        pairing_id: constants::lan_pairing::PAIRING_ID.to_string(),
+        target_child_device_id: constants::lan_pairing::CHILD_DEVICE_ID.to_string(),
+        route_id: constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK.to_string(),
+        origin: constants::lan_pairing::ALLOWED_ORIGIN.to_string(),
+        issued_at: constants::lan_pairing::ISSUED_AT.to_string(),
+        expires_at: constants::lan_pairing::EXPIRES_AT.to_string(),
+    };
+    let rejected = LanPairingRoutingDecision {
+        schema_version: constants::lan_pairing::SCHEMA_VERSION,
+        intent_id: Some(constants::lan_pairing::INTENT_ID.to_string()),
+        target_child_device_id: constants::lan_pairing::SECOND_CHILD_DEVICE_ID.to_string(),
+        route_id: constants::lan_pairing::ROUTE_ID_SECOND_LOCAL_NETWORK.to_string(),
+        pairing_id: Some(constants::lan_pairing::SECOND_PAIRING_ID.to_string()),
+        authentication_state: LanPairingAuthenticationState::Paired,
+        state: LanPairingResponseState::Rejected,
+        rejection_reason: Some(LanPairingRejectionReason::UnselectedDevice),
+        audit_event_id: constants::lan_pairing::AUDIT_EVENT_ID.to_string(),
+        decided_at: constants::lan_pairing::OBSERVED_AT.to_string(),
+    };
+
+    let snapshot_json =
+        serde_json::to_value(snapshot).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let selection_json =
+        serde_json::to_value(selection).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let rejected_json =
+        serde_json::to_value(rejected).expect(constants::error::AGENT_EVENT_SERIALIZES);
+
+    assert_eq!(snapshot_json["authenticationState"], "paired");
+    assert_eq!(
+        snapshot_json["selectedTarget"]["selectedChildDeviceId"],
+        constants::lan_pairing::CHILD_DEVICE_ID
+    );
+    assert_eq!(
+        selection_json["targetChildDeviceId"],
+        constants::lan_pairing::CHILD_DEVICE_ID
+    );
+    assert_eq!(rejected_json["rejectionReason"], "unselected-device");
 }
 
 fn planned_http_endpoints() -> Vec<LanPairingUnsupportedHttpEndpoint> {
@@ -195,6 +263,25 @@ fn planned_http_endpoint(endpoint_id: &str, path: &str) -> LanPairingUnsupported
         endpoint_id: endpoint_id.to_string(),
         path: path.to_string(),
         support: LanPairingHttpEndpointSupport::PlannedUnsupported,
+    }
+}
+
+fn trusted_entry(
+    pairing_id: &str,
+    child_device: LanPairingDeviceRef,
+) -> LanTrustedDeviceRegistryEntry {
+    LanTrustedDeviceRegistryEntry {
+        schema_version: constants::lan_pairing::SCHEMA_VERSION,
+        pairing_id: pairing_id.to_string(),
+        child_device,
+        parent_device: parent_device(),
+        route_id: constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK.to_string(),
+        origin: constants::lan_pairing::ALLOWED_ORIGIN.to_string(),
+        proof_digest: constants::lan_pairing::PROOF_DIGEST.to_string(),
+        trust_state: super::LanPairingTrustState::Paired,
+        trusted_at: constants::lan_pairing::ISSUED_AT.to_string(),
+        expires_at: constants::lan_pairing::EXPIRES_AT.to_string(),
+        revoked_at: None,
     }
 }
 

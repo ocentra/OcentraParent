@@ -6,7 +6,9 @@ const NonEmptySecurityText = Schema.String.pipe(Schema.minLength(1));
 export const AgentPairingIdSchema = NonEmptySecurityText.pipe(Schema.brand('AgentPairingId'));
 export const AgentPairingTokenHashSchema = NonEmptySecurityText.pipe(Schema.brand('AgentPairingTokenHash'));
 
-export const AgentPairingStateSchema = withParser(Schema.Literal('unpaired', 'pairing', 'paired', 'revoked'));
+export const AgentPairingStateSchema = withParser(
+  Schema.Literal('unauthenticated', 'unpaired', 'pairing', 'paired', 'revoked')
+);
 
 export const AgentPairingProofSchema = withParser(
   Schema.Struct({

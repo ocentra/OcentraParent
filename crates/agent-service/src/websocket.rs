@@ -158,6 +158,7 @@ async fn handle_command(
             build_policy_preview_read_model_report(command).await
         }
         AgentCommandName::AgentLanPairingProofSubmit
+        | AgentCommandName::AgentLanPairingRouteSelect
         | AgentCommandName::AgentLanPairingStatusGet => {
             build_lan_pairing_status_report(lan_pairing, command)
         }

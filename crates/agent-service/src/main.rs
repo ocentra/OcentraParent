@@ -24,6 +24,16 @@ mod fields;
 mod lan_pairing;
 mod lan_pairing_audit;
 #[cfg(test)]
+mod lan_pairing_multidevice_tests;
+mod lan_pairing_payload;
+mod lan_pairing_status;
+#[cfg(test)]
+mod lan_pairing_test_assertions;
+#[cfg(test)]
+mod lan_pairing_test_commands;
+#[cfg(test)]
+mod lan_pairing_test_support;
+#[cfg(test)]
 mod lan_pairing_tests;
 mod local_ai_cache_root;
 mod local_ai_chat_generation;

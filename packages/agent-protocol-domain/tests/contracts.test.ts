@@ -72,12 +72,14 @@ it('AgentCommand: exposes typed command constants for portal requests', () => {
   expect(AgentCommand.LocalAiRuntimeStatusGet).toBe('agent.local-ai.runtime.status.get');
   expect(AgentCommand.LocalAiChatGenerate).toBe('agent.local-ai.chat.generate');
   expect(AgentCommand.LanPairingProofSubmit).toBe('agent.lan-pairing.proof.submit');
+  expect(AgentCommand.LanPairingRouteSelect).toBe('agent.lan-pairing.route.select');
   expect(AgentCommand.LanPairingStatusGet).toBe('agent.lan-pairing.status.get');
 });
 
 it('AgentLanPairingSupportedWebSocketCommand: keeps V0.9 LAN pairing support limited to WebSocket commands', () => {
   expect(Object.values(AgentLanPairingSupportedWebSocketCommand)).toEqual([
     'agent.lan-pairing.proof.submit',
+    'agent.lan-pairing.route.select',
     'agent.lan-pairing.status.get',
   ]);
   expect(Object.values(AgentLanPairingSupportedWebSocketCommand)).not.toContain('agent.lan-pairing.discovery.http');
