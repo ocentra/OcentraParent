@@ -88,6 +88,13 @@ export const PARENT_LEADERBOARD_COPY_API_GUIDES: readonly ParentLeaderboardCopyG
         targetNavLabel: 'AI SETUP',
       },
       {
+        label: 'Set API keys',
+        body: 'Choose provider, model, data scope, and retention before any external AI call is allowed.',
+        tone: 'gold',
+        targetRoutePath: '#/api-providers',
+        targetNavLabel: 'API KEYS',
+      },
+      {
         label: 'Pick per-device model',
         body: 'Choose local-only, local hub queue, API assistant, or disabled for each child device.',
         tone: 'cyan',

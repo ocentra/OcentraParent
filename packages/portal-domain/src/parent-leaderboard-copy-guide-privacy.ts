@@ -178,8 +178,8 @@ export const PARENT_LEADERBOARD_COPY_PRIVACY_GUIDES: readonly ParentLeaderboardC
         label: 'Check source',
         body: 'Look for live, cache, drive, relay, or unavailable labels before trusting a remote view.',
         tone: 'cyan',
-        targetRoutePath: '#/diagnostics',
-        targetNavLabel: 'SUPPORT',
+        targetRoutePath: '#/remote-access',
+        targetNavLabel: 'REMOTE',
       },
       {
         label: 'Set storage',

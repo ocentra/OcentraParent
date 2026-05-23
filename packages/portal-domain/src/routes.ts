@@ -8,13 +8,27 @@ export const PortalRouteSchema = withParser(
     'leaderboard-copy',
     'activity',
     'browser',
+    'browser-settings',
     'policy',
+    'rule-management',
+    'schedules',
+    'approvals',
+    'enforcement',
     'privacy-design',
     'memory',
+    'memory-settings',
     'ai-runtime',
+    'api-providers',
+    'report-settings',
+    'screen-analysis',
+    'app-game-sessions',
+    'network-activity',
     'devices',
     'notifications',
     'drive-connections',
+    'remote-access',
+    'subscription',
+    'platforms-install',
     'diagnostics',
     'settings-rules',
     'frame-tuner',
@@ -29,13 +43,27 @@ export const PortalRoute = {
   LeaderboardCopy: PortalRouteSchema.parse('leaderboard-copy'),
   Activity: PortalRouteSchema.parse('activity'),
   Browser: PortalRouteSchema.parse('browser'),
+  BrowserSettings: PortalRouteSchema.parse('browser-settings'),
   Policy: PortalRouteSchema.parse('policy'),
+  RuleManagement: PortalRouteSchema.parse('rule-management'),
+  Schedules: PortalRouteSchema.parse('schedules'),
+  Approvals: PortalRouteSchema.parse('approvals'),
+  Enforcement: PortalRouteSchema.parse('enforcement'),
   PrivacyDesign: PortalRouteSchema.parse('privacy-design'),
   Memory: PortalRouteSchema.parse('memory'),
+  MemorySettings: PortalRouteSchema.parse('memory-settings'),
   AiRuntime: PortalRouteSchema.parse('ai-runtime'),
+  ApiProviders: PortalRouteSchema.parse('api-providers'),
+  ReportSettings: PortalRouteSchema.parse('report-settings'),
+  ScreenAnalysis: PortalRouteSchema.parse('screen-analysis'),
+  AppGameSessions: PortalRouteSchema.parse('app-game-sessions'),
+  NetworkActivity: PortalRouteSchema.parse('network-activity'),
   Devices: PortalRouteSchema.parse('devices'),
   Notifications: PortalRouteSchema.parse('notifications'),
   DriveConnections: PortalRouteSchema.parse('drive-connections'),
+  RemoteAccess: PortalRouteSchema.parse('remote-access'),
+  Subscription: PortalRouteSchema.parse('subscription'),
+  PlatformsInstall: PortalRouteSchema.parse('platforms-install'),
   Diagnostics: PortalRouteSchema.parse('diagnostics'),
   SettingsRules: PortalRouteSchema.parse('settings-rules'),
   FrameTuner: PortalRouteSchema.parse('frame-tuner'),
@@ -48,13 +76,27 @@ export const PortalRoutes = [
   PortalRoute.LeaderboardCopy,
   PortalRoute.Activity,
   PortalRoute.Browser,
+  PortalRoute.BrowserSettings,
   PortalRoute.Policy,
+  PortalRoute.RuleManagement,
+  PortalRoute.Schedules,
+  PortalRoute.Approvals,
+  PortalRoute.Enforcement,
   PortalRoute.PrivacyDesign,
   PortalRoute.Memory,
+  PortalRoute.MemorySettings,
   PortalRoute.AiRuntime,
+  PortalRoute.ApiProviders,
+  PortalRoute.ReportSettings,
+  PortalRoute.ScreenAnalysis,
+  PortalRoute.AppGameSessions,
+  PortalRoute.NetworkActivity,
   PortalRoute.Devices,
   PortalRoute.Notifications,
   PortalRoute.DriveConnections,
+  PortalRoute.RemoteAccess,
+  PortalRoute.Subscription,
+  PortalRoute.PlatformsInstall,
   PortalRoute.Diagnostics,
   PortalRoute.SettingsRules,
   PortalRoute.FrameTuner,
@@ -103,10 +145,40 @@ export const PortalRouteDescriptors: readonly PortalRouteDescriptor[] = [
     PortalRouteGroup.Monitor
   ),
   routeDescriptor(
+    PortalRoute.BrowserSettings,
+    PortalDevTextToken.BrowserControls,
+    PortalDevTextToken.BrowserBlockBody,
+    PortalRouteGroup.Operate
+  ),
+  routeDescriptor(
     PortalRoute.Policy,
     PortalDevTextToken.Policy,
     PortalDevTextToken.PolicyDescription,
     PortalRouteGroup.Guide
+  ),
+  routeDescriptor(
+    PortalRoute.RuleManagement,
+    PortalDevTextToken.RuleBuilder,
+    PortalDevTextToken.RuleBuilderBody,
+    PortalRouteGroup.Operate
+  ),
+  routeDescriptor(
+    PortalRoute.Schedules,
+    PortalDevTextToken.SchedulesBudgets,
+    PortalDevTextToken.SchedulesBudgetsBody,
+    PortalRouteGroup.Operate
+  ),
+  routeDescriptor(
+    PortalRoute.Approvals,
+    PortalDevTextToken.Approvals,
+    PortalDevTextToken.ApprovalsBody,
+    PortalRouteGroup.Operate
+  ),
+  routeDescriptor(
+    PortalRoute.Enforcement,
+    PortalDevTextToken.PolicyModeActive,
+    PortalDevTextToken.PolicyPreviewNoEnforcement,
+    PortalRouteGroup.Operate
   ),
   routeDescriptor(
     PortalRoute.PrivacyDesign,
@@ -121,10 +193,46 @@ export const PortalRouteDescriptors: readonly PortalRouteDescriptor[] = [
     PortalRouteGroup.Guide
   ),
   routeDescriptor(
+    PortalRoute.MemorySettings,
+    PortalDevTextToken.Memory,
+    PortalDevTextToken.MemoryBody,
+    PortalRouteGroup.Operate
+  ),
+  routeDescriptor(
     PortalRoute.AiRuntime,
     PortalDevTextToken.AiRuntime,
     PortalDevTextToken.AiRuntimeDescription,
     PortalRouteGroup.Guide
+  ),
+  routeDescriptor(
+    PortalRoute.ApiProviders,
+    PortalDevTextToken.AiRuntime,
+    PortalDevTextToken.AiRuntimeBody,
+    PortalRouteGroup.Operate
+  ),
+  routeDescriptor(
+    PortalRoute.ReportSettings,
+    PortalDevTextToken.Activity,
+    PortalDevTextToken.ActivityDescription,
+    PortalRouteGroup.Operate
+  ),
+  routeDescriptor(
+    PortalRoute.ScreenAnalysis,
+    PortalDevTextToken.ScreenAnalysis,
+    PortalDevTextToken.ProductSurfacePending,
+    PortalRouteGroup.Operate
+  ),
+  routeDescriptor(
+    PortalRoute.AppGameSessions,
+    PortalDevTextToken.AppGameSessions,
+    PortalDevTextToken.ProductSurfacePending,
+    PortalRouteGroup.Operate
+  ),
+  routeDescriptor(
+    PortalRoute.NetworkActivity,
+    PortalDevTextToken.NetworkFlow,
+    PortalDevTextToken.NoNetworkFlow,
+    PortalRouteGroup.Operate
   ),
   routeDescriptor(
     PortalRoute.Devices,
@@ -142,6 +250,24 @@ export const PortalRouteDescriptors: readonly PortalRouteDescriptor[] = [
     PortalRoute.DriveConnections,
     PortalDevTextToken.DriveConnectionsTitle,
     PortalDevTextToken.DriveConnectionsBody,
+    PortalRouteGroup.Operate
+  ),
+  routeDescriptor(
+    PortalRoute.RemoteAccess,
+    PortalDevTextToken.DataCustodyTitle,
+    PortalDevTextToken.DataCustodyBody,
+    PortalRouteGroup.Operate
+  ),
+  routeDescriptor(
+    PortalRoute.Subscription,
+    PortalDevTextToken.BillingEntitlements,
+    PortalDevTextToken.ProductSurfacePending,
+    PortalRouteGroup.Operate
+  ),
+  routeDescriptor(
+    PortalRoute.PlatformsInstall,
+    PortalDevTextToken.DesktopApp,
+    PortalDevTextToken.DesktopAppBody,
     PortalRouteGroup.Operate
   ),
   routeDescriptor(

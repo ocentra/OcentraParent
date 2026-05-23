@@ -2663,11 +2663,42 @@ function NavPanel({
     (height, group) => height + groupH + (openGroupIds[group.id] ? group.items.length * rowStep : 0) + groupGap,
     0
   );
+  let activeNavRowY: number | null = null;
+  let scanY = rowTop;
+  for (const group of navGroups) {
+    scanY += groupH;
+    if (openGroupIds[group.id]) {
+      for (const item of group.items) {
+        if (item.label === activeNavLabel) {
+          activeNavRowY = scanY;
+        }
+        scanY += rowStep;
+      }
+    }
+    scanY += groupGap;
+  }
   const maxNavScroll = Math.max(0, navContentH - navViewportH);
   const safeNavScroll = clampValue(navScroll, 0, maxNavScroll);
   useEffect(() => {
     if (safeNavScroll !== navScroll) setNavScroll(safeNavScroll);
   }, [navScroll, safeNavScroll]);
+  useEffect(() => {
+    if (activeNavRowY === null || maxNavScroll <= 0) return;
+    const topPad = 6;
+    const visibleTop = navViewportY + topPad;
+    const visibleBottom = navViewportY + navViewportH - topPad;
+    setNavScroll((value) => {
+      const activeTop = activeNavRowY - value;
+      const activeBottom = activeTop + rowH;
+      if (activeTop < visibleTop) {
+        return clampValue(activeNavRowY - visibleTop, 0, maxNavScroll);
+      }
+      if (activeBottom > visibleBottom) {
+        return clampValue(activeNavRowY + rowH - visibleBottom, 0, maxNavScroll);
+      }
+      return value;
+    });
+  }, [activeNavLabel, activeNavRowY, maxNavScroll, navViewportH, navViewportY, rowH]);
   const handleNavWheel = (event: WheelEvent<SVGGElement>) => {
     if (maxNavScroll <= 0) return;
     event.stopPropagation();

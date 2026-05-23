@@ -9,6 +9,10 @@ import {
   PARENT_LEADERBOARD_COPY_GUIDE_TOPICS,
   type ParentLeaderboardCopyGuideTopic,
 } from './parent-leaderboard-copy-guides';
+import {
+  PARENT_LEADERBOARD_COPY_MANAGE_QUICK_GAMES,
+  PARENT_LEADERBOARD_COPY_MANAGE_ROWS,
+} from './parent-leaderboard-copy-manage-data';
 
 export type ParentLeaderboardCopyTone = 'cyan' | 'gold' | 'purple' | 'red' | 'muted';
 export type ParentLeaderboardCopyTabId = 'overall' | 'perGame' | 'aiBenchmarks' | 'tournaments' | 'friends';
@@ -175,13 +179,27 @@ export const PARENT_LEADERBOARD_COPY_ROUTE_CONTEXT: Readonly<
   [PortalRoute.LeaderboardCopy]: routeContext('leaderboard', 'START HERE', 'setup-overall'),
   [PortalRoute.Activity]: routeContext('leaderboard', 'ACTIVITY', 'activity-store'),
   [PortalRoute.Browser]: routeContext('gameLeaderboard', 'WEB', 'managed-web'),
+  [PortalRoute.BrowserSettings]: routeContext('gameLeaderboard', 'BROWSER SETUP', 'browser-settings'),
   [PortalRoute.Policy]: routeContext('gameLeaderboard', 'RULES', 'policy-action'),
+  [PortalRoute.RuleManagement]: routeContext('gameLeaderboard', 'RULE SETUP', 'rules-management'),
+  [PortalRoute.Schedules]: routeContext('gameLeaderboard', 'SCHEDULES', 'schedules-budgets'),
+  [PortalRoute.Approvals]: routeContext('gameLeaderboard', 'APPROVALS', 'approvals'),
+  [PortalRoute.Enforcement]: routeContext('gameLeaderboard', 'ENFORCE', 'enforcement-readiness'),
   [PortalRoute.PrivacyDesign]: routeContext('aiBenchmarkLeaderboard', 'PRIVATE', 'privacy-design'),
   [PortalRoute.Memory]: routeContext('aiBenchmarkLeaderboard', 'MEMORY', 'memory-citations'),
+  [PortalRoute.MemorySettings]: routeContext('aiBenchmarkLeaderboard', 'MEMORY SETUP', 'memory-settings'),
   [PortalRoute.AiRuntime]: routeContext('aiBenchmarkLeaderboard', 'AI SETUP', 'api-providers'),
+  [PortalRoute.ApiProviders]: routeContext('aiBenchmarkLeaderboard', 'API KEYS', 'api-providers'),
+  [PortalRoute.ReportSettings]: routeContext('gameLeaderboard', 'REPORT SETUP', 'reports-settings'),
+  [PortalRoute.ScreenAnalysis]: routeContext('gameLeaderboard', 'SCREEN', 'screen-analysis'),
+  [PortalRoute.AppGameSessions]: routeContext('gameLeaderboard', 'APPS/GAMES', 'app-game-sessions'),
+  [PortalRoute.NetworkActivity]: routeContext('gameLeaderboard', 'NETWORK', 'network-activity'),
   [PortalRoute.Devices]: routeContext('gameLeaderboard', 'DEVICES', 'device-pairing'),
   [PortalRoute.Notifications]: routeContext('gameLeaderboard', 'ALERTS', 'notifications'),
   [PortalRoute.DriveConnections]: routeContext('gameLeaderboard', 'DRIVES', 'drive-exports'),
+  [PortalRoute.RemoteAccess]: routeContext('gameLeaderboard', 'REMOTE', 'remote-access'),
+  [PortalRoute.Subscription]: routeContext('gameLeaderboard', 'SUBSCRIPTION', 'subscription-plans'),
+  [PortalRoute.PlatformsInstall]: routeContext('gameLeaderboard', 'PLATFORMS', 'platforms-install'),
   [PortalRoute.Diagnostics]: routeContext('gameLeaderboard', 'SUPPORT', 'support-api-status'),
   [PortalRoute.SettingsRules]: routeContext('gameLeaderboard', 'SETTINGS', 'family-settings'),
 } as const;
@@ -227,7 +245,7 @@ export const PARENT_LEADERBOARD_COPY_ROWS: ParentLeaderboardCopyRow[] = [
     score: 2980,
     wins: 14,
     losses: 4,
-    bestGame: 'Activity',
+    bestGame: 'APP AND GAME SESSIONS',
     trend: '+2',
     tone: 'purple',
   },
@@ -237,7 +255,7 @@ export const PARENT_LEADERBOARD_COPY_ROWS: ParentLeaderboardCopyRow[] = [
     score: 2865,
     wins: 12,
     losses: 5,
-    bestGame: 'AI',
+    bestGame: 'SCREEN ANALYSIS',
     trend: '+1',
     tone: 'cyan',
   },
@@ -469,7 +487,7 @@ export const PARENT_LEADERBOARD_COPY_CONTENT: ParentLeaderboardCopyContent = {
       category: 'AI',
       subcategory: 'External AI setup',
       gameType: 10,
-      routePath: '#/ai-runtime',
+      routePath: '#/api-providers',
     },
     {
       id: 'device-pairing',
@@ -496,6 +514,7 @@ export const PARENT_LEADERBOARD_COPY_CONTENT: ParentLeaderboardCopyContent = {
       gameType: 1,
       routePath: '#/browser',
     },
+    ...PARENT_LEADERBOARD_COPY_MANAGE_QUICK_GAMES,
     {
       id: 'policy-action',
       name: 'POLICY ACTION',
@@ -527,7 +546,7 @@ export const PARENT_LEADERBOARD_COPY_CONTENT: ParentLeaderboardCopyContent = {
       category: 'AI',
       subcategory: 'Provider setup',
       gameType: 6,
-      routePath: '#/ai-runtime',
+      routePath: '#/api-providers',
     },
     {
       id: 'local-ai-hub',
@@ -619,7 +638,7 @@ export const PARENT_LEADERBOARD_COPY_CONTENT: ParentLeaderboardCopyContent = {
     },
   ],
   guideTopics: PARENT_LEADERBOARD_COPY_GUIDE_TOPICS,
-  fallbackRows: PARENT_LEADERBOARD_COPY_ROWS,
+  fallbackRows: [...PARENT_LEADERBOARD_COPY_ROWS, ...PARENT_LEADERBOARD_COPY_MANAGE_ROWS],
   aiBenchmarkRows: [
     {
       user_id: 'Local Models',

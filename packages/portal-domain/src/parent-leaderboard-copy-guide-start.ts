@@ -73,6 +73,13 @@ export const PARENT_LEADERBOARD_COPY_START_GUIDES: readonly ParentLeaderboardCop
         targetRoutePath: '#/drive-connections',
         targetNavLabel: 'DRIVES',
       },
+      {
+        label: 'Plan setup',
+        body: 'Review the plan, device limit, and paid feature boundaries before adding more devices.',
+        tone: 'gold',
+        targetRoutePath: '#/subscription',
+        targetNavLabel: 'SUBSCRIPTION',
+      },
     ],
   },
   {
@@ -135,6 +142,13 @@ export const PARENT_LEADERBOARD_COPY_START_GUIDES: readonly ParentLeaderboardCop
         tone: 'gold',
         targetRoutePath: '#/diagnostics',
         targetNavLabel: 'SUPPORT',
+      },
+      {
+        label: 'Platform status',
+        body: 'Check which desktop and mobile surfaces are supported before claiming device control.',
+        tone: 'cyan',
+        targetRoutePath: '#/platforms-install',
+        targetNavLabel: 'PLATFORMS',
       },
     ],
   },
