@@ -9,6 +9,10 @@
       "import": "./dist/capabilities.js",
       "types": "./dist/capabilities.d.ts"
     },
+    "./enforcement": {
+      "import": "./dist/enforcement.js",
+      "types": "./dist/enforcement.d.ts"
+    },
     "./local-ai": {
       "import": "./dist/local-ai.js",
       "types": "./dist/local-ai.d.ts"

@@ -32,6 +32,8 @@ mod browser_bridge_poll;
 mod browser_intervention_event;
 mod browser_managed_discovery;
 mod browser_managed_session;
+mod enforcement_adapter;
+mod enforcement_boundary;
 mod journal;
 mod journal_crypto;
 mod journal_error;
@@ -68,6 +70,14 @@ pub use browser_managed_discovery::{
 pub use browser_managed_session::{
     launch_managed_browser, managed_browser_launch_plan, BrowserManagedLaunch,
     BrowserManagedLaunchConfig, BrowserManagedLaunchError, BrowserManagedLaunchPlan,
+};
+pub use enforcement_adapter::{
+    process_control_capability, terminate_owned_process, EnforcementAdapterOutcome,
+    OwnedProcessTerminationTarget,
+};
+pub use enforcement_boundary::{
+    evaluate_enforcement_boundary, EnforcementAdapterRequest, EnforcementBoundaryInput,
+    EnforcementBoundaryOutcome, EnforcementBoundaryRejection,
 };
 pub use journal::ActivityJournal;
 pub use journal_crypto::{JournalKey, JOURNAL_KEY_BYTES};
@@ -117,6 +127,8 @@ mod browser_bridge_poll_tests;
 mod browser_bridge_tests;
 #[cfg(test)]
 mod browser_managed_session_tests;
+#[cfg(test)]
+mod enforcement_tests;
 #[cfg(test)]
 mod journal_tests;
 #[cfg(test)]

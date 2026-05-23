@@ -15,6 +15,7 @@ mod browser_read_model;
 mod browser_unmanaged_enforcement;
 mod browser_values;
 pub mod constants;
+mod enforcement;
 mod journal;
 mod local_ai_runtime;
 mod local_ai_runtime_boundary;
@@ -34,6 +35,7 @@ pub use browser_intervention_values::*;
 pub use browser_managed::*;
 pub use browser_read_model::*;
 pub use browser_unmanaged_enforcement::*;
+pub use enforcement::*;
 pub use journal::*;
 pub use local_ai_runtime::*;
 pub use local_ai_runtime_boundary::*;
@@ -53,6 +55,7 @@ pub const BROWSER_EVIDENCE_SCHEMA_VERSION: u16 = 1;
 pub const BROWSER_INTERVENTION_SCHEMA_VERSION: u16 = 1;
 pub const NETWORK_FLOW_SCHEMA_VERSION: u16 = 1;
 pub const SCREEN_EVIDENCE_SCHEMA_VERSION: u16 = 1;
+pub const ENFORCEMENT_SCHEMA_VERSION: u16 = 1;
 
 pub fn crate_name() -> &'static str {
     CRATE_NAME
@@ -72,6 +75,8 @@ mod browser_intervention_tests;
 mod browser_managed_tests;
 #[cfg(test)]
 mod browser_read_model_tests;
+#[cfg(test)]
+mod enforcement_tests;
 #[cfg(test)]
 mod journal_tests;
 #[cfg(test)]
