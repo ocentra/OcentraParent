@@ -15,6 +15,8 @@ import {
   EnforcementRollbackState,
   EnforcementTimerEventKind,
   EnforcementTimerEventSchema,
+  EnforcementUnavailableReason,
+  EnforcementUnavailableStatusSchema,
 } from '../src/enforcement';
 import { ParentContractSchemaVersion, ParentEvidenceReferenceKind, ParentPlatform } from '../src/reference-primitives';
 
@@ -47,6 +49,8 @@ describe('parent enforcement contracts', () => {
 
     expect(audit.result.status).toBe('actually-enforced');
     expect(audit.result.rollbackState).toBe('available');
+    expect(audit.capability.capabilityState).toBe('supported');
+    expect(audit.unavailableStatus).toBeNull();
     expect(timer).toEqual({
       schemaVersion: 'v0.6',
       timerEventId: 'timer-1',
@@ -65,6 +69,37 @@ describe('parent enforcement contracts', () => {
   it('rejects raw, unsupported enforcement result statuses', () => {
     expect(() => EnforcementResultSchema.parse(unsupportedStatusPayload())).toThrow();
   });
+
+  it('rejects unavailable results without typed unavailable status', () => {
+    expect(() => EnforcementResultSchema.parse(unavailableResultWithoutStatus())).toThrow();
+  });
+
+  it('parses unavailable result status with typed capability detail', () => {
+    const capability = unavailableCapabilityStatus();
+    const intent = enforcementIntent();
+    const action = enforcementAction(intent, capability);
+    const unavailableStatus = enforcementUnavailableStatus(capability);
+    const result = EnforcementResultSchema.parse({
+      schemaVersion: ParentContractSchemaVersion.V0_6,
+      resultId: 'result-2',
+      actionId: action.actionId,
+      status: EnforcementResultStatus.Unavailable,
+      adapterResultCode: EnforcementAdapterResultCode.UnsupportedPlatform,
+      startedAt: observedAt,
+      completedAt: observedAt,
+      rollbackToken: null,
+      rollbackState: EnforcementRollbackState.Unavailable,
+      unavailableReason: EnforcementUnavailableReason.UnsupportedPlatform,
+      unavailableStatus,
+      failedReason: null,
+      nextCheckAt: null,
+      capability,
+    });
+
+    expect(result.unavailableStatus).toEqual(unavailableStatus);
+    expect(result.unavailableStatus?.retryable).toBe(false);
+    expect(result.unavailableStatus?.capability.supportedActions).toEqual([]);
+  });
 });
 
 function capabilityStatus() {
@@ -79,6 +114,50 @@ function capabilityStatus() {
     degradedReason: null,
     lastCheckedAt: observedAt,
   });
+}
+
+function unavailableCapabilityStatus() {
+  return EnforcementCapabilityStatusSchema.parse({
+    schemaVersion: ParentContractSchemaVersion.V0_6,
+    platform: ParentPlatform.Linux,
+    adapterKind: EnforcementAdapterKind.ProcessControl,
+    capabilityState: EnforcementCapabilityState.Unavailable,
+    permissionState: 'not-required',
+    dependencyState: 'not-required',
+    supportedActions: [],
+    degradedReason: EnforcementUnavailableReason.UnsupportedPlatform,
+    lastCheckedAt: observedAt,
+  });
+}
+
+function enforcementUnavailableStatus(capability: ReturnType<typeof unavailableCapabilityStatus>) {
+  return EnforcementUnavailableStatusSchema.parse({
+    schemaVersion: ParentContractSchemaVersion.V0_6,
+    capability,
+    unavailableReason: EnforcementUnavailableReason.UnsupportedPlatform,
+    retryable: false,
+    checkedAt: observedAt,
+  });
+}
+
+function unavailableResultWithoutStatus() {
+  const capability = unavailableCapabilityStatus();
+  return {
+    schemaVersion: ParentContractSchemaVersion.V0_6,
+    resultId: 'result-2',
+    actionId: 'action-1',
+    status: EnforcementResultStatus.Unavailable,
+    adapterResultCode: EnforcementAdapterResultCode.UnsupportedPlatform,
+    startedAt: observedAt,
+    completedAt: observedAt,
+    rollbackToken: null,
+    rollbackState: EnforcementRollbackState.Unavailable,
+    unavailableReason: EnforcementUnavailableReason.UnsupportedPlatform,
+    unavailableStatus: null,
+    failedReason: null,
+    nextCheckAt: null,
+    capability,
+  };
 }
 
 function enforcementIntent() {
@@ -97,7 +176,7 @@ function enforcementIntent() {
   });
 }
 
-function enforcementAction(intent: ReturnType<typeof enforcementIntent>) {
+function enforcementAction(intent: ReturnType<typeof enforcementIntent>, capability = capabilityStatus()) {
   return EnforcementActionSchema.parse({
     schemaVersion: ParentContractSchemaVersion.V0_6,
     actionId: 'action-1',
@@ -108,6 +187,7 @@ function enforcementAction(intent: ReturnType<typeof enforcementIntent>) {
     platform: ParentPlatform.Windows,
     target,
     mode: EnforcementMode.TerminateProcess,
+    capability,
     reasonCodes: ['policy-blocked-process'],
     evidenceReferences: [evidenceReference],
     localAiResultId: null,
@@ -134,6 +214,7 @@ function enforcementResult(
     rollbackToken: action.rollbackToken,
     rollbackState: EnforcementRollbackState.Available,
     unavailableReason: null,
+    unavailableStatus: null,
     failedReason: null,
     nextCheckAt: null,
     capability,
@@ -147,6 +228,8 @@ function enforcementAudit(action: ReturnType<typeof enforcementAction>, result: 
     auditEventKind: EnforcementAuditEventKind.Succeeded,
     action,
     result,
+    capability: result.capability,
+    unavailableStatus: result.unavailableStatus,
     policyVersion: 'policy-version-1',
     evidenceReferences: [evidenceReference],
     actor: null,
@@ -184,6 +267,7 @@ function unsupportedStatusPayload() {
     rollbackToken: null,
     rollbackState: EnforcementRollbackState.NotRequired,
     unavailableReason: null,
+    unavailableStatus: null,
     failedReason: null,
     nextCheckAt: null,
     capability: {

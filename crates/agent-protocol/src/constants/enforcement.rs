@@ -21,6 +21,13 @@ pub const CAPABILITY_DEGRADED: &str = "degraded";
 pub const CAPABILITY_DRY_RUN: &str = "dry-run";
 pub const CAPABILITY_OBSERVE_ONLY: &str = "observe-only";
 
+pub const UNAVAILABLE_UNSUPPORTED_PLATFORM: &str = "unsupported-platform";
+pub const UNAVAILABLE_UNSUPPORTED_ACTION: &str = "unsupported-action";
+pub const UNAVAILABLE_MISSING_PERMISSION: &str = "missing-permission";
+pub const UNAVAILABLE_MISSING_DEPENDENCY: &str = "missing-dependency";
+pub const UNAVAILABLE_ADAPTER_UNAVAILABLE: &str = "adapter-unavailable";
+pub const UNAVAILABLE_ADAPTER_ERROR: &str = "adapter-error";
+
 pub const PERMISSION_ALLOWED: &str = "allowed";
 pub const PERMISSION_MISSING: &str = "missing-permission";
 pub const PERMISSION_NOT_REQUIRED: &str = "not-required";

@@ -3,8 +3,14 @@ use ocentra_parent_agent_protocol::{
     EnforcementAdapterResultCode, EnforcementAuditEvent, EnforcementAuditEventKind,
     EnforcementCapabilityState, EnforcementCapabilityStatus, EnforcementIntent, EnforcementMode,
     EnforcementResult, EnforcementResultStatus, EnforcementRollbackState, EnforcementTimerEvent,
-    EnforcementTimerEventKind, ParentEvidenceReference, ParentPlatform, PolicyAction,
-    PolicyDecision, PolicyTargetType,
+    EnforcementTimerEventKind, EnforcementUnavailableReason, ParentEvidenceReference,
+    ParentPlatform, PolicyAction, PolicyDecision, PolicyTargetType,
+};
+
+mod enforcement_unavailable_status;
+
+use enforcement_unavailable_status::{
+    adapter_unavailable_reason, build_unavailable_status, capability_unavailable_reason,
 };
 
 use super::enforcement_adapter::EnforcementAdapterOutcome;
@@ -49,6 +55,7 @@ struct EnforcementResultParts {
     failed_reason: Option<String>,
     rollback_token: Option<String>,
     rollback_state: EnforcementRollbackState,
+    unavailable_status_reason: Option<EnforcementUnavailableReason>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -160,6 +167,7 @@ fn enforcement_action(
         platform: capability_platform(&input.capability, &input.intent.device.platform),
         target: input.intent.target.clone(),
         mode,
+        capability: input.capability.clone(),
         reason_codes: input.decision.reason_codes.clone(),
         evidence_references: input.intent.evidence_references.clone(),
         local_ai_result_id: input.decision.local_ai_result_id.clone(),
@@ -194,11 +202,12 @@ fn enforcement_result(
                 adapter_result_code: EnforcementAdapterResultCode::AdapterUnavailable,
                 completed_at: input.completed_at.clone(),
                 unavailable_reason: Some(
-                    enforcement_constants::REJECTION_UNSUPPORTED_CAPABILITY.to_string(),
+                    enforcement_constants::UNAVAILABLE_UNSUPPORTED_ACTION.to_string(),
                 ),
                 failed_reason: None,
                 rollback_token: action.rollback_token.clone(),
                 rollback_state: EnforcementRollbackState::Unavailable,
+                unavailable_status_reason: Some(EnforcementUnavailableReason::UnsupportedAction),
             },
         ));
     }
@@ -225,6 +234,7 @@ fn dry_run_result(
             failed_reason: None,
             rollback_token: action.rollback_token.clone(),
             rollback_state: EnforcementRollbackState::NotRequired,
+            unavailable_status_reason: None,
         },
     )
 }
@@ -234,19 +244,23 @@ fn capability_state_result(
     action: &EnforcementAction,
 ) -> Option<EnforcementResult> {
     match input.capability.capability_state {
-        EnforcementCapabilityState::Unavailable => Some(result(
-            input,
-            action,
-            EnforcementResultParts {
-                status: EnforcementResultStatus::Unavailable,
-                adapter_result_code: EnforcementAdapterResultCode::UnsupportedPlatform,
-                completed_at: input.completed_at.clone(),
-                unavailable_reason: input.capability.degraded_reason.clone(),
-                failed_reason: None,
-                rollback_token: action.rollback_token.clone(),
-                rollback_state: EnforcementRollbackState::Unavailable,
-            },
-        )),
+        EnforcementCapabilityState::Unavailable => {
+            let unavailable_reason = capability_unavailable_reason(&input.capability);
+            Some(result(
+                input,
+                action,
+                EnforcementResultParts {
+                    status: EnforcementResultStatus::Unavailable,
+                    adapter_result_code: EnforcementAdapterResultCode::UnsupportedPlatform,
+                    completed_at: input.completed_at.clone(),
+                    unavailable_reason: Some(unavailable_reason.as_protocol_str().to_string()),
+                    failed_reason: None,
+                    rollback_token: action.rollback_token.clone(),
+                    rollback_state: EnforcementRollbackState::Unavailable,
+                    unavailable_status_reason: Some(unavailable_reason),
+                },
+            ))
+        }
         EnforcementCapabilityState::ObserveOnly => Some(result(
             input,
             action,
@@ -258,6 +272,7 @@ fn capability_state_result(
                 failed_reason: None,
                 rollback_token: action.rollback_token.clone(),
                 rollback_state: EnforcementRollbackState::NotRequired,
+                unavailable_status_reason: None,
             },
         )),
         EnforcementCapabilityState::Supported
@@ -286,6 +301,7 @@ fn no_adapter_action_result(
                 failed_reason: None,
                 rollback_token: action.rollback_token.clone(),
                 rollback_state: EnforcementRollbackState::NotRequired,
+                unavailable_status_reason: None,
             },
         )
     })
@@ -296,6 +312,7 @@ fn adapter_completed_result(
     action: &EnforcementAction,
     adapter_outcome: EnforcementAdapterOutcome,
 ) -> EnforcementResult {
+    let unavailable_status_reason = adapter_unavailable_reason(&adapter_outcome);
     result(
         input,
         action,
@@ -309,6 +326,7 @@ fn adapter_completed_result(
                 .rollback_token
                 .or_else(|| action.rollback_token.clone()),
             rollback_state: adapter_outcome.rollback_state,
+            unavailable_status_reason,
         },
     )
 }
@@ -329,6 +347,9 @@ fn result(
         rollback_token: parts.rollback_token,
         rollback_state: parts.rollback_state,
         unavailable_reason: parts.unavailable_reason,
+        unavailable_status: parts.unavailable_status_reason.map(|reason| {
+            build_unavailable_status(&input.decision.schema_version, &input.capability, reason)
+        }),
         failed_reason: parts.failed_reason,
         next_check_at: action.expires_at.clone(),
         capability: input.capability.clone(),
@@ -346,6 +367,8 @@ fn enforcement_audit_event(
         audit_event_kind: audit_kind(result.status),
         action: action.clone(),
         result: result.clone(),
+        capability: result.capability.clone(),
+        unavailable_status: result.unavailable_status.clone(),
         policy_version: input.policy_version.clone(),
         evidence_references: input.intent.evidence_references.clone(),
         actor: input.intent.actor.clone(),

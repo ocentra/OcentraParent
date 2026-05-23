@@ -5,8 +5,9 @@ use super::{
     EnforcementDependencyState, EnforcementIntent, EnforcementIntentSource, EnforcementMode,
     EnforcementPermissionState, EnforcementResult, EnforcementResultStatus,
     EnforcementRollbackState, EnforcementTimerEvent, EnforcementTimerEventKind,
-    ParentDeviceReference, ParentEvidenceReference, ParentEvidenceReferenceKind, ParentPlatform,
-    PolicyAction, PolicyTarget, PolicyTargetType,
+    EnforcementUnavailableReason, EnforcementUnavailableStatus, ParentDeviceReference,
+    ParentEvidenceReference, ParentEvidenceReferenceKind, ParentPlatform, PolicyAction,
+    PolicyTarget, PolicyTargetType,
 };
 
 #[test]
@@ -21,6 +22,8 @@ fn enforcement_shapes_serialize_to_parent_domain_contract_names() {
         audit_event_kind: EnforcementAuditEventKind::Succeeded,
         action: action.clone(),
         result,
+        capability,
+        unavailable_status: None,
         policy_version: policy::TEST_POLICY_VERSION.to_string(),
         evidence_references: vec![evidence()],
         actor: None,
@@ -64,6 +67,14 @@ fn enforcement_shapes_serialize_to_parent_domain_contract_names() {
         enforcement::CAPABILITY_SUPPORTED
     );
     assert_eq!(
+        serialized_audit["capability"]["capabilityState"],
+        enforcement::CAPABILITY_SUPPORTED
+    );
+    assert_eq!(
+        serialized_audit["unavailableStatus"],
+        serde_json::Value::Null
+    );
+    assert_eq!(
         serialized_timer["timerEventKind"],
         enforcement::TIMER_RESTART_RECOVERED
     );
@@ -83,6 +94,7 @@ fn unsupported_status_values_do_not_deserialize() {
         "rollbackToken": null,
         "rollbackState": enforcement::ROLLBACK_NOT_REQUIRED,
         "unavailableReason": null,
+        "unavailableStatus": null,
         "failedReason": null,
         "nextCheckAt": null,
         "capability": process_capability()
@@ -91,6 +103,31 @@ fn unsupported_status_values_do_not_deserialize() {
     let parsed = serde_json::from_value::<EnforcementResult>(payload);
 
     assert!(parsed.is_err());
+}
+
+#[test]
+fn unavailable_status_serializes_typed_capability_reason() {
+    let capability = unavailable_capability();
+    let unavailable = EnforcementUnavailableStatus {
+        schema_version: policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
+        capability,
+        unavailable_reason: EnforcementUnavailableReason::UnsupportedPlatform,
+        retryable: false,
+        checked_at: policy::TEST_EVALUATED_AT.to_string(),
+    };
+
+    let serialized =
+        serde_json::to_value(unavailable).expect(constants::error::AGENT_EVENT_SERIALIZES);
+
+    assert_eq!(
+        serialized["unavailableReason"],
+        enforcement::UNAVAILABLE_UNSUPPORTED_PLATFORM
+    );
+    assert_eq!(
+        serialized["capability"]["capabilityState"],
+        enforcement::CAPABILITY_UNAVAILABLE
+    );
+    assert_eq!(serialized["retryable"], false);
 }
 
 fn process_capability() -> EnforcementCapabilityStatus {
@@ -106,6 +143,20 @@ fn process_capability() -> EnforcementCapabilityStatus {
             EnforcementMode::TemporaryBlock,
         ],
         degraded_reason: None,
+        last_checked_at: policy::TEST_EVALUATED_AT.to_string(),
+    }
+}
+
+fn unavailable_capability() -> EnforcementCapabilityStatus {
+    EnforcementCapabilityStatus {
+        schema_version: policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
+        platform: ParentPlatform::Linux,
+        adapter_kind: EnforcementAdapterKind::ProcessControl,
+        capability_state: EnforcementCapabilityState::Unavailable,
+        permission_state: EnforcementPermissionState::NotRequired,
+        dependency_state: EnforcementDependencyState::NotRequired,
+        supported_actions: Vec::new(),
+        degraded_reason: Some(enforcement::UNAVAILABLE_UNSUPPORTED_PLATFORM.to_string()),
         last_checked_at: policy::TEST_EVALUATED_AT.to_string(),
     }
 }
@@ -137,6 +188,7 @@ fn enforcement_action(intent: &EnforcementIntent) -> EnforcementAction {
         platform: ParentPlatform::Windows,
         target: intent.target.clone(),
         mode: EnforcementMode::TerminateProcess,
+        capability: process_capability(),
         reason_codes: vec![policy::TEST_REASON_PARENT_BLOCK.to_string()],
         evidence_references: vec![evidence()],
         local_ai_result_id: None,
@@ -163,6 +215,7 @@ fn enforcement_result(
         rollback_token: action.rollback_token.clone(),
         rollback_state: EnforcementRollbackState::Available,
         unavailable_reason: None,
+        unavailable_status: None,
         failed_reason: None,
         next_check_at: None,
         capability,

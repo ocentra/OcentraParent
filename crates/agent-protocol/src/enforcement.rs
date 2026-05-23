@@ -137,6 +137,35 @@ impl EnforcementCapabilityState {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum EnforcementUnavailableReason {
+    #[serde(rename = "unsupported-platform")]
+    UnsupportedPlatform,
+    #[serde(rename = "unsupported-action")]
+    UnsupportedAction,
+    #[serde(rename = "missing-permission")]
+    MissingPermission,
+    #[serde(rename = "missing-dependency")]
+    MissingDependency,
+    #[serde(rename = "adapter-unavailable")]
+    AdapterUnavailable,
+    #[serde(rename = "adapter-error")]
+    AdapterError,
+}
+
+impl EnforcementUnavailableReason {
+    pub fn as_protocol_str(&self) -> &'static str {
+        match self {
+            Self::UnsupportedPlatform => enforcement_constants::UNAVAILABLE_UNSUPPORTED_PLATFORM,
+            Self::UnsupportedAction => enforcement_constants::UNAVAILABLE_UNSUPPORTED_ACTION,
+            Self::MissingPermission => enforcement_constants::UNAVAILABLE_MISSING_PERMISSION,
+            Self::MissingDependency => enforcement_constants::UNAVAILABLE_MISSING_DEPENDENCY,
+            Self::AdapterUnavailable => enforcement_constants::UNAVAILABLE_ADAPTER_UNAVAILABLE,
+            Self::AdapterError => enforcement_constants::UNAVAILABLE_ADAPTER_ERROR,
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum EnforcementPermissionState {
     #[serde(rename = "allowed")]
     Allowed,
@@ -381,6 +410,16 @@ pub struct EnforcementCapabilityStatus {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct EnforcementUnavailableStatus {
+    pub schema_version: String,
+    pub capability: EnforcementCapabilityStatus,
+    pub unavailable_reason: EnforcementUnavailableReason,
+    pub retryable: bool,
+    pub checked_at: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct EnforcementIntent {
     pub schema_version: String,
     pub intent_id: String,
@@ -407,6 +446,7 @@ pub struct EnforcementAction {
     pub platform: ParentPlatform,
     pub target: PolicyTarget,
     pub mode: EnforcementMode,
+    pub capability: EnforcementCapabilityStatus,
     pub reason_codes: Vec<String>,
     pub evidence_references: Vec<ParentEvidenceReference>,
     pub local_ai_result_id: Option<String>,
@@ -430,6 +470,7 @@ pub struct EnforcementResult {
     pub rollback_token: Option<String>,
     pub rollback_state: EnforcementRollbackState,
     pub unavailable_reason: Option<String>,
+    pub unavailable_status: Option<EnforcementUnavailableStatus>,
     pub failed_reason: Option<String>,
     pub next_check_at: Option<String>,
     pub capability: EnforcementCapabilityStatus,
@@ -443,6 +484,8 @@ pub struct EnforcementAuditEvent {
     pub audit_event_kind: EnforcementAuditEventKind,
     pub action: EnforcementAction,
     pub result: EnforcementResult,
+    pub capability: EnforcementCapabilityStatus,
+    pub unavailable_status: Option<EnforcementUnavailableStatus>,
     pub policy_version: String,
     pub evidence_references: Vec<ParentEvidenceReference>,
     pub actor: Option<ParentActorReference>,

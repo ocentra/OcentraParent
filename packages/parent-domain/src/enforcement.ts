@@ -47,6 +47,17 @@ const EnforcementCapabilityStateSchema = withParser(
   Schema.Literal('supported', 'unavailable', 'degraded', 'dry-run', 'observe-only')
 );
 
+const EnforcementUnavailableReasonSchema = withParser(
+  Schema.Literal(
+    'unsupported-platform',
+    'unsupported-action',
+    'missing-permission',
+    'missing-dependency',
+    'adapter-unavailable',
+    'adapter-error'
+  )
+);
+
 const EnforcementPermissionStateSchema = withParser(
   Schema.Literal('allowed', 'missing-permission', 'not-required', 'unknown')
 );
@@ -124,6 +135,16 @@ export const EnforcementCapabilityStatusSchema = withParser(
   })
 );
 
+export const EnforcementUnavailableStatusSchema = withParser(
+  Schema.Struct({
+    schemaVersion: ParentContractSchemaVersionSchema,
+    capability: EnforcementCapabilityStatusSchema,
+    unavailableReason: EnforcementUnavailableReasonSchema,
+    retryable: Schema.Boolean,
+    checkedAt: ParentTimestampSchema,
+  })
+);
+
 export const EnforcementIntentSchema = withParser(
   Schema.Struct({
     schemaVersion: ParentContractSchemaVersionSchema,
@@ -151,6 +172,7 @@ export const EnforcementActionSchema = withParser(
     platform: ParentPlatformSchema,
     target: PolicyTargetSchema,
     mode: EnforcementModeSchema,
+    capability: EnforcementCapabilityStatusSchema,
     reasonCodes: Schema.Array(PolicyReasonCodeSchema),
     evidenceReferences: Schema.Array(ParentEvidenceReferenceSchema),
     localAiResultId: Schema.Union(LocalAiResultReferenceIdSchema, Schema.Null),
@@ -162,23 +184,42 @@ export const EnforcementActionSchema = withParser(
   })
 );
 
+const EnforcementResultBaseSchema = Schema.Struct({
+  schemaVersion: ParentContractSchemaVersionSchema,
+  resultId: EnforcementResultIdSchema,
+  actionId: EnforcementActionIdSchema,
+  status: EnforcementResultStatusSchema,
+  adapterResultCode: EnforcementAdapterResultCodeSchema,
+  startedAt: ParentTimestampSchema,
+  completedAt: Schema.Union(ParentTimestampSchema, Schema.Null),
+  rollbackToken: Schema.Union(EnforcementRollbackTokenSchema, Schema.Null),
+  rollbackState: EnforcementRollbackStateSchema,
+  unavailableReason: Schema.Union(EnforcementStatusReasonSchema, Schema.Null),
+  unavailableStatus: Schema.Union(EnforcementUnavailableStatusSchema, Schema.Null),
+  failedReason: Schema.Union(EnforcementStatusReasonSchema, Schema.Null),
+  nextCheckAt: Schema.Union(ParentTimestampSchema, Schema.Null),
+  capability: EnforcementCapabilityStatusSchema,
+});
+
+type EnforcementResultCandidate = Infer<typeof EnforcementResultBaseSchema>;
+
 export const EnforcementResultSchema = withParser(
-  Schema.Struct({
-    schemaVersion: ParentContractSchemaVersionSchema,
-    resultId: EnforcementResultIdSchema,
-    actionId: EnforcementActionIdSchema,
-    status: EnforcementResultStatusSchema,
-    adapterResultCode: EnforcementAdapterResultCodeSchema,
-    startedAt: ParentTimestampSchema,
-    completedAt: Schema.Union(ParentTimestampSchema, Schema.Null),
-    rollbackToken: Schema.Union(EnforcementRollbackTokenSchema, Schema.Null),
-    rollbackState: EnforcementRollbackStateSchema,
-    unavailableReason: Schema.Union(EnforcementStatusReasonSchema, Schema.Null),
-    failedReason: Schema.Union(EnforcementStatusReasonSchema, Schema.Null),
-    nextCheckAt: Schema.Union(ParentTimestampSchema, Schema.Null),
-    capability: EnforcementCapabilityStatusSchema,
-  })
+  EnforcementResultBaseSchema.pipe(
+    Schema.filter(
+      (result) =>
+        enforcementUnavailableStatusIsConsistent(result) ||
+        'Expected unavailable enforcement results to include typed unavailable status'
+    )
+  )
 );
+
+function enforcementUnavailableStatusIsConsistent(result: EnforcementResultCandidate): boolean {
+  if (result.status === 'unavailable') {
+    return result.unavailableStatus !== null;
+  }
+
+  return result.unavailableStatus === null;
+}
 
 export const EnforcementAuditEventSchema = withParser(
   Schema.Struct({
@@ -187,6 +228,8 @@ export const EnforcementAuditEventSchema = withParser(
     auditEventKind: EnforcementAuditEventKindSchema,
     action: EnforcementActionSchema,
     result: EnforcementResultSchema,
+    capability: EnforcementCapabilityStatusSchema,
+    unavailableStatus: Schema.Union(EnforcementUnavailableStatusSchema, Schema.Null),
     policyVersion: ParentPolicyVersionSchema,
     evidenceReferences: Schema.Array(ParentEvidenceReferenceSchema),
     actor: Schema.Union(ParentActorReferenceSchema, Schema.Null),
@@ -213,6 +256,7 @@ export const EnforcementTimerEventSchema = withParser(
 );
 
 export type EnforcementCapabilityStatus = Infer<typeof EnforcementCapabilityStatusSchema>;
+export type EnforcementUnavailableStatus = Infer<typeof EnforcementUnavailableStatusSchema>;
 export type EnforcementIntent = Infer<typeof EnforcementIntentSchema>;
 export type EnforcementAction = Infer<typeof EnforcementActionSchema>;
 export type EnforcementResult = Infer<typeof EnforcementResultSchema>;
@@ -248,6 +292,15 @@ export const EnforcementCapabilityState = {
   Degraded: EnforcementCapabilityStateSchema.parse('degraded'),
   DryRun: EnforcementCapabilityStateSchema.parse('dry-run'),
   ObserveOnly: EnforcementCapabilityStateSchema.parse('observe-only'),
+} as const;
+
+export const EnforcementUnavailableReason = {
+  UnsupportedPlatform: EnforcementUnavailableReasonSchema.parse('unsupported-platform'),
+  UnsupportedAction: EnforcementUnavailableReasonSchema.parse('unsupported-action'),
+  MissingPermission: EnforcementUnavailableReasonSchema.parse('missing-permission'),
+  MissingDependency: EnforcementUnavailableReasonSchema.parse('missing-dependency'),
+  AdapterUnavailable: EnforcementUnavailableReasonSchema.parse('adapter-unavailable'),
+  AdapterError: EnforcementUnavailableReasonSchema.parse('adapter-error'),
 } as const;
 
 export const EnforcementResultStatus = {

@@ -55,7 +55,9 @@ pub fn process_control_capability(checked_at: &str) -> EnforcementCapabilityStat
             permission_state: EnforcementPermissionState::NotRequired,
             dependency_state: EnforcementDependencyState::NotRequired,
             supported_actions: Vec::new(),
-            degraded_reason: Some(enforcement_constants::ADAPTER_UNSUPPORTED_PLATFORM.to_string()),
+            degraded_reason: Some(
+                enforcement_constants::UNAVAILABLE_UNSUPPORTED_PLATFORM.to_string(),
+            ),
             last_checked_at: checked_at.to_string(),
         }
     }
