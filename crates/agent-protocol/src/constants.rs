@@ -123,6 +123,8 @@ pub mod activity_subject_kind;
 pub mod browser;
 #[path = "constants/enforcement.rs"]
 pub mod enforcement;
+#[path = "constants/lan_pairing.rs"]
+pub mod lan_pairing;
 #[path = "constants/network_flow.rs"]
 pub mod network_flow;
 

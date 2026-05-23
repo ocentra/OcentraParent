@@ -17,6 +17,8 @@ mod browser_values;
 pub mod constants;
 mod enforcement;
 mod journal;
+mod lan_pairing;
+mod lan_pairing_support;
 mod local_ai_runtime;
 mod local_ai_runtime_boundary;
 mod logging;
@@ -37,6 +39,8 @@ pub use browser_read_model::*;
 pub use browser_unmanaged_enforcement::*;
 pub use enforcement::*;
 pub use journal::*;
+pub use lan_pairing::*;
+pub use lan_pairing_support::*;
 pub use local_ai_runtime::*;
 pub use local_ai_runtime_boundary::*;
 pub use logging::*;
@@ -54,6 +58,7 @@ pub const ACTIVITY_MEMORY_GRAPH_SCHEMA_VERSION: u16 = 1;
 pub const BROWSER_EVIDENCE_SCHEMA_VERSION: u16 = 1;
 pub const BROWSER_INTERVENTION_SCHEMA_VERSION: u16 = 1;
 pub const NETWORK_FLOW_SCHEMA_VERSION: u16 = 1;
+pub const LAN_PAIRING_SCHEMA_VERSION: u16 = 1;
 pub const SCREEN_EVIDENCE_SCHEMA_VERSION: u16 = 1;
 pub const ENFORCEMENT_SCHEMA_VERSION: u16 = 1;
 
@@ -79,6 +84,8 @@ mod browser_read_model_tests;
 mod enforcement_tests;
 #[cfg(test)]
 mod journal_tests;
+#[cfg(test)]
+mod lan_pairing_tests;
 #[cfg(test)]
 mod local_ai_chat_generation_protocol_tests;
 #[cfg(test)]

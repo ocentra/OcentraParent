@@ -47,6 +47,7 @@ mod network_capture_netstat;
 mod policy_dry_run_evaluator;
 mod process_capture;
 mod screen_evidence_queue;
+mod trusted_device_registry;
 mod window_capture;
 mod window_capture_event;
 
@@ -90,6 +91,7 @@ pub use process_capture::{
     ProcessObservation,
 };
 pub use screen_evidence_queue::ScreenEvidenceQueue;
+pub use trusted_device_registry::TrustedDeviceRegistry;
 pub use window_capture::{collect_foreground_window_observation, ForegroundWindowObservation};
 pub use window_capture_event::{foreground_window_event, foreground_window_observation_event};
 
@@ -143,6 +145,8 @@ mod policy_dry_run_evaluator_rule_tests;
 mod process_capture_tests;
 #[cfg(test)]
 mod screen_evidence_queue_tests;
+#[cfg(test)]
+mod trusted_device_registry_tests;
 #[cfg(test)]
 mod window_capture_tests;
 

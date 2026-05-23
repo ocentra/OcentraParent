@@ -19,6 +19,13 @@ const port = ParentDevPort.LanWebSocketSmokeAgent;
 const allowedOrigin = createHttpOrigin(ParentDevHost.Loopback);
 const healthUrl = createAgentHealthUrl(port);
 const wsUrl = createAgentWebSocketUrl(port);
+const childDeviceId = 'child-device-integration-lan';
+const parentDeviceId = 'parent-device-integration-lan';
+const pairingId = 'pairing-integration-lan';
+const proofDigest = 'sha256:integration-lan-proof';
+const routeId = 'route-integration-lan';
+const issuedAt = '2026-05-23T14:40:00.000Z';
+const expiresAt = '2099-05-23T14:45:00.000Z';
 
 await ensurePortFree(port, isLikelyParentAgentOccupant, console.log, ParentDevHost.Wildcard);
 
@@ -73,29 +80,30 @@ async function waitForHttp(url) {
 function runWebSocketSmoke() {
   return new Promise((resolve, reject) => {
     const events = [];
-    const socket = new WebSocket(wsUrl);
+    const socket = new WebSocket(wsUrl, { headers: { Origin: allowedOrigin } });
     const timer = setTimeout(() => {
       socket.close();
       reject(new Error('LAN WebSocket smoke timed out'));
     }, 10000);
 
     socket.addEventListener('open', () => {
-      socket.send(
-        JSON.stringify({
-          schemaVersion: 1,
-          messageId: 'cmd-integration-lan-health',
-          sentAt: new Date().toISOString(),
-          source: { peerId: 'portal-dev', role: 'portal' },
-          target: { deviceId: 'local-dev-agent', platform: 'windows', route: 'local-network' },
-          command: 'agent.health.check',
-          payload: {},
-        })
-      );
+      socket.send(JSON.stringify(buildPairingCommand()));
     });
 
     socket.addEventListener('message', (message) => {
       const parsed = AgentEventEnvelopeSchema.parse(JSON.parse(String(message.data)));
       events.push(parsed.event);
+      if (parsed.event === 'agent.command.rejected') {
+        clearTimeout(timer);
+        socket.close();
+        reject(new Error(`LAN WebSocket smoke rejected command: ${JSON.stringify(parsed.payload)}`));
+        return;
+      }
+      if (parsed.event === 'agent.lan-pairing.status.reported') {
+        assertLanSupportSurface(parsed.payload);
+        socket.send(JSON.stringify(buildPairedHealthCommand()));
+        return;
+      }
       if (parsed.event === 'agent.health.reported') {
         clearTimeout(timer);
         socket.close();
@@ -108,6 +116,77 @@ function runWebSocketSmoke() {
       reject(new Error('LAN WebSocket smoke failed'));
     });
   });
+}
+
+function assertLanSupportSurface(payload) {
+  assertPayloadValue(payload, 'transport', 'websocket');
+  assertPayloadValue(
+    payload,
+    'supportedWebSocketCommands',
+    'agent.lan-pairing.proof.submit,agent.lan-pairing.status.get'
+  );
+  assertPayloadValue(
+    payload,
+    'unsupportedHttpEndpoints',
+    '/api/lan-pairing/discovery,/api/lan-pairing/challenge,/api/lan-pairing/proof,/api/lan-pairing/control,/api/lan-pairing/registry'
+  );
+  assertPayloadValue(payload, 'persistenceMode', 'in-memory-fail-closed');
+  assertPayloadValue(payload, 'proofMode', 'direct-proof-submit');
+  assertPayloadValue(
+    payload,
+    'routeRequirements',
+    'paired-device,allowed-origin,target-device-match,route-id-match,unexpired-intent,non-replayed-intent,unrevoked-pairing'
+  );
+  assertPayloadValue(
+    payload,
+    'manualProofGaps',
+    'manual-lan-bind-proof,manual-firewall-proof,manual-physical-device-proof'
+  );
+}
+
+function assertPayloadValue(payload, key, expected) {
+  if (payload[key] !== expected) {
+    throw new Error(`Expected LAN payload ${key}=${expected}, received ${payload[key]}`);
+  }
+}
+
+function buildPairingCommand() {
+  return buildCommand('cmd-integration-lan-pairing', 'agent.lan-pairing.proof.submit', {
+    pairingId,
+    challengeId: 'challenge-integration-lan',
+    childDeviceId,
+    parentDeviceId,
+    routeId,
+    origin: allowedOrigin,
+    proofDigest,
+    startedAt: issuedAt,
+    staleAt: expiresAt,
+  });
+}
+
+function buildPairedHealthCommand() {
+  return buildCommand('cmd-integration-lan-health', 'agent.health.check', {
+    intentId: 'intent-integration-lan-health',
+    pairingId,
+    childDeviceId,
+    routeId,
+    origin: allowedOrigin,
+    proofDigest,
+    startedAt: issuedAt,
+    staleAt: expiresAt,
+  });
+}
+
+function buildCommand(messageId, command, payload) {
+  return {
+    schemaVersion: 1,
+    messageId,
+    sentAt: new Date().toISOString(),
+    source: { peerId: 'portal-dev', role: 'portal' },
+    target: { deviceId: childDeviceId, platform: 'windows', route: 'local-network' },
+    command,
+    payload,
+  };
 }
 
 function stopProcess(child) {
