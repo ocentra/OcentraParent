@@ -20,6 +20,21 @@ pub(crate) fn accepted_control_audit_fields(
     )
 }
 
+pub(crate) fn selected_route_audit_fields(
+    command: &AgentCommandEnvelope,
+    intent: &LanParentIntentEnvelope,
+    origin: Option<&str>,
+) -> LogFields {
+    control_audit_fields(
+        command,
+        constants::value::LAN_CONTROL_ACCEPTED,
+        constants::value::LAN_AUDIT_ROUTE_SELECTED,
+        None,
+        Some(intent),
+        origin,
+    )
+}
+
 pub(crate) fn rejected_control_audit_fields(
     command: &AgentCommandEnvelope,
     reason: &LanPairingRejectionReason,
@@ -72,6 +87,10 @@ fn control_audit_fields(
         (
             constants::field::LAN_CHILD_DEVICE_ID,
             LogFieldValue::String(command.target.device_id.clone()),
+        ),
+        (
+            constants::field::LAN_AUTHENTICATION_STATE,
+            LogFieldValue::String(authentication_state_value(reason).to_string()),
         ),
     ];
 
@@ -132,5 +151,20 @@ fn reason_value(reason: &LanPairingRejectionReason) -> &'static str {
         LanPairingRejectionReason::UnsupportedRoute => {
             constants::value::LAN_REASON_UNSUPPORTED_ROUTE
         }
+        LanPairingRejectionReason::UnselectedDevice => {
+            constants::value::LAN_REASON_UNSELECTED_DEVICE
+        }
+    }
+}
+
+fn authentication_state_value(reason: Option<&LanPairingRejectionReason>) -> &'static str {
+    match reason {
+        None => constants::value::LAN_AUTH_PAIRED,
+        Some(LanPairingRejectionReason::Anonymous)
+        | Some(LanPairingRejectionReason::Malformed)
+        | Some(LanPairingRejectionReason::WrongOrigin) => {
+            constants::value::LAN_AUTH_UNAUTHENTICATED
+        }
+        Some(_) => constants::value::LAN_AUTH_PAIRED,
     }
 }

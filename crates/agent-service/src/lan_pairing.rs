@@ -3,14 +3,17 @@ use std::sync::{Arc, Mutex};
 use ocentra_parent_agent_core::TrustedDeviceRegistry;
 use ocentra_parent_agent_protocol::{
     constants, AgentCommandEnvelope, AgentCommandName, AgentEventEnvelope, AgentEventName,
-    AgentRoute, LanPairingDeviceRef, LanPairingIntentKind, LanPairingProof,
-    LanPairingRejectionReason, LanParentIntentEnvelope, LogFieldValue, LogFields, LogLevel,
+    AgentRoute, LanPairingDeviceRef, LanPairingRejectionReason, LanParentIntentEnvelope,
+    LanSelectedRouteTarget, LogFields, LogLevel,
 };
 
 use crate::{
     event_builder::build_event,
-    fields::fields_from_pairs,
-    lan_pairing_audit::{accepted_control_audit_fields, rejected_control_audit_fields},
+    lan_pairing_audit::{
+        accepted_control_audit_fields, rejected_control_audit_fields, selected_route_audit_fields,
+    },
+    lan_pairing_payload::{parse_intent, parse_pairing_proof},
+    lan_pairing_status::pairing_status_event,
     time::timestamp_now,
 };
 
@@ -39,6 +42,20 @@ impl LanPairingRuntime {
             .lock()
             .map(|registry| registry.entries().len())
             .unwrap_or(0)
+    }
+
+    pub fn selected_target(&self) -> Option<LanSelectedRouteTarget> {
+        self.registry
+            .lock()
+            .ok()
+            .and_then(|registry| registry.selected_target())
+    }
+
+    pub fn trusted_device_ids(&self) -> Vec<String> {
+        self.registry
+            .lock()
+            .map(|registry| registry.trusted_device_ids())
+            .unwrap_or_default()
     }
 
     #[cfg(test)]
@@ -72,6 +89,10 @@ pub async fn route_lan_command(
         return LanCommandDecision::Respond(submit_pairing_proof(runtime, command).await);
     }
 
+    if command.command == AgentCommandName::AgentLanPairingRouteSelect {
+        return LanCommandDecision::Respond(lan_pairing_route_select(runtime, origin, command));
+    }
+
     if command.command == AgentCommandName::AgentLanPairingStatusGet {
         return LanCommandDecision::Respond(lan_pairing_status_get(runtime, origin, command));
     }
@@ -89,8 +110,7 @@ pub fn build_lan_pairing_status_report(
     runtime: LanPairingRuntime,
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
-    let (state, count) = pairing_state(&runtime);
-    pairing_status_event(command, state, count)
+    pairing_status_event(&runtime, command)
 }
 
 async fn submit_pairing_proof(
@@ -102,7 +122,7 @@ async fn submit_pairing_proof(
             let child_device = device_ref(&proof.child_device_id, &command.target.platform);
             let parent_device = device_ref(&proof.parent_device_id, &command.target.platform);
             let trusted_at = timestamp_now();
-            let count = runtime
+            runtime
                 .registry
                 .lock()
                 .map(|mut registry| {
@@ -110,9 +130,33 @@ async fn submit_pairing_proof(
                     registry.entries().len()
                 })
                 .unwrap_or(0);
-            pairing_status_event(command, constants::value::LAN_PAIRING_PAIRED, count)
+            pairing_status_event(&runtime, command)
         }
         Err(reason) => rejection_event(command, reason, None, None),
+    }
+}
+
+fn lan_pairing_route_select(
+    runtime: LanPairingRuntime,
+    origin: Option<String>,
+    command: AgentCommandEnvelope,
+) -> AgentEventEnvelope {
+    let observed_origin = origin.as_deref();
+    match parse_intent(&command.payload, &command) {
+        Ok(intent) => match validate_selection_intent_result(&runtime, observed_origin, &intent) {
+            Ok(()) => match select_pairing_result(&runtime, &intent) {
+                Ok(()) => {
+                    let audit_fields =
+                        selected_route_audit_fields(&command, &intent, observed_origin);
+                    let mut event = pairing_status_event(&runtime, command);
+                    event.payload.extend(audit_fields);
+                    event
+                }
+                Err(reason) => rejection_event(command, reason, Some(&intent), observed_origin),
+            },
+            Err(reason) => rejection_event(command, reason, Some(&intent), observed_origin),
+        },
+        Err(reason) => rejection_event(command, reason, None, observed_origin),
     }
 }
 
@@ -123,12 +167,11 @@ fn lan_pairing_status_get(
 ) -> AgentEventEnvelope {
     let observed_origin = origin.as_deref();
     match parse_intent(&command.payload, &command) {
-        Ok(intent) => match validate_intent_result(&runtime, observed_origin, &intent) {
+        Ok(intent) => match validate_selection_intent_result(&runtime, observed_origin, &intent) {
             Ok(()) => {
                 let audit_fields =
                     accepted_control_audit_fields(&command, &intent, observed_origin);
-                let (state, count) = pairing_state(&runtime);
-                let mut event = pairing_status_event(command, state, count);
+                let mut event = pairing_status_event(&runtime, command);
                 event.payload.extend(audit_fields);
                 event
             }
@@ -168,53 +211,35 @@ fn validate_intent_result(
         .unwrap_or(Err(LanPairingRejectionReason::Malformed))
 }
 
-fn parse_pairing_proof(fields: &LogFields) -> Result<LanPairingProof, LanPairingRejectionReason> {
-    Ok(LanPairingProof {
-        schema_version: constants::lan_pairing::SCHEMA_VERSION,
-        pairing_id: required_string(fields, constants::field::LAN_PAIRING_ID)?,
-        challenge_id: required_string(fields, constants::field::LAN_CHALLENGE_ID)?,
-        child_device_id: required_string(fields, constants::field::LAN_CHILD_DEVICE_ID)?,
-        parent_device_id: required_string(fields, constants::field::LAN_PARENT_DEVICE_ID)?,
-        route_id: required_string(fields, constants::field::LAN_ROUTE_ID)?,
-        origin: required_string(fields, constants::field::ORIGIN)?,
-        proof_digest: required_string(fields, constants::field::LAN_PROOF_DIGEST)?,
-        issued_at: required_string(fields, constants::field::STARTED_AT)?,
-        expires_at: required_string(fields, constants::field::STALE_AT)?,
-    })
+fn validate_selection_intent_result(
+    runtime: &LanPairingRuntime,
+    origin: Option<&str>,
+    intent: &LanParentIntentEnvelope,
+) -> Result<(), LanPairingRejectionReason> {
+    let observed_at = timestamp_now();
+    runtime
+        .registry
+        .lock()
+        .map(|mut registry| registry.validate_selection_intent(intent, origin, &observed_at))
+        .unwrap_or(Err(LanPairingRejectionReason::Malformed))
 }
 
-fn parse_intent(
-    fields: &LogFields,
-    command: &AgentCommandEnvelope,
-) -> Result<LanParentIntentEnvelope, LanPairingRejectionReason> {
-    let pairing_id = required_anonymous_string(fields, constants::field::LAN_PAIRING_ID)?;
-    let proof_digest = required_anonymous_string(fields, constants::field::LAN_PROOF_DIGEST)?;
-    Ok(LanParentIntentEnvelope {
-        schema_version: constants::lan_pairing::SCHEMA_VERSION,
-        intent_id: required_string(fields, constants::field::LAN_INTENT_ID)?,
-        intent_kind: LanPairingIntentKind::HealthQuery,
-        target_child_device_id: command.target.device_id.clone(),
-        route_id: required_string(fields, constants::field::LAN_ROUTE_ID)?,
-        pairing_id,
-        proof_digest,
-        origin: required_string(fields, constants::field::ORIGIN)?,
-        issued_at: required_string(fields, constants::field::STARTED_AT)?,
-        expires_at: required_string(fields, constants::field::STALE_AT)?,
-    })
-}
-
-fn required_anonymous_string(
-    fields: &LogFields,
-    key: &str,
-) -> Result<String, LanPairingRejectionReason> {
-    required_string(fields, key).map_err(|_| LanPairingRejectionReason::Anonymous)
-}
-
-fn required_string(fields: &LogFields, key: &str) -> Result<String, LanPairingRejectionReason> {
-    match fields.get(key) {
-        Some(LogFieldValue::String(value)) if !value.is_empty() => Ok(value.clone()),
-        _ => Err(LanPairingRejectionReason::Malformed),
-    }
+fn select_pairing_result(
+    runtime: &LanPairingRuntime,
+    intent: &LanParentIntentEnvelope,
+) -> Result<(), LanPairingRejectionReason> {
+    runtime
+        .registry
+        .lock()
+        .map(|mut registry| {
+            registry.select_pairing(
+                &intent.pairing_id,
+                &intent.target_child_device_id,
+                &intent.route_id,
+            )
+        })
+        .unwrap_or(Err(LanPairingRejectionReason::Malformed))
+        .map(|_| ())
 }
 
 fn rejection_event(
@@ -233,83 +258,6 @@ fn rejection_event(
         payload,
         None,
     )
-}
-
-fn pairing_status_event(
-    command: AgentCommandEnvelope,
-    state: &str,
-    count: usize,
-) -> AgentEventEnvelope {
-    build_event(
-        constants::lan_pairing::EVENT_STATUS_REPORTED,
-        &command.message_id,
-        command.source,
-        AgentEventName::AgentLanPairingStatusReported,
-        LogLevel::Info,
-        fields_from_pairs(vec![
-            (
-                constants::field::TRANSPORT,
-                LogFieldValue::String(constants::value::TRANSPORT_WEBSOCKET.to_string()),
-            ),
-            (
-                constants::field::LAN_SUPPORTED_WEBSOCKET_COMMANDS,
-                LogFieldValue::String(
-                    constants::lan_pairing::SUPPORTED_WEBSOCKET_COMMANDS
-                        .join(&constants::delimiter::LIST.to_string()),
-                ),
-            ),
-            (
-                constants::field::LAN_UNSUPPORTED_HTTP_ENDPOINTS,
-                LogFieldValue::String(
-                    constants::lan_pairing::PLANNED_HTTP_ENDPOINT_PATHS
-                        .join(&constants::delimiter::LIST.to_string()),
-                ),
-            ),
-            (
-                constants::field::LAN_PERSISTENCE_MODE,
-                LogFieldValue::String(
-                    constants::value::LAN_PERSISTENCE_IN_MEMORY_FAIL_CLOSED.to_string(),
-                ),
-            ),
-            (
-                constants::field::LAN_PROOF_MODE,
-                LogFieldValue::String(constants::value::LAN_PROOF_DIRECT_PROOF_SUBMIT.to_string()),
-            ),
-            (
-                constants::field::LAN_ROUTE_REQUIREMENTS,
-                LogFieldValue::String(
-                    constants::lan_pairing::ROUTE_REQUIREMENTS
-                        .join(&constants::delimiter::LIST.to_string()),
-                ),
-            ),
-            (
-                constants::field::LAN_MANUAL_PROOF_GAPS,
-                LogFieldValue::String(
-                    constants::lan_pairing::MANUAL_PROOF_GAPS
-                        .join(&constants::delimiter::LIST.to_string()),
-                ),
-            ),
-            (
-                constants::field::LAN_PAIRING_STATE,
-                LogFieldValue::String(state.to_string()),
-            ),
-            (
-                constants::field::LAN_TRUSTED_DEVICE_COUNT,
-                LogFieldValue::Number(count as f64),
-            ),
-        ]),
-        None,
-    )
-}
-
-fn pairing_state(runtime: &LanPairingRuntime) -> (&'static str, usize) {
-    let count = runtime.trusted_device_count();
-    let state = if count > 0 {
-        constants::value::LAN_PAIRING_PAIRED
-    } else {
-        constants::value::LAN_PAIRING_UNPAIRED
-    };
-    (state, count)
 }
 
 fn device_ref(device_id: &str, platform: &str) -> LanPairingDeviceRef {

@@ -19,6 +19,14 @@ pub enum LanPairingTrustState {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
+pub enum LanPairingAuthenticationState {
+    Unauthenticated,
+    Unpaired,
+    Paired,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
 pub enum LanPairingDeviceReachability {
     Online,
     Offline,
@@ -57,6 +65,7 @@ pub enum LanPairingRejectionReason {
     Revoked,
     LocalNetworkDisabled,
     UnsupportedRoute,
+    UnselectedDevice,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -68,6 +77,7 @@ pub enum LanPairingAuditEventType {
     PairingProofRejected,
     ControlAccepted,
     ControlRejected,
+    RouteSelected,
     PairingRevoked,
     SelectedDeviceChanged,
 }
@@ -158,6 +168,44 @@ pub struct LanSelectedRouteTarget {
     pub network_mode: LanPairingNetworkMode,
     pub reachability: LanPairingDeviceReachability,
     pub stale_at: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LanTrustedDeviceRegistrySnapshot {
+    pub schema_version: u16,
+    pub entries: Vec<LanTrustedDeviceRegistryEntry>,
+    pub selected_target: Option<LanSelectedRouteTarget>,
+    pub authentication_state: LanPairingAuthenticationState,
+    pub trusted_device_count: u32,
+    pub updated_at: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LanPairingRouteSelectionRequest {
+    pub schema_version: u16,
+    pub pairing_id: String,
+    pub target_child_device_id: String,
+    pub route_id: String,
+    pub origin: String,
+    pub issued_at: String,
+    pub expires_at: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LanPairingRoutingDecision {
+    pub schema_version: u16,
+    pub intent_id: Option<String>,
+    pub target_child_device_id: String,
+    pub route_id: String,
+    pub pairing_id: Option<String>,
+    pub authentication_state: LanPairingAuthenticationState,
+    pub state: LanPairingResponseState,
+    pub rejection_reason: Option<LanPairingRejectionReason>,
+    pub audit_event_id: String,
+    pub decided_at: String,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

@@ -1,8 +1,13 @@
 pub const COMMAND_PROOF_SUBMIT: &str = "agent.lan-pairing.proof.submit";
+pub const COMMAND_ROUTE_SELECT: &str = "agent.lan-pairing.route.select";
 pub const COMMAND_STATUS_GET: &str = "agent.lan-pairing.status.get";
 pub const EVENT_STATUS_REPORTED: &str = "agent.lan-pairing.status.reported";
 pub const EVENT_AUDIT_REPORTED: &str = "agent.lan-pairing.audit.reported";
-pub const SUPPORTED_WEBSOCKET_COMMANDS: &[&str] = &[COMMAND_PROOF_SUBMIT, COMMAND_STATUS_GET];
+pub const SUPPORTED_WEBSOCKET_COMMANDS: &[&str] = &[
+    COMMAND_PROOF_SUBMIT,
+    COMMAND_ROUTE_SELECT,
+    COMMAND_STATUS_GET,
+];
 
 pub const PLANNED_HTTP_ENDPOINT_DISCOVERY_ID: &str = "lan-pairing.discovery";
 pub const PLANNED_HTTP_ENDPOINT_CHALLENGE_ID: &str = "lan-pairing.challenge";
@@ -51,15 +56,24 @@ pub const MANUAL_PROOF_GAPS: &[&str] = &[
 pub const SCHEMA_VERSION: u16 = 1;
 pub const SCHEMA_VERSION_TEXT: &str = "v0.9";
 pub const ROUTE_ID_LOCAL_NETWORK: &str = "lan-route-local-network";
+pub const ROUTE_ID_SECOND_LOCAL_NETWORK: &str = "lan-route-second-local-network";
 pub const ROUTE_ID_UNSUPPORTED: &str = "lan-route-unsupported";
 pub const CHILD_DEVICE_ID: &str = "child-device-1";
+pub const SECOND_CHILD_DEVICE_ID: &str = "child-device-2";
 pub const PARENT_DEVICE_ID: &str = "parent-device-1";
 pub const PARENT_PEER_ID: &str = "portal-dev";
 pub const PAIRING_ID: &str = "pairing-1";
+pub const SECOND_PAIRING_ID: &str = "pairing-2";
 pub const CHALLENGE_ID: &str = "challenge-1";
+pub const SECOND_CHALLENGE_ID: &str = "challenge-2";
 pub const PROOF_DIGEST: &str = "sha256:proof-digest";
+pub const SECOND_PROOF_DIGEST: &str = "sha256:second-proof-digest";
 pub const OTHER_PROOF_DIGEST: &str = "sha256:other-proof-digest";
 pub const INTENT_ID: &str = "intent-1";
+pub const SECOND_INTENT_ID: &str = "intent-2";
+pub const SELECT_INTENT_ID: &str = "intent-select-1";
+pub const SECOND_SELECT_INTENT_ID: &str = "intent-select-2";
+pub const SELECT_BACK_INTENT_ID: &str = "intent-select-back";
 pub const REPLAYED_INTENT_ID: &str = "intent-replayed";
 pub const AUDIT_EVENT_ID: &str = "lan-audit-1";
 pub const ALLOWED_ORIGIN: &str = "http://127.0.0.1:4478";

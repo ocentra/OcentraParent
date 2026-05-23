@@ -80,6 +80,7 @@ async function waitForHttp(url) {
 function runWebSocketSmoke() {
   return new Promise((resolve, reject) => {
     const events = [];
+    let routeSelected = false;
     const socket = new WebSocket(wsUrl, { headers: { Origin: allowedOrigin } });
     const timer = setTimeout(() => {
       socket.close();
@@ -101,6 +102,11 @@ function runWebSocketSmoke() {
       }
       if (parsed.event === 'agent.lan-pairing.status.reported') {
         assertLanSupportSurface(parsed.payload);
+        if (!routeSelected) {
+          routeSelected = true;
+          socket.send(JSON.stringify(buildRouteSelectCommand()));
+          return;
+        }
         socket.send(JSON.stringify(buildPairedHealthCommand()));
         return;
       }
@@ -123,7 +129,7 @@ function assertLanSupportSurface(payload) {
   assertPayloadValue(
     payload,
     'supportedWebSocketCommands',
-    'agent.lan-pairing.proof.submit,agent.lan-pairing.status.get'
+    'agent.lan-pairing.proof.submit,agent.lan-pairing.route.select,agent.lan-pairing.status.get'
   );
   assertPayloadValue(
     payload,
@@ -167,6 +173,19 @@ function buildPairingCommand() {
 function buildPairedHealthCommand() {
   return buildCommand('cmd-integration-lan-health', 'agent.health.check', {
     intentId: 'intent-integration-lan-health',
+    pairingId,
+    childDeviceId,
+    routeId,
+    origin: allowedOrigin,
+    proofDigest,
+    startedAt: issuedAt,
+    staleAt: expiresAt,
+  });
+}
+
+function buildRouteSelectCommand() {
+  return buildCommand('cmd-integration-lan-route-select', 'agent.lan-pairing.route.select', {
+    intentId: 'intent-integration-lan-route-select',
     pairingId,
     childDeviceId,
     routeId,

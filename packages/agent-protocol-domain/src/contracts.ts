@@ -79,6 +79,7 @@ export const AgentCommandNameSchema = withParser(
     'agent.local-ai.chat.generate',
     'agent.policy.preview.read-model.get',
     'agent.lan-pairing.proof.submit',
+    'agent.lan-pairing.route.select',
     'agent.lan-pairing.status.get'
   )
 );
@@ -162,11 +163,13 @@ export const AgentCommand = {
   LocalAiChatGenerate: AgentCommandNameSchema.parse('agent.local-ai.chat.generate'),
   PolicyPreviewReadModelGet: AgentCommandNameSchema.parse('agent.policy.preview.read-model.get'),
   LanPairingProofSubmit: AgentCommandNameSchema.parse('agent.lan-pairing.proof.submit'),
+  LanPairingRouteSelect: AgentCommandNameSchema.parse('agent.lan-pairing.route.select'),
   LanPairingStatusGet: AgentCommandNameSchema.parse('agent.lan-pairing.status.get'),
 } as const;
 
 export const AgentLanPairingSupportedWebSocketCommand = {
   ProofSubmit: AgentCommand.LanPairingProofSubmit,
+  RouteSelect: AgentCommand.LanPairingRouteSelect,
   StatusGet: AgentCommand.LanPairingStatusGet,
 } as const;
 
