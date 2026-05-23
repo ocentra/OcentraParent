@@ -1,4 +1,14 @@
 import { PortalRoute, type PortalRoute as PortalRouteValue } from './routes';
+import {
+  PARENT_LEADERBOARD_COPY_NAV_GROUPS,
+  PARENT_LEADERBOARD_COPY_NAV_ITEMS,
+  type ParentLeaderboardCopyNavGroup,
+  type ParentLeaderboardCopyNavItem,
+} from './parent-leaderboard-copy-nav';
+import {
+  PARENT_LEADERBOARD_COPY_GUIDE_TOPICS,
+  type ParentLeaderboardCopyGuideTopic,
+} from './parent-leaderboard-copy-guides';
 
 export type ParentLeaderboardCopyTone = 'cyan' | 'gold' | 'purple' | 'red' | 'muted';
 export type ParentLeaderboardCopyTabId = 'overall' | 'perGame' | 'aiBenchmarks' | 'tournaments' | 'friends';
@@ -38,13 +48,8 @@ export type ParentLeaderboardCopyContent = {
     label: string;
     title: string;
   }>;
-  navItems: Array<{
-    label: string;
-    detail: string;
-    icon: ParentLeaderboardCopyIconName;
-    tabId: ParentLeaderboardCopyTabId;
-    tone?: ParentLeaderboardCopyTone;
-  }>;
+  navGroups: readonly ParentLeaderboardCopyNavGroup[];
+  navItems: readonly ParentLeaderboardCopyNavItem[];
   tabDetails: Record<
     ParentLeaderboardCopyTabId,
     {
@@ -80,6 +85,7 @@ export type ParentLeaderboardCopyContent = {
     gameType: number;
     routePath: string;
   }>;
+  guideTopics: readonly ParentLeaderboardCopyGuideTopic[];
   fallbackRows: ParentLeaderboardCopyRow[];
   aiBenchmarkRows: ParentLeaderboardCopyRow[];
   distributionLabels: string[];
@@ -165,23 +171,23 @@ export const PARENT_LEADERBOARD_COPY_ROUTE = {
 export const PARENT_LEADERBOARD_COPY_ROUTE_CONTEXT: Readonly<
   Partial<Record<PortalRouteValue, ParentLeaderboardCopyRouteContext>>
 > = {
-  [PortalRoute.Overview]: routeContext('leaderboard', 'TODAY', 'managed-web'),
-  [PortalRoute.LeaderboardCopy]: routeContext('leaderboard', 'TODAY', 'managed-web'),
-  [PortalRoute.Activity]: routeContext('leaderboard', 'TODAY', 'activity-store'),
-  [PortalRoute.Browser]: routeContext('gameLeaderboard', 'BROWSERS', 'managed-web'),
+  [PortalRoute.Overview]: routeContext('leaderboard', 'OVERVIEW', 'activity-store'),
+  [PortalRoute.LeaderboardCopy]: routeContext('leaderboard', 'START HERE', 'setup-overall'),
+  [PortalRoute.Activity]: routeContext('leaderboard', 'ACTIVITY', 'activity-store'),
+  [PortalRoute.Browser]: routeContext('gameLeaderboard', 'WEB', 'managed-web'),
   [PortalRoute.Policy]: routeContext('gameLeaderboard', 'RULES', 'policy-action'),
   [PortalRoute.PrivacyDesign]: routeContext('aiBenchmarkLeaderboard', 'PRIVATE', 'privacy-design'),
   [PortalRoute.Memory]: routeContext('aiBenchmarkLeaderboard', 'MEMORY', 'memory-citations'),
-  [PortalRoute.AiRuntime]: routeContext('aiBenchmarkLeaderboard', 'LOCAL AI', 'local-ai'),
+  [PortalRoute.AiRuntime]: routeContext('aiBenchmarkLeaderboard', 'AI SETUP', 'api-providers'),
   [PortalRoute.Devices]: routeContext('gameLeaderboard', 'DEVICES', 'device-pairing'),
   [PortalRoute.Notifications]: routeContext('gameLeaderboard', 'ALERTS', 'notifications'),
   [PortalRoute.DriveConnections]: routeContext('gameLeaderboard', 'DRIVES', 'drive-exports'),
-  [PortalRoute.Diagnostics]: routeContext('gameLeaderboard', 'SUPPORT', 'support-exports'),
+  [PortalRoute.Diagnostics]: routeContext('gameLeaderboard', 'SUPPORT', 'support-api-status'),
   [PortalRoute.SettingsRules]: routeContext('gameLeaderboard', 'SETTINGS', 'family-settings'),
 } as const;
 
 export function parentLeaderboardCopyRouteContext(route: PortalRouteValue): ParentLeaderboardCopyRouteContext {
-  return PARENT_LEADERBOARD_COPY_ROUTE_CONTEXT[route] ?? routeContext('leaderboard', 'TODAY', 'managed-web');
+  return PARENT_LEADERBOARD_COPY_ROUTE_CONTEXT[route] ?? routeContext('leaderboard', 'OVERVIEW', 'managed-web');
 }
 
 export const PARENT_LEADERBOARD_COPY_ROWS: ParentLeaderboardCopyRow[] = [
@@ -231,7 +237,7 @@ export const PARENT_LEADERBOARD_COPY_ROWS: ParentLeaderboardCopyRow[] = [
     score: 2865,
     wins: 12,
     losses: 5,
-    bestGame: 'Local AI',
+    bestGame: 'AI',
     trend: '+1',
     tone: 'cyan',
   },
@@ -291,23 +297,12 @@ export const PARENT_LEADERBOARD_COPY_CONTENT: ParentLeaderboardCopyContent = {
   tabs: [
     { id: 'overall', label: 'OVERVIEW', title: 'PARENT COMMAND OVERVIEW' },
     { id: 'perGame', label: 'CONTROL AREAS', title: 'DEVICE CONTROL AREAS' },
-    { id: 'aiBenchmarks', label: 'LOCAL AI', title: 'LOCAL AI READINESS' },
+    { id: 'aiBenchmarks', label: 'AI', title: 'AI READINESS' },
     { id: 'tournaments', label: 'SCHEDULES', title: 'SCHEDULES AND APPROVALS' },
     { id: 'friends', label: 'SUPPORT', title: 'SUPPORT AND EXPORTS' },
   ],
-  navItems: [
-    { label: 'TODAY', detail: 'Recent child-device state', icon: 'activity', tabId: 'overall', tone: 'cyan' },
-    { label: 'BROWSERS', detail: 'Supported and unsupported', icon: 'shield', tabId: 'perGame', tone: 'cyan' },
-    { label: 'RULES', detail: 'Allow, ask, explain, block', icon: 'grid', tabId: 'perGame', tone: 'gold' },
-    { label: 'MEMORY', detail: 'Cited local knowledge', icon: 'circle', tabId: 'aiBenchmarks', tone: 'purple' },
-    { label: 'LOCAL AI', detail: 'Private explanations', icon: 'bot', tabId: 'aiBenchmarks', tone: 'cyan' },
-    { label: 'PRIVATE', detail: 'Data stays local', icon: 'shield', tabId: 'aiBenchmarks', tone: 'gold' },
-    { label: 'DEVICES', detail: 'Child device pairing', icon: 'gamepad', tabId: 'tournaments', tone: 'cyan' },
-    { label: 'ALERTS', detail: 'Parent notifications', icon: 'gift', tabId: 'tournaments', tone: 'red' },
-    { label: 'DRIVES', detail: 'Connect your drives', icon: 'trophy', tabId: 'friends', tone: 'gold' },
-    { label: 'SUPPORT', detail: 'Diagnostics and help', icon: 'users', tabId: 'friends', tone: 'cyan' },
-    { label: 'SETTINGS', detail: 'Family defaults', icon: 'crown', tabId: 'tournaments', tone: 'cyan' },
-  ],
+  navGroups: PARENT_LEADERBOARD_COPY_NAV_GROUPS,
+  navItems: PARENT_LEADERBOARD_COPY_NAV_ITEMS,
   tabDetails: {
     overall: {
       eyebrow: 'Family command',
@@ -328,12 +323,12 @@ export const PARENT_LEADERBOARD_COPY_CONTENT: ParentLeaderboardCopyContent = {
       tone: 'gold',
     },
     aiBenchmarks: {
-      eyebrow: 'Local AI',
-      title: 'Private explanations and memory',
-      summary: 'Use local AI for explanation and summaries when available, without making hidden policy decisions.',
+      eyebrow: 'AI',
+      title: 'Local models, API providers, and memory',
+      summary: 'Use local AI first, allow API AI only when a parent chooses provider, data scope, and device policy.',
       primary: 'Evidence cited',
-      secondary: 'Raw private content stays local',
-      action: 'Open local AI',
+      secondary: 'Per-device model and provider choices',
+      action: 'Open AI setup',
       tone: 'red',
     },
     tournaments: {
@@ -366,7 +361,7 @@ export const PARENT_LEADERBOARD_COPY_CONTENT: ParentLeaderboardCopyContent = {
       category: 'Browser',
       subcategory: 'Supported browsers',
       gameType: 1,
-      routePath: '/parent/managed-web',
+      routePath: '#/browser',
     },
     {
       id: 'browser-gap',
@@ -378,7 +373,7 @@ export const PARENT_LEADERBOARD_COPY_CONTENT: ParentLeaderboardCopyContent = {
       category: 'Browser',
       subcategory: 'Unsupported browsers',
       gameType: 2,
-      routePath: '/parent/browser-gap',
+      routePath: '#/browser',
     },
     {
       id: 'policy-action',
@@ -390,7 +385,7 @@ export const PARENT_LEADERBOARD_COPY_CONTENT: ParentLeaderboardCopyContent = {
       category: 'Policy',
       subcategory: 'Block or allow',
       gameType: 3,
-      routePath: '/parent/policy-action',
+      routePath: '#/policy',
     },
     {
       id: 'activity-store',
@@ -402,7 +397,7 @@ export const PARENT_LEADERBOARD_COPY_CONTENT: ParentLeaderboardCopyContent = {
       category: 'Activity',
       subcategory: 'Recent events',
       gameType: 4,
-      routePath: '/parent/activity-store',
+      routePath: '#/activity',
     },
     {
       id: 'drive-exports',
@@ -414,7 +409,7 @@ export const PARENT_LEADERBOARD_COPY_CONTENT: ParentLeaderboardCopyContent = {
       category: 'Support',
       subcategory: 'Connect your drives',
       gameType: 5,
-      routePath: '/parent/drive-exports',
+      routePath: '#/drive-connections',
     },
     {
       id: 'privacy-design',
@@ -426,7 +421,7 @@ export const PARENT_LEADERBOARD_COPY_CONTENT: ParentLeaderboardCopyContent = {
       category: 'Privacy',
       subcategory: 'Data custody',
       gameType: 6,
-      routePath: '/parent/privacy-design',
+      routePath: '#/privacy-design',
     },
     {
       id: 'memory-citations',
@@ -438,7 +433,7 @@ export const PARENT_LEADERBOARD_COPY_CONTENT: ParentLeaderboardCopyContent = {
       category: 'Memory',
       subcategory: 'Local knowledge',
       gameType: 7,
-      routePath: '/parent/memory',
+      routePath: '#/memory',
     },
     {
       id: 'notifications',
@@ -450,7 +445,7 @@ export const PARENT_LEADERBOARD_COPY_CONTENT: ParentLeaderboardCopyContent = {
       category: 'Devices',
       subcategory: 'Parent alerts',
       gameType: 8,
-      routePath: '/parent/notifications',
+      routePath: '#/notifications',
     },
     {
       id: 'family-settings',
@@ -462,7 +457,31 @@ export const PARENT_LEADERBOARD_COPY_CONTENT: ParentLeaderboardCopyContent = {
       category: 'Devices',
       subcategory: 'Family defaults',
       gameType: 9,
-      routePath: '/parent/settings',
+      routePath: '#/settings-rules',
+    },
+    {
+      id: 'api-providers',
+      rank: 10,
+      name: 'API Providers',
+      matches: 'Optional',
+      growth: 'Parent scoped',
+      tone: 'purple',
+      category: 'AI',
+      subcategory: 'External AI setup',
+      gameType: 10,
+      routePath: '#/ai-runtime',
+    },
+    {
+      id: 'device-pairing',
+      rank: 11,
+      name: 'Device Pairing',
+      matches: 'Trusted',
+      growth: 'Per child',
+      tone: 'cyan',
+      category: 'Devices',
+      subcategory: 'Pairing and status',
+      gameType: 11,
+      routePath: '#/devices',
     },
   ],
   quickGames: [
@@ -475,7 +494,7 @@ export const PARENT_LEADERBOARD_COPY_CONTENT: ParentLeaderboardCopyContent = {
       category: 'Browser',
       subcategory: 'Supported browsers',
       gameType: 1,
-      routePath: '/parent/managed-web',
+      routePath: '#/browser',
     },
     {
       id: 'policy-action',
@@ -486,18 +505,40 @@ export const PARENT_LEADERBOARD_COPY_CONTENT: ParentLeaderboardCopyContent = {
       category: 'Policy',
       subcategory: 'Rules and approvals',
       gameType: 3,
-      routePath: '/parent/policy-action',
+      routePath: '#/policy',
     },
     {
       id: 'local-ai',
       name: 'LOCAL AI',
-      detail: 'Private explanations',
+      detail: 'On-device evaluator',
       icon: 'bot',
       tone: 'purple',
       category: 'AI',
       subcategory: 'Evidence summaries',
       gameType: 6,
-      routePath: '/parent/local-ai',
+      routePath: '#/ai-runtime',
+    },
+    {
+      id: 'api-providers',
+      name: 'API PROVIDERS',
+      detail: 'Optional external AI',
+      icon: 'bot',
+      tone: 'purple',
+      category: 'AI',
+      subcategory: 'Provider setup',
+      gameType: 6,
+      routePath: '#/ai-runtime',
+    },
+    {
+      id: 'local-ai-hub',
+      name: 'LOCAL AI HUB',
+      detail: 'Shared home model queue',
+      icon: 'bot',
+      tone: 'cyan',
+      category: 'AI',
+      subcategory: 'Local hub',
+      gameType: 6,
+      routePath: '#/ai-runtime',
     },
     {
       id: 'privacy-design',
@@ -508,7 +549,7 @@ export const PARENT_LEADERBOARD_COPY_CONTENT: ParentLeaderboardCopyContent = {
       category: 'Privacy',
       subcategory: 'Data custody',
       gameType: 6,
-      routePath: '/parent/privacy-design',
+      routePath: '#/privacy-design',
     },
     {
       id: 'memory-citations',
@@ -519,7 +560,7 @@ export const PARENT_LEADERBOARD_COPY_CONTENT: ParentLeaderboardCopyContent = {
       category: 'Memory',
       subcategory: 'Freshness gated',
       gameType: 7,
-      routePath: '/parent/memory',
+      routePath: '#/memory',
     },
     {
       id: 'device-pairing',
@@ -530,7 +571,7 @@ export const PARENT_LEADERBOARD_COPY_CONTENT: ParentLeaderboardCopyContent = {
       category: 'Devices',
       subcategory: 'Pairing and status',
       gameType: 7,
-      routePath: '/parent/device-pairing',
+      routePath: '#/devices',
     },
     {
       id: 'notifications',
@@ -541,7 +582,7 @@ export const PARENT_LEADERBOARD_COPY_CONTENT: ParentLeaderboardCopyContent = {
       category: 'Devices',
       subcategory: 'Opt-in parent alerts',
       gameType: 8,
-      routePath: '/parent/notifications',
+      routePath: '#/notifications',
     },
     {
       id: 'family-settings',
@@ -552,7 +593,7 @@ export const PARENT_LEADERBOARD_COPY_CONTENT: ParentLeaderboardCopyContent = {
       category: 'Devices',
       subcategory: 'Per-device rules',
       gameType: 9,
-      routePath: '/parent/settings',
+      routePath: '#/settings-rules',
     },
     {
       id: 'support-exports',
@@ -563,40 +604,62 @@ export const PARENT_LEADERBOARD_COPY_CONTENT: ParentLeaderboardCopyContent = {
       category: 'Support',
       subcategory: 'Diagnostics and drives',
       gameType: 8,
-      routePath: '/parent/support-exports',
+      routePath: '#/diagnostics',
+    },
+    {
+      id: 'support-api-status',
+      name: 'SUPPORT AND API STATUS',
+      detail: 'Routes and capability gaps',
+      icon: 'users',
+      tone: 'cyan',
+      category: 'Support',
+      subcategory: 'Protocol and platform',
+      gameType: 8,
+      routePath: '#/diagnostics',
     },
   ],
+  guideTopics: PARENT_LEADERBOARD_COPY_GUIDE_TOPICS,
   fallbackRows: PARENT_LEADERBOARD_COPY_ROWS,
   aiBenchmarkRows: [
     {
-      user_id: 'Local Explain',
+      user_id: 'Local Models',
       rank: 1,
       score: 9812,
       wins: 18,
       losses: 1,
-      bestGame: 'Evidence summary',
+      bestGame: 'Local AI',
       trend: 'Ready',
       tone: 'red',
     },
     {
-      user_id: 'Cited Memory',
+      user_id: 'API Providers',
       rank: 2,
       score: 9381,
       wins: 16,
       losses: 2,
-      bestGame: 'Memory links',
-      trend: 'Local',
+      bestGame: 'External AI',
+      trend: 'Optional',
       tone: 'purple',
     },
     {
-      user_id: 'Policy Preview',
+      user_id: 'Local AI Hub',
       rank: 3,
       score: 9034,
       wins: 14,
       losses: 3,
-      bestGame: 'Typed decisions',
-      trend: 'Advisory',
+      bestGame: 'Model queue',
+      trend: 'Planned',
       tone: 'gold',
+    },
+    {
+      user_id: 'Cited Memory',
+      rank: 4,
+      score: 8810,
+      wins: 12,
+      losses: 4,
+      bestGame: 'Memory links',
+      trend: 'Local',
+      tone: 'purple',
     },
   ],
   distributionLabels: ['LOCAL 100%', 'CLOUD 0%', 'EXPORT OPT-IN', 'RAW PRIVATE'],
@@ -648,21 +711,21 @@ export const PARENT_LEADERBOARD_COPY_CONTENT: ParentLeaderboardCopyContent = {
       defaultTab: 'overall',
       selectedGameId: 'managed-web',
       title: 'Parent Command Deck',
-      routeLabel: '/parent',
+      routeLabel: '#/overview',
       rowSource: 'fallbackRows',
     },
     gameLeaderboard: {
       defaultTab: 'perGame',
       selectedGameId: 'managed-web',
       title: 'Control Detail',
-      routeLabel: '/parent/:area',
+      routeLabel: '#/browser',
       rowSource: 'fallbackRows',
     },
     aiBenchmarkLeaderboard: {
       defaultTab: 'aiBenchmarks',
-      selectedGameId: 'local-ai',
-      title: 'Local AI',
-      routeLabel: '/parent/local-ai',
+      selectedGameId: 'api-providers',
+      title: 'AI',
+      routeLabel: '#/ai-runtime',
       rowSource: 'aiBenchmarkRows',
     },
   },

@@ -65,6 +65,17 @@ export {
   type ParentLeaderboardCopyTone,
 } from './parent-leaderboard-copy-data';
 export {
+  type ParentLeaderboardCopyNavGroup,
+  type ParentLeaderboardCopyNavGroupId,
+  type ParentLeaderboardCopyNavItem,
+} from './parent-leaderboard-copy-nav';
+export {
+  PARENT_LEADERBOARD_COPY_GUIDE_TOPICS,
+  type ParentLeaderboardCopyGuideNote,
+  type ParentLeaderboardCopyGuidePage,
+  type ParentLeaderboardCopyGuideTopic,
+} from './parent-leaderboard-copy-guides';
+export {
   parseActivityMemoryGraphReadModel,
   type PortalActivityMemoryGraphEdge,
   type PortalActivityMemoryGraphNode,

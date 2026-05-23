@@ -70,7 +70,16 @@ function getRoute(): PortalRouteValue {
   if (parsedRoute.success && PortalRoutes.includes(parsedRoute.data)) {
     return parsedRoute.data;
   }
+  replaceHashIfNeeded(PortalRoute.Overview);
   return PortalRoute.Overview;
+}
+
+function replaceHashIfNeeded(route: PortalRouteValue): void {
+  const nextHash = `${PortalDom.HashPrefix}${route}`;
+  if (window.location.hash === nextHash) {
+    return;
+  }
+  window.history.replaceState(null, document.title, nextHash);
 }
 
 function requirePortalRoot(): HTMLDivElement {
