@@ -165,6 +165,11 @@ export const AgentCommand = {
   LanPairingStatusGet: AgentCommandNameSchema.parse('agent.lan-pairing.status.get'),
 } as const;
 
+export const AgentLanPairingSupportedWebSocketCommand = {
+  ProofSubmit: AgentCommand.LanPairingProofSubmit,
+  StatusGet: AgentCommand.LanPairingStatusGet,
+} as const;
+
 export const AgentEvent = {
   ConnectionReady: AgentEventNameSchema.parse('agent.connection.ready'),
   CommandRejected: AgentEventNameSchema.parse('agent.command.rejected'),

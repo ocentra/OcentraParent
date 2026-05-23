@@ -1,6 +1,14 @@
 import { decodeApiPath, decodeEndpointId, decodeHeaderName } from '../types/brands';
 
-export const LanPairingEndpointId = {
+export const LanPairingSupportedRuntimeEndpointId = {
+  WebSocket: decodeEndpointId('agent.dev.ws'),
+} as const;
+
+export const LanPairingSupportedRuntimeApiPath = {
+  WebSocket: decodeApiPath('/api/dev/ws'),
+} as const;
+
+export const PlannedLanPairingEndpointId = {
   Discovery: decodeEndpointId('lan-pairing.discovery'),
   Challenge: decodeEndpointId('lan-pairing.challenge'),
   Proof: decodeEndpointId('lan-pairing.proof'),
@@ -8,12 +16,20 @@ export const LanPairingEndpointId = {
   Registry: decodeEndpointId('lan-pairing.registry'),
 } as const;
 
-export const LanPairingApiPath = {
+export const PlannedLanPairingHttpApiPath = {
   Discovery: decodeApiPath('/api/lan-pairing/discovery'),
   Challenge: decodeApiPath('/api/lan-pairing/challenge'),
   Proof: decodeApiPath('/api/lan-pairing/proof'),
   Control: decodeApiPath('/api/lan-pairing/control'),
   Registry: decodeApiPath('/api/lan-pairing/registry'),
+} as const;
+
+export const PlannedLanPairingHttpEndpointSupport = {
+  Discovery: 'planned-unsupported',
+  Challenge: 'planned-unsupported',
+  Proof: 'planned-unsupported',
+  Control: 'planned-unsupported',
+  Registry: 'planned-unsupported',
 } as const;
 
 export const LanPairingHeader = {

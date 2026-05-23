@@ -9,6 +9,7 @@ import {
   LanPairingParentIntentEnvelopeSchema,
   LanPairingProofSchema,
   LanPairingRejectionReason,
+  LanPairingRuntimeSupportSurfaceSchema,
   LanSelectedRouteTargetSchema,
   LanTrustedDeviceRegistryEntrySchema,
 } from '../src/lan-pairing';
@@ -39,6 +40,7 @@ describe('LAN pairing contracts', () => {
   registerPairingTrustTests();
   registerControlContractTests();
   registerRejectionContractTests();
+  registerRuntimeSupportSurfaceTests();
 });
 
 function registerReadinessContractTests(): void {
@@ -202,5 +204,69 @@ function registerRejectionContractTests(): void {
     expect(LanPairingRejectionReason.WrongDevice).toBe('wrong-device');
     expect(LanPairingRejectionReason.Revoked).toBe('revoked');
     expect(LanPairingIntentKindSchema.safeParse('cloud-relay').success).toBe(false);
+  });
+}
+
+function registerRuntimeSupportSurfaceTests(): void {
+  it('LanPairingRuntimeSupportSurfaceSchema: represents the honest WebSocket-only runtime surface', () => {
+    const support = LanPairingRuntimeSupportSurfaceSchema.parse({
+      schemaVersion: 'v0.9',
+      transport: 'websocket',
+      supportedWebSocketCommands: ['agent.lan-pairing.proof.submit', 'agent.lan-pairing.status.get'],
+      unsupportedHttpEndpoints: [
+        {
+          endpointId: 'lan-pairing.discovery',
+          path: '/api/lan-pairing/discovery',
+          support: 'planned-unsupported',
+        },
+        {
+          endpointId: 'lan-pairing.challenge',
+          path: '/api/lan-pairing/challenge',
+          support: 'planned-unsupported',
+        },
+        {
+          endpointId: 'lan-pairing.proof',
+          path: '/api/lan-pairing/proof',
+          support: 'planned-unsupported',
+        },
+        {
+          endpointId: 'lan-pairing.control',
+          path: '/api/lan-pairing/control',
+          support: 'planned-unsupported',
+        },
+        {
+          endpointId: 'lan-pairing.registry',
+          path: '/api/lan-pairing/registry',
+          support: 'planned-unsupported',
+        },
+      ],
+      pairingState: 'unpaired',
+      trustedDeviceCount: 0,
+      persistenceMode: 'in-memory-fail-closed',
+      proofMode: 'direct-proof-submit',
+      routeRequirements: [
+        'paired-device',
+        'allowed-origin',
+        'target-device-match',
+        'route-id-match',
+        'unexpired-intent',
+        'non-replayed-intent',
+        'unrevoked-pairing',
+      ],
+      manualProofGaps: ['manual-lan-bind-proof', 'manual-firewall-proof', 'manual-physical-device-proof'],
+    });
+
+    expect(support.supportedWebSocketCommands).toEqual([
+      'agent.lan-pairing.proof.submit',
+      'agent.lan-pairing.status.get',
+    ]);
+    expect(support.unsupportedHttpEndpoints.map((endpoint) => endpoint.support)).toEqual([
+      'planned-unsupported',
+      'planned-unsupported',
+      'planned-unsupported',
+      'planned-unsupported',
+      'planned-unsupported',
+    ]);
+    expect(support.persistenceMode).toBe('in-memory-fail-closed');
   });
 }

@@ -100,6 +100,7 @@ function runWebSocketSmoke() {
         return;
       }
       if (parsed.event === 'agent.lan-pairing.status.reported') {
+        assertLanSupportSurface(parsed.payload);
         socket.send(JSON.stringify(buildPairedHealthCommand()));
         return;
       }
@@ -115,6 +116,38 @@ function runWebSocketSmoke() {
       reject(new Error('LAN WebSocket smoke failed'));
     });
   });
+}
+
+function assertLanSupportSurface(payload) {
+  assertPayloadValue(payload, 'transport', 'websocket');
+  assertPayloadValue(
+    payload,
+    'supportedWebSocketCommands',
+    'agent.lan-pairing.proof.submit,agent.lan-pairing.status.get'
+  );
+  assertPayloadValue(
+    payload,
+    'unsupportedHttpEndpoints',
+    '/api/lan-pairing/discovery,/api/lan-pairing/challenge,/api/lan-pairing/proof,/api/lan-pairing/control,/api/lan-pairing/registry'
+  );
+  assertPayloadValue(payload, 'persistenceMode', 'in-memory-fail-closed');
+  assertPayloadValue(payload, 'proofMode', 'direct-proof-submit');
+  assertPayloadValue(
+    payload,
+    'routeRequirements',
+    'paired-device,allowed-origin,target-device-match,route-id-match,unexpired-intent,non-replayed-intent,unrevoked-pairing'
+  );
+  assertPayloadValue(
+    payload,
+    'manualProofGaps',
+    'manual-lan-bind-proof,manual-firewall-proof,manual-physical-device-proof'
+  );
+}
+
+function assertPayloadValue(payload, key, expected) {
+  if (payload[key] !== expected) {
+    throw new Error(`Expected LAN payload ${key}=${expected}, received ${payload[key]}`);
+  }
 }
 
 function buildPairingCommand() {

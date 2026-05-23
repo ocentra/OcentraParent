@@ -248,6 +248,48 @@ fn pairing_status_event(
         LogLevel::Info,
         fields_from_pairs(vec![
             (
+                constants::field::TRANSPORT,
+                LogFieldValue::String(constants::value::TRANSPORT_WEBSOCKET.to_string()),
+            ),
+            (
+                constants::field::LAN_SUPPORTED_WEBSOCKET_COMMANDS,
+                LogFieldValue::String(
+                    constants::lan_pairing::SUPPORTED_WEBSOCKET_COMMANDS
+                        .join(&constants::delimiter::LIST.to_string()),
+                ),
+            ),
+            (
+                constants::field::LAN_UNSUPPORTED_HTTP_ENDPOINTS,
+                LogFieldValue::String(
+                    constants::lan_pairing::PLANNED_HTTP_ENDPOINT_PATHS
+                        .join(&constants::delimiter::LIST.to_string()),
+                ),
+            ),
+            (
+                constants::field::LAN_PERSISTENCE_MODE,
+                LogFieldValue::String(
+                    constants::value::LAN_PERSISTENCE_IN_MEMORY_FAIL_CLOSED.to_string(),
+                ),
+            ),
+            (
+                constants::field::LAN_PROOF_MODE,
+                LogFieldValue::String(constants::value::LAN_PROOF_DIRECT_PROOF_SUBMIT.to_string()),
+            ),
+            (
+                constants::field::LAN_ROUTE_REQUIREMENTS,
+                LogFieldValue::String(
+                    constants::lan_pairing::ROUTE_REQUIREMENTS
+                        .join(&constants::delimiter::LIST.to_string()),
+                ),
+            ),
+            (
+                constants::field::LAN_MANUAL_PROOF_GAPS,
+                LogFieldValue::String(
+                    constants::lan_pairing::MANUAL_PROOF_GAPS
+                        .join(&constants::delimiter::LIST.to_string()),
+                ),
+            ),
+            (
                 constants::field::LAN_PAIRING_STATE,
                 LogFieldValue::String(state.to_string()),
             ),

@@ -1,18 +1,35 @@
 import { describe, expect, it } from 'vitest';
-import { LanPairingApiPath, LanPairingEndpointId, LanPairingHeader } from '../src/constants/lan-pairing';
+import {
+  LanPairingHeader,
+  LanPairingSupportedRuntimeApiPath,
+  LanPairingSupportedRuntimeEndpointId,
+  PlannedLanPairingEndpointId,
+  PlannedLanPairingHttpApiPath,
+  PlannedLanPairingHttpEndpointSupport,
+} from '../src/constants/lan-pairing';
 
 describe('LAN pairing endpoint constants', () => {
-  it('LanPairingApiPath: exposes slash-prefixed LAN endpoint paths', () => {
-    expect(LanPairingApiPath.Discovery).toBe('/api/lan-pairing/discovery');
-    expect(LanPairingApiPath.Challenge).toBe('/api/lan-pairing/challenge');
-    expect(LanPairingApiPath.Proof).toBe('/api/lan-pairing/proof');
-    expect(LanPairingApiPath.Control).toBe('/api/lan-pairing/control');
-    expect(LanPairingApiPath.Registry).toBe('/api/lan-pairing/registry');
+  it('LanPairingSupportedRuntimeApiPath: advertises only the served WebSocket runtime path', () => {
+    expect(LanPairingSupportedRuntimeEndpointId.WebSocket).toBe('agent.dev.ws');
+    expect(LanPairingSupportedRuntimeApiPath.WebSocket).toBe('/api/dev/ws');
+    expect(Object.values(LanPairingSupportedRuntimeApiPath)).not.toContain(PlannedLanPairingHttpApiPath.Proof);
   });
 
-  it('LanPairingEndpointId: keeps LAN route ids distinct from local health routes', () => {
-    expect(LanPairingEndpointId.Discovery).toBe('lan-pairing.discovery');
-    expect(LanPairingEndpointId.Control).toBe('lan-pairing.control');
+  it('PlannedLanPairingHttpApiPath: marks LAN HTTP endpoints as planned unsupported routes', () => {
+    expect(PlannedLanPairingHttpApiPath.Discovery).toBe('/api/lan-pairing/discovery');
+    expect(PlannedLanPairingHttpApiPath.Challenge).toBe('/api/lan-pairing/challenge');
+    expect(PlannedLanPairingHttpApiPath.Proof).toBe('/api/lan-pairing/proof');
+    expect(PlannedLanPairingHttpApiPath.Control).toBe('/api/lan-pairing/control');
+    expect(PlannedLanPairingHttpApiPath.Registry).toBe('/api/lan-pairing/registry');
+    expect(PlannedLanPairingEndpointId.Discovery).toBe('lan-pairing.discovery');
+    expect(PlannedLanPairingEndpointId.Control).toBe('lan-pairing.control');
+    expect(Object.values(PlannedLanPairingHttpEndpointSupport)).toEqual([
+      'planned-unsupported',
+      'planned-unsupported',
+      'planned-unsupported',
+      'planned-unsupported',
+      'planned-unsupported',
+    ]);
   });
 
   it('LanPairingHeader: exposes typed headers for LAN proof and intent routing', () => {

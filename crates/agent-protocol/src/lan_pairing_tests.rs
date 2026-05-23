@@ -1,8 +1,11 @@
 use super::{
     constants, policy_constants, LanChildAgentResponse, LanPairingAuditEvent,
     LanPairingAuditEventType, LanPairingDeviceReachability, LanPairingDeviceRef,
-    LanPairingIntentKind, LanPairingNetworkMode, LanPairingProof, LanPairingRejectionReason,
-    LanPairingResponseState, LanTrustedDeviceRegistryEntry,
+    LanPairingHttpEndpointSupport, LanPairingIntentKind, LanPairingManualProofGap,
+    LanPairingNetworkMode, LanPairingPersistenceMode, LanPairingProof, LanPairingProofMode,
+    LanPairingRejectionReason, LanPairingResponseState, LanPairingRouteRequirement,
+    LanPairingRuntimeSupportSurface, LanPairingTransport, LanPairingUnsupportedHttpEndpoint,
+    LanTrustedDeviceRegistryEntry,
 };
 
 #[test]
@@ -112,6 +115,87 @@ fn lan_pairing_read_model_values_keep_local_network_state_explicit() {
     assert_eq!(selected_json["networkMode"], "local-network");
     assert_eq!(selected_json["reachability"], "stale");
     assert_eq!(intent_json["intentKind"], "rule-query");
+}
+
+#[test]
+fn lan_pairing_runtime_support_surface_serializes_supported_and_planned_api_claims() {
+    let support = LanPairingRuntimeSupportSurface {
+        schema_version: constants::lan_pairing::SCHEMA_VERSION,
+        transport: LanPairingTransport::Websocket,
+        supported_websocket_commands: constants::lan_pairing::SUPPORTED_WEBSOCKET_COMMANDS
+            .iter()
+            .map(|command| command.to_string())
+            .collect(),
+        unsupported_http_endpoints: planned_http_endpoints(),
+        pairing_state: super::LanPairingTrustState::Unpaired,
+        trusted_device_count: 0,
+        persistence_mode: LanPairingPersistenceMode::InMemoryFailClosed,
+        proof_mode: LanPairingProofMode::DirectProofSubmit,
+        route_requirements: vec![
+            LanPairingRouteRequirement::PairedDevice,
+            LanPairingRouteRequirement::AllowedOrigin,
+            LanPairingRouteRequirement::TargetDeviceMatch,
+            LanPairingRouteRequirement::RouteIdMatch,
+            LanPairingRouteRequirement::UnexpiredIntent,
+            LanPairingRouteRequirement::NonReplayedIntent,
+            LanPairingRouteRequirement::UnrevokedPairing,
+        ],
+        manual_proof_gaps: vec![
+            LanPairingManualProofGap::ManualLanBindProof,
+            LanPairingManualProofGap::ManualFirewallProof,
+            LanPairingManualProofGap::ManualPhysicalDeviceProof,
+        ],
+    };
+
+    let support_json =
+        serde_json::to_value(support).expect(constants::error::AGENT_EVENT_SERIALIZES);
+
+    assert_eq!(support_json["transport"], "websocket");
+    assert_eq!(
+        support_json["supportedWebSocketCommands"][0],
+        constants::lan_pairing::COMMAND_PROOF_SUBMIT
+    );
+    assert_eq!(
+        support_json["unsupportedHttpEndpoints"][0]["support"],
+        constants::lan_pairing::SUPPORT_PLANNED_UNSUPPORTED
+    );
+    assert_eq!(
+        support_json["persistenceMode"],
+        constants::value::LAN_PERSISTENCE_IN_MEMORY_FAIL_CLOSED
+    );
+}
+
+fn planned_http_endpoints() -> Vec<LanPairingUnsupportedHttpEndpoint> {
+    vec![
+        planned_http_endpoint(
+            constants::lan_pairing::PLANNED_HTTP_ENDPOINT_DISCOVERY_ID,
+            constants::lan_pairing::PLANNED_HTTP_ENDPOINT_DISCOVERY_PATH,
+        ),
+        planned_http_endpoint(
+            constants::lan_pairing::PLANNED_HTTP_ENDPOINT_CHALLENGE_ID,
+            constants::lan_pairing::PLANNED_HTTP_ENDPOINT_CHALLENGE_PATH,
+        ),
+        planned_http_endpoint(
+            constants::lan_pairing::PLANNED_HTTP_ENDPOINT_PROOF_ID,
+            constants::lan_pairing::PLANNED_HTTP_ENDPOINT_PROOF_PATH,
+        ),
+        planned_http_endpoint(
+            constants::lan_pairing::PLANNED_HTTP_ENDPOINT_CONTROL_ID,
+            constants::lan_pairing::PLANNED_HTTP_ENDPOINT_CONTROL_PATH,
+        ),
+        planned_http_endpoint(
+            constants::lan_pairing::PLANNED_HTTP_ENDPOINT_REGISTRY_ID,
+            constants::lan_pairing::PLANNED_HTTP_ENDPOINT_REGISTRY_PATH,
+        ),
+    ]
+}
+
+fn planned_http_endpoint(endpoint_id: &str, path: &str) -> LanPairingUnsupportedHttpEndpoint {
+    LanPairingUnsupportedHttpEndpoint {
+        endpoint_id: endpoint_id.to_string(),
+        path: path.to_string(),
+        support: LanPairingHttpEndpointSupport::PlannedUnsupported,
+    }
 }
 
 fn child_device() -> LanPairingDeviceRef {

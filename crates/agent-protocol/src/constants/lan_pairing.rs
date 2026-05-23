@@ -2,6 +2,51 @@ pub const COMMAND_PROOF_SUBMIT: &str = "agent.lan-pairing.proof.submit";
 pub const COMMAND_STATUS_GET: &str = "agent.lan-pairing.status.get";
 pub const EVENT_STATUS_REPORTED: &str = "agent.lan-pairing.status.reported";
 pub const EVENT_AUDIT_REPORTED: &str = "agent.lan-pairing.audit.reported";
+pub const SUPPORTED_WEBSOCKET_COMMANDS: &[&str] = &[COMMAND_PROOF_SUBMIT, COMMAND_STATUS_GET];
+
+pub const PLANNED_HTTP_ENDPOINT_DISCOVERY_ID: &str = "lan-pairing.discovery";
+pub const PLANNED_HTTP_ENDPOINT_CHALLENGE_ID: &str = "lan-pairing.challenge";
+pub const PLANNED_HTTP_ENDPOINT_PROOF_ID: &str = "lan-pairing.proof";
+pub const PLANNED_HTTP_ENDPOINT_CONTROL_ID: &str = "lan-pairing.control";
+pub const PLANNED_HTTP_ENDPOINT_REGISTRY_ID: &str = "lan-pairing.registry";
+pub const PLANNED_HTTP_ENDPOINT_DISCOVERY_PATH: &str = "/api/lan-pairing/discovery";
+pub const PLANNED_HTTP_ENDPOINT_CHALLENGE_PATH: &str = "/api/lan-pairing/challenge";
+pub const PLANNED_HTTP_ENDPOINT_PROOF_PATH: &str = "/api/lan-pairing/proof";
+pub const PLANNED_HTTP_ENDPOINT_CONTROL_PATH: &str = "/api/lan-pairing/control";
+pub const PLANNED_HTTP_ENDPOINT_REGISTRY_PATH: &str = "/api/lan-pairing/registry";
+pub const PLANNED_HTTP_ENDPOINT_PATHS: &[&str] = &[
+    PLANNED_HTTP_ENDPOINT_DISCOVERY_PATH,
+    PLANNED_HTTP_ENDPOINT_CHALLENGE_PATH,
+    PLANNED_HTTP_ENDPOINT_PROOF_PATH,
+    PLANNED_HTTP_ENDPOINT_CONTROL_PATH,
+    PLANNED_HTTP_ENDPOINT_REGISTRY_PATH,
+];
+
+pub const SUPPORT_PLANNED_UNSUPPORTED: &str = "planned-unsupported";
+pub const ROUTE_REQUIREMENT_PAIRED_DEVICE: &str = "paired-device";
+pub const ROUTE_REQUIREMENT_ALLOWED_ORIGIN: &str = "allowed-origin";
+pub const ROUTE_REQUIREMENT_TARGET_DEVICE_MATCH: &str = "target-device-match";
+pub const ROUTE_REQUIREMENT_ROUTE_ID_MATCH: &str = "route-id-match";
+pub const ROUTE_REQUIREMENT_UNEXPIRED_INTENT: &str = "unexpired-intent";
+pub const ROUTE_REQUIREMENT_NON_REPLAYED_INTENT: &str = "non-replayed-intent";
+pub const ROUTE_REQUIREMENT_UNREVOKED_PAIRING: &str = "unrevoked-pairing";
+pub const ROUTE_REQUIREMENTS: &[&str] = &[
+    ROUTE_REQUIREMENT_PAIRED_DEVICE,
+    ROUTE_REQUIREMENT_ALLOWED_ORIGIN,
+    ROUTE_REQUIREMENT_TARGET_DEVICE_MATCH,
+    ROUTE_REQUIREMENT_ROUTE_ID_MATCH,
+    ROUTE_REQUIREMENT_UNEXPIRED_INTENT,
+    ROUTE_REQUIREMENT_NON_REPLAYED_INTENT,
+    ROUTE_REQUIREMENT_UNREVOKED_PAIRING,
+];
+pub const MANUAL_PROOF_GAP_LAN_BIND: &str = "manual-lan-bind-proof";
+pub const MANUAL_PROOF_GAP_FIREWALL: &str = "manual-firewall-proof";
+pub const MANUAL_PROOF_GAP_PHYSICAL_DEVICE: &str = "manual-physical-device-proof";
+pub const MANUAL_PROOF_GAPS: &[&str] = &[
+    MANUAL_PROOF_GAP_LAN_BIND,
+    MANUAL_PROOF_GAP_FIREWALL,
+    MANUAL_PROOF_GAP_PHYSICAL_DEVICE,
+];
 
 pub const SCHEMA_VERSION: u16 = 1;
 pub const SCHEMA_VERSION_TEXT: &str = "v0.9";

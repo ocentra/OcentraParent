@@ -40,6 +40,7 @@ async fn lan_pairing_accepts_pairing_proof_then_allows_paired_health_route() {
             constants::value::LAN_PAIRING_PAIRED.to_string()
         ))
     );
+    assert_status_support_surface(&proof_event);
     assert_eq!(runtime.trusted_device_count(), 1);
     assert_eq!(health_event.event, AgentEventName::AgentHealthReported);
     assert_accepted_control(&health_event);
@@ -223,6 +224,7 @@ async fn lan_pairing_status_get_is_explicit_for_loopback_and_signed_lan_routes()
             constants::value::LAN_PAIRING_UNPAIRED.to_string()
         ))
     );
+    assert_status_support_surface(&loopback);
     assert_eq!(
         loopback.payload.get(constants::field::LAN_CONTROL_STATE),
         None
@@ -238,6 +240,7 @@ async fn lan_pairing_status_get_is_explicit_for_loopback_and_signed_lan_routes()
             constants::value::LAN_PAIRING_PAIRED.to_string()
         ))
     );
+    assert_status_support_surface(&audited_lan);
     assert_accepted_control(&audited_lan);
 }
 
@@ -281,6 +284,58 @@ fn assert_accepted_control(event: &AgentEventEnvelope) {
         event.payload.get(constants::field::ORIGIN),
         Some(&LogFieldValue::String(
             constants::lan_pairing::ALLOWED_ORIGIN.to_string()
+        ))
+    );
+}
+
+fn assert_status_support_surface(event: &AgentEventEnvelope) {
+    assert_eq!(
+        event.payload.get(constants::field::TRANSPORT),
+        Some(&LogFieldValue::String(
+            constants::value::TRANSPORT_WEBSOCKET.to_string()
+        ))
+    );
+    assert_eq!(
+        event
+            .payload
+            .get(constants::field::LAN_SUPPORTED_WEBSOCKET_COMMANDS),
+        Some(&LogFieldValue::String(
+            constants::lan_pairing::SUPPORTED_WEBSOCKET_COMMANDS
+                .join(&constants::delimiter::LIST.to_string())
+        ))
+    );
+    assert_eq!(
+        event
+            .payload
+            .get(constants::field::LAN_UNSUPPORTED_HTTP_ENDPOINTS),
+        Some(&LogFieldValue::String(
+            constants::lan_pairing::PLANNED_HTTP_ENDPOINT_PATHS
+                .join(&constants::delimiter::LIST.to_string())
+        ))
+    );
+    assert_eq!(
+        event.payload.get(constants::field::LAN_PERSISTENCE_MODE),
+        Some(&LogFieldValue::String(
+            constants::value::LAN_PERSISTENCE_IN_MEMORY_FAIL_CLOSED.to_string()
+        ))
+    );
+    assert_eq!(
+        event.payload.get(constants::field::LAN_PROOF_MODE),
+        Some(&LogFieldValue::String(
+            constants::value::LAN_PROOF_DIRECT_PROOF_SUBMIT.to_string()
+        ))
+    );
+    assert_eq!(
+        event.payload.get(constants::field::LAN_ROUTE_REQUIREMENTS),
+        Some(&LogFieldValue::String(
+            constants::lan_pairing::ROUTE_REQUIREMENTS
+                .join(&constants::delimiter::LIST.to_string())
+        ))
+    );
+    assert_eq!(
+        event.payload.get(constants::field::LAN_MANUAL_PROOF_GAPS),
+        Some(&LogFieldValue::String(
+            constants::lan_pairing::MANUAL_PROOF_GAPS.join(&constants::delimiter::LIST.to_string())
         ))
     );
 }
