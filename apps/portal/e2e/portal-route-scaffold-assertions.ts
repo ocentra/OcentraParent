@@ -19,6 +19,7 @@ export async function assertRouteScaffolds(page: Page): Promise<void> {
   for (const route of productRoutes) {
     await assertProductRoute(page, route.path, route.nav, route.title, route.kind);
   }
+  await assertSidePanelFoldouts(page);
   await assertChatDock(page);
   await assertFrameTunerRoute(page);
 }
@@ -45,6 +46,20 @@ async function assertProductRoute(
   await expect(surface.locator('text').filter({ hasText: 'DATA CUSTODY' }).first()).toBeVisible();
 }
 
+async function assertSidePanelFoldouts(page: Page): Promise<void> {
+  await page.goto('/#/overview');
+  await page.getByRole('button', { name: 'Expand GUIDE' }).click();
+  await expect(page.getByRole('button', { name: 'Collapse GUIDE' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Open START HERE' })).toBeVisible();
+  await page.getByRole('button', { name: 'Collapse GUIDE' }).click();
+  await expect(page.getByRole('button', { name: 'Expand GUIDE' })).toBeVisible();
+  await page.getByRole('button', { name: 'Expand MANAGE' }).click();
+  await expect(page.getByRole('button', { name: 'Collapse MANAGE' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Open DEVICES' })).toBeVisible();
+  await page.getByRole('button', { name: 'Collapse MANAGE' }).click();
+  await expect(page.getByRole('button', { name: 'Expand MANAGE' })).toBeVisible();
+}
+
 async function assertChatDock(page: Page): Promise<void> {
   await page.goto('/#/overview');
   await page.getByRole('button', { name: 'Open parent chat' }).click();
@@ -55,8 +70,8 @@ async function assertChatDock(page: Page): Promise<void> {
       .filter({ hasText: 'PARENT ASSISTANT CHAT' })
       .first()
   ).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Open AI setup' })).toBeVisible();
-  await page.getByRole('button', { name: 'Open AI setup' }).click();
+  await expect(page.getByRole('button', { name: 'Open AI setup', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Open AI setup', exact: true }).click();
   await expect(page).toHaveURL('/#/ai-runtime');
   await expect(
     page.locator('svg.leaderboard-page-svg-surface').locator('text').filter({ hasText: 'AI SETUP' }).first()

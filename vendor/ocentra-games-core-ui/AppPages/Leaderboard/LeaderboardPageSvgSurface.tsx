@@ -2343,6 +2343,7 @@ function NavRow({
       tabIndex={0}
       aria-label={`Open ${item.label}`}
     >
+      <rect x={rowX - 6} y={y - 4} width={rowW + 28} height={rowH + 8} fill="transparent" pointerEvents="all" />
       {lit ? (
         <>
           <path
@@ -2352,12 +2353,14 @@ function NavRow({
             strokeWidth={active ? 2.2 : 2}
             opacity={active ? 0.42 : 0.34}
             filter="url(#leaderboardGlow)"
+            pointerEvents="none"
           />
           <path
             d={`M ${rowX + rowW - 8} ${arrowTop} L ${rowX + rowW + 18} ${arrowMid} L ${rowX + rowW - 8} ${arrowBottom} Z`}
             fill={accent}
             opacity={active ? 0.82 : 0.62}
             filter="url(#leaderboardGlow)"
+            pointerEvents="none"
           />
         </>
       ) : null}
@@ -2367,6 +2370,7 @@ function NavRow({
         fillOpacity={active ? 0.92 : hovered ? 0.78 : 1}
         stroke={lit ? accent : 'transparent'}
         strokeWidth={lit ? 1.6 : 0}
+        pointerEvents="none"
       />
       {lit ? (
         <path
@@ -2375,6 +2379,7 @@ function NavRow({
           stroke={accent}
           strokeWidth={1}
           opacity={active ? 0.68 : 0.5}
+          pointerEvents="none"
         />
       ) : null}
       <path
@@ -2383,6 +2388,7 @@ function NavRow({
         stroke={accent}
         strokeWidth={1.1}
         strokeOpacity={lit ? 0.86 : 0.62}
+        pointerEvents="none"
       />
       <path
         d={cutRectPath(slotX + 4, slotY + 7, slotW - 8, slotW - 8, 4)}
@@ -2390,11 +2396,19 @@ function NavRow({
         stroke={accent}
         strokeWidth={0.8}
         strokeOpacity={lit ? 0.54 : 0.32}
+        pointerEvents="none"
       />
-      <text x={textX} y={y + rowH * 0.43} fontSize={labelSize} fontWeight={900} fill={color}>
+      <text x={textX} y={y + rowH * 0.43} fontSize={labelSize} fontWeight={900} fill={color} pointerEvents="none">
         {item.label}
       </text>
-      <text x={textX} y={y + rowH * 0.79} fontSize={detailSize} fontWeight={720} fill={cfg.colors.mutedText}>
+      <text
+        x={textX}
+        y={y + rowH * 0.79}
+        fontSize={detailSize}
+        fontWeight={720}
+        fill={cfg.colors.mutedText}
+        pointerEvents="none"
+      >
         {item.detail}
       </text>
       {lit ? <ChevronRight x={x + w - 34} y={y + 15} width={16} height={16} color={cfg.colors.bodyText} /> : null}
@@ -2450,12 +2464,14 @@ function NavGroupHeader({
       aria-label={`${open ? 'Collapse' : 'Expand'} ${group.label}`}
       aria-expanded={open}
     >
+      <rect x={rowX - 6} y={y - 4} width={rowW + 12} height={h + 8} fill="transparent" pointerEvents="all" />
       <path
         d={cutRectPath(rowX, y, rowW, h, 7)}
         fill={lit ? 'url(#leaderboardPanelBlue)' : 'rgba(8, 28, 45, 0.3)'}
         stroke={cfg.colors.cyan}
         strokeWidth={lit ? 1.2 : 0.8}
         opacity={lit ? 0.92 : 0.72}
+        pointerEvents="none"
       />
       <line
         x1={rowX + 10}
@@ -2465,11 +2481,26 @@ function NavGroupHeader({
         stroke={cfg.colors.cyan}
         strokeWidth={0.8}
         opacity={lit ? 0.48 : 0.28}
+        pointerEvents="none"
       />
-      <text x={rowX + 10} y={y + h * 0.44} fontSize={labelSize} fontWeight={900} fill={cfg.colors.bodyText}>
+      <text
+        x={rowX + 10}
+        y={y + h * 0.44}
+        fontSize={labelSize}
+        fontWeight={900}
+        fill={cfg.colors.bodyText}
+        pointerEvents="none"
+      >
         {group.label}
       </text>
-      <text x={rowX + 10} y={y + h * 0.76} fontSize={detailSize} fontWeight={680} fill={cfg.colors.mutedText}>
+      <text
+        x={rowX + 10}
+        y={y + h * 0.76}
+        fontSize={detailSize}
+        fontWeight={680}
+        fill={cfg.colors.mutedText}
+        pointerEvents="none"
+      >
         {group.detail}
       </text>
       <path
@@ -2484,6 +2515,7 @@ function NavGroupHeader({
         strokeLinecap="round"
         strokeLinejoin="round"
         opacity={lit ? 0.96 : 0.72}
+        pointerEvents="none"
       />
     </g>
   );
@@ -2610,6 +2642,9 @@ function NavPanel({
 }) {
   const { outerPad, leftW, topY, bottomH } = cfg.layout;
   const navItems = navGroups.flatMap((group) => group.items);
+  const rawNavClipId = useId();
+  const navClipId = `leaderboard-nav-clip-${rawNavClipId.replace(/[^a-zA-Z0-9_-]/g, '')}`;
+  const [navScroll, setNavScroll] = useState(0);
   const rowH = 48;
   const rowStep = navItems.length > 8 ? 49 : 52;
   const groupH = 34;
@@ -2622,51 +2657,111 @@ function NavPanel({
   const rowTop = sideTopY + 28;
   const sidePanelGap = 8;
   const navH = Math.max(300, seasonY - sideTopY - sidePanelGap);
+  const navViewportY = rowTop;
+  const navViewportH = Math.max(72, sideTopY + navH - rowTop - 22);
+  const navContentH = navGroups.reduce(
+    (height, group) => height + groupH + (openGroupIds[group.id] ? group.items.length * rowStep : 0) + groupGap,
+    0
+  );
+  const maxNavScroll = Math.max(0, navContentH - navViewportH);
+  const safeNavScroll = clampValue(navScroll, 0, maxNavScroll);
+  useEffect(() => {
+    if (safeNavScroll !== navScroll) setNavScroll(safeNavScroll);
+  }, [navScroll, safeNavScroll]);
+  const handleNavWheel = (event: WheelEvent<SVGGElement>) => {
+    if (maxNavScroll <= 0) return;
+    event.stopPropagation();
+    event.preventDefault();
+    setNavScroll((value) => clampValue(value + event.deltaY * 0.72, 0, maxNavScroll));
+  };
+  const thumbH = maxNavScroll > 0 ? clampValue((navViewportH / navContentH) * navViewportH, 46, navViewportH) : 0;
+  const thumbY =
+    maxNavScroll > 0
+      ? navViewportY + (safeNavScroll / maxNavScroll) * Math.max(0, navViewportH - thumbH)
+      : navViewportY;
   let cursorY = rowTop;
   return (
     <g>
       <SurfacePanel x={outerPad} y={sideTopY} w={leftW} h={navH} tone="cyan" frame="deckSide" cfg={cfg}>
-        {navGroups.map((group) => {
-          const groupY = cursorY;
-          cursorY += groupH;
-          const open = Boolean(openGroupIds[group.id]);
-          const rows = open
-            ? group.items.map((item) => {
-                const itemY = cursorY;
-                cursorY += rowStep;
+        <defs>
+          <clipPath id={navClipId}>
+            <rect x={outerPad - 8} y={navViewportY - 2} width={leftW + 46} height={navViewportH + 4} />
+          </clipPath>
+        </defs>
+        <g onWheel={handleNavWheel}>
+          <rect
+            x={outerPad + 12}
+            y={navViewportY - 2}
+            width={leftW - 24}
+            height={navViewportH + 4}
+            fill="transparent"
+            pointerEvents={maxNavScroll > 0 ? 'all' : 'none'}
+          />
+          <g clipPath={`url(#${navClipId})`}>
+            <g transform={`translate(0 ${-safeNavScroll})`}>
+              {navGroups.map((group) => {
+                const groupY = cursorY;
+                cursorY += groupH;
+                const open = Boolean(openGroupIds[group.id]);
+                const rows = open
+                  ? group.items.map((item) => {
+                      const itemY = cursorY;
+                      cursorY += rowStep;
+                      return (
+                        <NavRow
+                          key={item.label}
+                          item={item}
+                          active={item.label === activeNavLabel}
+                          x={outerPad}
+                          w={leftW}
+                          y={itemY}
+                          rowH={rowH}
+                          iconSize={iconSize}
+                          onSelect={() => onNavItemSelect(item)}
+                          cfg={cfg}
+                        />
+                      );
+                    })
+                  : null;
+                cursorY += groupGap;
                 return (
-                  <NavRow
-                    key={item.label}
-                    item={item}
-                    active={item.label === activeNavLabel}
-                    x={outerPad}
-                    w={leftW}
-                    y={itemY}
-                    rowH={rowH}
-                    iconSize={iconSize}
-                    onSelect={() => onNavItemSelect(item)}
-                    cfg={cfg}
-                  />
+                  <g key={group.id}>
+                    <NavGroupHeader
+                      group={group}
+                      open={open}
+                      x={outerPad}
+                      w={leftW}
+                      y={groupY}
+                      h={groupH}
+                      onToggle={() => onNavGroupToggle(group.id)}
+                      cfg={cfg}
+                    />
+                    {rows}
+                  </g>
                 );
-              })
-            : null;
-          cursorY += groupGap;
-          return (
-            <g key={group.id}>
-              <NavGroupHeader
-                group={group}
-                open={open}
-                x={outerPad}
-                w={leftW}
-                y={groupY}
-                h={groupH}
-                onToggle={() => onNavGroupToggle(group.id)}
-                cfg={cfg}
-              />
-              {rows}
+              })}
             </g>
-          );
-        })}
+          </g>
+        </g>
+        {maxNavScroll > 0 ? (
+          <g pointerEvents="none">
+            <path
+              d={`M ${outerPad + leftW - 10} ${navViewportY + 8} V ${navViewportY + navViewportH - 8}`}
+              stroke={cfg.colors.cyan}
+              strokeWidth={1.4}
+              strokeLinecap="round"
+              opacity={0.28}
+            />
+            <path
+              d={`M ${outerPad + leftW - 10} ${thumbY} V ${thumbY + thumbH}`}
+              stroke={cfg.colors.cyan}
+              strokeWidth={3.4}
+              strokeLinecap="round"
+              opacity={0.82}
+              filter="url(#leaderboardGlow)"
+            />
+          </g>
+        ) : null}
       </SurfacePanel>
       <ChatDockPanel
         x={outerPad}
@@ -7539,7 +7634,8 @@ export function LeaderboardPageSvgSurface({
     rows[0] ??
     toDisplayRows(pageContent.fallbackRows, pageMode, selectedGameName, gameId)[0];
   const leftX = cfg.layout.outerPad;
-  const mainX = leftX + cfg.layout.leftW + cfg.layout.gap;
+  const sideMainGap = Math.max(1, Math.round(cfg.layout.gap * 0.5));
+  const mainX = leftX + cfg.layout.leftW + sideMainGap;
   const rightX = cfg.canvas.width - cfg.layout.outerPad - cfg.layout.rightW;
   const boardY = cfg.layout.topY;
   const mainW = rightX - mainX;
