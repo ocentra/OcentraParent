@@ -13,13 +13,20 @@ use crate::{
     browser_runtime::build_browser_managed_status_report,
     event_builder::{build_event, portal_peer},
     fields::fields_from_pairs,
+    lan_pairing::{
+        build_lan_pairing_status_report, route_lan_command, LanCommandDecision, LanPairingRuntime,
+    },
     local_ai_chat_generation::build_local_ai_chat_generation_report,
     local_ai_runtime_status::build_local_ai_runtime_status_report,
     policy_preview_api::build_policy_preview_read_model_report,
     snapshot::build_dev_log_snapshot,
 };
 
-pub async fn handle_socket(mut socket: WebSocket) {
+pub async fn handle_socket(
+    mut socket: WebSocket,
+    lan_pairing: LanPairingRuntime,
+    origin: Option<String>,
+) {
     let ready_event = build_event(
         constants::event_id::CONNECTION_READY,
         constants::event_id::CONNECTION_READY,
@@ -45,7 +52,8 @@ pub async fn handle_socket(mut socket: WebSocket) {
 
         match message {
             Message::Text(text) => {
-                let event = handle_command_text(text.as_str()).await;
+                let event =
+                    handle_command_text(text.as_str(), lan_pairing.clone(), origin.clone()).await;
                 if send_event(&mut socket, event).await.is_err() {
                     break;
                 }
@@ -61,9 +69,13 @@ pub async fn handle_socket(mut socket: WebSocket) {
     }
 }
 
-async fn handle_command_text(text: &str) -> AgentEventEnvelope {
+async fn handle_command_text(
+    text: &str,
+    lan_pairing: LanPairingRuntime,
+    origin: Option<String>,
+) -> AgentEventEnvelope {
     match serde_json::from_str::<AgentCommandEnvelope>(text) {
-        Ok(command) => handle_command(command).await,
+        Ok(command) => handle_command(command, lan_pairing, origin).await,
         Err(error) => build_event(
             constants::event_id::COMMAND_REJECTED,
             constants::event_id::UNKNOWN_COMMAND,
@@ -79,8 +91,30 @@ async fn handle_command_text(text: &str) -> AgentEventEnvelope {
     }
 }
 
-async fn handle_command(command: AgentCommandEnvelope) -> AgentEventEnvelope {
-    match command.command {
+#[cfg(test)]
+pub(crate) async fn handle_command_text_for_test(
+    text: &str,
+    lan_pairing: LanPairingRuntime,
+    origin: Option<String>,
+) -> AgentEventEnvelope {
+    handle_command_text(text, lan_pairing, origin).await
+}
+
+async fn handle_command(
+    command: AgentCommandEnvelope,
+    lan_pairing: LanPairingRuntime,
+    origin: Option<String>,
+) -> AgentEventEnvelope {
+    let (command, audit_fields) =
+        match route_lan_command(lan_pairing.clone(), origin, command).await {
+            LanCommandDecision::Continue {
+                command,
+                audit_fields,
+            } => (command, audit_fields),
+            LanCommandDecision::Respond(event) => return event,
+        };
+
+    let mut event = match command.command {
         AgentCommandName::AgentHealthCheck => build_health_report(command),
         AgentCommandName::AgentLogSnapshotGet => build_log_snapshot_report(command),
         AgentCommandName::AgentDevEcho => build_event(
@@ -123,7 +157,16 @@ async fn handle_command(command: AgentCommandEnvelope) -> AgentEventEnvelope {
         AgentCommandName::AgentPolicyPreviewReadModelGet => {
             build_policy_preview_read_model_report(command).await
         }
+        AgentCommandName::AgentLanPairingProofSubmit
+        | AgentCommandName::AgentLanPairingStatusGet => {
+            build_lan_pairing_status_report(lan_pairing, command)
+        }
+    };
+
+    if let Some(audit_fields) = audit_fields {
+        event.payload.extend(audit_fields);
     }
+    event
 }
 
 fn build_health_report(command: AgentCommandEnvelope) -> AgentEventEnvelope {

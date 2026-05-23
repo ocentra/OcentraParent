@@ -1,0 +1,205 @@
+use serde::{Deserialize, Serialize};
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum LanPairingNetworkMode {
+    Loopback,
+    LocalNetwork,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum LanPairingTrustState {
+    Unpaired,
+    Pairing,
+    Paired,
+    Revoked,
+    Expired,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum LanPairingDeviceReachability {
+    Online,
+    Offline,
+    Stale,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum LanPairingIntentKind {
+    HealthQuery,
+    RuleQuery,
+    RuleUpdate,
+    ApprovalDecision,
+    ConfigurationUpdate,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum LanPairingResponseState {
+    Accepted,
+    Rejected,
+    Queued,
+    Completed,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum LanPairingRejectionReason {
+    Anonymous,
+    WrongOrigin,
+    WrongDevice,
+    Expired,
+    Replayed,
+    Malformed,
+    Stale,
+    Revoked,
+    LocalNetworkDisabled,
+    UnsupportedRoute,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum LanPairingAuditEventType {
+    DiscoveryAdvertised,
+    PairingChallengeIssued,
+    PairingProofAccepted,
+    PairingProofRejected,
+    ControlAccepted,
+    ControlRejected,
+    PairingRevoked,
+    SelectedDeviceChanged,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LanPairingDeviceRef {
+    pub device_id: String,
+    pub child_profile_id: Option<String>,
+    pub label: String,
+    pub platform: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LanPairingEnablement {
+    pub schema_version: u16,
+    pub enabled: bool,
+    pub network_mode: LanPairingNetworkMode,
+    pub allowed_origins: Vec<String>,
+    pub updated_at: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LanPairingDiscoveryDevice {
+    pub schema_version: u16,
+    pub discovered_at: String,
+    pub child_device: LanPairingDeviceRef,
+    pub agent_peer_id: String,
+    pub route_id: String,
+    pub network_mode: LanPairingNetworkMode,
+    pub reachability: LanPairingDeviceReachability,
+    pub address_ref: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LanPairingChallenge {
+    pub schema_version: u16,
+    pub challenge_id: String,
+    pub child_device: LanPairingDeviceRef,
+    pub parent_device: LanPairingDeviceRef,
+    pub route_id: String,
+    pub origin: String,
+    pub issued_at: String,
+    pub expires_at: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LanPairingProof {
+    pub schema_version: u16,
+    pub pairing_id: String,
+    pub challenge_id: String,
+    pub child_device_id: String,
+    pub parent_device_id: String,
+    pub route_id: String,
+    pub origin: String,
+    pub proof_digest: String,
+    pub issued_at: String,
+    pub expires_at: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LanTrustedDeviceRegistryEntry {
+    pub schema_version: u16,
+    pub pairing_id: String,
+    pub child_device: LanPairingDeviceRef,
+    pub parent_device: LanPairingDeviceRef,
+    pub route_id: String,
+    pub origin: String,
+    pub proof_digest: String,
+    pub trust_state: LanPairingTrustState,
+    pub trusted_at: String,
+    pub expires_at: String,
+    pub revoked_at: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LanSelectedRouteTarget {
+    pub schema_version: u16,
+    pub selected_child_device_id: String,
+    pub route_id: String,
+    pub pairing_id: Option<String>,
+    pub network_mode: LanPairingNetworkMode,
+    pub reachability: LanPairingDeviceReachability,
+    pub stale_at: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LanParentIntentEnvelope {
+    pub schema_version: u16,
+    pub intent_id: String,
+    pub intent_kind: LanPairingIntentKind,
+    pub target_child_device_id: String,
+    pub route_id: String,
+    pub pairing_id: String,
+    pub proof_digest: String,
+    pub origin: String,
+    pub issued_at: String,
+    pub expires_at: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LanChildAgentResponse {
+    pub schema_version: u16,
+    pub intent_id: String,
+    pub target_child_device_id: String,
+    pub route_id: String,
+    pub state: LanPairingResponseState,
+    pub rejection_reason: Option<LanPairingRejectionReason>,
+    pub audit_event_id: String,
+    pub responded_at: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LanPairingAuditEvent {
+    pub schema_version: u16,
+    pub audit_event_id: String,
+    pub event_type: LanPairingAuditEventType,
+    pub pairing_id: Option<String>,
+    pub intent_id: Option<String>,
+    pub child_device_id: Option<String>,
+    pub parent_device_id: Option<String>,
+    pub route_id: String,
+    pub origin: Option<String>,
+    pub rejection_reason: Option<LanPairingRejectionReason>,
+    pub observed_at: String,
+}

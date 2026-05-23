@@ -77,7 +77,9 @@ export const AgentCommandNameSchema = withParser(
     'agent.network.flow.read-model.get',
     'agent.local-ai.runtime.status.get',
     'agent.local-ai.chat.generate',
-    'agent.policy.preview.read-model.get'
+    'agent.policy.preview.read-model.get',
+    'agent.lan-pairing.proof.submit',
+    'agent.lan-pairing.status.get'
   )
 );
 
@@ -98,7 +100,9 @@ export const AgentEventNameSchema = withParser(
     'agent.network.flow.read-model.reported',
     'agent.local-ai.runtime.status.reported',
     'agent.local-ai.chat.generation.reported',
-    'agent.policy.preview.read-model.reported'
+    'agent.policy.preview.read-model.reported',
+    'agent.lan-pairing.status.reported',
+    'agent.lan-pairing.audit.reported'
   )
 );
 
@@ -157,6 +161,8 @@ export const AgentCommand = {
   LocalAiRuntimeStatusGet: AgentCommandNameSchema.parse('agent.local-ai.runtime.status.get'),
   LocalAiChatGenerate: AgentCommandNameSchema.parse('agent.local-ai.chat.generate'),
   PolicyPreviewReadModelGet: AgentCommandNameSchema.parse('agent.policy.preview.read-model.get'),
+  LanPairingProofSubmit: AgentCommandNameSchema.parse('agent.lan-pairing.proof.submit'),
+  LanPairingStatusGet: AgentCommandNameSchema.parse('agent.lan-pairing.status.get'),
 } as const;
 
 export const AgentEvent = {
@@ -176,4 +182,6 @@ export const AgentEvent = {
   LocalAiRuntimeStatusReported: AgentEventNameSchema.parse('agent.local-ai.runtime.status.reported'),
   LocalAiChatGenerationReported: AgentEventNameSchema.parse('agent.local-ai.chat.generation.reported'),
   PolicyPreviewReadModelReported: AgentEventNameSchema.parse('agent.policy.preview.read-model.reported'),
+  LanPairingStatusReported: AgentEventNameSchema.parse('agent.lan-pairing.status.reported'),
+  LanPairingAuditReported: AgentEventNameSchema.parse('agent.lan-pairing.audit.reported'),
 } as const;

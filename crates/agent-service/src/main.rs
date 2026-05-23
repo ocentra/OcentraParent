@@ -21,6 +21,10 @@ mod browser_runtime_tests;
 mod dev_log;
 mod event_builder;
 mod fields;
+mod lan_pairing;
+mod lan_pairing_audit;
+#[cfg(test)]
+mod lan_pairing_tests;
 mod local_ai_cache_root;
 mod local_ai_chat_generation;
 mod local_ai_chat_generation_args;

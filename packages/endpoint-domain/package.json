@@ -13,6 +13,10 @@
       "import": "./dist/constants/http.js",
       "types": "./dist/constants/http.d.ts"
     },
+    "./constants/lan-pairing": {
+      "import": "./dist/constants/lan-pairing.js",
+      "types": "./dist/constants/lan-pairing.d.ts"
+    },
     "./constants/versions": {
       "import": "./dist/constants/versions.js",
       "types": "./dist/constants/versions.d.ts"

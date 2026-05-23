@@ -70,6 +70,8 @@ it('AgentCommand: exposes typed command constants for portal requests', () => {
   expect(AgentCommand.NetworkFlowReadModelGet).toBe('agent.network.flow.read-model.get');
   expect(AgentCommand.LocalAiRuntimeStatusGet).toBe('agent.local-ai.runtime.status.get');
   expect(AgentCommand.LocalAiChatGenerate).toBe('agent.local-ai.chat.generate');
+  expect(AgentCommand.LanPairingProofSubmit).toBe('agent.lan-pairing.proof.submit');
+  expect(AgentCommand.LanPairingStatusGet).toBe('agent.lan-pairing.status.get');
 });
 
 it('AgentProtocolDefaults.Field: exposes local AI model cache payload fields', () => {
@@ -152,6 +154,8 @@ it('AgentEvent: exposes typed constants for portal result rendering', () => {
   expect(AgentEvent.NetworkFlowReadModelReported).toBe('agent.network.flow.read-model.reported');
   expect(AgentEvent.LocalAiRuntimeStatusReported).toBe('agent.local-ai.runtime.status.reported');
   expect(AgentEvent.LocalAiChatGenerationReported).toBe('agent.local-ai.chat.generation.reported');
+  expect(AgentEvent.LanPairingStatusReported).toBe('agent.lan-pairing.status.reported');
+  expect(AgentEvent.LanPairingAuditReported).toBe('agent.lan-pairing.audit.reported');
 });
 
 it('AgentCommandEnvelopeSchema: rejects unknown commands', () => {
