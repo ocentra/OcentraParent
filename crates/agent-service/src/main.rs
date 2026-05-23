@@ -26,6 +26,7 @@ mod lan_pairing_audit;
 #[cfg(test)]
 mod lan_pairing_multidevice_tests;
 mod lan_pairing_payload;
+mod lan_pairing_runtime_state;
 mod lan_pairing_status;
 #[cfg(test)]
 mod lan_pairing_test_assertions;

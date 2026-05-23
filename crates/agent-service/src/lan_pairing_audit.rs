@@ -35,6 +35,21 @@ pub(crate) fn selected_route_audit_fields(
     )
 }
 
+pub(crate) fn revoked_route_audit_fields(
+    command: &AgentCommandEnvelope,
+    intent: &LanParentIntentEnvelope,
+    origin: Option<&str>,
+) -> LogFields {
+    control_audit_fields(
+        command,
+        constants::value::LAN_CONTROL_ACCEPTED,
+        constants::value::LAN_AUDIT_PAIRING_REVOKED,
+        None,
+        Some(intent),
+        origin,
+    )
+}
+
 pub(crate) fn rejected_control_audit_fields(
     command: &AgentCommandEnvelope,
     reason: &LanPairingRejectionReason,
@@ -144,6 +159,7 @@ fn reason_value(reason: &LanPairingRejectionReason) -> &'static str {
         LanPairingRejectionReason::Replayed => constants::value::LAN_REASON_REPLAYED,
         LanPairingRejectionReason::Malformed => constants::value::LAN_REASON_MALFORMED,
         LanPairingRejectionReason::Stale => constants::value::LAN_REASON_STALE,
+        LanPairingRejectionReason::Offline => constants::value::LAN_REASON_OFFLINE,
         LanPairingRejectionReason::Revoked => constants::value::LAN_REASON_REVOKED,
         LanPairingRejectionReason::LocalNetworkDisabled => {
             constants::value::LAN_REASON_UNSUPPORTED_ROUTE

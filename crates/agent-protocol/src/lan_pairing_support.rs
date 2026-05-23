@@ -36,6 +36,7 @@ pub enum LanPairingRouteRequirement {
     UnexpiredIntent,
     NonReplayedIntent,
     UnrevokedPairing,
+    SelectedDeviceReachable,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

@@ -12,6 +12,7 @@ describe('LAN pairing multi-device protocol contracts', () => {
     expect(Object.values(AgentLanPairingSupportedWebSocketCommand)).toEqual([
       'agent.lan-pairing.proof.submit',
       'agent.lan-pairing.route.select',
+      'agent.lan-pairing.route.revoke',
       'agent.lan-pairing.status.get',
     ]);
     expect(Object.values(AgentLanPairingSupportedWebSocketCommand)).not.toContain('agent.lan-pairing.discovery.http');
@@ -21,6 +22,9 @@ describe('LAN pairing multi-device protocol contracts', () => {
     expect(AgentPairingStateSchema.parse('unauthenticated')).toBe('unauthenticated');
     expect(AgentProtocolDefaults.PairingState.Unpaired).toBe('unpaired');
     expect(AgentProtocolDefaults.PairingState.Paired).toBe('paired');
+    expect(AgentProtocolDefaults.PairingState.Revoked).toBe('revoked');
+    expect(AgentProtocolDefaults.LanSelectedDeviceReachability.Stale).toBe('stale');
+    expect(AgentProtocolDefaults.LanSelectedDeviceReachability.Offline).toBe('offline');
   });
 
   it('AgentCommandEnvelopeSchema: accepts a route select command for a paired child device', () => {

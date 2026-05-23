@@ -1,11 +1,13 @@
 pub const COMMAND_PROOF_SUBMIT: &str = "agent.lan-pairing.proof.submit";
 pub const COMMAND_ROUTE_SELECT: &str = "agent.lan-pairing.route.select";
+pub const COMMAND_ROUTE_REVOKE: &str = "agent.lan-pairing.route.revoke";
 pub const COMMAND_STATUS_GET: &str = "agent.lan-pairing.status.get";
 pub const EVENT_STATUS_REPORTED: &str = "agent.lan-pairing.status.reported";
 pub const EVENT_AUDIT_REPORTED: &str = "agent.lan-pairing.audit.reported";
 pub const SUPPORTED_WEBSOCKET_COMMANDS: &[&str] = &[
     COMMAND_PROOF_SUBMIT,
     COMMAND_ROUTE_SELECT,
+    COMMAND_ROUTE_REVOKE,
     COMMAND_STATUS_GET,
 ];
 
@@ -35,6 +37,7 @@ pub const ROUTE_REQUIREMENT_ROUTE_ID_MATCH: &str = "route-id-match";
 pub const ROUTE_REQUIREMENT_UNEXPIRED_INTENT: &str = "unexpired-intent";
 pub const ROUTE_REQUIREMENT_NON_REPLAYED_INTENT: &str = "non-replayed-intent";
 pub const ROUTE_REQUIREMENT_UNREVOKED_PAIRING: &str = "unrevoked-pairing";
+pub const ROUTE_REQUIREMENT_SELECTED_DEVICE_REACHABLE: &str = "selected-device-reachable";
 pub const ROUTE_REQUIREMENTS: &[&str] = &[
     ROUTE_REQUIREMENT_PAIRED_DEVICE,
     ROUTE_REQUIREMENT_ALLOWED_ORIGIN,
@@ -43,6 +46,7 @@ pub const ROUTE_REQUIREMENTS: &[&str] = &[
     ROUTE_REQUIREMENT_UNEXPIRED_INTENT,
     ROUTE_REQUIREMENT_NON_REPLAYED_INTENT,
     ROUTE_REQUIREMENT_UNREVOKED_PAIRING,
+    ROUTE_REQUIREMENT_SELECTED_DEVICE_REACHABLE,
 ];
 pub const MANUAL_PROOF_GAP_LAN_BIND: &str = "manual-lan-bind-proof";
 pub const MANUAL_PROOF_GAP_FIREWALL: &str = "manual-firewall-proof";
@@ -74,6 +78,7 @@ pub const SECOND_INTENT_ID: &str = "intent-2";
 pub const SELECT_INTENT_ID: &str = "intent-select-1";
 pub const SECOND_SELECT_INTENT_ID: &str = "intent-select-2";
 pub const SELECT_BACK_INTENT_ID: &str = "intent-select-back";
+pub const REVOKE_INTENT_ID: &str = "intent-revoke-1";
 pub const REPLAYED_INTENT_ID: &str = "intent-replayed";
 pub const AUDIT_EVENT_ID: &str = "lan-audit-1";
 pub const ALLOWED_ORIGIN: &str = "http://127.0.0.1:4478";

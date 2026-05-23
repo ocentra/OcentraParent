@@ -6,16 +6,17 @@ use std::{
 };
 
 use ocentra_parent_agent_protocol::{
-    constants, LanPairingAuthenticationState, LanPairingDeviceReachability, LanPairingDeviceRef,
-    LanPairingNetworkMode, LanPairingProof, LanPairingRejectionReason, LanPairingTrustState,
-    LanParentIntentEnvelope, LanSelectedRouteTarget, LanTrustedDeviceRegistryEntry,
+    LanPairingDeviceReachability, LanPairingDeviceRef, LanPairingProof, LanPairingRejectionReason,
+    LanPairingTrustState, LanParentIntentEnvelope, LanTrustedDeviceRegistryEntry,
 };
 
 #[derive(Clone, Debug, Default)]
 pub struct TrustedDeviceRegistry {
-    entries: Vec<LanTrustedDeviceRegistryEntry>,
+    pub(crate) entries: Vec<LanTrustedDeviceRegistryEntry>,
     accepted_intent_ids: BTreeSet<String>,
-    selected_pairing_id: Option<String>,
+    pub(crate) selected_pairing_id: Option<String>,
+    pub(crate) selected_route_stale_at: Option<String>,
+    pub(crate) selected_route_offline_at: Option<String>,
 }
 
 impl TrustedDeviceRegistry {
@@ -28,6 +29,8 @@ impl TrustedDeviceRegistry {
             entries,
             accepted_intent_ids: BTreeSet::new(),
             selected_pairing_id: None,
+            selected_route_stale_at: None,
+            selected_route_offline_at: None,
         }
     }
 
@@ -86,65 +89,12 @@ impl TrustedDeviceRegistry {
             entry.revoked_at = Some(revoked_at.to_string());
             if self.selected_pairing_id.as_deref() == Some(pairing_id) {
                 self.selected_pairing_id = None;
+                self.selected_route_stale_at = None;
+                self.selected_route_offline_at = None;
             }
             return true;
         }
         false
-    }
-
-    pub fn select_pairing(
-        &mut self,
-        pairing_id: &str,
-        target_child_device_id: &str,
-        route_id: &str,
-    ) -> Result<LanSelectedRouteTarget, LanPairingRejectionReason> {
-        let entry = self
-            .entries
-            .iter()
-            .find(|candidate| candidate.pairing_id == pairing_id)
-            .ok_or(LanPairingRejectionReason::Anonymous)?;
-
-        if entry.trust_state == LanPairingTrustState::Revoked || entry.revoked_at.is_some() {
-            return Err(LanPairingRejectionReason::Revoked);
-        }
-        if target_child_device_id != entry.child_device.device_id.as_str() {
-            return Err(LanPairingRejectionReason::WrongDevice);
-        }
-        if route_id != entry.route_id.as_str() {
-            return Err(LanPairingRejectionReason::UnsupportedRoute);
-        }
-
-        self.selected_pairing_id = Some(entry.pairing_id.clone());
-        self.selected_target()
-            .ok_or(LanPairingRejectionReason::UnselectedDevice)
-    }
-
-    pub fn selected_target(&self) -> Option<LanSelectedRouteTarget> {
-        self.selected_entry().map(|entry| LanSelectedRouteTarget {
-            schema_version: constants::lan_pairing::SCHEMA_VERSION,
-            selected_child_device_id: entry.child_device.device_id.clone(),
-            route_id: entry.route_id.clone(),
-            pairing_id: Some(entry.pairing_id.clone()),
-            network_mode: LanPairingNetworkMode::LocalNetwork,
-            reachability: LanPairingDeviceReachability::Online,
-            stale_at: None,
-        })
-    }
-
-    pub fn authentication_state(&self) -> LanPairingAuthenticationState {
-        if self.selected_entry().is_some() {
-            LanPairingAuthenticationState::Paired
-        } else {
-            LanPairingAuthenticationState::Unpaired
-        }
-    }
-
-    pub fn trusted_device_ids(&self) -> Vec<String> {
-        self.entries
-            .iter()
-            .filter(|entry| entry.trust_state == LanPairingTrustState::Paired)
-            .map(|entry| entry.child_device.device_id.clone())
-            .collect()
     }
 
     pub fn validate_intent(
@@ -208,6 +158,17 @@ impl TrustedDeviceRegistry {
         {
             return Err(LanPairingRejectionReason::UnselectedDevice);
         }
+        if require_selected_pairing {
+            match self.selected_reachability_at(observed_at) {
+                LanPairingDeviceReachability::Offline => {
+                    return Err(LanPairingRejectionReason::Offline);
+                }
+                LanPairingDeviceReachability::Stale => {
+                    return Err(LanPairingRejectionReason::Stale);
+                }
+                LanPairingDeviceReachability::Online => {}
+            }
+        }
         if observed_at > entry.expires_at.as_str() {
             return Err(LanPairingRejectionReason::Expired);
         }
@@ -217,15 +178,5 @@ impl TrustedDeviceRegistry {
 
         self.accepted_intent_ids.insert(intent.intent_id.clone());
         Ok(())
-    }
-
-    fn selected_entry(&self) -> Option<&LanTrustedDeviceRegistryEntry> {
-        self.selected_pairing_id.as_deref().and_then(|pairing_id| {
-            self.entries.iter().find(|candidate| {
-                candidate.pairing_id == pairing_id
-                    && candidate.trust_state == LanPairingTrustState::Paired
-                    && candidate.revoked_at.is_none()
-            })
-        })
     }
 }

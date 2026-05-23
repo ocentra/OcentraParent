@@ -64,6 +64,14 @@ pub(crate) fn route_select_command(payload: LogFields) -> AgentCommandEnvelope {
     route_select_command_for_target(constants::lan_pairing::CHILD_DEVICE_ID, payload)
 }
 
+pub(crate) fn route_revoke_command(payload: LogFields) -> AgentCommandEnvelope {
+    command_for_target(
+        AgentCommandName::AgentLanPairingRouteRevoke,
+        local_network_target(constants::lan_pairing::CHILD_DEVICE_ID),
+        payload,
+    )
+}
+
 pub(crate) fn route_select_command_for_target(
     device_id: &str,
     payload: LogFields,

@@ -51,11 +51,13 @@ export {
 } from './primitives';
 export {
   AgentPairingIdSchema,
+  AgentLanSelectedDeviceReachabilitySchema,
   AgentPairingProofSchema,
   AgentPairingStateSchema,
   AgentPairingTokenHashSchema,
   AgentRouteSecurityPolicySchema,
   type AgentPairingId,
+  type AgentLanSelectedDeviceReachability,
   type AgentPairingProof,
   type AgentPairingState,
   type AgentPairingTokenHash,
@@ -80,6 +82,7 @@ export const AgentCommandNameSchema = withParser(
     'agent.policy.preview.read-model.get',
     'agent.lan-pairing.proof.submit',
     'agent.lan-pairing.route.select',
+    'agent.lan-pairing.route.revoke',
     'agent.lan-pairing.status.get'
   )
 );
@@ -164,12 +167,14 @@ export const AgentCommand = {
   PolicyPreviewReadModelGet: AgentCommandNameSchema.parse('agent.policy.preview.read-model.get'),
   LanPairingProofSubmit: AgentCommandNameSchema.parse('agent.lan-pairing.proof.submit'),
   LanPairingRouteSelect: AgentCommandNameSchema.parse('agent.lan-pairing.route.select'),
+  LanPairingRouteRevoke: AgentCommandNameSchema.parse('agent.lan-pairing.route.revoke'),
   LanPairingStatusGet: AgentCommandNameSchema.parse('agent.lan-pairing.status.get'),
 } as const;
 
 export const AgentLanPairingSupportedWebSocketCommand = {
   ProofSubmit: AgentCommand.LanPairingProofSubmit,
   RouteSelect: AgentCommand.LanPairingRouteSelect,
+  RouteRevoke: AgentCommand.LanPairingRouteRevoke,
   StatusGet: AgentCommand.LanPairingStatusGet,
 } as const;
 

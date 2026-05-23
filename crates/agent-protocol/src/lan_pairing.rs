@@ -62,6 +62,7 @@ pub enum LanPairingRejectionReason {
     Replayed,
     Malformed,
     Stale,
+    Offline,
     Revoked,
     LocalNetworkDisabled,
     UnsupportedRoute,
