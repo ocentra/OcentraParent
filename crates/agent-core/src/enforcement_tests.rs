@@ -27,6 +27,11 @@ fn dry_run_decision_never_requests_adapter_execution() {
         outcome.result.rollback_state.as_protocol_str(),
         enforcement::ROLLBACK_NOT_REQUIRED
     );
+    assert_eq!(
+        outcome.action.capability.capability_state.as_protocol_str(),
+        enforcement::CAPABILITY_SUPPORTED
+    );
+    assert_eq!(outcome.result.unavailable_status, None);
     assert_eq!(outcome.adapter_request, None);
     assert_eq!(
         outcome.audit_event.audit_event_kind.as_protocol_str(),
@@ -89,9 +94,64 @@ fn unavailable_capability_returns_auditable_unavailable_result() {
         outcome.result.rollback_state.as_protocol_str(),
         enforcement::ROLLBACK_UNAVAILABLE
     );
+    let unavailable_status = outcome
+        .result
+        .unavailable_status
+        .as_ref()
+        .expect(enforcement::UNAVAILABLE_UNSUPPORTED_PLATFORM);
+    assert_eq!(
+        unavailable_status.unavailable_reason.as_protocol_str(),
+        enforcement::UNAVAILABLE_UNSUPPORTED_PLATFORM
+    );
+    assert!(!unavailable_status.retryable);
+    assert_eq!(
+        outcome
+            .audit_event
+            .capability
+            .capability_state
+            .as_protocol_str(),
+        enforcement::CAPABILITY_UNAVAILABLE
+    );
+    assert_eq!(
+        outcome
+            .audit_event
+            .unavailable_status
+            .as_ref()
+            .expect(enforcement::UNAVAILABLE_UNSUPPORTED_PLATFORM)
+            .unavailable_reason
+            .as_protocol_str(),
+        enforcement::UNAVAILABLE_UNSUPPORTED_PLATFORM
+    );
     assert_eq!(
         outcome.audit_event.audit_event_kind.as_protocol_str(),
         enforcement::AUDIT_UNAVAILABLE
+    );
+    assert_eq!(outcome.adapter_request, None);
+}
+
+#[test]
+fn unsupported_action_returns_typed_unavailable_status_without_adapter_execution() {
+    let input = boundary_input(policy_decision(false), unsupported_action_capability());
+
+    let outcome = evaluate_enforcement_boundary(input).expect(enforcement::ADAPTER_UNAVAILABLE);
+
+    assert_eq!(
+        outcome.result.status.as_protocol_str(),
+        enforcement::RESULT_UNAVAILABLE
+    );
+    assert_eq!(
+        outcome
+            .result
+            .unavailable_status
+            .as_ref()
+            .expect(enforcement::UNAVAILABLE_UNSUPPORTED_ACTION)
+            .unavailable_reason
+            .as_protocol_str(),
+        enforcement::UNAVAILABLE_UNSUPPORTED_ACTION
+    );
+    assert_eq!(
+        outcome.result.unavailable_reason.as_deref(),
+        Some(enforcement::UNAVAILABLE_UNSUPPORTED_ACTION)
     );
     assert_eq!(outcome.adapter_request, None);
 }
@@ -138,6 +198,7 @@ fn adapter_outcome_maps_to_success_result_and_audit() {
         outcome.result.rollback_state.as_protocol_str(),
         enforcement::ROLLBACK_AVAILABLE
     );
+    assert_eq!(outcome.audit_event.unavailable_status, None);
     assert_eq!(outcome.adapter_request, None);
 }
 
@@ -250,7 +311,21 @@ fn unavailable_capability() -> EnforcementCapabilityStatus {
         permission_state: EnforcementPermissionState::NotRequired,
         dependency_state: EnforcementDependencyState::NotRequired,
         supported_actions: Vec::new(),
-        degraded_reason: Some(enforcement::ADAPTER_UNSUPPORTED_PLATFORM.to_string()),
+        degraded_reason: Some(enforcement::UNAVAILABLE_UNSUPPORTED_PLATFORM.to_string()),
+        last_checked_at: policy::TEST_EVALUATED_AT.to_string(),
+    }
+}
+
+fn unsupported_action_capability() -> EnforcementCapabilityStatus {
+    EnforcementCapabilityStatus {
+        schema_version: policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
+        platform: ParentPlatform::Windows,
+        adapter_kind: EnforcementAdapterKind::ProcessControl,
+        capability_state: EnforcementCapabilityState::Supported,
+        permission_state: EnforcementPermissionState::NotRequired,
+        dependency_state: EnforcementDependencyState::Installed,
+        supported_actions: Vec::new(),
+        degraded_reason: None,
         last_checked_at: policy::TEST_EVALUATED_AT.to_string(),
     }
 }
