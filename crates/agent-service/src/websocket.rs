@@ -159,6 +159,7 @@ async fn handle_command(
         }
         AgentCommandName::AgentLanPairingProofSubmit
         | AgentCommandName::AgentLanPairingRouteSelect
+        | AgentCommandName::AgentLanPairingRouteRevoke
         | AgentCommandName::AgentLanPairingStatusGet => {
             build_lan_pairing_status_report(lan_pairing, command)
         }

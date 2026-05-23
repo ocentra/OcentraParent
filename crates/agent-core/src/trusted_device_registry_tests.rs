@@ -1,8 +1,9 @@
 use std::fs::remove_file;
 
 use ocentra_parent_agent_protocol::{
-    constants, policy_constants, LanPairingAuthenticationState, LanPairingDeviceRef,
-    LanPairingIntentKind, LanPairingProof, LanPairingRejectionReason, LanParentIntentEnvelope,
+    constants, policy_constants, LanPairingAuthenticationState, LanPairingDeviceReachability,
+    LanPairingDeviceRef, LanPairingIntentKind, LanPairingProof, LanPairingRejectionReason,
+    LanParentIntentEnvelope,
 };
 
 use crate::TrustedDeviceRegistry;
@@ -22,6 +23,7 @@ fn trusted_device_registry_accepts_pairing_and_validates_intent() {
             constants::lan_pairing::PAIRING_ID,
             constants::lan_pairing::CHILD_DEVICE_ID,
             constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK,
+            constants::lan_pairing::EXPIRES_AT,
         )
         .expect(constants::error::AGENT_EVENT_SERIALIZES);
     registry
@@ -29,6 +31,7 @@ fn trusted_device_registry_accepts_pairing_and_validates_intent() {
             constants::lan_pairing::PAIRING_ID,
             constants::lan_pairing::CHILD_DEVICE_ID,
             constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK,
+            constants::lan_pairing::EXPIRES_AT,
         )
         .expect(constants::error::AGENT_EVENT_SERIALIZES);
 
@@ -220,6 +223,7 @@ fn trusted_device_registry_requires_selected_device_for_multi_device_control() {
             constants::lan_pairing::PAIRING_ID,
             constants::lan_pairing::CHILD_DEVICE_ID,
             constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK,
+            constants::lan_pairing::EXPIRES_AT,
         )
         .expect(constants::error::AGENT_EVENT_SERIALIZES);
 
@@ -254,6 +258,66 @@ fn trusted_device_registry_requires_selected_device_for_multi_device_control() {
             constants::lan_pairing::OBSERVED_AT,
         ),
         Err(LanPairingRejectionReason::UnselectedDevice)
+    );
+}
+
+#[test]
+fn trusted_device_registry_reports_revoked_stale_and_offline_selected_state() {
+    let mut stale_registry = selected_registry(constants::lan_pairing::EXPIRES_AT);
+    assert!(stale_registry.mark_selected_stale(constants::lan_pairing::EXPIRED_AT));
+    let stale_target = stale_registry
+        .selected_target_at(constants::lan_pairing::OBSERVED_AT)
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let mut offline_registry = selected_registry(constants::lan_pairing::EXPIRES_AT);
+    assert!(offline_registry.mark_selected_offline(constants::lan_pairing::OBSERVED_AT));
+    let offline_target = offline_registry
+        .selected_target_at(constants::lan_pairing::OBSERVED_AT)
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let mut revoked_registry = selected_registry(constants::lan_pairing::EXPIRES_AT);
+
+    assert_eq!(
+        stale_target.reachability,
+        LanPairingDeviceReachability::Stale
+    );
+    assert_eq!(
+        stale_registry.validate_intent(
+            &intent(
+                constants::lan_pairing::INTENT_ID,
+                constants::lan_pairing::CHILD_DEVICE_ID,
+                constants::lan_pairing::PROOF_DIGEST,
+                constants::lan_pairing::EXPIRES_AT,
+            ),
+            Some(constants::lan_pairing::ALLOWED_ORIGIN),
+            constants::lan_pairing::OBSERVED_AT,
+        ),
+        Err(LanPairingRejectionReason::Stale)
+    );
+    assert_eq!(
+        offline_target.reachability,
+        LanPairingDeviceReachability::Offline
+    );
+    assert_eq!(
+        offline_registry.validate_intent(
+            &intent(
+                constants::lan_pairing::INTENT_ID,
+                constants::lan_pairing::CHILD_DEVICE_ID,
+                constants::lan_pairing::PROOF_DIGEST,
+                constants::lan_pairing::EXPIRES_AT,
+            ),
+            Some(constants::lan_pairing::ALLOWED_ORIGIN),
+            constants::lan_pairing::OBSERVED_AT,
+        ),
+        Err(LanPairingRejectionReason::Offline)
+    );
+    assert!(revoked_registry.revoke_pairing(
+        constants::lan_pairing::PAIRING_ID,
+        constants::lan_pairing::OBSERVED_AT
+    ));
+    assert_eq!(revoked_registry.selected_target(), None);
+    assert_eq!(revoked_registry.trusted_device_count(), 0);
+    assert_eq!(
+        revoked_registry.revoked_device_ids(),
+        vec![constants::lan_pairing::CHILD_DEVICE_ID.to_string()]
     );
 }
 
@@ -312,6 +376,7 @@ fn selected_registry(expires_at: &str) -> TrustedDeviceRegistry {
             constants::lan_pairing::PAIRING_ID,
             constants::lan_pairing::CHILD_DEVICE_ID,
             constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK,
+            constants::lan_pairing::EXPIRES_AT,
         )
         .expect(constants::error::AGENT_EVENT_SERIALIZES);
     registry

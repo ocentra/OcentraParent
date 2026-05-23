@@ -3,14 +3,15 @@ use std::sync::{Arc, Mutex};
 use ocentra_parent_agent_core::TrustedDeviceRegistry;
 use ocentra_parent_agent_protocol::{
     constants, AgentCommandEnvelope, AgentCommandName, AgentEventEnvelope, AgentEventName,
-    AgentRoute, LanPairingDeviceRef, LanPairingRejectionReason, LanParentIntentEnvelope,
-    LanSelectedRouteTarget, LogFields, LogLevel,
+    AgentRoute, LanPairingDeviceRef, LanPairingRejectionReason, LanParentIntentEnvelope, LogFields,
+    LogLevel,
 };
 
 use crate::{
     event_builder::build_event,
     lan_pairing_audit::{
-        accepted_control_audit_fields, rejected_control_audit_fields, selected_route_audit_fields,
+        accepted_control_audit_fields, rejected_control_audit_fields, revoked_route_audit_fields,
+        selected_route_audit_fields,
     },
     lan_pairing_payload::{parse_intent, parse_pairing_proof},
     lan_pairing_status::pairing_status_event,
@@ -19,7 +20,7 @@ use crate::{
 
 #[derive(Clone, Debug)]
 pub struct LanPairingRuntime {
-    registry: Arc<Mutex<TrustedDeviceRegistry>>,
+    pub(crate) registry: Arc<Mutex<TrustedDeviceRegistry>>,
 }
 
 pub enum LanCommandDecision {
@@ -28,43 +29,6 @@ pub enum LanCommandDecision {
         audit_fields: Option<LogFields>,
     },
     Respond(AgentEventEnvelope),
-}
-
-impl LanPairingRuntime {
-    pub fn empty() -> Self {
-        Self {
-            registry: Arc::new(Mutex::new(TrustedDeviceRegistry::empty())),
-        }
-    }
-
-    pub fn trusted_device_count(&self) -> usize {
-        self.registry
-            .lock()
-            .map(|registry| registry.entries().len())
-            .unwrap_or(0)
-    }
-
-    pub fn selected_target(&self) -> Option<LanSelectedRouteTarget> {
-        self.registry
-            .lock()
-            .ok()
-            .and_then(|registry| registry.selected_target())
-    }
-
-    pub fn trusted_device_ids(&self) -> Vec<String> {
-        self.registry
-            .lock()
-            .map(|registry| registry.trusted_device_ids())
-            .unwrap_or_default()
-    }
-
-    #[cfg(test)]
-    pub fn revoke_pairing_for_test(&self, pairing_id: &str, revoked_at: &str) -> bool {
-        self.registry
-            .lock()
-            .map(|mut registry| registry.revoke_pairing(pairing_id, revoked_at))
-            .unwrap_or(false)
-    }
 }
 
 impl Default for LanPairingRuntime {
@@ -91,6 +55,10 @@ pub async fn route_lan_command(
 
     if command.command == AgentCommandName::AgentLanPairingRouteSelect {
         return LanCommandDecision::Respond(lan_pairing_route_select(runtime, origin, command));
+    }
+
+    if command.command == AgentCommandName::AgentLanPairingRouteRevoke {
+        return LanCommandDecision::Respond(lan_pairing_route_revoke(runtime, origin, command));
     }
 
     if command.command == AgentCommandName::AgentLanPairingStatusGet {
@@ -181,6 +149,27 @@ fn lan_pairing_status_get(
     }
 }
 
+fn lan_pairing_route_revoke(
+    runtime: LanPairingRuntime,
+    origin: Option<String>,
+    command: AgentCommandEnvelope,
+) -> AgentEventEnvelope {
+    let observed_origin = origin.as_deref();
+    match parse_intent(&command.payload, &command) {
+        Ok(intent) => match validate_selection_intent_result(&runtime, observed_origin, &intent) {
+            Ok(()) => {
+                revoke_pairing(&runtime, &intent);
+                let audit_fields = revoked_route_audit_fields(&command, &intent, observed_origin);
+                let mut event = pairing_status_event(&runtime, command);
+                event.payload.extend(audit_fields);
+                event
+            }
+            Err(reason) => rejection_event(command, reason, Some(&intent), observed_origin),
+        },
+        Err(reason) => rejection_event(command, reason, None, observed_origin),
+    }
+}
+
 fn validate_control_intent(
     runtime: LanPairingRuntime,
     origin: Option<&str>,
@@ -236,10 +225,20 @@ fn select_pairing_result(
                 &intent.pairing_id,
                 &intent.target_child_device_id,
                 &intent.route_id,
+                &intent.expires_at,
             )
         })
         .unwrap_or(Err(LanPairingRejectionReason::Malformed))
         .map(|_| ())
+}
+
+fn revoke_pairing(runtime: &LanPairingRuntime, intent: &LanParentIntentEnvelope) -> bool {
+    let revoked_at = timestamp_now();
+    runtime
+        .registry
+        .lock()
+        .map(|mut registry| registry.revoke_pairing(&intent.pairing_id, &revoked_at))
+        .unwrap_or(false)
 }
 
 fn rejection_event(

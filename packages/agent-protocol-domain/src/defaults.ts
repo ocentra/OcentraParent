@@ -5,7 +5,11 @@ import {
   AgentProtocolSchemaVersion,
   AgentWebSocketUrlSchema,
 } from './primitives';
-import { AgentPairingStateSchema, AgentRouteSecurityPolicySchema } from './security';
+import {
+  AgentLanSelectedDeviceReachabilitySchema,
+  AgentPairingStateSchema,
+  AgentRouteSecurityPolicySchema,
+} from './security';
 
 const decodeAgentWebSocketUrl = Schema.decodeUnknownSync(AgentWebSocketUrlSchema);
 
@@ -37,6 +41,11 @@ export const AgentProtocolDefaults = {
     Pairing: AgentPairingStateSchema.parse('pairing'),
     Paired: AgentPairingStateSchema.parse('paired'),
     Revoked: AgentPairingStateSchema.parse('revoked'),
+  },
+  LanSelectedDeviceReachability: {
+    Online: AgentLanSelectedDeviceReachabilitySchema.parse('online'),
+    Offline: AgentLanSelectedDeviceReachabilitySchema.parse('offline'),
+    Stale: AgentLanSelectedDeviceReachabilitySchema.parse('stale'),
   },
   RouteSecurity: {
     Localhost: AgentRouteSecurityPolicySchema.parse({
@@ -106,8 +115,11 @@ export const AgentProtocolDefaults = {
     LanPairingState: 'pairingState',
     LanProofDigest: 'proofDigest',
     LanRejectionReason: 'rejectionReason',
+    LanRevokedDeviceIds: 'revokedDeviceIds',
     LanRouteId: 'routeId',
     LanSelectedChildDeviceId: 'selectedChildDeviceId',
+    LanSelectedDeviceReachability: 'selectedDeviceReachability',
+    LanSelectedDeviceStaleAt: 'selectedDeviceStaleAt',
     LanSelectedRouteId: 'selectedRouteId',
     LanTrustedDeviceIds: 'trustedDeviceIds',
     LanTrustedDeviceCount: 'trustedDeviceCount',

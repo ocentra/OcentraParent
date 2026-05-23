@@ -93,6 +93,15 @@ pub(crate) fn assert_status_support_surface(event: &AgentEventEnvelope) {
     );
 }
 
+pub(crate) fn assert_selected_device_reachability(event: &AgentEventEnvelope, reachability: &str) {
+    assert_eq!(
+        event
+            .payload
+            .get(constants::field::LAN_SELECTED_DEVICE_REACHABILITY),
+        Some(&LogFieldValue::String(reachability.to_string()))
+    );
+}
+
 pub(crate) fn assert_status_selection(
     event: &AgentEventEnvelope,
     authentication_state: &str,

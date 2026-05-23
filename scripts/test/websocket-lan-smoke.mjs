@@ -129,7 +129,7 @@ function assertLanSupportSurface(payload) {
   assertPayloadValue(
     payload,
     'supportedWebSocketCommands',
-    'agent.lan-pairing.proof.submit,agent.lan-pairing.route.select,agent.lan-pairing.status.get'
+    'agent.lan-pairing.proof.submit,agent.lan-pairing.route.select,agent.lan-pairing.route.revoke,agent.lan-pairing.status.get'
   );
   assertPayloadValue(
     payload,
@@ -141,7 +141,7 @@ function assertLanSupportSurface(payload) {
   assertPayloadValue(
     payload,
     'routeRequirements',
-    'paired-device,allowed-origin,target-device-match,route-id-match,unexpired-intent,non-replayed-intent,unrevoked-pairing'
+    'paired-device,allowed-origin,target-device-match,route-id-match,unexpired-intent,non-replayed-intent,unrevoked-pairing,selected-device-reachable'
   );
   assertPayloadValue(
     payload,

@@ -140,6 +140,7 @@ fn lan_pairing_runtime_support_surface_serializes_supported_and_planned_api_clai
             LanPairingRouteRequirement::UnexpiredIntent,
             LanPairingRouteRequirement::NonReplayedIntent,
             LanPairingRouteRequirement::UnrevokedPairing,
+            LanPairingRouteRequirement::SelectedDeviceReachable,
         ],
         manual_proof_gaps: vec![
             LanPairingManualProofGap::ManualLanBindProof,
@@ -159,6 +160,10 @@ fn lan_pairing_runtime_support_surface_serializes_supported_and_planned_api_clai
     assert_eq!(
         support_json["supportedWebSocketCommands"][1],
         constants::lan_pairing::COMMAND_ROUTE_SELECT
+    );
+    assert_eq!(
+        support_json["supportedWebSocketCommands"][2],
+        constants::lan_pairing::COMMAND_ROUTE_REVOKE
     );
     assert_eq!(
         support_json["unsupportedHttpEndpoints"][0]["support"],

@@ -31,6 +31,8 @@ pub enum AgentRoute {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum AgentPairingState {
+    #[serde(rename = "unauthenticated")]
+    Unauthenticated,
     #[serde(rename = "unpaired")]
     Unpaired,
     #[serde(rename = "pairing")]
@@ -102,6 +104,8 @@ pub enum AgentCommandName {
     AgentLanPairingProofSubmit,
     #[serde(rename = "agent.lan-pairing.route.select")]
     AgentLanPairingRouteSelect,
+    #[serde(rename = "agent.lan-pairing.route.revoke")]
+    AgentLanPairingRouteRevoke,
     #[serde(rename = "agent.lan-pairing.status.get")]
     AgentLanPairingStatusGet,
 }

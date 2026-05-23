@@ -1,6 +1,6 @@
 use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, LanSelectedRouteTarget,
-    LogFieldValue, LogLevel,
+    constants, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName,
+    LanPairingDeviceReachability, LanSelectedRouteTarget, LogFieldValue, LogLevel,
 };
 
 use crate::{
@@ -14,6 +14,8 @@ struct LanPairingStatus {
     trusted_device_count: usize,
     selected_target: Option<LanSelectedRouteTarget>,
     trusted_device_ids: Vec<String>,
+    revoked_device_ids: Vec<String>,
+    has_revoked_pairing: bool,
 }
 
 pub(crate) fn pairing_status_event(
@@ -37,13 +39,17 @@ pub(crate) fn pairing_status_event(
 fn pairing_status(runtime: &LanPairingRuntime) -> LanPairingStatus {
     let trusted_device_count = runtime.trusted_device_count();
     let selected_target = runtime.selected_target();
-    LanPairingStatus {
-        pairing_state: pairing_state(trusted_device_count),
+    let mut status = LanPairingStatus {
+        pairing_state: constants::value::LAN_PAIRING_UNPAIRED,
         authentication_state: authentication_state(&selected_target),
         trusted_device_count,
         selected_target,
         trusted_device_ids: runtime.trusted_device_ids(),
-    }
+        revoked_device_ids: runtime.revoked_device_ids(),
+        has_revoked_pairing: runtime.has_revoked_pairing(),
+    };
+    status.pairing_state = pairing_state(&status);
+    status
 }
 
 fn support_surface_pairs() -> Vec<(&'static str, LogFieldValue)> {
@@ -116,8 +122,24 @@ fn state_pairs(status: &LanPairingStatus) -> Vec<(&'static str, LogFieldValue)> 
             ),
         ),
         (
+            constants::field::LAN_REVOKED_DEVICE_IDS,
+            LogFieldValue::String(
+                status
+                    .revoked_device_ids
+                    .join(&constants::delimiter::LIST.to_string()),
+            ),
+        ),
+        (
             constants::field::LAN_SELECTED_CHILD_DEVICE_ID,
             LogFieldValue::String(selected_child_device_id(status)),
+        ),
+        (
+            constants::field::LAN_SELECTED_DEVICE_REACHABILITY,
+            LogFieldValue::String(selected_device_reachability(status).to_string()),
+        ),
+        (
+            constants::field::LAN_SELECTED_DEVICE_STALE_AT,
+            LogFieldValue::String(selected_device_stale_at(status)),
         ),
         (
             constants::field::LAN_SELECTED_ROUTE_ID,
@@ -126,9 +148,11 @@ fn state_pairs(status: &LanPairingStatus) -> Vec<(&'static str, LogFieldValue)> 
     ]
 }
 
-fn pairing_state(count: usize) -> &'static str {
-    if count > 0 {
+fn pairing_state(status: &LanPairingStatus) -> &'static str {
+    if status.trusted_device_count > 0 {
         constants::value::LAN_PAIRING_PAIRED
+    } else if status.has_revoked_pairing {
+        constants::value::LAN_PAIRING_REVOKED
     } else {
         constants::value::LAN_PAIRING_UNPAIRED
     }
@@ -155,5 +179,26 @@ fn selected_route_id(status: &LanPairingStatus) -> String {
         .selected_target
         .as_ref()
         .map(|target| target.route_id.clone())
+        .unwrap_or_default()
+}
+
+fn selected_device_reachability(status: &LanPairingStatus) -> &'static str {
+    match status
+        .selected_target
+        .as_ref()
+        .map(|target| &target.reachability)
+    {
+        Some(LanPairingDeviceReachability::Online) => constants::value::LAN_REACHABILITY_ONLINE,
+        Some(LanPairingDeviceReachability::Offline) => constants::value::LAN_REACHABILITY_OFFLINE,
+        Some(LanPairingDeviceReachability::Stale) => constants::value::LAN_REACHABILITY_STALE,
+        None => constants::value::EMPTY,
+    }
+}
+
+fn selected_device_stale_at(status: &LanPairingStatus) -> String {
+    status
+        .selected_target
+        .as_ref()
+        .and_then(|target| target.stale_at.clone())
         .unwrap_or_default()
 }

@@ -48,6 +48,7 @@ mod policy_dry_run_evaluator;
 mod process_capture;
 mod screen_evidence_queue;
 mod trusted_device_registry;
+mod trusted_device_registry_selection;
 mod window_capture;
 mod window_capture_event;
 

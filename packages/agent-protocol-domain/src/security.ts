@@ -10,6 +10,8 @@ export const AgentPairingStateSchema = withParser(
   Schema.Literal('unauthenticated', 'unpaired', 'pairing', 'paired', 'revoked')
 );
 
+export const AgentLanSelectedDeviceReachabilitySchema = withParser(Schema.Literal('online', 'offline', 'stale'));
+
 export const AgentPairingProofSchema = withParser(
   Schema.Struct({
     pairingId: AgentPairingIdSchema,
@@ -32,5 +34,6 @@ export const AgentRouteSecurityPolicySchema = withParser(
 export type AgentPairingId = typeof AgentPairingIdSchema.Type;
 export type AgentPairingTokenHash = typeof AgentPairingTokenHashSchema.Type;
 export type AgentPairingState = Infer<typeof AgentPairingStateSchema>;
+export type AgentLanSelectedDeviceReachability = Infer<typeof AgentLanSelectedDeviceReachabilitySchema>;
 export type AgentPairingProof = Infer<typeof AgentPairingProofSchema>;
 export type AgentRouteSecurityPolicy = Infer<typeof AgentRouteSecurityPolicySchema>;
