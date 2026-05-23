@@ -66,6 +66,10 @@ const EnforcementResultStatusSchema = withParser(
   )
 );
 
+const EnforcementRollbackStateSchema = withParser(
+  Schema.Literal('not-required', 'available', 'requested', 'completed', 'unavailable', 'failed')
+);
+
 const EnforcementAdapterResultCodeSchema = withParser(
   Schema.Literal(
     'process-terminated',
@@ -168,6 +172,7 @@ export const EnforcementResultSchema = withParser(
     startedAt: ParentTimestampSchema,
     completedAt: Schema.Union(ParentTimestampSchema, Schema.Null),
     rollbackToken: Schema.Union(EnforcementRollbackTokenSchema, Schema.Null),
+    rollbackState: EnforcementRollbackStateSchema,
     unavailableReason: Schema.Union(EnforcementStatusReasonSchema, Schema.Null),
     failedReason: Schema.Union(EnforcementStatusReasonSchema, Schema.Null),
     nextCheckAt: Schema.Union(ParentTimestampSchema, Schema.Null),
@@ -254,6 +259,15 @@ export const EnforcementResultStatus = {
   RolledBack: EnforcementResultStatusSchema.parse('rolled-back'),
   Superseded: EnforcementResultStatusSchema.parse('superseded'),
   NoOp: EnforcementResultStatusSchema.parse('no-op'),
+} as const;
+
+export const EnforcementRollbackState = {
+  NotRequired: EnforcementRollbackStateSchema.parse('not-required'),
+  Available: EnforcementRollbackStateSchema.parse('available'),
+  Requested: EnforcementRollbackStateSchema.parse('requested'),
+  Completed: EnforcementRollbackStateSchema.parse('completed'),
+  Unavailable: EnforcementRollbackStateSchema.parse('unavailable'),
+  Failed: EnforcementRollbackStateSchema.parse('failed'),
 } as const;
 
 export const EnforcementAdapterResultCode = {

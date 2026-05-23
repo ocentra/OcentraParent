@@ -3,8 +3,9 @@ use ocentra_parent_agent_protocol::{
     constants::enforcement, policy_constants as policy, EnforcementAdapterKind,
     EnforcementCapabilityState, EnforcementCapabilityStatus, EnforcementDependencyState,
     EnforcementIntent, EnforcementIntentSource, EnforcementMode, EnforcementPermissionState,
-    ParentDeviceReference, ParentEvidenceReference, ParentEvidenceReferenceKind, ParentPlatform,
-    PolicyAction, PolicyDecision, PolicyDecisionHandoffState, PolicyTarget, PolicyTargetType,
+    EnforcementRollbackState, ParentDeviceReference, ParentEvidenceReference,
+    ParentEvidenceReferenceKind, ParentPlatform, PolicyAction, PolicyDecision,
+    PolicyDecisionHandoffState, PolicyTarget, PolicyTargetType,
 };
 
 #[test]
@@ -21,6 +22,10 @@ fn dry_run_decision_never_requests_adapter_execution() {
     assert_eq!(
         outcome.result.adapter_result_code.as_protocol_str(),
         enforcement::ADAPTER_DRY_RUN_NO_ACTION
+    );
+    assert_eq!(
+        outcome.result.rollback_state.as_protocol_str(),
+        enforcement::ROLLBACK_NOT_REQUIRED
     );
     assert_eq!(outcome.adapter_request, None);
     assert_eq!(
@@ -81,6 +86,10 @@ fn unavailable_capability_returns_auditable_unavailable_result() {
         enforcement::ADAPTER_UNSUPPORTED_PLATFORM
     );
     assert_eq!(
+        outcome.result.rollback_state.as_protocol_str(),
+        enforcement::ROLLBACK_UNAVAILABLE
+    );
+    assert_eq!(
         outcome.audit_event.audit_event_kind.as_protocol_str(),
         enforcement::AUDIT_UNAVAILABLE
     );
@@ -111,6 +120,7 @@ fn adapter_outcome_maps_to_success_result_and_audit() {
         unavailable_reason: None,
         failed_reason: None,
         rollback_token: Some(enforcement::TEST_ROLLBACK_TOKEN.to_string()),
+        rollback_state: EnforcementRollbackState::Available,
     });
 
     let outcome =
@@ -124,7 +134,46 @@ fn adapter_outcome_maps_to_success_result_and_audit() {
         outcome.audit_event.audit_event_kind.as_protocol_str(),
         enforcement::AUDIT_SUCCEEDED
     );
+    assert_eq!(
+        outcome.result.rollback_state.as_protocol_str(),
+        enforcement::ROLLBACK_AVAILABLE
+    );
     assert_eq!(outcome.adapter_request, None);
+}
+
+#[test]
+fn process_adapter_reports_real_platform_result_with_explicit_rollback_state() {
+    let outcome = terminate_owned_process(
+        OwnedProcessTerminationTarget {
+            pid: u32::MAX,
+            expected_process_name: enforcement::TEST_PROCESS_TARGET_VALUE.to_string(),
+        },
+        policy::TEST_EVALUATED_AT,
+    );
+
+    #[cfg(windows)]
+    {
+        assert_eq!(
+            outcome.adapter_result_code.as_protocol_str(),
+            enforcement::ADAPTER_PROCESS_ALREADY_EXITED
+        );
+        assert_eq!(
+            outcome.rollback_state.as_protocol_str(),
+            enforcement::ROLLBACK_NOT_REQUIRED
+        );
+    }
+
+    #[cfg(not(windows))]
+    {
+        assert_eq!(
+            outcome.adapter_result_code.as_protocol_str(),
+            enforcement::ADAPTER_UNSUPPORTED_PLATFORM
+        );
+        assert_eq!(
+            outcome.rollback_state.as_protocol_str(),
+            enforcement::ROLLBACK_UNAVAILABLE
+        );
+    }
 }
 
 fn boundary_input(

@@ -12,6 +12,7 @@ import {
   EnforcementMode,
   EnforcementResultSchema,
   EnforcementResultStatus,
+  EnforcementRollbackState,
   EnforcementTimerEventKind,
   EnforcementTimerEventSchema,
 } from '../src/enforcement';
@@ -45,6 +46,7 @@ describe('parent enforcement contracts', () => {
     const timer = enforcementTimer(action);
 
     expect(audit.result.status).toBe('actually-enforced');
+    expect(audit.result.rollbackState).toBe('available');
     expect(timer).toEqual({
       schemaVersion: 'v0.6',
       timerEventId: 'timer-1',
@@ -130,6 +132,7 @@ function enforcementResult(
     startedAt: observedAt,
     completedAt: '2026-05-23T14:45:01.000Z',
     rollbackToken: action.rollbackToken,
+    rollbackState: EnforcementRollbackState.Available,
     unavailableReason: null,
     failedReason: null,
     nextCheckAt: null,
@@ -179,6 +182,7 @@ function unsupportedStatusPayload() {
     startedAt: observedAt,
     completedAt: null,
     rollbackToken: null,
+    rollbackState: EnforcementRollbackState.NotRequired,
     unavailableReason: null,
     failedReason: null,
     nextCheckAt: null,
