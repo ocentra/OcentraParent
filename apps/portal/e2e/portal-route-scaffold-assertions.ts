@@ -40,6 +40,7 @@ export async function assertRouteScaffolds(page: Page): Promise<void> {
   await assertDeviceRoute(page);
   await assertDiagnosticsRoute(page);
   await assertSettingsRoute(page);
+  await assertFrameTunerRoute(page);
 }
 
 async function ensureSidebarGroupOpen(page: Page, label: SidebarGroupLabel): Promise<void> {
@@ -58,7 +59,7 @@ async function assertParentControls(page: Page): Promise<void> {
   });
   await expect(parentControls.getByRole('heading', { name: 'Rule builder' })).toBeVisible();
   await expect(parentControls.getByRole('heading', { name: 'Schedules and budgets' })).toBeVisible();
-  await expect(parentControls.getByRole('heading', { name: 'Approvals' })).toBeVisible();
+  await expect(parentControls.locator('.control-card h2').filter({ hasText: /^Approvals$/u })).toHaveCount(1);
 }
 
 async function assertDeviceRuleScope(page: Page): Promise<void> {
@@ -89,9 +90,12 @@ async function assertDeviceRoute(page: Page): Promise<void> {
   await page.getByRole('tab', { name: /^Devices/u }).click();
   await expect(page.getByRole('heading', { name: 'Device diagnostics' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Latest device snapshot' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Device inventory' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Pairing' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Mobile app' })).toBeVisible();
+  const deviceDeck = page.locator('.control-deck').filter({
+    has: page.locator('.control-deck-header h2').filter({ hasText: /^Devices$/u }),
+  });
+  await expect(deviceDeck.getByRole('heading', { name: 'Device inventory' })).toBeVisible();
+  await expect(deviceDeck.getByRole('heading', { name: 'Pairing' })).toBeVisible();
+  await expect(deviceDeck.locator('.control-card h2').filter({ hasText: /^Mobile app$/u })).toHaveCount(1);
 
   const snapshotPanel = page
     .locator('.summary')
@@ -118,6 +122,29 @@ async function assertDiagnosticsRoute(page: Page): Promise<void> {
 async function assertSettingsRoute(page: Page): Promise<void> {
   await page.getByRole('tab', { name: /^Settings/u }).click();
   await expect(page.getByRole('heading', { name: 'Display theme' })).toBeVisible();
+}
+
+async function assertFrameTunerRoute(page: Page): Promise<void> {
+  await expect(page.getByRole('tab', { name: /^Frame tuner/u })).toHaveCount(0);
+  await page.goto('/#/frame-tuner');
+  await expect(page.getByRole('heading', { name: 'Frame tuner' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Save JSON' })).toBeVisible();
+  await expect(page.locator('.app-sidebar')).toHaveCount(0);
+  await expect(page.locator('svg.portal-frame-backdrop-svg')).toHaveCount(0);
+  await page.getByRole('tab', { name: 'Side panel' }).click();
+  await expect(page.getByRole('tab', { name: 'Top' })).toBeVisible();
+  await expect(page.getByRole('tab', { name: 'Bottom' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Reset top' })).toBeVisible();
+  await page.getByRole('tab', { name: 'Bottom' }).click();
+  await expect(page.getByRole('button', { name: 'Reset bottom' })).toBeVisible();
+  await page.getByRole('tab', { name: 'Main panel' }).click();
+  await expect(page.getByRole('button', { name: 'Reset main' })).toBeVisible();
+  await page.getByRole('tab', { name: 'Golden card' }).click();
+  await expect(page.getByRole('button', { name: 'Reset golden card' })).toBeVisible();
+  await expect(page.getByText('Golden card frame')).toBeVisible();
+  await expect(page.getByText('Golden card content')).toBeVisible();
+  await page.getByRole('tab', { name: 'Save and JSON' }).click();
+  await expect(page.getByText('Saved JSON preview')).toBeVisible();
 }
 
 async function assertDiagnosticsCopy(page: Page): Promise<void> {

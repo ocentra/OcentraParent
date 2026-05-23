@@ -21,6 +21,7 @@ import './styles.css';
 import './portal-unified-chrome.css';
 import './styles/deck-frame-fit.css';
 import './styles/control-card-frame.css';
+import './styles/frame-tuner.css';
 
 const agentWsUrl = decodeAgentWebSocketUrl(
   import.meta.env[PortalEnvironment.AgentWebSocketUrl] ?? AgentProtocolDefaults.WebSocketUrl

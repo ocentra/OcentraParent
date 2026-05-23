@@ -1,4 +1,5 @@
 import { PortalDom, type PortalDisplayText } from '@ocentra-parent/portal-domain/contracts';
+import { attachPortalGoldenCardFrame } from './portal-golden-card-frame';
 
 type ControlCardAccent =
   | typeof PortalDom.Classes.ControlCardAccentPrimary
@@ -17,36 +18,83 @@ type ControlCardSpec = {
 export function renderControlDeck(
   container: HTMLElement,
   titleText: PortalDisplayText,
-  introText: PortalDisplayText,
+  _introText: PortalDisplayText,
   cards: readonly ControlCardSpec[]
 ): void {
   const section = document.createElement(PortalDom.Tags.Section);
-  section.className = PortalDom.Classes.ControlDeck;
+  section.className = [PortalDom.Classes.ControlDeck, PortalDom.Classes.ControlCarouselFrame].join(
+    PortalDom.Classes.ClassNameSeparator
+  );
 
   const header = document.createElement(PortalDom.Tags.Division);
   header.className = PortalDom.Classes.ControlDeckHeader;
 
-  const title = document.createElement(PortalDom.Tags.HeadingTwo);
-  title.textContent = titleText;
+  const title = document.createElement(PortalDom.Tags.Division);
+  title.className = PortalDom.Classes.ControlCarouselTitle;
 
-  const intro = document.createElement(PortalDom.Tags.Paragraph);
-  intro.className = PortalDom.Classes.ControlDeckIntro;
-  intro.textContent = introText;
+  const count = document.createElement(PortalDom.Tags.Span);
+  count.className = PortalDom.Classes.ControlCarouselCount;
+  count.textContent = String(cards.length);
 
-  header.append(title, intro);
+  const label = document.createElement(PortalDom.Tags.HeadingTwo);
+  label.className = PortalDom.Classes.ControlCarouselLabel;
+  label.textContent = titleText;
+
+  title.append(count, label);
+
+  header.append(title);
+
+  const stage = document.createElement(PortalDom.Tags.Division);
+  stage.className = PortalDom.Classes.ControlCarouselStage;
+
+  const leftHandle = document.createElement(PortalDom.Tags.Division);
+  leftHandle.className = [PortalDom.Classes.ControlCarouselHandle, PortalDom.Classes.ControlCarouselHandleLeft].join(
+    PortalDom.Classes.ClassNameSeparator
+  );
+
+  const rightHandle = document.createElement(PortalDom.Tags.Division);
+  rightHandle.className = [PortalDom.Classes.ControlCarouselHandle, PortalDom.Classes.ControlCarouselHandleRight].join(
+    PortalDom.Classes.ClassNameSeparator
+  );
+
   const grid = document.createElement(PortalDom.Tags.Division);
-  grid.className = PortalDom.Classes.CapabilityGrid;
-  for (const card of cards) {
-    grid.append(controlCard(card));
+  grid.className = [PortalDom.Classes.CapabilityGrid, PortalDom.Classes.ControlCarouselRail].join(
+    PortalDom.Classes.ClassNameSeparator
+  );
+  for (const [index, card] of cards.entries()) {
+    grid.append(controlCard(card, index + 1));
   }
-  section.append(header, grid);
+
+  const pager = document.createElement(PortalDom.Tags.Division);
+  pager.className = PortalDom.Classes.ControlCarouselPager;
+  for (let index = 0; index < Math.min(cards.length, 5); index += 1) {
+    const pill = document.createElement(PortalDom.Tags.Span);
+    pill.className =
+      index === 0
+        ? [PortalDom.Classes.ControlCarouselPill, PortalDom.Classes.ControlCarouselPillActive].join(
+            PortalDom.Classes.ClassNameSeparator
+          )
+        : PortalDom.Classes.ControlCarouselPill;
+    pager.append(pill);
+  }
+
+  stage.append(leftHandle, grid, rightHandle, pager);
+  section.append(header, stage);
   container.append(section);
 }
 
-function controlCard(card: ControlCardSpec): HTMLElement {
+function controlCard(card: ControlCardSpec, rank: number): HTMLElement {
   const article = document.createElement(PortalDom.Tags.Section);
   article.className = [PortalDom.Classes.ControlCard, card.accent].join(PortalDom.Classes.ClassNameSeparator);
   article.tabIndex = 0;
+
+  const art = document.createElement(PortalDom.Tags.Image);
+  art.className = PortalDom.Classes.ControlCardGoldenArt;
+  art.setAttribute(PortalDom.Attributes.AriaHidden, PortalDom.Attributes.True);
+  attachPortalGoldenCardFrame(art, card, rank);
+
+  const content = document.createElement(PortalDom.Tags.Division);
+  content.className = PortalDom.Classes.ControlCardContent;
 
   const header = document.createElement(PortalDom.Tags.Division);
   header.className = PortalDom.Classes.ControlCardHeader;
@@ -79,6 +127,7 @@ function controlCard(card: ControlCardSpec): HTMLElement {
   tipBody.textContent = card.tipBody;
 
   tip.append(tipTitle, tipBody);
-  article.append(header, body, tip);
+  content.append(header, body, tip);
+  article.append(art, content);
   return article;
 }

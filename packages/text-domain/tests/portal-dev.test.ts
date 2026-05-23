@@ -8,8 +8,13 @@ describe('portal dev text', () => {
     expect(decodeDisplayText(title)).toBe(title);
     expect(title).toBe('Ocentra Parent');
     expect(PortalDevText[PortalDevTextToken.Subtitle]).toBe('Family safety for local child devices');
+    expect(PortalDevText[PortalDevTextToken.LeaderboardCopy]).toBe('Parent command deck');
     expect(PortalDevText[PortalDevTextToken.Activity]).toBe('Activity');
     expect(PortalDevText[PortalDevTextToken.SettingsRules]).toBe('Settings');
+    expect(PortalDevText[PortalDevTextToken.FrameTuner]).toBe('Frame tuner');
+    expect(PortalDevText[PortalDevTextToken.FrameTunerDescription]).toBe(
+      'Dev-only geometry controls for the side panel and main body frame.'
+    );
     expect(PortalDevText[PortalDevTextToken.HeaderBrandLeft]).toBe("O'centra");
     expect(PortalDevText[PortalDevTextToken.HeaderBrandRight]).toBe('Parent');
     expect(PortalDevText[PortalDevTextToken.HeaderTagline]).toBe('Your House Your Rule');

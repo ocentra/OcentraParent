@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1505 532" preserveAspectRatio="none">
+  <defs>
+    <linearGradient id="skeletonGlass" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b3b52" stop-opacity=".34"/>
+      <stop offset=".52" stop-color="#02080d" stop-opacity=".58"/>
+      <stop offset="1" stop-color="#0c1835" stop-opacity=".42"/>
+    </linearGradient>
+    <linearGradient id="navIdle" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#133b59"/>
+      <stop offset="1" stop-color="#020711"/>
+    </linearGradient>
+    <linearGradient id="tabSelectedFill" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#332904" stop-opacity=".74"/>
+      <stop offset=".52" stop-color="#0e314b" stop-opacity=".48"/>
+      <stop offset="1" stop-color="#071827" stop-opacity=".68"/>
+    </linearGradient>
+    <linearGradient id="tabCountGoldFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff7c7"/>
+      <stop offset=".18" stop-color="#ffd85c"/>
+      <stop offset=".48" stop-color="#d89010"/>
+      <stop offset=".78" stop-color="#8b5700"/>
+      <stop offset="1" stop-color="#3a2100"/>
+    </linearGradient>
+    <linearGradient id="tabCountGoldShine" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".55"/>
+      <stop offset=".34" stop-color="#fff0a6" stop-opacity=".22"/>
+      <stop offset="1" stop-color="#000000" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="selectedTabGradientLine" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#63dfff"/>
+      <stop offset=".46" stop-color="#58bdfb"/>
+      <stop offset="1" stop-color="#d026d9"/>
+    </linearGradient>
+    <linearGradient id="footerSelectedPill" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffe187"/>
+      <stop offset="1" stop-color="#b98214"/>
+    </linearGradient>
+    <filter id="cyanGlow" x="-40%" y="-80%" width="180%" height="260%">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="0 0 0 0 0.38 0 0 0 0 0.88 0 0 0 0 1 0 0 0 .72 0" result="glow"/>
+      <feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="goldGlow" x="-40%" y="-80%" width="180%" height="260%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="0 0 0 0 1 0 0 0 0 .77 0 0 0 0 .21 0 0 0 .72 0" result="glow"/>
+      <feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="skeletonShadow" x="-8%" y="-30%" width="116%" height="160%">
+      <feDropShadow dx="0" dy="14" stdDeviation="16" flood-color="#000000" flood-opacity=".38"/>
+    </filter>
+  </defs>
+  <path d="M14 113.5H30V420.5H14Q0 420.5 0 406.5V127.5Q0 113.5 14 113.5Z" fill="url(#navIdle)" stroke="#69caff" stroke-width="1.5"/>
+  <path d="M14 115.5H28V267H2V127.5Q2 115.5 14 115.5Z" fill="#ffffff" opacity=".08"/>
+  <polygon points="19,258.5 11,267 19,275.5" fill="#8bd7ff" filter="url(#cyanGlow)"/>
+  <path d="M1475 113.5H1491Q1505 113.5 1505 127.5V406.5Q1505 420.5 1491 420.5H1475Z" fill="url(#navIdle)" stroke="#69caff" stroke-width="1.5"/>
+  <path d="M1477 115.5H1491Q1503 115.5 1503 127.5V267H1477Z" fill="#ffffff" opacity=".08"/>
+  <polygon points="1486,258.5 1494,267 1486,275.5" fill="#8bd7ff" filter="url(#cyanGlow)"/>
+  <rect x="28" y="10" width="1449" height="513" rx="18" fill="#000000" opacity=".28" filter="url(#skeletonShadow)"/>
+  <rect x="28" y="10" width="1449" height="513" rx="18" fill="url(#skeletonGlass)" stroke="#5fc9ff" stroke-width="2" stroke-opacity=".9"/>
+  <path d="M62 22H286Q298 22 298 34V68H50V34Q50 22 62 22Z" fill="url(#tabSelectedFill)" fill-opacity=".9" stroke="#f5c84b" stroke-opacity=".82" stroke-width="1.5"/>
+  <path d="M62 22H104V68H50V34Q50 22 62 22Z" fill="url(#tabCountGoldFill)" stroke="#f7c84a" stroke-opacity=".92" stroke-width="1.35" filter="url(#goldGlow)"/>
+  <path d="M62 22H104V68H50V34Q50 22 62 22Z" fill="url(#tabCountGoldShine)" opacity=".32"/>
+  <path d="M104 22H286Q298 22 298 34V68H104Z" fill="#1b2f22" fill-opacity=".58" stroke="#f5c84b" stroke-opacity=".62" stroke-width="1.1"/>
+  <rect x="104" y="63" width="194" height="3" fill="url(#selectedTabGradientLine)"/>
+  <line x1="50" y1="68" x2="1455" y2="68" stroke="#64d8ff" stroke-width="2" stroke-opacity=".52"/>
+  <path d="M60 84H1445Q1455 84 1455 94V487Q1455 497 1445 497H60Q50 497 50 487V94Q50 84 60 84Z" fill="none" stroke="#64d8ff" stroke-width="1.4" stroke-opacity=".46"/>
+  <line x1="50" y1="497" x2="1455" y2="497" stroke="#64d8ff" stroke-width="2" stroke-opacity=".42"/>
+  <g filter="url(#cyanGlow)">
+    <rect x="707" y="506" width="32" height="8" rx="4" fill="url(#footerSelectedPill)" stroke="#ffe187" stroke-width="1.7" stroke-opacity=".95"/>
+    <rect x="746" y="506" width="16" height="8" rx="4" fill="transparent" stroke="#64d8ff" stroke-width="1.25" stroke-opacity=".58"/>
+    <rect x="769" y="506" width="16" height="8" rx="4" fill="transparent" stroke="#64d8ff" stroke-width="1.25" stroke-opacity=".58"/>
+  </g>
+</svg>

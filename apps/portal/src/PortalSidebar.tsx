@@ -1,10 +1,10 @@
-import type { ReactElement } from 'react';
+import type { CSSProperties, ReactElement } from 'react';
 import {
   PortalConnectionState,
   PortalDom,
-  PortalFormatting,
-  PortalRouteDescriptors,
+  PortalFrameTuner,
   PortalRouteGroup,
+  PortalSidebarRouteDescriptors,
   PortalText,
   PortalTextToken,
   type PortalDisplayText,
@@ -12,27 +12,54 @@ import {
   type PortalRouteDescriptor,
 } from '@ocentra-parent/portal-domain/contracts';
 import type { PortalRenderActions } from './portal-actions';
+import { PortalFrameBackdrop, PortalFrameBoundsOverlay } from './PortalFrameSurface';
 import { routeDescriptor } from './portal-route-descriptor';
+import {
+  frameContentStyle,
+  frameContentTarget,
+  frameHostClassName,
+  type PortalFrameLayout,
+} from './portal-frame-layout';
 import type { PortalRuntimeState } from './portal-state';
 
 export function PortalSidebar({
   actions,
+  frameLayout,
   route,
   state,
 }: {
   readonly actions: PortalRenderActions;
+  readonly frameLayout: PortalFrameLayout;
   readonly route: PortalRouteValue;
   readonly state: PortalRuntimeState;
 }): ReactElement {
   const activeGroup = routeDescriptor(route).group;
+  const sideTopContent = frameContentTarget(frameLayout, PortalFrameTuner.FrameTarget.SideTop);
+  const sideBottomContent = frameContentTarget(frameLayout, PortalFrameTuner.FrameTarget.SideBottom);
   return (
     <aside className={PortalDom.Classes.AppSidebar}>
-      <nav className={PortalDom.Classes.Routes} role={PortalDom.Attributes.TabList}>
-        <RouteGroup activeGroup={activeGroup} activeRoute={route} group={PortalRouteGroup.Monitor} />
-        <RouteGroup activeGroup={activeGroup} activeRoute={route} group={PortalRouteGroup.Guide} />
-        <RouteGroup activeGroup={activeGroup} activeRoute={route} group={PortalRouteGroup.Operate} />
-      </nav>
-      <SidebarStatus actions={actions} state={state} />
+      <section
+        aria-label={PortalFrameTuner.Text.TargetSideTop}
+        className={frameHostClassName(PortalDom.Classes.SidebarNavFrame, sideTopContent)}
+        style={frameContentStyle(sideTopContent, frameLayout.sideTop) as CSSProperties}
+      >
+        <PortalFrameBackdrop ariaLabel={PortalFrameTuner.Text.TargetSideTop} controls={frameLayout.sideTop} />
+        <PortalFrameBoundsOverlay content={sideTopContent} />
+        <nav className={PortalDom.Classes.Routes} role={PortalDom.Attributes.TabList}>
+          <RouteGroup activeGroup={activeGroup} activeRoute={route} group={PortalRouteGroup.Monitor} />
+          <RouteGroup activeGroup={activeGroup} activeRoute={route} group={PortalRouteGroup.Guide} />
+          <RouteGroup activeGroup={activeGroup} activeRoute={route} group={PortalRouteGroup.Operate} />
+        </nav>
+      </section>
+      <section
+        aria-label={PortalFrameTuner.Text.TargetSideBottom}
+        className={frameHostClassName(PortalDom.Classes.SidebarDeviceFrame, sideBottomContent)}
+        style={frameContentStyle(sideBottomContent, frameLayout.sideBottom) as CSSProperties}
+      >
+        <PortalFrameBackdrop ariaLabel={PortalFrameTuner.Text.TargetSideBottom} controls={frameLayout.sideBottom} />
+        <PortalFrameBoundsOverlay content={sideBottomContent} />
+        <SidebarStatus actions={actions} state={state} />
+      </section>
     </aside>
   );
 }
@@ -49,7 +76,7 @@ function RouteGroup({
   return (
     <details className={PortalDom.Classes.RouteGroup} open={group === activeGroup}>
       <summary className={PortalDom.Classes.RouteGroupLabel}>{group}</summary>
-      {PortalRouteDescriptors.filter((candidate) => candidate.group === group).map((descriptor) => (
+      {PortalSidebarRouteDescriptors.filter((candidate) => candidate.group === group).map((descriptor) => (
         <RouteLink activeRoute={activeRoute} descriptor={descriptor} key={descriptor.route} />
       ))}
     </details>
@@ -73,8 +100,13 @@ function RouteLink({
       href={`${PortalDom.HashPrefix}${descriptor.route}`}
       role={PortalDom.Attributes.Tab}
     >
-      <span className={PortalDom.Classes.RouteLinkLabel}>{descriptor.label}</span>
-      <span className={PortalDom.Classes.RouteLinkDescription}>{descriptor.description}</span>
+      <span aria-hidden={true} className={PortalDom.Classes.RouteLinkFrame} />
+      <span aria-hidden={true} className={PortalDom.Classes.RouteLinkIcon} />
+      <span className={PortalDom.Classes.RouteLinkCopy}>
+        <span className={PortalDom.Classes.RouteLinkLabel}>{descriptor.label}</span>
+        <span className={PortalDom.Classes.RouteLinkDescription}>{descriptor.description}</span>
+      </span>
+      <span aria-hidden={true} className={PortalDom.Classes.RouteLinkArrow} />
     </a>
   );
 }
@@ -86,12 +118,8 @@ function SidebarStatus({
   readonly actions: PortalRenderActions;
   readonly state: PortalRuntimeState;
 }): ReactElement {
-  const detail = [PortalText.Resolve(PortalTextToken.ProductStatusLocalOnly), String(state.events.length)].join(
-    PortalFormatting.EventDetailSeparator
-  );
   return (
     <div className={PortalDom.Classes.ProductSidebarPanel}>
-      <strong>{PortalText.Resolve(PortalTextToken.FamilyRulesTitle)}</strong>
       <div className={PortalDom.Classes.SidebarActions}>
         <button
           className={PortalDom.Classes.SidebarStatusButton}
@@ -108,7 +136,6 @@ function SidebarStatus({
           {PortalText.Resolve(PortalTextToken.Reconnect)}
         </button>
       </div>
-      <p>{detail}</p>
     </div>
   );
 }

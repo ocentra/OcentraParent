@@ -5,6 +5,7 @@ import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/ef
 export const PortalRouteSchema = withParser(
   Schema.Literal(
     'overview',
+    'leaderboard-copy',
     'activity',
     'browser',
     'policy',
@@ -16,6 +17,7 @@ export const PortalRouteSchema = withParser(
     'drive-connections',
     'diagnostics',
     'settings-rules',
+    'frame-tuner',
     'commands',
     'events'
   )
@@ -24,6 +26,7 @@ export type PortalRoute = Infer<typeof PortalRouteSchema>;
 
 export const PortalRoute = {
   Overview: PortalRouteSchema.parse('overview'),
+  LeaderboardCopy: PortalRouteSchema.parse('leaderboard-copy'),
   Activity: PortalRouteSchema.parse('activity'),
   Browser: PortalRouteSchema.parse('browser'),
   Policy: PortalRouteSchema.parse('policy'),
@@ -35,12 +38,14 @@ export const PortalRoute = {
   DriveConnections: PortalRouteSchema.parse('drive-connections'),
   Diagnostics: PortalRouteSchema.parse('diagnostics'),
   SettingsRules: PortalRouteSchema.parse('settings-rules'),
+  FrameTuner: PortalRouteSchema.parse('frame-tuner'),
   Commands: PortalRouteSchema.parse('commands'),
   Events: PortalRouteSchema.parse('events'),
 } as const;
 
 export const PortalRoutes = [
   PortalRoute.Overview,
+  PortalRoute.LeaderboardCopy,
   PortalRoute.Activity,
   PortalRoute.Browser,
   PortalRoute.Policy,
@@ -52,6 +57,7 @@ export const PortalRoutes = [
   PortalRoute.DriveConnections,
   PortalRoute.Diagnostics,
   PortalRoute.SettingsRules,
+  PortalRoute.FrameTuner,
   PortalRoute.Commands,
   PortalRoute.Events,
 ] as const;
@@ -76,6 +82,12 @@ export const PortalRouteDescriptors: readonly PortalRouteDescriptor[] = [
     PortalRoute.Overview,
     PortalDevTextToken.Overview,
     PortalDevTextToken.OverviewDescription,
+    PortalRouteGroup.Monitor
+  ),
+  routeDescriptor(
+    PortalRoute.LeaderboardCopy,
+    PortalDevTextToken.LeaderboardCopy,
+    PortalDevTextToken.LeaderboardCopyDescription,
     PortalRouteGroup.Monitor
   ),
   routeDescriptor(
@@ -144,7 +156,17 @@ export const PortalRouteDescriptors: readonly PortalRouteDescriptor[] = [
     PortalDevTextToken.SettingsRulesDescription,
     PortalRouteGroup.Operate
   ),
+  routeDescriptor(
+    PortalRoute.FrameTuner,
+    PortalDevTextToken.FrameTuner,
+    PortalDevTextToken.FrameTunerDescription,
+    PortalRouteGroup.Operate
+  ),
 ] as const;
+
+export const PortalSidebarRouteDescriptors: readonly PortalRouteDescriptor[] = PortalRouteDescriptors.filter(
+  (descriptor) => descriptor.route !== PortalRoute.FrameTuner
+);
 
 function routeDescriptor(
   route: PortalRoute,

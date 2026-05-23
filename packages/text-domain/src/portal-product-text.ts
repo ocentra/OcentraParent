@@ -11,6 +11,7 @@ export const PortalProductText: Record<PortalProductTextTokenValue, DisplayText>
   [PortalProductTextToken.NavGroupGuide]: decodeDisplayText('Guide'),
   [PortalProductTextToken.NavGroupOperate]: decodeDisplayText('Manage'),
   [PortalProductTextToken.Overview]: decodeDisplayText('Overview'),
+  [PortalProductTextToken.LeaderboardCopy]: decodeDisplayText('Parent command deck'),
   [PortalProductTextToken.Activity]: decodeDisplayText('Activity'),
   [PortalProductTextToken.Browser]: decodeDisplayText('Web'),
   [PortalProductTextToken.Policy]: decodeDisplayText('Policy'),
@@ -19,34 +20,21 @@ export const PortalProductText: Record<PortalProductTextTokenValue, DisplayText>
   [PortalProductTextToken.Devices]: decodeDisplayText('Devices'),
   [PortalProductTextToken.Diagnostics]: decodeDisplayText('Support'),
   [PortalProductTextToken.SettingsRules]: decodeDisplayText('Settings'),
+  [PortalProductTextToken.FrameTuner]: decodeDisplayText('Frame tuner'),
   [PortalProductTextToken.Commands]: decodeDisplayText('Controls'),
   [PortalProductTextToken.Events]: decodeDisplayText('Audit'),
-  [PortalProductTextToken.OverviewDescription]: decodeDisplayText(
-    'The daily command center for device health, activity, web visibility, and family rules.'
-  ),
-  [PortalProductTextToken.ActivityDescription]: decodeDisplayText(
-    'Stored activity, app focus, network visibility, and source custody from the child device.'
-  ),
-  [PortalProductTextToken.BrowserDescription]: decodeDisplayText(
-    'Managed web state, recent URL evidence, and browser protection readiness.'
-  ),
-  [PortalProductTextToken.PolicyDescription]: decodeDisplayText(
-    'Family rule decisions, reason codes, evidence references, and protection mode.'
-  ),
-  [PortalProductTextToken.MemoryDescription]: decodeDisplayText(
-    'Evidence-cited memory and activity graph visibility derived from stored local facts.'
-  ),
-  [PortalProductTextToken.AiRuntimeDescription]: decodeDisplayText(
-    'Local provider readiness, model cache, privacy mode, and execution state.'
-  ),
-  [PortalProductTextToken.DevicesDescription]: decodeDisplayText(
-    'Child device identity, platform status, LAN pairing direction, and device scope.'
-  ),
-  [PortalProductTextToken.DiagnosticsDescription]: decodeDisplayText(
-    'Support evidence, service logs, export readiness, and copyable diagnostics.'
-  ),
-  [PortalProductTextToken.SettingsRulesDescription]: decodeDisplayText(
-    'Parent-authored settings, schedules, budgets, approvals, and sensitive capability controls.'
+  [PortalProductTextToken.OverviewDescription]: decodeDisplayText('Daily command'),
+  [PortalProductTextToken.LeaderboardCopyDescription]: decodeDisplayText('Copied leaderboard surface'),
+  [PortalProductTextToken.ActivityDescription]: decodeDisplayText('Stored activity'),
+  [PortalProductTextToken.BrowserDescription]: decodeDisplayText('Browser evidence'),
+  [PortalProductTextToken.PolicyDescription]: decodeDisplayText('Rules and approvals'),
+  [PortalProductTextToken.MemoryDescription]: decodeDisplayText('Cited local memory'),
+  [PortalProductTextToken.AiRuntimeDescription]: decodeDisplayText('Local model privacy'),
+  [PortalProductTextToken.DevicesDescription]: decodeDisplayText('Device control'),
+  [PortalProductTextToken.DiagnosticsDescription]: decodeDisplayText('Exports and logs'),
+  [PortalProductTextToken.SettingsRulesDescription]: decodeDisplayText('Schedules and budgets'),
+  [PortalProductTextToken.FrameTunerDescription]: decodeDisplayText(
+    'Dev-only geometry controls for the side panel and main body frame.'
   ),
   [PortalProductTextToken.CommandsDescription]: decodeDisplayText(
     'Safe device refresh actions that use the real child-device connection.'
