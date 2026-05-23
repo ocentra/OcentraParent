@@ -121,6 +121,8 @@ pub mod activity_store;
 pub mod activity_subject_kind;
 #[path = "constants/browser.rs"]
 pub mod browser;
+#[path = "constants/enforcement.rs"]
+pub mod enforcement;
 #[path = "constants/network_flow.rs"]
 pub mod network_flow;
 
