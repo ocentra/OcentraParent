@@ -80,6 +80,7 @@ async function waitForHttp(url) {
 function runWebSocketSmoke() {
   return new Promise((resolve, reject) => {
     const events = [];
+    let unpairedRejected = false;
     let routeSelected = false;
     const socket = new WebSocket(wsUrl, { headers: { Origin: allowedOrigin } });
     const timer = setTimeout(() => {
@@ -88,13 +89,19 @@ function runWebSocketSmoke() {
     }, 10000);
 
     socket.addEventListener('open', () => {
-      socket.send(JSON.stringify(buildPairingCommand()));
+      socket.send(JSON.stringify(buildUnpairedHealthCommand()));
     });
 
     socket.addEventListener('message', (message) => {
       const parsed = AgentEventEnvelopeSchema.parse(JSON.parse(String(message.data)));
       events.push(parsed.event);
       if (parsed.event === 'agent.command.rejected') {
+        if (!unpairedRejected) {
+          assertUnpairedControlRejected(parsed.payload);
+          unpairedRejected = true;
+          socket.send(JSON.stringify(buildPairingCommand()));
+          return;
+        }
         clearTimeout(timer);
         socket.close();
         reject(new Error(`LAN WebSocket smoke rejected command: ${JSON.stringify(parsed.payload)}`));
@@ -112,6 +119,7 @@ function runWebSocketSmoke() {
       }
       if (parsed.event === 'agent.health.reported') {
         assertPayloadValue(parsed.payload, 'intentKind', 'rule-query');
+        assertPairedControlAccepted(parsed.payload);
         clearTimeout(timer);
         socket.close();
         resolve(events);
@@ -123,6 +131,21 @@ function runWebSocketSmoke() {
       reject(new Error('LAN WebSocket smoke failed'));
     });
   });
+}
+
+function assertUnpairedControlRejected(payload) {
+  assertPayloadValue(payload, 'controlState', 'rejected');
+  assertPayloadValue(payload, 'auditEventType', 'control-rejected');
+  assertPayloadValue(payload, 'authenticationState', 'unauthenticated');
+  assertPayloadValue(payload, 'rejectionReason', 'anonymous');
+}
+
+function assertPairedControlAccepted(payload) {
+  assertPayloadValue(payload, 'controlState', 'accepted');
+  assertPayloadValue(payload, 'auditEventType', 'control-accepted');
+  assertPayloadValue(payload, 'authenticationState', 'paired');
+  assertPayloadValue(payload, 'evidenceReferenceCount', 1);
+  assertPayloadValue(payload, 'evidenceReferenceIds', 'activity-event-lan-control-1');
 }
 
 function assertLanSupportSurface(payload) {
@@ -169,9 +192,14 @@ function buildPairingCommand() {
     routeId,
     origin: allowedOrigin,
     proofDigest,
+    evidenceReferenceIds: 'activity-event-lan-control-1',
     startedAt: issuedAt,
     staleAt: expiresAt,
   });
+}
+
+function buildUnpairedHealthCommand() {
+  return buildCommand('cmd-integration-lan-unpaired-health', 'agent.health.check', {});
 }
 
 function buildPairedHealthCommand() {
@@ -183,6 +211,7 @@ function buildPairedHealthCommand() {
     routeId,
     origin: allowedOrigin,
     proofDigest,
+    evidenceReferenceIds: 'activity-event-lan-control-1',
     startedAt: issuedAt,
     staleAt: expiresAt,
   });
