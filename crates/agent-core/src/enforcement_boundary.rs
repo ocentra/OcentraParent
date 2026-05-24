@@ -249,12 +249,26 @@ fn capability_state_result(
     match input.capability.capability_state {
         EnforcementCapabilityState::Unavailable => {
             let unavailable_reason = capability_unavailable_reason(&input.capability);
+            let adapter_result_code = match unavailable_reason {
+                EnforcementUnavailableReason::UnsupportedPlatform => {
+                    EnforcementAdapterResultCode::UnsupportedPlatform
+                }
+                EnforcementUnavailableReason::AdapterError => {
+                    EnforcementAdapterResultCode::AdapterFailed
+                }
+                EnforcementUnavailableReason::UnsupportedAction
+                | EnforcementUnavailableReason::MissingPermission
+                | EnforcementUnavailableReason::MissingDependency
+                | EnforcementUnavailableReason::AdapterUnavailable => {
+                    EnforcementAdapterResultCode::AdapterUnavailable
+                }
+            };
             Some(result(
                 input,
                 action,
                 EnforcementResultParts {
                     status: EnforcementResultStatus::Unavailable,
-                    adapter_result_code: EnforcementAdapterResultCode::UnsupportedPlatform,
+                    adapter_result_code,
                     completed_at: input.completed_at.clone(),
                     unavailable_reason: Some(unavailable_reason.as_protocol_str().to_string()),
                     failed_reason: None,
