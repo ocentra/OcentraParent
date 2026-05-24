@@ -191,6 +191,22 @@ pub(crate) fn intent_payload(
     proof_digest: &str,
     expires_at: &str,
 ) -> LogFields {
+    intent_payload_for_kind(
+        intent_id,
+        target_device_id,
+        proof_digest,
+        expires_at,
+        constants::value::LAN_INTENT_HEALTH_QUERY,
+    )
+}
+
+pub(crate) fn intent_payload_for_kind(
+    intent_id: &str,
+    target_device_id: &str,
+    proof_digest: &str,
+    expires_at: &str,
+    intent_kind: &str,
+) -> LogFields {
     intent_payload_for_pairing(
         intent_id,
         constants::lan_pairing::PAIRING_ID,
@@ -198,6 +214,7 @@ pub(crate) fn intent_payload(
         constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK,
         proof_digest,
         expires_at,
+        intent_kind,
     )
 }
 
@@ -208,11 +225,16 @@ pub(crate) fn intent_payload_for_pairing(
     route_id: &str,
     proof_digest: &str,
     expires_at: &str,
+    intent_kind: &str,
 ) -> LogFields {
     fields_from_pairs(vec![
         (
             constants::field::LAN_INTENT_ID,
             LogFieldValue::String(intent_id.to_string()),
+        ),
+        (
+            constants::field::LAN_INTENT_KIND,
+            LogFieldValue::String(intent_kind.to_string()),
         ),
         (
             constants::field::LAN_PAIRING_ID,

@@ -190,6 +190,65 @@ fn lan_pairing_read_model_values_keep_local_network_state_explicit() {
 }
 
 #[test]
+fn lan_pairing_parent_intent_and_child_response_cover_rule_query_approval_spine() {
+    let rule_query = parent_intent(
+        constants::lan_pairing::RULE_QUERY_INTENT_ID,
+        LanPairingIntentKind::RuleQuery,
+    );
+    let rule_update = parent_intent(
+        constants::lan_pairing::RULE_UPDATE_INTENT_ID,
+        LanPairingIntentKind::RuleUpdate,
+    );
+    let approval_decision = parent_intent(
+        constants::lan_pairing::APPROVAL_DECISION_INTENT_ID,
+        LanPairingIntentKind::ApprovalDecision,
+    );
+    let rejected = LanChildAgentResponse {
+        schema_version: constants::lan_pairing::SCHEMA_VERSION,
+        intent_id: constants::lan_pairing::RULE_QUERY_INTENT_ID.to_string(),
+        target_child_device_id: constants::lan_pairing::CHILD_DEVICE_ID.to_string(),
+        route_id: constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK.to_string(),
+        state: LanPairingResponseState::Rejected,
+        rejection_reason: Some(LanPairingRejectionReason::WrongOrigin),
+        audit_event_id: constants::lan_pairing::AUDIT_EVENT_ID.to_string(),
+        responded_at: constants::lan_pairing::OBSERVED_AT.to_string(),
+    };
+
+    let rule_query_json =
+        serde_json::to_value(rule_query).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let rule_update_json =
+        serde_json::to_value(rule_update).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let approval_decision_json =
+        serde_json::to_value(approval_decision).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let rejected_json =
+        serde_json::to_value(rejected).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let rejected_text =
+        serde_json::to_string(&rejected_json).expect(constants::error::AGENT_EVENT_SERIALIZES);
+
+    assert_eq!(
+        rule_query_json["intentKind"],
+        constants::value::LAN_INTENT_RULE_QUERY
+    );
+    assert_eq!(
+        rule_update_json["intentKind"],
+        constants::value::LAN_INTENT_RULE_UPDATE
+    );
+    assert_eq!(
+        approval_decision_json["intentKind"],
+        constants::value::LAN_INTENT_APPROVAL_DECISION
+    );
+    assert_eq!(
+        rejected_json["state"],
+        constants::value::LAN_CONTROL_REJECTED
+    );
+    assert_eq!(
+        rejected_json["rejectionReason"],
+        constants::value::LAN_REASON_WRONG_ORIGIN
+    );
+    assert!(!rejected_text.contains("rawEvidence"));
+}
+
+#[test]
 fn lan_pairing_runtime_support_surface_serializes_supported_and_planned_api_claims() {
     let support = LanPairingRuntimeSupportSurface {
         schema_version: constants::lan_pairing::SCHEMA_VERSION,
@@ -322,6 +381,24 @@ fn lan_pairing_registry_snapshot_and_route_decision_make_selection_explicit() {
         constants::lan_pairing::CHILD_DEVICE_ID
     );
     assert_eq!(rejected_json["rejectionReason"], "unselected-device");
+}
+
+fn parent_intent(
+    intent_id: &str,
+    intent_kind: LanPairingIntentKind,
+) -> super::LanParentIntentEnvelope {
+    super::LanParentIntentEnvelope {
+        schema_version: constants::lan_pairing::SCHEMA_VERSION,
+        intent_id: intent_id.to_string(),
+        intent_kind,
+        target_child_device_id: constants::lan_pairing::CHILD_DEVICE_ID.to_string(),
+        route_id: constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK.to_string(),
+        pairing_id: constants::lan_pairing::PAIRING_ID.to_string(),
+        proof_digest: constants::lan_pairing::PROOF_DIGEST.to_string(),
+        origin: constants::lan_pairing::ALLOWED_ORIGIN.to_string(),
+        issued_at: constants::lan_pairing::ISSUED_AT.to_string(),
+        expires_at: constants::lan_pairing::EXPIRES_AT.to_string(),
+    }
 }
 
 fn planned_http_endpoints() -> Vec<LanPairingUnsupportedHttpEndpoint> {

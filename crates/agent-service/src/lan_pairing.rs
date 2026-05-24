@@ -66,7 +66,7 @@ pub async fn route_lan_command(
     }
 
     let observed_origin = origin.as_deref();
-    match parse_intent(&command.payload, &command) {
+    match parse_intent(&command.payload) {
         Ok(intent) => validate_control_intent(runtime, observed_origin, command, intent),
         Err(reason) => {
             LanCommandDecision::Respond(rejection_event(command, reason, None, observed_origin))
@@ -110,8 +110,10 @@ fn lan_pairing_route_select(
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
     let observed_origin = origin.as_deref();
-    match parse_intent(&command.payload, &command) {
-        Ok(intent) => match validate_selection_intent_result(&runtime, observed_origin, &intent) {
+    match parse_intent(&command.payload) {
+        Ok(intent) => match validate_command_target(&command, &intent)
+            .and_then(|()| validate_selection_intent_result(&runtime, observed_origin, &intent))
+        {
             Ok(()) => match select_pairing_result(&runtime, &intent) {
                 Ok(()) => {
                     let audit_fields =
@@ -134,8 +136,10 @@ fn lan_pairing_status_get(
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
     let observed_origin = origin.as_deref();
-    match parse_intent(&command.payload, &command) {
-        Ok(intent) => match validate_selection_intent_result(&runtime, observed_origin, &intent) {
+    match parse_intent(&command.payload) {
+        Ok(intent) => match validate_command_target(&command, &intent)
+            .and_then(|()| validate_selection_intent_result(&runtime, observed_origin, &intent))
+        {
             Ok(()) => {
                 let audit_fields =
                     accepted_control_audit_fields(&command, &intent, observed_origin);
@@ -155,8 +159,10 @@ fn lan_pairing_route_revoke(
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
     let observed_origin = origin.as_deref();
-    match parse_intent(&command.payload, &command) {
-        Ok(intent) => match validate_selection_intent_result(&runtime, observed_origin, &intent) {
+    match parse_intent(&command.payload) {
+        Ok(intent) => match validate_command_target(&command, &intent)
+            .and_then(|()| validate_selection_intent_result(&runtime, observed_origin, &intent))
+        {
             Ok(()) => {
                 revoke_pairing(&runtime, &intent);
                 let audit_fields = revoked_route_audit_fields(&command, &intent, observed_origin);
@@ -176,7 +182,9 @@ fn validate_control_intent(
     command: AgentCommandEnvelope,
     intent: LanParentIntentEnvelope,
 ) -> LanCommandDecision {
-    match validate_intent_result(&runtime, origin, &intent) {
+    match validate_command_target(&command, &intent)
+        .and_then(|()| validate_intent_result(&runtime, origin, &intent))
+    {
         Ok(()) => LanCommandDecision::Continue {
             audit_fields: Some(accepted_control_audit_fields(&command, &intent, origin)),
             command,
@@ -184,6 +192,17 @@ fn validate_control_intent(
         Err(reason) => {
             LanCommandDecision::Respond(rejection_event(command, reason, Some(&intent), origin))
         }
+    }
+}
+
+fn validate_command_target(
+    command: &AgentCommandEnvelope,
+    intent: &LanParentIntentEnvelope,
+) -> Result<(), LanPairingRejectionReason> {
+    if command.target.device_id.as_str() == intent.target_child_device_id.as_str() {
+        Ok(())
+    } else {
+        Err(LanPairingRejectionReason::WrongDevice)
     }
 }
 

@@ -111,6 +111,7 @@ function runWebSocketSmoke() {
         return;
       }
       if (parsed.event === 'agent.health.reported') {
+        assertPayloadValue(parsed.payload, 'intentKind', 'rule-query');
         clearTimeout(timer);
         socket.close();
         resolve(events);
@@ -176,6 +177,7 @@ function buildPairingCommand() {
 function buildPairedHealthCommand() {
   return buildCommand('cmd-integration-lan-health', 'agent.health.check', {
     intentId: 'intent-integration-lan-health',
+    intentKind: 'rule-query',
     pairingId,
     childDeviceId,
     routeId,
@@ -189,6 +191,7 @@ function buildPairedHealthCommand() {
 function buildRouteSelectCommand() {
   return buildCommand('cmd-integration-lan-route-select', 'agent.lan-pairing.route.select', {
     intentId: 'intent-integration-lan-route-select',
+    intentKind: 'configuration-update',
     pairingId,
     childDeviceId,
     routeId,

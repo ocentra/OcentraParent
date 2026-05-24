@@ -1,6 +1,6 @@
 use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, LanPairingRejectionReason, LanParentIntentEnvelope,
-    LogFieldValue, LogFields,
+    constants, AgentCommandEnvelope, LanPairingIntentKind, LanPairingRejectionReason,
+    LanParentIntentEnvelope, LogFieldValue, LogFields,
 };
 
 use crate::fields::fields_from_pairs;
@@ -74,18 +74,6 @@ fn control_audit_fields(
     intent: Option<&LanParentIntentEnvelope>,
     origin: Option<&str>,
 ) -> LogFields {
-    let route_id = intent
-        .map(|intent| intent.route_id.as_str())
-        .or_else(|| payload_string(&command.payload, constants::field::LAN_ROUTE_ID));
-    let intent_id = intent
-        .map(|intent| intent.intent_id.as_str())
-        .or_else(|| payload_string(&command.payload, constants::field::LAN_INTENT_ID));
-    let pairing_id = intent
-        .map(|intent| intent.pairing_id.as_str())
-        .or_else(|| payload_string(&command.payload, constants::field::LAN_PAIRING_ID));
-    let observed_origin =
-        origin.or_else(|| payload_string(&command.payload, constants::field::ORIGIN));
-
     let mut pairs = vec![
         (
             constants::field::LAN_CONTROL_STATE,
@@ -109,6 +97,34 @@ fn control_audit_fields(
         ),
     ];
 
+    pairs.extend(optional_control_audit_pairs(
+        command, reason, intent, origin,
+    ));
+    fields_from_pairs(pairs)
+}
+
+fn optional_control_audit_pairs(
+    command: &AgentCommandEnvelope,
+    reason: Option<&LanPairingRejectionReason>,
+    intent: Option<&LanParentIntentEnvelope>,
+    origin: Option<&str>,
+) -> Vec<(&'static str, LogFieldValue)> {
+    let route_id = intent
+        .map(|intent| intent.route_id.as_str())
+        .or_else(|| payload_string(&command.payload, constants::field::LAN_ROUTE_ID));
+    let intent_id = intent
+        .map(|intent| intent.intent_id.as_str())
+        .or_else(|| payload_string(&command.payload, constants::field::LAN_INTENT_ID));
+    let intent_kind = intent
+        .map(|intent| intent_kind_value(&intent.intent_kind))
+        .or_else(|| payload_string(&command.payload, constants::field::LAN_INTENT_KIND));
+    let pairing_id = intent
+        .map(|intent| intent.pairing_id.as_str())
+        .or_else(|| payload_string(&command.payload, constants::field::LAN_PAIRING_ID));
+    let observed_origin =
+        origin.or_else(|| payload_string(&command.payload, constants::field::ORIGIN));
+    let mut pairs = Vec::new();
+
     if let Some(value) = route_id {
         pairs.push((
             constants::field::LAN_ROUTE_ID,
@@ -118,6 +134,12 @@ fn control_audit_fields(
     if let Some(value) = intent_id {
         pairs.push((
             constants::field::LAN_INTENT_ID,
+            LogFieldValue::String(value.to_string()),
+        ));
+    }
+    if let Some(value) = intent_kind {
+        pairs.push((
+            constants::field::LAN_INTENT_KIND,
             LogFieldValue::String(value.to_string()),
         ));
     }
@@ -140,7 +162,7 @@ fn control_audit_fields(
         ));
     }
 
-    fields_from_pairs(pairs)
+    pairs
 }
 
 fn payload_string<'a>(fields: &'a LogFields, key: &str) -> Option<&'a str> {
@@ -148,6 +170,18 @@ fn payload_string<'a>(fields: &'a LogFields, key: &str) -> Option<&'a str> {
         LogFieldValue::String(value) if !value.is_empty() => Some(value.as_str()),
         _ => None,
     })
+}
+
+fn intent_kind_value(intent_kind: &LanPairingIntentKind) -> &'static str {
+    match intent_kind {
+        LanPairingIntentKind::HealthQuery => constants::value::LAN_INTENT_HEALTH_QUERY,
+        LanPairingIntentKind::RuleQuery => constants::value::LAN_INTENT_RULE_QUERY,
+        LanPairingIntentKind::RuleUpdate => constants::value::LAN_INTENT_RULE_UPDATE,
+        LanPairingIntentKind::ApprovalDecision => constants::value::LAN_INTENT_APPROVAL_DECISION,
+        LanPairingIntentKind::ConfigurationUpdate => {
+            constants::value::LAN_INTENT_CONFIGURATION_UPDATE
+        }
+    }
 }
 
 fn reason_value(reason: &LanPairingRejectionReason) -> &'static str {
