@@ -36,7 +36,7 @@ describe('parent enforcement timer contracts', () => {
       [EnforcementTimerEventKind.RestartRecovered, 'restart-recovered', true, null],
       [EnforcementTimerEventKind.RollbackRequested, 'rollback-requested', false, null],
       [EnforcementTimerEventKind.RollbackCompleted, 'rollback-completed', false, null],
-      [EnforcementTimerEventKind.RecoveryNeeded, 'recovery-needed', false, null],
+      [EnforcementTimerEventKind.RecoveryNeeded, 'recovery-needed', false, EnforcementUnavailableReason.AdapterError],
       [EnforcementTimerEventKind.Unavailable, 'unavailable', false, EnforcementUnavailableReason.AdapterUnavailable],
     ] as const;
 
@@ -65,6 +65,7 @@ describe('parent enforcement timer contracts', () => {
 
     expect(parsed).toEqual(transitions.map(([, expectedKind]) => expectedKind));
     expect(() => EnforcementTimerEventSchema.parse(unavailableTimerWithoutReasonPayload())).toThrow();
+    expect(() => EnforcementTimerEventSchema.parse(recoveryNeededTimerWithoutReasonPayload())).toThrow();
     expect(() => EnforcementTimerEventSchema.parse(createdTimerWithUnavailableReasonPayload())).toThrow();
   });
 });
@@ -75,6 +76,23 @@ function unavailableTimerWithoutReasonPayload() {
     schemaVersion: ParentContractSchemaVersion.V0_6,
     timerEventId: 'timer-unavailable-missing-reason',
     timerEventKind: EnforcementTimerEventKind.Unavailable,
+    actionId: action.actionId,
+    policyDecisionId: action.policyDecisionId,
+    evidenceReferences: [evidenceReference],
+    scheduledAt: observedAt,
+    effectiveAt: null,
+    rollbackToken: action.rollbackToken,
+    recoveredAfterRestart: false,
+    unavailableReason: null,
+  };
+}
+
+function recoveryNeededTimerWithoutReasonPayload() {
+  const action = enforcementAction(enforcementIntent());
+  return {
+    schemaVersion: ParentContractSchemaVersion.V0_6,
+    timerEventId: 'timer-recovery-needed-missing-reason',
+    timerEventKind: EnforcementTimerEventKind.RecoveryNeeded,
     actionId: action.actionId,
     policyDecisionId: action.policyDecisionId,
     evidenceReferences: [evidenceReference],

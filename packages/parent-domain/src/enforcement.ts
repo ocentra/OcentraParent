@@ -261,13 +261,13 @@ export const EnforcementTimerEventSchema = withParser(
     Schema.filter(
       (timerEvent) =>
         enforcementTimerUnavailableReasonIsConsistent(timerEvent) ||
-        'Expected unavailable enforcement timer events to include typed unavailable reason'
+        'Expected unavailable and recovery-needed enforcement timer events to include typed unavailable reason'
     )
   )
 );
 
 function enforcementTimerUnavailableReasonIsConsistent(timerEvent: EnforcementTimerEventCandidate): boolean {
-  if (timerEvent.timerEventKind === 'unavailable') {
+  if (timerEvent.timerEventKind === 'unavailable' || timerEvent.timerEventKind === 'recovery-needed') {
     return timerEvent.unavailableReason !== null;
   }
 
