@@ -49,6 +49,7 @@ pub const LAN_PAIRING_UNPAIRED: &str = "unpaired";
 pub const LAN_PAIRING_PAIRED: &str = "paired";
 pub const LAN_PAIRING_REVOKED: &str = "revoked";
 pub const LAN_PERSISTENCE_IN_MEMORY_FAIL_CLOSED: &str = "in-memory-fail-closed";
+pub const LAN_RESTART_FAIL_CLOSED_UNPAIRED: &str = "fail-closed-unpaired";
 pub const LAN_PROOF_DIRECT_PROOF_SUBMIT: &str = "direct-proof-submit";
 pub const LAN_REASON_ANONYMOUS: &str = "anonymous";
 pub const LAN_REASON_EXPIRED: &str = "expired";

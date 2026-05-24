@@ -107,6 +107,12 @@ pub(crate) fn assert_status_support_surface(event: &AgentEventEnvelope) {
         ))
     );
     assert_eq!(
+        event.payload.get(constants::field::LAN_RESTART_BEHAVIOR),
+        Some(&LogFieldValue::String(
+            constants::value::LAN_RESTART_FAIL_CLOSED_UNPAIRED.to_string()
+        ))
+    );
+    assert_eq!(
         event.payload.get(constants::field::LAN_PROOF_MODE),
         Some(&LogFieldValue::String(
             constants::value::LAN_PROOF_DIRECT_PROOF_SUBMIT.to_string()

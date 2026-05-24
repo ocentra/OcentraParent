@@ -22,6 +22,12 @@ pub enum LanPairingPersistenceMode {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
+pub enum LanPairingRestartBehavior {
+    FailClosedUnpaired,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
 pub enum LanPairingProofMode {
     DirectProofSubmit,
 }
@@ -69,6 +75,7 @@ pub struct LanPairingRuntimeSupportSurface {
     pub challenge_status: LanPairingDiscoveryRuntimeStatus,
     pub proof_preview_status: LanPairingDiscoveryRuntimeStatus,
     pub persistence_mode: LanPairingPersistenceMode,
+    pub restart_behavior: LanPairingRestartBehavior,
     pub proof_mode: LanPairingProofMode,
     pub route_requirements: Vec<LanPairingRouteRequirement>,
     pub manual_proof_gaps: Vec<LanPairingManualProofGap>,

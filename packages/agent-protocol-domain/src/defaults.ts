@@ -151,6 +151,7 @@ export const AgentProtocolDefaults = {
     LanSelectedDeviceReachability: 'selectedDeviceReachability',
     LanSelectedDeviceStaleAt: 'selectedDeviceStaleAt',
     LanSelectedRouteId: 'selectedRouteId',
+    LanRestartBehavior: 'restartBehavior',
     LanTrustedDeviceIds: 'trustedDeviceIds',
     LanTrustedDeviceCount: 'trustedDeviceCount',
     Limit: 'limit',

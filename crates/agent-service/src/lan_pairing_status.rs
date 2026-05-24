@@ -91,6 +91,10 @@ fn support_surface_pairs() -> Vec<(&'static str, LogFieldValue)> {
             ),
         ),
         (
+            constants::field::LAN_RESTART_BEHAVIOR,
+            LogFieldValue::String(constants::value::LAN_RESTART_FAIL_CLOSED_UNPAIRED.to_string()),
+        ),
+        (
             constants::field::LAN_PROOF_MODE,
             LogFieldValue::String(constants::value::LAN_PROOF_DIRECT_PROOF_SUBMIT.to_string()),
         ),
