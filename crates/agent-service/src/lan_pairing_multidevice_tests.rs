@@ -1,4 +1,4 @@
-use ocentra_parent_agent_protocol::{constants, AgentEventName, LogFieldValue};
+use ocentra_parent_agent_protocol::{constants, AgentEventEnvelope, AgentEventName, LogFieldValue};
 
 use crate::{
     lan_pairing::LanPairingRuntime,
@@ -170,6 +170,7 @@ async fn lan_pairing_route_select_makes_multi_device_control_explicit() {
         &second_after_selection,
         constants::value::LAN_REASON_UNSELECTED_DEVICE,
     );
+    assert_second_child_unselected_rejection(&second_after_selection);
 }
 
 async fn pair_second_child_and_select_it(runtime: LanPairingRuntime) {
@@ -257,7 +258,7 @@ async fn health_for_second_child(
 }
 
 fn assert_route_selected(
-    event: &ocentra_parent_agent_protocol::AgentEventEnvelope,
+    event: &AgentEventEnvelope,
     child_device_id: &str,
     trusted_device_ids: &str,
 ) {
@@ -273,6 +274,35 @@ fn assert_route_selected(
         event.payload.get(constants::field::LAN_AUDIT_EVENT_TYPE),
         Some(&LogFieldValue::String(
             constants::value::LAN_AUDIT_ROUTE_SELECTED.to_string()
+        ))
+    );
+}
+
+fn assert_second_child_unselected_rejection(event: &AgentEventEnvelope) {
+    assert_eq!(
+        event.payload.get(constants::field::LAN_INTENT_ID),
+        Some(&LogFieldValue::String(
+            constants::lan_pairing::SECOND_INTENT_ID.to_string()
+        ))
+    );
+    assert_eq!(
+        event.payload.get(constants::field::LAN_PAIRING_ID),
+        Some(&LogFieldValue::String(
+            constants::lan_pairing::SECOND_PAIRING_ID.to_string()
+        ))
+    );
+    assert_eq!(
+        event.payload.get(constants::field::LAN_ROUTE_ID),
+        Some(&LogFieldValue::String(
+            constants::lan_pairing::ROUTE_ID_SECOND_LOCAL_NETWORK.to_string()
+        ))
+    );
+    assert_eq!(
+        event
+            .payload
+            .get(constants::field::LAN_EVIDENCE_REFERENCE_IDS),
+        Some(&LogFieldValue::String(
+            constants::lan_pairing::EVIDENCE_REFERENCE_ID.to_string()
         ))
     );
 }

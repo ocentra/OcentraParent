@@ -115,70 +115,122 @@ function registerPairingTrustTests(): void {
 
 function registerControlContractTests(): void {
   it('LanPairingParentIntentEnvelopeSchema: parses selected target, response, and audit contracts', () => {
-    const proof = LanPairingProofSchema.parse({
-      schemaVersion: 'v0.9',
-      pairingId: 'pairing-1',
-      challengeId: 'challenge-1',
-      childDeviceId: childDevice.deviceId,
-      parentDeviceId: parentDevice.deviceId,
-      routeId: 'lan-route-1',
-      origin: 'http://127.0.0.1:4478',
-      proofDigest: 'sha256:proof-digest',
-      issuedAt: timestamp,
-      expiresAt: laterTimestamp,
-    });
-    const selectedTarget = LanSelectedRouteTargetSchema.parse({
-      schemaVersion: 'v0.9',
-      selectedChildDeviceId: childDevice.deviceId,
-      routeId: proof.routeId,
-      pairingId: proof.pairingId,
-      networkMode: 'local-network',
-      reachability: 'online',
-      staleAt: null,
-    });
-    const intent = LanPairingParentIntentEnvelopeSchema.parse({
-      schemaVersion: 'v0.9',
-      intentId: 'intent-1',
-      intentKind: 'rule-query',
-      targetChildDeviceId: childDevice.deviceId,
-      routeId: proof.routeId,
-      pairingId: proof.pairingId,
-      proofDigest: proof.proofDigest,
-      origin: proof.origin,
-      issuedAt: timestamp,
-      expiresAt: laterTimestamp,
-      evidenceReferences: [evidenceReference],
-    });
-    const response = LanChildAgentResponseSchema.parse({
-      schemaVersion: 'v0.9',
-      intentId: intent.intentId,
-      targetChildDeviceId: intent.targetChildDeviceId,
-      routeId: intent.routeId,
-      state: 'accepted',
-      rejectionReason: null,
-      auditEventId: 'audit-1',
-      respondedAt: timestamp,
-    });
-    const auditEvent = LanPairingAuditEventSchema.parse({
-      schemaVersion: 'v0.9',
-      auditEventId: response.auditEventId,
-      eventType: 'control-accepted',
-      pairingId: proof.pairingId,
-      intentId: intent.intentId,
-      childDeviceId: childDevice.deviceId,
-      parentDeviceId: parentDevice.deviceId,
-      routeId: proof.routeId,
-      origin: proof.origin,
-      rejectionReason: null,
-      observedAt: timestamp,
-      evidenceReferences: [evidenceReference],
-    });
+    const { auditEvent, intent, response, routeSelectedAuditEvent, selectedTarget } = acceptedControlContracts();
 
     expect(selectedTarget.selectedChildDeviceId).toBe('child-device-1');
     expect(intent.intentKind).toBe('rule-query');
     expect(response.state).toBe('accepted');
     expect(auditEvent.eventType).toBe('control-accepted');
+    expect(routeSelectedAuditEvent.eventType).toBe('route-selected');
     expect(auditEvent.evidenceReferences).toEqual([evidenceReference]);
+  });
+}
+
+function acceptedControlContracts() {
+  const proof = acceptedProof();
+  const selectedTarget = selectedRouteTargetFor(proof);
+  const intent = parentIntentFor(proof);
+  const response = acceptedResponseFor(intent);
+  const auditEvent = acceptedAuditEventFor(proof, intent, response);
+  const routeSelectedAuditEvent = routeSelectedAuditEventFor(proof, intent);
+
+  return { auditEvent, intent, response, routeSelectedAuditEvent, selectedTarget };
+}
+
+function acceptedProof() {
+  return LanPairingProofSchema.parse({
+    schemaVersion: 'v0.9',
+    pairingId: 'pairing-1',
+    challengeId: 'challenge-1',
+    childDeviceId: childDevice.deviceId,
+    parentDeviceId: parentDevice.deviceId,
+    routeId: 'lan-route-1',
+    origin: 'http://127.0.0.1:4478',
+    proofDigest: 'sha256:proof-digest',
+    issuedAt: timestamp,
+    expiresAt: laterTimestamp,
+  });
+}
+
+function selectedRouteTargetFor(proof: ReturnType<typeof acceptedProof>) {
+  return LanSelectedRouteTargetSchema.parse({
+    schemaVersion: 'v0.9',
+    selectedChildDeviceId: childDevice.deviceId,
+    routeId: proof.routeId,
+    pairingId: proof.pairingId,
+    networkMode: 'local-network',
+    reachability: 'online',
+    staleAt: null,
+  });
+}
+
+function parentIntentFor(proof: ReturnType<typeof acceptedProof>) {
+  return LanPairingParentIntentEnvelopeSchema.parse({
+    schemaVersion: 'v0.9',
+    intentId: 'intent-1',
+    intentKind: 'rule-query',
+    targetChildDeviceId: childDevice.deviceId,
+    routeId: proof.routeId,
+    pairingId: proof.pairingId,
+    proofDigest: proof.proofDigest,
+    origin: proof.origin,
+    issuedAt: timestamp,
+    expiresAt: laterTimestamp,
+    evidenceReferences: [evidenceReference],
+  });
+}
+
+function acceptedResponseFor(intent: ReturnType<typeof parentIntentFor>) {
+  return LanChildAgentResponseSchema.parse({
+    schemaVersion: 'v0.9',
+    intentId: intent.intentId,
+    targetChildDeviceId: intent.targetChildDeviceId,
+    routeId: intent.routeId,
+    state: 'accepted',
+    rejectionReason: null,
+    auditEventId: 'audit-1',
+    respondedAt: timestamp,
+  });
+}
+
+function acceptedAuditEventFor(
+  proof: ReturnType<typeof acceptedProof>,
+  intent: ReturnType<typeof parentIntentFor>,
+  response: ReturnType<typeof acceptedResponseFor>
+) {
+  return LanPairingAuditEventSchema.parse({
+    schemaVersion: 'v0.9',
+    auditEventId: response.auditEventId,
+    eventType: 'control-accepted',
+    pairingId: proof.pairingId,
+    intentId: intent.intentId,
+    childDeviceId: childDevice.deviceId,
+    parentDeviceId: parentDevice.deviceId,
+    routeId: proof.routeId,
+    origin: proof.origin,
+    rejectionReason: null,
+    observedAt: timestamp,
+    evidenceReferences: [evidenceReference],
+  });
+}
+
+function routeSelectedAuditEventFor(
+  proof: ReturnType<typeof acceptedProof>,
+  intent: ReturnType<typeof parentIntentFor>
+) {
+  return LanPairingAuditEventSchema.parse({
+    schemaVersion: 'v0.9',
+    auditEventId: 'audit-route-selected-1',
+    eventType: 'route-selected',
+    pairingId: proof.pairingId,
+    intentId: intent.intentId,
+    childDeviceId: childDevice.deviceId,
+    parentDeviceId: parentDevice.deviceId,
+    routeId: proof.routeId,
+    origin: proof.origin,
+    rejectionReason: null,
+    observedAt: timestamp,
+    evidenceReferences: [evidenceReference],
   });
 }
 
@@ -201,11 +253,44 @@ function registerRejectionContractTests(): void {
     expect(parsed.success).toBe(false);
   });
 
+  it('LanChildAgentResponseSchema: parses unselected trusted-device rejection with audit evidence', () => {
+    const response = LanChildAgentResponseSchema.parse({
+      schemaVersion: 'v0.9',
+      intentId: 'intent-unselected-1',
+      targetChildDeviceId: childDevice.deviceId,
+      routeId: 'lan-route-1',
+      state: 'rejected',
+      rejectionReason: 'unselected-device',
+      auditEventId: 'audit-unselected-1',
+      respondedAt: timestamp,
+    });
+    const auditEvent = LanPairingAuditEventSchema.parse({
+      schemaVersion: 'v0.9',
+      auditEventId: response.auditEventId,
+      eventType: 'control-rejected',
+      pairingId: 'pairing-1',
+      intentId: response.intentId,
+      childDeviceId: childDevice.deviceId,
+      parentDeviceId: parentDevice.deviceId,
+      routeId: response.routeId,
+      origin: 'http://127.0.0.1:4478',
+      rejectionReason: response.rejectionReason,
+      observedAt: timestamp,
+      evidenceReferences: [evidenceReference],
+    });
+
+    expect(response.state).toBe('rejected');
+    expect(response.rejectionReason).toBe('unselected-device');
+    expect(auditEvent.rejectionReason).toBe('unselected-device');
+    expect(auditEvent.evidenceReferences).toEqual([evidenceReference]);
+  });
+
   it('LanPairingRejectionReason: keeps unsafe LAN failures exact and parent-visible', () => {
     expect(LanPairingRejectionReason.Anonymous).toBe('anonymous');
     expect(LanPairingRejectionReason.WrongOrigin).toBe('wrong-origin');
     expect(LanPairingRejectionReason.WrongDevice).toBe('wrong-device');
     expect(LanPairingRejectionReason.Revoked).toBe('revoked');
+    expect(LanPairingRejectionReason.UnselectedDevice).toBe('unselected-device');
     expect(LanPairingIntentKindSchema.safeParse('cloud-relay').success).toBe(false);
   });
 }
