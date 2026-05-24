@@ -38,7 +38,8 @@ export const LanPairingRejectionReasonSchema = withParser(
     'stale',
     'revoked',
     'local-network-disabled',
-    'unsupported-route'
+    'unsupported-route',
+    'unselected-device'
   )
 );
 export const LanPairingAuditEventTypeSchema = withParser(
@@ -49,6 +50,7 @@ export const LanPairingAuditEventTypeSchema = withParser(
     'pairing-proof-rejected',
     'control-accepted',
     'control-rejected',
+    'route-selected',
     'pairing-revoked',
     'selected-device-changed'
   )
@@ -108,4 +110,5 @@ export const LanPairingRejectionReason = {
   Revoked: LanPairingRejectionReasonSchema.parse('revoked'),
   LocalNetworkDisabled: LanPairingRejectionReasonSchema.parse('local-network-disabled'),
   UnsupportedRoute: LanPairingRejectionReasonSchema.parse('unsupported-route'),
+  UnselectedDevice: LanPairingRejectionReasonSchema.parse('unselected-device'),
 } as const;
