@@ -58,6 +58,7 @@ export const LanPairingAuditEventSchema = withParser(
     origin: Schema.Union(LanPairingOriginSchema, Schema.Null),
     rejectionReason: Schema.Union(LanPairingRejectionReasonSchema, Schema.Null),
     observedAt: LanPairingTimestampSchema,
+    evidenceReferences: Schema.Array(ParentEvidenceReferenceSchema),
   })
 );
 

@@ -37,6 +37,22 @@ async fn lan_pairing_proof_reports_trusted_but_unselected_state() {
         proof_event.event,
         AgentEventName::AgentLanPairingStatusReported
     );
+    assert_eq!(
+        proof_event
+            .payload
+            .get(constants::field::LAN_AUDIT_EVENT_TYPE),
+        Some(&LogFieldValue::String(
+            constants::value::LAN_AUDIT_PAIRING_PROOF_ACCEPTED.to_string()
+        ))
+    );
+    assert_eq!(
+        proof_event
+            .payload
+            .get(constants::field::LAN_EVIDENCE_REFERENCE_IDS),
+        Some(&LogFieldValue::String(
+            constants::lan_pairing::EVIDENCE_REFERENCE_ID.to_string()
+        ))
+    );
     assert_status_support_surface(&proof_event);
     assert_status_selection(
         &proof_event,
@@ -49,6 +65,41 @@ async fn lan_pairing_proof_reports_trusted_but_unselected_state() {
     assert_rejection(
         &health_before_selection,
         constants::value::LAN_REASON_UNSELECTED_DEVICE,
+    );
+}
+
+#[tokio::test]
+async fn lan_pairing_rejected_proof_keeps_audit_evidence_reference() {
+    let runtime = LanPairingRuntime::empty();
+    let mut payload = proof_payload();
+    payload.remove(constants::field::LAN_PROOF_DIGEST);
+    let proof_event = handle_command_text_for_test(
+        &serialize_command(pairing_command(payload)),
+        runtime,
+        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+    )
+    .await;
+
+    assert_eq!(proof_event.event, AgentEventName::AgentCommandRejected);
+    assert_eq!(
+        proof_event
+            .payload
+            .get(constants::field::LAN_AUDIT_EVENT_TYPE),
+        Some(&LogFieldValue::String(
+            constants::value::LAN_AUDIT_PAIRING_PROOF_REJECTED.to_string()
+        ))
+    );
+    assert_eq!(
+        proof_event
+            .payload
+            .get(constants::field::LAN_EVIDENCE_REFERENCE_IDS),
+        Some(&LogFieldValue::String(
+            constants::lan_pairing::EVIDENCE_REFERENCE_ID.to_string()
+        ))
+    );
+    assert_eq!(
+        proof_event.payload.get(constants::field::LAN_PROOF_DIGEST),
+        None
     );
 }
 

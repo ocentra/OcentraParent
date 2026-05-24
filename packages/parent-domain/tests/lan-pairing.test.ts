@@ -170,12 +170,14 @@ function registerControlContractTests(): void {
       origin: proof.origin,
       rejectionReason: null,
       observedAt: timestamp,
+      evidenceReferences: [evidenceReference],
     });
 
     expect(selectedTarget.selectedChildDeviceId).toBe('child-device-1');
     expect(intent.intentKind).toBe('rule-query');
     expect(response.state).toBe('accepted');
     expect(auditEvent.eventType).toBe('control-accepted');
+    expect(auditEvent.evidenceReferences).toEqual([evidenceReference]);
   });
 }
 

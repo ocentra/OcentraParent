@@ -39,6 +39,20 @@ pub(crate) fn assert_accepted_control(event: &AgentEventEnvelope) {
             constants::value::LAN_AUTH_PAIRED.to_string()
         ))
     );
+    assert_eq!(
+        event
+            .payload
+            .get(constants::field::LAN_EVIDENCE_REFERENCE_COUNT),
+        Some(&LogFieldValue::Number(1.0))
+    );
+    assert_eq!(
+        event
+            .payload
+            .get(constants::field::LAN_EVIDENCE_REFERENCE_IDS),
+        Some(&LogFieldValue::String(
+            constants::lan_pairing::EVIDENCE_REFERENCE_ID.to_string()
+        ))
+    );
 }
 
 pub(crate) fn assert_status_support_surface(event: &AgentEventEnvelope) {

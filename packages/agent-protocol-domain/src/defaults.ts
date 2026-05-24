@@ -134,6 +134,8 @@ export const AgentProtocolDefaults = {
     LanChildDeviceId: 'childDeviceId',
     LanControlState: 'controlState',
     LanDiscoveryStatus: 'discoveryStatus',
+    LanEvidenceReferenceCount: 'evidenceReferenceCount',
+    LanEvidenceReferenceIds: 'evidenceReferenceIds',
     LanIntentId: 'intentId',
     LanIntentKind: 'intentKind',
     LanPairingId: 'pairingId',

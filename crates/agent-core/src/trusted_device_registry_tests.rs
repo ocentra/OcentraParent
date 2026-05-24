@@ -455,6 +455,7 @@ fn intent_for_pairing(
         origin: constants::lan_pairing::ALLOWED_ORIGIN.to_string(),
         issued_at: constants::lan_pairing::ISSUED_AT.to_string(),
         expires_at: expires_at.to_string(),
+        evidence_references: Vec::new(),
     }
 }
 

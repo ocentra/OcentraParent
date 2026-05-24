@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+use crate::ParentEvidenceReference;
+
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum LanPairingNetworkMode {
@@ -245,6 +247,7 @@ pub struct LanParentIntentEnvelope {
     pub origin: String,
     pub issued_at: String,
     pub expires_at: String,
+    pub evidence_references: Vec<ParentEvidenceReference>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -274,4 +277,5 @@ pub struct LanPairingAuditEvent {
     pub origin: Option<String>,
     pub rejection_reason: Option<LanPairingRejectionReason>,
     pub observed_at: String,
+    pub evidence_references: Vec<ParentEvidenceReference>,
 }

@@ -8,7 +8,7 @@ use super::{
     LanPairingResponseState, LanPairingRouteRequirement, LanPairingRouteSelectionRequest,
     LanPairingRoutingDecision, LanPairingRuntimeSupportSurface, LanPairingTransport,
     LanPairingUnsupportedHttpEndpoint, LanTrustedDeviceRegistryEntry,
-    LanTrustedDeviceRegistrySnapshot,
+    LanTrustedDeviceRegistrySnapshot, ParentEvidenceReference, ParentEvidenceReferenceKind,
 };
 
 #[test]
@@ -76,6 +76,7 @@ fn lan_pairing_audit_event_records_rejection_reason_without_raw_secret() {
         origin: Some(constants::lan_pairing::WRONG_ORIGIN.to_string()),
         rejection_reason: Some(LanPairingRejectionReason::WrongOrigin),
         observed_at: constants::lan_pairing::OBSERVED_AT.to_string(),
+        evidence_references: vec![evidence()],
     };
 
     let event_json = serde_json::to_value(event).expect(constants::error::AGENT_EVENT_SERIALIZES);
@@ -84,7 +85,12 @@ fn lan_pairing_audit_event_records_rejection_reason_without_raw_secret() {
 
     assert_eq!(event_json["eventType"], "control-rejected");
     assert_eq!(event_json["rejectionReason"], "wrong-origin");
+    assert_eq!(
+        event_json["evidenceReferences"][0]["evidenceReferenceId"],
+        constants::lan_pairing::EVIDENCE_REFERENCE_ID
+    );
     assert!(!event_text.contains("rawToken"));
+    assert!(!event_text.contains("rawEvidence"));
 }
 
 #[test]
@@ -178,6 +184,7 @@ fn lan_pairing_read_model_values_keep_local_network_state_explicit() {
         origin: constants::lan_pairing::ALLOWED_ORIGIN.to_string(),
         issued_at: constants::lan_pairing::ISSUED_AT.to_string(),
         expires_at: constants::lan_pairing::EXPIRES_AT.to_string(),
+        evidence_references: vec![evidence()],
     };
 
     let selected_json =
@@ -187,6 +194,10 @@ fn lan_pairing_read_model_values_keep_local_network_state_explicit() {
     assert_eq!(selected_json["networkMode"], "local-network");
     assert_eq!(selected_json["reachability"], "stale");
     assert_eq!(intent_json["intentKind"], "rule-query");
+    assert_eq!(
+        intent_json["evidenceReferences"][0]["kind"],
+        "activity-event"
+    );
 }
 
 #[test]
@@ -398,6 +409,15 @@ fn parent_intent(
         origin: constants::lan_pairing::ALLOWED_ORIGIN.to_string(),
         issued_at: constants::lan_pairing::ISSUED_AT.to_string(),
         expires_at: constants::lan_pairing::EXPIRES_AT.to_string(),
+        evidence_references: vec![evidence()],
+    }
+}
+
+fn evidence() -> ParentEvidenceReference {
+    ParentEvidenceReference {
+        evidence_reference_id: constants::lan_pairing::EVIDENCE_REFERENCE_ID.to_string(),
+        kind: ParentEvidenceReferenceKind::ActivityEvent,
+        observed_at: constants::lan_pairing::OBSERVED_AT.to_string(),
     }
 }
 

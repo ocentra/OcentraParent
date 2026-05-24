@@ -1,6 +1,7 @@
 use ocentra_parent_agent_protocol::{
     constants, LanPairingIntentKind, LanPairingProof, LanPairingRejectionReason,
-    LanParentIntentEnvelope, LogFieldValue, LogFields,
+    LanParentIntentEnvelope, LogFieldValue, LogFields, ParentEvidenceReference,
+    ParentEvidenceReferenceKind,
 };
 
 pub(crate) fn parse_pairing_proof(
@@ -25,6 +26,9 @@ pub(crate) fn parse_intent(
 ) -> Result<LanParentIntentEnvelope, LanPairingRejectionReason> {
     let pairing_id = required_anonymous_string(fields, constants::field::LAN_PAIRING_ID)?;
     let proof_digest = required_anonymous_string(fields, constants::field::LAN_PROOF_DIGEST)?;
+    let issued_at = required_string(fields, constants::field::STARTED_AT)?;
+    let expires_at = required_string(fields, constants::field::STALE_AT)?;
+    let evidence_references = parse_evidence_references(fields, &issued_at);
     Ok(LanParentIntentEnvelope {
         schema_version: constants::lan_pairing::SCHEMA_VERSION,
         intent_id: required_string(fields, constants::field::LAN_INTENT_ID)?,
@@ -34,9 +38,28 @@ pub(crate) fn parse_intent(
         pairing_id,
         proof_digest,
         origin: required_string(fields, constants::field::ORIGIN)?,
-        issued_at: required_string(fields, constants::field::STARTED_AT)?,
-        expires_at: required_string(fields, constants::field::STALE_AT)?,
+        issued_at,
+        expires_at,
+        evidence_references,
     })
+}
+
+fn parse_evidence_references(
+    fields: &LogFields,
+    observed_at: &str,
+) -> Vec<ParentEvidenceReference> {
+    match fields.get(constants::field::LAN_EVIDENCE_REFERENCE_IDS) {
+        Some(LogFieldValue::String(value)) => value
+            .split(constants::delimiter::LIST)
+            .filter(|evidence_id| !evidence_id.is_empty())
+            .map(|evidence_id| ParentEvidenceReference {
+                evidence_reference_id: evidence_id.to_string(),
+                kind: ParentEvidenceReferenceKind::ActivityEvent,
+                observed_at: observed_at.to_string(),
+            })
+            .collect(),
+        _ => Vec::new(),
+    }
 }
 
 fn required_intent_kind(

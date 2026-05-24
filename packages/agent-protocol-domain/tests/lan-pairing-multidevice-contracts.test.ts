@@ -3,6 +3,7 @@ import {
   AgentCommand,
   AgentCommandEnvelopeSchema,
   AgentLanChildAgentResponseSchema,
+  AgentLanPairingAuditEventSchema,
   AgentLanPairingChallengeSchema,
   AgentLanPairingDiscoveryDeviceSchema,
   AgentLanPairingProofPreviewSchema,
@@ -30,6 +31,10 @@ describe('LAN pairing multi-device protocol contracts', () => {
   it(
     'AgentLanChildAgentResponseSchema: represents accepted and rejected child-agent responses without evidence payloads',
     assertChildAgentResponses
+  );
+  it(
+    'AgentLanPairingAuditEventSchema: cites local evidence references without raw evidence payloads',
+    assertLanAuditEvidenceReferences
   );
 });
 
@@ -111,12 +116,17 @@ function assertTypedParentIntentEnvelope() {
     ...lanParentIntentEnvelope('intent-empty-proof-1', AgentProtocolDefaults.LanIntentKind.RuleQuery),
     [AgentProtocolDefaults.Field.LanProofDigest]: '',
   });
+  const invalidEvidence = AgentLanParentIntentEnvelopeSchema.safeParse({
+    ...lanParentIntentEnvelope('intent-invalid-evidence-1', AgentProtocolDefaults.LanIntentKind.RuleQuery),
+    evidenceReferences: [{ ...lanEvidenceReference(), evidenceReferenceId: '' }],
+  });
 
   expect(ruleQuery.success).toBe(true);
   expect(ruleUpdate.success).toBe(true);
   expect(approvalDecision.success).toBe(true);
   expect(missingKind.success).toBe(false);
   expect(emptyProof.success).toBe(false);
+  expect(invalidEvidence.success).toBe(false);
 }
 
 function assertChildAgentResponses() {
@@ -135,6 +145,22 @@ function assertChildAgentResponses() {
   expect(JSON.stringify(accepted)).not.toContain('rawEvidence');
   expect(JSON.stringify(rejected)).not.toContain('rawEvidence');
   expect(invalidReason.success).toBe(false);
+}
+
+function assertLanAuditEvidenceReferences() {
+  const accepted = AgentLanPairingAuditEventSchema.safeParse(lanAuditEvent('control-accepted', null));
+  const rejected = AgentLanPairingAuditEventSchema.safeParse(lanAuditEvent('control-rejected', 'wrong-origin'));
+  const invalidEvidence = AgentLanPairingAuditEventSchema.safeParse({
+    ...lanAuditEvent('control-rejected', 'wrong-origin'),
+    evidenceReferences: [{ ...lanEvidenceReference(), kind: 'raw-evidence' }],
+  });
+
+  expect(accepted.success).toBe(true);
+  expect(rejected.success).toBe(true);
+  expect(JSON.stringify(accepted)).toContain('evidenceReferenceId');
+  expect(JSON.stringify(accepted)).not.toContain('rawEvidence');
+  expect(JSON.stringify(rejected)).not.toContain('rawToken');
+  expect(invalidEvidence.success).toBe(false);
 }
 
 function lanDeviceRef() {
@@ -210,6 +236,7 @@ function lanParentIntentEnvelope(intentId: unknown, intentKind: unknown) {
     origin: 'http://127.0.0.1:4678',
     issuedAt: '2026-05-23T23:20:00Z',
     expiresAt: '2026-05-23T23:25:00Z',
+    evidenceReferences: [lanEvidenceReference()],
   };
 }
 
@@ -223,5 +250,30 @@ function lanChildAgentResponse(state: unknown, rejectionReason: unknown) {
     rejectionReason,
     auditEventId: 'lan-audit-rule-query-1',
     respondedAt: '2026-05-23T23:20:05Z',
+  };
+}
+
+function lanAuditEvent(eventType: unknown, rejectionReason: unknown) {
+  return {
+    schemaVersion: AgentProtocolDefaults.SchemaVersion,
+    auditEventId: 'lan-audit-rule-query-1',
+    eventType,
+    pairingId: 'pairing-child-1',
+    intentId: 'intent-rule-query-1',
+    childDeviceId: 'child-device-1',
+    parentDeviceId: 'parent-device-1',
+    routeId: 'lan-route-child-1',
+    origin: 'http://127.0.0.1:4678',
+    rejectionReason,
+    observedAt: '2026-05-23T23:20:05Z',
+    evidenceReferences: [lanEvidenceReference()],
+  };
+}
+
+function lanEvidenceReference() {
+  return {
+    evidenceReferenceId: 'activity-event-lan-control-1',
+    kind: 'activity-event',
+    observedAt: '2026-05-23T23:20:05Z',
   };
 }
