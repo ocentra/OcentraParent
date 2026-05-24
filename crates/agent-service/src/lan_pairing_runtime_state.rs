@@ -1,14 +1,35 @@
-use std::sync::{Arc, Mutex};
+use std::{
+    path::Path,
+    sync::{Arc, Mutex},
+};
 
 use ocentra_parent_agent_core::TrustedDeviceRegistry;
-use ocentra_parent_agent_protocol::LanSelectedRouteTarget;
+use ocentra_parent_agent_protocol::{constants, LanSelectedRouteTarget};
 
-use crate::{lan_pairing::LanPairingRuntime, time::timestamp_now};
+use crate::{
+    lan_pairing::{LanPairingRegistryPersistence, LanPairingRuntime},
+    time::timestamp_now,
+};
 
 impl LanPairingRuntime {
     pub fn empty() -> Self {
         Self {
             registry: Arc::new(Mutex::new(TrustedDeviceRegistry::empty())),
+            persistence: LanPairingRegistryPersistence::InMemory,
+        }
+    }
+
+    pub fn from_env() -> Self {
+        std::env::var(constants::env_var::AGENT_LAN_PAIRING_REGISTRY_PATH)
+            .ok()
+            .filter(|path| !path.is_empty())
+            .map_or_else(Self::empty, |path| Self::persistent_json(Path::new(&path)))
+    }
+
+    pub fn persistent_json(path: &Path) -> Self {
+        Self {
+            registry: Arc::new(Mutex::new(TrustedDeviceRegistry::load_json(path))),
+            persistence: LanPairingRegistryPersistence::LocalJsonRegistry(path.to_path_buf()),
         }
     }
 
@@ -46,6 +67,37 @@ impl LanPairingRuntime {
             .lock()
             .map(|registry| registry.has_revoked_pairing())
             .unwrap_or(false)
+    }
+
+    pub(crate) fn persistence_mode(&self) -> &'static str {
+        match &self.persistence {
+            LanPairingRegistryPersistence::InMemory => {
+                constants::value::LAN_PERSISTENCE_IN_MEMORY_FAIL_CLOSED
+            }
+            LanPairingRegistryPersistence::LocalJsonRegistry(_) => {
+                constants::value::LAN_PERSISTENCE_LOCAL_JSON_REGISTRY
+            }
+        }
+    }
+
+    pub(crate) fn restart_behavior(&self) -> &'static str {
+        match &self.persistence {
+            LanPairingRegistryPersistence::InMemory => {
+                constants::value::LAN_RESTART_FAIL_CLOSED_UNPAIRED
+            }
+            LanPairingRegistryPersistence::LocalJsonRegistry(_) => {
+                constants::value::LAN_RESTART_RESTORE_TRUSTED_REGISTRY_UNSELECTED
+            }
+        }
+    }
+
+    pub(crate) fn persist_registry(&self, registry: &TrustedDeviceRegistry) -> bool {
+        match &self.persistence {
+            LanPairingRegistryPersistence::InMemory => true,
+            LanPairingRegistryPersistence::LocalJsonRegistry(path) => {
+                registry.save_json(path.as_path()).is_ok()
+            }
+        }
     }
 
     #[cfg(test)]

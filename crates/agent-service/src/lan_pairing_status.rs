@@ -23,7 +23,7 @@ pub(crate) fn pairing_status_event(
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
     let status = pairing_status(runtime);
-    let mut pairs = support_surface_pairs();
+    let mut pairs = support_surface_pairs(runtime);
     pairs.extend(state_pairs(&status));
     build_event(
         constants::lan_pairing::EVENT_STATUS_REPORTED,
@@ -52,7 +52,7 @@ fn pairing_status(runtime: &LanPairingRuntime) -> LanPairingStatus {
     status
 }
 
-fn support_surface_pairs() -> Vec<(&'static str, LogFieldValue)> {
+fn support_surface_pairs(runtime: &LanPairingRuntime) -> Vec<(&'static str, LogFieldValue)> {
     vec![
         (
             constants::field::TRANSPORT,
@@ -86,13 +86,11 @@ fn support_surface_pairs() -> Vec<(&'static str, LogFieldValue)> {
         ),
         (
             constants::field::LAN_PERSISTENCE_MODE,
-            LogFieldValue::String(
-                constants::value::LAN_PERSISTENCE_IN_MEMORY_FAIL_CLOSED.to_string(),
-            ),
+            LogFieldValue::String(runtime.persistence_mode().to_string()),
         ),
         (
             constants::field::LAN_RESTART_BEHAVIOR,
-            LogFieldValue::String(constants::value::LAN_RESTART_FAIL_CLOSED_UNPAIRED.to_string()),
+            LogFieldValue::String(runtime.restart_behavior().to_string()),
         ),
         (
             constants::field::LAN_PROOF_MODE,

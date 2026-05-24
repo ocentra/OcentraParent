@@ -14,8 +14,12 @@ export const LanPairingHttpEndpointPathSchema = NonEmptyLanPairingSupportText.pi
 );
 export const LanPairingTransportSchema = withParser(Schema.Literal('websocket'));
 export const LanPairingHttpEndpointSupportSchema = withParser(Schema.Literal('planned-unsupported'));
-export const LanPairingPersistenceModeSchema = withParser(Schema.Literal('in-memory-fail-closed'));
-export const LanPairingRestartBehaviorSchema = withParser(Schema.Literal('fail-closed-unpaired'));
+export const LanPairingPersistenceModeSchema = withParser(
+  Schema.Literal('in-memory-fail-closed', 'local-json-registry')
+);
+export const LanPairingRestartBehaviorSchema = withParser(
+  Schema.Literal('fail-closed-unpaired', 'restore-trusted-registry-unselected')
+);
 export const LanPairingProofModeSchema = withParser(Schema.Literal('direct-proof-submit'));
 export const LanPairingRouteRequirementSchema = withParser(
   Schema.Literal(
@@ -80,10 +84,12 @@ export const LanPairingHttpEndpointSupport = {
 
 export const LanPairingPersistenceMode = {
   InMemoryFailClosed: LanPairingPersistenceModeSchema.parse('in-memory-fail-closed'),
+  LocalJsonRegistry: LanPairingPersistenceModeSchema.parse('local-json-registry'),
 } as const;
 
 export const LanPairingRestartBehavior = {
   FailClosedUnpaired: LanPairingRestartBehaviorSchema.parse('fail-closed-unpaired'),
+  RestoreTrustedRegistryUnselected: LanPairingRestartBehaviorSchema.parse('restore-trusted-registry-unselected'),
 } as const;
 
 export const LanPairingProofMode = {

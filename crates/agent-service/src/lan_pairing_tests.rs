@@ -1,3 +1,5 @@
+use std::fs::remove_file;
+
 use ocentra_parent_agent_protocol::{
     constants, policy_constants, AgentCommandName, AgentEventEnvelope, AgentEventName,
     AgentMessageTarget, AgentRoute, LogFieldValue, LogFields,
@@ -6,11 +8,13 @@ use ocentra_parent_agent_protocol::{
 use crate::{
     lan_pairing::LanPairingRuntime,
     lan_pairing_test_support::{
-        assert_accepted_control, assert_rejection, assert_selected_device_reachability,
-        assert_status_selection, assert_status_support_surface, command_for_target, health_command,
+        assert_accepted_control, assert_persistent_status_support_surface, assert_rejection,
+        assert_selected_device_reachability, assert_status_selection,
+        assert_status_support_surface, command_for_target, health_command,
         health_command_for_target, intent_payload, intent_payload_for_kind,
-        intent_payload_for_pairing, local_network_target, paired_runtime, route_revoke_command,
-        serialize_command, status_command,
+        intent_payload_for_pairing, local_network_target, paired_runtime, pairing_command,
+        proof_payload, route_revoke_command, route_select_command, serialize_command,
+        status_command,
     },
     websocket::handle_command_text_for_test,
 };
@@ -486,6 +490,112 @@ async fn lan_pairing_restart_without_registry_persistence_fails_closed() {
     );
 }
 
+#[tokio::test]
+async fn lan_pairing_persistent_registry_restores_trusted_device_unselected_after_restart() {
+    let path = temp_registry_path();
+    let _ = remove_file(&path);
+    let runtime = LanPairingRuntime::persistent_json(&path);
+    let _ = handle_command_text_for_test(
+        &serialize_command(pairing_command(proof_payload())),
+        runtime,
+        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+    )
+    .await;
+    let restarted_runtime = LanPairingRuntime::persistent_json(&path);
+    let restarted_status = loopback_lan_status(restarted_runtime.clone()).await;
+    let rejected_before_selection = old_signed_control(restarted_runtime.clone()).await;
+    let route_selected = handle_command_text_for_test(
+        &serialize_command(route_select_command(intent_payload(
+            constants::lan_pairing::SELECT_INTENT_ID,
+            constants::lan_pairing::CHILD_DEVICE_ID,
+            constants::lan_pairing::PROOF_DIGEST,
+            constants::lan_pairing::EXPIRES_AT,
+        ))),
+        restarted_runtime.clone(),
+        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+    )
+    .await;
+    let accepted_after_selection = old_signed_control(restarted_runtime).await;
+    let _ = remove_file(&path);
+
+    assert_lan_pairing_state(&restarted_status, constants::value::LAN_PAIRING_PAIRED, 1.0);
+    assert_persistent_status_support_surface(&restarted_status);
+    assert_status_selection(
+        &restarted_status,
+        constants::value::LAN_AUTH_UNPAIRED,
+        constants::value::EMPTY,
+        constants::value::EMPTY,
+        constants::lan_pairing::CHILD_DEVICE_ID,
+    );
+    assert_rejection(
+        &rejected_before_selection,
+        constants::value::LAN_REASON_UNSELECTED_DEVICE,
+    );
+    assert_status_selection(
+        &route_selected,
+        constants::value::LAN_AUTH_PAIRED,
+        constants::lan_pairing::CHILD_DEVICE_ID,
+        constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK,
+        constants::lan_pairing::CHILD_DEVICE_ID,
+    );
+    assert_accepted_control(&accepted_after_selection);
+}
+
+#[tokio::test]
+async fn lan_pairing_persistent_registry_keeps_revocation_after_restart() {
+    let path = temp_registry_path();
+    let _ = remove_file(&path);
+    let runtime = LanPairingRuntime::persistent_json(&path);
+    let _ = handle_command_text_for_test(
+        &serialize_command(pairing_command(proof_payload())),
+        runtime.clone(),
+        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+    )
+    .await;
+    let _ = handle_command_text_for_test(
+        &serialize_command(route_select_command(intent_payload(
+            constants::lan_pairing::SELECT_INTENT_ID,
+            constants::lan_pairing::CHILD_DEVICE_ID,
+            constants::lan_pairing::PROOF_DIGEST,
+            constants::lan_pairing::EXPIRES_AT,
+        ))),
+        runtime.clone(),
+        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+    )
+    .await;
+    let _ = handle_command_text_for_test(
+        &serialize_command(route_revoke_command(intent_payload(
+            constants::lan_pairing::REVOKE_INTENT_ID,
+            constants::lan_pairing::CHILD_DEVICE_ID,
+            constants::lan_pairing::PROOF_DIGEST,
+            constants::lan_pairing::EXPIRES_AT,
+        ))),
+        runtime,
+        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+    )
+    .await;
+    let restarted_runtime = LanPairingRuntime::persistent_json(&path);
+    let restarted_status = loopback_lan_status(restarted_runtime.clone()).await;
+    let revoked_control = old_signed_control(restarted_runtime).await;
+    let _ = remove_file(&path);
+
+    assert_lan_pairing_state(
+        &restarted_status,
+        constants::value::LAN_PAIRING_REVOKED,
+        0.0,
+    );
+    assert_persistent_status_support_surface(&restarted_status);
+    assert_eq!(
+        restarted_status
+            .payload
+            .get(constants::field::LAN_REVOKED_DEVICE_IDS),
+        Some(&LogFieldValue::String(
+            constants::lan_pairing::CHILD_DEVICE_ID.to_string()
+        ))
+    );
+    assert_rejection(&revoked_control, constants::value::LAN_REASON_REVOKED);
+}
+
 async fn loopback_lan_status(runtime: LanPairingRuntime) -> AgentEventEnvelope {
     handle_command_text_for_test(
         &serialize_command(command_for_target(
@@ -503,6 +613,20 @@ async fn loopback_lan_status(runtime: LanPairingRuntime) -> AgentEventEnvelope {
     .await
 }
 
+async fn old_signed_control(runtime: LanPairingRuntime) -> AgentEventEnvelope {
+    handle_command_text_for_test(
+        &serialize_command(health_command(intent_payload(
+            constants::lan_pairing::INTENT_ID,
+            constants::lan_pairing::CHILD_DEVICE_ID,
+            constants::lan_pairing::PROOF_DIGEST,
+            constants::lan_pairing::EXPIRES_AT,
+        ))),
+        runtime,
+        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+    )
+    .await
+}
+
 fn assert_lan_pairing_state(event: &AgentEventEnvelope, pairing_state: &str, trusted_count: f64) {
     assert_eq!(
         event.payload.get(constants::field::LAN_PAIRING_STATE),
@@ -514,4 +638,19 @@ fn assert_lan_pairing_state(event: &AgentEventEnvelope, pairing_state: &str, tru
             .get(constants::field::LAN_TRUSTED_DEVICE_COUNT),
         Some(&LogFieldValue::Number(trusted_count))
     );
+}
+
+fn temp_registry_path() -> std::path::PathBuf {
+    let mut name = String::from(constants::lan_pairing::REGISTRY_FILE_PREFIX);
+    name.push_str(&std::process::id().to_string());
+    name.push_str(
+        &std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map_or(0, |duration| duration.as_nanos())
+            .to_string(),
+    );
+    let mut path = std::env::temp_dir();
+    path.push(name);
+    path.set_extension(constants::lan_pairing::REGISTRY_FILE_EXTENSION);
+    path
 }

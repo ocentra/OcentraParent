@@ -337,6 +337,24 @@ fn lan_pairing_runtime_support_surface_serializes_supported_and_planned_api_clai
 }
 
 #[test]
+fn lan_pairing_runtime_support_surface_serializes_local_registry_persistence() {
+    let persistence_json = serde_json::to_value(LanPairingPersistenceMode::LocalJsonRegistry)
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let restart_json =
+        serde_json::to_value(LanPairingRestartBehavior::RestoreTrustedRegistryUnselected)
+            .expect(constants::error::AGENT_EVENT_SERIALIZES);
+
+    assert_eq!(
+        persistence_json,
+        constants::value::LAN_PERSISTENCE_LOCAL_JSON_REGISTRY
+    );
+    assert_eq!(
+        restart_json,
+        constants::value::LAN_RESTART_RESTORE_TRUSTED_REGISTRY_UNSELECTED
+    );
+}
+
+#[test]
 fn lan_pairing_registry_snapshot_and_route_decision_make_selection_explicit() {
     let selected = super::LanSelectedRouteTarget {
         schema_version: constants::lan_pairing::SCHEMA_VERSION,
