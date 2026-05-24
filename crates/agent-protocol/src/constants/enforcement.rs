@@ -102,6 +102,7 @@ pub const TEST_RESULT_ID: &str = "result-1";
 pub const TEST_AUDIT_EVENT_ID: &str = "audit-1";
 pub const TEST_TIMER_EVENT_ID: &str = "timer-1";
 pub const TEST_ROLLBACK_TOKEN: &str = "rollback-1";
+pub const TEST_PARENT_ACTION_REFERENCE_ID: &str = "parent-action-reference-1";
 pub const TEST_IDEMPOTENCY_KEY: &str = "decision-1:target-process-1";
 pub const TEST_JOURNAL_SEQUENCE: &str = "journal-sequence-1";
 pub const TEST_PROCESS_TARGET_ID: &str = "target-process-1";
