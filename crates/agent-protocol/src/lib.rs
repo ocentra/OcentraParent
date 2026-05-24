@@ -81,6 +81,8 @@ mod browser_managed_tests;
 #[cfg(test)]
 mod browser_read_model_tests;
 #[cfg(test)]
+mod enforcement_audit_boundary_tests;
+#[cfg(test)]
 mod enforcement_permission_dependency_tests;
 #[cfg(test)]
 mod enforcement_tests;
