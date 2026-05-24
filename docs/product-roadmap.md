@@ -37,19 +37,28 @@ stateless compile/report operations that do not retain child activity data.
 
 ## Current Position
 
-We are currently in the local AI dry-run evaluator track. The required pre-AI
-evidence bridges now exist on `main`: browser URL/tab state, app/game sessions,
-network flow summaries, and local screen-analysis queue summaries can all be
-represented through typed local contracts and Rust protocol/read-model paths.
-The V0.7 dry-run preview foundations are also on `main`: local AI
-runtime/provider status, typed evidence context-builder contracts, a
-deterministic dry-run policy evaluator, context-builder read-path hardening,
-the portal policy-preview shell, the typed policy-preview service/API read path,
-and portal read-model wiring for the service result. The parent-rule context
-preview bridge, local provider/runtime status contract hardening, portal
-boundary-field visibility, parent-rule context resolver integration, local
-provider adapter probe status, network-flow v4 reconciliation, and parent-rule
-preview quality/coverage batch are also on `main`.
+We are currently in a post-V0.7 checkpoint proof cleanup step, not a finished
+V0.8 or V0.9 product phase. The required pre-AI evidence bridges now exist on
+`main`: browser URL/tab state, app/game sessions, network flow summaries, and
+local screen-analysis queue summaries can all be represented through typed local
+contracts and Rust protocol/read-model paths. The V0.7 dry-run preview
+foundations are also on `main`: local AI runtime/provider status, typed evidence
+context-builder contracts, a deterministic dry-run policy evaluator,
+context-builder read-path hardening, the portal policy-preview shell, the typed
+policy-preview service/API read path, and portal read-model wiring for the
+service result. The parent-rule context preview bridge, local provider/runtime
+status contract hardening, portal boundary-field visibility, parent-rule context
+resolver integration, local provider adapter probe status, network-flow v4
+reconciliation, and parent-rule preview quality/coverage batch are also on
+`main`.
+
+Initial V0.8 and V0.9 spine work has started on `main`, but it does not change
+the acceptance gate. V0.8 currently means typed enforcement contract, audit,
+rollback, capability-status, and timer/recovery spine work only; it does not
+prove OS enforcement adapters or real blocking. V0.9 currently means typed LAN
+route/discovery/challenge/revocation and audit evidence spine work only; it
+does not prove production LAN pairing, authenticated cross-device control, or a
+full paired/unpaired product flow.
 
 Completed foundation:
 
@@ -70,23 +79,35 @@ Current local slice:
   parent-rule, and local runtime evidence references.
 - Typed local AI result and deterministic policy decision paths before
   enforcement.
+- V0.8 enforcement spine work is scaffold-real contract/protocol/core work only;
+  it must not be described as real blocking until an OS adapter path and
+  product proof exist.
+- V0.9 LAN spine work is scaffold-real contract/protocol/audit work only; it
+  must not be described as a complete LAN product path until paired and
+  failed-unpaired device proof exists.
 
 Next product checkpoint:
 
-- Pull and validate current `main` after the V0.7 preview-completion merges.
-- Run the pre-AI real evidence proof gate and final CI before more AI or
-  enforcement work.
-- Manually test the local child-device/parent-device surfaces before starting
-  more AI or enforcement work.
+- Treat the V0.7 checkpoint proof as the acceptance gate for the current
+  product position.
+- Keep proof records and roadmap text reconciled with current `main` before
+  assigning more feature coding.
+- Run the pre-AI real evidence proof gate and final CI before claiming V0.7 as
+  accepted.
+- Manually test the local child-device/parent-device surfaces before claiming
+  V0.8 or V0.9 readiness.
 - Complete the
   [cross-platform deliverables checkpoint plan](architecture/cross-platform-deliverables-checkpoint.md)
-  before more AI or enforcement work: Windows local first, Linux through CI plus
+  as the manual proof pass for Windows local first, Linux through CI plus
   WSL/Docker, macOS on the Mac system, Android through emulator/device proof,
   and iOS through Mac/Xcode/TestFlight or entitlement notes.
 - Keep portal preview visibility evidence-cited and explicit about dry-run-only
   status.
-- Keep V0.8 enforcement out of scope until the V0.7 checkpoint is reviewed on
-  real local/LAN flows.
+- Resume V0.8 and V0.9 implementation only as the next narrow spine/proof
+  slices: V0.8 should continue enforcement capability/status and audit-boundary
+  work without fake blocking claims, and V0.9 should continue paired/unpaired
+  LAN proof or trusted-device control work without claiming complete LAN
+  product readiness.
 
 ## Architecture Commitments
 
@@ -1116,22 +1137,33 @@ Current completed-on-main foundation:
   unusual-indicator evidence, still local/read-model only.
 - V0.7 parent-rule preview quality/coverage with target aliases and fully
   grounded local parent-rule context matching, still dry-run only.
+- V0.8 enforcement spine work has started with typed contracts, Rust protocol
+  parity, rollback/audit/capability status, and timer/recovery state. This is
+  not a completed enforcement adapter or real blocking path.
+- V0.9 LAN spine work has started with typed route, discovery, challenge,
+  revocation, and audit evidence references. This is not completed production
+  LAN pairing or cross-device control proof.
 
 Next coordinator slices:
 
-1. Pull current `main`, run the V0.7 checkpoint validation gate, and record the
+1. Keep the V0.7 checkpoint validation gate as the acceptance gate for the
+   current product position; do not treat V0.8 or V0.9 as done because their
+   initial spine work is on `main`.
+2. Finish the roadmap/proof cleanup pass before assigning more feature coding.
+3. Pull current `main`, run the V0.7 checkpoint validation gate, and record the
    exact commands or omission notes.
-2. Execute the
+4. Execute the
    [cross-platform deliverables checkpoint runbook](architecture/cross-platform-deliverables-checkpoint.md)
    as the manual proof pass for Windows, Linux, macOS, Android, iOS, LAN, and
    package lifecycle coverage.
-3. Separate CI mechanical proof from real OS/device proof in every evidence
+5. Separate CI mechanical proof from real OS/device proof in every evidence
    record before updating proof-matrix status.
-4. Gather local service, portal, evidence read-model, and LAN artifacts from
+6. Gather local service, portal, evidence read-model, and LAN artifacts from
    real product paths, including paired and failed-unpaired LAN checks.
-5. Keep unavailable, degraded, permission-required, scaffold-only, blocked, and
+7. Keep unavailable, degraded, permission-required, scaffold-only, blocked, and
    manual-required states explicit for platform behavior that CI or the current
    code cannot prove.
-6. Do not start V0.8 enforcement, platform adapters, or real model execution
-   until the checkpoint is reviewed and the user explicitly resumes
-   implementation.
+8. When implementation resumes, split it narrowly: V0.8 should continue
+   enforcement capability/status and audit-boundary work without fake blocking
+   claims, and V0.9 should continue paired/unpaired LAN proof or trusted-device
+   control work using the audit evidence references already on `main`.
