@@ -41,6 +41,7 @@ describe('LAN pairing contracts', () => {
   registerControlContractTests();
   registerRejectionContractTests();
   registerRuntimeSupportSurfaceTests();
+  registerPersistentRuntimeSupportSurfaceTests();
 });
 
 function registerReadinessContractTests(): void {
@@ -273,5 +274,27 @@ function registerRuntimeSupportSurfaceTests(): void {
     ]);
     expect(support.persistenceMode).toBe('in-memory-fail-closed');
     expect(support.restartBehavior).toBe('fail-closed-unpaired');
+  });
+}
+
+function registerPersistentRuntimeSupportSurfaceTests(): void {
+  it('LanPairingRuntimeSupportSurfaceSchema: represents explicit local registry persistence', () => {
+    const support = LanPairingRuntimeSupportSurfaceSchema.parse({
+      schemaVersion: 'v0.9',
+      transport: 'websocket',
+      supportedWebSocketCommands: ['agent.lan-pairing.proof.submit', 'agent.lan-pairing.status.get'],
+      unsupportedHttpEndpoints: [],
+      pairingState: 'paired',
+      trustedDeviceCount: 1,
+      persistenceMode: 'local-json-registry',
+      restartBehavior: 'restore-trusted-registry-unselected',
+      proofMode: 'direct-proof-submit',
+      routeRequirements: ['paired-device', 'allowed-origin', 'selected-device-reachable'],
+      manualProofGaps: ['manual-lan-bind-proof'],
+    });
+
+    expect(support.persistenceMode).toBe('local-json-registry');
+    expect(support.restartBehavior).toBe('restore-trusted-registry-unselected');
+    expect(support.trustedDeviceCount).toBe(1);
   });
 }

@@ -22,7 +22,7 @@ pub fn router(network: NetworkPolicy) -> Router {
     let cors_layer = network.cors_layer();
     let state = AppState {
         network,
-        lan_pairing: LanPairingRuntime::default(),
+        lan_pairing: LanPairingRuntime::from_env(),
     };
     Router::new()
         .route(constants::endpoint::HEALTH, get(health))

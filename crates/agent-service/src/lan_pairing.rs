@@ -1,4 +1,7 @@
-use std::sync::{Arc, Mutex};
+use std::{
+    path::PathBuf,
+    sync::{Arc, Mutex},
+};
 
 use ocentra_parent_agent_core::TrustedDeviceRegistry;
 use ocentra_parent_agent_protocol::{
@@ -22,6 +25,13 @@ use crate::{
 #[derive(Clone, Debug)]
 pub struct LanPairingRuntime {
     pub(crate) registry: Arc<Mutex<TrustedDeviceRegistry>>,
+    pub(crate) persistence: LanPairingRegistryPersistence,
+}
+
+#[derive(Clone, Debug)]
+pub(crate) enum LanPairingRegistryPersistence {
+    InMemory,
+    LocalJsonRegistry(PathBuf),
 }
 
 pub enum LanCommandDecision {
@@ -96,6 +106,7 @@ async fn submit_pairing_proof(
                 .lock()
                 .map(|mut registry| {
                     registry.accept_pairing_proof(&proof, child_device, parent_device, &trusted_at);
+                    runtime.persist_registry(&registry);
                     registry.entries().len()
                 })
                 .unwrap_or(0);
@@ -260,7 +271,13 @@ fn revoke_pairing(runtime: &LanPairingRuntime, intent: &LanParentIntentEnvelope)
     runtime
         .registry
         .lock()
-        .map(|mut registry| registry.revoke_pairing(&intent.pairing_id, &revoked_at))
+        .map(|mut registry| {
+            let revoked = registry.revoke_pairing(&intent.pairing_id, &revoked_at);
+            if revoked {
+                runtime.persist_registry(&registry);
+            }
+            revoked
+        })
         .unwrap_or(false)
 }
 

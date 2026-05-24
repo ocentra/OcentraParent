@@ -1,6 +1,6 @@
 pub(crate) use crate::lan_pairing_test_assertions::{
-    assert_accepted_control, assert_rejection, assert_selected_device_reachability,
-    assert_status_selection, assert_status_support_surface,
+    assert_accepted_control, assert_persistent_status_support_surface, assert_rejection,
+    assert_selected_device_reachability, assert_status_selection, assert_status_support_surface,
 };
 pub(crate) use crate::lan_pairing_test_commands::{
     command_for_target, health_command, health_command_for_target, intent_payload,

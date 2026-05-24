@@ -56,6 +56,31 @@ pub(crate) fn assert_accepted_control(event: &AgentEventEnvelope) {
 }
 
 pub(crate) fn assert_status_support_surface(event: &AgentEventEnvelope) {
+    assert_status_support_surface_with_persistence(
+        event,
+        constants::value::LAN_PERSISTENCE_IN_MEMORY_FAIL_CLOSED,
+        constants::value::LAN_RESTART_FAIL_CLOSED_UNPAIRED,
+    );
+}
+
+pub(crate) fn assert_persistent_status_support_surface(event: &AgentEventEnvelope) {
+    assert_status_support_surface_with_persistence(
+        event,
+        constants::value::LAN_PERSISTENCE_LOCAL_JSON_REGISTRY,
+        constants::value::LAN_RESTART_RESTORE_TRUSTED_REGISTRY_UNSELECTED,
+    );
+}
+
+fn assert_status_support_surface_with_persistence(
+    event: &AgentEventEnvelope,
+    persistence_mode: &str,
+    restart_behavior: &str,
+) {
+    assert_transport_support_surface(event);
+    assert_runtime_support_surface(event, persistence_mode, restart_behavior);
+}
+
+fn assert_transport_support_surface(event: &AgentEventEnvelope) {
     assert_eq!(
         event.payload.get(constants::field::TRANSPORT),
         Some(&LogFieldValue::String(
@@ -80,6 +105,13 @@ pub(crate) fn assert_status_support_surface(event: &AgentEventEnvelope) {
                 .join(&constants::delimiter::LIST.to_string())
         ))
     );
+}
+
+fn assert_runtime_support_surface(
+    event: &AgentEventEnvelope,
+    persistence_mode: &str,
+    restart_behavior: &str,
+) {
     assert_eq!(
         event.payload.get(constants::field::LAN_DISCOVERY_STATUS),
         Some(&LogFieldValue::String(
@@ -102,15 +134,11 @@ pub(crate) fn assert_status_support_surface(event: &AgentEventEnvelope) {
     );
     assert_eq!(
         event.payload.get(constants::field::LAN_PERSISTENCE_MODE),
-        Some(&LogFieldValue::String(
-            constants::value::LAN_PERSISTENCE_IN_MEMORY_FAIL_CLOSED.to_string()
-        ))
+        Some(&LogFieldValue::String(persistence_mode.to_string()))
     );
     assert_eq!(
         event.payload.get(constants::field::LAN_RESTART_BEHAVIOR),
-        Some(&LogFieldValue::String(
-            constants::value::LAN_RESTART_FAIL_CLOSED_UNPAIRED.to_string()
-        ))
+        Some(&LogFieldValue::String(restart_behavior.to_string()))
     );
     assert_eq!(
         event.payload.get(constants::field::LAN_PROOF_MODE),

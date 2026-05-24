@@ -18,12 +18,14 @@ pub enum LanPairingHttpEndpointSupport {
 #[serde(rename_all = "kebab-case")]
 pub enum LanPairingPersistenceMode {
     InMemoryFailClosed,
+    LocalJsonRegistry,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum LanPairingRestartBehavior {
     FailClosedUnpaired,
+    RestoreTrustedRegistryUnselected,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
