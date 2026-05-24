@@ -131,6 +131,8 @@ mod browser_bridge_tests;
 #[cfg(test)]
 mod browser_managed_session_tests;
 #[cfg(test)]
+mod enforcement_audit_boundary_tests;
+#[cfg(test)]
 mod enforcement_permission_dependency_tests;
 #[cfg(test)]
 mod enforcement_tests;

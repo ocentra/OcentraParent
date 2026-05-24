@@ -240,23 +240,84 @@ function enforcementCapabilityStatusReasonIsConsistent(capability: EnforcementCa
   return true;
 }
 
+const EnforcementAuditEventBaseSchema = Schema.Struct({
+  schemaVersion: ParentContractSchemaVersionSchema,
+  auditEventId: EnforcementAuditEventIdSchema,
+  auditEventKind: EnforcementAuditEventKindSchema,
+  action: EnforcementActionSchema,
+  result: EnforcementResultSchema,
+  capability: EnforcementCapabilityStatusSchema,
+  unavailableStatus: Schema.Union(EnforcementUnavailableStatusSchema, Schema.Null),
+  policyVersion: ParentPolicyVersionSchema,
+  evidenceReferences: Schema.Array(ParentEvidenceReferenceSchema),
+  actor: Schema.Union(ParentActorReferenceSchema, Schema.Null),
+  parentOverride: Schema.Union(ParentActionReferenceSchema, Schema.Null),
+  journalSequence: Schema.Union(EnforcementJournalSequenceSchema, Schema.Null),
+  observedAt: ParentTimestampSchema,
+});
+
+type EnforcementAuditEventCandidate = Infer<typeof EnforcementAuditEventBaseSchema>;
+
 export const EnforcementAuditEventSchema = withParser(
-  Schema.Struct({
-    schemaVersion: ParentContractSchemaVersionSchema,
-    auditEventId: EnforcementAuditEventIdSchema,
-    auditEventKind: EnforcementAuditEventKindSchema,
-    action: EnforcementActionSchema,
-    result: EnforcementResultSchema,
-    capability: EnforcementCapabilityStatusSchema,
-    unavailableStatus: Schema.Union(EnforcementUnavailableStatusSchema, Schema.Null),
-    policyVersion: ParentPolicyVersionSchema,
-    evidenceReferences: Schema.Array(ParentEvidenceReferenceSchema),
-    actor: Schema.Union(ParentActorReferenceSchema, Schema.Null),
-    parentOverride: Schema.Union(ParentActionReferenceSchema, Schema.Null),
-    journalSequence: Schema.Union(EnforcementJournalSequenceSchema, Schema.Null),
-    observedAt: ParentTimestampSchema,
-  })
+  EnforcementAuditEventBaseSchema.pipe(
+    Schema.filter(
+      (auditEvent) =>
+        enforcementAuditEventBoundaryIsConsistent(auditEvent) ||
+        'Expected enforcement audit events to mirror result capability and unavailable status'
+    )
+  )
 );
+
+function enforcementAuditEventBoundaryIsConsistent(auditEvent: EnforcementAuditEventCandidate): boolean {
+  if (!enforcementCapabilityStatusesMatch(auditEvent.capability, auditEvent.result.capability)) {
+    return false;
+  }
+
+  if (!enforcementUnavailableStatusesMatch(auditEvent.unavailableStatus, auditEvent.result.unavailableStatus)) {
+    return false;
+  }
+
+  if (auditEvent.result.status === 'unavailable') {
+    return auditEvent.auditEventKind === 'unavailable' && auditEvent.unavailableStatus !== null;
+  }
+
+  return auditEvent.auditEventKind !== 'unavailable' && auditEvent.unavailableStatus === null;
+}
+
+function enforcementCapabilityStatusesMatch(
+  left: EnforcementCapabilityStatusCandidate,
+  right: EnforcementCapabilityStatusCandidate
+): boolean {
+  return (
+    left.schemaVersion === right.schemaVersion &&
+    left.platform === right.platform &&
+    left.adapterKind === right.adapterKind &&
+    left.capabilityState === right.capabilityState &&
+    left.permissionState === right.permissionState &&
+    left.dependencyState === right.dependencyState &&
+    left.degradedReason === right.degradedReason &&
+    left.lastCheckedAt === right.lastCheckedAt &&
+    left.supportedActions.length === right.supportedActions.length &&
+    left.supportedActions.every((action, index) => action === right.supportedActions[index])
+  );
+}
+
+function enforcementUnavailableStatusesMatch(
+  left: EnforcementUnavailableStatus | null,
+  right: EnforcementUnavailableStatus | null
+): boolean {
+  if (left === null || right === null) {
+    return left === right;
+  }
+
+  return (
+    left.schemaVersion === right.schemaVersion &&
+    left.unavailableReason === right.unavailableReason &&
+    left.retryable === right.retryable &&
+    left.checkedAt === right.checkedAt &&
+    enforcementCapabilityStatusesMatch(left.capability, right.capability)
+  );
+}
 
 const EnforcementTimerEventBaseSchema = Schema.Struct({
   schemaVersion: ParentContractSchemaVersionSchema,
