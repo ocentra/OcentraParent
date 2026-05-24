@@ -2,7 +2,7 @@ use ocentra_parent_agent_protocol::{
     constants::enforcement as enforcement_constants, policy_constants, EnforcementAdapterKind,
     EnforcementAdapterResultCode, EnforcementCapabilityState, EnforcementCapabilityStatus,
     EnforcementDependencyState, EnforcementPermissionState, EnforcementResultStatus,
-    EnforcementRollbackState, ParentPlatform,
+    EnforcementRollbackState, EnforcementUnavailableReason, ParentPlatform,
 };
 
 #[cfg(windows)]
@@ -35,11 +35,7 @@ pub fn process_control_capability(checked_at: &str) -> EnforcementCapabilityStat
             capability_state: EnforcementCapabilityState::Supported,
             permission_state: EnforcementPermissionState::NotRequired,
             dependency_state: EnforcementDependencyState::Installed,
-            supported_actions: vec![
-                EnforcementMode::TerminateProcess,
-                EnforcementMode::TemporaryBlock,
-                EnforcementMode::TimeLimit,
-            ],
+            supported_actions: vec![EnforcementMode::TerminateProcess],
             degraded_reason: None,
             last_checked_at: checked_at.to_string(),
         }
@@ -68,6 +64,21 @@ pub fn terminate_owned_process(
     completed_at: &str,
 ) -> EnforcementAdapterOutcome {
     terminate_owned_process_impl(target, completed_at)
+}
+
+pub fn unavailable_adapter_outcome(
+    unavailable_reason: EnforcementUnavailableReason,
+    completed_at: &str,
+) -> EnforcementAdapterOutcome {
+    adapter_outcome(
+        EnforcementResultStatus::Unavailable,
+        adapter_result_code_for_unavailable_reason(unavailable_reason),
+        Some(completed_at.to_string()),
+        Some(unavailable_reason.as_protocol_str().to_string()),
+        None,
+        None,
+        EnforcementRollbackState::Unavailable,
+    )
 }
 
 #[cfg(windows)]
@@ -132,14 +143,9 @@ fn terminate_owned_process_impl(
     _target: OwnedProcessTerminationTarget,
     completed_at: &str,
 ) -> EnforcementAdapterOutcome {
-    adapter_outcome(
-        EnforcementResultStatus::Unavailable,
-        EnforcementAdapterResultCode::UnsupportedPlatform,
-        Some(completed_at.to_string()),
-        Some(enforcement_constants::ADAPTER_UNSUPPORTED_PLATFORM.to_string()),
-        None,
-        None,
-        EnforcementRollbackState::Unavailable,
+    unavailable_adapter_outcome(
+        EnforcementUnavailableReason::UnsupportedPlatform,
+        completed_at,
     )
 }
 
@@ -160,6 +166,23 @@ fn adapter_outcome(
         failed_reason,
         rollback_token,
         rollback_state,
+    }
+}
+
+fn adapter_result_code_for_unavailable_reason(
+    unavailable_reason: EnforcementUnavailableReason,
+) -> EnforcementAdapterResultCode {
+    match unavailable_reason {
+        EnforcementUnavailableReason::UnsupportedPlatform => {
+            EnforcementAdapterResultCode::UnsupportedPlatform
+        }
+        EnforcementUnavailableReason::AdapterError => EnforcementAdapterResultCode::AdapterFailed,
+        EnforcementUnavailableReason::UnsupportedAction
+        | EnforcementUnavailableReason::MissingPermission
+        | EnforcementUnavailableReason::MissingDependency
+        | EnforcementUnavailableReason::AdapterUnavailable => {
+            EnforcementAdapterResultCode::AdapterUnavailable
+        }
     }
 }
 

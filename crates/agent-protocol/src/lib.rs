@@ -83,6 +83,8 @@ mod browser_read_model_tests;
 #[cfg(test)]
 mod enforcement_tests;
 #[cfg(test)]
+mod enforcement_unavailable_tests;
+#[cfg(test)]
 mod journal_tests;
 #[cfg(test)]
 mod lan_pairing_tests;
