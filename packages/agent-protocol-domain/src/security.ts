@@ -15,6 +15,9 @@ export const AgentPairingIdSchema = NonEmptySecurityText.pipe(Schema.brand('Agen
 export const AgentPairingTokenHashSchema = NonEmptySecurityText.pipe(Schema.brand('AgentPairingTokenHash'));
 export const AgentLanPairingAddressRefSchema = NonEmptySecurityText.pipe(Schema.brand('AgentLanPairingAddressRef'));
 export const AgentLanPairingChallengeIdSchema = NonEmptySecurityText.pipe(Schema.brand('AgentLanPairingChallengeId'));
+const AgentLanPairingEvidenceReferenceIdSchema = NonEmptySecurityText.pipe(
+  Schema.brand('AgentLanPairingEvidenceReferenceId')
+);
 export const AgentLanPairingIntentIdSchema = NonEmptySecurityText.pipe(Schema.brand('AgentLanPairingIntentId'));
 export const AgentLanPairingProofDigestSchema = NonEmptySecurityText.pipe(Schema.brand('AgentLanPairingProofDigest'));
 export const AgentLanPairingRouteIdSchema = NonEmptySecurityText.pipe(Schema.brand('AgentLanPairingRouteId'));
@@ -31,6 +34,22 @@ export const AgentLanPairingIntentKindSchema = withParser(
 );
 export const AgentLanPairingResponseStateSchema = withParser(
   Schema.Literal('accepted', 'rejected', 'queued', 'completed')
+);
+const AgentLanPairingEvidenceReferenceKindSchema = withParser(
+  Schema.Literal('journal-event', 'query-store-summary', 'activity-event', 'policy-decision', 'local-ai-result')
+);
+const AgentLanPairingAuditEventTypeSchema = withParser(
+  Schema.Literal(
+    'discovery-advertised',
+    'pairing-challenge-issued',
+    'pairing-proof-accepted',
+    'pairing-proof-rejected',
+    'control-accepted',
+    'control-rejected',
+    'route-selected',
+    'pairing-revoked',
+    'selected-device-changed'
+  )
 );
 export const AgentLanPairingRejectionReasonSchema = withParser(
   Schema.Literal(
@@ -54,6 +73,14 @@ export const AgentLanPairingDeviceRefSchema = withParser(
     childProfileId: Schema.Union(NonEmptySecurityText, Schema.Null),
     label: NonEmptySecurityText,
     platform: AgentPlatformSchema,
+  })
+);
+
+const AgentLanPairingEvidenceReferenceSchema = withParser(
+  Schema.Struct({
+    evidenceReferenceId: AgentLanPairingEvidenceReferenceIdSchema,
+    kind: AgentLanPairingEvidenceReferenceKindSchema,
+    observedAt: AgentTimestampSchema,
   })
 );
 
@@ -112,6 +139,24 @@ export const AgentLanParentIntentEnvelopeSchema = withParser(
     origin: NonEmptySecurityText,
     issuedAt: AgentTimestampSchema,
     expiresAt: AgentTimestampSchema,
+    evidenceReferences: Schema.Array(AgentLanPairingEvidenceReferenceSchema),
+  })
+);
+
+export const AgentLanPairingAuditEventSchema = withParser(
+  Schema.Struct({
+    schemaVersion: Schema.Literal(AgentProtocolSchemaVersion),
+    auditEventId: AgentEventIdSchema,
+    eventType: AgentLanPairingAuditEventTypeSchema,
+    pairingId: Schema.Union(AgentPairingIdSchema, Schema.Null),
+    intentId: Schema.Union(AgentLanPairingIntentIdSchema, Schema.Null),
+    childDeviceId: Schema.Union(AgentDeviceIdSchema, Schema.Null),
+    parentDeviceId: Schema.Union(AgentDeviceIdSchema, Schema.Null),
+    routeId: AgentLanPairingRouteIdSchema,
+    origin: Schema.Union(NonEmptySecurityText, Schema.Null),
+    rejectionReason: Schema.Union(AgentLanPairingRejectionReasonSchema, Schema.Null),
+    observedAt: AgentTimestampSchema,
+    evidenceReferences: Schema.Array(AgentLanPairingEvidenceReferenceSchema),
   })
 );
 

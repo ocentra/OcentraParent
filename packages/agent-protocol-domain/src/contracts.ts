@@ -51,6 +51,7 @@ export {
 } from './primitives';
 export {
   AgentLanPairingAddressRefSchema,
+  AgentLanPairingAuditEventSchema,
   AgentLanPairingChallengeIdSchema,
   AgentLanPairingChallengeSchema,
   AgentLanChildAgentResponseSchema,

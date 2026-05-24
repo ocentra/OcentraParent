@@ -175,6 +175,10 @@ pub(crate) fn proof_payload_for_pairing(
             LogFieldValue::String(proof_digest.to_string()),
         ),
         (
+            constants::field::LAN_EVIDENCE_REFERENCE_IDS,
+            LogFieldValue::String(constants::lan_pairing::EVIDENCE_REFERENCE_ID.to_string()),
+        ),
+        (
             constants::field::STARTED_AT,
             LogFieldValue::String(constants::lan_pairing::ISSUED_AT.to_string()),
         ),
@@ -255,6 +259,10 @@ pub(crate) fn intent_payload_for_pairing(
         (
             constants::field::LAN_PROOF_DIGEST,
             LogFieldValue::String(proof_digest.to_string()),
+        ),
+        (
+            constants::field::LAN_EVIDENCE_REFERENCE_IDS,
+            LogFieldValue::String(constants::lan_pairing::EVIDENCE_REFERENCE_ID.to_string()),
         ),
         (
             constants::field::STARTED_AT,

@@ -10,7 +10,8 @@ use ocentra_parent_agent_protocol::{
 use crate::{
     event_builder::build_event,
     lan_pairing_audit::{
-        accepted_control_audit_fields, rejected_control_audit_fields, revoked_route_audit_fields,
+        accepted_control_audit_fields, accepted_pairing_audit_fields,
+        rejected_control_audit_fields, rejected_pairing_audit_fields, revoked_route_audit_fields,
         selected_route_audit_fields,
     },
     lan_pairing_payload::{parse_intent, parse_pairing_proof},
@@ -98,9 +99,12 @@ async fn submit_pairing_proof(
                     registry.entries().len()
                 })
                 .unwrap_or(0);
-            pairing_status_event(&runtime, command)
+            let audit_fields = accepted_pairing_audit_fields(&command, &proof);
+            let mut event = pairing_status_event(&runtime, command);
+            event.payload.extend(audit_fields);
+            event
         }
-        Err(reason) => rejection_event(command, reason, None, None),
+        Err(reason) => pairing_rejection_event(command, reason),
     }
 }
 
@@ -267,6 +271,22 @@ fn rejection_event(
     origin: Option<&str>,
 ) -> AgentEventEnvelope {
     let payload = rejected_control_audit_fields(&command, &reason, intent, origin);
+    build_event(
+        constants::event_id::COMMAND_REJECTED,
+        &command.message_id,
+        command.source,
+        AgentEventName::AgentCommandRejected,
+        LogLevel::Warn,
+        payload,
+        None,
+    )
+}
+
+fn pairing_rejection_event(
+    command: AgentCommandEnvelope,
+    reason: LanPairingRejectionReason,
+) -> AgentEventEnvelope {
+    let payload = rejected_pairing_audit_fields(&command, &reason);
     build_event(
         constants::event_id::COMMAND_REJECTED,
         &command.message_id,
