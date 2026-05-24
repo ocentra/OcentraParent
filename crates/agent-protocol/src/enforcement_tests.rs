@@ -10,6 +10,68 @@ use super::{
     PolicyTarget, PolicyTargetType,
 };
 
+const TIMER_TRANSITION_CASES: &[(
+    EnforcementTimerEventKind,
+    &str,
+    bool,
+    Option<EnforcementUnavailableReason>,
+)] = &[
+    (
+        EnforcementTimerEventKind::Created,
+        enforcement::TIMER_CREATED,
+        false,
+        None,
+    ),
+    (
+        EnforcementTimerEventKind::Extended,
+        enforcement::TIMER_EXTENDED,
+        false,
+        None,
+    ),
+    (
+        EnforcementTimerEventKind::Expired,
+        enforcement::TIMER_EXPIRED,
+        false,
+        None,
+    ),
+    (
+        EnforcementTimerEventKind::Cancelled,
+        enforcement::TIMER_CANCELLED,
+        false,
+        None,
+    ),
+    (
+        EnforcementTimerEventKind::RestartRecovered,
+        enforcement::TIMER_RESTART_RECOVERED,
+        true,
+        None,
+    ),
+    (
+        EnforcementTimerEventKind::RollbackRequested,
+        enforcement::TIMER_ROLLBACK_REQUESTED,
+        false,
+        None,
+    ),
+    (
+        EnforcementTimerEventKind::RollbackCompleted,
+        enforcement::TIMER_ROLLBACK_COMPLETED,
+        false,
+        None,
+    ),
+    (
+        EnforcementTimerEventKind::RecoveryNeeded,
+        enforcement::TIMER_RECOVERY_NEEDED,
+        false,
+        Some(EnforcementUnavailableReason::AdapterError),
+    ),
+    (
+        EnforcementTimerEventKind::Unavailable,
+        enforcement::TIMER_UNAVAILABLE,
+        false,
+        Some(EnforcementUnavailableReason::AdapterUnavailable),
+    ),
+];
+
 #[test]
 fn enforcement_shapes_serialize_to_parent_domain_contract_names() {
     let capability = process_capability();
@@ -128,6 +190,43 @@ fn unavailable_status_serializes_typed_capability_reason() {
         enforcement::CAPABILITY_UNAVAILABLE
     );
     assert_eq!(serialized["retryable"], false);
+}
+
+#[test]
+fn timer_event_kinds_serialize_to_contract_literals() {
+    let action = enforcement_action(&enforcement_intent());
+
+    for (index, (timer_event_kind, expected_kind, recovered_after_restart, unavailable_reason)) in
+        TIMER_TRANSITION_CASES.iter().enumerate()
+    {
+        let timer = EnforcementTimerEvent {
+            schema_version: policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
+            timer_event_id: format!("{}-{index}", enforcement::TEST_TIMER_EVENT_ID),
+            timer_event_kind: *timer_event_kind,
+            action_id: action.action_id.clone(),
+            policy_decision_id: policy::TEST_DECISION_ID.to_string(),
+            evidence_references: vec![evidence()],
+            scheduled_at: policy::TEST_EVALUATED_AT.to_string(),
+            effective_at: Some(policy::TEST_EXPIRES_AT.to_string()),
+            rollback_token: Some(enforcement::TEST_ROLLBACK_TOKEN.to_string()),
+            recovered_after_restart: *recovered_after_restart,
+            unavailable_reason: *unavailable_reason,
+        };
+        let serialized =
+            serde_json::to_value(timer).expect(constants::error::AGENT_EVENT_SERIALIZES);
+
+        assert_eq!(serialized["timerEventKind"], *expected_kind);
+        assert_eq!(
+            serialized["recoveredAfterRestart"],
+            *recovered_after_restart
+        );
+        assert_eq!(
+            serialized["unavailableReason"],
+            unavailable_reason
+                .map(|reason| serde_json::Value::from(reason.as_protocol_str()))
+                .unwrap_or(serde_json::Value::Null)
+        );
+    }
 }
 
 fn process_capability() -> EnforcementCapabilityStatus {

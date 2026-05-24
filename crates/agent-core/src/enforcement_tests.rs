@@ -1,11 +1,11 @@
 use super::*;
 use ocentra_parent_agent_protocol::{
     constants::enforcement, policy_constants as policy, EnforcementAdapterKind,
-    EnforcementCapabilityState, EnforcementCapabilityStatus, EnforcementDependencyState,
-    EnforcementIntent, EnforcementIntentSource, EnforcementMode, EnforcementPermissionState,
-    EnforcementRollbackState, ParentDeviceReference, ParentEvidenceReference,
-    ParentEvidenceReferenceKind, ParentPlatform, PolicyAction, PolicyDecision,
-    PolicyDecisionHandoffState, PolicyTarget, PolicyTargetType,
+    EnforcementAdapterResultCode, EnforcementCapabilityState, EnforcementCapabilityStatus,
+    EnforcementDependencyState, EnforcementIntent, EnforcementIntentSource, EnforcementMode,
+    EnforcementPermissionState, EnforcementResultStatus, EnforcementRollbackState,
+    ParentDeviceReference, ParentEvidenceReference, ParentEvidenceReferenceKind, ParentPlatform,
+    PolicyAction, PolicyDecision, PolicyDecisionHandoffState, PolicyTarget, PolicyTargetType,
 };
 
 #[test]
@@ -173,9 +173,8 @@ fn supported_non_dry_run_requires_adapter_outcome_for_process_control() {
 fn adapter_outcome_maps_to_success_result_and_audit() {
     let mut input = boundary_input(policy_decision(false), supported_capability());
     input.adapter_outcome = Some(EnforcementAdapterOutcome {
-        status: ocentra_parent_agent_protocol::EnforcementResultStatus::ActuallyEnforced,
-        adapter_result_code:
-            ocentra_parent_agent_protocol::EnforcementAdapterResultCode::ProcessTerminated,
+        status: EnforcementResultStatus::ActuallyEnforced,
+        adapter_result_code: EnforcementAdapterResultCode::ProcessTerminated,
         completed_at: Some(policy::TEST_EVALUATED_AT.to_string()),
         unavailable_reason: None,
         failed_reason: None,
@@ -254,6 +253,7 @@ fn boundary_input(
         requested_at: policy::TEST_EVALUATED_AT.to_string(),
         completed_at: Some(policy::TEST_EVALUATED_AT.to_string()),
         adapter_outcome: None,
+        timer_event_kind: None,
     }
 }
 
