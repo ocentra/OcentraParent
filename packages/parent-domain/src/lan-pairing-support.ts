@@ -15,6 +15,7 @@ export const LanPairingHttpEndpointPathSchema = NonEmptyLanPairingSupportText.pi
 export const LanPairingTransportSchema = withParser(Schema.Literal('websocket'));
 export const LanPairingHttpEndpointSupportSchema = withParser(Schema.Literal('planned-unsupported'));
 export const LanPairingPersistenceModeSchema = withParser(Schema.Literal('in-memory-fail-closed'));
+export const LanPairingRestartBehaviorSchema = withParser(Schema.Literal('fail-closed-unpaired'));
 export const LanPairingProofModeSchema = withParser(Schema.Literal('direct-proof-submit'));
 export const LanPairingRouteRequirementSchema = withParser(
   Schema.Literal(
@@ -24,7 +25,8 @@ export const LanPairingRouteRequirementSchema = withParser(
     'route-id-match',
     'unexpired-intent',
     'non-replayed-intent',
-    'unrevoked-pairing'
+    'unrevoked-pairing',
+    'selected-device-reachable'
   )
 );
 export const LanPairingManualProofGapSchema = withParser(
@@ -48,6 +50,7 @@ export const LanPairingRuntimeSupportSurfaceSchema = withParser(
     pairingState: LanPairingTrustStateSchema,
     trustedDeviceCount: Schema.Number,
     persistenceMode: LanPairingPersistenceModeSchema,
+    restartBehavior: LanPairingRestartBehaviorSchema,
     proofMode: LanPairingProofModeSchema,
     routeRequirements: Schema.Array(LanPairingRouteRequirementSchema),
     manualProofGaps: Schema.Array(LanPairingManualProofGapSchema),
@@ -60,6 +63,7 @@ export type LanPairingHttpEndpointPath = typeof LanPairingHttpEndpointPathSchema
 export type LanPairingTransport = Infer<typeof LanPairingTransportSchema>;
 export type LanPairingHttpEndpointSupport = Infer<typeof LanPairingHttpEndpointSupportSchema>;
 export type LanPairingPersistenceMode = Infer<typeof LanPairingPersistenceModeSchema>;
+export type LanPairingRestartBehavior = Infer<typeof LanPairingRestartBehaviorSchema>;
 export type LanPairingProofMode = Infer<typeof LanPairingProofModeSchema>;
 export type LanPairingRouteRequirement = Infer<typeof LanPairingRouteRequirementSchema>;
 export type LanPairingManualProofGap = Infer<typeof LanPairingManualProofGapSchema>;
@@ -78,6 +82,10 @@ export const LanPairingPersistenceMode = {
   InMemoryFailClosed: LanPairingPersistenceModeSchema.parse('in-memory-fail-closed'),
 } as const;
 
+export const LanPairingRestartBehavior = {
+  FailClosedUnpaired: LanPairingRestartBehaviorSchema.parse('fail-closed-unpaired'),
+} as const;
+
 export const LanPairingProofMode = {
   DirectProofSubmit: LanPairingProofModeSchema.parse('direct-proof-submit'),
 } as const;
@@ -90,6 +98,7 @@ export const LanPairingRouteRequirement = {
   UnexpiredIntent: LanPairingRouteRequirementSchema.parse('unexpired-intent'),
   NonReplayedIntent: LanPairingRouteRequirementSchema.parse('non-replayed-intent'),
   UnrevokedPairing: LanPairingRouteRequirementSchema.parse('unrevoked-pairing'),
+  SelectedDeviceReachable: LanPairingRouteRequirementSchema.parse('selected-device-reachable'),
 } as const;
 
 export const LanPairingManualProofGap = {

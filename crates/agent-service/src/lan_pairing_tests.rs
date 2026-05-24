@@ -1,6 +1,6 @@
 use ocentra_parent_agent_protocol::{
-    constants, policy_constants, AgentCommandName, AgentEventName, AgentMessageTarget, AgentRoute,
-    LogFieldValue, LogFields,
+    constants, policy_constants, AgentCommandName, AgentEventEnvelope, AgentEventName,
+    AgentMessageTarget, AgentRoute, LogFieldValue, LogFields,
 };
 
 use crate::{
@@ -437,4 +437,81 @@ async fn lan_pairing_status_get_is_explicit_for_loopback_and_signed_lan_routes()
     );
     assert_status_support_surface(&audited_lan);
     assert_accepted_control(&audited_lan);
+}
+
+#[tokio::test]
+async fn lan_pairing_restart_without_registry_persistence_fails_closed() {
+    let before_restart_runtime = paired_runtime().await;
+    let before_restart_status = loopback_lan_status(before_restart_runtime).await;
+    let restarted_runtime = LanPairingRuntime::empty();
+    let restarted_status = loopback_lan_status(restarted_runtime.clone()).await;
+    let old_signed_control = handle_command_text_for_test(
+        &serialize_command(health_command(intent_payload(
+            constants::lan_pairing::INTENT_ID,
+            constants::lan_pairing::CHILD_DEVICE_ID,
+            constants::lan_pairing::PROOF_DIGEST,
+            constants::lan_pairing::EXPIRES_AT,
+        ))),
+        restarted_runtime,
+        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+    )
+    .await;
+
+    assert_lan_pairing_state(
+        &before_restart_status,
+        constants::value::LAN_PAIRING_PAIRED,
+        1.0,
+    );
+    assert_lan_pairing_state(
+        &restarted_status,
+        constants::value::LAN_PAIRING_UNPAIRED,
+        0.0,
+    );
+    assert_status_support_surface(&restarted_status);
+    assert_status_selection(
+        &restarted_status,
+        constants::value::LAN_AUTH_UNPAIRED,
+        constants::value::EMPTY,
+        constants::value::EMPTY,
+        constants::value::EMPTY,
+    );
+    assert_rejection(&old_signed_control, constants::value::LAN_REASON_ANONYMOUS);
+    assert_eq!(
+        old_signed_control
+            .payload
+            .get(constants::field::LAN_EVIDENCE_REFERENCE_IDS),
+        Some(&LogFieldValue::String(
+            constants::lan_pairing::EVIDENCE_REFERENCE_ID.to_string()
+        ))
+    );
+}
+
+async fn loopback_lan_status(runtime: LanPairingRuntime) -> AgentEventEnvelope {
+    handle_command_text_for_test(
+        &serialize_command(command_for_target(
+            AgentCommandName::AgentLanPairingStatusGet,
+            AgentMessageTarget {
+                device_id: constants::lan_pairing::CHILD_DEVICE_ID.to_string(),
+                platform: policy_constants::TEST_PARENT_DEVICE_PLATFORM_WINDOWS.to_string(),
+                route: AgentRoute::Localhost,
+            },
+            LogFields::new(),
+        )),
+        runtime,
+        None,
+    )
+    .await
+}
+
+fn assert_lan_pairing_state(event: &AgentEventEnvelope, pairing_state: &str, trusted_count: f64) {
+    assert_eq!(
+        event.payload.get(constants::field::LAN_PAIRING_STATE),
+        Some(&LogFieldValue::String(pairing_state.to_string()))
+    );
+    assert_eq!(
+        event
+            .payload
+            .get(constants::field::LAN_TRUSTED_DEVICE_COUNT),
+        Some(&LogFieldValue::Number(trusted_count))
+    );
 }

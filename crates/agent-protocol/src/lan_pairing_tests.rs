@@ -5,9 +5,9 @@ use super::{
     LanPairingDiscoveryRuntimeStatus, LanPairingHttpEndpointSupport, LanPairingIntentKind,
     LanPairingManualProofGap, LanPairingNetworkMode, LanPairingPersistenceMode, LanPairingProof,
     LanPairingProofMode, LanPairingProofPreview, LanPairingRejectionReason,
-    LanPairingResponseState, LanPairingRouteRequirement, LanPairingRouteSelectionRequest,
-    LanPairingRoutingDecision, LanPairingRuntimeSupportSurface, LanPairingTransport,
-    LanPairingUnsupportedHttpEndpoint, LanTrustedDeviceRegistryEntry,
+    LanPairingResponseState, LanPairingRestartBehavior, LanPairingRouteRequirement,
+    LanPairingRouteSelectionRequest, LanPairingRoutingDecision, LanPairingRuntimeSupportSurface,
+    LanPairingTransport, LanPairingUnsupportedHttpEndpoint, LanTrustedDeviceRegistryEntry,
     LanTrustedDeviceRegistrySnapshot, ParentEvidenceReference, ParentEvidenceReferenceKind,
 };
 
@@ -275,6 +275,7 @@ fn lan_pairing_runtime_support_surface_serializes_supported_and_planned_api_clai
         challenge_status: LanPairingDiscoveryRuntimeStatus::PlannedUnsupported,
         proof_preview_status: LanPairingDiscoveryRuntimeStatus::PlannedUnsupported,
         persistence_mode: LanPairingPersistenceMode::InMemoryFailClosed,
+        restart_behavior: LanPairingRestartBehavior::FailClosedUnpaired,
         proof_mode: LanPairingProofMode::DirectProofSubmit,
         route_requirements: vec![
             LanPairingRouteRequirement::PairedDevice,
@@ -328,6 +329,10 @@ fn lan_pairing_runtime_support_surface_serializes_supported_and_planned_api_clai
     assert_eq!(
         support_json["persistenceMode"],
         constants::value::LAN_PERSISTENCE_IN_MEMORY_FAIL_CLOSED
+    );
+    assert_eq!(
+        support_json["restartBehavior"],
+        constants::value::LAN_RESTART_FAIL_CLOSED_UNPAIRED
     );
 }
 

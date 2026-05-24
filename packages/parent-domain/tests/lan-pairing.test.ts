@@ -245,6 +245,7 @@ function registerRuntimeSupportSurfaceTests(): void {
       pairingState: 'unpaired',
       trustedDeviceCount: 0,
       persistenceMode: 'in-memory-fail-closed',
+      restartBehavior: 'fail-closed-unpaired',
       proofMode: 'direct-proof-submit',
       routeRequirements: [
         'paired-device',
@@ -254,6 +255,7 @@ function registerRuntimeSupportSurfaceTests(): void {
         'unexpired-intent',
         'non-replayed-intent',
         'unrevoked-pairing',
+        'selected-device-reachable',
       ],
       manualProofGaps: ['manual-lan-bind-proof', 'manual-firewall-proof', 'manual-physical-device-proof'],
     });
@@ -270,5 +272,6 @@ function registerRuntimeSupportSurfaceTests(): void {
       'planned-unsupported',
     ]);
     expect(support.persistenceMode).toBe('in-memory-fail-closed');
+    expect(support.restartBehavior).toBe('fail-closed-unpaired');
   });
 }

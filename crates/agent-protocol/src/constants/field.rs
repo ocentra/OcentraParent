@@ -68,6 +68,7 @@ pub const LAN_SELECTED_CHILD_DEVICE_ID: &str = "selectedChildDeviceId";
 pub const LAN_SELECTED_DEVICE_REACHABILITY: &str = "selectedDeviceReachability";
 pub const LAN_SELECTED_DEVICE_STALE_AT: &str = "selectedDeviceStaleAt";
 pub const LAN_SELECTED_ROUTE_ID: &str = "selectedRouteId";
+pub const LAN_RESTART_BEHAVIOR: &str = "restartBehavior";
 pub const LAN_SUPPORTED_WEBSOCKET_COMMANDS: &str = "supportedWebSocketCommands";
 pub const LAN_TRUSTED_DEVICE_IDS: &str = "trustedDeviceIds";
 pub const LAN_UNSUPPORTED_HTTP_ENDPOINTS: &str = "unsupportedHttpEndpoints";
