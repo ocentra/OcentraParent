@@ -74,8 +74,8 @@ pub use browser_managed_session::{
     BrowserManagedLaunchConfig, BrowserManagedLaunchError, BrowserManagedLaunchPlan,
 };
 pub use enforcement_adapter::{
-    process_control_capability, terminate_owned_process, EnforcementAdapterOutcome,
-    OwnedProcessTerminationTarget,
+    process_control_capability, terminate_owned_process, unavailable_adapter_outcome,
+    EnforcementAdapterOutcome, OwnedProcessTerminationTarget,
 };
 pub use enforcement_boundary::{
     evaluate_enforcement_boundary, EnforcementAdapterRequest, EnforcementBoundaryInput,
@@ -134,6 +134,8 @@ mod browser_managed_session_tests;
 mod enforcement_tests;
 #[cfg(test)]
 mod enforcement_timer_tests;
+#[cfg(test)]
+mod enforcement_unavailable_adapter_tests;
 #[cfg(test)]
 mod journal_tests;
 #[cfg(test)]

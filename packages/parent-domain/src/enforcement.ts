@@ -122,18 +122,28 @@ const EnforcementAuditEventKindSchema = withParser(
   )
 );
 
+const EnforcementCapabilityStatusBaseSchema = Schema.Struct({
+  schemaVersion: ParentContractSchemaVersionSchema,
+  platform: ParentPlatformSchema,
+  adapterKind: EnforcementAdapterKindSchema,
+  capabilityState: EnforcementCapabilityStateSchema,
+  permissionState: EnforcementPermissionStateSchema,
+  dependencyState: EnforcementDependencyStateSchema,
+  supportedActions: Schema.Array(EnforcementModeSchema),
+  degradedReason: Schema.Union(EnforcementStatusReasonSchema, Schema.Null),
+  lastCheckedAt: ParentTimestampSchema,
+});
+
+type EnforcementCapabilityStatusCandidate = Infer<typeof EnforcementCapabilityStatusBaseSchema>;
+
 export const EnforcementCapabilityStatusSchema = withParser(
-  Schema.Struct({
-    schemaVersion: ParentContractSchemaVersionSchema,
-    platform: ParentPlatformSchema,
-    adapterKind: EnforcementAdapterKindSchema,
-    capabilityState: EnforcementCapabilityStateSchema,
-    permissionState: EnforcementPermissionStateSchema,
-    dependencyState: EnforcementDependencyStateSchema,
-    supportedActions: Schema.Array(EnforcementModeSchema),
-    degradedReason: Schema.Union(EnforcementStatusReasonSchema, Schema.Null),
-    lastCheckedAt: ParentTimestampSchema,
-  })
+  EnforcementCapabilityStatusBaseSchema.pipe(
+    Schema.filter(
+      (capability) =>
+        enforcementCapabilityStatusReasonIsConsistent(capability) ||
+        'Expected unavailable and degraded enforcement capabilities to include typed degraded reason'
+    )
+  )
 );
 
 export const EnforcementUnavailableStatusSchema = withParser(
@@ -220,6 +230,14 @@ function enforcementUnavailableStatusIsConsistent(result: EnforcementResultCandi
   }
 
   return result.unavailableStatus === null;
+}
+
+function enforcementCapabilityStatusReasonIsConsistent(capability: EnforcementCapabilityStatusCandidate): boolean {
+  if (capability.capabilityState === 'unavailable' || capability.capabilityState === 'degraded') {
+    return capability.degradedReason !== null;
+  }
+
+  return true;
 }
 
 export const EnforcementAuditEventSchema = withParser(

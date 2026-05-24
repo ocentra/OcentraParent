@@ -45,13 +45,43 @@ pub(crate) fn adapter_unavailable_reason(
         return None;
     }
 
-    Some(match adapter_outcome.adapter_result_code {
-        EnforcementAdapterResultCode::UnsupportedPlatform => {
-            EnforcementUnavailableReason::UnsupportedPlatform
+    adapter_outcome
+        .unavailable_reason
+        .as_deref()
+        .and_then(unavailable_reason_from_protocol_str)
+        .or(Some(match adapter_outcome.adapter_result_code {
+            EnforcementAdapterResultCode::UnsupportedPlatform => {
+                EnforcementUnavailableReason::UnsupportedPlatform
+            }
+            EnforcementAdapterResultCode::AdapterFailed => {
+                EnforcementUnavailableReason::AdapterError
+            }
+            _ => EnforcementUnavailableReason::AdapterUnavailable,
+        }))
+}
+
+fn unavailable_reason_from_protocol_str(reason: &str) -> Option<EnforcementUnavailableReason> {
+    match reason {
+        enforcement_constants::UNAVAILABLE_UNSUPPORTED_PLATFORM => {
+            Some(EnforcementUnavailableReason::UnsupportedPlatform)
         }
-        EnforcementAdapterResultCode::AdapterFailed => EnforcementUnavailableReason::AdapterError,
-        _ => EnforcementUnavailableReason::AdapterUnavailable,
-    })
+        enforcement_constants::UNAVAILABLE_UNSUPPORTED_ACTION => {
+            Some(EnforcementUnavailableReason::UnsupportedAction)
+        }
+        enforcement_constants::UNAVAILABLE_MISSING_PERMISSION => {
+            Some(EnforcementUnavailableReason::MissingPermission)
+        }
+        enforcement_constants::UNAVAILABLE_MISSING_DEPENDENCY => {
+            Some(EnforcementUnavailableReason::MissingDependency)
+        }
+        enforcement_constants::UNAVAILABLE_ADAPTER_UNAVAILABLE => {
+            Some(EnforcementUnavailableReason::AdapterUnavailable)
+        }
+        enforcement_constants::UNAVAILABLE_ADAPTER_ERROR => {
+            Some(EnforcementUnavailableReason::AdapterError)
+        }
+        _ => None,
+    }
 }
 
 fn unavailable_reason_is_retryable(unavailable_reason: EnforcementUnavailableReason) -> bool {
