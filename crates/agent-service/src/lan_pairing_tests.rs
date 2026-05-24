@@ -8,7 +8,8 @@ use ocentra_parent_agent_protocol::{
 use crate::{
     lan_pairing::LanPairingRuntime,
     lan_pairing_test_support::{
-        assert_accepted_control, assert_persistent_status_support_surface, assert_rejection,
+        assert_accepted_control, assert_accepted_control_for_intent,
+        assert_persistent_status_support_surface, assert_rejection,
         assert_selected_device_reachability, assert_status_selection,
         assert_status_support_surface, command_for_target, health_command,
         health_command_for_target, intent_payload, intent_payload_for_kind,
@@ -367,7 +368,7 @@ async fn lan_pairing_rejects_stale_and_replayed_routes() {
 
     assert_rejection(&stale, constants::value::LAN_REASON_STALE);
     assert_eq!(first.event, AgentEventName::AgentHealthReported);
-    assert_accepted_control(&first);
+    assert_accepted_control_for_intent(&first, constants::lan_pairing::REPLAYED_INTENT_ID);
     assert_rejection(&replayed, constants::value::LAN_REASON_REPLAYED);
 }
 
@@ -542,6 +543,80 @@ async fn lan_pairing_persistent_registry_restores_trusted_device_unselected_afte
 }
 
 #[tokio::test]
+async fn lan_pairing_persistent_registry_requires_selection_for_rule_and_approval_after_restart() {
+    let path = temp_registry_path();
+    let _ = remove_file(&path);
+    let runtime = LanPairingRuntime::persistent_json(&path);
+    let _ = handle_command_text_for_test(
+        &serialize_command(pairing_command(proof_payload())),
+        runtime,
+        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+    )
+    .await;
+    let restarted_runtime = LanPairingRuntime::persistent_json(&path);
+    let rejected_rule_query = signed_control_for_kind(
+        restarted_runtime.clone(),
+        constants::lan_pairing::RULE_QUERY_INTENT_ID,
+        constants::value::LAN_INTENT_RULE_QUERY,
+    )
+    .await;
+    let route_selected = handle_command_text_for_test(
+        &serialize_command(route_select_command(intent_payload(
+            constants::lan_pairing::SELECT_INTENT_ID,
+            constants::lan_pairing::CHILD_DEVICE_ID,
+            constants::lan_pairing::PROOF_DIGEST,
+            constants::lan_pairing::EXPIRES_AT,
+        ))),
+        restarted_runtime.clone(),
+        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+    )
+    .await;
+    let accepted_rule_query = signed_control_for_kind(
+        restarted_runtime.clone(),
+        constants::lan_pairing::RULE_QUERY_INTENT_ID,
+        constants::value::LAN_INTENT_RULE_QUERY,
+    )
+    .await;
+    let accepted_approval = signed_control_for_kind(
+        restarted_runtime,
+        constants::lan_pairing::APPROVAL_DECISION_INTENT_ID,
+        constants::value::LAN_INTENT_APPROVAL_DECISION,
+    )
+    .await;
+    let _ = remove_file(&path);
+
+    assert_rejection(
+        &rejected_rule_query,
+        constants::value::LAN_REASON_UNSELECTED_DEVICE,
+    );
+    assert_eq!(
+        rejected_rule_query
+            .payload
+            .get(constants::field::LAN_INTENT_KIND),
+        Some(&LogFieldValue::String(
+            constants::value::LAN_INTENT_RULE_QUERY.to_string()
+        ))
+    );
+    assert_status_selection(
+        &route_selected,
+        constants::value::LAN_AUTH_PAIRED,
+        constants::lan_pairing::CHILD_DEVICE_ID,
+        constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK,
+        constants::lan_pairing::CHILD_DEVICE_ID,
+    );
+    assert_restart_accepted_intent(
+        &accepted_rule_query,
+        constants::lan_pairing::RULE_QUERY_INTENT_ID,
+        constants::value::LAN_INTENT_RULE_QUERY,
+    );
+    assert_restart_accepted_intent(
+        &accepted_approval,
+        constants::lan_pairing::APPROVAL_DECISION_INTENT_ID,
+        constants::value::LAN_INTENT_APPROVAL_DECISION,
+    );
+}
+
+#[tokio::test]
 async fn lan_pairing_persistent_registry_keeps_revocation_after_restart() {
     let path = temp_registry_path();
     let _ = remove_file(&path);
@@ -625,6 +700,34 @@ async fn old_signed_control(runtime: LanPairingRuntime) -> AgentEventEnvelope {
         Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
     )
     .await
+}
+
+async fn signed_control_for_kind(
+    runtime: LanPairingRuntime,
+    intent_id: &str,
+    intent_kind: &str,
+) -> AgentEventEnvelope {
+    handle_command_text_for_test(
+        &serialize_command(health_command(intent_payload_for_kind(
+            intent_id,
+            constants::lan_pairing::CHILD_DEVICE_ID,
+            constants::lan_pairing::PROOF_DIGEST,
+            constants::lan_pairing::EXPIRES_AT,
+            intent_kind,
+        ))),
+        runtime,
+        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+    )
+    .await
+}
+
+fn assert_restart_accepted_intent(event: &AgentEventEnvelope, intent_id: &str, intent_kind: &str) {
+    assert_eq!(event.event, AgentEventName::AgentHealthReported);
+    assert_accepted_control_for_intent(event, intent_id);
+    assert_eq!(
+        event.payload.get(constants::field::LAN_INTENT_KIND),
+        Some(&LogFieldValue::String(intent_kind.to_string()))
+    );
 }
 
 fn assert_lan_pairing_state(event: &AgentEventEnvelope, pairing_state: &str, trusted_count: f64) {

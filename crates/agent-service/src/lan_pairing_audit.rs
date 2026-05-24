@@ -101,6 +101,10 @@ fn control_audit_fields(
     intent: Option<&LanParentIntentEnvelope>,
     origin: Option<&str>,
 ) -> LogFields {
+    let audit_event_id = intent
+        .map(|intent| intent.intent_id.as_str())
+        .or_else(|| payload_string(&command.payload, constants::field::LAN_INTENT_ID))
+        .unwrap_or(command.message_id.as_str());
     let mut pairs = vec![
         (
             constants::field::LAN_CONTROL_STATE,
@@ -108,7 +112,7 @@ fn control_audit_fields(
         ),
         (
             constants::field::LAN_AUDIT_EVENT_ID,
-            LogFieldValue::String(command.message_id.clone()),
+            LogFieldValue::String(audit_event_id.to_string()),
         ),
         (
             constants::field::LAN_AUDIT_EVENT_TYPE,

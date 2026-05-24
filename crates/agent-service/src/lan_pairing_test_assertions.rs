@@ -1,6 +1,10 @@
 use ocentra_parent_agent_protocol::{constants, AgentEventEnvelope, AgentEventName, LogFieldValue};
 
 pub(crate) fn assert_accepted_control(event: &AgentEventEnvelope) {
+    assert_accepted_control_for_intent(event, constants::lan_pairing::INTENT_ID);
+}
+
+pub(crate) fn assert_accepted_control_for_intent(event: &AgentEventEnvelope, intent_id: &str) {
     assert_eq!(
         event.payload.get(constants::field::LAN_CONTROL_STATE),
         Some(&LogFieldValue::String(
@@ -9,9 +13,7 @@ pub(crate) fn assert_accepted_control(event: &AgentEventEnvelope) {
     );
     assert_eq!(
         event.payload.get(constants::field::LAN_AUDIT_EVENT_ID),
-        Some(&LogFieldValue::String(
-            constants::lan_pairing::INTENT_ID.to_string()
-        ))
+        Some(&LogFieldValue::String(intent_id.to_string()))
     );
     assert_eq!(
         event.payload.get(constants::field::LAN_AUDIT_EVENT_TYPE),
