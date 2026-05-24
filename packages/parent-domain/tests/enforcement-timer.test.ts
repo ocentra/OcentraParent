@@ -57,6 +57,10 @@ describe('parent enforcement timer contracts', () => {
         });
 
         expect(timer.timerEventKind).toBe(expectedKind);
+        expect(timer.actionId).toBe(action.actionId);
+        expect(timer.policyDecisionId).toBe(action.policyDecisionId);
+        expect(timer.evidenceReferences).toEqual(action.evidenceReferences);
+        expect(timer.rollbackToken).toBe(action.rollbackToken);
         expect(timer.recoveredAfterRestart).toBe(recoveredAfterRestart);
         expect(timer.unavailableReason).toBe(unavailableReason);
         return timer.timerEventKind;

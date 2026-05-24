@@ -217,6 +217,27 @@ fn timer_event_kinds_serialize_to_contract_literals() {
 
         assert_eq!(serialized["timerEventKind"], *expected_kind);
         assert_eq!(
+            serialized["actionId"],
+            serde_json::Value::from(action.action_id.as_str())
+        );
+        assert_eq!(
+            serialized["policyDecisionId"],
+            serde_json::Value::from(action.policy_decision_id.as_str())
+        );
+        assert_eq!(
+            serialized["evidenceReferences"][0]["evidenceReferenceId"],
+            serde_json::Value::from(action.evidence_references[0].evidence_reference_id.as_str())
+        );
+        assert_eq!(
+            serialized["rollbackToken"],
+            serde_json::Value::from(
+                action
+                    .rollback_token
+                    .as_deref()
+                    .expect(enforcement::TEST_ROLLBACK_TOKEN)
+            )
+        );
+        assert_eq!(
             serialized["recoveredAfterRestart"],
             *recovered_after_restart
         );

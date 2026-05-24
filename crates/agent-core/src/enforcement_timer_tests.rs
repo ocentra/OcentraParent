@@ -4,9 +4,9 @@ use ocentra_parent_agent_protocol::{
     EnforcementAdapterResultCode, EnforcementCapabilityState, EnforcementCapabilityStatus,
     EnforcementDependencyState, EnforcementIntent, EnforcementIntentSource, EnforcementMode,
     EnforcementPermissionState, EnforcementResultStatus, EnforcementRollbackState,
-    EnforcementTimerEvent, EnforcementTimerEventKind, ParentDeviceReference,
-    ParentEvidenceReference, ParentEvidenceReferenceKind, ParentPlatform, PolicyAction,
-    PolicyDecision, PolicyDecisionHandoffState, PolicyTarget, PolicyTargetType,
+    EnforcementTimerEventKind, ParentDeviceReference, ParentEvidenceReference,
+    ParentEvidenceReferenceKind, ParentPlatform, PolicyAction, PolicyDecision,
+    PolicyDecisionHandoffState, PolicyTarget, PolicyTargetType,
 };
 
 #[test]
@@ -14,12 +14,11 @@ fn timer_event_derives_restart_recovery_unavailable_expiry_and_rollback_states()
     let mut restart_input = boundary_input(policy_decision(true), supported_capability());
     restart_input.intent.source = EnforcementIntentSource::SystemRecovery;
     assert_timer(
-        evaluate_enforcement_boundary(restart_input)
-            .expect(enforcement::TIMER_RESTART_RECOVERED)
-            .timer_event,
+        evaluate_enforcement_boundary(restart_input).expect(enforcement::TIMER_RESTART_RECOVERED),
         enforcement::TIMER_RESTART_RECOVERED,
         Some(policy::TEST_EXPIRES_AT),
         None,
+        EnforcementResultStatus::WouldEnforce,
     );
 
     assert_timer(
@@ -27,11 +26,11 @@ fn timer_event_derives_restart_recovery_unavailable_expiry_and_rollback_states()
             policy_decision(false),
             unavailable_capability(),
         ))
-        .expect(enforcement::TIMER_UNAVAILABLE)
-        .timer_event,
+        .expect(enforcement::TIMER_UNAVAILABLE),
         enforcement::TIMER_UNAVAILABLE,
         None,
         Some(enforcement::UNAVAILABLE_UNSUPPORTED_PLATFORM),
+        EnforcementResultStatus::Unavailable,
     );
 
     assert_timer(
@@ -40,11 +39,11 @@ fn timer_event_derives_restart_recovery_unavailable_expiry_and_rollback_states()
             EnforcementAdapterResultCode::AdapterFailed,
             EnforcementRollbackState::Failed,
         ))
-        .expect(enforcement::TIMER_RECOVERY_NEEDED)
-        .timer_event,
+        .expect(enforcement::TIMER_RECOVERY_NEEDED),
         enforcement::TIMER_RECOVERY_NEEDED,
         None,
         Some(enforcement::UNAVAILABLE_ADAPTER_ERROR),
+        EnforcementResultStatus::Failed,
     );
 
     assert_timer(
@@ -53,11 +52,11 @@ fn timer_event_derives_restart_recovery_unavailable_expiry_and_rollback_states()
             EnforcementAdapterResultCode::TimerExpired,
             EnforcementRollbackState::NotRequired,
         ))
-        .expect(enforcement::TIMER_EXPIRED)
-        .timer_event,
+        .expect(enforcement::TIMER_EXPIRED),
         enforcement::TIMER_EXPIRED,
         Some(policy::TEST_EXPIRES_AT),
         None,
+        EnforcementResultStatus::Expired,
     );
 
     assert_timer(
@@ -66,11 +65,11 @@ fn timer_event_derives_restart_recovery_unavailable_expiry_and_rollback_states()
             EnforcementAdapterResultCode::RollbackCompleted,
             EnforcementRollbackState::Completed,
         ))
-        .expect(enforcement::TIMER_ROLLBACK_COMPLETED)
-        .timer_event,
+        .expect(enforcement::TIMER_ROLLBACK_COMPLETED),
         enforcement::TIMER_ROLLBACK_COMPLETED,
         None,
         None,
+        EnforcementResultStatus::RolledBack,
     );
 }
 
@@ -79,33 +78,40 @@ fn explicit_timer_transition_builds_extended_and_cancelled_events() {
     let mut extended_input = boundary_input(policy_decision(true), supported_capability());
     extended_input.timer_event_kind = Some(EnforcementTimerEventKind::Extended);
     assert_timer(
-        evaluate_enforcement_boundary(extended_input)
-            .expect(enforcement::TIMER_EXTENDED)
-            .timer_event,
+        evaluate_enforcement_boundary(extended_input).expect(enforcement::TIMER_EXTENDED),
         enforcement::TIMER_EXTENDED,
         Some(policy::TEST_EXPIRES_AT),
         None,
+        EnforcementResultStatus::WouldEnforce,
     );
 
     let mut cancelled_input = boundary_input(policy_decision(true), supported_capability());
     cancelled_input.timer_event_kind = Some(EnforcementTimerEventKind::Cancelled);
     assert_timer(
-        evaluate_enforcement_boundary(cancelled_input)
-            .expect(enforcement::TIMER_CANCELLED)
-            .timer_event,
+        evaluate_enforcement_boundary(cancelled_input).expect(enforcement::TIMER_CANCELLED),
         enforcement::TIMER_CANCELLED,
         None,
         None,
+        EnforcementResultStatus::WouldEnforce,
     );
 }
 
 fn assert_timer(
-    timer: Option<EnforcementTimerEvent>,
+    outcome: EnforcementBoundaryOutcome,
     expected_kind: &str,
     expected_effective_at: Option<&str>,
     expected_reason: Option<&str>,
+    expected_result_status: EnforcementResultStatus,
 ) {
-    let timer = timer.expect(enforcement::TEST_TIMER_EVENT_ID);
+    let timer = outcome.timer_event.expect(enforcement::TEST_TIMER_EVENT_ID);
+    assert_eq!(outcome.result.status, expected_result_status);
+    assert_eq!(timer.action_id, outcome.action.action_id);
+    assert_eq!(timer.policy_decision_id, outcome.action.policy_decision_id);
+    assert_eq!(
+        timer.evidence_references,
+        outcome.action.evidence_references
+    );
+    assert_eq!(timer.rollback_token, outcome.action.rollback_token);
     assert_eq!(timer.timer_event_kind.as_protocol_str(), expected_kind);
     assert_eq!(timer.effective_at.as_deref(), expected_effective_at);
     assert_eq!(
