@@ -19,6 +19,11 @@ The authoritative checkpoint runbook remains
 CI evidence refresh work remains separate from this roadmap reconciliation
 record.
 
+The companion acceptance checklist is
+`docs/architecture/v0-7-current-main-acceptance-record-2026-05-25.md`. Read
+that record with this one when deciding whether current `main` is accepted or
+whether larger V0.8/V0.9 implementation can resume.
+
 ## Run Metadata
 
 | Field               | Value                                                                                  |
@@ -28,6 +33,7 @@ record.
 | Branch              | `codex/v0.7-current-main-proof-reconciliation`                                         |
 | Baseline commit     | `98eaf55b9b8507992cc076fe612e2194de8c90eb`                                             |
 | Baseline subject    | `Make precommit gate fast and opt-in full validation (#96)`                            |
+| Starting local edit | `ad501a4 docs: reconcile V0.7 current-main proof`                                      |
 | Package/app version | `0.1.1`                                                                                |
 | Sensitive data      | No child activity, screenshots, browser history, raw evidence payloads, or secrets.    |
 | CI handling         | Not updated here; use the separate current-main CI/package evidence refresh if needed. |
@@ -40,6 +46,7 @@ record.
 - `docs/architecture/v0-7-checkpoint-validation-record.md`
 - `docs/architecture/v07-cross-platform-proof-gap-tracker.md`
 - `docs/architecture/validation-gates.md`
+- `docs/architecture/v0-7-current-main-acceptance-record-2026-05-25.md`
 - `docs/expectations/pre-ai-proof-matrix.json`
 - PR #90: <https://github.com/ocentra/OcentraParent/pull/90>
 - PR #91: <https://github.com/ocentra/OcentraParent/pull/91>
@@ -51,17 +58,19 @@ record.
 
 ## Inspection Commands
 
-| Command                                                                            | Result                                                                     | Proof label   |
-| ---------------------------------------------------------------------------------- | -------------------------------------------------------------------------- | ------------- |
-| `git fetch origin`                                                                 | Passed; latest `origin/main` fetched before branch creation.               | `implemented` |
-| `git switch -c codex/v0.7-current-main-proof-reconciliation origin/main`           | Passed; branch created from `origin/main` at `98eaf55`.                    | `implemented` |
-| `cmd /c npm run lanes:status`                                                      | Passed; `codex-a` claimed this branch and B/C stayed on separate lanes.    | `implemented` |
-| `cmd /c npm run lanes:guard`                                                       | Passed before edits on `codex-a`.                                          | `implemented` |
-| `cmd /c npm run hub:status`                                                        | Passed; latest codex-a message was acknowledged and STARTED was reported.  | `implemented` |
-| `cmd /c npm run hub:guard`                                                         | Passed before edits on `codex-a`.                                          | `implemented` |
-| `cmd /c npm run hub:lock -- --paths docs/product-roadmap.md,docs/architecture/...` | Passed; intended edit paths are this roadmap and proof-refresh record.     | `implemented` |
-| `git log --oneline --first-parent c4e682b..98eaf55`                                | Passed; PR #90 through PR #96 merge order matched the history table below. | `implemented` |
-| Seven `gh pr view <number> --json ...` calls for PR #90 through PR #96             | Passed; PR metadata is summarized below.                                   | `implemented` |
+| Command                                                                            | Result                                                                                 | Proof label   |
+| ---------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- | ------------- |
+| `git fetch origin`                                                                 | Passed; latest `origin/main` fetched before branch creation.                           | `implemented` |
+| `git switch -c codex/v0.7-current-main-proof-reconciliation origin/main`           | Passed; branch created from `origin/main` at `98eaf55`.                                | `implemented` |
+| `cmd /c npm run lanes:status`                                                      | Passed; `codex-a` claimed this branch and B/C stayed on separate lanes.                | `implemented` |
+| `cmd /c npm run lanes:guard`                                                       | Passed before edits on `codex-a`.                                                      | `implemented` |
+| `cmd /c npm run hub:status`                                                        | Passed; latest codex-a message was acknowledged and STARTED was reported.              | `implemented` |
+| `cmd /c npm run hub:guard`                                                         | Passed before edits on `codex-a`.                                                      | `implemented` |
+| `cmd /c npm run hub:lock -- --paths docs/product-roadmap.md,docs/architecture/...` | Passed; intended edit paths are this roadmap and proof-refresh record.                 | `implemented` |
+| `git log --oneline --first-parent c4e682b..98eaf55`                                | Passed; PR #90 through PR #96 merge order matched the history table below.             | `implemented` |
+| Seven `gh pr view <number> --json ...` calls for PR #90 through PR #96             | Passed; PR metadata is summarized below.                                               | `implemented` |
+| `cmd /c npm run hub:ack` for `codex-a-msg-20260525T183406410Z-155`                 | Passed; scope correction was acknowledged before expanding this package.               | `implemented` |
+| `cmd /c npm run hub:lock -- --paths docs/product-roadmap.md,...acceptance...`      | Passed; expanded lock covered the roadmap, refresh record, and acceptance record only. | `implemented` |
 
 ## PR90 Through PR96 Reconciliation
 
@@ -81,6 +90,61 @@ The current product position is still the V0.7 checkpoint proof gate. The
 required pre-AI evidence bridges and V0.7 dry-run policy-preview foundations are
 on `main`, but acceptance still depends on the V0.7 proof gate and manual
 platform evidence called out in the cross-platform checkpoint runbook.
+
+### Completed On Main
+
+The completed-on-main record now includes the scaffold and proof slices that can
+be reviewed from repository history:
+
+- V0.1 through V0.5 scaffold, local evidence store, Windows process/window and
+  network/domain foundations, live portal visibility, browser/app/game/network
+  flow/screen evidence contracts and read paths, and package-preview scaffolds.
+- V0.6 and V0.7 dry-run local AI policy evaluator foundations, including typed
+  context-builder inputs, deterministic dry-run decisions, local runtime status,
+  provider probe/unavailable status, parent-rule context preview, and
+  evidence-cited policy-preview service/API and portal read-model paths.
+- PR #90 through PR #95 proof spines for V0.8/V0.9 contract, protocol, core, and
+  service behavior.
+- PR #96 validation workflow/tooling changes that make pre-commit fast while
+  keeping full validation and package evidence as explicit gates.
+
+Completed on `main` does not mean product-accepted. It means the code or proof
+record is merged and reviewable. Acceptance still requires the proof labels
+below to be reconciled.
+
+### CI-Mechanical Only
+
+These areas can be supported by CI, proof-matrix checks, contract tests,
+real-service smoke tests, and package-preview jobs, but they are not the same as
+real OS/device proof:
+
+- shared TypeScript/Rust contracts, schema-boundary checks, Rust checks/tests,
+  local service mechanics, and portal-to-Rust transport;
+- pre-AI proof matrix validation for already-recorded claims;
+- package-preview build/install/launch smoke where hosted runners support it;
+- V0.8 enforcement proof spines that prove typed audit/timer/approval reference
+  behavior without real OS blocking;
+- V0.9 LAN proof spines that prove typed selected-route, registry, discovery,
+  challenge/status, privacy-surface, and audit behavior without real household
+  pairing.
+
+### Manual-Required Or Not-Yet-Proven
+
+These remain outside the proof produced by PR #90 through PR #96:
+
+- current Windows child-device evidence-preview proof for managed browser,
+  foreground app/window, network/domain, app/game duration, and screen queue
+  states;
+- real parent-to-child LAN proof with one paired request and one failed
+  unpaired request across two devices;
+- real package lifecycle proof: install, service manager/autostart, reboot,
+  update, uninstall, and data-retention behavior;
+- Linux WSL/Docker, macOS host, Android physical device, and iOS
+  TestFlight/device/entitlement checks;
+- V0.8 OS enforcement adapters, real blocking, timer delivery, rollback UX,
+  anti-tamper, and notification delivery;
+- V0.9 production LAN authentication, router/firewall behavior, portal selector
+  UX, cloud relay, and trusted cross-device product control.
 
 V0.8 has useful scaffold-real enforcement spine coverage on `main`: typed
 contracts, Rust protocol/core parity, unavailable/capability status,
@@ -102,6 +166,51 @@ less expensive by keeping pre-commit to a fast source gate and preserving heavy
 validation as explicit local commands and CI responsibilities. Proof records
 must distinguish the fast local commit gate from full validation, PR CI,
 package-preview evidence, and manual OS/device proof.
+
+## Acceptance Gate Before Larger V0.8/V0.9 Work
+
+Larger V0.8/V0.9 implementation should not resume until primary can review the
+acceptance package and either mark every item below complete or record an
+explicit deferral with owner and reason:
+
+1. Current `main` commit and branch state are recorded and clean.
+2. Local focused validation passes: formatting, pre-AI proof, whitespace check,
+   lane guard, and hub guard.
+3. Full local validation or a deliberate omission note exists for the current
+   branch.
+4. Current main CI/package-preview evidence is reviewed in the separate
+   checkpoint evidence record owned outside this branch.
+5. Windows real child-device proof covers the current evidence-preview flow or
+   records exact unavailable/degraded states.
+6. LAN proof records one paired request and one failed unpaired request through
+   real product paths or records why it remains manual-required.
+7. Package lifecycle proof records install, autostart/service-manager, reboot,
+   update, uninstall, and data-retention behavior where artifacts exist.
+8. Linux, macOS, Android, and iOS rows carry current CI, manual, scaffold-only,
+   blocked, permission-required, or not-yet-proven labels.
+9. The proof matrix and roadmap are updated only for rows backed by concrete
+   evidence.
+10. V0.8/V0.9 resume scope is split so enforcement and LAN work continues from
+    proof-backed boundaries without claiming product completion.
+
+## Branch Validation
+
+This branch ran both focused proof checks and the broader root validation gate
+after the expanded acceptance package was drafted:
+
+| Command                            | Result                                                                                                                                                                                                    |
+| ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cmd /c npm run format:check`      | Passed; all matched files use Prettier style.                                                                                                                                                             |
+| `cmd /c npm run test:pre-ai-proof` | Passed; `11 claims checked across 5 platforms; 7 checkpoint scenarios checked.`                                                                                                                           |
+| `cmd /c npm run test:tooling`      | Passed; `79` tooling tests passed.                                                                                                                                                                        |
+| `git diff --check`                 | Passed; no whitespace errors.                                                                                                                                                                             |
+| `cmd /c npm run lanes:guard`       | Passed for `codex-a` on `codex/v0.7-current-main-proof-reconciliation`.                                                                                                                                   |
+| `cmd /c npm run hub:guard`         | Passed with locks limited to the roadmap, current-main refresh, and acceptance record.                                                                                                                    |
+| `cmd /c npm run validate`          | Passed; release version, pre-AI proof, schema/source/test-double guards, Turbo lint/type-check/test, Rust validation, local/LAN WebSocket smoke, portal local smoke, and portal Playwright E2E completed. |
+
+`npm run validate` printed existing source-shape advisory warnings and the
+existing Vite large-chunk warning; both gates still passed. These warnings do
+not upgrade any manual platform proof claim.
 
 ## Proof Matrix Handling
 

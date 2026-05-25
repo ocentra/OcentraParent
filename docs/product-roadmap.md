@@ -66,6 +66,9 @@ feature readiness.
 The current roadmap-vs-done reconciliation after PR #90 through PR #96 is
 recorded in
 [`current-main-proof-refresh-2026-05-25.md`](architecture/current-main-proof-refresh-2026-05-25.md).
+The acceptance checklist for deciding whether current `main` is ready to resume
+larger V0.8/V0.9 implementation is recorded in
+[`v0-7-current-main-acceptance-record-2026-05-25.md`](architecture/v0-7-current-main-acceptance-record-2026-05-25.md).
 
 Completed foundation:
 
@@ -101,8 +104,8 @@ Next product checkpoint:
   product position.
 - Keep proof records and roadmap text reconciled with current `main` before
   assigning more feature coding.
-- Run the pre-AI real evidence proof gate and final CI before claiming V0.7 as
-  accepted.
+- Run the pre-AI real evidence proof gate, full local validation or an explicit
+  omission record, and final CI before claiming V0.7 as accepted.
 - Manually test the local child-device/parent-device surfaces before claiming
   V0.8 or V0.9 readiness.
 - Complete the
@@ -112,11 +115,14 @@ Next product checkpoint:
   and iOS through Mac/Xcode/TestFlight or entitlement notes.
 - Keep portal preview visibility evidence-cited and explicit about dry-run-only
   status.
-- Resume V0.8 and V0.9 implementation only as the next narrow spine/proof
-  slices: V0.8 should continue enforcement capability/status and audit-boundary
-  work without fake blocking claims, and V0.9 should continue paired/unpaired
-  LAN proof or trusted-device control work without claiming complete LAN
-  product readiness.
+- Resume larger V0.8 and V0.9 implementation only after the
+  [current-main acceptance record](architecture/v0-7-current-main-acceptance-record-2026-05-25.md)
+  has reviewable evidence for what is complete, what is CI-mechanical only, and
+  what is still manual-required or not-yet-proven. Until then, any V0.8/V0.9
+  work must stay narrow and proof-spine-only: V0.8 should continue
+  enforcement capability/status and audit-boundary work without fake blocking
+  claims, and V0.9 should continue paired/unpaired LAN proof or trusted-device
+  control work without claiming complete LAN product readiness.
 
 ## Architecture Commitments
 
@@ -1166,20 +1172,29 @@ Next coordinator slices:
 2. Keep the PR #90 through PR #96 roadmap/proof reconciliation in
    [`current-main-proof-refresh-2026-05-25.md`](architecture/current-main-proof-refresh-2026-05-25.md)
    separate from any CI/package-preview evidence refresh.
-3. Pull current `main`, run the V0.7 checkpoint validation gate, and record the
+3. Use
+   [`v0-7-current-main-acceptance-record-2026-05-25.md`](architecture/v0-7-current-main-acceptance-record-2026-05-25.md)
+   as the reviewer checklist for current-main acceptance and V0.8/V0.9 resume
+   readiness.
+4. Pull current `main`, run the V0.7 checkpoint validation gate, and record the
    exact commands or omission notes.
-4. Execute the
+5. Execute the
    [cross-platform deliverables checkpoint runbook](architecture/cross-platform-deliverables-checkpoint.md)
    as the manual proof pass for Windows, Linux, macOS, Android, iOS, LAN, and
    package lifecycle coverage.
-5. Separate CI mechanical proof from real OS/device proof in every evidence
+6. Separate CI mechanical proof from real OS/device proof in every evidence
    record before updating proof-matrix status.
-6. Gather local service, portal, evidence read-model, and LAN artifacts from
+7. Gather local service, portal, evidence read-model, and LAN artifacts from
    real product paths, including paired and failed-unpaired LAN checks.
-7. Keep unavailable, degraded, permission-required, scaffold-only, blocked, and
+8. Keep unavailable, degraded, permission-required, scaffold-only, blocked, and
    manual-required states explicit for platform behavior that CI or the current
    code cannot prove.
-8. When implementation resumes, split it narrowly: V0.8 should continue
-   enforcement capability/status and audit-boundary work without fake blocking
-   claims, and V0.9 should continue paired/unpaired LAN proof or trusted-device
-   control work using the audit evidence references already on `main`.
+9. Before larger V0.8/V0.9 implementation resumes, primary must have reviewable
+   evidence that current-main validation, current CI/package state, manual
+   Windows proof, two-device LAN proof, package lifecycle proof, and explicit
+   platform gap labels are complete or intentionally deferred with owner and
+   reason.
+10. When implementation resumes, split it narrowly: V0.8 should continue
+    enforcement capability/status and audit-boundary work without fake blocking
+    claims, and V0.9 should continue paired/unpaired LAN proof or trusted-device
+    control work using the audit evidence references already on `main`.
