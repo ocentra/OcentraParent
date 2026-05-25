@@ -52,13 +52,20 @@ resolver integration, local provider adapter probe status, network-flow v4
 reconciliation, and parent-rule preview quality/coverage batch are also on
 `main`.
 
-Initial V0.8 and V0.9 spine work has started on `main`, but it does not change
-the acceptance gate. V0.8 currently means typed enforcement contract, audit,
-rollback, capability-status, and timer/recovery spine work only; it does not
-prove OS enforcement adapters or real blocking. V0.9 currently means typed LAN
-route/discovery/challenge/revocation and audit evidence spine work only; it
-does not prove production LAN pairing, authenticated cross-device control, or a
-full paired/unpaired product flow.
+Initial V0.8 and V0.9 spine work has continued on `main`, but it does not
+change the acceptance gate. V0.8 currently means typed enforcement contract,
+audit, rollback, capability-status, timer/recovery, and approval/override audit
+reference spine work only; it does not prove OS enforcement adapters or real
+blocking. V0.9 currently means typed LAN route selection, restart registry,
+discovery, challenge/revocation, privacy-surface, and audit evidence spine work
+only; it does not prove production LAN pairing, authenticated cross-device
+control, or a full paired/unpaired product flow. PR #96 is workflow/tooling
+only, so it changes local validation ergonomics but does not advance product
+feature readiness.
+
+The current roadmap-vs-done reconciliation after PR #90 through PR #96 is
+recorded in
+[`current-main-proof-refresh-2026-05-25.md`](architecture/current-main-proof-refresh-2026-05-25.md).
 
 Completed foundation:
 
@@ -79,12 +86,14 @@ Current local slice:
   parent-rule, and local runtime evidence references.
 - Typed local AI result and deterministic policy decision paths before
   enforcement.
-- V0.8 enforcement spine work is scaffold-real contract/protocol/core work only;
-  it must not be described as real blocking until an OS adapter path and
-  product proof exist.
-- V0.9 LAN spine work is scaffold-real contract/protocol/audit work only; it
-  must not be described as a complete LAN product path until paired and
-  failed-unpaired device proof exists.
+- V0.8 enforcement spine work is scaffold-real contract/protocol/core work only,
+  including audit-boundary, timer/recovery, and parent approval/override audit
+  reference proof; it must not be described as real blocking until an OS adapter
+  path and product proof exist.
+- V0.9 LAN spine work is scaffold-real contract/protocol/audit work only,
+  including selected-route rejection, restart registry, and discovery/privacy
+  proof; it must not be described as a complete LAN product path until paired
+  and failed-unpaired device proof exists.
 
 Next product checkpoint:
 
@@ -1138,18 +1147,25 @@ Current completed-on-main foundation:
 - V0.7 parent-rule preview quality/coverage with target aliases and fully
   grounded local parent-rule context matching, still dry-run only.
 - V0.8 enforcement spine work has started with typed contracts, Rust protocol
-  parity, rollback/audit/capability status, and timer/recovery state. This is
-  not a completed enforcement adapter or real blocking path.
-- V0.9 LAN spine work has started with typed route, discovery, challenge,
-  revocation, and audit evidence references. This is not completed production
-  LAN pairing or cross-device control proof.
+  parity, rollback/audit/capability status, timer/recovery state, and
+  parent-approval/override audit reference proof. This is not a completed
+  enforcement adapter or real blocking path.
+- V0.9 LAN spine work has started with typed route selection, restart registry,
+  discovery, challenge, revocation, privacy-surface, and audit evidence
+  references. This is not completed production LAN pairing or cross-device
+  control proof.
+- PR #96 changed local validation workflow/tooling only by making pre-commit a
+  fast source gate and preserving heavier local gates as explicit commands. It
+  is not product feature progress.
 
 Next coordinator slices:
 
 1. Keep the V0.7 checkpoint validation gate as the acceptance gate for the
    current product position; do not treat V0.8 or V0.9 as done because their
-   initial spine work is on `main`.
-2. Finish the roadmap/proof cleanup pass before assigning more feature coding.
+   proof-spine work is on `main`.
+2. Keep the PR #90 through PR #96 roadmap/proof reconciliation in
+   [`current-main-proof-refresh-2026-05-25.md`](architecture/current-main-proof-refresh-2026-05-25.md)
+   separate from any CI/package-preview evidence refresh.
 3. Pull current `main`, run the V0.7 checkpoint validation gate, and record the
    exact commands or omission notes.
 4. Execute the
