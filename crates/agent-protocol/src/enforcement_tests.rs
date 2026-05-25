@@ -5,9 +5,9 @@ use super::{
     EnforcementDependencyState, EnforcementIntent, EnforcementIntentSource, EnforcementMode,
     EnforcementPermissionState, EnforcementResult, EnforcementResultStatus,
     EnforcementRollbackState, EnforcementTimerEvent, EnforcementTimerEventKind,
-    EnforcementUnavailableReason, EnforcementUnavailableStatus, ParentDeviceReference,
-    ParentEvidenceReference, ParentEvidenceReferenceKind, ParentPlatform, PolicyAction,
-    PolicyTarget, PolicyTargetType,
+    EnforcementUnavailableReason, EnforcementUnavailableStatus, ParentActionReference,
+    ParentActorReference, ParentActorRole, ParentDeviceReference, ParentEvidenceReference,
+    ParentEvidenceReferenceKind, ParentPlatform, PolicyAction, PolicyTarget, PolicyTargetType,
 };
 
 const TIMER_TRANSITION_CASES: &[(
@@ -193,6 +193,65 @@ fn unavailable_status_serializes_typed_capability_reason() {
 }
 
 #[test]
+fn parent_approval_and_override_serialize_as_audit_references() {
+    let capability = process_capability();
+    let mut intent = enforcement_intent();
+    intent.actor = Some(parent_actor());
+    intent.parent_approval = Some(parent_action_reference());
+    let action = enforcement_action(&intent);
+    let result = enforcement_result(&action, capability.clone());
+    let audit = EnforcementAuditEvent {
+        schema_version: policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
+        audit_event_id: enforcement::TEST_AUDIT_EVENT_ID.to_string(),
+        audit_event_kind: EnforcementAuditEventKind::Succeeded,
+        action: action.clone(),
+        result,
+        capability,
+        unavailable_status: None,
+        policy_version: policy::TEST_POLICY_VERSION.to_string(),
+        evidence_references: vec![evidence()],
+        actor: intent.actor.clone(),
+        parent_override: action.parent_approval.clone(),
+        journal_sequence: Some(enforcement::TEST_JOURNAL_SEQUENCE.to_string()),
+        observed_at: policy::TEST_EVALUATED_AT.to_string(),
+    };
+
+    let serialized_action =
+        serde_json::to_value(action).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized_audit =
+        serde_json::to_value(audit).expect(constants::error::AGENT_EVENT_SERIALIZES);
+
+    assert_eq!(
+        serialized_action["parentApproval"]["actionReferenceId"],
+        enforcement::TEST_PARENT_ACTION_REFERENCE_ID
+    );
+    assert_eq!(
+        serialized_action["parentApproval"]["actor"]["actorId"],
+        policy::TEST_PARENT_ACTOR_ID
+    );
+    assert_eq!(
+        serialized_action["parentApproval"]["actor"]["role"],
+        policy::ACTOR_ROLE_PARENT
+    );
+    assert_eq!(
+        serialized_action["parentApproval"]["policyVersion"],
+        policy::TEST_POLICY_VERSION
+    );
+    assert_eq!(
+        serialized_action["parentApproval"]["createdAt"],
+        policy::TEST_EVALUATED_AT
+    );
+    assert_eq!(
+        serialized_audit["actor"]["actorId"],
+        policy::TEST_PARENT_ACTOR_ID
+    );
+    assert_eq!(
+        serialized_audit["parentOverride"],
+        serialized_action["parentApproval"]
+    );
+}
+
+#[test]
 fn timer_event_kinds_serialize_to_contract_literals() {
     let action = enforcement_action(&enforcement_intent());
 
@@ -312,7 +371,7 @@ fn enforcement_action(intent: &EnforcementIntent) -> EnforcementAction {
         reason_codes: vec![policy::TEST_REASON_PARENT_BLOCK.to_string()],
         evidence_references: vec![evidence()],
         local_ai_result_id: None,
-        parent_approval: None,
+        parent_approval: intent.parent_approval.clone(),
         dry_run: false,
         requested_at: policy::TEST_EVALUATED_AT.to_string(),
         expires_at: Some(policy::TEST_EXPIRES_AT.to_string()),
@@ -339,6 +398,22 @@ fn enforcement_result(
         failed_reason: None,
         next_check_at: None,
         capability,
+    }
+}
+
+fn parent_actor() -> ParentActorReference {
+    ParentActorReference {
+        actor_id: policy::TEST_PARENT_ACTOR_ID.to_string(),
+        role: ParentActorRole::Parent,
+    }
+}
+
+fn parent_action_reference() -> ParentActionReference {
+    ParentActionReference {
+        action_reference_id: enforcement::TEST_PARENT_ACTION_REFERENCE_ID.to_string(),
+        actor: parent_actor(),
+        policy_version: policy::TEST_POLICY_VERSION.to_string(),
+        created_at: policy::TEST_EVALUATED_AT.to_string(),
     }
 }
 
