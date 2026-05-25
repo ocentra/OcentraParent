@@ -89,3 +89,18 @@ test('Windows GitHub release publisher uploads stable latest MSI assets', () => 
   assert.match(publisher, /LatestChecksumPath/u);
   assert.match(publisher, /gh release create \$Tag .* \$LatestArtifactPath \$LatestChecksumPath/u);
 });
+
+test('Windows package lifecycle proof harness emits local proof states without automatic reboot', () => {
+  const harness = readReleaseFile('package-lifecycle-proof.mjs');
+  const host = readReleaseFile('package-lifecycle-host.mjs');
+  const runner = readReleaseFile('package-lifecycle-runner.mjs');
+
+  assert.match(harness, /test-results['"], ['"]windows-package-lifecycle-proof/u);
+  assert.match(harness, /windows-package-lifecycle-decision/u);
+  assert.match(runner, /requires-elevated-shell/u);
+  assert.match(runner, /admin-required/u);
+  assert.match(host, /\/qn', '\/norestart/u);
+  assert.match(host, /DEFAULT_HEALTH_URL = 'http:\/\/127\.0\.0\.1:4477\/health'/u);
+  assert.doesNotMatch(host, /Restart-Computer/u);
+  assert.doesNotMatch(host, /shutdown\.exe/u);
+});
