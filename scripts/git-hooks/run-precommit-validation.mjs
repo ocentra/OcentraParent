@@ -1,10 +1,21 @@
 import { spawnSync } from 'node:child_process';
 
-const validations = [
+const preCommitValidations = [
+  ['npm', ['run', 'format:check']],
+  ['npm', ['run', 'lint:schema-boundaries']],
+  ['npm', ['run', 'test:tooling']],
+  ['npm', ['run', 'format:rust']],
+  ['cargo', ['check', '--workspace']],
+];
+
+const fullValidations = [
   ['npm', ['run', 'format:check']],
   ['npm', ['run', 'validate']],
   ['npm', ['run', 'build']],
 ];
+
+const fullMode = process.argv.includes('--full');
+const validations = fullMode ? fullValidations : preCommitValidations;
 
 function runCommand(command, args) {
   if (process.platform === 'win32') {
@@ -19,6 +30,8 @@ function runCommand(command, args) {
     stdio: 'inherit',
   });
 }
+
+console.log(`[validation] Running ${fullMode ? 'full integration' : 'fast pre-commit'} gate.`);
 
 for (const [command, args] of validations) {
   const result = runCommand(command, args);

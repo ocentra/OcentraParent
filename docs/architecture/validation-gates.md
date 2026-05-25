@@ -24,6 +24,28 @@ It runs:
 
 `npm run build` is the portal/package build gate and should pass before any scaffold is considered usable.
 
+## Local Commit Gate
+
+The pre-commit hook is a fast local source gate. It keeps commits from bypassing
+formatting, schema/source/test-double guards, hook/tooling tests, Rust
+formatting, and Rust workspace compilation.
+
+It intentionally does not run the real-service smoke tests, portal Playwright
+E2E, package lint/type-check tasks, TypeScript/Rust unit suites, production
+build, or package previews on every local commit. Those remain integration gates
+for PR-ready handoff, explicit local confidence runs, and CI.
+
+Use these commands when the heavier gates are needed:
+
+```powershell
+npm run test:local
+npm run test
+npm run precommit:full
+npm run validate
+npm run ci:local
+npm run test:e2e
+```
+
 CI adds installer/package reality checks after the root gate:
 
 - Pre-AI proof matrix check for completed runtime claims and platform proof
