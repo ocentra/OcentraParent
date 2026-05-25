@@ -31,7 +31,7 @@ import {
   type PortalFrameTunerFrameSectionValue,
   type PortalFrameTunerPanelValue,
 } from '@ocentra-parent/portal-domain/contracts';
-import { GoldenFrameForeignObjectControlsRoute } from '../../../vendor/ocentra-games-core-ui/AppPages/Leaderboard/LeaderboardGoldenFrameForeignObject';
+import { GoldenFrameForeignObjectControlsRoute } from '../../../vendor/ocentra-games-core-ui/AppPages/ParentPortal/ParentPortalGoldenFrameForeignObject';
 import {
   BooleanControlSection,
   ColorControlSection,

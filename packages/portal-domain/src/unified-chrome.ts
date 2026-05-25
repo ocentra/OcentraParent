@@ -6,21 +6,24 @@ export const PortalUnifiedChrome = {
   Classes: {
     Shell: 'portal-unified-shell',
     ShellWork: 'portal-shell-work',
-    Header: 'ocentra-game-header',
-    HeaderBar: 'ocentra-game-header__bar',
-    HeaderHome: 'ocentra-game-header__home',
-    HeaderCenter: 'ocentra-game-header__center',
-    HeaderLogo: 'ocentra-game-header__logo',
-    HeaderTitle: 'ocentra-game-header__title',
-    HeaderTitlePart: 'ocentra-game-header__title-part',
-    HeaderTitlePartMuted: 'ocentra-game-header__title-part-muted',
-    HeaderProfile: 'ocentra-game-header__profile',
-    HeaderProfileImage: 'ocentra-game-header__profile-image',
-    HeaderNav: 'ocentra-game-header__nav',
-    HeaderNavLink: 'ocentra-game-header__nav-link',
-    HeaderNavLinkActive: 'ocentra-game-header__nav-link-active',
-    HeaderNavLabel: 'ocentra-game-header__nav-label',
-    HeaderNavDescription: 'ocentra-game-header__nav-description',
+    OutlineHeader: 'portal-outline-header',
+    OutlineHeaderAction: 'portal-outline-header__action',
+    OutlineHeaderActionIcon: 'portal-outline-header__action-icon',
+    OutlineHeaderActionIconImage: 'portal-outline-header__action-icon-image',
+    OutlineHeaderActionLabel: 'portal-outline-header__action-label',
+    OutlineHeaderBrand: 'portal-outline-header__brand',
+    OutlineHeaderBrandLogo: 'portal-outline-header__brand-logo',
+    OutlineHeaderBrandLogoMount: 'portal-outline-header__brand-logo-mount',
+    OutlineHeaderConnector: 'portal-outline-header__connector',
+    OutlineHeaderConnectorBox: 'portal-outline-header__connector-box',
+    OutlineHeaderConnectorSvg: 'portal-outline-header__connector-svg',
+    OutlineHeaderFrame: 'portal-outline-header__frame',
+    OutlineHeaderFrameLine: 'portal-outline-header__frame-line',
+    OutlineHeaderFrameOuter: 'portal-outline-header__frame-outer',
+    OutlineHeaderFrameSegmentGroup: 'portal-outline-header__frame-segment-group',
+    OutlineHeaderFrameSvg: 'portal-outline-header__frame-svg',
+    OutlineHeaderBrandPart: 'portal-outline-header__brand-part',
+    OutlineHeaderBrandPartMuted: 'portal-outline-header__brand-part-muted',
     Footer: 'oc-unified-footer',
     FooterBar: 'oc-unified-footer__bar',
     FooterContent: 'oc-unified-footer__content',
@@ -29,16 +32,29 @@ export const PortalUnifiedChrome = {
     FooterLink: 'oc-unified-footer__link',
     FooterVersion: 'oc-unified-footer__version',
   },
-  DynamicDataKeys: {
-    GameName: 'gameName',
-    Tagline: 'tagline',
+  Attributes: {
+    ShellHeaderExtension: 'data-oc-shell-header-extension',
   },
-  HeaderProfile: {
-    MainScreen: 'main_screen',
-    Contained: 'contained',
+  Alt: {
+    DecorativeImage: '',
   },
-  HeaderCenter: {
-    ModeA: 'A',
+  Svg: {
+    AnchorKeyInner: 'innerAnchor',
+    AnchorKeyOuter: 'outerAnchor',
+    BottomTabDown: 'down',
+    FillNone: 'none',
+    FrameColorCyan: '#2fddff',
+    FrameKeyOuter: 'outerFrame',
+    FrameLineVariant: {
+      Line: 'line',
+      Outline: 'outline',
+    },
+    FrameOrientationLandscape: 'landscape',
+    HeaderConnectorViewBox: '0 0 100 44',
+    PointerEventsNone: 'none',
+    PreserveAspectRatioNone: 'none',
+    StrokeLinejoinRound: 'round',
+    VectorEffectNonScalingStroke: 'non-scaling-stroke',
   },
   Version: {
     App: '0.1.1',
@@ -46,8 +62,10 @@ export const PortalUnifiedChrome = {
 } as const;
 
 export const PortalAssets = {
-  HeaderLogo: '/ocentra-game-assets/commons/OcentraLogo.svg',
   AnonymousProfile: '/ocentra-game-assets/auth/annon.png',
+  HeaderHomeIcon: '/nav-overview.svg',
+  HeaderLoginIcon: '/header-login.svg',
+  HeaderLogo: '/ocentra-game-assets/commons/OcentraLogo.svg',
 } as const;
 
 export const PortalExternalLinks = {

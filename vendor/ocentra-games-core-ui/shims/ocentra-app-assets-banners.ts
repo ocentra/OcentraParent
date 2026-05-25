@@ -1,14 +1,3 @@
-export const banner1v1ImageUrl = '/ocentra-game-assets/banners/1v1.png';
-export const bannerAIBenchmarkingImageUrl = '/ocentra-game-assets/banners/AI%20Benchmarking.png';
-export const bannerEverythingOnChainImageUrl = '/ocentra-game-assets/banners/EverythigOnChain.png';
-export const bannerFairplayGuaranteedImageUrl = '/ocentra-game-assets/banners/FairplayGareenteed.png';
-export const bannerGlobalLeaderboardImageUrl = '/ocentra-game-assets/banners/GlobalLeaderboard.png';
-export const bannerIntelligentAIImageUrl = '/ocentra-game-assets/banners/IntelligentAI.png';
-export const bannerPlayAnywhereImageUrl = '/ocentra-game-assets/banners/PlayAnywhere.png';
-export const bannerPlayYourWayImageUrl = '/ocentra-game-assets/banners/PlayYourWay.png';
-export const bannerProvablyFairImageUrl = '/ocentra-game-assets/banners/ProvablyFair.png';
-export const bannerRewardingEconomyImageUrl = '/ocentra-game-assets/banners/RewardingEconomy.png';
-export const bannerSolanaPoweredImageUrl = '/ocentra-game-assets/banners/SolanaPowered.png';
-export const bannerTrackYourProgressImageUrl = '/ocentra-game-assets/banners/TrackYourProgress.png';
-export const bannerTrueMultiplayerImageUrl = '/ocentra-game-assets/banners/TrueMultiplayer.png';
-export const bannerWalletFreedomImageUrl = '/ocentra-game-assets/banners/WalletFreedom.png';
+export const bannerParentPortalAiImageUrl = '/nav-ai-runtime.svg';
+export const bannerParentPortalBrowserImageUrl = '/nav-browser.svg';
+export const bannerParentPortalOverviewImageUrl = '/nav-overview.svg';

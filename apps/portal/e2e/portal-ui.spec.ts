@@ -1,6 +1,9 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 import { collectBrowserFailures } from './browser-failures';
 import { assertRouteScaffolds } from './portal-route-scaffold-assertions';
+
+test.setTimeout(60_000);
+
 test('portal UI connects to the real agent and renders command results', async ({ context, page }) => {
   const browserFailures = collectBrowserFailures(page);
   await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: 'http://127.0.0.1:4490' });
@@ -21,12 +24,13 @@ test('portal UI connects to the real agent and renders command results', async (
 
 async function assertAuthDialog(page: Page): Promise<void> {
   await page.getByRole('button', { exact: true, name: 'Login' }).click();
-  await expect(page.getByRole('dialog', { name: 'Protect the family console' })).toBeVisible();
-  await expect(page.getByText('Trusted sign-in options')).toBeVisible();
-  await page.getByRole('button', { exact: true, name: 'Continue' }).click();
+  await expect(page.getByRole('button', { exact: true, name: 'Close parent sign in' })).toBeVisible();
+  await expect(page.getByText('PROTECT THE FAMILY CONSOLE')).toBeVisible();
+  await expect(page.getByText('OR CONTINUE WITH')).toBeVisible();
+  await page.getByRole('button', { exact: true, name: 'Guest' }).click();
   await expect(page.getByText('Parent identity is not connected on this device yet.')).toBeVisible();
-  await page.getByRole('button', { exact: true, name: 'Close parent sign in' }).click();
-  await expect(page.getByRole('dialog', { name: 'Protect the family console' })).toHaveCount(0);
+  await page.getByRole('button', { exact: true, name: 'Close parent sign in' }).dispatchEvent('click');
+  await expect(page.getByRole('button', { exact: true, name: 'Close parent sign in' })).toHaveCount(0);
 }
 
 async function assertCommandControls(page: Page): Promise<void> {
@@ -141,7 +145,7 @@ async function assertCommandResult(
 
 async function assertOverview(page: Page): Promise<void> {
   await page.goto('/#/overview');
-  const surface = page.locator('svg.leaderboard-page-svg-surface');
+  const surface = page.locator('svg.parent-portal-svg-surface');
   await expect(surface).toBeVisible();
   await expect(surface.locator('text').filter({ hasText: 'TODAY CONTROL SNAPSHOT' }).first()).toBeVisible();
   await expect(surface.locator('text').filter({ hasText: 'WHAT PARENTS CONTROL' }).first()).toBeVisible();

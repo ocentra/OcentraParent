@@ -5,7 +5,7 @@ import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/ef
 export const PortalRouteSchema = withParser(
   Schema.Literal(
     'overview',
-    'leaderboard-copy',
+    'start',
     'activity',
     'browser',
     'browser-settings',
@@ -24,11 +24,19 @@ export const PortalRouteSchema = withParser(
     'app-game-sessions',
     'network-activity',
     'devices',
+    'lan-pairing',
+    'capability-status',
     'notifications',
+    'notification-channels',
     'drive-connections',
+    'export-retention',
     'remote-access',
+    'report-compiler',
+    'audit-history',
     'subscription',
+    'entitlements',
     'platforms-install',
+    'install-updates',
     'diagnostics',
     'settings-rules',
     'frame-tuner',
@@ -40,7 +48,7 @@ export type PortalRoute = Infer<typeof PortalRouteSchema>;
 
 export const PortalRoute = {
   Overview: PortalRouteSchema.parse('overview'),
-  LeaderboardCopy: PortalRouteSchema.parse('leaderboard-copy'),
+  Start: PortalRouteSchema.parse('start'),
   Activity: PortalRouteSchema.parse('activity'),
   Browser: PortalRouteSchema.parse('browser'),
   BrowserSettings: PortalRouteSchema.parse('browser-settings'),
@@ -59,11 +67,19 @@ export const PortalRoute = {
   AppGameSessions: PortalRouteSchema.parse('app-game-sessions'),
   NetworkActivity: PortalRouteSchema.parse('network-activity'),
   Devices: PortalRouteSchema.parse('devices'),
+  LanPairing: PortalRouteSchema.parse('lan-pairing'),
+  CapabilityStatus: PortalRouteSchema.parse('capability-status'),
   Notifications: PortalRouteSchema.parse('notifications'),
+  NotificationChannels: PortalRouteSchema.parse('notification-channels'),
   DriveConnections: PortalRouteSchema.parse('drive-connections'),
+  ExportRetention: PortalRouteSchema.parse('export-retention'),
   RemoteAccess: PortalRouteSchema.parse('remote-access'),
+  ReportCompiler: PortalRouteSchema.parse('report-compiler'),
+  AuditHistory: PortalRouteSchema.parse('audit-history'),
   Subscription: PortalRouteSchema.parse('subscription'),
+  Entitlements: PortalRouteSchema.parse('entitlements'),
   PlatformsInstall: PortalRouteSchema.parse('platforms-install'),
+  InstallUpdates: PortalRouteSchema.parse('install-updates'),
   Diagnostics: PortalRouteSchema.parse('diagnostics'),
   SettingsRules: PortalRouteSchema.parse('settings-rules'),
   FrameTuner: PortalRouteSchema.parse('frame-tuner'),
@@ -73,7 +89,7 @@ export const PortalRoute = {
 
 export const PortalRoutes = [
   PortalRoute.Overview,
-  PortalRoute.LeaderboardCopy,
+  PortalRoute.Start,
   PortalRoute.Activity,
   PortalRoute.Browser,
   PortalRoute.BrowserSettings,
@@ -92,11 +108,19 @@ export const PortalRoutes = [
   PortalRoute.AppGameSessions,
   PortalRoute.NetworkActivity,
   PortalRoute.Devices,
+  PortalRoute.LanPairing,
+  PortalRoute.CapabilityStatus,
   PortalRoute.Notifications,
+  PortalRoute.NotificationChannels,
   PortalRoute.DriveConnections,
+  PortalRoute.ExportRetention,
   PortalRoute.RemoteAccess,
+  PortalRoute.ReportCompiler,
+  PortalRoute.AuditHistory,
   PortalRoute.Subscription,
+  PortalRoute.Entitlements,
   PortalRoute.PlatformsInstall,
+  PortalRoute.InstallUpdates,
   PortalRoute.Diagnostics,
   PortalRoute.SettingsRules,
   PortalRoute.FrameTuner,
@@ -127,9 +151,9 @@ export const PortalRouteDescriptors: readonly PortalRouteDescriptor[] = [
     PortalRouteGroup.Monitor
   ),
   routeDescriptor(
-    PortalRoute.LeaderboardCopy,
-    PortalDevTextToken.LeaderboardCopy,
-    PortalDevTextToken.LeaderboardCopyDescription,
+    PortalRoute.Start,
+    PortalDevTextToken.ParentPortal,
+    PortalDevTextToken.ParentPortalDescription,
     PortalRouteGroup.Monitor
   ),
   routeDescriptor(
@@ -241,7 +265,25 @@ export const PortalRouteDescriptors: readonly PortalRouteDescriptor[] = [
     PortalRouteGroup.Operate
   ),
   routeDescriptor(
+    PortalRoute.LanPairing,
+    PortalDevTextToken.Pairing,
+    PortalDevTextToken.PairingBody,
+    PortalRouteGroup.Operate
+  ),
+  routeDescriptor(
+    PortalRoute.CapabilityStatus,
+    PortalDevTextToken.Diagnostics,
+    PortalDevTextToken.ProductSurfacePending,
+    PortalRouteGroup.Operate
+  ),
+  routeDescriptor(
     PortalRoute.Notifications,
+    PortalDevTextToken.Notifications,
+    PortalDevTextToken.NotificationsBody,
+    PortalRouteGroup.Operate
+  ),
+  routeDescriptor(
+    PortalRoute.NotificationChannels,
     PortalDevTextToken.Notifications,
     PortalDevTextToken.NotificationsBody,
     PortalRouteGroup.Operate
@@ -253,9 +295,27 @@ export const PortalRouteDescriptors: readonly PortalRouteDescriptor[] = [
     PortalRouteGroup.Operate
   ),
   routeDescriptor(
+    PortalRoute.ExportRetention,
+    PortalDevTextToken.ExportSync,
+    PortalDevTextToken.DriveConnectionsBody,
+    PortalRouteGroup.Operate
+  ),
+  routeDescriptor(
     PortalRoute.RemoteAccess,
     PortalDevTextToken.DataCustodyTitle,
     PortalDevTextToken.DataCustodyBody,
+    PortalRouteGroup.Operate
+  ),
+  routeDescriptor(
+    PortalRoute.ReportCompiler,
+    PortalDevTextToken.Activity,
+    PortalDevTextToken.ActivityDescription,
+    PortalRouteGroup.Operate
+  ),
+  routeDescriptor(
+    PortalRoute.AuditHistory,
+    PortalDevTextToken.Events,
+    PortalDevTextToken.EventsDescription,
     PortalRouteGroup.Operate
   ),
   routeDescriptor(
@@ -265,7 +325,19 @@ export const PortalRouteDescriptors: readonly PortalRouteDescriptor[] = [
     PortalRouteGroup.Operate
   ),
   routeDescriptor(
+    PortalRoute.Entitlements,
+    PortalDevTextToken.BillingEntitlements,
+    PortalDevTextToken.ProductSurfacePending,
+    PortalRouteGroup.Operate
+  ),
+  routeDescriptor(
     PortalRoute.PlatformsInstall,
+    PortalDevTextToken.DesktopApp,
+    PortalDevTextToken.DesktopAppBody,
+    PortalRouteGroup.Operate
+  ),
+  routeDescriptor(
+    PortalRoute.InstallUpdates,
     PortalDevTextToken.DesktopApp,
     PortalDevTextToken.DesktopAppBody,
     PortalRouteGroup.Operate

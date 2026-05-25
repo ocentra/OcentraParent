@@ -59,7 +59,7 @@ export interface CyberAuthSurfaceProps {
   onFileChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onForgotPassword: () => void;
   onBackToSignIn: () => void;
-  onClose?: () => void;
+  onClose?: (() => void) | undefined;
   avatarSelectorRef: React.RefObject<HTMLDivElement | null>;
   fileInputRef: React.RefObject<HTMLInputElement | null>;
 }
@@ -2075,11 +2075,12 @@ function resolveBrandParts(brandTitle: string) {
   if (tokens.length === 0) {
     return { left: "O'CENTRA", right: 'GAMES' };
   }
+  const firstToken = tokens[0] ?? "O'CENTRA";
   if (tokens.length === 1) {
-    return { left: tokens[0].toUpperCase(), right: 'GAMES' };
+    return { left: firstToken.toUpperCase(), right: 'GAMES' };
   }
   return {
-    left: tokens[0].replace(/^ocentra$/i, "O'CENTRA").toUpperCase(),
+    left: firstToken.replace(/^ocentra$/i, "O'CENTRA").toUpperCase(),
     right: tokens.slice(1).join(' ').toUpperCase(),
   };
 }
@@ -2380,7 +2381,7 @@ function BottomDock() {
   );
 }
 
-function CloseButton({ onClose, label }: { onClose?: () => void; label: string }) {
+function CloseButton({ onClose, label }: { onClose?: (() => void) | undefined; label: string }) {
   const c = useAuthPageSvgControls();
   const [hover, setHover] = React.useState(false);
   if (!c.showCloseButton) {

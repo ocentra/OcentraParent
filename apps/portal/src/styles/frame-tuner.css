@@ -349,18 +349,18 @@
   gap: 10px;
 }
 
-.portal-frame-tuner-golden-card-original-controls .leaderboard-page {
+.portal-frame-tuner-golden-card-original-controls .parent-portal-page {
   background: none;
   color: #ffe9a6;
   min-height: 0;
 }
 
-.portal-frame-tuner-golden-card-original-controls .leaderboard-page > div {
+.portal-frame-tuner-golden-card-original-controls .parent-portal-page > div {
   overflow: visible;
   padding: 0;
 }
 
-.portal-frame-tuner-golden-card-original-controls .leaderboard-page > div > div {
+.portal-frame-tuner-golden-card-original-controls .parent-portal-page > div > div {
   background: rgb(1 8 18 / 68%);
   border: 1px solid rgb(246 195 74 / 26%);
   box-shadow:
@@ -371,15 +371,15 @@
   padding: 12px;
 }
 
-.portal-frame-tuner-golden-card-original-controls .leaderboard-page > div > div > div:nth-child(1),
-.portal-frame-tuner-golden-card-original-controls .leaderboard-page > div > div > div:nth-child(2),
-.portal-frame-tuner-golden-card-original-controls .leaderboard-page > div > div > div:nth-child(3) {
+.portal-frame-tuner-golden-card-original-controls .parent-portal-page > div > div > div:nth-child(1),
+.portal-frame-tuner-golden-card-original-controls .parent-portal-page > div > div > div:nth-child(2),
+.portal-frame-tuner-golden-card-original-controls .parent-portal-page > div > div > div:nth-child(3) {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
 
-.portal-frame-tuner-golden-card-original-controls .leaderboard-page > div > div > div:nth-child(1) {
+.portal-frame-tuner-golden-card-original-controls .parent-portal-page > div > div > div:nth-child(1) {
   align-items: center;
   justify-content: space-between;
 }

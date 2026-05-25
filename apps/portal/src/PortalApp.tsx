@@ -10,7 +10,7 @@ import type { PortalRenderActions } from './portal-actions';
 import { routeDescriptor } from './portal-route-descriptor';
 import { renderRouteContent } from './portal-route-content';
 import type { PortalRuntimeState } from './portal-state';
-import { ParentLeaderboardCopyRoute } from './ParentLeaderboardCopyRoute';
+import { ParentPortalRoute } from './ParentPortalRoute';
 import { PortalAuthDialog } from './PortalAuthDialog';
 import { PortalFrameBackdrop, PortalFrameBoundsOverlay } from './PortalFrameSurface';
 import { PortalFrameTunerRoute } from './PortalFrameTunerRoute';
@@ -78,12 +78,7 @@ export function PortalApp(props: PortalAppProps): ReactElement {
     return (
       <>
         <PortalUnifiedShell onAuthOpen={() => setAuthOpen(true)}>
-          <ParentLeaderboardCopyRoute
-            key={props.route}
-            actions={props.actions}
-            route={props.route}
-            state={props.state}
-          />
+          <ParentPortalRoute key={props.route} actions={props.actions} route={props.route} state={props.state} />
         </PortalUnifiedShell>
         {authOpen ? <PortalAuthDialog onClose={() => setAuthOpen(false)} /> : null}
       </>

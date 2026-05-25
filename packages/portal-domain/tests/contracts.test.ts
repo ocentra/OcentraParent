@@ -3,7 +3,6 @@ import {
   PortalClipboard,
   PortalCommandButtons,
   PortalConnectionState,
-  PortalAuthChrome,
   PortalDetails,
   PortalDiagnostics,
   PortalDom,
@@ -25,7 +24,7 @@ describe('portal route contracts', () => {
   it('PortalRouteSchema: accepts only declared dev routes', () => {
     expect(PortalRoutes).toEqual([
       'overview',
-      'leaderboard-copy',
+      'start',
       'activity',
       'browser',
       'browser-settings',
@@ -44,11 +43,19 @@ describe('portal route contracts', () => {
       'app-game-sessions',
       'network-activity',
       'devices',
+      'lan-pairing',
+      'capability-status',
       'notifications',
+      'notification-channels',
       'drive-connections',
+      'export-retention',
       'remote-access',
+      'report-compiler',
+      'audit-history',
       'subscription',
+      'entitlements',
       'platforms-install',
+      'install-updates',
       'diagnostics',
       'settings-rules',
       'frame-tuner',
@@ -59,7 +66,7 @@ describe('portal route contracts', () => {
     expect(PortalRouteSchema.safeParse('settings-rules').success).toBe(true);
     expect(PortalRouteSchema.safeParse('billing').success).toBe(false);
     expect(PortalRouteDescriptors.map((descriptor) => descriptor.group)).toContain(PortalRouteGroup.Monitor);
-    expect(PortalRouteDescriptors.map((descriptor) => descriptor.label)).toContain('Parent command deck');
+    expect(PortalRouteDescriptors.map((descriptor) => descriptor.label)).toContain('Start here');
     expect(PortalRouteDescriptors.map((descriptor) => descriptor.label)).toContain('Activity');
     expect(PortalRouteDescriptors.map((descriptor) => descriptor.label)).toContain('Private by design');
     expect(PortalRouteDescriptors.map((descriptor) => descriptor.label)).toContain('Notifications');
@@ -154,22 +161,43 @@ describe('portal shared constants', () => {
     expect(PortalFrameTuner.GoldenFrame.Channel).toBe('ocentra-foreign-frame-channel');
   });
 
-  it('PortalUnifiedChrome: exposes copied header/footer tokens', () => {
+  it('PortalUnifiedChrome: exposes outline header/footer tokens', () => {
     expect(PortalUnifiedChrome.Tags.Footer).toBe('footer');
     expect(PortalUnifiedChrome.Classes.Shell).toBe('portal-unified-shell');
     expect(PortalUnifiedChrome.Classes.ShellWork).toBe('portal-shell-work');
-    expect(PortalUnifiedChrome.Classes.Header).toBe('ocentra-game-header');
-    expect(PortalUnifiedChrome.DynamicDataKeys.GameName).toBe('gameName');
-    expect(PortalUnifiedChrome.DynamicDataKeys.Tagline).toBe('tagline');
-    expect(PortalUnifiedChrome.HeaderProfile.MainScreen).toBe('main_screen');
-    expect(PortalUnifiedChrome.HeaderCenter.ModeA).toBe('A');
+    expect(PortalUnifiedChrome.Classes.OutlineHeader).toBe('portal-outline-header');
+    expect(PortalUnifiedChrome.Classes.OutlineHeaderAction).toBe('portal-outline-header__action');
+    expect(PortalUnifiedChrome.Classes.OutlineHeaderActionIcon).toBe('portal-outline-header__action-icon');
+    expect(PortalUnifiedChrome.Classes.OutlineHeaderActionIconImage).toBe('portal-outline-header__action-icon-image');
+    expect(PortalUnifiedChrome.Classes.OutlineHeaderActionLabel).toBe('portal-outline-header__action-label');
+    expect(PortalUnifiedChrome.Classes.OutlineHeaderBrand).toBe('portal-outline-header__brand');
+    expect(PortalUnifiedChrome.Classes.OutlineHeaderBrandLogo).toBe('portal-outline-header__brand-logo');
+    expect(PortalUnifiedChrome.Classes.OutlineHeaderBrandLogoMount).toBe('portal-outline-header__brand-logo-mount');
+    expect(PortalUnifiedChrome.Classes.OutlineHeaderConnector).toBe('portal-outline-header__connector');
+    expect(PortalUnifiedChrome.Classes.OutlineHeaderConnectorBox).toBe('portal-outline-header__connector-box');
+    expect(PortalUnifiedChrome.Classes.OutlineHeaderConnectorSvg).toBe('portal-outline-header__connector-svg');
+    expect(PortalUnifiedChrome.Classes.OutlineHeaderFrame).toBe('portal-outline-header__frame');
+    expect(PortalUnifiedChrome.Classes.OutlineHeaderFrameLine).toBe('portal-outline-header__frame-line');
+    expect(PortalUnifiedChrome.Classes.OutlineHeaderFrameOuter).toBe('portal-outline-header__frame-outer');
+    expect(PortalUnifiedChrome.Classes.OutlineHeaderFrameSegmentGroup).toBe(
+      'portal-outline-header__frame-segment-group'
+    );
+    expect(PortalUnifiedChrome.Classes.OutlineHeaderFrameSvg).toBe('portal-outline-header__frame-svg');
+    expect(PortalUnifiedChrome.Classes.OutlineHeaderBrandPart).toBe('portal-outline-header__brand-part');
+    expect(PortalUnifiedChrome.Classes.OutlineHeaderBrandPartMuted).toBe('portal-outline-header__brand-part-muted');
+    expect(PortalUnifiedChrome.Alt.DecorativeImage).toBe('');
+    expect(PortalUnifiedChrome.Attributes.ShellHeaderExtension).toBe('data-oc-shell-header-extension');
+    expect(PortalUnifiedChrome.Svg.FrameKeyOuter).toBe('outerFrame');
+    expect(PortalUnifiedChrome.Svg.FrameColorCyan).toBe('#2fddff');
+    expect(PortalUnifiedChrome.Svg.FrameLineVariant.Line).toBe('line');
+    expect(PortalUnifiedChrome.Svg.HeaderConnectorViewBox).toBe('0 0 100 44');
+    expect(PortalUnifiedChrome.Svg.PointerEventsNone).toBe('none');
     expect(PortalUnifiedChrome.Version.App).toBe('0.1.1');
   });
 
-  it('PortalAuthChrome: exposes auth assets and external links', () => {
-    expect(PortalAuthChrome.Classes.Dialog).toBe('portal-auth-dialog');
-    expect(PortalAuthChrome.Assets.Google).toBe('/ocentra-game-assets/auth/google.png');
-    expect(PortalAuthChrome.Modes.SignIn).toBe('signin');
+  it('PortalAssets: exposes auth assets and external links', () => {
+    expect(PortalAssets.HeaderHomeIcon).toBe('/nav-overview.svg');
+    expect(PortalAssets.HeaderLoginIcon).toBe('/header-login.svg');
     expect(PortalAssets.HeaderLogo).toBe('/ocentra-game-assets/commons/OcentraLogo.svg');
     expect(PortalExternalLinks.Ocentra).toBe('https://ocentra.ca');
     expect(decodePortalClipboardText('copy payload')).toBe('copy payload');

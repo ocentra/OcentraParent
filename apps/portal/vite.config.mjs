@@ -108,8 +108,8 @@ export default defineConfig({
       '@ocentra/schema-domain/effect-builder': vendorModule(
         '../../vendor/ocentra-games-core-ui/schema-domain/effect-builder.ts'
       ),
-      '@ocentra/game-asset-domain/schemas/leaderboard-page-content-schema': vendorModule(
-        '../../vendor/ocentra-games-core-ui/game-asset-domain/schemas/leaderboard-page-content-schema.ts'
+      '@ocentra/game-asset-domain/schemas/parent-portal-page-content-schema': vendorModule(
+        '../../vendor/ocentra-games-core-ui/game-asset-domain/schemas/parent-portal-page-content-schema.ts'
       ),
       '@tauri-apps/api/core': vendorModule('../../vendor/ocentra-games-core-ui/shims/tauri-core.ts'),
       'react-router-dom': vendorModule('../../vendor/ocentra-games-core-ui/shims/react-router-dom.ts'),

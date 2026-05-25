@@ -23,8 +23,8 @@
         "../../vendor/ocentra-games-core-ui/shims/ocentra-public-routes.ts"
       ],
       "@ocentra/schema-domain/effect-builder": ["../../vendor/ocentra-games-core-ui/schema-domain/effect-builder.ts"],
-      "@ocentra/game-asset-domain/schemas/leaderboard-page-content-schema": [
-        "../../vendor/ocentra-games-core-ui/game-asset-domain/schemas/leaderboard-page-content-schema.ts"
+      "@ocentra/game-asset-domain/schemas/parent-portal-page-content-schema": [
+        "../../vendor/ocentra-games-core-ui/game-asset-domain/schemas/parent-portal-page-content-schema.ts"
       ],
       "@tauri-apps/api/core": ["../../vendor/ocentra-games-core-ui/shims/tauri-core.ts"],
       "react-router-dom": ["../../vendor/ocentra-games-core-ui/shims/react-router-dom.ts"]

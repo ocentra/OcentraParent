@@ -8,7 +8,7 @@ describe('portal dev text', () => {
     expect(decodeDisplayText(title)).toBe(title);
     expect(title).toBe('Ocentra Parent');
     expect(PortalDevText[PortalDevTextToken.Subtitle]).toBe('Family safety for local child devices');
-    expect(PortalDevText[PortalDevTextToken.LeaderboardCopy]).toBe('Parent command deck');
+    expect(PortalDevText[PortalDevTextToken.ParentPortal]).toBe('Start here');
     expect(PortalDevText[PortalDevTextToken.Activity]).toBe('Activity');
     expect(PortalDevText[PortalDevTextToken.SettingsRules]).toBe('Settings');
     expect(PortalDevText[PortalDevTextToken.FrameTuner]).toBe('Frame tuner');

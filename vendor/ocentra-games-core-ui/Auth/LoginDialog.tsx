@@ -384,7 +384,7 @@ export function LoginDialog({
     key: option.key,
     icon: option.icon,
     alt: option.alt,
-    disabled: isLoading || option.disabled,
+    disabled: isLoading || Boolean(option.disabled),
     onClick: () => {
       if (option.handler) {
         void handleSocialAuthResult(option.handler, option.error);
@@ -411,19 +411,19 @@ export function LoginDialog({
   const handleEmailChange = (value: string) => {
     setUsername(value);
     if (validationErrors.email) {
-      setValidationErrors({ ...validationErrors, email: undefined });
+      setValidationErrors(({ email: _email, ...nextValidationErrors }) => nextValidationErrors);
     }
   };
   const handlePasswordChange = (value: string) => {
     setPassword(value);
     if (validationErrors.password) {
-      setValidationErrors({ ...validationErrors, password: undefined });
+      setValidationErrors(({ password: _password, ...nextValidationErrors }) => nextValidationErrors);
     }
   };
   const handleConfirmPasswordChange = (value: string) => {
     setConfirmPassword(value);
     if (validationErrors.confirmPassword) {
-      setValidationErrors({ ...validationErrors, confirmPassword: undefined });
+      setValidationErrors(({ confirmPassword: _confirmPassword, ...nextValidationErrors }) => nextValidationErrors);
     }
   };
   const normalizedLayoutControls = useMemo(() => normalizeAuthPageSvgControls(layoutControls), [layoutControls]);

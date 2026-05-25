@@ -16,6 +16,323 @@
   width: 100%;
 }
 
+.portal-outline-header {
+  align-items: end;
+  background: transparent;
+  color: #edf8ff;
+  display: grid;
+  gap: 0;
+  grid-template-columns: 136px minmax(20px, 1fr) 292px minmax(20px, 1fr) 136px;
+  justify-content: stretch;
+  margin: 0 12px;
+  min-height: 62px;
+  padding: 0;
+}
+
+.portal-outline-header__action,
+.portal-outline-header__brand {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  block-size: 56px;
+  color: inherit;
+  display: inline-grid;
+  min-height: 56px;
+  min-width: 0;
+  overflow: visible;
+  position: relative;
+  z-index: 1;
+}
+
+.portal-outline-header__frame {
+  display: block;
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+}
+
+.portal-outline-header__frame-svg {
+  display: block;
+  height: 100%;
+  overflow: visible;
+  transition: filter 140ms ease;
+  width: 100%;
+}
+
+.portal-outline-header__frame-outer {
+  fill: none;
+  opacity: 0;
+  transition: opacity 140ms ease;
+}
+
+.portal-outline-header__frame-outer path {
+  stroke: rgb(4 88 118 / 92%);
+  transition:
+    filter 140ms ease,
+    stroke 140ms ease,
+    stroke-width 140ms ease;
+}
+
+.portal-outline-header__frame-line {
+  fill: none;
+  opacity: 1;
+  stroke: #2fddff;
+  transition:
+    filter 140ms ease,
+    stroke 140ms ease,
+    stroke-width 140ms ease;
+}
+
+.portal-outline-header__action {
+  appearance: none;
+  column-gap: 2px;
+  cursor: pointer;
+  font: inherit;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  grid-auto-flow: column;
+  grid-template-columns: 50px minmax(0, 1fr);
+  inline-size: 136px;
+  justify-content: stretch;
+  justify-items: stretch;
+  padding: 0 8px 0 6px;
+}
+
+.portal-outline-header__action:last-child {
+  inline-size: 136px;
+}
+
+.portal-outline-header__action-icon {
+  align-items: center;
+  align-self: center;
+  background: transparent;
+  border: 0;
+  border-radius: 3px;
+  display: inline-grid;
+  height: 44px;
+  justify-items: center;
+  justify-self: start;
+  position: relative;
+  width: 44px;
+  z-index: 1;
+}
+
+.portal-outline-header__action-icon-image {
+  display: block;
+  height: 34px;
+  filter: drop-shadow(0 0 3px rgb(47 221 255 / 22%));
+  object-fit: contain;
+  transition:
+    filter 140ms ease,
+    transform 140ms ease;
+  width: 34px;
+}
+
+.portal-outline-header__action-label {
+  align-self: center;
+  justify-self: stretch;
+  position: relative;
+  text-align: center;
+  text-shadow: 0 0 4px rgb(47 221 255 / 18%);
+  transition:
+    color 140ms ease,
+    text-shadow 140ms ease;
+  z-index: 1;
+}
+
+.portal-outline-header__action:hover,
+.portal-outline-header__action:focus-visible {
+  outline: none;
+}
+
+.portal-outline-header__action:hover .portal-outline-header__frame-outer,
+.portal-outline-header__action:focus-visible .portal-outline-header__frame-outer,
+.portal-outline-header__brand:hover .portal-outline-header__frame-outer {
+  opacity: 0.78;
+}
+
+.portal-outline-header__action:hover .portal-outline-header__frame-outer path,
+.portal-outline-header__action:focus-visible .portal-outline-header__frame-outer path,
+.portal-outline-header__brand:hover .portal-outline-header__frame-outer path {
+  filter: drop-shadow(0 0 2px rgb(230 253 255 / 70%)) drop-shadow(0 0 7px rgb(47 221 255 / 46%));
+  stroke: #e6fdff;
+}
+
+.portal-outline-header__action:hover .portal-outline-header__frame-line,
+.portal-outline-header__action:focus-visible .portal-outline-header__frame-line,
+.portal-outline-header__brand:hover .portal-outline-header__frame-line {
+  filter: drop-shadow(0 0 2px rgb(230 253 255 / 88%)) drop-shadow(0 0 8px rgb(47 221 255 / 62%));
+  stroke: #a9f8ff;
+}
+
+.portal-outline-header__action:hover .portal-outline-header__action-label,
+.portal-outline-header__action:focus-visible .portal-outline-header__action-label {
+  color: #ffffff;
+  text-shadow:
+    0 0 4px rgb(255 255 255 / 78%),
+    0 0 10px rgb(47 221 255 / 68%);
+}
+
+.portal-outline-header__action:hover .portal-outline-header__action-icon-image,
+.portal-outline-header__action:focus-visible .portal-outline-header__action-icon-image {
+  filter: drop-shadow(0 0 4px rgb(255 255 255 / 78%)) drop-shadow(0 0 10px rgb(47 221 255 / 70%));
+  transform: translateY(-1px);
+}
+
+.portal-outline-header__brand {
+  --portal-outline-header-brand-logo-slot: 54px;
+
+  font-family: Didot, 'Bodoni 72', 'Bodoni MT', Georgia, serif;
+  font-size: 15px;
+  font-weight: 650;
+  gap: 8px;
+  grid-template-columns:
+    minmax(0, 1fr)
+    var(--portal-outline-header-brand-logo-slot)
+    minmax(0, 1fr);
+  inline-size: 292px;
+  justify-content: stretch;
+  line-height: 1;
+  padding: 0 14px;
+}
+
+.portal-outline-header__brand-logo-mount {
+  align-self: stretch;
+  display: block;
+  inline-size: var(--portal-outline-header-brand-logo-slot);
+  justify-self: center;
+  position: relative;
+  z-index: 2;
+}
+
+.portal-outline-header__brand-logo {
+  background: rgb(2 10 18 / 78%);
+  border: 1px solid rgb(120 238 255 / 82%);
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 1px rgb(217 247 231 / 22%),
+    0 0 7px rgb(47 221 255 / 54%),
+    0 0 14px rgb(47 221 255 / 22%);
+  display: block;
+  height: 56px;
+  image-rendering: auto;
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  object-fit: contain;
+  padding: 2px;
+  position: absolute;
+  transition:
+    border-color 140ms ease,
+    box-shadow 140ms ease,
+    filter 140ms ease,
+    transform 140ms ease;
+  transform: translate(-50%, -48%);
+  width: 56px;
+}
+
+.portal-outline-header__brand:hover .portal-outline-header__brand-logo {
+  border-color: rgb(230 253 255 / 92%);
+  box-shadow:
+    0 0 0 1px rgb(217 247 231 / 36%),
+    0 0 8px rgb(255 255 255 / 64%),
+    0 0 16px rgb(47 221 255 / 64%),
+    0 0 24px rgb(47 221 255 / 26%);
+  filter: brightness(1.12) saturate(1.12);
+  transform: translate(-50%, -51%);
+}
+
+.portal-outline-header__connector {
+  align-self: end;
+  display: block;
+  block-size: 28px;
+  height: 28px;
+  margin-block-end: 14px;
+  margin-inline: -4px;
+  min-width: 0;
+  pointer-events: none;
+  position: relative;
+  z-index: 0;
+}
+
+.portal-outline-header__connector-svg {
+  display: block;
+  height: 100%;
+  overflow: visible;
+  width: 100%;
+}
+
+.portal-outline-header__connector-box {
+  fill: none;
+  opacity: 1;
+  stroke-width: 1;
+  transition:
+    filter 140ms ease,
+    opacity 140ms ease,
+    stroke 140ms ease,
+    stroke-width 140ms ease;
+}
+
+.portal-outline-header:has(.portal-outline-header__action:hover) .portal-outline-header__connector-box,
+.portal-outline-header:has(.portal-outline-header__action:focus-visible) .portal-outline-header__connector-box,
+.portal-outline-header:has(.portal-outline-header__brand:hover) .portal-outline-header__connector-box {
+  filter: drop-shadow(0 0 5px rgb(47 221 255 / 58%));
+  stroke: #a9f8ff;
+  stroke-width: 1.25;
+}
+
+.portal-outline-header__brand-part,
+.portal-outline-header__brand-part-muted {
+  -webkit-text-stroke: 0.45px rgb(0 68 255 / 92%);
+  color: #ffffff;
+  font-feature-settings: 'kern' 1;
+  inline-size: 100%;
+  line-height: 1.3;
+  min-width: 0;
+  overflow: visible;
+  paint-order: stroke fill;
+  position: relative;
+  text-align: center;
+  text-overflow: clip;
+  text-shadow: none;
+  text-transform: uppercase;
+  transition:
+    color 140ms ease,
+    -webkit-text-stroke-color 140ms ease,
+    text-shadow 140ms ease;
+  white-space: nowrap;
+  z-index: 1;
+}
+
+.portal-outline-header__brand-part::first-letter,
+.portal-outline-header__brand-part-muted::first-letter {
+  font-size: 1.5em;
+  line-height: 0.9;
+}
+
+.portal-outline-header__brand-part {
+  justify-self: stretch;
+}
+
+.portal-outline-header__brand-part-muted {
+  font-weight: 650;
+  justify-self: stretch;
+}
+
+.portal-outline-header__brand:hover .portal-outline-header__brand-part,
+.portal-outline-header__brand:hover .portal-outline-header__brand-part-muted {
+  color: #ffffff;
+  -webkit-text-stroke-color: rgb(0 98 255 / 96%);
+  text-shadow:
+    0 0 4px rgb(255 255 255 / 78%),
+    0 0 10px rgb(47 221 255 / 68%);
+}
+
 .app-frame {
   grid-template-areas: 'sidebar main';
   grid-template-columns: 252px minmax(0, 1fr);
@@ -88,9 +405,121 @@
   }
 }
 
+@media (max-width: 760px) {
+  .portal-outline-header {
+    grid-template-columns: 54px minmax(10px, 1fr) 224px minmax(10px, 1fr) 54px;
+    margin: 0 8px;
+    min-height: 60px;
+  }
+
+  .portal-outline-header__action,
+  .portal-outline-header__brand {
+    block-size: 54px;
+    min-height: 54px;
+  }
+
+  .portal-outline-header__action {
+    font-size: 12px;
+    grid-template-columns: 1fr;
+    inline-size: 54px;
+    justify-items: center;
+    padding: 0;
+  }
+
+  .portal-outline-header__action:last-child {
+    inline-size: 54px;
+  }
+
+  .portal-outline-header__action-label {
+    display: none;
+  }
+
+  .portal-outline-header__action-icon {
+    height: 42px;
+    justify-self: center;
+    width: 42px;
+  }
+
+  .portal-outline-header__action-icon-image {
+    height: 32px;
+    width: 32px;
+  }
+
+  .portal-outline-header__brand {
+    --portal-outline-header-brand-logo-slot: 50px;
+
+    font-size: 11.5px;
+    gap: 6px;
+    inline-size: 224px;
+    padding: 0 10px;
+  }
+
+  .portal-outline-header__brand-logo {
+    height: 54px;
+    width: 54px;
+  }
+
+  .portal-outline-header__connector {
+    block-size: 27px;
+    height: 27px;
+    margin-block-end: 13.5px;
+  }
+}
+
 @media (max-width: 640px) {
   body {
     overflow-x: hidden;
+  }
+
+  .portal-outline-header {
+    grid-template-columns: 50px minmax(8px, 1fr) 210px minmax(8px, 1fr) 50px;
+    margin: 0 8px;
+    min-height: 58px;
+  }
+
+  .portal-outline-header__action {
+    font-size: 11px;
+    inline-size: 50px;
+  }
+
+  .portal-outline-header__action:last-child {
+    inline-size: 50px;
+  }
+
+  .portal-outline-header__action-icon {
+    height: 38px;
+    width: 38px;
+  }
+
+  .portal-outline-header__action-icon-image {
+    height: 30px;
+    width: 30px;
+  }
+
+  .portal-outline-header__action,
+  .portal-outline-header__brand {
+    block-size: 52px;
+    min-height: 52px;
+  }
+
+  .portal-outline-header__brand {
+    --portal-outline-header-brand-logo-slot: 48px;
+
+    font-size: 10.5px;
+    gap: 6px;
+    inline-size: 210px;
+    padding: 0 10px;
+  }
+
+  .portal-outline-header__brand-logo {
+    height: 52px;
+    width: 52px;
+  }
+
+  .portal-outline-header__connector {
+    block-size: 26px;
+    height: 26px;
+    margin-block-end: 13px;
   }
 
   .app-frame {
@@ -135,5 +564,57 @@
 
   .app-sidebar .product-sidebar-panel {
     display: none;
+  }
+}
+
+@media (max-width: 360px) {
+  .portal-outline-header {
+    grid-template-columns: 46px minmax(6px, 1fr) 188px minmax(6px, 1fr) 46px;
+    margin: 0 6px;
+    min-height: 54px;
+  }
+
+  .portal-outline-header__action {
+    inline-size: 46px;
+  }
+
+  .portal-outline-header__action:last-child {
+    inline-size: 46px;
+  }
+
+  .portal-outline-header__action-icon {
+    height: 34px;
+    width: 34px;
+  }
+
+  .portal-outline-header__action-icon-image {
+    height: 26px;
+    width: 26px;
+  }
+
+  .portal-outline-header__action,
+  .portal-outline-header__brand {
+    block-size: 48px;
+    min-height: 48px;
+  }
+
+  .portal-outline-header__brand {
+    --portal-outline-header-brand-logo-slot: 44px;
+
+    font-size: 9.5px;
+    gap: 4px;
+    inline-size: 188px;
+    padding: 0 8px;
+  }
+
+  .portal-outline-header__brand-logo {
+    height: 48px;
+    width: 48px;
+  }
+
+  .portal-outline-header__connector {
+    block-size: 24px;
+    height: 24px;
+    margin-block-end: 12px;
   }
 }

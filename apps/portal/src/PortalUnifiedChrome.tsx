@@ -8,53 +8,113 @@ import {
   PortalUnifiedChrome,
 } from '@ocentra-parent/portal-domain/contracts';
 import { GameFooter } from '../../../vendor/ocentra-games-core-ui/Footer/GameFooter';
-import { createOcentraHeaderLogoConfig } from '../../../vendor/ocentra-games-core-ui/Header/createOcentraHeaderConfig';
-import { UnifiedHeader } from '../../../vendor/ocentra-games-core-ui/Header/UnifiedHeader';
-import type { UnifiedHeaderConfigInput } from '../../../vendor/ocentra-games-core-ui/Header/UnifiedHeader.config';
 import { UnifiedPageShell } from '../../../vendor/ocentra-games-core-ui/Shell/UnifiedPageShell';
+import { PortalHeaderSvgFrame } from './PortalHeaderSvgFrame';
 
 type PortalUnifiedShellProps = {
   readonly children: ReactNode;
   readonly onAuthOpen: () => void;
 };
 
-const headerLogoConfig = createOcentraHeaderLogoConfig(PortalAssets.HeaderLogo, 45);
+type PortalOutlineHeaderProps = {
+  readonly onAuthOpen: () => void;
+};
+
+const shellHeaderExtensionAttributes = {
+  [PortalUnifiedChrome.Attributes.ShellHeaderExtension]: PortalDom.Attributes.True,
+} as const;
 
 function goHome(): void {
   window.location.hash = `${PortalDom.HashPrefix}${PortalRoute.Overview}`;
 }
 
-function createHeaderConfig(onAuthOpen: () => void) {
-  return {
-    left: {
-      text: PortalText.Resolve(PortalTextToken.HeaderHome),
-      ariaLabel: PortalText.Resolve(PortalTextToken.HeaderHome),
-      isButton: true,
-      onClick: goHome,
-    },
-    right: {
-      text: PortalText.Resolve(PortalTextToken.HeaderLogin),
-      ariaLabel: PortalText.Resolve(PortalTextToken.HeaderLogin),
-      isButton: true,
-      onClick: onAuthOpen,
-    },
-    center: {
-      mode: PortalUnifiedChrome.HeaderCenter.ModeA,
-      contentGap: 14,
-      modeA: {
-        leftText: PortalText.Resolve(PortalTextToken.HeaderBrandLeft),
-        rightText: PortalText.Resolve(PortalTextToken.HeaderBrandRight),
-        ...(headerLogoConfig.center?.modeA?.logo === undefined
-          ? {}
-          : {
-              logo: headerLogoConfig.center.modeA.logo,
-            }),
-      },
-    },
-    navigation: {
-      enabled: false,
-    },
-  } satisfies UnifiedHeaderConfigInput;
+function PortalHeaderConnector(): ReactElement {
+  return (
+    <span aria-hidden={PortalDom.Attributes.True} className={PortalUnifiedChrome.Classes.OutlineHeaderConnector}>
+      <svg
+        className={PortalUnifiedChrome.Classes.OutlineHeaderConnectorSvg}
+        focusable={PortalDom.Attributes.False}
+        preserveAspectRatio={PortalUnifiedChrome.Svg.PreserveAspectRatioNone}
+        viewBox={PortalUnifiedChrome.Svg.HeaderConnectorViewBox}
+      >
+        <rect
+          className={PortalUnifiedChrome.Classes.OutlineHeaderConnectorBox}
+          fill={PortalUnifiedChrome.Svg.FillNone}
+          height={44}
+          rx={0}
+          stroke={PortalUnifiedChrome.Svg.FrameColorCyan}
+          vectorEffect={PortalUnifiedChrome.Svg.VectorEffectNonScalingStroke}
+          width={100}
+          x={0}
+          y={0}
+        />
+      </svg>
+    </span>
+  );
+}
+
+function PortalOutlineHeader({ onAuthOpen }: PortalOutlineHeaderProps): ReactElement {
+  return (
+    <header {...shellHeaderExtensionAttributes} className={PortalUnifiedChrome.Classes.OutlineHeader}>
+      <button
+        aria-label={PortalText.Resolve(PortalTextToken.HeaderHome)}
+        className={PortalUnifiedChrome.Classes.OutlineHeaderAction}
+        onClick={goHome}
+        type={PortalDom.ButtonType.Button}
+      >
+        <PortalHeaderSvgFrame />
+        <span aria-hidden={PortalDom.Attributes.True} className={PortalUnifiedChrome.Classes.OutlineHeaderActionIcon}>
+          <img
+            alt={PortalUnifiedChrome.Alt.DecorativeImage}
+            className={PortalUnifiedChrome.Classes.OutlineHeaderActionIconImage}
+            src={PortalAssets.HeaderHomeIcon}
+          />
+        </span>
+        <span className={PortalUnifiedChrome.Classes.OutlineHeaderActionLabel}>
+          {PortalText.Resolve(PortalTextToken.HeaderHome)}
+        </span>
+      </button>
+      <PortalHeaderConnector />
+      <div className={PortalUnifiedChrome.Classes.OutlineHeaderBrand}>
+        <PortalHeaderSvgFrame />
+        <span className={PortalUnifiedChrome.Classes.OutlineHeaderBrandPart}>
+          {PortalText.Resolve(PortalTextToken.HeaderBrandLeft)}
+        </span>
+        <span
+          aria-hidden={PortalDom.Attributes.True}
+          className={PortalUnifiedChrome.Classes.OutlineHeaderBrandLogoMount}
+        >
+          <img
+            alt={PortalUnifiedChrome.Alt.DecorativeImage}
+            className={PortalUnifiedChrome.Classes.OutlineHeaderBrandLogo}
+            src={PortalAssets.HeaderLogo}
+          />
+        </span>
+        <span className={PortalUnifiedChrome.Classes.OutlineHeaderBrandPartMuted}>
+          {PortalText.Resolve(PortalTextToken.HeaderBrandRight)}
+        </span>
+      </div>
+      <PortalHeaderConnector />
+      <button
+        aria-label={PortalText.Resolve(PortalTextToken.HeaderLogin)}
+        className={PortalUnifiedChrome.Classes.OutlineHeaderAction}
+        onClick={onAuthOpen}
+        type={PortalDom.ButtonType.Button}
+      >
+        <PortalHeaderSvgFrame />
+        <span aria-hidden={PortalDom.Attributes.True} className={PortalUnifiedChrome.Classes.OutlineHeaderActionIcon}>
+          <img
+            alt={PortalUnifiedChrome.Alt.DecorativeImage}
+            className={PortalUnifiedChrome.Classes.OutlineHeaderActionIconImage}
+            src={PortalAssets.HeaderLoginIcon}
+          />
+        </span>
+        <span className={PortalUnifiedChrome.Classes.OutlineHeaderActionLabel}>
+          {PortalText.Resolve(PortalTextToken.HeaderLogin)}
+        </span>
+      </button>
+    </header>
+  );
 }
 
 export function PortalUnifiedShell({ children, onAuthOpen }: PortalUnifiedShellProps): ReactElement {
@@ -62,14 +122,7 @@ export function PortalUnifiedShell({ children, onAuthOpen }: PortalUnifiedShellP
     <UnifiedPageShell
       className={PortalUnifiedChrome.Classes.Shell}
       footer={<GameFooter appVersion={PortalUnifiedChrome.Version.App} />}
-      header={
-        <UnifiedHeader
-          config={createHeaderConfig(onAuthOpen)}
-          placement={PortalUnifiedChrome.HeaderProfile.Contained}
-          profileName={PortalUnifiedChrome.HeaderProfile.MainScreen}
-          showPrimaryNavigation={false}
-        />
-      }
+      header={<PortalOutlineHeader onAuthOpen={onAuthOpen} />}
       viewportLocked={true}
       workClassName={PortalUnifiedChrome.Classes.ShellWork}
     >

@@ -1,4 +1,4 @@
-﻿@media (max-width: 1080px) {
+@media (max-width: 1080px) {
   .app-frame {
     grid-template-columns: 190px minmax(0, 1fr);
   }
@@ -439,14 +439,14 @@
   color: #31566d;
 }
 
-/* Shared leaderboard deck-side frame for the primary parent navigation rail. */
+/* Shared parent portal deck-side frame for the primary parent navigation rail. */
 .app-frame {
   grid-template-columns: 248px minmax(0, 1fr);
 }
 
 .app-sidebar {
   background:
-    url('/leaderboard-side-panel-frame.svg') center / 100% 100% no-repeat,
+    url('/parent-portal-side-panel-frame.svg') center / 100% 100% no-repeat,
     radial-gradient(circle at 50% 0, rgb(84 226 255 / 18%), transparent 25%),
     linear-gradient(180deg, rgb(4 34 54 / 94%), rgb(1 10 21 / 98%) 40%, rgb(0 7 17 / 99%));
   border: 0;
@@ -630,7 +630,7 @@
 
 :root[data-theme='light'] .app-sidebar {
   background:
-    url('/leaderboard-side-panel-frame.svg') center / 100% 100% no-repeat,
+    url('/parent-portal-side-panel-frame.svg') center / 100% 100% no-repeat,
     radial-gradient(circle at 50% 0, rgb(8 126 164 / 16%), transparent 25%),
     linear-gradient(180deg, rgb(230 247 255 / 96%), rgb(198 229 243 / 94%) 42%, rgb(238 249 253 / 98%));
   box-shadow:
