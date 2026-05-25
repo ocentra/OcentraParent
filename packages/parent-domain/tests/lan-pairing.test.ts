@@ -34,6 +34,18 @@ const evidenceReference = {
   kind: 'activity-event',
   observedAt: timestamp,
 };
+const sensitiveLanPrivacyMarkers = [
+  'activityDigest',
+  'activity.sqlite',
+  'activity.ndjson',
+  'decryptedEvidence',
+  'journalPath',
+  'rawEvidence',
+  'rawProofSecret',
+  'rawToken',
+  'sqlitePath',
+  'controlAuthority',
+] as const;
 
 describe('LAN pairing contracts', () => {
   registerReadinessContractTests();
@@ -67,6 +79,20 @@ function registerReadinessContractTests(): void {
 
     expect(enablement.state).toBe('lan-enabled');
     expect(discovery.reachability).toBe('online');
+    expect(Object.keys(discovery).sort()).toEqual(
+      [
+        'addressRef',
+        'agentPeerId',
+        'childDevice',
+        'childProfile',
+        'discoveredAt',
+        'networkMode',
+        'reachability',
+        'routeId',
+        'schemaVersion',
+      ].sort()
+    );
+    expectNoSensitiveLanPrivacyMarkers(discovery);
   });
 }
 
@@ -110,6 +136,34 @@ function registerPairingTrustTests(): void {
 
     expect(registryEntry.trustState).toBe('paired');
     expect(registryEntry.routeId).toBe(challenge.routeId);
+    expect(Object.keys(challenge).sort()).toEqual(
+      [
+        'challengeId',
+        'childDevice',
+        'expiresAt',
+        'issuedAt',
+        'origin',
+        'parentDevice',
+        'routeId',
+        'schemaVersion',
+      ].sort()
+    );
+    expect(Object.keys(proof).sort()).toEqual(
+      [
+        'challengeId',
+        'childDeviceId',
+        'expiresAt',
+        'issuedAt',
+        'origin',
+        'pairingId',
+        'parentDeviceId',
+        'proofDigest',
+        'routeId',
+        'schemaVersion',
+      ].sort()
+    );
+    expectNoSensitiveLanPrivacyMarkers(challenge);
+    expectNoSensitiveLanPrivacyMarkers(proof);
   });
 }
 
@@ -359,6 +413,7 @@ function registerRuntimeSupportSurfaceTests(): void {
     ]);
     expect(support.persistenceMode).toBe('in-memory-fail-closed');
     expect(support.restartBehavior).toBe('fail-closed-unpaired');
+    expectNoSensitiveLanPrivacyMarkers(support);
   });
 }
 
@@ -381,5 +436,13 @@ function registerPersistentRuntimeSupportSurfaceTests(): void {
     expect(support.persistenceMode).toBe('local-json-registry');
     expect(support.restartBehavior).toBe('restore-trusted-registry-unselected');
     expect(support.trustedDeviceCount).toBe(1);
+    expectNoSensitiveLanPrivacyMarkers(support);
   });
+}
+
+function expectNoSensitiveLanPrivacyMarkers(value: unknown): void {
+  const serialized = JSON.stringify(value);
+  for (const marker of sensitiveLanPrivacyMarkers) {
+    expect(serialized).not.toContain(marker);
+  }
 }

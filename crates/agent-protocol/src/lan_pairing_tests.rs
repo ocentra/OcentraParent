@@ -136,8 +136,6 @@ fn lan_pairing_discovery_challenge_and_proof_preview_make_unsupported_status_exp
         serde_json::to_value(challenge).expect(constants::error::AGENT_EVENT_SERIALIZES);
     let preview_json =
         serde_json::to_value(preview).expect(constants::error::AGENT_EVENT_SERIALIZES);
-    let preview_text =
-        serde_json::to_string(&preview_json).expect(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         discovery_json["discoveryStatus"],
@@ -159,7 +157,28 @@ fn lan_pairing_discovery_challenge_and_proof_preview_make_unsupported_status_exp
         preview_json["proofDigest"],
         constants::lan_pairing::PROOF_DIGEST
     );
-    assert!(!preview_text.contains("rawToken"));
+    assert_lan_discovery_surface_has_no_sensitive_markers(&discovery_json);
+    assert_lan_discovery_surface_has_no_sensitive_markers(&challenge_json);
+    assert_lan_discovery_surface_has_no_sensitive_markers(&preview_json);
+}
+
+fn assert_lan_discovery_surface_has_no_sensitive_markers(value: &serde_json::Value) {
+    let serialized = serde_json::to_string(value).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    for marker in [
+        "activity.sqlite",
+        "activity.ndjson",
+        "activityDigest",
+        "controlAuthority",
+        "decryptedEvidence",
+        "evidenceReferences",
+        "journalPath",
+        "rawEvidence",
+        "rawProofSecret",
+        "rawToken",
+        "sqlitePath",
+    ] {
+        assert!(!serialized.contains(marker));
+    }
 }
 
 #[test]

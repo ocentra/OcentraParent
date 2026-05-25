@@ -326,6 +326,20 @@ async fn lan_pairing_status_marks_discovery_planned_while_anonymous_control_stay
         AgentEventName::AgentLanPairingStatusReported
     );
     assert_status_support_surface(&loopback_status);
+    for field in [
+        constants::field::ACTIVITY_DIGEST,
+        constants::field::BROWSER_EVIDENCE_ID,
+        constants::field::CIPHERTEXT,
+        constants::field::DATABASE_READY,
+        constants::field::ENTRIES,
+        constants::field::LAN_EVIDENCE_REFERENCE_IDS,
+        constants::field::PROCESS_PATH,
+        constants::field::PROFILE_PATH_REF,
+        constants::field::URL,
+        constants::field::WINDOW_TITLE,
+    ] {
+        assert_eq!(loopback_status.payload.get(field), None);
+    }
     assert_rejection(&anonymous_control, constants::value::LAN_REASON_ANONYMOUS);
 }
 
