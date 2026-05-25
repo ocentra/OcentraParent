@@ -7,7 +7,7 @@ import {
   PortalTextToken,
   PortalUnifiedChrome,
 } from '@ocentra-parent/portal-domain/contracts';
-import { GameFooter } from '../../../vendor/ocentra-games-core-ui/Footer/GameFooter';
+import { UnifiedFooter } from '../../../vendor/ocentra-games-core-ui/Footer/UnifiedFooter';
 import { UnifiedPageShell } from '../../../vendor/ocentra-games-core-ui/Shell/UnifiedPageShell';
 import { PortalHeaderSvgFrame } from './PortalHeaderSvgFrame';
 
@@ -121,7 +121,7 @@ export function PortalUnifiedShell({ children, onAuthOpen }: PortalUnifiedShellP
   return (
     <UnifiedPageShell
       className={PortalUnifiedChrome.Classes.Shell}
-      footer={<GameFooter appVersion={PortalUnifiedChrome.Version.App} />}
+      footer={<UnifiedFooter appVersion={PortalUnifiedChrome.Version.App} />}
       header={<PortalOutlineHeader onAuthOpen={onAuthOpen} />}
       viewportLocked={true}
       workClassName={PortalUnifiedChrome.Classes.ShellWork}

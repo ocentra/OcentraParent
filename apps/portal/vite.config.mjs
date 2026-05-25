@@ -90,20 +90,8 @@ export default defineConfig({
       '@ocentra/app-assets/banners': vendorModule(
         '../../vendor/ocentra-games-core-ui/shims/ocentra-app-assets-banners.ts'
       ),
-      '@ocentra/app-assets/cardgame': vendorModule(
-        '../../vendor/ocentra-games-core-ui/shims/ocentra-app-assets-cardgame.ts'
-      ),
       '@ocentra/app-assets/placeholders': vendorModule(
         '../../vendor/ocentra-games-core-ui/shims/ocentra-app-assets-placeholders.ts'
-      ),
-      '@ocentra/app-assets/shop-page': vendorModule(
-        '../../vendor/ocentra-games-core-ui/shims/ocentra-app-assets-shop-page.ts'
-      ),
-      '@ocentra/endpoint-domain/constants/local': vendorModule(
-        '../../vendor/ocentra-games-core-ui/shims/ocentra-local-endpoints.ts'
-      ),
-      '@ocentra/endpoint-domain/constants/public-routes': vendorModule(
-        '../../vendor/ocentra-games-core-ui/shims/ocentra-public-routes.ts'
       ),
       '@ocentra/schema-domain/effect-builder': vendorModule(
         '../../vendor/ocentra-games-core-ui/schema-domain/effect-builder.ts'
@@ -111,8 +99,6 @@ export default defineConfig({
       '@ocentra/game-asset-domain/schemas/parent-portal-page-content-schema': vendorModule(
         '../../vendor/ocentra-games-core-ui/game-asset-domain/schemas/parent-portal-page-content-schema.ts'
       ),
-      '@tauri-apps/api/core': vendorModule('../../vendor/ocentra-games-core-ui/shims/tauri-core.ts'),
-      'react-router-dom': vendorModule('../../vendor/ocentra-games-core-ui/shims/react-router-dom.ts'),
     },
   },
   plugins: [

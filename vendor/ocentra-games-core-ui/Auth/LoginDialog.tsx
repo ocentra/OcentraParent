@@ -93,7 +93,7 @@ export function LoginDialog({
   onTabSwitch,
   adminRequired = false,
   adminMessage = 'You need to be an administrator to access this page. Please sign in with an admin account.',
-  brandTitle = 'Ocentra Games',
+  brandTitle = 'Ocentra Parent',
   statusMessage = null,
   secondaryActions = [],
   contextEyebrow,

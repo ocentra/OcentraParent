@@ -62,10 +62,10 @@ export const PortalUnifiedChrome = {
 } as const;
 
 export const PortalAssets = {
-  AnonymousProfile: '/ocentra-game-assets/auth/annon.png',
+  AnonymousProfile: '/header-login.svg',
   HeaderHomeIcon: '/nav-overview.svg',
   HeaderLoginIcon: '/header-login.svg',
-  HeaderLogo: '/ocentra-game-assets/commons/OcentraLogo.svg',
+  HeaderLogo: '/ocentra-logo.svg',
 } as const;
 
 export const PortalExternalLinks = {

@@ -1,6 +1,6 @@
-export const mlogoImageUrl = '/ocentra-game-assets/commons/OcentraLogo.svg';
-export const ocentraFaviconImageUrl = '/ocentra-game-assets/commons/OcentraLogo.svg';
-export const ocentraLogoCommetImageUrl = '/ocentra-game-assets/commons/OcentraLogo.svg';
-export const ocentraLogoImageUrl = '/ocentra-game-assets/commons/OcentraLogo.svg';
-export const reactImageUrl = '/ocentra-game-assets/commons/OcentraLogo.svg';
-export const solanaImageUrl = '/ocentra-game-assets/commons/OcentraLogo.svg';
+export const mlogoImageUrl = '/ocentra-logo.svg';
+export const ocentraFaviconImageUrl = '/favicon.svg';
+export const ocentraLogoCommetImageUrl = '/parent-orbit-mark.svg';
+export const ocentraLogoImageUrl = '/ocentra-logo.svg';
+export const reactImageUrl = '/parent-control-glyph.svg';
+export const solanaImageUrl = '/parent-control-glyph.svg';

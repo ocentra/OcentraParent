@@ -198,7 +198,7 @@ describe('portal shared constants', () => {
   it('PortalAssets: exposes auth assets and external links', () => {
     expect(PortalAssets.HeaderHomeIcon).toBe('/nav-overview.svg');
     expect(PortalAssets.HeaderLoginIcon).toBe('/header-login.svg');
-    expect(PortalAssets.HeaderLogo).toBe('/ocentra-game-assets/commons/OcentraLogo.svg');
+    expect(PortalAssets.HeaderLogo).toBe('/ocentra-logo.svg');
     expect(PortalExternalLinks.Ocentra).toBe('https://ocentra.ca');
     expect(decodePortalClipboardText('copy payload')).toBe('copy payload');
   });
