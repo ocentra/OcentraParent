@@ -188,7 +188,7 @@ Commands and observations:
 | DEB contents           | `dpkg-deb --contents <deb>`                                                                                   | Listed `/lib/systemd/system/ocentra-parent-agent.service`, `/opt/ocentra/ocentra-parent-agent/bin/ocentra-parent-agent-service`, `/var/lib/ocentra/...`, and `/var/log/ocentra/...`.      | `ci-mechanical-proof`                     |
 | Extracted DEB launch   | Extracted the DEB under WSL and tried to run `ocentra-parent-agent-service` on `127.0.0.1:4681`, then health. | Failed before binding: `/lib/x86_64-linux-gnu/libc.so.6: version GLIBC_2.39 not found`; WSL Ubuntu 22.04 has glibc `2.35`; curl health failed with exit `7` because no service was bound. | `blocked` for Ubuntu 22.04 package launch |
 
-Linux conclusion:
+Original Linux conclusion from this current-main proof pass:
 
 - Hosted CI proves Linux DEB build and install/remove smoke on its runner.
 - WSL proves the pre-AI matrix still runs locally on Ubuntu 22.04 and can
@@ -198,6 +198,24 @@ Linux conclusion:
   the preview target is Ubuntu 24.04+ only or whether the package should build
   against an older glibc baseline.
 - Docker proof is `unavailable` on this host because the Docker CLI is absent.
+
+Follow-up Linux baseline implementation:
+
+- Branch `codex/linux-package-baseline-and-package-proof` selects the older
+  supported target instead of making the Linux package Ubuntu 24.04+ only:
+  Ubuntu 22.04 `amd64` with glibc `2.35`.
+- The follow-up record is
+  `docs/checkpoints/linux-package-baseline-and-package-proof-2026-05-25.md`.
+- Local WSL Ubuntu 22.04.5 proof on that branch built
+  `ocentra-parent-agent-linux-amd64-v0.1.1.deb`, recorded
+  `X-Ocentra-Linux-Baseline: ubuntu-22.04`,
+  `X-Ocentra-Min-GLIBC: 2.35`, and `X-Ocentra-Build-GLIBC: 2.35`, launched the
+  extracted service on `/health`, and ran DEB install/remove with passwordless
+  `sudo`.
+- This follow-up narrows the Linux package baseline gap only. Docker, real
+  Linux reboot/autostart, desktop capture, network attribution, enforcement
+  adapters, and managed-device behavior remain unavailable, manual-required, or
+  not-yet-proven until separate host/device proof exists.
 
 ## Android Emulator Proof
 
@@ -326,21 +344,33 @@ real devices.
 
 ### Linux Package Baseline
 
-Use an Ubuntu 24.04 or newer VM/container first because the current artifact
-requires `GLIBC_2.39`, or rebuild the Linux package against the intended
-minimum distro baseline.
+The follow-up branch
+`codex/linux-package-baseline-and-package-proof` rebuilds the Linux DEB against
+Ubuntu 22.04/glibc `2.35` and records that baseline in the package metadata.
+After that branch lands, use an Ubuntu 22.04 VM/device or Docker image first.
+Use Ubuntu 24.04+ only as a newer-runtime compatibility check, not as the
+minimum baseline.
 
 ```bash
-dpkg-deb --field ocentra-parent-agent-linux-amd64-v0.1.1.deb Package Version Architecture
+grep -E '^(PRETTY_NAME|VERSION_ID|ID)=' /etc/os-release
+getconf GNU_LIBC_VERSION
+sha256sum --check ocentra-parent-agent-linux-amd64-latest.deb.sha256
+dpkg-deb --field ocentra-parent-agent-linux-amd64-latest.deb \
+  Package Version Architecture Depends X-Ocentra-Linux-Baseline X-Ocentra-Min-GLIBC X-Ocentra-Build-GLIBC
 sudo dpkg -i ocentra-parent-agent-linux-amd64-v0.1.1.deb
 systemctl status ocentra-parent-agent.service --no-pager
 curl -i --max-time 10 http://127.0.0.1:4477/health
+sudo reboot
+systemctl status ocentra-parent-agent.service --no-pager
 sudo dpkg -r ocentra-parent-agent
+sudo dpkg -P ocentra-parent-agent
 ```
 
 Record distro, kernel, glibc, systemd state, install/remove output, service
-status, health payload, and unsupported desktop capture/network/enforcement
-capability labels.
+status before and after reboot, health payload, and unsupported desktop
+capture/network/enforcement capability labels. Do not upgrade Linux desktop,
+network, enforcement, managed-device, signing, store, or update claims from
+package smoke alone.
 
 ### macOS Host
 
@@ -395,9 +425,11 @@ notification, and background execution entitlement availability.
 
 - CI run `26415925682` is current-main green for `b9ed9dc`, but it remains
   CI-mechanical proof for privileged OS/device behavior.
-- The WSL Ubuntu 22.04 package launch failure means Linux preview support needs
-  an explicit distro/glibc baseline decision before owners treat the DEB as
-  broadly installable.
+- The historical WSL Ubuntu 22.04 package launch failure is resolved by the
+  follow-up branch `codex/linux-package-baseline-and-package-proof`, which
+  selects Ubuntu 22.04/glibc `2.35` as the explicit preview baseline and proves
+  a local WSL build/smoke. Treat this as branch evidence until branch CI or
+  post-merge CI uploads a new Linux preview artifact from `ubuntu-22.04`.
 - Current LAN WebSocket proof is real service code, but it is still one-host
   dev-mode proof unless a separate parent and child device run it over the LAN.
 - Android emulator install/launch proof does not prove a long-lived agent,
@@ -413,7 +445,7 @@ enforcement work. This branch makes current-main CI/package proof and available
 manual platform proof reviewable while preserving unsupported product claims as
 manual-required, blocked, unavailable, scaffold-only, or not-yet-proven.
 
-## PR Body Outline
+## Historical PR Body Outline For This Proof Record
 
 ```text
 Scope
@@ -440,7 +472,7 @@ Validation
 
 Known gaps and risks
 - Real two-device household LAN is still manual-required.
-- Linux DEB launch is blocked on WSL Ubuntu 22.04 by GLIBC_2.39 requirement.
+- Linux DEB launch was blocked on WSL Ubuntu 22.04 by GLIBC_2.39 requirement in this historical proof; the follow-up Linux baseline branch owns the fix and new proof record.
 - macOS host, iOS simulator/device/TestFlight/entitlements, Android physical device, package lifecycle, signing, stores, reboot, and autostart remain manual-required or blocked.
 - No proof-matrix, roadmap, portal, package script, runtime, or workflow code changed.
 

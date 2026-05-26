@@ -51,12 +51,18 @@ jobs:
 
   linux-deb:
     name: Linux DEB Preview
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v6
 
       - uses: ./.github/actions/setup-ci
+
+      - name: Record Linux package baseline
+        run: |
+          . /etc/os-release
+          echo "package-baseline=$PRETTY_NAME"
+          getconf GNU_LIBC_VERSION
 
       - name: Build Linux DEB package
         run: bash scripts/release/linux/build-agent-package.sh
@@ -71,6 +77,8 @@ jobs:
           path: |
             target/release-packages/linux/*.deb
             target/release-packages/linux/*.sha256
+            target/release-packages/linux/linux-baseline.json
+            test-results/linux-package-smoke/*
 
   macos-pkg:
     name: macOS PKG Preview
