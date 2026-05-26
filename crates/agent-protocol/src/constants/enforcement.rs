@@ -82,6 +82,7 @@ pub const AUDIT_ROLLBACK_REQUESTED: &str = "rollback-requested";
 pub const AUDIT_ROLLBACK_COMPLETED: &str = "rollback-completed";
 pub const AUDIT_EXPIRED: &str = "expired";
 pub const AUDIT_UNAVAILABLE: &str = "unavailable";
+pub const AUDIT_CANCELLED: &str = "cancelled";
 
 pub const PLATFORM_WINDOWS: &str = "windows";
 pub const PLATFORM_LINUX: &str = "linux";
@@ -100,6 +101,9 @@ pub const REJECTION_PROCESS_ID_REQUIRED: &str = "enforcement-process-id-required
 pub const REJECTION_POLICY_VERSION_REQUIRED: &str = "enforcement-policy-version-required";
 pub const REJECTION_RULE_ID_REQUIRED: &str = "enforcement-rule-id-required";
 pub const REJECTION_REASON_CODE_REQUIRED: &str = "enforcement-reason-code-required";
+pub const REJECTION_ACTIVE_TIMER_STATE_REQUIRED: &str = "enforcement-active-timer-state-required";
+pub const REJECTION_ACTIVE_TIMER_STATE_MISMATCH: &str = "enforcement-active-timer-state-mismatch";
+pub const REJECTION_PARENT_ACTION_REQUIRED: &str = "enforcement-parent-action-required";
 
 pub const SOURCE_ID_AGENT_SERVICE: &str = "enforcement-agent-service";
 pub const INTENT_ID_PREFIX: &str = "enforcement-intent-";
@@ -108,6 +112,8 @@ pub const RESULT_ID_PREFIX: &str = "enforcement-result-";
 pub const AUDIT_EVENT_ID_PREFIX: &str = "enforcement-audit-";
 pub const TIMER_EVENT_ID_PREFIX: &str = "enforcement-timer-";
 pub const ROLLBACK_TOKEN_PREFIX: &str = "enforcement-rollback-";
+pub const TIMER_STATE_ID_PREFIX: &str = "enforcement-timer-state-";
+pub const TIMER_STATE_FILE_NAME: &str = "ocentra-parent-enforcement-timers.json";
 
 pub const TEST_INTENT_ID: &str = "intent-1";
 pub const TEST_ACTION_ID: &str = "action-1";
@@ -116,6 +122,7 @@ pub const TEST_AUDIT_EVENT_ID: &str = "audit-1";
 pub const TEST_TIMER_EVENT_ID: &str = "timer-1";
 pub const TEST_ROLLBACK_TOKEN: &str = "rollback-1";
 pub const TEST_PARENT_ACTION_REFERENCE_ID: &str = "parent-action-reference-1";
+pub const TEST_TIMER_STATE_ID: &str = "timer-state-1";
 pub const TEST_IDEMPOTENCY_KEY: &str = "decision-1:target-process-1";
 pub const TEST_JOURNAL_SEQUENCE: &str = "journal-sequence-1";
 pub const TEST_PROCESS_TARGET_ID: &str = "target-process-1";

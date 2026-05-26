@@ -81,6 +81,33 @@ fn process_control_capability_only_advertises_wired_process_action() {
     }
 }
 
+#[test]
+fn timer_control_capability_advertises_parent_timer_action_on_every_platform() {
+    let capability = timer_control_capability(policy::TEST_EVALUATED_AT);
+
+    assert_eq!(
+        capability.adapter_kind,
+        EnforcementAdapterKind::TimerControl
+    );
+    assert_eq!(
+        capability.capability_state.as_protocol_str(),
+        enforcement::CAPABILITY_SUPPORTED
+    );
+    assert_eq!(
+        capability.permission_state,
+        EnforcementPermissionState::NotRequired
+    );
+    assert_eq!(
+        capability.dependency_state,
+        EnforcementDependencyState::Installed
+    );
+    assert_eq!(
+        capability.supported_actions,
+        vec![EnforcementMode::AskParent]
+    );
+    assert_eq!(capability.degraded_reason, None);
+}
+
 fn boundary_input(
     decision: PolicyDecision,
     capability: EnforcementCapabilityStatus,

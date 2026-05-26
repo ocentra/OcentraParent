@@ -86,13 +86,22 @@ fn policy_preview_command_and_event_names_serialize_to_contract_shape() {
 
 #[test]
 fn enforcement_command_and_event_names_serialize_to_contract_shape() {
-    let command = serde_json::to_value(AgentCommandName::AgentEnforcementExecute)
+    let execute_command = serde_json::to_value(AgentCommandName::AgentEnforcementExecute)
         .expect("command serializes");
-    let event = serde_json::to_value(AgentEventName::AgentEnforcementAuditReported)
+    let recover_command = serde_json::to_value(AgentCommandName::AgentEnforcementTimerRecover)
+        .expect("command serializes");
+    let cancel_command = serde_json::to_value(AgentCommandName::AgentEnforcementOverrideCancel)
+        .expect("command serializes");
+    let audit_event = serde_json::to_value(AgentEventName::AgentEnforcementAuditReported)
+        .expect("event serializes");
+    let timer_event = serde_json::to_value(AgentEventName::AgentEnforcementTimerReported)
         .expect("event serializes");
 
-    assert_eq!(command, "agent.enforcement.execute");
-    assert_eq!(event, "agent.enforcement.audit.reported");
+    assert_eq!(execute_command, "agent.enforcement.execute");
+    assert_eq!(recover_command, "agent.enforcement.timer.recover");
+    assert_eq!(cancel_command, "agent.enforcement.override.cancel");
+    assert_eq!(audit_event, "agent.enforcement.audit.reported");
+    assert_eq!(timer_event, "agent.enforcement.timer.reported");
 }
 
 #[test]

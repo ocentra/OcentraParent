@@ -12,6 +12,7 @@ use crate::{
     },
     browser_runtime::build_browser_managed_status_report,
     enforcement_api::build_enforcement_audit_report,
+    enforcement_timer_api::build_enforcement_timer_report,
     event_builder::{build_event, portal_peer},
     fields::fields_from_pairs,
     lan_pairing::{
@@ -159,6 +160,10 @@ async fn handle_command(
             build_policy_preview_read_model_report(command).await
         }
         AgentCommandName::AgentEnforcementExecute => build_enforcement_audit_report(command).await,
+        AgentCommandName::AgentEnforcementTimerRecover
+        | AgentCommandName::AgentEnforcementOverrideCancel => {
+            build_enforcement_timer_report(command).await
+        }
         AgentCommandName::AgentLanPairingProofSubmit
         | AgentCommandName::AgentLanPairingRouteSelect
         | AgentCommandName::AgentLanPairingRouteRevoke

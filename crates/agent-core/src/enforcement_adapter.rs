@@ -1,12 +1,10 @@
 use ocentra_parent_agent_protocol::{
     constants::enforcement as enforcement_constants, policy_constants, EnforcementAdapterKind,
     EnforcementAdapterResultCode, EnforcementCapabilityState, EnforcementCapabilityStatus,
-    EnforcementDependencyState, EnforcementPermissionState, EnforcementResultStatus,
-    EnforcementRollbackState, EnforcementUnavailableReason, ParentPlatform,
+    EnforcementDependencyState, EnforcementMode, EnforcementPermissionState,
+    EnforcementResultStatus, EnforcementRollbackState, EnforcementUnavailableReason,
+    ParentPlatform,
 };
-
-#[cfg(windows)]
-use ocentra_parent_agent_protocol::EnforcementMode;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct EnforcementAdapterOutcome {
@@ -56,6 +54,20 @@ pub fn process_control_capability(checked_at: &str) -> EnforcementCapabilityStat
             ),
             last_checked_at: checked_at.to_string(),
         }
+    }
+}
+
+pub fn timer_control_capability(checked_at: &str) -> EnforcementCapabilityStatus {
+    EnforcementCapabilityStatus {
+        schema_version: policy_constants::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
+        platform: timer_control_platform(),
+        adapter_kind: EnforcementAdapterKind::TimerControl,
+        capability_state: EnforcementCapabilityState::Supported,
+        permission_state: EnforcementPermissionState::NotRequired,
+        dependency_state: EnforcementDependencyState::Installed,
+        supported_actions: vec![EnforcementMode::AskParent],
+        degraded_reason: None,
+        last_checked_at: checked_at.to_string(),
     }
 }
 
@@ -184,6 +196,16 @@ fn adapter_result_code_for_unavailable_reason(
             EnforcementAdapterResultCode::AdapterUnavailable
         }
     }
+}
+
+#[cfg(windows)]
+fn timer_control_platform() -> ParentPlatform {
+    ParentPlatform::Windows
+}
+
+#[cfg(not(windows))]
+fn timer_control_platform() -> ParentPlatform {
+    current_platform()
 }
 
 #[cfg(not(windows))]

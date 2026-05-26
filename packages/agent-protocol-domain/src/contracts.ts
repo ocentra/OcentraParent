@@ -114,6 +114,8 @@ export const AgentCommandNameSchema = withParser(
     'agent.local-ai.chat.generate',
     'agent.policy.preview.read-model.get',
     'agent.enforcement.execute',
+    'agent.enforcement.timer.recover',
+    'agent.enforcement.override.cancel',
     'agent.lan-pairing.proof.submit',
     'agent.lan-pairing.route.select',
     'agent.lan-pairing.route.revoke',
@@ -140,6 +142,7 @@ export const AgentEventNameSchema = withParser(
     'agent.local-ai.chat.generation.reported',
     'agent.policy.preview.read-model.reported',
     'agent.enforcement.audit.reported',
+    'agent.enforcement.timer.reported',
     'agent.lan-pairing.status.reported',
     'agent.lan-pairing.audit.reported'
   )
@@ -201,6 +204,8 @@ export const AgentCommand = {
   LocalAiChatGenerate: AgentCommandNameSchema.parse('agent.local-ai.chat.generate'),
   PolicyPreviewReadModelGet: AgentCommandNameSchema.parse('agent.policy.preview.read-model.get'),
   EnforcementExecute: AgentCommandNameSchema.parse('agent.enforcement.execute'),
+  EnforcementTimerRecover: AgentCommandNameSchema.parse('agent.enforcement.timer.recover'),
+  EnforcementOverrideCancel: AgentCommandNameSchema.parse('agent.enforcement.override.cancel'),
   LanPairingProofSubmit: AgentCommandNameSchema.parse('agent.lan-pairing.proof.submit'),
   LanPairingRouteSelect: AgentCommandNameSchema.parse('agent.lan-pairing.route.select'),
   LanPairingRouteRevoke: AgentCommandNameSchema.parse('agent.lan-pairing.route.revoke'),
@@ -232,6 +237,7 @@ export const AgentEvent = {
   LocalAiChatGenerationReported: AgentEventNameSchema.parse('agent.local-ai.chat.generation.reported'),
   PolicyPreviewReadModelReported: AgentEventNameSchema.parse('agent.policy.preview.read-model.reported'),
   EnforcementAuditReported: AgentEventNameSchema.parse('agent.enforcement.audit.reported'),
+  EnforcementTimerReported: AgentEventNameSchema.parse('agent.enforcement.timer.reported'),
   LanPairingStatusReported: AgentEventNameSchema.parse('agent.lan-pairing.status.reported'),
   LanPairingAuditReported: AgentEventNameSchema.parse('agent.lan-pairing.audit.reported'),
 } as const;
