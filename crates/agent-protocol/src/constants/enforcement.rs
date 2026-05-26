@@ -95,6 +95,19 @@ pub const REJECTION_MISSING_EVIDENCE: &str = "missing-policy-evidence-reference"
 pub const REJECTION_POLICY_ACTION_NOT_ENFORCEABLE: &str = "policy-action-not-enforceable";
 pub const REJECTION_UNSUPPORTED_CAPABILITY: &str = "unsupported-enforcement-capability";
 pub const REJECTION_ADAPTER_RESULT_REQUIRED: &str = "adapter-result-required";
+pub const REJECTION_COMMAND_PAYLOAD_INVALID: &str = "enforcement-command-payload-invalid";
+pub const REJECTION_PROCESS_ID_REQUIRED: &str = "enforcement-process-id-required";
+pub const REJECTION_POLICY_VERSION_REQUIRED: &str = "enforcement-policy-version-required";
+pub const REJECTION_RULE_ID_REQUIRED: &str = "enforcement-rule-id-required";
+pub const REJECTION_REASON_CODE_REQUIRED: &str = "enforcement-reason-code-required";
+
+pub const SOURCE_ID_AGENT_SERVICE: &str = "enforcement-agent-service";
+pub const INTENT_ID_PREFIX: &str = "enforcement-intent-";
+pub const ACTION_ID_PREFIX: &str = "enforcement-action-";
+pub const RESULT_ID_PREFIX: &str = "enforcement-result-";
+pub const AUDIT_EVENT_ID_PREFIX: &str = "enforcement-audit-";
+pub const TIMER_EVENT_ID_PREFIX: &str = "enforcement-timer-";
+pub const ROLLBACK_TOKEN_PREFIX: &str = "enforcement-rollback-";
 
 pub const TEST_INTENT_ID: &str = "intent-1";
 pub const TEST_ACTION_ID: &str = "action-1";

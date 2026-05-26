@@ -141,6 +141,10 @@ fn browser_evidence_values_serialize_to_typescript_contract_shape() {
         constants::activity_event_kind::BROWSER_INTERVENTION_APPLIED
     );
     assert_eq!(
+        ActivityEventKind::EnforcementAuditRecorded.as_protocol_str(),
+        constants::activity_event_kind::ENFORCEMENT_AUDIT_RECORDED
+    );
+    assert_eq!(
         ActivitySubjectKind::Intervention.as_protocol_str(),
         constants::activity_subject_kind::INTERVENTION
     );

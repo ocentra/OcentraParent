@@ -50,6 +50,8 @@ pub enum ActivityEventKind {
     VideoObserved,
     #[serde(rename = "activity.browser.intervention.applied")]
     BrowserInterventionApplied,
+    #[serde(rename = "activity.enforcement.audit-recorded")]
+    EnforcementAuditRecorded,
     #[serde(rename = "activity.device.idle-state-observed")]
     DeviceIdleStateObserved,
     #[serde(rename = "activity.screen.analysis.summarized")]

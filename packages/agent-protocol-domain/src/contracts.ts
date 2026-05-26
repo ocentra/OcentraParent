@@ -113,6 +113,7 @@ export const AgentCommandNameSchema = withParser(
     'agent.local-ai.runtime.status.get',
     'agent.local-ai.chat.generate',
     'agent.policy.preview.read-model.get',
+    'agent.enforcement.execute',
     'agent.lan-pairing.proof.submit',
     'agent.lan-pairing.route.select',
     'agent.lan-pairing.route.revoke',
@@ -138,6 +139,7 @@ export const AgentEventNameSchema = withParser(
     'agent.local-ai.runtime.status.reported',
     'agent.local-ai.chat.generation.reported',
     'agent.policy.preview.read-model.reported',
+    'agent.enforcement.audit.reported',
     'agent.lan-pairing.status.reported',
     'agent.lan-pairing.audit.reported'
   )
@@ -198,6 +200,7 @@ export const AgentCommand = {
   LocalAiRuntimeStatusGet: AgentCommandNameSchema.parse('agent.local-ai.runtime.status.get'),
   LocalAiChatGenerate: AgentCommandNameSchema.parse('agent.local-ai.chat.generate'),
   PolicyPreviewReadModelGet: AgentCommandNameSchema.parse('agent.policy.preview.read-model.get'),
+  EnforcementExecute: AgentCommandNameSchema.parse('agent.enforcement.execute'),
   LanPairingProofSubmit: AgentCommandNameSchema.parse('agent.lan-pairing.proof.submit'),
   LanPairingRouteSelect: AgentCommandNameSchema.parse('agent.lan-pairing.route.select'),
   LanPairingRouteRevoke: AgentCommandNameSchema.parse('agent.lan-pairing.route.revoke'),
@@ -228,6 +231,7 @@ export const AgentEvent = {
   LocalAiRuntimeStatusReported: AgentEventNameSchema.parse('agent.local-ai.runtime.status.reported'),
   LocalAiChatGenerationReported: AgentEventNameSchema.parse('agent.local-ai.chat.generation.reported'),
   PolicyPreviewReadModelReported: AgentEventNameSchema.parse('agent.policy.preview.read-model.reported'),
+  EnforcementAuditReported: AgentEventNameSchema.parse('agent.enforcement.audit.reported'),
   LanPairingStatusReported: AgentEventNameSchema.parse('agent.lan-pairing.status.reported'),
   LanPairingAuditReported: AgentEventNameSchema.parse('agent.lan-pairing.audit.reported'),
 } as const;

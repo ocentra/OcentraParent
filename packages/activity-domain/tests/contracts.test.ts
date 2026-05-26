@@ -69,6 +69,33 @@ describe('activity event contracts', () => {
     expect(parsed.success).toBe(false);
   });
 
+  it('ActivityEventSchema: accepts an enforcement audit journal event', () => {
+    const parsed = ActivityEventSchema.safeParse({
+      schemaVersion: ActivitySchemaVersion,
+      eventId: 'enforcement-audit-1',
+      observedAt: '2026-05-20T00:00:00Z',
+      source: {
+        deviceId: 'child-device-1',
+        platform: 'windows',
+        observer: ActivityObserver.AgentService,
+        sourceId: 'enforcement-service',
+      },
+      kind: ActivityEventKind.EnforcementAuditRecorded,
+      subject: {
+        kind: ActivitySubjectKind.Intervention,
+        subjectId: 'action-1',
+        displayName: 'terminate-process',
+      },
+      fields: {
+        policyDecisionId: 'decision-1',
+        enforcementStatus: 'actually-enforced',
+      },
+      evidence: [],
+    });
+
+    expect(parsed.success).toBe(true);
+  });
+
   it('activity brand decoders: reject empty ids and timestamps', () => {
     expect(decodeActivityEventId('activity-event-1')).toBe('activity-event-1');
     expect(decodeActivityDeviceId('child-device-1')).toBe('child-device-1');

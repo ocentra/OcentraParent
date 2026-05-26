@@ -4,5 +4,6 @@ pub const DOMAIN_OBSERVED: &str = "activity.domain.observed";
 pub const URL_OBSERVED: &str = "activity.url.observed";
 pub const VIDEO_OBSERVED: &str = "activity.video.observed";
 pub const BROWSER_INTERVENTION_APPLIED: &str = "activity.browser.intervention.applied";
+pub const ENFORCEMENT_AUDIT_RECORDED: &str = "activity.enforcement.audit-recorded";
 pub const DEVICE_IDLE_STATE_OBSERVED: &str = "activity.device.idle-state-observed";
 pub const SCREEN_ANALYSIS_SUMMARIZED: &str = "activity.screen.analysis.summarized";

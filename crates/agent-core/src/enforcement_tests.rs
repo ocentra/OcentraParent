@@ -45,6 +45,14 @@ fn dry_run_decision_never_requests_adapter_execution() {
             .as_protocol_str(),
         enforcement::TIMER_CREATED
     );
+    let authorization = authorize_enforcement_boundary(boundary_input(
+        policy_decision(true),
+        supported_capability(),
+    ))
+    .expect(enforcement::ADAPTER_DRY_RUN_NO_ACTION);
+
+    assert!(authorization.action.dry_run);
+    assert_eq!(authorization.adapter_request, None);
 }
 
 #[test]
@@ -166,6 +174,23 @@ fn supported_non_dry_run_requires_adapter_outcome_for_process_control() {
     assert_eq!(
         rejected.as_protocol_str(),
         enforcement::REJECTION_ADAPTER_RESULT_REQUIRED
+    );
+
+    let authorization = authorize_enforcement_boundary(boundary_input(
+        policy_decision(false),
+        supported_capability(),
+    ))
+    .expect(enforcement::ADAPTER_PROCESS_TERMINATED);
+
+    assert!(!authorization.action.dry_run);
+    assert_eq!(
+        authorization
+            .adapter_request
+            .as_ref()
+            .expect(enforcement::TEST_ACTION_ID)
+            .mode
+            .as_protocol_str(),
+        enforcement::MODE_TERMINATE_PROCESS
     );
 }
 
