@@ -11,6 +11,7 @@ use crate::{
         build_browser_intervention_read_model_report, build_network_flow_read_model_report,
     },
     browser_runtime::build_browser_managed_status_report,
+    enforcement_api::build_enforcement_audit_report,
     event_builder::{build_event, portal_peer},
     fields::fields_from_pairs,
     lan_pairing::{
@@ -157,6 +158,7 @@ async fn handle_command(
         AgentCommandName::AgentPolicyPreviewReadModelGet => {
             build_policy_preview_read_model_report(command).await
         }
+        AgentCommandName::AgentEnforcementExecute => build_enforcement_audit_report(command).await,
         AgentCommandName::AgentLanPairingProofSubmit
         | AgentCommandName::AgentLanPairingRouteSelect
         | AgentCommandName::AgentLanPairingRouteRevoke

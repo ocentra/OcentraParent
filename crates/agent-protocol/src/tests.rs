@@ -85,6 +85,17 @@ fn policy_preview_command_and_event_names_serialize_to_contract_shape() {
 }
 
 #[test]
+fn enforcement_command_and_event_names_serialize_to_contract_shape() {
+    let command = serde_json::to_value(AgentCommandName::AgentEnforcementExecute)
+        .expect("command serializes");
+    let event = serde_json::to_value(AgentEventName::AgentEnforcementAuditReported)
+        .expect("event serializes");
+
+    assert_eq!(command, "agent.enforcement.execute");
+    assert_eq!(event, "agent.enforcement.audit.reported");
+}
+
+#[test]
 fn browser_intervention_command_and_event_names_serialize_to_contract_shape() {
     let command = serde_json::to_value(AgentCommandName::AgentBrowserInterventionReadModelGet)
         .expect("command serializes");

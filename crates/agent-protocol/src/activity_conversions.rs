@@ -40,6 +40,9 @@ impl ActivityEventKind {
             Self::BrowserInterventionApplied => {
                 constants::activity_event_kind::BROWSER_INTERVENTION_APPLIED
             }
+            Self::EnforcementAuditRecorded => {
+                constants::activity_event_kind::ENFORCEMENT_AUDIT_RECORDED
+            }
             Self::DeviceIdleStateObserved => {
                 constants::activity_event_kind::DEVICE_IDLE_STATE_OBSERVED
             }
@@ -58,6 +61,9 @@ impl ActivityEventKind {
             constants::activity_event_kind::VIDEO_OBSERVED => Some(Self::VideoObserved),
             constants::activity_event_kind::BROWSER_INTERVENTION_APPLIED => {
                 Some(Self::BrowserInterventionApplied)
+            }
+            constants::activity_event_kind::ENFORCEMENT_AUDIT_RECORDED => {
+                Some(Self::EnforcementAuditRecorded)
             }
             constants::activity_event_kind::DEVICE_IDLE_STATE_OBSERVED => {
                 Some(Self::DeviceIdleStateObserved)

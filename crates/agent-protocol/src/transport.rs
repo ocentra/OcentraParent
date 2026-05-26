@@ -100,6 +100,8 @@ pub enum AgentCommandName {
     AgentLocalAiChatGenerate,
     #[serde(rename = "agent.policy.preview.read-model.get")]
     AgentPolicyPreviewReadModelGet,
+    #[serde(rename = "agent.enforcement.execute")]
+    AgentEnforcementExecute,
     #[serde(rename = "agent.lan-pairing.proof.submit")]
     AgentLanPairingProofSubmit,
     #[serde(rename = "agent.lan-pairing.route.select")]
@@ -144,6 +146,8 @@ pub enum AgentEventName {
     AgentLocalAiChatGenerationReported,
     #[serde(rename = "agent.policy.preview.read-model.reported")]
     AgentPolicyPreviewReadModelReported,
+    #[serde(rename = "agent.enforcement.audit.reported")]
+    AgentEnforcementAuditReported,
     #[serde(rename = "agent.lan-pairing.status.reported")]
     AgentLanPairingStatusReported,
     #[serde(rename = "agent.lan-pairing.audit.reported")]

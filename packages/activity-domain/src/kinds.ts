@@ -20,6 +20,7 @@ export const ActivityEventKindSchema = withParser(
     'activity.url.observed',
     'activity.video.observed',
     'activity.browser.intervention.applied',
+    'activity.enforcement.audit-recorded',
     'activity.device.idle-state-observed',
     'activity.screen.analysis.summarized'
   )
@@ -55,6 +56,7 @@ export const ActivityEventKind = {
   UrlObserved: ActivityEventKindSchema.parse('activity.url.observed'),
   VideoObserved: ActivityEventKindSchema.parse('activity.video.observed'),
   BrowserInterventionApplied: ActivityEventKindSchema.parse('activity.browser.intervention.applied'),
+  EnforcementAuditRecorded: ActivityEventKindSchema.parse('activity.enforcement.audit-recorded'),
   DeviceIdleStateObserved: ActivityEventKindSchema.parse('activity.device.idle-state-observed'),
   ScreenAnalysisSummarized: ActivityEventKindSchema.parse('activity.screen.analysis.summarized'),
 } as const;

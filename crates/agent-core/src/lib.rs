@@ -78,8 +78,9 @@ pub use enforcement_adapter::{
     EnforcementAdapterOutcome, OwnedProcessTerminationTarget,
 };
 pub use enforcement_boundary::{
-    evaluate_enforcement_boundary, EnforcementAdapterRequest, EnforcementBoundaryInput,
-    EnforcementBoundaryOutcome, EnforcementBoundaryRejection,
+    authorize_enforcement_boundary, evaluate_enforcement_boundary, EnforcementAdapterRequest,
+    EnforcementAuthorizationOutcome, EnforcementBoundaryInput, EnforcementBoundaryOutcome,
+    EnforcementBoundaryRejection,
 };
 pub use journal::ActivityJournal;
 pub use journal_crypto::{JournalKey, JOURNAL_KEY_BYTES};

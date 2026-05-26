@@ -71,6 +71,7 @@ it('AgentCommand: exposes typed command constants for portal requests', () => {
   expect(AgentCommand.NetworkFlowReadModelGet).toBe('agent.network.flow.read-model.get');
   expect(AgentCommand.LocalAiRuntimeStatusGet).toBe('agent.local-ai.runtime.status.get');
   expect(AgentCommand.LocalAiChatGenerate).toBe('agent.local-ai.chat.generate');
+  expect(AgentCommand.EnforcementExecute).toBe('agent.enforcement.execute');
   expect(AgentCommand.LanPairingProofSubmit).toBe('agent.lan-pairing.proof.submit');
   expect(AgentCommand.LanPairingRouteSelect).toBe('agent.lan-pairing.route.select');
   expect(AgentCommand.LanPairingRouteRevoke).toBe('agent.lan-pairing.route.revoke');
@@ -149,6 +150,10 @@ it('AgentProtocolDefaults.Field: exposes read-model payload fields', () => {
   expect(AgentProtocolDefaults.Field.WindowId).toBe('windowId');
   expect(AgentProtocolDefaults.Field.CapabilityStatus).toBe('capabilityStatus');
   expect(AgentProtocolDefaults.Field.DestinationDomain).toBe('destinationDomain');
+  expect(AgentProtocolDefaults.Field.EnforcementActionId).toBe('enforcementActionId');
+  expect(AgentProtocolDefaults.Field.EnforcementAuditEvent).toBe('enforcementAuditEvent');
+  expect(AgentProtocolDefaults.Field.EnforcementStatus).toBe('enforcementStatus');
+  expect(AgentProtocolDefaults.Field.EvidenceReferenceIds).toBe('evidenceReferenceIds');
   expect(AgentProtocolDefaults.Field.MostRecentSubjectName).toBe('mostRecentSubjectName');
   expect(AgentProtocolDefaults.Field.UnmanagedBrowserEnforcement).toBe('unmanagedBrowserEnforcement');
 });
@@ -167,6 +172,7 @@ it('AgentEvent: exposes typed constants for portal result rendering', () => {
   expect(AgentEvent.NetworkFlowReadModelReported).toBe('agent.network.flow.read-model.reported');
   expect(AgentEvent.LocalAiRuntimeStatusReported).toBe('agent.local-ai.runtime.status.reported');
   expect(AgentEvent.LocalAiChatGenerationReported).toBe('agent.local-ai.chat.generation.reported');
+  expect(AgentEvent.EnforcementAuditReported).toBe('agent.enforcement.audit.reported');
   expect(AgentEvent.LanPairingStatusReported).toBe('agent.lan-pairing.status.reported');
   expect(AgentEvent.LanPairingAuditReported).toBe('agent.lan-pairing.audit.reported');
 });

@@ -7,8 +7,13 @@ use ocentra_parent_agent_protocol::{
     ParentPlatform, PolicyAction, PolicyDecision, PolicyTargetType,
 };
 
+mod enforcement_authorization;
 mod enforcement_timer_event;
 mod enforcement_unavailable_status;
+
+pub use enforcement_authorization::{
+    authorize_enforcement_boundary, EnforcementAuthorizationOutcome,
+};
 
 use enforcement_timer_event::timer_event;
 use enforcement_unavailable_status::{
