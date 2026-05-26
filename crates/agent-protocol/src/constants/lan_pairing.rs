@@ -4,6 +4,7 @@ pub const COMMAND_ROUTE_REVOKE: &str = "agent.lan-pairing.route.revoke";
 pub const COMMAND_STATUS_GET: &str = "agent.lan-pairing.status.get";
 pub const EVENT_STATUS_REPORTED: &str = "agent.lan-pairing.status.reported";
 pub const EVENT_AUDIT_REPORTED: &str = "agent.lan-pairing.audit.reported";
+pub const LOCAL_CHILD_DEVICE_ID_ENV: &str = "OCENTRA_PARENT_AGENT_LAN_CHILD_DEVICE_ID";
 pub const SUPPORTED_WEBSOCKET_COMMANDS: &[&str] = &[
     COMMAND_PROOF_SUBMIT,
     COMMAND_ROUTE_SELECT,

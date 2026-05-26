@@ -26,6 +26,7 @@ use crate::{
 pub struct LanPairingRuntime {
     pub(crate) registry: Arc<Mutex<TrustedDeviceRegistry>>,
     pub(crate) persistence: LanPairingRegistryPersistence,
+    pub(crate) local_child_device_id: Option<String>,
 }
 
 #[derive(Clone, Debug)]
@@ -98,6 +99,9 @@ async fn submit_pairing_proof(
 ) -> AgentEventEnvelope {
     match parse_pairing_proof(&command.payload) {
         Ok(proof) => {
+            if let Err(reason) = validate_pairing_proof_target(&runtime, &command, &proof) {
+                return pairing_rejection_event(command, reason);
+            }
             let child_device = device_ref(&proof.child_device_id, &command.target.platform);
             let parent_device = device_ref(&proof.parent_device_id, &command.target.platform);
             let trusted_at = timestamp_now();
@@ -126,7 +130,7 @@ fn lan_pairing_route_select(
 ) -> AgentEventEnvelope {
     let observed_origin = origin.as_deref();
     match parse_intent(&command.payload) {
-        Ok(intent) => match validate_command_target(&command, &intent)
+        Ok(intent) => match validate_command_target(&runtime, &command, &intent)
             .and_then(|()| validate_selection_intent_result(&runtime, observed_origin, &intent))
         {
             Ok(()) => match select_pairing_result(&runtime, &intent) {
@@ -152,7 +156,7 @@ fn lan_pairing_status_get(
 ) -> AgentEventEnvelope {
     let observed_origin = origin.as_deref();
     match parse_intent(&command.payload) {
-        Ok(intent) => match validate_command_target(&command, &intent)
+        Ok(intent) => match validate_command_target(&runtime, &command, &intent)
             .and_then(|()| validate_selection_intent_result(&runtime, observed_origin, &intent))
         {
             Ok(()) => {
@@ -175,7 +179,7 @@ fn lan_pairing_route_revoke(
 ) -> AgentEventEnvelope {
     let observed_origin = origin.as_deref();
     match parse_intent(&command.payload) {
-        Ok(intent) => match validate_command_target(&command, &intent)
+        Ok(intent) => match validate_command_target(&runtime, &command, &intent)
             .and_then(|()| validate_selection_intent_result(&runtime, observed_origin, &intent))
         {
             Ok(()) => {
@@ -197,7 +201,7 @@ fn validate_control_intent(
     command: AgentCommandEnvelope,
     intent: LanParentIntentEnvelope,
 ) -> LanCommandDecision {
-    match validate_command_target(&command, &intent)
+    match validate_command_target(&runtime, &command, &intent)
         .and_then(|()| validate_intent_result(&runtime, origin, &intent))
     {
         Ok(()) => LanCommandDecision::Continue {
@@ -210,14 +214,43 @@ fn validate_control_intent(
     }
 }
 
+fn validate_pairing_proof_target(
+    runtime: &LanPairingRuntime,
+    command: &AgentCommandEnvelope,
+    proof: &ocentra_parent_agent_protocol::LanPairingProof,
+) -> Result<(), LanPairingRejectionReason> {
+    validate_local_child_target(runtime, command)?;
+    if command.target.device_id.as_str() == proof.child_device_id.as_str() {
+        Ok(())
+    } else {
+        Err(LanPairingRejectionReason::WrongDevice)
+    }
+}
+
 fn validate_command_target(
+    runtime: &LanPairingRuntime,
     command: &AgentCommandEnvelope,
     intent: &LanParentIntentEnvelope,
 ) -> Result<(), LanPairingRejectionReason> {
+    validate_local_child_target(runtime, command)?;
     if command.target.device_id.as_str() == intent.target_child_device_id.as_str() {
         Ok(())
     } else {
         Err(LanPairingRejectionReason::WrongDevice)
+    }
+}
+
+fn validate_local_child_target(
+    runtime: &LanPairingRuntime,
+    command: &AgentCommandEnvelope,
+) -> Result<(), LanPairingRejectionReason> {
+    match runtime.local_child_device_id.as_deref() {
+        Some(local_child_device_id)
+            if command.target.device_id.as_str() != local_child_device_id =>
+        {
+            Err(LanPairingRejectionReason::WrongDevice)
+        }
+        _ => Ok(()),
     }
 }
 

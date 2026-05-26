@@ -16,6 +16,7 @@ import {
   LanPairingTimestampSchema,
   LanPairingTrustStateSchema,
 } from './lan-pairing-values';
+import { LanPairingRuntimeSupportStatusSchema } from './lan-pairing-support';
 
 export const LanPairingEnablementSchema = withParser(
   Schema.Struct({
@@ -38,6 +39,7 @@ export const LanPairingDiscoveryDeviceSchema = withParser(
     networkMode: LanPairingNetworkModeSchema,
     reachability: LanPairingDeviceReachabilitySchema,
     addressRef: LanPairingAddressRefSchema,
+    discoveryStatus: LanPairingRuntimeSupportStatusSchema,
   })
 );
 
@@ -51,6 +53,22 @@ export const LanPairingChallengeSchema = withParser(
     origin: LanPairingOriginSchema,
     issuedAt: LanPairingTimestampSchema,
     expiresAt: LanPairingTimestampSchema,
+    challengeStatus: LanPairingRuntimeSupportStatusSchema,
+  })
+);
+
+export const LanPairingProofPreviewSchema = withParser(
+  Schema.Struct({
+    schemaVersion: LanPairingSchemaVersionSchema,
+    challengeId: LanPairingChallengeIdSchema,
+    childDeviceId: ParentDeviceIdSchema,
+    parentDeviceId: ParentDeviceIdSchema,
+    routeId: LanPairingRouteIdSchema,
+    origin: LanPairingOriginSchema,
+    proofDigest: LanPairingProofDigestSchema,
+    issuedAt: LanPairingTimestampSchema,
+    expiresAt: LanPairingTimestampSchema,
+    proofPreviewStatus: LanPairingRuntimeSupportStatusSchema,
   })
 );
 
@@ -100,6 +118,7 @@ export const LanSelectedRouteTargetSchema = withParser(
 export type LanPairingEnablement = Infer<typeof LanPairingEnablementSchema>;
 export type LanPairingDiscoveryDevice = Infer<typeof LanPairingDiscoveryDeviceSchema>;
 export type LanPairingChallenge = Infer<typeof LanPairingChallengeSchema>;
+export type LanPairingProofPreview = Infer<typeof LanPairingProofPreviewSchema>;
 export type LanPairingProof = Infer<typeof LanPairingProofSchema>;
 export type LanTrustedDeviceRegistryEntry = Infer<typeof LanTrustedDeviceRegistryEntrySchema>;
 export type LanSelectedRouteTarget = Infer<typeof LanSelectedRouteTargetSchema>;
