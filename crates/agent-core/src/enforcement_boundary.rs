@@ -453,9 +453,8 @@ fn audit_kind(status: EnforcementResultStatus) -> EnforcementAuditEventKind {
         EnforcementResultStatus::Failed => EnforcementAuditEventKind::Failed,
         EnforcementResultStatus::Expired => EnforcementAuditEventKind::Expired,
         EnforcementResultStatus::RolledBack => EnforcementAuditEventKind::RollbackCompleted,
-        EnforcementResultStatus::Superseded | EnforcementResultStatus::NoOp => {
-            EnforcementAuditEventKind::Attempted
-        }
+        EnforcementResultStatus::Superseded => EnforcementAuditEventKind::Cancelled,
+        EnforcementResultStatus::NoOp => EnforcementAuditEventKind::Attempted,
     }
 }
 

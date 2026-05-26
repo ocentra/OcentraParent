@@ -10,6 +10,8 @@ pub mod env_var {
     pub const AGENT_LAN_PAIRING_REGISTRY_PATH: &str =
         "OCENTRA_PARENT_AGENT_LAN_PAIRING_REGISTRY_PATH";
     pub const AGENT_LOCAL_NETWORK_ENABLED: &str = "OCENTRA_PARENT_AGENT_LOCAL_NETWORK_ENABLED";
+    pub const AGENT_ENFORCEMENT_TIMER_STATE_PATH: &str =
+        "OCENTRA_PARENT_AGENT_ENFORCEMENT_TIMER_STATE_PATH";
     pub const ACTIVITY_DB_PATH: &str = "OCENTRA_PARENT_ACTIVITY_DB_PATH";
     pub const ACTIVITY_JOURNAL_KEY_PATH: &str = "OCENTRA_PARENT_ACTIVITY_JOURNAL_KEY_PATH";
     pub const ACTIVITY_JOURNAL_PATH: &str = "OCENTRA_PARENT_ACTIVITY_JOURNAL_PATH";
@@ -77,6 +79,7 @@ pub mod event_id {
     pub const LOCAL_AI_CHAT_GENERATION_REPORTED: &str = "local-ai-chat-generation-reported";
     pub const POLICY_PREVIEW_READ_MODEL_REPORTED: &str = "policy-preview-read-model-reported";
     pub const ENFORCEMENT_AUDIT_REPORTED: &str = "enforcement-audit-reported";
+    pub const ENFORCEMENT_TIMER_REPORTED: &str = "enforcement-timer-reported";
     pub const DEV_LOCALHOST_API_READY: &str = "dev-localhost-api-ready";
     pub const UNKNOWN_COMMAND: &str = "unknown-command";
 }

@@ -26,6 +26,7 @@ const EnforcementActionIdSchema = NonEmptyEnforcementText.pipe(Schema.brand('Enf
 const EnforcementResultIdSchema = NonEmptyEnforcementText.pipe(Schema.brand('EnforcementResultId'));
 const EnforcementAuditEventIdSchema = NonEmptyEnforcementText.pipe(Schema.brand('EnforcementAuditEventId'));
 const EnforcementTimerEventIdSchema = NonEmptyEnforcementText.pipe(Schema.brand('EnforcementTimerEventId'));
+const EnforcementTimerStateIdSchema = NonEmptyEnforcementText.pipe(Schema.brand('EnforcementTimerStateId'));
 const EnforcementRollbackTokenSchema = NonEmptyEnforcementText.pipe(Schema.brand('EnforcementRollbackToken'));
 const EnforcementIdempotencyKeySchema = NonEmptyEnforcementText.pipe(Schema.brand('EnforcementIdempotencyKey'));
 const EnforcementStatusReasonSchema = NonEmptyEnforcementText.pipe(Schema.brand('EnforcementStatusReason'));
@@ -118,7 +119,8 @@ const EnforcementAuditEventKindSchema = withParser(
     'rollback-requested',
     'rollback-completed',
     'expired',
-    'unavailable'
+    'unavailable',
+    'cancelled'
   )
 );
 
@@ -345,6 +347,37 @@ export const EnforcementTimerEventSchema = withParser(
   )
 );
 
+const EnforcementActiveTimerStateBaseSchema = Schema.Struct({
+  schemaVersion: ParentContractSchemaVersionSchema,
+  stateId: EnforcementTimerStateIdSchema,
+  action: EnforcementActionSchema,
+  result: EnforcementResultSchema,
+  auditEvent: EnforcementAuditEventSchema,
+  timerEvent: EnforcementTimerEventSchema,
+  storedAt: ParentTimestampSchema,
+});
+
+type EnforcementActiveTimerStateCandidate = Infer<typeof EnforcementActiveTimerStateBaseSchema>;
+
+export const EnforcementActiveTimerStateSchema = withParser(
+  EnforcementActiveTimerStateBaseSchema.pipe(
+    Schema.filter(
+      (state) =>
+        enforcementActiveTimerStateIsConsistent(state) ||
+        'Expected active enforcement timer state to preserve action/result/audit/timer identity'
+    )
+  )
+);
+
+function enforcementActiveTimerStateIsConsistent(state: EnforcementActiveTimerStateCandidate): boolean {
+  return (
+    state.action.actionId === state.result.actionId &&
+    state.action.actionId === state.auditEvent.action.actionId &&
+    state.action.actionId === state.timerEvent.actionId &&
+    state.action.policyDecisionId === state.timerEvent.policyDecisionId
+  );
+}
+
 function enforcementTimerUnavailableReasonIsConsistent(timerEvent: EnforcementTimerEventCandidate): boolean {
   if (timerEvent.timerEventKind === 'unavailable' || timerEvent.timerEventKind === 'recovery-needed') {
     return timerEvent.unavailableReason !== null;
@@ -360,6 +393,7 @@ export type EnforcementAction = Infer<typeof EnforcementActionSchema>;
 export type EnforcementResult = Infer<typeof EnforcementResultSchema>;
 export type EnforcementAuditEvent = Infer<typeof EnforcementAuditEventSchema>;
 export type EnforcementTimerEvent = Infer<typeof EnforcementTimerEventSchema>;
+export type EnforcementActiveTimerState = Infer<typeof EnforcementActiveTimerStateSchema>;
 
 export const EnforcementIntentSource = {
   ParentPortal: EnforcementIntentSourceSchema.parse('parent-portal'),
@@ -454,4 +488,5 @@ export const EnforcementAuditEventKind = {
   RollbackCompleted: EnforcementAuditEventKindSchema.parse('rollback-completed'),
   Expired: EnforcementAuditEventKindSchema.parse('expired'),
   Unavailable: EnforcementAuditEventKindSchema.parse('unavailable'),
+  Cancelled: EnforcementAuditEventKindSchema.parse('cancelled'),
 } as const;

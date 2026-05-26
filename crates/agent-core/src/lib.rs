@@ -34,6 +34,7 @@ mod browser_managed_discovery;
 mod browser_managed_session;
 mod enforcement_adapter;
 mod enforcement_boundary;
+mod enforcement_timer_state;
 mod journal;
 mod journal_crypto;
 mod journal_error;
@@ -81,6 +82,10 @@ pub use enforcement_boundary::{
     authorize_enforcement_boundary, evaluate_enforcement_boundary, EnforcementAdapterRequest,
     EnforcementAuthorizationOutcome, EnforcementBoundaryInput, EnforcementBoundaryOutcome,
     EnforcementBoundaryRejection,
+};
+pub use enforcement_timer_state::{
+    active_timer_state_from_outcome, cancelled_timer_outcome, restart_recovered_timer_outcome,
+    EnforcementTimerTransitionIds,
 };
 pub use journal::ActivityJournal;
 pub use journal_crypto::{JournalKey, JOURNAL_KEY_BYTES};
@@ -139,6 +144,8 @@ mod enforcement_audit_boundary_tests;
 mod enforcement_permission_dependency_tests;
 #[cfg(test)]
 mod enforcement_tests;
+#[cfg(test)]
+mod enforcement_timer_state_tests;
 #[cfg(test)]
 mod enforcement_timer_tests;
 #[cfg(test)]

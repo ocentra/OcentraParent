@@ -1,12 +1,19 @@
-import { describe, expect, it } from 'vitest';
+import { expect, it } from 'vitest';
 import {
   EnforcementActionSchema,
+  EnforcementActiveTimerStateSchema,
   EnforcementAdapterKind,
+  EnforcementAdapterResultCode,
+  EnforcementAuditEventKind,
+  EnforcementAuditEventSchema,
   EnforcementCapabilityState,
   EnforcementCapabilityStatusSchema,
   EnforcementIntentSource,
   EnforcementIntentSchema,
   EnforcementMode,
+  EnforcementResultSchema,
+  EnforcementResultStatus,
+  EnforcementRollbackState,
   EnforcementTimerEventKind,
   EnforcementTimerEventSchema,
   EnforcementUnavailableReason,
@@ -25,53 +32,88 @@ const target = {
   targetValue: 'owned-child-process',
 };
 
-describe('parent enforcement timer contracts', () => {
-  it('parses every enforcement timer transition state', () => {
-    const action = enforcementAction(enforcementIntent());
-    const transitions = [
-      [EnforcementTimerEventKind.Created, 'created', false, null],
-      [EnforcementTimerEventKind.Extended, 'extended', false, null],
-      [EnforcementTimerEventKind.Expired, 'expired', false, null],
-      [EnforcementTimerEventKind.Cancelled, 'cancelled', false, null],
-      [EnforcementTimerEventKind.RestartRecovered, 'restart-recovered', true, null],
-      [EnforcementTimerEventKind.RollbackRequested, 'rollback-requested', false, null],
-      [EnforcementTimerEventKind.RollbackCompleted, 'rollback-completed', false, null],
-      [EnforcementTimerEventKind.RecoveryNeeded, 'recovery-needed', false, EnforcementUnavailableReason.AdapterError],
-      [EnforcementTimerEventKind.Unavailable, 'unavailable', false, EnforcementUnavailableReason.AdapterUnavailable],
-    ] as const;
+it('parses every enforcement timer transition state', () => {
+  const action = enforcementAction(enforcementIntent());
+  const transitions = [
+    [EnforcementTimerEventKind.Created, 'created', false, null],
+    [EnforcementTimerEventKind.Extended, 'extended', false, null],
+    [EnforcementTimerEventKind.Expired, 'expired', false, null],
+    [EnforcementTimerEventKind.Cancelled, 'cancelled', false, null],
+    [EnforcementTimerEventKind.RestartRecovered, 'restart-recovered', true, null],
+    [EnforcementTimerEventKind.RollbackRequested, 'rollback-requested', false, null],
+    [EnforcementTimerEventKind.RollbackCompleted, 'rollback-completed', false, null],
+    [EnforcementTimerEventKind.RecoveryNeeded, 'recovery-needed', false, EnforcementUnavailableReason.AdapterError],
+    [EnforcementTimerEventKind.Unavailable, 'unavailable', false, EnforcementUnavailableReason.AdapterUnavailable],
+  ] as const;
 
-    const parsed = transitions.map(
-      ([timerEventKind, expectedKind, recoveredAfterRestart, unavailableReason], index) => {
-        const timer = EnforcementTimerEventSchema.parse({
-          schemaVersion: ParentContractSchemaVersion.V0_6,
-          timerEventId: `timer-transition-${index}`,
-          timerEventKind,
-          actionId: action.actionId,
-          policyDecisionId: action.policyDecisionId,
-          evidenceReferences: [evidenceReference],
-          scheduledAt: observedAt,
-          effectiveAt: '2026-05-23T15:00:00.000Z',
-          rollbackToken: action.rollbackToken,
-          recoveredAfterRestart,
-          unavailableReason,
-        });
+  const parsed = transitions.map(([timerEventKind, expectedKind, recoveredAfterRestart, unavailableReason], index) => {
+    const timer = EnforcementTimerEventSchema.parse({
+      schemaVersion: ParentContractSchemaVersion.V0_6,
+      timerEventId: `timer-transition-${index}`,
+      timerEventKind,
+      actionId: action.actionId,
+      policyDecisionId: action.policyDecisionId,
+      evidenceReferences: [evidenceReference],
+      scheduledAt: observedAt,
+      effectiveAt: '2026-05-23T15:00:00.000Z',
+      rollbackToken: action.rollbackToken,
+      recoveredAfterRestart,
+      unavailableReason,
+    });
 
-        expect(timer.timerEventKind).toBe(expectedKind);
-        expect(timer.actionId).toBe(action.actionId);
-        expect(timer.policyDecisionId).toBe(action.policyDecisionId);
-        expect(timer.evidenceReferences).toEqual(action.evidenceReferences);
-        expect(timer.rollbackToken).toBe(action.rollbackToken);
-        expect(timer.recoveredAfterRestart).toBe(recoveredAfterRestart);
-        expect(timer.unavailableReason).toBe(unavailableReason);
-        return timer.timerEventKind;
-      }
-    );
-
-    expect(parsed).toEqual(transitions.map(([, expectedKind]) => expectedKind));
-    expect(() => EnforcementTimerEventSchema.parse(unavailableTimerWithoutReasonPayload())).toThrow();
-    expect(() => EnforcementTimerEventSchema.parse(recoveryNeededTimerWithoutReasonPayload())).toThrow();
-    expect(() => EnforcementTimerEventSchema.parse(createdTimerWithUnavailableReasonPayload())).toThrow();
+    expect(timer.timerEventKind).toBe(expectedKind);
+    expect(timer.actionId).toBe(action.actionId);
+    expect(timer.policyDecisionId).toBe(action.policyDecisionId);
+    expect(timer.evidenceReferences).toEqual(action.evidenceReferences);
+    expect(timer.rollbackToken).toBe(action.rollbackToken);
+    expect(timer.recoveredAfterRestart).toBe(recoveredAfterRestart);
+    expect(timer.unavailableReason).toBe(unavailableReason);
+    return timer.timerEventKind;
   });
+
+  expect(parsed).toEqual(transitions.map(([, expectedKind]) => expectedKind));
+  expect(() => EnforcementTimerEventSchema.parse(unavailableTimerWithoutReasonPayload())).toThrow();
+  expect(() => EnforcementTimerEventSchema.parse(recoveryNeededTimerWithoutReasonPayload())).toThrow();
+  expect(() => EnforcementTimerEventSchema.parse(createdTimerWithUnavailableReasonPayload())).toThrow();
+});
+
+it('parses active timer state only when action, result, audit, and timer identity match', () => {
+  const action = enforcementAction(enforcementIntent());
+  const result = enforcementResult(action);
+  const timerEvent = EnforcementTimerEventSchema.parse({
+    schemaVersion: ParentContractSchemaVersion.V0_6,
+    timerEventId: 'timer-active-state-1',
+    timerEventKind: EnforcementTimerEventKind.Created,
+    actionId: action.actionId,
+    policyDecisionId: action.policyDecisionId,
+    evidenceReferences: [evidenceReference],
+    scheduledAt: observedAt,
+    effectiveAt: '2026-05-23T15:00:00.000Z',
+    rollbackToken: action.rollbackToken,
+    recoveredAfterRestart: false,
+    unavailableReason: null,
+  });
+  const activeState = EnforcementActiveTimerStateSchema.parse({
+    schemaVersion: ParentContractSchemaVersion.V0_6,
+    stateId: 'timer-state-1',
+    action,
+    result,
+    auditEvent: enforcementAudit(action, result),
+    timerEvent,
+    storedAt: observedAt,
+  });
+
+  expect(activeState.timerEvent.actionId).toBe(action.actionId);
+  expect(activeState.auditEvent.auditEventKind).toBe(EnforcementAuditEventKind.Succeeded);
+  expect(() =>
+    EnforcementActiveTimerStateSchema.parse({
+      ...activeState,
+      timerEvent: {
+        ...timerEvent,
+        actionId: 'wrong-action-id',
+      },
+    })
+  ).toThrow();
 });
 
 function unavailableTimerWithoutReasonPayload() {
@@ -166,6 +208,43 @@ function enforcementAction(intent: ReturnType<typeof enforcementIntent>) {
     requestedAt: observedAt,
     expiresAt: '2026-05-23T15:00:00.000Z',
     rollbackToken: 'rollback-1',
+  });
+}
+
+function enforcementResult(action: ReturnType<typeof enforcementAction>) {
+  return EnforcementResultSchema.parse({
+    schemaVersion: ParentContractSchemaVersion.V0_6,
+    resultId: 'result-1',
+    actionId: action.actionId,
+    status: EnforcementResultStatus.ActuallyEnforced,
+    adapterResultCode: EnforcementAdapterResultCode.ProcessTerminated,
+    startedAt: observedAt,
+    completedAt: observedAt,
+    rollbackToken: action.rollbackToken,
+    rollbackState: EnforcementRollbackState.NotRequired,
+    unavailableReason: null,
+    unavailableStatus: null,
+    failedReason: null,
+    nextCheckAt: action.expiresAt,
+    capability: action.capability,
+  });
+}
+
+function enforcementAudit(action: ReturnType<typeof enforcementAction>, result: ReturnType<typeof enforcementResult>) {
+  return EnforcementAuditEventSchema.parse({
+    schemaVersion: ParentContractSchemaVersion.V0_6,
+    auditEventId: 'audit-1',
+    auditEventKind: EnforcementAuditEventKind.Succeeded,
+    action,
+    result,
+    capability: result.capability,
+    unavailableStatus: result.unavailableStatus,
+    policyVersion: 'policy-version-1',
+    evidenceReferences: [evidenceReference],
+    actor: null,
+    parentOverride: null,
+    journalSequence: 'journal-1',
+    observedAt,
   });
 }
 

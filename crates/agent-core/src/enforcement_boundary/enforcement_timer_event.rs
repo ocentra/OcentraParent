@@ -1,7 +1,7 @@
 use ocentra_parent_agent_protocol::{
     EnforcementAction, EnforcementIntent, EnforcementIntentSource, EnforcementResult,
     EnforcementResultStatus, EnforcementRollbackState, EnforcementTimerEvent,
-    EnforcementTimerEventKind, EnforcementUnavailableReason,
+    EnforcementTimerEventKind, EnforcementUnavailableReason, PolicyAction,
 };
 
 use super::EnforcementBoundaryInput;
@@ -45,9 +45,11 @@ fn timer_event_kind(
             EnforcementResultStatus::Failed => EnforcementTimerEventKind::RecoveryNeeded,
             EnforcementResultStatus::Expired => EnforcementTimerEventKind::Expired,
             EnforcementResultStatus::RolledBack => EnforcementTimerEventKind::RollbackCompleted,
-            EnforcementResultStatus::Superseded | EnforcementResultStatus::NoOp => {
-                EnforcementTimerEventKind::Cancelled
+            EnforcementResultStatus::Superseded => EnforcementTimerEventKind::Cancelled,
+            EnforcementResultStatus::NoOp if intent.requested_action == PolicyAction::AskParent => {
+                EnforcementTimerEventKind::Created
             }
+            EnforcementResultStatus::NoOp => EnforcementTimerEventKind::Cancelled,
             EnforcementResultStatus::WouldEnforce | EnforcementResultStatus::ActuallyEnforced => {
                 if intent.source == EnforcementIntentSource::SystemRecovery {
                     EnforcementTimerEventKind::RestartRecovered

@@ -240,6 +240,11 @@ fn temp_paths(suffix: &str) -> EnforcementJournalPaths {
             constants::activity_store::TEST_STORE_SUFFIX,
             constants::activity_store::FILE_EXTENSION,
         ),
+        timer_state_path: temp_path(
+            suffix,
+            constants::enforcement::TIMER_STATE_ID_PREFIX,
+            constants::activity_store::FILE_EXTENSION,
+        ),
     }
 }
 
@@ -260,6 +265,7 @@ fn cleanup_paths(paths: &EnforcementJournalPaths) {
     let _ = remove_file(&paths.journal_path);
     let _ = remove_file(&paths.key_path);
     let _ = remove_file(&paths.store_path);
+    let _ = remove_file(&paths.timer_state_path);
     for index in 1..=3 {
         let mut rotated_path = paths.journal_path.clone();
         let mut extension = index.to_string();

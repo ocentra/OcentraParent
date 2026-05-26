@@ -1,13 +1,14 @@
 use super::{
     constants, constants::enforcement, policy_constants as policy, EnforcementAction,
-    EnforcementAdapterKind, EnforcementAdapterResultCode, EnforcementAuditEvent,
-    EnforcementAuditEventKind, EnforcementCapabilityState, EnforcementCapabilityStatus,
-    EnforcementDependencyState, EnforcementIntent, EnforcementIntentSource, EnforcementMode,
-    EnforcementPermissionState, EnforcementResult, EnforcementResultStatus,
-    EnforcementRollbackState, EnforcementTimerEvent, EnforcementTimerEventKind,
-    EnforcementUnavailableReason, EnforcementUnavailableStatus, ParentActionReference,
-    ParentActorReference, ParentActorRole, ParentDeviceReference, ParentEvidenceReference,
-    ParentEvidenceReferenceKind, ParentPlatform, PolicyAction, PolicyTarget, PolicyTargetType,
+    EnforcementActiveTimerState, EnforcementAdapterKind, EnforcementAdapterResultCode,
+    EnforcementAuditEvent, EnforcementAuditEventKind, EnforcementCapabilityState,
+    EnforcementCapabilityStatus, EnforcementDependencyState, EnforcementIntent,
+    EnforcementIntentSource, EnforcementMode, EnforcementPermissionState, EnforcementResult,
+    EnforcementResultStatus, EnforcementRollbackState, EnforcementTimerEvent,
+    EnforcementTimerEventKind, EnforcementUnavailableReason, EnforcementUnavailableStatus,
+    ParentActionReference, ParentActorReference, ParentActorRole, ParentDeviceReference,
+    ParentEvidenceReference, ParentEvidenceReferenceKind, ParentPlatform, PolicyAction,
+    PolicyTarget, PolicyTargetType,
 };
 
 const TIMER_TRANSITION_CASES: &[(
@@ -307,6 +308,69 @@ fn timer_event_kinds_serialize_to_contract_literals() {
                 .unwrap_or(serde_json::Value::Null)
         );
     }
+}
+
+#[test]
+fn active_timer_state_serializes_action_result_audit_and_timer() {
+    let capability = process_capability();
+    let mut intent = enforcement_intent();
+    intent.actor = Some(parent_actor());
+    intent.parent_approval = Some(parent_action_reference());
+    let action = enforcement_action(&intent);
+    let result = enforcement_result(&action, capability.clone());
+    let audit = EnforcementAuditEvent {
+        schema_version: policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
+        audit_event_id: enforcement::TEST_AUDIT_EVENT_ID.to_string(),
+        audit_event_kind: EnforcementAuditEventKind::Cancelled,
+        action: action.clone(),
+        result: result.clone(),
+        capability,
+        unavailable_status: None,
+        policy_version: policy::TEST_POLICY_VERSION.to_string(),
+        evidence_references: vec![evidence()],
+        actor: intent.actor.clone(),
+        parent_override: action.parent_approval.clone(),
+        journal_sequence: Some(enforcement::TEST_JOURNAL_SEQUENCE.to_string()),
+        observed_at: policy::TEST_EVALUATED_AT.to_string(),
+    };
+    let timer = EnforcementTimerEvent {
+        schema_version: policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
+        timer_event_id: enforcement::TEST_TIMER_EVENT_ID.to_string(),
+        timer_event_kind: EnforcementTimerEventKind::Cancelled,
+        action_id: action.action_id.clone(),
+        policy_decision_id: policy::TEST_DECISION_ID.to_string(),
+        evidence_references: vec![evidence()],
+        scheduled_at: policy::TEST_EVALUATED_AT.to_string(),
+        effective_at: None,
+        rollback_token: Some(enforcement::TEST_ROLLBACK_TOKEN.to_string()),
+        recovered_after_restart: false,
+        unavailable_reason: None,
+    };
+    let state = EnforcementActiveTimerState {
+        schema_version: policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
+        state_id: enforcement::TEST_TIMER_STATE_ID.to_string(),
+        action,
+        result,
+        audit_event: audit,
+        timer_event: timer,
+        stored_at: policy::TEST_EVALUATED_AT.to_string(),
+    };
+
+    let serialized = serde_json::to_value(state).expect(constants::error::AGENT_EVENT_SERIALIZES);
+
+    assert_eq!(serialized["stateId"], enforcement::TEST_TIMER_STATE_ID);
+    assert_eq!(
+        serialized["auditEvent"]["auditEventKind"],
+        enforcement::AUDIT_CANCELLED
+    );
+    assert_eq!(
+        serialized["timerEvent"]["timerEventKind"],
+        enforcement::TIMER_CANCELLED
+    );
+    assert_eq!(
+        serialized["action"]["parentApproval"]["actionReferenceId"],
+        enforcement::TEST_PARENT_ACTION_REFERENCE_ID
+    );
 }
 
 fn process_capability() -> EnforcementCapabilityStatus {

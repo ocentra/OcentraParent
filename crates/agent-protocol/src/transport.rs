@@ -102,6 +102,10 @@ pub enum AgentCommandName {
     AgentPolicyPreviewReadModelGet,
     #[serde(rename = "agent.enforcement.execute")]
     AgentEnforcementExecute,
+    #[serde(rename = "agent.enforcement.timer.recover")]
+    AgentEnforcementTimerRecover,
+    #[serde(rename = "agent.enforcement.override.cancel")]
+    AgentEnforcementOverrideCancel,
     #[serde(rename = "agent.lan-pairing.proof.submit")]
     AgentLanPairingProofSubmit,
     #[serde(rename = "agent.lan-pairing.route.select")]
@@ -148,6 +152,8 @@ pub enum AgentEventName {
     AgentPolicyPreviewReadModelReported,
     #[serde(rename = "agent.enforcement.audit.reported")]
     AgentEnforcementAuditReported,
+    #[serde(rename = "agent.enforcement.timer.reported")]
+    AgentEnforcementTimerReported,
     #[serde(rename = "agent.lan-pairing.status.reported")]
     AgentLanPairingStatusReported,
     #[serde(rename = "agent.lan-pairing.audit.reported")]

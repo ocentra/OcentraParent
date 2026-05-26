@@ -372,6 +372,8 @@ pub enum EnforcementAuditEventKind {
     Expired,
     #[serde(rename = "unavailable")]
     Unavailable,
+    #[serde(rename = "cancelled")]
+    Cancelled,
 }
 
 impl EnforcementAuditEventKind {
@@ -384,6 +386,7 @@ impl EnforcementAuditEventKind {
             Self::RollbackCompleted => enforcement_constants::AUDIT_ROLLBACK_COMPLETED,
             Self::Expired => enforcement_constants::AUDIT_EXPIRED,
             Self::Unavailable => enforcement_constants::AUDIT_UNAVAILABLE,
+            Self::Cancelled => enforcement_constants::AUDIT_CANCELLED,
         }
     }
 }
@@ -511,4 +514,16 @@ pub struct EnforcementTimerEvent {
     pub rollback_token: Option<String>,
     pub recovered_after_restart: bool,
     pub unavailable_reason: Option<EnforcementUnavailableReason>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct EnforcementActiveTimerState {
+    pub schema_version: String,
+    pub state_id: String,
+    pub action: EnforcementAction,
+    pub result: EnforcementResult,
+    pub audit_event: EnforcementAuditEvent,
+    pub timer_event: EnforcementTimerEvent,
+    pub stored_at: String,
 }

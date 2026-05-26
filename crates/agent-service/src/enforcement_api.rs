@@ -16,6 +16,8 @@ use crate::{
     activity_capture::record_activity_events_to_paths,
     activity_store_path::{activity_db_path, activity_journal_key_path, activity_journal_path},
     enforcement_payload::{parse_enforcement_command_payload, EnforcementCommandPayload},
+    enforcement_timer_state_file::store_active_timer_state_for_outcome,
+    enforcement_timer_state_path::enforcement_timer_state_path,
     event_builder::build_event,
     fields::fields_from_pairs,
     time::timestamp_now,
@@ -26,14 +28,16 @@ pub(crate) struct EnforcementJournalPaths {
     pub journal_path: PathBuf,
     pub key_path: PathBuf,
     pub store_path: PathBuf,
+    pub timer_state_path: PathBuf,
 }
 
 impl EnforcementJournalPaths {
-    fn from_environment() -> Self {
+    pub(crate) fn from_environment() -> Self {
         Self {
             journal_path: activity_journal_path(),
             key_path: activity_journal_key_path(),
             store_path: activity_db_path(),
+            timer_state_path: enforcement_timer_state_path(),
         }
     }
 }
@@ -97,9 +101,12 @@ async fn execute_enforcement_command(
     let mut outcome =
         evaluate_enforcement_boundary(outcome_input).map_err(|error| error.as_protocol_str())?;
     outcome.audit_event.journal_sequence = Some(outcome.audit_event.audit_event_id.clone());
-    let status = record_enforcement_audit(&request, &outcome, paths).await?;
+    let status = record_enforcement_audit(&request, &outcome, &paths).await?;
+    let active_state =
+        store_active_timer_state_for_outcome(&outcome, &paths.timer_state_path, &completed_at)
+            .await?;
 
-    enforcement_report_payload(&outcome, &status)
+    enforcement_report_payload(&outcome, &status, active_state.as_ref())
 }
 
 fn adapter_outcome_for_request(
@@ -139,16 +146,14 @@ fn final_input(
 async fn record_enforcement_audit(
     request: &EnforcementCommandPayload,
     outcome: &EnforcementBoundaryOutcome,
-    paths: EnforcementJournalPaths,
+    paths: &EnforcementJournalPaths,
 ) -> Result<ActivityIngestStatus, &'static str> {
     let event = enforcement_activity_event(request, outcome)?;
+    let journal_path = paths.journal_path.clone();
+    let key_path = paths.key_path.clone();
+    let store_path = paths.store_path.clone();
     tokio::task::spawn_blocking(move || {
-        record_activity_events_to_paths(
-            &paths.journal_path,
-            &paths.key_path,
-            &paths.store_path,
-            &[event],
-        )
+        record_activity_events_to_paths(&journal_path, &key_path, &store_path, &[event])
     })
     .await
     .map_err(|_| constants::value::ACTIVITY_CAPTURE_STORE_ERROR)?
@@ -298,6 +303,7 @@ fn serialized_enforcement_field_pairs(
 fn enforcement_report_payload(
     outcome: &EnforcementBoundaryOutcome,
     status: &ActivityIngestStatus,
+    active_state: Option<&ocentra_parent_agent_protocol::EnforcementActiveTimerState>,
 ) -> Result<LogFields, &'static str> {
     let mut payload = enforcement_journal_fields(outcome)?;
     payload.insert(
@@ -326,6 +332,10 @@ fn enforcement_report_payload(
             LogFieldValue::String(timer.timer_event_kind.as_protocol_str().to_string()),
         );
     }
+    payload.insert(
+        constants::field::ENFORCEMENT_TIMER_STATE.to_string(),
+        optional_timer_state(active_state)?,
+    );
     Ok(payload)
 }
 
@@ -344,6 +354,17 @@ fn optional_string_value(value: Option<&str>) -> LogFieldValue {
     value
         .map(|item| LogFieldValue::String(item.to_string()))
         .unwrap_or(LogFieldValue::Null(()))
+}
+
+fn optional_timer_state(
+    active_state: Option<&ocentra_parent_agent_protocol::EnforcementActiveTimerState>,
+) -> Result<LogFieldValue, &'static str> {
+    match active_state {
+        Some(state) => Ok(LogFieldValue::String(
+            serde_json::to_string(state).map_err(|_| constants::error::AGENT_EVENT_SERIALIZES)?,
+        )),
+        None => Ok(LogFieldValue::Null(())),
+    }
 }
 
 fn evidence_reference_ids(outcome: &EnforcementBoundaryOutcome) -> String {

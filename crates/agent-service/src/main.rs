@@ -23,6 +23,13 @@ mod enforcement_api;
 mod enforcement_payload;
 #[cfg(test)]
 mod enforcement_tests;
+mod enforcement_timer_api;
+mod enforcement_timer_payload;
+mod enforcement_timer_report;
+mod enforcement_timer_state_file;
+mod enforcement_timer_state_path;
+#[cfg(test)]
+mod enforcement_timer_tests;
 mod event_builder;
 mod fields;
 mod lan_pairing;
