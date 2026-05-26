@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import { PortalText, PortalTextToken } from '@ocentra-parent/portal-domain/contracts';
-import { LoginDialog, type LoginDialogActionResult } from '../../../vendor/ocentra-games-core-ui/Auth/LoginDialog';
-import { AUTH_PAGE_LAYOUT_CONTROLS } from '../../../vendor/ocentra-games-core-ui/Auth/AuthPageLayoutControls';
+import { LoginDialog, type LoginDialogActionResult } from '../../../vendor/ocentra-parent-core-ui/Auth/LoginDialog';
+import { AUTH_PAGE_LAYOUT_CONTROLS } from '../../../vendor/ocentra-parent-core-ui/Auth/AuthPageLayoutControls';
 
 type PortalAuthDialogProps = {
   readonly onClose: () => void;

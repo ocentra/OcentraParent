@@ -1,0 +1,56 @@
+.animated-sidebar-icon-button {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  display: inline-grid;
+  height: var(--animated-sidebar-icon-size);
+  justify-items: center;
+  opacity: var(--animated-sidebar-icon-opacity);
+  outline: none;
+  padding: 0;
+  place-items: center;
+  transform: scale(var(--animated-sidebar-icon-scale));
+  transform-origin: center;
+  transition:
+    transform 120ms ease,
+    opacity 180ms ease,
+    filter 180ms ease;
+  width: var(--animated-sidebar-icon-size);
+}
+
+.animated-sidebar-icon-button:disabled {
+  cursor: not-allowed;
+}
+
+.animated-sidebar-icon-button:focus-visible {
+  filter: drop-shadow(0 0 0.55rem rgb(154 247 255 / 72%));
+}
+
+.animated-sidebar-icon-button__svg {
+  display: block;
+  height: 100%;
+  overflow: visible;
+  width: 100%;
+}
+
+.animated-sidebar-icon-button__svg * {
+  transition:
+    transform 180ms ease,
+    opacity 180ms ease,
+    filter 180ms ease,
+    fill 180ms ease,
+    stroke 180ms ease,
+    stroke-width 180ms ease,
+    x 220ms ease,
+    width 220ms ease,
+    rx 180ms ease;
+}
+
+.animated-sidebar-icon-preview {
+  display: grid;
+  min-height: var(--animated-sidebar-icon-preview-min-height);
+  overflow: hidden;
+  place-items: center;
+  width: 100%;
+}

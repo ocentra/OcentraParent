@@ -5,7 +5,6 @@ export { PortalCommandButtons, PortalOverviewCommands } from './commands';
 export { PortalDetails, PortalReadableValues } from './details';
 export { PortalDiagnostics } from './diagnostics';
 export {
-  PortalFrameColorFields,
   PortalFrameChromeNumberFields,
   PortalCarouselContentNumberFields,
   PortalCarouselFrameNumberFields,
@@ -27,8 +26,6 @@ export {
   PortalFrameShellNumberFields,
   PortalFrameSlotNumberFields,
   PortalFrameTuner,
-  PortalFrameTunerFrameSections,
-  PortalFrameTunerPanels,
   portalFrameCssNumber,
   portalFrameCssOpacity,
   portalFrameCssPercent,
@@ -40,9 +37,30 @@ export {
   type PortalFrameNumberField,
   type PortalFrameTargetValue,
   type PortalFrameTunerFrameSectionValue,
-  type PortalFrameTunerPanelValue,
 } from './frame-tuner';
+export { PortalFrameColorFields, PortalFrameTunerFrameSections } from './frame-tuner-lists';
 export { PortalAssets, PortalExternalLinks, PortalUnifiedChrome } from './unified-chrome';
+export {
+  createPortalAppLayoutButtonDraft,
+  createPortalAppLayoutFoldoutDraft,
+  defaultPortalAppLayoutContentDraft,
+  defaultPortalAppLayoutSurfaceContent,
+  normalizePortalAppLayoutContentDraft,
+  normalizePortalAppLayoutSurfaceContentDraft,
+  type PortalAppLayoutButtonDraft,
+  type PortalAppLayoutContentAreaKey,
+  type PortalAppLayoutContentDraft,
+  type PortalAppLayoutFoldoutDraft,
+  type PortalAppLayoutSurfaceContentDraft,
+  type PortalAppLayoutSurfaceKey,
+  type PortalAppLayoutTone,
+} from './app-layout';
+export {
+  PARENT_ASSISTANT_PORTAL_NEW_CHAT_ACTION,
+  PARENT_ASSISTANT_PORTAL_QUICK_ACTIONS,
+  type ParentAssistantPortalQuickAction,
+  type ParentAssistantPortalQuickActionId,
+} from './parent-assistant-chat';
 export {
   PARENT_PORTAL_CONTENT,
   PARENT_PORTAL_ROUTE,
@@ -60,9 +78,12 @@ export {
 } from './parent-portal-data';
 export {
   PARENT_PORTAL_NAV_LABELS,
+  type ParentPortalHashRoutePath,
   type ParentPortalNavGroup,
   type ParentPortalNavGroupId,
   type ParentPortalNavItem,
+  type ParentPortalNavLabel,
+  type ParentPortalNavSectionLabel,
 } from './parent-portal-nav';
 export {
   PARENT_PORTAL_GUIDE_TOPICS,

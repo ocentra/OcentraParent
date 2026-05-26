@@ -10,7 +10,7 @@ import {
   pictureViewerFrameSegments,
   type PictureViewerFrameControls,
   type PictureViewerFrameSegment,
-} from '../../../vendor/ocentra-games-core-ui/Common/PictureViewerFrame/PictureViewerFrameControls';
+} from '../../../vendor/ocentra-parent-core-ui/Common/PictureViewerFrame/PictureViewerFrameControls';
 
 type HeaderFrameSize = {
   readonly height: number;

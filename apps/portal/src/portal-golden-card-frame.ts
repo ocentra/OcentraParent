@@ -2,7 +2,7 @@ import { PortalDom, PortalFrameTuner, type PortalDisplayText } from '@ocentra-pa
 import {
   createGoldenFrameFrameOnlySvgDataUri,
   createGoldenFrameVariantConfig,
-} from '../../../vendor/ocentra-games-core-ui/AppPages/ParentPortal/ParentPortalGoldenFrameForeignObject';
+} from '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalGoldenFrameForeignObject';
 
 type ControlCardAccent =
   | typeof PortalDom.Classes.ControlCardAccentPrimary

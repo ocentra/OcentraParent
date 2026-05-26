@@ -44,6 +44,7 @@ If a change cannot explain what parent problem it solves, what evidence it creat
 - [Cloud feature expectations](expectations/cloud.md)
 - [Notification feature expectations](expectations/notifications.md)
 - [AI feature expectations](expectations/ai.md)
+- [Parent assistant chat expectations](expectations/parent-assistant-chat.md)
 - [Sync and export expectations](expectations/sync-export.md)
 - [Release and installer expectations](expectations/release-installer.md)
 - [Billing and subscription expectations](expectations/billing.md)

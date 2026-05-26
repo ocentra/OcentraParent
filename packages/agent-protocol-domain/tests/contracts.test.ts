@@ -61,6 +61,31 @@ it('AgentEventEnvelopeSchema: accepts a Rust response event with an optional sna
   expect(parsed.success).toBe(true);
 });
 
+it('AgentCommandEnvelopeSchema: accepts parent assistant message commands over the agent protocol', () => {
+  const parsed = AgentCommandEnvelopeSchema.safeParse({
+    schemaVersion: 1,
+    messageId: 'cmd-assistant-message-1',
+    sentAt: '2026-05-25T14:00:00Z',
+    source: {
+      peerId: 'portal-dev',
+      role: 'portal',
+    },
+    target: {
+      deviceId: 'local-dev-agent',
+      platform: 'windows',
+      route: 'localhost',
+    },
+    command: 'agent.parent-assistant.message.send',
+    payload: {
+      assistantThreadId: 'assistant-thread-1',
+      inputText: 'Give me today report.',
+      inputSource: 'typed',
+    },
+  });
+
+  expect(parsed.success).toBe(true);
+});
+
 it('AgentCommand: exposes typed command constants for portal requests', () => {
   expect(AgentCommand.ActivityIngestStatusGet).toBe('agent.activity.ingest.status.get');
   expect(AgentCommand.ActivityRecentSummaryGet).toBe('agent.activity.recent.summary.get');
@@ -86,6 +111,16 @@ it('AgentCommand: exposes typed command constants for portal requests', () => {
   expect(AgentCommand.EnforcementTimerRecover).toBe('agent.enforcement.timer.recover');
   expect(AgentCommand.EnforcementTimerExpire).toBe('agent.enforcement.timer.expire');
   expect(AgentCommand.EnforcementOverrideCancel).toBe('agent.enforcement.override.cancel');
+  expect(AgentCommand.ParentAssistantThreadList).toBe('agent.parent-assistant.thread.list');
+  expect(AgentCommand.ParentAssistantThreadCreate).toBe('agent.parent-assistant.thread.create');
+  expect(AgentCommand.ParentAssistantThreadOpen).toBe('agent.parent-assistant.thread.open');
+  expect(AgentCommand.ParentAssistantThreadArchive).toBe('agent.parent-assistant.thread.archive');
+  expect(AgentCommand.ParentAssistantMessageSend).toBe('agent.parent-assistant.message.send');
+  expect(AgentCommand.ParentAssistantRunCancel).toBe('agent.parent-assistant.run.cancel');
+  expect(AgentCommand.ParentAssistantQuickActionStart).toBe('agent.parent-assistant.quick-action.start');
+  expect(AgentCommand.ParentAssistantActionPreview).toBe('agent.parent-assistant.action.preview');
+  expect(AgentCommand.ParentAssistantActionConfirm).toBe('agent.parent-assistant.action.confirm');
+  expect(AgentCommand.ParentAssistantProviderStatusGet).toBe('agent.parent-assistant.provider.status.get');
   expect(AgentCommand.LanPairingProofSubmit).toBe('agent.lan-pairing.proof.submit');
   expect(AgentCommand.LanPairingRouteSelect).toBe('agent.lan-pairing.route.select');
   expect(AgentCommand.LanPairingRouteRevoke).toBe('agent.lan-pairing.route.revoke');
@@ -149,6 +184,20 @@ it('AgentProtocolDefaults.Field: exposes local AI runtime payload fields', () =>
   expect(AgentProtocolDefaults.Field.LocalAiStderrByteSize).toBe('stderrByteSize');
 });
 
+it('AgentProtocolDefaults.Field: exposes parent assistant payload fields', () => {
+  expect(AgentProtocolDefaults.Field.ParentAssistantThreadId).toBe('assistantThreadId');
+  expect(AgentProtocolDefaults.Field.ParentAssistantMessageId).toBe('assistantMessageId');
+  expect(AgentProtocolDefaults.Field.ParentAssistantRunId).toBe('assistantRunId');
+  expect(AgentProtocolDefaults.Field.ParentAssistantActionIntentId).toBe('assistantActionIntentId');
+  expect(AgentProtocolDefaults.Field.ParentAssistantQuickActionId).toBe('quickActionId');
+  expect(AgentProtocolDefaults.Field.ParentAssistantPromptTemplateId).toBe('promptTemplateId');
+  expect(AgentProtocolDefaults.Field.ParentAssistantStarterCategory).toBe('starterCategory');
+  expect(AgentProtocolDefaults.Field.ParentAssistantInputText).toBe('inputText');
+  expect(AgentProtocolDefaults.Field.ParentAssistantInputSource).toBe('inputSource');
+  expect(AgentProtocolDefaults.Field.ParentAssistantRequiredChildContracts).toBe('requiredChildContracts');
+  expect(AgentProtocolDefaults.Field.ParentAssistantBackendState).toBe('assistantBackendState');
+});
+
 it('AgentProtocolDefaults.Field: exposes read-model payload fields', () => {
   expect(AgentProtocolDefaults.Field.BridgeEndpointRef).toBe('bridgeEndpointRef');
   expect(AgentProtocolDefaults.Field.BridgeKind).toBe('bridgeKind');
@@ -209,6 +258,15 @@ it('AgentEvent: exposes typed constants for portal result rendering', () => {
   expect(AgentEvent.ParentAssistantAnswerReported).toBe('agent.parent-assistant.answer.reported');
   expect(AgentEvent.EnforcementAuditReported).toBe('agent.enforcement.audit.reported');
   expect(AgentEvent.EnforcementTimerReported).toBe('agent.enforcement.timer.reported');
+  expect(AgentEvent.ParentAssistantThreadUpdated).toBe('agent.parent-assistant.thread.updated');
+  expect(AgentEvent.ParentAssistantMessageAccepted).toBe('agent.parent-assistant.message.accepted');
+  expect(AgentEvent.ParentAssistantRunStarted).toBe('agent.parent-assistant.run.started');
+  expect(AgentEvent.ParentAssistantMessageDelta).toBe('agent.parent-assistant.message.delta');
+  expect(AgentEvent.ParentAssistantMessageCompleted).toBe('agent.parent-assistant.message.completed');
+  expect(AgentEvent.ParentAssistantActionPreviewed).toBe('agent.parent-assistant.action.previewed');
+  expect(AgentEvent.ParentAssistantActionConfirmed).toBe('agent.parent-assistant.action.confirmed');
+  expect(AgentEvent.ParentAssistantProviderDegraded).toBe('agent.parent-assistant.provider.degraded');
+  expect(AgentEvent.ParentAssistantErrorReported).toBe('agent.parent-assistant.error.reported');
   expect(AgentEvent.LanPairingStatusReported).toBe('agent.lan-pairing.status.reported');
   expect(AgentEvent.LanPairingAuditReported).toBe('agent.lan-pairing.audit.reported');
   expect(AgentEvent.LanAiJobReported).toBe('agent.lan-ai.job.reported');

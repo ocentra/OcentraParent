@@ -7,16 +7,24 @@
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "noEmit": true,
     "paths": {
-      "@ocentra/app-assets/auth": ["../../vendor/ocentra-games-core-ui/shims/ocentra-app-assets-auth.ts"],
-      "@ocentra/app-assets/avatars": ["../../vendor/ocentra-games-core-ui/shims/ocentra-app-assets-avatars.ts"],
-      "@ocentra/app-assets/commons": ["../../vendor/ocentra-games-core-ui/shims/ocentra-app-assets-commons.ts"],
-      "@ocentra/app-assets/banners": ["../../vendor/ocentra-games-core-ui/shims/ocentra-app-assets-banners.ts"],
-      "@ocentra/app-assets/placeholders": [
-        "../../vendor/ocentra-games-core-ui/shims/ocentra-app-assets-placeholders.ts"
+      "@ocentra-parent/portal-assets/auth": ["../../vendor/ocentra-parent-core-ui/shims/parent-portal-assets-auth.ts"],
+      "@ocentra-parent/portal-assets/avatars": [
+        "../../vendor/ocentra-parent-core-ui/shims/parent-portal-assets-avatars.ts"
       ],
-      "@ocentra/schema-domain/effect-builder": ["../../vendor/ocentra-games-core-ui/schema-domain/effect-builder.ts"],
-      "@ocentra/game-asset-domain/schemas/parent-portal-page-content-schema": [
-        "../../vendor/ocentra-games-core-ui/game-asset-domain/schemas/parent-portal-page-content-schema.ts"
+      "@ocentra-parent/portal-assets/common": [
+        "../../vendor/ocentra-parent-core-ui/shims/parent-portal-assets-common.ts"
+      ],
+      "@ocentra-parent/portal-assets/banners": [
+        "../../vendor/ocentra-parent-core-ui/shims/parent-portal-assets-banners.ts"
+      ],
+      "@ocentra-parent/portal-assets/placeholders": [
+        "../../vendor/ocentra-parent-core-ui/shims/parent-portal-assets-placeholders.ts"
+      ],
+      "@ocentra-parent/vendor-schema/effect-builder": [
+        "../../vendor/ocentra-parent-core-ui/schema-domain/effect-builder.ts"
+      ],
+      "@ocentra-parent/portal-content-schema": [
+        "../../vendor/ocentra-parent-core-ui/parent-portal-content-domain/schemas/parent-portal-page-content-schema.ts"
       ]
     },
     "types": ["vite/client", "node", "@playwright/test"]

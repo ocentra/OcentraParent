@@ -20,7 +20,7 @@ export const PortalProductText: Record<PortalProductTextTokenValue, DisplayText>
   [PortalProductTextToken.Devices]: decodeDisplayText('Devices'),
   [PortalProductTextToken.Diagnostics]: decodeDisplayText('Support'),
   [PortalProductTextToken.SettingsRules]: decodeDisplayText('Settings'),
-  [PortalProductTextToken.FrameTuner]: decodeDisplayText('Frame tuner'),
+  [PortalProductTextToken.FrameTuner]: decodeDisplayText('App layout'),
   [PortalProductTextToken.Commands]: decodeDisplayText('Controls'),
   [PortalProductTextToken.Events]: decodeDisplayText('Audit'),
   [PortalProductTextToken.OverviewDescription]: decodeDisplayText('Daily command'),
@@ -34,7 +34,7 @@ export const PortalProductText: Record<PortalProductTextTokenValue, DisplayText>
   [PortalProductTextToken.DiagnosticsDescription]: decodeDisplayText('Exports and logs'),
   [PortalProductTextToken.SettingsRulesDescription]: decodeDisplayText('Schedules and budgets'),
   [PortalProductTextToken.FrameTunerDescription]: decodeDisplayText(
-    'Dev-only geometry controls for the side panel and main body frame.'
+    'Layout and content editor for parent portal app surfaces.'
   ),
   [PortalProductTextToken.CommandsDescription]: decodeDisplayText(
     'Safe device refresh actions that use the real child-device connection.'

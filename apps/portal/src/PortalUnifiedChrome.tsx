@@ -7,8 +7,8 @@ import {
   PortalTextToken,
   PortalUnifiedChrome,
 } from '@ocentra-parent/portal-domain/contracts';
-import { UnifiedFooter } from '../../../vendor/ocentra-games-core-ui/Footer/UnifiedFooter';
-import { UnifiedPageShell } from '../../../vendor/ocentra-games-core-ui/Shell/UnifiedPageShell';
+import { UnifiedFooter } from '../../../vendor/ocentra-parent-core-ui/Footer/UnifiedFooter';
+import { UnifiedPageShell } from '../../../vendor/ocentra-parent-core-ui/Shell/UnifiedPageShell';
 import { PortalHeaderSvgFrame } from './PortalHeaderSvgFrame';
 
 type PortalUnifiedShellProps = {

@@ -75,10 +75,18 @@ export function PortalApp(props: PortalAppProps): ReactElement {
     return <PortalFrameTunerRoute layout={frameLayout} onLayoutChange={setFrameLayout} />;
   }
   if (isProductRoute) {
+    const controls =
+      props.route === PortalRoute.Assistant ? frameLayout.parentPortal.chatInterface : frameLayout.parentPortal.mainApp;
     return (
       <>
         <PortalUnifiedShell onAuthOpen={() => setAuthOpen(true)}>
-          <ParentPortalRoute key={props.route} actions={props.actions} route={props.route} state={props.state} />
+          <ParentPortalRoute
+            key={props.route}
+            actions={props.actions}
+            controls={controls}
+            route={props.route}
+            state={props.state}
+          />
         </PortalUnifiedShell>
         {authOpen ? <PortalAuthDialog onClose={() => setAuthOpen(false)} /> : null}
       </>

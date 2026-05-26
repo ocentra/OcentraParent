@@ -1,34 +1,18 @@
 import type { ParentPortalIconName, ParentPortalTabId, ParentPortalTone } from './parent-portal-data';
+import type { PortalRoute as PortalRouteValue } from './routes';
 
 export type ParentPortalNavGroupId = 'quickGlance' | 'guide' | 'manage';
-
-export type ParentPortalNavGroup = {
-  readonly id: ParentPortalNavGroupId;
-  readonly label: string;
-  readonly detail: string;
-};
-
-export type ParentPortalNavItem = {
-  readonly label: string;
-  readonly detail: string;
-  readonly icon: ParentPortalIconName;
-  readonly tabId: ParentPortalTabId;
-  readonly groupId: ParentPortalNavGroupId;
-  readonly sectionLabel?: string;
-  readonly tone?: ParentPortalTone;
-  readonly routePath?: string;
-};
 
 export const PARENT_PORTAL_NAV_LABELS = {
   QuickGlance: 'QUICK GLANCE',
   Guide: 'GUIDE',
   Manage: 'MANAGE',
-  Policies: 'POLICIES',
+  Policies: 'POLICY',
   Activity: 'ACTIVITY',
   Devices: 'DEVICES',
   Portal: 'PORTAL',
-  DataPrivacy: 'DATA | PRIVACY',
-  AiMemory: 'AI | MEMORY',
+  DataPrivacy: 'DATA',
+  AiMemory: 'AI',
   Account: 'ACCOUNT',
   StartHere: 'START HERE',
   Overview: 'OVERVIEW',
@@ -39,15 +23,15 @@ export const PARENT_PORTAL_NAV_LABELS = {
   ReportsGuide: 'REPORTS',
   Private: 'PRIVATE',
   Browser: 'BROWSER',
-  RuleSet: 'RULE SET',
+  RuleSet: 'RULES',
   Schedules: 'SCHEDULES',
   Approvals: 'APPROVALS',
   Enforce: 'ENFORCE',
-  ReportSet: 'REPORT SET',
+  ReportSet: 'REPORTS',
   Lan: 'LAN',
   Capability: 'CAPABILITY',
   Screen: 'SCREEN',
-  AppsGames: 'APPS/GAMES',
+  AppsGames: 'APP USE',
   Network: 'NETWORK',
   Alerts: 'ALERTS',
   Channels: 'CHANNELS',
@@ -67,10 +51,42 @@ export const PARENT_PORTAL_NAV_LABELS = {
   Settings: 'SETTINGS',
 } as const;
 
+export type ParentPortalHashRoutePath = `#/${PortalRouteValue}`;
+export type ParentPortalNavLabel = (typeof PARENT_PORTAL_NAV_LABELS)[keyof typeof PARENT_PORTAL_NAV_LABELS];
+export type ParentPortalNavSectionLabel =
+  | typeof PARENT_PORTAL_NAV_LABELS.Portal
+  | typeof PARENT_PORTAL_NAV_LABELS.Devices
+  | typeof PARENT_PORTAL_NAV_LABELS.Activity
+  | typeof PARENT_PORTAL_NAV_LABELS.Policies
+  | typeof PARENT_PORTAL_NAV_LABELS.DataPrivacy
+  | typeof PARENT_PORTAL_NAV_LABELS.AiMemory
+  | typeof PARENT_PORTAL_NAV_LABELS.Account;
+
+export type ParentPortalNavGroup = {
+  readonly id: ParentPortalNavGroupId;
+  readonly label: ParentPortalNavLabel;
+  readonly detail: string;
+};
+
+export type ParentPortalNavItem = {
+  readonly label: ParentPortalNavLabel;
+  readonly detail: string;
+  readonly icon: ParentPortalIconName;
+  readonly tabId: ParentPortalTabId;
+  readonly groupId: ParentPortalNavGroupId;
+  readonly sectionLabel?: ParentPortalNavSectionLabel;
+  readonly tone?: ParentPortalTone;
+  readonly routePath?: ParentPortalHashRoutePath;
+};
+
 export const PARENT_PORTAL_NAV_GROUPS: readonly ParentPortalNavGroup[] = [
   { id: 'quickGlance', label: PARENT_PORTAL_NAV_LABELS.QuickGlance, detail: 'Current child-device state' },
   { id: 'guide', label: PARENT_PORTAL_NAV_LABELS.Guide, detail: 'Policy, privacy, and local AI' },
-  { id: 'manage', label: PARENT_PORTAL_NAV_LABELS.Manage, detail: 'Devices, alerts, drives, support' },
+  {
+    id: 'manage',
+    label: PARENT_PORTAL_NAV_LABELS.Manage,
+    detail: 'Portal, device, activity, policy, data, AI, account',
+  },
 ] as const;
 
 export const PARENT_PORTAL_NAV_ITEMS: readonly ParentPortalNavItem[] = [
@@ -135,7 +151,7 @@ export const PARENT_PORTAL_NAV_ITEMS: readonly ParentPortalNavItem[] = [
     tabId: 'aiStatus',
     groupId: 'guide',
     tone: 'cyan',
-    routePath: '#/ai-runtime',
+    routePath: '#/ai-guide',
   },
   {
     label: PARENT_PORTAL_NAV_LABELS.ReportsGuide,
@@ -144,7 +160,7 @@ export const PARENT_PORTAL_NAV_ITEMS: readonly ParentPortalNavItem[] = [
     tabId: 'aiStatus',
     groupId: 'guide',
     tone: 'purple',
-    routePath: '#/report-settings',
+    routePath: '#/reports-guide',
   },
   {
     label: PARENT_PORTAL_NAV_LABELS.Private,
@@ -154,6 +170,54 @@ export const PARENT_PORTAL_NAV_ITEMS: readonly ParentPortalNavItem[] = [
     groupId: 'guide',
     tone: 'gold',
     routePath: '#/privacy-design',
+  },
+  {
+    label: PARENT_PORTAL_NAV_LABELS.Settings,
+    detail: 'Family defaults',
+    icon: 'account',
+    tabId: 'routines',
+    groupId: 'manage',
+    sectionLabel: PARENT_PORTAL_NAV_LABELS.Portal,
+    tone: 'cyan',
+    routePath: '#/settings-rules',
+  },
+  {
+    label: PARENT_PORTAL_NAV_LABELS.Alerts,
+    detail: 'Parent notifications',
+    icon: 'alerts',
+    tabId: 'routines',
+    groupId: 'manage',
+    sectionLabel: PARENT_PORTAL_NAV_LABELS.Portal,
+    tone: 'red',
+    routePath: '#/notifications',
+  },
+  {
+    label: PARENT_PORTAL_NAV_LABELS.Channels,
+    detail: 'Push email SMS WhatsApp',
+    icon: 'alerts',
+    tabId: 'controls',
+    groupId: 'manage',
+    sectionLabel: PARENT_PORTAL_NAV_LABELS.Portal,
+    tone: 'red',
+    routePath: '#/notification-channels',
+  },
+  {
+    label: PARENT_PORTAL_NAV_LABELS.Devices,
+    detail: 'LAN discovery and device management',
+    icon: 'lan',
+    tabId: 'routines',
+    groupId: 'manage',
+    tone: 'cyan',
+    routePath: '#/lan-pairing',
+  },
+  {
+    label: PARENT_PORTAL_NAV_LABELS.Activity,
+    detail: 'Reports and activity management',
+    icon: 'activity',
+    tabId: 'controls',
+    groupId: 'manage',
+    tone: 'purple',
+    routePath: '#/report-settings',
   },
   {
     label: PARENT_PORTAL_NAV_LABELS.Browser,
@@ -206,96 +270,6 @@ export const PARENT_PORTAL_NAV_ITEMS: readonly ParentPortalNavItem[] = [
     routePath: '#/enforcement',
   },
   {
-    label: PARENT_PORTAL_NAV_LABELS.ReportSet,
-    detail: 'Daily weekly monthly',
-    icon: 'report',
-    tabId: 'controls',
-    groupId: 'manage',
-    sectionLabel: PARENT_PORTAL_NAV_LABELS.Activity,
-    tone: 'purple',
-    routePath: '#/report-settings',
-  },
-  {
-    label: PARENT_PORTAL_NAV_LABELS.Devices,
-    detail: 'Child device pairing',
-    icon: 'devices',
-    tabId: 'routines',
-    groupId: 'manage',
-    sectionLabel: PARENT_PORTAL_NAV_LABELS.Devices,
-    tone: 'cyan',
-    routePath: '#/devices',
-  },
-  {
-    label: PARENT_PORTAL_NAV_LABELS.Lan,
-    detail: 'Trusted local control',
-    icon: 'lan',
-    tabId: 'controls',
-    groupId: 'manage',
-    sectionLabel: PARENT_PORTAL_NAV_LABELS.Devices,
-    tone: 'cyan',
-    routePath: '#/lan-pairing',
-  },
-  {
-    label: PARENT_PORTAL_NAV_LABELS.Capability,
-    detail: 'Supported or degraded',
-    icon: 'policy',
-    tabId: 'controls',
-    groupId: 'manage',
-    sectionLabel: PARENT_PORTAL_NAV_LABELS.Devices,
-    tone: 'cyan',
-    routePath: '#/capability-status',
-  },
-  {
-    label: PARENT_PORTAL_NAV_LABELS.Screen,
-    detail: 'Local summaries',
-    icon: 'activity',
-    tabId: 'controls',
-    groupId: 'manage',
-    sectionLabel: PARENT_PORTAL_NAV_LABELS.Activity,
-    tone: 'cyan',
-    routePath: '#/screen-analysis',
-  },
-  {
-    label: PARENT_PORTAL_NAV_LABELS.AppsGames,
-    detail: 'Known app sessions',
-    icon: 'activity',
-    tabId: 'controls',
-    groupId: 'manage',
-    sectionLabel: PARENT_PORTAL_NAV_LABELS.Activity,
-    tone: 'purple',
-    routePath: '#/app-game-sessions',
-  },
-  {
-    label: PARENT_PORTAL_NAV_LABELS.Network,
-    detail: 'Domains and flows',
-    icon: 'activity',
-    tabId: 'controls',
-    groupId: 'manage',
-    sectionLabel: PARENT_PORTAL_NAV_LABELS.Activity,
-    tone: 'cyan',
-    routePath: '#/network-activity',
-  },
-  {
-    label: PARENT_PORTAL_NAV_LABELS.Alerts,
-    detail: 'Parent notifications',
-    icon: 'alerts',
-    tabId: 'routines',
-    groupId: 'manage',
-    sectionLabel: PARENT_PORTAL_NAV_LABELS.Portal,
-    tone: 'red',
-    routePath: '#/notifications',
-  },
-  {
-    label: PARENT_PORTAL_NAV_LABELS.Channels,
-    detail: 'Push email SMS WhatsApp',
-    icon: 'alerts',
-    tabId: 'controls',
-    groupId: 'manage',
-    sectionLabel: PARENT_PORTAL_NAV_LABELS.Portal,
-    tone: 'red',
-    routePath: '#/notification-channels',
-  },
-  {
     label: PARENT_PORTAL_NAV_LABELS.Drives,
     detail: 'Connect your drives',
     icon: 'drives',
@@ -346,26 +320,6 @@ export const PARENT_PORTAL_NAV_ITEMS: readonly ParentPortalNavItem[] = [
     routePath: '#/memory-settings',
   },
   {
-    label: PARENT_PORTAL_NAV_LABELS.Remote,
-    detail: 'Away from home',
-    icon: 'remote',
-    tabId: 'controls',
-    groupId: 'manage',
-    sectionLabel: PARENT_PORTAL_NAV_LABELS.Devices,
-    tone: 'cyan',
-    routePath: '#/remote-access',
-  },
-  {
-    label: PARENT_PORTAL_NAV_LABELS.Builder,
-    detail: 'Stateless compiler',
-    icon: 'report',
-    tabId: 'controls',
-    groupId: 'manage',
-    sectionLabel: PARENT_PORTAL_NAV_LABELS.Activity,
-    tone: 'purple',
-    routePath: '#/report-compiler',
-  },
-  {
     label: PARENT_PORTAL_NAV_LABELS.Audit,
     detail: 'Decisions and exports',
     icon: 'audit',
@@ -386,36 +340,6 @@ export const PARENT_PORTAL_NAV_ITEMS: readonly ParentPortalNavItem[] = [
     routePath: '#/subscription',
   },
   {
-    label: PARENT_PORTAL_NAV_LABELS.Access,
-    detail: 'Plan gates and grace',
-    icon: 'account',
-    tabId: 'controls',
-    groupId: 'manage',
-    sectionLabel: PARENT_PORTAL_NAV_LABELS.Account,
-    tone: 'gold',
-    routePath: '#/entitlements',
-  },
-  {
-    label: PARENT_PORTAL_NAV_LABELS.Platforms,
-    detail: 'Desktop mobile install',
-    icon: 'devices',
-    tabId: 'controls',
-    groupId: 'manage',
-    sectionLabel: PARENT_PORTAL_NAV_LABELS.Devices,
-    tone: 'cyan',
-    routePath: '#/platforms-install',
-  },
-  {
-    label: PARENT_PORTAL_NAV_LABELS.Updates,
-    detail: 'Install and rollback',
-    icon: 'updates',
-    tabId: 'controls',
-    groupId: 'manage',
-    sectionLabel: PARENT_PORTAL_NAV_LABELS.Devices,
-    tone: 'cyan',
-    routePath: '#/install-updates',
-  },
-  {
     label: PARENT_PORTAL_NAV_LABELS.Support,
     detail: 'Diagnostics and help',
     icon: 'portal',
@@ -426,13 +350,13 @@ export const PARENT_PORTAL_NAV_ITEMS: readonly ParentPortalNavItem[] = [
     routePath: '#/diagnostics',
   },
   {
-    label: PARENT_PORTAL_NAV_LABELS.Settings,
-    detail: 'Family defaults',
+    label: PARENT_PORTAL_NAV_LABELS.Access,
+    detail: 'Plan gates and grace',
     icon: 'account',
-    tabId: 'routines',
+    tabId: 'controls',
     groupId: 'manage',
-    sectionLabel: PARENT_PORTAL_NAV_LABELS.Portal,
-    tone: 'cyan',
-    routePath: '#/settings-rules',
+    sectionLabel: PARENT_PORTAL_NAV_LABELS.Account,
+    tone: 'gold',
+    routePath: '#/entitlements',
   },
 ] as const;

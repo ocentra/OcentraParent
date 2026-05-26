@@ -2,7 +2,7 @@
 
 This is the milestone-specific expectation file for V4 in `docs/product-roadmap.md`.
 
-Supporting expectation files: [data custody](data-custody.md), [AI](ai.md), [evidence storage](evidence-storage.md), [policy](policy.md), and [contracts](contracts.md).
+Supporting expectation files: [data custody](data-custody.md), [AI](ai.md), [parent assistant chat](parent-assistant-chat.md), [evidence storage](evidence-storage.md), [policy](policy.md), and [contracts](contracts.md).
 
 ## Outcome
 
@@ -13,6 +13,7 @@ Supporting expectation files: [data custody](data-custody.md), [AI](ai.md), [evi
 ## Acceptance
 
 - Report/assistant requests declare parent action, permitted evidence refs, custody boundary, prompt/model version, retention behavior, cited evidence, uncertainty, and failure state.
+- Assistant chat threads, quick actions, follow-ups, action previews, provider status, and child-device evidence queries use typed contracts before runtime implementation.
 - Remote/API failures degrade to local-only explanation, unknown, or ask-parent without disabling local safety.
 - Remote output cannot override stricter parent rules or typed local policy decisions.
 

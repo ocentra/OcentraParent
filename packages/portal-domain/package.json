@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@ocentra-parent/agent-protocol-domain": "file:../agent-protocol-domain",
+    "@ocentra-parent/parent-domain": "file:../parent-domain",
     "@ocentra-parent/schema-domain": "file:../schema-domain",
     "@ocentra-parent/text-domain": "file:../text-domain"
   }

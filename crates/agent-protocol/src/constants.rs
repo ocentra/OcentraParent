@@ -89,6 +89,15 @@ pub mod event_id {
     pub const POLICY_PREVIEW_READ_MODEL_REPORTED: &str = "policy-preview-read-model-reported";
     pub const ENFORCEMENT_AUDIT_REPORTED: &str = "enforcement-audit-reported";
     pub const ENFORCEMENT_TIMER_REPORTED: &str = "enforcement-timer-reported";
+    pub const PARENT_ASSISTANT_THREAD_UPDATED: &str = "parent-assistant-thread-updated";
+    pub const PARENT_ASSISTANT_MESSAGE_ACCEPTED: &str = "parent-assistant-message-accepted";
+    pub const PARENT_ASSISTANT_RUN_STARTED: &str = "parent-assistant-run-started";
+    pub const PARENT_ASSISTANT_MESSAGE_DELTA: &str = "parent-assistant-message-delta";
+    pub const PARENT_ASSISTANT_MESSAGE_COMPLETED: &str = "parent-assistant-message-completed";
+    pub const PARENT_ASSISTANT_ACTION_PREVIEWED: &str = "parent-assistant-action-previewed";
+    pub const PARENT_ASSISTANT_ACTION_CONFIRMED: &str = "parent-assistant-action-confirmed";
+    pub const PARENT_ASSISTANT_PROVIDER_DEGRADED: &str = "parent-assistant-provider-degraded";
+    pub const PARENT_ASSISTANT_ERROR_REPORTED: &str = "parent-assistant-error-reported";
     pub const DEV_LOCALHOST_API_READY: &str = "dev-localhost-api-ready";
     pub const UNKNOWN_COMMAND: &str = "unknown-command";
 }
@@ -144,6 +153,8 @@ pub mod enforcement;
 pub mod lan_pairing;
 #[path = "constants/network_flow.rs"]
 pub mod network_flow;
+#[path = "constants/parent_assistant.rs"]
+pub mod parent_assistant;
 
 #[path = "constants/sqlite.rs"]
 pub mod sqlite;

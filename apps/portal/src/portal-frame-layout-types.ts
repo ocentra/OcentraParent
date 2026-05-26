@@ -1,8 +1,17 @@
-import { PortalFrameTuner } from '@ocentra-parent/portal-domain/contracts';
+import {
+  PortalFrameTuner,
+  defaultPortalAppLayoutContentDraft,
+  type PortalAppLayoutContentDraft,
+} from '@ocentra-parent/portal-domain/contracts';
 import {
   normalizePictureViewerFrameControls,
   type PictureViewerFrameSurfaceControls,
-} from '../../../vendor/ocentra-games-core-ui/Common/PictureViewerFrame/PictureViewerFrameControls';
+} from '../../../vendor/ocentra-parent-core-ui/Common/PictureViewerFrame/PictureViewerFrameControls';
+import {
+  DEFAULT_PARENT_PORTAL_SVG_CONTROLS,
+  normalizeParentPortalSvgControls,
+  type ParentPortalSvgControls,
+} from '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurfaceControls';
 
 export type PortalFrameShellLayout = {
   readonly sidebarWidth: number;
@@ -89,10 +98,17 @@ export type PortalFrameContentLayout = {
   readonly main: PortalFrameContentTargetLayout;
 };
 
+export type PortalParentPortalLayout = {
+  readonly mainApp: ParentPortalSvgControls;
+  readonly chatInterface: ParentPortalSvgControls;
+  readonly contentDraft: PortalAppLayoutContentDraft;
+};
+
 export type PortalFrameLayout = {
   readonly carousel: PortalCarouselLayout;
   readonly content: PortalFrameContentLayout;
   readonly goldenCard: PortalGoldenCardLayout;
+  readonly parentPortal: PortalParentPortalLayout;
   readonly shell: PortalFrameShellLayout;
   readonly preview: PortalFramePreviewLayout;
   readonly sideTop: PictureViewerFrameSurfaceControls;
@@ -159,6 +175,7 @@ export const DEFAULT_PORTAL_FRAME_LAYOUT: PortalFrameLayout = {
     titleOffsetX: 0,
     titleOffsetY: 0,
   },
+  parentPortal: defaultParentPortalLayout(),
   shell: {
     sidebarWidth: 270,
     shellEdge: 8,
@@ -201,6 +218,24 @@ export const DEFAULT_PORTAL_FRAME_LAYOUT: PortalFrameLayout = {
     innerFrame: frame(text.Color.Cyan, 42, 420, 0, 8, 3, 0.62),
   } as Partial<PictureViewerFrameSurfaceControls>),
 };
+
+export function defaultParentPortalLayout(): PortalParentPortalLayout {
+  return {
+    mainApp: defaultParentPortalControls(),
+    chatInterface: defaultParentPortalControls(),
+    contentDraft: defaultPortalAppLayoutContentDraft(),
+  };
+}
+
+export function defaultParentPortalControls(): ParentPortalSvgControls {
+  return normalizeParentPortalSvgControls({
+    ...DEFAULT_PARENT_PORTAL_SVG_CONTROLS,
+    layout: {
+      ...DEFAULT_PARENT_PORTAL_SVG_CONTROLS.layout,
+      topY: 15,
+    },
+  });
+}
 
 function contentTarget(
   insetX: number,

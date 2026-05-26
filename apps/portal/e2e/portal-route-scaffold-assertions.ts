@@ -3,7 +3,8 @@ import { PARENT_PORTAL_NAV_LABELS } from '@ocentra-parent/portal-domain/contract
 
 const productRoutes = [
   { path: '/#/start', nav: 'START HERE', title: 'START HERE', kind: 'guideDashboard' },
-  { path: '/#/overview', nav: 'OVERVIEW', title: 'TODAY CONTROL SNAPSHOT', kind: 'control' },
+  { path: '/#/overview', nav: 'OVERVIEW', title: 'Current device state', kind: 'control' },
+  { path: '/#/assistant', nav: 'AI ASSISTANT', title: 'Ask MIA about', kind: 'assistant' },
   { path: '/#/activity', nav: 'ACTIVITY', title: 'PARENT CONTROL DETAIL', kind: 'control' },
   { path: '/#/browser', nav: 'WEB', title: 'MANAGED WEB CONTROL DETAIL', kind: 'control' },
   {
@@ -12,11 +13,11 @@ const productRoutes = [
     title: 'BROWSER SETUP CONTROL DETAIL',
     kind: 'manage',
   },
-  { path: '/#/policy', nav: 'RULES', title: 'RULES AND POLICY GUIDE', kind: 'guide' },
+  { path: '/#/policy', nav: 'RULES', title: 'Rules', kind: 'guide' },
   {
     path: '/#/rule-management',
     nav: PARENT_PORTAL_NAV_LABELS.RuleSet,
-    title: 'RULE SETUP CONTROL DETAIL',
+    title: 'RULES CONTROL DETAIL',
     kind: 'manage',
   },
   { path: '/#/schedules', nav: 'SCHEDULES', title: 'SCHEDULES CONTROL DETAIL', kind: 'manage' },
@@ -30,25 +31,57 @@ const productRoutes = [
     title: 'MEMORY SETUP CONTROL DETAIL',
     kind: 'manage',
   },
+  { path: '/#/ai-guide', nav: 'AI', title: 'AI AND EVIDENCE GUIDE', kind: 'guide' },
   { path: '/#/ai-runtime', nav: 'AI SETUP', title: 'AI SETUP CONTROL DETAIL', kind: 'manage' },
   { path: '/#/api-providers', nav: 'API KEYS', title: 'API PROVIDERS CONTROL DETAIL', kind: 'manage' },
   {
-    path: '/#/report-settings',
-    nav: PARENT_PORTAL_NAV_LABELS.ReportSet,
-    title: 'REPORT SETUP CONTROL DETAIL',
-    kind: 'manage',
+    path: '/#/reports-guide',
+    nav: PARENT_PORTAL_NAV_LABELS.ReportsGuide,
+    title: 'REPORTS AND SUMMARIES GUIDE',
+    kind: 'guide',
   },
-  { path: '/#/screen-analysis', nav: 'SCREEN', title: 'SCREEN ANALYSIS CONTROL DETAIL', kind: 'manage' },
-  { path: '/#/app-game-sessions', nav: 'APPS/GAMES', title: 'APPS AND GAMES CONTROL DETAIL', kind: 'manage' },
-  { path: '/#/network-activity', nav: 'NETWORK', title: 'NETWORK ACTIVITY CONTROL DETAIL', kind: 'manage' },
-  { path: '/#/devices', nav: 'DEVICES', title: 'DEVICES CONTROL DETAIL', kind: 'manage' },
+  {
+    path: '/#/report-settings',
+    nav: PARENT_PORTAL_NAV_LABELS.Activity,
+    title: 'REPORTS CONTROL DETAIL',
+    kind: 'activityManage',
+  },
+  {
+    path: '/#/screen-analysis',
+    nav: PARENT_PORTAL_NAV_LABELS.Activity,
+    title: 'SCREEN ANALYSIS CONTROL DETAIL',
+    kind: 'activityManage',
+  },
+  {
+    path: '/#/app-game-sessions',
+    nav: PARENT_PORTAL_NAV_LABELS.Activity,
+    title: 'APP USE CONTROL DETAIL',
+    kind: 'activityManage',
+  },
+  {
+    path: '/#/network-activity',
+    nav: PARENT_PORTAL_NAV_LABELS.Activity,
+    title: 'NETWORK ACTIVITY CONTROL DETAIL',
+    kind: 'activityManage',
+  },
+  {
+    path: '/#/devices',
+    nav: PARENT_PORTAL_NAV_LABELS.Devices,
+    title: 'LAN PAIRING CONTROL DETAIL',
+    kind: 'lanPairing',
+  },
   {
     path: '/#/lan-pairing',
-    nav: PARENT_PORTAL_NAV_LABELS.Lan,
+    nav: PARENT_PORTAL_NAV_LABELS.Devices,
     title: 'LAN PAIRING CONTROL DETAIL',
-    kind: 'manage',
+    kind: 'lanPairing',
   },
-  { path: '/#/capability-status', nav: 'CAPABILITY', title: 'CAPABILITY STATUS CONTROL DETAIL', kind: 'manage' },
+  {
+    path: '/#/capability-status',
+    nav: PARENT_PORTAL_NAV_LABELS.Devices,
+    title: 'LAN PAIRING CONTROL DETAIL',
+    kind: 'lanPairing',
+  },
   { path: '/#/notifications', nav: 'ALERTS', title: 'ALERTS CONTROL DETAIL', kind: 'manage' },
   {
     path: '/#/notification-channels',
@@ -63,12 +96,17 @@ const productRoutes = [
     title: 'EXPORT DELETE RETENTION CONTROL DETAIL',
     kind: 'manage',
   },
-  { path: '/#/remote-access', nav: 'REMOTE', title: 'REMOTE ACCESS CONTROL DETAIL', kind: 'manage' },
+  {
+    path: '/#/remote-access',
+    nav: PARENT_PORTAL_NAV_LABELS.Devices,
+    title: 'LAN PAIRING CONTROL DETAIL',
+    kind: 'lanPairing',
+  },
   {
     path: '/#/report-compiler',
-    nav: PARENT_PORTAL_NAV_LABELS.Builder,
+    nav: PARENT_PORTAL_NAV_LABELS.Activity,
     title: 'REPORT COMPILER CONTROL DETAIL',
-    kind: 'manage',
+    kind: 'activityManage',
   },
   { path: '/#/audit-history', nav: 'AUDIT', title: 'AUDIT HISTORY CONTROL DETAIL', kind: 'manage' },
   {
@@ -83,8 +121,18 @@ const productRoutes = [
     title: 'ENTITLEMENTS CONTROL DETAIL',
     kind: 'manage',
   },
-  { path: '/#/platforms-install', nav: 'PLATFORMS', title: 'PLATFORMS CONTROL DETAIL', kind: 'manage' },
-  { path: '/#/install-updates', nav: 'UPDATES', title: 'INSTALL UPDATES CONTROL DETAIL', kind: 'manage' },
+  {
+    path: '/#/platforms-install',
+    nav: PARENT_PORTAL_NAV_LABELS.Devices,
+    title: 'LAN PAIRING CONTROL DETAIL',
+    kind: 'lanPairing',
+  },
+  {
+    path: '/#/install-updates',
+    nav: PARENT_PORTAL_NAV_LABELS.Devices,
+    title: 'LAN PAIRING CONTROL DETAIL',
+    kind: 'lanPairing',
+  },
   { path: '/#/diagnostics', nav: 'SUPPORT', title: 'SUPPORT CONTROL DETAIL', kind: 'manage' },
   { path: '/#/settings-rules', nav: 'SETTINGS', title: 'FAMILY SETTINGS CONTROL DETAIL', kind: 'manage' },
 ] as const;
@@ -94,7 +142,9 @@ export async function assertRouteScaffolds(page: Page): Promise<void> {
     await assertProductRoute(page, route.path, route.nav, route.title, route.kind);
   }
   await assertSidePanelFoldouts(page);
-  await assertMockAssistantRemoved(page);
+  await assertDuplicateLabelSidePanelRoutes(page);
+  await assertManageTargetSelectorSemantics(page);
+  await assertAssistantEntryAvailable(page);
   await assertFrameTunerRoute(page);
 }
 
@@ -103,13 +153,19 @@ async function assertProductRoute(
   path: string,
   navLabel: string,
   panelTitle: string,
-  kind: 'control' | 'guide' | 'guideDashboard' | 'manage'
+  kind: 'activityManage' | 'assistant' | 'control' | 'guide' | 'guideDashboard' | 'lanPairing' | 'manage'
 ): Promise<void> {
   await page.goto(path);
   const surface = page.locator('svg.parent-portal-svg-surface');
   await expect(surface).toBeVisible();
   await expect(page.getByRole('img', { name: 'Ocentra parent dashboard' })).toBeVisible();
   await expect(surface.locator('text').filter({ hasText: navLabel }).first()).toBeVisible();
+  if (kind === 'assistant') {
+    await expect(page.getByRole('button', { name: 'Close parent assistant' })).toBeVisible();
+    await expect(page.getByRole('button', { name: /^Ask MIA about Rules$/ })).toBeVisible();
+    await expect(surface.locator('text').filter({ hasText: panelTitle }).first()).toBeVisible();
+    return;
+  }
   if (kind === 'manage') {
     await expect(
       surface
@@ -120,10 +176,26 @@ async function assertProductRoute(
     await expect(surface.locator('text').filter({ hasText: 'SETTING CHOICES' }).first()).toBeVisible();
     return;
   }
-  await expect(surface.locator('text').filter({ hasText: panelTitle }).first()).toBeVisible();
+  if (kind === 'activityManage') {
+    await assertActivityManageSurface(page, surface);
+    return;
+  }
+  if (kind === 'lanPairing') {
+    await expect(surface.locator('text').filter({ hasText: 'Local Area Network' }).first()).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Scan Local Area Network' })).toBeVisible();
+    await expect(surface.locator('text').filter({ hasText: 'Info' }).first()).toBeVisible();
+    await expect(surface.locator('text').filter({ hasText: 'Update' }).first()).toBeVisible();
+    await expect(surface.locator('text').filter({ hasText: 'Capability' }).first()).toBeVisible();
+    return;
+  }
+  if (kind === 'control') {
+    await expect(surface.locator('text').filter({ hasText: 'WHAT PARENTS CONTROL' }).first()).toBeVisible();
+    await expect(surface.locator('text').filter({ hasText: 'DATA CUSTODY' }).first()).toBeVisible();
+    return;
+  }
   if (kind === 'guideDashboard') {
     await expect(page.getByRole('button', { name: 'Open Set Up Ocentra Parent' })).toBeVisible();
-    await expect(surface.locator('text').filter({ hasText: 'GUIDES 17' }).first()).toBeVisible();
+    await expect(surface.locator('text').filter({ hasText: 'Support And Diagnostics' }).first()).toBeVisible();
     return;
   }
   if (kind === 'guide') {
@@ -131,8 +203,60 @@ async function assertProductRoute(
     await expect(page.getByRole('button', { name: 'Show QUICK ACTION' })).toBeVisible();
     return;
   }
-  await expect(surface.locator('text').filter({ hasText: 'WHAT PARENTS CONTROL' }).first()).toBeVisible();
-  await expect(surface.locator('text').filter({ hasText: 'DATA CUSTODY' }).first()).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: panelTitle }).first()).toBeVisible();
+}
+
+async function assertActivityManageSurface(page: Page, surface: ReturnType<Page['locator']>): Promise<void> {
+  await expect(surface.locator('text').filter({ hasText: 'Family' }).first()).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: 'Per Device' }).first()).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: 'Reports' }).first()).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: 'Screen' }).first()).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: 'App Use' }).first()).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: 'Browser' }).first()).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: 'Games' }).first()).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: 'Network' }).first()).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Scan Local Area Network' })).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: 'Connected' }).first()).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: 'Offline' }).first()).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: 'Empty' }).first()).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Select Aarav laptop' })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Select Mina tablet' })).toHaveCount(0);
+  await expect(surface.locator('text').filter({ hasText: 'Aarav laptop' })).toHaveCount(0);
+  await expect(surface.locator('text').filter({ hasText: 'Mina tablet' })).toHaveCount(0);
+  await expect(surface.locator('text').filter({ hasText: 'D001' }).first()).toBeVisible();
+  await assertActivityReportSurface(page, surface);
+  await assertLegacyActivitySurfaceRemoved(page, surface);
+}
+
+async function assertActivityReportSurface(page: Page, surface: ReturnType<Page['locator']>): Promise<void> {
+  await expect(surface.locator('text').filter({ hasText: 'Report device : No device selected' }).first()).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: 'Frequency' }).first()).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: 'Report viewer' }).first()).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: 'SELECTED REPORT' }).first()).toBeVisible();
+  await expect(
+    surface.locator('text').filter({ hasText: 'activity-report-daily-family-2026-05-26.json' }).first()
+  ).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Generate Daily activity report' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Save generated activity report' })).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: 'Daily' }).first()).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: 'Weekly' }).first()).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: 'Monthly' }).first()).toBeVisible();
+}
+
+async function assertLegacyActivitySurfaceRemoved(page: Page, surface: ReturnType<Page['locator']>): Promise<void> {
+  await expect(page.getByRole('tab', { name: 'Show History activity monitor' })).toHaveCount(0);
+  await expect(page.getByRole('tab', { name: 'Show Live activity monitor' })).toHaveCount(0);
+  await expect(surface.locator('text').filter({ hasText: 'MONITOR' })).toHaveCount(0);
+  await expect(surface.locator('text').filter({ hasText: 'REPORT CADENCE' })).toHaveCount(0);
+  await expect(surface.locator('text').filter({ hasText: 'PER DEVICE BEHAVIOR' })).toHaveCount(0);
+  await expect(surface.locator('text').filter({ hasText: 'PAST REPORTS' })).toHaveCount(0);
+  await expect(surface.locator('text').filter({ hasText: 'LIVE REPORT' })).toHaveCount(0);
+  await expect(surface.locator('text').filter({ hasText: 'Open report' })).toHaveCount(0);
+  await expect(surface.locator('text').filter({ hasText: 'Family Defaults' })).toHaveCount(0);
+  await expect(surface.locator('text').filter({ hasText: 'REPORT TYPE' })).toHaveCount(0);
+  await expect(surface.locator('text').filter({ hasText: 'REPORT TARGET' })).toHaveCount(0);
+  await expect(surface.locator('text').filter({ hasText: 'REPORT MODE' })).toHaveCount(0);
+  await expect(surface.locator('text').filter({ hasText: 'Family activity selected' })).toHaveCount(0);
 }
 
 async function assertSidePanelFoldouts(page: Page): Promise<void> {
@@ -144,17 +268,32 @@ async function assertSidePanelFoldouts(page: Page): Promise<void> {
   await expect(page.getByRole('button', { name: 'Expand GUIDE' })).toBeVisible();
   await clickSidePanelButton(page, 'Expand MANAGE');
   await expect(page.getByRole('button', { name: 'Collapse MANAGE' })).toBeVisible();
-  await expect(page.getByRole('button', { name: `Collapse ${PARENT_PORTAL_NAV_LABELS.Policies}` })).toBeVisible();
-  await expect(page.getByRole('button', { name: `Open ${PARENT_PORTAL_NAV_LABELS.Browser}` })).toBeVisible();
-  await clickSidePanelButton(page, `Collapse ${PARENT_PORTAL_NAV_LABELS.Policies}`);
-  await expect(page.getByRole('button', { name: `Expand ${PARENT_PORTAL_NAV_LABELS.Policies}` })).toBeVisible();
+  await expect(page.getByRole('button', { name: `Collapse ${PARENT_PORTAL_NAV_LABELS.Portal}` })).toBeVisible();
+  await expect(page.getByRole('button', { name: `Open ${PARENT_PORTAL_NAV_LABELS.Settings}` })).toBeVisible();
+  await clickSidePanelButton(page, `Collapse ${PARENT_PORTAL_NAV_LABELS.Portal}`);
+  await expect(page.getByRole('button', { name: `Expand ${PARENT_PORTAL_NAV_LABELS.Portal}` })).toBeVisible();
   await expect(
     page
       .locator('svg.parent-portal-svg-surface')
-      .locator(`g[role="button"][aria-label="Open ${PARENT_PORTAL_NAV_LABELS.Browser}"]`)
+      .locator(`g[role="button"][aria-label="Open ${PARENT_PORTAL_NAV_LABELS.Settings}"]`)
   ).toHaveCount(0);
-  await clickSidePanelButton(page, `Expand ${PARENT_PORTAL_NAV_LABELS.Policies}`);
-  await expect(page.getByRole('button', { name: `Open ${PARENT_PORTAL_NAV_LABELS.Browser}` })).toBeVisible();
+  await clickSidePanelButton(page, `Expand ${PARENT_PORTAL_NAV_LABELS.Portal}`);
+  await expect(page.getByRole('button', { name: `Open ${PARENT_PORTAL_NAV_LABELS.Settings}` })).toBeVisible();
+  await expect(page.getByRole('button', { name: `Open ${PARENT_PORTAL_NAV_LABELS.Devices}` })).toBeVisible();
+  await expect(page.getByRole('button', { name: `Expand ${PARENT_PORTAL_NAV_LABELS.Devices}` })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: `Open ${PARENT_PORTAL_NAV_LABELS.Lan}` })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: `Open ${PARENT_PORTAL_NAV_LABELS.Capability}` })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: `Open ${PARENT_PORTAL_NAV_LABELS.Remote}` })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: `Open ${PARENT_PORTAL_NAV_LABELS.Platforms}` })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: `Open ${PARENT_PORTAL_NAV_LABELS.Updates}` })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: `Expand ${PARENT_PORTAL_NAV_LABELS.Activity}` })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: `Open ${PARENT_PORTAL_NAV_LABELS.ReportSet}` })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: `Open ${PARENT_PORTAL_NAV_LABELS.Screen}` })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: `Open ${PARENT_PORTAL_NAV_LABELS.AppsGames}` })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: `Open ${PARENT_PORTAL_NAV_LABELS.Network}` })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: `Open ${PARENT_PORTAL_NAV_LABELS.Builder}` })).toHaveCount(0);
+  await clickSidePanelButton(page, `Open ${PARENT_PORTAL_NAV_LABELS.Devices}`);
+  await expect(page).toHaveURL(/#\/lan-pairing$/);
   await clickSidePanelButton(page, 'Collapse MANAGE');
   await expect(page.getByRole('button', { name: 'Expand MANAGE' })).toBeVisible();
 }
@@ -165,36 +304,151 @@ async function clickSidePanelButton(page: Page, name: string): Promise<void> {
   await button.click({ force: true });
 }
 
-async function assertMockAssistantRemoved(page: Page): Promise<void> {
+async function assertDuplicateLabelSidePanelRoutes(page: Page): Promise<void> {
+  const surface = page.locator('svg.parent-portal-svg-surface');
+  await page.goto('/#/overview');
+  await clickSidePanelButton(page, 'Expand GUIDE');
+  await clickSidePanelButton(page, `Open ${PARENT_PORTAL_NAV_LABELS.RulesGuide}`);
+  await expect(page).toHaveURL(/#\/policy$/);
+  await expect(surface.locator('text').filter({ hasText: 'Rules' }).first()).toBeVisible();
+  await page.goto('/#/overview');
+  await clickSidePanelButton(page, 'Expand MANAGE');
+  await clickSidePanelButton(page, `Expand ${PARENT_PORTAL_NAV_LABELS.Policies}`);
+  await clickSidePanelButton(page, `Open ${PARENT_PORTAL_NAV_LABELS.RuleSet}`);
+  await expect(page).toHaveURL(/#\/rule-management$/);
+  await expect(page.getByRole('button', { name: 'Open Rule guide' })).toBeVisible();
+  await page.goto('/#/overview');
+  await clickSidePanelButton(page, 'Expand GUIDE');
+  await clickSidePanelButton(page, `Open ${PARENT_PORTAL_NAV_LABELS.ReportsGuide}`);
+  await expect(page).toHaveURL(/#\/reports-guide$/);
+  await expect(surface.locator('text').filter({ hasText: 'Reports And Summaries' }).first()).toBeVisible();
+  await page.goto('/#/overview');
+  await clickSidePanelButton(page, 'Expand MANAGE');
+  await expect(page.getByRole('button', { name: `Expand ${PARENT_PORTAL_NAV_LABELS.Activity}` })).toHaveCount(0);
+  await page.goto('/#/report-settings');
+  await expect(page.getByRole('button', { name: 'Open Report guide' })).toBeVisible();
+}
+
+async function assertManageTargetSelectorSemantics(page: Page): Promise<void> {
+  const surface = page.locator('svg.parent-portal-svg-surface');
+  const targetSelector = page.getByRole('button', { exact: true, name: 'Focus parent control selector' });
+
+  await page.goto('/#/settings-rules');
+  await expect(surface).toBeVisible();
+  await expect(targetSelector).toHaveCount(0);
+  await expect(surface.locator('text').filter({ hasText: 'Family Settings / Parent profile' }).first()).toBeVisible();
+
+  await page.goto('/#/lan-pairing');
+  await expect(targetSelector).toHaveCount(0);
+  await expect(surface.locator('text').filter({ hasText: 'Local Area Network' }).first()).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: 'No device selected' }).first()).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: 'Local device' })).toHaveCount(0);
+  await expect(surface.locator('text').filter({ hasText: 'This parent portal' })).toHaveCount(0);
+  await expect(surface.locator('text').filter({ hasText: 'New child device' })).toHaveCount(0);
+  await expect(surface.locator('text').filter({ hasText: 'Aarav laptop' })).toHaveCount(0);
+  await expect(surface.locator('text').filter({ hasText: 'Family tablet' })).toHaveCount(0);
+  await expect(surface.locator('text').filter({ hasText: 'AI / New child device' })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Select D001' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'D004 is unsupported' })).toBeVisible();
+  await page.getByRole('button', { name: 'Select D001' }).click({ force: true });
+  await expect(surface.locator('text').filter({ hasText: 'UI check device 1' }).first()).toBeVisible();
+
+  await page.goto('/#/platforms-install');
+  await expect(targetSelector).toHaveCount(0);
+  await expect(surface.locator('text').filter({ hasText: 'Local Area Network' }).first()).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: 'Info' }).first()).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: 'Platforms / Parent desktop' })).toHaveCount(0);
+  await expect(surface.locator('text').filter({ hasText: 'Platforms / Parent profile' })).toHaveCount(0);
+}
+
+async function assertAssistantEntryAvailable(page: Page): Promise<void> {
   await page.goto('/#/overview');
   const surface = page.locator('svg.parent-portal-svg-surface');
-  await expect(page.getByRole('button', { name: 'Open AI assistant' })).toHaveCount(0);
-  await expect(page.getByRole('button', { name: 'Close parent assistant' })).toHaveCount(0);
-  await expect(page.getByRole('button', { name: 'Send message to MIA' })).toHaveCount(0);
-  await expect(page.getByRole('button', { name: /^Ask MIA/ })).toHaveCount(0);
-  await expect(page.getByRole('button', { name: /Copy (?:MIA|YOU) message/ })).toHaveCount(0);
-  await expect(surface.locator('text').filter({ hasText: 'AI ASSISTANT' })).toHaveCount(0);
-  await expect(surface.locator('text').filter({ hasText: 'MIA' })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Open AI assistant' })).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: 'AI ASSISTANT' }).first()).toBeVisible();
+  await page.getByRole('button', { name: 'Open AI assistant' }).click({ force: true });
+  await expect(page).toHaveURL(/#\/assistant$/);
+  await expect(page.getByRole('button', { name: 'Close parent assistant' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Hide action panel' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Send message to MIA' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Use voice input for MIA' })).toBeVisible();
+  await expect(page.getByRole('button', { name: /^Ask MIA about Rules$/ })).toBeVisible();
+  await page.getByRole('tab', { name: 'History' }).click({ force: true });
+  await expect(page.getByRole('button', { name: /^Report history$/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /^Rules history$/ })).toBeVisible();
+  await page.getByRole('tab', { name: 'Quick Action' }).click({ force: true });
+  await expect(page.getByRole('button', { name: /^Ask MIA about Rules$/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /^Ask MIA: Give me the overall report$/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /^Copy MIA message$/ }).first()).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: 'AI assisted view' })).toHaveCount(0);
+  await expect(surface.locator('text').filter({ hasText: 'Ask AI Assistant to update a setting' })).toHaveCount(0);
+  await page.getByRole('button', { name: /^Ask MIA about Rules$/ }).click({ force: true });
+  await expect(page.getByRole('button', { name: /^Ask MIA about Rules: Explain$/ })).toBeVisible();
+  await page.getByRole('button', { name: /^Ask MIA about Rules: Explain$/ }).click({ force: true });
+  await expect(page).toHaveURL(/#\/assistant$/);
+  await expect(page.getByRole('button', { name: /^Copy YOU message$/ }).first()).toBeVisible();
+  await expect(page.getByRole('button', { name: /^Ask MIA: Change a rule$/ })).toBeVisible();
+  await expect(page.getByRole('article', { name: /YOU: Explain the current house rules/ })).toBeVisible();
+  await page.getByRole('button', { name: 'Hide action panel' }).click({ force: true });
+  await expect(page.getByRole('button', { name: 'Show action panel' })).toBeVisible();
+  await expect(page.getByRole('button', { name: /^Ask MIA about Rules$/ })).toHaveCount(0);
+  await page.getByRole('button', { name: 'Show action panel' }).click({ force: true });
+  await expect(page.getByRole('button', { name: /^Ask MIA about Rules$/ })).toBeVisible();
+  await page.getByRole('button', { name: 'Close parent assistant' }).click({ force: true });
+  await expect(page).toHaveURL(/#\/overview$/);
+  await expect(page.getByRole('button', { name: 'Open AI assistant' })).toBeVisible();
 }
 
 async function assertFrameTunerRoute(page: Page): Promise<void> {
-  await page.goto('/#/frame-tuner');
-  await expect(page.getByRole('heading', { name: 'Frame tuner' })).toBeVisible();
+  await page.goto('/#/app-layout');
+  await expect(page.getByRole('heading', { name: 'App layout' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Save JSON' })).toBeVisible();
   await expect(page.locator('.app-sidebar')).toHaveCount(0);
   await expect(page.locator('svg.portal-frame-backdrop-svg')).toHaveCount(0);
-  await page.getByRole('tab', { name: 'Side panel' }).click();
-  await expect(page.getByRole('tab', { name: 'Top' })).toBeVisible();
-  await expect(page.getByRole('tab', { name: 'Bottom' })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Reset top' })).toBeVisible();
-  await page.getByRole('tab', { name: 'Bottom' }).click();
-  await expect(page.getByRole('button', { name: 'Reset bottom' })).toBeVisible();
+  await assertAppLayoutTopTabs(page);
+  await assertMainAppLayoutHierarchy(page);
+  await assertChatLayoutHierarchy(page);
+}
+
+async function assertAppLayoutTopTabs(page: Page): Promise<void> {
+  await expect(page.getByRole('tab', { name: 'Main App' })).toBeVisible();
+  await expect(page.getByRole('tab', { name: 'Chat Interface' })).toBeVisible();
+  await expect(page.getByRole('tab', { name: 'Carousel' })).toHaveCount(0);
+  await expect(page.getByRole('tab', { name: 'Golden card' })).toHaveCount(0);
+  await expect(page.getByRole('tab', { name: 'Save and JSON' })).toHaveCount(0);
+}
+
+async function assertMainAppLayoutHierarchy(page: Page): Promise<void> {
+  await expect(page.locator('.portal-frame-tuner-hierarchy')).toContainText('Main App');
+  await expect(page.locator('.portal-frame-tuner-hierarchy')).toContainText('Side panel');
+  await expect(page.locator('.portal-frame-tuner-hierarchy')).toContainText('Sidepanel top');
+  await expect(page.getByRole('tab', { name: 'Side panel' })).toBeVisible();
+  await expect(page.getByRole('tab', { name: 'Main panel' })).toBeVisible();
+  await expect(page.getByRole('tab', { name: 'Sidepanel top' })).toBeVisible();
+  await expect(page.getByRole('tab', { name: 'Sidepanel bottom' })).toBeVisible();
+  await expect(page.getByRole('tab', { name: 'Chrome' })).toBeVisible();
+  await expect(page.getByRole('tab', { name: 'Colors' })).toBeVisible();
+  await expect(page.getByRole('tab', { name: 'Content' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Reset surface' })).toBeVisible();
+  await page.getByRole('tab', { name: 'Content' }).click();
+  await expect(page.getByRole('button', { name: 'Add foldout' })).toBeVisible();
+  await expect(page.getByText('Sidepanel foldouts')).toBeVisible();
+}
+
+async function assertChatLayoutHierarchy(page: Page): Promise<void> {
+  await page.getByRole('tab', { name: 'Chat Interface' }).click();
+  await expect(page.locator('.portal-frame-tuner-hierarchy')).toContainText('Chat Interface');
+  await expect(page.locator('.portal-frame-tuner-hierarchy')).toContainText('Side panel');
+  await expect(page.locator('.portal-frame-tuner-hierarchy')).toContainText('Sidepanel top');
+  await expect(page.getByRole('tab', { name: 'Sidepanel top' })).toBeVisible();
+  await expect(page.getByRole('tab', { name: 'Sidepanel bottom' })).toBeVisible();
   await page.getByRole('tab', { name: 'Main panel' }).click();
-  await expect(page.getByRole('button', { name: 'Reset main' })).toBeVisible();
-  await page.getByRole('tab', { name: 'Golden card' }).click();
-  await expect(page.getByRole('button', { name: 'Reset golden card' })).toBeVisible();
-  await expect(page.getByText('Golden card frame')).toBeVisible();
-  await expect(page.getByText('Golden card content')).toBeVisible();
-  await page.getByRole('tab', { name: 'Save and JSON' }).click();
-  await expect(page.getByText('Saved JSON preview')).toBeVisible();
+  await expect(page.locator('.portal-frame-tuner-hierarchy')).toContainText('Chat Interface');
+  await expect(page.locator('.portal-frame-tuner-hierarchy')).toContainText('Main panel');
+  await expect(page.locator('.portal-frame-tuner-hierarchy')).toContainText('Top choices');
+  await expect(page.getByRole('tab', { name: 'Top choices' })).toBeVisible();
+  await expect(page.getByRole('tab', { name: 'Main bottom' })).toBeVisible();
+  await page.getByRole('tab', { name: 'Content' }).click();
+  await expect(page.getByRole('tab', { name: 'Top choices' })).toHaveCount(2);
+  await expect(page.getByText('Main bottom content')).toBeVisible();
 }

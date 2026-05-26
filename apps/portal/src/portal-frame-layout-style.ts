@@ -10,7 +10,7 @@ import {
 import {
   getPictureViewerFrameSpaceForOrientation,
   type PictureViewerFrameSurfaceControls,
-} from '../../../vendor/ocentra-games-core-ui/Common/PictureViewerFrame/PictureViewerFrameControls';
+} from '../../../vendor/ocentra-parent-core-ui/Common/PictureViewerFrame/PictureViewerFrameControls';
 import type {
   PortalCarouselLayout,
   PortalFrameContentTargetLayout,

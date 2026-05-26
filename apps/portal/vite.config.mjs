@@ -80,24 +80,26 @@ async function handleFrameLayoutRequest(request, response, readPath, writePaths,
 export default defineConfig({
   resolve: {
     alias: {
-      '@ocentra/app-assets/auth': vendorModule('../../vendor/ocentra-games-core-ui/shims/ocentra-app-assets-auth.ts'),
-      '@ocentra/app-assets/avatars': vendorModule(
-        '../../vendor/ocentra-games-core-ui/shims/ocentra-app-assets-avatars.ts'
+      '@ocentra-parent/portal-assets/auth': vendorModule(
+        '../../vendor/ocentra-parent-core-ui/shims/parent-portal-assets-auth.ts'
       ),
-      '@ocentra/app-assets/commons': vendorModule(
-        '../../vendor/ocentra-games-core-ui/shims/ocentra-app-assets-commons.ts'
+      '@ocentra-parent/portal-assets/avatars': vendorModule(
+        '../../vendor/ocentra-parent-core-ui/shims/parent-portal-assets-avatars.ts'
       ),
-      '@ocentra/app-assets/banners': vendorModule(
-        '../../vendor/ocentra-games-core-ui/shims/ocentra-app-assets-banners.ts'
+      '@ocentra-parent/portal-assets/common': vendorModule(
+        '../../vendor/ocentra-parent-core-ui/shims/parent-portal-assets-common.ts'
       ),
-      '@ocentra/app-assets/placeholders': vendorModule(
-        '../../vendor/ocentra-games-core-ui/shims/ocentra-app-assets-placeholders.ts'
+      '@ocentra-parent/portal-assets/banners': vendorModule(
+        '../../vendor/ocentra-parent-core-ui/shims/parent-portal-assets-banners.ts'
       ),
-      '@ocentra/schema-domain/effect-builder': vendorModule(
-        '../../vendor/ocentra-games-core-ui/schema-domain/effect-builder.ts'
+      '@ocentra-parent/portal-assets/placeholders': vendorModule(
+        '../../vendor/ocentra-parent-core-ui/shims/parent-portal-assets-placeholders.ts'
       ),
-      '@ocentra/game-asset-domain/schemas/parent-portal-page-content-schema': vendorModule(
-        '../../vendor/ocentra-games-core-ui/game-asset-domain/schemas/parent-portal-page-content-schema.ts'
+      '@ocentra-parent/vendor-schema/effect-builder': vendorModule(
+        '../../vendor/ocentra-parent-core-ui/schema-domain/effect-builder.ts'
+      ),
+      '@ocentra-parent/portal-content-schema': vendorModule(
+        '../../vendor/ocentra-parent-core-ui/parent-portal-content-domain/schemas/parent-portal-page-content-schema.ts'
       ),
     },
   },

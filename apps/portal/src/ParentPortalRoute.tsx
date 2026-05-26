@@ -4,34 +4,26 @@ import {
   PARENT_PORTAL_ROUTE,
   PARENT_PORTAL_ROWS,
   PortalDom,
+  PortalRoute,
   PortalConnectionState,
   parentPortalRouteContext,
   type PortalRoute as PortalRouteValue,
   type PortalConnectionState as PortalConnectionStateValue,
 } from '@ocentra-parent/portal-domain/contracts';
-import { ParentPortalSvgSurface } from '../../../vendor/ocentra-games-core-ui/AppPages/ParentPortal/ParentPortalSvgSurface';
-import {
-  DEFAULT_PARENT_PORTAL_SVG_CONTROLS,
-  type ParentPortalSvgControls,
-} from '../../../vendor/ocentra-games-core-ui/AppPages/ParentPortal/ParentPortalSvgSurfaceControls';
+import { ParentPortalSvgSurface } from '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurface';
+import type { ParentPortalSvgControls } from '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurfaceControls';
 import type { PortalRenderActions } from './portal-actions';
 import type { PortalRuntimeState } from './portal-state';
 import './styles/parent-portal-route.css';
 
 type ParentPortalRouteProps = {
   readonly actions: PortalRenderActions;
+  readonly controls: ParentPortalSvgControls;
   readonly route: PortalRouteValue;
   readonly state: PortalRuntimeState;
 };
 
-const parentPortalSurfaceControls: Partial<ParentPortalSvgControls> = {
-  layout: {
-    ...DEFAULT_PARENT_PORTAL_SVG_CONTROLS.layout,
-    topY: 15,
-  },
-};
-
-export function ParentPortalRoute({ actions, route, state }: ParentPortalRouteProps): ReactElement {
+export function ParentPortalRoute({ actions, controls, route, state }: ParentPortalRouteProps): ReactElement {
   const routeContext = parentPortalRouteContext(route);
   return (
     <div className={PARENT_PORTAL_ROUTE.ClassName}>
@@ -45,9 +37,12 @@ export function ParentPortalRoute({ actions, route, state }: ParentPortalRoutePr
         nearbyAbove={[]}
         nearbyBelow={[]}
         content={PARENT_PORTAL_CONTENT}
-        controls={parentPortalSurfaceControls}
+        controls={controls}
         initialNavLabel={routeContext.navLabel}
         initialSelectedControlId={routeContext.selectedControlId}
+        assistantRouteActive={route === PortalRoute.Assistant}
+        assistantRoutePath={PARENT_PORTAL_ROUTE.HashRoutes.Assistant}
+        assistantReturnRoutePath={PARENT_PORTAL_ROUTE.HashRoutes.Overview}
         onRefreshParentPortal={actions.reconnect}
         onMatchmaking={actions.reconnect}
         onNavigate={(routePath) => {
@@ -56,6 +51,7 @@ export function ParentPortalRoute({ actions, route, state }: ParentPortalRoutePr
           }
           window.location.hash = routePath;
         }}
+        onAssistantCommand={actions.sendCommand}
       />
     </div>
   );

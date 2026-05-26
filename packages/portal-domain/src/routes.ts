@@ -5,6 +5,7 @@ import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/ef
 export const PortalRouteSchema = withParser(
   Schema.Literal(
     'overview',
+    'assistant',
     'start',
     'activity',
     'browser',
@@ -17,8 +18,10 @@ export const PortalRouteSchema = withParser(
     'privacy-design',
     'memory',
     'memory-settings',
+    'ai-guide',
     'ai-runtime',
     'api-providers',
+    'reports-guide',
     'report-settings',
     'screen-analysis',
     'app-game-sessions',
@@ -39,6 +42,7 @@ export const PortalRouteSchema = withParser(
     'install-updates',
     'diagnostics',
     'settings-rules',
+    'app-layout',
     'frame-tuner',
     'commands',
     'events'
@@ -48,6 +52,7 @@ export type PortalRoute = Infer<typeof PortalRouteSchema>;
 
 export const PortalRoute = {
   Overview: PortalRouteSchema.parse('overview'),
+  Assistant: PortalRouteSchema.parse('assistant'),
   Start: PortalRouteSchema.parse('start'),
   Activity: PortalRouteSchema.parse('activity'),
   Browser: PortalRouteSchema.parse('browser'),
@@ -60,8 +65,10 @@ export const PortalRoute = {
   PrivacyDesign: PortalRouteSchema.parse('privacy-design'),
   Memory: PortalRouteSchema.parse('memory'),
   MemorySettings: PortalRouteSchema.parse('memory-settings'),
+  AiGuide: PortalRouteSchema.parse('ai-guide'),
   AiRuntime: PortalRouteSchema.parse('ai-runtime'),
   ApiProviders: PortalRouteSchema.parse('api-providers'),
+  ReportsGuide: PortalRouteSchema.parse('reports-guide'),
   ReportSettings: PortalRouteSchema.parse('report-settings'),
   ScreenAnalysis: PortalRouteSchema.parse('screen-analysis'),
   AppGameSessions: PortalRouteSchema.parse('app-game-sessions'),
@@ -82,13 +89,15 @@ export const PortalRoute = {
   InstallUpdates: PortalRouteSchema.parse('install-updates'),
   Diagnostics: PortalRouteSchema.parse('diagnostics'),
   SettingsRules: PortalRouteSchema.parse('settings-rules'),
-  FrameTuner: PortalRouteSchema.parse('frame-tuner'),
+  FrameTuner: PortalRouteSchema.parse('app-layout'),
+  LegacyFrameTuner: PortalRouteSchema.parse('frame-tuner'),
   Commands: PortalRouteSchema.parse('commands'),
   Events: PortalRouteSchema.parse('events'),
 } as const;
 
 export const PortalRoutes = [
   PortalRoute.Overview,
+  PortalRoute.Assistant,
   PortalRoute.Start,
   PortalRoute.Activity,
   PortalRoute.Browser,
@@ -101,8 +110,10 @@ export const PortalRoutes = [
   PortalRoute.PrivacyDesign,
   PortalRoute.Memory,
   PortalRoute.MemorySettings,
+  PortalRoute.AiGuide,
   PortalRoute.AiRuntime,
   PortalRoute.ApiProviders,
+  PortalRoute.ReportsGuide,
   PortalRoute.ReportSettings,
   PortalRoute.ScreenAnalysis,
   PortalRoute.AppGameSessions,
@@ -149,6 +160,12 @@ export const PortalRouteDescriptors: readonly PortalRouteDescriptor[] = [
     PortalDevTextToken.Overview,
     PortalDevTextToken.OverviewDescription,
     PortalRouteGroup.Monitor
+  ),
+  routeDescriptor(
+    PortalRoute.Assistant,
+    PortalDevTextToken.AiRuntime,
+    PortalDevTextToken.AiRuntimeBody,
+    PortalRouteGroup.Guide
   ),
   routeDescriptor(
     PortalRoute.Start,
@@ -223,16 +240,28 @@ export const PortalRouteDescriptors: readonly PortalRouteDescriptor[] = [
     PortalRouteGroup.Operate
   ),
   routeDescriptor(
-    PortalRoute.AiRuntime,
+    PortalRoute.AiGuide,
     PortalDevTextToken.AiRuntime,
     PortalDevTextToken.AiRuntimeDescription,
     PortalRouteGroup.Guide
+  ),
+  routeDescriptor(
+    PortalRoute.AiRuntime,
+    PortalDevTextToken.AiRuntime,
+    PortalDevTextToken.AiRuntimeBody,
+    PortalRouteGroup.Operate
   ),
   routeDescriptor(
     PortalRoute.ApiProviders,
     PortalDevTextToken.AiRuntime,
     PortalDevTextToken.AiRuntimeBody,
     PortalRouteGroup.Operate
+  ),
+  routeDescriptor(
+    PortalRoute.ReportsGuide,
+    PortalDevTextToken.Activity,
+    PortalDevTextToken.ActivityDescription,
+    PortalRouteGroup.Guide
   ),
   routeDescriptor(
     PortalRoute.ReportSettings,

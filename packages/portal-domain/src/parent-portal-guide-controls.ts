@@ -146,7 +146,7 @@ export const PARENT_PORTAL_CONTROL_GUIDES: readonly ParentPortalGuideTopic[] = [
         body: 'Use summaries when you need a day, week, or month view instead of raw events.',
         tone: 'cyan',
         targetRoutePath: '#/report-settings',
-        targetNavLabel: PARENT_PORTAL_NAV_LABELS.ReportSet,
+        targetNavLabel: PARENT_PORTAL_NAV_LABELS.Activity,
       },
     ],
   },
@@ -154,28 +154,29 @@ export const PARENT_PORTAL_CONTROL_GUIDES: readonly ParentPortalGuideTopic[] = [
     id: 'rules-policy',
     navLabel: 'RULES',
     rank: 5,
-    title: 'Rules And Policy',
-    subtitle: 'House rules, schedules, approvals',
-    detail: 'Your house your rule',
+    title: 'Rules',
+    subtitle: 'Family defaults, device overrides, schedules, approvals',
+    detail: 'Your house, your choice',
     tone: 'gold',
     category: 'Control',
     subcategory: 'Policy',
     pages: [
       {
         eyebrow: 'HOUSE RULES',
-        title: 'Parent rules are the household authority',
-        body: 'Ocentra provides evidence, categories, local AI, previews, and enforcement adapters. It does not secretly decide your household policy. A parent-authored rule says what should happen for a child, device, schedule, app, site, category, or evidence source.',
+        title: 'Start with a family rule, override only when needed',
+        body: 'Rules are parent choices. Ocentra can show evidence, categories, previews, and explanations, but it should not secretly decide household policy. A family rule applies to everyone. A per-device rule is only for a child device that needs a different choice.',
         steps: [
-          'Choose who the rule applies to: family, child, device, browser, app, or schedule.',
-          'Choose a target: app, process, game, site, domain, category, video, network indicator, or screen-derived category.',
-          'Choose the result: allow, warn, explain-first, time-limit, ask-parent, block, or observe-only.',
-          'Preview the rule before enforcement so evidence, schedule, conflict, and reason are visible.',
+          'Pick Family for the normal household default.',
+          'Pick Per device only when one child or device needs a different rule.',
+          'Choose the target: app, game, site, domain, browser state, category, schedule, or evidence source.',
+          'Choose the result: allow, ask, explain, time-limit, block, or observe-only.',
+          'Preview before strong enforcement so the matching evidence, schedule, conflict, and reason are visible.',
         ],
       },
       {
         eyebrow: 'POLICY DECISIONS',
-        title: 'Rules become decisions on the child device',
-        body: 'The parent app sends a typed rule or approval intent. The child-device agent validates rule version, target, evidence, schedule, child profile, device identity, local AI reference when used, and conflict resolution before producing a policy decision.',
+        title: 'Rules become typed decisions on the child device',
+        body: 'The parent app sends a typed rule or approval intent. The child-device agent checks rule version, target, evidence, schedule, child profile, device identity, local AI reference when used, and conflicts before producing a decision.',
         steps: [
           'Invalid rules do not activate.',
           'Missing evidence should become unknown, ask-parent, warn, or no-op according to your rule.',
@@ -185,8 +186,8 @@ export const PARENT_PORTAL_CONTROL_GUIDES: readonly ParentPortalGuideTopic[] = [
       },
       {
         eyebrow: 'APPROVALS',
-        title: 'Ask-parent needs a clear parent path',
-        body: 'Permission requests should show what the child requested, what evidence is available, which rule matched, when the request expires, and what happens if the parent does not respond. Approvals, denials, and overrides need an audit trail.',
+        title: 'Ask-parent is for exceptions and unclear cases',
+        body: 'Permission requests should show what the child requested, what evidence is available, which rule matched, when the request expires, and what happens if the parent does not respond. Approvals, denials, and overrides need a visible history.',
         steps: [
           'Use ask-parent for ambiguous or exception-heavy situations.',
           'Time-box temporary approvals so they do not become permanent loopholes.',
@@ -198,7 +199,7 @@ export const PARENT_PORTAL_CONTROL_GUIDES: readonly ParentPortalGuideTopic[] = [
     tips: [
       {
         label: 'Best default',
-        body: 'Start advisory and ask-parent. Move to block or timeout only after previews match your intent.',
+        body: 'Start with allow, explain, or ask-parent. Move to block or timeout only after previews match your intent.',
         tone: 'cyan',
       },
       {
@@ -209,7 +210,7 @@ export const PARENT_PORTAL_CONTROL_GUIDES: readonly ParentPortalGuideTopic[] = [
     ],
     actions: [
       {
-        label: 'Create rule',
+        label: 'Manage rules',
         body: 'Use Rules to define family defaults, child-specific rules, schedules, and approvals.',
         tone: 'gold',
         targetRoutePath: '#/rule-management',

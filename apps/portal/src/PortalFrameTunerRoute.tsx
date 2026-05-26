@@ -1,25 +1,21 @@
-import { useMemo, useState, type ReactElement } from 'react';
+import { useState, type ReactElement } from 'react';
 import {
   PortalDom,
   PortalFrameTuner,
+  type PortalAppLayoutSurfaceContentDraft,
+  type PortalAppLayoutSurfaceKey,
   type PortalDisplayText,
-  type PortalFrameBooleanField,
-  type PortalFrameColorField,
-  type PortalFrameNumberField,
-  type PortalFrameTargetValue,
-  type PortalFrameTunerPanelValue,
 } from '@ocentra-parent/portal-domain/contracts';
-import { TunerActionButton, TunerTabs } from './PortalFrameTunerControls';
-import { FrameTunerActivePanel, type SideFrameTargetValue } from './PortalFrameTunerPanels';
+import { TunerActionButton, TunerTabButton } from './PortalFrameTunerControls';
+import { PortalAppLayoutSurfacePanel } from './PortalAppLayoutSurfacePanel';
 import {
-  DEFAULT_PORTAL_FRAME_LAYOUT,
   normalizePortalFrameLayout,
-  resetPortalCarousel,
-  resetPortalGoldenCard,
-  resetPortalFrameTarget,
+  resetPortalParentPortalContent,
+  resetPortalParentPortalSurface,
   setPortalFrameLayoutValue,
   type PortalFrameLayout,
 } from './portal-frame-layout';
+import type { ParentPortalSvgControls } from '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurfaceControls';
 
 type PortalFrameTunerRouteProps = {
   readonly layout: PortalFrameLayout;
@@ -29,34 +25,23 @@ type PortalFrameTunerRouteProps = {
 type CommitFrameLayout = (layout: PortalFrameLayout) => void;
 
 type FrameTunerActions = {
-  readonly resetFrame: (target: PortalFrameTargetValue) => void;
-  readonly resetCarousel: () => void;
-  readonly resetGoldenCard: () => void;
-  readonly resetShell: () => void;
-  readonly updateFrame: (target: PortalFrameTargetValue, field: PortalFrameNumberField, value: number) => void;
-  readonly updateFrameColor: (target: PortalFrameTargetValue, field: PortalFrameColorField, value: unknown) => void;
-  readonly updateFrameValue: (target: PortalFrameTargetValue, path: readonly PropertyKey[], value: unknown) => void;
-  readonly updateFrameContentBoolean: (
-    target: PortalFrameTargetValue,
-    field: PortalFrameBooleanField,
-    value: boolean
+  readonly resetParentPortalContent: (surface: PortalAppLayoutSurfaceKey) => void;
+  readonly resetParentPortalSurface: (surface: PortalAppLayoutSurfaceKey) => void;
+  readonly updateParentPortalContent: (
+    surface: PortalAppLayoutSurfaceKey,
+    content: PortalAppLayoutSurfaceContentDraft
   ) => void;
-  readonly updateFrameContentNumber: (
-    target: PortalFrameTargetValue,
-    field: PortalFrameNumberField,
-    value: number
-  ) => void;
-  readonly updateGoldenCardBoolean: (field: PortalFrameBooleanField, value: boolean) => void;
-  readonly updateGoldenCardNumber: (field: PortalFrameNumberField, value: number) => void;
-  readonly updateCarouselNumber: (field: PortalFrameNumberField, value: number) => void;
-  readonly updateShell: (field: PortalFrameNumberField, value: number) => void;
+  readonly updateParentPortalSurface: (surface: PortalAppLayoutSurfaceKey, controls: ParentPortalSvgControls) => void;
 };
 
+const AppLayoutSurfaceTabs = [
+  { id: PortalFrameTuner.AppSurface.MainApp, label: PortalFrameTuner.Text.PanelMainApp },
+  { id: PortalFrameTuner.AppSurface.ChatInterface, label: PortalFrameTuner.Text.PanelChatInterface },
+] as const;
+
 export function PortalFrameTunerRoute({ layout, onLayoutChange }: PortalFrameTunerRouteProps): ReactElement {
-  const [activePanel, setActivePanel] = useState<PortalFrameTunerPanelValue>(PortalFrameTuner.Panel.SidePanel);
-  const [sideTarget, setSideTarget] = useState<SideFrameTargetValue>(PortalFrameTuner.FrameTarget.SideTop);
+  const [activeSurface, setActiveSurface] = useState<PortalAppLayoutSurfaceKey>(PortalFrameTuner.AppSurface.MainApp);
   const [status, setStatus] = useState(PortalFrameTuner.Text.Ready);
-  const jsonPreview = useMemo(() => JSON.stringify(layout, null, 2), [layout]);
   const commitLayout = (nextLayout: PortalFrameLayout): void => {
     onLayoutChange(nextLayout);
     void saveDraftLayout(nextLayout, setStatus);
@@ -68,27 +53,17 @@ export function PortalFrameTunerRoute({ layout, onLayoutChange }: PortalFrameTun
       <div className={PortalFrameTuner.Classes.TunerWorkspace}>
         <aside className={PortalFrameTuner.Classes.TunerInspector}>
           <TunerHeader layout={layout} onLayoutChange={onLayoutChange} setStatus={setStatus} status={status} />
-          <TunerTabs activePanel={activePanel} onPanelChange={setActivePanel} />
+          <SurfaceTabs activeSurface={activeSurface} onSurfaceChange={setActiveSurface} />
           <div className={PortalFrameTuner.Classes.TunerControlGrid}>
-            <FrameTunerActivePanel
-              activePanel={activePanel}
-              jsonPreview={jsonPreview}
-              layout={layout}
-              resetCarousel={actions.resetCarousel}
-              resetFrame={actions.resetFrame}
-              resetGoldenCard={actions.resetGoldenCard}
-              resetShell={actions.resetShell}
-              sideTarget={sideTarget}
-              setSideTarget={setSideTarget}
-              updateFrame={actions.updateFrame}
-              updateFrameColor={actions.updateFrameColor}
-              updateFrameValue={actions.updateFrameValue}
-              updateFrameContentBoolean={actions.updateFrameContentBoolean}
-              updateFrameContentNumber={actions.updateFrameContentNumber}
-              updateGoldenCardBoolean={actions.updateGoldenCardBoolean}
-              updateGoldenCardNumber={actions.updateGoldenCardNumber}
-              updateCarouselNumber={actions.updateCarouselNumber}
-              updateShell={actions.updateShell}
+            <PortalAppLayoutSurfacePanel
+              content={layout.parentPortal.contentDraft[activeSurface]}
+              controls={layout.parentPortal[activeSurface]}
+              key={activeSurface}
+              onContentChange={(content) => actions.updateParentPortalContent(activeSurface, content)}
+              onControlsChange={(controls) => actions.updateParentPortalSurface(activeSurface, controls)}
+              onResetContent={() => actions.resetParentPortalContent(activeSurface)}
+              onResetSurface={() => actions.resetParentPortalSurface(activeSurface)}
+              surface={activeSurface}
             />
           </div>
         </aside>
@@ -99,53 +74,46 @@ export function PortalFrameTunerRoute({ layout, onLayoutChange }: PortalFrameTun
 
 function frameTunerActions(layout: PortalFrameLayout, commitLayout: CommitFrameLayout): FrameTunerActions {
   return {
-    resetFrame: (target) => commitLayout(resetPortalFrameTarget(layout, target)),
-    resetCarousel: () => commitLayout(resetPortalCarousel(layout)),
-    resetGoldenCard: () => commitLayout(resetPortalGoldenCard(layout)),
-    resetShell: () => commitLayout(normalizePortalFrameLayout({ ...layout, shell: DEFAULT_PORTAL_FRAME_LAYOUT.shell })),
-    updateFrame: (target, field, value) =>
-      commitLayout(normalizePortalFrameLayout(setPortalFrameLayoutValue(layout, [target, ...field.path], value))),
-    updateFrameColor: (target, field, value) =>
-      commitLayout(normalizePortalFrameLayout(setPortalFrameLayoutValue(layout, [target, ...field.path], value))),
-    updateFrameValue: (target, path, value) =>
-      commitLayout(normalizePortalFrameLayout(setPortalFrameLayoutValue(layout, [target, ...path], value))),
-    updateFrameContentBoolean: (target, field, value) =>
+    resetParentPortalContent: (surface) => commitLayout(resetPortalParentPortalContent(layout, surface)),
+    resetParentPortalSurface: (surface) => commitLayout(resetPortalParentPortalSurface(layout, surface)),
+    updateParentPortalContent: (surface, content) =>
       commitLayout(
         normalizePortalFrameLayout(
-          setPortalFrameLayoutValue(layout, [PortalFrameTuner.LayoutKey.Content, target, ...field.path], value)
+          setPortalFrameLayoutValue(
+            layout,
+            [PortalFrameTuner.LayoutKey.ParentPortal, PortalFrameTuner.LayoutKey.ContentDraft, surface],
+            content
+          )
         )
       ),
-    updateFrameContentNumber: (target, field, value) =>
+    updateParentPortalSurface: (surface, controls) =>
       commitLayout(
         normalizePortalFrameLayout(
-          setPortalFrameLayoutValue(layout, [PortalFrameTuner.LayoutKey.Content, target, ...field.path], value)
-        )
-      ),
-    updateGoldenCardBoolean: (field, value) =>
-      commitLayout(
-        normalizePortalFrameLayout(
-          setPortalFrameLayoutValue(layout, [PortalFrameTuner.LayoutKey.GoldenCard, ...field.path], value)
-        )
-      ),
-    updateGoldenCardNumber: (field, value) =>
-      commitLayout(
-        normalizePortalFrameLayout(
-          setPortalFrameLayoutValue(layout, [PortalFrameTuner.LayoutKey.GoldenCard, ...field.path], value)
-        )
-      ),
-    updateCarouselNumber: (field, value) =>
-      commitLayout(
-        normalizePortalFrameLayout(
-          setPortalFrameLayoutValue(layout, [PortalFrameTuner.LayoutKey.Carousel, ...field.path], value)
-        )
-      ),
-    updateShell: (field, value) =>
-      commitLayout(
-        normalizePortalFrameLayout(
-          setPortalFrameLayoutValue(layout, [PortalFrameTuner.LayoutKey.Shell, ...field.path], value)
+          setPortalFrameLayoutValue(layout, [PortalFrameTuner.LayoutKey.ParentPortal, surface], controls)
         )
       ),
   };
+}
+
+function SurfaceTabs({
+  activeSurface,
+  onSurfaceChange,
+}: {
+  readonly activeSurface: PortalAppLayoutSurfaceKey;
+  readonly onSurfaceChange: (surface: PortalAppLayoutSurfaceKey) => void;
+}): ReactElement {
+  return (
+    <div className={PortalFrameTuner.Classes.TunerSurfaceTabs} role={PortalDom.Attributes.TabList}>
+      {AppLayoutSurfaceTabs.map((surface) => (
+        <TunerTabButton
+          active={surface.id === activeSurface}
+          key={surface.id}
+          label={surface.label}
+          onClick={() => onSurfaceChange(surface.id)}
+        />
+      ))}
+    </div>
+  );
 }
 
 function TunerHeader({
@@ -166,27 +134,6 @@ function TunerHeader({
         <strong className={PortalFrameTuner.Classes.TunerStatus}>{status}</strong>
       </div>
       <div className={PortalFrameTuner.Classes.TunerActions}>
-        <TunerActionButton
-          active={allContentBooleanEnabled(layout, PortalFrameTuner.LayoutKey.ShowContent)}
-          label={PortalFrameTuner.Text.ToggleContent}
-          onClick={() =>
-            toggleBulkContentBoolean(layout, onLayoutChange, setStatus, PortalFrameTuner.LayoutKey.ShowContent)
-          }
-        />
-        <TunerActionButton
-          active={allContentBooleanEnabled(layout, PortalFrameTuner.LayoutKey.ShowFrameBounds)}
-          label={PortalFrameTuner.Text.ToggleFrameBounds}
-          onClick={() =>
-            toggleBulkContentBoolean(layout, onLayoutChange, setStatus, PortalFrameTuner.LayoutKey.ShowFrameBounds)
-          }
-        />
-        <TunerActionButton
-          active={allContentBooleanEnabled(layout, PortalFrameTuner.LayoutKey.ShowContentBounds)}
-          label={PortalFrameTuner.Text.ToggleContentBounds}
-          onClick={() =>
-            toggleBulkContentBoolean(layout, onLayoutChange, setStatus, PortalFrameTuner.LayoutKey.ShowContentBounds)
-          }
-        />
         <TunerActionButton label={PortalFrameTuner.Text.Save} onClick={() => saveSavedLayout(layout, setStatus)} />
         <TunerActionButton
           label={PortalFrameTuner.Text.Reset}
@@ -252,36 +199,3 @@ async function getLayout(
   }
   return normalizePortalFrameLayout(await response.json());
 }
-
-function toggleBulkContentBoolean(
-  layout: PortalFrameLayout,
-  onLayoutChange: (layout: PortalFrameLayout) => void,
-  setStatus: (value: PortalDisplayText) => void,
-  key: BulkContentBooleanKey
-): void {
-  const value = !allContentBooleanEnabled(layout, key);
-  const frameContentLayout = BulkContentTargets.reduce(
-    (current, target) => setPortalFrameLayoutValue(current, [PortalFrameTuner.LayoutKey.Content, target, key], value),
-    layout
-  );
-  const nextLayout = normalizePortalFrameLayout(
-    setPortalFrameLayoutValue(frameContentLayout, [PortalFrameTuner.LayoutKey.GoldenCard, key], value)
-  );
-  onLayoutChange(nextLayout);
-  void saveDraftLayout(nextLayout, setStatus);
-}
-
-function allContentBooleanEnabled(layout: PortalFrameLayout, key: BulkContentBooleanKey): boolean {
-  return BulkContentTargets.every((target) => layout.content[target][key]) && layout.goldenCard[key];
-}
-
-type BulkContentBooleanKey =
-  | typeof PortalFrameTuner.LayoutKey.ShowContent
-  | typeof PortalFrameTuner.LayoutKey.ShowContentBounds
-  | typeof PortalFrameTuner.LayoutKey.ShowFrameBounds;
-
-const BulkContentTargets = [
-  PortalFrameTuner.FrameTarget.SideTop,
-  PortalFrameTuner.FrameTarget.SideBottom,
-  PortalFrameTuner.FrameTarget.Main,
-] as const;

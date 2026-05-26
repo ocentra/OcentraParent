@@ -1,0 +1,11101 @@
+// @ts-nocheck
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type KeyboardEvent,
+  type MouseEvent,
+  type ReactElement,
+  type ReactNode,
+  type WheelEvent,
+} from 'react';
+import {
+  getParentPortalPlaceholderImageUrl,
+  parentPortalPlaceholderImageCount,
+} from '@ocentra-parent/portal-assets/placeholders';
+import {
+  parentPortalAiSetupQuickActionIconUrl,
+  parentPortalBrowserStateQuickActionIconUrl,
+  parentPortalDrivesQuickActionIconUrl,
+  parentPortalFoldoutClosedIconUrl,
+  parentPortalFoldoutOpenIconUrl,
+  parentPortalRulesQuickActionIconUrl,
+  parentPortalSidePanelHandleLeftIconUrl,
+  parentPortalSidePanelHandleRightIconUrl,
+  parentPortalSupportApiQuickActionIconUrl,
+  parentPortalTodayReportQuickActionIconUrl,
+} from '@ocentra-parent/portal-assets/common';
+import {
+  parentPortalAiBannerImageUrl,
+  parentPortalBrowserBannerImageUrl,
+  parentPortalOverviewBannerImageUrl,
+} from '@ocentra-parent/portal-assets/banners';
+import { normalizeParentPortalSvgControls, type ParentPortalSvgControls } from './ParentPortalSvgSurfaceControls';
+import {
+  normalizeParentPortalContent,
+  type ParentPortalControlArea,
+  type ParentPortalGuideNote,
+  type ParentPortalGuideTopic,
+  type ParentPortalIconName,
+  type ParentPortalNavGroup,
+  type ParentPortalNavItem,
+  type ParentPortalContentData,
+  type ParentPortalQuickControl,
+  type ParentPortalTabDetail,
+  type ParentPortalTabId,
+  type ParentPortalTone,
+  type PartialParentPortalContentData,
+} from './ParentPortalSvgContent';
+import {
+  createGoldenFrameVariantConfig,
+  createGoldenFrameFrameOnlySvgDataUri,
+} from './ParentPortalGoldenFrameForeignObject';
+import { DeviceChoiceGrid } from './DeviceChoiceGrid/DeviceChoiceGrid';
+import type { DeviceChoiceGridProps, DeviceSlot } from './DeviceChoiceGrid/DeviceChoiceGridTypes';
+import { AnimatedSidebarIconButton } from './AnimatedSidebarIconButton';
+import { ChatBubbleSvg, estimateChatBubbleHeight } from './ParentPortalChatBubble';
+import {
+  PARENT_ASSISTANT_PORTAL_QUICK_ACTIONS,
+  type ParentAssistantPortalQuickActionId,
+} from '@ocentra-parent/portal-domain/contracts';
+import {
+  AgentCommand,
+  AgentProtocolDefaults,
+  type AgentCommandName,
+} from '@ocentra-parent/agent-protocol-domain/contracts';
+import { ParentPortalPanelFrame } from './ParentPortalPanelFrame';
+import {
+  AccountProfileIcon,
+  AiGuideIdeaIcon,
+  ActivityNetworkIcon,
+  AiMemoryCircuitIcon,
+  AiMemorySetBrainIcon,
+  AiSetupSearchIcon,
+  AlertNotificationBellIcon,
+  ApiKeysChipIcon,
+  AuditCloudLogsIcon,
+  BrowserStackIcon,
+  DataPrivacyServerShieldIcon,
+  DevicesMultiScreenIcon,
+  DrivesCloudIcon,
+  EnforcementOfficerIcon,
+  ExportRetentionIcon,
+  GuideBookIcon,
+  LanNetworkMonitorsIcon,
+  ManageFileSettingsIcon,
+  OverviewListIcon,
+  PolicyShieldDocumentIcon,
+  PortalGatewayIcon,
+  QuickGlanceGlasses,
+  ReportDocumentIcon,
+  RemoteAccessMonitorsIcon,
+  RulesGavelDocumentIcon,
+  ScheduleCalendarClockIcon,
+  ScreenAnalysisIcon,
+  StartDataAnalysisIcon,
+  UpdatesSyncDocumentIcon,
+  WebGlobeIcon,
+} from '../../Common/NavSvgIcons';
+import { ScopeToggle } from './ScopeToggle/ScopeToggle';
+import { activityUiIntentAdapter } from './activity-ui-intent';
+import './ParentPortalSvgSurface.css';
+
+type IconProps = {
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
+  color?: string;
+  strokeWidth?: number;
+};
+
+type IconComponent = (props: IconProps) => ReactElement;
+type Tone = ParentPortalTone;
+type DetailMode = 'row' | 'control' | 'season';
+type ParentPortalFocusSection = 'highlights' | 'table';
+type ParentPortalTopCardTheme = {
+  themeColor?: string;
+};
+
+type ParentPortalTopCardItem =
+  | ({
+      kind: 'row';
+      key: string;
+      row: DisplayRow;
+      title: string;
+      subtitle: string;
+      value: string;
+      detail: string;
+      tone: Tone;
+    } & ParentPortalTopCardTheme)
+  | ({
+      kind: 'control';
+      key: string;
+      control: ControlArea | QuickControl;
+      title: string;
+      subtitle: string;
+      value: string;
+      detail: string;
+      tone: Tone;
+    } & ParentPortalTopCardTheme)
+  | ({
+      kind: 'guide';
+      key: string;
+      topic: ParentPortalGuideTopic;
+      title: string;
+      subtitle: string;
+      value: string;
+      detail: string;
+      tone: Tone;
+    } & ParentPortalTopCardTheme);
+
+export type ParentPortalMode = 'parentOverview' | 'parentManage' | 'parentGuide';
+
+function clampNumber(value: number, min: number, max: number): number {
+  const lower = Math.min(min, max);
+  const upper = Math.max(min, max);
+  return Math.min(Math.max(value, lower), upper);
+}
+
+export type ParentPortalRow = {
+  label: string;
+  order: number;
+  signalScore: number;
+  readyCount?: number;
+  gapCount?: number;
+  primaryArea?: string;
+  trend?: string;
+  tone?: Tone;
+};
+
+type ParentPortalSvgSurfaceProps = {
+  pageMode: ParentPortalMode;
+  controlCode: number;
+  seasonId: string;
+  lastUpdated: string;
+  parentPortalRows: ParentPortalRow[];
+  userEntry: ParentPortalRow | null;
+  nearbyAbove: ParentPortalRow[];
+  nearbyBelow: ParentPortalRow[];
+  controlId?: string;
+  loading?: boolean;
+  error?: string | null;
+  controls?: Partial<ParentPortalSvgControls> | null;
+  content?: PartialParentPortalContentData | null;
+  initialNavLabel?: string;
+  initialSelectedControlId?: string;
+  assistantRouteActive?: boolean;
+  assistantRoutePath?: string;
+  assistantReturnRoutePath?: string;
+  onRefreshParentPortal: (controlCode: number) => void;
+  onMatchmaking: () => void;
+  onNavigate?: (routePath: string) => void;
+  onAssistantCommand?: (command: AgentCommandName, payload: Record<string, string>) => void;
+};
+
+type NavItem = Omit<ParentPortalNavItem, 'icon'> & {
+  icon: IconComponent;
+  imageUrl: string;
+};
+
+type NavGroup = ParentPortalNavGroup & {
+  items: NavItem[];
+};
+
+type TabDetail = ParentPortalTabDetail;
+
+type DisplayRow = {
+  id: string;
+  order: number;
+  label: string;
+  signal: string;
+  signals: string;
+  readyCount: string;
+  readiness: string;
+  primaryArea: string;
+  trend: string;
+  tone: Tone;
+};
+
+type ParentPortalTableVariant = 'statusRows' | 'controls' | 'ai' | 'routines' | 'support' | 'ownership';
+
+type ControlArea = ParentPortalControlArea;
+
+type QuickControl = Omit<ParentPortalQuickControl, 'icon'> & {
+  icon: IconComponent;
+};
+
+type SelectableControl = ParentPortalControlArea | ParentPortalQuickControl;
+
+type ControlCategorySummary = {
+  id: string;
+  label: string;
+  detail: string;
+  count: number;
+  tone: Tone;
+  sampleControl: QuickControl;
+  subcategories: ControlSubcategorySummary[];
+};
+
+type ControlSubcategorySummary = {
+  id: string;
+  label: string;
+  count: number;
+  tone: Tone;
+  sampleControl: QuickControl;
+};
+
+const PARENT_PORTAL_RESPONSIVE_MIN_LEFT_W = 210;
+const PARENT_PORTAL_RESPONSIVE_MIN_RIGHT_W = 250;
+const PARENT_PORTAL_RESPONSIVE_MIN_MAIN_W = 560;
+const PARENT_PORTAL_RESPONSIVE_COMPACT_SURFACE_W = 1600;
+const PARENT_PORTAL_RESPONSIVE_MAX_CANVAS_W = 8192;
+const PARENT_PORTAL_RESPONSIVE_MAX_CANVAS_H = 2800;
+const PARENT_PORTAL_TOP_CAROUSEL_MAX_VISIBLE = 5;
+const PARENT_PORTAL_SIDE_HANDLE_W = 15;
+const PARENT_PORTAL_SIDE_HANDLE_OVERLAP = 1;
+const PARENT_PORTAL_CATEGORY_LABELS = [
+  'Browser',
+  'Policy',
+  'Activity',
+  'Privacy',
+  'Memory',
+  'AI',
+  'Devices',
+  'Support',
+] as const;
+
+type AssistantQuickActionId = ParentAssistantPortalQuickActionId;
+
+type AssistantQuickActionIconAssetUrl =
+  | typeof parentPortalAiSetupQuickActionIconUrl
+  | typeof parentPortalBrowserStateQuickActionIconUrl
+  | typeof parentPortalDrivesQuickActionIconUrl
+  | typeof parentPortalRulesQuickActionIconUrl
+  | typeof parentPortalSupportApiQuickActionIconUrl
+  | typeof parentPortalTodayReportQuickActionIconUrl;
+
+type AssistantQuickChoice = {
+  readonly label: string;
+  readonly promptTemplateId: string;
+  readonly prompt: string;
+  readonly reply: string;
+  readonly followUps: readonly string[];
+};
+
+type AssistantQuickAction = {
+  readonly id: AssistantQuickActionId;
+  readonly label: string;
+  readonly detail: string;
+  readonly starterPromptTemplateId: string;
+  readonly prompt: string;
+  readonly guide: string;
+  readonly reply: string;
+  readonly chips: readonly string[];
+  readonly choices: readonly AssistantQuickChoice[];
+  readonly tone: Tone;
+  readonly iconAssetUrl: AssistantQuickActionIconAssetUrl;
+};
+
+type AssistantTranscriptMessage = {
+  readonly id: string;
+  readonly sender: 'assistant' | 'user';
+  readonly text: string;
+  readonly action?: AssistantQuickAction | null;
+  readonly choices?: readonly AssistantQuickChoice[];
+  readonly choiceActionLabel?: string;
+};
+
+const ASSISTANT_READY_TEXT = 'Ask MIA about activity, rules, reports, setup, or choose a quick action.';
+
+const ASSISTANT_DEFAULT_FOLLOW_UPS = [
+  'Give me the overall report',
+  'What needs attention?',
+  'Explain recent blocks',
+  'What should I change first?',
+] as const;
+
+const ASSISTANT_QUICK_ACTIONS: readonly AssistantQuickAction[] = PARENT_ASSISTANT_PORTAL_QUICK_ACTIONS.map(
+  (action) => ({
+    id: action.quickActionId,
+    label: action.title,
+    detail: action.description,
+    starterPromptTemplateId: action.starterPromptTemplateId,
+    prompt: action.starterPrompt,
+    guide: action.starterGuide,
+    reply: action.scaffoldReply,
+    chips: action.chips,
+    choices: action.choices.map((choice) => ({
+      label: choice.label,
+      promptTemplateId: choice.promptTemplateId,
+      prompt: choice.resolvedPromptPreview,
+      reply: choice.assistantReply,
+      followUps: choice.followUps,
+    })),
+    tone: assistantToneForQuickAction(action.quickActionId),
+    iconAssetUrl: assistantIconForQuickAction(action.quickActionId),
+  })
+);
+
+function assistantToneForQuickAction(id: AssistantQuickActionId): Tone {
+  if (id === 'report' || id === 'support-api') return 'cyan';
+  if (id === 'browser-state' || id === 'drives') return 'gold';
+  if (id === 'rules') return 'red';
+  return 'purple';
+}
+
+function assistantIconForQuickAction(id: AssistantQuickActionId): AssistantQuickActionIconAssetUrl {
+  if (id === 'browser-state') return parentPortalBrowserStateQuickActionIconUrl;
+  if (id === 'rules') return parentPortalRulesQuickActionIconUrl;
+  if (id === 'ai-setup') return parentPortalAiSetupQuickActionIconUrl;
+  if (id === 'drives') return parentPortalDrivesQuickActionIconUrl;
+  if (id === 'support-api') return parentPortalSupportApiQuickActionIconUrl;
+  return parentPortalTodayReportQuickActionIconUrl;
+}
+
+function assistantThreadCreatePayload(): Record<string, string> {
+  return {
+    [AgentProtocolDefaults.Field.ParentAssistantStarterCategory]: 'freeform',
+    [AgentProtocolDefaults.Field.ParentAssistantInputSource]: 'quick-action',
+  };
+}
+
+function assistantQuickActionCommandPayload(action: AssistantQuickAction): Record<string, string> {
+  return {
+    [AgentProtocolDefaults.Field.ParentAssistantQuickActionId]: action.id,
+    [AgentProtocolDefaults.Field.ParentAssistantStarterCategory]: action.id,
+    [AgentProtocolDefaults.Field.ParentAssistantPromptTemplateId]: action.starterPromptTemplateId,
+    [AgentProtocolDefaults.Field.ParentAssistantInputText]: action.prompt,
+    [AgentProtocolDefaults.Field.ParentAssistantInputSource]: 'quick-action',
+  };
+}
+
+function assistantMessageCommandPayload(
+  prompt: string,
+  action: AssistantQuickAction | null,
+  choice: AssistantQuickChoice | null,
+  inputSource: 'typed' | 'choice'
+): Record<string, string> {
+  const payload: Record<string, string> = {
+    [AgentProtocolDefaults.Field.ParentAssistantInputText]: prompt,
+    [AgentProtocolDefaults.Field.ParentAssistantInputSource]: inputSource,
+  };
+  if (action) {
+    payload[AgentProtocolDefaults.Field.ParentAssistantQuickActionId] = action.id;
+    payload[AgentProtocolDefaults.Field.ParentAssistantStarterCategory] = action.id;
+    payload[AgentProtocolDefaults.Field.ParentAssistantPromptTemplateId] =
+      choice?.promptTemplateId ?? action.starterPromptTemplateId;
+  }
+  return payload;
+}
+
+function assistantQuickActionById(id: AssistantQuickActionId | null): AssistantQuickAction | null {
+  return ASSISTANT_QUICK_ACTIONS.find((action) => action.id === id) ?? null;
+}
+
+const ASSISTANT_INCOMING_CHAT_BUBBLE_CONFIG = {
+  body: {
+    clampOnLeft: true,
+    minHeight: 50,
+    maxHeight: 150,
+  },
+  text: {
+    fontSize: 12,
+    lineHeight: 1.42,
+  },
+};
+
+const ASSISTANT_OUTGOING_CHAT_BUBBLE_CONFIG = {
+  body: {
+    clampOnLeft: false,
+    minHeight: 42,
+    maxHeight: 118,
+  },
+  text: {
+    fontSize: 12,
+    lineHeight: 1.42,
+  },
+};
+
+const ASSISTANT_SIDE_PANEL_ICON_CONFIG = {
+  colors: {
+    frame: '#cffbff',
+    frameHover: '#ffffff',
+    frameOutline: '#f0ffff',
+    border: '#38dfff',
+    borderHover: '#c8fbff',
+    outerGlow: '#38dfff',
+    outerGlowSoft: '#0ea5e9',
+    panelTop: '#e4fdff',
+    panelMid: '#38c8ff',
+    panelBottom: '#126aa8',
+    panelHoverTop: '#ffffff',
+    panelHoverMid: '#68e4ff',
+    panelHoverBottom: '#1684c8',
+    panelGlow: '#67e8f9',
+  },
+  outerBorder: {
+    opacityIdle: 0.86,
+    opacityOpen: 1,
+  },
+  doc: {
+    outlineOpacityIdle: 0.66,
+    outlineOpacityHover: 0.92,
+  },
+  panel: {
+    outlineOpacityIdle: 0.72,
+    outlineOpacityOpen: 0.9,
+    topShineOpacityIdle: 0.84,
+    topShineOpacityOpen: 0.9,
+    edgeOpacityIdle: 0.72,
+    edgeOpacityOpen: 0.84,
+  },
+  filters: {
+    outerGlow: {
+      opacityAIdle: 0.76,
+      opacityAOpen: 0.98,
+      opacityBIdle: 0.34,
+      opacityBOpen: 0.52,
+    },
+    panelGlow: {
+      glowOpacityIdle: 0.58,
+      glowOpacityOpen: 0.74,
+    },
+  },
+};
+
+function clampValue(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value));
+}
+
+function wrapIndex(value: number, length: number): number {
+  if (length <= 0) {
+    return 0;
+  }
+  return ((value % length) + length) % length;
+}
+
+function fitSingleLineTextSize(text: string, width: number, min: number, max: number, factor = 0.56): number {
+  if (!text) return max;
+  return clampValue(width / Math.max(1, text.length * factor), min, max);
+}
+
+function truncateTextForWidth(text: string, width: number, fontSize: number, factor = 0.56): string {
+  const maxChars = Math.max(1, Math.floor(width / Math.max(1, fontSize * factor)));
+  if (text.length <= maxChars) return text;
+  if (maxChars <= 3) return text.slice(0, maxChars);
+  return `${text.slice(0, maxChars - 3).trimEnd()}...`;
+}
+
+function wrapSvgTextLines(text: string, width: number, fontSize: number, maxLines: number, factor = 0.56): string[] {
+  const words = text.trim().split(/\s+/).filter(Boolean);
+  if (words.length === 0) return [''];
+  const maxChars = Math.max(8, Math.floor(width / Math.max(1, fontSize * factor)));
+  const lines: string[] = [];
+  let current = '';
+  for (const word of words) {
+    const next = current ? `${current} ${word}` : word;
+    if (next.length <= maxChars) {
+      current = next;
+      continue;
+    }
+    if (current) {
+      lines.push(current);
+    }
+    current = word;
+    if (lines.length === maxLines - 1) break;
+  }
+  if (current && lines.length < maxLines) {
+    lines.push(current);
+  }
+  if (lines.length > 0 && lines.join(' ').length < text.length) {
+    lines[lines.length - 1] = truncateTextForWidth(lines[lines.length - 1], width, fontSize, factor);
+  }
+  return lines.slice(0, maxLines);
+}
+
+function compactControlStatLabel(value: string): string {
+  const text = value.trim().replace(/\s+/g, ' ');
+  if (!text) return '';
+  if (/^\d+(?:\.\d+)?\s*[kmb]$/i.test(text) || /^[+-]?\d+(?:\.\d+)?%$/.test(text)) return text;
+  const range = text.match(/\b\d+\s*[-–]\s*\d+\b/);
+  if (range) return range[0].replace(/\s+/g, '');
+  const number = text.match(/\b\d+\b/);
+  return number ? number[0] : text;
+}
+
+function minimumParentPortalCanvasWidth(cfg: ParentPortalSvgControls): number {
+  return Math.max(
+    cfg.canvas.width,
+    Math.ceil(
+      cfg.layout.outerPad * 2 +
+        PARENT_PORTAL_RESPONSIVE_MIN_LEFT_W +
+        PARENT_PORTAL_RESPONSIVE_MIN_RIGHT_W +
+        PARENT_PORTAL_RESPONSIVE_MIN_MAIN_W +
+        cfg.layout.gap * 2
+    )
+  );
+}
+
+function parentPortalCanvasWidthForSurface(
+  cfg: ParentPortalSvgControls,
+  surfaceSize: { width: number; height: number }
+): number {
+  if (surfaceSize.width <= 0 || surfaceSize.height <= 0) return cfg.canvas.width;
+  const minimumWidth = minimumParentPortalCanvasWidth(cfg);
+  const ratioWidth = Math.round(cfg.canvas.height * (surfaceSize.width / surfaceSize.height));
+  return Math.max(minimumWidth, Math.min(PARENT_PORTAL_RESPONSIVE_MAX_CANVAS_W, ratioWidth));
+}
+
+function compactParentPortalCanvasWidth(cfg: ParentPortalSvgControls): number {
+  return Math.ceil(cfg.layout.outerPad * 2 + cfg.layout.leftW + cfg.layout.gap + PARENT_PORTAL_RESPONSIVE_MIN_MAIN_W);
+}
+
+function parentPortalCanvasSizeForSurface(
+  cfg: ParentPortalSvgControls,
+  surfaceSize: { width: number; height: number }
+): { width: number; height: number } {
+  if (surfaceSize.width <= 0 || surfaceSize.height <= 0) {
+    return cfg.canvas;
+  }
+
+  if (surfaceSize.width >= PARENT_PORTAL_RESPONSIVE_COMPACT_SURFACE_W) {
+    const width = parentPortalCanvasWidthForSurface(cfg, surfaceSize);
+    const aspectHeight = Math.round(width * (surfaceSize.height / surfaceSize.width));
+    return {
+      width,
+      height: clampValue(aspectHeight, cfg.canvas.height, PARENT_PORTAL_RESPONSIVE_MAX_CANVAS_H),
+    };
+  }
+
+  const compactWidth = compactParentPortalCanvasWidth(cfg);
+  const aspectWidth = Math.round(cfg.canvas.height * (surfaceSize.width / surfaceSize.height));
+  const width = clampValue(aspectWidth, compactWidth, cfg.canvas.width);
+  const aspectHeight = Math.round(width * (surfaceSize.height / surfaceSize.width));
+
+  return {
+    width,
+    height: clampValue(aspectHeight, cfg.canvas.height, PARENT_PORTAL_RESPONSIVE_MAX_CANVAS_H),
+  };
+}
+
+function responsiveParentPortalColumnWidths(
+  canvasWidth: number,
+  cfg: ParentPortalSvgControls
+): { leftW: number; mainW: number; rightW: number } {
+  const availableW = canvasWidth - cfg.layout.outerPad * 2 - cfg.layout.gap;
+  const leftW = clampValue(cfg.layout.leftW, PARENT_PORTAL_RESPONSIVE_MIN_LEFT_W, cfg.layout.leftW);
+  const mainW = Math.max(PARENT_PORTAL_RESPONSIVE_MIN_MAIN_W, availableW - leftW);
+  return { leftW, mainW, rightW: 0 };
+}
+
+const iconByName: Record<ParentPortalIconName, IconComponent> = {
+  'quick-glance': QuickGlanceGlasses,
+  overview: OverviewListIcon,
+  start: StartDataAnalysisIcon,
+  guide: GuideBookIcon,
+  manage: ManageFileSettingsIcon,
+  policy: PolicyShieldDocumentIcon,
+  browser: BrowserStackIcon,
+  web: WebGlobeIcon,
+  schedule: ScheduleCalendarClockIcon,
+  alerts: AlertNotificationBellIcon,
+  report: ReportDocumentIcon,
+  rules: RulesGavelDocumentIcon,
+  updates: UpdatesSyncDocumentIcon,
+  activity: ActivityNetworkIcon,
+  portal: PortalGatewayIcon,
+  privacy: DataPrivacyServerShieldIcon,
+  lan: LanNetworkMonitorsIcon,
+  devices: DevicesMultiScreenIcon,
+  screen: ScreenAnalysisIcon,
+  remote: RemoteAccessMonitorsIcon,
+  'ai-setup': AiSetupSearchIcon,
+  'ai-guide': AiGuideIdeaIcon,
+  'ai-memory-set': AiMemorySetBrainIcon,
+  api: ApiKeysChipIcon,
+  export: ExportRetentionIcon,
+  drives: DrivesCloudIcon,
+  audit: AuditCloudLogsIcon,
+  'ai-memory': AiMemoryCircuitIcon,
+  account: AccountProfileIcon,
+  enforcement: EnforcementOfficerIcon,
+};
+
+function iconForName(icon: ParentPortalIconName): IconComponent {
+  return iconByName[icon] ?? OverviewListIcon;
+}
+
+function iconForNavItem(item: ParentPortalNavItem): IconComponent {
+  return iconForName(item.icon);
+}
+
+function toneColor(tone: Tone, cfg: ParentPortalSvgControls): string {
+  return cfg.colors[tone];
+}
+
+function colorAlpha(color: string, alphaHex: string): string {
+  return color.startsWith('#') ? `${color}${alphaHex}` : color;
+}
+
+function assetKey(value?: string): string {
+  return (value ?? '')
+    .trim()
+    .toLowerCase()
+    .replace(/&/g, 'and')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+function hashString(value: string): number {
+  return Array.from(value).reduce((hash, char) => (hash * 31 + char.charCodeAt(0)) >>> 0, 0);
+}
+
+function rowAvatarImageUrl(label: string): string {
+  const imageIndex =
+    parentPortalPlaceholderImageCount > 0 ? hashString(`row:${label}`) % parentPortalPlaceholderImageCount : 0;
+  return getParentPortalPlaceholderImageUrl(imageIndex);
+}
+
+function parentPortalControlImageUrl(value?: string): string | null {
+  const key = assetKey(value);
+  if (!key) return null;
+  if (key.includes('ai-benchmark') || key.includes('model')) return parentPortalAiBannerImageUrl;
+  if (key.includes('parent-overview') || key.includes('quick-access') || key.includes('hub'))
+    return parentPortalOverviewBannerImageUrl;
+  if (
+    key.includes('all-controls') ||
+    key.includes('catalog') ||
+    key.includes('browser') ||
+    key.includes('web') ||
+    key.includes('device') ||
+    key.includes('lan')
+  ) {
+    return parentPortalBrowserBannerImageUrl;
+  }
+  return parentPortalOverviewBannerImageUrl;
+}
+
+function parentPortalControlArtworkUrl(control: Pick<ControlArea | QuickControl, 'id' | 'name'>): string {
+  const key = control.id || control.name;
+  const imageIndex = parentPortalPlaceholderImageCount > 0 ? hashString(key) % parentPortalPlaceholderImageCount : 0;
+  return getParentPortalPlaceholderImageUrl(imageIndex);
+}
+
+function parentPortalControlCategoryImageUrl(category: ControlCategorySummary): string | null {
+  return category.count > 0 ? parentPortalControlArtworkUrl(category.sampleControl) : null;
+}
+
+function navItemImageUrl(item: ParentPortalNavItem): string {
+  const key = assetKey(item.label);
+  if (key.includes('overview')) return parentPortalOverviewBannerImageUrl;
+  if (key.includes('overall') || key.includes('global') || key.includes('family'))
+    return parentPortalOverviewBannerImageUrl;
+  if (key.includes('ai')) return parentPortalAiBannerImageUrl;
+  if (
+    key.includes('category') ||
+    key.includes('control') ||
+    key.includes('device') ||
+    key.includes('browser') ||
+    key.includes('web')
+  ) {
+    return parentPortalBrowserBannerImageUrl;
+  }
+  return parentPortalOverviewBannerImageUrl;
+}
+
+function cutRectPath(x: number, y: number, w: number, h: number, cut: number) {
+  const c = Math.min(cut, w / 2, h / 2);
+  return [
+    `M ${x + c} ${y}`,
+    `H ${x + w - c}`,
+    `L ${x + w} ${y + c}`,
+    `V ${y + h - c}`,
+    `L ${x + w - c} ${y + h}`,
+    `H ${x + c}`,
+    `L ${x} ${y + h - c}`,
+    `V ${y + c}`,
+    'Z',
+  ].join(' ');
+}
+
+function bottomCutRectPath(x: number, y: number, w: number, h: number, cut: number) {
+  const c = Math.min(cut, w / 2, h / 2);
+  return [
+    `M ${x} ${y}`,
+    `H ${x + w}`,
+    `V ${y + h - c}`,
+    `L ${x + w - c} ${y + h}`,
+    `H ${x + c}`,
+    `L ${x} ${y + h - c}`,
+    'Z',
+  ].join(' ');
+}
+
+function topRoundedRectPath(x: number, y: number, w: number, h: number, radius: number) {
+  const r = Math.min(radius, w / 2, h / 2);
+  return [
+    `M ${x} ${y + h}`,
+    `V ${y + r}`,
+    `C ${x} ${y + r * 0.45} ${x + r * 0.45} ${y} ${x + r} ${y}`,
+    `H ${x + w - r}`,
+    `C ${x + w - r * 0.45} ${y} ${x + w} ${y + r * 0.45} ${x + w} ${y + r}`,
+    `V ${y + h}`,
+    `H ${x}`,
+    'Z',
+  ].join(' ');
+}
+
+function hexPath(cx: number, cy: number, radius: number) {
+  return (
+    Array.from({ length: 6 }, (_, index) => {
+      const angle = Math.PI / 6 + (index * Math.PI) / 3;
+      const x = cx + Math.cos(angle) * radius;
+      const y = cy + Math.sin(angle) * radius;
+      return `${index === 0 ? 'M' : 'L'} ${x.toFixed(1)} ${y.toFixed(1)}`;
+    }).join(' ') + ' Z'
+  );
+}
+
+type ParentPortalRect = { x: number; y: number; w: number; h: number };
+
+function parentPortalFrameRects(
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  footerH = 38,
+  headerH = 48,
+  bodyInset = 32
+): { body: ParentPortalRect; footer: ParentPortalRect; headerH: number; footerH: number } {
+  return {
+    body: {
+      x: x + bodyInset,
+      y: y + headerH + 10,
+      w: Math.max(1, w - bodyInset * 2),
+      h: Math.max(1, h - headerH - footerH - 18),
+    },
+    footer: {
+      x: x + bodyInset,
+      y: y + h - footerH,
+      w: Math.max(1, w - bodyInset * 2),
+      h: footerH,
+    },
+    headerH,
+    footerH,
+  };
+}
+
+function formatRouteScope(value?: string): string {
+  if (!value) return 'All controls';
+  return value
+    .split(/[/:_-]/)
+    .filter(Boolean)
+    .slice(0, 3)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+}
+
+function initialTabForPageMode(pageMode: ParentPortalMode, content: ParentPortalContentData): ParentPortalTabId {
+  return content.modes[pageMode]?.defaultTab ?? 'overall';
+}
+
+function initialNavLabelForTab(navItems: NavItem[], tab: ParentPortalTabId): string {
+  return navItems.find((item) => item.tabId === tab)?.label ?? navItems[0]?.label ?? '';
+}
+
+function groupedParentPortalNavItems(navGroups: ParentPortalNavGroup[], navItems: NavItem[]): NavGroup[] {
+  const groupIds = new Set(navGroups.map((group) => group.id));
+  const groups = navGroups.map((group) => ({
+    ...group,
+    items: navItems.filter((item) => item.groupId === group.id),
+  }));
+  const ungroupedItems = navItems.filter((item) => !item.groupId || !groupIds.has(item.groupId));
+  if (ungroupedItems.length === 0) return groups.filter((group) => group.items.length > 0);
+  return [
+    ...groups.filter((group) => group.items.length > 0),
+    {
+      id: 'menu',
+      label: 'MENU',
+      detail: 'Navigation',
+      items: ungroupedItems,
+    },
+  ];
+}
+
+function navSectionsForGroup(group: NavGroup): Array<{ id: string; label: string; items: NavItem[] }> {
+  const sections: Array<{ id: string; label: string; items: NavItem[] }> = [];
+  const sectionByLabel = new Map<string, { id: string; label: string; items: NavItem[] }>();
+  let unsectioned: { id: string; label: string; items: NavItem[] } | null = null;
+  for (const item of group.items) {
+    const label = item.sectionLabel ?? '';
+    if (!label) {
+      if (!unsectioned) {
+        unsectioned = { id: `${group.id}:items`, label: '', items: [] };
+        sections.push(unsectioned);
+      }
+      unsectioned.items.push(item);
+      continue;
+    }
+    let section = sectionByLabel.get(label);
+    if (!section) {
+      section = { id: navSectionId(group.id, label), label, items: [] };
+      sectionByLabel.set(label, section);
+      sections.push(section);
+    }
+    section.items.push(item);
+  }
+  return sections;
+}
+
+function navSectionIcon(section: { label: string; items: NavItem[] }): IconComponent {
+  const key = assetKey(section.label);
+  if (key.includes('polic')) return PolicyShieldDocumentIcon;
+  if (key.includes('activity')) return ActivityNetworkIcon;
+  if (key.includes('portal')) return PortalGatewayIcon;
+  if (key === 'data' || key.includes('data-privacy')) return DataPrivacyServerShieldIcon;
+  if (key === 'ai' || key.includes('ai-memory')) return AiMemoryCircuitIcon;
+  if (key.includes('account')) return AccountProfileIcon;
+  if (key.includes('remote')) return RemoteAccessMonitorsIcon;
+  if (key.includes('lan')) return LanNetworkMonitorsIcon;
+  if (key.includes('device')) return DevicesMultiScreenIcon;
+  return section.items[0]?.icon ?? OverviewListIcon;
+}
+
+function navItemKey(item: Pick<NavItem, 'label' | 'routePath'>): string {
+  return item.routePath || item.label;
+}
+
+function navItemMatches(item: NavItem, navKey: string, navLabel: string): boolean {
+  return navKey ? navItemKey(item) === navKey : item.label === navLabel;
+}
+
+function navGroupIdForNavKey(navGroups: NavGroup[], navKey: string, navLabel: string): string {
+  return navGroups.find((group) => group.items.some((item) => navItemMatches(item, navKey, navLabel)))?.id ?? '';
+}
+
+function initialOpenNavGroupIds(navGroups: NavGroup[], navKey: string, navLabel: string): Record<string, boolean> {
+  const activeGroupId = navGroupIdForNavKey(navGroups, navKey, navLabel);
+  return Object.fromEntries(
+    navGroups.map((group, index) => [group.id, group.id === activeGroupId || (!activeGroupId && index === 0)])
+  );
+}
+
+function navSectionId(groupId: string, sectionLabel: string): string {
+  return `${groupId}:${sectionLabel}`;
+}
+
+function navSectionIdsForGroups(navGroups: NavGroup[]): string[] {
+  return navGroups.flatMap((group) => {
+    const labels = new Set(group.items.map((item) => item.sectionLabel).filter(Boolean));
+    return Array.from(labels, (label) => navSectionId(group.id, label as string));
+  });
+}
+
+function navSectionIdForNavKey(navGroups: NavGroup[], navKey: string, navLabel: string): string | null {
+  for (const group of navGroups) {
+    const item = group.items.find((entry) => navItemMatches(entry, navKey, navLabel));
+    if (item?.sectionLabel) return navSectionId(group.id, item.sectionLabel);
+  }
+  return null;
+}
+
+function initialOpenNavSectionIds(navGroups: NavGroup[], navKey: string, navLabel: string): Record<string, boolean> {
+  const activeSectionId = navSectionIdForNavKey(navGroups, navKey, navLabel);
+  return Object.fromEntries(
+    navGroups.flatMap((group) => {
+      const labels = Array.from(new Set(group.items.map((item) => item.sectionLabel).filter(Boolean)));
+      return labels.map((label, index) => {
+        const sectionId = navSectionId(group.id, label as string);
+        return [sectionId, sectionId === activeSectionId || index === 0];
+      });
+    })
+  );
+}
+
+function ensureOpenNavGroupIds(
+  current: Record<string, boolean>,
+  navGroups: NavGroup[],
+  navKey: string,
+  navLabel: string
+): Record<string, boolean> {
+  const activeGroupId = navGroupIdForNavKey(navGroups, navKey, navLabel);
+  return Object.fromEntries(
+    navGroups.map((group) => [group.id, activeGroupId ? group.id === activeGroupId : Boolean(current[group.id])])
+  );
+}
+
+function ensureOpenNavSectionIds(
+  current: Record<string, boolean>,
+  navGroups: NavGroup[],
+  navKey: string,
+  navLabel: string
+): Record<string, boolean> {
+  const activeSectionId = navSectionIdForNavKey(navGroups, navKey, navLabel);
+  if (!activeSectionId) return current;
+  return Object.fromEntries(
+    navSectionIdsForGroups(navGroups).map((sectionId) => [sectionId, sectionId === activeSectionId])
+  );
+}
+
+function toggleOpenNavGroupId(
+  current: Record<string, boolean>,
+  navGroups: NavGroup[],
+  groupId: string
+): Record<string, boolean> {
+  const nextOpen = !current[groupId];
+  return Object.fromEntries(
+    navGroups.map((group) => [
+      group.id,
+      group.id === groupId ? nextOpen : nextOpen ? false : Boolean(current[group.id]),
+    ])
+  );
+}
+
+function toggleOpenNavSectionId(
+  current: Record<string, boolean>,
+  navGroups: NavGroup[],
+  sectionId: string
+): Record<string, boolean> {
+  const nextOpen = !current[sectionId];
+  return Object.fromEntries(
+    navSectionIdsForGroups(navGroups).map((entryId) => [
+      entryId,
+      entryId === sectionId ? nextOpen : nextOpen ? false : Boolean(current[entryId]),
+    ])
+  );
+}
+
+function normalizeSelectionId(value?: string): string {
+  return (value ?? '').trim().toLowerCase();
+}
+
+function findSelectedControl(
+  content: ParentPortalContentData,
+  selectedControlId: string
+): SelectableControl | undefined {
+  const normalizedId = normalizeSelectionId(selectedControlId);
+  return [...content.controlAreas, ...content.quickControls.filter(isParentPortalControlEntry)].find(
+    (control) => normalizeSelectionId(control.id) === normalizedId
+  );
+}
+
+function initialNavItemForContext(
+  navItems: NavItem[],
+  content: ParentPortalContentData,
+  initialNavLabel: string | undefined,
+  selectedControlId: string | undefined
+): NavItem | undefined {
+  const selectedControl = selectedControlId ? findSelectedControl(content, selectedControlId) : undefined;
+  if (selectedControl?.routePath) {
+    const routeItem = navItems.find((item) => item.routePath === selectedControl.routePath);
+    if (routeItem && (!initialNavLabel || routeItem.label === initialNavLabel)) return routeItem;
+    const deviceRouteItem = deviceOpsNavItemForRoute(navItems, selectedControl.routePath);
+    if (deviceRouteItem) return deviceRouteItem;
+  }
+  return navItems.find((item) => item.label === initialNavLabel);
+}
+
+function deviceOpsNavItemForRoute(navItems: NavItem[], routePath: string): NavItem | undefined {
+  if (!MANAGE_DEVICE_OPS_ROUTE_KEYS.has(assetKey(routePath))) return undefined;
+  return navItems.find((item) => item.routePath === '#/lan-pairing');
+}
+
+function initialControlIdForPageMode(
+  pageMode: ParentPortalMode,
+  content: ParentPortalContentData,
+  controlId?: string
+): string {
+  const routeId = normalizeSelectionId(controlId);
+  const contentControls = content.quickControls.filter(isParentPortalControlEntry);
+  const routeControl = [...content.controlAreas, ...contentControls].find(
+    (control) => normalizeSelectionId(control.id) === routeId
+  );
+  if (routeControl) return routeControl.id;
+  return content.modes[pageMode]?.selectedControlId ?? content.controlAreas[0]?.id ?? contentControls[0]?.id ?? '';
+}
+
+function isParentPortalControlEntry(control: Pick<ParentPortalQuickControl, 'id' | 'name' | 'routePath'>): boolean {
+  const id = normalizeSelectionId(control.id);
+  const name = normalizeSelectionId(control.name);
+  if (id === 'parent-portal-hub' || id === 'quick-access' || id === 'all-controls') return false;
+  if (name === 'quick-access' || name === 'all-controls') return false;
+  return true;
+}
+
+function isHashRoutePath(routePath?: string): routePath is string {
+  return typeof routePath === 'string' && routePath.startsWith('#/');
+}
+
+function rowSourceForPageMode(
+  content: ParentPortalContentData,
+  pageMode: ParentPortalMode,
+  parentPortalRows: ParentPortalRow[]
+): ParentPortalRow[] {
+  const source = content.modes[pageMode]?.rowSource ?? 'api';
+  if (source === 'aiBenchmarkRows') return content.aiBenchmarkRows;
+  if (source === 'fallbackRows') return content.fallbackRows;
+  return parentPortalRows.length > 0 ? parentPortalRows : content.fallbackRows;
+}
+
+function toDisplayRows(
+  rows: ParentPortalRow[],
+  pageMode: ParentPortalMode,
+  selectedControlName: string,
+  controlId?: string
+): DisplayRow[] {
+  const primaryArea = pageMode === 'parentManage' ? selectedControlName || formatRouteScope(controlId) : 'Mixed';
+  return rows.map((row, index) => {
+    const readyCount = row.readyCount ?? Math.max(0, Math.round(row.signalScore * 0.32));
+    const gapCount = row.gapCount ?? Math.max(1, Math.round(readyCount * 0.62));
+    const readiness =
+      readyCount + gapCount > 0 ? `${Math.round((readyCount / (readyCount + gapCount)) * 1000) / 10}%` : '-';
+    const tones: Tone[] = ['purple', 'red', 'cyan', 'gold', 'purple', 'red', 'cyan'];
+    return {
+      id: row.label || `row-${row.order}`,
+      order: row.order,
+      label: row.label || `Item ${row.order}`,
+      signal: row.signalScore.toLocaleString(),
+      signals: (readyCount + gapCount).toLocaleString(),
+      readyCount: readyCount.toLocaleString(),
+      readiness,
+      primaryArea: row.primaryArea ?? primaryArea,
+      trend: row.trend ?? (index % 3 === 0 ? '+2' : index % 3 === 1 ? '+1' : '-'),
+      tone: row.tone ?? tones[index % tones.length],
+    };
+  });
+}
+
+function tableVariantForContext(activeNavLabel: string, activeTab: ParentPortalTabId): ParentPortalTableVariant {
+  const key = assetKey(activeNavLabel);
+  if (key.includes('ai') || activeTab === 'aiStatus') return 'ai';
+  if (key.includes('friend') || key.includes('guild') || activeTab === 'support') return 'support';
+  if (key.includes('per-game') || key.includes('per-category') || activeTab === 'controls') return 'controls';
+  if (key.includes('tournament') || key.includes('season') || key.includes('reward') || activeTab === 'routines')
+    return 'routines';
+  return 'statusRows';
+}
+
+function parentPortalScopeKey(value?: string): string {
+  return (value ?? '').toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
+function rowsForControlScope(rows: DisplayRow[], selectedControlName: string, selectedControlId: string): DisplayRow[] {
+  const controlKeys = new Set(
+    [
+      parentPortalScopeKey(selectedControlName),
+      parentPortalScopeKey(selectedControlId),
+      parentPortalScopeKey(selectedControlName.replace(/^three card/i, '3 card')),
+      parentPortalScopeKey(selectedControlName.replace(/^3 card/i, 'three card')),
+    ].filter(Boolean)
+  );
+  const matched = rows.filter((row) => controlKeys.has(parentPortalScopeKey(row.primaryArea)));
+  const source = matched.length > 0 ? matched : rows.slice(0, Math.min(10, rows.length));
+  return source.map((row, index) => ({
+    ...row,
+    order: index + 1,
+    primaryArea: selectedControlName || row.primaryArea,
+  }));
+}
+
+function rowsForCategoryScope(rows: DisplayRow[], selectedCategoryLabel: string): DisplayRow[] {
+  const categoryKey = assetKey(selectedCategoryLabel);
+  const matched = rows.filter(
+    (row) => assetKey(controlCategoryLabel({ id: row.primaryArea, name: row.primaryArea })) === categoryKey
+  );
+  const source = matched.length > 0 ? matched : rows.slice(0, Math.min(10, rows.length));
+  return source.map((row, index) => ({
+    ...row,
+    order: index + 1,
+    primaryArea: selectedCategoryLabel || row.primaryArea,
+  }));
+}
+
+function rowTopCard(row: DisplayRow): ParentPortalTopCardItem {
+  return {
+    kind: 'row',
+    key: `row:${row.id}`,
+    row,
+    title: row.label,
+    subtitle: `Order ${row.order} / ${row.primaryArea}`,
+    value: row.signal,
+    detail: `${row.readiness} ready`,
+    tone: row.tone,
+  };
+}
+
+function titleCaseControlName(value: string): string {
+  return value
+    .toLowerCase()
+    .split(' ')
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+}
+
+function controlCategoryLabel(
+  control: Pick<ControlArea | QuickControl, 'id' | 'name'> & { category?: string }
+): string {
+  if (control.category) return control.category;
+  const key = assetKey(`${control.id} ${control.name}`);
+  if (key.includes('browser') || key.includes('web')) return 'Browser';
+  if (key.includes('policy') || key.includes('rule')) return 'Policy';
+  if (key.includes('activity') || key.includes('evidence')) return 'Activity';
+  if (key.includes('privacy') || key.includes('private')) return 'Privacy';
+  if (key.includes('memory')) return 'Memory';
+  if (key.includes('ai')) return 'AI';
+  if (key.includes('device') || key.includes('notification') || key.includes('setting')) return 'Devices';
+  if (key.includes('support') || key.includes('export') || key.includes('drive')) return 'Support';
+  return 'Controls';
+}
+
+function taxonomyLeafLabel(value: string): string {
+  const parts = value
+    .split('/')
+    .map((part) => part.trim())
+    .filter(Boolean);
+  return parts[parts.length - 1] ?? value;
+}
+
+function controlSubcategoryLabel(control: { detail?: string; subcategory?: string | null }): string {
+  const value = control.subcategory?.trim() || control.detail?.trim();
+  return value ? taxonomyLeafLabel(value) : 'General';
+}
+
+function controlTopCard(
+  control: ControlArea | QuickControl,
+  statsControl?: ControlArea,
+  index = 0
+): ParentPortalTopCardItem {
+  const title = control.name === control.name.toUpperCase() ? titleCaseControlName(control.name) : control.name;
+  const value = 'matches' in control ? control.matches : (statsControl?.matches ?? control.detail);
+  const detail = 'growth' in control ? control.growth : (statsControl?.growth ?? control.subcategory ?? 'View control');
+  return {
+    kind: 'control',
+    key: `control:${normalizeSelectionId(control.id)}:${assetKey(control.name)}:${index}`,
+    control,
+    title,
+    subtitle: controlCategoryLabel(control),
+    value,
+    detail,
+    tone: control.tone,
+  };
+}
+
+function guideTopCard(topic: ParentPortalGuideTopic): ParentPortalTopCardItem {
+  return {
+    kind: 'guide',
+    key: `guide:${normalizeSelectionId(topic.id)}`,
+    topic,
+    title: topic.title,
+    subtitle: topic.subtitle,
+    value: topic.category,
+    detail: topic.detail,
+    tone: topic.tone,
+  };
+}
+
+function buildControlCategorySummaries(controls: QuickControl[]): ControlCategorySummary[] {
+  const summaries = new Map<string, ControlCategorySummary>();
+  const subcategoryMaps = new Map<string, Map<string, ControlSubcategorySummary>>();
+  const fallbackControl = controls[0];
+  const tones: Tone[] = ['gold', 'cyan', 'purple', 'red', 'muted'];
+  for (const control of controls) {
+    const label = controlCategoryLabel(control);
+    const id = assetKey(label);
+    const subcategoryLabel = controlSubcategoryLabel(control);
+    const subcategoryId = assetKey(subcategoryLabel);
+    const existing = summaries.get(id);
+    if (existing) {
+      existing.count += 1;
+      const subcategories = subcategoryMaps.get(id) ?? new Map<string, ControlSubcategorySummary>();
+      const existingSubcategory = subcategories.get(subcategoryId);
+      if (existingSubcategory) {
+        existingSubcategory.count += 1;
+      } else {
+        subcategories.set(subcategoryId, {
+          id: subcategoryId,
+          label: subcategoryLabel,
+          count: 1,
+          tone: control.tone,
+          sampleControl: control,
+        });
+      }
+      subcategoryMaps.set(id, subcategories);
+      existing.subcategories = Array.from(subcategories.values()).sort(
+        (a, b) => b.count - a.count || a.label.localeCompare(b.label)
+      );
+      continue;
+    }
+    const firstSubcategory: ControlSubcategorySummary = {
+      id: subcategoryId,
+      label: subcategoryLabel,
+      count: 1,
+      tone: control.tone,
+      sampleControl: control,
+    };
+    subcategoryMaps.set(id, new Map([[subcategoryId, firstSubcategory]]));
+    summaries.set(id, {
+      id,
+      label,
+      detail: subcategoryLabel,
+      count: 1,
+      tone: control.tone,
+      sampleControl: control,
+      subcategories: [firstSubcategory],
+    });
+  }
+  PARENT_PORTAL_CATEGORY_LABELS.forEach((label, index) => {
+    const id = assetKey(label);
+    if (summaries.has(id) || !fallbackControl) return;
+    summaries.set(id, {
+      id,
+      label,
+      detail: 'Catalog scope',
+      count: 0,
+      tone: tones[index % tones.length],
+      sampleControl: fallbackControl,
+      subcategories: [],
+    });
+  });
+  return Array.from(summaries.values()).sort((a, b) => {
+    if (a.count !== b.count) return b.count - a.count;
+    const aKnown = PARENT_PORTAL_CATEGORY_LABELS.indexOf(a.label as (typeof PARENT_PORTAL_CATEGORY_LABELS)[number]);
+    const bKnown = PARENT_PORTAL_CATEGORY_LABELS.indexOf(b.label as (typeof PARENT_PORTAL_CATEGORY_LABELS)[number]);
+    if (aKnown >= 0 && bKnown >= 0) return aKnown - bKnown;
+    if (aKnown >= 0) return -1;
+    if (bKnown >= 0) return 1;
+    return a.label.localeCompare(b.label);
+  });
+}
+
+function detailForNav(activeNavLabel: string, detail: TabDetail): TabDetail {
+  const key = assetKey(activeNavLabel);
+  if (!key.includes('overview') && !key.includes('today')) return detail;
+  return {
+    ...detail,
+    eyebrow: 'Family command',
+    title: 'Today',
+    summary: 'Snapshot of child-device connection, evidence readiness, browser controls, and setup gaps.',
+    primary: 'Current device state',
+    secondary: 'Controls, evidence, privacy, and setup',
+    action: 'Review today',
+    tone: 'cyan',
+  };
+}
+
+function SurfacePanel({
+  x,
+  y,
+  w,
+  h,
+  tone = 'cyan',
+  accentColor,
+  frame = 'default',
+  selected = false,
+  disabled = false,
+  frameCornerThicknessScale = 1,
+  onClick,
+  ariaLabel,
+  children,
+  cfg,
+}: {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  tone?: Tone;
+  accentColor?: string;
+  frame?: 'default' | 'deckSide';
+  selected?: boolean;
+  disabled?: boolean;
+  frameCornerThicknessScale?: number;
+  onClick?: () => void;
+  ariaLabel?: string;
+  children?: ReactNode;
+  cfg: ParentPortalSvgControls;
+}) {
+  const [hovered, setHovered] = useState(false);
+  const color = accentColor ?? toneColor(tone, cfg);
+  const interactive = Boolean(onClick) && !disabled;
+  const active = selected || hovered;
+  const fill = selected ? cfg.colors.selectedFill : hovered ? `${color}20` : cfg.colors.panelFill;
+  const handleClick = (event: MouseEvent<SVGGElement>) => {
+    if (!interactive) return;
+    event.stopPropagation();
+    onClick?.();
+  };
+  const handleKeyDown = (event: KeyboardEvent<SVGGElement>) => {
+    if (!interactive || (event.key !== 'Enter' && event.key !== ' ')) return;
+    event.preventDefault();
+    event.stopPropagation();
+    onClick?.();
+  };
+  return (
+    <g
+      className={interactive ? 'parent-portal-svg-clickable' : undefined}
+      onClick={handleClick}
+      onKeyDown={handleKeyDown}
+      onMouseEnter={() => interactive && setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      role={interactive ? 'button' : undefined}
+      tabIndex={interactive ? 0 : undefined}
+      aria-label={ariaLabel}
+      aria-disabled={disabled || undefined}
+    >
+      {frame === 'deckSide' ? (
+        <>
+          <path d={cutRectPath(x + 5, y + 5, w - 10, h - 10, 18)} fill="#020b14" stroke="none" pointerEvents="none" />
+          <ParentPortalPanelFrame
+            x={x}
+            y={y}
+            w={w}
+            h={h}
+            color={color}
+            active={active}
+            cornerThicknessScale={frameCornerThicknessScale}
+            outerTabWidth={cfg.chrome.frameOuterBulgeWidth}
+            innerTabWidth={cfg.chrome.frameInnerBulgeWidth}
+          />
+        </>
+      ) : (
+        <>
+          {hovered && !selected ? (
+            <path
+              d={cutRectPath(
+                x - cfg.chrome.hoverPad,
+                y - cfg.chrome.hoverPad,
+                w + cfg.chrome.hoverPad * 2,
+                h + cfg.chrome.hoverPad * 2,
+                cfg.chrome.panelCut
+              )}
+              fill="none"
+              stroke={color}
+              strokeWidth={2.2}
+              opacity={cfg.chrome.glowOpacity}
+              filter="url(#parentPortalGlow)"
+            />
+          ) : null}
+          <path
+            d={cutRectPath(x, y, w, h, active ? cfg.chrome.panelCut + 2 : cfg.chrome.panelCut)}
+            fill={fill}
+            stroke={color}
+            strokeWidth={active ? cfg.chrome.panelStrokeWidth + 0.5 : cfg.chrome.panelStrokeWidth}
+            opacity={disabled ? 0.48 : 0.97}
+          />
+          <path
+            d={cutRectPath(
+              x + cfg.chrome.panelInnerInset,
+              y + cfg.chrome.panelInnerInset,
+              w - cfg.chrome.panelInnerInset * 2,
+              h - cfg.chrome.panelInnerInset * 2,
+              Math.max(4, cfg.chrome.panelCut - 4)
+            )}
+            fill="none"
+            stroke={color}
+            strokeWidth={0.7}
+            opacity={active ? 0.52 : 0.25}
+          />
+          {selected ? (
+            <path
+              d={cutRectPath(x, y, w, h, cfg.chrome.panelCut + 2)}
+              fill="none"
+              stroke={color}
+              strokeWidth={5}
+              opacity={0.16}
+              filter="url(#parentPortalGlow)"
+            />
+          ) : null}
+        </>
+      )}
+      {children}
+    </g>
+  );
+}
+
+function ParentPortalFrameSideHandle({
+  x,
+  y,
+  side,
+  disabled = false,
+  height = 132,
+  width = 22,
+  accentColor,
+  onClick,
+  cfg,
+}: {
+  x: number;
+  y: number;
+  side: 'left' | 'right';
+  disabled?: boolean;
+  height?: number;
+  width?: number;
+  accentColor?: string;
+  onClick: () => void;
+  cfg: ParentPortalSvgControls;
+}) {
+  const [hovered, setHovered] = useState(false);
+  const handleW = width;
+  const handleH = height;
+  const color = accentColor ?? cfg.colors.cyan;
+  const glowFilter = color === cfg.colors.gold ? 'url(#parentPortalGoldGlow)' : 'url(#parentPortalGlow)';
+  const compact = handleH <= 64;
+  const visualH = compact ? 40 : handleH;
+  const visualY = y + (handleH - visualH) / 2;
+  const tipInset = Math.max(5, Math.min(7, handleW * 0.32));
+  const iconSize = compact ? 13 : 18;
+  const iconX = x + (handleW - iconSize) / 2;
+  const iconY = visualY + (visualH - iconSize) / 2;
+  const bodyPath =
+    side === 'left'
+      ? `M ${x + tipInset} ${visualY} H ${x + handleW} V ${visualY + visualH} H ${x + tipInset} L ${x} ${visualY + visualH - tipInset} V ${visualY + tipInset} Z`
+      : `M ${x} ${visualY} H ${x + handleW - tipInset} L ${x + handleW} ${visualY + tipInset} V ${visualY + visualH - tipInset} L ${x + handleW - tipInset} ${visualY + visualH} H ${x} Z`;
+  const iconHref = side === 'left' ? parentPortalSidePanelHandleLeftIconUrl : parentPortalSidePanelHandleRightIconUrl;
+  return (
+    <g
+      className="parent-portal-svg-clickable"
+      role="button"
+      tabIndex={disabled ? -1 : 0}
+      aria-disabled={disabled}
+      aria-label={side === 'left' ? 'Previous parent portal carousel page' : 'Next parent portal carousel page'}
+      opacity={disabled ? 0.72 : 1}
+      onClick={(event) => {
+        event.stopPropagation();
+        if (!disabled) onClick();
+      }}
+      onKeyDown={(event) => {
+        if (disabled || (event.key !== 'Enter' && event.key !== ' ')) return;
+        event.preventDefault();
+        event.stopPropagation();
+        onClick();
+      }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      {hovered && !disabled ? (
+        <path d={bodyPath} fill={color} opacity={0.24} filter={glowFilter} pointerEvents="none" />
+      ) : null}
+      <path
+        d={bodyPath}
+        fill={hovered && !disabled ? colorAlpha(color, '2d') : colorAlpha(color, '16')}
+        stroke={color}
+        strokeWidth={hovered && !disabled ? 2 : 1.35}
+      />
+      <path
+        d={bodyPath}
+        fill="url(#parentPortalFrameShine)"
+        opacity={hovered && !disabled ? 0.95 : 0.76}
+        pointerEvents="none"
+      />
+      <image
+        href={iconHref}
+        x={iconX}
+        y={iconY}
+        width={iconSize}
+        height={iconSize}
+        preserveAspectRatio="xMidYMid meet"
+        opacity={hovered && !disabled ? 1 : 0.88}
+        pointerEvents="none"
+      />
+      <rect x={x - 6} y={y - 6} width={handleW + 12} height={handleH + 12} fill="transparent" />
+    </g>
+  );
+}
+
+function ParentPortalFrameDots({
+  x,
+  y,
+  page,
+  pageCount,
+  accentColor,
+  onPageChange,
+  cfg,
+}: {
+  x: number;
+  y: number;
+  page: number;
+  pageCount: number;
+  accentColor?: string;
+  onPageChange: (page: number) => void;
+  cfg: ParentPortalSvgControls;
+}) {
+  const color = accentColor ?? cfg.colors.cyan;
+  const visibleCount = Math.min(pageCount, 7);
+  const start =
+    pageCount <= visibleCount ? 0 : clampValue(page - Math.floor(visibleCount / 2), 0, pageCount - visibleCount);
+  const slots = Array.from({ length: visibleCount }, (_, index) => start + index);
+  const inactiveW = 15;
+  const activeW = 34;
+  const gap = 8;
+  const totalW =
+    slots.reduce((sum, slot) => sum + (slot === page ? activeW : inactiveW), 0) + Math.max(0, slots.length - 1) * gap;
+  let cursor = x - totalW / 2;
+  return (
+    <g>
+      {slots.map((slot) => {
+        const active = slot === page;
+        const dotW = active ? activeW : inactiveW;
+        const dotX = cursor;
+        cursor += dotW + gap;
+        return (
+          <g
+            key={slot}
+            className="parent-portal-svg-clickable"
+            role="button"
+            tabIndex={0}
+            aria-label={`Open carousel page ${slot + 1}`}
+            onClick={(event) => {
+              event.stopPropagation();
+              onPageChange(slot);
+            }}
+            onKeyDown={(event) => {
+              if (event.key !== 'Enter' && event.key !== ' ') return;
+              event.preventDefault();
+              event.stopPropagation();
+              onPageChange(slot);
+            }}
+          >
+            <rect x={dotX - 5} y={y - 10} width={dotW + 10} height={22} fill="transparent" />
+            <rect
+              x={dotX}
+              y={y - 4}
+              width={dotW}
+              height={8}
+              rx={4}
+              fill={active ? colorAlpha(color, '44') : colorAlpha(color, '10')}
+              stroke={color}
+              strokeWidth={active ? 1.5 : 1.1}
+              strokeOpacity={active ? 0.95 : 0.58}
+              filter={active ? 'url(#parentPortalGlow)' : undefined}
+            />
+          </g>
+        );
+      })}
+    </g>
+  );
+}
+
+function ParentPortalHeaderAction({
+  x,
+  y,
+  w,
+  h,
+  label,
+  iconHref,
+  tone = 'cyan',
+  accentColor,
+  active = false,
+  onClick,
+  ariaLabel,
+  cfg,
+}: {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  label: string;
+  iconHref?: string;
+  tone?: Tone;
+  accentColor?: string;
+  active?: boolean;
+  onClick: () => void;
+  ariaLabel?: string;
+  cfg: ParentPortalSvgControls;
+}) {
+  const [hovered, setHovered] = useState(false);
+  const color = accentColor ?? toneColor(tone, cfg);
+  const lit = active || hovered;
+  const iconBoxSize = iconHref ? Math.max(20, Math.min(25, h - 4)) : 0;
+  const iconSize = iconHref ? Math.max(16, iconBoxSize - 5) : 0;
+  const iconGap = iconHref ? 7 : 0;
+  const iconBoxX = x + 7;
+  const iconBoxY = y + (h - iconBoxSize) / 2;
+  const iconX = iconBoxX + (iconBoxSize - iconSize) / 2;
+  const iconY = iconBoxY + (iconBoxSize - iconSize) / 2;
+  const labelMaxW = iconHref ? w - iconBoxSize - iconGap - 24 : w - 16;
+  const labelX = iconHref ? iconBoxX + iconBoxSize + iconGap + labelMaxW / 2 : x + w / 2;
+  return (
+    <g
+      className="parent-portal-svg-clickable"
+      role="button"
+      tabIndex={0}
+      aria-label={ariaLabel ?? label}
+      onClick={(event) => {
+        event.stopPropagation();
+        onClick();
+      }}
+      onKeyDown={(event) => {
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        event.preventDefault();
+        event.stopPropagation();
+        onClick();
+      }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      {lit ? (
+        <rect
+          x={x - 3}
+          y={y - 3}
+          width={w + 6}
+          height={h + 6}
+          fill="none"
+          stroke={color}
+          strokeWidth={1.4}
+          opacity={0.24}
+          filter="url(#parentPortalGlow)"
+        />
+      ) : null}
+      <rect
+        x={x}
+        y={y}
+        width={w}
+        height={h}
+        rx={3}
+        fill={lit ? `${color}24` : 'rgba(4, 18, 31, 0.88)'}
+        stroke={color}
+        strokeWidth={lit ? 1.35 : 0.9}
+        strokeOpacity={lit ? 0.95 : 0.64}
+      />
+      <rect
+        x={x + 2}
+        y={y + 2}
+        width={w - 4}
+        height={Math.max(1, h * 0.36)}
+        rx={2}
+        fill="#ffffff"
+        opacity={lit ? 0.12 : 0.06}
+      />
+      {iconHref ? (
+        <image
+          href={iconHref}
+          x={iconX}
+          y={iconY}
+          width={iconSize}
+          height={iconSize}
+          opacity={1}
+          preserveAspectRatio="xMidYMid meet"
+          pointerEvents="none"
+          filter={lit ? 'url(#parentPortalGlow)' : undefined}
+        />
+      ) : null}
+      <text
+        x={labelX}
+        y={y + h / 2 + 4}
+        textAnchor="middle"
+        fontSize={fitSingleLineTextSize(label, labelMaxW, 8.5, 11.5, 0.58)}
+        fontWeight={900}
+        fill={cfg.colors.bodyText}
+        pointerEvents="none"
+      >
+        {label}
+      </text>
+    </g>
+  );
+}
+
+function ParentPortalInfoButton({
+  x,
+  y,
+  size = 24,
+  accentColor,
+  label,
+  onClick,
+  cfg,
+}: {
+  x: number;
+  y: number;
+  size?: number;
+  accentColor?: string;
+  label: string;
+  onClick: () => void;
+  cfg: ParentPortalSvgControls;
+}) {
+  const [hovered, setHovered] = useState(false);
+  const color = accentColor ?? cfg.colors.cyan;
+  return (
+    <g
+      className="parent-portal-svg-clickable"
+      role="button"
+      tabIndex={0}
+      aria-label={label}
+      onClick={(event) => {
+        event.stopPropagation();
+        onClick();
+      }}
+      onKeyDown={(event) => {
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        event.preventDefault();
+        event.stopPropagation();
+        onClick();
+      }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <title>{label}</title>
+      <circle
+        cx={x + size / 2}
+        cy={y + size / 2}
+        r={size / 2 - 1}
+        fill={hovered ? colorAlpha(color, '35') : colorAlpha(color, '18')}
+        stroke={color}
+        strokeWidth={hovered ? 1.3 : 0.9}
+        filter={hovered ? 'url(#parentPortalGlow)' : undefined}
+      />
+      <text
+        x={x + size / 2}
+        y={y + size / 2 + 0.5}
+        textAnchor="middle"
+        dominantBaseline="middle"
+        fontSize={Math.max(12, size * 0.62)}
+        fontWeight={950}
+        fill={cfg.colors.bodyText}
+      >
+        i
+      </text>
+    </g>
+  );
+}
+
+function ParentPortalSectionFrame({
+  x,
+  y,
+  w,
+  h,
+  title,
+  subtitle,
+  headerIcon,
+  tone = 'cyan',
+  accentColor,
+  headerSlot,
+  headerRight,
+  headerInfoLabel,
+  onHeaderInfoClick,
+  footer,
+  footerH,
+  headerH,
+  bodyInset,
+  fullHeaderLine = false,
+  innerStrokeOpacity = 0.6,
+  bodyStrokeOpacity = 0.72,
+  bodyFill = 'rgba(7, 30, 48, 0.38)',
+  footerLineOpacity = 0.42,
+  showSideHandles = false,
+  sideDisabled = false,
+  onPrevious,
+  onNext,
+  onWheel,
+  selected = false,
+  onSelect,
+  ariaLabel,
+  cfg,
+  children,
+}: {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  title: string;
+  subtitle?: string;
+  headerIcon?: IconComponent;
+  tone?: Tone;
+  accentColor?: string;
+  headerSlot?: ReactNode;
+  headerRight?: ReactNode;
+  headerInfoLabel?: string;
+  onHeaderInfoClick?: () => void;
+  footer?: (rect: ParentPortalRect) => ReactNode;
+  footerH?: number;
+  headerH?: number;
+  bodyInset?: number;
+  fullHeaderLine?: boolean;
+  innerStrokeOpacity?: number;
+  bodyStrokeOpacity?: number;
+  bodyFill?: string;
+  footerLineOpacity?: number;
+  showSideHandles?: boolean;
+  sideDisabled?: boolean;
+  onPrevious?: () => void;
+  onNext?: () => void;
+  onWheel?: (event: WheelEvent<SVGGElement>) => void;
+  selected?: boolean;
+  onSelect?: () => void;
+  ariaLabel?: string;
+  cfg: ParentPortalSvgControls;
+  children: (rect: ParentPortalRect) => ReactNode;
+}) {
+  const [hovered, setHovered] = useState(false);
+  const color = accentColor ?? toneColor(tone, cfg);
+  const {
+    body,
+    footer: footerRect,
+    headerH: resolvedHeaderH,
+  } = parentPortalFrameRects(x, y, w, h, footerH, headerH, bodyInset);
+  const cut = Math.max(6, Math.min(cfg.chrome.panelCut, 12));
+  const interactive = Boolean(onSelect);
+  const active = selected || hovered;
+  const headerInset = Math.max(48, Math.min(76, w * 0.045));
+  const headerRightInset = Math.max(48, Math.min(76, w * 0.045));
+  const prominentHeader = fullHeaderLine;
+  const headerRightReserveW = headerRight ? 144 : 0;
+  const headerLineStart = fullHeaderLine ? x + 12 : x + headerInset;
+  const headerLineEnd = fullHeaderLine
+    ? x + w - 12 - headerRightReserveW
+    : x + w - headerRightInset - (headerRight ? 132 : 0);
+  const headerLineY = y + resolvedHeaderH - 7;
+  const iconBoxW = headerIcon
+    ? prominentHeader
+      ? Math.max(26, Math.min(32, resolvedHeaderH - 24))
+      : Math.max(32, Math.min(38, resolvedHeaderH - 6))
+    : 0;
+  const titleY = y + (prominentHeader ? 14 : 9);
+  const titleH = Math.max(26, Math.min(prominentHeader ? 42 : 32, resolvedHeaderH - 10));
+  const headerIconX = x + headerInset;
+  const prominentHeaderTopClearance = prominentHeader ? Math.max(14, Math.min(18, resolvedHeaderH * 0.28)) : 0;
+  const prominentHeaderCenterY = y + prominentHeaderTopClearance + (headerLineY - y - prominentHeaderTopClearance) / 2;
+  const headerIconY = prominentHeader
+    ? prominentHeaderCenterY - iconBoxW / 2
+    : y + Math.max(7, (resolvedHeaderH - iconBoxW) / 2 - 1);
+  const titleX = headerIcon ? headerIconX + iconBoxW + (prominentHeader ? 14 : 12) : headerIconX;
+  const headerInfoSize = prominentHeader ? 25 : 0;
+  const headerInfoReservedW = onHeaderInfoClick ? headerInfoSize + 18 : 0;
+  const titleMaxW = Math.max(80, headerLineEnd - titleX - 12 - headerInfoReservedW);
+  const expandedTitle = prominentHeader && title === 'LAN' && titleMaxW >= 190 ? 'Local Area Network' : title;
+  const titleFontSize = fitSingleLineTextSize(
+    expandedTitle,
+    titleMaxW,
+    prominentHeader ? 15 : 12,
+    prominentHeader ? 17 : 14,
+    0.56
+  );
+  const titleText = truncateTextForWidth(expandedTitle, titleMaxW, titleFontSize, 0.56);
+  const titleBaseline = prominentHeader
+    ? prominentHeaderCenterY + titleFontSize * 0.35
+    : headerIcon
+      ? headerIconY + iconBoxW * 0.65
+      : titleY + titleH * 0.68;
+  const titleTextW = Math.min(titleMaxW, Math.ceil(titleText.length * titleFontSize * 0.56));
+  const headerInfoX = Math.min(titleX + titleTextW + 12, headerLineEnd - headerInfoSize - 4);
+  const headerInfoY = prominentHeader ? prominentHeaderCenterY - headerInfoSize / 2 : headerLineY - headerInfoSize + 3;
+  const HeaderIcon = headerIcon;
+  const showHeaderSubtitle = Boolean(subtitle && !headerIcon);
+  const sideHandleW = PARENT_PORTAL_SIDE_HANDLE_W;
+  const sideHandleH = Math.max(72, Math.min(128, body.h - 28));
+  const sideHandleY = body.y + Math.max(12, (body.h - sideHandleH) / 2);
+  const leftHandleX = x - sideHandleW + PARENT_PORTAL_SIDE_HANDLE_OVERLAP;
+  const rightHandleX = x + w - PARENT_PORTAL_SIDE_HANDLE_OVERLAP;
+  const handleSelect = (event: MouseEvent<SVGGElement>) => {
+    if (!interactive) return;
+    event.stopPropagation();
+    onSelect?.();
+  };
+  const handleKeyDown = (event: KeyboardEvent<SVGGElement>) => {
+    if (!interactive || (event.key !== 'Enter' && event.key !== ' ')) return;
+    event.preventDefault();
+    event.stopPropagation();
+    onSelect?.();
+  };
+  return (
+    <g
+      className={interactive ? 'parent-portal-svg-clickable' : undefined}
+      role={interactive ? 'button' : undefined}
+      tabIndex={interactive ? 0 : undefined}
+      aria-label={ariaLabel}
+      aria-pressed={interactive ? selected : undefined}
+      onClick={handleSelect}
+      onKeyDown={handleKeyDown}
+      onWheel={onWheel}
+      onMouseEnter={() => interactive && setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      {interactive ? (
+        <rect x={x - 8} y={y - 8} width={w + 16} height={h + 16} fill="transparent" pointerEvents="all" />
+      ) : null}
+      <ParentPortalPanelFrame
+        x={x}
+        y={y}
+        w={w}
+        h={h}
+        color={color}
+        active={active}
+        fill="url(#parentPortalFrameFill)"
+        fillOpacity={selected ? 0.98 : 0.92}
+        cornerThicknessScale={0.86}
+        outerTabWidth={cfg.chrome.frameOuterBulgeWidth}
+        innerTabWidth={cfg.chrome.frameInnerBulgeWidth}
+      />
+      <path
+        d={cutRectPath(x + 8, y + 8, w - 16, Math.min(62, resolvedHeaderH + 10), Math.max(4, cut - 5))}
+        fill="url(#parentPortalFrameShine)"
+        opacity={active ? 0.56 : 0.42}
+        pointerEvents="none"
+      />
+      {headerSlot ? (
+        headerSlot
+      ) : (
+        <>
+          {HeaderIcon ? (
+            <HeaderIcon
+              x={headerIconX + (prominentHeader ? 3 : 5)}
+              y={headerIconY + (prominentHeader ? 3 : 5)}
+              width={iconBoxW - (prominentHeader ? 6 : 10)}
+              height={iconBoxW - (prominentHeader ? 6 : 10)}
+              color={color}
+              strokeWidth={prominentHeader ? 2.6 : 2.3}
+            />
+          ) : null}
+          <text
+            x={titleX}
+            y={titleBaseline}
+            fontSize={titleFontSize}
+            fontWeight={950}
+            fill={cfg.colors.bodyText}
+            stroke="#03121f"
+            strokeWidth={0.8}
+            strokeOpacity={0.78}
+            paintOrder="stroke"
+            letterSpacing={0}
+          >
+            {titleText}
+          </text>
+          <line
+            x1={headerLineStart}
+            y1={headerLineY}
+            x2={headerLineEnd}
+            y2={headerLineY}
+            stroke={color}
+            strokeWidth={1.1}
+            opacity={0.5}
+          />
+          {headerInfoLabel && onHeaderInfoClick ? (
+            <ParentPortalInfoButton
+              x={headerInfoX}
+              y={headerInfoY}
+              size={headerInfoSize}
+              accentColor={color}
+              label={headerInfoLabel}
+              onClick={onHeaderInfoClick}
+              cfg={cfg}
+            />
+          ) : null}
+          {showHeaderSubtitle ? (
+            <text x={x + 24} y={y + resolvedHeaderH - 12} fontSize={10.2} fontWeight={820} fill={cfg.colors.mutedText}>
+              {subtitle}
+            </text>
+          ) : null}
+          {headerRight}
+        </>
+      )}
+      <path
+        d={cutRectPath(body.x, body.y, body.w, body.h, 7)}
+        fill={bodyFill}
+        stroke={color}
+        strokeWidth={0.9}
+        strokeOpacity={bodyStrokeOpacity}
+      />
+      {children(body)}
+      {footerLineOpacity > 0 ? (
+        <line
+          x1={footerRect.x + 12}
+          y1={footerRect.y + 3}
+          x2={footerRect.x + footerRect.w - 12}
+          y2={footerRect.y + 3}
+          stroke={color}
+          strokeWidth={1.1}
+          opacity={footerLineOpacity}
+        />
+      ) : null}
+      {footer?.(footerRect)}
+      {showSideHandles && onPrevious ? (
+        <ParentPortalFrameSideHandle
+          x={leftHandleX}
+          y={sideHandleY}
+          side="left"
+          height={sideHandleH}
+          width={sideHandleW}
+          disabled={sideDisabled}
+          onClick={onPrevious}
+          accentColor={color}
+          cfg={cfg}
+        />
+      ) : null}
+      {showSideHandles && onNext ? (
+        <ParentPortalFrameSideHandle
+          x={rightHandleX}
+          y={sideHandleY}
+          side="right"
+          height={sideHandleH}
+          width={sideHandleW}
+          disabled={sideDisabled}
+          onClick={onNext}
+          accentColor={color}
+          cfg={cfg}
+        />
+      ) : null}
+    </g>
+  );
+}
+
+function ArtworkSlot({
+  x,
+  y,
+  w,
+  h,
+  label,
+  imageUrl = null,
+  tone = 'cyan',
+  compact = false,
+  shape = 'rect',
+  imageFit = 'meet',
+  cfg,
+}: {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  label: string;
+  imageUrl?: string | null;
+  tone?: Tone;
+  compact?: boolean;
+  shape?: 'rect' | 'hex' | 'circle';
+  imageFit?: 'meet' | 'slice';
+  cfg: ParentPortalSvgControls;
+}) {
+  const rawId = useId();
+  const color = toneColor(tone, cfg);
+  const cx = x + w / 2;
+  const cy = y + h / 2;
+  const inset = Math.min(8, w * 0.18, h * 0.18);
+  const radius = Math.min(w, h) / 2 - 1;
+  const clipId = `parent-portal-art-${rawId.replace(/[^a-zA-Z0-9_-]/g, '')}`;
+  const primaryText = compact ? 'MISS' : 'MISSING';
+  const primaryFontSize = compact ? Math.min(7, Math.max(4.5, w * 0.24)) : Math.min(11, Math.max(7.5, w * 0.09));
+  const secondaryFontSize = Math.min(8.5, Math.max(6.5, w * 0.06));
+  const fill = imageUrl ? 'rgba(3, 13, 24, 0.82)' : 'rgba(48, 12, 23, 0.72)';
+  const renderShape = (shapeFill: string, shapeStroke: string, dash = '') => {
+    if (shape === 'circle') {
+      return (
+        <circle
+          cx={cx}
+          cy={cy}
+          r={radius}
+          fill={shapeFill}
+          stroke={shapeStroke}
+          strokeWidth={1.1}
+          strokeDasharray={dash}
+          opacity={0.95}
+        />
+      );
+    }
+    if (shape === 'hex') {
+      return (
+        <path
+          d={hexPath(cx, cy, radius)}
+          fill={shapeFill}
+          stroke={shapeStroke}
+          strokeWidth={1.1}
+          strokeDasharray={dash}
+          opacity={0.95}
+        />
+      );
+    }
+    return (
+      <path
+        d={cutRectPath(x, y, w, h, 4)}
+        fill={shapeFill}
+        stroke={shapeStroke}
+        strokeWidth={1.1}
+        strokeDasharray={dash}
+        opacity={0.95}
+      />
+    );
+  };
+  return (
+    <g pointerEvents="none">
+      {renderShape(fill, color, imageUrl ? '' : '4 3')}
+      {imageUrl ? (
+        <>
+          <clipPath id={clipId}>
+            {shape === 'circle' ? (
+              <circle cx={cx} cy={cy} r={radius - 1} />
+            ) : shape === 'hex' ? (
+              <path d={hexPath(cx, cy, radius - 1)} />
+            ) : (
+              <path d={cutRectPath(x + 1, y + 1, w - 2, h - 2, 4)} />
+            )}
+          </clipPath>
+          <image
+            href={imageUrl}
+            x={x + 2}
+            y={y + 2}
+            width={w - 4}
+            height={h - 4}
+            preserveAspectRatio={`xMidYMid ${imageFit}`}
+            clipPath={`url(#${clipId})`}
+            opacity={0.98}
+          />
+          {renderShape('none', color)}
+        </>
+      ) : (
+        <>
+          <title>{`Missing ${label} image`}</title>
+          <line
+            x1={x + inset}
+            y1={y + inset}
+            x2={x + w - inset}
+            y2={y + h - inset}
+            stroke={color}
+            strokeOpacity={0.55}
+            strokeWidth={0.8}
+          />
+          <line
+            x1={x + w - inset}
+            y1={y + inset}
+            x2={x + inset}
+            y2={y + h - inset}
+            stroke={color}
+            strokeOpacity={0.55}
+            strokeWidth={0.8}
+          />
+          <text
+            x={cx}
+            y={compact ? cy + primaryFontSize * 0.35 : cy - 1}
+            textAnchor="middle"
+            fontSize={primaryFontSize}
+            fontWeight={950}
+            fill={color}
+          >
+            {primaryText}
+          </text>
+          {compact ? null : (
+            <text
+              x={cx}
+              y={cy + 13}
+              textAnchor="middle"
+              fontSize={secondaryFontSize}
+              fontWeight={900}
+              fill={cfg.colors.mutedText}
+            >
+              {label}
+            </text>
+          )}
+        </>
+      )}
+    </g>
+  );
+}
+
+function NavRow({
+  item,
+  active,
+  x,
+  w,
+  y,
+  rowH,
+  iconSize,
+  nested = false,
+  branchColor,
+  onSelect,
+  cfg,
+}: {
+  item: NavItem;
+  active: boolean;
+  x: number;
+  w: number;
+  y: number;
+  rowH: number;
+  iconSize: number;
+  nested?: boolean;
+  branchColor?: string;
+  onSelect: () => void;
+  cfg: ParentPortalSvgControls;
+}) {
+  const [hovered, setHovered] = useState(false);
+  const color = active ? cfg.colors.bodyText : '#d8eaff';
+  const rowX = x + 14;
+  const rowW = w - 28;
+  const lit = active || hovered;
+  const branchAccent = branchColor ?? toneColor(item.tone ?? 'cyan', cfg);
+  const accent = branchAccent;
+  const slotX = x + 22;
+  const slotY = y + (rowH - iconSize) / 2;
+  const slotW = Math.max(32, iconSize - 2);
+  const textX = slotX + slotW + 8;
+  const labelW = Math.max(48, x + w - 28 - textX);
+  const labelSize = 10.9;
+  const arrowTop = y + 7;
+  const arrowBottom = y + rowH - 7;
+  const arrowMid = y + rowH / 2;
+  const arrowOffset = Math.max(4, cfg.chrome.panelStrokeWidth * 2.4);
+  const arrowBaseX = rowX + rowW + arrowOffset;
+  const arrowTipX = arrowBaseX + 20;
+  return (
+    <g
+      className="parent-portal-svg-clickable"
+      onClick={(event) => {
+        event.stopPropagation();
+        onSelect();
+      }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onKeyDown={(event) => {
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        event.preventDefault();
+        event.stopPropagation();
+        onSelect();
+      }}
+      role="button"
+      tabIndex={0}
+      aria-label={`Open ${item.label}`}
+    >
+      <rect x={rowX - 6} y={y - 4} width={rowW + 28} height={rowH + 8} fill="transparent" pointerEvents="all" />
+      {nested ? (
+        <>
+          <path
+            d={`M ${rowX - 8} ${y + 7} V ${y + rowH - 7}`}
+            stroke={branchAccent}
+            strokeWidth={active ? 2.2 : 1.4}
+            strokeLinecap="round"
+            opacity={active ? 0.72 : 0.5}
+            filter={active ? 'url(#parentPortalGlow)' : undefined}
+            pointerEvents="none"
+          />
+          <path
+            d={`M ${rowX - 8} ${y + rowH / 2} H ${rowX - 1}`}
+            stroke={branchAccent}
+            strokeWidth={active ? 2 : 1.2}
+            strokeLinecap="round"
+            opacity={active ? 0.66 : 0.48}
+            pointerEvents="none"
+          />
+        </>
+      ) : null}
+      {lit ? (
+        <>
+          <path
+            d={cutRectPath(rowX - 3, y - 3, rowW + 6, rowH + 6, 11)}
+            fill="none"
+            stroke={accent}
+            strokeWidth={active ? 2.2 : 2}
+            opacity={active ? 0.42 : 0.34}
+            filter="url(#parentPortalGlow)"
+            pointerEvents="none"
+          />
+          {lit ? (
+            <path
+              d={`M ${arrowBaseX} ${arrowTop} L ${arrowTipX} ${arrowMid} L ${arrowBaseX} ${arrowBottom} Z`}
+              fill={accent}
+              opacity={active ? 0.82 : 0.42}
+              filter="url(#parentPortalGlow)"
+              pointerEvents="none"
+            />
+          ) : null}
+        </>
+      ) : null}
+      <path
+        d={cutRectPath(rowX, y, rowW, rowH, 8)}
+        fill={
+          active ? colorAlpha(accent, '30') : hovered ? colorAlpha(branchAccent, '18') : colorAlpha(branchAccent, '08')
+        }
+        fillOpacity={1}
+        stroke={lit ? accent : 'transparent'}
+        strokeWidth={lit ? 1.6 : 0}
+        pointerEvents="none"
+      />
+      {lit ? (
+        <path
+          d={cutRectPath(rowX + 3, y + 3, rowW - 6, rowH - 6, 6)}
+          fill="none"
+          stroke={accent}
+          strokeWidth={1}
+          opacity={active ? 0.68 : 0.42}
+          pointerEvents="none"
+        />
+      ) : null}
+      <NavIconSlot
+        Icon={item.icon}
+        x={slotX}
+        y={slotY + 3}
+        size={slotW}
+        color={accent}
+        lit={lit}
+        selected={active}
+        cfg={cfg}
+      />
+      <text
+        x={textX}
+        y={y + rowH * 0.64}
+        fontSize={labelSize}
+        fontWeight={940}
+        fill={color}
+        stroke="#03121f"
+        strokeWidth={0.7}
+        strokeOpacity={0.78}
+        paintOrder="stroke"
+        pointerEvents="none"
+      >
+        {truncateTextForWidth(item.label, labelW, labelSize, 0.54)}
+      </text>
+    </g>
+  );
+}
+
+function NavIconSlot({
+  Icon,
+  x,
+  y,
+  size,
+  color,
+  lit,
+  selected = false,
+  cfg,
+}: {
+  Icon: IconComponent;
+  x: number;
+  y: number;
+  size: number;
+  color: string;
+  lit: boolean;
+  selected?: boolean;
+  cfg: ParentPortalSvgControls;
+}) {
+  const iconSize = Math.max(24, size - 2);
+  const iconX = x + (size - iconSize) / 2;
+  const iconY = y + (size - iconSize) / 2;
+  return (
+    <g pointerEvents="none">
+      <Icon
+        x={iconX}
+        y={iconY}
+        width={iconSize}
+        height={iconSize}
+        color={selected || lit ? cfg.colors.bodyText : color}
+        strokeWidth={selected ? 2.35 : 2.05}
+      />
+    </g>
+  );
+}
+
+function FoldoutTriangleIndicator({
+  x,
+  y,
+  size,
+  open,
+  hovered,
+  accent,
+  glowFilter,
+  cfg,
+}: {
+  x: number;
+  y: number;
+  size: number;
+  open: boolean;
+  hovered: boolean;
+  accent: string;
+  glowFilter: string;
+  cfg: ParentPortalSvgControls;
+}) {
+  const lit = open || hovered;
+  const indicatorColor = accent;
+  const iconInset = Math.max(4, size * 0.22);
+  return (
+    <g pointerEvents="none">
+      {lit ? (
+        <path
+          d={cutRectPath(x - 2, y - 2, size + 4, size + 4, 5)}
+          fill="none"
+          stroke={indicatorColor}
+          strokeWidth={open ? 1.45 : 1.15}
+          opacity={open ? 0.44 : 0.3}
+          filter={glowFilter}
+        />
+      ) : null}
+      <path
+        d={cutRectPath(x, y, size, size, 4)}
+        fill={colorAlpha(indicatorColor, open ? '26' : hovered ? '1e' : '10')}
+        stroke={indicatorColor}
+        strokeWidth={lit ? 1.15 : 0.85}
+        strokeOpacity={lit ? 0.9 : 0.58}
+      />
+      <image
+        href={open ? parentPortalFoldoutOpenIconUrl : parentPortalFoldoutClosedIconUrl}
+        x={x + iconInset}
+        y={y + iconInset}
+        width={size - iconInset * 2}
+        height={size - iconInset * 2}
+        preserveAspectRatio="xMidYMid meet"
+        opacity={lit ? 0.98 : 0.78}
+        filter={lit ? glowFilter : undefined}
+      />
+    </g>
+  );
+}
+
+function NavSectionHeader({
+  label,
+  icon: Icon,
+  open,
+  x,
+  w,
+  y,
+  h,
+  accentColor,
+  glowFilter,
+  onToggle,
+  cfg,
+}: {
+  label: string;
+  icon: IconComponent;
+  open: boolean;
+  x: number;
+  w: number;
+  y: number;
+  h: number;
+  accentColor?: string;
+  glowFilter?: string;
+  onToggle: () => void;
+  cfg: ParentPortalSvgControls;
+}) {
+  const [hovered, setHovered] = useState(false);
+  const lit = open || hovered;
+  const baseAccent = accentColor ?? cfg.colors.cyan;
+  const activeGlowFilter = glowFilter ?? 'url(#parentPortalGlow)';
+  const accent = baseAccent;
+  const rowX = x + 24;
+  const rowW = w - 40;
+  const panelY = y;
+  const panelH = h;
+  const slotSize = Math.max(28, Math.min(32, h - 6));
+  const slotX = rowX + 8;
+  const slotY = panelY + (panelH - slotSize) / 2;
+  const indicatorSize = 20;
+  const indicatorX = rowX + rowW - indicatorSize - 10;
+  const indicatorY = panelY + (panelH - indicatorSize) / 2;
+  const textX = slotX + slotSize + 10;
+  const labelW = Math.max(40, indicatorX - textX - 10);
+  const labelSize = 11.8;
+  return (
+    <g
+      className="parent-portal-svg-clickable"
+      onClick={(event) => {
+        event.stopPropagation();
+        onToggle();
+      }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onKeyDown={(event) => {
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        event.preventDefault();
+        event.stopPropagation();
+        onToggle();
+      }}
+      role="button"
+      tabIndex={0}
+      aria-label={`${open ? 'Collapse' : 'Expand'} ${label}`}
+      aria-expanded={open}
+    >
+      <rect x={rowX - 7} y={panelY - 4} width={rowW + 14} height={panelH + 8} fill="transparent" pointerEvents="all" />
+      <path
+        d={`M ${x + 18} ${panelY + panelH / 2} H ${rowX - 8}`}
+        stroke={accent}
+        strokeWidth={1}
+        opacity={lit ? 0.56 : 0.38}
+        pointerEvents="none"
+      />
+      {lit ? (
+        <path
+          d={cutRectPath(rowX - 3, panelY - 3, rowW + 6, panelH + 6, 10)}
+          fill="none"
+          stroke={accent}
+          strokeWidth={open ? 1.9 : 1.5}
+          opacity={open ? 0.34 : 0.25}
+          filter={activeGlowFilter}
+          pointerEvents="none"
+        />
+      ) : null}
+      {open ? (
+        <path
+          d={cutRectPath(rowX - 1, panelY + 6, 5, panelH - 12, 2)}
+          fill={accent}
+          opacity={0.84}
+          filter={activeGlowFilter}
+          pointerEvents="none"
+        />
+      ) : null}
+      <path
+        d={cutRectPath(rowX, panelY, rowW, panelH, 6)}
+        fill={open ? colorAlpha(baseAccent, '19') : lit ? colorAlpha(baseAccent, '14') : colorAlpha(baseAccent, '08')}
+        stroke={accent}
+        strokeWidth={lit ? 1.25 : 0.85}
+        strokeOpacity={lit ? 0.84 : 0.46}
+        pointerEvents="none"
+      />
+      {lit ? (
+        <path
+          d={cutRectPath(rowX + 3, panelY + 3, rowW - 6, panelH - 6, 5)}
+          fill="none"
+          stroke={accent}
+          strokeWidth={0.9}
+          opacity={open ? 0.52 : 0.38}
+          pointerEvents="none"
+        />
+      ) : null}
+      <NavIconSlot Icon={Icon} x={slotX} y={slotY} size={slotSize} color={accent} lit={lit} selected={open} cfg={cfg} />
+      <text
+        x={textX}
+        y={panelY + panelH * 0.61}
+        fontSize={labelSize}
+        fontWeight={940}
+        fill={cfg.colors.bodyText}
+        stroke="#03121f"
+        strokeWidth={0.8}
+        strokeOpacity={0.78}
+        paintOrder="stroke"
+        pointerEvents="none"
+      >
+        {truncateTextForWidth(label, labelW, labelSize, 0.54)}
+      </text>
+      <FoldoutTriangleIndicator
+        x={indicatorX}
+        y={indicatorY}
+        size={indicatorSize}
+        open={open}
+        hovered={hovered}
+        accent={baseAccent}
+        glowFilter={activeGlowFilter}
+        cfg={cfg}
+      />
+    </g>
+  );
+}
+
+function navGroupThemeColor(groupId: string, cfg: ParentPortalSvgControls): string {
+  if (groupId === 'manage') return '#4ff2d2';
+  if (groupId === 'guide') return '#5ecfff';
+  if (groupId === 'quickGlance') return '#45e8ef';
+  return cfg.colors.cyan;
+}
+
+function NavGroupHeader({
+  group,
+  open,
+  x,
+  w,
+  y,
+  h,
+  onToggle,
+  cfg,
+}: {
+  group: NavGroup;
+  open: boolean;
+  x: number;
+  w: number;
+  y: number;
+  h: number;
+  onToggle: () => void;
+  cfg: ParentPortalSvgControls;
+}) {
+  const [hovered, setHovered] = useState(false);
+  const rowX = x + 14;
+  const rowW = w - 28;
+  const lit = open || hovered;
+  const accent = navGroupThemeColor(group.id, cfg);
+  const glowFilter = 'url(#parentPortalGlow)';
+  const Icon =
+    group.id === 'quickGlance'
+      ? QuickGlanceGlasses
+      : group.id === 'guide'
+        ? GuideBookIcon
+        : group.id === 'manage'
+          ? ManageFileSettingsIcon
+          : (group.items[0]?.icon ?? OverviewListIcon);
+  const slotSize = Math.max(32, Math.min(38, h - 6));
+  const slotX = rowX + 8;
+  const slotY = y + (h - slotSize) / 2;
+  const indicatorSize = 26;
+  const indicatorX = rowX + rowW - indicatorSize - 10;
+  const indicatorY = y + (h - indicatorSize) / 2;
+  const textX = slotX + slotSize + 10;
+  const labelW = Math.max(46, indicatorX - textX - 10);
+  const labelSize = 13.8;
+  return (
+    <g
+      className="parent-portal-svg-clickable"
+      onClick={(event) => {
+        event.stopPropagation();
+        onToggle();
+      }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onKeyDown={(event) => {
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        event.preventDefault();
+        event.stopPropagation();
+        onToggle();
+      }}
+      role="button"
+      tabIndex={0}
+      aria-label={`${open ? 'Collapse' : 'Expand'} ${group.label}`}
+      aria-expanded={open}
+    >
+      <rect x={rowX - 6} y={y - 4} width={rowW + 12} height={h + 8} fill="transparent" pointerEvents="all" />
+      {lit ? (
+        <path
+          d={cutRectPath(rowX - 3, y - 3, rowW + 6, h + 6, 11)}
+          fill="none"
+          stroke={accent}
+          strokeWidth={open ? 2 : 1.6}
+          opacity={open ? 0.35 : 0.23}
+          filter={glowFilter}
+          pointerEvents="none"
+        />
+      ) : null}
+      {open ? (
+        <path
+          d={cutRectPath(rowX - 1, y + 6, 5, h - 12, 2)}
+          fill={accent}
+          opacity={0.78}
+          filter={glowFilter}
+          pointerEvents="none"
+        />
+      ) : null}
+      <path
+        d={cutRectPath(rowX, y, rowW, h, 8)}
+        fill={lit ? colorAlpha(accent, open ? '22' : '16') : colorAlpha(accent, '0a')}
+        fillOpacity={1}
+        stroke={accent}
+        strokeWidth={lit ? 1.45 : 0.8}
+        strokeOpacity={lit ? 0.86 : 0.48}
+        pointerEvents="none"
+      />
+      {lit ? (
+        <path
+          d={cutRectPath(rowX + 3, y + 3, rowW - 6, h - 6, 6)}
+          fill="none"
+          stroke={accent}
+          strokeWidth={0.95}
+          opacity={open ? 0.58 : 0.38}
+          pointerEvents="none"
+        />
+      ) : null}
+      <NavIconSlot Icon={Icon} x={slotX} y={slotY} size={slotSize} color={accent} lit={lit} selected={open} cfg={cfg} />
+      <text
+        x={textX}
+        y={y + h * 0.62}
+        fontSize={labelSize}
+        fontWeight={940}
+        fill={cfg.colors.bodyText}
+        stroke="#03121f"
+        strokeWidth={0.8}
+        strokeOpacity={0.78}
+        paintOrder="stroke"
+        pointerEvents="none"
+      >
+        {truncateTextForWidth(group.label, labelW, labelSize, 0.54)}
+      </text>
+      <FoldoutTriangleIndicator
+        x={indicatorX}
+        y={indicatorY}
+        size={indicatorSize}
+        open={open}
+        hovered={hovered}
+        accent={accent}
+        glowFilter={glowFilter}
+        cfg={cfg}
+      />
+    </g>
+  );
+}
+
+function NavPanel({
+  activeNavLabel,
+  activeNavRouteKey,
+  navGroups,
+  openGroupIds,
+  assistantOpen,
+  selectedAssistantActionId,
+  onAssistantNewChat,
+  onNavGroupToggle,
+  onNavItemSelect,
+  onAssistantOpen,
+  onAssistantActionSelect,
+  cfg,
+}: {
+  activeNavLabel: string;
+  activeNavRouteKey: string;
+  navGroups: NavGroup[];
+  openGroupIds: Record<string, boolean>;
+  assistantOpen: boolean;
+  selectedAssistantActionId: AssistantQuickActionId | null;
+  onAssistantNewChat: () => void;
+  onNavGroupToggle: (groupId: string) => void;
+  onNavItemSelect: (item: NavItem) => void;
+  onAssistantOpen: () => void;
+  onAssistantActionSelect: (actionId: AssistantQuickActionId) => void;
+  cfg: ParentPortalSvgControls;
+}) {
+  const { outerPad, leftW, topY } = cfg.layout;
+  const navItems = navGroups.flatMap((group) => group.items);
+  const activeNavGroupId =
+    navGroupIdForNavKey(navGroups, activeNavRouteKey, activeNavLabel) || navGroups[0]?.id || 'quickGlance';
+  const activeNavThemeColor = navGroupThemeColor(activeNavGroupId, cfg);
+  const rawNavClipId = useId();
+  const navClipId = `parent-portal-nav-clip-${rawNavClipId.replace(/[^a-zA-Z0-9_-]/g, '')}`;
+  const [navScroll, setNavScroll] = useState(0);
+  const [openSectionIds, setOpenSectionIds] = useState(() =>
+    initialOpenNavSectionIds(navGroups, activeNavRouteKey, activeNavLabel)
+  );
+  const groupH = 46;
+  const sectionH = 42;
+  const rowH = 38;
+  const rowStep = navItems.length > 8 ? 40 : 42;
+  const groupGap = 6;
+  const sectionGap = 5;
+  const iconSize = 38;
+  const assistantDockH = 74;
+  const assistantGap = 10;
+  const sideTopY = Math.max(0, topY - 14);
+  const rowTop = sideTopY + 28;
+  const navH = Math.max(300, cfg.canvas.height - sideTopY - assistantDockH - assistantGap - 2);
+  const assistantPanelH = Math.max(300, cfg.canvas.height - sideTopY - 2);
+  const assistantY = sideTopY + navH + assistantGap;
+  const navViewportY = rowTop;
+  const navViewportH = Math.max(72, sideTopY + navH - rowTop - 22);
+  const navContentH = navGroups.reduce((height, group) => {
+    if (!openGroupIds[group.id]) return height + groupH + groupGap;
+    const itemHeight = navSectionsForGroup(group).reduce((nextHeight, section) => {
+      const sectionDelta = section.label ? sectionH : 0;
+      const sectionOpen = !section.label || Boolean(openSectionIds[section.id]);
+      return (
+        nextHeight +
+        sectionDelta +
+        (sectionOpen ? section.items.length * rowStep : 0) +
+        (section.label ? sectionGap : 0)
+      );
+    }, 0);
+    return height + groupH + itemHeight + groupGap;
+  }, 0);
+  let activeNavRowY: number | null = null;
+  let scanY = rowTop;
+  for (const group of navGroups) {
+    scanY += groupH;
+    if (openGroupIds[group.id]) {
+      for (const section of navSectionsForGroup(group)) {
+        if (section.label) {
+          scanY += sectionH;
+        }
+        if (section.label && !openSectionIds[section.id]) continue;
+        for (const item of section.items) {
+          if (navItemMatches(item, activeNavRouteKey, activeNavLabel)) {
+            activeNavRowY = scanY;
+          }
+          scanY += rowStep;
+        }
+        if (section.label) scanY += sectionGap;
+      }
+    }
+    scanY += groupGap;
+  }
+  const maxNavScroll = Math.max(0, navContentH - navViewportH);
+  const safeNavScroll = clampValue(navScroll, 0, maxNavScroll);
+  useEffect(() => {
+    if (safeNavScroll !== navScroll) setNavScroll(safeNavScroll);
+  }, [navScroll, safeNavScroll]);
+  useEffect(() => {
+    setOpenSectionIds((current) => ensureOpenNavSectionIds(current, navGroups, activeNavRouteKey, activeNavLabel));
+  }, [activeNavLabel, activeNavRouteKey, navGroups]);
+  useEffect(() => {
+    if (activeNavRowY === null || maxNavScroll <= 0) return;
+    const topPad = 6;
+    const visibleTop = navViewportY + topPad;
+    const visibleBottom = navViewportY + navViewportH - topPad;
+    setNavScroll((value) => {
+      const activeTop = activeNavRowY - value;
+      const activeBottom = activeTop + rowH;
+      if (activeTop < visibleTop) {
+        return clampValue(activeNavRowY - visibleTop, 0, maxNavScroll);
+      }
+      if (activeBottom > visibleBottom) {
+        return clampValue(activeNavRowY + rowH - visibleBottom, 0, maxNavScroll);
+      }
+      return value;
+    });
+  }, [activeNavLabel, activeNavRouteKey, activeNavRowY, maxNavScroll, navViewportH, navViewportY, rowH]);
+  const handleNavWheel = (event: WheelEvent<SVGGElement>) => {
+    if (maxNavScroll <= 0) return;
+    event.stopPropagation();
+    event.preventDefault();
+    setNavScroll((value) => clampValue(value + event.deltaY * 0.72, 0, maxNavScroll));
+  };
+  const thumbH = maxNavScroll > 0 ? clampValue((navViewportH / navContentH) * navViewportH, 46, navViewportH) : 0;
+  const thumbY =
+    maxNavScroll > 0
+      ? navViewportY + (safeNavScroll / maxNavScroll) * Math.max(0, navViewportH - thumbH)
+      : navViewportY;
+  const toggleNavSection = (sectionId: string) => {
+    setOpenSectionIds((current) => toggleOpenNavSectionId(current, navGroups, sectionId));
+  };
+  if (assistantOpen) {
+    return (
+      <g>
+        <AssistantQuickActionPanel
+          x={outerPad}
+          y={sideTopY}
+          w={leftW}
+          h={assistantPanelH}
+          selectedActionId={selectedAssistantActionId}
+          onNewChat={onAssistantNewChat}
+          onActionSelect={onAssistantActionSelect}
+          cfg={cfg}
+        />
+      </g>
+    );
+  }
+  let cursorY = rowTop;
+  return (
+    <g>
+      <SurfacePanel x={outerPad} y={sideTopY} w={leftW} h={navH} tone="cyan" frame="deckSide" cfg={cfg}>
+        <defs>
+          <clipPath id={navClipId}>
+            <rect x={outerPad - 8} y={navViewportY - 2} width={leftW + 46} height={navViewportH + 4} />
+          </clipPath>
+        </defs>
+        <g onWheel={handleNavWheel}>
+          <rect
+            x={outerPad + 12}
+            y={navViewportY - 2}
+            width={leftW - 24}
+            height={navViewportH + 4}
+            fill="transparent"
+            pointerEvents={maxNavScroll > 0 ? 'all' : 'none'}
+          />
+          <g clipPath={`url(#${navClipId})`}>
+            <g transform={`translate(0 ${-safeNavScroll})`}>
+              {navGroups.map((group) => {
+                const groupY = cursorY;
+                cursorY += groupH;
+                const childStartY = cursorY;
+                const open = Boolean(openGroupIds[group.id]);
+                const groupAccent = navGroupThemeColor(group.id, cfg);
+                const groupGlowFilter = 'url(#parentPortalGlow)';
+                const rows = open
+                  ? navSectionsForGroup(group).flatMap((section) => {
+                      const sectionRows: ReactNode[] = [];
+                      const sectionOpen = !section.label || Boolean(openSectionIds[section.id]);
+                      if (section.label) {
+                        const sectionY = cursorY;
+                        cursorY += sectionH;
+                        sectionRows.push(
+                          <NavSectionHeader
+                            key={section.id}
+                            label={section.label}
+                            icon={navSectionIcon(section)}
+                            open={sectionOpen}
+                            x={outerPad + 8}
+                            w={leftW - 8}
+                            y={sectionY}
+                            h={sectionH}
+                            accentColor={groupAccent}
+                            glowFilter={groupGlowFilter}
+                            onToggle={() => toggleNavSection(section.id)}
+                            cfg={cfg}
+                          />
+                        );
+                      }
+                      if (!sectionOpen) return sectionRows;
+                      for (const item of section.items) {
+                        const itemY = cursorY;
+                        cursorY += rowStep;
+                        const nested = Boolean(section.label);
+                        const rowInset = nested ? 30 : 8;
+                        sectionRows.push(
+                          <NavRow
+                            key={navItemKey(item)}
+                            item={item}
+                            active={navItemMatches(item, activeNavRouteKey, activeNavLabel)}
+                            x={outerPad + rowInset}
+                            w={leftW - rowInset}
+                            y={itemY}
+                            rowH={rowH}
+                            iconSize={iconSize}
+                            nested={nested}
+                            branchColor={groupAccent}
+                            onSelect={() => onNavItemSelect(item)}
+                            cfg={cfg}
+                          />
+                        );
+                      }
+                      if (section.label) cursorY += sectionGap;
+                      return sectionRows;
+                    })
+                  : null;
+                const childEndY = cursorY;
+                const childRailH = Math.max(0, childEndY - childStartY - 2);
+                cursorY += groupGap;
+                return (
+                  <g key={group.id}>
+                    {open && childRailH > 0 ? (
+                      <>
+                        <path
+                          d={cutRectPath(outerPad + 22, childStartY + 3, leftW - 35, childRailH, 9)}
+                          fill="rgba(2, 12, 20, 0.34)"
+                          stroke={groupAccent}
+                          strokeWidth={0.85}
+                          strokeOpacity={0.38}
+                          pointerEvents="none"
+                        />
+                        <path
+                          d={`M ${outerPad + 28} ${childStartY + 9} V ${childStartY + childRailH - 6}`}
+                          stroke={groupAccent}
+                          strokeWidth={1.45}
+                          strokeLinecap="round"
+                          opacity={0.58}
+                          pointerEvents="none"
+                        />
+                      </>
+                    ) : null}
+                    <NavGroupHeader
+                      group={group}
+                      open={open}
+                      x={outerPad}
+                      w={leftW}
+                      y={groupY}
+                      h={groupH}
+                      onToggle={() => onNavGroupToggle(group.id)}
+                      cfg={cfg}
+                    />
+                    {rows}
+                  </g>
+                );
+              })}
+            </g>
+          </g>
+        </g>
+        {maxNavScroll > 0 ? (
+          <g pointerEvents="none">
+            <path
+              d={`M ${outerPad + leftW - 10} ${navViewportY + 8} V ${navViewportY + navViewportH - 8}`}
+              stroke={activeNavThemeColor}
+              strokeWidth={1.4}
+              strokeLinecap="round"
+              opacity={0.28}
+            />
+            <path
+              d={`M ${outerPad + leftW - 10} ${thumbY} V ${thumbY + thumbH}`}
+              stroke={activeNavThemeColor}
+              strokeWidth={3.4}
+              strokeLinecap="round"
+              opacity={0.82}
+              filter="url(#parentPortalGlow)"
+            />
+          </g>
+        ) : null}
+      </SurfacePanel>
+      <AssistantDock
+        x={outerPad}
+        y={assistantY}
+        w={leftW}
+        h={assistantDockH}
+        open={assistantOpen}
+        onOpen={onAssistantOpen}
+        cfg={cfg}
+      />
+    </g>
+  );
+}
+
+function AssistantDock({
+  x,
+  y,
+  w,
+  h,
+  open,
+  onOpen,
+  cfg,
+}: {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  open: boolean;
+  onOpen: () => void;
+  cfg: ParentPortalSvgControls;
+}) {
+  const color = toneColor(open ? 'purple' : 'cyan', cfg);
+  const iconSize = 38;
+  return (
+    <SurfacePanel
+      x={x}
+      y={y}
+      w={w}
+      h={h}
+      tone={open ? 'purple' : 'cyan'}
+      frame="deckSide"
+      selected={open}
+      onClick={onOpen}
+      ariaLabel="Open AI assistant"
+      cfg={cfg}
+    >
+      <rect x={x} y={y} width={w} height={h} fill="transparent" pointerEvents="all" />
+      <AiGuideIdeaIcon x={x + 20} y={y + 18} width={iconSize} height={iconSize} color={color} />
+      <text x={x + 72} y={y + 32} fontSize={16} fontWeight={980} fill={cfg.colors.bodyText} pointerEvents="none">
+        AI ASSISTANT
+      </text>
+      <path
+        d={`M ${x + 72} ${y + h - 14} H ${x + w - 28}`}
+        stroke={color}
+        strokeWidth={0.9}
+        opacity={open ? 0.78 : 0.44}
+        pointerEvents="none"
+      />
+    </SurfacePanel>
+  );
+}
+
+function AssistantQuickActionPanel({
+  x,
+  y,
+  w,
+  h,
+  selectedActionId,
+  onNewChat,
+  onActionSelect,
+  cfg,
+}: {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  selectedActionId: AssistantQuickActionId | null;
+  onNewChat: () => void;
+  onActionSelect: (actionId: AssistantQuickActionId) => void;
+  cfg: ParentPortalSvgControls;
+}) {
+  const [activePanelTab, setActivePanelTab] = useState<'quick' | 'history'>('quick');
+  const tabY = y + 30;
+  const rowTop = y + 72;
+  const rowH = 56;
+  const rowGap = 7;
+  const tabGap = 8;
+  const tabW = (w - 44 - tabGap) / 2;
+  return (
+    <SurfacePanel x={x} y={y} w={w} h={h} tone="cyan" frame="deckSide" selected cfg={cfg}>
+      <AssistantSidePanelTab
+        x={x + 22}
+        y={tabY}
+        w={tabW}
+        h={28}
+        label="Quick Action"
+        selected={activePanelTab === 'quick'}
+        onSelect={() => setActivePanelTab('quick')}
+        cfg={cfg}
+      />
+      <AssistantSidePanelTab
+        x={x + 22 + tabW + tabGap}
+        y={tabY}
+        w={tabW}
+        h={28}
+        label="History"
+        selected={activePanelTab === 'history'}
+        onSelect={() => setActivePanelTab('history')}
+        cfg={cfg}
+      />
+      <path
+        d={`M ${x + 18} ${rowTop - 14} H ${x + w - 18}`}
+        stroke={cfg.colors.panelStroke}
+        strokeWidth={0.8}
+        opacity={0.72}
+      />
+      {activePanelTab === 'quick' ? (
+        <>
+          <AssistantNewChatRow x={x + 14} y={rowTop} w={w - 28} h={rowH} onSelect={onNewChat} cfg={cfg} />
+          {ASSISTANT_QUICK_ACTIONS.map((action, index) => {
+            const rowY = rowTop + (index + 1) * (rowH + rowGap);
+            if (rowY + rowH > y + h - 18) return null;
+            const selected = action.id === selectedActionId;
+            return (
+              <AssistantQuickActionRow
+                key={action.id}
+                action={action}
+                selected={selected}
+                x={x + 14}
+                y={rowY}
+                w={w - 28}
+                h={rowH}
+                onSelect={() => onActionSelect(action.id)}
+                cfg={cfg}
+              />
+            );
+          })}
+        </>
+      ) : (
+        <AssistantHistoryPanelContent
+          x={x + 14}
+          y={rowTop}
+          w={w - 28}
+          h={Math.max(120, y + h - rowTop - 18)}
+          selectedActionId={selectedActionId}
+          cfg={cfg}
+        />
+      )}
+    </SurfacePanel>
+  );
+}
+
+function AssistantSidePanelTab({ x, y, w, h, label, selected, onSelect, cfg }) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <g
+      className="parent-portal-svg-clickable"
+      role="tab"
+      tabIndex={0}
+      aria-selected={selected}
+      aria-label={label}
+      onClick={onSelect}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onFocus={() => setHovered(true)}
+      onBlur={() => setHovered(false)}
+    >
+      <title>{label}</title>
+      <rect
+        x={x}
+        y={y}
+        width={w}
+        height={h}
+        rx={8}
+        fill={
+          selected
+            ? colorAlpha(cfg.colors.cyan, '32')
+            : hovered
+              ? colorAlpha(cfg.colors.cyan, '22')
+              : 'rgba(4, 18, 31, 0.72)'
+        }
+        stroke={selected || hovered ? cfg.colors.cyan : cfg.colors.panelStroke}
+        strokeWidth={selected ? 1.15 : 0.9}
+      />
+      <text
+        x={x + w / 2}
+        y={y + 18}
+        textAnchor="middle"
+        fontSize={10.5}
+        fontWeight={920}
+        fill={selected ? cfg.colors.bodyText : cfg.colors.mutedText}
+      >
+        {truncateTextForWidth(label.toUpperCase(), w - 12, 10.5, 0.58)}
+      </text>
+    </g>
+  );
+}
+
+function AssistantNewChatRow({ x, y, w, h, onSelect, cfg }) {
+  const [hovered, setHovered] = useState(false);
+  const color = cfg.colors.cyan;
+  const iconCx = x + 26;
+  const iconCy = y + h / 2;
+  const lit = hovered;
+  return (
+    <g
+      className="parent-portal-svg-clickable"
+      role="button"
+      tabIndex={0}
+      aria-label="Start new MIA chat"
+      onClick={onSelect}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onFocus={() => setHovered(true)}
+      onBlur={() => setHovered(false)}
+    >
+      <title>Start new MIA chat</title>
+      <rect x={x - 4} y={y - 3} width={w + 8} height={h + 6} fill="transparent" pointerEvents="all" />
+      <path
+        d={cutRectPath(x, y, w, h, 8)}
+        fill={hovered ? colorAlpha(color, '2a') : colorAlpha(color, '18')}
+        stroke={lit ? color : 'transparent'}
+        strokeWidth={lit ? 1.15 : 0}
+        filter={hovered ? 'url(#parentPortalGlow)' : undefined}
+      />
+      <path
+        d={`M ${iconCx} ${iconCy - 11} V ${iconCy + 11} M ${iconCx - 11} ${iconCy} H ${iconCx + 11}`}
+        stroke={color}
+        strokeWidth={2}
+        strokeLinecap="round"
+        filter={hovered ? 'url(#parentPortalGlow)' : undefined}
+      />
+      <text x={x + 56} y={y + h / 2 + 5} fontSize={13.4} fontWeight={950} fill={cfg.colors.bodyText}>
+        NEW CHAT
+      </text>
+    </g>
+  );
+}
+
+function AssistantQuickActionRow({ action, selected, x, y, w, h, onSelect, cfg }) {
+  const [hovered, setHovered] = useState(false);
+  const color = toneColor(action.tone, cfg);
+  const lit = selected || hovered;
+  const iconSize = 28;
+  const iconX = x + 14;
+  const iconY = y + (h - iconSize) / 2;
+  return (
+    <g
+      className="parent-portal-svg-clickable"
+      role="button"
+      tabIndex={0}
+      aria-label={`Ask MIA about ${action.label}`}
+      onClick={onSelect}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onFocus={() => setHovered(true)}
+      onBlur={() => setHovered(false)}
+    >
+      <title>{`${action.label}: ${action.detail}`}</title>
+      <rect x={x - 4} y={y - 3} width={w + 8} height={h + 6} fill="transparent" pointerEvents="all" />
+      <path
+        d={cutRectPath(x, y, w, h, 8)}
+        fill={selected ? colorAlpha(color, '34') : hovered ? colorAlpha(color, '1f') : 'rgba(2, 12, 20, 0.58)'}
+        stroke={lit ? color : 'transparent'}
+        strokeWidth={selected ? 1.25 : hovered ? 1.05 : 0}
+        filter={lit ? 'url(#parentPortalGlow)' : undefined}
+      />
+      <image
+        href={action.iconAssetUrl}
+        x={iconX}
+        y={iconY}
+        width={iconSize}
+        height={iconSize}
+        preserveAspectRatio="xMidYMid meet"
+        pointerEvents="none"
+        filter={lit ? 'url(#parentPortalGlow)' : undefined}
+      />
+      <text x={x + 56} y={y + h / 2 + 5} fontSize={13.4} fontWeight={950} fill={cfg.colors.bodyText}>
+        {truncateTextForWidth(action.label.toUpperCase(), w - 70, 13.4, 0.58)}
+      </text>
+    </g>
+  );
+}
+
+function AssistantHistoryPanelContent({ x, y, w, h, selectedActionId, cfg }) {
+  const rowGap = 8;
+  const rowH = 66;
+  return (
+    <g role="group" aria-label="Assistant chat history">
+      {ASSISTANT_QUICK_ACTIONS.map((action, index) => {
+        const rowY = y + index * (rowH + rowGap);
+        if (rowY + rowH > y + h) return null;
+        return (
+          <AssistantHistoryFolder
+            key={action.id}
+            x={x}
+            y={rowY}
+            w={w}
+            h={rowH}
+            action={action}
+            active={action.id === selectedActionId}
+            cfg={cfg}
+          />
+        );
+      })}
+    </g>
+  );
+}
+
+function AssistantHistoryFolder({ x, y, w, h, action, active, cfg }) {
+  const [hovered, setHovered] = useState(false);
+  const color = toneColor(action.tone, cfg);
+  const threadLabel = active ? 'Current chat' : 'No saved thread yet';
+  return (
+    <g
+      className="parent-portal-svg-clickable"
+      role="button"
+      tabIndex={0}
+      aria-label={`${action.label} history`}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onFocus={() => setHovered(true)}
+      onBlur={() => setHovered(false)}
+    >
+      <title>{`${action.label} history`}</title>
+      <rect
+        x={x}
+        y={y}
+        width={w}
+        height={h}
+        rx={8}
+        fill={active ? colorAlpha(color, '34') : hovered ? colorAlpha(color, '1f') : 'rgba(2, 12, 20, 0.68)'}
+        stroke={active || hovered ? color : cfg.colors.panelStroke}
+        strokeWidth={active ? 1.15 : 0.9}
+      />
+      <path
+        d={`M ${x + 14} ${y + 22} H ${x + 25} L ${x + 31} ${y + 16} H ${x + 48} Q ${x + 53} ${y + 16} ${x + 53} ${y + 21} V ${y + 45} Q ${x + 53} ${y + 50} ${x + 48} ${y + 50} H ${x + 14} Q ${x + 9} ${y + 50} ${x + 9} ${y + 45} V ${y + 27} Q ${x + 9} ${y + 22} ${x + 14} ${y + 22} Z`}
+        fill={colorAlpha(color, active ? '34' : '18')}
+        stroke={active || hovered ? color : cfg.colors.panelStroke}
+        strokeWidth={0.85}
+      />
+      <text x={x + 66} y={y + 27} fontSize={13} fontWeight={940} fill={cfg.colors.bodyText}>
+        {truncateTextForWidth(action.label.toUpperCase(), w - 82, 13, 0.58)}
+      </text>
+      <text
+        x={x + 66}
+        y={y + 48}
+        fontSize={10.5}
+        fontWeight={760}
+        fill={active ? cfg.colors.bodyText : cfg.colors.mutedText}
+      >
+        {truncateTextForWidth(threadLabel, w - 82, 10.5, 0.58)}
+      </text>
+    </g>
+  );
+}
+
+type ManageControlOption = {
+  readonly label: string;
+  readonly detail: string;
+  readonly enabled: boolean;
+  readonly tone: Tone;
+};
+
+type ManageControlAction = {
+  readonly label: string;
+  readonly detail: string;
+  readonly tone: Tone;
+};
+
+type ManageControlSpec = {
+  readonly title: string;
+  readonly devices: readonly string[];
+  readonly modes: readonly ManageControlAction[];
+  readonly options: readonly ManageControlOption[];
+  readonly actions: readonly ManageControlAction[];
+  readonly status: readonly ManageControlAction[];
+};
+
+type ManageLaneId = 'portal' | 'childPolicy' | 'deviceOps';
+type ManageScopeId = 'global' | 'perDevice';
+
+type ManageTargetSelection = {
+  readonly scope: ManageScopeId;
+  readonly device: string;
+  readonly browser: string;
+};
+
+type ManageTargetChoice = {
+  readonly label: string;
+  readonly detail: string;
+  readonly tone: Tone;
+  readonly scope?: ManageScopeId;
+};
+
+const MANAGE_LANES: readonly {
+  readonly id: ManageLaneId;
+  readonly label: string;
+  readonly detail: string;
+  readonly tone: Tone;
+}[] = [
+  { id: 'portal', label: 'PORTAL', detail: '', tone: 'cyan' },
+  { id: 'childPolicy', label: 'POLICY', detail: '', tone: 'gold' },
+  { id: 'deviceOps', label: 'DEVICE', detail: '', tone: 'purple' },
+];
+
+const MANAGE_ROUTE_KEYS = new Set([
+  'browser-settings',
+  'rule-management',
+  'schedules',
+  'approvals',
+  'enforcement',
+  'report-settings',
+  'screen-analysis',
+  'app-game-sessions',
+  'network-activity',
+  'memory-settings',
+  'ai-runtime',
+  'api-providers',
+  'remote-access',
+  'subscription',
+  'platforms-install',
+  'devices',
+  'lan-pairing',
+  'capability-status',
+  'notifications',
+  'notification-channels',
+  'drive-connections',
+  'export-retention',
+  'report-compiler',
+  'audit-history',
+  'entitlements',
+  'install-updates',
+  'diagnostics',
+  'settings-rules',
+]);
+
+const MANAGE_DEVICE_OPS_ROUTE_KEYS = new Set([
+  'devices',
+  'lan-pairing',
+  'capability-status',
+  'remote-access',
+  'platforms-install',
+  'install-updates',
+]);
+
+const MANAGE_CHILD_POLICY_ROUTE_KEYS = new Set([
+  'browser-settings',
+  'rule-management',
+  'schedules',
+  'approvals',
+  'enforcement',
+  'report-settings',
+  'screen-analysis',
+  'app-game-sessions',
+  'network-activity',
+  'report-compiler',
+  'ai-runtime',
+  'memory-settings',
+]);
+
+function manageLaneForRouteKey(routeKey: string): ManageLaneId | null {
+  if (MANAGE_DEVICE_OPS_ROUTE_KEYS.has(routeKey)) return 'deviceOps';
+  if (MANAGE_CHILD_POLICY_ROUTE_KEYS.has(routeKey)) return 'childPolicy';
+  if (MANAGE_ROUTE_KEYS.has(routeKey)) return 'portal';
+  return null;
+}
+
+function isManageQuickControl(control: ControlArea | QuickControl): boolean {
+  const routeKey = assetKey(control.routePath);
+  return MANAGE_ROUTE_KEYS.has(routeKey);
+}
+
+function guideRoutePathForManageKey(activeNavLabel: string, selectedControlName: string): string {
+  const key = `${assetKey(activeNavLabel)} ${assetKey(selectedControlName)}`;
+  if (
+    key.includes('support') ||
+    key.includes('diagnostic') ||
+    key.includes('subscription') ||
+    key.includes('entitlement') ||
+    key.includes('platform') ||
+    key.includes('update') ||
+    key.includes('install') ||
+    key.includes('setting')
+  )
+    return '#/start';
+  if (key.includes('device') || key.includes('lan') || key.includes('capability')) return '#/start';
+  if (
+    key.includes('browser') ||
+    key.includes('rule') ||
+    key.includes('policy') ||
+    key.includes('schedule') ||
+    key.includes('approval') ||
+    key.includes('enforce')
+  )
+    return '#/policy';
+  if (key.includes('drive') || key.includes('export') || key.includes('private') || key.includes('remote'))
+    return '#/privacy-design';
+  if (key.includes('ai') || key.includes('api') || key.includes('memory')) return '#/ai-guide';
+  if (key.includes('report')) return '#/reports-guide';
+  if (
+    key.includes('screen') ||
+    key.includes('apps-games') ||
+    key.includes('app-use') ||
+    key.includes('app-game') ||
+    key.includes('network') ||
+    key.includes('alert') ||
+    key.includes('notification') ||
+    key.includes('channel') ||
+    key.includes('audit')
+  )
+    return '#/report-settings';
+  return '#/start';
+}
+
+function manageLaneForKey(activeNavLabel: string, selectedControlName: string): ManageLaneId {
+  const key = `${assetKey(activeNavLabel)} ${assetKey(selectedControlName)}`;
+  if (
+    key.includes('channel') ||
+    key.includes('drive') ||
+    key.includes('api-key') ||
+    key.includes('api-providers') ||
+    key.includes('notification') ||
+    key.includes('alert') ||
+    key.includes('subscription') ||
+    key.includes('entitlement') ||
+    key.includes('export') ||
+    key.includes('retention') ||
+    key.includes('support') ||
+    key.includes('diagnostic') ||
+    key.includes('audit') ||
+    key.includes('family-setting') ||
+    key.includes('settings-rules')
+  ) {
+    return 'portal';
+  }
+  if (
+    key.includes('lan') ||
+    key.includes('capability') ||
+    key.includes('remote') ||
+    key.includes('platform') ||
+    key.includes('update') ||
+    key.includes('install') ||
+    key.includes('device-pairing') ||
+    key.includes('devices')
+  ) {
+    return 'deviceOps';
+  }
+  return 'childPolicy';
+}
+
+function manageLaneForControl(control: ControlArea | QuickControl): ManageLaneId {
+  const routeLane = manageLaneForRouteKey(assetKey(control.routePath));
+  if (routeLane) return routeLane;
+  return manageLaneForKey(
+    control.name,
+    `${control.category ?? ''} ${control.subcategory ?? ''} ${control.routePath ?? ''}`
+  );
+}
+
+function manageScopeForLane(lane: ManageLaneId): ManageScopeId {
+  return lane === 'portal' ? 'global' : 'perDevice';
+}
+
+function isBrowserManageKey(activeNavLabel: string, selectedControlName: string): boolean {
+  const key = `${assetKey(activeNavLabel)} ${assetKey(selectedControlName)}`;
+  return key.includes('browser') || key.includes('web');
+}
+
+function manageScopeChoicesForLane(lane: ManageLaneId): readonly ManageTargetChoice[] {
+  if (lane === 'portal') {
+    return [{ label: 'Parent profile', detail: 'Portal setting only.', tone: 'cyan', scope: 'global' }];
+  }
+  if (lane === 'deviceOps') {
+    return [
+      { label: 'All devices', detail: 'Apply to every paired child device.', tone: 'cyan', scope: 'global' },
+      { label: 'Selected device', detail: 'Send only to one child device.', tone: 'gold', scope: 'perDevice' },
+    ];
+  }
+  return [
+    { label: 'Family', detail: 'Base rule for all children.', tone: 'cyan', scope: 'global' },
+    { label: 'Child override', detail: 'Override one child device.', tone: 'gold', scope: 'perDevice' },
+  ];
+}
+
+function manageControlDisplayTitle(title: string): string {
+  const key = assetKey(title);
+  if (key.includes('lan-pairing')) return 'LAN Pairing';
+  if (key.includes('api-provider')) return 'API Providers';
+  if (key.includes('api-key')) return 'API Keys';
+  if (key.includes('ai-setup') || key.includes('ai-runtime')) return 'AI Setup';
+  if (key.includes('memory-setup') || key.includes('memory-set')) return 'Memory';
+  if (key.includes('platform')) return 'Platforms';
+  if (key.includes('install') || key.includes('update')) return 'Install Updates';
+  if (key.includes('capability')) return 'Capability Status';
+  if (key.includes('remote')) return 'Remote Access';
+  if (key.includes('device')) return 'Devices';
+  if (key.includes('rule') || key.includes('policy')) return 'Rule';
+  if (key.includes('report')) return 'Report';
+  if (key.includes('browser')) return 'Browser';
+  if (key.includes('screen')) return 'Screen';
+  if (key.includes('memory')) return 'Memory';
+  if (key.includes('ai')) return 'AI';
+  return (
+    title
+      .replace(/\s+Setup$/i, '')
+      .replace(/\s+Set$/i, '')
+      .trim() || title
+  );
+}
+
+function manageGlobalTargetLabel(lane: ManageLaneId): string {
+  if (lane === 'portal') return 'Parent profile';
+  if (lane === 'deviceOps') return 'All devices';
+  return 'Family';
+}
+
+function manageDeviceChoices(devices: readonly string[]): readonly string[] {
+  return devices.filter((device) => !assetKey(device).includes('family-default')).slice(0, 6);
+}
+
+function manageDefaultDeviceSelection(spec: ManageControlSpec): string {
+  return manageDeviceChoices(spec.devices)[0] ?? '';
+}
+
+function manageInitialScopeForSpec(lane: ManageLaneId, spec: ManageControlSpec): ManageScopeId {
+  if (lane === 'portal') return 'global';
+  return manageDeviceChoices(spec.devices).length > 0 ? manageScopeForLane(lane) : 'global';
+}
+
+function isLanPairingManageTitle(title: string): boolean {
+  return assetKey(title).includes('lan-pairing');
+}
+
+function isReportsManageTitle(title: string): boolean {
+  return assetKey(title).includes('report');
+}
+
+function emptyReportPlanSeatSlot(slotIndex: number): DeviceSlot {
+  return {
+    value: `report-empty-seat-${slotIndex + 1}`,
+    label: '',
+    status: 'empty',
+    slotIndex,
+  };
+}
+
+function activityReportUiCheckFakeDeviceCount(planSeatLimit: number): number {
+  if (typeof window === 'undefined') {
+    return 0;
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  const hashQueryStart = window.location.hash.indexOf('?');
+  if (hashQueryStart >= 0) {
+    const hashParams = new URLSearchParams(window.location.hash.slice(hashQueryStart + 1));
+    for (const [key, value] of hashParams.entries()) {
+      params.set(key, value);
+    }
+  }
+
+  const maxCount = clampValue(planSeatLimit, 0, ACTIVITY_REPORT_MAX_CHILD_DEVICE_SEATS);
+  const rawCount = params.get(ACTIVITY_REPORT_UI_CHECK_QUERY_KEY);
+  if (rawCount === null) {
+    return ACTIVITY_REPORT_UI_CHECK_FAKE_DATA_DEFAULT_ENABLED
+      ? clampValue(ACTIVITY_REPORT_UI_CHECK_FAKE_DATA_DEFAULT_COUNT, 0, maxCount)
+      : 0;
+  }
+
+  const parsedCount = Number.parseInt(rawCount, 10);
+  if (!Number.isFinite(parsedCount) || parsedCount <= 0) {
+    return 0;
+  }
+
+  return clampValue(parsedCount, 0, maxCount);
+}
+
+function activityReportUiCheckFakeSlot(slotIndex: number): DeviceSlot {
+  const deviceNumber = slotIndex + 1;
+  const label = `D${String(deviceNumber).padStart(3, '0')}`;
+  const status = slotIndex % 3 === 1 ? 'offline' : 'connected';
+  const platform = slotIndex % 2 === 0 ? 'windows' : 'android';
+
+  return {
+    value: `activity-ui-check-device-${deviceNumber}`,
+    label,
+    status,
+    device: {
+      id: `activity-ui-check-device-${deviceNumber}`,
+      name: label,
+      ip: `192.168.1.${20 + deviceNumber}`,
+      mac: `02:00:00:00:00:${String(deviceNumber).padStart(2, '0')}`,
+      type: slotIndex % 2 === 0 ? 'laptop' : 'tablet',
+      platform,
+      status,
+    },
+    platform,
+    slotIndex,
+  };
+}
+
+function reportPlanSeatSlots(planSeatLimit: number): DeviceSlot[] {
+  const seatLimit = clampValue(Math.round(planSeatLimit), 1, ACTIVITY_REPORT_MAX_CHILD_DEVICE_SEATS);
+  const uiCheckDeviceCount = activityReportUiCheckFakeDeviceCount(seatLimit);
+  const slots = Array.from({ length: uiCheckDeviceCount }, (_, index) => activityReportUiCheckFakeSlot(index));
+  while (slots.length < seatLimit) {
+    slots.push(emptyReportPlanSeatSlot(slots.length));
+  }
+  return slots;
+}
+
+function reportSelectedSlotValue(slots: readonly DeviceSlot[], device: string): string | undefined {
+  return slots.find((slot) => slot.label === device || slot.device?.name === device)?.value;
+}
+
+type ManageDeviceGridConfigOverride = NonNullable<DeviceChoiceGridProps['config']>;
+
+const MANAGE_DEVICE_GRID_CELL_W = 104;
+const MANAGE_DEVICE_GRID_CELL_H = 40;
+const MANAGE_DEVICE_GRID_CELL_MAX_W = 148;
+const MANAGE_DEVICE_GRID_GAP_X = 8;
+const MANAGE_DEVICE_GRID_GAP_Y = 8;
+
+function mergeManageDeviceGridConfig(
+  base: ManageDeviceGridConfigOverride,
+  override?: ManageDeviceGridConfigOverride
+): ManageDeviceGridConfigOverride {
+  if (!override) return base;
+
+  return {
+    ...base,
+    ...override,
+    debug: { ...base.debug, ...override.debug },
+    preview: { ...base.preview, ...override.preview },
+    svg: { ...base.svg, ...override.svg },
+    statusOrder: { ...base.statusOrder, ...override.statusOrder },
+    connector: { ...base.connector, ...override.connector },
+    layout: { ...base.layout, ...override.layout },
+    text: { ...base.text, ...override.text },
+  };
+}
+
+function manageDeviceGridConfig(
+  width: number,
+  height: number,
+  override?: ManageDeviceGridConfigOverride
+): ManageDeviceGridConfigOverride {
+  return mergeManageDeviceGridConfig(
+    {
+      debug: {
+        showBounds: false,
+      },
+      preview: { background: 'transparent', padding: 0 },
+      svg: { width, height, inset: 0 },
+      layout: {
+        legendDotR: 4.4,
+        legendItemGap: 19,
+        legendTextOffset: 12,
+        legendY: 10,
+        cellW: MANAGE_DEVICE_GRID_CELL_W,
+        cellH: MANAGE_DEVICE_GRID_CELL_H,
+        cellMaxW: MANAGE_DEVICE_GRID_CELL_MAX_W,
+        gapX: MANAGE_DEVICE_GRID_GAP_X,
+        gapY: MANAGE_DEVICE_GRID_GAP_Y,
+        addButtonSize: 22,
+        addButtonCutoutPad: 3,
+        selectedInfoH: 36,
+        selectedInfoIconBox: 23,
+        selectedInfoIconGap: 8,
+        selectedInfoYGap: 8,
+      },
+      text: {
+        optionSize: 13,
+        legendSize: 13,
+        selectedInfoSize: 14,
+      },
+    },
+    override
+  );
+}
+
+function activityScopeToggleConfig(width: number, height = 66) {
+  const safeWidth = Math.max(220, width);
+  return {
+    svg: {
+      width: safeWidth,
+      height,
+      viewportInset: 6,
+    },
+    layout: {
+      titleAnchorX: 0,
+      titleBoxY: 17,
+      titleBoxMinWidth: 74,
+      titleBoxPaddingX: 12,
+      titleBoxHeight: 32,
+      trackY: 15,
+      trackMinWidth: Math.max(128, safeWidth - 86),
+      trackHeight: 36,
+      optionPaddingX: 15,
+      outerPaddingRight: 0,
+    },
+    text: {
+      titleFontSize: 14,
+      optionFontSize: 14,
+    },
+  };
+}
+
+const LAN_PAIRING_BASIC_PORTAL_SLOT_LIMIT = 4;
+const ACTIVITY_REPORT_BASIC_CHILD_DEVICE_SEATS = Math.max(1, LAN_PAIRING_BASIC_PORTAL_SLOT_LIMIT - 1);
+const ACTIVITY_REPORT_MAX_CHILD_DEVICE_SEATS = 10;
+const ACTIVITY_REPORT_SELECTOR_BASE_H = 146;
+const ACTIVITY_REPORT_SELECTOR_ROW_H = MANAGE_DEVICE_GRID_CELL_H + MANAGE_DEVICE_GRID_GAP_Y;
+const LAN_PAIRING_SCAN_ICON_HREF = '/images/scan.png';
+const LAN_PAIRING_HEADER_TITLE = 'Local Area Network';
+const LAN_PAIRING_UI_CHECK_QUERY_KEY = 'ocentraLanPairingUiCheckFakeDeviceCount';
+const LAN_PAIRING_UI_CHECK_MAX_DEVICE_COUNT = 100;
+const LAN_PAIRING_UI_CHECK_FAKE_DATA_DEFAULT_ENABLED = true;
+const LAN_PAIRING_UI_CHECK_FAKE_DATA_DEFAULT_COUNT = 100;
+const ACTIVITY_REPORT_UI_CHECK_QUERY_KEY = 'ocentraActivityUiCheckFakeDeviceCount';
+const ACTIVITY_REPORT_UI_CHECK_FAKE_DATA_DEFAULT_ENABLED = true;
+const ACTIVITY_REPORT_UI_CHECK_FAKE_DATA_DEFAULT_COUNT = ACTIVITY_REPORT_BASIC_CHILD_DEVICE_SEATS;
+
+type LanPairingDetailTabId = 'info' | 'update' | 'capability';
+
+const LAN_PAIRING_DETAIL_TABS: readonly {
+  readonly id: LanPairingDetailTabId;
+  readonly label: string;
+  readonly icon: IconComponent;
+  readonly tone: Tone;
+}[] = [
+  { id: 'info', label: 'Info', icon: OverviewListIcon, tone: 'cyan' },
+  { id: 'update', label: 'Update', icon: UpdatesSyncDocumentIcon, tone: 'gold' },
+  { id: 'capability', label: 'Capability', icon: ScreenAnalysisIcon, tone: 'purple' },
+];
+
+type LanPairingDetailRow = {
+  readonly label: string;
+  readonly value: string;
+  readonly tone: Tone;
+};
+
+function lanPairingMissingDeviceValue(value?: string): string {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : 'Not reported';
+}
+
+function lanPairingHumanLabel(value?: string): string {
+  const source = value?.trim();
+  if (!source) return 'Unknown';
+  return source
+    .split(/[-_\s]+/)
+    .filter(Boolean)
+    .map((part) => part.slice(0, 1).toUpperCase() + part.slice(1))
+    .join(' ');
+}
+
+function lanPairingDeviceName(slot: DeviceSlot): string {
+  return lanPairingMissingDeviceValue(slot.device?.name ?? slot.label);
+}
+
+function lanPairingDeviceStatus(slot: DeviceSlot): string {
+  return lanPairingHumanLabel(slot.status);
+}
+
+function lanPairingDevicePlatform(slot: DeviceSlot): string {
+  return lanPairingHumanLabel(slot.platform ?? slot.device?.platform);
+}
+
+function lanPairingDeviceType(slot: DeviceSlot): string {
+  return lanPairingHumanLabel(slot.device?.type);
+}
+
+function lanPairingDetailRowsFor(
+  tab: LanPairingDetailTabId,
+  selectedDevice: DeviceSlot | null
+): readonly LanPairingDetailRow[] {
+  if (!selectedDevice) {
+    return [{ label: 'Selection', value: 'No device selected', tone: 'gold' }];
+  }
+
+  const sharedRows: readonly LanPairingDetailRow[] = [
+    { label: 'Name', value: lanPairingDeviceName(selectedDevice), tone: 'cyan' },
+    { label: 'Status', value: lanPairingDeviceStatus(selectedDevice), tone: 'gold' },
+    { label: 'Platform', value: lanPairingDevicePlatform(selectedDevice), tone: 'purple' },
+  ];
+
+  if (tab === 'update') {
+    return [
+      ...sharedRows,
+      { label: 'IP', value: lanPairingMissingDeviceValue(selectedDevice.device?.ip), tone: 'cyan' },
+      {
+        label: 'Device ID',
+        value: lanPairingMissingDeviceValue(selectedDevice.device?.id ?? selectedDevice.value),
+        tone: 'gold',
+      },
+    ];
+  }
+  if (tab === 'capability') {
+    return [
+      ...sharedRows,
+      { label: 'Type', value: lanPairingDeviceType(selectedDevice), tone: 'cyan' },
+      {
+        label: 'Device ID',
+        value: lanPairingMissingDeviceValue(selectedDevice.device?.id ?? selectedDevice.value),
+        tone: 'gold',
+      },
+    ];
+  }
+  return [
+    { label: 'Name', value: lanPairingDeviceName(selectedDevice), tone: 'cyan' },
+    { label: 'IP', value: lanPairingMissingDeviceValue(selectedDevice.device?.ip), tone: 'gold' },
+    { label: 'MAC', value: lanPairingMissingDeviceValue(selectedDevice.device?.mac), tone: 'purple' },
+    { label: 'Status', value: lanPairingDeviceStatus(selectedDevice), tone: 'cyan' },
+    { label: 'Platform', value: lanPairingDevicePlatform(selectedDevice), tone: 'gold' },
+    { label: 'Type', value: lanPairingDeviceType(selectedDevice), tone: 'purple' },
+    {
+      label: 'Device ID',
+      value: lanPairingMissingDeviceValue(selectedDevice.device?.id ?? selectedDevice.value),
+      tone: 'cyan',
+    },
+  ];
+}
+
+type ActivityManageTabId = 'reports' | 'screen' | 'apps' | 'browser' | 'games' | 'network';
+type ActivityMonitorTabId = 'history' | 'live';
+
+const ACTIVITY_MANAGE_TABS: readonly {
+  readonly id: ActivityManageTabId;
+  readonly label: string;
+  readonly icon: IconComponent;
+  readonly tone: Tone;
+}[] = [
+  { id: 'reports', label: 'Reports', icon: ReportDocumentIcon, tone: 'purple' },
+  { id: 'screen', label: 'Screen', icon: ScreenAnalysisIcon, tone: 'cyan' },
+  { id: 'apps', label: 'App Use', icon: ActivityNetworkIcon, tone: 'gold' },
+  { id: 'browser', label: 'Browser', icon: BrowserStackIcon, tone: 'cyan' },
+  { id: 'games', label: 'Games', icon: StartDataAnalysisIcon, tone: 'purple' },
+  { id: 'network', label: 'Network', icon: WebGlobeIcon, tone: 'cyan' },
+];
+
+const ACTIVITY_REPORT_FREQUENCY_OPTIONS = [
+  { value: 'daily', label: 'Daily' },
+  { value: 'weekly', label: 'Weekly' },
+  { value: 'monthly', label: 'Monthly' },
+];
+
+const ACTIVITY_REPORT_OVERRIDE_OPTIONS = [
+  { value: 'family-defaults', label: 'Default' },
+  { value: 'override', label: 'Override' },
+];
+
+const ACTIVITY_MONITOR_TABS: readonly {
+  readonly id: ActivityMonitorTabId;
+  readonly label: string;
+  readonly tone: Tone;
+}[] = [
+  { id: 'history', label: 'History', tone: 'cyan' },
+  { id: 'live', label: 'Live', tone: 'purple' },
+];
+
+type ActivityManageDetailRow = {
+  readonly label: string;
+  readonly value: string;
+  readonly tone: Tone;
+};
+
+function activityManageTargetLabel(scopeValue: string, selectedDevice: DeviceSlot | null): string {
+  if (scopeValue !== 'device') return 'Family';
+  return selectedDevice?.label ?? 'Select device';
+}
+
+function activityManageDetailRowsFor(
+  tab: ActivityManageTabId,
+  scopeValue: string,
+  selectedDevice: DeviceSlot | null,
+  mode: string,
+  enabledCount: number,
+  syncStatus: string,
+  lastAction: string
+): readonly ActivityManageDetailRow[] {
+  const targetLabel = activityManageTargetLabel(scopeValue, selectedDevice);
+  if (tab === 'screen') {
+    return [
+      { label: 'Target', value: targetLabel, tone: 'cyan' },
+      { label: 'Scope', value: scopeValue === 'device' ? 'Per device' : 'Family', tone: 'gold' },
+      { label: 'Capture', value: 'Local summary queue', tone: 'purple' },
+      { label: 'Status', value: 'Waiting for activity read model', tone: 'cyan' },
+    ];
+  }
+  if (tab === 'apps') {
+    return [
+      { label: 'Target', value: targetLabel, tone: 'cyan' },
+      { label: 'Scope', value: scopeValue === 'device' ? 'Per device' : 'Family', tone: 'gold' },
+      { label: 'Sessions', value: 'Known app sessions', tone: 'purple' },
+      { label: 'Status', value: 'Waiting for activity read model', tone: 'cyan' },
+    ];
+  }
+  if (tab === 'browser') {
+    return [
+      { label: 'Target', value: targetLabel, tone: 'cyan' },
+      { label: 'Scope', value: scopeValue === 'device' ? 'Per device' : 'Family', tone: 'gold' },
+      { label: 'Browser state', value: 'Waiting for browser read model', tone: 'purple' },
+      { label: 'Monitor', value: 'History viewer not opened', tone: 'cyan' },
+    ];
+  }
+  if (tab === 'games') {
+    return [
+      { label: 'Target', value: targetLabel, tone: 'cyan' },
+      { label: 'Scope', value: scopeValue === 'device' ? 'Per device' : 'Family', tone: 'gold' },
+      { label: 'Game sessions', value: 'Waiting for game read model', tone: 'purple' },
+      { label: 'Monitor', value: 'No session selected', tone: 'cyan' },
+    ];
+  }
+  if (tab === 'network') {
+    return [
+      { label: 'Target', value: targetLabel, tone: 'cyan' },
+      { label: 'Scope', value: scopeValue === 'device' ? 'Per device' : 'Family', tone: 'gold' },
+      { label: 'Flows', value: 'Domain and flow metadata', tone: 'purple' },
+      { label: 'Status', value: 'Waiting for network read model', tone: 'cyan' },
+    ];
+  }
+  return [
+    { label: 'Report target', value: targetLabel, tone: 'cyan' },
+    { label: 'Report mode', value: mode || 'Daily', tone: 'gold' },
+    { label: 'Scope', value: scopeValue === 'device' ? 'Per device' : 'Family', tone: 'purple' },
+    { label: 'Content choices', value: `${enabledCount} selected`, tone: 'cyan' },
+    { label: 'Draft state', value: syncStatus || 'Local draft', tone: 'gold' },
+    { label: 'Last action', value: lastAction || 'Ready', tone: 'purple' },
+  ];
+}
+
+function activityManageTabLabel(tab: ActivityManageTabId): string {
+  return ACTIVITY_MANAGE_TABS.find((item) => item.id === tab)?.label ?? 'Activity';
+}
+
+function activityMonitorRowsFor(
+  tab: ActivityManageTabId,
+  monitorTab: ActivityMonitorTabId,
+  scopeValue: string,
+  selectedDevice: DeviceSlot | null,
+  frequencyLabel: string,
+  overrideLabel: string,
+  syncStatus: string,
+  lastAction: string
+): readonly ActivityManageDetailRow[] {
+  const targetLabel = activityManageTargetLabel(scopeValue, selectedDevice);
+  const tabLabel = activityManageTabLabel(tab);
+
+  if (monitorTab === 'live') {
+    if (scopeValue !== 'device') {
+      return [
+        { label: 'Live target', value: 'Switch to Per Device to inspect live diagnostics', tone: 'gold' },
+        { label: 'Monitor', value: `${tabLabel} live view is per-device only`, tone: 'cyan' },
+      ];
+    }
+    if (!selectedDevice) {
+      return [
+        { label: 'Live target', value: 'Select a device to inspect live diagnostics', tone: 'gold' },
+        { label: 'Monitor', value: `${tabLabel} stream waiting for target`, tone: 'cyan' },
+      ];
+    }
+    return [
+      { label: 'Live target', value: targetLabel, tone: 'cyan' },
+      {
+        label: 'Device status',
+        value: selectedDevice.status === 'offline' ? 'Offline' : 'Connected',
+        tone: selectedDevice.status === 'offline' ? 'gold' : 'cyan',
+      },
+      { label: 'Live stream', value: `${tabLabel} UI-check stream pending real read model`, tone: 'purple' },
+      { label: 'Last action', value: lastAction || 'Ready', tone: 'gold' },
+    ];
+  }
+
+  if (tab === 'reports') {
+    return [
+      { label: 'Report history', value: `${targetLabel} / ${frequencyLabel} / UI-check snapshot`, tone: 'cyan' },
+      { label: 'Latest saved', value: syncStatus || 'Local draft', tone: 'gold' },
+      { label: 'Mode', value: scopeValue === 'device' ? overrideLabel : 'Family', tone: 'purple' },
+    ];
+  }
+
+  return [
+    { label: `${tabLabel} history`, value: `${targetLabel} / UI-check records`, tone: 'cyan' },
+    { label: 'Scope', value: scopeValue === 'device' ? 'Per Device' : 'Family', tone: 'gold' },
+    { label: 'Status', value: 'Waiting for activity read model', tone: 'purple' },
+    { label: 'Last action', value: lastAction || 'Ready', tone: 'cyan' },
+  ];
+}
+
+function lanPairingDiscoverySlots(): DeviceSlot[] {
+  const uiCheckDeviceCount = lanPairingUiCheckFakeDeviceCount();
+  if (uiCheckDeviceCount > 0) {
+    return lanPairingUiCheckFakeSlots(uiCheckDeviceCount);
+  }
+
+  return [];
+}
+
+function lanPairingUiCheckFakeDeviceCount(): number {
+  if (typeof window === 'undefined') {
+    return 0;
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  const hashQueryStart = window.location.hash.indexOf('?');
+  if (hashQueryStart >= 0) {
+    const hashParams = new URLSearchParams(window.location.hash.slice(hashQueryStart + 1));
+    for (const [key, value] of hashParams.entries()) {
+      params.set(key, value);
+    }
+  }
+
+  const rawCount = params.get(LAN_PAIRING_UI_CHECK_QUERY_KEY);
+  if (rawCount === null) {
+    return LAN_PAIRING_UI_CHECK_FAKE_DATA_DEFAULT_ENABLED ? LAN_PAIRING_UI_CHECK_FAKE_DATA_DEFAULT_COUNT : 0;
+  }
+
+  const count = rawCount ? Number.parseInt(rawCount, 10) : 0;
+  if (!Number.isFinite(count) || count <= 0) {
+    return 0;
+  }
+
+  return clampValue(count, 0, LAN_PAIRING_UI_CHECK_MAX_DEVICE_COUNT);
+}
+
+function lanPairingUiCheckFakeSlots(count: number): DeviceSlot[] {
+  const platforms = ['windows', 'macos', 'linux', 'android', 'ios', 'router'] as const;
+  const types = ['desktop', 'laptop', 'desktop', 'mobile', 'tablet', 'router'] as const;
+  const statuses = ['connected', 'available', 'offline', 'unsupported'] as const;
+
+  return Array.from({ length: count }, (_, index) => {
+    const slotNumber = index + 1;
+    const platform = platforms[index % platforms.length] ?? 'unknown';
+    const status = statuses[index % statuses.length] ?? 'available';
+    return {
+      value: `ui-check-device-${slotNumber}`,
+      label: `D${String(slotNumber).padStart(3, '0')}`,
+      status,
+      slotIndex: index,
+      device: {
+        id: `ui-check-device-${slotNumber}`,
+        name: `UI check device ${slotNumber}`,
+        ip: `192.168.88.${slotNumber}`,
+        mac: `02:00:5E:${String(slotNumber).padStart(2, '0')}:AA:${String((slotNumber * 7) % 100).padStart(2, '0')}`,
+        platform,
+        type: types[index % types.length] ?? 'unknown',
+        status,
+      },
+    };
+  });
+}
+
+function manageTargetLabel(lane: ManageLaneId, selection: ManageTargetSelection): string {
+  return selection.scope === 'global' ? manageGlobalTargetLabel(lane) : selection.device;
+}
+
+function manageSelectionLabel(
+  activeNavLabel: string,
+  selectedControlName: string,
+  lane: ManageLaneId,
+  selection: ManageTargetSelection
+): string {
+  const targetLabel = manageTargetLabel(lane, selection);
+  return isBrowserManageKey(activeNavLabel, selectedControlName)
+    ? `${targetLabel} / ${selection.browser}`
+    : targetLabel;
+}
+
+function manageBrowserTargetsForKey(
+  activeNavLabel: string,
+  selectedControlName: string
+): readonly ManageTargetChoice[] {
+  if (!isBrowserManageKey(activeNavLabel, selectedControlName)) return [];
+  return [
+    { label: 'Chrome', detail: 'Chrome browser policy target.', tone: 'cyan' },
+    { label: 'Edge', detail: 'Edge browser policy target.', tone: 'gold' },
+    { label: 'Firefox', detail: 'Firefox browser policy target.', tone: 'purple' },
+    { label: 'All browsers', detail: 'Every detected browser family.', tone: 'red' },
+  ];
+}
+
+function scheduleOptionsForManageKey(
+  activeNavLabel: string,
+  selectedControlName: string
+): readonly ManageControlAction[] {
+  const key = `${assetKey(activeNavLabel)} ${assetKey(selectedControlName)}`;
+  if (
+    key.includes('browser') ||
+    key.includes('app') ||
+    key.includes('game') ||
+    key.includes('network') ||
+    key.includes('alert') ||
+    key.includes('rule') ||
+    key.includes('schedule')
+  ) {
+    return [
+      { label: 'Always', detail: 'Applies all day.', tone: 'cyan' },
+      { label: 'School', detail: 'School-hour rule.', tone: 'gold' },
+      { label: 'Homework', detail: 'Homework window.', tone: 'purple' },
+      { label: 'Bedtime', detail: 'Sleep cutoff.', tone: 'red' },
+      { label: 'Weekend', detail: 'Weekend limits.', tone: 'cyan' },
+      { label: 'Custom', detail: 'Parent-defined window.', tone: 'gold' },
+    ];
+  }
+  return [];
+}
+
+function manageControlSpecFor(activeNavLabel: string, selectedControlName: string): ManageControlSpec | null {
+  const key = `${assetKey(activeNavLabel)} ${assetKey(selectedControlName)}`;
+  const devices: readonly string[] = [];
+  const baseStatus = [
+    { label: 'Scope', detail: 'Per child device', tone: 'cyan' as Tone },
+    { label: 'Custody', detail: 'Local first', tone: 'gold' as Tone },
+    { label: 'Audit', detail: 'Every change recorded', tone: 'purple' as Tone },
+  ];
+
+  if (key.includes('browser')) {
+    return {
+      title: 'Browser Setup',
+      devices,
+      modes: [
+        { label: 'Advisory', detail: 'Show risk without blocking.', tone: 'cyan' },
+        { label: 'Ask first', detail: 'Ask parent before risky browsing.', tone: 'gold' },
+        { label: 'Block', detail: 'Block unsupported browser paths.', tone: 'red' },
+      ],
+      options: [
+        {
+          label: 'Require managed browser',
+          detail: 'Prefer browser paths with visible evidence.',
+          enabled: true,
+          tone: 'cyan',
+        },
+        {
+          label: 'Flag unsupported browsers',
+          detail: 'Show installed browsers that cannot be controlled yet.',
+          enabled: true,
+          tone: 'gold',
+        },
+        {
+          label: 'Explain before block',
+          detail: 'Tell the child why a page or browser path is blocked.',
+          enabled: true,
+          tone: 'purple',
+        },
+        {
+          label: 'Allow parent override',
+          detail: 'Parent can approve a timed exception.',
+          enabled: false,
+          tone: 'cyan',
+        },
+      ],
+      actions: [
+        { label: 'Scan browsers', detail: 'Refresh supported and unsupported browser state.', tone: 'cyan' },
+        { label: 'Apply policy', detail: 'Save this browser rule for the selected device.', tone: 'gold' },
+        { label: 'Open web activity', detail: 'Review URL evidence and browser family.', tone: 'purple' },
+      ],
+      status: baseStatus,
+    };
+  }
+
+  if (key.includes('rule') || key.includes('policy')) {
+    return {
+      title: 'Rules',
+      devices,
+      modes: [
+        { label: 'Allow', detail: 'Let it pass and record the decision.', tone: 'cyan' },
+        { label: 'Ask', detail: 'Pause and ask the parent.', tone: 'gold' },
+        { label: 'Block', detail: 'Stop the activity after policy review.', tone: 'red' },
+      ],
+      options: [
+        { label: 'School hours', detail: 'Use school-day defaults for apps and sites.', enabled: true, tone: 'cyan' },
+        { label: 'Bedtime quiet', detail: 'Reduce distractions during sleep windows.', enabled: true, tone: 'purple' },
+        {
+          label: 'New apps ask first',
+          detail: 'Require approval for newly detected apps.',
+          enabled: true,
+          tone: 'gold',
+        },
+        {
+          label: 'Mature content review',
+          detail: 'Review risky categories before allow.',
+          enabled: false,
+          tone: 'red',
+        },
+      ],
+      actions: [
+        { label: 'Preview decision', detail: 'See what the rule would do before applying.', tone: 'cyan' },
+        { label: 'Save rule', detail: 'Keep the rule in family policy.', tone: 'gold' },
+        { label: 'View audit', detail: 'Open recent rule changes and parent approvals.', tone: 'purple' },
+      ],
+      status: baseStatus,
+    };
+  }
+
+  if (key.includes('schedule')) {
+    return {
+      title: 'Schedules',
+      devices,
+      modes: [
+        { label: 'School day', detail: 'Use weekday learning windows.', tone: 'cyan' },
+        { label: 'Weekend', detail: 'Use weekend family limits.', tone: 'gold' },
+        { label: 'Temporary', detail: 'Grant or reduce time today only.', tone: 'purple' },
+      ],
+      options: [
+        { label: 'Homework window', detail: 'Focus mode during homework time.', enabled: true, tone: 'cyan' },
+        { label: 'Sleep lock', detail: 'Use bedtime cutoff and morning resume.', enabled: true, tone: 'purple' },
+        { label: 'Game budget', detail: 'Cap game time separately from school tools.', enabled: false, tone: 'gold' },
+        { label: 'Parent extension', detail: 'Allow one-time time grants.', enabled: true, tone: 'cyan' },
+      ],
+      actions: [
+        { label: 'Edit week', detail: 'Open weekly schedule controls.', tone: 'cyan' },
+        { label: 'Grant time', detail: 'Create a temporary time exception.', tone: 'gold' },
+        { label: 'Pause today', detail: 'Pause this schedule for the selected child.', tone: 'red' },
+      ],
+      status: baseStatus,
+    };
+  }
+
+  if (key.includes('approval')) {
+    return {
+      title: 'Approvals',
+      devices,
+      modes: [
+        { label: 'Ask parent', detail: 'Require an explicit parent answer.', tone: 'gold' },
+        { label: 'Auto explain', detail: 'Give an explanation without changing rule.', tone: 'cyan' },
+        { label: 'Auto deny', detail: 'Deny known restricted requests.', tone: 'red' },
+      ],
+      options: [
+        { label: 'Require reason', detail: 'Child must explain why they need access.', enabled: true, tone: 'cyan' },
+        { label: 'Timed approval', detail: 'Approvals expire automatically.', enabled: true, tone: 'gold' },
+        { label: 'Notify parent', detail: 'Send parent a minimal alert.', enabled: true, tone: 'purple' },
+        { label: 'Remember answer', detail: 'Reuse this approval rule next time.', enabled: false, tone: 'cyan' },
+      ],
+      actions: [
+        { label: 'Open queue', detail: 'Review pending child requests.', tone: 'gold' },
+        { label: 'Approve once', detail: 'Grant a one-time exception.', tone: 'cyan' },
+        { label: 'Set default', detail: 'Choose the default answer for this class.', tone: 'purple' },
+      ],
+      status: baseStatus,
+    };
+  }
+
+  if (key.includes('enforce')) {
+    return {
+      title: 'Enforcement',
+      devices,
+      modes: [
+        { label: 'Observe', detail: 'Record would-enforce outcomes.', tone: 'cyan' },
+        { label: 'Dry run', detail: 'Validate without executing adapters.', tone: 'gold' },
+        { label: 'Enforce', detail: 'Apply supported adapter actions.', tone: 'red' },
+      ],
+      options: [
+        { label: 'Require evidence ref', detail: 'Never act from AI text alone.', enabled: true, tone: 'cyan' },
+        { label: 'Timer rollback', detail: 'Expire temporary controls automatically.', enabled: true, tone: 'gold' },
+        { label: 'Capability gate', detail: 'Unavailable adapters stay honest.', enabled: true, tone: 'purple' },
+        { label: 'Parent override', detail: 'Parent can cancel or supersede action.', enabled: true, tone: 'cyan' },
+      ],
+      actions: [
+        { label: 'Test dry run', detail: 'Run policy preview without adapter action.', tone: 'cyan' },
+        { label: 'Apply timed block', detail: 'Create a typed temporary block.', tone: 'red' },
+        { label: 'Rollback', detail: 'Cancel or expire the active control.', tone: 'gold' },
+      ],
+      status: baseStatus,
+    };
+  }
+
+  if (key.includes('report')) {
+    return {
+      title: key.includes('build') ? 'Report Compiler' : 'Reports',
+      devices,
+      modes: [
+        { label: 'Daily', detail: 'Short day summary.', tone: 'cyan' },
+        { label: 'Weekly', detail: 'Patterns and changes.', tone: 'purple' },
+        { label: 'Monthly', detail: 'Longer family review.', tone: 'gold' },
+      ],
+      options: [
+        { label: 'Activity summary', detail: 'Apps, sites, focus, and screen analysis.', enabled: true, tone: 'cyan' },
+        {
+          label: 'Policy decisions',
+          detail: 'Include blocks, asks, approvals, and overrides.',
+          enabled: true,
+          tone: 'gold',
+        },
+        { label: 'AI citations', detail: 'Use cited local memory in explanations.', enabled: true, tone: 'purple' },
+        { label: 'Export copy', detail: 'Write a parent-owned report export.', enabled: false, tone: 'cyan' },
+      ],
+      actions: [
+        { label: 'Compile now', detail: 'Build a stateless report from selected evidence.', tone: 'cyan' },
+        { label: 'Schedule report', detail: 'Set report time and cadence.', tone: 'gold' },
+        { label: 'Open reports', detail: 'Review generated report history.', tone: 'purple' },
+      ],
+      status: baseStatus,
+    };
+  }
+
+  if (key.includes('capability')) {
+    return {
+      title: 'Capability Status',
+      devices,
+      modes: [
+        { label: 'Detect', detail: 'Refresh available child-device capabilities.', tone: 'cyan' },
+        { label: 'Degrade', detail: 'Use safer reduced behavior when a capability is partial.', tone: 'gold' },
+        { label: 'Disable', detail: 'Keep unsupported controls unavailable.', tone: 'red' },
+      ],
+      options: [
+        {
+          label: 'Browser control',
+          detail: 'Supported, degraded, or unavailable browser management.',
+          enabled: true,
+          tone: 'cyan',
+        },
+        { label: 'App control', detail: 'Supported app and process policy actions.', enabled: true, tone: 'gold' },
+        { label: 'Screen summary', detail: 'Local screen analysis readiness.', enabled: false, tone: 'purple' },
+        { label: 'Network metadata', detail: 'Domain and flow visibility state.', enabled: true, tone: 'cyan' },
+      ],
+      actions: [
+        { label: 'Refresh status', detail: 'Query the selected child device.', tone: 'cyan' },
+        { label: 'Show gaps', detail: 'List controls that cannot run on this device.', tone: 'gold' },
+        { label: 'Open install', detail: 'Go to install and update controls.', tone: 'purple' },
+      ],
+      status: baseStatus,
+    };
+  }
+
+  if (key.includes('lan-pairing') || key.includes('lan pairing')) {
+    return {
+      title: 'LAN Pairing',
+      devices,
+      modes: [
+        { label: 'Discover', detail: 'Find child agents on the same LAN.', tone: 'cyan' },
+        { label: 'Pair', detail: 'Require challenge and trusted proof.', tone: 'gold' },
+        { label: 'Revoke', detail: 'Remove device trust before new commands.', tone: 'red' },
+      ],
+      options: [
+        {
+          label: 'Require pairing proof',
+          detail: 'Reject anonymous or stale LAN attempts.',
+          enabled: true,
+          tone: 'cyan',
+        },
+        { label: 'Origin check', detail: 'Only accept allowed parent origins.', enabled: true, tone: 'gold' },
+        {
+          label: 'Replay protection',
+          detail: 'Reject stale or reused pairing attempts.',
+          enabled: true,
+          tone: 'purple',
+        },
+        { label: 'Fail closed', detail: 'Unpaired devices receive no control intents.', enabled: true, tone: 'red' },
+      ],
+      actions: [
+        { label: 'Start pairing', detail: 'Begin a trusted local pairing challenge.', tone: 'gold' },
+        { label: 'Select child', detail: 'Make this device the active control target.', tone: 'cyan' },
+        { label: 'Revoke trust', detail: 'Stop accepting control intents from this device.', tone: 'red' },
+      ],
+      status: baseStatus,
+    };
+  }
+
+  if (key.includes('device')) {
+    return {
+      title: 'Devices',
+      devices,
+      modes: [
+        { label: 'Selected', detail: 'Use this device as the active target.', tone: 'cyan' },
+        { label: 'Pair', detail: 'Add a child device.', tone: 'gold' },
+        { label: 'Suspend', detail: 'Stop sending commands to this device.', tone: 'red' },
+      ],
+      options: [
+        { label: 'Show offline', detail: 'Keep stale devices visible but marked.', enabled: true, tone: 'cyan' },
+        {
+          label: 'Per-device overrides',
+          detail: 'Allow this child to differ from family defaults.',
+          enabled: true,
+          tone: 'gold',
+        },
+        {
+          label: 'Require parent session',
+          detail: 'Protect device changes behind parent login.',
+          enabled: true,
+          tone: 'red',
+        },
+        { label: 'Capability badges', detail: 'Show supported, degraded, unavailable.', enabled: true, tone: 'purple' },
+      ],
+      actions: [
+        { label: 'Pair device', detail: 'Start local pairing.', tone: 'gold' },
+        { label: 'Set active', detail: 'Use selected child for controls.', tone: 'cyan' },
+        { label: 'Open capability', detail: 'Review what this device supports.', tone: 'purple' },
+      ],
+      status: baseStatus,
+    };
+  }
+
+  if (key.includes('screen')) {
+    return {
+      title: 'Screen Analysis',
+      devices,
+      modes: [
+        { label: 'Off', detail: 'Do not run screen summaries.', tone: 'cyan' },
+        { label: 'Summary', detail: 'Create parent-readable local summaries.', tone: 'gold' },
+        { label: 'Ask first', detail: 'Require parent approval before enabling.', tone: 'purple' },
+      ],
+      options: [
+        {
+          label: 'Local summarizer',
+          detail: 'Summaries run on the child device when available.',
+          enabled: false,
+          tone: 'cyan',
+        },
+        { label: 'No screenshots in alerts', detail: 'Alerts never send raw screenshots.', enabled: true, tone: 'red' },
+        { label: 'Evidence citations', detail: 'Show why a summary was produced.', enabled: true, tone: 'gold' },
+        { label: 'Sensitive redaction', detail: 'Avoid raw private evidence exposure.', enabled: true, tone: 'cyan' },
+      ],
+      actions: [
+        { label: 'Check support', detail: 'Verify local screen analysis capability.', tone: 'cyan' },
+        { label: 'Set privacy', detail: 'Choose summary and evidence level.', tone: 'gold' },
+        { label: 'Open guide', detail: 'Explain screen analysis to the parent.', tone: 'purple' },
+      ],
+      status: baseStatus,
+    };
+  }
+
+  if (key.includes('apps-games') || key.includes('app-use') || key.includes('app-game')) {
+    return {
+      title: 'App Use',
+      devices,
+      modes: [
+        { label: 'Observe', detail: 'Record app sessions without blocking.', tone: 'cyan' },
+        { label: 'Limit', detail: 'Apply time budgets and schedules.', tone: 'gold' },
+        { label: 'Block', detail: 'Block selected apps when supported.', tone: 'red' },
+      ],
+      options: [
+        { label: 'Known apps', detail: 'Show named app sessions.', enabled: true, tone: 'cyan' },
+        { label: 'New app asks', detail: 'Ask parent before unknown apps get time.', enabled: true, tone: 'gold' },
+        { label: 'Focus budget', detail: 'Separate focus tools from entertainment.', enabled: false, tone: 'purple' },
+        {
+          label: 'Suspicious app flag',
+          detail: 'Surface apps that do not match normal use.',
+          enabled: true,
+          tone: 'red',
+        },
+      ],
+      actions: [
+        { label: 'Choose apps', detail: 'Open app allow, ask, block list.', tone: 'cyan' },
+        { label: 'Set budget', detail: 'Set time limit and schedule.', tone: 'gold' },
+        { label: 'Review sessions', detail: 'Open recent app timeline.', tone: 'purple' },
+      ],
+      status: baseStatus,
+    };
+  }
+
+  if (key.includes('network')) {
+    return {
+      title: 'Network Activity',
+      devices,
+      modes: [
+        { label: 'Metadata', detail: 'Keep domain and flow metadata.', tone: 'cyan' },
+        { label: 'Review', detail: 'Ask parent on risky destinations.', tone: 'gold' },
+        { label: 'Block', detail: 'Block destinations when adapters support it.', tone: 'red' },
+      ],
+      options: [
+        { label: 'Domain list', detail: 'Show domains, not raw packet contents.', enabled: true, tone: 'cyan' },
+        { label: 'No payload capture', detail: 'Never collect private payload bodies.', enabled: true, tone: 'red' },
+        { label: 'School allowlist', detail: 'Permit known learning destinations.', enabled: false, tone: 'gold' },
+        { label: 'Unsupported warning', detail: 'Show when OS control is unavailable.', enabled: true, tone: 'purple' },
+      ],
+      actions: [
+        { label: 'Open domains', detail: 'Review recent domains.', tone: 'cyan' },
+        { label: 'Edit allowlist', detail: 'Choose trusted domains.', tone: 'gold' },
+        { label: 'Export summary', detail: 'Save parent-owned network summary.', tone: 'purple' },
+      ],
+      status: baseStatus,
+    };
+  }
+
+  if (key.includes('channel')) {
+    return {
+      title: 'Notification Channels',
+      devices,
+      modes: [
+        { label: 'Portal', detail: 'Keep notices inside the parent portal.', tone: 'cyan' },
+        { label: 'Verified', detail: 'Use verified parent-owned destinations.', tone: 'gold' },
+        { label: 'Muted', detail: 'Pause external delivery.', tone: 'purple' },
+      ],
+      options: [
+        { label: 'Email', detail: 'Send minimal parent alerts to verified email.', enabled: false, tone: 'cyan' },
+        { label: 'SMS', detail: 'Send high-priority parent alerts by SMS.', enabled: false, tone: 'gold' },
+        { label: 'WhatsApp', detail: 'Use parent-owned WhatsApp when configured.', enabled: false, tone: 'purple' },
+        { label: 'Quiet hours', detail: 'Hold low priority alerts overnight.', enabled: true, tone: 'cyan' },
+      ],
+      actions: [
+        { label: 'Verify channel', detail: 'Confirm parent-owned destination.', tone: 'gold' },
+        { label: 'Send test', detail: 'Send a minimal test alert.', tone: 'cyan' },
+        { label: 'Mute all', detail: 'Pause external channels.', tone: 'purple' },
+      ],
+      status: baseStatus,
+    };
+  }
+
+  if (key.includes('alert') || key.includes('notification')) {
+    return {
+      title: 'Alerts',
+      devices,
+      modes: [
+        { label: 'Portal only', detail: 'Keep alerts inside the portal.', tone: 'cyan' },
+        { label: 'Priority', detail: 'Send only high-priority events out.', tone: 'gold' },
+        { label: 'External', detail: 'Use selected verified channels.', tone: 'purple' },
+      ],
+      options: [
+        { label: 'Policy alerts', detail: 'Notify on blocked or ask-parent decisions.', enabled: true, tone: 'gold' },
+        { label: 'Device offline', detail: 'Warn when child device goes stale.', enabled: true, tone: 'cyan' },
+        { label: 'Approval requests', detail: 'Notify parent when child asks.', enabled: true, tone: 'purple' },
+        { label: 'No raw evidence', detail: 'Never send raw local evidence in alerts.', enabled: true, tone: 'red' },
+      ],
+      actions: [
+        { label: 'Test alert', detail: 'Send a minimal test notification.', tone: 'cyan' },
+        { label: 'Choose channels', detail: 'Open verified channel setup.', tone: 'gold' },
+        { label: 'Set quiet hours', detail: 'Choose when alerts pause.', tone: 'purple' },
+      ],
+      status: baseStatus,
+    };
+  }
+
+  if (key.includes('drive')) {
+    return {
+      title: 'Drives',
+      devices,
+      modes: [
+        { label: 'Disconnected', detail: 'No drive export destination.', tone: 'cyan' },
+        { label: 'Connect', detail: 'Use parent-owned storage.', tone: 'gold' },
+        { label: 'Review', detail: 'Preview before any export.', tone: 'purple' },
+      ],
+      options: [
+        { label: 'Google Drive', detail: 'Connect parent-owned Drive export.', enabled: false, tone: 'cyan' },
+        { label: 'OneDrive', detail: 'Use a parent-owned OneDrive target.', enabled: false, tone: 'purple' },
+        { label: 'Report exports', detail: 'Allow selected reports to export.', enabled: true, tone: 'gold' },
+        { label: 'Support bundle review', detail: 'Preview bundle before sharing.', enabled: true, tone: 'red' },
+      ],
+      actions: [
+        { label: 'Connect drive', detail: 'Start parent-owned drive connection.', tone: 'cyan' },
+        { label: 'Test export', detail: 'Write a minimal test file.', tone: 'gold' },
+        { label: 'Disconnect', detail: 'Remove this storage target.', tone: 'red' },
+      ],
+      status: baseStatus,
+    };
+  }
+
+  if (key.includes('export') || key.includes('retention') || key.includes('private')) {
+    return {
+      title: 'Export Delete Retention',
+      devices,
+      modes: [
+        { label: 'Keep local', detail: 'No export destination.', tone: 'cyan' },
+        { label: 'Export copy', detail: 'Write selected data to parent storage.', tone: 'gold' },
+        { label: 'Delete class', detail: 'Delete selected local data class.', tone: 'red' },
+      ],
+      options: [
+        { label: 'Activity summaries', detail: 'Include daily and weekly reports.', enabled: true, tone: 'cyan' },
+        { label: 'Audit log', detail: 'Include rule, pairing, and export records.', enabled: true, tone: 'gold' },
+        { label: 'Retention window', detail: 'Choose what local data expires.', enabled: true, tone: 'purple' },
+        {
+          label: 'Raw evidence excluded',
+          detail: 'Do not export raw private evidence by default.',
+          enabled: true,
+          tone: 'red',
+        },
+      ],
+      actions: [
+        { label: 'Export report', detail: 'Write selected report to storage.', tone: 'gold' },
+        { label: 'Preview data', detail: 'Show selected data classes.', tone: 'cyan' },
+        { label: 'Delete selected', detail: 'Delete selected local data class.', tone: 'red' },
+      ],
+      status: baseStatus,
+    };
+  }
+
+  if (key.includes('api')) {
+    return {
+      title: 'API Providers',
+      devices,
+      modes: [
+        { label: 'Disabled', detail: 'Do not use external AI providers.', tone: 'cyan' },
+        { label: 'Ask parent', detail: 'Require parent choice per provider.', tone: 'gold' },
+        { label: 'Enabled', detail: 'Use configured provider limits.', tone: 'purple' },
+      ],
+      options: [
+        { label: 'OpenAI key', detail: 'Parent-owned provider key.', enabled: false, tone: 'cyan' },
+        { label: 'Per-device limits', detail: 'Limit which child devices can call APIs.', enabled: true, tone: 'gold' },
+        { label: 'No raw evidence', detail: 'Do not send raw evidence to providers.', enabled: true, tone: 'red' },
+        { label: 'Cost guard', detail: 'Use budget and request limits.', enabled: true, tone: 'purple' },
+      ],
+      actions: [
+        { label: 'Add provider', detail: 'Add parent-owned API provider.', tone: 'gold' },
+        { label: 'Test key', detail: 'Validate provider connection.', tone: 'cyan' },
+        { label: 'Disable API', detail: 'Turn off external providers.', tone: 'red' },
+      ],
+      status: baseStatus,
+    };
+  }
+
+  if (key.includes('memory')) {
+    return {
+      title: 'Memory Setup',
+      devices,
+      modes: [
+        { label: 'Off', detail: 'Do not store cited memory.', tone: 'cyan' },
+        { label: 'Cited', detail: 'Store only cited parent-approved context.', tone: 'gold' },
+        { label: 'Review', detail: 'Require parent review before reuse.', tone: 'purple' },
+      ],
+      options: [
+        { label: 'Cited answers', detail: 'Show sources for activity explanations.', enabled: true, tone: 'purple' },
+        { label: 'Parent review', detail: 'Parent can review and revoke memory.', enabled: true, tone: 'cyan' },
+        { label: 'Per-device memory', detail: 'Keep child-device context separated.', enabled: true, tone: 'gold' },
+        { label: 'Export/delete', detail: 'Parent controls memory export and deletion.', enabled: true, tone: 'red' },
+      ],
+      actions: [
+        { label: 'Review memory', detail: 'Open cited memory controls.', tone: 'purple' },
+        { label: 'Export memory', detail: 'Save parent-owned memory copy.', tone: 'gold' },
+        { label: 'Clear memory', detail: 'Delete selected memory records.', tone: 'red' },
+      ],
+      status: baseStatus,
+    };
+  }
+
+  if (key.includes('ai')) {
+    return {
+      title: 'AI Setup',
+      devices,
+      modes: [
+        { label: 'Local AI', detail: 'Use local model when available.', tone: 'cyan' },
+        { label: 'Local hub', detail: 'Queue to stronger local family machine.', tone: 'gold' },
+        { label: 'API opt-in', detail: 'Use external provider only by parent choice.', tone: 'purple' },
+      ],
+      options: [
+        { label: 'Cited answers', detail: 'Show sources for activity explanations.', enabled: true, tone: 'purple' },
+        { label: 'Per-device model', detail: 'Choose model by child device capability.', enabled: true, tone: 'cyan' },
+        {
+          label: 'External provider keys',
+          detail: 'Parent supplies and controls API keys.',
+          enabled: false,
+          tone: 'gold',
+        },
+        { label: 'Memory review', detail: 'Review, revoke, and export cited memory.', enabled: true, tone: 'red' },
+      ],
+      actions: [
+        { label: 'Choose model', detail: 'Set local or provider model for this device.', tone: 'cyan' },
+        { label: 'Add API key', detail: 'Connect an optional parent-owned provider.', tone: 'gold' },
+        { label: 'Review memory', detail: 'Open cited memory controls.', tone: 'purple' },
+      ],
+      status: baseStatus,
+    };
+  }
+
+  if (key.includes('entitlement')) {
+    return {
+      title: 'Entitlements',
+      devices,
+      modes: [
+        { label: 'Included', detail: 'Feature is included in this plan.', tone: 'cyan' },
+        { label: 'Limited', detail: 'Feature has usage or device limits.', tone: 'gold' },
+        { label: 'Locked', detail: 'Feature is unavailable for this plan.', tone: 'red' },
+      ],
+      options: [
+        {
+          label: 'Local safety controls',
+          detail: 'Safety-critical local controls stay visible.',
+          enabled: true,
+          tone: 'cyan',
+        },
+        { label: 'Device count', detail: 'Show paired child-device entitlement use.', enabled: true, tone: 'gold' },
+        { label: 'Remote features', detail: 'Show remote and external-service gates.', enabled: false, tone: 'purple' },
+        {
+          label: 'Grace fallback',
+          detail: 'Keep honest degraded state when billing lapses.',
+          enabled: true,
+          tone: 'red',
+        },
+      ],
+      actions: [
+        { label: 'Refresh gates', detail: 'Recheck current feature state.', tone: 'cyan' },
+        { label: 'View plan', detail: 'Open subscription plan controls.', tone: 'gold' },
+        { label: 'Apply code', detail: 'Redeem family or support entitlement.', tone: 'purple' },
+      ],
+      status: baseStatus,
+    };
+  }
+
+  if (key.includes('subscription')) {
+    return {
+      title: 'Subscription',
+      devices,
+      modes: [
+        { label: 'Trial', detail: 'Temporary access window.', tone: 'cyan' },
+        { label: 'Paid', detail: 'Plan-backed controls.', tone: 'gold' },
+        { label: 'Grace', detail: 'Safe degraded access.', tone: 'purple' },
+      ],
+      options: [
+        { label: 'Device limit', detail: 'Show paired child-device count.', enabled: true, tone: 'cyan' },
+        { label: 'Plan comparison', detail: 'Show what each plan includes.', enabled: true, tone: 'gold' },
+        { label: 'Billing portal', detail: 'Open subscription management.', enabled: false, tone: 'purple' },
+        { label: 'Grace mode', detail: 'Keep safety-critical local controls visible.', enabled: true, tone: 'red' },
+      ],
+      actions: [
+        { label: 'Change plan', detail: 'Open subscription choices.', tone: 'gold' },
+        { label: 'Apply code', detail: 'Redeem family or support entitlement.', tone: 'cyan' },
+        { label: 'View limits', detail: 'Review plan and device limits.', tone: 'purple' },
+      ],
+      status: baseStatus,
+    };
+  }
+
+  if (key.includes('support') || key.includes('diagnostic')) {
+    return {
+      title: 'Support',
+      devices,
+      modes: [
+        { label: 'Self check', detail: 'Run local health checks.', tone: 'cyan' },
+        { label: 'Bundle', detail: 'Create parent-reviewed support bundle.', tone: 'gold' },
+        { label: 'Contact', detail: 'Prepare support request.', tone: 'purple' },
+      ],
+      options: [
+        { label: 'Include versions', detail: 'Attach app and service versions.', enabled: true, tone: 'cyan' },
+        {
+          label: 'Include capability',
+          detail: 'Attach supported/degraded/unavailable states.',
+          enabled: true,
+          tone: 'gold',
+        },
+        {
+          label: 'Exclude evidence',
+          detail: 'Do not include raw child evidence by default.',
+          enabled: true,
+          tone: 'red',
+        },
+        { label: 'Parent review', detail: 'Parent sees bundle before sharing.', enabled: true, tone: 'purple' },
+      ],
+      actions: [
+        { label: 'Run diagnostics', detail: 'Check portal and child service health.', tone: 'cyan' },
+        { label: 'Build bundle', detail: 'Create parent-reviewed support bundle.', tone: 'gold' },
+        { label: 'Open support', detail: 'Open help and contact options.', tone: 'purple' },
+      ],
+      status: baseStatus,
+    };
+  }
+
+  if (key.includes('update') || key.includes('install')) {
+    return {
+      title: 'Install Updates',
+      devices,
+      modes: [
+        { label: 'Stable', detail: 'Use stable update channel.', tone: 'cyan' },
+        { label: 'Preview', detail: 'Use preview builds when selected.', tone: 'gold' },
+        { label: 'Rollback', detail: 'Return to last working build.', tone: 'red' },
+      ],
+      options: [
+        { label: 'Auto check', detail: 'Check for updates at startup.', enabled: true, tone: 'cyan' },
+        { label: 'Ask before install', detail: 'Parent approves update install.', enabled: true, tone: 'gold' },
+        { label: 'Rollback point', detail: 'Keep last working installer state.', enabled: true, tone: 'purple' },
+        { label: 'Mobile app', detail: 'Show mobile app status separately.', enabled: false, tone: 'red' },
+      ],
+      actions: [
+        { label: 'Check update', detail: 'Check available versions.', tone: 'cyan' },
+        { label: 'Install now', detail: 'Apply approved update.', tone: 'gold' },
+        { label: 'Rollback app', detail: 'Use last known good install.', tone: 'red' },
+      ],
+      status: baseStatus,
+    };
+  }
+
+  if (key.includes('platform')) {
+    return {
+      title: 'Platforms',
+      devices,
+      modes: [
+        { label: 'Desktop', detail: 'Tauri parent and child desktop apps.', tone: 'cyan' },
+        { label: 'Mobile', detail: 'Mobile parent app target.', tone: 'gold' },
+        { label: 'Unsupported', detail: 'Show honest platform gaps.', tone: 'red' },
+      ],
+      options: [
+        { label: 'Desktop app', detail: 'Tauri parent portal target.', enabled: true, tone: 'cyan' },
+        { label: 'Child service', detail: 'Headless child-device agent target.', enabled: true, tone: 'gold' },
+        { label: 'Mobile app', detail: 'Mobile parent controls target.', enabled: false, tone: 'purple' },
+        { label: 'Honest limits', detail: 'Show unavailable platform capabilities.', enabled: true, tone: 'red' },
+      ],
+      actions: [
+        { label: 'Open install', detail: 'Open installation checklist.', tone: 'cyan' },
+        { label: 'Check platform', detail: 'Verify current platform support.', tone: 'gold' },
+        { label: 'Open guide', detail: 'Explain platform targets.', tone: 'purple' },
+      ],
+      status: baseStatus,
+    };
+  }
+
+  if (key.includes('remote')) {
+    return {
+      title: 'Remote Access',
+      devices,
+      modes: [
+        { label: 'Home LAN', detail: 'Local-only by default.', tone: 'cyan' },
+        { label: 'Parent relay', detail: 'Minimal remote control path.', tone: 'gold' },
+        { label: 'Drive read', detail: 'Read exported reports only.', tone: 'purple' },
+      ],
+      options: [
+        {
+          label: 'Pair before remote',
+          detail: 'Remote access requires trusted device setup.',
+          enabled: true,
+          tone: 'cyan',
+        },
+        { label: 'No raw evidence', detail: 'Remote summaries avoid raw evidence blobs.', enabled: true, tone: 'red' },
+        { label: 'Parent-owned exports', detail: 'Use parent storage for report copies.', enabled: true, tone: 'gold' },
+        { label: 'Emergency revoke', detail: 'Stop remote sessions immediately.', enabled: true, tone: 'purple' },
+      ],
+      actions: [
+        { label: 'Enable remote', detail: 'Choose a remote access path.', tone: 'gold' },
+        { label: 'Revoke remote', detail: 'Stop remote access for this device.', tone: 'red' },
+        { label: 'Open exports', detail: 'Use parent-owned report storage.', tone: 'cyan' },
+      ],
+      status: baseStatus,
+    };
+  }
+
+  if (key.includes('audit')) {
+    return {
+      title: 'Audit History',
+      devices,
+      modes: [
+        { label: 'Today', detail: 'Recent decisions.', tone: 'cyan' },
+        { label: 'By device', detail: 'Filter to child device.', tone: 'gold' },
+        { label: 'By area', detail: 'Rules, exports, AI, pairing.', tone: 'purple' },
+      ],
+      options: [
+        { label: 'Rule changes', detail: 'Show policy edits and approvals.', enabled: true, tone: 'gold' },
+        { label: 'Export events', detail: 'Show data export/delete records.', enabled: true, tone: 'cyan' },
+        {
+          label: 'Pairing attempts',
+          detail: 'Show accepted and rejected LAN attempts.',
+          enabled: true,
+          tone: 'purple',
+        },
+        { label: 'Failures', detail: 'Show degraded and unavailable outcomes.', enabled: true, tone: 'red' },
+      ],
+      actions: [
+        { label: 'Filter audit', detail: 'Choose device, area, and time range.', tone: 'cyan' },
+        { label: 'Export audit', detail: 'Save parent-owned audit report.', tone: 'gold' },
+        { label: 'Open event', detail: 'Inspect selected decision details.', tone: 'purple' },
+      ],
+      status: baseStatus,
+    };
+  }
+
+  if (key.includes('setting')) {
+    return {
+      title: 'Family Settings',
+      devices,
+      modes: [
+        { label: 'Family', detail: 'Apply to all child devices.', tone: 'cyan' },
+        { label: 'Child', detail: 'Override for one child.', tone: 'gold' },
+        { label: 'Parent', detail: 'Parent identity and preferences.', tone: 'purple' },
+      ],
+      options: [
+        { label: 'Your House Your Rule', detail: 'Use family-defined controls first.', enabled: true, tone: 'gold' },
+        { label: 'Light and dark', detail: 'Theme follows parent choice.', enabled: true, tone: 'cyan' },
+        { label: 'Require parent session', detail: 'Protect changes behind parent login.', enabled: true, tone: 'red' },
+        { label: 'Child profile defaults', detail: 'Create defaults for new devices.', enabled: true, tone: 'purple' },
+      ],
+      actions: [
+        { label: 'Edit family', detail: 'Open family defaults.', tone: 'cyan' },
+        { label: 'Add child', detail: 'Create a child profile.', tone: 'gold' },
+        { label: 'Parent login', detail: 'Protect this console session.', tone: 'purple' },
+      ],
+      status: baseStatus,
+    };
+  }
+
+  return null;
+}
+
+function ManageTargetPanel({
+  x,
+  y,
+  w,
+  h,
+  activeNavLabel,
+  selectedControlName,
+  spec,
+  lane,
+  themeColor,
+  targetSelection,
+  onTargetChange,
+  cfg,
+}: {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  activeNavLabel: string;
+  selectedControlName: string;
+  spec: ManageControlSpec;
+  lane: ManageLaneId;
+  themeColor?: string;
+  targetSelection: ManageTargetSelection;
+  onTargetChange: (selection: ManageTargetSelection) => void;
+  cfg: ParentPortalSvgControls;
+}) {
+  const scopeChoices = manageScopeChoicesForLane(lane);
+  const browserChoices = manageBrowserTargetsForKey(activeNavLabel, selectedControlName);
+  const color = themeColor ?? toneColor(MANAGE_LANES.find((item) => item.id === lane)?.tone ?? 'cyan', cfg);
+  const deviceChoices = manageDeviceChoices(spec.devices);
+  const browserRowVisible = browserChoices.length > 0;
+  const globalChoice = scopeChoices.find((choice) => choice.scope === 'global') ?? scopeChoices[0];
+  const perDeviceChoice = scopeChoices.find((choice) => choice.scope === 'perDevice') ?? null;
+  const allowPerDevice = lane !== 'portal' && Boolean(perDeviceChoice) && deviceChoices.length > 0;
+  const scopeOptions = allowPerDevice
+    ? [
+        { scope: 'global' as ManageScopeId, label: lane === 'deviceOps' ? 'All devices' : 'Family' },
+        { scope: 'perDevice' as ManageScopeId, label: 'Per device' },
+      ]
+    : [{ scope: 'global' as ManageScopeId, label: globalChoice?.label ?? 'Parent profile' }];
+  const scopeTrackW = allowPerDevice ? clampValue(w * 0.26, 220, 315) : clampValue(w * 0.2, 160, 240);
+  const scopeTrackX = x + 76;
+  const scopeTrackY = y + 12;
+  const scopeTrackH = 30;
+  const scopeCellW = scopeTrackW / scopeOptions.length;
+  const selectedScopeIndex = Math.max(
+    0,
+    scopeOptions.findIndex((option) => option.scope === targetSelection.scope)
+  );
+  const targetSummary = manageSelectionLabel(activeNavLabel, selectedControlName, lane, targetSelection);
+  const deviceColumns = w > 1050 ? 3 : w > 660 ? 2 : 1;
+  const deviceGap = 8;
+  const deviceW = (w - 24 - deviceGap * Math.max(0, deviceColumns - 1)) / Math.max(1, deviceColumns);
+  const deviceY = y + 68;
+  const deviceRows = Math.max(1, Math.ceil(deviceChoices.length / deviceColumns));
+  const showDeviceGrid = allowPerDevice && targetSelection.scope === 'perDevice' && deviceChoices.length > 0;
+  const browserY = showDeviceGrid ? deviceY + deviceRows * 34 + 28 : y + 68;
+  const browserCount = Math.max(1, Math.min(browserChoices.length, 4));
+  const browserW = (w - 26 - (browserCount - 1) * 8) / browserCount;
+
+  return (
+    <g>
+      <text x={x + 12} y={scopeTrackY + 20} fontSize={12.4} fontWeight={950} fill={color}>
+        Scope:
+      </text>
+      <rect
+        x={scopeTrackX}
+        y={scopeTrackY}
+        width={scopeTrackW}
+        height={scopeTrackH}
+        rx={15}
+        fill="rgba(2, 12, 22, 0.88)"
+        stroke={color}
+        strokeWidth={0.9}
+        strokeOpacity={0.72}
+      />
+      <rect
+        x={scopeTrackX + selectedScopeIndex * scopeCellW + 3}
+        y={scopeTrackY + 3}
+        width={scopeCellW - 6}
+        height={scopeTrackH - 6}
+        rx={12}
+        fill={colorAlpha(color, '35')}
+        stroke={color}
+        strokeWidth={1}
+        filter="url(#parentPortalGlow)"
+      />
+      {scopeOptions.map((option, index) => (
+        <g
+          key={`${selectedControlName}:scope:${option.scope}`}
+          className="parent-portal-svg-clickable"
+          role="button"
+          tabIndex={0}
+          aria-label={`Use ${option.label} scope`}
+          aria-pressed={targetSelection.scope === option.scope}
+          onClick={(event) => {
+            event.stopPropagation();
+            onTargetChange({
+              ...targetSelection,
+              scope: option.scope,
+              device:
+                option.scope === 'perDevice'
+                  ? (deviceChoices.find((device) => device === targetSelection.device) ??
+                    deviceChoices[0] ??
+                    targetSelection.device)
+                  : targetSelection.device,
+            });
+          }}
+          onKeyDown={(event) => {
+            if (event.key !== 'Enter' && event.key !== ' ') return;
+            event.preventDefault();
+            event.stopPropagation();
+            onTargetChange({ ...targetSelection, scope: option.scope });
+          }}
+        >
+          <rect
+            x={scopeTrackX + index * scopeCellW}
+            y={scopeTrackY}
+            width={scopeCellW}
+            height={scopeTrackH}
+            fill="transparent"
+          />
+          <text
+            x={scopeTrackX + index * scopeCellW + scopeCellW / 2}
+            y={scopeTrackY + 20}
+            textAnchor="middle"
+            fontSize={11.2}
+            fontWeight={950}
+            fill={targetSelection.scope === option.scope ? cfg.colors.bodyText : cfg.colors.mutedText}
+          >
+            {option.label}
+          </text>
+        </g>
+      ))}
+
+      <text
+        x={x + w - 12}
+        y={scopeTrackY + 20}
+        textAnchor="end"
+        fontSize={11.5}
+        fontWeight={900}
+        fill={cfg.colors.bodyText}
+      >
+        {truncateTextForWidth(
+          `${manageControlDisplayTitle(spec.title)} / ${targetSummary}`,
+          Math.max(180, w - scopeTrackW - 112),
+          11.5,
+          0.58
+        )}
+      </text>
+
+      {showDeviceGrid ? (
+        <>
+          <text x={x + 12} y={deviceY - 10} fontSize={10.8} fontWeight={950} fill={color}>
+            CHILD DEVICE
+          </text>
+          {deviceChoices.map((choice, index) => {
+            const col = index % deviceColumns;
+            const row = Math.floor(index / deviceColumns);
+            return (
+              <ManagePill
+                key={`${selectedControlName}:device-target:${choice}`}
+                x={x + 12 + col * (deviceW + deviceGap)}
+                y={deviceY + row * 34}
+                w={deviceW}
+                h={28}
+                label={choice}
+                selected={targetSelection.device === choice}
+                tone={index === 1 ? 'gold' : index === 2 ? 'purple' : 'cyan'}
+                themeColor={themeColor}
+                onSelect={() => onTargetChange({ ...targetSelection, device: choice, scope: 'perDevice' })}
+                cfg={cfg}
+              />
+            );
+          })}
+        </>
+      ) : (
+        <text x={x + 12} y={y + 78} fontSize={11.2} fontWeight={780} fill={cfg.colors.mutedText}>
+          {truncateTextForWidth(
+            lane === 'portal' ? 'Parent portal setting.' : 'Family scope applies without choosing a child device.',
+            w - 24,
+            11.2,
+            0.58
+          )}
+        </text>
+      )}
+
+      {browserRowVisible ? (
+        <>
+          <text x={x + 12} y={browserY - 10} fontSize={10.5} fontWeight={950} fill={color}>
+            BROWSER TARGET
+          </text>
+          {browserChoices.slice(0, 4).map((choice, index) => (
+            <ManagePill
+              key={`${selectedControlName}:browser-target:${choice.label}`}
+              x={x + 12 + index * (browserW + 8)}
+              y={browserY}
+              w={browserW}
+              h={28}
+              label={choice.label}
+              selected={targetSelection.browser === choice.label}
+              tone={choice.tone}
+              themeColor={themeColor}
+              onSelect={() => onTargetChange({ ...targetSelection, browser: choice.label })}
+              cfg={cfg}
+            />
+          ))}
+        </>
+      ) : null}
+    </g>
+  );
+}
+
+function ManageControlPanel({
+  x,
+  y,
+  w,
+  h,
+  activeNavLabel,
+  selectedControlName,
+  spec,
+  themeTone,
+  themeColor,
+  targetSelection,
+  onTargetChange,
+  cfg,
+}: {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  activeNavLabel: string;
+  selectedControlName: string;
+  spec: ManageControlSpec;
+  themeTone: Tone;
+  themeColor?: string;
+  targetSelection: ManageTargetSelection;
+  onTargetChange?: (selection: ManageTargetSelection) => void;
+  cfg: ParentPortalSvgControls;
+}) {
+  const lane = manageLaneForKey(activeNavLabel, selectedControlName);
+  const [mode, setMode] = useState(spec.modes[0]?.label ?? '');
+  const [schedule, setSchedule] = useState('Always');
+  const [enabled, setEnabled] = useState(
+    () => new Set(spec.options.filter((option) => option.enabled).map((option) => option.label))
+  );
+  const [lastAction, setLastAction] = useState('Ready');
+  const [syncStatus, setSyncStatus] = useState('Local draft');
+  const [lanPairingActiveTab, setLanPairingActiveTab] = useState<LanPairingDetailTabId>('info');
+  const [lanPairingSelectedSlot, setLanPairingSelectedSlot] = useState<DeviceSlot | null>(null);
+  const [activityManageActiveTab, setActivityManageActiveTab] = useState<ActivityManageTabId>('reports');
+  const [activityMonitorActiveTab, setActivityMonitorActiveTab] = useState<ActivityMonitorTabId>('history');
+  const [activityReportFrequency, setActivityReportFrequency] = useState('daily');
+  const [activityReportOverrideMode, setActivityReportOverrideMode] = useState('family-defaults');
+  const [activityReportSelectedFileId, setActivityReportSelectedFileId] = useState<string | null>(null);
+  const [activityReportDraft, setActivityReportDraft] = useState(null);
+  const specKey = `${lane}:${spec.title}:${spec.options.map((option) => option.label).join('|')}`;
+  useEffect(() => {
+    setMode(spec.modes[0]?.label ?? '');
+    setSchedule('Always');
+    setEnabled(new Set(spec.options.filter((option) => option.enabled).map((option) => option.label)));
+    setLastAction('Ready');
+    setSyncStatus('Local draft');
+    setLanPairingActiveTab('info');
+    setLanPairingSelectedSlot(null);
+    setActivityManageActiveTab('reports');
+    setActivityMonitorActiveTab('history');
+    setActivityReportFrequency('daily');
+    setActivityReportOverrideMode('family-defaults');
+    setActivityReportSelectedFileId(null);
+    setActivityReportDraft(null);
+  }, [specKey]);
+  const compact = w < 560;
+  const activeModeTone = spec.modes.find((item) => item.label === mode)?.tone ?? themeTone;
+  const color = themeColor ?? toneColor(themeTone, cfg);
+  const activeModeColor = themeColor ?? toneColor(activeModeTone, cfg);
+  const headerH = compact ? 58 : 48;
+  const leftW = compact ? w : Math.max(420, Math.round(w * 0.62));
+  const rightW = compact ? w : w - leftW - 18;
+  const controlY = y + headerH;
+  const compactBodyH = Math.max(1, h - headerH - 12);
+  const compactActionMinH = 190;
+  const editorH = compact
+    ? clampValue(Math.round(compactBodyH * 0.7), 300, Math.max(300, compactBodyH - compactActionMinH - 8))
+    : Math.max(280, h - headerH - 10);
+  const actionX = compact ? x : x + leftW + 18;
+  const actionY = compact ? controlY + editorH + 8 : controlY;
+  const actionH = compact ? Math.max(compactActionMinH, compactBodyH - editorH - 8) : Math.max(280, h - headerH - 10);
+  const optionCount = compact ? 4 : Math.min(spec.options.length, 6);
+  const optionRows = spec.options.slice(0, optionCount);
+  const actionRows = spec.actions.slice(0, compact ? 2 : 3);
+  const schedules = scheduleOptionsForManageKey(activeNavLabel, selectedControlName);
+  const optionColumnCount = compact ? 1 : 2;
+  const optionRowsUsed = Math.max(1, Math.ceil(optionRows.length / optionColumnCount));
+  const scheduleY = controlY + 118 + optionRowsUsed * 40 + 38;
+  const isPortalLane = lane === 'portal';
+  const isDeviceOpsLane = lane === 'deviceOps';
+  const overrideMode = targetSelection.scope;
+  const globalTargetLabel = isPortalLane ? 'Parent profile' : isDeviceOpsLane ? 'All devices' : 'Family';
+  const device = targetSelection.scope === 'global' ? globalTargetLabel : targetSelection.device;
+  const targetLabel = isPortalLane ? 'Parent profile' : device;
+  const selectionLabel = manageSelectionLabel(activeNavLabel, selectedControlName, lane, targetSelection);
+  const panelTitle = `${manageControlDisplayTitle(spec.title)} / ${selectionLabel}`;
+  const titleSize = fitSingleLineTextSize(panelTitle, w - 40, 17, 26, 0.58);
+  const targetLabelUpper = targetLabel.toUpperCase();
+  const applyHeaderLabel = isPortalLane ? 'APPLY' : `APPLY TO ${targetLabelUpper}`;
+  const applyLabel = isPortalLane ? 'Save portal' : isDeviceOpsLane ? `Send to ${targetLabel}` : `Sync ${targetLabel}`;
+  const controlsActive = isPortalLane || isDeviceOpsLane || overrideMode === 'perDevice';
+  const isLanPairingPanel = isLanPairingManageTitle(spec.title);
+  const isReportsPanel = isReportsManageTitle(spec.title);
+  const uiCheckDeviceCount = lanPairingUiCheckFakeDeviceCount();
+  const uiCheckDeviceSlots = uiCheckDeviceCount > 0 ? lanPairingUiCheckFakeSlots(uiCheckDeviceCount) : [];
+  const lanPairingSlots = uiCheckDeviceSlots.length > 0 ? uiCheckDeviceSlots : lanPairingDiscoverySlots();
+  const lanPairingPortalIds = useMemo(() => [], []);
+  const lanPairingPanelPadX = Math.max(18, Math.min(34, Math.round(w * 0.018)));
+  const lanPairingPanelPadY = 0;
+  const lanPairingAvailableW = Math.max(1, w - lanPairingPanelPadX * 2);
+  const lanPairingAvailableH = Math.max(1, h - lanPairingPanelPadY * 2);
+  const lanPairingGridTopH = Math.max(1, lanPairingAvailableH / 2);
+  const lanPairingGridW = lanPairingAvailableW;
+  const lanPairingGridH = lanPairingGridTopH;
+  const lanPairingGridX = x + lanPairingPanelPadX;
+  const lanPairingGridY = y + lanPairingPanelPadY;
+  const lanPairingDividerY = lanPairingGridY + lanPairingGridTopH;
+  const lanPairingGridHostStyle: CSSProperties = {
+    width: lanPairingGridW,
+    height: lanPairingGridH,
+  };
+  const lanPairingDetailTab =
+    LAN_PAIRING_DETAIL_TABS.find((tab) => tab.id === lanPairingActiveTab) ?? LAN_PAIRING_DETAIL_TABS[0];
+  const lanPairingDetailColor = toneColor(lanPairingDetailTab.tone, cfg);
+  const lanPairingDetailY = lanPairingDividerY + 16;
+  const lanPairingDetailH = Math.max(1, y + h - lanPairingDetailY - 8);
+  const lanPairingTabH = Math.max(34, Math.min(42, Math.round(lanPairingDetailH * 0.15)));
+  const lanPairingTabGap = 0;
+  const lanPairingTabInsetX = Math.max(16, Math.min(24, Math.round(lanPairingGridW * 0.012)));
+  const lanPairingTabW = Math.max(
+    112,
+    Math.min(180, (lanPairingGridW - lanPairingTabInsetX * 2) / LAN_PAIRING_DETAIL_TABS.length)
+  );
+  const lanPairingTabsX = lanPairingGridX + lanPairingTabInsetX;
+  const lanPairingBodyY = lanPairingDetailY + lanPairingTabH - 1;
+  const lanPairingBodyH = Math.max(1, y + h - lanPairingBodyY - 8);
+  const lanPairingBodyX = lanPairingGridX;
+  const lanPairingBodyW = lanPairingGridW;
+  const lanPairingDetailColumnCount = lanPairingBodyW > 980 ? 3 : lanPairingBodyW > 620 ? 2 : 1;
+  const lanPairingDetailRowGap = 10;
+  const lanPairingDetailRowW = Math.max(
+    120,
+    (lanPairingBodyW - 40 - lanPairingDetailRowGap * (lanPairingDetailColumnCount - 1)) / lanPairingDetailColumnCount
+  );
+  const lanPairingDetailRowH = 44;
+  const lanPairingDetailRows = lanPairingDetailRowsFor(lanPairingActiveTab, lanPairingSelectedSlot);
+  const lanPairingDetailRowTop = lanPairingBodyY + 24;
+  const lanPairingDetailRowsBottom = lanPairingBodyY + lanPairingBodyH - 20;
+  const lanPairingDetailVisibleCount = Math.max(
+    1,
+    Math.floor(Math.max(1, lanPairingDetailRowsBottom - lanPairingDetailRowTop) / (lanPairingDetailRowH + 8)) *
+      lanPairingDetailColumnCount
+  );
+  const lanPairingVisibleRows = lanPairingDetailRows.slice(0, lanPairingDetailVisibleCount);
+  const reportScopeValue = targetSelection.scope === 'perDevice' ? 'device' : 'family';
+  const reportFamilyScope = reportScopeValue !== 'device';
+  const reportPlanSeatLimit = ACTIVITY_REPORT_BASIC_CHILD_DEVICE_SEATS;
+  const reportSlots = useMemo(() => reportPlanSeatSlots(reportPlanSeatLimit), [reportPlanSeatLimit]);
+  const reportPortalIds = useMemo(
+    () => reportSlots.filter((slot) => slot.device).map((slot) => slot.value),
+    [reportSlots]
+  );
+  const reportSelectedValue =
+    reportScopeValue === 'device' ? reportSelectedSlotValue(reportSlots, targetSelection.device) : undefined;
+  const reportSelectedSlot = reportSlots.find((slot) => slot.value === reportSelectedValue) ?? null;
+  const activityReportDevices = useMemo(
+    () =>
+      reportSlots
+        .filter((slot) => slot.device && slot.status !== 'empty')
+        .map((slot) => ({
+          id: slot.value,
+          label: slot.label,
+          status: slot.status,
+        })),
+    [reportSlots]
+  );
+  const activityReportRequest = useMemo(
+    () => ({
+      frequency: activityReportFrequency,
+      scope: reportScopeValue === 'device' ? 'device' : 'family',
+      devices: activityReportDevices,
+      selectedDeviceId: reportSelectedSlot?.value,
+      overrideMode: activityReportOverrideMode,
+    }),
+    [activityReportDevices, activityReportFrequency, activityReportOverrideMode, reportScopeValue, reportSelectedSlot]
+  );
+  const activityReportFiles = useMemo(
+    () => activityUiIntentAdapter.listHistoricalReports(activityReportRequest),
+    [activityReportRequest]
+  );
+  const activityReportSelectedFile =
+    activityReportFiles.find((file) => file.id === activityReportSelectedFileId) ?? activityReportFiles[0] ?? null;
+  const activityReportViewerReport = activityReportDraft ?? activityReportSelectedFile?.report ?? null;
+  const activityReportIntentView = useMemo(() => {
+    if (activityManageActiveTab === 'screen') return activityUiIntentAdapter.getScreenActivity(activityReportRequest);
+    if (activityManageActiveTab === 'apps') return activityUiIntentAdapter.getAppUseActivity(activityReportRequest);
+    if (activityManageActiveTab === 'browser') return activityUiIntentAdapter.getBrowserActivity(activityReportRequest);
+    if (activityManageActiveTab === 'games') return activityUiIntentAdapter.getGamesActivity(activityReportRequest);
+    if (activityManageActiveTab === 'network') return activityUiIntentAdapter.getNetworkActivity(activityReportRequest);
+    return null;
+  }, [activityManageActiveTab, activityReportRequest]);
+  const activityGenerateReport = useCallback(() => {
+    const getReport =
+      activityReportFrequency === 'weekly'
+        ? activityUiIntentAdapter.getWeeklyReport
+        : activityReportFrequency === 'monthly'
+          ? activityUiIntentAdapter.getMonthlyReport
+          : activityUiIntentAdapter.getDailyReport;
+    void getReport(activityReportRequest).then((report) => {
+      setActivityReportDraft(report);
+      setActivityReportSelectedFileId(report.id);
+      setLastAction(`Generated ${report.title}`);
+      setSyncStatus('Report draft generated');
+    });
+  }, [activityReportFrequency, activityReportRequest]);
+  const activitySaveReportDraft = useCallback(() => {
+    if (!activityReportDraft || activityReportDraft.saved) return;
+    void activityUiIntentAdapter.saveActivityReport(activityReportDraft).then((report) => {
+      setActivityReportDraft(report);
+      setActivityReportSelectedFileId(report.id);
+      setLastAction(`Saved ${report.fileName}`);
+      setSyncStatus('Report saved');
+    });
+  }, [activityReportDraft]);
+  const reportPanelPadX = Math.max(18, Math.min(34, Math.round(w * 0.018)));
+  const reportPanelPadY = 0;
+  const reportAvailableW = Math.max(1, w - reportPanelPadX * 2);
+  const reportAvailableH = Math.max(1, h - reportPanelPadY * 2);
+  const reportDeviceCount = Math.max(1, reportSlots.length);
+  const reportGridColumnsByWidth = Math.max(
+    1,
+    Math.floor(
+      (Math.max(1, reportAvailableW - 44) + MANAGE_DEVICE_GRID_GAP_X) /
+        (MANAGE_DEVICE_GRID_CELL_W + MANAGE_DEVICE_GRID_GAP_X)
+    )
+  );
+  const reportGridColumns = Math.max(1, Math.min(reportDeviceCount, reportGridColumnsByWidth));
+  const reportGridRows = reportFamilyScope ? 1 : Math.max(1, Math.ceil(reportDeviceCount / reportGridColumns));
+  const reportCompactSelectorH = Math.max(
+    176,
+    Math.min(reportAvailableH * 0.42, ACTIVITY_REPORT_SELECTOR_BASE_H + reportGridRows * ACTIVITY_REPORT_SELECTOR_ROW_H)
+  );
+  const reportTopH = Math.max(1, reportCompactSelectorH);
+  const reportTopX = x + reportPanelPadX;
+  const reportTopY = y + reportPanelPadY;
+  const reportDividerY = reportTopY + reportTopH;
+  const reportSelectorY = reportTopY;
+  const reportSelectorH = reportTopH;
+  const reportGridHostStyle: CSSProperties = {
+    width: reportAvailableW,
+    height: reportSelectorH,
+  };
+  const activityManageTab =
+    ACTIVITY_MANAGE_TABS.find((tab) => tab.id === activityManageActiveTab) ?? ACTIVITY_MANAGE_TABS[0];
+  const activityManageTabColor = toneColor(activityManageTab.tone, cfg);
+  const activityBodyY = reportDividerY + 16;
+  const activityBodyAvailableH = Math.max(1, y + h - activityBodyY - 8);
+  const activityTabsCompact = reportAvailableW < 560;
+  const activityTabColumns = activityTabsCompact ? 3 : ACTIVITY_MANAGE_TABS.length;
+  const activityTabRows = Math.ceil(ACTIVITY_MANAGE_TABS.length / activityTabColumns);
+  const activityTabH = activityTabsCompact ? 30 : Math.max(34, Math.min(42, Math.round(activityBodyAvailableH * 0.15)));
+  const activityTabGap = 0;
+  const activityTabInsetX = Math.max(16, Math.min(24, Math.round(reportAvailableW * 0.012)));
+  const activityTabMinW = reportAvailableW < 760 ? 74 : 92;
+  const activityTabW = Math.max(
+    activityTabsCompact ? 58 : activityTabMinW,
+    Math.min(168, (reportAvailableW - activityTabInsetX * 2) / activityTabColumns)
+  );
+  const activityTabsX = reportTopX + activityTabInsetX;
+  const activityBodyPanelY = activityBodyY + activityTabRows * activityTabH - 1;
+  const activityBodyPanelH = Math.max(1, y + h - activityBodyPanelY - 8);
+  const activityBodyPanelX = reportTopX;
+  const activityBodyPanelW = reportAvailableW;
+  const activityReportsSelected = activityManageActiveTab === 'reports';
+  const activityReportInnerX = activityBodyPanelX + 18;
+  const activityReportInnerY = activityBodyPanelY + (activityReportsSelected ? 2 : 18);
+  const activityReportInnerW = Math.max(1, activityBodyPanelW - 36);
+  const activityReportInnerH = Math.max(1, activityBodyPanelY + activityBodyPanelH - activityReportInnerY - 16);
+  const activityReportFrequencyLabel =
+    ACTIVITY_REPORT_FREQUENCY_OPTIONS.find((option) => option.value === activityReportFrequency)?.label ?? 'Daily';
+  const activityReportOverrideLabel = reportFamilyScope
+    ? 'Family'
+    : (ACTIVITY_REPORT_OVERRIDE_OPTIONS.find((option) => option.value === activityReportOverrideMode)?.label ??
+      'Default');
+  const activityReportOverrideActive = activityReportOverrideMode === 'override';
+  const activityControlStacked = !reportFamilyScope && activityReportInnerW < 620;
+  const activityReportControlBarH = activityReportsSelected ? (activityControlStacked ? 116 : 64) : 0;
+  const activityReportControlBarX = activityReportInnerX;
+  const activityReportControlBarY = activityReportInnerY;
+  const activityReportControlBarW = activityReportInnerW;
+  const activityReportControlPadX = 14;
+  const activityReportControlGap = 12;
+  const activityReportSingleToggleW = Math.max(
+    220,
+    Math.min(520, activityReportControlBarW - activityReportControlPadX * 2)
+  );
+  const activityReportSplitToggleW = Math.max(
+    220,
+    (activityReportControlBarW - activityReportControlPadX * 2 - activityReportControlGap) / 2
+  );
+  const activityReportOverrideToggleX = activityReportControlBarX + activityReportControlPadX;
+  const activityReportFrequencyToggleX = reportFamilyScope
+    ? activityReportControlBarX + (activityReportControlBarW - activityReportSingleToggleW) / 2
+    : activityControlStacked
+      ? activityReportOverrideToggleX
+      : activityReportOverrideToggleX + activityReportSplitToggleW + activityReportControlGap;
+  const activityReportOverrideToggleY = activityReportControlBarY - 5;
+  const activityReportFrequencyToggleY = reportFamilyScope
+    ? activityReportControlBarY - 5
+    : activityControlStacked
+      ? activityReportControlBarY + 49
+      : activityReportControlBarY - 5;
+  const activityReportFrequencyToggleW = reportFamilyScope ? activityReportSingleToggleW : activityReportSplitToggleW;
+  const activityReportFrequencyDisabled = !reportFamilyScope && !activityReportOverrideActive;
+  const activityReportSplitY = activityReportInnerY + activityReportControlBarH;
+  const activityReportSplitH = Math.max(1, activityReportInnerY + activityReportInnerH - activityReportSplitY);
+  const activityReportSidePanelW = Math.max(220, Math.min(360, activityReportInnerW * 0.28));
+  const activityReportVerticalDividerX = activityReportInnerX + activityReportSidePanelW;
+  const activityReportListX = activityReportInnerX + 12;
+  const activityReportListY = activityReportSplitY + 16;
+  const activityReportListW = Math.max(1, activityReportSidePanelW - 24);
+  const activityReportViewerX = activityReportVerticalDividerX + 18;
+  const activityReportViewerY = activityReportSplitY + 16;
+  const activityReportViewerW = Math.max(1, activityReportInnerX + activityReportInnerW - activityReportViewerX - 12);
+  const activityReportActionY = activityReportInnerY + activityReportInnerH - 40;
+  const activityReportGenerateButtonW = 156;
+  const activityReportSaveButtonW = 126;
+  const activityReportActionGap = 10;
+  const activityReportRowH = 62;
+  const activityReportRowGap = 10;
+  const activityReportVisibleRows = activityReportFiles.slice(
+    0,
+    Math.max(1, Math.floor(Math.max(1, activityReportSplitH - 52) / (activityReportRowH + activityReportRowGap)))
+  );
+  const activityReportViewerTarget =
+    activityReportViewerReport?.targetLabel ?? (reportFamilyScope ? 'Family' : 'Select a device');
+  const activityReportViewerState = activityReportViewerReport?.saved
+    ? `Saved JSON: ${activityReportViewerReport.fileName}`
+    : activityReportViewerReport
+      ? `Draft JSON: ${activityReportViewerReport.fileName}`
+      : 'Select or generate a report';
+  const activityReportViewerSections = activityReportViewerReport?.sections ?? [];
+  const activityMonitorPanelX = activityReportInnerX;
+  const activityMonitorPanelY = activityReportInnerY + activityReportControlBarH;
+  const activityMonitorPanelW = activityReportInnerW;
+  const activityMonitorPanelH = Math.max(1, activityReportInnerY + activityReportInnerH - activityMonitorPanelY);
+  const activityMonitorCompact = activityMonitorPanelW < 560;
+  const activityMonitorPad = 14;
+  const activityMonitorNavW = activityMonitorCompact
+    ? Math.max(1, activityMonitorPanelW - activityMonitorPad * 2)
+    : Math.max(124, Math.min(176, activityMonitorPanelW * 0.2));
+  const activityMonitorTabGap = activityMonitorCompact ? 8 : 10;
+  const activityMonitorTabW = activityMonitorCompact
+    ? Math.max(110, (activityMonitorNavW - activityMonitorTabGap) / ACTIVITY_MONITOR_TABS.length)
+    : activityMonitorNavW;
+  const activityMonitorTabH = 36;
+  const activityMonitorTabX = activityMonitorPanelX + activityMonitorPad;
+  const activityMonitorTabY = activityMonitorPanelY + 18;
+  const activityMonitorContentX = activityMonitorCompact
+    ? activityMonitorPanelX + activityMonitorPad
+    : activityMonitorPanelX + activityMonitorPad + activityMonitorNavW + 14;
+  const activityMonitorContentY = activityMonitorCompact
+    ? activityMonitorTabY + activityMonitorTabH + 14
+    : activityMonitorPanelY + 18;
+  const activityMonitorContentW = activityMonitorCompact
+    ? Math.max(1, activityMonitorPanelW - activityMonitorPad * 2)
+    : Math.max(1, activityMonitorPanelW - activityMonitorNavW - activityMonitorPad * 2 - 14);
+  const activityMonitorContentH = Math.max(
+    1,
+    activityMonitorPanelY + activityMonitorPanelH - activityMonitorContentY - 14
+  );
+  const activityMonitorRows = activityReportIntentView
+    ? [
+        { label: 'Target', value: activityReportIntentView.targetLabel, tone: 'cyan' },
+        { label: 'Summary', value: activityReportIntentView.summary, tone: 'gold' },
+        ...activityReportIntentView.rows.map((row, index) => ({
+          label: row.title,
+          value: row.lines[0] ?? 'Waiting for activity read model',
+          tone: index % 2 === 0 ? 'purple' : 'cyan',
+        })),
+      ]
+    : activityMonitorRowsFor(
+        activityManageActiveTab,
+        activityMonitorActiveTab,
+        reportScopeValue,
+        reportSelectedSlot,
+        activityReportFrequencyLabel,
+        activityReportOverrideLabel,
+        syncStatus,
+        lastAction
+      );
+  const activityMonitorRowGap = 10;
+  const activityMonitorColumnCount = activityMonitorContentW > 920 ? 2 : 1;
+  const activityMonitorRowW = Math.max(
+    160,
+    (activityMonitorContentW - activityMonitorRowGap * (activityMonitorColumnCount - 1)) / activityMonitorColumnCount
+  );
+  const activityMonitorRowH = 44;
+  const activityMonitorVisibleCount = Math.max(
+    1,
+    Math.floor(Math.max(1, activityMonitorContentH) / (activityMonitorRowH + activityMonitorRowGap)) *
+      activityMonitorColumnCount
+  );
+  const activityMonitorVisibleRows = activityMonitorRows.slice(0, activityMonitorVisibleCount);
+
+  return (
+    <g>
+      {isLanPairingPanel ? (
+        <>
+          <foreignObject x={lanPairingGridX} y={lanPairingGridY} width={lanPairingGridW} height={lanPairingGridH}>
+            <div xmlns="http://www.w3.org/1999/xhtml" style={lanPairingGridHostStyle}>
+              <DeviceChoiceGrid
+                defaultScope="lan"
+                defaultPortalDeviceIds={lanPairingPortalIds}
+                options={lanPairingSlots}
+                parentRows={1}
+                parentColumns={LAN_PAIRING_BASIC_PORTAL_SLOT_LIMIT}
+                onChange={(choice) => {
+                  setLanPairingSelectedSlot(choice);
+                  if (choice.status === 'unsupported') {
+                    onTargetChange?.({ ...targetSelection, scope: 'perDevice', device: choice.label });
+                    setLastAction(`${choice.label} cannot run the child agent`);
+                    setSyncStatus('Unsupported LAN device');
+                    return;
+                  }
+                  onTargetChange?.({ ...targetSelection, scope: 'perDevice', device: choice.label });
+                  setLastAction(`${choice.label} selected`);
+                  setSyncStatus('Draft changed');
+                }}
+                onAddToPortal={(choice) => {
+                  setLanPairingSelectedSlot(choice);
+                  onTargetChange?.({ ...targetSelection, scope: 'perDevice', device: choice.label });
+                  setLastAction(`${choice.label} added to Parent Portal`);
+                  setSyncStatus('Pending Rust sync');
+                }}
+                config={manageDeviceGridConfig(lanPairingGridW, lanPairingGridH)}
+              />
+            </div>
+          </foreignObject>
+          <path
+            d={`M ${lanPairingGridX} ${lanPairingDividerY} H ${lanPairingGridX + lanPairingGridW}`}
+            stroke={color}
+            strokeWidth={3}
+            opacity={0.18}
+          />
+          <path
+            d={`M ${lanPairingGridX} ${lanPairingDividerY} H ${lanPairingGridX + lanPairingGridW}`}
+            stroke={color}
+            strokeWidth={1.35}
+            opacity={0.72}
+          />
+          <g>
+            <path
+              d={topRoundedRectPath(
+                lanPairingBodyX + 1,
+                lanPairingBodyY + 1,
+                lanPairingBodyW - 2,
+                lanPairingBodyH - 2,
+                11
+              )}
+              fill="none"
+              stroke={lanPairingDetailColor}
+              strokeWidth={3}
+              opacity={0.14}
+              filter="url(#parentPortalGlow)"
+            />
+            <path
+              d={topRoundedRectPath(lanPairingBodyX, lanPairingBodyY, lanPairingBodyW, lanPairingBodyH, 12)}
+              fill={cfg.colors.panelFill}
+              stroke={lanPairingDetailColor}
+              strokeWidth={1.15}
+              opacity={0.97}
+            />
+            <path
+              d={topRoundedRectPath(
+                lanPairingBodyX + cfg.chrome.panelInnerInset,
+                lanPairingBodyY + cfg.chrome.panelInnerInset,
+                lanPairingBodyW - cfg.chrome.panelInnerInset * 2,
+                lanPairingBodyH - cfg.chrome.panelInnerInset * 2,
+                8
+              )}
+              fill="none"
+              stroke={lanPairingDetailColor}
+              strokeWidth={0.7}
+              opacity={0.25}
+            />
+            {lanPairingVisibleRows.map((row, index) => {
+              const rowColor = toneColor(row.tone, cfg);
+              const column = index % lanPairingDetailColumnCount;
+              const rowIndex = Math.floor(index / lanPairingDetailColumnCount);
+              const rowX = lanPairingBodyX + 20 + column * (lanPairingDetailRowW + lanPairingDetailRowGap);
+              const rowY = lanPairingDetailRowTop + rowIndex * (lanPairingDetailRowH + 8);
+              return (
+                <g key={`lan-pairing-detail:${lanPairingActiveTab}:${row.label}`}>
+                  <path
+                    d={cutRectPath(rowX, rowY, lanPairingDetailRowW, lanPairingDetailRowH, 9)}
+                    fill={colorAlpha(rowColor, '18')}
+                    stroke={rowColor}
+                    strokeWidth={0.85}
+                    opacity={0.92}
+                  />
+                  <circle cx={rowX + 15} cy={rowY + 15} r={3.5} fill={rowColor} opacity={0.96} />
+                  <text x={rowX + 26} y={rowY + 17} fontSize={10} fontWeight={950} fill={rowColor}>
+                    {truncateTextForWidth(row.label.toUpperCase(), lanPairingDetailRowW - 40, 10, 0.58)}
+                  </text>
+                  <text x={rowX + 14} y={rowY + 34} fontSize={12} fontWeight={800} fill={cfg.colors.bodyText}>
+                    {truncateTextForWidth(row.value, lanPairingDetailRowW - 28, 12, 0.58)}
+                  </text>
+                </g>
+              );
+            })}
+          </g>
+          <g role="tablist" aria-label="LAN pairing detail tabs">
+            <path
+              d={`M ${lanPairingBodyX + 10} ${lanPairingBodyY} H ${lanPairingBodyX + lanPairingBodyW - 10}`}
+              stroke={cfg.colors.panelStroke}
+              strokeWidth={0.75}
+              opacity={0.32}
+            />
+            {LAN_PAIRING_DETAIL_TABS.map((tab, index) => {
+              const selected = tab.id === lanPairingActiveTab;
+              const tabColor = toneColor(tab.tone, cfg);
+              const tabX = lanPairingTabsX + index * (lanPairingTabW + lanPairingTabGap);
+              const tabY = selected ? lanPairingDetailY : lanPairingDetailY + 7;
+              const tabH = selected ? lanPairingTabH + 1 : lanPairingTabH - 8;
+              const tabRadius = selected ? 10 : 8;
+              const tabIconSize = Math.max(17, Math.min(22, tabH - 12));
+              const tabTextSize = selected ? 13.8 : 12.8;
+              const tabText = truncateTextForWidth(tab.label, lanPairingTabW - tabIconSize - 28, tabTextSize, 0.58);
+              const tabTextW = Math.min(lanPairingTabW - tabIconSize - 28, tabText.length * tabTextSize * 0.58);
+              const tabGroupW = tabIconSize + 7 + tabTextW;
+              const tabIconX = tabX + (lanPairingTabW - tabGroupW) / 2;
+              const tabIconY = tabY + (tabH - tabIconSize) / 2;
+              const tabGlossH = Math.max(9, Math.min(15, Math.round(tabH * 0.38)));
+              const TabIcon = tab.icon;
+              return (
+                <g
+                  key={`lan-pairing-tab:${tab.id}`}
+                  className="parent-portal-svg-clickable"
+                  role="tab"
+                  tabIndex={0}
+                  aria-label={`Show LAN pairing ${tab.label}`}
+                  aria-selected={selected}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    setLanPairingActiveTab(tab.id);
+                    setLastAction(`${tab.label} tab`);
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.key !== 'Enter' && event.key !== ' ') return;
+                    event.preventDefault();
+                    event.stopPropagation();
+                    setLanPairingActiveTab(tab.id);
+                    setLastAction(`${tab.label} tab`);
+                  }}
+                >
+                  <rect
+                    x={tabX}
+                    y={lanPairingDetailY - 4}
+                    width={lanPairingTabW}
+                    height={lanPairingTabH + 8}
+                    fill="transparent"
+                  />
+                  {selected ? (
+                    <path
+                      d={topRoundedRectPath(tabX - 2, tabY - 2, lanPairingTabW + 4, tabH + 3, tabRadius + 2)}
+                      fill="none"
+                      stroke={tabColor}
+                      strokeWidth={3}
+                      opacity={0.18}
+                      filter="url(#parentPortalGlow)"
+                    />
+                  ) : null}
+                  <path
+                    d={topRoundedRectPath(tabX, tabY, lanPairingTabW, tabH, tabRadius)}
+                    fill={selected ? colorAlpha(tabColor, '24') : 'rgba(2, 12, 22, 0.72)'}
+                    opacity={selected ? 1 : 0.78}
+                  />
+                  <path
+                    d={topRoundedRectPath(
+                      tabX + 5,
+                      tabY + 4,
+                      lanPairingTabW - 10,
+                      tabGlossH,
+                      Math.max(4, tabRadius - 4)
+                    )}
+                    fill={cfg.colors.bodyText}
+                    opacity={selected ? 0.13 : 0.055}
+                  />
+                  <path
+                    d={`M ${tabX + tabRadius + 4} ${tabY + 2.5} H ${tabX + lanPairingTabW - tabRadius - 4}`}
+                    stroke={cfg.colors.bodyText}
+                    strokeWidth={0.85}
+                    strokeLinecap="round"
+                    opacity={selected ? 0.5 : 0.22}
+                  />
+                  <path
+                    d={`M ${tabX + 2.5} ${tabY + tabRadius} V ${tabY + tabH - 3}`}
+                    stroke={cfg.colors.bodyText}
+                    strokeWidth={0.65}
+                    strokeLinecap="round"
+                    opacity={selected ? 0.22 : 0.1}
+                  />
+                  <path
+                    d={`M ${tabX + lanPairingTabW - 2.5} ${tabY + tabRadius} V ${tabY + tabH - 3}`}
+                    stroke={cfg.colors.panelStroke}
+                    strokeWidth={0.8}
+                    strokeLinecap="round"
+                    opacity={selected ? 0.56 : 0.32}
+                  />
+                  <path
+                    d={`M ${tabX + 5} ${tabY + tabH - 1.5} H ${tabX + lanPairingTabW - 5}`}
+                    stroke={cfg.colors.panelStroke}
+                    strokeWidth={0.9}
+                    strokeLinecap="round"
+                    opacity={selected ? 0.58 : 0.36}
+                  />
+                  <path
+                    d={topRoundedRectPath(tabX, tabY, lanPairingTabW, tabH, tabRadius)}
+                    fill="none"
+                    stroke={selected ? tabColor : cfg.colors.panelStroke}
+                    strokeWidth={selected ? 1.25 : 0.8}
+                    opacity={selected ? 0.98 : 0.55}
+                  />
+                  <path
+                    d={`M ${tabX + 16} ${tabY + tabH - 6} H ${tabX + lanPairingTabW - 16}`}
+                    stroke={tabColor}
+                    strokeWidth={selected ? 1.8 : 1.1}
+                    strokeLinecap="round"
+                    opacity={selected ? 0.95 : 0.42}
+                  />
+                  <TabIcon x={tabIconX} y={tabIconY} width={tabIconSize} height={tabIconSize} />
+                  <text
+                    x={tabIconX + tabIconSize + 7}
+                    y={tabY + tabH * 0.62}
+                    textAnchor="start"
+                    fontSize={tabTextSize}
+                    fontWeight={selected ? 950 : 850}
+                    fill={selected ? cfg.colors.bodyText : cfg.colors.mutedText}
+                    pointerEvents="none"
+                  >
+                    {tabText}
+                  </text>
+                </g>
+              );
+            })}
+          </g>
+        </>
+      ) : isReportsPanel ? (
+        <>
+          <foreignObject x={reportTopX} y={reportSelectorY} width={reportAvailableW} height={reportSelectorH}>
+            <div xmlns="http://www.w3.org/1999/xhtml" style={reportGridHostStyle}>
+              <DeviceChoiceGrid
+                scope={reportScopeValue === 'device' ? 'parent' : 'lan'}
+                value={reportSelectedValue}
+                options={reportSlots}
+                portalDeviceIds={reportPortalIds}
+                rows={reportGridRows}
+                columns={reportGridColumns}
+                parentRows={reportGridRows}
+                parentColumns={reportGridColumns}
+                deviceSelectionDisabled={reportScopeValue !== 'device'}
+                onScopeChange={(nextScopeValue) => {
+                  const nextScope = nextScopeValue === 'parent' ? 'perDevice' : 'global';
+                  onTargetChange?.({
+                    ...targetSelection,
+                    scope: nextScope,
+                    device: targetSelection.device,
+                  });
+                  setLastAction(nextScope === 'perDevice' ? 'Per-device reports selected' : 'Family reports selected');
+                  setSyncStatus('Report scope changed');
+                }}
+                onChange={(choice) => {
+                  onTargetChange?.({ ...targetSelection, scope: 'perDevice', device: choice.label });
+                  setLastAction(`${choice.label} report target`);
+                  setSyncStatus('Report target changed');
+                }}
+                config={manageDeviceGridConfig(reportAvailableW, reportSelectorH, {
+                  statusOrder: { lan: ['connected', 'offline', 'empty'], parent: ['connected', 'offline', 'empty'] },
+                  text: {
+                    scopeOptions: { lan: 'Family', parent: 'Per Device' },
+                    selectedInfoLabel: 'Report device',
+                  },
+                })}
+              />
+            </div>
+          </foreignObject>
+
+          <path
+            d={`M ${reportTopX} ${reportDividerY} H ${reportTopX + reportAvailableW}`}
+            stroke={color}
+            strokeWidth={3}
+            opacity={0.18}
+          />
+          <path
+            d={`M ${reportTopX} ${reportDividerY} H ${reportTopX + reportAvailableW}`}
+            stroke={color}
+            strokeWidth={1.35}
+            opacity={0.72}
+          />
+          <g>
+            <path
+              d={topRoundedRectPath(
+                activityBodyPanelX + 1,
+                activityBodyPanelY + 1,
+                activityBodyPanelW - 2,
+                activityBodyPanelH - 2,
+                11
+              )}
+              fill="none"
+              stroke={activityManageTabColor}
+              strokeWidth={3}
+              opacity={0.14}
+              filter="url(#parentPortalGlow)"
+            />
+            <path
+              d={topRoundedRectPath(activityBodyPanelX, activityBodyPanelY, activityBodyPanelW, activityBodyPanelH, 12)}
+              fill={cfg.colors.panelFill}
+              stroke={activityManageTabColor}
+              strokeWidth={1.15}
+              opacity={0.97}
+            />
+            <path
+              d={topRoundedRectPath(
+                activityBodyPanelX + cfg.chrome.panelInnerInset,
+                activityBodyPanelY + cfg.chrome.panelInnerInset,
+                activityBodyPanelW - cfg.chrome.panelInnerInset * 2,
+                activityBodyPanelH - cfg.chrome.panelInnerInset * 2,
+                8
+              )}
+              fill="none"
+              stroke={activityManageTabColor}
+              strokeWidth={0.7}
+              opacity={0.25}
+            />
+            {activityReportsSelected && (
+              <g>
+                {!reportFamilyScope && (
+                  <foreignObject
+                    x={activityReportOverrideToggleX}
+                    y={activityReportOverrideToggleY}
+                    width={activityReportSplitToggleW}
+                    height={66}
+                  >
+                    <div xmlns="http://www.w3.org/1999/xhtml" style={{ width: activityReportSplitToggleW, height: 66 }}>
+                      <ScopeToggle
+                        title="Report"
+                        value={activityReportOverrideMode}
+                        options={ACTIVITY_REPORT_OVERRIDE_OPTIONS}
+                        onChange={(nextValue, option) => {
+                          setActivityReportOverrideMode(nextValue);
+                          setActivityReportDraft(null);
+                          setActivityReportSelectedFileId(null);
+                          setLastAction(option.label);
+                          setSyncStatus('Report override changed');
+                        }}
+                        config={activityScopeToggleConfig(activityReportSplitToggleW)}
+                      />
+                    </div>
+                  </foreignObject>
+                )}
+                <foreignObject
+                  x={activityReportFrequencyToggleX}
+                  y={activityReportFrequencyToggleY}
+                  width={activityReportFrequencyToggleW}
+                  height={66}
+                >
+                  <div
+                    xmlns="http://www.w3.org/1999/xhtml"
+                    style={{ width: activityReportFrequencyToggleW, height: 66 }}
+                  >
+                    <ScopeToggle
+                      title="Frequency"
+                      value={activityReportFrequency}
+                      options={ACTIVITY_REPORT_FREQUENCY_OPTIONS}
+                      disabled={activityReportFrequencyDisabled}
+                      onChange={(nextValue, option) => {
+                        setActivityReportFrequency(nextValue);
+                        setActivityReportDraft(null);
+                        setActivityReportSelectedFileId(null);
+                        setMode(option.label);
+                        setLastAction(`${option.label} reports`);
+                        setSyncStatus('Report frequency changed');
+                      }}
+                      config={activityScopeToggleConfig(activityReportFrequencyToggleW)}
+                    />
+                  </div>
+                </foreignObject>
+              </g>
+            )}
+            {activityReportsSelected ? (
+              <g>
+                <path
+                  d={`M ${activityReportInnerX} ${activityReportSplitY} H ${activityReportInnerX + activityReportInnerW}`}
+                  stroke={activityManageTabColor}
+                  strokeWidth={1.15}
+                  opacity={0.62}
+                />
+                <path
+                  d={`M ${activityReportVerticalDividerX} ${activityReportSplitY + 1} V ${activityReportInnerY + activityReportInnerH}`}
+                  stroke={activityManageTabColor}
+                  strokeWidth={1.05}
+                  opacity={0.52}
+                />
+                <text
+                  x={activityReportListX}
+                  y={activityReportListY - 4}
+                  fontSize={11}
+                  fontWeight={950}
+                  fill={activityManageTabColor}
+                >
+                  Reports
+                </text>
+                <text
+                  x={activityReportViewerX}
+                  y={activityReportViewerY - 4}
+                  fontSize={11}
+                  fontWeight={950}
+                  fill={activityManageTabColor}
+                >
+                  Report viewer
+                </text>
+                {activityReportVisibleRows.map((row, index) => {
+                  const selected = !activityReportDraft && row.id === activityReportSelectedFile?.id;
+                  const rowColor = selected ? activityManageTabColor : toneColor(row.saved ? 'cyan' : 'gold', cfg);
+                  const rowY = activityReportListY + 10 + index * (activityReportRowH + activityReportRowGap);
+                  return (
+                    <g
+                      key={`activity-report-row:${row.id}`}
+                      className="parent-portal-svg-clickable"
+                      role="button"
+                      tabIndex={0}
+                      aria-label={`Open ${row.fileName}`}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        setActivityReportDraft(null);
+                        setActivityReportSelectedFileId(row.id);
+                        setLastAction(row.fileName);
+                        setSyncStatus('Historical report selected');
+                      }}
+                      onKeyDown={(event) => {
+                        if (event.key !== 'Enter' && event.key !== ' ') return;
+                        event.preventDefault();
+                        event.stopPropagation();
+                        setActivityReportDraft(null);
+                        setActivityReportSelectedFileId(row.id);
+                        setLastAction(row.fileName);
+                        setSyncStatus('Historical report selected');
+                      }}
+                    >
+                      {selected ? (
+                        <rect
+                          x={activityReportListX - 3}
+                          y={rowY - 3}
+                          width={activityReportListW + 6}
+                          height={activityReportRowH + 6}
+                          rx={7}
+                          fill="none"
+                          stroke={rowColor}
+                          strokeWidth={2.2}
+                          opacity={0.2}
+                          filter="url(#parentPortalGlow)"
+                        />
+                      ) : null}
+                      <rect
+                        x={activityReportListX}
+                        y={rowY}
+                        width={activityReportListW}
+                        height={activityReportRowH}
+                        rx={6}
+                        fill={selected ? colorAlpha(rowColor, '20') : 'rgba(2, 12, 22, 0.54)'}
+                        stroke={selected ? rowColor : cfg.colors.panelStroke}
+                        strokeWidth={selected ? 1 : 0.75}
+                        opacity={selected ? 0.98 : 0.76}
+                      />
+                      <circle cx={activityReportListX + 14} cy={rowY + 14} r={3.3} fill={rowColor} opacity={0.96} />
+                      <text x={activityReportListX + 25} y={rowY + 15} fontSize={9.4} fontWeight={950} fill={rowColor}>
+                        {truncateTextForWidth(row.fileName, activityReportListW - 38, 9.4, 0.56)}
+                      </text>
+                      <text
+                        x={activityReportListX + 13}
+                        y={rowY + 34}
+                        fontSize={11.2}
+                        fontWeight={850}
+                        fill={cfg.colors.bodyText}
+                      >
+                        {truncateTextForWidth(
+                          `${row.dateLabel} / ${row.rangeLabel}`,
+                          activityReportListW - 26,
+                          11.2,
+                          0.56
+                        )}
+                      </text>
+                      <text
+                        x={activityReportListX + 13}
+                        y={rowY + 52}
+                        fontSize={10.2}
+                        fontWeight={720}
+                        fill={cfg.colors.mutedText}
+                      >
+                        {truncateTextForWidth(row.summary, activityReportListW - 26, 10.2, 0.56)}
+                      </text>
+                    </g>
+                  );
+                })}
+                <text
+                  x={activityReportViewerX}
+                  y={activityReportViewerY + 26}
+                  fontSize={10}
+                  fontWeight={950}
+                  fill={activityManageTabColor}
+                >
+                  SELECTED REPORT
+                </text>
+                <text
+                  x={activityReportViewerX}
+                  y={activityReportViewerY + 46}
+                  fontSize={16}
+                  fontWeight={900}
+                  fill={cfg.colors.bodyText}
+                >
+                  {truncateTextForWidth(
+                    activityReportViewerReport?.title ?? 'No report selected',
+                    activityReportViewerW,
+                    16,
+                    0.58
+                  )}
+                </text>
+                <text
+                  x={activityReportViewerX}
+                  y={activityReportViewerY + 68}
+                  fontSize={12.2}
+                  fontWeight={760}
+                  fill={cfg.colors.mutedText}
+                >
+                  {truncateTextForWidth(
+                    activityReportViewerReport?.summary ?? activityReportViewerState,
+                    activityReportViewerW,
+                    12.2,
+                    0.58
+                  )}
+                </text>
+                <path
+                  d={`M ${activityReportViewerX} ${activityReportViewerY + 92} H ${activityReportViewerX + activityReportViewerW}`}
+                  stroke={activityManageTabColor}
+                  strokeWidth={0.8}
+                  opacity={0.34}
+                />
+                <text
+                  x={activityReportViewerX}
+                  y={activityReportViewerY + 120}
+                  fontSize={10}
+                  fontWeight={950}
+                  fill={toneColor('gold', cfg)}
+                >
+                  TARGET
+                </text>
+                <text
+                  x={activityReportViewerX}
+                  y={activityReportViewerY + 139}
+                  fontSize={12.4}
+                  fontWeight={820}
+                  fill={cfg.colors.bodyText}
+                >
+                  {truncateTextForWidth(activityReportViewerTarget, activityReportViewerW, 12.4, 0.58)}
+                </text>
+                <text
+                  x={activityReportViewerX}
+                  y={activityReportViewerY + 166}
+                  fontSize={10}
+                  fontWeight={950}
+                  fill={toneColor('purple', cfg)}
+                >
+                  STATE
+                </text>
+                <text
+                  x={activityReportViewerX}
+                  y={activityReportViewerY + 185}
+                  fontSize={12.4}
+                  fontWeight={820}
+                  fill={cfg.colors.bodyText}
+                >
+                  {truncateTextForWidth(activityReportViewerState, activityReportViewerW, 12.4, 0.58)}
+                </text>
+                {activityReportViewerSections.slice(0, 2).map((section, index) => {
+                  const sectionY = activityReportViewerY + 218 + index * 66;
+                  return (
+                    <g key={`activity-report-viewer-section:${section.title}`}>
+                      <text
+                        x={activityReportViewerX}
+                        y={sectionY}
+                        fontSize={10}
+                        fontWeight={950}
+                        fill={activityManageTabColor}
+                      >
+                        {section.title.toUpperCase()}
+                      </text>
+                      <text
+                        x={activityReportViewerX}
+                        y={sectionY + 20}
+                        fontSize={12.1}
+                        fontWeight={760}
+                        fill={cfg.colors.bodyText}
+                      >
+                        {truncateTextForWidth(section.lines[0] ?? '', activityReportViewerW, 12.1, 0.56)}
+                      </text>
+                      <text
+                        x={activityReportViewerX}
+                        y={sectionY + 40}
+                        fontSize={11.1}
+                        fontWeight={700}
+                        fill={cfg.colors.mutedText}
+                      >
+                        {truncateTextForWidth(section.lines[1] ?? '', activityReportViewerW, 11.1, 0.56)}
+                      </text>
+                    </g>
+                  );
+                })}
+                <g
+                  className="parent-portal-svg-clickable"
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`Generate ${activityReportFrequencyLabel} activity report`}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    activityGenerateReport();
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.key !== 'Enter' && event.key !== ' ') return;
+                    event.preventDefault();
+                    event.stopPropagation();
+                    activityGenerateReport();
+                  }}
+                >
+                  <rect
+                    x={activityReportViewerX}
+                    y={activityReportActionY}
+                    width={activityReportGenerateButtonW}
+                    height={30}
+                    rx={7}
+                    fill={colorAlpha(activityManageTabColor, '22')}
+                    stroke={activityManageTabColor}
+                    strokeWidth={1}
+                    opacity={0.96}
+                  />
+                  <text
+                    x={activityReportViewerX + activityReportGenerateButtonW / 2}
+                    y={activityReportActionY + 20}
+                    textAnchor="middle"
+                    fontSize={11.5}
+                    fontWeight={900}
+                    fill={cfg.colors.bodyText}
+                  >
+                    Generate
+                  </text>
+                </g>
+                <g
+                  className={
+                    activityReportDraft && !activityReportDraft.saved ? 'parent-portal-svg-clickable' : undefined
+                  }
+                  role="button"
+                  tabIndex={activityReportDraft && !activityReportDraft.saved ? 0 : -1}
+                  aria-label="Save generated activity report"
+                  opacity={activityReportDraft && !activityReportDraft.saved ? 1 : 0.44}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    activitySaveReportDraft();
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.key !== 'Enter' && event.key !== ' ') return;
+                    event.preventDefault();
+                    event.stopPropagation();
+                    activitySaveReportDraft();
+                  }}
+                >
+                  <rect
+                    x={activityReportViewerX + activityReportGenerateButtonW + activityReportActionGap}
+                    y={activityReportActionY}
+                    width={activityReportSaveButtonW}
+                    height={30}
+                    rx={7}
+                    fill={colorAlpha(toneColor('gold', cfg), '20')}
+                    stroke={toneColor('gold', cfg)}
+                    strokeWidth={1}
+                  />
+                  <text
+                    x={
+                      activityReportViewerX +
+                      activityReportGenerateButtonW +
+                      activityReportActionGap +
+                      activityReportSaveButtonW / 2
+                    }
+                    y={activityReportActionY + 20}
+                    textAnchor="middle"
+                    fontSize={11.5}
+                    fontWeight={900}
+                    fill={cfg.colors.bodyText}
+                  >
+                    Save
+                  </text>
+                </g>
+              </g>
+            ) : (
+              <g>
+                <path
+                  d={topRoundedRectPath(
+                    activityMonitorPanelX,
+                    activityMonitorPanelY,
+                    activityMonitorPanelW,
+                    activityMonitorPanelH,
+                    10
+                  )}
+                  fill={colorAlpha(activityManageTabColor, '0f')}
+                  stroke={activityManageTabColor}
+                  strokeWidth={0.95}
+                  opacity={0.94}
+                />
+                <g role="tablist" aria-label="Activity monitor tabs">
+                  {ACTIVITY_MONITOR_TABS.map((tab, index) => {
+                    const selected = tab.id === activityMonitorActiveTab;
+                    const tabColor = toneColor(tab.tone, cfg);
+                    const tabX = activityMonitorCompact
+                      ? activityMonitorTabX + index * (activityMonitorTabW + activityMonitorTabGap)
+                      : activityMonitorTabX;
+                    const tabY = activityMonitorCompact
+                      ? activityMonitorTabY
+                      : activityMonitorTabY + index * (activityMonitorTabH + activityMonitorTabGap);
+                    return (
+                      <g
+                        key={`activity-monitor-tab:${tab.id}`}
+                        className="parent-portal-svg-clickable"
+                        role="tab"
+                        tabIndex={0}
+                        aria-selected={selected}
+                        aria-label={`Show ${tab.label} activity monitor`}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          setActivityMonitorActiveTab(tab.id);
+                          setLastAction(`${tab.label} monitor`);
+                        }}
+                        onKeyDown={(event) => {
+                          if (event.key === 'Enter' || event.key === ' ') {
+                            event.preventDefault();
+                            setActivityMonitorActiveTab(tab.id);
+                            setLastAction(`${tab.label} monitor`);
+                          }
+                        }}
+                      >
+                        {selected && (
+                          <path
+                            d={topRoundedRectPath(
+                              tabX - 2,
+                              tabY - 2,
+                              activityMonitorTabW + 4,
+                              activityMonitorTabH + 4,
+                              9
+                            )}
+                            fill="none"
+                            stroke={tabColor}
+                            strokeWidth={2.4}
+                            opacity={0.34}
+                            filter="url(#parentPortalGlow)"
+                          />
+                        )}
+                        <path
+                          d={topRoundedRectPath(tabX, tabY, activityMonitorTabW, activityMonitorTabH, 8)}
+                          fill={selected ? colorAlpha(tabColor, '28') : 'rgba(2, 12, 22, 0.72)'}
+                          stroke={selected ? tabColor : cfg.colors.panelStroke}
+                          strokeWidth={selected ? 1.15 : 0.82}
+                          opacity={selected ? 1 : 0.78}
+                        />
+                        <path
+                          d={topRoundedRectPath(tabX + 5, tabY + 4, activityMonitorTabW - 10, 10, 5)}
+                          fill={cfg.colors.bodyText}
+                          opacity={selected ? 0.14 : 0.05}
+                        />
+                        <text
+                          x={tabX + activityMonitorTabW / 2}
+                          y={tabY + activityMonitorTabH * 0.63}
+                          textAnchor="middle"
+                          fontSize={12.5}
+                          fontWeight={900}
+                          fill={selected ? cfg.colors.bodyText : cfg.colors.mutedText}
+                        >
+                          {tab.label}
+                        </text>
+                      </g>
+                    );
+                  })}
+                </g>
+                <path
+                  d={`M ${activityMonitorContentX - 8} ${activityMonitorContentY - 6} H ${activityMonitorContentX + activityMonitorContentW}`}
+                  stroke={activityManageTabColor}
+                  strokeWidth={0.85}
+                  opacity={0.42}
+                />
+                {activityMonitorVisibleRows.map((row, index) => {
+                  const rowColor = toneColor(row.tone, cfg);
+                  const column = index % activityMonitorColumnCount;
+                  const rowIndex = Math.floor(index / activityMonitorColumnCount);
+                  const rowX = activityMonitorContentX + column * (activityMonitorRowW + activityMonitorRowGap);
+                  const rowY = activityMonitorContentY + rowIndex * (activityMonitorRowH + activityMonitorRowGap);
+                  return (
+                    <g key={`activity-monitor-row:${activityManageActiveTab}:${activityMonitorActiveTab}:${row.label}`}>
+                      <rect
+                        x={rowX}
+                        y={rowY}
+                        width={activityMonitorRowW}
+                        height={activityMonitorRowH}
+                        rx={8}
+                        fill={colorAlpha(rowColor, '16')}
+                        stroke={rowColor}
+                        strokeWidth={0.82}
+                        opacity={0.92}
+                      />
+                      <circle cx={rowX + 15} cy={rowY + 15} r={3.4} fill={rowColor} opacity={0.96} />
+                      <text x={rowX + 26} y={rowY + 17} fontSize={9.8} fontWeight={950} fill={rowColor}>
+                        {truncateTextForWidth(row.label.toUpperCase(), activityMonitorRowW - 40, 9.8, 0.58)}
+                      </text>
+                      <text x={rowX + 14} y={rowY + 34} fontSize={11.8} fontWeight={800} fill={cfg.colors.bodyText}>
+                        {truncateTextForWidth(row.value, activityMonitorRowW - 28, 11.8, 0.58)}
+                      </text>
+                    </g>
+                  );
+                })}
+              </g>
+            )}
+          </g>
+          <g role="tablist" aria-label="Activity detail tabs">
+            <path
+              d={`M ${activityBodyPanelX + 10} ${activityBodyPanelY} H ${activityBodyPanelX + activityBodyPanelW - 10}`}
+              stroke={cfg.colors.panelStroke}
+              strokeWidth={0.75}
+              opacity={0.32}
+            />
+            {ACTIVITY_MANAGE_TABS.map((tab, index) => {
+              const selected = tab.id === activityManageActiveTab;
+              const tabColor = toneColor(tab.tone, cfg);
+              const tabColumn = index % activityTabColumns;
+              const tabRow = Math.floor(index / activityTabColumns);
+              const tabBaseY = activityBodyY + tabRow * activityTabH;
+              const tabX = activityTabsX + tabColumn * (activityTabW + activityTabGap);
+              const tabY = selected ? tabBaseY : tabBaseY + (activityTabsCompact ? 4 : 7);
+              const tabH = selected ? activityTabH + 1 : activityTabH - (activityTabsCompact ? 5 : 8);
+              const tabRadius = selected ? 10 : 8;
+              const tabIconSize = activityTabsCompact
+                ? Math.max(12, Math.min(16, tabH - 10))
+                : Math.max(17, Math.min(22, tabH - 12));
+              const tabTextSize = activityTabsCompact ? (selected ? 10.4 : 9.9) : selected ? 13.8 : 12.8;
+              const tabIconGap = activityTabsCompact ? 5 : 7;
+              const tabTextMaxW = Math.max(16, activityTabW - tabIconSize - (activityTabsCompact ? 16 : 28));
+              const tabText = truncateTextForWidth(tab.label, tabTextMaxW, tabTextSize, 0.58);
+              const tabTextW = Math.min(tabTextMaxW, tabText.length * tabTextSize * 0.58);
+              const tabGroupW = tabIconSize + tabIconGap + tabTextW;
+              const tabIconX = tabX + (activityTabW - tabGroupW) / 2;
+              const tabIconY = tabY + (tabH - tabIconSize) / 2;
+              const tabGlossH = Math.max(9, Math.min(15, Math.round(tabH * 0.38)));
+              const TabIcon = tab.icon;
+              return (
+                <g
+                  key={`activity-tab:${tab.id}`}
+                  className="parent-portal-svg-clickable"
+                  role="tab"
+                  tabIndex={0}
+                  aria-label={`Show activity ${tab.label}`}
+                  aria-selected={selected}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    setActivityManageActiveTab(tab.id);
+                    setLastAction(`${tab.label} tab`);
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.key !== 'Enter' && event.key !== ' ') return;
+                    event.preventDefault();
+                    event.stopPropagation();
+                    setActivityManageActiveTab(tab.id);
+                    setLastAction(`${tab.label} tab`);
+                  }}
+                >
+                  <rect x={tabX} y={tabBaseY - 4} width={activityTabW} height={activityTabH + 8} fill="transparent" />
+                  {selected ? (
+                    <path
+                      d={topRoundedRectPath(tabX - 2, tabY - 2, activityTabW + 4, tabH + 3, tabRadius + 2)}
+                      fill="none"
+                      stroke={tabColor}
+                      strokeWidth={3}
+                      opacity={0.18}
+                      filter="url(#parentPortalGlow)"
+                    />
+                  ) : null}
+                  <path
+                    d={topRoundedRectPath(tabX, tabY, activityTabW, tabH, tabRadius)}
+                    fill={selected ? colorAlpha(tabColor, '24') : 'rgba(2, 12, 22, 0.72)'}
+                    opacity={selected ? 1 : 0.78}
+                  />
+                  <path
+                    d={topRoundedRectPath(tabX + 5, tabY + 4, activityTabW - 10, tabGlossH, Math.max(4, tabRadius - 4))}
+                    fill={cfg.colors.bodyText}
+                    opacity={selected ? 0.13 : 0.055}
+                  />
+                  <path
+                    d={`M ${tabX + tabRadius + 4} ${tabY + 2.5} H ${tabX + activityTabW - tabRadius - 4}`}
+                    stroke={cfg.colors.bodyText}
+                    strokeWidth={0.85}
+                    strokeLinecap="round"
+                    opacity={selected ? 0.5 : 0.22}
+                  />
+                  <path
+                    d={`M ${tabX + 2.5} ${tabY + tabRadius} V ${tabY + tabH - 3}`}
+                    stroke={cfg.colors.bodyText}
+                    strokeWidth={0.65}
+                    strokeLinecap="round"
+                    opacity={selected ? 0.22 : 0.1}
+                  />
+                  <path
+                    d={`M ${tabX + activityTabW - 2.5} ${tabY + tabRadius} V ${tabY + tabH - 3}`}
+                    stroke={cfg.colors.panelStroke}
+                    strokeWidth={0.8}
+                    strokeLinecap="round"
+                    opacity={selected ? 0.56 : 0.32}
+                  />
+                  <path
+                    d={`M ${tabX + 5} ${tabY + tabH - 1.5} H ${tabX + activityTabW - 5}`}
+                    stroke={cfg.colors.panelStroke}
+                    strokeWidth={0.9}
+                    strokeLinecap="round"
+                    opacity={selected ? 0.58 : 0.36}
+                  />
+                  <path
+                    d={topRoundedRectPath(tabX, tabY, activityTabW, tabH, tabRadius)}
+                    fill="none"
+                    stroke={selected ? tabColor : cfg.colors.panelStroke}
+                    strokeWidth={selected ? 1.25 : 0.8}
+                    opacity={selected ? 0.98 : 0.55}
+                  />
+                  <path
+                    d={`M ${tabX + 16} ${tabY + tabH - 6} H ${tabX + activityTabW - 16}`}
+                    stroke={tabColor}
+                    strokeWidth={selected ? 1.8 : 1.1}
+                    strokeLinecap="round"
+                    opacity={selected ? 0.95 : 0.42}
+                  />
+                  <TabIcon x={tabIconX} y={tabIconY} width={tabIconSize} height={tabIconSize} />
+                  <text
+                    x={tabIconX + tabIconSize + tabIconGap}
+                    y={tabY + tabH * 0.62}
+                    textAnchor="start"
+                    fontSize={tabTextSize}
+                    fontWeight={selected ? 950 : 850}
+                    fill={selected ? cfg.colors.bodyText : cfg.colors.mutedText}
+                    pointerEvents="none"
+                  >
+                    {tabText}
+                  </text>
+                </g>
+              );
+            })}
+          </g>
+        </>
+      ) : (
+        <>
+          <text x={x} y={y + 24} fontSize={titleSize} fontWeight={950} fill={cfg.colors.bodyText}>
+            {truncateTextForWidth(panelTitle, w - 40, titleSize, 0.58)}
+          </text>
+          <path d={`M ${x} ${y + 39} H ${x + w}`} stroke={color} strokeWidth={1.1} opacity={0.55} />
+          <SurfacePanel x={x} y={controlY} w={leftW} h={editorH} tone={themeTone} accentColor={themeColor} cfg={cfg}>
+            <text x={x + 18} y={controlY + 28} fontSize={10} fontWeight={950} fill={activeModeColor}>
+              {isDeviceOpsLane ? 'COMMAND MODE' : 'SETTING MODE'}
+            </text>
+            {spec.modes.map((item, index) => (
+              <ManageModeButton
+                key={`${spec.title}:mode:${item.label}`}
+                x={x + 18 + index * ((leftW - 42) / Math.min(3, spec.modes.length))}
+                y={controlY + 44}
+                w={(leftW - 52) / Math.min(3, spec.modes.length)}
+                h={36}
+                item={item}
+                selected={mode === item.label}
+                themeColor={themeColor}
+                onSelect={() => {
+                  setMode(item.label);
+                  setLastAction(`${item.label} selected`);
+                  setSyncStatus('Draft changed');
+                }}
+                cfg={cfg}
+              />
+            ))}
+
+            <text x={x + 18} y={controlY + 102} fontSize={10} fontWeight={950} fill={color}>
+              SETTING CHOICES
+            </text>
+            {optionRows.map((option, index) => {
+              const optionW = compact ? leftW - 36 : (leftW - 48) / 2;
+              const optionX = x + 18 + (compact ? 0 : (index % 2) * (optionW + 12));
+              const optionY = controlY + 118 + Math.floor(index / optionColumnCount) * 40;
+              const controlOption = { ...option, detail: '' };
+              return (
+                <ManageToggle
+                  key={`${spec.title}:option:${option.label}`}
+                  x={optionX}
+                  y={optionY}
+                  w={optionW}
+                  h={34}
+                  option={controlOption}
+                  selected={enabled.has(option.label)}
+                  disabled={!controlsActive}
+                  themeColor={themeColor}
+                  onToggle={() => {
+                    if (!controlsActive) return;
+                    setEnabled((current) => {
+                      const next = new Set(current);
+                      if (next.has(option.label)) next.delete(option.label);
+                      else next.add(option.label);
+                      return next;
+                    });
+                    setLastAction(`${option.label} changed`);
+                    setSyncStatus('Draft changed');
+                  }}
+                  cfg={cfg}
+                />
+              );
+            })}
+
+            {!compact && schedules.length && scheduleY + 44 < controlY + editorH ? (
+              <>
+                <text x={x + 18} y={scheduleY} fontSize={10} fontWeight={950} fill={color}>
+                  WHEN THIS APPLIES
+                </text>
+                {schedules.slice(0, compact ? 3 : 6).map((item, index) => {
+                  const chipW = compact ? (leftW - 48) / 3 : (leftW - 68) / 6;
+                  return (
+                    <ManagePill
+                      key={`${spec.title}:schedule:${item.label}`}
+                      x={x + 18 + index * (chipW + 6)}
+                      y={scheduleY + 16}
+                      w={chipW}
+                      h={26}
+                      label={item.label}
+                      selected={schedule === item.label}
+                      tone={item.tone}
+                      themeColor={themeColor}
+                      onSelect={() => {
+                        if (!controlsActive) return;
+                        setSchedule(item.label);
+                        setLastAction(`${item.label} schedule`);
+                        setSyncStatus('Draft changed');
+                      }}
+                      cfg={cfg}
+                    />
+                  );
+                })}
+              </>
+            ) : null}
+          </SurfacePanel>
+
+          <SurfacePanel
+            x={actionX}
+            y={actionY}
+            w={rightW}
+            h={actionH}
+            tone={themeTone}
+            accentColor={themeColor}
+            cfg={cfg}
+          >
+            <text x={actionX + 18} y={actionY + 27} fontSize={10} fontWeight={950} fill={color}>
+              {truncateTextForWidth(applyHeaderLabel, rightW - 36, 10, 0.58)}
+            </text>
+            <ManageActionButton
+              x={actionX + 18}
+              y={actionY + 43}
+              w={rightW - 36}
+              h={38}
+              action={{ label: 'Validate Draft', detail: '', tone: 'cyan' }}
+              themeColor={themeColor}
+              onSelect={() => {
+                setLastAction('Draft validated');
+                setSyncStatus('Validated locally');
+              }}
+              cfg={cfg}
+            />
+            <ManageActionButton
+              x={actionX + 18}
+              y={actionY + 89}
+              w={rightW - 36}
+              h={38}
+              action={{ label: applyLabel, detail: '', tone: 'gold' }}
+              themeColor={themeColor}
+              onSelect={() => {
+                setLastAction(applyLabel);
+                setSyncStatus(isPortalLane ? 'Saved in portal draft' : `Pending sync to ${targetLabel}`);
+              }}
+              cfg={cfg}
+            />
+            <ManageActionButton
+              x={actionX + 18}
+              y={actionY + 135}
+              w={rightW - 36}
+              h={38}
+              action={{ label: 'Revert', detail: '', tone: 'red' }}
+              themeColor={themeColor}
+              onSelect={() => {
+                setEnabled(new Set(spec.options.filter((option) => option.enabled).map((option) => option.label)));
+                setMode(spec.modes[0]?.label ?? '');
+                setSchedule('Always');
+                setLastAction('Reverted');
+                setSyncStatus('Local draft');
+              }}
+              cfg={cfg}
+            />
+            {!compact ? (
+              <>
+                <text x={actionX + 18} y={actionY + 195} fontSize={10} fontWeight={950} fill={color}>
+                  SHORTCUTS
+                </text>
+                {actionRows.map((action, index) => (
+                  <ManageActionButton
+                    key={`${spec.title}:action:${action.label}`}
+                    x={actionX + 18}
+                    y={actionY + 211 + index * 44}
+                    w={rightW - 36}
+                    h={34}
+                    action={{ ...action, detail: '' }}
+                    themeColor={themeColor}
+                    onSelect={() => {
+                      setLastAction(action.label);
+                      setSyncStatus(
+                        action.label.toLowerCase().includes('open') ? 'Navigated locally' : 'Pending Rust sync'
+                      );
+                    }}
+                    cfg={cfg}
+                  />
+                ))}
+                <path
+                  d={`M ${actionX + 18} ${actionY + actionH - 82} H ${actionX + rightW - 18}`}
+                  stroke={cfg.colors.panelStroke}
+                  strokeWidth={0.8}
+                  opacity={0.65}
+                />
+                <text x={actionX + 18} y={actionY + actionH - 58} fontSize={10} fontWeight={950} fill={color}>
+                  CURRENT SELECTION
+                </text>
+                <text
+                  x={actionX + 18}
+                  y={actionY + actionH - 36}
+                  fontSize={12}
+                  fontWeight={900}
+                  fill={cfg.colors.bodyText}
+                >
+                  {truncateTextForWidth(`${selectionLabel} / ${mode}`, rightW - 36, 12, 0.58)}
+                </text>
+                <text
+                  x={actionX + 18}
+                  y={actionY + actionH - 16}
+                  fontSize={10.5}
+                  fontWeight={760}
+                  fill={cfg.colors.mutedText}
+                >
+                  {truncateTextForWidth(`${syncStatus}: ${lastAction}`, rightW - 36, 10.5, 0.58)}
+                </text>
+              </>
+            ) : null}
+          </SurfacePanel>
+        </>
+      )}
+    </g>
+  );
+}
+
+function AssistantModeBoard({
+  x,
+  y,
+  w,
+  h,
+  actionsVisible,
+  selectedAction,
+  selectedActionSequence,
+  threadSequence,
+  onChoiceSelect,
+  onAssistantMessage,
+  onActionToggle,
+  onClose,
+  cfg,
+}: {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  actionsVisible: boolean;
+  selectedAction: AssistantQuickAction | null;
+  selectedActionSequence: number;
+  threadSequence: number;
+  onChoiceSelect: (choice: AssistantQuickChoice) => void;
+  onAssistantMessage: (payload: Record<string, string>) => void;
+  onActionToggle: () => void;
+  onClose: () => void;
+  cfg: ParentPortalSvgControls;
+}) {
+  const [collapsedMessages, setCollapsedMessages] = useState<Record<string, boolean>>({});
+  const [draftPrompt, setDraftPrompt] = useState('');
+  const [currentAction, setCurrentAction] = useState<AssistantQuickAction | null>(null);
+  const [currentChoice, setCurrentChoice] = useState<AssistantQuickChoice | null>(null);
+  const [composerSplitOffset, setComposerSplitOffset] = useState(0);
+  const [resizingComposer, setResizingComposer] = useState(false);
+  const messageSequenceRef = useRef(1);
+  const handledActionSequenceRef = useRef(selectedActionSequence);
+  const chatClipId = useId().replace(/[^a-zA-Z0-9_-]/g, '');
+  const createReadyMessage = useCallback(
+    (): AssistantTranscriptMessage => ({
+      id: 'mia-ready',
+      sender: 'assistant',
+      text: ASSISTANT_READY_TEXT,
+    }),
+    []
+  );
+  const nextMessageId = useCallback((prefix: string) => `${prefix}-${messageSequenceRef.current++}`, []);
+  const [messages, setMessages] = useState<AssistantTranscriptMessage[]>(() => [createReadyMessage()]);
+
+  useEffect(() => {
+    messageSequenceRef.current = 1;
+    handledActionSequenceRef.current = 0;
+    setMessages([createReadyMessage()]);
+    setCurrentAction(null);
+    setCurrentChoice(null);
+    setDraftPrompt('');
+    setCollapsedMessages({});
+  }, [createReadyMessage, threadSequence]);
+
+  useEffect(() => {
+    if (!selectedAction || selectedActionSequence <= handledActionSequenceRef.current) return;
+    handledActionSequenceRef.current = selectedActionSequence;
+    setCurrentAction(selectedAction);
+    setCurrentChoice(null);
+    setMessages((current) => [
+      ...current,
+      {
+        id: nextMessageId('you-action'),
+        sender: 'user',
+        text: selectedAction.label,
+        action: selectedAction,
+      },
+      {
+        id: nextMessageId('mia-action'),
+        sender: 'assistant',
+        text: `${selectedAction.label}. Choose an option below, or type your own question and I will pass it to AI with this context.`,
+        action: selectedAction,
+        choices: selectedAction.choices,
+        choiceActionLabel: selectedAction.label,
+      },
+    ]);
+  }, [nextMessageId, selectedAction, selectedActionSequence]);
+
+  const headerH = 62;
+  const pad = 18;
+  const composerH = 52;
+  const composerBottomInset = 8;
+  const chatX = x + pad;
+  const chatY = y + headerH + 12;
+  const chatW = w - pad * 2;
+  const composerSideInset = clampNumber(chatW * 0.018, 24, 38);
+  const composerX = chatX + composerSideInset;
+  const composerW = chatW - composerSideInset * 2;
+  const composerY = y + h - composerH - composerBottomInset;
+  const defaultBottomReserve = composerH + composerBottomInset + 20;
+  const minBottomReserve = composerH + composerBottomInset + 18;
+  const maxBottomReserve = Math.max(minBottomReserve, Math.min(260, h - headerH - 190));
+  const bottomReserve = clampNumber(defaultBottomReserve + composerSplitOffset, minBottomReserve, maxBottomReserve);
+  const splitterY = y + h - bottomReserve;
+  const chatH = Math.max(180, splitterY - chatY - 8);
+  const headerCenterY = y + 34;
+  const headerDividerY = y + headerH - 2;
+  const sideToggleSize = 36;
+  const sideToggleX = x + 32;
+  const sideToggleY = headerDividerY - sideToggleSize;
+  const closeButtonW = 78;
+  const closeButtonH = 24;
+  const titleGroupW = 176;
+  const pageCenterX = cfg.canvas.width / 2;
+  const titleCenterX = clampNumber(
+    pageCenterX,
+    sideToggleX + sideToggleSize + titleGroupW / 2 + 28,
+    x + w - 96 - titleGroupW / 2
+  );
+  const titleIconX = titleCenterX - titleGroupW / 2;
+  const titleTextX = titleIconX + 42;
+  const titleUnderlineX = titleIconX - 2;
+  const titleUnderlineW = titleGroupW + 4;
+  const followUps = currentChoice?.followUps ?? (currentAction ? [] : ASSISTANT_DEFAULT_FOLLOW_UPS);
+  const followUpPanelH = followUps.length > 0 ? assistantFollowUpPanelHeight(chatW, followUps.length) : 0;
+  const chatStarted = messages.some((message) => message.sender === 'user');
+  const followUpLabel = chatStarted ? 'Follow Up:' : 'Ask:';
+  const followUpY = chatY + chatH - followUpPanelH;
+  const firstBubbleY = chatY + 20;
+  const messageGap = 16;
+  const messageAvailableH = Math.max(90, followUpY - firstBubbleY - 18);
+  const messageLayouts = messages.map((message) => {
+    const variant = message.sender === 'user' ? 'outgoing' : 'incoming';
+    const config =
+      variant === 'outgoing' ? ASSISTANT_OUTGOING_CHAT_BUBBLE_CONFIG : ASSISTANT_INCOMING_CHAT_BUBBLE_CONFIG;
+    const collapsed = Boolean(collapsedMessages[message.id]);
+    const choices = collapsed ? undefined : message.choices;
+    const bubbleW = assistantSmartBubbleWidth({
+      text: message.text,
+      availableW: chatW,
+      variant,
+      hasChoices: Boolean(choices?.length),
+    });
+    const choicesExtra = choices?.length ? assistantBubbleChoiceBodyHeight(bubbleW, choices.length) : 0;
+    const bubbleH = assistantChatBubbleHeight(bubbleW, message.text, collapsed, config, choicesExtra);
+    return { message, variant, collapsed, choices, bubbleW, bubbleH };
+  });
+  const messageTotalH = messageLayouts.reduce(
+    (total, layout, index) => total + layout.bubbleH + (index === 0 ? 0 : messageGap),
+    0
+  );
+  const messageOffsetY = Math.min(0, messageAvailableH - messageTotalH);
+  let nextMessageY = firstBubbleY + messageOffsetY;
+  const messagePositions = messageLayouts.map((layout) => {
+    const bubbleY = nextMessageY;
+    nextMessageY += layout.bubbleH + messageGap;
+    return { ...layout, y: bubbleY };
+  });
+  const updateComposerSplitFromPointer = (event) => {
+    const svg = event.currentTarget.ownerSVGElement;
+    const rect = svg?.getBoundingClientRect();
+    if (!rect || rect.height <= 0) return;
+    const svgY = (event.clientY - rect.top) * (cfg.canvas.height / rect.height);
+    const nextBottomReserve = y + h - svgY;
+    setComposerSplitOffset(clampNumber(nextBottomReserve, minBottomReserve, maxBottomReserve) - defaultBottomReserve);
+  };
+  const toggleCollapsed = (messageId: string) => {
+    setCollapsedMessages((current) => ({ ...current, [messageId]: !current[messageId] }));
+  };
+  const copyMessageText = (text: string) => {
+    if (!navigator?.clipboard?.writeText) return;
+    void navigator.clipboard.writeText(text).catch(() => undefined);
+  };
+  const emitAssistantMessage = (
+    prompt: string,
+    inputSource: 'typed' | 'choice',
+    choice: AssistantQuickChoice | null = currentChoice,
+    action: AssistantQuickAction | null = currentAction
+  ) => {
+    const cleanedPrompt = prompt.trim();
+    if (!cleanedPrompt) return;
+    onAssistantMessage(assistantMessageCommandPayload(cleanedPrompt, action, choice, inputSource));
+  };
+  const selectFollowUp = (prompt: string) => {
+    const cleanedPrompt = prompt.trim();
+    if (!cleanedPrompt) return;
+    setMessages((current) => [
+      ...current,
+      {
+        id: nextMessageId('you-followup'),
+        sender: 'user',
+        text: cleanedPrompt,
+        action: currentAction,
+      },
+      {
+        id: nextMessageId('mia-followup'),
+        sender: 'assistant',
+        text: 'I will pass this follow-up to MIA with the current chat context. The live AI runtime will fill the answer when connected.',
+        action: currentAction,
+      },
+    ]);
+    emitAssistantMessage(cleanedPrompt, 'typed', currentChoice, currentAction);
+  };
+  const selectMainChoice = (choice: AssistantQuickChoice, action: AssistantQuickAction | null = currentAction) => {
+    const actionForChoice = action ?? currentAction;
+    setCurrentAction(actionForChoice);
+    setCurrentChoice(choice);
+    onChoiceSelect(choice);
+    setMessages((current) => [
+      ...current,
+      {
+        id: nextMessageId('you-choice'),
+        sender: 'user',
+        text: choice.prompt,
+        action: actionForChoice,
+      },
+      {
+        id: nextMessageId('mia-choice'),
+        sender: 'assistant',
+        text: choice.reply,
+        action: actionForChoice,
+      },
+    ]);
+    emitAssistantMessage(choice.prompt, 'choice', choice, actionForChoice);
+  };
+  const sendDraftPrompt = () => {
+    const cleanedPrompt = draftPrompt.trim();
+    if (!cleanedPrompt) return;
+    setMessages((current) => [
+      ...current,
+      {
+        id: nextMessageId('you-typed'),
+        sender: 'user',
+        text: cleanedPrompt,
+        action: currentAction,
+      },
+      {
+        id: nextMessageId('mia-typed'),
+        sender: 'assistant',
+        text: 'I will pass this to MIA with the current chat context. The live AI runtime will fill the answer when connected.',
+        action: currentAction,
+      },
+    ]);
+    setDraftPrompt('');
+    emitAssistantMessage(cleanedPrompt, 'typed', currentChoice, currentAction);
+  };
+  return (
+    <g>
+      <AssistantChatFrame x={x} y={y} w={w} h={h} underlineX={titleUnderlineX} underlineW={titleUnderlineW} cfg={cfg}>
+        <foreignObject x={sideToggleX} y={sideToggleY} width={sideToggleSize} height={sideToggleSize}>
+          <AnimatedSidebarIconButton
+            isOpen={actionsVisible}
+            size={sideToggleSize}
+            centerPreview={false}
+            title={actionsVisible ? 'Hide action panel' : 'Show action panel'}
+            onClick={onActionToggle}
+            className="parent-portal-assistant-sidepanel-toggle"
+            config={ASSISTANT_SIDE_PANEL_ICON_CONFIG}
+          />
+        </foreignObject>
+        <AiGuideIdeaIcon x={titleIconX} y={headerCenterY - 16} width={32} height={32} color={cfg.colors.cyan} />
+        <text x={titleTextX} y={headerCenterY + 6} fontSize={17} fontWeight={980} fill={cfg.colors.bodyText}>
+          AI ASSISTANT
+        </text>
+        <AssistantCloseButton
+          x={x + w - closeButtonW - 42}
+          y={headerDividerY - closeButtonH}
+          w={closeButtonW}
+          h={closeButtonH}
+          ariaLabel="Close parent assistant"
+          onSelect={onClose}
+          cfg={cfg}
+        />
+
+        <rect
+          x={chatX}
+          y={chatY}
+          width={chatW}
+          height={chatH}
+          rx={14}
+          fill="rgba(2, 12, 20, 0.52)"
+          stroke={cfg.colors.panelStroke}
+          strokeWidth={0.85}
+        />
+        <defs>
+          <clipPath id={`${chatClipId}-assistantChat`}>
+            <rect x={chatX} y={chatY} width={chatW} height={chatH} rx={14} />
+          </clipPath>
+        </defs>
+        <g clipPath={`url(#${chatClipId}-assistantChat)`}>
+          {messagePositions.map(({ message, variant, collapsed, choices, bubbleW, y: bubbleY }) => (
+            <AssistantChatBubble
+              key={message.id}
+              id={message.id}
+              x={variant === 'outgoing' ? chatX + chatW - bubbleW - 22 : chatX + 22}
+              y={bubbleY}
+              w={bubbleW}
+              senderLabel={message.sender === 'user' ? 'YOU' : 'MIA'}
+              text={message.text}
+              variant={variant}
+              collapsed={collapsed}
+              onCollapsedChange={() => toggleCollapsed(message.id)}
+              onCopy={() => copyMessageText(message.text)}
+              choices={choices}
+              choiceActionLabel={message.choiceActionLabel}
+              onChoiceSelect={
+                message.action ? (choice) => selectMainChoice(choice, message.action ?? currentAction) : undefined
+              }
+            />
+          ))}
+        </g>
+        <path
+          d={`M ${chatX + chatW - 13} ${chatY + 22} V ${chatY + chatH - 22}`}
+          stroke={cfg.colors.cyan}
+          strokeWidth={1.2}
+          strokeLinecap="round"
+          opacity={0.32}
+        />
+        <path
+          d={`M ${chatX + chatW - 13} ${chatY + 40} V ${chatY + 118}`}
+          stroke={cfg.colors.cyan}
+          strokeWidth={3.2}
+          strokeLinecap="round"
+          opacity={0.82}
+          filter="url(#parentPortalGlow)"
+        />
+        {followUps.length > 0 ? (
+          <AssistantFollowUpPanel
+            x={chatX + 14}
+            y={followUpY}
+            w={chatW - 28}
+            label={followUpLabel}
+            questions={followUps}
+            onSelect={selectFollowUp}
+            cfg={cfg}
+          />
+        ) : null}
+        <AssistantComposerSplitter
+          x={composerX}
+          y={splitterY}
+          w={composerW}
+          dragging={resizingComposer}
+          onPointerDown={(event) => {
+            event.preventDefault();
+            setResizingComposer(true);
+            event.currentTarget.setPointerCapture?.(event.pointerId);
+            updateComposerSplitFromPointer(event);
+          }}
+          onPointerMove={(event) => {
+            if (!resizingComposer) return;
+            updateComposerSplitFromPointer(event);
+          }}
+          onPointerUp={(event) => {
+            setResizingComposer(false);
+            event.currentTarget.releasePointerCapture?.(event.pointerId);
+          }}
+          onPointerCancel={() => setResizingComposer(false)}
+          cfg={cfg}
+        />
+        <AssistantComposer
+          x={composerX}
+          y={composerY}
+          w={composerW}
+          h={composerH}
+          prompt={draftPrompt}
+          onPromptChange={setDraftPrompt}
+          onSend={sendDraftPrompt}
+          cfg={cfg}
+        />
+      </AssistantChatFrame>
+    </g>
+  );
+}
+
+function AssistantChatFrame({ x, y, w, h, underlineX, underlineW, children, cfg }) {
+  const headerH = 62;
+  return (
+    <g>
+      <ParentPortalPanelFrame x={x} y={y} w={w} h={h} color={cfg.colors.cyan} active fill="rgba(5, 20, 34, 0.94)" />
+      <AssistantHeaderDivider
+        x={x}
+        y={y + headerH - 2}
+        w={w}
+        underlineX={underlineX}
+        underlineW={underlineW}
+        cfg={cfg}
+      />
+      {children}
+    </g>
+  );
+}
+
+function AssistantHeaderDivider({ x, y, w, underlineX, underlineW, cfg }) {
+  const handleW = clampNumber(underlineW, 112, 186);
+  const handleX = clampNumber(underlineX, x + 36, x + w - 36 - handleW);
+  const lineStart = x + 36;
+  const lineEnd = x + w - 36;
+  const handleGap = 8;
+  return (
+    <g pointerEvents="none">
+      <path
+        d={`M ${lineStart} ${y} H ${Math.max(lineStart, handleX - handleGap)}`}
+        stroke={cfg.colors.cyan}
+        strokeWidth={0.55}
+        strokeLinecap="round"
+        opacity={0.38}
+      />
+      <path
+        d={`M ${Math.min(lineEnd, handleX + handleW + handleGap)} ${y} H ${lineEnd}`}
+        stroke={cfg.colors.cyan}
+        strokeWidth={0.55}
+        strokeLinecap="round"
+        opacity={0.38}
+      />
+      <rect
+        x={handleX}
+        y={y - 2.25}
+        width={handleW}
+        height={4.5}
+        rx={2.25}
+        fill="transparent"
+        stroke={colorAlpha(cfg.colors.cyan, 'b0')}
+        strokeWidth={0.55}
+        filter="url(#parentPortalGlow)"
+      />
+    </g>
+  );
+}
+
+function AssistantCloseButton({ x, y, w, h, ariaLabel, onSelect, cfg }) {
+  const [hovered, setHovered] = useState(false);
+  const color = hovered ? cfg.colors.red : cfg.colors.cyan;
+  return (
+    <g
+      className="parent-portal-svg-clickable"
+      role="button"
+      tabIndex={0}
+      aria-label={ariaLabel}
+      onClick={onSelect}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onFocus={() => setHovered(true)}
+      onBlur={() => setHovered(false)}
+    >
+      <title>{ariaLabel}</title>
+      <rect
+        x={x}
+        y={y}
+        width={w}
+        height={h}
+        rx={7}
+        fill={colorAlpha(cfg.colors.cyan, '1d')}
+        stroke={color}
+        strokeWidth={hovered ? 1.25 : 0.85}
+      />
+      <text
+        x={x + w / 2}
+        y={y + h / 2 + 4}
+        textAnchor="middle"
+        fontSize={10.5}
+        fontWeight={950}
+        fill={cfg.colors.bodyText}
+      >
+        CLOSE
+      </text>
+    </g>
+  );
+}
+
+function PortalTransitionSpinner({ cx, cy, label, cfg }) {
+  const ringR = 29;
+  return (
+    <g role="status" aria-label={label} pointerEvents="none">
+      <rect
+        x={cx - 190}
+        y={cy - 76}
+        width={380}
+        height={152}
+        rx={18}
+        fill="rgba(1, 8, 18, 0.78)"
+        stroke={colorAlpha(cfg.colors.cyan, '82')}
+        strokeWidth={0.9}
+        filter="url(#parentPortalGlow)"
+      />
+      <circle
+        cx={cx}
+        cy={cy - 12}
+        r={ringR}
+        fill="none"
+        stroke={colorAlpha(cfg.colors.panelStroke, '7a')}
+        strokeWidth={5}
+      />
+      <path
+        d={`M ${cx} ${cy - 12 - ringR} A ${ringR} ${ringR} 0 0 1 ${cx + ringR} ${cy - 12}`}
+        fill="none"
+        stroke={cfg.colors.cyan}
+        strokeWidth={5.5}
+        strokeLinecap="round"
+        filter="url(#parentPortalGlow)"
+      >
+        <animateTransform
+          attributeName="transform"
+          type="rotate"
+          from={`0 ${cx} ${cy - 12}`}
+          to={`360 ${cx} ${cy - 12}`}
+          dur="0.78s"
+          repeatCount="indefinite"
+        />
+      </path>
+      <text x={cx} y={cy + 48} textAnchor="middle" fontSize={13.5} fontWeight={950} fill={cfg.colors.bodyText}>
+        {label}
+      </text>
+    </g>
+  );
+}
+
+function assistantChatBubbleHeight(w, text, collapsed, config, extraExpandedHeight = 0) {
+  return estimateChatBubbleHeight({ width: w, text, collapsed, config }) + (collapsed ? 0 : extraExpandedHeight);
+}
+
+function assistantSmartBubbleWidth({
+  text,
+  availableW,
+  variant,
+  hasChoices = false,
+}: {
+  text: string;
+  availableW: number;
+  variant: 'incoming' | 'outgoing';
+  hasChoices?: boolean;
+}) {
+  const usableW = Math.max(220, availableW - 44);
+  const maxW = Math.min(usableW, Math.max(260, availableW * 0.86));
+  const minW = clampNumber(variant === 'outgoing' ? 230 : 300, 190, maxW);
+  const normalizedText = (text || ' ').trim() || ' ';
+  const textLines = normalizedText.split(/\r?\n/);
+  const longestLineLength = textLines.reduce((longest, line) => Math.max(longest, line.length), 0);
+  const longestWordLength = normalizedText.split(/\s+/).reduce((longest, word) => Math.max(longest, word.length), 0);
+  const totalLength = normalizedText.length;
+  const chromeW = variant === 'outgoing' ? 86 : 94;
+  const lineDrivenW = longestLineLength * 5.55 + chromeW;
+  const wordDrivenW = longestWordLength * 6.8 + chromeW;
+  const paragraphDrivenW = totalLength > 130 ? 540 + (totalLength - 130) * 3.2 : 0;
+  const choiceDrivenW = hasChoices ? 620 : 0;
+  return clampNumber(Math.max(minW, lineDrivenW, wordDrivenW, paragraphDrivenW, choiceDrivenW), minW, maxW);
+}
+
+function AssistantChatBubble({
+  x,
+  y,
+  w,
+  senderLabel,
+  text,
+  variant,
+  collapsed = false,
+  onCollapsedChange,
+  onCopy,
+  choices,
+  choiceActionLabel,
+  onChoiceSelect,
+}) {
+  const config = variant === 'outgoing' ? ASSISTANT_OUTGOING_CHAT_BUBBLE_CONFIG : ASSISTANT_INCOMING_CHAT_BUBBLE_CONFIG;
+  const choicesExtra = choices?.length ? assistantBubbleChoiceBodyHeight(w, choices.length) : 0;
+  const choiceColumnCount = choices?.length ? assistantBubbleChoiceColumnCount(w) : 1;
+  const bubbleH = assistantChatBubbleHeight(w, text, collapsed, config, choicesExtra);
+  const inset = 10;
+  return (
+    <foreignObject
+      x={x - inset}
+      y={y - inset}
+      width={w + inset * 2}
+      height={bubbleH + inset * 2}
+      style={{ overflow: 'visible' }}
+    >
+      <div
+        xmlns="http://www.w3.org/1999/xhtml"
+        style={{
+          width: w + inset * 2,
+          height: bubbleH + inset * 2,
+          overflow: 'visible',
+        }}
+      >
+        <div style={{ transform: `translate(${inset}px, ${inset}px)` }}>
+          <ChatBubbleSvg
+            variant={variant}
+            width={w}
+            text={text}
+            collapsed={collapsed}
+            copyLabel={`Copy ${senderLabel} message`}
+            collapseLabel={`Collapse ${senderLabel} message`}
+            expandLabel={`Expand ${senderLabel} message`}
+            messageLabel={`${senderLabel}: ${text}`}
+            headerLabel={senderLabel}
+            onCollapsedChange={onCollapsedChange}
+            onCopyClick={onCopy}
+            config={config}
+            body={
+              <AssistantChatBubbleBody
+                text={text}
+                choices={choices}
+                choiceColumnCount={choiceColumnCount}
+                choiceActionLabel={choiceActionLabel}
+                onChoiceSelect={onChoiceSelect}
+              />
+            }
+          />
+        </div>
+      </div>
+    </foreignObject>
+  );
+}
+
+function AssistantChatBubbleBody({ text, choices, choiceColumnCount, choiceActionLabel, onChoiceSelect }) {
+  const choicesVisible = choices?.length && onChoiceSelect;
+  return (
+    <div
+      style={{
+        display: 'grid',
+        gap: choicesVisible ? 10 : 4,
+        padding: '0 2px',
+      }}
+    >
+      <div style={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere', wordBreak: 'break-word' }}>{text}</div>
+      {choicesVisible ? (
+        <div
+          role="group"
+          aria-label={`${choiceActionLabel ?? 'MIA'} choices`}
+          style={{
+            display: 'grid',
+            gridTemplateColumns: `repeat(${choiceColumnCount}, minmax(0, 1fr))`,
+            gap: 7,
+          }}
+        >
+          {choices.map((choice) => (
+            <button
+              key={choice.label}
+              type="button"
+              aria-label={`Ask MIA about ${choiceActionLabel}: ${choice.label}`}
+              onClick={(event) => {
+                event.stopPropagation();
+                onChoiceSelect(choice);
+              }}
+              style={{
+                minHeight: 28,
+                borderRadius: 7,
+                border: '1px solid rgba(11, 95, 146, 0.34)',
+                background: 'rgba(11, 95, 146, 0.08)',
+                color: '#0b1f2f',
+                font: 'inherit',
+                fontWeight: 800,
+                cursor: 'pointer',
+                padding: '5px 8px',
+                textAlign: 'left',
+                overflowWrap: 'anywhere',
+                wordBreak: 'break-word',
+              }}
+            >
+              {choice.label}
+            </button>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function assistantBubbleChoiceColumnCount(w: number): number {
+  if (w < 420) return 1;
+  if (w < 620) return 2;
+  return 4;
+}
+
+function assistantBubbleChoiceBodyHeight(w: number, choiceCount: number): number {
+  const columnCount = assistantBubbleChoiceColumnCount(w);
+  const rowCount = Math.max(1, Math.ceil(Math.min(4, choiceCount) / columnCount));
+  return 12 + rowCount * 36;
+}
+
+function assistantFollowUpColumnCount(w: number): number {
+  if (w < 960) return 1;
+  if (w < 1100) return 2;
+  return 4;
+}
+
+function assistantFollowUpPanelHeight(w: number, questionCount = 4): number {
+  const visibleQuestionCount = Math.max(1, Math.min(4, questionCount));
+  const rowCount = Math.ceil(visibleQuestionCount / assistantFollowUpColumnCount(w));
+  return 42 + rowCount * 40;
+}
+
+function AssistantFollowUpPanel({ x, y, w, label, questions, onSelect, cfg }) {
+  const visibleQuestions = questions.slice(0, 4);
+  const columnCount = Math.min(assistantFollowUpColumnCount(w), Math.max(1, visibleQuestions.length));
+  const rowCount = Math.max(1, Math.ceil(visibleQuestions.length / columnCount));
+  const labelY = y + 23;
+  const listY = y + 38;
+  const rowH = 40;
+  const h = 42 + rowCount * rowH;
+  const gap = 10;
+  const itemW = (w - gap * (columnCount - 1)) / columnCount;
+  const labelW = label.length * 8.9 + 20;
+  return (
+    <g role="group" aria-label="Follow-up questions">
+      <rect x={x} y={y} width={w} height={h} rx={10} fill="rgba(4, 18, 31, 0.18)" opacity={0.78} />
+      <path d={`M ${x + 8} ${labelY - 4} H ${x + 34}`} stroke={cfg.colors.bodyText} strokeWidth={0.8} opacity={0.76} />
+      <text x={x + 44} y={labelY} fontSize={15.2} fontWeight={970} fill={cfg.colors.bodyText}>
+        {label}
+      </text>
+      <path
+        d={`M ${x + 44 + labelW} ${labelY - 4} H ${x + w - 10}`}
+        stroke={cfg.colors.bodyText}
+        strokeWidth={0.8}
+        opacity={0.48}
+      />
+      {visibleQuestions.map((question, index) => {
+        const col = index % columnCount;
+        const row = Math.floor(index / columnCount);
+        return (
+          <AssistantFollowUpQuestion
+            key={question}
+            x={x + col * (itemW + gap)}
+            y={listY + row * rowH}
+            w={itemW}
+            h={rowH}
+            label={question}
+            showLeftDivider={col > 0}
+            onSelect={() => onSelect(question)}
+            cfg={cfg}
+          />
+        );
+      })}
+    </g>
+  );
+}
+
+function AssistantFollowUpQuestion({ x, y, w, h, label, showLeftDivider, onSelect, cfg }) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <g
+      className="parent-portal-svg-clickable"
+      role="button"
+      tabIndex={0}
+      aria-label={`Ask MIA: ${label}`}
+      onClick={onSelect}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onFocus={() => setHovered(true)}
+      onBlur={() => setHovered(false)}
+    >
+      <title>{label}</title>
+      {showLeftDivider ? (
+        <path
+          d={`M ${x - 5} ${y + 5} V ${y + h - 5}`}
+          stroke={cfg.colors.panelStroke}
+          strokeWidth={0.65}
+          opacity={0.54}
+        />
+      ) : null}
+      <rect
+        x={x}
+        y={y + 2}
+        width={w}
+        height={h - 4}
+        rx={6}
+        fill={hovered ? colorAlpha(cfg.colors.cyan, '1d') : 'transparent'}
+        stroke="transparent"
+      />
+      <path
+        d={`M ${x + 2} ${y + h - 2} H ${x + w - 2}`}
+        stroke={cfg.colors.panelStroke}
+        strokeWidth={0.5}
+        opacity={0.34}
+      />
+      <text x={x + 10} y={y + 26} fontSize={14.2} fontWeight={940} fill={hovered ? '#ffffff' : cfg.colors.bodyText}>
+        {truncateTextForWidth(label, w - 20, 14.2, 0.56)}
+      </text>
+    </g>
+  );
+}
+
+function AssistantComposerSplitter({
+  x,
+  y,
+  w,
+  dragging,
+  onPointerDown,
+  onPointerMove,
+  onPointerUp,
+  onPointerCancel,
+  cfg,
+}) {
+  const [hovered, setHovered] = useState(false);
+  const handleW = Math.min(148, Math.max(78, w * 0.14));
+  const handleX = x + w / 2 - handleW / 2;
+  const lineStart = x + 8;
+  const lineEnd = x + w - 8;
+  const handleGap = 8;
+  const lit = hovered || dragging;
+  return (
+    <g
+      role="separator"
+      aria-label="Resize assistant chat composer"
+      aria-orientation="horizontal"
+      tabIndex={0}
+      className="parent-portal-svg-clickable"
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerUp}
+      onPointerCancel={onPointerCancel}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onFocus={() => setHovered(true)}
+      onBlur={() => setHovered(false)}
+      style={{ cursor: 'ns-resize' }}
+    >
+      <rect x={x} y={y - 14} width={w} height={28} rx={10} fill="transparent" />
+      <path
+        d={`M ${lineStart} ${y} H ${Math.max(lineStart, handleX - handleGap)}`}
+        stroke={cfg.colors.panelStroke}
+        strokeWidth={0.75}
+        strokeLinecap="round"
+        opacity={lit ? 0.72 : 0.48}
+      />
+      <path
+        d={`M ${Math.min(lineEnd, handleX + handleW + handleGap)} ${y} H ${lineEnd}`}
+        stroke={cfg.colors.panelStroke}
+        strokeWidth={0.75}
+        strokeLinecap="round"
+        opacity={lit ? 0.72 : 0.48}
+      />
+      <rect
+        x={handleX}
+        y={y - 3.5}
+        width={handleW}
+        height={7}
+        rx={3.5}
+        fill={lit ? colorAlpha(cfg.colors.cyan, '22') : 'transparent'}
+        stroke={colorAlpha(cfg.colors.cyan, lit ? 'c8' : '99')}
+        strokeWidth={0.7}
+      />
+    </g>
+  );
+}
+
+function AssistantComposer({ x, y, w, h, prompt, onSend, cfg }) {
+  const displayPrompt = prompt || 'Ask MIA about activity, rules, reports, setup...';
+  const attachSize = 30;
+  const sendW = 58;
+  const sendH = 34;
+  const voiceSize = 32;
+  const sendX = x + w - sendW - 14;
+  const sendY = y + (h - sendH) / 2;
+  const voiceX = sendX - voiceSize - 10;
+  const inputX = x + 58;
+  const inputW = Math.max(120, voiceX - inputX - 12);
+  const planeCx = sendX + sendW / 2 + 2;
+  const planeCy = sendY + sendH / 2;
+  return (
+    <g>
+      <path
+        d={topRoundedRectPath(x, y, w, h, 14)}
+        fill="rgba(2, 12, 20, 0.82)"
+        stroke={cfg.colors.cyan}
+        strokeWidth={0.95}
+      />
+      <g role="button" tabIndex={0} aria-label="Attach context to MIA" className="parent-portal-svg-clickable">
+        <title>Attach context to MIA</title>
+        <rect
+          x={x + 14}
+          y={y + 9}
+          width={attachSize}
+          height={attachSize}
+          rx={8}
+          fill={colorAlpha(cfg.colors.cyan, '18')}
+          stroke={cfg.colors.cyan}
+          strokeWidth={0.9}
+        />
+        <path
+          d={`M ${x + 29} ${y + 17} V ${y + 31} M ${x + 22} ${y + 24} H ${x + 36}`}
+          stroke={cfg.colors.cyan}
+          strokeWidth={1.4}
+          strokeLinecap="round"
+        />
+      </g>
+      <text
+        x={inputX}
+        y={y + 30}
+        fontSize={12.5}
+        fontWeight={780}
+        fill={prompt ? cfg.colors.bodyText : cfg.colors.mutedText}
+      >
+        {truncateTextForWidth(displayPrompt, inputW, 12.5, 0.56)}
+      </text>
+      <g role="button" tabIndex={0} aria-label="Use voice input for MIA" className="parent-portal-svg-clickable">
+        <title>Use voice input for MIA</title>
+        <rect
+          x={voiceX}
+          y={y + 8}
+          width={voiceSize}
+          height={voiceSize}
+          rx={10}
+          fill={colorAlpha(cfg.colors.gold, '18')}
+          stroke={cfg.colors.panelStroke}
+          strokeWidth={0.9}
+        />
+        <rect
+          x={voiceX + 12}
+          y={y + 15}
+          width={8}
+          height={13}
+          rx={4}
+          fill="none"
+          stroke={cfg.colors.bodyText}
+          strokeWidth={1.35}
+        />
+        <path
+          d={`M ${voiceX + 8} ${y + 24} C ${voiceX + 8} ${y + 32}, ${voiceX + 24} ${y + 32}, ${voiceX + 24} ${y + 24}`}
+          fill="none"
+          stroke={cfg.colors.bodyText}
+          strokeWidth={1.25}
+          strokeLinecap="round"
+        />
+        <path
+          d={`M ${voiceX + 16} ${y + 32} V ${y + 36} M ${voiceX + 12} ${y + 36} H ${voiceX + 20}`}
+          stroke={cfg.colors.bodyText}
+          strokeWidth={1.25}
+          strokeLinecap="round"
+        />
+      </g>
+      <g
+        role="button"
+        tabIndex={0}
+        aria-label="Send message to MIA"
+        className="parent-portal-svg-clickable"
+        onClick={onSend}
+        onKeyDown={(event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            onSend?.();
+          }
+        }}
+      >
+        <title>Send message to MIA</title>
+        <rect
+          x={sendX}
+          y={sendY}
+          width={sendW}
+          height={sendH}
+          rx={sendH / 2}
+          fill={colorAlpha(cfg.colors.cyan, '24')}
+          stroke={cfg.colors.cyan}
+          strokeWidth={1.05}
+        />
+        <rect
+          x={sendX}
+          y={sendY + 3}
+          width={12}
+          height={sendH - 6}
+          rx={(sendH - 6) / 2}
+          fill={colorAlpha(cfg.colors.cyan, '62')}
+          stroke={colorAlpha(cfg.colors.bodyText, 'b8')}
+          strokeWidth={0.55}
+          filter="url(#parentPortalGlow)"
+        />
+        <path
+          d={`M ${planeCx - 11} ${planeCy - 7} L ${planeCx + 12} ${planeCy} L ${planeCx - 11} ${planeCy + 7} L ${planeCx - 5} ${planeCy} Z`}
+          fill={cfg.colors.bodyText}
+          opacity={0.96}
+        />
+        <path
+          d={`M ${planeCx - 5} ${planeCy} H ${planeCx + 8}`}
+          stroke={cfg.colors.cyan}
+          strokeWidth={1.25}
+          strokeLinecap="round"
+          opacity={0.9}
+        />
+      </g>
+    </g>
+  );
+}
+
+function ManagePill({ x, y, w, h, label, selected, tone, themeColor, onSelect, cfg }) {
+  const [hovered, setHovered] = useState(false);
+  const color = themeColor ?? toneColor(tone, cfg);
+  return (
+    <g
+      className="parent-portal-svg-clickable"
+      role="button"
+      tabIndex={0}
+      aria-label={`Select ${label}`}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onClick={onSelect}
+    >
+      <title>{label}</title>
+      <path
+        d={cutRectPath(x, y, w, h, 8)}
+        fill={selected ? colorAlpha(color, '34') : hovered ? colorAlpha(color, '22') : colorAlpha(color, '08')}
+        stroke={selected || hovered ? color : cfg.colors.panelStroke}
+        strokeWidth={selected ? 1.25 : hovered ? 1 : 0.7}
+        filter={selected || hovered ? 'url(#parentPortalGlow)' : undefined}
+      />
+      <text
+        x={x + w / 2}
+        y={y + 19}
+        textAnchor="middle"
+        fontSize={10.5}
+        fontWeight={900}
+        fill={selected ? cfg.colors.bodyText : cfg.colors.mutedText}
+      >
+        {truncateTextForWidth(label, w - 12, 10.5, 0.58)}
+      </text>
+    </g>
+  );
+}
+
+function ManageModeButton({ x, y, w, h, item, selected, themeColor, onSelect, cfg }) {
+  const [hovered, setHovered] = useState(false);
+  const color = themeColor ?? toneColor(item.tone, cfg);
+  const titleText = item.detail ? `${item.label}: ${item.detail}` : item.label;
+  return (
+    <g
+      className="parent-portal-svg-clickable"
+      role="button"
+      tabIndex={0}
+      aria-label={`Use ${item.label}`}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onClick={onSelect}
+    >
+      <title>{titleText}</title>
+      <path
+        d={cutRectPath(x, y, w, h, 8)}
+        fill={selected ? colorAlpha(color, '30') : hovered ? colorAlpha(color, '18') : colorAlpha(color, '08')}
+        stroke={selected || hovered ? color : cfg.colors.panelStroke}
+        strokeWidth={selected ? 1.25 : hovered ? 1 : 0.7}
+        filter={selected || hovered ? 'url(#parentPortalGlow)' : undefined}
+      />
+      <text x={x + 10} y={y + h / 2 + 4} fontSize={12} fontWeight={950} fill={selected ? cfg.colors.bodyText : color}>
+        {truncateTextForWidth(item.label, w - 20, 12, 0.58)}
+      </text>
+    </g>
+  );
+}
+
+function ManageToggle({ x, y, w, h, option, selected, disabled = false, themeColor, onToggle, cfg }) {
+  const [hovered, setHovered] = useState(false);
+  const color = themeColor ?? toneColor(option.tone, cfg);
+  return (
+    <g
+      className={disabled ? undefined : 'parent-portal-svg-clickable'}
+      role="checkbox"
+      tabIndex={disabled ? undefined : 0}
+      aria-label={option.label}
+      aria-checked={selected}
+      aria-disabled={disabled || undefined}
+      opacity={disabled ? 0.46 : 1}
+      onMouseEnter={disabled ? undefined : () => setHovered(true)}
+      onMouseLeave={disabled ? undefined : () => setHovered(false)}
+      onClick={disabled ? undefined : onToggle}
+    >
+      <title>{option.detail ? `${option.label}: ${option.detail}` : option.label}</title>
+      <path
+        d={cutRectPath(x, y, w, h, 8)}
+        fill={selected ? colorAlpha(color, '22') : hovered ? colorAlpha(color, '14') : colorAlpha(color, '08')}
+        stroke={selected || hovered ? color : cfg.colors.panelStroke}
+        strokeWidth={selected ? 1.05 : hovered ? 0.95 : 0.7}
+        filter={selected || hovered ? 'url(#parentPortalGlow)' : undefined}
+      />
+      <path
+        d={cutRectPath(x + 8, y + 9, 24, 24, 5)}
+        fill={selected ? colorAlpha(color, '4c') : 'transparent'}
+        stroke={color}
+        strokeWidth={1}
+      />
+      {selected ? (
+        <path
+          d={`M ${x + 14} ${y + 22} l 5 5 l 9 -13`}
+          fill="none"
+          stroke={cfg.colors.bodyText}
+          strokeWidth={2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      ) : null}
+      <text x={x + 42} y={y + 18} fontSize={10.5} fontWeight={930} fill={cfg.colors.bodyText}>
+        {truncateTextForWidth(option.label, w - 50, 10.5, 0.58)}
+      </text>
+    </g>
+  );
+}
+
+function ManageActionButton({ x, y, w, h, action, themeColor, onSelect, cfg }) {
+  const [hovered, setHovered] = useState(false);
+  const color = themeColor ?? toneColor(action.tone, cfg);
+  return (
+    <g
+      className="parent-portal-svg-clickable"
+      role="button"
+      tabIndex={0}
+      aria-label={action.label}
+      onClick={onSelect}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onFocus={() => setHovered(true)}
+      onBlur={() => setHovered(false)}
+    >
+      <title>{action.detail ? `${action.label}: ${action.detail}` : action.label}</title>
+      {hovered ? (
+        <path
+          d={cutRectPath(x - 4, y - 4, w + 8, h + 8, 10)}
+          fill="none"
+          stroke={color}
+          strokeWidth={1.4}
+          opacity={0.5}
+          filter="url(#parentPortalGlow)"
+        />
+      ) : null}
+      <path
+        d={cutRectPath(x, y, w, h, 8)}
+        fill={hovered ? colorAlpha(color, '32') : colorAlpha(color, '18')}
+        stroke={hovered ? color : cfg.colors.panelStroke}
+        strokeWidth={hovered ? 1.2 : 0.8}
+      />
+      <text x={x + 14} y={y + h / 2 + 4} fontSize={11.5} fontWeight={950} fill={cfg.colors.bodyText}>
+        {truncateTextForWidth(action.label.toUpperCase(), w - 28, 11.5, 0.58)}
+      </text>
+    </g>
+  );
+}
+
+function ParentPortalDetailPanel({
+  x,
+  y,
+  w,
+  h,
+  activeNavLabel,
+  activeNavGroupId,
+  detail,
+  rows,
+  selectedControlName,
+  themeTone,
+  themeColor,
+  guideTopic,
+  guidePage,
+  onGuidePageChange,
+  quickPanelMode,
+  onQuickPanelModeChange,
+  onGuideNoteSelect,
+  manageTargetSelection,
+  onManageTargetChange,
+  onNavigate,
+  cfg,
+}: {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  activeNavLabel: string;
+  activeNavGroupId: string;
+  detail: TabDetail;
+  rows: DisplayRow[];
+  selectedControlName: string;
+  themeTone?: Tone;
+  themeColor?: string;
+  guideTopic?: ParentPortalGuideTopic | null;
+  guidePage: number;
+  onGuidePageChange: (page: number) => void;
+  quickPanelMode: 'read' | 'action';
+  onQuickPanelModeChange: (mode: 'read' | 'action') => void;
+  onGuideNoteSelect: (note: ParentPortalGuideNote) => void;
+  manageTargetSelection?: ManageTargetSelection;
+  onManageTargetChange?: (selection: ManageTargetSelection) => void;
+  onNavigate?: (routePath: string) => void;
+  cfg: ParentPortalSvgControls;
+}) {
+  if (guideTopic) {
+    return (
+      <GuideTopicDetailPanel
+        x={x}
+        y={y}
+        w={w}
+        h={h}
+        topic={guideTopic}
+        page={guidePage}
+        onPageChange={onGuidePageChange}
+        quickPanelMode={quickPanelMode}
+        onQuickPanelModeChange={onQuickPanelModeChange}
+        onNoteSelect={onGuideNoteSelect}
+        themeColor={themeColor}
+        cfg={cfg}
+      />
+    );
+  }
+  const manageSpec = activeNavGroupId === 'manage' ? manageControlSpecFor(activeNavLabel, selectedControlName) : null;
+  if (manageSpec) {
+    return (
+      <ManageControlPanel
+        x={x}
+        y={y}
+        w={w}
+        h={h}
+        activeNavLabel={activeNavLabel}
+        selectedControlName={selectedControlName}
+        spec={manageSpec}
+        themeTone={themeTone ?? detail.tone}
+        themeColor={themeColor}
+        targetSelection={
+          manageTargetSelection ?? {
+            scope: manageInitialScopeForSpec(manageLaneForKey(activeNavLabel, selectedControlName), manageSpec),
+            device: manageDefaultDeviceSelection(manageSpec),
+            browser: manageBrowserTargetsForKey(activeNavLabel, selectedControlName)[0]?.label ?? 'All targets',
+          }
+        }
+        onTargetChange={onManageTargetChange}
+        cfg={cfg}
+      />
+    );
+  }
+  const color = themeColor ?? toneColor(detail.tone, cfg);
+  const cardGap = 12;
+  const usableH = Math.max(120, h);
+  const title = activeNavLabel || detail.title;
+  const bodyLines = wrapCardText(detail.summary, w - 40, 12, 2);
+  const featureCards = [
+    {
+      label: 'WHAT PARENTS CONTROL',
+      value: detail.primary,
+      body: detail.secondary,
+      tone: detail.tone,
+    },
+    {
+      label: 'CURRENT AREA',
+      value: selectedControlName,
+      body: 'Open this area per child device, then wire real service state as each adapter lands.',
+      tone: 'cyan',
+    },
+    {
+      label: 'DATA CUSTODY',
+      value: 'LOCAL FIRST',
+      body: 'No cloud sharing by default. Drive exports and support bundles are parent opt-in.',
+      tone: 'gold',
+    },
+    ...rows.slice(0, 3).map((row) => ({
+      label: row.primaryArea.toUpperCase(),
+      value: row.label,
+      body: `${row.trend} / ${row.readiness}`,
+      tone: row.tone,
+    })),
+  ];
+  const visibleCards = featureCards.slice(0, usableH < 300 ? 3 : 6);
+  const columnCount = w > 1220 ? 3 : w > 760 ? 2 : 1;
+  const rowCount = Math.max(1, Math.ceil(visibleCards.length / columnCount));
+  const headerH = bodyLines.length > 1 ? 78 : 62;
+  const cardW = (w - cardGap * Math.max(0, columnCount - 1)) / columnCount;
+  const cardH = clampValue((usableH - headerH - cardGap * Math.max(0, rowCount - 1)) / rowCount, 74, 118);
+  const titleSize = fitSingleLineTextSize(title, w - 40, 16, 26, 0.58);
+  return (
+    <g>
+      <text x={x} y={y + 24} fontSize={titleSize} fontWeight={950} fill={cfg.colors.bodyText}>
+        {title}
+      </text>
+      <path d={`M ${x} ${y + 39} H ${x + w}`} stroke={color} strokeWidth={1.1} opacity={0.5} />
+      {bodyLines.map((line, index) => (
+        <text
+          key={`${line}:${index}`}
+          x={x}
+          y={y + 58 + index * 17}
+          fontSize={12}
+          fontWeight={760}
+          fill={cfg.colors.mutedText}
+        >
+          {line}
+        </text>
+      ))}
+      {visibleCards.map((card, index) => {
+        const col = index % columnCount;
+        const row = Math.floor(index / columnCount);
+        const cardX = x + col * (cardW + cardGap);
+        const cardY = y + headerH + row * (cardH + cardGap);
+        const cardColor = themeColor ?? toneColor(card.tone, cfg);
+        const valueSize = fitSingleLineTextSize(card.value, cardW - 34, 12, 17, 0.58);
+        const cardBodyLines = wrapCardText(card.body, cardW - 34, 10.5, cardH > 92 ? 2 : 1);
+        return (
+          <SurfacePanel
+            key={`${card.label}:${index}`}
+            x={cardX}
+            y={cardY}
+            w={cardW}
+            h={cardH}
+            tone={card.tone}
+            accentColor={themeColor}
+            cfg={cfg}
+          >
+            <text x={cardX + 16} y={cardY + 25} fontSize={9.8} fontWeight={900} fill={cardColor}>
+              {card.label}
+            </text>
+            <text x={cardX + 16} y={cardY + 49} fontSize={valueSize} fontWeight={950} fill={cfg.colors.bodyText}>
+              {truncateTextForWidth(card.value, cardW - 34, valueSize, 0.58)}
+            </text>
+            {cardBodyLines.map((line, lineIndex) => (
+              <text
+                key={`${line}:${lineIndex}`}
+                x={cardX + 16}
+                y={cardY + 70 + lineIndex * 15}
+                fontSize={10.5}
+                fontWeight={720}
+                fill={cfg.colors.mutedText}
+              >
+                {line}
+              </text>
+            ))}
+          </SurfacePanel>
+        );
+      })}
+    </g>
+  );
+}
+
+function GuideQuickTab({
+  x,
+  y,
+  w,
+  h,
+  label,
+  active,
+  tone,
+  themeColor,
+  onClick,
+  cfg,
+}: {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  label: string;
+  active: boolean;
+  tone: Tone;
+  themeColor?: string;
+  onClick: () => void;
+  cfg: ParentPortalSvgControls;
+}) {
+  const [hovered, setHovered] = useState(false);
+  const color = themeColor ?? toneColor(tone, cfg);
+  const lit = active || hovered;
+  return (
+    <g
+      className="parent-portal-svg-clickable"
+      role="button"
+      tabIndex={0}
+      aria-label={`Show ${label}`}
+      aria-pressed={active}
+      onClick={(event) => {
+        event.stopPropagation();
+        onClick();
+      }}
+      onKeyDown={(event) => {
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        event.preventDefault();
+        event.stopPropagation();
+        onClick();
+      }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <ClickableCardHoverChrome x={x} y={y} w={w} h={h} color={color} active={active} hovered={hovered} arrow={false} />
+      <path
+        d={cutRectPath(x, y, w, h, 7)}
+        fill={lit ? colorAlpha(color, active ? '42' : '24') : 'rgba(5, 19, 32, 0.86)'}
+        stroke={lit ? color : cfg.colors.panelStroke}
+        strokeWidth={active ? 1.25 : 0.85}
+      />
+      <text
+        x={x + w / 2}
+        y={y + h / 2 + 4}
+        textAnchor="middle"
+        fontSize={fitSingleLineTextSize(label, w - 12, 8.8, 10.8, 0.58)}
+        fontWeight={950}
+        fill={lit ? cfg.colors.bodyText : cfg.colors.mutedText}
+      >
+        {label}
+      </text>
+    </g>
+  );
+}
+
+function GuideNoteCard({
+  x,
+  y,
+  w,
+  h,
+  note,
+  mode,
+  themeColor,
+  onSelect,
+  cfg,
+}: {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  note: ParentPortalGuideNote;
+  mode: 'read' | 'action';
+  themeColor?: string;
+  onSelect: (note: ParentPortalGuideNote) => void;
+  cfg: ParentPortalSvgControls;
+}) {
+  const [hovered, setHovered] = useState(false);
+  const noteColor = themeColor ?? toneColor(note.tone, cfg);
+  const actionable =
+    mode === 'action' ||
+    Boolean(note.targetRoutePath || note.targetNavLabel || note.targetTopicId || typeof note.targetPage === 'number');
+  const lit = actionable && (hovered || mode === 'action');
+  const labelSize = fitSingleLineTextSize(note.label, w - 20, 9.5, 12.5, 0.58);
+  const noteLines = wrapCardText(note.body, w - 24, 10.2, h > 66 ? 3 : 2);
+  return (
+    <g
+      className={actionable ? 'parent-portal-svg-clickable' : undefined}
+      role={actionable ? 'button' : undefined}
+      tabIndex={actionable ? 0 : undefined}
+      aria-label={actionable ? `Open ${note.label}` : undefined}
+      onClick={(event) => {
+        if (!actionable) return;
+        event.stopPropagation();
+        onSelect(note);
+      }}
+      onKeyDown={(event) => {
+        if (!actionable || (event.key !== 'Enter' && event.key !== ' ')) return;
+        event.preventDefault();
+        event.stopPropagation();
+        onSelect(note);
+      }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onFocus={() => setHovered(true)}
+      onBlur={() => setHovered(false)}
+    >
+      {lit ? (
+        <>
+          <path
+            d={cutRectPath(x - 4, y - 4, w + 8, h + 8, 10)}
+            fill="none"
+            stroke={noteColor}
+            strokeWidth={hovered ? 1.7 : 1.2}
+            opacity={hovered ? 0.42 : 0.28}
+            filter="url(#parentPortalGlow)"
+          />
+          {hovered ? (
+            <path
+              d={`M ${x + w - 10} ${y + 15} L ${x + w + 8} ${y + h / 2} L ${x + w - 10} ${y + h - 15} Z`}
+              fill={noteColor}
+              opacity={0.64}
+              filter="url(#parentPortalGlow)"
+            />
+          ) : null}
+        </>
+      ) : null}
+      <path
+        d={cutRectPath(x, y, w, h, 8)}
+        fill={lit ? colorAlpha(noteColor, hovered ? '2f' : '24') : colorAlpha(noteColor, '16')}
+        stroke={lit ? noteColor : cfg.colors.panelStroke}
+        strokeWidth={lit ? 1.16 : 0.78}
+        strokeOpacity={lit ? 0.9 : 0.62}
+      />
+      <text x={x + 12} y={y + 19} fontSize={labelSize} fontWeight={950} fill={lit ? cfg.colors.bodyText : noteColor}>
+        {truncateTextForWidth(note.label.toUpperCase(), w - (actionable ? 72 : 24), labelSize, 0.58)}
+      </text>
+      {actionable ? (
+        <text x={x + w - 12} y={y + 19} textAnchor="end" fontSize={8.4} fontWeight={950} fill="#fff3b2">
+          OPEN
+        </text>
+      ) : null}
+      {noteLines.map((line, lineIndex) => (
+        <text
+          key={`${note.label}:note:${lineIndex}`}
+          x={x + 12}
+          y={y + 38 + lineIndex * 13}
+          fontSize={10.2}
+          fontWeight={720}
+          fill={cfg.colors.mutedText}
+        >
+          {line}
+        </text>
+      ))}
+    </g>
+  );
+}
+
+function GuideTopicDetailPanel({
+  x,
+  y,
+  w,
+  h,
+  topic,
+  page,
+  onPageChange,
+  quickPanelMode,
+  onQuickPanelModeChange,
+  onNoteSelect,
+  themeColor,
+  cfg,
+}: {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  topic: ParentPortalGuideTopic;
+  page: number;
+  onPageChange: (page: number) => void;
+  quickPanelMode: 'read' | 'action';
+  onQuickPanelModeChange: (mode: 'read' | 'action') => void;
+  onNoteSelect: (note: ParentPortalGuideNote) => void;
+  themeColor?: string;
+  cfg: ParentPortalSvgControls;
+}) {
+  const color = themeColor ?? toneColor(topic.tone, cfg);
+  const pageCount = Math.max(1, topic.pages.length);
+  const safePage = clampValue(page, 0, pageCount - 1);
+  const currentPage = topic.pages[safePage] ??
+    topic.pages[0] ?? {
+      eyebrow: topic.category,
+      title: topic.title,
+      body: topic.detail,
+      steps: [topic.subtitle],
+    };
+  const compact = w < 760;
+  const gap = compact ? 10 : 14;
+  const sideW = compact ? w : clampValue(w * 0.25, 235, 330);
+  const mainW = compact ? w : Math.max(280, w - sideW - gap);
+  const mainH = compact ? Math.max(210, h * 0.62) : h;
+  const sideX = compact ? x : x + mainW + gap;
+  const sideY = compact ? y + mainH + gap : y;
+  const sideH = compact ? Math.max(160, h - mainH - gap) : h;
+  const titleSize = fitSingleLineTextSize(topic.title, mainW - 36, 17, 25, 0.58);
+  const subtitleLines = wrapCardText(topic.subtitle, mainW - 36, 12, 2);
+  const bodyLines = wrapCardText(currentPage.body, mainW - 44, 13.2, compact ? 6 : 8);
+  const stepStartY = y + 158 + bodyLines.length * 19;
+  const stepGap = compact ? 38 : 42;
+  const maxSteps = Math.max(2, Math.min(currentPage.steps.length, Math.floor((y + mainH - 44 - stepStartY) / stepGap)));
+  const visibleSteps = currentPage.steps.slice(0, maxSteps);
+  const quickNotes = quickPanelMode === 'action' ? topic.actions : topic.tips;
+  const noteGap = 9;
+  const noteHeaderH = 58;
+  const noteH =
+    quickNotes.length > 0 ? Math.max(54, Math.min(82, (sideH - noteHeaderH - 28) / quickNotes.length - 1)) : 56;
+  const visibleNotes = quickNotes.slice(0, Math.max(1, Math.floor((sideH - noteHeaderH - 14) / (noteH + noteGap))));
+  return (
+    <g>
+      <SurfacePanel x={x} y={y} w={mainW} h={mainH} tone={topic.tone} accentColor={themeColor} cfg={cfg}>
+        <text x={x + 18} y={y + 28} fontSize={9.8} fontWeight={950} fill={color}>
+          {currentPage.eyebrow}
+        </text>
+        <text x={x + 18} y={y + 58} fontSize={titleSize} fontWeight={950} fill={cfg.colors.bodyText}>
+          {truncateTextForWidth(topic.title, mainW - 36, titleSize, 0.58)}
+        </text>
+        {subtitleLines.map((line, index) => (
+          <text
+            key={`${topic.id}:subtitle:${index}`}
+            x={x + 18}
+            y={y + 79 + index * 16}
+            fontSize={12}
+            fontWeight={760}
+            fill={cfg.colors.mutedText}
+          >
+            {line}
+          </text>
+        ))}
+        <path d={`M ${x + 18} ${y + 104} H ${x + mainW - 18}`} stroke={color} strokeWidth={0.9} opacity={0.45} />
+        <text x={x + 18} y={y + 127} fontSize={17} fontWeight={950} fill={cfg.colors.bodyText}>
+          {truncateTextForWidth(currentPage.title, mainW - 36, 17, 0.58)}
+        </text>
+        {bodyLines.map((line, index) => (
+          <text
+            key={`${topic.id}:body:${index}`}
+            x={x + 18}
+            y={y + 151 + index * 19}
+            fontSize={13.2}
+            fontWeight={720}
+            fill={cfg.colors.mutedText}
+          >
+            {line}
+          </text>
+        ))}
+        {visibleSteps.map((step, index) => {
+          const stepY = stepStartY + index * stepGap;
+          const stepLines = wrapCardText(step, mainW - 72, 12.2, 2);
+          return (
+            <g key={`${topic.id}:step:${index}`}>
+              <circle
+                cx={x + 30}
+                cy={stepY - 4}
+                r={10}
+                fill={colorAlpha(color, '22')}
+                stroke={color}
+                strokeWidth={0.85}
+              />
+              <text x={x + 30} y={stepY} textAnchor="middle" fontSize={10.5} fontWeight={950} fill={color}>
+                {index + 1}
+              </text>
+              {stepLines.map((line, lineIndex) => (
+                <text
+                  key={`${topic.id}:step:${index}:${lineIndex}`}
+                  x={x + 52}
+                  y={stepY + lineIndex * 15}
+                  fontSize={12.2}
+                  fontWeight={760}
+                  fill={lineIndex === 0 ? cfg.colors.bodyText : cfg.colors.mutedText}
+                >
+                  {line}
+                </text>
+              ))}
+            </g>
+          );
+        })}
+        {pageCount > 1 ? (
+          <g>
+            {topic.pages.map((item, index) => {
+              const pillW = 30;
+              const pillX = x + mainW - 18 - (pageCount - index) * (pillW + 6);
+              const selected = index === safePage;
+              return (
+                <g
+                  key={`${topic.id}:page:${item.title}`}
+                  className="parent-portal-svg-clickable"
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`Show guide page ${index + 1}`}
+                  aria-pressed={selected}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onPageChange(index);
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.key !== 'Enter' && event.key !== ' ') return;
+                    event.preventDefault();
+                    event.stopPropagation();
+                    onPageChange(index);
+                  }}
+                >
+                  <path
+                    d={cutRectPath(pillX, y + mainH - 30, pillW, 18, 5)}
+                    fill={selected ? colorAlpha(color, '44') : 'rgba(3, 12, 22, 0.82)'}
+                    stroke={color}
+                    strokeWidth={selected ? 1.2 : 0.75}
+                  />
+                  <text
+                    x={pillX + pillW / 2}
+                    y={y + mainH - 17}
+                    textAnchor="middle"
+                    fontSize={9}
+                    fontWeight={950}
+                    fill={selected ? color : cfg.colors.mutedText}
+                  >
+                    {index + 1}
+                  </text>
+                </g>
+              );
+            })}
+          </g>
+        ) : null}
+      </SurfacePanel>
+      <SurfacePanel x={sideX} y={sideY} w={sideW} h={sideH} tone={topic.tone} accentColor={themeColor} cfg={cfg}>
+        <GuideQuickTab
+          x={sideX + 14}
+          y={sideY + 14}
+          w={(sideW - 34) / 2}
+          h={28}
+          label="QUICK READ"
+          active={quickPanelMode === 'read'}
+          tone={topic.tone}
+          themeColor={themeColor}
+          onClick={() => onQuickPanelModeChange('read')}
+          cfg={cfg}
+        />
+        <GuideQuickTab
+          x={sideX + 20 + (sideW - 34) / 2}
+          y={sideY + 14}
+          w={(sideW - 34) / 2}
+          h={28}
+          label="QUICK ACTION"
+          active={quickPanelMode === 'action'}
+          tone="gold"
+          themeColor={themeColor}
+          onClick={() => onQuickPanelModeChange('action')}
+          cfg={cfg}
+        />
+        <path
+          d={`M ${sideX + 16} ${sideY + 50} H ${sideX + sideW - 16}`}
+          stroke={color}
+          strokeWidth={0.85}
+          opacity={0.42}
+        />
+        {visibleNotes.map((note, index) => (
+          <GuideNoteCard
+            key={`${topic.id}:note:${quickPanelMode}:${note.label}:${index}`}
+            x={sideX + 14}
+            y={sideY + noteHeaderH + index * (noteH + noteGap)}
+            w={sideW - 28}
+            h={noteH}
+            note={note}
+            mode={quickPanelMode}
+            themeColor={themeColor}
+            onSelect={onNoteSelect}
+            cfg={cfg}
+          />
+        ))}
+      </SurfacePanel>
+    </g>
+  );
+}
+
+function GuideOverviewDashboard({
+  x,
+  y,
+  w,
+  h,
+  topics,
+  selectedTopicId,
+  onSelect,
+  themeColor,
+  cfg,
+}: {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  topics: ParentPortalGuideTopic[];
+  selectedTopicId: string;
+  onSelect: (topic: ParentPortalGuideTopic) => void;
+  themeColor?: string;
+  cfg: ParentPortalSvgControls;
+}) {
+  const setupTopic = topics.find((topic) => normalizeSelectionId(topic.id) === 'setup-overall') ?? topics[0];
+  const cards = topics.filter((topic) => topic !== setupTopic);
+  const columns = w > 1220 ? 4 : w > 900 ? 3 : w > 340 ? 2 : 1;
+  const denseTopicMap = columns === 1 || cards.length > 10;
+  const introSplit = w > 720;
+  const introH = h > 390 ? (denseTopicMap ? 78 : 92) : denseTopicMap ? 58 : 70;
+  const gap = denseTopicMap ? 7 : 12;
+  const rows = Math.max(1, Math.ceil(cards.length / columns));
+  const cardW = (w - gap * Math.max(0, columns - 1)) / columns;
+  const rawCardH = (h - introH - gap * Math.max(0, rows - 1)) / rows;
+  const cardH = clampValue(rawCardH, columns === 1 ? 34 : denseTopicMap ? 58 : 84, denseTopicMap ? 104 : 130);
+  const setupColor = themeColor ?? (setupTopic ? toneColor(setupTopic.tone, cfg) : cfg.colors.cyan);
+  const introTitleSize = fitSingleLineTextSize(setupTopic?.title ?? '', introSplit ? w * 0.42 : w - 36, 15, 20, 0.58);
+  const [hoveredTopicId, setHoveredTopicId] = useState<string | null>(null);
+  return (
+    <g>
+      {setupTopic ? (
+        <g
+          className="parent-portal-svg-clickable"
+          role="button"
+          tabIndex={0}
+          aria-label={`Open ${setupTopic.title}`}
+          onClick={(event) => {
+            event.stopPropagation();
+            onSelect(setupTopic);
+          }}
+          onKeyDown={(event) => {
+            if (event.key !== 'Enter' && event.key !== ' ') return;
+            event.preventDefault();
+            event.stopPropagation();
+            onSelect(setupTopic);
+          }}
+          onMouseEnter={() => setHoveredTopicId(setupTopic.id)}
+          onMouseLeave={() => setHoveredTopicId(null)}
+          onFocus={() => setHoveredTopicId(setupTopic.id)}
+          onBlur={() => setHoveredTopicId(null)}
+        >
+          <ClickableCardHoverChrome
+            x={x}
+            y={y}
+            w={w}
+            h={introH - 10}
+            color={setupColor}
+            active={normalizeSelectionId(setupTopic.id) === normalizeSelectionId(selectedTopicId)}
+            hovered={hoveredTopicId === setupTopic.id}
+          />
+          <path
+            d={cutRectPath(x, y, w, introH - 10, 12)}
+            fill={colorAlpha(setupColor, '1f')}
+            stroke={setupColor}
+            strokeWidth={1.1}
+            strokeOpacity={0.72}
+            filter="url(#parentPortalGlow)"
+          />
+          <text x={x + 18} y={y + 28} fontSize={10} fontWeight={950} fill={setupColor}>
+            FIRST SETUP
+          </text>
+          <text
+            x={x + 18}
+            y={y + (introH < 68 ? 50 : 56)}
+            fontSize={introTitleSize}
+            fontWeight={950}
+            fill={cfg.colors.bodyText}
+          >
+            {truncateTextForWidth(setupTopic.title, introSplit ? w * 0.42 : w - 36, introTitleSize, 0.58)}
+          </text>
+          {introSplit ? (
+            <>
+              <text
+                x={x + Math.max(300, w * 0.38)}
+                y={y + 35}
+                fontSize={12.4}
+                fontWeight={760}
+                fill={cfg.colors.mutedText}
+              >
+                {truncateTextForWidth(setupTopic.subtitle, Math.max(220, w * 0.5), 12.4, 0.58)}
+              </text>
+              <text
+                x={x + Math.max(300, w * 0.38)}
+                y={y + 58}
+                fontSize={11.6}
+                fontWeight={720}
+                fill={cfg.colors.mutedText}
+              >
+                {truncateTextForWidth(setupTopic.detail, Math.max(220, w * 0.5), 11.6, 0.58)}
+              </text>
+            </>
+          ) : null}
+        </g>
+      ) : null}
+      {cards.map((topic, index) => {
+        const col = index % columns;
+        const row = Math.floor(index / columns);
+        const cardX = x + col * (cardW + gap);
+        const cardY = y + introH + row * (cardH + gap);
+        const color = themeColor ?? toneColor(topic.tone, cfg);
+        const selected = normalizeSelectionId(topic.id) === normalizeSelectionId(selectedTopicId);
+        const compactCard = cardH < 70 || cardW < 220;
+        const denseCard = cardH < 58;
+        const badgeY = denseCard ? cardY + 5 : cardY + 14;
+        const badgeH = denseCard ? 24 : 28;
+        const titleSize = fitSingleLineTextSize(
+          topic.title,
+          cardW - 62,
+          compactCard ? 9.8 : 12,
+          compactCard ? 13.5 : 16,
+          0.58
+        );
+        const subtitleLines = compactCard ? [] : wrapCardText(topic.subtitle, cardW - 34, 10.6, cardH > 105 ? 2 : 1);
+        const detailSize = compactCard ? 8.8 : 9.6;
+        const titleY = denseCard ? cardY + cardH / 2 + 4 : cardY + (compactCard ? 31 : 32);
+        return (
+          <g
+            key={topic.id}
+            className="parent-portal-svg-clickable"
+            role="button"
+            tabIndex={0}
+            aria-label={`Open ${topic.title}`}
+            aria-pressed={selected}
+            onClick={(event) => {
+              event.stopPropagation();
+              onSelect(topic);
+            }}
+            onKeyDown={(event) => {
+              if (event.key !== 'Enter' && event.key !== ' ') return;
+              event.preventDefault();
+              event.stopPropagation();
+              onSelect(topic);
+            }}
+            onMouseEnter={() => setHoveredTopicId(topic.id)}
+            onMouseLeave={() => setHoveredTopicId(null)}
+            onFocus={() => setHoveredTopicId(topic.id)}
+            onBlur={() => setHoveredTopicId(null)}
+          >
+            <ClickableCardHoverChrome
+              x={cardX}
+              y={cardY}
+              w={cardW}
+              h={cardH}
+              color={color}
+              active={selected}
+              hovered={hoveredTopicId === topic.id}
+            />
+            <path
+              d={cutRectPath(cardX, cardY, cardW, cardH, 10)}
+              fill={selected ? colorAlpha(color, '2e') : 'rgba(5, 18, 31, 0.86)'}
+              stroke={color}
+              strokeWidth={selected ? 1.7 : 0.95}
+              strokeOpacity={selected ? 0.92 : 0.62}
+              filter={selected ? 'url(#parentPortalGlow)' : undefined}
+            />
+            <path
+              d={cutRectPath(cardX + 12, badgeY, 34, badgeH, 7)}
+              fill={colorAlpha(color, '2a')}
+              stroke={color}
+              strokeWidth={0.8}
+            />
+            <text
+              x={cardX + 29}
+              y={badgeY + badgeH / 2 + 4}
+              textAnchor="middle"
+              fontSize={denseCard ? 10 : 11}
+              fontWeight={950}
+              fill={color}
+            >
+              {topic.rank}
+            </text>
+            <text x={cardX + 56} y={titleY} fontSize={titleSize} fontWeight={950} fill={cfg.colors.bodyText}>
+              {truncateTextForWidth(topic.title, cardW - 70, titleSize, 0.58)}
+            </text>
+            {subtitleLines.map((line, lineIndex) => (
+              <text
+                key={`${topic.id}:dashboard-subtitle:${lineIndex}`}
+                x={cardX + 16}
+                y={cardY + 62 + lineIndex * 15}
+                fontSize={10.6}
+                fontWeight={720}
+                fill={cfg.colors.mutedText}
+              >
+                {line}
+              </text>
+            ))}
+            {!compactCard ? (
+              <path
+                d={`M ${cardX + 16} ${cardY + cardH - 25} H ${cardX + cardW - 16}`}
+                stroke={color}
+                strokeWidth={0.8}
+                opacity={0.36}
+              />
+            ) : null}
+            {!denseCard ? (
+              <text
+                x={cardX + 16}
+                y={cardY + cardH - (compactCard ? 8 : 10)}
+                fontSize={detailSize}
+                fontWeight={900}
+                fill={color}
+              >
+                {truncateTextForWidth(topic.detail.toUpperCase(), cardW - 32, detailSize, 0.58)}
+              </text>
+            ) : null}
+          </g>
+        );
+      })}
+    </g>
+  );
+}
+
+function wrapCardText(text: string, width: number, fontSize: number, maxLines: number): string[] {
+  const words = text.trim().split(/\s+/).filter(Boolean);
+  const lines: string[] = [];
+  let current = '';
+  for (const word of words) {
+    const next = current ? `${current} ${word}` : word;
+    if (next.length * fontSize * 0.55 <= width || !current) {
+      current = next;
+      continue;
+    }
+    lines.push(current);
+    current = word;
+    if (lines.length >= maxLines) break;
+  }
+  if (current && lines.length < maxLines) lines.push(current);
+  return lines.map((line, index) =>
+    index === maxLines - 1 ? truncateTextForWidth(line, width, fontSize, 0.55) : line
+  );
+}
+
+const PARENT_PORTAL_TOP_CARD_MIN_W = 300;
+const PARENT_PORTAL_CONTROL_CARD_MIN_W = 245;
+
+function rowFrameTone(): 'gold' | 'silver' | 'bronze' | 'blue' | 'red' {
+  return 'blue';
+}
+
+function ParentPortalTopCarouselCard({
+  item,
+  x,
+  y,
+  w,
+  h,
+  selected,
+  onSelect,
+  onHoverChange,
+  controlHoverAnchor = 'center',
+  cfg,
+}: {
+  item: ParentPortalTopCardItem;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  selected: boolean;
+  onSelect: () => void;
+  onHoverChange?: (item: ParentPortalTopCardItem | null) => void;
+  controlHoverAnchor?: 'center' | 'up';
+  cfg: ParentPortalSvgControls;
+}) {
+  const [hovered, setHovered] = useState(false);
+  const rawControlClipId = useId();
+  const controlClipId = `parent-control-card-${rawControlClipId.replace(/:/g, '')}`;
+  const color = item.themeColor ?? toneColor(item.tone, cfg);
+  const active = selected || hovered;
+  const rowFrameHref = useMemo(() => {
+    if (item.kind !== 'row') return '';
+    const frameConfig = createGoldenFrameVariantConfig({
+      rank: String(item.row.order),
+      name: item.row.label,
+      statName: 'Global',
+      statValue: item.row.signal,
+      tone: rowFrameTone(),
+    });
+    return createGoldenFrameFrameOnlySvgDataUri(frameConfig);
+  }, [item]);
+  const compactControlCard = item.kind === 'control' && !hovered;
+  const controlW = item.kind === 'control' ? (hovered ? Math.min(w + 28, w * 1.08) : w) : w;
+  const controlH =
+    item.kind === 'control' ? (hovered ? clampValue(h * 1.82, 86, 112) : clampValue(h * 0.62, 38, 44)) : h;
+  const controlX = x + (w - controlW) / 2;
+  const controlY =
+    item.kind === 'control' && hovered && controlHoverAnchor === 'up' ? y + h - controlH - 4 : y + (h - controlH) / 2;
+  const controlPad = Math.max(10, Math.min(14, controlW * 0.045));
+  const controlBannerX = controlX + controlPad;
+  const controlBannerY = controlY + 18;
+  const controlBannerW = controlW - controlPad * 2;
+  const controlBannerH = Math.max(78, Math.min(controlH * 0.68, controlH - 58));
+  const controlBodyY = controlBannerY + controlBannerH + 18;
+  const controlImageUrl = item.kind === 'control' ? parentPortalControlArtworkUrl(item.control) : null;
+  const controlCategoryText = item.kind === 'control' ? controlSubcategoryLabel(item.control) : '';
+  const controlTitleW = Math.max(58, controlW - controlPad * 2 - 4);
+  const controlTitleSize = fitSingleLineTextSize(item.title, controlTitleW, 13.5, 20, 0.56);
+  const controlTitleBaseline = Math.min(controlY + controlH - 16, controlBodyY + controlTitleSize * 0.42);
+  const controlCategorySize = fitSingleLineTextSize(controlCategoryText, controlBannerW - 20, 7.5, 10.5, 0.56);
+  const controlTitleText = truncateTextForWidth(item.title, controlTitleW, controlTitleSize, 0.56);
+  const controlCategoryDisplayText = truncateTextForWidth(
+    controlCategoryText,
+    controlBannerW - 34,
+    controlCategorySize,
+    0.56
+  );
+  const compactControlImageSize = Math.min(31, Math.max(23, controlH - 16));
+  const compactControlImageX = controlX + 10;
+  const compactControlImageY = controlY + (controlH - compactControlImageSize) / 2;
+  const compactControlChipValue = item.kind === 'control' ? compactControlStatLabel(item.value) : '';
+  const compactControlChipText = /\d|%/.test(compactControlChipValue) ? compactControlChipValue : '';
+  const compactControlChipW = compactControlChipText
+    ? Math.max(38, Math.min(54, compactControlChipText.length * 6.2 + 20))
+    : 0;
+  const compactControlTitleX = compactControlImageX + compactControlImageSize + 14;
+  const compactControlTitleW = Math.max(46, controlX + controlW - compactControlTitleX - compactControlChipW - 18);
+  const compactControlTitleSize = fitSingleLineTextSize(item.title, compactControlTitleW, 11.8, 14.2, 0.58);
+  const rowFrameScale = Math.min(w / 1536, h / 864);
+  const rowFrameW = 1536 * rowFrameScale;
+  const rowFrameH = 864 * rowFrameScale;
+  const rowFrameX = x + (w - rowFrameW) / 2;
+  const rowFrameY = y + (h - rowFrameH) / 2;
+  const rowHoverScale = hovered ? 1.075 : selected ? 1.012 : 1;
+  const rowScaleCx = x + w / 2;
+  const rowScaleCy = y + h / 2;
+  const scaleFromCenter = (value: number, center: number) => center + (value - center) * rowHoverScale;
+  const rowDrawFrameX = scaleFromCenter(rowFrameX, rowScaleCx);
+  const rowDrawFrameY = scaleFromCenter(rowFrameY, rowScaleCy);
+  const rowDrawFrameW = rowFrameW * rowHoverScale;
+  const rowDrawFrameH = rowFrameH * rowHoverScale;
+  const rowHoverBoxX = rowDrawFrameX + rowDrawFrameW * 0.035;
+  const rowHoverBoxY = rowDrawFrameY + rowDrawFrameH * 0.13;
+  const rowHoverBoxW = rowDrawFrameW * 0.93;
+  const rowHoverBoxH = rowDrawFrameH * 0.72;
+  const guidePad = Math.max(12, Math.min(18, w * 0.045));
+  const guideRankW = 42;
+  const guideTitleX = x + guidePad + guideRankW + 10;
+  const guideTitleW = Math.max(60, w - guidePad * 2 - guideRankW - 12);
+  const guideTitleSize = fitSingleLineTextSize(item.title, guideTitleW, 13, 18, 0.56);
+  const guideSubtitleLines = wrapCardText(item.subtitle, guideTitleW, 10.6, 2);
+  const guideDetailLines = wrapCardText(item.detail, w - guidePad * 2, 10.2, h > 102 ? 2 : 1);
+  const rowHoverStrokeWidth = hovered ? 2.4 : selected ? 1.35 : 1.5;
+  const rowHoverOuterOpacity = hovered ? 0.72 : selected ? 0.34 : 0.38;
+  const rowHoverInnerOpacity = hovered ? 0.82 : selected ? 0.48 : 0.52;
+  const rowHoverFill = hovered ? colorAlpha(color, '2c') : selected ? colorAlpha(color, '24') : colorAlpha(color, '16');
+  const hitX = item.kind === 'control' ? Math.min(x - 4, controlX - 8) : x - 4;
+  const hitY = item.kind === 'control' ? Math.min(y - 4, controlY - 8) : y - 4;
+  const hitW = item.kind === 'control' ? Math.max(x + w + 4, controlX + controlW + 8) - hitX : w + 8;
+  const hitH = item.kind === 'control' ? Math.max(y + h + 4, controlY + controlH + 8) - hitY : h + 8;
+  const showHoverState = () => {
+    setHovered(true);
+    if (item.kind === 'control') onHoverChange?.(item);
+  };
+  const clearHoverState = () => {
+    setHovered(false);
+    if (item.kind === 'control') onHoverChange?.(null);
+  };
+  return (
+    <g
+      className="parent-portal-svg-clickable"
+      role="button"
+      tabIndex={0}
+      aria-label={
+        item.kind === 'control'
+          ? `Show ${item.title} controls`
+          : item.kind === 'guide'
+            ? `Show ${item.title} guide`
+            : `Show ${item.title} control row`
+      }
+      aria-pressed={selected}
+      onClick={(event) => {
+        event.stopPropagation();
+        onSelect();
+      }}
+      onKeyDown={(event) => {
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        event.preventDefault();
+        event.stopPropagation();
+        onSelect();
+      }}
+      onMouseEnter={showHoverState}
+      onMouseOver={showHoverState}
+      onMouseMove={showHoverState}
+      onPointerEnter={showHoverState}
+      onPointerMove={showHoverState}
+      onMouseLeave={clearHoverState}
+      onPointerLeave={clearHoverState}
+    >
+      <rect x={hitX} y={hitY} width={hitW} height={hitH} fill="transparent" pointerEvents="all" />
+      {item.kind === 'control' && active && !compactControlCard ? (
+        <path
+          d={cutRectPath(x, y, w, h, 14)}
+          fill={colorAlpha(color, selected ? '24' : '12')}
+          stroke={color}
+          strokeWidth={selected ? 2.1 : 1.4}
+          opacity={selected ? 0.82 : 0.5}
+          filter="url(#parentPortalGlow)"
+          pointerEvents="none"
+        />
+      ) : null}
+      {item.kind === 'row' ? (
+        <>
+          {active ? (
+            <>
+              <path
+                d={cutRectPath(rowHoverBoxX - 8, rowHoverBoxY - 8, rowHoverBoxW + 16, rowHoverBoxH + 16, 13)}
+                fill="none"
+                stroke={color}
+                strokeWidth={rowHoverStrokeWidth}
+                opacity={rowHoverOuterOpacity}
+                filter="url(#parentPortalGlow)"
+                pointerEvents="none"
+              />
+              <path
+                d={cutRectPath(rowHoverBoxX, rowHoverBoxY, rowHoverBoxW, rowHoverBoxH, 10)}
+                fill={rowHoverFill}
+                stroke={color}
+                strokeWidth={hovered ? 1.6 : 1.1}
+                strokeOpacity={rowHoverInnerOpacity}
+                pointerEvents="none"
+              />
+            </>
+          ) : null}
+          <image
+            href={rowFrameHref}
+            xlinkHref={rowFrameHref}
+            x={rowDrawFrameX}
+            y={rowDrawFrameY}
+            width={rowDrawFrameW}
+            height={rowDrawFrameH}
+            preserveAspectRatio="xMidYMid meet"
+            filter={active ? 'url(#parentPortalGlow)' : undefined}
+            pointerEvents="none"
+          />
+          <text
+            x={rowDrawFrameX + rowDrawFrameW * 0.13}
+            y={rowDrawFrameY + rowDrawFrameH * 0.36}
+            fontSize={Math.max(12, rowDrawFrameH * 0.1)}
+            fontWeight={950}
+            fill={cfg.colors.bodyText}
+            pointerEvents="none"
+          >
+            {item.title}
+          </text>
+          <text
+            x={rowDrawFrameX + rowDrawFrameW * 0.13}
+            y={rowDrawFrameY + rowDrawFrameH * 0.52}
+            fontSize={Math.max(8, rowDrawFrameH * 0.064)}
+            fontWeight={820}
+            fill={cfg.colors.mutedText}
+            pointerEvents="none"
+          >
+            {item.row.primaryArea}
+          </text>
+          <text
+            x={rowDrawFrameX + rowDrawFrameW * 0.72}
+            y={rowDrawFrameY + rowDrawFrameH * 0.42}
+            textAnchor="middle"
+            fontSize={Math.max(11, rowDrawFrameH * 0.082)}
+            fontWeight={950}
+            fill={color}
+            pointerEvents="none"
+          >
+            {item.row.trend}
+          </text>
+          <text
+            x={rowDrawFrameX + rowDrawFrameW * 0.72}
+            y={rowDrawFrameY + rowDrawFrameH * 0.56}
+            textAnchor="middle"
+            fontSize={Math.max(8, rowDrawFrameH * 0.056)}
+            fontWeight={760}
+            fill={cfg.colors.mutedText}
+            pointerEvents="none"
+          >
+            {item.detail}
+          </text>
+        </>
+      ) : item.kind === 'guide' ? (
+        <>
+          <path
+            d={cutRectPath(x, y, w, h, 12)}
+            fill={active ? colorAlpha(color, selected ? '2e' : '20') : 'rgba(5, 17, 30, 0.88)'}
+            stroke={color}
+            strokeWidth={selected ? 2 : hovered ? 1.55 : 1.05}
+            strokeOpacity={selected ? 0.92 : hovered ? 0.8 : 0.56}
+            filter={selected || hovered ? 'url(#parentPortalGlow)' : undefined}
+            pointerEvents="none"
+          />
+          <path
+            d={cutRectPath(x + 5, y + 5, w - 10, h - 10, 10)}
+            fill="url(#parentPortalFrameGlass)"
+            stroke={color}
+            strokeWidth={0.75}
+            strokeOpacity={active ? 0.48 : 0.26}
+            pointerEvents="none"
+          />
+          <path
+            d={bottomCutRectPath(x + w * 0.34, y - 5, w * 0.32, 12, 5)}
+            fill={color}
+            fillOpacity={active ? 0.42 : 0.24}
+            stroke={color}
+            strokeWidth={1}
+            filter="url(#parentPortalGlow)"
+            pointerEvents="none"
+          />
+          <path
+            d={cutRectPath(x + guidePad, y + 17, guideRankW, 30, 7)}
+            fill={colorAlpha(color, selected ? '44' : '28')}
+            stroke={color}
+            strokeWidth={selected ? 1.2 : 0.8}
+            pointerEvents="none"
+          />
+          <text
+            x={x + guidePad + guideRankW / 2}
+            y={y + 37}
+            textAnchor="middle"
+            fontSize={13}
+            fontWeight={950}
+            fill={color}
+            pointerEvents="none"
+          >
+            {item.topic.rank}
+          </text>
+          <text
+            x={guideTitleX}
+            y={y + 32}
+            fontSize={guideTitleSize}
+            fontWeight={950}
+            fill={cfg.colors.bodyText}
+            pointerEvents="none"
+          >
+            {truncateTextForWidth(item.title, guideTitleW, guideTitleSize, 0.56)}
+          </text>
+          {guideSubtitleLines.map((line, index) => (
+            <text
+              key={`${item.key}:subtitle:${index}`}
+              x={guideTitleX}
+              y={y + 51 + index * 14}
+              fontSize={10.5}
+              fontWeight={760}
+              fill={cfg.colors.mutedText}
+              pointerEvents="none"
+            >
+              {line}
+            </text>
+          ))}
+          <path
+            d={`M ${x + guidePad} ${y + h - 42} H ${x + w - guidePad}`}
+            stroke={color}
+            strokeWidth={0.8}
+            opacity={active ? 0.5 : 0.28}
+            pointerEvents="none"
+          />
+          {guideDetailLines.map((line, index) => (
+            <text
+              key={`${item.key}:detail:${index}`}
+              x={x + guidePad}
+              y={y + h - 25 + index * 13}
+              fontSize={10.2}
+              fontWeight={800}
+              fill={index === 0 ? color : cfg.colors.mutedText}
+              pointerEvents="none"
+            >
+              {line}
+            </text>
+          ))}
+        </>
+      ) : (
+        <>
+          {compactControlCard ? (
+            <>
+              <path
+                d={cutRectPath(controlX, controlY, controlW, controlH, 8)}
+                fill={selected ? colorAlpha(color, '30') : 'rgba(4, 16, 28, 0.82)'}
+                stroke={color}
+                strokeWidth={selected ? 1.65 : 0.95}
+                strokeOpacity={selected ? 0.96 : 0.7}
+                filter={selected ? 'url(#parentPortalGlow)' : undefined}
+                pointerEvents="none"
+              />
+              <ArtworkSlot
+                x={compactControlImageX}
+                y={compactControlImageY}
+                w={compactControlImageSize}
+                h={compactControlImageSize}
+                label={`${item.title} image`}
+                imageUrl={controlImageUrl}
+                tone={item.tone}
+                compact
+                shape="rect"
+                imageFit="slice"
+                cfg={cfg}
+              />
+              <line
+                x1={compactControlImageX + compactControlImageSize + 7}
+                y1={controlY + 8}
+                x2={compactControlImageX + compactControlImageSize + 7}
+                y2={controlY + controlH - 8}
+                stroke={color}
+                strokeWidth={0.85}
+                opacity={selected ? 0.64 : 0.42}
+              />
+              <text
+                x={compactControlTitleX}
+                y={controlY + controlH / 2 + compactControlTitleSize * 0.34}
+                fontSize={compactControlTitleSize}
+                fontWeight={950}
+                fill={cfg.colors.bodyText}
+              >
+                {truncateTextForWidth(item.title, compactControlTitleW, compactControlTitleSize, 0.58)}
+              </text>
+              {compactControlChipText ? (
+                <>
+                  <path
+                    d={cutRectPath(
+                      controlX + controlW - compactControlChipW - 12,
+                      controlY + (controlH - 24) / 2,
+                      compactControlChipW,
+                      24,
+                      5
+                    )}
+                    fill={colorAlpha(color, selected ? '34' : '18')}
+                    stroke={color}
+                    strokeWidth={0.8}
+                    strokeOpacity={0.72}
+                    pointerEvents="none"
+                  />
+                  <text
+                    x={controlX + controlW - 12 - compactControlChipW / 2}
+                    y={controlY + controlH / 2 + 4}
+                    textAnchor="middle"
+                    fontSize={10.2}
+                    fontWeight={950}
+                    fill={color}
+                  >
+                    {compactControlChipText}
+                  </text>
+                </>
+              ) : null}
+            </>
+          ) : (
+            <>
+              {active ? (
+                <path
+                  d={cutRectPath(controlX - 5, controlY - 5, controlW + 10, controlH + 10, 16)}
+                  fill="none"
+                  stroke={color}
+                  strokeWidth={hovered ? 2.3 : 1.6}
+                  opacity={hovered ? 0.48 : 0.34}
+                  filter="url(#parentPortalGlow)"
+                  pointerEvents="none"
+                />
+              ) : null}
+              <path
+                d={cutRectPath(controlX, controlY, controlW, controlH, 15)}
+                fill={active ? colorAlpha(color, selected ? '24' : '18') : 'rgba(6, 18, 31, 0.95)'}
+                stroke={active ? color : cfg.colors.panelStroke}
+                strokeWidth={selected ? 2 : hovered ? 1.65 : 1.05}
+                strokeOpacity={active ? 0.94 : 0.68}
+                pointerEvents="none"
+              />
+              <path
+                d={cutRectPath(controlX + 4, controlY + 4, controlW - 8, controlH - 8, 13)}
+                fill="url(#parentPortalFrameGlass)"
+                stroke={color}
+                strokeWidth={active ? 1.1 : 0.7}
+                opacity={active ? 0.56 : 0.36}
+                pointerEvents="none"
+              />
+              <path
+                d={bottomCutRectPath(controlX + controlW * 0.32, controlY - 6, controlW * 0.36, 13, 5)}
+                fill={color}
+                fillOpacity={0.34}
+                stroke={color}
+                strokeWidth={1.1}
+                filter="url(#parentPortalGlow)"
+                pointerEvents="none"
+              />
+              <path
+                d={bottomCutRectPath(controlX + controlW * 0.34, controlY - 3, controlW * 0.32, 7, 3)}
+                fill={color}
+                fillOpacity={0.48}
+                pointerEvents="none"
+              />
+              <defs>
+                <clipPath id={controlClipId}>
+                  <path d={cutRectPath(controlBannerX, controlBannerY, controlBannerW, controlBannerH, 11)} />
+                </clipPath>
+              </defs>
+              {controlImageUrl ? (
+                <image
+                  href={controlImageUrl}
+                  x={controlBannerX}
+                  y={controlBannerY}
+                  width={controlBannerW}
+                  height={controlBannerH}
+                  preserveAspectRatio="xMidYMid slice"
+                  clipPath={`url(#${controlClipId})`}
+                  opacity={0.96}
+                  pointerEvents="none"
+                />
+              ) : (
+                <ArtworkSlot
+                  x={controlBannerX}
+                  y={controlBannerY}
+                  w={controlBannerW}
+                  h={controlBannerH}
+                  label={`${item.title} image`}
+                  imageUrl={null}
+                  tone={item.tone}
+                  shape="rect"
+                  cfg={cfg}
+                />
+              )}
+              <path
+                d={cutRectPath(controlBannerX, controlBannerY, controlBannerW, controlBannerH, 11)}
+                fill="url(#parentPortalCardBannerShade)"
+                clipPath={`url(#${controlClipId})`}
+                pointerEvents="none"
+              />
+              <path
+                d={cutRectPath(controlBannerX, controlBannerY, controlBannerW, controlBannerH, 11)}
+                fill="none"
+                stroke={color}
+                strokeWidth={active ? 1.2 : 0.85}
+                strokeOpacity={active ? 0.86 : 0.56}
+                pointerEvents="none"
+              />
+              <path
+                d={cutRectPath(
+                  controlBannerX + 8,
+                  controlBannerY + 7,
+                  Math.min(controlBannerW - 16, controlCategoryDisplayText.length * 5.8 + 28),
+                  20,
+                  6
+                )}
+                fill="rgba(4, 11, 24, 0.72)"
+                stroke="rgba(255,255,255,0.16)"
+                strokeWidth={0.7}
+                pointerEvents="none"
+              />
+              <text
+                x={controlBannerX + 18}
+                y={controlBannerY + 21.5}
+                fontSize={controlCategorySize}
+                fontWeight={900}
+                fill="#e6f9ff"
+              >
+                {controlCategoryDisplayText}
+              </text>
+              <text
+                x={controlX + controlPad + 2}
+                y={controlTitleBaseline}
+                fontSize={controlTitleSize}
+                fontWeight={950}
+                fill={cfg.colors.bodyText}
+              >
+                {controlTitleText}
+              </text>
+            </>
+          )}
+        </>
+      )}
+    </g>
+  );
+}
+
+function ParentPortalTopCarousel({
+  x,
+  y,
+  w,
+  h,
+  items,
+  page,
+  selectedKey,
+  onSelect,
+  onHoverChange,
+  minCardW = PARENT_PORTAL_TOP_CARD_MIN_W,
+  cfg,
+}: {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  items: ParentPortalTopCardItem[];
+  page: number;
+  selectedKey: string;
+  onSelect: (item: ParentPortalTopCardItem) => void;
+  onHoverChange?: (item: ParentPortalTopCardItem | null) => void;
+  minCardW?: number;
+  cfg: ParentPortalSvgControls;
+}) {
+  const allRowItems = items.length > 0 && items.every((item) => item.kind === 'row');
+  const allGuideItems = items.length > 0 && items.every((item) => item.kind === 'guide');
+  const gap = allRowItems ? 10 : 16;
+  const visibleCount = Math.max(
+    1,
+    Math.min(items.length || 1, PARENT_PORTAL_TOP_CAROUSEL_MAX_VISIBLE, Math.floor((w + gap) / (minCardW + gap)))
+  );
+  const pageCount = Math.max(1, Math.ceil(items.length / visibleCount));
+  const safePage = wrapIndex(page, pageCount);
+  const visibleItems = items.slice(safePage * visibleCount, safePage * visibleCount + visibleCount);
+  const stretchedCardW =
+    visibleItems.length > 0 ? (w - gap * Math.max(0, visibleItems.length - 1)) / visibleItems.length : w;
+  const rowMaxCardW = visibleItems.length <= 3 ? 370 : 340;
+  const guideMaxCardW = visibleItems.length <= 2 ? 520 : 430;
+  const cardW = allRowItems
+    ? Math.min(stretchedCardW, rowMaxCardW)
+    : allGuideItems
+      ? Math.min(stretchedCardW, guideMaxCardW)
+      : stretchedCardW;
+  const trackW = visibleItems.length > 0 ? visibleItems.length * cardW + Math.max(0, visibleItems.length - 1) * gap : 0;
+  const startX = x + Math.max(0, (w - trackW) / 2);
+  return (
+    <g>
+      {visibleItems.map((item, index) => {
+        const selected = item.key === selectedKey || item.key.startsWith(`${selectedKey}:`);
+        return (
+          <ParentPortalTopCarouselCard
+            key={item.key}
+            item={item}
+            x={startX + index * (cardW + gap)}
+            y={y}
+            w={cardW}
+            h={h}
+            selected={selected}
+            onSelect={() => onSelect(item)}
+            onHoverChange={onHoverChange}
+            cfg={cfg}
+          />
+        );
+      })}
+      {items.length === 0 ? (
+        <path
+          d={cutRectPath(x, y, w, h, 8)}
+          fill="rgba(6, 20, 34, 0.7)"
+          stroke={cfg.colors.cyan}
+          strokeWidth={0.8}
+          strokeOpacity={0.5}
+        />
+      ) : null}
+    </g>
+  );
+}
+
+function ControlCategoryCard({
+  category,
+  x,
+  y,
+  w,
+  h,
+  selected,
+  themeColor,
+  onSelect,
+  cfg,
+}: {
+  category: ControlCategorySummary;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  selected: boolean;
+  themeColor?: string;
+  onSelect: () => void;
+  cfg: ParentPortalSvgControls;
+}) {
+  const [hovered, setHovered] = useState(false);
+  const active = selected || hovered;
+  const color = themeColor ?? toneColor(category.tone, cfg);
+  const cx = x + w / 2;
+  const cy = y + h / 2;
+  const imageSize = Math.min(31, Math.max(23, h - 16));
+  const imageX = x + 10;
+  const imageY = y + (h - imageSize) / 2;
+  const titleX = imageX + imageSize + 14;
+  const countText = category.count > 0 ? String(category.count) : '-';
+  const countW = 39;
+  const titleW = Math.max(48, x + w - titleX - countW - 18);
+  const titleSize = fitSingleLineTextSize(category.label, titleW, 11.8, 14.2, 0.58);
+  const countX = x + w - countW - 12;
+  return (
+    <g
+      className="parent-portal-svg-clickable"
+      role="button"
+      tabIndex={0}
+      aria-label={`Show ${category.label} controls`}
+      aria-pressed={selected}
+      transform={hovered ? `translate(${cx} ${cy}) scale(1.018) translate(${-cx} ${-cy})` : undefined}
+      onClick={(event) => {
+        event.stopPropagation();
+        onSelect();
+      }}
+      onKeyDown={(event) => {
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        event.preventDefault();
+        event.stopPropagation();
+        onSelect();
+      }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <rect x={x - 3} y={y - 3} width={w + 6} height={h + 6} fill="transparent" pointerEvents="all" />
+      <ClickableCardHoverChrome x={x} y={y} w={w} h={h} color={color} active={selected} hovered={hovered} />
+      <path
+        d={cutRectPath(x, y, w, h, 8)}
+        fill={selected ? colorAlpha(color, '30') : hovered ? colorAlpha(color, '22') : 'rgba(4, 16, 28, 0.78)'}
+        stroke={color}
+        strokeWidth={selected ? 1.65 : hovered ? 1.35 : 0.95}
+        strokeOpacity={active ? 0.96 : 0.68}
+        filter={active ? 'url(#parentPortalGlow)' : undefined}
+        pointerEvents="none"
+      />
+      <ArtworkSlot
+        x={imageX}
+        y={imageY}
+        w={imageSize}
+        h={imageSize}
+        label={`${category.label} artwork`}
+        imageUrl={parentPortalControlCategoryImageUrl(category)}
+        tone={category.tone}
+        compact
+        shape="rect"
+        imageFit="slice"
+        cfg={cfg}
+      />
+      <line
+        x1={imageX + imageSize + 7}
+        y1={y + 8}
+        x2={imageX + imageSize + 7}
+        y2={y + h - 8}
+        stroke={color}
+        strokeWidth={0.85}
+        opacity={active ? 0.64 : 0.42}
+      />
+      <text
+        x={titleX}
+        y={y + h / 2 + titleSize * 0.34}
+        fontSize={titleSize}
+        fontWeight={950}
+        fill={cfg.colors.bodyText}
+      >
+        {category.label}
+      </text>
+      <path
+        d={cutRectPath(countX, y + (h - 24) / 2, countW, 24, 5)}
+        fill={colorAlpha(color, selected ? '34' : '18')}
+        stroke={color}
+        strokeWidth={0.8}
+        strokeOpacity={0.72}
+        pointerEvents="none"
+      />
+      <text x={countX + countW / 2} y={y + h / 2 + 4} textAnchor="middle" fontSize={10.2} fontWeight={950} fill={color}>
+        {countText}
+      </text>
+    </g>
+  );
+}
+
+function ControlCategoryGrid({
+  x,
+  y,
+  w,
+  h,
+  categories,
+  selectedCategoryId,
+  page,
+  pageCount,
+  themeColor,
+  handleLeftX,
+  handleRightX,
+  onPageChange,
+  onSelect,
+  cfg,
+}: {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  categories: ControlCategorySummary[];
+  selectedCategoryId: string;
+  page: number;
+  pageCount: number;
+  themeColor?: string;
+  handleLeftX?: number;
+  handleRightX?: number;
+  onPageChange: (page: number) => void;
+  onSelect: (category: ControlCategorySummary) => void;
+  cfg: ParentPortalSvgControls;
+}) {
+  if (categories.length === 0) return null;
+  const gap = 10;
+  const handleW = PARENT_PORTAL_SIDE_HANDLE_W;
+  const handleH = Math.max(40, h - 10);
+  const handleY = y + (h - handleH) / 2;
+  const trackX = x;
+  const trackW = Math.max(1, w);
+  const cardW = (trackW - gap * Math.max(0, categories.length - 1)) / categories.length;
+  const paged = pageCount > 1;
+  return (
+    <g>
+      {paged ? (
+        <>
+          <ParentPortalFrameSideHandle
+            x={handleLeftX ?? x}
+            y={handleY}
+            side="left"
+            height={handleH}
+            width={handleW}
+            disabled={false}
+            onClick={() => onPageChange(wrapIndex(page - 1, pageCount))}
+            accentColor={themeColor}
+            cfg={cfg}
+          />
+          <ParentPortalFrameSideHandle
+            x={handleRightX ?? x + w - handleW}
+            y={handleY}
+            side="right"
+            height={handleH}
+            width={handleW}
+            disabled={false}
+            onClick={() => onPageChange(wrapIndex(page + 1, pageCount))}
+            accentColor={themeColor}
+            cfg={cfg}
+          />
+        </>
+      ) : null}
+      {categories.map((category, index) => {
+        const cardX = trackX + index * (cardW + gap);
+        return (
+          <ControlCategoryCard
+            key={category.id}
+            category={category}
+            x={cardX}
+            y={y}
+            w={cardW}
+            h={h}
+            selected={category.id === selectedCategoryId}
+            themeColor={themeColor}
+            onSelect={() => onSelect(category)}
+            cfg={cfg}
+          />
+        );
+      })}
+    </g>
+  );
+}
+
+function ControlSubcategoryGrid({
+  x,
+  y,
+  w,
+  h,
+  category,
+  selectedSubcategoryId,
+  themeColor,
+  onSelect,
+  cfg,
+}: {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  category: ControlCategorySummary;
+  selectedSubcategoryId: string | null;
+  themeColor?: string;
+  onSelect: (subcategory: ControlSubcategorySummary) => void;
+  cfg: ParentPortalSvgControls;
+}) {
+  const subcategories = category.subcategories;
+  if (subcategories.length === 0) return null;
+  const categoryColor = themeColor ?? toneColor(category.tone, cfg);
+  return (
+    <foreignObject x={x} y={y} width={w} height={h}>
+      <div
+        className="parent-portal-subcategory-grid"
+        style={
+          {
+            '--parent-portal-subcategory-accent': categoryColor,
+            '--parent-portal-subcategory-text': cfg.colors.bodyText,
+            '--parent-portal-subcategory-muted': cfg.colors.mutedText,
+          } as CSSProperties
+        }
+        onClick={(event) => event.stopPropagation()}
+        onWheel={(event) => event.stopPropagation()}
+      >
+        {subcategories.map((subcategory) => {
+          const selected = selectedSubcategoryId === subcategory.id;
+          const color = themeColor ?? toneColor(subcategory.tone, cfg);
+          const style = {
+            '--parent-portal-subcategory-color': color,
+            '--parent-portal-subcategory-fill': selected ? colorAlpha(color, '30') : 'rgba(5, 19, 32, 0.9)',
+            '--parent-portal-subcategory-border': color,
+          } as CSSProperties;
+          return (
+            <button
+              key={subcategory.id}
+              type="button"
+              className={`parent-portal-subcategory-grid__item${selected ? ' parent-portal-subcategory-grid__item--selected' : ''}`}
+              style={style}
+              aria-label={`Filter ${category.label} by ${subcategory.label}`}
+              aria-pressed={selected}
+              onClick={(event) => {
+                event.stopPropagation();
+                onSelect(subcategory);
+              }}
+            >
+              <span className="parent-portal-subcategory-grid__dot" />
+              <span className="parent-portal-subcategory-grid__divider" />
+              <span className="parent-portal-subcategory-grid__label">{subcategory.label}</span>
+              <span className="parent-portal-subcategory-grid__count">{subcategory.count}</span>
+            </button>
+          );
+        })}
+      </div>
+    </foreignObject>
+  );
+}
+
+function ClickableCardHoverChrome({
+  x,
+  y,
+  w,
+  h,
+  color,
+  active,
+  hovered,
+  arrow = true,
+}: {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  color: string;
+  active: boolean;
+  hovered: boolean;
+  arrow?: boolean;
+}) {
+  if (!active && !hovered) return null;
+  return (
+    <>
+      <path
+        d={cutRectPath(x - 4, y - 4, w + 8, h + 8, 10)}
+        fill="none"
+        stroke={color}
+        strokeWidth={active ? 1.9 : 1.45}
+        opacity={active ? 0.42 : 0.32}
+        filter="url(#parentPortalGlow)"
+        pointerEvents="none"
+      />
+      {arrow ? (
+        <path
+          d={`M ${x + w - 10} ${y + 14} L ${x + w + 10} ${y + h / 2} L ${x + w - 10} ${y + h - 14} Z`}
+          fill={color}
+          opacity={active ? 0.72 : 0.56}
+          filter="url(#parentPortalGlow)"
+          pointerEvents="none"
+        />
+      ) : null}
+    </>
+  );
+}
+
+function MainBoard({
+  activeNavLabel,
+  activeNavItem,
+  activeNavGroupId,
+  activeTab,
+  rows,
+  tabs,
+  tabDetails,
+  controlAreas,
+  quickControls,
+  guideTopics,
+  season,
+  uiCopy,
+  selectedControlId,
+  selectedRowId,
+  selectedRow,
+  selectedControlName,
+  rowsPerPage,
+  detailMode,
+  onTabChange,
+  onRowSelect,
+  onPageChange,
+  onDetailClose,
+  onControlSelect,
+  onNavigate,
+  onAgentCommand,
+  onSelectNavLabel,
+  cfg,
+  mainX,
+  mainW,
+  mainY,
+  mainH,
+}: {
+  activeNavLabel: string;
+  activeNavItem?: NavItem | null;
+  activeNavGroupId: string;
+  activeTab: ParentPortalTabId;
+  rows: DisplayRow[];
+  tabs: ParentPortalContentData['tabs'];
+  tabDetails: ParentPortalContentData['tabDetails'];
+  controlAreas: ControlArea[];
+  quickControls: QuickControl[];
+  guideTopics: ParentPortalContentData['guideTopics'];
+  season: ParentPortalContentData['season'];
+  uiCopy: ParentPortalContentData['uiCopy'];
+  selectedControlId: string;
+  selectedRowId: string;
+  selectedRow: DisplayRow;
+  selectedControlName: string;
+  rowsPerPage: number;
+  detailMode: DetailMode | null;
+  onTabChange: (tab: ParentPortalTabId) => void;
+  onRowSelect: (rowId: string) => void;
+  onPageChange: (page: number) => void;
+  onDetailClose: () => void;
+  onControlSelect: (controlId: string) => void;
+  onNavigate?: (routePath: string) => void;
+  onAgentCommand?: (command: AgentCommandName, payload: Record<string, string>) => void;
+  onSelectNavLabel: (navLabel: string) => void;
+  cfg: ParentPortalSvgControls;
+  mainX: number;
+  mainW: number;
+  mainY: number;
+  mainH: number;
+}) {
+  const activeTabConfig = tabs.find((tab) => tab.id === activeTab) ?? tabs[0];
+  const detail = detailForNav(activeNavLabel, tabDetails[activeTab]);
+  const rankingTitle = activeTab === 'overall' ? 'PARENT CONTROL SNAPSHOT' : activeTabConfig.title;
+  const activeNavKey = assetKey(activeNavLabel);
+  const guideOverviewMode = activeNavKey.includes('start-here');
+  const guideEligible = activeNavGroupId === 'guide';
+  const guideTopicPool = useMemo(
+    () =>
+      guideEligible
+        ? guideOverviewMode
+          ? guideTopics
+          : guideTopics.filter((topic) => assetKey(topic.navLabel) === activeNavKey)
+        : [],
+    [activeNavKey, guideEligible, guideOverviewMode, guideTopics]
+  );
+  const guideMode = guideTopicPool.length > 0;
+  const [selectedGuideTopicId, setSelectedGuideTopicId] = useState(() => guideTopicPool[0]?.id ?? '');
+  const [guidePage, setGuidePage] = useState(0);
+  const [guideQuickPanelMode, setGuideQuickPanelMode] = useState<'read' | 'action'>('read');
+  const [guideDashboardDrilldown, setGuideDashboardDrilldown] = useState(false);
+  const selectedGuideTopic =
+    guideTopicPool.find((topic) => normalizeSelectionId(topic.id) === normalizeSelectionId(selectedGuideTopicId)) ??
+    guideTopicPool[0] ??
+    null;
+  const guideDashboardMode = guideOverviewMode && !guideDashboardDrilldown;
+  useEffect(() => {
+    const firstTopic = guideTopicPool[0];
+    if (!firstTopic) return;
+    const selectedStillVisible = guideTopicPool.some(
+      (topic) => normalizeSelectionId(topic.id) === normalizeSelectionId(selectedGuideTopicId)
+    );
+    if (selectedStillVisible) return;
+    setSelectedGuideTopicId(firstTopic.id);
+    setGuidePage(0);
+  }, [guideTopicPool, selectedGuideTopicId]);
+  useEffect(() => {
+    setGuideDashboardDrilldown(false);
+    setGuidePage(0);
+    setGuideQuickPanelMode('read');
+  }, [activeNavKey]);
+  useEffect(() => {
+    setGuideQuickPanelMode('read');
+  }, [selectedGuideTopicId]);
+  const guideTopicById = useMemo(
+    () => new Map(guideTopics.map((topic) => [normalizeSelectionId(topic.id), topic])),
+    [guideTopics]
+  );
+  const handleGuideNoteSelect = (note: ParentPortalGuideNote) => {
+    if (isHashRoutePath(note.targetRoutePath)) {
+      onNavigate?.(note.targetRoutePath);
+      return;
+    }
+    if (note.targetTopicId) {
+      const targetTopic = guideTopicById.get(normalizeSelectionId(note.targetTopicId));
+      if (targetTopic) {
+        onSelectNavLabel(note.targetNavLabel ?? targetTopic.navLabel);
+        setSelectedGuideTopicId(targetTopic.id);
+        setGuidePage(typeof note.targetPage === 'number' ? note.targetPage : 0);
+        setGuideDashboardDrilldown(true);
+        setGuideQuickPanelMode('read');
+        return;
+      }
+    }
+    if (note.targetNavLabel) {
+      onSelectNavLabel(note.targetNavLabel);
+    }
+    if (typeof note.targetPage === 'number') {
+      setGuidePage(clampValue(note.targetPage, 0, Math.max(0, (selectedGuideTopic?.pages.length ?? 1) - 1)));
+      setGuideDashboardDrilldown(true);
+    }
+  };
+  const tableVariant = tableVariantForContext(activeNavLabel, activeTab);
+  const isOverviewContext = activeNavKey.includes('overview') || activeNavKey.includes('today');
+  const sortedRows = useMemo(() => [...rows].sort((a, b) => a.order - b.order), [rows]);
+  const controlScopedRows = useMemo(
+    () => rowsForControlScope(sortedRows, selectedControlName, selectedControlId),
+    [selectedControlId, selectedControlName, sortedRows]
+  );
+  const controlCategories = useMemo(() => buildControlCategorySummaries(quickControls), [quickControls]);
+  const selectedQuickControl = useMemo(
+    () =>
+      quickControls.find((control) => normalizeSelectionId(control.id) === normalizeSelectionId(selectedControlId)) ??
+      quickControls[0],
+    [quickControls, selectedControlId]
+  );
+  const [selectedCategoryIdOverride, setSelectedCategoryIdOverride] = useState<string | null>(null);
+  const [selectedSubcategoryIdOverride, setSelectedSubcategoryIdOverride] = useState<string | null>(null);
+  const [expandedCategoryId, setExpandedCategoryId] = useState<string | null>(null);
+  const [hoveredTopControlKey, setHoveredControlAreaKey] = useState<string | null>(null);
+  const manageLane = selectedQuickControl ? manageLaneForControl(selectedQuickControl) : 'childPolicy';
+  const selectedControlCategoryId =
+    selectedCategoryIdOverride ??
+    (selectedQuickControl ? assetKey(controlCategoryLabel(selectedQuickControl)) : (controlCategories[0]?.id ?? ''));
+  const selectedCategory =
+    controlCategories.find((category) => category.id === selectedControlCategoryId) ?? controlCategories[0] ?? null;
+  const selectedCategoryLabel =
+    selectedCategory?.label ?? (selectedQuickControl ? controlCategoryLabel(selectedQuickControl) : 'Controls');
+  const selectedSubcategoryId = selectedCategory?.subcategories.some(
+    (subcategory) => subcategory.id === selectedSubcategoryIdOverride
+  )
+    ? selectedSubcategoryIdOverride
+    : null;
+  const perCategoryMode = activeNavKey.includes('category');
+  const aiBrowserMode = tableVariant === 'ai' && (activeNavKey.includes('game') || activeNavKey.includes('category'));
+  const categoryBrowserMode = perCategoryMode || activeNavKey.includes('ai-by-category');
+  const manageMode = activeNavGroupId === 'manage';
+  const activeGroupThemeColor = navGroupThemeColor(activeNavGroupId, cfg);
+  const manageThemeTone = manageMode ? 'cyan' : detail.tone;
+  const activeFrameTone = activeNavItem?.tone ?? manageThemeTone;
+  const activeFrameIcon = activeNavItem?.icon ?? OverviewListIcon;
+  const activeFrameTitle = activeNavItem?.label ?? activeNavLabel;
+  const manageCurrentSpec = useMemo(
+    () => (manageMode ? manageControlSpecFor(activeNavLabel, selectedControlName) : null),
+    [activeNavLabel, manageMode, selectedControlName]
+  );
+  const manageBrowserTargets = useMemo(
+    () => manageBrowserTargetsForKey(activeNavLabel, selectedControlName),
+    [activeNavLabel, selectedControlName]
+  );
+  const [manageTargetSelection, setManageTargetSelection] = useState<ManageTargetSelection>(() => ({
+    scope: 'perDevice',
+    device: '',
+    browser: 'Chrome',
+  }));
+  useEffect(() => {
+    if (!manageMode || !manageCurrentSpec) return;
+    const nextScope = isReportsManageTitle(manageCurrentSpec.title)
+      ? 'global'
+      : manageInitialScopeForSpec(manageLane, manageCurrentSpec);
+    setManageTargetSelection({
+      scope: nextScope,
+      device: isLanPairingManageTitle(manageCurrentSpec.title) ? '' : manageDefaultDeviceSelection(manageCurrentSpec),
+      browser: manageBrowserTargets[0]?.label ?? 'All targets',
+    });
+  }, [manageBrowserTargets, manageCurrentSpec, manageLane, manageMode]);
+  const controlBrowserMode = !guideMode && !manageMode && (tableVariant === 'controls' || aiBrowserMode);
+  const expandedControlCategory =
+    controlBrowserMode && selectedCategory && expandedCategoryId === selectedCategory.id ? selectedCategory : null;
+  const filteredCategoryControls = quickControls.filter(
+    (control) => assetKey(controlCategoryLabel(control)) === selectedControlCategoryId
+  );
+  const filteredSubcategoryControls = selectedSubcategoryId
+    ? filteredCategoryControls.filter((control) => assetKey(controlSubcategoryLabel(control)) === selectedSubcategoryId)
+    : filteredCategoryControls;
+  const sortedCategoryControls = [...filteredSubcategoryControls].sort(
+    (a, b) =>
+      (a.controlCode ?? Number.MAX_SAFE_INTEGER) - (b.controlCode ?? Number.MAX_SAFE_INTEGER) ||
+      a.name.localeCompare(b.name)
+  );
+  const controlBrowserPoolBase = controlBrowserMode ? sortedCategoryControls : quickControls;
+  const controlBrowserPool =
+    activeNavGroupId === 'manage'
+      ? quickControls.filter((control) => manageLaneForControl(control) === manageLane)
+      : controlBrowserPoolBase;
+  const controlAreasById = new Map(controlAreas.map((control) => [normalizeSelectionId(control.id), control]));
+  const topItems: ParentPortalTopCardItem[] = (
+    guideMode
+      ? guideTopicPool.map(guideTopCard)
+      : controlBrowserMode
+        ? controlBrowserPool.map((control, index) =>
+            controlTopCard(control, controlAreasById.get(normalizeSelectionId(control.id)), index)
+          )
+        : sortedRows.slice(0, isOverviewContext ? 3 : 10).map(rowTopCard)
+  ).map((item) => ({ ...item, themeColor: activeGroupThemeColor }));
+  const selectedTopKey =
+    guideMode && selectedGuideTopic
+      ? `guide:${normalizeSelectionId(selectedGuideTopic.id)}`
+      : controlBrowserMode
+        ? `control:${normalizeSelectionId(selectedControlId)}`
+        : `row:${selectedRowId}`;
+  const managePortalSection = manageMode && assetKey(activeNavItem?.sectionLabel) === 'portal';
+  const lanPairingDeviceGridMode =
+    manageMode && manageCurrentSpec ? isLanPairingManageTitle(manageCurrentSpec.title) : false;
+  const activityManageGridMode =
+    manageMode && manageCurrentSpec ? isReportsManageTitle(manageCurrentSpec.title) : false;
+  const manageDeviceGridMode = lanPairingDeviceGridMode || activityManageGridMode;
+  const manageTopSelectorRequired = (!manageMode || !managePortalSection) && !manageDeviceGridMode;
+  const focusContextKey = `${activeNavLabel}:${activeTab}`;
+  const [focusState, setFocusState] = useState<{ contextKey: string; section: ParentPortalFocusSection }>(() => ({
+    contextKey: focusContextKey,
+    section: 'highlights',
+  }));
+  const focusedSection = focusState.contextKey === focusContextKey ? focusState.section : 'highlights';
+  const setFocusedSection = (section: ParentPortalFocusSection) =>
+    setFocusState({ contextKey: focusContextKey, section });
+  const tableFocused = focusedSection === 'table';
+  const showTopSection = !tableFocused && manageTopSelectorRequired;
+  const sectionGap = Math.max(8, Math.min(cfg.layout.gap, 14));
+  const expandedTopPanelH = Math.max(276, Math.min(mainH - 210, clampValue(mainH * 0.46, 276, 334)));
+  const hoverTopPanelH = Math.max(242, Math.min(mainH - 210, clampValue(mainH * 0.4, 242, 292)));
+  const compactTopPanelH = Math.max(178, Math.min(mainH - 250, clampValue(mainH * 0.29, 178, 214)));
+  const topPanelH = !showTopSection
+    ? 0
+    : manageMode
+      ? clampValue(mainH * 0.23, 178, 228)
+      : guideDashboardMode
+        ? mainH
+        : guideMode
+          ? clampValue(mainH * 0.24, 164, 220)
+          : controlBrowserMode
+            ? hoveredTopControlKey
+              ? Math.max(hoverTopPanelH, expandedControlCategory ? expandedTopPanelH : 0)
+              : expandedControlCategory
+                ? expandedTopPanelH
+                : compactTopPanelH
+            : clampValue(mainH * 0.39, 260, 294);
+  const bottomPanelY = showTopSection ? mainY + topPanelH + sectionGap : mainY;
+  const bottomPanelH = showTopSection ? mainH - topPanelH - sectionGap : mainH;
+  const selectorHandleGutter = PARENT_PORTAL_SIDE_HANDLE_W;
+  const rowHandleReserve = (PARENT_PORTAL_SIDE_HANDLE_W + 8) * 2;
+  const topCardGap = 10;
+  const topCardMinW = guideMode
+    ? 250
+    : controlBrowserMode
+      ? PARENT_PORTAL_CONTROL_CARD_MIN_W
+      : PARENT_PORTAL_TOP_CARD_MIN_W;
+  const fullSelectorInnerW = Math.max(1, mainW - 36);
+  const fullTopCarouselAvailableW = controlBrowserMode
+    ? Math.max(1, fullSelectorInnerW - rowHandleReserve)
+    : Math.max(1, mainW - 56);
+  const fullCategoryTrackW = Math.max(1, fullSelectorInnerW - rowHandleReserve);
+  const fullCategoryVisibleCount = Math.max(
+    1,
+    Math.min(controlCategories.length || 1, Math.floor((fullCategoryTrackW + 8) / 178), 6)
+  );
+  const fullCategoryPageCount = Math.max(1, Math.ceil(controlCategories.length / fullCategoryVisibleCount));
+  const fullTopCardVisibleCount = Math.max(
+    1,
+    Math.min(
+      topItems.length || 1,
+      PARENT_PORTAL_TOP_CAROUSEL_MAX_VISIBLE,
+      Math.floor((fullTopCarouselAvailableW + topCardGap) / (topCardMinW + topCardGap))
+    )
+  );
+  const fullTopFramePageCount = Math.max(1, Math.ceil(topItems.length / fullTopCardVisibleCount));
+  const topFrameUsesHandleGutter =
+    showTopSection &&
+    !manageMode &&
+    !guideDashboardMode &&
+    (fullTopFramePageCount > 1 || (controlBrowserMode && fullCategoryPageCount > 1));
+  const selectorX = mainX + (topFrameUsesHandleGutter ? selectorHandleGutter : 0);
+  const selectorW = Math.max(320, mainW - (topFrameUsesHandleGutter ? selectorHandleGutter * 2 : 0));
+  const selectorInnerW = Math.max(1, selectorW - 36);
+  const categoryTrackW = Math.max(1, selectorInnerW - rowHandleReserve);
+  const categoryVisibleCount = Math.max(
+    1,
+    Math.min(controlCategories.length || 1, Math.floor((categoryTrackW + 8) / 178), 6)
+  );
+  const [categoryPage, setCategoryPage] = useState(0);
+  const categoryPageCount = Math.max(1, Math.ceil(controlCategories.length / categoryVisibleCount));
+  const safeCategoryPage = wrapIndex(categoryPage, categoryPageCount);
+  const visibleControlCategories = controlCategories.slice(
+    safeCategoryPage * categoryVisibleCount,
+    safeCategoryPage * categoryVisibleCount + categoryVisibleCount
+  );
+  const tableFrame = parentPortalFrameRects(mainX, bottomPanelY, mainW, bottomPanelH);
+  const tableY = bottomPanelY + 47;
+  const rowStep = cfg.chrome.rowHeight + cfg.chrome.rowGap;
+  const visibleRowCapacity = Math.max(1, Math.floor((tableFrame.body.y + tableFrame.body.h - tableY - 42) / rowStep));
+  const effectiveRowsPerPage = Math.max(1, Math.min(rowsPerPage, visibleRowCapacity));
+  const categoryScopedRows = rowsForCategoryScope(sortedRows, selectedCategoryLabel);
+  const aiControlScopedRows = rowsForControlScope(sortedRows, selectedControlName, selectedControlId);
+  const tableRows =
+    tableVariant === 'controls'
+      ? categoryBrowserMode
+        ? categoryScopedRows
+        : controlScopedRows
+      : tableVariant === 'ai' && activeNavKey.includes('ai-by-category')
+        ? categoryScopedRows
+        : tableVariant === 'ai' && activeNavKey.includes('ai-by-game')
+          ? aiControlScopedRows
+          : isOverviewContext
+            ? [
+                ...sortedRows.filter((row) => row.id === selectedRowId && row.order <= 3),
+                ...sortedRows.filter((row) => row.order > 3),
+              ]
+            : sortedRows;
+  const [highlightPage, setHighlightPage] = useState(0);
+  const topCarouselAvailableW = controlBrowserMode
+    ? Math.max(1, selectorInnerW - rowHandleReserve)
+    : Math.max(1, selectorW - 56);
+  const topCardVisibleCount = Math.max(
+    1,
+    Math.min(
+      topItems.length || 1,
+      PARENT_PORTAL_TOP_CAROUSEL_MAX_VISIBLE,
+      Math.floor((topCarouselAvailableW + topCardGap) / (topCardMinW + topCardGap))
+    )
+  );
+  const highlightPageCount = Math.max(1, Math.ceil(topItems.length / topCardVisibleCount));
+  const safeHighlightPage = wrapIndex(highlightPage, highlightPageCount);
+  const shiftHighlightPage = (delta: number) =>
+    setHighlightPage((value) => wrapIndex(value + delta, highlightPageCount));
+  const framePage = safeHighlightPage;
+  const framePageCount = highlightPageCount;
+  const topFramePaged = topFrameUsesHandleGutter && !controlBrowserMode && framePageCount > 1;
+  const topFrameFooterH = topFramePaged ? 30 : manageMode || guideDashboardMode ? 18 : 8;
+  const shiftFramePage = (delta: number) => {
+    shiftHighlightPage(delta);
+  };
+  const routeControlCategoryToBottom = (category: ControlCategorySummary) => {
+    setFocusedSection('highlights');
+    setSelectedCategoryIdOverride(category.id);
+    setSelectedSubcategoryIdOverride(null);
+    setExpandedCategoryId((value) => (value === category.id ? null : category.id));
+    setHighlightPage(0);
+    const nextRows =
+      category.count > 0
+        ? rowsForControlScope(sortedRows, category.sampleControl.name, category.sampleControl.id)
+        : rowsForCategoryScope(sortedRows, category.label);
+    if (nextRows[0]) onRowSelect(nextRows[0].id);
+    if (category.count > 0) onControlSelect(category.sampleControl.id);
+    onPageChange(1);
+  };
+  const routeControlSubcategoryToBottom = (subcategory: ControlSubcategorySummary) => {
+    setFocusedSection('highlights');
+    setSelectedSubcategoryIdOverride(subcategory.id);
+    setExpandedCategoryId(null);
+    setHighlightPage(0);
+    const nextRows = rowsForControlScope(sortedRows, subcategory.sampleControl.name, subcategory.sampleControl.id);
+    if (nextRows[0]) onRowSelect(nextRows[0].id);
+    onControlSelect(subcategory.sampleControl.id);
+    onPageChange(1);
+  };
+  const routeTopItemToBottom = (item: ParentPortalTopCardItem) => {
+    setFocusedSection('highlights');
+    if (item.kind === 'guide') {
+      setSelectedGuideTopicId(item.topic.id);
+      setGuidePage(0);
+      onPageChange(1);
+      return;
+    }
+    if (item.kind === 'control') {
+      const nextCategoryId = assetKey(controlCategoryLabel(item.control));
+      setSelectedCategoryIdOverride(nextCategoryId);
+      setSelectedSubcategoryIdOverride(assetKey(controlSubcategoryLabel(item.control)));
+      setExpandedCategoryId(null);
+      const nextCategoryIndex = controlCategories.findIndex((category) => category.id === nextCategoryId);
+      if (nextCategoryIndex >= 0) {
+        setCategoryPage(Math.floor(nextCategoryIndex / categoryVisibleCount));
+      }
+      const nextRows = rowsForControlScope(sortedRows, item.control.name, item.control.id);
+      if (nextRows[0]) onRowSelect(nextRows[0].id);
+      onControlSelect(item.control.id);
+      onPageChange(1);
+      return;
+    }
+    onRowSelect(item.row.id);
+    const targetIndex = tableRows.findIndex((row) => row.id === item.row.id);
+    if (targetIndex >= 0) {
+      onPageChange(Math.floor(targetIndex / effectiveRowsPerPage) + 1);
+    }
+  };
+  const handleHighlightsWheel = (event: WheelEvent<SVGGElement>) => {
+    const delta = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
+    if (framePageCount <= 1 || Math.abs(delta) < 8) return;
+    event.preventDefault();
+    event.stopPropagation();
+    shiftFramePage(delta > 0 ? 1 : -1);
+  };
+  const tableHeaderButtonY = bottomPanelY + 13;
+  const manageGuideRoutePath =
+    manageMode && manageCurrentSpec ? guideRoutePathForManageKey(activeNavLabel, selectedControlName) : null;
+  const manageDeviceGridScanAction = manageDeviceGridMode ? (
+    <ParentPortalHeaderAction
+      x={mainX + mainW - 136}
+      y={bottomPanelY + 18}
+      w={104}
+      h={29}
+      tone="cyan"
+      accentColor={activeGroupThemeColor}
+      active
+      label="SCAN"
+      iconHref={LAN_PAIRING_SCAN_ICON_HREF}
+      onClick={() => {
+        onAgentCommand?.(AgentCommand.LanPairingStatusGet, {
+          [AgentProtocolDefaults.Field.LanRouteId]: AgentProtocolDefaults.Target.LocalNetworkWindowsAgent.route,
+        });
+      }}
+      ariaLabel="Scan Local Area Network"
+      cfg={cfg}
+    />
+  ) : null;
+  const manageDeviceGridHeaderInfoLabel =
+    manageDeviceGridMode && manageGuideRoutePath
+      ? lanPairingDeviceGridMode
+        ? 'Open Local Area Network guide'
+        : `Open ${manageControlDisplayTitle(manageCurrentSpec.title)} guide`
+      : undefined;
+  const tableHeaderAction = manageGuideRoutePath ? (
+    <g>
+      {tableFocused && manageTopSelectorRequired ? (
+        <ParentPortalHeaderAction
+          x={mainX + mainW - 162}
+          y={tableHeaderButtonY + 2}
+          w={82}
+          h={25}
+          tone="gold"
+          accentColor={activeGroupThemeColor}
+          active
+          label="TOP"
+          onClick={() => setFocusedSection('highlights')}
+          ariaLabel="Show target section"
+          cfg={cfg}
+        />
+      ) : null}
+      <ParentPortalInfoButton
+        x={mainX + mainW - 58}
+        y={tableHeaderButtonY + 3}
+        size={23}
+        accentColor={activeGroupThemeColor}
+        label={`Open ${manageControlDisplayTitle(manageCurrentSpec.title)} guide`}
+        onClick={() => onNavigate?.(manageGuideRoutePath)}
+        cfg={cfg}
+      />
+    </g>
+  ) : tableFocused ? (
+    <ParentPortalHeaderAction
+      x={mainX + mainW - 118}
+      y={tableHeaderButtonY + 2}
+      w={98}
+      h={25}
+      tone="gold"
+      accentColor={activeGroupThemeColor}
+      active
+      label="TOP"
+      onClick={() => setFocusedSection('highlights')}
+      ariaLabel="Show highlights section"
+      cfg={cfg}
+    />
+  ) : guideOverviewMode && guideDashboardDrilldown ? (
+    <ParentPortalHeaderAction
+      x={mainX + mainW - 118}
+      y={tableHeaderButtonY + 2}
+      w={98}
+      h={25}
+      tone="cyan"
+      accentColor={activeGroupThemeColor}
+      active
+      label="MAP"
+      onClick={() => setGuideDashboardDrilldown(false)}
+      ariaLabel="Show guide setup map"
+      cfg={cfg}
+    />
+  ) : null;
+  return (
+    <g>
+      {showTopSection ? (
+        <ParentPortalSectionFrame
+          x={selectorX}
+          y={mainY}
+          w={selectorW}
+          h={topPanelH}
+          title={activeFrameTitle}
+          subtitle={
+            manageMode && manageCurrentSpec
+              ? 'Choose global, child device, and browser target before editing below'
+              : guideDashboardMode
+                ? 'Set up parent app, child devices, controls, privacy, alerts, and storage'
+                : guideMode && selectedGuideTopic
+                  ? `${selectedGuideTopic.subtitle} / ${selectedGuideTopic.detail}`
+                  : `${detail.eyebrow} / ${detail.primary}`
+          }
+          headerIcon={activeFrameIcon}
+          tone={activeFrameTone}
+          accentColor={activeGroupThemeColor}
+          headerH={manageMode ? 44 : controlBrowserMode ? 48 : 40}
+          footerH={topFrameFooterH}
+          innerStrokeOpacity={manageMode ? 0.34 : controlBrowserMode ? 0.24 : undefined}
+          bodyStrokeOpacity={manageMode || controlBrowserMode ? 0 : undefined}
+          bodyFill={manageMode || controlBrowserMode ? 'transparent' : undefined}
+          footerLineOpacity={topFramePaged && !controlBrowserMode ? undefined : 0}
+          headerRight={null}
+          showSideHandles={topFramePaged && !controlBrowserMode}
+          sideDisabled={false}
+          onPrevious={() => shiftFramePage(-1)}
+          onNext={() => shiftFramePage(1)}
+          selected={focusedSection === 'highlights'}
+          onSelect={() => setFocusedSection('highlights')}
+          ariaLabel="Focus parent control selector"
+          footer={(footerRect) => (
+            <>
+              {topFramePaged ? (
+                <ParentPortalFrameDots
+                  x={footerRect.x + footerRect.w / 2}
+                  y={footerRect.y + (controlBrowserMode ? 14 : 18)}
+                  page={framePage}
+                  pageCount={framePageCount}
+                  accentColor={activeGroupThemeColor}
+                  onPageChange={setHighlightPage}
+                  cfg={cfg}
+                />
+              ) : null}
+              {topFramePaged ? (
+                <text
+                  x={footerRect.x + footerRect.w - 22}
+                  y={footerRect.y + (controlBrowserMode ? 18 : 23)}
+                  textAnchor="end"
+                  fontSize={controlBrowserMode ? 9.5 : 10}
+                  fontWeight={900}
+                  fill={cfg.colors.mutedText}
+                >
+                  {`${guideMode ? 'TOPICS' : controlBrowserMode ? 'AREAS' : isOverviewContext ? 'READY' : 'ITEMS'} ${
+                    framePage + 1
+                  }/${framePageCount}`}
+                </text>
+              ) : null}
+            </>
+          )}
+          cfg={cfg}
+        >
+          {(body) => {
+            const contentX = body.x + 2;
+            const contentY = body.y + (controlBrowserMode ? 2 : -2);
+            const contentW = body.w - 4;
+            const contentH = body.h + (controlBrowserMode ? -2 : 4);
+            const expandedCategory = expandedControlCategory;
+            const categoryH = controlBrowserMode
+              ? clampValue(
+                  contentH * (expandedCategory ? 0.17 : 0.28),
+                  expandedCategory ? 34 : 28,
+                  expandedCategory ? 42 : 34
+                )
+              : 0;
+            const subcategoryH = expandedCategory ? clampValue(contentH * 0.32, 82, 110) : 0;
+            const categoryGap = controlBrowserMode ? 4 : 0;
+            const subcategoryGap = expandedCategory ? 4 : 0;
+            const subcategoryY = contentY + categoryH + categoryGap;
+            const carouselY = subcategoryY + subcategoryH + subcategoryGap;
+            const carouselH = expandedCategory
+              ? Math.max(64, contentH - categoryH - categoryGap - subcategoryH - subcategoryGap)
+              : Math.max(48, contentH - categoryH - categoryGap);
+            const rowHandleW = PARENT_PORTAL_SIDE_HANDLE_W;
+            const rowHandleLeftX = selectorX - rowHandleW + PARENT_PORTAL_SIDE_HANDLE_OVERLAP;
+            const rowHandleRightX = selectorX + selectorW - PARENT_PORTAL_SIDE_HANDLE_OVERLAP;
+            const carouselTrackX = contentX;
+            const carouselTrackW = contentW;
+            const carouselHandleH = controlBrowserMode ? Math.max(44, Math.min(92, carouselH - 8)) : 0;
+            const carouselHandleY = carouselY + Math.max(0, (carouselH - carouselHandleH) / 2);
+            return (
+              <g onWheel={handleHighlightsWheel}>
+                <rect x={contentX - 4} y={contentY - 4} width={contentW + 8} height={contentH + 8} fill="transparent" />
+                {manageMode && manageCurrentSpec ? (
+                  <ManageTargetPanel
+                    x={contentX + 8}
+                    y={contentY + 10}
+                    w={contentW - 16}
+                    h={contentH - 12}
+                    activeNavLabel={activeNavLabel}
+                    selectedControlName={selectedControlName}
+                    spec={manageCurrentSpec}
+                    lane={manageLane}
+                    themeColor={activeGroupThemeColor}
+                    targetSelection={manageTargetSelection}
+                    onTargetChange={setManageTargetSelection}
+                    cfg={cfg}
+                  />
+                ) : guideDashboardMode ? (
+                  <GuideOverviewDashboard
+                    x={contentX + 10}
+                    y={contentY + 10}
+                    w={contentW - 20}
+                    h={contentH - 18}
+                    topics={guideTopicPool}
+                    selectedTopicId={selectedGuideTopicId}
+                    onSelect={(topic) => {
+                      setSelectedGuideTopicId(topic.id);
+                      setGuidePage(0);
+                      setGuideDashboardDrilldown(true);
+                    }}
+                    themeColor={activeGroupThemeColor}
+                    cfg={cfg}
+                  />
+                ) : controlBrowserMode ? (
+                  <ControlCategoryGrid
+                    x={contentX}
+                    y={contentY}
+                    w={contentW}
+                    h={categoryH}
+                    categories={visibleControlCategories}
+                    selectedCategoryId={selectedControlCategoryId}
+                    page={safeCategoryPage}
+                    pageCount={categoryPageCount}
+                    themeColor={activeGroupThemeColor}
+                    handleLeftX={rowHandleLeftX}
+                    handleRightX={rowHandleRightX}
+                    onPageChange={setCategoryPage}
+                    onSelect={routeControlCategoryToBottom}
+                    cfg={cfg}
+                  />
+                ) : null}
+                {!guideDashboardMode && expandedCategory ? (
+                  <ControlSubcategoryGrid
+                    x={carouselTrackX}
+                    y={subcategoryY}
+                    w={carouselTrackW}
+                    h={subcategoryH}
+                    category={expandedCategory}
+                    selectedSubcategoryId={selectedSubcategoryId}
+                    themeColor={activeGroupThemeColor}
+                    onSelect={routeControlSubcategoryToBottom}
+                    cfg={cfg}
+                  />
+                ) : null}
+                {!guideDashboardMode && controlBrowserMode && highlightPageCount > 1 ? (
+                  <>
+                    <ParentPortalFrameSideHandle
+                      x={rowHandleLeftX}
+                      y={carouselHandleY}
+                      side="left"
+                      height={carouselHandleH}
+                      width={rowHandleW}
+                      disabled={highlightPageCount <= 1}
+                      onClick={() => shiftHighlightPage(-1)}
+                      accentColor={activeGroupThemeColor}
+                      cfg={cfg}
+                    />
+                    <ParentPortalFrameSideHandle
+                      x={rowHandleRightX}
+                      y={carouselHandleY}
+                      side="right"
+                      height={carouselHandleH}
+                      width={rowHandleW}
+                      disabled={highlightPageCount <= 1}
+                      onClick={() => shiftHighlightPage(1)}
+                      accentColor={activeGroupThemeColor}
+                      cfg={cfg}
+                    />
+                  </>
+                ) : null}
+                {!guideDashboardMode && !manageMode ? (
+                  <ParentPortalTopCarousel
+                    x={carouselTrackX}
+                    y={controlBrowserMode ? carouselY : contentY}
+                    w={carouselTrackW}
+                    h={controlBrowserMode ? carouselH : contentH}
+                    items={topItems}
+                    page={safeHighlightPage}
+                    selectedKey={selectedTopKey}
+                    onSelect={routeTopItemToBottom}
+                    onHoverChange={(item) => setHoveredControlAreaKey(item?.kind === 'control' ? item.key : null)}
+                    minCardW={topCardMinW}
+                    cfg={cfg}
+                  />
+                ) : null}
+              </g>
+            );
+          }}
+        </ParentPortalSectionFrame>
+      ) : null}
+      {!guideDashboardMode ? (
+        <ParentPortalSectionFrame
+          x={mainX}
+          y={bottomPanelY}
+          w={mainW}
+          h={bottomPanelH}
+          title={lanPairingDeviceGridMode ? LAN_PAIRING_HEADER_TITLE : activeFrameTitle}
+          headerIcon={lanPairingDeviceGridMode ? LanNetworkMonitorsIcon : activeFrameIcon}
+          tone={activeFrameTone}
+          accentColor={activeGroupThemeColor}
+          headerRight={manageDeviceGridMode ? manageDeviceGridScanAction : tableHeaderAction}
+          headerInfoLabel={manageDeviceGridHeaderInfoLabel}
+          onHeaderInfoClick={
+            manageDeviceGridMode && manageGuideRoutePath ? () => onNavigate?.(manageGuideRoutePath) : undefined
+          }
+          headerH={manageDeviceGridMode ? 58 : undefined}
+          footerH={manageDeviceGridMode ? 0 : undefined}
+          bodyInset={manageDeviceGridMode ? 0 : undefined}
+          fullHeaderLine={manageDeviceGridMode}
+          bodyStrokeOpacity={0}
+          bodyFill="transparent"
+          footerLineOpacity={manageDeviceGridMode ? 0 : undefined}
+          selected={tableFocused}
+          onSelect={() => setFocusedSection('table')}
+          ariaLabel={tableFocused ? 'Expanded parent detail panel' : 'Expand parent detail panel'}
+          cfg={cfg}
+        >
+          {(body) => {
+            const detailInset = manageDeviceGridMode ? 0 : 18;
+            return (
+              <ParentPortalDetailPanel
+                x={body.x + detailInset}
+                y={body.y + detailInset}
+                w={body.w - detailInset * 2}
+                h={body.h - detailInset * 2}
+                activeNavLabel={activeNavLabel}
+                activeNavGroupId={activeNavGroupId}
+                detail={detail}
+                rows={tableRows}
+                selectedControlName={selectedControlName}
+                themeTone={manageThemeTone}
+                themeColor={activeGroupThemeColor}
+                guideTopic={selectedGuideTopic}
+                guidePage={guidePage}
+                onGuidePageChange={setGuidePage}
+                quickPanelMode={guideQuickPanelMode}
+                onQuickPanelModeChange={setGuideQuickPanelMode}
+                onGuideNoteSelect={handleGuideNoteSelect}
+                manageTargetSelection={manageTargetSelection}
+                onManageTargetChange={setManageTargetSelection}
+                onNavigate={onNavigate}
+                cfg={cfg}
+              />
+            );
+          }}
+        </ParentPortalSectionFrame>
+      ) : null}
+      {detailMode ? (
+        <DetailOverlay
+          x={mainX + 18}
+          y={mainY + 50}
+          w={mainW - 36}
+          h={mainH - 100}
+          mode={detailMode}
+          activeTab={activeTab}
+          detail={detail}
+          season={season}
+          controlAreas={controlAreas}
+          uiCopy={uiCopy}
+          selectedRow={selectedRow}
+          selectedControlName={selectedControlName}
+          onTabChange={onTabChange}
+          onClose={onDetailClose}
+          cfg={cfg}
+        />
+      ) : null}
+    </g>
+  );
+}
+
+function DetailOverlay({
+  x,
+  y,
+  w,
+  h,
+  mode,
+  activeTab,
+  detail,
+  season,
+  controlAreas,
+  uiCopy,
+  selectedRow,
+  selectedControlName,
+  onTabChange,
+  onClose,
+  cfg,
+}: {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  mode: DetailMode;
+  activeTab: ParentPortalTabId;
+  detail: TabDetail;
+  season: ParentPortalContentData['season'];
+  controlAreas: ControlArea[];
+  uiCopy: ParentPortalContentData['uiCopy'];
+  selectedRow: DisplayRow;
+  selectedControlName: string;
+  onTabChange: (tab: ParentPortalTabId) => void;
+  onClose: () => void;
+  cfg: ParentPortalSvgControls;
+}) {
+  const tone: Tone = mode === 'season' ? 'gold' : mode === 'control' ? 'purple' : selectedRow.tone;
+  const color = toneColor(tone, cfg);
+  const selectedControl = controlAreas.find(
+    (control) => control.name === selectedControlName || control.id === selectedControlName
+  );
+  const title =
+    mode === 'season'
+      ? season.detailTitle
+      : mode === 'control'
+        ? `${selectedControlName.toUpperCase()} DRILLDOWN`
+        : `${selectedRow.label.toUpperCase()} PROFILE`;
+  const subtitle =
+    mode === 'season'
+      ? season.detailSubtitle
+      : mode === 'control'
+        ? `Control detail from ${detail.eyebrow}`
+        : `${detail.eyebrow} / ${selectedControlName}`;
+  const stats =
+    mode === 'season'
+      ? season.stats.map((stat) => [stat.label, stat.value] as [string, string])
+      : mode === 'control'
+        ? [
+            ['MATCHES', selectedControl?.matches ?? 'N/A'],
+            ['GROWTH', selectedControl?.growth ?? 'N/A'],
+            ['AREAS', '100'],
+          ]
+        : [
+            ['SIGNAL', selectedRow.signal],
+            ['READINESS', selectedRow.readiness],
+            ['TREND', selectedRow.trend],
+          ];
+  const primaryTab: ParentPortalTabId = mode === 'season' ? 'routines' : mode === 'control' ? 'controls' : activeTab;
+  const primaryLabel = mode === 'season' ? 'OPEN EVENTS' : mode === 'control' ? 'OPEN CONTROL' : 'KEEP SELECTED';
+  const artworkImageUrl =
+    mode === 'season'
+      ? parentPortalOverviewBannerImageUrl
+      : mode === 'control'
+        ? parentPortalControlImageUrl(selectedControl?.id ?? selectedControlName)
+        : rowAvatarImageUrl(selectedRow.label);
+  return (
+    <g role="dialog" aria-label={title}>
+      <path
+        d={cutRectPath(x - 8, y - 8, w + 16, h + 16, 18)}
+        fill="rgba(1, 5, 12, 0.72)"
+        stroke={color}
+        strokeWidth={1.2}
+        opacity={0.98}
+      />
+      <path
+        d={cutRectPath(x, y, w, h, 16)}
+        fill="rgba(5, 17, 30, 0.97)"
+        stroke={color}
+        strokeWidth={1.4}
+        filter="url(#parentPortalGlow)"
+      />
+      <ArtworkSlot
+        x={x + 22}
+        y={y + 24}
+        w={92}
+        h={82}
+        label={mode === 'season' ? 'SEASON' : mode === 'control' ? 'CONTROL ART' : 'ROW'}
+        imageUrl={artworkImageUrl}
+        tone={tone}
+        shape={mode === 'row' ? 'circle' : 'hex'}
+        cfg={cfg}
+      />
+      <text x={x + 136} y={y + 39} fontSize={22} fontWeight={950} fill={cfg.colors.bodyText}>
+        {title}
+      </text>
+      <text x={x + 136} y={y + 64} fontSize={12} fontWeight={800} fill="#a9c3da">
+        {subtitle}
+      </text>
+      <text x={x + 136} y={y + 91} fontSize={11} fontWeight={900} fill={color}>
+        {detail.primary}
+      </text>
+      <text x={x + 136} y={y + 112} fontSize={10.5} fontWeight={760} fill="#d8eaff">
+        {detail.summary}
+      </text>
+      <ParentPortalHeaderAction
+        x={x + w - 208}
+        y={y + 26}
+        w={126}
+        h={30}
+        tone={tone}
+        active
+        label={primaryLabel}
+        onClick={() => {
+          onTabChange(primaryTab);
+          onClose();
+        }}
+        ariaLabel={primaryLabel}
+        cfg={cfg}
+      />
+      <ParentPortalHeaderAction
+        x={x + w - 68}
+        y={y + 26}
+        w={44}
+        h={30}
+        tone="muted"
+        label="X"
+        onClick={onClose}
+        ariaLabel="Close parent portal detail"
+        cfg={cfg}
+      />
+      {stats.map(([label, value], index) => {
+        const cardW = (w - 62) / 3;
+        const cardX = x + 22 + index * (cardW + 9);
+        return (
+          <SurfacePanel key={label} x={cardX} y={y + 136} w={cardW} h={72} tone={index === 1 ? tone : 'cyan'} cfg={cfg}>
+            <text x={cardX + 18} y={y + 162} fontSize={10} fontWeight={900} fill={cfg.colors.mutedText}>
+              {label}
+            </text>
+            <text x={cardX + 18} y={y + 190} fontSize={22} fontWeight={950} fill={cfg.colors.bodyText}>
+              {value}
+            </text>
+          </SurfacePanel>
+        );
+      })}
+      <path
+        d={cutRectPath(x + 22, y + 230, w - 44, h - 256, 12)}
+        fill="rgba(7, 22, 37, 0.72)"
+        stroke={color}
+        strokeWidth={0.8}
+        strokeOpacity={0.72}
+      />
+      <text x={x + 44} y={y + 266} fontSize={12} fontWeight={950} fill={cfg.colors.bodyText}>
+        {uiCopy.detailSnapshotTitle}
+      </text>
+      {uiCopy.detailSnapshotLines.slice(0, 2).map((line, index) => (
+        <text key={line} x={x + 44} y={y + 291 + index * 27} fontSize={11} fontWeight={760} fill="#b9d2e7">
+          {line}
+        </text>
+      ))}
+    </g>
+  );
+}
+
+function Defs() {
+  return (
+    <defs>
+      <linearGradient id="parentPortalFrameFill" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#08243a" stopOpacity="0.94" />
+        <stop offset="48%" stopColor="#041624" stopOpacity="0.96" />
+        <stop offset="100%" stopColor="#061d31" stopOpacity="0.92" />
+      </linearGradient>
+      <linearGradient id="parentPortalFrameGlass" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#123f59" stopOpacity="0.32" />
+        <stop offset="52%" stopColor="#061525" stopOpacity="0.24" />
+        <stop offset="100%" stopColor="#0b2445" stopOpacity="0.28" />
+      </linearGradient>
+      <linearGradient id="parentPortalFrameShine" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stopColor="#ffffff" stopOpacity="0.14" />
+        <stop offset="42%" stopColor="#42e8ff" stopOpacity="0.07" />
+        <stop offset="100%" stopColor="#42e8ff" stopOpacity="0" />
+      </linearGradient>
+      <linearGradient id="parentPortalCardBannerShade" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stopColor="#07111f" stopOpacity="0.16" />
+        <stop offset="52%" stopColor="#06101f" stopOpacity="0.46" />
+        <stop offset="100%" stopColor="#061525" stopOpacity="0.92" />
+      </linearGradient>
+      <filter id="parentPortalGlow" x="-35%" y="-35%" width="170%" height="170%">
+        <feGaussianBlur stdDeviation={3.5} result="blur" />
+        <feMerge>
+          <feMergeNode in="blur" />
+          <feMergeNode in="SourceGraphic" />
+        </feMerge>
+      </filter>
+      <filter id="parentPortalGoldGlow" x="-60%" y="-60%" width="220%" height="220%">
+        <feGaussianBlur stdDeviation={4} result="blur" />
+        <feMerge>
+          <feMergeNode in="blur" />
+          <feMergeNode in="SourceGraphic" />
+        </feMerge>
+      </filter>
+    </defs>
+  );
+}
+
+export function ParentPortalSvgSurface({
+  pageMode,
+  parentPortalRows,
+  userEntry,
+  controlId,
+  loading = false,
+  error = null,
+  controls,
+  content,
+  initialNavLabel,
+  initialSelectedControlId,
+  assistantRouteActive = false,
+  assistantRoutePath = '#/assistant',
+  assistantReturnRoutePath = '#/overview',
+  onRefreshParentPortal,
+  onNavigate,
+  onAssistantCommand,
+}: ParentPortalSvgSurfaceProps) {
+  const mainRef = useRef<HTMLElement | null>(null);
+  const baseCfg = useMemo(() => normalizeParentPortalSvgControls(controls), [controls]);
+  const pageContent = useMemo(() => normalizeParentPortalContent(content), [content]);
+  const tabs = pageContent.tabs;
+  const tabDetails = pageContent.tabDetails;
+  const navItems = useMemo<NavItem[]>(
+    () =>
+      pageContent.navItems.map((item) => ({
+        ...item,
+        icon: iconForNavItem(item),
+        imageUrl: navItemImageUrl(item),
+      })),
+    [pageContent.navItems]
+  );
+  const navGroups = useMemo(
+    () => groupedParentPortalNavItems(pageContent.navGroups, navItems),
+    [navItems, pageContent.navGroups]
+  );
+  const controlAreas = pageContent.controlAreas;
+  const quickControls = useMemo<QuickControl[]>(() => {
+    const controlEntries = pageContent.quickControls.filter(isParentPortalControlEntry).map((control) => ({
+      ...control,
+      icon: iconForName(control.icon),
+    }));
+    if (controlEntries.length > 0) return controlEntries;
+    return pageContent.controlAreas.map((control) => ({
+      id: control.id,
+      name: control.name,
+      detail: typeof control.controlCode === 'number' ? `Area ${control.controlCode}` : 'View parent portal',
+      icon: ManageFileSettingsIcon,
+      tone: control.tone,
+      category: control.category,
+      subcategory: control.subcategory,
+      controlCode: control.controlCode,
+      routePath: control.routePath,
+    }));
+  }, [pageContent.quickControls, pageContent.controlAreas]);
+  const [surfaceSize, setSurfaceSize] = useState({ width: 0, height: 0 });
+  const canvasSize = useMemo(
+    () => parentPortalCanvasSizeForSurface(baseCfg, surfaceSize),
+    [baseCfg, surfaceSize.height, surfaceSize.width]
+  );
+  const columns = useMemo(
+    () => responsiveParentPortalColumnWidths(canvasSize.width, baseCfg),
+    [baseCfg, canvasSize.width]
+  );
+  const cfg = useMemo<ParentPortalSvgControls>(
+    () => ({
+      ...baseCfg,
+      canvas: {
+        ...baseCfg.canvas,
+        width: canvasSize.width,
+        height: canvasSize.height,
+      },
+      layout: {
+        ...baseCfg.layout,
+        leftW: columns.leftW,
+        rightW: columns.rightW,
+      },
+    }),
+    [baseCfg, canvasSize.height, canvasSize.width, columns.leftW, columns.rightW]
+  );
+  const pageModeTab = initialTabForPageMode(pageMode, pageContent);
+  const initialSelectedControlIdForRoute = initialControlIdForPageMode(pageMode, pageContent, controlId);
+  const initialNavItem = initialNavItemForContext(
+    navItems,
+    pageContent,
+    initialNavLabel,
+    initialSelectedControlId ?? initialSelectedControlIdForRoute
+  );
+  const initialTab = initialNavItem?.tabId ?? pageModeTab;
+  const [activeTab, setActiveTab] = useState<ParentPortalTabId>(initialTab);
+  const [activeNavLabel, setActiveNavLabel] = useState(
+    () => initialNavItem?.label ?? initialNavLabelForTab(navItems, pageModeTab)
+  );
+  const [activeNavRouteKey, setActiveNavRouteKey] = useState(() => (initialNavItem ? navItemKey(initialNavItem) : ''));
+  const [openNavGroupIds, setOpenNavGroupIds] = useState(() =>
+    initialOpenNavGroupIds(
+      navGroups,
+      initialNavItem ? navItemKey(initialNavItem) : '',
+      initialNavItem?.label ?? initialNavLabelForTab(navItems, pageModeTab)
+    )
+  );
+  const [selectedControlId, setSelectedControlId] = useState(
+    initialSelectedControlId ?? initialSelectedControlIdForRoute
+  );
+  const selectedControl = findSelectedControl(pageContent, selectedControlId);
+  const selectedControlName = selectedControl?.name ?? formatRouteScope(controlId);
+  const baseSourceRows = useMemo(
+    () => rowSourceForPageMode(pageContent, pageMode, parentPortalRows),
+    [parentPortalRows, pageContent, pageMode]
+  );
+  const sourceRows = activeTab === 'aiStatus' ? pageContent.aiBenchmarkRows : baseSourceRows;
+  const rows = useMemo(
+    () => toDisplayRows(sourceRows, pageMode, selectedControlName, controlId),
+    [controlId, pageMode, selectedControlName, sourceRows]
+  );
+  const userDisplayRow = useMemo(
+    () =>
+      userEntry && pageMode !== 'parentGuide'
+        ? toDisplayRows([userEntry], pageMode, selectedControlName, controlId)[0]
+        : null,
+    [controlId, pageMode, selectedControlName, userEntry]
+  );
+  const [selectedRowId, setSelectedRowId] = useState(userDisplayRow?.id ?? rows[0]?.id ?? '');
+  const [, setPage] = useState(1);
+  const rowsPerPage = 10;
+  const [detailMode, setDetailMode] = useState<DetailMode | null>(null);
+  const [assistantMode, setAssistantMode] = useState(assistantRouteActive);
+  const [assistantActionsVisible, setAssistantActionsVisible] = useState(() => cfg.canvas.width >= 1000);
+  const [selectedAssistantActionId, setSelectedAssistantActionId] = useState<AssistantQuickActionId | null>(null);
+  const [selectedAssistantChoice, setSelectedAssistantChoice] = useState<AssistantQuickChoice | null>(null);
+  const [assistantThreadSequence, setAssistantThreadSequence] = useState(0);
+  const [assistantActionSequence, setAssistantActionSequence] = useState(0);
+  const [assistantRouteTransition, setAssistantRouteTransition] = useState<'opening' | 'closing' | null>(null);
+
+  useEffect(() => {
+    const nextSelectedControlId =
+      initialSelectedControlId ?? initialControlIdForPageMode(pageMode, pageContent, controlId);
+    const nextNavItem = initialNavItemForContext(navItems, pageContent, initialNavLabel, nextSelectedControlId);
+    const nextTab = nextNavItem?.tabId ?? pageModeTab;
+    const nextNavLabel = nextNavItem?.label ?? initialNavLabelForTab(navItems, nextTab);
+    const nextNavRouteKey = nextNavItem ? navItemKey(nextNavItem) : '';
+    setActiveTab(nextTab);
+    setActiveNavLabel(nextNavLabel);
+    setActiveNavRouteKey(nextNavRouteKey);
+    setOpenNavGroupIds((current) => ensureOpenNavGroupIds(current, navGroups, nextNavRouteKey, nextNavLabel));
+    setSelectedControlId(nextSelectedControlId);
+    setAssistantMode(assistantRouteActive);
+    setSelectedAssistantActionId(null);
+    setSelectedAssistantChoice(null);
+    setDetailMode(null);
+    setPage(1);
+    window.setTimeout(() => setAssistantRouteTransition(null), 180);
+  }, [
+    assistantRouteActive,
+    controlId,
+    initialNavLabel,
+    initialSelectedControlId,
+    navGroups,
+    navItems,
+    pageContent,
+    pageMode,
+    pageModeTab,
+  ]);
+
+  useEffect(() => {
+    if (assistantMode && cfg.canvas.width < 1000) {
+      setAssistantActionsVisible(false);
+    }
+  }, [assistantMode, cfg.canvas.width]);
+
+  useEffect(() => {
+    if (!assistantRouteTransition) return undefined;
+    const timeout = window.setTimeout(() => setAssistantRouteTransition(null), 360);
+    return () => window.clearTimeout(timeout);
+  }, [assistantRouteTransition]);
+
+  useEffect(() => {
+    const target = mainRef.current;
+    if (!target || typeof ResizeObserver === 'undefined') return undefined;
+    const observer = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (!entry) return;
+      const { width, height } = entry.contentRect;
+      setSurfaceSize((current) => {
+        const nextWidth = Math.round(width);
+        const nextHeight = Math.round(height);
+        return current.width === nextWidth && current.height === nextHeight
+          ? current
+          : { width: nextWidth, height: nextHeight };
+      });
+    });
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, []);
+
+  const selectedRow =
+    rows.find((row) => row.id === selectedRowId) ??
+    (activeTab === 'aiStatus' ? null : userDisplayRow) ??
+    rows[0] ??
+    toDisplayRows(pageContent.fallbackRows, pageMode, selectedControlName, controlId)[0];
+  const leftX = cfg.layout.outerPad;
+  const sideMainGap = Math.max(1, Math.round(cfg.layout.gap * 0.5));
+  const mainX = leftX + cfg.layout.leftW + sideMainGap;
+  const rightX = cfg.canvas.width - cfg.layout.outerPad - cfg.layout.rightW;
+  const boardY = Math.max(0, cfg.layout.topY - 14);
+  const assistantBoardY = boardY;
+  const mainW = rightX - mainX;
+  const assistantMainX = assistantMode && !assistantActionsVisible ? leftX : mainX;
+  const assistantMainW = assistantMode && !assistantActionsVisible ? rightX - leftX : mainW;
+  const mainH = cfg.canvas.height - boardY - 2;
+  const assistantMainH = cfg.canvas.height - assistantBoardY - 2;
+  const activeNavItem = activeNavRouteKey
+    ? (navItems.find((item) => navItemKey(item) === activeNavRouteKey) ?? null)
+    : (navItems.find((item) => item.label === activeNavLabel) ?? null);
+  const activeNavGroupId = activeNavItem?.groupId ?? navGroupIdForNavKey(navGroups, activeNavRouteKey, activeNavLabel);
+  const openAssistantRoute = () => {
+    setAssistantRouteTransition('opening');
+    setAssistantMode(true);
+    setAssistantActionsVisible(cfg.canvas.width >= 1000);
+    setDetailMode(null);
+    onNavigate?.(assistantRoutePath);
+  };
+  const closeAssistantRoute = () => {
+    setAssistantRouteTransition('closing');
+    setSelectedAssistantActionId(null);
+    setSelectedAssistantChoice(null);
+    window.setTimeout(() => {
+      setAssistantMode(false);
+      onNavigate?.(assistantReturnRoutePath);
+    }, 120);
+  };
+  const activateNavItem = (item: NavItem) => {
+    const nextNavRouteKey = navItemKey(item);
+    setActiveNavLabel(item.label);
+    setActiveNavRouteKey(nextNavRouteKey);
+    setOpenNavGroupIds((current) => ensureOpenNavGroupIds(current, navGroups, nextNavRouteKey, item.label));
+  };
+  const activateNavLabel = (navLabel: string) => {
+    const item = navItems.find((entry) => entry.label === navLabel);
+    if (item) {
+      activateNavItem(item);
+      return;
+    }
+    setActiveNavLabel(navLabel);
+    setActiveNavRouteKey('');
+    setOpenNavGroupIds((current) => ensureOpenNavGroupIds(current, navGroups, '', navLabel));
+  };
+  const changeTab = (tab: ParentPortalTabId) => {
+    const nextNavLabel = initialNavLabelForTab(navItems, tab);
+    setActiveTab(tab);
+    activateNavLabel(nextNavLabel);
+    setAssistantMode(false);
+    setSelectedAssistantActionId(null);
+    setSelectedAssistantChoice(null);
+    setDetailMode(null);
+    setPage(1);
+  };
+  const selectNavItem = (item: NavItem) => {
+    setActiveTab(item.tabId);
+    activateNavItem(item);
+    setAssistantMode(false);
+    setSelectedAssistantActionId(null);
+    setSelectedAssistantChoice(null);
+    setDetailMode(null);
+    setPage(1);
+    if (isHashRoutePath(item.routePath)) {
+      onNavigate?.(item.routePath);
+    }
+  };
+  const toggleNavGroup = (groupId: string) => {
+    setOpenNavGroupIds((current) => toggleOpenNavGroupId(current, navGroups, groupId));
+  };
+  const selectRow = (rowId: string) => {
+    setSelectedRowId(rowId);
+    setDetailMode(null);
+  };
+  const selectControl = (controlIdValue: string) => {
+    setSelectedControlId(controlIdValue);
+    const control = findSelectedControl(pageContent, controlIdValue);
+    const tab =
+      control?.routePath === '#/ai-runtime' || assetKey(control?.category ?? '').includes('ai')
+        ? 'aiStatus'
+        : control?.routePath === '#/overview'
+          ? 'overall'
+          : 'controls';
+    const nextNavItem = isHashRoutePath(control?.routePath)
+      ? navItems.find((item) => item.routePath === control.routePath)
+      : undefined;
+    const fallbackNavLabel = initialNavLabelForTab(navItems, tab);
+    const fallbackNavItem = navItems.find((item) => item.label === fallbackNavLabel);
+    setActiveTab(nextNavItem?.tabId ?? tab);
+    if (nextNavItem ?? fallbackNavItem) {
+      activateNavItem((nextNavItem ?? fallbackNavItem) as NavItem);
+    } else {
+      activateNavLabel(fallbackNavLabel);
+    }
+    setAssistantMode(false);
+    setSelectedAssistantActionId(null);
+    setSelectedAssistantChoice(null);
+    setDetailMode(null);
+    setPage(1);
+    if (pageMode === 'parentManage' && typeof control?.controlCode === 'number') {
+      onRefreshParentPortal(control.controlCode);
+    }
+    if (isHashRoutePath(control?.routePath)) {
+      onNavigate?.(control.routePath);
+    }
+  };
+  return (
+    <main ref={mainRef} className="parent-portal-svg-main">
+      <svg
+        viewBox={`0 0 ${cfg.canvas.width} ${cfg.canvas.height}`}
+        className="parent-portal-svg-surface"
+        role="img"
+        aria-label="Ocentra parent dashboard"
+        preserveAspectRatio="xMidYMin meet"
+      >
+        <Defs />
+        {!assistantMode || assistantActionsVisible ? (
+          <NavPanel
+            activeNavLabel={activeNavLabel}
+            activeNavRouteKey={activeNavRouteKey}
+            navGroups={navGroups}
+            openGroupIds={openNavGroupIds}
+            assistantOpen={assistantMode}
+            selectedAssistantActionId={selectedAssistantActionId}
+            onAssistantNewChat={() => {
+              setSelectedAssistantActionId(null);
+              setSelectedAssistantChoice(null);
+              setAssistantThreadSequence((sequence) => sequence + 1);
+              setAssistantMode(true);
+              onAssistantCommand?.(AgentCommand.ParentAssistantThreadCreate, assistantThreadCreatePayload());
+            }}
+            onNavGroupToggle={toggleNavGroup}
+            onNavItemSelect={selectNavItem}
+            onAssistantActionSelect={(actionId) => {
+              setSelectedAssistantActionId(actionId);
+              setSelectedAssistantChoice(null);
+              setAssistantActionSequence((sequence) => sequence + 1);
+              setAssistantMode(true);
+              const action = assistantQuickActionById(actionId);
+              if (action) {
+                onAssistantCommand?.(
+                  AgentCommand.ParentAssistantQuickActionStart,
+                  assistantQuickActionCommandPayload(action)
+                );
+              }
+            }}
+            onAssistantOpen={() => {
+              openAssistantRoute();
+            }}
+            cfg={cfg}
+          />
+        ) : null}
+        {assistantMode ? (
+          <AssistantModeBoard
+            x={assistantMainX}
+            y={assistantBoardY}
+            w={assistantMainW}
+            h={assistantMainH}
+            actionsVisible={assistantActionsVisible}
+            selectedAction={assistantQuickActionById(selectedAssistantActionId)}
+            selectedActionSequence={assistantActionSequence}
+            threadSequence={assistantThreadSequence}
+            onChoiceSelect={setSelectedAssistantChoice}
+            onAssistantMessage={(payload) => {
+              onAssistantCommand?.(AgentCommand.ParentAssistantMessageSend, payload);
+            }}
+            onActionToggle={() => setAssistantActionsVisible((visible) => !visible)}
+            onClose={() => {
+              closeAssistantRoute();
+            }}
+            cfg={cfg}
+          />
+        ) : (
+          <MainBoard
+            activeNavLabel={activeNavLabel}
+            activeNavItem={activeNavItem}
+            activeNavGroupId={activeNavGroupId}
+            activeTab={activeTab}
+            rows={rows}
+            tabs={tabs}
+            tabDetails={tabDetails}
+            controlAreas={controlAreas}
+            quickControls={quickControls}
+            guideTopics={pageContent.guideTopics}
+            season={pageContent.season}
+            uiCopy={pageContent.uiCopy}
+            selectedControlId={selectedControlId}
+            selectedRowId={selectedRow.id}
+            selectedRow={selectedRow}
+            selectedControlName={selectedControlName}
+            rowsPerPage={rowsPerPage}
+            detailMode={detailMode}
+            onTabChange={changeTab}
+            onRowSelect={selectRow}
+            onPageChange={setPage}
+            onDetailClose={() => setDetailMode(null)}
+            onControlSelect={selectControl}
+            onNavigate={onNavigate}
+            onAgentCommand={onAssistantCommand}
+            onSelectNavLabel={(navLabel) => {
+              const item = navItems.find((entry) => entry.label === navLabel);
+              if (item) {
+                selectNavItem(item);
+                return;
+              }
+              activateNavLabel(navLabel);
+            }}
+            cfg={cfg}
+            mainX={mainX}
+            mainW={mainW}
+            mainY={boardY}
+            mainH={mainH}
+          />
+        )}
+        {loading || error ? (
+          <g role={loading ? 'status' : 'alert'}>
+            <rect
+              x={mainX + 28}
+              y={boardY + 120}
+              width={mainW - 56}
+              height={82}
+              rx={6}
+              fill="rgba(3, 7, 18, 0.82)"
+              stroke={error ? cfg.colors.red : cfg.colors.cyan}
+              strokeWidth={1.2}
+            />
+            <text
+              x={mainX + mainW / 2}
+              y={boardY + 154}
+              textAnchor="middle"
+              fontSize={16}
+              fontWeight={950}
+              fill={cfg.colors.bodyText}
+            >
+              {loading ? pageContent.uiCopy.loadingTitle : pageContent.uiCopy.errorTitle}
+            </text>
+            <text
+              x={mainX + mainW / 2}
+              y={boardY + 180}
+              textAnchor="middle"
+              fontSize={11}
+              fontWeight={760}
+              fill={cfg.colors.mutedText}
+            >
+              {error ?? pageContent.uiCopy.loadingBody}
+            </text>
+          </g>
+        ) : null}
+        {assistantRouteTransition ? (
+          <PortalTransitionSpinner
+            cx={cfg.canvas.width / 2}
+            cy={cfg.canvas.height / 2}
+            label={assistantRouteTransition === 'closing' ? 'Closing assistant' : 'Opening assistant'}
+            cfg={cfg}
+          />
+        ) : null}
+      </svg>
+    </main>
+  );
+}

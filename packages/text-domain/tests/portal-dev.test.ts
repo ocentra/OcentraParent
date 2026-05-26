@@ -11,9 +11,9 @@ describe('portal dev text', () => {
     expect(PortalDevText[PortalDevTextToken.ParentPortal]).toBe('Start here');
     expect(PortalDevText[PortalDevTextToken.Activity]).toBe('Activity');
     expect(PortalDevText[PortalDevTextToken.SettingsRules]).toBe('Settings');
-    expect(PortalDevText[PortalDevTextToken.FrameTuner]).toBe('Frame tuner');
+    expect(PortalDevText[PortalDevTextToken.FrameTuner]).toBe('App layout');
     expect(PortalDevText[PortalDevTextToken.FrameTunerDescription]).toBe(
-      'Dev-only geometry controls for the side panel and main body frame.'
+      'Layout and content editor for parent portal app surfaces.'
     );
     expect(PortalDevText[PortalDevTextToken.HeaderBrandLeft]).toBe("O'centra");
     expect(PortalDevText[PortalDevTextToken.HeaderBrandRight]).toBe('Parent');

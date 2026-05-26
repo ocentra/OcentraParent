@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useRef, useState, type ReactElement } from 'react';
 import { PortalFrameTuner, type PortalDisplayText } from '@ocentra-parent/portal-domain/contracts';
-import { PictureViewerFrame } from '../../../vendor/ocentra-games-core-ui/Common/PictureViewerFrame/PictureViewerFrame';
+import { PictureViewerFrame } from '../../../vendor/ocentra-parent-core-ui/Common/PictureViewerFrame/PictureViewerFrame';
 import {
   getPictureViewerFrameSpaceForOrientation,
   type PictureViewerFrameSurfaceControls,
-} from '../../../vendor/ocentra-games-core-ui/Common/PictureViewerFrame/PictureViewerFrameControls';
+} from '../../../vendor/ocentra-parent-core-ui/Common/PictureViewerFrame/PictureViewerFrameControls';
 import type { PortalFrameContentTargetLayout } from './portal-frame-layout';
 
 type FrameHostSize = {

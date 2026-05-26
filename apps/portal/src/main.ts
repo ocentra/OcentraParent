@@ -67,7 +67,11 @@ function refresh(): void {
 function getRoute(): PortalRouteValue {
   const route = window.location.hash.replace(/^#\/?/u, PortalDom.EmptyHashRoute);
   const parsedRoute = PortalRouteSchema.safeParse(route);
-  if (parsedRoute.success && PortalRoutes.includes(parsedRoute.data)) {
+  if (parsedRoute.success && parsedRoute.data === PortalRoute.LegacyFrameTuner) {
+    replaceHashIfNeeded(PortalRoute.FrameTuner);
+    return PortalRoute.FrameTuner;
+  }
+  if (parsedRoute.success && PortalRoutes.some((portalRoute) => portalRoute === parsedRoute.data)) {
     return parsedRoute.data;
   }
   replaceHashIfNeeded(PortalRoute.Overview);

@@ -3,8 +3,10 @@ import {
   PARENT_PORTAL_NAV_LABELS,
   PARENT_PORTAL_NAV_GROUPS,
   PARENT_PORTAL_NAV_ITEMS,
+  type ParentPortalHashRoutePath,
   type ParentPortalNavGroup,
   type ParentPortalNavItem,
+  type ParentPortalNavLabel,
 } from './parent-portal-nav';
 import { PARENT_PORTAL_GUIDE_TOPICS, type ParentPortalGuideTopic } from './parent-portal-guides';
 import { PARENT_PORTAL_MANAGE_QUICK_CONTROLS, PARENT_PORTAL_MANAGE_ROWS } from './parent-portal-manage-data';
@@ -30,6 +32,7 @@ export type ParentPortalIconName =
   | 'privacy'
   | 'lan'
   | 'devices'
+  | 'screen'
   | 'remote'
   | 'ai-setup'
   | 'ai-guide'
@@ -85,7 +88,7 @@ export type ParentPortalContent = {
     category: string;
     subcategory: string;
     controlCode: number;
-    routePath: string;
+    routePath: ParentPortalHashRoutePath;
   }>;
   quickControls: Array<{
     id: string;
@@ -96,7 +99,7 @@ export type ParentPortalContent = {
     category: string;
     subcategory: string;
     controlCode: number;
-    routePath: string;
+    routePath: ParentPortalHashRoutePath;
   }>;
   guideTopics: readonly ParentPortalGuideTopic[];
   fallbackRows: ParentPortalRow[];
@@ -165,7 +168,7 @@ export type ParentPortalContent = {
 
 export type ParentPortalRouteContext = {
   readonly pageMode: ParentPortalPageMode;
-  readonly navLabel: string;
+  readonly navLabel: ParentPortalNavLabel;
   readonly selectedControlId: string;
 };
 
@@ -173,6 +176,10 @@ export const PARENT_PORTAL_ROUTE = {
   ClassName: 'parent-portal-route',
   PageMode: 'parentOverview',
   EmptyTimestamp: '',
+  HashRoutes: {
+    Assistant: '#/assistant',
+    Overview: '#/overview',
+  },
   StatusText: {
     Local: 'LOCAL',
     Connecting: 'CONNECTING',
@@ -183,11 +190,12 @@ export const PARENT_PORTAL_ROUTE = {
 
 export const PARENT_PORTAL_ROUTE_CONTEXT: Readonly<Partial<Record<PortalRouteValue, ParentPortalRouteContext>>> = {
   [PortalRoute.Overview]: routeContext('parentOverview', PARENT_PORTAL_NAV_LABELS.Overview, 'activity-store'),
+  [PortalRoute.Assistant]: routeContext('parentGuide', PARENT_PORTAL_NAV_LABELS.AiSetup, 'ai-runtime'),
   [PortalRoute.Start]: routeContext('parentOverview', PARENT_PORTAL_NAV_LABELS.StartHere, 'setup-overall'),
   [PortalRoute.Activity]: routeContext('parentOverview', PARENT_PORTAL_NAV_LABELS.Activity, 'activity-store'),
   [PortalRoute.Browser]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Web, 'managed-web'),
   [PortalRoute.BrowserSettings]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Browser, 'browser-settings'),
-  [PortalRoute.Policy]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.RulesGuide, 'policy-action'),
+  [PortalRoute.Policy]: routeContext('parentGuide', PARENT_PORTAL_NAV_LABELS.RulesGuide, 'rules-policy'),
   [PortalRoute.RuleManagement]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.RuleSet, 'rules-management'),
   [PortalRoute.Schedules]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Schedules, 'schedules-budgets'),
   [PortalRoute.Approvals]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Approvals, 'approvals'),
@@ -195,19 +203,17 @@ export const PARENT_PORTAL_ROUTE_CONTEXT: Readonly<Partial<Record<PortalRouteVal
   [PortalRoute.PrivacyDesign]: routeContext('parentGuide', PARENT_PORTAL_NAV_LABELS.Private, 'privacy-design'),
   [PortalRoute.Memory]: routeContext('parentGuide', PARENT_PORTAL_NAV_LABELS.MemoryGuide, 'memory-citations'),
   [PortalRoute.MemorySettings]: routeContext('parentGuide', PARENT_PORTAL_NAV_LABELS.MemorySet, 'memory-settings'),
-  [PortalRoute.AiRuntime]: routeContext('parentGuide', PARENT_PORTAL_NAV_LABELS.AiSetup, 'ai-runtime'),
-  [PortalRoute.ApiProviders]: routeContext('parentGuide', PARENT_PORTAL_NAV_LABELS.ApiKeys, 'api-providers'),
-  [PortalRoute.ReportSettings]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.ReportSet, 'reports-settings'),
-  [PortalRoute.ScreenAnalysis]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Screen, 'screen-analysis'),
-  [PortalRoute.AppGameSessions]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.AppsGames, 'app-game-sessions'),
-  [PortalRoute.NetworkActivity]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Network, 'network-activity'),
-  [PortalRoute.Devices]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Devices, 'device-pairing'),
-  [PortalRoute.LanPairing]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Lan, 'lan-pairing'),
-  [PortalRoute.CapabilityStatus]: routeContext(
-    'parentManage',
-    PARENT_PORTAL_NAV_LABELS.Capability,
-    'capability-status'
-  ),
+  [PortalRoute.AiGuide]: routeContext('parentGuide', PARENT_PORTAL_NAV_LABELS.Ai, 'local-ai-evidence'),
+  [PortalRoute.AiRuntime]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.AiSetup, 'ai-runtime'),
+  [PortalRoute.ApiProviders]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.ApiKeys, 'api-providers'),
+  [PortalRoute.ReportsGuide]: routeContext('parentGuide', PARENT_PORTAL_NAV_LABELS.ReportsGuide, 'reports-summaries'),
+  [PortalRoute.ReportSettings]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Activity, 'reports-settings'),
+  [PortalRoute.ScreenAnalysis]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Activity, 'reports-settings'),
+  [PortalRoute.AppGameSessions]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Activity, 'reports-settings'),
+  [PortalRoute.NetworkActivity]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Activity, 'reports-settings'),
+  [PortalRoute.Devices]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Devices, 'lan-pairing'),
+  [PortalRoute.LanPairing]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Devices, 'lan-pairing'),
+  [PortalRoute.CapabilityStatus]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Devices, 'lan-pairing'),
   [PortalRoute.Notifications]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Alerts, 'notifications'),
   [PortalRoute.NotificationChannels]: routeContext(
     'parentManage',
@@ -216,19 +222,22 @@ export const PARENT_PORTAL_ROUTE_CONTEXT: Readonly<Partial<Record<PortalRouteVal
   ),
   [PortalRoute.DriveConnections]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Drives, 'drive-exports'),
   [PortalRoute.ExportRetention]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Export, 'export-retention'),
-  [PortalRoute.RemoteAccess]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Remote, 'remote-access'),
-  [PortalRoute.ReportCompiler]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Builder, 'report-compiler'),
+  [PortalRoute.RemoteAccess]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Devices, 'lan-pairing'),
+  [PortalRoute.ReportCompiler]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Activity, 'reports-settings'),
   [PortalRoute.AuditHistory]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Audit, 'audit-history'),
   [PortalRoute.Subscription]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Plan, 'subscription-plans'),
   [PortalRoute.Entitlements]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Access, 'entitlements'),
-  [PortalRoute.PlatformsInstall]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Platforms, 'platforms-install'),
-  [PortalRoute.InstallUpdates]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Updates, 'install-updates'),
+  [PortalRoute.PlatformsInstall]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Devices, 'lan-pairing'),
+  [PortalRoute.InstallUpdates]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Devices, 'lan-pairing'),
   [PortalRoute.Diagnostics]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Support, 'support-api-status'),
   [PortalRoute.SettingsRules]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Settings, 'family-settings'),
 } as const;
 
 export function parentPortalRouteContext(route: PortalRouteValue): ParentPortalRouteContext {
-  return PARENT_PORTAL_ROUTE_CONTEXT[route] ?? routeContext('parentOverview', 'OVERVIEW', 'managed-web');
+  return (
+    PARENT_PORTAL_ROUTE_CONTEXT[route] ??
+    routeContext('parentOverview', PARENT_PORTAL_NAV_LABELS.Overview, 'managed-web')
+  );
 }
 
 export const PARENT_PORTAL_ROWS: ParentPortalRow[] = [
@@ -720,7 +729,7 @@ export const PARENT_PORTAL_CONTENT: ParentPortalContent = {
 
 function routeContext(
   pageMode: ParentPortalPageMode,
-  navLabel: string,
+  navLabel: ParentPortalNavLabel,
   selectedControlId: string
 ): ParentPortalRouteContext {
   return { pageMode, navLabel, selectedControlId };

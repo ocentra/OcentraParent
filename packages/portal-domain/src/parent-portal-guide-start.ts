@@ -49,7 +49,7 @@ export const PARENT_PORTAL_START_GUIDES: readonly ParentPortalGuideTopic[] = [
       {
         eyebrow: 'WHERE EACH THING LIVES',
         title: 'Use Guide to learn, then Manage to change settings',
-        body: 'Every roadmap feature should have a parent-facing home. Device trust lives under Devices and LAN Pairing. Browser choices live under Web and Browser Setup. AI model and API choices live under AI Setup and API Keys. Data movement lives under Drives and Export/Delete. Reports live under Report Setup and Report Build. Billing state lives under Subscription and Entitlements. Install proof lives under Platforms and Updates.',
+        body: 'Every roadmap feature should have a parent-facing home. Device trust lives under Devices and LAN Pairing. Browser choices live under Web and Browser Setup. AI model and API choices live under AI Setup and API Keys. Data movement lives under Drives and Export/Delete. Reports live under Reports and Report Compiler. Billing state lives under Subscription and Entitlements. Install proof lives under Platforms and Updates.',
         steps: [
           'Quick Glance is for current state, source health, and today summaries.',
           'Guide is for plain-language explanation, risks, examples, and setup order.',
@@ -76,14 +76,14 @@ export const PARENT_PORTAL_START_GUIDES: readonly ParentPortalGuideTopic[] = [
         body: 'Pair a child device and confirm the selected device before relying on any rule or report.',
         tone: 'gold',
         targetRoutePath: '#/devices',
-        targetNavLabel: 'DEVICES',
+        targetNavLabel: PARENT_PORTAL_NAV_LABELS.Devices,
       },
       {
         label: 'LAN trust',
         body: 'Use explicit LAN pairing before a parent device can control a child agent on the home network.',
         tone: 'cyan',
         targetRoutePath: '#/lan-pairing',
-        targetNavLabel: PARENT_PORTAL_NAV_LABELS.Lan,
+        targetNavLabel: PARENT_PORTAL_NAV_LABELS.Devices,
       },
       {
         label: 'Privacy check',
@@ -110,7 +110,7 @@ export const PARENT_PORTAL_START_GUIDES: readonly ParentPortalGuideTopic[] = [
   },
   {
     id: 'setup-devices',
-    navLabel: 'DEVICES',
+    navLabel: PARENT_PORTAL_NAV_LABELS.Devices,
     rank: 2,
     title: 'Devices And Pairing',
     subtitle: 'Parent app, child agent, trusted devices',
@@ -160,14 +160,14 @@ export const PARENT_PORTAL_START_GUIDES: readonly ParentPortalGuideTopic[] = [
         body: 'Open Devices to add, select, revoke, or inspect a child device.',
         tone: 'cyan',
         targetRoutePath: '#/devices',
-        targetNavLabel: 'DEVICES',
+        targetNavLabel: PARENT_PORTAL_NAV_LABELS.Devices,
       },
       {
         label: 'Pair LAN',
         body: 'Use LAN Pairing for explicit trusted-device proof, stale rejection, and revocation.',
         tone: 'cyan',
         targetRoutePath: '#/lan-pairing',
-        targetNavLabel: PARENT_PORTAL_NAV_LABELS.Lan,
+        targetNavLabel: PARENT_PORTAL_NAV_LABELS.Devices,
       },
       {
         label: 'Check source',
