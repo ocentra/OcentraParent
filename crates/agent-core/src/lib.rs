@@ -75,8 +75,8 @@ pub use browser_managed_session::{
     BrowserManagedLaunchConfig, BrowserManagedLaunchError, BrowserManagedLaunchPlan,
 };
 pub use enforcement_adapter::{
-    process_control_capability, terminate_owned_process, unavailable_adapter_outcome,
-    EnforcementAdapterOutcome, OwnedProcessTerminationTarget,
+    process_control_capability, terminate_owned_process, timer_control_capability,
+    unavailable_adapter_outcome, EnforcementAdapterOutcome, OwnedProcessTerminationTarget,
 };
 pub use enforcement_boundary::{
     authorize_enforcement_boundary, evaluate_enforcement_boundary, EnforcementAdapterRequest,

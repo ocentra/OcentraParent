@@ -1,4 +1,6 @@
-use ocentra_parent_agent_core::EnforcementBoundaryInput;
+use ocentra_parent_agent_core::{
+    process_control_capability, timer_control_capability, EnforcementBoundaryInput,
+};
 use ocentra_parent_agent_protocol::{
     constants, policy_constants, AgentCommandEnvelope, EnforcementIntent, EnforcementIntentSource,
     LogFieldValue, LogFields, ParentDeviceReference, ParentEvidenceReference,
@@ -50,7 +52,10 @@ pub(crate) fn parse_enforcement_command_payload(
     let process_id = optional_process_id(&command.payload)?;
     let target = policy_target(&policy);
     let decision = policy_decision(&policy);
-    let capability = ocentra_parent_agent_core::process_control_capability(&policy.requested_at);
+    let capability = match policy.action {
+        PolicyAction::AskParent => timer_control_capability(&policy.requested_at),
+        _ => process_control_capability(&policy.requested_at),
+    };
     let intent = enforcement_intent(command, &policy, &ids, &target);
     let input = EnforcementBoundaryInput {
         intent,
