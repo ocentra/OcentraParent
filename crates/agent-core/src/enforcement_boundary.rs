@@ -309,7 +309,7 @@ fn no_adapter_action_result(
 ) -> Option<EnforcementResult> {
     matches!(
         action.mode,
-        EnforcementMode::ObserveOnly | EnforcementMode::AskParent
+        EnforcementMode::ObserveOnly | EnforcementMode::AskParent | EnforcementMode::TimeLimit
     )
     .then(|| {
         result(
@@ -411,7 +411,7 @@ fn adapter_request(
         || result.status != EnforcementResultStatus::WouldEnforce
         || matches!(
             action.mode,
-            EnforcementMode::ObserveOnly | EnforcementMode::AskParent
+            EnforcementMode::ObserveOnly | EnforcementMode::AskParent | EnforcementMode::TimeLimit
         )
     {
         return None;

@@ -33,6 +33,7 @@ mod browser_intervention_event;
 mod browser_managed_discovery;
 mod browser_managed_session;
 mod enforcement_adapter;
+mod enforcement_app_time_limit;
 mod enforcement_boundary;
 mod enforcement_timer_state;
 mod journal;
@@ -78,14 +79,19 @@ pub use enforcement_adapter::{
     process_control_capability, terminate_owned_process, timer_control_capability,
     unavailable_adapter_outcome, EnforcementAdapterOutcome, OwnedProcessTerminationTarget,
 };
+pub use enforcement_app_time_limit::{
+    app_time_limit_capability, app_time_limit_target_from_action,
+    expire_app_time_limit_for_owned_process, unavailable_app_time_limit_outcome,
+    AppTimeLimitAdapterTarget, AppTimeLimitTargetRejection,
+};
 pub use enforcement_boundary::{
     authorize_enforcement_boundary, evaluate_enforcement_boundary, EnforcementAdapterRequest,
     EnforcementAuthorizationOutcome, EnforcementBoundaryInput, EnforcementBoundaryOutcome,
     EnforcementBoundaryRejection,
 };
 pub use enforcement_timer_state::{
-    active_timer_state_from_outcome, cancelled_timer_outcome, restart_recovered_timer_outcome,
-    EnforcementTimerTransitionIds,
+    active_timer_state_from_outcome, cancelled_timer_outcome, expired_timer_outcome,
+    restart_recovered_timer_outcome, EnforcementTimerTransitionIds,
 };
 pub use journal::ActivityJournal;
 pub use journal_crypto::{JournalKey, JOURNAL_KEY_BYTES};
@@ -136,6 +142,8 @@ mod browser_bridge_poll_tests;
 mod browser_bridge_tests;
 #[cfg(test)]
 mod browser_managed_session_tests;
+#[cfg(test)]
+mod enforcement_app_time_limit_tests;
 #[cfg(test)]
 mod enforcement_approval_audit_tests;
 #[cfg(test)]

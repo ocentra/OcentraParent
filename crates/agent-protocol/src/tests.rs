@@ -90,6 +90,8 @@ fn enforcement_command_and_event_names_serialize_to_contract_shape() {
         .expect("command serializes");
     let recover_command = serde_json::to_value(AgentCommandName::AgentEnforcementTimerRecover)
         .expect("command serializes");
+    let expire_command = serde_json::to_value(AgentCommandName::AgentEnforcementTimerExpire)
+        .expect("command serializes");
     let cancel_command = serde_json::to_value(AgentCommandName::AgentEnforcementOverrideCancel)
         .expect("command serializes");
     let audit_event = serde_json::to_value(AgentEventName::AgentEnforcementAuditReported)
@@ -99,6 +101,7 @@ fn enforcement_command_and_event_names_serialize_to_contract_shape() {
 
     assert_eq!(execute_command, "agent.enforcement.execute");
     assert_eq!(recover_command, "agent.enforcement.timer.recover");
+    assert_eq!(expire_command, "agent.enforcement.timer.expire");
     assert_eq!(cancel_command, "agent.enforcement.override.cancel");
     assert_eq!(audit_event, "agent.enforcement.audit.reported");
     assert_eq!(timer_event, "agent.enforcement.timer.reported");

@@ -46,7 +46,12 @@ fn timer_event_kind(
             EnforcementResultStatus::Expired => EnforcementTimerEventKind::Expired,
             EnforcementResultStatus::RolledBack => EnforcementTimerEventKind::RollbackCompleted,
             EnforcementResultStatus::Superseded => EnforcementTimerEventKind::Cancelled,
-            EnforcementResultStatus::NoOp if intent.requested_action == PolicyAction::AskParent => {
+            EnforcementResultStatus::NoOp
+                if matches!(
+                    intent.requested_action,
+                    PolicyAction::AskParent | PolicyAction::TimeLimit
+                ) =>
+            {
                 EnforcementTimerEventKind::Created
             }
             EnforcementResultStatus::NoOp => EnforcementTimerEventKind::Cancelled,

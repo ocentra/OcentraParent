@@ -33,7 +33,10 @@ pub fn process_control_capability(checked_at: &str) -> EnforcementCapabilityStat
             capability_state: EnforcementCapabilityState::Supported,
             permission_state: EnforcementPermissionState::NotRequired,
             dependency_state: EnforcementDependencyState::Installed,
-            supported_actions: vec![EnforcementMode::TerminateProcess],
+            supported_actions: vec![
+                EnforcementMode::TerminateProcess,
+                EnforcementMode::TimeLimit,
+            ],
             degraded_reason: None,
             last_checked_at: checked_at.to_string(),
         }

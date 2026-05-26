@@ -31,7 +31,7 @@ fn authorized_adapter_request(action: &EnforcementAction) -> Option<EnforcementA
     if action.dry_run
         || matches!(
             action.mode,
-            EnforcementMode::ObserveOnly | EnforcementMode::AskParent
+            EnforcementMode::ObserveOnly | EnforcementMode::AskParent | EnforcementMode::TimeLimit
         )
         || matches!(
             action.capability.capability_state,

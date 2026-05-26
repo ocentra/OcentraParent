@@ -73,6 +73,7 @@ it('AgentCommand: exposes typed command constants for portal requests', () => {
   expect(AgentCommand.LocalAiChatGenerate).toBe('agent.local-ai.chat.generate');
   expect(AgentCommand.EnforcementExecute).toBe('agent.enforcement.execute');
   expect(AgentCommand.EnforcementTimerRecover).toBe('agent.enforcement.timer.recover');
+  expect(AgentCommand.EnforcementTimerExpire).toBe('agent.enforcement.timer.expire');
   expect(AgentCommand.EnforcementOverrideCancel).toBe('agent.enforcement.override.cancel');
   expect(AgentCommand.LanPairingProofSubmit).toBe('agent.lan-pairing.proof.submit');
   expect(AgentCommand.LanPairingRouteSelect).toBe('agent.lan-pairing.route.select');

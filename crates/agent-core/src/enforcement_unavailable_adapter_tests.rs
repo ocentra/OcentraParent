@@ -51,7 +51,7 @@ fn degraded_capability_with_unavailable_adapter_outcome_records_audit_and_timer_
 }
 
 #[test]
-fn process_control_capability_only_advertises_wired_process_action() {
+fn process_control_capability_advertises_wired_process_and_time_limit_actions() {
     let capability = process_control_capability(policy::TEST_EVALUATED_AT);
 
     #[cfg(windows)]
@@ -62,7 +62,10 @@ fn process_control_capability_only_advertises_wired_process_action() {
         );
         assert_eq!(
             capability.supported_actions,
-            vec![EnforcementMode::TerminateProcess]
+            vec![
+                EnforcementMode::TerminateProcess,
+                EnforcementMode::TimeLimit
+            ]
         );
         assert_eq!(capability.degraded_reason, None);
     }
