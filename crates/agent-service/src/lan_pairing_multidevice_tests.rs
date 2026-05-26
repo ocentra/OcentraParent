@@ -173,6 +173,62 @@ async fn lan_pairing_route_select_makes_multi_device_control_explicit() {
     assert_second_child_unselected_rejection(&second_after_selection);
 }
 
+#[tokio::test]
+async fn lan_pairing_local_child_identity_rejects_wrong_agent_port_before_execution() {
+    let runtime = LanPairingRuntime::empty_with_local_child_device_id(Some(
+        constants::lan_pairing::CHILD_DEVICE_ID.to_string(),
+    ));
+    let wrong_port_proof = handle_command_text_for_test(
+        &serialize_command(pairing_command_for_target(
+            constants::lan_pairing::SECOND_CHILD_DEVICE_ID,
+            second_proof_payload(),
+        )),
+        runtime.clone(),
+        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+    )
+    .await;
+    let wrong_port_control = handle_command_text_for_test(
+        &serialize_command(health_command_for_target(
+            constants::lan_pairing::SECOND_CHILD_DEVICE_ID,
+            intent_payload_for_pairing(
+                constants::lan_pairing::SECOND_INTENT_ID,
+                constants::lan_pairing::SECOND_PAIRING_ID,
+                constants::lan_pairing::SECOND_CHILD_DEVICE_ID,
+                constants::lan_pairing::ROUTE_ID_SECOND_LOCAL_NETWORK,
+                constants::lan_pairing::SECOND_PROOF_DIGEST,
+                constants::lan_pairing::EXPIRES_AT,
+                constants::value::LAN_INTENT_HEALTH_QUERY,
+            ),
+        )),
+        runtime.clone(),
+        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+    )
+    .await;
+
+    assert_eq!(wrong_port_proof.event, AgentEventName::AgentCommandRejected);
+    assert_eq!(
+        wrong_port_proof
+            .payload
+            .get(constants::field::LAN_AUDIT_EVENT_TYPE),
+        Some(&LogFieldValue::String(
+            constants::value::LAN_AUDIT_PAIRING_PROOF_REJECTED.to_string()
+        ))
+    );
+    assert_eq!(
+        wrong_port_proof
+            .payload
+            .get(constants::field::LAN_REJECTION_REASON),
+        Some(&LogFieldValue::String(
+            constants::value::LAN_REASON_WRONG_DEVICE.to_string()
+        ))
+    );
+    assert_rejection(
+        &wrong_port_control,
+        constants::value::LAN_REASON_WRONG_DEVICE,
+    );
+    assert_eq!(runtime.trusted_device_count(), 0);
+}
+
 async fn pair_second_child_and_select_it(runtime: LanPairingRuntime) {
     let _ = handle_command_text_for_test(
         &serialize_command(pairing_command_for_target(

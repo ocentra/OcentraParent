@@ -16,20 +16,46 @@ impl LanPairingRuntime {
         Self {
             registry: Arc::new(Mutex::new(TrustedDeviceRegistry::empty())),
             persistence: LanPairingRegistryPersistence::InMemory,
+            local_child_device_id: None,
         }
     }
 
     pub fn from_env() -> Self {
-        std::env::var(constants::env_var::AGENT_LAN_PAIRING_REGISTRY_PATH)
+        let local_child_device_id =
+            non_empty_env(constants::lan_pairing::LOCAL_CHILD_DEVICE_ID_ENV);
+        match std::env::var(constants::env_var::AGENT_LAN_PAIRING_REGISTRY_PATH)
             .ok()
             .filter(|path| !path.is_empty())
-            .map_or_else(Self::empty, |path| Self::persistent_json(Path::new(&path)))
+        {
+            Some(path) => Self::persistent_json_with_local_child_device_id(
+                Path::new(&path),
+                local_child_device_id,
+            ),
+            None => Self::empty_with_local_child_device_id(local_child_device_id),
+        }
     }
 
+    #[cfg(test)]
     pub fn persistent_json(path: &Path) -> Self {
+        Self::persistent_json_with_local_child_device_id(path, None)
+    }
+
+    pub fn empty_with_local_child_device_id(local_child_device_id: Option<String>) -> Self {
+        Self {
+            registry: Arc::new(Mutex::new(TrustedDeviceRegistry::empty())),
+            persistence: LanPairingRegistryPersistence::InMemory,
+            local_child_device_id,
+        }
+    }
+
+    pub fn persistent_json_with_local_child_device_id(
+        path: &Path,
+        local_child_device_id: Option<String>,
+    ) -> Self {
         Self {
             registry: Arc::new(Mutex::new(TrustedDeviceRegistry::load_json(path))),
             persistence: LanPairingRegistryPersistence::LocalJsonRegistry(path.to_path_buf()),
+            local_child_device_id,
         }
     }
 
@@ -115,4 +141,8 @@ impl LanPairingRuntime {
             .map(|mut registry| registry.mark_selected_stale(stale_at))
             .unwrap_or(false)
     }
+}
+
+fn non_empty_env(name: &str) -> Option<String> {
+    std::env::var(name).ok().filter(|value| !value.is_empty())
 }

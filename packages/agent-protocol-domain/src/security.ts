@@ -62,6 +62,7 @@ export const AgentLanPairingRejectionReasonSchema = withParser(
     'stale',
     'offline',
     'revoked',
+    'local-network-disabled',
     'unsupported-route',
     'unselected-device'
   )

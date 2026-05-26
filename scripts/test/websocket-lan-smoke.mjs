@@ -36,6 +36,7 @@ const service = spawn(resolveDebugAgentServicePath(), [], {
     [ParentDevEnv.AgentAddress]: createAgentAddress(port, ParentDevHost.Wildcard),
     [ParentDevEnv.AgentAllowedOrigins]: allowedOrigin,
     [ParentDevEnv.AgentLocalNetworkEnabled]: ParentDevValue.True,
+    OCENTRA_PARENT_AGENT_LAN_CHILD_DEVICE_ID: childDeviceId,
   },
   stdio: ['ignore', 'pipe', 'pipe'],
 });

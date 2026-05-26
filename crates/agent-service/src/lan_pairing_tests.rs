@@ -1,4 +1,7 @@
-use std::fs::remove_file;
+use std::{
+    fs::remove_file,
+    sync::atomic::{AtomicUsize, Ordering},
+};
 
 use ocentra_parent_agent_protocol::{
     constants, policy_constants, AgentCommandName, AgentEventEnvelope, AgentEventName,
@@ -758,8 +761,11 @@ fn assert_lan_pairing_state(event: &AgentEventEnvelope, pairing_state: &str, tru
 }
 
 fn temp_registry_path() -> std::path::PathBuf {
+    static REGISTRY_COUNTER: AtomicUsize = AtomicUsize::new(0);
+
     let mut name = String::from(constants::lan_pairing::REGISTRY_FILE_PREFIX);
     name.push_str(&std::process::id().to_string());
+    name.push_str(&REGISTRY_COUNTER.fetch_add(1, Ordering::Relaxed).to_string());
     name.push_str(
         &std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)

@@ -11,7 +11,7 @@ import {
   AgentLanPairingSupportedWebSocketCommand,
   AgentProtocolDefaults,
 } from '../src/contracts';
-import { AgentPairingStateSchema } from '../src/security';
+import { AgentLanPairingRejectionReasonSchema, AgentPairingStateSchema } from '../src/security';
 
 describe('LAN pairing multi-device protocol contracts', () => {
   it(
@@ -58,6 +58,7 @@ function assertPairingStates() {
   expect(AgentProtocolDefaults.Field.LanRestartBehavior).toBe('restartBehavior');
   expect(AgentProtocolDefaults.LanSelectedDeviceReachability.Stale).toBe('stale');
   expect(AgentProtocolDefaults.LanSelectedDeviceReachability.Offline).toBe('offline');
+  expect(AgentLanPairingRejectionReasonSchema.parse('local-network-disabled')).toBe('local-network-disabled');
 }
 
 function assertRouteSelectCommand() {

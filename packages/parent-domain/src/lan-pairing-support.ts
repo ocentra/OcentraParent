@@ -14,6 +14,7 @@ export const LanPairingHttpEndpointPathSchema = NonEmptyLanPairingSupportText.pi
 );
 export const LanPairingTransportSchema = withParser(Schema.Literal('websocket'));
 export const LanPairingHttpEndpointSupportSchema = withParser(Schema.Literal('planned-unsupported'));
+export const LanPairingRuntimeSupportStatusSchema = withParser(Schema.Literal('planned-unsupported'));
 export const LanPairingPersistenceModeSchema = withParser(
   Schema.Literal('in-memory-fail-closed', 'local-json-registry')
 );
@@ -53,6 +54,9 @@ export const LanPairingRuntimeSupportSurfaceSchema = withParser(
     unsupportedHttpEndpoints: Schema.Array(LanPairingUnsupportedHttpEndpointSchema),
     pairingState: LanPairingTrustStateSchema,
     trustedDeviceCount: Schema.Number,
+    discoveryStatus: LanPairingRuntimeSupportStatusSchema,
+    challengeStatus: LanPairingRuntimeSupportStatusSchema,
+    proofPreviewStatus: LanPairingRuntimeSupportStatusSchema,
     persistenceMode: LanPairingPersistenceModeSchema,
     restartBehavior: LanPairingRestartBehaviorSchema,
     proofMode: LanPairingProofModeSchema,
@@ -66,6 +70,7 @@ export type LanPairingHttpEndpointId = typeof LanPairingHttpEndpointIdSchema.Typ
 export type LanPairingHttpEndpointPath = typeof LanPairingHttpEndpointPathSchema.Type;
 export type LanPairingTransport = Infer<typeof LanPairingTransportSchema>;
 export type LanPairingHttpEndpointSupport = Infer<typeof LanPairingHttpEndpointSupportSchema>;
+export type LanPairingRuntimeSupportStatus = Infer<typeof LanPairingRuntimeSupportStatusSchema>;
 export type LanPairingPersistenceMode = Infer<typeof LanPairingPersistenceModeSchema>;
 export type LanPairingRestartBehavior = Infer<typeof LanPairingRestartBehaviorSchema>;
 export type LanPairingProofMode = Infer<typeof LanPairingProofModeSchema>;
@@ -80,6 +85,10 @@ export const LanPairingTransport = {
 
 export const LanPairingHttpEndpointSupport = {
   PlannedUnsupported: LanPairingHttpEndpointSupportSchema.parse('planned-unsupported'),
+} as const;
+
+export const LanPairingRuntimeSupportStatus = {
+  PlannedUnsupported: LanPairingRuntimeSupportStatusSchema.parse('planned-unsupported'),
 } as const;
 
 export const LanPairingPersistenceMode = {
