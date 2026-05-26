@@ -117,13 +117,13 @@ fn assert_runtime_support_surface(
     assert_eq!(
         event.payload.get(constants::field::LAN_DISCOVERY_STATUS),
         Some(&LogFieldValue::String(
-            constants::lan_pairing::SUPPORT_PLANNED_UNSUPPORTED.to_string()
+            constants::lan_pairing::SUPPORT_WEBSOCKET_DIRECT.to_string()
         ))
     );
     assert_eq!(
         event.payload.get(constants::field::LAN_CHALLENGE_STATUS),
         Some(&LogFieldValue::String(
-            constants::lan_pairing::SUPPORT_PLANNED_UNSUPPORTED.to_string()
+            constants::lan_pairing::SUPPORT_WEBSOCKET_DIRECT.to_string()
         ))
     );
     assert_eq!(
@@ -131,7 +131,7 @@ fn assert_runtime_support_surface(
             .payload
             .get(constants::field::LAN_PROOF_PREVIEW_STATUS),
         Some(&LogFieldValue::String(
-            constants::lan_pairing::SUPPORT_PLANNED_UNSUPPORTED.to_string()
+            constants::lan_pairing::SUPPORT_WEBSOCKET_DIRECT.to_string()
         ))
     );
     assert_eq!(

@@ -301,7 +301,7 @@ async fn lan_pairing_status_reports_stale_and_offline_selected_device_state() {
 }
 
 #[tokio::test]
-async fn lan_pairing_status_marks_discovery_planned_while_anonymous_control_stays_rejected() {
+async fn lan_pairing_status_marks_websocket_ceremony_while_anonymous_control_stays_rejected() {
     let runtime = paired_runtime().await;
     let loopback_status = handle_command_text_for_test(
         &serialize_command(command_for_target(

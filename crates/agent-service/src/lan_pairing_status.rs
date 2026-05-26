@@ -1,10 +1,16 @@
 use ocentra_parent_agent_protocol::{
     constants, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName,
-    LanPairingDeviceReachability, LanSelectedRouteTarget, LogFieldValue, LogLevel,
+    LanPairingChallengeRequest, LanPairingDeviceReachability, LanPairingRejectionReason,
+    LanSelectedRouteTarget, LogFieldValue, LogLevel,
 };
 
 use crate::{
-    event_builder::build_event, fields::fields_from_pairs, lan_pairing::LanPairingRuntime,
+    event_builder::build_event,
+    fields::fields_from_pairs,
+    lan_pairing::{validate_local_child_target, LanPairingChallengeState, LanPairingRuntime},
+    lan_pairing_audit::{challenge_issued_audit_fields, rejected_control_audit_fields},
+    lan_pairing_payload::parse_challenge_request,
+    time::timestamp_now,
 };
 
 #[derive(Clone, Debug)]
@@ -16,6 +22,7 @@ struct LanPairingStatus {
     trusted_device_ids: Vec<String>,
     revoked_device_ids: Vec<String>,
     has_revoked_pairing: bool,
+    active_challenge_count: usize,
 }
 
 pub(crate) fn pairing_status_event(
@@ -36,6 +43,28 @@ pub(crate) fn pairing_status_event(
     )
 }
 
+pub(crate) fn pairing_challenge_status_event(
+    runtime: &LanPairingRuntime,
+    origin: Option<&str>,
+    command: AgentCommandEnvelope,
+) -> AgentEventEnvelope {
+    match parse_challenge_request(&command.payload) {
+        Ok(request) => match validate_challenge_request(runtime, origin, &command, &request) {
+            Ok(()) => {
+                let challenge = challenge_state_for_request(&command, &request);
+                runtime.remember_challenge(challenge.clone());
+                let mut event = pairing_status_event(runtime, command);
+                event
+                    .payload
+                    .extend(challenge_issued_audit_fields(&challenge));
+                event
+            }
+            Err(reason) => challenge_rejection_event(command, reason, origin),
+        },
+        Err(reason) => challenge_rejection_event(command, reason, origin),
+    }
+}
+
 fn pairing_status(runtime: &LanPairingRuntime) -> LanPairingStatus {
     let trusted_device_count = runtime.trusted_device_count();
     let selected_target = runtime.selected_target();
@@ -47,9 +76,86 @@ fn pairing_status(runtime: &LanPairingRuntime) -> LanPairingStatus {
         trusted_device_ids: runtime.trusted_device_ids(),
         revoked_device_ids: runtime.revoked_device_ids(),
         has_revoked_pairing: runtime.has_revoked_pairing(),
+        active_challenge_count: active_challenge_count(runtime),
     };
     status.pairing_state = pairing_state(&status);
     status
+}
+
+fn validate_challenge_request(
+    runtime: &LanPairingRuntime,
+    origin: Option<&str>,
+    command: &AgentCommandEnvelope,
+    request: &LanPairingChallengeRequest,
+) -> Result<(), LanPairingRejectionReason> {
+    validate_local_child_target(runtime, command)?;
+    if command.target.device_id.as_str() != request.child_device_id.as_str() {
+        return Err(LanPairingRejectionReason::WrongDevice);
+    }
+    if origin != Some(request.origin.as_str()) {
+        return Err(LanPairingRejectionReason::WrongOrigin);
+    }
+    if timestamp_now().as_str() > request.expires_at.as_str() {
+        return Err(LanPairingRejectionReason::Stale);
+    }
+    Ok(())
+}
+
+fn challenge_state_for_request(
+    command: &AgentCommandEnvelope,
+    request: &LanPairingChallengeRequest,
+) -> LanPairingChallengeState {
+    let mut challenge_id = String::from(constants::lan_pairing::CHALLENGE_ID_PREFIX);
+    challenge_id.push_str(&request.child_device_id);
+    challenge_id.push(constants::delimiter::HYPHEN);
+    challenge_id.push_str(&command.source.peer_id);
+    let mut proof_digest = String::from(constants::lan_pairing::PROOF_DIGEST_PREVIEW_PREFIX);
+    proof_digest.push_str(&request.child_device_id);
+    proof_digest.push(constants::delimiter::HYPHEN);
+    proof_digest.push_str(&request.parent_device_id);
+    proof_digest.push(constants::delimiter::HYPHEN);
+    proof_digest.push_str(&request.route_id);
+    LanPairingChallengeState {
+        challenge_id,
+        child_device_id: request.child_device_id.clone(),
+        parent_device_id: request.parent_device_id.clone(),
+        route_id: request.route_id.clone(),
+        origin: request.origin.clone(),
+        proof_digest,
+        issued_at: request.issued_at.clone(),
+        expires_at: request.expires_at.clone(),
+        accepted: false,
+    }
+}
+
+fn challenge_rejection_event(
+    command: AgentCommandEnvelope,
+    reason: LanPairingRejectionReason,
+    origin: Option<&str>,
+) -> AgentEventEnvelope {
+    let payload = rejected_control_audit_fields(&command, &reason, None, origin);
+    build_event(
+        constants::event_id::COMMAND_REJECTED,
+        &command.message_id,
+        command.source,
+        AgentEventName::AgentCommandRejected,
+        LogLevel::Warn,
+        payload,
+        None,
+    )
+}
+
+fn active_challenge_count(runtime: &LanPairingRuntime) -> usize {
+    runtime
+        .challenges
+        .lock()
+        .map(|challenges| {
+            challenges
+                .iter()
+                .filter(|challenge| !challenge.accepted)
+                .count()
+        })
+        .unwrap_or(0)
 }
 
 fn support_surface_pairs(runtime: &LanPairingRuntime) -> Vec<(&'static str, LogFieldValue)> {
@@ -74,15 +180,15 @@ fn support_surface_pairs(runtime: &LanPairingRuntime) -> Vec<(&'static str, LogF
         ),
         (
             constants::field::LAN_DISCOVERY_STATUS,
-            LogFieldValue::String(constants::lan_pairing::SUPPORT_PLANNED_UNSUPPORTED.to_string()),
+            LogFieldValue::String(constants::lan_pairing::SUPPORT_WEBSOCKET_DIRECT.to_string()),
         ),
         (
             constants::field::LAN_CHALLENGE_STATUS,
-            LogFieldValue::String(constants::lan_pairing::SUPPORT_PLANNED_UNSUPPORTED.to_string()),
+            LogFieldValue::String(constants::lan_pairing::SUPPORT_WEBSOCKET_DIRECT.to_string()),
         ),
         (
             constants::field::LAN_PROOF_PREVIEW_STATUS,
-            LogFieldValue::String(constants::lan_pairing::SUPPORT_PLANNED_UNSUPPORTED.to_string()),
+            LogFieldValue::String(constants::lan_pairing::SUPPORT_WEBSOCKET_DIRECT.to_string()),
         ),
         (
             constants::field::LAN_PERSISTENCE_MODE,
@@ -165,6 +271,8 @@ fn state_pairs(status: &LanPairingStatus) -> Vec<(&'static str, LogFieldValue)> 
 fn pairing_state(status: &LanPairingStatus) -> &'static str {
     if status.trusted_device_count > 0 {
         constants::value::LAN_PAIRING_PAIRED
+    } else if status.active_challenge_count > 0 {
+        constants::value::LAN_PAIRING_PAIRING
     } else if status.has_revoked_pairing {
         constants::value::LAN_PAIRING_REVOKED
     } else {

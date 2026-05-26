@@ -1,14 +1,15 @@
 use super::{
     constants, policy_constants, LanChildAgentResponse, LanPairingAuditEvent,
     LanPairingAuditEventType, LanPairingAuthenticationState, LanPairingChallenge,
-    LanPairingDeviceReachability, LanPairingDeviceRef, LanPairingDiscoveryDevice,
-    LanPairingDiscoveryRuntimeStatus, LanPairingHttpEndpointSupport, LanPairingIntentKind,
-    LanPairingManualProofGap, LanPairingNetworkMode, LanPairingPersistenceMode, LanPairingProof,
-    LanPairingProofMode, LanPairingProofPreview, LanPairingRejectionReason,
-    LanPairingResponseState, LanPairingRestartBehavior, LanPairingRouteRequirement,
-    LanPairingRouteSelectionRequest, LanPairingRoutingDecision, LanPairingRuntimeSupportSurface,
-    LanPairingTransport, LanPairingUnsupportedHttpEndpoint, LanTrustedDeviceRegistryEntry,
-    LanTrustedDeviceRegistrySnapshot, ParentEvidenceReference, ParentEvidenceReferenceKind,
+    LanPairingChallengeRequest, LanPairingDeviceReachability, LanPairingDeviceRef,
+    LanPairingDiscoveryDevice, LanPairingDiscoveryRuntimeStatus, LanPairingHttpEndpointSupport,
+    LanPairingIntentKind, LanPairingManualProofGap, LanPairingNetworkMode,
+    LanPairingPersistenceMode, LanPairingProof, LanPairingProofMode, LanPairingProofPreview,
+    LanPairingRejectionReason, LanPairingResponseState, LanPairingRestartBehavior,
+    LanPairingRouteRequirement, LanPairingRouteSelectionRequest, LanPairingRoutingDecision,
+    LanPairingRuntimeSupportSurface, LanPairingTransport, LanPairingUnsupportedHttpEndpoint,
+    LanTrustedDeviceRegistryEntry, LanTrustedDeviceRegistrySnapshot, ParentEvidenceReference,
+    ParentEvidenceReferenceKind,
 };
 
 #[test]
@@ -94,7 +95,7 @@ fn lan_pairing_audit_event_records_rejection_reason_without_raw_secret() {
 }
 
 #[test]
-fn lan_pairing_discovery_challenge_and_proof_preview_make_unsupported_status_explicit() {
+fn lan_pairing_discovery_challenge_and_proof_preview_make_websocket_ceremony_explicit() {
     let discovery = LanPairingDiscoveryDevice {
         schema_version: constants::lan_pairing::SCHEMA_VERSION,
         discovered_at: constants::lan_pairing::OBSERVED_AT.to_string(),
@@ -104,7 +105,7 @@ fn lan_pairing_discovery_challenge_and_proof_preview_make_unsupported_status_exp
         network_mode: LanPairingNetworkMode::LocalNetwork,
         reachability: LanPairingDeviceReachability::Stale,
         address_ref: constants::lan_pairing::ADDRESS_REF_UNPROVEN.to_string(),
-        discovery_status: LanPairingDiscoveryRuntimeStatus::PlannedUnsupported,
+        discovery_status: LanPairingDiscoveryRuntimeStatus::WebsocketDirect,
     };
     let challenge = LanPairingChallenge {
         schema_version: constants::lan_pairing::SCHEMA_VERSION,
@@ -115,7 +116,7 @@ fn lan_pairing_discovery_challenge_and_proof_preview_make_unsupported_status_exp
         origin: constants::lan_pairing::ALLOWED_ORIGIN.to_string(),
         issued_at: constants::lan_pairing::ISSUED_AT.to_string(),
         expires_at: constants::lan_pairing::EXPIRES_AT.to_string(),
-        challenge_status: LanPairingDiscoveryRuntimeStatus::PlannedUnsupported,
+        challenge_status: LanPairingDiscoveryRuntimeStatus::WebsocketDirect,
     };
     let preview = LanPairingProofPreview {
         schema_version: constants::lan_pairing::SCHEMA_VERSION,
@@ -127,11 +128,12 @@ fn lan_pairing_discovery_challenge_and_proof_preview_make_unsupported_status_exp
         proof_digest: constants::lan_pairing::PROOF_DIGEST.to_string(),
         issued_at: constants::lan_pairing::ISSUED_AT.to_string(),
         expires_at: constants::lan_pairing::EXPIRES_AT.to_string(),
-        proof_preview_status: LanPairingDiscoveryRuntimeStatus::PlannedUnsupported,
+        proof_preview_status: LanPairingDiscoveryRuntimeStatus::WebsocketDirect,
     };
 
     let discovery_json =
         serde_json::to_value(discovery).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let challenge_request_json = challenge_request_json();
     let challenge_json =
         serde_json::to_value(challenge).expect(constants::error::AGENT_EVENT_SERIALIZES);
     let preview_json =
@@ -139,7 +141,11 @@ fn lan_pairing_discovery_challenge_and_proof_preview_make_unsupported_status_exp
 
     assert_eq!(
         discovery_json["discoveryStatus"],
-        constants::lan_pairing::SUPPORT_PLANNED_UNSUPPORTED
+        constants::lan_pairing::SUPPORT_WEBSOCKET_DIRECT
+    );
+    assert_eq!(
+        challenge_request_json["parentDeviceId"],
+        constants::lan_pairing::PARENT_DEVICE_ID
     );
     assert_eq!(
         discovery_json["addressRef"],
@@ -147,11 +153,11 @@ fn lan_pairing_discovery_challenge_and_proof_preview_make_unsupported_status_exp
     );
     assert_eq!(
         challenge_json["challengeStatus"],
-        constants::lan_pairing::SUPPORT_PLANNED_UNSUPPORTED
+        constants::lan_pairing::SUPPORT_WEBSOCKET_DIRECT
     );
     assert_eq!(
         preview_json["proofPreviewStatus"],
-        constants::lan_pairing::SUPPORT_PLANNED_UNSUPPORTED
+        constants::lan_pairing::SUPPORT_WEBSOCKET_DIRECT
     );
     assert_eq!(
         preview_json["proofDigest"],
@@ -160,6 +166,19 @@ fn lan_pairing_discovery_challenge_and_proof_preview_make_unsupported_status_exp
     assert_lan_discovery_surface_has_no_sensitive_markers(&discovery_json);
     assert_lan_discovery_surface_has_no_sensitive_markers(&challenge_json);
     assert_lan_discovery_surface_has_no_sensitive_markers(&preview_json);
+}
+
+fn challenge_request_json() -> serde_json::Value {
+    serde_json::to_value(LanPairingChallengeRequest {
+        schema_version: constants::lan_pairing::SCHEMA_VERSION,
+        child_device_id: constants::lan_pairing::CHILD_DEVICE_ID.to_string(),
+        parent_device_id: constants::lan_pairing::PARENT_DEVICE_ID.to_string(),
+        route_id: constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK.to_string(),
+        origin: constants::lan_pairing::ALLOWED_ORIGIN.to_string(),
+        issued_at: constants::lan_pairing::ISSUED_AT.to_string(),
+        expires_at: constants::lan_pairing::EXPIRES_AT.to_string(),
+    })
+    .expect(constants::error::AGENT_EVENT_SERIALIZES)
 }
 
 fn assert_lan_discovery_surface_has_no_sensitive_markers(value: &serde_json::Value) {
@@ -290,9 +309,9 @@ fn lan_pairing_runtime_support_surface_serializes_supported_and_planned_api_clai
         unsupported_http_endpoints: planned_http_endpoints(),
         pairing_state: super::LanPairingTrustState::Unpaired,
         trusted_device_count: 0,
-        discovery_status: LanPairingDiscoveryRuntimeStatus::PlannedUnsupported,
-        challenge_status: LanPairingDiscoveryRuntimeStatus::PlannedUnsupported,
-        proof_preview_status: LanPairingDiscoveryRuntimeStatus::PlannedUnsupported,
+        discovery_status: LanPairingDiscoveryRuntimeStatus::WebsocketDirect,
+        challenge_status: LanPairingDiscoveryRuntimeStatus::WebsocketDirect,
+        proof_preview_status: LanPairingDiscoveryRuntimeStatus::WebsocketDirect,
         persistence_mode: LanPairingPersistenceMode::InMemoryFailClosed,
         restart_behavior: LanPairingRestartBehavior::FailClosedUnpaired,
         proof_mode: LanPairingProofMode::DirectProofSubmit,
@@ -335,15 +354,15 @@ fn lan_pairing_runtime_support_surface_serializes_supported_and_planned_api_clai
     );
     assert_eq!(
         support_json["discoveryStatus"],
-        constants::lan_pairing::SUPPORT_PLANNED_UNSUPPORTED
+        constants::lan_pairing::SUPPORT_WEBSOCKET_DIRECT
     );
     assert_eq!(
         support_json["challengeStatus"],
-        constants::lan_pairing::SUPPORT_PLANNED_UNSUPPORTED
+        constants::lan_pairing::SUPPORT_WEBSOCKET_DIRECT
     );
     assert_eq!(
         support_json["proofPreviewStatus"],
-        constants::lan_pairing::SUPPORT_PLANNED_UNSUPPORTED
+        constants::lan_pairing::SUPPORT_WEBSOCKET_DIRECT
     );
     assert_eq!(
         support_json["persistenceMode"],

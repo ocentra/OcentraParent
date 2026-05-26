@@ -14,7 +14,9 @@ export const LanPairingHttpEndpointPathSchema = NonEmptyLanPairingSupportText.pi
 );
 export const LanPairingTransportSchema = withParser(Schema.Literal('websocket'));
 export const LanPairingHttpEndpointSupportSchema = withParser(Schema.Literal('planned-unsupported'));
-export const LanPairingRuntimeSupportStatusSchema = withParser(Schema.Literal('planned-unsupported'));
+export const LanPairingRuntimeSupportStatusSchema = withParser(
+  Schema.Literal('planned-unsupported', 'websocket-direct')
+);
 export const LanPairingPersistenceModeSchema = withParser(
   Schema.Literal('in-memory-fail-closed', 'local-json-registry')
 );
@@ -89,6 +91,7 @@ export const LanPairingHttpEndpointSupport = {
 
 export const LanPairingRuntimeSupportStatus = {
   PlannedUnsupported: LanPairingRuntimeSupportStatusSchema.parse('planned-unsupported'),
+  WebSocketDirect: LanPairingRuntimeSupportStatusSchema.parse('websocket-direct'),
 } as const;
 
 export const LanPairingPersistenceMode = {

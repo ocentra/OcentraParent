@@ -4,10 +4,12 @@ use std::{
 };
 
 use ocentra_parent_agent_core::TrustedDeviceRegistry;
-use ocentra_parent_agent_protocol::{constants, LanSelectedRouteTarget};
+use ocentra_parent_agent_protocol::{
+    constants, LanPairingProof, LanPairingRejectionReason, LanSelectedRouteTarget,
+};
 
 use crate::{
-    lan_pairing::{LanPairingRegistryPersistence, LanPairingRuntime},
+    lan_pairing::{LanPairingChallengeState, LanPairingRegistryPersistence, LanPairingRuntime},
     time::timestamp_now,
 };
 
@@ -15,6 +17,7 @@ impl LanPairingRuntime {
     pub fn empty() -> Self {
         Self {
             registry: Arc::new(Mutex::new(TrustedDeviceRegistry::empty())),
+            challenges: Arc::new(Mutex::new(Vec::new())),
             persistence: LanPairingRegistryPersistence::InMemory,
             local_child_device_id: None,
         }
@@ -43,6 +46,7 @@ impl LanPairingRuntime {
     pub fn empty_with_local_child_device_id(local_child_device_id: Option<String>) -> Self {
         Self {
             registry: Arc::new(Mutex::new(TrustedDeviceRegistry::empty())),
+            challenges: Arc::new(Mutex::new(Vec::new())),
             persistence: LanPairingRegistryPersistence::InMemory,
             local_child_device_id,
         }
@@ -54,6 +58,7 @@ impl LanPairingRuntime {
     ) -> Self {
         Self {
             registry: Arc::new(Mutex::new(TrustedDeviceRegistry::load_json(path))),
+            challenges: Arc::new(Mutex::new(Vec::new())),
             persistence: LanPairingRegistryPersistence::LocalJsonRegistry(path.to_path_buf()),
             local_child_device_id,
         }
@@ -93,6 +98,56 @@ impl LanPairingRuntime {
             .lock()
             .map(|registry| registry.has_revoked_pairing())
             .unwrap_or(false)
+    }
+
+    pub(crate) fn remember_challenge(&self, challenge: LanPairingChallengeState) {
+        if let Ok(mut challenges) = self.challenges.lock() {
+            challenges.retain(|candidate| candidate.challenge_id != challenge.challenge_id);
+            challenges.push(challenge);
+        }
+    }
+
+    pub(crate) fn validate_challenge_proof(
+        &self,
+        proof: &LanPairingProof,
+        observed_at: &str,
+    ) -> Result<(), LanPairingRejectionReason> {
+        let mut challenges = self
+            .challenges
+            .lock()
+            .map_err(|_| LanPairingRejectionReason::Malformed)?;
+        if challenges.is_empty() {
+            return Ok(());
+        }
+
+        let challenge = challenges
+            .iter_mut()
+            .find(|candidate| candidate.challenge_id == proof.challenge_id)
+            .ok_or(LanPairingRejectionReason::Malformed)?;
+        if challenge.accepted {
+            return Err(LanPairingRejectionReason::Replayed);
+        }
+        if challenge.child_device_id != proof.child_device_id {
+            return Err(LanPairingRejectionReason::WrongDevice);
+        }
+        if challenge.parent_device_id != proof.parent_device_id {
+            return Err(LanPairingRejectionReason::Malformed);
+        }
+        if challenge.route_id != proof.route_id {
+            return Err(LanPairingRejectionReason::UnsupportedRoute);
+        }
+        if challenge.origin != proof.origin {
+            return Err(LanPairingRejectionReason::WrongOrigin);
+        }
+        if challenge.proof_digest != proof.proof_digest {
+            return Err(LanPairingRejectionReason::Malformed);
+        }
+        if observed_at > challenge.expires_at.as_str() || observed_at > proof.expires_at.as_str() {
+            return Err(LanPairingRejectionReason::Stale);
+        }
+
+        challenge.accepted = true;
+        Ok(())
     }
 
     pub(crate) fn persistence_mode(&self) -> &'static str {
