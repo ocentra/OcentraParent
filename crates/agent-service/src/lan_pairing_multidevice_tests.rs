@@ -1,13 +1,16 @@
-use ocentra_parent_agent_protocol::{constants, AgentEventEnvelope, AgentEventName, LogFieldValue};
+use ocentra_parent_agent_protocol::{
+    constants, AgentEventEnvelope, AgentEventName, LogFieldValue, LogFields,
+};
 
 use crate::{
+    fields::fields_from_pairs,
     lan_pairing::LanPairingRuntime,
     lan_pairing_test_support::{
         assert_accepted_control, assert_rejection, assert_status_selection,
         assert_status_support_surface, health_command, health_command_for_target, intent_payload,
         intent_payload_for_pairing, pairing_command, pairing_command_for_target, proof_payload,
-        route_select_command, route_select_command_for_target, second_proof_payload,
-        serialize_command,
+        proof_payload_for_pairing, route_select_command, route_select_command_for_target,
+        second_proof_payload, serialize_command, status_command,
     },
     websocket::handle_command_text_for_test,
 };
@@ -229,6 +232,95 @@ async fn lan_pairing_local_child_identity_rejects_wrong_agent_port_before_execut
     assert_eq!(runtime.trusted_device_count(), 0);
 }
 
+#[tokio::test]
+async fn lan_pairing_status_issues_challenge_preview_before_pairing_proof() {
+    let runtime = LanPairingRuntime::empty();
+    let challenge = issued_challenge(runtime.clone()).await;
+    let proof_payload =
+        proof_payload_from_challenge(&challenge, constants::lan_pairing::EXPIRES_AT);
+    let proof_event = handle_command_text_for_test(
+        &serialize_command(pairing_command(proof_payload)),
+        runtime.clone(),
+        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+    )
+    .await;
+
+    assert_eq!(
+        challenge.event,
+        AgentEventName::AgentLanPairingStatusReported
+    );
+    assert_status_support_surface(&challenge);
+    assert_eq!(
+        challenge.payload.get(constants::field::LAN_PAIRING_STATE),
+        Some(&LogFieldValue::String(
+            constants::value::LAN_PAIRING_PAIRING.to_string()
+        ))
+    );
+    assert_eq!(
+        challenge
+            .payload
+            .get(constants::field::LAN_AUDIT_EVENT_TYPE),
+        Some(&LogFieldValue::String(
+            constants::value::LAN_AUDIT_PAIRING_CHALLENGE_ISSUED.to_string()
+        ))
+    );
+    assert_eq!(
+        proof_event.event,
+        AgentEventName::AgentLanPairingStatusReported
+    );
+    assert_eq!(runtime.trusted_device_count(), 1);
+}
+
+#[tokio::test]
+async fn lan_pairing_challenge_preview_rejects_wrong_origin_stale_and_malformed_proofs() {
+    macro_rules! assert_pairing_rejection {
+        ($event:expr, $reason:expr) => {{
+            assert_eq!($event.event, AgentEventName::AgentCommandRejected);
+            assert_eq!(
+                $event.payload.get(constants::field::LAN_AUDIT_EVENT_TYPE),
+                Some(&LogFieldValue::String(
+                    constants::value::LAN_AUDIT_PAIRING_PROOF_REJECTED.to_string()
+                ))
+            );
+            assert_eq!(
+                $event.payload.get(constants::field::LAN_REJECTION_REASON),
+                Some(&LogFieldValue::String($reason.to_string()))
+            );
+        }};
+    }
+
+    let runtime = LanPairingRuntime::empty();
+    let challenge = issued_challenge(runtime.clone()).await;
+    let mut wrong_origin =
+        proof_payload_from_challenge(&challenge, constants::lan_pairing::EXPIRES_AT);
+    wrong_origin.insert(
+        constants::field::ORIGIN.to_string(),
+        LogFieldValue::String(constants::lan_pairing::WRONG_ORIGIN.to_string()),
+    );
+    let mut malformed =
+        proof_payload_from_challenge(&challenge, constants::lan_pairing::EXPIRES_AT);
+    malformed.remove(constants::field::LAN_PROOF_DIGEST);
+    let stale = proof_payload_from_challenge(&challenge, constants::lan_pairing::EXPIRED_AT);
+    let accepted = proof_payload_from_challenge(&challenge, constants::lan_pairing::EXPIRES_AT);
+    let wrong_origin_event = submit_proof(runtime.clone(), wrong_origin).await;
+    let malformed_event = submit_proof(runtime.clone(), malformed).await;
+    let stale_event = submit_proof(runtime.clone(), stale).await;
+    let accepted_event = submit_proof(runtime.clone(), accepted.clone()).await;
+    let replayed_event = submit_proof(runtime, accepted).await;
+
+    assert_pairing_rejection!(
+        wrong_origin_event,
+        constants::value::LAN_REASON_WRONG_ORIGIN
+    );
+    assert_pairing_rejection!(malformed_event, constants::value::LAN_REASON_MALFORMED);
+    assert_pairing_rejection!(stale_event, constants::value::LAN_REASON_STALE);
+    assert_eq!(
+        accepted_event.event,
+        AgentEventName::AgentLanPairingStatusReported
+    );
+    assert_pairing_rejection!(replayed_event, constants::value::LAN_REASON_REPLAYED);
+}
+
 async fn pair_second_child_and_select_it(runtime: LanPairingRuntime) {
     let _ = handle_command_text_for_test(
         &serialize_command(pairing_command_for_target(
@@ -256,6 +348,79 @@ async fn pair_second_child_and_select_it(runtime: LanPairingRuntime) {
         Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
     )
     .await;
+}
+
+async fn issued_challenge(runtime: LanPairingRuntime) -> AgentEventEnvelope {
+    handle_command_text_for_test(
+        &serialize_command(status_command(challenge_request_payload(
+            constants::lan_pairing::EXPIRES_AT,
+        ))),
+        runtime,
+        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+    )
+    .await
+}
+
+async fn submit_proof(runtime: LanPairingRuntime, payload: LogFields) -> AgentEventEnvelope {
+    handle_command_text_for_test(
+        &serialize_command(pairing_command(payload)),
+        runtime,
+        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+    )
+    .await
+}
+
+fn challenge_request_payload(expires_at: &str) -> LogFields {
+    fields_from_pairs(vec![
+        (
+            constants::field::LAN_CHILD_DEVICE_ID,
+            LogFieldValue::String(constants::lan_pairing::CHILD_DEVICE_ID.to_string()),
+        ),
+        (
+            constants::field::LAN_PARENT_DEVICE_ID,
+            LogFieldValue::String(constants::lan_pairing::PARENT_DEVICE_ID.to_string()),
+        ),
+        (
+            constants::field::LAN_ROUTE_ID,
+            LogFieldValue::String(constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK.to_string()),
+        ),
+        (
+            constants::field::ORIGIN,
+            LogFieldValue::String(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+        ),
+        (
+            constants::field::STARTED_AT,
+            LogFieldValue::String(constants::lan_pairing::ISSUED_AT.to_string()),
+        ),
+        (
+            constants::field::STALE_AT,
+            LogFieldValue::String(expires_at.to_string()),
+        ),
+    ])
+}
+
+fn proof_payload_from_challenge(event: &AgentEventEnvelope, expires_at: &str) -> LogFields {
+    let challenge_id = payload_string(event, constants::field::LAN_CHALLENGE_ID);
+    let proof_digest = payload_string(event, constants::field::LAN_PROOF_DIGEST);
+    let mut payload = proof_payload_for_pairing(
+        constants::lan_pairing::PAIRING_ID,
+        &challenge_id,
+        constants::lan_pairing::CHILD_DEVICE_ID,
+        constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK,
+        &proof_digest,
+    );
+    payload.insert(
+        constants::field::STALE_AT.to_string(),
+        LogFieldValue::String(expires_at.to_string()),
+    );
+    payload
+}
+
+fn payload_string(event: &AgentEventEnvelope, field: &str) -> String {
+    match event.payload.get(field) {
+        Some(LogFieldValue::String(value)) => value.clone(),
+        _ => std::panic::panic_any(field.to_string()),
+    }
 }
 
 async fn select_first_child(

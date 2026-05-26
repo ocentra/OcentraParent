@@ -31,7 +31,11 @@ pub const PLANNED_HTTP_ENDPOINT_PATHS: &[&str] = &[
 ];
 
 pub const SUPPORT_PLANNED_UNSUPPORTED: &str = "planned-unsupported";
+pub const SUPPORT_WEBSOCKET_DIRECT: &str = "websocket-direct";
 pub const ADDRESS_REF_UNPROVEN: &str = "lan-address-ref-unproven";
+pub const ADDRESS_REF_DIRECT_WEBSOCKET: &str = "lan-address-ref-direct-websocket";
+pub const CHALLENGE_ID_PREFIX: &str = "challenge-direct-";
+pub const PROOF_DIGEST_PREVIEW_PREFIX: &str = "sha256:direct-preview:";
 pub const ROUTE_REQUIREMENT_PAIRED_DEVICE: &str = "paired-device";
 pub const ROUTE_REQUIREMENT_ALLOWED_ORIGIN: &str = "allowed-origin";
 pub const ROUTE_REQUIREMENT_TARGET_DEVICE_MATCH: &str = "target-device-match";

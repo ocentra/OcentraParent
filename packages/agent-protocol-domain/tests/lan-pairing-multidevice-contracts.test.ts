@@ -11,6 +11,7 @@ import {
   AgentLanPairingSupportedWebSocketCommand,
   AgentProtocolDefaults,
 } from '../src/contracts';
+import { AgentLanPairingChallengeRequestSchema } from '../src/lan-pairing-challenge';
 import { AgentLanPairingRejectionReasonSchema, AgentPairingStateSchema } from '../src/security';
 
 describe('LAN pairing multi-device protocol contracts', () => {
@@ -21,7 +22,7 @@ describe('LAN pairing multi-device protocol contracts', () => {
   it('AgentPairingStateSchema: distinguishes unauthenticated, unpaired, and paired LAN states', assertPairingStates);
   it('AgentCommandEnvelopeSchema: accepts a route select command for a paired child device', assertRouteSelectCommand);
   it(
-    'LAN discovery, challenge, and proof preview schemas stay contract-only and omit raw proof material',
+    'LAN discovery, challenge, and proof preview schemas describe direct WebSocket ceremony without raw proof material',
     assertDiscoveryChallengeAndProofPreview
   );
   it(
@@ -89,11 +90,13 @@ function assertRouteSelectCommand() {
 
 function assertDiscoveryChallengeAndProofPreview() {
   const discovery = AgentLanPairingDiscoveryDeviceSchema.safeParse(lanDiscoveryDevice());
+  const challengeRequest = AgentLanPairingChallengeRequestSchema.safeParse(lanChallengeRequest());
   const challenge = AgentLanPairingChallengeSchema.safeParse(lanChallenge());
   const preview = AgentLanPairingProofPreviewSchema.safeParse(lanProofPreview('sha256:proof-preview-digest'));
   const invalidPreview = AgentLanPairingProofPreviewSchema.safeParse(lanProofPreview(''));
 
   expect(discovery.success).toBe(true);
+  expect(challengeRequest.success).toBe(true);
   expect(challenge.success).toBe(true);
   expect(preview.success).toBe(true);
   expect(JSON.stringify(preview)).not.toContain('rawToken');
@@ -193,7 +196,19 @@ function lanDiscoveryDevice() {
     networkMode: 'local-network',
     reachability: AgentProtocolDefaults.LanSelectedDeviceReachability.Stale,
     addressRef: 'lan-address-ref-unproven',
-    discoveryStatus: AgentProtocolDefaults.LanRuntimeSupportStatus.PlannedUnsupported,
+    discoveryStatus: 'websocket-direct',
+  };
+}
+
+function lanChallengeRequest() {
+  return {
+    schemaVersion: AgentProtocolDefaults.SchemaVersion,
+    childDeviceId: 'child-device-1',
+    parentDeviceId: 'parent-device-1',
+    routeId: 'lan-route-child-1',
+    origin: 'http://127.0.0.1:4678',
+    issuedAt: '2026-05-23T22:40:00Z',
+    expiresAt: '2026-05-23T22:45:00Z',
   };
 }
 
@@ -207,7 +222,7 @@ function lanChallenge() {
     origin: 'http://127.0.0.1:4678',
     issuedAt: '2026-05-23T22:40:00Z',
     expiresAt: '2026-05-23T22:45:00Z',
-    challengeStatus: AgentProtocolDefaults.LanRuntimeSupportStatus.PlannedUnsupported,
+    challengeStatus: 'websocket-direct',
   };
 }
 
@@ -222,7 +237,7 @@ function lanProofPreview(proofDigest: unknown) {
     proofDigest,
     issuedAt: '2026-05-23T22:40:00Z',
     expiresAt: '2026-05-23T22:45:00Z',
-    proofPreviewStatus: AgentProtocolDefaults.LanRuntimeSupportStatus.PlannedUnsupported,
+    proofPreviewStatus: 'websocket-direct',
   };
 }
 

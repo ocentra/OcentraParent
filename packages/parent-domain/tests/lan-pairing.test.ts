@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   LanChildAgentResponseSchema,
   LanPairingAuditEventSchema,
+  LanPairingChallengeRequestSchema,
   LanPairingChallengeSchema,
   LanPairingDiscoveryDeviceSchema,
   LanPairingEnablementSchema,
@@ -76,12 +77,12 @@ function registerReadinessContractTests(): void {
       networkMode: 'local-network',
       reachability: 'online',
       addressRef: 'lan-address-ref-1',
-      discoveryStatus: 'planned-unsupported',
+      discoveryStatus: 'websocket-direct',
     });
 
     expect(enablement.state).toBe('lan-enabled');
     expect(discovery.reachability).toBe('online');
-    expect(discovery.discoveryStatus).toBe('planned-unsupported');
+    expect(discovery.discoveryStatus).toBe('websocket-direct');
     expect(Object.keys(discovery).sort()).toEqual(
       [
         'addressRef',
@@ -103,12 +104,22 @@ function registerReadinessContractTests(): void {
 function registerPairingTrustTests(): void {
   it('LanPairingChallengeSchema and registry contracts: parse pairing trust state', () => {
     const challenge = parsedChallenge();
+    const challengeRequest = LanPairingChallengeRequestSchema.parse({
+      schemaVersion: 'v0.9',
+      childDeviceId: childDevice.deviceId,
+      parentDeviceId: parentDevice.deviceId,
+      routeId: challenge.routeId,
+      origin: challenge.origin,
+      issuedAt: timestamp,
+      expiresAt: laterTimestamp,
+    });
     const proof = parsedProofFor(challenge);
     const registryEntry = parsedRegistryEntryFor(proof);
 
+    expect(challengeRequest.parentDeviceId).toBe(parentDevice.deviceId);
     expect(registryEntry.trustState).toBe('paired');
     expect(registryEntry.routeId).toBe(challenge.routeId);
-    expect(challenge.challengeStatus).toBe('planned-unsupported');
+    expect(challenge.challengeStatus).toBe('websocket-direct');
     expect(Object.keys(challenge).sort()).toEqual(
       [
         'challengeId',
@@ -140,7 +151,7 @@ function registerPairingTrustTests(): void {
     expectNoSensitiveLanPrivacyMarkers(proof);
   });
 
-  it('LanPairingProofPreviewSchema: records planned unsupported proof preview state', () => {
+  it('LanPairingProofPreviewSchema: records direct WebSocket proof preview state', () => {
     const challenge = parsedChallenge();
     const preview = LanPairingProofPreviewSchema.parse({
       schemaVersion: 'v0.9',
@@ -152,10 +163,10 @@ function registerPairingTrustTests(): void {
       proofDigest: 'sha256:proof-preview-digest',
       issuedAt: timestamp,
       expiresAt: laterTimestamp,
-      proofPreviewStatus: 'planned-unsupported',
+      proofPreviewStatus: 'websocket-direct',
     });
 
-    expect(preview.proofPreviewStatus).toBe('planned-unsupported');
+    expect(preview.proofPreviewStatus).toBe('websocket-direct');
     expectNoSensitiveLanPrivacyMarkers(preview);
   });
 }
@@ -170,7 +181,7 @@ function parsedChallenge() {
     origin: 'http://127.0.0.1:4478',
     issuedAt: timestamp,
     expiresAt: laterTimestamp,
-    challengeStatus: 'planned-unsupported',
+    challengeStatus: 'websocket-direct',
   });
 }
 
@@ -423,9 +434,9 @@ function registerRuntimeSupportSurfaceTests(): void {
       ],
       pairingState: 'unpaired',
       trustedDeviceCount: 0,
-      discoveryStatus: 'planned-unsupported',
-      challengeStatus: 'planned-unsupported',
-      proofPreviewStatus: 'planned-unsupported',
+      discoveryStatus: 'websocket-direct',
+      challengeStatus: 'websocket-direct',
+      proofPreviewStatus: 'websocket-direct',
       persistenceMode: 'in-memory-fail-closed',
       restartBehavior: 'fail-closed-unpaired',
       proofMode: 'direct-proof-submit',
@@ -455,9 +466,9 @@ function registerRuntimeSupportSurfaceTests(): void {
     ]);
     expect(support.persistenceMode).toBe('in-memory-fail-closed');
     expect(support.restartBehavior).toBe('fail-closed-unpaired');
-    expect(support.discoveryStatus).toBe('planned-unsupported');
-    expect(support.challengeStatus).toBe('planned-unsupported');
-    expect(support.proofPreviewStatus).toBe('planned-unsupported');
+    expect(support.discoveryStatus).toBe('websocket-direct');
+    expect(support.challengeStatus).toBe('websocket-direct');
+    expect(support.proofPreviewStatus).toBe('websocket-direct');
     expectNoSensitiveLanPrivacyMarkers(support);
   });
 }
@@ -471,9 +482,9 @@ function registerPersistentRuntimeSupportSurfaceTests(): void {
       unsupportedHttpEndpoints: [],
       pairingState: 'paired',
       trustedDeviceCount: 1,
-      discoveryStatus: 'planned-unsupported',
-      challengeStatus: 'planned-unsupported',
-      proofPreviewStatus: 'planned-unsupported',
+      discoveryStatus: 'websocket-direct',
+      challengeStatus: 'websocket-direct',
+      proofPreviewStatus: 'websocket-direct',
       persistenceMode: 'local-json-registry',
       restartBehavior: 'restore-trusted-registry-unselected',
       proofMode: 'direct-proof-submit',

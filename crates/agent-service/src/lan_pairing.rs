@@ -6,8 +6,8 @@ use std::{
 use ocentra_parent_agent_core::TrustedDeviceRegistry;
 use ocentra_parent_agent_protocol::{
     constants, AgentCommandEnvelope, AgentCommandName, AgentEventEnvelope, AgentEventName,
-    AgentRoute, LanPairingDeviceRef, LanPairingRejectionReason, LanParentIntentEnvelope, LogFields,
-    LogLevel,
+    AgentRoute, LanPairingDeviceRef, LanPairingProof, LanPairingRejectionReason,
+    LanParentIntentEnvelope, LogFields, LogLevel,
 };
 
 use crate::{
@@ -17,16 +17,30 @@ use crate::{
         rejected_control_audit_fields, rejected_pairing_audit_fields, revoked_route_audit_fields,
         selected_route_audit_fields,
     },
-    lan_pairing_payload::{parse_intent, parse_pairing_proof},
-    lan_pairing_status::pairing_status_event,
+    lan_pairing_payload::{is_challenge_request, parse_intent, parse_pairing_proof},
+    lan_pairing_status::{pairing_challenge_status_event, pairing_status_event},
     time::timestamp_now,
 };
 
 #[derive(Clone, Debug)]
 pub struct LanPairingRuntime {
     pub(crate) registry: Arc<Mutex<TrustedDeviceRegistry>>,
+    pub(crate) challenges: Arc<Mutex<Vec<LanPairingChallengeState>>>,
     pub(crate) persistence: LanPairingRegistryPersistence,
     pub(crate) local_child_device_id: Option<String>,
+}
+
+#[derive(Clone, Debug)]
+pub(crate) struct LanPairingChallengeState {
+    pub(crate) challenge_id: String,
+    pub(crate) child_device_id: String,
+    pub(crate) parent_device_id: String,
+    pub(crate) route_id: String,
+    pub(crate) origin: String,
+    pub(crate) proof_digest: String,
+    pub(crate) issued_at: String,
+    pub(crate) expires_at: String,
+    pub(crate) accepted: bool,
 }
 
 #[derive(Clone, Debug)]
@@ -62,7 +76,7 @@ pub async fn route_lan_command(
     }
 
     if command.command == AgentCommandName::AgentLanPairingProofSubmit {
-        return LanCommandDecision::Respond(submit_pairing_proof(runtime, command).await);
+        return LanCommandDecision::Respond(submit_pairing_proof(runtime, origin, command).await);
     }
 
     if command.command == AgentCommandName::AgentLanPairingRouteSelect {
@@ -95,11 +109,15 @@ pub fn build_lan_pairing_status_report(
 
 async fn submit_pairing_proof(
     runtime: LanPairingRuntime,
+    origin: Option<String>,
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
+    let observed_origin = origin.as_deref();
     match parse_pairing_proof(&command.payload) {
         Ok(proof) => {
-            if let Err(reason) = validate_pairing_proof_target(&runtime, &command, &proof) {
+            if let Err(reason) =
+                validate_pairing_proof_target(&runtime, &command, &proof, observed_origin)
+            {
                 return pairing_rejection_event(command, reason);
             }
             let child_device = device_ref(&proof.child_device_id, &command.target.platform);
@@ -155,6 +173,9 @@ fn lan_pairing_status_get(
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
     let observed_origin = origin.as_deref();
+    if is_challenge_request(&command.payload) {
+        return pairing_challenge_status_event(&runtime, observed_origin, command);
+    }
     match parse_intent(&command.payload) {
         Ok(intent) => match validate_command_target(&runtime, &command, &intent)
             .and_then(|()| validate_selection_intent_result(&runtime, observed_origin, &intent))
@@ -217,11 +238,15 @@ fn validate_control_intent(
 fn validate_pairing_proof_target(
     runtime: &LanPairingRuntime,
     command: &AgentCommandEnvelope,
-    proof: &ocentra_parent_agent_protocol::LanPairingProof,
+    proof: &LanPairingProof,
+    origin: Option<&str>,
 ) -> Result<(), LanPairingRejectionReason> {
     validate_local_child_target(runtime, command)?;
+    if origin != Some(proof.origin.as_str()) {
+        return Err(LanPairingRejectionReason::WrongOrigin);
+    }
     if command.target.device_id.as_str() == proof.child_device_id.as_str() {
-        Ok(())
+        runtime.validate_challenge_proof(proof, &timestamp_now())
     } else {
         Err(LanPairingRejectionReason::WrongDevice)
     }
@@ -240,7 +265,7 @@ fn validate_command_target(
     }
 }
 
-fn validate_local_child_target(
+pub(crate) fn validate_local_child_target(
     runtime: &LanPairingRuntime,
     command: &AgentCommandEnvelope,
 ) -> Result<(), LanPairingRejectionReason> {

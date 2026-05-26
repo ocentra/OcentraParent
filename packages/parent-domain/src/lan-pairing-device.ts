@@ -57,6 +57,18 @@ export const LanPairingChallengeSchema = withParser(
   })
 );
 
+export const LanPairingChallengeRequestSchema = withParser(
+  Schema.Struct({
+    schemaVersion: LanPairingSchemaVersionSchema,
+    childDeviceId: ParentDeviceIdSchema,
+    parentDeviceId: ParentDeviceIdSchema,
+    routeId: LanPairingRouteIdSchema,
+    origin: LanPairingOriginSchema,
+    issuedAt: LanPairingTimestampSchema,
+    expiresAt: LanPairingTimestampSchema,
+  })
+);
+
 export const LanPairingProofPreviewSchema = withParser(
   Schema.Struct({
     schemaVersion: LanPairingSchemaVersionSchema,
@@ -118,6 +130,7 @@ export const LanSelectedRouteTargetSchema = withParser(
 export type LanPairingEnablement = Infer<typeof LanPairingEnablementSchema>;
 export type LanPairingDiscoveryDevice = Infer<typeof LanPairingDiscoveryDeviceSchema>;
 export type LanPairingChallenge = Infer<typeof LanPairingChallengeSchema>;
+export type LanPairingChallengeRequest = Infer<typeof LanPairingChallengeRequestSchema>;
 export type LanPairingProofPreview = Infer<typeof LanPairingProofPreviewSchema>;
 export type LanPairingProof = Infer<typeof LanPairingProofSchema>;
 export type LanTrustedDeviceRegistryEntry = Infer<typeof LanTrustedDeviceRegistryEntrySchema>;

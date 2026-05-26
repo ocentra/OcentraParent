@@ -16,35 +16,43 @@ import {
 import { ensurePortFree } from '../dev/port-utils.mjs';
 import { resolveDebugAgentServicePath, stopProcessTreeAndWait } from './agent-service-process.mjs';
 
-const outputDir = join(process.cwd(), 'test-results', 'v0-9-lan-pairing-control-mvp');
+const outputDir = join(process.cwd(), 'test-results', 'v0-9-lan-discovery-challenge-mvp');
 const evidencePath = join(outputDir, 'proof.json');
 const allowedOrigin = createHttpOrigin(ParentDevHost.Loopback);
 const wrongOrigin = createHttpOrigin(ParentDevHost.Loopback, 9478);
-const issuedAt = '2026-05-26T18:20:00.000Z';
-const expiresAt = '2099-05-26T18:25:00.000Z';
+const issuedAt = '2026-05-26T20:20:00.000Z';
+const expiresAt = '2099-05-26T20:25:00.000Z';
+const expiredAt = '2026-05-25T20:19:00.000Z';
 const platform = 'windows';
+const parentDeviceId = 'parent-device-v09-discovery';
 const webSocketEventTimeoutMs = 20000;
+const sensitiveMarkers = [
+  'activityDigest',
+  'activity.sqlite',
+  'decryptedEvidence',
+  'journalPath',
+  'rawEvidence',
+  'rawProofSecret',
+  'rawToken',
+  'sqlitePath',
+];
 
 const agents = [
   {
-    label: 'first-child-agent',
-    port: 4492,
-    childDeviceId: 'child-device-v09-first',
-    pairingId: 'pairing-v09-first',
-    challengeId: 'challenge-v09-first',
-    proofDigest: 'sha256:v09-first-proof',
-    routeId: 'route-v09-first-local-network',
-    evidenceReferenceIds: 'activity-event-v09-first',
+    label: 'first-discovery-agent',
+    port: 4494,
+    childDeviceId: 'child-device-v09-discovery-first',
+    pairingId: 'pairing-v09-discovery-first',
+    routeId: 'route-v09-discovery-first-local-network',
+    evidenceReferenceIds: 'activity-event-v09-discovery-first',
   },
   {
-    label: 'second-child-agent',
-    port: 4493,
-    childDeviceId: 'child-device-v09-second',
-    pairingId: 'pairing-v09-second',
-    challengeId: 'challenge-v09-second',
-    proofDigest: 'sha256:v09-second-proof',
-    routeId: 'route-v09-second-local-network',
-    evidenceReferenceIds: 'activity-event-v09-second',
+    label: 'second-discovery-agent',
+    port: 4495,
+    childDeviceId: 'child-device-v09-discovery-second',
+    pairingId: 'pairing-v09-discovery-second',
+    routeId: 'route-v09-discovery-second-local-network',
+    evidenceReferenceIds: 'activity-event-v09-discovery-second',
   },
 ];
 
@@ -63,21 +71,16 @@ try {
   await assertWrongOriginWebSocketRejected(services[0]);
   assertions.push('wrong-origin-websocket-rejected-before-upgrade');
 
-  const firstLifecycle = await runLanLifecycle(services[0], { revokeAtEnd: true });
-  const secondLifecycle = await runLanLifecycle(services[1], { revokeAtEnd: false });
-  assertions.push(...firstLifecycle, ...secondLifecycle);
+  for (const service of services) {
+    const labels = await runDiscoveryChallengeCeremony(service);
+    assertions.push(...labels);
+  }
 
-  await assertWrongAgentPortRejected(services[0], services[1]);
-  assertions.push('wrong-agent-port-rejected-as-wrong-device');
-
-  await stopProcessTreeAndWait(services[1].child);
-  services[1] = spawnAgentService(agents[1]);
-  await waitForHttp(services[1].healthUrl, services[1]);
-  const restartLifecycle = await runPersistentRestartLifecycle(services[1]);
-  assertions.push(...restartLifecycle);
+  await assertWrongAgentPortChallengeRejected(services[0], services[1]);
+  assertions.push('wrong-agent-port-challenge-rejected-as-wrong-device');
 
   await writeEvidence(assertions, services);
-  console.log(`v0-9-lan-pairing-control-mvp-ok:${assertions.join(',')}`);
+  console.log(`v0-9-lan-discovery-challenge-mvp-ok:${assertions.join(',')}`);
 } finally {
   await Promise.allSettled(services.map((service) => stopProcessTreeAndWait(service.child)));
 }
@@ -107,82 +110,69 @@ function spawnAgentService(agent) {
   };
 }
 
-async function runLanLifecycle(service, { revokeAtEnd }) {
+async function runDiscoveryChallengeCeremony(service) {
   const socket = await openWebSocket(service, allowedOrigin);
   try {
     const labels = [];
-    const unpaired = await sendCommand(socket, buildHealthCommand(service, 'unpaired-health', {}));
-    assertEvent(unpaired, 'agent.command.rejected');
-    assertPayloadValue(unpaired.payload, 'rejectionReason', 'anonymous');
-    labels.push(`${service.label}:anonymous-rejected`);
+    const anonymous = await sendCommand(socket, buildHealthCommand(service, 'anonymous-before-challenge', {}));
+    assertEvent(anonymous, 'agent.command.rejected');
+    assertPayloadValue(anonymous.payload, 'rejectionReason', 'anonymous');
+    labels.push(`${service.label}:anonymous-control-rejected`);
 
-    const paired = await sendCommand(socket, buildPairingCommand(service));
-    assertEvent(paired, 'agent.lan-pairing.status.reported');
-    assertPayloadValue(paired.payload, 'auditEventType', 'pairing-proof-accepted');
-    assertPayloadValue(paired.payload, 'trustedDeviceIds', service.childDeviceId);
-    assertPayloadValue(paired.payload, 'selectedChildDeviceId', '');
-    assertLanSupportSurface(paired.payload);
-    labels.push(`${service.label}:pairing-proof-accepted-unselected`);
+    const wrongOriginProof = await issueChallengeAndSubmitProof(socket, service, 'wrong-origin-proof', {
+      origin: wrongOrigin,
+    });
+    assertEvent(wrongOriginProof, 'agent.command.rejected');
+    assertPayloadValue(wrongOriginProof.payload, 'auditEventType', 'pairing-proof-rejected');
+    assertPayloadValue(wrongOriginProof.payload, 'rejectionReason', 'wrong-origin');
+    labels.push(`${service.label}:wrong-origin-proof-rejected`);
 
-    const beforeSelection = await sendCommand(
-      socket,
-      buildHealthCommand(
-        service,
-        'before-selection-health',
-        intentPayload(service, 'intent-before-selection', 'rule-query')
-      )
-    );
-    assertEvent(beforeSelection, 'agent.command.rejected');
-    assertPayloadValue(beforeSelection.payload, 'rejectionReason', 'unselected-device');
-    labels.push(`${service.label}:unselected-control-rejected`);
+    const malformedProof = await issueChallengeAndSubmitProof(socket, service, 'malformed-proof', {
+      proofDigest: undefined,
+    });
+    assertEvent(malformedProof, 'agent.command.rejected');
+    assertPayloadValue(malformedProof.payload, 'rejectionReason', 'malformed');
+    labels.push(`${service.label}:malformed-proof-rejected`);
 
-    const selected = await sendCommand(socket, buildRouteSelectCommand(service, 'intent-route-select'));
+    const staleProof = await issueChallengeAndSubmitProof(socket, service, 'stale-proof', {
+      staleAt: expiredAt,
+    });
+    assertEvent(staleProof, 'agent.command.rejected');
+    assertPayloadValue(staleProof.payload, 'rejectionReason', 'stale');
+    labels.push(`${service.label}:stale-proof-rejected`);
+
+    const challenge = await issueChallenge(socket, service, 'accepted-proof');
+    assertChallengePreview(challenge.payload, service);
+    labels.push(`${service.label}:challenge-preview-issued`);
+
+    const acceptedProof = await sendCommand(socket, buildPairingCommand(service, challenge.payload, 'accepted-proof'));
+    assertEvent(acceptedProof, 'agent.lan-pairing.status.reported');
+    assertPayloadValue(acceptedProof.payload, 'auditEventType', 'pairing-proof-accepted');
+    assertPayloadValue(acceptedProof.payload, 'trustedDeviceIds', service.childDeviceId);
+    labels.push(`${service.label}:challenge-proof-accepted`);
+
+    const replayedProof = await sendCommand(socket, buildPairingCommand(service, challenge.payload, 'replayed-proof'));
+    assertEvent(replayedProof, 'agent.command.rejected');
+    assertPayloadValue(replayedProof.payload, 'rejectionReason', 'replayed');
+    labels.push(`${service.label}:challenge-proof-replay-rejected`);
+
+    const selected = await sendCommand(socket, buildRouteSelectCommand(service, 'route-select-after-challenge'));
     assertEvent(selected, 'agent.lan-pairing.status.reported');
-    assertPayloadValue(selected.payload, 'auditEventType', 'route-selected');
-    assertPayloadValue(selected.payload, 'authenticationState', 'paired');
     assertPayloadValue(selected.payload, 'selectedChildDeviceId', service.childDeviceId);
-    assertPayloadValue(selected.payload, 'selectedRouteId', service.routeId);
-    labels.push(`${service.label}:route-selected`);
+    labels.push(`${service.label}:route-selected-after-challenge`);
 
-    const accepted = await sendCommand(
+    const acceptedControl = await sendCommand(
       socket,
       buildHealthCommand(
         service,
-        'accepted-rule-query',
-        intentPayload(service, 'intent-accepted-rule-query', 'rule-query')
+        'accepted-rule-query-after-challenge',
+        intentPayload(service, 'intent-rule-query-after-challenge', 'rule-query')
       )
     );
-    assertEvent(accepted, 'agent.health.reported');
-    assertAcceptedControl(accepted.payload, 'rule-query', service);
-    labels.push(`${service.label}:rule-query-accepted`);
-
-    const replayed = await sendCommand(
-      socket,
-      buildHealthCommand(
-        service,
-        'replayed-rule-query',
-        intentPayload(service, 'intent-accepted-rule-query', 'rule-query')
-      )
-    );
-    assertEvent(replayed, 'agent.command.rejected');
-    assertPayloadValue(replayed.payload, 'rejectionReason', 'replayed');
-    labels.push(`${service.label}:replay-rejected`);
-
-    if (revokeAtEnd) {
-      const revoked = await sendCommand(socket, buildRouteRevokeCommand(service, 'intent-route-revoke'));
-      assertEvent(revoked, 'agent.lan-pairing.status.reported');
-      assertPayloadValue(revoked.payload, 'auditEventType', 'pairing-revoked');
-      assertPayloadValue(revoked.payload, 'pairingState', 'revoked');
-      labels.push(`${service.label}:route-revoked`);
-
-      const afterRevoke = await sendCommand(
-        socket,
-        buildHealthCommand(service, 'after-revoke-health', intentPayload(service, 'intent-after-revoke', 'rule-update'))
-      );
-      assertEvent(afterRevoke, 'agent.command.rejected');
-      assertPayloadValue(afterRevoke.payload, 'rejectionReason', 'revoked');
-      labels.push(`${service.label}:revoked-control-rejected`);
-    }
+    assertEvent(acceptedControl, 'agent.health.reported');
+    assertPayloadValue(acceptedControl.payload, 'controlState', 'accepted');
+    assertPayloadValue(acceptedControl.payload, 'intentKind', 'rule-query');
+    labels.push(`${service.label}:rule-query-accepted-after-challenge`);
 
     return labels;
   } finally {
@@ -190,71 +180,28 @@ async function runLanLifecycle(service, { revokeAtEnd }) {
   }
 }
 
-async function runPersistentRestartLifecycle(service) {
-  const socket = await openWebSocket(service, allowedOrigin);
-  try {
-    const labels = [];
-    const restartStatus = await sendCommand(socket, buildLoopbackStatusCommand(service, 'restart-status'));
-    assertEvent(restartStatus, 'agent.lan-pairing.status.reported');
-    assertPayloadValue(restartStatus.payload, 'pairingState', 'paired');
-    assertPayloadValue(restartStatus.payload, 'authenticationState', 'unpaired');
-    assertPayloadValue(restartStatus.payload, 'trustedDeviceIds', service.childDeviceId);
-    assertPayloadValue(restartStatus.payload, 'selectedChildDeviceId', '');
-    assertPayloadValue(restartStatus.payload, 'persistenceMode', 'local-json-registry');
-    assertPayloadValue(restartStatus.payload, 'restartBehavior', 'restore-trusted-registry-unselected');
-    labels.push(`${service.label}:restart-restores-trusted-unselected`);
-
-    const unselectedAfterRestart = await sendCommand(
-      socket,
-      buildHealthCommand(
-        service,
-        'restart-unselected-health',
-        intentPayload(service, 'intent-after-restart-unselected', 'approval-decision')
-      )
-    );
-    assertEvent(unselectedAfterRestart, 'agent.command.rejected');
-    assertPayloadValue(unselectedAfterRestart.payload, 'rejectionReason', 'unselected-device');
-    labels.push(`${service.label}:restart-unselected-control-rejected`);
-
-    const selectedAfterRestart = await sendCommand(
-      socket,
-      buildRouteSelectCommand(service, 'intent-route-select-after-restart')
-    );
-    assertEvent(selectedAfterRestart, 'agent.lan-pairing.status.reported');
-    assertPayloadValue(selectedAfterRestart.payload, 'selectedChildDeviceId', service.childDeviceId);
-    labels.push(`${service.label}:restart-route-reselected`);
-
-    const acceptedAfterRestart = await sendCommand(
-      socket,
-      buildHealthCommand(
-        service,
-        'restart-accepted-approval',
-        intentPayload(service, 'intent-after-restart-approval', 'approval-decision')
-      )
-    );
-    assertEvent(acceptedAfterRestart, 'agent.health.reported');
-    assertAcceptedControl(acceptedAfterRestart.payload, 'approval-decision', service);
-    labels.push(`${service.label}:restart-approval-accepted`);
-
-    return labels;
-  } finally {
-    socket.close();
-  }
+async function issueChallengeAndSubmitProof(socket, service, messageSuffix, overrides) {
+  const challenge = await issueChallenge(socket, service, messageSuffix);
+  assertChallengePreview(challenge.payload, service);
+  return sendCommand(socket, buildPairingCommand(service, challenge.payload, messageSuffix, overrides));
 }
 
-async function assertWrongAgentPortRejected(firstService, secondService) {
+async function issueChallenge(socket, service, messageSuffix) {
+  const challenge = await sendCommand(socket, buildChallengeCommand(service, messageSuffix));
+  assertEvent(challenge, 'agent.lan-pairing.status.reported');
+  assertPayloadValue(challenge.payload, 'auditEventType', 'pairing-challenge-issued');
+  return challenge;
+}
+
+async function assertWrongAgentPortChallengeRejected(firstService, secondService) {
   const socket = await openWebSocket(firstService, allowedOrigin);
   try {
-    const wrongPort = await sendCommand(
+    const wrongPortChallenge = await sendCommand(
       socket,
-      buildHealthCommand(
-        secondService,
-        'wrong-agent-port-health',
-        intentPayload(secondService, 'intent-wrong-agent-port', 'health-query')
-      )
+      buildChallengeCommand(secondService, 'wrong-agent-port-challenge')
     );
-    assertEvent(wrongPort, 'agent.command.rejected');
-    assertPayloadValue(wrongPort.payload, 'rejectionReason', 'wrong-device');
+    assertEvent(wrongPortChallenge, 'agent.command.rejected');
+    assertPayloadValue(wrongPortChallenge.payload, 'rejectionReason', 'wrong-device');
   } finally {
     socket.close();
   }
@@ -321,7 +268,7 @@ function nextEvent(socket, messageId) {
   return new Promise((resolve, reject) => {
     const timer = setTimeout(() => {
       socket.removeEventListener('message', onMessage);
-      reject(new Error(`Timed out waiting for LAN pairing event after ${messageId}`));
+      reject(new Error(`Timed out waiting for LAN discovery event after ${messageId}`));
     }, webSocketEventTimeoutMs);
     const onMessage = (message) => {
       clearTimeout(timer);
@@ -354,7 +301,7 @@ function attachEventQueue(socket) {
         if (index >= 0) {
           pendingResolvers.splice(index, 1);
         }
-        reject(new Error(`Timed out waiting for LAN pairing event after ${messageId}`));
+        reject(new Error(`Timed out waiting for LAN discovery event after ${messageId}`));
       }, webSocketEventTimeoutMs);
       pendingResolvers.push({
         reject,
@@ -399,19 +346,37 @@ async function waitForHttp(url, service) {
   throw new Error(`Timed out waiting for ${url}\n${service.serviceOutput()}`);
 }
 
-function buildPairingCommand(service) {
-  return buildCommand(service, 'pairing-proof-submit', 'agent.lan-pairing.proof.submit', {
-    pairingId: service.pairingId,
-    challengeId: service.challengeId,
+function buildChallengeCommand(service, messageSuffix) {
+  return buildCommand(service, messageSuffix, 'agent.lan-pairing.status.get', {
     childDeviceId: service.childDeviceId,
-    parentDeviceId: 'parent-device-v09',
+    parentDeviceId,
     routeId: service.routeId,
     origin: allowedOrigin,
-    proofDigest: service.proofDigest,
-    evidenceReferenceIds: service.evidenceReferenceIds,
     startedAt: issuedAt,
     staleAt: expiresAt,
   });
+}
+
+function buildPairingCommand(service, challengePayload, messageSuffix, overrides = {}) {
+  const payload = {
+    pairingId: service.pairingId,
+    challengeId: challengePayload.challengeId,
+    childDeviceId: service.childDeviceId,
+    parentDeviceId,
+    routeId: service.routeId,
+    origin: allowedOrigin,
+    proofDigest: challengePayload.proofDigest,
+    evidenceReferenceIds: service.evidenceReferenceIds,
+    startedAt: issuedAt,
+    staleAt: expiresAt,
+    ...overrides,
+  };
+  for (const [key, value] of Object.entries(payload)) {
+    if (value === undefined) {
+      delete payload[key];
+    }
+  }
+  return buildCommand(service, messageSuffix, 'agent.lan-pairing.proof.submit', payload);
 }
 
 function buildRouteSelectCommand(service, intentId) {
@@ -423,24 +388,8 @@ function buildRouteSelectCommand(service, intentId) {
   );
 }
 
-function buildRouteRevokeCommand(service, intentId) {
-  return buildCommand(
-    service,
-    intentId,
-    'agent.lan-pairing.route.revoke',
-    intentPayload(service, intentId, 'configuration-update')
-  );
-}
-
 function buildHealthCommand(service, messageSuffix, payload) {
   return buildCommand(service, messageSuffix, 'agent.health.check', payload);
-}
-
-function buildLoopbackStatusCommand(service, messageSuffix) {
-  return {
-    ...buildCommand(service, messageSuffix, 'agent.lan-pairing.status.get', {}),
-    target: { deviceId: service.childDeviceId, platform, route: 'localhost' },
-  };
 }
 
 function buildCommand(service, messageSuffix, command, payload) {
@@ -463,39 +412,57 @@ function intentPayload(service, intentId, intentKind) {
     childDeviceId: service.childDeviceId,
     routeId: service.routeId,
     origin: allowedOrigin,
-    proofDigest: service.proofDigest,
+    proofDigest: service.lastProofDigest ?? '',
     evidenceReferenceIds: service.evidenceReferenceIds,
     startedAt: issuedAt,
     staleAt: expiresAt,
   };
 }
 
-function assertLanSupportSurface(payload) {
+function assertChallengePreview(payload, service) {
   assertPayloadValue(payload, 'transport', 'websocket');
-  assertPayloadValue(
-    payload,
-    'supportedWebSocketCommands',
-    'agent.lan-pairing.proof.submit,agent.lan-pairing.route.select,agent.lan-pairing.route.revoke,agent.lan-pairing.status.get'
-  );
   assertPayloadValue(payload, 'discoveryStatus', 'websocket-direct');
   assertPayloadValue(payload, 'challengeStatus', 'websocket-direct');
   assertPayloadValue(payload, 'proofPreviewStatus', 'websocket-direct');
-  assertPayloadValue(payload, 'persistenceMode', 'local-json-registry');
-  assertPayloadValue(payload, 'proofMode', 'direct-proof-submit');
+  assertPayloadValue(payload, 'pairingState', 'pairing');
+  assertPayloadValue(payload, 'childDeviceId', service.childDeviceId);
+  assertPayloadValue(payload, 'parentDeviceId', parentDeviceId);
+  assertPayloadValue(payload, 'routeId', service.routeId);
+  assertPayloadValue(payload, 'origin', allowedOrigin);
+  assertPayloadValue(payload, 'staleAt', expiresAt);
+  assertPayloadValue(
+    payload,
+    'unsupportedHttpEndpoints',
+    [
+      '/api/lan-pairing/discovery',
+      '/api/lan-pairing/challenge',
+      '/api/lan-pairing/proof',
+      '/api/lan-pairing/control',
+      '/api/lan-pairing/registry',
+    ].join(',')
+  );
+  if (!String(payload.challengeId ?? '').startsWith('challenge-direct-')) {
+    throw new Error(`Expected direct challenge id, received ${payload.challengeId}`);
+  }
+  if (!String(payload.proofDigest ?? '').startsWith('sha256:direct-preview:')) {
+    throw new Error(`Expected direct proof digest, received ${payload.proofDigest}`);
+  }
+  service.lastProofDigest = payload.proofDigest;
+  assertNoSensitiveMarkers(payload);
 }
 
-function assertAcceptedControl(payload, intentKind, service) {
-  assertPayloadValue(payload, 'controlState', 'accepted');
-  assertPayloadValue(payload, 'auditEventType', 'control-accepted');
-  assertPayloadValue(payload, 'authenticationState', 'paired');
-  assertPayloadValue(payload, 'intentKind', intentKind);
-  assertPayloadValue(payload, 'routeId', service.routeId);
-  assertPayloadValue(payload, 'evidenceReferenceIds', service.evidenceReferenceIds);
+function assertNoSensitiveMarkers(payload) {
+  const serialized = JSON.stringify(payload);
+  for (const marker of sensitiveMarkers) {
+    if (serialized.includes(marker)) {
+      throw new Error(`LAN challenge payload leaked ${marker}`);
+    }
+  }
 }
 
 function assertEvent(event, expected) {
   if (event.event !== expected) {
-    throw new Error(`Expected event ${expected}, received ${event.event}`);
+    throw new Error(`Expected event ${expected}, received ${event.event}: ${JSON.stringify(event.payload)}`);
   }
 }
 

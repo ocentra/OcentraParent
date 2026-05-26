@@ -28,7 +28,9 @@ export const AgentPairingStateSchema = withParser(
 
 export const AgentLanSelectedDeviceReachabilitySchema = withParser(Schema.Literal('online', 'offline', 'stale'));
 export const AgentLanPairingNetworkModeSchema = withParser(Schema.Literal('loopback', 'local-network'));
-export const AgentLanPairingRuntimeSupportStatusSchema = withParser(Schema.Literal('planned-unsupported'));
+export const AgentLanPairingRuntimeSupportStatusSchema = withParser(
+  Schema.Literal('planned-unsupported', 'websocket-direct')
+);
 export const AgentLanPairingIntentKindSchema = withParser(
   Schema.Literal('health-query', 'rule-query', 'rule-update', 'approval-decision', 'configuration-update')
 );

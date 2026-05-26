@@ -1,8 +1,27 @@
 use ocentra_parent_agent_protocol::{
-    constants, LanPairingIntentKind, LanPairingProof, LanPairingRejectionReason,
-    LanParentIntentEnvelope, LogFieldValue, LogFields, ParentEvidenceReference,
-    ParentEvidenceReferenceKind,
+    constants, LanPairingChallengeRequest, LanPairingIntentKind, LanPairingProof,
+    LanPairingRejectionReason, LanParentIntentEnvelope, LogFieldValue, LogFields,
+    ParentEvidenceReference, ParentEvidenceReferenceKind,
 };
+
+pub(crate) fn is_challenge_request(fields: &LogFields) -> bool {
+    fields.contains_key(constants::field::LAN_PARENT_DEVICE_ID)
+        || fields.contains_key(constants::field::LAN_CHALLENGE_ID)
+}
+
+pub(crate) fn parse_challenge_request(
+    fields: &LogFields,
+) -> Result<LanPairingChallengeRequest, LanPairingRejectionReason> {
+    Ok(LanPairingChallengeRequest {
+        schema_version: constants::lan_pairing::SCHEMA_VERSION,
+        child_device_id: required_string(fields, constants::field::LAN_CHILD_DEVICE_ID)?,
+        parent_device_id: required_string(fields, constants::field::LAN_PARENT_DEVICE_ID)?,
+        route_id: required_string(fields, constants::field::LAN_ROUTE_ID)?,
+        origin: required_string(fields, constants::field::ORIGIN)?,
+        issued_at: required_string(fields, constants::field::STARTED_AT)?,
+        expires_at: required_string(fields, constants::field::STALE_AT)?,
+    })
+}
 
 pub(crate) fn parse_pairing_proof(
     fields: &LogFields,

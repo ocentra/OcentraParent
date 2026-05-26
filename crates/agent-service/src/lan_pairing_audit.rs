@@ -5,6 +5,7 @@ use ocentra_parent_agent_protocol::{
 };
 
 use crate::fields::fields_from_pairs;
+use crate::lan_pairing::LanPairingChallengeState;
 
 pub(crate) fn accepted_control_audit_fields(
     command: &AgentCommandEnvelope,
@@ -91,6 +92,51 @@ pub(crate) fn rejected_control_audit_fields(
         intent,
         origin,
     )
+}
+
+pub(crate) fn challenge_issued_audit_fields(challenge: &LanPairingChallengeState) -> LogFields {
+    fields_from_pairs(vec![
+        (
+            constants::field::LAN_AUDIT_EVENT_ID,
+            LogFieldValue::String(challenge.challenge_id.clone()),
+        ),
+        (
+            constants::field::LAN_AUDIT_EVENT_TYPE,
+            LogFieldValue::String(constants::value::LAN_AUDIT_PAIRING_CHALLENGE_ISSUED.to_string()),
+        ),
+        (
+            constants::field::LAN_CHALLENGE_ID,
+            LogFieldValue::String(challenge.challenge_id.clone()),
+        ),
+        (
+            constants::field::LAN_CHILD_DEVICE_ID,
+            LogFieldValue::String(challenge.child_device_id.clone()),
+        ),
+        (
+            constants::field::LAN_PARENT_DEVICE_ID,
+            LogFieldValue::String(challenge.parent_device_id.clone()),
+        ),
+        (
+            constants::field::LAN_ROUTE_ID,
+            LogFieldValue::String(challenge.route_id.clone()),
+        ),
+        (
+            constants::field::ORIGIN,
+            LogFieldValue::String(challenge.origin.clone()),
+        ),
+        (
+            constants::field::LAN_PROOF_DIGEST,
+            LogFieldValue::String(challenge.proof_digest.clone()),
+        ),
+        (
+            constants::field::STARTED_AT,
+            LogFieldValue::String(challenge.issued_at.clone()),
+        ),
+        (
+            constants::field::STALE_AT,
+            LogFieldValue::String(challenge.expires_at.clone()),
+        ),
+    ])
 }
 
 fn control_audit_fields(
