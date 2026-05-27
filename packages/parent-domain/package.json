@@ -53,6 +53,10 @@
       "import": "./dist/package-info.js",
       "types": "./dist/package-info.d.ts"
     },
+    "./parent-assistant": {
+      "import": "./dist/parent-assistant.js",
+      "types": "./dist/parent-assistant.d.ts"
+    },
     "./policy": {
       "import": "./dist/policy.js",
       "types": "./dist/policy.d.ts"

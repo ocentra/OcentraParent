@@ -86,6 +86,26 @@ pub enum AgentCommandName {
     AgentActivityRecentSummaryGet,
     #[serde(rename = "agent.activity.memory-graph.get")]
     AgentActivityMemoryGraphGet,
+    #[serde(rename = "agent.activity.report.daily.generate")]
+    AgentActivityReportDailyGenerate,
+    #[serde(rename = "agent.activity.report.weekly.generate")]
+    AgentActivityReportWeeklyGenerate,
+    #[serde(rename = "agent.activity.report.monthly.generate")]
+    AgentActivityReportMonthlyGenerate,
+    #[serde(rename = "agent.activity.report.save")]
+    AgentActivityReportSave,
+    #[serde(rename = "agent.activity.report.history.list")]
+    AgentActivityReportHistoryList,
+    #[serde(rename = "agent.activity.screen.read-model.get")]
+    AgentActivityScreenReadModelGet,
+    #[serde(rename = "agent.activity.app-use.read-model.get")]
+    AgentActivityAppUseReadModelGet,
+    #[serde(rename = "agent.activity.browser.read-model.get")]
+    AgentActivityBrowserReadModelGet,
+    #[serde(rename = "agent.activity.games.read-model.get")]
+    AgentActivityGamesReadModelGet,
+    #[serde(rename = "agent.activity.network.read-model.get")]
+    AgentActivityNetworkReadModelGet,
     #[serde(rename = "agent.browser.evidence.recent.get")]
     AgentBrowserEvidenceRecentGet,
     #[serde(rename = "agent.browser.managed.bridge.poll")]
@@ -98,6 +118,8 @@ pub enum AgentCommandName {
     AgentLocalAiRuntimeStatusGet,
     #[serde(rename = "agent.local-ai.chat.generate")]
     AgentLocalAiChatGenerate,
+    #[serde(rename = "agent.parent-assistant.answer.generate")]
+    AgentParentAssistantAnswerGenerate,
     #[serde(rename = "agent.policy.preview.read-model.get")]
     AgentPolicyPreviewReadModelGet,
     #[serde(rename = "agent.enforcement.execute")]
@@ -148,6 +170,22 @@ pub enum AgentEventName {
     AgentActivityRecentSummaryReported,
     #[serde(rename = "agent.activity.memory-graph.reported")]
     AgentActivityMemoryGraphReported,
+    #[serde(rename = "agent.activity.report.generated")]
+    AgentActivityReportGenerated,
+    #[serde(rename = "agent.activity.report.saved")]
+    AgentActivityReportSaved,
+    #[serde(rename = "agent.activity.report.history.reported")]
+    AgentActivityReportHistoryReported,
+    #[serde(rename = "agent.activity.screen.read-model.reported")]
+    AgentActivityScreenReadModelReported,
+    #[serde(rename = "agent.activity.app-use.read-model.reported")]
+    AgentActivityAppUseReadModelReported,
+    #[serde(rename = "agent.activity.browser.read-model.reported")]
+    AgentActivityBrowserReadModelReported,
+    #[serde(rename = "agent.activity.games.read-model.reported")]
+    AgentActivityGamesReadModelReported,
+    #[serde(rename = "agent.activity.network.read-model.reported")]
+    AgentActivityNetworkReadModelReported,
     #[serde(rename = "agent.browser.evidence.recent.reported")]
     AgentBrowserEvidenceRecentReported,
     #[serde(rename = "agent.browser.managed.status.reported")]
@@ -160,6 +198,8 @@ pub enum AgentEventName {
     AgentLocalAiRuntimeStatusReported,
     #[serde(rename = "agent.local-ai.chat.generation.reported")]
     AgentLocalAiChatGenerationReported,
+    #[serde(rename = "agent.parent-assistant.answer.reported")]
+    AgentParentAssistantAnswerReported,
     #[serde(rename = "agent.policy.preview.read-model.reported")]
     AgentPolicyPreviewReadModelReported,
     #[serde(rename = "agent.enforcement.audit.reported")]

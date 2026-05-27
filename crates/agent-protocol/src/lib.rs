@@ -5,6 +5,7 @@ mod activity_capture;
 mod activity_conversions;
 mod activity_memory_graph;
 mod activity_query;
+mod activity_surface;
 mod app_game;
 mod browser;
 mod browser_intervention;
@@ -24,6 +25,7 @@ mod local_ai_runtime;
 mod local_ai_runtime_boundary;
 mod logging;
 mod network_flow;
+mod parent_assistant;
 mod screen_evidence;
 mod transport;
 
@@ -31,6 +33,7 @@ pub use activity::*;
 pub use activity_capture::*;
 pub use activity_memory_graph::*;
 pub use activity_query::*;
+pub use activity_surface::*;
 pub use app_game::*;
 pub use browser::*;
 pub use browser_intervention::*;
@@ -47,6 +50,7 @@ pub use local_ai_runtime::*;
 pub use local_ai_runtime_boundary::*;
 pub use logging::*;
 pub use network_flow::*;
+pub use parent_assistant::*;
 pub use screen_evidence::*;
 pub use transport::*;
 
@@ -57,6 +61,7 @@ pub const ACTIVITY_SCHEMA_VERSION: u16 = 1;
 pub const ACTIVITY_JOURNAL_SCHEMA_VERSION: u16 = 1;
 pub const ACTIVITY_QUERY_SCHEMA_VERSION: u16 = 1;
 pub const ACTIVITY_MEMORY_GRAPH_SCHEMA_VERSION: u16 = 1;
+pub const ACTIVITY_SURFACE_SCHEMA_VERSION: u16 = 1;
 pub const BROWSER_EVIDENCE_SCHEMA_VERSION: u16 = 1;
 pub const BROWSER_INTERVENTION_SCHEMA_VERSION: u16 = 1;
 pub const NETWORK_FLOW_SCHEMA_VERSION: u16 = 1;
@@ -72,6 +77,8 @@ pub fn crate_name() -> &'static str {
 mod activity_memory_graph_tests;
 #[cfg(test)]
 mod activity_query_tests;
+#[cfg(test)]
+mod activity_surface_tests;
 #[cfg(test)]
 mod activity_tests;
 #[cfg(test)]
@@ -106,6 +113,8 @@ mod local_ai_runtime_tests;
 mod local_provider_adapter_readiness_tests;
 #[cfg(test)]
 mod network_flow_tests;
+#[cfg(test)]
+mod parent_assistant_tests;
 #[cfg(test)]
 mod policy_preview_tests;
 #[cfg(test)]

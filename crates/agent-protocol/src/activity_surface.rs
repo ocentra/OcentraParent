@@ -1,0 +1,244 @@
+use serde::{Deserialize, Serialize};
+
+use crate::ActivityEvidenceRef;
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ActivitySurfaceScopeKind {
+    #[serde(rename = "family")]
+    Family,
+    #[serde(rename = "device")]
+    Device,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ActivityReportFrequency {
+    #[serde(rename = "daily")]
+    Daily,
+    #[serde(rename = "weekly")]
+    Weekly,
+    #[serde(rename = "monthly")]
+    Monthly,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ActivityReportSectionKind {
+    #[serde(rename = "summary")]
+    Summary,
+    #[serde(rename = "screen")]
+    Screen,
+    #[serde(rename = "app-use")]
+    AppUse,
+    #[serde(rename = "browser")]
+    Browser,
+    #[serde(rename = "games")]
+    Games,
+    #[serde(rename = "network")]
+    Network,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ActivityReadModelState {
+    #[serde(rename = "ready")]
+    Ready,
+    #[serde(rename = "empty")]
+    Empty,
+    #[serde(rename = "unavailable")]
+    Unavailable,
+    #[serde(rename = "offline")]
+    Offline,
+    #[serde(rename = "stale")]
+    Stale,
+    #[serde(rename = "permission-required")]
+    PermissionRequired,
+    #[serde(rename = "scaffold-only")]
+    ScaffoldOnly,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ActivitySavedReportState {
+    #[serde(rename = "draft")]
+    Draft,
+    #[serde(rename = "saved")]
+    Saved,
+    #[serde(rename = "storage-unavailable")]
+    StorageUnavailable,
+    #[serde(rename = "scaffold-only")]
+    ScaffoldOnly,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ActivitySurfaceScope {
+    pub scope_kind: ActivitySurfaceScopeKind,
+    pub family_id: Option<String>,
+    pub device_id: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ActivitySurfaceRequest {
+    pub schema_version: u16,
+    pub scope: ActivitySurfaceScope,
+    pub requested_at: String,
+    pub range_start: String,
+    pub range_end: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ActivityReportRequest {
+    pub schema_version: u16,
+    pub frequency: ActivityReportFrequency,
+    pub scope: ActivitySurfaceScope,
+    pub requested_at: String,
+    pub range_start: String,
+    pub range_end: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ActivityReportSourceState {
+    pub device_id: String,
+    pub state: ActivityReadModelState,
+    pub reason: Option<String>,
+    pub last_updated_at: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ActivityReportSection {
+    pub section_kind: ActivityReportSectionKind,
+    pub title: String,
+    pub state: ActivityReadModelState,
+    pub summary: String,
+    pub item_count: u64,
+    pub evidence: Vec<ActivityEvidenceRef>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ActivitySavedReportMetadata {
+    pub report_id: String,
+    pub file_name: String,
+    pub saved_state: ActivitySavedReportState,
+    pub saved_at: Option<String>,
+    pub storage_reason: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ActivityReportDocument {
+    pub schema_version: u16,
+    pub report_id: String,
+    pub frequency: ActivityReportFrequency,
+    pub scope: ActivitySurfaceScope,
+    pub requested_at: String,
+    pub range_start: String,
+    pub range_end: String,
+    pub generated_at: String,
+    pub saved_metadata: Option<ActivitySavedReportMetadata>,
+    pub source_states: Vec<ActivityReportSourceState>,
+    pub sections: Vec<ActivityReportSection>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ActivityHistoricalReportListItem {
+    pub schema_version: u16,
+    pub report_id: String,
+    pub file_name: String,
+    pub report_date: String,
+    pub range_start: String,
+    pub range_end: String,
+    pub summary: String,
+    pub saved_state: ActivitySavedReportState,
+    pub saved_at: Option<String>,
+    pub parsed_report: ActivityReportDocument,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ActivityHistoricalReportList {
+    pub schema_version: u16,
+    pub request: ActivitySurfaceRequest,
+    pub state: ActivityReadModelState,
+    pub reports: Vec<ActivityHistoricalReportListItem>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ActivityTabReadModel<Row> {
+    pub schema_version: u16,
+    pub request: ActivitySurfaceRequest,
+    pub state: ActivityReadModelState,
+    pub generated_at: String,
+    pub summary: String,
+    pub rows: Vec<Row>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ActivityScreenReadModelRow {
+    pub row_id: String,
+    pub label: String,
+    pub device_id: String,
+    pub state: ActivityReadModelState,
+    pub total_ms: u64,
+    pub foreground_ms: u64,
+    pub background_ms: u64,
+    pub evidence: Vec<ActivityEvidenceRef>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ActivityAppUseReadModelRow {
+    pub row_id: String,
+    pub app_name: String,
+    pub device_id: String,
+    pub state: ActivityReadModelState,
+    pub total_ms: u64,
+    pub launch_count: u64,
+    pub evidence: Vec<ActivityEvidenceRef>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ActivityBrowserReadModelRow {
+    pub row_id: String,
+    pub domain_label: String,
+    pub device_id: String,
+    pub state: ActivityReadModelState,
+    pub visit_count: u64,
+    pub total_ms: u64,
+    pub evidence_digest: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ActivityGamesReadModelRow {
+    pub row_id: String,
+    pub display_name: String,
+    pub device_id: String,
+    pub state: ActivityReadModelState,
+    pub total_ms: u64,
+    pub session_count: u64,
+    pub evidence: Vec<ActivityEvidenceRef>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ActivityNetworkReadModelRow {
+    pub row_id: String,
+    pub destination_label: String,
+    pub device_id: String,
+    pub state: ActivityReadModelState,
+    pub connection_count: u64,
+    pub total_bytes: u64,
+    pub evidence_digest: Option<String>,
+}
+
+pub type ActivityScreenReadModel = ActivityTabReadModel<ActivityScreenReadModelRow>;
+pub type ActivityAppUseReadModel = ActivityTabReadModel<ActivityAppUseReadModelRow>;
+pub type ActivityBrowserReadModel = ActivityTabReadModel<ActivityBrowserReadModelRow>;
+pub type ActivityGamesReadModel = ActivityTabReadModel<ActivityGamesReadModelRow>;
+pub type ActivityNetworkReadModel = ActivityTabReadModel<ActivityNetworkReadModelRow>;

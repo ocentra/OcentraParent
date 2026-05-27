@@ -1,0 +1,81 @@
+use ocentra_parent_agent_protocol::{ActivityReportFrequency, AgentCommandEnvelope};
+
+use crate::{
+    activity_surface_read_models::{
+        app_use_read_model, browser_read_model, games_read_model, network_read_model,
+        screen_read_model,
+    },
+    activity_surface_report::{history_list, report_document, saved_report_document},
+    activity_surface_request::report_request_from_command,
+    activity_surface_store::{
+        load_app_game_report, load_browser_model, load_network_model, load_recent_summary,
+        load_screen_summary, local_store_snapshot,
+    },
+};
+
+pub(crate) async fn build_activity_report_document(
+    command: &AgentCommandEnvelope,
+    frequency: ActivityReportFrequency,
+) -> ocentra_parent_agent_protocol::ActivityReportDocument {
+    let request = report_request_from_command(command, frequency);
+    report_document(request, local_store_snapshot().await)
+}
+
+pub(crate) async fn build_saved_activity_report(
+    command: &AgentCommandEnvelope,
+) -> ocentra_parent_agent_protocol::ActivityReportDocument {
+    saved_report_document(
+        build_activity_report_document(command, ActivityReportFrequency::Daily).await,
+    )
+}
+
+pub(crate) async fn build_activity_history(
+    command: &AgentCommandEnvelope,
+) -> ocentra_parent_agent_protocol::ActivityHistoricalReportList {
+    history_list(crate::activity_surface_request::surface_request_from_command(command))
+}
+
+pub(crate) async fn build_screen_read_model(
+    command: &AgentCommandEnvelope,
+) -> ocentra_parent_agent_protocol::ActivityScreenReadModel {
+    screen_read_model(
+        crate::activity_surface_request::surface_request_from_command(command),
+        load_screen_summary().await,
+    )
+}
+
+pub(crate) async fn build_app_use_read_model(
+    command: &AgentCommandEnvelope,
+) -> ocentra_parent_agent_protocol::ActivityAppUseReadModel {
+    app_use_read_model(
+        crate::activity_surface_request::surface_request_from_command(command),
+        load_recent_summary().await,
+    )
+}
+
+pub(crate) async fn build_browser_read_model(
+    command: &AgentCommandEnvelope,
+) -> ocentra_parent_agent_protocol::ActivityBrowserReadModel {
+    browser_read_model(
+        crate::activity_surface_request::surface_request_from_command(command),
+        load_browser_model().await,
+    )
+}
+
+pub(crate) async fn build_games_read_model(
+    command: &AgentCommandEnvelope,
+) -> ocentra_parent_agent_protocol::ActivityGamesReadModel {
+    games_read_model(
+        crate::activity_surface_request::surface_request_from_command(command),
+        load_app_game_report().await,
+    )
+}
+
+pub(crate) async fn build_network_read_model(
+    command: &AgentCommandEnvelope,
+) -> ocentra_parent_agent_protocol::ActivityNetworkReadModel {
+    network_read_model(
+        crate::activity_surface_request::surface_request_from_command(command),
+        load_network_model().await,
+    )
+}

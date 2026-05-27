@@ -72,11 +72,20 @@ pub mod event_id {
     pub const ACTIVITY_INGEST_STATUS_REPORTED: &str = "activity-ingest-status-reported";
     pub const ACTIVITY_RECENT_SUMMARY_REPORTED: &str = "activity-recent-summary-reported";
     pub const ACTIVITY_MEMORY_GRAPH_REPORTED: &str = "activity-memory-graph-reported";
+    pub const ACTIVITY_REPORT_GENERATED: &str = "activity-report-generated";
+    pub const ACTIVITY_REPORT_SAVED: &str = "activity-report-saved";
+    pub const ACTIVITY_REPORT_HISTORY_REPORTED: &str = "activity-report-history-reported";
+    pub const ACTIVITY_SCREEN_READ_MODEL_REPORTED: &str = "activity-screen-read-model-reported";
+    pub const ACTIVITY_APP_USE_READ_MODEL_REPORTED: &str = "activity-app-use-read-model-reported";
+    pub const ACTIVITY_BROWSER_READ_MODEL_REPORTED: &str = "activity-browser-read-model-reported";
+    pub const ACTIVITY_GAMES_READ_MODEL_REPORTED: &str = "activity-games-read-model-reported";
+    pub const ACTIVITY_NETWORK_READ_MODEL_REPORTED: &str = "activity-network-read-model-reported";
     pub const BROWSER_EVIDENCE_RECENT_REPORTED: &str = "browser-evidence-recent-reported";
     pub const BROWSER_MANAGED_STATUS_REPORTED: &str = "browser-managed-status-reported";
     pub const NETWORK_FLOW_READ_MODEL_REPORTED: &str = "network-flow-read-model-reported";
     pub const LOCAL_AI_RUNTIME_STATUS_REPORTED: &str = "local-ai-runtime-status-reported";
     pub const LOCAL_AI_CHAT_GENERATION_REPORTED: &str = "local-ai-chat-generation-reported";
+    pub const PARENT_ASSISTANT_ANSWER_REPORTED: &str = "parent-assistant-answer-reported";
     pub const POLICY_PREVIEW_READ_MODEL_REPORTED: &str = "policy-preview-read-model-reported";
     pub const ENFORCEMENT_AUDIT_REPORTED: &str = "enforcement-audit-reported";
     pub const ENFORCEMENT_TIMER_REPORTED: &str = "enforcement-timer-reported";
@@ -125,6 +134,8 @@ pub mod activity_observer;
 pub mod activity_store;
 #[path = "constants/activity_subject_kind.rs"]
 pub mod activity_subject_kind;
+#[path = "constants/activity_surface.rs"]
+pub mod activity_surface;
 #[path = "constants/browser.rs"]
 pub mod browser;
 #[path = "constants/enforcement.rs"]
@@ -170,6 +181,8 @@ pub mod error {
 
 #[path = "constants/local_ai_runtime.rs"]
 pub mod local_ai_runtime;
+#[path = "constants/parent_assistant.rs"]
+pub mod parent_assistant;
 
 pub mod delimiter {
     pub const CLOSE_BRACKET: char = ']';

@@ -10,6 +10,13 @@ use crate::{
         build_activity_recent_summary_report, build_browser_evidence_recent_report,
         build_browser_intervention_read_model_report, build_network_flow_read_model_report,
     },
+    activity_surface_api::{
+        build_activity_app_use_read_model, build_activity_browser_read_model,
+        build_activity_daily_report, build_activity_games_read_model,
+        build_activity_monthly_report, build_activity_network_read_model,
+        build_activity_report_history, build_activity_report_save,
+        build_activity_screen_read_model, build_activity_weekly_report,
+    },
     browser_runtime::build_browser_managed_status_report,
     enforcement_api::build_enforcement_audit_report,
     enforcement_timer_api::build_enforcement_timer_report,
@@ -20,6 +27,7 @@ use crate::{
     },
     local_ai_chat_generation::build_local_ai_chat_generation_report,
     local_ai_runtime_status::build_local_ai_runtime_status_report,
+    parent_assistant_runtime::build_parent_assistant_answer_report,
     policy_preview_api::build_policy_preview_read_model_report,
     snapshot::build_dev_log_snapshot,
 };
@@ -116,40 +124,49 @@ async fn handle_command(
             LanCommandDecision::Respond(event) => return event,
         };
 
-    let mut event = match command.command {
+    let mut event = build_command_event(command, lan_pairing).await;
+
+    if let Some(audit_fields) = audit_fields {
+        event.payload.extend(audit_fields);
+    }
+    event
+}
+
+async fn build_command_event(
+    command: AgentCommandEnvelope,
+    lan_pairing: LanPairingRuntime,
+) -> AgentEventEnvelope {
+    match command.command.clone() {
         AgentCommandName::AgentHealthCheck => build_health_report(command),
         AgentCommandName::AgentLogSnapshotGet => build_log_snapshot_report(command),
         AgentCommandName::AgentDevEcho => build_dev_echo_report(command),
         AgentCommandName::AgentWatchStatusGet => build_watcher_status_report(command),
-        AgentCommandName::AgentActivityIngestStatusGet => {
-            build_activity_ingest_status_report(command).await
+        AgentCommandName::AgentActivityIngestStatusGet
+        | AgentCommandName::AgentActivityRecentSummaryGet
+        | AgentCommandName::AgentActivityMemoryGraphGet
+        | AgentCommandName::AgentActivityReportDailyGenerate
+        | AgentCommandName::AgentActivityReportWeeklyGenerate
+        | AgentCommandName::AgentActivityReportMonthlyGenerate
+        | AgentCommandName::AgentActivityReportSave
+        | AgentCommandName::AgentActivityReportHistoryList
+        | AgentCommandName::AgentActivityScreenReadModelGet
+        | AgentCommandName::AgentActivityAppUseReadModelGet
+        | AgentCommandName::AgentActivityBrowserReadModelGet
+        | AgentCommandName::AgentActivityGamesReadModelGet
+        | AgentCommandName::AgentActivityNetworkReadModelGet => {
+            build_activity_command_report(command).await
         }
-        AgentCommandName::AgentActivityRecentSummaryGet => {
-            build_activity_recent_summary_report(command).await
+        AgentCommandName::AgentBrowserEvidenceRecentGet
+        | AgentCommandName::AgentBrowserManagedBridgePoll
+        | AgentCommandName::AgentBrowserInterventionReadModelGet
+        | AgentCommandName::AgentNetworkFlowReadModelGet => {
+            build_browser_network_command_report(command).await
         }
-        AgentCommandName::AgentActivityMemoryGraphGet => {
-            build_activity_memory_graph_report(command).await
-        }
-        AgentCommandName::AgentBrowserEvidenceRecentGet => {
-            build_browser_evidence_recent_report(command).await
-        }
-        AgentCommandName::AgentBrowserManagedBridgePoll => {
-            build_browser_managed_status_report(command).await
-        }
-        AgentCommandName::AgentBrowserInterventionReadModelGet => {
-            build_browser_intervention_read_model_report(command).await
-        }
-        AgentCommandName::AgentNetworkFlowReadModelGet => {
-            build_network_flow_read_model_report(command).await
-        }
-        AgentCommandName::AgentLocalAiRuntimeStatusGet => {
-            build_local_ai_runtime_status_report(command).await
-        }
-        AgentCommandName::AgentLocalAiChatGenerate => {
-            build_local_ai_chat_generation_report(command).await
-        }
-        AgentCommandName::AgentPolicyPreviewReadModelGet => {
-            build_policy_preview_read_model_report(command).await
+        AgentCommandName::AgentLocalAiRuntimeStatusGet
+        | AgentCommandName::AgentLocalAiChatGenerate
+        | AgentCommandName::AgentParentAssistantAnswerGenerate
+        | AgentCommandName::AgentPolicyPreviewReadModelGet => {
+            build_ai_command_report(command).await
         }
         AgentCommandName::AgentEnforcementExecute => build_enforcement_audit_report(command).await,
         AgentCommandName::AgentEnforcementTimerRecover
@@ -168,12 +185,86 @@ async fn handle_command(
         | AgentCommandName::AgentLanAiJobSubmit => {
             build_lan_pairing_status_report(lan_pairing, command)
         }
-    };
-
-    if let Some(audit_fields) = audit_fields {
-        event.payload.extend(audit_fields);
     }
-    event
+}
+
+async fn build_activity_command_report(command: AgentCommandEnvelope) -> AgentEventEnvelope {
+    match command.command.clone() {
+        AgentCommandName::AgentActivityIngestStatusGet => {
+            build_activity_ingest_status_report(command).await
+        }
+        AgentCommandName::AgentActivityRecentSummaryGet => {
+            build_activity_recent_summary_report(command).await
+        }
+        AgentCommandName::AgentActivityMemoryGraphGet => {
+            build_activity_memory_graph_report(command).await
+        }
+        AgentCommandName::AgentActivityReportDailyGenerate => {
+            build_activity_daily_report(command).await
+        }
+        AgentCommandName::AgentActivityReportWeeklyGenerate => {
+            build_activity_weekly_report(command).await
+        }
+        AgentCommandName::AgentActivityReportMonthlyGenerate => {
+            build_activity_monthly_report(command).await
+        }
+        AgentCommandName::AgentActivityReportSave => build_activity_report_save(command).await,
+        AgentCommandName::AgentActivityReportHistoryList => {
+            build_activity_report_history(command).await
+        }
+        AgentCommandName::AgentActivityScreenReadModelGet => {
+            build_activity_screen_read_model(command).await
+        }
+        AgentCommandName::AgentActivityAppUseReadModelGet => {
+            build_activity_app_use_read_model(command).await
+        }
+        AgentCommandName::AgentActivityBrowserReadModelGet => {
+            build_activity_browser_read_model(command).await
+        }
+        AgentCommandName::AgentActivityGamesReadModelGet => {
+            build_activity_games_read_model(command).await
+        }
+        AgentCommandName::AgentActivityNetworkReadModelGet => {
+            build_activity_network_read_model(command).await
+        }
+        _ => build_log_snapshot_report(command),
+    }
+}
+
+async fn build_browser_network_command_report(command: AgentCommandEnvelope) -> AgentEventEnvelope {
+    match command.command.clone() {
+        AgentCommandName::AgentBrowserEvidenceRecentGet => {
+            build_browser_evidence_recent_report(command).await
+        }
+        AgentCommandName::AgentBrowserManagedBridgePoll => {
+            build_browser_managed_status_report(command).await
+        }
+        AgentCommandName::AgentBrowserInterventionReadModelGet => {
+            build_browser_intervention_read_model_report(command).await
+        }
+        AgentCommandName::AgentNetworkFlowReadModelGet => {
+            build_network_flow_read_model_report(command).await
+        }
+        _ => build_log_snapshot_report(command),
+    }
+}
+
+async fn build_ai_command_report(command: AgentCommandEnvelope) -> AgentEventEnvelope {
+    match command.command.clone() {
+        AgentCommandName::AgentLocalAiRuntimeStatusGet => {
+            build_local_ai_runtime_status_report(command).await
+        }
+        AgentCommandName::AgentLocalAiChatGenerate => {
+            build_local_ai_chat_generation_report(command).await
+        }
+        AgentCommandName::AgentParentAssistantAnswerGenerate => {
+            build_parent_assistant_answer_report(command).await
+        }
+        AgentCommandName::AgentPolicyPreviewReadModelGet => {
+            build_policy_preview_read_model_report(command).await
+        }
+        _ => build_log_snapshot_report(command),
+    }
 }
 
 fn build_dev_echo_report(command: AgentCommandEnvelope) -> AgentEventEnvelope {
