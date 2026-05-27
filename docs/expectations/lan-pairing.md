@@ -26,7 +26,7 @@ Loopback remains the default. LAN mode is explicit and must require both network
 
 ## Contract Boundary
 
-Pairing contracts belong in shared domain packages before runtime code consumes them. Expected contract families include device discovery, pairing challenge/proof, trusted-device registry entry, route target, parent intent envelope, child-agent response, rejection reason, and audit event. Rust protocol shapes must mirror the TypeScript contracts before the Rust service accepts or emits the payloads.
+Pairing contracts belong in shared domain packages before runtime code consumes them. Expected contract families include device discovery, explicit production discovery state, pairing challenge/proof, trusted-device registry entry, selected route recovery state, route target, parent intent envelope, child-agent response, rejection reason, LAN AI provider routing state, custody label, and audit event. Rust protocol shapes must mirror the TypeScript contracts before the Rust service accepts or emits the payloads.
 
 ## Failure Behavior
 
@@ -35,6 +35,9 @@ Pairing contracts belong in shared domain packages before runtime code consumes 
 - If LAN discovery fails, direct local address entry may be allowed only through the same pairing and origin checks.
 - If a paired device is unavailable, the portal shows offline or stale status instead of silently falling back to another child device.
 - Pairing revocation takes effect before any new rule, query, or approval intent is accepted.
+- If proof is local-only, the evidence must label real household two-device LAN
+  discovery as `manual-required` instead of treating local sibling services as
+  physical-device proof.
 
 ## Expected Deliverables
 
@@ -68,6 +71,11 @@ Pairing contracts belong in shared domain packages before runtime code consumes 
 - Local service integration tests for anonymous rejection, successful pairing, wrong-origin rejection, wrong-device rejection, revocation, and service restart behavior.
 - Portal Playwright coverage for discovery or direct-address entry, selected-device display, accepted route, rejected route, and offline/stale state.
 - Security/static-analysis gates because LAN exposure and device identity are security-sensitive.
+- Local multi-service proof through
+  `node scripts/test/v0-9-production-lan-multidevice-hardening.mjs`.
+- Manual two-device proof artifacts for router/firewall reachability, distinct
+  parent/child hosts, service logs, and generated proof JSON before production
+  household LAN readiness is claimed.
 
 ## Non-Goals
 

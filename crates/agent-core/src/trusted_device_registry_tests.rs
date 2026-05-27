@@ -1,4 +1,5 @@
 use std::fs::remove_file;
+use std::sync::atomic::{AtomicU64, Ordering};
 
 use ocentra_parent_agent_protocol::{
     constants, policy_constants, LanPairingAuthenticationState, LanPairingDeviceReachability,
@@ -7,6 +8,8 @@ use ocentra_parent_agent_protocol::{
 };
 
 use crate::TrustedDeviceRegistry;
+
+static TEMP_REGISTRY_COUNTER: AtomicU64 = AtomicU64::new(0);
 
 #[test]
 fn trusted_device_registry_accepts_pairing_and_validates_intent() {
@@ -351,6 +354,48 @@ fn trusted_device_registry_can_survive_restart_or_fail_closed_when_missing() {
     assert_eq!(missing.entries().len(), 0);
 }
 
+#[test]
+fn trusted_device_registry_persists_selected_route_for_restart_recovery() {
+    let path = temp_registry_path();
+    let _ = remove_file(&path);
+    let registry = selected_registry(constants::lan_pairing::EXPIRES_AT);
+    registry
+        .save_json(&path)
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+
+    let mut loaded = TrustedDeviceRegistry::load_json(&path);
+    let _ = remove_file(&path);
+    let selected = loaded
+        .selected_target_at(constants::lan_pairing::OBSERVED_AT)
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+
+    assert_eq!(
+        loaded.authentication_state(),
+        LanPairingAuthenticationState::Paired
+    );
+    assert_eq!(
+        selected.selected_child_device_id,
+        constants::lan_pairing::CHILD_DEVICE_ID
+    );
+    assert_eq!(
+        selected.route_id,
+        constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK
+    );
+    assert_eq!(
+        loaded.validate_intent(
+            &intent(
+                constants::lan_pairing::INTENT_ID,
+                constants::lan_pairing::CHILD_DEVICE_ID,
+                constants::lan_pairing::PROOF_DIGEST,
+                constants::lan_pairing::EXPIRES_AT,
+            ),
+            Some(constants::lan_pairing::ALLOWED_ORIGIN),
+            constants::lan_pairing::OBSERVED_AT,
+        ),
+        Ok(())
+    );
+}
+
 fn proof(expires_at: &str) -> LanPairingProof {
     proof_for(
         constants::lan_pairing::PAIRING_ID,
@@ -496,6 +541,11 @@ fn parent_device() -> LanPairingDeviceRef {
 fn temp_registry_path() -> std::path::PathBuf {
     let mut name = String::from(constants::lan_pairing::REGISTRY_FILE_PREFIX);
     name.push_str(&std::process::id().to_string());
+    name.push_str(
+        &TEMP_REGISTRY_COUNTER
+            .fetch_add(1, Ordering::Relaxed)
+            .to_string(),
+    );
     let mut path = std::env::temp_dir();
     path.push(name);
     path.set_extension(constants::lan_pairing::REGISTRY_FILE_EXTENSION);

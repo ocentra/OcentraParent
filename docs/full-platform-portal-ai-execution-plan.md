@@ -828,8 +828,12 @@ This audit supersedes the older immediate-state notes above. `main` is at
       rollback, restart recovery, audit proof, and manual Windows proof still
       need hardening.
 - [ ] V0.9 is not product-complete. Multi-device portal selector, real
-      two-device pairing/control proof, LAN provider routing, hardened
-      storage/security behavior, and optional cloud relay decisions remain.
+      two-device pairing/control proof, production household discovery,
+      hardened storage/security behavior, mobile controller UX, and optional
+      cloud relay decisions remain. Local multi-service proof now covers
+      explicit discovery states, selected-route restart recovery, and LAN AI
+      provider authorized/unsupported/busy/unavailable routing states, but that
+      is not a physical household LAN claim.
 - [x] Roadmap/current-position docs have been reconciled after PR #108/#109 so
       V0.8/V0.9 status stays honest and new platform/LAN AI provider work is
       visible.
@@ -937,6 +941,12 @@ files unless primary explicitly reassigns those paths after C lands.
       and takeover, stale/offline selected devices, trusted registry
       persistence, provider selection states, and wrong-origin/wrong-device
       rejection.
+- [x] V0.9: local multi-service hardening proof covers explicit
+      discovered/pending/paired/revoked/stale/offline/unavailable state labels,
+      selected-route recovery after restart, controller lease conflict/takeover
+      checks, and LAN AI provider authorized/unsupported/busy/unavailable
+      routing states. Physical two-device household proof remains
+      manual-required.
 - [ ] Package/runtime proof: keep parent desktop service lifecycle and Android
       or iOS states honest as implemented/scaffold/manual-required/unavailable.
       Do not claim mobile parity, device-owner, Family Controls, signing, or

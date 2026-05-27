@@ -14,6 +14,7 @@ use crate::{
 };
 
 mod device_roles;
+mod provider_routing;
 use device_roles::{
     default_device_role_read_model, device_role_read_model_from_env,
     lan_ai_provider_capabilities_from_env, non_empty_env,
@@ -180,6 +181,11 @@ impl LanPairingRuntime {
         match &self.persistence {
             LanPairingRegistryPersistence::InMemory => {
                 constants::value::LAN_RESTART_FAIL_CLOSED_UNPAIRED
+            }
+            LanPairingRegistryPersistence::LocalJsonRegistry(_)
+                if self.selected_target().is_some() =>
+            {
+                constants::value::LAN_RESTART_RESTORE_TRUSTED_REGISTRY_SELECTED_ROUTE
             }
             LanPairingRegistryPersistence::LocalJsonRegistry(_) => {
                 constants::value::LAN_RESTART_RESTORE_TRUSTED_REGISTRY_UNSELECTED

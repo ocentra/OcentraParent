@@ -56,6 +56,28 @@ const sensitiveLanPrivacyMarkers = [
   'sqlitePath',
   'controlAuthority',
 ] as const;
+const unsupportedLanHttpEndpoints = [
+  { endpointId: 'lan-pairing.discovery', path: '/api/lan-pairing/discovery', support: 'planned-unsupported' },
+  { endpointId: 'lan-pairing.challenge', path: '/api/lan-pairing/challenge', support: 'planned-unsupported' },
+  { endpointId: 'lan-pairing.proof', path: '/api/lan-pairing/proof', support: 'planned-unsupported' },
+  { endpointId: 'lan-pairing.control', path: '/api/lan-pairing/control', support: 'planned-unsupported' },
+  { endpointId: 'lan-pairing.registry', path: '/api/lan-pairing/registry', support: 'planned-unsupported' },
+] as const;
+const lanRouteRequirements = [
+  'paired-device',
+  'allowed-origin',
+  'target-device-match',
+  'route-id-match',
+  'unexpired-intent',
+  'non-replayed-intent',
+  'unrevoked-pairing',
+  'active-controller-lease',
+  'selected-device-reachable',
+  'parent-write-authority',
+  'lan-ai-job-authorized',
+  'discovery-state-explicit',
+  'route-recovery-persisted',
+] as const;
 
 describe('LAN pairing contracts', () => {
   registerReadinessContractTests();
@@ -87,11 +109,13 @@ function registerReadinessContractTests(): void {
       reachability: 'online',
       addressRef: 'lan-address-ref-1',
       discoveryStatus: 'websocket-direct',
+      discoveryState: 'discovered',
     });
 
     expect(enablement.state).toBe('lan-enabled');
     expect(discovery.reachability).toBe('online');
     expect(discovery.discoveryStatus).toBe('websocket-direct');
+    expect(discovery.discoveryState).toBe('discovered');
     expect(Object.keys(discovery).sort()).toEqual(
       [
         'addressRef',
@@ -100,6 +124,7 @@ function registerReadinessContractTests(): void {
         'childProfile',
         'discoveredAt',
         'discoveryStatus',
+        'discoveryState',
         'networkMode',
         'reachability',
         'routeId',
@@ -506,56 +531,21 @@ function registerRuntimeSupportSurfaceTests(): void {
       schemaVersion: 'v0.9',
       transport: 'websocket',
       supportedWebSocketCommands: ['agent.lan-pairing.proof.submit', 'agent.lan-pairing.status.get'],
-      unsupportedHttpEndpoints: [
-        {
-          endpointId: 'lan-pairing.discovery',
-          path: '/api/lan-pairing/discovery',
-          support: 'planned-unsupported',
-        },
-        {
-          endpointId: 'lan-pairing.challenge',
-          path: '/api/lan-pairing/challenge',
-          support: 'planned-unsupported',
-        },
-        {
-          endpointId: 'lan-pairing.proof',
-          path: '/api/lan-pairing/proof',
-          support: 'planned-unsupported',
-        },
-        {
-          endpointId: 'lan-pairing.control',
-          path: '/api/lan-pairing/control',
-          support: 'planned-unsupported',
-        },
-        {
-          endpointId: 'lan-pairing.registry',
-          path: '/api/lan-pairing/registry',
-          support: 'planned-unsupported',
-        },
-      ],
+      unsupportedHttpEndpoints: unsupportedLanHttpEndpoints,
       pairingState: 'unpaired',
       trustedDeviceCount: 0,
       discoveryStatus: 'websocket-direct',
+      discoveryState: 'discovered',
       challengeStatus: 'websocket-direct',
       proofPreviewStatus: 'websocket-direct',
       lanAiProviderStatus: 'websocket-direct',
+      lanAiProviderRoutingState: 'unavailable',
+      lanAiProviderCustodyLabel: 'local-network-ai-provider',
       lanAiJobStatus: 'websocket-direct',
       persistenceMode: 'in-memory-fail-closed',
       restartBehavior: 'fail-closed-unpaired',
       proofMode: 'direct-proof-submit',
-      routeRequirements: [
-        'paired-device',
-        'allowed-origin',
-        'target-device-match',
-        'route-id-match',
-        'unexpired-intent',
-        'non-replayed-intent',
-        'unrevoked-pairing',
-        'active-controller-lease',
-        'selected-device-reachable',
-        'parent-write-authority',
-        'lan-ai-job-authorized',
-      ],
+      routeRequirements: lanRouteRequirements,
       manualProofGaps: ['manual-lan-bind-proof', 'manual-firewall-proof', 'manual-physical-device-proof'],
     });
 
@@ -573,6 +563,7 @@ function registerRuntimeSupportSurfaceTests(): void {
     expect(support.persistenceMode).toBe('in-memory-fail-closed');
     expect(support.restartBehavior).toBe('fail-closed-unpaired');
     expect(support.discoveryStatus).toBe('websocket-direct');
+    expect(support.discoveryState).toBe('discovered');
     expect(support.challengeStatus).toBe('websocket-direct');
     expect(support.proofPreviewStatus).toBe('websocket-direct');
     expectNoSensitiveLanPrivacyMarkers(support);
@@ -589,19 +580,22 @@ function registerPersistentRuntimeSupportSurfaceTests(): void {
       pairingState: 'paired',
       trustedDeviceCount: 1,
       discoveryStatus: 'websocket-direct',
+      discoveryState: 'paired',
       challengeStatus: 'websocket-direct',
       proofPreviewStatus: 'websocket-direct',
       lanAiProviderStatus: 'websocket-direct',
+      lanAiProviderRoutingState: 'authorized-result',
+      lanAiProviderCustodyLabel: 'local-network-ai-provider',
       lanAiJobStatus: 'websocket-direct',
       persistenceMode: 'local-json-registry',
-      restartBehavior: 'restore-trusted-registry-unselected',
+      restartBehavior: 'restore-trusted-registry-selected-route',
       proofMode: 'direct-proof-submit',
-      routeRequirements: ['paired-device', 'allowed-origin', 'selected-device-reachable'],
+      routeRequirements: ['paired-device', 'allowed-origin', 'selected-device-reachable', 'route-recovery-persisted'],
       manualProofGaps: ['manual-lan-bind-proof'],
     });
 
     expect(support.persistenceMode).toBe('local-json-registry');
-    expect(support.restartBehavior).toBe('restore-trusted-registry-unselected');
+    expect(support.restartBehavior).toBe('restore-trusted-registry-selected-route');
     expect(support.trustedDeviceCount).toBe(1);
     expectNoSensitiveLanPrivacyMarkers(support);
   });

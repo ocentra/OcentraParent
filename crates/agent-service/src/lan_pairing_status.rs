@@ -159,7 +159,8 @@ fn active_challenge_count(runtime: &LanPairingRuntime) -> usize {
 }
 
 fn support_surface_pairs(runtime: &LanPairingRuntime) -> Vec<(&'static str, LogFieldValue)> {
-    vec![
+    let status = pairing_status(runtime);
+    let mut pairs = vec![
         (
             constants::field::TRANSPORT,
             LogFieldValue::String(constants::value::TRANSPORT_WEBSOCKET.to_string()),
@@ -183,15 +184,15 @@ fn support_surface_pairs(runtime: &LanPairingRuntime) -> Vec<(&'static str, LogF
             LogFieldValue::String(constants::lan_pairing::SUPPORT_WEBSOCKET_DIRECT.to_string()),
         ),
         (
+            constants::field::LAN_DISCOVERY_STATE,
+            LogFieldValue::String(discovery_state(&status).to_string()),
+        ),
+        (
             constants::field::LAN_CHALLENGE_STATUS,
             LogFieldValue::String(constants::lan_pairing::SUPPORT_WEBSOCKET_DIRECT.to_string()),
         ),
         (
             constants::field::LAN_PROOF_PREVIEW_STATUS,
-            LogFieldValue::String(constants::lan_pairing::SUPPORT_WEBSOCKET_DIRECT.to_string()),
-        ),
-        (
-            constants::field::LAN_AI_PROVIDER_STATUS,
             LogFieldValue::String(constants::lan_pairing::SUPPORT_WEBSOCKET_DIRECT.to_string()),
         ),
         (
@@ -224,7 +225,48 @@ fn support_surface_pairs(runtime: &LanPairingRuntime) -> Vec<(&'static str, LogF
                     .join(&constants::delimiter::LIST.to_string()),
             ),
         ),
+    ];
+    pairs.extend(lan_ai_provider_support_pairs());
+    pairs
+}
+
+fn lan_ai_provider_support_pairs() -> Vec<(&'static str, LogFieldValue)> {
+    vec![
+        (
+            constants::field::LAN_AI_PROVIDER_STATUS,
+            LogFieldValue::String(constants::lan_pairing::SUPPORT_WEBSOCKET_DIRECT.to_string()),
+        ),
+        (
+            constants::field::LAN_AI_PROVIDER_ROUTING_STATE,
+            LogFieldValue::String(
+                constants::value::LAN_AI_PROVIDER_ROUTING_UNAVAILABLE.to_string(),
+            ),
+        ),
+        (
+            constants::field::LAN_AI_PROVIDER_CUSTODY_LABEL,
+            LogFieldValue::String(
+                constants::value::LAN_PROVIDER_CUSTODY_LOCAL_NETWORK_AI_PROVIDER.to_string(),
+            ),
+        ),
     ]
+}
+
+fn discovery_state(status: &LanPairingStatus) -> &'static str {
+    match status
+        .selected_target
+        .as_ref()
+        .map(|target| &target.reachability)
+    {
+        Some(LanPairingDeviceReachability::Offline) => {
+            constants::value::LAN_DISCOVERY_STATE_OFFLINE
+        }
+        Some(LanPairingDeviceReachability::Stale) => constants::value::LAN_DISCOVERY_STATE_STALE,
+        Some(LanPairingDeviceReachability::Online) => constants::value::LAN_DISCOVERY_STATE_PAIRED,
+        None if status.trusted_device_count > 0 => constants::value::LAN_DISCOVERY_STATE_PAIRED,
+        None if status.active_challenge_count > 0 => constants::value::LAN_DISCOVERY_STATE_PENDING,
+        None if status.has_revoked_pairing => constants::value::LAN_DISCOVERY_STATE_REVOKED,
+        None => constants::value::LAN_DISCOVERY_STATE_DISCOVERED,
+    }
 }
 
 fn state_pairs(status: &LanPairingStatus) -> Vec<(&'static str, LogFieldValue)> {

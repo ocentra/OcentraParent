@@ -27,6 +27,9 @@ export const LanPairingTrustStateSchema = withParser(
   Schema.Literal('unpaired', 'pairing', 'paired', 'revoked', 'expired')
 );
 export const LanPairingDeviceReachabilitySchema = withParser(Schema.Literal('online', 'offline', 'stale'));
+export const LanPairingProductionDiscoveryStateSchema = withParser(
+  Schema.Literal('discovered', 'pending', 'paired', 'revoked', 'stale', 'offline', 'unavailable')
+);
 export const LanPairingIntentKindSchema = withParser(
   Schema.Literal(
     'health-query',
@@ -43,6 +46,9 @@ export const LanPairingIntentKindSchema = withParser(
 );
 export const LanPairingResponseStateSchema = withParser(
   Schema.Literal('accepted', 'rejected', 'queued', 'completed', 'degraded')
+);
+export const LanAiProviderRoutingStateSchema = withParser(
+  Schema.Literal('authorized-result', 'busy', 'degraded', 'unavailable', 'unsupported-capability')
 );
 export const LanPairingRejectionReasonSchema = withParser(
   Schema.Literal(
@@ -107,8 +113,10 @@ export type LanPairingParentAuthority = Infer<typeof LanPairingParentAuthoritySc
 export type LanPairingEnablementState = Infer<typeof LanPairingEnablementStateSchema>;
 export type LanPairingTrustState = Infer<typeof LanPairingTrustStateSchema>;
 type LanPairingDeviceReachability = Infer<typeof LanPairingDeviceReachabilitySchema>;
+type LanPairingProductionDiscoveryState = Infer<typeof LanPairingProductionDiscoveryStateSchema>;
 type LanPairingIntentKind = Infer<typeof LanPairingIntentKindSchema>;
 type LanPairingResponseState = Infer<typeof LanPairingResponseStateSchema>;
+type LanAiProviderRoutingState = Infer<typeof LanAiProviderRoutingStateSchema>;
 export type LanPairingRejectionReason = Infer<typeof LanPairingRejectionReasonSchema>;
 type LanPairingAuditEventType = Infer<typeof LanPairingAuditEventTypeSchema>;
 
@@ -120,6 +128,7 @@ export type {
   LanPairingChallengeId,
   LanPairingControllerLeaseId,
   LanPairingDeviceReachability,
+  LanPairingProductionDiscoveryState,
   LanPairingId,
   LanPairingIntentId,
   LanPairingIntentKind,
@@ -128,6 +137,7 @@ export type {
   LanPairingResponseState,
   LanPairingRouteId,
   LanPairingTimestamp,
+  LanAiProviderRoutingState,
 };
 
 export const LanPairingSchemaVersion = {

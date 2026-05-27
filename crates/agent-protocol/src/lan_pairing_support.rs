@@ -1,6 +1,9 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{LanPairingDiscoveryRuntimeStatus, LanPairingTrustState};
+use crate::{
+    LanAiProviderRoutingState, LanPairingDiscoveryRuntimeStatus,
+    LanPairingProductionDiscoveryState, LanPairingTrustState,
+};
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
@@ -26,6 +29,7 @@ pub enum LanPairingPersistenceMode {
 pub enum LanPairingRestartBehavior {
     FailClosedUnpaired,
     RestoreTrustedRegistryUnselected,
+    RestoreTrustedRegistrySelectedRoute,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -48,6 +52,8 @@ pub enum LanPairingRouteRequirement {
     SelectedDeviceReachable,
     ParentWriteAuthority,
     LanAiJobAuthorized,
+    DiscoveryStateExplicit,
+    RouteRecoveryPersisted,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -77,9 +83,12 @@ pub struct LanPairingRuntimeSupportSurface {
     pub pairing_state: LanPairingTrustState,
     pub trusted_device_count: u32,
     pub discovery_status: LanPairingDiscoveryRuntimeStatus,
+    pub discovery_state: LanPairingProductionDiscoveryState,
     pub challenge_status: LanPairingDiscoveryRuntimeStatus,
     pub proof_preview_status: LanPairingDiscoveryRuntimeStatus,
     pub lan_ai_provider_status: LanPairingDiscoveryRuntimeStatus,
+    pub lan_ai_provider_routing_state: LanAiProviderRoutingState,
+    pub lan_ai_provider_custody_label: String,
     pub lan_ai_job_status: LanPairingDiscoveryRuntimeStatus,
     pub persistence_mode: LanPairingPersistenceMode,
     pub restart_behavior: LanPairingRestartBehavior,

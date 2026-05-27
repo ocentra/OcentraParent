@@ -178,7 +178,7 @@ function assertLanSupportSurface(payload) {
   assertPayloadValue(
     payload,
     'routeRequirements',
-    'paired-device,allowed-origin,target-device-match,route-id-match,unexpired-intent,non-replayed-intent,unrevoked-pairing,active-controller-lease,selected-device-reachable,parent-write-authority,lan-ai-job-authorized'
+    'paired-device,allowed-origin,target-device-match,route-id-match,unexpired-intent,non-replayed-intent,unrevoked-pairing,active-controller-lease,selected-device-reachable,parent-write-authority,lan-ai-job-authorized,discovery-state-explicit,route-recovery-persisted'
   );
   assertPayloadValue(
     payload,

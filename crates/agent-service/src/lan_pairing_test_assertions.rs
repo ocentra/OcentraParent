@@ -93,6 +93,14 @@ pub(crate) fn assert_persistent_status_support_surface(event: &AgentEventEnvelop
     );
 }
 
+pub(crate) fn assert_persistent_selected_route_support_surface(event: &AgentEventEnvelope) {
+    assert_status_support_surface_with_persistence(
+        event,
+        constants::value::LAN_PERSISTENCE_LOCAL_JSON_REGISTRY,
+        constants::value::LAN_RESTART_RESTORE_TRUSTED_REGISTRY_SELECTED_ROUTE,
+    );
+}
+
 fn assert_status_support_surface_with_persistence(
     event: &AgentEventEnvelope,
     persistence_mode: &str,
@@ -140,6 +148,7 @@ fn assert_runtime_support_surface(
             constants::lan_pairing::SUPPORT_WEBSOCKET_DIRECT.to_string()
         ))
     );
+    assert_explicit_discovery_state(event);
     assert_eq!(
         event.payload.get(constants::field::LAN_CHALLENGE_STATUS),
         Some(&LogFieldValue::String(
@@ -154,18 +163,7 @@ fn assert_runtime_support_surface(
             constants::lan_pairing::SUPPORT_WEBSOCKET_DIRECT.to_string()
         ))
     );
-    assert_eq!(
-        event.payload.get(constants::field::LAN_AI_PROVIDER_STATUS),
-        Some(&LogFieldValue::String(
-            constants::lan_pairing::SUPPORT_WEBSOCKET_DIRECT.to_string()
-        ))
-    );
-    assert_eq!(
-        event.payload.get(constants::field::LAN_AI_JOB_STATUS),
-        Some(&LogFieldValue::String(
-            constants::lan_pairing::SUPPORT_WEBSOCKET_DIRECT.to_string()
-        ))
-    );
+    assert_lan_ai_provider_support_surface(event);
     assert_eq!(
         event.payload.get(constants::field::LAN_PERSISTENCE_MODE),
         Some(&LogFieldValue::String(persistence_mode.to_string()))
@@ -191,6 +189,54 @@ fn assert_runtime_support_surface(
         event.payload.get(constants::field::LAN_MANUAL_PROOF_GAPS),
         Some(&LogFieldValue::String(
             constants::lan_pairing::MANUAL_PROOF_GAPS.join(&constants::delimiter::LIST.to_string())
+        ))
+    );
+}
+
+fn assert_explicit_discovery_state(event: &AgentEventEnvelope) {
+    match event.payload.get(constants::field::LAN_DISCOVERY_STATE) {
+        Some(LogFieldValue::String(value))
+            if [
+                constants::value::LAN_DISCOVERY_STATE_DISCOVERED,
+                constants::value::LAN_DISCOVERY_STATE_PENDING,
+                constants::value::LAN_DISCOVERY_STATE_PAIRED,
+                constants::value::LAN_DISCOVERY_STATE_REVOKED,
+                constants::value::LAN_DISCOVERY_STATE_STALE,
+                constants::value::LAN_DISCOVERY_STATE_OFFLINE,
+                constants::value::LAN_DISCOVERY_STATE_UNAVAILABLE,
+            ]
+            .contains(&value.as_str()) => {}
+        _ => std::panic::panic_any(constants::error::UNEXPECTED_LAN_DISCOVERY_STATE),
+    }
+}
+
+fn assert_lan_ai_provider_support_surface(event: &AgentEventEnvelope) {
+    assert_eq!(
+        event.payload.get(constants::field::LAN_AI_PROVIDER_STATUS),
+        Some(&LogFieldValue::String(
+            constants::lan_pairing::SUPPORT_WEBSOCKET_DIRECT.to_string()
+        ))
+    );
+    assert_eq!(
+        event
+            .payload
+            .get(constants::field::LAN_AI_PROVIDER_ROUTING_STATE),
+        Some(&LogFieldValue::String(
+            constants::value::LAN_AI_PROVIDER_ROUTING_UNAVAILABLE.to_string()
+        ))
+    );
+    assert_eq!(
+        event
+            .payload
+            .get(constants::field::LAN_AI_PROVIDER_CUSTODY_LABEL),
+        Some(&LogFieldValue::String(
+            constants::value::LAN_PROVIDER_CUSTODY_LOCAL_NETWORK_AI_PROVIDER.to_string()
+        ))
+    );
+    assert_eq!(
+        event.payload.get(constants::field::LAN_AI_JOB_STATUS),
+        Some(&LogFieldValue::String(
+            constants::lan_pairing::SUPPORT_WEBSOCKET_DIRECT.to_string()
         ))
     );
 }

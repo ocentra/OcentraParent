@@ -32,8 +32,14 @@ export const AgentPairingStateSchema = withParser(
 export const AgentLanSelectedDeviceReachabilitySchema = withParser(Schema.Literal('online', 'offline', 'stale'));
 export const AgentLanPairingNetworkModeSchema = withParser(Schema.Literal('loopback', 'local-network'));
 export const AgentLanPairingParentAuthoritySchema = withParser(Schema.Literal('active-controller', 'observer'));
+export const AgentLanPairingProductionDiscoveryStateSchema = withParser(
+  Schema.Literal('discovered', 'pending', 'paired', 'revoked', 'stale', 'offline', 'unavailable')
+);
 export const AgentLanPairingRuntimeSupportStatusSchema = withParser(
   Schema.Literal('planned-unsupported', 'websocket-direct')
+);
+export const AgentLanAiProviderRoutingStateSchema = withParser(
+  Schema.Literal('authorized-result', 'busy', 'degraded', 'unavailable', 'unsupported-capability')
 );
 export const AgentLanPairingIntentKindSchema = withParser(
   Schema.Literal(
@@ -129,6 +135,7 @@ export const AgentLanPairingDiscoveryDeviceSchema = withParser(
     reachability: AgentLanSelectedDeviceReachabilitySchema,
     addressRef: AgentLanPairingAddressRefSchema,
     discoveryStatus: AgentLanPairingRuntimeSupportStatusSchema,
+    discoveryState: AgentLanPairingProductionDiscoveryStateSchema,
   })
 );
 
@@ -248,12 +255,14 @@ type AgentLanPairingChallenge = Infer<typeof AgentLanPairingChallengeSchema>;
 type AgentLanPairingIntentKind = Infer<typeof AgentLanPairingIntentKindSchema>;
 type AgentLanPairingNetworkMode = Infer<typeof AgentLanPairingNetworkModeSchema>;
 type AgentLanPairingParentAuthority = Infer<typeof AgentLanPairingParentAuthoritySchema>;
+type AgentLanPairingProductionDiscoveryState = Infer<typeof AgentLanPairingProductionDiscoveryStateSchema>;
 type AgentLanPairingProofDigest = typeof AgentLanPairingProofDigestSchema.Type;
 type AgentLanPairingProofPreview = Infer<typeof AgentLanPairingProofPreviewSchema>;
 type AgentLanPairingRejectionReason = Infer<typeof AgentLanPairingRejectionReasonSchema>;
 type AgentLanPairingResponseState = Infer<typeof AgentLanPairingResponseStateSchema>;
 type AgentLanPairingRouteId = typeof AgentLanPairingRouteIdSchema.Type;
 type AgentLanPairingRuntimeSupportStatus = Infer<typeof AgentLanPairingRuntimeSupportStatusSchema>;
+type AgentLanAiProviderRoutingState = Infer<typeof AgentLanAiProviderRoutingStateSchema>;
 type AgentLanChildAgentResponse = Infer<typeof AgentLanChildAgentResponseSchema>;
 type AgentLanParentIntentEnvelope = Infer<typeof AgentLanParentIntentEnvelopeSchema>;
 type AgentPairingProof = Infer<typeof AgentPairingProofSchema>;
@@ -270,12 +279,14 @@ export type {
   AgentLanPairingIntentKind,
   AgentLanPairingNetworkMode,
   AgentLanPairingParentAuthority,
+  AgentLanPairingProductionDiscoveryState,
   AgentLanPairingProofDigest,
   AgentLanPairingProofPreview,
   AgentLanPairingRejectionReason,
   AgentLanPairingResponseState,
   AgentLanPairingRouteId,
   AgentLanPairingRuntimeSupportStatus,
+  AgentLanAiProviderRoutingState,
   AgentLanParentIntentEnvelope,
   AgentLanSelectedDeviceReachability,
   AgentPairingId,

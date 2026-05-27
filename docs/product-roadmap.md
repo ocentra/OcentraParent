@@ -51,8 +51,11 @@ but it still does not prove OS enforcement adapters or real blocking. V0.9
 includes LAN route selection, restart registry, discovery, challenge/revocation,
 privacy-surface, controller lease/write-authority checks, observer read-only
 behavior, selected-device stale/offline state, and LAN AI advertised/degraded
-behavior, but it still does not prove production LAN discovery or a finished
-multi-device product flow.
+behavior. The current hardening slice adds explicit production discovery
+states, selected-route recovery after restart, and LAN AI provider routing for
+authorized, unsupported, busy, degraded, and unavailable states. It still does
+not prove household router discovery or a finished physical multi-device
+product flow.
 
 The platform-role/LAN AI provider-pool slice now adds contract and Rust read
 models for parent-controller, parent-observer, child-agent, and ai-provider
@@ -103,8 +106,10 @@ Current local slice:
 - V0.9 LAN work now includes controller lease/write-authority, observer
   read-only behavior, selected-device state, direct WebSocket routing, and LAN
   AI provider pool proof for opt-in, capability advertisement, result,
-  rejection, and degraded states. It must not be described as complete LAN
-  product readiness until production discovery, mobile controller UX, and real
+  rejection, busy, unavailable, and degraded states. The current hardening proof
+  also covers trusted selected-route recovery after restart and explicit
+  discovery-state labels. It must not be described as complete LAN product
+  readiness until production household discovery, mobile controller UX, and real
   household device proof exist.
 - Device role runtime state now tracks parent-controller, parent-observer,
   child-agent, and ai-provider roles on one physical device without duplicate
@@ -122,6 +127,11 @@ Current local slice:
   and the pre-AI proof matrix, while preserving manual-required states for
   physical household LAN, Android, iOS, signing, stores, and privileged OS
   behavior.
+- The V0.9 production LAN hardening proof command records local multi-service
+  evidence in
+  [`v0-9-production-lan-multidevice-hardening-2026-05-27.md`](checkpoints/v0-9-production-lan-multidevice-hardening-2026-05-27.md)
+  and preserves the real two-physical-device household LAN proof as
+  manual-required.
 
 Next product checkpoint:
 
@@ -1180,9 +1190,10 @@ Current completed-on-main foundation:
 - V0.9 LAN work has moved past a degraded-only stub into typed route selection,
   restart registry, discovery, challenge, revocation, privacy-surface,
   controller lease/write-authority, observer read-only behavior, selected-device
-  state, and LAN AI provider pool routing proof. This is not completed
-  production LAN discovery, mobile controller UX, or household multi-device
-  product proof.
+  state, explicit discovery states, selected-route recovery after restart, and
+  LAN AI provider pool routing proof. This is not completed production
+  household LAN discovery, mobile controller UX, or physical household
+  multi-device product proof.
 - Local AI provider singleton scheduling is present after PR #109, but parent
   assistant, API AI provider authorization, and production model quality proof
   remain separate work.

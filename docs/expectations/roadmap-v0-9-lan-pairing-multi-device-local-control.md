@@ -20,8 +20,15 @@ Supporting expectation files: [LAN pairing](lan-pairing.md), [contracts](contrac
 - Portal can distinguish multiple local child agents and show offline/stale state.
 - CI covers shared contracts and route behavior; real LAN proof covers
   cross-device discovery, firewall, origin, and stale-device behavior.
+- Local multi-service proof must keep production discovery state honest by
+  recording `discovered`, `pending`, `paired`, `revoked`, `stale`, `offline`,
+  or `unavailable` instead of implying household discovery happened.
+- If physical devices are not available, the proof record must include a manual
+  two-device checklist with exact commands and required artifacts.
 
 ## Validation
 
 - Run `npm run validate`.
 - Include TypeScript contracts, Rust parity, service route tests, and portal Playwright coverage for accepted and rejected routes.
+- Run `node scripts/test/v0-9-production-lan-multidevice-hardening.mjs` for the
+  current local multi-service LAN proof bundle.

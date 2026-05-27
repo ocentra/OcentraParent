@@ -5,6 +5,9 @@ use crate::{LanPairingParentAuthority, ParentEvidenceReference};
 #[path = "lan_pairing/device_roles.rs"]
 mod device_roles;
 pub use device_roles::*;
+#[path = "lan_pairing/discovery_states.rs"]
+mod discovery_states;
+pub use discovery_states::*;
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
@@ -149,6 +152,7 @@ pub struct LanPairingDiscoveryDevice {
     pub reachability: LanPairingDeviceReachability,
     pub address_ref: String,
     pub discovery_status: LanPairingDiscoveryRuntimeStatus,
+    pub discovery_state: LanPairingProductionDiscoveryState,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

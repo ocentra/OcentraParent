@@ -164,6 +164,7 @@ async function runLanLifecycle(service, { revokeAtEnd }) {
     assertPayloadValue(selected.payload, 'authenticationState', 'paired');
     assertPayloadValue(selected.payload, 'selectedChildDeviceId', service.childDeviceId);
     assertPayloadValue(selected.payload, 'selectedRouteId', service.routeId);
+    assertPayloadValue(selected.payload, 'discoveryState', 'paired');
     labels.push(`${service.label}:route-selected`);
 
     const accepted = await sendCommand(
@@ -335,12 +336,15 @@ async function runLanLifecycle(service, { revokeAtEnd }) {
     assertEvent(providerStatus, 'agent.lan-pairing.status.reported');
     assertPayloadValue(providerStatus.payload, 'auditEventType', 'lan-ai-provider-advertised');
     assertPayloadValue(providerStatus.payload, 'lanAiProviderStatus', 'lan-ai-provider-unavailable');
+    assertPayloadValue(providerStatus.payload, 'lanAiProviderRoutingState', 'unavailable');
+    assertPayloadValue(providerStatus.payload, 'lanAiProviderCustodyLabel', 'local-network-ai-provider');
     labels.push(`${service.label}:lan-ai-provider-advertised`);
 
     const lanAiJob = await sendCommand(socket, buildLanAiJobCommand(service, 'intent-lan-ai-job'));
     assertEvent(lanAiJob, 'agent.lan-ai.job.reported');
     assertPayloadValue(lanAiJob.payload, 'auditEventType', 'lan-ai-job-degraded');
     assertPayloadValue(lanAiJob.payload, 'lanAiJobState', 'degraded');
+    assertPayloadValue(lanAiJob.payload, 'lanAiProviderRoutingState', 'unavailable');
     assertPayloadValue(lanAiJob.payload, 'unavailableReason', 'local-ai-provider-unconfigured');
     labels.push(`${service.label}:lan-ai-job-degraded`);
 
@@ -384,6 +388,7 @@ async function runLanLifecycle(service, { revokeAtEnd }) {
       assertEvent(revoked, 'agent.lan-pairing.status.reported');
       assertPayloadValue(revoked.payload, 'auditEventType', 'pairing-revoked');
       assertPayloadValue(revoked.payload, 'pairingState', 'revoked');
+      assertPayloadValue(revoked.payload, 'discoveryState', 'revoked');
       labels.push(`${service.label}:route-revoked`);
 
       const afterRevoke = await sendCommand(
@@ -408,44 +413,26 @@ async function runPersistentRestartLifecycle(service) {
     const restartStatus = await sendCommand(socket, buildLoopbackStatusCommand(service, 'restart-status'));
     assertEvent(restartStatus, 'agent.lan-pairing.status.reported');
     assertPayloadValue(restartStatus.payload, 'pairingState', 'paired');
-    assertPayloadValue(restartStatus.payload, 'authenticationState', 'unpaired');
+    assertPayloadValue(restartStatus.payload, 'authenticationState', 'paired');
     assertPayloadValue(restartStatus.payload, 'trustedDeviceIds', service.childDeviceId);
-    assertPayloadValue(restartStatus.payload, 'selectedChildDeviceId', '');
+    assertPayloadValue(restartStatus.payload, 'selectedChildDeviceId', service.childDeviceId);
+    assertPayloadValue(restartStatus.payload, 'selectedRouteId', service.routeId);
+    assertPayloadValue(restartStatus.payload, 'discoveryState', 'paired');
     assertPayloadValue(restartStatus.payload, 'persistenceMode', 'local-json-registry');
-    assertPayloadValue(restartStatus.payload, 'restartBehavior', 'restore-trusted-registry-unselected');
-    labels.push(`${service.label}:restart-restores-trusted-unselected`);
-
-    const unselectedAfterRestart = await sendCommand(
-      socket,
-      buildHealthCommand(
-        service,
-        'restart-unselected-health',
-        intentPayload(service, 'intent-after-restart-unselected', 'approval-decision')
-      )
-    );
-    assertEvent(unselectedAfterRestart, 'agent.command.rejected');
-    assertPayloadValue(unselectedAfterRestart.payload, 'rejectionReason', 'unselected-device');
-    labels.push(`${service.label}:restart-unselected-control-rejected`);
-
-    const selectedAfterRestart = await sendCommand(
-      socket,
-      buildRouteSelectCommand(service, 'intent-route-select-after-restart')
-    );
-    assertEvent(selectedAfterRestart, 'agent.lan-pairing.status.reported');
-    assertPayloadValue(selectedAfterRestart.payload, 'selectedChildDeviceId', service.childDeviceId);
-    labels.push(`${service.label}:restart-route-reselected`);
+    assertPayloadValue(restartStatus.payload, 'restartBehavior', 'restore-trusted-registry-selected-route');
+    labels.push(`${service.label}:restart-restores-selected-route`);
 
     const acceptedAfterRestart = await sendCommand(
       socket,
       buildHealthCommand(
         service,
-        'restart-accepted-approval',
+        'restart-recovered-approval',
         intentPayload(service, 'intent-after-restart-approval', 'approval-decision')
       )
     );
     assertEvent(acceptedAfterRestart, 'agent.health.reported');
     assertAcceptedControl(acceptedAfterRestart.payload, 'approval-decision', service);
-    labels.push(`${service.label}:restart-approval-accepted`);
+    labels.push(`${service.label}:restart-recovered-approval-accepted`);
 
     return labels;
   } finally {
@@ -755,6 +742,11 @@ function assertLanSupportSurface(payload) {
   assertPayloadValue(payload, 'proofMode', 'direct-proof-submit');
   assertPayloadValue(payload, 'lanAiProviderStatus', 'websocket-direct');
   assertPayloadValue(payload, 'lanAiJobStatus', 'websocket-direct');
+  if (!['discovered', 'paired', 'revoked', 'stale', 'offline'].includes(payload.discoveryState)) {
+    throw new Error(`Expected explicit discoveryState, received ${payload.discoveryState}`);
+  }
+  assertPayloadValue(payload, 'lanAiProviderRoutingState', 'unavailable');
+  assertPayloadValue(payload, 'lanAiProviderCustodyLabel', 'local-network-ai-provider');
 }
 
 function assertAcceptedControl(payload, intentKind, service) {
@@ -799,6 +791,10 @@ async function writeEvidence(assertions, services) {
         checkedAt: new Date().toISOString(),
         allowedOrigin,
         assertions,
+        proofLimits: [
+          'local-two-service-route-control-and-restart-recovery-only',
+          'physical-two-device-selected-route-offline-stale-proof-remains-manual-required',
+        ],
         services: services.map((service) => ({
           label: service.label,
           port: service.port,
