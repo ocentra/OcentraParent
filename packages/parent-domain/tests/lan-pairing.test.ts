@@ -36,6 +36,13 @@ const evidenceReference = {
   kind: 'activity-event',
   observedAt: timestamp,
 };
+const controllerLease = {
+  controllerLeaseId: 'controller-lease-1',
+  controllerDeviceId: parentDevice.deviceId,
+  parentActorId: 'parent-actor-1',
+  controllerLeaseIssuedAt: timestamp,
+  controllerLeaseExpiresAt: laterTimestamp,
+};
 const sensitiveLanPrivacyMarkers = [
   'activityDigest',
   'activity.sqlite',
@@ -279,6 +286,7 @@ function parentIntentFor(proof: ReturnType<typeof acceptedProof>) {
     origin: proof.origin,
     issuedAt: timestamp,
     expiresAt: laterTimestamp,
+    ...controllerLease,
     evidenceReferences: [evidenceReference],
   });
 }
@@ -309,6 +317,9 @@ function acceptedAuditEventFor(
     intentId: intent.intentId,
     childDeviceId: childDevice.deviceId,
     parentDeviceId: parentDevice.deviceId,
+    controllerLeaseId: intent.controllerLeaseId,
+    controllerDeviceId: intent.controllerDeviceId,
+    parentActorId: intent.parentActorId,
     routeId: proof.routeId,
     origin: proof.origin,
     rejectionReason: null,
@@ -329,6 +340,9 @@ function routeSelectedAuditEventFor(
     intentId: intent.intentId,
     childDeviceId: childDevice.deviceId,
     parentDeviceId: parentDevice.deviceId,
+    controllerLeaseId: intent.controllerLeaseId,
+    controllerDeviceId: intent.controllerDeviceId,
+    parentActorId: intent.parentActorId,
     routeId: proof.routeId,
     origin: proof.origin,
     rejectionReason: null,
@@ -350,6 +364,7 @@ function registerRejectionContractTests(): void {
       origin: 'http://127.0.0.1:4478',
       issuedAt: timestamp,
       expiresAt: laterTimestamp,
+      ...controllerLease,
       evidenceReferences: [],
     });
 
@@ -375,6 +390,9 @@ function registerRejectionContractTests(): void {
       intentId: response.intentId,
       childDeviceId: childDevice.deviceId,
       parentDeviceId: parentDevice.deviceId,
+      controllerLeaseId: 'controller-lease-1',
+      controllerDeviceId: parentDevice.deviceId,
+      parentActorId: 'parent-actor-1',
       routeId: response.routeId,
       origin: 'http://127.0.0.1:4478',
       rejectionReason: response.rejectionReason,
@@ -395,6 +413,9 @@ function registerRejectionContractTests(): void {
     expect(LanPairingRejectionReason.Offline).toBe('offline');
     expect(LanPairingRejectionReason.Revoked).toBe('revoked');
     expect(LanPairingRejectionReason.UnselectedDevice).toBe('unselected-device');
+    expect(LanPairingRejectionReason.ControllerLeaseMissing).toBe('controller-lease-missing');
+    expect(LanPairingRejectionReason.ControllerLeaseExpired).toBe('controller-lease-expired');
+    expect(LanPairingRejectionReason.WrongController).toBe('wrong-controller');
     expect(LanPairingIntentKindSchema.safeParse('cloud-relay').success).toBe(false);
   });
 }
@@ -448,6 +469,7 @@ function registerRuntimeSupportSurfaceTests(): void {
         'unexpired-intent',
         'non-replayed-intent',
         'unrevoked-pairing',
+        'active-controller-lease',
         'selected-device-reachable',
       ],
       manualProofGaps: ['manual-lan-bind-proof', 'manual-firewall-proof', 'manual-physical-device-proof'],

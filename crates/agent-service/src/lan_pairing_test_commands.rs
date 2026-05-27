@@ -272,6 +272,26 @@ pub(crate) fn intent_payload_for_pairing(
             constants::field::STALE_AT,
             LogFieldValue::String(expires_at.to_string()),
         ),
+        (
+            constants::field::LAN_CONTROLLER_LEASE_ID,
+            LogFieldValue::String(constants::lan_pairing::CONTROLLER_LEASE_ID.to_string()),
+        ),
+        (
+            constants::field::LAN_CONTROLLER_DEVICE_ID,
+            LogFieldValue::String(constants::lan_pairing::PARENT_DEVICE_ID.to_string()),
+        ),
+        (
+            constants::field::LAN_PARENT_ACTOR_ID,
+            LogFieldValue::String(constants::lan_pairing::PARENT_ACTOR_ID.to_string()),
+        ),
+        (
+            constants::field::LAN_CONTROLLER_LEASE_ISSUED_AT,
+            LogFieldValue::String(constants::lan_pairing::ISSUED_AT.to_string()),
+        ),
+        (
+            constants::field::LAN_CONTROLLER_LEASE_EXPIRES_AT,
+            LogFieldValue::String(constants::lan_pairing::CONTROLLER_LEASE_EXPIRES_AT.to_string()),
+        ),
     ])
 }
 

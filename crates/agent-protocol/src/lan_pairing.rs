@@ -65,8 +65,11 @@ pub enum LanPairingResponseState {
 #[serde(rename_all = "kebab-case")]
 pub enum LanPairingRejectionReason {
     Anonymous,
+    ControllerLeaseMissing,
+    ControllerLeaseExpired,
     WrongOrigin,
     WrongDevice,
+    WrongController,
     Expired,
     Replayed,
     Malformed,
@@ -260,6 +263,11 @@ pub struct LanParentIntentEnvelope {
     pub origin: String,
     pub issued_at: String,
     pub expires_at: String,
+    pub controller_lease_id: String,
+    pub controller_device_id: String,
+    pub parent_actor_id: String,
+    pub controller_lease_issued_at: String,
+    pub controller_lease_expires_at: String,
     pub evidence_references: Vec<ParentEvidenceReference>,
 }
 
@@ -286,6 +294,9 @@ pub struct LanPairingAuditEvent {
     pub intent_id: Option<String>,
     pub child_device_id: Option<String>,
     pub parent_device_id: Option<String>,
+    pub controller_lease_id: Option<String>,
+    pub controller_device_id: Option<String>,
+    pub parent_actor_id: Option<String>,
     pub route_id: String,
     pub origin: Option<String>,
     pub rejection_reason: Option<LanPairingRejectionReason>,

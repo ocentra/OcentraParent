@@ -4,6 +4,8 @@ use ocentra_parent_agent_protocol::{
     ParentEvidenceReference, ParentEvidenceReferenceKind,
 };
 
+use crate::lan_pairing::controller_lease::LanControllerLeaseState;
+
 pub(crate) fn is_challenge_request(fields: &LogFields) -> bool {
     fields.contains_key(constants::field::LAN_PARENT_DEVICE_ID)
         || fields.contains_key(constants::field::LAN_CHALLENGE_ID)
@@ -47,6 +49,9 @@ pub(crate) fn parse_intent(
     let proof_digest = required_anonymous_string(fields, constants::field::LAN_PROOF_DIGEST)?;
     let issued_at = required_string(fields, constants::field::STARTED_AT)?;
     let expires_at = required_string(fields, constants::field::STALE_AT)?;
+    let controller_lease_issued_at =
+        required_controller_lease_string(fields, constants::field::LAN_CONTROLLER_LEASE_ISSUED_AT)?;
+    let controller_lease = parse_controller_lease(fields)?;
     let evidence_references = parse_evidence_references(fields, &issued_at);
     Ok(LanParentIntentEnvelope {
         schema_version: constants::lan_pairing::SCHEMA_VERSION,
@@ -59,7 +64,35 @@ pub(crate) fn parse_intent(
         origin: required_string(fields, constants::field::ORIGIN)?,
         issued_at,
         expires_at,
+        controller_lease_id: controller_lease.controller_lease_id,
+        controller_device_id: controller_lease.controller_device_id,
+        parent_actor_id: controller_lease.parent_actor_id,
+        controller_lease_issued_at,
+        controller_lease_expires_at: controller_lease.expires_at,
         evidence_references,
+    })
+}
+
+fn parse_controller_lease(
+    fields: &LogFields,
+) -> Result<LanControllerLeaseState, LanPairingRejectionReason> {
+    Ok(LanControllerLeaseState {
+        controller_lease_id: required_controller_lease_string(
+            fields,
+            constants::field::LAN_CONTROLLER_LEASE_ID,
+        )?,
+        controller_device_id: required_controller_lease_string(
+            fields,
+            constants::field::LAN_CONTROLLER_DEVICE_ID,
+        )?,
+        parent_actor_id: required_controller_lease_string(
+            fields,
+            constants::field::LAN_PARENT_ACTOR_ID,
+        )?,
+        expires_at: required_controller_lease_string(
+            fields,
+            constants::field::LAN_CONTROLLER_LEASE_EXPIRES_AT,
+        )?,
     })
 }
 
@@ -103,6 +136,13 @@ fn required_anonymous_string(
     key: &str,
 ) -> Result<String, LanPairingRejectionReason> {
     required_string(fields, key).map_err(|_| LanPairingRejectionReason::Anonymous)
+}
+
+fn required_controller_lease_string(
+    fields: &LogFields,
+    key: &str,
+) -> Result<String, LanPairingRejectionReason> {
+    required_string(fields, key).map_err(|_| LanPairingRejectionReason::ControllerLeaseMissing)
 }
 
 fn required_string(fields: &LogFields, key: &str) -> Result<String, LanPairingRejectionReason> {

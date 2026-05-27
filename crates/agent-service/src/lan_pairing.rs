@@ -3,6 +3,10 @@ use std::{
     sync::{Arc, Mutex},
 };
 
+pub(crate) mod controller_lease;
+#[cfg(test)]
+mod controller_lease_tests;
+
 use ocentra_parent_agent_core::TrustedDeviceRegistry;
 use ocentra_parent_agent_protocol::{
     constants, AgentCommandEnvelope, AgentCommandName, AgentEventEnvelope, AgentEventName,
@@ -22,10 +26,13 @@ use crate::{
     time::timestamp_now,
 };
 
+use self::controller_lease::LanControllerLeaseState;
+
 #[derive(Clone, Debug)]
 pub struct LanPairingRuntime {
     pub(crate) registry: Arc<Mutex<TrustedDeviceRegistry>>,
     pub(crate) challenges: Arc<Mutex<Vec<LanPairingChallengeState>>>,
+    pub(crate) controller_lease: Arc<Mutex<Option<LanControllerLeaseState>>>,
     pub(crate) persistence: LanPairingRegistryPersistence,
     pub(crate) local_child_device_id: Option<String>,
 }
@@ -285,6 +292,7 @@ fn validate_intent_result(
     intent: &LanParentIntentEnvelope,
 ) -> Result<(), LanPairingRejectionReason> {
     let observed_at = timestamp_now();
+    runtime.validate_controller_lease(intent, &observed_at)?;
     runtime
         .registry
         .lock()
@@ -298,6 +306,7 @@ fn validate_selection_intent_result(
     intent: &LanParentIntentEnvelope,
 ) -> Result<(), LanPairingRejectionReason> {
     let observed_at = timestamp_now();
+    runtime.validate_controller_lease(intent, &observed_at)?;
     runtime
         .registry
         .lock()

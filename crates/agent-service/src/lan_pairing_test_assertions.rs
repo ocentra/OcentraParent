@@ -34,6 +34,26 @@ pub(crate) fn assert_accepted_control_for_intent(event: &AgentEventEnvelope, int
         ))
     );
     assert_eq!(
+        event.payload.get(constants::field::LAN_CONTROLLER_LEASE_ID),
+        Some(&LogFieldValue::String(
+            constants::lan_pairing::CONTROLLER_LEASE_ID.to_string()
+        ))
+    );
+    assert_eq!(
+        event
+            .payload
+            .get(constants::field::LAN_CONTROLLER_DEVICE_ID),
+        Some(&LogFieldValue::String(
+            constants::lan_pairing::PARENT_DEVICE_ID.to_string()
+        ))
+    );
+    assert_eq!(
+        event.payload.get(constants::field::LAN_PARENT_ACTOR_ID),
+        Some(&LogFieldValue::String(
+            constants::lan_pairing::PARENT_ACTOR_ID.to_string()
+        ))
+    );
+    assert_eq!(
         event
             .payload
             .get(constants::field::LAN_AUTHENTICATION_STATE),
@@ -231,7 +251,10 @@ pub(crate) fn assert_rejection(event: &AgentEventEnvelope, reason: &str) {
 
 fn expected_authentication_state(reason: &str) -> &'static str {
     if reason == constants::value::LAN_REASON_ANONYMOUS
+        || reason == constants::value::LAN_REASON_CONTROLLER_LEASE_MISSING
+        || reason == constants::value::LAN_REASON_CONTROLLER_LEASE_EXPIRED
         || reason == constants::value::LAN_REASON_WRONG_ORIGIN
+        || reason == constants::value::LAN_REASON_WRONG_CONTROLLER
         || reason == constants::value::LAN_REASON_MALFORMED
     {
         constants::value::LAN_AUTH_UNAUTHENTICATED

@@ -60,6 +60,10 @@ function assertPairingStates() {
   expect(AgentProtocolDefaults.LanSelectedDeviceReachability.Stale).toBe('stale');
   expect(AgentProtocolDefaults.LanSelectedDeviceReachability.Offline).toBe('offline');
   expect(AgentLanPairingRejectionReasonSchema.parse('local-network-disabled')).toBe('local-network-disabled');
+  expect(AgentLanPairingRejectionReasonSchema.parse('controller-lease-missing')).toBe('controller-lease-missing');
+  expect(AgentLanPairingRejectionReasonSchema.parse('controller-lease-expired')).toBe('controller-lease-expired');
+  expect(AgentLanPairingRejectionReasonSchema.parse('wrong-controller')).toBe('wrong-controller');
+  expect(AgentProtocolDefaults.Field.LanControllerLeaseId).toBe('controllerLeaseId');
 }
 
 function assertRouteSelectCommand() {
@@ -253,6 +257,11 @@ function lanParentIntentEnvelope(intentId: unknown, intentKind: unknown) {
     origin: 'http://127.0.0.1:4678',
     issuedAt: '2026-05-23T23:20:00Z',
     expiresAt: '2026-05-23T23:25:00Z',
+    controllerLeaseId: 'controller-lease-1',
+    controllerDeviceId: 'parent-device-1',
+    parentActorId: 'parent-actor-1',
+    controllerLeaseIssuedAt: '2026-05-23T23:20:00Z',
+    controllerLeaseExpiresAt: '2026-05-23T23:25:00Z',
     evidenceReferences: [lanEvidenceReference()],
   };
 }
@@ -279,6 +288,9 @@ function lanAuditEvent(eventType: unknown, rejectionReason: unknown) {
     intentId: 'intent-rule-query-1',
     childDeviceId: 'child-device-1',
     parentDeviceId: 'parent-device-1',
+    controllerLeaseId: 'controller-lease-1',
+    controllerDeviceId: 'parent-device-1',
+    parentActorId: 'parent-actor-1',
     routeId: 'lan-route-child-1',
     origin: 'http://127.0.0.1:4678',
     rejectionReason,

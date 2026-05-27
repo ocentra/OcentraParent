@@ -22,8 +22,28 @@ const allowedOrigin = createHttpOrigin(ParentDevHost.Loopback);
 const wrongOrigin = createHttpOrigin(ParentDevHost.Loopback, 9478);
 const issuedAt = '2026-05-26T18:20:00.000Z';
 const expiresAt = '2099-05-26T18:25:00.000Z';
+const staleExpiresAt = '2026-05-26T18:10:00.000Z';
+const controllerLeaseId = 'controller-lease-v09-primary';
+const secondControllerLeaseId = 'controller-lease-v09-secondary';
+const controllerDeviceId = 'parent-device-v09';
+const secondControllerDeviceId = 'parent-device-v09-secondary';
+const parentActorId = 'parent-actor-v09';
+const secondParentActorId = 'parent-actor-v09-secondary';
+const controllerLeaseExpiresAt = '2099-05-26T18:24:00.000Z';
+const controllerLeaseExpiredAt = '2026-05-26T18:09:00.000Z';
 const platform = 'windows';
 const webSocketEventTimeoutMs = 20000;
+const sensitiveEvidenceMarkers = [
+  'activity.sqlite',
+  'activity.ndjson',
+  'decryptedEvidence',
+  'journalPath',
+  'rawEvidence',
+  'rawProofSecret',
+  'rawToken',
+  'registryPath',
+  'sqlitePath',
+];
 
 const agents = [
   {
@@ -168,6 +188,64 @@ async function runLanLifecycle(service, { revokeAtEnd }) {
     assertPayloadValue(replayed.payload, 'rejectionReason', 'replayed');
     labels.push(`${service.label}:replay-rejected`);
 
+    const stale = await sendCommand(
+      socket,
+      buildHealthCommand(
+        service,
+        'stale-rule-update',
+        intentPayload(service, 'intent-stale-rule-update', 'rule-update', staleExpiresAt)
+      )
+    );
+    assertEvent(stale, 'agent.command.rejected');
+    assertPayloadValue(stale.payload, 'rejectionReason', 'stale');
+    labels.push(`${service.label}:stale-control-rejected`);
+
+    const malformedPayload = intentPayload(service, 'intent-malformed-control', 'approval-decision');
+    delete malformedPayload.intentKind;
+    const malformed = await sendCommand(
+      socket,
+      buildHealthCommand(service, 'malformed-approval-decision', malformedPayload)
+    );
+    assertEvent(malformed, 'agent.command.rejected');
+    assertPayloadValue(malformed.payload, 'rejectionReason', 'malformed');
+    labels.push(`${service.label}:malformed-control-rejected`);
+
+    const missingLease = await sendCommand(
+      socket,
+      buildHealthCommand(
+        service,
+        'missing-controller-lease',
+        withoutControllerLease(intentPayload(service, 'intent-missing-controller-lease', 'rule-query'))
+      )
+    );
+    assertEvent(missingLease, 'agent.command.rejected');
+    assertPayloadValue(missingLease.payload, 'rejectionReason', 'controller-lease-missing');
+    labels.push(`${service.label}:missing-controller-lease-rejected`);
+
+    const expiredLease = await sendCommand(
+      socket,
+      buildHealthCommand(
+        service,
+        'expired-controller-lease',
+        withExpiredControllerLease(intentPayload(service, 'intent-expired-controller-lease', 'rule-update'))
+      )
+    );
+    assertEvent(expiredLease, 'agent.command.rejected');
+    assertPayloadValue(expiredLease.payload, 'rejectionReason', 'controller-lease-expired');
+    labels.push(`${service.label}:expired-controller-lease-rejected`);
+
+    const wrongController = await sendCommand(
+      socket,
+      buildHealthCommand(
+        service,
+        'wrong-controller',
+        withSecondController(intentPayload(service, 'intent-wrong-controller', 'approval-decision'))
+      )
+    );
+    assertEvent(wrongController, 'agent.command.rejected');
+    assertPayloadValue(wrongController.payload, 'rejectionReason', 'wrong-controller');
+    labels.push(`${service.label}:wrong-controller-rejected`);
+
     if (revokeAtEnd) {
       const revoked = await sendCommand(socket, buildRouteRevokeCommand(service, 'intent-route-revoke'));
       assertEvent(revoked, 'agent.lan-pairing.status.reported');
@@ -309,6 +387,7 @@ async function sendCommand(socket, command) {
   for (;;) {
     const event = await nextEvent(socket, command.messageId);
     if (event.event !== 'agent.connection.ready') {
+      assertNoSensitiveEvidenceMarkers(event.payload);
       return event;
     }
   }
@@ -455,7 +534,7 @@ function buildCommand(service, messageSuffix, command, payload) {
   };
 }
 
-function intentPayload(service, intentId, intentKind) {
+function intentPayload(service, intentId, intentKind, payloadExpiresAt = expiresAt) {
   return {
     intentId,
     intentKind,
@@ -466,7 +545,38 @@ function intentPayload(service, intentId, intentKind) {
     proofDigest: service.proofDigest,
     evidenceReferenceIds: service.evidenceReferenceIds,
     startedAt: issuedAt,
-    staleAt: expiresAt,
+    staleAt: payloadExpiresAt,
+    controllerLeaseId,
+    controllerDeviceId,
+    parentActorId,
+    controllerLeaseIssuedAt: issuedAt,
+    controllerLeaseExpiresAt,
+  };
+}
+
+function withoutControllerLease(payload) {
+  const next = { ...payload };
+  delete next.controllerLeaseId;
+  delete next.controllerDeviceId;
+  delete next.parentActorId;
+  delete next.controllerLeaseIssuedAt;
+  delete next.controllerLeaseExpiresAt;
+  return next;
+}
+
+function withExpiredControllerLease(payload) {
+  return {
+    ...payload,
+    controllerLeaseExpiresAt: controllerLeaseExpiredAt,
+  };
+}
+
+function withSecondController(payload) {
+  return {
+    ...payload,
+    controllerLeaseId: secondControllerLeaseId,
+    controllerDeviceId: secondControllerDeviceId,
+    parentActorId: secondParentActorId,
   };
 }
 
@@ -490,6 +600,9 @@ function assertAcceptedControl(payload, intentKind, service) {
   assertPayloadValue(payload, 'authenticationState', 'paired');
   assertPayloadValue(payload, 'intentKind', intentKind);
   assertPayloadValue(payload, 'routeId', service.routeId);
+  assertPayloadValue(payload, 'controllerLeaseId', controllerLeaseId);
+  assertPayloadValue(payload, 'controllerDeviceId', controllerDeviceId);
+  assertPayloadValue(payload, 'parentActorId', parentActorId);
   assertPayloadValue(payload, 'evidenceReferenceIds', service.evidenceReferenceIds);
 }
 
@@ -505,6 +618,15 @@ function assertPayloadValue(payload, key, expected) {
   }
 }
 
+function assertNoSensitiveEvidenceMarkers(payload) {
+  const serialized = JSON.stringify(payload);
+  for (const marker of sensitiveEvidenceMarkers) {
+    if (serialized.includes(marker)) {
+      throw new Error(`LAN proof payload exposed sensitive marker ${marker}`);
+    }
+  }
+}
+
 async function writeEvidence(assertions, services) {
   await writeFile(
     evidencePath,
@@ -517,7 +639,7 @@ async function writeEvidence(assertions, services) {
           label: service.label,
           port: service.port,
           childDeviceId: service.childDeviceId,
-          registryPath: service.registryPath,
+          registryPersistence: 'local-json-registry',
         })),
       },
       null,

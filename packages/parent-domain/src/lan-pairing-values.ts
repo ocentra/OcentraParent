@@ -10,6 +10,9 @@ export const LanPairingProofDigestSchema = NonEmptyLanPairingText.pipe(Schema.br
 export const LanPairingIntentIdSchema = NonEmptyLanPairingText.pipe(Schema.brand('LanPairingIntentId'));
 export const LanPairingAuditEventIdSchema = NonEmptyLanPairingText.pipe(Schema.brand('LanPairingAuditEventId'));
 export const LanPairingRouteIdSchema = NonEmptyLanPairingText.pipe(Schema.brand('LanPairingRouteId'));
+export const LanPairingControllerLeaseIdSchema = NonEmptyLanPairingText.pipe(
+  Schema.brand('LanPairingControllerLeaseId')
+);
 export const LanPairingOriginSchema = NonEmptyLanPairingText.pipe(Schema.brand('LanPairingOrigin'));
 export const LanPairingTimestampSchema = NonEmptyLanPairingText.pipe(Schema.brand('LanPairingTimestamp'));
 export const LanPairingAgentPeerIdSchema = NonEmptyLanPairingText.pipe(Schema.brand('LanPairingAgentPeerId'));
@@ -40,7 +43,10 @@ export const LanPairingRejectionReasonSchema = withParser(
     'revoked',
     'local-network-disabled',
     'unsupported-route',
-    'unselected-device'
+    'unselected-device',
+    'controller-lease-missing',
+    'controller-lease-expired',
+    'wrong-controller'
   )
 );
 export const LanPairingAuditEventTypeSchema = withParser(
@@ -64,6 +70,7 @@ export type LanPairingProofDigest = typeof LanPairingProofDigestSchema.Type;
 export type LanPairingIntentId = typeof LanPairingIntentIdSchema.Type;
 export type LanPairingAuditEventId = typeof LanPairingAuditEventIdSchema.Type;
 export type LanPairingRouteId = typeof LanPairingRouteIdSchema.Type;
+export type LanPairingControllerLeaseId = typeof LanPairingControllerLeaseIdSchema.Type;
 export type LanPairingOrigin = typeof LanPairingOriginSchema.Type;
 export type LanPairingTimestamp = typeof LanPairingTimestampSchema.Type;
 export type LanPairingAgentPeerId = typeof LanPairingAgentPeerIdSchema.Type;
@@ -113,4 +120,7 @@ export const LanPairingRejectionReason = {
   LocalNetworkDisabled: LanPairingRejectionReasonSchema.parse('local-network-disabled'),
   UnsupportedRoute: LanPairingRejectionReasonSchema.parse('unsupported-route'),
   UnselectedDevice: LanPairingRejectionReasonSchema.parse('unselected-device'),
+  ControllerLeaseMissing: LanPairingRejectionReasonSchema.parse('controller-lease-missing'),
+  ControllerLeaseExpired: LanPairingRejectionReasonSchema.parse('controller-lease-expired'),
+  WrongController: LanPairingRejectionReasonSchema.parse('wrong-controller'),
 } as const;

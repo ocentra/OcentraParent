@@ -44,6 +44,7 @@ pub enum LanPairingRouteRequirement {
     UnexpiredIntent,
     NonReplayedIntent,
     UnrevokedPairing,
+    ActiveControllerLease,
     SelectedDeviceReachable,
 }
 

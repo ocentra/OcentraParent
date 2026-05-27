@@ -26,6 +26,9 @@ const proofDigest = 'sha256:integration-lan-proof';
 const routeId = 'route-integration-lan';
 const issuedAt = '2026-05-23T14:40:00.000Z';
 const expiresAt = '2099-05-23T14:45:00.000Z';
+const controllerLeaseId = 'controller-lease-integration-lan';
+const controllerLeaseExpiresAt = '2099-05-23T15:45:00.000Z';
+const parentActorId = 'parent-actor-integration-lan';
 
 await ensurePortFree(port, isLikelyParentAgentOccupant, console.log, ParentDevHost.Wildcard);
 
@@ -147,6 +150,9 @@ function assertPairedControlAccepted(payload) {
   assertPayloadValue(payload, 'authenticationState', 'paired');
   assertPayloadValue(payload, 'evidenceReferenceCount', 1);
   assertPayloadValue(payload, 'evidenceReferenceIds', 'activity-event-lan-control-1');
+  assertPayloadValue(payload, 'controllerLeaseId', controllerLeaseId);
+  assertPayloadValue(payload, 'controllerDeviceId', parentDeviceId);
+  assertPayloadValue(payload, 'parentActorId', parentActorId);
 }
 
 function assertLanSupportSurface(payload) {
@@ -169,7 +175,7 @@ function assertLanSupportSurface(payload) {
   assertPayloadValue(
     payload,
     'routeRequirements',
-    'paired-device,allowed-origin,target-device-match,route-id-match,unexpired-intent,non-replayed-intent,unrevoked-pairing,selected-device-reachable'
+    'paired-device,allowed-origin,target-device-match,route-id-match,unexpired-intent,non-replayed-intent,unrevoked-pairing,active-controller-lease,selected-device-reachable'
   );
   assertPayloadValue(
     payload,
@@ -215,6 +221,11 @@ function buildPairedHealthCommand() {
     evidenceReferenceIds: 'activity-event-lan-control-1',
     startedAt: issuedAt,
     staleAt: expiresAt,
+    controllerLeaseId,
+    controllerDeviceId: parentDeviceId,
+    parentActorId,
+    controllerLeaseIssuedAt: issuedAt,
+    controllerLeaseExpiresAt,
   });
 }
 
@@ -229,6 +240,11 @@ function buildRouteSelectCommand() {
     proofDigest,
     startedAt: issuedAt,
     staleAt: expiresAt,
+    controllerLeaseId,
+    controllerDeviceId: parentDeviceId,
+    parentActorId,
+    controllerLeaseIssuedAt: issuedAt,
+    controllerLeaseExpiresAt,
   });
 }
 

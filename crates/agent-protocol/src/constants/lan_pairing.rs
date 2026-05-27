@@ -43,6 +43,7 @@ pub const ROUTE_REQUIREMENT_ROUTE_ID_MATCH: &str = "route-id-match";
 pub const ROUTE_REQUIREMENT_UNEXPIRED_INTENT: &str = "unexpired-intent";
 pub const ROUTE_REQUIREMENT_NON_REPLAYED_INTENT: &str = "non-replayed-intent";
 pub const ROUTE_REQUIREMENT_UNREVOKED_PAIRING: &str = "unrevoked-pairing";
+pub const ROUTE_REQUIREMENT_ACTIVE_CONTROLLER_LEASE: &str = "active-controller-lease";
 pub const ROUTE_REQUIREMENT_SELECTED_DEVICE_REACHABLE: &str = "selected-device-reachable";
 pub const ROUTE_REQUIREMENTS: &[&str] = &[
     ROUTE_REQUIREMENT_PAIRED_DEVICE,
@@ -52,6 +53,7 @@ pub const ROUTE_REQUIREMENTS: &[&str] = &[
     ROUTE_REQUIREMENT_UNEXPIRED_INTENT,
     ROUTE_REQUIREMENT_NON_REPLAYED_INTENT,
     ROUTE_REQUIREMENT_UNREVOKED_PAIRING,
+    ROUTE_REQUIREMENT_ACTIVE_CONTROLLER_LEASE,
     ROUTE_REQUIREMENT_SELECTED_DEVICE_REACHABLE,
 ];
 pub const MANUAL_PROOF_GAP_LAN_BIND: &str = "manual-lan-bind-proof";
@@ -71,6 +73,9 @@ pub const ROUTE_ID_UNSUPPORTED: &str = "lan-route-unsupported";
 pub const CHILD_DEVICE_ID: &str = "child-device-1";
 pub const SECOND_CHILD_DEVICE_ID: &str = "child-device-2";
 pub const PARENT_DEVICE_ID: &str = "parent-device-1";
+pub const SECOND_PARENT_DEVICE_ID: &str = "parent-device-2";
+pub const PARENT_ACTOR_ID: &str = "parent-actor-1";
+pub const SECOND_PARENT_ACTOR_ID: &str = "parent-actor-2";
 pub const PARENT_PEER_ID: &str = "portal-dev";
 pub const PAIRING_ID: &str = "pairing-1";
 pub const SECOND_PAIRING_ID: &str = "pairing-2";
@@ -81,6 +86,8 @@ pub const SECOND_PROOF_DIGEST: &str = "sha256:second-proof-digest";
 pub const OTHER_PROOF_DIGEST: &str = "sha256:other-proof-digest";
 pub const INTENT_ID: &str = "intent-1";
 pub const SECOND_INTENT_ID: &str = "intent-2";
+pub const CONTROLLER_LEASE_ID: &str = "controller-lease-1";
+pub const SECOND_CONTROLLER_LEASE_ID: &str = "controller-lease-2";
 pub const RULE_QUERY_INTENT_ID: &str = "intent-rule-query";
 pub const RULE_UPDATE_INTENT_ID: &str = "intent-rule-update";
 pub const APPROVAL_DECISION_INTENT_ID: &str = "intent-approval-decision";
@@ -97,6 +104,8 @@ pub const WRONG_ORIGIN: &str = "http://127.0.0.1:9478";
 pub const ISSUED_AT: &str = "2026-05-23T14:40:00.000Z";
 pub const EXPIRES_AT: &str = "2099-05-23T14:45:00.000Z";
 pub const EXPIRED_AT: &str = "2026-05-23T14:39:00.000Z";
+pub const CONTROLLER_LEASE_EXPIRES_AT: &str = "2099-05-23T14:44:00.000Z";
+pub const CONTROLLER_LEASE_EXPIRED_AT: &str = "2026-05-23T14:38:00.000Z";
 pub const OBSERVED_AT: &str = "2026-05-23T14:41:00.000Z";
 pub const REGISTRY_FILE_PREFIX: &str = "ocentra-parent-lan-registry-";
 pub const REGISTRY_FILE_EXTENSION: &str = "json";

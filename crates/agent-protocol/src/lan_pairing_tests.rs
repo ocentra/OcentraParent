@@ -73,6 +73,9 @@ fn lan_pairing_audit_event_records_rejection_reason_without_raw_secret() {
         intent_id: Some(constants::lan_pairing::INTENT_ID.to_string()),
         child_device_id: Some(constants::lan_pairing::CHILD_DEVICE_ID.to_string()),
         parent_device_id: Some(constants::lan_pairing::PARENT_DEVICE_ID.to_string()),
+        controller_lease_id: Some(constants::lan_pairing::CONTROLLER_LEASE_ID.to_string()),
+        controller_device_id: Some(constants::lan_pairing::PARENT_DEVICE_ID.to_string()),
+        parent_actor_id: Some(constants::lan_pairing::PARENT_ACTOR_ID.to_string()),
         route_id: constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK.to_string(),
         origin: Some(constants::lan_pairing::WRONG_ORIGIN.to_string()),
         rejection_reason: Some(LanPairingRejectionReason::WrongOrigin),
@@ -222,6 +225,12 @@ fn lan_pairing_read_model_values_keep_local_network_state_explicit() {
         origin: constants::lan_pairing::ALLOWED_ORIGIN.to_string(),
         issued_at: constants::lan_pairing::ISSUED_AT.to_string(),
         expires_at: constants::lan_pairing::EXPIRES_AT.to_string(),
+        controller_lease_id: constants::lan_pairing::CONTROLLER_LEASE_ID.to_string(),
+        controller_device_id: constants::lan_pairing::PARENT_DEVICE_ID.to_string(),
+        parent_actor_id: constants::lan_pairing::PARENT_ACTOR_ID.to_string(),
+        controller_lease_issued_at: constants::lan_pairing::ISSUED_AT.to_string(),
+        controller_lease_expires_at: constants::lan_pairing::CONTROLLER_LEASE_EXPIRES_AT
+            .to_string(),
         evidence_references: vec![evidence()],
     };
 
@@ -323,6 +332,7 @@ fn lan_pairing_runtime_support_surface_serializes_supported_and_planned_api_clai
             LanPairingRouteRequirement::UnexpiredIntent,
             LanPairingRouteRequirement::NonReplayedIntent,
             LanPairingRouteRequirement::UnrevokedPairing,
+            LanPairingRouteRequirement::ActiveControllerLease,
             LanPairingRouteRequirement::SelectedDeviceReachable,
         ],
         manual_proof_gaps: vec![
@@ -470,6 +480,12 @@ fn parent_intent(
         origin: constants::lan_pairing::ALLOWED_ORIGIN.to_string(),
         issued_at: constants::lan_pairing::ISSUED_AT.to_string(),
         expires_at: constants::lan_pairing::EXPIRES_AT.to_string(),
+        controller_lease_id: constants::lan_pairing::CONTROLLER_LEASE_ID.to_string(),
+        controller_device_id: constants::lan_pairing::PARENT_DEVICE_ID.to_string(),
+        parent_actor_id: constants::lan_pairing::PARENT_ACTOR_ID.to_string(),
+        controller_lease_issued_at: constants::lan_pairing::ISSUED_AT.to_string(),
+        controller_lease_expires_at: constants::lan_pairing::CONTROLLER_LEASE_EXPIRES_AT
+            .to_string(),
         evidence_references: vec![evidence()],
     }
 }

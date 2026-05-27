@@ -57,6 +57,8 @@ pub const LAN_RESTART_RESTORE_TRUSTED_REGISTRY_UNSELECTED: &str =
     "restore-trusted-registry-unselected";
 pub const LAN_PROOF_DIRECT_PROOF_SUBMIT: &str = "direct-proof-submit";
 pub const LAN_REASON_ANONYMOUS: &str = "anonymous";
+pub const LAN_REASON_CONTROLLER_LEASE_EXPIRED: &str = "controller-lease-expired";
+pub const LAN_REASON_CONTROLLER_LEASE_MISSING: &str = "controller-lease-missing";
 pub const LAN_REASON_EXPIRED: &str = "expired";
 pub const LAN_REASON_MALFORMED: &str = "malformed";
 pub const LAN_REASON_OFFLINE: &str = "offline";
@@ -67,6 +69,7 @@ pub const LAN_REASON_UNSELECTED_DEVICE: &str = "unselected-device";
 pub const LAN_REASON_UNSUPPORTED_ROUTE: &str = "unsupported-route";
 pub const LAN_REASON_WRONG_DEVICE: &str = "wrong-device";
 pub const LAN_REASON_WRONG_ORIGIN: &str = "wrong-origin";
+pub const LAN_REASON_WRONG_CONTROLLER: &str = "wrong-controller";
 pub const TRANSPORT_WEBSOCKET: &str = "websocket";
 pub const TRUE: &str = "true";
 pub const UNKNOWN_HOST: &str = "unknown-host";

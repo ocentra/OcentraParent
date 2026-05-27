@@ -33,6 +33,7 @@ export const LanPairingRouteRequirementSchema = withParser(
     'unexpired-intent',
     'non-replayed-intent',
     'unrevoked-pairing',
+    'active-controller-lease',
     'selected-device-reachable'
   )
 );
@@ -116,6 +117,7 @@ export const LanPairingRouteRequirement = {
   UnexpiredIntent: LanPairingRouteRequirementSchema.parse('unexpired-intent'),
   NonReplayedIntent: LanPairingRouteRequirementSchema.parse('non-replayed-intent'),
   UnrevokedPairing: LanPairingRouteRequirementSchema.parse('unrevoked-pairing'),
+  ActiveControllerLease: LanPairingRouteRequirementSchema.parse('active-controller-lease'),
   SelectedDeviceReachable: LanPairingRouteRequirementSchema.parse('selected-device-reachable'),
 } as const;
 

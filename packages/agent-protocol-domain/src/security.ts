@@ -21,6 +21,9 @@ const AgentLanPairingEvidenceReferenceIdSchema = NonEmptySecurityText.pipe(
 export const AgentLanPairingIntentIdSchema = NonEmptySecurityText.pipe(Schema.brand('AgentLanPairingIntentId'));
 export const AgentLanPairingProofDigestSchema = NonEmptySecurityText.pipe(Schema.brand('AgentLanPairingProofDigest'));
 export const AgentLanPairingRouteIdSchema = NonEmptySecurityText.pipe(Schema.brand('AgentLanPairingRouteId'));
+const AgentLanPairingControllerLeaseIdSchema = NonEmptySecurityText.pipe(
+  Schema.brand('AgentLanPairingControllerLeaseId')
+);
 
 export const AgentPairingStateSchema = withParser(
   Schema.Literal('unauthenticated', 'unpaired', 'pairing', 'paired', 'revoked')
@@ -66,7 +69,10 @@ export const AgentLanPairingRejectionReasonSchema = withParser(
     'revoked',
     'local-network-disabled',
     'unsupported-route',
-    'unselected-device'
+    'unselected-device',
+    'controller-lease-missing',
+    'controller-lease-expired',
+    'wrong-controller'
   )
 );
 
@@ -142,6 +148,11 @@ export const AgentLanParentIntentEnvelopeSchema = withParser(
     origin: NonEmptySecurityText,
     issuedAt: AgentTimestampSchema,
     expiresAt: AgentTimestampSchema,
+    controllerLeaseId: AgentLanPairingControllerLeaseIdSchema,
+    controllerDeviceId: AgentDeviceIdSchema,
+    parentActorId: NonEmptySecurityText,
+    controllerLeaseIssuedAt: AgentTimestampSchema,
+    controllerLeaseExpiresAt: AgentTimestampSchema,
     evidenceReferences: Schema.Array(AgentLanPairingEvidenceReferenceSchema),
   })
 );
@@ -155,6 +166,9 @@ export const AgentLanPairingAuditEventSchema = withParser(
     intentId: Schema.Union(AgentLanPairingIntentIdSchema, Schema.Null),
     childDeviceId: Schema.Union(AgentDeviceIdSchema, Schema.Null),
     parentDeviceId: Schema.Union(AgentDeviceIdSchema, Schema.Null),
+    controllerLeaseId: Schema.Union(AgentLanPairingControllerLeaseIdSchema, Schema.Null),
+    controllerDeviceId: Schema.Union(AgentDeviceIdSchema, Schema.Null),
+    parentActorId: Schema.Union(NonEmptySecurityText, Schema.Null),
     routeId: AgentLanPairingRouteIdSchema,
     origin: Schema.Union(NonEmptySecurityText, Schema.Null),
     rejectionReason: Schema.Union(AgentLanPairingRejectionReasonSchema, Schema.Null),
