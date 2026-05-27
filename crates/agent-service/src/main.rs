@@ -65,6 +65,10 @@ mod local_ai_model_registry;
 mod local_ai_model_registry_tests;
 #[cfg(test)]
 mod local_ai_model_request_status_tests;
+mod local_ai_provider_scheduler;
+mod local_ai_provider_scheduler_state;
+#[cfg(test)]
+mod local_ai_provider_scheduler_tests;
 mod local_ai_runtime_acceleration_config;
 #[cfg(test)]
 mod local_ai_runtime_acceleration_tests;

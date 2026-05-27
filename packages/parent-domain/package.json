@@ -33,6 +33,10 @@
       "import": "./dist/local-ai-primitives.js",
       "types": "./dist/local-ai-primitives.d.ts"
     },
+    "./local-ai-provider-scheduler": {
+      "import": "./dist/local-ai-provider-scheduler.js",
+      "types": "./dist/local-ai-provider-scheduler.d.ts"
+    },
     "./local-ai-references": {
       "import": "./dist/local-ai-references.js",
       "types": "./dist/local-ai-references.d.ts"

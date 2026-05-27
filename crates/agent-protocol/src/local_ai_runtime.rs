@@ -6,6 +6,8 @@ mod cache_reasons;
 mod generation;
 #[path = "local_ai_runtime/lifecycle.rs"]
 mod lifecycle;
+#[path = "local_ai_runtime/scheduler.rs"]
+mod scheduler;
 #[path = "local_ai_runtime/status.rs"]
 mod status;
 
@@ -13,4 +15,5 @@ pub use cache::*;
 pub use cache_reasons::*;
 pub use generation::*;
 pub use lifecycle::*;
+pub use scheduler::*;
 pub use status::*;

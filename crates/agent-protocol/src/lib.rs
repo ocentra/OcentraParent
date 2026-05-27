@@ -97,6 +97,8 @@ mod local_ai_chat_generation_protocol_tests;
 #[cfg(test)]
 mod local_ai_model_cache_tests;
 #[cfg(test)]
+mod local_ai_provider_scheduler_tests;
+#[cfg(test)]
 mod local_ai_runtime_tests;
 #[cfg(test)]
 mod local_provider_adapter_readiness_tests;
