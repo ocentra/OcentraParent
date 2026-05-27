@@ -14,7 +14,8 @@
     "v0.6-local-ai-contracts",
     "v0.7-dry-run-policy-preview",
     "package-preview-platforms",
-    "platform-roles-lan-ai-provider-pool"
+    "platform-roles-lan-ai-provider-pool",
+    "v08-v09-product-proof-final-pass"
   ],
   "checkpointScenarios": [
     {
@@ -225,6 +226,42 @@
         "A Vite-only portal run without the Rust service.",
         "A degraded-only LAN AI job result presented as provider pool routing.",
         "A single role string that claims duplicate local AI runtimes on one physical device."
+      ]
+    },
+    {
+      "id": "v08-v09-product-proof-final-pass",
+      "title": "V0.8 And V0.9 Product Proof Final Pass",
+      "claimIds": ["v08-v09-product-proof-final-pass"],
+      "expectationFiles": [
+        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/expectations/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
+        "docs/expectations/lan-pairing.md",
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "proofMode": "ci-mechanical-proof",
+      "realEvidencePath": [
+        "Build contracts and the Rust service from the current commit.",
+        "Run V0.8 app time-limit adapter proof through the real Rust service, including execute, restart recovery, parent cancel, unavailable state, and expiry behavior.",
+        "Run V0.9 two-service LAN pairing/control proof through real Rust service processes, including controller lease conflict/takeover, wrong-origin/wrong-device rejection, registry restart, and degraded LAN AI states.",
+        "Run platform role/LAN AI provider pool proof to keep provider selection, parent mobile scaffold behavior, Android, and iOS states honest."
+      ],
+      "ciCommands": ["node scripts/test/v0-8-v0-9-product-proof-final-pass.mjs"],
+      "requiredArtifacts": [
+        "test-results/v0-8-v0-9-product-proof-final-pass/proof.json",
+        "test-results/v0-8-windows-app-time-limit-adapter-mvp/*.json",
+        "test-results/v0-9-lan-pairing-control-mvp/proof.json",
+        "test-results/platform-roles-lan-ai-provider-pool/proof.json"
+      ],
+      "knownGaps": [
+        "V0.8 real local Windows proof is still an owned-process time-limit adapter proof, not global application blocking or managed-browser enforcement.",
+        "V0.9 proof still uses local real Rust service processes and direct WebSocket routing, not production household discovery or router/firewall proof.",
+        "Parent mobile, Android child, iOS child, signing, stores, device-owner, and Family Controls remain manual-required or unavailable until real platform proof exists."
+      ],
+      "notProof": [
+        "A proof harness run presented as mobile parity.",
+        "A successful owned-process termination presented as broad OS blocking.",
+        "A local two-service WebSocket run presented as production LAN discovery."
       ]
     },
     {
@@ -625,6 +662,54 @@
         "Preview packaging is not production signing, app store, TestFlight, notarization, or device-owner proof."
       ],
       "manualProofChecklist": []
+    },
+    {
+      "id": "v08-v09-product-proof-final-pass",
+      "roadmapSlice": "V0.8/V0.9 product proof final pass",
+      "expectationFiles": [
+        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/expectations/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
+        "docs/expectations/lan-pairing.md",
+        "docs/expectations/platform-deliverables.md"
+      ],
+      "claim": "V0.8 enforcement-adapter proof and V0.9 LAN/multi-device proof are tied together by a real-service final-pass harness with explicit platform and product boundaries.",
+      "privilegedCapability": true,
+      "ciProof": {
+        "commands": ["node scripts/test/v0-8-v0-9-product-proof-final-pass.mjs"],
+        "jobs": ["Worker B V0.8/V0.9 product-proof final pass"]
+      },
+      "platformCoverage": {
+        "windows": "real-local-windows-proof",
+        "linux": "manual-required",
+        "macos": "manual-required",
+        "android": "manual-required",
+        "ios": "manual-required"
+      },
+      "runtimeSurfaceCoverage": {
+        "v08Enforcement": {
+          "state": "implemented",
+          "proof": "Real Rust service app time-limit proof covers execute, restart recovery, parent cancel/override, unavailable state, expiry, audit, and storage for an owned process target."
+        },
+        "v09LanMultiDevice": {
+          "state": "implemented",
+          "proof": "Real Rust service proof covers controller lease conflict/takeover, wrong-origin/wrong-device rejection, trusted registry restart, stale/offline service tests, provider selection, and degraded LAN AI states."
+        },
+        "packageRuntime": {
+          "state": "scaffold",
+          "proof": "Parent desktop service connection is mechanically proven; mobile, Android, iOS, signing, stores, and privileged OS behaviors remain explicit manual proof items."
+        }
+      },
+      "knownGaps": [
+        "The Windows enforcement proof is limited to an owned local process time-limit target and does not claim broad OS blocking.",
+        "The LAN proof uses local Rust service processes and direct WebSocket routing, not production household discovery or physical two-device router proof.",
+        "Android device-owner behavior and iOS Family Controls remain manual-required until real device or entitlement proof exists."
+      ],
+      "manualProofChecklist": [
+        "Run the final-pass proof harness on a Windows host and archive the generated proof JSON with commit SHA.",
+        "Repeat V0.9 LAN pairing/control with two physical household devices on the same LAN, recording IPs, firewall state, allowed origin, route selection, takeover, revocation, and wrong-origin rejection.",
+        "Run Android child-agent proof on emulator or physical device for device-owner, UsageStats, accessibility, VPN/DNS, managed-profile, and package lifecycle claims before upgrading Android coverage.",
+        "Run iOS child-agent proof on approved Apple entitlement/device/TestFlight paths before upgrading iOS coverage."
+      ]
     }
   ]
 }
