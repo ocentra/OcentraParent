@@ -27,6 +27,8 @@ import {
   decodePortalClipboardText,
   parentPortalRouteContext,
   type ParentPortalHashRoutePath,
+  type ParentPortalNavItem,
+  type ParentPortalNavLabel,
   type ParentPortalNavSectionLabel,
 } from '../src/contracts';
 
@@ -62,10 +64,15 @@ function expectRouteContextsToTargetSelectableControls(selectableTargetIds: Read
 }
 
 function expectGuideTargetsToResolve(selectableTargetIds: ReadonlySet<string>): void {
+  const declaredNavLabels = new Set(Object.values(PARENT_PORTAL_NAV_LABELS));
+
   for (const topic of PARENT_PORTAL_GUIDE_TOPICS) {
     for (const note of [...topic.tips, ...topic.actions]) {
       if (!note.targetRoutePath) continue;
       const navMatches = PARENT_PORTAL_CONTENT.navItems.filter((item) => item.routePath === note.targetRoutePath);
+      if (note.targetNavLabel) {
+        expect(declaredNavLabels.has(note.targetNavLabel)).toBe(true);
+      }
       if (navMatches.length === 0) {
         const route = routeFromHashPath(note.targetRoutePath);
         const routeContext = PARENT_PORTAL_ROUTE_CONTEXT[route];
@@ -73,11 +80,108 @@ function expectGuideTargetsToResolve(selectableTargetIds: ReadonlySet<string>): 
         continue;
       }
       expect(navMatches).toHaveLength(1);
-      if (note.targetNavLabel) {
-        expect(note.targetNavLabel).toBe(navMatches[0]?.label);
-      }
     }
   }
+}
+
+function manageNavItems(): readonly ParentPortalNavItem[] {
+  return PARENT_PORTAL_CONTENT.navItems.filter((item) => item.groupId === 'manage');
+}
+
+function summarizeManageItem(item: ParentPortalNavItem) {
+  return {
+    icon: item.icon,
+    routePath: item.routePath,
+    sectionLabel: item.sectionLabel,
+  };
+}
+
+function expectManageItemOrder(): void {
+  expect(manageNavItems().map((item) => item.routePath)).toEqual([
+    '#/settings-rules',
+    '#/lan-pairing',
+    '#/activity',
+    '#/browser-settings',
+    '#/policy-apps',
+    '#/policy-games',
+    '#/policy-screen',
+    '#/policy-network',
+    '#/drive-connections',
+    '#/ai-runtime',
+    '#/subscription',
+  ]);
+}
+
+function expectManageSectionRoutes(
+  sectionLabel: ParentPortalNavSectionLabel,
+  routePaths: readonly ParentPortalHashRoutePath[]
+): void {
+  expect(
+    manageNavItems()
+      .filter((item) => item.sectionLabel === sectionLabel)
+      .map((item) => item.routePath)
+  ).toEqual(routePaths);
+}
+
+function expectManageStandaloneItem(
+  label: ParentPortalNavLabel,
+  expected: ReturnType<typeof summarizeManageItem>
+): void {
+  expect(
+    manageNavItems()
+      .filter((item) => item.label === label)
+      .map((item) => summarizeManageItem(item))
+  ).toEqual([expected]);
+}
+
+function expectNoManageSectionChildren(sectionLabel: ParentPortalNavSectionLabel): void {
+  expect(
+    manageNavItems()
+      .filter((item) => item.sectionLabel === sectionLabel)
+      .map((item) => item.routePath)
+  ).toEqual([]);
+}
+
+function expectManageAccountAndControlBuckets(): void {
+  expectManageStandaloneItem(PARENT_PORTAL_NAV_LABELS.Portal, {
+    icon: 'portal',
+    routePath: '#/settings-rules',
+    sectionLabel: undefined,
+  });
+  expectManageStandaloneItem(PARENT_PORTAL_NAV_LABELS.DataPrivacy, {
+    icon: 'drives',
+    routePath: '#/drive-connections',
+    sectionLabel: undefined,
+  });
+  expectManageStandaloneItem(PARENT_PORTAL_NAV_LABELS.AiMemory, {
+    icon: 'ai-setup',
+    routePath: '#/ai-runtime',
+    sectionLabel: undefined,
+  });
+  expectManageStandaloneItem(PARENT_PORTAL_NAV_LABELS.Account, {
+    icon: 'account',
+    routePath: '#/subscription',
+    sectionLabel: undefined,
+  });
+}
+
+function expectManageCollapsedSections(): void {
+  expectNoManageSectionChildren(PARENT_PORTAL_NAV_LABELS.Portal);
+  expectNoManageSectionChildren(PARENT_PORTAL_NAV_LABELS.DataPrivacy);
+  expectNoManageSectionChildren(PARENT_PORTAL_NAV_LABELS.AiMemory);
+  expectNoManageSectionChildren(PARENT_PORTAL_NAV_LABELS.Account);
+  expectManageStandaloneItem(PARENT_PORTAL_NAV_LABELS.Devices, {
+    icon: 'lan',
+    routePath: '#/lan-pairing',
+    sectionLabel: undefined,
+  });
+  expectNoManageSectionChildren(PARENT_PORTAL_NAV_LABELS.Devices);
+  expectManageStandaloneItem(PARENT_PORTAL_NAV_LABELS.Activity, {
+    icon: 'activity',
+    routePath: '#/activity',
+    sectionLabel: undefined,
+  });
+  expectNoManageSectionChildren(PARENT_PORTAL_NAV_LABELS.Activity);
 }
 
 describe('portal route schema contracts', () => {
@@ -90,6 +194,10 @@ describe('portal route schema contracts', () => {
       'browser',
       'browser-settings',
       'policy',
+      'policy-apps',
+      'policy-games',
+      'policy-screen',
+      'policy-network',
       'rule-management',
       'schedules',
       'approvals',
@@ -101,7 +209,6 @@ describe('portal route schema contracts', () => {
       'ai-runtime',
       'api-providers',
       'reports-guide',
-      'report-settings',
       'screen-analysis',
       'app-game-sessions',
       'network-activity',
@@ -127,8 +234,16 @@ describe('portal route schema contracts', () => {
     ]);
     expect(PortalRouteSchema.safeParse('commands').success).toBe(true);
     expect(PortalRouteSchema.safeParse('settings-rules').success).toBe(true);
-    expect(PortalRouteSchema.safeParse('frame-tuner').success).toBe(true);
+    expect(PortalRouteSchema.safeParse('policy-apps').success).toBe(true);
+    expect(PortalRouteSchema.safeParse('policy-games').success).toBe(true);
+    expect(PortalRouteSchema.safeParse('policy-screen').success).toBe(true);
+    expect(PortalRouteSchema.safeParse('policy-network').success).toBe(true);
+    expect(PortalRouteSchema.safeParse('frame-tuner').success).toBe(false);
     expect(PortalRouteSchema.safeParse('billing').success).toBe(false);
+    expect(PortalRouteDescriptors.map((descriptor) => descriptor.route)).toContain(PortalRoute.PolicyApps);
+    expect(PortalRouteDescriptors.map((descriptor) => descriptor.route)).toContain(PortalRoute.PolicyGames);
+    expect(PortalRouteDescriptors.map((descriptor) => descriptor.route)).toContain(PortalRoute.PolicyScreen);
+    expect(PortalRouteDescriptors.map((descriptor) => descriptor.route)).toContain(PortalRoute.PolicyNetwork);
     expect(PortalRouteDescriptors.map((descriptor) => descriptor.group)).toContain(PortalRouteGroup.Monitor);
     expect(PortalRouteDescriptors.map((descriptor) => descriptor.label)).toContain('Start here');
     expect(PortalRouteDescriptors.map((descriptor) => descriptor.label)).toContain('Activity');
@@ -148,26 +263,50 @@ describe('portal guide route contracts', () => {
     const guideRules = guideItems.find((item) => item.routePath === '#/policy');
     const guideAi = guideItems.find((item) => item.label === PARENT_PORTAL_NAV_LABELS.Ai);
     const guideReports = guideItems.find((item) => item.label === PARENT_PORTAL_NAV_LABELS.ReportsGuide);
-    const manageRules = manageItems.find((item) => item.routePath === '#/rule-management');
-    const manageSupport = manageItems.find((item) => item.routePath === '#/diagnostics');
+    const policyRoutes = manageItems
+      .filter((item) => item.sectionLabel === PARENT_PORTAL_NAV_LABELS.Policies)
+      .map((item) => item.routePath);
 
     expect(guideRules?.label).toBe(PARENT_PORTAL_NAV_LABELS.RulesGuide);
-    expect(manageRules?.label).toBe(PARENT_PORTAL_NAV_LABELS.RuleSet);
-    expect(manageSupport?.label).toBe(PARENT_PORTAL_NAV_LABELS.Support);
-    expect(manageSupport?.sectionLabel).toBe(PARENT_PORTAL_NAV_LABELS.Account);
+    expect(manageItems.find((item) => item.label === PARENT_PORTAL_NAV_LABELS.Portal)?.routePath).toBe(
+      '#/settings-rules'
+    );
+    expect(manageItems.find((item) => item.label === PARENT_PORTAL_NAV_LABELS.Account)?.routePath).toBe(
+      '#/subscription'
+    );
+    expect(manageItems.find((item) => item.label === PARENT_PORTAL_NAV_LABELS.DataPrivacy)?.routePath).toBe(
+      '#/drive-connections'
+    );
+    expect(manageItems.find((item) => item.label === PARENT_PORTAL_NAV_LABELS.AiMemory)?.routePath).toBe(
+      '#/ai-runtime'
+    );
+    expect(policyRoutes).toEqual([
+      '#/browser-settings',
+      '#/policy-apps',
+      '#/policy-games',
+      '#/policy-screen',
+      '#/policy-network',
+    ]);
+    expect(manageItems.some((item) => item.routePath === '#/rule-management')).toBe(false);
+    expect(manageItems.some((item) => item.routePath === '#/schedules')).toBe(false);
+    expect(manageItems.some((item) => item.routePath === '#/approvals')).toBe(false);
+    expect(manageItems.some((item) => item.routePath === '#/enforcement')).toBe(false);
     expect(guideAi?.routePath).toBe('#/ai-guide');
     expect(guideReports?.routePath).toBe('#/reports-guide');
     expect(parentPortalRouteContext(PortalRoute.Policy).pageMode).toBe('parentGuide');
     expect(parentPortalRouteContext(PortalRoute.RuleManagement).pageMode).toBe('parentManage');
+    expect(parentPortalRouteContext(PortalRoute.PolicyApps).pageMode).toBe('parentManage');
+    expect(parentPortalRouteContext(PortalRoute.PolicyGames).pageMode).toBe('parentManage');
+    expect(parentPortalRouteContext(PortalRoute.PolicyScreen).pageMode).toBe('parentManage');
+    expect(parentPortalRouteContext(PortalRoute.PolicyNetwork).pageMode).toBe('parentManage');
     expect(parentPortalRouteContext(PortalRoute.AiGuide).pageMode).toBe('parentGuide');
     expect(parentPortalRouteContext(PortalRoute.ReportsGuide).pageMode).toBe('parentGuide');
     expect(parentPortalRouteContext(PortalRoute.AiRuntime).pageMode).toBe('parentManage');
-    expect(parentPortalRouteContext(PortalRoute.ReportSettings).pageMode).toBe('parentManage');
   });
 });
 
 describe('portal collapsed manage route contracts', () => {
-  it('legacy device and activity routes resolve to the unified manage pages', () => {
+  it('collapsed device and activity routes resolve to the unified manage pages', () => {
     expect(parentPortalRouteContext(PortalRoute.Devices)).toMatchObject({
       navLabel: PARENT_PORTAL_NAV_LABELS.Devices,
       selectedControlId: 'lan-pairing',
@@ -181,8 +320,8 @@ describe('portal collapsed manage route contracts', () => {
       selectedControlId: 'lan-pairing',
     });
     expect(parentPortalRouteContext(PortalRoute.RemoteAccess)).toMatchObject({
-      navLabel: PARENT_PORTAL_NAV_LABELS.Devices,
-      selectedControlId: 'lan-pairing',
+      navLabel: PARENT_PORTAL_NAV_LABELS.DataPrivacy,
+      selectedControlId: 'remote-access',
     });
     expect(parentPortalRouteContext(PortalRoute.PlatformsInstall)).toMatchObject({
       navLabel: PARENT_PORTAL_NAV_LABELS.Devices,
@@ -191,10 +330,6 @@ describe('portal collapsed manage route contracts', () => {
     expect(parentPortalRouteContext(PortalRoute.InstallUpdates)).toMatchObject({
       navLabel: PARENT_PORTAL_NAV_LABELS.Devices,
       selectedControlId: 'lan-pairing',
-    });
-    expect(parentPortalRouteContext(PortalRoute.ReportSettings)).toMatchObject({
-      navLabel: PARENT_PORTAL_NAV_LABELS.Activity,
-      selectedControlId: 'reports-settings',
     });
     expect(parentPortalRouteContext(PortalRoute.ScreenAnalysis)).toMatchObject({
       navLabel: PARENT_PORTAL_NAV_LABELS.Activity,
@@ -211,6 +346,22 @@ describe('portal collapsed manage route contracts', () => {
     expect(parentPortalRouteContext(PortalRoute.ReportCompiler)).toMatchObject({
       navLabel: PARENT_PORTAL_NAV_LABELS.Activity,
       selectedControlId: 'reports-settings',
+    });
+    expect(parentPortalRouteContext(PortalRoute.RuleManagement)).toMatchObject({
+      navLabel: PARENT_PORTAL_NAV_LABELS.Browser,
+      selectedControlId: 'browser-settings',
+    });
+    expect(parentPortalRouteContext(PortalRoute.Schedules)).toMatchObject({
+      navLabel: PARENT_PORTAL_NAV_LABELS.Browser,
+      selectedControlId: 'browser-settings',
+    });
+    expect(parentPortalRouteContext(PortalRoute.Approvals)).toMatchObject({
+      navLabel: PARENT_PORTAL_NAV_LABELS.Browser,
+      selectedControlId: 'browser-settings',
+    });
+    expect(parentPortalRouteContext(PortalRoute.Enforcement)).toMatchObject({
+      navLabel: PARENT_PORTAL_NAV_LABELS.Browser,
+      selectedControlId: 'browser-settings',
     });
   });
 });
@@ -230,53 +381,16 @@ describe('portal nav matrix contracts', () => {
 
 describe('portal manage section contracts', () => {
   it('parent portal manage sections: keep side-panel items in the agreed account and control buckets', () => {
-    const expectedManageRoutesBySection = new Map<ParentPortalNavSectionLabel, readonly ParentPortalHashRoutePath[]>([
-      [PARENT_PORTAL_NAV_LABELS.Portal, ['#/settings-rules', '#/notifications', '#/notification-channels']],
-      [
-        PARENT_PORTAL_NAV_LABELS.Policies,
-        ['#/browser-settings', '#/rule-management', '#/schedules', '#/approvals', '#/enforcement'],
-      ],
-      [PARENT_PORTAL_NAV_LABELS.DataPrivacy, ['#/drive-connections', '#/export-retention', '#/audit-history']],
-      [PARENT_PORTAL_NAV_LABELS.AiMemory, ['#/ai-runtime', '#/api-providers', '#/memory-settings']],
-      [PARENT_PORTAL_NAV_LABELS.Account, ['#/subscription', '#/diagnostics', '#/entitlements']],
+    expectManageItemOrder();
+    expectManageSectionRoutes(PARENT_PORTAL_NAV_LABELS.Policies, [
+      '#/browser-settings',
+      '#/policy-apps',
+      '#/policy-games',
+      '#/policy-screen',
+      '#/policy-network',
     ]);
-
-    for (const [sectionLabel, routePaths] of expectedManageRoutesBySection) {
-      expect(
-        PARENT_PORTAL_CONTENT.navItems
-          .filter((item) => item.groupId === 'manage' && item.sectionLabel === sectionLabel)
-          .map((item) => item.routePath)
-      ).toEqual(routePaths);
-    }
-
-    expect(
-      PARENT_PORTAL_CONTENT.navItems
-        .filter((item) => item.groupId === 'manage' && item.label === PARENT_PORTAL_NAV_LABELS.Devices)
-        .map((item) => ({
-          icon: item.icon,
-          routePath: item.routePath,
-          sectionLabel: item.sectionLabel,
-        }))
-    ).toEqual([{ icon: 'lan', routePath: '#/lan-pairing', sectionLabel: undefined }]);
-    expect(
-      PARENT_PORTAL_CONTENT.navItems
-        .filter((item) => item.groupId === 'manage' && item.sectionLabel === PARENT_PORTAL_NAV_LABELS.Devices)
-        .map((item) => item.routePath)
-    ).toEqual([]);
-    expect(
-      PARENT_PORTAL_CONTENT.navItems
-        .filter((item) => item.groupId === 'manage' && item.label === PARENT_PORTAL_NAV_LABELS.Activity)
-        .map((item) => ({
-          icon: item.icon,
-          routePath: item.routePath,
-          sectionLabel: item.sectionLabel,
-        }))
-    ).toEqual([{ icon: 'activity', routePath: '#/activity', sectionLabel: undefined }]);
-    expect(
-      PARENT_PORTAL_CONTENT.navItems
-        .filter((item) => item.groupId === 'manage' && item.sectionLabel === PARENT_PORTAL_NAV_LABELS.Activity)
-        .map((item) => item.routePath)
-    ).toEqual([]);
+    expectManageAccountAndControlBuckets();
+    expectManageCollapsedSections();
   });
 });
 

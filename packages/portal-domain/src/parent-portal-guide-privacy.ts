@@ -89,7 +89,7 @@ export const PARENT_PORTAL_PRIVACY_GUIDES: readonly ParentPortalGuideTopic[] = [
         body: 'A drive connection lets a parent use their own storage for backup, migration, remote reports, or cross-device continuity. Ocentra may provide connector status and schemas, but it should not silently become the family-data warehouse.',
         steps: [
           'Choose provider: Google Drive, OneDrive, iCloud Drive, Dropbox, NAS, or local folder.',
-          'Choose data classes: encrypted evidence bundle, rules, approvals, report summaries, or support bundle.',
+          'Choose data classes: encrypted evidence export, rules, approvals, report summaries, or support message record.',
           'Show connected account, folder, last sync, failure state, and revocation state.',
           'Keep local evidence intact when export or sync fails.',
         ],
@@ -97,11 +97,11 @@ export const PARENT_PORTAL_PRIVACY_GUIDES: readonly ParentPortalGuideTopic[] = [
       {
         eyebrow: 'EXPORT TYPES',
         title: 'Different exports need different expectations',
-        body: 'Encrypted machine-readable backups, intentionally human-readable reports, and support bundles are different. The UI should make those choices obvious before the parent starts an export or sync.',
+        body: 'Encrypted machine-readable backups, intentionally human-readable reports, and support message records are different. The UI should make those choices obvious before the parent starts an export or sync.',
         steps: [
           'Encrypted backup: for restore or migration.',
           'Human-readable report: for parent review and conversation.',
-          'Support bundle: for troubleshooting, with sensitive classes clearly listed.',
+          'Support message record: for parent-authored troubleshooting requests, with sensitive classes clearly listed.',
           'Delete and retention controls should match the chosen destination and data class.',
         ],
       },

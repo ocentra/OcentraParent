@@ -9,6 +9,102 @@ import {
   AgentProtocolDefaults,
 } from '../src/contracts';
 
+const EXPECTED_AGENT_COMMAND_ENTRIES = [
+  ['ActivityIngestStatusGet', 'agent.activity.ingest.status.get'],
+  ['ActivityRecentSummaryGet', 'agent.activity.recent.summary.get'],
+  ['ActivityMemoryGraphGet', 'agent.activity.memory-graph.get'],
+  ['ActivityReportDailyGenerate', 'agent.activity.report.daily.generate'],
+  ['ActivityReportWeeklyGenerate', 'agent.activity.report.weekly.generate'],
+  ['ActivityReportMonthlyGenerate', 'agent.activity.report.monthly.generate'],
+  ['ActivityReportSave', 'agent.activity.report.save'],
+  ['ActivityReportHistoryList', 'agent.activity.report.history.list'],
+  ['ActivityScreenReadModelGet', 'agent.activity.screen.read-model.get'],
+  ['ActivityAppUseReadModelGet', 'agent.activity.app-use.read-model.get'],
+  ['ActivityBrowserReadModelGet', 'agent.activity.browser.read-model.get'],
+  ['ActivityGamesReadModelGet', 'agent.activity.games.read-model.get'],
+  ['ActivityNetworkReadModelGet', 'agent.activity.network.read-model.get'],
+  ['BrowserEvidenceRecentGet', 'agent.browser.evidence.recent.get'],
+  ['BrowserManagedBridgePoll', 'agent.browser.managed.bridge.poll'],
+  ['BrowserInterventionReadModelGet', 'agent.browser.intervention.read-model.get'],
+  ['NetworkFlowReadModelGet', 'agent.network.flow.read-model.get'],
+  ['LocalAiRuntimeStatusGet', 'agent.local-ai.runtime.status.get'],
+  ['LocalAiChatGenerate', 'agent.local-ai.chat.generate'],
+  ['ParentAssistantAnswerGenerate', 'agent.parent-assistant.answer.generate'],
+  ['PolicyPreviewReadModelGet', 'agent.policy.preview.read-model.get'],
+  ['EnforcementExecute', 'agent.enforcement.execute'],
+  ['EnforcementTimerRecover', 'agent.enforcement.timer.recover'],
+  ['EnforcementTimerExpire', 'agent.enforcement.timer.expire'],
+  ['EnforcementOverrideCancel', 'agent.enforcement.override.cancel'],
+  ['ParentAssistantThreadList', 'agent.parent-assistant.thread.list'],
+  ['ParentAssistantThreadCreate', 'agent.parent-assistant.thread.create'],
+  ['ParentAssistantThreadOpen', 'agent.parent-assistant.thread.open'],
+  ['ParentAssistantThreadArchive', 'agent.parent-assistant.thread.archive'],
+  ['ParentAssistantMessageSend', 'agent.parent-assistant.message.send'],
+  ['ParentAssistantRunCancel', 'agent.parent-assistant.run.cancel'],
+  ['ParentAssistantQuickActionStart', 'agent.parent-assistant.quick-action.start'],
+  ['ParentAssistantActionPreview', 'agent.parent-assistant.action.preview'],
+  ['ParentAssistantActionConfirm', 'agent.parent-assistant.action.confirm'],
+  ['ParentAssistantProviderStatusGet', 'agent.parent-assistant.provider.status.get'],
+  ['LanPairingProofSubmit', 'agent.lan-pairing.proof.submit'],
+  ['LanPairingRouteSelect', 'agent.lan-pairing.route.select'],
+  ['LanPairingRouteRevoke', 'agent.lan-pairing.route.revoke'],
+  ['LanPairingStatusGet', 'agent.lan-pairing.status.get'],
+  ['LanPairingControllerLeaseRenew', 'agent.lan-pairing.controller-lease.renew'],
+  ['LanPairingControllerLeaseRelease', 'agent.lan-pairing.controller-lease.release'],
+  ['LanPairingControllerLeaseTakeover', 'agent.lan-pairing.controller-lease.takeover'],
+  ['LanAiProviderStatusGet', 'agent.lan-ai.provider.status.get'],
+  ['LanAiJobSubmit', 'agent.lan-ai.job.submit'],
+] as const satisfies ReadonlyArray<readonly [keyof typeof AgentCommand, unknown]>;
+
+const EXPECTED_AGENT_EVENT_ENTRIES = [
+  ['HealthReported', 'agent.health.reported'],
+  ['LogSnapshotReported', 'agent.log.snapshot.reported'],
+  ['DevEchoed', 'agent.dev.echoed'],
+  ['WatchStatusReported', 'agent.watch.status.reported'],
+  ['ActivityIngestStatusReported', 'agent.activity.ingest.status.reported'],
+  ['ActivityRecentSummaryReported', 'agent.activity.recent.summary.reported'],
+  ['ActivityMemoryGraphReported', 'agent.activity.memory-graph.reported'],
+  ['ActivityReportGenerated', 'agent.activity.report.generated'],
+  ['ActivityReportSaved', 'agent.activity.report.saved'],
+  ['ActivityReportHistoryReported', 'agent.activity.report.history.reported'],
+  ['ActivityScreenReadModelReported', 'agent.activity.screen.read-model.reported'],
+  ['ActivityAppUseReadModelReported', 'agent.activity.app-use.read-model.reported'],
+  ['ActivityBrowserReadModelReported', 'agent.activity.browser.read-model.reported'],
+  ['ActivityGamesReadModelReported', 'agent.activity.games.read-model.reported'],
+  ['ActivityNetworkReadModelReported', 'agent.activity.network.read-model.reported'],
+  ['BrowserEvidenceRecentReported', 'agent.browser.evidence.recent.reported'],
+  ['BrowserManagedStatusReported', 'agent.browser.managed.status.reported'],
+  ['BrowserInterventionReadModelReported', 'agent.browser.intervention.read-model.reported'],
+  ['NetworkFlowReadModelReported', 'agent.network.flow.read-model.reported'],
+  ['LocalAiRuntimeStatusReported', 'agent.local-ai.runtime.status.reported'],
+  ['LocalAiChatGenerationReported', 'agent.local-ai.chat.generation.reported'],
+  ['ParentAssistantAnswerReported', 'agent.parent-assistant.answer.reported'],
+  ['PolicyPreviewReadModelReported', 'agent.policy.preview.read-model.reported'],
+  ['EnforcementAuditReported', 'agent.enforcement.audit.reported'],
+  ['EnforcementTimerReported', 'agent.enforcement.timer.reported'],
+  ['ParentAssistantThreadUpdated', 'agent.parent-assistant.thread.updated'],
+  ['ParentAssistantMessageAccepted', 'agent.parent-assistant.message.accepted'],
+  ['ParentAssistantRunStarted', 'agent.parent-assistant.run.started'],
+  ['ParentAssistantMessageDelta', 'agent.parent-assistant.message.delta'],
+  ['ParentAssistantMessageCompleted', 'agent.parent-assistant.message.completed'],
+  ['ParentAssistantActionPreviewed', 'agent.parent-assistant.action.previewed'],
+  ['ParentAssistantActionConfirmed', 'agent.parent-assistant.action.confirmed'],
+  ['ParentAssistantProviderDegraded', 'agent.parent-assistant.provider.degraded'],
+  ['ParentAssistantErrorReported', 'agent.parent-assistant.error.reported'],
+  ['LanPairingStatusReported', 'agent.lan-pairing.status.reported'],
+  ['LanPairingAuditReported', 'agent.lan-pairing.audit.reported'],
+  ['LanAiJobReported', 'agent.lan-ai.job.reported'],
+] as const satisfies ReadonlyArray<readonly [keyof typeof AgentEvent, unknown]>;
+
+function expectConstantEntries<TConstants extends object>(
+  constants: TConstants,
+  entries: ReadonlyArray<readonly [keyof TConstants, unknown]>
+) {
+  for (const [key, value] of entries) {
+    expect(constants[key]).toBe(value);
+  }
+}
+
 it('AgentCommandEnvelopeSchema: accepts a portal command for a Windows localhost agent', () => {
   const parsed = AgentCommandEnvelopeSchema.safeParse({
     schemaVersion: 1,
@@ -87,49 +183,7 @@ it('AgentCommandEnvelopeSchema: accepts parent assistant message commands over t
 });
 
 it('AgentCommand: exposes typed command constants for portal requests', () => {
-  expect(AgentCommand.ActivityIngestStatusGet).toBe('agent.activity.ingest.status.get');
-  expect(AgentCommand.ActivityRecentSummaryGet).toBe('agent.activity.recent.summary.get');
-  expect(AgentCommand.ActivityMemoryGraphGet).toBe('agent.activity.memory-graph.get');
-  expect(AgentCommand.ActivityReportDailyGenerate).toBe('agent.activity.report.daily.generate');
-  expect(AgentCommand.ActivityReportWeeklyGenerate).toBe('agent.activity.report.weekly.generate');
-  expect(AgentCommand.ActivityReportMonthlyGenerate).toBe('agent.activity.report.monthly.generate');
-  expect(AgentCommand.ActivityReportSave).toBe('agent.activity.report.save');
-  expect(AgentCommand.ActivityReportHistoryList).toBe('agent.activity.report.history.list');
-  expect(AgentCommand.ActivityScreenReadModelGet).toBe('agent.activity.screen.read-model.get');
-  expect(AgentCommand.ActivityAppUseReadModelGet).toBe('agent.activity.app-use.read-model.get');
-  expect(AgentCommand.ActivityBrowserReadModelGet).toBe('agent.activity.browser.read-model.get');
-  expect(AgentCommand.ActivityGamesReadModelGet).toBe('agent.activity.games.read-model.get');
-  expect(AgentCommand.ActivityNetworkReadModelGet).toBe('agent.activity.network.read-model.get');
-  expect(AgentCommand.BrowserEvidenceRecentGet).toBe('agent.browser.evidence.recent.get');
-  expect(AgentCommand.BrowserManagedBridgePoll).toBe('agent.browser.managed.bridge.poll');
-  expect(AgentCommand.BrowserInterventionReadModelGet).toBe('agent.browser.intervention.read-model.get');
-  expect(AgentCommand.NetworkFlowReadModelGet).toBe('agent.network.flow.read-model.get');
-  expect(AgentCommand.LocalAiRuntimeStatusGet).toBe('agent.local-ai.runtime.status.get');
-  expect(AgentCommand.LocalAiChatGenerate).toBe('agent.local-ai.chat.generate');
-  expect(AgentCommand.ParentAssistantAnswerGenerate).toBe('agent.parent-assistant.answer.generate');
-  expect(AgentCommand.EnforcementExecute).toBe('agent.enforcement.execute');
-  expect(AgentCommand.EnforcementTimerRecover).toBe('agent.enforcement.timer.recover');
-  expect(AgentCommand.EnforcementTimerExpire).toBe('agent.enforcement.timer.expire');
-  expect(AgentCommand.EnforcementOverrideCancel).toBe('agent.enforcement.override.cancel');
-  expect(AgentCommand.ParentAssistantThreadList).toBe('agent.parent-assistant.thread.list');
-  expect(AgentCommand.ParentAssistantThreadCreate).toBe('agent.parent-assistant.thread.create');
-  expect(AgentCommand.ParentAssistantThreadOpen).toBe('agent.parent-assistant.thread.open');
-  expect(AgentCommand.ParentAssistantThreadArchive).toBe('agent.parent-assistant.thread.archive');
-  expect(AgentCommand.ParentAssistantMessageSend).toBe('agent.parent-assistant.message.send');
-  expect(AgentCommand.ParentAssistantRunCancel).toBe('agent.parent-assistant.run.cancel');
-  expect(AgentCommand.ParentAssistantQuickActionStart).toBe('agent.parent-assistant.quick-action.start');
-  expect(AgentCommand.ParentAssistantActionPreview).toBe('agent.parent-assistant.action.preview');
-  expect(AgentCommand.ParentAssistantActionConfirm).toBe('agent.parent-assistant.action.confirm');
-  expect(AgentCommand.ParentAssistantProviderStatusGet).toBe('agent.parent-assistant.provider.status.get');
-  expect(AgentCommand.LanPairingProofSubmit).toBe('agent.lan-pairing.proof.submit');
-  expect(AgentCommand.LanPairingRouteSelect).toBe('agent.lan-pairing.route.select');
-  expect(AgentCommand.LanPairingRouteRevoke).toBe('agent.lan-pairing.route.revoke');
-  expect(AgentCommand.LanPairingStatusGet).toBe('agent.lan-pairing.status.get');
-  expect(AgentCommand.LanPairingControllerLeaseRenew).toBe('agent.lan-pairing.controller-lease.renew');
-  expect(AgentCommand.LanPairingControllerLeaseRelease).toBe('agent.lan-pairing.controller-lease.release');
-  expect(AgentCommand.LanPairingControllerLeaseTakeover).toBe('agent.lan-pairing.controller-lease.takeover');
-  expect(AgentCommand.LanAiProviderStatusGet).toBe('agent.lan-ai.provider.status.get');
-  expect(AgentCommand.LanAiJobSubmit).toBe('agent.lan-ai.job.submit');
+  expectConstantEntries(AgentCommand, EXPECTED_AGENT_COMMAND_ENTRIES);
 });
 
 it('AgentLanPairingSupportedWebSocketCommand: keeps V0.9 LAN pairing support limited to WebSocket commands', () => {
@@ -234,42 +288,7 @@ it('AgentProtocolDefaults.Field: exposes read-model payload fields', () => {
 });
 
 it('AgentEvent: exposes typed constants for portal result rendering', () => {
-  expect(AgentEvent.HealthReported).toBe('agent.health.reported');
-  expect(AgentEvent.LogSnapshotReported).toBe('agent.log.snapshot.reported');
-  expect(AgentEvent.DevEchoed).toBe('agent.dev.echoed');
-  expect(AgentEvent.WatchStatusReported).toBe('agent.watch.status.reported');
-  expect(AgentEvent.ActivityIngestStatusReported).toBe('agent.activity.ingest.status.reported');
-  expect(AgentEvent.ActivityRecentSummaryReported).toBe('agent.activity.recent.summary.reported');
-  expect(AgentEvent.ActivityMemoryGraphReported).toBe('agent.activity.memory-graph.reported');
-  expect(AgentEvent.ActivityReportGenerated).toBe('agent.activity.report.generated');
-  expect(AgentEvent.ActivityReportSaved).toBe('agent.activity.report.saved');
-  expect(AgentEvent.ActivityReportHistoryReported).toBe('agent.activity.report.history.reported');
-  expect(AgentEvent.ActivityScreenReadModelReported).toBe('agent.activity.screen.read-model.reported');
-  expect(AgentEvent.ActivityAppUseReadModelReported).toBe('agent.activity.app-use.read-model.reported');
-  expect(AgentEvent.ActivityBrowserReadModelReported).toBe('agent.activity.browser.read-model.reported');
-  expect(AgentEvent.ActivityGamesReadModelReported).toBe('agent.activity.games.read-model.reported');
-  expect(AgentEvent.ActivityNetworkReadModelReported).toBe('agent.activity.network.read-model.reported');
-  expect(AgentEvent.BrowserEvidenceRecentReported).toBe('agent.browser.evidence.recent.reported');
-  expect(AgentEvent.BrowserManagedStatusReported).toBe('agent.browser.managed.status.reported');
-  expect(AgentEvent.BrowserInterventionReadModelReported).toBe('agent.browser.intervention.read-model.reported');
-  expect(AgentEvent.NetworkFlowReadModelReported).toBe('agent.network.flow.read-model.reported');
-  expect(AgentEvent.LocalAiRuntimeStatusReported).toBe('agent.local-ai.runtime.status.reported');
-  expect(AgentEvent.LocalAiChatGenerationReported).toBe('agent.local-ai.chat.generation.reported');
-  expect(AgentEvent.ParentAssistantAnswerReported).toBe('agent.parent-assistant.answer.reported');
-  expect(AgentEvent.EnforcementAuditReported).toBe('agent.enforcement.audit.reported');
-  expect(AgentEvent.EnforcementTimerReported).toBe('agent.enforcement.timer.reported');
-  expect(AgentEvent.ParentAssistantThreadUpdated).toBe('agent.parent-assistant.thread.updated');
-  expect(AgentEvent.ParentAssistantMessageAccepted).toBe('agent.parent-assistant.message.accepted');
-  expect(AgentEvent.ParentAssistantRunStarted).toBe('agent.parent-assistant.run.started');
-  expect(AgentEvent.ParentAssistantMessageDelta).toBe('agent.parent-assistant.message.delta');
-  expect(AgentEvent.ParentAssistantMessageCompleted).toBe('agent.parent-assistant.message.completed');
-  expect(AgentEvent.ParentAssistantActionPreviewed).toBe('agent.parent-assistant.action.previewed');
-  expect(AgentEvent.ParentAssistantActionConfirmed).toBe('agent.parent-assistant.action.confirmed');
-  expect(AgentEvent.ParentAssistantProviderDegraded).toBe('agent.parent-assistant.provider.degraded');
-  expect(AgentEvent.ParentAssistantErrorReported).toBe('agent.parent-assistant.error.reported');
-  expect(AgentEvent.LanPairingStatusReported).toBe('agent.lan-pairing.status.reported');
-  expect(AgentEvent.LanPairingAuditReported).toBe('agent.lan-pairing.audit.reported');
-  expect(AgentEvent.LanAiJobReported).toBe('agent.lan-ai.job.reported');
+  expectConstantEntries(AgentEvent, EXPECTED_AGENT_EVENT_ENTRIES);
 });
 
 it('AgentCommandEnvelopeSchema: rejects unknown commands', () => {

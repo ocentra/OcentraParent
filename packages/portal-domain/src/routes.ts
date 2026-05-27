@@ -11,6 +11,10 @@ export const PortalRouteSchema = withParser(
     'browser',
     'browser-settings',
     'policy',
+    'policy-apps',
+    'policy-games',
+    'policy-screen',
+    'policy-network',
     'rule-management',
     'schedules',
     'approvals',
@@ -22,7 +26,6 @@ export const PortalRouteSchema = withParser(
     'ai-runtime',
     'api-providers',
     'reports-guide',
-    'report-settings',
     'screen-analysis',
     'app-game-sessions',
     'network-activity',
@@ -43,7 +46,6 @@ export const PortalRouteSchema = withParser(
     'diagnostics',
     'settings-rules',
     'app-layout',
-    'frame-tuner',
     'commands',
     'events'
   )
@@ -58,6 +60,10 @@ export const PortalRoute = {
   Browser: PortalRouteSchema.parse('browser'),
   BrowserSettings: PortalRouteSchema.parse('browser-settings'),
   Policy: PortalRouteSchema.parse('policy'),
+  PolicyApps: PortalRouteSchema.parse('policy-apps'),
+  PolicyGames: PortalRouteSchema.parse('policy-games'),
+  PolicyScreen: PortalRouteSchema.parse('policy-screen'),
+  PolicyNetwork: PortalRouteSchema.parse('policy-network'),
   RuleManagement: PortalRouteSchema.parse('rule-management'),
   Schedules: PortalRouteSchema.parse('schedules'),
   Approvals: PortalRouteSchema.parse('approvals'),
@@ -69,7 +75,6 @@ export const PortalRoute = {
   AiRuntime: PortalRouteSchema.parse('ai-runtime'),
   ApiProviders: PortalRouteSchema.parse('api-providers'),
   ReportsGuide: PortalRouteSchema.parse('reports-guide'),
-  ReportSettings: PortalRouteSchema.parse('report-settings'),
   ScreenAnalysis: PortalRouteSchema.parse('screen-analysis'),
   AppGameSessions: PortalRouteSchema.parse('app-game-sessions'),
   NetworkActivity: PortalRouteSchema.parse('network-activity'),
@@ -90,7 +95,6 @@ export const PortalRoute = {
   Diagnostics: PortalRouteSchema.parse('diagnostics'),
   SettingsRules: PortalRouteSchema.parse('settings-rules'),
   FrameTuner: PortalRouteSchema.parse('app-layout'),
-  LegacyFrameTuner: PortalRouteSchema.parse('frame-tuner'),
   Commands: PortalRouteSchema.parse('commands'),
   Events: PortalRouteSchema.parse('events'),
 } as const;
@@ -103,6 +107,10 @@ export const PortalRoutes = [
   PortalRoute.Browser,
   PortalRoute.BrowserSettings,
   PortalRoute.Policy,
+  PortalRoute.PolicyApps,
+  PortalRoute.PolicyGames,
+  PortalRoute.PolicyScreen,
+  PortalRoute.PolicyNetwork,
   PortalRoute.RuleManagement,
   PortalRoute.Schedules,
   PortalRoute.Approvals,
@@ -114,7 +122,6 @@ export const PortalRoutes = [
   PortalRoute.AiRuntime,
   PortalRoute.ApiProviders,
   PortalRoute.ReportsGuide,
-  PortalRoute.ReportSettings,
   PortalRoute.ScreenAnalysis,
   PortalRoute.AppGameSessions,
   PortalRoute.NetworkActivity,
@@ -198,6 +205,30 @@ export const PortalRouteDescriptors: readonly PortalRouteDescriptor[] = [
     PortalRouteGroup.Guide
   ),
   routeDescriptor(
+    PortalRoute.PolicyApps,
+    PortalDevTextToken.AppGameSessions,
+    PortalDevTextToken.ProductSurfacePending,
+    PortalRouteGroup.Operate
+  ),
+  routeDescriptor(
+    PortalRoute.PolicyGames,
+    PortalDevTextToken.AppGameSessions,
+    PortalDevTextToken.ProductSurfacePending,
+    PortalRouteGroup.Operate
+  ),
+  routeDescriptor(
+    PortalRoute.PolicyScreen,
+    PortalDevTextToken.ScreenAnalysis,
+    PortalDevTextToken.ProductSurfacePending,
+    PortalRouteGroup.Operate
+  ),
+  routeDescriptor(
+    PortalRoute.PolicyNetwork,
+    PortalDevTextToken.NetworkFlow,
+    PortalDevTextToken.NoNetworkFlow,
+    PortalRouteGroup.Operate
+  ),
+  routeDescriptor(
     PortalRoute.RuleManagement,
     PortalDevTextToken.RuleBuilder,
     PortalDevTextToken.RuleBuilderBody,
@@ -262,12 +293,6 @@ export const PortalRouteDescriptors: readonly PortalRouteDescriptor[] = [
     PortalDevTextToken.Activity,
     PortalDevTextToken.ActivityDescription,
     PortalRouteGroup.Guide
-  ),
-  routeDescriptor(
-    PortalRoute.ReportSettings,
-    PortalDevTextToken.Activity,
-    PortalDevTextToken.ActivityDescription,
-    PortalRouteGroup.Operate
   ),
   routeDescriptor(
     PortalRoute.ScreenAnalysis,

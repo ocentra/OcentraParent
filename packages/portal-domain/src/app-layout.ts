@@ -98,13 +98,7 @@ function defaultChatSidePanelFoldouts(): readonly PortalAppLayoutFoldoutDraft[] 
         'drives',
         text.AppLayoutTone.Gold
       ),
-      button(
-        'support-api',
-        'Support/API',
-        'Diagnostics, route status, support bundles.',
-        '#/diagnostics',
-        'support-api'
-      ),
+      button('support-api', 'Support', 'Send a parent-authored support message.', '#/diagnostics', 'support-api'),
     ]),
   ];
 }
@@ -137,8 +131,8 @@ function defaultChatMainPanelTop(): readonly PortalAppLayoutFoldoutDraft[] {
       ),
       button(
         'support-bundle',
-        'Open support bundle',
-        'Ask MIA to prepare support context.',
+        'Support message',
+        'Ask MIA to draft a support message.',
         '#/assistant',
         'support-api',
         text.AppLayoutTone.Purple

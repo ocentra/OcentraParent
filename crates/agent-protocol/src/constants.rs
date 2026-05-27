@@ -153,8 +153,6 @@ pub mod enforcement;
 pub mod lan_pairing;
 #[path = "constants/network_flow.rs"]
 pub mod network_flow;
-#[path = "constants/parent_assistant.rs"]
-pub mod parent_assistant;
 
 #[path = "constants/sqlite.rs"]
 pub mod sqlite;

@@ -1,6 +1,6 @@
 use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, AgentCommandName, AgentEventEnvelope, AgentEventName,
-    LogFieldValue, LogLevel, PARENT_ASSISTANT_SCHEMA_VERSION,
+    constants, policy_constants as policy, AgentCommandEnvelope, AgentCommandName,
+    AgentEventEnvelope, AgentEventName, LogFieldValue, LogLevel,
 };
 
 use crate::{event_builder::build_event, fields::fields_from_pairs};
@@ -16,16 +16,18 @@ pub fn build_parent_assistant_scaffold_event(command: AgentCommandEnvelope) -> A
         fields_from_pairs(vec![
             (
                 constants::field::SCHEMA_VERSION,
-                LogFieldValue::String(PARENT_ASSISTANT_SCHEMA_VERSION.to_string()),
+                LogFieldValue::String(policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string()),
             ),
             (
                 constants::field::PARENT_ASSISTANT_BACKEND_STATE,
-                LogFieldValue::String(constants::value::PARENT_ASSISTANT_SCAFFOLD_ONLY.to_string()),
+                LogFieldValue::String(
+                    constants::parent_assistant::BACKEND_STATE_SCAFFOLD_ONLY.to_string(),
+                ),
             ),
             (
                 constants::field::REASON,
                 LogFieldValue::String(
-                    constants::value::PARENT_ASSISTANT_BACKEND_NOT_CONNECTED.to_string(),
+                    constants::parent_assistant::BACKEND_NOT_CONNECTED.to_string(),
                 ),
             ),
         ]),

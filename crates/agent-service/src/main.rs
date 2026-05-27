@@ -113,6 +113,9 @@ mod network_flow_digest_rollups;
 mod network_flow_digest_tests;
 #[cfg(test)]
 mod network_flow_payload_tests;
+mod parent_assistant_api;
+#[cfg(test)]
+mod parent_assistant_api_tests;
 mod parent_assistant_payload;
 mod parent_assistant_runtime;
 #[cfg(test)]

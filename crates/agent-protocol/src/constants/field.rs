@@ -211,6 +211,7 @@ pub const PARENT_ASSISTANT_EVIDENCE_SUMMARY: &str = "parentAssistantEvidenceSumm
 pub const PARENT_ASSISTANT_PROVIDER_STATE: &str = "parentAssistantProviderState";
 pub const PARENT_ASSISTANT_QUESTION: &str = "parentAssistantQuestion";
 pub const PARENT_ASSISTANT_REQUEST_ID: &str = "parentAssistantRequestId";
+pub const PARENT_ASSISTANT_BACKEND_STATE: &str = "assistantBackendState";
 pub const REASON: &str = "reason";
 pub const REQUESTED_URL: &str = "requestedUrl";
 pub const REQUESTED_AT: &str = "requestedAt";

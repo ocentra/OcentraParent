@@ -9,8 +9,8 @@ use crate::parent_assistant_api::build_parent_assistant_scaffold_event;
 fn parent_assistant_message_send_returns_typed_scaffold_event() {
     let command = AgentCommandEnvelope {
         schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
-        message_id: constants::parent_assistant::TEST_MESSAGE_ID.to_string(),
-        sent_at: constants::parent_assistant::TEST_TIMESTAMP.to_string(),
+        message_id: constants::parent_assistant::DEFAULT_MESSAGE_ID.to_string(),
+        sent_at: constants::local_ai_runtime::TEST_CHECKED_AT.to_string(),
         source: AgentPeer {
             peer_id: constants::peer::PORTAL_DEV.to_string(),
             role: AgentPeerRole::Portal,
@@ -33,10 +33,10 @@ fn parent_assistant_message_send_returns_typed_scaffold_event() {
     assert_eq!(event.severity, LogLevel::Warn);
     assert_eq!(
         event.payload[constants::field::PARENT_ASSISTANT_BACKEND_STATE],
-        LogFieldValue::String(constants::value::PARENT_ASSISTANT_SCAFFOLD_ONLY.to_string())
+        LogFieldValue::String(constants::parent_assistant::BACKEND_STATE_SCAFFOLD_ONLY.to_string())
     );
     assert_eq!(
         event.payload[constants::field::REASON],
-        LogFieldValue::String(constants::value::PARENT_ASSISTANT_BACKEND_NOT_CONNECTED.to_string())
+        LogFieldValue::String(constants::parent_assistant::BACKEND_NOT_CONNECTED.to_string())
     );
 }

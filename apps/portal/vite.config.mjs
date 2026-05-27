@@ -89,12 +89,6 @@ export default defineConfig({
       '@ocentra-parent/portal-assets/common': vendorModule(
         '../../vendor/ocentra-parent-core-ui/shims/parent-portal-assets-common.ts'
       ),
-      '@ocentra-parent/portal-assets/banners': vendorModule(
-        '../../vendor/ocentra-parent-core-ui/shims/parent-portal-assets-banners.ts'
-      ),
-      '@ocentra-parent/portal-assets/placeholders': vendorModule(
-        '../../vendor/ocentra-parent-core-ui/shims/parent-portal-assets-placeholders.ts'
-      ),
       '@ocentra-parent/vendor-schema/effect-builder': vendorModule(
         '../../vendor/ocentra-parent-core-ui/schema-domain/effect-builder.ts'
       ),

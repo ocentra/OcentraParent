@@ -14,12 +14,6 @@
       "@ocentra-parent/portal-assets/common": [
         "../../vendor/ocentra-parent-core-ui/shims/parent-portal-assets-common.ts"
       ],
-      "@ocentra-parent/portal-assets/banners": [
-        "../../vendor/ocentra-parent-core-ui/shims/parent-portal-assets-banners.ts"
-      ],
-      "@ocentra-parent/portal-assets/placeholders": [
-        "../../vendor/ocentra-parent-core-ui/shims/parent-portal-assets-placeholders.ts"
-      ],
       "@ocentra-parent/vendor-schema/effect-builder": [
         "../../vendor/ocentra-parent-core-ui/schema-domain/effect-builder.ts"
       ],

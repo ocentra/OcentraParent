@@ -18,6 +18,8 @@ pub const ACTION_PREVIEW_SUMMARY: &str =
     "Preview only. Child-agent contract approval is required before any action.";
 pub const LOCAL_PROVIDER_DEGRADED: &str = "local provider returned degraded output";
 pub const LOCAL_PROVIDER_BUSY: &str = "local provider is busy";
+pub const BACKEND_STATE_SCAFFOLD_ONLY: &str = "scaffold-only";
+pub const BACKEND_NOT_CONNECTED: &str = "parent-assistant-backend-not-connected";
 pub const PROVIDER_CONFIGURED: &str = "configured";
 pub const PROVIDER_DEGRADED: &str = "degraded";
 pub const PROVIDER_UNAVAILABLE: &str = "unavailable";

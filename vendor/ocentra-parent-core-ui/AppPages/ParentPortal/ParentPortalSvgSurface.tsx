@@ -16,7 +16,7 @@ import {
 import {
   getParentPortalPlaceholderImageUrl,
   parentPortalPlaceholderImageCount,
-} from '@ocentra-parent/portal-assets/placeholders';
+} from '../../shims/parent-portal-assets-placeholders';
 import {
   parentPortalAiSetupQuickActionIconUrl,
   parentPortalBrowserStateQuickActionIconUrl,
@@ -28,12 +28,12 @@ import {
   parentPortalSidePanelHandleRightIconUrl,
   parentPortalSupportApiQuickActionIconUrl,
   parentPortalTodayReportQuickActionIconUrl,
-} from '@ocentra-parent/portal-assets/common';
+} from '../../shims/parent-portal-assets-common';
 import {
   parentPortalAiBannerImageUrl,
   parentPortalBrowserBannerImageUrl,
   parentPortalOverviewBannerImageUrl,
-} from '@ocentra-parent/portal-assets/banners';
+} from '../../shims/parent-portal-assets-banners';
 import { normalizeParentPortalSvgControls, type ParentPortalSvgControls } from './ParentPortalSvgSurfaceControls';
 import {
   normalizeParentPortalContent,
@@ -846,12 +846,17 @@ function groupedParentPortalNavItems(navGroups: ParentPortalNavGroup[], navItems
 function navSectionsForGroup(group: NavGroup): Array<{ id: string; label: string; items: NavItem[] }> {
   const sections: Array<{ id: string; label: string; items: NavItem[] }> = [];
   const sectionByLabel = new Map<string, { id: string; label: string; items: NavItem[] }>();
-  let unsectioned: { id: string; label: string; items: NavItem[] } | null = null;
+  let unsectionedIndex = 0;
   for (const item of group.items) {
     const label = item.sectionLabel ?? '';
     if (!label) {
+      let unsectioned = sections.at(-1);
+      if (unsectioned?.label) {
+        unsectioned = undefined;
+      }
       if (!unsectioned) {
-        unsectioned = { id: `${group.id}:items`, label: '', items: [] };
+        unsectioned = { id: `${group.id}:items:${unsectionedIndex}`, label: '', items: [] };
+        unsectionedIndex += 1;
         sections.push(unsectioned);
       }
       unsectioned.items.push(item);
@@ -1021,6 +1026,35 @@ function deviceOpsNavItemForRoute(navItems: NavItem[], routePath: string): NavIt
   return navItems.find((item) => item.routePath === '#/lan-pairing');
 }
 
+function routeControlIdForRoutePath(content: ParentPortalContentData, routePath?: string): string | undefined {
+  if (!isHashRoutePath(routePath)) return undefined;
+  const contentControls = [...content.controlAreas, ...content.quickControls.filter(isParentPortalControlEntry)];
+  const exactControl = contentControls.find((control) => control.routePath === routePath);
+  if (exactControl) return exactControl.id;
+  const routeKey = assetKey(routePath);
+  const fallbackControlId =
+    routeKey === 'policy-screen'
+      ? 'screen-analysis'
+      : routeKey === 'policy-network'
+        ? 'network-activity'
+        : routeKey === 'rule-management' ||
+            routeKey === 'schedules' ||
+            routeKey === 'approvals' ||
+            routeKey === 'enforcement'
+          ? 'browser-settings'
+          : routeKey === 'notifications' || routeKey === 'notification-channels'
+            ? 'family-settings'
+            : routeKey === 'export-retention' || routeKey === 'audit-history'
+              ? 'drive-exports'
+              : routeKey === 'api-providers' || routeKey === 'memory-settings'
+                ? 'ai-runtime'
+                : routeKey === 'diagnostics' || routeKey === 'entitlements'
+                  ? 'subscription-plans'
+                  : undefined;
+  if (!fallbackControlId) return undefined;
+  return contentControls.find((control) => normalizeSelectionId(control.id) === fallbackControlId)?.id;
+}
+
 function initialControlIdForPageMode(
   pageMode: ParentPortalMode,
   content: ParentPortalContentData,
@@ -1032,6 +1066,8 @@ function initialControlIdForPageMode(
     (control) => normalizeSelectionId(control.id) === routeId
   );
   if (routeControl) return routeControl.id;
+  const routePathControlId = routeControlIdForRoutePath(content, `#/${routeId}`);
+  if (routePathControlId) return routePathControlId;
   return content.modes[pageMode]?.selectedControlId ?? content.controlAreas[0]?.id ?? contentControls[0]?.id ?? '';
 }
 
@@ -1315,6 +1351,8 @@ function SurfacePanel({
   selected = false,
   disabled = false,
   frameCornerThicknessScale = 1,
+  frameOuterTabWidth,
+  frameInnerTabWidth,
   onClick,
   ariaLabel,
   children,
@@ -1330,6 +1368,8 @@ function SurfacePanel({
   selected?: boolean;
   disabled?: boolean;
   frameCornerThicknessScale?: number;
+  frameOuterTabWidth?: number;
+  frameInnerTabWidth?: number;
   onClick?: () => void;
   ariaLabel?: string;
   children?: ReactNode;
@@ -1374,8 +1414,8 @@ function SurfacePanel({
             color={color}
             active={active}
             cornerThicknessScale={frameCornerThicknessScale}
-            outerTabWidth={cfg.chrome.frameOuterBulgeWidth}
-            innerTabWidth={cfg.chrome.frameInnerBulgeWidth}
+            outerTabWidth={frameOuterTabWidth ?? cfg.chrome.frameOuterBulgeWidth}
+            innerTabWidth={frameInnerTabWidth ?? cfg.chrome.frameInnerBulgeWidth}
           />
         </>
       ) : (
@@ -1877,8 +1917,9 @@ function ParentPortalSectionFrame({
     ? prominentHeaderCenterY - iconBoxW / 2
     : y + Math.max(7, (resolvedHeaderH - iconBoxW) / 2 - 1);
   const titleX = headerIcon ? headerIconX + iconBoxW + (prominentHeader ? 14 : 12) : headerIconX;
-  const headerInfoSize = prominentHeader ? 25 : 0;
-  const headerInfoReservedW = onHeaderInfoClick ? headerInfoSize + 18 : 0;
+  const hasHeaderInfo = Boolean(headerInfoLabel && onHeaderInfoClick);
+  const headerInfoSize = hasHeaderInfo ? (prominentHeader ? 25 : 22) : 0;
+  const headerInfoReservedW = hasHeaderInfo ? headerInfoSize + 18 : 0;
   const titleMaxW = Math.max(80, headerLineEnd - titleX - 12 - headerInfoReservedW);
   const expandedTitle = prominentHeader && title === 'LAN' && titleMaxW >= 190 ? 'Local Area Network' : title;
   const titleFontSize = fitSingleLineTextSize(
@@ -1896,7 +1937,11 @@ function ParentPortalSectionFrame({
       : titleY + titleH * 0.68;
   const titleTextW = Math.min(titleMaxW, Math.ceil(titleText.length * titleFontSize * 0.56));
   const headerInfoX = Math.min(titleX + titleTextW + 12, headerLineEnd - headerInfoSize - 4);
-  const headerInfoY = prominentHeader ? prominentHeaderCenterY - headerInfoSize / 2 : headerLineY - headerInfoSize + 3;
+  const headerInfoY = prominentHeader
+    ? prominentHeaderCenterY - headerInfoSize / 2
+    : headerIcon
+      ? headerIconY + (iconBoxW - headerInfoSize) / 2
+      : y + (resolvedHeaderH - headerInfoSize) / 2 - 1;
   const HeaderIcon = headerIcon;
   const showHeaderSubtitle = Boolean(subtitle && !headerIcon);
   const sideHandleW = PARENT_PORTAL_SIDE_HANDLE_W;
@@ -3042,7 +3087,12 @@ function AssistantDock({
   cfg: ParentPortalSvgControls;
 }) {
   const color = toneColor(open ? 'purple' : 'cyan', cfg);
-  const iconSize = 38;
+  const iconSize = 34;
+  const centerY = y + h / 2;
+  const iconX = x + 22;
+  const iconY = centerY - iconSize / 2;
+  const textX = iconX + iconSize + 12;
+  const labelBaseline = centerY + 5.5;
   return (
     <SurfacePanel
       x={x}
@@ -3052,17 +3102,20 @@ function AssistantDock({
       tone={open ? 'purple' : 'cyan'}
       frame="deckSide"
       selected={open}
+      frameCornerThicknessScale={0.72}
+      frameOuterTabWidth={Math.min(74, Math.max(54, w * 0.32))}
+      frameInnerTabWidth={Math.min(54, Math.max(40, w * 0.24))}
       onClick={onOpen}
       ariaLabel="Open AI assistant"
       cfg={cfg}
     >
       <rect x={x} y={y} width={w} height={h} fill="transparent" pointerEvents="all" />
-      <AiGuideIdeaIcon x={x + 20} y={y + 18} width={iconSize} height={iconSize} color={color} />
-      <text x={x + 72} y={y + 32} fontSize={16} fontWeight={980} fill={cfg.colors.bodyText} pointerEvents="none">
+      <AiGuideIdeaIcon x={iconX} y={iconY} width={iconSize} height={iconSize} color={color} />
+      <text x={textX} y={labelBaseline} fontSize={16} fontWeight={980} fill={cfg.colors.bodyText} pointerEvents="none">
         AI ASSISTANT
       </text>
       <path
-        d={`M ${x + 72} ${y + h - 14} H ${x + w - 28}`}
+        d={`M ${textX} ${y + h - 14} H ${x + w - 28}`}
         stroke={color}
         strokeWidth={0.9}
         opacity={open ? 0.78 : 0.44}
@@ -3405,6 +3458,30 @@ type ManageTargetChoice = {
   readonly scope?: ManageScopeId;
 };
 
+type ManageWorkspaceKind = 'portal' | 'account' | 'data' | 'ai' | 'policy';
+type ManageWorkspaceTarget = 'family' | 'perDevice' | 'portal';
+
+type ManageWorkspaceTab = {
+  readonly id: string;
+  readonly label: string;
+  readonly icon: IconComponent;
+  readonly tone: Tone;
+};
+
+type ManageWorkspaceCard = {
+  readonly label: string;
+  readonly value: string;
+  readonly body: string;
+  readonly tone: Tone;
+};
+
+type ManageWorkspaceTargetOption = {
+  readonly id: ManageWorkspaceTarget;
+  readonly label: string;
+  readonly detail: string;
+  readonly tone: Tone;
+};
+
 const MANAGE_LANES: readonly {
   readonly id: ManageLaneId;
   readonly label: string;
@@ -3417,12 +3494,16 @@ const MANAGE_LANES: readonly {
 ];
 
 const MANAGE_ROUTE_KEYS = new Set([
+  'activity',
   'browser-settings',
+  'policy-apps',
+  'policy-games',
+  'policy-screen',
+  'policy-network',
   'rule-management',
   'schedules',
   'approvals',
   'enforcement',
-  'report-settings',
   'screen-analysis',
   'app-game-sessions',
   'network-activity',
@@ -3457,12 +3538,16 @@ const MANAGE_DEVICE_OPS_ROUTE_KEYS = new Set([
 ]);
 
 const MANAGE_CHILD_POLICY_ROUTE_KEYS = new Set([
+  'activity',
   'browser-settings',
+  'policy-apps',
+  'policy-games',
+  'policy-screen',
+  'policy-network',
   'rule-management',
   'schedules',
   'approvals',
   'enforcement',
-  'report-settings',
   'screen-analysis',
   'app-game-sessions',
   'network-activity',
@@ -3476,11 +3561,6 @@ function manageLaneForRouteKey(routeKey: string): ManageLaneId | null {
   if (MANAGE_CHILD_POLICY_ROUTE_KEYS.has(routeKey)) return 'childPolicy';
   if (MANAGE_ROUTE_KEYS.has(routeKey)) return 'portal';
   return null;
-}
-
-function isManageQuickControl(control: ControlArea | QuickControl): boolean {
-  const routeKey = assetKey(control.routePath);
-  return MANAGE_ROUTE_KEYS.has(routeKey);
 }
 
 function guideRoutePathForManageKey(activeNavLabel: string, selectedControlName: string): string {
@@ -3521,7 +3601,7 @@ function guideRoutePathForManageKey(activeNavLabel: string, selectedControlName:
     key.includes('channel') ||
     key.includes('audit')
   )
-    return '#/report-settings';
+    return '#/activity';
   return '#/start';
 }
 
@@ -3836,11 +3916,11 @@ const LAN_PAIRING_SCAN_ICON_HREF = '/images/scan.png';
 const LAN_PAIRING_HEADER_TITLE = 'Local Area Network';
 const LAN_PAIRING_UI_CHECK_QUERY_KEY = 'ocentraLanPairingUiCheckFakeDeviceCount';
 const LAN_PAIRING_UI_CHECK_MAX_DEVICE_COUNT = 100;
-const LAN_PAIRING_UI_CHECK_FAKE_DATA_DEFAULT_ENABLED = true;
+const LAN_PAIRING_UI_CHECK_FAKE_DATA_DEFAULT_ENABLED = false;
 const LAN_PAIRING_UI_CHECK_FAKE_DATA_DEFAULT_COUNT = 100;
 const ACTIVITY_REPORT_UI_CHECK_QUERY_KEY = 'ocentraActivityUiCheckFakeDeviceCount';
 const ACTIVITY_EVIDENCE_UI_CHECK_QUERY_KEY = 'ocentraActivityUiCheckFakeEvidence';
-const ACTIVITY_REPORT_UI_CHECK_FAKE_DATA_DEFAULT_ENABLED = true;
+const ACTIVITY_REPORT_UI_CHECK_FAKE_DATA_DEFAULT_ENABLED = false;
 const ACTIVITY_REPORT_UI_CHECK_FAKE_DATA_DEFAULT_COUNT = ACTIVITY_REPORT_BASIC_CHILD_DEVICE_SEATS;
 
 type LanPairingDetailTabId = 'info' | 'update' | 'capability';
@@ -5097,7 +5177,12 @@ function manageControlSpecFor(activeNavLabel: string, selectedControlName: strin
         { label: 'Google Drive', detail: 'Connect parent-owned Drive export.', enabled: false, tone: 'cyan' },
         { label: 'OneDrive', detail: 'Use a parent-owned OneDrive target.', enabled: false, tone: 'purple' },
         { label: 'Report exports', detail: 'Allow selected reports to export.', enabled: true, tone: 'gold' },
-        { label: 'Support bundle review', detail: 'Preview bundle before sharing.', enabled: true, tone: 'red' },
+        {
+          label: 'Support message record',
+          detail: 'Review parent message before sharing.',
+          enabled: true,
+          tone: 'red',
+        },
       ],
       actions: [
         { label: 'Connect drive', detail: 'Start parent-owned drive connection.', tone: 'cyan' },
@@ -5278,7 +5363,7 @@ function manageControlSpecFor(activeNavLabel: string, selectedControlName: strin
       devices,
       modes: [
         { label: 'Self check', detail: 'Run local health checks.', tone: 'cyan' },
-        { label: 'Bundle', detail: 'Create parent-reviewed support bundle.', tone: 'gold' },
+        { label: 'Message', detail: 'Draft parent-authored support text.', tone: 'gold' },
         { label: 'Contact', detail: 'Prepare support request.', tone: 'purple' },
       ],
       options: [
@@ -5295,11 +5380,11 @@ function manageControlSpecFor(activeNavLabel: string, selectedControlName: strin
           enabled: true,
           tone: 'red',
         },
-        { label: 'Parent review', detail: 'Parent sees bundle before sharing.', enabled: true, tone: 'purple' },
+        { label: 'Parent review', detail: 'Parent sees message before sending.', enabled: true, tone: 'purple' },
       ],
       actions: [
         { label: 'Run diagnostics', detail: 'Check portal and child service health.', tone: 'cyan' },
-        { label: 'Build bundle', detail: 'Create parent-reviewed support bundle.', tone: 'gold' },
+        { label: 'Write message', detail: 'Draft parent-reviewed support text.', tone: 'gold' },
         { label: 'Open support', detail: 'Open help and contact options.', tone: 'purple' },
       ],
       status: baseStatus,
@@ -5437,6 +5522,2574 @@ function manageControlSpecFor(activeNavLabel: string, selectedControlName: strin
   }
 
   return null;
+}
+
+function manageWorkspaceKindFor(
+  activeNavLabel: string,
+  selectedControlName: string,
+  title?: string
+): ManageWorkspaceKind | null {
+  const navKey = assetKey(activeNavLabel);
+  if (navKey.includes('device') || navKey.includes('activity')) return null;
+  if (navKey.includes('portal')) return 'portal';
+  if (navKey.includes('account')) return 'account';
+  if (navKey.includes('data')) return 'data';
+  if (navKey === 'ai' || navKey.includes('ai-memory')) return 'ai';
+  if (
+    navKey.includes('policy') ||
+    navKey.includes('browser') ||
+    navKey.includes('app') ||
+    navKey.includes('game') ||
+    navKey.includes('screen') ||
+    navKey.includes('network')
+  )
+    return 'policy';
+  const key = `${navKey} ${assetKey(selectedControlName)} ${assetKey(title ?? '')}`;
+  if (key.includes('lan-pairing') || key.includes('local-area-network') || key.includes('report')) return null;
+  if (
+    key.includes('portal') ||
+    key.includes('family-setting') ||
+    key.includes('settings-rules') ||
+    key.includes('notification') ||
+    key.includes('alert') ||
+    key.includes('channel')
+  )
+    return 'portal';
+  if (
+    key.includes('subscription') ||
+    key.includes('entitlement') ||
+    key.includes('account') ||
+    key.includes('support') ||
+    key.includes('diagnostic') ||
+    key.includes('access') ||
+    key.includes('plan')
+  )
+    return 'account';
+  if (
+    key.includes('data') ||
+    key.includes('drive') ||
+    key.includes('export') ||
+    key.includes('retention') ||
+    key.includes('audit') ||
+    key.includes('remote-access')
+  )
+    return 'data';
+  if (
+    key.includes('ai') ||
+    key.includes('api') ||
+    key.includes('model') ||
+    key.includes('inference') ||
+    key.includes('memory')
+  )
+    return 'ai';
+  if (
+    key.includes('policy') ||
+    key.includes('browser') ||
+    key.includes('rule') ||
+    key.includes('schedule') ||
+    key.includes('approval') ||
+    key.includes('enforce') ||
+    key.includes('app') ||
+    key.includes('game') ||
+    key.includes('screen') ||
+    key.includes('network')
+  )
+    return 'policy';
+  return null;
+}
+
+function manageWorkspaceTabs(kind: ManageWorkspaceKind): readonly ManageWorkspaceTab[] {
+  if (kind === 'portal') {
+    return [
+      { id: 'settings', label: 'Settings', icon: ManageFileSettingsIcon, tone: 'cyan' },
+      { id: 'alerts', label: 'Alerts', icon: AlertNotificationBellIcon, tone: 'red' },
+      { id: 'channels', label: 'Channels', icon: AlertNotificationBellIcon, tone: 'gold' },
+      { id: 'runtime', label: 'Runtime', icon: PortalGatewayIcon, tone: 'cyan' },
+    ];
+  }
+  if (kind === 'account') {
+    return [
+      { id: 'plan', label: 'Plan', icon: AccountProfileIcon, tone: 'gold' },
+      { id: 'access', label: 'Access', icon: PolicyShieldDocumentIcon, tone: 'cyan' },
+      { id: 'support', label: 'Support', icon: PortalGatewayIcon, tone: 'purple' },
+    ];
+  }
+  if (kind === 'data') {
+    return [
+      { id: 'storage', label: 'Storage', icon: DrivesCloudIcon, tone: 'gold' },
+      { id: 'export', label: 'Export', icon: ExportRetentionIcon, tone: 'cyan' },
+      { id: 'retention', label: 'Retention', icon: DataPrivacyServerShieldIcon, tone: 'purple' },
+      { id: 'audit', label: 'Audit', icon: AuditCloudLogsIcon, tone: 'gold' },
+    ];
+  }
+  if (kind === 'ai') {
+    return [
+      { id: 'runtime', label: 'Runtime', icon: AiSetupSearchIcon, tone: 'cyan' },
+      { id: 'hardware', label: 'Hardware', icon: DevicesMultiScreenIcon, tone: 'gold' },
+      { id: 'models', label: 'Models', icon: AiMemoryCircuitIcon, tone: 'purple' },
+      { id: 'inference', label: 'Inference', icon: AiGuideIdeaIcon, tone: 'cyan' },
+      { id: 'templates', label: 'Templates', icon: ReportDocumentIcon, tone: 'gold' },
+      { id: 'providers', label: 'Providers', icon: ApiKeysChipIcon, tone: 'purple' },
+      { id: 'memory', label: 'Memory', icon: AiMemorySetBrainIcon, tone: 'purple' },
+      { id: 'activity', label: 'Activity', icon: ActivityNetworkIcon, tone: 'cyan' },
+    ];
+  }
+  return [
+    { id: 'rules', label: 'Rules', icon: PolicyShieldDocumentIcon, tone: 'gold' },
+    { id: 'schedule', label: 'Schedule', icon: ScheduleCalendarClockIcon, tone: 'purple' },
+    { id: 'approvals', label: 'Approvals', icon: AlertNotificationBellIcon, tone: 'cyan' },
+    { id: 'enforcement', label: 'Enforcement', icon: EnforcementOfficerIcon, tone: 'red' },
+    { id: 'audit', label: 'Audit', icon: AuditCloudLogsIcon, tone: 'cyan' },
+  ];
+}
+
+function manageWorkspaceDefaultTabId(
+  kind: ManageWorkspaceKind,
+  activeNavLabel: string,
+  selectedControlName: string
+): string {
+  const key = `${assetKey(activeNavLabel)} ${assetKey(selectedControlName)}`;
+  if (kind === 'portal') {
+    if (key.includes('channel')) return 'channels';
+    if (key.includes('alert') || key.includes('notification')) return 'alerts';
+    if (key.includes('runtime')) return 'runtime';
+    return 'settings';
+  }
+  if (kind === 'account') {
+    if (key.includes('support') || key.includes('diagnostic')) return 'support';
+    if (key.includes('access') || key.includes('entitlement')) return 'access';
+    return 'plan';
+  }
+  if (kind === 'data') {
+    if (key.includes('audit')) return 'audit';
+    if (key.includes('retention') || key.includes('export')) return 'export';
+    return 'storage';
+  }
+  if (kind === 'ai') {
+    if (key.includes('hardware')) return 'hardware';
+    if (key.includes('model')) return 'models';
+    if (key.includes('inference')) return 'inference';
+    if (key.includes('template')) return 'templates';
+    if (key.includes('provider') || key.includes('api')) return 'providers';
+    if (key.includes('memory')) return 'memory';
+    return 'runtime';
+  }
+  if (key.includes('schedule') || key.includes('budget')) return 'schedule';
+  if (key.includes('approval') || key.includes('ask')) return 'approvals';
+  if (key.includes('enforce') || key.includes('dry-run')) return 'enforcement';
+  if (key.includes('audit') || key.includes('preview')) return 'audit';
+  return 'rules';
+}
+
+function manageWorkspaceTitle(kind: ManageWorkspaceKind): string {
+  if (kind === 'portal') return 'Portal';
+  if (kind === 'account') return 'Account';
+  if (kind === 'data') return 'Data';
+  if (kind === 'ai') return 'AI';
+  return 'Policy';
+}
+
+function managePolicyAreaLabel(activeNavLabel: string, selectedControlName: string): string {
+  const key = `${assetKey(activeNavLabel)} ${assetKey(selectedControlName)}`;
+  if (key.includes('app')) return 'Apps';
+  if (key.includes('game')) return 'Games';
+  if (key.includes('screen')) return 'Screen';
+  if (key.includes('network')) return 'Network';
+  return 'Browser';
+}
+
+function manageWorkspaceTargetOptions(kind: ManageWorkspaceKind): readonly ManageWorkspaceTargetOption[] {
+  if (kind === 'policy') {
+    return [
+      { id: 'family', label: 'Family', detail: 'Family default policy.', tone: 'cyan' },
+      { id: 'perDevice', label: 'Per Device', detail: 'Child override policy.', tone: 'gold' },
+    ];
+  }
+  if (kind === 'data') {
+    return [
+      { id: 'family', label: 'Family', detail: 'Family custody/export view.', tone: 'cyan' },
+      { id: 'perDevice', label: 'Per Device', detail: 'Child evidence/data view.', tone: 'gold' },
+    ];
+  }
+  if (kind === 'ai') {
+    return [
+      { id: 'family', label: 'Family', detail: 'Family AI defaults.', tone: 'cyan' },
+      { id: 'perDevice', label: 'Per Device', detail: 'Child runtime setup.', tone: 'gold' },
+    ];
+  }
+  return [];
+}
+
+function manageWorkspaceTargetLabel(target: ManageWorkspaceTarget): string {
+  if (target === 'perDevice') return 'Per device';
+  if (target === 'portal') return 'Portal';
+  return 'Family';
+}
+
+function manageWorkspaceSummary(
+  kind: ManageWorkspaceKind,
+  activeTab: string,
+  activeNavLabel = '',
+  selectedControlName = '',
+  workspaceTarget: ManageWorkspaceTarget = 'family'
+): string {
+  if (kind === 'portal') {
+    if (activeTab === 'alerts') return 'Parent notification intent, quiet hours, and alert priority live here.';
+    if (activeTab === 'channels')
+      return 'Verified parent-owned destinations for email, SMS, WhatsApp, and portal push.';
+    if (activeTab === 'runtime') return 'Local portal health, Rust service state, version, and update posture.';
+    return 'Parent profile defaults, privacy posture, login protection, and console preferences.';
+  }
+  if (kind === 'account') {
+    if (activeTab === 'access') return 'Entitlements, grace mode, seat limits, and feature gates.';
+    if (activeTab === 'support') return 'Send a parent-authored support message from this screen.';
+    return 'Trial, plan cards, device seats, external AI credits, and upgrade/downgrade intent.';
+  }
+  if (kind === 'data') {
+    const target = manageWorkspaceTargetLabel(workspaceTarget).toLowerCase();
+    if (activeTab === 'export')
+      return `Generate ${target} exports without pretending a cloud connector is already linked.`;
+    if (activeTab === 'retention')
+      return `Set ${target} retention and deletion policy for reports, audit events, evidence summaries, and memory.`;
+    if (activeTab === 'audit')
+      return `Review ${target} custody logs for exports, deletes, support messages, and connector changes.`;
+    return `Inspect ${target} storage custody state for reports, audit, evidence classes, and support messages.`;
+  }
+  if (kind === 'ai') {
+    const target = manageWorkspaceTargetLabel(workspaceTarget).toLowerCase();
+    if (activeTab === 'hardware') return `Review ${target} CPU, RAM, GPU, VRAM, NPU, disk, battery, and thermal fit.`;
+    if (activeTab === 'models') return `Manage ${target} GGUF model inventory, downloads, load state, and device fit.`;
+    if (activeTab === 'inference')
+      return `Tune ${target} llama.cpp generation settings, limits, routing, and degraded modes.`;
+    if (activeTab === 'templates')
+      return `Manage ${target} prompt templates for reports, screen summaries, assistant, and structured output.`;
+    if (activeTab === 'providers')
+      return `Configure ${target} external AI providers, budgets, and no-raw-evidence controls.`;
+    if (activeTab === 'memory') return `Review ${target} cited memory, revoke/export controls, and memory audit state.`;
+    if (activeTab === 'activity')
+      return `Inspect ${target} AI job queue, load/unload events, failed inference, and evaluator traces.`;
+    return `Configure ${target} local AI runtime, family hub queue, and API fallback posture.`;
+  }
+  const area = managePolicyAreaLabel(activeNavLabel, selectedControlName).toLowerCase();
+  const scope = workspaceTarget === 'family' ? 'family defaults' : 'per-device overrides';
+  if (activeTab === 'schedule')
+    return `Configure ${scope} for ${area} time windows, budgets, school, bedtime, and temporary exceptions.`;
+  if (activeTab === 'approvals')
+    return `Configure ${scope} for ${area} ask-parent flows, expiry, reasons, parent response, and audit trail.`;
+  if (activeTab === 'enforcement')
+    return `Configure ${scope} for ${area} observe-only, dry-run, and capability-gated enforcement posture.`;
+  if (activeTab === 'audit')
+    return `Review ${scope} for ${area} previews, capability results, parent changes, and child-device event evidence.`;
+  return `Configure ${scope} for ${area} decisions: allow, ask, warn, block, explain, exceptions, and capability limits.`;
+}
+
+function manageWorkspaceCards(
+  kind: ManageWorkspaceKind,
+  activeTab: string,
+  activeNavLabel = '',
+  selectedControlName = '',
+  workspaceTarget: ManageWorkspaceTarget = 'family'
+): readonly ManageWorkspaceCard[] {
+  if (kind === 'portal') {
+    if (activeTab === 'alerts') {
+      return [
+        {
+          label: 'Policy alerts',
+          value: 'Enabled intent',
+          body: 'Blocks, asks, approvals, stale devices, and failures can notify the parent.',
+          tone: 'gold',
+        },
+        {
+          label: 'Quiet hours',
+          value: 'Configurable',
+          body: 'Low-priority alerts queue during parent-defined quiet windows.',
+          tone: 'purple',
+        },
+        {
+          label: 'Raw evidence',
+          value: 'Never in alerts',
+          body: 'External notifications carry summaries and event references only.',
+          tone: 'red',
+        },
+        {
+          label: 'Delivery state',
+          value: 'Connector required',
+          body: 'Email, SMS, WhatsApp, and Telegram require verified parent-owned channels.',
+          tone: 'cyan',
+        },
+      ];
+    }
+    if (activeTab === 'channels') {
+      return [
+        {
+          label: 'Portal push',
+          value: 'Local first',
+          body: 'In-app notices work without cloud delivery.',
+          tone: 'cyan',
+        },
+        {
+          label: 'Email',
+          value: 'Needs verification',
+          body: 'Cloudflare mail path or provider setup must prove parent ownership.',
+          tone: 'gold',
+        },
+        {
+          label: 'SMS / WhatsApp',
+          value: 'External service',
+          body: 'Numbers require verification and clear usage limits.',
+          tone: 'purple',
+        },
+        {
+          label: 'Test message',
+          value: 'Typed intent',
+          body: 'UI should call a notification test intent when the backend lands.',
+          tone: 'cyan',
+        },
+      ];
+    }
+    if (activeTab === 'runtime') {
+      return [
+        {
+          label: 'Rust agent',
+          value: 'Read from service',
+          body: 'Health, version, command surface, and LAN route state come from the local agent.',
+          tone: 'cyan',
+        },
+        {
+          label: 'Portal build',
+          value: 'Package metadata',
+          body: 'Version display stays honest and must follow package metadata.',
+          tone: 'gold',
+        },
+        {
+          label: 'Updates',
+          value: 'Parent approved',
+          body: 'Check, install, and rollback should stay explicit parent actions.',
+          tone: 'purple',
+        },
+        {
+          label: 'Support message',
+          value: 'Review before send',
+          body: 'No support message leaves without parent-visible contents.',
+          tone: 'red',
+        },
+      ];
+    }
+    return [
+      {
+        label: 'Family defaults',
+        value: 'Parent owned',
+        body: 'House rules, new-device defaults, and privacy level are portal settings.',
+        tone: 'cyan',
+      },
+      {
+        label: 'Parent session',
+        value: 'Required',
+        body: 'Sensitive account, channel, and policy edits require a parent session.',
+        tone: 'red',
+      },
+      {
+        label: 'Privacy posture',
+        value: 'Local first',
+        body: 'Cloud connectors stay opt-in and scoped.',
+        tone: 'gold',
+      },
+      {
+        label: 'Theme and console',
+        value: 'Portal only',
+        body: 'Visual preferences do not change child-device policy.',
+        tone: 'purple',
+      },
+    ];
+  }
+  if (kind === 'account') {
+    if (activeTab === 'access') {
+      return [
+        {
+          label: 'Seat gate',
+          value: 'Plan based',
+          body: 'Basic, Pro, and Max gate child-device count and optional add-on seats.',
+          tone: 'gold',
+        },
+        {
+          label: 'Grace mode',
+          value: 'Safe degrade',
+          body: 'Local safety-critical controls remain visible during billing grace.',
+          tone: 'red',
+        },
+        {
+          label: 'External AI',
+          value: 'Credit based',
+          body: 'Provider/API AI usage is optional and budget-limited.',
+          tone: 'purple',
+        },
+        {
+          label: 'Offline state',
+          value: 'Honest',
+          body: 'UI must show stale entitlement state instead of pretending the cloud is reachable.',
+          tone: 'cyan',
+        },
+      ];
+    }
+    if (activeTab === 'support') {
+      return [];
+    }
+    return [
+      {
+        label: 'Basic',
+        value: '$5 / 3 devices',
+        body: '15 day trial target, local controls, reports, and basic plan gates.',
+        tone: 'cyan',
+      },
+      {
+        label: 'Pro',
+        value: '$10 / 7 devices',
+        body: 'More seats, richer reports, external notification channels, and cloud account support.',
+        tone: 'gold',
+      },
+      {
+        label: 'Max',
+        value: '$20 / 15 devices',
+        body: 'Large family seat count, higher AI credits, and priority support intent.',
+        tone: 'purple',
+      },
+      {
+        label: 'Extra seats',
+        value: '$1 each draft',
+        body: 'Parent can add/remove seats without changing local-first safety guarantees.',
+        tone: 'cyan',
+      },
+    ];
+  }
+  if (kind === 'data') {
+    const targetLabel = manageWorkspaceTargetLabel(workspaceTarget);
+    const targetCard: ManageWorkspaceCard = {
+      label: 'Target',
+      value: targetLabel,
+      body:
+        workspaceTarget === 'family'
+          ? 'Family data views aggregate child-device reports and custody state under parent control.'
+          : 'Per-device data views inspect one child device before export, retention, or delete intent.',
+      tone: workspaceTarget === 'family' ? 'cyan' : 'gold',
+    };
+    if (activeTab === 'export') {
+      return [
+        targetCard,
+        {
+          label: 'Report export',
+          value: 'JSON first',
+          body: 'Daily, weekly, and monthly reports should save as structured JSON plus display render.',
+          tone: 'cyan',
+        },
+        {
+          label: 'Support message',
+          value: 'Parent reviewed',
+          body: 'Message preview precedes any email/cloud share.',
+          tone: 'gold',
+        },
+        {
+          label: 'Drive sync',
+          value: 'Connector required',
+          body: 'Google Drive, OneDrive, and local folder targets need typed connectors.',
+          tone: 'purple',
+        },
+        {
+          label: 'Raw evidence',
+          value: 'Excluded default',
+          body: 'Screenshots, URLs, and content payloads require explicit data-class selection.',
+          tone: 'red',
+        },
+      ];
+    }
+    if (activeTab === 'retention') {
+      return [
+        targetCard,
+        {
+          label: 'Reports',
+          value: 'Parent policy',
+          body: 'Keep, export, or delete generated report files by cadence.',
+          tone: 'cyan',
+        },
+        {
+          label: 'Audit events',
+          value: 'Long lived',
+          body: 'Policy, pairing, billing, and support actions need retention history.',
+          tone: 'gold',
+        },
+        {
+          label: 'Evidence summaries',
+          value: 'Shorter window',
+          body: 'Derived summaries can expire separately from audit records.',
+          tone: 'purple',
+        },
+        {
+          label: 'Delete proof',
+          value: 'Audit entry',
+          body: 'Deletes should leave minimal custody proof without keeping private data.',
+          tone: 'red',
+        },
+      ];
+    }
+    if (activeTab === 'audit') {
+      return [
+        targetCard,
+        {
+          label: 'Exports',
+          value: 'Logged',
+          body: 'Every export records destination, data class, and parent action.',
+          tone: 'gold',
+        },
+        {
+          label: 'Deletes',
+          value: 'Logged',
+          body: 'Delete class, time, and actor remain visible to parent.',
+          tone: 'red',
+        },
+        {
+          label: 'Connectors',
+          value: 'Logged',
+          body: 'Drive connect/disconnect and token expiry states stay auditable.',
+          tone: 'cyan',
+        },
+        {
+          label: 'Support',
+          value: 'Logged',
+          body: 'Support message draft and send intent are separate audit events.',
+          tone: 'purple',
+        },
+      ];
+    }
+    return [
+      targetCard,
+      {
+        label: 'Local store',
+        value: 'Primary',
+        body: 'Parent portal keeps the system useful without cloud storage.',
+        tone: 'cyan',
+      },
+      {
+        label: 'Google Drive',
+        value: 'Planned connector',
+        body: 'OAuth and folder scope need Cloudflare/account wiring.',
+        tone: 'gold',
+      },
+      {
+        label: 'OneDrive',
+        value: 'Planned connector',
+        body: 'Microsoft connector follows the same parent-owned storage model.',
+        tone: 'purple',
+      },
+      {
+        label: 'Remote read',
+        value: 'Export only',
+        body: 'Away-from-home access reads parent-owned report exports, not child evidence streams.',
+        tone: 'cyan',
+      },
+    ];
+  }
+  if (kind === 'ai') {
+    const targetLabel = manageWorkspaceTargetLabel(workspaceTarget);
+    const targetCard: ManageWorkspaceCard = {
+      label: 'Target',
+      value: targetLabel,
+      body:
+        workspaceTarget === 'portal'
+          ? 'Portal AI covers parent assistant, providers, reports, and account-level budgets.'
+          : workspaceTarget === 'perDevice'
+            ? 'Per-device AI sends runtime, model, and hardware intent to one selected child device.'
+            : 'Family AI defaults define shared runtime posture before child overrides exist.',
+      tone: workspaceTarget === 'portal' ? 'purple' : workspaceTarget === 'perDevice' ? 'gold' : 'cyan',
+    };
+    if (activeTab === 'hardware') {
+      return [
+        targetCard,
+        {
+          label: 'CPU / RAM',
+          value: 'Probe required',
+          body: 'Child device reports core count, memory, disk, battery, and thermal limits.',
+          tone: 'cyan',
+        },
+        {
+          label: 'GPU / VRAM',
+          value: 'Probe required',
+          body: 'GPU layers, VRAM, and device split determine local model fit.',
+          tone: 'gold',
+        },
+        {
+          label: 'NPU',
+          value: 'Optional',
+          body: 'NPU capability is shown when platform probes can prove it.',
+          tone: 'purple',
+        },
+        {
+          label: 'Mobile',
+          value: 'Strict limits',
+          body: 'Mobile devices may need hub/API fallback instead of local SLM.',
+          tone: 'red',
+        },
+      ];
+    }
+    if (activeTab === 'models') {
+      return [
+        targetCard,
+        {
+          label: 'Model format',
+          value: 'GGUF first',
+          body: 'llama.cpp is the first-class runtime path.',
+          tone: 'cyan',
+        },
+        {
+          label: 'Download state',
+          value: 'Typed progress',
+          body: 'Queued, downloading, verifying, ready, failed, and deleted states.',
+          tone: 'gold',
+        },
+        {
+          label: 'Fit check',
+          value: 'Before load',
+          body: 'Model selection validates RAM/VRAM/context before loading.',
+          tone: 'purple',
+        },
+        {
+          label: 'Top picks',
+          value: 'Curated list',
+          body: 'Hugging Face candidates should be refreshed through a typed backend job.',
+          tone: 'cyan',
+        },
+      ];
+    }
+    if (activeTab === 'inference') {
+      return [
+        targetCard,
+        {
+          label: 'Profiles',
+          value: 'Safe defaults',
+          body: 'Faster, careful, low memory, and advanced profiles map to llama.cpp settings.',
+          tone: 'cyan',
+        },
+        {
+          label: 'Limits',
+          value: 'Parent chosen',
+          body: 'Max tokens, timeout, context, temperature, top_p, top_k, and repetition penalty.',
+          tone: 'gold',
+        },
+        {
+          label: 'Device routing',
+          value: 'One runtime',
+          body: 'Scheduler prevents duplicate local model runtime on the same physical device.',
+          tone: 'purple',
+        },
+        {
+          label: 'Failure state',
+          value: 'Visible',
+          body: 'Unavailable, degraded, queued, failed, and cancelled states are user-facing.',
+          tone: 'red',
+        },
+      ];
+    }
+    if (activeTab === 'providers') {
+      return [
+        targetCard,
+        {
+          label: 'External API',
+          value: 'Opt-in',
+          body: 'OpenAI or other providers require parent-owned key and budget.',
+          tone: 'purple',
+        },
+        {
+          label: 'Raw evidence',
+          value: 'Blocked default',
+          body: 'External AI does not receive raw child evidence unless future policy permits it.',
+          tone: 'red',
+        },
+        {
+          label: 'Credits',
+          value: 'Plan gated',
+          body: 'Basic/Pro/Max credits are account state, not local safety behavior.',
+          tone: 'gold',
+        },
+        {
+          label: 'Fallback',
+          value: 'Explicit',
+          body: 'API fallback is chosen by parent when local AI is unavailable.',
+          tone: 'cyan',
+        },
+      ];
+    }
+    if (activeTab === 'memory') {
+      return [
+        targetCard,
+        {
+          label: 'Citations',
+          value: 'Required',
+          body: 'Memory-backed answers cite local sources or show unavailable.',
+          tone: 'cyan',
+        },
+        {
+          label: 'Review',
+          value: 'Parent owned',
+          body: 'Parent can inspect, revoke, export, or delete memory records.',
+          tone: 'gold',
+        },
+        {
+          label: 'Per device',
+          value: 'Separated',
+          body: 'Child-device context stays separated unless parent merges it.',
+          tone: 'purple',
+        },
+        {
+          label: 'Audit',
+          value: 'Required',
+          body: 'Memory creation, reuse, export, and deletion are auditable.',
+          tone: 'red',
+        },
+      ];
+    }
+    if (activeTab === 'activity') {
+      return [
+        targetCard,
+        {
+          label: 'AI jobs',
+          value: 'Activity gap',
+          body: 'Activity should gain an AI read-model tab for queued/running/failed jobs.',
+          tone: 'cyan',
+        },
+        {
+          label: 'Load events',
+          value: 'Visible',
+          body: 'Model load, unload, download, and verify events belong in diagnostics.',
+          tone: 'gold',
+        },
+        {
+          label: 'Safety eval',
+          value: 'Traceable',
+          body: 'Safety evaluator inputs/outputs need typed references and redaction.',
+          tone: 'purple',
+        },
+        {
+          label: 'Prompt version',
+          value: 'Logged',
+          body: 'Template id/version and output schema should be visible for reports.',
+          tone: 'cyan',
+        },
+      ];
+    }
+    if (activeTab === 'templates') {
+      return [
+        targetCard,
+        {
+          label: 'Report prompt',
+          value: 'Versioned',
+          body: 'Daily/weekly/monthly report prompts have ids and schema expectations.',
+          tone: 'cyan',
+        },
+        {
+          label: 'Screen summary',
+          value: 'Versioned',
+          body: 'Screen prompts stay parent-controlled and citation based.',
+          tone: 'gold',
+        },
+        {
+          label: 'Assistant',
+          value: 'Versioned',
+          body: 'Assistant prompts separate parent guidance from child safety behavior.',
+          tone: 'purple',
+        },
+        {
+          label: 'Structured output',
+          value: 'Schema bound',
+          body: 'JSON output must validate before UI renders it.',
+          tone: 'red',
+        },
+      ];
+    }
+    return [
+      targetCard,
+      {
+        label: 'Runtime',
+        value: 'llama.cpp',
+        body: 'Local model runtime is the primary child-device AI path.',
+        tone: 'cyan',
+      },
+      {
+        label: 'Family hub',
+        value: 'Queue',
+        body: 'A stronger family machine can serve queued jobs for weaker devices.',
+        tone: 'gold',
+      },
+      {
+        label: 'Load state',
+        value: 'Not reported',
+        body: 'Backend must report unloaded/loading/ready/degraded/failed states.',
+        tone: 'purple',
+      },
+      {
+        label: 'Parent control',
+        value: 'Required',
+        body: 'Parent chooses model, provider, profile, and memory behavior.',
+        tone: 'red',
+      },
+    ];
+  }
+  const area = managePolicyAreaLabel(activeNavLabel, selectedControlName);
+  const scope = workspaceTarget === 'family' ? 'Family' : 'Per device';
+  const targetBody =
+    workspaceTarget === 'family'
+      ? `Family ${area.toLowerCase()} defaults apply until a child override exists.`
+      : `A child device must be selected before ${area.toLowerCase()} overrides can be sent.`;
+  if (activeTab === 'schedule') {
+    return [
+      { label: 'Target', value: scope, body: targetBody, tone: 'cyan' },
+      {
+        label: 'Time windows',
+        value: 'School / Bedtime',
+        body: 'Named windows define when this policy area changes behavior.',
+        tone: 'purple',
+      },
+      {
+        label: 'Budgets',
+        value: 'Daily / Weekly',
+        body: `${area} budgets belong here, not in a separate side-panel page.`,
+        tone: 'gold',
+      },
+      {
+        label: 'Exceptions',
+        value: 'Temporary',
+        body: 'Parent-approved one-off windows should create an audit event.',
+        tone: 'cyan',
+      },
+    ];
+  }
+  if (activeTab === 'approvals') {
+    return [
+      { label: 'Target', value: scope, body: targetBody, tone: 'cyan' },
+      {
+        label: 'Ask flow',
+        value: 'Reason required',
+        body: `${area} requests carry child reason, parent answer, expiry, and result.`,
+        tone: 'gold',
+      },
+      {
+        label: 'Timeout',
+        value: 'Policy owned',
+        body: 'Expired asks fall back to the configured family or override rule.',
+        tone: 'purple',
+      },
+      {
+        label: 'Notification',
+        value: 'Parent channel',
+        body: 'Delivery uses verified portal channels and never sends raw child evidence by default.',
+        tone: 'red',
+      },
+    ];
+  }
+  if (activeTab === 'enforcement') {
+    return [
+      { label: 'Target', value: scope, body: targetBody, tone: 'cyan' },
+      {
+        label: 'Mode',
+        value: 'Observe / Dry-run / Apply',
+        body: 'Parents choose posture; child agents report capability before action.',
+        tone: 'red',
+      },
+      {
+        label: 'Capability',
+        value: 'Required',
+        body: `${area} enforcement is disabled when the device cannot prove support.`,
+        tone: 'gold',
+      },
+      {
+        label: 'Fallback',
+        value: 'Explain',
+        body: 'Unsupported enforcement should become visible advice, not fake success.',
+        tone: 'purple',
+      },
+    ];
+  }
+  if (activeTab === 'audit') {
+    return [
+      { label: 'Target', value: scope, body: targetBody, tone: 'cyan' },
+      {
+        label: 'Preview',
+        value: 'Before send',
+        body: 'Policy diffs should be previewed before they become parent intents.',
+        tone: 'gold',
+      },
+      {
+        label: 'Journal',
+        value: 'Typed event',
+        body: 'Child-device results and parent edits should produce typed audit entries.',
+        tone: 'purple',
+      },
+      {
+        label: 'Evidence',
+        value: 'Referenced',
+        body: 'Audit displays evidence references and status, not raw payloads by default.',
+        tone: 'red',
+      },
+    ];
+  }
+  return [
+    { label: 'Target', value: scope, body: targetBody, tone: 'cyan' },
+    {
+      label: 'Decision',
+      value: 'Allow / Ask / Block',
+      body: `${area} rules own the actual parent decision ladder.`,
+      tone: 'gold',
+    },
+    {
+      label: 'Conditions',
+      value: 'Context aware',
+      body: 'Rules can combine category, app/browser identity, schedule, and capability.',
+      tone: 'purple',
+    },
+    {
+      label: 'Explanation',
+      value: 'Parent text',
+      body: 'Warn/explain states should show the child a parent-authored reason.',
+      tone: 'cyan',
+    },
+  ];
+}
+
+type ManageWorkspaceChoiceOption = {
+  readonly value: string;
+  readonly label: string;
+};
+
+function managePolicyPrimaryChoiceTitle(activeTab: string): string {
+  if (activeTab === 'schedule') return 'Window';
+  if (activeTab === 'approvals') return 'Request';
+  if (activeTab === 'enforcement') return 'Adapter';
+  if (activeTab === 'audit') return 'View';
+  return 'Decision';
+}
+
+function managePolicyPrimaryChoiceOptions(activeTab: string): readonly ManageWorkspaceChoiceOption[] {
+  if (activeTab === 'schedule') {
+    return [
+      { value: 'always', label: 'Always' },
+      { value: 'school', label: 'School' },
+      { value: 'bedtime', label: 'Bedtime' },
+      { value: 'custom', label: 'Custom' },
+    ];
+  }
+  if (activeTab === 'approvals') {
+    return [
+      { value: 'ask', label: 'Ask' },
+      { value: 'reason', label: 'Reason' },
+      { value: 'timebox', label: 'Time Box' },
+    ];
+  }
+  if (activeTab === 'enforcement') {
+    return [
+      { value: 'observe', label: 'Observe' },
+      { value: 'dry-run', label: 'Dry Run' },
+      { value: 'eligible', label: 'Eligible' },
+    ];
+  }
+  if (activeTab === 'audit') {
+    return [
+      { value: 'recent', label: 'Recent' },
+      { value: 'preview', label: 'Preview' },
+      { value: 'changes', label: 'Changes' },
+    ];
+  }
+  return [
+    { value: 'allow', label: 'Allow' },
+    { value: 'warn', label: 'Warn' },
+    { value: 'ask', label: 'Ask' },
+    { value: 'limit', label: 'Limit' },
+    { value: 'block', label: 'Block' },
+  ];
+}
+
+function managePolicySecondaryChoiceTitle(activeTab: string): string {
+  if (activeTab === 'schedule') return 'Budget';
+  if (activeTab === 'approvals') return 'Expiry';
+  if (activeTab === 'enforcement') return 'Mode';
+  if (activeTab === 'audit') return 'Source';
+  return 'Posture';
+}
+
+function managePolicySecondaryChoiceOptions(activeTab: string): readonly ManageWorkspaceChoiceOption[] {
+  if (activeTab === 'schedule') {
+    return [
+      { value: 'none', label: 'None' },
+      { value: 'daily', label: 'Daily' },
+      { value: 'weekly', label: 'Weekly' },
+    ];
+  }
+  if (activeTab === 'approvals') {
+    return [
+      { value: 'once', label: 'Once' },
+      { value: 'session', label: 'Session' },
+      { value: 'schedule', label: 'Schedule' },
+    ];
+  }
+  if (activeTab === 'audit') {
+    return [
+      { value: 'family', label: 'Family' },
+      { value: 'device', label: 'Device' },
+      { value: 'agent', label: 'Agent' },
+    ];
+  }
+  return [
+    { value: 'observe', label: 'Observe' },
+    { value: 'dry-run', label: 'Dry Run' },
+    { value: 'enforce', label: 'Enforce' },
+  ];
+}
+
+function managePolicySettingRows(
+  area: string,
+  activeTab: string,
+  workspaceTarget: ManageWorkspaceTarget,
+  selectedDeviceLabel: string | null
+): readonly ManageWorkspaceCard[] {
+  const target =
+    workspaceTarget === 'perDevice'
+      ? selectedDeviceLabel
+        ? `Device ${selectedDeviceLabel}`
+        : 'Select device'
+      : 'Family default';
+  const missingDevice =
+    workspaceTarget === 'perDevice' && !selectedDeviceLabel
+      ? [
+          {
+            label: 'Device override',
+            value: 'Select a device',
+            body: 'Per-device policy stays disabled until the parent chooses a known portal device from the top selector.',
+            tone: 'red' as Tone,
+          },
+        ]
+      : [];
+
+  if (area === 'Browser') {
+    if (activeTab === 'schedule') {
+      return [
+        ...missingDevice,
+        {
+          label: 'Target',
+          value: target,
+          body: 'Browser windows and budgets are scoped to family defaults or the selected child override.',
+          tone: 'cyan',
+        },
+        {
+          label: 'School window',
+          value: 'Allow managed study sites',
+          body: 'School domains can be allowed during school/homework windows using typed schedules.',
+          tone: 'gold',
+        },
+        {
+          label: 'Bedtime',
+          value: 'Ask or block video/social',
+          body: 'Video, social, and unknown categories can switch behavior after the bedtime window starts.',
+          tone: 'purple',
+        },
+        {
+          label: 'Temporary pass',
+          value: 'Parent approved',
+          body: 'One-off browser exceptions expire and create audit events before child-device validation.',
+          tone: 'cyan',
+        },
+      ];
+    }
+    if (activeTab === 'approvals') {
+      return [
+        ...missingDevice,
+        {
+          label: 'Blocked site ask',
+          value: 'Reason required',
+          body: 'Child requests carry target, reason, evidence refs, expiry, and parent response state.',
+          tone: 'gold',
+        },
+        {
+          label: 'Unmanaged browser',
+          value: 'Parent decision',
+          body: 'Chrome/Edge/Firefox outside the managed boundary become bypass requests, not URL evidence.',
+          tone: 'red',
+        },
+        {
+          label: 'Download request',
+          value: 'Ask parent',
+          body: 'Downloads can require approval without sending raw page body, cookies, or form data.',
+          tone: 'cyan',
+        },
+        {
+          label: 'Remember answer',
+          value: 'Time boxed',
+          body: 'Approved browser exceptions can be once, session, schedule, or custom expiry.',
+          tone: 'purple',
+        },
+      ];
+    }
+    if (activeTab === 'enforcement') {
+      return [
+        ...missingDevice,
+        {
+          label: 'Managed browser',
+          value: 'Edge / Chrome first',
+          body: 'Exact URL policy is enforcement-eligible only inside an Ocentra-managed browser session.',
+          tone: 'cyan',
+        },
+        {
+          label: 'Unmanaged browser',
+          value: 'Monitor, warn, ask, relaunch, or block',
+          body: 'The parent chooses bypass handling and the child agent reports capability before action.',
+          tone: 'gold',
+        },
+        {
+          label: 'Dry-run preview',
+          value: 'Before apply',
+          body: 'Browser enforcement must produce the same typed decision in preview before changing device behavior.',
+          tone: 'purple',
+        },
+        {
+          label: 'Unsupported browser',
+          value: 'Honest unavailable',
+          body: 'Firefox, Opera, portable browsers, and unknown forks remain unsupported until adapter proof exists.',
+          tone: 'red',
+        },
+      ];
+    }
+    if (activeTab === 'audit') {
+      return [
+        ...missingDevice,
+        {
+          label: 'Evidence ref',
+          value: 'Managed tab only',
+          body: 'Audit can cite URL/title/domain evidence only when it came from the managed browser boundary.',
+          tone: 'cyan',
+        },
+        {
+          label: 'Bypass event',
+          value: 'Separate from URL capture',
+          body: 'Unmanaged browser use is logged as possible bypass and does not invent exact URLs.',
+          tone: 'red',
+        },
+        {
+          label: 'Policy diff',
+          value: 'Parent authored',
+          body: 'Rule edits show previous version, new version, actor, and child-device validation result.',
+          tone: 'gold',
+        },
+        {
+          label: 'Adapter result',
+          value: 'Applied / unavailable / monitor-only',
+          body: 'Enforcement outcomes are journaled by the child-device agent, not the portal UI.',
+          tone: 'purple',
+        },
+      ];
+    }
+    return [
+      ...missingDevice,
+      {
+        label: 'Managed boundary',
+        value: 'Exact URL evidence',
+        body: 'Edge/Chrome managed sessions can produce URL, title, domain, source id, and freshness state.',
+        tone: 'cyan',
+      },
+      {
+        label: 'Decision ladder',
+        value: 'Allow / Warn / Ask / Limit / Block',
+        body: 'Rules operate on site, domain, category, video/channel, browser process, or session targets.',
+        tone: 'gold',
+      },
+      {
+        label: 'Unmanaged browsers',
+        value: 'Bypass state',
+        body: 'Detected personal browsers are possible bypass evidence until a supported managed adapter proves URL capture.',
+        tone: 'red',
+      },
+      {
+        label: 'Explanation',
+        value: 'Parent text',
+        body: 'Warn/ask/block states carry parent-authored reason text and typed reason codes.',
+        tone: 'purple',
+      },
+    ];
+  }
+
+  if (area === 'Apps') {
+    if (activeTab === 'schedule') {
+      return [
+        ...missingDevice,
+        {
+          label: 'School apps',
+          value: 'Allow window',
+          body: 'Productivity and school app categories can be allowed during homework/school windows.',
+          tone: 'cyan',
+        },
+        {
+          label: 'Blocked window',
+          value: 'Bedtime / custom',
+          body: 'Chat/media app behavior can change by local child-device schedule and parent rule version.',
+          tone: 'purple',
+        },
+        {
+          label: 'Foreground budget',
+          value: 'Daily / weekly',
+          body: 'App budgets use session summaries from stored process/window evidence.',
+          tone: 'gold',
+        },
+        {
+          label: 'Grace period',
+          value: 'Typed timer',
+          body: 'Grace, expiry, and reset behavior belong to the child-device timer path.',
+          tone: 'cyan',
+        },
+      ];
+    }
+    if (activeTab === 'approvals') {
+      return [
+        ...missingDevice,
+        {
+          label: 'New app',
+          value: 'Ask until reviewed',
+          body: 'Unknown new apps can ask parent first without pretending classification is known.',
+          tone: 'gold',
+        },
+        {
+          label: 'Blocked app open',
+          value: 'Reason required',
+          body: 'Child requests carry app/process evidence refs and parent response state.',
+          tone: 'cyan',
+        },
+        {
+          label: 'Extend budget',
+          value: 'Time boxed',
+          body: 'Extra app time creates an expiry and audit record.',
+          tone: 'purple',
+        },
+        {
+          label: 'Install/update',
+          value: 'Parent review',
+          body: 'Installer or app-update requests stay typed intents, not portal-side execution.',
+          tone: 'red',
+        },
+      ];
+    }
+    if (activeTab === 'enforcement') {
+      return [
+        ...missingDevice,
+        {
+          label: 'Process action',
+          value: 'Observe / terminate / block',
+          body: 'App enforcement is capability-gated by platform adapter and stored process evidence.',
+          tone: 'red',
+        },
+        {
+          label: 'Foreground watcher',
+          value: 'Required',
+          body: 'Time limits need foreground/running state from child-device evidence, not portal timers.',
+          tone: 'cyan',
+        },
+        {
+          label: 'Unknown app',
+          value: 'Ask or observe',
+          body: 'Unknown stays unknown until evidence or catalog proof supports a stronger claim.',
+          tone: 'gold',
+        },
+        {
+          label: 'Rollback',
+          value: 'Adapter reported',
+          body: 'Failed, partial, unavailable, already exited, and rollback states are parent-visible.',
+          tone: 'purple',
+        },
+      ];
+    }
+    if (activeTab === 'audit') {
+      return [
+        ...missingDevice,
+        {
+          label: 'Inventory diff',
+          value: 'Installed / removed',
+          body: 'App inventory changes show source, signature/hash where available, and last probe time.',
+          tone: 'cyan',
+        },
+        {
+          label: 'Session result',
+          value: 'Duration refs',
+          body: 'Audit cites running/foreground summaries and evidence ids, not portal guesses.',
+          tone: 'gold',
+        },
+        {
+          label: 'Parent change',
+          value: 'Versioned',
+          body: 'App rules, budgets, and approval settings produce policy version events.',
+          tone: 'purple',
+        },
+        {
+          label: 'Adapter state',
+          value: 'Ready / unavailable / unsupported',
+          body: 'Policy screens stay honest when app control capability is missing.',
+          tone: 'red',
+        },
+      ];
+    }
+    return [
+      ...missingDevice,
+      {
+        label: 'Inventory',
+        value: 'Installed and running apps',
+        body: 'Process, path/signature/hash, foreground state, and category candidates come from child-device evidence.',
+        tone: 'cyan',
+      },
+      {
+        label: 'Decision ladder',
+        value: 'Allow / Warn / Ask / Limit / Block',
+        body: 'Targets include app, process, window, category, and activity type.',
+        tone: 'gold',
+      },
+      {
+        label: 'Unknown apps',
+        value: 'Ask by default',
+        body: 'Unknown or suspicious apps can ask parent until a catalog or evidence rule classifies them.',
+        tone: 'purple',
+      },
+      {
+        label: 'School allowlist',
+        value: 'Schedule aware',
+        body: 'School and homework apps can be allowed while other categories stay limited.',
+        tone: 'cyan',
+      },
+    ];
+  }
+
+  if (area === 'Games') {
+    if (activeTab === 'schedule') {
+      return [
+        ...missingDevice,
+        {
+          label: 'School day',
+          value: 'Strict budget',
+          body: 'Game rules can use school-day budgets separate from weekend rules.',
+          tone: 'gold',
+        },
+        {
+          label: 'Weekend',
+          value: 'Larger budget',
+          body: 'Weekly or weekend reset behavior is explicit and journaled.',
+          tone: 'cyan',
+        },
+        {
+          label: 'Bedtime',
+          value: 'Block or ask',
+          body: 'Late game launches can ask parent or block based on household rule.',
+          tone: 'purple',
+        },
+        {
+          label: 'Temporary pass',
+          value: 'Expires',
+          body: 'Extra game time is time-boxed and auditable.',
+          tone: 'cyan',
+        },
+      ];
+    }
+    if (activeTab === 'approvals') {
+      return [
+        ...missingDevice,
+        {
+          label: 'Start blocked game',
+          value: 'Ask parent',
+          body: 'Requests carry launcher/game/session evidence and the child reason.',
+          tone: 'gold',
+        },
+        {
+          label: 'Extend play',
+          value: 'Time boxed',
+          body: 'Parent can approve one game session without changing the family default.',
+          tone: 'cyan',
+        },
+        {
+          label: 'Unknown game',
+          value: 'Review first',
+          body: 'Unknown or ambiguous game candidates ask instead of claiming a game title.',
+          tone: 'purple',
+        },
+        {
+          label: 'Voice/chat risk',
+          value: 'Explicit rule',
+          body: 'Voice/chat game risks require parent-authored rules and evidence refs.',
+          tone: 'red',
+        },
+      ];
+    }
+    if (activeTab === 'enforcement') {
+      return [
+        ...missingDevice,
+        {
+          label: 'Launcher action',
+          value: 'Observe / block',
+          body: 'Steam, Epic, Xbox, Riot, Battle.net, EA, Ubisoft, GOG, Roblox, and Minecraft need adapter proof.',
+          tone: 'cyan',
+        },
+        {
+          label: 'Game process',
+          value: 'Terminate or leave running',
+          body: 'The child-device adapter reports stopped, already exited, failed, unavailable, or observe-only.',
+          tone: 'red',
+        },
+        {
+          label: 'Time limit',
+          value: 'Timer-backed',
+          body: 'Running/foreground duration comes from stored session summaries before enforcement.',
+          tone: 'gold',
+        },
+        {
+          label: 'Child explanation',
+          value: 'Parent rule',
+          body: 'Stopped by parent policy / ask parent / time limit reached must be stable text refs.',
+          tone: 'purple',
+        },
+      ];
+    }
+    if (activeTab === 'audit') {
+      return [
+        ...missingDevice,
+        {
+          label: 'Catalog match',
+          value: 'Known / possible / unknown',
+          body: 'Game classification stays evidence-backed and shows ambiguity.',
+          tone: 'cyan',
+        },
+        {
+          label: 'Session summary',
+          value: 'Running + foreground',
+          body: 'Audit shows duration, run count, launcher, rule, and result refs.',
+          tone: 'gold',
+        },
+        {
+          label: 'Approval trail',
+          value: 'Request and response',
+          body: 'Game asks record expiry and parent response state.',
+          tone: 'purple',
+        },
+        {
+          label: 'Enforcement result',
+          value: 'Adapter journal',
+          body: 'Terminate/block results are stored by the child-device agent.',
+          tone: 'red',
+        },
+      ];
+    }
+    return [
+      ...missingDevice,
+      {
+        label: 'Game identity',
+        value: 'Launcher + process + catalog',
+        body: 'Rules distinguish launcher-only activity from an actual native game session.',
+        tone: 'cyan',
+      },
+      {
+        label: 'Decision ladder',
+        value: 'Allow / Warn / Ask / Limit / Block',
+        body: 'Targets include game title, launcher, process, category, and unknown game.',
+        tone: 'gold',
+      },
+      {
+        label: 'Time budgets',
+        value: 'Daily / weekly',
+        body: 'Game budgets rely on stored session summaries before dry-run or enforcement.',
+        tone: 'purple',
+      },
+      {
+        label: 'Unknown game',
+        value: 'Ask parent',
+        body: 'Unknown possible-game evidence asks rather than silently allowing or blocking.',
+        tone: 'red',
+      },
+    ];
+  }
+
+  if (area === 'Screen') {
+    if (activeTab === 'schedule') {
+      return [
+        ...missingDevice,
+        {
+          label: 'Capture windows',
+          value: 'Parent controlled',
+          body: 'Screen analysis runs only inside parent-selected windows/triggers.',
+          tone: 'cyan',
+        },
+        {
+          label: 'Cadence',
+          value: '5 min / 1 min strict / trigger',
+          body: 'Cadence and strict mode are explicit settings and not hidden defaults.',
+          tone: 'gold',
+        },
+        {
+          label: 'Protected surfaces',
+          value: 'Unavailable state',
+          body: 'Lock screen, secure desktop, password prompts, and protected content produce typed unavailable state.',
+          tone: 'red',
+        },
+        {
+          label: 'TTL',
+          value: 'Short queue',
+          body: 'Temporary images expire if analysis cannot complete.',
+          tone: 'purple',
+        },
+      ];
+    }
+    if (activeTab === 'approvals') {
+      return [
+        ...missingDevice,
+        {
+          label: 'One-time capture',
+          value: 'Ask parent',
+          body: 'Manual diagnostic capture requires explicit parent action and audit.',
+          tone: 'gold',
+        },
+        {
+          label: 'Live view',
+          value: 'Permission required',
+          body: 'Live viewing is not silently enabled from Activity/Policy screens.',
+          tone: 'red',
+        },
+        {
+          label: 'Retain image',
+          value: 'Off by default',
+          body: 'Raw image retention needs a separate future parent-approved feature.',
+          tone: 'purple',
+        },
+        {
+          label: 'Reason',
+          value: 'Required',
+          body: 'Screen-derived asks cite summary refs, category, confidence, and deletion state.',
+          tone: 'cyan',
+        },
+      ];
+    }
+    if (activeTab === 'enforcement') {
+      return [
+        ...missingDevice,
+        {
+          label: 'Policy use',
+          value: 'Summary only',
+          body: 'Policy consumes schema-valid screen summaries, not raw screenshots or untyped AI text.',
+          tone: 'cyan',
+        },
+        {
+          label: 'Low confidence',
+          value: 'No-op / warn / ask',
+          body: 'Low-confidence categories degrade according to parent rules.',
+          tone: 'gold',
+        },
+        {
+          label: 'Delete after analysis',
+          value: 'Required default',
+          body: 'Temporary image deletion status remains parent-visible.',
+          tone: 'purple',
+        },
+        {
+          label: 'Unsupported',
+          value: 'Honest unavailable',
+          body: 'No enforcement is claimed when screen capture/model capability is missing.',
+          tone: 'red',
+        },
+      ];
+    }
+    if (activeTab === 'audit') {
+      return [
+        ...missingDevice,
+        {
+          label: 'Summary ref',
+          value: 'No raw image',
+          body: 'Audit shows summary id, category, confidence, evidence refs, and deletion result.',
+          tone: 'cyan',
+        },
+        {
+          label: 'Queue state',
+          value: 'Processed / failed / expired',
+          body: 'Screen queue failures are visible instead of silently retaining images.',
+          tone: 'gold',
+        },
+        {
+          label: 'Parent setting',
+          value: 'Versioned',
+          body: 'Enablement, cadence, triggers, OCR, and retention changes are versioned.',
+          tone: 'purple',
+        },
+        {
+          label: 'AI result',
+          value: 'Schema-valid only',
+          body: 'Invalid local model output cannot drive policy.',
+          tone: 'red',
+        },
+      ];
+    }
+    return [
+      ...missingDevice,
+      {
+        label: 'Enablement',
+        value: 'Explicit parent opt-in',
+        body: 'Screen analysis is local-first and parent-controlled; the UI does not silently decide capture.',
+        tone: 'cyan',
+      },
+      {
+        label: 'Policy signals',
+        value: 'Category + confidence',
+        body: 'Visible categories and risk signals can inform rules only as typed summaries.',
+        tone: 'gold',
+      },
+      {
+        label: 'Retention',
+        value: 'Delete raw image',
+        body: 'Temporary images are encrypted while queued and deleted after successful analysis by default.',
+        tone: 'purple',
+      },
+      {
+        label: 'Disclosure',
+        value: 'Required',
+        body: 'Policy must be honest about local screen analysis, unavailable states, and deletion failures.',
+        tone: 'red',
+      },
+    ];
+  }
+
+  if (activeTab === 'schedule') {
+    return [
+      ...missingDevice,
+      {
+        label: 'School mode',
+        value: 'Domain/process rules',
+        body: 'Network rules can shift by school, bedtime, weekend, and temporary exception windows.',
+        tone: 'cyan',
+      },
+      {
+        label: 'VPN/proxy window',
+        value: 'Ask or block',
+        body: 'VPN/proxy/tunnel indicators can have schedule-specific behavior.',
+        tone: 'gold',
+      },
+      {
+        label: 'High volume',
+        value: 'Budget-like digest',
+        body: 'Bandwidth-heavy flows can warn or ask based on summary evidence.',
+        tone: 'purple',
+      },
+      {
+        label: 'Exception expiry',
+        value: 'Typed timer',
+        body: 'Network exceptions expire and journal the parent action.',
+        tone: 'cyan',
+      },
+    ];
+  }
+  if (activeTab === 'approvals') {
+    return [
+      ...missingDevice,
+      {
+        label: 'Blocked endpoint',
+        value: 'Ask parent',
+        body: 'Domain/IP/process requests carry evidence refs and expiry.',
+        tone: 'gold',
+      },
+      {
+        label: 'VPN exception',
+        value: 'Parent choice',
+        body: 'VPN/proxy exceptions can be one-time, session, schedule, or custom.',
+        tone: 'red',
+      },
+      {
+        label: 'New destination',
+        value: 'Review',
+        body: 'Unknown destinations are shown as metadata, not exact page content.',
+        tone: 'cyan',
+      },
+      {
+        label: 'Reason',
+        value: 'Child note optional',
+        body: 'Network asks can collect a child reason without packet payloads.',
+        tone: 'purple',
+      },
+    ];
+  }
+  if (activeTab === 'enforcement') {
+    return [
+      ...missingDevice,
+      {
+        label: 'DNS/domain block',
+        value: 'Capability-gated',
+        body: 'Domain blocking acts only after typed policy decisions and adapter support.',
+        tone: 'cyan',
+      },
+      {
+        label: 'Process flow',
+        value: 'Metadata only',
+        body: 'Network enforcement references flow summaries, not decrypted payloads.',
+        tone: 'gold',
+      },
+      {
+        label: 'VPN/proxy',
+        value: 'Ask / block / observe',
+        body: 'Tunnel indicators are policy targets when evidence is available.',
+        tone: 'purple',
+      },
+      {
+        label: 'Unavailable adapter',
+        value: 'No fake success',
+        body: 'Adapter-unavailable states remain visible and cannot be hidden by portal UI.',
+        tone: 'red',
+      },
+    ];
+  }
+  if (activeTab === 'audit') {
+    return [
+      ...missingDevice,
+      {
+        label: 'Flow summary',
+        value: 'Process/domain/IP refs',
+        body: 'Audit cites top destination, protocol, bytes/counts where supported, and evidence id.',
+        tone: 'cyan',
+      },
+      {
+        label: 'Encrypted content',
+        value: 'Unavailable',
+        body: 'The UI must not imply decrypted HTTPS payloads or page URLs from flow metadata.',
+        tone: 'red',
+      },
+      {
+        label: 'Policy decision',
+        value: 'Rule + evidence refs',
+        body: 'Network policy decisions reference stored evidence and parent rule ids.',
+        tone: 'gold',
+      },
+      {
+        label: 'Adapter result',
+        value: 'Applied / failed / observe-only',
+        body: 'Network enforcement outcomes are journaled by the child-device agent.',
+        tone: 'purple',
+      },
+    ];
+  }
+  return [
+    ...missingDevice,
+    {
+      label: 'Network metadata',
+      value: 'Process / domain / IP / protocol',
+      body: 'Rules consume flow summaries and destination metadata, not exact browser URLs or payloads.',
+      tone: 'cyan',
+    },
+    {
+      label: 'Decision ladder',
+      value: 'Allow / Warn / Ask / Block',
+      body: 'Targets include process, domain, IP, protocol, category, VPN/proxy, and unusual digest.',
+      tone: 'gold',
+    },
+    {
+      label: 'Bypass indicators',
+      value: 'VPN / proxy / tunnel',
+      body: 'Bypass-like flows are typed indicators and can trigger parent rules.',
+      tone: 'purple',
+    },
+    {
+      label: 'Unknown traffic',
+      value: 'Ask or observe',
+      body: 'Unknown/IP-only/encrypted states remain honest until evidence supports stronger claims.',
+      tone: 'red',
+    },
+  ];
+}
+
+function ManageSupportContactForm({
+  x,
+  y,
+  w,
+  h,
+  cfg,
+}: {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  cfg: ParentPortalSvgControls;
+}) {
+  const color = toneColor('purple', cfg);
+  const cyan = toneColor('cyan', cfg);
+  const gold = toneColor('gold', cfg);
+  const pad = 18;
+  const conversationH = Math.max(108, Math.min(152, h * 0.28));
+  const composerY = y + conversationH + 18;
+  const composerH = Math.max(150, h - conversationH - 76);
+  const buttonY = y + h - 42;
+  const actionW = 154;
+  const draftX = x + w - pad - actionW * 2 - 12;
+  const sendX = x + w - pad - actionW;
+  const fieldW = Math.max(160, (w - pad * 2 - 16) / 3);
+  const fieldY = composerY + 42;
+  const fieldH = 34;
+  const messageY = fieldY + fieldH + 13;
+  const messageH = Math.max(74, composerY + composerH - messageY - 16);
+  const fields = [
+    { label: 'CATEGORY', value: 'Account / device / billing / safety' },
+    { label: 'REPLY EMAIL', value: 'Parent verified email' },
+    { label: 'SUBJECT', value: 'Short support subject' },
+  ] as const;
+  return (
+    <g>
+      <path
+        d={cutRectPath(x, y, w, h, 10)}
+        fill="rgba(3, 17, 31, 0.9)"
+        stroke={color}
+        strokeWidth={1.05}
+        opacity={0.98}
+      />
+      <path d={`M ${x + 16} ${y + 42} H ${x + w - 16}`} stroke={color} strokeWidth={0.9} opacity={0.46} />
+      <text x={x + pad} y={y + 27} fontSize={16} fontWeight={950} fill={cfg.colors.bodyText}>
+        Support / Contact
+      </text>
+      <text x={x + w - pad} y={y + 27} textAnchor="end" fontSize={10.5} fontWeight={860} fill={cfg.colors.mutedText}>
+        Message form only
+      </text>
+      <rect
+        x={x + pad}
+        y={y + 56}
+        width={w - pad * 2}
+        height={conversationH - 58}
+        rx={8}
+        fill="rgba(6, 28, 45, 0.64)"
+        stroke={cyan}
+        strokeWidth={0.78}
+        opacity={0.88}
+      />
+      <text x={x + pad + 16} y={y + 82} fontSize={11.2} fontWeight={940} fill={cyan}>
+        OCENTRA SUPPORT
+      </text>
+      <text x={x + pad + 16} y={y + 104} fontSize={12.5} fontWeight={780} fill={cfg.colors.bodyText}>
+        Send a message to the support team. Replies come back by email when the connector is linked.
+      </text>
+      <text x={x + pad + 16} y={y + 126} fontSize={11.5} fontWeight={720} fill={cfg.colors.mutedText}>
+        Message-only contact form. Attachments are not collected from this screen.
+      </text>
+
+      <path
+        d={cutRectPath(x + pad, composerY, w - pad * 2, composerH, 8)}
+        fill="rgba(4, 20, 35, 0.86)"
+        stroke={cyan}
+        strokeWidth={0.86}
+        opacity={0.94}
+      />
+      <text x={x + pad + 16} y={composerY + 25} fontSize={11.2} fontWeight={950} fill={gold}>
+        NEW MESSAGE
+      </text>
+      {fields.map((field, index) => {
+        const fieldX = x + pad + index * (fieldW + 8);
+        return (
+          <g key={`support-contact-field:${field.label}`}>
+            <rect
+              x={fieldX}
+              y={fieldY}
+              width={fieldW}
+              height={fieldH}
+              rx={4}
+              fill={colorAlpha(cyan, '13')}
+              stroke={cyan}
+              strokeWidth={0.72}
+              opacity={0.92}
+            />
+            <text x={fieldX + 10} y={fieldY + 13} fontSize={8.8} fontWeight={950} fill={cyan}>
+              {field.label}
+            </text>
+            <text x={fieldX + 10} y={fieldY + 27} fontSize={10.7} fontWeight={820} fill={cfg.colors.bodyText}>
+              {truncateTextForWidth(field.value, fieldW - 20, 10.7, 0.56)}
+            </text>
+          </g>
+        );
+      })}
+      <rect
+        x={x + pad}
+        y={messageY}
+        width={w - pad * 2}
+        height={messageH}
+        rx={5}
+        fill="rgba(2, 13, 24, 0.82)"
+        stroke={color}
+        strokeWidth={0.78}
+        opacity={0.95}
+      />
+      <text x={x + pad + 12} y={messageY + 19} fontSize={9.3} fontWeight={950} fill={color}>
+        MESSAGE
+      </text>
+      <text x={x + pad + 12} y={messageY + 43} fontSize={12.4} fontWeight={780} fill={cfg.colors.mutedText}>
+        Type the parent support message here...
+      </text>
+      <path
+        d={`M ${x + pad + 12} ${messageY + 61} H ${x + w - pad - 12}`}
+        stroke={cfg.colors.panelStroke}
+        strokeWidth={0.7}
+        opacity={0.45}
+      />
+      <path
+        d={`M ${x + pad + 12} ${messageY + 82} H ${x + w - pad - 12}`}
+        stroke={cfg.colors.panelStroke}
+        strokeWidth={0.7}
+        opacity={0.32}
+      />
+      <path
+        d={`M ${x + pad + 12} ${messageY + 103} H ${x + w - pad - 12}`}
+        stroke={cfg.colors.panelStroke}
+        strokeWidth={0.7}
+        opacity={0.22}
+      />
+      <rect
+        x={draftX}
+        y={buttonY}
+        width={actionW}
+        height={28}
+        rx={4}
+        fill="rgba(3, 18, 32, 0.9)"
+        stroke={gold}
+        strokeWidth={0.9}
+      />
+      <text x={draftX + actionW / 2} y={buttonY + 18} textAnchor="middle" fontSize={11.2} fontWeight={950} fill={gold}>
+        SAVE DRAFT
+      </text>
+      <rect
+        x={sendX}
+        y={buttonY}
+        width={actionW}
+        height={28}
+        rx={4}
+        fill={colorAlpha(cyan, '32')}
+        stroke={cyan}
+        strokeWidth={1}
+        filter="url(#parentPortalGlow)"
+      />
+      <text
+        x={sendX + actionW / 2}
+        y={buttonY + 18}
+        textAnchor="middle"
+        fontSize={11.2}
+        fontWeight={950}
+        fill={cfg.colors.bodyText}
+      >
+        SEND MESSAGE
+      </text>
+    </g>
+  );
+}
+
+function ManageWorkspacePanel({
+  x,
+  y,
+  w,
+  h,
+  kind,
+  activeTabId,
+  defaultTabId,
+  onTabChange,
+  activeNavLabel,
+  selectedControlName,
+  cfg,
+}: {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  kind: ManageWorkspaceKind;
+  activeTabId: string;
+  defaultTabId: string;
+  onTabChange: (tabId: string) => void;
+  activeNavLabel: string;
+  selectedControlName: string;
+  cfg: ParentPortalSvgControls;
+}) {
+  const tabs = manageWorkspaceTabs(kind);
+  const targetOptions = useMemo(() => manageWorkspaceTargetOptions(kind), [kind]);
+  const [workspaceTarget, setWorkspaceTarget] = useState<ManageWorkspaceTarget>(() => targetOptions[0]?.id ?? 'family');
+  const [workspaceSelectedDeviceValue, setWorkspaceSelectedDeviceValue] = useState<string | undefined>();
+  useEffect(() => {
+    setWorkspaceTarget(targetOptions[0]?.id ?? 'family');
+    setWorkspaceSelectedDeviceValue(undefined);
+  }, [targetOptions]);
+  const activeTab =
+    tabs.find((tab) => tab.id === activeTabId) ?? tabs.find((tab) => tab.id === defaultTabId) ?? tabs[0];
+  const activeTabKey = activeTab?.id ?? defaultTabId;
+  const activeColor = toneColor(activeTab?.tone ?? 'cyan', cfg);
+  const activeTarget = targetOptions.find((option) => option.id === workspaceTarget) ?? targetOptions[0] ?? null;
+  const workspaceTargetKey = activeTarget?.id ?? 'family';
+  const workspaceTargetLabel = activeTarget ? manageWorkspaceTargetLabel(activeTarget.id) : '';
+  const targetColor = toneColor(activeTarget?.tone ?? activeTab?.tone ?? 'cyan', cfg);
+  const hasTargetSelector = targetOptions.length > 0;
+  const policyAreaLabel = kind === 'policy' ? managePolicyAreaLabel(activeNavLabel, selectedControlName) : '';
+  const policyPrimaryOptions = useMemo(() => managePolicyPrimaryChoiceOptions(activeTabKey), [activeTabKey]);
+  const policySecondaryOptions = useMemo(() => managePolicySecondaryChoiceOptions(activeTabKey), [activeTabKey]);
+  const [policyPrimaryChoice, setPolicyPrimaryChoice] = useState(policyPrimaryOptions[0]?.value ?? '');
+  const [policySecondaryChoice, setPolicySecondaryChoice] = useState(policySecondaryOptions[0]?.value ?? '');
+  useEffect(() => {
+    setWorkspaceSelectedDeviceValue(undefined);
+  }, [kind, activeNavLabel, selectedControlName]);
+  useEffect(() => {
+    setPolicyPrimaryChoice(policyPrimaryOptions[0]?.value ?? '');
+  }, [policyPrimaryOptions]);
+  useEffect(() => {
+    setPolicySecondaryChoice(policySecondaryOptions[0]?.value ?? '');
+  }, [policySecondaryOptions]);
+  const compact = w < 760;
+  const targetSurfaceEnabled = hasTargetSelector;
+  const workspaceSlots = useMemo(() => reportPlanSeatSlots(ACTIVITY_REPORT_BASIC_CHILD_DEVICE_SEATS), []);
+  const workspacePortalIds = useMemo(
+    () => workspaceSlots.filter((slot) => slot.device).map((slot) => slot.value),
+    [workspaceSlots]
+  );
+  const workspaceDeviceCount = Math.max(1, workspaceSlots.length);
+  const workspacePanelPadX = Math.max(18, Math.min(34, Math.round(w * 0.018)));
+  const workspaceAvailableW = Math.max(1, w - workspacePanelPadX * 2);
+  const workspaceAvailableH = Math.max(1, h);
+  const workspaceGridColumnsByWidth = Math.max(
+    1,
+    Math.floor(
+      (Math.max(1, workspaceAvailableW - 44) + MANAGE_DEVICE_GRID_GAP_X) /
+        (MANAGE_DEVICE_GRID_CELL_W + MANAGE_DEVICE_GRID_GAP_X)
+    )
+  );
+  const workspaceGridColumns = Math.max(1, Math.min(workspaceDeviceCount, workspaceGridColumnsByWidth));
+  const workspaceGridRows =
+    workspaceTargetKey === 'perDevice' ? Math.max(1, Math.ceil(workspaceDeviceCount / workspaceGridColumns)) : 1;
+  const workspaceSelectorH = targetSurfaceEnabled
+    ? Math.max(
+        176,
+        Math.min(
+          workspaceAvailableH * 0.42,
+          ACTIVITY_REPORT_SELECTOR_BASE_H + workspaceGridRows * ACTIVITY_REPORT_SELECTOR_ROW_H
+        )
+      )
+    : 0;
+  const workspaceTopX = x + workspacePanelPadX;
+  const workspaceTopY = y;
+  const workspaceDividerY = workspaceTopY + workspaceSelectorH;
+  const workspaceGridHostStyle: CSSProperties = {
+    width: workspaceAvailableW,
+    height: workspaceSelectorH,
+  };
+  const firstWorkspaceSelectableSlot = workspaceSlots.find((slot) => slot.device && slot.status !== 'empty');
+  const workspaceSelectedValue =
+    workspaceTargetKey === 'perDevice'
+      ? (workspaceSelectedDeviceValue ?? firstWorkspaceSelectableSlot?.value)
+      : undefined;
+  const workspaceSelectedSlot = workspaceSlots.find((slot) => slot.value === workspaceSelectedValue) ?? null;
+  const workspaceSelectedLabel = workspaceSelectedSlot?.label ?? null;
+  const tabColumns = compact ? Math.min(3, tabs.length) : Math.min(tabs.length, kind === 'ai' ? 4 : tabs.length);
+  const tabRows = Math.max(1, Math.ceil(tabs.length / tabColumns));
+  const tabInsetX = Math.max(12, Math.min(22, w * 0.012));
+  const tabW = Math.max(compact ? 82 : 112, Math.min(kind === 'ai' ? 168 : 188, (w - tabInsetX * 2) / tabColumns));
+  const tabH = compact ? 31 : 39;
+  const tabGap = 0;
+  const tabAreaH = tabRows * tabH + 8;
+  const tabsY = targetSurfaceEnabled ? workspaceDividerY + 16 : y;
+  const bodyY = tabsY + tabAreaH - 1;
+  const bodyH = Math.max(1, y + h - bodyY - (targetSurfaceEnabled ? 8 : 0));
+  const titleY = bodyY + 33;
+  const headerTitle =
+    kind === 'policy'
+      ? `${manageWorkspaceTitle(kind)} / ${policyAreaLabel}`
+      : `${manageWorkspaceTitle(kind)} / ${activeTab?.label ?? activeTabKey}`;
+  const headerSide =
+    kind === 'policy'
+      ? `${workspaceTargetLabel} / ${activeTab?.label ?? activeTabKey}`
+      : hasTargetSelector
+        ? workspaceTargetLabel
+        : selectedControlName || activeNavLabel;
+  const targetSelectorY = bodyY + (compact ? 46 : 48);
+  const targetSelectorH = compact ? 30 : 34;
+  const targetLabelW = hasTargetSelector ? (compact ? 0 : 76) : 0;
+  const targetSelectorX = x + (compact ? 22 : 96);
+  const targetSelectorMaxW = Math.max(1, x + w - targetSelectorX - 22);
+  const targetSelectorW = hasTargetSelector
+    ? Math.min(targetSelectorMaxW, targetOptions.length * (compact ? 142 : 178))
+    : 0;
+  const targetOptionW = targetSelectorW / Math.max(1, targetOptions.length);
+  const summaryBaseY = targetSurfaceEnabled
+    ? kind === 'policy'
+      ? bodyY + (compact ? 126 : 124)
+      : bodyY + 54
+    : hasTargetSelector
+      ? targetSelectorY + targetSelectorH + (compact ? 16 : 18)
+      : bodyY + 54;
+  const summary = manageWorkspaceSummary(kind, activeTabKey, activeNavLabel, selectedControlName, workspaceTargetKey);
+  const summaryLines = wrapCardText(summary, w - 42, 12.2, compact ? 2 : 1);
+  const hasInlineTargetSelector = hasTargetSelector && !targetSurfaceEnabled;
+  const bodyHeaderH = targetSurfaceEnabled
+    ? kind === 'policy'
+      ? compact
+        ? 170
+        : 164
+      : compact
+        ? 92
+        : 84
+    : hasInlineTargetSelector
+      ? compact
+        ? 124
+        : 122
+      : compact
+        ? 76
+        : 64;
+  const cards = manageWorkspaceCards(kind, activeTabKey, activeNavLabel, selectedControlName, workspaceTargetKey);
+  const supportContactFormEnabled = kind === 'account' && activeTabKey === 'support';
+  const policyRows =
+    kind === 'policy'
+      ? managePolicySettingRows(policyAreaLabel, activeTabKey, workspaceTargetKey, workspaceSelectedLabel)
+      : [];
+  const cardGap = 10;
+  const cardColumns = w > 1180 ? 4 : w > 840 ? 3 : w > 560 ? 2 : 1;
+  const cardW = Math.max(1, (w - 28 * 2 - cardGap * (cardColumns - 1)) / cardColumns);
+  const cardRows = Math.ceil(cards.length / cardColumns);
+  const cardsTop = bodyY + bodyHeaderH + 12;
+  const availableCardH = Math.max(1, bodyY + bodyH - cardsTop - 18);
+  const cardH = clampValue((availableCardH - cardGap * Math.max(0, cardRows - 1)) / Math.max(1, cardRows), 70, 112);
+  const policyChoiceBarY = bodyY + 42;
+  const policyChoiceGap = 12;
+  const policyChoiceW = Math.max(220, (w - 44 - policyChoiceGap) / 2);
+  const policySecondaryX = x + 22 + policyChoiceW + policyChoiceGap;
+  const policyRowsTop = bodyY + bodyHeaderH + 10;
+  const policyRowGap = 10;
+  const policyRowColumns = w > 1060 ? 2 : 1;
+  const policyRowW = Math.max(1, (w - 28 * 2 - policyRowGap * (policyRowColumns - 1)) / policyRowColumns);
+  const policyRowH = clampValue(
+    (Math.max(1, bodyY + bodyH - policyRowsTop - 18) -
+      policyRowGap * Math.max(0, Math.ceil(policyRows.length / policyRowColumns) - 1)) /
+      Math.max(1, Math.ceil(policyRows.length / policyRowColumns)),
+    58,
+    76
+  );
+  return (
+    <g>
+      {targetSurfaceEnabled ? (
+        <>
+          <foreignObject x={workspaceTopX} y={workspaceTopY} width={workspaceAvailableW} height={workspaceSelectorH}>
+            <div xmlns="http://www.w3.org/1999/xhtml" style={workspaceGridHostStyle}>
+              <DeviceChoiceGrid
+                scope={workspaceTargetKey === 'perDevice' ? 'parent' : 'lan'}
+                value={workspaceSelectedValue}
+                options={workspaceSlots}
+                portalDeviceIds={workspacePortalIds}
+                rows={workspaceGridRows}
+                columns={workspaceGridColumns}
+                parentRows={workspaceGridRows}
+                parentColumns={workspaceGridColumns}
+                deviceSelectionDisabled={workspaceTargetKey !== 'perDevice'}
+                onScopeChange={(nextScopeValue) => {
+                  const nextTarget = nextScopeValue === 'parent' ? 'perDevice' : 'family';
+                  setWorkspaceTarget(nextTarget);
+                  if (nextTarget !== 'perDevice') {
+                    setWorkspaceSelectedDeviceValue(undefined);
+                  }
+                }}
+                onChange={(choice) => {
+                  setWorkspaceTarget('perDevice');
+                  setWorkspaceSelectedDeviceValue(choice.value);
+                }}
+                config={manageDeviceGridConfig(workspaceAvailableW, workspaceSelectorH, {
+                  statusOrder: { lan: ['connected', 'offline', 'empty'], parent: ['connected', 'offline', 'empty'] },
+                  text: {
+                    scopeOptions: { lan: 'Family', parent: 'Per Device' },
+                    selectedInfoLabel: `${manageWorkspaceTitle(kind)} device`,
+                  },
+                })}
+              />
+            </div>
+          </foreignObject>
+          <path
+            d={`M ${workspaceTopX} ${workspaceDividerY} H ${workspaceTopX + workspaceAvailableW}`}
+            stroke={targetColor}
+            strokeWidth={3}
+            opacity={0.18}
+          />
+          <path
+            d={`M ${workspaceTopX} ${workspaceDividerY} H ${workspaceTopX + workspaceAvailableW}`}
+            stroke={targetColor}
+            strokeWidth={1.35}
+            opacity={0.72}
+          />
+        </>
+      ) : null}
+      <g role="tablist" aria-label={`${manageWorkspaceTitle(kind)} tabs`}>
+        {tabs.map((tab, index) => {
+          const selected = tab.id === activeTabKey;
+          const tabColor = toneColor(tab.tone, cfg);
+          const column = index % tabColumns;
+          const row = Math.floor(index / tabColumns);
+          const tabX = x + tabInsetX + column * (tabW + tabGap);
+          const tabY = tabsY + row * tabH + (selected ? 0 : 7);
+          const currentTabH = selected ? tabH + 1 : tabH - 7;
+          const tabRadius = selected ? 9 : 7;
+          const tabIconSize = Math.max(14, Math.min(21, currentTabH - 12));
+          const tabTextSize = compact ? 10.4 : 12.4;
+          const tabTextMaxW = tabW - tabIconSize - 25;
+          const tabText = truncateTextForWidth(tab.label, tabTextMaxW, tabTextSize, 0.58);
+          const tabTextW = Math.min(tabTextMaxW, tabText.length * tabTextSize * 0.58);
+          const tabGroupW = tabIconSize + 7 + tabTextW;
+          const tabIconX = tabX + Math.max(8, (tabW - tabGroupW) / 2);
+          const tabIconY = tabY + (currentTabH - tabIconSize) / 2;
+          const TabIcon = tab.icon;
+          return (
+            <g
+              key={`manage-workspace-tab:${kind}:${tab.id}`}
+              className="parent-portal-svg-clickable"
+              role="tab"
+              tabIndex={0}
+              aria-label={`Show ${tab.label}`}
+              aria-selected={selected}
+              onClick={(event) => {
+                event.stopPropagation();
+                onTabChange(tab.id);
+              }}
+              onKeyDown={(event) => {
+                if (event.key !== 'Enter' && event.key !== ' ') return;
+                event.preventDefault();
+                event.stopPropagation();
+                onTabChange(tab.id);
+              }}
+            >
+              <rect x={tabX} y={tabsY + row * tabH - 4} width={tabW} height={tabH + 8} fill="transparent" />
+              {selected ? (
+                <path
+                  d={topRoundedRectPath(tabX - 2, tabY - 2, tabW + 4, currentTabH + 3, tabRadius + 2)}
+                  fill="none"
+                  stroke={tabColor}
+                  strokeWidth={3}
+                  opacity={0.18}
+                  filter="url(#parentPortalGlow)"
+                />
+              ) : null}
+              <path
+                d={topRoundedRectPath(tabX, tabY, tabW, currentTabH, tabRadius)}
+                fill={selected ? colorAlpha(tabColor, '26') : 'rgba(2, 12, 22, 0.74)'}
+                stroke={selected ? tabColor : cfg.colors.panelStroke}
+                strokeWidth={selected ? 1.2 : 0.75}
+                opacity={selected ? 1 : 0.82}
+              />
+              <path
+                d={topRoundedRectPath(tabX + 5, tabY + 4, tabW - 10, Math.max(9, currentTabH * 0.36), 5)}
+                fill={cfg.colors.bodyText}
+                opacity={selected ? 0.13 : 0.055}
+              />
+              <path
+                d={`M ${tabX + 16} ${tabY + currentTabH - 6} H ${tabX + tabW - 16}`}
+                stroke={tabColor}
+                strokeWidth={selected ? 1.8 : 1}
+                strokeLinecap="round"
+                opacity={selected ? 0.95 : 0.38}
+              />
+              <TabIcon x={tabIconX} y={tabIconY} width={tabIconSize} height={tabIconSize} />
+              <text
+                x={tabIconX + tabIconSize + 7}
+                y={tabY + currentTabH * 0.64}
+                fontSize={tabTextSize}
+                fontWeight={selected ? 950 : 850}
+                fill={selected ? cfg.colors.bodyText : cfg.colors.mutedText}
+                pointerEvents="none"
+              >
+                {tabText}
+              </text>
+            </g>
+          );
+        })}
+      </g>
+      <path
+        d={`M ${x} ${bodyY} H ${x + w} V ${bodyY + bodyH} H ${x} Z`}
+        fill={cfg.colors.panelFill}
+        stroke={activeColor}
+        strokeWidth={1.12}
+        opacity={0.97}
+      />
+      <path d={`M ${x + 10} ${bodyY} H ${x + w - 10}`} stroke={activeColor} strokeWidth={2.2} opacity={0.55} />
+      <text x={x + 22} y={titleY} fontSize={17} fontWeight={950} fill={cfg.colors.bodyText}>
+        {headerTitle}
+      </text>
+      <text x={x + w - 22} y={titleY} textAnchor="end" fontSize={10.5} fontWeight={900} fill={activeColor}>
+        {truncateTextForWidth(headerSide, Math.max(120, w * 0.32), 10.5, 0.58)}
+      </text>
+      {kind === 'policy' ? (
+        <g>
+          <foreignObject x={x + 22} y={policyChoiceBarY} width={policyChoiceW} height={66}>
+            <div xmlns="http://www.w3.org/1999/xhtml" style={{ width: policyChoiceW, height: 66 }}>
+              <ScopeToggle
+                title={managePolicyPrimaryChoiceTitle(activeTabKey)}
+                value={policyPrimaryChoice}
+                options={policyPrimaryOptions}
+                disabled={workspaceTargetKey === 'perDevice' && !workspaceSelectedSlot}
+                onChange={(nextValue) => setPolicyPrimaryChoice(nextValue)}
+                config={activityScopeToggleConfig(policyChoiceW)}
+              />
+            </div>
+          </foreignObject>
+          <foreignObject x={policySecondaryX} y={policyChoiceBarY} width={policyChoiceW} height={66}>
+            <div xmlns="http://www.w3.org/1999/xhtml" style={{ width: policyChoiceW, height: 66 }}>
+              <ScopeToggle
+                title={managePolicySecondaryChoiceTitle(activeTabKey)}
+                value={policySecondaryChoice}
+                options={policySecondaryOptions}
+                disabled={workspaceTargetKey === 'perDevice' && !workspaceSelectedSlot}
+                onChange={(nextValue) => setPolicySecondaryChoice(nextValue)}
+                config={activityScopeToggleConfig(policyChoiceW)}
+              />
+            </div>
+          </foreignObject>
+        </g>
+      ) : null}
+      {hasInlineTargetSelector ? (
+        <g role="radiogroup" aria-label={`${manageWorkspaceTitle(kind)} target selector`}>
+          {!compact ? (
+            <text x={x + 22} y={targetSelectorY + 22} fontSize={11.4} fontWeight={950} fill={activeColor}>
+              SCOPE
+            </text>
+          ) : null}
+          <rect
+            x={targetSelectorX - 3}
+            y={targetSelectorY - 3}
+            width={targetSelectorW + 6}
+            height={targetSelectorH + 6}
+            rx={9}
+            fill="rgba(2, 12, 22, 0.7)"
+            stroke={targetColor}
+            strokeWidth={0.9}
+            opacity={0.88}
+          />
+          <rect
+            x={targetSelectorX}
+            y={targetSelectorY}
+            width={targetSelectorW}
+            height={targetSelectorH}
+            rx={7}
+            fill="rgba(6, 24, 37, 0.9)"
+            stroke={cfg.colors.panelStroke}
+            strokeWidth={0.72}
+            opacity={0.96}
+          />
+          {targetOptions.map((option, index) => {
+            const selected = option.id === workspaceTargetKey;
+            const optionColor = toneColor(option.tone, cfg);
+            const optionX = targetSelectorX + index * targetOptionW;
+            const labelSize = compact ? 10.8 : 12.3;
+            const detailSize = compact ? 7.8 : 8.9;
+            return (
+              <g
+                key={`manage-workspace-target:${kind}:${option.id}`}
+                className="parent-portal-svg-clickable"
+                role="radio"
+                tabIndex={0}
+                aria-label={`Use ${option.label}`}
+                aria-checked={selected}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  setWorkspaceTarget(option.id);
+                }}
+                onKeyDown={(event) => {
+                  if (event.key !== 'Enter' && event.key !== ' ') return;
+                  event.preventDefault();
+                  event.stopPropagation();
+                  setWorkspaceTarget(option.id);
+                }}
+              >
+                <rect
+                  x={optionX}
+                  y={targetSelectorY - 2}
+                  width={targetOptionW}
+                  height={targetSelectorH + 4}
+                  fill="transparent"
+                />
+                {index > 0 ? (
+                  <path
+                    d={`M ${optionX} ${targetSelectorY + 5} V ${targetSelectorY + targetSelectorH - 5}`}
+                    stroke={cfg.colors.panelStroke}
+                    strokeWidth={0.8}
+                    opacity={0.55}
+                  />
+                ) : null}
+                {selected ? (
+                  <>
+                    <rect
+                      x={optionX + 4}
+                      y={targetSelectorY + 4}
+                      width={targetOptionW - 8}
+                      height={targetSelectorH - 8}
+                      rx={5}
+                      fill={colorAlpha(optionColor, '44')}
+                      stroke={optionColor}
+                      strokeWidth={1.05}
+                      filter="url(#parentPortalGlow)"
+                    />
+                    <path
+                      d={`M ${optionX + 15} ${targetSelectorY + 9} H ${optionX + targetOptionW - 15}`}
+                      stroke={cfg.colors.bodyText}
+                      strokeWidth={0.9}
+                      strokeLinecap="round"
+                      opacity={0.24}
+                    />
+                  </>
+                ) : null}
+                <text
+                  x={optionX + targetOptionW / 2}
+                  y={targetSelectorY + (compact ? 16 : 17)}
+                  textAnchor="middle"
+                  fontSize={labelSize}
+                  fontWeight={950}
+                  fill={selected ? cfg.colors.bodyText : cfg.colors.mutedText}
+                  pointerEvents="none"
+                >
+                  {truncateTextForWidth(option.label, targetOptionW - 16, labelSize, 0.58)}
+                </text>
+                {!compact ? (
+                  <text
+                    x={optionX + targetOptionW / 2}
+                    y={targetSelectorY + 28}
+                    textAnchor="middle"
+                    fontSize={detailSize}
+                    fontWeight={760}
+                    fill={selected ? optionColor : cfg.colors.mutedText}
+                    opacity={selected ? 0.9 : 0.58}
+                    pointerEvents="none"
+                  >
+                    {truncateTextForWidth(option.detail, targetOptionW - 18, detailSize, 0.54)}
+                  </text>
+                ) : null}
+              </g>
+            );
+          })}
+        </g>
+      ) : null}
+      {summaryLines.map((line, index) => (
+        <text
+          key={`manage-workspace-summary:${kind}:${activeTabKey}:${workspaceTargetKey}:${index}`}
+          x={x + 22}
+          y={summaryBaseY + index * 16}
+          fontSize={12.2}
+          fontWeight={740}
+          fill={cfg.colors.mutedText}
+        >
+          {line}
+        </text>
+      ))}
+      <path
+        d={`M ${x + 22} ${bodyY + bodyHeaderH} H ${x + w - 22}`}
+        stroke={activeColor}
+        strokeWidth={0.9}
+        opacity={0.42}
+      />
+      {supportContactFormEnabled ? (
+        <ManageSupportContactForm
+          x={x + 28}
+          y={cardsTop}
+          w={w - 56}
+          h={Math.max(260, bodyY + bodyH - cardsTop - 18)}
+          cfg={cfg}
+        />
+      ) : kind === 'policy' ? (
+        policyRows.map((rowItem, index) => {
+          const column = index % policyRowColumns;
+          const row = Math.floor(index / policyRowColumns);
+          const rowX = x + 28 + column * (policyRowW + policyRowGap);
+          const rowY = policyRowsTop + row * (policyRowH + policyRowGap);
+          const rowColor = toneColor(rowItem.tone, cfg);
+          const valueSize = fitSingleLineTextSize(rowItem.value, policyRowW - 38, 12, 15, 0.58);
+          const bodyLines = wrapCardText(rowItem.body, policyRowW - 36, 10.4, policyRowH > 66 ? 2 : 1);
+          return (
+            <g key={`manage-policy-setting:${policyAreaLabel}:${activeTabKey}:${workspaceTargetKey}:${rowItem.label}`}>
+              <rect
+                x={rowX}
+                y={rowY}
+                width={policyRowW}
+                height={policyRowH}
+                rx={4}
+                fill="rgba(3, 18, 32, 0.86)"
+                stroke={rowColor}
+                strokeWidth={0.82}
+                opacity={0.95}
+              />
+              <path
+                d={`M ${rowX + 8} ${rowY + 6} H ${rowX + policyRowW - 8}`}
+                stroke={cfg.colors.bodyText}
+                strokeWidth={0.85}
+                strokeLinecap="round"
+                opacity={0.16}
+              />
+              <circle cx={rowX + 15} cy={rowY + 17} r={3.1} fill={rowColor} opacity={0.95} />
+              <text x={rowX + 26} y={rowY + 19} fontSize={9.6} fontWeight={950} fill={rowColor}>
+                {truncateTextForWidth(rowItem.label.toUpperCase(), policyRowW * 0.42, 9.6, 0.58)}
+              </text>
+              <text
+                x={rowX + policyRowW - 14}
+                y={rowY + 20}
+                textAnchor="end"
+                fontSize={valueSize}
+                fontWeight={940}
+                fill={cfg.colors.bodyText}
+              >
+                {truncateTextForWidth(rowItem.value, policyRowW * 0.48, valueSize, 0.58)}
+              </text>
+              {bodyLines.map((line, lineIndex) => (
+                <text
+                  key={`manage-policy-setting-body:${rowItem.label}:${lineIndex}`}
+                  x={rowX + 14}
+                  y={rowY + 42 + lineIndex * 14}
+                  fontSize={10.4}
+                  fontWeight={720}
+                  fill={cfg.colors.mutedText}
+                >
+                  {line}
+                </text>
+              ))}
+            </g>
+          );
+        })
+      ) : (
+        cards.map((card, index) => {
+          const column = index % cardColumns;
+          const row = Math.floor(index / cardColumns);
+          const cardX = x + 28 + column * (cardW + cardGap);
+          const cardY = cardsTop + row * (cardH + cardGap);
+          const cardColor = toneColor(card.tone, cfg);
+          const valueSize = fitSingleLineTextSize(card.value, cardW - 30, 12, 16, 0.58);
+          const bodyLines = wrapCardText(card.body, cardW - 30, 10.2, cardH > 86 ? 2 : 1);
+          return (
+            <g key={`manage-workspace-card:${kind}:${activeTabKey}:${workspaceTargetKey}:${card.label}`}>
+              <rect
+                x={cardX}
+                y={cardY}
+                width={cardW}
+                height={cardH}
+                rx={3}
+                fill={colorAlpha(cardColor, '15')}
+                stroke={cardColor}
+                strokeWidth={0.82}
+                opacity={0.94}
+              />
+              <path
+                d={`M ${cardX + 9} ${cardY + 7} H ${cardX + cardW - 9}`}
+                stroke={cfg.colors.bodyText}
+                strokeWidth={0.8}
+                strokeLinecap="round"
+                opacity={0.18}
+              />
+              <circle cx={cardX + 15} cy={cardY + 18} r={3.2} fill={cardColor} opacity={0.95} />
+              <text x={cardX + 26} y={cardY + 20} fontSize={9.6} fontWeight={950} fill={cardColor}>
+                {truncateTextForWidth(card.label.toUpperCase(), cardW - 40, 9.6, 0.58)}
+              </text>
+              <text x={cardX + 14} y={cardY + 44} fontSize={valueSize} fontWeight={950} fill={cfg.colors.bodyText}>
+                {truncateTextForWidth(card.value, cardW - 30, valueSize, 0.58)}
+              </text>
+              {bodyLines.map((line, lineIndex) => (
+                <text
+                  key={`manage-workspace-card-body:${card.label}:${lineIndex}`}
+                  x={cardX + 14}
+                  y={cardY + 64 + lineIndex * 14}
+                  fontSize={10.2}
+                  fontWeight={720}
+                  fill={cfg.colors.mutedText}
+                >
+                  {line}
+                </text>
+              ))}
+            </g>
+          );
+        })
+      )}
+    </g>
+  );
 }
 
 function ManageTargetPanel({
@@ -5697,6 +8350,7 @@ function ManageControlPanel({
   const [activityReportOverrideMode, setActivityReportOverrideMode] = useState('family-defaults');
   const [activityReportSelectedFileId, setActivityReportSelectedFileId] = useState<string | null>(null);
   const [activityReportDraft, setActivityReportDraft] = useState(null);
+  const [manageWorkspaceActiveTab, setManageWorkspaceActiveTab] = useState('');
   const specKey = `${lane}:${spec.title}:${spec.options.map((option) => option.label).join('|')}`;
   useEffect(() => {
     setMode(spec.modes[0]?.label ?? '');
@@ -5711,6 +8365,7 @@ function ManageControlPanel({
     setActivityReportOverrideMode('family-defaults');
     setActivityReportSelectedFileId(null);
     setActivityReportDraft(null);
+    setManageWorkspaceActiveTab('');
   }, [specKey]);
   const compact = w < 560;
   const activeModeTone = spec.modes.find((item) => item.label === mode)?.tone ?? themeTone;
@@ -5737,6 +8392,10 @@ function ManageControlPanel({
   const scheduleY = controlY + 118 + optionRowsUsed * 40 + 38;
   const isPortalLane = lane === 'portal';
   const isDeviceOpsLane = lane === 'deviceOps';
+  const manageWorkspaceKind = manageWorkspaceKindFor(activeNavLabel, selectedControlName, spec.title);
+  const manageWorkspaceDefaultTab = manageWorkspaceKind
+    ? manageWorkspaceDefaultTabId(manageWorkspaceKind, activeNavLabel, selectedControlName)
+    : '';
   const overrideMode = targetSelection.scope;
   const globalTargetLabel = isPortalLane ? 'Parent profile' : isDeviceOpsLane ? 'All devices' : 'Family';
   const device = targetSelection.scope === 'global' ? globalTargetLabel : targetSelection.device;
@@ -6887,6 +9546,24 @@ function ManageControlPanel({
             })}
           </g>
         </>
+      ) : manageWorkspaceKind ? (
+        <ManageWorkspacePanel
+          x={x}
+          y={y}
+          w={w}
+          h={h}
+          kind={manageWorkspaceKind}
+          activeTabId={manageWorkspaceActiveTab}
+          defaultTabId={manageWorkspaceDefaultTab}
+          onTabChange={(tabId) => {
+            setManageWorkspaceActiveTab(tabId);
+            setLastAction(`${tabId} tab`);
+            setSyncStatus('Workspace tab changed');
+          }}
+          activeNavLabel={activeNavLabel}
+          selectedControlName={selectedControlName}
+          cfg={cfg}
+        />
       ) : (
         <>
           <text x={x} y={y + 24} fontSize={titleSize} fontWeight={950} fill={cfg.colors.bodyText}>
@@ -8334,7 +11011,7 @@ function ParentPortalDetailPanel({
     {
       label: 'DATA CUSTODY',
       value: 'LOCAL FIRST',
-      body: 'No cloud sharing by default. Drive exports and support bundles are parent opt-in.',
+      body: 'No cloud sharing by default. Drive exports and support messages are parent opt-in.',
       tone: 'gold',
     },
     ...rows.slice(0, 3).map((row) => ({
@@ -10164,6 +12841,29 @@ function MainBoard({
     () => (manageMode ? manageControlSpecFor(activeNavLabel, selectedControlName) : null),
     [activeNavLabel, manageMode, selectedControlName]
   );
+  const manageWorkspaceKind =
+    manageMode && manageCurrentSpec
+      ? manageWorkspaceKindFor(activeNavLabel, selectedControlName, manageCurrentSpec.title)
+      : null;
+  const manageWorkspaceFullFrameMode = Boolean(manageWorkspaceKind);
+  const manageWorkspaceHeaderIcon =
+    manageWorkspaceKind === 'portal'
+      ? PortalGatewayIcon
+      : manageWorkspaceKind === 'account'
+        ? AccountProfileIcon
+        : manageWorkspaceKind === 'data'
+          ? DataPrivacyServerShieldIcon
+          : manageWorkspaceKind === 'ai'
+            ? AiSetupSearchIcon
+            : manageWorkspaceKind === 'policy'
+              ? PolicyShieldDocumentIcon
+              : activeFrameIcon;
+  const manageWorkspaceHeaderTitle =
+    manageWorkspaceKind === 'policy'
+      ? `${manageWorkspaceTitle(manageWorkspaceKind)} / ${managePolicyAreaLabel(activeNavLabel, selectedControlName)}`
+      : manageWorkspaceKind
+        ? manageWorkspaceTitle(manageWorkspaceKind)
+        : activeFrameTitle;
   const manageBrowserTargets = useMemo(
     () => manageBrowserTargetsForKey(activeNavLabel, selectedControlName),
     [activeNavLabel, selectedControlName]
@@ -10219,13 +12919,15 @@ function MainBoard({
       : controlBrowserMode
         ? `control:${normalizeSelectionId(selectedControlId)}`
         : `row:${selectedRowId}`;
-  const managePortalSection = manageMode && assetKey(activeNavItem?.sectionLabel) === 'portal';
+  const managePortalSection =
+    manageMode && (assetKey(activeNavItem?.sectionLabel) === 'portal' || manageWorkspaceFullFrameMode);
   const lanPairingDeviceGridMode =
     manageMode && manageCurrentSpec ? isLanPairingManageTitle(manageCurrentSpec.title) : false;
   const activityManageGridMode =
     manageMode && manageCurrentSpec ? isReportsManageTitle(manageCurrentSpec.title) : false;
   const manageDeviceGridMode = lanPairingDeviceGridMode || activityManageGridMode;
   const manageTopSelectorRequired = (!manageMode || !managePortalSection) && !manageDeviceGridMode;
+  const detailPanelCanFocus = manageTopSelectorRequired;
   const focusContextKey = `${activeNavLabel}:${activeTab}`;
   const [focusState, setFocusState] = useState<{ contextKey: string; section: ParentPortalFocusSection }>(() => ({
     contextKey: focusContextKey,
@@ -10235,6 +12937,7 @@ function MainBoard({
   const setFocusedSection = (section: ParentPortalFocusSection) =>
     setFocusState({ contextKey: focusContextKey, section });
   const tableFocused = focusedSection === 'table';
+  const detailPanelAriaLabel = tableFocused ? 'Expanded parent detail panel' : 'Expand parent detail panel';
   const showTopSection = !tableFocused && manageTopSelectorRequired;
   const sectionGap = Math.max(8, Math.min(cfg.layout.gap, 14));
   const expandedTopPanelH = Math.max(276, Math.min(mainH - 210, clampValue(mainH * 0.46, 276, 334)));
@@ -10432,68 +13135,56 @@ function MainBoard({
       cfg={cfg}
     />
   ) : null;
-  const manageDeviceGridHeaderInfoLabel =
-    manageDeviceGridMode && manageGuideRoutePath
+  const manageHeaderInfoLabel =
+    manageMode && manageCurrentSpec && manageGuideRoutePath
       ? lanPairingDeviceGridMode
         ? 'Open Local Area Network guide'
         : `Open ${manageControlDisplayTitle(manageCurrentSpec.title)} guide`
       : undefined;
-  const tableHeaderAction = manageGuideRoutePath ? (
-    <g>
-      {tableFocused && manageTopSelectorRequired ? (
-        <ParentPortalHeaderAction
-          x={mainX + mainW - 162}
-          y={tableHeaderButtonY + 2}
-          w={82}
-          h={25}
-          tone="gold"
-          accentColor={activeGroupThemeColor}
-          active
-          label="TOP"
-          onClick={() => setFocusedSection('highlights')}
-          ariaLabel="Show target section"
-          cfg={cfg}
-        />
-      ) : null}
-      <ParentPortalInfoButton
-        x={mainX + mainW - 58}
-        y={tableHeaderButtonY + 3}
-        size={23}
+  const tableHeaderAction =
+    manageGuideRoutePath && tableFocused && manageTopSelectorRequired ? (
+      <ParentPortalHeaderAction
+        x={mainX + mainW - 162}
+        y={tableHeaderButtonY + 2}
+        w={82}
+        h={25}
+        tone="gold"
         accentColor={activeGroupThemeColor}
-        label={`Open ${manageControlDisplayTitle(manageCurrentSpec.title)} guide`}
-        onClick={() => onNavigate?.(manageGuideRoutePath)}
+        active
+        label="TOP"
+        onClick={() => setFocusedSection('highlights')}
+        ariaLabel="Show target section"
         cfg={cfg}
       />
-    </g>
-  ) : tableFocused ? (
-    <ParentPortalHeaderAction
-      x={mainX + mainW - 118}
-      y={tableHeaderButtonY + 2}
-      w={98}
-      h={25}
-      tone="gold"
-      accentColor={activeGroupThemeColor}
-      active
-      label="TOP"
-      onClick={() => setFocusedSection('highlights')}
-      ariaLabel="Show highlights section"
-      cfg={cfg}
-    />
-  ) : guideOverviewMode && guideDashboardDrilldown ? (
-    <ParentPortalHeaderAction
-      x={mainX + mainW - 118}
-      y={tableHeaderButtonY + 2}
-      w={98}
-      h={25}
-      tone="cyan"
-      accentColor={activeGroupThemeColor}
-      active
-      label="MAP"
-      onClick={() => setGuideDashboardDrilldown(false)}
-      ariaLabel="Show guide setup map"
-      cfg={cfg}
-    />
-  ) : null;
+    ) : !manageGuideRoutePath && tableFocused ? (
+      <ParentPortalHeaderAction
+        x={mainX + mainW - 118}
+        y={tableHeaderButtonY + 2}
+        w={98}
+        h={25}
+        tone="gold"
+        accentColor={activeGroupThemeColor}
+        active
+        label="TOP"
+        onClick={() => setFocusedSection('highlights')}
+        ariaLabel="Show highlights section"
+        cfg={cfg}
+      />
+    ) : guideOverviewMode && guideDashboardDrilldown ? (
+      <ParentPortalHeaderAction
+        x={mainX + mainW - 118}
+        y={tableHeaderButtonY + 2}
+        w={98}
+        h={25}
+        tone="cyan"
+        accentColor={activeGroupThemeColor}
+        active
+        label="MAP"
+        onClick={() => setGuideDashboardDrilldown(false)}
+        ariaLabel="Show guide setup map"
+        cfg={cfg}
+      />
+    ) : null;
   return (
     <g>
       {showTopSection ? (
@@ -10705,14 +13396,14 @@ function MainBoard({
           y={bottomPanelY}
           w={mainW}
           h={bottomPanelH}
-          title={lanPairingDeviceGridMode ? LAN_PAIRING_HEADER_TITLE : activeFrameTitle}
-          headerIcon={lanPairingDeviceGridMode ? LanNetworkMonitorsIcon : activeFrameIcon}
+          title={lanPairingDeviceGridMode ? LAN_PAIRING_HEADER_TITLE : manageWorkspaceHeaderTitle}
+          headerIcon={lanPairingDeviceGridMode ? LanNetworkMonitorsIcon : manageWorkspaceHeaderIcon}
           tone={activeFrameTone}
           accentColor={activeGroupThemeColor}
           headerRight={manageDeviceGridMode ? manageDeviceGridScanAction : tableHeaderAction}
-          headerInfoLabel={manageDeviceGridHeaderInfoLabel}
+          headerInfoLabel={manageHeaderInfoLabel}
           onHeaderInfoClick={
-            manageDeviceGridMode && manageGuideRoutePath ? () => onNavigate?.(manageGuideRoutePath) : undefined
+            manageHeaderInfoLabel && manageGuideRoutePath ? () => onNavigate?.(manageGuideRoutePath) : undefined
           }
           headerH={manageDeviceGridMode ? 58 : undefined}
           footerH={manageDeviceGridMode ? 0 : undefined}
@@ -10721,9 +13412,9 @@ function MainBoard({
           bodyStrokeOpacity={0}
           bodyFill="transparent"
           footerLineOpacity={manageDeviceGridMode ? 0 : undefined}
-          selected={tableFocused}
-          onSelect={() => setFocusedSection('table')}
-          ariaLabel={tableFocused ? 'Expanded parent detail panel' : 'Expand parent detail panel'}
+          selected={detailPanelCanFocus ? tableFocused : false}
+          onSelect={detailPanelCanFocus ? () => setFocusedSection('table') : undefined}
+          ariaLabel={detailPanelCanFocus ? detailPanelAriaLabel : undefined}
           cfg={cfg}
         >
           {(body) => {
@@ -11252,6 +13943,8 @@ export function ParentPortalSvgSurface({
   const selectNavItem = (item: NavItem) => {
     setActiveTab(item.tabId);
     activateNavItem(item);
+    const routeControlId = routeControlIdForRoutePath(pageContent, item.routePath);
+    if (routeControlId) setSelectedControlId(routeControlId);
     setAssistantMode(false);
     setSelectedAssistantActionId(null);
     setSelectedAssistantChoice(null);
