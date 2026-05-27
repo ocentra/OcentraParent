@@ -9,8 +9,10 @@ use std::{
 use ocentra_parent_agent_protocol::{
     constants, LocalAiChatGenerationResult, LocalAiGenerationState,
     LocalAiProviderSchedulerJobClass, LocalAiProviderSchedulerJobStatus,
-    LocalAiProviderSchedulerLifecycle, LocalAiResourceClass, LocalModelRuntimeStatus,
+    LocalAiProviderSchedulerLifecycle, LocalAiProviderSchedulerStatus, LocalAiResourceClass,
+    LocalModelRuntimeStatus,
 };
+use tokio::sync::{Mutex as TokioMutex, Notify};
 
 use crate::local_ai_provider_scheduler::LocalAiProviderSchedulerRuntime;
 
@@ -37,30 +39,6 @@ fn unavailable_runtime_marks_scheduler_unavailable_without_queue() {
     );
     assert_eq!(status.queue.total(), 0);
     assert_eq!(status.current_job_class, None);
-}
-
-#[test]
-fn child_safety_queue_promotes_before_parent_assistant_queue() {
-    let scheduler = LocalAiProviderSchedulerRuntime::new_for_test();
-    let runtime = ready_runtime();
-
-    scheduler.record_running_job(&runtime, LocalAiProviderSchedulerJobClass::ParentReport);
-    scheduler.record_queued_job(&runtime, LocalAiProviderSchedulerJobClass::ParentAssistant);
-    scheduler.record_queued_job(&runtime, LocalAiProviderSchedulerJobClass::ChildSafety);
-
-    let status = scheduler.complete_current_job(&runtime);
-
-    assert_eq!(
-        status.lifecycle_state,
-        LocalAiProviderSchedulerLifecycle::Running
-    );
-    assert_eq!(
-        status.current_job_class,
-        Some(LocalAiProviderSchedulerJobClass::ChildSafety)
-    );
-    assert_eq!(status.queue.child_safety_queued, 0);
-    assert_eq!(status.queue.parent_assistant_queued, 1);
-    assert!(status.duplicate_runtime_blocked);
 }
 
 #[tokio::test]
@@ -133,6 +111,70 @@ async fn parent_and_child_jobs_share_one_runtime_lane() {
     );
 }
 
+#[tokio::test]
+async fn child_safety_job_preempts_queued_parent_job_after_runtime_lane_frees() {
+    let scheduler = Arc::new(LocalAiProviderSchedulerRuntime::new_for_test());
+    let runtime = ready_runtime();
+    let holder_started = Arc::new(Notify::new());
+    let release_holder = Arc::new(Notify::new());
+    let observed_jobs = Arc::new(TokioMutex::new(Vec::new()));
+
+    let holder = spawn_observed_job(
+        Arc::clone(&scheduler),
+        runtime.clone(),
+        LocalAiProviderSchedulerJobClass::ParentReport,
+        constants::local_ai_runtime::SCHEDULER_JOB_PARENT_REPORT,
+        Arc::clone(&observed_jobs),
+        Some(Arc::clone(&holder_started)),
+        Some(Arc::clone(&release_holder)),
+    );
+
+    holder_started.notified().await;
+
+    let parent = spawn_observed_job(
+        Arc::clone(&scheduler),
+        runtime.clone(),
+        LocalAiProviderSchedulerJobClass::ParentAssistant,
+        constants::local_ai_runtime::SCHEDULER_JOB_PARENT_ASSISTANT,
+        Arc::clone(&observed_jobs),
+        None,
+        None,
+    );
+
+    wait_until_scheduler_status(&scheduler, |status| {
+        status.queue.parent_assistant_queued == 1
+    })
+    .await;
+
+    let child = spawn_observed_job(
+        Arc::clone(&scheduler),
+        runtime,
+        LocalAiProviderSchedulerJobClass::ChildSafety,
+        constants::local_ai_runtime::SCHEDULER_JOB_CHILD_SAFETY,
+        Arc::clone(&observed_jobs),
+        None,
+        None,
+    );
+
+    wait_until_scheduler_status(&scheduler, |status| {
+        status.queue.parent_assistant_queued == 1 && status.queue.child_safety_queued == 1
+    })
+    .await;
+
+    release_holder.notify_one();
+
+    let (holder_result, parent_result, child_result) = tokio::join!(holder, parent, child);
+
+    assert_completed_generation(holder_result);
+    assert_completed_generation(parent_result);
+    assert_completed_generation(child_result);
+    assert_observed_job_order(&observed_jobs).await;
+    assert_eq!(
+        scheduler.status_snapshot().lifecycle_state,
+        LocalAiProviderSchedulerLifecycle::Idle
+    );
+}
+
 async fn observed_job_result(
     message_id: &'static str,
     active_jobs: Arc<AtomicUsize>,
@@ -143,6 +185,69 @@ async fn observed_job_result(
     tokio::time::sleep(Duration::from_millis(25)).await;
     active_jobs.fetch_sub(1, Ordering::SeqCst);
     completed_result(message_id)
+}
+
+fn assert_completed_generation(
+    result: Result<LocalAiChatGenerationResult, tokio::task::JoinError>,
+) {
+    assert_eq!(
+        result
+            .expect(constants::error::LOCAL_AI_RUNTIME_SPAWNS)
+            .generation_state,
+        LocalAiGenerationState::Complete
+    );
+}
+
+async fn assert_observed_job_order(
+    observed_jobs: &TokioMutex<Vec<LocalAiProviderSchedulerJobClass>>,
+) {
+    let observed = observed_jobs.lock().await.clone();
+    assert_eq!(
+        observed,
+        vec![
+            LocalAiProviderSchedulerJobClass::ParentReport,
+            LocalAiProviderSchedulerJobClass::ChildSafety,
+            LocalAiProviderSchedulerJobClass::ParentAssistant,
+        ]
+    );
+}
+
+fn spawn_observed_job(
+    scheduler: Arc<LocalAiProviderSchedulerRuntime>,
+    runtime: LocalModelRuntimeStatus,
+    job_class: LocalAiProviderSchedulerJobClass,
+    message_id: &'static str,
+    observed_jobs: Arc<TokioMutex<Vec<LocalAiProviderSchedulerJobClass>>>,
+    started: Option<Arc<Notify>>,
+    release: Option<Arc<Notify>>,
+) -> tokio::task::JoinHandle<LocalAiChatGenerationResult> {
+    tokio::spawn(async move {
+        scheduler
+            .run_generation_job(job_class.clone(), runtime, || async move {
+                observed_jobs.lock().await.push(job_class);
+                if let Some(started) = started {
+                    started.notify_one();
+                }
+                if let Some(release) = release {
+                    release.notified().await;
+                }
+                completed_result(message_id)
+            })
+            .await
+    })
+}
+
+async fn wait_until_scheduler_status(
+    scheduler: &LocalAiProviderSchedulerRuntime,
+    condition: impl Fn(&LocalAiProviderSchedulerStatus) -> bool,
+) {
+    for _ in 0..100 {
+        if condition(&scheduler.status_snapshot()) {
+            return;
+        }
+        tokio::time::sleep(Duration::from_millis(5)).await;
+    }
+    assert!(condition(&scheduler.status_snapshot()));
 }
 
 fn ready_runtime() -> LocalModelRuntimeStatus {

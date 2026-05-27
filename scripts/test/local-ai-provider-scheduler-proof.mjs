@@ -48,7 +48,9 @@ const serviceOutput = collectOutput(service);
 try {
   await waitForHttp(healthUrl);
   await runUnavailableLifecycleProof();
-  console.log('local-ai-provider-scheduler-proof-ok: unavailable lifecycle and singleton scheduler tests passed');
+  console.log(
+    'local-ai-provider-scheduler-proof-ok: unavailable lifecycle, singleton scheduler, and priority queue tests passed'
+  );
 } finally {
   await stopProcessTreeAndWait(service);
   await rm(devLogDir, { recursive: true, force: true });

@@ -96,25 +96,3 @@ pub(crate) fn decrement_queue(
         }
     }
 }
-
-#[cfg(test)]
-pub(crate) fn take_next_queued_job(
-    queue: &mut LocalAiProviderSchedulerQueue,
-) -> Option<LocalAiProviderSchedulerJobClass> {
-    if queue.child_safety_queued > 0 {
-        queue.child_safety_queued -= 1;
-        return Some(LocalAiProviderSchedulerJobClass::ChildSafety);
-    }
-
-    if queue.parent_assistant_queued > 0 {
-        queue.parent_assistant_queued -= 1;
-        return Some(LocalAiProviderSchedulerJobClass::ParentAssistant);
-    }
-
-    if queue.parent_report_queued > 0 {
-        queue.parent_report_queued -= 1;
-        return Some(LocalAiProviderSchedulerJobClass::ParentReport);
-    }
-
-    None
-}
