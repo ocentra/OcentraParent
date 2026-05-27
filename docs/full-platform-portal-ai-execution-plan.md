@@ -743,13 +743,153 @@ Choices still needing explicit product confirmation:
 
 This plan is successful when:
 
-- A current V0.8 branch is reviewed, PR'd, CI-green, and merged.
-- B current V0.9 branch is rebased/fixed, PR'd, CI-green, and merged.
-- A then lands the AI provider/scheduler slice with proof.
-- B then lands the controller lease/LAN routing/LAN AI job slice with proof.
-- Activity surface fake-data paths are replaced by typed service-backed paths.
-- Parent desktop, parent mobile, child desktop, child Android, and child iOS are
-  each tracked with honest implemented/scaffold/manual-required/unavailable
-  states.
-- Roadmap and architecture docs match actual product architecture instead of
-  vague cross-platform promises.
+- [x] A current V0.8 branch is reviewed, PR'd, CI-green, and merged.
+- [x] B current V0.9 branch is rebased/fixed, PR'd, CI-green, and merged.
+- [x] A then lands the AI provider/scheduler slice with proof.
+- [x] B then lands the controller lease/LAN routing/LAN AI job slice with proof.
+- [ ] Activity surface fake-data paths are replaced by typed service-backed
+      paths.
+- [ ] Parent desktop, parent mobile, child desktop, child Android, and child iOS are
+      each tracked with honest implemented/scaffold/manual-required/unavailable
+      states.
+- [ ] Roadmap and architecture docs match actual product architecture instead of
+      vague cross-platform promises.
+
+## Live Completion Audit - 2026-05-27
+
+This audit supersedes the older immediate-state notes above. `main` is at
+`22708ab` after PR #109 and PR #108 landed.
+
+### Done On Main
+
+- [x] Full platform/portal/AI plan exists in this document.
+- [x] V0.8 Windows enforcement/time-limit spine has landed through PR #103,
+      PR #105, and PR #107.
+- [x] Local AI provider singleton scheduler has landed through PR #109:
+      one scheduler/runtime lane per physical device, child-safety priority,
+      queued/degraded/unavailable states, and dual-role sharing proof.
+- [x] V0.9 LAN pairing/control spine has landed through PR #104, PR #106, and
+      PR #108.
+- [x] Controller lease/write authority, observer read-only behavior, trusted
+      device registry checks, wrong-device/wrong-origin/stale/replay rejection,
+      revocation-before-control, selected-device stale/offline state, LAN AI
+      provider advertisement, and LAN AI submit/reject/degraded result proof are
+      on `main`.
+- [x] Full PR CI was green for both PR #109 and PR #108 before merge.
+- [x] The local commit hook remains light; full Playwright/package validation is
+      intentionally kept for PR-ready/CI gates, not every local commit.
+
+### Not Done Yet
+
+- [ ] Activity surface backend is not complete. The UI still needs a typed
+      service-backed adapter for Reports, Screen, App Use, Browser, Games, and
+      Network.
+- [ ] Activity reports are not yet generated/saved/listed through a real
+      report document contract and Rust read-model adapter.
+- [ ] Parent Assistant / MIA is not complete. Local AI chat generation and the
+      provider scheduler exist, but the parent assistant runtime still needs
+      contracts, protocol commands, cited prompt context, answer/action preview,
+      and unavailable/configured/degraded states.
+- [ ] API AI provider is not implemented. It remains optional and must require
+      explicit parent authorization, custody labels, retention/deletion rules,
+      and evidence citations.
+- [ ] LAN AI provider pool is not complete. PR #108 proves advertisement and
+      authorized submit/reject/degraded behavior, but not full job routing to a
+      household provider pool with accepted/result streaming.
+- [ ] Parent desktop packaged app is still mostly a Tauri scaffold. It needs a
+      real service launch/connect proof and visible controller/device-role/AI
+      provider state in the packaged app path.
+- [ ] Parent mobile is not proven beyond package/scaffold mechanics. Tauri
+      mobile proof, observer/takeover behavior, and LAN AI unavailable/provider
+      behavior are still open.
+- [ ] Child Android is not proven beyond package/scaffold mechanics. It still
+      needs capability-specific proof for service, storage, protocol bridge,
+      permissions, UsageStats, accessibility, VPN/DNS, device-owner, and managed
+      profile where claimed.
+- [ ] Child iOS is not proven beyond simulator/package mechanics. It still needs
+      entitlement and device/TestFlight proof for Family Controls,
+      DeviceActivity, Screen Time, Network Extension, notifications, background
+      execution, and signing before any child-agent parity claim.
+- [ ] V0.8 is not product-complete. Real OS adapter behavior, process
+      block/terminate, network/domain blocking where appropriate,
+      managed/unmanaged browser enforcement, parent cancel/override UI path,
+      rollback, restart recovery, audit proof, and manual Windows proof still
+      need hardening.
+- [ ] V0.9 is not product-complete. Multi-device portal selector, real
+      two-device pairing/control proof, LAN provider routing, hardened
+      storage/security behavior, and optional cloud relay decisions remain.
+- [ ] Roadmap/current-position docs still contain stale proof-spine wording and
+      need reconciliation after PR #108/#109.
+
+### Next Large Worker Slices
+
+`codex-c` remains user-owned and is not assigned here.
+
+#### A Owns Activity Plus Parent Assistant Runtime
+
+A must start from fresh `main` and own a full implementation slice, not a doc or
+contract-only slice:
+
+- [ ] Activity surface contracts for family/device scope, report frequency,
+      report request, report document, report sections, saved report metadata,
+      and Screen/App Use/Browser/Games/Network read models.
+- [ ] Agent protocol command/event contracts for Activity report generation,
+      historical report list/save, and tab read models.
+- [ ] Rust protocol parity in `crates/agent-protocol`.
+- [ ] Rust service/read-model adapter in `crates/agent-service` using existing
+      activity store/query paths where possible and typed unavailable/local
+      states where storage is not wired yet.
+- [ ] Parent Assistant / MIA contracts and protocol commands for local-provider
+      answer generation, cited evidence context, unavailable/configured states,
+      and action-preview output.
+- [ ] Rust parent assistant runtime modules that route allowed parent assistant
+      work through the existing local AI provider scheduler.
+- [ ] Proof that parent assistant requests do not bypass child-agent contracts,
+      do not enforce directly, and degrade when the local provider is
+      unavailable or busy.
+- [ ] TypeScript contract tests, Rust protocol tests, Rust service tests,
+      focused proof harness, portal smoke for typed Activity adapter states, and
+      `npm run validate`.
+
+DONE means A has a committed, pushed, PR-ready branch with detailed scope,
+touched files, focused validation, full `npm run validate`, known gaps, CI
+fixes if needed, green PR CI, and merge to `main`.
+
+#### B Owns Platform Roles, Packaged Parent Proof, And LAN AI Pool
+
+B must start from fresh `main` and own a full implementation/proof slice, not a
+docs-only slice:
+
+- [ ] Device role runtime contract/read model for parent-controller,
+      parent-observer, child-agent, and ai-provider roles on one physical
+      device.
+- [ ] Packaged parent desktop Tauri proof path that launches or connects to the
+      real Rust service and exposes controller lease, device-role, route, and AI
+      provider state without treating Vite as the backend.
+- [ ] Parent mobile Tauri proof-first path with observer/controller-takeover
+      state and LAN AI provider unavailable/degraded behavior.
+- [ ] LAN AI provider pool routing beyond the degraded stub: provider opt-in,
+      capability advertisement, authorized job accept/reject/result/degraded
+      flow, and audit events.
+- [ ] Two-service or multi-service proof that parent mobile/observer and parent
+      desktop/controller behavior do not race commands.
+- [ ] Platform proof matrix refresh for parent desktop, parent mobile, child
+      desktop, child Android, and child iOS, with implemented/scaffold/manual
+      required/unavailable states.
+- [ ] Roadmap/current-position reconciliation after PR #108/#109 so V0.8/V0.9
+      status is honest and no stale proof-spine language hides new work.
+- [ ] TypeScript contract tests, Rust protocol parity tests, Rust service tests,
+      Tauri/package checks where practical, LAN proof harness, focused platform
+      smoke/proof scripts, and `npm run validate`.
+
+DONE means B has a committed, pushed, PR-ready branch with detailed scope,
+touched files, focused validation, full `npm run validate`, known gaps, CI
+fixes if needed, green PR CI, and merge to `main`.
+
+### Coordination Rule For This Round
+
+A and B must check each other's current hub report and locked paths before
+starting each major sub-slice. If a contract name, command name, role state, or
+AI provider concept overlaps, they coordinate through hub mail before coding.
+Primary reviews both branches against this audit, not only against the worker's
+own report.
