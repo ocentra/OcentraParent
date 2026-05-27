@@ -161,6 +161,7 @@ async fn handle_command(
         }
         AgentCommandName::AgentEnforcementExecute => build_enforcement_audit_report(command).await,
         AgentCommandName::AgentEnforcementTimerRecover
+        | AgentCommandName::AgentEnforcementTimerExpire
         | AgentCommandName::AgentEnforcementOverrideCancel => {
             build_enforcement_timer_report(command).await
         }

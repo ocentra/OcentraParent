@@ -104,6 +104,8 @@ pub enum AgentCommandName {
     AgentEnforcementExecute,
     #[serde(rename = "agent.enforcement.timer.recover")]
     AgentEnforcementTimerRecover,
+    #[serde(rename = "agent.enforcement.timer.expire")]
+    AgentEnforcementTimerExpire,
     #[serde(rename = "agent.enforcement.override.cancel")]
     AgentEnforcementOverrideCancel,
     #[serde(rename = "agent.lan-pairing.proof.submit")]

@@ -24,6 +24,8 @@ mod enforcement_payload;
 #[cfg(test)]
 mod enforcement_tests;
 mod enforcement_timer_api;
+#[cfg(test)]
+mod enforcement_timer_expiry_tests;
 mod enforcement_timer_payload;
 mod enforcement_timer_report;
 mod enforcement_timer_state_file;

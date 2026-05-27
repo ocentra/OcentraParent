@@ -3,7 +3,7 @@ use ocentra_parent_agent_protocol::{
     EnforcementActiveTimerState, EnforcementAdapterResultCode, EnforcementAuditEvent,
     EnforcementAuditEventKind, EnforcementResult, EnforcementResultStatus,
     EnforcementRollbackState, EnforcementTimerEvent, EnforcementTimerEventKind,
-    ParentActionReference,
+    EnforcementUnavailableReason, EnforcementUnavailableStatus, ParentActionReference,
 };
 
 use crate::enforcement_boundary::EnforcementBoundaryOutcome;
@@ -59,6 +59,36 @@ pub fn cancelled_timer_outcome(
     )
 }
 
+pub fn expired_timer_outcome(
+    state: &EnforcementActiveTimerState,
+    ids: EnforcementTimerTransitionIds,
+    adapter_outcome: crate::enforcement_adapter::EnforcementAdapterOutcome,
+) -> EnforcementBoundaryOutcome {
+    transition_outcome_with_result(
+        state,
+        ids,
+        timer_event_kind_for_expiry(adapter_outcome.status),
+        adapter_outcome.status,
+        TransitionResultOverride {
+            adapter_result_code: adapter_outcome.adapter_result_code,
+            rollback_state: adapter_outcome.rollback_state,
+            unavailable_reason: adapter_outcome.unavailable_reason,
+            failed_reason: adapter_outcome.failed_reason,
+            rollback_token: adapter_outcome.rollback_token,
+            parent_override: None,
+        },
+    )
+}
+
+struct TransitionResultOverride {
+    adapter_result_code: EnforcementAdapterResultCode,
+    rollback_state: EnforcementRollbackState,
+    unavailable_reason: Option<String>,
+    failed_reason: Option<String>,
+    rollback_token: Option<String>,
+    parent_override: Option<ParentActionReference>,
+}
+
 fn active_timer_event(timer_event: &EnforcementTimerEvent, result: &EnforcementResult) -> bool {
     matches!(
         timer_event.timer_event_kind,
@@ -80,9 +110,39 @@ fn transition_outcome(
     status: EnforcementResultStatus,
     parent_override: Option<ParentActionReference>,
 ) -> EnforcementBoundaryOutcome {
+    transition_outcome_with_result(
+        state,
+        ids,
+        timer_event_kind,
+        status,
+        TransitionResultOverride {
+            adapter_result_code: EnforcementAdapterResultCode::NoOp,
+            rollback_state: EnforcementRollbackState::NotRequired,
+            unavailable_reason: None,
+            failed_reason: None,
+            rollback_token: None,
+            parent_override,
+        },
+    )
+}
+
+fn transition_outcome_with_result(
+    state: &EnforcementActiveTimerState,
+    ids: EnforcementTimerTransitionIds,
+    timer_event_kind: EnforcementTimerEventKind,
+    status: EnforcementResultStatus,
+    result_override: TransitionResultOverride,
+) -> EnforcementBoundaryOutcome {
+    let parent_override = result_override.parent_override.clone();
     let action = transition_action(&state.action, parent_override.clone());
-    let result = transition_result(&action, &ids, status);
-    let timer_event = transition_timer_event(&action, &state.timer_event, &ids, timer_event_kind);
+    let result = transition_result(&action, &ids, status, &result_override);
+    let timer_event = transition_timer_event(
+        &action,
+        &state.timer_event,
+        &ids,
+        timer_event_kind,
+        unavailable_reason_from_transition(&result_override),
+    );
     let audit_event = transition_audit_event(
         &action,
         &result,
@@ -115,20 +175,39 @@ fn transition_result(
     action: &EnforcementAction,
     ids: &EnforcementTimerTransitionIds,
     status: EnforcementResultStatus,
+    result_override: &TransitionResultOverride,
 ) -> EnforcementResult {
+    let unavailable_status =
+        unavailable_reason_from_transition(result_override).map(|unavailable_reason| {
+            EnforcementUnavailableStatus {
+                schema_version: action.schema_version.clone(),
+                capability: action.capability.clone(),
+                unavailable_reason,
+                retryable: matches!(
+                    unavailable_reason,
+                    EnforcementUnavailableReason::AdapterUnavailable
+                        | EnforcementUnavailableReason::AdapterError
+                ),
+                checked_at: action.capability.last_checked_at.clone(),
+            }
+        });
+
     EnforcementResult {
         schema_version: action.schema_version.clone(),
         result_id: ids.result_id.clone(),
         action_id: action.action_id.clone(),
         status,
-        adapter_result_code: EnforcementAdapterResultCode::NoOp,
+        adapter_result_code: result_override.adapter_result_code,
         started_at: ids.observed_at.clone(),
         completed_at: Some(ids.observed_at.clone()),
-        rollback_token: action.rollback_token.clone(),
-        rollback_state: EnforcementRollbackState::NotRequired,
-        unavailable_reason: None,
-        unavailable_status: None,
-        failed_reason: None,
+        rollback_token: result_override
+            .rollback_token
+            .clone()
+            .or_else(|| action.rollback_token.clone()),
+        rollback_state: result_override.rollback_state,
+        unavailable_reason: result_override.unavailable_reason.clone(),
+        unavailable_status,
+        failed_reason: result_override.failed_reason.clone(),
         next_check_at: next_check_at(action, status),
         capability: action.capability.clone(),
     }
@@ -139,6 +218,7 @@ fn transition_timer_event(
     previous_timer: &EnforcementTimerEvent,
     ids: &EnforcementTimerTransitionIds,
     timer_event_kind: EnforcementTimerEventKind,
+    unavailable_reason: Option<EnforcementUnavailableReason>,
 ) -> EnforcementTimerEvent {
     EnforcementTimerEvent {
         schema_version: action.schema_version.clone(),
@@ -151,7 +231,7 @@ fn transition_timer_event(
         effective_at: timer_effective_at(action, timer_event_kind),
         rollback_token: action.rollback_token.clone(),
         recovered_after_restart: timer_event_kind == EnforcementTimerEventKind::RestartRecovered,
-        unavailable_reason: None,
+        unavailable_reason,
     }
 }
 
@@ -169,7 +249,7 @@ fn transition_audit_event(
         action: action.clone(),
         result: result.clone(),
         capability: result.capability.clone(),
-        unavailable_status: None,
+        unavailable_status: result.unavailable_status.clone(),
         policy_version: parent_override
             .as_ref()
             .map(|reference| reference.policy_version.clone())
@@ -195,7 +275,9 @@ fn timer_effective_at(
     timer_event_kind: EnforcementTimerEventKind,
 ) -> Option<String> {
     match timer_event_kind {
-        EnforcementTimerEventKind::RestartRecovered => action.expires_at.clone(),
+        EnforcementTimerEventKind::Expired | EnforcementTimerEventKind::RestartRecovered => {
+            action.expires_at.clone()
+        }
         EnforcementTimerEventKind::Cancelled => None,
         _ => None,
     }
@@ -210,7 +292,59 @@ fn next_check_at(action: &EnforcementAction, status: EnforcementResultStatus) ->
 
 fn audit_kind(status: EnforcementResultStatus) -> EnforcementAuditEventKind {
     match status {
+        EnforcementResultStatus::Expired => EnforcementAuditEventKind::Expired,
+        EnforcementResultStatus::Failed => EnforcementAuditEventKind::Failed,
+        EnforcementResultStatus::RolledBack => EnforcementAuditEventKind::RollbackCompleted,
         EnforcementResultStatus::Superseded => EnforcementAuditEventKind::Cancelled,
+        EnforcementResultStatus::Unavailable => EnforcementAuditEventKind::Unavailable,
         _ => EnforcementAuditEventKind::Attempted,
+    }
+}
+
+fn timer_event_kind_for_expiry(status: EnforcementResultStatus) -> EnforcementTimerEventKind {
+    match status {
+        EnforcementResultStatus::Expired => EnforcementTimerEventKind::Expired,
+        EnforcementResultStatus::Failed => EnforcementTimerEventKind::RecoveryNeeded,
+        EnforcementResultStatus::RolledBack => EnforcementTimerEventKind::RollbackCompleted,
+        EnforcementResultStatus::Superseded => EnforcementTimerEventKind::Cancelled,
+        EnforcementResultStatus::Unavailable => EnforcementTimerEventKind::Unavailable,
+        _ => EnforcementTimerEventKind::RecoveryNeeded,
+    }
+}
+
+fn unavailable_reason_from_transition(
+    result_override: &TransitionResultOverride,
+) -> Option<EnforcementUnavailableReason> {
+    result_override
+        .unavailable_reason
+        .as_deref()
+        .and_then(unavailable_reason_from_protocol_str)
+        .or_else(|| {
+            (result_override.failed_reason.is_some())
+                .then_some(EnforcementUnavailableReason::AdapterError)
+        })
+}
+
+fn unavailable_reason_from_protocol_str(reason: &str) -> Option<EnforcementUnavailableReason> {
+    match reason {
+        enforcement_constants::UNAVAILABLE_UNSUPPORTED_PLATFORM => {
+            Some(EnforcementUnavailableReason::UnsupportedPlatform)
+        }
+        enforcement_constants::UNAVAILABLE_UNSUPPORTED_ACTION => {
+            Some(EnforcementUnavailableReason::UnsupportedAction)
+        }
+        enforcement_constants::UNAVAILABLE_MISSING_PERMISSION => {
+            Some(EnforcementUnavailableReason::MissingPermission)
+        }
+        enforcement_constants::UNAVAILABLE_MISSING_DEPENDENCY => {
+            Some(EnforcementUnavailableReason::MissingDependency)
+        }
+        enforcement_constants::UNAVAILABLE_ADAPTER_UNAVAILABLE => {
+            Some(EnforcementUnavailableReason::AdapterUnavailable)
+        }
+        enforcement_constants::UNAVAILABLE_ADAPTER_ERROR => {
+            Some(EnforcementUnavailableReason::AdapterError)
+        }
+        _ => None,
     }
 }

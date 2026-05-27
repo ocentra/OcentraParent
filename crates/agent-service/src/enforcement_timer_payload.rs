@@ -9,6 +9,7 @@ pub(crate) struct EnforcementTimerCommandPayload {
     pub transition_ids: EnforcementTimerTransitionIds,
     pub expected_action_id: Option<String>,
     pub parent_override: Option<ParentActionReference>,
+    pub process_id: Option<u32>,
     pub device_id: String,
     pub platform: String,
 }
@@ -24,9 +25,27 @@ pub(crate) fn parse_timer_recovery_payload(
             constants::field::ENFORCEMENT_ACTION_ID,
         ),
         parent_override: None,
+        process_id: None,
         device_id: command.target.device_id.clone(),
         platform: command.target.platform.clone(),
     }
+}
+
+pub(crate) fn parse_timer_expiry_payload(
+    command: &AgentCommandEnvelope,
+    observed_at: &str,
+) -> Result<EnforcementTimerCommandPayload, &'static str> {
+    Ok(EnforcementTimerCommandPayload {
+        transition_ids: parse_transition_ids(&command.payload, &command.message_id, observed_at),
+        expected_action_id: optional_string(
+            &command.payload,
+            constants::field::ENFORCEMENT_ACTION_ID,
+        ),
+        parent_override: None,
+        process_id: Some(required_process_id(&command.payload)?),
+        device_id: command.target.device_id.clone(),
+        platform: command.target.platform.clone(),
+    })
 }
 
 pub(crate) fn parse_parent_override_payload(
@@ -40,6 +59,7 @@ pub(crate) fn parse_parent_override_payload(
             constants::field::ENFORCEMENT_ACTION_ID,
         ),
         parent_override: Some(parent_action_reference(&command.payload, observed_at)?),
+        process_id: None,
         device_id: command.target.device_id.clone(),
         platform: command.target.platform.clone(),
     })
@@ -123,6 +143,20 @@ fn optional_string(payload: &LogFields, field: &str) -> Option<String> {
             Some(value.trim().to_string())
         }
         _ => None,
+    }
+}
+
+fn required_process_id(payload: &LogFields) -> Result<u32, &'static str> {
+    match payload.get(constants::field::PROCESS_ID) {
+        Some(LogFieldValue::Number(value))
+            if value.is_finite()
+                && *value > 0.0
+                && value.fract() == 0.0
+                && *value <= f64::from(u32::MAX) =>
+        {
+            Ok(*value as u32)
+        }
+        _ => Err(constants::enforcement::REJECTION_PROCESS_ID_REQUIRED),
     }
 }
 
