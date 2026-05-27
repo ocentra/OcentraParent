@@ -65,6 +65,13 @@ behavior. This is still not mobile parity, Android device-owner proof, iOS
 Family Controls proof, production signing, store distribution, or a production
 household discovery claim.
 
+The V0.8/V0.9 final proof pass adds one evidence command that re-runs the real
+V0.8 app time-limit service proof, the V0.9 two-service LAN pairing/control
+proof, and the platform-role/LAN AI provider-pool proof together. That final
+pass proves the current adapter, controller, registry, rejection, provider, and
+scaffold states are still coherent after the C portal merge. It still does not
+upgrade V0.8 to broad OS blocking or V0.9 to production LAN readiness.
+
 The older PR #90 through PR #96 reconciliation remains historical context in
 [`current-main-proof-refresh-2026-05-25.md`](architecture/current-main-proof-refresh-2026-05-25.md).
 Current acceptance should be read from the updated pre-AI proof matrix and the
@@ -109,6 +116,12 @@ Current local slice:
 - Parent mobile is still a scaffold/proof-first observer surface with
   controller-takeover and LAN AI provider states represented as scaffold,
   unavailable, or degraded until real mobile app proof exists.
+- The V0.8/V0.9 final-pass proof command records the combined current evidence
+  in
+  [`v0-8-v0-9-product-proof-final-pass-2026-05-27.md`](checkpoints/v0-8-v0-9-product-proof-final-pass-2026-05-27.md)
+  and the pre-AI proof matrix, while preserving manual-required states for
+  physical household LAN, Android, iOS, signing, stores, and privileged OS
+  behavior.
 
 Next product checkpoint:
 
