@@ -156,6 +156,11 @@ fn enforcement_mode(
         PolicyAction::Block => match intent.target.target_type {
             PolicyTargetType::Process => Ok(EnforcementMode::TerminateProcess),
             PolicyTargetType::App => Ok(EnforcementMode::BlockProcess),
+            PolicyTargetType::Domain
+            | PolicyTargetType::Site
+            | PolicyTargetType::Category
+            | PolicyTargetType::Video
+            | PolicyTargetType::Channel => Ok(EnforcementMode::TemporaryBlock),
             _ => Err(EnforcementBoundaryRejection::PolicyTargetMismatch),
         },
     }
@@ -171,7 +176,7 @@ fn enforcement_action(
         intent_id: input.intent.intent_id.clone(),
         policy_decision_id: input.decision.decision_id.clone(),
         policy_action: input.decision.action,
-        adapter_kind: adapter_kind(mode),
+        adapter_kind: adapter_kind(mode, input.intent.target.target_type),
         platform: capability_platform(&input.capability, &input.intent.device.platform),
         target: input.intent.target.clone(),
         mode,
@@ -252,7 +257,7 @@ fn capability_state_result(
     action: &EnforcementAction,
 ) -> Option<EnforcementResult> {
     match input.capability.capability_state {
-        EnforcementCapabilityState::Unavailable => {
+        EnforcementCapabilityState::Unavailable | EnforcementCapabilityState::ManualRequired => {
             let unavailable_reason = capability_unavailable_reason(&input.capability);
             let adapter_result_code = match unavailable_reason {
                 EnforcementUnavailableReason::UnsupportedPlatform => {
@@ -264,7 +269,8 @@ fn capability_state_result(
                 EnforcementUnavailableReason::UnsupportedAction
                 | EnforcementUnavailableReason::MissingPermission
                 | EnforcementUnavailableReason::MissingDependency
-                | EnforcementUnavailableReason::AdapterUnavailable => {
+                | EnforcementUnavailableReason::AdapterUnavailable
+                | EnforcementUnavailableReason::ManualRequired => {
                     EnforcementAdapterResultCode::AdapterUnavailable
                 }
             };
@@ -433,15 +439,25 @@ fn evidence_ref_is_in_decision(
         .any(|decision_ref| decision_ref.evidence_reference_id == intent_ref.evidence_reference_id)
 }
 
-fn adapter_kind(mode: EnforcementMode) -> EnforcementAdapterKind {
-    match mode {
-        EnforcementMode::TerminateProcess
-        | EnforcementMode::BlockProcess
-        | EnforcementMode::TemporaryBlock
-        | EnforcementMode::TimeLimit => EnforcementAdapterKind::ProcessControl,
-        EnforcementMode::AskParent | EnforcementMode::ObserveOnly => {
-            EnforcementAdapterKind::TimerControl
-        }
+fn adapter_kind(mode: EnforcementMode, target_type: PolicyTargetType) -> EnforcementAdapterKind {
+    match (mode, target_type) {
+        (
+            EnforcementMode::TemporaryBlock,
+            PolicyTargetType::Domain | PolicyTargetType::Category,
+        ) => EnforcementAdapterKind::NetworkControl,
+        (
+            EnforcementMode::TemporaryBlock,
+            PolicyTargetType::Site | PolicyTargetType::Video | PolicyTargetType::Channel,
+        ) => EnforcementAdapterKind::ManagedBrowserControl,
+        (mode, _) => match mode {
+            EnforcementMode::TerminateProcess
+            | EnforcementMode::BlockProcess
+            | EnforcementMode::TemporaryBlock
+            | EnforcementMode::TimeLimit => EnforcementAdapterKind::ProcessControl,
+            EnforcementMode::AskParent | EnforcementMode::ObserveOnly => {
+                EnforcementAdapterKind::TimerControl
+            }
+        },
     }
 }
 

@@ -74,11 +74,78 @@ pub fn timer_control_capability(checked_at: &str) -> EnforcementCapabilityStatus
     }
 }
 
+pub fn app_block_control_capability(checked_at: &str) -> EnforcementCapabilityStatus {
+    manual_required_capability(
+        ParentPlatform::Windows,
+        EnforcementAdapterKind::ProcessControl,
+        vec![EnforcementMode::BlockProcess],
+        checked_at,
+    )
+}
+
+pub fn network_control_capability(checked_at: &str) -> EnforcementCapabilityStatus {
+    manual_required_capability(
+        ParentPlatform::Windows,
+        EnforcementAdapterKind::NetworkControl,
+        vec![EnforcementMode::TemporaryBlock],
+        checked_at,
+    )
+}
+
+pub fn managed_browser_control_capability(checked_at: &str) -> EnforcementCapabilityStatus {
+    manual_required_capability(
+        ParentPlatform::Windows,
+        EnforcementAdapterKind::ManagedBrowserControl,
+        vec![EnforcementMode::TemporaryBlock],
+        checked_at,
+    )
+}
+
 pub fn terminate_owned_process(
     target: OwnedProcessTerminationTarget,
     completed_at: &str,
 ) -> EnforcementAdapterOutcome {
     terminate_owned_process_impl(target, completed_at)
+}
+
+#[cfg(windows)]
+fn manual_required_capability(
+    platform: ParentPlatform,
+    adapter_kind: EnforcementAdapterKind,
+    supported_actions: Vec<EnforcementMode>,
+    checked_at: &str,
+) -> EnforcementCapabilityStatus {
+    EnforcementCapabilityStatus {
+        schema_version: policy_constants::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
+        platform,
+        adapter_kind,
+        capability_state: EnforcementCapabilityState::ManualRequired,
+        permission_state: EnforcementPermissionState::Unknown,
+        dependency_state: EnforcementDependencyState::Unknown,
+        supported_actions,
+        degraded_reason: Some(enforcement_constants::UNAVAILABLE_MANUAL_REQUIRED.to_string()),
+        last_checked_at: checked_at.to_string(),
+    }
+}
+
+#[cfg(not(windows))]
+fn manual_required_capability(
+    _platform: ParentPlatform,
+    adapter_kind: EnforcementAdapterKind,
+    _supported_actions: Vec<EnforcementMode>,
+    checked_at: &str,
+) -> EnforcementCapabilityStatus {
+    EnforcementCapabilityStatus {
+        schema_version: policy_constants::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
+        platform: current_platform(),
+        adapter_kind,
+        capability_state: EnforcementCapabilityState::Unavailable,
+        permission_state: EnforcementPermissionState::NotRequired,
+        dependency_state: EnforcementDependencyState::NotRequired,
+        supported_actions: Vec::new(),
+        degraded_reason: Some(enforcement_constants::UNAVAILABLE_UNSUPPORTED_PLATFORM.to_string()),
+        last_checked_at: checked_at.to_string(),
+    }
 }
 
 pub fn unavailable_adapter_outcome(
@@ -195,7 +262,8 @@ fn adapter_result_code_for_unavailable_reason(
         EnforcementUnavailableReason::UnsupportedAction
         | EnforcementUnavailableReason::MissingPermission
         | EnforcementUnavailableReason::MissingDependency
-        | EnforcementUnavailableReason::AdapterUnavailable => {
+        | EnforcementUnavailableReason::AdapterUnavailable
+        | EnforcementUnavailableReason::ManualRequired => {
             EnforcementAdapterResultCode::AdapterUnavailable
         }
     }

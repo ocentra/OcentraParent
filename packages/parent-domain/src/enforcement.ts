@@ -45,7 +45,7 @@ const EnforcementModeSchema = withParser(
 );
 
 const EnforcementCapabilityStateSchema = withParser(
-  Schema.Literal('supported', 'unavailable', 'degraded', 'dry-run', 'observe-only')
+  Schema.Literal('supported', 'unavailable', 'degraded', 'dry-run', 'observe-only', 'manual-required')
 );
 
 const EnforcementUnavailableReasonSchema = withParser(
@@ -55,7 +55,8 @@ const EnforcementUnavailableReasonSchema = withParser(
     'missing-permission',
     'missing-dependency',
     'adapter-unavailable',
-    'adapter-error'
+    'adapter-error',
+    'manual-required'
   )
 );
 
@@ -235,7 +236,11 @@ function enforcementUnavailableStatusIsConsistent(result: EnforcementResultCandi
 }
 
 function enforcementCapabilityStatusReasonIsConsistent(capability: EnforcementCapabilityStatusCandidate): boolean {
-  if (capability.capabilityState === 'unavailable' || capability.capabilityState === 'degraded') {
+  if (
+    capability.capabilityState === 'unavailable' ||
+    capability.capabilityState === 'degraded' ||
+    capability.capabilityState === 'manual-required'
+  ) {
     return capability.degradedReason !== null;
   }
 
@@ -424,6 +429,7 @@ export const EnforcementCapabilityState = {
   Degraded: EnforcementCapabilityStateSchema.parse('degraded'),
   DryRun: EnforcementCapabilityStateSchema.parse('dry-run'),
   ObserveOnly: EnforcementCapabilityStateSchema.parse('observe-only'),
+  ManualRequired: EnforcementCapabilityStateSchema.parse('manual-required'),
 } as const;
 
 export const EnforcementUnavailableReason = {
@@ -433,6 +439,7 @@ export const EnforcementUnavailableReason = {
   MissingDependency: EnforcementUnavailableReasonSchema.parse('missing-dependency'),
   AdapterUnavailable: EnforcementUnavailableReasonSchema.parse('adapter-unavailable'),
   AdapterError: EnforcementUnavailableReasonSchema.parse('adapter-error'),
+  ManualRequired: EnforcementUnavailableReasonSchema.parse('manual-required'),
 } as const;
 
 export const EnforcementResultStatus = {

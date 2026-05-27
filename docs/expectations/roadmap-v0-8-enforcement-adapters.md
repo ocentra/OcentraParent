@@ -17,10 +17,19 @@ Supporting expectation files: [enforcement](enforcement.md), [policy](policy.md)
 - Enforcement events record policy decision id, evidence refs, adapter result, rollback/unavailable state, and parent override/approval refs when applicable.
 - Category labels or AI text alone never cause blocking without a matching parent-authored rule.
 - Dev builds remain uninstallable, debuggable, and honest about missing hardening.
-- Unsupported enforcement modes return unavailable/degraded adapter results and
+- Unsupported enforcement modes return unavailable/degraded/manual-required adapter results and
   never pretend that policy was applied.
+- The service distinguishes the narrow proven owned-process and app time-limit
+  paths from app block, network/domain block, and managed-browser control paths
+  that still require privileged OS, browser-management, or manual Windows proof.
+- Parent cancel/override, restart recovery, expiry, unavailable, audit, and
+  storage proof must flow through Rust service commands, not portal-local state.
 
 ## Validation
 
 - Run `npm run validate`.
 - Include adapter integration tests, rollback/unavailable tests, policy handoff tests, and security review evidence.
+- Run `node scripts/test/v0-8-production-enforcement-hardening.mjs` for the
+  service-path proof that app block, domain block, and managed-browser block
+  return typed unavailable/manual-required states instead of broad blocking
+  claims.

@@ -165,6 +165,45 @@ fn unsupported_action_returns_typed_unavailable_status_without_adapter_execution
 }
 
 #[test]
+fn manual_required_network_and_browser_targets_return_unavailable_audit_without_adapter_execution()
+{
+    for (target_type, capability, expected_adapter_kind) in [
+        (
+            PolicyTargetType::Domain,
+            network_control_capability(policy::TEST_EVALUATED_AT),
+            EnforcementAdapterKind::NetworkControl,
+        ),
+        (
+            PolicyTargetType::Site,
+            managed_browser_control_capability(policy::TEST_EVALUATED_AT),
+            EnforcementAdapterKind::ManagedBrowserControl,
+        ),
+    ] {
+        let mut input = boundary_input(policy_decision(false), capability);
+        input.intent.target.target_type = target_type;
+        input.intent.target.target_value = enforcement::TEST_PROCESS_TARGET_VALUE.to_string();
+        let outcome =
+            evaluate_enforcement_boundary(input).expect(enforcement::UNAVAILABLE_MANUAL_REQUIRED);
+
+        assert_eq!(outcome.action.adapter_kind, expected_adapter_kind);
+        assert_eq!(
+            outcome.result.status.as_protocol_str(),
+            enforcement::RESULT_UNAVAILABLE
+        );
+        #[cfg(windows)]
+        assert_eq!(
+            outcome
+                .result
+                .unavailable_status
+                .as_ref()
+                .map(|status| status.unavailable_reason.as_protocol_str()),
+            Some(enforcement::UNAVAILABLE_MANUAL_REQUIRED)
+        );
+        assert_eq!(outcome.adapter_request, None);
+    }
+}
+
+#[test]
 fn supported_non_dry_run_requires_adapter_outcome_for_process_control() {
     let input = boundary_input(policy_decision(false), supported_capability());
 

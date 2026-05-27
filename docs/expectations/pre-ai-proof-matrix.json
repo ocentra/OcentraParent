@@ -243,6 +243,7 @@
       "realEvidencePath": [
         "Build contracts and the Rust service from the current commit.",
         "Run V0.8 app time-limit adapter proof through the real Rust service, including execute, restart recovery, parent cancel, unavailable state, and expiry behavior.",
+        "Run V0.8 production enforcement hardening proof through the real Rust service, including app block, domain block, and managed-browser block commands that return unavailable/manual-required capability states instead of pretending broad blocking worked.",
         "Run V0.9 two-service LAN pairing/control proof through real Rust service processes, including controller lease conflict/takeover, wrong-origin/wrong-device rejection, registry restart, and degraded LAN AI states.",
         "Run platform role/LAN AI provider pool proof to keep provider selection, parent mobile scaffold behavior, Android, and iOS states honest."
       ],
@@ -250,11 +251,12 @@
       "requiredArtifacts": [
         "test-results/v0-8-v0-9-product-proof-final-pass/proof.json",
         "test-results/v0-8-windows-app-time-limit-adapter-mvp/*.json",
+        "test-results/v0-8-production-enforcement-hardening/*.json",
         "test-results/v0-9-lan-pairing-control-mvp/proof.json",
         "test-results/platform-roles-lan-ai-provider-pool/proof.json"
       ],
       "knownGaps": [
-        "V0.8 real local Windows proof is still an owned-process time-limit adapter proof, not global application blocking or managed-browser enforcement.",
+        "V0.8 real local Windows proof includes owned-process termination/time-limit mechanics and service-path manual-required states for app block, network/domain, and managed-browser control; it is still not global application blocking or browser-management enforcement.",
         "V0.9 proof still uses local real Rust service processes and direct WebSocket routing, not production household discovery or router/firewall proof.",
         "Parent mobile, Android child, iOS child, signing, stores, device-owner, and Family Controls remain manual-required or unavailable until real platform proof exists."
       ],
@@ -672,11 +674,11 @@
         "docs/expectations/lan-pairing.md",
         "docs/expectations/platform-deliverables.md"
       ],
-      "claim": "V0.8 enforcement-adapter proof and V0.9 LAN/multi-device proof are tied together by a real-service final-pass harness with explicit platform and product boundaries.",
+      "claim": "V0.8 enforcement-adapter proof, V0.8 manual-required hardening states, and V0.9 LAN/multi-device proof are tied together by a real-service final-pass harness with explicit platform and product boundaries.",
       "privilegedCapability": true,
       "ciProof": {
         "commands": ["node scripts/test/v0-8-v0-9-product-proof-final-pass.mjs"],
-        "jobs": ["Worker B V0.8/V0.9 product-proof final pass"]
+        "jobs": ["Worker A V0.8 production hardening", "Worker B V0.8/V0.9 product-proof final pass"]
       },
       "platformCoverage": {
         "windows": "real-local-windows-proof",
@@ -688,7 +690,7 @@
       "runtimeSurfaceCoverage": {
         "v08Enforcement": {
           "state": "implemented",
-          "proof": "Real Rust service app time-limit proof covers execute, restart recovery, parent cancel/override, unavailable state, expiry, audit, and storage for an owned process target."
+          "proof": "Real Rust service proof covers owned-process termination, app time-limit execute/restart recovery/parent cancel/unavailable/expiry/audit/storage, plus app block, domain block, and managed-browser block commands that return unavailable/manual-required states without claiming broad blocking."
         },
         "v09LanMultiDevice": {
           "state": "implemented",

@@ -38,6 +38,7 @@ fn authorized_adapter_request(action: &EnforcementAction) -> Option<EnforcementA
             EnforcementCapabilityState::Unavailable
                 | EnforcementCapabilityState::DryRun
                 | EnforcementCapabilityState::ObserveOnly
+                | EnforcementCapabilityState::ManualRequired
         )
         || !action.capability.supported_actions.contains(&action.mode)
     {

@@ -36,6 +36,41 @@ fn degraded_unavailable_audit_and_timer_serialize_recovery_data() {
     );
 }
 
+#[test]
+fn manual_required_capability_serializes_as_unavailable_proof_state() {
+    let capability = EnforcementCapabilityStatus {
+        schema_version: policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
+        platform: ParentPlatform::Windows,
+        adapter_kind: EnforcementAdapterKind::NetworkControl,
+        capability_state: EnforcementCapabilityState::ManualRequired,
+        permission_state: EnforcementPermissionState::Unknown,
+        dependency_state: EnforcementDependencyState::Unknown,
+        supported_actions: vec![EnforcementMode::TemporaryBlock],
+        degraded_reason: Some(enforcement::UNAVAILABLE_MANUAL_REQUIRED.to_string()),
+        last_checked_at: policy::TEST_EVALUATED_AT.to_string(),
+    };
+    let unavailable = EnforcementUnavailableStatus {
+        schema_version: policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
+        capability,
+        unavailable_reason: EnforcementUnavailableReason::ManualRequired,
+        retryable: false,
+        checked_at: policy::TEST_EVALUATED_AT.to_string(),
+    };
+
+    let serialized =
+        serde_json::to_value(unavailable).expect(constants::error::AGENT_EVENT_SERIALIZES);
+
+    assert_eq!(
+        serialized["capability"]["capabilityState"],
+        enforcement::CAPABILITY_MANUAL_REQUIRED
+    );
+    assert_eq!(
+        serialized["unavailableReason"],
+        enforcement::UNAVAILABLE_MANUAL_REQUIRED
+    );
+    assert_eq!(serialized["retryable"], false);
+}
+
 fn serialized_degraded_unavailable_events() -> (serde_json::Value, serde_json::Value) {
     let capability = degraded_capability();
     let intent = enforcement_intent();

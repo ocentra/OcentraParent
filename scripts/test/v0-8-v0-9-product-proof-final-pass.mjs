@@ -28,6 +28,12 @@ async function main() {
   const v08Evidence = await latestJson(join(repoRoot, 'test-results', 'v0-8-windows-app-time-limit-adapter-mvp'));
   assertV08Evidence(v08Evidence.data);
 
+  await runCommand('cmd', ['/c', 'node', 'scripts/test/v0-8-production-enforcement-hardening.mjs']);
+  const v08HardeningEvidence = await latestJson(
+    join(repoRoot, 'test-results', 'v0-8-production-enforcement-hardening')
+  );
+  assertV08HardeningEvidence(v08HardeningEvidence.data);
+
   await runCommand('cargo', ['build', '-p', 'ocentra-parent-agent-service']);
   await runCommand('cmd', ['/c', 'node', 'scripts/test/v0-9-lan-pairing-control-mvp.mjs']);
   const v09Evidence = await readJson(join(repoRoot, 'test-results', 'v0-9-lan-pairing-control-mvp', 'proof.json'));
@@ -50,6 +56,7 @@ async function main() {
     proofLabels,
     evidence: {
       v08AppTimeLimit: relative(repoRoot, v08Evidence.path),
+      v08ProductionEnforcementHardening: relative(repoRoot, v08HardeningEvidence.path),
       v09LanPairingControl: relative(
         repoRoot,
         join(repoRoot, 'test-results', 'v0-9-lan-pairing-control-mvp', 'proof.json')
@@ -69,6 +76,36 @@ async function main() {
   await writeFile(proofPath, `${JSON.stringify(proof, null, 2)}\n`);
   console.log(`v0-8-v0-9-product-proof-final-pass-ok:${proofLabels.join(',')}`);
   console.log(`evidence=${proofPath}`);
+}
+
+function assertV08HardeningEvidence(evidence) {
+  assertEqual(
+    evidence.serviceScope?.manualRequiredStatesProvenThroughService,
+    true,
+    'V0.8 manual-required service states'
+  );
+  assertEqual(
+    evidence.serviceScope?.unsupportedBlockingClaimsRejected,
+    true,
+    'V0.8 unsupported blocking claims rejected'
+  );
+  const assertionIds = new Set(evidence.assertions.map((assertion) => assertion.id));
+  for (const id of [
+    'app-block-process-control',
+    'domain-block-network-control',
+    'site-block-managed-browser-control',
+  ]) {
+    assertSetHas(assertionIds, id, 'V0.8 hardening proof assertion');
+  }
+  for (const assertion of evidence.assertions) {
+    assertEqual(assertion.status, 'unavailable', 'V0.8 hardening unavailable status');
+    assertOneOf(
+      assertion.capabilityState,
+      ['manual-required', 'unavailable'],
+      'V0.8 hardening honest capability state'
+    );
+  }
+  proofLabels.push('v0.8.enforcement.manual-required-service-states-proven');
 }
 
 async function runCommand(command, args) {

@@ -345,6 +345,9 @@ fn unavailable_reason_from_protocol_str(reason: &str) -> Option<EnforcementUnava
         enforcement_constants::UNAVAILABLE_ADAPTER_ERROR => {
             Some(EnforcementUnavailableReason::AdapterError)
         }
+        enforcement_constants::UNAVAILABLE_MANUAL_REQUIRED => {
+            Some(EnforcementUnavailableReason::ManualRequired)
+        }
         _ => None,
     }
 }
