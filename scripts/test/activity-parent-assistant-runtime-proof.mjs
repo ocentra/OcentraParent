@@ -63,6 +63,18 @@ function runRuntimeProof() {
       assertReportDocument
     ),
     activityStep(
+      'cmd-activity-save-report',
+      AgentCommand.ActivityReportSave,
+      AgentEvent.ActivityReportSaved,
+      assertSavedReportDocument
+    ),
+    activityStep(
+      'cmd-activity-report-history',
+      AgentCommand.ActivityReportHistoryList,
+      AgentEvent.ActivityReportHistoryReported,
+      assertReportHistory
+    ),
+    activityStep(
       'cmd-activity-screen',
       AgentCommand.ActivityScreenReadModelGet,
       AgentEvent.ActivityScreenReadModelReported,
@@ -195,6 +207,33 @@ function assertReportDocument(event) {
   }
   if (report.frequency !== 'daily') {
     throw new Error(`Activity report frequency was not daily: ${JSON.stringify(report)}`);
+  }
+}
+
+function assertSavedReportDocument(event) {
+  const payload = event.payload;
+  assertSurfaceState(payload);
+  const report = parseJsonField(payload, AgentProtocolDefaults.Field.ActivityReportDocument);
+  if (report.savedMetadata?.savedState !== 'saved') {
+    throw new Error(`Activity report save did not persist saved metadata: ${JSON.stringify(report)}`);
+  }
+  if (typeof report.savedMetadata?.fileName !== 'string' || !report.savedMetadata.fileName.endsWith('.json')) {
+    throw new Error(`Activity report save did not return a saved JSON file name: ${JSON.stringify(report)}`);
+  }
+}
+
+function assertReportHistory(event) {
+  const payload = event.payload;
+  assertSurfaceState(payload);
+  const history = parseJsonField(payload, AgentProtocolDefaults.Field.ActivityReports);
+  if (history.state !== 'ready') {
+    throw new Error(`Activity report history did not become ready after save: ${JSON.stringify(history)}`);
+  }
+  if (!Array.isArray(history.reports) || history.reports.length < 1) {
+    throw new Error(`Activity report history did not include the saved report: ${JSON.stringify(history)}`);
+  }
+  if (history.reports[0]?.parsedReport?.savedMetadata?.savedState !== 'saved') {
+    throw new Error(`Activity report history did not carry saved metadata: ${JSON.stringify(history)}`);
   }
 }
 

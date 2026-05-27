@@ -43,6 +43,7 @@ pub const TEST_MEMORY_GRAPH_INDEX_STORE_SUFFIX: &str = "memory-graph-index-store
 pub const TEST_MEMORY_GRAPH_STORE_SUFFIX: &str = "memory-graph-store";
 pub const TEST_PROCESS_SUBJECT_ID: &str = "process-4242";
 pub const TEST_PROCESS_SUBJECT_NAME: &str = "chrome.exe";
+pub const TEST_REMOTE_DEVICE_ID: &str = "remote-child-device-1";
 pub const TEST_APP_GAME_PROCESS_NAME: &str = "game.exe";
 pub const TEST_APP_GAME_SESSION_ID: &str = "app-game-session-process-4242";
 pub const TEST_APP_GAME_WINDOW_TITLE: &str = "Game Window";

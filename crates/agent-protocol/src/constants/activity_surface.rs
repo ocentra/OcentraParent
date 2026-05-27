@@ -9,10 +9,18 @@ pub const REPORT_ID_MONTHLY: &str = "activity-report-monthly-local";
 pub const REPORT_FILE_DAILY: &str = "activity-report-daily-local.json";
 pub const REPORT_FILE_WEEKLY: &str = "activity-report-weekly-local.json";
 pub const REPORT_FILE_MONTHLY: &str = "activity-report-monthly-local.json";
+pub const REPORT_FILE_EXTENSION: &str = "json";
+pub const REPORT_STORAGE_DIR: &str = "activity-reports";
 pub const SUMMARY_READY: &str = "Activity data is available from the local query store.";
 pub const SUMMARY_EMPTY: &str = "No local activity rows are available for this request.";
 pub const SUMMARY_STORE_UNAVAILABLE: &str = "Local activity query store is unavailable.";
 pub const SUMMARY_STORAGE_UNAVAILABLE: &str = "Report storage selection is not wired yet.";
+pub const SUMMARY_STORAGE_SAVED: &str = "Activity report is saved in local parent report storage.";
+pub const SUMMARY_HISTORY_EMPTY: &str = "No saved activity reports are available for this request.";
+pub const SUMMARY_DEVICE_OFFLINE: &str =
+    "Requested device is not available in the local activity store.";
+pub const SUMMARY_FAMILY_LOCAL_SOURCE: &str =
+    "Family scope is backed by the reachable local child-device query store.";
 pub const SUMMARY_SCAFFOLD_ONLY: &str =
     "This Activity read model is typed but not wired to local storage yet.";
 pub const SECTION_SUMMARY: &str = "Summary";

@@ -15,10 +15,14 @@ use ocentra_parent_agent_protocol::{
 };
 
 use crate::{
-    fields::fields_from_pairs, local_ai_provider_scheduler::LocalAiProviderSchedulerRuntime,
+    activity_surface_store::ActivitySurfaceStoreSnapshot,
+    fields::fields_from_pairs,
+    local_ai_provider_scheduler::LocalAiProviderSchedulerRuntime,
     local_ai_runtime_config::LocalAiRuntimeConfigSnapshot,
     local_ai_runtime_status::local_ai_runtime_status_for_model_from_config,
-    parent_assistant_runtime::generate_parent_assistant_answer_with_scheduler,
+    parent_assistant_runtime::{
+        generate_parent_assistant_answer_with_scheduler, request_from_command,
+    },
 };
 
 #[tokio::test]
@@ -94,6 +98,34 @@ async fn parent_assistant_busy_provider_degrades_without_running_or_enforcing() 
     assert_eq!(answer.local_ai_result_id, None);
     assert!(answer.action_preview.child_agent_contract_required);
     assert!(!answer.action_preview.enforcement_applied);
+}
+
+#[test]
+fn parent_assistant_request_cites_activity_snapshot_when_prompt_has_no_summary() {
+    let snapshot = ActivitySurfaceStoreSnapshot {
+        device_id: constants::activity_surface::DEFAULT_DEVICE_ID.to_string(),
+        recent_returned: 1,
+        last_event_id: Some(constants::event_id::ACTIVITY_RECENT_SUMMARY_REPORTED.to_string()),
+        browser_returned: 0,
+        network_returned: 0,
+        games_returned: 0,
+        screen_returned: 0,
+    };
+
+    let request = request_from_command(
+        &command(),
+        &LocalAiRuntimeConfigSnapshot::unconfigured(),
+        Some(snapshot),
+    );
+
+    assert_eq!(
+        request.evidence_context[0].evidence.evidence_reference_id,
+        constants::event_id::ACTIVITY_RECENT_SUMMARY_REPORTED
+    );
+    assert_eq!(
+        request.evidence_context[0].allowed_summary,
+        constants::parent_assistant::ACTIVITY_CONTEXT_READY
+    );
 }
 
 fn request(model_id: Option<String>) -> ParentAssistantGenerateRequest {

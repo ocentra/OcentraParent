@@ -8,6 +8,12 @@ pub const DEFAULT_QUESTION: &str = "Summarize the recent child activity evidence
 pub const DEFAULT_CITATION_LABEL: &str = "Recent activity";
 pub const DEFAULT_ALLOWED_SUMMARY: &str =
     "Recent local activity summary is allowed parent evidence.";
+pub const ACTIVITY_CONTEXT_READY: &str =
+    "Recent local Activity report/read-model evidence is available for parent review.";
+pub const ACTIVITY_CONTEXT_EMPTY: &str =
+    "The local Activity query store is reachable but has no recent rows for this scope.";
+pub const ACTIVITY_CONTEXT_UNAVAILABLE: &str =
+    "The local Activity query store is unavailable for Parent Assistant evidence context.";
 pub const PROMPT_SYSTEM: &str =
     "Answer as a parent-facing assistant. Cite the provided evidence. Do not enforce directly.";
 pub const PROMPT_QUESTION_LABEL: &str = "Question:";
