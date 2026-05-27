@@ -34,10 +34,11 @@ pub(crate) fn lan_ai_provider_status_get(
                 );
                 let mut event = crate::lan_pairing_status::pairing_status_event(&runtime, command);
                 event.payload.extend(audit_fields);
-                event.payload.extend(lan_ai_provider_fields());
+                event.payload.extend(lan_ai_provider_fields(&runtime));
                 event
             }
             Err(reason) => lan_ai_rejection_event(
+                &runtime,
                 command,
                 reason,
                 Some(&intent),
@@ -46,6 +47,7 @@ pub(crate) fn lan_ai_provider_status_get(
             ),
         },
         Err(reason) => lan_ai_rejection_event(
+            &runtime,
             command,
             reason,
             None,
@@ -65,8 +67,9 @@ pub(crate) fn lan_ai_job_submit(
         Ok(intent) => match validate_command_target(&runtime, &command, &intent)
             .and_then(|()| validate_authorized_lan_ai_job(&runtime, observed_origin, &intent))
         {
-            Ok(()) => lan_ai_job_degraded_event(command, &intent, observed_origin),
+            Ok(()) => lan_ai_job_routed_event(runtime, command, &intent, observed_origin),
             Err(reason) => lan_ai_rejection_event(
+                &runtime,
                 command,
                 reason,
                 Some(&intent),
@@ -75,6 +78,7 @@ pub(crate) fn lan_ai_job_submit(
             ),
         },
         Err(reason) => lan_ai_rejection_event(
+            &runtime,
             command,
             reason,
             None,
@@ -84,7 +88,38 @@ pub(crate) fn lan_ai_job_submit(
     }
 }
 
+fn lan_ai_job_routed_event(
+    runtime: LanPairingRuntime,
+    command: AgentCommandEnvelope,
+    intent: &LanParentIntentEnvelope,
+    origin: Option<&str>,
+) -> AgentEventEnvelope {
+    if !runtime.lan_ai_provider_available() {
+        return lan_ai_job_degraded_event(&runtime, command, intent, origin);
+    }
+
+    let requested_capability = payload_string(
+        &command.payload,
+        constants::field::LOCAL_AI_CAPABILITY_FLAGS,
+    )
+    .unwrap_or(constants::local_ai_runtime::CAPABILITY_CHAT_COMPLETION)
+    .to_string();
+    if !runtime.lan_ai_provider_supports_capability(&requested_capability) {
+        return lan_ai_rejection_event(
+            &runtime,
+            command,
+            LanPairingRejectionReason::LanAiJobUnauthorized,
+            Some(intent),
+            origin,
+            constants::value::LAN_AUDIT_LAN_AI_JOB_REJECTED,
+        );
+    }
+
+    lan_ai_job_completed_event(&runtime, command, intent, origin, &requested_capability)
+}
+
 fn lan_ai_job_degraded_event(
+    runtime: &LanPairingRuntime,
     command: AgentCommandEnvelope,
     intent: &LanParentIntentEnvelope,
     origin: Option<&str>,
@@ -96,8 +131,15 @@ fn lan_ai_job_degraded_event(
         constants::value::LAN_AUDIT_LAN_AI_JOB_DEGRADED,
         None,
     );
-    payload.extend(lan_ai_provider_fields());
-    payload.extend(lan_ai_job_fields(&command, intent));
+    payload.extend(lan_ai_provider_fields(runtime));
+    payload.extend(lan_ai_job_fields(
+        &command,
+        intent,
+        constants::value::LAN_AI_JOB_STATE_ACCEPTED,
+        constants::value::LAN_AI_JOB_STATE_DEGRADED,
+        constants::local_ai_runtime::GENERATION_STATE_UNAVAILABLE,
+        None,
+    ));
     build_event(
         constants::lan_pairing::EVENT_LAN_AI_JOB_REPORTED,
         &command.message_id,
@@ -109,7 +151,46 @@ fn lan_ai_job_degraded_event(
     )
 }
 
+fn lan_ai_job_completed_event(
+    runtime: &LanPairingRuntime,
+    command: AgentCommandEnvelope,
+    intent: &LanParentIntentEnvelope,
+    origin: Option<&str>,
+    requested_capability: &str,
+) -> AgentEventEnvelope {
+    let mut payload = controller_lease_audit_fields(
+        &command,
+        intent,
+        origin,
+        constants::value::LAN_AUDIT_LAN_AI_JOB_COMPLETED,
+        None,
+    );
+    payload.extend(lan_ai_provider_fields(runtime));
+    payload.insert(
+        constants::field::LOCAL_AI_CAPABILITY_FLAGS.to_string(),
+        LogFieldValue::String(requested_capability.to_string()),
+    );
+    payload.extend(lan_ai_job_fields(
+        &command,
+        intent,
+        constants::value::LAN_AI_JOB_STATE_ACCEPTED,
+        constants::value::LAN_AI_JOB_STATE_COMPLETED,
+        constants::local_ai_runtime::GENERATION_STATE_COMPLETE,
+        Some(constants::value::LAN_AI_PROVIDER_RESULT_REDACTED),
+    ));
+    build_event(
+        constants::lan_pairing::EVENT_LAN_AI_JOB_REPORTED,
+        &command.message_id,
+        command.source,
+        AgentEventName::AgentLanAiJobReported,
+        LogLevel::Info,
+        payload,
+        None,
+    )
+}
+
 fn lan_ai_rejection_event(
+    runtime: &LanPairingRuntime,
     command: AgentCommandEnvelope,
     reason: LanPairingRejectionReason,
     intent: Option<&LanParentIntentEnvelope>,
@@ -122,7 +203,8 @@ fn lan_ai_rejection_event(
         }
         None => rejected_control_audit_fields(&command, &reason, None, origin),
     };
-    payload.extend(lan_ai_provider_fields());
+    payload.extend(lan_ai_provider_fields(runtime));
+    payload.extend(lan_ai_job_rejected_fields(&command, intent));
     build_event(
         constants::event_id::COMMAND_REJECTED,
         &command.message_id,
@@ -134,45 +216,41 @@ fn lan_ai_rejection_event(
     )
 }
 
-fn lan_ai_provider_fields() -> LogFields {
+fn lan_ai_provider_fields(runtime: &LanPairingRuntime) -> LogFields {
+    let provider_status = if runtime.lan_ai_provider_available() {
+        constants::value::LAN_AI_PROVIDER_STATUS_AVAILABLE
+    } else {
+        constants::value::LAN_AI_PROVIDER_STATUS_UNAVAILABLE
+    };
+    let capability_flags = runtime.lan_ai_provider_capability_flags();
     fields_from_pairs(vec![
         (
             constants::field::LAN_AI_PROVIDER_STATUS,
-            LogFieldValue::String(constants::value::LAN_AI_PROVIDER_STATUS_UNAVAILABLE.to_string()),
+            LogFieldValue::String(provider_status.to_string()),
         ),
         (
             constants::field::LOCAL_AI_PROVIDER_ID,
-            LogFieldValue::String(
-                constants::local_ai_runtime::PROVIDER_ID_UNCONFIGURED.to_string(),
-            ),
+            LogFieldValue::String(provider_id_for_status(provider_status).to_string()),
         ),
         (
             constants::field::LOCAL_AI_EXECUTION_STATE,
-            LogFieldValue::String(
-                constants::local_ai_runtime::EXECUTION_STATE_DISABLED.to_string(),
-            ),
+            LogFieldValue::String(execution_state_for_status(provider_status).to_string()),
         ),
         (
             constants::field::LOCAL_AI_PROVIDER_SOURCE,
-            LogFieldValue::String(
-                constants::local_ai_runtime::PROVIDER_SOURCE_UNAVAILABLE.to_string(),
-            ),
+            LogFieldValue::String(provider_source_for_status(provider_status).to_string()),
         ),
         (
             constants::field::LOCAL_AI_ADAPTER_READINESS_STATE,
-            LogFieldValue::String(
-                constants::local_ai_runtime::ADAPTER_READINESS_STATE_NOT_READY.to_string(),
-            ),
+            LogFieldValue::String(readiness_for_status(provider_status).to_string()),
         ),
         (
             constants::field::LOCAL_AI_CAPABILITY_FLAGS,
-            LogFieldValue::String(constants::local_ai_runtime::CAPABILITY_FLAGS_NONE.to_string()),
+            LogFieldValue::String(capability_flags),
         ),
         (
             constants::field::LOCAL_AI_UNAVAILABLE_REASON,
-            LogFieldValue::String(
-                constants::local_ai_runtime::UNAVAILABLE_REASON_UNCONFIGURED.to_string(),
-            ),
+            LogFieldValue::String(unavailable_reason_for_status(provider_status).to_string()),
         ),
     ])
 }
@@ -180,15 +258,23 @@ fn lan_ai_provider_fields() -> LogFields {
 fn lan_ai_job_fields(
     command: &AgentCommandEnvelope,
     intent: &LanParentIntentEnvelope,
+    job_status: &'static str,
+    job_state: &'static str,
+    generation_state: &'static str,
+    output_text: Option<&'static str>,
 ) -> LogFields {
-    fields_from_pairs(vec![
+    let mut fields = fields_from_pairs(vec![
         (
             constants::field::LAN_AI_JOB_ID,
             LogFieldValue::String(lan_ai_job_id(command, intent)),
         ),
         (
+            constants::field::LAN_AI_JOB_STATUS,
+            LogFieldValue::String(job_status.to_string()),
+        ),
+        (
             constants::field::LAN_AI_JOB_STATE,
-            LogFieldValue::String(constants::value::LAN_AI_JOB_STATE_DEGRADED.to_string()),
+            LogFieldValue::String(job_state.to_string()),
         ),
         (
             constants::field::LOCAL_AI_RESULT_ID,
@@ -196,11 +282,34 @@ fn lan_ai_job_fields(
         ),
         (
             constants::field::LOCAL_AI_GENERATION_STATE,
-            LogFieldValue::String(
-                constants::local_ai_runtime::GENERATION_STATE_UNAVAILABLE.to_string(),
-            ),
+            LogFieldValue::String(generation_state.to_string()),
         ),
-    ])
+    ]);
+    if let Some(output_text) = output_text {
+        fields.insert(
+            constants::field::LOCAL_AI_OUTPUT_TEXT.to_string(),
+            LogFieldValue::String(output_text.to_string()),
+        );
+    }
+    fields
+}
+
+fn lan_ai_job_rejected_fields(
+    command: &AgentCommandEnvelope,
+    intent: Option<&LanParentIntentEnvelope>,
+) -> LogFields {
+    let mut fields = LogFields::new();
+    if let Some(intent) = intent {
+        fields.extend(lan_ai_job_fields(
+            command,
+            intent,
+            constants::value::LAN_AI_JOB_STATE_REJECTED,
+            constants::value::LAN_AI_JOB_STATE_REJECTED,
+            constants::local_ai_runtime::GENERATION_STATE_UNAVAILABLE,
+            None,
+        ));
+    }
+    fields
 }
 
 fn lan_ai_job_id(command: &AgentCommandEnvelope, intent: &LanParentIntentEnvelope) -> String {
@@ -220,4 +329,44 @@ fn payload_string<'a>(fields: &'a LogFields, key: &str) -> Option<&'a str> {
         LogFieldValue::String(value) if !value.is_empty() => Some(value.as_str()),
         _ => None,
     })
+}
+
+fn provider_id_for_status(provider_status: &str) -> &'static str {
+    if provider_status == constants::value::LAN_AI_PROVIDER_STATUS_AVAILABLE {
+        constants::local_ai_runtime::PROVIDER_ID_LOCAL_LLAMA_CLI
+    } else {
+        constants::local_ai_runtime::PROVIDER_ID_UNCONFIGURED
+    }
+}
+
+fn execution_state_for_status(provider_status: &str) -> &'static str {
+    if provider_status == constants::value::LAN_AI_PROVIDER_STATUS_AVAILABLE {
+        constants::local_ai_runtime::EXECUTION_STATE_DRY_RUN_READY
+    } else {
+        constants::local_ai_runtime::EXECUTION_STATE_DISABLED
+    }
+}
+
+fn provider_source_for_status(provider_status: &str) -> &'static str {
+    if provider_status == constants::value::LAN_AI_PROVIDER_STATUS_AVAILABLE {
+        constants::local_ai_runtime::PROVIDER_SOURCE_LOCAL_CONFIG
+    } else {
+        constants::local_ai_runtime::PROVIDER_SOURCE_UNAVAILABLE
+    }
+}
+
+fn readiness_for_status(provider_status: &str) -> &'static str {
+    if provider_status == constants::value::LAN_AI_PROVIDER_STATUS_AVAILABLE {
+        constants::local_ai_runtime::ADAPTER_READINESS_STATE_READY
+    } else {
+        constants::local_ai_runtime::ADAPTER_READINESS_STATE_NOT_READY
+    }
+}
+
+fn unavailable_reason_for_status(provider_status: &str) -> &'static str {
+    if provider_status == constants::value::LAN_AI_PROVIDER_STATUS_AVAILABLE {
+        constants::value::EMPTY
+    } else {
+        constants::local_ai_runtime::UNAVAILABLE_REASON_UNCONFIGURED
+    }
 }

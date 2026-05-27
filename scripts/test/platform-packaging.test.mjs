@@ -54,6 +54,22 @@ test('package smoke scripts check real uninstall and emit diagnostics', () => {
   assert.match(windowsSmoke, /\/L\*v/u);
 });
 
+test('parent desktop Tauri package connects to the Rust service instead of Vite backend', () => {
+  const cargoToml = readRepoFile('apps/parent-desktop/src-tauri/Cargo.toml');
+  const tauriConfig = readRepoFile('apps/parent-desktop/src-tauri/tauri.conf.json');
+  const tauriLib = readRepoFile('apps/parent-desktop/src-tauri/src/lib.rs');
+  const packageJson = readRepoFile('apps/parent-desktop/package.json');
+
+  assert.match(cargoToml, /ocentra-parent-agent-protocol/u);
+  assert.match(tauriConfig, /"frontendDist": "\.\.\/\.\.\/portal\/dist"/u);
+  assert.match(tauriConfig, /ws:\/\/127\.0\.0\.1:4477/u);
+  assert.match(tauriLib, /parent_platform_proof_state/u);
+  assert.match(tauriLib, /TcpStream::connect_timeout/u);
+  assert.match(tauriLib, /PARENT_DESKTOP_BACKEND_RUST_SERVICE/u);
+  assert.doesNotMatch(tauriLib, /VITE_|devUrl|portal:dev/u);
+  assert.match(packageJson, /"tauri:check": "cargo check --manifest-path src-tauri\/Cargo.toml"/u);
+});
+
 test('dependency policy workflow audits dependencies and writes SBOM metadata', () => {
   const workflow = readRepoFile('.github/workflows/dependency-policy.yml');
   const packageJson = readRepoFile('package.json');

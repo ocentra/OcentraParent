@@ -2,6 +2,10 @@ use serde::{Deserialize, Serialize};
 
 use crate::{LanPairingParentAuthority, ParentEvidenceReference};
 
+#[path = "lan_pairing/device_roles.rs"]
+mod device_roles;
+pub use device_roles::*;
+
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum LanPairingNetworkMode {

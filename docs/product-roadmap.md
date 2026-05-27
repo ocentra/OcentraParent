@@ -37,38 +37,38 @@ stateless compile/report operations that do not retain child activity data.
 
 ## Current Position
 
-We are currently in a post-V0.7 checkpoint proof cleanup step, not a finished
-V0.8 or V0.9 product phase. The required pre-AI evidence bridges now exist on
-`main`: browser URL/tab state, app/game sessions, network flow summaries, and
-local screen-analysis queue summaries can all be represented through typed local
-contracts and Rust protocol/read-model paths. The V0.7 dry-run preview
-foundations are also on `main`: local AI runtime/provider status, typed evidence
-context-builder contracts, a deterministic dry-run policy evaluator,
-context-builder read-path hardening, the portal policy-preview shell, the typed
-policy-preview service/API read path, and portal read-model wiring for the
-service result. The parent-rule context preview bridge, local provider/runtime
-status contract hardening, portal boundary-field visibility, parent-rule context
-resolver integration, local provider adapter probe status, network-flow v4
-reconciliation, and parent-rule preview quality/coverage batch are also on
-`main`.
+We are currently beyond the V0.7 dry-run policy preview foundation, but V0.8
+and V0.9 are still not product-complete. The required pre-AI evidence bridges
+now exist on `main`: browser URL/tab state, app/game sessions, network flow
+summaries, local screen-analysis queue summaries, parent-rule context, local AI
+runtime/provider status, and typed dry-run policy-preview service paths can be
+represented through local contracts and Rust protocol/read-model paths.
 
-Initial V0.8 and V0.9 spine work has continued on `main`, but it does not
-change the acceptance gate. V0.8 currently means typed enforcement contract,
-audit, rollback, capability-status, timer/recovery, and approval/override audit
-reference spine work only; it does not prove OS enforcement adapters or real
-blocking. V0.9 currently means typed LAN route selection, restart registry,
-discovery, challenge/revocation, privacy-surface, and audit evidence spine work
-only; it does not prove production LAN pairing, authenticated cross-device
-control, or a full paired/unpaired product flow. PR #96 is workflow/tooling
-only, so it changes local validation ergonomics but does not advance product
-feature readiness.
+After PR #108 and PR #109, `main` also has real scaffold/protocol progress for
+the next slices. V0.8 includes typed enforcement contracts, audit, rollback,
+capability status, timer/recovery, and approval/override audit-reference proof,
+but it still does not prove OS enforcement adapters or real blocking. V0.9
+includes LAN route selection, restart registry, discovery, challenge/revocation,
+privacy-surface, controller lease/write-authority checks, observer read-only
+behavior, selected-device stale/offline state, and LAN AI advertised/degraded
+behavior, but it still does not prove production LAN discovery or a finished
+multi-device product flow.
 
-The current roadmap-vs-done reconciliation after PR #90 through PR #96 is
-recorded in
+The platform-role/LAN AI provider-pool slice now adds contract and Rust read
+models for parent-controller, parent-observer, child-agent, and ai-provider
+roles on one physical device, a parent desktop Tauri package command that
+connects to the Rust service instead of treating Vite as the backend, parent
+mobile scaffold/unavailable states, and a real-service LAN AI proof for provider
+opt-in, capability advertisement, authorized completed jobs, unsupported
+capability rejection, observer rejection, and degraded provider-unavailable
+behavior. This is still not mobile parity, Android device-owner proof, iOS
+Family Controls proof, production signing, store distribution, or a production
+household discovery claim.
+
+The older PR #90 through PR #96 reconciliation remains historical context in
 [`current-main-proof-refresh-2026-05-25.md`](architecture/current-main-proof-refresh-2026-05-25.md).
-The acceptance checklist for deciding whether current `main` is ready to resume
-larger V0.8/V0.9 implementation is recorded in
-[`v0-7-current-main-acceptance-record-2026-05-25.md`](architecture/v0-7-current-main-acceptance-record-2026-05-25.md).
+Current acceptance should be read from the updated pre-AI proof matrix and the
+current worker checkpoint records, not from stale proof-spine wording.
 
 Completed foundation:
 
@@ -93,10 +93,22 @@ Current local slice:
   including audit-boundary, timer/recovery, and parent approval/override audit
   reference proof; it must not be described as real blocking until an OS adapter
   path and product proof exist.
-- V0.9 LAN spine work is scaffold-real contract/protocol/audit work only,
-  including selected-route rejection, restart registry, and discovery/privacy
-  proof; it must not be described as a complete LAN product path until paired
-  and failed-unpaired device proof exists.
+- V0.9 LAN work now includes controller lease/write-authority, observer
+  read-only behavior, selected-device state, direct WebSocket routing, and LAN
+  AI provider pool proof for opt-in, capability advertisement, result,
+  rejection, and degraded states. It must not be described as complete LAN
+  product readiness until production discovery, mobile controller UX, and real
+  household device proof exist.
+- Device role runtime state now tracks parent-controller, parent-observer,
+  child-agent, and ai-provider roles on one physical device without duplicate
+  local AI runtime claims.
+- Parent desktop packaged proof is a Tauri shell command that connects to the
+  Rust service and exposes controller lease, route, role, and LAN AI provider
+  state; the Vite portal remains a development UI surface, not the package
+  backend.
+- Parent mobile is still a scaffold/proof-first observer surface with
+  controller-takeover and LAN AI provider states represented as scaffold,
+  unavailable, or degraded until real mobile app proof exists.
 
 Next product checkpoint:
 
@@ -107,7 +119,7 @@ Next product checkpoint:
 - Run the pre-AI real evidence proof gate, full local validation or an explicit
   omission record, and final CI before claiming V0.7 as accepted.
 - Manually test the local child-device/parent-device surfaces before claiming
-  V0.8 or V0.9 readiness.
+  V0.8 or V0.9 product readiness.
 - Complete the
   [cross-platform deliverables checkpoint plan](architecture/cross-platform-deliverables-checkpoint.md)
   as the manual proof pass for Windows local first, Linux through CI plus
@@ -115,14 +127,10 @@ Next product checkpoint:
   and iOS through Mac/Xcode/TestFlight or entitlement notes.
 - Keep portal preview visibility evidence-cited and explicit about dry-run-only
   status.
-- Resume larger V0.8 and V0.9 implementation only after the
-  [current-main acceptance record](architecture/v0-7-current-main-acceptance-record-2026-05-25.md)
-  has reviewable evidence for what is complete, what is CI-mechanical only, and
-  what is still manual-required or not-yet-proven. Until then, any V0.8/V0.9
-  work must stay narrow and proof-spine-only: V0.8 should continue
-  enforcement capability/status and audit-boundary work without fake blocking
-  claims, and V0.9 should continue paired/unpaired LAN proof or trusted-device
-  control work without claiming complete LAN product readiness.
+- Continue V0.8 and V0.9 implementation in narrow proof-backed slices. V0.8
+  should continue enforcement adapter work without fake blocking claims. V0.9
+  should continue production discovery, mobile controller/observer UX, and
+  household multi-device proof without overstating direct WebSocket local proof.
 
 ## Architecture Commitments
 
@@ -1156,45 +1164,41 @@ Current completed-on-main foundation:
   parity, rollback/audit/capability status, timer/recovery state, and
   parent-approval/override audit reference proof. This is not a completed
   enforcement adapter or real blocking path.
-- V0.9 LAN spine work has started with typed route selection, restart registry,
-  discovery, challenge, revocation, privacy-surface, and audit evidence
-  references. This is not completed production LAN pairing or cross-device
-  control proof.
-- PR #96 changed local validation workflow/tooling only by making pre-commit a
-  fast source gate and preserving heavier local gates as explicit commands. It
-  is not product feature progress.
+- V0.9 LAN work has moved past a degraded-only stub into typed route selection,
+  restart registry, discovery, challenge, revocation, privacy-surface,
+  controller lease/write-authority, observer read-only behavior, selected-device
+  state, and LAN AI provider pool routing proof. This is not completed
+  production LAN discovery, mobile controller UX, or household multi-device
+  product proof.
+- Local AI provider singleton scheduling is present after PR #109, but parent
+  assistant, API AI provider authorization, and production model quality proof
+  remain separate work.
+- Platform role/package proof now tracks parent desktop, parent mobile, child
+  desktop, child Android, and child iOS with implemented, scaffold,
+  manual-required, or unavailable states in the pre-AI proof matrix.
 
 Next coordinator slices:
 
-1. Keep the V0.7 checkpoint validation gate as the acceptance gate for the
-   current product position; do not treat V0.8 or V0.9 as done because their
-   proof-spine work is on `main`.
-2. Keep the PR #90 through PR #96 roadmap/proof reconciliation in
-   [`current-main-proof-refresh-2026-05-25.md`](architecture/current-main-proof-refresh-2026-05-25.md)
-   separate from any CI/package-preview evidence refresh.
-3. Use
-   [`v0-7-current-main-acceptance-record-2026-05-25.md`](architecture/v0-7-current-main-acceptance-record-2026-05-25.md)
-   as the reviewer checklist for current-main acceptance and V0.8/V0.9 resume
-   readiness.
-4. Pull current `main`, run the V0.7 checkpoint validation gate, and record the
-   exact commands or omission notes.
-5. Execute the
+1. Keep V0.8 and V0.9 status evidence-cited: V0.8 has adapter scaffolds but no
+   completed OS blocking claim, and V0.9 has local direct WebSocket proofs but
+   no production discovery or mobile-controller product claim.
+2. Run the updated pre-AI proof gate, the focused platform/LAN proof harness,
+   and full validation or an explicit omission record before claiming this
+   platform slice complete.
+3. Execute the
    [cross-platform deliverables checkpoint runbook](architecture/cross-platform-deliverables-checkpoint.md)
    as the manual proof pass for Windows, Linux, macOS, Android, iOS, LAN, and
    package lifecycle coverage.
-6. Separate CI mechanical proof from real OS/device proof in every evidence
+4. Separate CI mechanical proof from real OS/device proof in every evidence
    record before updating proof-matrix status.
-7. Gather local service, portal, evidence read-model, and LAN artifacts from
+5. Gather local service, portal, evidence read-model, and LAN artifacts from
    real product paths, including paired and failed-unpaired LAN checks.
-8. Keep unavailable, degraded, permission-required, scaffold-only, blocked, and
+6. Keep unavailable, degraded, permission-required, scaffold-only, blocked, and
    manual-required states explicit for platform behavior that CI or the current
    code cannot prove.
-9. Before larger V0.8/V0.9 implementation resumes, primary must have reviewable
-   evidence that current-main validation, current CI/package state, manual
-   Windows proof, two-device LAN proof, package lifecycle proof, and explicit
-   platform gap labels are complete or intentionally deferred with owner and
-   reason.
-10. When implementation resumes, split it narrowly: V0.8 should continue
-    enforcement capability/status and audit-boundary work without fake blocking
-    claims, and V0.9 should continue paired/unpaired LAN proof or trusted-device
-    control work using the audit evidence references already on `main`.
+7. Continue activity/parent-assistant and platform/LAN work as separate
+   proof-backed branches so Activity, command/provider naming, and portal UI
+   ownership do not collide across workers.
+8. Next V0.8 work should prove real adapter behavior, recovery, and parent
+   override paths. Next V0.9 work should prove production discovery, mobile
+   controller/observer UX, and real household multi-device behavior.

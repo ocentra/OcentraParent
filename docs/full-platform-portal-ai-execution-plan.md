@@ -749,10 +749,10 @@ This plan is successful when:
 - [x] B then lands the controller lease/LAN routing/LAN AI job slice with proof.
 - [ ] Activity surface fake-data paths are replaced by typed service-backed
       paths.
-- [ ] Parent desktop, parent mobile, child desktop, child Android, and child iOS are
+- [x] Parent desktop, parent mobile, child desktop, child Android, and child iOS are
       each tracked with honest implemented/scaffold/manual-required/unavailable
       states.
-- [ ] Roadmap and architecture docs match actual product architecture instead of
+- [x] Roadmap and architecture docs match actual product architecture instead of
       vague cross-platform promises.
 
 ## Live Completion Audit - 2026-05-27
@@ -793,15 +793,19 @@ This audit supersedes the older immediate-state notes above. `main` is at
 - [ ] API AI provider is not implemented. It remains optional and must require
       explicit parent authorization, custody labels, retention/deletion rules,
       and evidence citations.
-- [ ] LAN AI provider pool is not complete. PR #108 proves advertisement and
-      authorized submit/reject/degraded behavior, but not full job routing to a
-      household provider pool with accepted/result streaming.
-- [ ] Parent desktop packaged app is still mostly a Tauri scaffold. It needs a
-      real service launch/connect proof and visible controller/device-role/AI
-      provider state in the packaged app path.
-- [ ] Parent mobile is not proven beyond package/scaffold mechanics. Tauri
-      mobile proof, observer/takeover behavior, and LAN AI unavailable/provider
-      behavior are still open.
+- [x] LAN AI provider pool has local direct WebSocket proof for provider opt-in,
+      capability advertisement, authorized completed result, unsupported
+      capability rejection, observer rejection, degraded provider-unavailable
+      result, and audit events. Production discovery, household provider
+      selection policy, and streaming UX remain future work.
+- [x] Parent desktop packaged app has a Tauri command proof that connects to the
+      Rust service and exposes controller lease, route, device-role, and AI
+      provider state without treating Vite as the backend. Installer lifecycle
+      and final product UI still need separate proof.
+- [x] Parent mobile has proof-first scaffold coverage for observer state,
+      controller-takeover/degraded behavior, and LAN AI provider unavailable
+      behavior through the role read model and real-service proof harness.
+      Complete mobile UI/device proof remains open.
 - [ ] Child Android is not proven beyond package/scaffold mechanics. It still
       needs capability-specific proof for service, storage, protocol bridge,
       permissions, UsageStats, accessibility, VPN/DNS, device-owner, and managed
@@ -818,8 +822,9 @@ This audit supersedes the older immediate-state notes above. `main` is at
 - [ ] V0.9 is not product-complete. Multi-device portal selector, real
       two-device pairing/control proof, LAN provider routing, hardened
       storage/security behavior, and optional cloud relay decisions remain.
-- [ ] Roadmap/current-position docs still contain stale proof-spine wording and
-      need reconciliation after PR #108/#109.
+- [x] Roadmap/current-position docs have been reconciled after PR #108/#109 so
+      V0.8/V0.9 status stays honest and new platform/LAN AI provider work is
+      visible.
 
 ### Next Large Worker Slices
 
@@ -860,25 +865,25 @@ fixes if needed, green PR CI, and merge to `main`.
 B must start from fresh `main` and own a full implementation/proof slice, not a
 docs-only slice:
 
-- [ ] Device role runtime contract/read model for parent-controller,
+- [x] Device role runtime contract/read model for parent-controller,
       parent-observer, child-agent, and ai-provider roles on one physical
       device.
-- [ ] Packaged parent desktop Tauri proof path that launches or connects to the
+- [x] Packaged parent desktop Tauri proof path that launches or connects to the
       real Rust service and exposes controller lease, device-role, route, and AI
       provider state without treating Vite as the backend.
-- [ ] Parent mobile Tauri proof-first path with observer/controller-takeover
+- [x] Parent mobile Tauri proof-first path with observer/controller-takeover
       state and LAN AI provider unavailable/degraded behavior.
-- [ ] LAN AI provider pool routing beyond the degraded stub: provider opt-in,
+- [x] LAN AI provider pool routing beyond the degraded stub: provider opt-in,
       capability advertisement, authorized job accept/reject/result/degraded
       flow, and audit events.
-- [ ] Two-service or multi-service proof that parent mobile/observer and parent
+- [x] Two-service or multi-service proof that parent mobile/observer and parent
       desktop/controller behavior do not race commands.
-- [ ] Platform proof matrix refresh for parent desktop, parent mobile, child
+- [x] Platform proof matrix refresh for parent desktop, parent mobile, child
       desktop, child Android, and child iOS, with implemented/scaffold/manual
       required/unavailable states.
-- [ ] Roadmap/current-position reconciliation after PR #108/#109 so V0.8/V0.9
+- [x] Roadmap/current-position reconciliation after PR #108/#109 so V0.8/V0.9
       status is honest and no stale proof-spine language hides new work.
-- [ ] TypeScript contract tests, Rust protocol parity tests, Rust service tests,
+- [x] TypeScript contract tests, Rust protocol parity tests, Rust service tests,
       Tauri/package checks where practical, LAN proof harness, focused platform
       smoke/proof scripts, and `npm run validate`.
 

@@ -13,7 +13,8 @@
     "v0.5.3-screen-evidence-queue",
     "v0.6-local-ai-contracts",
     "v0.7-dry-run-policy-preview",
-    "package-preview-platforms"
+    "package-preview-platforms",
+    "platform-roles-lan-ai-provider-pool"
   ],
   "checkpointScenarios": [
     {
@@ -187,6 +188,43 @@
         "A Vite-only portal run without the Rust service.",
         "A stale process on the expected port that was not launched by the test.",
         "A cloud or relay path presented as LAN pairing proof."
+      ]
+    },
+    {
+      "id": "platform-roles-lan-ai-provider-pool",
+      "title": "Platform Roles And LAN AI Provider Pool Proof",
+      "claimIds": ["platform-roles-lan-ai-provider-pool"],
+      "expectationFiles": [
+        "docs/expectations/lan-pairing.md",
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "proofMode": "ci-mechanical-proof",
+      "realEvidencePath": [
+        "Build TypeScript contracts and the Rust service from the current commit.",
+        "Run two Rust service instances with explicit parent desktop controller, child agent, AI provider, and parent mobile observer role settings.",
+        "Advertise provider capabilities, route an authorized LAN AI job to the opted-in provider, reject an unsupported capability, and reject observer write attempts.",
+        "Record parent mobile observer scaffold behavior as provider unavailable or degraded instead of completed provider proof."
+      ],
+      "ciCommands": [
+        "npm run build:contracts",
+        "cargo build -p ocentra-parent-agent-service",
+        "node scripts/test/platform-roles-lan-ai-provider-pool.mjs"
+      ],
+      "requiredArtifacts": [
+        "test-results/platform-roles-lan-ai-provider-pool/proof.json",
+        "Rust service logs from both proof service processes when a local run fails.",
+        "Command output showing provider available, completed, rejected, and degraded assertions."
+      ],
+      "knownGaps": [
+        "The proof uses local service processes and LAN WebSocket routing, not household phones or production discovery.",
+        "Parent mobile remains observer/scaffold for controller takeover UI and reports LAN AI provider unavailable or degraded.",
+        "Android child and iOS child platform states remain scaffold or unavailable until real device policy and entitlements are wired."
+      ],
+      "notProof": [
+        "A Vite-only portal run without the Rust service.",
+        "A degraded-only LAN AI job result presented as provider pool routing.",
+        "A single role string that claims duplicate local AI runtimes on one physical device."
       ]
     },
     {
@@ -491,6 +529,63 @@
         "ios": "scaffold-only"
       },
       "knownGaps": ["V0.7 remains dry-run; enforcement adapters and real model execution are not claimed."],
+      "manualProofChecklist": []
+    },
+    {
+      "id": "platform-roles-lan-ai-provider-pool",
+      "roadmapSlice": "V0.8/V0.9 platform roles and LAN AI provider pool",
+      "expectationFiles": [
+        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/expectations/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
+        "docs/expectations/lan-pairing.md",
+        "docs/expectations/platform-deliverables.md"
+      ],
+      "claim": "Device role read models, packaged parent desktop service connection proof, parent mobile scaffold states, and LAN AI provider pool routing have contract, Rust, package, and real-service proof coverage.",
+      "privilegedCapability": false,
+      "ciProof": {
+        "commands": [
+          "npm run test --workspace @ocentra-parent/parent-domain -- tests/device-roles.test.ts",
+          "cargo test -p ocentra-parent-agent-service lan_ai_job",
+          "cargo test -p ocentra-parent-agent-service device_role_read_model_reports_dual_role_without_duplicate_ai_runtime_claims",
+          "cargo test --manifest-path apps/parent-desktop/src-tauri/Cargo.toml",
+          "node scripts/test/platform-roles-lan-ai-provider-pool.mjs"
+        ],
+        "jobs": ["Worker B focused platform role and LAN AI provider proof"]
+      },
+      "platformCoverage": {
+        "windows": "ci-mechanical-proof",
+        "linux": "ci-mechanical-proof",
+        "macos": "ci-mechanical-proof",
+        "android": "scaffold-only",
+        "ios": "not-yet-proven"
+      },
+      "runtimeSurfaceCoverage": {
+        "parentDesktop": {
+          "state": "implemented",
+          "proof": "Tauri parent desktop command exposes Rust service connection, controller lease, route, role, and LAN AI provider state."
+        },
+        "parentMobile": {
+          "state": "scaffold",
+          "proof": "Rust role read model and proof harness report observer/controller-takeover scaffold behavior with LAN AI provider unavailable or degraded."
+        },
+        "childDesktop": {
+          "state": "implemented",
+          "proof": "Rust service dual-role read model and LAN proof route child-agent plus parent-controller plus ai-provider without duplicate local runtime claims."
+        },
+        "childAndroid": {
+          "state": "manual-required",
+          "proof": "Package preview app target exists; device-owner policy and live child-agent runtime remain manual-required."
+        },
+        "childIos": {
+          "state": "unavailable",
+          "proof": "iOS simulator package preview exists; Family Controls, entitlement, and child-agent runtime proof are unavailable until approved credentials and device proof exist."
+        }
+      },
+      "knownGaps": [
+        "Parent mobile is proof-first scaffold/unavailable state, not a completed mobile controller UI.",
+        "Android device-owner and iOS Family Controls remain outside completed proof until real devices and credentials are wired.",
+        "LAN discovery remains direct WebSocket service proof rather than production household discovery."
+      ],
       "manualProofChecklist": []
     },
     {
