@@ -34,7 +34,9 @@ export const LanPairingRouteRequirementSchema = withParser(
     'non-replayed-intent',
     'unrevoked-pairing',
     'active-controller-lease',
-    'selected-device-reachable'
+    'selected-device-reachable',
+    'parent-write-authority',
+    'lan-ai-job-authorized'
   )
 );
 export const LanPairingManualProofGapSchema = withParser(
@@ -60,6 +62,8 @@ export const LanPairingRuntimeSupportSurfaceSchema = withParser(
     discoveryStatus: LanPairingRuntimeSupportStatusSchema,
     challengeStatus: LanPairingRuntimeSupportStatusSchema,
     proofPreviewStatus: LanPairingRuntimeSupportStatusSchema,
+    lanAiProviderStatus: LanPairingRuntimeSupportStatusSchema,
+    lanAiJobStatus: LanPairingRuntimeSupportStatusSchema,
     persistenceMode: LanPairingPersistenceModeSchema,
     restartBehavior: LanPairingRestartBehaviorSchema,
     proofMode: LanPairingProofModeSchema,
@@ -119,6 +123,8 @@ export const LanPairingRouteRequirement = {
   UnrevokedPairing: LanPairingRouteRequirementSchema.parse('unrevoked-pairing'),
   ActiveControllerLease: LanPairingRouteRequirementSchema.parse('active-controller-lease'),
   SelectedDeviceReachable: LanPairingRouteRequirementSchema.parse('selected-device-reachable'),
+  ParentWriteAuthority: LanPairingRouteRequirementSchema.parse('parent-write-authority'),
+  LanAiJobAuthorized: LanPairingRouteRequirementSchema.parse('lan-ai-job-authorized'),
 } as const;
 
 export const LanPairingManualProofGap = {

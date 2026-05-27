@@ -19,6 +19,7 @@ export const LanPairingAgentPeerIdSchema = NonEmptyLanPairingText.pipe(Schema.br
 export const LanPairingAddressRefSchema = NonEmptyLanPairingText.pipe(Schema.brand('LanPairingAddressRef'));
 
 export const LanPairingNetworkModeSchema = withParser(Schema.Literal('loopback', 'local-network'));
+export const LanPairingParentAuthoritySchema = withParser(Schema.Literal('active-controller', 'observer'));
 export const LanPairingEnablementStateSchema = withParser(
   Schema.Literal('loopback-only', 'lan-disabled', 'lan-enabled')
 );
@@ -27,9 +28,22 @@ export const LanPairingTrustStateSchema = withParser(
 );
 export const LanPairingDeviceReachabilitySchema = withParser(Schema.Literal('online', 'offline', 'stale'));
 export const LanPairingIntentKindSchema = withParser(
-  Schema.Literal('health-query', 'rule-query', 'rule-update', 'approval-decision', 'configuration-update')
+  Schema.Literal(
+    'health-query',
+    'rule-query',
+    'rule-update',
+    'approval-decision',
+    'configuration-update',
+    'controller-lease-renew',
+    'controller-lease-release',
+    'controller-lease-takeover',
+    'lan-ai-provider-status',
+    'lan-ai-job-submit'
+  )
 );
-export const LanPairingResponseStateSchema = withParser(Schema.Literal('accepted', 'rejected', 'queued', 'completed'));
+export const LanPairingResponseStateSchema = withParser(
+  Schema.Literal('accepted', 'rejected', 'queued', 'completed', 'degraded')
+);
 export const LanPairingRejectionReasonSchema = withParser(
   Schema.Literal(
     'anonymous',
@@ -46,7 +60,11 @@ export const LanPairingRejectionReasonSchema = withParser(
     'unselected-device',
     'controller-lease-missing',
     'controller-lease-expired',
-    'wrong-controller'
+    'wrong-controller',
+    'observer-read-only',
+    'takeover-denied',
+    'lan-ai-provider-unavailable',
+    'lan-ai-job-unauthorized'
   )
 );
 export const LanPairingAuditEventTypeSchema = withParser(
@@ -59,30 +77,58 @@ export const LanPairingAuditEventTypeSchema = withParser(
     'control-rejected',
     'route-selected',
     'pairing-revoked',
-    'selected-device-changed'
+    'selected-device-changed',
+    'controller-lease-renewed',
+    'controller-lease-released',
+    'controller-lease-takeover-accepted',
+    'controller-lease-takeover-rejected',
+    'lan-ai-provider-advertised',
+    'lan-ai-job-accepted',
+    'lan-ai-job-rejected',
+    'lan-ai-job-completed',
+    'lan-ai-job-degraded'
   )
 );
 
 export type LanPairingSchemaVersion = Infer<typeof LanPairingSchemaVersionSchema>;
-export type LanPairingId = typeof LanPairingIdSchema.Type;
-export type LanPairingChallengeId = typeof LanPairingChallengeIdSchema.Type;
-export type LanPairingProofDigest = typeof LanPairingProofDigestSchema.Type;
-export type LanPairingIntentId = typeof LanPairingIntentIdSchema.Type;
-export type LanPairingAuditEventId = typeof LanPairingAuditEventIdSchema.Type;
-export type LanPairingRouteId = typeof LanPairingRouteIdSchema.Type;
-export type LanPairingControllerLeaseId = typeof LanPairingControllerLeaseIdSchema.Type;
-export type LanPairingOrigin = typeof LanPairingOriginSchema.Type;
-export type LanPairingTimestamp = typeof LanPairingTimestampSchema.Type;
-export type LanPairingAgentPeerId = typeof LanPairingAgentPeerIdSchema.Type;
-export type LanPairingAddressRef = typeof LanPairingAddressRefSchema.Type;
+type LanPairingId = typeof LanPairingIdSchema.Type;
+type LanPairingChallengeId = typeof LanPairingChallengeIdSchema.Type;
+type LanPairingProofDigest = typeof LanPairingProofDigestSchema.Type;
+type LanPairingIntentId = typeof LanPairingIntentIdSchema.Type;
+type LanPairingAuditEventId = typeof LanPairingAuditEventIdSchema.Type;
+type LanPairingRouteId = typeof LanPairingRouteIdSchema.Type;
+type LanPairingControllerLeaseId = typeof LanPairingControllerLeaseIdSchema.Type;
+type LanPairingOrigin = typeof LanPairingOriginSchema.Type;
+type LanPairingTimestamp = typeof LanPairingTimestampSchema.Type;
+type LanPairingAgentPeerId = typeof LanPairingAgentPeerIdSchema.Type;
+type LanPairingAddressRef = typeof LanPairingAddressRefSchema.Type;
 export type LanPairingNetworkMode = Infer<typeof LanPairingNetworkModeSchema>;
+export type LanPairingParentAuthority = Infer<typeof LanPairingParentAuthoritySchema>;
 export type LanPairingEnablementState = Infer<typeof LanPairingEnablementStateSchema>;
 export type LanPairingTrustState = Infer<typeof LanPairingTrustStateSchema>;
-export type LanPairingDeviceReachability = Infer<typeof LanPairingDeviceReachabilitySchema>;
-export type LanPairingIntentKind = Infer<typeof LanPairingIntentKindSchema>;
-export type LanPairingResponseState = Infer<typeof LanPairingResponseStateSchema>;
+type LanPairingDeviceReachability = Infer<typeof LanPairingDeviceReachabilitySchema>;
+type LanPairingIntentKind = Infer<typeof LanPairingIntentKindSchema>;
+type LanPairingResponseState = Infer<typeof LanPairingResponseStateSchema>;
 export type LanPairingRejectionReason = Infer<typeof LanPairingRejectionReasonSchema>;
-export type LanPairingAuditEventType = Infer<typeof LanPairingAuditEventTypeSchema>;
+type LanPairingAuditEventType = Infer<typeof LanPairingAuditEventTypeSchema>;
+
+export type {
+  LanPairingAddressRef,
+  LanPairingAgentPeerId,
+  LanPairingAuditEventId,
+  LanPairingAuditEventType,
+  LanPairingChallengeId,
+  LanPairingControllerLeaseId,
+  LanPairingDeviceReachability,
+  LanPairingId,
+  LanPairingIntentId,
+  LanPairingIntentKind,
+  LanPairingOrigin,
+  LanPairingProofDigest,
+  LanPairingResponseState,
+  LanPairingRouteId,
+  LanPairingTimestamp,
+};
 
 export const LanPairingSchemaVersion = {
   V0_9: LanPairingSchemaVersionSchema.parse('v0.9'),
@@ -91,6 +137,11 @@ export const LanPairingSchemaVersion = {
 export const LanPairingNetworkMode = {
   Loopback: LanPairingNetworkModeSchema.parse('loopback'),
   LocalNetwork: LanPairingNetworkModeSchema.parse('local-network'),
+} as const;
+
+export const LanPairingParentAuthority = {
+  ActiveController: LanPairingParentAuthoritySchema.parse('active-controller'),
+  Observer: LanPairingParentAuthoritySchema.parse('observer'),
 } as const;
 
 export const LanPairingEnablementState = {
@@ -123,4 +174,8 @@ export const LanPairingRejectionReason = {
   ControllerLeaseMissing: LanPairingRejectionReasonSchema.parse('controller-lease-missing'),
   ControllerLeaseExpired: LanPairingRejectionReasonSchema.parse('controller-lease-expired'),
   WrongController: LanPairingRejectionReasonSchema.parse('wrong-controller'),
+  ObserverReadOnly: LanPairingRejectionReasonSchema.parse('observer-read-only'),
+  TakeoverDenied: LanPairingRejectionReasonSchema.parse('takeover-denied'),
+  LanAiProviderUnavailable: LanPairingRejectionReasonSchema.parse('lan-ai-provider-unavailable'),
+  LanAiJobUnauthorized: LanPairingRejectionReasonSchema.parse('lan-ai-job-unauthorized'),
 } as const;

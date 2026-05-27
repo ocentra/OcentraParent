@@ -31,6 +31,8 @@ const parentActorId = 'parent-actor-v09';
 const secondParentActorId = 'parent-actor-v09-secondary';
 const controllerLeaseExpiresAt = '2099-05-26T18:24:00.000Z';
 const controllerLeaseExpiredAt = '2026-05-26T18:09:00.000Z';
+const parentAuthorityActiveController = 'active-controller';
+const parentAuthorityObserver = 'observer';
 const platform = 'windows';
 const webSocketEventTimeoutMs = 20000;
 const sensitiveEvidenceMarkers = [
@@ -176,6 +178,71 @@ async function runLanLifecycle(service, { revokeAtEnd }) {
     assertAcceptedControl(accepted.payload, 'rule-query', service);
     labels.push(`${service.label}:rule-query-accepted`);
 
+    const observerRead = await sendCommand(
+      socket,
+      buildHealthCommand(
+        service,
+        'observer-rule-query',
+        withParentAuthority(intentPayload(service, 'intent-observer-rule-query', 'rule-query'), parentAuthorityObserver)
+      )
+    );
+    assertEvent(observerRead, 'agent.health.reported');
+    assertPayloadValue(observerRead.payload, 'parentAuthority', parentAuthorityObserver);
+    labels.push(`${service.label}:observer-rule-query-accepted`);
+
+    const observerWrite = await sendCommand(
+      socket,
+      buildHealthCommand(
+        service,
+        'observer-rule-update',
+        withParentAuthority(
+          intentPayload(service, 'intent-observer-rule-update', 'rule-update'),
+          parentAuthorityObserver
+        )
+      )
+    );
+    assertEvent(observerWrite, 'agent.command.rejected');
+    assertPayloadValue(observerWrite.payload, 'rejectionReason', 'observer-read-only');
+    labels.push(`${service.label}:observer-write-rejected`);
+
+    const leaseRenewed = await sendCommand(
+      socket,
+      buildControllerLeaseCommand(
+        service,
+        'intent-controller-lease-renew',
+        'agent.lan-pairing.controller-lease.renew',
+        'controller-lease-renew'
+      )
+    );
+    assertEvent(leaseRenewed, 'agent.lan-pairing.status.reported');
+    assertPayloadValue(leaseRenewed.payload, 'auditEventType', 'controller-lease-renewed');
+    labels.push(`${service.label}:controller-lease-renewed`);
+
+    const leaseReleased = await sendCommand(
+      socket,
+      buildControllerLeaseCommand(
+        service,
+        'intent-controller-lease-release',
+        'agent.lan-pairing.controller-lease.release',
+        'controller-lease-release'
+      )
+    );
+    assertEvent(leaseReleased, 'agent.lan-pairing.status.reported');
+    assertPayloadValue(leaseReleased.payload, 'auditEventType', 'controller-lease-released');
+    labels.push(`${service.label}:controller-lease-released`);
+
+    const reacquired = await sendCommand(
+      socket,
+      buildHealthCommand(
+        service,
+        'post-release-rule-query',
+        intentPayload(service, 'intent-post-release-rule-query', 'rule-query')
+      )
+    );
+    assertEvent(reacquired, 'agent.health.reported');
+    assertAcceptedControl(reacquired.payload, 'rule-query', service);
+    labels.push(`${service.label}:controller-lease-reacquired`);
+
     const replayed = await sendCommand(
       socket,
       buildHealthCommand(
@@ -245,6 +312,72 @@ async function runLanLifecycle(service, { revokeAtEnd }) {
     assertEvent(wrongController, 'agent.command.rejected');
     assertPayloadValue(wrongController.payload, 'rejectionReason', 'wrong-controller');
     labels.push(`${service.label}:wrong-controller-rejected`);
+
+    const takeoverDenied = await sendCommand(
+      socket,
+      buildControllerLeaseCommand(
+        service,
+        'intent-controller-lease-takeover-denied',
+        'agent.lan-pairing.controller-lease.takeover',
+        'controller-lease-takeover',
+        withSecondController
+      )
+    );
+    assertEvent(takeoverDenied, 'agent.command.rejected');
+    assertPayloadValue(takeoverDenied.payload, 'rejectionReason', 'takeover-denied');
+    assertPayloadValue(takeoverDenied.payload, 'auditEventType', 'controller-lease-takeover-rejected');
+    labels.push(`${service.label}:controller-lease-takeover-denied`);
+
+    const providerStatus = await sendCommand(
+      socket,
+      buildLanAiProviderStatusCommand(service, 'intent-lan-ai-provider-status')
+    );
+    assertEvent(providerStatus, 'agent.lan-pairing.status.reported');
+    assertPayloadValue(providerStatus.payload, 'auditEventType', 'lan-ai-provider-advertised');
+    assertPayloadValue(providerStatus.payload, 'lanAiProviderStatus', 'lan-ai-provider-unavailable');
+    labels.push(`${service.label}:lan-ai-provider-advertised`);
+
+    const lanAiJob = await sendCommand(socket, buildLanAiJobCommand(service, 'intent-lan-ai-job'));
+    assertEvent(lanAiJob, 'agent.lan-ai.job.reported');
+    assertPayloadValue(lanAiJob.payload, 'auditEventType', 'lan-ai-job-degraded');
+    assertPayloadValue(lanAiJob.payload, 'lanAiJobState', 'degraded');
+    assertPayloadValue(lanAiJob.payload, 'unavailableReason', 'local-ai-provider-unconfigured');
+    labels.push(`${service.label}:lan-ai-job-degraded`);
+
+    const observerLanAiJob = await sendCommand(
+      socket,
+      buildLanAiJobCommand(service, 'intent-observer-lan-ai-job', parentAuthorityObserver)
+    );
+    assertEvent(observerLanAiJob, 'agent.command.rejected');
+    assertPayloadValue(observerLanAiJob.payload, 'rejectionReason', 'observer-read-only');
+    labels.push(`${service.label}:observer-lan-ai-job-rejected`);
+
+    if (!revokeAtEnd) {
+      const finalRelease = await sendCommand(
+        socket,
+        buildControllerLeaseCommand(
+          service,
+          'intent-controller-lease-final-release',
+          'agent.lan-pairing.controller-lease.release',
+          'controller-lease-release'
+        )
+      );
+      assertEvent(finalRelease, 'agent.lan-pairing.status.reported');
+
+      const takeoverAccepted = await sendCommand(
+        socket,
+        buildControllerLeaseCommand(
+          service,
+          'intent-controller-lease-takeover-accepted',
+          'agent.lan-pairing.controller-lease.takeover',
+          'controller-lease-takeover',
+          withSecondController
+        )
+      );
+      assertEvent(takeoverAccepted, 'agent.lan-pairing.status.reported');
+      assertPayloadValue(takeoverAccepted.payload, 'auditEventType', 'controller-lease-takeover-accepted');
+      labels.push(`${service.label}:controller-lease-takeover-accepted`);
+    }
 
     if (revokeAtEnd) {
       const revoked = await sendCommand(socket, buildRouteRevokeCommand(service, 'intent-route-revoke'));
@@ -549,6 +682,7 @@ function intentPayload(service, intentId, intentKind, payloadExpiresAt = expires
     controllerLeaseId,
     controllerDeviceId,
     parentActorId,
+    parentAuthority: parentAuthorityActiveController,
     controllerLeaseIssuedAt: issuedAt,
     controllerLeaseExpiresAt,
   };
@@ -580,18 +714,47 @@ function withSecondController(payload) {
   };
 }
 
+function withParentAuthority(payload, parentAuthority) {
+  return {
+    ...payload,
+    parentAuthority,
+  };
+}
+
+function buildControllerLeaseCommand(service, intentId, command, intentKind, mutate = (payload) => payload) {
+  return buildCommand(service, intentId, command, mutate(intentPayload(service, intentId, intentKind)));
+}
+
+function buildLanAiProviderStatusCommand(service, intentId) {
+  return buildCommand(
+    service,
+    intentId,
+    'agent.lan-ai.provider.status.get',
+    withParentAuthority(intentPayload(service, intentId, 'lan-ai-provider-status'), parentAuthorityObserver)
+  );
+}
+
+function buildLanAiJobCommand(service, intentId, parentAuthority = parentAuthorityActiveController) {
+  return buildCommand(service, intentId, 'agent.lan-ai.job.submit', {
+    ...withParentAuthority(intentPayload(service, intentId, 'lan-ai-job-submit'), parentAuthority),
+    lanAiJobId: `lan-ai-job-${intentId}`,
+  });
+}
+
 function assertLanSupportSurface(payload) {
   assertPayloadValue(payload, 'transport', 'websocket');
   assertPayloadValue(
     payload,
     'supportedWebSocketCommands',
-    'agent.lan-pairing.proof.submit,agent.lan-pairing.route.select,agent.lan-pairing.route.revoke,agent.lan-pairing.status.get'
+    'agent.lan-pairing.proof.submit,agent.lan-pairing.route.select,agent.lan-pairing.route.revoke,agent.lan-pairing.status.get,agent.lan-pairing.controller-lease.renew,agent.lan-pairing.controller-lease.release,agent.lan-pairing.controller-lease.takeover,agent.lan-ai.provider.status.get,agent.lan-ai.job.submit'
   );
   assertPayloadValue(payload, 'discoveryStatus', 'websocket-direct');
   assertPayloadValue(payload, 'challengeStatus', 'websocket-direct');
   assertPayloadValue(payload, 'proofPreviewStatus', 'websocket-direct');
   assertPayloadValue(payload, 'persistenceMode', 'local-json-registry');
   assertPayloadValue(payload, 'proofMode', 'direct-proof-submit');
+  assertPayloadValue(payload, 'lanAiProviderStatus', 'websocket-direct');
+  assertPayloadValue(payload, 'lanAiJobStatus', 'websocket-direct');
 }
 
 function assertAcceptedControl(payload, intentKind, service) {
@@ -603,6 +766,7 @@ function assertAcceptedControl(payload, intentKind, service) {
   assertPayloadValue(payload, 'controllerLeaseId', controllerLeaseId);
   assertPayloadValue(payload, 'controllerDeviceId', controllerDeviceId);
   assertPayloadValue(payload, 'parentActorId', parentActorId);
+  assertPayloadValue(payload, 'parentAuthority', parentAuthorityActiveController);
   assertPayloadValue(payload, 'evidenceReferenceIds', service.evidenceReferenceIds);
 }
 

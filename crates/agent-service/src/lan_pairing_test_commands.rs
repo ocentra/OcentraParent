@@ -285,6 +285,12 @@ pub(crate) fn intent_payload_for_pairing(
             LogFieldValue::String(constants::lan_pairing::PARENT_ACTOR_ID.to_string()),
         ),
         (
+            constants::field::LAN_PARENT_AUTHORITY,
+            LogFieldValue::String(
+                constants::value::LAN_PARENT_AUTHORITY_ACTIVE_CONTROLLER.to_string(),
+            ),
+        ),
+        (
             constants::field::LAN_CONTROLLER_LEASE_ISSUED_AT,
             LogFieldValue::String(constants::lan_pairing::ISSUED_AT.to_string()),
         ),

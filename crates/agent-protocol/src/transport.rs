@@ -116,6 +116,16 @@ pub enum AgentCommandName {
     AgentLanPairingRouteRevoke,
     #[serde(rename = "agent.lan-pairing.status.get")]
     AgentLanPairingStatusGet,
+    #[serde(rename = "agent.lan-pairing.controller-lease.renew")]
+    AgentLanPairingControllerLeaseRenew,
+    #[serde(rename = "agent.lan-pairing.controller-lease.release")]
+    AgentLanPairingControllerLeaseRelease,
+    #[serde(rename = "agent.lan-pairing.controller-lease.takeover")]
+    AgentLanPairingControllerLeaseTakeover,
+    #[serde(rename = "agent.lan-ai.provider.status.get")]
+    AgentLanAiProviderStatusGet,
+    #[serde(rename = "agent.lan-ai.job.submit")]
+    AgentLanAiJobSubmit,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -160,6 +170,8 @@ pub enum AgentEventName {
     AgentLanPairingStatusReported,
     #[serde(rename = "agent.lan-pairing.audit.reported")]
     AgentLanPairingAuditReported,
+    #[serde(rename = "agent.lan-ai.job.reported")]
+    AgentLanAiJobReported,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

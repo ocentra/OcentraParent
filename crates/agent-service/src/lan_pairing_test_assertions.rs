@@ -155,6 +155,18 @@ fn assert_runtime_support_surface(
         ))
     );
     assert_eq!(
+        event.payload.get(constants::field::LAN_AI_PROVIDER_STATUS),
+        Some(&LogFieldValue::String(
+            constants::lan_pairing::SUPPORT_WEBSOCKET_DIRECT.to_string()
+        ))
+    );
+    assert_eq!(
+        event.payload.get(constants::field::LAN_AI_JOB_STATUS),
+        Some(&LogFieldValue::String(
+            constants::lan_pairing::SUPPORT_WEBSOCKET_DIRECT.to_string()
+        ))
+    );
+    assert_eq!(
         event.payload.get(constants::field::LAN_PERSISTENCE_MODE),
         Some(&LogFieldValue::String(persistence_mode.to_string()))
     );
@@ -222,6 +234,14 @@ pub(crate) fn assert_status_selection(
 }
 
 pub(crate) fn assert_rejection(event: &AgentEventEnvelope, reason: &str) {
+    assert_rejection_with_audit(event, reason, constants::value::LAN_AUDIT_CONTROL_REJECTED);
+}
+
+pub(crate) fn assert_rejection_with_audit(
+    event: &AgentEventEnvelope,
+    reason: &str,
+    audit_type: &str,
+) {
     assert_eq!(event.event, AgentEventName::AgentCommandRejected);
     assert_eq!(
         event.payload.get(constants::field::LAN_CONTROL_STATE),
@@ -231,9 +251,7 @@ pub(crate) fn assert_rejection(event: &AgentEventEnvelope, reason: &str) {
     );
     assert_eq!(
         event.payload.get(constants::field::LAN_AUDIT_EVENT_TYPE),
-        Some(&LogFieldValue::String(
-            constants::value::LAN_AUDIT_CONTROL_REJECTED.to_string()
-        ))
+        Some(&LogFieldValue::String(audit_type.to_string()))
     );
     assert_eq!(
         event.payload.get(constants::field::LAN_REJECTION_REASON),
@@ -253,6 +271,10 @@ fn expected_authentication_state(reason: &str) -> &'static str {
     if reason == constants::value::LAN_REASON_ANONYMOUS
         || reason == constants::value::LAN_REASON_CONTROLLER_LEASE_MISSING
         || reason == constants::value::LAN_REASON_CONTROLLER_LEASE_EXPIRED
+        || reason == constants::value::LAN_REASON_OBSERVER_READ_ONLY
+        || reason == constants::value::LAN_REASON_TAKEOVER_DENIED
+        || reason == constants::value::LAN_REASON_LAN_AI_PROVIDER_UNAVAILABLE
+        || reason == constants::value::LAN_REASON_LAN_AI_JOB_UNAUTHORIZED
         || reason == constants::value::LAN_REASON_WRONG_ORIGIN
         || reason == constants::value::LAN_REASON_WRONG_CONTROLLER
         || reason == constants::value::LAN_REASON_MALFORMED

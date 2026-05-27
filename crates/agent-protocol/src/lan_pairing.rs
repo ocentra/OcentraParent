@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::ParentEvidenceReference;
+use crate::{LanPairingParentAuthority, ParentEvidenceReference};
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
@@ -50,6 +50,11 @@ pub enum LanPairingIntentKind {
     RuleUpdate,
     ApprovalDecision,
     ConfigurationUpdate,
+    ControllerLeaseRenew,
+    ControllerLeaseRelease,
+    ControllerLeaseTakeover,
+    LanAiProviderStatus,
+    LanAiJobSubmit,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -59,6 +64,7 @@ pub enum LanPairingResponseState {
     Rejected,
     Queued,
     Completed,
+    Degraded,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -79,6 +85,10 @@ pub enum LanPairingRejectionReason {
     LocalNetworkDisabled,
     UnsupportedRoute,
     UnselectedDevice,
+    ObserverReadOnly,
+    TakeoverDenied,
+    LanAiProviderUnavailable,
+    LanAiJobUnauthorized,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -93,6 +103,15 @@ pub enum LanPairingAuditEventType {
     RouteSelected,
     PairingRevoked,
     SelectedDeviceChanged,
+    ControllerLeaseRenewed,
+    ControllerLeaseReleased,
+    ControllerLeaseTakeoverAccepted,
+    ControllerLeaseTakeoverRejected,
+    LanAiProviderAdvertised,
+    LanAiJobAccepted,
+    LanAiJobRejected,
+    LanAiJobCompleted,
+    LanAiJobDegraded,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -266,6 +285,7 @@ pub struct LanParentIntentEnvelope {
     pub controller_lease_id: String,
     pub controller_device_id: String,
     pub parent_actor_id: String,
+    pub parent_authority: LanPairingParentAuthority,
     pub controller_lease_issued_at: String,
     pub controller_lease_expires_at: String,
     pub evidence_references: Vec<ParentEvidenceReference>,

@@ -4,12 +4,12 @@ use super::{
     LanPairingChallengeRequest, LanPairingDeviceReachability, LanPairingDeviceRef,
     LanPairingDiscoveryDevice, LanPairingDiscoveryRuntimeStatus, LanPairingHttpEndpointSupport,
     LanPairingIntentKind, LanPairingManualProofGap, LanPairingNetworkMode,
-    LanPairingPersistenceMode, LanPairingProof, LanPairingProofMode, LanPairingProofPreview,
-    LanPairingRejectionReason, LanPairingResponseState, LanPairingRestartBehavior,
-    LanPairingRouteRequirement, LanPairingRouteSelectionRequest, LanPairingRoutingDecision,
-    LanPairingRuntimeSupportSurface, LanPairingTransport, LanPairingUnsupportedHttpEndpoint,
-    LanTrustedDeviceRegistryEntry, LanTrustedDeviceRegistrySnapshot, ParentEvidenceReference,
-    ParentEvidenceReferenceKind,
+    LanPairingParentAuthority, LanPairingPersistenceMode, LanPairingProof, LanPairingProofMode,
+    LanPairingProofPreview, LanPairingRejectionReason, LanPairingResponseState,
+    LanPairingRestartBehavior, LanPairingRouteRequirement, LanPairingRouteSelectionRequest,
+    LanPairingRoutingDecision, LanPairingRuntimeSupportSurface, LanPairingTransport,
+    LanPairingUnsupportedHttpEndpoint, LanTrustedDeviceRegistryEntry,
+    LanTrustedDeviceRegistrySnapshot, ParentEvidenceReference, ParentEvidenceReferenceKind,
 };
 
 #[test]
@@ -228,6 +228,7 @@ fn lan_pairing_read_model_values_keep_local_network_state_explicit() {
         controller_lease_id: constants::lan_pairing::CONTROLLER_LEASE_ID.to_string(),
         controller_device_id: constants::lan_pairing::PARENT_DEVICE_ID.to_string(),
         parent_actor_id: constants::lan_pairing::PARENT_ACTOR_ID.to_string(),
+        parent_authority: LanPairingParentAuthority::ActiveController,
         controller_lease_issued_at: constants::lan_pairing::ISSUED_AT.to_string(),
         controller_lease_expires_at: constants::lan_pairing::CONTROLLER_LEASE_EXPIRES_AT
             .to_string(),
@@ -321,6 +322,8 @@ fn lan_pairing_runtime_support_surface_serializes_supported_and_planned_api_clai
         discovery_status: LanPairingDiscoveryRuntimeStatus::WebsocketDirect,
         challenge_status: LanPairingDiscoveryRuntimeStatus::WebsocketDirect,
         proof_preview_status: LanPairingDiscoveryRuntimeStatus::WebsocketDirect,
+        lan_ai_provider_status: LanPairingDiscoveryRuntimeStatus::WebsocketDirect,
+        lan_ai_job_status: LanPairingDiscoveryRuntimeStatus::WebsocketDirect,
         persistence_mode: LanPairingPersistenceMode::InMemoryFailClosed,
         restart_behavior: LanPairingRestartBehavior::FailClosedUnpaired,
         proof_mode: LanPairingProofMode::DirectProofSubmit,
@@ -334,6 +337,8 @@ fn lan_pairing_runtime_support_surface_serializes_supported_and_planned_api_clai
             LanPairingRouteRequirement::UnrevokedPairing,
             LanPairingRouteRequirement::ActiveControllerLease,
             LanPairingRouteRequirement::SelectedDeviceReachable,
+            LanPairingRouteRequirement::ParentWriteAuthority,
+            LanPairingRouteRequirement::LanAiJobAuthorized,
         ],
         manual_proof_gaps: vec![
             LanPairingManualProofGap::ManualLanBindProof,
@@ -483,6 +488,7 @@ fn parent_intent(
         controller_lease_id: constants::lan_pairing::CONTROLLER_LEASE_ID.to_string(),
         controller_device_id: constants::lan_pairing::PARENT_DEVICE_ID.to_string(),
         parent_actor_id: constants::lan_pairing::PARENT_ACTOR_ID.to_string(),
+        parent_authority: LanPairingParentAuthority::ActiveController,
         controller_lease_issued_at: constants::lan_pairing::ISSUED_AT.to_string(),
         controller_lease_expires_at: constants::lan_pairing::CONTROLLER_LEASE_EXPIRES_AT
             .to_string(),

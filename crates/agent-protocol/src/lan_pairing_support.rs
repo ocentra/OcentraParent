@@ -46,6 +46,8 @@ pub enum LanPairingRouteRequirement {
     UnrevokedPairing,
     ActiveControllerLease,
     SelectedDeviceReachable,
+    ParentWriteAuthority,
+    LanAiJobAuthorized,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -77,6 +79,8 @@ pub struct LanPairingRuntimeSupportSurface {
     pub discovery_status: LanPairingDiscoveryRuntimeStatus,
     pub challenge_status: LanPairingDiscoveryRuntimeStatus,
     pub proof_preview_status: LanPairingDiscoveryRuntimeStatus,
+    pub lan_ai_provider_status: LanPairingDiscoveryRuntimeStatus,
+    pub lan_ai_job_status: LanPairingDiscoveryRuntimeStatus,
     pub persistence_mode: LanPairingPersistenceMode,
     pub restart_behavior: LanPairingRestartBehavior,
     pub proof_mode: LanPairingProofMode,

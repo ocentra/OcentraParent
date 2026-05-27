@@ -3,15 +3,19 @@ use std::{
     sync::{Arc, Mutex},
 };
 
+pub(crate) mod authority;
 pub(crate) mod controller_lease;
 #[cfg(test)]
 mod controller_lease_tests;
+pub(crate) mod lan_ai_job;
+#[cfg(test)]
+mod lan_ai_job_tests;
 
 use ocentra_parent_agent_core::TrustedDeviceRegistry;
 use ocentra_parent_agent_protocol::{
     constants, AgentCommandEnvelope, AgentCommandName, AgentEventEnvelope, AgentEventName,
-    AgentRoute, LanPairingDeviceRef, LanPairingProof, LanPairingRejectionReason,
-    LanParentIntentEnvelope, LogFields, LogLevel,
+    AgentRoute, LanPairingDeviceRef, LanPairingParentAuthority, LanPairingProof,
+    LanPairingRejectionReason, LanParentIntentEnvelope, LogFields, LogLevel,
 };
 
 use crate::{
@@ -26,7 +30,14 @@ use crate::{
     time::timestamp_now,
 };
 
-use self::controller_lease::LanControllerLeaseState;
+use self::authority::{
+    is_write_intent, validate_registry_selection_intent, validate_write_authority,
+};
+use self::controller_lease::{
+    controller_lease_release, controller_lease_renew, controller_lease_takeover,
+    LanControllerLeaseState,
+};
+use self::lan_ai_job::{lan_ai_job_submit, lan_ai_provider_status_get};
 
 #[derive(Clone, Debug)]
 pub struct LanPairingRuntime {
@@ -96,6 +107,26 @@ pub async fn route_lan_command(
 
     if command.command == AgentCommandName::AgentLanPairingStatusGet {
         return LanCommandDecision::Respond(lan_pairing_status_get(runtime, origin, command));
+    }
+
+    if command.command == AgentCommandName::AgentLanPairingControllerLeaseRenew {
+        return LanCommandDecision::Respond(controller_lease_renew(runtime, origin, command));
+    }
+
+    if command.command == AgentCommandName::AgentLanPairingControllerLeaseRelease {
+        return LanCommandDecision::Respond(controller_lease_release(runtime, origin, command));
+    }
+
+    if command.command == AgentCommandName::AgentLanPairingControllerLeaseTakeover {
+        return LanCommandDecision::Respond(controller_lease_takeover(runtime, origin, command));
+    }
+
+    if command.command == AgentCommandName::AgentLanAiProviderStatusGet {
+        return LanCommandDecision::Respond(lan_ai_provider_status_get(runtime, origin, command));
+    }
+
+    if command.command == AgentCommandName::AgentLanAiJobSubmit {
+        return LanCommandDecision::Respond(lan_ai_job_submit(runtime, origin, command));
     }
 
     let observed_origin = origin.as_deref();
@@ -259,7 +290,7 @@ fn validate_pairing_proof_target(
     }
 }
 
-fn validate_command_target(
+pub(crate) fn validate_command_target(
     runtime: &LanPairingRuntime,
     command: &AgentCommandEnvelope,
     intent: &LanParentIntentEnvelope,
@@ -292,7 +323,12 @@ fn validate_intent_result(
     intent: &LanParentIntentEnvelope,
 ) -> Result<(), LanPairingRejectionReason> {
     let observed_at = timestamp_now();
-    runtime.validate_controller_lease(intent, &observed_at)?;
+    if is_write_intent(intent) {
+        validate_write_authority(intent)?;
+    }
+    if intent.parent_authority == LanPairingParentAuthority::ActiveController {
+        runtime.validate_controller_lease(intent, &observed_at)?;
+    }
     runtime
         .registry
         .lock()
@@ -306,12 +342,9 @@ fn validate_selection_intent_result(
     intent: &LanParentIntentEnvelope,
 ) -> Result<(), LanPairingRejectionReason> {
     let observed_at = timestamp_now();
+    validate_write_authority(intent)?;
     runtime.validate_controller_lease(intent, &observed_at)?;
-    runtime
-        .registry
-        .lock()
-        .map(|mut registry| registry.validate_selection_intent(intent, origin, &observed_at))
-        .unwrap_or(Err(LanPairingRejectionReason::Malformed))
+    validate_registry_selection_intent(runtime, origin, intent)
 }
 
 fn select_pairing_result(
@@ -348,7 +381,7 @@ fn revoke_pairing(runtime: &LanPairingRuntime, intent: &LanParentIntentEnvelope)
         .unwrap_or(false)
 }
 
-fn rejection_event(
+pub(crate) fn rejection_event(
     command: AgentCommandEnvelope,
     reason: LanPairingRejectionReason,
     intent: Option<&LanParentIntentEnvelope>,

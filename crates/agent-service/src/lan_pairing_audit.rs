@@ -1,11 +1,15 @@
 use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, LanPairingIntentKind, LanPairingProof,
-    LanPairingRejectionReason, LanParentIntentEnvelope, LogFieldValue, LogFields,
-    ParentEvidenceReference,
+    constants, AgentCommandEnvelope, LanPairingProof, LanPairingRejectionReason,
+    LanParentIntentEnvelope, LogFieldValue, LogFields, ParentEvidenceReference,
 };
 
+use self::values::{
+    authentication_state_value, intent_kind_value, parent_authority_value, reason_value,
+};
 use crate::fields::fields_from_pairs;
 use crate::lan_pairing::LanPairingChallengeState;
+
+mod values;
 
 pub(crate) fn accepted_control_audit_fields(
     command: &AgentCommandEnvelope,
@@ -73,6 +77,27 @@ pub(crate) fn revoked_route_audit_fields(
         constants::value::LAN_CONTROL_ACCEPTED,
         constants::value::LAN_AUDIT_PAIRING_REVOKED,
         None,
+        Some(intent),
+        origin,
+    )
+}
+
+pub(crate) fn controller_lease_audit_fields(
+    command: &AgentCommandEnvelope,
+    intent: &LanParentIntentEnvelope,
+    origin: Option<&str>,
+    audit_event_type: &'static str,
+    reason: Option<&LanPairingRejectionReason>,
+) -> LogFields {
+    control_audit_fields(
+        command,
+        if reason.is_some() {
+            constants::value::LAN_CONTROL_REJECTED
+        } else {
+            constants::value::LAN_CONTROL_ACCEPTED
+        },
+        audit_event_type,
+        reason,
         Some(intent),
         origin,
     )
@@ -186,65 +211,7 @@ fn optional_control_audit_pairs(
     intent: Option<&LanParentIntentEnvelope>,
     origin: Option<&str>,
 ) -> Vec<(&'static str, LogFieldValue)> {
-    let mut pairs = Vec::new();
-    for (field, value) in [
-        (
-            constants::field::LAN_ROUTE_ID,
-            intent
-                .map(|intent| intent.route_id.as_str())
-                .or_else(|| payload_string(&command.payload, constants::field::LAN_ROUTE_ID)),
-        ),
-        (
-            constants::field::LAN_INTENT_ID,
-            intent
-                .map(|intent| intent.intent_id.as_str())
-                .or_else(|| payload_string(&command.payload, constants::field::LAN_INTENT_ID)),
-        ),
-        (
-            constants::field::LAN_INTENT_KIND,
-            intent
-                .map(|intent| intent_kind_value(&intent.intent_kind))
-                .or_else(|| payload_string(&command.payload, constants::field::LAN_INTENT_KIND)),
-        ),
-        (
-            constants::field::LAN_PAIRING_ID,
-            intent
-                .map(|intent| intent.pairing_id.as_str())
-                .or_else(|| payload_string(&command.payload, constants::field::LAN_PAIRING_ID)),
-        ),
-        (
-            constants::field::LAN_CONTROLLER_LEASE_ID,
-            intent
-                .map(|intent| intent.controller_lease_id.as_str())
-                .or_else(|| {
-                    payload_string(&command.payload, constants::field::LAN_CONTROLLER_LEASE_ID)
-                }),
-        ),
-        (
-            constants::field::LAN_CONTROLLER_DEVICE_ID,
-            intent
-                .map(|intent| intent.controller_device_id.as_str())
-                .or_else(|| {
-                    payload_string(&command.payload, constants::field::LAN_CONTROLLER_DEVICE_ID)
-                }),
-        ),
-        (
-            constants::field::LAN_PARENT_ACTOR_ID,
-            intent
-                .map(|intent| intent.parent_actor_id.as_str())
-                .or_else(|| {
-                    payload_string(&command.payload, constants::field::LAN_PARENT_ACTOR_ID)
-                }),
-        ),
-        (
-            constants::field::ORIGIN,
-            origin.or_else(|| payload_string(&command.payload, constants::field::ORIGIN)),
-        ),
-    ] {
-        if let Some(value) = value {
-            pairs.push((field, LogFieldValue::String(value.to_string())));
-        }
-    }
+    let mut pairs = optional_control_identity_pairs(command, intent, origin);
     if let Some(reason) = reason {
         pairs.push((
             constants::field::LAN_REJECTION_REASON,
@@ -259,6 +226,91 @@ fn optional_control_audit_pairs(
     }
 
     pairs
+}
+
+fn optional_control_identity_pairs(
+    command: &AgentCommandEnvelope,
+    intent: Option<&LanParentIntentEnvelope>,
+    origin: Option<&str>,
+) -> Vec<(&'static str, LogFieldValue)> {
+    let mut pairs = Vec::new();
+    push_optional_control_pair(
+        &mut pairs,
+        constants::field::LAN_ROUTE_ID,
+        intent
+            .map(|intent| intent.route_id.as_str())
+            .or_else(|| payload_string(&command.payload, constants::field::LAN_ROUTE_ID)),
+    );
+    push_optional_control_pair(
+        &mut pairs,
+        constants::field::LAN_INTENT_ID,
+        intent
+            .map(|intent| intent.intent_id.as_str())
+            .or_else(|| payload_string(&command.payload, constants::field::LAN_INTENT_ID)),
+    );
+    push_optional_control_pair(
+        &mut pairs,
+        constants::field::LAN_INTENT_KIND,
+        intent
+            .map(|intent| intent_kind_value(&intent.intent_kind))
+            .or_else(|| payload_string(&command.payload, constants::field::LAN_INTENT_KIND)),
+    );
+    push_optional_control_pair(
+        &mut pairs,
+        constants::field::LAN_PAIRING_ID,
+        intent
+            .map(|intent| intent.pairing_id.as_str())
+            .or_else(|| payload_string(&command.payload, constants::field::LAN_PAIRING_ID)),
+    );
+    push_optional_control_pair(
+        &mut pairs,
+        constants::field::LAN_CONTROLLER_LEASE_ID,
+        intent
+            .map(|intent| intent.controller_lease_id.as_str())
+            .or_else(|| {
+                payload_string(&command.payload, constants::field::LAN_CONTROLLER_LEASE_ID)
+            }),
+    );
+    push_optional_control_pair(
+        &mut pairs,
+        constants::field::LAN_CONTROLLER_DEVICE_ID,
+        intent
+            .map(|intent| intent.controller_device_id.as_str())
+            .or_else(|| {
+                payload_string(&command.payload, constants::field::LAN_CONTROLLER_DEVICE_ID)
+            }),
+    );
+    push_optional_control_pair(
+        &mut pairs,
+        constants::field::LAN_PARENT_ACTOR_ID,
+        intent
+            .map(|intent| intent.parent_actor_id.as_str())
+            .or_else(|| payload_string(&command.payload, constants::field::LAN_PARENT_ACTOR_ID)),
+    );
+    push_optional_control_pair(
+        &mut pairs,
+        constants::field::LAN_PARENT_AUTHORITY,
+        intent
+            .map(|intent| parent_authority_value(&intent.parent_authority))
+            .or_else(|| payload_string(&command.payload, constants::field::LAN_PARENT_AUTHORITY)),
+    );
+    push_optional_control_pair(
+        &mut pairs,
+        constants::field::ORIGIN,
+        origin.or_else(|| payload_string(&command.payload, constants::field::ORIGIN)),
+    );
+
+    pairs
+}
+
+fn push_optional_control_pair(
+    pairs: &mut Vec<(&'static str, LogFieldValue)>,
+    field: &'static str,
+    value: Option<&str>,
+) {
+    if let Some(value) = value {
+        pairs.push((field, LogFieldValue::String(value.to_string())));
+    }
 }
 
 fn pairing_audit_fields(
@@ -407,61 +459,4 @@ fn payload_string<'a>(fields: &'a LogFields, key: &str) -> Option<&'a str> {
         LogFieldValue::String(value) if !value.is_empty() => Some(value.as_str()),
         _ => None,
     })
-}
-
-fn intent_kind_value(intent_kind: &LanPairingIntentKind) -> &'static str {
-    match intent_kind {
-        LanPairingIntentKind::HealthQuery => constants::value::LAN_INTENT_HEALTH_QUERY,
-        LanPairingIntentKind::RuleQuery => constants::value::LAN_INTENT_RULE_QUERY,
-        LanPairingIntentKind::RuleUpdate => constants::value::LAN_INTENT_RULE_UPDATE,
-        LanPairingIntentKind::ApprovalDecision => constants::value::LAN_INTENT_APPROVAL_DECISION,
-        LanPairingIntentKind::ConfigurationUpdate => {
-            constants::value::LAN_INTENT_CONFIGURATION_UPDATE
-        }
-    }
-}
-
-fn reason_value(reason: &LanPairingRejectionReason) -> &'static str {
-    match reason {
-        LanPairingRejectionReason::Anonymous => constants::value::LAN_REASON_ANONYMOUS,
-        LanPairingRejectionReason::ControllerLeaseMissing => {
-            constants::value::LAN_REASON_CONTROLLER_LEASE_MISSING
-        }
-        LanPairingRejectionReason::ControllerLeaseExpired => {
-            constants::value::LAN_REASON_CONTROLLER_LEASE_EXPIRED
-        }
-        LanPairingRejectionReason::WrongOrigin => constants::value::LAN_REASON_WRONG_ORIGIN,
-        LanPairingRejectionReason::WrongDevice => constants::value::LAN_REASON_WRONG_DEVICE,
-        LanPairingRejectionReason::WrongController => constants::value::LAN_REASON_WRONG_CONTROLLER,
-        LanPairingRejectionReason::Expired => constants::value::LAN_REASON_EXPIRED,
-        LanPairingRejectionReason::Replayed => constants::value::LAN_REASON_REPLAYED,
-        LanPairingRejectionReason::Malformed => constants::value::LAN_REASON_MALFORMED,
-        LanPairingRejectionReason::Stale => constants::value::LAN_REASON_STALE,
-        LanPairingRejectionReason::Offline => constants::value::LAN_REASON_OFFLINE,
-        LanPairingRejectionReason::Revoked => constants::value::LAN_REASON_REVOKED,
-        LanPairingRejectionReason::LocalNetworkDisabled => {
-            constants::value::LAN_REASON_UNSUPPORTED_ROUTE
-        }
-        LanPairingRejectionReason::UnsupportedRoute => {
-            constants::value::LAN_REASON_UNSUPPORTED_ROUTE
-        }
-        LanPairingRejectionReason::UnselectedDevice => {
-            constants::value::LAN_REASON_UNSELECTED_DEVICE
-        }
-    }
-}
-
-fn authentication_state_value(reason: Option<&LanPairingRejectionReason>) -> &'static str {
-    match reason {
-        None => constants::value::LAN_AUTH_PAIRED,
-        Some(LanPairingRejectionReason::Anonymous)
-        | Some(LanPairingRejectionReason::ControllerLeaseMissing)
-        | Some(LanPairingRejectionReason::ControllerLeaseExpired)
-        | Some(LanPairingRejectionReason::Malformed)
-        | Some(LanPairingRejectionReason::WrongController)
-        | Some(LanPairingRejectionReason::WrongOrigin) => {
-            constants::value::LAN_AUTH_UNAUTHENTICATED
-        }
-        Some(_) => constants::value::LAN_AUTH_PAIRED,
-    }
 }

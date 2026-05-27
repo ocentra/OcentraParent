@@ -191,6 +191,14 @@ fn support_surface_pairs(runtime: &LanPairingRuntime) -> Vec<(&'static str, LogF
             LogFieldValue::String(constants::lan_pairing::SUPPORT_WEBSOCKET_DIRECT.to_string()),
         ),
         (
+            constants::field::LAN_AI_PROVIDER_STATUS,
+            LogFieldValue::String(constants::lan_pairing::SUPPORT_WEBSOCKET_DIRECT.to_string()),
+        ),
+        (
+            constants::field::LAN_AI_JOB_STATUS,
+            LogFieldValue::String(constants::lan_pairing::SUPPORT_WEBSOCKET_DIRECT.to_string()),
+        ),
+        (
             constants::field::LAN_PERSISTENCE_MODE,
             LogFieldValue::String(runtime.persistence_mode().to_string()),
         ),

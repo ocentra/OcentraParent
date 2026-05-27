@@ -79,6 +79,11 @@ it('AgentCommand: exposes typed command constants for portal requests', () => {
   expect(AgentCommand.LanPairingRouteSelect).toBe('agent.lan-pairing.route.select');
   expect(AgentCommand.LanPairingRouteRevoke).toBe('agent.lan-pairing.route.revoke');
   expect(AgentCommand.LanPairingStatusGet).toBe('agent.lan-pairing.status.get');
+  expect(AgentCommand.LanPairingControllerLeaseRenew).toBe('agent.lan-pairing.controller-lease.renew');
+  expect(AgentCommand.LanPairingControllerLeaseRelease).toBe('agent.lan-pairing.controller-lease.release');
+  expect(AgentCommand.LanPairingControllerLeaseTakeover).toBe('agent.lan-pairing.controller-lease.takeover');
+  expect(AgentCommand.LanAiProviderStatusGet).toBe('agent.lan-ai.provider.status.get');
+  expect(AgentCommand.LanAiJobSubmit).toBe('agent.lan-ai.job.submit');
 });
 
 it('AgentLanPairingSupportedWebSocketCommand: keeps V0.9 LAN pairing support limited to WebSocket commands', () => {
@@ -87,6 +92,11 @@ it('AgentLanPairingSupportedWebSocketCommand: keeps V0.9 LAN pairing support lim
     'agent.lan-pairing.route.select',
     'agent.lan-pairing.route.revoke',
     'agent.lan-pairing.status.get',
+    'agent.lan-pairing.controller-lease.renew',
+    'agent.lan-pairing.controller-lease.release',
+    'agent.lan-pairing.controller-lease.takeover',
+    'agent.lan-ai.provider.status.get',
+    'agent.lan-ai.job.submit',
   ]);
   expect(Object.values(AgentLanPairingSupportedWebSocketCommand)).not.toContain('agent.lan-pairing.discovery.http');
 });
@@ -181,6 +191,7 @@ it('AgentEvent: exposes typed constants for portal result rendering', () => {
   expect(AgentEvent.EnforcementTimerReported).toBe('agent.enforcement.timer.reported');
   expect(AgentEvent.LanPairingStatusReported).toBe('agent.lan-pairing.status.reported');
   expect(AgentEvent.LanPairingAuditReported).toBe('agent.lan-pairing.audit.reported');
+  expect(AgentEvent.LanAiJobReported).toBe('agent.lan-ai.job.reported');
 });
 
 it('AgentCommandEnvelopeSchema: rejects unknown commands', () => {
