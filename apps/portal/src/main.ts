@@ -71,6 +71,10 @@ function getRoute(): PortalRouteValue {
     replaceHashIfNeeded(PortalRoute.FrameTuner);
     return PortalRoute.FrameTuner;
   }
+  if (parsedRoute.success && parsedRoute.data === PortalRoute.ReportSettings) {
+    replaceHashIfNeeded(PortalRoute.Activity);
+    return PortalRoute.Activity;
+  }
   if (parsedRoute.success && PortalRoutes.some((portalRoute) => portalRoute === parsedRoute.data)) {
     return parsedRoute.data;
   }

@@ -192,7 +192,7 @@ export const PARENT_PORTAL_ROUTE_CONTEXT: Readonly<Partial<Record<PortalRouteVal
   [PortalRoute.Overview]: routeContext('parentOverview', PARENT_PORTAL_NAV_LABELS.Overview, 'activity-store'),
   [PortalRoute.Assistant]: routeContext('parentGuide', PARENT_PORTAL_NAV_LABELS.AiSetup, 'ai-runtime'),
   [PortalRoute.Start]: routeContext('parentOverview', PARENT_PORTAL_NAV_LABELS.StartHere, 'setup-overall'),
-  [PortalRoute.Activity]: routeContext('parentOverview', PARENT_PORTAL_NAV_LABELS.Activity, 'activity-store'),
+  [PortalRoute.Activity]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Activity, 'reports-settings'),
   [PortalRoute.Browser]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Web, 'managed-web'),
   [PortalRoute.BrowserSettings]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Browser, 'browser-settings'),
   [PortalRoute.Policy]: routeContext('parentGuide', PARENT_PORTAL_NAV_LABELS.RulesGuide, 'rules-policy'),

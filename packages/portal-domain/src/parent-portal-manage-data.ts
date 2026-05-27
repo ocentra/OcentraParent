@@ -318,7 +318,7 @@ export const PARENT_PORTAL_MANAGE_QUICK_CONTROLS: ParentPortalContent['quickCont
     category: 'Reports',
     subcategory: 'Report schedule and custody',
     controlCode: 4,
-    routePath: '#/report-settings',
+    routePath: '#/activity',
   },
   {
     id: 'screen-analysis',

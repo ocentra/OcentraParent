@@ -109,15 +109,6 @@ export const PARENT_PORTAL_NAV_ITEMS: readonly ParentPortalNavItem[] = [
     routePath: '#/overview',
   },
   {
-    label: PARENT_PORTAL_NAV_LABELS.Activity,
-    detail: 'Stored activity timeline',
-    icon: 'activity',
-    tabId: 'overall',
-    groupId: 'quickGlance',
-    tone: 'purple',
-    routePath: '#/activity',
-  },
-  {
     label: PARENT_PORTAL_NAV_LABELS.Web,
     detail: 'Supported and unsupported',
     icon: 'web',
@@ -217,7 +208,7 @@ export const PARENT_PORTAL_NAV_ITEMS: readonly ParentPortalNavItem[] = [
     tabId: 'controls',
     groupId: 'manage',
     tone: 'purple',
-    routePath: '#/report-settings',
+    routePath: '#/activity',
   },
   {
     label: PARENT_PORTAL_NAV_LABELS.Browser,

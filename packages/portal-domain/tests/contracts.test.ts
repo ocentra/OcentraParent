@@ -30,6 +30,56 @@ import {
   type ParentPortalNavSectionLabel,
 } from '../src/contracts';
 
+function routeFromHashPath(routePath: ParentPortalHashRoutePath): PortalRoute {
+  return PortalRouteSchema.parse(routePath.slice(2));
+}
+
+function selectableParentPortalTargetIds(): ReadonlySet<string> {
+  const controls = [...PARENT_PORTAL_CONTENT.controlAreas, ...PARENT_PORTAL_CONTENT.quickControls];
+  return new Set([...controls.map((control) => control.id), ...PARENT_PORTAL_GUIDE_TOPICS.map((topic) => topic.id)]);
+}
+
+function expectNavRouteLabelsToMatchContexts(): void {
+  for (const item of PARENT_PORTAL_CONTENT.navItems.filter((entry) => entry.routePath)) {
+    const routePath = item.routePath;
+    expect(routePath).toBeDefined();
+    const route = routeFromHashPath(routePath);
+    const routeContext = PARENT_PORTAL_ROUTE_CONTEXT[route];
+    expect(routeContext?.navLabel).toBe(item.label);
+  }
+}
+
+function expectRouteContextsToTargetSelectableControls(selectableTargetIds: ReadonlySet<string>): void {
+  for (const [route, routeContext] of Object.entries(PARENT_PORTAL_ROUTE_CONTEXT) as Array<
+    [PortalRoute, NonNullable<(typeof PARENT_PORTAL_ROUTE_CONTEXT)[PortalRoute]>]
+  >) {
+    const navMatches = PARENT_PORTAL_CONTENT.navItems.filter((item) => item.routePath === `#/${route}`);
+    if (navMatches.length > 0) {
+      expect(navMatches.map((item) => item.label)).toEqual([routeContext.navLabel]);
+    }
+    expect(selectableTargetIds.has(routeContext.selectedControlId)).toBe(true);
+  }
+}
+
+function expectGuideTargetsToResolve(selectableTargetIds: ReadonlySet<string>): void {
+  for (const topic of PARENT_PORTAL_GUIDE_TOPICS) {
+    for (const note of [...topic.tips, ...topic.actions]) {
+      if (!note.targetRoutePath) continue;
+      const navMatches = PARENT_PORTAL_CONTENT.navItems.filter((item) => item.routePath === note.targetRoutePath);
+      if (navMatches.length === 0) {
+        const route = routeFromHashPath(note.targetRoutePath);
+        const routeContext = PARENT_PORTAL_ROUTE_CONTEXT[route];
+        expect(selectableTargetIds.has(routeContext?.selectedControlId ?? '')).toBe(true);
+        continue;
+      }
+      expect(navMatches).toHaveLength(1);
+      if (note.targetNavLabel) {
+        expect(note.targetNavLabel).toBe(navMatches[0]?.label);
+      }
+    }
+  }
+}
+
 describe('portal route schema contracts', () => {
   it('PortalRouteSchema: accepts only declared dev routes', () => {
     expect(PortalRoutes).toEqual([
@@ -167,52 +217,14 @@ describe('portal collapsed manage route contracts', () => {
 
 describe('portal nav matrix contracts', () => {
   it('parent portal nav matrix: route labels, guide actions, and selected controls stay route-addressed', () => {
-    const hashRouteToRoute = (routePath: ParentPortalHashRoutePath): PortalRoute =>
-      PortalRouteSchema.parse(routePath.slice(2));
-    const controls = [...PARENT_PORTAL_CONTENT.controlAreas, ...PARENT_PORTAL_CONTENT.quickControls];
-    const selectableTargetIds = new Set([
-      ...controls.map((control) => control.id),
-      ...PARENT_PORTAL_GUIDE_TOPICS.map((topic) => topic.id),
-    ]);
+    const selectableTargetIds = selectableParentPortalTargetIds();
     const navItemsWithRoutes = PARENT_PORTAL_CONTENT.navItems.filter((item) => item.routePath);
     const routePaths = navItemsWithRoutes.map((item) => item.routePath);
 
     expect(new Set(routePaths).size).toBe(routePaths.length);
-
-    for (const item of navItemsWithRoutes) {
-      const routePath = item.routePath;
-      expect(routePath).toBeDefined();
-      const route = hashRouteToRoute(routePath);
-      const routeContext = PARENT_PORTAL_ROUTE_CONTEXT[route];
-      expect(routeContext?.navLabel).toBe(item.label);
-    }
-
-    for (const [route, routeContext] of Object.entries(PARENT_PORTAL_ROUTE_CONTEXT) as Array<
-      [PortalRoute, NonNullable<(typeof PARENT_PORTAL_ROUTE_CONTEXT)[PortalRoute]>]
-    >) {
-      const navMatches = PARENT_PORTAL_CONTENT.navItems.filter((item) => item.routePath === `#/${route}`);
-      if (navMatches.length > 0) {
-        expect(navMatches.map((item) => item.label)).toEqual([routeContext.navLabel]);
-      }
-      expect(selectableTargetIds.has(routeContext.selectedControlId)).toBe(true);
-    }
-
-    for (const topic of PARENT_PORTAL_GUIDE_TOPICS) {
-      for (const note of [...topic.tips, ...topic.actions]) {
-        if (!note.targetRoutePath) continue;
-        const navMatches = PARENT_PORTAL_CONTENT.navItems.filter((item) => item.routePath === note.targetRoutePath);
-        if (navMatches.length === 0) {
-          const route = hashRouteToRoute(note.targetRoutePath);
-          const routeContext = PARENT_PORTAL_ROUTE_CONTEXT[route];
-          expect(selectableTargetIds.has(routeContext?.selectedControlId ?? '')).toBe(true);
-          continue;
-        }
-        expect(navMatches).toHaveLength(1);
-        if (note.targetNavLabel) {
-          expect(note.targetNavLabel).toBe(navMatches[0]?.label);
-        }
-      }
-    }
+    expectNavRouteLabelsToMatchContexts();
+    expectRouteContextsToTargetSelectableControls(selectableTargetIds);
+    expectGuideTargetsToResolve(selectableTargetIds);
   });
 });
 
@@ -259,7 +271,7 @@ describe('portal manage section contracts', () => {
           routePath: item.routePath,
           sectionLabel: item.sectionLabel,
         }))
-    ).toEqual([{ icon: 'activity', routePath: '#/report-settings', sectionLabel: undefined }]);
+    ).toEqual([{ icon: 'activity', routePath: '#/activity', sectionLabel: undefined }]);
     expect(
       PARENT_PORTAL_CONTENT.navItems
         .filter((item) => item.groupId === 'manage' && item.sectionLabel === PARENT_PORTAL_NAV_LABELS.Activity)

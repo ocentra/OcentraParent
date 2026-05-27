@@ -101,7 +101,6 @@ import {
   WebGlobeIcon,
 } from '../../Common/NavSvgIcons';
 import { ScopeToggle } from './ScopeToggle/ScopeToggle';
-import { activityUiIntentAdapter } from './activity-ui-intent';
 import './ParentPortalSvgSurface.css';
 
 type IconProps = {
@@ -191,10 +190,27 @@ type ParentPortalSvgSurfaceProps = {
   assistantRouteActive?: boolean;
   assistantRoutePath?: string;
   assistantReturnRoutePath?: string;
+  activityState?: ParentPortalActivityState | null;
   onRefreshParentPortal: (controlCode: number) => void;
   onMatchmaking: () => void;
   onNavigate?: (routePath: string) => void;
   onAssistantCommand?: (command: AgentCommandName, payload: Record<string, string>) => void;
+};
+
+type ParentPortalActivityState = {
+  ingestStatus?: Record<string, unknown> | null;
+  recentSummary?: Record<string, unknown> | null;
+  browserEvidenceReadModel?: Record<string, unknown> | null;
+  browserManagedStatus?: Record<string, unknown> | null;
+  activityMemoryGraphReadModel?: Record<string, unknown> | null;
+  browserInterventionReadModel?: Record<string, unknown> | null;
+  networkFlowReadModel?: Record<string, unknown> | null;
+  screenEvidenceRecentSummary?: Record<string, unknown> | null;
+  appGameSessionReport?: Record<string, unknown> | null;
+  appGameSessionQueryResult?: Record<string, unknown> | null;
+  gameSessionReport?: Record<string, unknown> | null;
+  gameSessionQueryResult?: Record<string, unknown> | null;
+  policyPreviewReadModel?: Record<string, unknown> | null;
 };
 
 type NavItem = Omit<ParentPortalNavItem, 'icon'> & {
@@ -3641,9 +3657,9 @@ function emptyReportPlanSeatSlot(slotIndex: number): DeviceSlot {
   };
 }
 
-function activityReportUiCheckFakeDeviceCount(planSeatLimit: number): number {
+function activityUiCheckParams(): URLSearchParams {
   if (typeof window === 'undefined') {
-    return 0;
+    return new URLSearchParams();
   }
 
   const params = new URLSearchParams(window.location.search);
@@ -3655,6 +3671,15 @@ function activityReportUiCheckFakeDeviceCount(planSeatLimit: number): number {
     }
   }
 
+  return params;
+}
+
+function activityReportUiCheckFakeDeviceCount(planSeatLimit: number): number {
+  if (typeof window === 'undefined') {
+    return 0;
+  }
+
+  const params = activityUiCheckParams();
   const maxCount = clampValue(planSeatLimit, 0, ACTIVITY_REPORT_MAX_CHILD_DEVICE_SEATS);
   const rawCount = params.get(ACTIVITY_REPORT_UI_CHECK_QUERY_KEY);
   if (rawCount === null) {
@@ -3814,6 +3839,7 @@ const LAN_PAIRING_UI_CHECK_MAX_DEVICE_COUNT = 100;
 const LAN_PAIRING_UI_CHECK_FAKE_DATA_DEFAULT_ENABLED = true;
 const LAN_PAIRING_UI_CHECK_FAKE_DATA_DEFAULT_COUNT = 100;
 const ACTIVITY_REPORT_UI_CHECK_QUERY_KEY = 'ocentraActivityUiCheckFakeDeviceCount';
+const ACTIVITY_EVIDENCE_UI_CHECK_QUERY_KEY = 'ocentraActivityUiCheckFakeEvidence';
 const ACTIVITY_REPORT_UI_CHECK_FAKE_DATA_DEFAULT_ENABLED = true;
 const ACTIVITY_REPORT_UI_CHECK_FAKE_DATA_DEFAULT_COUNT = ACTIVITY_REPORT_BASIC_CHILD_DEVICE_SEATS;
 
@@ -3919,7 +3945,6 @@ function lanPairingDetailRowsFor(
 }
 
 type ActivityManageTabId = 'reports' | 'screen' | 'apps' | 'browser' | 'games' | 'network';
-type ActivityMonitorTabId = 'history' | 'live';
 
 const ACTIVITY_MANAGE_TABS: readonly {
   readonly id: ActivityManageTabId;
@@ -3946,19 +3971,21 @@ const ACTIVITY_REPORT_OVERRIDE_OPTIONS = [
   { value: 'override', label: 'Override' },
 ];
 
-const ACTIVITY_MONITOR_TABS: readonly {
-  readonly id: ActivityMonitorTabId;
-  readonly label: string;
-  readonly tone: Tone;
-}[] = [
-  { id: 'history', label: 'History', tone: 'cyan' },
-  { id: 'live', label: 'Live', tone: 'purple' },
-];
-
 type ActivityManageDetailRow = {
   readonly label: string;
   readonly value: string;
   readonly tone: Tone;
+};
+
+type ActivityUiCheckEvidenceBundle = {
+  readonly browserEvidenceReadModel: Record<string, unknown>;
+  readonly browserManagedStatus: Record<string, unknown>;
+  readonly networkFlowReadModel: Record<string, unknown>;
+  readonly screenEvidenceRecentSummary: Record<string, unknown>;
+  readonly appGameSessionReport: Record<string, unknown>;
+  readonly appGameSessionQueryResult: Record<string, unknown>;
+  readonly gameSessionReport: Record<string, unknown>;
+  readonly gameSessionQueryResult: Record<string, unknown>;
 };
 
 function activityManageTargetLabel(scopeValue: string, selectedDevice: DeviceSlot | null): string {
@@ -3966,121 +3993,561 @@ function activityManageTargetLabel(scopeValue: string, selectedDevice: DeviceSlo
   return selectedDevice?.label ?? 'Select device';
 }
 
-function activityManageDetailRowsFor(
-  tab: ActivityManageTabId,
-  scopeValue: string,
-  selectedDevice: DeviceSlot | null,
-  mode: string,
-  enabledCount: number,
-  syncStatus: string,
-  lastAction: string
-): readonly ActivityManageDetailRow[] {
-  const targetLabel = activityManageTargetLabel(scopeValue, selectedDevice);
-  if (tab === 'screen') {
-    return [
-      { label: 'Target', value: targetLabel, tone: 'cyan' },
-      { label: 'Scope', value: scopeValue === 'device' ? 'Per device' : 'Family', tone: 'gold' },
-      { label: 'Capture', value: 'Local summary queue', tone: 'purple' },
-      { label: 'Status', value: 'Waiting for activity read model', tone: 'cyan' },
-    ];
-  }
-  if (tab === 'apps') {
-    return [
-      { label: 'Target', value: targetLabel, tone: 'cyan' },
-      { label: 'Scope', value: scopeValue === 'device' ? 'Per device' : 'Family', tone: 'gold' },
-      { label: 'Sessions', value: 'Known app sessions', tone: 'purple' },
-      { label: 'Status', value: 'Waiting for activity read model', tone: 'cyan' },
-    ];
-  }
-  if (tab === 'browser') {
-    return [
-      { label: 'Target', value: targetLabel, tone: 'cyan' },
-      { label: 'Scope', value: scopeValue === 'device' ? 'Per device' : 'Family', tone: 'gold' },
-      { label: 'Browser state', value: 'Waiting for browser read model', tone: 'purple' },
-      { label: 'Monitor', value: 'History viewer not opened', tone: 'cyan' },
-    ];
-  }
-  if (tab === 'games') {
-    return [
-      { label: 'Target', value: targetLabel, tone: 'cyan' },
-      { label: 'Scope', value: scopeValue === 'device' ? 'Per device' : 'Family', tone: 'gold' },
-      { label: 'Game sessions', value: 'Waiting for game read model', tone: 'purple' },
-      { label: 'Monitor', value: 'No session selected', tone: 'cyan' },
-    ];
-  }
-  if (tab === 'network') {
-    return [
-      { label: 'Target', value: targetLabel, tone: 'cyan' },
-      { label: 'Scope', value: scopeValue === 'device' ? 'Per device' : 'Family', tone: 'gold' },
-      { label: 'Flows', value: 'Domain and flow metadata', tone: 'purple' },
-      { label: 'Status', value: 'Waiting for network read model', tone: 'cyan' },
-    ];
-  }
-  return [
-    { label: 'Report target', value: targetLabel, tone: 'cyan' },
-    { label: 'Report mode', value: mode || 'Daily', tone: 'gold' },
-    { label: 'Scope', value: scopeValue === 'device' ? 'Per device' : 'Family', tone: 'purple' },
-    { label: 'Content choices', value: `${enabledCount} selected`, tone: 'cyan' },
-    { label: 'Draft state', value: syncStatus || 'Local draft', tone: 'gold' },
-    { label: 'Last action', value: lastAction || 'Ready', tone: 'purple' },
-  ];
-}
-
 function activityManageTabLabel(tab: ActivityManageTabId): string {
   return ACTIVITY_MANAGE_TABS.find((item) => item.id === tab)?.label ?? 'Activity';
 }
 
-function activityMonitorRowsFor(
+function activityStateValue(value: unknown, fallback = 'Not reported'): string {
+  if (value === null || value === undefined || value === '') return fallback;
+  if (typeof value === 'number') return Number.isFinite(value) ? String(value) : fallback;
+  if (typeof value === 'boolean') return value ? 'Yes' : 'No';
+  if (Array.isArray(value)) return value.length > 0 ? String(value.length) : fallback;
+  if (typeof value === 'object') return fallback;
+  return String(value);
+}
+
+function activityRecord(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === 'object' && !Array.isArray(value) ? (value as Record<string, unknown>) : null;
+}
+
+function activityRecordArray(value: unknown): readonly Record<string, unknown>[] {
+  return Array.isArray(value) ? value.map(activityRecord).filter(Boolean) : [];
+}
+
+function activityStateRows(model: Record<string, unknown> | null | undefined): readonly Record<string, unknown>[] {
+  return activityRecordArray(model?.rows);
+}
+
+function activityLatestRow(model: Record<string, unknown> | null | undefined): Record<string, unknown> | null {
+  return activityStateRows(model)[0] ?? null;
+}
+
+function activitySessionRows(model: Record<string, unknown> | null | undefined): readonly Record<string, unknown>[] {
+  return activityRecordArray(model?.sessions);
+}
+
+function activityFormatDurationMs(value: unknown): string {
+  const duration = typeof value === 'number' && Number.isFinite(value) ? value : null;
+  if (duration === null) return 'Not reported';
+  const minutes = Math.round(duration / 60000);
+  if (minutes < 1) return '< 1 min';
+  if (minutes < 60) return `${minutes} min`;
+  const hours = Math.floor(minutes / 60);
+  const remainder = minutes % 60;
+  return remainder > 0 ? `${hours}h ${remainder}m` : `${hours}h`;
+}
+
+function activityFormatBytes(value: unknown): string {
+  const bytes = typeof value === 'number' && Number.isFinite(value) ? value : null;
+  if (bytes === null) return 'Not reported';
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
+  return `${Math.round(bytes / (1024 * 102.4)) / 10} MB`;
+}
+
+function activityEndpointLabel(value: unknown): string {
+  const endpoint = activityRecord(value);
+  if (!endpoint) return activityStateValue(value);
+  const ip = activityStateValue(endpoint.ip, '');
+  const port = activityStateValue(endpoint.port, '');
+  if (ip && port) return `${ip}:${port}`;
+  return ip || port || 'Not reported';
+}
+
+function activityEvidenceCount(value: unknown): string {
+  return Array.isArray(value) ? String(value.length) : activityStateValue(value);
+}
+
+function activityUiCheckEvidenceEnabled(): boolean {
+  const params = activityUiCheckParams();
+  const rawEvidence = params.get(ACTIVITY_EVIDENCE_UI_CHECK_QUERY_KEY);
+  if (rawEvidence !== null) {
+    return rawEvidence === '1' || rawEvidence.toLowerCase() === 'true';
+  }
+
+  const rawDeviceCount = params.get(ACTIVITY_REPORT_UI_CHECK_QUERY_KEY);
+  if (rawDeviceCount === null) return ACTIVITY_REPORT_UI_CHECK_FAKE_DATA_DEFAULT_ENABLED;
+  const parsedDeviceCount = Number.parseInt(rawDeviceCount, 10);
+  return Number.isFinite(parsedDeviceCount) && parsedDeviceCount > 0;
+}
+
+function activityUiCheckEvidenceBundle(selectedDevice: DeviceSlot | null): ActivityUiCheckEvidenceBundle | null {
+  if (!activityUiCheckEvidenceEnabled()) return null;
+  const deviceId = selectedDevice?.device?.id ?? selectedDevice?.value ?? 'activity-ui-check-device';
+  const observedAt = '2026-05-27T00:00:00.000Z';
+  const freshUntil = '2026-05-27T00:05:00.000Z';
+  const evidence = [{ evidenceId: 'activity-ui-check-evidence-1', sourceId: 'activity-ui-check-source' }];
+
+  return {
+    browserManagedStatus: {
+      schemaVersion: 1,
+      checkedAt: observedAt,
+      managedBrowserSessionId: 'activity-ui-check-browser-session',
+      browserFamily: 'chrome',
+      browserChannel: 'stable',
+      browserVersion: 'ui-check',
+      profileId: 'activity-ui-check-profile',
+      profilePathRef: 'child-device-managed-browser-profile',
+      processId: 4242,
+      bridgeKind: 'chromium-devtools-protocol',
+      bridgeEndpointRef: 'localhost-child-agent-bridge',
+      managedState: 'bridge-connected',
+      capabilityStatus: 'available',
+      degradedReason: null,
+      startedAt: observedAt,
+      custodyLabel: 'local-network-child-agent',
+      queryVisibility: 'live-lan',
+    },
+    browserEvidenceReadModel: {
+      schemaVersion: 1,
+      generatedAt: observedAt,
+      limit: 10,
+      returned: 1,
+      latestEventId: 'activity-ui-check-browser-event',
+      latestObservedAt: observedAt,
+      capabilityStatus: 'available',
+      custodyLabel: 'local-network-child-agent',
+      queryVisibility: 'live-lan',
+      rows: [
+        {
+          schemaVersion: 1,
+          browserEvidenceId: 'activity-ui-check-browser-evidence',
+          observedAt,
+          freshUntil,
+          sourceId: 'activity-ui-check-source',
+          adapterId: 'managed-chromium-devtools',
+          deviceId,
+          browserFamily: 'chrome',
+          browserChannel: 'stable',
+          managedBrowserSessionId: 'activity-ui-check-browser-session',
+          profileId: 'activity-ui-check-profile',
+          processId: 4242,
+          windowId: 'activity-ui-check-window',
+          tabId: 'activity-ui-check-tab',
+          targetId: 'activity-ui-check-target',
+          activeState: 'known-active',
+          url: 'https://example.invalid/school/assignment',
+          origin: 'https://example.invalid',
+          domain: 'example.invalid',
+          title: 'School assignment',
+          capabilityStatus: 'available',
+          degradedReason: null,
+          staleAt: freshUntil,
+          custodyLabel: 'local-network-child-agent',
+          queryVisibility: 'live-lan',
+        },
+      ],
+    },
+    networkFlowReadModel: {
+      schemaVersion: 1,
+      generatedAt: observedAt,
+      custody: 'live-lan-child-agent',
+      limit: 10,
+      returned: 1,
+      capabilityStatus: 'available',
+      rows: [
+        {
+          schemaVersion: 1,
+          eventId: 'activity-ui-check-network-event',
+          observedAt,
+          observer: 'network-flow',
+          capabilityStatus: 'available',
+          adapterId: 'windows-network-flow',
+          protocol: 'tcp',
+          tcpState: 'established',
+          localEndpoint: { ip: '192.0.2.20', port: 51514 },
+          destinationEndpoint: { ip: '198.51.100.10', port: 443 },
+          destinationDomain: 'example.invalid',
+          domainAttributionStatus: 'domain-known',
+          processAttributionStatus: 'process-attributed',
+          processId: 4242,
+          processName: 'chrome.exe',
+          counters: {
+            connectionCount: 3,
+            bytesSent: 18432,
+            bytesReceived: 145408,
+            firstSeenAt: observedAt,
+            lastSeenAt: freshUntil,
+          },
+          evidence,
+        },
+      ],
+    },
+    screenEvidenceRecentSummary: {
+      schemaVersion: 1,
+      generatedAt: observedAt,
+      custodyState: 'child-device-query-store',
+      limit: 10,
+      returned: 1,
+      queueHealth: {
+        schemaVersion: 1,
+        generatedAt: observedAt,
+        custodyState: 'child-device-query-store',
+        pendingCount: 0,
+        expiredCount: 0,
+        deletePendingCount: 0,
+        deleteFailedCount: 0,
+        latestQueueJobId: 'activity-ui-check-screen-job',
+        latestStatus: 'analyzed',
+        lastSuccessfulAnalysisAt: observedAt,
+      },
+      latestResultId: 'activity-ui-check-screen-result',
+      latestSummary: 'Local screen analysis reported school work with no retained image.',
+      latestPrimaryCategory: 'school',
+      latestConfidence: 0.86,
+      latestImageDeletionState: 'deleted',
+      latestPolicyEligible: true,
+      evidence,
+      results: [],
+    },
+    appGameSessionReport: {
+      schemaVersion: 1,
+      limit: 10,
+      returned: 1,
+      catalogReadyState: 'catalogReady',
+      firstObservedAt: observedAt,
+      lastObservedAt: freshUntil,
+      mostRecentSessionId: 'activity-ui-check-app-session',
+      mostRecentClassificationState: 'knownApp',
+      mostRecentProcessIdentity: 'activity-ui-check-app-process',
+      mostRecentDisplayName: 'Homework Editor',
+      mostRecentRunningDurationMs: 1860000,
+      mostRecentForegroundDurationMs: 1620000,
+      mostRecentEvidenceCount: 4,
+    },
+    appGameSessionQueryResult: {
+      schemaVersion: 1,
+      limit: 10,
+      returned: 1,
+      catalogReadyState: 'catalogReady',
+      firstObservedAt: observedAt,
+      lastObservedAt: freshUntil,
+      sessions: [
+        {
+          schemaVersion: 1,
+          sessionId: 'activity-ui-check-app-session',
+          primaryProcessIdentity: 'activity-ui-check-app-process',
+          displayName: 'Homework Editor',
+          classificationState: 'knownApp',
+          catalogReadyState: 'catalogReady',
+          inventoryEntryId: 'activity-ui-check-app-inventory',
+          launcherRef: null,
+          catalogRef: null,
+          startedAt: observedAt,
+          lastObservedAt: freshUntil,
+          endedAt: null,
+          runningDurationMs: 1860000,
+          foregroundDurationMs: 1620000,
+          backgroundDurationMs: 240000,
+          observationCount: 12,
+          evidenceCount: 4,
+          evidence,
+          aiDigestRef: null,
+          confidence: 0.91,
+        },
+      ],
+    },
+    gameSessionReport: {
+      schemaVersion: 1,
+      limit: 10,
+      returned: 1,
+      catalogReadyState: 'catalogReady',
+      firstObservedAt: observedAt,
+      lastObservedAt: freshUntil,
+      mostRecentSessionId: 'activity-ui-check-game-session',
+      mostRecentClassificationState: 'knownGame',
+      mostRecentProcessIdentity: 'activity-ui-check-game-process',
+      mostRecentDisplayName: 'Known Game Session',
+      mostRecentRunningDurationMs: 780000,
+      mostRecentForegroundDurationMs: 720000,
+      mostRecentEvidenceCount: 3,
+    },
+    gameSessionQueryResult: {
+      schemaVersion: 1,
+      limit: 10,
+      returned: 1,
+      catalogReadyState: 'catalogReady',
+      firstObservedAt: observedAt,
+      lastObservedAt: freshUntil,
+      sessions: [
+        {
+          schemaVersion: 1,
+          sessionId: 'activity-ui-check-game-session',
+          primaryProcessIdentity: 'activity-ui-check-game-process',
+          displayName: 'Known Game Session',
+          classificationState: 'knownGame',
+          catalogReadyState: 'catalogReady',
+          inventoryEntryId: 'activity-ui-check-game-inventory',
+          launcherRef: 'steam',
+          catalogRef: 'activity-ui-check-game-catalog',
+          startedAt: observedAt,
+          lastObservedAt: freshUntil,
+          endedAt: null,
+          runningDurationMs: 780000,
+          foregroundDurationMs: 720000,
+          backgroundDurationMs: 60000,
+          observationCount: 8,
+          evidenceCount: 3,
+          evidence,
+          aiDigestRef: null,
+          confidence: 0.89,
+        },
+      ],
+    },
+  };
+}
+
+function activityPerDeviceGateRows(
   tab: ActivityManageTabId,
-  monitorTab: ActivityMonitorTabId,
+  scopeValue: string,
+  selectedDevice: DeviceSlot | null
+): readonly ActivityManageDetailRow[] {
+  const tabLabel = activityManageTabLabel(tab);
+  if (scopeValue !== 'device') {
+    return [
+      {
+        label: 'Per-device required',
+        value: `Switch to Per Device to inspect ${tabLabel.toLowerCase()} activity.`,
+        tone: 'gold',
+      },
+    ];
+  }
+  if (!selectedDevice || selectedDevice.status === 'empty') {
+    return [
+      {
+        label: 'Select device',
+        value: `Select a child device above to inspect ${tabLabel.toLowerCase()} activity.`,
+        tone: 'gold',
+      },
+    ];
+  }
+  if (selectedDevice.status === 'offline') {
+    return [
+      {
+        label: 'Device offline',
+        value: 'Rust can only show cached evidence until the child agent is reachable.',
+        tone: 'gold',
+      },
+    ];
+  }
+  return [];
+}
+
+function activityUnavailableRows(
+  readModelName: string,
+  exposedCommand: string,
+  gateRows: readonly ActivityManageDetailRow[]
+): readonly ActivityManageDetailRow[] {
+  return [
+    ...gateRows,
+    { label: readModelName, value: `${exposedCommand} is not reported by the Rust portal command yet.`, tone: 'cyan' },
+  ];
+}
+
+function activityRowsFromReadModels(
+  tab: ActivityManageTabId,
   scopeValue: string,
   selectedDevice: DeviceSlot | null,
   frequencyLabel: string,
   overrideLabel: string,
   syncStatus: string,
-  lastAction: string
+  lastAction: string,
+  activityState?: ParentPortalActivityState | null
 ): readonly ActivityManageDetailRow[] {
   const targetLabel = activityManageTargetLabel(scopeValue, selectedDevice);
-  const tabLabel = activityManageTabLabel(tab);
-
-  if (monitorTab === 'live') {
-    if (scopeValue !== 'device') {
-      return [
-        { label: 'Live target', value: 'Switch to Per Device to inspect live diagnostics', tone: 'gold' },
-        { label: 'Monitor', value: `${tabLabel} live view is per-device only`, tone: 'cyan' },
-      ];
-    }
-    if (!selectedDevice) {
-      return [
-        { label: 'Live target', value: 'Select a device to inspect live diagnostics', tone: 'gold' },
-        { label: 'Monitor', value: `${tabLabel} stream waiting for target`, tone: 'cyan' },
-      ];
-    }
-    return [
-      { label: 'Live target', value: targetLabel, tone: 'cyan' },
-      {
-        label: 'Device status',
-        value: selectedDevice.status === 'offline' ? 'Offline' : 'Connected',
-        tone: selectedDevice.status === 'offline' ? 'gold' : 'cyan',
-      },
-      { label: 'Live stream', value: `${tabLabel} UI-check stream pending real read model`, tone: 'purple' },
-      { label: 'Last action', value: lastAction || 'Ready', tone: 'gold' },
-    ];
-  }
+  const gateRows = tab === 'reports' ? [] : activityPerDeviceGateRows(tab, scopeValue, selectedDevice);
+  const uiCheckEvidence = selectedDevice ? activityUiCheckEvidenceBundle(selectedDevice) : null;
+  const recent = activityState?.recentSummary;
+  const browser = activityState?.browserEvidenceReadModel ?? uiCheckEvidence?.browserEvidenceReadModel;
+  const browserManaged = activityState?.browserManagedStatus ?? uiCheckEvidence?.browserManagedStatus;
+  const network = activityState?.networkFlowReadModel ?? uiCheckEvidence?.networkFlowReadModel;
+  const screen = activityState?.screenEvidenceRecentSummary ?? uiCheckEvidence?.screenEvidenceRecentSummary;
+  const appReport = activityState?.appGameSessionReport ?? uiCheckEvidence?.appGameSessionReport;
+  const appQuery = activityState?.appGameSessionQueryResult ?? uiCheckEvidence?.appGameSessionQueryResult;
+  const gameReport = activityState?.gameSessionReport ?? uiCheckEvidence?.gameSessionReport;
+  const gameQuery = activityState?.gameSessionQueryResult ?? uiCheckEvidence?.gameSessionQueryResult;
+  const ingest = activityState?.ingestStatus;
+  const browserRow = activityLatestRow(browser);
+  const networkRow = activityLatestRow(network);
+  const appSession = activitySessionRows(appQuery)[0] ?? null;
+  const gameSession = activitySessionRows(gameQuery)[0] ?? null;
 
   if (tab === 'reports') {
     return [
-      { label: 'Report history', value: `${targetLabel} / ${frequencyLabel} / UI-check snapshot`, tone: 'cyan' },
-      { label: 'Latest saved', value: syncStatus || 'Local draft', tone: 'gold' },
-      { label: 'Mode', value: scopeValue === 'device' ? overrideLabel : 'Family', tone: 'purple' },
+      { label: 'Report target', value: targetLabel, tone: 'cyan' },
+      { label: 'Frequency', value: frequencyLabel, tone: 'gold' },
+      { label: 'Mode', value: scopeValue === 'device' ? overrideLabel : 'Family defaults', tone: 'purple' },
+      { label: 'History', value: 'No saved report read model reported', tone: 'cyan' },
+      { label: 'Generate', value: syncStatus || 'Report command not exposed', tone: 'gold' },
+      { label: 'Last action', value: lastAction || 'Ready', tone: 'purple' },
+    ];
+  }
+
+  if (gateRows.length > 0 && (scopeValue !== 'device' || !selectedDevice || selectedDevice.status === 'empty')) {
+    return gateRows;
+  }
+
+  if (tab === 'screen') {
+    if (!screen) {
+      return activityUnavailableRows('Screen evidence summary', 'ScreenEvidenceRecentSummary', gateRows);
+    }
+    const queueHealth = activityRecord(screen.queueHealth);
+    return [
+      ...gateRows,
+      {
+        label: 'Latest summary',
+        value: activityStateValue(screen.latestSummary, 'No screen summary reported'),
+        tone: 'cyan',
+      },
+      { label: 'Visible category', value: activityStateValue(screen.latestPrimaryCategory), tone: 'gold' },
+      { label: 'Confidence', value: activityStateValue(screen.latestConfidence), tone: 'purple' },
+      { label: 'Queue status', value: activityStateValue(queueHealth?.latestStatus), tone: 'cyan' },
+      { label: 'Pending jobs', value: activityStateValue(queueHealth?.pendingCount), tone: 'gold' },
+      { label: 'Image state', value: activityStateValue(screen.latestImageDeletionState), tone: 'purple' },
+      { label: 'Custody', value: activityStateValue(screen.custodyState), tone: 'cyan' },
+      { label: 'Evidence refs', value: activityEvidenceCount(screen.evidence), tone: 'gold' },
+    ];
+  }
+
+  if (tab === 'apps') {
+    if (!appReport && !appSession) {
+      return activityUnavailableRows('App session summary', 'AppGameSessionReport', gateRows);
+    }
+    return [
+      ...gateRows,
+      {
+        label: 'Current app',
+        value: activityStateValue(appSession?.displayName ?? appReport?.mostRecentDisplayName),
+        tone: 'cyan',
+      },
+      {
+        label: 'Classification',
+        value: activityStateValue(appSession?.classificationState ?? appReport?.mostRecentClassificationState),
+        tone: 'gold',
+      },
+      {
+        label: 'Running time',
+        value: activityFormatDurationMs(appSession?.runningDurationMs ?? appReport?.mostRecentRunningDurationMs),
+        tone: 'purple',
+      },
+      {
+        label: 'Foreground time',
+        value: activityFormatDurationMs(appSession?.foregroundDurationMs ?? appReport?.mostRecentForegroundDurationMs),
+        tone: 'cyan',
+      },
+      {
+        label: 'Catalog',
+        value: activityStateValue(appSession?.catalogReadyState ?? appReport?.catalogReadyState),
+        tone: 'gold',
+      },
+      {
+        label: 'Evidence refs',
+        value: activityEvidenceCount(appSession?.evidence ?? appReport?.mostRecentEvidenceCount),
+        tone: 'purple',
+      },
+      {
+        label: 'Last observed',
+        value: activityStateValue(appSession?.lastObservedAt ?? appReport?.lastObservedAt),
+        tone: 'cyan',
+      },
+    ];
+  }
+
+  if (tab === 'browser') {
+    if (!browserRow && !browser && !browserManaged) {
+      return activityUnavailableRows('Browser tab evidence', 'BrowserEvidenceReadModel', gateRows);
+    }
+    return [
+      ...gateRows,
+      { label: 'Active URL', value: activityStateValue(browserRow?.url, 'No active tab URL reported'), tone: 'cyan' },
+      { label: 'Page title', value: activityStateValue(browserRow?.title), tone: 'gold' },
+      { label: 'Domain', value: activityStateValue(browserRow?.domain ?? browserRow?.origin), tone: 'purple' },
+      {
+        label: 'Browser',
+        value: activityStateValue(browserRow?.browserFamily ?? browserManaged?.browserFamily),
+        tone: 'cyan',
+      },
+      { label: 'Tab state', value: activityStateValue(browserRow?.activeState), tone: 'gold' },
+      {
+        label: 'Capability',
+        value: activityStateValue(browserRow?.capabilityStatus ?? browser?.capabilityStatus),
+        tone: 'purple',
+      },
+      { label: 'Managed state', value: activityStateValue(browserManaged?.managedState), tone: 'cyan' },
+      {
+        label: 'Evidence ID',
+        value: activityStateValue(browserRow?.browserEvidenceId ?? browser?.latestEventId),
+        tone: 'gold',
+      },
+    ];
+  }
+
+  if (tab === 'games') {
+    if (!gameReport && !gameSession) {
+      return activityUnavailableRows('Game session summary', 'AppGameSessionReport for games', gateRows);
+    }
+    return [
+      ...gateRows,
+      {
+        label: 'Current game',
+        value: activityStateValue(gameSession?.displayName ?? gameReport?.mostRecentDisplayName),
+        tone: 'cyan',
+      },
+      {
+        label: 'Classification',
+        value: activityStateValue(gameSession?.classificationState ?? gameReport?.mostRecentClassificationState),
+        tone: 'gold',
+      },
+      {
+        label: 'Running time',
+        value: activityFormatDurationMs(gameSession?.runningDurationMs ?? gameReport?.mostRecentRunningDurationMs),
+        tone: 'purple',
+      },
+      {
+        label: 'Foreground time',
+        value: activityFormatDurationMs(
+          gameSession?.foregroundDurationMs ?? gameReport?.mostRecentForegroundDurationMs
+        ),
+        tone: 'cyan',
+      },
+      {
+        label: 'Catalog',
+        value: activityStateValue(gameSession?.catalogReadyState ?? gameReport?.catalogReadyState),
+        tone: 'gold',
+      },
+      { label: 'Launcher', value: activityStateValue(gameSession?.launcherRef), tone: 'purple' },
+      {
+        label: 'Evidence refs',
+        value: activityEvidenceCount(gameSession?.evidence ?? gameReport?.mostRecentEvidenceCount),
+        tone: 'cyan',
+      },
+    ];
+  }
+
+  if (tab === 'network') {
+    if (!networkRow && !network) {
+      return activityUnavailableRows('Network flow read model', 'NetworkFlowReadModel', gateRows);
+    }
+    const endpoint = networkRow?.destinationDomain ?? activityEndpointLabel(networkRow?.destinationEndpoint);
+    const counters = activityRecord(networkRow?.counters);
+    return [
+      ...gateRows,
+      { label: 'Destination', value: activityStateValue(endpoint), tone: 'purple' },
+      { label: 'Process', value: activityStateValue(networkRow?.processName), tone: 'cyan' },
+      { label: 'Protocol', value: activityStateValue(networkRow?.protocol), tone: 'gold' },
+      { label: 'TCP state', value: activityStateValue(networkRow?.tcpState), tone: 'purple' },
+      { label: 'Connections', value: activityStateValue(counters?.connectionCount), tone: 'gold' },
+      { label: 'Received', value: activityFormatBytes(counters?.bytesReceived), tone: 'cyan' },
+      { label: 'Sent', value: activityFormatBytes(counters?.bytesSent), tone: 'gold' },
+      { label: 'Custody', value: activityStateValue(network?.custody), tone: 'purple' },
     ];
   }
 
   return [
-    { label: `${tabLabel} history`, value: `${targetLabel} / UI-check records`, tone: 'cyan' },
-    { label: 'Scope', value: scopeValue === 'device' ? 'Per Device' : 'Family', tone: 'gold' },
-    { label: 'Status', value: 'Waiting for activity read model', tone: 'purple' },
-    { label: 'Last action', value: lastAction || 'Ready', tone: 'cyan' },
+    { label: 'Target', value: targetLabel, tone: 'cyan' },
+    { label: 'Recent subject', value: activityStateValue(recent?.mostRecentSubjectName), tone: 'gold' },
+    { label: 'Ingested', value: activityStateValue(ingest?.eventsIngested), tone: 'purple' },
+    { label: 'Stored', value: activityStateValue(ingest?.eventsStored), tone: 'cyan' },
   ];
 }
 
@@ -5198,6 +5665,7 @@ function ManageControlPanel({
   themeColor,
   targetSelection,
   onTargetChange,
+  activityState,
   cfg,
 }: {
   x: number;
@@ -5211,6 +5679,7 @@ function ManageControlPanel({
   themeColor?: string;
   targetSelection: ManageTargetSelection;
   onTargetChange?: (selection: ManageTargetSelection) => void;
+  activityState?: ParentPortalActivityState | null;
   cfg: ParentPortalSvgControls;
 }) {
   const lane = manageLaneForKey(activeNavLabel, selectedControlName);
@@ -5224,7 +5693,6 @@ function ManageControlPanel({
   const [lanPairingActiveTab, setLanPairingActiveTab] = useState<LanPairingDetailTabId>('info');
   const [lanPairingSelectedSlot, setLanPairingSelectedSlot] = useState<DeviceSlot | null>(null);
   const [activityManageActiveTab, setActivityManageActiveTab] = useState<ActivityManageTabId>('reports');
-  const [activityMonitorActiveTab, setActivityMonitorActiveTab] = useState<ActivityMonitorTabId>('history');
   const [activityReportFrequency, setActivityReportFrequency] = useState('daily');
   const [activityReportOverrideMode, setActivityReportOverrideMode] = useState('family-defaults');
   const [activityReportSelectedFileId, setActivityReportSelectedFileId] = useState<string | null>(null);
@@ -5239,7 +5707,6 @@ function ManageControlPanel({
     setLanPairingActiveTab('info');
     setLanPairingSelectedSlot(null);
     setActivityManageActiveTab('reports');
-    setActivityMonitorActiveTab('history');
     setActivityReportFrequency('daily');
     setActivityReportOverrideMode('family-defaults');
     setActivityReportSelectedFileId(null);
@@ -5334,76 +5801,35 @@ function ManageControlPanel({
       lanPairingDetailColumnCount
   );
   const lanPairingVisibleRows = lanPairingDetailRows.slice(0, lanPairingDetailVisibleCount);
-  const reportScopeValue = targetSelection.scope === 'perDevice' ? 'device' : 'family';
-  const reportFamilyScope = reportScopeValue !== 'device';
   const reportPlanSeatLimit = ACTIVITY_REPORT_BASIC_CHILD_DEVICE_SEATS;
+  const activityUiCheckMode =
+    activityReportUiCheckFakeDeviceCount(reportPlanSeatLimit) > 0 || activityUiCheckEvidenceEnabled();
+  const reportScopeValue = targetSelection.scope === 'perDevice' || activityUiCheckMode ? 'device' : 'family';
+  const reportFamilyScope = reportScopeValue !== 'device';
   const reportSlots = useMemo(() => reportPlanSeatSlots(reportPlanSeatLimit), [reportPlanSeatLimit]);
   const reportPortalIds = useMemo(
     () => reportSlots.filter((slot) => slot.device).map((slot) => slot.value),
     [reportSlots]
   );
+  const firstReportSelectableSlot = reportSlots.find((slot) => slot.device && slot.status !== 'empty');
   const reportSelectedValue =
-    reportScopeValue === 'device' ? reportSelectedSlotValue(reportSlots, targetSelection.device) : undefined;
+    reportScopeValue === 'device'
+      ? (reportSelectedSlotValue(reportSlots, targetSelection.device) ??
+        (activityUiCheckMode ? firstReportSelectableSlot?.value : undefined))
+      : undefined;
   const reportSelectedSlot = reportSlots.find((slot) => slot.value === reportSelectedValue) ?? null;
-  const activityReportDevices = useMemo(
-    () =>
-      reportSlots
-        .filter((slot) => slot.device && slot.status !== 'empty')
-        .map((slot) => ({
-          id: slot.value,
-          label: slot.label,
-          status: slot.status,
-        })),
-    [reportSlots]
-  );
-  const activityReportRequest = useMemo(
-    () => ({
-      frequency: activityReportFrequency,
-      scope: reportScopeValue === 'device' ? 'device' : 'family',
-      devices: activityReportDevices,
-      selectedDeviceId: reportSelectedSlot?.value,
-      overrideMode: activityReportOverrideMode,
-    }),
-    [activityReportDevices, activityReportFrequency, activityReportOverrideMode, reportScopeValue, reportSelectedSlot]
-  );
-  const activityReportFiles = useMemo(
-    () => activityUiIntentAdapter.listHistoricalReports(activityReportRequest),
-    [activityReportRequest]
-  );
+  const activityReportFiles = useMemo(() => [], []);
   const activityReportSelectedFile =
     activityReportFiles.find((file) => file.id === activityReportSelectedFileId) ?? activityReportFiles[0] ?? null;
   const activityReportViewerReport = activityReportDraft ?? activityReportSelectedFile?.report ?? null;
-  const activityReportIntentView = useMemo(() => {
-    if (activityManageActiveTab === 'screen') return activityUiIntentAdapter.getScreenActivity(activityReportRequest);
-    if (activityManageActiveTab === 'apps') return activityUiIntentAdapter.getAppUseActivity(activityReportRequest);
-    if (activityManageActiveTab === 'browser') return activityUiIntentAdapter.getBrowserActivity(activityReportRequest);
-    if (activityManageActiveTab === 'games') return activityUiIntentAdapter.getGamesActivity(activityReportRequest);
-    if (activityManageActiveTab === 'network') return activityUiIntentAdapter.getNetworkActivity(activityReportRequest);
-    return null;
-  }, [activityManageActiveTab, activityReportRequest]);
   const activityGenerateReport = useCallback(() => {
-    const getReport =
-      activityReportFrequency === 'weekly'
-        ? activityUiIntentAdapter.getWeeklyReport
-        : activityReportFrequency === 'monthly'
-          ? activityUiIntentAdapter.getMonthlyReport
-          : activityUiIntentAdapter.getDailyReport;
-    void getReport(activityReportRequest).then((report) => {
-      setActivityReportDraft(report);
-      setActivityReportSelectedFileId(report.id);
-      setLastAction(`Generated ${report.title}`);
-      setSyncStatus('Report draft generated');
-    });
-  }, [activityReportFrequency, activityReportRequest]);
+    setLastAction('Report command unavailable');
+    setSyncStatus('Report generation command not exposed');
+  }, []);
   const activitySaveReportDraft = useCallback(() => {
-    if (!activityReportDraft || activityReportDraft.saved) return;
-    void activityUiIntentAdapter.saveActivityReport(activityReportDraft).then((report) => {
-      setActivityReportDraft(report);
-      setActivityReportSelectedFileId(report.id);
-      setLastAction(`Saved ${report.fileName}`);
-      setSyncStatus('Report saved');
-    });
-  }, [activityReportDraft]);
+    setLastAction('Save unavailable');
+    setSyncStatus('No generated report to save');
+  }, []);
   const reportPanelPadX = Math.max(18, Math.min(34, Math.round(w * 0.018)));
   const reportPanelPadY = 0;
   const reportAvailableW = Math.max(1, w - reportPanelPadX * 2);
@@ -5520,57 +5946,30 @@ function ManageControlPanel({
     ? `Saved JSON: ${activityReportViewerReport.fileName}`
     : activityReportViewerReport
       ? `Draft JSON: ${activityReportViewerReport.fileName}`
-      : 'Select or generate a report';
+      : 'No saved report read model reported';
   const activityReportViewerSections = activityReportViewerReport?.sections ?? [];
   const activityMonitorPanelX = activityReportInnerX;
   const activityMonitorPanelY = activityReportInnerY + activityReportControlBarH;
   const activityMonitorPanelW = activityReportInnerW;
   const activityMonitorPanelH = Math.max(1, activityReportInnerY + activityReportInnerH - activityMonitorPanelY);
-  const activityMonitorCompact = activityMonitorPanelW < 560;
   const activityMonitorPad = 14;
-  const activityMonitorNavW = activityMonitorCompact
-    ? Math.max(1, activityMonitorPanelW - activityMonitorPad * 2)
-    : Math.max(124, Math.min(176, activityMonitorPanelW * 0.2));
-  const activityMonitorTabGap = activityMonitorCompact ? 8 : 10;
-  const activityMonitorTabW = activityMonitorCompact
-    ? Math.max(110, (activityMonitorNavW - activityMonitorTabGap) / ACTIVITY_MONITOR_TABS.length)
-    : activityMonitorNavW;
-  const activityMonitorTabH = 36;
-  const activityMonitorTabX = activityMonitorPanelX + activityMonitorPad;
-  const activityMonitorTabY = activityMonitorPanelY + 18;
-  const activityMonitorContentX = activityMonitorCompact
-    ? activityMonitorPanelX + activityMonitorPad
-    : activityMonitorPanelX + activityMonitorPad + activityMonitorNavW + 14;
-  const activityMonitorContentY = activityMonitorCompact
-    ? activityMonitorTabY + activityMonitorTabH + 14
-    : activityMonitorPanelY + 18;
-  const activityMonitorContentW = activityMonitorCompact
-    ? Math.max(1, activityMonitorPanelW - activityMonitorPad * 2)
-    : Math.max(1, activityMonitorPanelW - activityMonitorNavW - activityMonitorPad * 2 - 14);
+  const activityMonitorContentX = activityMonitorPanelX + activityMonitorPad;
+  const activityMonitorContentY = activityMonitorPanelY + 22;
+  const activityMonitorContentW = Math.max(1, activityMonitorPanelW - activityMonitorPad * 2);
   const activityMonitorContentH = Math.max(
     1,
-    activityMonitorPanelY + activityMonitorPanelH - activityMonitorContentY - 14
+    activityMonitorPanelY + activityMonitorPanelH - activityMonitorContentY - 18
   );
-  const activityMonitorRows = activityReportIntentView
-    ? [
-        { label: 'Target', value: activityReportIntentView.targetLabel, tone: 'cyan' },
-        { label: 'Summary', value: activityReportIntentView.summary, tone: 'gold' },
-        ...activityReportIntentView.rows.map((row, index) => ({
-          label: row.title,
-          value: row.lines[0] ?? 'Waiting for activity read model',
-          tone: index % 2 === 0 ? 'purple' : 'cyan',
-        })),
-      ]
-    : activityMonitorRowsFor(
-        activityManageActiveTab,
-        activityMonitorActiveTab,
-        reportScopeValue,
-        reportSelectedSlot,
-        activityReportFrequencyLabel,
-        activityReportOverrideLabel,
-        syncStatus,
-        lastAction
-      );
+  const activityMonitorRows = activityRowsFromReadModels(
+    activityManageActiveTab,
+    reportScopeValue,
+    reportSelectedSlot,
+    activityReportFrequencyLabel,
+    activityReportOverrideLabel,
+    syncStatus,
+    lastAction,
+    activityState
+  );
   const activityMonitorRowGap = 10;
   const activityMonitorColumnCount = activityMonitorContentW > 920 ? 2 : 1;
   const activityMonitorRowW = Math.max(
@@ -6002,6 +6401,17 @@ function ManageControlPanel({
                 >
                   Report viewer
                 </text>
+                {activityReportVisibleRows.length === 0 ? (
+                  <text
+                    x={activityReportListX + 10}
+                    y={activityReportListY + 32}
+                    fontSize={12}
+                    fontWeight={760}
+                    fill={cfg.colors.mutedText}
+                  >
+                    No saved activity reports reported
+                  </text>
+                ) : null}
                 {activityReportVisibleRows.map((row, index) => {
                   const selected = !activityReportDraft && row.id === activityReportSelectedFile?.id;
                   const rowColor = selected ? activityManageTabColor : toneColor(row.saved ? 'cyan' : 'gold', cfg);
@@ -6203,6 +6613,8 @@ function ManageControlPanel({
                   role="button"
                   tabIndex={0}
                   aria-label={`Generate ${activityReportFrequencyLabel} activity report`}
+                  aria-disabled="true"
+                  opacity={0.58}
                   onClick={(event) => {
                     event.stopPropagation();
                     activityGenerateReport();
@@ -6223,7 +6635,7 @@ function ManageControlPanel({
                     fill={colorAlpha(activityManageTabColor, '22')}
                     stroke={activityManageTabColor}
                     strokeWidth={1}
-                    opacity={0.96}
+                    opacity={0.72}
                   />
                   <text
                     x={activityReportViewerX + activityReportGenerateButtonW / 2}
@@ -6297,81 +6709,17 @@ function ManageControlPanel({
                   strokeWidth={0.95}
                   opacity={0.94}
                 />
-                <g role="tablist" aria-label="Activity monitor tabs">
-                  {ACTIVITY_MONITOR_TABS.map((tab, index) => {
-                    const selected = tab.id === activityMonitorActiveTab;
-                    const tabColor = toneColor(tab.tone, cfg);
-                    const tabX = activityMonitorCompact
-                      ? activityMonitorTabX + index * (activityMonitorTabW + activityMonitorTabGap)
-                      : activityMonitorTabX;
-                    const tabY = activityMonitorCompact
-                      ? activityMonitorTabY
-                      : activityMonitorTabY + index * (activityMonitorTabH + activityMonitorTabGap);
-                    return (
-                      <g
-                        key={`activity-monitor-tab:${tab.id}`}
-                        className="parent-portal-svg-clickable"
-                        role="tab"
-                        tabIndex={0}
-                        aria-selected={selected}
-                        aria-label={`Show ${tab.label} activity monitor`}
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          setActivityMonitorActiveTab(tab.id);
-                          setLastAction(`${tab.label} monitor`);
-                        }}
-                        onKeyDown={(event) => {
-                          if (event.key === 'Enter' || event.key === ' ') {
-                            event.preventDefault();
-                            setActivityMonitorActiveTab(tab.id);
-                            setLastAction(`${tab.label} monitor`);
-                          }
-                        }}
-                      >
-                        {selected && (
-                          <path
-                            d={topRoundedRectPath(
-                              tabX - 2,
-                              tabY - 2,
-                              activityMonitorTabW + 4,
-                              activityMonitorTabH + 4,
-                              9
-                            )}
-                            fill="none"
-                            stroke={tabColor}
-                            strokeWidth={2.4}
-                            opacity={0.34}
-                            filter="url(#parentPortalGlow)"
-                          />
-                        )}
-                        <path
-                          d={topRoundedRectPath(tabX, tabY, activityMonitorTabW, activityMonitorTabH, 8)}
-                          fill={selected ? colorAlpha(tabColor, '28') : 'rgba(2, 12, 22, 0.72)'}
-                          stroke={selected ? tabColor : cfg.colors.panelStroke}
-                          strokeWidth={selected ? 1.15 : 0.82}
-                          opacity={selected ? 1 : 0.78}
-                        />
-                        <path
-                          d={topRoundedRectPath(tabX + 5, tabY + 4, activityMonitorTabW - 10, 10, 5)}
-                          fill={cfg.colors.bodyText}
-                          opacity={selected ? 0.14 : 0.05}
-                        />
-                        <text
-                          x={tabX + activityMonitorTabW / 2}
-                          y={tabY + activityMonitorTabH * 0.63}
-                          textAnchor="middle"
-                          fontSize={12.5}
-                          fontWeight={900}
-                          fill={selected ? cfg.colors.bodyText : cfg.colors.mutedText}
-                        >
-                          {tab.label}
-                        </text>
-                      </g>
-                    );
-                  })}
-                </g>
+                <text
+                  x={activityMonitorContentX}
+                  y={activityMonitorPanelY + 17}
+                  fontSize={11}
+                  fontWeight={950}
+                  fill={activityManageTabColor}
+                >
+                  {activityManageTab.label.toUpperCase()} EVIDENCE
+                </text>
                 <path
-                  d={`M ${activityMonitorContentX - 8} ${activityMonitorContentY - 6} H ${activityMonitorContentX + activityMonitorContentW}`}
+                  d={`M ${activityMonitorContentX} ${activityMonitorContentY - 7} H ${activityMonitorContentX + activityMonitorContentW}`}
                   stroke={activityManageTabColor}
                   strokeWidth={0.85}
                   opacity={0.42}
@@ -6383,19 +6731,19 @@ function ManageControlPanel({
                   const rowX = activityMonitorContentX + column * (activityMonitorRowW + activityMonitorRowGap);
                   const rowY = activityMonitorContentY + rowIndex * (activityMonitorRowH + activityMonitorRowGap);
                   return (
-                    <g key={`activity-monitor-row:${activityManageActiveTab}:${activityMonitorActiveTab}:${row.label}`}>
+                    <g key={`activity-evidence-row:${activityManageActiveTab}:${row.label}`}>
                       <rect
                         x={rowX}
                         y={rowY}
                         width={activityMonitorRowW}
                         height={activityMonitorRowH}
-                        rx={8}
-                        fill={colorAlpha(rowColor, '16')}
-                        stroke={rowColor}
-                        strokeWidth={0.82}
+                        rx={2}
+                        fill="rgba(2, 14, 25, 0.52)"
+                        stroke={cfg.colors.panelStroke}
+                        strokeWidth={0.72}
                         opacity={0.92}
                       />
-                      <circle cx={rowX + 15} cy={rowY + 15} r={3.4} fill={rowColor} opacity={0.96} />
+                      <circle cx={rowX + 15} cy={rowY + 15} r={3.2} fill={rowColor} opacity={0.96} />
                       <text x={rowX + 26} y={rowY + 17} fontSize={9.8} fontWeight={950} fill={rowColor}>
                         {truncateTextForWidth(row.label.toUpperCase(), activityMonitorRowW - 40, 9.8, 0.58)}
                       </text>
@@ -7894,6 +8242,7 @@ function ParentPortalDetailPanel({
   onGuideNoteSelect,
   manageTargetSelection,
   onManageTargetChange,
+  activityState,
   onNavigate,
   cfg,
 }: {
@@ -7916,6 +8265,7 @@ function ParentPortalDetailPanel({
   onGuideNoteSelect: (note: ParentPortalGuideNote) => void;
   manageTargetSelection?: ManageTargetSelection;
   onManageTargetChange?: (selection: ManageTargetSelection) => void;
+  activityState?: ParentPortalActivityState | null;
   onNavigate?: (routePath: string) => void;
   cfg: ParentPortalSvgControls;
 }) {
@@ -7958,6 +8308,7 @@ function ParentPortalDetailPanel({
           }
         }
         onTargetChange={onManageTargetChange}
+        activityState={activityState}
         cfg={cfg}
       />
     );
@@ -9658,6 +10009,7 @@ function MainBoard({
   onNavigate,
   onAgentCommand,
   onSelectNavLabel,
+  activityState,
   cfg,
   mainX,
   mainW,
@@ -9690,6 +10042,7 @@ function MainBoard({
   onNavigate?: (routePath: string) => void;
   onAgentCommand?: (command: AgentCommandName, payload: Record<string, string>) => void;
   onSelectNavLabel: (navLabel: string) => void;
+  activityState?: ParentPortalActivityState | null;
   cfg: ParentPortalSvgControls;
   mainX: number;
   mainW: number;
@@ -10396,6 +10749,7 @@ function MainBoard({
                 onGuideNoteSelect={handleGuideNoteSelect}
                 manageTargetSelection={manageTargetSelection}
                 onManageTargetChange={setManageTargetSelection}
+                activityState={activityState}
                 onNavigate={onNavigate}
                 cfg={cfg}
               />
@@ -10651,6 +11005,7 @@ export function ParentPortalSvgSurface({
   assistantRouteActive = false,
   assistantRoutePath = '#/assistant',
   assistantReturnRoutePath = '#/overview',
+  activityState = null,
   onRefreshParentPortal,
   onNavigate,
   onAssistantCommand,
@@ -11046,6 +11401,7 @@ export function ParentPortalSvgSurface({
               }
               activateNavLabel(navLabel);
             }}
+            activityState={activityState}
             cfg={cfg}
             mainX={mainX}
             mainW={mainW}

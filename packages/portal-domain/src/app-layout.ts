@@ -166,7 +166,7 @@ function defaultMainSidePanelFoldouts(): readonly PortalAppLayoutFoldoutDraft[] 
       button('rules', 'Rules', 'Rules and policy guide.', '#/policy', 'rules', text.AppLayoutTone.Red),
       button('memory', 'Memory', 'Cited local memory.', '#/memory', 'memory'),
       button('ai', 'AI', 'Local AI and memory readiness.', '#/ai-runtime', 'ai-setup', text.AppLayoutTone.Purple),
-      button('reports', 'Reports', 'Stored reports and summaries.', '#/report-settings', 'reports'),
+      button('reports', 'Reports', 'Stored reports and summaries.', '#/activity', 'reports'),
       button('private', 'Private', 'Privacy and data custody guide.', '#/privacy-design', 'private'),
     ]),
     foldout('manage', 'Manage', text.AppLayoutTone.Cyan, [

@@ -145,7 +145,7 @@ export const PARENT_PORTAL_CONTROL_GUIDES: readonly ParentPortalGuideTopic[] = [
         label: 'Open Reports',
         body: 'Use summaries when you need a day, week, or month view instead of raw events.',
         tone: 'cyan',
-        targetRoutePath: '#/report-settings',
+        targetRoutePath: '#/activity',
         targetNavLabel: PARENT_PORTAL_NAV_LABELS.Activity,
       },
     ],

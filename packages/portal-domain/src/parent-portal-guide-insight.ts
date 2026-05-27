@@ -74,7 +74,7 @@ export const PARENT_PORTAL_INSIGHT_GUIDES: readonly ParentPortalGuideTopic[] = [
         label: 'Open reports',
         body: 'Use reports for evidence-cited parent explanations and summaries.',
         tone: 'purple',
-        targetRoutePath: '#/report-settings',
+        targetRoutePath: '#/activity',
         targetNavLabel: PARENT_PORTAL_NAV_LABELS.Activity,
       },
     ],
@@ -141,7 +141,7 @@ export const PARENT_PORTAL_INSIGHT_GUIDES: readonly ParentPortalGuideTopic[] = [
         label: 'Open Reports',
         body: 'Choose daily, weekly, monthly, or incident summary.',
         tone: 'purple',
-        targetRoutePath: '#/report-settings',
+        targetRoutePath: '#/activity',
         targetNavLabel: PARENT_PORTAL_NAV_LABELS.Activity,
       },
       {

@@ -5,7 +5,7 @@ const productRoutes = [
   { path: '/#/start', nav: 'START HERE', title: 'START HERE', kind: 'guideDashboard' },
   { path: '/#/overview', nav: 'OVERVIEW', title: 'Current device state', kind: 'control' },
   { path: '/#/assistant', nav: 'AI ASSISTANT', title: 'Ask MIA about', kind: 'assistant' },
-  { path: '/#/activity', nav: 'ACTIVITY', title: 'PARENT CONTROL DETAIL', kind: 'control' },
+  { path: '/#/activity', nav: 'ACTIVITY', title: 'REPORTS CONTROL DETAIL', kind: 'activityManage' },
   { path: '/#/browser', nav: 'WEB', title: 'MANAGED WEB CONTROL DETAIL', kind: 'control' },
   {
     path: '/#/browser-settings',
@@ -39,12 +39,6 @@ const productRoutes = [
     nav: PARENT_PORTAL_NAV_LABELS.ReportsGuide,
     title: 'REPORTS AND SUMMARIES GUIDE',
     kind: 'guide',
-  },
-  {
-    path: '/#/report-settings',
-    nav: PARENT_PORTAL_NAV_LABELS.Activity,
-    title: 'REPORTS CONTROL DETAIL',
-    kind: 'activityManage',
   },
   {
     path: '/#/screen-analysis',
@@ -146,6 +140,7 @@ export async function assertRouteScaffolds(page: Page): Promise<void> {
   await assertManageTargetSelectorSemantics(page);
   await assertAssistantEntryAvailable(page);
   await assertFrameTunerRoute(page);
+  await assertLegacyActivityRoute(page);
 }
 
 async function assertProductRoute(
@@ -161,19 +156,11 @@ async function assertProductRoute(
   await expect(page.getByRole('img', { name: 'Ocentra parent dashboard' })).toBeVisible();
   await expect(surface.locator('text').filter({ hasText: navLabel }).first()).toBeVisible();
   if (kind === 'assistant') {
-    await expect(page.getByRole('button', { name: 'Close parent assistant' })).toBeVisible();
-    await expect(page.getByRole('button', { name: /^Ask MIA about Rules$/ })).toBeVisible();
-    await expect(surface.locator('text').filter({ hasText: panelTitle }).first()).toBeVisible();
+    await assertAssistantRouteSurface(page, surface, panelTitle);
     return;
   }
   if (kind === 'manage') {
-    await expect(
-      surface
-        .locator('text')
-        .filter({ hasText: /(?:SETTING|COMMAND) MODE/ })
-        .first()
-    ).toBeVisible();
-    await expect(surface.locator('text').filter({ hasText: 'SETTING CHOICES' }).first()).toBeVisible();
+    await assertManageRouteSurface(surface);
     return;
   }
   if (kind === 'activityManage') {
@@ -181,29 +168,65 @@ async function assertProductRoute(
     return;
   }
   if (kind === 'lanPairing') {
-    await expect(surface.locator('text').filter({ hasText: 'Local Area Network' }).first()).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Scan Local Area Network' })).toBeVisible();
-    await expect(surface.locator('text').filter({ hasText: 'Info' }).first()).toBeVisible();
-    await expect(surface.locator('text').filter({ hasText: 'Update' }).first()).toBeVisible();
-    await expect(surface.locator('text').filter({ hasText: 'Capability' }).first()).toBeVisible();
+    await assertLanPairingRouteSurface(page, surface);
     return;
   }
   if (kind === 'control') {
-    await expect(surface.locator('text').filter({ hasText: 'WHAT PARENTS CONTROL' }).first()).toBeVisible();
-    await expect(surface.locator('text').filter({ hasText: 'DATA CUSTODY' }).first()).toBeVisible();
+    await assertControlRouteSurface(surface);
     return;
   }
   if (kind === 'guideDashboard') {
-    await expect(page.getByRole('button', { name: 'Open Set Up Ocentra Parent' })).toBeVisible();
-    await expect(surface.locator('text').filter({ hasText: 'Support And Diagnostics' }).first()).toBeVisible();
+    await assertGuideDashboardRouteSurface(page, surface);
     return;
   }
   if (kind === 'guide') {
-    await expect(page.getByRole('button', { name: 'Show QUICK READ' })).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Show QUICK ACTION' })).toBeVisible();
+    await assertGuideRouteSurface(page);
     return;
   }
   await expect(surface.locator('text').filter({ hasText: panelTitle }).first()).toBeVisible();
+}
+
+async function assertAssistantRouteSurface(
+  page: Page,
+  surface: ReturnType<Page['locator']>,
+  panelTitle: string
+): Promise<void> {
+  await expect(page.getByRole('button', { name: 'Close parent assistant' })).toBeVisible();
+  await expect(page.getByRole('button', { name: /^Ask MIA about Rules$/ })).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: panelTitle }).first()).toBeVisible();
+}
+
+async function assertManageRouteSurface(surface: ReturnType<Page['locator']>): Promise<void> {
+  await expect(
+    surface
+      .locator('text')
+      .filter({ hasText: /(?:SETTING|COMMAND) MODE/ })
+      .first()
+  ).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: 'SETTING CHOICES' }).first()).toBeVisible();
+}
+
+async function assertLanPairingRouteSurface(page: Page, surface: ReturnType<Page['locator']>): Promise<void> {
+  await expect(surface.locator('text').filter({ hasText: 'Local Area Network' }).first()).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Scan Local Area Network' })).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: 'Info' }).first()).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: 'Update' }).first()).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: 'Capability' }).first()).toBeVisible();
+}
+
+async function assertControlRouteSurface(surface: ReturnType<Page['locator']>): Promise<void> {
+  await expect(surface.locator('text').filter({ hasText: 'WHAT PARENTS CONTROL' }).first()).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: 'DATA CUSTODY' }).first()).toBeVisible();
+}
+
+async function assertGuideDashboardRouteSurface(page: Page, surface: ReturnType<Page['locator']>): Promise<void> {
+  await expect(page.getByRole('button', { name: 'Open Set Up Ocentra Parent' })).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: 'Support And Diagnostics' }).first()).toBeVisible();
+}
+
+async function assertGuideRouteSurface(page: Page): Promise<void> {
+  await expect(page.getByRole('button', { name: 'Show QUICK READ' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Show QUICK ACTION' })).toBeVisible();
 }
 
 async function assertActivityManageSurface(page: Page, surface: ReturnType<Page['locator']>): Promise<void> {
@@ -233,9 +256,7 @@ async function assertActivityReportSurface(page: Page, surface: ReturnType<Page[
   await expect(surface.locator('text').filter({ hasText: 'Frequency' }).first()).toBeVisible();
   await expect(surface.locator('text').filter({ hasText: 'Report viewer' }).first()).toBeVisible();
   await expect(surface.locator('text').filter({ hasText: 'SELECTED REPORT' }).first()).toBeVisible();
-  await expect(
-    surface.locator('text').filter({ hasText: 'activity-report-daily-family-2026-05-26.json' }).first()
-  ).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: 'No saved activity reports reported' }).first()).toBeVisible();
   await expect(page.getByRole('button', { name: 'Generate Daily activity report' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Save generated activity report' })).toBeVisible();
   await expect(surface.locator('text').filter({ hasText: 'Daily' }).first()).toBeVisible();
@@ -325,7 +346,7 @@ async function assertDuplicateLabelSidePanelRoutes(page: Page): Promise<void> {
   await page.goto('/#/overview');
   await clickSidePanelButton(page, 'Expand MANAGE');
   await expect(page.getByRole('button', { name: `Expand ${PARENT_PORTAL_NAV_LABELS.Activity}` })).toHaveCount(0);
-  await page.goto('/#/report-settings');
+  await page.goto('/#/activity');
   await expect(page.getByRole('button', { name: 'Open Report guide' })).toBeVisible();
 }
 
@@ -408,6 +429,12 @@ async function assertFrameTunerRoute(page: Page): Promise<void> {
   await assertAppLayoutTopTabs(page);
   await assertMainAppLayoutHierarchy(page);
   await assertChatLayoutHierarchy(page);
+}
+
+async function assertLegacyActivityRoute(page: Page): Promise<void> {
+  await page.goto('/#/report-settings');
+  await expect(page).toHaveURL(/#\/activity$/);
+  await assertActivityManageSurface(page, page.locator('svg.parent-portal-svg-surface'));
 }
 
 async function assertAppLayoutTopTabs(page: Page): Promise<void> {

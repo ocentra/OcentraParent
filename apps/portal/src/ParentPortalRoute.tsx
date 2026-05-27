@@ -12,6 +12,7 @@ import {
 } from '@ocentra-parent/portal-domain/contracts';
 import { ParentPortalSvgSurface } from '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurface';
 import type { ParentPortalSvgControls } from '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurfaceControls';
+import { resolveLiveActivityState } from './live-activity-state';
 import type { PortalRenderActions } from './portal-actions';
 import type { PortalRuntimeState } from './portal-state';
 import './styles/parent-portal-route.css';
@@ -25,6 +26,7 @@ type ParentPortalRouteProps = {
 
 export function ParentPortalRoute({ actions, controls, route, state }: ParentPortalRouteProps): ReactElement {
   const routeContext = parentPortalRouteContext(route);
+  const activityState = resolveLiveActivityState(state.events);
   return (
     <div className={PARENT_PORTAL_ROUTE.ClassName}>
       <ParentPortalSvgSurface
@@ -43,6 +45,7 @@ export function ParentPortalRoute({ actions, controls, route, state }: ParentPor
         assistantRouteActive={route === PortalRoute.Assistant}
         assistantRoutePath={PARENT_PORTAL_ROUTE.HashRoutes.Assistant}
         assistantReturnRoutePath={PARENT_PORTAL_ROUTE.HashRoutes.Overview}
+        activityState={activityState}
         onRefreshParentPortal={actions.reconnect}
         onMatchmaking={actions.reconnect}
         onNavigate={(routePath) => {
