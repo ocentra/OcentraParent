@@ -7,6 +7,8 @@ pub(crate) mod authority;
 pub(crate) mod controller_lease;
 #[cfg(test)]
 mod controller_lease_tests;
+#[cfg(test)]
+mod device_roles_tests;
 pub(crate) mod lan_ai_job;
 #[cfg(test)]
 mod lan_ai_job_tests;
@@ -14,8 +16,8 @@ mod lan_ai_job_tests;
 use ocentra_parent_agent_core::TrustedDeviceRegistry;
 use ocentra_parent_agent_protocol::{
     constants, AgentCommandEnvelope, AgentCommandName, AgentEventEnvelope, AgentEventName,
-    AgentRoute, LanPairingDeviceRef, LanPairingParentAuthority, LanPairingProof,
-    LanPairingRejectionReason, LanParentIntentEnvelope, LogFields, LogLevel,
+    AgentRoute, DeviceRoleRuntimeReadModel, LanPairingDeviceRef, LanPairingParentAuthority,
+    LanPairingProof, LanPairingRejectionReason, LanParentIntentEnvelope, LogFields, LogLevel,
 };
 
 use crate::{
@@ -46,6 +48,8 @@ pub struct LanPairingRuntime {
     pub(crate) controller_lease: Arc<Mutex<Option<LanControllerLeaseState>>>,
     pub(crate) persistence: LanPairingRegistryPersistence,
     pub(crate) local_child_device_id: Option<String>,
+    pub(crate) device_roles: DeviceRoleRuntimeReadModel,
+    pub(crate) lan_ai_provider_capabilities: Vec<String>,
 }
 
 #[derive(Clone, Debug)]

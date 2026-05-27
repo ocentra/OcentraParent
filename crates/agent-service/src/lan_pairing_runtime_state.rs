@@ -13,6 +13,12 @@ use crate::{
     time::timestamp_now,
 };
 
+mod device_roles;
+use device_roles::{
+    default_device_role_read_model, device_role_read_model_from_env,
+    lan_ai_provider_capabilities_from_env, non_empty_env,
+};
+
 impl LanPairingRuntime {
     pub fn empty() -> Self {
         Self {
@@ -21,6 +27,8 @@ impl LanPairingRuntime {
             controller_lease: Arc::new(Mutex::new(None)),
             persistence: LanPairingRegistryPersistence::InMemory,
             local_child_device_id: None,
+            device_roles: default_device_role_read_model(None),
+            lan_ai_provider_capabilities: Vec::new(),
         }
     }
 
@@ -51,6 +59,8 @@ impl LanPairingRuntime {
             controller_lease: Arc::new(Mutex::new(None)),
             persistence: LanPairingRegistryPersistence::InMemory,
             local_child_device_id,
+            device_roles: device_role_read_model_from_env(),
+            lan_ai_provider_capabilities: lan_ai_provider_capabilities_from_env(),
         }
     }
 
@@ -64,6 +74,8 @@ impl LanPairingRuntime {
             controller_lease: Arc::new(Mutex::new(None)),
             persistence: LanPairingRegistryPersistence::LocalJsonRegistry(path.to_path_buf()),
             local_child_device_id,
+            device_roles: device_role_read_model_from_env(),
+            lan_ai_provider_capabilities: lan_ai_provider_capabilities_from_env(),
         }
     }
 
@@ -199,8 +211,4 @@ impl LanPairingRuntime {
             .map(|mut registry| registry.mark_selected_stale(stale_at))
             .unwrap_or(false)
     }
-}
-
-fn non_empty_env(name: &str) -> Option<String> {
-    std::env::var(name).ok().filter(|value| !value.is_empty())
 }

@@ -10,6 +10,10 @@ pub const COMMAND_LAN_AI_JOB_SUBMIT: &str = "agent.lan-ai.job.submit";
 pub const EVENT_STATUS_REPORTED: &str = "agent.lan-pairing.status.reported";
 pub const EVENT_AUDIT_REPORTED: &str = "agent.lan-pairing.audit.reported";
 pub const EVENT_LAN_AI_JOB_REPORTED: &str = "agent.lan-ai.job.reported";
+pub const DEVICE_ROLES_ENV: &str = "OCENTRA_PARENT_DEVICE_ROLES";
+pub const DEVICE_SURFACE_ENV: &str = "OCENTRA_PARENT_DEVICE_SURFACE";
+pub const LAN_AI_PROVIDER_OPT_IN_ENV: &str = "OCENTRA_PARENT_LAN_AI_PROVIDER_OPT_IN";
+pub const LAN_AI_PROVIDER_CAPABILITIES_ENV: &str = "OCENTRA_PARENT_LAN_AI_PROVIDER_CAPABILITIES";
 pub const LOCAL_CHILD_DEVICE_ID_ENV: &str = "OCENTRA_PARENT_AGENT_LAN_CHILD_DEVICE_ID";
 pub const SUPPORTED_WEBSOCKET_COMMANDS: &[&str] = &[
     COMMAND_PROOF_SUBMIT,
