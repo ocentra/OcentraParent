@@ -15,8 +15,10 @@ mod activity_surface_adapter;
 mod activity_surface_adapter_tests;
 mod activity_surface_api;
 mod activity_surface_payload;
+mod activity_surface_read_model_states;
 mod activity_surface_read_models;
 mod activity_surface_report;
+mod activity_surface_report_store;
 mod activity_surface_request;
 mod activity_surface_store;
 mod app;
@@ -116,6 +118,7 @@ mod network_flow_payload_tests;
 mod parent_assistant_api;
 #[cfg(test)]
 mod parent_assistant_api_tests;
+mod parent_assistant_evidence_context;
 mod parent_assistant_payload;
 mod parent_assistant_runtime;
 #[cfg(test)]

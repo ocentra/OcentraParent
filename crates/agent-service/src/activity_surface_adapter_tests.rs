@@ -1,5 +1,5 @@
 use std::{
-    fs::remove_file,
+    fs::{remove_dir_all, remove_file},
     path::PathBuf,
     time::{SystemTime, UNIX_EPOCH},
 };
@@ -7,14 +7,16 @@ use std::{
 use ocentra_parent_agent_core::ActivityStore;
 use ocentra_parent_agent_protocol::{
     constants, ActivityEvent, ActivityEventKind, ActivityObserver, ActivityReadModelState,
-    ActivityReportFrequency, ActivityReportRequest, ActivitySource, ActivitySubject,
-    ActivitySubjectKind, ActivitySurfaceRequest, ActivitySurfaceScope, ActivitySurfaceScopeKind,
-    LogFieldValue, LogFields, ACTIVITY_SCHEMA_VERSION, ACTIVITY_SURFACE_SCHEMA_VERSION,
+    ActivityRecentSummary, ActivityReportFrequency, ActivityReportRequest, ActivitySource,
+    ActivitySubject, ActivitySubjectKind, ActivitySurfaceRequest, ActivitySurfaceScope,
+    ActivitySurfaceScopeKind, LogFieldValue, LogFields, ACTIVITY_QUERY_SCHEMA_VERSION,
+    ACTIVITY_SCHEMA_VERSION, ACTIVITY_SURFACE_SCHEMA_VERSION,
 };
 
 use crate::{
     activity_surface_read_models::{app_use_read_model, browser_read_model, network_read_model},
-    activity_surface_report::{report_document, saved_report_document},
+    activity_surface_report::report_document,
+    activity_surface_report_store::{history_list_from_dir, save_report_document_to_dir},
     activity_surface_store::{
         load_browser_model_from_path, load_recent_summary_from_path, local_store_snapshot_from_path,
     },
@@ -30,9 +32,13 @@ async fn activity_surface_report_uses_real_activity_store_snapshot() {
         .await
         .expect(constants::error::ACTIVITY_STORE_QUERIES);
     let report = report_document(report_request(), Some(snapshot));
-    let saved = saved_report_document(report.clone());
+    let report_dir = temp_report_dir();
+    cleanup_report_dir(&report_dir);
+    let saved = save_report_document_to_dir(report.clone(), report_dir.clone());
+    let history = history_list_from_dir(surface_request(), report_dir.clone());
 
     cleanup_store(&store_path);
+    cleanup_report_dir(&report_dir);
 
     assert_eq!(report.source_states[0].state, ActivityReadModelState::Ready);
     assert_eq!(report.sections.len(), 6);
@@ -44,8 +50,10 @@ async fn activity_surface_report_uses_real_activity_store_snapshot() {
             .saved_metadata
             .expect(constants::error::AGENT_EVENT_SERIALIZES)
             .saved_state,
-        ocentra_parent_agent_protocol::ActivitySavedReportState::StorageUnavailable
+        ocentra_parent_agent_protocol::ActivitySavedReportState::Saved
     );
+    assert_eq!(history.state, ActivityReadModelState::Ready);
+    assert_eq!(history.reports[0].parsed_report.report_id, report.report_id);
 }
 
 #[tokio::test]
@@ -67,6 +75,50 @@ async fn activity_tab_read_models_map_ready_empty_and_unavailable_states() {
     assert_eq!(browser_model.state, ActivityReadModelState::Empty);
     assert_eq!(browser_model.rows.len(), 0);
     assert_eq!(network_model.state, ActivityReadModelState::Unavailable);
+}
+
+#[tokio::test]
+async fn activity_surface_device_scope_reports_offline_for_nonlocal_device() {
+    let recent = Some(ActivityRecentSummary {
+        schema_version: ACTIVITY_QUERY_SCHEMA_VERSION,
+        limit: constants::activity_store::DEFAULT_RECENT_LIMIT,
+        returned: 1,
+        first_observed_at: Some(constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string()),
+        last_observed_at: Some(constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string()),
+        last_event_id: Some(constants::event_id::HEALTH_REPORTED.to_string()),
+        most_recent_kind: Some(ActivityEventKind::ProcessObserved),
+        most_recent_observer: Some(ActivityObserver::WindowsProcess),
+        most_recent_subject_kind: Some(ActivitySubjectKind::Process),
+        most_recent_subject_id: Some(
+            constants::activity_store::TEST_PROCESS_SUBJECT_ID.to_string(),
+        ),
+        most_recent_subject_name: Some(
+            constants::activity_store::TEST_PROCESS_SUBJECT_NAME.to_string(),
+        ),
+    });
+    let app_use = app_use_read_model(remote_device_surface_request(), recent);
+    let snapshot = crate::activity_surface_store::ActivitySurfaceStoreSnapshot {
+        device_id: constants::activity_surface::DEFAULT_DEVICE_ID.to_string(),
+        recent_returned: 1,
+        last_event_id: Some(constants::event_id::HEALTH_REPORTED.to_string()),
+        browser_returned: 0,
+        network_returned: 0,
+        games_returned: 0,
+        screen_returned: 0,
+    };
+    let report = report_document(remote_device_report_request(), Some(snapshot));
+
+    assert_eq!(app_use.state, ActivityReadModelState::Offline);
+    assert_eq!(
+        app_use.summary,
+        constants::activity_surface::SUMMARY_DEVICE_OFFLINE
+    );
+    assert_eq!(app_use.rows.len(), 0);
+    assert_eq!(
+        report.source_states[0].state,
+        ActivityReadModelState::Offline
+    );
+    assert_eq!(report.sections[0].state, ActivityReadModelState::Offline);
 }
 
 fn write_process_event(store_path: &PathBuf) {
@@ -117,10 +169,31 @@ fn report_request() -> ActivityReportRequest {
     }
 }
 
+fn remote_device_report_request() -> ActivityReportRequest {
+    ActivityReportRequest {
+        schema_version: ACTIVITY_SURFACE_SCHEMA_VERSION,
+        frequency: ActivityReportFrequency::Daily,
+        scope: remote_device_scope(),
+        requested_at: constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string(),
+        range_start: constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
+        range_end: constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string(),
+    }
+}
+
 fn surface_request() -> ActivitySurfaceRequest {
     ActivitySurfaceRequest {
         schema_version: ACTIVITY_SURFACE_SCHEMA_VERSION,
         scope: surface_scope(),
+        requested_at: constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string(),
+        range_start: constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
+        range_end: constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string(),
+    }
+}
+
+fn remote_device_surface_request() -> ActivitySurfaceRequest {
+    ActivitySurfaceRequest {
+        schema_version: ACTIVITY_SURFACE_SCHEMA_VERSION,
+        scope: remote_device_scope(),
         requested_at: constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string(),
         range_start: constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
         range_end: constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string(),
@@ -135,6 +208,14 @@ fn surface_scope() -> ActivitySurfaceScope {
     }
 }
 
+fn remote_device_scope() -> ActivitySurfaceScope {
+    ActivitySurfaceScope {
+        scope_kind: ActivitySurfaceScopeKind::Device,
+        family_id: None,
+        device_id: Some(constants::activity_store::TEST_REMOTE_DEVICE_ID.to_string()),
+    }
+}
+
 fn temp_store_path() -> PathBuf {
     let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
     name.push_str(&std::process::id().to_string());
@@ -146,6 +227,18 @@ fn temp_store_path() -> PathBuf {
     let mut path = std::env::temp_dir();
     path.push(name);
     path.set_extension(constants::activity_store::FILE_EXTENSION);
+    path
+}
+
+fn temp_report_dir() -> PathBuf {
+    let mut path = std::env::temp_dir();
+    let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
+    name.push_str(&std::process::id().to_string());
+    name.push(constants::delimiter::HYPHEN);
+    name.push_str(&nanos_now().to_string());
+    name.push(constants::delimiter::HYPHEN);
+    name.push_str(constants::activity_surface::REPORT_STORAGE_DIR);
+    path.push(name);
     path
 }
 
@@ -164,4 +257,8 @@ fn cleanup_store(store_path: &PathBuf) {
     let mut shm_path = store_path.clone();
     shm_path.set_extension(constants::activity_store::SHM_FILE_EXTENSION);
     let _ = remove_file(shm_path);
+}
+
+fn cleanup_report_dir(path: &PathBuf) {
+    let _ = remove_dir_all(path);
 }

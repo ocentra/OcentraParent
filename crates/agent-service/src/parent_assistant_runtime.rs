@@ -3,18 +3,19 @@ use ocentra_parent_agent_protocol::{
     AgentEventName, LocalAiDegradedState, LocalAiGenerationState, LocalAiProviderSchedulerJobClass,
     LocalAiProviderSchedulerJobStatus, LogFieldValue, LogLevel, ParentActorReference,
     ParentActorRole, ParentAssistantActionPreview, ParentAssistantActionPreviewKind,
-    ParentAssistantAnswer, ParentAssistantAnswerState, ParentAssistantEvidenceContext,
-    ParentAssistantGenerateRequest, ParentAssistantProviderState, ParentAssistantScope,
-    ParentEvidenceReference, ParentEvidenceReferenceKind,
+    ParentAssistantAnswer, ParentAssistantAnswerState, ParentAssistantGenerateRequest,
+    ParentAssistantProviderState, ParentAssistantScope,
 };
 
 use crate::{
+    activity_surface_store::{local_store_snapshot, ActivitySurfaceStoreSnapshot},
     event_builder::build_event,
     local_ai_chat_generation_request::LocalAiChatGenerationRequest,
     local_ai_chat_generation_runner::run_local_ai_chat_generation,
     local_ai_provider_scheduler::{local_ai_provider_scheduler, LocalAiProviderSchedulerRuntime},
     local_ai_runtime_config::LocalAiRuntimeConfigSnapshot,
     local_ai_runtime_status::local_ai_runtime_status_for_model_from_config,
+    parent_assistant_evidence_context::evidence_context_from_command,
     parent_assistant_payload::parent_assistant_answer_payload,
     time::timestamp_now,
 };
@@ -25,7 +26,8 @@ pub async fn build_parent_assistant_answer_report(
     let config = tokio::task::spawn_blocking(LocalAiRuntimeConfigSnapshot::from_environment)
         .await
         .unwrap_or_else(|_| LocalAiRuntimeConfigSnapshot::unconfigured());
-    let request = request_from_command(&command, &config);
+    let snapshot = local_store_snapshot().await;
+    let request = request_from_command(&command, &config, snapshot);
     let answer = generate_parent_assistant_answer(&command, request, &config).await;
     let severity = if answer.answer_state == ParentAssistantAnswerState::Answered {
         LogLevel::Info
@@ -103,9 +105,10 @@ pub(crate) async fn generate_parent_assistant_answer_with_scheduler(
     answer_from_generation_result(request, result)
 }
 
-fn request_from_command(
+pub(crate) fn request_from_command(
     command: &AgentCommandEnvelope,
     config: &LocalAiRuntimeConfigSnapshot,
+    activity_snapshot: Option<ActivitySurfaceStoreSnapshot>,
 ) -> ParentAssistantGenerateRequest {
     let asked_at = timestamp_now();
     ParentAssistantGenerateRequest {
@@ -114,7 +117,7 @@ fn request_from_command(
             .unwrap_or_else(|| constants::parent_assistant::DEFAULT_REQUEST_ID.to_string()),
         thread_id: constants::parent_assistant::DEFAULT_THREAD_ID.to_string(),
         message_id: constants::parent_assistant::DEFAULT_MESSAGE_ID.to_string(),
-        asked_at,
+        asked_at: asked_at.clone(),
         actor: ParentActorReference {
             actor_id: constants::parent_assistant::DEFAULT_PARENT_ACTOR_ID.to_string(),
             role: ParentActorRole::Parent,
@@ -127,7 +130,11 @@ fn request_from_command(
         },
         question: string_payload_field(command, constants::field::PARENT_ASSISTANT_QUESTION)
             .unwrap_or_else(|| constants::parent_assistant::DEFAULT_QUESTION.to_string()),
-        evidence_context: vec![evidence_context_from_command(command)],
+        evidence_context: vec![evidence_context_from_command(
+            command,
+            activity_snapshot,
+            asked_at.clone(),
+        )],
         model_id: string_payload_field(command, constants::field::LOCAL_AI_MODEL_ID)
             .or_else(|| Some(config.model_id().to_string())),
         max_output_tokens: numeric_field_u32(
@@ -140,22 +147,6 @@ fn request_from_command(
             command.payload.get(constants::field::LOCAL_AI_TIMEOUT_MS),
             config.generation_timeout_ms(),
         ),
-    }
-}
-
-fn evidence_context_from_command(command: &AgentCommandEnvelope) -> ParentAssistantEvidenceContext {
-    ParentAssistantEvidenceContext {
-        evidence: ParentEvidenceReference {
-            evidence_reference_id: constants::field::ACTIVITY_DIGEST.to_string(),
-            kind: ParentEvidenceReferenceKind::QueryStoreSummary,
-            observed_at: timestamp_now(),
-        },
-        citation_label: constants::parent_assistant::DEFAULT_CITATION_LABEL.to_string(),
-        allowed_summary: string_payload_field(
-            command,
-            constants::field::PARENT_ASSISTANT_EVIDENCE_SUMMARY,
-        )
-        .unwrap_or_else(|| constants::parent_assistant::DEFAULT_ALLOWED_SUMMARY.to_string()),
     }
 }
 

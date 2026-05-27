@@ -9,6 +9,7 @@ use ocentra_parent_agent_protocol::{
 use crate::{activity_store_path::activity_db_path, time::timestamp_now};
 
 pub(crate) struct ActivitySurfaceStoreSnapshot {
+    pub(crate) device_id: String,
     pub(crate) recent_returned: u64,
     pub(crate) last_event_id: Option<String>,
     pub(crate) browser_returned: u64,
@@ -52,6 +53,7 @@ pub(crate) async fn local_store_snapshot_from_path(
             )
             .ok()?;
         Some(ActivitySurfaceStoreSnapshot {
+            device_id: constants::activity_surface::DEFAULT_DEVICE_ID.to_string(),
             recent_returned: recent.returned,
             last_event_id: recent.last_event_id,
             browser_returned: browser.returned,

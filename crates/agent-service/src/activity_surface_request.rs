@@ -1,7 +1,7 @@
 use ocentra_parent_agent_protocol::{
-    constants, ActivityReportFrequency, ActivityReportRequest, ActivitySurfaceRequest,
-    ActivitySurfaceScope, ActivitySurfaceScopeKind, AgentCommandEnvelope, LogFieldValue,
-    ACTIVITY_SURFACE_SCHEMA_VERSION,
+    constants, ActivityReportDocument, ActivityReportFrequency, ActivityReportRequest,
+    ActivitySurfaceRequest, ActivitySurfaceScope, ActivitySurfaceScopeKind, AgentCommandEnvelope,
+    LogFieldValue, ACTIVITY_SURFACE_SCHEMA_VERSION,
 };
 
 use crate::time::timestamp_now;
@@ -19,6 +19,13 @@ pub(crate) fn report_request_from_command(
         range_start: request.range_start,
         range_end: request.range_end,
     }
+}
+
+pub(crate) fn report_document_from_command(
+    command: &AgentCommandEnvelope,
+) -> Option<ActivityReportDocument> {
+    string_payload_field(command, constants::field::ACTIVITY_REPORT_DOCUMENT)
+        .and_then(|value| serde_json::from_str::<ActivityReportDocument>(&value).ok())
 }
 
 pub(crate) fn surface_request_from_command(

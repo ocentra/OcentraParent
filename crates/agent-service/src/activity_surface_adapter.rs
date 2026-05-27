@@ -5,8 +5,9 @@ use crate::{
         app_use_read_model, browser_read_model, games_read_model, network_read_model,
         screen_read_model,
     },
-    activity_surface_report::{history_list, report_document, saved_report_document},
-    activity_surface_request::report_request_from_command,
+    activity_surface_report::report_document,
+    activity_surface_report_store::{history_list, save_report_document},
+    activity_surface_request::{report_document_from_command, report_request_from_command},
     activity_surface_store::{
         load_app_game_report, load_browser_model, load_network_model, load_recent_summary,
         load_screen_summary, local_store_snapshot,
@@ -24,9 +25,11 @@ pub(crate) async fn build_activity_report_document(
 pub(crate) async fn build_saved_activity_report(
     command: &AgentCommandEnvelope,
 ) -> ocentra_parent_agent_protocol::ActivityReportDocument {
-    saved_report_document(
-        build_activity_report_document(command, ActivityReportFrequency::Daily).await,
-    )
+    let report = match report_document_from_command(command) {
+        Some(report) => report,
+        None => build_activity_report_document(command, ActivityReportFrequency::Daily).await,
+    };
+    save_report_document(report)
 }
 
 pub(crate) async fn build_activity_history(
