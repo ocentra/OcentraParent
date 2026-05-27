@@ -1,0 +1,153 @@
+import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import {
+  LocalAiDegradedStateSchema,
+  LocalAiModelIdSchema,
+  LocalAiProviderIdSchema,
+  LocalAiResultIdSchema,
+  LocalAiTimestampSchema,
+  LocalAiUnavailableReasonSchema,
+} from './local-ai-primitives';
+import { LocalAiProviderSchedulerJobStatusSchema } from './local-ai-provider-scheduler';
+import {
+  FamilyReferenceSchema,
+  ParentActionReferenceSchema,
+  ParentActorReferenceSchema,
+  ParentDeviceReferenceSchema,
+  ParentEvidenceReferenceSchema,
+} from './references';
+import { ParentContractSchemaVersionSchema } from './reference-primitives';
+
+const NonEmptyParentAssistantText = Schema.String.pipe(Schema.minLength(1));
+const ParentAssistantPositiveCount = Schema.Number.pipe(Schema.int(), Schema.positive());
+
+export const ParentAssistantRequestIdSchema = NonEmptyParentAssistantText.pipe(
+  Schema.brand('ParentAssistantRequestId')
+);
+export const ParentAssistantThreadIdSchema = NonEmptyParentAssistantText.pipe(Schema.brand('ParentAssistantThreadId'));
+export const ParentAssistantMessageIdSchema = NonEmptyParentAssistantText.pipe(
+  Schema.brand('ParentAssistantMessageId')
+);
+export const ParentAssistantPromptVersionSchema = NonEmptyParentAssistantText.pipe(
+  Schema.brand('ParentAssistantPromptVersion')
+);
+export const ParentAssistantQuestionSchema = NonEmptyParentAssistantText.pipe(Schema.brand('ParentAssistantQuestion'));
+export const ParentAssistantAnswerTextSchema = NonEmptyParentAssistantText.pipe(
+  Schema.brand('ParentAssistantAnswerText')
+);
+export const ParentAssistantCitationLabelSchema = NonEmptyParentAssistantText.pipe(
+  Schema.brand('ParentAssistantCitationLabel')
+);
+export const ParentAssistantActionPreviewIdSchema = NonEmptyParentAssistantText.pipe(
+  Schema.brand('ParentAssistantActionPreviewId')
+);
+
+export const ParentAssistantProviderStateSchema = withParser(Schema.Literal('configured', 'degraded', 'unavailable'));
+export const ParentAssistantAnswerStateSchema = withParser(
+  Schema.Literal('answered', 'queued', 'degraded', 'unavailable')
+);
+export const ParentAssistantActionPreviewKindSchema = withParser(
+  Schema.Literal('none', 'policy-suggestion', 'schedule-change', 'time-limit-change')
+);
+
+export const ParentAssistantScopeSchema = withParser(
+  Schema.Struct({
+    family: FamilyReferenceSchema,
+    device: Schema.Union(ParentDeviceReferenceSchema, Schema.Null),
+  })
+);
+
+export const ParentAssistantEvidenceContextSchema = withParser(
+  Schema.Struct({
+    evidence: ParentEvidenceReferenceSchema,
+    citationLabel: ParentAssistantCitationLabelSchema,
+    allowedSummary: ParentAssistantAnswerTextSchema,
+  })
+);
+
+export const ParentAssistantActionPreviewSchema = withParser(
+  Schema.Struct({
+    previewId: Schema.Union(ParentAssistantActionPreviewIdSchema, Schema.Null),
+    actionKind: ParentAssistantActionPreviewKindSchema,
+    summary: Schema.Union(ParentAssistantAnswerTextSchema, Schema.Null),
+    actionReference: Schema.Union(ParentActionReferenceSchema, Schema.Null),
+    requiresControllerLease: Schema.Boolean,
+    childAgentContractRequired: Schema.Literal(true),
+    enforcementApplied: Schema.Literal(false),
+  })
+);
+
+export const ParentAssistantGenerateRequestSchema = withParser(
+  Schema.Struct({
+    schemaVersion: ParentContractSchemaVersionSchema,
+    requestId: ParentAssistantRequestIdSchema,
+    threadId: ParentAssistantThreadIdSchema,
+    messageId: ParentAssistantMessageIdSchema,
+    askedAt: LocalAiTimestampSchema,
+    actor: ParentActorReferenceSchema,
+    scope: ParentAssistantScopeSchema,
+    question: ParentAssistantQuestionSchema,
+    evidenceContext: Schema.Array(ParentAssistantEvidenceContextSchema),
+    modelId: Schema.Union(LocalAiModelIdSchema, Schema.Null),
+    maxOutputTokens: ParentAssistantPositiveCount,
+    timeoutMs: ParentAssistantPositiveCount,
+  })
+);
+
+const ParentAssistantAnswerBaseSchema = Schema.Struct({
+  schemaVersion: ParentContractSchemaVersionSchema,
+  requestId: ParentAssistantRequestIdSchema,
+  threadId: ParentAssistantThreadIdSchema,
+  messageId: ParentAssistantMessageIdSchema,
+  answeredAt: LocalAiTimestampSchema,
+  providerId: LocalAiProviderIdSchema,
+  modelId: LocalAiModelIdSchema,
+  providerState: ParentAssistantProviderStateSchema,
+  answerState: ParentAssistantAnswerStateSchema,
+  schedulerJobStatus: LocalAiProviderSchedulerJobStatusSchema,
+  degradedState: LocalAiDegradedStateSchema,
+  unavailableReason: Schema.Union(LocalAiUnavailableReasonSchema, Schema.Null),
+  localAiResultId: Schema.Union(LocalAiResultIdSchema, Schema.Null),
+  answerText: Schema.Union(ParentAssistantAnswerTextSchema, Schema.Null),
+  citations: Schema.Array(ParentAssistantEvidenceContextSchema),
+  actionPreview: ParentAssistantActionPreviewSchema,
+  promptVersion: ParentAssistantPromptVersionSchema,
+});
+
+type ParentAssistantAnswerCandidate = Infer<typeof ParentAssistantAnswerBaseSchema>;
+
+export const ParentAssistantAnswerSchema = withParser(
+  ParentAssistantAnswerBaseSchema.pipe(
+    Schema.filter(
+      (answer) =>
+        parentAssistantAnswerIsConsistent(answer) ||
+        'Expected parent assistant answers to cite evidence when answered and expose unavailable reason when unavailable'
+    )
+  )
+);
+
+function parentAssistantAnswerIsConsistent(answer: ParentAssistantAnswerCandidate): boolean {
+  if (answer.answerState === 'answered') {
+    return (
+      answer.answerText !== null &&
+      answer.citations.length > 0 &&
+      answer.unavailableReason === null &&
+      answer.providerState === 'configured'
+    );
+  }
+
+  if (answer.answerState === 'unavailable') {
+    return answer.answerText === null && answer.unavailableReason !== null && answer.providerState === 'unavailable';
+  }
+
+  if (answer.answerState === 'degraded') {
+    return answer.degradedState !== 'none' && answer.providerState === 'degraded';
+  }
+
+  return answer.schedulerJobStatus === 'queued' && answer.answerText === null;
+}
+
+export type ParentAssistantScope = Infer<typeof ParentAssistantScopeSchema>;
+export type ParentAssistantEvidenceContext = Infer<typeof ParentAssistantEvidenceContextSchema>;
+export type ParentAssistantActionPreview = Infer<typeof ParentAssistantActionPreviewSchema>;
+export type ParentAssistantGenerateRequest = Infer<typeof ParentAssistantGenerateRequestSchema>;
+export type ParentAssistantAnswer = Infer<typeof ParentAssistantAnswerSchema>;

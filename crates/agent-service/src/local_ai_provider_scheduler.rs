@@ -48,7 +48,6 @@ impl LocalAiProviderSchedulerRuntime {
         }
     }
 
-    #[cfg(test)]
     pub(crate) fn status_snapshot(&self) -> LocalAiProviderSchedulerStatus {
         self.state
             .lock()

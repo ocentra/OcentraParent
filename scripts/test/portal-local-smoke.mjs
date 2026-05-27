@@ -3,6 +3,12 @@ import { mkdtemp, readdir, readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
+import {
+  AgentCommand,
+  AgentEvent,
+  AgentEventEnvelopeSchema,
+  AgentProtocolDefaults,
+} from '@ocentra-parent/agent-protocol-domain/contracts';
 
 import {
   ParentDevEnv,
@@ -56,11 +62,129 @@ try {
   if (!html.includes('Ocentra Parent')) {
     throw new Error('Portal HTML shell did not include the expected title.');
   }
+  await assertTypedActivityAdapterStates();
   await assertDevServerLogWritten();
   console.log('portal-local-smoke-ok');
 } finally {
   await Promise.all([stopProcess(portal), stopProcess(agent)]);
   await removeDirectoryWithRetry(devLogDir);
+}
+
+function assertTypedActivityAdapterStates() {
+  const steps = [
+    {
+      messageId: 'cmd-portal-smoke-activity-report',
+      command: AgentCommand.ActivityReportDailyGenerate,
+      event: AgentEvent.ActivityReportGenerated,
+      field: AgentProtocolDefaults.Field.ActivityReportDocument,
+    },
+    {
+      messageId: 'cmd-portal-smoke-activity-network',
+      command: AgentCommand.ActivityNetworkReadModelGet,
+      event: AgentEvent.ActivityNetworkReadModelReported,
+      field: AgentProtocolDefaults.Field.ActivityReadModel,
+    },
+  ];
+
+  return new Promise((resolve, reject) => {
+    const socket = new WebSocket(createAgentWebSocketUrl(agentPort));
+    let stepIndex = 0;
+    let settled = false;
+    const timer = setTimeout(() => fail(new Error('Typed Activity adapter smoke timed out')), 10000);
+
+    const fail = (error) => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      clearTimeout(timer);
+      socket.close();
+      reject(error);
+    };
+
+    const complete = () => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      clearTimeout(timer);
+      socket.close();
+      resolve();
+    };
+
+    const sendCurrentStep = () => {
+      const step = steps[stepIndex];
+      socket.send(JSON.stringify(commandEnvelope(step.messageId, step.command, activityPayload())));
+    };
+
+    socket.addEventListener('open', sendCurrentStep);
+
+    socket.addEventListener('message', (message) => {
+      try {
+        const parsed = AgentEventEnvelopeSchema.parse(JSON.parse(String(message.data)));
+        if (parsed.event === AgentEvent.ConnectionReady) {
+          return;
+        }
+
+        const step = steps[stepIndex];
+        if (parsed.event !== step.event) {
+          fail(new Error(`Expected ${step.event}, received ${parsed.event}`));
+          return;
+        }
+        assertSurfacePayload(parsed.payload, step.field);
+        stepIndex += 1;
+        if (stepIndex === steps.length) {
+          complete();
+          return;
+        }
+        sendCurrentStep();
+      } catch (error) {
+        fail(error instanceof Error ? error : new Error(String(error)));
+      }
+    });
+
+    socket.addEventListener('error', () => fail(new Error('Typed Activity adapter smoke WebSocket failed')));
+  });
+}
+
+function assertSurfacePayload(payload, jsonField) {
+  const state = payload[AgentProtocolDefaults.Field.ActivitySurfaceState];
+  if (!allowedActivityStates().has(state)) {
+    throw new Error(`Activity adapter state was not typed: ${JSON.stringify(payload)}`);
+  }
+  const jsonValue = payload[jsonField];
+  if (typeof jsonValue !== 'string') {
+    throw new Error(`Activity adapter did not include JSON field ${jsonField}: ${JSON.stringify(payload)}`);
+  }
+  const parsed = JSON.parse(jsonValue);
+  if (parsed.schemaVersion !== 1) {
+    throw new Error(`Activity adapter returned unexpected schema version: ${jsonValue}`);
+  }
+}
+
+function allowedActivityStates() {
+  return new Set(['ready', 'empty', 'unavailable', 'offline', 'stale', 'permission-required', 'scaffold-only']);
+}
+
+function activityPayload() {
+  return {
+    [AgentProtocolDefaults.Field.ScopeKind]: 'family',
+    [AgentProtocolDefaults.Field.FamilyId]: 'family-local',
+    [AgentProtocolDefaults.Field.RangeStart]: '1970-01-01T00:00:00Z',
+    [AgentProtocolDefaults.Field.RangeEnd]: new Date().toISOString(),
+  };
+}
+
+function commandEnvelope(messageId, command, payload) {
+  return {
+    schemaVersion: 1,
+    messageId,
+    sentAt: new Date().toISOString(),
+    source: { peerId: 'portal-dev', role: 'portal' },
+    target: { deviceId: 'local-dev-agent', platform: 'windows', route: 'localhost' },
+    command,
+    payload,
+  };
 }
 
 async function waitForHttp(url) {

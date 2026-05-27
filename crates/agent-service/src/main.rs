@@ -10,6 +10,15 @@ mod activity_memory_graph_payload_tests;
 mod activity_network_flow_payload;
 mod activity_payload;
 mod activity_store_path;
+mod activity_surface_adapter;
+#[cfg(test)]
+mod activity_surface_adapter_tests;
+mod activity_surface_api;
+mod activity_surface_payload;
+mod activity_surface_read_models;
+mod activity_surface_report;
+mod activity_surface_request;
+mod activity_surface_store;
 mod app;
 mod browser_evidence_payload;
 mod browser_payload;
@@ -104,6 +113,10 @@ mod network_flow_digest_rollups;
 mod network_flow_digest_tests;
 #[cfg(test)]
 mod network_flow_payload_tests;
+mod parent_assistant_payload;
+mod parent_assistant_runtime;
+#[cfg(test)]
+mod parent_assistant_runtime_tests;
 mod policy_preview_api;
 mod policy_preview_payload;
 #[cfg(test)]
