@@ -747,8 +747,10 @@ This plan is successful when:
 - [x] B current V0.9 branch is rebased/fixed, PR'd, CI-green, and merged.
 - [x] A then lands the AI provider/scheduler slice with proof.
 - [x] B then lands the controller lease/LAN routing/LAN AI job slice with proof.
-- [ ] Activity surface fake-data paths are replaced by typed service-backed
-      paths.
+- [x] Activity surface backend contracts/protocol/Rust adapter foundation and
+      Parent Assistant local-runtime backend are merged with proof.
+- [ ] Portal/UI Activity fake-data paths consume the typed service-backed
+      adapter and no longer rely on UI-check data.
 - [x] Parent desktop, parent mobile, child desktop, child Android, and child iOS are
       each tracked with honest implemented/scaffold/manual-required/unavailable
       states.
@@ -758,7 +760,7 @@ This plan is successful when:
 ## Live Completion Audit - 2026-05-27
 
 This audit supersedes the older immediate-state notes above. `main` is at
-`22708ab` after PR #109 and PR #108 landed.
+`8bed44e` after PR #111 and PR #110 landed.
 
 ### Done On Main
 
@@ -778,18 +780,24 @@ This audit supersedes the older immediate-state notes above. `main` is at
 - [x] Full PR CI was green for both PR #109 and PR #108 before merge.
 - [x] The local commit hook remains light; full Playwright/package validation is
       intentionally kept for PR-ready/CI gates, not every local commit.
+- [x] Platform roles, parent desktop package proof, parent mobile scaffold
+      state, LAN AI provider pool routing, and proof-matrix/roadmap
+      reconciliation landed through PR #111 with green CI.
+- [x] Activity surface contracts/protocol/Rust service adapter and Parent
+      Assistant/MIA local-runtime backend through the local AI provider
+      scheduler landed through PR #110 with green CI.
 
 ### Not Done Yet
 
-- [ ] Activity surface backend is not complete. The UI still needs a typed
-      service-backed adapter for Reports, Screen, App Use, Browser, Games, and
+- [ ] C/UI still needs to replace UI-check Activity fake data with the merged
+      typed service adapter for Reports, Screen, App Use, Browser, Games, and
       Network.
-- [ ] Activity reports are not yet generated/saved/listed through a real
-      report document contract and Rust read-model adapter.
-- [ ] Parent Assistant / MIA is not complete. Local AI chat generation and the
-      provider scheduler exist, but the parent assistant runtime still needs
-      contracts, protocol commands, cited prompt context, answer/action preview,
-      and unavailable/configured/degraded states.
+- [ ] Activity report persistence and family fan-out are not product-complete.
+      Save/history currently have typed storage-unavailable/scaffold states,
+      and family aggregation still needs real child-device source handling.
+- [ ] Parent Assistant / MIA is not product-complete. The local-runtime backend
+      exists, but final portal chat wiring, richer cited report context, and
+      product-grade action preview flow still need follow-up.
 - [ ] API AI provider is not implemented. It remains optional and must require
       explicit parent authorization, custody labels, retention/deletion rules,
       and evidence citations.
@@ -835,30 +843,29 @@ This audit supersedes the older immediate-state notes above. `main` is at
 A must start from fresh `main` and own a full implementation slice, not a doc or
 contract-only slice:
 
-- [ ] Activity surface contracts for family/device scope, report frequency,
+- [x] Activity surface contracts for family/device scope, report frequency,
       report request, report document, report sections, saved report metadata,
       and Screen/App Use/Browser/Games/Network read models.
-- [ ] Agent protocol command/event contracts for Activity report generation,
+- [x] Agent protocol command/event contracts for Activity report generation,
       historical report list/save, and tab read models.
-- [ ] Rust protocol parity in `crates/agent-protocol`.
-- [ ] Rust service/read-model adapter in `crates/agent-service` using existing
+- [x] Rust protocol parity in `crates/agent-protocol`.
+- [x] Rust service/read-model adapter in `crates/agent-service` using existing
       activity store/query paths where possible and typed unavailable/local
       states where storage is not wired yet.
-- [ ] Parent Assistant / MIA contracts and protocol commands for local-provider
+- [x] Parent Assistant / MIA contracts and protocol commands for local-provider
       answer generation, cited evidence context, unavailable/configured states,
       and action-preview output.
-- [ ] Rust parent assistant runtime modules that route allowed parent assistant
+- [x] Rust parent assistant runtime modules that route allowed parent assistant
       work through the existing local AI provider scheduler.
-- [ ] Proof that parent assistant requests do not bypass child-agent contracts,
+- [x] Proof that parent assistant requests do not bypass child-agent contracts,
       do not enforce directly, and degrade when the local provider is
       unavailable or busy.
-- [ ] TypeScript contract tests, Rust protocol tests, Rust service tests,
+- [x] TypeScript contract tests, Rust protocol tests, Rust service tests,
       focused proof harness, portal smoke for typed Activity adapter states, and
       `npm run validate`.
 
-DONE means A has a committed, pushed, PR-ready branch with detailed scope,
-touched files, focused validation, full `npm run validate`, known gaps, CI
-fixes if needed, green PR CI, and merge to `main`.
+DONE: PR #110 merged to `main` at `8bed44e` after green CI. Remaining Activity
+and Parent Assistant product gaps are tracked in the final-pass section below.
 
 #### B Owns Platform Roles, Packaged Parent Proof, And LAN AI Pool
 
@@ -890,6 +897,65 @@ docs-only slice:
 DONE means B has a committed, pushed, PR-ready branch with detailed scope,
 touched files, focused validation, full `npm run validate`, known gaps, CI
 fixes if needed, green PR CI, and merge to `main`.
+
+### Final Pass Assignments - 2026-05-27
+
+`codex-c` remains user-owned. A and B must not edit C-locked portal UI,
+parent-assistant API, protocol constants, service `main.rs`, or `websocket.rs`
+files unless primary explicitly reassigns those paths after C lands.
+
+#### A Final Pass: Activity Reports, Adapter Consumption Boundary, And MIA Evidence
+
+- [ ] Start from current `origin/main`, acknowledge hub mail, report `STARTED`,
+      and lock only non-C paths.
+- [ ] Finish Activity report persistence where it can be done without C paths:
+      saved JSON metadata, `saveActivityReport`, `listHistoricalReports`, and
+      typed storage-unavailable fallback.
+- [ ] Strengthen family/device Activity behavior: per-device request shape,
+      family aggregation model, offline/unavailable source states, and tests
+      proving no Vite-owned product data.
+- [ ] Prepare the service-adapter boundary C can consume after C lands:
+      command creation, event parsing, typed error/unavailable states, and
+      documented handoff, without changing C's locked UI files.
+- [ ] Improve Parent Assistant evidence context from Activity/report read models
+      where possible without touching C-locked parent-assistant API/constants.
+      If C locks block the real integration point, report `BLOCKED` with exact
+      files and proceed with independent tests/helpers only.
+- [ ] Run focused TypeScript/Rust/service/proof tests and `npm run validate`.
+      `DONE/PR_READY` must include exact scope, touched files, validation, known
+      gaps, and whether any C lock blocked remaining integration.
+
+#### B Final Pass: V0.8/V0.9 Product-Proof Hardening
+
+- [ ] Start from current `origin/main`, acknowledge hub mail, report `STARTED`,
+      and lock only non-C paths.
+- [ ] V0.8: harden real enforcement-adapter proof around process/app limit
+      behavior, parent cancel/override, rollback/unavailable states, restart
+      recovery, and audit. Do not claim real blocking unless the adapter proof
+      demonstrates it.
+- [ ] V0.9: harden multi-device/LAN behavior around controller lease conflict
+      and takeover, stale/offline selected devices, trusted registry
+      persistence, provider selection states, and wrong-origin/wrong-device
+      rejection.
+- [ ] Package/runtime proof: keep parent desktop service lifecycle and Android
+      or iOS states honest as implemented/scaffold/manual-required/unavailable.
+      Do not claim mobile parity, device-owner, Family Controls, signing, or
+      store proof without real evidence.
+- [ ] Add or update real-service proof harnesses and roadmap/proof-matrix
+      entries for what changed.
+- [ ] Run focused Rust/service/package/LAN proof tests and `npm run validate`.
+      `DONE/PR_READY` must include exact scope, touched files, validation, known
+      gaps, and remaining manual proof requirements.
+
+#### Primary Final Pass
+
+- [x] Reconcile stale plan checkboxes after PR #110 and PR #111.
+- [ ] Assign A and B final-pass branches from current `origin/main`.
+- [ ] Watch hub reports, review diffs and validation, create PRs only after
+      acceptable local proof, merge only after green CI, then pull latest
+      `main` and tell active lanes to rebase or pull.
+- [ ] Review C later as a separate user-owned lane before deciding whether A or
+      B can consume or extend C-owned portal/API paths.
 
 ### Coordination Rule For This Round
 
