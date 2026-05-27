@@ -1,0 +1,11 @@
+export const parentPortalLogoImageUrl = '/ocentra-logo.svg';
+export const parentPortalAiSetupQuickActionIconUrl = '/quick-action-ai-setup.svg';
+export const parentPortalBrowserStateQuickActionIconUrl = '/quick-action-browser-state.svg';
+export const parentPortalDrivesQuickActionIconUrl = '/quick-action-drives.svg';
+export const parentPortalFoldoutClosedIconUrl = '/parent-nav-foldout-closed.svg';
+export const parentPortalFoldoutOpenIconUrl = '/parent-nav-foldout-open.svg';
+export const parentPortalRulesQuickActionIconUrl = '/quick-action-rules.svg';
+export const parentPortalSidePanelHandleLeftIconUrl = '/parent-nav-side-handle-left.svg';
+export const parentPortalSidePanelHandleRightIconUrl = '/parent-nav-side-handle-right.svg';
+export const parentPortalSupportApiQuickActionIconUrl = '/quick-action-support-api.svg';
+export const parentPortalTodayReportQuickActionIconUrl = '/quick-action-today-report.svg';

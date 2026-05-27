@@ -1,4 +1,4 @@
-﻿@media (min-width: 900px) {
+@media (min-width: 900px) {
   .state {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -129,7 +129,7 @@
   }
 }
 
-/* Product-frame pass borrowed from the Ocentra shop and leaderboard surfaces. */
+/* Product-frame pass borrowed from the Ocentra shop and parent portal surfaces. */
 :root {
   --frame-fill: rgb(3 18 33 / 78%);
   --frame-glass: rgb(135 226 255 / 5%);

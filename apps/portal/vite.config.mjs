@@ -80,39 +80,21 @@ async function handleFrameLayoutRequest(request, response, readPath, writePaths,
 export default defineConfig({
   resolve: {
     alias: {
-      '@ocentra/app-assets/auth': vendorModule('../../vendor/ocentra-games-core-ui/shims/ocentra-app-assets-auth.ts'),
-      '@ocentra/app-assets/avatars': vendorModule(
-        '../../vendor/ocentra-games-core-ui/shims/ocentra-app-assets-avatars.ts'
+      '@ocentra-parent/portal-assets/auth': vendorModule(
+        '../../vendor/ocentra-parent-core-ui/shims/parent-portal-assets-auth.ts'
       ),
-      '@ocentra/app-assets/commons': vendorModule(
-        '../../vendor/ocentra-games-core-ui/shims/ocentra-app-assets-commons.ts'
+      '@ocentra-parent/portal-assets/avatars': vendorModule(
+        '../../vendor/ocentra-parent-core-ui/shims/parent-portal-assets-avatars.ts'
       ),
-      '@ocentra/app-assets/banners': vendorModule(
-        '../../vendor/ocentra-games-core-ui/shims/ocentra-app-assets-banners.ts'
+      '@ocentra-parent/portal-assets/common': vendorModule(
+        '../../vendor/ocentra-parent-core-ui/shims/parent-portal-assets-common.ts'
       ),
-      '@ocentra/app-assets/cardgame': vendorModule(
-        '../../vendor/ocentra-games-core-ui/shims/ocentra-app-assets-cardgame.ts'
+      '@ocentra-parent/vendor-schema/effect-builder': vendorModule(
+        '../../vendor/ocentra-parent-core-ui/schema-domain/effect-builder.ts'
       ),
-      '@ocentra/app-assets/placeholders': vendorModule(
-        '../../vendor/ocentra-games-core-ui/shims/ocentra-app-assets-placeholders.ts'
+      '@ocentra-parent/portal-content-schema': vendorModule(
+        '../../vendor/ocentra-parent-core-ui/parent-portal-content-domain/schemas/parent-portal-page-content-schema.ts'
       ),
-      '@ocentra/app-assets/shop-page': vendorModule(
-        '../../vendor/ocentra-games-core-ui/shims/ocentra-app-assets-shop-page.ts'
-      ),
-      '@ocentra/endpoint-domain/constants/local': vendorModule(
-        '../../vendor/ocentra-games-core-ui/shims/ocentra-local-endpoints.ts'
-      ),
-      '@ocentra/endpoint-domain/constants/public-routes': vendorModule(
-        '../../vendor/ocentra-games-core-ui/shims/ocentra-public-routes.ts'
-      ),
-      '@ocentra/schema-domain/effect-builder': vendorModule(
-        '../../vendor/ocentra-games-core-ui/schema-domain/effect-builder.ts'
-      ),
-      '@ocentra/game-asset-domain/schemas/leaderboard-page-content-schema': vendorModule(
-        '../../vendor/ocentra-games-core-ui/game-asset-domain/schemas/leaderboard-page-content-schema.ts'
-      ),
-      '@tauri-apps/api/core': vendorModule('../../vendor/ocentra-games-core-ui/shims/tauri-core.ts'),
-      'react-router-dom': vendorModule('../../vendor/ocentra-games-core-ui/shims/react-router-dom.ts'),
     },
   },
   plugins: [

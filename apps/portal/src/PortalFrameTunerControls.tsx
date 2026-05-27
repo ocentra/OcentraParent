@@ -2,12 +2,10 @@ import { type ChangeEvent, type ReactElement } from 'react';
 import {
   PortalDom,
   PortalFrameTuner,
-  PortalFrameTunerPanels,
   type PortalDisplayText,
   type PortalFrameBooleanField,
   type PortalFrameColorField,
   type PortalFrameNumberField,
-  type PortalFrameTunerPanelValue,
 } from '@ocentra-parent/portal-domain/contracts';
 import { valueAt } from './portal-frame-layout';
 
@@ -40,25 +38,6 @@ type ColorSectionProps = {
   readonly root: unknown;
   readonly title: PortalDisplayText;
 };
-
-export function TunerTabs({
-  activePanel,
-  onPanelChange,
-}: {
-  readonly activePanel: PortalFrameTunerPanelValue;
-  readonly onPanelChange: (panel: PortalFrameTunerPanelValue) => void;
-}): ReactElement {
-  return (
-    <div className={PortalFrameTuner.Classes.TunerTabs} role={PortalDom.Attributes.TabList}>
-      {PortalFrameTunerPanels.map((panel) => {
-        const active = panel.id === activePanel;
-        return (
-          <TunerTabButton active={active} key={panel.id} label={panel.label} onClick={() => onPanelChange(panel.id)} />
-        );
-      })}
-    </div>
-  );
-}
 
 export function TunerTabButton({ active, label, onClick }: TunerActionButtonProps): ReactElement {
   return (

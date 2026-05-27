@@ -7,27 +7,19 @@
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "noEmit": true,
     "paths": {
-      "@ocentra/app-assets/auth": ["../../vendor/ocentra-games-core-ui/shims/ocentra-app-assets-auth.ts"],
-      "@ocentra/app-assets/avatars": ["../../vendor/ocentra-games-core-ui/shims/ocentra-app-assets-avatars.ts"],
-      "@ocentra/app-assets/commons": ["../../vendor/ocentra-games-core-ui/shims/ocentra-app-assets-commons.ts"],
-      "@ocentra/app-assets/banners": ["../../vendor/ocentra-games-core-ui/shims/ocentra-app-assets-banners.ts"],
-      "@ocentra/app-assets/cardgame": ["../../vendor/ocentra-games-core-ui/shims/ocentra-app-assets-cardgame.ts"],
-      "@ocentra/app-assets/placeholders": [
-        "../../vendor/ocentra-games-core-ui/shims/ocentra-app-assets-placeholders.ts"
+      "@ocentra-parent/portal-assets/auth": ["../../vendor/ocentra-parent-core-ui/shims/parent-portal-assets-auth.ts"],
+      "@ocentra-parent/portal-assets/avatars": [
+        "../../vendor/ocentra-parent-core-ui/shims/parent-portal-assets-avatars.ts"
       ],
-      "@ocentra/app-assets/shop-page": ["../../vendor/ocentra-games-core-ui/shims/ocentra-app-assets-shop-page.ts"],
-      "@ocentra/endpoint-domain/constants/local": [
-        "../../vendor/ocentra-games-core-ui/shims/ocentra-local-endpoints.ts"
+      "@ocentra-parent/portal-assets/common": [
+        "../../vendor/ocentra-parent-core-ui/shims/parent-portal-assets-common.ts"
       ],
-      "@ocentra/endpoint-domain/constants/public-routes": [
-        "../../vendor/ocentra-games-core-ui/shims/ocentra-public-routes.ts"
+      "@ocentra-parent/vendor-schema/effect-builder": [
+        "../../vendor/ocentra-parent-core-ui/schema-domain/effect-builder.ts"
       ],
-      "@ocentra/schema-domain/effect-builder": ["../../vendor/ocentra-games-core-ui/schema-domain/effect-builder.ts"],
-      "@ocentra/game-asset-domain/schemas/leaderboard-page-content-schema": [
-        "../../vendor/ocentra-games-core-ui/game-asset-domain/schemas/leaderboard-page-content-schema.ts"
-      ],
-      "@tauri-apps/api/core": ["../../vendor/ocentra-games-core-ui/shims/tauri-core.ts"],
-      "react-router-dom": ["../../vendor/ocentra-games-core-ui/shims/react-router-dom.ts"]
+      "@ocentra-parent/portal-content-schema": [
+        "../../vendor/ocentra-parent-core-ui/parent-portal-content-domain/schemas/parent-portal-page-content-schema.ts"
+      ]
     },
     "types": ["vite/client", "node", "@playwright/test"]
   },

@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" fill="none">
+  <defs>
+    <linearGradient id="door-stroke" x1="26" y1="34" x2="154" y2="272" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFD43B"/>
+      <stop offset="1" stop-color="#FFC300"/>
+    </linearGradient>
+    <linearGradient id="door-highlight" x1="105" y1="34" x2="105" y2="272" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#D4A900" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#D4A900" stop-opacity="0.35"/>
+    </linearGradient>
+    <linearGradient id="person-blue" x1="58" y1="153" x2="154" y2="222" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#46A7F2"/>
+      <stop offset="1" stop-color="#2F93DF"/>
+    </linearGradient>
+    <linearGradient id="skin" x1="74" y1="88" x2="139" y2="153" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFE98A"/>
+      <stop offset="1" stop-color="#F0CC63"/>
+    </linearGradient>
+    <linearGradient id="arrow-red" x1="170" y1="98" x2="267" y2="209" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FF5A5A"/>
+      <stop offset="1" stop-color="#E04444"/>
+    </linearGradient>
+  </defs>
+  <path d="M146 41H57C43.7452 41 33 51.7452 33 65V235C33 248.255 43.7452 259 57 259H146" stroke="url(#door-stroke)" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M106 41H146" stroke="url(#door-highlight)" stroke-width="16" stroke-linecap="round"/>
+  <path d="M106 259H146" stroke="url(#door-highlight)" stroke-width="16" stroke-linecap="round"/>
+  <circle cx="106" cy="121" r="32" fill="url(#skin)"/>
+  <path d="M106 89C123.673 89 138 103.327 138 121C138 138.673 123.673 153 106 153V89Z" fill="#D8B85B" opacity="0.28"/>
+  <path d="M58 206C58 184.461 68.1285 169.471 78.3723 164.047C81.5413 162.369 85.3564 162.71 88.2443 164.839C93.1113 168.427 99.1183 170.548 105.624 170.548C112.341 170.548 118.526 168.286 123.474 164.499C126.288 162.345 130.056 161.906 133.228 163.49C143.805 168.774 154 184.005 154 206V212C154 215.314 151.314 218 148 218H64C60.6863 218 58 215.314 58 212V206Z" fill="url(#person-blue)"/>
+  <path d="M106 170.548C112.341 170.548 118.526 168.286 123.474 164.499C126.288 162.345 130.056 161.906 133.228 163.49C143.805 168.774 154 184.005 154 206V212C154 215.314 151.314 218 148 218H106V170.548Z" fill="#257FC4" opacity="0.24"/>
+  <g transform="translate(433 0) scale(-1 1)">
+    <rect x="170" y="130" width="50" height="47" rx="8" fill="url(#arrow-red)"/>
+    <path d="M203 106.479C203 99.3521 211.617 95.7828 216.657 100.822L263.436 147.601C266.56 150.725 266.56 155.79 263.436 158.914L216.657 205.693C211.617 210.732 203 207.163 203 200.036V106.479Z" fill="url(#arrow-red)"/>
+  </g>
+</svg>

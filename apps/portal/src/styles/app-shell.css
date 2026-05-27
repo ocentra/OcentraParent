@@ -1,4 +1,4 @@
-﻿/* Clean app-shell pass after visual QA against the Ocentra Games shop rail. */
+﻿/* Clean app-shell pass after visual QA against the parent portal chrome. */
 .app-frame {
   gap: 8px;
   grid-template-columns: minmax(176px, 188px) minmax(0, 1fr);

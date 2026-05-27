@@ -27,6 +27,7 @@ use crate::{
     },
     local_ai_chat_generation::build_local_ai_chat_generation_report,
     local_ai_runtime_status::build_local_ai_runtime_status_report,
+    parent_assistant_api::build_parent_assistant_scaffold_event,
     parent_assistant_runtime::build_parent_assistant_answer_report,
     policy_preview_api::build_policy_preview_read_model_report,
     snapshot::build_dev_log_snapshot,
@@ -167,6 +168,18 @@ async fn build_command_event(
         | AgentCommandName::AgentParentAssistantAnswerGenerate
         | AgentCommandName::AgentPolicyPreviewReadModelGet => {
             build_ai_command_report(command).await
+        }
+        AgentCommandName::AgentParentAssistantThreadList
+        | AgentCommandName::AgentParentAssistantThreadCreate
+        | AgentCommandName::AgentParentAssistantThreadOpen
+        | AgentCommandName::AgentParentAssistantThreadArchive
+        | AgentCommandName::AgentParentAssistantMessageSend
+        | AgentCommandName::AgentParentAssistantRunCancel
+        | AgentCommandName::AgentParentAssistantQuickActionStart
+        | AgentCommandName::AgentParentAssistantActionPreview
+        | AgentCommandName::AgentParentAssistantActionConfirm
+        | AgentCommandName::AgentParentAssistantProviderStatusGet => {
+            build_parent_assistant_scaffold_event(command)
         }
         AgentCommandName::AgentEnforcementExecute => build_enforcement_audit_report(command).await,
         AgentCommandName::AgentEnforcementTimerRecover

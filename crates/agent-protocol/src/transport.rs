@@ -130,6 +130,26 @@ pub enum AgentCommandName {
     AgentEnforcementTimerExpire,
     #[serde(rename = "agent.enforcement.override.cancel")]
     AgentEnforcementOverrideCancel,
+    #[serde(rename = "agent.parent-assistant.thread.list")]
+    AgentParentAssistantThreadList,
+    #[serde(rename = "agent.parent-assistant.thread.create")]
+    AgentParentAssistantThreadCreate,
+    #[serde(rename = "agent.parent-assistant.thread.open")]
+    AgentParentAssistantThreadOpen,
+    #[serde(rename = "agent.parent-assistant.thread.archive")]
+    AgentParentAssistantThreadArchive,
+    #[serde(rename = "agent.parent-assistant.message.send")]
+    AgentParentAssistantMessageSend,
+    #[serde(rename = "agent.parent-assistant.run.cancel")]
+    AgentParentAssistantRunCancel,
+    #[serde(rename = "agent.parent-assistant.quick-action.start")]
+    AgentParentAssistantQuickActionStart,
+    #[serde(rename = "agent.parent-assistant.action.preview")]
+    AgentParentAssistantActionPreview,
+    #[serde(rename = "agent.parent-assistant.action.confirm")]
+    AgentParentAssistantActionConfirm,
+    #[serde(rename = "agent.parent-assistant.provider.status.get")]
+    AgentParentAssistantProviderStatusGet,
     #[serde(rename = "agent.lan-pairing.proof.submit")]
     AgentLanPairingProofSubmit,
     #[serde(rename = "agent.lan-pairing.route.select")]
@@ -206,6 +226,24 @@ pub enum AgentEventName {
     AgentEnforcementAuditReported,
     #[serde(rename = "agent.enforcement.timer.reported")]
     AgentEnforcementTimerReported,
+    #[serde(rename = "agent.parent-assistant.thread.updated")]
+    AgentParentAssistantThreadUpdated,
+    #[serde(rename = "agent.parent-assistant.message.accepted")]
+    AgentParentAssistantMessageAccepted,
+    #[serde(rename = "agent.parent-assistant.run.started")]
+    AgentParentAssistantRunStarted,
+    #[serde(rename = "agent.parent-assistant.message.delta")]
+    AgentParentAssistantMessageDelta,
+    #[serde(rename = "agent.parent-assistant.message.completed")]
+    AgentParentAssistantMessageCompleted,
+    #[serde(rename = "agent.parent-assistant.action.previewed")]
+    AgentParentAssistantActionPreviewed,
+    #[serde(rename = "agent.parent-assistant.action.confirmed")]
+    AgentParentAssistantActionConfirmed,
+    #[serde(rename = "agent.parent-assistant.provider.degraded")]
+    AgentParentAssistantProviderDegraded,
+    #[serde(rename = "agent.parent-assistant.error.reported")]
+    AgentParentAssistantErrorReported,
     #[serde(rename = "agent.lan-pairing.status.reported")]
     AgentLanPairingStatusReported,
     #[serde(rename = "agent.lan-pairing.audit.reported")]

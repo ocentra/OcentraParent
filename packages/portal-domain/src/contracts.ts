@@ -5,7 +5,6 @@ export { PortalCommandButtons, PortalOverviewCommands } from './commands';
 export { PortalDetails, PortalReadableValues } from './details';
 export { PortalDiagnostics } from './diagnostics';
 export {
-  PortalFrameColorFields,
   PortalFrameChromeNumberFields,
   PortalCarouselContentNumberFields,
   PortalCarouselFrameNumberFields,
@@ -27,8 +26,6 @@ export {
   PortalFrameShellNumberFields,
   PortalFrameSlotNumberFields,
   PortalFrameTuner,
-  PortalFrameTunerFrameSections,
-  PortalFrameTunerPanels,
   portalFrameCssNumber,
   portalFrameCssOpacity,
   portalFrameCssPercent,
@@ -40,41 +37,60 @@ export {
   type PortalFrameNumberField,
   type PortalFrameTargetValue,
   type PortalFrameTunerFrameSectionValue,
-  type PortalFrameTunerPanelValue,
 } from './frame-tuner';
-export {
-  PortalAuthChrome,
-  type PortalAuthAutoComplete,
-  type PortalAuthInputType,
-  type PortalAuthMode,
-} from './auth-chrome';
+export { PortalFrameColorFields, PortalFrameTunerFrameSections } from './frame-tuner-lists';
 export { PortalAssets, PortalExternalLinks, PortalUnifiedChrome } from './unified-chrome';
 export {
-  PARENT_LEADERBOARD_COPY_CONTENT,
-  PARENT_LEADERBOARD_COPY_ROUTE,
-  PARENT_LEADERBOARD_COPY_ROUTE_CONTEXT,
-  PARENT_LEADERBOARD_COPY_ROWS,
-  parentLeaderboardCopyRouteContext,
-  type ParentLeaderboardCopyContent,
-  type ParentLeaderboardCopyIconName,
-  type ParentLeaderboardCopyPageMode,
-  type ParentLeaderboardCopyRow,
-  type ParentLeaderboardCopyRowSource,
-  type ParentLeaderboardCopyRouteContext,
-  type ParentLeaderboardCopyTabId,
-  type ParentLeaderboardCopyTone,
-} from './parent-leaderboard-copy-data';
+  createPortalAppLayoutButtonDraft,
+  createPortalAppLayoutFoldoutDraft,
+  defaultPortalAppLayoutContentDraft,
+  defaultPortalAppLayoutSurfaceContent,
+  normalizePortalAppLayoutContentDraft,
+  normalizePortalAppLayoutSurfaceContentDraft,
+  type PortalAppLayoutButtonDraft,
+  type PortalAppLayoutContentAreaKey,
+  type PortalAppLayoutContentDraft,
+  type PortalAppLayoutFoldoutDraft,
+  type PortalAppLayoutSurfaceContentDraft,
+  type PortalAppLayoutSurfaceKey,
+  type PortalAppLayoutTone,
+} from './app-layout';
 export {
-  type ParentLeaderboardCopyNavGroup,
-  type ParentLeaderboardCopyNavGroupId,
-  type ParentLeaderboardCopyNavItem,
-} from './parent-leaderboard-copy-nav';
+  PARENT_ASSISTANT_PORTAL_NEW_CHAT_ACTION,
+  PARENT_ASSISTANT_PORTAL_QUICK_ACTIONS,
+  type ParentAssistantPortalQuickAction,
+  type ParentAssistantPortalQuickActionId,
+} from './parent-assistant-chat';
 export {
-  PARENT_LEADERBOARD_COPY_GUIDE_TOPICS,
-  type ParentLeaderboardCopyGuideNote,
-  type ParentLeaderboardCopyGuidePage,
-  type ParentLeaderboardCopyGuideTopic,
-} from './parent-leaderboard-copy-guides';
+  PARENT_PORTAL_CONTENT,
+  PARENT_PORTAL_ROUTE,
+  PARENT_PORTAL_ROUTE_CONTEXT,
+  PARENT_PORTAL_ROWS,
+  parentPortalRouteContext,
+  type ParentPortalContent,
+  type ParentPortalIconName,
+  type ParentPortalPageMode,
+  type ParentPortalRow,
+  type ParentPortalRowSource,
+  type ParentPortalRouteContext,
+  type ParentPortalTabId,
+  type ParentPortalTone,
+} from './parent-portal-data';
+export {
+  PARENT_PORTAL_NAV_LABELS,
+  type ParentPortalHashRoutePath,
+  type ParentPortalNavGroup,
+  type ParentPortalNavGroupId,
+  type ParentPortalNavItem,
+  type ParentPortalNavLabel,
+  type ParentPortalNavSectionLabel,
+} from './parent-portal-nav';
+export {
+  PARENT_PORTAL_GUIDE_TOPICS,
+  type ParentPortalGuideNote,
+  type ParentPortalGuidePage,
+  type ParentPortalGuideTopic,
+} from './parent-portal-guides';
 export {
   parseActivityMemoryGraphReadModel,
   type PortalActivityMemoryGraphEdge,

@@ -11,7 +11,7 @@ export const PortalProductText: Record<PortalProductTextTokenValue, DisplayText>
   [PortalProductTextToken.NavGroupGuide]: decodeDisplayText('Guide'),
   [PortalProductTextToken.NavGroupOperate]: decodeDisplayText('Manage'),
   [PortalProductTextToken.Overview]: decodeDisplayText('Overview'),
-  [PortalProductTextToken.LeaderboardCopy]: decodeDisplayText('Parent command deck'),
+  [PortalProductTextToken.ParentPortal]: decodeDisplayText('Start here'),
   [PortalProductTextToken.Activity]: decodeDisplayText('Activity'),
   [PortalProductTextToken.Browser]: decodeDisplayText('Web'),
   [PortalProductTextToken.Policy]: decodeDisplayText('Policy'),
@@ -20,11 +20,11 @@ export const PortalProductText: Record<PortalProductTextTokenValue, DisplayText>
   [PortalProductTextToken.Devices]: decodeDisplayText('Devices'),
   [PortalProductTextToken.Diagnostics]: decodeDisplayText('Support'),
   [PortalProductTextToken.SettingsRules]: decodeDisplayText('Settings'),
-  [PortalProductTextToken.FrameTuner]: decodeDisplayText('Frame tuner'),
+  [PortalProductTextToken.FrameTuner]: decodeDisplayText('App layout'),
   [PortalProductTextToken.Commands]: decodeDisplayText('Controls'),
   [PortalProductTextToken.Events]: decodeDisplayText('Audit'),
   [PortalProductTextToken.OverviewDescription]: decodeDisplayText('Daily command'),
-  [PortalProductTextToken.LeaderboardCopyDescription]: decodeDisplayText('Copied leaderboard surface'),
+  [PortalProductTextToken.ParentPortalDescription]: decodeDisplayText('Setup and controls map'),
   [PortalProductTextToken.ActivityDescription]: decodeDisplayText('Stored activity'),
   [PortalProductTextToken.BrowserDescription]: decodeDisplayText('Browser evidence'),
   [PortalProductTextToken.PolicyDescription]: decodeDisplayText('Rules and approvals'),
@@ -34,7 +34,7 @@ export const PortalProductText: Record<PortalProductTextTokenValue, DisplayText>
   [PortalProductTextToken.DiagnosticsDescription]: decodeDisplayText('Exports and logs'),
   [PortalProductTextToken.SettingsRulesDescription]: decodeDisplayText('Schedules and budgets'),
   [PortalProductTextToken.FrameTunerDescription]: decodeDisplayText(
-    'Dev-only geometry controls for the side panel and main body frame.'
+    'Layout and content editor for parent portal app surfaces.'
   ),
   [PortalProductTextToken.CommandsDescription]: decodeDisplayText(
     'Safe device refresh actions that use the real child-device connection.'

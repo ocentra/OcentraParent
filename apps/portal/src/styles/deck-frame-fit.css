@@ -555,7 +555,7 @@
   width: 21px;
 }
 
-/* Dedicated route-row frame layers copied from the leaderboard rail behavior. */
+/* Dedicated route-row frame layers copied from the parent portal rail behavior. */
 .app-sidebar .route-link {
   background: transparent;
   border: 0;

@@ -1,15 +1,27 @@
-import { PortalFrameTuner, type PortalFrameTargetValue } from '@ocentra-parent/portal-domain/contracts';
+import {
+  PortalFrameTuner,
+  defaultPortalAppLayoutSurfaceContent,
+  normalizePortalAppLayoutContentDraft,
+  type PortalAppLayoutSurfaceKey,
+  type PortalFrameTargetValue,
+} from '@ocentra-parent/portal-domain/contracts';
 import {
   normalizePictureViewerFrameControls,
   type PictureViewerFrameSurfaceControls,
-} from '../../../vendor/ocentra-games-core-ui/Common/PictureViewerFrame/PictureViewerFrameControls';
+} from '../../../vendor/ocentra-parent-core-ui/Common/PictureViewerFrame/PictureViewerFrameControls';
 import {
   DEFAULT_PORTAL_FRAME_LAYOUT,
+  defaultParentPortalControls,
   type PortalCarouselLayout,
   type PortalFrameContentTargetLayout,
   type PortalFrameLayout,
   type PortalGoldenCardLayout,
+  type PortalParentPortalLayout,
 } from './portal-frame-layout-types';
+import {
+  normalizeParentPortalSvgControls,
+  type ParentPortalSvgControls,
+} from '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurfaceControls';
 
 const text = PortalFrameTuner;
 
@@ -39,6 +51,7 @@ export function normalizePortalFrameLayout(value: unknown): PortalFrameLayout {
       sideStackGap: numberAt(value, [text.LayoutKey.Shell, text.LayoutKey.SideStackGap], 10),
     },
     goldenCard: normalizeGoldenCardLayout(valueAt(value, [text.LayoutKey.GoldenCard])),
+    parentPortal: normalizeParentPortalLayout(valueAt(value, [text.LayoutKey.ParentPortal])),
     preview: {
       showContent: valueAt(value, [text.LayoutKey.Preview, text.LayoutKey.ShowContent]) !== false,
     },
@@ -111,6 +124,63 @@ export function resetPortalCarousel(layout: PortalFrameLayout): PortalFrameLayou
     ...layout,
     carousel: DEFAULT_PORTAL_FRAME_LAYOUT.carousel,
   });
+}
+
+export function resetPortalParentPortalSurface(
+  layout: PortalFrameLayout,
+  surface: PortalAppLayoutSurfaceKey
+): PortalFrameLayout {
+  return normalizePortalFrameLayout(
+    setPortalFrameLayoutValue(
+      layout,
+      [text.LayoutKey.ParentPortal, surface],
+      DEFAULT_PORTAL_FRAME_LAYOUT.parentPortal[surface]
+    )
+  );
+}
+
+export function resetPortalParentPortalContent(
+  layout: PortalFrameLayout,
+  surface: PortalAppLayoutSurfaceKey
+): PortalFrameLayout {
+  return normalizePortalFrameLayout(
+    setPortalFrameLayoutValue(
+      layout,
+      [text.LayoutKey.ParentPortal, text.LayoutKey.ContentDraft, surface],
+      defaultPortalAppLayoutSurfaceContent(surface)
+    )
+  );
+}
+
+function normalizeParentPortalLayout(value: unknown): PortalParentPortalLayout {
+  return {
+    mainApp: normalizeParentPortalControls(valueAt(value, [text.AppSurface.MainApp])),
+    chatInterface: normalizeParentPortalControls(valueAt(value, [text.AppSurface.ChatInterface])),
+    contentDraft: normalizePortalAppLayoutContentDraft(valueAt(value, [text.LayoutKey.ContentDraft])),
+  };
+}
+
+function normalizeParentPortalControls(value: unknown): ParentPortalSvgControls {
+  const fallback = defaultParentPortalControls();
+  if (!isRecord(value)) {
+    return fallback;
+  }
+  const group = text.ParentPortalControlGroup;
+  const canvas = recordAt(value, group.Canvas);
+  const layout = recordAt(value, group.Layout);
+  const colors = recordAt(value, group.Colors);
+  const chrome = recordAt(value, group.Chrome);
+  return normalizeParentPortalSvgControls({
+    canvas: { ...fallback.canvas, ...canvas },
+    layout: { ...fallback.layout, ...layout },
+    colors: { ...fallback.colors, ...colors },
+    chrome: { ...fallback.chrome, ...chrome },
+  });
+}
+
+function recordAt(root: Record<PropertyKey, unknown>, key: PropertyKey): Record<PropertyKey, unknown> {
+  const value = root[key];
+  return isRecord(value) ? value : {};
 }
 
 function numberAt(root: unknown, path: readonly PropertyKey[], fallback: number): number {

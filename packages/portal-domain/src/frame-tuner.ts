@@ -55,6 +55,8 @@ export const PortalFrameTuner = {
     TunerStandalone: 'portal-frame-tuner-standalone',
     TunerWorkspace: 'portal-frame-tuner-workspace',
     TunerTabs: 'portal-frame-tuner-tabs',
+    TunerSurfaceTabs: 'portal-frame-tuner-surface-tabs',
+    TunerPanelTabs: 'portal-frame-tuner-panel-tabs',
     TunerTab: 'portal-frame-tuner-tab',
     TunerTabActive: 'portal-frame-tuner-tab-active',
     TunerSectionTabs: 'portal-frame-tuner-section-tabs',
@@ -62,6 +64,17 @@ export const PortalFrameTuner = {
     TunerGoldenCardOriginalControls: 'portal-frame-tuner-golden-card-original-controls',
     TunerPreviewPanel: 'portal-frame-tuner-preview-panel',
     TunerColor: 'portal-frame-tuner-color',
+    TunerAppLayoutSurface: 'portal-frame-tuner-app-layout-surface',
+    TunerAppLayoutHeader: 'portal-frame-tuner-app-layout-header',
+    TunerHierarchy: 'portal-frame-tuner-hierarchy',
+    TunerAppLayoutPane: 'portal-frame-tuner-app-layout-pane',
+    TunerContentEditor: 'portal-frame-tuner-content-editor',
+    TunerContentList: 'portal-frame-tuner-content-list',
+    TunerContentItem: 'portal-frame-tuner-content-item',
+    TunerContentFields: 'portal-frame-tuner-content-fields',
+    TunerContentButtons: 'portal-frame-tuner-content-buttons',
+    TunerContentInput: 'portal-frame-tuner-content-input',
+    TunerContentSummary: 'portal-frame-tuner-content-summary',
   },
   CssVar: {
     ContentGap: '--portal-frame-content-gap',
@@ -124,6 +137,7 @@ export const PortalFrameTuner = {
     Color: 'color',
     Number: 'number',
     Range: 'range',
+    Text: 'text',
   },
   FrameTarget: {
     Side: 'side',
@@ -132,6 +146,8 @@ export const PortalFrameTuner = {
     Main: 'main',
   },
   Panel: {
+    MainApp: 'mainApp',
+    ChatInterface: 'chatInterface',
     Shell: 'shell',
     SideAnchors: 'sideAnchors',
     SideChrome: 'sideChrome',
@@ -160,6 +176,18 @@ export const PortalFrameTuner = {
     Content: 'content',
   },
   LayoutKey: {
+    ParentPortal: 'parentPortal',
+    ContentDraft: 'contentDraft',
+    SidePanelFoldouts: 'sidePanelFoldouts',
+    MainPanelTop: 'mainPanelTop',
+    MainPanelBottom: 'mainPanelBottom',
+    Id: 'id',
+    Label: 'label',
+    Detail: 'detail',
+    RoutePath: 'routePath',
+    Icon: 'icon',
+    Tone: 'tone',
+    Buttons: 'buttons',
     Orientation: 'orientation',
     Content: 'content',
     Shell: 'shell',
@@ -307,6 +335,67 @@ export const PortalFrameTuner = {
     DeepBlue: '#06111f',
     Gold: '#f6c34a',
   },
+  AppSurface: {
+    MainApp: 'mainApp',
+    ChatInterface: 'chatInterface',
+  },
+  AppContentArea: {
+    SidePanelFoldouts: 'sidePanelFoldouts',
+    MainPanelTop: 'mainPanelTop',
+    MainPanelBottom: 'mainPanelBottom',
+  },
+  AppLayoutTone: {
+    Cyan: 'cyan',
+    Gold: 'gold',
+    Purple: 'purple',
+    Red: 'red',
+    Muted: 'muted',
+  },
+  AppLayoutRegion: {
+    SidePanel: 'sidePanel',
+    MainPanel: 'mainPanel',
+  },
+  AppLayoutSection: {
+    Top: 'top',
+    Bottom: 'bottom',
+    Chrome: 'chrome',
+    Colors: 'colors',
+    Content: 'content',
+  },
+  AppLayoutFieldKey: {
+    CanvasWidth: 'canvas.width',
+    CanvasHeight: 'canvas.height',
+    LayoutOuterPad: 'layout.outerPad',
+    LayoutGap: 'layout.gap',
+    LayoutLeftW: 'layout.leftW',
+    LayoutRightW: 'layout.rightW',
+    LayoutTopY: 'layout.topY',
+    LayoutHeaderH: 'layout.headerH',
+    LayoutTabsY: 'layout.tabsY',
+    LayoutTabsH: 'layout.tabsH',
+    LayoutMainY: 'layout.mainY',
+    LayoutBottomY: 'layout.bottomY',
+    LayoutBottomH: 'layout.bottomH',
+    ChromePanelCut: 'chrome.panelCut',
+    ChromePanelStrokeWidth: 'chrome.panelStrokeWidth',
+    ChromePanelInnerInset: 'chrome.panelInnerInset',
+    ChromeHoverPad: 'chrome.hoverPad',
+    ChromeGlowOpacity: 'chrome.glowOpacity',
+    ChromeButtonArrowWidth: 'chrome.buttonArrowWidth',
+    ChromeRowHeight: 'chrome.rowHeight',
+    ChromeRowGap: 'chrome.rowGap',
+    ChromeAvatarRadius: 'chrome.avatarRadius',
+  },
+  AppLayoutFieldSeparator: '.',
+  ValueType: {
+    String: 'string',
+  },
+  ParentPortalControlGroup: {
+    Canvas: 'canvas',
+    Layout: 'layout',
+    Colors: 'colors',
+    Chrome: 'chrome',
+  },
   GoldenFrame: {
     StorageKey: 'ocentra-foreign-frame-config',
     Channel: 'ocentra-foreign-frame-channel',
@@ -327,8 +416,8 @@ export const PortalFrameTuner = {
     },
   },
   Text: {
-    RouteTitle: decodeDisplayText('Frame tuner'),
-    RouteDescription: decodeDisplayText('Dev-only SVG frame geometry controls for the portal shell.'),
+    RouteTitle: decodeDisplayText('App layout'),
+    RouteDescription: decodeDisplayText('Layout and content authoring for parent portal app surfaces.'),
     TargetSide: decodeDisplayText('Side panel'),
     TargetSideTop: decodeDisplayText('Side navigation frame'),
     TargetSideBottom: decodeDisplayText('Side device frame'),
@@ -348,6 +437,8 @@ export const PortalFrameTuner = {
     PreviewSidebar: decodeDisplayText('Navigation frame preview'),
     PreviewMain: decodeDisplayText('Main panel frame preview'),
     JsonTitle: decodeDisplayText('Saved JSON preview'),
+    PanelMainApp: decodeDisplayText('Main App'),
+    PanelChatInterface: decodeDisplayText('Chat Interface'),
     PanelShell: decodeDisplayText('Shell'),
     PanelSidePanel: decodeDisplayText('Side panel'),
     PanelMainPanel: decodeDisplayText('Main panel'),
@@ -360,6 +451,8 @@ export const PortalFrameTuner = {
     ResetSideTop: decodeDisplayText('Reset top'),
     ResetSideBottom: decodeDisplayText('Reset bottom'),
     ResetMain: decodeDisplayText('Reset main'),
+    ResetSurface: decodeDisplayText('Reset surface'),
+    ResetContentDraft: decodeDisplayText('Reset content draft'),
     ResetCarousel: decodeDisplayText('Reset carousel'),
     ResetGoldenCard: decodeDisplayText('Reset golden card'),
     ToggleContent: decodeDisplayText('Content'),
@@ -400,6 +493,34 @@ export const PortalFrameTuner = {
     Landscape: decodeDisplayText('Landscape'),
     BoundsGroup: decodeDisplayText('Bounds and visibility'),
     ContentFitGroup: decodeDisplayText('Content fit'),
+    AppLayoutSurfaceFit: decodeDisplayText('Surface fit'),
+    AppLayoutSidePanel: decodeDisplayText('Side panel'),
+    AppLayoutMainPanel: decodeDisplayText('Main panel'),
+    AppLayoutTop: decodeDisplayText('Top'),
+    AppLayoutBottom: decodeDisplayText('Bottom'),
+    AppLayoutSideTop: decodeDisplayText('Sidepanel top'),
+    AppLayoutSideBottom: decodeDisplayText('Sidepanel bottom'),
+    AppLayoutTopCards: decodeDisplayText('Top cards'),
+    AppLayoutTopChoices: decodeDisplayText('Top choices'),
+    AppLayoutMainBottom: decodeDisplayText('Main bottom'),
+    AppLayoutChrome: decodeDisplayText('Chrome'),
+    AppLayoutColors: decodeDisplayText('Colors'),
+    AppLayoutContent: decodeDisplayText('Content'),
+    SidePanelFoldouts: decodeDisplayText('Sidepanel foldouts'),
+    MainPanelTopContent: decodeDisplayText('Main top content'),
+    MainPanelBottomContent: decodeDisplayText('Main bottom content'),
+    AddFoldout: decodeDisplayText('Add foldout'),
+    AddButton: decodeDisplayText('Add button'),
+    Remove: decodeDisplayText('Remove'),
+    FoldoutName: decodeDisplayText('Foldout name'),
+    ButtonLabel: decodeDisplayText('Button label'),
+    ButtonDetail: decodeDisplayText('Button detail'),
+    ButtonRoute: decodeDisplayText('Button route'),
+    ButtonIcon: decodeDisplayText('Button icon'),
+    Theme: decodeDisplayText('Theme'),
+    ContentAuthoringSummary: decodeDisplayText(
+      'Author layout content here, then wire it into the runtime surface when ready.'
+    ),
     ResetGlyph: decodeDisplayText('↺'),
     ShowFrameBounds: decodeDisplayText('Show frame bounds'),
     ShowContentBounds: decodeDisplayText('Show content bounds'),
@@ -455,7 +576,6 @@ export const PortalFrameTuner = {
 } as const;
 
 export type PortalFrameTargetValue = (typeof PortalFrameTuner.FrameTarget)[keyof typeof PortalFrameTuner.FrameTarget];
-export type PortalFrameTunerPanelValue = (typeof PortalFrameTuner.Panel)[keyof typeof PortalFrameTuner.Panel];
 export type PortalFrameTunerFrameSectionValue =
   (typeof PortalFrameTuner.FrameSection)[keyof typeof PortalFrameTuner.FrameSection];
 export type PortalFrameCssStyle = Record<string, string>;
@@ -834,38 +954,6 @@ export const PortalFrameInnerSegmentNumberFields: readonly PortalFrameNumberFiel
     path: [key.InnerFrame, ...fieldValue.path.slice(1)],
   }));
 
-export const PortalFrameColorFields: readonly PortalFrameColorField[] = [
-  colorField([key.OuterFrame, key.Color], PortalFrameTuner.Text.OuterColor),
-  colorField([key.OuterFrame, key.GlowColor], PortalFrameTuner.Text.OuterGlowColor),
-  colorField([key.InnerFrame, key.Color], PortalFrameTuner.Text.InnerColor),
-  colorField([key.InnerFrame, key.GlowColor], PortalFrameTuner.Text.InnerGlowColor),
-] as const;
-
-export const PortalFrameTunerPanels = [
-  { id: PortalFrameTuner.Panel.SidePanel, label: PortalFrameTuner.Text.PanelSidePanel },
-  { id: PortalFrameTuner.Panel.MainPanel, label: PortalFrameTuner.Text.PanelMainPanel },
-  { id: PortalFrameTuner.Panel.Carousel, label: PortalFrameTuner.Text.PanelCarousel },
-  { id: PortalFrameTuner.Panel.GoldenCard, label: PortalFrameTuner.Text.PanelGoldenCard },
-  { id: PortalFrameTuner.Panel.Shell, label: PortalFrameTuner.Text.PanelShell },
-  { id: PortalFrameTuner.Panel.Preview, label: PortalFrameTuner.Text.PanelPreview },
-] as const;
-
-export const PortalFrameTunerFrameSections = [
-  { id: PortalFrameTuner.FrameSection.OuterAnchors, label: PortalFrameTuner.Text.OuterAnchorGroup },
-  { id: PortalFrameTuner.FrameSection.Content, label: PortalFrameTuner.Text.ContentGroup },
-  { id: PortalFrameTuner.FrameSection.InnerAnchors, label: PortalFrameTuner.Text.InnerAnchorGroup },
-  { id: PortalFrameTuner.FrameSection.OuterFrame, label: PortalFrameTuner.Text.OuterFrameGroup },
-  { id: PortalFrameTuner.FrameSection.OuterEdges, label: PortalFrameTuner.Text.OuterEdgeGroup },
-  { id: PortalFrameTuner.FrameSection.OuterSegments, label: PortalFrameTuner.Text.OuterSegmentGroup },
-  { id: PortalFrameTuner.FrameSection.OuterGaps, label: PortalFrameTuner.Text.OuterGapGroup },
-  { id: PortalFrameTuner.FrameSection.InnerFrame, label: PortalFrameTuner.Text.InnerFrameGroup },
-  { id: PortalFrameTuner.FrameSection.InnerEdges, label: PortalFrameTuner.Text.InnerEdgeGroup },
-  { id: PortalFrameTuner.FrameSection.InnerSegments, label: PortalFrameTuner.Text.InnerSegmentGroup },
-  { id: PortalFrameTuner.FrameSection.InnerGaps, label: PortalFrameTuner.Text.InnerGapGroup },
-  { id: PortalFrameTuner.FrameSection.Colors, label: PortalFrameTuner.Text.ColorsGroup },
-  { id: PortalFrameTuner.FrameSection.Viewport, label: PortalFrameTuner.Text.ViewportGroup },
-] as const;
-
 export function portalFrameCssPixel(value: number): PortalFrameCssValue {
   return `${value}px`;
 }
@@ -896,12 +984,5 @@ function field(path: readonly string[], label: string, min: number, max: number,
     min,
     max,
     step,
-  };
-}
-
-function colorField(path: readonly string[], label: ReturnType<typeof decodeDisplayText>): PortalFrameColorField {
-  return {
-    path,
-    label,
   };
 }
