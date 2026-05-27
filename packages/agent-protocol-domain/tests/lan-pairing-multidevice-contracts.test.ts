@@ -45,6 +45,11 @@ function assertSupportedWebSocketCommands() {
     'agent.lan-pairing.route.select',
     'agent.lan-pairing.route.revoke',
     'agent.lan-pairing.status.get',
+    'agent.lan-pairing.controller-lease.renew',
+    'agent.lan-pairing.controller-lease.release',
+    'agent.lan-pairing.controller-lease.takeover',
+    'agent.lan-ai.provider.status.get',
+    'agent.lan-ai.job.submit',
   ]);
   expect(Object.values(AgentLanPairingSupportedWebSocketCommand)).not.toContain('agent.lan-pairing.discovery.http');
   expect(Object.values(AgentLanPairingSupportedWebSocketCommand)).not.toContain('agent.lan-pairing.challenge.http');
@@ -60,6 +65,14 @@ function assertPairingStates() {
   expect(AgentProtocolDefaults.LanSelectedDeviceReachability.Stale).toBe('stale');
   expect(AgentProtocolDefaults.LanSelectedDeviceReachability.Offline).toBe('offline');
   expect(AgentLanPairingRejectionReasonSchema.parse('local-network-disabled')).toBe('local-network-disabled');
+  expect(AgentLanPairingRejectionReasonSchema.parse('controller-lease-missing')).toBe('controller-lease-missing');
+  expect(AgentLanPairingRejectionReasonSchema.parse('controller-lease-expired')).toBe('controller-lease-expired');
+  expect(AgentLanPairingRejectionReasonSchema.parse('wrong-controller')).toBe('wrong-controller');
+  expect(AgentProtocolDefaults.Field.LanControllerLeaseId).toBe('controllerLeaseId');
+  expect(AgentProtocolDefaults.Field.LanParentAuthority).toBe('parentAuthority');
+  expect(AgentProtocolDefaults.Field.LanAiProviderStatus).toBe('lanAiProviderStatus');
+  expect(AgentProtocolDefaults.Field.LanAiJobId).toBe('lanAiJobId');
+  expect(AgentProtocolDefaults.Field.LanAiJobState).toBe('lanAiJobState');
 }
 
 function assertRouteSelectCommand() {
@@ -113,6 +126,16 @@ function assertTypedParentIntentEnvelope() {
   const approvalDecision = AgentLanParentIntentEnvelopeSchema.safeParse(
     lanParentIntentEnvelope('intent-approval-decision-1', AgentProtocolDefaults.LanIntentKind.ApprovalDecision)
   );
+  const observerProviderStatus = AgentLanParentIntentEnvelopeSchema.safeParse({
+    ...lanParentIntentEnvelope(
+      'intent-lan-ai-provider-status-1',
+      AgentProtocolDefaults.LanIntentKind.LanAiProviderStatus
+    ),
+    parentAuthority: 'observer',
+  });
+  const lanAiJobSubmit = AgentLanParentIntentEnvelopeSchema.safeParse(
+    lanParentIntentEnvelope('intent-lan-ai-job-submit-1', AgentProtocolDefaults.LanIntentKind.LanAiJobSubmit)
+  );
   const missingKind = AgentLanParentIntentEnvelopeSchema.safeParse({
     ...lanParentIntentEnvelope('intent-missing-kind-1', AgentProtocolDefaults.LanIntentKind.RuleQuery),
     [AgentProtocolDefaults.Field.LanIntentKind]: undefined,
@@ -129,6 +152,8 @@ function assertTypedParentIntentEnvelope() {
   expect(ruleQuery.success).toBe(true);
   expect(ruleUpdate.success).toBe(true);
   expect(approvalDecision.success).toBe(true);
+  expect(observerProviderStatus.success).toBe(true);
+  expect(lanAiJobSubmit.success).toBe(true);
   expect(missingKind.success).toBe(false);
   expect(emptyProof.success).toBe(false);
   expect(invalidEvidence.success).toBe(false);
@@ -253,6 +278,12 @@ function lanParentIntentEnvelope(intentId: unknown, intentKind: unknown) {
     origin: 'http://127.0.0.1:4678',
     issuedAt: '2026-05-23T23:20:00Z',
     expiresAt: '2026-05-23T23:25:00Z',
+    controllerLeaseId: 'controller-lease-1',
+    controllerDeviceId: 'parent-device-1',
+    parentActorId: 'parent-actor-1',
+    parentAuthority: 'active-controller',
+    controllerLeaseIssuedAt: '2026-05-23T23:20:00Z',
+    controllerLeaseExpiresAt: '2026-05-23T23:25:00Z',
     evidenceReferences: [lanEvidenceReference()],
   };
 }
@@ -279,6 +310,9 @@ function lanAuditEvent(eventType: unknown, rejectionReason: unknown) {
     intentId: 'intent-rule-query-1',
     childDeviceId: 'child-device-1',
     parentDeviceId: 'parent-device-1',
+    controllerLeaseId: 'controller-lease-1',
+    controllerDeviceId: 'parent-device-1',
+    parentActorId: 'parent-actor-1',
     routeId: 'lan-route-child-1',
     origin: 'http://127.0.0.1:4678',
     rejectionReason,

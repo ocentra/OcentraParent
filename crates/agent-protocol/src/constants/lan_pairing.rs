@@ -2,14 +2,25 @@ pub const COMMAND_PROOF_SUBMIT: &str = "agent.lan-pairing.proof.submit";
 pub const COMMAND_ROUTE_SELECT: &str = "agent.lan-pairing.route.select";
 pub const COMMAND_ROUTE_REVOKE: &str = "agent.lan-pairing.route.revoke";
 pub const COMMAND_STATUS_GET: &str = "agent.lan-pairing.status.get";
+pub const COMMAND_CONTROLLER_LEASE_RENEW: &str = "agent.lan-pairing.controller-lease.renew";
+pub const COMMAND_CONTROLLER_LEASE_RELEASE: &str = "agent.lan-pairing.controller-lease.release";
+pub const COMMAND_CONTROLLER_LEASE_TAKEOVER: &str = "agent.lan-pairing.controller-lease.takeover";
+pub const COMMAND_LAN_AI_PROVIDER_STATUS_GET: &str = "agent.lan-ai.provider.status.get";
+pub const COMMAND_LAN_AI_JOB_SUBMIT: &str = "agent.lan-ai.job.submit";
 pub const EVENT_STATUS_REPORTED: &str = "agent.lan-pairing.status.reported";
 pub const EVENT_AUDIT_REPORTED: &str = "agent.lan-pairing.audit.reported";
+pub const EVENT_LAN_AI_JOB_REPORTED: &str = "agent.lan-ai.job.reported";
 pub const LOCAL_CHILD_DEVICE_ID_ENV: &str = "OCENTRA_PARENT_AGENT_LAN_CHILD_DEVICE_ID";
 pub const SUPPORTED_WEBSOCKET_COMMANDS: &[&str] = &[
     COMMAND_PROOF_SUBMIT,
     COMMAND_ROUTE_SELECT,
     COMMAND_ROUTE_REVOKE,
     COMMAND_STATUS_GET,
+    COMMAND_CONTROLLER_LEASE_RENEW,
+    COMMAND_CONTROLLER_LEASE_RELEASE,
+    COMMAND_CONTROLLER_LEASE_TAKEOVER,
+    COMMAND_LAN_AI_PROVIDER_STATUS_GET,
+    COMMAND_LAN_AI_JOB_SUBMIT,
 ];
 
 pub const PLANNED_HTTP_ENDPOINT_DISCOVERY_ID: &str = "lan-pairing.discovery";
@@ -43,7 +54,10 @@ pub const ROUTE_REQUIREMENT_ROUTE_ID_MATCH: &str = "route-id-match";
 pub const ROUTE_REQUIREMENT_UNEXPIRED_INTENT: &str = "unexpired-intent";
 pub const ROUTE_REQUIREMENT_NON_REPLAYED_INTENT: &str = "non-replayed-intent";
 pub const ROUTE_REQUIREMENT_UNREVOKED_PAIRING: &str = "unrevoked-pairing";
+pub const ROUTE_REQUIREMENT_ACTIVE_CONTROLLER_LEASE: &str = "active-controller-lease";
 pub const ROUTE_REQUIREMENT_SELECTED_DEVICE_REACHABLE: &str = "selected-device-reachable";
+pub const ROUTE_REQUIREMENT_PARENT_WRITE_AUTHORITY: &str = "parent-write-authority";
+pub const ROUTE_REQUIREMENT_LAN_AI_JOB_AUTHORIZED: &str = "lan-ai-job-authorized";
 pub const ROUTE_REQUIREMENTS: &[&str] = &[
     ROUTE_REQUIREMENT_PAIRED_DEVICE,
     ROUTE_REQUIREMENT_ALLOWED_ORIGIN,
@@ -52,7 +66,10 @@ pub const ROUTE_REQUIREMENTS: &[&str] = &[
     ROUTE_REQUIREMENT_UNEXPIRED_INTENT,
     ROUTE_REQUIREMENT_NON_REPLAYED_INTENT,
     ROUTE_REQUIREMENT_UNREVOKED_PAIRING,
+    ROUTE_REQUIREMENT_ACTIVE_CONTROLLER_LEASE,
     ROUTE_REQUIREMENT_SELECTED_DEVICE_REACHABLE,
+    ROUTE_REQUIREMENT_PARENT_WRITE_AUTHORITY,
+    ROUTE_REQUIREMENT_LAN_AI_JOB_AUTHORIZED,
 ];
 pub const MANUAL_PROOF_GAP_LAN_BIND: &str = "manual-lan-bind-proof";
 pub const MANUAL_PROOF_GAP_FIREWALL: &str = "manual-firewall-proof";
@@ -71,6 +88,9 @@ pub const ROUTE_ID_UNSUPPORTED: &str = "lan-route-unsupported";
 pub const CHILD_DEVICE_ID: &str = "child-device-1";
 pub const SECOND_CHILD_DEVICE_ID: &str = "child-device-2";
 pub const PARENT_DEVICE_ID: &str = "parent-device-1";
+pub const SECOND_PARENT_DEVICE_ID: &str = "parent-device-2";
+pub const PARENT_ACTOR_ID: &str = "parent-actor-1";
+pub const SECOND_PARENT_ACTOR_ID: &str = "parent-actor-2";
 pub const PARENT_PEER_ID: &str = "portal-dev";
 pub const PAIRING_ID: &str = "pairing-1";
 pub const SECOND_PAIRING_ID: &str = "pairing-2";
@@ -81,9 +101,21 @@ pub const SECOND_PROOF_DIGEST: &str = "sha256:second-proof-digest";
 pub const OTHER_PROOF_DIGEST: &str = "sha256:other-proof-digest";
 pub const INTENT_ID: &str = "intent-1";
 pub const SECOND_INTENT_ID: &str = "intent-2";
+pub const CONTROLLER_LEASE_ID: &str = "controller-lease-1";
+pub const SECOND_CONTROLLER_LEASE_ID: &str = "controller-lease-2";
+pub const THIRD_CONTROLLER_LEASE_ID: &str = "controller-lease-3";
 pub const RULE_QUERY_INTENT_ID: &str = "intent-rule-query";
 pub const RULE_UPDATE_INTENT_ID: &str = "intent-rule-update";
 pub const APPROVAL_DECISION_INTENT_ID: &str = "intent-approval-decision";
+pub const CONTROLLER_LEASE_RENEW_INTENT_ID: &str = "intent-controller-lease-renew";
+pub const CONTROLLER_LEASE_RELEASE_INTENT_ID: &str = "intent-controller-lease-release";
+pub const CONTROLLER_LEASE_TAKEOVER_INTENT_ID: &str = "intent-controller-lease-takeover";
+pub const LAN_AI_PROVIDER_STATUS_INTENT_ID: &str = "intent-lan-ai-provider-status";
+pub const LAN_AI_JOB_INTENT_ID: &str = "intent-lan-ai-job";
+pub const OBSERVER_RULE_QUERY_INTENT_ID: &str = "intent-observer-rule-query";
+pub const OBSERVER_RULE_UPDATE_INTENT_ID: &str = "intent-observer-rule-update";
+pub const OLD_CONTROLLER_AFTER_TAKEOVER_INTENT_ID: &str = "intent-old-controller-after-takeover";
+pub const LAN_AI_JOB_ID: &str = "lan-ai-job-1";
 pub const SELECT_INTENT_ID: &str = "intent-select-1";
 pub const SECOND_SELECT_INTENT_ID: &str = "intent-select-2";
 pub const SELECT_BACK_INTENT_ID: &str = "intent-select-back";
@@ -97,6 +129,17 @@ pub const WRONG_ORIGIN: &str = "http://127.0.0.1:9478";
 pub const ISSUED_AT: &str = "2026-05-23T14:40:00.000Z";
 pub const EXPIRES_AT: &str = "2099-05-23T14:45:00.000Z";
 pub const EXPIRED_AT: &str = "2026-05-23T14:39:00.000Z";
+pub const CONTROLLER_LEASE_EXPIRES_AT: &str = "2099-05-23T14:44:00.000Z";
+pub const CONTROLLER_LEASE_EXPIRED_AT: &str = "2026-05-23T14:38:00.000Z";
 pub const OBSERVED_AT: &str = "2026-05-23T14:41:00.000Z";
 pub const REGISTRY_FILE_PREFIX: &str = "ocentra-parent-lan-registry-";
 pub const REGISTRY_FILE_EXTENSION: &str = "json";
+pub const RAW_MARKER_ACTIVITY_SQLITE: &str = "activity.sqlite";
+pub const RAW_MARKER_ACTIVITY_NDJSON: &str = "activity.ndjson";
+pub const RAW_MARKER_DECRYPTED_EVIDENCE: &str = "decryptedEvidence";
+pub const RAW_MARKER_JOURNAL_PATH: &str = "journalPath";
+pub const RAW_MARKER_RAW_EVIDENCE: &str = "rawEvidence";
+pub const RAW_MARKER_RAW_PROMPT: &str = "rawPrompt";
+pub const RAW_MARKER_RAW_PROOF_SECRET: &str = "rawProofSecret";
+pub const RAW_MARKER_RAW_TOKEN: &str = "rawToken";
+pub const RAW_MARKER_SQLITE_PATH: &str = "sqlitePath";

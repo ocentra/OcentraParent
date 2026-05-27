@@ -119,15 +119,7 @@ async fn handle_command(
     let mut event = match command.command {
         AgentCommandName::AgentHealthCheck => build_health_report(command),
         AgentCommandName::AgentLogSnapshotGet => build_log_snapshot_report(command),
-        AgentCommandName::AgentDevEcho => build_event(
-            constants::event_id::DEV_ECHOED,
-            &command.message_id,
-            command.source,
-            AgentEventName::AgentDevEchoed,
-            LogLevel::Info,
-            command.payload,
-            None,
-        ),
+        AgentCommandName::AgentDevEcho => build_dev_echo_report(command),
         AgentCommandName::AgentWatchStatusGet => build_watcher_status_report(command),
         AgentCommandName::AgentActivityIngestStatusGet => {
             build_activity_ingest_status_report(command).await
@@ -168,7 +160,12 @@ async fn handle_command(
         AgentCommandName::AgentLanPairingProofSubmit
         | AgentCommandName::AgentLanPairingRouteSelect
         | AgentCommandName::AgentLanPairingRouteRevoke
-        | AgentCommandName::AgentLanPairingStatusGet => {
+        | AgentCommandName::AgentLanPairingStatusGet
+        | AgentCommandName::AgentLanPairingControllerLeaseRenew
+        | AgentCommandName::AgentLanPairingControllerLeaseRelease
+        | AgentCommandName::AgentLanPairingControllerLeaseTakeover
+        | AgentCommandName::AgentLanAiProviderStatusGet
+        | AgentCommandName::AgentLanAiJobSubmit => {
             build_lan_pairing_status_report(lan_pairing, command)
         }
     };
@@ -177,6 +174,18 @@ async fn handle_command(
         event.payload.extend(audit_fields);
     }
     event
+}
+
+fn build_dev_echo_report(command: AgentCommandEnvelope) -> AgentEventEnvelope {
+    build_event(
+        constants::event_id::DEV_ECHOED,
+        &command.message_id,
+        command.source,
+        AgentEventName::AgentDevEchoed,
+        LogLevel::Info,
+        command.payload,
+        None,
+    )
 }
 
 fn build_health_report(command: AgentCommandEnvelope) -> AgentEventEnvelope {

@@ -1,13 +1,15 @@
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-import { ParentDeviceIdSchema } from './reference-primitives';
+import { ParentActorIdSchema, ParentDeviceIdSchema } from './reference-primitives';
 import { ParentEvidenceReferenceSchema } from './references';
 import {
   LanPairingAuditEventIdSchema,
   LanPairingAuditEventTypeSchema,
+  LanPairingControllerLeaseIdSchema,
   LanPairingIdSchema,
   LanPairingIntentIdSchema,
   LanPairingIntentKindSchema,
   LanPairingOriginSchema,
+  LanPairingParentAuthoritySchema,
   LanPairingProofDigestSchema,
   LanPairingRejectionReasonSchema,
   LanPairingResponseStateSchema,
@@ -28,6 +30,12 @@ export const LanPairingParentIntentEnvelopeSchema = withParser(
     origin: LanPairingOriginSchema,
     issuedAt: LanPairingTimestampSchema,
     expiresAt: LanPairingTimestampSchema,
+    controllerLeaseId: LanPairingControllerLeaseIdSchema,
+    controllerDeviceId: ParentDeviceIdSchema,
+    parentActorId: ParentActorIdSchema,
+    parentAuthority: LanPairingParentAuthoritySchema,
+    controllerLeaseIssuedAt: LanPairingTimestampSchema,
+    controllerLeaseExpiresAt: LanPairingTimestampSchema,
     evidenceReferences: Schema.Array(ParentEvidenceReferenceSchema),
   })
 );
@@ -54,6 +62,9 @@ export const LanPairingAuditEventSchema = withParser(
     intentId: Schema.Union(LanPairingIntentIdSchema, Schema.Null),
     childDeviceId: Schema.Union(ParentDeviceIdSchema, Schema.Null),
     parentDeviceId: Schema.Union(ParentDeviceIdSchema, Schema.Null),
+    controllerLeaseId: Schema.Union(LanPairingControllerLeaseIdSchema, Schema.Null),
+    controllerDeviceId: Schema.Union(ParentDeviceIdSchema, Schema.Null),
+    parentActorId: Schema.Union(ParentActorIdSchema, Schema.Null),
     routeId: LanPairingRouteIdSchema,
     origin: Schema.Union(LanPairingOriginSchema, Schema.Null),
     rejectionReason: Schema.Union(LanPairingRejectionReasonSchema, Schema.Null),

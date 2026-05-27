@@ -18,6 +18,7 @@ impl LanPairingRuntime {
         Self {
             registry: Arc::new(Mutex::new(TrustedDeviceRegistry::empty())),
             challenges: Arc::new(Mutex::new(Vec::new())),
+            controller_lease: Arc::new(Mutex::new(None)),
             persistence: LanPairingRegistryPersistence::InMemory,
             local_child_device_id: None,
         }
@@ -47,6 +48,7 @@ impl LanPairingRuntime {
         Self {
             registry: Arc::new(Mutex::new(TrustedDeviceRegistry::empty())),
             challenges: Arc::new(Mutex::new(Vec::new())),
+            controller_lease: Arc::new(Mutex::new(None)),
             persistence: LanPairingRegistryPersistence::InMemory,
             local_child_device_id,
         }
@@ -59,6 +61,7 @@ impl LanPairingRuntime {
         Self {
             registry: Arc::new(Mutex::new(TrustedDeviceRegistry::load_json(path))),
             challenges: Arc::new(Mutex::new(Vec::new())),
+            controller_lease: Arc::new(Mutex::new(None)),
             persistence: LanPairingRegistryPersistence::LocalJsonRegistry(path.to_path_buf()),
             local_child_device_id,
         }

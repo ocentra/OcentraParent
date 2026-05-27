@@ -1,8 +1,10 @@
 use ocentra_parent_agent_protocol::{
-    constants, LanPairingChallengeRequest, LanPairingIntentKind, LanPairingProof,
-    LanPairingRejectionReason, LanParentIntentEnvelope, LogFieldValue, LogFields,
+    constants, LanPairingChallengeRequest, LanPairingIntentKind, LanPairingParentAuthority,
+    LanPairingProof, LanPairingRejectionReason, LanParentIntentEnvelope, LogFieldValue, LogFields,
     ParentEvidenceReference, ParentEvidenceReferenceKind,
 };
+
+use crate::lan_pairing::controller_lease::LanControllerLeaseState;
 
 pub(crate) fn is_challenge_request(fields: &LogFields) -> bool {
     fields.contains_key(constants::field::LAN_PARENT_DEVICE_ID)
@@ -47,6 +49,9 @@ pub(crate) fn parse_intent(
     let proof_digest = required_anonymous_string(fields, constants::field::LAN_PROOF_DIGEST)?;
     let issued_at = required_string(fields, constants::field::STARTED_AT)?;
     let expires_at = required_string(fields, constants::field::STALE_AT)?;
+    let controller_lease_issued_at =
+        required_controller_lease_string(fields, constants::field::LAN_CONTROLLER_LEASE_ISSUED_AT)?;
+    let controller_lease = parse_controller_lease(fields)?;
     let evidence_references = parse_evidence_references(fields, &issued_at);
     Ok(LanParentIntentEnvelope {
         schema_version: constants::lan_pairing::SCHEMA_VERSION,
@@ -59,7 +64,36 @@ pub(crate) fn parse_intent(
         origin: required_string(fields, constants::field::ORIGIN)?,
         issued_at,
         expires_at,
+        controller_lease_id: controller_lease.controller_lease_id,
+        controller_device_id: controller_lease.controller_device_id,
+        parent_actor_id: controller_lease.parent_actor_id,
+        parent_authority: required_parent_authority(fields)?,
+        controller_lease_issued_at,
+        controller_lease_expires_at: controller_lease.expires_at,
         evidence_references,
+    })
+}
+
+fn parse_controller_lease(
+    fields: &LogFields,
+) -> Result<LanControllerLeaseState, LanPairingRejectionReason> {
+    Ok(LanControllerLeaseState {
+        controller_lease_id: required_controller_lease_string(
+            fields,
+            constants::field::LAN_CONTROLLER_LEASE_ID,
+        )?,
+        controller_device_id: required_controller_lease_string(
+            fields,
+            constants::field::LAN_CONTROLLER_DEVICE_ID,
+        )?,
+        parent_actor_id: required_controller_lease_string(
+            fields,
+            constants::field::LAN_PARENT_ACTOR_ID,
+        )?,
+        expires_at: required_controller_lease_string(
+            fields,
+            constants::field::LAN_CONTROLLER_LEASE_EXPIRES_AT,
+        )?,
     })
 }
 
@@ -94,6 +128,31 @@ fn required_intent_kind(
         constants::value::LAN_INTENT_CONFIGURATION_UPDATE => {
             Ok(LanPairingIntentKind::ConfigurationUpdate)
         }
+        constants::value::LAN_INTENT_CONTROLLER_LEASE_RENEW => {
+            Ok(LanPairingIntentKind::ControllerLeaseRenew)
+        }
+        constants::value::LAN_INTENT_CONTROLLER_LEASE_RELEASE => {
+            Ok(LanPairingIntentKind::ControllerLeaseRelease)
+        }
+        constants::value::LAN_INTENT_CONTROLLER_LEASE_TAKEOVER => {
+            Ok(LanPairingIntentKind::ControllerLeaseTakeover)
+        }
+        constants::value::LAN_INTENT_LAN_AI_PROVIDER_STATUS => {
+            Ok(LanPairingIntentKind::LanAiProviderStatus)
+        }
+        constants::value::LAN_INTENT_LAN_AI_JOB_SUBMIT => Ok(LanPairingIntentKind::LanAiJobSubmit),
+        _ => Err(LanPairingRejectionReason::Malformed),
+    }
+}
+
+fn required_parent_authority(
+    fields: &LogFields,
+) -> Result<LanPairingParentAuthority, LanPairingRejectionReason> {
+    match required_string(fields, constants::field::LAN_PARENT_AUTHORITY)?.as_str() {
+        constants::value::LAN_PARENT_AUTHORITY_ACTIVE_CONTROLLER => {
+            Ok(LanPairingParentAuthority::ActiveController)
+        }
+        constants::value::LAN_PARENT_AUTHORITY_OBSERVER => Ok(LanPairingParentAuthority::Observer),
         _ => Err(LanPairingRejectionReason::Malformed),
     }
 }
@@ -103,6 +162,13 @@ fn required_anonymous_string(
     key: &str,
 ) -> Result<String, LanPairingRejectionReason> {
     required_string(fields, key).map_err(|_| LanPairingRejectionReason::Anonymous)
+}
+
+fn required_controller_lease_string(
+    fields: &LogFields,
+    key: &str,
+) -> Result<String, LanPairingRejectionReason> {
+    required_string(fields, key).map_err(|_| LanPairingRejectionReason::ControllerLeaseMissing)
 }
 
 fn required_string(fields: &LogFields, key: &str) -> Result<String, LanPairingRejectionReason> {

@@ -36,6 +36,14 @@ const evidenceReference = {
   kind: 'activity-event',
   observedAt: timestamp,
 };
+const controllerLease = {
+  controllerLeaseId: 'controller-lease-1',
+  controllerDeviceId: parentDevice.deviceId,
+  parentActorId: 'parent-actor-1',
+  parentAuthority: 'active-controller',
+  controllerLeaseIssuedAt: timestamp,
+  controllerLeaseExpiresAt: laterTimestamp,
+};
 const sensitiveLanPrivacyMarkers = [
   'activityDigest',
   'activity.sqlite',
@@ -53,6 +61,7 @@ describe('LAN pairing contracts', () => {
   registerReadinessContractTests();
   registerPairingTrustTests();
   registerControlContractTests();
+  registerAuthorityAndLanAiContractTests();
   registerRejectionContractTests();
   registerRuntimeSupportSurfaceTests();
   registerPersistentRuntimeSupportSurfaceTests();
@@ -229,6 +238,84 @@ function registerControlContractTests(): void {
   });
 }
 
+function registerAuthorityAndLanAiContractTests(): void {
+  it('LanPairingParentIntentEnvelopeSchema: distinguishes active controller and observer authority', () => {
+    const proof = acceptedProof();
+    const observerRuleQuery = LanPairingParentIntentEnvelopeSchema.parse({
+      ...parentIntentFor(proof),
+      intentId: 'intent-observer-rule-query',
+      parentAuthority: 'observer',
+    });
+    const observerRuleUpdate = LanPairingParentIntentEnvelopeSchema.parse({
+      ...parentIntentFor(proof),
+      intentId: 'intent-observer-rule-update',
+      intentKind: 'rule-update',
+      parentAuthority: 'observer',
+    });
+    const observerRejected = LanChildAgentResponseSchema.parse({
+      schemaVersion: 'v0.9',
+      intentId: observerRuleUpdate.intentId,
+      targetChildDeviceId: observerRuleUpdate.targetChildDeviceId,
+      routeId: observerRuleUpdate.routeId,
+      state: 'rejected',
+      rejectionReason: 'observer-read-only',
+      auditEventId: 'audit-observer-read-only',
+      respondedAt: timestamp,
+    });
+
+    expect(observerRuleQuery.parentAuthority).toBe('observer');
+    expect(observerRuleUpdate.intentKind).toBe('rule-update');
+    expect(observerRejected.rejectionReason).toBe('observer-read-only');
+  });
+
+  it('LanPairingParentIntentEnvelopeSchema: covers lease lifecycle and LAN AI job intents', () => {
+    const proof = acceptedProof();
+    const leaseRenew = LanPairingParentIntentEnvelopeSchema.parse({
+      ...parentIntentFor(proof),
+      intentId: 'intent-lease-renew',
+      intentKind: 'controller-lease-renew',
+    });
+    const leaseRelease = LanPairingParentIntentEnvelopeSchema.parse({
+      ...parentIntentFor(proof),
+      intentId: 'intent-lease-release',
+      intentKind: 'controller-lease-release',
+    });
+    const leaseTakeover = LanPairingParentIntentEnvelopeSchema.parse({
+      ...parentIntentFor(proof),
+      intentId: 'intent-lease-takeover',
+      intentKind: 'controller-lease-takeover',
+    });
+    const providerStatus = LanPairingParentIntentEnvelopeSchema.parse({
+      ...parentIntentFor(proof),
+      intentId: 'intent-lan-ai-provider-status',
+      intentKind: 'lan-ai-provider-status',
+      parentAuthority: 'observer',
+    });
+    const jobSubmit = LanPairingParentIntentEnvelopeSchema.parse({
+      ...parentIntentFor(proof),
+      intentId: 'intent-lan-ai-job-submit',
+      intentKind: 'lan-ai-job-submit',
+    });
+    const jobDegraded = LanChildAgentResponseSchema.parse({
+      schemaVersion: 'v0.9',
+      intentId: jobSubmit.intentId,
+      targetChildDeviceId: jobSubmit.targetChildDeviceId,
+      routeId: jobSubmit.routeId,
+      state: 'degraded',
+      rejectionReason: 'lan-ai-provider-unavailable',
+      auditEventId: 'audit-lan-ai-job-degraded',
+      respondedAt: timestamp,
+    });
+
+    expect(leaseRenew.intentKind).toBe('controller-lease-renew');
+    expect(leaseRelease.intentKind).toBe('controller-lease-release');
+    expect(leaseTakeover.intentKind).toBe('controller-lease-takeover');
+    expect(providerStatus.intentKind).toBe('lan-ai-provider-status');
+    expect(jobDegraded.state).toBe('degraded');
+    expect(jobDegraded.rejectionReason).toBe('lan-ai-provider-unavailable');
+  });
+}
+
 function acceptedControlContracts() {
   const proof = acceptedProof();
   const selectedTarget = selectedRouteTargetFor(proof);
@@ -279,6 +366,7 @@ function parentIntentFor(proof: ReturnType<typeof acceptedProof>) {
     origin: proof.origin,
     issuedAt: timestamp,
     expiresAt: laterTimestamp,
+    ...controllerLease,
     evidenceReferences: [evidenceReference],
   });
 }
@@ -309,6 +397,9 @@ function acceptedAuditEventFor(
     intentId: intent.intentId,
     childDeviceId: childDevice.deviceId,
     parentDeviceId: parentDevice.deviceId,
+    controllerLeaseId: intent.controllerLeaseId,
+    controllerDeviceId: intent.controllerDeviceId,
+    parentActorId: intent.parentActorId,
     routeId: proof.routeId,
     origin: proof.origin,
     rejectionReason: null,
@@ -329,6 +420,9 @@ function routeSelectedAuditEventFor(
     intentId: intent.intentId,
     childDeviceId: childDevice.deviceId,
     parentDeviceId: parentDevice.deviceId,
+    controllerLeaseId: intent.controllerLeaseId,
+    controllerDeviceId: intent.controllerDeviceId,
+    parentActorId: intent.parentActorId,
     routeId: proof.routeId,
     origin: proof.origin,
     rejectionReason: null,
@@ -350,6 +444,7 @@ function registerRejectionContractTests(): void {
       origin: 'http://127.0.0.1:4478',
       issuedAt: timestamp,
       expiresAt: laterTimestamp,
+      ...controllerLease,
       evidenceReferences: [],
     });
 
@@ -375,6 +470,9 @@ function registerRejectionContractTests(): void {
       intentId: response.intentId,
       childDeviceId: childDevice.deviceId,
       parentDeviceId: parentDevice.deviceId,
+      controllerLeaseId: 'controller-lease-1',
+      controllerDeviceId: parentDevice.deviceId,
+      parentActorId: 'parent-actor-1',
       routeId: response.routeId,
       origin: 'http://127.0.0.1:4478',
       rejectionReason: response.rejectionReason,
@@ -395,6 +493,9 @@ function registerRejectionContractTests(): void {
     expect(LanPairingRejectionReason.Offline).toBe('offline');
     expect(LanPairingRejectionReason.Revoked).toBe('revoked');
     expect(LanPairingRejectionReason.UnselectedDevice).toBe('unselected-device');
+    expect(LanPairingRejectionReason.ControllerLeaseMissing).toBe('controller-lease-missing');
+    expect(LanPairingRejectionReason.ControllerLeaseExpired).toBe('controller-lease-expired');
+    expect(LanPairingRejectionReason.WrongController).toBe('wrong-controller');
     expect(LanPairingIntentKindSchema.safeParse('cloud-relay').success).toBe(false);
   });
 }
@@ -437,6 +538,8 @@ function registerRuntimeSupportSurfaceTests(): void {
       discoveryStatus: 'websocket-direct',
       challengeStatus: 'websocket-direct',
       proofPreviewStatus: 'websocket-direct',
+      lanAiProviderStatus: 'websocket-direct',
+      lanAiJobStatus: 'websocket-direct',
       persistenceMode: 'in-memory-fail-closed',
       restartBehavior: 'fail-closed-unpaired',
       proofMode: 'direct-proof-submit',
@@ -448,7 +551,10 @@ function registerRuntimeSupportSurfaceTests(): void {
         'unexpired-intent',
         'non-replayed-intent',
         'unrevoked-pairing',
+        'active-controller-lease',
         'selected-device-reachable',
+        'parent-write-authority',
+        'lan-ai-job-authorized',
       ],
       manualProofGaps: ['manual-lan-bind-proof', 'manual-firewall-proof', 'manual-physical-device-proof'],
     });
@@ -485,6 +591,8 @@ function registerPersistentRuntimeSupportSurfaceTests(): void {
       discoveryStatus: 'websocket-direct',
       challengeStatus: 'websocket-direct',
       proofPreviewStatus: 'websocket-direct',
+      lanAiProviderStatus: 'websocket-direct',
+      lanAiJobStatus: 'websocket-direct',
       persistenceMode: 'local-json-registry',
       restartBehavior: 'restore-trusted-registry-unselected',
       proofMode: 'direct-proof-submit',

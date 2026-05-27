@@ -2,8 +2,8 @@ use std::fs::remove_file;
 
 use ocentra_parent_agent_protocol::{
     constants, policy_constants, LanPairingAuthenticationState, LanPairingDeviceReachability,
-    LanPairingDeviceRef, LanPairingIntentKind, LanPairingProof, LanPairingRejectionReason,
-    LanParentIntentEnvelope,
+    LanPairingDeviceRef, LanPairingIntentKind, LanPairingParentAuthority, LanPairingProof,
+    LanPairingRejectionReason, LanParentIntentEnvelope,
 };
 
 use crate::TrustedDeviceRegistry;
@@ -455,6 +455,13 @@ fn intent_for_pairing(
         origin: constants::lan_pairing::ALLOWED_ORIGIN.to_string(),
         issued_at: constants::lan_pairing::ISSUED_AT.to_string(),
         expires_at: expires_at.to_string(),
+        controller_lease_id: constants::lan_pairing::CONTROLLER_LEASE_ID.to_string(),
+        controller_device_id: constants::lan_pairing::PARENT_DEVICE_ID.to_string(),
+        parent_actor_id: constants::lan_pairing::PARENT_ACTOR_ID.to_string(),
+        parent_authority: LanPairingParentAuthority::ActiveController,
+        controller_lease_issued_at: constants::lan_pairing::ISSUED_AT.to_string(),
+        controller_lease_expires_at: constants::lan_pairing::CONTROLLER_LEASE_EXPIRES_AT
+            .to_string(),
         evidence_references: Vec::new(),
     }
 }
