@@ -2,8 +2,8 @@ use std::fs::{read_to_string, remove_file};
 
 use ocentra_parent_agent_protocol::{
     constants, policy_constants, AgentCommandEnvelope, AgentCommandName, AgentEventName,
-    AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, EnforcementActiveTimerState,
-    LogFieldValue, LogFields, AGENT_PROTOCOL_SCHEMA_VERSION,
+    AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue, LogFields,
+    AGENT_PROTOCOL_SCHEMA_VERSION,
 };
 
 use crate::{
@@ -19,16 +19,28 @@ async fn timer_expiry_uses_persisted_time_limit_state_and_clears_it() {
     let execute_event =
         build_enforcement_audit_report_with_paths(time_limit_execute_command(), paths.clone())
             .await;
-    let stored_state = read_state(&paths);
-    let expire_event =
-        build_enforcement_timer_report_with_paths(expire_command(), paths.clone()).await;
-    let state_after_expiry = read_to_string(&paths.timer_state_path);
-    cleanup_paths(&paths);
-
     assert_eq!(
         execute_event.event,
         AgentEventName::AgentEnforcementAuditReported
     );
+
+    #[cfg(windows)]
+    assert_timer_expiry_uses_persisted_state_and_clears_it(&paths).await;
+
+    #[cfg(not(windows))]
+    assert_timer_expiry_without_supported_adapter_reports_missing_state(&paths, &execute_event)
+        .await;
+
+    cleanup_paths(&paths);
+}
+
+#[cfg(windows)]
+async fn assert_timer_expiry_uses_persisted_state_and_clears_it(paths: &EnforcementJournalPaths) {
+    let stored_state = read_state(paths);
+    let expire_event =
+        build_enforcement_timer_report_with_paths(expire_command(), paths.clone()).await;
+    let state_after_expiry = read_to_string(&paths.timer_state_path);
+
     assert_eq!(
         stored_state.timer_event.timer_event_kind.as_protocol_str(),
         constants::enforcement::TIMER_CREATED
@@ -54,50 +66,93 @@ async fn timer_expiry_uses_persisted_time_limit_state_and_clears_it() {
     );
 }
 
-fn assert_platform_expiry_payload(payload: &LogFields) {
-    #[cfg(windows)]
-    {
-        assert_eq!(
-            payload.get(constants::field::ENFORCEMENT_STATUS),
-            Some(&LogFieldValue::String(
-                constants::enforcement::RESULT_EXPIRED.to_string()
-            ))
-        );
-        assert_eq!(
-            payload.get(constants::field::ENFORCEMENT_TIMER_EVENT_KIND),
-            Some(&LogFieldValue::String(
-                constants::enforcement::TIMER_EXPIRED.to_string()
-            ))
-        );
-        assert_eq!(
-            payload.get(constants::field::ENFORCEMENT_ADAPTER_RESULT_CODE),
-            Some(&LogFieldValue::String(
-                constants::enforcement::ADAPTER_PROCESS_ALREADY_EXITED.to_string()
-            ))
-        );
-    }
+#[cfg(not(windows))]
+async fn assert_timer_expiry_without_supported_adapter_reports_missing_state(
+    paths: &EnforcementJournalPaths,
+    execute_event: &ocentra_parent_agent_protocol::AgentEventEnvelope,
+) {
+    assert_missing_state_file(paths);
+    assert_eq!(
+        execute_event
+            .payload
+            .get(constants::field::ENFORCEMENT_STATUS),
+        Some(&LogFieldValue::String(
+            constants::enforcement::RESULT_UNAVAILABLE.to_string()
+        ))
+    );
+    assert_eq!(
+        execute_event
+            .payload
+            .get(constants::field::ENFORCEMENT_TIMER_EVENT_KIND),
+        Some(&LogFieldValue::String(
+            constants::enforcement::TIMER_UNAVAILABLE.to_string()
+        ))
+    );
+    assert_eq!(
+        execute_event
+            .payload
+            .get(constants::field::ENFORCEMENT_ADAPTER_RESULT_CODE),
+        Some(&LogFieldValue::String(
+            constants::enforcement::ADAPTER_UNSUPPORTED_PLATFORM.to_string()
+        ))
+    );
 
-    #[cfg(not(windows))]
-    {
-        assert_eq!(
-            payload.get(constants::field::ENFORCEMENT_STATUS),
-            Some(&LogFieldValue::String(
-                constants::enforcement::RESULT_UNAVAILABLE.to_string()
-            ))
-        );
-        assert_eq!(
-            payload.get(constants::field::ENFORCEMENT_TIMER_EVENT_KIND),
-            Some(&LogFieldValue::String(
-                constants::enforcement::TIMER_UNAVAILABLE.to_string()
-            ))
-        );
-        assert_eq!(
-            payload.get(constants::field::ENFORCEMENT_ADAPTER_RESULT_CODE),
-            Some(&LogFieldValue::String(
-                constants::enforcement::ADAPTER_UNSUPPORTED_PLATFORM.to_string()
-            ))
-        );
-    }
+    let expire_event =
+        build_enforcement_timer_report_with_paths(expire_command(), paths.clone()).await;
+
+    assert_missing_state_file(paths);
+    assert_eq!(
+        expire_event.event,
+        AgentEventName::AgentEnforcementTimerReported
+    );
+    assert_eq!(
+        expire_event.payload.get(constants::field::AVAILABLE),
+        Some(&LogFieldValue::Boolean(false))
+    );
+    assert_eq!(
+        expire_event.payload.get(constants::field::REASON),
+        Some(&LogFieldValue::String(
+            constants::enforcement::REJECTION_ACTIVE_TIMER_STATE_REQUIRED.to_string()
+        ))
+    );
+    assert_eq!(
+        expire_event
+            .payload
+            .get(constants::field::ENFORCEMENT_STATUS),
+        Some(&LogFieldValue::String(
+            constants::enforcement::RESULT_UNAVAILABLE.to_string()
+        ))
+    );
+    assert_eq!(
+        expire_event
+            .payload
+            .get(constants::field::ENFORCEMENT_TIMER_EVENT_KIND),
+        Some(&LogFieldValue::String(
+            constants::enforcement::TIMER_RECOVERY_NEEDED.to_string()
+        ))
+    );
+}
+
+#[cfg(windows)]
+fn assert_platform_expiry_payload(payload: &LogFields) {
+    assert_eq!(
+        payload.get(constants::field::ENFORCEMENT_STATUS),
+        Some(&LogFieldValue::String(
+            constants::enforcement::RESULT_EXPIRED.to_string()
+        ))
+    );
+    assert_eq!(
+        payload.get(constants::field::ENFORCEMENT_TIMER_EVENT_KIND),
+        Some(&LogFieldValue::String(
+            constants::enforcement::TIMER_EXPIRED.to_string()
+        ))
+    );
+    assert_eq!(
+        payload.get(constants::field::ENFORCEMENT_ADAPTER_RESULT_CODE),
+        Some(&LogFieldValue::String(
+            constants::enforcement::ADAPTER_PROCESS_ALREADY_EXITED.to_string()
+        ))
+    );
 }
 
 fn time_limit_execute_command() -> AgentCommandEnvelope {
@@ -223,11 +278,22 @@ fn target() -> AgentMessageTarget {
     }
 }
 
-fn read_state(paths: &EnforcementJournalPaths) -> EnforcementActiveTimerState {
+#[cfg(windows)]
+fn read_state(
+    paths: &EnforcementJournalPaths,
+) -> ocentra_parent_agent_protocol::EnforcementActiveTimerState {
     let text = read_to_string(&paths.timer_state_path).expect(constants::error::JOURNAL_READS);
     serde_json::from_str(&text).expect(constants::error::AGENT_EVENT_SERIALIZES)
 }
 
+#[cfg(not(windows))]
+fn assert_missing_state_file(paths: &EnforcementJournalPaths) {
+    let error = read_to_string(&paths.timer_state_path)
+        .expect_err(constants::enforcement::REJECTION_ACTIVE_TIMER_STATE_REQUIRED);
+    assert_eq!(error.kind(), std::io::ErrorKind::NotFound);
+}
+
+#[cfg(windows)]
 fn payload_string<'a>(payload: &'a LogFields, field: &str) -> Option<&'a str> {
     match payload.get(field) {
         Some(LogFieldValue::String(value)) => Some(value.as_str()),
@@ -238,11 +304,6 @@ fn payload_string<'a>(payload: &'a LogFields, field: &str) -> Option<&'a str> {
 #[cfg(windows)]
 fn expire_audit_kind() -> &'static str {
     constants::enforcement::AUDIT_EXPIRED
-}
-
-#[cfg(not(windows))]
-fn expire_audit_kind() -> &'static str {
-    constants::enforcement::AUDIT_UNAVAILABLE
 }
 
 fn temp_paths(suffix: &str) -> EnforcementJournalPaths {
