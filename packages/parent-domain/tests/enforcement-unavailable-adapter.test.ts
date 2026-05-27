@@ -53,6 +53,35 @@ describe('parent enforcement unavailable adapter contracts', () => {
     expect(timer.timerEventKind).toBe(EnforcementTimerEventKind.Unavailable);
     expect(timer.unavailableReason).toBe(EnforcementUnavailableReason.AdapterUnavailable);
   });
+
+  it('parses manual-required adapter state without pretending enforcement was applied', () => {
+    const capability = EnforcementCapabilityStatusSchema.parse({
+      schemaVersion: ParentContractSchemaVersion.V0_6,
+      platform: ParentPlatform.Windows,
+      adapterKind: EnforcementAdapterKind.NetworkControl,
+      capabilityState: EnforcementCapabilityState.ManualRequired,
+      permissionState: 'unknown',
+      dependencyState: 'unknown',
+      supportedActions: [EnforcementMode.TemporaryBlock],
+      degradedReason: EnforcementUnavailableReason.ManualRequired,
+      lastCheckedAt: observedAt,
+    });
+    const action = enforcementAction(capability, EnforcementAdapterKind.NetworkControl, EnforcementMode.TemporaryBlock);
+    const unavailableStatus = EnforcementUnavailableStatusSchema.parse({
+      schemaVersion: ParentContractSchemaVersion.V0_6,
+      capability,
+      unavailableReason: EnforcementUnavailableReason.ManualRequired,
+      retryable: false,
+      checkedAt: observedAt,
+    });
+    const result = enforcementResult(action, capability, unavailableStatus);
+
+    expect(result.status).toBe(EnforcementResultStatus.Unavailable);
+    expect(result.capability.capabilityState).toBe(EnforcementCapabilityState.ManualRequired);
+    expect(result.unavailableReason).toBe(EnforcementUnavailableReason.ManualRequired);
+    expect(result.unavailableStatus?.unavailableReason).toBe(EnforcementUnavailableReason.ManualRequired);
+    expect(result.unavailableStatus?.retryable).toBe(false);
+  });
 });
 
 function degradedCapability(degradedReason: unknown) {
@@ -69,21 +98,25 @@ function degradedCapability(degradedReason: unknown) {
   };
 }
 
-function enforcementAction(capability: EnforcementCapabilityStatus) {
+function enforcementAction(
+  capability: EnforcementCapabilityStatus,
+  adapterKind = EnforcementAdapterKind.ProcessControl,
+  mode = EnforcementMode.TerminateProcess
+) {
   return EnforcementActionSchema.parse({
     schemaVersion: ParentContractSchemaVersion.V0_6,
     actionId: 'action-unavailable-1',
     intentId: 'intent-unavailable-1',
     policyDecisionId: 'decision-unavailable-1',
     policyAction: 'block',
-    adapterKind: EnforcementAdapterKind.ProcessControl,
+    adapterKind,
     platform: ParentPlatform.Windows,
     target: {
       targetId: 'target-process-unavailable-1',
       targetType: 'process',
       targetValue: 'owned-child-process',
     },
-    mode: EnforcementMode.TerminateProcess,
+    mode,
     capability,
     reasonCodes: ['policy-blocked-process'],
     evidenceReferences: [evidenceReference],
@@ -111,7 +144,7 @@ function enforcementResult(
     completedAt: observedAt,
     rollbackToken: action.rollbackToken,
     rollbackState: EnforcementRollbackState.Unavailable,
-    unavailableReason: EnforcementUnavailableReason.AdapterUnavailable,
+    unavailableReason: unavailableStatus.unavailableReason,
     unavailableStatus,
     failedReason: null,
     nextCheckAt: action.expiresAt,

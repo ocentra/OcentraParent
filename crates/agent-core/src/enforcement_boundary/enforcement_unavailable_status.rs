@@ -34,6 +34,11 @@ pub(crate) fn capability_unavailable_reason(
     {
         return EnforcementUnavailableReason::UnsupportedPlatform;
     }
+    if capability.degraded_reason.as_deref()
+        == Some(enforcement_constants::UNAVAILABLE_MANUAL_REQUIRED)
+    {
+        return EnforcementUnavailableReason::ManualRequired;
+    }
 
     EnforcementUnavailableReason::AdapterUnavailable
 }
@@ -79,6 +84,9 @@ fn unavailable_reason_from_protocol_str(reason: &str) -> Option<EnforcementUnava
         }
         enforcement_constants::UNAVAILABLE_ADAPTER_ERROR => {
             Some(EnforcementUnavailableReason::AdapterError)
+        }
+        enforcement_constants::UNAVAILABLE_MANUAL_REQUIRED => {
+            Some(EnforcementUnavailableReason::ManualRequired)
         }
         _ => None,
     }

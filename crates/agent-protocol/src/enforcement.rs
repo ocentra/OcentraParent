@@ -122,6 +122,8 @@ pub enum EnforcementCapabilityState {
     DryRun,
     #[serde(rename = "observe-only")]
     ObserveOnly,
+    #[serde(rename = "manual-required")]
+    ManualRequired,
 }
 
 impl EnforcementCapabilityState {
@@ -132,6 +134,7 @@ impl EnforcementCapabilityState {
             Self::Degraded => enforcement_constants::CAPABILITY_DEGRADED,
             Self::DryRun => enforcement_constants::CAPABILITY_DRY_RUN,
             Self::ObserveOnly => enforcement_constants::CAPABILITY_OBSERVE_ONLY,
+            Self::ManualRequired => enforcement_constants::CAPABILITY_MANUAL_REQUIRED,
         }
     }
 }
@@ -150,6 +153,8 @@ pub enum EnforcementUnavailableReason {
     AdapterUnavailable,
     #[serde(rename = "adapter-error")]
     AdapterError,
+    #[serde(rename = "manual-required")]
+    ManualRequired,
 }
 
 impl EnforcementUnavailableReason {
@@ -161,6 +166,7 @@ impl EnforcementUnavailableReason {
             Self::MissingDependency => enforcement_constants::UNAVAILABLE_MISSING_DEPENDENCY,
             Self::AdapterUnavailable => enforcement_constants::UNAVAILABLE_ADAPTER_UNAVAILABLE,
             Self::AdapterError => enforcement_constants::UNAVAILABLE_ADAPTER_ERROR,
+            Self::ManualRequired => enforcement_constants::UNAVAILABLE_MANUAL_REQUIRED,
         }
     }
 }

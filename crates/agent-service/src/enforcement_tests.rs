@@ -131,6 +131,75 @@ async fn dry_run_enforcement_execute_journals_without_adapter_request() {
     );
 }
 
+#[tokio::test]
+async fn enforcement_execute_reports_manual_required_service_states_for_unwired_adapters() {
+    for (suffix, target_type, expected_kind) in [
+        (
+            constants::enforcement::MODE_BLOCK_PROCESS,
+            policy_constants::TARGET_TYPE_APP,
+            constants::enforcement::ADAPTER_KIND_PROCESS_CONTROL,
+        ),
+        (
+            constants::enforcement::ADAPTER_KIND_NETWORK_CONTROL,
+            policy_constants::TARGET_TYPE_DOMAIN,
+            constants::enforcement::ADAPTER_KIND_NETWORK_CONTROL,
+        ),
+        (
+            constants::enforcement::ADAPTER_KIND_MANAGED_BROWSER_CONTROL,
+            policy_constants::TARGET_TYPE_SITE,
+            constants::enforcement::ADAPTER_KIND_MANAGED_BROWSER_CONTROL,
+        ),
+    ] {
+        let paths = temp_paths(suffix);
+        cleanup_paths(&paths);
+        let event = build_enforcement_audit_report_with_paths(
+            command_for_target(target_type, suffix),
+            paths.clone(),
+        )
+        .await;
+        cleanup_paths(&paths);
+
+        assert_eq!(event.event, AgentEventName::AgentEnforcementAuditReported);
+        assert_eq!(
+            event.payload.get(constants::field::ENFORCEMENT_STATUS),
+            Some(&LogFieldValue::String(
+                constants::enforcement::RESULT_UNAVAILABLE.to_string()
+            ))
+        );
+        let action = payload_string(&event.payload, constants::field::ENFORCEMENT_ACTION)
+            .and_then(|text| {
+                serde_json::from_str::<ocentra_parent_agent_protocol::EnforcementAction>(text).ok()
+            })
+            .expect(constants::error::AGENT_EVENT_SERIALIZES);
+        let result = payload_string(&event.payload, constants::field::ENFORCEMENT_RESULT)
+            .and_then(|text| {
+                serde_json::from_str::<ocentra_parent_agent_protocol::EnforcementResult>(text).ok()
+            })
+            .expect(constants::error::AGENT_EVENT_SERIALIZES);
+
+        assert_eq!(action.adapter_kind.as_protocol_str(), expected_kind);
+        #[cfg(windows)]
+        {
+            assert_eq!(
+                result.capability.capability_state.as_protocol_str(),
+                constants::enforcement::CAPABILITY_MANUAL_REQUIRED
+            );
+            assert_eq!(
+                result
+                    .unavailable_status
+                    .as_ref()
+                    .map(|status| status.unavailable_reason.as_protocol_str()),
+                Some(constants::enforcement::UNAVAILABLE_MANUAL_REQUIRED)
+            );
+        }
+        #[cfg(not(windows))]
+        assert_eq!(
+            result.capability.capability_state.as_protocol_str(),
+            constants::enforcement::CAPABILITY_UNAVAILABLE
+        );
+    }
+}
+
 fn command(dry_run: bool) -> AgentCommandEnvelope {
     AgentCommandEnvelope {
         schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
@@ -148,6 +217,13 @@ fn command(dry_run: bool) -> AgentCommandEnvelope {
         command: AgentCommandName::AgentEnforcementExecute,
         payload: payload(dry_run),
     }
+}
+
+fn command_for_target(target_type: &str, suffix: &str) -> AgentCommandEnvelope {
+    let mut command = command(false);
+    command.message_id = suffix.to_string();
+    command.payload = payload_for_target(target_type, suffix);
+    command
 }
 
 fn payload(dry_run: bool) -> LogFields {
@@ -221,6 +297,31 @@ fn payload(dry_run: bool) -> LogFields {
         LogFieldValue::Number(f64::from(u32::MAX)),
     );
     fields
+}
+
+fn payload_for_target(target_type: &str, suffix: &str) -> LogFields {
+    let mut fields = payload(false);
+    fields.insert(
+        constants::field::POLICY_TARGET_TYPE.to_string(),
+        LogFieldValue::String(target_type.to_string()),
+    );
+    fields.insert(
+        constants::field::TARGET_ID.to_string(),
+        LogFieldValue::String(suffix.to_string()),
+    );
+    fields.insert(
+        constants::field::POLICY_TARGET_VALUE.to_string(),
+        LogFieldValue::String(suffix.to_string()),
+    );
+    fields.remove(constants::field::PROCESS_ID);
+    fields
+}
+
+fn payload_string<'a>(payload: &'a LogFields, field: &str) -> Option<&'a str> {
+    match payload.get(field) {
+        Some(LogFieldValue::String(value)) => Some(value.as_str()),
+        _ => None,
+    }
 }
 
 fn temp_paths(suffix: &str) -> EnforcementJournalPaths {

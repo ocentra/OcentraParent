@@ -31,6 +31,7 @@ mod browser_runtime_status;
 mod browser_runtime_tests;
 mod dev_log;
 mod enforcement_api;
+mod enforcement_capability;
 mod enforcement_payload;
 #[cfg(test)]
 mod enforcement_tests;

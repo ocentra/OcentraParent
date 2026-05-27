@@ -111,6 +111,58 @@ fn timer_control_capability_advertises_parent_timer_action_on_every_platform() {
     assert_eq!(capability.degraded_reason, None);
 }
 
+#[test]
+fn unwired_blocking_adapters_report_manual_required_or_unavailable_without_adapter_request() {
+    for (capability, expected_adapter_kind) in [
+        (
+            app_block_control_capability(policy::TEST_EVALUATED_AT),
+            EnforcementAdapterKind::ProcessControl,
+        ),
+        (
+            network_control_capability(policy::TEST_EVALUATED_AT),
+            EnforcementAdapterKind::NetworkControl,
+        ),
+        (
+            managed_browser_control_capability(policy::TEST_EVALUATED_AT),
+            EnforcementAdapterKind::ManagedBrowserControl,
+        ),
+    ] {
+        assert_eq!(capability.adapter_kind, expected_adapter_kind);
+
+        #[cfg(windows)]
+        {
+            assert_eq!(
+                capability.capability_state.as_protocol_str(),
+                enforcement::CAPABILITY_MANUAL_REQUIRED
+            );
+            assert_eq!(
+                capability.degraded_reason.as_deref(),
+                Some(enforcement::UNAVAILABLE_MANUAL_REQUIRED)
+            );
+            assert_eq!(
+                capability.permission_state,
+                EnforcementPermissionState::Unknown
+            );
+            assert_eq!(
+                capability.dependency_state,
+                EnforcementDependencyState::Unknown
+            );
+        }
+
+        #[cfg(not(windows))]
+        {
+            assert_eq!(
+                capability.capability_state.as_protocol_str(),
+                enforcement::CAPABILITY_UNAVAILABLE
+            );
+            assert_eq!(
+                capability.degraded_reason.as_deref(),
+                Some(enforcement::UNAVAILABLE_UNSUPPORTED_PLATFORM)
+            );
+        }
+    }
+}
+
 fn boundary_input(
     decision: PolicyDecision,
     capability: EnforcementCapabilityStatus,
