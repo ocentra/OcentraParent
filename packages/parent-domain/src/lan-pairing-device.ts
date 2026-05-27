@@ -10,6 +10,7 @@ import {
   LanPairingIdSchema,
   LanPairingNetworkModeSchema,
   LanPairingOriginSchema,
+  LanPairingProductionDiscoveryStateSchema,
   LanPairingProofDigestSchema,
   LanPairingRouteIdSchema,
   LanPairingSchemaVersionSchema,
@@ -40,6 +41,7 @@ export const LanPairingDiscoveryDeviceSchema = withParser(
     reachability: LanPairingDeviceReachabilitySchema,
     addressRef: LanPairingAddressRefSchema,
     discoveryStatus: LanPairingRuntimeSupportStatusSchema,
+    discoveryState: LanPairingProductionDiscoveryStateSchema,
   })
 );
 

@@ -80,6 +80,14 @@ Each real-machine proof record should include the commit SHA, platform, package
 or app version, permission state, command or UI action, Rust/service log snippet,
 parent UI screenshot or copied diagnostic output, and observed result.
 
+Local multi-service LAN proof is valid for repeatable service mechanics such as
+typed discovery states, pairing, route selection, controller lease rejection,
+trusted-registry restart recovery, and LAN AI provider routing states. It is not
+valid proof of household router discovery, firewall prompts, or physical
+parent/child device behavior unless the record also includes distinct device
+identities, LAN addresses, reachability artifacts, and the manual two-device
+commands used.
+
 ## Done Signal
 
 A runtime claim is done only when the proof matrix names the claim, maps it to

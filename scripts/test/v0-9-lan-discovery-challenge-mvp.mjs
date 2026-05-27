@@ -25,6 +25,11 @@ const expiresAt = '2099-05-26T20:25:00.000Z';
 const expiredAt = '2026-05-25T20:19:00.000Z';
 const platform = 'windows';
 const parentDeviceId = 'parent-device-v09-discovery';
+const controllerLeaseId = 'controller-lease-v09-discovery';
+const controllerDeviceId = 'parent-controller-v09-discovery';
+const parentActorId = 'parent-actor-v09-discovery';
+const parentAuthorityActiveController = 'active-controller';
+const controllerLeaseExpiresAt = '2099-05-26T20:24:00.000Z';
 const webSocketEventTimeoutMs = 20000;
 const sensitiveMarkers = [
   'activityDigest',
@@ -149,6 +154,7 @@ async function runDiscoveryChallengeCeremony(service) {
     assertEvent(acceptedProof, 'agent.lan-pairing.status.reported');
     assertPayloadValue(acceptedProof.payload, 'auditEventType', 'pairing-proof-accepted');
     assertPayloadValue(acceptedProof.payload, 'trustedDeviceIds', service.childDeviceId);
+    assertPayloadValue(acceptedProof.payload, 'discoveryState', 'paired');
     labels.push(`${service.label}:challenge-proof-accepted`);
 
     const replayedProof = await sendCommand(socket, buildPairingCommand(service, challenge.payload, 'replayed-proof'));
@@ -159,6 +165,7 @@ async function runDiscoveryChallengeCeremony(service) {
     const selected = await sendCommand(socket, buildRouteSelectCommand(service, 'route-select-after-challenge'));
     assertEvent(selected, 'agent.lan-pairing.status.reported');
     assertPayloadValue(selected.payload, 'selectedChildDeviceId', service.childDeviceId);
+    assertPayloadValue(selected.payload, 'discoveryState', 'paired');
     labels.push(`${service.label}:route-selected-after-challenge`);
 
     const acceptedControl = await sendCommand(
@@ -416,6 +423,12 @@ function intentPayload(service, intentId, intentKind) {
     evidenceReferenceIds: service.evidenceReferenceIds,
     startedAt: issuedAt,
     staleAt: expiresAt,
+    controllerLeaseId,
+    controllerDeviceId,
+    parentActorId,
+    parentAuthority: parentAuthorityActiveController,
+    controllerLeaseIssuedAt: issuedAt,
+    controllerLeaseExpiresAt,
   };
 }
 
@@ -424,6 +437,7 @@ function assertChallengePreview(payload, service) {
   assertPayloadValue(payload, 'discoveryStatus', 'websocket-direct');
   assertPayloadValue(payload, 'challengeStatus', 'websocket-direct');
   assertPayloadValue(payload, 'proofPreviewStatus', 'websocket-direct');
+  assertPayloadValue(payload, 'discoveryState', 'pending');
   assertPayloadValue(payload, 'pairingState', 'pairing');
   assertPayloadValue(payload, 'childDeviceId', service.childDeviceId);
   assertPayloadValue(payload, 'parentDeviceId', parentDeviceId);
@@ -480,6 +494,10 @@ async function writeEvidence(assertions, services) {
         checkedAt: new Date().toISOString(),
         allowedOrigin,
         assertions,
+        proofLimits: [
+          'local-two-service-discovery-challenge-only',
+          'physical-two-device-LAN-discovery-remains-manual-required',
+        ],
         services: services.map((service) => ({
           label: service.label,
           port: service.port,

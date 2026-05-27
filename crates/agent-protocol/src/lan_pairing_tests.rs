@@ -1,10 +1,11 @@
 use super::{
-    constants, policy_constants, LanChildAgentResponse, LanPairingAuditEvent,
-    LanPairingAuditEventType, LanPairingAuthenticationState, LanPairingChallenge,
-    LanPairingChallengeRequest, LanPairingDeviceReachability, LanPairingDeviceRef,
-    LanPairingDiscoveryDevice, LanPairingDiscoveryRuntimeStatus, LanPairingHttpEndpointSupport,
-    LanPairingIntentKind, LanPairingManualProofGap, LanPairingNetworkMode,
-    LanPairingParentAuthority, LanPairingPersistenceMode, LanPairingProof, LanPairingProofMode,
+    constants, policy_constants, LanAiProviderRoutingState, LanChildAgentResponse,
+    LanPairingAuditEvent, LanPairingAuditEventType, LanPairingAuthenticationState,
+    LanPairingChallenge, LanPairingChallengeRequest, LanPairingDeviceReachability,
+    LanPairingDeviceRef, LanPairingDiscoveryDevice, LanPairingDiscoveryRuntimeStatus,
+    LanPairingHttpEndpointSupport, LanPairingIntentKind, LanPairingManualProofGap,
+    LanPairingNetworkMode, LanPairingParentAuthority, LanPairingPersistenceMode,
+    LanPairingProductionDiscoveryState, LanPairingProof, LanPairingProofMode,
     LanPairingProofPreview, LanPairingRejectionReason, LanPairingResponseState,
     LanPairingRestartBehavior, LanPairingRouteRequirement, LanPairingRouteSelectionRequest,
     LanPairingRoutingDecision, LanPairingRuntimeSupportSurface, LanPairingTransport,
@@ -109,6 +110,7 @@ fn lan_pairing_discovery_challenge_and_proof_preview_make_websocket_ceremony_exp
         reachability: LanPairingDeviceReachability::Stale,
         address_ref: constants::lan_pairing::ADDRESS_REF_UNPROVEN.to_string(),
         discovery_status: LanPairingDiscoveryRuntimeStatus::WebsocketDirect,
+        discovery_state: LanPairingProductionDiscoveryState::Stale,
     };
     let challenge = LanPairingChallenge {
         schema_version: constants::lan_pairing::SCHEMA_VERSION,
@@ -309,43 +311,7 @@ fn lan_pairing_parent_intent_and_child_response_cover_rule_query_approval_spine(
 
 #[test]
 fn lan_pairing_runtime_support_surface_serializes_supported_and_planned_api_claims() {
-    let support = LanPairingRuntimeSupportSurface {
-        schema_version: constants::lan_pairing::SCHEMA_VERSION,
-        transport: LanPairingTransport::Websocket,
-        supported_websocket_commands: constants::lan_pairing::SUPPORTED_WEBSOCKET_COMMANDS
-            .iter()
-            .map(|command| command.to_string())
-            .collect(),
-        unsupported_http_endpoints: planned_http_endpoints(),
-        pairing_state: super::LanPairingTrustState::Unpaired,
-        trusted_device_count: 0,
-        discovery_status: LanPairingDiscoveryRuntimeStatus::WebsocketDirect,
-        challenge_status: LanPairingDiscoveryRuntimeStatus::WebsocketDirect,
-        proof_preview_status: LanPairingDiscoveryRuntimeStatus::WebsocketDirect,
-        lan_ai_provider_status: LanPairingDiscoveryRuntimeStatus::WebsocketDirect,
-        lan_ai_job_status: LanPairingDiscoveryRuntimeStatus::WebsocketDirect,
-        persistence_mode: LanPairingPersistenceMode::InMemoryFailClosed,
-        restart_behavior: LanPairingRestartBehavior::FailClosedUnpaired,
-        proof_mode: LanPairingProofMode::DirectProofSubmit,
-        route_requirements: vec![
-            LanPairingRouteRequirement::PairedDevice,
-            LanPairingRouteRequirement::AllowedOrigin,
-            LanPairingRouteRequirement::TargetDeviceMatch,
-            LanPairingRouteRequirement::RouteIdMatch,
-            LanPairingRouteRequirement::UnexpiredIntent,
-            LanPairingRouteRequirement::NonReplayedIntent,
-            LanPairingRouteRequirement::UnrevokedPairing,
-            LanPairingRouteRequirement::ActiveControllerLease,
-            LanPairingRouteRequirement::SelectedDeviceReachable,
-            LanPairingRouteRequirement::ParentWriteAuthority,
-            LanPairingRouteRequirement::LanAiJobAuthorized,
-        ],
-        manual_proof_gaps: vec![
-            LanPairingManualProofGap::ManualLanBindProof,
-            LanPairingManualProofGap::ManualFirewallProof,
-            LanPairingManualProofGap::ManualPhysicalDeviceProof,
-        ],
-    };
+    let support = websocket_runtime_support_surface();
 
     let support_json =
         serde_json::to_value(support).expect(constants::error::AGENT_EVENT_SERIALIZES);
@@ -372,6 +338,10 @@ fn lan_pairing_runtime_support_surface_serializes_supported_and_planned_api_clai
         constants::lan_pairing::SUPPORT_WEBSOCKET_DIRECT
     );
     assert_eq!(
+        support_json["discoveryState"],
+        constants::value::LAN_DISCOVERY_STATE_DISCOVERED
+    );
+    assert_eq!(
         support_json["challengeStatus"],
         constants::lan_pairing::SUPPORT_WEBSOCKET_DIRECT
     );
@@ -387,6 +357,52 @@ fn lan_pairing_runtime_support_surface_serializes_supported_and_planned_api_clai
         support_json["restartBehavior"],
         constants::value::LAN_RESTART_FAIL_CLOSED_UNPAIRED
     );
+}
+
+fn websocket_runtime_support_surface() -> LanPairingRuntimeSupportSurface {
+    LanPairingRuntimeSupportSurface {
+        schema_version: constants::lan_pairing::SCHEMA_VERSION,
+        transport: LanPairingTransport::Websocket,
+        supported_websocket_commands: constants::lan_pairing::SUPPORTED_WEBSOCKET_COMMANDS
+            .iter()
+            .map(|command| command.to_string())
+            .collect(),
+        unsupported_http_endpoints: planned_http_endpoints(),
+        pairing_state: super::LanPairingTrustState::Unpaired,
+        trusted_device_count: 0,
+        discovery_status: LanPairingDiscoveryRuntimeStatus::WebsocketDirect,
+        discovery_state: LanPairingProductionDiscoveryState::Discovered,
+        challenge_status: LanPairingDiscoveryRuntimeStatus::WebsocketDirect,
+        proof_preview_status: LanPairingDiscoveryRuntimeStatus::WebsocketDirect,
+        lan_ai_provider_status: LanPairingDiscoveryRuntimeStatus::WebsocketDirect,
+        lan_ai_provider_routing_state: LanAiProviderRoutingState::Unavailable,
+        lan_ai_provider_custody_label:
+            constants::value::LAN_PROVIDER_CUSTODY_LOCAL_NETWORK_AI_PROVIDER.to_string(),
+        lan_ai_job_status: LanPairingDiscoveryRuntimeStatus::WebsocketDirect,
+        persistence_mode: LanPairingPersistenceMode::InMemoryFailClosed,
+        restart_behavior: LanPairingRestartBehavior::FailClosedUnpaired,
+        proof_mode: LanPairingProofMode::DirectProofSubmit,
+        route_requirements: vec![
+            LanPairingRouteRequirement::PairedDevice,
+            LanPairingRouteRequirement::AllowedOrigin,
+            LanPairingRouteRequirement::TargetDeviceMatch,
+            LanPairingRouteRequirement::RouteIdMatch,
+            LanPairingRouteRequirement::UnexpiredIntent,
+            LanPairingRouteRequirement::NonReplayedIntent,
+            LanPairingRouteRequirement::UnrevokedPairing,
+            LanPairingRouteRequirement::ActiveControllerLease,
+            LanPairingRouteRequirement::SelectedDeviceReachable,
+            LanPairingRouteRequirement::ParentWriteAuthority,
+            LanPairingRouteRequirement::LanAiJobAuthorized,
+            LanPairingRouteRequirement::DiscoveryStateExplicit,
+            LanPairingRouteRequirement::RouteRecoveryPersisted,
+        ],
+        manual_proof_gaps: vec![
+            LanPairingManualProofGap::ManualLanBindProof,
+            LanPairingManualProofGap::ManualFirewallProof,
+            LanPairingManualProofGap::ManualPhysicalDeviceProof,
+        ],
+    }
 }
 
 #[test]

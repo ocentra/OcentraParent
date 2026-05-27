@@ -6,9 +6,11 @@ use std::{
 };
 
 use ocentra_parent_agent_protocol::{
-    LanPairingDeviceReachability, LanPairingDeviceRef, LanPairingProof, LanPairingRejectionReason,
-    LanPairingTrustState, LanParentIntentEnvelope, LanTrustedDeviceRegistryEntry,
+    constants, LanPairingDeviceReachability, LanPairingDeviceRef, LanPairingProof,
+    LanPairingRejectionReason, LanPairingTrustState, LanParentIntentEnvelope,
+    LanTrustedDeviceRegistryEntry,
 };
+use serde_json::{json, Value};
 
 #[derive(Clone, Debug, Default)]
 pub struct TrustedDeviceRegistry {
@@ -37,15 +39,13 @@ impl TrustedDeviceRegistry {
     pub fn load_json(path: &Path) -> Self {
         read_to_string(path)
             .ok()
-            .and_then(|content| {
-                serde_json::from_str::<Vec<LanTrustedDeviceRegistryEntry>>(&content).ok()
-            })
-            .map(Self::from_entries)
+            .and_then(|content| Self::from_json_text(&content))
             .unwrap_or_default()
     }
 
     pub fn save_json(&self, path: &Path) -> io::Result<()> {
-        let content = serde_json::to_string_pretty(&self.entries).map_err(io::Error::other)?;
+        let content =
+            serde_json::to_string_pretty(&self.to_json_value()).map_err(io::Error::other)?;
         write(path, content)
     }
 
@@ -77,6 +77,36 @@ impl TrustedDeviceRegistry {
             .retain(|candidate| candidate.pairing_id != entry.pairing_id);
         self.entries.push(entry.clone());
         entry
+    }
+
+    fn from_json_text(content: &str) -> Option<Self> {
+        if let Ok(entries) = serde_json::from_str::<Vec<LanTrustedDeviceRegistryEntry>>(content) {
+            return Some(Self::from_entries(entries));
+        }
+
+        let value = serde_json::from_str::<Value>(content).ok()?;
+        let entries = serde_json::from_value::<Vec<LanTrustedDeviceRegistryEntry>>(
+            value.get(constants::field::ENTRIES)?.clone(),
+        )
+        .ok()?;
+        let mut registry = Self::from_entries(entries);
+        registry.selected_pairing_id =
+            optional_string(&value, constants::field::LAN_SELECTED_PAIRING_ID);
+        registry.selected_route_stale_at =
+            optional_string(&value, constants::field::LAN_SELECTED_ROUTE_STALE_AT);
+        registry.selected_route_offline_at =
+            optional_string(&value, constants::field::LAN_SELECTED_ROUTE_OFFLINE_AT);
+        Some(registry)
+    }
+
+    fn to_json_value(&self) -> Value {
+        json!({
+            constants::field::SCHEMA_VERSION: 1,
+            constants::field::ENTRIES: self.entries,
+            constants::field::LAN_SELECTED_PAIRING_ID: self.selected_pairing_id,
+            constants::field::LAN_SELECTED_ROUTE_STALE_AT: self.selected_route_stale_at,
+            constants::field::LAN_SELECTED_ROUTE_OFFLINE_AT: self.selected_route_offline_at,
+        })
     }
 
     pub fn revoke_pairing(&mut self, pairing_id: &str, revoked_at: &str) -> bool {
@@ -179,4 +209,12 @@ impl TrustedDeviceRegistry {
         self.accepted_intent_ids.insert(intent.intent_id.clone());
         Ok(())
     }
+}
+
+fn optional_string(value: &Value, key: &str) -> Option<String> {
+    value
+        .get(key)
+        .and_then(Value::as_str)
+        .filter(|value| !value.is_empty())
+        .map(ToOwned::to_owned)
 }

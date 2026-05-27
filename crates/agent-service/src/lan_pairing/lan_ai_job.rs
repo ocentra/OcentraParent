@@ -105,7 +105,7 @@ fn lan_ai_job_routed_event(
     .unwrap_or(constants::local_ai_runtime::CAPABILITY_CHAT_COMPLETION)
     .to_string();
     if !runtime.lan_ai_provider_supports_capability(&requested_capability) {
-        return lan_ai_rejection_event(
+        let mut event = lan_ai_rejection_event(
             &runtime,
             command,
             LanPairingRejectionReason::LanAiJobUnauthorized,
@@ -113,6 +113,13 @@ fn lan_ai_job_routed_event(
             origin,
             constants::value::LAN_AUDIT_LAN_AI_JOB_REJECTED,
         );
+        event.payload.insert(
+            constants::field::LAN_AI_PROVIDER_ROUTING_STATE.to_string(),
+            LogFieldValue::String(
+                constants::value::LAN_AI_PROVIDER_ROUTING_UNSUPPORTED_CAPABILITY.to_string(),
+            ),
+        );
+        return event;
     }
 
     lan_ai_job_completed_event(&runtime, command, intent, origin, &requested_capability)
@@ -217,16 +224,22 @@ fn lan_ai_rejection_event(
 }
 
 fn lan_ai_provider_fields(runtime: &LanPairingRuntime) -> LogFields {
-    let provider_status = if runtime.lan_ai_provider_available() {
-        constants::value::LAN_AI_PROVIDER_STATUS_AVAILABLE
-    } else {
-        constants::value::LAN_AI_PROVIDER_STATUS_UNAVAILABLE
-    };
+    let provider_status = runtime.lan_ai_provider_status_value();
     let capability_flags = runtime.lan_ai_provider_capability_flags();
     fields_from_pairs(vec![
         (
             constants::field::LAN_AI_PROVIDER_STATUS,
             LogFieldValue::String(provider_status.to_string()),
+        ),
+        (
+            constants::field::LAN_AI_PROVIDER_ROUTING_STATE,
+            LogFieldValue::String(runtime.lan_ai_provider_routing_state().to_string()),
+        ),
+        (
+            constants::field::LAN_AI_PROVIDER_CUSTODY_LABEL,
+            LogFieldValue::String(
+                constants::value::LAN_PROVIDER_CUSTODY_LOCAL_NETWORK_AI_PROVIDER.to_string(),
+            ),
         ),
         (
             constants::field::LOCAL_AI_PROVIDER_ID,
@@ -332,7 +345,10 @@ fn payload_string<'a>(fields: &'a LogFields, key: &str) -> Option<&'a str> {
 }
 
 fn provider_id_for_status(provider_status: &str) -> &'static str {
-    if provider_status == constants::value::LAN_AI_PROVIDER_STATUS_AVAILABLE {
+    if provider_status == constants::value::LAN_AI_PROVIDER_STATUS_AVAILABLE
+        || provider_status == constants::value::LAN_AI_PROVIDER_STATUS_BUSY
+        || provider_status == constants::value::LAN_AI_PROVIDER_STATUS_DEGRADED
+    {
         constants::local_ai_runtime::PROVIDER_ID_LOCAL_LLAMA_CLI
     } else {
         constants::local_ai_runtime::PROVIDER_ID_UNCONFIGURED
@@ -348,7 +364,10 @@ fn execution_state_for_status(provider_status: &str) -> &'static str {
 }
 
 fn provider_source_for_status(provider_status: &str) -> &'static str {
-    if provider_status == constants::value::LAN_AI_PROVIDER_STATUS_AVAILABLE {
+    if provider_status == constants::value::LAN_AI_PROVIDER_STATUS_AVAILABLE
+        || provider_status == constants::value::LAN_AI_PROVIDER_STATUS_BUSY
+        || provider_status == constants::value::LAN_AI_PROVIDER_STATUS_DEGRADED
+    {
         constants::local_ai_runtime::PROVIDER_SOURCE_LOCAL_CONFIG
     } else {
         constants::local_ai_runtime::PROVIDER_SOURCE_UNAVAILABLE
@@ -366,6 +385,10 @@ fn readiness_for_status(provider_status: &str) -> &'static str {
 fn unavailable_reason_for_status(provider_status: &str) -> &'static str {
     if provider_status == constants::value::LAN_AI_PROVIDER_STATUS_AVAILABLE {
         constants::value::EMPTY
+    } else if provider_status == constants::value::LAN_AI_PROVIDER_STATUS_BUSY {
+        constants::local_ai_runtime::DEGRADED_OVERLOADED
+    } else if provider_status == constants::value::LAN_AI_PROVIDER_STATUS_DEGRADED {
+        constants::local_ai_runtime::DEGRADED_PROVIDER_UNAVAILABLE
     } else {
         constants::local_ai_runtime::UNAVAILABLE_REASON_UNCONFIGURED
     }

@@ -71,8 +71,13 @@ function assertPairingStates() {
   expect(AgentProtocolDefaults.Field.LanControllerLeaseId).toBe('controllerLeaseId');
   expect(AgentProtocolDefaults.Field.LanParentAuthority).toBe('parentAuthority');
   expect(AgentProtocolDefaults.Field.LanAiProviderStatus).toBe('lanAiProviderStatus');
+  expect(AgentProtocolDefaults.Field.LanAiProviderRoutingState).toBe('lanAiProviderRoutingState');
+  expect(AgentProtocolDefaults.Field.LanAiProviderCustodyLabel).toBe('lanAiProviderCustodyLabel');
   expect(AgentProtocolDefaults.Field.LanAiJobId).toBe('lanAiJobId');
   expect(AgentProtocolDefaults.Field.LanAiJobState).toBe('lanAiJobState');
+  expect(AgentProtocolDefaults.Field.LanDiscoveryState).toBe('discoveryState');
+  expect(AgentProtocolDefaults.LanProductionDiscoveryState.Paired).toBe('paired');
+  expect(AgentProtocolDefaults.LanAiProviderRoutingState.UnsupportedCapability).toBe('unsupported-capability');
 }
 
 function assertRouteSelectCommand() {
@@ -222,6 +227,7 @@ function lanDiscoveryDevice() {
     reachability: AgentProtocolDefaults.LanSelectedDeviceReachability.Stale,
     addressRef: 'lan-address-ref-unproven',
     discoveryStatus: 'websocket-direct',
+    discoveryState: AgentProtocolDefaults.LanProductionDiscoveryState.Stale,
   };
 }
 

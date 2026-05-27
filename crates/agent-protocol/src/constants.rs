@@ -186,6 +186,7 @@ pub mod error {
     pub const LOCAL_AI_RUNTIME_SPAWNS: &str = "local AI runtime process spawns";
     pub const LOCAL_AI_CHAT_REQUEST_PARSES: &str = "local AI chat request parses";
     pub const LOCAL_AI_CACHE_ROOT_EXISTS: &str = "local AI cache root exists";
+    pub const UNEXPECTED_LAN_DISCOVERY_STATE: &str = "unexpected LAN discovery state";
 }
 
 #[path = "constants/local_ai_runtime.rs"]

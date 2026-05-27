@@ -70,6 +70,21 @@ const services = [
     providerOptIn: false,
     providerCapabilities: '',
   },
+  {
+    label: 'parent-desktop-busy-ai-provider',
+    port: 4496,
+    childDeviceId: 'child-device-platform-busy-provider',
+    pairingId: 'pairing-platform-busy-provider',
+    challengeId: 'challenge-platform-busy-provider',
+    proofDigest: 'sha256:platform-busy-provider-proof',
+    routeId: 'route-platform-busy-provider-local-network',
+    evidenceReferenceIds: 'activity-event-platform-busy-provider',
+    surface: 'parent-desktop',
+    deviceRoles: 'parent-controller,child-agent,ai-provider',
+    providerOptIn: true,
+    providerBusy: true,
+    providerCapabilities: 'chat-completion,summarization',
+  },
 ];
 
 await rm(outputDir, { recursive: true, force: true });
@@ -87,7 +102,8 @@ try {
 
   const providerProof = await runProviderPoolLifecycle(runningServices[0]);
   const mobileProof = await runMobileObserverScaffoldLifecycle(runningServices[1]);
-  assertions.push(...providerProof, ...mobileProof);
+  const busyProof = await runBusyProviderLifecycle(runningServices[2]);
+  assertions.push(...providerProof, ...mobileProof, ...busyProof);
 
   await writeEvidence(assertions, runningServices);
   console.log(`platform-roles-lan-ai-provider-pool-ok:${assertions.join(',')}`);
@@ -109,6 +125,7 @@ function spawnAgentService(service) {
       OCENTRA_PARENT_DEVICE_SURFACE: service.surface,
       OCENTRA_PARENT_DEVICE_ROLES: service.deviceRoles,
       OCENTRA_PARENT_LAN_AI_PROVIDER_OPT_IN: service.providerOptIn ? 'true' : 'false',
+      OCENTRA_PARENT_LAN_AI_PROVIDER_BUSY: service.providerBusy ? 'true' : 'false',
       OCENTRA_PARENT_LAN_AI_PROVIDER_CAPABILITIES: service.providerCapabilities,
     },
     stdio: ['ignore', 'pipe', 'pipe'],
@@ -138,6 +155,8 @@ async function runProviderPoolLifecycle(service) {
     );
     assertEvent(providerStatus, 'agent.lan-pairing.status.reported');
     assertPayloadValue(providerStatus.payload, 'lanAiProviderStatus', 'lan-ai-provider-available');
+    assertPayloadValue(providerStatus.payload, 'lanAiProviderRoutingState', 'authorized-result');
+    assertPayloadValue(providerStatus.payload, 'lanAiProviderCustodyLabel', 'local-network-ai-provider');
     assertPayloadValue(providerStatus.payload, 'capabilityFlags', service.providerCapabilities);
     labels.push(`${service.label}:provider-advertised-available`);
 
@@ -159,6 +178,7 @@ async function runProviderPoolLifecycle(service) {
     assertEvent(acceptedJob, 'agent.lan-ai.job.reported');
     assertPayloadValue(acceptedJob.payload, 'auditEventType', 'lan-ai-job-completed');
     assertPayloadValue(acceptedJob.payload, 'lanAiProviderStatus', 'lan-ai-provider-available');
+    assertPayloadValue(acceptedJob.payload, 'lanAiProviderRoutingState', 'authorized-result');
     assertPayloadValue(acceptedJob.payload, 'lanAiJobState', 'completed');
     assertPayloadValue(acceptedJob.payload, 'generationState', 'complete');
     assertPayloadValue(acceptedJob.payload, 'outputText', 'lan-ai-provider-result-redacted');
@@ -177,6 +197,7 @@ async function runProviderPoolLifecycle(service) {
     );
     assertEvent(unsupportedJob, 'agent.command.rejected');
     assertPayloadValue(unsupportedJob.payload, 'rejectionReason', 'lan-ai-job-unauthorized');
+    assertPayloadValue(unsupportedJob.payload, 'lanAiProviderRoutingState', 'unsupported-capability');
     assertPayloadValue(unsupportedJob.payload, 'lanAiJobStatus', 'rejected');
     labels.push(`${service.label}:unsupported-capability-rejected`);
 
@@ -200,6 +221,7 @@ async function runMobileObserverScaffoldLifecycle(service) {
     );
     assertEvent(providerStatus, 'agent.lan-pairing.status.reported');
     assertPayloadValue(providerStatus.payload, 'lanAiProviderStatus', 'lan-ai-provider-unavailable');
+    assertPayloadValue(providerStatus.payload, 'lanAiProviderRoutingState', 'unavailable');
     labels.push(`${service.label}:provider-unavailable`);
 
     const degradedJob = await sendCommand(
@@ -214,6 +236,7 @@ async function runMobileObserverScaffoldLifecycle(service) {
     assertEvent(degradedJob, 'agent.lan-ai.job.reported');
     assertPayloadValue(degradedJob.payload, 'auditEventType', 'lan-ai-job-degraded');
     assertPayloadValue(degradedJob.payload, 'lanAiJobState', 'degraded');
+    assertPayloadValue(degradedJob.payload, 'lanAiProviderRoutingState', 'unavailable');
     assertPayloadValue(degradedJob.payload, 'unavailableReason', 'local-ai-provider-unconfigured');
     labels.push(`${service.label}:controller-job-degraded-with-provider-unavailable`);
 
@@ -224,6 +247,45 @@ async function runMobileObserverScaffoldLifecycle(service) {
     assertEvent(observerWrite, 'agent.command.rejected');
     assertPayloadValue(observerWrite.payload, 'rejectionReason', 'observer-read-only');
     labels.push(`${service.label}:observer-job-rejected`);
+
+    return labels;
+  } finally {
+    socket.close();
+  }
+}
+
+async function runBusyProviderLifecycle(service) {
+  const socket = await openWebSocket(service, allowedOrigin);
+  try {
+    const labels = [];
+    await pairAndSelect(socket, service);
+    labels.push(`${service.label}:route-selected`);
+
+    const providerStatus = await sendCommand(
+      socket,
+      buildLanAiProviderStatusCommand(service, 'intent-platform-busy-provider-status')
+    );
+    assertEvent(providerStatus, 'agent.lan-pairing.status.reported');
+    assertPayloadValue(providerStatus.payload, 'lanAiProviderStatus', 'lan-ai-provider-busy');
+    assertPayloadValue(providerStatus.payload, 'lanAiProviderRoutingState', 'busy');
+    labels.push(`${service.label}:provider-busy`);
+
+    const busyJob = await sendCommand(
+      socket,
+      buildLanAiJobCommand(
+        service,
+        'intent-platform-busy-provider-job',
+        parentAuthorityActiveController,
+        'chat-completion'
+      )
+    );
+    assertEvent(busyJob, 'agent.lan-ai.job.reported');
+    assertPayloadValue(busyJob.payload, 'auditEventType', 'lan-ai-job-degraded');
+    assertPayloadValue(busyJob.payload, 'lanAiProviderStatus', 'lan-ai-provider-busy');
+    assertPayloadValue(busyJob.payload, 'lanAiProviderRoutingState', 'busy');
+    assertPayloadValue(busyJob.payload, 'lanAiJobState', 'degraded');
+    assertPayloadValue(busyJob.payload, 'unavailableReason', 'overloaded');
+    labels.push(`${service.label}:busy-job-degraded`);
 
     return labels;
   } finally {
@@ -461,6 +523,7 @@ async function writeEvidence(assertions, checkedServices) {
           surface: service.surface,
           deviceRoles: service.deviceRoles,
           providerOptIn: service.providerOptIn,
+          providerBusy: service.providerBusy === true,
           providerCapabilities: service.providerCapabilities,
         })),
       },

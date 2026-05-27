@@ -359,12 +359,16 @@ fn select_pairing_result(
         .registry
         .lock()
         .map(|mut registry| {
-            registry.select_pairing(
+            let selected = registry.select_pairing(
                 &intent.pairing_id,
                 &intent.target_child_device_id,
                 &intent.route_id,
                 &intent.expires_at,
-            )
+            );
+            if selected.is_ok() {
+                runtime.persist_registry(&registry);
+            }
+            selected
         })
         .unwrap_or(Err(LanPairingRejectionReason::Malformed))
         .map(|_| ())

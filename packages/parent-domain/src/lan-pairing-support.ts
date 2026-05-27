@@ -1,5 +1,10 @@
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-import { LanPairingSchemaVersionSchema, LanPairingTrustStateSchema } from './lan-pairing-values';
+import {
+  LanAiProviderRoutingStateSchema,
+  LanPairingProductionDiscoveryStateSchema,
+  LanPairingSchemaVersionSchema,
+  LanPairingTrustStateSchema,
+} from './lan-pairing-values';
 
 const NonEmptyLanPairingSupportText = Schema.String.pipe(Schema.minLength(1));
 
@@ -21,7 +26,11 @@ export const LanPairingPersistenceModeSchema = withParser(
   Schema.Literal('in-memory-fail-closed', 'local-json-registry')
 );
 export const LanPairingRestartBehaviorSchema = withParser(
-  Schema.Literal('fail-closed-unpaired', 'restore-trusted-registry-unselected')
+  Schema.Literal(
+    'fail-closed-unpaired',
+    'restore-trusted-registry-unselected',
+    'restore-trusted-registry-selected-route'
+  )
 );
 export const LanPairingProofModeSchema = withParser(Schema.Literal('direct-proof-submit'));
 export const LanPairingRouteRequirementSchema = withParser(
@@ -36,7 +45,9 @@ export const LanPairingRouteRequirementSchema = withParser(
     'active-controller-lease',
     'selected-device-reachable',
     'parent-write-authority',
-    'lan-ai-job-authorized'
+    'lan-ai-job-authorized',
+    'discovery-state-explicit',
+    'route-recovery-persisted'
   )
 );
 export const LanPairingManualProofGapSchema = withParser(
@@ -60,9 +71,12 @@ export const LanPairingRuntimeSupportSurfaceSchema = withParser(
     pairingState: LanPairingTrustStateSchema,
     trustedDeviceCount: Schema.Number,
     discoveryStatus: LanPairingRuntimeSupportStatusSchema,
+    discoveryState: LanPairingProductionDiscoveryStateSchema,
     challengeStatus: LanPairingRuntimeSupportStatusSchema,
     proofPreviewStatus: LanPairingRuntimeSupportStatusSchema,
     lanAiProviderStatus: LanPairingRuntimeSupportStatusSchema,
+    lanAiProviderRoutingState: LanAiProviderRoutingStateSchema,
+    lanAiProviderCustodyLabel: NonEmptyLanPairingSupportText,
     lanAiJobStatus: LanPairingRuntimeSupportStatusSchema,
     persistenceMode: LanPairingPersistenceModeSchema,
     restartBehavior: LanPairingRestartBehaviorSchema,
@@ -107,6 +121,7 @@ export const LanPairingPersistenceMode = {
 export const LanPairingRestartBehavior = {
   FailClosedUnpaired: LanPairingRestartBehaviorSchema.parse('fail-closed-unpaired'),
   RestoreTrustedRegistryUnselected: LanPairingRestartBehaviorSchema.parse('restore-trusted-registry-unselected'),
+  RestoreTrustedRegistrySelectedRoute: LanPairingRestartBehaviorSchema.parse('restore-trusted-registry-selected-route'),
 } as const;
 
 export const LanPairingProofMode = {
@@ -125,6 +140,8 @@ export const LanPairingRouteRequirement = {
   SelectedDeviceReachable: LanPairingRouteRequirementSchema.parse('selected-device-reachable'),
   ParentWriteAuthority: LanPairingRouteRequirementSchema.parse('parent-write-authority'),
   LanAiJobAuthorized: LanPairingRouteRequirementSchema.parse('lan-ai-job-authorized'),
+  DiscoveryStateExplicit: LanPairingRouteRequirementSchema.parse('discovery-state-explicit'),
+  RouteRecoveryPersisted: LanPairingRouteRequirementSchema.parse('route-recovery-persisted'),
 } as const;
 
 export const LanPairingManualProofGap = {

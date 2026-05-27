@@ -23,6 +23,8 @@ use crate::{
     websocket::handle_command_text_for_test,
 };
 
+mod selected_route_restart_tests;
+
 #[tokio::test]
 async fn lan_pairing_rejects_anonymous_wrong_origin_wrong_device_and_revoked_routes() {
     let runtime = paired_runtime().await;
