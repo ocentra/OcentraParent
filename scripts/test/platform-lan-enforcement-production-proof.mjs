@@ -1,0 +1,245 @@
+import { spawn } from 'node:child_process';
+import { existsSync } from 'node:fs';
+import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
+import { join, relative } from 'node:path';
+
+const repoRoot = process.cwd();
+const outputDir = join(repoRoot, 'test-results', 'platform-lan-enforcement-production-proof');
+const proofPath = join(outputDir, 'proof.json');
+
+const commands = [];
+const proofLabels = [];
+
+await main();
+
+async function main() {
+  await mkdir(outputDir, { recursive: true });
+
+  await runCommand('cmd', ['/c', 'npm', 'run', 'build:contracts']);
+  await runCommand('cmd', ['/c', 'node', 'scripts/test/v0-8-windows-app-time-limit-adapter-mvp.mjs']);
+  const v08AppTimeLimit = await latestJson(join(repoRoot, 'test-results', 'v0-8-windows-app-time-limit-adapter-mvp'));
+  assertV08AppTimeLimit(v08AppTimeLimit.data);
+
+  await runCommand('cmd', ['/c', 'node', 'scripts/test/v0-8-production-enforcement-hardening.mjs']);
+  const v08Production = await latestJson(join(repoRoot, 'test-results', 'v0-8-production-enforcement-hardening'));
+  assertV08Production(v08Production.data);
+
+  await runCommand('cmd', ['/c', 'node', 'scripts/test/v0-9-production-lan-multidevice-hardening.mjs']);
+  const v09Production = await readJson(
+    join(repoRoot, 'test-results', 'v0-9-production-lan-multidevice-hardening', 'proof.json')
+  );
+  assertV09Production(v09Production);
+
+  await runCommand('cmd', ['/c', 'node', '--test', 'scripts/test/platform-packaging.test.mjs']);
+
+  const matrix = await readJson(join(repoRoot, 'docs', 'expectations', 'pre-ai-proof-matrix.json'));
+  assertProofMatrix(matrix);
+
+  const proof = {
+    schemaVersion: 1,
+    checkedAt: new Date().toISOString(),
+    commit: await gitHead(),
+    commands,
+    proofLabels,
+    evidence: {
+      v08AppTimeLimit: relative(repoRoot, v08AppTimeLimit.path),
+      v08ProductionEnforcement: relative(repoRoot, v08Production.path),
+      v09ProductionLanMultidevice: relative(
+        repoRoot,
+        join(repoRoot, 'test-results', 'v0-9-production-lan-multidevice-hardening', 'proof.json')
+      ),
+    },
+    productionTruth: {
+      v08RealAdapterState:
+        'owned-process app time-limit proof is real when the host supports it; broader app/domain/browser blocking stays manual-required or unavailable',
+      v09RealLanState:
+        'local multi-service proof covers route, lease, registry, rejection, and provider routing mechanics; physical household discovery stays manual-required',
+      parentMobileState:
+        'parent mobile backend/controller-observer behavior is proof-first scaffold or degraded/unavailable until a real app/device proof exists',
+      cloudRelayDecision:
+        'no cloud relay behavior is implemented or claimed in this branch; cloud relay remains an explicit future product decision',
+    },
+    manualProofRequirements: {
+      windowsEnforcement: [
+        'run on a real Windows child host from this commit',
+        'archive V0.8 app time-limit proof JSON with the child process pid and adapter result',
+        'record whether app block, domain block, and managed-browser control remain manual-required or unavailable on that host',
+        'capture Rust service log snippets for execute, restart recover, parent cancel, expiry, and unavailable states',
+      ],
+      householdLan: v09Production.manualTwoDeviceChecklist,
+      parentMobileAndChildPlatforms: [
+        'record parent mobile observer/controller-takeover backend state from a real mobile package before claiming UX parity',
+        'record Android UsageStats, accessibility, VPN/DNS, device-owner, managed-profile, foreground service, and package lifecycle artifacts before upgrading Android child coverage',
+        'record iOS Family Controls, DeviceActivity, Screen Time, Network Extension, notification, background execution, signing, and TestFlight artifacts before upgrading iOS child coverage',
+      ],
+    },
+  };
+
+  await writeFile(proofPath, `${JSON.stringify(proof, null, 2)}\n`);
+  console.log(`platform-lan-enforcement-production-proof-ok:${proofLabels.join(',')}`);
+  console.log(`evidence=${proofPath}`);
+}
+
+function assertV08AppTimeLimit(evidence) {
+  assertEqual(evidence.serviceScope?.timeLimitCreateRecoverCancelExpireProven, true, 'V0.8 timer lifecycle');
+  assertEqual(evidence.serviceScope?.expiryAdapterReachedThroughService, true, 'V0.8 expiry service path');
+  assertEqual(evidence.assertions?.recover?.timerEventKind, 'restart-recovered', 'V0.8 restart recovery');
+  assertEqual(evidence.assertions?.recover?.recoveredAfterRestart, true, 'V0.8 restart flag');
+  assertEqual(evidence.assertions?.cancel?.auditEventKind, 'cancelled', 'V0.8 parent cancel audit');
+  assertEqual(evidence.assertions?.cancel?.stateCleared, true, 'V0.8 cancel clears persisted state');
+  assertEqual(
+    evidence.assertions?.unavailable?.reason,
+    'enforcement-active-timer-state-required',
+    'V0.8 unavailable recovery reason'
+  );
+  assertEqual(evidence.assertions?.expire?.stateCleared, true, 'V0.8 expiry clears persisted state');
+  assertOneOf(evidence.assertions?.expire?.status, ['expired', 'unavailable'], 'V0.8 expiry honest state');
+  proofLabels.push('v0.8.owned-process-time-limit-service-proof');
+  proofLabels.push('v0.8.restart-recovery-parent-cancel-expiry-proof');
+}
+
+function assertV08Production(evidence) {
+  assertEqual(
+    evidence.serviceScope?.manualRequiredStatesProvenThroughService,
+    true,
+    'V0.8 manual-required states through service'
+  );
+  assertEqual(evidence.serviceScope?.unsupportedBlockingClaimsRejected, true, 'V0.8 unsupported blocking rejected');
+  assertEqual(evidence.serviceScope?.auditStoragePathProven, true, 'V0.8 audit storage path');
+  const assertionIds = new Set(evidence.assertions.map((assertion) => assertion.id));
+  for (const id of [
+    'app-block-process-control',
+    'domain-block-network-control',
+    'site-block-managed-browser-control',
+  ]) {
+    assertSetHas(assertionIds, id, 'V0.8 unavailable adapter proof');
+  }
+  for (const assertion of evidence.assertions) {
+    assertEqual(assertion.status, 'unavailable', 'V0.8 broad blocking unavailable status');
+    assertOneOf(assertion.capabilityState, ['manual-required', 'unavailable'], 'V0.8 capability state');
+  }
+  proofLabels.push('v0.8.manual-required-broad-adapter-state-proof');
+}
+
+function assertV09Production(evidence) {
+  assertEqual(evidence.proofMode, 'local-multi-service-production-lan-hardening', 'V0.9 proof mode');
+  const stepLabels = new Set(evidence.checkedSteps.map((step) => step.label));
+  for (const label of ['discovery-challenge', 'pairing-control', 'lan-ai-provider-pool']) {
+    assertSetHas(stepLabels, label, 'V0.9 proof step');
+  }
+  assertArrayIncludes(
+    evidence.claimsProvedLocally,
+    'trusted registry persists selected route and recovers it after restart',
+    'V0.9 route recovery claim'
+  );
+  assertArrayIncludes(
+    evidence.claimsNotProvedLocally,
+    'real household router discovery across two physical devices',
+    'V0.9 household discovery boundary'
+  );
+  if (!Array.isArray(evidence.manualTwoDeviceChecklist) || evidence.manualTwoDeviceChecklist.length === 0) {
+    throw new Error('V0.9 production proof must carry a manual two-device checklist.');
+  }
+  proofLabels.push('v0.9.production-lan-local-multiservice-proof');
+  proofLabels.push('v0.9.physical-household-lan-manual-required');
+}
+
+function assertProofMatrix(matrix) {
+  const claim = matrix.claims.find((candidate) => candidate.id === 'platform-lan-enforcement-production-proof');
+  if (!claim) {
+    throw new Error('Proof matrix is missing platform-lan-enforcement-production-proof claim.');
+  }
+  assertEqual(claim.platformCoverage.windows, 'real-local-windows-proof', 'Windows proof state');
+  assertEqual(claim.platformCoverage.android, 'manual-required', 'Android proof state');
+  assertEqual(claim.platformCoverage.ios, 'manual-required', 'iOS proof state');
+  assertEqual(
+    claim.runtimeSurfaceCoverage.cloudRelay.state,
+    'not-implemented',
+    'Cloud relay remains an explicit non-claim'
+  );
+  const scenario = matrix.checkpointScenarios.find(
+    (candidate) => candidate.id === 'platform-lan-enforcement-production-proof'
+  );
+  if (!scenario) {
+    throw new Error('Proof matrix is missing platform-lan-enforcement-production-proof checkpoint scenario.');
+  }
+  assertSetHas(
+    new Set(scenario.ciCommands),
+    'node scripts/test/platform-lan-enforcement-production-proof.mjs',
+    'Production proof command is matrix-listed'
+  );
+  proofLabels.push('proof-matrix.platform-lan-enforcement-production-states');
+}
+
+async function runCommand(command, args) {
+  commands.push([command, ...args].join(' '));
+  await new Promise((resolve, reject) => {
+    const child = spawn(command, args, { cwd: repoRoot, stdio: 'inherit', windowsHide: true });
+    child.once('exit', (code) => {
+      if (code === 0) {
+        resolve();
+        return;
+      }
+      reject(new Error(`${command} ${args.join(' ')} exited with ${code}`));
+    });
+    child.once('error', reject);
+  });
+}
+
+async function latestJson(directory) {
+  const entries = await readdir(directory, { withFileTypes: true });
+  const jsonFiles = [];
+  for (const entry of entries) {
+    if (entry.isFile() && entry.name.endsWith('.json')) {
+      const path = join(directory, entry.name);
+      jsonFiles.push({ path, data: JSON.parse(await readFile(path, 'utf8')) });
+    }
+  }
+  if (jsonFiles.length === 0) {
+    throw new Error(`No JSON evidence files found in ${directory}`);
+  }
+  jsonFiles.sort((left, right) => left.path.localeCompare(right.path));
+  return jsonFiles.at(-1);
+}
+
+async function readJson(path) {
+  if (!existsSync(path)) {
+    throw new Error(`Missing proof artifact: ${path}`);
+  }
+  return JSON.parse(await readFile(path, 'utf8'));
+}
+
+async function gitHead() {
+  const chunks = [];
+  await new Promise((resolve, reject) => {
+    const child = spawn('git', ['rev-parse', 'HEAD'], { cwd: repoRoot, stdio: ['ignore', 'pipe', 'pipe'] });
+    child.stdout.on('data', (chunk) => chunks.push(String(chunk)));
+    child.once('exit', (code) => (code === 0 ? resolve() : reject(new Error('git rev-parse HEAD failed'))));
+    child.once('error', reject);
+  });
+  return chunks.join('').trim();
+}
+
+function assertArrayIncludes(values, expected, label) {
+  if (!Array.isArray(values) || !values.includes(expected)) {
+    throw new Error(`${label}: missing ${expected}`);
+  }
+}
+
+function assertEqual(actual, expected, label) {
+  if (actual !== expected) {
+    throw new Error(`${label}: expected ${expected}, received ${actual}`);
+  }
+}
+
+function assertOneOf(actual, expectedValues, label) {
+  if (!expectedValues.includes(actual)) {
+    throw new Error(`${label}: expected one of ${expectedValues.join(', ')}, received ${actual}`);
+  }
+}
+
+function assertSetHas(set, value, label) {
+  if (!set.has(value)) {
+    throw new Error(`${label}: missing ${value}`);
+  }
+}

@@ -15,7 +15,8 @@
     "v0.7-dry-run-policy-preview",
     "package-preview-platforms",
     "platform-roles-lan-ai-provider-pool",
-    "v08-v09-product-proof-final-pass"
+    "v08-v09-product-proof-final-pass",
+    "platform-lan-enforcement-production-proof"
   ],
   "checkpointScenarios": [
     {
@@ -264,6 +265,44 @@
         "A proof harness run presented as mobile parity.",
         "A successful owned-process termination presented as broad OS blocking.",
         "A local two-service WebSocket run presented as production LAN discovery."
+      ]
+    },
+    {
+      "id": "platform-lan-enforcement-production-proof",
+      "title": "Platform LAN And Enforcement Production Proof",
+      "claimIds": ["platform-lan-enforcement-production-proof"],
+      "expectationFiles": [
+        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/expectations/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
+        "docs/expectations/lan-pairing.md",
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "proofMode": "ci-mechanical-proof",
+      "realEvidencePath": [
+        "Build contracts from the current commit.",
+        "Run the V0.8 app time-limit proof through the real Rust service, including execute, restart recovery, parent cancel, unavailable recovery state, expiry, audit, and storage.",
+        "Run the V0.8 production enforcement hardening proof through the real Rust service, including process-control, network-control, and managed-browser-control commands that return manual-required or unavailable states for unproven broad blocking.",
+        "Run the V0.9 production LAN multi-device proof bundle through real Rust service processes, including discovery challenge, selected-route recovery, controller conflict/takeover, wrong-origin/wrong-device rejection, provider routing, and manual physical two-device checklist output.",
+        "Run platform package checks that keep parent desktop, parent mobile, Android, iOS, signing, stores, device-owner policy, and Family Controls as implemented, scaffold, manual-required, unavailable, or not-implemented instead of product-complete."
+      ],
+      "ciCommands": ["node scripts/test/platform-lan-enforcement-production-proof.mjs"],
+      "requiredArtifacts": [
+        "test-results/platform-lan-enforcement-production-proof/proof.json",
+        "test-results/v0-8-windows-app-time-limit-adapter-mvp/*.json",
+        "test-results/v0-8-production-enforcement-hardening/*.json",
+        "test-results/v0-9-production-lan-multidevice-hardening/proof.json",
+        "test-results/platform-roles-lan-ai-provider-pool/proof.json"
+      ],
+      "knownGaps": [
+        "V0.8 proves a real owned-process app time-limit path and unavailable/manual-required states, not global OS blocking, anti-tamper, or browser-management enforcement.",
+        "V0.9 proves local real-service routing mechanics, not household router discovery, firewall prompt handling, or physical parent/child device behavior.",
+        "Parent mobile controller/observer behavior, Android device-owner and UsageStats/accessibility/VPN/DNS behavior, iOS Family Controls/DeviceActivity/Screen Time/Network Extension behavior, signing, stores, and cloud relay remain manual-required, unavailable, or not implemented."
+      ],
+      "notProof": [
+        "A local proof bundle presented as product-complete parental control.",
+        "A manual-required platform state presented as a completed mobile or child-agent capability.",
+        "A successful LAN WebSocket route presented as cloud relay or production household discovery."
       ]
     },
     {
@@ -711,6 +750,60 @@
         "Repeat V0.9 LAN pairing/control with two physical household devices on the same LAN, recording IPs, firewall state, allowed origin, route selection, takeover, revocation, and wrong-origin rejection.",
         "Run Android child-agent proof on emulator or physical device for device-owner, UsageStats, accessibility, VPN/DNS, managed-profile, and package lifecycle claims before upgrading Android coverage.",
         "Run iOS child-agent proof on approved Apple entitlement/device/TestFlight paths before upgrading iOS coverage."
+      ]
+    },
+    {
+      "id": "platform-lan-enforcement-production-proof",
+      "roadmapSlice": "V0.8/V0.9 production platform proof hardening",
+      "expectationFiles": [
+        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/expectations/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
+        "docs/expectations/lan-pairing.md",
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "claim": "V0.8 real owned-process enforcement proof, V0.8 manual-required broad-adapter states, V0.9 production LAN local multi-service proof, package/platform scaffold checks, and explicit cloud-relay non-claim are verified together by a B-owned production proof command.",
+      "privilegedCapability": true,
+      "ciProof": {
+        "commands": ["node scripts/test/platform-lan-enforcement-production-proof.mjs"],
+        "jobs": ["Worker B V0.8/V0.9 production platform proof"]
+      },
+      "platformCoverage": {
+        "windows": "real-local-windows-proof",
+        "linux": "manual-required",
+        "macos": "manual-required",
+        "android": "manual-required",
+        "ios": "manual-required"
+      },
+      "runtimeSurfaceCoverage": {
+        "v08EnforcementAdapters": {
+          "state": "implemented",
+          "proof": "Real Rust service proof covers app time-limit execute, restart recovery, parent cancel/override, unavailable recovery, expiry, audit, encrypted journal/storage, and manual-required states for unwired app/domain/browser blocking adapters."
+        },
+        "v09LanMultidevice": {
+          "state": "implemented",
+          "proof": "Real Rust service proof covers discovery challenge, route recovery, controller conflict/takeover, wrong-origin/wrong-device rejection, provider routing states, and physical two-device manual checklist output."
+        },
+        "parentMobileBackend": {
+          "state": "scaffold",
+          "proof": "Parent mobile observer/controller and LAN AI states remain degraded or unavailable until a real mobile app/device proof exists."
+        },
+        "cloudRelay": {
+          "state": "not-implemented",
+          "proof": "Cloud relay is explicitly not implemented or claimed by the V0.8/V0.9 production proof branch."
+        }
+      },
+      "knownGaps": [
+        "Broad V0.8 blocking remains manual-required or unavailable outside the owned-process time-limit path.",
+        "Physical two-device household LAN discovery, router/firewall behavior, and mobile background behavior remain manual-required.",
+        "Android device-owner and iOS entitlement behavior remain manual-required until real device or entitlement proof exists."
+      ],
+      "manualProofChecklist": [
+        "Run node scripts/test/platform-lan-enforcement-production-proof.mjs on a Windows host and archive all generated proof JSON with commit SHA.",
+        "Repeat V0.9 LAN discovery/control across two physical devices, recording parent and child IPs, firewall state, origin allowlist, route selection, takeover, revocation, wrong-origin rejection, restart recovery, and provider state.",
+        "Record parent mobile controller/observer backend behavior from a real mobile package before upgrading parent mobile coverage.",
+        "Record Android UsageStats, accessibility, VPN/DNS, device-owner, managed-profile, foreground service, and package lifecycle artifacts before upgrading Android child coverage.",
+        "Record iOS Family Controls, DeviceActivity, Screen Time, Network Extension, notification, background execution, signing, and TestFlight artifacts before upgrading iOS child coverage."
       ]
     }
   ]

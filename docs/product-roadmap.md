@@ -75,6 +75,13 @@ pass proves the current adapter, controller, registry, rejection, provider, and
 scaffold states are still coherent after the C portal merge. It still does not
 upgrade V0.8 to broad OS blocking or V0.9 to production LAN readiness.
 
+The platform/LAN/enforcement production proof pass adds a B-owned aggregate
+command that reruns V0.8 app time-limit, V0.8 manual-required broad-adapter,
+V0.9 production LAN multi-service, and platform package checks together. It
+records parent mobile, Android child, iOS child, signing/store, cloud relay,
+and physical household LAN proof as explicit manual-required, unavailable,
+scaffold, or not-implemented states rather than product claims.
+
 The older PR #90 through PR #96 reconciliation remains historical context in
 [`current-main-proof-refresh-2026-05-25.md`](architecture/current-main-proof-refresh-2026-05-25.md).
 Current acceptance should be read from the updated pre-AI proof matrix and the
@@ -132,6 +139,11 @@ Current local slice:
   [`v0-9-production-lan-multidevice-hardening-2026-05-27.md`](checkpoints/v0-9-production-lan-multidevice-hardening-2026-05-27.md)
   and preserves the real two-physical-device household LAN proof as
   manual-required.
+- The platform/LAN/enforcement production proof command records the combined
+  V0.8/V0.9 production-proof state in
+  [`platform-lan-enforcement-production-proof-2026-05-28.md`](checkpoints/platform-lan-enforcement-production-proof-2026-05-28.md),
+  including cloud relay as not implemented and parent mobile, Android child,
+  and iOS child capability gaps as manual-required, unavailable, or scaffold.
 
 Next product checkpoint:
 
@@ -1203,12 +1215,13 @@ Current completed-on-main foundation:
 
 Next coordinator slices:
 
-1. Keep V0.8 and V0.9 status evidence-cited: V0.8 has adapter scaffolds but no
-   completed OS blocking claim, and V0.9 has local direct WebSocket proofs but
-   no production discovery or mobile-controller product claim.
-2. Run the updated pre-AI proof gate, the focused platform/LAN proof harness,
-   and full validation or an explicit omission record before claiming this
-   platform slice complete.
+1. Keep V0.8 and V0.9 status evidence-cited: V0.8 has a real owned-process
+   app time-limit path but no completed broad OS blocking claim, and V0.9 has
+   local direct WebSocket proofs but no production household discovery or
+   mobile-controller product claim.
+2. Run the updated pre-AI proof gate, the focused
+   `platform-lan-enforcement-production-proof` harness, and full validation or
+   an explicit omission record before claiming this platform slice complete.
 3. Execute the
    [cross-platform deliverables checkpoint runbook](architecture/cross-platform-deliverables-checkpoint.md)
    as the manual proof pass for Windows, Linux, macOS, Android, iOS, LAN, and
@@ -1223,6 +1236,8 @@ Next coordinator slices:
 7. Continue activity/parent-assistant and platform/LAN work as separate
    proof-backed branches so Activity, command/provider naming, and portal UI
    ownership do not collide across workers.
-8. Next V0.8 work should prove real adapter behavior, recovery, and parent
-   override paths. Next V0.9 work should prove production discovery, mobile
-   controller/observer UX, and real household multi-device behavior.
+8. Next V0.8 work should turn broad app/domain/browser enforcement from
+   manual-required states into real OS adapter proof only where the target OS
+   supports it. Next V0.9 work should prove production discovery, mobile
+   controller/observer UX, optional cloud relay if chosen, and real household
+   multi-device behavior.

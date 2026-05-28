@@ -931,13 +931,13 @@ files unless primary explicitly reassigns those paths after C lands.
 
 #### B Final Pass: V0.8/V0.9 Product-Proof Hardening
 
-- [ ] Start from current `origin/main`, acknowledge hub mail, report `STARTED`,
+- [x] Start from current `origin/main`, acknowledge hub mail, report `STARTED`,
       and lock only non-C paths.
-- [ ] V0.8: harden real enforcement-adapter proof around process/app limit
+- [x] V0.8: harden real enforcement-adapter proof around process/app limit
       behavior, parent cancel/override, rollback/unavailable states, restart
       recovery, and audit. Do not claim real blocking unless the adapter proof
       demonstrates it.
-- [ ] V0.9: harden multi-device/LAN behavior around controller lease conflict
+- [x] V0.9: harden multi-device/LAN behavior around controller lease conflict
       and takeover, stale/offline selected devices, trusted registry
       persistence, provider selection states, and wrong-origin/wrong-device
       rejection.
@@ -947,13 +947,18 @@ files unless primary explicitly reassigns those paths after C lands.
       checks, and LAN AI provider authorized/unsupported/busy/unavailable
       routing states. Physical two-device household proof remains
       manual-required.
-- [ ] Package/runtime proof: keep parent desktop service lifecycle and Android
+- [x] Package/runtime proof: keep parent desktop service lifecycle and Android
       or iOS states honest as implemented/scaffold/manual-required/unavailable.
       Do not claim mobile parity, device-owner, Family Controls, signing, or
       store proof without real evidence.
-- [ ] Add or update real-service proof harnesses and roadmap/proof-matrix
+- [x] Add or update real-service proof harnesses and roadmap/proof-matrix
       entries for what changed.
-- [ ] Run focused Rust/service/package/LAN proof tests and `npm run validate`.
+- [x] Platform/LAN/enforcement production proof command records V0.8 owned
+      process time-limit behavior, V0.8 manual-required broad-adapter states,
+      V0.9 local multi-service LAN hardening, parent mobile/backend scaffold
+      states, Android/iOS manual-required capability states, and cloud relay as
+      not implemented.
+- [x] Run focused Rust/service/package/LAN proof tests and `npm run validate`.
       `DONE/PR_READY` must include exact scope, touched files, validation, known
       gaps, and remaining manual proof requirements.
 
