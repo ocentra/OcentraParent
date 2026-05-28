@@ -17,15 +17,26 @@
 }
 
 .portal-outline-header {
+  --portal-outline-header-action-height: 44px;
+  --portal-outline-header-action-icon-box: 30px;
+  --portal-outline-header-action-icon-image: 24px;
+  --portal-outline-header-action-icon-slot: 34px;
+  --portal-outline-header-action-width: 112px;
+
   align-items: end;
   background: transparent;
   color: #edf8ff;
   display: grid;
   gap: 0;
-  grid-template-columns: 136px minmax(20px, 1fr) 292px minmax(20px, 1fr) 136px;
+  grid-template-columns:
+    var(--portal-outline-header-action-width)
+    minmax(20px, 1fr)
+    292px
+    minmax(20px, 1fr)
+    var(--portal-outline-header-action-width);
   justify-content: stretch;
   margin: 0 12px;
-  min-height: 62px;
+  min-height: 58px;
   padding: 0;
 }
 
@@ -85,7 +96,8 @@
 
 .portal-outline-header__action {
   appearance: none;
-  column-gap: 2px;
+  block-size: var(--portal-outline-header-action-height);
+  column-gap: 0;
   cursor: pointer;
   font: inherit;
   font-family:
@@ -97,15 +109,16 @@
   font-size: 13px;
   font-weight: 700;
   grid-auto-flow: column;
-  grid-template-columns: 50px minmax(0, 1fr);
-  inline-size: 136px;
+  grid-template-columns: var(--portal-outline-header-action-icon-slot) minmax(0, 1fr);
+  inline-size: var(--portal-outline-header-action-width);
   justify-content: stretch;
   justify-items: stretch;
-  padding: 0 8px 0 6px;
+  min-height: var(--portal-outline-header-action-height);
+  padding: 0 6px 0 4px;
 }
 
 .portal-outline-header__action:last-child {
-  inline-size: 136px;
+  inline-size: var(--portal-outline-header-action-width);
 }
 
 .portal-outline-header__action-icon {
@@ -115,23 +128,23 @@
   border: 0;
   border-radius: 3px;
   display: inline-grid;
-  height: 44px;
+  height: var(--portal-outline-header-action-icon-box);
   justify-items: center;
   justify-self: start;
   position: relative;
-  width: 44px;
+  width: var(--portal-outline-header-action-icon-box);
   z-index: 1;
 }
 
 .portal-outline-header__action-icon-image {
   display: block;
-  height: 34px;
+  height: var(--portal-outline-header-action-icon-image);
   filter: drop-shadow(0 0 3px rgb(47 221 255 / 22%));
   object-fit: contain;
   transition:
     filter 140ms ease,
     transform 140ms ease;
-  width: 34px;
+  width: var(--portal-outline-header-action-icon-image);
 }
 
 .portal-outline-header__action-label {
@@ -250,9 +263,9 @@
 .portal-outline-header__connector {
   align-self: end;
   display: block;
-  block-size: 28px;
-  height: 28px;
-  margin-block-end: 14px;
+  block-size: calc(var(--portal-outline-header-action-height) / 2);
+  height: calc(var(--portal-outline-header-action-height) / 2);
+  margin-block-end: calc(var(--portal-outline-header-action-height) / 4);
   margin-inline: -4px;
   min-width: 0;
   pointer-events: none;
@@ -407,27 +420,31 @@
 
 @media (max-width: 760px) {
   .portal-outline-header {
-    grid-template-columns: 54px minmax(10px, 1fr) 224px minmax(10px, 1fr) 54px;
-    margin: 0 8px;
-    min-height: 60px;
-  }
+    --portal-outline-header-action-height: 44px;
+    --portal-outline-header-action-icon-box: 32px;
+    --portal-outline-header-action-icon-image: 26px;
+    --portal-outline-header-action-width: 46px;
 
-  .portal-outline-header__action,
-  .portal-outline-header__brand {
-    block-size: 54px;
-    min-height: 54px;
+    grid-template-columns:
+      var(--portal-outline-header-action-width)
+      minmax(10px, 1fr)
+      224px
+      minmax(10px, 1fr)
+      var(--portal-outline-header-action-width);
+    margin: 0 8px;
+    min-height: 56px;
   }
 
   .portal-outline-header__action {
     font-size: 12px;
     grid-template-columns: 1fr;
-    inline-size: 54px;
+    inline-size: var(--portal-outline-header-action-width);
     justify-items: center;
     padding: 0;
   }
 
   .portal-outline-header__action:last-child {
-    inline-size: 54px;
+    inline-size: var(--portal-outline-header-action-width);
   }
 
   .portal-outline-header__action-label {
@@ -435,14 +452,7 @@
   }
 
   .portal-outline-header__action-icon {
-    height: 42px;
     justify-self: center;
-    width: 42px;
-  }
-
-  .portal-outline-header__action-icon-image {
-    height: 32px;
-    width: 32px;
   }
 
   .portal-outline-header__brand {
@@ -458,12 +468,6 @@
     height: 54px;
     width: 54px;
   }
-
-  .portal-outline-header__connector {
-    block-size: 27px;
-    height: 27px;
-    margin-block-end: 13.5px;
-  }
 }
 
 @media (max-width: 640px) {
@@ -472,34 +476,28 @@
   }
 
   .portal-outline-header {
-    grid-template-columns: 50px minmax(8px, 1fr) 210px minmax(8px, 1fr) 50px;
+    --portal-outline-header-action-height: 42px;
+    --portal-outline-header-action-icon-box: 30px;
+    --portal-outline-header-action-icon-image: 24px;
+    --portal-outline-header-action-width: 44px;
+
+    grid-template-columns:
+      var(--portal-outline-header-action-width)
+      minmax(8px, 1fr)
+      210px
+      minmax(8px, 1fr)
+      var(--portal-outline-header-action-width);
     margin: 0 8px;
-    min-height: 58px;
+    min-height: 54px;
   }
 
   .portal-outline-header__action {
     font-size: 11px;
-    inline-size: 50px;
+    inline-size: var(--portal-outline-header-action-width);
   }
 
   .portal-outline-header__action:last-child {
-    inline-size: 50px;
-  }
-
-  .portal-outline-header__action-icon {
-    height: 38px;
-    width: 38px;
-  }
-
-  .portal-outline-header__action-icon-image {
-    height: 30px;
-    width: 30px;
-  }
-
-  .portal-outline-header__action,
-  .portal-outline-header__brand {
-    block-size: 52px;
-    min-height: 52px;
+    inline-size: var(--portal-outline-header-action-width);
   }
 
   .portal-outline-header__brand {
@@ -514,12 +512,6 @@
   .portal-outline-header__brand-logo {
     height: 52px;
     width: 52px;
-  }
-
-  .portal-outline-header__connector {
-    block-size: 26px;
-    height: 26px;
-    margin-block-end: 13px;
   }
 
   .app-frame {
@@ -569,33 +561,27 @@
 
 @media (max-width: 360px) {
   .portal-outline-header {
-    grid-template-columns: 46px minmax(6px, 1fr) 188px minmax(6px, 1fr) 46px;
+    --portal-outline-header-action-height: 40px;
+    --portal-outline-header-action-icon-box: 28px;
+    --portal-outline-header-action-icon-image: 22px;
+    --portal-outline-header-action-width: 40px;
+
+    grid-template-columns:
+      var(--portal-outline-header-action-width)
+      minmax(6px, 1fr)
+      188px
+      minmax(6px, 1fr)
+      var(--portal-outline-header-action-width);
     margin: 0 6px;
-    min-height: 54px;
+    min-height: 50px;
   }
 
   .portal-outline-header__action {
-    inline-size: 46px;
+    inline-size: var(--portal-outline-header-action-width);
   }
 
   .portal-outline-header__action:last-child {
-    inline-size: 46px;
-  }
-
-  .portal-outline-header__action-icon {
-    height: 34px;
-    width: 34px;
-  }
-
-  .portal-outline-header__action-icon-image {
-    height: 26px;
-    width: 26px;
-  }
-
-  .portal-outline-header__action,
-  .portal-outline-header__brand {
-    block-size: 48px;
-    min-height: 48px;
+    inline-size: var(--portal-outline-header-action-width);
   }
 
   .portal-outline-header__brand {
@@ -610,11 +596,5 @@
   .portal-outline-header__brand-logo {
     height: 48px;
     width: 48px;
-  }
-
-  .portal-outline-header__connector {
-    block-size: 24px;
-    height: 24px;
-    margin-block-end: 12px;
   }
 }

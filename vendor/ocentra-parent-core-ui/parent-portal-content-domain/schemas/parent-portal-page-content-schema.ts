@@ -26,6 +26,8 @@ export const ParentPortalIconNameSchema = schema.enum([
   'rules',
   'updates',
   'activity',
+  'app',
+  'games',
   'portal',
   'privacy',
   'lan',

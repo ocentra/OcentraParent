@@ -23,6 +23,7 @@ export const defaultDeviceChoiceGridConfig = {
   statusOrder: {
     lan: ['connected', 'available', 'offline', 'unsupported'] as DeviceStatus[],
     parent: ['connected', 'empty'] as DeviceStatus[],
+    portal: ['connected', 'empty'] as DeviceStatus[],
   },
   layout: {
     legendX: 14,
@@ -102,7 +103,7 @@ export const defaultDeviceChoiceGridConfig = {
       unsupported: 'Unsupported',
       empty: 'Empty',
     },
-    scopeOptions: { lan: 'LAN Devices', parent: 'Parent Portal' },
+    scopeOptions: { lan: 'LAN Devices', parent: 'Parent Portal', portal: 'Portal' },
     options: makeDemoDeviceSlots(15),
     titleSize: 18,
     legendSize: 11,
@@ -110,6 +111,7 @@ export const defaultDeviceChoiceGridConfig = {
     addSize: 21,
     selectedInfoSize: 13,
     selectedInfoLabel: 'Device',
+    selectedInfoEmptyLabel: 'No device selected',
     titleWeight: 700,
     optionWeight: 650,
     font: 'Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif',

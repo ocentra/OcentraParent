@@ -31,7 +31,7 @@ export function DeviceChoiceGridSelectedInfo({
       : cfg.colors.selectedInfoText;
   const infoText = selected
     ? `${cfg.text.selectedInfoLabel} : ${selected.label || cfg.text.legend[selected.status]}`
-    : `${cfg.text.selectedInfoLabel} : No device selected`;
+    : `${cfg.text.selectedInfoLabel} : ${cfg.text.selectedInfoEmptyLabel}`;
 
   return (
     <g pointerEvents="none">

@@ -70,12 +70,14 @@ import {
 import { ParentPortalPanelFrame } from './ParentPortalPanelFrame';
 import {
   AccountProfileIcon,
+  Action,
   AiGuideIdeaIcon,
   ActivityNetworkIcon,
   AiMemoryCircuitIcon,
   AiMemorySetBrainIcon,
   AiSetupSearchIcon,
   AlertNotificationBellIcon,
+  AppIcon,
   ApiKeysChipIcon,
   AuditCloudLogsIcon,
   BrowserStackIcon,
@@ -84,6 +86,7 @@ import {
   DrivesCloudIcon,
   EnforcementOfficerIcon,
   ExportRetentionIcon,
+  GamesIcon,
   GuideBookIcon,
   LanNetworkMonitorsIcon,
   ManageFileSettingsIcon,
@@ -99,8 +102,11 @@ import {
   StartDataAnalysisIcon,
   UpdatesSyncDocumentIcon,
   WebGlobeIcon,
+  parentNavIconAssetUrls,
 } from '../../Common/NavSvgIcons';
 import { ScopeToggle } from './ScopeToggle/ScopeToggle';
+import { ScopeMultiChoice, type ScopeMultiChoiceOption } from './ScopeMultiChoice';
+import { RulesBubbleSvgFrame } from './ParentPortalRulesBubble';
 import './ParentPortalSvgSurface.css';
 
 type IconProps = {
@@ -624,20 +630,22 @@ const iconByName: Record<ParentPortalIconName, IconComponent> = {
   rules: RulesGavelDocumentIcon,
   updates: UpdatesSyncDocumentIcon,
   activity: ActivityNetworkIcon,
+  app: AppIcon,
+  games: GamesIcon,
   portal: PortalGatewayIcon,
   privacy: DataPrivacyServerShieldIcon,
   lan: LanNetworkMonitorsIcon,
   devices: DevicesMultiScreenIcon,
   screen: ScreenAnalysisIcon,
   remote: RemoteAccessMonitorsIcon,
-  'ai-setup': AiSetupSearchIcon,
-  'ai-guide': AiGuideIdeaIcon,
+  'ai-setup': AiMemorySetBrainIcon,
+  'ai-guide': AiMemorySetBrainIcon,
   'ai-memory-set': AiMemorySetBrainIcon,
   api: ApiKeysChipIcon,
   export: ExportRetentionIcon,
   drives: DrivesCloudIcon,
   audit: AuditCloudLogsIcon,
-  'ai-memory': AiMemoryCircuitIcon,
+  'ai-memory': AiMemorySetBrainIcon,
   account: AccountProfileIcon,
   enforcement: EnforcementOfficerIcon,
 };
@@ -879,7 +887,7 @@ function navSectionIcon(section: { label: string; items: NavItem[] }): IconCompo
   if (key.includes('activity')) return ActivityNetworkIcon;
   if (key.includes('portal')) return PortalGatewayIcon;
   if (key === 'data' || key.includes('data-privacy')) return DataPrivacyServerShieldIcon;
-  if (key === 'ai' || key.includes('ai-memory')) return AiMemoryCircuitIcon;
+  if (key === 'ai' || key.includes('ai-memory')) return AiMemorySetBrainIcon;
   if (key.includes('account')) return AccountProfileIcon;
   if (key.includes('remote')) return RemoteAccessMonitorsIcon;
   if (key.includes('lan')) return LanNetworkMonitorsIcon;
@@ -1935,8 +1943,10 @@ function ParentPortalSectionFrame({
     : headerIcon
       ? headerIconY + iconBoxW * 0.65
       : titleY + titleH * 0.68;
-  const titleTextW = Math.min(titleMaxW, Math.ceil(titleText.length * titleFontSize * 0.56));
-  const headerInfoX = Math.min(titleX + titleTextW + 12, headerLineEnd - headerInfoSize - 4);
+  const titleTextWidthFactor = prominentHeader ? 0.62 : 0.56;
+  const headerInfoGap = prominentHeader ? 17 : 12;
+  const titleTextW = Math.min(titleMaxW, Math.ceil(titleText.length * titleFontSize * titleTextWidthFactor));
+  const headerInfoX = Math.min(titleX + titleTextW + headerInfoGap, headerLineEnd - headerInfoSize - 4);
   const headerInfoY = prominentHeader
     ? prominentHeaderCenterY - headerInfoSize / 2
     : headerIcon
@@ -3087,12 +3097,18 @@ function AssistantDock({
   cfg: ParentPortalSvgControls;
 }) {
   const color = toneColor(open ? 'purple' : 'cyan', cfg);
-  const iconSize = 34;
+  const iconSize = 30;
+  const label = 'AI ASSISTANT';
+  const labelSize = 16;
+  const labelWidth = label.length * labelSize * 0.58;
+  const groupGap = 10;
+  const groupW = iconSize + groupGap + labelWidth;
   const centerY = y + h / 2;
-  const iconX = x + 22;
+  const groupX = x + w / 2 - groupW / 2;
+  const iconX = groupX;
   const iconY = centerY - iconSize / 2;
-  const textX = iconX + iconSize + 12;
-  const labelBaseline = centerY + 5.5;
+  const textX = iconX + iconSize + groupGap;
+  const labelBaseline = centerY + labelSize * 0.35;
   return (
     <SurfacePanel
       x={x}
@@ -3102,20 +3118,27 @@ function AssistantDock({
       tone={open ? 'purple' : 'cyan'}
       frame="deckSide"
       selected={open}
-      frameCornerThicknessScale={0.72}
-      frameOuterTabWidth={Math.min(74, Math.max(54, w * 0.32))}
-      frameInnerTabWidth={Math.min(54, Math.max(40, w * 0.24))}
+      frameCornerThicknessScale={0.34}
+      frameOuterTabWidth={Math.min(42, Math.max(32, w * 0.18))}
+      frameInnerTabWidth={Math.min(42, Math.max(32, w * 0.18))}
       onClick={onOpen}
       ariaLabel="Open AI assistant"
       cfg={cfg}
     >
       <rect x={x} y={y} width={w} height={h} fill="transparent" pointerEvents="all" />
-      <AiGuideIdeaIcon x={iconX} y={iconY} width={iconSize} height={iconSize} color={color} />
-      <text x={textX} y={labelBaseline} fontSize={16} fontWeight={980} fill={cfg.colors.bodyText} pointerEvents="none">
-        AI ASSISTANT
+      <AiMemorySetBrainIcon x={iconX} y={iconY} width={iconSize} height={iconSize} color={color} />
+      <text
+        x={textX}
+        y={labelBaseline}
+        fontSize={labelSize}
+        fontWeight={980}
+        fill={cfg.colors.bodyText}
+        pointerEvents="none"
+      >
+        {label}
       </text>
       <path
-        d={`M ${textX} ${y + h - 14} H ${x + w - 28}`}
+        d={`M ${groupX} ${y + h - 14} H ${groupX + groupW}`}
         stroke={color}
         strokeWidth={0.9}
         opacity={open ? 0.78 : 0.44}
@@ -3815,6 +3838,12 @@ function reportSelectedSlotValue(slots: readonly DeviceSlot[], device: string): 
 }
 
 type ManageDeviceGridConfigOverride = NonNullable<DeviceChoiceGridProps['config']>;
+const FAMILY_DEVICE_SCOPE_ICONS: NonNullable<DeviceChoiceGridProps['scopeIcons']> = {
+  lan: { href: parentNavIconAssetUrls.FamilyIcon },
+  parent: { href: parentNavIconAssetUrls.DevicesMultiScreenIcon },
+  portal: { href: parentNavIconAssetUrls.PortalGatewayIcon },
+};
+const FAMILY_DEVICE_SCOPE_VALUES = ['lan', 'parent', 'portal'] as const;
 
 const MANAGE_DEVICE_GRID_CELL_W = 104;
 const MANAGE_DEVICE_GRID_CELL_H = 40;
@@ -3903,6 +3932,70 @@ function activityScopeToggleConfig(width: number, height = 66) {
     text: {
       titleFontSize: 14,
       optionFontSize: 14,
+    },
+  };
+}
+
+function browserRuleMultiChoiceConfig(width: number, compact = false) {
+  const safeWidth = Math.max(compact ? 260 : 320, width);
+  return {
+    svg: {
+      width: safeWidth,
+      minHeight: compact ? 116 : 126,
+      viewportInset: 8,
+    },
+    layout: {
+      titleBoxX: 4,
+      titleBoxY: 8,
+      titleBoxMinWidth: compact ? 86 : 104,
+      titleBoxPaddingX: compact ? 12 : 14,
+      titleBoxHeight: compact ? 28 : 30,
+      trackX: 4,
+      trackY: compact ? 36 : 38,
+      trackWidth: Math.max(compact ? 230 : 288, safeWidth - 20),
+      optionMinWidth: compact ? 104 : 118,
+      optionMaxWidth: compact ? 200 : 240,
+      optionHeight: compact ? 34 : 38,
+      optionGapX: compact ? 6 : 8,
+      optionGapY: compact ? 6 : 8,
+      optionPaddingX: compact ? 10 : 12,
+      outerPaddingRight: 4,
+      outerPaddingBottom: 6,
+    },
+    text: {
+      titleFontSize: compact ? 11.4 : 12.4,
+      optionFontSize: compact ? 10.6 : 11.6,
+    },
+  };
+}
+
+function browserRuleSingleChoiceConfig(width: number, compact = false) {
+  if (!compact) {
+    return activityScopeToggleConfig(width);
+  }
+
+  const safeWidth = Math.max(220, width);
+  return {
+    svg: {
+      width: safeWidth,
+      height: 62,
+      viewportInset: 4,
+    },
+    layout: {
+      titleAnchorX: 0,
+      titleBoxY: 17,
+      titleBoxMinWidth: 48,
+      titleBoxPaddingX: 6,
+      titleBoxHeight: 28,
+      trackY: 16,
+      trackMinWidth: Math.max(120, safeWidth - 56),
+      trackHeight: 31,
+      optionPaddingX: 3,
+      outerPaddingRight: 0,
+    },
+    text: {
+      titleFontSize: 10.4,
+      optionFontSize: 9.4,
     },
   };
 }
@@ -4034,9 +4127,9 @@ const ACTIVITY_MANAGE_TABS: readonly {
 }[] = [
   { id: 'reports', label: 'Reports', icon: ReportDocumentIcon, tone: 'purple' },
   { id: 'screen', label: 'Screen', icon: ScreenAnalysisIcon, tone: 'cyan' },
-  { id: 'apps', label: 'App Use', icon: ActivityNetworkIcon, tone: 'gold' },
+  { id: 'apps', label: 'App Use', icon: AppIcon, tone: 'gold' },
   { id: 'browser', label: 'Browser', icon: BrowserStackIcon, tone: 'cyan' },
-  { id: 'games', label: 'Games', icon: StartDataAnalysisIcon, tone: 'purple' },
+  { id: 'games', label: 'Games', icon: GamesIcon, tone: 'purple' },
   { id: 'network', label: 'Network', icon: WebGlobeIcon, tone: 'cyan' },
 ];
 
@@ -5698,11 +5791,21 @@ function managePolicyAreaLabel(activeNavLabel: string, selectedControlName: stri
   return 'Browser';
 }
 
+function managePolicyAreaIcon(activeNavLabel: string, selectedControlName: string): IconComponent {
+  const area = managePolicyAreaLabel(activeNavLabel, selectedControlName);
+  if (area === 'Apps') return AppIcon;
+  if (area === 'Games') return GamesIcon;
+  if (area === 'Screen') return ScreenAnalysisIcon;
+  if (area === 'Network') return WebGlobeIcon;
+  return BrowserStackIcon;
+}
+
 function manageWorkspaceTargetOptions(kind: ManageWorkspaceKind): readonly ManageWorkspaceTargetOption[] {
   if (kind === 'policy') {
     return [
       { id: 'family', label: 'Family', detail: 'Family default policy.', tone: 'cyan' },
       { id: 'perDevice', label: 'Per Device', detail: 'Child override policy.', tone: 'gold' },
+      { id: 'portal', label: 'Portal', detail: 'Parent portal behavior.', tone: 'purple' },
     ];
   }
   if (kind === 'data') {
@@ -5715,6 +5818,7 @@ function manageWorkspaceTargetOptions(kind: ManageWorkspaceKind): readonly Manag
     return [
       { id: 'family', label: 'Family', detail: 'Family AI defaults.', tone: 'cyan' },
       { id: 'perDevice', label: 'Per Device', detail: 'Child runtime setup.', tone: 'gold' },
+      { id: 'portal', label: 'Portal', detail: 'Portal assistant setup.', tone: 'purple' },
     ];
   }
   return [];
@@ -5771,7 +5875,12 @@ function manageWorkspaceSummary(
     return `Configure ${target} local AI runtime, family hub queue, and API fallback posture.`;
   }
   const area = managePolicyAreaLabel(activeNavLabel, selectedControlName).toLowerCase();
-  const scope = workspaceTarget === 'family' ? 'family defaults' : 'per-device overrides';
+  const scope =
+    workspaceTarget === 'portal'
+      ? 'parent portal behavior'
+      : workspaceTarget === 'family'
+        ? 'family defaults'
+        : 'per-device overrides';
   if (activeTab === 'schedule')
     return `Configure ${scope} for ${area} time windows, budgets, school, bedtime, and temporary exceptions.`;
   if (activeTab === 'approvals')
@@ -6332,11 +6441,13 @@ function manageWorkspaceCards(
     ];
   }
   const area = managePolicyAreaLabel(activeNavLabel, selectedControlName);
-  const scope = workspaceTarget === 'family' ? 'Family' : 'Per device';
+  const scope = workspaceTarget === 'portal' ? 'Portal' : workspaceTarget === 'family' ? 'Family' : 'Per device';
   const targetBody =
-    workspaceTarget === 'family'
-      ? `Family ${area.toLowerCase()} defaults apply until a child override exists.`
-      : `A child device must be selected before ${area.toLowerCase()} overrides can be sent.`;
+    workspaceTarget === 'portal'
+      ? `Portal ${area.toLowerCase()} settings control parent console behavior, not child-device enforcement.`
+      : workspaceTarget === 'family'
+        ? `Family ${area.toLowerCase()} defaults apply until a child override exists.`
+        : `A child device must be selected before ${area.toLowerCase()} overrides can be sent.`;
   if (activeTab === 'schedule') {
     return [
       { label: 'Target', value: scope, body: targetBody, tone: 'cyan' },
@@ -6457,6 +6568,256 @@ type ManageWorkspaceChoiceOption = {
   readonly label: string;
 };
 
+const BROWSER_RULE_MATCH_OPTIONS: readonly ScopeMultiChoiceOption[] = [
+  { value: 'exact-url', label: 'Exact URL' },
+  { value: 'domain-origin', label: 'Domain/origin' },
+  { value: 'site-category', label: 'Site/category' },
+  { value: 'search-terms', label: 'Search terms' },
+  { value: 'video-channel', label: 'Video/channel' },
+  { value: 'browser-session', label: 'Browser session' },
+  { value: 'browser-process', label: 'Browser process' },
+  { value: 'capability-state', label: 'Capability state' },
+];
+
+const BROWSER_RULE_APPLIES_OPTIONS: readonly ScopeMultiChoiceOption[] = [
+  { value: 'edge', label: 'Edge' },
+  { value: 'chrome', label: 'Chrome' },
+  { value: 'chrome-testing', label: 'Chrome Test' },
+  { value: 'brave-opera', label: 'Brave/Opera' },
+  { value: 'firefox', label: 'Firefox' },
+  { value: 'webview-shell', label: 'WebView shell' },
+  { value: 'safari-webkit', label: 'Safari/WebKit' },
+  { value: 'privacy-browser', label: 'Tor/private' },
+  { value: 'unknown-portable', label: 'Unknown/portable' },
+];
+
+const BROWSER_RULE_BYPASS_OPTIONS: readonly ManageWorkspaceChoiceOption[] = [
+  { value: 'monitor', label: 'Monitor' },
+  { value: 'warn', label: 'Warn' },
+  { value: 'ask', label: 'Ask' },
+  { value: 'relaunch', label: 'Relaunch' },
+  { value: 'block', label: 'Block' },
+];
+
+const BROWSER_RULE_ENFORCEMENT_OPTIONS: readonly ManageWorkspaceChoiceOption[] = [
+  { value: 'observe', label: 'Observe' },
+  { value: 'enforce', label: 'Enforce' },
+];
+
+const BROWSER_RULE_LIMIT_MODE_OPTIONS: readonly ManageWorkspaceChoiceOption[] = [
+  { value: 'daily-quota', label: 'Daily quota' },
+  { value: 'session-limit', label: 'Session' },
+  { value: 'site-budget', label: 'Site budget' },
+  { value: 'grace-period', label: 'Grace' },
+  { value: 'blackout', label: 'Blackout' },
+];
+
+const BROWSER_RULE_WARN_OPTIONS: readonly ScopeMultiChoiceOption[] = [
+  { value: 'unknown-sites', label: 'Unknown sites' },
+  { value: 'unmanaged-browser', label: 'Unmanaged browser' },
+  { value: 'mature-category', label: 'Mature category' },
+  { value: 'downloads', label: 'Downloads' },
+  { value: 'late-session', label: 'Late session' },
+];
+
+const BROWSER_RULE_ASK_OPTIONS: readonly ScopeMultiChoiceOption[] = [
+  { value: 'blocked-sites', label: 'Blocked sites' },
+  { value: 'new-domain', label: 'New domain' },
+  { value: 'unknown-category', label: 'Unknown category' },
+  { value: 'unmanaged-browser', label: 'Unmanaged browser' },
+  { value: 'downloads', label: 'Downloads' },
+  { value: 'time-extension', label: 'Time extension' },
+  { value: 'managed-setup', label: 'Managed setup' },
+];
+
+const BROWSER_RULE_RECORD_OPTIONS: readonly ScopeMultiChoiceOption[] = [
+  { value: 'managed-status', label: 'Managed status' },
+  { value: 'recent-url', label: 'Recent URL' },
+  { value: 'domain-title', label: 'Domain/title' },
+  { value: 'unmanaged-detection', label: 'Unmanaged use' },
+  { value: 'policy-decision', label: 'Policy decisions' },
+  { value: 'intervention-result', label: 'Block results' },
+  { value: 'time-budget', label: 'Time budget' },
+  { value: 'source-capability', label: 'Source/capability' },
+];
+
+const BROWSER_RULE_EVIDENCE_OPTIONS: readonly ScopeMultiChoiceOption[] = [
+  { value: 'process-running', label: 'Process running' },
+  { value: 'foreground-window', label: 'Foreground window' },
+  { value: 'managed-tab-list', label: 'Managed tab list' },
+  { value: 'proven-active-tab', label: 'Proven active tab' },
+  { value: 'fresh-only', label: 'Fresh only' },
+  { value: 'stale-degraded', label: 'Stale/degraded' },
+];
+
+const BROWSER_RULE_ALLOWED_DATA_OPTIONS: readonly ScopeMultiChoiceOption[] = [
+  { value: 'family-version', label: 'Family/version' },
+  { value: 'managed-state', label: 'Managed state' },
+  { value: 'capability-status', label: 'Capability status' },
+  { value: 'active-state', label: 'Active state' },
+  { value: 'exact-url', label: 'Exact URL' },
+  { value: 'domain-origin', label: 'Domain/origin' },
+  { value: 'page-title', label: 'Page title' },
+  { value: 'video-channel', label: 'Video/channel' },
+  { value: 'freshness', label: 'Freshness' },
+  { value: 'evidence-ids', label: 'Evidence ids' },
+];
+
+const BROWSER_RULE_NEVER_CAPTURE_OPTIONS: readonly ScopeMultiChoiceOption[] = [
+  { value: 'page-body', label: 'Page body' },
+  { value: 'chat-content', label: 'Chat content' },
+  { value: 'screenshots', label: 'Screenshots' },
+  { value: 'keystrokes', label: 'Keystrokes' },
+  { value: 'form-values', label: 'Forms' },
+  { value: 'cookies', label: 'Secrets' },
+  { value: 'https-payload', label: 'HTTPS payload' },
+  { value: 'raw-protocol', label: 'Raw protocol' },
+];
+
+const BROWSER_RULE_SETUP_OPTIONS: readonly ScopeMultiChoiceOption[] = [
+  { value: 'managed-profile', label: 'Managed profile' },
+  { value: 'ocentra-launcher', label: 'Ocentra launcher' },
+  { value: 'protocol-route', label: 'Default route' },
+  { value: 'managed-shell', label: 'Managed shell' },
+  { value: 'admin-setup', label: 'Parent/admin setup' },
+  { value: 'install-provision', label: 'Install/provision' },
+  { value: 'os-app-control', label: 'OS app control' },
+];
+
+const BROWSER_RULE_BRIDGE_OPTIONS: readonly ScopeMultiChoiceOption[] = [
+  { value: 'loopback-only', label: 'Loopback only' },
+  { value: 'owned-profile', label: 'Owned profile' },
+  { value: 'random-port', label: 'Random port' },
+  { value: 'reject-default', label: 'Reject default' },
+  { value: 'reject-unmanaged', label: 'Reject unmanaged' },
+  { value: 'redacted-refs', label: 'Redacted refs' },
+  { value: 'close-session', label: 'Close on end' },
+  { value: 'degrade-safe', label: 'Degrade safely' },
+];
+
+const BROWSER_RULE_FAILURE_OPTIONS: readonly ManageWorkspaceChoiceOption[] = [
+  { value: 'observe', label: 'Observe' },
+  { value: 'warn', label: 'Warn' },
+  { value: 'ask', label: 'Ask' },
+  { value: 'block-until-ready', label: 'Block until ready' },
+  { value: 'unavailable', label: 'Unavailable' },
+];
+
+const BROWSER_RULE_INTERVENTION_OPTIONS: readonly ScopeMultiChoiceOption[] = [
+  { value: 'managed-block-page', label: 'Block page' },
+  { value: 'chromium-cdp-fetch', label: 'CDP fetch' },
+  { value: 'webdriver-bidi-network', label: 'BiDi network' },
+  { value: 'managed-extension', label: 'Extension' },
+  { value: 'owned-webview', label: 'Owned WebView' },
+  { value: 'os-app-control', label: 'OS app control' },
+  { value: 'network-domain-block', label: 'Network/domain' },
+  { value: 'monitor-only', label: 'Monitor only' },
+];
+
+const BROWSER_RULE_AI_INPUT_OPTIONS: readonly ScopeMultiChoiceOption[] = [
+  { value: 'evidence-ref', label: 'Evidence refs' },
+  { value: 'url-metadata', label: 'URL metadata' },
+  { value: 'active-certainty', label: 'Active certainty' },
+  { value: 'recent-local', label: 'Recent local' },
+  { value: 'rule-context', label: 'Rule context' },
+  { value: 'source-custody', label: 'Source/custody' },
+  { value: 'degraded-state', label: 'Degraded state' },
+  { value: 'confidence-reason', label: 'Confidence/reason' },
+];
+
+const BROWSER_PORTAL_ACTION_OPTIONS: readonly ScopeMultiChoiceOption[] = [
+  { value: 'view-status', label: 'View status' },
+  { value: 'open-guide', label: 'Open guide' },
+  { value: 'preview-policy', label: 'Preview policy' },
+  { value: 'send-approval', label: 'Answer ask' },
+  { value: 'export-report', label: 'Export report' },
+  { value: 'show-unavailable', label: 'Show unavailable' },
+];
+
+const BROWSER_PORTAL_AI_HELP_OPTIONS: readonly ScopeMultiChoiceOption[] = [
+  { value: 'summarize-report', label: 'Summarize report' },
+  { value: 'explain-policy', label: 'Explain policy' },
+  { value: 'draft-parent-note', label: 'Draft note' },
+  { value: 'cite-evidence', label: 'Cite evidence refs' },
+  { value: 'no-raw-content', label: 'No raw content' },
+  { value: 'manual-review', label: 'Manual review' },
+];
+
+const BROWSER_PORTAL_AI_FALLBACK_OPTIONS: readonly ManageWorkspaceChoiceOption[] = [
+  { value: 'manual-view', label: 'Manual view' },
+  { value: 'rule-view', label: 'Rule view' },
+  { value: 'ask-child-agent', label: 'Ask agent' },
+  { value: 'mark-unavailable', label: 'Unavailable' },
+];
+
+const BROWSER_RULE_CONFLICT_OPTIONS: readonly ManageWorkspaceChoiceOption[] = [
+  { value: 'block-wins', label: 'Block wins' },
+  { value: 'limit-wins', label: 'Limit wins' },
+  { value: 'ask-wins', label: 'Ask wins' },
+  { value: 'specific-wins', label: 'Specific wins' },
+  { value: 'parent-override-wins', label: 'Override wins' },
+];
+
+const BROWSER_RULE_CHILD_MESSAGE_OPTIONS: readonly ScopeMultiChoiceOption[] = [
+  { value: 'warn-text', label: 'Warn text' },
+  { value: 'block-reason', label: 'Block reason' },
+  { value: 'ask-parent', label: 'Ask parent' },
+  { value: 'time-left', label: 'Time left' },
+  { value: 'try-managed', label: 'Use managed' },
+  { value: 'request-state', label: 'Request state' },
+  { value: 'privacy-safe', label: 'Privacy safe' },
+];
+
+const BROWSER_RULE_OVERRIDE_OPTIONS: readonly ScopeMultiChoiceOption[] = [
+  { value: 'approve-once', label: 'Approve once' },
+  { value: 'approve-session', label: 'This session' },
+  { value: 'approve-until', label: 'Until time' },
+  { value: 'deny', label: 'Deny' },
+  { value: 'extend-time', label: 'Extend time' },
+  { value: 'cancel', label: 'Cancel' },
+  { value: 'expire', label: 'Expire' },
+];
+
+const BROWSER_RULE_CUSTODY_OPTIONS: readonly ScopeMultiChoiceOption[] = [
+  { value: 'child-local', label: 'Child local' },
+  { value: 'lan-live', label: 'LAN live' },
+  { value: 'parent-cache', label: 'Parent cache' },
+  { value: 'parent-export', label: 'Parent export' },
+  { value: 'parent-report', label: 'Parent report' },
+  { value: 'unavailable', label: 'Unavailable' },
+];
+
+const BROWSER_RULE_AUDIT_OPTIONS: readonly ScopeMultiChoiceOption[] = [
+  { value: 'policy-decision', label: 'Policy decision' },
+  { value: 'evidence-ref', label: 'Evidence ref' },
+  { value: 'ai-ref', label: 'AI ref' },
+  { value: 'adapter-result', label: 'Adapter result' },
+  { value: 'timer-state', label: 'Timer state' },
+  { value: 'parent-override', label: 'Parent override' },
+  { value: 'rollback', label: 'Rollback' },
+  { value: 'policy-version', label: 'Policy version' },
+];
+
+const BROWSER_RULE_RETENTION_OPTIONS: readonly ScopeMultiChoiceOption[] = [
+  { value: 'fresh-only', label: 'Fresh only' },
+  { value: 'until-reset', label: 'Until reset' },
+  { value: 'seven-days', label: '7 days' },
+  { value: 'thirty-days', label: '30 days' },
+  { value: 'delete-expired', label: 'Delete expired' },
+  { value: 'redacted-report', label: 'Redacted report' },
+  { value: 'parent-export', label: 'Parent export' },
+];
+
+const BROWSER_RULE_PLATFORM_OPTIONS: readonly ScopeMultiChoiceOption[] = [
+  { value: 'windows', label: 'Windows' },
+  { value: 'macos', label: 'macOS' },
+  { value: 'linux', label: 'Linux' },
+  { value: 'android', label: 'Android' },
+  { value: 'ios', label: 'iOS' },
+  { value: 'web-authoring', label: 'Web authoring' },
+  { value: 'unsupported', label: 'Unavailable' },
+];
+
 function managePolicyPrimaryChoiceTitle(activeTab: string): string {
   if (activeTab === 'schedule') return 'Window';
   if (activeTab === 'approvals') return 'Request';
@@ -6548,11 +6909,13 @@ function managePolicySettingRows(
   selectedDeviceLabel: string | null
 ): readonly ManageWorkspaceCard[] {
   const target =
-    workspaceTarget === 'perDevice'
-      ? selectedDeviceLabel
-        ? `Device ${selectedDeviceLabel}`
-        : 'Select device'
-      : 'Family default';
+    workspaceTarget === 'portal'
+      ? 'Portal'
+      : workspaceTarget === 'perDevice'
+        ? selectedDeviceLabel
+          ? `Device ${selectedDeviceLabel}`
+          : 'Select device'
+        : 'Family default';
   const missingDevice =
     workspaceTarget === 'perDevice' && !selectedDeviceLabel
       ? [
@@ -7299,13 +7662,25 @@ function ManageSupportContactForm({
   y,
   w,
   h,
-  cfg,
+  workspaceTarget,
+  disabled,
+  decisionChoice,
+  enforcementChoice,
+  onDecisionChange,
+  onEnforcementChange,
+  onInfoClick,
 }: {
   x: number;
   y: number;
   w: number;
   h: number;
-  cfg: ParentPortalSvgControls;
+  workspaceTarget: ManageWorkspaceTarget;
+  disabled?: boolean;
+  decisionChoice: string;
+  enforcementChoice: string;
+  onDecisionChange: (value: string) => void;
+  onEnforcementChange: (value: string) => void;
+  onInfoClick?: () => void;
 }) {
   const color = toneColor('purple', cfg);
   const cyan = toneColor('cyan', cfg);
@@ -7472,6 +7847,1194 @@ function ManageSupportContactForm({
   );
 }
 
+function BrowserRulesChoiceEditor({
+  x,
+  y,
+  w,
+  disabled,
+  targetLabel,
+  decisionChoice,
+  enforcementChoice,
+  limitMode,
+  matchSelection,
+  appliesSelection,
+  warnSelection,
+  askSelection,
+  bypassChoice,
+  recordSelection,
+  onInfoClick,
+  onDecisionChange,
+  onEnforcementChange,
+  onLimitModeChange,
+  onMatchChange,
+  onAppliesChange,
+  onWarnChange,
+  onAskChange,
+  onBypassChange,
+  onRecordChange,
+  cfg,
+}: {
+  x: number;
+  y: number;
+  w: number;
+  disabled: boolean;
+  targetLabel: string;
+  decisionChoice: string;
+  enforcementChoice: string;
+  limitMode: string;
+  matchSelection: readonly string[];
+  appliesSelection: readonly string[];
+  warnSelection: readonly string[];
+  askSelection: readonly string[];
+  bypassChoice: string;
+  recordSelection: readonly string[];
+  onInfoClick?: () => void;
+  onDecisionChange: (value: string) => void;
+  onEnforcementChange: (value: string) => void;
+  onLimitModeChange: (value: string) => void;
+  onMatchChange: (selected: readonly string[]) => void;
+  onAppliesChange: (selected: readonly string[]) => void;
+  onWarnChange: (selected: readonly string[]) => void;
+  onAskChange: (selected: readonly string[]) => void;
+  onBypassChange: (value: string) => void;
+  onRecordChange: (selected: readonly string[]) => void;
+  cfg: ParentPortalSvgControls;
+}) {
+  const compact = w < 760;
+  const cyan = cfg.colors.cyan;
+  const gold = cfg.colors.gold;
+  const red = cfg.colors.red;
+  const promptW = compact ? w - 16 : Math.min(270, Math.max(220, w * 0.2));
+  const enforcementW = compact ? w - 16 : Math.min(360, Math.max(260, w * 0.24));
+  const decisionW = compact ? w - 16 : Math.max(360, w - promptW - enforcementW - 34);
+  const decisionX = compact ? x + 8 : x + promptW + 12;
+  const decisionY = compact ? y + 36 : y + 2;
+  const enforcementX = compact ? x + 8 : decisionX + decisionW + 10;
+  const enforcementY = compact ? decisionY + 58 : y + 2;
+  const sectionTop = y + (compact ? 168 : 88);
+  const sectionGap = 12;
+  const sectionColumns = w > 980 ? 2 : 1;
+  const sectionW = Math.max(1, (w - sectionGap * (sectionColumns - 1)) / sectionColumns);
+  const sectionH = compact ? 164 : 140;
+  const blockPanelY = sectionTop + 4;
+
+  const renderInfoBadge = (cx: number, cy: number, label: string) => (
+    <g
+      className="parent-portal-svg-clickable"
+      role="button"
+      tabIndex={0}
+      aria-label={label}
+      onClick={(event) => {
+        event.stopPropagation();
+        onInfoClick?.();
+      }}
+      onKeyDown={(event) => {
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        event.preventDefault();
+        event.stopPropagation();
+        onInfoClick?.();
+      }}
+    >
+      <title>{label}</title>
+      <circle cx={cx} cy={cy} r={10} fill="rgba(4, 24, 36, 0.92)" stroke={cyan} strokeWidth={1.1} />
+      <text x={cx} y={cy + 4} textAnchor="middle" fontSize={13} fontWeight={950} fill={cyan}>
+        i
+      </text>
+    </g>
+  );
+
+  const renderSection = (
+    key: string,
+    columnIndex: number,
+    rowIndex: number,
+    label: string,
+    infoLabel: string,
+    control: ReactNode
+  ) => {
+    const sectionX = x + columnIndex * (sectionW + sectionGap);
+    const sectionY = sectionTop + rowIndex * (sectionH + sectionGap);
+
+    return (
+      <g key={`browser-rule-section:${key}`}>
+        <rect
+          x={sectionX}
+          y={sectionY}
+          width={sectionW}
+          height={sectionH}
+          rx={5}
+          fill="rgba(3, 18, 32, 0.62)"
+          stroke={cyan}
+          strokeWidth={0.82}
+          opacity={0.86}
+        />
+        <text x={sectionX + 14} y={sectionY + 24} fontSize={12.4} fontWeight={920} fill={cfg.colors.bodyText}>
+          {label}
+        </text>
+        {renderInfoBadge(sectionX + Math.min(sectionW - 18, 16 + label.length * 7.2), sectionY + 19, infoLabel)}
+        <foreignObject x={sectionX + 8} y={sectionY + 34} width={sectionW - 16} height={sectionH - 38}>
+          <div
+            xmlns="http://www.w3.org/1999/xhtml"
+            style={{ width: sectionW - 16, height: sectionH - 38, overflow: 'visible' }}
+          >
+            {control}
+          </div>
+        </foreignObject>
+      </g>
+    );
+  };
+
+  const lowerSections =
+    decisionChoice === 'limit'
+      ? [
+          renderSection(
+            'limit-mode',
+            0,
+            0,
+            'What browser time budgets should apply?',
+            'Open guide for browser limits',
+            <ScopeToggle
+              title="Limit by"
+              value={limitMode}
+              options={BROWSER_RULE_LIMIT_MODE_OPTIONS}
+              disabled={disabled}
+              onChange={(nextValue) => onLimitModeChange(nextValue)}
+              config={browserRuleSingleChoiceConfig(sectionW - 16, compact)}
+            />
+          ),
+          renderSection(
+            'limit-applies',
+            sectionColumns > 1 ? 1 : 0,
+            sectionColumns > 1 ? 0 : 1,
+            'Which browsers should this limit manage?',
+            'Open guide for browser coverage',
+            <ScopeMultiChoice
+              title="Applies"
+              selected={appliesSelection}
+              options={BROWSER_RULE_APPLIES_OPTIONS}
+              disabled={disabled}
+              onChange={(nextSelected) => onAppliesChange(nextSelected)}
+              config={browserRuleMultiChoiceConfig(sectionW - 16, compact)}
+              width={sectionW - 16}
+            />
+          ),
+        ]
+      : decisionChoice === 'ask'
+        ? [
+            renderSection(
+              'ask-when',
+              0,
+              0,
+              'When should the child ask first?',
+              'Open guide for browser approvals',
+              <ScopeMultiChoice
+                title="Ask when"
+                selected={askSelection}
+                options={BROWSER_RULE_ASK_OPTIONS}
+                disabled={disabled}
+                onChange={(nextSelected) => onAskChange(nextSelected)}
+                config={browserRuleMultiChoiceConfig(sectionW - 16, compact)}
+                width={sectionW - 16}
+              />
+            ),
+            renderSection(
+              'ask-record',
+              sectionColumns > 1 ? 1 : 0,
+              sectionColumns > 1 ? 0 : 1,
+              'What should parents see in browser reports?',
+              'Open guide for browser request records',
+              <ScopeMultiChoice
+                title="Record"
+                selected={recordSelection}
+                options={BROWSER_RULE_RECORD_OPTIONS}
+                disabled={disabled}
+                onChange={(nextSelected) => onRecordChange(nextSelected)}
+                config={browserRuleMultiChoiceConfig(sectionW - 16, compact)}
+                width={sectionW - 16}
+              />
+            ),
+          ]
+        : decisionChoice === 'warn'
+          ? [
+              renderSection(
+                'warn-before',
+                0,
+                0,
+                'When should the child see a warning?',
+                'Open guide for browser warnings',
+                <ScopeMultiChoice
+                  title="Warn for"
+                  selected={warnSelection}
+                  options={BROWSER_RULE_WARN_OPTIONS}
+                  disabled={disabled}
+                  onChange={(nextSelected) => onWarnChange(nextSelected)}
+                  config={browserRuleMultiChoiceConfig(sectionW - 16, compact)}
+                  width={sectionW - 16}
+                />
+              ),
+              renderSection(
+                'warn-record',
+                sectionColumns > 1 ? 1 : 0,
+                sectionColumns > 1 ? 0 : 1,
+                'What should parents see in browser reports?',
+                'Open guide for warning records',
+                <ScopeMultiChoice
+                  title="Record"
+                  selected={recordSelection}
+                  options={BROWSER_RULE_RECORD_OPTIONS}
+                  disabled={disabled}
+                  onChange={(nextSelected) => onRecordChange(nextSelected)}
+                  config={browserRuleMultiChoiceConfig(sectionW - 16, compact)}
+                  width={sectionW - 16}
+                />
+              ),
+            ]
+          : [
+              renderSection(
+                'match',
+                0,
+                0,
+                'What browsing should this rule match?',
+                'Open guide for browser rule matching',
+                <ScopeMultiChoice
+                  title="Match"
+                  selected={matchSelection}
+                  options={BROWSER_RULE_MATCH_OPTIONS}
+                  disabled={disabled}
+                  onChange={(nextSelected) => onMatchChange(nextSelected)}
+                  config={browserRuleMultiChoiceConfig(sectionW - 16, compact)}
+                  width={sectionW - 16}
+                />
+              ),
+              renderSection(
+                'applies',
+                sectionColumns > 1 ? 1 : 0,
+                sectionColumns > 1 ? 0 : 1,
+                'Which browsers should this rule manage?',
+                'Open guide for browser rule scope',
+                <ScopeMultiChoice
+                  title="Applies"
+                  selected={appliesSelection}
+                  options={BROWSER_RULE_APPLIES_OPTIONS}
+                  disabled={disabled}
+                  onChange={(nextSelected) => onAppliesChange(nextSelected)}
+                  config={browserRuleMultiChoiceConfig(sectionW - 16, compact)}
+                  width={sectionW - 16}
+                />
+              ),
+              renderSection(
+                'bypass',
+                0,
+                sectionColumns > 1 ? 1 : 2,
+                'What happens if the browser is unmanaged?',
+                'Open guide for unmanaged browsers',
+                <ScopeToggle
+                  title="Bypass"
+                  value={bypassChoice}
+                  options={BROWSER_RULE_BYPASS_OPTIONS}
+                  disabled={disabled}
+                  onChange={(nextValue) => onBypassChange(nextValue)}
+                  config={browserRuleSingleChoiceConfig(sectionW - 16, compact)}
+                />
+              ),
+              renderSection(
+                'record',
+                sectionColumns > 1 ? 1 : 0,
+                sectionColumns > 1 ? 1 : 3,
+                'What should parents see in browser reports?',
+                'Open guide for browser rule records',
+                <ScopeMultiChoice
+                  title="Record"
+                  selected={recordSelection}
+                  options={BROWSER_RULE_RECORD_OPTIONS}
+                  disabled={disabled}
+                  onChange={(nextSelected) => onRecordChange(nextSelected)}
+                  config={browserRuleMultiChoiceConfig(sectionW - 16, compact)}
+                  width={sectionW - 16}
+                />
+              ),
+            ];
+
+  return (
+    <g>
+      <text x={x + 8} y={y + 22} fontSize={13.8} fontWeight={950} fill={cfg.colors.bodyText}>
+        What should happen to browser activity?
+      </text>
+      {renderInfoBadge(x + 154, y + 17, 'Open Browser policy guide')}
+      <foreignObject x={decisionX} y={decisionY} width={decisionW} height={66}>
+        <div xmlns="http://www.w3.org/1999/xhtml" style={{ width: decisionW, height: 66 }}>
+          <ScopeToggle
+            title="Action"
+            value={decisionChoice}
+            options={managePolicyPrimaryChoiceOptions('rules')}
+            disabled={disabled}
+            onChange={(nextValue) => onDecisionChange(nextValue)}
+            config={browserRuleSingleChoiceConfig(decisionW, compact)}
+          />
+        </div>
+      </foreignObject>
+      <foreignObject x={enforcementX} y={enforcementY} width={enforcementW} height={66}>
+        <div xmlns="http://www.w3.org/1999/xhtml" style={{ width: enforcementW, height: 66 }}>
+          <ScopeToggle
+            title="Enforcement"
+            value={enforcementChoice}
+            options={BROWSER_RULE_ENFORCEMENT_OPTIONS}
+            disabled={disabled}
+            onChange={(nextValue) => onEnforcementChange(nextValue)}
+            config={browserRuleSingleChoiceConfig(enforcementW, compact)}
+          />
+        </div>
+      </foreignObject>
+      {decisionChoice === 'block' ? (
+        <g>
+          <rect
+            x={x + 8}
+            y={blockPanelY}
+            width={w - 16}
+            height={compact ? 220 : 150}
+            rx={6}
+            fill="rgba(34, 6, 14, 0.46)"
+            stroke={red}
+            strokeWidth={1}
+            opacity={0.96}
+          />
+          <text x={x + 24} y={blockPanelY + 30} fontSize={16} fontWeight={980} fill={cfg.colors.bodyText}>
+            {`All browser activity is blocked across ${targetLabel}.`}
+          </text>
+          <text x={x + 24} y={blockPanelY + 58} fontSize={12.2} fontWeight={760} fill={cfg.colors.mutedText}>
+            No browsing activity will be allowed. Regular apps and games still follow their own rules.
+          </text>
+          <text x={x + 24} y={blockPanelY + 82} fontSize={12.2} fontWeight={760} fill={cfg.colors.mutedText}>
+            Tips: controlled options like scheduled blackout, daily quota, ask first, or warning states are usually
+            easier
+          </text>
+          <text x={x + 24} y={blockPanelY + 104} fontSize={12.2} fontWeight={760} fill={cfg.colors.mutedText}>
+            for families to tune over time. This setting still respects the parent's choice.
+          </text>
+          <path d={`M ${x + 24} ${blockPanelY + 124} H ${x + w - 24}`} stroke={gold} strokeWidth={0.9} opacity={0.52} />
+        </g>
+      ) : (
+        lowerSections
+      )}
+    </g>
+  );
+}
+
+function BrowserRulesGridGuide({
+  x,
+  y,
+  w,
+  h,
+  workspaceTarget,
+  disabled,
+  decisionChoice,
+  enforcementChoice,
+  scheduleChoice,
+  limitMode,
+  matchSelection,
+  appliesSelection,
+  askSelection,
+  bypassChoice,
+  recordSelection,
+  onDecisionChange,
+  onEnforcementChange,
+  onScheduleChange,
+  onLimitModeChange,
+  onMatchChange,
+  onAppliesChange,
+  onAskChange,
+  onBypassChange,
+  onRecordChange,
+  onInfoClick,
+}: {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  workspaceTarget: ManageWorkspaceTarget;
+  disabled?: boolean;
+  decisionChoice: string;
+  enforcementChoice: string;
+  scheduleChoice: string;
+  limitMode: string;
+  matchSelection: readonly string[];
+  appliesSelection: readonly string[];
+  askSelection: readonly string[];
+  bypassChoice: string;
+  recordSelection: readonly string[];
+  onDecisionChange: (value: string) => void;
+  onEnforcementChange: (value: string) => void;
+  onScheduleChange: (value: string) => void;
+  onLimitModeChange: (value: string) => void;
+  onMatchChange: (selected: readonly string[]) => void;
+  onAppliesChange: (selected: readonly string[]) => void;
+  onAskChange: (selected: readonly string[]) => void;
+  onBypassChange: (value: string) => void;
+  onRecordChange: (selected: readonly string[]) => void;
+  onInfoClick?: () => void;
+}) {
+  const portalMode = workspaceTarget === 'portal';
+  const rawScrollClipId = useId();
+  const scrollClipId = `browser-rules-scroll-${rawScrollClipId.replace(/[^a-zA-Z0-9_-]/g, '')}`;
+  const [collapsedBubbleIds, setCollapsedBubbleIds] = useState<readonly string[]>([
+    'browser-evidence-source',
+    'browser-allowed-data',
+    'browser-never-capture',
+    'browser-managed-setup',
+    'browser-bridge',
+    'browser-capability-failure',
+    'browser-intervention',
+    'browser-ai-input',
+    'browser-conflict',
+    'browser-child-message',
+    'browser-overrides',
+    'browser-custody',
+    'browser-audit',
+    'browser-retention',
+    'browser-platform',
+  ]);
+  const [bubbleEnforcementChoices, setBubbleEnforcementChoices] = useState<Record<string, string>>({});
+  const [draftSingleChoices, setDraftSingleChoices] = useState<Record<string, string>>({});
+  const [draftMultiSelections, setDraftMultiSelections] = useState<Record<string, readonly string[]>>({});
+  const [scrollY, setScrollY] = useState(0);
+  const gap = 10;
+  const cellInset = 2;
+  const scrollBarW = 12;
+  const scrollTrackPadY = 8;
+  const layoutX = x + cellInset;
+  const layoutY = y + cellInset;
+  const layoutW = Math.max(1, w - cellInset * 2 - scrollBarW);
+  const columns = layoutW >= 900 ? 2 : 1;
+  const bubbleW = Math.max(1, (layoutW - gap * (columns - 1)) / columns);
+  const bubbleClampW = 28;
+  const bubbleHeaderH = 38;
+  const bubbleCollapsedBodyH = 4;
+  const questionToggleGap = 3;
+  const questionContentW = Math.max(1, bubbleW - bubbleClampW);
+  const questionAvailableW = Math.max(1, questionContentW - 8);
+  const controlsStacked = questionAvailableW < 430;
+  const enforcementToggleW = controlsStacked
+    ? Math.min(166, Math.max(132, questionAvailableW - 4))
+    : Math.round(Math.max(150, Math.min(174, questionAvailableW * 0.24)));
+  const primaryToggleW = controlsStacked
+    ? Math.max(1, questionAvailableW - 4)
+    : Math.max(1, questionAvailableW - enforcementToggleW - questionToggleGap);
+  const multiPrimaryControlH = controlsStacked ? 176 : 146;
+  const singleBodyHeight = controlsStacked ? 158 : 96;
+  const multiBodyHeight = controlsStacked ? 264 : 164;
+  const getDraftSingleChoice = (id: string, fallback: string) => draftSingleChoices[id] ?? fallback;
+  const getDraftMultiSelection = (id: string, fallback: readonly string[]) => draftMultiSelections[id] ?? fallback;
+  const setDraftSingleChoice = (id: string, value: string) => {
+    setDraftSingleChoices((current) => ({ ...current, [id]: value }));
+  };
+  const setDraftMultiSelection = (id: string, selected: readonly string[]) => {
+    setDraftMultiSelections((current) => ({ ...current, [id]: selected }));
+  };
+  const childDeviceBubbleDefinitions = [
+    {
+      id: 'browser-action',
+      header: 'What should happen to browser activity?',
+      title: 'Action',
+      kind: 'action',
+      value: decisionChoice,
+      options: managePolicyPrimaryChoiceOptions('rules'),
+      onChange: onDecisionChange,
+      bodyHeight: singleBodyHeight,
+    },
+    {
+      id: 'browser-match',
+      header: 'What browser targets should rules match?',
+      title: 'Match',
+      kind: 'multi',
+      selected: matchSelection,
+      options: BROWSER_RULE_MATCH_OPTIONS,
+      onChange: onMatchChange,
+      bodyHeight: multiBodyHeight,
+    },
+    {
+      id: 'browser-coverage',
+      header: 'Which browsers should we cover?',
+      title: 'Browsers',
+      kind: 'multi',
+      selected: appliesSelection,
+      options: BROWSER_RULE_APPLIES_OPTIONS,
+      onChange: onAppliesChange,
+      bodyHeight: multiBodyHeight,
+    },
+    {
+      id: 'browser-schedule',
+      header: 'When should browsers be allowed?',
+      title: 'Window',
+      kind: 'single',
+      value: scheduleChoice,
+      options: managePolicyPrimaryChoiceOptions('schedule'),
+      onChange: onScheduleChange,
+      bodyHeight: singleBodyHeight,
+    },
+    {
+      id: 'browser-limit',
+      header: 'What browser time budgets should apply?',
+      title: 'Limit',
+      kind: 'single',
+      value: limitMode,
+      options: BROWSER_RULE_LIMIT_MODE_OPTIONS,
+      onChange: onLimitModeChange,
+      bodyHeight: singleBodyHeight,
+    },
+    {
+      id: 'browser-ask',
+      header: 'What should need parent approval?',
+      title: 'Ask',
+      kind: 'multi',
+      selected: askSelection,
+      options: BROWSER_RULE_ASK_OPTIONS,
+      onChange: onAskChange,
+      bodyHeight: multiBodyHeight,
+    },
+    {
+      id: 'browser-unmanaged',
+      header: 'What should happen to unmanaged browsers?',
+      title: 'Fallback',
+      kind: 'single',
+      value: bypassChoice,
+      options: BROWSER_RULE_BYPASS_OPTIONS,
+      onChange: onBypassChange,
+      bodyHeight: singleBodyHeight,
+    },
+    {
+      id: 'browser-record',
+      header: 'What should parents see in browser reports?',
+      title: 'Reports',
+      kind: 'multi',
+      selected: recordSelection,
+      options: BROWSER_RULE_RECORD_OPTIONS,
+      onChange: onRecordChange,
+      bodyHeight: multiBodyHeight,
+    },
+    {
+      id: 'browser-evidence-source',
+      header: 'What proof is enough for browser rules?',
+      title: 'Proof',
+      kind: 'multi',
+      selected: getDraftMultiSelection('browser-evidence-source', ['proven-active-tab', 'fresh-only']),
+      options: BROWSER_RULE_EVIDENCE_OPTIONS,
+      onChange: (selected) => setDraftMultiSelection('browser-evidence-source', selected),
+      bodyHeight: multiBodyHeight,
+    },
+    {
+      id: 'browser-allowed-data',
+      header: 'Which browser fields may rules use?',
+      title: 'Fields',
+      kind: 'multi',
+      selected: getDraftMultiSelection('browser-allowed-data', [
+        'managed-state',
+        'capability-status',
+        'active-state',
+        'exact-url',
+        'domain-origin',
+        'freshness',
+        'evidence-ids',
+      ]),
+      options: BROWSER_RULE_ALLOWED_DATA_OPTIONS,
+      onChange: (selected) => setDraftMultiSelection('browser-allowed-data', selected),
+      bodyHeight: multiBodyHeight,
+    },
+    {
+      id: 'browser-never-capture',
+      header: 'What must browser rules never collect?',
+      title: 'Never',
+      kind: 'multi',
+      selected: getDraftMultiSelection('browser-never-capture', [
+        'page-body',
+        'chat-content',
+        'screenshots',
+        'keystrokes',
+        'form-values',
+        'cookies',
+        'https-payload',
+        'raw-protocol',
+      ]),
+      options: BROWSER_RULE_NEVER_CAPTURE_OPTIONS,
+      onChange: (selected) => setDraftMultiSelection('browser-never-capture', selected),
+      bodyHeight: multiBodyHeight,
+    },
+    {
+      id: 'browser-managed-setup',
+      header: 'How should allowed browsing launch?',
+      title: 'Launch',
+      kind: 'multi',
+      selected: getDraftMultiSelection('browser-managed-setup', [
+        'managed-profile',
+        'ocentra-launcher',
+        'protocol-route',
+      ]),
+      options: BROWSER_RULE_SETUP_OPTIONS,
+      onChange: (selected) => setDraftMultiSelection('browser-managed-setup', selected),
+      bodyHeight: multiBodyHeight,
+    },
+    {
+      id: 'browser-bridge',
+      header: 'Which bridge security rules are required?',
+      title: 'Bridge',
+      kind: 'multi',
+      selected: getDraftMultiSelection('browser-bridge', [
+        'loopback-only',
+        'owned-profile',
+        'reject-default',
+        'redacted-refs',
+      ]),
+      options: BROWSER_RULE_BRIDGE_OPTIONS,
+      onChange: (selected) => setDraftMultiSelection('browser-bridge', selected),
+      bodyHeight: multiBodyHeight,
+    },
+    {
+      id: 'browser-capability-failure',
+      header: 'What if browser proof is unavailable?',
+      title: 'No proof',
+      kind: 'single',
+      value: getDraftSingleChoice('browser-capability-failure', 'warn'),
+      options: BROWSER_RULE_FAILURE_OPTIONS,
+      onChange: (value) => setDraftSingleChoice('browser-capability-failure', value),
+      bodyHeight: singleBodyHeight,
+    },
+    {
+      id: 'browser-intervention',
+      header: 'How should browser blocking be applied?',
+      title: 'Block',
+      kind: 'multi',
+      selected: getDraftMultiSelection('browser-intervention', [
+        'managed-block-page',
+        'chromium-cdp-fetch',
+        'os-app-control',
+      ]),
+      options: BROWSER_RULE_INTERVENTION_OPTIONS,
+      onChange: (selected) => setDraftMultiSelection('browser-intervention', selected),
+      bodyHeight: multiBodyHeight,
+    },
+    {
+      id: 'browser-ai-input',
+      header: 'What browser evidence may the device AI reference?',
+      title: 'Evidence',
+      kind: 'multi',
+      selected: getDraftMultiSelection('browser-ai-input', [
+        'evidence-ref',
+        'url-metadata',
+        'active-certainty',
+        'confidence-reason',
+      ]),
+      options: BROWSER_RULE_AI_INPUT_OPTIONS,
+      onChange: (selected) => setDraftMultiSelection('browser-ai-input', selected),
+      bodyHeight: multiBodyHeight,
+    },
+    {
+      id: 'browser-conflict',
+      header: 'Which rule should win a conflict?',
+      title: 'Priority',
+      kind: 'single',
+      value: getDraftSingleChoice('browser-conflict', 'block-wins'),
+      options: BROWSER_RULE_CONFLICT_OPTIONS,
+      onChange: (value) => setDraftSingleChoice('browser-conflict', value),
+      bodyHeight: singleBodyHeight,
+    },
+    {
+      id: 'browser-child-message',
+      header: 'What should the child see?',
+      title: 'Child',
+      kind: 'multi',
+      selected: getDraftMultiSelection('browser-child-message', [
+        'warn-text',
+        'block-reason',
+        'ask-parent',
+        'time-left',
+      ]),
+      options: BROWSER_RULE_CHILD_MESSAGE_OPTIONS,
+      onChange: (selected) => setDraftMultiSelection('browser-child-message', selected),
+      bodyHeight: multiBodyHeight,
+    },
+    {
+      id: 'browser-overrides',
+      header: 'Which parent overrides should be allowed?',
+      title: 'Override',
+      kind: 'multi',
+      selected: getDraftMultiSelection('browser-overrides', [
+        'approve-once',
+        'approve-session',
+        'deny',
+        'extend-time',
+        'expire',
+      ]),
+      options: BROWSER_RULE_OVERRIDE_OPTIONS,
+      onChange: (selected) => setDraftMultiSelection('browser-overrides', selected),
+      bodyHeight: multiBodyHeight,
+    },
+    {
+      id: 'browser-custody',
+      header: 'Where may browser data be used?',
+      title: 'Custody',
+      kind: 'multi',
+      selected: getDraftMultiSelection('browser-custody', ['child-local', 'lan-live', 'parent-cache']),
+      options: BROWSER_RULE_CUSTODY_OPTIONS,
+      onChange: (selected) => setDraftMultiSelection('browser-custody', selected),
+      bodyHeight: multiBodyHeight,
+    },
+    {
+      id: 'browser-audit',
+      header: 'What should browser actions audit?',
+      title: 'Audit',
+      kind: 'multi',
+      selected: getDraftMultiSelection('browser-audit', [
+        'policy-decision',
+        'evidence-ref',
+        'adapter-result',
+        'timer-state',
+      ]),
+      options: BROWSER_RULE_AUDIT_OPTIONS,
+      onChange: (selected) => setDraftMultiSelection('browser-audit', selected),
+      bodyHeight: multiBodyHeight,
+    },
+    {
+      id: 'browser-retention',
+      header: 'How long should browser data be kept?',
+      title: 'Retain',
+      kind: 'multi',
+      selected: getDraftMultiSelection('browser-retention', ['fresh-only', 'delete-expired', 'redacted-report']),
+      options: BROWSER_RULE_RETENTION_OPTIONS,
+      onChange: (selected) => setDraftMultiSelection('browser-retention', selected),
+      bodyHeight: multiBodyHeight,
+    },
+    {
+      id: 'browser-platform',
+      header: 'Which child platforms should use browser rules?',
+      title: 'Platform',
+      kind: 'multi',
+      selected: getDraftMultiSelection('browser-platform', ['windows', 'web-authoring']),
+      options: BROWSER_RULE_PLATFORM_OPTIONS,
+      onChange: (selected) => setDraftMultiSelection('browser-platform', selected),
+      bodyHeight: multiBodyHeight,
+    },
+  ];
+  const portalBubbleDefinitions = [
+    {
+      id: 'portal-browser-display',
+      header: 'What browser data may Portal display?',
+      title: 'Display',
+      kind: 'multi',
+      selected: getDraftMultiSelection('portal-browser-display', [
+        'managed-status',
+        'policy-decision',
+        'source-capability',
+        'intervention-result',
+      ]),
+      options: BROWSER_RULE_RECORD_OPTIONS,
+      onChange: (selected) => setDraftMultiSelection('portal-browser-display', selected),
+      bodyHeight: multiBodyHeight,
+    },
+    {
+      id: 'portal-browser-source',
+      header: 'Where may Portal browser data come from?',
+      title: 'Source',
+      kind: 'multi',
+      selected: getDraftMultiSelection('portal-browser-source', ['lan-live', 'parent-cache', 'parent-report']),
+      options: BROWSER_RULE_CUSTODY_OPTIONS,
+      onChange: (selected) => setDraftMultiSelection('portal-browser-source', selected),
+      bodyHeight: multiBodyHeight,
+    },
+    {
+      id: 'portal-browser-action',
+      header: 'What browser actions may Portal send?',
+      title: 'Portal',
+      kind: 'multi',
+      selected: getDraftMultiSelection('portal-browser-action', ['view-status', 'open-guide', 'preview-policy']),
+      options: BROWSER_PORTAL_ACTION_OPTIONS,
+      onChange: (selected) => setDraftMultiSelection('portal-browser-action', selected),
+      bodyHeight: multiBodyHeight,
+    },
+    {
+      id: 'portal-ai-help',
+      header: 'When may Portal AI help?',
+      title: 'Portal AI',
+      kind: 'multi',
+      selected: getDraftMultiSelection('portal-ai-help', [
+        'summarize-report',
+        'explain-policy',
+        'cite-evidence',
+        'no-raw-content',
+      ]),
+      options: BROWSER_PORTAL_AI_HELP_OPTIONS,
+      onChange: (selected) => setDraftMultiSelection('portal-ai-help', selected),
+      bodyHeight: multiBodyHeight,
+    },
+    {
+      id: 'portal-ai-fallback',
+      header: 'What if Portal AI is unavailable?',
+      title: 'No AI',
+      kind: 'single',
+      value: getDraftSingleChoice('portal-ai-fallback', 'manual-view'),
+      options: BROWSER_PORTAL_AI_FALLBACK_OPTIONS,
+      onChange: (value) => setDraftSingleChoice('portal-ai-fallback', value),
+      bodyHeight: singleBodyHeight,
+    },
+    {
+      id: 'portal-browser-audit',
+      header: 'What should Portal browser actions audit?',
+      title: 'Audit',
+      kind: 'multi',
+      selected: getDraftMultiSelection('portal-browser-audit', ['policy-decision', 'evidence-ref', 'parent-override']),
+      options: BROWSER_RULE_AUDIT_OPTIONS,
+      onChange: (selected) => setDraftMultiSelection('portal-browser-audit', selected),
+      bodyHeight: multiBodyHeight,
+    },
+  ];
+  const bubbleDefinitions = portalMode ? portalBubbleDefinitions : childDeviceBubbleDefinitions;
+  const makeSingleToggleConfig = (controlW: number, titleMinWidth = 58) => {
+    const base = browserRuleSingleChoiceConfig(controlW, true);
+    return {
+      ...base,
+      svg: {
+        ...base.svg,
+        width: controlW,
+        height: 72,
+      },
+      layout: {
+        ...base.layout,
+        titleBoxY: 9,
+        titleBoxMinWidth: titleMinWidth,
+        titleBoxPaddingX: 6,
+        titleBoxHeight: 44,
+        trackY: 8,
+        trackMinWidth: Math.max(78, controlW - titleMinWidth - 8),
+        trackHeight: 46,
+        optionPaddingX: controlW < 300 ? 4 : 7,
+        outerPaddingRight: 0,
+      },
+      text: {
+        ...base.text,
+        titleFontSize: 11.8,
+        optionFontSize: controlW < 300 ? 12.4 : 13.4,
+      },
+    };
+  };
+  const makeMultiChoiceConfig = (controlW: number) => {
+    const base = browserRuleMultiChoiceConfig(controlW, true);
+    return {
+      ...base,
+      svg: {
+        ...base.svg,
+        width: controlW,
+        height: multiPrimaryControlH,
+        minHeight: multiPrimaryControlH,
+        viewportInset: 4,
+        fitMode: 'fixedHeight',
+      },
+      layout: {
+        ...base.layout,
+        titleBoxX: 0,
+        titleBoxY: 8,
+        titleBoxMinWidth: 62,
+        titleBoxPaddingX: 0,
+        titleBoxHeight: 44,
+        trackX: 62,
+        trackY: 8,
+        trackWidth: Math.max(controlsStacked ? 180 : 210, controlW - 70),
+        optionMinWidth: controlsStacked ? 82 : 96,
+        optionMaxWidth: controlsStacked ? 132 : 178,
+        optionHeight: 38,
+        optionGapX: 4,
+        optionGapY: 5,
+        optionPaddingX: 9,
+        outerPaddingRight: 0,
+        outerPaddingBottom: 0,
+      },
+      text: {
+        ...base.text,
+        titleFontSize: 0,
+        optionFontSize: controlsStacked ? 10.8 : 11.8,
+      },
+    };
+  };
+  const actionToggleConfig = makeSingleToggleConfig(primaryToggleW, 58);
+  const enforcementToggleConfig = makeSingleToggleConfig(enforcementToggleW, 42);
+  const actionIconToggleConfig = {
+    ...actionToggleConfig,
+    svg: {
+      ...actionToggleConfig.svg,
+      height: 72,
+    },
+    layout: {
+      ...actionToggleConfig.layout,
+      titleBoxY: 9,
+      titleBoxMinWidth: 62,
+      titleBoxPaddingX: 0,
+      titleBoxHeight: 44,
+      trackY: 8,
+      trackMinWidth: Math.max(230, primaryToggleW - 66),
+      trackHeight: 46,
+      optionPaddingX: 8,
+    },
+    text: {
+      ...actionToggleConfig.text,
+      titleFontSize: 0,
+      optionFontSize: 13.6,
+    },
+  };
+  const enforcementIconToggleConfig = {
+    ...enforcementToggleConfig,
+    svg: {
+      ...enforcementToggleConfig.svg,
+      height: 72,
+    },
+    layout: {
+      ...enforcementToggleConfig.layout,
+      titleBoxY: 9,
+      titleBoxMinWidth: 48,
+      titleBoxPaddingX: 0,
+      titleBoxHeight: 44,
+      trackY: 8,
+      trackMinWidth: Math.max(98, enforcementToggleW - 52),
+      trackHeight: 46,
+      optionPaddingX: 5,
+    },
+    text: {
+      ...enforcementToggleConfig.text,
+      titleFontSize: 0,
+      optionFontSize: 12.6,
+    },
+  };
+  const renderActionTitleIcon = (slot) => (
+    <Action
+      x={slot.centerX - 36}
+      y={slot.centerY - 24}
+      width={72}
+      height={48}
+      title="Action"
+      preserveAspectRatio="xMidYMid meet"
+    />
+  );
+  const renderEnforcementTitleIcon = (slot) => (
+    <EnforcementOfficerIcon x={slot.centerX - 17} y={slot.y + slot.height - 35} width={34} height={34} />
+  );
+  const getBubbleEnforcementChoice = (id: string) => bubbleEnforcementChoices[id] ?? enforcementChoice;
+  const setBubbleEnforcementChoice = (id: string, nextValue: string) => {
+    setBubbleEnforcementChoices((current) => ({ ...current, [id]: nextValue }));
+    if (id === 'browser-action') {
+      onEnforcementChange(nextValue);
+    }
+  };
+  const toggleCollapsedBubble = (id: string, collapsed: boolean) => {
+    setCollapsedBubbleIds((current) => {
+      const hasId = current.includes(id);
+      if (collapsed && !hasId) return [...current, id];
+      if (!collapsed && hasId) return current.filter((currentId) => currentId !== id);
+      return current;
+    });
+  };
+  const renderPrimaryControl = (bubble, slot) => {
+    const controlX = slot.bodyX + 1;
+    const controlY = slot.bodyY + 5;
+
+    if (bubble.kind === 'multi') {
+      return (
+        <ScopeMultiChoice
+          renderMode="svg"
+          x={controlX}
+          y={controlY}
+          title={bubble.title}
+          titleRenderer={renderActionTitleIcon}
+          selected={bubble.selected}
+          options={bubble.options}
+          width={primaryToggleW}
+          height={multiPrimaryControlH}
+          fitMode="fixedHeight"
+          disabled={disabled}
+          onChange={(nextSelected) => bubble.onChange(nextSelected)}
+          config={makeMultiChoiceConfig(primaryToggleW)}
+        />
+      );
+    }
+
+    return (
+      <ScopeToggle
+        renderMode="svg"
+        x={controlX}
+        y={controlY}
+        title={bubble.title}
+        titleRenderer={renderActionTitleIcon}
+        value={bubble.value}
+        options={bubble.options}
+        disabled={disabled}
+        onChange={(nextValue) => bubble.onChange(nextValue)}
+        config={actionIconToggleConfig}
+      />
+    );
+  };
+  const renderEnforcementControl = (bubble, slot) => {
+    const controlX = controlsStacked
+      ? slot.bodyX + slot.bodyW - enforcementToggleW - 2
+      : slot.bodyX + slot.bodyW - enforcementToggleW - 2;
+    const controlY = controlsStacked
+      ? slot.bodyY + (bubble.kind === 'multi' ? multiPrimaryControlH + 5 : 74)
+      : slot.bodyY + 5;
+
+    return (
+      <ScopeToggle
+        renderMode="svg"
+        x={controlX}
+        y={controlY}
+        title="Enforce"
+        titleRenderer={renderEnforcementTitleIcon}
+        value={getBubbleEnforcementChoice(bubble.id)}
+        options={BROWSER_RULE_ENFORCEMENT_OPTIONS}
+        disabled={disabled}
+        onChange={(nextValue) => setBubbleEnforcementChoice(bubble.id, nextValue)}
+        config={enforcementIconToggleConfig}
+      />
+    );
+  };
+  const columnHeights = Array.from({ length: columns }, () => 0);
+  const bubblePlacements = bubbleDefinitions.map((bubble, index) => {
+    const column = columns === 1 ? 0 : index % columns;
+    const isCollapsed = collapsedBubbleIds.includes(bubble.id);
+    const bodyHeight = isCollapsed ? bubbleCollapsedBodyH : bubble.bodyHeight;
+    const bubbleX = layoutX + column * (bubbleW + gap);
+    const bubbleY = layoutY + columnHeights[column];
+    columnHeights[column] += bubbleHeaderH + bodyHeight + gap;
+    return {
+      ...bubble,
+      x: bubbleX,
+      y: bubbleY,
+      collapsed: isCollapsed,
+    };
+  });
+  const viewportH = Math.max(1, h);
+  const contentHeight = Math.max(1, cellInset * 2 + Math.max(...columnHeights) - gap);
+  const scrollMax = Math.max(0, contentHeight - viewportH);
+  const visibleScrollY = clampValue(scrollY, 0, scrollMax);
+  const scrollTrackX = x + w - scrollBarW + 4;
+  const scrollTrackY = y + scrollTrackPadY;
+  const scrollTrackW = 6;
+  const scrollTrackH = Math.max(1, h - scrollTrackPadY * 2);
+  const scrollThumbH =
+    scrollMax > 0 ? clampValue((scrollTrackH * viewportH) / contentHeight, 34, scrollTrackH) : scrollTrackH;
+  const scrollThumbTravel = Math.max(0, scrollTrackH - scrollThumbH);
+  const scrollThumbY = scrollTrackY + (scrollMax > 0 ? (visibleScrollY / scrollMax) * scrollThumbTravel : 0);
+
+  useEffect(() => {
+    if (scrollY !== visibleScrollY) {
+      setScrollY(visibleScrollY);
+    }
+  }, [scrollY, visibleScrollY]);
+
+  const handleScrollWheel = (event: WheelEvent<SVGGElement>) => {
+    if (scrollMax <= 0) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+    setScrollY((current) => clampValue(current + event.deltaY, 0, scrollMax));
+  };
+
+  const handleScrollTrackClick = (event: MouseEvent<SVGRectElement>) => {
+    if (scrollMax <= 0) {
+      return;
+    }
+
+    event.stopPropagation();
+    const bounds = event.currentTarget.getBoundingClientRect();
+    const localY = event.clientY - bounds.top;
+    const nextRatio = clampValue((localY - scrollThumbH * 0.5) / Math.max(1, scrollThumbTravel), 0, 1);
+    setScrollY(nextRatio * scrollMax);
+  };
+
+  return (
+    <g onWheel={handleScrollWheel}>
+      <defs>
+        <clipPath id={scrollClipId}>
+          <rect x={x} y={y} width={Math.max(1, w - scrollBarW)} height={viewportH} />
+        </clipPath>
+      </defs>
+      <rect
+        x={x}
+        y={y}
+        width={w}
+        height={viewportH}
+        fill="transparent"
+        pointerEvents="all"
+        onWheel={handleScrollWheel}
+      />
+      <g clipPath={`url(#${scrollClipId})`} onWheel={handleScrollWheel}>
+        <g transform={`translate(0 ${-visibleScrollY})`} onWheel={handleScrollWheel}>
+          {bubblePlacements.map((bubble, index) => {
+            return (
+              <RulesBubbleSvgFrame
+                key={`browser-rules-grid-guide:${bubble.id}`}
+                x={bubble.x}
+                y={bubble.y}
+                width={bubbleW}
+                bodyHeight={bubble.bodyHeight}
+                collapsed={bubble.collapsed}
+                headerLabel={bubble.header}
+                showInfo={true}
+                infoLabel="Open browser rules guide"
+                onInfoClick={onInfoClick}
+                onCollapsedChange={(nextCollapsed) => toggleCollapsedBubble(bubble.id, nextCollapsed)}
+                disabled={disabled}
+                config={{
+                  body: {
+                    clampWidth: bubbleClampW,
+                  },
+                }}
+              >
+                {(slot) => (
+                  <>
+                    {renderPrimaryControl(bubble, slot)}
+                    {renderEnforcementControl(bubble, slot)}
+                  </>
+                )}
+              </RulesBubbleSvgFrame>
+            );
+          })}
+        </g>
+      </g>
+      {scrollMax > 0 ? (
+        <g
+          role="scrollbar"
+          aria-label="Browser rule questions scroll"
+          aria-valuemin={0}
+          aria-valuemax={Math.round(scrollMax)}
+          aria-valuenow={Math.round(visibleScrollY)}
+          onWheel={handleScrollWheel}
+        >
+          <rect
+            x={scrollTrackX}
+            y={scrollTrackY}
+            width={scrollTrackW}
+            height={scrollTrackH}
+            rx={scrollTrackW * 0.5}
+            fill="rgba(7, 30, 42, 0.82)"
+            stroke="#3fe8ff"
+            strokeWidth={0.75}
+            opacity={0.76}
+            onClick={handleScrollTrackClick}
+            className="parent-portal-svg-clickable"
+          />
+          <rect
+            x={scrollTrackX - 1.5}
+            y={scrollThumbY}
+            width={scrollTrackW + 3}
+            height={scrollThumbH}
+            rx={(scrollTrackW + 3) * 0.5}
+            fill="rgba(102, 243, 255, 0.86)"
+            stroke="#f0c94a"
+            strokeWidth={0.8}
+            opacity={0.95}
+            pointerEvents="none"
+          />
+        </g>
+      ) : null}
+    </g>
+  );
+}
+
 function ManageWorkspacePanel({
   x,
   y,
@@ -7481,6 +9044,7 @@ function ManageWorkspacePanel({
   activeTabId,
   defaultTabId,
   onTabChange,
+  onNavigate,
   activeNavLabel,
   selectedControlName,
   cfg,
@@ -7493,12 +9057,16 @@ function ManageWorkspacePanel({
   activeTabId: string;
   defaultTabId: string;
   onTabChange: (tabId: string) => void;
+  onNavigate?: (routePath: string) => void;
   activeNavLabel: string;
   selectedControlName: string;
   cfg: ParentPortalSvgControls;
 }) {
   const tabs = manageWorkspaceTabs(kind);
   const targetOptions = useMemo(() => manageWorkspaceTargetOptions(kind), [kind]);
+  const workspaceScopeValues = targetOptions.some((option) => option.id === 'portal')
+    ? FAMILY_DEVICE_SCOPE_VALUES
+    : undefined;
   const [workspaceTarget, setWorkspaceTarget] = useState<ManageWorkspaceTarget>(() => targetOptions[0]?.id ?? 'family');
   const [workspaceSelectedDeviceValue, setWorkspaceSelectedDeviceValue] = useState<string | undefined>();
   useEffect(() => {
@@ -7511,14 +9079,40 @@ function ManageWorkspacePanel({
   const activeColor = toneColor(activeTab?.tone ?? 'cyan', cfg);
   const activeTarget = targetOptions.find((option) => option.id === workspaceTarget) ?? targetOptions[0] ?? null;
   const workspaceTargetKey = activeTarget?.id ?? 'family';
-  const workspaceTargetLabel = activeTarget ? manageWorkspaceTargetLabel(activeTarget.id) : '';
   const targetColor = toneColor(activeTarget?.tone ?? activeTab?.tone ?? 'cyan', cfg);
   const hasTargetSelector = targetOptions.length > 0;
   const policyAreaLabel = kind === 'policy' ? managePolicyAreaLabel(activeNavLabel, selectedControlName) : '';
+  const browserRulesChoiceMode = kind === 'policy' && policyAreaLabel === 'Browser' && activeTabKey === 'rules';
+  const browserRulesDraftHidden = browserRulesChoiceMode;
   const policyPrimaryOptions = useMemo(() => managePolicyPrimaryChoiceOptions(activeTabKey), [activeTabKey]);
   const policySecondaryOptions = useMemo(() => managePolicySecondaryChoiceOptions(activeTabKey), [activeTabKey]);
   const [policyPrimaryChoice, setPolicyPrimaryChoice] = useState(policyPrimaryOptions[0]?.value ?? '');
   const [policySecondaryChoice, setPolicySecondaryChoice] = useState(policySecondaryOptions[0]?.value ?? '');
+  const [browserRulesMatchSelection, setBrowserRulesMatchSelection] = useState<readonly string[]>([
+    'domain-origin',
+    'site-category',
+  ]);
+  const [browserRulesAppliesSelection, setBrowserRulesAppliesSelection] = useState<readonly string[]>([
+    'edge',
+    'chrome',
+    'webview-shell',
+  ]);
+  const [browserRulesBypassChoice, setBrowserRulesBypassChoice] = useState('warn');
+  const [browserRulesEnforcementChoice, setBrowserRulesEnforcementChoice] = useState('observe');
+  const [browserRulesScheduleChoice, setBrowserRulesScheduleChoice] = useState('school');
+  const [browserRulesLimitMode, setBrowserRulesLimitMode] = useState('daily-quota');
+  const [browserRulesWarnSelection, setBrowserRulesWarnSelection] = useState<readonly string[]>([
+    'unknown-sites',
+    'unmanaged-browser',
+  ]);
+  const [browserRulesAskSelection, setBrowserRulesAskSelection] = useState<readonly string[]>([
+    'blocked-sites',
+    'new-domain',
+  ]);
+  const [browserRulesRecordSelection, setBrowserRulesRecordSelection] = useState<readonly string[]>([
+    'managed-status',
+    'policy-decision',
+  ]);
   useEffect(() => {
     setWorkspaceSelectedDeviceValue(undefined);
   }, [kind, activeNavLabel, selectedControlName]);
@@ -7528,7 +9122,6 @@ function ManageWorkspacePanel({
   useEffect(() => {
     setPolicySecondaryChoice(policySecondaryOptions[0]?.value ?? '');
   }, [policySecondaryOptions]);
-  const compact = w < 760;
   const targetSurfaceEnabled = hasTargetSelector;
   const workspaceSlots = useMemo(() => reportPlanSeatSlots(ACTIVITY_REPORT_BASIC_CHILD_DEVICE_SEATS), []);
   const workspacePortalIds = useMemo(
@@ -7539,6 +9132,7 @@ function ManageWorkspacePanel({
   const workspacePanelPadX = Math.max(18, Math.min(34, Math.round(w * 0.018)));
   const workspaceAvailableW = Math.max(1, w - workspacePanelPadX * 2);
   const workspaceAvailableH = Math.max(1, h);
+  const compact = workspaceAvailableW < 760;
   const workspaceGridColumnsByWidth = Math.max(
     1,
     Math.floor(
@@ -7561,6 +9155,8 @@ function ManageWorkspacePanel({
   const workspaceTopX = x + workspacePanelPadX;
   const workspaceTopY = y;
   const workspaceDividerY = workspaceTopY + workspaceSelectorH;
+  const workspaceBodyX = workspaceTopX;
+  const workspaceBodyW = workspaceAvailableW;
   const workspaceGridHostStyle: CSSProperties = {
     width: workspaceAvailableW,
     height: workspaceSelectorH,
@@ -7574,52 +9170,44 @@ function ManageWorkspacePanel({
   const workspaceSelectedLabel = workspaceSelectedSlot?.label ?? null;
   const tabColumns = compact ? Math.min(3, tabs.length) : Math.min(tabs.length, kind === 'ai' ? 4 : tabs.length);
   const tabRows = Math.max(1, Math.ceil(tabs.length / tabColumns));
-  const tabInsetX = Math.max(12, Math.min(22, w * 0.012));
-  const tabW = Math.max(compact ? 82 : 112, Math.min(kind === 'ai' ? 168 : 188, (w - tabInsetX * 2) / tabColumns));
+  const tabInsetX = Math.max(16, Math.min(24, workspaceBodyW * 0.012));
+  const tabW = Math.max(compact ? 82 : 112, Math.min(168, (workspaceBodyW - tabInsetX * 2) / tabColumns));
   const tabH = compact ? 31 : 39;
   const tabGap = 0;
   const tabAreaH = tabRows * tabH + 8;
   const tabsY = targetSurfaceEnabled ? workspaceDividerY + 16 : y;
   const bodyY = tabsY + tabAreaH - 1;
-  const bodyH = Math.max(1, y + h - bodyY - (targetSurfaceEnabled ? 8 : 0));
-  const titleY = bodyY + 33;
-  const headerTitle =
-    kind === 'policy'
-      ? `${manageWorkspaceTitle(kind)} / ${policyAreaLabel}`
-      : `${manageWorkspaceTitle(kind)} / ${activeTab?.label ?? activeTabKey}`;
-  const headerSide =
-    kind === 'policy'
-      ? `${workspaceTargetLabel} / ${activeTab?.label ?? activeTabKey}`
-      : hasTargetSelector
-        ? workspaceTargetLabel
-        : selectedControlName || activeNavLabel;
+  const bodyH = Math.max(1, y + h - bodyY - 8);
   const targetSelectorY = bodyY + (compact ? 46 : 48);
   const targetSelectorH = compact ? 30 : 34;
-  const targetLabelW = hasTargetSelector ? (compact ? 0 : 76) : 0;
-  const targetSelectorX = x + (compact ? 22 : 96);
-  const targetSelectorMaxW = Math.max(1, x + w - targetSelectorX - 22);
+  const targetSelectorX = workspaceBodyX + (compact ? 22 : 96);
+  const targetSelectorMaxW = Math.max(1, workspaceBodyX + workspaceBodyW - targetSelectorX - 22);
   const targetSelectorW = hasTargetSelector
     ? Math.min(targetSelectorMaxW, targetOptions.length * (compact ? 142 : 178))
     : 0;
   const targetOptionW = targetSelectorW / Math.max(1, targetOptions.length);
   const summaryBaseY = targetSurfaceEnabled
     ? kind === 'policy'
-      ? bodyY + (compact ? 126 : 124)
-      : bodyY + 54
+      ? bodyY + (compact ? 92 : 88)
+      : bodyY + 24
     : hasTargetSelector
       ? targetSelectorY + targetSelectorH + (compact ? 16 : 18)
-      : bodyY + 54;
+      : bodyY + 24;
   const summary = manageWorkspaceSummary(kind, activeTabKey, activeNavLabel, selectedControlName, workspaceTargetKey);
-  const summaryLines = wrapCardText(summary, w - 42, 12.2, compact ? 2 : 1);
+  const summaryLines = browserRulesChoiceMode ? [] : wrapCardText(summary, workspaceBodyW - 42, 12.2, compact ? 2 : 1);
   const hasInlineTargetSelector = hasTargetSelector && !targetSurfaceEnabled;
   const bodyHeaderH = targetSurfaceEnabled
     ? kind === 'policy'
-      ? compact
-        ? 170
-        : 164
+      ? browserRulesChoiceMode
+        ? compact
+          ? 98
+          : 92
+        : compact
+          ? 134
+          : 126
       : compact
-        ? 92
-        : 84
+        ? 68
+        : 58
     : hasInlineTargetSelector
       ? compact
         ? 124
@@ -7634,20 +9222,28 @@ function ManageWorkspacePanel({
       ? managePolicySettingRows(policyAreaLabel, activeTabKey, workspaceTargetKey, workspaceSelectedLabel)
       : [];
   const cardGap = 10;
-  const cardColumns = w > 1180 ? 4 : w > 840 ? 3 : w > 560 ? 2 : 1;
-  const cardW = Math.max(1, (w - 28 * 2 - cardGap * (cardColumns - 1)) / cardColumns);
+  const cardColumns = workspaceBodyW > 1180 ? 4 : workspaceBodyW > 840 ? 3 : workspaceBodyW > 560 ? 2 : 1;
+  const cardW = Math.max(1, (workspaceBodyW - 28 * 2 - cardGap * (cardColumns - 1)) / cardColumns);
   const cardRows = Math.ceil(cards.length / cardColumns);
   const cardsTop = bodyY + bodyHeaderH + 12;
   const availableCardH = Math.max(1, bodyY + bodyH - cardsTop - 18);
   const cardH = clampValue((availableCardH - cardGap * Math.max(0, cardRows - 1)) / Math.max(1, cardRows), 70, 112);
-  const policyChoiceBarY = bodyY + 42;
+  const policyChoiceBarY = bodyY + 12;
   const policyChoiceGap = 12;
-  const policyChoiceW = Math.max(220, (w - 44 - policyChoiceGap) / 2);
-  const policySecondaryX = x + 22 + policyChoiceW + policyChoiceGap;
+  const policyChoicesStacked = compact && kind === 'policy';
+  const policyChoiceW = policyChoicesStacked
+    ? Math.max(220, workspaceBodyW - 44)
+    : Math.max(220, (workspaceBodyW - 44 - policyChoiceGap) / 2);
+  const policySecondaryX = policyChoicesStacked
+    ? workspaceBodyX + 22
+    : workspaceBodyX + 22 + policyChoiceW + policyChoiceGap;
+  const policySecondaryY = policyChoicesStacked ? policyChoiceBarY + 58 : policyChoiceBarY;
+  const policyChoiceDisabled = workspaceTargetKey === 'perDevice' && !workspaceSelectedSlot;
+  const browserRulesChoiceTop = bodyY + 16;
   const policyRowsTop = bodyY + bodyHeaderH + 10;
   const policyRowGap = 10;
-  const policyRowColumns = w > 1060 ? 2 : 1;
-  const policyRowW = Math.max(1, (w - 28 * 2 - policyRowGap * (policyRowColumns - 1)) / policyRowColumns);
+  const policyRowColumns = workspaceBodyW > 1060 ? 2 : 1;
+  const policyRowW = Math.max(1, (workspaceBodyW - 28 * 2 - policyRowGap * (policyRowColumns - 1)) / policyRowColumns);
   const policyRowH = clampValue(
     (Math.max(1, bodyY + bodyH - policyRowsTop - 18) -
       policyRowGap * Math.max(0, Math.ceil(policyRows.length / policyRowColumns) - 1)) /
@@ -7662,7 +9258,9 @@ function ManageWorkspacePanel({
           <foreignObject x={workspaceTopX} y={workspaceTopY} width={workspaceAvailableW} height={workspaceSelectorH}>
             <div xmlns="http://www.w3.org/1999/xhtml" style={workspaceGridHostStyle}>
               <DeviceChoiceGrid
-                scope={workspaceTargetKey === 'perDevice' ? 'parent' : 'lan'}
+                scope={
+                  workspaceTargetKey === 'perDevice' ? 'parent' : workspaceTargetKey === 'portal' ? 'portal' : 'lan'
+                }
                 value={workspaceSelectedValue}
                 options={workspaceSlots}
                 portalDeviceIds={workspacePortalIds}
@@ -7671,8 +9269,11 @@ function ManageWorkspacePanel({
                 parentRows={workspaceGridRows}
                 parentColumns={workspaceGridColumns}
                 deviceSelectionDisabled={workspaceTargetKey !== 'perDevice'}
+                {...(workspaceScopeValues ? { scopeValues: workspaceScopeValues } : {})}
+                scopeIcons={FAMILY_DEVICE_SCOPE_ICONS}
                 onScopeChange={(nextScopeValue) => {
-                  const nextTarget = nextScopeValue === 'parent' ? 'perDevice' : 'family';
+                  const nextTarget =
+                    nextScopeValue === 'parent' ? 'perDevice' : nextScopeValue === 'portal' ? 'portal' : 'family';
                   setWorkspaceTarget(nextTarget);
                   if (nextTarget !== 'perDevice') {
                     setWorkspaceSelectedDeviceValue(undefined);
@@ -7683,10 +9284,25 @@ function ManageWorkspacePanel({
                   setWorkspaceSelectedDeviceValue(choice.value);
                 }}
                 config={manageDeviceGridConfig(workspaceAvailableW, workspaceSelectorH, {
-                  statusOrder: { lan: ['connected', 'offline', 'empty'], parent: ['connected', 'offline', 'empty'] },
+                  statusOrder: {
+                    lan: ['connected', 'offline', 'empty'],
+                    parent: ['connected', 'offline', 'empty'],
+                    portal: ['connected', 'offline', 'empty'],
+                  },
                   text: {
-                    scopeOptions: { lan: 'Family', parent: 'Per Device' },
-                    selectedInfoLabel: `${manageWorkspaceTitle(kind)} device`,
+                    scopeOptions: { lan: 'Family', parent: 'Per Device', portal: 'Portal' },
+                    selectedInfoLabel:
+                      workspaceTargetKey === 'portal'
+                        ? 'Portal target'
+                        : kind === 'policy'
+                          ? `${policyAreaLabel} target`
+                          : `${manageWorkspaceTitle(kind)} device`,
+                    selectedInfoEmptyLabel:
+                      workspaceTargetKey === 'portal'
+                        ? 'Parent console'
+                        : workspaceTargetKey === 'family'
+                          ? 'Whole family'
+                          : 'No device selected',
                   },
                 })}
               />
@@ -7712,7 +9328,7 @@ function ManageWorkspacePanel({
           const tabColor = toneColor(tab.tone, cfg);
           const column = index % tabColumns;
           const row = Math.floor(index / tabColumns);
-          const tabX = x + tabInsetX + column * (tabW + tabGap);
+          const tabX = workspaceBodyX + tabInsetX + column * (tabW + tabGap);
           const tabY = tabsY + row * tabH + (selected ? 0 : 7);
           const currentTabH = selected ? tabH + 1 : tabH - 7;
           const tabRadius = selected ? 9 : 7;
@@ -7790,40 +9406,39 @@ function ManageWorkspacePanel({
         })}
       </g>
       <path
-        d={`M ${x} ${bodyY} H ${x + w} V ${bodyY + bodyH} H ${x} Z`}
+        d={`M ${workspaceBodyX} ${bodyY} H ${workspaceBodyX + workspaceBodyW} V ${bodyY + bodyH} H ${workspaceBodyX} Z`}
         fill={cfg.colors.panelFill}
         stroke={activeColor}
         strokeWidth={1.12}
         opacity={0.97}
       />
-      <path d={`M ${x + 10} ${bodyY} H ${x + w - 10}`} stroke={activeColor} strokeWidth={2.2} opacity={0.55} />
-      <text x={x + 22} y={titleY} fontSize={17} fontWeight={950} fill={cfg.colors.bodyText}>
-        {headerTitle}
-      </text>
-      <text x={x + w - 22} y={titleY} textAnchor="end" fontSize={10.5} fontWeight={900} fill={activeColor}>
-        {truncateTextForWidth(headerSide, Math.max(120, w * 0.32), 10.5, 0.58)}
-      </text>
-      {kind === 'policy' ? (
+      <path
+        d={`M ${workspaceBodyX + 10} ${bodyY} H ${workspaceBodyX + workspaceBodyW - 10}`}
+        stroke={activeColor}
+        strokeWidth={2.2}
+        opacity={0.55}
+      />
+      {kind === 'policy' && !browserRulesChoiceMode ? (
         <g>
-          <foreignObject x={x + 22} y={policyChoiceBarY} width={policyChoiceW} height={66}>
+          <foreignObject x={workspaceBodyX + 22} y={policyChoiceBarY} width={policyChoiceW} height={66}>
             <div xmlns="http://www.w3.org/1999/xhtml" style={{ width: policyChoiceW, height: 66 }}>
               <ScopeToggle
                 title={managePolicyPrimaryChoiceTitle(activeTabKey)}
                 value={policyPrimaryChoice}
                 options={policyPrimaryOptions}
-                disabled={workspaceTargetKey === 'perDevice' && !workspaceSelectedSlot}
+                disabled={policyChoiceDisabled}
                 onChange={(nextValue) => setPolicyPrimaryChoice(nextValue)}
                 config={activityScopeToggleConfig(policyChoiceW)}
               />
             </div>
           </foreignObject>
-          <foreignObject x={policySecondaryX} y={policyChoiceBarY} width={policyChoiceW} height={66}>
+          <foreignObject x={policySecondaryX} y={policySecondaryY} width={policyChoiceW} height={66}>
             <div xmlns="http://www.w3.org/1999/xhtml" style={{ width: policyChoiceW, height: 66 }}>
               <ScopeToggle
                 title={managePolicySecondaryChoiceTitle(activeTabKey)}
                 value={policySecondaryChoice}
                 options={policySecondaryOptions}
-                disabled={workspaceTargetKey === 'perDevice' && !workspaceSelectedSlot}
+                disabled={policyChoiceDisabled}
                 onChange={(nextValue) => setPolicySecondaryChoice(nextValue)}
                 config={activityScopeToggleConfig(policyChoiceW)}
               />
@@ -7834,7 +9449,7 @@ function ManageWorkspacePanel({
       {hasInlineTargetSelector ? (
         <g role="radiogroup" aria-label={`${manageWorkspaceTitle(kind)} target selector`}>
           {!compact ? (
-            <text x={x + 22} y={targetSelectorY + 22} fontSize={11.4} fontWeight={950} fill={activeColor}>
+            <text x={workspaceBodyX + 22} y={targetSelectorY + 22} fontSize={11.4} fontWeight={950} fill={activeColor}>
               SCOPE
             </text>
           ) : null}
@@ -7955,7 +9570,7 @@ function ManageWorkspacePanel({
       {summaryLines.map((line, index) => (
         <text
           key={`manage-workspace-summary:${kind}:${activeTabKey}:${workspaceTargetKey}:${index}`}
-          x={x + 22}
+          x={workspaceBodyX + 22}
           y={summaryBaseY + index * 16}
           fontSize={12.2}
           fontWeight={740}
@@ -7964,25 +9579,93 @@ function ManageWorkspacePanel({
           {line}
         </text>
       ))}
-      <path
-        d={`M ${x + 22} ${bodyY + bodyHeaderH} H ${x + w - 22}`}
-        stroke={activeColor}
-        strokeWidth={0.9}
-        opacity={0.42}
-      />
+      {!browserRulesChoiceMode ? (
+        <path
+          d={`M ${workspaceBodyX + 22} ${bodyY + bodyHeaderH} H ${workspaceBodyX + workspaceBodyW - 22}`}
+          stroke={activeColor}
+          strokeWidth={0.9}
+          opacity={0.42}
+        />
+      ) : null}
       {supportContactFormEnabled ? (
         <ManageSupportContactForm
-          x={x + 28}
+          x={workspaceBodyX + 28}
           y={cardsTop}
-          w={w - 56}
+          w={workspaceBodyW - 56}
           h={Math.max(260, bodyY + bodyH - cardsTop - 18)}
           cfg={cfg}
         />
+      ) : browserRulesChoiceMode ? (
+        browserRulesDraftHidden ? (
+          <BrowserRulesGridGuide
+            x={workspaceBodyX + 6}
+            y={browserRulesChoiceTop}
+            w={workspaceBodyW - 16}
+            h={Math.max(1, bodyY + bodyH - browserRulesChoiceTop - 18)}
+            workspaceTarget={workspaceTargetKey}
+            disabled={policyChoiceDisabled}
+            decisionChoice={policyPrimaryChoice}
+            enforcementChoice={browserRulesEnforcementChoice}
+            scheduleChoice={browserRulesScheduleChoice}
+            limitMode={browserRulesLimitMode}
+            matchSelection={browserRulesMatchSelection}
+            appliesSelection={browserRulesAppliesSelection}
+            askSelection={browserRulesAskSelection}
+            bypassChoice={browserRulesBypassChoice}
+            recordSelection={browserRulesRecordSelection}
+            onDecisionChange={setPolicyPrimaryChoice}
+            onEnforcementChange={setBrowserRulesEnforcementChoice}
+            onScheduleChange={setBrowserRulesScheduleChoice}
+            onLimitModeChange={setBrowserRulesLimitMode}
+            onMatchChange={setBrowserRulesMatchSelection}
+            onAppliesChange={setBrowserRulesAppliesSelection}
+            onAskChange={setBrowserRulesAskSelection}
+            onBypassChange={setBrowserRulesBypassChoice}
+            onRecordChange={setBrowserRulesRecordSelection}
+            onInfoClick={() => onNavigate?.(guideRoutePathForManageKey(activeNavLabel, selectedControlName))}
+          />
+        ) : (
+          <BrowserRulesChoiceEditor
+            x={workspaceBodyX + 22}
+            y={browserRulesChoiceTop}
+            w={workspaceBodyW - 44}
+            disabled={policyChoiceDisabled}
+            targetLabel={
+              workspaceTargetKey === 'perDevice'
+                ? workspaceSelectedLabel
+                  ? `device ${workspaceSelectedLabel}`
+                  : 'the selected device'
+                : workspaceTargetKey === 'portal'
+                  ? 'the parent portal'
+                  : 'the whole family'
+            }
+            decisionChoice={policyPrimaryChoice}
+            enforcementChoice={browserRulesEnforcementChoice}
+            limitMode={browserRulesLimitMode}
+            matchSelection={browserRulesMatchSelection}
+            appliesSelection={browserRulesAppliesSelection}
+            warnSelection={browserRulesWarnSelection}
+            askSelection={browserRulesAskSelection}
+            bypassChoice={browserRulesBypassChoice}
+            recordSelection={browserRulesRecordSelection}
+            onInfoClick={() => onNavigate?.(guideRoutePathForManageKey(activeNavLabel, selectedControlName))}
+            onDecisionChange={setPolicyPrimaryChoice}
+            onEnforcementChange={setBrowserRulesEnforcementChoice}
+            onLimitModeChange={setBrowserRulesLimitMode}
+            onMatchChange={setBrowserRulesMatchSelection}
+            onAppliesChange={setBrowserRulesAppliesSelection}
+            onWarnChange={setBrowserRulesWarnSelection}
+            onAskChange={setBrowserRulesAskSelection}
+            onBypassChange={setBrowserRulesBypassChoice}
+            onRecordChange={setBrowserRulesRecordSelection}
+            cfg={cfg}
+          />
+        )
       ) : kind === 'policy' ? (
         policyRows.map((rowItem, index) => {
           const column = index % policyRowColumns;
           const row = Math.floor(index / policyRowColumns);
-          const rowX = x + 28 + column * (policyRowW + policyRowGap);
+          const rowX = workspaceBodyX + 28 + column * (policyRowW + policyRowGap);
           const rowY = policyRowsTop + row * (policyRowH + policyRowGap);
           const rowColor = toneColor(rowItem.tone, cfg);
           const valueSize = fitSingleLineTextSize(rowItem.value, policyRowW - 38, 12, 15, 0.58);
@@ -8040,7 +9723,7 @@ function ManageWorkspacePanel({
         cards.map((card, index) => {
           const column = index % cardColumns;
           const row = Math.floor(index / cardColumns);
-          const cardX = x + 28 + column * (cardW + cardGap);
+          const cardX = workspaceBodyX + 28 + column * (cardW + cardGap);
           const cardY = cardsTop + row * (cardH + cardGap);
           const cardColor = toneColor(card.tone, cfg);
           const valueSize = fitSingleLineTextSize(card.value, cardW - 30, 12, 16, 0.58);
@@ -8319,6 +10002,7 @@ function ManageControlPanel({
   targetSelection,
   onTargetChange,
   activityState,
+  onNavigate,
   cfg,
 }: {
   x: number;
@@ -8333,6 +10017,7 @@ function ManageControlPanel({
   targetSelection: ManageTargetSelection;
   onTargetChange?: (selection: ManageTargetSelection) => void;
   activityState?: ParentPortalActivityState | null;
+  onNavigate?: (routePath: string) => void;
   cfg: ParentPortalSvgControls;
 }) {
   const lane = manageLaneForKey(activeNavLabel, selectedControlName);
@@ -8900,6 +10585,7 @@ function ManageControlPanel({
                 parentRows={reportGridRows}
                 parentColumns={reportGridColumns}
                 deviceSelectionDisabled={reportScopeValue !== 'device'}
+                scopeIcons={FAMILY_DEVICE_SCOPE_ICONS}
                 onScopeChange={(nextScopeValue) => {
                   const nextScope = nextScopeValue === 'parent' ? 'perDevice' : 'global';
                   onTargetChange?.({
@@ -9560,6 +11246,7 @@ function ManageControlPanel({
             setLastAction(`${tabId} tab`);
             setSyncStatus('Workspace tab changed');
           }}
+          onNavigate={onNavigate}
           activeNavLabel={activeNavLabel}
           selectedControlName={selectedControlName}
           cfg={cfg}
@@ -10028,7 +11715,7 @@ function AssistantModeBoard({
             config={ASSISTANT_SIDE_PANEL_ICON_CONFIG}
           />
         </foreignObject>
-        <AiGuideIdeaIcon x={titleIconX} y={headerCenterY - 16} width={32} height={32} color={cfg.colors.cyan} />
+        <AiMemorySetBrainIcon x={titleIconX} y={headerCenterY - 16} width={32} height={32} color={cfg.colors.cyan} />
         <text x={titleTextX} y={headerCenterY + 6} fontSize={17} fontWeight={980} fill={cfg.colors.bodyText}>
           AI ASSISTANT
         </text>
@@ -10986,6 +12673,7 @@ function ParentPortalDetailPanel({
         }
         onTargetChange={onManageTargetChange}
         activityState={activityState}
+        onNavigate={onNavigate}
         cfg={cfg}
       />
     );
@@ -12835,8 +14523,11 @@ function MainBoard({
   const activeGroupThemeColor = navGroupThemeColor(activeNavGroupId, cfg);
   const manageThemeTone = manageMode ? 'cyan' : detail.tone;
   const activeFrameTone = activeNavItem?.tone ?? manageThemeTone;
-  const activeFrameIcon = activeNavItem?.icon ?? OverviewListIcon;
-  const activeFrameTitle = activeNavItem?.label ?? activeNavLabel;
+  const activeFrameIcon =
+    activeNavKey.includes('ai') || activeNavKey.includes('memory')
+      ? AiMemorySetBrainIcon
+      : (activeNavItem?.icon ?? OverviewListIcon);
+  const activeFrameRawTitle = activeNavItem?.label ?? activeNavLabel;
   const manageCurrentSpec = useMemo(
     () => (manageMode ? manageControlSpecFor(activeNavLabel, selectedControlName) : null),
     [activeNavLabel, manageMode, selectedControlName]
@@ -12845,6 +14536,8 @@ function MainBoard({
     manageMode && manageCurrentSpec
       ? manageWorkspaceKindFor(activeNavLabel, selectedControlName, manageCurrentSpec.title)
       : null;
+  const activeFrameTitle =
+    manageWorkspaceKind === 'policy' ? managePolicyAreaLabel(activeNavLabel, selectedControlName) : activeFrameRawTitle;
   const manageWorkspaceFullFrameMode = Boolean(manageWorkspaceKind);
   const manageWorkspaceHeaderIcon =
     manageWorkspaceKind === 'portal'
@@ -12854,13 +14547,13 @@ function MainBoard({
         : manageWorkspaceKind === 'data'
           ? DataPrivacyServerShieldIcon
           : manageWorkspaceKind === 'ai'
-            ? AiSetupSearchIcon
+            ? AiMemorySetBrainIcon
             : manageWorkspaceKind === 'policy'
-              ? PolicyShieldDocumentIcon
+              ? managePolicyAreaIcon(activeNavLabel, selectedControlName)
               : activeFrameIcon;
   const manageWorkspaceHeaderTitle =
     manageWorkspaceKind === 'policy'
-      ? `${manageWorkspaceTitle(manageWorkspaceKind)} / ${managePolicyAreaLabel(activeNavLabel, selectedControlName)}`
+      ? managePolicyAreaLabel(activeNavLabel, selectedControlName)
       : manageWorkspaceKind
         ? manageWorkspaceTitle(manageWorkspaceKind)
         : activeFrameTitle;
@@ -12926,6 +14619,7 @@ function MainBoard({
   const activityManageGridMode =
     manageMode && manageCurrentSpec ? isReportsManageTitle(manageCurrentSpec.title) : false;
   const manageDeviceGridMode = lanPairingDeviceGridMode || activityManageGridMode;
+  const manageSharedWorkspaceFrameMode = manageDeviceGridMode || manageWorkspaceFullFrameMode;
   const manageTopSelectorRequired = (!manageMode || !managePortalSection) && !manageDeviceGridMode;
   const detailPanelCanFocus = manageTopSelectorRequired;
   const focusContextKey = `${activeNavLabel}:${activeTab}`;
@@ -13396,7 +15090,13 @@ function MainBoard({
           y={bottomPanelY}
           w={mainW}
           h={bottomPanelH}
-          title={lanPairingDeviceGridMode ? LAN_PAIRING_HEADER_TITLE : manageWorkspaceHeaderTitle}
+          title={
+            lanPairingDeviceGridMode
+              ? LAN_PAIRING_HEADER_TITLE
+              : manageSharedWorkspaceFrameMode
+                ? manageWorkspaceHeaderTitle.toUpperCase()
+                : manageWorkspaceHeaderTitle
+          }
           headerIcon={lanPairingDeviceGridMode ? LanNetworkMonitorsIcon : manageWorkspaceHeaderIcon}
           tone={activeFrameTone}
           accentColor={activeGroupThemeColor}
@@ -13405,20 +15105,20 @@ function MainBoard({
           onHeaderInfoClick={
             manageHeaderInfoLabel && manageGuideRoutePath ? () => onNavigate?.(manageGuideRoutePath) : undefined
           }
-          headerH={manageDeviceGridMode ? 58 : undefined}
-          footerH={manageDeviceGridMode ? 0 : undefined}
-          bodyInset={manageDeviceGridMode ? 0 : undefined}
-          fullHeaderLine={manageDeviceGridMode}
+          headerH={manageSharedWorkspaceFrameMode ? 58 : undefined}
+          footerH={manageSharedWorkspaceFrameMode ? 0 : undefined}
+          bodyInset={manageSharedWorkspaceFrameMode ? 0 : undefined}
+          fullHeaderLine={manageSharedWorkspaceFrameMode}
           bodyStrokeOpacity={0}
           bodyFill="transparent"
-          footerLineOpacity={manageDeviceGridMode ? 0 : undefined}
+          footerLineOpacity={manageSharedWorkspaceFrameMode ? 0 : undefined}
           selected={detailPanelCanFocus ? tableFocused : false}
           onSelect={detailPanelCanFocus ? () => setFocusedSection('table') : undefined}
           ariaLabel={detailPanelCanFocus ? detailPanelAriaLabel : undefined}
           cfg={cfg}
         >
           {(body) => {
-            const detailInset = manageDeviceGridMode ? 0 : 18;
+            const detailInset = manageSharedWorkspaceFrameMode ? 0 : 18;
             return (
               <ParentPortalDetailPanel
                 x={body.x + detailInset}

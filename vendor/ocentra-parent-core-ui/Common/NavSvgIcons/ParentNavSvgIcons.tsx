@@ -24,7 +24,10 @@ export const parentNavIconAssetUrls = {
   RulesGavelDocumentIcon: '/parent-nav-rules-gavel-document.svg',
   UpdatesSyncDocumentIcon: '/parent-nav-updates-sync-document.svg',
   ActivityNetworkIcon: '/parent-nav-activity-network.svg',
+  AppIcon: '/parent-nav-app.svg',
   PortalGatewayIcon: '/parent-nav-portal-gateway.svg',
+  FamilyIcon: '/parent-nav-family.svg',
+  GamesIcon: '/parent-nav-games.svg',
   DataPrivacyServerShieldIcon: '/parent-nav-data-privacy-server-shield.svg',
   LanNetworkMonitorsIcon: '/parent-nav-lan-network-monitors.svg',
   DevicesMultiScreenIcon: '/parent-nav-devices-multi-screen.svg',
@@ -70,7 +73,10 @@ export const ReportDocumentIcon = createParentNavAssetIcon(parentNavIconAssetUrl
 export const RulesGavelDocumentIcon = createParentNavAssetIcon(parentNavIconAssetUrls.RulesGavelDocumentIcon);
 export const UpdatesSyncDocumentIcon = createParentNavAssetIcon(parentNavIconAssetUrls.UpdatesSyncDocumentIcon);
 export const ActivityNetworkIcon = createParentNavAssetIcon(parentNavIconAssetUrls.ActivityNetworkIcon);
+export const AppIcon = createParentNavAssetIcon(parentNavIconAssetUrls.AppIcon);
 export const PortalGatewayIcon = createParentNavAssetIcon(parentNavIconAssetUrls.PortalGatewayIcon);
+export const FamilyIcon = createParentNavAssetIcon(parentNavIconAssetUrls.FamilyIcon);
+export const GamesIcon = createParentNavAssetIcon(parentNavIconAssetUrls.GamesIcon);
 export const DataPrivacyServerShieldIcon = createParentNavAssetIcon(parentNavIconAssetUrls.DataPrivacyServerShieldIcon);
 export const LanNetworkMonitorsIcon = createParentNavAssetIcon(parentNavIconAssetUrls.LanNetworkMonitorsIcon);
 export const DevicesMultiScreenIcon = createParentNavAssetIcon(parentNavIconAssetUrls.DevicesMultiScreenIcon);

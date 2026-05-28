@@ -14,6 +14,9 @@ import { ScopeToggleText } from './ScopeToggleText';
 import type { ScopeToggleIds, ScopeToggleOption, ScopeToggleProps } from './ScopeToggleTypes';
 
 export function ScopeToggle({
+  x = 0,
+  y = 0,
+  renderMode = 'html',
   value,
   defaultValue,
   title,
@@ -23,6 +26,7 @@ export function ScopeToggle({
   disabled = false,
   className,
   style,
+  titleRenderer,
   onChange,
   config: configOverride,
 }: ScopeToggleProps): ReactElement {
@@ -88,6 +92,88 @@ export function ScopeToggle({
     const nextIndex = getSelectedScopeToggleIndex(nextValue, normalizedOptions);
     setSelected(nextValue, normalizedOptions[nextIndex] ?? firstOption, nextIndex);
   };
+  const svgContent = (
+    <>
+      <ScopeToggleDefs
+        config={config}
+        dividerGlowOpacity={dividerGlowOpacity}
+        glowOpacity={glowOpacity}
+        ids={ids}
+        metrics={metrics}
+        outerGlowOpacity={outerGlowOpacity}
+        sliderGlowOpacity={sliderGlowOpacity}
+        sliderGloss={{ x: sliderX, y: sliderY, width: sliderWidth, height: sliderHeight }}
+        titleGlowOpacity={titleGlowOpacity}
+      />
+      <ScopeToggleFrame
+        config={config}
+        glowOpacity={glowOpacity}
+        ids={ids}
+        isHovering={isHovering}
+        metrics={metrics}
+        outerGlowOpacity={outerGlowOpacity}
+        paths={paths}
+        svgStyle={svgStyle}
+        titleGlowOpacity={titleGlowOpacity}
+      />
+      <ScopeToggleDividers
+        config={config}
+        dividerGlowOpacity={dividerGlowOpacity}
+        ids={ids}
+        metrics={metrics}
+        svgStyle={svgStyle}
+      />
+      <ScopeToggleSlider
+        config={config}
+        ids={ids}
+        paths={paths}
+        shineOpacity={shineOpacity}
+        sliderGlossOpacity={sliderGlossOpacity}
+        sliderWidth={sliderWidth}
+        sliderX={sliderX}
+        sliderY={sliderY}
+        svgStyle={svgStyle}
+      />
+      <ScopeToggleText
+        config={config}
+        disabled={disabled}
+        metrics={metrics}
+        options={normalizedOptions}
+        selectedIndex={selectedIndex}
+        svgStyle={svgStyle}
+        titleText={titleText}
+        {...(titleRenderer ? { titleRenderer } : {})}
+        onOptionSelect={(option, index) => setSelected(option.value, option, index)}
+      />
+    </>
+  );
+
+  if (renderMode === 'svg') {
+    return (
+      <svg
+        x={x}
+        y={y}
+        viewBox={`${-config.svg.viewportInset} ${-config.svg.viewportInset} ${metrics.svgWidth + config.svg.viewportInset * 2} ${config.svg.height + config.svg.viewportInset * 2}`}
+        width={metrics.svgWidth}
+        height={config.svg.height}
+        role="group"
+        aria-label={`${titleText}: ${selectedOption.label}`}
+        overflow="visible"
+        opacity={disabled ? config.opacity.disabled : 1}
+        onPointerEnter={() => setIsHovering(true)}
+        onPointerLeave={() => {
+          setIsHovering(false);
+          setIsPressed(false);
+        }}
+        onPointerDown={() => setIsPressed(true)}
+        onPointerUp={() => setIsPressed(false)}
+        onPointerCancel={() => setIsPressed(false)}
+        onClick={advanceSelected}
+      >
+        {svgContent}
+      </svg>
+    );
+  }
 
   return (
     <div
@@ -112,56 +198,7 @@ export function ScopeToggle({
         role="img"
         aria-label={`${titleText}: ${selectedOption.label}`}
       >
-        <ScopeToggleDefs
-          config={config}
-          dividerGlowOpacity={dividerGlowOpacity}
-          glowOpacity={glowOpacity}
-          ids={ids}
-          metrics={metrics}
-          outerGlowOpacity={outerGlowOpacity}
-          sliderGlowOpacity={sliderGlowOpacity}
-          sliderGloss={{ x: sliderX, y: sliderY, width: sliderWidth, height: sliderHeight }}
-          titleGlowOpacity={titleGlowOpacity}
-        />
-        <ScopeToggleFrame
-          config={config}
-          glowOpacity={glowOpacity}
-          ids={ids}
-          isHovering={isHovering}
-          metrics={metrics}
-          outerGlowOpacity={outerGlowOpacity}
-          paths={paths}
-          svgStyle={svgStyle}
-          titleGlowOpacity={titleGlowOpacity}
-        />
-        <ScopeToggleDividers
-          config={config}
-          dividerGlowOpacity={dividerGlowOpacity}
-          ids={ids}
-          metrics={metrics}
-          svgStyle={svgStyle}
-        />
-        <ScopeToggleSlider
-          config={config}
-          ids={ids}
-          paths={paths}
-          shineOpacity={shineOpacity}
-          sliderGlossOpacity={sliderGlossOpacity}
-          sliderWidth={sliderWidth}
-          sliderX={sliderX}
-          sliderY={sliderY}
-          svgStyle={svgStyle}
-        />
-        <ScopeToggleText
-          config={config}
-          disabled={disabled}
-          metrics={metrics}
-          options={normalizedOptions}
-          selectedIndex={selectedIndex}
-          svgStyle={svgStyle}
-          titleText={titleText}
-          onOptionSelect={(option, index) => setSelected(option.value, option, index)}
-        />
+        {svgContent}
       </svg>
     </div>
   );

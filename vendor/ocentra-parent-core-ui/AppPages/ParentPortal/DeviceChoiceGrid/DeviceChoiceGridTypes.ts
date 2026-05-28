@@ -1,11 +1,28 @@
-import type { CSSProperties } from 'react';
+import type { CSSProperties, ReactElement } from 'react';
 import type { DeviceChoiceGridConfig } from './DeviceChoiceGridConfig';
 
 export type DeviceStatus = 'connected' | 'available' | 'offline' | 'unsupported' | 'empty';
-export type ScopeValue = 'lan' | 'parent';
+export const DEVICE_CHOICE_SCOPE_VALUES = ['lan', 'parent', 'portal'] as const;
+export type ScopeValue = (typeof DEVICE_CHOICE_SCOPE_VALUES)[number];
+export const DEVICE_CHOICE_DEFAULT_SCOPE_VALUES: readonly ScopeValue[] = ['lan', 'parent'];
 export type DeviceKind = 'mobile' | 'desktop' | 'laptop' | 'tablet' | 'router' | 'unknown';
 export type DevicePlatformKind = 'windows' | 'macos' | 'linux' | 'android' | 'ios' | 'router' | 'unknown';
 export type SelectableDeviceStatus = Exclude<DeviceStatus, 'empty'>;
+
+export type DeviceChoiceGridScopeIconRenderProps = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  scope: ScopeValue;
+  selected: boolean;
+};
+
+export type DeviceChoiceGridScopeIconRenderer = (props: DeviceChoiceGridScopeIconRenderProps) => ReactElement;
+
+export type DeviceChoiceGridScopeIcon =
+  | { href: string }
+  | { render: DeviceChoiceGridScopeIconRenderer; foreignObject?: boolean };
 
 export type LanDevice = {
   id: string;
@@ -52,11 +69,13 @@ export type DeviceChoiceGridProps = {
   disabled?: boolean;
   deviceSelectionDisabled?: boolean;
   showScopeSelector?: boolean;
+  scopeValues?: readonly ScopeValue[];
   className?: string;
   style?: CSSProperties;
   onChange?: (choice: DeviceSlot, index: number, row: number, column: number) => void;
   onScopeChange?: (scope: ScopeValue) => void;
   onAddToPortal?: (choice: DeviceSlot, portalIds: string[]) => void;
+  scopeIcons?: Partial<Record<ScopeValue, DeviceChoiceGridScopeIcon>>;
   config?: DeepPartial<DeviceChoiceGridConfig>;
 };
 

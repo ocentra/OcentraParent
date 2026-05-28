@@ -28,6 +28,8 @@ export type ParentPortalIconName =
   | 'rules'
   | 'updates'
   | 'activity'
+  | 'app'
+  | 'games'
   | 'portal'
   | 'privacy'
   | 'lan'

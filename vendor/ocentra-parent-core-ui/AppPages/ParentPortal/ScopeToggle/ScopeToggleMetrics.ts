@@ -13,10 +13,7 @@ export function calculateScopeToggleMetrics(
   const titleBoxY = config.layout.titleBoxY;
   const trackX = titleBoxX + titleBoxWidth;
   const widestOptionWidth = Math.max(
-    ...options.map(
-      (option) =>
-        estimateScopeToggleTextWidth(option.label, config.text.optionFontSize) + config.layout.optionPaddingX * 2
-    )
+    ...options.map((option) => scopeToggleOptionContentWidth(config, option) + config.layout.optionPaddingX * 2)
   );
   const optionCount = options.length;
   const minOptionWidth = (config.layout.trackMinWidth - config.layout.dividerWidth * (optionCount - 1)) / optionCount;
@@ -44,6 +41,14 @@ export function calculateScopeToggleMetrics(
     optionWidth,
     dividerXs,
   };
+}
+
+function scopeToggleOptionContentWidth(config: ScopeToggleConfig, option: ScopeToggleOption): number {
+  const textWidth = estimateScopeToggleTextWidth(option.label, config.text.optionFontSize);
+  if (!option.iconHref) {
+    return textWidth;
+  }
+  return textWidth + config.layout.optionIconSize + config.layout.optionIconGap;
 }
 
 export function calculateScopeTogglePaths(
