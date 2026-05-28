@@ -90,6 +90,7 @@ function assertV08HardeningEvidence(evidence) {
     'V0.8 unsupported blocking claims rejected'
   );
   const assertionIds = new Set(evidence.assertions.map((assertion) => assertion.id));
+  assertSetHas(assertionIds, 'process-terminate-owned-process', 'V0.8 process terminate proof assertion');
   for (const id of [
     'app-block-process-control',
     'domain-block-network-control',
@@ -98,6 +99,15 @@ function assertV08HardeningEvidence(evidence) {
     assertSetHas(assertionIds, id, 'V0.8 hardening proof assertion');
   }
   for (const assertion of evidence.assertions) {
+    if (assertion.id === 'process-terminate-owned-process') {
+      assertOneOf(assertion.status, ['actually-enforced', 'unavailable'], 'V0.8 hardening process terminate status');
+      assertOneOf(
+        assertion.adapterResultCode,
+        ['process-terminated', 'process-already-exited', 'unsupported-platform'],
+        'V0.8 hardening process terminate adapter result'
+      );
+      continue;
+    }
     assertEqual(assertion.status, 'unavailable', 'V0.8 hardening unavailable status');
     assertOneOf(
       assertion.capabilityState,
@@ -188,12 +198,16 @@ function assertV09Evidence(evidence) {
   for (const label of [
     'wrong-origin-websocket-rejected-before-upgrade',
     'wrong-agent-port-rejected-as-wrong-device',
+    'first-child-agent:unselected-control-rejected',
+    'first-child-agent:replay-rejected',
+    'first-child-agent:stale-control-rejected',
+    'first-child-agent:expired-controller-lease-rejected',
+    'first-child-agent:revoked-control-rejected',
+    'first-child-agent:observer-write-rejected',
     'first-child-agent:controller-lease-takeover-denied',
     'second-child-agent:controller-lease-takeover-accepted',
-    'second-child-agent:restart-restores-trusted-unselected',
-    'second-child-agent:restart-unselected-control-rejected',
-    'second-child-agent:restart-route-reselected',
-    'first-child-agent:stale-control-rejected',
+    'second-child-agent:restart-restores-selected-route',
+    'second-child-agent:restart-recovered-approval-accepted',
     'first-child-agent:wrong-controller-rejected',
     'first-child-agent:lan-ai-provider-advertised',
     'first-child-agent:lan-ai-job-degraded',

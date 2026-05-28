@@ -12,12 +12,26 @@ const proofSteps = [
     evidencePath: join(process.cwd(), 'test-results', 'v0-9-lan-discovery-challenge-mvp', 'proof.json'),
     requiredAssertions: [
       'wrong-origin-websocket-rejected-before-upgrade',
+      'first-discovery-agent:anonymous-control-rejected',
+      'first-discovery-agent:wrong-origin-proof-rejected',
+      'first-discovery-agent:malformed-proof-rejected',
+      'first-discovery-agent:stale-proof-rejected',
+      'first-discovery-agent:expired-challenge-rejected-as-stale',
       'first-discovery-agent:challenge-preview-issued',
       'first-discovery-agent:challenge-proof-accepted',
+      'first-discovery-agent:challenge-proof-replay-rejected',
       'first-discovery-agent:route-selected-after-challenge',
+      'first-discovery-agent:rule-query-accepted-after-challenge',
+      'second-discovery-agent:anonymous-control-rejected',
+      'second-discovery-agent:wrong-origin-proof-rejected',
+      'second-discovery-agent:malformed-proof-rejected',
+      'second-discovery-agent:stale-proof-rejected',
+      'second-discovery-agent:expired-challenge-rejected-as-stale',
       'second-discovery-agent:challenge-preview-issued',
       'second-discovery-agent:challenge-proof-accepted',
+      'second-discovery-agent:challenge-proof-replay-rejected',
       'second-discovery-agent:route-selected-after-challenge',
+      'second-discovery-agent:rule-query-accepted-after-challenge',
       'wrong-agent-port-challenge-rejected-as-wrong-device',
     ],
   },
@@ -27,10 +41,48 @@ const proofSteps = [
     evidencePath: join(process.cwd(), 'test-results', 'v0-9-lan-pairing-control-mvp', 'proof.json'),
     requiredAssertions: [
       'wrong-origin-websocket-rejected-before-upgrade',
+      'first-child-agent:anonymous-rejected',
+      'first-child-agent:pairing-proof-accepted-unselected',
+      'first-child-agent:unselected-control-rejected',
       'first-child-agent:route-selected',
+      'first-child-agent:rule-query-accepted',
+      'first-child-agent:observer-rule-query-accepted',
       'first-child-agent:observer-write-rejected',
+      'first-child-agent:controller-lease-renewed',
+      'first-child-agent:controller-lease-released',
+      'first-child-agent:controller-lease-reacquired',
+      'first-child-agent:replay-rejected',
+      'first-child-agent:stale-control-rejected',
+      'first-child-agent:malformed-control-rejected',
+      'first-child-agent:missing-controller-lease-rejected',
+      'first-child-agent:expired-controller-lease-rejected',
+      'first-child-agent:wrong-controller-rejected',
       'first-child-agent:controller-lease-takeover-denied',
+      'first-child-agent:lan-ai-provider-advertised',
+      'first-child-agent:lan-ai-job-degraded',
+      'first-child-agent:observer-lan-ai-job-rejected',
       'first-child-agent:route-revoked',
+      'first-child-agent:revoked-control-rejected',
+      'second-child-agent:anonymous-rejected',
+      'second-child-agent:pairing-proof-accepted-unselected',
+      'second-child-agent:unselected-control-rejected',
+      'second-child-agent:route-selected',
+      'second-child-agent:rule-query-accepted',
+      'second-child-agent:observer-rule-query-accepted',
+      'second-child-agent:observer-write-rejected',
+      'second-child-agent:controller-lease-renewed',
+      'second-child-agent:controller-lease-released',
+      'second-child-agent:controller-lease-reacquired',
+      'second-child-agent:replay-rejected',
+      'second-child-agent:stale-control-rejected',
+      'second-child-agent:malformed-control-rejected',
+      'second-child-agent:missing-controller-lease-rejected',
+      'second-child-agent:expired-controller-lease-rejected',
+      'second-child-agent:wrong-controller-rejected',
+      'second-child-agent:controller-lease-takeover-denied',
+      'second-child-agent:lan-ai-provider-advertised',
+      'second-child-agent:lan-ai-job-degraded',
+      'second-child-agent:observer-lan-ai-job-rejected',
       'second-child-agent:controller-lease-takeover-accepted',
       'second-child-agent:restart-restores-selected-route',
       'second-child-agent:restart-recovered-approval-accepted',
@@ -49,6 +101,32 @@ const proofSteps = [
       'parent-mobile-observer-scaffold:controller-job-degraded-with-provider-unavailable',
       'parent-desktop-busy-ai-provider:provider-busy',
       'parent-desktop-busy-ai-provider:busy-job-degraded',
+    ],
+  },
+  {
+    label: 'rust-selected-device-state',
+    command: [
+      'cargo',
+      'test',
+      '-p',
+      'ocentra-parent-agent-service',
+      'lan_pairing_status_reports_stale_and_offline_selected_device_state',
+    ],
+    proofAssertions: [
+      'rust-service:selected-device-stale-status-reported',
+      'rust-service:selected-device-stale-control-rejected',
+      'rust-service:selected-device-offline-status-reported',
+      'rust-service:selected-device-offline-control-rejected',
+    ],
+  },
+  {
+    label: 'rust-trusted-registry-expiry-and-reachability',
+    command: ['cargo', 'test', '-p', 'ocentra-parent-agent-core', 'trusted_device_registry'],
+    proofAssertions: [
+      'rust-core:expired-pairing-rejected',
+      'rust-core:selected-device-stale-rejected',
+      'rust-core:selected-device-offline-rejected',
+      'rust-core:trusted-registry-persistence-covered',
     ],
   },
 ];
@@ -72,6 +150,7 @@ const manualTwoDeviceChecklist = [
       'test-results/platform-roles-lan-ai-provider-pool/proof.json',
       'parent and child host names or IPs showing two distinct LAN devices',
       'firewall/router note proving the child port is reachable from the parent host',
+      'offline or stale selected-device artifact from stopping/pausing the selected child service before a control command',
     ],
     currentStatus: 'manual-required-physical-devices-not-claimed-by-local-harness',
   },
@@ -82,15 +161,21 @@ await mkdir(outputDir, { recursive: true });
 const checkedSteps = [];
 for (const step of proofSteps) {
   await runStep(step);
-  const evidence = JSON.parse(await readFile(step.evidencePath, 'utf8'));
-  assertRequiredAssertions(step, evidence.assertions ?? []);
-  checkedSteps.push({
+  const checkedStep = {
     label: step.label,
     command: step.command.join(' '),
-    evidencePath: relativeToWorkspace(step.evidencePath),
-    assertionCount: evidence.assertions?.length ?? 0,
-    requiredAssertions: step.requiredAssertions,
-  });
+  };
+  if (step.evidencePath !== undefined) {
+    const evidence = JSON.parse(await readFile(step.evidencePath, 'utf8'));
+    assertRequiredAssertions(step, evidence.assertions ?? []);
+    checkedStep.evidencePath = relativeToWorkspace(step.evidencePath);
+    checkedStep.assertionCount = evidence.assertions?.length ?? 0;
+    checkedStep.requiredAssertions = step.requiredAssertions;
+  } else {
+    checkedStep.assertionCount = step.proofAssertions.length;
+    checkedStep.requiredAssertions = step.proofAssertions;
+  }
+  checkedSteps.push(checkedStep);
 }
 
 const proof = {
@@ -102,6 +187,9 @@ const proof = {
     'production LAN states use explicit discovered/pending/paired/revoked/stale/offline/unavailable contract values',
     'trusted registry persists selected route and recovers it after restart',
     'active controller write authority rejects observer writes, stale intents, replay, wrong device, and denied takeover',
+    'active controller proof rejects observer writes, stale intents, replayed intents, wrong-device targets, missing or expired leases, wrong controllers, revoked pairings, and denied takeover',
+    'direct discovery proof rejects wrong-origin proof, malformed proof, stale proof, expired challenge, replayed proof, and wrong-device challenge traffic',
+    'selected-device stale and offline read-model states reject control through focused Rust service and core registry proof',
     'LAN AI provider routing covers authorized result, unsupported capability, busy, unavailable, and observer rejection',
   ],
   claimsNotProvedLocally: [
