@@ -202,6 +202,7 @@ export const PARENT_PORTAL_ROUTE_CONTEXT: Readonly<Partial<Record<PortalRouteVal
   [PortalRoute.PolicyGames]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Games, 'policy-games'),
   [PortalRoute.PolicyScreen]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Screen, 'screen-analysis'),
   [PortalRoute.PolicyNetwork]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Network, 'network-activity'),
+  [PortalRoute.PolicyTracking]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Tracking, 'policy-tracking'),
   [PortalRoute.RuleManagement]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Browser, 'browser-settings'),
   [PortalRoute.Schedules]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Browser, 'browser-settings'),
   [PortalRoute.Approvals]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Browser, 'browser-settings'),

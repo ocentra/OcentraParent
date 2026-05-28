@@ -15,6 +15,7 @@ export const PortalRouteSchema = withParser(
     'policy-games',
     'policy-screen',
     'policy-network',
+    'policy-tracking',
     'rule-management',
     'schedules',
     'approvals',
@@ -64,6 +65,7 @@ export const PortalRoute = {
   PolicyGames: PortalRouteSchema.parse('policy-games'),
   PolicyScreen: PortalRouteSchema.parse('policy-screen'),
   PolicyNetwork: PortalRouteSchema.parse('policy-network'),
+  PolicyTracking: PortalRouteSchema.parse('policy-tracking'),
   RuleManagement: PortalRouteSchema.parse('rule-management'),
   Schedules: PortalRouteSchema.parse('schedules'),
   Approvals: PortalRouteSchema.parse('approvals'),
@@ -111,6 +113,7 @@ export const PortalRoutes = [
   PortalRoute.PolicyGames,
   PortalRoute.PolicyScreen,
   PortalRoute.PolicyNetwork,
+  PortalRoute.PolicyTracking,
   PortalRoute.RuleManagement,
   PortalRoute.Schedules,
   PortalRoute.Approvals,
@@ -226,6 +229,12 @@ export const PortalRouteDescriptors: readonly PortalRouteDescriptor[] = [
     PortalRoute.PolicyNetwork,
     PortalDevTextToken.NetworkFlow,
     PortalDevTextToken.NoNetworkFlow,
+    PortalRouteGroup.Operate
+  ),
+  routeDescriptor(
+    PortalRoute.PolicyTracking,
+    PortalDevTextToken.DeviceInventory,
+    PortalDevTextToken.ProductSurfacePending,
     PortalRouteGroup.Operate
   ),
   routeDescriptor(

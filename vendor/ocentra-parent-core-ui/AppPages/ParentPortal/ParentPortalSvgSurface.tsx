@@ -3522,6 +3522,7 @@ const MANAGE_ROUTE_KEYS = new Set([
   'policy-games',
   'policy-screen',
   'policy-network',
+  'policy-tracking',
   'rule-management',
   'schedules',
   'approvals',
@@ -3566,6 +3567,7 @@ const MANAGE_CHILD_POLICY_ROUTE_KEYS = new Set([
   'policy-games',
   'policy-screen',
   'policy-network',
+  'policy-tracking',
   'rule-management',
   'schedules',
   'approvals',
@@ -5569,7 +5571,8 @@ function manageWorkspaceKindFor(
     navKey.includes('app') ||
     navKey.includes('game') ||
     navKey.includes('screen') ||
-    navKey.includes('network')
+    navKey.includes('network') ||
+    navKey.includes('tracking')
   )
     return 'policy';
   const key = `${navKey} ${assetKey(selectedControlName)} ${assetKey(title ?? '')}`;
@@ -5620,7 +5623,8 @@ function manageWorkspaceKindFor(
     key.includes('app') ||
     key.includes('game') ||
     key.includes('screen') ||
-    key.includes('network')
+    key.includes('network') ||
+    key.includes('tracking')
   )
     return 'policy';
   return null;
@@ -5666,7 +5670,6 @@ function manageWorkspaceTabs(kind: ManageWorkspaceKind): readonly ManageWorkspac
     { id: 'rules', label: 'Rules', icon: PolicyShieldDocumentIcon, tone: 'gold' },
     { id: 'schedule', label: 'Schedule', icon: ScheduleCalendarClockIcon, tone: 'purple' },
     { id: 'approvals', label: 'Approvals', icon: AlertNotificationBellIcon, tone: 'cyan' },
-    { id: 'enforcement', label: 'Enforcement', icon: EnforcementOfficerIcon, tone: 'red' },
     { id: 'audit', label: 'Audit', icon: AuditCloudLogsIcon, tone: 'cyan' },
   ];
 }
@@ -5704,7 +5707,7 @@ function manageWorkspaceDefaultTabId(
   }
   if (key.includes('schedule') || key.includes('budget')) return 'schedule';
   if (key.includes('approval') || key.includes('ask')) return 'approvals';
-  if (key.includes('enforce') || key.includes('dry-run')) return 'enforcement';
+  if (key.includes('enforce') || key.includes('dry-run')) return 'rules';
   if (key.includes('audit') || key.includes('preview')) return 'audit';
   return 'rules';
 }
@@ -5723,6 +5726,7 @@ function managePolicyAreaLabel(activeNavLabel: string, selectedControlName: stri
   if (key.includes('game')) return 'Games';
   if (key.includes('screen')) return 'Screen';
   if (key.includes('network')) return 'Network';
+  if (key.includes('tracking') || key.includes('location')) return 'Tracking';
   return 'Browser';
 }
 
@@ -5732,6 +5736,7 @@ function managePolicyAreaIcon(activeNavLabel: string, selectedControlName: strin
   if (area === 'Games') return GamesIcon;
   if (area === 'Screen') return ScreenAnalysisIcon;
   if (area === 'Network') return WebGlobeIcon;
+  if (area === 'Tracking') return DevicesMultiScreenIcon;
   return BrowserStackIcon;
 }
 
@@ -5740,7 +5745,6 @@ function manageWorkspaceTargetOptions(kind: ManageWorkspaceKind): readonly Manag
     return [
       { id: 'family', label: 'Family', detail: 'Family default policy.', tone: 'cyan' },
       { id: 'perDevice', label: 'Per Device', detail: 'Child override policy.', tone: 'gold' },
-      { id: 'portal', label: 'Portal', detail: 'Parent portal behavior.', tone: 'purple' },
     ];
   }
   if (kind === 'data') {
@@ -7778,7 +7782,7 @@ function ManageWorkspacePanel({
   const targetColor = toneColor(activeTarget?.tone ?? activeTab?.tone ?? 'cyan', cfg);
   const hasTargetSelector = targetOptions.length > 0;
   const policyAreaLabel = kind === 'policy' ? managePolicyAreaLabel(activeNavLabel, selectedControlName) : '';
-  const browserRulesChoiceMode = kind === 'policy' && policyAreaLabel === 'Browser' && activeTabKey === 'rules';
+  const policyRulesChoiceMode = kind === 'policy' && activeTabKey === 'rules';
   const policyPrimaryOptions = useMemo(() => managePolicyPrimaryChoiceOptions(activeTabKey), [activeTabKey]);
   const policySecondaryOptions = useMemo(() => managePolicySecondaryChoiceOptions(activeTabKey), [activeTabKey]);
   const [policyPrimaryChoice, setPolicyPrimaryChoice] = useState(policyPrimaryOptions[0]?.value ?? '');
@@ -7865,11 +7869,11 @@ function ManageWorkspacePanel({
       ? targetSelectorY + targetSelectorH + (compact ? 16 : 18)
       : bodyY + 24;
   const summary = manageWorkspaceSummary(kind, activeTabKey, activeNavLabel, selectedControlName, workspaceTargetKey);
-  const summaryLines = browserRulesChoiceMode ? [] : wrapCardText(summary, workspaceBodyW - 42, 12.2, compact ? 2 : 1);
+  const summaryLines = policyRulesChoiceMode ? [] : wrapCardText(summary, workspaceBodyW - 42, 12.2, compact ? 2 : 1);
   const hasInlineTargetSelector = hasTargetSelector && !targetSurfaceEnabled;
   const bodyHeaderH = targetSurfaceEnabled
     ? kind === 'policy'
-      ? browserRulesChoiceMode
+      ? policyRulesChoiceMode
         ? compact
           ? 98
           : 92
@@ -8002,7 +8006,7 @@ function ManageWorkspacePanel({
           const tabX = workspaceBodyX + tabInsetX + column * (tabW + tabGap);
           const tabY = tabsY + row * tabH + (selected ? 0 : 7);
           const currentTabH = selected ? tabH + 1 : tabH - 7;
-          const tabRadius = selected ? 9 : 7;
+          const tabRadius = selected ? 11 : 9;
           const tabIconSize = Math.max(14, Math.min(21, currentTabH - 12));
           const tabTextSize = compact ? 10.4 : 12.4;
           const tabTextMaxW = tabW - tabIconSize - 25;
@@ -8077,7 +8081,7 @@ function ManageWorkspacePanel({
         })}
       </g>
       <path
-        d={`M ${workspaceBodyX} ${bodyY} H ${workspaceBodyX + workspaceBodyW} V ${bodyY + bodyH} H ${workspaceBodyX} Z`}
+        d={topRoundedRectPath(workspaceBodyX, bodyY, workspaceBodyW, bodyH, 10)}
         fill={cfg.colors.panelFill}
         stroke={activeColor}
         strokeWidth={1.12}
@@ -8089,7 +8093,7 @@ function ManageWorkspacePanel({
         strokeWidth={2.2}
         opacity={0.55}
       />
-      {kind === 'policy' && !browserRulesChoiceMode ? (
+      {kind === 'policy' && !policyRulesChoiceMode ? (
         <g>
           <foreignObject x={workspaceBodyX + 22} y={policyChoiceBarY} width={policyChoiceW} height={66}>
             <div xmlns="http://www.w3.org/1999/xhtml" style={{ width: policyChoiceW, height: 66 }}>
@@ -8250,7 +8254,7 @@ function ManageWorkspacePanel({
           {line}
         </text>
       ))}
-      {!browserRulesChoiceMode ? (
+      {!policyRulesChoiceMode ? (
         <path
           d={`M ${workspaceBodyX + 22} ${bodyY + bodyHeaderH} H ${workspaceBodyX + workspaceBodyW - 22}`}
           stroke={activeColor}
@@ -8266,7 +8270,7 @@ function ManageWorkspacePanel({
           h={Math.max(260, bodyY + bodyH - cardsTop - 18)}
           cfg={cfg}
         />
-      ) : browserRulesChoiceMode ? (
+      ) : policyRulesChoiceMode ? (
         <BrowserRulesGridGuide
           x={workspaceBodyX + 6}
           y={browserRulesChoiceTop}
