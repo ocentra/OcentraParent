@@ -18,7 +18,8 @@
     "v08-v09-product-proof-final-pass",
     "platform-lan-enforcement-production-proof",
     "platform-os-lan-mobile-proof",
-    "enforcement-lan-mobile-product-proof"
+    "enforcement-lan-mobile-product-proof",
+    "parent-mobile-shell-runtime-proof"
   ],
   "checkpointScenarios": [
     {
@@ -382,6 +383,39 @@
         "A product proof harness presented as anti-tamper or global blocking.",
         "A local multi-service run presented as cloud relay or router discovery.",
         "A package capability row presented as mobile child-agent parity."
+      ]
+    },
+    {
+      "id": "parent-mobile-shell-runtime-proof",
+      "title": "Parent Mobile Shell Runtime Proof",
+      "claimIds": ["parent-mobile-shell-runtime-proof"],
+      "expectationFiles": [
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/platforms.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "proofMode": "ci-mechanical-proof",
+      "realEvidencePath": [
+        "Build parent-domain contracts from the current commit.",
+        "Parse typed Android and iOS parent mobile shell runtime read models.",
+        "Verify controller observer/request states, local/LAN/cloud-routed service availability states, LAN AI provider job degradation, and disabled local model execution.",
+        "Verify Android and iOS package launch targets exist without claiming child-agent parity, mobile controller UX parity, store distribution, or signing/entitlement proof."
+      ],
+      "ciCommands": ["node scripts/test/parent-mobile-shell-runtime-proof.mjs"],
+      "requiredArtifacts": [
+        "test-results/parent-mobile-shell-runtime-proof/proof.json",
+        "packages/parent-domain/tests/parent-mobile-runtime.test.ts output",
+        "Command output showing Android/iOS package launch target checks and disabled local model execution assertions."
+      ],
+      "knownGaps": [
+        "Parent mobile controller takeover remains manual-required until a real Android or iOS mobile package/device proof exists.",
+        "LAN AI provider submission is represented as typed unavailable/degraded state unless a real LAN provider accepts the job.",
+        "Cloud relay remains not implemented and is not counted as local or LAN proof."
+      ],
+      "notProof": [
+        "A scaffolded package presented as completed parent mobile UX parity.",
+        "A parent mobile shell proof presented as Android or iOS child-agent behavior.",
+        "A degraded LAN AI state presented as local model execution on the phone."
       ]
     },
     {
@@ -1006,6 +1040,62 @@
         "Run two-device LAN proof across a household router and record parent/child IPs, firewall state, allowed origin, route selection, takeover, revocation, wrong-origin/wrong-device rejection, replay rejection, stale/offline behavior, restart recovery, and provider state.",
         "Run Android package lifecycle and child capability proof for foreground service, storage, protocol bridge, UsageStats, accessibility, VPN/DNS, device-owner, and managed-profile before upgrading Android support.",
         "Run iOS signing/entitlement/TestFlight proof for Family Controls, DeviceActivity, Screen Time, Network Extension, notifications, and background execution before upgrading iOS support."
+      ]
+    },
+    {
+      "id": "parent-mobile-shell-runtime-proof",
+      "roadmapSlice": "Parent mobile shell runtime proof",
+      "expectationFiles": [
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/platforms.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "claim": "Parent mobile shell runtime proof has typed Android and iOS package launch targets, observer/controller request states, local/LAN/cloud-routed service availability states, LAN AI provider job degradation, and disabled-by-default local model execution without claiming mobile UX parity or child-agent behavior.",
+      "privilegedCapability": false,
+      "ciProof": {
+        "commands": ["node scripts/test/parent-mobile-shell-runtime-proof.mjs"],
+        "jobs": ["Worker D parent mobile shell runtime proof"]
+      },
+      "platformCoverage": {
+        "windows": "not-applicable",
+        "linux": "not-applicable",
+        "macos": "ci-mechanical-proof",
+        "android": "ci-mechanical-proof",
+        "ios": "ci-mechanical-proof"
+      },
+      "runtimeSurfaceCoverage": {
+        "androidParentMobileShell": {
+          "state": "ci-mechanical-proof",
+          "proof": "Android app/package launch target and foreground-service scaffold exist, while controller takeover, signing/store, and physical device behavior remain manual-required."
+        },
+        "iosParentMobileShell": {
+          "state": "ci-mechanical-proof",
+          "proof": "iOS simulator app target and build script exist, while signing, TestFlight, entitlement, and device behavior remain manual-required."
+        },
+        "controllerObserverFlow": {
+          "state": "scaffold",
+          "proof": "Typed runtime read models distinguish observer, manual-required controller takeover, lease state, and requestability without granting write authority."
+        },
+        "lanAiProviderRouting": {
+          "state": "degraded",
+          "proof": "Parent mobile can represent LAN AI provider job routing as degraded/unavailable with evidence refs and no phone-local model execution by default."
+        },
+        "cloudRelay": {
+          "state": "not-implemented",
+          "proof": "Cloud-routed service state is explicit and not counted as local or LAN proof."
+        }
+      },
+      "knownGaps": [
+        "This is package/runtime contract proof, not real Android or iOS device UX parity.",
+        "Controller takeover still requires a real mobile package/device proof before write authority can be claimed.",
+        "Store signing, TestFlight, Apple entitlements, Google Play policy, and mobile background behavior remain manual-required."
+      ],
+      "manualProofChecklist": [
+        "Archive test-results/parent-mobile-shell-runtime-proof/proof.json with the commit SHA.",
+        "Run Android emulator and physical-device package launch proof, recording package id, permissions, foreground/background behavior, LAN reachability, and notification state.",
+        "Run iOS simulator and device/TestFlight proof on a Mac, recording bundle id, signing team, provisioning, entitlements, LAN reachability, and background/notification state.",
+        "Run a real LAN AI provider job from parent mobile once a real package bridge exists, recording provider identity, route, evidence refs, and degraded/unavailable behavior.",
+        "Record that local model execution remains disabled by default on parent mobile unless a future explicit advanced mode changes that policy."
       ]
     }
   ]

@@ -4,6 +4,8 @@ This workspace is the production desktop shell for the parent portal. The Vite p
 
 The desktop shell does not execute child-device capture, policy enforcement, or AI model work. It connects to the local Ocentra Parent agent through the typed portal WebSocket path and displays only the read models the service exposes.
 
+Parent mobile runtime proof uses the same contract boundary as a shell wrapper: Android and iOS package mechanics may prove launch scaffolds, but parent mobile remains observer/request-first, routes assistant/report work to LAN service providers when available, and never runs local model execution by default.
+
 Useful commands:
 
 ```powershell
