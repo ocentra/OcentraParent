@@ -32,6 +32,19 @@ describe('parent control platform capabilities', () => {
     );
   });
 
+  it('ParentControlPlatformCapabilities: splits Windows OS enforcement adapter proof states', () => {
+    const windowsCapabilities = capabilitiesForPlatform('windows');
+
+    expectCapabilityStatuses(windowsCapabilities, [
+      [ParentControlCapabilityName.OwnedProcessTerminate, ParentControlCapabilityStatus.Implemented],
+      [ParentControlCapabilityName.AppTimeLimit, ParentControlCapabilityStatus.Implemented],
+      [ParentControlCapabilityName.AppBlocking, ParentControlCapabilityStatus.ManualRequired],
+      [ParentControlCapabilityName.NetworkDomainBlocking, ParentControlCapabilityStatus.ManualRequired],
+      [ParentControlCapabilityName.ManagedBrowserControl, ParentControlCapabilityStatus.ManualRequired],
+      [ParentControlCapabilityName.UnmanagedBrowserDetection, ParentControlCapabilityStatus.ManualRequired],
+    ]);
+  });
+
   it('ParentControlPlatformCapabilities: splits Android child capability proof states', () => {
     const androidCapabilities = capabilitiesForPlatform('android');
 
@@ -43,6 +56,7 @@ describe('parent control platform capabilities', () => {
       [ParentControlCapabilityName.AccessibilityService, ParentControlCapabilityStatus.ManualRequired],
       [ParentControlCapabilityName.VpnDnsFiltering, ParentControlCapabilityStatus.ManualRequired],
       [ParentControlCapabilityName.ManagedProfile, ParentControlCapabilityStatus.ManualRequired],
+      [ParentControlCapabilityName.PackageLifecycle, ParentControlCapabilityStatus.ManualRequired],
     ]);
   });
 
@@ -56,6 +70,7 @@ describe('parent control platform capabilities', () => {
       [ParentControlCapabilityName.NetworkExtension, ParentControlCapabilityStatus.ManualRequired],
       [ParentControlCapabilityName.Notifications, ParentControlCapabilityStatus.ManualRequired],
       [ParentControlCapabilityName.BackgroundExecution, ParentControlCapabilityStatus.ManualRequired],
+      [ParentControlCapabilityName.SigningEntitlements, ParentControlCapabilityStatus.ManualRequired],
       [ParentControlCapabilityName.TestflightDistribution, ParentControlCapabilityStatus.ManualRequired],
     ]);
   });

@@ -1,6 +1,6 @@
 import { spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
-import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readdir, readFile, stat, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 
 const repoRoot = process.cwd();
@@ -35,12 +35,14 @@ async function main() {
   const v09Production = await readJson(
     join(repoRoot, 'test-results', 'v0-9-production-lan-multidevice-hardening', 'proof.json')
   );
+  const managedBrowserIntervention = await managedBrowserInterventionProof();
   const matrix = await readJson(join(repoRoot, 'docs', 'expectations', 'pre-ai-proof-matrix.json'));
   const capabilities = await platformCapabilities();
 
   assertProductionProof(productionProof);
   assertProcessTerminateProof(v08Production.data);
   assertHouseholdLanProof(v09Production);
+  assertManagedBrowserIntervention(managedBrowserIntervention);
   assertMobileCapabilities(capabilities);
   assertProofMatrix(matrix);
 
@@ -60,6 +62,7 @@ async function main() {
         repoRoot,
         join(repoRoot, 'test-results', 'v0-9-production-lan-multidevice-hardening', 'proof.json')
       ),
+      managedBrowserIntervention: managedBrowserIntervention.evidencePath,
     },
     osEnforcementProof: {
       processTerminate: v08Production.data.assertions.find(
@@ -70,6 +73,7 @@ async function main() {
         'manual-required or unavailable except where a real owned process or managed-browser proof harness can run on the host',
       networkDomainBlocking:
         'not implemented as a silent OS block; requires OS-approved adapter and manual host evidence before claim upgrade',
+      managedBrowserIntervention,
       rollbackRestartAudit: productionProof.manualProofRequirements.windowsEnforcement,
     },
     productionLanProof: {
@@ -96,6 +100,7 @@ async function main() {
           'vpn-dns-filtering',
           'device-owner-policy',
           'managed-profile',
+          'package-lifecycle',
         ]
       ),
       iosChild: capabilitySummary(
@@ -108,6 +113,7 @@ async function main() {
           'network-extension',
           'notifications',
           'background-execution',
+          'signing-entitlements',
           'testflight-distribution',
         ]
       ),
@@ -117,6 +123,40 @@ async function main() {
   await writeFile(proofPath, `${JSON.stringify(proof, null, 2)}\n`);
   console.log(`platform-os-lan-mobile-proof-ok:${proofLabels.join(',')}`);
   console.log(`evidence=${proofPath}`);
+}
+
+async function managedBrowserInterventionProof() {
+  const browser = await firstInstalledInterventionBrowser();
+  if (process.platform !== 'win32' || browser === null) {
+    return {
+      proofState: 'manual-required',
+      reason:
+        process.platform === 'win32'
+          ? 'no supported Chrome, Edge, or Firefox executable found for managed-browser intervention proof'
+          : 'managed-browser intervention proof requires a Windows desktop browser host',
+      evidencePath: null,
+      browsers: [],
+    };
+  }
+
+  let evidence;
+  try {
+    await runCommand('cmd', ['/c', 'node', 'scripts/test/managed-browser-intervention-proof.mjs']);
+    evidence = await latestJson(join(repoRoot, 'test-results', 'managed-browser-intervention-proof'));
+  } catch (error) {
+    return {
+      proofState: 'manual-required',
+      reason: `managed-browser intervention proof did not produce completed evidence: ${error.message}`,
+      evidencePath: null,
+      browsers: [],
+    };
+  }
+  return {
+    proofState: 'actually-enforced',
+    reason: 'managed-browser document requests were blocked through the browser-supported local intervention bridge',
+    evidencePath: relative(repoRoot, evidence.path),
+    browsers: evidence.data.browsers,
+  };
 }
 
 function assertProductionProof(proof) {
@@ -165,6 +205,25 @@ function assertHouseholdLanProof(evidence) {
   proofLabels.push('v0.9.household-two-device-manual-checklist');
 }
 
+function assertManagedBrowserIntervention(evidence) {
+  assertOneOf(evidence.proofState, ['actually-enforced', 'manual-required'], 'managed browser intervention proof');
+  if (evidence.proofState === 'manual-required') {
+    proofLabels.push('v0.8.managed-browser-intervention-manual-required');
+    return;
+  }
+
+  if (!Array.isArray(evidence.browsers) || evidence.browsers.length === 0) {
+    throw new Error('Managed browser intervention proof did not report any browser evidence.');
+  }
+  for (const browser of evidence.browsers) {
+    assertEqual(browser.profilePathContainsManagedPrefix, true, 'managed profile boundary');
+    assertEqual(browser.assertions?.blockedSiteBlocked, true, 'managed browser blocked site');
+    assertEqual(browser.assertions?.youtubeVideoBlocked, true, 'managed browser blocked video');
+    assertEqual(browser.assertions?.allowedControlNotBlocked, true, 'managed browser allowed control');
+  }
+  proofLabels.push('v0.8.managed-browser-intervention-actually-enforced');
+}
+
 function assertMobileCapabilities(capabilities) {
   assertCapability(capabilities, 'android', 'parent-mobile-observer', 'scaffold');
   assertCapability(capabilities, 'android', 'parent-mobile-controller', 'manual-required');
@@ -176,6 +235,7 @@ function assertMobileCapabilities(capabilities) {
   assertCapability(capabilities, 'android', 'vpn-dns-filtering', 'manual-required');
   assertCapability(capabilities, 'android', 'device-owner-policy', 'manual-required');
   assertCapability(capabilities, 'android', 'managed-profile', 'manual-required');
+  assertCapability(capabilities, 'android', 'package-lifecycle', 'manual-required');
   assertCapability(capabilities, 'ios', 'parent-mobile-observer', 'scaffold');
   assertCapability(capabilities, 'ios', 'parent-mobile-controller', 'manual-required');
   assertCapability(capabilities, 'ios', 'family-controls-entitlement', 'manual-required');
@@ -184,6 +244,7 @@ function assertMobileCapabilities(capabilities) {
   assertCapability(capabilities, 'ios', 'network-extension', 'manual-required');
   assertCapability(capabilities, 'ios', 'notifications', 'manual-required');
   assertCapability(capabilities, 'ios', 'background-execution', 'manual-required');
+  assertCapability(capabilities, 'ios', 'signing-entitlements', 'manual-required');
   assertCapability(capabilities, 'ios', 'testflight-distribution', 'manual-required');
   proofLabels.push('mobile-platform.capability-specific-states');
 }
@@ -236,6 +297,36 @@ async function platformCapabilities() {
   }
   const module = await import(`file:///${modulePath.replaceAll('\\', '/')}`);
   return module.ParentControlPlatformCapabilities;
+}
+
+async function firstInstalledInterventionBrowser() {
+  for (const candidate of interventionBrowserCandidates()) {
+    if (await fileExists(candidate)) {
+      return candidate;
+    }
+  }
+  return null;
+}
+
+function interventionBrowserCandidates() {
+  if (process.platform !== 'win32') {
+    return [];
+  }
+  return [process.env.ProgramFiles, process.env['ProgramFiles(x86)'], process.env.LOCALAPPDATA]
+    .filter(Boolean)
+    .flatMap((root) => [
+      join(root, 'Microsoft', 'Edge', 'Application', 'msedge.exe'),
+      join(root, 'Google', 'Chrome', 'Application', 'chrome.exe'),
+      join(root, 'Mozilla Firefox', 'firefox.exe'),
+    ]);
+}
+
+async function fileExists(path) {
+  try {
+    return (await stat(path)).isFile();
+  } catch {
+    return false;
+  }
 }
 
 async function runCommand(command, args) {

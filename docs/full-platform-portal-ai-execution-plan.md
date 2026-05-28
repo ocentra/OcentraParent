@@ -33,6 +33,13 @@ OS behavior, mobile permissions, signing, store policy, device-owner policy, and
 iOS entitlement behavior need real device or platform proof before product
 claims.
 
+V0.8/V0.9 product proof must keep capability granularity visible:
+owned-process terminate and app time-limit proof are not broad app blocking;
+network/domain blocking and managed or unmanaged browser control remain
+manual-required until real adapters prove them; Android package lifecycle and
+iOS signing, entitlement, and TestFlight states must be tracked separately from
+generic mobile scaffold claims.
+
 ## Roles, Not Separate Products
 
 Devices should be modeled by roles:
