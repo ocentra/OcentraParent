@@ -6,6 +6,10 @@ pub enum BrowserPolicyDefaultPosture {
     Observe,
     #[serde(rename = "allow")]
     Allow,
+    #[serde(rename = "warn")]
+    Warn,
+    #[serde(rename = "ask")]
+    Ask,
     #[serde(rename = "limit")]
     Limit,
     #[serde(rename = "ask-parent")]
@@ -24,16 +28,30 @@ pub enum BrowserPolicyManagementMode {
     ManagedBrowser,
     #[serde(rename = "network-assisted")]
     NetworkAssisted,
+    #[serde(rename = "local-child-agent")]
+    LocalChildAgent,
+    #[serde(rename = "lan-live")]
+    LanLive,
+    #[serde(rename = "authoring-only")]
+    AuthoringOnly,
+    #[serde(rename = "unavailable")]
+    Unavailable,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BrowserPolicyManagedBrowserMode {
+    #[serde(rename = "disabled")]
+    Disabled,
     #[serde(rename = "not-required")]
     NotRequired,
     #[serde(rename = "preferred")]
     Preferred,
+    #[serde(rename = "available-for-exact-rules")]
+    AvailableForExactRules,
     #[serde(rename = "required-for-exact-rules")]
     RequiredForExactRules,
+    #[serde(rename = "required-for-all-browsing")]
+    RequiredForAllBrowsing,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -44,26 +62,63 @@ pub enum BrowserPolicyUnmanagedBrowserMode {
     NetworkDomainOnly,
     #[serde(rename = "manual-review")]
     ManualReview,
+    #[serde(rename = "allow")]
+    Allow,
+    #[serde(rename = "monitor")]
+    Monitor,
+    #[serde(rename = "warn")]
+    Warn,
+    #[serde(rename = "ask")]
+    Ask,
+    #[serde(rename = "relaunch-managed")]
+    RelaunchManaged,
+    #[serde(rename = "block")]
+    Block,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BrowserPolicyUrlTargetType {
+    #[default]
     #[serde(rename = "domain")]
     Domain,
     #[serde(rename = "url-prefix")]
     UrlPrefix,
     #[serde(rename = "exact-url")]
     ExactUrl,
+    #[serde(rename = "domain-origin")]
+    DomainOrigin,
+    #[serde(rename = "site-category")]
+    SiteCategory,
+    #[serde(rename = "search-terms")]
+    SearchTerms,
+    #[serde(rename = "video-channel")]
+    VideoChannel,
+    #[serde(rename = "browser-session")]
+    BrowserSession,
+    #[serde(rename = "browser-process")]
+    BrowserProcess,
+    #[serde(rename = "capability-state")]
+    CapabilityState,
+    #[serde(rename = "download")]
+    Download,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BrowserPolicyEvidenceProofLevel {
     #[serde(rename = "none")]
     None,
+    #[serde(rename = "process-running")]
+    ProcessRunning,
+    #[serde(rename = "foreground-window")]
+    ForegroundWindow,
     #[serde(rename = "network-domain")]
     NetworkDomain,
+    #[serde(rename = "managed-tab-list")]
+    ManagedTabList,
     #[serde(rename = "managed-active-tab")]
     ManagedActiveTab,
+    #[serde(rename = "fresh-managed-tab-list")]
+    FreshManagedTabList,
     #[serde(rename = "fresh-managed-active-tab")]
     FreshManagedActiveTab,
 }
@@ -78,22 +133,48 @@ pub enum BrowserPolicyProofFallback {
     BlockUntilProof,
     #[serde(rename = "observe-only")]
     ObserveOnly,
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub enum BrowserPolicyDownloadState {
-    #[serde(rename = "not-configured")]
-    NotConfigured,
     #[serde(rename = "allow")]
     Allow,
+    #[serde(rename = "observe")]
+    Observe,
+    #[serde(rename = "warn")]
+    Warn,
+    #[serde(rename = "ask")]
+    Ask,
+    #[serde(rename = "block-until-ready")]
+    BlockUntilReady,
+    #[serde(rename = "mark-unavailable")]
+    MarkUnavailable,
+}
+
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+pub enum BrowserPolicyDownloadState {
+    #[default]
+    #[serde(rename = "not-configured")]
+    NotConfigured,
+    #[serde(rename = "off")]
+    Off,
+    #[serde(rename = "allow")]
+    Allow,
+    #[serde(rename = "observe")]
+    Observe,
+    #[serde(rename = "warn")]
+    Warn,
+    #[serde(rename = "ask")]
+    Ask,
     #[serde(rename = "ask-parent")]
     AskParent,
     #[serde(rename = "block")]
     Block,
+    #[serde(rename = "block-risky")]
+    BlockRisky,
+    #[serde(rename = "block-all")]
+    BlockAll,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BrowserPolicyApprovalState {
+    #[default]
     #[serde(rename = "not-required")]
     NotRequired,
     #[serde(rename = "required")]
@@ -106,8 +187,9 @@ pub enum BrowserPolicyApprovalState {
     Denied,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BrowserPolicyReportState {
+    #[default]
     #[serde(rename = "disabled")]
     Disabled,
     #[serde(rename = "daily")]
@@ -118,8 +200,9 @@ pub enum BrowserPolicyReportState {
     OnDemand,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BrowserPolicyAuditState {
+    #[default]
     #[serde(rename = "disabled")]
     Disabled,
     #[serde(rename = "local-only")]
@@ -130,8 +213,9 @@ pub enum BrowserPolicyAuditState {
     Retained,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BrowserPolicyRetentionState {
+    #[default]
     #[serde(rename = "none")]
     None,
     #[serde(rename = "seven-days")]

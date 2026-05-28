@@ -1,13 +1,21 @@
 use ocentra_parent_agent_protocol::{
     constants, policy_constants, BrowserPolicyApprovalState, BrowserPolicyApprovals,
-    BrowserPolicyAudit, BrowserPolicyAuditState, BrowserPolicyBudgets, BrowserPolicyDefaultPosture,
+    BrowserPolicyAudit, BrowserPolicyAuditState, BrowserPolicyBudgets, BrowserPolicyChildFacing,
+    BrowserPolicyCustody, BrowserPolicyDefaultPosture, BrowserPolicyDownloadBlockedType,
     BrowserPolicyDownloadState, BrowserPolicyDownloads, BrowserPolicyEffectivePolicy,
-    BrowserPolicyEvidenceProofLevel, BrowserPolicyEvidenceRequirement, BrowserPolicyManagedBrowser,
-    BrowserPolicyManagedBrowserMode, BrowserPolicyManagementMode, BrowserPolicyRejectionReason,
+    BrowserPolicyEvidenceNeverCollect, BrowserPolicyEvidenceProofLevel,
+    BrowserPolicyEvidenceRequirement, BrowserPolicyEvidenceUrlScope, BrowserPolicyFallbacks,
+    BrowserPolicyManagedBrowser, BrowserPolicyManagedBrowserBridgeRequirement,
+    BrowserPolicyManagedBrowserFamily, BrowserPolicyManagedBrowserIntegrationMechanism,
+    BrowserPolicyManagedBrowserLaunchMode, BrowserPolicyManagedBrowserMode,
+    BrowserPolicyManagedBrowserProfileMode, BrowserPolicyManagementMode, BrowserPolicyPlatforms,
+    BrowserPolicyPortalAi, BrowserPolicyProofFallback, BrowserPolicyRejectionReason,
     BrowserPolicyReportState, BrowserPolicyReports, BrowserPolicyRetention,
-    BrowserPolicyRetentionState, BrowserPolicyRules, BrowserPolicyUnmanagedBrowser,
-    BrowserPolicyUnmanagedBrowserMode, BrowserPolicyUpdateKind, BrowserPolicyUpdateResponse,
-    BrowserPolicyUpdateStatus, BrowserPolicyUrlTargetType, BrowserPolicyValue,
+    BrowserPolicyRetentionExactUrl, BrowserPolicyRetentionState, BrowserPolicyRuleAction,
+    BrowserPolicyRules, BrowserPolicyUnmanagedBrowser,
+    BrowserPolicyUnmanagedBrowserClassificationTarget, BrowserPolicyUnmanagedBrowserMode,
+    BrowserPolicyUpdateKind, BrowserPolicyUpdateResponse, BrowserPolicyUpdateStatus,
+    BrowserPolicyUrlTargetType, BrowserPolicyValue,
 };
 
 use crate::{
@@ -102,38 +110,144 @@ pub(crate) fn default_policy(policy_id: String) -> BrowserPolicyValue {
         enabled: false,
         default_posture: BrowserPolicyDefaultPosture::Observe,
         fallback_posture: None,
-        management_mode: BrowserPolicyManagementMode::Disabled,
-        managed_browser: BrowserPolicyManagedBrowser {
-            mode: BrowserPolicyManagedBrowserMode::NotRequired,
-        },
-        unmanaged_browser: BrowserPolicyUnmanagedBrowser {
-            mode: BrowserPolicyUnmanagedBrowserMode::ObserveOnly,
-        },
-        evidence: BrowserPolicyEvidenceRequirement {
-            required_proof: BrowserPolicyEvidenceProofLevel::None,
-            proof_fallback: None,
-        },
-        rules: BrowserPolicyRules {
-            allowed_target_types: vec![BrowserPolicyUrlTargetType::Domain],
-            entries: Vec::new(),
-        },
+        management_mode: BrowserPolicyManagementMode::LocalChildAgent,
+        managed_browser: default_managed_browser(),
+        unmanaged_browser: default_unmanaged_browser(),
+        evidence: default_evidence_requirement(),
+        rules: default_rules(),
         budgets: BrowserPolicyBudgets {
+            enabled: true,
             default_daily_minutes: None,
+            counting_mode: Default::default(),
         },
         downloads: BrowserPolicyDownloads {
-            state: BrowserPolicyDownloadState::NotConfigured,
+            mode: BrowserPolicyDownloadState::Observe,
+            blocked_types: vec![
+                BrowserPolicyDownloadBlockedType::Executable,
+                BrowserPolicyDownloadBlockedType::Script,
+                BrowserPolicyDownloadBlockedType::Unknown,
+            ],
+            state: BrowserPolicyDownloadState::Observe,
         },
         approvals: BrowserPolicyApprovals {
+            required_for: Vec::new(),
+            unanswered_default: Default::default(),
             state: BrowserPolicyApprovalState::NotRequired,
         },
         reports: BrowserPolicyReports {
+            visible_fields: Vec::new(),
             state: BrowserPolicyReportState::Disabled,
         },
         audit: BrowserPolicyAudit {
+            required_fields: Vec::new(),
             state: BrowserPolicyAuditState::LocalOnly,
+            plan: Default::default(),
         },
         retention: BrowserPolicyRetention {
+            exact_url: BrowserPolicyRetentionExactUrl::SevenDays,
             state: BrowserPolicyRetentionState::None,
         },
+        custody: BrowserPolicyCustody::default(),
+        schedules: Vec::new(),
+        child_facing: BrowserPolicyChildFacing::default(),
+        portal_ai: BrowserPolicyPortalAi::default(),
+        platforms: BrowserPolicyPlatforms::default(),
+        fallbacks: BrowserPolicyFallbacks::default(),
+    }
+}
+
+fn default_managed_browser() -> BrowserPolicyManagedBrowser {
+    BrowserPolicyManagedBrowser {
+        mode: BrowserPolicyManagedBrowserMode::AvailableForExactRules,
+        allowed_families: vec![
+            BrowserPolicyManagedBrowserFamily::EdgeStable,
+            BrowserPolicyManagedBrowserFamily::ChromeStable,
+            BrowserPolicyManagedBrowserFamily::ChromeForTesting,
+        ],
+        launch_mode: BrowserPolicyManagedBrowserLaunchMode::OcentraLauncher,
+        profile_mode: BrowserPolicyManagedBrowserProfileMode::PersistentManagedProfile,
+        bridge_requirements: default_bridge_requirements(),
+        integration_mechanisms: default_integration_mechanisms(),
+    }
+}
+
+fn default_bridge_requirements() -> Vec<BrowserPolicyManagedBrowserBridgeRequirement> {
+    vec![
+        BrowserPolicyManagedBrowserBridgeRequirement::OwnedProfile,
+        BrowserPolicyManagedBrowserBridgeRequirement::LoopbackOnly,
+        BrowserPolicyManagedBrowserBridgeRequirement::RandomPort,
+        BrowserPolicyManagedBrowserBridgeRequirement::RejectDefaultProfile,
+        BrowserPolicyManagedBrowserBridgeRequirement::RejectUnmanagedProfile,
+        BrowserPolicyManagedBrowserBridgeRequirement::RedactedRefs,
+        BrowserPolicyManagedBrowserBridgeRequirement::CloseOnSessionEnd,
+        BrowserPolicyManagedBrowserBridgeRequirement::DegradeSafely,
+    ]
+}
+
+fn default_integration_mechanisms() -> Vec<BrowserPolicyManagedBrowserIntegrationMechanism> {
+    vec![
+        BrowserPolicyManagedBrowserIntegrationMechanism::ChromiumCdp,
+        BrowserPolicyManagedBrowserIntegrationMechanism::ManagedExtensionNativeHost,
+        BrowserPolicyManagedBrowserIntegrationMechanism::BrowserPolicy,
+    ]
+}
+
+fn default_unmanaged_browser() -> BrowserPolicyUnmanagedBrowser {
+    BrowserPolicyUnmanagedBrowser {
+        mode: BrowserPolicyUnmanagedBrowserMode::Monitor,
+        grace_seconds: 0,
+        allow_recover_launch_url: true,
+        classification_targets: vec![
+            BrowserPolicyUnmanagedBrowserClassificationTarget::KnownBrowser,
+            BrowserPolicyUnmanagedBrowserClassificationTarget::PortableBrowser,
+            BrowserPolicyUnmanagedBrowserClassificationTarget::RenamedBrowser,
+            BrowserPolicyUnmanagedBrowserClassificationTarget::BrowserLikeProcess,
+            BrowserPolicyUnmanagedBrowserClassificationTarget::PrivateOrTor,
+        ],
+    }
+}
+
+fn default_evidence_requirement() -> BrowserPolicyEvidenceRequirement {
+    BrowserPolicyEvidenceRequirement {
+        url_scope: BrowserPolicyEvidenceUrlScope::DomainOriginTitle,
+        required_proof: BrowserPolicyEvidenceProofLevel::FreshManagedActiveTab,
+        proof_fallback: None,
+        when_proof_unavailable: BrowserPolicyProofFallback::Ask,
+        never_collect: default_never_collect(),
+    }
+}
+
+fn default_never_collect() -> Vec<BrowserPolicyEvidenceNeverCollect> {
+    vec![
+        BrowserPolicyEvidenceNeverCollect::PageBody,
+        BrowserPolicyEvidenceNeverCollect::ChatContent,
+        BrowserPolicyEvidenceNeverCollect::Screenshots,
+        BrowserPolicyEvidenceNeverCollect::Keystrokes,
+        BrowserPolicyEvidenceNeverCollect::FormValues,
+        BrowserPolicyEvidenceNeverCollect::Secrets,
+        BrowserPolicyEvidenceNeverCollect::DecryptedHttpsPayload,
+        BrowserPolicyEvidenceNeverCollect::RawProtocolDumps,
+    ]
+}
+
+fn default_rules() -> BrowserPolicyRules {
+    BrowserPolicyRules {
+        allowed_target_types: vec![
+            BrowserPolicyUrlTargetType::ExactUrl,
+            BrowserPolicyUrlTargetType::DomainOrigin,
+            BrowserPolicyUrlTargetType::SiteCategory,
+            BrowserPolicyUrlTargetType::BrowserSession,
+            BrowserPolicyUrlTargetType::BrowserProcess,
+            BrowserPolicyUrlTargetType::CapabilityState,
+        ],
+        allowed_actions: vec![
+            BrowserPolicyRuleAction::Allow,
+            BrowserPolicyRuleAction::Warn,
+            BrowserPolicyRuleAction::Ask,
+            BrowserPolicyRuleAction::Limit,
+            BrowserPolicyRuleAction::Block,
+        ],
+        items: Vec::new(),
+        entries: Vec::new(),
     }
 }

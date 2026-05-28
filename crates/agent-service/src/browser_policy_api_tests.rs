@@ -128,7 +128,7 @@ async fn browser_policy_patch_rejects_stale_revision_before_persisting() {
         BrowserPolicyUpdateStatus::Accepted
     );
 
-    let patch = patch_command(stale_revision_id(), daily_budget_patch(30));
+    let patch = patch_command(stale_revision_id(), vec![daily_budget_patch(30)]);
     let patch_event = send_browser_policy_command(runtime, patch).await;
     let patch_response = response_from_event(&patch_event);
 
@@ -158,7 +158,7 @@ async fn browser_policy_rollback_restores_earlier_persisted_revision() {
     );
     let patch = patch_command(
         constants::browser_policy::REVISION_ID.to_string(),
-        daily_budget_patch(30),
+        vec![daily_budget_patch(30)],
     );
     let patch_event = send_browser_policy_command(runtime.clone(), patch).await;
     assert_eq!(
@@ -205,6 +205,7 @@ async fn browser_policy_preview_rejects_exact_url_without_managed_proof_or_fallb
     policy.managed_browser.mode = BrowserPolicyManagedBrowserMode::Preferred;
     policy.evidence.required_proof = BrowserPolicyEvidenceProofLevel::NetworkDomain;
     policy.evidence.proof_fallback = None;
+    policy.evidence.when_proof_unavailable = BrowserPolicyProofFallback::MarkUnavailable;
     let preview = preview_command(policy);
 
     let event = send_browser_policy_command(runtime, preview).await;
@@ -280,7 +281,10 @@ fn replace_command(
     )
 }
 
-fn patch_command(base_revision_id: String, patch: BrowserPolicyPatch) -> AgentCommandEnvelope {
+fn patch_command(
+    base_revision_id: String,
+    patches: Vec<BrowserPolicyPatch>,
+) -> AgentCommandEnvelope {
     command_with_request(
         AgentCommandName::AgentBrowserPolicyPatch,
         BrowserPolicyPatchRequest {
@@ -289,7 +293,7 @@ fn patch_command(base_revision_id: String, patch: BrowserPolicyPatch) -> AgentCo
             kind: BrowserPolicyUpdateKind::Patch,
             policy_id: constants::browser_policy::POLICY_ID.to_string(),
             base_revision_id,
-            patches: vec![patch],
+            patches,
         },
     )
 }
@@ -349,6 +353,7 @@ fn valid_policy(
     default_posture: BrowserPolicyDefaultPosture,
     daily_minutes: Option<u32>,
 ) -> BrowserPolicyValue {
+    let (managed_browser, unmanaged_browser, evidence, rules) = valid_policy_browser_boundary();
     BrowserPolicyValue {
         schema_version: policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
         policy_id: constants::browser_policy::POLICY_ID.to_string(),
@@ -356,48 +361,98 @@ fn valid_policy(
         default_posture,
         fallback_posture: None,
         management_mode: BrowserPolicyManagementMode::ManagedBrowser,
-        managed_browser: BrowserPolicyManagedBrowser {
+        managed_browser,
+        unmanaged_browser,
+        evidence,
+        rules,
+        budgets: BrowserPolicyBudgets {
+            enabled: true,
+            default_daily_minutes: daily_minutes,
+            counting_mode: Default::default(),
+        },
+        downloads: BrowserPolicyDownloads {
+            mode: BrowserPolicyDownloadState::AskParent,
+            blocked_types: Vec::new(),
+            state: BrowserPolicyDownloadState::AskParent,
+        },
+        approvals: BrowserPolicyApprovals {
+            required_for: Vec::new(),
+            unanswered_default: Default::default(),
+            state: BrowserPolicyApprovalState::Required,
+        },
+        reports: BrowserPolicyReports {
+            visible_fields: Vec::new(),
+            state: BrowserPolicyReportState::Weekly,
+        },
+        audit: BrowserPolicyAudit {
+            required_fields: Vec::new(),
+            state: BrowserPolicyAuditState::LocalOnly,
+            plan: Default::default(),
+        },
+        retention: BrowserPolicyRetention {
+            exact_url: Default::default(),
+            state: BrowserPolicyRetentionState::SevenDays,
+        },
+        custody: Default::default(),
+        schedules: Vec::new(),
+        child_facing: Default::default(),
+        portal_ai: Default::default(),
+        platforms: Default::default(),
+        fallbacks: Default::default(),
+    }
+}
+
+fn valid_policy_browser_boundary() -> (
+    BrowserPolicyManagedBrowser,
+    BrowserPolicyUnmanagedBrowser,
+    BrowserPolicyEvidenceRequirement,
+    BrowserPolicyRules,
+) {
+    (
+        BrowserPolicyManagedBrowser {
             mode: BrowserPolicyManagedBrowserMode::RequiredForExactRules,
+            allowed_families: Vec::new(),
+            launch_mode: Default::default(),
+            profile_mode: Default::default(),
+            bridge_requirements: Vec::new(),
+            integration_mechanisms: Vec::new(),
         },
-        unmanaged_browser: BrowserPolicyUnmanagedBrowser {
+        BrowserPolicyUnmanagedBrowser {
             mode: BrowserPolicyUnmanagedBrowserMode::NetworkDomainOnly,
+            grace_seconds: 0,
+            allow_recover_launch_url: false,
+            classification_targets: Vec::new(),
         },
-        evidence: BrowserPolicyEvidenceRequirement {
+        BrowserPolicyEvidenceRequirement {
+            url_scope: Default::default(),
             required_proof: BrowserPolicyEvidenceProofLevel::FreshManagedActiveTab,
             proof_fallback: Some(BrowserPolicyProofFallback::DowngradeToDomain),
+            when_proof_unavailable: BrowserPolicyProofFallback::Ask,
+            never_collect: Vec::new(),
         },
-        rules: BrowserPolicyRules {
+        BrowserPolicyRules {
             allowed_target_types: vec![
                 BrowserPolicyUrlTargetType::Domain,
                 BrowserPolicyUrlTargetType::UrlPrefix,
                 BrowserPolicyUrlTargetType::ExactUrl,
             ],
+            allowed_actions: Vec::new(),
+            items: Vec::new(),
             entries: vec![BrowserPolicyRule {
                 rule_id: constants::browser_policy::DEFAULT_RULE_ID.to_string(),
-                target_type: BrowserPolicyUrlTargetType::Domain,
-                target_value: constants::browser_policy::DEFAULT_TARGET_VALUE.to_string(),
+                target_type: Some(BrowserPolicyUrlTargetType::Domain),
+                target_value: Some(constants::browser_policy::DEFAULT_TARGET_VALUE.to_string()),
                 enabled: true,
+                priority: None,
+                target: None,
+                action: None,
+                proof_requirement: None,
+                schedule_id: None,
+                budget_id: None,
+                audit_level: None,
             }],
         },
-        budgets: BrowserPolicyBudgets {
-            default_daily_minutes: daily_minutes,
-        },
-        downloads: BrowserPolicyDownloads {
-            state: BrowserPolicyDownloadState::AskParent,
-        },
-        approvals: BrowserPolicyApprovals {
-            state: BrowserPolicyApprovalState::Required,
-        },
-        reports: BrowserPolicyReports {
-            state: BrowserPolicyReportState::Weekly,
-        },
-        audit: BrowserPolicyAudit {
-            state: BrowserPolicyAuditState::LocalOnly,
-        },
-        retention: BrowserPolicyRetention {
-            state: BrowserPolicyRetentionState::SevenDays,
-        },
-    }
+    )
 }
 
 fn stale_revision_id() -> String {

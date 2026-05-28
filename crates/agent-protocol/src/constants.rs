@@ -181,29 +181,89 @@ pub mod browser_policy {
     pub const FIELD_ID_DEFAULT_POSTURE: &str = "browser.defaultPosture";
     pub const FIELD_ID_MANAGEMENT_MODE: &str = "browser.managementMode";
     pub const FIELD_ID_MANAGED_BROWSER_MODE: &str = "managedBrowser.mode";
+    pub const FIELD_ID_MANAGED_BROWSER_ALLOWED_FAMILIES: &str = "managedBrowser.allowedFamilies";
+    pub const FIELD_ID_MANAGED_BROWSER_LAUNCH_MODE: &str = "managedBrowser.launchMode";
+    pub const FIELD_ID_MANAGED_BROWSER_PROFILE_MODE: &str = "managedBrowser.profileMode";
+    pub const FIELD_ID_MANAGED_BROWSER_BRIDGE_REQUIREMENTS: &str =
+        "managedBrowser.bridgeRequirements";
+    pub const FIELD_ID_MANAGED_BROWSER_INTEGRATION_MECHANISMS: &str =
+        "managedBrowser.integrationMechanisms";
     pub const FIELD_ID_UNMANAGED_BROWSER_MODE: &str = "unmanagedBrowser.mode";
+    pub const FIELD_ID_UNMANAGED_BROWSER_GRACE_SECONDS: &str = "unmanagedBrowser.graceSeconds";
+    pub const FIELD_ID_UNMANAGED_BROWSER_ALLOW_RECOVER_LAUNCH_URL: &str =
+        "unmanagedBrowser.allowRecoverLaunchUrl";
+    pub const FIELD_ID_UNMANAGED_BROWSER_CLASSIFICATION_TARGETS: &str =
+        "unmanagedBrowser.classificationTargets";
+    pub const FIELD_ID_EVIDENCE_URL_SCOPE: &str = "evidence.urlScope";
     pub const FIELD_ID_REQUIRED_PROOF: &str = "evidence.requiredProof";
     pub const FIELD_ID_PROOF_FALLBACK: &str = "evidence.proofFallback";
+    pub const FIELD_ID_WHEN_PROOF_UNAVAILABLE: &str = "evidence.whenProofUnavailable";
+    pub const FIELD_ID_EVIDENCE_NEVER_COLLECT: &str = "evidence.neverCollect";
     pub const FIELD_ID_ALLOWED_TARGET_TYPES: &str = "rules.allowedTargetTypes";
+    pub const FIELD_ID_ALLOWED_ACTIONS: &str = "rules.allowedActions";
+    pub const FIELD_ID_RULE_ITEMS: &str = "rules.items";
+    pub const FIELD_ID_BUDGETS_ENABLED: &str = "budgets.enabled";
     pub const FIELD_ID_DAILY_BUDGET_MINUTES: &str = "budgets.defaultDailyMinutes";
+    pub const FIELD_ID_BUDGET_COUNTING_MODE: &str = "budgets.countingMode";
+    pub const FIELD_ID_DOWNLOAD_MODE: &str = "downloads.mode";
+    pub const FIELD_ID_DOWNLOAD_BLOCKED_TYPES: &str = "downloads.blockedTypes";
     pub const FIELD_ID_DOWNLOAD_STATE: &str = "downloads.state";
+    pub const FIELD_ID_APPROVAL_REQUIRED_FOR: &str = "approvals.requiredFor";
+    pub const FIELD_ID_APPROVAL_UNANSWERED_DEFAULT: &str = "approvals.unansweredDefault";
     pub const FIELD_ID_APPROVAL_STATE: &str = "approvals.state";
+    pub const FIELD_ID_REPORT_VISIBLE_FIELDS: &str = "reports.visibleFields";
     pub const FIELD_ID_REPORT_STATE: &str = "reports.state";
+    pub const FIELD_ID_RETENTION_EXACT_URL: &str = "retention.exactUrl";
     pub const FIELD_ID_AUDIT_STATE: &str = "audit.state";
+    pub const FIELD_ID_CUSTODY_ALLOWED_USES: &str = "custody.allowedUses";
+    pub const FIELD_ID_AUDIT_REQUIRED_FIELDS: &str = "audit.requiredFields";
     pub const FIELD_ID_RETENTION_STATE: &str = "retention.state";
     pub const WRITES_TO_ENABLED: &str = "/browserPolicy/enabled";
     pub const WRITES_TO_DEFAULT_POSTURE: &str = "/browserPolicy/defaultPosture";
     pub const WRITES_TO_MANAGEMENT_MODE: &str = "/browserPolicy/managementMode";
     pub const WRITES_TO_MANAGED_BROWSER_MODE: &str = "/browserPolicy/managedBrowser/mode";
+    pub const WRITES_TO_MANAGED_BROWSER_ALLOWED_FAMILIES: &str =
+        "/browserPolicy/managedBrowser/allowedFamilies";
+    pub const WRITES_TO_MANAGED_BROWSER_LAUNCH_MODE: &str =
+        "/browserPolicy/managedBrowser/launchMode";
+    pub const WRITES_TO_MANAGED_BROWSER_PROFILE_MODE: &str =
+        "/browserPolicy/managedBrowser/profileMode";
+    pub const WRITES_TO_MANAGED_BROWSER_BRIDGE_REQUIREMENTS: &str =
+        "/browserPolicy/managedBrowser/bridgeRequirements";
+    pub const WRITES_TO_MANAGED_BROWSER_INTEGRATION_MECHANISMS: &str =
+        "/browserPolicy/managedBrowser/integrationMechanisms";
     pub const WRITES_TO_UNMANAGED_BROWSER_MODE: &str = "/browserPolicy/unmanagedBrowser/mode";
+    pub const WRITES_TO_UNMANAGED_BROWSER_GRACE_SECONDS: &str =
+        "/browserPolicy/unmanagedBrowser/graceSeconds";
+    pub const WRITES_TO_UNMANAGED_BROWSER_ALLOW_RECOVER_LAUNCH_URL: &str =
+        "/browserPolicy/unmanagedBrowser/allowRecoverLaunchUrl";
+    pub const WRITES_TO_UNMANAGED_BROWSER_CLASSIFICATION_TARGETS: &str =
+        "/browserPolicy/unmanagedBrowser/classificationTargets";
+    pub const WRITES_TO_EVIDENCE_URL_SCOPE: &str = "/browserPolicy/evidence/urlScope";
     pub const WRITES_TO_REQUIRED_PROOF: &str = "/browserPolicy/evidence/requiredProof";
     pub const WRITES_TO_PROOF_FALLBACK: &str = "/browserPolicy/evidence/proofFallback";
+    pub const WRITES_TO_WHEN_PROOF_UNAVAILABLE: &str =
+        "/browserPolicy/evidence/whenProofUnavailable";
+    pub const WRITES_TO_EVIDENCE_NEVER_COLLECT: &str = "/browserPolicy/evidence/neverCollect";
     pub const WRITES_TO_ALLOWED_TARGET_TYPES: &str = "/browserPolicy/rules/allowedTargetTypes";
+    pub const WRITES_TO_ALLOWED_ACTIONS: &str = "/browserPolicy/rules/allowedActions";
+    pub const WRITES_TO_RULE_ITEMS: &str = "/browserPolicy/rules/items";
+    pub const WRITES_TO_BUDGETS_ENABLED: &str = "/browserPolicy/budgets/enabled";
     pub const WRITES_TO_DAILY_BUDGET_MINUTES: &str = "/browserPolicy/budgets/defaultDailyMinutes";
+    pub const WRITES_TO_BUDGET_COUNTING_MODE: &str = "/browserPolicy/budgets/countingMode";
+    pub const WRITES_TO_DOWNLOAD_MODE: &str = "/browserPolicy/downloads/mode";
+    pub const WRITES_TO_DOWNLOAD_BLOCKED_TYPES: &str = "/browserPolicy/downloads/blockedTypes";
     pub const WRITES_TO_DOWNLOAD_STATE: &str = "/browserPolicy/downloads/state";
+    pub const WRITES_TO_APPROVAL_REQUIRED_FOR: &str = "/browserPolicy/approvals/requiredFor";
+    pub const WRITES_TO_APPROVAL_UNANSWERED_DEFAULT: &str =
+        "/browserPolicy/approvals/unansweredDefault";
     pub const WRITES_TO_APPROVAL_STATE: &str = "/browserPolicy/approvals/state";
+    pub const WRITES_TO_REPORT_VISIBLE_FIELDS: &str = "/browserPolicy/reports/visibleFields";
     pub const WRITES_TO_REPORT_STATE: &str = "/browserPolicy/reports/state";
+    pub const WRITES_TO_RETENTION_EXACT_URL: &str = "/browserPolicy/retention/exactUrl";
     pub const WRITES_TO_AUDIT_STATE: &str = "/browserPolicy/audit/state";
+    pub const WRITES_TO_CUSTODY_ALLOWED_USES: &str = "/browserPolicy/custody/allowedUses";
+    pub const WRITES_TO_AUDIT_REQUIRED_FIELDS: &str = "/browserPolicy/audit/requiredFields";
     pub const WRITES_TO_RETENTION_STATE: &str = "/browserPolicy/retention/state";
     pub const UPDATE_KIND_GET: &str = "get";
     pub const UPDATE_KIND_PREVIEW: &str = "preview";
@@ -219,6 +279,10 @@ pub mod browser_policy {
     pub const DEFAULT_POLICY_ID: &str = "browser-policy-default";
     pub const DEFAULT_RULE_ID: &str = "browser-rule-default-domain";
     pub const DEFAULT_TARGET_VALUE: &str = "example.test";
+    pub const DEFAULT_RULE_MATCH_MODE: &str = "origin";
+    pub const DEFAULT_RULE_REASON_CODE: &str = "school-domain";
+    pub const DEFAULT_RULE_SCHEDULE_ID: &str = "always";
+    pub const DEFAULT_RULE_AUDIT_LEVEL: &str = "decision";
     pub const DEFAULT_CAPABILITY_ID: &str = "managed-browser-active-tab-proof";
     pub const DEFAULT_CAPABILITY_LABEL: &str = "Managed browser active tab proof";
     pub const DEFAULT_CAPABILITY_REASON: &str =

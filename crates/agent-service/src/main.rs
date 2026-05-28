@@ -31,6 +31,8 @@ mod browser_policy_api;
 #[cfg(test)]
 mod browser_policy_api_tests;
 mod browser_policy_compiler;
+#[cfg(test)]
+mod browser_policy_manifest_patch_tests;
 mod browser_policy_payload;
 mod browser_policy_request;
 mod browser_policy_runtime;

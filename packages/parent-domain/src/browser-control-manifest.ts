@@ -113,21 +113,48 @@ export const BrowserControlManifestDefaults = {
   ManifestId: BrowserControlManifestIdSchema.parse('browser-control-authoring-v1'),
   Section: {
     Management: BrowserControlSectionIdSchema.parse('browser-management'),
-    DefaultPosture: BrowserControlSectionIdSchema.parse('default-posture'),
-    ExactUrlRules: BrowserControlSectionIdSchema.parse('exact-url-rules'),
-    Reporting: BrowserControlSectionIdSchema.parse('reporting-audit'),
+    ManagedBrowser: BrowserControlSectionIdSchema.parse('managed-browser'),
+    UnmanagedBrowser: BrowserControlSectionIdSchema.parse('unmanaged-browser'),
+    UrlTabEvidence: BrowserControlSectionIdSchema.parse('url-tab-evidence'),
+    WebRules: BrowserControlSectionIdSchema.parse('web-rules'),
+    Budgets: BrowserControlSectionIdSchema.parse('budgets'),
+    Downloads: BrowserControlSectionIdSchema.parse('downloads'),
+    Approvals: BrowserControlSectionIdSchema.parse('approvals'),
+    Reports: BrowserControlSectionIdSchema.parse('reports'),
+    Audit: BrowserControlSectionIdSchema.parse('audit'),
   },
   Field: {
     Enabled: BrowserControlFieldIdSchema.parse('browser.enabled'),
     DefaultPosture: BrowserControlFieldIdSchema.parse('browser.defaultPosture'),
     ManagementMode: BrowserControlFieldIdSchema.parse('browser.managementMode'),
     ManagedBrowserMode: BrowserControlFieldIdSchema.parse('managedBrowser.mode'),
+    ManagedBrowserAllowedFamilies: BrowserControlFieldIdSchema.parse('managedBrowser.allowedFamilies'),
+    ManagedBrowserLaunchMode: BrowserControlFieldIdSchema.parse('managedBrowser.launchMode'),
+    ManagedBrowserProfileMode: BrowserControlFieldIdSchema.parse('managedBrowser.profileMode'),
+    ManagedBrowserBridgeRequirements: BrowserControlFieldIdSchema.parse('managedBrowser.bridgeRequirements'),
+    ManagedBrowserIntegrationMechanisms: BrowserControlFieldIdSchema.parse('managedBrowser.integrationMechanisms'),
+    UnmanagedBrowserMode: BrowserControlFieldIdSchema.parse('unmanagedBrowser.mode'),
+    UnmanagedBrowserGraceSeconds: BrowserControlFieldIdSchema.parse('unmanagedBrowser.graceSeconds'),
+    UnmanagedBrowserAllowRecoverLaunchUrl: BrowserControlFieldIdSchema.parse('unmanagedBrowser.allowRecoverLaunchUrl'),
+    UnmanagedBrowserClassificationTargets: BrowserControlFieldIdSchema.parse('unmanagedBrowser.classificationTargets'),
+    EvidenceUrlScope: BrowserControlFieldIdSchema.parse('evidence.urlScope'),
     RequiredProof: BrowserControlFieldIdSchema.parse('evidence.requiredProof'),
-    ProofFallback: BrowserControlFieldIdSchema.parse('evidence.proofFallback'),
+    WhenProofUnavailable: BrowserControlFieldIdSchema.parse('evidence.whenProofUnavailable'),
+    EvidenceNeverCollect: BrowserControlFieldIdSchema.parse('evidence.neverCollect'),
     AllowedTargetTypes: BrowserControlFieldIdSchema.parse('rules.allowedTargetTypes'),
+    AllowedActions: BrowserControlFieldIdSchema.parse('rules.allowedActions'),
+    RuleItems: BrowserControlFieldIdSchema.parse('rules.items'),
+    BudgetsEnabled: BrowserControlFieldIdSchema.parse('budgets.enabled'),
     DailyBudgetMinutes: BrowserControlFieldIdSchema.parse('budgets.defaultDailyMinutes'),
-    ReportState: BrowserControlFieldIdSchema.parse('reports.state'),
-    AuditState: BrowserControlFieldIdSchema.parse('audit.state'),
+    BudgetCountingMode: BrowserControlFieldIdSchema.parse('budgets.countingMode'),
+    DownloadMode: BrowserControlFieldIdSchema.parse('downloads.mode'),
+    DownloadBlockedTypes: BrowserControlFieldIdSchema.parse('downloads.blockedTypes'),
+    ApprovalRequiredFor: BrowserControlFieldIdSchema.parse('approvals.requiredFor'),
+    ApprovalUnansweredDefault: BrowserControlFieldIdSchema.parse('approvals.unansweredDefault'),
+    ReportVisibleFields: BrowserControlFieldIdSchema.parse('reports.visibleFields'),
+    RetentionExactUrl: BrowserControlFieldIdSchema.parse('retention.exactUrl'),
+    CustodyAllowedUses: BrowserControlFieldIdSchema.parse('custody.allowedUses'),
+    AuditRequiredFields: BrowserControlFieldIdSchema.parse('audit.requiredFields'),
   },
 } as const;
 
@@ -177,7 +204,7 @@ function browserControlConditionIsMet(
   if (condition.kind === 'equals') {
     return actual === condition.expectedValue;
   }
-  if (condition.kind === 'not-equals') {
+  if (condition.kind === 'not-equals' || condition.kind === 'notEquals') {
     return actual !== condition.expectedValue;
   }
   if (Array.isArray(actual) && typeof condition.expectedValue === 'string') {
@@ -189,7 +216,18 @@ function browserControlConditionIsMet(
 }
 
 function browserControlFieldDefaultMatchesOptions(field: BrowserControlAuthoringFieldCandidate): boolean {
-  if (field.controlKind === 'toggle' || field.controlKind === 'number' || field.controlKind === 'readonly-status') {
+  if (
+    field.controlKind === 'toggle' ||
+    field.controlKind === 'boolean' ||
+    field.controlKind === 'number' ||
+    field.controlKind === 'duration' ||
+    field.controlKind === 'schedule' ||
+    field.controlKind === 'rule-list' ||
+    field.controlKind === 'target-list' ||
+    field.controlKind === 'action-list' ||
+    field.controlKind === 'readonly-status' ||
+    field.controlKind === 'read-only-status'
+  ) {
     return true;
   }
   if (Array.isArray(field.defaultValue)) {
