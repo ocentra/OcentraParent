@@ -128,6 +128,7 @@ Run from a clean checkout before manual platform work:
 cmd /c npm run format:check
 cmd /c npm run test:pre-ai-proof
 cmd /c node scripts/test/platform-os-lan-mobile-proof.mjs
+cmd /c node scripts/test/enforcement-lan-mobile-product-proof.mjs
 cmd /c npm run validate
 ```
 
@@ -145,6 +146,10 @@ The shared gate must prove:
 - owned-process enforcement is real only where the host OS supports it, and
   broad app/domain/browser/mobile states remain manual-required or unavailable
   until real adapters and device artifacts exist.
+- product capability proof distinguishes broad enforcement gaps from the
+  implemented owned-process/time-limit paths, and separates Android package
+  lifecycle plus iOS signing/entitlement gaps from generic mobile scaffold
+  states.
 
 ## Manual Proof Runbook
 
@@ -183,9 +188,10 @@ CI cannot prove privileged or household behavior:
 - Windows service autostart after a real install and reboot;
 - launchd behavior, macOS permissions, signing, notarization, or stores;
 - Android UsageStats, accessibility, VPN/DNS, foreground-service durability,
-  device-owner, or managed-profile behavior;
+  device-owner, managed-profile, package lifecycle, or store behavior;
 - iOS Family Controls, DeviceActivity, Screen Time, Network Extension,
-  notifications, background execution, TestFlight, or entitlement review.
+  notifications, background execution, signing, TestFlight, or entitlement
+  review.
 
 Operator checklist:
 

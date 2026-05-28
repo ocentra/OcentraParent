@@ -1,7 +1,7 @@
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:net';
 import { basename, join, relative } from 'node:path';
-import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, stat, writeFile } from 'node:fs/promises';
 import { setTimeout as delay } from 'node:timers/promises';
 
 import { resolveDebugAgentServicePath, stopProcessTreeAndWait } from './agent-service-process.mjs';
@@ -27,6 +27,7 @@ async function main() {
 
   try {
     await waitForHealth(agentPort, serviceOutput);
+    await waitForStartupActivityCaptureIdle(runRoot);
     const assertions = [];
     const processChild = spawnOwnedChildProcess();
     try {
@@ -73,6 +74,36 @@ async function main() {
   }
 }
 
+async function waitForStartupActivityCaptureIdle(runRoot) {
+  if (process.platform !== 'win32') {
+    return;
+  }
+  const journalPath = join(runRoot, 'activity.ndjson');
+  const deadline = Date.now() + timeoutMs;
+  let lastSize = -1;
+  let stableSamples = 0;
+  while (Date.now() < deadline) {
+    try {
+      const journal = await stat(journalPath);
+      if (journal.size > 0 && journal.size === lastSize) {
+        stableSamples += 1;
+        if (stableSamples >= 3) {
+          return;
+        }
+      } else {
+        stableSamples = 0;
+        lastSize = journal.size;
+      }
+    } catch (error) {
+      if (error.code !== 'ENOENT') {
+        throw error;
+      }
+    }
+    await delay(150);
+  }
+  throw new Error('Timed out waiting for startup activity capture journal to settle.');
+}
+
 function spawnOwnedChildProcess() {
   return spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000);'], {
     cwd: process.cwd(),
@@ -99,7 +130,11 @@ function waitForChildExit(child) {
 }
 
 async function assertProcessTerminateEvent(event, child) {
-  assertEqual(event.event, 'agent.enforcement.audit.reported', 'process-terminate-owned-process event');
+  if (event.event !== 'agent.enforcement.audit.reported') {
+    throw new Error(
+      `process-terminate-owned-process event: expected agent.enforcement.audit.reported, received ${JSON.stringify(event)}`
+    );
+  }
   assertEqual(event.payload.databaseReady, true, 'process-terminate-owned-process databaseReady');
   const action = JSON.parse(event.payload.enforcementAction);
   const result = JSON.parse(event.payload.enforcementResult);

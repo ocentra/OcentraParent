@@ -18,6 +18,36 @@ export const ParentControlPlatformCapabilityInputs = [
         note: 'LAN transport exists for development and must require pairing before child activity control.',
       },
       {
+        capability: 'owned-process-terminate',
+        status: 'implemented',
+        note: 'Windows proof can terminate an owned process through the Rust service when the process id and expected executable match.',
+      },
+      {
+        capability: 'app-time-limit',
+        status: 'implemented',
+        note: 'App time-limit lifecycle has service proof for create, restart recovery, parent cancel, expiry, audit, and storage.',
+      },
+      {
+        capability: 'app-blocking',
+        status: 'manual-required',
+        note: 'Broad application blocking is not claimed until an OS-approved adapter proves app identity and block behavior on a real host.',
+      },
+      {
+        capability: 'network-domain-blocking',
+        status: 'manual-required',
+        note: 'Domain or network blocking requires a real OS/network adapter proof and is not silently implemented through localhost proof.',
+      },
+      {
+        capability: 'managed-browser-control',
+        status: 'manual-required',
+        note: 'Managed browser enforcement requires a managed profile bridge proof before site or URL blocking is claimed.',
+      },
+      {
+        capability: 'unmanaged-browser-detection',
+        status: 'manual-required',
+        note: 'Unmanaged browser detection or terminate/block behavior requires real browser process and URL evidence before support is claimed.',
+      },
+      {
         capability: 'signed-auto-update',
         status: 'supported',
         note: 'Windows update manifest signing and MSI upgrade scaffold are wired.',
@@ -98,6 +128,11 @@ export const ParentControlPlatformCapabilityInputs = [
         note: 'Managed-profile behavior requires enrollment proof before child-agent support is claimed.',
       },
       {
+        capability: 'package-lifecycle',
+        status: 'manual-required',
+        note: 'Android install, update, backgrounding, reboot, and uninstall lifecycle behavior requires emulator or physical-device artifacts.',
+      },
+      {
         capability: 'store-distribution',
         status: 'planned',
         note: 'Google Play signing and release tracks are not wired yet.',
@@ -151,6 +186,11 @@ export const ParentControlPlatformCapabilityInputs = [
         capability: 'background-execution',
         status: 'manual-required',
         note: 'Background execution cannot be claimed from simulator scaffold alone.',
+      },
+      {
+        capability: 'signing-entitlements',
+        status: 'manual-required',
+        note: 'iOS signing and entitlement behavior requires Apple credentials, approved entitlements, and device or TestFlight proof.',
       },
       {
         capability: 'testflight-distribution',

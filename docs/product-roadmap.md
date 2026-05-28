@@ -77,7 +77,8 @@ upgrade V0.8 to broad OS blocking or V0.9 to production LAN readiness.
 
 The platform/LAN/enforcement production proof pass adds a B-owned aggregate
 command that reruns V0.8 app time-limit, V0.8 manual-required broad-adapter,
-V0.9 production LAN multi-service, and platform package checks together. It
+V0.9 production LAN multi-service, and domain-owned platform capability states
+together. It
 records parent mobile, Android child, iOS child, signing/store, cloud relay,
 and physical household LAN proof as explicit manual-required, unavailable,
 scaffold, or not-implemented states rather than product claims.
@@ -88,6 +89,18 @@ that splits Android and iOS child states by actual OS capability, and a
 single `platform-os-lan-mobile-proof` evidence command. Broad app/domain/browser
 blocking, physical household discovery, and mobile child-agent behavior remain
 manual-required until real host/device artifacts exist.
+
+The enforcement/LAN/mobile product proof pass adds product-level capability
+granularity on top of the OS/LAN/mobile proof. Windows now distinguishes
+owned-process terminate and app time-limit proof from broad app blocking,
+network/domain blocking, managed-browser control, and unmanaged-browser
+detection. Android adds package-lifecycle proof as a separate manual-required
+child capability, and iOS separates signing/entitlements from TestFlight and
+runtime API entitlements. The new
+`scripts/test/enforcement-lan-mobile-product-proof.mjs` command composes the
+existing real-service proof bundle and writes
+`test-results/enforcement-lan-mobile-product-proof/proof.json` without claiming
+cloud relay, household router discovery, or mobile parity.
 
 The older PR #90 through PR #96 reconciliation remains historical context in
 [`current-main-proof-refresh-2026-05-25.md`](architecture/current-main-proof-refresh-2026-05-25.md).
@@ -155,6 +168,11 @@ Current local slice:
   production LAN non-claims, cloud relay non-implementation, and Android/iOS
   capability-specific manual-required states in
   `test-results/platform-os-lan-mobile-proof/proof.json` when run locally.
+- The enforcement/LAN/mobile product proof command records the finer product
+  capability states for Windows enforcement, Android package lifecycle, and iOS
+  signing/entitlements in
+  `test-results/enforcement-lan-mobile-product-proof/proof.json` when run
+  locally.
 
 Next product checkpoint:
 

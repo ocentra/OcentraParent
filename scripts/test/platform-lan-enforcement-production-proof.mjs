@@ -30,8 +30,6 @@ async function main() {
   );
   assertV09Production(v09Production);
 
-  await runCommand('cmd', ['/c', 'node', '--test', 'scripts/test/platform-packaging.test.mjs']);
-
   const matrix = await readJson(join(repoRoot, 'docs', 'expectations', 'pre-ai-proof-matrix.json'));
   assertProofMatrix(matrix);
 

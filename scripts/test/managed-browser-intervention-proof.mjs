@@ -21,7 +21,9 @@ const blockedSiteUrl =
 const blockedVideoUrl =
   process.env.OCENTRA_PARENT_MANAGED_BROWSER_INTERVENTION_BLOCKED_VIDEO_URL ??
   'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
-const allowedUrl = process.env.OCENTRA_PARENT_MANAGED_BROWSER_INTERVENTION_ALLOWED_URL ?? 'https://www.wikipedia.org/';
+const allowedUrl =
+  process.env.OCENTRA_PARENT_MANAGED_BROWSER_INTERVENTION_ALLOWED_URL ??
+  'data:text/html,<title>Ocentra allowed control</title><main>OCENTRA_MANAGED_BROWSER_ALLOWED</main>';
 const blockMarker = 'OCENTRA_MANAGED_BROWSER_BLOCKED';
 
 const ruleSet = [
