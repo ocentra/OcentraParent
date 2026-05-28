@@ -184,8 +184,12 @@ Workers must:
   from primary, and do that through `hub:heartbeat`, not `hub:report`;
 - keep routine reports short unless hub mail asks for detail;
 - verify and run requested lint/tests before `DONE`;
-- make local commits only when hub mail allows or asks for it;
-- never open PRs or merge unless primary asks;
+- make local commits on their worker branches after the assigned scope is
+  verified;
+- push their worker branch when ready for review;
+- open a PR when the user or primary explicitly asks for one;
+- never merge PRs or push directly to `main` unless the user explicitly asks for
+  that exact action;
 - never delete per-minute worker heartbeats.
 
 Worker minute heartbeats must not overwrite useful state. If a lane has an

@@ -129,7 +129,7 @@ Report progress from a worker lane:
 npm run hub:report -- --summary "Capture adapter mapped" --details "Touched crates/agent-service. Focused Rust tests pass."
 ```
 
-Before starting or resuming assigned work, report a short `STARTED` status so the primary coordinator can see that the instruction was accepted. When work is done, verify it, run the lint/tests requested by the hub mail, make a local commit only when instructed, and report `DONE` with exact commands, commit state, touched packages/files, known gaps/risks, and detailed scope of what changed. Keep routine reports short unless the hub mail asks for detail; `DONE` and PR-ready handoffs are expected to include enough scope for review.
+Before starting or resuming assigned work, report a short `STARTED` status so the primary coordinator can see that the instruction was accepted. When work is done, verify it, run the lint/tests requested by the hub mail, make a local commit on the worker branch, push that branch when ready for review, and report `DONE` with exact commands, commit state, touched packages/files, known gaps/risks, and detailed scope of what changed. If the user or primary asks the worker to create a PR, the worker may open the PR and include the same detailed scope in the PR body. Workers must not merge PRs or push directly to `main` unless the user explicitly asks for that exact action. Keep routine reports short unless the hub mail asks for detail; `DONE` and PR-ready handoffs are expected to include enough scope for review.
 
 Do not use `hub:report` for per-minute "I am alive" chatter. Use `hub:heartbeat` for that local-only liveness stream so a `DONE` or `BLOCKED` report remains visible until a real work-state report replaces it.
 
@@ -160,7 +160,7 @@ On every coordination pass:
 4. Check open PRs and CI/check state when branches are pushed.
 5. Check latest worker reports before sending new instructions.
 
-When assigning work, tell the worker to fetch/pull or rebase latest `main` first, acknowledge hub mail, report `STARTED`, lock intended paths, and keep routine reports short. The hub message should name the branch, task, relevant docs, validation expectation, whether a local commit is expected, and that `DONE` or PR-ready handoffs need detailed scope.
+When assigning work, tell the worker to fetch/pull or rebase latest `main` first, acknowledge hub mail, report `STARTED`, lock intended paths, and keep routine reports short. The hub message should name the branch, task, relevant docs, validation expectation, that local commits and branch pushes are expected when the scope is ready for review, whether the worker should open a PR, and that `DONE` or PR-ready handoffs need detailed scope.
 
 When a worker reports `DONE`, review the branch before creating or merging anything:
 
@@ -226,7 +226,7 @@ Before editing in a claimed lane:
 8. Claim file ownership with `npm run hub:lock`.
 9. Run focused local validation while coding.
 10. Report progress with `npm run hub:report`.
-11. When done, verify, run requested lint/tests, make a local commit only if instructed, and report `DONE` with validation and commit state.
+11. When done, verify, run requested lint/tests, make a local commit on the worker branch, push the branch when ready for review, and report `DONE` with validation and commit state. Open a PR only when the user or primary asks for one.
 12. Run the full PR gate only when the branch is ready to integrate.
 
 ## Owner And Thread Fields
