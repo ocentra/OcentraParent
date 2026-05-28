@@ -16,6 +16,7 @@ use crate::{
     local_ai_provider_scheduler::{local_ai_provider_scheduler, LocalAiProviderSchedulerRuntime},
     local_ai_runtime_config::LocalAiRuntimeConfigSnapshot,
     local_ai_runtime_status::local_ai_runtime_status_for_model_from_config,
+    parent_assistant_api::thread_store,
     parent_assistant_evidence_context::evidence_contexts_from_command,
     parent_assistant_payload::parent_assistant_answer_payload,
     time::timestamp_now,
@@ -30,6 +31,7 @@ pub async fn build_parent_assistant_answer_report(
     let snapshot = local_store_snapshot().await;
     let request = request_from_command(&command, &config, snapshot);
     let answer = generate_parent_assistant_answer(&command, request, &config).await;
+    thread_store::record_message_for_thread(&answer.thread_id);
     let severity = if answer.answer_state == ParentAssistantAnswerState::Answered {
         LogLevel::Info
     } else {
@@ -116,8 +118,10 @@ pub(crate) fn request_from_command(
         schema_version: policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
         request_id: string_payload_field(command, constants::field::PARENT_ASSISTANT_REQUEST_ID)
             .unwrap_or_else(|| constants::parent_assistant::DEFAULT_REQUEST_ID.to_string()),
-        thread_id: constants::parent_assistant::DEFAULT_THREAD_ID.to_string(),
-        message_id: constants::parent_assistant::DEFAULT_MESSAGE_ID.to_string(),
+        thread_id: string_payload_field(command, constants::parent_assistant::FIELD_THREAD_ID)
+            .unwrap_or_else(|| constants::parent_assistant::DEFAULT_THREAD_ID.to_string()),
+        message_id: string_payload_field(command, constants::parent_assistant::FIELD_MESSAGE_ID)
+            .unwrap_or_else(|| constants::parent_assistant::DEFAULT_MESSAGE_ID.to_string()),
         asked_at: asked_at.clone(),
         actor: ParentActorReference {
             actor_id: constants::parent_assistant::DEFAULT_PARENT_ACTOR_ID.to_string(),

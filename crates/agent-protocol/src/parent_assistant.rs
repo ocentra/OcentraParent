@@ -51,6 +51,8 @@ pub enum ParentAssistantActionPreviewKind {
 pub enum ParentAssistantBackendState {
     #[serde(rename = "runtime-backed")]
     RuntimeBacked,
+    #[serde(rename = "durable-local")]
+    DurableLocal,
     #[serde(rename = "volatile-local")]
     VolatileLocal,
     #[serde(rename = "contract-required")]

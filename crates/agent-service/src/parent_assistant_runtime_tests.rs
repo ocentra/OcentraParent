@@ -207,6 +207,24 @@ fn parent_assistant_request_cites_activity_report_document_when_supplied() {
         .contains(constants::activity_surface::SAVED_STATE_SAVED));
 }
 
+#[test]
+fn parent_assistant_request_preserves_thread_and_message_ids_from_command() {
+    let request = request_from_command(
+        &thread_message_command(),
+        &LocalAiRuntimeConfigSnapshot::unconfigured(),
+        None,
+    );
+
+    assert_eq!(
+        request.thread_id,
+        constants::parent_assistant::TEST_THREAD_ID
+    );
+    assert_eq!(
+        request.message_id,
+        constants::parent_assistant::TEST_MESSAGE_ID
+    );
+}
+
 fn expected_activity_context_summary() -> String {
     let mut summary = constants::parent_assistant::ACTIVITY_CONTEXT_PREFIX.to_string();
     summary.push_str(constants::parent_assistant::ACTIVITY_CONTEXT_RECENT_LABEL);
@@ -276,6 +294,23 @@ fn report_context_command() -> AgentCommandEnvelope {
                 .expect(constants::error::AGENT_EVENT_SERIALIZES),
         ),
     )]))
+}
+
+fn thread_message_command() -> AgentCommandEnvelope {
+    command_with_payload(fields_from_pairs(vec![
+        (
+            constants::parent_assistant::FIELD_THREAD_ID,
+            ocentra_parent_agent_protocol::LogFieldValue::String(
+                constants::parent_assistant::TEST_THREAD_ID.to_string(),
+            ),
+        ),
+        (
+            constants::parent_assistant::FIELD_MESSAGE_ID,
+            ocentra_parent_agent_protocol::LogFieldValue::String(
+                constants::parent_assistant::TEST_MESSAGE_ID.to_string(),
+            ),
+        ),
+    ]))
 }
 
 fn saved_report_document() -> ActivityReportDocument {

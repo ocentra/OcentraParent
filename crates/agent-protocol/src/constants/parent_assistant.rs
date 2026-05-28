@@ -46,10 +46,15 @@ pub const ACTION_PREVIEW_TIME_LIMIT_SUMMARY: &str =
     "Time-limit preview only. Controller lease and child-agent contract execution are required before any limit changes.";
 pub const ACTION_PREVIEW_NONE_SUMMARY: &str = "No backend action is prepared from this answer.";
 pub const THREAD_TITLE_DEFAULT: &str = "Parent Assistant local thread";
+pub const THREAD_STORAGE_DIR: &str = "parent-assistant-threads";
+pub const THREAD_STORAGE_FILE: &str = "threads.json";
+pub const THREAD_DURABLE_REASON: &str =
+    "Parent Assistant thread state is persisted in the local Parent Assistant store.";
 pub const THREAD_VOLATILE_REASON: &str =
     "Parent Assistant thread state is service-backed and volatile until durable sync is wired.";
 pub const THREAD_ARCHIVED_REASON: &str =
-    "Parent Assistant thread is archived in the volatile local store.";
+    "Parent Assistant thread is archived in the local Parent Assistant store.";
+pub const THREAD_STORAGE_UNAVAILABLE_REASON: &str = "parent-assistant-thread-storage-unavailable";
 pub const RUN_NOT_RUNNING_REASON: &str = "parent-assistant-run-not-running";
 pub const ACTION_CONFIRM_CONTRACT_REQUIRED_REASON: &str =
     "Controller lease and child-agent policy contract are required before applying this action.";
@@ -61,6 +66,8 @@ pub const QUESTION_BEDTIME_HINT: &str = "bedtime";
 pub const QUESTION_TIME_LIMIT_HINT: &str = "time limit";
 pub const QUESTION_LIMIT_HINT: &str = "limit";
 pub const TEST_POLICY_QUESTION: &str = "Suggest a policy rule for evening games.";
+pub const TEST_THREAD_ID: &str = "parent-assistant-thread-proof";
+pub const TEST_MESSAGE_ID: &str = "parent-assistant-message-proof";
 pub const API_PROVIDER_ID_NOT_AUTHORIZED: &str = "api-provider-not-authorized";
 pub const API_PROVIDER_CUSTODY_LABEL: &str = "parent-authorized-api-ai";
 pub const API_PROVIDER_RETENTION_POLICY: &str = "no-retention-without-parent-authorization";
@@ -71,8 +78,10 @@ pub const LOCAL_PROVIDER_BUSY: &str = "local provider is busy";
 pub const BACKEND_STATE_SCAFFOLD_ONLY: &str = "scaffold-only";
 pub const BACKEND_NOT_CONNECTED: &str = "parent-assistant-backend-not-connected";
 pub const BACKEND_STATE_RUNTIME_BACKED: &str = "runtime-backed";
+pub const BACKEND_STATE_DURABLE_LOCAL: &str = "durable-local";
 pub const BACKEND_STATE_VOLATILE_LOCAL: &str = "volatile-local";
 pub const BACKEND_STATE_CONTRACT_REQUIRED: &str = "contract-required";
+pub const BACKEND_STATE_UNAVAILABLE: &str = "unavailable";
 pub const FIELD_THREAD: &str = "parentAssistantThread";
 pub const FIELD_THREAD_RESPONSE: &str = "parentAssistantThreadResponse";
 pub const FIELD_THREADS: &str = "parentAssistantThreads";

@@ -1,3 +1,9 @@
+use std::{
+    fs,
+    path::PathBuf,
+    time::{SystemTime, UNIX_EPOCH},
+};
+
 use ocentra_parent_agent_protocol::{
     constants, policy_constants, AgentCommandEnvelope, AgentCommandName, AgentEventName,
     AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue, LogLevel,
@@ -7,11 +13,14 @@ use ocentra_parent_agent_protocol::{
 };
 
 use crate::{
-    fields::fields_from_pairs, parent_assistant_api::build_parent_assistant_scaffold_event,
+    fields::fields_from_pairs,
+    parent_assistant_api::{
+        build_parent_assistant_scaffold_event, thread_store::thread_response_for_command_in_dir,
+    },
 };
 
 #[test]
-fn parent_assistant_thread_create_returns_volatile_service_state() {
+fn parent_assistant_thread_create_returns_durable_service_state() {
     let event = build_parent_assistant_scaffold_event(command(
         AgentCommandName::AgentParentAssistantThreadCreate,
         fields_from_pairs(vec![(
@@ -29,7 +38,7 @@ fn parent_assistant_thread_create_returns_volatile_service_state() {
     assert_eq!(event.severity, LogLevel::Info);
     assert_eq!(
         response.backend_state,
-        ParentAssistantBackendState::VolatileLocal
+        ParentAssistantBackendState::DurableLocal
     );
     assert_eq!(
         response
@@ -37,6 +46,44 @@ fn parent_assistant_thread_create_returns_volatile_service_state() {
             .expect(constants::error::AGENT_EVENT_SERIALIZES)
             .state,
         ParentAssistantThreadState::Open
+    );
+}
+
+#[test]
+fn parent_assistant_thread_list_reads_durable_local_store_after_create() {
+    let directory = unique_temp_dir();
+    let create = command(
+        AgentCommandName::AgentParentAssistantThreadCreate,
+        fields_from_pairs(vec![(
+            constants::parent_assistant::FIELD_THREAD_ID,
+            LogFieldValue::String(constants::parent_assistant::DEFAULT_THREAD_ID.to_string()),
+        )]),
+    );
+    let list = command(
+        AgentCommandName::AgentParentAssistantThreadList,
+        Default::default(),
+    );
+
+    let created = thread_response_for_command_in_dir(&create, directory.clone());
+    let listed = thread_response_for_command_in_dir(&list, directory.clone());
+
+    remove_temp_dir(directory);
+
+    assert_eq!(
+        created.backend_state,
+        ParentAssistantBackendState::DurableLocal
+    );
+    assert_eq!(
+        listed.backend_state,
+        ParentAssistantBackendState::DurableLocal
+    );
+    assert_eq!(listed.threads.len(), 1);
+    assert_eq!(
+        listed
+            .active_thread
+            .expect(constants::error::AGENT_EVENT_SERIALIZES)
+            .thread_id,
+        constants::parent_assistant::DEFAULT_THREAD_ID
     );
 }
 
@@ -180,4 +227,26 @@ fn action_confirm_payload(value: &LogFieldValue) -> ParentAssistantActionConfirm
         }
         _ => std::panic::panic_any(constants::error::AGENT_EVENT_SERIALIZES),
     }
+}
+
+fn unique_temp_dir() -> PathBuf {
+    let mut name = constants::parent_assistant::THREAD_STORAGE_DIR.to_string();
+    name.push(constants::delimiter::HYPHEN);
+    name.push_str(&std::process::id().to_string());
+    name.push(constants::delimiter::HYPHEN);
+    name.push_str(&nanos_now().to_string());
+    let mut path = std::env::temp_dir();
+    path.push(name);
+    path
+}
+
+fn nanos_now() -> u128 {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .expect(constants::error::AGENT_EVENT_SERIALIZES)
+        .as_nanos()
+}
+
+fn remove_temp_dir(path: PathBuf) {
+    let _ = fs::remove_dir_all(path);
 }

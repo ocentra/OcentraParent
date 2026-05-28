@@ -35,7 +35,7 @@ await runPackageCommand(['run', 'build:contracts']);
 ({ AgentCommand, AgentEvent, AgentEventEnvelopeSchema, AgentProtocolDefaults } =
   await import('@ocentra-parent/agent-protocol-domain/contracts'));
 await runCommand('cargo', ['build', '-p', 'ocentra-parent-agent-service']);
-await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-service', 'activity_surface']);
+await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-service', 'activity_surface', '--', '--test-threads=1']);
 await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-service', 'parent_assistant']);
 await ensurePortFree(proofPort, isLikelyParentAgentOccupant, console.log);
 
@@ -113,6 +113,13 @@ function runRuntimeProof() {
       (event) => assertActivityReadModel(event, 'network')
     ),
     {
+      messageId: 'cmd-parent-assistant-thread-create',
+      command: AgentCommand.ParentAssistantThreadCreate,
+      expectedEvent: AgentEvent.ParentAssistantThreadUpdated,
+      payload: parentAssistantThreadPayload,
+      assertEvent: assertParentAssistantThreadRuntime,
+    },
+    {
       messageId: 'cmd-parent-assistant-message',
       command: AgentCommand.ParentAssistantMessageSend,
       expectedEvent: AgentEvent.ParentAssistantAnswerReported,
@@ -120,11 +127,11 @@ function runRuntimeProof() {
       assertEvent: assertParentAssistantUnavailable,
     },
     {
-      messageId: 'cmd-parent-assistant-thread-create',
-      command: AgentCommand.ParentAssistantThreadCreate,
+      messageId: 'cmd-parent-assistant-thread-list',
+      command: AgentCommand.ParentAssistantThreadList,
       expectedEvent: AgentEvent.ParentAssistantThreadUpdated,
       payload: parentAssistantThreadPayload,
-      assertEvent: assertParentAssistantThreadRuntime,
+      assertEvent: assertParentAssistantThreadRuntimeAfterMessage,
     },
     {
       messageId: 'cmd-parent-assistant-provider-status',
@@ -356,6 +363,8 @@ function parentAssistantPayload() {
     [AgentProtocolDefaults.Field.ParentAssistantQuestion]: 'Suggest a policy rule from recent activity.',
     [AgentProtocolDefaults.Field.ParentAssistantEvidenceSummary]:
       'Recent local Activity tab data is available as parent-visible evidence.',
+    [AgentProtocolDefaults.Field.ParentAssistantThreadId]: 'parent-assistant-thread-proof',
+    [AgentProtocolDefaults.Field.ParentAssistantMessageId]: 'parent-assistant-message-proof',
     [AgentProtocolDefaults.Field.ActivityReportDocument]: JSON.stringify(savedActivityReport),
   };
 }
@@ -381,11 +390,19 @@ function parentAssistantActionPayload() {
 
 function assertParentAssistantThreadRuntime(event) {
   const response = parseJsonField(event.payload, ParentAssistantRuntimeField.threadResponse);
-  if (response.backendState !== 'volatile-local' || response.activeThread?.state !== 'open') {
-    throw new Error(`Parent Assistant thread runtime did not return volatile local state: ${JSON.stringify(response)}`);
+  if (response.backendState !== 'durable-local' || response.activeThread?.state !== 'open') {
+    throw new Error(`Parent Assistant thread runtime did not return durable local state: ${JSON.stringify(response)}`);
   }
   if (!Array.isArray(response.threads) || response.threads.length < 1) {
     throw new Error(`Parent Assistant thread runtime did not return thread list: ${JSON.stringify(response)}`);
+  }
+}
+
+function assertParentAssistantThreadRuntimeAfterMessage(event) {
+  assertParentAssistantThreadRuntime(event);
+  const response = parseJsonField(event.payload, ParentAssistantRuntimeField.threadResponse);
+  if (response.activeThread?.messageCount < 1) {
+    throw new Error(`Parent Assistant durable thread did not record the message count: ${JSON.stringify(response)}`);
   }
 }
 

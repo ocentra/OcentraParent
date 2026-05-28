@@ -1,7 +1,7 @@
 use ocentra_parent_agent_protocol::{
     constants, LogFieldValue, LogFields, ParentAssistantActionConfirmResult, ParentAssistantAnswer,
-    ParentAssistantAnswerState, ParentAssistantProviderState, ParentAssistantProviderStatus,
-    ParentAssistantRunCancelResult, ParentAssistantThreadResponse,
+    ParentAssistantAnswerState, ParentAssistantBackendState, ParentAssistantProviderState,
+    ParentAssistantProviderStatus, ParentAssistantRunCancelResult, ParentAssistantThreadResponse,
 };
 
 use crate::fields::fields_from_pairs;
@@ -70,7 +70,7 @@ pub(crate) fn parent_assistant_thread_payload(
         ),
         string_field(
             constants::field::PARENT_ASSISTANT_BACKEND_STATE,
-            constants::parent_assistant::BACKEND_STATE_VOLATILE_LOCAL,
+            backend_state_value(response.backend_state),
         ),
         optional_str_field(
             constants::parent_assistant::FIELD_THREAD_ID,
@@ -208,6 +208,26 @@ fn answer_state_value(state: ParentAssistantAnswerState) -> &'static str {
         ParentAssistantAnswerState::Queued => constants::parent_assistant::ANSWER_QUEUED,
         ParentAssistantAnswerState::Degraded => constants::parent_assistant::ANSWER_DEGRADED,
         ParentAssistantAnswerState::Unavailable => constants::parent_assistant::ANSWER_UNAVAILABLE,
+    }
+}
+
+fn backend_state_value(state: ParentAssistantBackendState) -> &'static str {
+    match state {
+        ParentAssistantBackendState::RuntimeBacked => {
+            constants::parent_assistant::BACKEND_STATE_RUNTIME_BACKED
+        }
+        ParentAssistantBackendState::DurableLocal => {
+            constants::parent_assistant::BACKEND_STATE_DURABLE_LOCAL
+        }
+        ParentAssistantBackendState::VolatileLocal => {
+            constants::parent_assistant::BACKEND_STATE_VOLATILE_LOCAL
+        }
+        ParentAssistantBackendState::ContractRequired => {
+            constants::parent_assistant::BACKEND_STATE_CONTRACT_REQUIRED
+        }
+        ParentAssistantBackendState::Unavailable => {
+            constants::parent_assistant::BACKEND_STATE_UNAVAILABLE
+        }
     }
 }
 
