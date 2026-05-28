@@ -476,9 +476,10 @@ The assigned worker must complete every item before `DONE/PR_READY`:
 - [ ] Run focused validation for touched packages/crates.
 - [ ] Run `npm run validate` before PR-ready unless primary explicitly accepts
       an omission with reason.
-- [ ] Commit locally only when instructed/allowed by hub mail, push the branch,
-      and report `DONE/PR_READY` with detailed scope, touched files/packages,
-      validation commands/results, known gaps/risks, and PR body outline.
+- [ ] Commit locally on the worker branch after validation, push the branch when
+      ready for review, open a PR when the user or primary asks, and report
+      `DONE/PR_READY` with detailed scope, touched files/packages, validation
+      commands/results, known gaps/risks, and PR body outline.
 
 Done means the Activity adapter foundation is merged to `main` with green CI.
 It does not mean C's UI branch has already consumed the adapter.
