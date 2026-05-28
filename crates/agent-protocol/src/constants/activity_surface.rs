@@ -11,6 +11,7 @@ pub const REPORT_FILE_WEEKLY: &str = "activity-report-weekly-local.json";
 pub const REPORT_FILE_MONTHLY: &str = "activity-report-monthly-local.json";
 pub const REPORT_FILE_EXTENSION: &str = "json";
 pub const REPORT_STORAGE_DIR: &str = "activity-reports";
+pub const REPORT_ID_FALLBACK: &str = "activity-report";
 pub const SUMMARY_READY: &str = "Activity data is available from the local query store.";
 pub const SUMMARY_EMPTY: &str = "No local activity rows are available for this request.";
 pub const SUMMARY_STORE_UNAVAILABLE: &str = "Local activity query store is unavailable.";
@@ -21,8 +22,11 @@ pub const SUMMARY_DEVICE_OFFLINE: &str =
     "Requested device is not available in the local activity store.";
 pub const SUMMARY_FAMILY_LOCAL_SOURCE: &str =
     "Family scope is backed by the reachable local child-device query store.";
+pub const SUMMARY_FAMILY_FANOUT_UNAVAILABLE: &str =
+    "Family fan-out to additional child devices is not wired for this local report.";
 pub const SUMMARY_SCAFFOLD_ONLY: &str =
     "This Activity read model is typed but not wired to local storage yet.";
+pub const FAMILY_FANOUT_SOURCE_ID: &str = "family-fanout-unavailable";
 pub const SECTION_SUMMARY: &str = "Summary";
 pub const SECTION_SCREEN: &str = "Screen";
 pub const SECTION_APP_USE: &str = "App Use";

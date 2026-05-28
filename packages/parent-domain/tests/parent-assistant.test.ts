@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   ParentAssistantActionPreviewSchema,
   ParentAssistantAnswerSchema,
+  ParentAssistantApiProviderBoundarySchema,
   ParentAssistantGenerateRequestSchema,
 } from '../src/parent-assistant';
 import {
@@ -172,5 +173,42 @@ describe('parent assistant unavailable answer contracts', () => {
     });
 
     expect(parsed.unavailableReason).toBe('local-ai-provider-unconfigured');
+  });
+});
+
+describe('parent assistant API provider boundary contracts', () => {
+  it('ParentAssistantApiProviderBoundarySchema: accepts not-authorized unavailable API state with custody and deletion rules', () => {
+    const parsed = ParentAssistantApiProviderBoundarySchema.parse({
+      schemaVersion: ParentContractSchemaVersion.V0_6,
+      providerId: 'api-provider-not-configured',
+      authorizationState: 'not-authorized',
+      custodyLabel: 'parent-authorized-api-ai',
+      retentionPolicy: 'no-retention-without-parent-authorization',
+      deletionPolicy: 'delete-provider-cache-on-parent-request',
+      citations: [EvidenceContext],
+      providerState: 'unavailable',
+      unavailableReason: 'api-ai-provider-not-authorized',
+      childSafetyOrEnforcementUseAllowed: false,
+    });
+
+    expect(parsed.providerState).toBe('unavailable');
+    expect(parsed.childSafetyOrEnforcementUseAllowed).toBe(false);
+  });
+
+  it('ParentAssistantApiProviderBoundarySchema: rejects API use for child safety or enforcement decisions', () => {
+    expect(
+      ParentAssistantApiProviderBoundarySchema.safeParse({
+        schemaVersion: ParentContractSchemaVersion.V0_6,
+        providerId: 'api-provider-not-configured',
+        authorizationState: 'not-authorized',
+        custodyLabel: 'parent-authorized-api-ai',
+        retentionPolicy: 'no-retention-without-parent-authorization',
+        deletionPolicy: 'delete-provider-cache-on-parent-request',
+        citations: [EvidenceContext],
+        providerState: 'unavailable',
+        unavailableReason: 'api-ai-provider-not-authorized',
+        childSafetyOrEnforcementUseAllowed: true,
+      }).success
+    ).toBe(false);
   });
 });

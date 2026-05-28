@@ -106,6 +106,7 @@ fn parent_assistant_request_cites_activity_snapshot_when_prompt_has_no_summary()
         device_id: constants::activity_surface::DEFAULT_DEVICE_ID.to_string(),
         recent_returned: 1,
         last_event_id: Some(constants::event_id::ACTIVITY_RECENT_SUMMARY_REPORTED.to_string()),
+        last_observed_at: Some(constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string()),
         browser_returned: 0,
         network_returned: 0,
         games_returned: 0,
@@ -123,9 +124,32 @@ fn parent_assistant_request_cites_activity_snapshot_when_prompt_has_no_summary()
         constants::event_id::ACTIVITY_RECENT_SUMMARY_REPORTED
     );
     assert_eq!(
-        request.evidence_context[0].allowed_summary,
-        constants::parent_assistant::ACTIVITY_CONTEXT_READY
+        request.evidence_context[0].evidence.observed_at,
+        constants::activity_store::TEST_SECOND_OBSERVED_AT
     );
+    assert_eq!(
+        request.evidence_context[0].allowed_summary,
+        expected_activity_context_summary()
+    );
+    assert_eq!(
+        request.evidence_context[1].evidence.kind,
+        ParentEvidenceReferenceKind::ActivityEvent
+    );
+}
+
+fn expected_activity_context_summary() -> String {
+    let mut summary = constants::parent_assistant::ACTIVITY_CONTEXT_PREFIX.to_string();
+    summary.push_str(constants::parent_assistant::ACTIVITY_CONTEXT_RECENT_LABEL);
+    summary.push('1');
+    summary.push_str(constants::parent_assistant::ACTIVITY_CONTEXT_SCREEN_LABEL);
+    summary.push('0');
+    summary.push_str(constants::parent_assistant::ACTIVITY_CONTEXT_BROWSER_LABEL);
+    summary.push('0');
+    summary.push_str(constants::parent_assistant::ACTIVITY_CONTEXT_GAMES_LABEL);
+    summary.push('0');
+    summary.push_str(constants::parent_assistant::ACTIVITY_CONTEXT_NETWORK_LABEL);
+    summary.push('0');
+    summary
 }
 
 fn request(model_id: Option<String>) -> ParentAssistantGenerateRequest {

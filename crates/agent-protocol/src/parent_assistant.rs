@@ -28,6 +28,14 @@ pub enum ParentAssistantAnswerState {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ParentAssistantApiAuthorizationState {
+    #[serde(rename = "authorized")]
+    Authorized,
+    #[serde(rename = "not-authorized")]
+    NotAuthorized,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ParentAssistantActionPreviewKind {
     #[serde(rename = "none")]
     None,
@@ -81,6 +89,21 @@ pub struct ParentAssistantGenerateRequest {
     pub model_id: Option<String>,
     pub max_output_tokens: u32,
     pub timeout_ms: u64,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ParentAssistantApiProviderBoundary {
+    pub schema_version: String,
+    pub provider_id: String,
+    pub authorization_state: ParentAssistantApiAuthorizationState,
+    pub custody_label: String,
+    pub retention_policy: String,
+    pub deletion_policy: String,
+    pub citations: Vec<ParentAssistantEvidenceContext>,
+    pub provider_state: ParentAssistantProviderState,
+    pub unavailable_reason: Option<String>,
+    pub child_safety_or_enforcement_use_allowed: bool,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

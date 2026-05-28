@@ -31,6 +31,18 @@ export const ParentAssistantPromptVersionSchema = NonEmptyParentAssistantText.pi
   Schema.brand('ParentAssistantPromptVersion')
 );
 export const ParentAssistantQuestionSchema = NonEmptyParentAssistantText.pipe(Schema.brand('ParentAssistantQuestion'));
+export const ParentAssistantApiProviderIdSchema = NonEmptyParentAssistantText.pipe(
+  Schema.brand('ParentAssistantApiProviderId')
+);
+export const ParentAssistantCustodyLabelSchema = NonEmptyParentAssistantText.pipe(
+  Schema.brand('ParentAssistantCustodyLabel')
+);
+export const ParentAssistantRetentionPolicySchema = NonEmptyParentAssistantText.pipe(
+  Schema.brand('ParentAssistantRetentionPolicy')
+);
+export const ParentAssistantDeletionPolicySchema = NonEmptyParentAssistantText.pipe(
+  Schema.brand('ParentAssistantDeletionPolicy')
+);
 export const ParentAssistantAnswerTextSchema = NonEmptyParentAssistantText.pipe(
   Schema.brand('ParentAssistantAnswerText')
 );
@@ -45,6 +57,7 @@ export const ParentAssistantProviderStateSchema = withParser(Schema.Literal('con
 export const ParentAssistantAnswerStateSchema = withParser(
   Schema.Literal('answered', 'queued', 'degraded', 'unavailable')
 );
+export const ParentAssistantApiAuthorizationStateSchema = withParser(Schema.Literal('authorized', 'not-authorized'));
 export const ParentAssistantActionPreviewKindSchema = withParser(
   Schema.Literal('none', 'policy-suggestion', 'schedule-change', 'time-limit-change')
 );
@@ -91,6 +104,31 @@ export const ParentAssistantGenerateRequestSchema = withParser(
     maxOutputTokens: ParentAssistantPositiveCount,
     timeoutMs: ParentAssistantPositiveCount,
   })
+);
+
+const ParentAssistantApiProviderBoundaryBaseSchema = Schema.Struct({
+  schemaVersion: ParentContractSchemaVersionSchema,
+  providerId: ParentAssistantApiProviderIdSchema,
+  authorizationState: ParentAssistantApiAuthorizationStateSchema,
+  custodyLabel: ParentAssistantCustodyLabelSchema,
+  retentionPolicy: ParentAssistantRetentionPolicySchema,
+  deletionPolicy: ParentAssistantDeletionPolicySchema,
+  citations: Schema.Array(ParentAssistantEvidenceContextSchema),
+  providerState: ParentAssistantProviderStateSchema,
+  unavailableReason: Schema.Union(LocalAiUnavailableReasonSchema, Schema.Null),
+  childSafetyOrEnforcementUseAllowed: Schema.Literal(false),
+});
+
+type ParentAssistantApiProviderBoundaryCandidate = Infer<typeof ParentAssistantApiProviderBoundaryBaseSchema>;
+
+export const ParentAssistantApiProviderBoundarySchema = withParser(
+  ParentAssistantApiProviderBoundaryBaseSchema.pipe(
+    Schema.filter(
+      (boundary) =>
+        parentAssistantApiProviderBoundaryIsConsistent(boundary) ||
+        'Expected API AI provider use to require parent authorization, citations, custody, retention, deletion, and no child-safety enforcement use'
+    )
+  )
 );
 
 const ParentAssistantAnswerBaseSchema = Schema.Struct({
@@ -146,8 +184,23 @@ function parentAssistantAnswerIsConsistent(answer: ParentAssistantAnswerCandidat
   return answer.schedulerJobStatus === 'queued' && answer.answerText === null;
 }
 
+function parentAssistantApiProviderBoundaryIsConsistent(
+  boundary: ParentAssistantApiProviderBoundaryCandidate
+): boolean {
+  if (boundary.citations.length === 0 || boundary.childSafetyOrEnforcementUseAllowed !== false) {
+    return false;
+  }
+
+  if (boundary.authorizationState === 'not-authorized') {
+    return boundary.providerState === 'unavailable' && boundary.unavailableReason !== null;
+  }
+
+  return boundary.providerState !== 'unavailable' || boundary.unavailableReason !== null;
+}
+
 export type ParentAssistantScope = Infer<typeof ParentAssistantScopeSchema>;
 export type ParentAssistantEvidenceContext = Infer<typeof ParentAssistantEvidenceContextSchema>;
 export type ParentAssistantActionPreview = Infer<typeof ParentAssistantActionPreviewSchema>;
 export type ParentAssistantGenerateRequest = Infer<typeof ParentAssistantGenerateRequestSchema>;
 export type ParentAssistantAnswer = Infer<typeof ParentAssistantAnswerSchema>;
+export type ParentAssistantApiProviderBoundary = Infer<typeof ParentAssistantApiProviderBoundarySchema>;

@@ -101,8 +101,12 @@ fn load_saved_reports(
         if !path_is_report_json(&path) {
             continue;
         }
-        let body = read_to_string(&path).map_err(|_| ())?;
-        let report = serde_json::from_str::<ActivityReportDocument>(&body).map_err(|_| ())?;
+        let Ok(body) = read_to_string(&path) else {
+            continue;
+        };
+        let Ok(report) = serde_json::from_str::<ActivityReportDocument>(&body) else {
+            continue;
+        };
         if scope_matches(&request.scope, &report.scope) {
             reports.push(history_item_from_report(path, report));
         }
@@ -180,7 +184,22 @@ fn saved_metadata(
 }
 
 fn report_file_name(report_id: &str) -> String {
-    let mut name = report_id.to_string();
+    let mut name: String = report_id
+        .chars()
+        .map(|value| {
+            if value.is_ascii_alphanumeric()
+                || value == constants::delimiter::HYPHEN
+                || value == '_'
+            {
+                value
+            } else {
+                constants::delimiter::HYPHEN
+            }
+        })
+        .collect();
+    if name.is_empty() {
+        name.push_str(constants::activity_surface::REPORT_ID_FALLBACK);
+    }
     name.push(constants::delimiter::DOT);
     name.push_str(constants::activity_surface::REPORT_FILE_EXTENSION);
     name

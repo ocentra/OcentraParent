@@ -15,7 +15,7 @@ use crate::{
     local_ai_provider_scheduler::{local_ai_provider_scheduler, LocalAiProviderSchedulerRuntime},
     local_ai_runtime_config::LocalAiRuntimeConfigSnapshot,
     local_ai_runtime_status::local_ai_runtime_status_for_model_from_config,
-    parent_assistant_evidence_context::evidence_context_from_command,
+    parent_assistant_evidence_context::evidence_contexts_from_command,
     parent_assistant_payload::parent_assistant_answer_payload,
     time::timestamp_now,
 };
@@ -130,11 +130,11 @@ pub(crate) fn request_from_command(
         },
         question: string_payload_field(command, constants::field::PARENT_ASSISTANT_QUESTION)
             .unwrap_or_else(|| constants::parent_assistant::DEFAULT_QUESTION.to_string()),
-        evidence_context: vec![evidence_context_from_command(
+        evidence_context: evidence_contexts_from_command(
             command,
             activity_snapshot,
             asked_at.clone(),
-        )],
+        ),
         model_id: string_payload_field(command, constants::field::LOCAL_AI_MODEL_ID)
             .or_else(|| Some(config.model_id().to_string())),
         max_output_tokens: numeric_field_u32(
