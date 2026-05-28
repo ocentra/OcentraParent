@@ -1,11 +1,15 @@
 use super::{
     AgentCommandName, AgentEventName, FamilyReference, LocalAiDegradedState,
     LocalAiProviderSchedulerJobStatus, ParentActionReference, ParentActorReference,
-    ParentActorRole, ParentAssistantActionPreview, ParentAssistantActionPreviewKind,
-    ParentAssistantAnswer, ParentAssistantAnswerState, ParentAssistantApiAuthorizationState,
-    ParentAssistantApiProviderBoundary, ParentAssistantEvidenceContext,
-    ParentAssistantGenerateRequest, ParentAssistantProviderState, ParentAssistantScope,
-    ParentDeviceReference, ParentEvidenceReference, ParentEvidenceReferenceKind,
+    ParentActorRole, ParentAssistantActionConfirmResult, ParentAssistantActionConfirmState,
+    ParentAssistantActionPreview, ParentAssistantActionPreviewKind, ParentAssistantAnswer,
+    ParentAssistantAnswerState, ParentAssistantApiAuthorizationState,
+    ParentAssistantApiProviderBoundary, ParentAssistantBackendState,
+    ParentAssistantEvidenceContext, ParentAssistantGenerateRequest, ParentAssistantProviderState,
+    ParentAssistantProviderStatus, ParentAssistantRunCancelResult, ParentAssistantRunCancelState,
+    ParentAssistantScope, ParentAssistantThreadRecord, ParentAssistantThreadResponse,
+    ParentAssistantThreadState, ParentDeviceReference, ParentEvidenceReference,
+    ParentEvidenceReferenceKind,
 };
 
 #[test]
@@ -129,6 +133,79 @@ fn parent_assistant_api_provider_boundary_serializes_parent_authorization_and_cu
     assert_eq!(serialized["childSafetyOrEnforcementUseAllowed"], false);
 }
 
+#[test]
+fn parent_assistant_thread_response_serializes_volatile_local_state() {
+    let response = ParentAssistantThreadResponse {
+        schema_version: "v0.6".to_string(),
+        backend_state: ParentAssistantBackendState::VolatileLocal,
+        active_thread: Some(sample_thread(ParentAssistantThreadState::Open)),
+        threads: vec![sample_thread(ParentAssistantThreadState::Open)],
+        reason: Some("service-backed volatile thread state".to_string()),
+    };
+    let serialized = serde_json::to_value(&response).expect("thread response serializes");
+
+    assert_eq!(serialized["backendState"], "volatile-local");
+    assert_eq!(serialized["activeThread"]["state"], "open");
+}
+
+#[test]
+fn parent_assistant_provider_status_serializes_scheduler_and_api_boundaries() {
+    let status = ParentAssistantProviderStatus {
+        schema_version: "v0.6".to_string(),
+        backend_state: ParentAssistantBackendState::RuntimeBacked,
+        provider_id: "local-provider-llama-cli".to_string(),
+        model_id: "local-gguf-chat-model".to_string(),
+        provider_state: ParentAssistantProviderState::Unavailable,
+        scheduler_job_status: LocalAiProviderSchedulerJobStatus::Unavailable,
+        degraded_state: LocalAiDegradedState::ProviderUnavailable,
+        unavailable_reason: Some("local-ai-provider-unconfigured".to_string()),
+        queue_depth: 0,
+        busy: false,
+        api_provider_boundary: sample_api_provider_boundary(),
+    };
+    let serialized = serde_json::to_value(&status).expect("provider status serializes");
+
+    assert_eq!(serialized["backendState"], "runtime-backed");
+    assert_eq!(serialized["schedulerJobStatus"], "unavailable");
+    assert_eq!(
+        serialized["apiProviderBoundary"]["childSafetyOrEnforcementUseAllowed"],
+        false
+    );
+}
+
+#[test]
+fn parent_assistant_cancel_and_confirm_results_do_not_claim_enforcement() {
+    let cancel = ParentAssistantRunCancelResult {
+        schema_version: "v0.6".to_string(),
+        backend_state: ParentAssistantBackendState::RuntimeBacked,
+        thread_id: "parent-assistant-thread-1".to_string(),
+        run_id: "parent-assistant-run-1".to_string(),
+        cancel_state: ParentAssistantRunCancelState::NotRunning,
+        provider_state: ParentAssistantProviderState::Unavailable,
+        unavailable_reason: Some("parent-assistant-run-not-running".to_string()),
+    };
+    let confirm = ParentAssistantActionConfirmResult {
+        schema_version: "v0.6".to_string(),
+        backend_state: ParentAssistantBackendState::ContractRequired,
+        action_intent_id: "parent-assistant-action-intent-1".to_string(),
+        preview_id: Some("parent-assistant-preview-1".to_string()),
+        action_kind: ParentAssistantActionPreviewKind::PolicySuggestion,
+        confirm_state: ParentAssistantActionConfirmState::ContractRequired,
+        requires_controller_lease: true,
+        child_agent_contract_required: true,
+        enforcement_applied: false,
+        policy_written: false,
+        reason: "controller lease and child-agent policy contract are required".to_string(),
+    };
+    let cancel_json = serde_json::to_value(&cancel).expect("cancel result serializes");
+    let confirm_json = serde_json::to_value(&confirm).expect("confirm result serializes");
+
+    assert_eq!(cancel_json["cancelState"], "not-running");
+    assert_eq!(confirm_json["confirmState"], "contract-required");
+    assert_eq!(confirm_json["enforcementApplied"], false);
+    assert_eq!(confirm_json["policyWritten"], false);
+}
+
 fn sample_api_provider_boundary() -> ParentAssistantApiProviderBoundary {
     ParentAssistantApiProviderBoundary {
         schema_version: "v0.6".to_string(),
@@ -168,6 +245,19 @@ fn sample_request() -> ParentAssistantGenerateRequest {
         model_id: Some("local-gguf-chat-model".to_string()),
         max_output_tokens: 320,
         timeout_ms: 15_000,
+    }
+}
+
+fn sample_thread(state: ParentAssistantThreadState) -> ParentAssistantThreadRecord {
+    ParentAssistantThreadRecord {
+        schema_version: "v0.6".to_string(),
+        thread_id: "parent-assistant-thread-1".to_string(),
+        title: "Recent activity questions".to_string(),
+        state,
+        backend_state: ParentAssistantBackendState::VolatileLocal,
+        created_at: "2026-05-28T17:20:00Z".to_string(),
+        updated_at: "2026-05-28T17:20:01Z".to_string(),
+        message_count: 0,
     }
 }
 

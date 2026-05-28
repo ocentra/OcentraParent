@@ -47,6 +47,46 @@ pub enum ParentAssistantActionPreviewKind {
     TimeLimitChange,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ParentAssistantBackendState {
+    #[serde(rename = "runtime-backed")]
+    RuntimeBacked,
+    #[serde(rename = "volatile-local")]
+    VolatileLocal,
+    #[serde(rename = "contract-required")]
+    ContractRequired,
+    #[serde(rename = "unavailable")]
+    Unavailable,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ParentAssistantThreadState {
+    #[serde(rename = "open")]
+    Open,
+    #[serde(rename = "archived")]
+    Archived,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ParentAssistantRunCancelState {
+    #[serde(rename = "cancelled")]
+    Cancelled,
+    #[serde(rename = "not-running")]
+    NotRunning,
+    #[serde(rename = "unavailable")]
+    Unavailable,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ParentAssistantActionConfirmState {
+    #[serde(rename = "contract-required")]
+    ContractRequired,
+    #[serde(rename = "not-applied")]
+    NotApplied,
+    #[serde(rename = "rejected")]
+    Rejected,
+}
+
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ParentAssistantScope {
@@ -127,4 +167,71 @@ pub struct ParentAssistantAnswer {
     pub action_preview: ParentAssistantActionPreview,
     pub api_provider_boundary: ParentAssistantApiProviderBoundary,
     pub prompt_version: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ParentAssistantThreadRecord {
+    pub schema_version: String,
+    pub thread_id: String,
+    pub title: String,
+    pub state: ParentAssistantThreadState,
+    pub backend_state: ParentAssistantBackendState,
+    pub created_at: String,
+    pub updated_at: String,
+    pub message_count: u32,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ParentAssistantThreadResponse {
+    pub schema_version: String,
+    pub backend_state: ParentAssistantBackendState,
+    pub active_thread: Option<ParentAssistantThreadRecord>,
+    pub threads: Vec<ParentAssistantThreadRecord>,
+    pub reason: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ParentAssistantProviderStatus {
+    pub schema_version: String,
+    pub backend_state: ParentAssistantBackendState,
+    pub provider_id: String,
+    pub model_id: String,
+    pub provider_state: ParentAssistantProviderState,
+    pub scheduler_job_status: LocalAiProviderSchedulerJobStatus,
+    pub degraded_state: LocalAiDegradedState,
+    pub unavailable_reason: Option<String>,
+    pub queue_depth: u16,
+    pub busy: bool,
+    pub api_provider_boundary: ParentAssistantApiProviderBoundary,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ParentAssistantRunCancelResult {
+    pub schema_version: String,
+    pub backend_state: ParentAssistantBackendState,
+    pub thread_id: String,
+    pub run_id: String,
+    pub cancel_state: ParentAssistantRunCancelState,
+    pub provider_state: ParentAssistantProviderState,
+    pub unavailable_reason: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ParentAssistantActionConfirmResult {
+    pub schema_version: String,
+    pub backend_state: ParentAssistantBackendState,
+    pub action_intent_id: String,
+    pub preview_id: Option<String>,
+    pub action_kind: ParentAssistantActionPreviewKind,
+    pub confirm_state: ParentAssistantActionConfirmState,
+    pub requires_controller_lease: bool,
+    pub child_agent_contract_required: bool,
+    pub enforcement_applied: bool,
+    pub policy_written: bool,
+    pub reason: String,
 }

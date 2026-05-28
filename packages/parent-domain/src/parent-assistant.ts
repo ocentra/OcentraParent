@@ -52,7 +52,14 @@ export const ParentAssistantCitationLabelSchema = NonEmptyParentAssistantText.pi
 export const ParentAssistantActionPreviewIdSchema = NonEmptyParentAssistantText.pipe(
   Schema.brand('ParentAssistantActionPreviewId')
 );
+export const ParentAssistantRunIdSchema = NonEmptyParentAssistantText.pipe(Schema.brand('ParentAssistantRunId'));
+export const ParentAssistantActionIntentIdSchema = NonEmptyParentAssistantText.pipe(
+  Schema.brand('ParentAssistantActionIntentId')
+);
 
+export const ParentAssistantBackendStateSchema = withParser(
+  Schema.Literal('runtime-backed', 'volatile-local', 'contract-required', 'unavailable')
+);
 export const ParentAssistantProviderStateSchema = withParser(Schema.Literal('configured', 'degraded', 'unavailable'));
 export const ParentAssistantAnswerStateSchema = withParser(
   Schema.Literal('answered', 'queued', 'degraded', 'unavailable')
@@ -60,6 +67,13 @@ export const ParentAssistantAnswerStateSchema = withParser(
 export const ParentAssistantApiAuthorizationStateSchema = withParser(Schema.Literal('authorized', 'not-authorized'));
 export const ParentAssistantActionPreviewKindSchema = withParser(
   Schema.Literal('none', 'policy-suggestion', 'schedule-change', 'time-limit-change')
+);
+export const ParentAssistantThreadStateSchema = withParser(Schema.Literal('open', 'archived'));
+export const ParentAssistantRunCancelStateSchema = withParser(
+  Schema.Literal('cancelled', 'not-running', 'unavailable')
+);
+export const ParentAssistantActionConfirmStateSchema = withParser(
+  Schema.Literal('contract-required', 'not-applied', 'rejected')
 );
 
 export const ParentAssistantScopeSchema = withParser(
@@ -164,6 +178,83 @@ export const ParentAssistantAnswerSchema = withParser(
   )
 );
 
+export const ParentAssistantThreadRecordSchema = withParser(
+  Schema.Struct({
+    schemaVersion: ParentContractSchemaVersionSchema,
+    threadId: ParentAssistantThreadIdSchema,
+    title: ParentAssistantAnswerTextSchema,
+    state: ParentAssistantThreadStateSchema,
+    backendState: ParentAssistantBackendStateSchema,
+    createdAt: LocalAiTimestampSchema,
+    updatedAt: LocalAiTimestampSchema,
+    messageCount: Schema.Number.pipe(Schema.int()),
+  })
+);
+
+export const ParentAssistantThreadResponseSchema = withParser(
+  Schema.Struct({
+    schemaVersion: ParentContractSchemaVersionSchema,
+    backendState: ParentAssistantBackendStateSchema,
+    activeThread: Schema.Union(ParentAssistantThreadRecordSchema, Schema.Null),
+    threads: Schema.Array(ParentAssistantThreadRecordSchema),
+    reason: Schema.Union(ParentAssistantAnswerTextSchema, Schema.Null),
+  })
+);
+
+export const ParentAssistantProviderStatusSchema = withParser(
+  Schema.Struct({
+    schemaVersion: ParentContractSchemaVersionSchema,
+    backendState: ParentAssistantBackendStateSchema,
+    providerId: LocalAiProviderIdSchema,
+    modelId: LocalAiModelIdSchema,
+    providerState: ParentAssistantProviderStateSchema,
+    schedulerJobStatus: LocalAiProviderSchedulerJobStatusSchema,
+    degradedState: LocalAiDegradedStateSchema,
+    unavailableReason: Schema.Union(LocalAiUnavailableReasonSchema, Schema.Null),
+    queueDepth: Schema.Number.pipe(Schema.int()),
+    busy: Schema.Boolean,
+    apiProviderBoundary: ParentAssistantApiProviderBoundarySchema,
+  })
+);
+
+export const ParentAssistantRunCancelResultSchema = withParser(
+  Schema.Struct({
+    schemaVersion: ParentContractSchemaVersionSchema,
+    backendState: ParentAssistantBackendStateSchema,
+    threadId: ParentAssistantThreadIdSchema,
+    runId: ParentAssistantRunIdSchema,
+    cancelState: ParentAssistantRunCancelStateSchema,
+    providerState: ParentAssistantProviderStateSchema,
+    unavailableReason: Schema.Union(LocalAiUnavailableReasonSchema, Schema.Null),
+  })
+);
+
+const ParentAssistantActionConfirmResultBaseSchema = Schema.Struct({
+  schemaVersion: ParentContractSchemaVersionSchema,
+  backendState: ParentAssistantBackendStateSchema,
+  actionIntentId: ParentAssistantActionIntentIdSchema,
+  previewId: Schema.Union(ParentAssistantActionPreviewIdSchema, Schema.Null),
+  actionKind: ParentAssistantActionPreviewKindSchema,
+  confirmState: ParentAssistantActionConfirmStateSchema,
+  requiresControllerLease: Schema.Literal(true),
+  childAgentContractRequired: Schema.Literal(true),
+  enforcementApplied: Schema.Literal(false),
+  policyWritten: Schema.Literal(false),
+  reason: ParentAssistantAnswerTextSchema,
+});
+
+type ParentAssistantActionConfirmResultCandidate = Infer<typeof ParentAssistantActionConfirmResultBaseSchema>;
+
+export const ParentAssistantActionConfirmResultSchema = withParser(
+  ParentAssistantActionConfirmResultBaseSchema.pipe(
+    Schema.filter(
+      (result) =>
+        parentAssistantActionConfirmResultIsSafe(result) ||
+        'Expected Parent Assistant action confirm to require controller/child-agent contract and avoid direct enforcement or policy writes'
+    )
+  )
+);
+
 function parentAssistantAnswerIsConsistent(answer: ParentAssistantAnswerCandidate): boolean {
   if (answer.answerState === 'answered') {
     return (
@@ -199,9 +290,24 @@ function parentAssistantApiProviderBoundaryIsConsistent(
   return boundary.providerState !== 'unavailable' || boundary.unavailableReason !== null;
 }
 
+function parentAssistantActionConfirmResultIsSafe(result: ParentAssistantActionConfirmResultCandidate): boolean {
+  return (
+    result.requiresControllerLease === true &&
+    result.childAgentContractRequired === true &&
+    result.enforcementApplied === false &&
+    result.policyWritten === false &&
+    result.confirmState === 'contract-required'
+  );
+}
+
 export type ParentAssistantScope = Infer<typeof ParentAssistantScopeSchema>;
 export type ParentAssistantEvidenceContext = Infer<typeof ParentAssistantEvidenceContextSchema>;
 export type ParentAssistantActionPreview = Infer<typeof ParentAssistantActionPreviewSchema>;
 export type ParentAssistantGenerateRequest = Infer<typeof ParentAssistantGenerateRequestSchema>;
 export type ParentAssistantAnswer = Infer<typeof ParentAssistantAnswerSchema>;
 export type ParentAssistantApiProviderBoundary = Infer<typeof ParentAssistantApiProviderBoundarySchema>;
+export type ParentAssistantThreadRecord = Infer<typeof ParentAssistantThreadRecordSchema>;
+export type ParentAssistantThreadResponse = Infer<typeof ParentAssistantThreadResponseSchema>;
+export type ParentAssistantProviderStatus = Infer<typeof ParentAssistantProviderStatusSchema>;
+export type ParentAssistantRunCancelResult = Infer<typeof ParentAssistantRunCancelResultSchema>;
+export type ParentAssistantActionConfirmResult = Infer<typeof ParentAssistantActionConfirmResultSchema>;
