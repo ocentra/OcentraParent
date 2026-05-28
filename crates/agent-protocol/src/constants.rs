@@ -12,6 +12,7 @@ pub mod env_var {
     pub const AGENT_LOCAL_NETWORK_ENABLED: &str = "OCENTRA_PARENT_AGENT_LOCAL_NETWORK_ENABLED";
     pub const AGENT_ENFORCEMENT_TIMER_STATE_PATH: &str =
         "OCENTRA_PARENT_AGENT_ENFORCEMENT_TIMER_STATE_PATH";
+    pub const AGENT_BROWSER_POLICY_STORE_PATH: &str = "OCENTRA_PARENT_BROWSER_POLICY_STORE_PATH";
     pub const ACTIVITY_DB_PATH: &str = "OCENTRA_PARENT_ACTIVITY_DB_PATH";
     pub const ACTIVITY_JOURNAL_KEY_PATH: &str = "OCENTRA_PARENT_ACTIVITY_JOURNAL_KEY_PATH";
     pub const ACTIVITY_JOURNAL_PATH: &str = "OCENTRA_PARENT_ACTIVITY_JOURNAL_PATH";
@@ -177,7 +178,33 @@ pub mod browser_policy {
     pub const REVISION_ID: &str = "browser-policy-revision-1";
     pub const AUDIT_EVENT_ID: &str = "browser-policy-audit-1";
     pub const FIELD_ID_ENABLED: &str = "browser.enabled";
+    pub const FIELD_ID_DEFAULT_POSTURE: &str = "browser.defaultPosture";
+    pub const FIELD_ID_MANAGEMENT_MODE: &str = "browser.managementMode";
+    pub const FIELD_ID_MANAGED_BROWSER_MODE: &str = "managedBrowser.mode";
+    pub const FIELD_ID_UNMANAGED_BROWSER_MODE: &str = "unmanagedBrowser.mode";
+    pub const FIELD_ID_REQUIRED_PROOF: &str = "evidence.requiredProof";
+    pub const FIELD_ID_PROOF_FALLBACK: &str = "evidence.proofFallback";
+    pub const FIELD_ID_ALLOWED_TARGET_TYPES: &str = "rules.allowedTargetTypes";
+    pub const FIELD_ID_DAILY_BUDGET_MINUTES: &str = "budgets.defaultDailyMinutes";
+    pub const FIELD_ID_DOWNLOAD_STATE: &str = "downloads.state";
+    pub const FIELD_ID_APPROVAL_STATE: &str = "approvals.state";
+    pub const FIELD_ID_REPORT_STATE: &str = "reports.state";
+    pub const FIELD_ID_AUDIT_STATE: &str = "audit.state";
+    pub const FIELD_ID_RETENTION_STATE: &str = "retention.state";
     pub const WRITES_TO_ENABLED: &str = "/browserPolicy/enabled";
+    pub const WRITES_TO_DEFAULT_POSTURE: &str = "/browserPolicy/defaultPosture";
+    pub const WRITES_TO_MANAGEMENT_MODE: &str = "/browserPolicy/managementMode";
+    pub const WRITES_TO_MANAGED_BROWSER_MODE: &str = "/browserPolicy/managedBrowser/mode";
+    pub const WRITES_TO_UNMANAGED_BROWSER_MODE: &str = "/browserPolicy/unmanagedBrowser/mode";
+    pub const WRITES_TO_REQUIRED_PROOF: &str = "/browserPolicy/evidence/requiredProof";
+    pub const WRITES_TO_PROOF_FALLBACK: &str = "/browserPolicy/evidence/proofFallback";
+    pub const WRITES_TO_ALLOWED_TARGET_TYPES: &str = "/browserPolicy/rules/allowedTargetTypes";
+    pub const WRITES_TO_DAILY_BUDGET_MINUTES: &str = "/browserPolicy/budgets/defaultDailyMinutes";
+    pub const WRITES_TO_DOWNLOAD_STATE: &str = "/browserPolicy/downloads/state";
+    pub const WRITES_TO_APPROVAL_STATE: &str = "/browserPolicy/approvals/state";
+    pub const WRITES_TO_REPORT_STATE: &str = "/browserPolicy/reports/state";
+    pub const WRITES_TO_AUDIT_STATE: &str = "/browserPolicy/audit/state";
+    pub const WRITES_TO_RETENTION_STATE: &str = "/browserPolicy/retention/state";
     pub const UPDATE_KIND_GET: &str = "get";
     pub const UPDATE_KIND_PREVIEW: &str = "preview";
     pub const UPDATE_KIND_PATCH: &str = "patch";
@@ -186,9 +213,43 @@ pub mod browser_policy {
     pub const UPDATE_STATUS_ACCEPTED: &str = "accepted";
     pub const UPDATE_STATUS_REJECTED: &str = "rejected";
     pub const PATCH_OPERATION_REPLACE: &str = "replace";
+    pub const STORE_FILE_NAME: &str = "ocentra-parent-browser-policy-state.json";
+    pub const STORE_FILE_EXTENSION: &str = "json";
+    pub const TEST_STORE_FILE_PREFIX: &str = "ocentra-parent-browser-policy-test";
+    pub const DEFAULT_POLICY_ID: &str = "browser-policy-default";
+    pub const DEFAULT_RULE_ID: &str = "browser-rule-default-domain";
+    pub const DEFAULT_TARGET_VALUE: &str = "example.test";
+    pub const DEFAULT_CAPABILITY_ID: &str = "managed-browser-active-tab-proof";
+    pub const DEFAULT_CAPABILITY_LABEL: &str = "Managed browser active tab proof";
+    pub const DEFAULT_CAPABILITY_REASON: &str =
+        "Compiler scaffold does not claim managed browser proof is installed.";
+    pub const REVISION_PREFIX: &str = "browser-policy-revision-";
+    pub const COMPILED_HASH_PREFIX: &str = "browser-policy-compiled-";
+    pub const AUDIT_PREFIX: &str = "browser-policy-audit-";
+    pub const REJECTION_INVALID_REQUEST: &str = "invalid-request";
+    pub const REJECTION_UNKNOWN_WRITES_TO: &str = "unknown-writes-to";
+    pub const REJECTION_UNKNOWN_FIELD: &str = "unknown-field";
+    pub const REJECTION_INVALID_ENUM_VALUE: &str = "invalid-enum-value";
+    pub const REJECTION_MISSING_BUDGET_OR_FALLBACK: &str = "missing-budget-or-fallback";
+    pub const REJECTION_MISSING_MANAGED_PROOF_OR_FALLBACK: &str =
+        "missing-managed-proof-or-fallback";
+    pub const REJECTION_CAPABILITY_UNAVAILABLE: &str = "capability-unavailable";
     pub const REJECTION_SCAFFOLD_UNAVAILABLE: &str = "scaffold-unavailable";
+    pub const REJECTION_STORAGE_UNAVAILABLE: &str = "storage-unavailable";
+    pub const REJECTION_STALE_REVISION: &str = "stale-revision";
+    pub const REJECTION_REVISION_NOT_FOUND: &str = "revision-not-found";
     pub const SCAFFOLD_UNAVAILABLE_MESSAGE: &str =
         "Browser policy persistence and compiler are not implemented in this scaffold slice.";
+    pub const MESSAGE_ACCEPTED: &str = "Browser policy update accepted.";
+    pub const MESSAGE_PREVIEWED: &str =
+        "Browser policy preview compiled without persisting a revision.";
+    pub const MESSAGE_REPORTED: &str = "Browser policy state reported.";
+    pub const MESSAGE_ROLLBACK_ACCEPTED: &str = "Browser policy rollback accepted.";
+    pub const MESSAGE_INVALID_REQUEST: &str = "Browser policy request is invalid.";
+    pub const MESSAGE_STORAGE_UNAVAILABLE: &str = "Browser policy storage is unavailable.";
+    pub const MESSAGE_STALE_REVISION: &str = "Browser policy base revision is stale.";
+    pub const MESSAGE_REVISION_NOT_FOUND: &str = "Browser policy revision was not found.";
+    pub const MESSAGE_INVALID_POLICY: &str = "Browser policy value is inconsistent.";
 }
 #[path = "constants/enforcement.rs"]
 pub mod enforcement;

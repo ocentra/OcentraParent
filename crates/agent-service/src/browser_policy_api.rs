@@ -1,78 +1,116 @@
 use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, AgentCommandName, AgentEventEnvelope, AgentEventName,
-    BrowserPolicyUpdateKind, LogFieldValue, LogLevel,
+    constants, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName,
+    BrowserPolicyRejectionReason, BrowserPolicyUpdateKind, BrowserPolicyUpdateResponse,
+    BrowserPolicyUpdateStatus, LogLevel,
 };
 
-use crate::{browser_policy_payload::browser_policy_scaffold_payload, event_builder::build_event};
+use crate::{
+    browser_policy_payload::browser_policy_response_payload,
+    browser_policy_request::{
+        kind_for_command, parse_browser_policy_request, request_id_from_command,
+    },
+    browser_policy_runtime::BrowserPolicyRuntime,
+    event_builder::build_event,
+    time::timestamp_now,
+};
 
-pub fn build_browser_policy_scaffold_event(command: AgentCommandEnvelope) -> AgentEventEnvelope {
-    let kind = kind_for_command(&command.command);
+pub async fn build_browser_policy_event(
+    runtime: BrowserPolicyRuntime,
+    command: AgentCommandEnvelope,
+) -> AgentEventEnvelope {
+    let response = match parse_browser_policy_request(&command) {
+        Ok(request) => runtime.handle_request(request).await,
+        Err(reason) => invalid_request_response(&command, reason),
+    };
+    let event_name = event_name_for_response(response.kind, response.status);
+    let event_id = event_id_for_response(response.kind, response.status);
+    let severity = match response.status {
+        BrowserPolicyUpdateStatus::Accepted => LogLevel::Info,
+        BrowserPolicyUpdateStatus::Rejected => LogLevel::Warn,
+    };
     build_event(
-        event_id_for_command(&command.command),
+        event_id,
         &command.message_id,
         command.source.clone(),
-        event_name_for_command(&command.command),
-        LogLevel::Warn,
-        browser_policy_scaffold_payload(request_id_from_command(&command), kind),
+        event_name,
+        severity,
+        browser_policy_response_payload(&response),
         None,
     )
 }
 
-fn request_id_from_command(command: &AgentCommandEnvelope) -> String {
-    match command
-        .payload
-        .get(constants::field::BROWSER_POLICY_REQUEST)
-    {
-        Some(LogFieldValue::String(text)) => serde_json::from_str::<serde_json::Value>(text)
-            .ok()
-            .and_then(|value| {
-                value
-                    .get(constants::field::BROWSER_POLICY_REQUEST_ID)
-                    .and_then(|request_id| request_id.as_str().map(ToString::to_string))
-            })
-            .unwrap_or_else(|| command.message_id.clone()),
-        _ => command.message_id.clone(),
+fn invalid_request_response(
+    command: &AgentCommandEnvelope,
+    reason: BrowserPolicyRejectionReason,
+) -> BrowserPolicyUpdateResponse {
+    BrowserPolicyUpdateResponse {
+        schema_version:
+            ocentra_parent_agent_protocol::policy_constants::CONTRACT_SCHEMA_VERSION_V0_6
+                .to_string(),
+        request_id: request_id_from_command(command),
+        kind: kind_for_command(command),
+        status: BrowserPolicyUpdateStatus::Rejected,
+        policy: None,
+        effective_policy: None,
+        capability_registry: Some(
+            crate::browser_policy_compiler::browser_policy_capability_registry(&timestamp_now()),
+        ),
+        rejection_reason: Some(reason),
+        audit_event_id: None,
+        message: Some(constants::browser_policy::MESSAGE_INVALID_REQUEST.to_string()),
     }
 }
 
-fn kind_for_command(command: &AgentCommandName) -> BrowserPolicyUpdateKind {
-    match command {
-        AgentCommandName::AgentBrowserPolicyPreview => BrowserPolicyUpdateKind::Preview,
-        AgentCommandName::AgentBrowserPolicyPatch => BrowserPolicyUpdateKind::Patch,
-        AgentCommandName::AgentBrowserPolicyReplace => BrowserPolicyUpdateKind::Replace,
-        AgentCommandName::AgentBrowserPolicyRollback => BrowserPolicyUpdateKind::Rollback,
-        _ => BrowserPolicyUpdateKind::Get,
-    }
-}
-
-fn event_id_for_command(command: &AgentCommandName) -> &'static str {
-    match command {
-        AgentCommandName::AgentBrowserPolicyPreview => {
-            constants::event_id::BROWSER_POLICY_PREVIEWED
+fn event_id_for_response(
+    kind: BrowserPolicyUpdateKind,
+    status: BrowserPolicyUpdateStatus,
+) -> &'static str {
+    match (kind, status) {
+        (BrowserPolicyUpdateKind::Preview, _) => constants::event_id::BROWSER_POLICY_PREVIEWED,
+        (BrowserPolicyUpdateKind::Patch, BrowserPolicyUpdateStatus::Accepted) => {
+            constants::event_id::BROWSER_POLICY_PATCH_ACCEPTED
         }
-        AgentCommandName::AgentBrowserPolicyPatch => {
+        (BrowserPolicyUpdateKind::Patch, BrowserPolicyUpdateStatus::Rejected) => {
             constants::event_id::BROWSER_POLICY_PATCH_REJECTED
         }
-        AgentCommandName::AgentBrowserPolicyReplace => {
+        (BrowserPolicyUpdateKind::Replace, BrowserPolicyUpdateStatus::Accepted) => {
+            constants::event_id::BROWSER_POLICY_REPLACE_ACCEPTED
+        }
+        (BrowserPolicyUpdateKind::Replace, BrowserPolicyUpdateStatus::Rejected) => {
             constants::event_id::BROWSER_POLICY_REPLACE_REJECTED
         }
-        AgentCommandName::AgentBrowserPolicyRollback => {
+        (BrowserPolicyUpdateKind::Rollback, BrowserPolicyUpdateStatus::Accepted) => {
+            constants::event_id::BROWSER_POLICY_ROLLBACK_ACCEPTED
+        }
+        (BrowserPolicyUpdateKind::Rollback, BrowserPolicyUpdateStatus::Rejected) => {
             constants::event_id::BROWSER_POLICY_ROLLBACK_REJECTED
         }
         _ => constants::event_id::BROWSER_POLICY_REPORTED,
     }
 }
 
-fn event_name_for_command(command: &AgentCommandName) -> AgentEventName {
-    match command {
-        AgentCommandName::AgentBrowserPolicyPreview => AgentEventName::AgentBrowserPolicyPreviewed,
-        AgentCommandName::AgentBrowserPolicyPatch => {
+fn event_name_for_response(
+    kind: BrowserPolicyUpdateKind,
+    status: BrowserPolicyUpdateStatus,
+) -> AgentEventName {
+    match (kind, status) {
+        (BrowserPolicyUpdateKind::Preview, _) => AgentEventName::AgentBrowserPolicyPreviewed,
+        (BrowserPolicyUpdateKind::Patch, BrowserPolicyUpdateStatus::Accepted) => {
+            AgentEventName::AgentBrowserPolicyPatchAccepted
+        }
+        (BrowserPolicyUpdateKind::Patch, BrowserPolicyUpdateStatus::Rejected) => {
             AgentEventName::AgentBrowserPolicyPatchRejected
         }
-        AgentCommandName::AgentBrowserPolicyReplace => {
+        (BrowserPolicyUpdateKind::Replace, BrowserPolicyUpdateStatus::Accepted) => {
+            AgentEventName::AgentBrowserPolicyReplaceAccepted
+        }
+        (BrowserPolicyUpdateKind::Replace, BrowserPolicyUpdateStatus::Rejected) => {
             AgentEventName::AgentBrowserPolicyReplaceRejected
         }
-        AgentCommandName::AgentBrowserPolicyRollback => {
+        (BrowserPolicyUpdateKind::Rollback, BrowserPolicyUpdateStatus::Accepted) => {
+            AgentEventName::AgentBrowserPolicyRollbackAccepted
+        }
+        (BrowserPolicyUpdateKind::Rollback, BrowserPolicyUpdateStatus::Rejected) => {
             AgentEventName::AgentBrowserPolicyRollbackRejected
         }
         _ => AgentEventName::AgentBrowserPolicyReported,

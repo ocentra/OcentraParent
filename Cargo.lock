@@ -1264,6 +1264,7 @@ dependencies = [
  "chrono",
  "ocentra-parent-agent-core",
  "ocentra-parent-agent-protocol",
+ "serde",
  "serde_json",
  "tokio",
  "tower-http",
