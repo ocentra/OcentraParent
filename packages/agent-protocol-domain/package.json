@@ -9,6 +9,10 @@
       "import": "./dist/activity-surface-adapter.js",
       "types": "./dist/activity-surface-adapter.d.ts"
     },
+    "./browser-policy-adapter": {
+      "import": "./dist/browser-policy-adapter.js",
+      "types": "./dist/browser-policy-adapter.d.ts"
+    },
     "./parent-assistant-adapter": {
       "import": "./dist/parent-assistant-adapter.js",
       "types": "./dist/parent-assistant-adapter.d.ts"
