@@ -127,6 +127,7 @@ Run from a clean checkout before manual platform work:
 ```powershell
 cmd /c npm run format:check
 cmd /c npm run test:pre-ai-proof
+cmd /c node scripts/test/platform-os-lan-mobile-proof.mjs
 cmd /c npm run validate
 ```
 
@@ -141,6 +142,9 @@ The shared gate must prove:
 - the parent surface talks to the real service;
 - encrypted journal and SQLite paths use product code;
 - unavailable or degraded platform capability states remain explicit.
+- owned-process enforcement is real only where the host OS supports it, and
+  broad app/domain/browser/mobile states remain manual-required or unavailable
+  until real adapters and device artifacts exist.
 
 ## Manual Proof Runbook
 

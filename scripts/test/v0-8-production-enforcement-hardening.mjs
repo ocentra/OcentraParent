@@ -1,6 +1,6 @@
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:net';
-import { join, relative } from 'node:path';
+import { basename, join, relative } from 'node:path';
 import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { setTimeout as delay } from 'node:timers/promises';
 
@@ -28,6 +28,13 @@ async function main() {
   try {
     await waitForHealth(agentPort, serviceOutput);
     const assertions = [];
+    const processChild = spawnOwnedChildProcess();
+    try {
+      const processEvent = await requestEvent(agentPort, processTerminateCommand(processChild));
+      assertions.push(await assertProcessTerminateEvent(processEvent, processChild));
+    } finally {
+      await stopProcessTreeAndWait(processChild);
+    }
     for (const scenario of scenarios()) {
       const event = await requestEvent(agentPort, commandEnvelope(scenario));
       assertions.push(assertManualRequiredEvent(event, scenario));
@@ -46,6 +53,7 @@ async function main() {
         manualRequiredStatesProvenThroughService: true,
         unsupportedBlockingClaimsRejected: true,
         auditStoragePathProven: true,
+        processTerminateServiceProof: process.platform === 'win32' ? 'actually-enforced' : 'unsupported-platform',
       },
       assertions,
       artifacts: {
@@ -63,6 +71,73 @@ async function main() {
   } finally {
     await stopProcessTreeAndWait(service);
   }
+}
+
+function spawnOwnedChildProcess() {
+  return spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000);'], {
+    cwd: process.cwd(),
+    stdio: 'ignore',
+    windowsHide: true,
+  });
+}
+
+function waitForChildExit(child) {
+  if (child.exitCode !== null || child.signalCode !== null) {
+    return Promise.resolve();
+  }
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      child.off('exit', onExit);
+      reject(new Error(`Timed out waiting for owned child process ${child.pid} to exit.`));
+    }, timeoutMs);
+    const onExit = () => {
+      clearTimeout(timer);
+      resolve();
+    };
+    child.once('exit', onExit);
+  });
+}
+
+async function assertProcessTerminateEvent(event, child) {
+  assertEqual(event.event, 'agent.enforcement.audit.reported', 'process-terminate-owned-process event');
+  assertEqual(event.payload.databaseReady, true, 'process-terminate-owned-process databaseReady');
+  const action = JSON.parse(event.payload.enforcementAction);
+  const result = JSON.parse(event.payload.enforcementResult);
+  const audit = JSON.parse(event.payload.enforcementAuditEvent);
+  assertEqual(action.adapterKind, 'process-control', 'process-terminate-owned-process adapterKind');
+  assertEqual(action.mode, 'terminate-process', 'process-terminate-owned-process mode');
+  assertEqual(action.target.targetType, 'process', 'process-terminate-owned-process targetType');
+  if (process.platform === 'win32') {
+    assertEqual(event.payload.enforcementStatus, 'actually-enforced', 'process-terminate-owned-process status');
+    if (!['process-terminated', 'process-already-exited'].includes(event.payload.enforcementAdapterResultCode)) {
+      throw new Error(
+        `process-terminate-owned-process adapterResultCode: expected process termination, received ${event.payload.enforcementAdapterResultCode}`
+      );
+    }
+    assertEqual(result.capability.capabilityState, 'supported', 'process-terminate-owned-process capabilityState');
+    assertEqual(audit.auditEventKind, 'succeeded', 'process-terminate-owned-process auditEventKind');
+    await waitForChildExit(child);
+  } else {
+    assertEqual(event.payload.enforcementStatus, 'unavailable', 'process-terminate-owned-process status');
+    assertEqual(
+      event.payload.enforcementAdapterResultCode,
+      'unsupported-platform',
+      'process-terminate-owned-process adapterResultCode'
+    );
+    assertEqual(result.capability.capabilityState, 'unavailable', 'process-terminate-owned-process capabilityState');
+    assertEqual(audit.auditEventKind, 'unavailable', 'process-terminate-owned-process auditEventKind');
+  }
+  return {
+    id: 'process-terminate-owned-process',
+    targetType: action.target.targetType,
+    adapterKind: action.adapterKind,
+    mode: action.mode,
+    status: event.payload.enforcementStatus,
+    adapterResultCode: event.payload.enforcementAdapterResultCode,
+    capabilityState: result.capability.capabilityState,
+    auditEventKind: audit.auditEventKind,
+    eventsStored: event.payload.eventsStored,
+  };
 }
 
 function scenarios() {
@@ -89,6 +164,37 @@ function scenarios() {
       expectedMode: 'temporary-block',
     },
   ];
+}
+
+function processTerminateCommand(child) {
+  const now = new Date();
+  return {
+    schemaVersion: 1,
+    messageId: 'cmd-v08-hardening-process-terminate-owned-process',
+    sentAt: now.toISOString(),
+    source: { peerId: 'portal-dev', role: 'portal' },
+    target: { deviceId: 'local-dev-agent', platform: 'windows', route: 'localhost' },
+    command: 'agent.enforcement.execute',
+    payload: {
+      policyDecisionId: 'decision-v08-hardening-process-terminate-owned-process',
+      policyVersion: 'policy-v08-hardening',
+      policyAction: 'block',
+      targetType: 'process',
+      targetId: 'target-v08-hardening-process-terminate-owned-process',
+      targetValue: basename(process.execPath),
+      dryRun: false,
+      reasonCodes: 'parent-explicit-block',
+      ruleIds: 'rule-v08-hardening',
+      evidenceReferenceIds: 'evidence-v08-hardening-process-terminate-owned-process',
+      requestedAt: now.toISOString(),
+      expiresAt: new Date(now.getTime() + 300_000).toISOString(),
+      enforcementActionId: 'action-v08-hardening-process-terminate-owned-process',
+      enforcementResultId: 'result-v08-hardening-process-terminate-owned-process',
+      enforcementAuditEventId: 'audit-v08-hardening-process-terminate-owned-process',
+      enforcementTimerEventId: 'timer-v08-hardening-process-terminate-owned-process',
+      processId: child.pid,
+    },
+  };
 }
 
 function spawnAgentService(runRoot, agentPort) {

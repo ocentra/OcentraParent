@@ -16,7 +16,8 @@
     "package-preview-platforms",
     "platform-roles-lan-ai-provider-pool",
     "v08-v09-product-proof-final-pass",
-    "platform-lan-enforcement-production-proof"
+    "platform-lan-enforcement-production-proof",
+    "platform-os-lan-mobile-proof"
   ],
   "checkpointScenarios": [
     {
@@ -303,6 +304,45 @@
         "A local proof bundle presented as product-complete parental control.",
         "A manual-required platform state presented as a completed mobile or child-agent capability.",
         "A successful LAN WebSocket route presented as cloud relay or production household discovery."
+      ]
+    },
+    {
+      "id": "platform-os-lan-mobile-proof",
+      "title": "OS Enforcement, Production LAN, And Mobile Platform Proof",
+      "claimIds": ["platform-os-lan-mobile-proof"],
+      "expectationFiles": [
+        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/expectations/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
+        "docs/expectations/lan-pairing.md",
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/platforms.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "proofMode": "ci-mechanical-proof",
+      "realEvidencePath": [
+        "Build contracts and run parent-domain platform capability tests from the current commit.",
+        "Run the platform/LAN/enforcement production proof bundle.",
+        "Verify owned-process terminate proof where the host OS supports it and unsupported-platform status elsewhere.",
+        "Verify broad app/domain/browser blocking remains manual-required or unavailable unless a real adapter proof exists.",
+        "Verify V0.9 production LAN keeps household two-device proof manual-required and cloud relay not implemented.",
+        "Verify Android and iOS child states are capability-specific instead of broad mobile parity claims."
+      ],
+      "ciCommands": ["node scripts/test/platform-os-lan-mobile-proof.mjs"],
+      "requiredArtifacts": [
+        "test-results/platform-os-lan-mobile-proof/proof.json",
+        "test-results/platform-lan-enforcement-production-proof/proof.json",
+        "test-results/v0-8-production-enforcement-hardening/*.json",
+        "test-results/v0-9-production-lan-multidevice-hardening/proof.json"
+      ],
+      "knownGaps": [
+        "Network/domain blocking, broad app blocking, and unmanaged browser control remain manual-required or unavailable until OS-approved adapters have real host proof.",
+        "Physical household discovery, router/firewall behavior, and mobile background behavior remain manual-required.",
+        "Android UsageStats/accessibility/VPN/DNS/device-owner/managed-profile and iOS Family Controls/DeviceActivity/Screen Time/Network Extension/notifications/background execution/TestFlight remain manual-required until real device or entitlement proof exists."
+      ],
+      "notProof": [
+        "A process-termination proof presented as global OS blocking.",
+        "A direct local WebSocket proof presented as household discovery.",
+        "A scaffolded mobile package presented as Android or iOS child-agent parity."
       ]
     },
     {
@@ -804,6 +844,66 @@
         "Record parent mobile controller/observer backend behavior from a real mobile package before upgrading parent mobile coverage.",
         "Record Android UsageStats, accessibility, VPN/DNS, device-owner, managed-profile, foreground service, and package lifecycle artifacts before upgrading Android child coverage.",
         "Record iOS Family Controls, DeviceActivity, Screen Time, Network Extension, notification, background execution, signing, and TestFlight artifacts before upgrading iOS child coverage."
+      ]
+    },
+    {
+      "id": "platform-os-lan-mobile-proof",
+      "roadmapSlice": "V0.8 OS enforcement, V0.9 production LAN, and mobile platform capability proof",
+      "expectationFiles": [
+        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/expectations/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
+        "docs/expectations/lan-pairing.md",
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/platforms.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "claim": "Owned-process terminate enforcement, app time-limit enforcement lifecycle, manual-required broad app/domain/browser states, production LAN local multi-service proof, physical household LAN checklist, explicit cloud-relay non-claim, parent-mobile backend scaffold states, and Android/iOS child capability states are verified by a B-owned proof command.",
+      "privilegedCapability": true,
+      "ciProof": {
+        "commands": ["node scripts/test/platform-os-lan-mobile-proof.mjs"],
+        "jobs": ["Worker B OS enforcement, production LAN, and mobile platform proof"]
+      },
+      "platformCoverage": {
+        "windows": "real-local-windows-proof",
+        "linux": "manual-required",
+        "macos": "manual-required",
+        "android": "manual-required",
+        "ios": "manual-required"
+      },
+      "runtimeSurfaceCoverage": {
+        "osEnforcementAdapters": {
+          "state": "implemented",
+          "proof": "Real service proof covers owned-process terminate where supported, app time-limit execute/restart recovery/parent cancel/expiry/audit/storage, and honest manual-required or unavailable states for broad app/domain/browser blocking."
+        },
+        "productionLanHousehold": {
+          "state": "scaffold",
+          "proof": "Local multi-service proof covers route, lease, registry, rejection, provider, and cloud-relay non-claim mechanics while physical household discovery remains manual-required."
+        },
+        "parentMobileBackend": {
+          "state": "scaffold",
+          "proof": "Parent mobile observer/controller states are represented as scaffold or manual-required until a real mobile package/device proof exists."
+        },
+        "androidChild": {
+          "state": "manual-required",
+          "proof": "Foreground service, storage, protocol bridge, UsageStats, accessibility, VPN/DNS, device-owner, and managed-profile states are tracked separately and require emulator or device artifacts before support is upgraded."
+        },
+        "iosChild": {
+          "state": "manual-required",
+          "proof": "Family Controls, DeviceActivity, Screen Time, Network Extension, notifications, background execution, signing, and TestFlight states are tracked separately and require Apple entitlement/device evidence before support is upgraded."
+        }
+      },
+      "knownGaps": [
+        "Broad V0.8 blocking remains unclaimed outside owned-process and host-specific adapter proof.",
+        "Production household discovery and real router/firewall behavior remain manual-required.",
+        "Mobile platform claims remain capability-specific manual-required or scaffold states until real package/device proof exists."
+      ],
+      "manualProofChecklist": [
+        "Archive test-results/platform-os-lan-mobile-proof/proof.json with the commit SHA.",
+        "Run the OS enforcement proof on a real Windows child host and record process terminate, app time-limit, parent cancel, restart recovery, expiry, audit, app/domain/browser unavailable states, and service logs.",
+        "Run V0.9 LAN proof across two physical household devices and record parent/child IPs, firewall state, origin allowlist, pairing, route selection, takeover, revocation, wrong-origin rejection, restart recovery, and provider state.",
+        "Record parent mobile controller/observer backend behavior from Android and iOS packages before upgrading parent mobile coverage.",
+        "Record Android UsageStats, accessibility, VPN/DNS, device-owner, managed-profile, foreground-service, storage, protocol-bridge, and package lifecycle artifacts before upgrading Android child coverage.",
+        "Record iOS Family Controls, DeviceActivity, Screen Time, Network Extension, notifications, background execution, signing, and TestFlight artifacts before upgrading iOS child coverage."
       ]
     }
   ]

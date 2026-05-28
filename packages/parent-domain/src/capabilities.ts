@@ -1,10 +1,20 @@
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import { ParentControlPlatformCapabilityInputs } from './capability-data';
 
 const NonEmptyCapabilityText = Schema.String.pipe(Schema.minLength(1));
 
 export const ParentControlPlatformSchema = withParser(Schema.Literal('windows', 'linux', 'macos', 'android', 'ios'));
 export const ParentControlCapabilityStatusSchema = withParser(
-  Schema.Literal('supported', 'preview-scaffold', 'planned')
+  Schema.Literal(
+    'supported',
+    'implemented',
+    'preview-scaffold',
+    'scaffold',
+    'manual-required',
+    'unavailable',
+    'planned',
+    'not-implemented'
+  )
 );
 
 export const ParentControlCapabilityNameSchema = withParser(
@@ -12,9 +22,23 @@ export const ParentControlCapabilityNameSchema = withParser(
     'headless-agent-service',
     'local-websocket-control',
     'lan-websocket-control',
+    'parent-mobile-controller',
+    'parent-mobile-observer',
     'foreground-mobile-service',
+    'local-storage',
+    'typed-protocol-bridge',
+    'usage-stats',
+    'accessibility-service',
+    'vpn-dns-filtering',
     'device-owner-policy',
+    'managed-profile',
     'family-controls-entitlement',
+    'device-activity',
+    'screen-time-api',
+    'network-extension',
+    'notifications',
+    'background-execution',
+    'testflight-distribution',
     'signed-auto-update',
     'store-distribution'
   )
@@ -43,105 +67,40 @@ export type ParentControlPlatformCapability = Infer<typeof ParentControlPlatform
 
 export const ParentControlCapabilityStatus = {
   Supported: ParentControlCapabilityStatusSchema.parse('supported'),
+  Implemented: ParentControlCapabilityStatusSchema.parse('implemented'),
   PreviewScaffold: ParentControlCapabilityStatusSchema.parse('preview-scaffold'),
+  Scaffold: ParentControlCapabilityStatusSchema.parse('scaffold'),
+  ManualRequired: ParentControlCapabilityStatusSchema.parse('manual-required'),
+  Unavailable: ParentControlCapabilityStatusSchema.parse('unavailable'),
   Planned: ParentControlCapabilityStatusSchema.parse('planned'),
+  NotImplemented: ParentControlCapabilityStatusSchema.parse('not-implemented'),
 } as const;
 
 export const ParentControlCapabilityName = {
   HeadlessAgentService: ParentControlCapabilityNameSchema.parse('headless-agent-service'),
   LocalWebSocketControl: ParentControlCapabilityNameSchema.parse('local-websocket-control'),
   LanWebSocketControl: ParentControlCapabilityNameSchema.parse('lan-websocket-control'),
+  ParentMobileController: ParentControlCapabilityNameSchema.parse('parent-mobile-controller'),
+  ParentMobileObserver: ParentControlCapabilityNameSchema.parse('parent-mobile-observer'),
   ForegroundMobileService: ParentControlCapabilityNameSchema.parse('foreground-mobile-service'),
+  LocalStorage: ParentControlCapabilityNameSchema.parse('local-storage'),
+  TypedProtocolBridge: ParentControlCapabilityNameSchema.parse('typed-protocol-bridge'),
+  UsageStats: ParentControlCapabilityNameSchema.parse('usage-stats'),
+  AccessibilityService: ParentControlCapabilityNameSchema.parse('accessibility-service'),
+  VpnDnsFiltering: ParentControlCapabilityNameSchema.parse('vpn-dns-filtering'),
   DeviceOwnerPolicy: ParentControlCapabilityNameSchema.parse('device-owner-policy'),
+  ManagedProfile: ParentControlCapabilityNameSchema.parse('managed-profile'),
   FamilyControlsEntitlement: ParentControlCapabilityNameSchema.parse('family-controls-entitlement'),
+  DeviceActivity: ParentControlCapabilityNameSchema.parse('device-activity'),
+  ScreenTimeApi: ParentControlCapabilityNameSchema.parse('screen-time-api'),
+  NetworkExtension: ParentControlCapabilityNameSchema.parse('network-extension'),
+  Notifications: ParentControlCapabilityNameSchema.parse('notifications'),
+  BackgroundExecution: ParentControlCapabilityNameSchema.parse('background-execution'),
+  TestflightDistribution: ParentControlCapabilityNameSchema.parse('testflight-distribution'),
   SignedAutoUpdate: ParentControlCapabilityNameSchema.parse('signed-auto-update'),
   StoreDistribution: ParentControlCapabilityNameSchema.parse('store-distribution'),
 } as const;
 
-export const ParentControlPlatformCapabilities = [
-  ParentControlPlatformCapabilitySchema.parse({
-    platform: 'windows',
-    capabilities: [
-      {
-        capability: 'headless-agent-service',
-        status: 'supported',
-        note: 'Windows service package is the first supported agent target.',
-      },
-      {
-        capability: 'local-websocket-control',
-        status: 'supported',
-        note: 'Local portal can connect to the Windows agent over localhost.',
-      },
-      {
-        capability: 'lan-websocket-control',
-        status: 'preview-scaffold',
-        note: 'LAN transport exists for development and must require pairing before child activity control.',
-      },
-      {
-        capability: 'signed-auto-update',
-        status: 'supported',
-        note: 'Windows update manifest signing and MSI upgrade scaffold are wired.',
-      },
-    ],
-  }),
-  ParentControlPlatformCapabilitySchema.parse({
-    platform: 'linux',
-    capabilities: [
-      {
-        capability: 'headless-agent-service',
-        status: 'preview-scaffold',
-        note: 'Linux deb and systemd package preview builds in CI.',
-      },
-    ],
-  }),
-  ParentControlPlatformCapabilitySchema.parse({
-    platform: 'macos',
-    capabilities: [
-      {
-        capability: 'headless-agent-service',
-        status: 'preview-scaffold',
-        note: 'macOS pkg and launchd package preview builds in CI.',
-      },
-    ],
-  }),
-  ParentControlPlatformCapabilitySchema.parse({
-    platform: 'android',
-    capabilities: [
-      {
-        capability: 'foreground-mobile-service',
-        status: 'preview-scaffold',
-        note: 'Android debug APK foreground service preview builds in CI.',
-      },
-      {
-        capability: 'device-owner-policy',
-        status: 'planned',
-        note: 'Device-owner policy is not claimed until enrollment and policy tests exist.',
-      },
-      {
-        capability: 'store-distribution',
-        status: 'planned',
-        note: 'Google Play signing and release tracks are not wired yet.',
-      },
-    ],
-  }),
-  ParentControlPlatformCapabilitySchema.parse({
-    platform: 'ios',
-    capabilities: [
-      {
-        capability: 'foreground-mobile-service',
-        status: 'preview-scaffold',
-        note: 'iOS simulator app preview builds in CI.',
-      },
-      {
-        capability: 'family-controls-entitlement',
-        status: 'planned',
-        note: 'Apple Family Controls entitlement is not claimed until entitlement and device tests exist.',
-      },
-      {
-        capability: 'store-distribution',
-        status: 'planned',
-        note: 'Apple signing, notarization, and App Store workflows are not wired yet.',
-      },
-    ],
-  }),
-] as const;
+export const ParentControlPlatformCapabilities = ParentControlPlatformCapabilityInputs.map((entry) =>
+  ParentControlPlatformCapabilitySchema.parse(entry)
+);

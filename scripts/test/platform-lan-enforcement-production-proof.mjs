@@ -106,7 +106,13 @@ function assertV08Production(evidence) {
   );
   assertEqual(evidence.serviceScope?.unsupportedBlockingClaimsRejected, true, 'V0.8 unsupported blocking rejected');
   assertEqual(evidence.serviceScope?.auditStoragePathProven, true, 'V0.8 audit storage path');
+  assertOneOf(
+    evidence.serviceScope?.processTerminateServiceProof,
+    ['actually-enforced', 'unsupported-platform'],
+    'V0.8 process terminate service proof'
+  );
   const assertionIds = new Set(evidence.assertions.map((assertion) => assertion.id));
+  assertSetHas(assertionIds, 'process-terminate-owned-process', 'V0.8 process terminate proof');
   for (const id of [
     'app-block-process-control',
     'domain-block-network-control',
@@ -115,9 +121,19 @@ function assertV08Production(evidence) {
     assertSetHas(assertionIds, id, 'V0.8 unavailable adapter proof');
   }
   for (const assertion of evidence.assertions) {
+    if (assertion.id === 'process-terminate-owned-process') {
+      assertOneOf(assertion.status, ['actually-enforced', 'unavailable'], 'V0.8 process terminate status');
+      assertOneOf(
+        assertion.adapterResultCode,
+        ['process-terminated', 'process-already-exited', 'unsupported-platform'],
+        'V0.8 process terminate adapter result'
+      );
+      continue;
+    }
     assertEqual(assertion.status, 'unavailable', 'V0.8 broad blocking unavailable status');
     assertOneOf(assertion.capabilityState, ['manual-required', 'unavailable'], 'V0.8 capability state');
   }
+  proofLabels.push('v0.8.owned-process-terminate-service-proof');
   proofLabels.push('v0.8.manual-required-broad-adapter-state-proof');
 }
 
