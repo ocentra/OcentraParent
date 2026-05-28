@@ -1,9 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import {
   ParentAssistantActionPreviewSchema,
+  ParentAssistantActionConfirmResultSchema,
   ParentAssistantAnswerSchema,
   ParentAssistantApiProviderBoundarySchema,
   ParentAssistantGenerateRequestSchema,
+  ParentAssistantProviderStatusSchema,
+  ParentAssistantRunCancelResultSchema,
+  ParentAssistantThreadResponseSchema,
 } from '../src/parent-assistant';
 import {
   ParentActorRole,
@@ -217,3 +221,88 @@ describe('parent assistant API provider boundary contracts', () => {
     ).toBe(false);
   });
 });
+
+describe('parent assistant backend runtime contracts', () => {
+  it('ParentAssistantThreadResponseSchema: accepts volatile local thread lifecycle state', () => {
+    const parsed = ParentAssistantThreadResponseSchema.parse({
+      schemaVersion: ParentContractSchemaVersion.V0_6,
+      backendState: 'volatile-local',
+      activeThread: threadRecord('open'),
+      threads: [threadRecord('open')],
+      reason: 'Thread state is service-backed but not yet persisted.',
+    });
+
+    expect(parsed.activeThread?.state).toBe('open');
+    expect(parsed.threads[0]?.backendState).toBe('volatile-local');
+  });
+
+  it('ParentAssistantProviderStatusSchema: exposes local provider and API custody boundaries', () => {
+    const parsed = ParentAssistantProviderStatusSchema.parse({
+      schemaVersion: ParentContractSchemaVersion.V0_6,
+      backendState: 'runtime-backed',
+      providerId: 'local-provider-llama-cli',
+      modelId: 'local-gguf-chat-model',
+      providerState: 'unavailable',
+      schedulerJobStatus: 'unavailable',
+      degradedState: 'provider-unavailable',
+      unavailableReason: 'local-ai-provider-unconfigured',
+      queueDepth: 0,
+      busy: false,
+      apiProviderBoundary: ApiProviderBoundary,
+    });
+
+    expect(parsed.apiProviderBoundary.authorizationState).toBe('not-authorized');
+    expect(parsed.busy).toBe(false);
+  });
+
+  it('ParentAssistantRunCancelResultSchema: reports no-active-run without pretending to stop a runtime', () => {
+    const parsed = ParentAssistantRunCancelResultSchema.parse({
+      schemaVersion: ParentContractSchemaVersion.V0_6,
+      backendState: 'runtime-backed',
+      threadId: 'parent-assistant-thread-1',
+      runId: 'parent-assistant-run-1',
+      cancelState: 'not-running',
+      providerState: 'unavailable',
+      unavailableReason: 'parent-assistant-run-not-running',
+    });
+
+    expect(parsed.cancelState).toBe('not-running');
+  });
+
+  it('ParentAssistantActionConfirmResultSchema: forbids direct policy writes and enforcement', () => {
+    const parsed = ParentAssistantActionConfirmResultSchema.parse({
+      schemaVersion: ParentContractSchemaVersion.V0_6,
+      backendState: 'contract-required',
+      actionIntentId: 'parent-assistant-action-intent-1',
+      previewId: 'parent-assistant-preview-1',
+      actionKind: 'policy-suggestion',
+      confirmState: 'contract-required',
+      requiresControllerLease: true,
+      childAgentContractRequired: true,
+      enforcementApplied: false,
+      policyWritten: false,
+      reason: 'Controller lease and child-agent policy contract are required before applying this action.',
+    });
+
+    expect(parsed.policyWritten).toBe(false);
+    expect(
+      ParentAssistantActionConfirmResultSchema.safeParse({
+        ...parsed,
+        enforcementApplied: true,
+      }).success
+    ).toBe(false);
+  });
+});
+
+function threadRecord(state: 'open' | 'archived') {
+  return {
+    schemaVersion: ParentContractSchemaVersion.V0_6,
+    threadId: 'parent-assistant-thread-1',
+    title: 'Recent activity questions',
+    state,
+    backendState: 'volatile-local',
+    createdAt: '2026-05-28T17:20:00Z',
+    updatedAt: '2026-05-28T17:20:01Z',
+    messageCount: 0,
+  } as const;
+}

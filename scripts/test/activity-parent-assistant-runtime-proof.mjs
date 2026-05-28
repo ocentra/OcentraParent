@@ -24,6 +24,13 @@ let AgentEventEnvelopeSchema;
 let AgentProtocolDefaults;
 let savedActivityReport;
 
+const ParentAssistantRuntimeField = {
+  actionConfirmResult: 'parentAssistantActionConfirmResult',
+  providerStatus: 'parentAssistantProviderStatus',
+  runCancelResult: 'parentAssistantRunCancelResult',
+  threadResponse: 'parentAssistantThreadResponse',
+};
+
 await runPackageCommand(['run', 'build:contracts']);
 ({ AgentCommand, AgentEvent, AgentEventEnvelopeSchema, AgentProtocolDefaults } =
   await import('@ocentra-parent/agent-protocol-domain/contracts'));
@@ -111,6 +118,34 @@ function runRuntimeProof() {
       expectedEvent: AgentEvent.ParentAssistantAnswerReported,
       payload: parentAssistantPayload,
       assertEvent: assertParentAssistantUnavailable,
+    },
+    {
+      messageId: 'cmd-parent-assistant-thread-create',
+      command: AgentCommand.ParentAssistantThreadCreate,
+      expectedEvent: AgentEvent.ParentAssistantThreadUpdated,
+      payload: parentAssistantThreadPayload,
+      assertEvent: assertParentAssistantThreadRuntime,
+    },
+    {
+      messageId: 'cmd-parent-assistant-provider-status',
+      command: AgentCommand.ParentAssistantProviderStatusGet,
+      expectedEvent: AgentEvent.ParentAssistantProviderDegraded,
+      payload: parentAssistantThreadPayload,
+      assertEvent: assertParentAssistantProviderStatus,
+    },
+    {
+      messageId: 'cmd-parent-assistant-run-cancel',
+      command: AgentCommand.ParentAssistantRunCancel,
+      expectedEvent: AgentEvent.ParentAssistantErrorReported,
+      payload: parentAssistantRunPayload,
+      assertEvent: assertParentAssistantRunCancel,
+    },
+    {
+      messageId: 'cmd-parent-assistant-action-confirm',
+      command: AgentCommand.ParentAssistantActionConfirm,
+      expectedEvent: AgentEvent.ParentAssistantActionConfirmed,
+      payload: parentAssistantActionPayload,
+      assertEvent: assertParentAssistantActionConfirm,
     },
   ];
 
@@ -323,6 +358,69 @@ function parentAssistantPayload() {
       'Recent local Activity tab data is available as parent-visible evidence.',
     [AgentProtocolDefaults.Field.ActivityReportDocument]: JSON.stringify(savedActivityReport),
   };
+}
+
+function parentAssistantThreadPayload() {
+  return {
+    [AgentProtocolDefaults.Field.ParentAssistantThreadId]: 'parent-assistant-thread-proof',
+  };
+}
+
+function parentAssistantRunPayload() {
+  return {
+    [AgentProtocolDefaults.Field.ParentAssistantThreadId]: 'parent-assistant-thread-proof',
+    [AgentProtocolDefaults.Field.ParentAssistantRunId]: 'parent-assistant-run-proof',
+  };
+}
+
+function parentAssistantActionPayload() {
+  return {
+    [AgentProtocolDefaults.Field.ParentAssistantActionIntentId]: 'parent-assistant-action-intent-proof',
+  };
+}
+
+function assertParentAssistantThreadRuntime(event) {
+  const response = parseJsonField(event.payload, ParentAssistantRuntimeField.threadResponse);
+  if (response.backendState !== 'volatile-local' || response.activeThread?.state !== 'open') {
+    throw new Error(`Parent Assistant thread runtime did not return volatile local state: ${JSON.stringify(response)}`);
+  }
+  if (!Array.isArray(response.threads) || response.threads.length < 1) {
+    throw new Error(`Parent Assistant thread runtime did not return thread list: ${JSON.stringify(response)}`);
+  }
+}
+
+function assertParentAssistantProviderStatus(event) {
+  const status = parseJsonField(event.payload, ParentAssistantRuntimeField.providerStatus);
+  if (status.backendState !== 'runtime-backed' || status.providerState !== 'unavailable') {
+    throw new Error(`Parent Assistant provider status was not runtime-backed unavailable: ${JSON.stringify(status)}`);
+  }
+  if (
+    status.apiProviderBoundary?.authorizationState !== 'not-authorized' ||
+    status.apiProviderBoundary?.childSafetyOrEnforcementUseAllowed !== false
+  ) {
+    throw new Error(`Parent Assistant provider status did not preserve API custody: ${JSON.stringify(status)}`);
+  }
+}
+
+function assertParentAssistantRunCancel(event) {
+  const result = parseJsonField(event.payload, ParentAssistantRuntimeField.runCancelResult);
+  if (result.cancelState !== 'not-running' || result.backendState !== 'runtime-backed') {
+    throw new Error(`Parent Assistant run cancel did not return typed no-active-run state: ${JSON.stringify(result)}`);
+  }
+}
+
+function assertParentAssistantActionConfirm(event) {
+  const result = parseJsonField(event.payload, ParentAssistantRuntimeField.actionConfirmResult);
+  if (
+    result.confirmState !== 'contract-required' ||
+    result.enforcementApplied !== false ||
+    result.policyWritten !== false ||
+    result.childAgentContractRequired !== true
+  ) {
+    throw new Error(
+      `Parent Assistant action confirm bypassed policy/child contract boundary: ${JSON.stringify(result)}`
+    );
+  }
 }
 
 function assertFamilySourceStates(report) {

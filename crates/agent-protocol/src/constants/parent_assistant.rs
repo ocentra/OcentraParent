@@ -2,6 +2,8 @@ pub const PROMPT_VERSION_LOCAL_V1: &str = "parent-assistant-local-v1";
 pub const DEFAULT_REQUEST_ID: &str = "parent-assistant-request-local";
 pub const DEFAULT_THREAD_ID: &str = "parent-assistant-thread-local";
 pub const DEFAULT_MESSAGE_ID: &str = "parent-assistant-message-local";
+pub const DEFAULT_RUN_ID: &str = "parent-assistant-run-local";
+pub const DEFAULT_ACTION_INTENT_ID: &str = "parent-assistant-action-intent-local";
 pub const DEFAULT_FAMILY_ID: &str = "family-local";
 pub const DEFAULT_PARENT_ACTOR_ID: &str = "parent-actor-local";
 pub const DEFAULT_QUESTION: &str = "Summarize the recent child activity evidence.";
@@ -43,6 +45,15 @@ pub const ACTION_PREVIEW_SCHEDULE_SUMMARY: &str =
 pub const ACTION_PREVIEW_TIME_LIMIT_SUMMARY: &str =
     "Time-limit preview only. Controller lease and child-agent contract execution are required before any limit changes.";
 pub const ACTION_PREVIEW_NONE_SUMMARY: &str = "No backend action is prepared from this answer.";
+pub const THREAD_TITLE_DEFAULT: &str = "Parent Assistant local thread";
+pub const THREAD_VOLATILE_REASON: &str =
+    "Parent Assistant thread state is service-backed and volatile until durable sync is wired.";
+pub const THREAD_ARCHIVED_REASON: &str =
+    "Parent Assistant thread is archived in the volatile local store.";
+pub const RUN_NOT_RUNNING_REASON: &str = "parent-assistant-run-not-running";
+pub const ACTION_CONFIRM_CONTRACT_REQUIRED_REASON: &str =
+    "Controller lease and child-agent policy contract are required before applying this action.";
+pub const REQUIRED_CHILD_CONTRACT_POLICY_WRITE: &str = "child-agent-policy-write-contract";
 pub const QUESTION_POLICY_HINT: &str = "policy";
 pub const QUESTION_RULE_HINT: &str = "rule";
 pub const QUESTION_SCHEDULE_HINT: &str = "schedule";
@@ -59,6 +70,20 @@ pub const LOCAL_PROVIDER_DEGRADED: &str = "local provider returned degraded outp
 pub const LOCAL_PROVIDER_BUSY: &str = "local provider is busy";
 pub const BACKEND_STATE_SCAFFOLD_ONLY: &str = "scaffold-only";
 pub const BACKEND_NOT_CONNECTED: &str = "parent-assistant-backend-not-connected";
+pub const BACKEND_STATE_RUNTIME_BACKED: &str = "runtime-backed";
+pub const BACKEND_STATE_VOLATILE_LOCAL: &str = "volatile-local";
+pub const BACKEND_STATE_CONTRACT_REQUIRED: &str = "contract-required";
+pub const FIELD_THREAD: &str = "parentAssistantThread";
+pub const FIELD_THREAD_RESPONSE: &str = "parentAssistantThreadResponse";
+pub const FIELD_THREADS: &str = "parentAssistantThreads";
+pub const FIELD_PROVIDER_STATUS: &str = "parentAssistantProviderStatus";
+pub const FIELD_RUN_CANCEL_RESULT: &str = "parentAssistantRunCancelResult";
+pub const FIELD_ACTION_CONFIRM_RESULT: &str = "parentAssistantActionConfirmResult";
+pub const FIELD_THREAD_ID: &str = "assistantThreadId";
+pub const FIELD_MESSAGE_ID: &str = "assistantMessageId";
+pub const FIELD_RUN_ID: &str = "assistantRunId";
+pub const FIELD_ACTION_INTENT_ID: &str = "assistantActionIntentId";
+pub const FIELD_REQUIRED_CHILD_CONTRACTS: &str = "requiredChildContracts";
 pub const PROVIDER_CONFIGURED: &str = "configured";
 pub const PROVIDER_DEGRADED: &str = "degraded";
 pub const PROVIDER_UNAVAILABLE: &str = "unavailable";

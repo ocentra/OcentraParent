@@ -1,5 +1,17 @@
-import { ParentAssistantAnswerSchema } from '@ocentra-parent/parent-domain/parent-assistant';
-import type { ParentAssistantAnswer } from '@ocentra-parent/parent-domain/parent-assistant';
+import {
+  ParentAssistantActionConfirmResultSchema,
+  ParentAssistantAnswerSchema,
+  ParentAssistantProviderStatusSchema,
+  ParentAssistantRunCancelResultSchema,
+  ParentAssistantThreadResponseSchema,
+} from '@ocentra-parent/parent-domain/parent-assistant';
+import type {
+  ParentAssistantActionConfirmResult,
+  ParentAssistantAnswer,
+  ParentAssistantProviderStatus,
+  ParentAssistantRunCancelResult,
+  ParentAssistantThreadResponse,
+} from '@ocentra-parent/parent-domain/parent-assistant';
 import type { ActivityReportDocument } from '@ocentra-parent/activity-domain/activity-surface';
 import {
   AgentCommand,
@@ -11,22 +23,70 @@ import {
 } from './contracts';
 import { AgentProtocolSchemaVersion, type AgentRoute } from './primitives';
 
-export type ParentAssistantRuntimeCommandKind = 'answer-generate' | 'message-send' | 'quick-action' | 'action-preview';
+export const ParentAssistantAdapterPayloadField = {
+  ActionConfirmResult: 'parentAssistantActionConfirmResult',
+  ProviderStatus: 'parentAssistantProviderStatus',
+  RunCancelResult: 'parentAssistantRunCancelResult',
+  ThreadResponse: 'parentAssistantThreadResponse',
+} as const;
+
+export type ParentAssistantRuntimeCommandKind =
+  | 'answer-generate'
+  | 'thread-list'
+  | 'thread-create'
+  | 'thread-open'
+  | 'thread-archive'
+  | 'message-send'
+  | 'run-cancel'
+  | 'quick-action'
+  | 'action-preview'
+  | 'action-confirm'
+  | 'provider-status';
 export type ParentAssistantAdapterFailureReason =
   | 'wrong-event'
   | 'missing-json-field'
   | 'invalid-json'
   | 'invalid-payload';
 
+type ParentAssistantAdapterFailure = {
+  readonly ok: false;
+  readonly reason: ParentAssistantAdapterFailureReason;
+};
+
 export type ParentAssistantAdapterResult =
   | {
       readonly ok: true;
       readonly value: ParentAssistantAnswer;
     }
+  | ParentAssistantAdapterFailure;
+
+export type ParentAssistantThreadAdapterResult =
   | {
-      readonly ok: false;
-      readonly reason: ParentAssistantAdapterFailureReason;
-    };
+      readonly ok: true;
+      readonly value: ParentAssistantThreadResponse;
+    }
+  | ParentAssistantAdapterFailure;
+
+export type ParentAssistantProviderStatusAdapterResult =
+  | {
+      readonly ok: true;
+      readonly value: ParentAssistantProviderStatus;
+    }
+  | ParentAssistantAdapterFailure;
+
+export type ParentAssistantRunCancelAdapterResult =
+  | {
+      readonly ok: true;
+      readonly value: ParentAssistantRunCancelResult;
+    }
+  | ParentAssistantAdapterFailure;
+
+export type ParentAssistantActionConfirmAdapterResult =
+  | {
+      readonly ok: true;
+      readonly value: ParentAssistantActionConfirmResult;
+    }
+  | ParentAssistantAdapterFailure;
 
 export type ParentAssistantCommandPeerInput = {
   readonly peerId: string;
@@ -46,6 +106,9 @@ export type CreateParentAssistantCommandInput = {
   readonly target: ParentAssistantCommandTargetInput;
   readonly requestId: string;
   readonly question: string;
+  readonly threadId?: string;
+  readonly runId?: string;
+  readonly actionIntentId?: string;
   readonly evidenceSummary?: string;
   readonly activityReport?: ActivityReportDocument;
   readonly modelId?: string;
@@ -96,6 +159,82 @@ export function parseParentAssistantAnswerEvent(event: AgentEventEnvelope): Pare
   };
 }
 
+export function parseParentAssistantThreadEvent(event: AgentEventEnvelope): ParentAssistantThreadAdapterResult {
+  if (event.event !== AgentEvent.ParentAssistantThreadUpdated) {
+    return adapterFailure('wrong-event');
+  }
+
+  const parsed = parseJsonPayload(event, ParentAssistantAdapterPayloadField.ThreadResponse);
+  if (!parsed.ok) return parsed;
+  const response = ParentAssistantThreadResponseSchema.safeParse(parsed.value);
+  if (!response.success || response.data === undefined) {
+    return adapterFailure('invalid-payload');
+  }
+
+  return {
+    ok: true,
+    value: response.data,
+  };
+}
+
+export function parseParentAssistantProviderStatusEvent(
+  event: AgentEventEnvelope
+): ParentAssistantProviderStatusAdapterResult {
+  if (event.event !== AgentEvent.ParentAssistantProviderDegraded) {
+    return adapterFailure('wrong-event');
+  }
+
+  const parsed = parseJsonPayload(event, ParentAssistantAdapterPayloadField.ProviderStatus);
+  if (!parsed.ok) return parsed;
+  const status = ParentAssistantProviderStatusSchema.safeParse(parsed.value);
+  if (!status.success || status.data === undefined) {
+    return adapterFailure('invalid-payload');
+  }
+
+  return {
+    ok: true,
+    value: status.data,
+  };
+}
+
+export function parseParentAssistantRunCancelEvent(event: AgentEventEnvelope): ParentAssistantRunCancelAdapterResult {
+  if (event.event !== AgentEvent.ParentAssistantErrorReported) {
+    return adapterFailure('wrong-event');
+  }
+
+  const parsed = parseJsonPayload(event, ParentAssistantAdapterPayloadField.RunCancelResult);
+  if (!parsed.ok) return parsed;
+  const result = ParentAssistantRunCancelResultSchema.safeParse(parsed.value);
+  if (!result.success || result.data === undefined) {
+    return adapterFailure('invalid-payload');
+  }
+
+  return {
+    ok: true,
+    value: result.data,
+  };
+}
+
+export function parseParentAssistantActionConfirmEvent(
+  event: AgentEventEnvelope
+): ParentAssistantActionConfirmAdapterResult {
+  if (event.event !== AgentEvent.ParentAssistantActionConfirmed) {
+    return adapterFailure('wrong-event');
+  }
+
+  const parsed = parseJsonPayload(event, ParentAssistantAdapterPayloadField.ActionConfirmResult);
+  if (!parsed.ok) return parsed;
+  const result = ParentAssistantActionConfirmResultSchema.safeParse(parsed.value);
+  if (!result.success || result.data === undefined) {
+    return adapterFailure('invalid-payload');
+  }
+
+  return {
+    ok: true,
+    value: result.data,
+  };
+}
+
 function commandPayload(input: CreateParentAssistantCommandInput): AgentCommandEnvelope['payload'] {
   const payload: Record<string, string | number | boolean | null> = {
     [AgentProtocolDefaults.Field.ParentAssistantRequestId]: input.requestId,
@@ -106,6 +245,15 @@ function commandPayload(input: CreateParentAssistantCommandInput): AgentCommandE
   }
   if (input.activityReport !== undefined) {
     payload[AgentProtocolDefaults.Field.ActivityReportDocument] = JSON.stringify(input.activityReport);
+  }
+  if (input.threadId !== undefined) {
+    payload[AgentProtocolDefaults.Field.ParentAssistantThreadId] = input.threadId;
+  }
+  if (input.runId !== undefined) {
+    payload[AgentProtocolDefaults.Field.ParentAssistantRunId] = input.runId;
+  }
+  if (input.actionIntentId !== undefined) {
+    payload[AgentProtocolDefaults.Field.ParentAssistantActionIntentId] = input.actionIntentId;
   }
   if (input.modelId !== undefined) {
     payload[AgentProtocolDefaults.Field.LocalAiModelId] = input.modelId;
@@ -121,13 +269,44 @@ function commandPayload(input: CreateParentAssistantCommandInput): AgentCommandE
 }
 
 function commandForKind(kind: ParentAssistantRuntimeCommandKind): AgentCommandEnvelope['command'] {
+  if (kind === 'thread-list') return AgentCommand.ParentAssistantThreadList;
+  if (kind === 'thread-create') return AgentCommand.ParentAssistantThreadCreate;
+  if (kind === 'thread-open') return AgentCommand.ParentAssistantThreadOpen;
+  if (kind === 'thread-archive') return AgentCommand.ParentAssistantThreadArchive;
   if (kind === 'message-send') return AgentCommand.ParentAssistantMessageSend;
+  if (kind === 'run-cancel') return AgentCommand.ParentAssistantRunCancel;
   if (kind === 'quick-action') return AgentCommand.ParentAssistantQuickActionStart;
   if (kind === 'action-preview') return AgentCommand.ParentAssistantActionPreview;
+  if (kind === 'action-confirm') return AgentCommand.ParentAssistantActionConfirm;
+  if (kind === 'provider-status') return AgentCommand.ParentAssistantProviderStatusGet;
   return AgentCommand.ParentAssistantAnswerGenerate;
 }
 
-function adapterFailure(reason: ParentAssistantAdapterFailureReason): ParentAssistantAdapterResult {
+function parseJsonPayload(
+  event: AgentEventEnvelope,
+  field: (typeof ParentAssistantAdapterPayloadField)[keyof typeof ParentAssistantAdapterPayloadField]
+):
+  | {
+      readonly ok: true;
+      readonly value: unknown;
+    }
+  | ParentAssistantAdapterFailure {
+  const raw = event.payload[field];
+  if (typeof raw !== 'string') {
+    return adapterFailure('missing-json-field');
+  }
+
+  try {
+    return {
+      ok: true,
+      value: JSON.parse(raw) as unknown,
+    };
+  } catch {
+    return adapterFailure('invalid-json');
+  }
+}
+
+function adapterFailure(reason: ParentAssistantAdapterFailureReason): ParentAssistantAdapterFailure {
   return {
     ok: false,
     reason,
