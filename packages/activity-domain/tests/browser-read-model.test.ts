@@ -1,11 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import {
   BrowserActiveTabState,
+  BrowserBoundaryState,
   BrowserCapabilityStatus,
   BrowserChannel,
   BrowserCustodyLabel,
   BrowserEvidenceReadModelSchema,
   BrowserEvidenceSchemaVersion,
+  BrowserExactUrlClaimState,
   BrowserFamily,
   BrowserInterventionAction,
   BrowserInterventionCapabilityState,
@@ -16,6 +18,7 @@ import {
   BrowserInterventionSchemaVersion,
   BrowserInterventionTargetType,
   BrowserQueryVisibilityLabel,
+  BrowserUnmanagedDetectionState,
   BrowserUnmanagedEnforcementState,
 } from '../src/browser';
 
@@ -58,7 +61,33 @@ describe('browser evidence read model contracts', () => {
     if (parsed.success) {
       expect(parsed.data.rows[0].decisionSource).toBe('parent-rule');
       expect(parsed.data.rows[0].interventionMechanism).toBe('chromium-cdp-fetch');
+      expect(parsed.data.rows[0].browserBoundaryState).toBe('managed-session');
+      expect(parsed.data.rows[0].exactUrlClaimState).toBe('exact-url-proven');
       expect(parsed.data.unmanagedBrowserEnforcement).toBe('requires-os-app-control');
+    }
+  });
+
+  it('accepts unmanaged browser intervention evidence without exact URL claims', () => {
+    const parsed = BrowserInterventionReadModelSchema.safeParse({
+      schemaVersion: BrowserInterventionSchemaVersion,
+      generatedAt: '2026-05-21T01:02:01Z',
+      limit: 10,
+      returned: 1,
+      latestEventId: 'activity-browser-intervention-applied-2',
+      latestObservedAt: '2026-05-21T01:02:00Z',
+      managedSessionInterventionCapability: BrowserInterventionCapabilityState.NeedsManagedSession,
+      unmanagedBrowserEnforcement: BrowserUnmanagedEnforcementState.ReadyToBlock,
+      rows: [unmanagedBrowserInterventionRow()],
+    });
+
+    expect(parsed.success).toBe(true);
+    if (parsed.success) {
+      expect(parsed.data.rows[0].managedBrowserSessionId).toBeNull();
+      expect(parsed.data.rows[0].requestedUrl).toBeNull();
+      expect(parsed.data.rows[0].observedUrl).toBeNull();
+      expect(parsed.data.rows[0].browserBoundaryState).toBe('unmanaged-browser-process');
+      expect(parsed.data.rows[0].exactUrlClaimState).toBe('not-claimed');
+      expect(parsed.data.rows[0].unmanagedDetectionState).toBe('terminated');
     }
   });
 });
@@ -114,7 +143,40 @@ function browserInterventionRow() {
     observedUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
     interventionMechanism: BrowserInterventionMechanism.ChromiumCdpFetch,
     interventionOutcome: BrowserInterventionOutcome.Blocked,
+    browserBoundaryState: BrowserBoundaryState.ManagedSession,
+    exactUrlClaimState: BrowserExactUrlClaimState.ExactUrlProven,
+    unmanagedDetectionState: BrowserUnmanagedDetectionState.None,
     reason: 'parent-rule-blocked-video',
+    custodyLabel: BrowserCustodyLabel.ChildDeviceLocal,
+    queryVisibility: BrowserQueryVisibilityLabel.LiveLocal,
+  };
+}
+
+function unmanagedBrowserInterventionRow() {
+  return {
+    schemaVersion: BrowserInterventionSchemaVersion,
+    browserInterventionId: 'browser-intervention-2',
+    observedAt: '2026-05-21T01:02:00Z',
+    sourceId: 'managed-browser-intervention',
+    deviceId: 'local-dev-agent',
+    browserFamily: BrowserFamily.Chrome,
+    browserChannel: BrowserChannel.Stable,
+    managedBrowserSessionId: null,
+    profileId: null,
+    processId: 5150,
+    policyDecisionId: 'policy-decision-2',
+    decisionSource: BrowserInterventionDecisionSource.ParentRule,
+    interventionAction: BrowserInterventionAction.Block,
+    interventionTargetType: BrowserInterventionTargetType.BrowserProcess,
+    interventionTargetValue: 'chrome.exe',
+    requestedUrl: null,
+    observedUrl: null,
+    interventionMechanism: BrowserInterventionMechanism.OsAppControl,
+    interventionOutcome: BrowserInterventionOutcome.Blocked,
+    browserBoundaryState: BrowserBoundaryState.UnmanagedBrowserProcess,
+    exactUrlClaimState: BrowserExactUrlClaimState.NotClaimed,
+    unmanagedDetectionState: BrowserUnmanagedDetectionState.Terminated,
+    reason: 'managed-browser-unmanaged-process',
     custodyLabel: BrowserCustodyLabel.ChildDeviceLocal,
     queryVisibility: BrowserQueryVisibilityLabel.LiveLocal,
   };

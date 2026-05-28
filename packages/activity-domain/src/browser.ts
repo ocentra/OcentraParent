@@ -56,6 +56,10 @@ export {
 export {
   BrowserInterventionAction,
   BrowserInterventionActionSchema,
+  BrowserBoundaryState,
+  BrowserBoundaryStateSchema,
+  BrowserExactUrlClaimState,
+  BrowserExactUrlClaimStateSchema,
   BrowserInterventionCapabilityState,
   BrowserInterventionCapabilityStateSchema,
   BrowserInterventionDecisionSource,
@@ -72,10 +76,15 @@ export {
   BrowserInterventionTargetTypeSchema,
   BrowserPolicyDecisionIdSchema,
   BrowserTargetValueSchema,
+  BrowserUnmanagedDetectionState,
+  BrowserUnmanagedDetectionStateSchema,
   BrowserUnmanagedEnforcementState,
   BrowserUnmanagedEnforcementStateSchema,
+  type BrowserBoundaryState as BrowserBoundaryStateType,
+  type BrowserExactUrlClaimState as BrowserExactUrlClaimStateType,
   type BrowserInterventionReadModel,
   type BrowserInterventionRow,
+  type BrowserUnmanagedDetectionState as BrowserUnmanagedDetectionStateType,
 } from './browser-intervention';
 
 export type BrowserActiveTabState = BrowserActiveTabStateType;

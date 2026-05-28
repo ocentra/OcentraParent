@@ -151,6 +151,18 @@ fn browser_intervention_state_pairs(row: Option<&BrowserInterventionRow>) -> Vec
             optional_enum(row.map(|value| value.intervention_outcome.as_protocol_str())),
         ),
         (
+            constants::browser::INTERVENTION_FIELD_BROWSER_BOUNDARY_STATE,
+            optional_enum(row.map(|value| value.browser_boundary_state.as_protocol_str())),
+        ),
+        (
+            constants::browser::INTERVENTION_FIELD_EXACT_URL_CLAIM_STATE,
+            optional_enum(row.map(|value| value.exact_url_claim_state.as_protocol_str())),
+        ),
+        (
+            constants::browser::INTERVENTION_FIELD_UNMANAGED_DETECTION_STATE,
+            optional_enum(row.map(|value| value.unmanaged_detection_state.as_protocol_str())),
+        ),
+        (
             constants::field::REASON,
             optional_string(row.and_then(|value| value.reason.as_ref())),
         ),

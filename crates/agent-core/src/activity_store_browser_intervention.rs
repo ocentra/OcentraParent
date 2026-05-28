@@ -1,7 +1,8 @@
 use ocentra_parent_agent_protocol::{
-    constants, BrowserCustodyLabel, BrowserInterventionCapabilityState,
-    BrowserInterventionReadModel, BrowserInterventionRow, BrowserQueryVisibilityLabel,
-    BrowserUnmanagedEnforcementState, LogFields, BROWSER_INTERVENTION_SCHEMA_VERSION,
+    constants, BrowserBoundaryState, BrowserCustodyLabel, BrowserExactUrlClaimState,
+    BrowserInterventionCapabilityState, BrowserInterventionReadModel, BrowserInterventionRow,
+    BrowserQueryVisibilityLabel, BrowserUnmanagedDetectionState, BrowserUnmanagedEnforcementState,
+    LogFields, BROWSER_INTERVENTION_SCHEMA_VERSION,
 };
 use rusqlite::{params, Connection, Row};
 
@@ -9,10 +10,11 @@ use crate::{ActivityStore, ActivityStoreError};
 
 mod fields;
 use fields::{
-    browser_channel_field, browser_family_field, custody_label_field, decision_source_field,
-    intervention_action_field, intervention_capability_field, intervention_mechanism_field,
-    intervention_outcome_field, intervention_target_type_field, query_visibility_field,
-    string_field, u32_field, unmanaged_enforcement_field,
+    browser_boundary_state_field, browser_channel_field, browser_family_field, custody_label_field,
+    decision_source_field, exact_url_claim_state_field, intervention_action_field,
+    intervention_capability_field, intervention_mechanism_field, intervention_outcome_field,
+    intervention_target_type_field, query_visibility_field, string_field, u32_field,
+    unmanaged_detection_state_field, unmanaged_enforcement_field,
 };
 
 impl ActivityStore {
@@ -146,6 +148,12 @@ fn browser_intervention_read_row_from_store(
         observed_url: string_field(fields, constants::field::OBSERVED_URL),
         intervention_mechanism: intervention_mechanism_field(fields)?,
         intervention_outcome: intervention_outcome_field(fields)?,
+        browser_boundary_state: browser_boundary_state_field(fields)
+            .unwrap_or(BrowserBoundaryState::ManagedSession),
+        exact_url_claim_state: exact_url_claim_state_field(fields)
+            .unwrap_or(BrowserExactUrlClaimState::ExactUrlProven),
+        unmanaged_detection_state: unmanaged_detection_state_field(fields)
+            .unwrap_or(BrowserUnmanagedDetectionState::None),
         reason: string_field(fields, constants::field::REASON),
         custody_label: custody_label_field(fields).unwrap_or(BrowserCustodyLabel::ChildDeviceLocal),
         query_visibility: query_visibility_field(fields)

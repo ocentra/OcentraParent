@@ -1,10 +1,11 @@
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    BrowserChannel, BrowserCustodyLabel, BrowserFamily, BrowserInterventionAction,
-    BrowserInterventionCapabilityState, BrowserInterventionDecisionSource,
-    BrowserInterventionMechanism, BrowserInterventionOutcome, BrowserInterventionTargetType,
-    BrowserQueryVisibilityLabel, BrowserUnmanagedEnforcementState,
+    BrowserBoundaryState, BrowserChannel, BrowserCustodyLabel, BrowserExactUrlClaimState,
+    BrowserFamily, BrowserInterventionAction, BrowserInterventionCapabilityState,
+    BrowserInterventionDecisionSource, BrowserInterventionMechanism, BrowserInterventionOutcome,
+    BrowserInterventionTargetType, BrowserQueryVisibilityLabel, BrowserUnmanagedDetectionState,
+    BrowserUnmanagedEnforcementState,
 };
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -29,6 +30,9 @@ pub struct BrowserInterventionRow {
     pub observed_url: Option<String>,
     pub intervention_mechanism: BrowserInterventionMechanism,
     pub intervention_outcome: BrowserInterventionOutcome,
+    pub browser_boundary_state: BrowserBoundaryState,
+    pub exact_url_claim_state: BrowserExactUrlClaimState,
+    pub unmanaged_detection_state: BrowserUnmanagedDetectionState,
     pub reason: Option<String>,
     pub custody_label: BrowserCustodyLabel,
     pub query_visibility: BrowserQueryVisibilityLabel,

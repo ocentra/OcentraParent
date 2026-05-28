@@ -40,8 +40,8 @@ describe('parent control platform capabilities', () => {
       [ParentControlCapabilityName.AppTimeLimit, ParentControlCapabilityStatus.Implemented],
       [ParentControlCapabilityName.AppBlocking, ParentControlCapabilityStatus.ManualRequired],
       [ParentControlCapabilityName.NetworkDomainBlocking, ParentControlCapabilityStatus.ManualRequired],
-      [ParentControlCapabilityName.ManagedBrowserControl, ParentControlCapabilityStatus.ManualRequired],
-      [ParentControlCapabilityName.UnmanagedBrowserDetection, ParentControlCapabilityStatus.ManualRequired],
+      [ParentControlCapabilityName.ManagedBrowserControl, ParentControlCapabilityStatus.Implemented],
+      [ParentControlCapabilityName.UnmanagedBrowserDetection, ParentControlCapabilityStatus.Implemented],
     ]);
   });
 

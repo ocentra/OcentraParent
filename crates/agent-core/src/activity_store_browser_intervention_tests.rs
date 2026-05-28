@@ -1,10 +1,11 @@
 use std::fs::{read, remove_file};
 
 use ocentra_parent_agent_protocol::{
-    constants, ActivityEvent, BrowserChannel, BrowserCustodyLabel, BrowserFamily,
-    BrowserInterventionAction, BrowserInterventionCapabilityState,
-    BrowserInterventionDecisionSource, BrowserInterventionMechanism, BrowserInterventionOutcome,
-    BrowserInterventionTargetType, BrowserQueryVisibilityLabel, BrowserUnmanagedEnforcementState,
+    constants, ActivityEvent, BrowserBoundaryState, BrowserChannel, BrowserCustodyLabel,
+    BrowserExactUrlClaimState, BrowserFamily, BrowserInterventionAction,
+    BrowserInterventionCapabilityState, BrowserInterventionDecisionSource,
+    BrowserInterventionMechanism, BrowserInterventionOutcome, BrowserInterventionTargetType,
+    BrowserQueryVisibilityLabel, BrowserUnmanagedDetectionState, BrowserUnmanagedEnforcementState,
 };
 
 use super::{
@@ -54,6 +55,18 @@ fn activity_store_reports_typed_browser_intervention_read_model_from_ingested_ev
     assert_eq!(
         row.requested_url.as_deref(),
         Some(constants::activity_store::TEST_BROWSER_URL)
+    );
+    assert_eq!(
+        row.browser_boundary_state,
+        BrowserBoundaryState::ManagedSession
+    );
+    assert_eq!(
+        row.exact_url_claim_state,
+        BrowserExactUrlClaimState::ExactUrlProven
+    );
+    assert_eq!(
+        row.unmanaged_detection_state,
+        BrowserUnmanagedDetectionState::None
     );
 }
 
@@ -142,6 +155,9 @@ fn browser_intervention_event() -> ActivityEvent {
             observed_url: Some(constants::activity_store::TEST_BROWSER_URL.to_string()),
             intervention_mechanism: BrowserInterventionMechanism::ChromiumCdpFetch,
             intervention_outcome: BrowserInterventionOutcome::Blocked,
+            browser_boundary_state: BrowserBoundaryState::ManagedSession,
+            exact_url_claim_state: BrowserExactUrlClaimState::ExactUrlProven,
+            unmanaged_detection_state: BrowserUnmanagedDetectionState::None,
             managed_session_intervention_capability: BrowserInterventionCapabilityState::Ready,
             unmanaged_browser_enforcement: BrowserUnmanagedEnforcementState::RequiresOsAppControl,
             reason: Some(constants::activity_store::TEST_BROWSER_INTERVENTION_REASON.to_string()),

@@ -1,11 +1,13 @@
 use serde_json::json;
 
 use crate::{
-    constants, BrowserChannel, BrowserCustodyLabel, BrowserFamily, BrowserInterventionAction,
+    constants, BrowserBoundaryState, BrowserChannel, BrowserCustodyLabel,
+    BrowserExactUrlClaimState, BrowserFamily, BrowserInterventionAction,
     BrowserInterventionCapabilityState, BrowserInterventionDecisionSource,
     BrowserInterventionMechanism, BrowserInterventionOutcome, BrowserInterventionReadModel,
     BrowserInterventionRow, BrowserInterventionTargetType, BrowserQueryVisibilityLabel,
-    BrowserUnmanagedEnforcementState, BROWSER_INTERVENTION_SCHEMA_VERSION,
+    BrowserUnmanagedDetectionState, BrowserUnmanagedEnforcementState,
+    BROWSER_INTERVENTION_SCHEMA_VERSION,
 };
 
 #[test]
@@ -44,6 +46,9 @@ fn browser_intervention_read_model_serializes_decision_source_and_enforcement_st
             observed_url: Some(constants::activity_store::TEST_BROWSER_URL.to_string()),
             intervention_mechanism: BrowserInterventionMechanism::ChromiumCdpFetch,
             intervention_outcome: BrowserInterventionOutcome::Blocked,
+            browser_boundary_state: BrowserBoundaryState::ManagedSession,
+            exact_url_claim_state: BrowserExactUrlClaimState::ExactUrlProven,
+            unmanaged_detection_state: BrowserUnmanagedDetectionState::None,
             reason: Some(constants::activity_store::TEST_BROWSER_INTERVENTION_REASON.to_string()),
             custody_label: BrowserCustodyLabel::ChildDeviceLocal,
             query_visibility: BrowserQueryVisibilityLabel::LiveLocal,
@@ -68,5 +73,17 @@ fn browser_intervention_read_model_serializes_decision_source_and_enforcement_st
     assert_eq!(
         serialized["rows"][0]["interventionMechanism"],
         json!(constants::browser::INTERVENTION_MECHANISM_CHROMIUM_CDP_FETCH)
+    );
+    assert_eq!(
+        serialized["rows"][0]["browserBoundaryState"],
+        json!(constants::browser::INTERVENTION_BOUNDARY_MANAGED_SESSION)
+    );
+    assert_eq!(
+        serialized["rows"][0]["exactUrlClaimState"],
+        json!(constants::browser::INTERVENTION_EXACT_URL_PROVEN)
+    );
+    assert_eq!(
+        serialized["rows"][0]["unmanagedDetectionState"],
+        json!(constants::browser::INTERVENTION_UNMANAGED_DETECTION_NONE)
     );
 }

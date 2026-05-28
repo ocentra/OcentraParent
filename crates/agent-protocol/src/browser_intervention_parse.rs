@@ -1,7 +1,8 @@
 use crate::{
-    constants, BrowserInterventionAction, BrowserInterventionCapabilityState,
-    BrowserInterventionDecisionSource, BrowserInterventionMechanism, BrowserInterventionOutcome,
-    BrowserInterventionTargetType, BrowserUnmanagedEnforcementState,
+    constants, BrowserBoundaryState, BrowserExactUrlClaimState, BrowserInterventionAction,
+    BrowserInterventionCapabilityState, BrowserInterventionDecisionSource,
+    BrowserInterventionMechanism, BrowserInterventionOutcome, BrowserInterventionTargetType,
+    BrowserUnmanagedDetectionState, BrowserUnmanagedEnforcementState,
 };
 
 impl BrowserInterventionDecisionSource {
@@ -126,6 +127,54 @@ impl BrowserUnmanagedEnforcementState {
                 Some(Self::BlockedAndRelaunchedManaged)
             }
             constants::browser::UNMANAGED_ENFORCEMENT_UNSUPPORTED => Some(Self::Unsupported),
+            _ => None,
+        }
+    }
+}
+
+impl BrowserBoundaryState {
+    pub fn from_protocol_str(value: &str) -> Option<Self> {
+        match value {
+            constants::browser::INTERVENTION_BOUNDARY_MANAGED_SESSION => Some(Self::ManagedSession),
+            constants::browser::INTERVENTION_BOUNDARY_UNMANAGED_BROWSER_PROCESS => {
+                Some(Self::UnmanagedBrowserProcess)
+            }
+            constants::browser::INTERVENTION_BOUNDARY_BROWSER_LIKE_PROCESS => {
+                Some(Self::BrowserLikeProcess)
+            }
+            constants::browser::INTERVENTION_BOUNDARY_UNSUPPORTED => Some(Self::Unsupported),
+            constants::browser::INTERVENTION_BOUNDARY_UNKNOWN => Some(Self::Unknown),
+            _ => None,
+        }
+    }
+}
+
+impl BrowserExactUrlClaimState {
+    pub fn from_protocol_str(value: &str) -> Option<Self> {
+        match value {
+            constants::browser::INTERVENTION_EXACT_URL_PROVEN => Some(Self::ExactUrlProven),
+            constants::browser::INTERVENTION_EXACT_URL_NOT_CLAIMED => Some(Self::NotClaimed),
+            constants::browser::INTERVENTION_EXACT_URL_UNAVAILABLE => Some(Self::Unavailable),
+            _ => None,
+        }
+    }
+}
+
+impl BrowserUnmanagedDetectionState {
+    pub fn from_protocol_str(value: &str) -> Option<Self> {
+        match value {
+            constants::browser::INTERVENTION_UNMANAGED_DETECTION_NONE => Some(Self::None),
+            constants::browser::INTERVENTION_UNMANAGED_DETECTION_DETECTED => Some(Self::Detected),
+            constants::browser::INTERVENTION_UNMANAGED_DETECTION_WARNED => Some(Self::Warned),
+            constants::browser::INTERVENTION_UNMANAGED_DETECTION_TERMINATED => {
+                Some(Self::Terminated)
+            }
+            constants::browser::INTERVENTION_UNMANAGED_DETECTION_MANUAL_REQUIRED => {
+                Some(Self::ManualRequired)
+            }
+            constants::browser::INTERVENTION_UNMANAGED_DETECTION_UNAVAILABLE => {
+                Some(Self::Unavailable)
+            }
             _ => None,
         }
     }
