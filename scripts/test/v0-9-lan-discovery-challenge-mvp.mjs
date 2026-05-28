@@ -146,6 +146,14 @@ async function runDiscoveryChallengeCeremony(service) {
     assertPayloadValue(staleProof.payload, 'rejectionReason', 'stale');
     labels.push(`${service.label}:stale-proof-rejected`);
 
+    const expiredChallenge = await sendCommand(
+      socket,
+      buildChallengeCommand(service, 'expired-challenge', { staleAt: expiredAt })
+    );
+    assertEvent(expiredChallenge, 'agent.command.rejected');
+    assertPayloadValue(expiredChallenge.payload, 'rejectionReason', 'stale');
+    labels.push(`${service.label}:expired-challenge-rejected-as-stale`);
+
     const challenge = await issueChallenge(socket, service, 'accepted-proof');
     assertChallengePreview(challenge.payload, service);
     labels.push(`${service.label}:challenge-preview-issued`);
@@ -353,7 +361,7 @@ async function waitForHttp(url, service) {
   throw new Error(`Timed out waiting for ${url}\n${service.serviceOutput()}`);
 }
 
-function buildChallengeCommand(service, messageSuffix) {
+function buildChallengeCommand(service, messageSuffix, overrides = {}) {
   return buildCommand(service, messageSuffix, 'agent.lan-pairing.status.get', {
     childDeviceId: service.childDeviceId,
     parentDeviceId,
@@ -361,6 +369,7 @@ function buildChallengeCommand(service, messageSuffix) {
     origin: allowedOrigin,
     startedAt: issuedAt,
     staleAt: expiresAt,
+    ...overrides,
   });
 }
 
