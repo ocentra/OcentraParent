@@ -38,6 +38,7 @@ import {
   BrowserControlDefaultPostureSchema,
   BrowserControlDownloadStateSchema,
   BrowserControlEvidenceProofLevelSchema,
+  BrowserControlExecutionModeSchema,
   BrowserControlFieldValueSchema,
   BrowserControlManagementModeSchema,
   BrowserControlManagedBrowserModeSchema,
@@ -187,6 +188,14 @@ const BrowserControlPortalAiSchema = withParser(
   })
 );
 
+const BrowserControlDiscoverySchema = withParser(
+  Schema.Struct({
+    scanInstalledBrowsers: Schema.optionalWith(Schema.Boolean, { default: () => false }),
+    scanRunningBrowsers: Schema.optionalWith(Schema.Boolean, { default: () => true }),
+    detectUnmanagedBrowsers: Schema.optionalWith(Schema.Boolean, { default: () => true }),
+  })
+);
+
 const BrowserControlPlatformCapabilitySchema = withParser(
   Schema.Struct({
     enabled: Schema.optionalWith(Schema.Boolean, { default: () => false }),
@@ -252,9 +261,15 @@ export const BrowserControlPolicyValueBaseSchema = Schema.Struct({
   schemaVersion: ParentContractSchemaVersionSchema,
   policyId: BrowserControlPolicyIdSchema,
   enabled: Schema.Boolean,
+  executionMode: Schema.optionalWith(BrowserControlExecutionModeSchema, {
+    default: () => 'observe' as const,
+  }),
   defaultPosture: BrowserControlDefaultPostureSchema,
   fallbackPosture: Schema.Union(BrowserControlDefaultPostureSchema, Schema.Null),
   managementMode: BrowserControlManagementModeSchema,
+  discovery: Schema.optionalWith(BrowserControlDiscoverySchema, {
+    default: defaultDiscovery,
+  }),
   managedBrowser: Schema.Struct({
     mode: BrowserControlManagedBrowserModeSchema,
     allowedFamilies: Schema.optionalWith(Schema.Array(BrowserControlManagedBrowserFamilySchema), {
@@ -411,8 +426,10 @@ export const BrowserControlEffectivePolicyBaseSchema = Schema.Struct({
   revisionId: BrowserControlRevisionIdSchema,
   compiledHash: BrowserControlHashIdSchema,
   compiledAt: ParentTimestampSchema,
+  executionMode: BrowserControlExecutionModeSchema,
   defaultPosture: BrowserControlDefaultPostureSchema,
   fallbackPosture: Schema.Union(BrowserControlDefaultPostureSchema, Schema.Null),
+  discovery: BrowserControlDiscoverySchema,
   budgets: Schema.Struct({
     enabled: Schema.optionalWith(Schema.Boolean, {
       default: () => true,
@@ -545,6 +562,7 @@ export const BrowserControlUpdateResponseSchema = withParser(
 );
 
 export type BrowserControlBudget = Infer<typeof BrowserControlBudgetSchema>;
+export type BrowserControlDiscovery = Infer<typeof BrowserControlDiscoverySchema>;
 export type BrowserControlEvidenceRequirement = Infer<typeof BrowserControlEvidenceRequirementSchema>;
 export type BrowserControlRule = Infer<typeof BrowserControlRuleSchema>;
 export type BrowserControlPolicyValue = Infer<typeof BrowserControlPolicyValueSchema>;
@@ -649,6 +667,14 @@ function defaultChildFacing() {
     showTimeLeft: false,
     showUseManagedBrowserAction: false,
     hideParentDiagnostics: false,
+  };
+}
+
+function defaultDiscovery() {
+  return {
+    scanInstalledBrowsers: false,
+    scanRunningBrowsers: true,
+    detectUnmanagedBrowsers: true,
   };
 }
 

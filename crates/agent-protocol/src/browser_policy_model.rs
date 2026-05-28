@@ -3,9 +3,9 @@ use serde::{Deserialize, Serialize};
 use crate::browser_policy_values::{
     BrowserPolicyApprovalState, BrowserPolicyAuditState, BrowserPolicyCapabilityState,
     BrowserPolicyDefaultPosture, BrowserPolicyDownloadState, BrowserPolicyEvidenceProofLevel,
-    BrowserPolicyManagedBrowserMode, BrowserPolicyManagementMode, BrowserPolicyProofFallback,
-    BrowserPolicyReportState, BrowserPolicyRetentionState, BrowserPolicyUnmanagedBrowserMode,
-    BrowserPolicyUrlTargetType,
+    BrowserPolicyExecutionMode, BrowserPolicyManagedBrowserMode, BrowserPolicyManagementMode,
+    BrowserPolicyProofFallback, BrowserPolicyReportState, BrowserPolicyRetentionState,
+    BrowserPolicyUnmanagedBrowserMode, BrowserPolicyUrlTargetType,
 };
 use crate::{
     BrowserPolicyApprovalRequiredFor, BrowserPolicyApprovalUnansweredDefault,
@@ -26,9 +26,13 @@ pub struct BrowserPolicyValue {
     pub schema_version: String,
     pub policy_id: String,
     pub enabled: bool,
+    #[serde(default)]
+    pub execution_mode: BrowserPolicyExecutionMode,
     pub default_posture: BrowserPolicyDefaultPosture,
     pub fallback_posture: Option<BrowserPolicyDefaultPosture>,
     pub management_mode: BrowserPolicyManagementMode,
+    #[serde(default)]
+    pub discovery: BrowserPolicyDiscovery,
     pub managed_browser: BrowserPolicyManagedBrowser,
     pub unmanaged_browser: BrowserPolicyUnmanagedBrowser,
     pub evidence: BrowserPolicyEvidenceRequirement,
@@ -51,6 +55,17 @@ pub struct BrowserPolicyValue {
     pub platforms: BrowserPolicyPlatforms,
     #[serde(default)]
     pub fallbacks: BrowserPolicyFallbacks,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BrowserPolicyDiscovery {
+    #[serde(default)]
+    pub scan_installed_browsers: bool,
+    #[serde(default = "default_discovery_enabled")]
+    pub scan_running_browsers: bool,
+    #[serde(default = "default_discovery_enabled")]
+    pub detect_unmanaged_browsers: bool,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -200,8 +215,10 @@ pub struct BrowserPolicyEffectivePolicy {
     pub revision_id: String,
     pub compiled_hash: String,
     pub compiled_at: String,
+    pub execution_mode: BrowserPolicyExecutionMode,
     pub default_posture: BrowserPolicyDefaultPosture,
     pub fallback_posture: Option<BrowserPolicyDefaultPosture>,
+    pub discovery: BrowserPolicyDiscovery,
     pub budgets: BrowserPolicyBudgets,
     pub rules: Vec<BrowserPolicyEffectiveRule>,
 }
@@ -236,6 +253,10 @@ pub struct BrowserPolicyCapability {
 }
 
 fn default_budget_enabled() -> bool {
+    true
+}
+
+fn default_discovery_enabled() -> bool {
     true
 }
 

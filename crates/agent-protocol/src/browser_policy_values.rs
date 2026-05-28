@@ -18,6 +18,19 @@ pub enum BrowserPolicyDefaultPosture {
     Block,
 }
 
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+pub enum BrowserPolicyExecutionMode {
+    #[default]
+    #[serde(rename = "observe")]
+    Observe,
+    #[serde(rename = "dry-run")]
+    DryRun,
+    #[serde(rename = "warn-ask")]
+    WarnAsk,
+    #[serde(rename = "enforce")]
+    Enforce,
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BrowserPolicyManagementMode {
     #[serde(rename = "disabled")]
@@ -236,4 +249,8 @@ pub enum BrowserPolicyCapabilityState {
     Unavailable,
     #[serde(rename = "unknown")]
     Unknown,
+    #[serde(rename = "ready")]
+    Ready,
+    #[serde(rename = "manual-required")]
+    ManualRequired,
 }

@@ -2,6 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { BaselineBrowserControlAuthoringManifest } from '../src/browser-control-baseline-manifest';
 import {
   BrowserControlAuthoringManifestSchema,
+  BrowserControlCandidateMvpItems,
+  BrowserControlCatalogMajorSections,
+  BrowserControlCoverageMatrix,
   BrowserControlManifestDefaults,
   browserControlVisibleSectionIds,
 } from '../src/browser-control-manifest';
@@ -18,6 +21,7 @@ import { BrowserControlWritesToPath } from '../src/browser-control-values';
 
 const expectedSectionIds = [
   BrowserControlManifestDefaults.Section.Management,
+  BrowserControlManifestDefaults.Section.BrowserDiscovery,
   BrowserControlManifestDefaults.Section.ManagedBrowser,
   BrowserControlManifestDefaults.Section.UnmanagedBrowser,
   BrowserControlManifestDefaults.Section.UrlTabEvidence,
@@ -31,8 +35,12 @@ const expectedSectionIds = [
 
 const expectedFieldIds = [
   BrowserControlManifestDefaults.Field.Enabled,
+  BrowserControlManifestDefaults.Field.ExecutionMode,
   BrowserControlManifestDefaults.Field.DefaultPosture,
   BrowserControlManifestDefaults.Field.ManagementMode,
+  BrowserControlManifestDefaults.Field.DiscoveryScanInstalledBrowsers,
+  BrowserControlManifestDefaults.Field.DiscoveryScanRunningBrowsers,
+  BrowserControlManifestDefaults.Field.DiscoveryDetectUnmanagedBrowsers,
   BrowserControlManifestDefaults.Field.ManagedBrowserMode,
   BrowserControlManifestDefaults.Field.ManagedBrowserAllowedFamilies,
   BrowserControlManifestDefaults.Field.ManagedBrowserLaunchMode,
@@ -65,6 +73,7 @@ const expectedFieldIds = [
 
 describe('browser-control contracts', () => {
   registerManifestAcceptanceCases();
+  registerCoverageMatrixCases();
   registerPolicyShapeCases();
   registerRejectionCases();
   registerVisibilityCases();
@@ -87,6 +96,35 @@ function registerManifestAcceptanceCases() {
     expect(fieldIds).toEqual(expectedFieldIds);
     expect(writesToPaths).toContain(BrowserControlWritesToPath.CustodyAllowedUses);
     expect(writesToPaths).toContain(BrowserControlWritesToPath.RuleItems);
+  });
+}
+
+function registerCoverageMatrixCases() {
+  it('accounts for every candidate MVP item and catalog major section', () => {
+    const candidateItems = BrowserControlCoverageMatrix.filter((entry) => entry.coverageKind === 'candidate-mvp').map(
+      (entry) => entry.catalogItem
+    );
+    const catalogSections = BrowserControlCoverageMatrix.filter(
+      (entry) => entry.coverageKind === 'catalog-section'
+    ).map((entry) => entry.catalogSection);
+
+    expect(candidateItems).toEqual([...BrowserControlCandidateMvpItems]);
+    expect(catalogSections).toEqual([...BrowserControlCatalogMajorSections]);
+    expect(
+      BrowserControlCoverageMatrix.some(
+        (entry) =>
+          entry.catalogItem === 'Mode: observe, dry-run, warn/ask, enforce.' &&
+          entry.writesTo.includes(BrowserControlWritesToPath.ExecutionMode)
+      )
+    ).toBe(true);
+    expect(
+      BrowserControlCoverageMatrix.some(
+        (entry) =>
+          entry.catalogSection === 'Managed Browser Setup Settings' &&
+          entry.coverageStatus === 'represented-through-capability' &&
+          entry.capabilityState === 'manual-required'
+      )
+    ).toBe(true);
   });
 }
 
@@ -264,6 +302,12 @@ function validPolicyCore() {
     defaultPosture: 'limit',
     fallbackPosture: null,
     managementMode: 'local-child-agent',
+    executionMode: 'enforce',
+    discovery: {
+      scanInstalledBrowsers: true,
+      scanRunningBrowsers: true,
+      detectUnmanagedBrowsers: true,
+    },
   };
 }
 
@@ -411,8 +455,14 @@ function validEffectivePolicy() {
     revisionId: 'browser-policy-revision-1',
     compiledHash: 'browser-policy-sha256-1',
     compiledAt: '2026-05-28T17:15:00Z',
+    executionMode: 'enforce',
     defaultPosture: 'limit',
     fallbackPosture: null,
+    discovery: {
+      scanInstalledBrowsers: true,
+      scanRunningBrowsers: true,
+      detectUnmanagedBrowsers: true,
+    },
     budgets: {
       enabled: true,
       defaultDailyMinutes: 60,

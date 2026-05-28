@@ -36,6 +36,14 @@ export const BaselineBrowserControlAuthoringManifest = BrowserControlAuthoringMa
           []
         ),
         selectField(
+          BrowserControlManifestDefaults.Field.ExecutionMode,
+          BrowserControlWritesToPath.ExecutionMode,
+          'How should browser-control decisions run?',
+          'observe',
+          ['observe', 'dry-run', 'warn-ask', 'enforce'],
+          [enabled]
+        ),
+        selectField(
           BrowserControlManifestDefaults.Field.DefaultPosture,
           BrowserControlWritesToPath.DefaultPosture,
           'What should happen to browser activity?',
@@ -50,6 +58,35 @@ export const BaselineBrowserControlAuthoringManifest = BrowserControlAuthoringMa
           'local-child-agent',
           ['local-child-agent', 'lan-live', 'authoring-only', 'unavailable'],
           [enabled]
+        ),
+      ],
+    },
+    {
+      sectionId: BrowserControlManifestDefaults.Section.BrowserDiscovery,
+      title: 'Browser discovery',
+      description: 'Detect installed, running, and unmanaged browser activity before enforcement claims are made.',
+      visibleWhen: [enabled],
+      fields: [
+        booleanField(
+          BrowserControlManifestDefaults.Field.DiscoveryScanInstalledBrowsers,
+          BrowserControlWritesToPath.DiscoveryScanInstalledBrowsers,
+          'Scan installed browsers?',
+          false,
+          []
+        ),
+        booleanField(
+          BrowserControlManifestDefaults.Field.DiscoveryScanRunningBrowsers,
+          BrowserControlWritesToPath.DiscoveryScanRunningBrowsers,
+          'Scan running browsers?',
+          true,
+          []
+        ),
+        booleanField(
+          BrowserControlManifestDefaults.Field.DiscoveryDetectUnmanagedBrowsers,
+          BrowserControlWritesToPath.DiscoveryDetectUnmanagedBrowsers,
+          'Detect unmanaged browser use?',
+          true,
+          []
         ),
       ],
     },

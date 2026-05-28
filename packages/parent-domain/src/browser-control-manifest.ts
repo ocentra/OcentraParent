@@ -113,6 +113,7 @@ export const BrowserControlManifestDefaults = {
   ManifestId: BrowserControlManifestIdSchema.parse('browser-control-authoring-v1'),
   Section: {
     Management: BrowserControlSectionIdSchema.parse('browser-management'),
+    BrowserDiscovery: BrowserControlSectionIdSchema.parse('browser-discovery'),
     ManagedBrowser: BrowserControlSectionIdSchema.parse('managed-browser'),
     UnmanagedBrowser: BrowserControlSectionIdSchema.parse('unmanaged-browser'),
     UrlTabEvidence: BrowserControlSectionIdSchema.parse('url-tab-evidence'),
@@ -125,8 +126,12 @@ export const BrowserControlManifestDefaults = {
   },
   Field: {
     Enabled: BrowserControlFieldIdSchema.parse('browser.enabled'),
+    ExecutionMode: BrowserControlFieldIdSchema.parse('browser.executionMode'),
     DefaultPosture: BrowserControlFieldIdSchema.parse('browser.defaultPosture'),
     ManagementMode: BrowserControlFieldIdSchema.parse('browser.managementMode'),
+    DiscoveryScanInstalledBrowsers: BrowserControlFieldIdSchema.parse('discovery.scanInstalledBrowsers'),
+    DiscoveryScanRunningBrowsers: BrowserControlFieldIdSchema.parse('discovery.scanRunningBrowsers'),
+    DiscoveryDetectUnmanagedBrowsers: BrowserControlFieldIdSchema.parse('discovery.detectUnmanagedBrowsers'),
     ManagedBrowserMode: BrowserControlFieldIdSchema.parse('managedBrowser.mode'),
     ManagedBrowserAllowedFamilies: BrowserControlFieldIdSchema.parse('managedBrowser.allowedFamilies'),
     ManagedBrowserLaunchMode: BrowserControlFieldIdSchema.parse('managedBrowser.launchMode'),
@@ -159,6 +164,18 @@ export const BrowserControlManifestDefaults = {
 } as const;
 
 export const decodeBrowserControlAuthoringManifest = Schema.decodeUnknownSync(BrowserControlAuthoringManifestSchema);
+export {
+  BrowserControlCandidateMvpItems,
+  BrowserControlCatalogMajorSections,
+  BrowserControlCoverageEntrySchema,
+  BrowserControlCoverageKindSchema,
+  BrowserControlCoverageMatrix,
+  BrowserControlCoverageMatrixSchema,
+  BrowserControlCoverageStatusSchema,
+  type BrowserControlCoverageEntry,
+  type BrowserControlCoverageKind,
+  type BrowserControlCoverageStatus,
+} from './browser-control-coverage-matrix';
 
 export function browserControlVisibleSectionIds(
   manifest: BrowserControlAuthoringManifest,

@@ -5,13 +5,14 @@ use ocentra_parent_agent_protocol::{
     BrowserPolicyAuditRequiredField, BrowserPolicyBudgetCountingMode,
     BrowserPolicyCustodyAllowedUse, BrowserPolicyDefaultPosture, BrowserPolicyDownloadBlockedType,
     BrowserPolicyDownloadState, BrowserPolicyEvidenceNeverCollect, BrowserPolicyEvidenceProofLevel,
-    BrowserPolicyEvidenceUrlScope, BrowserPolicyManagedBrowserBridgeRequirement,
-    BrowserPolicyManagedBrowserFamily, BrowserPolicyManagedBrowserIntegrationMechanism,
-    BrowserPolicyManagedBrowserLaunchMode, BrowserPolicyManagedBrowserMode,
-    BrowserPolicyManagedBrowserProfileMode, BrowserPolicyManagementMode, BrowserPolicyPatch,
-    BrowserPolicyPatchRequest, BrowserPolicyProofFallback, BrowserPolicyRejectionReason,
-    BrowserPolicyReportVisibleField, BrowserPolicyRetentionExactUrl, BrowserPolicyRule,
-    BrowserPolicyRuleAction, BrowserPolicyRuleActionPlan, BrowserPolicyRuleTarget,
+    BrowserPolicyEvidenceUrlScope, BrowserPolicyExecutionMode,
+    BrowserPolicyManagedBrowserBridgeRequirement, BrowserPolicyManagedBrowserFamily,
+    BrowserPolicyManagedBrowserIntegrationMechanism, BrowserPolicyManagedBrowserLaunchMode,
+    BrowserPolicyManagedBrowserMode, BrowserPolicyManagedBrowserProfileMode,
+    BrowserPolicyManagementMode, BrowserPolicyPatch, BrowserPolicyPatchRequest,
+    BrowserPolicyProofFallback, BrowserPolicyRejectionReason, BrowserPolicyReportVisibleField,
+    BrowserPolicyRetentionExactUrl, BrowserPolicyRule, BrowserPolicyRuleAction,
+    BrowserPolicyRuleActionPlan, BrowserPolicyRuleTarget,
     BrowserPolicyUnmanagedBrowserClassificationTarget, BrowserPolicyUnmanagedBrowserMode,
     BrowserPolicyUpdateKind, BrowserPolicyUpdateResponse, BrowserPolicyUpdateStatus,
     BrowserPolicyUrlTargetType, LogFieldValue, LogFields, AGENT_PROTOCOL_SCHEMA_VERSION,
@@ -51,6 +52,20 @@ async fn browser_policy_patch_accepts_proposal_manifest_writes_to_paths() {
             .as_ref()
             .map(|policy| policy.rules.len()),
         Some(1)
+    );
+    assert_eq!(
+        patch_response
+            .effective_policy
+            .as_ref()
+            .map(|policy| policy.execution_mode),
+        Some(BrowserPolicyExecutionMode::Enforce)
+    );
+    assert_eq!(
+        patch_response
+            .effective_policy
+            .as_ref()
+            .map(|policy| policy.discovery.detect_unmanaged_browsers),
+        Some(true)
     );
     assert_eq!(
         patch_response
@@ -175,6 +190,11 @@ fn browser_management_patches() -> Vec<BrowserPolicyPatch> {
             true,
         ),
         policy_patch(
+            constants::browser_policy::FIELD_ID_EXECUTION_MODE,
+            constants::browser_policy::WRITES_TO_EXECUTION_MODE,
+            BrowserPolicyExecutionMode::Enforce,
+        ),
+        policy_patch(
             constants::browser_policy::FIELD_ID_DEFAULT_POSTURE,
             constants::browser_policy::WRITES_TO_DEFAULT_POSTURE,
             BrowserPolicyDefaultPosture::Warn,
@@ -183,6 +203,21 @@ fn browser_management_patches() -> Vec<BrowserPolicyPatch> {
             constants::browser_policy::FIELD_ID_MANAGEMENT_MODE,
             constants::browser_policy::WRITES_TO_MANAGEMENT_MODE,
             BrowserPolicyManagementMode::LocalChildAgent,
+        ),
+        policy_patch(
+            constants::browser_policy::FIELD_ID_DISCOVERY_SCAN_INSTALLED_BROWSERS,
+            constants::browser_policy::WRITES_TO_DISCOVERY_SCAN_INSTALLED_BROWSERS,
+            true,
+        ),
+        policy_patch(
+            constants::browser_policy::FIELD_ID_DISCOVERY_SCAN_RUNNING_BROWSERS,
+            constants::browser_policy::WRITES_TO_DISCOVERY_SCAN_RUNNING_BROWSERS,
+            true,
+        ),
+        policy_patch(
+            constants::browser_policy::FIELD_ID_DISCOVERY_DETECT_UNMANAGED_BROWSERS,
+            constants::browser_policy::WRITES_TO_DISCOVERY_DETECT_UNMANAGED_BROWSERS,
+            true,
         ),
     ]
 }

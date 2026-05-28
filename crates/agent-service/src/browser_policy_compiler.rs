@@ -35,8 +35,10 @@ pub(crate) fn compile_browser_policy(
         revision_id: revision_id.to_string(),
         compiled_hash: compiled_hash_for_revision(revision_id),
         compiled_at: compiled_at.to_string(),
+        execution_mode: policy.execution_mode,
         default_posture: effective_default_posture(policy),
         fallback_posture: policy.fallback_posture,
+        discovery: policy.discovery.clone(),
         budgets: BrowserPolicyBudgets {
             enabled: policy.budgets.enabled,
             default_daily_minutes: policy.budgets.default_daily_minutes,

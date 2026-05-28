@@ -1,21 +1,21 @@
 use ocentra_parent_agent_protocol::{
     constants, policy_constants, BrowserPolicyApprovalState, BrowserPolicyApprovals,
     BrowserPolicyAudit, BrowserPolicyAuditState, BrowserPolicyBudgets, BrowserPolicyChildFacing,
-    BrowserPolicyCustody, BrowserPolicyDefaultPosture, BrowserPolicyDownloadBlockedType,
-    BrowserPolicyDownloadState, BrowserPolicyDownloads, BrowserPolicyEffectivePolicy,
-    BrowserPolicyEvidenceNeverCollect, BrowserPolicyEvidenceProofLevel,
-    BrowserPolicyEvidenceRequirement, BrowserPolicyEvidenceUrlScope, BrowserPolicyFallbacks,
-    BrowserPolicyManagedBrowser, BrowserPolicyManagedBrowserBridgeRequirement,
-    BrowserPolicyManagedBrowserFamily, BrowserPolicyManagedBrowserIntegrationMechanism,
-    BrowserPolicyManagedBrowserLaunchMode, BrowserPolicyManagedBrowserMode,
-    BrowserPolicyManagedBrowserProfileMode, BrowserPolicyManagementMode, BrowserPolicyPlatforms,
-    BrowserPolicyPortalAi, BrowserPolicyProofFallback, BrowserPolicyRejectionReason,
-    BrowserPolicyReportState, BrowserPolicyReports, BrowserPolicyRetention,
-    BrowserPolicyRetentionExactUrl, BrowserPolicyRetentionState, BrowserPolicyRuleAction,
-    BrowserPolicyRules, BrowserPolicyUnmanagedBrowser,
-    BrowserPolicyUnmanagedBrowserClassificationTarget, BrowserPolicyUnmanagedBrowserMode,
-    BrowserPolicyUpdateKind, BrowserPolicyUpdateResponse, BrowserPolicyUpdateStatus,
-    BrowserPolicyUrlTargetType, BrowserPolicyValue,
+    BrowserPolicyCustody, BrowserPolicyDefaultPosture, BrowserPolicyDiscovery,
+    BrowserPolicyDownloadBlockedType, BrowserPolicyDownloadState, BrowserPolicyDownloads,
+    BrowserPolicyEffectivePolicy, BrowserPolicyEvidenceNeverCollect,
+    BrowserPolicyEvidenceProofLevel, BrowserPolicyEvidenceRequirement,
+    BrowserPolicyEvidenceUrlScope, BrowserPolicyFallbacks, BrowserPolicyManagedBrowser,
+    BrowserPolicyManagedBrowserBridgeRequirement, BrowserPolicyManagedBrowserFamily,
+    BrowserPolicyManagedBrowserIntegrationMechanism, BrowserPolicyManagedBrowserLaunchMode,
+    BrowserPolicyManagedBrowserMode, BrowserPolicyManagedBrowserProfileMode,
+    BrowserPolicyManagementMode, BrowserPolicyPlatforms, BrowserPolicyPortalAi,
+    BrowserPolicyProofFallback, BrowserPolicyRejectionReason, BrowserPolicyReportState,
+    BrowserPolicyReports, BrowserPolicyRetention, BrowserPolicyRetentionExactUrl,
+    BrowserPolicyRetentionState, BrowserPolicyRuleAction, BrowserPolicyRules,
+    BrowserPolicyUnmanagedBrowser, BrowserPolicyUnmanagedBrowserClassificationTarget,
+    BrowserPolicyUnmanagedBrowserMode, BrowserPolicyUpdateKind, BrowserPolicyUpdateResponse,
+    BrowserPolicyUpdateStatus, BrowserPolicyUrlTargetType, BrowserPolicyValue,
 };
 
 use crate::{
@@ -108,9 +108,11 @@ pub(crate) fn default_policy(policy_id: String) -> BrowserPolicyValue {
         schema_version: policy_constants::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
         policy_id,
         enabled: false,
+        execution_mode: Default::default(),
         default_posture: BrowserPolicyDefaultPosture::Observe,
         fallback_posture: None,
         management_mode: BrowserPolicyManagementMode::LocalChildAgent,
+        discovery: default_discovery(),
         managed_browser: default_managed_browser(),
         unmanaged_browser: default_unmanaged_browser(),
         evidence: default_evidence_requirement(),
@@ -153,6 +155,14 @@ pub(crate) fn default_policy(policy_id: String) -> BrowserPolicyValue {
         portal_ai: BrowserPolicyPortalAi::default(),
         platforms: BrowserPolicyPlatforms::default(),
         fallbacks: BrowserPolicyFallbacks::default(),
+    }
+}
+
+fn default_discovery() -> BrowserPolicyDiscovery {
+    BrowserPolicyDiscovery {
+        scan_installed_browsers: false,
+        scan_running_browsers: true,
+        detect_unmanaged_browsers: true,
     }
 }
 

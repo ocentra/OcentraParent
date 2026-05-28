@@ -2,8 +2,12 @@ import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/ef
 
 const BrowserControlKnownWritesToPathLiteralSchema = Schema.Literal(
   '/browserPolicy/enabled',
+  '/browserPolicy/executionMode',
   '/browserPolicy/defaultPosture',
   '/browserPolicy/managementMode',
+  '/browserPolicy/discovery/scanInstalledBrowsers',
+  '/browserPolicy/discovery/scanRunningBrowsers',
+  '/browserPolicy/discovery/detectUnmanagedBrowsers',
   '/browserPolicy/managedBrowser/mode',
   '/browserPolicy/managedBrowser/allowedFamilies',
   '/browserPolicy/managedBrowser/launchMode',
@@ -88,6 +92,10 @@ export const BrowserControlConditionKindSchema = withParser(
 
 export const BrowserControlDefaultPostureSchema = withParser(
   Schema.Literal('observe', 'allow', 'warn', 'ask', 'limit', 'ask-parent', 'block')
+);
+
+export const BrowserControlExecutionModeSchema = withParser(
+  Schema.Literal('observe', 'dry-run', 'warn-ask', 'enforce')
 );
 
 export const BrowserControlManagementModeSchema = withParser(
@@ -232,8 +240,18 @@ export const BrowserControlUpdateStatusSchema = withParser(Schema.Literal('accep
 
 export const BrowserControlWritesToPath = {
   Enabled: BrowserControlSchemaKnownWritesToPathSchema.parse('/browserPolicy/enabled'),
+  ExecutionMode: BrowserControlSchemaKnownWritesToPathSchema.parse('/browserPolicy/executionMode'),
   DefaultPosture: BrowserControlSchemaKnownWritesToPathSchema.parse('/browserPolicy/defaultPosture'),
   ManagementMode: BrowserControlSchemaKnownWritesToPathSchema.parse('/browserPolicy/managementMode'),
+  DiscoveryScanInstalledBrowsers: BrowserControlSchemaKnownWritesToPathSchema.parse(
+    '/browserPolicy/discovery/scanInstalledBrowsers'
+  ),
+  DiscoveryScanRunningBrowsers: BrowserControlSchemaKnownWritesToPathSchema.parse(
+    '/browserPolicy/discovery/scanRunningBrowsers'
+  ),
+  DiscoveryDetectUnmanagedBrowsers: BrowserControlSchemaKnownWritesToPathSchema.parse(
+    '/browserPolicy/discovery/detectUnmanagedBrowsers'
+  ),
   ManagedBrowserMode: BrowserControlSchemaKnownWritesToPathSchema.parse('/browserPolicy/managedBrowser/mode'),
   ManagedBrowserAllowedFamilies: BrowserControlSchemaKnownWritesToPathSchema.parse(
     '/browserPolicy/managedBrowser/allowedFamilies'
@@ -295,6 +313,7 @@ export type BrowserControlFieldValue = Infer<typeof BrowserControlFieldValueSche
 export type BrowserControlKind = Infer<typeof BrowserControlKindSchema>;
 export type BrowserControlConditionKind = Infer<typeof BrowserControlConditionKindSchema>;
 export type BrowserControlDefaultPosture = Infer<typeof BrowserControlDefaultPostureSchema>;
+export type BrowserControlExecutionMode = Infer<typeof BrowserControlExecutionModeSchema>;
 export type BrowserControlManagementMode = Infer<typeof BrowserControlManagementModeSchema>;
 export type BrowserControlManagedBrowserMode = Infer<typeof BrowserControlManagedBrowserModeSchema>;
 export type BrowserControlUnmanagedBrowserMode = Infer<typeof BrowserControlUnmanagedBrowserModeSchema>;

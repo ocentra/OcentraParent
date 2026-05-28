@@ -178,8 +178,13 @@ pub mod browser_policy {
     pub const REVISION_ID: &str = "browser-policy-revision-1";
     pub const AUDIT_EVENT_ID: &str = "browser-policy-audit-1";
     pub const FIELD_ID_ENABLED: &str = "browser.enabled";
+    pub const FIELD_ID_EXECUTION_MODE: &str = "browser.executionMode";
     pub const FIELD_ID_DEFAULT_POSTURE: &str = "browser.defaultPosture";
     pub const FIELD_ID_MANAGEMENT_MODE: &str = "browser.managementMode";
+    pub const FIELD_ID_DISCOVERY_SCAN_INSTALLED_BROWSERS: &str = "discovery.scanInstalledBrowsers";
+    pub const FIELD_ID_DISCOVERY_SCAN_RUNNING_BROWSERS: &str = "discovery.scanRunningBrowsers";
+    pub const FIELD_ID_DISCOVERY_DETECT_UNMANAGED_BROWSERS: &str =
+        "discovery.detectUnmanagedBrowsers";
     pub const FIELD_ID_MANAGED_BROWSER_MODE: &str = "managedBrowser.mode";
     pub const FIELD_ID_MANAGED_BROWSER_ALLOWED_FAMILIES: &str = "managedBrowser.allowedFamilies";
     pub const FIELD_ID_MANAGED_BROWSER_LAUNCH_MODE: &str = "managedBrowser.launchMode";
@@ -219,8 +224,15 @@ pub mod browser_policy {
     pub const FIELD_ID_AUDIT_REQUIRED_FIELDS: &str = "audit.requiredFields";
     pub const FIELD_ID_RETENTION_STATE: &str = "retention.state";
     pub const WRITES_TO_ENABLED: &str = "/browserPolicy/enabled";
+    pub const WRITES_TO_EXECUTION_MODE: &str = "/browserPolicy/executionMode";
     pub const WRITES_TO_DEFAULT_POSTURE: &str = "/browserPolicy/defaultPosture";
     pub const WRITES_TO_MANAGEMENT_MODE: &str = "/browserPolicy/managementMode";
+    pub const WRITES_TO_DISCOVERY_SCAN_INSTALLED_BROWSERS: &str =
+        "/browserPolicy/discovery/scanInstalledBrowsers";
+    pub const WRITES_TO_DISCOVERY_SCAN_RUNNING_BROWSERS: &str =
+        "/browserPolicy/discovery/scanRunningBrowsers";
+    pub const WRITES_TO_DISCOVERY_DETECT_UNMANAGED_BROWSERS: &str =
+        "/browserPolicy/discovery/detectUnmanagedBrowsers";
     pub const WRITES_TO_MANAGED_BROWSER_MODE: &str = "/browserPolicy/managedBrowser/mode";
     pub const WRITES_TO_MANAGED_BROWSER_ALLOWED_FAMILIES: &str =
         "/browserPolicy/managedBrowser/allowedFamilies";

@@ -4,13 +4,14 @@ use ocentra_parent_agent_protocol::{
     BrowserPolicyAuditState, BrowserPolicyBudgetCountingMode, BrowserPolicyCustodyAllowedUse,
     BrowserPolicyDefaultPosture, BrowserPolicyDownloadBlockedType, BrowserPolicyDownloadState,
     BrowserPolicyEvidenceNeverCollect, BrowserPolicyEvidenceProofLevel,
-    BrowserPolicyEvidenceUrlScope, BrowserPolicyManagedBrowserBridgeRequirement,
-    BrowserPolicyManagedBrowserFamily, BrowserPolicyManagedBrowserIntegrationMechanism,
-    BrowserPolicyManagedBrowserLaunchMode, BrowserPolicyManagedBrowserMode,
-    BrowserPolicyManagedBrowserProfileMode, BrowserPolicyManagementMode, BrowserPolicyPatch,
-    BrowserPolicyProofFallback, BrowserPolicyRejectionReason, BrowserPolicyReportState,
-    BrowserPolicyReportVisibleField, BrowserPolicyRetentionExactUrl, BrowserPolicyRetentionState,
-    BrowserPolicyRule, BrowserPolicyRuleAction, BrowserPolicyUnmanagedBrowserClassificationTarget,
+    BrowserPolicyEvidenceUrlScope, BrowserPolicyExecutionMode,
+    BrowserPolicyManagedBrowserBridgeRequirement, BrowserPolicyManagedBrowserFamily,
+    BrowserPolicyManagedBrowserIntegrationMechanism, BrowserPolicyManagedBrowserLaunchMode,
+    BrowserPolicyManagedBrowserMode, BrowserPolicyManagedBrowserProfileMode,
+    BrowserPolicyManagementMode, BrowserPolicyPatch, BrowserPolicyProofFallback,
+    BrowserPolicyRejectionReason, BrowserPolicyReportState, BrowserPolicyReportVisibleField,
+    BrowserPolicyRetentionExactUrl, BrowserPolicyRetentionState, BrowserPolicyRule,
+    BrowserPolicyRuleAction, BrowserPolicyUnmanagedBrowserClassificationTarget,
     BrowserPolicyUnmanagedBrowserMode, BrowserPolicyUpdateKind, BrowserPolicyUpdateRequest,
     BrowserPolicyUrlTargetType, BrowserPolicyValue, LogFieldValue,
 };
@@ -112,6 +113,11 @@ fn apply_browser_policy_core_patch(
             policy.enabled = parse_patch_value(patch)?;
             Ok(true)
         }
+        constants::browser_policy::WRITES_TO_EXECUTION_MODE => {
+            require_field(patch, constants::browser_policy::FIELD_ID_EXECUTION_MODE)?;
+            policy.execution_mode = parse_patch_value::<BrowserPolicyExecutionMode>(patch)?;
+            Ok(true)
+        }
         constants::browser_policy::WRITES_TO_DEFAULT_POSTURE => {
             require_field(patch, constants::browser_policy::FIELD_ID_DEFAULT_POSTURE)?;
             policy.default_posture = parse_patch_value::<BrowserPolicyDefaultPosture>(patch)?;
@@ -142,6 +148,30 @@ fn apply_browser_policy_core_patch(
             )?;
             policy.budgets.counting_mode =
                 parse_patch_value::<BrowserPolicyBudgetCountingMode>(patch)?;
+            Ok(true)
+        }
+        constants::browser_policy::WRITES_TO_DISCOVERY_SCAN_INSTALLED_BROWSERS => {
+            require_field(
+                patch,
+                constants::browser_policy::FIELD_ID_DISCOVERY_SCAN_INSTALLED_BROWSERS,
+            )?;
+            policy.discovery.scan_installed_browsers = parse_patch_value::<bool>(patch)?;
+            Ok(true)
+        }
+        constants::browser_policy::WRITES_TO_DISCOVERY_SCAN_RUNNING_BROWSERS => {
+            require_field(
+                patch,
+                constants::browser_policy::FIELD_ID_DISCOVERY_SCAN_RUNNING_BROWSERS,
+            )?;
+            policy.discovery.scan_running_browsers = parse_patch_value::<bool>(patch)?;
+            Ok(true)
+        }
+        constants::browser_policy::WRITES_TO_DISCOVERY_DETECT_UNMANAGED_BROWSERS => {
+            require_field(
+                patch,
+                constants::browser_policy::FIELD_ID_DISCOVERY_DETECT_UNMANAGED_BROWSERS,
+            )?;
+            policy.discovery.detect_unmanaged_browsers = parse_patch_value::<bool>(patch)?;
             Ok(true)
         }
         _ => Ok(false),
