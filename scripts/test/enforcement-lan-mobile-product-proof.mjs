@@ -34,11 +34,14 @@ async function main() {
   const lanProof = await readJson(
     join(repoRoot, 'test-results', 'v0-9-production-lan-multidevice-hardening', 'proof.json')
   );
+  const householdLanReadiness = await readJson(
+    join(repoRoot, 'test-results', 'v0-9-household-lan-proof-readiness', 'proof.json')
+  );
   const capabilities = await platformCapabilities();
   const matrix = await readJson(join(repoRoot, 'docs', 'expectations', 'pre-ai-proof-matrix.json'));
 
   assertOsEnforcement(aggregateProof, capabilities);
-  assertProductionLan(productionProof, lanProof);
+  assertProductionLan(productionProof, lanProof, householdLanReadiness);
   assertMobileProductStates(capabilities);
   assertProofMatrix(matrix);
 
@@ -58,6 +61,10 @@ async function main() {
         repoRoot,
         join(repoRoot, 'test-results', 'v0-9-production-lan-multidevice-hardening', 'proof.json')
       ),
+      householdLanReadiness: relative(
+        repoRoot,
+        join(repoRoot, 'test-results', 'v0-9-household-lan-proof-readiness', 'proof.json')
+      ),
     },
     productProof: {
       osEnforcement: capabilitySummary(capabilities, 'windows', [
@@ -72,7 +79,8 @@ async function main() {
       productionLan: {
         localClaims: lanProof.claimsProvedLocally,
         notLocalClaims: lanProof.claimsNotProvedLocally,
-        twoDeviceChecklist: lanProof.manualTwoDeviceChecklist,
+        readinessGate: householdLanReadiness.readinessGate,
+        observedLocalServiceStates: householdLanReadiness.observedLocalServiceStates,
         cloudRelayDecision: productionProof.productionTruth.cloudRelayDecision,
       },
       androidChild: capabilitySummary(capabilities, 'android', [
@@ -109,8 +117,8 @@ function assertOsEnforcement(aggregateProof, capabilities) {
   assertCapability(capabilities, 'windows', 'app-time-limit', 'implemented');
   assertCapability(capabilities, 'windows', 'app-blocking', 'manual-required');
   assertCapability(capabilities, 'windows', 'network-domain-blocking', 'manual-required');
-  assertCapability(capabilities, 'windows', 'managed-browser-control', 'manual-required');
-  assertCapability(capabilities, 'windows', 'unmanaged-browser-detection', 'manual-required');
+  assertCapability(capabilities, 'windows', 'managed-browser-control', 'implemented');
+  assertCapability(capabilities, 'windows', 'unmanaged-browser-detection', 'implemented');
   assertEqual(
     aggregateProof.osEnforcementProof.processTerminate?.adapterKind,
     'process-control',
@@ -129,7 +137,7 @@ function assertOsEnforcement(aggregateProof, capabilities) {
   proofLabels.push('v0.8.os-enforcement.product-capability-states');
 }
 
-function assertProductionLan(productionProof, lanProof) {
+function assertProductionLan(productionProof, lanProof, householdLanReadiness) {
   assertEqual(
     productionProof.productionTruth.cloudRelayDecision.includes('no cloud relay behavior is implemented'),
     true,
@@ -151,7 +159,19 @@ function assertProductionLan(productionProof, lanProof) {
     'parent and child host names or IPs showing two distinct LAN devices',
     'two-device artifact'
   );
+  assertEqual(
+    householdLanReadiness.productReadinessDecision,
+    'not-ready-for-product-ready-household-lan-claim',
+    'household LAN product readiness decision'
+  );
+  assertEqual(
+    householdLanReadiness.readinessGate.physicalHouseholdLan.state,
+    'manual-required',
+    'household physical LAN gate'
+  );
+  assertEqual(householdLanReadiness.readinessGate.cloudRelay.state, 'not-implemented', 'cloud relay LAN gate');
   proofLabels.push('v0.9.production-lan.household-manual-proof-boundary');
+  proofLabels.push('v0.9.production-lan.household-readiness-gate');
 }
 
 function assertMobileProductStates(capabilities) {

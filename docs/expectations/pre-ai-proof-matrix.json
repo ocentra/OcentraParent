@@ -16,6 +16,7 @@
     "package-preview-platforms",
     "platform-roles-lan-ai-provider-pool",
     "v08-v09-product-proof-final-pass",
+    "v0-9-household-lan-proof-readiness",
     "platform-lan-enforcement-production-proof",
     "platform-os-lan-mobile-proof",
     "enforcement-lan-mobile-product-proof",
@@ -271,6 +272,42 @@
       ]
     },
     {
+      "id": "v0-9-household-lan-proof-readiness",
+      "title": "V0.9 Household LAN Proof Readiness Gate",
+      "claimIds": ["v0-9-household-lan-proof-readiness"],
+      "expectationFiles": [
+        "docs/expectations/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
+        "docs/expectations/lan-pairing.md",
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "proofMode": "ci-mechanical-proof",
+      "realEvidencePath": [
+        "Run the V0.9 production LAN multi-device proof through real local Rust service processes.",
+        "Gather discovery, route/controller, selected-device, rejection/revocation, and LAN AI provider states from the generated proof artifacts.",
+        "Emit a readiness gate artifact that separates local multi-service proof from physical household LAN proof.",
+        "Verify two physical devices, router discovery, firewall/OS prompts, mobile controller/observer behavior, cloud relay, stale/offline selected-device behavior, and failed-unpaired checks remain explicit manual or not-implemented gates until real artifacts exist."
+      ],
+      "ciCommands": ["node scripts/test/v0-9-household-lan-proof-readiness.mjs"],
+      "requiredArtifacts": [
+        "test-results/v0-9-household-lan-proof-readiness/proof.json",
+        "test-results/v0-9-production-lan-multidevice-hardening/proof.json",
+        "test-results/v0-9-lan-discovery-challenge-mvp/proof.json",
+        "test-results/v0-9-lan-pairing-control-mvp/proof.json",
+        "test-results/platform-roles-lan-ai-provider-pool/proof.json"
+      ],
+      "knownGaps": [
+        "The readiness gate proves local Rust service mechanics, not product-ready household router discovery.",
+        "Two physical devices, firewall/router evidence, parent mobile controller/observer behavior, and mobile background behavior remain manual-required.",
+        "Cloud relay remains not implemented and cannot be counted as LAN readiness proof."
+      ],
+      "notProof": [
+        "A local multi-service WebSocket run presented as household LAN product readiness.",
+        "A generated manual checklist presented as physical two-device evidence.",
+        "A degraded or unavailable LAN AI state presented as cloud relay or mobile provider completion."
+      ]
+    },
+    {
       "id": "platform-lan-enforcement-production-proof",
       "title": "Platform LAN And Enforcement Production Proof",
       "claimIds": ["platform-lan-enforcement-production-proof"],
@@ -286,7 +323,7 @@
         "Build contracts from the current commit.",
         "Run the V0.8 app time-limit proof through the real Rust service, including execute, restart recovery, parent cancel, unavailable recovery state, expiry, audit, and storage.",
         "Run the V0.8 production enforcement hardening proof through the real Rust service, including process-control, network-control, and managed-browser-control commands that return manual-required or unavailable states for unproven broad blocking.",
-        "Run the V0.9 production LAN multi-device proof bundle through real Rust service processes, including discovery challenge, selected-route recovery, controller conflict/takeover, wrong-origin/wrong-device rejection, provider routing, and manual physical two-device checklist output.",
+        "Run the V0.9 production LAN multi-device proof bundle and household LAN readiness gate through real Rust service proof artifacts, including discovery challenge, selected-route recovery, controller conflict/takeover, wrong-origin/wrong-device rejection, provider routing, and manual physical two-device gate output.",
         "Read platform capability states that keep parent desktop, parent mobile, Android, iOS, signing, stores, device-owner policy, and Family Controls as implemented, scaffold, manual-required, unavailable, or not-implemented instead of product-complete; package shell proof remains D-owned."
       ],
       "ciCommands": ["node scripts/test/platform-lan-enforcement-production-proof.mjs"],
@@ -295,6 +332,7 @@
         "test-results/v0-8-windows-app-time-limit-adapter-mvp/*.json",
         "test-results/v0-8-production-enforcement-hardening/*.json",
         "test-results/v0-9-production-lan-multidevice-hardening/proof.json",
+        "test-results/v0-9-household-lan-proof-readiness/proof.json",
         "test-results/platform-roles-lan-ai-provider-pool/proof.json"
       ],
       "knownGaps": [
@@ -334,7 +372,8 @@
         "test-results/platform-os-lan-mobile-proof/proof.json",
         "test-results/platform-lan-enforcement-production-proof/proof.json",
         "test-results/v0-8-production-enforcement-hardening/*.json",
-        "test-results/v0-9-production-lan-multidevice-hardening/proof.json"
+        "test-results/v0-9-production-lan-multidevice-hardening/proof.json",
+        "test-results/v0-9-household-lan-proof-readiness/proof.json"
       ],
       "knownGaps": [
         "Network/domain blocking, broad app blocking, and unmanaged browser control remain manual-required or unavailable until OS-approved adapters have real host proof.",
@@ -372,10 +411,11 @@
         "test-results/enforcement-lan-mobile-product-proof/proof.json",
         "test-results/platform-os-lan-mobile-proof/proof.json",
         "test-results/platform-lan-enforcement-production-proof/proof.json",
-        "test-results/v0-9-production-lan-multidevice-hardening/proof.json"
+        "test-results/v0-9-production-lan-multidevice-hardening/proof.json",
+        "test-results/v0-9-household-lan-proof-readiness/proof.json"
       ],
       "knownGaps": [
-        "Broad app blocking, domain blocking, managed-browser enforcement, and unmanaged-browser detection remain manual-required until host adapters and real browser evidence exist.",
+        "Broad app blocking and domain blocking remain manual-required; managed-browser control and unmanaged-browser detection are limited to proved Windows boundaries and do not claim broad browser or exact unmanaged URL blocking.",
         "Physical household discovery, router/firewall behavior, and two-device LAN control remain manual-required until run on two household devices.",
         "Android package lifecycle and iOS signing/entitlement/TestFlight behavior remain manual-required until real package/device artifacts exist."
       ],
@@ -866,6 +906,62 @@
       ]
     },
     {
+      "id": "v0-9-household-lan-proof-readiness",
+      "roadmapSlice": "V0.9 household LAN proof readiness gate",
+      "expectationFiles": [
+        "docs/expectations/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
+        "docs/expectations/lan-pairing.md",
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "claim": "V0.9 household LAN readiness distinguishes current local Rust service multi-service proof from the physical two-device, router/firewall, mobile, and cloud-relay gates that remain manual-required or not implemented.",
+      "privilegedCapability": true,
+      "ciProof": {
+        "commands": ["node scripts/test/v0-9-household-lan-proof-readiness.mjs"],
+        "jobs": ["Worker B V0.9 household LAN proof-readiness gate"]
+      },
+      "platformCoverage": {
+        "windows": "ci-mechanical-proof",
+        "linux": "ci-mechanical-proof",
+        "macos": "ci-mechanical-proof",
+        "android": "manual-required",
+        "ios": "manual-required"
+      },
+      "runtimeSurfaceCoverage": {
+        "localMultiServiceLan": {
+          "state": "implemented",
+          "proof": "Real local Rust service proof covers discovery challenge, route selection, controller lease renewal/release/takeover, observer rejection, revocation, restart recovery, wrong-origin/wrong-device/replay/stale rejection, selected-device stale/offline Rust tests, and LAN AI provider routing states."
+        },
+        "physicalHouseholdLan": {
+          "state": "manual-required",
+          "proof": "Two physical devices, household router reachability, firewall or OS prompt evidence, origin allowlist, route control, stale/offline selected-device behavior, and failed-unpaired checks must be recorded before product-ready household LAN can be claimed."
+        },
+        "parentMobileControllerObserver": {
+          "state": "manual-required",
+          "proof": "Parent mobile observer and controller takeover behavior require Android and iOS package/device proof before write authority or background behavior can be claimed."
+        },
+        "lanAiProviderRouting": {
+          "state": "ci-mechanical-proof",
+          "proof": "Local service proof can advertise provider availability, completed routing, unsupported capability rejection, unavailable, busy, and degraded states; real household provider routing remains a physical-device artifact requirement."
+        },
+        "cloudRelay": {
+          "state": "not-implemented",
+          "proof": "Cloud relay is explicitly not implemented and is not counted as LAN proof."
+        }
+      },
+      "knownGaps": [
+        "Local multi-service proof is not proof of product-ready household router discovery.",
+        "Firewall/OS prompt behavior, physical stale/offline selected-device behavior, and mobile controller/observer behavior remain manual-required.",
+        "Cloud relay remains not implemented and needs a separate authenticated proof slice."
+      ],
+      "manualProofChecklist": [
+        "Archive test-results/v0-9-household-lan-proof-readiness/proof.json with the commit SHA.",
+        "Run V0.9 LAN proof across two physical household devices and record parent/child host names or IPs, router reachability, firewall/OS prompts, origin allowlist, route selection, takeover, revocation, wrong-origin/wrong-device rejection, replay rejection, stale/offline selected-device behavior, failed-unpaired command rejection, and provider state.",
+        "Record Android and iOS parent mobile observer/controller behavior before upgrading mobile authority states.",
+        "Record a separate authenticated cloud relay proof before counting cloud relay as implemented."
+      ]
+    },
+    {
       "id": "platform-lan-enforcement-production-proof",
       "roadmapSlice": "V0.8/V0.9 production platform proof hardening",
       "expectationFiles": [
@@ -875,7 +971,7 @@
         "docs/expectations/platform-deliverables.md",
         "docs/expectations/real-evidence-proof.md"
       ],
-      "claim": "V0.8 real owned-process enforcement proof, V0.8 manual-required broad-adapter states, V0.9 production LAN local multi-service proof, domain-owned platform capability states, and explicit cloud-relay non-claim are verified together by a B-owned production proof command.",
+      "claim": "V0.8 real owned-process enforcement proof, V0.8 manual-required broad-adapter states, V0.9 production LAN local multi-service proof, V0.9 household LAN readiness gate, domain-owned platform capability states, and explicit cloud-relay non-claim are verified together by a B-owned production proof command.",
       "privilegedCapability": true,
       "ciProof": {
         "commands": ["node scripts/test/platform-lan-enforcement-production-proof.mjs"],
@@ -895,7 +991,7 @@
         },
         "v09LanMultidevice": {
           "state": "implemented",
-          "proof": "Real Rust service proof covers discovery challenge, route recovery, controller conflict/takeover, wrong-origin/wrong-device rejection, provider routing states, and physical two-device manual checklist output."
+          "proof": "Real Rust service proof covers discovery challenge, route recovery, controller conflict/takeover, wrong-origin/wrong-device rejection, provider routing states, and a household readiness gate that keeps physical two-device proof manual-required."
         },
         "parentMobileBackend": {
           "state": "scaffold",
@@ -913,7 +1009,7 @@
       ],
       "manualProofChecklist": [
         "Run node scripts/test/platform-lan-enforcement-production-proof.mjs on a Windows host and archive all generated proof JSON with commit SHA.",
-        "Repeat V0.9 LAN discovery/control across two physical devices, recording parent and child IPs, firewall state, origin allowlist, route selection, takeover, revocation, wrong-origin rejection, restart recovery, and provider state.",
+        "Repeat V0.9 LAN discovery/control across two physical devices, recording parent and child IPs, router reachability, firewall state, origin allowlist, route selection, takeover, revocation, wrong-origin rejection, restart recovery, failed-unpaired rejection, stale/offline selected-device behavior, and provider state.",
         "Record parent mobile controller/observer backend behavior from a real mobile package before upgrading parent mobile coverage.",
         "Record Android UsageStats, accessibility, VPN/DNS, device-owner, managed-profile, foreground service, and package lifecycle artifacts before upgrading Android child coverage.",
         "Record iOS Family Controls, DeviceActivity, Screen Time, Network Extension, notification, background execution, signing, and TestFlight artifacts before upgrading iOS child coverage."
@@ -990,7 +1086,7 @@
         "docs/expectations/platforms.md",
         "docs/expectations/real-evidence-proof.md"
       ],
-      "claim": "Product proof distinguishes implemented Windows owned-process/time-limit enforcement from manual-required broad app, domain, managed-browser, and unmanaged-browser states; preserves local V0.9 LAN mechanics versus physical household proof; and records mobile package, signing, and entitlement gaps as capability-specific states.",
+      "claim": "Product proof distinguishes implemented Windows owned-process/time-limit, managed-browser, and unmanaged-browser enforcement boundaries from manual-required broad app/domain states; preserves local V0.9 LAN mechanics versus physical household proof; and records mobile package, signing, and entitlement gaps as capability-specific states.",
       "privilegedCapability": true,
       "ciProof": {
         "commands": ["node scripts/test/enforcement-lan-mobile-product-proof.mjs"],
@@ -1006,7 +1102,7 @@
       "runtimeSurfaceCoverage": {
         "osEnforcementAdapters": {
           "state": "implemented",
-          "proof": "Owned-process terminate and app time-limit lifecycle have real service proof where supported; broad app, domain, managed-browser, and unmanaged-browser states stay manual-required."
+          "proof": "Owned-process terminate, app time-limit lifecycle, managed-browser intervention, and unmanaged-browser process detection have real service proof where supported; broad app and domain blocking stay manual-required."
         },
         "productionLanHousehold": {
           "state": "scaffold",
