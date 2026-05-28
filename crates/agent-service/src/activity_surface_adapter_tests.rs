@@ -41,6 +41,15 @@ async fn activity_surface_report_uses_real_activity_store_snapshot() {
     cleanup_report_dir(&report_dir);
 
     assert_eq!(report.source_states[0].state, ActivityReadModelState::Ready);
+    let draft_metadata = report
+        .saved_metadata
+        .clone()
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    assert_eq!(
+        draft_metadata.saved_state,
+        ocentra_parent_agent_protocol::ActivitySavedReportState::Draft
+    );
+    assert_eq!(draft_metadata.saved_at, None);
     assert_eq!(report.sections.len(), 6);
     assert_eq!(report.sections[0].state, ActivityReadModelState::Ready);
     assert_eq!(report.sections[2].state, ActivityReadModelState::Ready);

@@ -28,6 +28,18 @@ describe('parent assistant adapter boundary', () => {
     );
   });
 
+  it('creates runtime commands with typed Activity report JSON for report-backed citations', () => {
+    const message = createParentAssistantRuntimeCommand('message-send', {
+      ...commandInput(),
+      activityReport: activityReport(),
+    });
+    const report = JSON.parse(String(message.payload[AgentProtocolDefaults.Field.ActivityReportDocument])) as {
+      readonly savedMetadata: { readonly savedState: string };
+    };
+
+    expect(report.savedMetadata.savedState).toBe('saved');
+  });
+
   it('parses full answer payloads with citations, preview, and API custody boundary', () => {
     const parsed = parseParentAssistantAnswerEvent(
       eventEnvelope(AgentEvent.ParentAssistantAnswerReported, {
@@ -119,6 +131,49 @@ function answerPayload() {
       childSafetyOrEnforcementUseAllowed: false,
     },
     promptVersion: 'parent-assistant-local-v1',
+  } as const;
+}
+
+function activityReport() {
+  return {
+    schemaVersion: 1,
+    reportId: 'activity-report-daily-local',
+    frequency: 'daily',
+    scope: {
+      scopeKind: 'family',
+      familyId: 'family-local',
+      deviceId: null,
+    },
+    requestedAt: '2026-05-28T14:54:00Z',
+    rangeStart: '2026-05-28T00:00:00Z',
+    rangeEnd: '2026-05-28T14:54:00Z',
+    generatedAt: '2026-05-28T14:54:01Z',
+    savedMetadata: {
+      reportId: 'activity-report-daily-local',
+      fileName: 'activity-report-daily-local.json',
+      savedState: 'saved',
+      savedAt: '2026-05-28T14:54:02Z',
+      storageReason: 'Activity report is saved in local parent report storage.',
+    },
+    sourceStates: [
+      {
+        deviceId: 'local-dev-agent',
+        reachabilityState: 'reachable',
+        state: 'ready',
+        reason: null,
+        lastUpdatedAt: '2026-05-28T14:53:00Z',
+      },
+    ],
+    sections: [
+      {
+        sectionKind: 'summary',
+        title: 'Summary',
+        state: 'ready',
+        summary: 'Activity data is available from the local query store.',
+        itemCount: 1,
+        evidence: [],
+      },
+    ],
   } as const;
 }
 

@@ -7,6 +7,7 @@ use ocentra_parent_agent_protocol::{
 
 use crate::{
     activity_family_sources::default_family_fanout_record,
+    activity_surface_report_store::draft_metadata_for_report,
     activity_surface_store::ActivitySurfaceStoreSnapshot, time::timestamp_now,
 };
 
@@ -38,7 +39,7 @@ fn report_document_from_snapshot(
     };
     let source_states =
         source_states_for_request(&request.scope, &snapshot, source_state, family_sources);
-    ActivityReportDocument {
+    let mut report = ActivityReportDocument {
         schema_version: ACTIVITY_SURFACE_SCHEMA_VERSION,
         report_id: report_id(request.frequency, &generated_at),
         frequency: request.frequency,
@@ -63,7 +64,9 @@ fn report_document_from_snapshot(
                 snapshot.network_returned,
             ),
         ],
-    }
+    };
+    report.saved_metadata = Some(draft_metadata_for_report(&report));
+    report
 }
 
 fn source_states_for_request(
@@ -93,7 +96,7 @@ fn source_states_for_request(
 
 fn unavailable_report_document(request: ActivityReportRequest) -> ActivityReportDocument {
     let generated_at = timestamp_now();
-    ActivityReportDocument {
+    let mut report = ActivityReportDocument {
         schema_version: ACTIVITY_SURFACE_SCHEMA_VERSION,
         report_id: report_id(request.frequency, &generated_at),
         frequency: request.frequency,
@@ -118,12 +121,14 @@ fn unavailable_report_document(request: ActivityReportRequest) -> ActivityReport
             unavailable_section(ActivityReportSectionKind::Games),
             unavailable_section(ActivityReportSectionKind::Network),
         ],
-    }
+    };
+    report.saved_metadata = Some(draft_metadata_for_report(&report));
+    report
 }
 
 fn offline_device_report_document(request: ActivityReportRequest) -> ActivityReportDocument {
     let generated_at = timestamp_now();
-    ActivityReportDocument {
+    let mut report = ActivityReportDocument {
         schema_version: ACTIVITY_SURFACE_SCHEMA_VERSION,
         report_id: report_id(request.frequency, &generated_at),
         frequency: request.frequency,
@@ -151,7 +156,9 @@ fn offline_device_report_document(request: ActivityReportRequest) -> ActivityRep
             offline_section(ActivityReportSectionKind::Games),
             offline_section(ActivityReportSectionKind::Network),
         ],
-    }
+    };
+    report.saved_metadata = Some(draft_metadata_for_report(&report));
+    report
 }
 
 fn report_section(kind: ActivityReportSectionKind, item_count: u64) -> ActivityReportSection {

@@ -22,6 +22,7 @@ let AgentCommand;
 let AgentEvent;
 let AgentEventEnvelopeSchema;
 let AgentProtocolDefaults;
+let savedActivityReport;
 
 await runPackageCommand(['run', 'build:contracts']);
 ({ AgentCommand, AgentEvent, AgentEventEnvelopeSchema, AgentProtocolDefaults } =
@@ -108,11 +109,7 @@ function runRuntimeProof() {
       messageId: 'cmd-parent-assistant-message',
       command: AgentCommand.ParentAssistantMessageSend,
       expectedEvent: AgentEvent.ParentAssistantAnswerReported,
-      payload: {
-        [AgentProtocolDefaults.Field.ParentAssistantQuestion]: 'Suggest a policy rule from recent activity.',
-        [AgentProtocolDefaults.Field.ParentAssistantEvidenceSummary]:
-          'Recent local Activity tab data is available as parent-visible evidence.',
-      },
+      payload: parentAssistantPayload,
       assertEvent: assertParentAssistantUnavailable,
     },
   ];
@@ -145,7 +142,8 @@ function runRuntimeProof() {
 
     const sendCurrentStep = () => {
       const step = steps[stepIndex];
-      socket.send(JSON.stringify(commandEnvelope(step.messageId, step.command, step.payload)));
+      const payload = typeof step.payload === 'function' ? step.payload() : step.payload;
+      socket.send(JSON.stringify(commandEnvelope(step.messageId, step.command, payload)));
     };
 
     socket.addEventListener('open', sendCurrentStep);
@@ -224,6 +222,9 @@ function assertReportDocument(event) {
   if (report.frequency !== 'daily') {
     throw new Error(`Activity report frequency was not daily: ${JSON.stringify(report)}`);
   }
+  if (report.savedMetadata?.savedState !== 'draft' || report.savedMetadata.savedAt !== null) {
+    throw new Error(`Activity report generation did not return an unsaved draft: ${JSON.stringify(report)}`);
+  }
   assertFamilySourceStates(report);
 }
 
@@ -237,6 +238,7 @@ function assertSavedReportDocument(event) {
   if (typeof report.savedMetadata?.fileName !== 'string' || !report.savedMetadata.fileName.endsWith('.json')) {
     throw new Error(`Activity report save did not return a saved JSON file name: ${JSON.stringify(report)}`);
   }
+  savedActivityReport = report;
 }
 
 function assertReportHistory(event) {
@@ -284,6 +286,13 @@ function assertParentAssistantUnavailable(event) {
   if (answer.answerState !== 'unavailable' || !Array.isArray(answer.citations) || answer.citations.length < 1) {
     throw new Error(`Parent Assistant did not return a full typed answer payload: ${JSON.stringify(answer)}`);
   }
+  const reportCitation = answer.citations.find((citation) => citation.citationLabel === 'Activity report');
+  if (
+    reportCitation?.evidence?.evidenceReferenceId !== savedActivityReport?.reportId ||
+    !String(reportCitation?.allowedSummary).includes('savedState=saved')
+  ) {
+    throw new Error(`Parent Assistant did not cite the saved Activity report: ${JSON.stringify(answer.citations)}`);
+  }
   const preview = parseJsonField(payload, AgentProtocolDefaults.Field.ParentAssistantActionPreview);
   if (preview.childAgentContractRequired !== true || preview.enforcementApplied !== false) {
     throw new Error(`Parent Assistant bypassed child-agent contract or enforced directly: ${JSON.stringify(preview)}`);
@@ -301,6 +310,19 @@ function assertParentAssistantUnavailable(event) {
   ) {
     throw new Error(`Parent Assistant API AI boundary was not custody-safe: ${JSON.stringify(apiBoundary)}`);
   }
+}
+
+function parentAssistantPayload() {
+  if (savedActivityReport === undefined) {
+    throw new Error('Parent Assistant proof reached report-backed step before saving Activity report');
+  }
+
+  return {
+    [AgentProtocolDefaults.Field.ParentAssistantQuestion]: 'Suggest a policy rule from recent activity.',
+    [AgentProtocolDefaults.Field.ParentAssistantEvidenceSummary]:
+      'Recent local Activity tab data is available as parent-visible evidence.',
+    [AgentProtocolDefaults.Field.ActivityReportDocument]: JSON.stringify(savedActivityReport),
+  };
 }
 
 function assertFamilySourceStates(report) {
