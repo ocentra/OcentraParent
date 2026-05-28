@@ -105,13 +105,13 @@ export const BrowserInterventionRowSchema = withParser(
     interventionMechanism: BrowserInterventionMechanismSchema,
     interventionOutcome: BrowserInterventionOutcomeSchema,
     browserBoundaryState: Schema.optionalWith(BrowserBoundaryStateSchema, {
-      default: () => 'managed-session' as const,
+      default: () => 'unknown' as const,
     }),
     exactUrlClaimState: Schema.optionalWith(BrowserExactUrlClaimStateSchema, {
-      default: () => 'exact-url-proven' as const,
+      default: () => 'not-claimed' as const,
     }),
     unmanagedDetectionState: Schema.optionalWith(BrowserUnmanagedDetectionStateSchema, {
-      default: () => 'none' as const,
+      default: () => 'unavailable' as const,
     }),
     reason: Schema.Union(BrowserDegradedReasonSchema, Schema.Null),
     custodyLabel: BrowserCustodyLabelSchema,

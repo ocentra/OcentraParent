@@ -71,6 +71,70 @@ fn activity_store_reports_typed_browser_intervention_read_model_from_ingested_ev
 }
 
 #[test]
+fn activity_store_infers_legacy_managed_url_proof_without_overclaiming_unmanaged_rows() {
+    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+    let mut event = browser_intervention_event();
+    remove_browser_claim_fields(&mut event);
+
+    store
+        .ingest_events(std::slice::from_ref(&event))
+        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+    let read_model = store
+        .browser_intervention_read_model(
+            constants::activity_store::DEFAULT_RECENT_LIMIT,
+            constants::activity_store::TEST_SECOND_OBSERVED_AT,
+        )
+        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+
+    let row = &read_model.rows[0];
+    assert_eq!(
+        row.browser_boundary_state,
+        BrowserBoundaryState::ManagedSession
+    );
+    assert_eq!(
+        row.exact_url_claim_state,
+        BrowserExactUrlClaimState::ExactUrlProven
+    );
+    assert_eq!(
+        row.unmanaged_detection_state,
+        BrowserUnmanagedDetectionState::None
+    );
+}
+
+#[test]
+fn activity_store_does_not_overclaim_legacy_rows_without_managed_url_proof() {
+    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+    let mut event = browser_intervention_event();
+    remove_browser_claim_fields(&mut event);
+    event
+        .fields
+        .remove(constants::field::MANAGED_BROWSER_SESSION_ID);
+    event.fields.remove(constants::field::REQUESTED_URL);
+    event.fields.remove(constants::field::OBSERVED_URL);
+
+    store
+        .ingest_events(std::slice::from_ref(&event))
+        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+    let read_model = store
+        .browser_intervention_read_model(
+            constants::activity_store::DEFAULT_RECENT_LIMIT,
+            constants::activity_store::TEST_SECOND_OBSERVED_AT,
+        )
+        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+
+    let row = &read_model.rows[0];
+    assert_eq!(row.browser_boundary_state, BrowserBoundaryState::Unknown);
+    assert_eq!(
+        row.exact_url_claim_state,
+        BrowserExactUrlClaimState::NotClaimed
+    );
+    assert_eq!(
+        row.unmanaged_detection_state,
+        BrowserUnmanagedDetectionState::Unavailable
+    );
+}
+
+#[test]
 fn activity_store_replays_browser_interventions_from_encrypted_journal() {
     let journal_path = temp_path(
         constants::activity_store::TEST_BROWSER_INTERVENTION_JOURNAL_SUFFIX,
@@ -167,6 +231,18 @@ fn browser_intervention_event() -> ActivityEvent {
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
         0,
     )
+}
+
+fn remove_browser_claim_fields(event: &mut ActivityEvent) {
+    event
+        .fields
+        .remove(constants::browser::INTERVENTION_FIELD_BROWSER_BOUNDARY_STATE);
+    event
+        .fields
+        .remove(constants::browser::INTERVENTION_FIELD_EXACT_URL_CLAIM_STATE);
+    event
+        .fields
+        .remove(constants::browser::INTERVENTION_FIELD_UNMANAGED_DETECTION_STATE);
 }
 
 fn temp_path(suffix: &str, extension: &str) -> std::path::PathBuf {

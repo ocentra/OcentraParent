@@ -43,7 +43,9 @@ describe('browser evidence read model contracts', () => {
       expect(parsed.data.rows[0].capabilityStatus).toBe('tab-list-only');
     }
   });
+});
 
+describe('browser intervention read model contracts', () => {
   it('accepts managed browser intervention read models without coupling to a decision engine', () => {
     const parsed = BrowserInterventionReadModelSchema.safeParse({
       schemaVersion: BrowserInterventionSchemaVersion,
@@ -88,6 +90,32 @@ describe('browser evidence read model contracts', () => {
       expect(parsed.data.rows[0].browserBoundaryState).toBe('unmanaged-browser-process');
       expect(parsed.data.rows[0].exactUrlClaimState).toBe('not-claimed');
       expect(parsed.data.rows[0].unmanagedDetectionState).toBe('terminated');
+    }
+  });
+
+  it('does not overclaim exact URL proof when browser intervention fields are omitted', () => {
+    const legacyRow = browserInterventionRow();
+    delete (legacyRow as Partial<typeof legacyRow>).browserBoundaryState;
+    delete (legacyRow as Partial<typeof legacyRow>).exactUrlClaimState;
+    delete (legacyRow as Partial<typeof legacyRow>).unmanagedDetectionState;
+
+    const parsed = BrowserInterventionReadModelSchema.safeParse({
+      schemaVersion: BrowserInterventionSchemaVersion,
+      generatedAt: '2026-05-21T01:03:01Z',
+      limit: 10,
+      returned: 1,
+      latestEventId: 'activity-browser-intervention-applied-3',
+      latestObservedAt: '2026-05-21T01:03:00Z',
+      managedSessionInterventionCapability: BrowserInterventionCapabilityState.Ready,
+      unmanagedBrowserEnforcement: BrowserUnmanagedEnforcementState.RequiresOsAppControl,
+      rows: [legacyRow],
+    });
+
+    expect(parsed.success).toBe(true);
+    if (parsed.success) {
+      expect(parsed.data.rows[0].browserBoundaryState).toBe('unknown');
+      expect(parsed.data.rows[0].exactUrlClaimState).toBe('not-claimed');
+      expect(parsed.data.rows[0].unmanagedDetectionState).toBe('unavailable');
     }
   });
 });

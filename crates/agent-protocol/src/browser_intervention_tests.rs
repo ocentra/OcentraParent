@@ -87,3 +87,64 @@ fn browser_intervention_read_model_serializes_decision_source_and_enforcement_st
         json!(constants::browser::INTERVENTION_UNMANAGED_DETECTION_NONE)
     );
 }
+
+#[test]
+fn browser_intervention_read_model_serializes_unmanaged_process_without_exact_url_claim() {
+    let read_model = BrowserInterventionReadModel {
+        schema_version: BROWSER_INTERVENTION_SCHEMA_VERSION,
+        generated_at: constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string(),
+        limit: 5,
+        returned: 1,
+        latest_event_id: Some(
+            constants::activity_store::TEST_BROWSER_INTERVENTION_EVENT_ID.to_string(),
+        ),
+        latest_observed_at: Some(constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string()),
+        managed_session_intervention_capability:
+            BrowserInterventionCapabilityState::NeedsManagedSession,
+        unmanaged_browser_enforcement: BrowserUnmanagedEnforcementState::ReadyToBlock,
+        rows: vec![BrowserInterventionRow {
+            schema_version: BROWSER_INTERVENTION_SCHEMA_VERSION,
+            browser_intervention_id: constants::activity_store::TEST_BROWSER_INTERVENTION_ID
+                .to_string(),
+            observed_at: constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
+            source_id: constants::browser::INTERVENTION_SOURCE_ID_MANAGED_BROWSER.to_string(),
+            device_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
+            browser_family: Some(BrowserFamily::Chrome),
+            browser_channel: Some(BrowserChannel::Stable),
+            managed_browser_session_id: None,
+            profile_id: None,
+            process_id: Some(constants::activity_store::TEST_BROWSER_PROCESS_ID),
+            policy_decision_id: Some(
+                constants::activity_store::TEST_POLICY_DECISION_ID.to_string(),
+            ),
+            decision_source: BrowserInterventionDecisionSource::ParentRule,
+            intervention_action: BrowserInterventionAction::Block,
+            intervention_target_type: BrowserInterventionTargetType::BrowserProcess,
+            intervention_target_value: constants::browser::EXECUTABLE_CHROME_WINDOWS.to_string(),
+            requested_url: None,
+            observed_url: None,
+            intervention_mechanism: BrowserInterventionMechanism::OsAppControl,
+            intervention_outcome: BrowserInterventionOutcome::Blocked,
+            browser_boundary_state: BrowserBoundaryState::UnmanagedBrowserProcess,
+            exact_url_claim_state: BrowserExactUrlClaimState::NotClaimed,
+            unmanaged_detection_state: BrowserUnmanagedDetectionState::Terminated,
+            reason: Some(constants::value::MANAGED_BROWSER_UNMANAGED_PROCESS.to_string()),
+            custody_label: BrowserCustodyLabel::ChildDeviceLocal,
+            query_visibility: BrowserQueryVisibilityLabel::LiveLocal,
+        }],
+    };
+
+    let serialized =
+        serde_json::to_value(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES);
+
+    assert_eq!(
+        serialized["rows"][0]["browserBoundaryState"],
+        json!(constants::browser::INTERVENTION_BOUNDARY_UNMANAGED_BROWSER_PROCESS)
+    );
+    assert_eq!(
+        serialized["rows"][0]["exactUrlClaimState"],
+        json!(constants::browser::INTERVENTION_EXACT_URL_NOT_CLAIMED)
+    );
+    assert_eq!(serialized["rows"][0]["requestedUrl"], json!(null));
+    assert_eq!(serialized["rows"][0]["observedUrl"], json!(null));
+}
