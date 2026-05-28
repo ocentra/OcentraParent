@@ -28,7 +28,7 @@ pub(crate) fn save_report_document_to_dir(
         &file_name,
         ActivitySavedReportState::Saved,
         Some(saved_at),
-        None,
+        Some(constants::activity_surface::SUMMARY_STORAGE_SAVED.to_string()),
     ));
     match write_report_to_dir(&directory, &file_name, &report) {
         Ok(()) => report,

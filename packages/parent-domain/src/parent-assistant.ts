@@ -148,6 +148,7 @@ const ParentAssistantAnswerBaseSchema = Schema.Struct({
   answerText: Schema.Union(ParentAssistantAnswerTextSchema, Schema.Null),
   citations: Schema.Array(ParentAssistantEvidenceContextSchema),
   actionPreview: ParentAssistantActionPreviewSchema,
+  apiProviderBoundary: ParentAssistantApiProviderBoundarySchema,
   promptVersion: ParentAssistantPromptVersionSchema,
 });
 

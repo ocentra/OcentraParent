@@ -30,6 +30,25 @@ pub const PROMPT_SEPARATOR: &str = "\n";
 pub const DEFAULT_PREVIEW_ID: &str = "parent-assistant-action-preview-local";
 pub const ACTION_PREVIEW_SUMMARY: &str =
     "Preview only. Child-agent contract approval is required before any action.";
+pub const ACTION_PREVIEW_POLICY_SUMMARY: &str =
+    "Policy suggestion preview only. Controller lease and child-agent contract execution are required before any rule changes.";
+pub const ACTION_PREVIEW_SCHEDULE_SUMMARY: &str =
+    "Schedule-change preview only. Controller lease and child-agent contract execution are required before any schedule changes.";
+pub const ACTION_PREVIEW_TIME_LIMIT_SUMMARY: &str =
+    "Time-limit preview only. Controller lease and child-agent contract execution are required before any limit changes.";
+pub const ACTION_PREVIEW_NONE_SUMMARY: &str = "No backend action is prepared from this answer.";
+pub const QUESTION_POLICY_HINT: &str = "policy";
+pub const QUESTION_RULE_HINT: &str = "rule";
+pub const QUESTION_SCHEDULE_HINT: &str = "schedule";
+pub const QUESTION_BEDTIME_HINT: &str = "bedtime";
+pub const QUESTION_TIME_LIMIT_HINT: &str = "time limit";
+pub const QUESTION_LIMIT_HINT: &str = "limit";
+pub const TEST_POLICY_QUESTION: &str = "Suggest a policy rule for evening games.";
+pub const API_PROVIDER_ID_NOT_AUTHORIZED: &str = "api-provider-not-authorized";
+pub const API_PROVIDER_CUSTODY_LABEL: &str = "parent-authorized-api-ai";
+pub const API_PROVIDER_RETENTION_POLICY: &str = "no-retention-without-parent-authorization";
+pub const API_PROVIDER_DELETION_POLICY: &str = "delete-provider-cache-on-parent-request";
+pub const API_PROVIDER_NOT_AUTHORIZED_REASON: &str = "api-ai-provider-not-authorized";
 pub const LOCAL_PROVIDER_DEGRADED: &str = "local provider returned degraded output";
 pub const LOCAL_PROVIDER_BUSY: &str = "local provider is busy";
 pub const BACKEND_STATE_SCAFFOLD_ONLY: &str = "scaffold-only";

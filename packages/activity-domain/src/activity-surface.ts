@@ -28,6 +28,9 @@ export const ActivityReportSectionKindSchema = withParser(
 export const ActivityReadModelStateSchema = withParser(
   Schema.Literal('ready', 'empty', 'unavailable', 'offline', 'stale', 'permission-required', 'scaffold-only')
 );
+export const ActivityReportSourceReachabilityStateSchema = withParser(
+  Schema.Literal('reachable', 'unreachable', 'offline', 'error')
+);
 export const ActivitySavedReportStateSchema = withParser(
   Schema.Literal('draft', 'saved', 'storage-unavailable', 'scaffold-only')
 );
@@ -73,6 +76,7 @@ export const ActivityReportRequestSchema = withParser(
 export const ActivityReportSourceStateSchema = withParser(
   Schema.Struct({
     deviceId: ActivityDeviceIdSchema,
+    reachabilityState: ActivityReportSourceReachabilityStateSchema,
     state: ActivityReadModelStateSchema,
     reason: Schema.Union(ActivityReportSummarySchema, Schema.Null),
     lastUpdatedAt: Schema.Union(ActivityTimestampSchema, Schema.Null),
@@ -237,6 +241,7 @@ export const ActivityNetworkReadModelSchema = withParser(
 export type ActivitySurfaceScope = Infer<typeof ActivitySurfaceScopeSchema>;
 export type ActivitySurfaceRequest = Infer<typeof ActivitySurfaceRequestSchema>;
 export type ActivityReportRequest = Infer<typeof ActivityReportRequestSchema>;
+export type ActivityReportSourceReachabilityState = Infer<typeof ActivityReportSourceReachabilityStateSchema>;
 export type ActivityReportSourceState = Infer<typeof ActivityReportSourceStateSchema>;
 export type ActivityReportSection = Infer<typeof ActivityReportSectionSchema>;
 export type ActivitySavedReportMetadata = Infer<typeof ActivitySavedReportMetadataSchema>;

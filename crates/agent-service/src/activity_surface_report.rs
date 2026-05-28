@@ -1,22 +1,26 @@
 use ocentra_parent_agent_protocol::{
     constants, ActivityReadModelState, ActivityReportDocument, ActivityReportFrequency,
     ActivityReportRequest, ActivityReportSection, ActivityReportSectionKind,
-    ActivityReportSourceState, ActivitySurfaceScope, ActivitySurfaceScopeKind,
-    ACTIVITY_SURFACE_SCHEMA_VERSION,
+    ActivityReportSourceReachabilityState, ActivityReportSourceState, ActivitySurfaceScope,
+    ActivitySurfaceScopeKind, ACTIVITY_SURFACE_SCHEMA_VERSION,
 };
 
-use crate::{activity_surface_store::ActivitySurfaceStoreSnapshot, time::timestamp_now};
+use crate::{
+    activity_family_sources::default_family_fanout_record,
+    activity_surface_store::ActivitySurfaceStoreSnapshot, time::timestamp_now,
+};
 
 pub(crate) fn report_document(
     request: ActivityReportRequest,
     snapshot: Option<ActivitySurfaceStoreSnapshot>,
+    family_sources: Vec<ActivityReportSourceState>,
 ) -> ActivityReportDocument {
     if request_targets_remote_device(&request.scope) {
         return offline_device_report_document(request);
     }
 
     match snapshot {
-        Some(snapshot) => report_document_from_snapshot(request, snapshot),
+        Some(snapshot) => report_document_from_snapshot(request, snapshot, family_sources),
         None => unavailable_report_document(request),
     }
 }
@@ -24,6 +28,7 @@ pub(crate) fn report_document(
 fn report_document_from_snapshot(
     request: ActivityReportRequest,
     snapshot: ActivitySurfaceStoreSnapshot,
+    family_sources: Vec<ActivityReportSourceState>,
 ) -> ActivityReportDocument {
     let generated_at = timestamp_now();
     let source_state = if snapshot_has_rows(&snapshot) {
@@ -31,7 +36,8 @@ fn report_document_from_snapshot(
     } else {
         ActivityReadModelState::Empty
     };
-    let source_states = source_states_for_request(&request.scope, &snapshot, source_state);
+    let source_states =
+        source_states_for_request(&request.scope, &snapshot, source_state, family_sources);
     ActivityReportDocument {
         schema_version: ACTIVITY_SURFACE_SCHEMA_VERSION,
         report_id: report_id(request.frequency, &generated_at),
@@ -64,23 +70,22 @@ fn source_states_for_request(
     scope: &ActivitySurfaceScope,
     snapshot: &ActivitySurfaceStoreSnapshot,
     source_state: ActivityReadModelState,
+    family_sources: Vec<ActivityReportSourceState>,
 ) -> Vec<ActivityReportSourceState> {
     let mut states = vec![ActivityReportSourceState {
         device_id: snapshot.device_id.clone(),
+        reachability_state: ActivityReportSourceReachabilityState::Reachable,
         state: source_state,
         reason: Some(constants::activity_surface::SUMMARY_FAMILY_LOCAL_SOURCE.to_string()),
         last_updated_at: snapshot.last_observed_at.clone(),
     }];
 
     if scope.scope_kind == ActivitySurfaceScopeKind::Family {
-        states.push(ActivityReportSourceState {
-            device_id: constants::activity_surface::FAMILY_FANOUT_SOURCE_ID.to_string(),
-            state: ActivityReadModelState::Unavailable,
-            reason: Some(
-                constants::activity_surface::SUMMARY_FAMILY_FANOUT_UNAVAILABLE.to_string(),
-            ),
-            last_updated_at: None,
-        });
+        if family_sources.is_empty() {
+            states.push(default_family_fanout_record());
+        } else {
+            states.extend(family_sources);
+        }
     }
 
     states
@@ -100,6 +105,7 @@ fn unavailable_report_document(request: ActivityReportRequest) -> ActivityReport
         saved_metadata: None,
         source_states: vec![ActivityReportSourceState {
             device_id: constants::activity_surface::DEFAULT_DEVICE_ID.to_string(),
+            reachability_state: ActivityReportSourceReachabilityState::Unreachable,
             state: ActivityReadModelState::Unavailable,
             reason: Some(constants::activity_surface::SUMMARY_STORE_UNAVAILABLE.to_string()),
             last_updated_at: None,
@@ -132,6 +138,7 @@ fn offline_device_report_document(request: ActivityReportRequest) -> ActivityRep
                 .scope
                 .device_id
                 .unwrap_or_else(|| constants::activity_surface::DEFAULT_DEVICE_ID.to_string()),
+            reachability_state: ActivityReportSourceReachabilityState::Offline,
             state: ActivityReadModelState::Offline,
             reason: Some(constants::activity_surface::SUMMARY_DEVICE_OFFLINE.to_string()),
             last_updated_at: None,

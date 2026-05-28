@@ -35,6 +35,13 @@ pub(crate) fn parent_assistant_answer_payload(answer: &ParentAssistantAnswer) ->
             ),
         ),
         (
+            constants::field::PARENT_ASSISTANT_API_PROVIDER_BOUNDARY,
+            LogFieldValue::String(
+                serde_json::to_string(&answer.api_provider_boundary)
+                    .expect(constants::error::AGENT_EVENT_SERIALIZES),
+            ),
+        ),
+        (
             constants::field::LOCAL_AI_RESULT_ID,
             optional_string(answer.local_ai_result_id.as_ref()),
         ),

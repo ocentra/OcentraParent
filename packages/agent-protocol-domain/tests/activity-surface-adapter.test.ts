@@ -47,6 +47,7 @@ const Report = {
   sourceStates: [
     {
       deviceId: 'local-dev-agent',
+      reachabilityState: 'reachable',
       state: 'ready',
       reason: null,
       lastUpdatedAt: '2026-05-27T20:09:00Z',
@@ -64,6 +65,23 @@ const Report = {
   ],
 } as const;
 
+const FamilySources = [
+  {
+    deviceId: 'child-device-offline',
+    reachabilityState: 'offline',
+    state: 'offline',
+    reason: 'Child source is offline for this report.',
+    lastUpdatedAt: null,
+  },
+  {
+    deviceId: 'child-device-error',
+    reachabilityState: 'error',
+    state: 'unavailable',
+    reason: 'Child source returned an error.',
+    lastUpdatedAt: null,
+  },
+] as const;
+
 describe('activity surface adapter boundary', () => {
   it('creates report and read-model commands with family or device scope payloads', () => {
     const reportCommand = createActivityReportGenerateCommand('daily', commandInput());
@@ -80,6 +98,18 @@ describe('activity surface adapter boundary', () => {
 
     expect(command.command).toBe('agent.activity.report.save');
     expect(typeof command.payload[AgentProtocolDefaults.Field.ActivityReportDocument]).toBe('string');
+  });
+
+  it('creates family report commands with backend-owned source registry JSON', () => {
+    const command = createActivityReportGenerateCommand('weekly', {
+      ...commandInput(),
+      familySources: FamilySources,
+    });
+    const sources = parsedFamilySources(command.payload[AgentProtocolDefaults.Field.ActivityFamilySources]);
+
+    expect(command.command).toBe('agent.activity.report.weekly.generate');
+    expect(sources[0]?.reachabilityState).toBe('offline');
+    expect(sources[1]?.reachabilityState).toBe('error');
   });
 
   it('creates and parses historical report list messages for the Activity UI handoff', () => {
@@ -163,6 +193,12 @@ function historicalReportList() {
       },
     ],
   } as const;
+}
+
+function parsedFamilySources(value: unknown) {
+  return JSON.parse(String(value)) as Array<{
+    readonly reachabilityState: string;
+  }>;
 }
 
 function eventEnvelope(event: (typeof AgentEvent)[keyof typeof AgentEvent], payload: Record<string, unknown>) {

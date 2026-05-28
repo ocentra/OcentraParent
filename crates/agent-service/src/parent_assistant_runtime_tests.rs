@@ -8,7 +8,8 @@ use ocentra_parent_agent_protocol::{
     constants, policy_constants as policy, AgentCommandEnvelope, AgentCommandName,
     AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, FamilyReference,
     LocalAiDegradedState, LocalAiProviderSchedulerJobClass, LocalAiProviderSchedulerJobStatus,
-    ParentActorReference, ParentActorRole, ParentAssistantAnswerState,
+    ParentActorReference, ParentActorRole, ParentAssistantActionPreviewKind,
+    ParentAssistantAnswerState, ParentAssistantApiAuthorizationState,
     ParentAssistantEvidenceContext, ParentAssistantGenerateRequest, ParentAssistantProviderState,
     ParentAssistantScope, ParentEvidenceReference, ParentEvidenceReferenceKind,
     AGENT_PROTOCOL_SCHEMA_VERSION,
@@ -50,6 +51,15 @@ async fn parent_assistant_unconfigured_provider_returns_cited_unavailable_answer
     assert_eq!(answer.citations.len(), 1);
     assert!(answer.action_preview.child_agent_contract_required);
     assert!(!answer.action_preview.enforcement_applied);
+    assert_eq!(
+        answer.api_provider_boundary.authorization_state,
+        ParentAssistantApiAuthorizationState::NotAuthorized
+    );
+    assert!(
+        !answer
+            .api_provider_boundary
+            .child_safety_or_enforcement_use_allowed
+    );
     assert_eq!(scheduler.status_snapshot().current_job_class, None);
 }
 
@@ -98,6 +108,34 @@ async fn parent_assistant_busy_provider_degrades_without_running_or_enforcing() 
     assert_eq!(answer.local_ai_result_id, None);
     assert!(answer.action_preview.child_agent_contract_required);
     assert!(!answer.action_preview.enforcement_applied);
+}
+
+#[tokio::test]
+async fn parent_assistant_request_prepares_policy_preview_without_enforcement_or_api_ai() {
+    let request = request_from_command(
+        &policy_question_command(),
+        &LocalAiRuntimeConfigSnapshot::unconfigured(),
+        None,
+    );
+    let answer = generate_parent_assistant_answer_with_scheduler(
+        &policy_question_command(),
+        request,
+        &LocalAiRuntimeConfigSnapshot::unconfigured(),
+        &LocalAiProviderSchedulerRuntime::new_for_test(),
+    )
+    .await;
+
+    assert_eq!(
+        answer.action_preview.action_kind,
+        ParentAssistantActionPreviewKind::PolicySuggestion
+    );
+    assert!(answer.action_preview.requires_controller_lease);
+    assert!(answer.action_preview.child_agent_contract_required);
+    assert!(!answer.action_preview.enforcement_applied);
+    assert_eq!(
+        answer.api_provider_boundary.provider_state,
+        ParentAssistantProviderState::Unavailable
+    );
 }
 
 #[test]
@@ -186,6 +224,19 @@ fn request(model_id: Option<String>) -> ParentAssistantGenerateRequest {
 }
 
 fn command() -> AgentCommandEnvelope {
+    command_with_payload(fields_from_pairs(Vec::new()))
+}
+
+fn policy_question_command() -> AgentCommandEnvelope {
+    command_with_payload(fields_from_pairs(vec![(
+        constants::field::PARENT_ASSISTANT_QUESTION,
+        ocentra_parent_agent_protocol::LogFieldValue::String(
+            constants::parent_assistant::TEST_POLICY_QUESTION.to_string(),
+        ),
+    )]))
+}
+
+fn command_with_payload(payload: ocentra_parent_agent_protocol::LogFields) -> AgentCommandEnvelope {
     AgentCommandEnvelope {
         schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
         message_id: constants::parent_assistant::DEFAULT_MESSAGE_ID.to_string(),
@@ -200,7 +251,7 @@ fn command() -> AgentCommandEnvelope {
             route: AgentRoute::Localhost,
         },
         command: AgentCommandName::AgentParentAssistantAnswerGenerate,
-        payload: fields_from_pairs(Vec::new()),
+        payload,
     }
 }
 

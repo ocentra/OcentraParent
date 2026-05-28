@@ -1,6 +1,7 @@
 use ocentra_parent_agent_protocol::{ActivityReportFrequency, AgentCommandEnvelope};
 
 use crate::{
+    activity_family_sources::family_sources_from_command,
     activity_surface_read_models::{
         app_use_read_model, browser_read_model, games_read_model, network_read_model,
         screen_read_model,
@@ -19,7 +20,11 @@ pub(crate) async fn build_activity_report_document(
     frequency: ActivityReportFrequency,
 ) -> ocentra_parent_agent_protocol::ActivityReportDocument {
     let request = report_request_from_command(command, frequency);
-    report_document(request, local_store_snapshot().await)
+    report_document(
+        request,
+        local_store_snapshot().await,
+        family_sources_from_command(command),
+    )
 }
 
 pub(crate) async fn build_saved_activity_report(

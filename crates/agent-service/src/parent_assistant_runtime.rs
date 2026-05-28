@@ -3,7 +3,8 @@ use ocentra_parent_agent_protocol::{
     AgentEventName, LocalAiDegradedState, LocalAiGenerationState, LocalAiProviderSchedulerJobClass,
     LocalAiProviderSchedulerJobStatus, LogFieldValue, LogLevel, ParentActorReference,
     ParentActorRole, ParentAssistantActionPreview, ParentAssistantActionPreviewKind,
-    ParentAssistantAnswer, ParentAssistantAnswerState, ParentAssistantGenerateRequest,
+    ParentAssistantAnswer, ParentAssistantAnswerState, ParentAssistantApiAuthorizationState,
+    ParentAssistantApiProviderBoundary, ParentAssistantGenerateRequest,
     ParentAssistantProviderState, ParentAssistantScope,
 };
 
@@ -313,21 +314,73 @@ fn base_answer(
         unavailable_reason: parts.unavailable_reason,
         local_ai_result_id: parts.local_ai_result_id,
         answer_text: parts.answer_text,
-        citations: request.evidence_context,
-        action_preview: preview_only_action(),
+        citations: request.evidence_context.clone(),
+        action_preview: preview_only_action(&request.question),
+        api_provider_boundary: api_provider_boundary(&request.evidence_context),
         prompt_version: constants::parent_assistant::PROMPT_VERSION_LOCAL_V1.to_string(),
     }
 }
 
-fn preview_only_action() -> ParentAssistantActionPreview {
+fn preview_only_action(question: &str) -> ParentAssistantActionPreview {
+    let normalized_question = question.to_ascii_lowercase();
+    let (action_kind, summary) = if normalized_question
+        .contains(constants::parent_assistant::QUESTION_POLICY_HINT)
+        || normalized_question.contains(constants::parent_assistant::QUESTION_RULE_HINT)
+    {
+        (
+            ParentAssistantActionPreviewKind::PolicySuggestion,
+            constants::parent_assistant::ACTION_PREVIEW_POLICY_SUMMARY,
+        )
+    } else if normalized_question.contains(constants::parent_assistant::QUESTION_SCHEDULE_HINT)
+        || normalized_question.contains(constants::parent_assistant::QUESTION_BEDTIME_HINT)
+    {
+        (
+            ParentAssistantActionPreviewKind::ScheduleChange,
+            constants::parent_assistant::ACTION_PREVIEW_SCHEDULE_SUMMARY,
+        )
+    } else if normalized_question.contains(constants::parent_assistant::QUESTION_TIME_LIMIT_HINT)
+        || normalized_question.contains(constants::parent_assistant::QUESTION_LIMIT_HINT)
+    {
+        (
+            ParentAssistantActionPreviewKind::TimeLimitChange,
+            constants::parent_assistant::ACTION_PREVIEW_TIME_LIMIT_SUMMARY,
+        )
+    } else {
+        (
+            ParentAssistantActionPreviewKind::None,
+            constants::parent_assistant::ACTION_PREVIEW_NONE_SUMMARY,
+        )
+    };
+
     ParentAssistantActionPreview {
         preview_id: Some(constants::parent_assistant::DEFAULT_PREVIEW_ID.to_string()),
-        action_kind: ParentAssistantActionPreviewKind::TimeLimitChange,
-        summary: Some(constants::parent_assistant::ACTION_PREVIEW_SUMMARY.to_string()),
+        action_kind,
+        summary: Some(summary.to_string()),
         action_reference: None,
-        requires_controller_lease: true,
+        requires_controller_lease: action_kind != ParentAssistantActionPreviewKind::None,
         child_agent_contract_required: true,
         enforcement_applied: false,
+    }
+}
+
+fn api_provider_boundary(
+    citations: &[ocentra_parent_agent_protocol::ParentAssistantEvidenceContext],
+) -> ParentAssistantApiProviderBoundary {
+    ParentAssistantApiProviderBoundary {
+        schema_version:
+            ocentra_parent_agent_protocol::policy_constants::CONTRACT_SCHEMA_VERSION_V0_6
+                .to_string(),
+        provider_id: constants::parent_assistant::API_PROVIDER_ID_NOT_AUTHORIZED.to_string(),
+        authorization_state: ParentAssistantApiAuthorizationState::NotAuthorized,
+        custody_label: constants::parent_assistant::API_PROVIDER_CUSTODY_LABEL.to_string(),
+        retention_policy: constants::parent_assistant::API_PROVIDER_RETENTION_POLICY.to_string(),
+        deletion_policy: constants::parent_assistant::API_PROVIDER_DELETION_POLICY.to_string(),
+        citations: citations.to_vec(),
+        provider_state: ParentAssistantProviderState::Unavailable,
+        unavailable_reason: Some(
+            constants::parent_assistant::API_PROVIDER_NOT_AUTHORIZED_REASON.to_string(),
+        ),
+        child_safety_or_enforcement_use_allowed: false,
     }
 }
 

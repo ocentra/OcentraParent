@@ -15,6 +15,7 @@ import type {
   ActivityHistoricalReportList,
   ActivityNetworkReadModel,
   ActivityReportDocument,
+  ActivityReportSourceState,
   ActivityScreenReadModel,
   ActivitySurfaceRequest,
 } from '@ocentra-parent/activity-domain/activity-surface';
@@ -76,6 +77,7 @@ export type CreateActivitySurfaceCommandInput = {
   readonly target: ActivitySurfaceCommandTargetInput;
   readonly request: ActivitySurfaceRequest;
   readonly report?: ActivityReportDocument;
+  readonly familySources?: readonly ActivityReportSourceState[];
 };
 
 export function createActivityReportGenerateCommand(
@@ -161,6 +163,9 @@ function commandPayload(input: CreateActivitySurfaceCommandInput): AgentCommandE
   }
   if (input.report !== undefined) {
     payload[AgentProtocolDefaults.Field.ActivityReportDocument] = JSON.stringify(input.report);
+  }
+  if (input.familySources !== undefined) {
+    payload[AgentProtocolDefaults.Field.ActivityFamilySources] = JSON.stringify(input.familySources);
   }
 
   return payload;
