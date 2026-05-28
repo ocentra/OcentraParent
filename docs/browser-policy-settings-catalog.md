@@ -13,6 +13,67 @@ Use this together with
 [`expectations/browser-evidence.md`](expectations/browser-evidence.md), and
 [`architecture/browser-url-tab-evidence-capture.md`](architecture/browser-url-tab-evidence-capture.md).
 
+## Schema Proposal Snapshot
+
+The full proposal lives in
+[`browser-control-schema-proposal.md`](browser-control-schema-proposal.md). It
+is a worker handoff guide, not final runtime source. The worker who implements
+it must translate the shape into repo-valid Effect Schema contracts, branded
+ids, decode helpers, tests, Rust protocol parity where needed, and child-agent
+validation/compile behavior.
+
+The proposed structure separates UI authoring from enforcement:
+
+```json
+{
+  "authoringManifest": {
+    "sections": [
+      {
+        "sectionId": "browser-management",
+        "fields": [
+          {
+            "fieldId": "browser.enabled",
+            "kind": "boolean",
+            "question": "Enable browser management?",
+            "writesTo": "/browserPolicy/enabled"
+          },
+          {
+            "fieldId": "browser.defaultPosture",
+            "kind": "single-choice",
+            "question": "What should happen to browser activity?",
+            "writesTo": "/browserPolicy/defaultPosture",
+            "visibleWhen": {
+              "path": "/browserPolicy/enabled",
+              "equals": true
+            },
+            "options": ["allow", "observe", "warn", "ask", "limit", "block"]
+          }
+        ]
+      }
+    ]
+  },
+  "policyValue": {
+    "browserPolicy": {
+      "enabled": true,
+      "defaultPosture": "limit",
+      "unmanagedBrowser": {
+        "mode": "relaunch-managed"
+      }
+    }
+  },
+  "effectivePolicy": {
+    "browserActivityDefaultDecision": "limit",
+    "unmanagedBrowserDecision": "relaunch-managed",
+    "exactUrlRequires": "fresh-managed-active-tab"
+  }
+}
+```
+
+Portal should render from the authoring manifest, write to the policy value
+document, and ask the child agent to validate and compile the effective policy.
+The child agent enforces only the locally persisted compiled policy, so browser
+rules keep working when Portal is offline.
+
 ## How To Read This Catalog
 
 Every setting should eventually answer these questions:
