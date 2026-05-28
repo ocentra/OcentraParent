@@ -20,7 +20,7 @@ export const ParentControlPlatformCapabilityInputs = [
       {
         capability: 'owned-process-terminate',
         status: 'implemented',
-        note: 'Windows proof can terminate an owned process through the Rust service when the process id and expected executable match.',
+        note: 'Windows proof can terminate an owned process through the Rust service when the process id and expected executable match, and rejects missing process id or mismatched executable requests before broad app blocking is claimed.',
       },
       {
         capability: 'app-time-limit',
@@ -30,7 +30,7 @@ export const ParentControlPlatformCapabilityInputs = [
       {
         capability: 'app-blocking',
         status: 'manual-required',
-        note: 'Broad application blocking is not claimed until an OS-approved adapter proves app identity and block behavior on a real host.',
+        note: 'Broad application blocking is still manual-required; the runtime proof keeps app-target block-process requests unavailable until an OS-approved adapter proves app identity and block behavior on a real host.',
       },
       {
         capability: 'network-domain-blocking',

@@ -45,6 +45,17 @@ describe('parent control platform capabilities', () => {
     ]);
   });
 
+  it('ParentControlPlatformCapabilities: records Windows adapter runtime guardrail claims without broad app blocking', () => {
+    const windowsCapabilities = capabilitiesForPlatform('windows');
+
+    expect(capabilityNote(windowsCapabilities, ParentControlCapabilityName.OwnedProcessTerminate)).toContain(
+      'rejects missing process id or mismatched executable requests'
+    );
+    expect(capabilityNote(windowsCapabilities, ParentControlCapabilityName.AppBlocking)).toContain(
+      'Broad application blocking is still manual-required'
+    );
+  });
+
   it('ParentControlPlatformCapabilities: splits Android child capability proof states', () => {
     const androidCapabilities = capabilitiesForPlatform('android');
 
@@ -85,6 +96,13 @@ function capabilityStatus(
   capabilityName: ParentControlCapabilityNameType
 ) {
   return capabilities.find((capability) => capability.capability === capabilityName)?.status;
+}
+
+function capabilityNote(
+  capabilities: ReadonlyArray<ParentControlCapability>,
+  capabilityName: ParentControlCapabilityNameType
+) {
+  return capabilities.find((capability) => capability.capability === capabilityName)?.note ?? '';
 }
 
 function expectCapabilityStatuses(
