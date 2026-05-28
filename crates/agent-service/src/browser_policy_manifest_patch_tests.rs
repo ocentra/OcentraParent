@@ -9,9 +9,9 @@ use ocentra_parent_agent_protocol::{
     BrowserPolicyManagedBrowserFamily, BrowserPolicyManagedBrowserIntegrationMechanism,
     BrowserPolicyManagedBrowserLaunchMode, BrowserPolicyManagedBrowserMode,
     BrowserPolicyManagedBrowserProfileMode, BrowserPolicyManagementMode, BrowserPolicyPatch,
-    BrowserPolicyPatchRequest, BrowserPolicyProofFallback, BrowserPolicyReportVisibleField,
-    BrowserPolicyRetentionExactUrl, BrowserPolicyRule, BrowserPolicyRuleAction,
-    BrowserPolicyRuleActionPlan, BrowserPolicyRuleTarget,
+    BrowserPolicyPatchRequest, BrowserPolicyProofFallback, BrowserPolicyRejectionReason,
+    BrowserPolicyReportVisibleField, BrowserPolicyRetentionExactUrl, BrowserPolicyRule,
+    BrowserPolicyRuleAction, BrowserPolicyRuleActionPlan, BrowserPolicyRuleTarget,
     BrowserPolicyUnmanagedBrowserClassificationTarget, BrowserPolicyUnmanagedBrowserMode,
     BrowserPolicyUpdateKind, BrowserPolicyUpdateResponse, BrowserPolicyUpdateStatus,
     BrowserPolicyUrlTargetType, LogFieldValue, LogFields, AGENT_PROTOCOL_SCHEMA_VERSION,
@@ -59,6 +59,87 @@ async fn browser_policy_patch_accepts_proposal_manifest_writes_to_paths() {
             .and_then(|policy| policy.rules.first())
             .map(|rule| rule.target_type),
         Some(BrowserPolicyUrlTargetType::DomainOrigin)
+    );
+}
+
+#[tokio::test]
+async fn browser_policy_runtime_rejects_dishonest_manifest_updates() {
+    let runtime = BrowserPolicyRuntime::in_memory();
+    let replace_event = send_browser_policy_command(
+        runtime.clone(),
+        replace_command(default_policy(
+            constants::browser_policy::POLICY_ID.to_string(),
+        )),
+    )
+    .await;
+    assert_eq!(
+        response_from_event(&replace_event).status,
+        BrowserPolicyUpdateStatus::Accepted
+    );
+
+    let patch_cases = vec![
+        (
+            policy_patch(
+                constants::browser_policy::FIELD_ID_ENABLED,
+                constants::browser_policy::REJECTION_UNKNOWN_WRITES_TO,
+                true,
+            ),
+            BrowserPolicyRejectionReason::UnknownWritesTo,
+        ),
+        (
+            policy_patch(
+                constants::browser_policy::FIELD_ID_DEFAULT_POSTURE,
+                constants::browser_policy::WRITES_TO_ENABLED,
+                true,
+            ),
+            BrowserPolicyRejectionReason::UnknownField,
+        ),
+        (
+            policy_patch(
+                constants::browser_policy::FIELD_ID_DEFAULT_POSTURE,
+                constants::browser_policy::WRITES_TO_DEFAULT_POSTURE,
+                constants::browser_policy::REJECTION_INVALID_ENUM_VALUE,
+            ),
+            BrowserPolicyRejectionReason::InvalidEnumValue,
+        ),
+    ];
+    for (patch, reason) in patch_cases {
+        let event = send_browser_policy_command(
+            runtime.clone(),
+            command_with_request(
+                AgentCommandName::AgentBrowserPolicyPatch,
+                BrowserPolicyPatchRequest {
+                    schema_version: policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
+                    request_id: constants::browser_policy::REQUEST_ID.to_string(),
+                    kind: BrowserPolicyUpdateKind::Patch,
+                    policy_id: constants::browser_policy::POLICY_ID.to_string(),
+                    base_revision_id: constants::browser_policy::REVISION_ID.to_string(),
+                    patches: vec![patch],
+                },
+            ),
+        )
+        .await;
+        assert_rejected_event(
+            &event,
+            AgentEventName::AgentBrowserPolicyPatchRejected,
+            reason,
+        );
+    }
+
+    let mut invalid_policy = default_policy(constants::browser_policy::POLICY_ID.to_string());
+    invalid_policy.default_posture = BrowserPolicyDefaultPosture::Limit;
+    invalid_policy.budgets.enabled = false;
+    invalid_policy.budgets.default_daily_minutes = None;
+    invalid_policy.fallback_posture = None;
+    let replace_event = send_browser_policy_command(
+        BrowserPolicyRuntime::in_memory(),
+        replace_command(invalid_policy),
+    )
+    .await;
+    assert_rejected_event(
+        &replace_event,
+        AgentEventName::AgentBrowserPolicyReplaceRejected,
+        BrowserPolicyRejectionReason::MissingBudgetOrFallback,
     );
 }
 
@@ -406,4 +487,15 @@ fn response_from_event(event: &AgentEventEnvelope) -> BrowserPolicyUpdateRespons
         }
         _ => unreachable!(),
     }
+}
+
+fn assert_rejected_event(
+    event: &AgentEventEnvelope,
+    expected_event: AgentEventName,
+    expected_reason: BrowserPolicyRejectionReason,
+) {
+    let response = response_from_event(event);
+    assert_eq!(event.event, expected_event);
+    assert_eq!(response.status, BrowserPolicyUpdateStatus::Rejected);
+    assert_eq!(response.rejection_reason, Some(expected_reason));
 }
