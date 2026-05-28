@@ -223,17 +223,17 @@ describe('parent assistant API provider boundary contracts', () => {
 });
 
 describe('parent assistant backend runtime contracts', () => {
-  it('ParentAssistantThreadResponseSchema: accepts volatile local thread lifecycle state', () => {
+  it('ParentAssistantThreadResponseSchema: accepts durable local thread lifecycle state', () => {
     const parsed = ParentAssistantThreadResponseSchema.parse({
       schemaVersion: ParentContractSchemaVersion.V0_6,
-      backendState: 'volatile-local',
+      backendState: 'durable-local',
       activeThread: threadRecord('open'),
       threads: [threadRecord('open')],
-      reason: 'Thread state is service-backed but not yet persisted.',
+      reason: 'Thread state is persisted in the local Parent Assistant store.',
     });
 
     expect(parsed.activeThread?.state).toBe('open');
-    expect(parsed.threads[0]?.backendState).toBe('volatile-local');
+    expect(parsed.threads[0]?.backendState).toBe('durable-local');
   });
 
   it('ParentAssistantProviderStatusSchema: exposes local provider and API custody boundaries', () => {
@@ -300,7 +300,7 @@ function threadRecord(state: 'open' | 'archived') {
     threadId: 'parent-assistant-thread-1',
     title: 'Recent activity questions',
     state,
-    backendState: 'volatile-local',
+    backendState: 'durable-local',
     createdAt: '2026-05-28T17:20:00Z',
     updatedAt: '2026-05-28T17:20:01Z',
     messageCount: 0,

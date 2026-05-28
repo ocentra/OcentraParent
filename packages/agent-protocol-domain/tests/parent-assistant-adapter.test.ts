@@ -150,7 +150,7 @@ function threadResponse() {
     threadId: 'parent-assistant-thread-1',
     title: 'Parent Assistant local thread',
     state: 'open',
-    backendState: 'volatile-local',
+    backendState: 'durable-local',
     createdAt: '2026-05-28T17:20:00Z',
     updatedAt: '2026-05-28T17:20:01Z',
     messageCount: 0,
@@ -158,10 +158,10 @@ function threadResponse() {
 
   return {
     schemaVersion: 'v0.6',
-    backendState: 'volatile-local',
+    backendState: 'durable-local',
     activeThread: thread,
     threads: [thread],
-    reason: 'Parent Assistant thread state is service-backed but volatile.',
+    reason: 'Parent Assistant thread state is persisted in the local Parent Assistant store.',
   } as const;
 }
 

@@ -1,5 +1,3 @@
-use std::sync::{Mutex, OnceLock};
-
 use ocentra_parent_agent_protocol::{
     constants, policy_constants as policy, AgentCommandEnvelope, AgentCommandName,
     AgentEventEnvelope, AgentEventName, LocalAiDegradedState, LocalAiProviderSchedulerJobStatus,
@@ -7,9 +5,8 @@ use ocentra_parent_agent_protocol::{
     ParentAssistantActionPreviewKind, ParentAssistantApiAuthorizationState,
     ParentAssistantApiProviderBoundary, ParentAssistantBackendState,
     ParentAssistantEvidenceContext, ParentAssistantProviderState, ParentAssistantProviderStatus,
-    ParentAssistantRunCancelResult, ParentAssistantRunCancelState, ParentAssistantThreadRecord,
-    ParentAssistantThreadResponse, ParentAssistantThreadState, ParentEvidenceReference,
-    ParentEvidenceReferenceKind,
+    ParentAssistantRunCancelResult, ParentAssistantRunCancelState, ParentAssistantThreadResponse,
+    ParentEvidenceReference, ParentEvidenceReferenceKind,
 };
 
 use crate::{
@@ -25,8 +22,7 @@ use crate::{
     time::timestamp_now,
 };
 
-static PARENT_ASSISTANT_THREADS: OnceLock<Mutex<Vec<ParentAssistantThreadRecord>>> =
-    OnceLock::new();
+pub(crate) mod thread_store;
 
 pub fn build_parent_assistant_scaffold_event(command: AgentCommandEnvelope) -> AgentEventEnvelope {
     match command.command {
@@ -126,45 +122,7 @@ fn build_scaffold_fallback_event(command: AgentCommandEnvelope) -> AgentEventEnv
 }
 
 fn thread_response_for_command(command: &AgentCommandEnvelope) -> ParentAssistantThreadResponse {
-    let thread_id = string_payload_field(command, constants::parent_assistant::FIELD_THREAD_ID)
-        .unwrap_or_else(|| constants::parent_assistant::DEFAULT_THREAD_ID.to_string());
-    let now = timestamp_now();
-    let mut threads = thread_store()
-        .lock()
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
-
-    let active_thread = match command.command {
-        AgentCommandName::AgentParentAssistantThreadList => threads
-            .iter()
-            .find(|thread| thread.state == ParentAssistantThreadState::Open)
-            .cloned(),
-        AgentCommandName::AgentParentAssistantThreadArchive => {
-            let thread = upsert_thread(
-                &mut threads,
-                thread_id,
-                ParentAssistantThreadState::Archived,
-                &now,
-            );
-            Some(thread)
-        }
-        _ => {
-            let thread = upsert_thread(
-                &mut threads,
-                thread_id,
-                ParentAssistantThreadState::Open,
-                &now,
-            );
-            Some(thread)
-        }
-    };
-
-    ParentAssistantThreadResponse {
-        schema_version: policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
-        backend_state: ParentAssistantBackendState::VolatileLocal,
-        active_thread,
-        threads: threads.clone(),
-        reason: Some(thread_reason(command)),
-    }
+    thread_store::thread_response_for_command(command)
 }
 
 fn provider_status_for_command(command: &AgentCommandEnvelope) -> ParentAssistantProviderStatus {
@@ -242,46 +200,6 @@ fn action_confirm_result_for_command(
         policy_written: false,
         reason: constants::parent_assistant::ACTION_CONFIRM_CONTRACT_REQUIRED_REASON.to_string(),
     }
-}
-
-fn upsert_thread(
-    threads: &mut Vec<ParentAssistantThreadRecord>,
-    thread_id: String,
-    state: ParentAssistantThreadState,
-    now: &str,
-) -> ParentAssistantThreadRecord {
-    if let Some(existing) = threads
-        .iter_mut()
-        .find(|thread| thread.thread_id == thread_id)
-    {
-        existing.state = state;
-        existing.updated_at = now.to_string();
-        return existing.clone();
-    }
-
-    let thread = ParentAssistantThreadRecord {
-        schema_version: policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
-        thread_id,
-        title: constants::parent_assistant::THREAD_TITLE_DEFAULT.to_string(),
-        state,
-        backend_state: ParentAssistantBackendState::VolatileLocal,
-        created_at: now.to_string(),
-        updated_at: now.to_string(),
-        message_count: 0,
-    };
-    threads.push(thread.clone());
-    thread
-}
-
-fn thread_store() -> &'static Mutex<Vec<ParentAssistantThreadRecord>> {
-    PARENT_ASSISTANT_THREADS.get_or_init(|| Mutex::new(Vec::new()))
-}
-
-fn thread_reason(command: &AgentCommandEnvelope) -> String {
-    if command.command == AgentCommandName::AgentParentAssistantThreadArchive {
-        return constants::parent_assistant::THREAD_ARCHIVED_REASON.to_string();
-    }
-    constants::parent_assistant::THREAD_VOLATILE_REASON.to_string()
 }
 
 fn api_provider_boundary() -> ParentAssistantApiProviderBoundary {

@@ -58,7 +58,7 @@ export const ParentAssistantActionIntentIdSchema = NonEmptyParentAssistantText.p
 );
 
 export const ParentAssistantBackendStateSchema = withParser(
-  Schema.Literal('runtime-backed', 'volatile-local', 'contract-required', 'unavailable')
+  Schema.Literal('runtime-backed', 'durable-local', 'volatile-local', 'contract-required', 'unavailable')
 );
 export const ParentAssistantProviderStateSchema = withParser(Schema.Literal('configured', 'degraded', 'unavailable'));
 export const ParentAssistantAnswerStateSchema = withParser(

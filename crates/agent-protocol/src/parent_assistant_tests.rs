@@ -134,17 +134,17 @@ fn parent_assistant_api_provider_boundary_serializes_parent_authorization_and_cu
 }
 
 #[test]
-fn parent_assistant_thread_response_serializes_volatile_local_state() {
+fn parent_assistant_thread_response_serializes_durable_local_state() {
     let response = ParentAssistantThreadResponse {
         schema_version: "v0.6".to_string(),
-        backend_state: ParentAssistantBackendState::VolatileLocal,
+        backend_state: ParentAssistantBackendState::DurableLocal,
         active_thread: Some(sample_thread(ParentAssistantThreadState::Open)),
         threads: vec![sample_thread(ParentAssistantThreadState::Open)],
-        reason: Some("service-backed volatile thread state".to_string()),
+        reason: Some("durable local thread state".to_string()),
     };
     let serialized = serde_json::to_value(&response).expect("thread response serializes");
 
-    assert_eq!(serialized["backendState"], "volatile-local");
+    assert_eq!(serialized["backendState"], "durable-local");
     assert_eq!(serialized["activeThread"]["state"], "open");
 }
 
@@ -254,7 +254,7 @@ fn sample_thread(state: ParentAssistantThreadState) -> ParentAssistantThreadReco
         thread_id: "parent-assistant-thread-1".to_string(),
         title: "Recent activity questions".to_string(),
         state,
-        backend_state: ParentAssistantBackendState::VolatileLocal,
+        backend_state: ParentAssistantBackendState::DurableLocal,
         created_at: "2026-05-28T17:20:00Z".to_string(),
         updated_at: "2026-05-28T17:20:01Z".to_string(),
         message_count: 0,
