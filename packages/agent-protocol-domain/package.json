@@ -9,6 +9,10 @@
       "import": "./dist/activity-surface-adapter.js",
       "types": "./dist/activity-surface-adapter.d.ts"
     },
+    "./parent-assistant-adapter": {
+      "import": "./dist/parent-assistant-adapter.js",
+      "types": "./dist/parent-assistant-adapter.d.ts"
+    },
     "./contracts": {
       "import": "./dist/contracts.js",
       "types": "./dist/contracts.d.ts"
@@ -32,6 +36,7 @@
   "dependencies": {
     "@ocentra-parent/activity-domain": "file:../activity-domain",
     "@ocentra-parent/logging-domain": "file:../logging-domain",
+    "@ocentra-parent/parent-domain": "file:../parent-domain",
     "@ocentra-parent/schema-domain": "file:../schema-domain"
   }
 }

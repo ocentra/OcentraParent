@@ -239,6 +239,16 @@ it('AgentProtocolDefaults.Field: exposes local AI runtime payload fields', () =>
 });
 
 it('AgentProtocolDefaults.Field: exposes parent assistant payload fields', () => {
+  expect(AgentProtocolDefaults.Field.ParentAssistantAnswer).toBe('parentAssistantAnswer');
+  expect(AgentProtocolDefaults.Field.ParentAssistantActionPreview).toBe('parentAssistantActionPreview');
+  expect(AgentProtocolDefaults.Field.ParentAssistantAnswerState).toBe('parentAssistantAnswerState');
+  expect(AgentProtocolDefaults.Field.ParentAssistantAnswerText).toBe('parentAssistantAnswerText');
+  expect(AgentProtocolDefaults.Field.ParentAssistantApiProviderBoundary).toBe('parentAssistantApiProviderBoundary');
+  expect(AgentProtocolDefaults.Field.ParentAssistantCitationCount).toBe('parentAssistantCitationCount');
+  expect(AgentProtocolDefaults.Field.ParentAssistantEvidenceSummary).toBe('parentAssistantEvidenceSummary');
+  expect(AgentProtocolDefaults.Field.ParentAssistantProviderState).toBe('parentAssistantProviderState');
+  expect(AgentProtocolDefaults.Field.ParentAssistantQuestion).toBe('parentAssistantQuestion');
+  expect(AgentProtocolDefaults.Field.ParentAssistantRequestId).toBe('parentAssistantRequestId');
   expect(AgentProtocolDefaults.Field.ParentAssistantThreadId).toBe('assistantThreadId');
   expect(AgentProtocolDefaults.Field.ParentAssistantMessageId).toBe('assistantMessageId');
   expect(AgentProtocolDefaults.Field.ParentAssistantRunId).toBe('assistantRunId');

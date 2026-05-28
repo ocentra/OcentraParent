@@ -166,6 +166,9 @@ async fn build_command_event(
         AgentCommandName::AgentLocalAiRuntimeStatusGet
         | AgentCommandName::AgentLocalAiChatGenerate
         | AgentCommandName::AgentParentAssistantAnswerGenerate
+        | AgentCommandName::AgentParentAssistantMessageSend
+        | AgentCommandName::AgentParentAssistantQuickActionStart
+        | AgentCommandName::AgentParentAssistantActionPreview
         | AgentCommandName::AgentPolicyPreviewReadModelGet => {
             build_ai_command_report(command).await
         }
@@ -173,10 +176,7 @@ async fn build_command_event(
         | AgentCommandName::AgentParentAssistantThreadCreate
         | AgentCommandName::AgentParentAssistantThreadOpen
         | AgentCommandName::AgentParentAssistantThreadArchive
-        | AgentCommandName::AgentParentAssistantMessageSend
         | AgentCommandName::AgentParentAssistantRunCancel
-        | AgentCommandName::AgentParentAssistantQuickActionStart
-        | AgentCommandName::AgentParentAssistantActionPreview
         | AgentCommandName::AgentParentAssistantActionConfirm
         | AgentCommandName::AgentParentAssistantProviderStatusGet => {
             build_parent_assistant_scaffold_event(command)
@@ -270,7 +270,10 @@ async fn build_ai_command_report(command: AgentCommandEnvelope) -> AgentEventEnv
         AgentCommandName::AgentLocalAiChatGenerate => {
             build_local_ai_chat_generation_report(command).await
         }
-        AgentCommandName::AgentParentAssistantAnswerGenerate => {
+        AgentCommandName::AgentParentAssistantAnswerGenerate
+        | AgentCommandName::AgentParentAssistantMessageSend
+        | AgentCommandName::AgentParentAssistantQuickActionStart
+        | AgentCommandName::AgentParentAssistantActionPreview => {
             build_parent_assistant_answer_report(command).await
         }
         AgentCommandName::AgentPolicyPreviewReadModelGet => {
