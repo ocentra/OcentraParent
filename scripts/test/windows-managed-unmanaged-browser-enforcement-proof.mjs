@@ -20,11 +20,15 @@ async function main() {
   const agentPort = await freePort();
   const service = spawnAgentService(runRoot, agentPort);
   const serviceOutput = collectOutput(service);
+  const ownedProcessProbe = await launchOwnedProcessProbe();
   const launchedBrowser = await launchUnmanagedBrowser(runRoot);
   const assertions = [];
 
   try {
     await waitForHealth(agentPort, serviceOutput);
+    assertions.push(await assertMissingProcessIdRejected(agentPort));
+    assertions.push(await assertOwnedProcessMismatchRejected(agentPort, ownedProcessProbe));
+    assertions.push(await assertOwnedProcessTerminate(agentPort, ownedProcessProbe));
     if (launchedBrowser === null) {
       assertions.push({
         id: 'unmanaged-browser-terminate',
@@ -36,6 +40,7 @@ async function main() {
       assertions.push(await assertUnmanagedTerminate(agentPort, launchedBrowser));
     }
     assertions.push(await assertUnmanagedWarn(agentPort));
+    assertions.push(await assertBroadAppBlockingManualRequired(agentPort));
     assertions.push(await assertManagedBrowserManualRequired(agentPort));
     const evidence = await writeEvidence(runRoot, assertions);
     printSummary(evidence);
@@ -46,8 +51,111 @@ async function main() {
     if (launchedBrowser !== null) {
       await stopProcessTreeAndWait(launchedBrowser.child);
     }
+    await stopProcessTreeAndWait(ownedProcessProbe.child);
     await stopProcessTreeAndWait(service);
   }
+}
+
+async function assertMissingProcessIdRejected(agentPort) {
+  const event = await requestEvent(
+    agentPort,
+    enforcementCommand({
+      id: 'owned-process-id-required',
+      policyAction: 'block',
+      targetType: 'process',
+      targetValue: basename(process.execPath),
+      processId: null,
+    })
+  );
+  assertEqual(event.event, 'agent.command.rejected', 'missing process id event');
+  assertEqual(event.payload.reason, 'enforcement-process-id-required', 'missing process id reason');
+  return {
+    id: 'owned-process-id-required',
+    state: 'rejected',
+    adapterRuntimeState: 'process-id-required',
+    exactUrlClaimState: 'not-claimed',
+    status: 'rejected',
+    reason: event.payload.reason,
+  };
+}
+
+async function assertOwnedProcessMismatchRejected(agentPort, ownedProcessProbe) {
+  await assertProcessExists(ownedProcessProbe.child.pid, true, 'owned process mismatch precondition');
+  const mismatchedTarget = `not-${ownedProcessProbe.processName}`;
+  const event = await requestEvent(
+    agentPort,
+    enforcementCommand({
+      id: 'owned-process-name-mismatch',
+      policyAction: 'block',
+      targetType: 'process',
+      targetValue: mismatchedTarget,
+      processId: ownedProcessProbe.child.pid,
+    })
+  );
+  const action = JSON.parse(event.payload.enforcementAction);
+  const result = JSON.parse(event.payload.enforcementResult);
+  const audit = JSON.parse(event.payload.enforcementAuditEvent);
+  assertEqual(event.event, 'agent.enforcement.audit.reported', 'owned process mismatch event');
+  assertEqual(action.target.targetType, 'process', 'owned process mismatch target type');
+  assertEqual(action.mode, 'terminate-process', 'owned process mismatch mode');
+  assertEqual(result.status, 'failed', 'owned process mismatch status');
+  assertEqual(result.adapterResultCode, 'adapter-failed', 'owned process mismatch adapter result');
+  assertEqual(result.failedReason, 'policy-target-mismatch', 'owned process mismatch failed reason');
+  assertEqual(result.rollbackState, 'failed', 'owned process mismatch rollback state');
+  assertEqual(audit.auditEventKind, 'failed', 'owned process mismatch audit');
+  await assertProcessExists(ownedProcessProbe.child.pid, true, 'owned process mismatch leaves process running');
+  return {
+    id: 'owned-process-name-mismatch',
+    state: 'rejected-without-termination',
+    adapterRuntimeState: 'pid-name-match-required',
+    exactUrlClaimState: 'not-claimed',
+    processName: ownedProcessProbe.processName,
+    mismatchedTarget,
+    status: result.status,
+    adapterResultCode: result.adapterResultCode,
+    failedReason: result.failedReason,
+    rollbackState: result.rollbackState,
+    auditEventKind: audit.auditEventKind,
+  };
+}
+
+async function assertOwnedProcessTerminate(agentPort, ownedProcessProbe) {
+  const event = await requestEvent(
+    agentPort,
+    enforcementCommand({
+      id: 'owned-process-runtime-terminate',
+      policyAction: 'block',
+      targetType: 'process',
+      targetValue: ownedProcessProbe.processName,
+      processId: ownedProcessProbe.child.pid,
+    })
+  );
+  const action = JSON.parse(event.payload.enforcementAction);
+  const result = JSON.parse(event.payload.enforcementResult);
+  const audit = JSON.parse(event.payload.enforcementAuditEvent);
+  assertEqual(event.event, 'agent.enforcement.audit.reported', 'owned process terminate event');
+  assertEqual(action.target.targetType, 'process', 'owned process terminate target type');
+  assertEqual(action.mode, 'terminate-process', 'owned process terminate mode');
+  assertEqual(result.status, 'actually-enforced', 'owned process terminate status');
+  assertOneOf(
+    result.adapterResultCode,
+    ['process-terminated', 'process-already-exited'],
+    'owned process terminate adapter result'
+  );
+  assertEqual(audit.auditEventKind, 'succeeded', 'owned process terminate audit');
+  if (result.adapterResultCode === 'process-terminated') {
+    await waitForChildExit(ownedProcessProbe.child, 5_000);
+  }
+  return {
+    id: 'owned-process-runtime-terminate',
+    state: result.adapterResultCode === 'process-terminated' ? 'terminated' : 'already-exited',
+    adapterRuntimeState: 'pid-name-match-enforced',
+    exactUrlClaimState: 'not-claimed',
+    processName: ownedProcessProbe.processName,
+    status: result.status,
+    adapterResultCode: result.adapterResultCode,
+    auditEventKind: audit.auditEventKind,
+  };
 }
 
 async function assertUnmanagedTerminate(agentPort, launchedBrowser) {
@@ -118,6 +226,37 @@ async function assertUnmanagedWarn(agentPort) {
   };
 }
 
+async function assertBroadAppBlockingManualRequired(agentPort) {
+  const event = await requestEvent(
+    agentPort,
+    enforcementCommand({
+      id: 'broad-app-blocking-manual-required',
+      policyAction: 'block',
+      targetType: 'app',
+      targetValue: 'browser-like-app',
+      processId: null,
+    })
+  );
+  const action = JSON.parse(event.payload.enforcementAction);
+  const result = JSON.parse(event.payload.enforcementResult);
+  const audit = JSON.parse(event.payload.enforcementAuditEvent);
+  assertEqual(action.adapterKind, 'process-control', 'broad app block adapter kind');
+  assertEqual(action.mode, 'block-process', 'broad app block mode');
+  assertEqual(result.status, 'unavailable', 'broad app block status');
+  assertEqual(result.unavailableStatus.unavailableReason, 'manual-required', 'broad app block unavailable reason');
+  assertEqual(audit.auditEventKind, 'unavailable', 'broad app block audit');
+  return {
+    id: 'broad-app-blocking-manual-required',
+    state: 'manual-required',
+    adapterRuntimeState: 'broad-app-blocking-not-claimed',
+    exactUrlClaimState: 'not-claimed',
+    status: result.status,
+    adapterResultCode: result.adapterResultCode,
+    unavailableReason: result.unavailableStatus.unavailableReason,
+    auditEventKind: audit.auditEventKind,
+  };
+}
+
 async function assertManagedBrowserManualRequired(agentPort) {
   const event = await requestEvent(
     agentPort,
@@ -181,6 +320,23 @@ function enforcementCommand({ id, policyAction, targetType, targetValue, process
     target: { deviceId: 'local-dev-agent', platform: 'windows', route: 'localhost' },
     command: 'agent.enforcement.execute',
     payload,
+  };
+}
+
+async function launchOwnedProcessProbe() {
+  const child = spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000);'], {
+    stdio: 'ignore',
+    windowsHide: true,
+  });
+  await delay(250);
+  if (child.pid === undefined) {
+    throw new Error('Owned process probe did not expose a process id.');
+  }
+  await assertProcessExists(child.pid, true, 'owned process probe started');
+  return {
+    executablePath: process.execPath,
+    processName: basename(process.execPath),
+    child,
   };
 }
 
@@ -289,6 +445,12 @@ async function writeEvidence(runRoot, assertions) {
     runRoot: relative(repoRoot, runRoot),
     states: {
       managedBrowserInterventionCapability: 'manual-required-with-live-managed-proof-script',
+      windowsProcessAdapterRuntime: assertions.find((assertion) => assertion.id === 'owned-process-runtime-terminate')
+        ?.state,
+      windowsProcessAdapterGuard: assertions.find((assertion) => assertion.id === 'owned-process-name-mismatch')?.state,
+      processIdRequiredRejection: assertions.find((assertion) => assertion.id === 'owned-process-id-required')?.state,
+      broadAppBlockingCapability: assertions.find((assertion) => assertion.id === 'broad-app-blocking-manual-required')
+        ?.state,
       unmanagedBrowserBoundary: assertions.find((assertion) => assertion.id === 'unmanaged-browser-terminate')?.state,
       exactUnmanagedUrlClaim: 'not-claimed',
     },
@@ -346,6 +508,37 @@ function collectOutput(child) {
   child.stdout.on('data', (chunk) => chunks.push(String(chunk)));
   child.stderr.on('data', (chunk) => chunks.push(String(chunk)));
   return () => chunks.join('');
+}
+
+async function assertProcessExists(pid, expected, label) {
+  await delay(100);
+  assertEqual(processExists(pid), expected, label);
+}
+
+function processExists(pid) {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch (error) {
+    return error?.code !== 'ESRCH';
+  }
+}
+
+function waitForChildExit(child, deadlineMs) {
+  if (child.exitCode !== null || child.signalCode !== null) {
+    return Promise.resolve();
+  }
+  return new Promise((resolve, reject) => {
+    const onExit = () => {
+      clearTimeout(timer);
+      resolve();
+    };
+    const timer = setTimeout(() => {
+      child.off('exit', onExit);
+      reject(new Error(`Timed out waiting for child process ${child.pid} to exit.`));
+    }, deadlineMs);
+    child.once('exit', onExit);
+  });
 }
 
 function envNumber(name, fallback) {

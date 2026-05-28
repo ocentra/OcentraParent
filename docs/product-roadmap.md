@@ -107,8 +107,11 @@ browser intervention boundary states, exact URL claim states, and unmanaged
 detection states. It keeps managed browser blocking proof limited to
 Ocentra-owned managed profile bridge evidence and adds Windows service proof for
 unmanaged browser terminate, warn, and manual-required outcomes without claiming
-exact URLs for unmanaged browsers. Broad app, domain, and browser blocking still
-remain unclaimed unless a specific adapter proves them.
+exact URLs for unmanaged browsers. The runtime proof also verifies the
+process-control adapter requires an explicit process id, rejects pid/name
+mismatches without terminating the process, and keeps app-target block-process
+requests manual-required. Broad app, domain, and browser blocking still remain
+unclaimed unless a specific adapter proves them.
 
 The older PR #90 through PR #96 reconciliation remains historical context in
 [`current-main-proof-refresh-2026-05-25.md`](architecture/current-main-proof-refresh-2026-05-25.md).
@@ -182,9 +185,10 @@ Current local slice:
   `test-results/enforcement-lan-mobile-product-proof/proof.json` when run
   locally.
 - The Windows managed/unmanaged browser enforcement proof command records
-  unmanaged browser terminate and warn service results without exact URL claims,
-  plus managed-browser manual-required degradation and live managed-browser
-  intervention proof artifacts when run locally.
+  owned-process pid/name guardrails, unmanaged browser terminate and warn
+  service results without exact URL claims, broad app blocking manual-required
+  state, plus managed-browser manual-required degradation and live
+  managed-browser intervention proof artifacts when run locally.
 
 Next product checkpoint:
 
@@ -1278,7 +1282,8 @@ Next coordinator slices:
    proof-backed branches so Activity, command/provider naming, and portal UI
    ownership do not collide across workers.
 8. Next V0.8 work should continue broad app/domain/browser OS-adapter proof
-   beyond the now-proved managed-session intervention and unmanaged process
-   terminate/warn boundary, only where the target OS supports it. Next V0.9 work
+   beyond the now-proved managed-session intervention, owned-process pid/name
+   runtime guardrails, and unmanaged process terminate/warn boundary, only where
+   the target OS supports it. Next V0.9 work
    should prove production discovery, mobile controller/observer UX, optional
    cloud relay if chosen, and real household multi-device behavior.
