@@ -31,6 +31,7 @@ fn report_document_from_snapshot(
     } else {
         ActivityReadModelState::Empty
     };
+    let source_states = source_states_for_request(&request.scope, &snapshot, source_state);
     ActivityReportDocument {
         schema_version: ACTIVITY_SURFACE_SCHEMA_VERSION,
         report_id: report_id(request.frequency, &generated_at),
@@ -41,12 +42,7 @@ fn report_document_from_snapshot(
         range_end: request.range_end,
         generated_at,
         saved_metadata: None,
-        source_states: vec![ActivityReportSourceState {
-            device_id: snapshot.device_id,
-            state: source_state,
-            reason: Some(constants::activity_surface::SUMMARY_FAMILY_LOCAL_SOURCE.to_string()),
-            last_updated_at: snapshot.last_event_id,
-        }],
+        source_states,
         sections: vec![
             report_section(ActivityReportSectionKind::Summary, snapshot.recent_returned),
             report_section(ActivityReportSectionKind::Screen, snapshot.screen_returned),
@@ -62,6 +58,32 @@ fn report_document_from_snapshot(
             ),
         ],
     }
+}
+
+fn source_states_for_request(
+    scope: &ActivitySurfaceScope,
+    snapshot: &ActivitySurfaceStoreSnapshot,
+    source_state: ActivityReadModelState,
+) -> Vec<ActivityReportSourceState> {
+    let mut states = vec![ActivityReportSourceState {
+        device_id: snapshot.device_id.clone(),
+        state: source_state,
+        reason: Some(constants::activity_surface::SUMMARY_FAMILY_LOCAL_SOURCE.to_string()),
+        last_updated_at: snapshot.last_observed_at.clone(),
+    }];
+
+    if scope.scope_kind == ActivitySurfaceScopeKind::Family {
+        states.push(ActivityReportSourceState {
+            device_id: constants::activity_surface::FAMILY_FANOUT_SOURCE_ID.to_string(),
+            state: ActivityReadModelState::Unavailable,
+            reason: Some(
+                constants::activity_surface::SUMMARY_FAMILY_FANOUT_UNAVAILABLE.to_string(),
+            ),
+            last_updated_at: None,
+        });
+    }
+
+    states
 }
 
 fn unavailable_report_document(request: ActivityReportRequest) -> ActivityReportDocument {

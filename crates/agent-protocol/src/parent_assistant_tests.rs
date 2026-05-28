@@ -2,7 +2,8 @@ use super::{
     AgentCommandName, AgentEventName, FamilyReference, LocalAiDegradedState,
     LocalAiProviderSchedulerJobStatus, ParentActionReference, ParentActorReference,
     ParentActorRole, ParentAssistantActionPreview, ParentAssistantActionPreviewKind,
-    ParentAssistantAnswer, ParentAssistantAnswerState, ParentAssistantEvidenceContext,
+    ParentAssistantAnswer, ParentAssistantAnswerState, ParentAssistantApiAuthorizationState,
+    ParentAssistantApiProviderBoundary, ParentAssistantEvidenceContext,
     ParentAssistantGenerateRequest, ParentAssistantProviderState, ParentAssistantScope,
     ParentDeviceReference, ParentEvidenceReference, ParentEvidenceReferenceKind,
 };
@@ -106,6 +107,31 @@ fn parent_assistant_unavailable_answer_serializes_typed_provider_state() {
         "local-ai-provider-unconfigured"
     );
     assert_eq!(serialized["actionPreview"]["actionKind"], "none");
+}
+
+#[test]
+fn parent_assistant_api_provider_boundary_serializes_parent_authorization_and_custody() {
+    let boundary = ParentAssistantApiProviderBoundary {
+        schema_version: "v0.6".to_string(),
+        provider_id: "api-provider-not-configured".to_string(),
+        authorization_state: ParentAssistantApiAuthorizationState::NotAuthorized,
+        custody_label: "parent-authorized-api-ai".to_string(),
+        retention_policy: "no-retention-without-parent-authorization".to_string(),
+        deletion_policy: "delete-provider-cache-on-parent-request".to_string(),
+        citations: vec![sample_evidence_context()],
+        provider_state: ParentAssistantProviderState::Unavailable,
+        unavailable_reason: Some("api-ai-provider-not-authorized".to_string()),
+        child_safety_or_enforcement_use_allowed: false,
+    };
+    let serialized = serde_json::to_value(&boundary).expect("boundary serializes");
+
+    assert_eq!(serialized["authorizationState"], "not-authorized");
+    assert_eq!(serialized["custodyLabel"], "parent-authorized-api-ai");
+    assert_eq!(
+        serialized["citations"][0]["evidence"]["kind"],
+        "query-store-summary"
+    );
+    assert_eq!(serialized["childSafetyOrEnforcementUseAllowed"], false);
 }
 
 fn sample_request() -> ParentAssistantGenerateRequest {

@@ -3,9 +3,11 @@ import { ActivitySurfaceSchemaVersion } from '@ocentra-parent/activity-domain/ac
 import {
   createActivityReadModelCommand,
   createActivityReportGenerateCommand,
+  createActivityReportHistoryCommand,
   createActivityReportSaveCommand,
   parseActivityReadModelEvent,
   parseActivityReportDocumentEvent,
+  parseActivityReportHistoryEvent,
 } from '../src/activity-surface-adapter';
 import { AgentEvent, AgentProtocolDefaults } from '../src/contracts';
 
@@ -80,6 +82,19 @@ describe('activity surface adapter boundary', () => {
     expect(typeof command.payload[AgentProtocolDefaults.Field.ActivityReportDocument]).toBe('string');
   });
 
+  it('creates and parses historical report list messages for the Activity UI handoff', () => {
+    const command = createActivityReportHistoryCommand(commandInput());
+    const parsed = parseActivityReportHistoryEvent(
+      eventEnvelope(AgentEvent.ActivityReportHistoryReported, {
+        [AgentProtocolDefaults.Field.ActivityReports]: JSON.stringify(historicalReportList()),
+      })
+    );
+
+    expect(command.command).toBe('agent.activity.report.history.list');
+    expect(parsed.ok).toBe(true);
+    expect(parsed.ok ? parsed.value.reports[0]?.savedState : null).toBe('saved');
+  });
+
   it('parses report document events and rejects wrong event names', () => {
     const parsed = parseActivityReportDocumentEvent(
       eventEnvelope(AgentEvent.ActivityReportGenerated, {
@@ -125,6 +140,28 @@ function commandInput() {
     source: Source,
     target: Target,
     request: Request,
+  } as const;
+}
+
+function historicalReportList() {
+  return {
+    schemaVersion: ActivitySurfaceSchemaVersion,
+    request: Request,
+    state: 'ready',
+    reports: [
+      {
+        schemaVersion: ActivitySurfaceSchemaVersion,
+        reportId: Report.reportId,
+        fileName: 'activity-report-daily-local-20260527T201000Z.json',
+        reportDate: Report.generatedAt,
+        rangeStart: Report.rangeStart,
+        rangeEnd: Report.rangeEnd,
+        summary: 'Saved daily report',
+        savedState: 'saved',
+        savedAt: '2026-05-27T20:10:02Z',
+        parsedReport: Report,
+      },
+    ],
   } as const;
 }
 

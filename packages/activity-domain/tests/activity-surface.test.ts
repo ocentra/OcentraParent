@@ -124,111 +124,139 @@ describe('activity surface contracts', () => {
   });
 });
 
-it('ActivityHistoricalReportListSchema: carries parsed report documents with saved metadata', () => {
-  const parsed = ActivityHistoricalReportListSchema.parse({
-    schemaVersion: ActivitySurfaceSchemaVersion,
-    request: ActivityRequest,
-    state: 'ready',
-    reports: [
-      {
-        schemaVersion: ActivitySurfaceSchemaVersion,
-        reportId: 'activity-report-daily-1',
-        fileName: 'activity-report-daily-1.json',
-        reportDate: '2026-05-27T06:21:00Z',
-        rangeStart: '2026-05-27T00:00:00Z',
-        rangeEnd: '2026-05-27T06:20:00Z',
-        summary: 'Daily report draft',
-        savedState: 'saved',
-        savedAt: '2026-05-27T06:22:00Z',
-        parsedReport: {
-          ...ReportDocument,
-          savedMetadata: {
-            reportId: 'activity-report-daily-1',
-            fileName: 'activity-report-daily-1.json',
-            savedState: 'saved',
-            savedAt: '2026-05-27T06:22:00Z',
-            storageReason: null,
-          },
-        },
-      },
-    ],
-  });
-
-  expect(parsed.reports[0]?.parsedReport.savedMetadata?.savedState).toBe('saved');
-});
-
-it('ActivityScreenReadModelSchema: accepts foreground and background screen rows', () => {
-  expect(
-    ActivityScreenReadModelSchema.parse({
+describe('activity report history contracts', () => {
+  it('ActivityHistoricalReportListSchema: carries parsed report documents with saved metadata', () => {
+    const parsed = ActivityHistoricalReportListSchema.parse({
       schemaVersion: ActivitySurfaceSchemaVersion,
       request: ActivityRequest,
       state: 'ready',
-      generatedAt: '2026-05-27T06:21:00Z',
-      summary: 'Screen use ready',
-      rows: [
+      reports: [
         {
-          rowId: 'screen-row-1',
-          label: 'Foreground use',
-          deviceId: 'child-device-1',
-          state: 'ready',
-          totalMs: 3600000,
-          foregroundMs: 2400000,
-          backgroundMs: 1200000,
-          evidence: [EvidenceRef],
+          schemaVersion: ActivitySurfaceSchemaVersion,
+          reportId: 'activity-report-daily-1',
+          fileName: 'activity-report-daily-1.json',
+          reportDate: '2026-05-27T06:21:00Z',
+          rangeStart: '2026-05-27T00:00:00Z',
+          rangeEnd: '2026-05-27T06:20:00Z',
+          summary: 'Daily report draft',
+          savedState: 'saved',
+          savedAt: '2026-05-27T06:22:00Z',
+          parsedReport: {
+            ...ReportDocument,
+            savedMetadata: {
+              reportId: 'activity-report-daily-1',
+              fileName: 'activity-report-daily-1.json',
+              savedState: 'saved',
+              savedAt: '2026-05-27T06:22:00Z',
+              storageReason: null,
+            },
+          },
         },
       ],
-    }).rows[0]?.foregroundMs
-  ).toBe(2400000);
+    });
+
+    expect(parsed.reports[0]?.parsedReport.savedMetadata?.savedState).toBe('saved');
+  });
+
+  it('ActivityHistoricalReportListSchema: rejects malformed persisted report metadata', () => {
+    expect(
+      ActivityHistoricalReportListSchema.safeParse({
+        schemaVersion: ActivitySurfaceSchemaVersion,
+        request: ActivityRequest,
+        state: 'ready',
+        reports: [
+          {
+            schemaVersion: ActivitySurfaceSchemaVersion,
+            reportId: 'activity-report-daily-1',
+            fileName: '',
+            reportDate: '2026-05-27T06:21:00Z',
+            rangeStart: '2026-05-27T00:00:00Z',
+            rangeEnd: '2026-05-27T06:20:00Z',
+            summary: 'Daily report draft',
+            savedState: 'saved',
+            savedAt: '2026-05-27T06:22:00Z',
+            parsedReport: ReportDocument,
+          },
+        ],
+      }).success
+    ).toBe(false);
+  });
 });
 
-it('ActivityAppUseReadModelSchema: accepts empty app-use read models', () => {
-  expect(
-    ActivityAppUseReadModelSchema.parse({
-      schemaVersion: ActivitySurfaceSchemaVersion,
-      request: ActivityRequest,
-      state: 'empty',
-      generatedAt: '2026-05-27T06:21:00Z',
-      summary: 'No app rows',
-      rows: [],
-    }).state
-  ).toBe('empty');
-});
+describe('activity tab read-model contracts', () => {
+  it('ActivityScreenReadModelSchema: accepts foreground and background screen rows', () => {
+    expect(
+      ActivityScreenReadModelSchema.parse({
+        schemaVersion: ActivitySurfaceSchemaVersion,
+        request: ActivityRequest,
+        state: 'ready',
+        generatedAt: '2026-05-27T06:21:00Z',
+        summary: 'Screen use ready',
+        rows: [
+          {
+            rowId: 'screen-row-1',
+            label: 'Foreground use',
+            deviceId: 'child-device-1',
+            state: 'ready',
+            totalMs: 3600000,
+            foregroundMs: 2400000,
+            backgroundMs: 1200000,
+            evidence: [EvidenceRef],
+          },
+        ],
+      }).rows[0]?.foregroundMs
+    ).toBe(2400000);
+  });
 
-it('ActivityBrowserReadModelSchema: accepts permission-required browser state', () => {
-  expect(
-    ActivityBrowserReadModelSchema.parse({
-      schemaVersion: ActivitySurfaceSchemaVersion,
-      request: ActivityRequest,
-      state: 'permission-required',
-      generatedAt: '2026-05-27T06:21:00Z',
-      summary: 'Browser bridge permission required',
-      rows: [],
-    }).state
-  ).toBe('permission-required');
-});
+  it('ActivityAppUseReadModelSchema: accepts empty app-use read models', () => {
+    expect(
+      ActivityAppUseReadModelSchema.parse({
+        schemaVersion: ActivitySurfaceSchemaVersion,
+        request: ActivityRequest,
+        state: 'empty',
+        generatedAt: '2026-05-27T06:21:00Z',
+        summary: 'No app rows',
+        rows: [],
+      }).state
+    ).toBe('empty');
+  });
 
-it('ActivityGamesReadModelSchema: accepts scaffold-only games state', () => {
-  expect(
-    ActivityGamesReadModelSchema.parse({
-      schemaVersion: ActivitySurfaceSchemaVersion,
-      request: ActivityRequest,
-      state: 'scaffold-only',
-      generatedAt: '2026-05-27T06:21:00Z',
-      summary: 'Games catalog is scaffold-only',
-      rows: [],
-    }).state
-  ).toBe('scaffold-only');
-});
+  it('ActivityBrowserReadModelSchema: accepts permission-required browser state', () => {
+    expect(
+      ActivityBrowserReadModelSchema.parse({
+        schemaVersion: ActivitySurfaceSchemaVersion,
+        request: ActivityRequest,
+        state: 'permission-required',
+        generatedAt: '2026-05-27T06:21:00Z',
+        summary: 'Browser bridge permission required',
+        rows: [],
+      }).state
+    ).toBe('permission-required');
+  });
 
-it('ActivityNetworkReadModelSchema: accepts unavailable network state', () => {
-  expect(
-    ActivityNetworkReadModelSchema.parse({
-      schemaVersion: ActivitySurfaceSchemaVersion,
-      request: ActivityRequest,
-      state: 'unavailable',
-      generatedAt: '2026-05-27T06:21:00Z',
-      summary: 'Network store unavailable',
-      rows: [],
-    }).state
-  ).toBe('unavailable');
+  it('ActivityGamesReadModelSchema: accepts scaffold-only games state', () => {
+    expect(
+      ActivityGamesReadModelSchema.parse({
+        schemaVersion: ActivitySurfaceSchemaVersion,
+        request: ActivityRequest,
+        state: 'scaffold-only',
+        generatedAt: '2026-05-27T06:21:00Z',
+        summary: 'Games catalog is scaffold-only',
+        rows: [],
+      }).state
+    ).toBe('scaffold-only');
+  });
+
+  it('ActivityNetworkReadModelSchema: accepts unavailable network state', () => {
+    expect(
+      ActivityNetworkReadModelSchema.parse({
+        schemaVersion: ActivitySurfaceSchemaVersion,
+        request: ActivityRequest,
+        state: 'unavailable',
+        generatedAt: '2026-05-27T06:21:00Z',
+        summary: 'Network store unavailable',
+        rows: [],
+      }).state
+    ).toBe('unavailable');
+  });
 });

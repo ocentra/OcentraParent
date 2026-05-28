@@ -1,6 +1,6 @@
 use std::{
-    fs::{remove_dir_all, remove_file},
-    path::PathBuf,
+    fs::{remove_dir_all, remove_file, write},
+    path::{Path, PathBuf},
     time::{SystemTime, UNIX_EPOCH},
 };
 
@@ -101,6 +101,7 @@ async fn activity_surface_device_scope_reports_offline_for_nonlocal_device() {
         device_id: constants::activity_surface::DEFAULT_DEVICE_ID.to_string(),
         recent_returned: 1,
         last_event_id: Some(constants::event_id::HEALTH_REPORTED.to_string()),
+        last_observed_at: Some(constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string()),
         browser_returned: 0,
         network_returned: 0,
         games_returned: 0,
@@ -119,6 +120,37 @@ async fn activity_surface_device_scope_reports_offline_for_nonlocal_device() {
         ActivityReadModelState::Offline
     );
     assert_eq!(report.sections[0].state, ActivityReadModelState::Offline);
+}
+
+#[tokio::test]
+async fn activity_report_history_skips_rejected_json_without_losing_saved_reports() {
+    let store_path = temp_store_path();
+    cleanup_store(&store_path);
+    write_process_event(&store_path);
+
+    let snapshot = local_store_snapshot_from_path(store_path.clone())
+        .await
+        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+    let report = report_document(report_request(), Some(snapshot));
+    let report_dir = temp_report_dir();
+    cleanup_report_dir(&report_dir);
+    let saved = save_report_document_to_dir(report.clone(), report_dir.clone());
+    write_invalid_report_file(&report_dir);
+    let history = history_list_from_dir(surface_request(), report_dir.clone());
+
+    cleanup_store(&store_path);
+    cleanup_report_dir(&report_dir);
+
+    assert_eq!(
+        saved
+            .saved_metadata
+            .expect(constants::error::AGENT_EVENT_SERIALIZES)
+            .file_name,
+        history.reports[0].file_name
+    );
+    assert_eq!(history.state, ActivityReadModelState::Ready);
+    assert_eq!(history.reports.len(), 1);
+    assert_eq!(history.reports[0].parsed_report.report_id, report.report_id);
 }
 
 fn write_process_event(store_path: &PathBuf) {
@@ -261,4 +293,12 @@ fn cleanup_store(store_path: &PathBuf) {
 
 fn cleanup_report_dir(path: &PathBuf) {
     let _ = remove_dir_all(path);
+}
+
+fn write_invalid_report_file(report_dir: &Path) {
+    let mut path = report_dir.to_path_buf();
+    path.push(constants::activity_surface::REPORT_ID_FALLBACK);
+    path.set_extension(constants::activity_surface::REPORT_FILE_EXTENSION);
+    write(path, constants::activity_surface::SUMMARY_STORE_UNAVAILABLE)
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
 }
