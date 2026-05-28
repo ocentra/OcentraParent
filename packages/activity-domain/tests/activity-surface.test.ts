@@ -54,12 +54,14 @@ const ReportDocument = {
   sourceStates: [
     {
       deviceId: 'child-device-1',
+      reachabilityState: 'reachable',
       state: 'ready',
       reason: null,
       lastUpdatedAt: '2026-05-27T06:19:00Z',
     },
     {
       deviceId: 'child-device-2',
+      reachabilityState: 'offline',
       state: 'offline',
       reason: 'Device is offline for this family report',
       lastUpdatedAt: null,
@@ -120,7 +122,24 @@ describe('activity surface contracts', () => {
     const parsed = ActivityReportDocumentSchema.parse(ReportDocument);
 
     expect(parsed.sourceStates[1]?.state).toBe('offline');
+    expect(parsed.sourceStates[1]?.reachabilityState).toBe('offline');
     expect(parsed.sections[1]?.state).toBe('unavailable');
+  });
+
+  it('ActivityReportDocumentSchema: rejects source records without reachability state', () => {
+    expect(
+      ActivityReportDocumentSchema.safeParse({
+        ...ReportDocument,
+        sourceStates: [
+          {
+            deviceId: 'child-device-1',
+            state: 'ready',
+            reason: null,
+            lastUpdatedAt: '2026-05-27T06:19:00Z',
+          },
+        ],
+      }).success
+    ).toBe(false);
   });
 });
 

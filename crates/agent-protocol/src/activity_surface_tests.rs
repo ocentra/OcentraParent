@@ -2,10 +2,11 @@ use super::{
     ActivityAppUseReadModel, ActivityBrowserReadModel, ActivityEvidenceKind, ActivityEvidenceRef,
     ActivityGamesReadModel, ActivityHistoricalReportList, ActivityNetworkReadModel,
     ActivityReadModelState, ActivityReportDocument, ActivityReportFrequency, ActivityReportRequest,
-    ActivityReportSection, ActivityReportSectionKind, ActivityReportSourceState,
-    ActivitySavedReportMetadata, ActivitySavedReportState, ActivityScreenReadModel,
-    ActivityScreenReadModelRow, ActivitySurfaceRequest, ActivitySurfaceScope,
-    ActivitySurfaceScopeKind, AgentCommandName, AgentEventName, ACTIVITY_SURFACE_SCHEMA_VERSION,
+    ActivityReportSection, ActivityReportSectionKind, ActivityReportSourceReachabilityState,
+    ActivityReportSourceState, ActivitySavedReportMetadata, ActivitySavedReportState,
+    ActivityScreenReadModel, ActivityScreenReadModelRow, ActivitySurfaceRequest,
+    ActivitySurfaceScope, ActivitySurfaceScopeKind, AgentCommandName, AgentEventName,
+    ACTIVITY_SURFACE_SCHEMA_VERSION,
 };
 
 #[test]
@@ -30,7 +31,15 @@ fn activity_report_document_serializes_report_sections_and_source_states() {
     assert_eq!(serialized["schemaVersion"], ACTIVITY_SURFACE_SCHEMA_VERSION);
     assert_eq!(serialized["frequency"], "daily");
     assert_eq!(serialized["scope"]["scopeKind"], "family");
+    assert_eq!(
+        serialized["sourceStates"][0]["reachabilityState"],
+        "reachable"
+    );
     assert_eq!(serialized["sourceStates"][1]["state"], "offline");
+    assert_eq!(
+        serialized["sourceStates"][1]["reachabilityState"],
+        "offline"
+    );
     assert_eq!(serialized["sections"][1]["sectionKind"], "network");
 }
 
@@ -182,12 +191,14 @@ fn sample_report_document(frequency: ActivityReportFrequency) -> ActivityReportD
         source_states: vec![
             ActivityReportSourceState {
                 device_id: "child-device-1".to_string(),
+                reachability_state: ActivityReportSourceReachabilityState::Reachable,
                 state: ActivityReadModelState::Ready,
                 reason: None,
                 last_updated_at: Some("2026-05-27T06:19:00Z".to_string()),
             },
             ActivityReportSourceState {
                 device_id: "child-device-2".to_string(),
+                reachability_state: ActivityReportSourceReachabilityState::Offline,
                 state: ActivityReadModelState::Offline,
                 reason: Some("Device is offline for this family report".to_string()),
                 last_updated_at: None,

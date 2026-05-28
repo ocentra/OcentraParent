@@ -55,6 +55,18 @@ pub enum ActivityReadModelState {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ActivityReportSourceReachabilityState {
+    #[serde(rename = "reachable")]
+    Reachable,
+    #[serde(rename = "unreachable")]
+    Unreachable,
+    #[serde(rename = "offline")]
+    Offline,
+    #[serde(rename = "error")]
+    Error,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ActivitySavedReportState {
     #[serde(rename = "draft")]
     Draft,
@@ -99,6 +111,7 @@ pub struct ActivityReportRequest {
 #[serde(rename_all = "camelCase")]
 pub struct ActivityReportSourceState {
     pub device_id: String,
+    pub reachability_state: ActivityReportSourceReachabilityState,
     pub state: ActivityReadModelState,
     pub reason: Option<String>,
     pub last_updated_at: Option<String>,

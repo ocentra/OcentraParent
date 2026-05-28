@@ -125,5 +125,6 @@ pub struct ParentAssistantAnswer {
     pub answer_text: Option<String>,
     pub citations: Vec<ParentAssistantEvidenceContext>,
     pub action_preview: ParentAssistantActionPreview,
+    pub api_provider_boundary: ParentAssistantApiProviderBoundary,
     pub prompt_version: String,
 }

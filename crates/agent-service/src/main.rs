@@ -4,6 +4,9 @@ mod activity_api;
 mod activity_capture;
 #[cfg(test)]
 mod activity_capture_tests;
+mod activity_family_sources;
+#[cfg(test)]
+mod activity_family_sources_tests;
 mod activity_memory_graph_payload;
 #[cfg(test)]
 mod activity_memory_graph_payload_tests;

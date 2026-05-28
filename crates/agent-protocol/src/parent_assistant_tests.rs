@@ -54,6 +54,7 @@ fn parent_assistant_answer_serializes_citations_and_action_preview_without_enfor
         ),
         citations: vec![sample_evidence_context()],
         action_preview: sample_action_preview(false),
+        api_provider_boundary: sample_api_provider_boundary(),
         prompt_version: "parent-assistant-local-v1".to_string(),
     };
     let serialized = serde_json::to_value(&answer).expect("answer serializes");
@@ -64,6 +65,10 @@ fn parent_assistant_answer_serializes_citations_and_action_preview_without_enfor
         "Activity summary 1"
     );
     assert_eq!(serialized["actionPreview"]["enforcementApplied"], false);
+    assert_eq!(
+        serialized["apiProviderBoundary"]["authorizationState"],
+        "not-authorized"
+    );
     assert_eq!(
         serialized["actionPreview"]["childAgentContractRequired"],
         true
@@ -97,6 +102,7 @@ fn parent_assistant_unavailable_answer_serializes_typed_provider_state() {
             child_agent_contract_required: true,
             enforcement_applied: false,
         },
+        api_provider_boundary: sample_api_provider_boundary(),
         prompt_version: "parent-assistant-local-v1".to_string(),
     };
     let serialized = serde_json::to_value(&answer).expect("answer serializes");
@@ -111,7 +117,20 @@ fn parent_assistant_unavailable_answer_serializes_typed_provider_state() {
 
 #[test]
 fn parent_assistant_api_provider_boundary_serializes_parent_authorization_and_custody() {
-    let boundary = ParentAssistantApiProviderBoundary {
+    let boundary = sample_api_provider_boundary();
+    let serialized = serde_json::to_value(&boundary).expect("boundary serializes");
+
+    assert_eq!(serialized["authorizationState"], "not-authorized");
+    assert_eq!(serialized["custodyLabel"], "parent-authorized-api-ai");
+    assert_eq!(
+        serialized["citations"][0]["evidence"]["kind"],
+        "query-store-summary"
+    );
+    assert_eq!(serialized["childSafetyOrEnforcementUseAllowed"], false);
+}
+
+fn sample_api_provider_boundary() -> ParentAssistantApiProviderBoundary {
+    ParentAssistantApiProviderBoundary {
         schema_version: "v0.6".to_string(),
         provider_id: "api-provider-not-configured".to_string(),
         authorization_state: ParentAssistantApiAuthorizationState::NotAuthorized,
@@ -122,16 +141,7 @@ fn parent_assistant_api_provider_boundary_serializes_parent_authorization_and_cu
         provider_state: ParentAssistantProviderState::Unavailable,
         unavailable_reason: Some("api-ai-provider-not-authorized".to_string()),
         child_safety_or_enforcement_use_allowed: false,
-    };
-    let serialized = serde_json::to_value(&boundary).expect("boundary serializes");
-
-    assert_eq!(serialized["authorizationState"], "not-authorized");
-    assert_eq!(serialized["custodyLabel"], "parent-authorized-api-ai");
-    assert_eq!(
-        serialized["citations"][0]["evidence"]["kind"],
-        "query-store-summary"
-    );
-    assert_eq!(serialized["childSafetyOrEnforcementUseAllowed"], false);
+    }
 }
 
 fn sample_request() -> ParentAssistantGenerateRequest {

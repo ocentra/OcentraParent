@@ -109,7 +109,7 @@ function runRuntimeProof() {
       command: AgentCommand.ParentAssistantAnswerGenerate,
       expectedEvent: AgentEvent.ParentAssistantAnswerReported,
       payload: {
-        [AgentProtocolDefaults.Field.ParentAssistantQuestion]: 'Summarize recent activity for a parent.',
+        [AgentProtocolDefaults.Field.ParentAssistantQuestion]: 'Suggest a policy rule from recent activity.',
         [AgentProtocolDefaults.Field.ParentAssistantEvidenceSummary]:
           'Recent local Activity tab data is available as parent-visible evidence.',
       },
@@ -195,6 +195,22 @@ function activityPayload() {
     [AgentProtocolDefaults.Field.FamilyId]: 'family-local',
     [AgentProtocolDefaults.Field.RangeStart]: '1970-01-01T00:00:00Z',
     [AgentProtocolDefaults.Field.RangeEnd]: new Date().toISOString(),
+    [AgentProtocolDefaults.Field.ActivityFamilySources]: JSON.stringify([
+      {
+        deviceId: 'child-device-offline',
+        reachabilityState: 'offline',
+        state: 'offline',
+        reason: 'Child source is offline for this report.',
+        lastUpdatedAt: null,
+      },
+      {
+        deviceId: 'child-device-error',
+        reachabilityState: 'error',
+        state: 'unavailable',
+        reason: 'Child source returned an error.',
+        lastUpdatedAt: null,
+      },
+    ]),
   };
 }
 
@@ -208,6 +224,7 @@ function assertReportDocument(event) {
   if (report.frequency !== 'daily') {
     throw new Error(`Activity report frequency was not daily: ${JSON.stringify(report)}`);
   }
+  assertFamilySourceStates(report);
 }
 
 function assertSavedReportDocument(event) {
@@ -266,6 +283,26 @@ function assertParentAssistantUnavailable(event) {
   const preview = parseJsonField(payload, AgentProtocolDefaults.Field.ParentAssistantActionPreview);
   if (preview.childAgentContractRequired !== true || preview.enforcementApplied !== false) {
     throw new Error(`Parent Assistant bypassed child-agent contract or enforced directly: ${JSON.stringify(preview)}`);
+  }
+  if (preview.actionKind !== 'policy-suggestion' || preview.requiresControllerLease !== true) {
+    throw new Error(`Parent Assistant did not prepare policy preview boundary: ${JSON.stringify(preview)}`);
+  }
+  const apiBoundary = parseJsonField(payload, AgentProtocolDefaults.Field.ParentAssistantApiProviderBoundary);
+  if (
+    apiBoundary.authorizationState !== 'not-authorized' ||
+    apiBoundary.providerState !== 'unavailable' ||
+    apiBoundary.childSafetyOrEnforcementUseAllowed !== false ||
+    !Array.isArray(apiBoundary.citations) ||
+    apiBoundary.citations.length < 1
+  ) {
+    throw new Error(`Parent Assistant API AI boundary was not custody-safe: ${JSON.stringify(apiBoundary)}`);
+  }
+}
+
+function assertFamilySourceStates(report) {
+  const reachabilityStates = new Set(report.sourceStates?.map((source) => source.reachabilityState));
+  if (!reachabilityStates.has('reachable') || !reachabilityStates.has('offline') || !reachabilityStates.has('error')) {
+    throw new Error(`Activity family fan-out source states were not preserved: ${JSON.stringify(report.sourceStates)}`);
   }
 }
 

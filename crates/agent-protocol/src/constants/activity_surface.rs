@@ -15,7 +15,7 @@ pub const REPORT_ID_FALLBACK: &str = "activity-report";
 pub const SUMMARY_READY: &str = "Activity data is available from the local query store.";
 pub const SUMMARY_EMPTY: &str = "No local activity rows are available for this request.";
 pub const SUMMARY_STORE_UNAVAILABLE: &str = "Local activity query store is unavailable.";
-pub const SUMMARY_STORAGE_UNAVAILABLE: &str = "Report storage selection is not wired yet.";
+pub const SUMMARY_STORAGE_UNAVAILABLE: &str = "Local parent report storage is unavailable.";
 pub const SUMMARY_STORAGE_SAVED: &str = "Activity report is saved in local parent report storage.";
 pub const SUMMARY_HISTORY_EMPTY: &str = "No saved activity reports are available for this request.";
 pub const SUMMARY_DEVICE_OFFLINE: &str =
@@ -24,9 +24,15 @@ pub const SUMMARY_FAMILY_LOCAL_SOURCE: &str =
     "Family scope is backed by the reachable local child-device query store.";
 pub const SUMMARY_FAMILY_FANOUT_UNAVAILABLE: &str =
     "Family fan-out to additional child devices is not wired for this local report.";
+pub const SUMMARY_FAMILY_SOURCE_UNREACHABLE: &str =
+    "Child-device source is registered but not reachable for this report request.";
+pub const SUMMARY_FAMILY_SOURCE_ERROR: &str =
+    "Child-device source returned an error before report material could be aggregated.";
 pub const SUMMARY_SCAFFOLD_ONLY: &str =
     "This Activity read model is typed but not wired to local storage yet.";
 pub const FAMILY_FANOUT_SOURCE_ID: &str = "family-fanout-unavailable";
+pub const FAMILY_SOURCE_OFFLINE_ID: &str = "family-child-offline";
+pub const FAMILY_SOURCE_ERROR_ID: &str = "family-child-error";
 pub const SECTION_SUMMARY: &str = "Summary";
 pub const SECTION_SCREEN: &str = "Screen";
 pub const SECTION_APP_USE: &str = "App Use";
@@ -45,6 +51,9 @@ pub const STATE_OFFLINE: &str = "offline";
 pub const STATE_STALE: &str = "stale";
 pub const STATE_PERMISSION_REQUIRED: &str = "permission-required";
 pub const STATE_SCAFFOLD_ONLY: &str = "scaffold-only";
+pub const SOURCE_REACHABLE: &str = "reachable";
+pub const SOURCE_UNREACHABLE: &str = "unreachable";
+pub const SOURCE_ERROR: &str = "error";
 pub const FREQUENCY_DAILY: &str = "daily";
 pub const FREQUENCY_WEEKLY: &str = "weekly";
 pub const FREQUENCY_MONTHLY: &str = "monthly";

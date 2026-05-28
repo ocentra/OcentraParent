@@ -64,6 +64,19 @@ const ActionPreview = {
   enforcementApplied: false,
 } as const;
 
+const ApiProviderBoundary = {
+  schemaVersion: ParentContractSchemaVersion.V0_6,
+  providerId: 'api-provider-not-authorized',
+  authorizationState: 'not-authorized',
+  custodyLabel: 'parent-authorized-api-ai',
+  retentionPolicy: 'no-retention-without-parent-authorization',
+  deletionPolicy: 'delete-provider-cache-on-parent-request',
+  citations: [EvidenceContext],
+  providerState: 'unavailable',
+  unavailableReason: 'api-ai-provider-not-authorized',
+  childSafetyOrEnforcementUseAllowed: false,
+} as const;
+
 describe('parent assistant request contracts', () => {
   it('ParentAssistantGenerateRequestSchema: accepts cited evidence context for a local provider request', () => {
     const parsed = ParentAssistantGenerateRequestSchema.parse(Request);
@@ -111,6 +124,7 @@ describe('parent assistant answer contracts', () => {
       answerText: 'App use increased because the recent activity window shows a longer game session.',
       citations: [EvidenceContext],
       actionPreview: ActionPreview,
+      apiProviderBoundary: ApiProviderBoundary,
       promptVersion: 'parent-assistant-local-v1',
     });
 
@@ -136,6 +150,7 @@ describe('parent assistant answer contracts', () => {
         answerText: 'Answer without evidence should not pass.',
         citations: [],
         actionPreview: ActionPreview,
+        apiProviderBoundary: ApiProviderBoundary,
         promptVersion: 'parent-assistant-local-v1',
       }).success
     ).toBe(false);
@@ -169,6 +184,7 @@ describe('parent assistant unavailable answer contracts', () => {
         childAgentContractRequired: true,
         enforcementApplied: false,
       },
+      apiProviderBoundary: ApiProviderBoundary,
       promptVersion: 'parent-assistant-local-v1',
     });
 
@@ -178,18 +194,7 @@ describe('parent assistant unavailable answer contracts', () => {
 
 describe('parent assistant API provider boundary contracts', () => {
   it('ParentAssistantApiProviderBoundarySchema: accepts not-authorized unavailable API state with custody and deletion rules', () => {
-    const parsed = ParentAssistantApiProviderBoundarySchema.parse({
-      schemaVersion: ParentContractSchemaVersion.V0_6,
-      providerId: 'api-provider-not-configured',
-      authorizationState: 'not-authorized',
-      custodyLabel: 'parent-authorized-api-ai',
-      retentionPolicy: 'no-retention-without-parent-authorization',
-      deletionPolicy: 'delete-provider-cache-on-parent-request',
-      citations: [EvidenceContext],
-      providerState: 'unavailable',
-      unavailableReason: 'api-ai-provider-not-authorized',
-      childSafetyOrEnforcementUseAllowed: false,
-    });
+    const parsed = ParentAssistantApiProviderBoundarySchema.parse(ApiProviderBoundary);
 
     expect(parsed.providerState).toBe('unavailable');
     expect(parsed.childSafetyOrEnforcementUseAllowed).toBe(false);

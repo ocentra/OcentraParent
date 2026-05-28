@@ -31,7 +31,7 @@ async fn activity_surface_report_uses_real_activity_store_snapshot() {
     let snapshot = local_store_snapshot_from_path(store_path.clone())
         .await
         .expect(constants::error::ACTIVITY_STORE_QUERIES);
-    let report = report_document(report_request(), Some(snapshot));
+    let report = report_document(report_request(), Some(snapshot), Vec::new());
     let report_dir = temp_report_dir();
     cleanup_report_dir(&report_dir);
     let saved = save_report_document_to_dir(report.clone(), report_dir.clone());
@@ -45,12 +45,16 @@ async fn activity_surface_report_uses_real_activity_store_snapshot() {
     assert_eq!(report.sections[0].state, ActivityReadModelState::Ready);
     assert_eq!(report.sections[2].state, ActivityReadModelState::Ready);
     assert_eq!(report.sections[3].state, ActivityReadModelState::Empty);
+    let metadata = saved
+        .saved_metadata
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
     assert_eq!(
-        saved
-            .saved_metadata
-            .expect(constants::error::AGENT_EVENT_SERIALIZES)
-            .saved_state,
+        metadata.saved_state,
         ocentra_parent_agent_protocol::ActivitySavedReportState::Saved
+    );
+    assert_eq!(
+        metadata.storage_reason,
+        Some(constants::activity_surface::SUMMARY_STORAGE_SAVED.to_string())
     );
     assert_eq!(history.state, ActivityReadModelState::Ready);
     assert_eq!(history.reports[0].parsed_report.report_id, report.report_id);
@@ -107,7 +111,7 @@ async fn activity_surface_device_scope_reports_offline_for_nonlocal_device() {
         games_returned: 0,
         screen_returned: 0,
     };
-    let report = report_document(remote_device_report_request(), Some(snapshot));
+    let report = report_document(remote_device_report_request(), Some(snapshot), Vec::new());
 
     assert_eq!(app_use.state, ActivityReadModelState::Offline);
     assert_eq!(
@@ -131,7 +135,7 @@ async fn activity_report_history_skips_rejected_json_without_losing_saved_report
     let snapshot = local_store_snapshot_from_path(store_path.clone())
         .await
         .expect(constants::error::ACTIVITY_STORE_QUERIES);
-    let report = report_document(report_request(), Some(snapshot));
+    let report = report_document(report_request(), Some(snapshot), Vec::new());
     let report_dir = temp_report_dir();
     cleanup_report_dir(&report_dir);
     let saved = save_report_document_to_dir(report.clone(), report_dir.clone());
