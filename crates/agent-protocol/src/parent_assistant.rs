@@ -2,7 +2,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     FamilyReference, LocalAiDegradedState, LocalAiProviderSchedulerJobStatus,
-    ParentActionReference, ParentActorReference, ParentDeviceReference, ParentEvidenceReference,
+    LocalAiProviderSchedulerStatus, ParentActionReference, ParentActorReference,
+    ParentDeviceReference, ParentEvidenceReference,
 };
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -21,6 +22,24 @@ pub enum ParentAssistantAnswerState {
     Answered,
     #[serde(rename = "queued")]
     Queued,
+    #[serde(rename = "degraded")]
+    Degraded,
+    #[serde(rename = "unavailable")]
+    Unavailable,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ParentAssistantRunState {
+    #[serde(rename = "queued")]
+    Queued,
+    #[serde(rename = "active")]
+    Active,
+    #[serde(rename = "completed")]
+    Completed,
+    #[serde(rename = "failed")]
+    Failed,
+    #[serde(rename = "cancelled")]
+    Cancelled,
     #[serde(rename = "degraded")]
     Degraded,
     #[serde(rename = "unavailable")]
@@ -160,6 +179,7 @@ pub struct ParentAssistantAnswer {
     pub model_id: String,
     pub provider_state: ParentAssistantProviderState,
     pub answer_state: ParentAssistantAnswerState,
+    pub run_state: ParentAssistantRunState,
     pub scheduler_job_status: LocalAiProviderSchedulerJobStatus,
     pub degraded_state: LocalAiDegradedState,
     pub unavailable_reason: Option<String>,
@@ -202,7 +222,9 @@ pub struct ParentAssistantProviderStatus {
     pub provider_id: String,
     pub model_id: String,
     pub provider_state: ParentAssistantProviderState,
+    pub run_state: ParentAssistantRunState,
     pub scheduler_job_status: LocalAiProviderSchedulerJobStatus,
+    pub scheduler_status: LocalAiProviderSchedulerStatus,
     pub degraded_state: LocalAiDegradedState,
     pub unavailable_reason: Option<String>,
     pub queue_depth: u16,
@@ -218,6 +240,7 @@ pub struct ParentAssistantRunCancelResult {
     pub thread_id: String,
     pub run_id: String,
     pub cancel_state: ParentAssistantRunCancelState,
+    pub run_state: ParentAssistantRunState,
     pub provider_state: ParentAssistantProviderState,
     pub unavailable_reason: Option<String>,
 }

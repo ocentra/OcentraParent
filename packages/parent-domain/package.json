@@ -81,6 +81,10 @@
       "import": "./dist/parent-assistant.js",
       "types": "./dist/parent-assistant.d.ts"
     },
+    "./parent-assistant-run-state": {
+      "import": "./dist/parent-assistant-run-state.js",
+      "types": "./dist/parent-assistant-run-state.d.ts"
+    },
     "./parent-mobile-runtime": {
       "import": "./dist/parent-mobile-runtime.js",
       "types": "./dist/parent-mobile-runtime.d.ts"

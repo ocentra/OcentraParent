@@ -1,15 +1,17 @@
 use super::{
     AgentCommandName, AgentEventName, FamilyReference, LocalAiDegradedState,
-    LocalAiProviderSchedulerJobStatus, ParentActionReference, ParentActorReference,
-    ParentActorRole, ParentAssistantActionConfirmResult, ParentAssistantActionConfirmState,
+    LocalAiProviderSchedulerJobStatus, LocalAiProviderSchedulerLifecycle,
+    LocalAiProviderSchedulerQueue, LocalAiProviderSchedulerStatus, LocalAiProviderSingletonScope,
+    LocalAiResourceClass, ParentActionReference, ParentActorReference, ParentActorRole,
+    ParentAssistantActionConfirmResult, ParentAssistantActionConfirmState,
     ParentAssistantActionPreview, ParentAssistantActionPreviewKind, ParentAssistantAnswer,
     ParentAssistantAnswerState, ParentAssistantApiAuthorizationState,
     ParentAssistantApiProviderBoundary, ParentAssistantBackendState,
     ParentAssistantEvidenceContext, ParentAssistantGenerateRequest, ParentAssistantProviderState,
     ParentAssistantProviderStatus, ParentAssistantRunCancelResult, ParentAssistantRunCancelState,
-    ParentAssistantScope, ParentAssistantThreadRecord, ParentAssistantThreadResponse,
-    ParentAssistantThreadState, ParentDeviceReference, ParentEvidenceReference,
-    ParentEvidenceReferenceKind,
+    ParentAssistantRunState, ParentAssistantScope, ParentAssistantThreadRecord,
+    ParentAssistantThreadResponse, ParentAssistantThreadState, ParentDeviceReference,
+    ParentEvidenceReference, ParentEvidenceReferenceKind,
 };
 
 #[test]
@@ -48,6 +50,7 @@ fn parent_assistant_answer_serializes_citations_and_action_preview_without_enfor
         model_id: "local-gguf-chat-model".to_string(),
         provider_state: ParentAssistantProviderState::Configured,
         answer_state: ParentAssistantAnswerState::Answered,
+        run_state: ParentAssistantRunState::Completed,
         scheduler_job_status: LocalAiProviderSchedulerJobStatus::Complete,
         degraded_state: LocalAiDegradedState::None,
         unavailable_reason: None,
@@ -64,6 +67,7 @@ fn parent_assistant_answer_serializes_citations_and_action_preview_without_enfor
     let serialized = serde_json::to_value(&answer).expect("answer serializes");
 
     assert_eq!(serialized["answerState"], "answered");
+    assert_eq!(serialized["runState"], "completed");
     assert_eq!(
         serialized["citations"][0]["citationLabel"],
         "Activity summary 1"
@@ -91,6 +95,7 @@ fn parent_assistant_unavailable_answer_serializes_typed_provider_state() {
         model_id: "safety-model-unconfigured".to_string(),
         provider_state: ParentAssistantProviderState::Unavailable,
         answer_state: ParentAssistantAnswerState::Unavailable,
+        run_state: ParentAssistantRunState::Unavailable,
         scheduler_job_status: LocalAiProviderSchedulerJobStatus::Unavailable,
         degraded_state: LocalAiDegradedState::ProviderUnavailable,
         unavailable_reason: Some("local-ai-provider-unconfigured".to_string()),
@@ -156,7 +161,9 @@ fn parent_assistant_provider_status_serializes_scheduler_and_api_boundaries() {
         provider_id: "local-provider-llama-cli".to_string(),
         model_id: "local-gguf-chat-model".to_string(),
         provider_state: ParentAssistantProviderState::Unavailable,
+        run_state: ParentAssistantRunState::Unavailable,
         scheduler_job_status: LocalAiProviderSchedulerJobStatus::Unavailable,
+        scheduler_status: sample_scheduler_status(LocalAiProviderSchedulerLifecycle::Unavailable),
         degraded_state: LocalAiDegradedState::ProviderUnavailable,
         unavailable_reason: Some("local-ai-provider-unconfigured".to_string()),
         queue_depth: 0,
@@ -181,6 +188,7 @@ fn parent_assistant_cancel_and_confirm_results_do_not_claim_enforcement() {
         thread_id: "parent-assistant-thread-1".to_string(),
         run_id: "parent-assistant-run-1".to_string(),
         cancel_state: ParentAssistantRunCancelState::NotRunning,
+        run_state: ParentAssistantRunState::Completed,
         provider_state: ParentAssistantProviderState::Unavailable,
         unavailable_reason: Some("parent-assistant-run-not-running".to_string()),
     };
@@ -258,6 +266,27 @@ fn sample_thread(state: ParentAssistantThreadState) -> ParentAssistantThreadReco
         created_at: "2026-05-28T17:20:00Z".to_string(),
         updated_at: "2026-05-28T17:20:01Z".to_string(),
         message_count: 0,
+    }
+}
+
+fn sample_scheduler_status(
+    lifecycle_state: LocalAiProviderSchedulerLifecycle,
+) -> LocalAiProviderSchedulerStatus {
+    LocalAiProviderSchedulerStatus {
+        physical_device_id: "physical-device-local".to_string(),
+        singleton_scope: LocalAiProviderSingletonScope::PhysicalDevice,
+        provider_id: "local-provider-llama-cli".to_string(),
+        runtime_reference_id: "local-runtime-llama-cli".to_string(),
+        model_id: "local-gguf-chat-model".to_string(),
+        model_reference: "local-model-reference".to_string(),
+        resource_class: LocalAiResourceClass::Cpu,
+        lifecycle_state,
+        current_job_class: None,
+        queue: LocalAiProviderSchedulerQueue::default(),
+        duplicate_runtime_blocked: true,
+        degraded_state: LocalAiDegradedState::ProviderUnavailable,
+        unavailable_reason: Some("local-ai-provider-unconfigured".to_string()),
+        last_checked_at: "2026-05-28T17:20:01Z".to_string(),
     }
 }
 

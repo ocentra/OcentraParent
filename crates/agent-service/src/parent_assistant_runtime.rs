@@ -3,9 +3,8 @@ use ocentra_parent_agent_protocol::{
     AgentEventName, LocalAiDegradedState, LocalAiGenerationState, LocalAiProviderSchedulerJobClass,
     LocalAiProviderSchedulerJobStatus, LogFieldValue, LogLevel, ParentActorReference,
     ParentActorRole, ParentAssistantActionPreview, ParentAssistantActionPreviewKind,
-    ParentAssistantAnswer, ParentAssistantAnswerState, ParentAssistantApiAuthorizationState,
-    ParentAssistantApiProviderBoundary, ParentAssistantGenerateRequest,
-    ParentAssistantProviderState, ParentAssistantScope,
+    ParentAssistantAnswer, ParentAssistantAnswerState, ParentAssistantGenerateRequest,
+    ParentAssistantProviderState, ParentAssistantRunState, ParentAssistantScope,
 };
 
 use crate::{
@@ -16,7 +15,7 @@ use crate::{
     local_ai_provider_scheduler::{local_ai_provider_scheduler, LocalAiProviderSchedulerRuntime},
     local_ai_runtime_config::LocalAiRuntimeConfigSnapshot,
     local_ai_runtime_status::local_ai_runtime_status_for_model_from_config,
-    parent_assistant_api::thread_store,
+    parent_assistant_api::{api_boundary, thread_store},
     parent_assistant_evidence_context::evidence_contexts_from_command,
     parent_assistant_payload::parent_assistant_answer_payload,
     time::timestamp_now,
@@ -54,6 +53,7 @@ struct ParentAssistantAnswerParts {
     model_id: String,
     provider_state: ParentAssistantProviderState,
     answer_state: ParentAssistantAnswerState,
+    run_state: ParentAssistantRunState,
     scheduler_job_status: LocalAiProviderSchedulerJobStatus,
     degraded_state: LocalAiDegradedState,
     unavailable_reason: Option<String>,
@@ -208,6 +208,7 @@ fn configured_answer(
             model_id: result.model_id,
             provider_state: ParentAssistantProviderState::Configured,
             answer_state: ParentAssistantAnswerState::Answered,
+            run_state: ParentAssistantRunState::Completed,
             scheduler_job_status: LocalAiProviderSchedulerJobStatus::Complete,
             degraded_state: LocalAiDegradedState::None,
             unavailable_reason: result.unavailable_reason,
@@ -228,6 +229,12 @@ fn degraded_result_answer(
             model_id: result.model_id,
             provider_state: ParentAssistantProviderState::Degraded,
             answer_state: ParentAssistantAnswerState::Degraded,
+            run_state: match result.generation_state {
+                LocalAiGenerationState::Failed | LocalAiGenerationState::TimedOut => {
+                    ParentAssistantRunState::Failed
+                }
+                _ => ParentAssistantRunState::Degraded,
+            },
             scheduler_job_status: LocalAiProviderSchedulerJobStatus::Degraded,
             degraded_state: LocalAiDegradedState::InvalidOutput,
             unavailable_reason: result
@@ -250,6 +257,7 @@ fn unavailable_result_answer(
             model_id: result.model_id,
             provider_state: ParentAssistantProviderState::Unavailable,
             answer_state: ParentAssistantAnswerState::Unavailable,
+            run_state: ParentAssistantRunState::Unavailable,
             scheduler_job_status: LocalAiProviderSchedulerJobStatus::Unavailable,
             degraded_state: LocalAiDegradedState::ProviderUnavailable,
             unavailable_reason: result.unavailable_reason,
@@ -270,6 +278,7 @@ fn unavailable_answer(
             model_id: runtime.model_id.clone(),
             provider_state: ParentAssistantProviderState::Unavailable,
             answer_state: ParentAssistantAnswerState::Unavailable,
+            run_state: ParentAssistantRunState::Unavailable,
             scheduler_job_status: LocalAiProviderSchedulerJobStatus::Unavailable,
             degraded_state: LocalAiDegradedState::ProviderUnavailable,
             unavailable_reason: runtime.unavailable_reason.clone(),
@@ -289,7 +298,8 @@ fn degraded_busy_answer(
             provider_id: runtime.provider_id.clone(),
             model_id: runtime.model_id.clone(),
             provider_state: ParentAssistantProviderState::Degraded,
-            answer_state: ParentAssistantAnswerState::Degraded,
+            answer_state: ParentAssistantAnswerState::Queued,
+            run_state: ParentAssistantRunState::Queued,
             scheduler_job_status: LocalAiProviderSchedulerJobStatus::Queued,
             degraded_state: LocalAiDegradedState::Overloaded,
             unavailable_reason: Some(constants::parent_assistant::LOCAL_PROVIDER_BUSY.to_string()),
@@ -313,6 +323,7 @@ fn base_answer(
         model_id: parts.model_id,
         provider_state: parts.provider_state,
         answer_state: parts.answer_state,
+        run_state: parts.run_state,
         scheduler_job_status: parts.scheduler_job_status,
         degraded_state: parts.degraded_state,
         unavailable_reason: parts.unavailable_reason,
@@ -320,7 +331,7 @@ fn base_answer(
         answer_text: parts.answer_text,
         citations: request.evidence_context.clone(),
         action_preview: preview_only_action(&request.question),
-        api_provider_boundary: api_provider_boundary(&request.evidence_context),
+        api_provider_boundary: api_boundary::api_provider_boundary(&request.evidence_context),
         prompt_version: constants::parent_assistant::PROMPT_VERSION_LOCAL_V1.to_string(),
     }
 }
@@ -364,27 +375,6 @@ fn preview_only_action(question: &str) -> ParentAssistantActionPreview {
         requires_controller_lease: action_kind != ParentAssistantActionPreviewKind::None,
         child_agent_contract_required: true,
         enforcement_applied: false,
-    }
-}
-
-fn api_provider_boundary(
-    citations: &[ocentra_parent_agent_protocol::ParentAssistantEvidenceContext],
-) -> ParentAssistantApiProviderBoundary {
-    ParentAssistantApiProviderBoundary {
-        schema_version:
-            ocentra_parent_agent_protocol::policy_constants::CONTRACT_SCHEMA_VERSION_V0_6
-                .to_string(),
-        provider_id: constants::parent_assistant::API_PROVIDER_ID_NOT_AUTHORIZED.to_string(),
-        authorization_state: ParentAssistantApiAuthorizationState::NotAuthorized,
-        custody_label: constants::parent_assistant::API_PROVIDER_CUSTODY_LABEL.to_string(),
-        retention_policy: constants::parent_assistant::API_PROVIDER_RETENTION_POLICY.to_string(),
-        deletion_policy: constants::parent_assistant::API_PROVIDER_DELETION_POLICY.to_string(),
-        citations: citations.to_vec(),
-        provider_state: ParentAssistantProviderState::Unavailable,
-        unavailable_reason: Some(
-            constants::parent_assistant::API_PROVIDER_NOT_AUTHORIZED_REASON.to_string(),
-        ),
-        child_safety_or_enforcement_use_allowed: false,
     }
 }
 

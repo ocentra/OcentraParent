@@ -8,6 +8,8 @@ import {
   LocalAiUnavailableReasonSchema,
 } from './local-ai-primitives';
 import { LocalAiProviderSchedulerJobStatusSchema } from './local-ai-provider-scheduler';
+import { LocalAiProviderSchedulerStatusSchema } from './local-ai-provider-scheduler';
+import { ParentAssistantRunStateSchema } from './parent-assistant-run-state';
 import {
   FamilyReferenceSchema,
   ParentActionReferenceSchema,
@@ -155,6 +157,7 @@ const ParentAssistantAnswerBaseSchema = Schema.Struct({
   modelId: LocalAiModelIdSchema,
   providerState: ParentAssistantProviderStateSchema,
   answerState: ParentAssistantAnswerStateSchema,
+  runState: ParentAssistantRunStateSchema,
   schedulerJobStatus: LocalAiProviderSchedulerJobStatusSchema,
   degradedState: LocalAiDegradedStateSchema,
   unavailableReason: Schema.Union(LocalAiUnavailableReasonSchema, Schema.Null),
@@ -208,7 +211,9 @@ export const ParentAssistantProviderStatusSchema = withParser(
     providerId: LocalAiProviderIdSchema,
     modelId: LocalAiModelIdSchema,
     providerState: ParentAssistantProviderStateSchema,
+    runState: ParentAssistantRunStateSchema,
     schedulerJobStatus: LocalAiProviderSchedulerJobStatusSchema,
+    schedulerStatus: LocalAiProviderSchedulerStatusSchema,
     degradedState: LocalAiDegradedStateSchema,
     unavailableReason: Schema.Union(LocalAiUnavailableReasonSchema, Schema.Null),
     queueDepth: Schema.Number.pipe(Schema.int()),
@@ -224,6 +229,7 @@ export const ParentAssistantRunCancelResultSchema = withParser(
     threadId: ParentAssistantThreadIdSchema,
     runId: ParentAssistantRunIdSchema,
     cancelState: ParentAssistantRunCancelStateSchema,
+    runState: ParentAssistantRunStateSchema,
     providerState: ParentAssistantProviderStateSchema,
     unavailableReason: Schema.Union(LocalAiUnavailableReasonSchema, Schema.Null),
   })
@@ -256,24 +262,49 @@ export const ParentAssistantActionConfirmResultSchema = withParser(
 );
 
 function parentAssistantAnswerIsConsistent(answer: ParentAssistantAnswerCandidate): boolean {
-  if (answer.answerState === 'answered') {
-    return (
-      answer.answerText !== null &&
-      answer.citations.length > 0 &&
-      answer.unavailableReason === null &&
-      answer.providerState === 'configured'
-    );
+  switch (answer.answerState) {
+    case 'answered':
+      return answeredParentAssistantAnswerIsConsistent(answer);
+    case 'unavailable':
+      return unavailableParentAssistantAnswerIsConsistent(answer);
+    case 'degraded':
+      return degradedParentAssistantAnswerIsConsistent(answer);
+    case 'queued':
+      return queuedParentAssistantAnswerIsConsistent(answer);
   }
 
-  if (answer.answerState === 'unavailable') {
-    return answer.answerText === null && answer.unavailableReason !== null && answer.providerState === 'unavailable';
-  }
+  return false;
+}
 
-  if (answer.answerState === 'degraded') {
-    return answer.degradedState !== 'none' && answer.providerState === 'degraded';
-  }
+function answeredParentAssistantAnswerIsConsistent(answer: ParentAssistantAnswerCandidate): boolean {
+  return (
+    answer.answerText !== null &&
+    answer.citations.length > 0 &&
+    answer.unavailableReason === null &&
+    answer.providerState === 'configured' &&
+    answer.runState === 'completed'
+  );
+}
 
-  return answer.schedulerJobStatus === 'queued' && answer.answerText === null;
+function unavailableParentAssistantAnswerIsConsistent(answer: ParentAssistantAnswerCandidate): boolean {
+  return (
+    answer.answerText === null &&
+    answer.unavailableReason !== null &&
+    answer.providerState === 'unavailable' &&
+    answer.runState === 'unavailable'
+  );
+}
+
+function degradedParentAssistantAnswerIsConsistent(answer: ParentAssistantAnswerCandidate): boolean {
+  return (
+    answer.degradedState !== 'none' &&
+    answer.providerState === 'degraded' &&
+    (answer.runState === 'degraded' || answer.runState === 'failed')
+  );
+}
+
+function queuedParentAssistantAnswerIsConsistent(answer: ParentAssistantAnswerCandidate): boolean {
+  return answer.schedulerJobStatus === 'queued' && answer.answerText === null && answer.runState === 'queued';
 }
 
 function parentAssistantApiProviderBoundaryIsConsistent(

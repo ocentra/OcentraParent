@@ -14,8 +14,8 @@ use ocentra_parent_agent_protocol::{
     ParentActorReference, ParentActorRole, ParentAssistantActionPreviewKind,
     ParentAssistantAnswerState, ParentAssistantApiAuthorizationState,
     ParentAssistantEvidenceContext, ParentAssistantGenerateRequest, ParentAssistantProviderState,
-    ParentAssistantScope, ParentEvidenceReference, ParentEvidenceReferenceKind,
-    ACTIVITY_SURFACE_SCHEMA_VERSION, AGENT_PROTOCOL_SCHEMA_VERSION,
+    ParentAssistantRunState, ParentAssistantScope, ParentEvidenceReference,
+    ParentEvidenceReferenceKind, ACTIVITY_SURFACE_SCHEMA_VERSION, AGENT_PROTOCOL_SCHEMA_VERSION,
 };
 
 use crate::{
@@ -47,6 +47,7 @@ async fn parent_assistant_unconfigured_provider_returns_cited_unavailable_answer
         ParentAssistantProviderState::Unavailable
     );
     assert_eq!(answer.answer_state, ParentAssistantAnswerState::Unavailable);
+    assert_eq!(answer.run_state, ParentAssistantRunState::Unavailable);
     assert_eq!(
         answer.scheduler_job_status,
         LocalAiProviderSchedulerJobStatus::Unavailable
@@ -102,7 +103,8 @@ async fn parent_assistant_busy_provider_degrades_without_running_or_enforcing() 
         answer.provider_state,
         ParentAssistantProviderState::Degraded
     );
-    assert_eq!(answer.answer_state, ParentAssistantAnswerState::Degraded);
+    assert_eq!(answer.answer_state, ParentAssistantAnswerState::Queued);
+    assert_eq!(answer.run_state, ParentAssistantRunState::Queued);
     assert_eq!(
         answer.scheduler_job_status,
         LocalAiProviderSchedulerJobStatus::Queued
