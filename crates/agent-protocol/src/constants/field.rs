@@ -211,6 +211,7 @@ pub const PARENT_ACTION_CREATED_AT: &str = "parentActionCreatedAt";
 pub const PARENT_ACTOR_ID: &str = "parentActorId";
 pub const PARENT_ACTOR_ROLE: &str = "parentActorRole";
 pub const PARENT_ASSISTANT_ACTION_PREVIEW: &str = "parentAssistantActionPreview";
+pub const PARENT_ASSISTANT_ANSWER: &str = "parentAssistantAnswer";
 pub const PARENT_ASSISTANT_ANSWER_STATE: &str = "parentAssistantAnswerState";
 pub const PARENT_ASSISTANT_ANSWER_TEXT: &str = "parentAssistantAnswerText";
 pub const PARENT_ASSISTANT_API_PROVIDER_BOUNDARY: &str = "parentAssistantApiProviderBoundary";

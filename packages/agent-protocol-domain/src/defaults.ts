@@ -292,6 +292,7 @@ export const AgentProtocolDefaults = {
     ParentActorId: 'parentActorId',
     ParentActorRole: 'parentActorRole',
     ParentAssistantActionPreview: 'parentAssistantActionPreview',
+    ParentAssistantAnswer: 'parentAssistantAnswer',
     ParentAssistantAnswerState: 'parentAssistantAnswerState',
     ParentAssistantAnswerText: 'parentAssistantAnswerText',
     ParentAssistantApiProviderBoundary: 'parentAssistantApiProviderBoundary',

@@ -8,6 +8,12 @@ use crate::fields::fields_from_pairs;
 pub(crate) fn parent_assistant_answer_payload(answer: &ParentAssistantAnswer) -> LogFields {
     fields_from_pairs(vec![
         (
+            constants::field::PARENT_ASSISTANT_ANSWER,
+            LogFieldValue::String(
+                serde_json::to_string(answer).expect(constants::error::AGENT_EVENT_SERIALIZES),
+            ),
+        ),
+        (
             constants::field::PARENT_ASSISTANT_REQUEST_ID,
             LogFieldValue::String(answer.request_id.clone()),
         ),

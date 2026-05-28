@@ -105,8 +105,8 @@ function runRuntimeProof() {
       (event) => assertActivityReadModel(event, 'network')
     ),
     {
-      messageId: 'cmd-parent-assistant-answer',
-      command: AgentCommand.ParentAssistantAnswerGenerate,
+      messageId: 'cmd-parent-assistant-message',
+      command: AgentCommand.ParentAssistantMessageSend,
       expectedEvent: AgentEvent.ParentAssistantAnswerReported,
       payload: {
         [AgentProtocolDefaults.Field.ParentAssistantQuestion]: 'Suggest a policy rule from recent activity.',
@@ -279,6 +279,10 @@ function assertParentAssistantUnavailable(event) {
   }
   if (payload[AgentProtocolDefaults.Field.ParentAssistantCitationCount] < 1) {
     throw new Error(`Parent Assistant did not cite evidence context: ${JSON.stringify(payload)}`);
+  }
+  const answer = parseJsonField(payload, AgentProtocolDefaults.Field.ParentAssistantAnswer);
+  if (answer.answerState !== 'unavailable' || !Array.isArray(answer.citations) || answer.citations.length < 1) {
+    throw new Error(`Parent Assistant did not return a full typed answer payload: ${JSON.stringify(answer)}`);
   }
   const preview = parseJsonField(payload, AgentProtocolDefaults.Field.ParentAssistantActionPreview);
   if (preview.childAgentContractRequired !== true || preview.enforcementApplied !== false) {
