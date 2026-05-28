@@ -17,6 +17,8 @@ pub struct ParentDesktopPlatformProofState {
     agent_address: String,
     controller_lease_state: String,
     device_role_state: DeviceRoleRuntimeReadModel,
+    activity_adapter_state: String,
+    parent_assistant_provider_state: DeviceRuntimeAiProviderState,
     route_state: DeviceRuntimeRouteState,
     lan_ai_provider_state: DeviceRuntimeAiProviderState,
     backend_kind: String,
@@ -53,6 +55,8 @@ fn parent_platform_proof_state_for_address(agent_address: String) -> ParentDeskt
         agent_address,
         controller_lease_state: constants::value::LAN_PARENT_AUTHORITY_ACTIVE_CONTROLLER
             .to_string(),
+        activity_adapter_state: service_state.to_string(),
+        parent_assistant_provider_state: device_role_state.lan_ai_provider_state.clone(),
         route_state: device_role_state.route_state.clone(),
         lan_ai_provider_state: device_role_state.lan_ai_provider_state.clone(),
         device_role_state,
@@ -117,6 +121,14 @@ mod tests {
         assert_eq!(state.route_state, DeviceRuntimeRouteState::LocalNetwork);
         assert_eq!(
             state.lan_ai_provider_state,
+            DeviceRuntimeAiProviderState::Degraded
+        );
+        assert_eq!(
+            state.activity_adapter_state,
+            constants::value::PARENT_DESKTOP_SERVICE_UNAVAILABLE
+        );
+        assert_eq!(
+            state.parent_assistant_provider_state,
             DeviceRuntimeAiProviderState::Degraded
         );
         assert_eq!(
