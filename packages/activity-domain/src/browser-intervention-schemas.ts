@@ -63,6 +63,15 @@ export const BrowserUnmanagedEnforcementStateSchema = withParser(
     'unsupported'
   )
 );
+export const BrowserBoundaryStateSchema = withParser(
+  Schema.Literal('managed-session', 'unmanaged-browser-process', 'browser-like-process', 'unsupported', 'unknown')
+);
+export const BrowserExactUrlClaimStateSchema = withParser(
+  Schema.Literal('exact-url-proven', 'not-claimed', 'unavailable')
+);
+export const BrowserUnmanagedDetectionStateSchema = withParser(
+  Schema.Literal('none', 'detected', 'warned', 'terminated', 'manual-required', 'unavailable')
+);
 
 export const BrowserInterventionIdSchema = withParser(
   NonEmptyBrowserInterventionText.pipe(Schema.brand('BrowserInterventionId'))
@@ -95,6 +104,15 @@ export const BrowserInterventionRowSchema = withParser(
     observedUrl: Schema.Union(BrowserUrlSchema, Schema.Null),
     interventionMechanism: BrowserInterventionMechanismSchema,
     interventionOutcome: BrowserInterventionOutcomeSchema,
+    browserBoundaryState: Schema.optionalWith(BrowserBoundaryStateSchema, {
+      default: () => 'unknown' as const,
+    }),
+    exactUrlClaimState: Schema.optionalWith(BrowserExactUrlClaimStateSchema, {
+      default: () => 'not-claimed' as const,
+    }),
+    unmanagedDetectionState: Schema.optionalWith(BrowserUnmanagedDetectionStateSchema, {
+      default: () => 'unavailable' as const,
+    }),
     reason: Schema.Union(BrowserDegradedReasonSchema, Schema.Null),
     custodyLabel: BrowserCustodyLabelSchema,
     queryVisibility: BrowserQueryVisibilityLabelSchema,
@@ -122,5 +140,8 @@ export type BrowserInterventionMechanism = Infer<typeof BrowserInterventionMecha
 export type BrowserInterventionOutcome = Infer<typeof BrowserInterventionOutcomeSchema>;
 export type BrowserInterventionCapabilityState = Infer<typeof BrowserInterventionCapabilityStateSchema>;
 export type BrowserUnmanagedEnforcementState = Infer<typeof BrowserUnmanagedEnforcementStateSchema>;
+export type BrowserBoundaryState = Infer<typeof BrowserBoundaryStateSchema>;
+export type BrowserExactUrlClaimState = Infer<typeof BrowserExactUrlClaimStateSchema>;
+export type BrowserUnmanagedDetectionState = Infer<typeof BrowserUnmanagedDetectionStateSchema>;
 export type BrowserInterventionRow = Infer<typeof BrowserInterventionRowSchema>;
 export type BrowserInterventionReadModel = Infer<typeof BrowserInterventionReadModelSchema>;

@@ -39,13 +39,13 @@ export const ParentControlPlatformCapabilityInputs = [
       },
       {
         capability: 'managed-browser-control',
-        status: 'manual-required',
-        note: 'Managed browser enforcement requires a managed profile bridge proof before site or URL blocking is claimed.',
+        status: 'implemented',
+        note: 'Managed browser intervention is proved only inside an Ocentra-owned profile bridge; exact URL control is not claimed outside that boundary.',
       },
       {
         capability: 'unmanaged-browser-detection',
-        status: 'manual-required',
-        note: 'Unmanaged browser detection or terminate/block behavior requires real browser process and URL evidence before support is claimed.',
+        status: 'implemented',
+        note: 'Windows can detect known unmanaged browser processes and terminate a matching process by pid/name; exact unmanaged URL evidence is not claimed.',
       },
       {
         capability: 'signed-auto-update',

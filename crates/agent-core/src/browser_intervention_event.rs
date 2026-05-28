@@ -1,9 +1,10 @@
 use ocentra_parent_agent_protocol::{
     constants, ActivityEvent, ActivityEventKind, ActivityObserver, ActivitySource, ActivitySubject,
-    ActivitySubjectKind, BrowserChannel, BrowserCustodyLabel, BrowserFamily,
-    BrowserInterventionAction, BrowserInterventionCapabilityState,
-    BrowserInterventionDecisionSource, BrowserInterventionMechanism, BrowserInterventionOutcome,
-    BrowserInterventionTargetType, BrowserQueryVisibilityLabel, BrowserUnmanagedEnforcementState,
+    ActivitySubjectKind, BrowserBoundaryState, BrowserChannel, BrowserCustodyLabel,
+    BrowserExactUrlClaimState, BrowserFamily, BrowserInterventionAction,
+    BrowserInterventionCapabilityState, BrowserInterventionDecisionSource,
+    BrowserInterventionMechanism, BrowserInterventionOutcome, BrowserInterventionTargetType,
+    BrowserQueryVisibilityLabel, BrowserUnmanagedDetectionState, BrowserUnmanagedEnforcementState,
     LogFieldValue, LogFields, ACTIVITY_SCHEMA_VERSION,
 };
 
@@ -24,6 +25,9 @@ pub struct BrowserInterventionObservation {
     pub observed_url: Option<String>,
     pub intervention_mechanism: BrowserInterventionMechanism,
     pub intervention_outcome: BrowserInterventionOutcome,
+    pub browser_boundary_state: BrowserBoundaryState,
+    pub exact_url_claim_state: BrowserExactUrlClaimState,
+    pub unmanaged_detection_state: BrowserUnmanagedDetectionState,
     pub managed_session_intervention_capability: BrowserInterventionCapabilityState,
     pub unmanaged_browser_enforcement: BrowserUnmanagedEnforcementState,
     pub reason: Option<String>,
@@ -174,6 +178,21 @@ fn insert_intervention_state_fields(
         fields,
         constants::field::INTERVENTION_OUTCOME.to_string(),
         observation.intervention_outcome.as_protocol_str(),
+    );
+    insert_protocol_text(
+        fields,
+        constants::browser::INTERVENTION_FIELD_BROWSER_BOUNDARY_STATE,
+        observation.browser_boundary_state.as_protocol_str(),
+    );
+    insert_protocol_text(
+        fields,
+        constants::browser::INTERVENTION_FIELD_EXACT_URL_CLAIM_STATE,
+        observation.exact_url_claim_state.as_protocol_str(),
+    );
+    insert_protocol_text(
+        fields,
+        constants::browser::INTERVENTION_FIELD_UNMANAGED_DETECTION_STATE,
+        observation.unmanaged_detection_state.as_protocol_str(),
     );
     insert_protocol_text(
         fields,

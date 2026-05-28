@@ -199,3 +199,84 @@ impl BrowserInterventionCapabilityState {
         }
     }
 }
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum BrowserBoundaryState {
+    #[serde(rename = "managed-session")]
+    ManagedSession,
+    #[serde(rename = "unmanaged-browser-process")]
+    UnmanagedBrowserProcess,
+    #[serde(rename = "browser-like-process")]
+    BrowserLikeProcess,
+    #[serde(rename = "unsupported")]
+    Unsupported,
+    #[serde(rename = "unknown")]
+    Unknown,
+}
+
+impl BrowserBoundaryState {
+    pub fn as_protocol_str(&self) -> &'static str {
+        match self {
+            Self::ManagedSession => constants::browser::INTERVENTION_BOUNDARY_MANAGED_SESSION,
+            Self::UnmanagedBrowserProcess => {
+                constants::browser::INTERVENTION_BOUNDARY_UNMANAGED_BROWSER_PROCESS
+            }
+            Self::BrowserLikeProcess => {
+                constants::browser::INTERVENTION_BOUNDARY_BROWSER_LIKE_PROCESS
+            }
+            Self::Unsupported => constants::browser::INTERVENTION_BOUNDARY_UNSUPPORTED,
+            Self::Unknown => constants::browser::INTERVENTION_BOUNDARY_UNKNOWN,
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum BrowserExactUrlClaimState {
+    #[serde(rename = "exact-url-proven")]
+    ExactUrlProven,
+    #[serde(rename = "not-claimed")]
+    NotClaimed,
+    #[serde(rename = "unavailable")]
+    Unavailable,
+}
+
+impl BrowserExactUrlClaimState {
+    pub fn as_protocol_str(&self) -> &'static str {
+        match self {
+            Self::ExactUrlProven => constants::browser::INTERVENTION_EXACT_URL_PROVEN,
+            Self::NotClaimed => constants::browser::INTERVENTION_EXACT_URL_NOT_CLAIMED,
+            Self::Unavailable => constants::browser::INTERVENTION_EXACT_URL_UNAVAILABLE,
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum BrowserUnmanagedDetectionState {
+    #[serde(rename = "none")]
+    None,
+    #[serde(rename = "detected")]
+    Detected,
+    #[serde(rename = "warned")]
+    Warned,
+    #[serde(rename = "terminated")]
+    Terminated,
+    #[serde(rename = "manual-required")]
+    ManualRequired,
+    #[serde(rename = "unavailable")]
+    Unavailable,
+}
+
+impl BrowserUnmanagedDetectionState {
+    pub fn as_protocol_str(&self) -> &'static str {
+        match self {
+            Self::None => constants::browser::INTERVENTION_UNMANAGED_DETECTION_NONE,
+            Self::Detected => constants::browser::INTERVENTION_UNMANAGED_DETECTION_DETECTED,
+            Self::Warned => constants::browser::INTERVENTION_UNMANAGED_DETECTION_WARNED,
+            Self::Terminated => constants::browser::INTERVENTION_UNMANAGED_DETECTION_TERMINATED,
+            Self::ManualRequired => {
+                constants::browser::INTERVENTION_UNMANAGED_DETECTION_MANUAL_REQUIRED
+            }
+            Self::Unavailable => constants::browser::INTERVENTION_UNMANAGED_DETECTION_UNAVAILABLE,
+        }
+    }
+}

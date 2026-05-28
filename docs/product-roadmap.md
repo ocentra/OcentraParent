@@ -102,6 +102,14 @@ existing real-service proof bundle and writes
 `test-results/enforcement-lan-mobile-product-proof/proof.json` without claiming
 cloud relay, household router discovery, or mobile parity.
 
+The Windows managed/unmanaged browser enforcement capability pass adds explicit
+browser intervention boundary states, exact URL claim states, and unmanaged
+detection states. It keeps managed browser blocking proof limited to
+Ocentra-owned managed profile bridge evidence and adds Windows service proof for
+unmanaged browser terminate, warn, and manual-required outcomes without claiming
+exact URLs for unmanaged browsers. Broad app, domain, and browser blocking still
+remain unclaimed unless a specific adapter proves them.
+
 The older PR #90 through PR #96 reconciliation remains historical context in
 [`current-main-proof-refresh-2026-05-25.md`](architecture/current-main-proof-refresh-2026-05-25.md).
 Current acceptance should be read from the updated pre-AI proof matrix and the
@@ -173,6 +181,10 @@ Current local slice:
   signing/entitlements in
   `test-results/enforcement-lan-mobile-product-proof/proof.json` when run
   locally.
+- The Windows managed/unmanaged browser enforcement proof command records
+  unmanaged browser terminate and warn service results without exact URL claims,
+  plus managed-browser manual-required degradation and live managed-browser
+  intervention proof artifacts when run locally.
 
 Next product checkpoint:
 
@@ -1265,8 +1277,8 @@ Next coordinator slices:
 7. Continue activity/parent-assistant and platform/LAN work as separate
    proof-backed branches so Activity, command/provider naming, and portal UI
    ownership do not collide across workers.
-8. Next V0.8 work should continue turning broad app/domain/browser enforcement
-   from manual-required states into real OS adapter proof only where the target
-   OS supports it. Next V0.9 work should prove production discovery, mobile
-   controller/observer UX, optional cloud relay if chosen, and real household
-   multi-device behavior.
+8. Next V0.8 work should continue broad app/domain/browser OS-adapter proof
+   beyond the now-proved managed-session intervention and unmanaged process
+   terminate/warn boundary, only where the target OS supports it. Next V0.9 work
+   should prove production discovery, mobile controller/observer UX, optional
+   cloud relay if chosen, and real household multi-device behavior.

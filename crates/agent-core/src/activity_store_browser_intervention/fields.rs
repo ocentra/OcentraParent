@@ -1,8 +1,10 @@
 use ocentra_parent_agent_protocol::{
-    constants, BrowserChannel, BrowserCustodyLabel, BrowserFamily, BrowserInterventionAction,
+    constants, BrowserBoundaryState, BrowserChannel, BrowserCustodyLabel,
+    BrowserExactUrlClaimState, BrowserFamily, BrowserInterventionAction,
     BrowserInterventionCapabilityState, BrowserInterventionDecisionSource,
     BrowserInterventionMechanism, BrowserInterventionOutcome, BrowserInterventionTargetType,
-    BrowserQueryVisibilityLabel, BrowserUnmanagedEnforcementState, LogFieldValue, LogFields,
+    BrowserQueryVisibilityLabel, BrowserUnmanagedDetectionState, BrowserUnmanagedEnforcementState,
+    LogFieldValue, LogFields,
 };
 
 pub(super) fn string_field(fields: &LogFields, key: &str) -> Option<String> {
@@ -77,6 +79,32 @@ pub(super) fn unmanaged_enforcement_field(
 ) -> Option<BrowserUnmanagedEnforcementState> {
     string_field(fields, constants::field::UNMANAGED_BROWSER_ENFORCEMENT)
         .and_then(|value| BrowserUnmanagedEnforcementState::from_protocol_str(&value))
+}
+
+pub(super) fn browser_boundary_state_field(fields: &LogFields) -> Option<BrowserBoundaryState> {
+    string_field(
+        fields,
+        constants::browser::INTERVENTION_FIELD_BROWSER_BOUNDARY_STATE,
+    )
+    .and_then(|value| BrowserBoundaryState::from_protocol_str(&value))
+}
+
+pub(super) fn exact_url_claim_state_field(fields: &LogFields) -> Option<BrowserExactUrlClaimState> {
+    string_field(
+        fields,
+        constants::browser::INTERVENTION_FIELD_EXACT_URL_CLAIM_STATE,
+    )
+    .and_then(|value| BrowserExactUrlClaimState::from_protocol_str(&value))
+}
+
+pub(super) fn unmanaged_detection_state_field(
+    fields: &LogFields,
+) -> Option<BrowserUnmanagedDetectionState> {
+    string_field(
+        fields,
+        constants::browser::INTERVENTION_FIELD_UNMANAGED_DETECTION_STATE,
+    )
+    .and_then(|value| BrowserUnmanagedDetectionState::from_protocol_str(&value))
 }
 
 pub(super) fn custody_label_field(fields: &LogFields) -> Option<BrowserCustodyLabel> {

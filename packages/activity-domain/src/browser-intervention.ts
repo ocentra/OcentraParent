@@ -1,14 +1,19 @@
 import {
   BrowserInterventionActionSchema,
+  BrowserBoundaryStateSchema,
+  BrowserExactUrlClaimStateSchema,
   BrowserInterventionCapabilityStateSchema,
   BrowserInterventionDecisionSourceSchema,
   BrowserInterventionMechanismSchema,
   BrowserInterventionOutcomeSchema,
   BrowserInterventionTargetTypeSchema,
+  BrowserUnmanagedDetectionStateSchema,
   BrowserUnmanagedEnforcementStateSchema,
 } from './browser-intervention-schemas';
 import type {
   BrowserInterventionAction as BrowserInterventionActionType,
+  BrowserBoundaryState as BrowserBoundaryStateType,
+  BrowserExactUrlClaimState as BrowserExactUrlClaimStateType,
   BrowserInterventionCapabilityState as BrowserInterventionCapabilityStateType,
   BrowserInterventionDecisionSource as BrowserInterventionDecisionSourceType,
   BrowserInterventionMechanism as BrowserInterventionMechanismType,
@@ -16,11 +21,14 @@ import type {
   BrowserInterventionReadModel,
   BrowserInterventionRow,
   BrowserInterventionTargetType as BrowserInterventionTargetTypeType,
+  BrowserUnmanagedDetectionState as BrowserUnmanagedDetectionStateType,
   BrowserUnmanagedEnforcementState as BrowserUnmanagedEnforcementStateType,
 } from './browser-intervention-schemas';
 
 export {
   BrowserInterventionActionSchema,
+  BrowserBoundaryStateSchema,
+  BrowserExactUrlClaimStateSchema,
   BrowserInterventionCapabilityStateSchema,
   BrowserInterventionDecisionSourceSchema,
   BrowserInterventionIdSchema,
@@ -32,16 +40,20 @@ export {
   BrowserInterventionTargetTypeSchema,
   BrowserPolicyDecisionIdSchema,
   BrowserTargetValueSchema,
+  BrowserUnmanagedDetectionStateSchema,
   BrowserUnmanagedEnforcementStateSchema,
 } from './browser-intervention-schemas';
 
 export type BrowserInterventionAction = BrowserInterventionActionType;
+export type BrowserBoundaryState = BrowserBoundaryStateType;
+export type BrowserExactUrlClaimState = BrowserExactUrlClaimStateType;
 export type BrowserInterventionCapabilityState = BrowserInterventionCapabilityStateType;
 export type BrowserInterventionDecisionSource = BrowserInterventionDecisionSourceType;
 export type BrowserInterventionMechanism = BrowserInterventionMechanismType;
 export type BrowserInterventionOutcome = BrowserInterventionOutcomeType;
 export type { BrowserInterventionReadModel, BrowserInterventionRow };
 export type BrowserInterventionTargetType = BrowserInterventionTargetTypeType;
+export type BrowserUnmanagedDetectionState = BrowserUnmanagedDetectionStateType;
 export type BrowserUnmanagedEnforcementState = BrowserUnmanagedEnforcementStateType;
 
 export const BrowserInterventionDecisionSource = {
@@ -108,4 +120,27 @@ export const BrowserUnmanagedEnforcementState = {
   ReadyToBlock: BrowserUnmanagedEnforcementStateSchema.parse('ready-to-block'),
   BlockedAndRelaunchedManaged: BrowserUnmanagedEnforcementStateSchema.parse('blocked-and-relaunched-managed'),
   Unsupported: BrowserUnmanagedEnforcementStateSchema.parse('unsupported'),
+} as const;
+
+export const BrowserBoundaryState = {
+  ManagedSession: BrowserBoundaryStateSchema.parse('managed-session'),
+  UnmanagedBrowserProcess: BrowserBoundaryStateSchema.parse('unmanaged-browser-process'),
+  BrowserLikeProcess: BrowserBoundaryStateSchema.parse('browser-like-process'),
+  Unsupported: BrowserBoundaryStateSchema.parse('unsupported'),
+  Unknown: BrowserBoundaryStateSchema.parse('unknown'),
+} as const;
+
+export const BrowserExactUrlClaimState = {
+  ExactUrlProven: BrowserExactUrlClaimStateSchema.parse('exact-url-proven'),
+  NotClaimed: BrowserExactUrlClaimStateSchema.parse('not-claimed'),
+  Unavailable: BrowserExactUrlClaimStateSchema.parse('unavailable'),
+} as const;
+
+export const BrowserUnmanagedDetectionState = {
+  None: BrowserUnmanagedDetectionStateSchema.parse('none'),
+  Detected: BrowserUnmanagedDetectionStateSchema.parse('detected'),
+  Warned: BrowserUnmanagedDetectionStateSchema.parse('warned'),
+  Terminated: BrowserUnmanagedDetectionStateSchema.parse('terminated'),
+  ManualRequired: BrowserUnmanagedDetectionStateSchema.parse('manual-required'),
+  Unavailable: BrowserUnmanagedDetectionStateSchema.parse('unavailable'),
 } as const;

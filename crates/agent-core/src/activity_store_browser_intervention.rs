@@ -1,7 +1,8 @@
 use ocentra_parent_agent_protocol::{
-    constants, BrowserCustodyLabel, BrowserInterventionCapabilityState,
-    BrowserInterventionReadModel, BrowserInterventionRow, BrowserQueryVisibilityLabel,
-    BrowserUnmanagedEnforcementState, LogFields, BROWSER_INTERVENTION_SCHEMA_VERSION,
+    constants, BrowserBoundaryState, BrowserCustodyLabel, BrowserExactUrlClaimState,
+    BrowserInterventionCapabilityState, BrowserInterventionReadModel, BrowserInterventionRow,
+    BrowserQueryVisibilityLabel, BrowserUnmanagedDetectionState, BrowserUnmanagedEnforcementState,
+    LogFields, BROWSER_INTERVENTION_SCHEMA_VERSION,
 };
 use rusqlite::{params, Connection, Row};
 
@@ -9,10 +10,11 @@ use crate::{ActivityStore, ActivityStoreError};
 
 mod fields;
 use fields::{
-    browser_channel_field, browser_family_field, custody_label_field, decision_source_field,
-    intervention_action_field, intervention_capability_field, intervention_mechanism_field,
-    intervention_outcome_field, intervention_target_type_field, query_visibility_field,
-    string_field, u32_field, unmanaged_enforcement_field,
+    browser_boundary_state_field, browser_channel_field, browser_family_field, custody_label_field,
+    decision_source_field, exact_url_claim_state_field, intervention_action_field,
+    intervention_capability_field, intervention_mechanism_field, intervention_outcome_field,
+    intervention_target_type_field, query_visibility_field, string_field, u32_field,
+    unmanaged_detection_state_field, unmanaged_enforcement_field,
 };
 
 impl ActivityStore {
@@ -120,6 +122,24 @@ fn browser_intervention_read_row_from_store(
         intervention_capability_field(fields).unwrap_or(BrowserInterventionCapabilityState::Ready);
     let unmanaged_browser_enforcement = unmanaged_enforcement_field(fields)
         .unwrap_or(BrowserUnmanagedEnforcementState::MonitorOnly);
+    let managed_browser_session_id =
+        string_field(fields, constants::field::MANAGED_BROWSER_SESSION_ID);
+    let profile_id = string_field(fields, constants::field::PROFILE_ID);
+    let process_id = u32_field(fields, constants::field::PROCESS_ID);
+    let requested_url = string_field(fields, constants::field::REQUESTED_URL);
+    let observed_url = string_field(fields, constants::field::OBSERVED_URL);
+    let browser_boundary_state = browser_boundary_state_field(fields)
+        .unwrap_or_else(|| inferred_browser_boundary_state(&managed_browser_session_id));
+    let exact_url_claim_state = exact_url_claim_state_field(fields).unwrap_or_else(|| {
+        inferred_exact_url_claim_state(
+            &browser_boundary_state,
+            &managed_browser_session_id,
+            &requested_url,
+            &observed_url,
+        )
+    });
+    let unmanaged_detection_state = unmanaged_detection_state_field(fields)
+        .unwrap_or_else(|| inferred_unmanaged_detection_state(&browser_boundary_state));
     let intervention = BrowserInterventionRow {
         schema_version: BROWSER_INTERVENTION_SCHEMA_VERSION,
         browser_intervention_id: string_field(fields, constants::field::BROWSER_INTERVENTION_ID)?,
@@ -128,12 +148,9 @@ fn browser_intervention_read_row_from_store(
         device_id: row.device_id,
         browser_family: browser_family_field(fields),
         browser_channel: browser_channel_field(fields),
-        managed_browser_session_id: string_field(
-            fields,
-            constants::field::MANAGED_BROWSER_SESSION_ID,
-        ),
-        profile_id: string_field(fields, constants::field::PROFILE_ID),
-        process_id: u32_field(fields, constants::field::PROCESS_ID),
+        managed_browser_session_id,
+        profile_id,
+        process_id,
         policy_decision_id: string_field(fields, constants::field::POLICY_DECISION_ID),
         decision_source: decision_source_field(fields)?,
         intervention_action: intervention_action_field(fields)?,
@@ -142,10 +159,13 @@ fn browser_intervention_read_row_from_store(
             fields,
             constants::field::INTERVENTION_TARGET_VALUE,
         )?,
-        requested_url: string_field(fields, constants::field::REQUESTED_URL),
-        observed_url: string_field(fields, constants::field::OBSERVED_URL),
+        requested_url,
+        observed_url,
         intervention_mechanism: intervention_mechanism_field(fields)?,
         intervention_outcome: intervention_outcome_field(fields)?,
+        browser_boundary_state,
+        exact_url_claim_state,
+        unmanaged_detection_state,
         reason: string_field(fields, constants::field::REASON),
         custody_label: custody_label_field(fields).unwrap_or(BrowserCustodyLabel::ChildDeviceLocal),
         query_visibility: query_visibility_field(fields)
@@ -159,4 +179,44 @@ fn browser_intervention_read_row_from_store(
         unmanaged_browser_enforcement,
         intervention,
     })
+}
+
+fn inferred_browser_boundary_state(
+    managed_browser_session_id: &Option<String>,
+) -> BrowserBoundaryState {
+    if managed_browser_session_id.is_some() {
+        BrowserBoundaryState::ManagedSession
+    } else {
+        BrowserBoundaryState::Unknown
+    }
+}
+
+fn inferred_exact_url_claim_state(
+    browser_boundary_state: &BrowserBoundaryState,
+    managed_browser_session_id: &Option<String>,
+    requested_url: &Option<String>,
+    observed_url: &Option<String>,
+) -> BrowserExactUrlClaimState {
+    if matches!(browser_boundary_state, BrowserBoundaryState::ManagedSession)
+        && managed_browser_session_id.is_some()
+        && requested_url.is_some()
+        && observed_url.is_some()
+    {
+        BrowserExactUrlClaimState::ExactUrlProven
+    } else {
+        BrowserExactUrlClaimState::NotClaimed
+    }
+}
+
+fn inferred_unmanaged_detection_state(
+    browser_boundary_state: &BrowserBoundaryState,
+) -> BrowserUnmanagedDetectionState {
+    match browser_boundary_state {
+        BrowserBoundaryState::ManagedSession => BrowserUnmanagedDetectionState::None,
+        BrowserBoundaryState::UnmanagedBrowserProcess
+        | BrowserBoundaryState::BrowserLikeProcess => BrowserUnmanagedDetectionState::Detected,
+        BrowserBoundaryState::Unsupported | BrowserBoundaryState::Unknown => {
+            BrowserUnmanagedDetectionState::Unavailable
+        }
+    }
 }
