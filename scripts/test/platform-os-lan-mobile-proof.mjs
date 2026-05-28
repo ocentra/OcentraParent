@@ -35,13 +35,16 @@ async function main() {
   const v09Production = await readJson(
     join(repoRoot, 'test-results', 'v0-9-production-lan-multidevice-hardening', 'proof.json')
   );
+  const v09HouseholdReadiness = await readJson(
+    join(repoRoot, 'test-results', 'v0-9-household-lan-proof-readiness', 'proof.json')
+  );
   const managedBrowserIntervention = await managedBrowserInterventionProof();
   const matrix = await readJson(join(repoRoot, 'docs', 'expectations', 'pre-ai-proof-matrix.json'));
   const capabilities = await platformCapabilities();
 
   assertProductionProof(productionProof);
   assertProcessTerminateProof(v08Production.data);
-  assertHouseholdLanProof(v09Production);
+  assertHouseholdLanProof(v09Production, v09HouseholdReadiness);
   assertManagedBrowserIntervention(managedBrowserIntervention);
   assertMobileCapabilities(capabilities);
   assertProofMatrix(matrix);
@@ -62,6 +65,10 @@ async function main() {
         repoRoot,
         join(repoRoot, 'test-results', 'v0-9-production-lan-multidevice-hardening', 'proof.json')
       ),
+      v09HouseholdLanReadiness: relative(
+        repoRoot,
+        join(repoRoot, 'test-results', 'v0-9-household-lan-proof-readiness', 'proof.json')
+      ),
       managedBrowserIntervention: managedBrowserIntervention.evidencePath,
     },
     osEnforcementProof: {
@@ -79,7 +86,8 @@ async function main() {
     productionLanProof: {
       localMultiServiceClaims: v09Production.claimsProvedLocally,
       householdNonClaims: v09Production.claimsNotProvedLocally,
-      manualTwoDeviceChecklist: v09Production.manualTwoDeviceChecklist,
+      readinessGate: v09HouseholdReadiness.readinessGate,
+      observedLocalServiceStates: v09HouseholdReadiness.observedLocalServiceStates,
       cloudRelayDecision: productionProof.productionTruth.cloudRelayDecision,
     },
     mobilePlatformProof: {
@@ -188,7 +196,7 @@ function assertProcessTerminateProof(evidence) {
   proofLabels.push('v0.8.process-terminate-owned-process-proof');
 }
 
-function assertHouseholdLanProof(evidence) {
+function assertHouseholdLanProof(evidence, readiness) {
   assertArrayIncludes(
     evidence.claimsProvedLocally,
     'trusted registry persists selected route and recovers it after restart',
@@ -202,7 +210,16 @@ function assertHouseholdLanProof(evidence) {
   if (!Array.isArray(evidence.manualTwoDeviceChecklist) || evidence.manualTwoDeviceChecklist.length !== 1) {
     throw new Error('Expected one manual two-device household checklist.');
   }
+  assertEqual(readiness.proofMode, 'household-lan-readiness-gate', 'household LAN readiness proof mode');
+  assertEqual(
+    readiness.readinessGate.physicalHouseholdLan.state,
+    'manual-required',
+    'physical household LAN readiness state'
+  );
+  assertEqual(readiness.readinessGate.parentMobileControllerObserver.state, 'manual-required', 'mobile LAN gate');
+  assertEqual(readiness.readinessGate.cloudRelay.state, 'not-implemented', 'cloud relay readiness state');
   proofLabels.push('v0.9.household-two-device-manual-checklist');
+  proofLabels.push('v0.9.household-readiness-gate-manual-required');
 }
 
 function assertManagedBrowserIntervention(evidence) {

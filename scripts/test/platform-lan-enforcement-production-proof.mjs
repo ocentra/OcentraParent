@@ -24,11 +24,15 @@ async function main() {
   const v08Production = await latestJson(join(repoRoot, 'test-results', 'v0-8-production-enforcement-hardening'));
   assertV08Production(v08Production.data);
 
-  await runCommand('cmd', ['/c', 'node', 'scripts/test/v0-9-production-lan-multidevice-hardening.mjs']);
+  await runCommand('cmd', ['/c', 'node', 'scripts/test/v0-9-household-lan-proof-readiness.mjs']);
   const v09Production = await readJson(
     join(repoRoot, 'test-results', 'v0-9-production-lan-multidevice-hardening', 'proof.json')
   );
+  const v09HouseholdReadiness = await readJson(
+    join(repoRoot, 'test-results', 'v0-9-household-lan-proof-readiness', 'proof.json')
+  );
   assertV09Production(v09Production);
+  assertV09HouseholdReadiness(v09HouseholdReadiness);
 
   const matrix = await readJson(join(repoRoot, 'docs', 'expectations', 'pre-ai-proof-matrix.json'));
   assertProofMatrix(matrix);
@@ -46,12 +50,16 @@ async function main() {
         repoRoot,
         join(repoRoot, 'test-results', 'v0-9-production-lan-multidevice-hardening', 'proof.json')
       ),
+      v09HouseholdLanReadiness: relative(
+        repoRoot,
+        join(repoRoot, 'test-results', 'v0-9-household-lan-proof-readiness', 'proof.json')
+      ),
     },
     productionTruth: {
       v08RealAdapterState:
         'owned-process app time-limit proof is real when the host supports it; broader app/domain/browser blocking stays manual-required or unavailable',
       v09RealLanState:
-        'local multi-service proof covers route, lease, registry, rejection, and provider routing mechanics; physical household discovery stays manual-required',
+        'local multi-service proof covers route, lease, registry, rejection, and provider routing mechanics; household LAN readiness is a separate manual gate until physical device artifacts exist',
       parentMobileState:
         'parent mobile backend/controller-observer behavior is proof-first scaffold or degraded/unavailable until a real app/device proof exists',
       cloudRelayDecision:
@@ -64,7 +72,7 @@ async function main() {
         'record whether app block, domain block, and managed-browser control remain manual-required or unavailable on that host',
         'capture Rust service log snippets for execute, restart recover, parent cancel, expiry, and unavailable states',
       ],
-      householdLan: v09Production.manualTwoDeviceChecklist,
+      householdLan: v09HouseholdReadiness.readinessGate.physicalHouseholdLan,
       parentMobileAndChildPlatforms: [
         'record parent mobile observer/controller-takeover backend state from a real mobile package before claiming UX parity',
         'record Android UsageStats, accessibility, VPN/DNS, device-owner, managed-profile, foreground service, and package lifecycle artifacts before upgrading Android child coverage',
@@ -156,6 +164,28 @@ function assertV09Production(evidence) {
   }
   proofLabels.push('v0.9.production-lan-local-multiservice-proof');
   proofLabels.push('v0.9.physical-household-lan-manual-required');
+}
+
+function assertV09HouseholdReadiness(evidence) {
+  assertEqual(evidence.proofMode, 'household-lan-readiness-gate', 'V0.9 household readiness proof mode');
+  assertEqual(
+    evidence.productReadinessDecision,
+    'not-ready-for-product-ready-household-lan-claim',
+    'V0.9 household readiness decision'
+  );
+  assertEqual(evidence.readinessGate.physicalHouseholdLan.state, 'manual-required', 'V0.9 physical household LAN gate');
+  assertEqual(evidence.readinessGate.cloudRelay.state, 'not-implemented', 'V0.9 cloud relay gate');
+  assertArrayIncludes(
+    evidence.claimsProvedByThisGate,
+    'route/controller/selected-device/provider states are gathered from existing real-service proof artifacts',
+    'V0.9 gathered state claim'
+  );
+  assertArrayIncludes(
+    evidence.claimsNotProvedByThisGate,
+    'product-ready LAN behavior on a household router',
+    'V0.9 product-ready LAN non-claim'
+  );
+  proofLabels.push('v0.9.household-readiness-gate-proof');
 }
 
 function assertProofMatrix(matrix) {
