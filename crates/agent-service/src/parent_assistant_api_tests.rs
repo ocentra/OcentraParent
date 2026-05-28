@@ -1,7 +1,6 @@
 use std::{
     fs,
     path::PathBuf,
-    sync::Mutex,
     time::{SystemTime, UNIX_EPOCH},
 };
 
@@ -22,8 +21,6 @@ use crate::{
         thread_store::thread_response_for_command_in_dir,
     },
 };
-
-static API_AUTH_ENV_LOCK: Mutex<()> = Mutex::new(());
 
 #[test]
 fn parent_assistant_thread_create_returns_durable_service_state() {
@@ -130,11 +127,10 @@ fn parent_assistant_provider_status_reports_local_runtime_and_api_boundary() {
 
 #[test]
 fn parent_assistant_api_boundary_requires_authorization_without_remote_adapter_claim() {
-    let _guard = API_AUTH_ENV_LOCK
-        .lock()
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
-    let _env_guard = EnvVarGuard::authorized_api_provider();
-    let boundary = api_boundary::api_provider_boundary(&[evidence_context()]);
+    let boundary = api_boundary::api_provider_boundary_for_authorization(
+        &[evidence_context()],
+        ParentAssistantApiAuthorizationState::Authorized,
+    );
 
     assert_eq!(
         boundary.authorization_state,
@@ -151,6 +147,33 @@ fn parent_assistant_api_boundary_requires_authorization_without_remote_adapter_c
     assert_eq!(
         boundary.unavailable_reason.as_deref(),
         Some(constants::parent_assistant::API_PROVIDER_AUTHORIZED_UNAVAILABLE_REASON)
+    );
+    assert!(!boundary.child_safety_or_enforcement_use_allowed);
+    assert_eq!(boundary.citations.len(), 1);
+}
+
+#[test]
+fn parent_assistant_api_boundary_denies_api_without_authorization() {
+    let boundary = api_boundary::api_provider_boundary_for_authorization(
+        &[evidence_context()],
+        ParentAssistantApiAuthorizationState::NotAuthorized,
+    );
+
+    assert_eq!(
+        boundary.authorization_state,
+        ParentAssistantApiAuthorizationState::NotAuthorized
+    );
+    assert_eq!(
+        boundary.provider_id,
+        constants::parent_assistant::API_PROVIDER_ID_NOT_AUTHORIZED
+    );
+    assert_eq!(
+        boundary.provider_state,
+        ParentAssistantProviderState::Unavailable
+    );
+    assert_eq!(
+        boundary.unavailable_reason.as_deref(),
+        Some(constants::parent_assistant::API_PROVIDER_NOT_AUTHORIZED_REASON)
     );
     assert!(!boundary.child_safety_or_enforcement_use_allowed);
     assert_eq!(boundary.citations.len(), 1);
@@ -279,29 +302,6 @@ fn evidence_context() -> ParentAssistantEvidenceContext {
         },
         citation_label: constants::parent_assistant::DEFAULT_CITATION_LABEL.to_string(),
         allowed_summary: constants::parent_assistant::DEFAULT_ALLOWED_SUMMARY.to_string(),
-    }
-}
-
-struct EnvVarGuard {
-    key: &'static str,
-    previous: Option<String>,
-}
-
-impl EnvVarGuard {
-    fn authorized_api_provider() -> Self {
-        let key = constants::parent_assistant::API_PROVIDER_AUTHORIZED_ENV;
-        let previous = std::env::var(key).ok();
-        std::env::set_var(key, constants::value::TRUE);
-        Self { key, previous }
-    }
-}
-
-impl Drop for EnvVarGuard {
-    fn drop(&mut self) {
-        match &self.previous {
-            Some(value) => std::env::set_var(self.key, value),
-            None => std::env::remove_var(self.key),
-        }
     }
 }
 

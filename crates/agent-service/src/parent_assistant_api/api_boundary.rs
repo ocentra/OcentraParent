@@ -9,10 +9,22 @@ use ocentra_parent_agent_protocol::{
 pub(crate) fn api_provider_boundary(
     citations: &[ParentAssistantEvidenceContext],
 ) -> ParentAssistantApiProviderBoundary {
-    if api_authorized() {
-        return authorized_boundary(citations);
+    let authorization_state = if api_authorized() {
+        ParentAssistantApiAuthorizationState::Authorized
+    } else {
+        ParentAssistantApiAuthorizationState::NotAuthorized
+    };
+    api_provider_boundary_for_authorization(citations, authorization_state)
+}
+
+pub(crate) fn api_provider_boundary_for_authorization(
+    citations: &[ParentAssistantEvidenceContext],
+    authorization_state: ParentAssistantApiAuthorizationState,
+) -> ParentAssistantApiProviderBoundary {
+    match authorization_state {
+        ParentAssistantApiAuthorizationState::Authorized => authorized_boundary(citations),
+        ParentAssistantApiAuthorizationState::NotAuthorized => not_authorized_boundary(citations),
     }
-    not_authorized_boundary(citations)
 }
 
 fn authorized_boundary(
