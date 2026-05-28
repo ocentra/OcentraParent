@@ -958,6 +958,10 @@ files unless primary explicitly reassigns those paths after C lands.
       V0.9 local multi-service LAN hardening, parent mobile/backend scaffold
       states, Android/iOS manual-required capability states, and cloud relay as
       not implemented.
+- [x] OS/LAN/mobile proof command adds owned-process terminate service proof,
+      capability-specific Android/iOS child states, explicit parent mobile
+      backend scaffold/manual-required states, household two-device proof
+      checklist requirements, and the same cloud relay non-claim.
 - [x] Run focused Rust/service/package/LAN proof tests and `npm run validate`.
       `DONE/PR_READY` must include exact scope, touched files, validation, known
       gaps, and remaining manual proof requirements.

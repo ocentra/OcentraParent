@@ -82,6 +82,13 @@ records parent mobile, Android child, iOS child, signing/store, cloud relay,
 and physical household LAN proof as explicit manual-required, unavailable,
 scaffold, or not-implemented states rather than product claims.
 
+The OS/LAN/mobile proof pass extends that with an owned-process terminate
+service proof where the host OS supports it, a parent-domain capability matrix
+that splits Android and iOS child states by actual OS capability, and a
+single `platform-os-lan-mobile-proof` evidence command. Broad app/domain/browser
+blocking, physical household discovery, and mobile child-agent behavior remain
+manual-required until real host/device artifacts exist.
+
 The older PR #90 through PR #96 reconciliation remains historical context in
 [`current-main-proof-refresh-2026-05-25.md`](architecture/current-main-proof-refresh-2026-05-25.md).
 Current acceptance should be read from the updated pre-AI proof matrix and the
@@ -144,6 +151,10 @@ Current local slice:
   [`platform-lan-enforcement-production-proof-2026-05-28.md`](checkpoints/platform-lan-enforcement-production-proof-2026-05-28.md),
   including cloud relay as not implemented and parent mobile, Android child,
   and iOS child capability gaps as manual-required, unavailable, or scaffold.
+- The OS/LAN/mobile proof command records owned-process terminate proof,
+  production LAN non-claims, cloud relay non-implementation, and Android/iOS
+  capability-specific manual-required states in
+  `test-results/platform-os-lan-mobile-proof/proof.json` when run locally.
 
 Next product checkpoint:
 
@@ -1236,8 +1247,8 @@ Next coordinator slices:
 7. Continue activity/parent-assistant and platform/LAN work as separate
    proof-backed branches so Activity, command/provider naming, and portal UI
    ownership do not collide across workers.
-8. Next V0.8 work should turn broad app/domain/browser enforcement from
-   manual-required states into real OS adapter proof only where the target OS
-   supports it. Next V0.9 work should prove production discovery, mobile
+8. Next V0.8 work should continue turning broad app/domain/browser enforcement
+   from manual-required states into real OS adapter proof only where the target
+   OS supports it. Next V0.9 work should prove production discovery, mobile
    controller/observer UX, optional cloud relay if chosen, and real household
    multi-device behavior.
