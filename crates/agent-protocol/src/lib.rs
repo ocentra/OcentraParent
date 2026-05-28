@@ -12,6 +12,7 @@ mod browser_intervention;
 mod browser_intervention_parse;
 mod browser_intervention_values;
 mod browser_managed;
+mod browser_policy;
 mod browser_read_model;
 mod browser_unmanaged_enforcement;
 mod browser_values;
@@ -39,6 +40,7 @@ pub use browser::*;
 pub use browser_intervention::*;
 pub use browser_intervention_values::*;
 pub use browser_managed::*;
+pub use browser_policy::*;
 pub use browser_read_model::*;
 pub use browser_unmanaged_enforcement::*;
 pub use enforcement::*;
@@ -87,6 +89,8 @@ mod app_game_tests;
 mod browser_intervention_tests;
 #[cfg(test)]
 mod browser_managed_tests;
+#[cfg(test)]
+mod browser_policy_tests;
 #[cfg(test)]
 mod browser_read_model_tests;
 #[cfg(test)]

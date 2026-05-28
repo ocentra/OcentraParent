@@ -17,6 +17,7 @@ use crate::{
         build_activity_report_history, build_activity_report_save,
         build_activity_screen_read_model, build_activity_weekly_report,
     },
+    browser_policy_api::build_browser_policy_scaffold_event,
     browser_runtime::build_browser_managed_status_report,
     enforcement_api::build_enforcement_audit_report,
     enforcement_timer_api::build_enforcement_timer_report,
@@ -171,6 +172,13 @@ async fn build_command_event(
         | AgentCommandName::AgentParentAssistantActionPreview
         | AgentCommandName::AgentPolicyPreviewReadModelGet => {
             build_ai_command_report(command).await
+        }
+        AgentCommandName::AgentBrowserPolicyGet
+        | AgentCommandName::AgentBrowserPolicyPreview
+        | AgentCommandName::AgentBrowserPolicyPatch
+        | AgentCommandName::AgentBrowserPolicyReplace
+        | AgentCommandName::AgentBrowserPolicyRollback => {
+            build_browser_policy_scaffold_event(command)
         }
         AgentCommandName::AgentParentAssistantThreadList
         | AgentCommandName::AgentParentAssistantThreadCreate

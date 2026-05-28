@@ -27,6 +27,10 @@ mod activity_surface_store;
 mod app;
 mod browser_evidence_payload;
 mod browser_payload;
+mod browser_policy_api;
+#[cfg(test)]
+mod browser_policy_api_tests;
+mod browser_policy_payload;
 mod browser_runtime;
 mod browser_runtime_paths;
 mod browser_runtime_status;

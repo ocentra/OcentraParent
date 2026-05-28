@@ -122,6 +122,16 @@ pub enum AgentCommandName {
     AgentParentAssistantAnswerGenerate,
     #[serde(rename = "agent.policy.preview.read-model.get")]
     AgentPolicyPreviewReadModelGet,
+    #[serde(rename = "agent.browser-policy.get")]
+    AgentBrowserPolicyGet,
+    #[serde(rename = "agent.browser-policy.preview")]
+    AgentBrowserPolicyPreview,
+    #[serde(rename = "agent.browser-policy.patch")]
+    AgentBrowserPolicyPatch,
+    #[serde(rename = "agent.browser-policy.replace")]
+    AgentBrowserPolicyReplace,
+    #[serde(rename = "agent.browser-policy.rollback")]
+    AgentBrowserPolicyRollback,
     #[serde(rename = "agent.enforcement.execute")]
     AgentEnforcementExecute,
     #[serde(rename = "agent.enforcement.timer.recover")]
@@ -222,6 +232,22 @@ pub enum AgentEventName {
     AgentParentAssistantAnswerReported,
     #[serde(rename = "agent.policy.preview.read-model.reported")]
     AgentPolicyPreviewReadModelReported,
+    #[serde(rename = "agent.browser-policy.reported")]
+    AgentBrowserPolicyReported,
+    #[serde(rename = "agent.browser-policy.previewed")]
+    AgentBrowserPolicyPreviewed,
+    #[serde(rename = "agent.browser-policy.patch.accepted")]
+    AgentBrowserPolicyPatchAccepted,
+    #[serde(rename = "agent.browser-policy.patch.rejected")]
+    AgentBrowserPolicyPatchRejected,
+    #[serde(rename = "agent.browser-policy.replace.accepted")]
+    AgentBrowserPolicyReplaceAccepted,
+    #[serde(rename = "agent.browser-policy.replace.rejected")]
+    AgentBrowserPolicyReplaceRejected,
+    #[serde(rename = "agent.browser-policy.rollback.accepted")]
+    AgentBrowserPolicyRollbackAccepted,
+    #[serde(rename = "agent.browser-policy.rollback.rejected")]
+    AgentBrowserPolicyRollbackRejected,
     #[serde(rename = "agent.enforcement.audit.reported")]
     AgentEnforcementAuditReported,
     #[serde(rename = "agent.enforcement.timer.reported")]

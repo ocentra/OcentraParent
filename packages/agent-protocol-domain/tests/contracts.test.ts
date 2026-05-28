@@ -31,6 +31,11 @@ const EXPECTED_AGENT_COMMAND_ENTRIES = [
   ['LocalAiChatGenerate', 'agent.local-ai.chat.generate'],
   ['ParentAssistantAnswerGenerate', 'agent.parent-assistant.answer.generate'],
   ['PolicyPreviewReadModelGet', 'agent.policy.preview.read-model.get'],
+  ['BrowserPolicyGet', 'agent.browser-policy.get'],
+  ['BrowserPolicyPreview', 'agent.browser-policy.preview'],
+  ['BrowserPolicyPatch', 'agent.browser-policy.patch'],
+  ['BrowserPolicyReplace', 'agent.browser-policy.replace'],
+  ['BrowserPolicyRollback', 'agent.browser-policy.rollback'],
   ['EnforcementExecute', 'agent.enforcement.execute'],
   ['EnforcementTimerRecover', 'agent.enforcement.timer.recover'],
   ['EnforcementTimerExpire', 'agent.enforcement.timer.expire'],
@@ -80,6 +85,14 @@ const EXPECTED_AGENT_EVENT_ENTRIES = [
   ['LocalAiChatGenerationReported', 'agent.local-ai.chat.generation.reported'],
   ['ParentAssistantAnswerReported', 'agent.parent-assistant.answer.reported'],
   ['PolicyPreviewReadModelReported', 'agent.policy.preview.read-model.reported'],
+  ['BrowserPolicyReported', 'agent.browser-policy.reported'],
+  ['BrowserPolicyPreviewed', 'agent.browser-policy.previewed'],
+  ['BrowserPolicyPatchAccepted', 'agent.browser-policy.patch.accepted'],
+  ['BrowserPolicyPatchRejected', 'agent.browser-policy.patch.rejected'],
+  ['BrowserPolicyReplaceAccepted', 'agent.browser-policy.replace.accepted'],
+  ['BrowserPolicyReplaceRejected', 'agent.browser-policy.replace.rejected'],
+  ['BrowserPolicyRollbackAccepted', 'agent.browser-policy.rollback.accepted'],
+  ['BrowserPolicyRollbackRejected', 'agent.browser-policy.rollback.rejected'],
   ['EnforcementAuditReported', 'agent.enforcement.audit.reported'],
   ['EnforcementTimerReported', 'agent.enforcement.timer.reported'],
   ['ParentAssistantThreadUpdated', 'agent.parent-assistant.thread.updated'],
@@ -295,6 +308,15 @@ it('AgentProtocolDefaults.Field: exposes read-model payload fields', () => {
   expect(AgentProtocolDefaults.Field.EvidenceReferenceIds).toBe('evidenceReferenceIds');
   expect(AgentProtocolDefaults.Field.MostRecentSubjectName).toBe('mostRecentSubjectName');
   expect(AgentProtocolDefaults.Field.UnmanagedBrowserEnforcement).toBe('unmanagedBrowserEnforcement');
+});
+
+it('AgentProtocolDefaults.Field: exposes browser policy payload fields', () => {
+  expect(AgentProtocolDefaults.Field.BrowserPolicyRequest).toBe('browserPolicyRequest');
+  expect(AgentProtocolDefaults.Field.BrowserPolicyResponse).toBe('browserPolicyResponse');
+  expect(AgentProtocolDefaults.Field.BrowserPolicyUpdateKind).toBe('browserPolicyUpdateKind');
+  expect(AgentProtocolDefaults.Field.BrowserPolicyRejectionReason).toBe('browserPolicyRejectionReason');
+  expect(AgentProtocolDefaults.Field.BrowserPolicyEffectivePolicy).toBe('browserPolicyEffectivePolicy');
+  expect(AgentProtocolDefaults.Field.BrowserPolicyCapabilityRegistry).toBe('browserPolicyCapabilityRegistry');
 });
 
 it('AgentEvent: exposes typed constants for portal result rendering', () => {

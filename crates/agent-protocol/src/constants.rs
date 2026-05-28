@@ -87,6 +87,14 @@ pub mod event_id {
     pub const LOCAL_AI_CHAT_GENERATION_REPORTED: &str = "local-ai-chat-generation-reported";
     pub const PARENT_ASSISTANT_ANSWER_REPORTED: &str = "parent-assistant-answer-reported";
     pub const POLICY_PREVIEW_READ_MODEL_REPORTED: &str = "policy-preview-read-model-reported";
+    pub const BROWSER_POLICY_REPORTED: &str = "browser-policy-reported";
+    pub const BROWSER_POLICY_PREVIEWED: &str = "browser-policy-previewed";
+    pub const BROWSER_POLICY_PATCH_ACCEPTED: &str = "browser-policy-patch-accepted";
+    pub const BROWSER_POLICY_PATCH_REJECTED: &str = "browser-policy-patch-rejected";
+    pub const BROWSER_POLICY_REPLACE_ACCEPTED: &str = "browser-policy-replace-accepted";
+    pub const BROWSER_POLICY_REPLACE_REJECTED: &str = "browser-policy-replace-rejected";
+    pub const BROWSER_POLICY_ROLLBACK_ACCEPTED: &str = "browser-policy-rollback-accepted";
+    pub const BROWSER_POLICY_ROLLBACK_REJECTED: &str = "browser-policy-rollback-rejected";
     pub const ENFORCEMENT_AUDIT_REPORTED: &str = "enforcement-audit-reported";
     pub const ENFORCEMENT_TIMER_REPORTED: &str = "enforcement-timer-reported";
     pub const PARENT_ASSISTANT_THREAD_UPDATED: &str = "parent-assistant-thread-updated";
@@ -147,6 +155,41 @@ pub mod activity_subject_kind;
 pub mod activity_surface;
 #[path = "constants/browser.rs"]
 pub mod browser;
+
+pub mod browser_policy {
+    pub const COMMAND_GET: &str = "agent.browser-policy.get";
+    pub const COMMAND_PREVIEW: &str = "agent.browser-policy.preview";
+    pub const COMMAND_PATCH: &str = "agent.browser-policy.patch";
+    pub const COMMAND_REPLACE: &str = "agent.browser-policy.replace";
+    pub const COMMAND_ROLLBACK: &str = "agent.browser-policy.rollback";
+    pub const EVENT_REPORTED: &str = "agent.browser-policy.reported";
+    pub const EVENT_PREVIEWED: &str = "agent.browser-policy.previewed";
+    pub const EVENT_PATCH_ACCEPTED: &str = "agent.browser-policy.patch.accepted";
+    pub const EVENT_PATCH_REJECTED: &str = "agent.browser-policy.patch.rejected";
+    pub const EVENT_REPLACE_ACCEPTED: &str = "agent.browser-policy.replace.accepted";
+    pub const EVENT_REPLACE_REJECTED: &str = "agent.browser-policy.replace.rejected";
+    pub const EVENT_ROLLBACK_ACCEPTED: &str = "agent.browser-policy.rollback.accepted";
+    pub const EVENT_ROLLBACK_REJECTED: &str = "agent.browser-policy.rollback.rejected";
+    pub const REQUEST_ID: &str = "browser-control-request-1";
+    pub const COMMAND_MESSAGE_ID: &str = "cmd-browser-policy";
+    pub const TEST_SENT_AT: &str = "2026-05-28T17:35:00Z";
+    pub const POLICY_ID: &str = "browser-policy-child-1";
+    pub const REVISION_ID: &str = "browser-policy-revision-1";
+    pub const AUDIT_EVENT_ID: &str = "browser-policy-audit-1";
+    pub const FIELD_ID_ENABLED: &str = "browser.enabled";
+    pub const WRITES_TO_ENABLED: &str = "/browserPolicy/enabled";
+    pub const UPDATE_KIND_GET: &str = "get";
+    pub const UPDATE_KIND_PREVIEW: &str = "preview";
+    pub const UPDATE_KIND_PATCH: &str = "patch";
+    pub const UPDATE_KIND_REPLACE: &str = "replace";
+    pub const UPDATE_KIND_ROLLBACK: &str = "rollback";
+    pub const UPDATE_STATUS_ACCEPTED: &str = "accepted";
+    pub const UPDATE_STATUS_REJECTED: &str = "rejected";
+    pub const PATCH_OPERATION_REPLACE: &str = "replace";
+    pub const REJECTION_SCAFFOLD_UNAVAILABLE: &str = "scaffold-unavailable";
+    pub const SCAFFOLD_UNAVAILABLE_MESSAGE: &str =
+        "Browser policy persistence and compiler are not implemented in this scaffold slice.";
+}
 #[path = "constants/enforcement.rs"]
 pub mod enforcement;
 #[path = "constants/lan_pairing.rs"]

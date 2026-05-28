@@ -5,6 +5,26 @@
   "type": "module",
   "description": "Parent product contract boundary placeholder.",
   "exports": {
+    "./browser-control-baseline-manifest": {
+      "import": "./dist/browser-control-baseline-manifest.js",
+      "types": "./dist/browser-control-baseline-manifest.d.ts"
+    },
+    "./browser-control-identifiers": {
+      "import": "./dist/browser-control-identifiers.js",
+      "types": "./dist/browser-control-identifiers.d.ts"
+    },
+    "./browser-control-manifest": {
+      "import": "./dist/browser-control-manifest.js",
+      "types": "./dist/browser-control-manifest.d.ts"
+    },
+    "./browser-control-policy": {
+      "import": "./dist/browser-control-policy.js",
+      "types": "./dist/browser-control-policy.d.ts"
+    },
+    "./browser-control-values": {
+      "import": "./dist/browser-control-values.js",
+      "types": "./dist/browser-control-values.d.ts"
+    },
     "./capabilities": {
       "import": "./dist/capabilities.js",
       "types": "./dist/capabilities.d.ts"
