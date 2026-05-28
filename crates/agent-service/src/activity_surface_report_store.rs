@@ -17,6 +17,18 @@ pub(crate) fn save_report_document(report: ActivityReportDocument) -> ActivityRe
     save_report_document_to_dir(report, activity_report_storage_dir())
 }
 
+pub(crate) fn draft_metadata_for_report(
+    report: &ActivityReportDocument,
+) -> ActivitySavedReportMetadata {
+    saved_metadata(
+        &report.report_id,
+        &report_file_name(&report.report_id),
+        ActivitySavedReportState::Draft,
+        None,
+        Some(constants::activity_surface::SUMMARY_STORAGE_DRAFT.to_string()),
+    )
+}
+
 pub(crate) fn save_report_document_to_dir(
     mut report: ActivityReportDocument,
     directory: PathBuf,

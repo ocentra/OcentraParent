@@ -5,14 +5,17 @@ use std::{
 };
 
 use ocentra_parent_agent_protocol::{
-    constants, policy_constants as policy, AgentCommandEnvelope, AgentCommandName,
-    AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, FamilyReference,
+    constants, policy_constants as policy, ActivityReadModelState, ActivityReportDocument,
+    ActivityReportFrequency, ActivityReportSection, ActivityReportSectionKind,
+    ActivityReportSourceReachabilityState, ActivityReportSourceState, ActivitySavedReportMetadata,
+    ActivitySavedReportState, ActivitySurfaceScope, ActivitySurfaceScopeKind, AgentCommandEnvelope,
+    AgentCommandName, AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, FamilyReference,
     LocalAiDegradedState, LocalAiProviderSchedulerJobClass, LocalAiProviderSchedulerJobStatus,
     ParentActorReference, ParentActorRole, ParentAssistantActionPreviewKind,
     ParentAssistantAnswerState, ParentAssistantApiAuthorizationState,
     ParentAssistantEvidenceContext, ParentAssistantGenerateRequest, ParentAssistantProviderState,
     ParentAssistantScope, ParentEvidenceReference, ParentEvidenceReferenceKind,
-    AGENT_PROTOCOL_SCHEMA_VERSION,
+    ACTIVITY_SURFACE_SCHEMA_VERSION, AGENT_PROTOCOL_SCHEMA_VERSION,
 };
 
 use crate::{
@@ -175,6 +178,35 @@ fn parent_assistant_request_cites_activity_snapshot_when_prompt_has_no_summary()
     );
 }
 
+#[test]
+fn parent_assistant_request_cites_activity_report_document_when_supplied() {
+    let request = request_from_command(
+        &report_context_command(),
+        &LocalAiRuntimeConfigSnapshot::unconfigured(),
+        None,
+    );
+
+    let report_context = request
+        .evidence_context
+        .iter()
+        .find(|context| {
+            context.citation_label == constants::parent_assistant::ACTIVITY_REPORT_CITATION_LABEL
+        })
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+
+    assert_eq!(
+        report_context.evidence.evidence_reference_id,
+        constants::activity_surface::REPORT_ID_DAILY
+    );
+    assert_eq!(
+        report_context.evidence.kind,
+        ParentEvidenceReferenceKind::QueryStoreSummary
+    );
+    assert!(report_context
+        .allowed_summary
+        .contains(constants::activity_surface::SAVED_STATE_SAVED));
+}
+
 fn expected_activity_context_summary() -> String {
     let mut summary = constants::parent_assistant::ACTIVITY_CONTEXT_PREFIX.to_string();
     summary.push_str(constants::parent_assistant::ACTIVITY_CONTEXT_RECENT_LABEL);
@@ -234,6 +266,55 @@ fn policy_question_command() -> AgentCommandEnvelope {
             constants::parent_assistant::TEST_POLICY_QUESTION.to_string(),
         ),
     )]))
+}
+
+fn report_context_command() -> AgentCommandEnvelope {
+    command_with_payload(fields_from_pairs(vec![(
+        constants::field::ACTIVITY_REPORT_DOCUMENT,
+        ocentra_parent_agent_protocol::LogFieldValue::String(
+            serde_json::to_string(&saved_report_document())
+                .expect(constants::error::AGENT_EVENT_SERIALIZES),
+        ),
+    )]))
+}
+
+fn saved_report_document() -> ActivityReportDocument {
+    ActivityReportDocument {
+        schema_version: ACTIVITY_SURFACE_SCHEMA_VERSION,
+        report_id: constants::activity_surface::REPORT_ID_DAILY.to_string(),
+        frequency: ActivityReportFrequency::Daily,
+        scope: ActivitySurfaceScope {
+            scope_kind: ActivitySurfaceScopeKind::Family,
+            family_id: Some(constants::activity_surface::DEFAULT_FAMILY_ID.to_string()),
+            device_id: None,
+        },
+        requested_at: constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string(),
+        range_start: constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
+        range_end: constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string(),
+        generated_at: constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string(),
+        saved_metadata: Some(ActivitySavedReportMetadata {
+            report_id: constants::activity_surface::REPORT_ID_DAILY.to_string(),
+            file_name: constants::activity_surface::REPORT_FILE_DAILY.to_string(),
+            saved_state: ActivitySavedReportState::Saved,
+            saved_at: Some(constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string()),
+            storage_reason: Some(constants::activity_surface::SUMMARY_STORAGE_SAVED.to_string()),
+        }),
+        source_states: vec![ActivityReportSourceState {
+            device_id: constants::activity_surface::DEFAULT_DEVICE_ID.to_string(),
+            reachability_state: ActivityReportSourceReachabilityState::Reachable,
+            state: ActivityReadModelState::Ready,
+            reason: Some(constants::activity_surface::SUMMARY_FAMILY_LOCAL_SOURCE.to_string()),
+            last_updated_at: Some(constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string()),
+        }],
+        sections: vec![ActivityReportSection {
+            section_kind: ActivityReportSectionKind::Summary,
+            title: constants::activity_surface::SECTION_SUMMARY.to_string(),
+            state: ActivityReadModelState::Ready,
+            summary: constants::activity_surface::SUMMARY_READY.to_string(),
+            item_count: 1,
+            evidence: Vec::new(),
+        }],
+    }
 }
 
 fn command_with_payload(payload: ocentra_parent_agent_protocol::LogFields) -> AgentCommandEnvelope {

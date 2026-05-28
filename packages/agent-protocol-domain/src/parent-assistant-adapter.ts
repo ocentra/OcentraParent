@@ -1,5 +1,6 @@
 import { ParentAssistantAnswerSchema } from '@ocentra-parent/parent-domain/parent-assistant';
 import type { ParentAssistantAnswer } from '@ocentra-parent/parent-domain/parent-assistant';
+import type { ActivityReportDocument } from '@ocentra-parent/activity-domain/activity-surface';
 import {
   AgentCommand,
   AgentCommandEnvelopeSchema,
@@ -46,6 +47,7 @@ export type CreateParentAssistantCommandInput = {
   readonly requestId: string;
   readonly question: string;
   readonly evidenceSummary?: string;
+  readonly activityReport?: ActivityReportDocument;
   readonly modelId?: string;
   readonly maxOutputTokens?: number;
   readonly timeoutMs?: number;
@@ -101,6 +103,9 @@ function commandPayload(input: CreateParentAssistantCommandInput): AgentCommandE
   };
   if (input.evidenceSummary !== undefined) {
     payload[AgentProtocolDefaults.Field.ParentAssistantEvidenceSummary] = input.evidenceSummary;
+  }
+  if (input.activityReport !== undefined) {
+    payload[AgentProtocolDefaults.Field.ActivityReportDocument] = JSON.stringify(input.activityReport);
   }
   if (input.modelId !== undefined) {
     payload[AgentProtocolDefaults.Field.LocalAiModelId] = input.modelId;

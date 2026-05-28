@@ -7,6 +7,7 @@ pub const DEFAULT_PARENT_ACTOR_ID: &str = "parent-actor-local";
 pub const DEFAULT_QUESTION: &str = "Summarize the recent child activity evidence.";
 pub const DEFAULT_CITATION_LABEL: &str = "Recent activity";
 pub const ACTIVITY_EVENT_CITATION_LABEL: &str = "Latest activity event";
+pub const ACTIVITY_REPORT_CITATION_LABEL: &str = "Activity report";
 pub const DEFAULT_ALLOWED_SUMMARY: &str =
     "Recent local activity summary is allowed parent evidence.";
 pub const ACTIVITY_CONTEXT_READY: &str =
@@ -22,6 +23,11 @@ pub const ACTIVITY_CONTEXT_BROWSER_LABEL: &str = ", browser=";
 pub const ACTIVITY_CONTEXT_GAMES_LABEL: &str = ", games=";
 pub const ACTIVITY_CONTEXT_NETWORK_LABEL: &str = ", network=";
 pub const ACTIVITY_EVENT_SUMMARY_PREFIX: &str = "Latest cited activity event: ";
+pub const ACTIVITY_REPORT_SUMMARY_PREFIX: &str = "Activity report context: ";
+pub const ACTIVITY_REPORT_SUMMARY_ID_LABEL: &str = "report=";
+pub const ACTIVITY_REPORT_SUMMARY_STATE_LABEL: &str = ", savedState=";
+pub const ACTIVITY_REPORT_SUMMARY_SECTIONS_LABEL: &str = ", sections=";
+pub const ACTIVITY_REPORT_SUMMARY_SOURCE_LABEL: &str = ", sources=";
 pub const PROMPT_SYSTEM: &str =
     "Answer as a parent-facing assistant. Cite the provided evidence. Do not enforce directly.";
 pub const PROMPT_QUESTION_LABEL: &str = "Question:";
