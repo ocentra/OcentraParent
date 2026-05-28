@@ -73,6 +73,20 @@ const IosObserverReadModel = {
   },
 } as const;
 
+const SubmittedLanProviderReadModel = {
+  ...AndroidObserverReadModel,
+  serviceAvailability: {
+    ...AndroidObserverReadModel.serviceAvailability,
+    lanService: 'available',
+  },
+  assistantJobProof: {
+    ...AndroidObserverReadModel.assistantJobProof,
+    jobState: 'submitted',
+    providerId: 'lan-ai-provider-family-pc',
+    unavailableReason: null,
+  },
+} as const;
+
 describe('parent mobile runtime read model contracts', () => {
   it('ParentMobileRuntimeReadModelSchema: accepts Android observer scaffold with LAN assistant degraded state', () => {
     const parsed = ParentMobileRuntimeReadModelSchema.parse(AndroidObserverReadModel);
@@ -83,6 +97,14 @@ describe('parent mobile runtime read model contracts', () => {
     expect(parsed.childAgentBehaviorClaim).toBe('not-claimed');
   });
 
+  it('ParentMobileRuntimeReadModelSchema: accepts submitted LAN provider job with provider identity', () => {
+    const parsed = ParentMobileRuntimeReadModelSchema.parse(SubmittedLanProviderReadModel);
+
+    expect(parsed.assistantJobProof.jobState).toBe('submitted');
+    expect(parsed.assistantJobProof.providerId).toBe('lan-ai-provider-family-pc');
+    expect(parsed.assistantJobProof.unavailableReason).toBeNull();
+  });
+
   it('ParentMobileRuntimeReadModelSchema: accepts iOS manual-required package state without cloud relay claim', () => {
     const parsed = ParentMobileRuntimeReadModelSchema.parse(IosObserverReadModel);
 
@@ -90,7 +112,9 @@ describe('parent mobile runtime read model contracts', () => {
     expect(parsed.serviceAvailability.cloudRelay).toBe('not-implemented');
     expect(parsed.assistantJobProof.jobState).toBe('unavailable');
   });
+});
 
+describe('parent mobile runtime read model guardrails', () => {
   it('ParentMobileRuntimeReadModelSchema: rejects parent mobile local model execution claims', () => {
     expect(
       ParentMobileRuntimeReadModelSchema.safeParse({
@@ -105,6 +129,34 @@ describe('parent mobile runtime read model contracts', () => {
       ParentMobileRuntimeReadModelSchema.safeParse({
         ...AndroidObserverReadModel,
         childAgentBehaviorClaim: 'foreground-child-agent',
+      }).success
+    ).toBe(false);
+  });
+
+  it('ParentMobileRuntimeReadModelSchema: rejects degraded LAN provider job without unavailable reason', () => {
+    expect(
+      ParentMobileRuntimeReadModelSchema.safeParse({
+        ...AndroidObserverReadModel,
+        assistantJobProof: {
+          ...AndroidObserverReadModel.assistantJobProof,
+          jobState: 'degraded',
+          providerId: null,
+          unavailableReason: null,
+        },
+      }).success
+    ).toBe(false);
+  });
+
+  it('ParentMobileRuntimeReadModelSchema: rejects unavailable LAN provider job with provider identity', () => {
+    expect(
+      ParentMobileRuntimeReadModelSchema.safeParse({
+        ...AndroidObserverReadModel,
+        assistantJobProof: {
+          ...AndroidObserverReadModel.assistantJobProof,
+          jobState: 'unavailable',
+          providerId: 'lan-ai-provider-family-pc',
+          unavailableReason: 'lan-ai-provider-unavailable',
+        },
       }).success
     ).toBe(false);
   });

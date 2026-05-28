@@ -123,13 +123,24 @@ function parentMobileRuntimeReadModelIsConsistent(readModel: ParentMobileRuntime
   }
 
   if (readModel.assistantJobProof.route === 'lan-ai-provider') {
-    return (
-      readModel.assistantJobProof.requiredCapabilities.length > 0 &&
-      readModel.assistantJobProof.unavailableReason !== null
-    );
+    return parentMobileLanAiProviderJobIsConsistent(readModel.assistantJobProof);
   }
 
   return readModel.assistantJobProof.providerId === null && readModel.assistantJobProof.unavailableReason !== null;
+}
+
+function parentMobileLanAiProviderJobIsConsistent(
+  assistantJobProof: ParentMobileRuntimeReadModelCandidate['assistantJobProof']
+): boolean {
+  if (assistantJobProof.requiredCapabilities.length === 0) {
+    return false;
+  }
+
+  if (assistantJobProof.jobState === 'submitted') {
+    return assistantJobProof.providerId !== null && assistantJobProof.unavailableReason === null;
+  }
+
+  return assistantJobProof.providerId === null && assistantJobProof.unavailableReason !== null;
 }
 
 export type ParentMobilePlatform = Infer<typeof ParentMobilePlatformSchema>;
