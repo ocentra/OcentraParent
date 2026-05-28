@@ -70,7 +70,6 @@ import {
 import { ParentPortalPanelFrame } from './ParentPortalPanelFrame';
 import {
   AccountProfileIcon,
-  Action,
   AiGuideIdeaIcon,
   ActivityNetworkIcon,
   AiMemoryCircuitIcon,
@@ -106,7 +105,7 @@ import {
 } from '../../Common/NavSvgIcons';
 import { ScopeToggle } from './ScopeToggle/ScopeToggle';
 import { ScopeMultiChoice, type ScopeMultiChoiceOption } from './ScopeMultiChoice';
-import { RulesBubbleSvgFrame } from './ParentPortalRulesBubble';
+import { BrowserRulesQuestionnaire, type BrowserRulesQuestion } from './BrowserRulesQuestionnaire';
 import './ParentPortalSvgSurface.css';
 
 type IconProps = {
@@ -3936,70 +3935,6 @@ function activityScopeToggleConfig(width: number, height = 66) {
   };
 }
 
-function browserRuleMultiChoiceConfig(width: number, compact = false) {
-  const safeWidth = Math.max(compact ? 260 : 320, width);
-  return {
-    svg: {
-      width: safeWidth,
-      minHeight: compact ? 116 : 126,
-      viewportInset: 8,
-    },
-    layout: {
-      titleBoxX: 4,
-      titleBoxY: 8,
-      titleBoxMinWidth: compact ? 86 : 104,
-      titleBoxPaddingX: compact ? 12 : 14,
-      titleBoxHeight: compact ? 28 : 30,
-      trackX: 4,
-      trackY: compact ? 36 : 38,
-      trackWidth: Math.max(compact ? 230 : 288, safeWidth - 20),
-      optionMinWidth: compact ? 104 : 118,
-      optionMaxWidth: compact ? 200 : 240,
-      optionHeight: compact ? 34 : 38,
-      optionGapX: compact ? 6 : 8,
-      optionGapY: compact ? 6 : 8,
-      optionPaddingX: compact ? 10 : 12,
-      outerPaddingRight: 4,
-      outerPaddingBottom: 6,
-    },
-    text: {
-      titleFontSize: compact ? 11.4 : 12.4,
-      optionFontSize: compact ? 10.6 : 11.6,
-    },
-  };
-}
-
-function browserRuleSingleChoiceConfig(width: number, compact = false) {
-  if (!compact) {
-    return activityScopeToggleConfig(width);
-  }
-
-  const safeWidth = Math.max(220, width);
-  return {
-    svg: {
-      width: safeWidth,
-      height: 62,
-      viewportInset: 4,
-    },
-    layout: {
-      titleAnchorX: 0,
-      titleBoxY: 17,
-      titleBoxMinWidth: 48,
-      titleBoxPaddingX: 6,
-      titleBoxHeight: 28,
-      trackY: 16,
-      trackMinWidth: Math.max(120, safeWidth - 56),
-      trackHeight: 31,
-      optionPaddingX: 3,
-      outerPaddingRight: 0,
-    },
-    text: {
-      titleFontSize: 10.4,
-      optionFontSize: 9.4,
-    },
-  };
-}
-
 const LAN_PAIRING_BASIC_PORTAL_SLOT_LIMIT = 4;
 const ACTIVITY_REPORT_BASIC_CHILD_DEVICE_SEATS = Math.max(1, LAN_PAIRING_BASIC_PORTAL_SLOT_LIMIT - 1);
 const ACTIVITY_REPORT_MAX_CHILD_DEVICE_SEATS = 10;
@@ -6579,75 +6514,15 @@ const BROWSER_RULE_MATCH_OPTIONS: readonly ScopeMultiChoiceOption[] = [
   { value: 'capability-state', label: 'Capability state' },
 ];
 
-const BROWSER_RULE_APPLIES_OPTIONS: readonly ScopeMultiChoiceOption[] = [
-  { value: 'edge', label: 'Edge' },
-  { value: 'chrome', label: 'Chrome' },
-  { value: 'chrome-testing', label: 'Chrome Test' },
-  { value: 'brave-opera', label: 'Brave/Opera' },
-  { value: 'firefox', label: 'Firefox' },
-  { value: 'webview-shell', label: 'WebView shell' },
-  { value: 'safari-webkit', label: 'Safari/WebKit' },
-  { value: 'privacy-browser', label: 'Tor/private' },
-  { value: 'unknown-portable', label: 'Unknown/portable' },
-];
-
-const BROWSER_RULE_BYPASS_OPTIONS: readonly ManageWorkspaceChoiceOption[] = [
-  { value: 'monitor', label: 'Monitor' },
+const BROWSER_RULE_SINGLE_DEMO_MANY_OPTIONS: readonly ScopeMultiChoiceOption[] = [
+  { value: 'allow', label: 'Allow' },
   { value: 'warn', label: 'Warn' },
   { value: 'ask', label: 'Ask' },
-  { value: 'relaunch', label: 'Relaunch' },
+  { value: 'limit', label: 'Limit' },
   { value: 'block', label: 'Block' },
-];
-
-const BROWSER_RULE_ENFORCEMENT_OPTIONS: readonly ManageWorkspaceChoiceOption[] = [
-  { value: 'observe', label: 'Observe' },
-  { value: 'enforce', label: 'Enforce' },
-];
-
-const BROWSER_RULE_LIMIT_MODE_OPTIONS: readonly ManageWorkspaceChoiceOption[] = [
-  { value: 'daily-quota', label: 'Daily quota' },
-  { value: 'session-limit', label: 'Session' },
-  { value: 'site-budget', label: 'Site budget' },
-  { value: 'grace-period', label: 'Grace' },
   { value: 'blackout', label: 'Blackout' },
-];
-
-const BROWSER_RULE_WARN_OPTIONS: readonly ScopeMultiChoiceOption[] = [
-  { value: 'unknown-sites', label: 'Unknown sites' },
-  { value: 'unmanaged-browser', label: 'Unmanaged browser' },
-  { value: 'mature-category', label: 'Mature category' },
-  { value: 'downloads', label: 'Downloads' },
-  { value: 'late-session', label: 'Late session' },
-];
-
-const BROWSER_RULE_ASK_OPTIONS: readonly ScopeMultiChoiceOption[] = [
-  { value: 'blocked-sites', label: 'Blocked sites' },
-  { value: 'new-domain', label: 'New domain' },
-  { value: 'unknown-category', label: 'Unknown category' },
-  { value: 'unmanaged-browser', label: 'Unmanaged browser' },
-  { value: 'downloads', label: 'Downloads' },
-  { value: 'time-extension', label: 'Time extension' },
-  { value: 'managed-setup', label: 'Managed setup' },
-];
-
-const BROWSER_RULE_RECORD_OPTIONS: readonly ScopeMultiChoiceOption[] = [
-  { value: 'managed-status', label: 'Managed status' },
-  { value: 'recent-url', label: 'Recent URL' },
-  { value: 'domain-title', label: 'Domain/title' },
-  { value: 'unmanaged-detection', label: 'Unmanaged use' },
-  { value: 'policy-decision', label: 'Policy decisions' },
-  { value: 'intervention-result', label: 'Block results' },
-  { value: 'time-budget', label: 'Time budget' },
-  { value: 'source-capability', label: 'Source/capability' },
-];
-
-const BROWSER_RULE_EVIDENCE_OPTIONS: readonly ScopeMultiChoiceOption[] = [
-  { value: 'process-running', label: 'Process running' },
-  { value: 'foreground-window', label: 'Foreground window' },
-  { value: 'managed-tab-list', label: 'Managed tab list' },
-  { value: 'proven-active-tab', label: 'Proven active tab' },
-  { value: 'fresh-only', label: 'Fresh only' },
-  { value: 'stale-degraded', label: 'Stale/degraded' },
+  { value: 'managed-only', label: 'Managed only' },
+  { value: 'observe-only', label: 'Observe only' },
 ];
 
 const BROWSER_RULE_ALLOWED_DATA_OPTIONS: readonly ScopeMultiChoiceOption[] = [
@@ -6661,161 +6536,6 @@ const BROWSER_RULE_ALLOWED_DATA_OPTIONS: readonly ScopeMultiChoiceOption[] = [
   { value: 'video-channel', label: 'Video/channel' },
   { value: 'freshness', label: 'Freshness' },
   { value: 'evidence-ids', label: 'Evidence ids' },
-];
-
-const BROWSER_RULE_NEVER_CAPTURE_OPTIONS: readonly ScopeMultiChoiceOption[] = [
-  { value: 'page-body', label: 'Page body' },
-  { value: 'chat-content', label: 'Chat content' },
-  { value: 'screenshots', label: 'Screenshots' },
-  { value: 'keystrokes', label: 'Keystrokes' },
-  { value: 'form-values', label: 'Forms' },
-  { value: 'cookies', label: 'Secrets' },
-  { value: 'https-payload', label: 'HTTPS payload' },
-  { value: 'raw-protocol', label: 'Raw protocol' },
-];
-
-const BROWSER_RULE_SETUP_OPTIONS: readonly ScopeMultiChoiceOption[] = [
-  { value: 'managed-profile', label: 'Managed profile' },
-  { value: 'ocentra-launcher', label: 'Ocentra launcher' },
-  { value: 'protocol-route', label: 'Default route' },
-  { value: 'managed-shell', label: 'Managed shell' },
-  { value: 'admin-setup', label: 'Parent/admin setup' },
-  { value: 'install-provision', label: 'Install/provision' },
-  { value: 'os-app-control', label: 'OS app control' },
-];
-
-const BROWSER_RULE_BRIDGE_OPTIONS: readonly ScopeMultiChoiceOption[] = [
-  { value: 'loopback-only', label: 'Loopback only' },
-  { value: 'owned-profile', label: 'Owned profile' },
-  { value: 'random-port', label: 'Random port' },
-  { value: 'reject-default', label: 'Reject default' },
-  { value: 'reject-unmanaged', label: 'Reject unmanaged' },
-  { value: 'redacted-refs', label: 'Redacted refs' },
-  { value: 'close-session', label: 'Close on end' },
-  { value: 'degrade-safe', label: 'Degrade safely' },
-];
-
-const BROWSER_RULE_FAILURE_OPTIONS: readonly ManageWorkspaceChoiceOption[] = [
-  { value: 'observe', label: 'Observe' },
-  { value: 'warn', label: 'Warn' },
-  { value: 'ask', label: 'Ask' },
-  { value: 'block-until-ready', label: 'Block until ready' },
-  { value: 'unavailable', label: 'Unavailable' },
-];
-
-const BROWSER_RULE_INTERVENTION_OPTIONS: readonly ScopeMultiChoiceOption[] = [
-  { value: 'managed-block-page', label: 'Block page' },
-  { value: 'chromium-cdp-fetch', label: 'CDP fetch' },
-  { value: 'webdriver-bidi-network', label: 'BiDi network' },
-  { value: 'managed-extension', label: 'Extension' },
-  { value: 'owned-webview', label: 'Owned WebView' },
-  { value: 'os-app-control', label: 'OS app control' },
-  { value: 'network-domain-block', label: 'Network/domain' },
-  { value: 'monitor-only', label: 'Monitor only' },
-];
-
-const BROWSER_RULE_AI_INPUT_OPTIONS: readonly ScopeMultiChoiceOption[] = [
-  { value: 'evidence-ref', label: 'Evidence refs' },
-  { value: 'url-metadata', label: 'URL metadata' },
-  { value: 'active-certainty', label: 'Active certainty' },
-  { value: 'recent-local', label: 'Recent local' },
-  { value: 'rule-context', label: 'Rule context' },
-  { value: 'source-custody', label: 'Source/custody' },
-  { value: 'degraded-state', label: 'Degraded state' },
-  { value: 'confidence-reason', label: 'Confidence/reason' },
-];
-
-const BROWSER_PORTAL_ACTION_OPTIONS: readonly ScopeMultiChoiceOption[] = [
-  { value: 'view-status', label: 'View status' },
-  { value: 'open-guide', label: 'Open guide' },
-  { value: 'preview-policy', label: 'Preview policy' },
-  { value: 'send-approval', label: 'Answer ask' },
-  { value: 'export-report', label: 'Export report' },
-  { value: 'show-unavailable', label: 'Show unavailable' },
-];
-
-const BROWSER_PORTAL_AI_HELP_OPTIONS: readonly ScopeMultiChoiceOption[] = [
-  { value: 'summarize-report', label: 'Summarize report' },
-  { value: 'explain-policy', label: 'Explain policy' },
-  { value: 'draft-parent-note', label: 'Draft note' },
-  { value: 'cite-evidence', label: 'Cite evidence refs' },
-  { value: 'no-raw-content', label: 'No raw content' },
-  { value: 'manual-review', label: 'Manual review' },
-];
-
-const BROWSER_PORTAL_AI_FALLBACK_OPTIONS: readonly ManageWorkspaceChoiceOption[] = [
-  { value: 'manual-view', label: 'Manual view' },
-  { value: 'rule-view', label: 'Rule view' },
-  { value: 'ask-child-agent', label: 'Ask agent' },
-  { value: 'mark-unavailable', label: 'Unavailable' },
-];
-
-const BROWSER_RULE_CONFLICT_OPTIONS: readonly ManageWorkspaceChoiceOption[] = [
-  { value: 'block-wins', label: 'Block wins' },
-  { value: 'limit-wins', label: 'Limit wins' },
-  { value: 'ask-wins', label: 'Ask wins' },
-  { value: 'specific-wins', label: 'Specific wins' },
-  { value: 'parent-override-wins', label: 'Override wins' },
-];
-
-const BROWSER_RULE_CHILD_MESSAGE_OPTIONS: readonly ScopeMultiChoiceOption[] = [
-  { value: 'warn-text', label: 'Warn text' },
-  { value: 'block-reason', label: 'Block reason' },
-  { value: 'ask-parent', label: 'Ask parent' },
-  { value: 'time-left', label: 'Time left' },
-  { value: 'try-managed', label: 'Use managed' },
-  { value: 'request-state', label: 'Request state' },
-  { value: 'privacy-safe', label: 'Privacy safe' },
-];
-
-const BROWSER_RULE_OVERRIDE_OPTIONS: readonly ScopeMultiChoiceOption[] = [
-  { value: 'approve-once', label: 'Approve once' },
-  { value: 'approve-session', label: 'This session' },
-  { value: 'approve-until', label: 'Until time' },
-  { value: 'deny', label: 'Deny' },
-  { value: 'extend-time', label: 'Extend time' },
-  { value: 'cancel', label: 'Cancel' },
-  { value: 'expire', label: 'Expire' },
-];
-
-const BROWSER_RULE_CUSTODY_OPTIONS: readonly ScopeMultiChoiceOption[] = [
-  { value: 'child-local', label: 'Child local' },
-  { value: 'lan-live', label: 'LAN live' },
-  { value: 'parent-cache', label: 'Parent cache' },
-  { value: 'parent-export', label: 'Parent export' },
-  { value: 'parent-report', label: 'Parent report' },
-  { value: 'unavailable', label: 'Unavailable' },
-];
-
-const BROWSER_RULE_AUDIT_OPTIONS: readonly ScopeMultiChoiceOption[] = [
-  { value: 'policy-decision', label: 'Policy decision' },
-  { value: 'evidence-ref', label: 'Evidence ref' },
-  { value: 'ai-ref', label: 'AI ref' },
-  { value: 'adapter-result', label: 'Adapter result' },
-  { value: 'timer-state', label: 'Timer state' },
-  { value: 'parent-override', label: 'Parent override' },
-  { value: 'rollback', label: 'Rollback' },
-  { value: 'policy-version', label: 'Policy version' },
-];
-
-const BROWSER_RULE_RETENTION_OPTIONS: readonly ScopeMultiChoiceOption[] = [
-  { value: 'fresh-only', label: 'Fresh only' },
-  { value: 'until-reset', label: 'Until reset' },
-  { value: 'seven-days', label: '7 days' },
-  { value: 'thirty-days', label: '30 days' },
-  { value: 'delete-expired', label: 'Delete expired' },
-  { value: 'redacted-report', label: 'Redacted report' },
-  { value: 'parent-export', label: 'Parent export' },
-];
-
-const BROWSER_RULE_PLATFORM_OPTIONS: readonly ScopeMultiChoiceOption[] = [
-  { value: 'windows', label: 'Windows' },
-  { value: 'macos', label: 'macOS' },
-  { value: 'linux', label: 'Linux' },
-  { value: 'android', label: 'Android' },
-  { value: 'ios', label: 'iOS' },
-  { value: 'web-authoring', label: 'Web authoring' },
-  { value: 'unsupported', label: 'Unavailable' },
 ];
 
 function managePolicyPrimaryChoiceTitle(activeTab: string): string {
@@ -7847,451 +7567,28 @@ function ManageSupportContactForm({
   );
 }
 
-function BrowserRulesChoiceEditor({
-  x,
-  y,
-  w,
-  disabled,
-  targetLabel,
-  decisionChoice,
-  enforcementChoice,
-  limitMode,
-  matchSelection,
-  appliesSelection,
-  warnSelection,
-  askSelection,
-  bypassChoice,
-  recordSelection,
-  onInfoClick,
-  onDecisionChange,
-  onEnforcementChange,
-  onLimitModeChange,
-  onMatchChange,
-  onAppliesChange,
-  onWarnChange,
-  onAskChange,
-  onBypassChange,
-  onRecordChange,
-  cfg,
-}: {
-  x: number;
-  y: number;
-  w: number;
-  disabled: boolean;
-  targetLabel: string;
-  decisionChoice: string;
-  enforcementChoice: string;
-  limitMode: string;
-  matchSelection: readonly string[];
-  appliesSelection: readonly string[];
-  warnSelection: readonly string[];
-  askSelection: readonly string[];
-  bypassChoice: string;
-  recordSelection: readonly string[];
-  onInfoClick?: () => void;
-  onDecisionChange: (value: string) => void;
-  onEnforcementChange: (value: string) => void;
-  onLimitModeChange: (value: string) => void;
-  onMatchChange: (selected: readonly string[]) => void;
-  onAppliesChange: (selected: readonly string[]) => void;
-  onWarnChange: (selected: readonly string[]) => void;
-  onAskChange: (selected: readonly string[]) => void;
-  onBypassChange: (value: string) => void;
-  onRecordChange: (selected: readonly string[]) => void;
-  cfg: ParentPortalSvgControls;
-}) {
-  const compact = w < 760;
-  const cyan = cfg.colors.cyan;
-  const gold = cfg.colors.gold;
-  const red = cfg.colors.red;
-  const promptW = compact ? w - 16 : Math.min(270, Math.max(220, w * 0.2));
-  const enforcementW = compact ? w - 16 : Math.min(360, Math.max(260, w * 0.24));
-  const decisionW = compact ? w - 16 : Math.max(360, w - promptW - enforcementW - 34);
-  const decisionX = compact ? x + 8 : x + promptW + 12;
-  const decisionY = compact ? y + 36 : y + 2;
-  const enforcementX = compact ? x + 8 : decisionX + decisionW + 10;
-  const enforcementY = compact ? decisionY + 58 : y + 2;
-  const sectionTop = y + (compact ? 168 : 88);
-  const sectionGap = 12;
-  const sectionColumns = w > 980 ? 2 : 1;
-  const sectionW = Math.max(1, (w - sectionGap * (sectionColumns - 1)) / sectionColumns);
-  const sectionH = compact ? 164 : 140;
-  const blockPanelY = sectionTop + 4;
-
-  const renderInfoBadge = (cx: number, cy: number, label: string) => (
-    <g
-      className="parent-portal-svg-clickable"
-      role="button"
-      tabIndex={0}
-      aria-label={label}
-      onClick={(event) => {
-        event.stopPropagation();
-        onInfoClick?.();
-      }}
-      onKeyDown={(event) => {
-        if (event.key !== 'Enter' && event.key !== ' ') return;
-        event.preventDefault();
-        event.stopPropagation();
-        onInfoClick?.();
-      }}
-    >
-      <title>{label}</title>
-      <circle cx={cx} cy={cy} r={10} fill="rgba(4, 24, 36, 0.92)" stroke={cyan} strokeWidth={1.1} />
-      <text x={cx} y={cy + 4} textAnchor="middle" fontSize={13} fontWeight={950} fill={cyan}>
-        i
-      </text>
-    </g>
-  );
-
-  const renderSection = (
-    key: string,
-    columnIndex: number,
-    rowIndex: number,
-    label: string,
-    infoLabel: string,
-    control: ReactNode
-  ) => {
-    const sectionX = x + columnIndex * (sectionW + sectionGap);
-    const sectionY = sectionTop + rowIndex * (sectionH + sectionGap);
-
-    return (
-      <g key={`browser-rule-section:${key}`}>
-        <rect
-          x={sectionX}
-          y={sectionY}
-          width={sectionW}
-          height={sectionH}
-          rx={5}
-          fill="rgba(3, 18, 32, 0.62)"
-          stroke={cyan}
-          strokeWidth={0.82}
-          opacity={0.86}
-        />
-        <text x={sectionX + 14} y={sectionY + 24} fontSize={12.4} fontWeight={920} fill={cfg.colors.bodyText}>
-          {label}
-        </text>
-        {renderInfoBadge(sectionX + Math.min(sectionW - 18, 16 + label.length * 7.2), sectionY + 19, infoLabel)}
-        <foreignObject x={sectionX + 8} y={sectionY + 34} width={sectionW - 16} height={sectionH - 38}>
-          <div
-            xmlns="http://www.w3.org/1999/xhtml"
-            style={{ width: sectionW - 16, height: sectionH - 38, overflow: 'visible' }}
-          >
-            {control}
-          </div>
-        </foreignObject>
-      </g>
-    );
-  };
-
-  const lowerSections =
-    decisionChoice === 'limit'
-      ? [
-          renderSection(
-            'limit-mode',
-            0,
-            0,
-            'What browser time budgets should apply?',
-            'Open guide for browser limits',
-            <ScopeToggle
-              title="Limit by"
-              value={limitMode}
-              options={BROWSER_RULE_LIMIT_MODE_OPTIONS}
-              disabled={disabled}
-              onChange={(nextValue) => onLimitModeChange(nextValue)}
-              config={browserRuleSingleChoiceConfig(sectionW - 16, compact)}
-            />
-          ),
-          renderSection(
-            'limit-applies',
-            sectionColumns > 1 ? 1 : 0,
-            sectionColumns > 1 ? 0 : 1,
-            'Which browsers should this limit manage?',
-            'Open guide for browser coverage',
-            <ScopeMultiChoice
-              title="Applies"
-              selected={appliesSelection}
-              options={BROWSER_RULE_APPLIES_OPTIONS}
-              disabled={disabled}
-              onChange={(nextSelected) => onAppliesChange(nextSelected)}
-              config={browserRuleMultiChoiceConfig(sectionW - 16, compact)}
-              width={sectionW - 16}
-            />
-          ),
-        ]
-      : decisionChoice === 'ask'
-        ? [
-            renderSection(
-              'ask-when',
-              0,
-              0,
-              'When should the child ask first?',
-              'Open guide for browser approvals',
-              <ScopeMultiChoice
-                title="Ask when"
-                selected={askSelection}
-                options={BROWSER_RULE_ASK_OPTIONS}
-                disabled={disabled}
-                onChange={(nextSelected) => onAskChange(nextSelected)}
-                config={browserRuleMultiChoiceConfig(sectionW - 16, compact)}
-                width={sectionW - 16}
-              />
-            ),
-            renderSection(
-              'ask-record',
-              sectionColumns > 1 ? 1 : 0,
-              sectionColumns > 1 ? 0 : 1,
-              'What should parents see in browser reports?',
-              'Open guide for browser request records',
-              <ScopeMultiChoice
-                title="Record"
-                selected={recordSelection}
-                options={BROWSER_RULE_RECORD_OPTIONS}
-                disabled={disabled}
-                onChange={(nextSelected) => onRecordChange(nextSelected)}
-                config={browserRuleMultiChoiceConfig(sectionW - 16, compact)}
-                width={sectionW - 16}
-              />
-            ),
-          ]
-        : decisionChoice === 'warn'
-          ? [
-              renderSection(
-                'warn-before',
-                0,
-                0,
-                'When should the child see a warning?',
-                'Open guide for browser warnings',
-                <ScopeMultiChoice
-                  title="Warn for"
-                  selected={warnSelection}
-                  options={BROWSER_RULE_WARN_OPTIONS}
-                  disabled={disabled}
-                  onChange={(nextSelected) => onWarnChange(nextSelected)}
-                  config={browserRuleMultiChoiceConfig(sectionW - 16, compact)}
-                  width={sectionW - 16}
-                />
-              ),
-              renderSection(
-                'warn-record',
-                sectionColumns > 1 ? 1 : 0,
-                sectionColumns > 1 ? 0 : 1,
-                'What should parents see in browser reports?',
-                'Open guide for warning records',
-                <ScopeMultiChoice
-                  title="Record"
-                  selected={recordSelection}
-                  options={BROWSER_RULE_RECORD_OPTIONS}
-                  disabled={disabled}
-                  onChange={(nextSelected) => onRecordChange(nextSelected)}
-                  config={browserRuleMultiChoiceConfig(sectionW - 16, compact)}
-                  width={sectionW - 16}
-                />
-              ),
-            ]
-          : [
-              renderSection(
-                'match',
-                0,
-                0,
-                'What browsing should this rule match?',
-                'Open guide for browser rule matching',
-                <ScopeMultiChoice
-                  title="Match"
-                  selected={matchSelection}
-                  options={BROWSER_RULE_MATCH_OPTIONS}
-                  disabled={disabled}
-                  onChange={(nextSelected) => onMatchChange(nextSelected)}
-                  config={browserRuleMultiChoiceConfig(sectionW - 16, compact)}
-                  width={sectionW - 16}
-                />
-              ),
-              renderSection(
-                'applies',
-                sectionColumns > 1 ? 1 : 0,
-                sectionColumns > 1 ? 0 : 1,
-                'Which browsers should this rule manage?',
-                'Open guide for browser rule scope',
-                <ScopeMultiChoice
-                  title="Applies"
-                  selected={appliesSelection}
-                  options={BROWSER_RULE_APPLIES_OPTIONS}
-                  disabled={disabled}
-                  onChange={(nextSelected) => onAppliesChange(nextSelected)}
-                  config={browserRuleMultiChoiceConfig(sectionW - 16, compact)}
-                  width={sectionW - 16}
-                />
-              ),
-              renderSection(
-                'bypass',
-                0,
-                sectionColumns > 1 ? 1 : 2,
-                'What happens if the browser is unmanaged?',
-                'Open guide for unmanaged browsers',
-                <ScopeToggle
-                  title="Bypass"
-                  value={bypassChoice}
-                  options={BROWSER_RULE_BYPASS_OPTIONS}
-                  disabled={disabled}
-                  onChange={(nextValue) => onBypassChange(nextValue)}
-                  config={browserRuleSingleChoiceConfig(sectionW - 16, compact)}
-                />
-              ),
-              renderSection(
-                'record',
-                sectionColumns > 1 ? 1 : 0,
-                sectionColumns > 1 ? 1 : 3,
-                'What should parents see in browser reports?',
-                'Open guide for browser rule records',
-                <ScopeMultiChoice
-                  title="Record"
-                  selected={recordSelection}
-                  options={BROWSER_RULE_RECORD_OPTIONS}
-                  disabled={disabled}
-                  onChange={(nextSelected) => onRecordChange(nextSelected)}
-                  config={browserRuleMultiChoiceConfig(sectionW - 16, compact)}
-                  width={sectionW - 16}
-                />
-              ),
-            ];
-
-  return (
-    <g>
-      <text x={x + 8} y={y + 22} fontSize={13.8} fontWeight={950} fill={cfg.colors.bodyText}>
-        What should happen to browser activity?
-      </text>
-      {renderInfoBadge(x + 154, y + 17, 'Open Browser policy guide')}
-      <foreignObject x={decisionX} y={decisionY} width={decisionW} height={66}>
-        <div xmlns="http://www.w3.org/1999/xhtml" style={{ width: decisionW, height: 66 }}>
-          <ScopeToggle
-            title="Action"
-            value={decisionChoice}
-            options={managePolicyPrimaryChoiceOptions('rules')}
-            disabled={disabled}
-            onChange={(nextValue) => onDecisionChange(nextValue)}
-            config={browserRuleSingleChoiceConfig(decisionW, compact)}
-          />
-        </div>
-      </foreignObject>
-      <foreignObject x={enforcementX} y={enforcementY} width={enforcementW} height={66}>
-        <div xmlns="http://www.w3.org/1999/xhtml" style={{ width: enforcementW, height: 66 }}>
-          <ScopeToggle
-            title="Enforcement"
-            value={enforcementChoice}
-            options={BROWSER_RULE_ENFORCEMENT_OPTIONS}
-            disabled={disabled}
-            onChange={(nextValue) => onEnforcementChange(nextValue)}
-            config={browserRuleSingleChoiceConfig(enforcementW, compact)}
-          />
-        </div>
-      </foreignObject>
-      {decisionChoice === 'block' ? (
-        <g>
-          <rect
-            x={x + 8}
-            y={blockPanelY}
-            width={w - 16}
-            height={compact ? 220 : 150}
-            rx={6}
-            fill="rgba(34, 6, 14, 0.46)"
-            stroke={red}
-            strokeWidth={1}
-            opacity={0.96}
-          />
-          <text x={x + 24} y={blockPanelY + 30} fontSize={16} fontWeight={980} fill={cfg.colors.bodyText}>
-            {`All browser activity is blocked across ${targetLabel}.`}
-          </text>
-          <text x={x + 24} y={blockPanelY + 58} fontSize={12.2} fontWeight={760} fill={cfg.colors.mutedText}>
-            No browsing activity will be allowed. Regular apps and games still follow their own rules.
-          </text>
-          <text x={x + 24} y={blockPanelY + 82} fontSize={12.2} fontWeight={760} fill={cfg.colors.mutedText}>
-            Tips: controlled options like scheduled blackout, daily quota, ask first, or warning states are usually
-            easier
-          </text>
-          <text x={x + 24} y={blockPanelY + 104} fontSize={12.2} fontWeight={760} fill={cfg.colors.mutedText}>
-            for families to tune over time. This setting still respects the parent's choice.
-          </text>
-          <path d={`M ${x + 24} ${blockPanelY + 124} H ${x + w - 24}`} stroke={gold} strokeWidth={0.9} opacity={0.52} />
-        </g>
-      ) : (
-        lowerSections
-      )}
-    </g>
-  );
-}
-
 function BrowserRulesGridGuide({
   x,
   y,
   w,
   h,
-  workspaceTarget,
   disabled,
-  decisionChoice,
   enforcementChoice,
-  scheduleChoice,
-  limitMode,
-  matchSelection,
-  appliesSelection,
-  askSelection,
-  bypassChoice,
-  recordSelection,
-  onDecisionChange,
   onEnforcementChange,
-  onScheduleChange,
-  onLimitModeChange,
-  onMatchChange,
-  onAppliesChange,
-  onAskChange,
-  onBypassChange,
-  onRecordChange,
   onInfoClick,
 }: {
   x: number;
   y: number;
   w: number;
   h: number;
-  workspaceTarget: ManageWorkspaceTarget;
   disabled?: boolean;
-  decisionChoice: string;
   enforcementChoice: string;
-  scheduleChoice: string;
-  limitMode: string;
-  matchSelection: readonly string[];
-  appliesSelection: readonly string[];
-  askSelection: readonly string[];
-  bypassChoice: string;
-  recordSelection: readonly string[];
-  onDecisionChange: (value: string) => void;
   onEnforcementChange: (value: string) => void;
-  onScheduleChange: (value: string) => void;
-  onLimitModeChange: (value: string) => void;
-  onMatchChange: (selected: readonly string[]) => void;
-  onAppliesChange: (selected: readonly string[]) => void;
-  onAskChange: (selected: readonly string[]) => void;
-  onBypassChange: (value: string) => void;
-  onRecordChange: (selected: readonly string[]) => void;
   onInfoClick?: () => void;
 }) {
-  const portalMode = workspaceTarget === 'portal';
   const rawScrollClipId = useId();
   const scrollClipId = `browser-rules-scroll-${rawScrollClipId.replace(/[^a-zA-Z0-9_-]/g, '')}`;
-  const [collapsedBubbleIds, setCollapsedBubbleIds] = useState<readonly string[]>([
-    'browser-evidence-source',
-    'browser-allowed-data',
-    'browser-never-capture',
-    'browser-managed-setup',
-    'browser-bridge',
-    'browser-capability-failure',
-    'browser-intervention',
-    'browser-ai-input',
-    'browser-conflict',
-    'browser-child-message',
-    'browser-overrides',
-    'browser-custody',
-    'browser-audit',
-    'browser-retention',
-    'browser-platform',
-  ]);
+  const [collapsedBubbleIds, setCollapsedBubbleIds] = useState<readonly string[]>([]);
   const [bubbleEnforcementChoices, setBubbleEnforcementChoices] = useState<Record<string, string>>({});
   const [draftSingleChoices, setDraftSingleChoices] = useState<Record<string, string>>({});
   const [draftMultiSelections, setDraftMultiSelections] = useState<Record<string, readonly string[]>>({});
@@ -8329,496 +7626,60 @@ function BrowserRulesGridGuide({
   const setDraftMultiSelection = (id: string, selected: readonly string[]) => {
     setDraftMultiSelections((current) => ({ ...current, [id]: selected }));
   };
-  const childDeviceBubbleDefinitions = [
+  const browserBubblePreviewDefinitions = [
     {
-      id: 'browser-action',
-      header: 'What should happen to browser activity?',
-      title: 'Action',
-      kind: 'action',
-      value: decisionChoice,
-      options: managePolicyPrimaryChoiceOptions('rules'),
-      onChange: onDecisionChange,
-      bodyHeight: singleBodyHeight,
-    },
-    {
-      id: 'browser-match',
-      header: 'What browser targets should rules match?',
-      title: 'Match',
+      id: 'browser-demo-single-compact',
+      header: 'Single choice: compact options, one answer',
+      title: 'Single',
       kind: 'multi',
-      selected: matchSelection,
-      options: BROWSER_RULE_MATCH_OPTIONS,
-      onChange: onMatchChange,
-      bodyHeight: multiBodyHeight,
-    },
-    {
-      id: 'browser-coverage',
-      header: 'Which browsers should we cover?',
-      title: 'Browsers',
-      kind: 'multi',
-      selected: appliesSelection,
-      options: BROWSER_RULE_APPLIES_OPTIONS,
-      onChange: onAppliesChange,
-      bodyHeight: multiBodyHeight,
-    },
-    {
-      id: 'browser-schedule',
-      header: 'When should browsers be allowed?',
-      title: 'Window',
-      kind: 'single',
-      value: scheduleChoice,
+      multiSelect: false,
+      selected: getDraftSingleChoice('browser-demo-single-compact', 'school')
+        ? [getDraftSingleChoice('browser-demo-single-compact', 'school')]
+        : [],
       options: managePolicyPrimaryChoiceOptions('schedule'),
-      onChange: onScheduleChange,
-      bodyHeight: singleBodyHeight,
-    },
-    {
-      id: 'browser-limit',
-      header: 'What browser time budgets should apply?',
-      title: 'Limit',
-      kind: 'single',
-      value: limitMode,
-      options: BROWSER_RULE_LIMIT_MODE_OPTIONS,
-      onChange: onLimitModeChange,
-      bodyHeight: singleBodyHeight,
-    },
-    {
-      id: 'browser-ask',
-      header: 'What should need parent approval?',
-      title: 'Ask',
-      kind: 'multi',
-      selected: askSelection,
-      options: BROWSER_RULE_ASK_OPTIONS,
-      onChange: onAskChange,
+      onChange: (selected) => setDraftSingleChoice('browser-demo-single-compact', selected[0] ?? ''),
       bodyHeight: multiBodyHeight,
     },
     {
-      id: 'browser-unmanaged',
-      header: 'What should happen to unmanaged browsers?',
-      title: 'Fallback',
-      kind: 'single',
-      value: bypassChoice,
-      options: BROWSER_RULE_BYPASS_OPTIONS,
-      onChange: onBypassChange,
-      bodyHeight: singleBodyHeight,
-    },
-    {
-      id: 'browser-record',
-      header: 'What should parents see in browser reports?',
-      title: 'Reports',
+      id: 'browser-demo-single-many',
+      header: 'Single choice: many options, one answer',
+      title: 'Single',
       kind: 'multi',
-      selected: recordSelection,
-      options: BROWSER_RULE_RECORD_OPTIONS,
-      onChange: onRecordChange,
+      multiSelect: false,
+      selected: getDraftSingleChoice('browser-demo-single-many', 'allow')
+        ? [getDraftSingleChoice('browser-demo-single-many', 'allow')]
+        : [],
+      options: BROWSER_RULE_SINGLE_DEMO_MANY_OPTIONS,
+      onChange: (selected) => setDraftSingleChoice('browser-demo-single-many', selected[0] ?? ''),
       bodyHeight: multiBodyHeight,
     },
     {
-      id: 'browser-evidence-source',
-      header: 'What proof is enough for browser rules?',
-      title: 'Proof',
+      id: 'browser-demo-multi-standard',
+      header: 'Multi choice: normal option count',
+      title: 'Multi',
       kind: 'multi',
-      selected: getDraftMultiSelection('browser-evidence-source', ['proven-active-tab', 'fresh-only']),
-      options: BROWSER_RULE_EVIDENCE_OPTIONS,
-      onChange: (selected) => setDraftMultiSelection('browser-evidence-source', selected),
+      selected: getDraftMultiSelection('browser-demo-multi-standard', ['domain-origin', 'site-category']),
+      options: BROWSER_RULE_MATCH_OPTIONS,
+      onChange: (selected) => setDraftMultiSelection('browser-demo-multi-standard', selected),
       bodyHeight: multiBodyHeight,
     },
     {
-      id: 'browser-allowed-data',
-      header: 'Which browser fields may rules use?',
-      title: 'Fields',
+      id: 'browser-demo-multi-many',
+      header: 'Multi choice: many options, any answers',
+      title: 'Multi',
       kind: 'multi',
-      selected: getDraftMultiSelection('browser-allowed-data', [
+      selected: getDraftMultiSelection('browser-demo-multi-many', [
         'managed-state',
         'capability-status',
-        'active-state',
         'exact-url',
-        'domain-origin',
         'freshness',
-        'evidence-ids',
       ]),
       options: BROWSER_RULE_ALLOWED_DATA_OPTIONS,
-      onChange: (selected) => setDraftMultiSelection('browser-allowed-data', selected),
-      bodyHeight: multiBodyHeight,
-    },
-    {
-      id: 'browser-never-capture',
-      header: 'What must browser rules never collect?',
-      title: 'Never',
-      kind: 'multi',
-      selected: getDraftMultiSelection('browser-never-capture', [
-        'page-body',
-        'chat-content',
-        'screenshots',
-        'keystrokes',
-        'form-values',
-        'cookies',
-        'https-payload',
-        'raw-protocol',
-      ]),
-      options: BROWSER_RULE_NEVER_CAPTURE_OPTIONS,
-      onChange: (selected) => setDraftMultiSelection('browser-never-capture', selected),
-      bodyHeight: multiBodyHeight,
-    },
-    {
-      id: 'browser-managed-setup',
-      header: 'How should allowed browsing launch?',
-      title: 'Launch',
-      kind: 'multi',
-      selected: getDraftMultiSelection('browser-managed-setup', [
-        'managed-profile',
-        'ocentra-launcher',
-        'protocol-route',
-      ]),
-      options: BROWSER_RULE_SETUP_OPTIONS,
-      onChange: (selected) => setDraftMultiSelection('browser-managed-setup', selected),
-      bodyHeight: multiBodyHeight,
-    },
-    {
-      id: 'browser-bridge',
-      header: 'Which bridge security rules are required?',
-      title: 'Bridge',
-      kind: 'multi',
-      selected: getDraftMultiSelection('browser-bridge', [
-        'loopback-only',
-        'owned-profile',
-        'reject-default',
-        'redacted-refs',
-      ]),
-      options: BROWSER_RULE_BRIDGE_OPTIONS,
-      onChange: (selected) => setDraftMultiSelection('browser-bridge', selected),
-      bodyHeight: multiBodyHeight,
-    },
-    {
-      id: 'browser-capability-failure',
-      header: 'What if browser proof is unavailable?',
-      title: 'No proof',
-      kind: 'single',
-      value: getDraftSingleChoice('browser-capability-failure', 'warn'),
-      options: BROWSER_RULE_FAILURE_OPTIONS,
-      onChange: (value) => setDraftSingleChoice('browser-capability-failure', value),
-      bodyHeight: singleBodyHeight,
-    },
-    {
-      id: 'browser-intervention',
-      header: 'How should browser blocking be applied?',
-      title: 'Block',
-      kind: 'multi',
-      selected: getDraftMultiSelection('browser-intervention', [
-        'managed-block-page',
-        'chromium-cdp-fetch',
-        'os-app-control',
-      ]),
-      options: BROWSER_RULE_INTERVENTION_OPTIONS,
-      onChange: (selected) => setDraftMultiSelection('browser-intervention', selected),
-      bodyHeight: multiBodyHeight,
-    },
-    {
-      id: 'browser-ai-input',
-      header: 'What browser evidence may the device AI reference?',
-      title: 'Evidence',
-      kind: 'multi',
-      selected: getDraftMultiSelection('browser-ai-input', [
-        'evidence-ref',
-        'url-metadata',
-        'active-certainty',
-        'confidence-reason',
-      ]),
-      options: BROWSER_RULE_AI_INPUT_OPTIONS,
-      onChange: (selected) => setDraftMultiSelection('browser-ai-input', selected),
-      bodyHeight: multiBodyHeight,
-    },
-    {
-      id: 'browser-conflict',
-      header: 'Which rule should win a conflict?',
-      title: 'Priority',
-      kind: 'single',
-      value: getDraftSingleChoice('browser-conflict', 'block-wins'),
-      options: BROWSER_RULE_CONFLICT_OPTIONS,
-      onChange: (value) => setDraftSingleChoice('browser-conflict', value),
-      bodyHeight: singleBodyHeight,
-    },
-    {
-      id: 'browser-child-message',
-      header: 'What should the child see?',
-      title: 'Child',
-      kind: 'multi',
-      selected: getDraftMultiSelection('browser-child-message', [
-        'warn-text',
-        'block-reason',
-        'ask-parent',
-        'time-left',
-      ]),
-      options: BROWSER_RULE_CHILD_MESSAGE_OPTIONS,
-      onChange: (selected) => setDraftMultiSelection('browser-child-message', selected),
-      bodyHeight: multiBodyHeight,
-    },
-    {
-      id: 'browser-overrides',
-      header: 'Which parent overrides should be allowed?',
-      title: 'Override',
-      kind: 'multi',
-      selected: getDraftMultiSelection('browser-overrides', [
-        'approve-once',
-        'approve-session',
-        'deny',
-        'extend-time',
-        'expire',
-      ]),
-      options: BROWSER_RULE_OVERRIDE_OPTIONS,
-      onChange: (selected) => setDraftMultiSelection('browser-overrides', selected),
-      bodyHeight: multiBodyHeight,
-    },
-    {
-      id: 'browser-custody',
-      header: 'Where may browser data be used?',
-      title: 'Custody',
-      kind: 'multi',
-      selected: getDraftMultiSelection('browser-custody', ['child-local', 'lan-live', 'parent-cache']),
-      options: BROWSER_RULE_CUSTODY_OPTIONS,
-      onChange: (selected) => setDraftMultiSelection('browser-custody', selected),
-      bodyHeight: multiBodyHeight,
-    },
-    {
-      id: 'browser-audit',
-      header: 'What should browser actions audit?',
-      title: 'Audit',
-      kind: 'multi',
-      selected: getDraftMultiSelection('browser-audit', [
-        'policy-decision',
-        'evidence-ref',
-        'adapter-result',
-        'timer-state',
-      ]),
-      options: BROWSER_RULE_AUDIT_OPTIONS,
-      onChange: (selected) => setDraftMultiSelection('browser-audit', selected),
-      bodyHeight: multiBodyHeight,
-    },
-    {
-      id: 'browser-retention',
-      header: 'How long should browser data be kept?',
-      title: 'Retain',
-      kind: 'multi',
-      selected: getDraftMultiSelection('browser-retention', ['fresh-only', 'delete-expired', 'redacted-report']),
-      options: BROWSER_RULE_RETENTION_OPTIONS,
-      onChange: (selected) => setDraftMultiSelection('browser-retention', selected),
-      bodyHeight: multiBodyHeight,
-    },
-    {
-      id: 'browser-platform',
-      header: 'Which child platforms should use browser rules?',
-      title: 'Platform',
-      kind: 'multi',
-      selected: getDraftMultiSelection('browser-platform', ['windows', 'web-authoring']),
-      options: BROWSER_RULE_PLATFORM_OPTIONS,
-      onChange: (selected) => setDraftMultiSelection('browser-platform', selected),
+      onChange: (selected) => setDraftMultiSelection('browser-demo-multi-many', selected),
       bodyHeight: multiBodyHeight,
     },
   ];
-  const portalBubbleDefinitions = [
-    {
-      id: 'portal-browser-display',
-      header: 'What browser data may Portal display?',
-      title: 'Display',
-      kind: 'multi',
-      selected: getDraftMultiSelection('portal-browser-display', [
-        'managed-status',
-        'policy-decision',
-        'source-capability',
-        'intervention-result',
-      ]),
-      options: BROWSER_RULE_RECORD_OPTIONS,
-      onChange: (selected) => setDraftMultiSelection('portal-browser-display', selected),
-      bodyHeight: multiBodyHeight,
-    },
-    {
-      id: 'portal-browser-source',
-      header: 'Where may Portal browser data come from?',
-      title: 'Source',
-      kind: 'multi',
-      selected: getDraftMultiSelection('portal-browser-source', ['lan-live', 'parent-cache', 'parent-report']),
-      options: BROWSER_RULE_CUSTODY_OPTIONS,
-      onChange: (selected) => setDraftMultiSelection('portal-browser-source', selected),
-      bodyHeight: multiBodyHeight,
-    },
-    {
-      id: 'portal-browser-action',
-      header: 'What browser actions may Portal send?',
-      title: 'Portal',
-      kind: 'multi',
-      selected: getDraftMultiSelection('portal-browser-action', ['view-status', 'open-guide', 'preview-policy']),
-      options: BROWSER_PORTAL_ACTION_OPTIONS,
-      onChange: (selected) => setDraftMultiSelection('portal-browser-action', selected),
-      bodyHeight: multiBodyHeight,
-    },
-    {
-      id: 'portal-ai-help',
-      header: 'When may Portal AI help?',
-      title: 'Portal AI',
-      kind: 'multi',
-      selected: getDraftMultiSelection('portal-ai-help', [
-        'summarize-report',
-        'explain-policy',
-        'cite-evidence',
-        'no-raw-content',
-      ]),
-      options: BROWSER_PORTAL_AI_HELP_OPTIONS,
-      onChange: (selected) => setDraftMultiSelection('portal-ai-help', selected),
-      bodyHeight: multiBodyHeight,
-    },
-    {
-      id: 'portal-ai-fallback',
-      header: 'What if Portal AI is unavailable?',
-      title: 'No AI',
-      kind: 'single',
-      value: getDraftSingleChoice('portal-ai-fallback', 'manual-view'),
-      options: BROWSER_PORTAL_AI_FALLBACK_OPTIONS,
-      onChange: (value) => setDraftSingleChoice('portal-ai-fallback', value),
-      bodyHeight: singleBodyHeight,
-    },
-    {
-      id: 'portal-browser-audit',
-      header: 'What should Portal browser actions audit?',
-      title: 'Audit',
-      kind: 'multi',
-      selected: getDraftMultiSelection('portal-browser-audit', ['policy-decision', 'evidence-ref', 'parent-override']),
-      options: BROWSER_RULE_AUDIT_OPTIONS,
-      onChange: (selected) => setDraftMultiSelection('portal-browser-audit', selected),
-      bodyHeight: multiBodyHeight,
-    },
-  ];
-  const bubbleDefinitions = portalMode ? portalBubbleDefinitions : childDeviceBubbleDefinitions;
-  const makeSingleToggleConfig = (controlW: number, titleMinWidth = 58) => {
-    const base = browserRuleSingleChoiceConfig(controlW, true);
-    return {
-      ...base,
-      svg: {
-        ...base.svg,
-        width: controlW,
-        height: 72,
-      },
-      layout: {
-        ...base.layout,
-        titleBoxY: 9,
-        titleBoxMinWidth: titleMinWidth,
-        titleBoxPaddingX: 6,
-        titleBoxHeight: 44,
-        trackY: 8,
-        trackMinWidth: Math.max(78, controlW - titleMinWidth - 8),
-        trackHeight: 46,
-        optionPaddingX: controlW < 300 ? 4 : 7,
-        outerPaddingRight: 0,
-      },
-      text: {
-        ...base.text,
-        titleFontSize: 11.8,
-        optionFontSize: controlW < 300 ? 12.4 : 13.4,
-      },
-    };
-  };
-  const makeMultiChoiceConfig = (controlW: number) => {
-    const base = browserRuleMultiChoiceConfig(controlW, true);
-    return {
-      ...base,
-      svg: {
-        ...base.svg,
-        width: controlW,
-        height: multiPrimaryControlH,
-        minHeight: multiPrimaryControlH,
-        viewportInset: 4,
-        fitMode: 'fixedHeight',
-      },
-      layout: {
-        ...base.layout,
-        titleBoxX: 0,
-        titleBoxY: 8,
-        titleBoxMinWidth: 62,
-        titleBoxPaddingX: 0,
-        titleBoxHeight: 44,
-        trackX: 62,
-        trackY: 8,
-        trackWidth: Math.max(controlsStacked ? 180 : 210, controlW - 70),
-        optionMinWidth: controlsStacked ? 82 : 96,
-        optionMaxWidth: controlsStacked ? 132 : 178,
-        optionHeight: 38,
-        optionGapX: 4,
-        optionGapY: 5,
-        optionPaddingX: 9,
-        outerPaddingRight: 0,
-        outerPaddingBottom: 0,
-      },
-      text: {
-        ...base.text,
-        titleFontSize: 0,
-        optionFontSize: controlsStacked ? 10.8 : 11.8,
-      },
-    };
-  };
-  const actionToggleConfig = makeSingleToggleConfig(primaryToggleW, 58);
-  const enforcementToggleConfig = makeSingleToggleConfig(enforcementToggleW, 42);
-  const actionIconToggleConfig = {
-    ...actionToggleConfig,
-    svg: {
-      ...actionToggleConfig.svg,
-      height: 72,
-    },
-    layout: {
-      ...actionToggleConfig.layout,
-      titleBoxY: 9,
-      titleBoxMinWidth: 62,
-      titleBoxPaddingX: 0,
-      titleBoxHeight: 44,
-      trackY: 8,
-      trackMinWidth: Math.max(230, primaryToggleW - 66),
-      trackHeight: 46,
-      optionPaddingX: 8,
-    },
-    text: {
-      ...actionToggleConfig.text,
-      titleFontSize: 0,
-      optionFontSize: 13.6,
-    },
-  };
-  const enforcementIconToggleConfig = {
-    ...enforcementToggleConfig,
-    svg: {
-      ...enforcementToggleConfig.svg,
-      height: 72,
-    },
-    layout: {
-      ...enforcementToggleConfig.layout,
-      titleBoxY: 9,
-      titleBoxMinWidth: 48,
-      titleBoxPaddingX: 0,
-      titleBoxHeight: 44,
-      trackY: 8,
-      trackMinWidth: Math.max(98, enforcementToggleW - 52),
-      trackHeight: 46,
-      optionPaddingX: 5,
-    },
-    text: {
-      ...enforcementToggleConfig.text,
-      titleFontSize: 0,
-      optionFontSize: 12.6,
-    },
-  };
-  const renderActionTitleIcon = (slot) => (
-    <Action
-      x={slot.centerX - 36}
-      y={slot.centerY - 24}
-      width={72}
-      height={48}
-      title="Action"
-      preserveAspectRatio="xMidYMid meet"
-    />
-  );
-  const renderEnforcementTitleIcon = (slot) => (
-    <EnforcementOfficerIcon x={slot.centerX - 17} y={slot.y + slot.height - 35} width={34} height={34} />
-  );
-  const getBubbleEnforcementChoice = (id: string) => bubbleEnforcementChoices[id] ?? enforcementChoice;
-  const setBubbleEnforcementChoice = (id: string, nextValue: string) => {
-    setBubbleEnforcementChoices((current) => ({ ...current, [id]: nextValue }));
-    if (id === 'browser-action') {
-      onEnforcementChange(nextValue);
-    }
-  };
+  const bubbleDefinitions = browserBubblePreviewDefinitions;
   const toggleCollapsedBubble = (id: string, collapsed: boolean) => {
     setCollapsedBubbleIds((current) => {
       const hasId = current.includes(id);
@@ -8827,211 +7688,46 @@ function BrowserRulesGridGuide({
       return current;
     });
   };
-  const renderPrimaryControl = (bubble, slot) => {
-    const controlX = slot.bodyX + 1;
-    const controlY = slot.bodyY + 5;
+  const setQuestionEnforcementChoice = (id: string, nextValue: string) => {
+    setBubbleEnforcementChoices((current) => ({ ...current, [id]: nextValue }));
+    onEnforcementChange(nextValue);
+  };
+  const questions: readonly BrowserRulesQuestion[] = bubbleDefinitions.map((bubble) => {
+    const collapsed = collapsedBubbleIds.includes(bubble.id);
+    const sharedQuestion = {
+      id: bubble.id,
+      header: bubble.header,
+      title: bubble.title,
+      kind: bubble.kind === 'multi' ? 'multi' : bubble.kind === 'action' ? 'action' : 'single',
+      ...('multiSelect' in bubble ? { multiSelect: bubble.multiSelect } : {}),
+      options: bubble.options,
+      collapsed,
+      onCollapsedChange: (nextCollapsed) => toggleCollapsedBubble(bubble.id, nextCollapsed),
+      enforcementValue: bubbleEnforcementChoices[bubble.id] ?? enforcementChoice,
+      onEnforcementChange: (nextValue) => setQuestionEnforcementChoice(bubble.id, nextValue),
+    };
 
     if (bubble.kind === 'multi') {
-      return (
-        <ScopeMultiChoice
-          renderMode="svg"
-          x={controlX}
-          y={controlY}
-          title={bubble.title}
-          titleRenderer={renderActionTitleIcon}
-          selected={bubble.selected}
-          options={bubble.options}
-          width={primaryToggleW}
-          height={multiPrimaryControlH}
-          fitMode="fixedHeight"
-          disabled={disabled}
-          onChange={(nextSelected) => bubble.onChange(nextSelected)}
-          config={makeMultiChoiceConfig(primaryToggleW)}
-        />
-      );
+      return {
+        ...sharedQuestion,
+        selected: bubble.selected,
+        onMultiChange: (nextSelected) => bubble.onChange(nextSelected),
+      };
     }
 
-    return (
-      <ScopeToggle
-        renderMode="svg"
-        x={controlX}
-        y={controlY}
-        title={bubble.title}
-        titleRenderer={renderActionTitleIcon}
-        value={bubble.value}
-        options={bubble.options}
-        disabled={disabled}
-        onChange={(nextValue) => bubble.onChange(nextValue)}
-        config={actionIconToggleConfig}
-      />
-    );
-  };
-  const renderEnforcementControl = (bubble, slot) => {
-    const controlX = controlsStacked
-      ? slot.bodyX + slot.bodyW - enforcementToggleW - 2
-      : slot.bodyX + slot.bodyW - enforcementToggleW - 2;
-    const controlY = controlsStacked
-      ? slot.bodyY + (bubble.kind === 'multi' ? multiPrimaryControlH + 5 : 74)
-      : slot.bodyY + 5;
-
-    return (
-      <ScopeToggle
-        renderMode="svg"
-        x={controlX}
-        y={controlY}
-        title="Enforce"
-        titleRenderer={renderEnforcementTitleIcon}
-        value={getBubbleEnforcementChoice(bubble.id)}
-        options={BROWSER_RULE_ENFORCEMENT_OPTIONS}
-        disabled={disabled}
-        onChange={(nextValue) => setBubbleEnforcementChoice(bubble.id, nextValue)}
-        config={enforcementIconToggleConfig}
-      />
-    );
-  };
-  const columnHeights = Array.from({ length: columns }, () => 0);
-  const bubblePlacements = bubbleDefinitions.map((bubble, index) => {
-    const column = columns === 1 ? 0 : index % columns;
-    const isCollapsed = collapsedBubbleIds.includes(bubble.id);
-    const bodyHeight = isCollapsed ? bubbleCollapsedBodyH : bubble.bodyHeight;
-    const bubbleX = layoutX + column * (bubbleW + gap);
-    const bubbleY = layoutY + columnHeights[column];
-    columnHeights[column] += bubbleHeaderH + bodyHeight + gap;
     return {
-      ...bubble,
-      x: bubbleX,
-      y: bubbleY,
-      collapsed: isCollapsed,
+      ...sharedQuestion,
+      value: bubble.value,
+      onSingleChange: (nextValue) => bubble.onChange(nextValue),
     };
   });
-  const viewportH = Math.max(1, h);
-  const contentHeight = Math.max(1, cellInset * 2 + Math.max(...columnHeights) - gap);
-  const scrollMax = Math.max(0, contentHeight - viewportH);
-  const visibleScrollY = clampValue(scrollY, 0, scrollMax);
-  const scrollTrackX = x + w - scrollBarW + 4;
-  const scrollTrackY = y + scrollTrackPadY;
-  const scrollTrackW = 6;
-  const scrollTrackH = Math.max(1, h - scrollTrackPadY * 2);
-  const scrollThumbH =
-    scrollMax > 0 ? clampValue((scrollTrackH * viewportH) / contentHeight, 34, scrollTrackH) : scrollTrackH;
-  const scrollThumbTravel = Math.max(0, scrollTrackH - scrollThumbH);
-  const scrollThumbY = scrollTrackY + (scrollMax > 0 ? (visibleScrollY / scrollMax) * scrollThumbTravel : 0);
-
-  useEffect(() => {
-    if (scrollY !== visibleScrollY) {
-      setScrollY(visibleScrollY);
-    }
-  }, [scrollY, visibleScrollY]);
-
-  const handleScrollWheel = (event: WheelEvent<SVGGElement>) => {
-    if (scrollMax <= 0) {
-      return;
-    }
-
-    event.preventDefault();
-    event.stopPropagation();
-    setScrollY((current) => clampValue(current + event.deltaY, 0, scrollMax));
-  };
-
-  const handleScrollTrackClick = (event: MouseEvent<SVGRectElement>) => {
-    if (scrollMax <= 0) {
-      return;
-    }
-
-    event.stopPropagation();
-    const bounds = event.currentTarget.getBoundingClientRect();
-    const localY = event.clientY - bounds.top;
-    const nextRatio = clampValue((localY - scrollThumbH * 0.5) / Math.max(1, scrollThumbTravel), 0, 1);
-    setScrollY(nextRatio * scrollMax);
-  };
 
   return (
-    <g onWheel={handleScrollWheel}>
-      <defs>
-        <clipPath id={scrollClipId}>
-          <rect x={x} y={y} width={Math.max(1, w - scrollBarW)} height={viewportH} />
-        </clipPath>
-      </defs>
-      <rect
-        x={x}
-        y={y}
-        width={w}
-        height={viewportH}
-        fill="transparent"
-        pointerEvents="all"
-        onWheel={handleScrollWheel}
-      />
-      <g clipPath={`url(#${scrollClipId})`} onWheel={handleScrollWheel}>
-        <g transform={`translate(0 ${-visibleScrollY})`} onWheel={handleScrollWheel}>
-          {bubblePlacements.map((bubble, index) => {
-            return (
-              <RulesBubbleSvgFrame
-                key={`browser-rules-grid-guide:${bubble.id}`}
-                x={bubble.x}
-                y={bubble.y}
-                width={bubbleW}
-                bodyHeight={bubble.bodyHeight}
-                collapsed={bubble.collapsed}
-                headerLabel={bubble.header}
-                showInfo={true}
-                infoLabel="Open browser rules guide"
-                onInfoClick={onInfoClick}
-                onCollapsedChange={(nextCollapsed) => toggleCollapsedBubble(bubble.id, nextCollapsed)}
-                disabled={disabled}
-                config={{
-                  body: {
-                    clampWidth: bubbleClampW,
-                  },
-                }}
-              >
-                {(slot) => (
-                  <>
-                    {renderPrimaryControl(bubble, slot)}
-                    {renderEnforcementControl(bubble, slot)}
-                  </>
-                )}
-              </RulesBubbleSvgFrame>
-            );
-          })}
-        </g>
-      </g>
-      {scrollMax > 0 ? (
-        <g
-          role="scrollbar"
-          aria-label="Browser rule questions scroll"
-          aria-valuemin={0}
-          aria-valuemax={Math.round(scrollMax)}
-          aria-valuenow={Math.round(visibleScrollY)}
-          onWheel={handleScrollWheel}
-        >
-          <rect
-            x={scrollTrackX}
-            y={scrollTrackY}
-            width={scrollTrackW}
-            height={scrollTrackH}
-            rx={scrollTrackW * 0.5}
-            fill="rgba(7, 30, 42, 0.82)"
-            stroke="#3fe8ff"
-            strokeWidth={0.75}
-            opacity={0.76}
-            onClick={handleScrollTrackClick}
-            className="parent-portal-svg-clickable"
-          />
-          <rect
-            x={scrollTrackX - 1.5}
-            y={scrollThumbY}
-            width={scrollTrackW + 3}
-            height={scrollThumbH}
-            rx={(scrollTrackW + 3) * 0.5}
-            fill="rgba(102, 243, 255, 0.86)"
-            stroke="#f0c94a"
-            strokeWidth={0.8}
-            opacity={0.95}
-            pointerEvents="none"
-          />
-        </g>
-      ) : null}
-    </g>
+    <foreignObject x={x} y={y} width={w} height={h}>
+      <div xmlns="http://www.w3.org/1999/xhtml" style={{ width: w, height: h }}>
+        <BrowserRulesQuestionnaire disabled={disabled} onInfoClick={onInfoClick} questions={questions} />
+      </div>
+    </foreignObject>
   );
 }
 
@@ -9083,36 +7779,11 @@ function ManageWorkspacePanel({
   const hasTargetSelector = targetOptions.length > 0;
   const policyAreaLabel = kind === 'policy' ? managePolicyAreaLabel(activeNavLabel, selectedControlName) : '';
   const browserRulesChoiceMode = kind === 'policy' && policyAreaLabel === 'Browser' && activeTabKey === 'rules';
-  const browserRulesDraftHidden = browserRulesChoiceMode;
   const policyPrimaryOptions = useMemo(() => managePolicyPrimaryChoiceOptions(activeTabKey), [activeTabKey]);
   const policySecondaryOptions = useMemo(() => managePolicySecondaryChoiceOptions(activeTabKey), [activeTabKey]);
   const [policyPrimaryChoice, setPolicyPrimaryChoice] = useState(policyPrimaryOptions[0]?.value ?? '');
   const [policySecondaryChoice, setPolicySecondaryChoice] = useState(policySecondaryOptions[0]?.value ?? '');
-  const [browserRulesMatchSelection, setBrowserRulesMatchSelection] = useState<readonly string[]>([
-    'domain-origin',
-    'site-category',
-  ]);
-  const [browserRulesAppliesSelection, setBrowserRulesAppliesSelection] = useState<readonly string[]>([
-    'edge',
-    'chrome',
-    'webview-shell',
-  ]);
-  const [browserRulesBypassChoice, setBrowserRulesBypassChoice] = useState('warn');
   const [browserRulesEnforcementChoice, setBrowserRulesEnforcementChoice] = useState('observe');
-  const [browserRulesScheduleChoice, setBrowserRulesScheduleChoice] = useState('school');
-  const [browserRulesLimitMode, setBrowserRulesLimitMode] = useState('daily-quota');
-  const [browserRulesWarnSelection, setBrowserRulesWarnSelection] = useState<readonly string[]>([
-    'unknown-sites',
-    'unmanaged-browser',
-  ]);
-  const [browserRulesAskSelection, setBrowserRulesAskSelection] = useState<readonly string[]>([
-    'blocked-sites',
-    'new-domain',
-  ]);
-  const [browserRulesRecordSelection, setBrowserRulesRecordSelection] = useState<readonly string[]>([
-    'managed-status',
-    'policy-decision',
-  ]);
   useEffect(() => {
     setWorkspaceSelectedDeviceValue(undefined);
   }, [kind, activeNavLabel, selectedControlName]);
@@ -9596,71 +8267,16 @@ function ManageWorkspacePanel({
           cfg={cfg}
         />
       ) : browserRulesChoiceMode ? (
-        browserRulesDraftHidden ? (
-          <BrowserRulesGridGuide
-            x={workspaceBodyX + 6}
-            y={browserRulesChoiceTop}
-            w={workspaceBodyW - 16}
-            h={Math.max(1, bodyY + bodyH - browserRulesChoiceTop - 18)}
-            workspaceTarget={workspaceTargetKey}
-            disabled={policyChoiceDisabled}
-            decisionChoice={policyPrimaryChoice}
-            enforcementChoice={browserRulesEnforcementChoice}
-            scheduleChoice={browserRulesScheduleChoice}
-            limitMode={browserRulesLimitMode}
-            matchSelection={browserRulesMatchSelection}
-            appliesSelection={browserRulesAppliesSelection}
-            askSelection={browserRulesAskSelection}
-            bypassChoice={browserRulesBypassChoice}
-            recordSelection={browserRulesRecordSelection}
-            onDecisionChange={setPolicyPrimaryChoice}
-            onEnforcementChange={setBrowserRulesEnforcementChoice}
-            onScheduleChange={setBrowserRulesScheduleChoice}
-            onLimitModeChange={setBrowserRulesLimitMode}
-            onMatchChange={setBrowserRulesMatchSelection}
-            onAppliesChange={setBrowserRulesAppliesSelection}
-            onAskChange={setBrowserRulesAskSelection}
-            onBypassChange={setBrowserRulesBypassChoice}
-            onRecordChange={setBrowserRulesRecordSelection}
-            onInfoClick={() => onNavigate?.(guideRoutePathForManageKey(activeNavLabel, selectedControlName))}
-          />
-        ) : (
-          <BrowserRulesChoiceEditor
-            x={workspaceBodyX + 22}
-            y={browserRulesChoiceTop}
-            w={workspaceBodyW - 44}
-            disabled={policyChoiceDisabled}
-            targetLabel={
-              workspaceTargetKey === 'perDevice'
-                ? workspaceSelectedLabel
-                  ? `device ${workspaceSelectedLabel}`
-                  : 'the selected device'
-                : workspaceTargetKey === 'portal'
-                  ? 'the parent portal'
-                  : 'the whole family'
-            }
-            decisionChoice={policyPrimaryChoice}
-            enforcementChoice={browserRulesEnforcementChoice}
-            limitMode={browserRulesLimitMode}
-            matchSelection={browserRulesMatchSelection}
-            appliesSelection={browserRulesAppliesSelection}
-            warnSelection={browserRulesWarnSelection}
-            askSelection={browserRulesAskSelection}
-            bypassChoice={browserRulesBypassChoice}
-            recordSelection={browserRulesRecordSelection}
-            onInfoClick={() => onNavigate?.(guideRoutePathForManageKey(activeNavLabel, selectedControlName))}
-            onDecisionChange={setPolicyPrimaryChoice}
-            onEnforcementChange={setBrowserRulesEnforcementChoice}
-            onLimitModeChange={setBrowserRulesLimitMode}
-            onMatchChange={setBrowserRulesMatchSelection}
-            onAppliesChange={setBrowserRulesAppliesSelection}
-            onWarnChange={setBrowserRulesWarnSelection}
-            onAskChange={setBrowserRulesAskSelection}
-            onBypassChange={setBrowserRulesBypassChoice}
-            onRecordChange={setBrowserRulesRecordSelection}
-            cfg={cfg}
-          />
-        )
+        <BrowserRulesGridGuide
+          x={workspaceBodyX + 6}
+          y={browserRulesChoiceTop}
+          w={workspaceBodyW - 16}
+          h={Math.max(1, bodyY + bodyH - browserRulesChoiceTop - 18)}
+          disabled={policyChoiceDisabled}
+          enforcementChoice={browserRulesEnforcementChoice}
+          onEnforcementChange={setBrowserRulesEnforcementChoice}
+          onInfoClick={() => onNavigate?.(guideRoutePathForManageKey(activeNavLabel, selectedControlName))}
+        />
       ) : kind === 'policy' ? (
         policyRows.map((rowItem, index) => {
           const column = index % policyRowColumns;

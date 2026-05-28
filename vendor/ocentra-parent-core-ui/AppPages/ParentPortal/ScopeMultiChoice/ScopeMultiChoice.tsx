@@ -57,27 +57,40 @@ export function ScopeMultiChoice({
   const normalizedOptions = useMemo(() => normalizeScopeMultiChoiceOptions(config, options), [config, options]);
   const selectedValues = selected ?? internalSelected;
   const titleText = title ?? config.text.title;
-  const metrics = calculateScopeMultiChoiceMetrics(config, titleText, normalizedOptions, width, showTitle);
+  const metrics = calculateScopeMultiChoiceMetrics(config, titleText, normalizedOptions, width, showTitle, multiSelect);
   const renderedSvgHeight =
     config.svg.fitMode === 'fixedHeight' && config.svg.height !== undefined ? config.svg.height : metrics.svgHeight;
-  const viewBoxX = -config.svg.viewportInset;
-  const viewBoxY = -config.svg.viewportInset;
-  const viewBoxW = metrics.svgWidth + config.svg.viewportInset * 2;
-  const viewBoxH = metrics.svgHeight + config.svg.viewportInset * 2;
+  const viewBoxX = 0;
+  const viewBoxY = 0;
+  const viewBoxW = metrics.svgWidth;
+  const viewBoxH = metrics.svgHeight;
+  const titleClipId = `${uid}-titleClip`;
+  const titleClipX = metrics.titleBoxX - config.svg.viewportInset;
+  const titleClipY = metrics.titleBoxY - config.svg.viewportInset;
+  const titleClipWidth = Math.max(1, metrics.trackX - titleClipX);
+  const titleClipHeight = config.layout.titleBoxHeight + config.svg.viewportInset * 2;
+  const titleOverlayClipId = `${uid}-titleOverlayClip`;
+  const titleIconGlowId = `${uid}-titleIconGlow`;
+  const indicatorOuterGlowId = `${uid}-indicatorOuterGlow`;
+  const titleOverlayClipX = metrics.titleBoxX - config.svg.viewportInset;
+  const titleOverlayClipY = metrics.titleBoxY - config.svg.viewportInset;
+  const titleOverlayClipWidth = metrics.titleBoxWidth + config.svg.viewportInset * 2;
+  const titleOverlayClipHeight = config.layout.titleBoxHeight + config.svg.viewportInset * 2;
   const glowOpacity = isHovering ? config.opacity.trackGlowHover : config.opacity.trackGlowIdle;
   const outerGlowOpacity = isHovering ? config.opacity.outerGlowHover : config.opacity.outerGlowIdle;
   const titleGlowOpacity = isHovering ? config.opacity.titleGlowHover : config.opacity.titleGlowIdle;
   const selectedGlowOpacity = isHovering ? config.opacity.selectedGlowHover : config.opacity.selectedGlowIdle;
   const rootOpacity = disabled ? config.opacity.disabled : 1;
   const scale = disabled ? 1 : isPressed ? config.hover.pressScale : 1;
+  const titleBoxRightRadius = config.layout.titleBoxRightRadius ?? config.layout.titleBoxRadius;
   const titleBoxPath = roundedScopeMultiChoiceRectPath(
     metrics.titleBoxX,
     metrics.titleBoxY,
     metrics.titleBoxWidth,
     config.layout.titleBoxHeight,
     config.layout.titleBoxRadius,
-    config.layout.titleBoxRadius,
-    config.layout.titleBoxBottomRadius,
+    titleBoxRightRadius,
+    config.layout.titleBoxRightRadius ?? config.layout.titleBoxBottomRadius,
     config.layout.titleBoxBottomRadius
   );
   const outerEdgePath = roundedScopeMultiChoiceRectPath(
@@ -85,7 +98,7 @@ export function ScopeMultiChoice({
     metrics.trackY - config.layout.outerPadY,
     metrics.trackWidth + config.layout.outerPadX * 2,
     metrics.trackHeight + config.layout.outerPadY * 2,
-    showTitle ? 0 : config.layout.outerRadius,
+    config.layout.outerRadius,
     config.layout.outerRadius,
     config.layout.outerRadius,
     config.layout.outerRadius
@@ -95,7 +108,7 @@ export function ScopeMultiChoice({
     metrics.trackY,
     metrics.trackWidth,
     metrics.trackHeight,
-    showTitle ? 0 : config.track.radius,
+    config.track.radius,
     config.track.radius,
     config.track.radius,
     config.track.radius
@@ -203,9 +216,16 @@ export function ScopeMultiChoice({
           <feDropShadow
             dx={0}
             dy={0}
-            stdDeviation={2}
+            stdDeviation={3.2}
             floodColor={config.colors.titleBoxGlow}
             floodOpacity={titleGlowOpacity}
+          />
+          <feDropShadow
+            dx={0}
+            dy={0}
+            stdDeviation={8}
+            floodColor={config.colors.titleBoxGlow}
+            floodOpacity={titleGlowOpacity * 0.45}
           />
         </filter>
         <filter id={`${uid}-selectedGlow`} x="-35%" y="-75%" width="170%" height="250%">
@@ -224,28 +244,41 @@ export function ScopeMultiChoice({
             floodOpacity={selectedGlowOpacity * 0.36}
           />
         </filter>
+        <filter id={titleIconGlowId} x="-60%" y="-60%" width="220%" height="220%">
+          <feDropShadow dx={0} dy={0} stdDeviation={1.4} floodColor="#fff2a8" floodOpacity={0.58} />
+          <feDropShadow dx={0} dy={0} stdDeviation={4.2} floodColor="#53c7ff" floodOpacity={0.34} />
+        </filter>
+        <filter id={indicatorOuterGlowId} x="-90%" y="-90%" width="280%" height="280%">
+          <feDropShadow
+            dx={0}
+            dy={0}
+            stdDeviation={1.2}
+            floodColor={config.colors.indicatorCircleGlow}
+            floodOpacity={0.9}
+          />
+          <feDropShadow
+            dx={0}
+            dy={0}
+            stdDeviation={4.2}
+            floodColor={config.colors.indicatorCircleGlow}
+            floodOpacity={0.42}
+          />
+        </filter>
+        <clipPath id={titleClipId}>
+          <rect x={titleClipX} y={titleClipY} width={titleClipWidth} height={titleClipHeight} />
+        </clipPath>
+        <clipPath id={titleOverlayClipId}>
+          <rect
+            x={titleOverlayClipX}
+            y={titleOverlayClipY}
+            width={titleOverlayClipWidth}
+            height={titleOverlayClipHeight}
+          />
+        </clipPath>
       </defs>
 
-      <path
-        d={outerEdgePath}
-        fill="none"
-        stroke={config.colors.outerEdgeGlow}
-        strokeWidth={config.outerEdge.glowStrokeWidth}
-        strokeOpacity={outerGlowOpacity}
-        filter={`url(#${uid}-outerGlow)`}
-        style={svgStyle}
-      />
-      <path
-        d={outerEdgePath}
-        fill="none"
-        stroke={config.colors.outerEdge}
-        strokeWidth={config.outerEdge.strokeWidth}
-        strokeOpacity={isHovering ? 0.72 : 0.42}
-        style={svgStyle}
-      />
-
       {showTitle ? (
-        <>
+        <g clipPath={`url(#${titleClipId})`}>
           <path
             d={titleBoxPath}
             fill="none"
@@ -270,9 +303,7 @@ export function ScopeMultiChoice({
             strokeOpacity={isHovering ? 0.34 : 0.18}
             style={svgStyle}
           />
-          {titleRenderer ? (
-            titleRenderer(titleSlot)
-          ) : (
+          {!titleRenderer ? (
             <text
               x={metrics.titleCenterX}
               y={metrics.titleBoxY + config.layout.titleBoxHeight * 0.64}
@@ -286,9 +317,28 @@ export function ScopeMultiChoice({
             >
               {titleText}
             </text>
-          )}
-        </>
+          ) : null}
+        </g>
       ) : null}
+
+      <path d={outerEdgePath} fill={`url(#${uid}-track)`} stroke="none" style={svgStyle} />
+      <path
+        d={outerEdgePath}
+        fill="none"
+        stroke={config.colors.outerEdgeGlow}
+        strokeWidth={config.outerEdge.glowStrokeWidth}
+        strokeOpacity={outerGlowOpacity}
+        filter={`url(#${uid}-outerGlow)`}
+        style={svgStyle}
+      />
+      <path
+        d={outerEdgePath}
+        fill="none"
+        stroke={config.colors.outerEdge}
+        strokeWidth={config.outerEdge.strokeWidth}
+        strokeOpacity={isHovering ? 0.72 : 0.42}
+        style={svgStyle}
+      />
 
       <path
         d={trackPath}
@@ -325,11 +375,12 @@ export function ScopeMultiChoice({
         const isOptionHovered = hoveredValue === option.value;
         const optionX = metrics.trackX + placement.x;
         const optionY = metrics.trackY + placement.y;
-        const selectedX = optionX + config.optionButton.inset;
-        const selectedY = optionY + config.optionButton.inset;
-        const selectedHeight = placement.height - config.optionButton.inset * 2;
-        const indicatorSize = selectedHeight;
-        const selectedWidth = placement.width - config.optionButton.inset * 2;
+        const selectedX = optionX + config.optionButton.insetX;
+        const selectedY = optionY + config.optionButton.insetY;
+        const selectedHeight = placement.height - config.optionButton.insetY * 2;
+        const showIndicator = multiSelect;
+        const indicatorSize = showIndicator ? selectedHeight : 0;
+        const selectedWidth = placement.width - config.optionButton.insetX * 2;
         const labelWidth = Math.max(1, selectedWidth - indicatorSize);
         const indicatorX = selectedX + labelWidth;
         const labelPath = roundedScopeMultiChoiceRectPath(
@@ -338,8 +389,8 @@ export function ScopeMultiChoice({
           labelWidth,
           selectedHeight,
           config.optionButton.radius,
-          0,
-          0,
+          showIndicator ? 0 : config.optionButton.radius,
+          showIndicator ? 0 : config.optionButton.radius,
           config.optionButton.radius
         );
         const indicatorPath = roundedScopeMultiChoiceRectPath(
@@ -403,7 +454,7 @@ export function ScopeMultiChoice({
                     : config.colors.trackStroke
               }
               strokeWidth={config.optionButton.strokeWidth}
-              strokeOpacity={isSelected ? 1 : isOptionHovered ? 0.72 : 0.38}
+              strokeOpacity={isSelected ? 1 : isOptionHovered ? 0.8 : 0.58}
               style={svgStyle}
             />
             {isSelected ? (
@@ -414,30 +465,47 @@ export function ScopeMultiChoice({
                 style={{ mixBlendMode: 'screen', ...svgStyle }}
               />
             ) : null}
-            <path
-              d={indicatorPath}
-              fill={isSelected ? `url(#${uid}-track)` : 'transparent'}
-              stroke={isSelected || isOptionHovered ? config.colors.indicatorStroke : config.colors.trackStroke}
-              strokeWidth={config.indicator.strokeWidth}
-              strokeOpacity={isSelected ? 1 : isOptionHovered ? 0.76 : 0.46}
-              style={svgStyle}
-            />
-            <circle
-              cx={indicatorX + indicatorSize * 0.5}
-              cy={selectedY + indicatorSize * 0.5}
-              r={config.indicator.circleRadius}
-              fill={isSelected ? config.colors.indicatorCircleSelected : 'transparent'}
-              stroke={
-                isSelected
-                  ? config.colors.indicatorCircleSelected
-                  : isOptionHovered
-                    ? config.colors.indicatorCircleIdle
-                    : config.colors.trackStroke
-              }
-              strokeWidth={config.indicator.circleStrokeWidth}
-              strokeOpacity={isSelected ? 1 : isOptionHovered ? 0.95 : 0.52}
-              style={svgStyle}
-            />
+            {showIndicator ? (
+              <>
+                <path
+                  d={indicatorPath}
+                  fill={isSelected ? `url(#${uid}-track)` : 'transparent'}
+                  stroke={isSelected || isOptionHovered ? config.colors.indicatorStroke : config.colors.trackStroke}
+                  strokeWidth={config.indicator.strokeWidth}
+                  strokeOpacity={isSelected ? 1 : isOptionHovered ? 0.82 : 0.62}
+                  style={svgStyle}
+                />
+                {isSelected ? (
+                  <circle
+                    cx={indicatorX + indicatorSize * 0.5}
+                    cy={selectedY + indicatorSize * 0.5}
+                    r={config.indicator.circleRadius + config.indicator.outerRingRadiusOffset}
+                    fill="none"
+                    stroke={config.colors.indicatorCircleGlow}
+                    strokeWidth={config.indicator.outerRingStrokeWidth}
+                    strokeOpacity={0.98}
+                    filter={`url(#${indicatorOuterGlowId})`}
+                    style={svgStyle}
+                  />
+                ) : null}
+                <circle
+                  cx={indicatorX + indicatorSize * 0.5}
+                  cy={selectedY + indicatorSize * 0.5}
+                  r={config.indicator.circleRadius}
+                  fill={isSelected ? config.colors.indicatorCircleSelected : 'transparent'}
+                  stroke={
+                    isSelected
+                      ? config.colors.indicatorCircleSelected
+                      : isOptionHovered
+                        ? config.colors.indicatorCircleIdle
+                        : config.colors.trackStroke
+                  }
+                  strokeWidth={config.indicator.circleStrokeWidth}
+                  strokeOpacity={isSelected ? 1 : isOptionHovered ? 0.98 : 0.68}
+                  style={svgStyle}
+                />
+              </>
+            ) : null}
             <text
               x={selectedX + labelWidth * 0.5}
               y={optionY + placement.height * 0.5 + config.text.optionFontSize * 0.34}
@@ -454,6 +522,11 @@ export function ScopeMultiChoice({
           </g>
         );
       })}
+      {showTitle && titleRenderer ? (
+        <g clipPath={`url(#${titleOverlayClipId})`} filter={`url(#${titleIconGlowId})`} pointerEvents="none">
+          {titleRenderer(titleSlot)}
+        </g>
+      ) : null}
     </>
   );
 

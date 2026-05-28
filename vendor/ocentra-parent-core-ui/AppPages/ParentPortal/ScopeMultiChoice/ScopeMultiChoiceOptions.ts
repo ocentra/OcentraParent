@@ -19,7 +19,7 @@ export function toggleScopeMultiChoiceValue(
   multiSelect: boolean
 ): readonly string[] {
   if (!multiSelect) {
-    return current.includes(nextValue) ? [] : [nextValue];
+    return [nextValue];
   }
 
   return current.includes(nextValue) ? current.filter((value) => value !== nextValue) : [...current, nextValue];

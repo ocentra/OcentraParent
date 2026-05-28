@@ -1,0 +1,117 @@
+.browser-rules-questionnaire {
+  --browser-rules-scrollbar-size: 10px;
+  --browser-rules-scrollbar-track: rgba(5, 24, 34, 0.82);
+  --browser-rules-scrollbar-thumb: rgba(102, 243, 255, 0.92);
+  --browser-rules-scrollbar-edge: rgba(63, 232, 255, 0.48);
+  --browser-rules-scrollbar-glow: rgba(102, 243, 255, 0.7);
+
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 2px 12px 8px 0;
+  scrollbar-color: rgba(102, 243, 255, 0.9) var(--browser-rules-scrollbar-track);
+  scrollbar-width: thin;
+}
+
+.browser-rules-questionnaire::-webkit-scrollbar {
+  width: var(--browser-rules-scrollbar-size);
+}
+
+.browser-rules-questionnaire::-webkit-scrollbar-track {
+  border: 1px solid var(--browser-rules-scrollbar-edge);
+  border-radius: 999px;
+  background: var(--browser-rules-scrollbar-track);
+}
+
+.browser-rules-questionnaire::-webkit-scrollbar-thumb {
+  border: 1px solid rgba(240, 201, 74, 0.9);
+  border-radius: 999px;
+  background: var(--browser-rules-scrollbar-thumb);
+  box-shadow: 0 0 8px var(--browser-rules-scrollbar-glow);
+}
+
+.browser-rules-questionnaire__columns {
+  display: grid;
+  align-items: start;
+}
+
+.browser-rules-questionnaire__column {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.browser-rules-bubble {
+  width: 100%;
+  overflow: visible;
+}
+
+.browser-rules-bubble__svg {
+  display: block;
+  overflow: visible;
+}
+
+.browser-rules-bubble__body {
+  display: flex;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  align-items: flex-start;
+  overflow: visible;
+}
+
+.browser-rules-bubble__body--stacked {
+  align-content: flex-start;
+}
+
+.browser-rules-bubble__control-row {
+  display: grid;
+  align-items: flex-start;
+  min-width: 0;
+  overflow: visible;
+}
+
+.browser-rules-icon-slot {
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  overflow: visible;
+}
+
+.browser-rules-icon-slot--action {
+  align-self: flex-start;
+}
+
+.browser-rules-icon-slot--enforcement {
+  align-self: flex-start;
+  align-items: flex-start;
+}
+
+.browser-rules-icon-slot svg {
+  display: block;
+  overflow: visible;
+}
+
+.browser-rules-choice-panel {
+  display: block;
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  overflow: visible;
+  flex: 0 0 auto;
+}
+
+.browser-rules-choice-panel--enforcement {
+  flex: 0 0 auto;
+}
+
+.browser-rules-svg-control {
+  overflow: visible;
+}
+
+.browser-rules-svg-control svg {
+  overflow: visible;
+}

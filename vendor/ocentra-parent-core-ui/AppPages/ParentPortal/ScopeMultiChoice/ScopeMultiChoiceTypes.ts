@@ -78,7 +78,9 @@ export type ScopeMultiChoiceConfig = {
     readonly titleBoxPaddingX: number;
     readonly titleBoxHeight: number;
     readonly titleBoxRadius: number;
+    readonly titleBoxRightRadius: number | undefined;
     readonly titleBoxBottomRadius: number;
+    readonly centerTitleBoxOnTrack: boolean;
     readonly trackX: number;
     readonly trackY: number;
     readonly trackYWithoutTitle: number;
@@ -115,6 +117,8 @@ export type ScopeMultiChoiceConfig = {
   };
   readonly optionButton: {
     readonly inset: number;
+    readonly insetX: number;
+    readonly insetY: number;
     readonly radius: number;
     readonly strokeWidth: number;
     readonly glowStrokeWidth: number;
@@ -124,6 +128,8 @@ export type ScopeMultiChoiceConfig = {
     readonly strokeWidth: number;
     readonly circleRadius: number;
     readonly circleStrokeWidth: number;
+    readonly outerRingRadiusOffset: number;
+    readonly outerRingStrokeWidth: number;
   };
   readonly text: {
     readonly title: string;

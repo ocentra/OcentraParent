@@ -16,7 +16,9 @@ export const defaultScopeMultiChoiceConfig: ScopeMultiChoiceConfig = {
     titleBoxPaddingX: 18,
     titleBoxHeight: 32,
     titleBoxRadius: 8,
+    titleBoxRightRadius: undefined,
     titleBoxBottomRadius: 0,
+    centerTitleBoxOnTrack: false,
     trackX: 12,
     trackY: 42,
     trackYWithoutTitle: 12,
@@ -53,6 +55,8 @@ export const defaultScopeMultiChoiceConfig: ScopeMultiChoiceConfig = {
   },
   optionButton: {
     inset: 5,
+    insetX: 5,
+    insetY: 5,
     radius: 7,
     strokeWidth: 1,
     glowStrokeWidth: 1.8,
@@ -62,6 +66,8 @@ export const defaultScopeMultiChoiceConfig: ScopeMultiChoiceConfig = {
     strokeWidth: 1,
     circleRadius: 6.2,
     circleStrokeWidth: 1.7,
+    outerRingRadiusOffset: 2.6,
+    outerRingStrokeWidth: 1.1,
   },
   text: {
     title: 'Choice',

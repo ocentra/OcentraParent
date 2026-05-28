@@ -56,17 +56,21 @@ export function getScopeMultiChoiceLabel(label: string, maxWidth: number, fontSi
   return `${label.slice(0, maxChars)}...`;
 }
 
-export function getScopeMultiChoiceOptionWidth(config: ScopeMultiChoiceConfig, option: ScopeMultiChoiceOption): number {
+export function getScopeMultiChoiceOptionWidth(
+  config: ScopeMultiChoiceConfig,
+  option: ScopeMultiChoiceOption,
+  includeIndicatorColumn = true
+): number {
   if (option.width !== undefined) {
     return clampScopeMultiChoiceNumber(option.width, config.layout.optionMinWidth, config.layout.optionMaxWidth);
   }
 
-  const indicatorSize = config.layout.optionHeight - config.optionButton.inset * 2;
+  const indicatorSize = includeIndicatorColumn ? config.layout.optionHeight - config.optionButton.insetY * 2 : 0;
   const measuredWidth =
     estimateScopeMultiChoiceTextWidth(option.label, config.text.optionFontSize) +
     config.layout.optionPaddingX * 2 +
     indicatorSize +
-    config.optionButton.inset * 2;
+    config.optionButton.insetX * 2;
 
   return clampScopeMultiChoiceNumber(measuredWidth, config.layout.optionMinWidth, config.layout.optionMaxWidth);
 }
@@ -112,7 +116,8 @@ export function calculateScopeMultiChoiceMetrics(
   titleText: string,
   options: readonly ScopeMultiChoiceOption[],
   width?: number,
-  showTitle = true
+  showTitle = true,
+  includeIndicatorColumn = true
 ): ScopeMultiChoiceMetrics {
   const titleTextWidth = estimateScopeMultiChoiceTextWidth(titleText, config.text.titleFontSize);
   const titleBoxWidth = Math.max(config.layout.titleBoxMinWidth, titleTextWidth + config.layout.titleBoxPaddingX * 2);
@@ -129,7 +134,7 @@ export function calculateScopeMultiChoiceMetrics(
   let row = 0;
 
   options.forEach((option) => {
-    const optionWidth = Math.min(getScopeMultiChoiceOptionWidth(config, option), trackWidth);
+    const optionWidth = Math.min(getScopeMultiChoiceOptionWidth(config, option, includeIndicatorColumn), trackWidth);
     if (x > 0 && x + optionWidth > trackWidth) {
       x = 0;
       y += config.layout.optionHeight + config.layout.optionGapY;
@@ -144,6 +149,9 @@ export function calculateScopeMultiChoiceMetrics(
 
   const lastPlacement = placements[placements.length - 1];
   const trackHeight = lastPlacement ? lastPlacement.y + lastPlacement.height : config.layout.optionHeight;
+  const titleBoxY = config.layout.centerTitleBoxOnTrack
+    ? trackY + (trackHeight - config.layout.titleBoxHeight) * 0.5
+    : config.layout.titleBoxY;
   const svgWidth = Math.max(
     requestedSvgWidth,
     config.layout.trackX + trackWidth + config.layout.outerPaddingRight + config.svg.viewportInset
@@ -157,7 +165,7 @@ export function calculateScopeMultiChoiceMetrics(
     svgWidth,
     svgHeight,
     titleBoxX: config.layout.titleBoxX,
-    titleBoxY: config.layout.titleBoxY,
+    titleBoxY,
     titleBoxWidth,
     titleCenterX: config.layout.titleBoxX + titleBoxWidth * 0.5,
     trackX: config.layout.trackX,
