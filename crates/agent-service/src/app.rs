@@ -8,14 +8,16 @@ use axum::{
 use ocentra_parent_agent_protocol::{constants, AgentLogSnapshot, LogFields};
 
 use crate::{
-    dev_log::write_agent_info, lan_pairing::LanPairingRuntime, network::NetworkPolicy,
-    snapshot::build_dev_log_snapshot, websocket::handle_socket,
+    browser_policy_runtime::BrowserPolicyRuntime, dev_log::write_agent_info,
+    lan_pairing::LanPairingRuntime, network::NetworkPolicy, snapshot::build_dev_log_snapshot,
+    websocket::handle_socket,
 };
 
 #[derive(Clone)]
 pub struct AppState {
     network: NetworkPolicy,
     lan_pairing: LanPairingRuntime,
+    browser_policy: BrowserPolicyRuntime,
 }
 
 pub fn router(network: NetworkPolicy) -> Router {
@@ -23,6 +25,7 @@ pub fn router(network: NetworkPolicy) -> Router {
     let state = AppState {
         network,
         lan_pairing: LanPairingRuntime::from_env(),
+        browser_policy: BrowserPolicyRuntime::from_env(),
     };
     Router::new()
         .route(constants::endpoint::HEALTH, get(health))
@@ -56,5 +59,7 @@ async fn websocket(
         .get(ORIGIN)
         .and_then(|value| value.to_str().ok())
         .map(ToOwned::to_owned);
-    ws.on_upgrade(move |socket| handle_socket(socket, state.lan_pairing, origin))
+    ws.on_upgrade(move |socket| {
+        handle_socket(socket, state.lan_pairing, state.browser_policy, origin)
+    })
 }

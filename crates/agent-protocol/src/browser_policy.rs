@@ -1,6 +1,8 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+use crate::{BrowserPolicyCapabilityRegistry, BrowserPolicyEffectivePolicy, BrowserPolicyValue};
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BrowserPolicyUpdateKind {
     #[serde(rename = "get")]
     Get,
@@ -26,7 +28,7 @@ impl BrowserPolicyUpdateKind {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BrowserPolicyUpdateStatus {
     #[serde(rename = "accepted")]
     Accepted,
@@ -34,8 +36,10 @@ pub enum BrowserPolicyUpdateStatus {
     Rejected,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BrowserPolicyRejectionReason {
+    #[serde(rename = "invalid-request")]
+    InvalidRequest,
     #[serde(rename = "unknown-writes-to")]
     UnknownWritesTo,
     #[serde(rename = "unknown-field")]
@@ -48,6 +52,10 @@ pub enum BrowserPolicyRejectionReason {
     MissingManagedProofOrFallback,
     #[serde(rename = "capability-unavailable")]
     CapabilityUnavailable,
+    #[serde(rename = "storage-unavailable")]
+    StorageUnavailable,
+    #[serde(rename = "stale-revision")]
+    StaleRevision,
     #[serde(rename = "scaffold-unavailable")]
     ScaffoldUnavailable,
     #[serde(rename = "revision-not-found")]
@@ -55,7 +63,57 @@ pub enum BrowserPolicyRejectionReason {
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(untagged)]
+pub enum BrowserPolicyUpdateRequest {
+    Get(BrowserPolicyGetRequest),
+    Preview(BrowserPolicyPreviewRequest),
+    Patch(BrowserPolicyPatchRequest),
+    Replace(BrowserPolicyReplaceRequest),
+    Rollback(BrowserPolicyRollbackRequest),
+}
+
+impl BrowserPolicyUpdateRequest {
+    pub fn request_id(&self) -> &str {
+        match self {
+            Self::Get(request) => &request.request_id,
+            Self::Preview(request) => &request.request_id,
+            Self::Patch(request) => &request.request_id,
+            Self::Replace(request) => &request.request_id,
+            Self::Rollback(request) => &request.request_id,
+        }
+    }
+
+    pub fn kind(&self) -> BrowserPolicyUpdateKind {
+        match self {
+            Self::Get(_) => BrowserPolicyUpdateKind::Get,
+            Self::Preview(_) => BrowserPolicyUpdateKind::Preview,
+            Self::Patch(_) => BrowserPolicyUpdateKind::Patch,
+            Self::Replace(_) => BrowserPolicyUpdateKind::Replace,
+            Self::Rollback(_) => BrowserPolicyUpdateKind::Rollback,
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct BrowserPolicyGetRequest {
+    pub schema_version: String,
+    pub request_id: String,
+    pub kind: BrowserPolicyUpdateKind,
+    pub policy_id: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct BrowserPolicyPreviewRequest {
+    pub schema_version: String,
+    pub request_id: String,
+    pub kind: BrowserPolicyUpdateKind,
+    pub policy: BrowserPolicyValue,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct BrowserPolicyPatch {
     pub op: String,
     pub field_id: String,
@@ -64,7 +122,7 @@ pub struct BrowserPolicyPatch {
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct BrowserPolicyPatchRequest {
     pub schema_version: String,
     pub request_id: String,
@@ -75,15 +133,35 @@ pub struct BrowserPolicyPatchRequest {
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct BrowserPolicyReplaceRequest {
+    pub schema_version: String,
+    pub request_id: String,
+    pub kind: BrowserPolicyUpdateKind,
+    pub base_revision_id: Option<String>,
+    pub policy: BrowserPolicyValue,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct BrowserPolicyRollbackRequest {
+    pub schema_version: String,
+    pub request_id: String,
+    pub kind: BrowserPolicyUpdateKind,
+    pub policy_id: String,
+    pub target_revision_id: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct BrowserPolicyUpdateResponse {
     pub schema_version: String,
     pub request_id: String,
     pub kind: BrowserPolicyUpdateKind,
     pub status: BrowserPolicyUpdateStatus,
-    pub policy: Option<serde_json::Value>,
-    pub effective_policy: Option<serde_json::Value>,
-    pub capability_registry: Option<serde_json::Value>,
+    pub policy: Option<BrowserPolicyValue>,
+    pub effective_policy: Option<BrowserPolicyEffectivePolicy>,
+    pub capability_registry: Option<BrowserPolicyCapabilityRegistry>,
     pub rejection_reason: Option<BrowserPolicyRejectionReason>,
     pub audit_event_id: Option<String>,
     pub message: Option<String>,

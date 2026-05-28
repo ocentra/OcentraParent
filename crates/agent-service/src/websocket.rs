@@ -17,7 +17,8 @@ use crate::{
         build_activity_report_history, build_activity_report_save,
         build_activity_screen_read_model, build_activity_weekly_report,
     },
-    browser_policy_api::build_browser_policy_scaffold_event,
+    browser_policy_api::build_browser_policy_event,
+    browser_policy_runtime::BrowserPolicyRuntime,
     browser_runtime::build_browser_managed_status_report,
     enforcement_api::build_enforcement_audit_report,
     enforcement_timer_api::build_enforcement_timer_report,
@@ -37,6 +38,7 @@ use crate::{
 pub async fn handle_socket(
     mut socket: WebSocket,
     lan_pairing: LanPairingRuntime,
+    browser_policy: BrowserPolicyRuntime,
     origin: Option<String>,
 ) {
     let ready_event = build_event(
@@ -64,8 +66,13 @@ pub async fn handle_socket(
 
         match message {
             Message::Text(text) => {
-                let event =
-                    handle_command_text(text.as_str(), lan_pairing.clone(), origin.clone()).await;
+                let event = handle_command_text(
+                    text.as_str(),
+                    lan_pairing.clone(),
+                    browser_policy.clone(),
+                    origin.clone(),
+                )
+                .await;
                 if send_event(&mut socket, event).await.is_err() {
                     break;
                 }
@@ -84,10 +91,11 @@ pub async fn handle_socket(
 async fn handle_command_text(
     text: &str,
     lan_pairing: LanPairingRuntime,
+    browser_policy: BrowserPolicyRuntime,
     origin: Option<String>,
 ) -> AgentEventEnvelope {
     match serde_json::from_str::<AgentCommandEnvelope>(text) {
-        Ok(command) => handle_command(command, lan_pairing, origin).await,
+        Ok(command) => handle_command(command, lan_pairing, browser_policy, origin).await,
         Err(error) => build_event(
             constants::event_id::COMMAND_REJECTED,
             constants::event_id::UNKNOWN_COMMAND,
@@ -109,12 +117,23 @@ pub(crate) async fn handle_command_text_for_test(
     lan_pairing: LanPairingRuntime,
     origin: Option<String>,
 ) -> AgentEventEnvelope {
-    handle_command_text(text, lan_pairing, origin).await
+    handle_command_text(text, lan_pairing, BrowserPolicyRuntime::in_memory(), origin).await
+}
+
+#[cfg(test)]
+pub(crate) async fn handle_command_text_with_browser_policy_for_test(
+    text: &str,
+    lan_pairing: LanPairingRuntime,
+    browser_policy: BrowserPolicyRuntime,
+    origin: Option<String>,
+) -> AgentEventEnvelope {
+    handle_command_text(text, lan_pairing, browser_policy, origin).await
 }
 
 async fn handle_command(
     command: AgentCommandEnvelope,
     lan_pairing: LanPairingRuntime,
+    browser_policy: BrowserPolicyRuntime,
     origin: Option<String>,
 ) -> AgentEventEnvelope {
     let (command, audit_fields) =
@@ -126,7 +145,7 @@ async fn handle_command(
             LanCommandDecision::Respond(event) => return event,
         };
 
-    let mut event = build_command_event(command, lan_pairing).await;
+    let mut event = build_command_event(command, lan_pairing, browser_policy).await;
 
     if let Some(audit_fields) = audit_fields {
         event.payload.extend(audit_fields);
@@ -137,6 +156,7 @@ async fn handle_command(
 async fn build_command_event(
     command: AgentCommandEnvelope,
     lan_pairing: LanPairingRuntime,
+    browser_policy: BrowserPolicyRuntime,
 ) -> AgentEventEnvelope {
     match command.command.clone() {
         AgentCommandName::AgentHealthCheck => build_health_report(command),
@@ -178,7 +198,7 @@ async fn build_command_event(
         | AgentCommandName::AgentBrowserPolicyPatch
         | AgentCommandName::AgentBrowserPolicyReplace
         | AgentCommandName::AgentBrowserPolicyRollback => {
-            build_browser_policy_scaffold_event(command)
+            build_browser_policy_event(browser_policy, command).await
         }
         AgentCommandName::AgentParentAssistantThreadList
         | AgentCommandName::AgentParentAssistantThreadCreate

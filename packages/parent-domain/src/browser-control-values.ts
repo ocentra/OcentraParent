@@ -66,12 +66,15 @@ export const BrowserControlCapabilityStateSchema = withParser(
 );
 export const BrowserControlRejectionReasonSchema = withParser(
   Schema.Literal(
+    'invalid-request',
     'unknown-writes-to',
     'unknown-field',
     'invalid-enum-value',
     'missing-budget-or-fallback',
     'missing-managed-proof-or-fallback',
     'capability-unavailable',
+    'storage-unavailable',
+    'stale-revision',
     'scaffold-unavailable',
     'revision-not-found'
   )

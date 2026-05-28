@@ -178,6 +178,9 @@ function validPolicy() {
     downloads: {
       state: 'ask-parent',
     },
+    approvals: {
+      state: 'required',
+    },
     reports: {
       state: 'weekly',
     },

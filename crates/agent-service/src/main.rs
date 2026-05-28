@@ -30,7 +30,12 @@ mod browser_payload;
 mod browser_policy_api;
 #[cfg(test)]
 mod browser_policy_api_tests;
+mod browser_policy_compiler;
 mod browser_policy_payload;
+mod browser_policy_request;
+mod browser_policy_runtime;
+mod browser_policy_runtime_support;
+mod browser_policy_store;
 mod browser_runtime;
 mod browser_runtime_paths;
 mod browser_runtime_status;

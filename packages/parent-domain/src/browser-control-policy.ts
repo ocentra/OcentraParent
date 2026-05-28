@@ -13,6 +13,7 @@ import {
 } from './browser-control-identifiers';
 import {
   BrowserControlAuditStateSchema,
+  BrowserControlApprovalStateSchema,
   BrowserControlCapabilityStateSchema,
   BrowserControlDefaultPostureSchema,
   BrowserControlDownloadStateSchema,
@@ -87,6 +88,9 @@ export const BrowserControlPolicyValueBaseSchema = Schema.Struct({
   }),
   downloads: Schema.Struct({
     state: BrowserControlDownloadStateSchema,
+  }),
+  approvals: Schema.Struct({
+    state: BrowserControlApprovalStateSchema,
   }),
   reports: Schema.Struct({
     state: BrowserControlReportStateSchema,
