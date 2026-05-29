@@ -108,6 +108,10 @@
     "./references": {
       "import": "./dist/references.js",
       "types": "./dist/references.d.ts"
+    },
+    "./screen-control-catalog": {
+      "import": "./dist/screen-control-catalog.js",
+      "types": "./dist/screen-control-catalog.d.ts"
     }
   },
   "scripts": {
