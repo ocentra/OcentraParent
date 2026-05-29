@@ -18,6 +18,8 @@ mod activity_surface_adapter;
 mod activity_surface_adapter_tests;
 mod activity_surface_api;
 mod activity_surface_payload;
+#[cfg(test)]
+mod activity_surface_payload_tests;
 mod activity_surface_read_model_states;
 mod activity_surface_read_models;
 mod activity_surface_report;
