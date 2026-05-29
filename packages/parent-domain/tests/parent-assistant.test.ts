@@ -9,6 +9,7 @@ import {
   ParentAssistantRunCancelResultSchema,
   ParentAssistantThreadResponseSchema,
 } from '../src/parent-assistant';
+import { ParentAssistantRunStateSchema } from '../src/parent-assistant-run-state';
 import {
   ParentActorRole,
   ParentContractSchemaVersion,
@@ -121,6 +122,7 @@ describe('parent assistant answer contracts', () => {
       modelId: 'local-gguf-chat-model',
       providerState: 'configured',
       answerState: 'answered',
+      runState: 'completed',
       schedulerJobStatus: 'complete',
       degradedState: 'none',
       unavailableReason: null,
@@ -147,6 +149,7 @@ describe('parent assistant answer contracts', () => {
         modelId: 'local-gguf-chat-model',
         providerState: 'configured',
         answerState: 'answered',
+        runState: 'completed',
         schedulerJobStatus: 'complete',
         degradedState: 'none',
         unavailableReason: null,
@@ -173,6 +176,7 @@ describe('parent assistant unavailable answer contracts', () => {
       modelId: 'safety-model-unconfigured',
       providerState: 'unavailable',
       answerState: 'unavailable',
+      runState: 'unavailable',
       schedulerJobStatus: 'unavailable',
       degradedState: 'provider-unavailable',
       unavailableReason: 'local-ai-provider-unconfigured',
@@ -223,6 +227,12 @@ describe('parent assistant API provider boundary contracts', () => {
 });
 
 describe('parent assistant backend runtime contracts', () => {
+  it('ParentAssistantRunStateSchema: accepts scheduler-backed run states and rejects non-contract states', () => {
+    expect(ParentAssistantRunStateSchema.parse('queued')).toBe('queued');
+    expect(ParentAssistantRunStateSchema.parse('unavailable')).toBe('unavailable');
+    expect(ParentAssistantRunStateSchema.safeParse('blocked').success).toBe(false);
+  });
+
   it('ParentAssistantThreadResponseSchema: accepts durable local thread lifecycle state', () => {
     const parsed = ParentAssistantThreadResponseSchema.parse({
       schemaVersion: ParentContractSchemaVersion.V0_6,
@@ -243,7 +253,9 @@ describe('parent assistant backend runtime contracts', () => {
       providerId: 'local-provider-llama-cli',
       modelId: 'local-gguf-chat-model',
       providerState: 'unavailable',
+      runState: 'unavailable',
       schedulerJobStatus: 'unavailable',
+      schedulerStatus: schedulerStatus('unavailable'),
       degradedState: 'provider-unavailable',
       unavailableReason: 'local-ai-provider-unconfigured',
       queueDepth: 0,
@@ -262,6 +274,7 @@ describe('parent assistant backend runtime contracts', () => {
       threadId: 'parent-assistant-thread-1',
       runId: 'parent-assistant-run-1',
       cancelState: 'not-running',
+      runState: 'completed',
       providerState: 'unavailable',
       unavailableReason: 'parent-assistant-run-not-running',
     });
@@ -304,5 +317,28 @@ function threadRecord(state: 'open' | 'archived') {
     createdAt: '2026-05-28T17:20:00Z',
     updatedAt: '2026-05-28T17:20:01Z',
     messageCount: 0,
+  } as const;
+}
+
+function schedulerStatus(lifecycleState: 'idle' | 'running' | 'queued' | 'degraded' | 'unavailable') {
+  return {
+    physicalDeviceId: 'physical-device-local',
+    singletonScope: 'physical-device',
+    providerId: 'local-provider-llama-cli',
+    runtimeReferenceId: 'local-runtime-llama-cli',
+    modelId: 'local-gguf-chat-model',
+    modelReference: 'local-model-reference',
+    resourceClass: 'cpu',
+    lifecycleState,
+    currentJobClass: null,
+    queue: {
+      childSafetyQueued: 0,
+      parentAssistantQueued: 0,
+      parentReportQueued: 0,
+    },
+    duplicateRuntimeBlocked: false,
+    degradedState: 'provider-unavailable',
+    unavailableReason: 'local-ai-provider-unconfigured',
+    lastCheckedAt: '2026-05-28T17:20:01Z',
   } as const;
 }

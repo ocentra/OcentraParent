@@ -7,15 +7,18 @@ use std::{
 use ocentra_parent_agent_protocol::{
     constants, policy_constants, AgentCommandEnvelope, AgentCommandName, AgentEventName,
     AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue, LogLevel,
-    ParentAssistantActionConfirmResult, ParentAssistantBackendState, ParentAssistantProviderState,
+    ParentAssistantActionConfirmResult, ParentAssistantApiAuthorizationState,
+    ParentAssistantBackendState, ParentAssistantEvidenceContext, ParentAssistantProviderState,
     ParentAssistantProviderStatus, ParentAssistantRunCancelResult, ParentAssistantRunCancelState,
-    ParentAssistantThreadResponse, ParentAssistantThreadState, AGENT_PROTOCOL_SCHEMA_VERSION,
+    ParentAssistantRunState, ParentAssistantThreadResponse, ParentAssistantThreadState,
+    ParentEvidenceReference, ParentEvidenceReferenceKind, AGENT_PROTOCOL_SCHEMA_VERSION,
 };
 
 use crate::{
     fields::fields_from_pairs,
     parent_assistant_api::{
-        build_parent_assistant_scaffold_event, thread_store::thread_response_for_command_in_dir,
+        api_boundary, build_parent_assistant_scaffold_event,
+        thread_store::thread_response_for_command_in_dir,
     },
 };
 
@@ -108,12 +111,72 @@ fn parent_assistant_provider_status_reports_local_runtime_and_api_boundary() {
         status.provider_state,
         ParentAssistantProviderState::Unavailable
     );
+    assert_eq!(status.run_state, ParentAssistantRunState::Unavailable);
+    assert_eq!(
+        status.scheduler_status.singleton_scope,
+        ocentra_parent_agent_protocol::LocalAiProviderSingletonScope::PhysicalDevice
+    );
+    assert_eq!(status.scheduler_status.queue.total(), 0);
     assert_eq!(status.queue_depth, 0);
     assert!(
         !status
             .api_provider_boundary
             .child_safety_or_enforcement_use_allowed
     );
+}
+
+#[test]
+fn parent_assistant_api_boundary_requires_authorization_without_remote_adapter_claim() {
+    let boundary = api_boundary::api_provider_boundary_for_authorization(
+        &[evidence_context()],
+        ParentAssistantApiAuthorizationState::Authorized,
+    );
+
+    assert_eq!(
+        boundary.authorization_state,
+        ParentAssistantApiAuthorizationState::Authorized
+    );
+    assert_eq!(
+        boundary.provider_id,
+        constants::parent_assistant::API_PROVIDER_ID_AUTHORIZED
+    );
+    assert_eq!(
+        boundary.provider_state,
+        ParentAssistantProviderState::Unavailable
+    );
+    assert_eq!(
+        boundary.unavailable_reason.as_deref(),
+        Some(constants::parent_assistant::API_PROVIDER_AUTHORIZED_UNAVAILABLE_REASON)
+    );
+    assert!(!boundary.child_safety_or_enforcement_use_allowed);
+    assert_eq!(boundary.citations.len(), 1);
+}
+
+#[test]
+fn parent_assistant_api_boundary_denies_api_without_authorization() {
+    let boundary = api_boundary::api_provider_boundary_for_authorization(
+        &[evidence_context()],
+        ParentAssistantApiAuthorizationState::NotAuthorized,
+    );
+
+    assert_eq!(
+        boundary.authorization_state,
+        ParentAssistantApiAuthorizationState::NotAuthorized
+    );
+    assert_eq!(
+        boundary.provider_id,
+        constants::parent_assistant::API_PROVIDER_ID_NOT_AUTHORIZED
+    );
+    assert_eq!(
+        boundary.provider_state,
+        ParentAssistantProviderState::Unavailable
+    );
+    assert_eq!(
+        boundary.unavailable_reason.as_deref(),
+        Some(constants::parent_assistant::API_PROVIDER_NOT_AUTHORIZED_REASON)
+    );
+    assert!(!boundary.child_safety_or_enforcement_use_allowed);
+    assert_eq!(boundary.citations.len(), 1);
 }
 
 #[test]
@@ -136,6 +199,7 @@ fn parent_assistant_run_cancel_reports_not_running_without_process_kill_claim() 
         result.cancel_state,
         ParentAssistantRunCancelState::NotRunning
     );
+    assert_eq!(result.run_state, ParentAssistantRunState::Completed);
     assert_eq!(
         result.unavailable_reason.as_deref(),
         Some(constants::parent_assistant::RUN_NOT_RUNNING_REASON)
@@ -226,6 +290,18 @@ fn action_confirm_payload(value: &LogFieldValue) -> ParentAssistantActionConfirm
             serde_json::from_str(text).expect(constants::error::AGENT_EVENT_SERIALIZES)
         }
         _ => std::panic::panic_any(constants::error::AGENT_EVENT_SERIALIZES),
+    }
+}
+
+fn evidence_context() -> ParentAssistantEvidenceContext {
+    ParentAssistantEvidenceContext {
+        evidence: ParentEvidenceReference {
+            evidence_reference_id: constants::field::ACTIVITY_DIGEST.to_string(),
+            kind: ParentEvidenceReferenceKind::QueryStoreSummary,
+            observed_at: constants::local_ai_runtime::TEST_CHECKED_AT.to_string(),
+        },
+        citation_label: constants::parent_assistant::DEFAULT_CITATION_LABEL.to_string(),
+        allowed_summary: constants::parent_assistant::DEFAULT_ALLOWED_SUMMARY.to_string(),
     }
 }
 

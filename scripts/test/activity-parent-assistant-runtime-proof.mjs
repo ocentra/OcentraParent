@@ -325,7 +325,12 @@ function assertParentAssistantUnavailable(event) {
     throw new Error(`Parent Assistant did not cite evidence context: ${JSON.stringify(payload)}`);
   }
   const answer = parseJsonField(payload, AgentProtocolDefaults.Field.ParentAssistantAnswer);
-  if (answer.answerState !== 'unavailable' || !Array.isArray(answer.citations) || answer.citations.length < 1) {
+  if (
+    answer.answerState !== 'unavailable' ||
+    answer.runState !== 'unavailable' ||
+    !Array.isArray(answer.citations) ||
+    answer.citations.length < 1
+  ) {
     throw new Error(`Parent Assistant did not return a full typed answer payload: ${JSON.stringify(answer)}`);
   }
   const reportCitation = answer.citations.find((citation) => citation.citationLabel === 'Activity report');
@@ -408,8 +413,17 @@ function assertParentAssistantThreadRuntimeAfterMessage(event) {
 
 function assertParentAssistantProviderStatus(event) {
   const status = parseJsonField(event.payload, ParentAssistantRuntimeField.providerStatus);
-  if (status.backendState !== 'runtime-backed' || status.providerState !== 'unavailable') {
+  if (
+    status.backendState !== 'runtime-backed' ||
+    status.providerState !== 'unavailable' ||
+    status.runState !== 'unavailable'
+  ) {
     throw new Error(`Parent Assistant provider status was not runtime-backed unavailable: ${JSON.stringify(status)}`);
+  }
+  const queue = status.schedulerStatus?.queue;
+  const queuedTotal = queue?.childSafetyQueued + queue?.parentAssistantQueued + queue?.parentReportQueued;
+  if (status.schedulerStatus?.singletonScope !== 'physical-device' || queuedTotal !== 0) {
+    throw new Error(`Parent Assistant scheduler status did not prove singleton idle queue: ${JSON.stringify(status)}`);
   }
   if (
     status.apiProviderBoundary?.authorizationState !== 'not-authorized' ||
@@ -421,7 +435,11 @@ function assertParentAssistantProviderStatus(event) {
 
 function assertParentAssistantRunCancel(event) {
   const result = parseJsonField(event.payload, ParentAssistantRuntimeField.runCancelResult);
-  if (result.cancelState !== 'not-running' || result.backendState !== 'runtime-backed') {
+  if (
+    result.cancelState !== 'not-running' ||
+    result.runState !== 'completed' ||
+    result.backendState !== 'runtime-backed'
+  ) {
     throw new Error(`Parent Assistant run cancel did not return typed no-active-run state: ${JSON.stringify(result)}`);
   }
 }

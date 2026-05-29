@@ -1,12 +1,12 @@
 use ocentra_parent_agent_protocol::{
     constants, policy_constants as policy, AgentCommandEnvelope, AgentCommandName,
     AgentEventEnvelope, AgentEventName, LocalAiDegradedState, LocalAiProviderSchedulerJobStatus,
-    LogFieldValue, LogLevel, ParentAssistantActionConfirmResult, ParentAssistantActionConfirmState,
-    ParentAssistantActionPreviewKind, ParentAssistantApiAuthorizationState,
-    ParentAssistantApiProviderBoundary, ParentAssistantBackendState,
-    ParentAssistantEvidenceContext, ParentAssistantProviderState, ParentAssistantProviderStatus,
-    ParentAssistantRunCancelResult, ParentAssistantRunCancelState, ParentAssistantThreadResponse,
-    ParentEvidenceReference, ParentEvidenceReferenceKind,
+    LocalAiProviderSchedulerLifecycle, LogFieldValue, LogLevel, ParentAssistantActionConfirmResult,
+    ParentAssistantActionConfirmState, ParentAssistantActionPreviewKind,
+    ParentAssistantBackendState, ParentAssistantEvidenceContext, ParentAssistantProviderState,
+    ParentAssistantProviderStatus, ParentAssistantRunCancelResult, ParentAssistantRunCancelState,
+    ParentAssistantRunState, ParentAssistantThreadResponse, ParentEvidenceReference,
+    ParentEvidenceReferenceKind,
 };
 
 use crate::{
@@ -22,6 +22,7 @@ use crate::{
     time::timestamp_now,
 };
 
+pub(crate) mod api_boundary;
 pub(crate) mod thread_store;
 
 pub fn build_parent_assistant_scaffold_event(command: AgentCommandEnvelope) -> AgentEventEnvelope {
@@ -131,25 +132,49 @@ fn provider_status_for_command(command: &AgentCommandEnvelope) -> ParentAssistan
         .unwrap_or_else(|| config.model_id().to_string());
     let (runtime, _, _) =
         local_ai_runtime_status_for_model_from_config(timestamp_now(), &config, Some(&model_id));
-    let scheduler = local_ai_provider_scheduler().status_snapshot();
-    let queue_depth = scheduler.queue.total();
-    let busy = scheduler.current_job_class.is_some() || queue_depth > 0;
+    let scheduler_status = local_ai_provider_scheduler().status_snapshot();
+    let queue_depth = scheduler_status.queue.total();
+    let busy = scheduler_status.current_job_class.is_some() || queue_depth > 0;
     let provider_state = if runtime.unavailable_reason.is_some() {
         ParentAssistantProviderState::Unavailable
-    } else if busy || scheduler.degraded_state != LocalAiDegradedState::None {
+    } else if busy || scheduler_status.degraded_state != LocalAiDegradedState::None {
         ParentAssistantProviderState::Degraded
     } else {
         ParentAssistantProviderState::Configured
     };
     let scheduler_job_status = if runtime.unavailable_reason.is_some() {
         LocalAiProviderSchedulerJobStatus::Unavailable
-    } else if scheduler.current_job_class.is_some() {
-        LocalAiProviderSchedulerJobStatus::Running
-    } else if queue_depth > 0 {
-        LocalAiProviderSchedulerJobStatus::Queued
     } else {
-        LocalAiProviderSchedulerJobStatus::Complete
+        match scheduler_status.lifecycle_state {
+            LocalAiProviderSchedulerLifecycle::Running => {
+                LocalAiProviderSchedulerJobStatus::Running
+            }
+            LocalAiProviderSchedulerLifecycle::Queued => LocalAiProviderSchedulerJobStatus::Queued,
+            LocalAiProviderSchedulerLifecycle::Degraded => {
+                LocalAiProviderSchedulerJobStatus::Degraded
+            }
+            LocalAiProviderSchedulerLifecycle::Unavailable => {
+                LocalAiProviderSchedulerJobStatus::Unavailable
+            }
+            LocalAiProviderSchedulerLifecycle::Idle => LocalAiProviderSchedulerJobStatus::Complete,
+        }
     };
+    let run_state = if runtime.unavailable_reason.is_some() {
+        ParentAssistantRunState::Unavailable
+    } else {
+        match scheduler_status.lifecycle_state {
+            LocalAiProviderSchedulerLifecycle::Running => ParentAssistantRunState::Active,
+            LocalAiProviderSchedulerLifecycle::Queued => ParentAssistantRunState::Queued,
+            LocalAiProviderSchedulerLifecycle::Degraded => ParentAssistantRunState::Degraded,
+            LocalAiProviderSchedulerLifecycle::Unavailable => ParentAssistantRunState::Unavailable,
+            LocalAiProviderSchedulerLifecycle::Idle => ParentAssistantRunState::Completed,
+        }
+    };
+    let degraded_state = scheduler_status.degraded_state.clone();
+    let unavailable_reason = runtime
+        .unavailable_reason
+        .or_else(|| scheduler_status.unavailable_reason.clone());
+    let citations = [default_evidence_context()];
 
     ParentAssistantProviderStatus {
         schema_version: policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
@@ -157,12 +182,14 @@ fn provider_status_for_command(command: &AgentCommandEnvelope) -> ParentAssistan
         provider_id: runtime.provider_id,
         model_id: runtime.model_id,
         provider_state,
+        run_state,
         scheduler_job_status,
-        degraded_state: scheduler.degraded_state,
-        unavailable_reason: runtime.unavailable_reason.or(scheduler.unavailable_reason),
+        scheduler_status,
+        degraded_state,
+        unavailable_reason,
         queue_depth,
         busy,
-        api_provider_boundary: api_provider_boundary(),
+        api_provider_boundary: api_boundary::api_provider_boundary(&citations),
     }
 }
 
@@ -175,6 +202,7 @@ fn run_cancel_result_for_command(command: &AgentCommandEnvelope) -> ParentAssist
         run_id: string_payload_field(command, constants::parent_assistant::FIELD_RUN_ID)
             .unwrap_or_else(|| constants::parent_assistant::DEFAULT_RUN_ID.to_string()),
         cancel_state: ParentAssistantRunCancelState::NotRunning,
+        run_state: ParentAssistantRunState::Completed,
         provider_state: ParentAssistantProviderState::Unavailable,
         unavailable_reason: Some(constants::parent_assistant::RUN_NOT_RUNNING_REASON.to_string()),
     }
@@ -199,23 +227,6 @@ fn action_confirm_result_for_command(
         enforcement_applied: false,
         policy_written: false,
         reason: constants::parent_assistant::ACTION_CONFIRM_CONTRACT_REQUIRED_REASON.to_string(),
-    }
-}
-
-fn api_provider_boundary() -> ParentAssistantApiProviderBoundary {
-    ParentAssistantApiProviderBoundary {
-        schema_version: policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
-        provider_id: constants::parent_assistant::API_PROVIDER_ID_NOT_AUTHORIZED.to_string(),
-        authorization_state: ParentAssistantApiAuthorizationState::NotAuthorized,
-        custody_label: constants::parent_assistant::API_PROVIDER_CUSTODY_LABEL.to_string(),
-        retention_policy: constants::parent_assistant::API_PROVIDER_RETENTION_POLICY.to_string(),
-        deletion_policy: constants::parent_assistant::API_PROVIDER_DELETION_POLICY.to_string(),
-        citations: vec![default_evidence_context()],
-        provider_state: ParentAssistantProviderState::Unavailable,
-        unavailable_reason: Some(
-            constants::parent_assistant::API_PROVIDER_NOT_AUTHORIZED_REASON.to_string(),
-        ),
-        child_safety_or_enforcement_use_allowed: false,
     }
 }
 

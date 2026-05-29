@@ -172,7 +172,9 @@ function providerStatus() {
     providerId: 'local-llama-cli',
     modelId: 'gemma-4-default',
     providerState: 'unavailable',
+    runState: 'unavailable',
     schedulerJobStatus: 'unavailable',
+    schedulerStatus: schedulerStatus('unavailable'),
     degradedState: 'provider-unavailable',
     unavailableReason: 'local-ai-runtime-unconfigured',
     queueDepth: 0,
@@ -188,6 +190,7 @@ function runCancelResult() {
     threadId: 'parent-assistant-thread-1',
     runId: 'parent-assistant-run-1',
     cancelState: 'not-running',
+    runState: 'completed',
     providerState: 'unavailable',
     unavailableReason: 'parent-assistant-run-not-running',
   } as const;
@@ -230,6 +233,7 @@ function answerPayload() {
     modelId: 'gemma-4-default',
     providerState: 'unavailable',
     answerState: 'unavailable',
+    runState: 'unavailable',
     schedulerJobStatus: 'unavailable',
     degradedState: 'provider-unavailable',
     unavailableReason: 'local-ai-runtime-unconfigured',
@@ -302,6 +306,29 @@ function activityReport() {
         evidence: [],
       },
     ],
+  } as const;
+}
+
+function schedulerStatus(lifecycleState: 'idle' | 'running' | 'queued' | 'degraded' | 'unavailable') {
+  return {
+    physicalDeviceId: 'physical-device-local',
+    singletonScope: 'physical-device',
+    providerId: 'local-llama-cli',
+    runtimeReferenceId: 'local-runtime-llama-cli',
+    modelId: 'gemma-4-default',
+    modelReference: 'gemma-4-default.gguf',
+    resourceClass: 'cpu',
+    lifecycleState,
+    currentJobClass: null,
+    queue: {
+      childSafetyQueued: 0,
+      parentAssistantQueued: 0,
+      parentReportQueued: 0,
+    },
+    duplicateRuntimeBlocked: false,
+    degradedState: 'provider-unavailable',
+    unavailableReason: 'local-ai-runtime-unconfigured',
+    lastCheckedAt: '2026-05-28T14:55:01Z',
   } as const;
 }
 
