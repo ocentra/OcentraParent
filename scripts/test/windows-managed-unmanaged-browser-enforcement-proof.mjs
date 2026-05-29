@@ -280,7 +280,7 @@ async function assertManagedBrowserManualRequired(agentPort) {
     id: 'managed-browser-manual-required',
     state: 'manual-required',
     browserBoundaryState: 'managed-session',
-    exactUrlClaimState: 'exact-url-proven',
+    exactUrlClaimState: 'not-claimed-service-command-manual-required',
     unmanagedDetectionState: 'none',
     status: result.status,
     adapterResultCode: result.adapterResultCode,
@@ -451,8 +451,13 @@ async function writeEvidence(runRoot, assertions) {
       processIdRequiredRejection: assertions.find((assertion) => assertion.id === 'owned-process-id-required')?.state,
       broadAppBlockingCapability: assertions.find((assertion) => assertion.id === 'broad-app-blocking-manual-required')
         ?.state,
+      managedBrowserServiceCommand: assertions.find((assertion) => assertion.id === 'managed-browser-manual-required')
+        ?.state,
       unmanagedBrowserBoundary: assertions.find((assertion) => assertion.id === 'unmanaged-browser-terminate')?.state,
       exactUnmanagedUrlClaim: 'not-claimed',
+      exactManagedBrowserServiceCommandUrlClaim: assertions.find(
+        (assertion) => assertion.id === 'managed-browser-manual-required'
+      )?.exactUrlClaimState,
     },
     assertions,
     artifacts: {

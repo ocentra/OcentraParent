@@ -24,11 +24,15 @@ async function main() {
   ]);
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-service', 'controller_lease']);
 
-  await runCommand('cmd', ['/c', 'node', 'scripts/test/v0-8-windows-app-time-limit-adapter-mvp.mjs']);
+  await runCommand('cmd', ['/c', 'node', 'scripts/test/v0-8-os-adapter-proof-hardening.mjs']);
+  const v08OsAdapterHardening = await readJson(
+    join(repoRoot, 'test-results', 'v0-8-os-adapter-proof-hardening', 'proof.json')
+  );
+  assertV08OsAdapterHardening(v08OsAdapterHardening);
+
   const v08Evidence = await latestJson(join(repoRoot, 'test-results', 'v0-8-windows-app-time-limit-adapter-mvp'));
   assertV08Evidence(v08Evidence.data);
 
-  await runCommand('cmd', ['/c', 'node', 'scripts/test/v0-8-production-enforcement-hardening.mjs']);
   const v08HardeningEvidence = await latestJson(
     join(repoRoot, 'test-results', 'v0-8-production-enforcement-hardening')
   );
@@ -55,8 +59,13 @@ async function main() {
     commands,
     proofLabels,
     evidence: {
+      v08OsAdapterHardening: relative(
+        repoRoot,
+        join(repoRoot, 'test-results', 'v0-8-os-adapter-proof-hardening', 'proof.json')
+      ),
       v08AppTimeLimit: relative(repoRoot, v08Evidence.path),
       v08ProductionEnforcementHardening: relative(repoRoot, v08HardeningEvidence.path),
+      v08BrowserBoundary: v08OsAdapterHardening.evidence.browserBoundary,
       v09LanPairingControl: relative(
         repoRoot,
         join(repoRoot, 'test-results', 'v0-9-lan-pairing-control-mvp', 'proof.json')
@@ -67,7 +76,8 @@ async function main() {
       ),
     },
     honestBoundaries: [
-      'V0.8 proves the owned local process time-limit adapter path and unavailable states; it does not claim global OS blocking.',
+      'V0.8 proves owned local process terminate/time-limit adapter paths and unavailable states; it does not claim global OS blocking.',
+      'V0.8 browser boundary proof treats unmanaged browser process control as process-only and managed-browser service commands as manual-required unless a managed intervention harness proves document blocking.',
       'V0.9 proves direct WebSocket multi-service behavior; it does not claim production discovery or household router proof.',
       'Parent mobile, Android child, iOS child, signing, store distribution, device-owner, and Family Controls remain manual-required or unavailable.',
     ],
@@ -116,6 +126,25 @@ function assertV08HardeningEvidence(evidence) {
     );
   }
   proofLabels.push('v0.8.enforcement.manual-required-service-states-proven');
+}
+
+function assertV08OsAdapterHardening(evidence) {
+  assertArrayIncludes(
+    evidence.proofLabels,
+    'v0.8.browser-boundary.pid-name-unmanaged-managed-nonclaim-proof',
+    'V0.8 browser boundary proof'
+  );
+  assertArrayIncludes(
+    evidence.osAdapterTruth.unsupportedClaims,
+    'unmanaged-browser process control does not prove exact URL, tab, title, download source, or page content',
+    'unmanaged browser non-claim'
+  );
+  assertEqual(
+    evidence.osAdapterTruth.browserBoundary.exactManagedBrowserServiceCommandUrlClaim,
+    'not-claimed-service-command-manual-required',
+    'managed browser exact URL non-claim'
+  );
+  proofLabels.push('v0.8.enforcement.os-adapter-boundary-aggregate-proven');
 }
 
 async function runCommand(command, args) {
@@ -281,6 +310,12 @@ function assertEqual(actual, expected, label) {
 function assertOneOf(actual, expectedValues, label) {
   if (!expectedValues.includes(actual)) {
     throw new Error(`${label}: expected one of ${expectedValues.join(', ')}, received ${actual}`);
+  }
+}
+
+function assertArrayIncludes(values, expected, label) {
+  if (!Array.isArray(values) || !values.includes(expected)) {
+    throw new Error(`${label}: missing ${expected}`);
   }
 }
 
