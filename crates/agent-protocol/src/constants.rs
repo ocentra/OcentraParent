@@ -158,6 +158,8 @@ pub mod activity_surface;
 pub mod browser;
 #[path = "constants/host_identity.rs"]
 pub mod host_identity;
+#[path = "constants/windows_adapter_capability.rs"]
+pub mod windows_adapter_capability;
 
 pub mod browser_policy {
     pub const COMMAND_GET: &str = "agent.browser-policy.get";

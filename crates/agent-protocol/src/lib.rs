@@ -35,6 +35,7 @@ mod network_flow;
 mod parent_assistant;
 mod screen_evidence;
 mod transport;
+mod windows_adapter_capability;
 
 pub use activity::*;
 pub use activity_capture::*;
@@ -67,6 +68,7 @@ pub use network_flow::*;
 pub use parent_assistant::*;
 pub use screen_evidence::*;
 pub use transport::*;
+pub use windows_adapter_capability::*;
 
 pub const CRATE_NAME: &str = "ocentra-parent-agent-protocol";
 pub const LOG_SCHEMA_VERSION: u16 = 1;
@@ -141,3 +143,5 @@ mod policy_preview_tests;
 mod screen_evidence_tests;
 #[cfg(test)]
 mod tests;
+#[cfg(test)]
+mod windows_adapter_capability_tests;
