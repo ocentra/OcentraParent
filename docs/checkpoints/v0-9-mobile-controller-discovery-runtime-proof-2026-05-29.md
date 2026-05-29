@@ -36,6 +36,18 @@ The command writes:
 test-results/v0-9-mobile-controller-discovery-runtime-proof/proof.json
 ```
 
+It is registered in:
+
+```text
+docs/expectations/pre-ai-proof-matrix.json
+```
+
+The typed contract is exported as:
+
+```text
+@ocentra-parent/parent-domain/v0-9-mobile-controller-discovery-runtime
+```
+
 It consumes:
 
 ```text

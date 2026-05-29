@@ -18,6 +18,9 @@ const productionDiscoveryProofPath = join(
   'proof.json'
 );
 const parentMobileProofPath = join(repoRoot, 'test-results', 'parent-mobile-shell-runtime-proof', 'proof.json');
+const proofMatrixPath = join(repoRoot, 'docs', 'expectations', 'pre-ai-proof-matrix.json');
+const proofCommand = 'node scripts/test/v0-9-mobile-controller-discovery-runtime-proof.mjs';
+const proofClaimId = 'v0-9-mobile-controller-discovery-runtime-proof';
 const commands = [];
 const proofLabels = [];
 
@@ -33,6 +36,7 @@ async function main() {
   const productionMobileProof = await readJson(productionMobileProofPath);
   const productionDiscoveryProof = await readJson(productionDiscoveryProofPath);
   const parentMobileProof = await readJson(parentMobileProofPath);
+  const proofMatrix = await readJson(proofMatrixPath);
   const runtimeReadModel = await parseRuntimeReadModel(
     buildRuntimeReadModel(productionMobileProof, productionDiscoveryProof, parentMobileProof)
   );
@@ -40,6 +44,7 @@ async function main() {
   assertProductionMobileProof(productionMobileProof);
   assertProductionDiscoveryProof(productionDiscoveryProof);
   assertRuntimeReadModel(runtimeReadModel);
+  assertProofMatrix(proofMatrix);
 
   const proof = {
     schemaVersion: 1,
@@ -52,6 +57,7 @@ async function main() {
       productionMobileController: relative(repoRoot, productionMobileProofPath),
       productionDiscoveryBoundary: relative(repoRoot, productionDiscoveryProofPath),
       parentMobileRuntime: relative(repoRoot, parentMobileProofPath),
+      proofMatrix: relative(repoRoot, proofMatrixPath),
     },
     runtimeReadModel,
     claimsProved: [
@@ -162,8 +168,7 @@ function transitionProof(transition, state, rejectionReason, proofLabel) {
 }
 
 async function parseRuntimeReadModel(readModel) {
-  const modulePath = join(repoRoot, 'packages', 'parent-domain', 'dist', 'v0-9-mobile-controller-discovery-runtime.js');
-  const module = await import(`file:///${modulePath.replaceAll('\\', '/')}`);
+  const module = await import('@ocentra-parent/parent-domain/v0-9-mobile-controller-discovery-runtime');
   proofLabels.push('parent-domain.v0.9-mobile-controller-discovery-runtime-parse');
   return module.V09MobileControllerDiscoveryRuntimeReadModelSchema.parse(readModel);
 }
@@ -206,6 +211,32 @@ function assertRuntimeReadModel(readModel) {
   proofLabels.push('v0.9.mobile-controller-discovery-runtime-read-model');
 }
 
+function assertProofMatrix(matrix) {
+  assertArrayIncludes(matrix.requiredCompletedClaimIds, proofClaimId, 'proof matrix required claim');
+  const scenario = matrix.checkpointScenarios.find((candidate) => candidate.id === proofClaimId);
+  if (!scenario) {
+    throw new Error(`Proof matrix is missing ${proofClaimId} checkpoint scenario.`);
+  }
+  assertArrayIncludes(scenario.ciCommands, proofCommand, 'checkpoint scenario command');
+  assertArrayIncludes(
+    scenario.requiredArtifacts,
+    'test-results/v0-9-mobile-controller-discovery-runtime-proof/proof.json',
+    'checkpoint scenario proof artifact'
+  );
+  const claim = matrix.claims.find((candidate) => candidate.id === proofClaimId);
+  if (!claim) {
+    throw new Error(`Proof matrix is missing ${proofClaimId} claim.`);
+  }
+  assertArrayIncludes(claim.ciProof.commands, proofCommand, 'claim command');
+  assertEqual(
+    claim.runtimeSurfaceCoverage.physicalHouseholdLan.state,
+    'manual-required',
+    'matrix physical household LAN state'
+  );
+  assertEqual(claim.runtimeSurfaceCoverage.cloudRelay.state, 'not-implemented', 'matrix cloud relay state');
+  proofLabels.push('proof-matrix.v0-9-mobile-controller-discovery-runtime-proof');
+}
+
 async function runCommand(commandName, args) {
   commands.push([commandName, ...args].join(' '));
   await new Promise((resolve, reject) => {
@@ -239,5 +270,11 @@ async function gitHead() {
 function assertEqual(actual, expected, label) {
   if (actual !== expected) {
     throw new Error(`${label}: expected ${expected}, received ${actual}`);
+  }
+}
+
+function assertArrayIncludes(values, expected, label) {
+  if (!Array.isArray(values) || !values.includes(expected)) {
+    throw new Error(`${label}: expected ${expected}`);
   }
 }

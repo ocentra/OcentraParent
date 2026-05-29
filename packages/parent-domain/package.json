@@ -113,6 +113,10 @@
       "import": "./dist/parent-mobile-runtime.js",
       "types": "./dist/parent-mobile-runtime.d.ts"
     },
+    "./v0-9-mobile-controller-discovery-runtime": {
+      "import": "./dist/v0-9-mobile-controller-discovery-runtime.js",
+      "types": "./dist/v0-9-mobile-controller-discovery-runtime.d.ts"
+    },
     "./policy": {
       "import": "./dist/policy.js",
       "types": "./dist/policy.d.ts"
