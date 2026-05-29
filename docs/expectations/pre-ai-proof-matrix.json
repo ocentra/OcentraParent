@@ -17,6 +17,7 @@
     "platform-roles-lan-ai-provider-pool",
     "v08-v09-product-proof-final-pass",
     "v0-8-os-adapter-proof-hardening",
+    "v0-8-enforcement-adapter-product-proof-continuation",
     "v0-9-household-lan-proof-readiness",
     "v0-9-household-lan-production-discovery-proof",
     "platform-lan-enforcement-production-proof",
@@ -310,6 +311,43 @@
       ]
     },
     {
+      "id": "v0-8-enforcement-adapter-product-proof-continuation",
+      "title": "V0.8 Enforcement Adapter Product Proof Continuation",
+      "claimIds": ["v0-8-enforcement-adapter-product-proof-continuation"],
+      "expectationFiles": [
+        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "proofMode": "ci-mechanical-proof",
+      "realEvidencePath": [
+        "Build contracts and run focused core/service enforcement tests from the current commit.",
+        "Run the V0.8 OS adapter proof aggregate through the real Rust service and consume its generated app time-limit, production hardening, and browser-boundary artifacts.",
+        "Verify owned-process terminate and app time-limit remain the only implemented OS-supported enforcement paths in this proof.",
+        "Verify broad app blocking, network/domain blocking, managed-browser service commands, and unmanaged-browser exact URL/tab/title/download/page claims remain manual-required, unavailable, or not claimed.",
+        "Emit a product claim-upgrade refusal artifact that keeps broad app/domain/browser enforcement manual-required until real host/platform artifacts exist."
+      ],
+      "ciCommands": ["node scripts/test/v0-8-enforcement-adapter-product-proof-continuation.mjs"],
+      "requiredArtifacts": [
+        "test-results/v0-8-enforcement-adapter-product-proof-continuation/proof.json",
+        "test-results/v0-8-os-adapter-proof-hardening/proof.json",
+        "test-results/v0-8-windows-app-time-limit-adapter-mvp/*.json",
+        "test-results/v0-8-production-enforcement-hardening/*.json",
+        "test-results/windows-managed-unmanaged-browser-enforcement-proof/*.json"
+      ],
+      "knownGaps": [
+        "Broad app blocking remains manual-required or unavailable outside owned-process termination and time-limit proof.",
+        "Network/domain blocking remains manual-required or unavailable until an OS-approved adapter proves real host behavior.",
+        "Managed-browser service-command target strings do not prove exact URL enforcement, and unmanaged-browser process evidence does not prove URL, active tab, page title, download source, page text, or user intent.",
+        "Android device-owner, iOS Family Controls, signing, stores, anti-tamper, and production mobile enforcement remain manual-required until real artifacts exist."
+      ],
+      "notProof": [
+        "A proof artifact with a rejected claim-upgrade decision presented as product-ready enforcement.",
+        "A successful owned-process or app time-limit result presented as global app blocking.",
+        "A browser process or service-command target value presented as exact browser evidence."
+      ]
+    },
+    {
       "id": "v0-9-household-lan-proof-readiness",
       "title": "V0.9 Household LAN Proof Readiness Gate",
       "claimIds": ["v0-9-household-lan-proof-readiness"],
@@ -397,12 +435,14 @@
       "realEvidencePath": [
         "Build contracts from the current commit.",
         "Run the V0.8 OS adapter proof aggregate through the real Rust service, including app time-limit lifecycle, owned-process terminate, manual-required broad adapter states, process id/name guardrails, managed-browser service-command manual-required state, unmanaged-browser process boundary, exact URL non-claims, audit, and storage.",
+        "Run the V0.8 enforcement adapter product proof continuation and verify it refuses broad app/domain/browser product-claim upgrades without real host/platform artifacts.",
         "Run the V0.9 production LAN multi-device proof bundle, household LAN readiness gate, and production discovery boundary proof through real Rust service proof artifacts, including discovery challenge, selected-route recovery, controller conflict/takeover, wrong-origin/wrong-device rejection, provider routing, and manual physical two-device gate output.",
         "Read platform capability states that keep parent desktop, parent mobile, Android, iOS, signing, stores, device-owner policy, and Family Controls as implemented, scaffold, manual-required, unavailable, or not-implemented instead of product-complete; package shell proof remains D-owned."
       ],
       "ciCommands": ["node scripts/test/platform-lan-enforcement-production-proof.mjs"],
       "requiredArtifacts": [
         "test-results/platform-lan-enforcement-production-proof/proof.json",
+        "test-results/v0-8-enforcement-adapter-product-proof-continuation/proof.json",
         "test-results/v0-8-os-adapter-proof-hardening/proof.json",
         "test-results/v0-8-windows-app-time-limit-adapter-mvp/*.json",
         "test-results/v0-8-production-enforcement-hardening/*.json",
@@ -1148,6 +1188,59 @@
       ]
     },
     {
+      "id": "v0-8-enforcement-adapter-product-proof-continuation",
+      "roadmapSlice": "V0.8 enforcement adapter product proof continuation",
+      "expectationFiles": [
+        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "claim": "V0.8 enforcement adapter product proof verifies owned-process terminate and app time-limit service boundaries, preserves unsupported or manual-required broad app/domain/browser states, records audit/recovery truth, and rejects product-claim upgrades when required host/platform artifacts are missing.",
+      "privilegedCapability": true,
+      "ciProof": {
+        "commands": ["node scripts/test/v0-8-enforcement-adapter-product-proof-continuation.mjs"],
+        "jobs": ["Worker B V0.8 enforcement adapter product proof continuation"]
+      },
+      "platformCoverage": {
+        "windows": "real-local-windows-proof",
+        "linux": "manual-required",
+        "macos": "manual-required",
+        "android": "manual-required",
+        "ios": "manual-required"
+      },
+      "runtimeSurfaceCoverage": {
+        "ownedProcessAndTimer": {
+          "state": "implemented",
+          "proof": "Continuation proof consumes real service app time-limit execute/restart recovery/parent cancel/unavailable/expiry/audit/storage artifacts and owned-process terminate artifacts."
+        },
+        "broadAppDomainBrowserStates": {
+          "state": "manual-required",
+          "proof": "Continuation proof asserts app block, network/domain block, and managed-browser service command states are unavailable or manual-required unless real adapters prove otherwise."
+        },
+        "browserEvidenceClaims": {
+          "state": "not-claimed",
+          "proof": "Continuation proof keeps unmanaged-browser process evidence from becoming exact URL, active tab, title, download source, page text, HTTPS content, or user-intent proof."
+        },
+        "claimUpgradeRefusal": {
+          "state": "manual-required",
+          "proof": "Continuation proof emits a rejected product claim-upgrade decision with missing OS-approved broad app, network/domain, managed-browser exact URL, unmanaged-browser exact evidence, anti-tamper, and mobile entitlement artifacts."
+        }
+      },
+      "knownGaps": [
+        "Broad app/domain/browser blocking remains manual-required or unavailable outside the owned-process terminate/time-limit and browser-boundary proofs.",
+        "Exact URL, active tab, page title, download source, page content, HTTPS content, and user intent remain unavailable without managed browser or explicit browser integration proof.",
+        "Anti-tamper, admin hardening, Android device-owner behavior, iOS Family Controls, signing, stores, and production mobile enforcement remain manual-required."
+      ],
+      "manualProofChecklist": [
+        "Run node scripts/test/v0-8-enforcement-adapter-product-proof-continuation.mjs on a real Windows child host and archive all generated proof JSON with commit SHA.",
+        "Record service logs for app time-limit execute, restart recovery, parent cancel, unavailable recovery, expiry, audit, encrypted journal, and SQLite storage.",
+        "Record owned-process terminate, process-id-required, and process-name-mismatch service logs without presenting them as global app blocking.",
+        "Record broad app, network/domain, and managed-browser service commands returning manual-required or unavailable until real host adapters exist.",
+        "Record managed-browser exact URL proof from the managed browser boundary before upgrading any exact URL enforcement claim.",
+        "Record Android device-owner and iOS Family Controls entitlement/device artifacts before upgrading mobile child enforcement claims."
+      ]
+    },
+    {
       "id": "platform-lan-enforcement-production-proof",
       "roadmapSlice": "V0.8/V0.9 production platform proof hardening",
       "expectationFiles": [
@@ -1157,7 +1250,7 @@
         "docs/expectations/platform-deliverables.md",
         "docs/expectations/real-evidence-proof.md"
       ],
-      "claim": "V0.8 real owned-process enforcement proof, V0.8 OS adapter boundary hardening, V0.8 manual-required broad-adapter states, V0.9 production LAN local multi-service proof, V0.9 household LAN readiness gate, V0.9 household LAN production discovery boundary proof, domain-owned platform capability states, and explicit cloud-relay non-claim are verified together by a B-owned production proof command.",
+      "claim": "V0.8 real owned-process enforcement proof, V0.8 OS adapter boundary hardening, V0.8 enforcement adapter product claim-upgrade refusal, V0.8 manual-required broad-adapter states, V0.9 production LAN local multi-service proof, V0.9 household LAN readiness gate, V0.9 household LAN production discovery boundary proof, domain-owned platform capability states, and explicit cloud-relay non-claim are verified together by a B-owned production proof command.",
       "privilegedCapability": true,
       "ciProof": {
         "commands": ["node scripts/test/platform-lan-enforcement-production-proof.mjs"],
@@ -1173,7 +1266,7 @@
       "runtimeSurfaceCoverage": {
         "v08EnforcementAdapters": {
           "state": "implemented",
-          "proof": "Real Rust service proof covers app time-limit execute, restart recovery, parent cancel/override, unavailable recovery, expiry, audit, encrypted journal/storage, owned-process terminate guardrails, unmanaged-browser process-only boundaries, managed-browser service-command manual-required state, and manual-required states for unwired app/domain/browser blocking adapters."
+          "proof": "Real Rust service proof covers app time-limit execute, restart recovery, parent cancel/override, unavailable recovery, expiry, audit, encrypted journal/storage, owned-process terminate guardrails, unmanaged-browser process-only boundaries, managed-browser service-command manual-required state, manual-required states for unwired app/domain/browser blocking adapters, and rejected product claim-upgrades when required artifacts are missing."
         },
         "v09LanMultidevice": {
           "state": "implemented",
