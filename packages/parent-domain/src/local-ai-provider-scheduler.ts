@@ -126,38 +126,57 @@ function idleStatusIsConsistent(status: LocalAiProviderSchedulerStatusCandidate)
 }
 
 function localAiProviderSchedulerDecisionIsConsistent(decision: LocalAiProviderSchedulerDecisionCandidate): boolean {
-  if (decision.jobStatus === 'unavailable') {
-    return (
-      decision.selectedRuntimeReferenceId === null &&
-      decision.queuePosition === null &&
-      decision.unavailableReason !== null &&
-      decision.duplicateRuntimeBlocked === false
-    );
+  switch (decision.jobStatus) {
+    case 'unavailable':
+      return unavailableDecisionIsConsistent(decision);
+    case 'queued':
+      return queuedDecisionIsConsistent(decision);
+    case 'running':
+    case 'accepted':
+    case 'complete':
+      return activeRuntimeDecisionIsConsistent(decision);
+    case 'degraded':
+      return degradedDecisionIsConsistent(decision);
   }
 
-  if (decision.jobStatus === 'queued') {
-    return (
-      decision.selectedRuntimeReferenceId !== null &&
-      decision.queuePosition !== null &&
-      decision.unavailableReason === null &&
-      decision.duplicateRuntimeBlocked
-    );
-  }
+  return false;
+}
 
-  if (decision.jobStatus === 'running' || decision.jobStatus === 'accepted' || decision.jobStatus === 'complete') {
-    return (
-      decision.selectedRuntimeReferenceId !== null &&
-      decision.queuePosition === null &&
-      decision.unavailableReason === null &&
-      decision.duplicateRuntimeBlocked
-    );
-  }
-
+function unavailableDecisionIsConsistent(decision: LocalAiProviderSchedulerDecisionCandidate): boolean {
   return (
-    decision.selectedRuntimeReferenceId !== null &&
-    decision.unavailableReason === null &&
-    decision.duplicateRuntimeBlocked
+    decision.selectedRuntimeReferenceId === null &&
+    decision.queuePosition === null &&
+    decision.unavailableReason !== null &&
+    decision.duplicateRuntimeBlocked === false
   );
+}
+
+function queuedDecisionIsConsistent(decision: LocalAiProviderSchedulerDecisionCandidate): boolean {
+  return (
+    runtimeDecisionHasSelectedRuntime(decision) &&
+    decision.queuePosition !== null &&
+    runtimeDecisionBlocksDuplicateRuntime(decision)
+  );
+}
+
+function activeRuntimeDecisionIsConsistent(decision: LocalAiProviderSchedulerDecisionCandidate): boolean {
+  return (
+    runtimeDecisionHasSelectedRuntime(decision) &&
+    decision.queuePosition === null &&
+    runtimeDecisionBlocksDuplicateRuntime(decision)
+  );
+}
+
+function degradedDecisionIsConsistent(decision: LocalAiProviderSchedulerDecisionCandidate): boolean {
+  return runtimeDecisionHasSelectedRuntime(decision) && runtimeDecisionBlocksDuplicateRuntime(decision);
+}
+
+function runtimeDecisionHasSelectedRuntime(decision: LocalAiProviderSchedulerDecisionCandidate): boolean {
+  return decision.selectedRuntimeReferenceId !== null && decision.unavailableReason === null;
+}
+
+function runtimeDecisionBlocksDuplicateRuntime(decision: LocalAiProviderSchedulerDecisionCandidate): boolean {
+  return decision.duplicateRuntimeBlocked;
 }
 
 function totalQueuedJobs(queue: LocalAiProviderSchedulerQueue): number {
