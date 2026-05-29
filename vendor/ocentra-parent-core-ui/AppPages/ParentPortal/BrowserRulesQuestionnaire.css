@@ -11,6 +11,7 @@
   overflow-x: hidden;
   overflow-y: auto;
   padding: 2px 12px 8px 0;
+  scrollbar-gutter: stable;
   scrollbar-color: rgba(102, 243, 255, 0.9) var(--browser-rules-scrollbar-track);
   scrollbar-width: thin;
 }
@@ -45,7 +46,26 @@
 
 .browser-rules-bubble {
   width: 100%;
-  overflow: visible;
+  overflow: hidden;
+  transition-property: height;
+  transition-timing-function: cubic-bezier(0.2, 0.72, 0.18, 1);
+  will-change: height;
+}
+
+.browser-rules-bubble--opening {
+  animation-name: browser-rules-bubble-open-reveal;
+  animation-timing-function: cubic-bezier(0.16, 0.84, 0.24, 1);
+  animation-fill-mode: both;
+}
+
+@keyframes browser-rules-bubble-open-reveal {
+  0% {
+    clip-path: inset(0 0 calc(100% - var(--browser-rules-bubble-collapsed-height)) 0);
+  }
+
+  100% {
+    clip-path: inset(0);
+  }
 }
 
 .browser-rules-bubble__svg {
@@ -61,10 +81,42 @@
   box-sizing: border-box;
   align-items: flex-start;
   overflow: visible;
+  opacity: 1;
+  transform: translateY(0);
+  transform-origin: top center;
+  transition-property: transform;
+  transition-timing-function: cubic-bezier(0.2, 0.72, 0.18, 1);
+  will-change: transform;
 }
 
 .browser-rules-bubble__body--stacked {
   align-content: flex-start;
+}
+
+.browser-rules-bubble__body--closing {
+  transform: translateY(-10px);
+}
+
+.browser-rules-bubble__body--opening {
+  animation-name: browser-rules-bubble-body-open;
+  animation-timing-function: cubic-bezier(0.16, 0.84, 0.24, 1);
+  animation-fill-mode: both;
+}
+
+@keyframes browser-rules-bubble-body-open {
+  0% {
+    opacity: 0;
+    transform: translateY(-12px) scaleY(0.96);
+  }
+
+  52% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scaleY(1);
+  }
 }
 
 .browser-rules-bubble__control-row {

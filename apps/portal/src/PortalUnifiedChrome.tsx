@@ -8,16 +8,19 @@ import {
   PortalUnifiedChrome,
 } from '@ocentra-parent/portal-domain/contracts';
 import { UnifiedFooter } from '../../../vendor/ocentra-parent-core-ui/Footer/UnifiedFooter';
+import { BrandedLoadingSpinner } from '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/BrandedLoadingSpinner';
 import { UnifiedPageShell } from '../../../vendor/ocentra-parent-core-ui/Shell/UnifiedPageShell';
 import { PortalHeaderSvgFrame } from './PortalHeaderSvgFrame';
 
 type PortalUnifiedShellProps = {
   readonly children: ReactNode;
   readonly onAuthOpen: () => void;
+  readonly routeTransitionActive?: boolean;
 };
 
 type PortalOutlineHeaderProps = {
   readonly onAuthOpen: () => void;
+  readonly routeTransitionActive: boolean;
 };
 
 const shellHeaderExtensionAttributes = {
@@ -53,7 +56,10 @@ function PortalHeaderConnector(): ReactElement {
   );
 }
 
-function PortalOutlineHeader({ onAuthOpen }: PortalOutlineHeaderProps): ReactElement {
+function PortalOutlineHeader({ onAuthOpen, routeTransitionActive }: PortalOutlineHeaderProps): ReactElement {
+  const logoMountAttributes = routeTransitionActive
+    ? { [PortalUnifiedChrome.Attributes.HeaderLogoLoading]: PortalDom.Attributes.True }
+    : undefined;
   return (
     <header {...shellHeaderExtensionAttributes} className={PortalUnifiedChrome.Classes.OutlineHeader}>
       <button
@@ -83,12 +89,18 @@ function PortalOutlineHeader({ onAuthOpen }: PortalOutlineHeaderProps): ReactEle
         <span
           aria-hidden={PortalDom.Attributes.True}
           className={PortalUnifiedChrome.Classes.OutlineHeaderBrandLogoMount}
+          {...logoMountAttributes}
         >
           <img
             alt={PortalUnifiedChrome.Alt.DecorativeImage}
             className={PortalUnifiedChrome.Classes.OutlineHeaderBrandLogo}
             src={PortalAssets.HeaderLogo}
           />
+          {routeTransitionActive ? (
+            <span className={PortalUnifiedChrome.Classes.OutlineHeaderBrandLogoSpinner}>
+              <BrandedLoadingSpinner size="small" />
+            </span>
+          ) : null}
         </span>
         <span className={PortalUnifiedChrome.Classes.OutlineHeaderBrandPartMuted}>
           {PortalText.Resolve(PortalTextToken.HeaderBrandRight)}
@@ -117,12 +129,16 @@ function PortalOutlineHeader({ onAuthOpen }: PortalOutlineHeaderProps): ReactEle
   );
 }
 
-export function PortalUnifiedShell({ children, onAuthOpen }: PortalUnifiedShellProps): ReactElement {
+export function PortalUnifiedShell({
+  children,
+  onAuthOpen,
+  routeTransitionActive = false,
+}: PortalUnifiedShellProps): ReactElement {
   return (
     <UnifiedPageShell
       className={PortalUnifiedChrome.Classes.Shell}
       footer={<UnifiedFooter appVersion={PortalUnifiedChrome.Version.App} />}
-      header={<PortalOutlineHeader onAuthOpen={onAuthOpen} />}
+      header={<PortalOutlineHeader onAuthOpen={onAuthOpen} routeTransitionActive={routeTransitionActive} />}
       viewportLocked={true}
       workClassName={PortalUnifiedChrome.Classes.ShellWork}
     >

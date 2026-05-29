@@ -20,11 +20,18 @@ import './styles/parent-portal-route.css';
 type ParentPortalRouteProps = {
   readonly actions: PortalRenderActions;
   readonly controls: ParentPortalSvgControls;
+  readonly onProductSurfaceReady: () => void;
   readonly route: PortalRouteValue;
   readonly state: PortalRuntimeState;
 };
 
-export function ParentPortalRoute({ actions, controls, route, state }: ParentPortalRouteProps): ReactElement {
+export function ParentPortalRoute({
+  actions,
+  controls,
+  onProductSurfaceReady,
+  route,
+  state,
+}: ParentPortalRouteProps): ReactElement {
   const routeContext = parentPortalRouteContext(route);
   const activityState = resolveLiveActivityState(state.events);
   return (
@@ -46,6 +53,7 @@ export function ParentPortalRoute({ actions, controls, route, state }: ParentPor
         assistantRoutePath={PARENT_PORTAL_ROUTE.HashRoutes.Assistant}
         assistantReturnRoutePath={PARENT_PORTAL_ROUTE.HashRoutes.Overview}
         activityState={activityState}
+        onInitialLayoutReady={onProductSurfaceReady}
         onRefreshParentPortal={actions.reconnect}
         onMatchmaking={actions.reconnect}
         onNavigate={(routePath) => {

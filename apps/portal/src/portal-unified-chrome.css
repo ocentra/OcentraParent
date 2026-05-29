@@ -199,6 +199,7 @@
 }
 
 .portal-outline-header__brand {
+  --portal-outline-header-brand-logo-size: 56px;
   --portal-outline-header-brand-logo-slot: 54px;
 
   font-family: Didot, 'Bodoni 72', 'Bodoni MT', Georgia, serif;
@@ -233,7 +234,7 @@
     0 0 7px rgb(47 221 255 / 54%),
     0 0 14px rgb(47 221 255 / 22%);
   display: block;
-  height: 56px;
+  height: var(--portal-outline-header-brand-logo-size);
   image-rendering: auto;
   inset-block-start: 50%;
   inset-inline-start: 50%;
@@ -244,9 +245,35 @@
     border-color 140ms ease,
     box-shadow 140ms ease,
     filter 140ms ease,
+    opacity 180ms ease,
     transform 140ms ease;
   transform: translate(-50%, -48%);
-  width: 56px;
+  width: var(--portal-outline-header-brand-logo-size);
+}
+
+.portal-outline-header__brand-logo-mount[data-oc-header-logo-loading='true'] .portal-outline-header__brand-logo {
+  opacity: 0;
+  transform: translate(-50%, -48%) scale(0.86);
+}
+
+.portal-outline-header__brand-logo-spinner {
+  block-size: var(--portal-outline-header-brand-logo-size);
+  display: grid;
+  inline-size: var(--portal-outline-header-brand-logo-size);
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  opacity: 0;
+  place-items: center;
+  pointer-events: none;
+  position: absolute;
+  transform: translate(-50%, -48%) scale(0.88);
+  animation: portal-outline-header-logo-spinner-in 220ms ease forwards;
+  z-index: 3;
+}
+
+.portal-outline-header__brand-logo-spinner .branded-loading-spinner {
+  --branded-loader-logo-size: calc(var(--portal-outline-header-brand-logo-size) - 4px);
+  --branded-loader-orbit-size: var(--portal-outline-header-brand-logo-size);
 }
 
 .portal-outline-header__brand:hover .portal-outline-header__brand-logo {
@@ -258,6 +285,19 @@
     0 0 24px rgb(47 221 255 / 26%);
   filter: brightness(1.12) saturate(1.12);
   transform: translate(-50%, -51%);
+}
+
+.portal-outline-header__brand:hover
+  .portal-outline-header__brand-logo-mount[data-oc-header-logo-loading='true']
+  .portal-outline-header__brand-logo {
+  transform: translate(-50%, -48%) scale(0.86);
+}
+
+@keyframes portal-outline-header-logo-spinner-in {
+  to {
+    opacity: 1;
+    transform: translate(-50%, -48%) scale(1);
+  }
 }
 
 .portal-outline-header__connector {
@@ -456,17 +496,13 @@
   }
 
   .portal-outline-header__brand {
+    --portal-outline-header-brand-logo-size: 54px;
     --portal-outline-header-brand-logo-slot: 50px;
 
     font-size: 11.5px;
     gap: 6px;
     inline-size: 224px;
     padding: 0 10px;
-  }
-
-  .portal-outline-header__brand-logo {
-    height: 54px;
-    width: 54px;
   }
 }
 
@@ -501,17 +537,13 @@
   }
 
   .portal-outline-header__brand {
+    --portal-outline-header-brand-logo-size: 52px;
     --portal-outline-header-brand-logo-slot: 48px;
 
     font-size: 10.5px;
     gap: 6px;
     inline-size: 210px;
     padding: 0 10px;
-  }
-
-  .portal-outline-header__brand-logo {
-    height: 52px;
-    width: 52px;
   }
 
   .app-frame {
@@ -585,16 +617,12 @@
   }
 
   .portal-outline-header__brand {
+    --portal-outline-header-brand-logo-size: 48px;
     --portal-outline-header-brand-logo-slot: 44px;
 
     font-size: 9.5px;
     gap: 4px;
     inline-size: 188px;
     padding: 0 8px;
-  }
-
-  .portal-outline-header__brand-logo {
-    height: 48px;
-    width: 48px;
   }
 }

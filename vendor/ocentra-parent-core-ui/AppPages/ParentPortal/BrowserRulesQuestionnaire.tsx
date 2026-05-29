@@ -1,4 +1,15 @@
-import { useEffect, useMemo, useRef, useState, type ReactElement } from 'react';
+import {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type Dispatch,
+  type ReactElement,
+  type SetStateAction,
+  type TransitionEvent,
+} from 'react';
 
 import { Action, EnforcementOfficerIcon } from '../../Common/NavSvgIcons';
 import { defaultChatBubbleConfig, RulesBubbleSvgFrame } from './ParentPortalRulesBubble';
@@ -39,6 +50,7 @@ export type BrowserRulesQuestion = {
 
 type BrowserRulesQuestionnaireProps = {
   readonly questions: readonly BrowserRulesQuestion[];
+  readonly availableWidth?: number;
   readonly disabled?: boolean;
   readonly onInfoClick?: () => void;
 };
@@ -127,6 +139,7 @@ const BROWSER_RULES_QUESTIONNAIRE_LAYOUT = {
   readableColumnMinWidth: 650,
   columnGap: 8,
   rowGap: 8,
+  rootInlineReservedWidth: 12,
   bubbleDefaultWidth: 640,
   bubbleMinWidth: 320,
   frameHeaderHeight: defaultChatBubbleConfig.header.height,
@@ -136,6 +149,8 @@ const BROWSER_RULES_QUESTIONNAIRE_LAYOUT = {
   bodyContentInsetX: 8,
   bodyContentInsetY: 7,
   controlColumnGap: 8,
+  collapseAnimationMs: 220,
+  collapseAnimationSettleMs: 40,
 } as const;
 
 const BROWSER_RULES_COPY = {
@@ -147,14 +162,22 @@ const BROWSER_RULES_COPY = {
   enforcementTitle: 'E',
 } as const;
 
+const BROWSER_RULES_RENDER_INNER_SVG_CONTROLS = true;
+const BROWSER_RULES_COLLAPSED_HEIGHT_CSS_VAR = '--browser-rules-bubble-collapsed-height';
+
 const BROWSER_RULES_CLASS_NAMES = {
   root: 'browser-rules-questionnaire',
   columns: 'browser-rules-questionnaire__columns',
   column: 'browser-rules-questionnaire__column',
   bubble: 'browser-rules-bubble',
   bubbleCollapsed: 'browser-rules-bubble--collapsed',
+  bubbleAnimating: 'browser-rules-bubble--animating',
+  bubbleClosing: 'browser-rules-bubble--closing',
+  bubbleOpening: 'browser-rules-bubble--opening',
   bubbleSvg: 'browser-rules-bubble__svg',
   bubbleBody: 'browser-rules-bubble__body',
+  bubbleBodyClosing: 'browser-rules-bubble__body--closing',
+  bubbleBodyOpening: 'browser-rules-bubble__body--opening',
   choicePanel: 'browser-rules-choice-panel',
   choicePanelSingle: 'browser-rules-choice-panel--single',
   choicePanelMulti: 'browser-rules-choice-panel--multi',
@@ -176,6 +199,8 @@ type BrowserRulesBubbleMetrics = {
   readonly enforcementControlWidth: number;
   readonly enforcementAlignSelf: 'center' | 'flex-start';
 };
+
+type BrowserRulesBubbleTransitionPhase = 'idle' | 'expanding' | 'collapsing';
 
 type BrowserRulesQuestionnaireLayout = {
   readonly columnCount: number;
@@ -200,6 +225,29 @@ function calculateQuestionnaireLayout(availableWidth: number): BrowserRulesQuest
   const columnWidth = Math.max(1, Math.floor((safeAvailableWidth - totalGap) / columnCount));
 
   return { columnCount, columnWidth };
+}
+
+function stableLayoutWidth(width: number | undefined) {
+  const safeWidth = Math.floor(width ?? BROWSER_RULES_QUESTIONNAIRE_LAYOUT.bubbleDefaultWidth);
+  return Number.isFinite(safeWidth) && safeWidth > 0
+    ? safeWidth
+    : BROWSER_RULES_QUESTIONNAIRE_LAYOUT.bubbleDefaultWidth;
+}
+
+function stableQuestionnaireContentWidth(availableWidth: number | undefined) {
+  return Math.max(1, stableLayoutWidth(availableWidth) - BROWSER_RULES_QUESTIONNAIRE_LAYOUT.rootInlineReservedWidth);
+}
+
+function setQuestionnaireLayoutFromWidth(
+  setLayout: Dispatch<SetStateAction<BrowserRulesQuestionnaireLayout>>,
+  width: number | undefined
+) {
+  const nextLayout = calculateQuestionnaireLayout(stableQuestionnaireContentWidth(width));
+  setLayout((current) =>
+    current.columnCount === nextLayout.columnCount && current.columnWidth === nextLayout.columnWidth
+      ? current
+      : nextLayout
+  );
 }
 
 function getBrowserRulesControlMinWidth(question: BrowserRulesQuestion) {
@@ -362,78 +410,62 @@ function getBrowserRulesBubbleMetrics(question: BrowserRulesQuestion, width: num
   };
 }
 
-function estimateQuestionHeight(question: BrowserRulesQuestion, columnWidth: number) {
-  return getBrowserRulesBubbleMetrics(question, columnWidth).frameHeight;
-}
-
-function distributeQuestions(questions: readonly BrowserRulesQuestion[], columnCount: number, columnWidth: number) {
+function distributeQuestions(questions: readonly BrowserRulesQuestion[], columnCount: number) {
   const columns = Array.from({ length: Math.max(1, columnCount) }, () => [] as BrowserRulesQuestion[]);
-  const heights = Array.from({ length: Math.max(1, columnCount) }, () => 0);
 
-  questions.forEach((question) => {
-    const columnIndex = heights.indexOf(Math.min(...heights));
+  questions.forEach((question, questionIndex) => {
+    const columnIndex = questionIndex % columns.length;
     const column = columns[columnIndex];
     if (!column) return;
 
     column.push(question);
-    heights[columnIndex] = (heights[columnIndex] ?? 0) + estimateQuestionHeight(question, columnWidth);
   });
 
   return columns;
 }
 
-function useQuestionColumnLayout() {
+function useQuestionColumnLayout(availableWidth?: number) {
   const ref = useRef<HTMLDivElement | null>(null);
   const [layout, setLayout] = useState<BrowserRulesQuestionnaireLayout>(() =>
-    calculateQuestionnaireLayout(BROWSER_RULES_QUESTIONNAIRE_LAYOUT.bubbleDefaultWidth)
+    calculateQuestionnaireLayout(stableQuestionnaireContentWidth(availableWidth))
   );
 
-  useEffect(() => {
+  useLayoutEffect(() => {
+    setQuestionnaireLayoutFromWidth(setLayout, availableWidth);
+    if (availableWidth !== undefined) return;
+
     const node = ref.current;
     if (!node || typeof ResizeObserver === 'undefined') return;
 
+    const updateFromNode = () => {
+      const rect = node.getBoundingClientRect();
+      setQuestionnaireLayoutFromWidth(setLayout, rect.width || node.clientWidth || availableWidth);
+    };
+
+    updateFromNode();
     const observer = new ResizeObserver((entries) => {
       const entry = entries[0];
       if (!entry) return;
 
-      const nextLayout = calculateQuestionnaireLayout(entry.contentRect.width);
-      setLayout((current) =>
-        current.columnCount === nextLayout.columnCount && current.columnWidth === nextLayout.columnWidth
-          ? current
-          : nextLayout
-      );
+      setQuestionnaireLayoutFromWidth(setLayout, entry.contentRect.width || node.clientWidth || availableWidth);
     });
 
     observer.observe(node);
     return () => observer.disconnect();
-  }, []);
+  }, [availableWidth]);
 
   return { ref, layout };
 }
 
-function useVisibleElementWidth(defaultWidth: number) {
-  const ref = useRef<HTMLDivElement | null>(null);
-  const [width, setWidth] = useState(defaultWidth);
+function useStableWidth(widthHint: number) {
+  const [width, setWidth] = useState(() => stableLayoutWidth(widthHint));
 
-  useEffect(() => {
-    const node = ref.current;
-    if (!node || typeof ResizeObserver === 'undefined') return;
+  useLayoutEffect(() => {
+    const layoutWidth = stableLayoutWidth(widthHint);
+    setWidth((current) => (Math.abs(current - layoutWidth) <= 1 ? current : layoutWidth));
+  }, [widthHint]);
 
-    const observer = new ResizeObserver((entries) => {
-      const entry = entries[0];
-      if (!entry) return;
-
-      const layoutWidth = Math.floor(entry.contentRect.width || node.clientWidth);
-      if (!Number.isFinite(layoutWidth) || layoutWidth <= 0) return;
-
-      setWidth((current) => (Math.abs(current - layoutWidth) <= 1 ? current : layoutWidth));
-    });
-
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, []);
-
-  return { ref, width };
+  return width;
 }
 
 function browserRulesActionToggleConfigForRows(width: number, optionCount: number, maxOptionsPerRow: number) {
@@ -705,15 +737,13 @@ function renderEnforcementTitle(slot: {
 }
 
 export function BrowserRulesQuestionnaire({
+  availableWidth,
   questions,
   disabled = false,
   onInfoClick,
 }: BrowserRulesQuestionnaireProps): ReactElement {
-  const { ref, layout } = useQuestionColumnLayout();
-  const columns = useMemo(
-    () => distributeQuestions(questions, layout.columnCount, layout.columnWidth),
-    [layout.columnCount, layout.columnWidth, questions]
-  );
+  const { ref, layout } = useQuestionColumnLayout(availableWidth);
+  const columns = useMemo(() => distributeQuestions(questions, layout.columnCount), [layout.columnCount, questions]);
 
   return (
     <div
@@ -740,6 +770,7 @@ export function BrowserRulesQuestionnaire({
                 disabled={disabled}
                 key={question.id}
                 question={question}
+                widthHint={layout.columnWidth}
                 {...(onInfoClick ? { onInfoClick } : {})}
               />
             ))}
@@ -754,50 +785,182 @@ function BrowserRulesQuestionBubble({
   question,
   disabled,
   onInfoClick,
+  widthHint,
 }: {
   readonly question: BrowserRulesQuestion;
   readonly disabled: boolean;
   readonly onInfoClick?: () => void;
+  readonly widthHint: number;
 }) {
-  const { ref, width } = useVisibleElementWidth(BROWSER_RULES_QUESTIONNAIRE_LAYOUT.bubbleDefaultWidth);
-  const metrics = getBrowserRulesBubbleMetrics(question, width);
-  const bubbleClassName = question.collapsed
-    ? `${BROWSER_RULES_CLASS_NAMES.bubble} ${BROWSER_RULES_CLASS_NAMES.bubbleCollapsed}`
-    : BROWSER_RULES_CLASS_NAMES.bubble;
+  const width = useStableWidth(widthHint);
+  const [heightCollapsed, setHeightCollapsed] = useState(question.collapsed);
+  const [visualCollapsed, setVisualCollapsed] = useState(question.collapsed);
+  const [transitionPhase, setTransitionPhase] = useState<BrowserRulesBubbleTransitionPhase>('idle');
+  const transitionTimerRef = useRef<number | undefined>(undefined);
+  const transitionFrameRef = useRef<number | undefined>(undefined);
+  const transitionLockRef = useRef(false);
+  const previousCollapsedRef = useRef(question.collapsed);
+  const expandedMetrics = getBrowserRulesBubbleMetrics({ ...question, collapsed: false }, width);
+  const collapsedMetrics = getBrowserRulesBubbleMetrics({ ...question, collapsed: true }, width);
+  const renderedVisualCollapsed = visualCollapsed;
+  const targetMetrics = heightCollapsed ? collapsedMetrics : expandedMetrics;
+  const visualMetrics = renderedVisualCollapsed ? collapsedMetrics : expandedMetrics;
+  const bubbleIsClosing = transitionPhase === 'collapsing';
+  const bubbleIsOpening = transitionPhase === 'expanding';
+  const bubbleIsAnimating = transitionPhase !== 'idle';
+  const bubbleClassName = [
+    BROWSER_RULES_CLASS_NAMES.bubble,
+    question.collapsed ? BROWSER_RULES_CLASS_NAMES.bubbleCollapsed : '',
+    bubbleIsAnimating ? BROWSER_RULES_CLASS_NAMES.bubbleAnimating : '',
+    bubbleIsClosing ? BROWSER_RULES_CLASS_NAMES.bubbleClosing : '',
+    bubbleIsOpening ? BROWSER_RULES_CLASS_NAMES.bubbleOpening : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
+  const bodyClassName = [
+    BROWSER_RULES_CLASS_NAMES.bubbleBody,
+    bubbleIsClosing ? BROWSER_RULES_CLASS_NAMES.bubbleBodyClosing : '',
+    bubbleIsOpening ? BROWSER_RULES_CLASS_NAMES.bubbleBodyOpening : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
+  const bubbleStyle: CSSProperties & Record<typeof BROWSER_RULES_COLLAPSED_HEIGHT_CSS_VAR, string> = {
+    [BROWSER_RULES_COLLAPSED_HEIGHT_CSS_VAR]: `${collapsedMetrics.frameHeight}px`,
+    animationDuration: `${BROWSER_RULES_QUESTIONNAIRE_LAYOUT.collapseAnimationMs}ms`,
+    height: targetMetrics.frameHeight,
+    transitionDuration: `${BROWSER_RULES_QUESTIONNAIRE_LAYOUT.collapseAnimationMs}ms`,
+  };
+
+  useLayoutEffect(() => {
+    const previousCollapsed = previousCollapsedRef.current;
+    previousCollapsedRef.current = question.collapsed;
+
+    if (transitionTimerRef.current !== undefined) {
+      window.clearTimeout(transitionTimerRef.current);
+      transitionTimerRef.current = undefined;
+    }
+    if (transitionFrameRef.current !== undefined) {
+      window.cancelAnimationFrame(transitionFrameRef.current);
+      transitionFrameRef.current = undefined;
+    }
+
+    if (previousCollapsed === question.collapsed) {
+      setHeightCollapsed(question.collapsed);
+      setVisualCollapsed(question.collapsed);
+      setTransitionPhase('idle');
+      transitionLockRef.current = false;
+      return undefined;
+    }
+
+    const nextPhase: BrowserRulesBubbleTransitionPhase = question.collapsed ? 'collapsing' : 'expanding';
+    setTransitionPhase(nextPhase);
+    setHeightCollapsed(true);
+
+    if (question.collapsed) {
+      setVisualCollapsed(false);
+    } else {
+      setVisualCollapsed(true);
+      transitionFrameRef.current = window.requestAnimationFrame(() => {
+        transitionFrameRef.current = window.requestAnimationFrame(() => {
+          transitionFrameRef.current = undefined;
+          setVisualCollapsed(false);
+          setHeightCollapsed(false);
+        });
+      });
+    }
+
+    transitionTimerRef.current = window.setTimeout(() => {
+      transitionTimerRef.current = undefined;
+      setHeightCollapsed(question.collapsed);
+      setVisualCollapsed(question.collapsed);
+      setTransitionPhase('idle');
+      transitionLockRef.current = false;
+    }, BROWSER_RULES_QUESTIONNAIRE_LAYOUT.collapseAnimationMs + BROWSER_RULES_QUESTIONNAIRE_LAYOUT.collapseAnimationSettleMs);
+
+    return () => {
+      if (transitionTimerRef.current !== undefined) {
+        window.clearTimeout(transitionTimerRef.current);
+        transitionTimerRef.current = undefined;
+      }
+      if (transitionFrameRef.current !== undefined) {
+        window.cancelAnimationFrame(transitionFrameRef.current);
+        transitionFrameRef.current = undefined;
+      }
+    };
+  }, [question.collapsed]);
+
+  useEffect(() => {
+    return () => {
+      if (transitionTimerRef.current !== undefined) {
+        window.clearTimeout(transitionTimerRef.current);
+      }
+      if (transitionFrameRef.current !== undefined) {
+        window.cancelAnimationFrame(transitionFrameRef.current);
+      }
+    };
+  }, []);
+
+  function handleBubbleTransitionEnd(event: TransitionEvent<HTMLDivElement>) {
+    if (event.currentTarget !== event.target || event.propertyName !== 'height') return;
+    if (transitionPhase === 'expanding') return;
+    if (transitionTimerRef.current !== undefined) {
+      window.clearTimeout(transitionTimerRef.current);
+      transitionTimerRef.current = undefined;
+    }
+    if (transitionFrameRef.current !== undefined) {
+      window.cancelAnimationFrame(transitionFrameRef.current);
+      transitionFrameRef.current = undefined;
+    }
+    setHeightCollapsed(question.collapsed);
+    setVisualCollapsed(question.collapsed);
+    setTransitionPhase('idle');
+    transitionLockRef.current = false;
+  }
+
+  function handleCollapsedChange(nextCollapsed: boolean) {
+    if (transitionLockRef.current || transitionPhase !== 'idle' || nextCollapsed === question.collapsed) {
+      return;
+    }
+
+    transitionLockRef.current = true;
+    question.onCollapsedChange(nextCollapsed);
+  }
 
   return (
     <div
-      ref={ref}
       className={bubbleClassName}
-      style={{ height: metrics.frameHeight }}
+      style={bubbleStyle}
       role="group"
       aria-label={question.header}
+      onTransitionEnd={handleBubbleTransitionEnd}
     >
       <svg
         className={BROWSER_RULES_CLASS_NAMES.bubbleSvg}
-        viewBox={`0 0 ${metrics.frameWidth} ${metrics.frameHeight}`}
+        viewBox={`0 0 ${visualMetrics.frameWidth} ${visualMetrics.frameHeight}`}
         width="100%"
-        height={metrics.frameHeight}
+        height={visualMetrics.frameHeight}
         role="presentation"
       >
         <RulesBubbleSvgFrame
           x={0}
           y={0}
-          width={metrics.frameWidth}
-          bodyHeight={metrics.bodyHeight}
+          width={visualMetrics.frameWidth}
+          bodyHeight={visualMetrics.bodyHeight}
           variant="incoming"
           collapsed={question.collapsed}
+          visualCollapsed={renderedVisualCollapsed}
           headerLabel={question.header}
           showInfo
           infoLabel={BROWSER_RULES_COPY.openGuide}
           disabled={disabled}
+          collapseDisabled={bubbleIsAnimating}
           collapseLabel={BROWSER_RULES_COPY.collapseQuestion}
           expandLabel={BROWSER_RULES_COPY.expandQuestion}
           {...(onInfoClick ? { onInfoClick } : {})}
-          onCollapsedChange={(nextCollapsed) => question.onCollapsedChange(nextCollapsed)}
+          onCollapsedChange={handleCollapsedChange}
         >
           {(slot) =>
-            question.collapsed ? null : (
+            renderedVisualCollapsed ? null : (
               <foreignObject
                 x={slot.bodyContentX + BROWSER_RULES_QUESTIONNAIRE_LAYOUT.bodyContentInsetX}
                 y={slot.bodyContentY + BROWSER_RULES_QUESTIONNAIRE_LAYOUT.bodyContentInsetY}
@@ -805,18 +968,24 @@ function BrowserRulesQuestionBubble({
                 height={Math.max(1, slot.bodyContentH - BROWSER_RULES_QUESTIONNAIRE_LAYOUT.bodyContentInsetY * 2)}
               >
                 <div
-                  className={BROWSER_RULES_CLASS_NAMES.bubbleBody}
+                  className={bodyClassName}
                   style={{
-                    gap: metrics.controlsInline
+                    gap: visualMetrics.controlsInline
                       ? BROWSER_RULES_QUESTIONNAIRE_LAYOUT.controlColumnGap
                       : BROWSER_RULES_QUESTIONNAIRE_LAYOUT.rowGap,
-                    flexDirection: metrics.controlsInline ? 'row' : 'column',
+                    flexDirection: visualMetrics.controlsInline ? 'row' : 'column',
+                    animationDuration: `${BROWSER_RULES_QUESTIONNAIRE_LAYOUT.collapseAnimationMs}ms`,
+                    transitionDuration: `${BROWSER_RULES_QUESTIONNAIRE_LAYOUT.collapseAnimationMs}ms`,
                   }}
                 >
-                  <ChoicePanel controlWidth={metrics.choiceControlWidth} disabled={disabled} question={question} />
+                  <ChoicePanel
+                    controlWidth={visualMetrics.choiceControlWidth}
+                    disabled={disabled}
+                    question={question}
+                  />
                   <EnforcementPanel
-                    alignSelf={metrics.enforcementAlignSelf}
-                    controlWidth={metrics.enforcementControlWidth}
+                    alignSelf={visualMetrics.enforcementAlignSelf}
+                    controlWidth={visualMetrics.enforcementControlWidth}
                     disabled={disabled}
                     question={question}
                   />
@@ -840,6 +1009,18 @@ function ChoicePanel({
   readonly controlWidth: number;
 }) {
   const options = useMemo(() => scopeChoiceOptions(question.options), [question.options]);
+  if (!BROWSER_RULES_RENDER_INNER_SVG_CONTROLS) {
+    return (
+      <div
+        className={`${BROWSER_RULES_CLASS_NAMES.choicePanel} ${
+          question.kind === 'multi'
+            ? BROWSER_RULES_CLASS_NAMES.choicePanelMulti
+            : BROWSER_RULES_CLASS_NAMES.choicePanelSingle
+        }`}
+        style={{ width: controlWidth }}
+      />
+    );
+  }
 
   return (
     <div
@@ -891,6 +1072,14 @@ function EnforcementPanel({
   readonly alignSelf: 'center' | 'flex-start';
 }) {
   const selectedEnforcement = useMemo(() => [question.enforcementValue], [question.enforcementValue]);
+  if (!BROWSER_RULES_RENDER_INNER_SVG_CONTROLS) {
+    return (
+      <div
+        className={`${BROWSER_RULES_CLASS_NAMES.choicePanel} ${BROWSER_RULES_CLASS_NAMES.choicePanelEnforcement}`}
+        style={{ alignSelf, width: controlWidth }}
+      />
+    );
+  }
 
   return (
     <div

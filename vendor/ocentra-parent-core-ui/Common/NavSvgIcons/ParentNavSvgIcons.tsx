@@ -31,6 +31,7 @@ export const parentNavIconAssetUrls = {
   DataPrivacyServerShieldIcon: '/parent-nav-data-privacy-server-shield.svg',
   LanNetworkMonitorsIcon: '/parent-nav-lan-network-monitors.svg',
   DevicesMultiScreenIcon: '/parent-nav-devices-multi-screen.svg',
+  TrackingLocationIcon: '/parent-nav-tracking.svg',
   ScreenAnalysisIcon: '/parent-nav-screen-analysis.svg',
   RemoteAccessMonitorsIcon: '/parent-nav-remote-access-monitors.svg',
   AiSetupSearchIcon: '/parent-nav-ai-setup-search.svg',
@@ -80,6 +81,7 @@ export const GamesIcon = createParentNavAssetIcon(parentNavIconAssetUrls.GamesIc
 export const DataPrivacyServerShieldIcon = createParentNavAssetIcon(parentNavIconAssetUrls.DataPrivacyServerShieldIcon);
 export const LanNetworkMonitorsIcon = createParentNavAssetIcon(parentNavIconAssetUrls.LanNetworkMonitorsIcon);
 export const DevicesMultiScreenIcon = createParentNavAssetIcon(parentNavIconAssetUrls.DevicesMultiScreenIcon);
+export const TrackingLocationIcon = createParentNavAssetIcon(parentNavIconAssetUrls.TrackingLocationIcon);
 export const ScreenAnalysisIcon = createParentNavAssetIcon(parentNavIconAssetUrls.ScreenAnalysisIcon);
 export const RemoteAccessMonitorsIcon = createParentNavAssetIcon(parentNavIconAssetUrls.RemoteAccessMonitorsIcon);
 export const AiSetupSearchIcon = createParentNavAssetIcon(parentNavIconAssetUrls.AiSetupSearchIcon);

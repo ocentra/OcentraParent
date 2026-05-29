@@ -1,4 +1,4 @@
-import { useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactElement } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactElement } from 'react';
 import {
   PortalDom,
   PortalFrameTuner,
@@ -33,10 +33,15 @@ type PortalAppProps = {
   readonly route: PortalRouteValue;
   readonly state: PortalRuntimeState;
   readonly theme: PortalThemeValue;
+  readonly onProductSurfaceReady: () => void;
 };
+
+const PORTAL_HEADER_ROUTE_TRANSITION_MS = 1040;
 
 export function PortalApp(props: PortalAppProps): ReactElement {
   const [authOpen, setAuthOpen] = useState(false);
+  const [headerRouteTransitionActive, setHeaderRouteTransitionActive] = useState(false);
+  const previousRouteRef = useRef<PortalRouteValue>(props.route);
   const isFrameTuner = props.route === PortalRoute.FrameTuner;
   const isDevProtocolRoute = props.route === PortalRoute.Commands || props.route === PortalRoute.Events;
   const isProductRoute = !isFrameTuner && !isDevProtocolRoute;
@@ -71,6 +76,20 @@ export function PortalApp(props: PortalAppProps): ReactElement {
     [routeFrameLayout.main, mainContent]
   );
   const appMainClassName = useMemo(() => frameHostClassName(PortalDom.Classes.AppMain, mainContent), [mainContent]);
+  useLayoutEffect(() => {
+    if (!isProductRoute) {
+      props.onProductSurfaceReady();
+    }
+  }, [isProductRoute, props.onProductSurfaceReady]);
+  useEffect(() => {
+    if (previousRouteRef.current === props.route) {
+      return;
+    }
+    previousRouteRef.current = props.route;
+    setHeaderRouteTransitionActive(true);
+    const timeout = window.setTimeout(() => setHeaderRouteTransitionActive(false), PORTAL_HEADER_ROUTE_TRANSITION_MS);
+    return () => window.clearTimeout(timeout);
+  }, [props.route]);
   if (isFrameTuner) {
     return <PortalFrameTunerRoute layout={frameLayout} onLayoutChange={setFrameLayout} />;
   }
@@ -79,11 +98,11 @@ export function PortalApp(props: PortalAppProps): ReactElement {
       props.route === PortalRoute.Assistant ? frameLayout.parentPortal.chatInterface : frameLayout.parentPortal.mainApp;
     return (
       <>
-        <PortalUnifiedShell onAuthOpen={() => setAuthOpen(true)}>
+        <PortalUnifiedShell onAuthOpen={() => setAuthOpen(true)} routeTransitionActive={headerRouteTransitionActive}>
           <ParentPortalRoute
-            key={props.route}
             actions={props.actions}
             controls={controls}
+            onProductSurfaceReady={props.onProductSurfaceReady}
             route={props.route}
             state={props.state}
           />
@@ -94,7 +113,7 @@ export function PortalApp(props: PortalAppProps): ReactElement {
   }
   return (
     <>
-      <PortalUnifiedShell onAuthOpen={() => setAuthOpen(true)}>
+      <PortalUnifiedShell onAuthOpen={() => setAuthOpen(true)} routeTransitionActive={headerRouteTransitionActive}>
         <div className={PortalDom.Classes.AppFrame} style={appFrameStyle}>
           <PortalSidebar
             actions={props.actions}
@@ -114,6 +133,7 @@ export function PortalApp(props: PortalAppProps): ReactElement {
                 route={props.route}
                 state={props.state}
                 theme={props.theme}
+                onProductSurfaceReady={props.onProductSurfaceReady}
               />
             </div>
           </main>

@@ -5,8 +5,159 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>Ocentra Parent</title>
+    <style>
+      #app-loading {
+        --app-loading-fade-duration: 680ms;
+        position: fixed;
+        inset: 0;
+        background:
+          radial-gradient(circle at 50% -18rem, rgb(0 119 154 / 58%), transparent 39rem),
+          radial-gradient(circle at 10% 8rem, rgb(0 208 170 / 22%), transparent 30rem),
+          radial-gradient(circle at 86% 18rem, rgb(76 93 255 / 20%), transparent 28rem),
+          linear-gradient(135deg, #020814, #05243d 52%, #020814);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none;
+        opacity: 1;
+        transition: opacity var(--app-loading-fade-duration) cubic-bezier(0.22, 1, 0.36, 1);
+        color-scheme: dark;
+        contain: paint;
+      }
+      #app-loading.hide {
+        opacity: 0;
+      }
+      #app-loading.hidden {
+        visibility: hidden;
+      }
+      #app-loading::before {
+        position: absolute;
+        inset: 0;
+        content: '';
+        background-image:
+          linear-gradient(rgb(117 222 255 / 8%) 1px, transparent 1px),
+          linear-gradient(90deg, rgb(117 222 255 / 7%) 1px, transparent 1px);
+        background-size: 3.75rem 3.75rem;
+        mask-image: linear-gradient(to bottom, rgb(0 0 0 / 64%), transparent 78%);
+        pointer-events: none;
+      }
+      #app-loading .loader-wrap {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      #app-loading .loader-spinner {
+        position: absolute;
+        width: clamp(148px, 37vw, 296px);
+        height: clamp(148px, 37vw, 296px);
+        animation: loader-spin 14s linear infinite;
+        z-index: 1;
+        will-change: transform;
+      }
+      #app-loading .loader-comet-layer {
+        position: absolute;
+        inset: 0;
+        background: transparent;
+      }
+      #app-loading .loader-comet {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        background: transparent;
+      }
+      #app-loading .loader-comet-head {
+        position: absolute;
+        left: calc(50% + 4px);
+        top: 6%;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: #fff;
+        box-shadow:
+          0 0 10px #fff,
+          0 0 22px rgba(255, 255, 255, 0.95),
+          0 0 40px rgba(255, 255, 255, 0.6);
+        transform: translate(-50%, -50%);
+        animation: comet-flicker 0.95s steps(10, end) infinite;
+        pointer-events: none;
+      }
+      #app-loading .loader-logo {
+        position: relative;
+        z-index: 0;
+        width: clamp(140px, 35vw, 280px);
+        height: clamp(140px, 35vw, 280px);
+        opacity: 0.95;
+      }
+      @keyframes loader-spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      @keyframes loader-pulse {
+        0% {
+          transform: scale(1);
+          opacity: 0.9;
+        }
+        100% {
+          transform: scale(1.1);
+          opacity: 1;
+        }
+      }
+      @keyframes comet-flicker {
+        0% {
+          opacity: 0.82;
+          transform: translate(-50%, -50%) scale(0.92);
+        }
+        8% {
+          opacity: 1;
+          transform: translate(-50%, -50%) scale(1.06);
+        }
+        16% {
+          opacity: 0.88;
+          transform: translate(-50%, -50%) scale(0.96);
+        }
+        24% {
+          opacity: 1;
+          transform: translate(-50%, -50%) scale(1.1);
+        }
+        36% {
+          opacity: 0.9;
+          transform: translate(-50%, -50%) scale(0.98);
+        }
+        52% {
+          opacity: 1;
+          transform: translate(-50%, -50%) scale(1.08);
+        }
+        68% {
+          opacity: 0.84;
+          transform: translate(-50%, -50%) scale(0.94);
+        }
+        82% {
+          opacity: 0.98;
+          transform: translate(-50%, -50%) scale(1.04);
+        }
+        100% {
+          opacity: 0.82;
+          transform: translate(-50%, -50%) scale(0.92);
+        }
+      }
+    </style>
   </head>
   <body>
+    <div id="app-loading" aria-hidden="true">
+      <div class="loader-wrap">
+        <div class="loader-spinner" aria-hidden="true">
+          <div class="loader-comet-layer">
+            <img class="loader-comet" src="/ocentra-logo-comet.png" alt="" width="256" height="256" />
+            <span class="loader-comet-head" aria-hidden="true"></span>
+          </div>
+        </div>
+        <img class="loader-logo" src="/ocentra-logo.svg" alt="" width="128" height="128" />
+      </div>
+    </div>
     <main id="app"></main>
     <script type="module" src="/src/main.ts"></script>
   </body>

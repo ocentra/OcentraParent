@@ -3,6 +3,7 @@ import {
   useCallback,
   useEffect,
   useId,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -99,6 +100,7 @@ import {
   ScheduleCalendarClockIcon,
   ScreenAnalysisIcon,
   StartDataAnalysisIcon,
+  TrackingLocationIcon,
   UpdatesSyncDocumentIcon,
   WebGlobeIcon,
   parentNavIconAssetUrls,
@@ -200,6 +202,7 @@ type ParentPortalSvgSurfaceProps = {
   onMatchmaking: () => void;
   onNavigate?: (routePath: string) => void;
   onAssistantCommand?: (command: AgentCommandName, payload: Record<string, string>) => void;
+  onInitialLayoutReady?: () => void;
 };
 
 type ParentPortalActivityState = {
@@ -276,6 +279,9 @@ const PARENT_PORTAL_RESPONSIVE_MIN_MAIN_W = 560;
 const PARENT_PORTAL_RESPONSIVE_COMPACT_SURFACE_W = 1600;
 const PARENT_PORTAL_RESPONSIVE_MAX_CANVAS_W = 8192;
 const PARENT_PORTAL_RESPONSIVE_MAX_CANVAS_H = 2800;
+const PARENT_PORTAL_INITIAL_RENDER_SPINNER_MS = 140;
+const PARENT_PORTAL_ROUTE_RENDER_SPINNER_MS = 1000;
+const PARENT_PORTAL_SIDE_NAV_FOLD_MS = 220;
 const PARENT_PORTAL_TOP_CAROUSEL_MAX_VISIBLE = 5;
 const PARENT_PORTAL_SIDE_HANDLE_W = 15;
 const PARENT_PORTAL_SIDE_HANDLE_OVERLAP = 1;
@@ -654,6 +660,9 @@ function iconForName(icon: ParentPortalIconName): IconComponent {
 }
 
 function iconForNavItem(item: ParentPortalNavItem): IconComponent {
+  if (assetKey(`${item.label} ${item.routePath ?? ''}`).includes('tracking')) {
+    return TrackingLocationIcon;
+  }
   return iconForName(item.icon);
 }
 
@@ -2650,6 +2659,21 @@ function navGroupThemeColor(groupId: string, cfg: ParentPortalSvgControls): stri
   return cfg.colors.cyan;
 }
 
+function navGroupFoldKey(groupId: string): string {
+  return `group:${groupId}`;
+}
+
+function navSectionFoldKey(sectionId: string): string {
+  return `section:${sectionId}`;
+}
+
+function navFoldoutClassName(opening: boolean, closing: boolean): string {
+  const baseClassName = 'parent-portal-nav-foldout';
+  if (closing) return `${baseClassName} ${baseClassName}--closing`;
+  if (opening) return `${baseClassName} ${baseClassName}--opening`;
+  return baseClassName;
+}
+
 function NavGroupHeader({
   group,
   open,
@@ -2819,6 +2843,55 @@ function NavPanel({
   const [openSectionIds, setOpenSectionIds] = useState(() =>
     initialOpenNavSectionIds(navGroups, activeNavRouteKey, activeNavLabel)
   );
+  const [openingFoldIds, setOpeningFoldIds] = useState<Record<string, boolean>>({});
+  const [closingFoldIds, setClosingFoldIds] = useState<Record<string, boolean>>({});
+  const foldTimerIdsRef = useRef<Record<string, number>>({});
+  const clearFoldTimer = useCallback((foldKey: string) => {
+    const timerId = foldTimerIdsRef.current[foldKey];
+    if (timerId !== undefined) {
+      window.clearTimeout(timerId);
+      delete foldTimerIdsRef.current[foldKey];
+    }
+  }, []);
+  const beginFoldPhase = useCallback(
+    (foldKey: string, phase: 'opening' | 'closing') => {
+      clearFoldTimer(foldKey);
+      setOpeningFoldIds((current) => {
+        const next = { ...current };
+        if (phase === 'opening') next[foldKey] = true;
+        else delete next[foldKey];
+        return next;
+      });
+      setClosingFoldIds((current) => {
+        const next = { ...current };
+        if (phase === 'closing') next[foldKey] = true;
+        else delete next[foldKey];
+        return next;
+      });
+      foldTimerIdsRef.current[foldKey] = window.setTimeout(() => {
+        delete foldTimerIdsRef.current[foldKey];
+        setOpeningFoldIds((current) => {
+          if (!current[foldKey]) return current;
+          const next = { ...current };
+          delete next[foldKey];
+          return next;
+        });
+        setClosingFoldIds((current) => {
+          if (!current[foldKey]) return current;
+          const next = { ...current };
+          delete next[foldKey];
+          return next;
+        });
+      }, PARENT_PORTAL_SIDE_NAV_FOLD_MS);
+    },
+    [clearFoldTimer]
+  );
+  useEffect(() => {
+    return () => {
+      Object.values(foldTimerIdsRef.current).forEach((timerId) => window.clearTimeout(timerId));
+      foldTimerIdsRef.current = {};
+    };
+  }, []);
   const groupH = 46;
   const sectionH = 42;
   const rowH = 38;
@@ -2835,11 +2908,15 @@ function NavPanel({
   const assistantY = sideTopY + navH + assistantGap;
   const navViewportY = rowTop;
   const navViewportH = Math.max(72, sideTopY + navH - rowTop - 22);
+  const groupVisuallyOpen = (groupId: string) =>
+    Boolean(openGroupIds[groupId] || closingFoldIds[navGroupFoldKey(groupId)]);
+  const sectionVisuallyOpen = (section: { id: string; label: string; items: NavItem[] }) =>
+    !section.label || Boolean(openSectionIds[section.id] || closingFoldIds[navSectionFoldKey(section.id)]);
   const navContentH = navGroups.reduce((height, group) => {
-    if (!openGroupIds[group.id]) return height + groupH + groupGap;
+    if (!groupVisuallyOpen(group.id)) return height + groupH + groupGap;
     const itemHeight = navSectionsForGroup(group).reduce((nextHeight, section) => {
       const sectionDelta = section.label ? sectionH : 0;
-      const sectionOpen = !section.label || Boolean(openSectionIds[section.id]);
+      const sectionOpen = sectionVisuallyOpen(section);
       return (
         nextHeight +
         sectionDelta +
@@ -2853,12 +2930,12 @@ function NavPanel({
   let scanY = rowTop;
   for (const group of navGroups) {
     scanY += groupH;
-    if (openGroupIds[group.id]) {
+    if (groupVisuallyOpen(group.id)) {
       for (const section of navSectionsForGroup(group)) {
         if (section.label) {
           scanY += sectionH;
         }
-        if (section.label && !openSectionIds[section.id]) continue;
+        if (section.label && !sectionVisuallyOpen(section)) continue;
         for (const item of section.items) {
           if (navItemMatches(item, activeNavRouteKey, activeNavLabel)) {
             activeNavRowY = scanY;
@@ -2907,7 +2984,12 @@ function NavPanel({
       ? navViewportY + (safeNavScroll / maxNavScroll) * Math.max(0, navViewportH - thumbH)
       : navViewportY;
   const toggleNavSection = (sectionId: string) => {
+    beginFoldPhase(navSectionFoldKey(sectionId), Boolean(openSectionIds[sectionId]) ? 'closing' : 'opening');
     setOpenSectionIds((current) => toggleOpenNavSectionId(current, navGroups, sectionId));
+  };
+  const handleNavGroupToggle = (groupId: string) => {
+    beginFoldPhase(navGroupFoldKey(groupId), Boolean(openGroupIds[groupId]) ? 'closing' : 'opening');
+    onNavGroupToggle(groupId);
   };
   if (assistantOpen) {
     return (
@@ -2950,12 +3032,20 @@ function NavPanel({
                 cursorY += groupH;
                 const childStartY = cursorY;
                 const open = Boolean(openGroupIds[group.id]);
+                const groupFoldKeyValue = navGroupFoldKey(group.id);
+                const groupOpening = Boolean(openingFoldIds[groupFoldKeyValue]);
+                const groupClosing = Boolean(closingFoldIds[groupFoldKeyValue]);
+                const groupDisplayOpen = open || groupClosing;
                 const groupAccent = navGroupThemeColor(group.id, cfg);
                 const groupGlowFilter = 'url(#parentPortalGlow)';
-                const rows = open
+                const rows = groupDisplayOpen
                   ? navSectionsForGroup(group).flatMap((section) => {
                       const sectionRows: ReactNode[] = [];
+                      const sectionFoldKeyValue = navSectionFoldKey(section.id);
                       const sectionOpen = !section.label || Boolean(openSectionIds[section.id]);
+                      const sectionClosing = Boolean(closingFoldIds[sectionFoldKeyValue]);
+                      const sectionOpening = Boolean(openingFoldIds[sectionFoldKeyValue]);
+                      const sectionDisplayOpen = !section.label || sectionOpen || sectionClosing;
                       if (section.label) {
                         const sectionY = cursorY;
                         cursorY += sectionH;
@@ -2976,13 +3066,14 @@ function NavPanel({
                           />
                         );
                       }
-                      if (!sectionOpen) return sectionRows;
+                      if (!sectionDisplayOpen) return sectionRows;
+                      const itemRows: ReactNode[] = [];
                       for (const item of section.items) {
                         const itemY = cursorY;
                         cursorY += rowStep;
                         const nested = Boolean(section.label);
                         const rowInset = nested ? 30 : 8;
-                        sectionRows.push(
+                        itemRows.push(
                           <NavRow
                             key={navItemKey(item)}
                             item={item}
@@ -2999,6 +3090,18 @@ function NavPanel({
                           />
                         );
                       }
+                      if (section.label) {
+                        sectionRows.push(
+                          <g
+                            key={`${section.id}:items`}
+                            className={navFoldoutClassName(sectionOpening, sectionClosing)}
+                          >
+                            {itemRows}
+                          </g>
+                        );
+                      } else {
+                        sectionRows.push(...itemRows);
+                      }
                       if (section.label) cursorY += sectionGap;
                       return sectionRows;
                     })
@@ -3008,25 +3111,30 @@ function NavPanel({
                 cursorY += groupGap;
                 return (
                   <g key={group.id}>
-                    {open && childRailH > 0 ? (
-                      <>
-                        <path
-                          d={cutRectPath(outerPad + 22, childStartY + 3, leftW - 35, childRailH, 9)}
-                          fill="rgba(2, 12, 20, 0.34)"
-                          stroke={groupAccent}
-                          strokeWidth={0.85}
-                          strokeOpacity={0.38}
-                          pointerEvents="none"
-                        />
-                        <path
-                          d={`M ${outerPad + 28} ${childStartY + 9} V ${childStartY + childRailH - 6}`}
-                          stroke={groupAccent}
-                          strokeWidth={1.45}
-                          strokeLinecap="round"
-                          opacity={0.58}
-                          pointerEvents="none"
-                        />
-                      </>
+                    {groupDisplayOpen ? (
+                      <g className={navFoldoutClassName(groupOpening, groupClosing)}>
+                        {childRailH > 0 ? (
+                          <>
+                            <path
+                              d={cutRectPath(outerPad + 22, childStartY + 3, leftW - 35, childRailH, 9)}
+                              fill="rgba(2, 12, 20, 0.34)"
+                              stroke={groupAccent}
+                              strokeWidth={0.85}
+                              strokeOpacity={0.38}
+                              pointerEvents="none"
+                            />
+                            <path
+                              d={`M ${outerPad + 28} ${childStartY + 9} V ${childStartY + childRailH - 6}`}
+                              stroke={groupAccent}
+                              strokeWidth={1.45}
+                              strokeLinecap="round"
+                              opacity={0.58}
+                              pointerEvents="none"
+                            />
+                          </>
+                        ) : null}
+                        {rows}
+                      </g>
                     ) : null}
                     <NavGroupHeader
                       group={group}
@@ -3035,10 +3143,9 @@ function NavPanel({
                       w={leftW}
                       y={groupY}
                       h={groupH}
-                      onToggle={() => onNavGroupToggle(group.id)}
+                      onToggle={() => handleNavGroupToggle(group.id)}
                       cfg={cfg}
                     />
-                    {rows}
                   </g>
                 );
               })}
@@ -5736,7 +5843,7 @@ function managePolicyAreaIcon(activeNavLabel: string, selectedControlName: strin
   if (area === 'Games') return GamesIcon;
   if (area === 'Screen') return ScreenAnalysisIcon;
   if (area === 'Network') return WebGlobeIcon;
-  if (area === 'Tracking') return DevicesMultiScreenIcon;
+  if (area === 'Tracking') return TrackingLocationIcon;
   return BrowserStackIcon;
 }
 
@@ -7729,7 +7836,12 @@ function BrowserRulesGridGuide({
   return (
     <foreignObject x={x} y={y} width={w} height={h}>
       <div xmlns="http://www.w3.org/1999/xhtml" style={{ width: w, height: h }}>
-        <BrowserRulesQuestionnaire disabled={disabled} onInfoClick={onInfoClick} questions={questions} />
+        <BrowserRulesQuestionnaire
+          availableWidth={w}
+          disabled={disabled}
+          onInfoClick={onInfoClick}
+          questions={questions}
+        />
       </div>
     </foreignObject>
   );
@@ -10539,53 +10651,6 @@ function AssistantCloseButton({ x, y, w, h, ariaLabel, onSelect, cfg }) {
         fill={cfg.colors.bodyText}
       >
         CLOSE
-      </text>
-    </g>
-  );
-}
-
-function PortalTransitionSpinner({ cx, cy, label, cfg }) {
-  const ringR = 29;
-  return (
-    <g role="status" aria-label={label} pointerEvents="none">
-      <rect
-        x={cx - 190}
-        y={cy - 76}
-        width={380}
-        height={152}
-        rx={18}
-        fill="rgba(1, 8, 18, 0.78)"
-        stroke={colorAlpha(cfg.colors.cyan, '82')}
-        strokeWidth={0.9}
-        filter="url(#parentPortalGlow)"
-      />
-      <circle
-        cx={cx}
-        cy={cy - 12}
-        r={ringR}
-        fill="none"
-        stroke={colorAlpha(cfg.colors.panelStroke, '7a')}
-        strokeWidth={5}
-      />
-      <path
-        d={`M ${cx} ${cy - 12 - ringR} A ${ringR} ${ringR} 0 0 1 ${cx + ringR} ${cy - 12}`}
-        fill="none"
-        stroke={cfg.colors.cyan}
-        strokeWidth={5.5}
-        strokeLinecap="round"
-        filter="url(#parentPortalGlow)"
-      >
-        <animateTransform
-          attributeName="transform"
-          type="rotate"
-          from={`0 ${cx} ${cy - 12}`}
-          to={`360 ${cx} ${cy - 12}`}
-          dur="0.78s"
-          repeatCount="indefinite"
-        />
-      </path>
-      <text x={cx} y={cy + 48} textAnchor="middle" fontSize={13.5} fontWeight={950} fill={cfg.colors.bodyText}>
-        {label}
       </text>
     </g>
   );
@@ -13964,6 +14029,11 @@ function DetailOverlay({
 function Defs() {
   return (
     <defs>
+      <radialGradient id="parentPortalLoaderBg" cx="50%" cy="50%" r="72%">
+        <stop offset="0%" stopColor="rgb(0, 110, 104)" />
+        <stop offset="70%" stopColor="rgb(0, 50, 100)" />
+        <stop offset="100%" stopColor="rgb(0, 5, 15)" />
+      </radialGradient>
       <linearGradient id="parentPortalFrameFill" x1="0%" y1="0%" x2="100%" y2="100%">
         <stop offset="0%" stopColor="#08243a" stopOpacity="0.94" />
         <stop offset="48%" stopColor="#041624" stopOpacity="0.96" />
@@ -14020,6 +14090,7 @@ export function ParentPortalSvgSurface({
   onRefreshParentPortal,
   onNavigate,
   onAssistantCommand,
+  onInitialLayoutReady,
 }: ParentPortalSvgSurfaceProps) {
   const mainRef = useRef<HTMLElement | null>(null);
   const baseCfg = useMemo(() => normalizeParentPortalSvgControls(controls), [controls]);
@@ -14058,7 +14129,17 @@ export function ParentPortalSvgSurface({
       routePath: control.routePath,
     }));
   }, [pageContent.quickControls, pageContent.controlAreas]);
+  const renderTransitionKey = `${pageMode}:${controlId ?? ''}:${initialNavLabel ?? ''}:${
+    initialSelectedControlId ?? ''
+  }:${assistantRouteActive ? 'assistant' : 'main'}`;
   const [surfaceSize, setSurfaceSize] = useState({ width: 0, height: 0 });
+  const [surfaceMeasured, setSurfaceMeasured] = useState(false);
+  const [initialRenderSettled, setInitialRenderSettled] = useState(false);
+  const [routeRenderPending, setRouteRenderPending] = useState(false);
+  const initialRenderTimerRef = useRef<number | undefined>(undefined);
+  const routeRenderTimerRef = useRef<number | undefined>(undefined);
+  const previousRenderTransitionKeyRef = useRef(renderTransitionKey);
+  const initialLayoutReadyReportedRef = useRef(false);
   const canvasSize = useMemo(
     () => parentPortalCanvasSizeForSurface(baseCfg, surfaceSize),
     [baseCfg, surfaceSize.height, surfaceSize.width]
@@ -14180,19 +14261,90 @@ export function ParentPortalSvgSurface({
   }, [assistantRouteTransition]);
 
   useEffect(() => {
+    if (!surfaceMeasured) return undefined;
+    if (initialRenderTimerRef.current !== undefined) {
+      window.clearTimeout(initialRenderTimerRef.current);
+    }
+    initialRenderTimerRef.current = window.setTimeout(() => {
+      initialRenderTimerRef.current = undefined;
+      setInitialRenderSettled(true);
+    }, PARENT_PORTAL_INITIAL_RENDER_SPINNER_MS);
+    return () => {
+      if (initialRenderTimerRef.current !== undefined) {
+        window.clearTimeout(initialRenderTimerRef.current);
+        initialRenderTimerRef.current = undefined;
+      }
+    };
+  }, [surfaceMeasured]);
+
+  useLayoutEffect(() => {
+    const previousKey = previousRenderTransitionKeyRef.current;
+    if (previousKey === renderTransitionKey) return;
+
+    previousRenderTransitionKeyRef.current = renderTransitionKey;
+    setRouteRenderPending(true);
+    if (routeRenderTimerRef.current !== undefined) {
+      window.clearTimeout(routeRenderTimerRef.current);
+    }
+    routeRenderTimerRef.current = window.setTimeout(() => {
+      routeRenderTimerRef.current = undefined;
+      setRouteRenderPending(false);
+    }, PARENT_PORTAL_ROUTE_RENDER_SPINNER_MS);
+  }, [renderTransitionKey]);
+
+  useEffect(() => {
+    if (initialLayoutReadyReportedRef.current || !initialRenderSettled || loading) {
+      return undefined;
+    }
+    let frameA = 0;
+    let frameB = 0;
+    frameA = window.requestAnimationFrame(() => {
+      frameB = window.requestAnimationFrame(() => {
+        initialLayoutReadyReportedRef.current = true;
+        onInitialLayoutReady?.();
+      });
+    });
+    return () => {
+      window.cancelAnimationFrame(frameA);
+      window.cancelAnimationFrame(frameB);
+    };
+  }, [initialRenderSettled, loading, onInitialLayoutReady]);
+
+  useEffect(() => {
+    return () => {
+      if (initialRenderTimerRef.current !== undefined) {
+        window.clearTimeout(initialRenderTimerRef.current);
+      }
+      if (routeRenderTimerRef.current !== undefined) {
+        window.clearTimeout(routeRenderTimerRef.current);
+      }
+    };
+  }, []);
+
+  useLayoutEffect(() => {
     const target = mainRef.current;
-    if (!target || typeof ResizeObserver === 'undefined') return undefined;
+    if (!target) return undefined;
+    const updateSurfaceSize = (width: number, height: number) => {
+      const nextWidth = Math.round(width);
+      const nextHeight = Math.round(height);
+      if (!Number.isFinite(nextWidth) || !Number.isFinite(nextHeight) || nextWidth <= 0 || nextHeight <= 0) {
+        return;
+      }
+      setSurfaceSize((current) =>
+        current.width === nextWidth && current.height === nextHeight
+          ? current
+          : { width: nextWidth, height: nextHeight }
+      );
+      setSurfaceMeasured(true);
+    };
+    const initialRect = target.getBoundingClientRect();
+    updateSurfaceSize(initialRect.width, initialRect.height);
+    if (typeof ResizeObserver === 'undefined') return undefined;
     const observer = new ResizeObserver((entries) => {
       const entry = entries[0];
       if (!entry) return;
       const { width, height } = entry.contentRect;
-      setSurfaceSize((current) => {
-        const nextWidth = Math.round(width);
-        const nextHeight = Math.round(height);
-        return current.width === nextWidth && current.height === nextHeight
-          ? current
-          : { width: nextWidth, height: nextHeight };
-      });
+      updateSurfaceSize(width, height);
     });
     observer.observe(target);
     return () => observer.disconnect();
@@ -14313,8 +14465,19 @@ export function ParentPortalSvgSurface({
       onNavigate?.(control.routePath);
     }
   };
+  const transitionSpinnerLabel = loading
+    ? pageContent.uiCopy.loadingTitle
+    : !initialRenderSettled
+      ? 'Preparing layout'
+      : assistantRouteTransition === 'closing'
+        ? 'Closing assistant'
+        : assistantRouteTransition === 'opening'
+          ? 'Opening assistant'
+          : routeRenderPending
+            ? 'Preparing panel'
+            : null;
   return (
-    <main ref={mainRef} className="parent-portal-svg-main">
+    <main ref={mainRef} className="parent-portal-svg-main" aria-busy={Boolean(transitionSpinnerLabel)}>
       <svg
         viewBox={`0 0 ${cfg.canvas.width} ${cfg.canvas.height}`}
         className="parent-portal-svg-surface"
@@ -14422,8 +14585,8 @@ export function ParentPortalSvgSurface({
             mainH={mainH}
           />
         )}
-        {loading || error ? (
-          <g role={loading ? 'status' : 'alert'}>
+        {error ? (
+          <g role="alert">
             <rect
               x={mainX + 28}
               y={boardY + 120}
@@ -14442,7 +14605,7 @@ export function ParentPortalSvgSurface({
               fontWeight={950}
               fill={cfg.colors.bodyText}
             >
-              {loading ? pageContent.uiCopy.loadingTitle : pageContent.uiCopy.errorTitle}
+              {pageContent.uiCopy.errorTitle}
             </text>
             <text
               x={mainX + mainW / 2}
@@ -14452,17 +14615,9 @@ export function ParentPortalSvgSurface({
               fontWeight={760}
               fill={cfg.colors.mutedText}
             >
-              {error ?? pageContent.uiCopy.loadingBody}
+              {error}
             </text>
           </g>
-        ) : null}
-        {assistantRouteTransition ? (
-          <PortalTransitionSpinner
-            cx={cfg.canvas.width / 2}
-            cy={cfg.canvas.height / 2}
-            label={assistantRouteTransition === 'closing' ? 'Closing assistant' : 'Opening assistant'}
-            cfg={cfg}
-          />
         ) : null}
       </svg>
     </main>

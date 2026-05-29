@@ -226,10 +226,12 @@ type RulesBubbleSvgFrameProps = {
   bodyHeight: number;
   variant?: BubbleVariant;
   collapsed?: boolean;
+  visualCollapsed?: boolean;
   headerLabel?: string;
   showInfo?: boolean;
   infoLabel?: string;
   disabled?: boolean;
+  collapseDisabled?: boolean;
   collapseLabel?: string;
   expandLabel?: string;
   onInfoClick?: () => void;
@@ -408,10 +410,12 @@ export function RulesBubbleSvgFrame({
   bodyHeight,
   variant = 'incoming',
   collapsed,
+  visualCollapsed,
   headerLabel,
   showInfo = false,
   infoLabel = 'More information',
   disabled = false,
+  collapseDisabled = false,
   collapseLabel = 'Collapse',
   expandLabel = 'Expand',
   onInfoClick,
@@ -425,7 +429,9 @@ export function RulesBubbleSvgFrame({
   const [isPressed, setIsPressed] = useState(false);
   const [internalCollapsed, setInternalCollapsed] = useState(false);
   const [hoveredHeaderButton, setHoveredHeaderButton] = useState<'collapse' | 'info' | null>(null);
-  const isCollapsed = collapsed ?? internalCollapsed;
+  const stateCollapsed = collapsed ?? internalCollapsed;
+  const isCollapsed = visualCollapsed ?? stateCollapsed;
+  const collapseControlDisabled = disabled || collapseDisabled;
   const config = useMemo(() => {
     const merged = mergeConfig(defaultChatBubbleConfig, configOverride);
     return mergeConfig(merged, {
@@ -527,7 +533,7 @@ export function RulesBubbleSvgFrame({
   const collapseButtonCenterX = collapseButtonBoxX + config.controls.buttonSize * 0.5;
   const collapseButtonCenterY = collapseButtonBoxY + config.controls.buttonSize * 0.5;
   const collapseTriangleSize = Math.max(10, Math.min(geometry.headerClampW, geometry.headerClampH) - 14);
-  const collapseTrianglePath = isCollapsed
+  const collapseTrianglePath = stateCollapsed
     ? `M${collapseButtonCenterX - collapseTriangleSize * 0.28} ${collapseButtonCenterY - collapseTriangleSize * 0.48}L${collapseButtonCenterX + collapseTriangleSize * 0.46} ${collapseButtonCenterY}L${collapseButtonCenterX - collapseTriangleSize * 0.28} ${collapseButtonCenterY + collapseTriangleSize * 0.48}Z`
     : `M${collapseButtonCenterX - collapseTriangleSize * 0.48} ${collapseButtonCenterY - collapseTriangleSize * 0.28}L${collapseButtonCenterX + collapseTriangleSize * 0.48} ${collapseButtonCenterY - collapseTriangleSize * 0.28}L${collapseButtonCenterX} ${collapseButtonCenterY + collapseTriangleSize * 0.46}Z`;
   const svgStyle: CSSProperties = { transition: config.transition.svg };
@@ -819,30 +825,30 @@ export function RulesBubbleSvgFrame({
       />
       <g
         role="button"
-        aria-label={isCollapsed ? expandLabel : collapseLabel}
-        tabIndex={disabled ? -1 : 0}
+        aria-label={stateCollapsed ? expandLabel : collapseLabel}
+        tabIndex={collapseControlDisabled ? -1 : 0}
         onPointerEnter={() => setHoveredHeaderButton('collapse')}
         onPointerLeave={() => setHoveredHeaderButton(null)}
         onClick={(event) => {
-          if (disabled) return;
+          if (collapseControlDisabled) return;
           event.stopPropagation();
-          const nextCollapsed = !isCollapsed;
+          const nextCollapsed = !stateCollapsed;
           if (collapsed === undefined) {
             setInternalCollapsed(nextCollapsed);
           }
           onCollapsedChange?.(nextCollapsed);
         }}
         onKeyDown={(event) => {
-          if (disabled || (event.key !== 'Enter' && event.key !== ' ')) return;
+          if (collapseControlDisabled || (event.key !== 'Enter' && event.key !== ' ')) return;
           event.preventDefault();
           event.stopPropagation();
-          const nextCollapsed = !isCollapsed;
+          const nextCollapsed = !stateCollapsed;
           if (collapsed === undefined) {
             setInternalCollapsed(nextCollapsed);
           }
           onCollapsedChange?.(nextCollapsed);
         }}
-        style={{ cursor: 'pointer', ...svgStyle }}
+        style={{ cursor: collapseControlDisabled ? 'default' : 'pointer', ...svgStyle }}
       >
         <rect
           x={geometry.headerClampX}
