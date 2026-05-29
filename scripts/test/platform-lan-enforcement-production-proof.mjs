@@ -28,15 +28,19 @@ async function main() {
   const v08Production = await latestJson(join(repoRoot, 'test-results', 'v0-8-production-enforcement-hardening'));
   assertV08Production(v08Production.data);
 
-  await runCommand('cmd', ['/c', 'node', 'scripts/test/v0-9-household-lan-proof-readiness.mjs']);
+  await runCommand('cmd', ['/c', 'node', 'scripts/test/v0-9-household-lan-production-discovery-proof.mjs']);
   const v09Production = await readJson(
     join(repoRoot, 'test-results', 'v0-9-production-lan-multidevice-hardening', 'proof.json')
   );
   const v09HouseholdReadiness = await readJson(
     join(repoRoot, 'test-results', 'v0-9-household-lan-proof-readiness', 'proof.json')
   );
+  const v09HouseholdProductionDiscovery = await readJson(
+    join(repoRoot, 'test-results', 'v0-9-household-lan-production-discovery-proof', 'proof.json')
+  );
   assertV09Production(v09Production);
   assertV09HouseholdReadiness(v09HouseholdReadiness);
+  assertV09HouseholdProductionDiscovery(v09HouseholdProductionDiscovery);
 
   const matrix = await readJson(join(repoRoot, 'docs', 'expectations', 'pre-ai-proof-matrix.json'));
   assertProofMatrix(matrix);
@@ -63,12 +67,16 @@ async function main() {
         repoRoot,
         join(repoRoot, 'test-results', 'v0-9-household-lan-proof-readiness', 'proof.json')
       ),
+      v09HouseholdLanProductionDiscovery: relative(
+        repoRoot,
+        join(repoRoot, 'test-results', 'v0-9-household-lan-production-discovery-proof', 'proof.json')
+      ),
     },
     productionTruth: {
       v08RealAdapterState:
         'owned-process terminate and app time-limit proof are real when the host supports them; broad app/domain blocking stays manual-required or unavailable; browser boundary proof does not claim exact unmanaged URLs or managed-browser service-command URL enforcement',
       v09RealLanState:
-        'local multi-service proof covers route, lease, registry, rejection, and provider routing mechanics; household LAN readiness is a separate manual gate until physical device artifacts exist',
+        'local multi-service proof covers route, lease, registry, rejection, provider routing mechanics, explicit production discovery state labels, and a verifier that refuses household LAN readiness upgrades without physical device artifacts',
       parentMobileState:
         'parent mobile backend/controller-observer behavior is proof-first scaffold or degraded/unavailable until a real app/device proof exists',
       cloudRelayDecision:
@@ -232,6 +240,31 @@ function assertV09HouseholdReadiness(evidence) {
   proofLabels.push('v0.9.household-readiness-gate-proof');
 }
 
+function assertV09HouseholdProductionDiscovery(evidence) {
+  assertEqual(
+    evidence.proofMode,
+    'household-lan-production-discovery-boundary',
+    'V0.9 household production discovery proof mode'
+  );
+  assertEqual(evidence.physicalClaimUpgradeVerifier.decision, 'rejected', 'V0.9 physical claim upgrade rejection');
+  assertEqual(
+    evidence.physicalClaimUpgradeVerifier.currentState,
+    'manual-required',
+    'V0.9 physical claim upgrade state'
+  );
+  assertArrayIncludes(
+    evidence.proofLabels,
+    'v0.9.production-discovery.explicit-state-labels',
+    'V0.9 explicit production discovery states'
+  );
+  assertArrayIncludes(
+    evidence.claimsProved,
+    'physical household LAN readiness is refused without required two-device, router, firewall, origin, stale/offline, failed-unpaired, and provider artifacts',
+    'V0.9 physical artifact verifier claim'
+  );
+  proofLabels.push('v0.9.household-production-discovery-boundary-proof');
+}
+
 function assertProofMatrix(matrix) {
   const claim = matrix.claims.find((candidate) => candidate.id === 'platform-lan-enforcement-production-proof');
   if (!claim) {
@@ -255,6 +288,11 @@ function assertProofMatrix(matrix) {
     new Set(scenario.ciCommands),
     'node scripts/test/platform-lan-enforcement-production-proof.mjs',
     'Production proof command is matrix-listed'
+  );
+  assertSetHas(
+    new Set(matrix.requiredCompletedClaimIds),
+    'v0-9-household-lan-production-discovery-proof',
+    'Household LAN production discovery claim is required'
   );
   proofLabels.push('proof-matrix.platform-lan-enforcement-production-states');
 }
