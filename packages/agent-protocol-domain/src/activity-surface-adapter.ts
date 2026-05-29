@@ -36,11 +36,12 @@ export type ActivitySurfaceAdapterFailureReason =
   | 'missing-json-field'
   | 'invalid-json'
   | 'invalid-payload';
+type ActivitySurfaceAdapterState = ReturnType<typeof ActivityReadModelStateSchema.parse>;
 
 export type ActivitySurfaceAdapterResult<TValue> =
   | {
       readonly ok: true;
-      readonly state: ReturnType<typeof ActivityReadModelStateSchema.parse>;
+      readonly state: ActivitySurfaceAdapterState;
       readonly value: TValue;
     }
   | {
@@ -109,7 +110,12 @@ export function parseActivityReportDocumentEvent(
     return adapterFailure('wrong-event');
   }
 
-  return parsePayloadJson(event, AgentProtocolDefaults.Field.ActivityReportDocument, ActivityReportDocumentSchema);
+  return parsePayloadJson(
+    event,
+    AgentProtocolDefaults.Field.ActivityReportDocument,
+    ActivityReportDocumentSchema,
+    reportDocumentState
+  );
 }
 
 export function parseActivityReportHistoryEvent(
@@ -174,7 +180,8 @@ function commandPayload(input: CreateActivitySurfaceCommandInput): AgentCommandE
 function parsePayloadJson<TValue>(
   event: AgentEventEnvelope,
   field: string,
-  schema: ActivitySurfaceSchemaParser<TValue>
+  schema: ActivitySurfaceSchemaParser<TValue>,
+  stateFromValue: (value: TValue, event: AgentEventEnvelope) => ActivitySurfaceAdapterState = payloadState
 ): ActivitySurfaceAdapterResult<TValue> {
   const raw = event.payload[field];
   if (typeof raw !== 'string') {
@@ -196,9 +203,29 @@ function parsePayloadJson<TValue>(
   const value = parsed.data;
   return {
     ok: true,
-    state: ActivityReadModelStateSchema.parse((value as { readonly state?: unknown }).state ?? 'ready'),
+    state: stateFromValue(value, event),
     value,
   };
+}
+
+function payloadState(value: unknown): ActivitySurfaceAdapterState {
+  return ActivityReadModelStateSchema.parse((value as { readonly state?: unknown }).state ?? 'ready');
+}
+
+function reportDocumentState(report: ActivityReportDocument, event: AgentEventEnvelope): ActivitySurfaceAdapterState {
+  const serviceState = event.payload[AgentProtocolDefaults.Field.ActivitySurfaceState];
+  if (typeof serviceState === 'string') {
+    const parsed = ActivityReadModelStateSchema.safeParse(serviceState);
+    if (parsed.success && parsed.data !== undefined) {
+      return parsed.data;
+    }
+  }
+
+  if (report.sections.some((section) => section.state === 'ready')) {
+    return ActivityReadModelStateSchema.parse('ready');
+  }
+
+  return ActivityReadModelStateSchema.parse(report.sections[0]?.state ?? 'empty');
 }
 
 function adapterFailure(reason: ActivitySurfaceAdapterFailureReason): ActivitySurfaceAdapterResult<never> {

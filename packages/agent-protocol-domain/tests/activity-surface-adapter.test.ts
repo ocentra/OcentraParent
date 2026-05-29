@@ -65,6 +65,38 @@ const Report = {
   ],
 } as const;
 
+const UnavailableReport = {
+  ...Report,
+  reportId: 'activity-report-daily-local-unavailable-20260527T201000Z',
+  sourceStates: [
+    {
+      deviceId: 'local-dev-agent',
+      reachabilityState: 'unreachable',
+      state: 'unavailable',
+      reason: 'Activity query store is unavailable.',
+      lastUpdatedAt: null,
+    },
+  ],
+  sections: [
+    {
+      sectionKind: 'summary',
+      title: 'Summary',
+      state: 'unavailable',
+      summary: 'Activity query store is unavailable.',
+      itemCount: 0,
+      evidence: [],
+    },
+    {
+      sectionKind: 'network',
+      title: 'Network',
+      state: 'unavailable',
+      summary: 'Activity query store is unavailable.',
+      itemCount: 0,
+      evidence: [],
+    },
+  ],
+} as const;
+
 const FamilySources = [
   {
     deviceId: 'child-device-offline',
@@ -111,7 +143,9 @@ describe('activity surface adapter boundary', () => {
     expect(sources[0]?.reachabilityState).toBe('offline');
     expect(sources[1]?.reachabilityState).toBe('error');
   });
+});
 
+describe('activity surface adapter event parsing', () => {
   it('creates and parses historical report list messages for the Activity UI handoff', () => {
     const command = createActivityReportHistoryCommand(commandInput());
     const parsed = parseActivityReportHistoryEvent(
@@ -136,6 +170,23 @@ describe('activity surface adapter boundary', () => {
     expect(parsed.ok).toBe(true);
     expect(parsed.ok ? parsed.value.reportId : null).toBe(Report.reportId);
     expect(rejected.ok).toBe(false);
+  });
+
+  it('parses report document state from service payload without overclaiming ready', () => {
+    const parsed = parseActivityReportDocumentEvent(
+      eventEnvelope(AgentEvent.ActivityReportGenerated, {
+        [AgentProtocolDefaults.Field.ActivitySurfaceState]: 'unavailable',
+        [AgentProtocolDefaults.Field.ActivityReportDocument]: JSON.stringify(UnavailableReport),
+      })
+    );
+    const derived = parseActivityReportDocumentEvent(
+      eventEnvelope(AgentEvent.ActivityReportGenerated, {
+        [AgentProtocolDefaults.Field.ActivityReportDocument]: JSON.stringify(UnavailableReport),
+      })
+    );
+
+    expect(parsed.ok ? parsed.state : null).toBe('unavailable');
+    expect(derived.ok ? derived.state : null).toBe('unavailable');
   });
 
   it('parses typed read-model events and reports missing JSON as unavailable adapter failure', () => {
