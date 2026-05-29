@@ -116,6 +116,10 @@
     "./screen-control-catalog": {
       "import": "./dist/screen-control-catalog.js",
       "types": "./dist/screen-control-catalog.d.ts"
+    },
+    "./tracking-control-catalog": {
+      "import": "./dist/tracking-control-catalog.js",
+      "types": "./dist/tracking-control-catalog.d.ts"
     }
   },
   "scripts": {
