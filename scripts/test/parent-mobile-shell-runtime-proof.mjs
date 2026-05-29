@@ -102,6 +102,7 @@ async function parentMobileRuntimeModels() {
       controllerState: 'observer',
       controllerLeaseId: null,
       takeoverRequestAllowed: false,
+      commandAuthorityState: 'observer-read-only',
     },
     assistantJobProof: {
       route: 'lan-ai-provider',
@@ -138,6 +139,7 @@ async function parentMobileRuntimeModels() {
       controllerState: 'manual-required',
       controllerLeaseId: null,
       takeoverRequestAllowed: true,
+      commandAuthorityState: 'controller-takeover-manual-required',
     },
     assistantJobProof: {
       route: 'unavailable',
@@ -267,6 +269,12 @@ function assertRuntimeModel(readModel, platform) {
   if (readModel.serviceAvailability.cloudRelay !== 'not-implemented') {
     throw new Error(`${platform} parent mobile model must keep cloud relay not implemented.`);
   }
+  if (platform === 'android' && readModel.controllerProof.commandAuthorityState !== 'observer-read-only') {
+    throw new Error('Android parent mobile proof must remain observer read-only until real package proof exists.');
+  }
+  if (platform === 'ios' && readModel.controllerProof.commandAuthorityState !== 'controller-takeover-manual-required') {
+    throw new Error('iOS parent mobile proof must keep controller takeover manual-required.');
+  }
 }
 
 function summarizeRuntimeModel(readModel) {
@@ -275,6 +283,7 @@ function summarizeRuntimeModel(readModel) {
     packageState: readModel.packageProof.packageState,
     controllerState: readModel.controllerProof.controllerState,
     takeoverRequestAllowed: readModel.controllerProof.takeoverRequestAllowed,
+    commandAuthorityState: readModel.controllerProof.commandAuthorityState,
     localService: readModel.serviceAvailability.localService,
     lanService: readModel.serviceAvailability.lanService,
     cloudRelay: readModel.serviceAvailability.cloudRelay,

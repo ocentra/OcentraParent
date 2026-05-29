@@ -207,6 +207,17 @@ function assertHouseholdLanProof(evidence, readiness) {
     'real household router discovery across two physical devices',
     'physical household discovery non-claim'
   );
+  assertEqual(
+    evidence.controllerAuthorityProof.revocationBeforeControl.controlRejectedAssertion,
+    'first-child-agent:revoked-control-rejected',
+    'revocation before control rejection'
+  );
+  assertEqual(
+    evidence.parentMobileControllerObserverProof.mobileWriteAuthorityState,
+    'manual-required-real-mobile-package-proof',
+    'parent mobile write authority boundary'
+  );
+  assertEqual(evidence.cloudRelayDecision.state, 'not-implemented', 'cloud relay production LAN decision');
   if (!Array.isArray(evidence.manualTwoDeviceChecklist) || evidence.manualTwoDeviceChecklist.length !== 1) {
     throw new Error('Expected one manual two-device household checklist.');
   }

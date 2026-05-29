@@ -25,6 +25,7 @@ const AndroidObserverReadModel = {
     controllerState: 'observer',
     controllerLeaseId: null,
     takeoverRequestAllowed: false,
+    commandAuthorityState: 'observer-read-only',
   },
   assistantJobProof: {
     route: 'lan-ai-provider',
@@ -62,6 +63,7 @@ const IosObserverReadModel = {
     controllerState: 'manual-required',
     controllerLeaseId: null,
     takeoverRequestAllowed: true,
+    commandAuthorityState: 'controller-takeover-manual-required',
   },
   assistantJobProof: {
     route: 'unavailable',
@@ -88,6 +90,11 @@ const SubmittedLanProviderReadModel = {
 } as const;
 
 describe('parent mobile runtime read model contracts', () => {
+  registerAcceptedStateTests();
+  registerGuardrailTests();
+});
+
+function registerAcceptedStateTests(): void {
   it('ParentMobileRuntimeReadModelSchema: accepts Android observer scaffold with LAN assistant degraded state', () => {
     const parsed = ParentMobileRuntimeReadModelSchema.parse(AndroidObserverReadModel);
 
@@ -112,9 +119,9 @@ describe('parent mobile runtime read model contracts', () => {
     expect(parsed.serviceAvailability.cloudRelay).toBe('not-implemented');
     expect(parsed.assistantJobProof.jobState).toBe('unavailable');
   });
-});
+}
 
-describe('parent mobile runtime read model guardrails', () => {
+function registerGuardrailTests(): void {
   it('ParentMobileRuntimeReadModelSchema: rejects parent mobile local model execution claims', () => {
     expect(
       ParentMobileRuntimeReadModelSchema.safeParse({
@@ -160,4 +167,34 @@ describe('parent mobile runtime read model guardrails', () => {
       }).success
     ).toBe(false);
   });
-});
+
+  it('ParentMobileRuntimeReadModelSchema: rejects observer state with write authority or a controller lease', () => {
+    expect(
+      ParentMobileRuntimeReadModelSchema.safeParse({
+        ...AndroidObserverReadModel,
+        controllerProof: {
+          controllerState: 'observer',
+          controllerLeaseId: 'controller-lease-from-mobile',
+          takeoverRequestAllowed: false,
+          commandAuthorityState: 'active-controller-backend-proof',
+        },
+      }).success
+    ).toBe(false);
+  });
+
+  it('ParentMobileRuntimeReadModelSchema: accepts active controller backend proof only with an explicit lease', () => {
+    const parsed = ParentMobileRuntimeReadModelSchema.parse({
+      ...AndroidObserverReadModel,
+      controllerProof: {
+        controllerState: 'active-controller',
+        controllerLeaseId: 'controller-lease-parent-mobile-proof',
+        takeoverRequestAllowed: true,
+        commandAuthorityState: 'active-controller-backend-proof',
+      },
+    });
+
+    expect(parsed.controllerProof.controllerLeaseId).toBe('controller-lease-parent-mobile-proof');
+    expect(parsed.controllerProof.commandAuthorityState).toBe('active-controller-backend-proof');
+    expect(parsed.childAgentBehaviorClaim).toBe('not-claimed');
+  });
+}
