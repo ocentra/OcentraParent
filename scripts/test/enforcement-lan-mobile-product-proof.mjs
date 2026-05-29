@@ -75,6 +75,7 @@ async function main() {
         'managed-browser-control',
         'unmanaged-browser-detection',
       ]),
+      browserBoundary: aggregateProof.osEnforcementProof.browserBoundary,
       managedBrowserIntervention: aggregateProof.osEnforcementProof.managedBrowserIntervention,
       productionLan: {
         localClaims: lanProof.claimsProvedLocally,
@@ -134,7 +135,18 @@ function assertOsEnforcement(aggregateProof, capabilities) {
     ['actually-enforced', 'manual-required'],
     'managed browser intervention state'
   );
+  assertEqual(
+    aggregateProof.osEnforcementProof.browserBoundary.exactManagedBrowserServiceCommandUrlClaim,
+    'not-claimed-service-command-manual-required',
+    'managed-browser service command exact URL non-claim'
+  );
+  assertEqual(
+    aggregateProof.osEnforcementProof.browserBoundary.exactUnmanagedUrlClaim,
+    'not-claimed',
+    'unmanaged browser exact URL non-claim'
+  );
   proofLabels.push('v0.8.os-enforcement.product-capability-states');
+  proofLabels.push('v0.8.os-enforcement.browser-boundary-nonclaim-states');
 }
 
 function assertProductionLan(productionProof, lanProof, householdLanReadiness) {

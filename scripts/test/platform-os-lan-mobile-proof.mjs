@@ -31,6 +31,9 @@ async function main() {
   const productionProof = await readJson(
     join(repoRoot, 'test-results', 'platform-lan-enforcement-production-proof', 'proof.json')
   );
+  const v08OsAdapterHardening = await readJson(
+    join(repoRoot, 'test-results', 'v0-8-os-adapter-proof-hardening', 'proof.json')
+  );
   const v08Production = await latestJson(join(repoRoot, 'test-results', 'v0-8-production-enforcement-hardening'));
   const v09Production = await readJson(
     join(repoRoot, 'test-results', 'v0-9-production-lan-multidevice-hardening', 'proof.json')
@@ -43,6 +46,7 @@ async function main() {
   const capabilities = await platformCapabilities();
 
   assertProductionProof(productionProof);
+  assertV08OsAdapterHardening(v08OsAdapterHardening);
   assertProcessTerminateProof(v08Production.data);
   assertHouseholdLanProof(v09Production, v09HouseholdReadiness);
   assertManagedBrowserIntervention(managedBrowserIntervention);
@@ -59,6 +63,10 @@ async function main() {
       productionProof: relative(
         repoRoot,
         join(repoRoot, 'test-results', 'platform-lan-enforcement-production-proof', 'proof.json')
+      ),
+      v08OsAdapterHardening: relative(
+        repoRoot,
+        join(repoRoot, 'test-results', 'v0-8-os-adapter-proof-hardening', 'proof.json')
       ),
       v08ProductionEnforcement: relative(repoRoot, v08Production.path),
       v09ProductionLanMultidevice: relative(
@@ -80,6 +88,7 @@ async function main() {
         'manual-required or unavailable except where a real owned process or managed-browser proof harness can run on the host',
       networkDomainBlocking:
         'not implemented as a silent OS block; requires OS-approved adapter and manual host evidence before claim upgrade',
+      browserBoundary: v08OsAdapterHardening.osAdapterTruth.browserBoundary,
       managedBrowserIntervention,
       rollbackRestartAudit: productionProof.manualProofRequirements.windowsEnforcement,
     },
@@ -194,6 +203,30 @@ function assertProcessTerminateProof(evidence) {
   assertOneOf(assertion.status, ['actually-enforced', 'unavailable'], 'process terminate assertion status');
   assertEqual(assertion.adapterKind, 'process-control', 'process terminate adapter');
   proofLabels.push('v0.8.process-terminate-owned-process-proof');
+}
+
+function assertV08OsAdapterHardening(evidence) {
+  assertArrayIncludes(
+    evidence.proofLabels,
+    'v0.8.browser-boundary.pid-name-unmanaged-managed-nonclaim-proof',
+    'V0.8 browser boundary aggregate'
+  );
+  assertEqual(
+    evidence.osAdapterTruth.browserBoundary.managedBrowserServiceCommand,
+    'manual-required',
+    'managed-browser service command state'
+  );
+  assertEqual(
+    evidence.osAdapterTruth.browserBoundary.exactManagedBrowserServiceCommandUrlClaim,
+    'not-claimed-service-command-manual-required',
+    'managed-browser service command exact URL state'
+  );
+  assertEqual(
+    evidence.osAdapterTruth.browserBoundary.exactUnmanagedUrlClaim,
+    'not-claimed',
+    'unmanaged exact URL state'
+  );
+  proofLabels.push('v0.8.os-adapter-browser-boundary-nonclaim-proof');
 }
 
 function assertHouseholdLanProof(evidence, readiness) {

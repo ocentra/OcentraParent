@@ -16,11 +16,15 @@ async function main() {
   await mkdir(outputDir, { recursive: true });
 
   await runCommand('cmd', ['/c', 'npm', 'run', 'build:contracts']);
-  await runCommand('cmd', ['/c', 'node', 'scripts/test/v0-8-windows-app-time-limit-adapter-mvp.mjs']);
+  await runCommand('cmd', ['/c', 'node', 'scripts/test/v0-8-os-adapter-proof-hardening.mjs']);
+  const v08OsAdapterHardening = await readJson(
+    join(repoRoot, 'test-results', 'v0-8-os-adapter-proof-hardening', 'proof.json')
+  );
+  assertV08OsAdapterHardening(v08OsAdapterHardening);
+
   const v08AppTimeLimit = await latestJson(join(repoRoot, 'test-results', 'v0-8-windows-app-time-limit-adapter-mvp'));
   assertV08AppTimeLimit(v08AppTimeLimit.data);
 
-  await runCommand('cmd', ['/c', 'node', 'scripts/test/v0-8-production-enforcement-hardening.mjs']);
   const v08Production = await latestJson(join(repoRoot, 'test-results', 'v0-8-production-enforcement-hardening'));
   assertV08Production(v08Production.data);
 
@@ -44,8 +48,13 @@ async function main() {
     commands,
     proofLabels,
     evidence: {
+      v08OsAdapterHardening: relative(
+        repoRoot,
+        join(repoRoot, 'test-results', 'v0-8-os-adapter-proof-hardening', 'proof.json')
+      ),
       v08AppTimeLimit: relative(repoRoot, v08AppTimeLimit.path),
       v08ProductionEnforcement: relative(repoRoot, v08Production.path),
+      v08BrowserBoundary: v08OsAdapterHardening.evidence.browserBoundary,
       v09ProductionLanMultidevice: relative(
         repoRoot,
         join(repoRoot, 'test-results', 'v0-9-production-lan-multidevice-hardening', 'proof.json')
@@ -57,7 +66,7 @@ async function main() {
     },
     productionTruth: {
       v08RealAdapterState:
-        'owned-process app time-limit proof is real when the host supports it; broader app/domain/browser blocking stays manual-required or unavailable',
+        'owned-process terminate and app time-limit proof are real when the host supports them; broad app/domain blocking stays manual-required or unavailable; browser boundary proof does not claim exact unmanaged URLs or managed-browser service-command URL enforcement',
       v09RealLanState:
         'local multi-service proof covers route, lease, registry, rejection, and provider routing mechanics; household LAN readiness is a separate manual gate until physical device artifacts exist',
       parentMobileState:
@@ -68,8 +77,8 @@ async function main() {
     manualProofRequirements: {
       windowsEnforcement: [
         'run on a real Windows child host from this commit',
-        'archive V0.8 app time-limit proof JSON with the child process pid and adapter result',
-        'record whether app block, domain block, and managed-browser control remain manual-required or unavailable on that host',
+        'archive V0.8 OS adapter proof JSON with the child process pid, time-limit, process-terminate, and browser-boundary adapter results',
+        'record whether app block, domain block, managed-browser service command, and unmanaged browser process control remain manual-required, unavailable, or process-only on that host',
         'capture Rust service log snippets for execute, restart recover, parent cancel, expiry, and unavailable states',
       ],
       householdLan: v09HouseholdReadiness.readinessGate.physicalHouseholdLan,
@@ -141,6 +150,30 @@ function assertV08Production(evidence) {
   }
   proofLabels.push('v0.8.owned-process-terminate-service-proof');
   proofLabels.push('v0.8.manual-required-broad-adapter-state-proof');
+}
+
+function assertV08OsAdapterHardening(evidence) {
+  assertArrayIncludes(
+    evidence.proofLabels,
+    'v0.8.windows-capability-specific-os-adapter-states',
+    'V0.8 capability states'
+  );
+  assertArrayIncludes(
+    evidence.proofLabels,
+    'v0.8.browser-boundary.pid-name-unmanaged-managed-nonclaim-proof',
+    'V0.8 browser boundary proof'
+  );
+  assertEqual(
+    evidence.osAdapterTruth.browserBoundary.exactManagedBrowserServiceCommandUrlClaim,
+    'not-claimed-service-command-manual-required',
+    'managed-browser service command exact URL non-claim'
+  );
+  assertEqual(
+    evidence.osAdapterTruth.browserBoundary.exactUnmanagedUrlClaim,
+    'not-claimed',
+    'unmanaged browser exact URL non-claim'
+  );
+  proofLabels.push('v0.8.os-adapter-proof-hardening-aggregate');
 }
 
 function assertV09Production(evidence) {
