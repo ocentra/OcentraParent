@@ -1,5 +1,6 @@
 import {
   ParentAssistantActionConfirmResultSchema,
+  ParentAssistantActionPreviewResultSchema,
   ParentAssistantAnswerSchema,
   ParentAssistantProviderStatusSchema,
   ParentAssistantRunCancelResultSchema,
@@ -13,6 +14,7 @@ import type {
   ParentAssistantThreadResponse,
 } from '@ocentra-parent/parent-domain/parent-assistant';
 import type { ActivityReportDocument } from '@ocentra-parent/activity-domain/activity-surface';
+import type { Infer } from '@ocentra-parent/schema-domain/effect';
 import {
   AgentCommand,
   AgentCommandEnvelopeSchema,
@@ -24,6 +26,7 @@ import {
 import { AgentProtocolSchemaVersion, type AgentRoute } from './primitives';
 
 export const ParentAssistantAdapterPayloadField = {
+  ActionPreview: AgentProtocolDefaults.Field.ParentAssistantActionPreview,
   ActionConfirmResult: 'parentAssistantActionConfirmResult',
   ProviderStatus: 'parentAssistantProviderStatus',
   RunCancelResult: 'parentAssistantRunCancelResult',
@@ -85,6 +88,13 @@ export type ParentAssistantActionConfirmAdapterResult =
   | {
       readonly ok: true;
       readonly value: ParentAssistantActionConfirmResult;
+    }
+  | ParentAssistantAdapterFailure;
+
+export type ParentAssistantActionPreviewAdapterResult =
+  | {
+      readonly ok: true;
+      readonly value: Infer<typeof ParentAssistantActionPreviewResultSchema>;
     }
   | ParentAssistantAdapterFailure;
 
@@ -225,6 +235,26 @@ export function parseParentAssistantActionConfirmEvent(
   const parsed = parseJsonPayload(event, ParentAssistantAdapterPayloadField.ActionConfirmResult);
   if (!parsed.ok) return parsed;
   const result = ParentAssistantActionConfirmResultSchema.safeParse(parsed.value);
+  if (!result.success || result.data === undefined) {
+    return adapterFailure('invalid-payload');
+  }
+
+  return {
+    ok: true,
+    value: result.data,
+  };
+}
+
+export function parseParentAssistantActionPreviewEvent(
+  event: AgentEventEnvelope
+): ParentAssistantActionPreviewAdapterResult {
+  if (event.event !== AgentEvent.ParentAssistantActionPreviewed) {
+    return adapterFailure('wrong-event');
+  }
+
+  const parsed = parseJsonPayload(event, ParentAssistantAdapterPayloadField.ActionPreview);
+  if (!parsed.ok) return parsed;
+  const result = ParentAssistantActionPreviewResultSchema.safeParse(parsed.value);
   if (!result.success || result.data === undefined) {
     return adapterFailure('invalid-payload');
   }

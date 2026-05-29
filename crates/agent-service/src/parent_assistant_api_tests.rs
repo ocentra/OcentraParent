@@ -7,11 +7,13 @@ use std::{
 use ocentra_parent_agent_protocol::{
     constants, policy_constants, AgentCommandEnvelope, AgentCommandName, AgentEventName,
     AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue, LogLevel,
-    ParentAssistantActionConfirmResult, ParentAssistantApiAuthorizationState,
-    ParentAssistantBackendState, ParentAssistantEvidenceContext, ParentAssistantProviderState,
-    ParentAssistantProviderStatus, ParentAssistantRunCancelResult, ParentAssistantRunCancelState,
-    ParentAssistantRunState, ParentAssistantThreadResponse, ParentAssistantThreadState,
-    ParentEvidenceReference, ParentEvidenceReferenceKind, AGENT_PROTOCOL_SCHEMA_VERSION,
+    ParentAssistantActionConfirmResult, ParentAssistantActionPreviewKind,
+    ParentAssistantActionPreviewResult, ParentAssistantActionPreviewState,
+    ParentAssistantApiAuthorizationState, ParentAssistantBackendState,
+    ParentAssistantEvidenceContext, ParentAssistantProviderState, ParentAssistantProviderStatus,
+    ParentAssistantRunCancelResult, ParentAssistantRunCancelState, ParentAssistantRunState,
+    ParentAssistantThreadResponse, ParentAssistantThreadState, ParentEvidenceReference,
+    ParentEvidenceReferenceKind, AGENT_PROTOCOL_SCHEMA_VERSION,
 };
 
 use crate::{
@@ -207,6 +209,46 @@ fn parent_assistant_run_cancel_reports_not_running_without_process_kill_claim() 
 }
 
 #[test]
+fn parent_assistant_action_preview_returns_draft_without_policy_write_or_enforcement() {
+    let event = build_parent_assistant_scaffold_event(command(
+        AgentCommandName::AgentParentAssistantActionPreview,
+        fields_from_pairs(vec![
+            (
+                constants::parent_assistant::FIELD_ACTION_INTENT_ID,
+                LogFieldValue::String(
+                    constants::parent_assistant::DEFAULT_ACTION_INTENT_ID.to_string(),
+                ),
+            ),
+            (
+                constants::field::PARENT_ASSISTANT_QUESTION,
+                LogFieldValue::String(
+                    constants::parent_assistant::TEST_POLICY_QUESTION.to_string(),
+                ),
+            ),
+        ]),
+    ));
+    let result =
+        action_preview_payload(&event.payload[constants::field::PARENT_ASSISTANT_ACTION_PREVIEW]);
+
+    assert_eq!(
+        event.event,
+        AgentEventName::AgentParentAssistantActionPreviewed
+    );
+    assert_eq!(
+        result.preview_state,
+        ParentAssistantActionPreviewState::Draft
+    );
+    assert_eq!(
+        result.preview.action_kind,
+        ParentAssistantActionPreviewKind::PolicySuggestion
+    );
+    assert!(result.requires_controller_lease);
+    assert!(!result.enforcement_applied);
+    assert!(!result.policy_written);
+    assert!(!result.preview.enforcement_applied);
+}
+
+#[test]
 fn parent_assistant_action_confirm_requires_child_contract_without_enforcement() {
     let event = build_parent_assistant_scaffold_event(command(
         AgentCommandName::AgentParentAssistantActionConfirm,
@@ -285,6 +327,15 @@ fn run_cancel_payload(value: &LogFieldValue) -> ParentAssistantRunCancelResult {
 }
 
 fn action_confirm_payload(value: &LogFieldValue) -> ParentAssistantActionConfirmResult {
+    match value {
+        LogFieldValue::String(text) => {
+            serde_json::from_str(text).expect(constants::error::AGENT_EVENT_SERIALIZES)
+        }
+        _ => std::panic::panic_any(constants::error::AGENT_EVENT_SERIALIZES),
+    }
+}
+
+fn action_preview_payload(value: &LogFieldValue) -> ParentAssistantActionPreviewResult {
     match value {
         LogFieldValue::String(text) => {
             serde_json::from_str(text).expect(constants::error::AGENT_EVENT_SERIALIZES)

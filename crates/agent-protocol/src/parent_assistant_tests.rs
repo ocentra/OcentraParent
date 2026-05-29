@@ -4,7 +4,8 @@ use super::{
     LocalAiProviderSchedulerQueue, LocalAiProviderSchedulerStatus, LocalAiProviderSingletonScope,
     LocalAiResourceClass, ParentActionReference, ParentActorReference, ParentActorRole,
     ParentAssistantActionConfirmResult, ParentAssistantActionConfirmState,
-    ParentAssistantActionPreview, ParentAssistantActionPreviewKind, ParentAssistantAnswer,
+    ParentAssistantActionPreview, ParentAssistantActionPreviewKind,
+    ParentAssistantActionPreviewResult, ParentAssistantActionPreviewState, ParentAssistantAnswer,
     ParentAssistantAnswerState, ParentAssistantApiAuthorizationState,
     ParentAssistantApiProviderBoundary, ParentAssistantBackendState,
     ParentAssistantEvidenceContext, ParentAssistantGenerateRequest, ParentAssistantProviderState,
@@ -81,6 +82,28 @@ fn parent_assistant_answer_serializes_citations_and_action_preview_without_enfor
         serialized["actionPreview"]["childAgentContractRequired"],
         true
     );
+}
+
+#[test]
+fn parent_assistant_action_preview_result_serializes_draft_without_enforcement() {
+    let result = ParentAssistantActionPreviewResult {
+        schema_version: "v0.6".to_string(),
+        backend_state: ParentAssistantBackendState::RuntimeBacked,
+        action_intent_id: "parent-assistant-action-intent-1".to_string(),
+        preview_state: ParentAssistantActionPreviewState::Draft,
+        preview: sample_action_preview(false),
+        requires_controller_lease: true,
+        child_agent_contract_required: true,
+        enforcement_applied: false,
+        policy_written: false,
+        reason: "action preview draft requires confirmation".to_string(),
+    };
+    let serialized = serde_json::to_value(&result).expect("preview result serializes");
+
+    assert_eq!(serialized["previewState"], "draft");
+    assert_eq!(serialized["preview"]["enforcementApplied"], false);
+    assert_eq!(serialized["policyWritten"], false);
+    assert_eq!(serialized["childAgentContractRequired"], true);
 }
 
 #[test]

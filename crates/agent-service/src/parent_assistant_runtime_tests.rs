@@ -216,11 +216,26 @@ fn parent_assistant_request_cites_activity_report_document_when_supplied() {
     let mut unavailable_sources =
         constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_UNAVAILABLE_SOURCES_LABEL.to_string();
     unavailable_sources.push('1');
+    let mut section_kinds =
+        constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_SECTION_KINDS_LABEL.to_string();
+    section_kinds.push_str(constants::activity_surface::SECTION_SUMMARY);
+    let mut offline_source_ids =
+        constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_OFFLINE_SOURCE_IDS_LABEL.to_string();
+    offline_source_ids.push_str(constants::activity_surface::FAMILY_SOURCE_OFFLINE_ID);
+    let mut unavailable_source_ids =
+        constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_UNAVAILABLE_SOURCE_IDS_LABEL
+            .to_string();
+    unavailable_source_ids.push_str(constants::activity_surface::FAMILY_SOURCE_ERROR_ID);
     assert!(report_context.allowed_summary.contains(&ready_sections));
     assert!(report_context.allowed_summary.contains(&offline_sources));
     assert!(report_context
         .allowed_summary
         .contains(&unavailable_sources));
+    assert!(report_context.allowed_summary.contains(&section_kinds));
+    assert!(report_context.allowed_summary.contains(&offline_source_ids));
+    assert!(report_context
+        .allowed_summary
+        .contains(&unavailable_source_ids));
 }
 
 #[test]

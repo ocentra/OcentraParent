@@ -3,6 +3,7 @@ use ocentra_parent_agent_protocol::{
     AgentEventEnvelope, AgentEventName, LocalAiDegradedState, LocalAiProviderSchedulerJobStatus,
     LocalAiProviderSchedulerLifecycle, LogFieldValue, LogLevel, ParentAssistantActionConfirmResult,
     ParentAssistantActionConfirmState, ParentAssistantActionPreviewKind,
+    ParentAssistantActionPreviewResult, ParentAssistantActionPreviewState,
     ParentAssistantBackendState, ParentAssistantEvidenceContext, ParentAssistantProviderState,
     ParentAssistantProviderStatus, ParentAssistantRunCancelResult, ParentAssistantRunCancelState,
     ParentAssistantRunState, ParentAssistantThreadResponse, ParentEvidenceReference,
@@ -16,9 +17,11 @@ use crate::{
     local_ai_runtime_config::LocalAiRuntimeConfigSnapshot,
     local_ai_runtime_status::local_ai_runtime_status_for_model_from_config,
     parent_assistant_payload::{
-        parent_assistant_action_confirm_payload, parent_assistant_provider_status_payload,
-        parent_assistant_run_cancel_payload, parent_assistant_thread_payload,
+        parent_assistant_action_confirm_payload, parent_assistant_action_preview_payload,
+        parent_assistant_provider_status_payload, parent_assistant_run_cancel_payload,
+        parent_assistant_thread_payload,
     },
+    parent_assistant_runtime::preview_only_action,
     time::timestamp_now,
 };
 
@@ -35,6 +38,7 @@ pub fn build_parent_assistant_scaffold_event(command: AgentCommandEnvelope) -> A
             build_provider_status_event(command)
         }
         AgentCommandName::AgentParentAssistantRunCancel => build_run_cancel_event(command),
+        AgentCommandName::AgentParentAssistantActionPreview => build_action_preview_event(command),
         AgentCommandName::AgentParentAssistantActionConfirm => build_action_confirm_event(command),
         _ => build_scaffold_fallback_event(command),
     }
@@ -93,6 +97,19 @@ fn build_action_confirm_event(command: AgentCommandEnvelope) -> AgentEventEnvelo
         AgentEventName::AgentParentAssistantActionConfirmed,
         LogLevel::Warn,
         parent_assistant_action_confirm_payload(&result),
+        None,
+    )
+}
+
+fn build_action_preview_event(command: AgentCommandEnvelope) -> AgentEventEnvelope {
+    let result = action_preview_result_for_command(&command);
+    build_event(
+        constants::event_id::PARENT_ASSISTANT_ACTION_PREVIEWED,
+        &command.message_id,
+        command.source,
+        AgentEventName::AgentParentAssistantActionPreviewed,
+        LogLevel::Info,
+        parent_assistant_action_preview_payload(&result),
         None,
     )
 }
@@ -227,6 +244,30 @@ fn action_confirm_result_for_command(
         enforcement_applied: false,
         policy_written: false,
         reason: constants::parent_assistant::ACTION_CONFIRM_CONTRACT_REQUIRED_REASON.to_string(),
+    }
+}
+
+fn action_preview_result_for_command(
+    command: &AgentCommandEnvelope,
+) -> ParentAssistantActionPreviewResult {
+    let question = string_payload_field(command, constants::field::PARENT_ASSISTANT_QUESTION)
+        .unwrap_or_else(|| constants::parent_assistant::DEFAULT_QUESTION.to_string());
+    let preview = preview_only_action(&question);
+    ParentAssistantActionPreviewResult {
+        schema_version: policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
+        backend_state: ParentAssistantBackendState::RuntimeBacked,
+        action_intent_id: string_payload_field(
+            command,
+            constants::parent_assistant::FIELD_ACTION_INTENT_ID,
+        )
+        .unwrap_or_else(|| constants::parent_assistant::DEFAULT_ACTION_INTENT_ID.to_string()),
+        preview_state: ParentAssistantActionPreviewState::Draft,
+        requires_controller_lease: preview.requires_controller_lease,
+        child_agent_contract_required: true,
+        enforcement_applied: false,
+        policy_written: false,
+        preview,
+        reason: constants::parent_assistant::ACTION_PREVIEW_DRAFT_REASON.to_string(),
     }
 }
 

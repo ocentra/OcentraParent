@@ -1,7 +1,7 @@
 use ocentra_parent_agent_protocol::{
-    constants, ActivityReadModelState, ActivityReportDocument, ActivitySavedReportState,
-    AgentCommandEnvelope, LogFieldValue, ParentAssistantEvidenceContext, ParentEvidenceReference,
-    ParentEvidenceReferenceKind,
+    constants, ActivityReadModelState, ActivityReportDocument, ActivityReportSectionKind,
+    ActivitySavedReportState, AgentCommandEnvelope, LogFieldValue, ParentAssistantEvidenceContext,
+    ParentEvidenceReference, ParentEvidenceReferenceKind,
 };
 
 use crate::{
@@ -124,6 +124,20 @@ fn report_context_summary(report: &ActivityReportDocument) -> String {
     summary.push_str(
         &count_sources_with_state(report, ActivityReadModelState::Unavailable).to_string(),
     );
+    summary.push_str(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_SECTION_KINDS_LABEL);
+    summary.push_str(&section_kind_labels(report));
+    summary.push_str(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_OFFLINE_SOURCE_IDS_LABEL);
+    summary.push_str(&source_ids_with_state(
+        report,
+        ActivityReadModelState::Offline,
+    ));
+    summary.push_str(
+        constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_UNAVAILABLE_SOURCE_IDS_LABEL,
+    );
+    summary.push_str(&source_ids_with_state(
+        report,
+        ActivityReadModelState::Unavailable,
+    ));
     summary
 }
 
@@ -147,6 +161,45 @@ fn count_sources_with_state(
         .iter()
         .filter(|source| source.state == state)
         .count()
+}
+
+fn section_kind_labels(report: &ActivityReportDocument) -> String {
+    joined_or_none(
+        report
+            .sections
+            .iter()
+            .map(|section| section_kind_label(section.section_kind)),
+    )
+}
+
+fn source_ids_with_state(report: &ActivityReportDocument, state: ActivityReadModelState) -> String {
+    joined_or_none(
+        report
+            .source_states
+            .iter()
+            .filter(|source| source.state == state)
+            .map(|source| source.device_id.as_str()),
+    )
+}
+
+fn joined_or_none<'a>(values: impl Iterator<Item = &'a str>) -> String {
+    let collected = values.collect::<Vec<_>>();
+    if collected.is_empty() {
+        return constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_NONE.to_string();
+    }
+
+    collected.join(&constants::delimiter::LIST.to_string())
+}
+
+fn section_kind_label(kind: ActivityReportSectionKind) -> &'static str {
+    match kind {
+        ActivityReportSectionKind::Summary => constants::activity_surface::SECTION_SUMMARY,
+        ActivityReportSectionKind::Screen => constants::activity_surface::SECTION_SCREEN,
+        ActivityReportSectionKind::AppUse => constants::activity_surface::SECTION_APP_USE,
+        ActivityReportSectionKind::Browser => constants::activity_surface::SECTION_BROWSER,
+        ActivityReportSectionKind::Games => constants::activity_surface::SECTION_GAMES,
+        ActivityReportSectionKind::Network => constants::activity_surface::SECTION_NETWORK,
+    }
 }
 
 fn saved_state_label(report: &ActivityReportDocument) -> &'static str {
