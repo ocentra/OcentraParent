@@ -7,12 +7,12 @@ use super::{
     ParentAssistantActionPreview, ParentAssistantActionPreviewKind,
     ParentAssistantActionPreviewResult, ParentAssistantActionPreviewState, ParentAssistantAnswer,
     ParentAssistantAnswerState, ParentAssistantApiAuthorizationState,
-    ParentAssistantApiProviderBoundary, ParentAssistantBackendState,
-    ParentAssistantEvidenceContext, ParentAssistantGenerateRequest, ParentAssistantProviderState,
-    ParentAssistantProviderStatus, ParentAssistantRunCancelResult, ParentAssistantRunCancelState,
-    ParentAssistantRunState, ParentAssistantScope, ParentAssistantThreadRecord,
-    ParentAssistantThreadResponse, ParentAssistantThreadState, ParentDeviceReference,
-    ParentEvidenceReference, ParentEvidenceReferenceKind,
+    ParentAssistantApiProviderAccessState, ParentAssistantApiProviderBoundary,
+    ParentAssistantBackendState, ParentAssistantEvidenceContext, ParentAssistantGenerateRequest,
+    ParentAssistantProviderState, ParentAssistantProviderStatus, ParentAssistantRunCancelResult,
+    ParentAssistantRunCancelState, ParentAssistantRunState, ParentAssistantScope,
+    ParentAssistantThreadRecord, ParentAssistantThreadResponse, ParentAssistantThreadState,
+    ParentDeviceReference, ParentEvidenceReference, ParentEvidenceReferenceKind,
 };
 
 #[test]
@@ -153,7 +153,19 @@ fn parent_assistant_api_provider_boundary_serializes_parent_authorization_and_cu
     let serialized = serde_json::to_value(&boundary).expect("boundary serializes");
 
     assert_eq!(serialized["authorizationState"], "not-authorized");
+    assert_eq!(serialized["accessState"], "not-authorized");
+    assert_eq!(serialized["parentAuthorizationRequired"], true);
+    assert_eq!(serialized["evidenceCitationRequired"], true);
     assert_eq!(serialized["custodyLabel"], "parent-authorized-api-ai");
+    assert_eq!(serialized["custodyState"], "parent-owned-citations-only");
+    assert_eq!(
+        serialized["retentionState"],
+        "no-retention-without-parent-authorization"
+    );
+    assert_eq!(
+        serialized["deletionState"],
+        "delete-provider-cache-on-parent-request"
+    );
     assert_eq!(
         serialized["citations"][0]["evidence"]["kind"],
         "query-store-summary"
@@ -242,9 +254,15 @@ fn sample_api_provider_boundary() -> ParentAssistantApiProviderBoundary {
         schema_version: "v0.6".to_string(),
         provider_id: "api-provider-not-configured".to_string(),
         authorization_state: ParentAssistantApiAuthorizationState::NotAuthorized,
+        access_state: ParentAssistantApiProviderAccessState::NotAuthorized,
+        parent_authorization_required: true,
+        evidence_citation_required: true,
         custody_label: "parent-authorized-api-ai".to_string(),
+        custody_state: "parent-owned-citations-only".to_string(),
         retention_policy: "no-retention-without-parent-authorization".to_string(),
+        retention_state: "no-retention-without-parent-authorization".to_string(),
         deletion_policy: "delete-provider-cache-on-parent-request".to_string(),
+        deletion_state: "delete-provider-cache-on-parent-request".to_string(),
         citations: vec![sample_evidence_context()],
         provider_state: ParentAssistantProviderState::Unavailable,
         unavailable_reason: Some("api-ai-provider-not-authorized".to_string()),

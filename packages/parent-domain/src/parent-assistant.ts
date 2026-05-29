@@ -67,6 +67,16 @@ export const ParentAssistantAnswerStateSchema = withParser(
   Schema.Literal('answered', 'queued', 'degraded', 'unavailable')
 );
 export const ParentAssistantApiAuthorizationStateSchema = withParser(Schema.Literal('authorized', 'not-authorized'));
+const ParentAssistantApiProviderAccessStateSchema = withParser(
+  Schema.Literal('not-authorized', 'authorized-unavailable', 'authorized-degraded')
+);
+const ParentAssistantApiProviderCustodyStateSchema = withParser(Schema.Literal('parent-owned-citations-only'));
+const ParentAssistantApiProviderRetentionStateSchema = withParser(
+  Schema.Literal('no-retention-without-parent-authorization', 'parent-authorized-no-default-retention')
+);
+const ParentAssistantApiProviderDeletionStateSchema = withParser(
+  Schema.Literal('delete-provider-cache-on-parent-request')
+);
 export const ParentAssistantActionPreviewKindSchema = withParser(
   Schema.Literal('none', 'policy-suggestion', 'schedule-change', 'time-limit-change')
 );
@@ -152,9 +162,15 @@ const ParentAssistantApiProviderBoundaryBaseSchema = Schema.Struct({
   schemaVersion: ParentContractSchemaVersionSchema,
   providerId: ParentAssistantApiProviderIdSchema,
   authorizationState: ParentAssistantApiAuthorizationStateSchema,
+  accessState: ParentAssistantApiProviderAccessStateSchema,
+  parentAuthorizationRequired: Schema.Literal(true),
+  evidenceCitationRequired: Schema.Literal(true),
   custodyLabel: ParentAssistantCustodyLabelSchema,
+  custodyState: ParentAssistantApiProviderCustodyStateSchema,
   retentionPolicy: ParentAssistantRetentionPolicySchema,
+  retentionState: ParentAssistantApiProviderRetentionStateSchema,
   deletionPolicy: ParentAssistantDeletionPolicySchema,
+  deletionState: ParentAssistantApiProviderDeletionStateSchema,
   citations: Schema.Array(ParentAssistantEvidenceContextSchema),
   providerState: ParentAssistantProviderStateSchema,
   unavailableReason: Schema.Union(LocalAiUnavailableReasonSchema, Schema.Null),
@@ -336,15 +352,68 @@ function queuedParentAssistantAnswerIsConsistent(answer: ParentAssistantAnswerCa
 function parentAssistantApiProviderBoundaryIsConsistent(
   boundary: ParentAssistantApiProviderBoundaryCandidate
 ): boolean {
-  if (boundary.citations.length === 0 || boundary.childSafetyOrEnforcementUseAllowed !== false) {
+  if (!parentAssistantApiProviderBoundaryHasRequiredProof(boundary)) {
     return false;
   }
 
-  if (boundary.authorizationState === 'not-authorized') {
-    return boundary.providerState === 'unavailable' && boundary.unavailableReason !== null;
+  return parentAssistantApiProviderAccessStateIsConsistent(boundary);
+}
+
+function parentAssistantApiProviderBoundaryHasRequiredProof(
+  boundary: ParentAssistantApiProviderBoundaryCandidate
+): boolean {
+  return (
+    boundary.citations.length > 0 &&
+    boundary.childSafetyOrEnforcementUseAllowed === false &&
+    boundary.parentAuthorizationRequired === true &&
+    boundary.evidenceCitationRequired === true
+  );
+}
+
+function parentAssistantApiProviderAccessStateIsConsistent(
+  boundary: ParentAssistantApiProviderBoundaryCandidate
+): boolean {
+  switch (boundary.accessState) {
+    case 'not-authorized':
+      return notAuthorizedApiProviderBoundaryIsConsistent(boundary);
+    case 'authorized-unavailable':
+      return authorizedUnavailableApiProviderBoundaryIsConsistent(boundary);
+    case 'authorized-degraded':
+      return authorizedDegradedApiProviderBoundaryIsConsistent(boundary);
   }
 
-  return boundary.providerState !== 'unavailable' || boundary.unavailableReason !== null;
+  return false;
+}
+
+function notAuthorizedApiProviderBoundaryIsConsistent(boundary: ParentAssistantApiProviderBoundaryCandidate): boolean {
+  return (
+    boundary.authorizationState === 'not-authorized' &&
+    boundary.providerState === 'unavailable' &&
+    boundary.unavailableReason !== null &&
+    boundary.retentionState === 'no-retention-without-parent-authorization'
+  );
+}
+
+function authorizedUnavailableApiProviderBoundaryIsConsistent(
+  boundary: ParentAssistantApiProviderBoundaryCandidate
+): boolean {
+  return (
+    boundary.authorizationState === 'authorized' &&
+    boundary.providerState === 'unavailable' &&
+    boundary.unavailableReason !== null &&
+    boundary.retentionState === 'parent-authorized-no-default-retention'
+  );
+}
+
+function authorizedDegradedApiProviderBoundaryIsConsistent(
+  boundary: ParentAssistantApiProviderBoundaryCandidate
+): boolean {
+  return (
+    boundary.authorizationState === 'authorized' &&
+    boundary.providerState === 'degraded' &&
+    boundary.unavailableReason !== null &&
+    boundary.retentionState === 'parent-authorized-no-default-retention'
+  );
 }
 
 function parentAssistantActionConfirmResultIsSafe(result: ParentAssistantActionConfirmResultCandidate): boolean {

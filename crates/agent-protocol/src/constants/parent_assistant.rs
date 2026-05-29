@@ -80,12 +80,22 @@ pub const TEST_MESSAGE_ID: &str = "parent-assistant-message-proof";
 pub const API_PROVIDER_ID_NOT_AUTHORIZED: &str = "api-provider-not-authorized";
 pub const API_PROVIDER_ID_AUTHORIZED: &str = "api-provider-authorized";
 pub const API_PROVIDER_AUTHORIZED_ENV: &str = "OCENTRA_PARENT_PARENT_ASSISTANT_API_AI_AUTHORIZED";
+pub const API_PROVIDER_DEGRADED_ENV: &str = "OCENTRA_PARENT_PARENT_ASSISTANT_API_AI_DEGRADED";
+pub const API_PROVIDER_ACCESS_NOT_AUTHORIZED: &str = "not-authorized";
+pub const API_PROVIDER_ACCESS_AUTHORIZED_UNAVAILABLE: &str = "authorized-unavailable";
+pub const API_PROVIDER_ACCESS_AUTHORIZED_DEGRADED: &str = "authorized-degraded";
 pub const API_PROVIDER_CUSTODY_LABEL: &str = "parent-authorized-api-ai";
+pub const API_PROVIDER_CUSTODY_STATE: &str = "parent-owned-citations-only";
 pub const API_PROVIDER_RETENTION_POLICY: &str = "no-retention-without-parent-authorization";
+pub const API_PROVIDER_RETENTION_NO_AUTHORIZATION: &str =
+    "no-retention-without-parent-authorization";
+pub const API_PROVIDER_RETENTION_PARENT_AUTHORIZED: &str = "parent-authorized-no-default-retention";
 pub const API_PROVIDER_DELETION_POLICY: &str = "delete-provider-cache-on-parent-request";
+pub const API_PROVIDER_DELETION_STATE: &str = "delete-provider-cache-on-parent-request";
 pub const API_PROVIDER_NOT_AUTHORIZED_REASON: &str = "api-ai-provider-not-authorized";
 pub const API_PROVIDER_AUTHORIZED_UNAVAILABLE_REASON: &str =
     "api-ai-provider-adapter-not-configured";
+pub const API_PROVIDER_AUTHORIZED_DEGRADED_REASON: &str = "api-ai-provider-authorized-degraded";
 pub const LOCAL_PROVIDER_DEGRADED: &str = "local provider returned degraded output";
 pub const LOCAL_PROVIDER_BUSY: &str = "local provider is busy";
 pub const BACKEND_STATE_SCAFFOLD_ONLY: &str = "scaffold-only";
