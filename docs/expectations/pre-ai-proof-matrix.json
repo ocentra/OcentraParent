@@ -27,7 +27,8 @@
     "platform-os-lan-mobile-proof",
     "enforcement-lan-mobile-product-proof",
     "parent-mobile-shell-runtime-proof",
-    "v0-9-mobile-controller-discovery-runtime-proof"
+    "v0-9-mobile-controller-discovery-runtime-proof",
+    "v0-9-mobile-controller-observer-runtime-proof"
   ],
   "checkpointScenarios": [
     {
@@ -722,6 +723,43 @@
         "A local real-service proof presented as physical household router discovery.",
         "A parent mobile observer read model presented as mobile write authority.",
         "A package or simulator target presented as signing, store distribution, entitlement, child-agent, or background LAN proof."
+      ]
+    },
+    {
+      "id": "v0-9-mobile-controller-observer-runtime-proof",
+      "title": "V0.9 Mobile Controller Observer Runtime Proof",
+      "claimIds": ["v0-9-mobile-controller-observer-runtime-proof"],
+      "expectationFiles": [
+        "docs/expectations/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
+        "docs/expectations/lan-pairing.md",
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/platforms.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "proofMode": "ci-mechanical-proof",
+      "realEvidencePath": [
+        "Build parent-domain contracts from the current commit.",
+        "Run the parent mobile shell, production mobile controller, and mobile controller discovery runtime proof commands.",
+        "Parse the typed mobile controller observer runtime read model through the parent-domain contract export.",
+        "Verify read-only observer operations, rejected write operations, manual takeover, backend release, degraded provider state, package readiness gaps, and explicit non-claims."
+      ],
+      "ciCommands": ["node scripts/test/v0-9-mobile-controller-observer-runtime-proof.mjs"],
+      "requiredArtifacts": [
+        "test-results/v0-9-mobile-controller-observer-runtime-proof/proof.json",
+        "test-results/parent-mobile-shell-runtime-proof/proof.json",
+        "test-results/v0-9-production-lan-mobile-controller-proof/proof.json",
+        "test-results/v0-9-mobile-controller-discovery-runtime-proof/proof.json",
+        "packages/parent-domain/tests/v0-9-mobile-controller-observer-runtime.test.ts output"
+      ],
+      "knownGaps": [
+        "Parent mobile observer runtime remains read-only until real Android or iOS package/device controller authority proof exists.",
+        "Controller takeover, signing, stores, notifications, mobile background LAN behavior, and physical household LAN remain manual-required.",
+        "Cloud relay, Android child device-owner behavior, iOS Family Controls, and C-owned UI rendering are not claimed by this proof."
+      ],
+      "notProof": [
+        "A completed backend release transition presented as mobile write authority.",
+        "A degraded LAN AI job state presented as phone-local model execution.",
+        "A typed parent-domain contract presented as C-owned UI or visual implementation proof."
       ]
     },
     {
@@ -1862,6 +1900,84 @@
         "Archive test-results/v0-9-mobile-controller-discovery-runtime-proof/proof.json with the commit SHA.",
         "Run V0.9 LAN proof across two physical household devices and record parent/child host names or IPs, router reachability, firewall state, origin allowlist, route selection, takeover, release, revocation, wrong-origin and wrong-device rejection, failed-unpaired rejection, stale/offline selected-device behavior, and provider state.",
         "Record Android and iOS parent mobile package/device observer and controller behavior before upgrading parent mobile write authority.",
+        "Record signing, store, entitlement, notification, and background behavior artifacts before upgrading mobile package readiness.",
+        "Record a separate authenticated cloud relay proof before counting cloud relay as implemented."
+      ]
+    },
+    {
+      "id": "v0-9-mobile-controller-observer-runtime-proof",
+      "roadmapSlice": "V0.9 mobile controller observer runtime proof",
+      "expectationFiles": [
+        "docs/expectations/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
+        "docs/expectations/lan-pairing.md",
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/platforms.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "claim": "V0.9 mobile controller observer runtime proof registers a typed parent-domain read model for parent mobile observer read-only operations, rejected write operations, manual controller takeover request, backend-owned controller release, degraded LAN AI provider job state, package readiness gaps, proof harness inputs, and explicit non-claims for physical household LAN, mobile write authority, cloud relay, stores, signing, entitlements, C-owned UI, and child-agent platform behavior.",
+      "privilegedCapability": false,
+      "ciProof": {
+        "commands": ["node scripts/test/v0-9-mobile-controller-observer-runtime-proof.mjs"],
+        "jobs": ["Worker D V0.9 mobile controller observer runtime proof"]
+      },
+      "platformCoverage": {
+        "windows": "not-applicable",
+        "linux": "not-applicable",
+        "macos": "ci-mechanical-proof",
+        "android": "ci-mechanical-proof",
+        "ios": "ci-mechanical-proof"
+      },
+      "runtimeSurfaceCoverage": {
+        "observerReadOnlyOperations": {
+          "state": "ci-mechanical-proof",
+          "proof": "Typed runtime read model allows status, policy preview, and capability refresh as read-only observer operations."
+        },
+        "observerWriteRejections": {
+          "state": "ci-mechanical-proof",
+          "proof": "Policy writes, approvals, pairing, and revocation are rejected with observer-read-only behavior."
+        },
+        "controllerTakeoverRequest": {
+          "state": "manual-required",
+          "proof": "Controller takeover remains rejected/manual-required until real Android or iOS package/device authority proof exists."
+        },
+        "controllerRelease": {
+          "state": "ci-mechanical-proof",
+          "proof": "Controller release remains backend local-service proof and does not upgrade mobile write authority."
+        },
+        "degradedLanAiJob": {
+          "state": "degraded",
+          "proof": "LAN AI job submission from parent mobile is represented as degraded provider state, not phone-local model execution."
+        },
+        "packageReadiness": {
+          "state": "manual-required",
+          "proof": "Package readiness records missing signing, stores, notification, background, and controller authority proof before product upgrade."
+        },
+        "parentMobileWriteAuthority": {
+          "state": "manual-required",
+          "proof": "Android and iOS parent mobile write authority remains manual-required until real mobile package/device proof exists."
+        },
+        "cloudRelay": {
+          "state": "not-implemented",
+          "proof": "Cloud relay is explicitly not implemented and is not counted as local or LAN proof."
+        },
+        "cUiOwnership": {
+          "state": "not-applicable",
+          "proof": "This proof is a non-visual contract/proof slice; C-owned UI and vendor paths remain untouched."
+        },
+        "packageExport": {
+          "state": "ci-mechanical-proof",
+          "proof": "@ocentra-parent/parent-domain exports the typed V0.9 mobile controller observer runtime contract for downstream consumers."
+        }
+      },
+      "knownGaps": [
+        "This is a typed runtime read-model and proof composition, not C-owned UI rendering or visual implementation.",
+        "Real Android or iOS parent mobile controller write authority, mobile background behavior, signing, stores, entitlements, notifications, and cloud relay remain manual-required or not implemented.",
+        "Physical household LAN, Android child device-owner behavior, and iOS Family Controls behavior are not claimed by this parent mobile observer proof."
+      ],
+      "manualProofChecklist": [
+        "Archive test-results/v0-9-mobile-controller-observer-runtime-proof/proof.json with the commit SHA.",
+        "Run Android and iOS parent mobile packages on real devices and record observer read, controller takeover request, controller release, notification, foreground/background LAN behavior, and degraded provider states.",
+        "Run V0.9 LAN proof across two physical household devices and record router/firewall, origin allowlist, route selection, takeover, release, revocation, wrong-origin, wrong-device, failed-unpaired, stale/offline, and provider artifacts.",
         "Record signing, store, entitlement, notification, and background behavior artifacts before upgrading mobile package readiness.",
         "Record a separate authenticated cloud relay proof before counting cloud relay as implemented."
       ]
