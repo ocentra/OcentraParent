@@ -175,6 +175,8 @@ pub struct ActivityHistoricalReportList {
     pub schema_version: u16,
     pub request: ActivitySurfaceRequest,
     pub state: ActivityReadModelState,
+    pub storage_state: ActivitySavedReportState,
+    pub storage_reason: Option<String>,
     pub reports: Vec<ActivityHistoricalReportListItem>,
 }
 

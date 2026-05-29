@@ -75,12 +75,18 @@ pub(crate) fn history_list_from_dir(
             } else {
                 ActivityReadModelState::Ready
             },
+            storage_state: ActivitySavedReportState::Saved,
+            storage_reason: None,
             reports,
         },
         Err(_) => ActivityHistoricalReportList {
             schema_version: ACTIVITY_SURFACE_SCHEMA_VERSION,
             request,
             state: ActivityReadModelState::Unavailable,
+            storage_state: ActivitySavedReportState::StorageUnavailable,
+            storage_reason: Some(
+                constants::activity_surface::SUMMARY_STORAGE_UNAVAILABLE.to_string(),
+            ),
             reports: Vec::new(),
         },
     }

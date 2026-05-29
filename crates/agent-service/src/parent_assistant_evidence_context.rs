@@ -1,6 +1,6 @@
 use ocentra_parent_agent_protocol::{
-    constants, ActivityReportDocument, ActivitySavedReportState, AgentCommandEnvelope,
-    LogFieldValue, ParentAssistantEvidenceContext, ParentEvidenceReference,
+    constants, ActivityReadModelState, ActivityReportDocument, ActivitySavedReportState,
+    AgentCommandEnvelope, LogFieldValue, ParentAssistantEvidenceContext, ParentEvidenceReference,
     ParentEvidenceReferenceKind,
 };
 
@@ -114,7 +114,39 @@ fn report_context_summary(report: &ActivityReportDocument) -> String {
     summary.push_str(&report.sections.len().to_string());
     summary.push_str(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_SOURCE_LABEL);
     summary.push_str(&report.source_states.len().to_string());
+    summary.push_str(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_READY_SECTIONS_LABEL);
+    summary.push_str(&count_sections_with_state(report, ActivityReadModelState::Ready).to_string());
+    summary.push_str(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_OFFLINE_SOURCES_LABEL);
     summary
+        .push_str(&count_sources_with_state(report, ActivityReadModelState::Offline).to_string());
+    summary
+        .push_str(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_UNAVAILABLE_SOURCES_LABEL);
+    summary.push_str(
+        &count_sources_with_state(report, ActivityReadModelState::Unavailable).to_string(),
+    );
+    summary
+}
+
+fn count_sections_with_state(
+    report: &ActivityReportDocument,
+    state: ActivityReadModelState,
+) -> usize {
+    report
+        .sections
+        .iter()
+        .filter(|section| section.state == state)
+        .count()
+}
+
+fn count_sources_with_state(
+    report: &ActivityReportDocument,
+    state: ActivityReadModelState,
+) -> usize {
+    report
+        .source_states
+        .iter()
+        .filter(|source| source.state == state)
+        .count()
 }
 
 fn saved_state_label(report: &ActivityReportDocument) -> &'static str {

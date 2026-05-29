@@ -207,6 +207,20 @@ fn parent_assistant_request_cites_activity_report_document_when_supplied() {
     assert!(report_context
         .allowed_summary
         .contains(constants::activity_surface::SAVED_STATE_SAVED));
+    let mut ready_sections =
+        constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_READY_SECTIONS_LABEL.to_string();
+    ready_sections.push('1');
+    let mut offline_sources =
+        constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_OFFLINE_SOURCES_LABEL.to_string();
+    offline_sources.push('1');
+    let mut unavailable_sources =
+        constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_UNAVAILABLE_SOURCES_LABEL.to_string();
+    unavailable_sources.push('1');
+    assert!(report_context.allowed_summary.contains(&ready_sections));
+    assert!(report_context.allowed_summary.contains(&offline_sources));
+    assert!(report_context
+        .allowed_summary
+        .contains(&unavailable_sources));
 }
 
 #[test]
@@ -336,13 +350,33 @@ fn saved_report_document() -> ActivityReportDocument {
             saved_at: Some(constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string()),
             storage_reason: Some(constants::activity_surface::SUMMARY_STORAGE_SAVED.to_string()),
         }),
-        source_states: vec![ActivityReportSourceState {
-            device_id: constants::activity_surface::DEFAULT_DEVICE_ID.to_string(),
-            reachability_state: ActivityReportSourceReachabilityState::Reachable,
-            state: ActivityReadModelState::Ready,
-            reason: Some(constants::activity_surface::SUMMARY_FAMILY_LOCAL_SOURCE.to_string()),
-            last_updated_at: Some(constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string()),
-        }],
+        source_states: vec![
+            ActivityReportSourceState {
+                device_id: constants::activity_surface::DEFAULT_DEVICE_ID.to_string(),
+                reachability_state: ActivityReportSourceReachabilityState::Reachable,
+                state: ActivityReadModelState::Ready,
+                reason: Some(constants::activity_surface::SUMMARY_FAMILY_LOCAL_SOURCE.to_string()),
+                last_updated_at: Some(
+                    constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string(),
+                ),
+            },
+            ActivityReportSourceState {
+                device_id: constants::activity_surface::FAMILY_SOURCE_OFFLINE_ID.to_string(),
+                reachability_state: ActivityReportSourceReachabilityState::Offline,
+                state: ActivityReadModelState::Offline,
+                reason: Some(
+                    constants::activity_surface::SUMMARY_FAMILY_SOURCE_UNREACHABLE.to_string(),
+                ),
+                last_updated_at: None,
+            },
+            ActivityReportSourceState {
+                device_id: constants::activity_surface::FAMILY_SOURCE_ERROR_ID.to_string(),
+                reachability_state: ActivityReportSourceReachabilityState::Error,
+                state: ActivityReadModelState::Unavailable,
+                reason: Some(constants::activity_surface::SUMMARY_FAMILY_SOURCE_ERROR.to_string()),
+                last_updated_at: None,
+            },
+        ],
         sections: vec![ActivityReportSection {
             section_kind: ActivityReportSectionKind::Summary,
             title: constants::activity_surface::SECTION_SUMMARY.to_string(),

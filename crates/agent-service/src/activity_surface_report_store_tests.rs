@@ -1,6 +1,6 @@
 use std::{
     env,
-    fs::remove_dir_all,
+    fs::{remove_dir_all, remove_file, write},
     path::PathBuf,
     time::{SystemTime, UNIX_EPOCH},
 };
@@ -44,6 +44,11 @@ fn activity_report_store_keeps_family_and_device_reports_separate() {
 
     assert_eq!(family_history.state, ActivityReadModelState::Ready);
     assert_eq!(device_history.state, ActivityReadModelState::Ready);
+    assert_eq!(
+        family_history.storage_state,
+        ActivitySavedReportState::Saved
+    );
+    assert_eq!(family_history.storage_reason, None);
     assert_eq!(family_history.reports.len(), 1);
     assert_eq!(device_history.reports.len(), 1);
     assert_eq!(
@@ -56,6 +61,29 @@ fn activity_report_store_keeps_family_and_device_reports_separate() {
     );
 
     assert_family_source_states(&family_history.reports[0].parsed_report.source_states);
+}
+
+#[test]
+fn activity_report_history_returns_storage_unavailable_for_unreadable_storage_path() {
+    let report_dir = TempReportDir::new();
+    write(
+        report_dir.path(),
+        constants::activity_surface::SUMMARY_STORE_UNAVAILABLE,
+    )
+    .expect(constants::error::AGENT_EVENT_SERIALIZES);
+
+    let history = history_list_from_dir(surface_request(family_scope()), report_dir.path());
+
+    assert_eq!(history.state, ActivityReadModelState::Unavailable);
+    assert_eq!(
+        history.storage_state,
+        ActivitySavedReportState::StorageUnavailable
+    );
+    assert_eq!(
+        history.storage_reason,
+        Some(constants::activity_surface::SUMMARY_STORAGE_UNAVAILABLE.to_string())
+    );
+    assert_eq!(history.reports.len(), 0);
 }
 
 fn assert_family_source_states(source_states: &[ActivityReportSourceState]) {
@@ -203,6 +231,7 @@ impl TempReportDir {
 impl Drop for TempReportDir {
     fn drop(&mut self) {
         let _ = remove_dir_all(&self.path);
+        let _ = remove_file(&self.path);
     }
 }
 

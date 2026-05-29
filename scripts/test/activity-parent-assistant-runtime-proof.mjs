@@ -290,6 +290,9 @@ function assertReportHistory(event) {
   if (history.state !== 'ready') {
     throw new Error(`Activity report history did not become ready after save: ${JSON.stringify(history)}`);
   }
+  if (history.storageState !== 'saved' || history.storageReason !== null) {
+    throw new Error(`Activity report history did not expose reachable storage state: ${JSON.stringify(history)}`);
+  }
   if (!Array.isArray(history.reports) || history.reports.length < 1) {
     throw new Error(`Activity report history did not include the saved report: ${JSON.stringify(history)}`);
   }
@@ -339,6 +342,15 @@ function assertParentAssistantUnavailable(event) {
     !String(reportCitation?.allowedSummary).includes('savedState=saved')
   ) {
     throw new Error(`Parent Assistant did not cite the saved Activity report: ${JSON.stringify(answer.citations)}`);
+  }
+  if (
+    !String(reportCitation.allowedSummary).includes('readySections=') ||
+    !String(reportCitation.allowedSummary).includes('offlineSources=') ||
+    !String(reportCitation.allowedSummary).includes('unavailableSources=')
+  ) {
+    throw new Error(
+      `Parent Assistant Activity report citation omitted report counts: ${reportCitation.allowedSummary}`
+    );
   }
   const preview = parseJsonField(payload, AgentProtocolDefaults.Field.ParentAssistantActionPreview);
   if (preview.childAgentContractRequired !== true || preview.enforcementApplied !== false) {

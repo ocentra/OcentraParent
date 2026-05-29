@@ -149,6 +149,8 @@ describe('activity report history contracts', () => {
       schemaVersion: ActivitySurfaceSchemaVersion,
       request: ActivityRequest,
       state: 'ready',
+      storageState: 'saved',
+      storageReason: null,
       reports: [
         {
           schemaVersion: ActivitySurfaceSchemaVersion,
@@ -183,6 +185,8 @@ describe('activity report history contracts', () => {
         schemaVersion: ActivitySurfaceSchemaVersion,
         request: ActivityRequest,
         state: 'ready',
+        storageState: 'saved',
+        storageReason: null,
         reports: [
           {
             schemaVersion: ActivitySurfaceSchemaVersion,
@@ -199,6 +203,20 @@ describe('activity report history contracts', () => {
         ],
       }).success
     ).toBe(false);
+  });
+
+  it('ActivityHistoricalReportListSchema: accepts typed storage-unavailable fallback state', () => {
+    const parsed = ActivityHistoricalReportListSchema.parse({
+      schemaVersion: ActivitySurfaceSchemaVersion,
+      request: ActivityRequest,
+      state: 'unavailable',
+      storageState: 'storage-unavailable',
+      storageReason: 'Local parent report storage is unavailable.',
+      reports: [],
+    });
+
+    expect(parsed.storageState).toBe('storage-unavailable');
+    expect(parsed.storageReason).toBe('Local parent report storage is unavailable.');
   });
 });
 
