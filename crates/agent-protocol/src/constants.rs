@@ -156,6 +156,8 @@ pub mod activity_subject_kind;
 pub mod activity_surface;
 #[path = "constants/browser.rs"]
 pub mod browser;
+#[path = "constants/host_identity.rs"]
+pub mod host_identity;
 
 pub mod browser_policy {
     pub const COMMAND_GET: &str = "agent.browser-policy.get";
