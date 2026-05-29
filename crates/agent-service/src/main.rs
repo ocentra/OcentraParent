@@ -154,6 +154,10 @@ mod policy_preview_tests;
 mod snapshot;
 mod time;
 mod websocket;
+#[cfg_attr(not(test), allow(dead_code))]
+mod windows_adapter_capability_read_model;
+#[cfg(test)]
+mod windows_adapter_capability_read_model_tests;
 
 use ocentra_parent_agent_protocol::constants;
 
