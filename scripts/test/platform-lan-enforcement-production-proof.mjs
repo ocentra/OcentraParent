@@ -16,7 +16,12 @@ async function main() {
   await mkdir(outputDir, { recursive: true });
 
   await runCommand('cmd', ['/c', 'npm', 'run', 'build:contracts']);
-  await runCommand('cmd', ['/c', 'node', 'scripts/test/v0-8-os-adapter-proof-hardening.mjs']);
+  await runCommand('cmd', ['/c', 'node', 'scripts/test/v0-8-enforcement-adapter-product-proof-continuation.mjs']);
+  const v08Continuation = await readJson(
+    join(repoRoot, 'test-results', 'v0-8-enforcement-adapter-product-proof-continuation', 'proof.json')
+  );
+  assertV08Continuation(v08Continuation);
+
   const v08OsAdapterHardening = await readJson(
     join(repoRoot, 'test-results', 'v0-8-os-adapter-proof-hardening', 'proof.json')
   );
@@ -52,6 +57,10 @@ async function main() {
     commands,
     proofLabels,
     evidence: {
+      v08EnforcementAdapterProductProofContinuation: relative(
+        repoRoot,
+        join(repoRoot, 'test-results', 'v0-8-enforcement-adapter-product-proof-continuation', 'proof.json')
+      ),
       v08OsAdapterHardening: relative(
         repoRoot,
         join(repoRoot, 'test-results', 'v0-8-os-adapter-proof-hardening', 'proof.json')
@@ -74,7 +83,7 @@ async function main() {
     },
     productionTruth: {
       v08RealAdapterState:
-        'owned-process terminate and app time-limit proof are real when the host supports them; broad app/domain blocking stays manual-required or unavailable; browser boundary proof does not claim exact unmanaged URLs or managed-browser service-command URL enforcement',
+        'owned-process terminate and app time-limit proof are real when the host supports them; broad app/domain/browser blocking stays manual-required or unavailable; browser boundary proof does not claim exact unmanaged URLs or managed-browser service-command URL enforcement; product claim upgrades are rejected without missing host/platform artifacts',
       v09RealLanState:
         'local multi-service proof covers route, lease, registry, rejection, provider routing mechanics, explicit production discovery state labels, and a verifier that refuses household LAN readiness upgrades without physical device artifacts',
       parentMobileState:
@@ -85,6 +94,7 @@ async function main() {
     manualProofRequirements: {
       windowsEnforcement: [
         'run on a real Windows child host from this commit',
+        'archive V0.8 continuation proof JSON with the claim-upgrade refusal and missing artifact list',
         'archive V0.8 OS adapter proof JSON with the child process pid, time-limit, process-terminate, and browser-boundary adapter results',
         'record whether app block, domain block, managed-browser service command, and unmanaged browser process control remain manual-required, unavailable, or process-only on that host',
         'capture Rust service log snippets for execute, restart recover, parent cancel, expiry, and unavailable states',
@@ -101,6 +111,38 @@ async function main() {
   await writeFile(proofPath, `${JSON.stringify(proof, null, 2)}\n`);
   console.log(`platform-lan-enforcement-production-proof-ok:${proofLabels.join(',')}`);
   console.log(`evidence=${proofPath}`);
+}
+
+function assertV08Continuation(evidence) {
+  assertEqual(
+    evidence.proofMode,
+    'v0-8-enforcement-adapter-product-proof-continuation',
+    'V0.8 continuation proof mode'
+  );
+  assertArrayIncludes(
+    evidence.proofLabels,
+    'v0.8.continuation.claim-upgrade-refusal-proof',
+    'V0.8 claim upgrade refusal proof'
+  );
+  assertEqual(evidence.productClaimUpgradeRefusal?.decision, 'rejected', 'V0.8 product claim upgrade refusal decision');
+  assertEqual(
+    evidence.productClaimUpgradeRefusal?.currentState,
+    'manual-required',
+    'V0.8 product claim upgrade refusal state'
+  );
+  assertArrayIncludes(evidence.claimsNotProved, 'global OS app blocking', 'V0.8 broad app non-claim');
+  assertArrayIncludes(
+    evidence.claimsNotProved,
+    'network or domain blocking on the host',
+    'V0.8 network/domain non-claim'
+  );
+  if (
+    !Array.isArray(evidence.realServiceCoverage?.broadAdapterStates) ||
+    evidence.realServiceCoverage.broadAdapterStates.length !== 3
+  ) {
+    throw new Error('V0.8 continuation must prove three broad adapter unavailable/manual-required states.');
+  }
+  proofLabels.push('v0.8.enforcement-adapter-product-proof-continuation');
 }
 
 function assertV08AppTimeLimit(evidence) {
@@ -288,6 +330,11 @@ function assertProofMatrix(matrix) {
     new Set(scenario.ciCommands),
     'node scripts/test/platform-lan-enforcement-production-proof.mjs',
     'Production proof command is matrix-listed'
+  );
+  assertSetHas(
+    new Set(matrix.requiredCompletedClaimIds),
+    'v0-8-enforcement-adapter-product-proof-continuation',
+    'V0.8 continuation claim is required'
   );
   assertSetHas(
     new Set(matrix.requiredCompletedClaimIds),
