@@ -1,4 +1,9 @@
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
+import { ParentControlCapabilityNameSchema, ParentControlCapabilityStatusSchema } from './capabilities';
+import {
+  AndroidParentMobileCapabilityStatuses,
+  IosParentMobileCapabilityStatuses,
+} from './parent-mobile-runtime-capability-statuses';
 import { ParentDeviceIdSchema, ParentEvidenceReferenceIdSchema, ParentTimestampSchema } from './reference-primitives';
 
 export const ParentMobilePlatformSchema = withParser(Schema.Literal('android', 'ios'));
@@ -43,6 +48,10 @@ const ParentMobileCapabilityNameSchema = NonEmptyParentMobileText.pipe(Schema.br
 const ParentMobileUnavailableReasonSchema = NonEmptyParentMobileText.pipe(
   Schema.brand('ParentMobileUnavailableReason')
 );
+const ParentMobileCapabilityProofRequirementSchema = NonEmptyParentMobileText.pipe(
+  Schema.brand('ParentMobileCapabilityProofRequirement')
+);
+const ParentMobileClaimBoundarySchema = NonEmptyParentMobileText.pipe(Schema.brand('ParentMobileClaimBoundary'));
 
 export const ParentMobilePackageProofSchema = withParser(
   Schema.Struct({
@@ -52,6 +61,15 @@ export const ParentMobilePackageProofSchema = withParser(
     proofCommand: ParentMobilePackageProofCommandSchema,
     signingState: ParentMobileSigningStateSchema,
     storeDistributionState: ParentMobileStoreDistributionStateSchema,
+  })
+);
+
+export const ParentMobileCapabilityProofSchema = withParser(
+  Schema.Struct({
+    capability: ParentControlCapabilityNameSchema,
+    status: ParentControlCapabilityStatusSchema,
+    proofRequirement: ParentMobileCapabilityProofRequirementSchema,
+    claimBoundary: ParentMobileClaimBoundarySchema,
   })
 );
 
@@ -92,6 +110,7 @@ const ParentMobileRuntimeReadModelBaseSchema = Schema.Struct({
   serviceAvailability: ParentMobileServiceAvailabilitySchema,
   controllerProof: ParentMobileControllerProofSchema,
   assistantJobProof: ParentMobileAssistantJobProofSchema,
+  platformCapabilities: Schema.Array(ParentMobileCapabilityProofSchema),
   localModelExecutionState: ParentMobileLocalModelExecutionStateSchema,
   localModelExecutionAllowed: Schema.Literal(false),
   childAgentBehaviorClaim: ParentMobileChildAgentBehaviorClaimSchema,
@@ -128,6 +147,10 @@ function parentMobileRuntimeReadModelIsConsistent(readModel: ParentMobileRuntime
   }
 
   if (!parentMobileControllerProofIsConsistent(readModel.controllerProof)) {
+    return false;
+  }
+
+  if (!parentMobileCapabilityProofsAreConsistent(readModel)) {
     return false;
   }
 
@@ -180,6 +203,27 @@ function parentMobileLanAiProviderJobIsConsistent(
   return assistantJobProof.providerId === null && assistantJobProof.unavailableReason !== null;
 }
 
+function parentMobileCapabilityProofsAreConsistent(readModel: ParentMobileRuntimeReadModelCandidate): boolean {
+  const expected =
+    readModel.platform === 'android' ? AndroidParentMobileCapabilityStatuses : IosParentMobileCapabilityStatuses;
+  const capabilityStatuses = new Map(
+    readModel.platformCapabilities.map((entry) => [entry.capability, entry.status] as const)
+  );
+
+  if (
+    capabilityStatuses.size !== readModel.platformCapabilities.length ||
+    capabilityStatuses.size !== expected.length
+  ) {
+    return false;
+  }
+
+  if (readModel.platformCapabilities.some((entry) => entry.status === 'supported' || entry.status === 'implemented')) {
+    return false;
+  }
+
+  return expected.every(([capability, status]) => capabilityStatuses.get(capability) === status);
+}
+
 export type ParentMobilePlatform = Infer<typeof ParentMobilePlatformSchema>;
 export type ParentMobilePackageState = Infer<typeof ParentMobilePackageStateSchema>;
 export type ParentMobileSigningState = Infer<typeof ParentMobileSigningStateSchema>;
@@ -195,4 +239,5 @@ export type ParentMobilePackageProof = Infer<typeof ParentMobilePackageProofSche
 export type ParentMobileServiceAvailability = Infer<typeof ParentMobileServiceAvailabilitySchema>;
 export type ParentMobileControllerProof = Infer<typeof ParentMobileControllerProofSchema>;
 export type ParentMobileAssistantJobProof = Infer<typeof ParentMobileAssistantJobProofSchema>;
+export type ParentMobileCapabilityProof = Infer<typeof ParentMobileCapabilityProofSchema>;
 export type ParentMobileRuntimeReadModel = Infer<typeof ParentMobileRuntimeReadModelSchema>;
