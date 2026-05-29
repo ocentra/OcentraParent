@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   ParentAssistantActionPreviewSchema,
+  ParentAssistantActionPreviewResultSchema,
   ParentAssistantActionConfirmResultSchema,
   ParentAssistantAnswerSchema,
   ParentAssistantApiProviderBoundarySchema,
@@ -105,6 +106,30 @@ describe('parent assistant request contracts', () => {
       ParentAssistantActionPreviewSchema.safeParse({
         ...ActionPreview,
         enforcementApplied: true,
+      }).success
+    ).toBe(false);
+  });
+
+  it('ParentAssistantActionPreviewResultSchema: keeps action drafts non-enforcing and unwritten', () => {
+    const parsed = ParentAssistantActionPreviewResultSchema.parse({
+      schemaVersion: ParentContractSchemaVersion.V0_6,
+      backendState: 'runtime-backed',
+      actionIntentId: 'parent-assistant-action-intent-1',
+      previewState: 'draft',
+      preview: ActionPreview,
+      requiresControllerLease: true,
+      childAgentContractRequired: true,
+      enforcementApplied: false,
+      policyWritten: false,
+      reason: 'Preview only. Controller lease and child-agent contract are required before applying this action.',
+    });
+
+    expect(parsed.previewState).toBe('draft');
+    expect(parsed.policyWritten).toBe(false);
+    expect(
+      ParentAssistantActionPreviewResultSchema.safeParse({
+        ...parsed,
+        policyWritten: true,
       }).success
     ).toBe(false);
   });

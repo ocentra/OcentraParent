@@ -33,6 +33,10 @@ pub const ACTIVITY_REPORT_SUMMARY_SOURCE_LABEL: &str = ", sources=";
 pub const ACTIVITY_REPORT_SUMMARY_READY_SECTIONS_LABEL: &str = ", readySections=";
 pub const ACTIVITY_REPORT_SUMMARY_OFFLINE_SOURCES_LABEL: &str = ", offlineSources=";
 pub const ACTIVITY_REPORT_SUMMARY_UNAVAILABLE_SOURCES_LABEL: &str = ", unavailableSources=";
+pub const ACTIVITY_REPORT_SUMMARY_SECTION_KINDS_LABEL: &str = ", sectionKinds=";
+pub const ACTIVITY_REPORT_SUMMARY_OFFLINE_SOURCE_IDS_LABEL: &str = ", offlineSourceIds=";
+pub const ACTIVITY_REPORT_SUMMARY_UNAVAILABLE_SOURCE_IDS_LABEL: &str = ", unavailableSourceIds=";
+pub const ACTIVITY_REPORT_SUMMARY_NONE: &str = "none";
 pub const PROMPT_SYSTEM: &str =
     "Answer as a parent-facing assistant. Cite the provided evidence. Do not enforce directly.";
 pub const PROMPT_QUESTION_LABEL: &str = "Question:";
@@ -48,6 +52,8 @@ pub const ACTION_PREVIEW_SCHEDULE_SUMMARY: &str =
 pub const ACTION_PREVIEW_TIME_LIMIT_SUMMARY: &str =
     "Time-limit preview only. Controller lease and child-agent contract execution are required before any limit changes.";
 pub const ACTION_PREVIEW_NONE_SUMMARY: &str = "No backend action is prepared from this answer.";
+pub const ACTION_PREVIEW_DRAFT_REASON: &str =
+    "Action preview is a draft only. Controller lease and child-agent contract are required before changes.";
 pub const THREAD_TITLE_DEFAULT: &str = "Parent Assistant local thread";
 pub const THREAD_STORAGE_DIR: &str = "parent-assistant-threads";
 pub const THREAD_STORAGE_FILE: &str = "threads.json";

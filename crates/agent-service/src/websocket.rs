@@ -189,7 +189,6 @@ async fn build_command_event(
         | AgentCommandName::AgentParentAssistantAnswerGenerate
         | AgentCommandName::AgentParentAssistantMessageSend
         | AgentCommandName::AgentParentAssistantQuickActionStart
-        | AgentCommandName::AgentParentAssistantActionPreview
         | AgentCommandName::AgentPolicyPreviewReadModelGet => {
             build_ai_command_report(command).await
         }
@@ -205,6 +204,7 @@ async fn build_command_event(
         | AgentCommandName::AgentParentAssistantThreadOpen
         | AgentCommandName::AgentParentAssistantThreadArchive
         | AgentCommandName::AgentParentAssistantRunCancel
+        | AgentCommandName::AgentParentAssistantActionPreview
         | AgentCommandName::AgentParentAssistantActionConfirm
         | AgentCommandName::AgentParentAssistantProviderStatusGet => {
             build_parent_assistant_scaffold_event(command)
@@ -300,8 +300,7 @@ async fn build_ai_command_report(command: AgentCommandEnvelope) -> AgentEventEnv
         }
         AgentCommandName::AgentParentAssistantAnswerGenerate
         | AgentCommandName::AgentParentAssistantMessageSend
-        | AgentCommandName::AgentParentAssistantQuickActionStart
-        | AgentCommandName::AgentParentAssistantActionPreview => {
+        | AgentCommandName::AgentParentAssistantQuickActionStart => {
             build_parent_assistant_answer_report(command).await
         }
         AgentCommandName::AgentPolicyPreviewReadModelGet => {

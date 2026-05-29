@@ -336,7 +336,7 @@ fn base_answer(
     }
 }
 
-fn preview_only_action(question: &str) -> ParentAssistantActionPreview {
+pub(crate) fn preview_only_action(question: &str) -> ParentAssistantActionPreview {
     let normalized_question = question.to_ascii_lowercase();
     let (action_kind, summary) = if normalized_question
         .contains(constants::parent_assistant::QUESTION_POLICY_HINT)

@@ -1,7 +1,8 @@
 use ocentra_parent_agent_protocol::{
-    constants, LogFieldValue, LogFields, ParentAssistantActionConfirmResult, ParentAssistantAnswer,
-    ParentAssistantAnswerState, ParentAssistantBackendState, ParentAssistantProviderState,
-    ParentAssistantProviderStatus, ParentAssistantRunCancelResult, ParentAssistantThreadResponse,
+    constants, LogFieldValue, LogFields, ParentAssistantActionConfirmResult,
+    ParentAssistantActionPreviewResult, ParentAssistantAnswer, ParentAssistantAnswerState,
+    ParentAssistantBackendState, ParentAssistantProviderState, ParentAssistantProviderStatus,
+    ParentAssistantRunCancelResult, ParentAssistantThreadResponse,
 };
 
 use crate::fields::fields_from_pairs;
@@ -185,6 +186,34 @@ pub(crate) fn parent_assistant_action_confirm_payload(
         string_field(constants::field::REASON, &result.reason),
         json_string_field(
             constants::parent_assistant::FIELD_ACTION_CONFIRM_RESULT,
+            serde_json::to_string(result).expect(constants::error::AGENT_EVENT_SERIALIZES),
+        ),
+    ])
+}
+
+pub(crate) fn parent_assistant_action_preview_payload(
+    result: &ParentAssistantActionPreviewResult,
+) -> LogFields {
+    fields_from_pairs(vec![
+        string_field(
+            constants::field::SCHEMA_VERSION,
+            ocentra_parent_agent_protocol::policy_constants::CONTRACT_SCHEMA_VERSION_V0_6,
+        ),
+        string_field(
+            constants::field::PARENT_ASSISTANT_BACKEND_STATE,
+            constants::parent_assistant::BACKEND_STATE_RUNTIME_BACKED,
+        ),
+        string_field(
+            constants::parent_assistant::FIELD_ACTION_INTENT_ID,
+            &result.action_intent_id,
+        ),
+        string_field(
+            constants::parent_assistant::FIELD_REQUIRED_CHILD_CONTRACTS,
+            constants::parent_assistant::REQUIRED_CHILD_CONTRACT_POLICY_WRITE,
+        ),
+        string_field(constants::field::REASON, &result.reason),
+        json_string_field(
+            constants::field::PARENT_ASSISTANT_ACTION_PREVIEW,
             serde_json::to_string(result).expect(constants::error::AGENT_EVENT_SERIALIZES),
         ),
     ])

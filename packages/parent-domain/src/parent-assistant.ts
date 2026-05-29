@@ -70,6 +70,7 @@ export const ParentAssistantApiAuthorizationStateSchema = withParser(Schema.Lite
 export const ParentAssistantActionPreviewKindSchema = withParser(
   Schema.Literal('none', 'policy-suggestion', 'schedule-change', 'time-limit-change')
 );
+const ParentAssistantActionPreviewStateSchema = withParser(Schema.Literal('draft', 'unavailable', 'rejected'));
 export const ParentAssistantThreadStateSchema = withParser(Schema.Literal('open', 'archived'));
 export const ParentAssistantRunCancelStateSchema = withParser(
   Schema.Literal('cancelled', 'not-running', 'unavailable')
@@ -103,6 +104,31 @@ export const ParentAssistantActionPreviewSchema = withParser(
     childAgentContractRequired: Schema.Literal(true),
     enforcementApplied: Schema.Literal(false),
   })
+);
+
+const ParentAssistantActionPreviewResultBaseSchema = Schema.Struct({
+  schemaVersion: ParentContractSchemaVersionSchema,
+  backendState: ParentAssistantBackendStateSchema,
+  actionIntentId: ParentAssistantActionIntentIdSchema,
+  previewState: ParentAssistantActionPreviewStateSchema,
+  preview: ParentAssistantActionPreviewSchema,
+  requiresControllerLease: Schema.Boolean,
+  childAgentContractRequired: Schema.Literal(true),
+  enforcementApplied: Schema.Literal(false),
+  policyWritten: Schema.Literal(false),
+  reason: ParentAssistantAnswerTextSchema,
+});
+
+type ParentAssistantActionPreviewResultCandidate = Infer<typeof ParentAssistantActionPreviewResultBaseSchema>;
+
+export const ParentAssistantActionPreviewResultSchema = withParser(
+  ParentAssistantActionPreviewResultBaseSchema.pipe(
+    Schema.filter(
+      (result) =>
+        parentAssistantActionPreviewResultIsSafe(result) ||
+        'Expected Parent Assistant action preview to stay a draft and avoid direct enforcement or policy writes'
+    )
+  )
 );
 
 export const ParentAssistantGenerateRequestSchema = withParser(
@@ -329,6 +355,20 @@ function parentAssistantActionConfirmResultIsSafe(result: ParentAssistantActionC
     result.policyWritten === false &&
     result.confirmState === 'contract-required'
   );
+}
+
+function parentAssistantActionPreviewResultIsSafe(result: ParentAssistantActionPreviewResultCandidate): boolean {
+  const cannotApplyDirectly =
+    result.childAgentContractRequired === true &&
+    result.enforcementApplied === false &&
+    result.policyWritten === false &&
+    result.preview.enforcementApplied === false;
+
+  if (!cannotApplyDirectly) {
+    return false;
+  }
+
+  return result.previewState !== 'draft' || result.preview.previewId !== null;
 }
 
 export type ParentAssistantScope = Infer<typeof ParentAssistantScopeSchema>;

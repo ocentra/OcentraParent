@@ -3,6 +3,7 @@ import {
   ParentAssistantAdapterPayloadField,
   createParentAssistantRuntimeCommand,
   parseParentAssistantActionConfirmEvent,
+  parseParentAssistantActionPreviewEvent,
   parseParentAssistantAnswerEvent,
   parseParentAssistantProviderStatusEvent,
   parseParentAssistantRunCancelEvent,
@@ -127,6 +128,18 @@ it('parses action confirm runtime events', () => {
   expect(confirm.ok ? confirm.value.enforcementApplied : true).toBe(false);
 });
 
+it('parses action-preview runtime events without direct enforcement or policy writes', () => {
+  const preview = parseParentAssistantActionPreviewEvent(
+    eventEnvelope(AgentEvent.ParentAssistantActionPreviewed, {
+      [ParentAssistantAdapterPayloadField.ActionPreview]: JSON.stringify(actionPreviewResult()),
+    })
+  );
+
+  expect(preview.ok ? preview.value.previewState : null).toBe('draft');
+  expect(preview.ok ? preview.value.enforcementApplied : true).toBe(false);
+  expect(preview.ok ? preview.value.policyWritten : true).toBe(false);
+});
+
 function commandInput() {
   return {
     messageId: 'cmd-parent-assistant-1',
@@ -209,6 +222,30 @@ function actionConfirmResult() {
     enforcementApplied: false,
     policyWritten: false,
     reason: 'Controller lease and child-agent policy contract are required before applying this action.',
+  } as const;
+}
+
+function actionPreviewResult() {
+  return {
+    schemaVersion: 'v0.6',
+    backendState: 'runtime-backed',
+    actionIntentId: 'parent-assistant-action-intent-1',
+    previewState: 'draft',
+    preview: {
+      previewId: 'parent-assistant-action-preview-local',
+      actionKind: 'policy-suggestion',
+      summary:
+        'Policy suggestion preview only. Controller lease and child-agent contract execution are required before any rule changes.',
+      actionReference: null,
+      requiresControllerLease: true,
+      childAgentContractRequired: true,
+      enforcementApplied: false,
+    },
+    requiresControllerLease: true,
+    childAgentContractRequired: true,
+    enforcementApplied: false,
+    policyWritten: false,
+    reason: 'Action preview is a draft only. Controller lease and child-agent contract are required before changes.',
   } as const;
 }
 

@@ -67,6 +67,16 @@ pub enum ParentAssistantActionPreviewKind {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ParentAssistantActionPreviewState {
+    #[serde(rename = "draft")]
+    Draft,
+    #[serde(rename = "unavailable")]
+    Unavailable,
+    #[serde(rename = "rejected")]
+    Rejected,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ParentAssistantBackendState {
     #[serde(rename = "runtime-backed")]
     RuntimeBacked,
@@ -133,6 +143,21 @@ pub struct ParentAssistantActionPreview {
     pub requires_controller_lease: bool,
     pub child_agent_contract_required: bool,
     pub enforcement_applied: bool,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ParentAssistantActionPreviewResult {
+    pub schema_version: String,
+    pub backend_state: ParentAssistantBackendState,
+    pub action_intent_id: String,
+    pub preview_state: ParentAssistantActionPreviewState,
+    pub preview: ParentAssistantActionPreview,
+    pub requires_controller_lease: bool,
+    pub child_agent_contract_required: bool,
+    pub enforcement_applied: bool,
+    pub policy_written: bool,
+    pub reason: String,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
