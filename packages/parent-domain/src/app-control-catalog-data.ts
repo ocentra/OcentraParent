@@ -18,6 +18,19 @@ export type AppControlCatalogSettingSeed = readonly [
   defaultValue: AppControlCatalogDefaultValue,
 ];
 
+export type AppControlGuideCatalogSettingSeed = readonly [
+  sectionId: string,
+  sectionTitle: string,
+  sectionOrder: number,
+  groupId: string,
+  groupTitle: string,
+  groupOrder: number,
+  settingId: string,
+  sourceOrder: number,
+  sourceLine: number,
+  sourceText: string,
+];
+
 export type AppControlCatalogOptionSeed =
   | string
   | {

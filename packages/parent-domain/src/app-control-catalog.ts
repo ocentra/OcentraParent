@@ -7,7 +7,9 @@ import {
   type AppControlCatalogDefaultValue,
   type AppControlCatalogOptionSeed,
   type AppControlCatalogSettingSeed,
+  type AppControlGuideCatalogSettingSeed,
 } from './app-control-catalog-data';
+import { AppControlGuideCatalogData } from './app-control-guide-catalog-data';
 import {
   AppControlAuthoringCatalogSchema,
   AppControlCapabilityIdSchema,
@@ -104,6 +106,15 @@ export const AppControlCapabilities: readonly AppControlCapability[] = AppContro
   })
 );
 
+export const AppControlGuideSettingCount = AppControlGuideCatalogData.length;
+export const AppControlFullCatalogSettingCount = AppControlCatalogSettingSeeds.length + AppControlGuideSettingCount;
+
+const AppControlManifestSettings = buildManifestSettings(AppControlCatalogSettingSeeds);
+const AppControlFullCatalogSettings = [
+  ...AppControlManifestSettings,
+  ...buildGuideSettings(AppControlGuideCatalogData, AppControlCatalogSettingSeeds.length),
+];
+
 export const BaselineAppControlAuthoringCatalog: AppControlAuthoringCatalog = AppControlAuthoringCatalogSchema.parse({
   schemaVersion: ParentContractSchemaVersion.V0_6,
   catalogId: AppControlCatalogIdSchema.parse('app-control-authoring-v1'),
@@ -113,11 +124,30 @@ export const BaselineAppControlAuthoringCatalog: AppControlAuthoringCatalog = Ap
   acceptedOptionCount: acceptedOptionCountForSeeds(AppControlCatalogSettingSeeds),
   targetScopeOptions: AppControlTargetScopeSeeds.map((scope) => AppControlTargetScopeSchema.parse(scope)),
   effectModeOptions: AppControlEffectModeSeeds.map((mode) => AppControlEffectModeSchema.parse(mode)),
-  sections: buildSections(AppControlCatalogSettingSeeds),
+  sections: buildSectionsFromSettings(AppControlManifestSettings),
+});
+
+export const BaselineAppControlFullCatalog: AppControlAuthoringCatalog = AppControlAuthoringCatalogSchema.parse({
+  schemaVersion: ParentContractSchemaVersion.V0_6,
+  catalogId: AppControlCatalogIdSchema.parse('app-control-full-catalog-v1'),
+  sidePanelCategory: 'apps',
+  sourceDocuments: [...AppControlCatalogSourceDocuments],
+  settingCount: AppControlFullCatalogSettingCount,
+  acceptedOptionCount: AppControlFullCatalogSettings.reduce(
+    (count, setting) => count + setting.acceptedOptions.length,
+    0
+  ),
+  targetScopeOptions: AppControlTargetScopeSeeds.map((scope) => AppControlTargetScopeSchema.parse(scope)),
+  effectModeOptions: AppControlEffectModeSeeds.map((mode) => AppControlEffectModeSchema.parse(mode)),
+  sections: buildSectionsFromSettings(AppControlFullCatalogSettings),
 });
 
 export function appControlCatalogSettings(catalog = BaselineAppControlAuthoringCatalog) {
   return catalog.sections.flatMap((section) => section.groups.flatMap((group) => group.settings));
+}
+
+export function appControlFullCatalogSettings(catalog = BaselineAppControlFullCatalog) {
+  return appControlCatalogSettings(catalog);
 }
 
 export function appControlCatalogSettingCount(catalog = BaselineAppControlAuthoringCatalog) {
@@ -239,17 +269,21 @@ export function buildAppControlEffectivePolicyPlan(
   });
 }
 
-function buildSections(seeds: readonly AppControlCatalogSettingSeed[]): AppControlCatalogSection[] {
+function buildManifestSettings(seeds: readonly AppControlCatalogSettingSeed[]): AppControlCatalogSetting[] {
+  return seeds.map((seed, index) => buildSetting(seed, index + 1));
+}
+
+function buildSectionsFromSettings(settings: readonly AppControlCatalogSetting[]): AppControlCatalogSection[] {
   const sections = new Map<string, SectionDraft>();
-  seeds.forEach((seed, index) => {
-    const sourceOrder = index + 1;
-    const setting = buildSetting(seed, sourceOrder);
-    const section = getSectionDraft(sections, seed, sourceOrder);
-    const group = getGroupDraft(section, seed[3], seed[4], sourceOrder);
+  for (const setting of settings) {
+    const sectionKey = String(setting.sectionId);
+    const groupKey = String(setting.groupId);
+    const section = getSectionDraftFromSetting(sections, setting);
+    const group = getGroupDraft(section, groupKey, setting.sourceHeadingPath[1] ?? section.title, setting.sourceOrder);
     group.settings.push(setting);
-    section.groups.set(seed[3], group);
-    sections.set(seed[0], section);
-  });
+    section.groups.set(groupKey, group);
+    sections.set(sectionKey, section);
+  }
   return [...sections.values()].sort(bySourceOrder).map(finalizeSection);
 }
 
@@ -285,6 +319,7 @@ function buildSetting(seed: AppControlCatalogSettingSeed, sourceOrder: number): 
     sourceSection: AppControlSectionIdSchema.parse(sectionId),
     sourceGroup: AppControlGroupIdSchema.parse(groupId),
     sourceOrder,
+    sourceLine: 0,
     sourceText: uiQuestionText,
     originalSourceText: uiQuestionText,
     question: uiQuestionText,
@@ -312,21 +347,73 @@ function buildSetting(seed: AppControlCatalogSettingSeed, sourceOrder: number): 
   };
 }
 
-function getSectionDraft(
+function buildGuideSettings(
+  seeds: readonly AppControlGuideCatalogSettingSeed[],
+  sourceOrderOffset: number
+): AppControlCatalogSetting[] {
+  return seeds.map((seed) => buildGuideSetting(seed, sourceOrderOffset + seed[7]));
+}
+
+function buildGuideSetting(seed: AppControlGuideCatalogSettingSeed, sourceOrder: number): AppControlCatalogSetting {
+  const [sectionId, sectionTitle, , groupId, groupTitle, , settingId, , sourceLine, sourceText] = seed;
+  const controlKind = guideControlKindFor(sectionTitle, groupTitle, sourceText);
+  const optionSeeds = guideOptionsFor(sourceText);
+  const effectStatus = guideEffectStatusFor(sectionTitle, groupTitle, sourceText);
+  const runtimeOwner = guideRuntimeOwnerFor(sectionTitle, groupTitle, sourceText);
+  const optionsForSetting = optionsFromGuideSeeds(settingId, optionSeeds);
+  return {
+    sidePanelCategory: 'apps',
+    policyLane: AppControlUiTabSchema.parse(guidePolicyLaneFor(sectionTitle, groupTitle, sourceText)),
+    sectionId: AppControlSectionIdSchema.parse(sectionId),
+    groupId: AppControlGroupIdSchema.parse(groupId),
+    settingId: AppControlSettingIdSchema.parse(settingId),
+    sourceDocument: 'docs/app-control-capability-guide.md',
+    sourceHeadingPath: [sectionTitle, groupTitle],
+    sourceSection: AppControlSectionIdSchema.parse(sectionId),
+    sourceGroup: AppControlGroupIdSchema.parse(groupId),
+    sourceOrder,
+    sourceLine,
+    sourceText,
+    originalSourceText: sourceText,
+    question: questionFromGuideText(sourceText),
+    uiQuestionText: questionFromGuideText(sourceText),
+    helperText: guideHelperTextFor(sectionTitle, groupTitle, sourceText),
+    displayOrder: sourceOrder,
+    controlKind: AppControlKindSchema.parse(controlKind),
+    cardKind: AppControlCardKindSchema.parse(cardKindFor(controlKind, optionsForSetting)),
+    layoutHints: layoutHintsFor(controlKind, optionsForSetting),
+    options: optionsForSetting,
+    acceptedOptions: optionsForSetting,
+    targetScopeOptions: AppControlTargetScopeSeeds.map((scope) => AppControlTargetScopeSchema.parse(scope)),
+    effectModeOptions: AppControlEffectModeSeeds.map((mode) => AppControlEffectModeSchema.parse(mode)),
+    writesTo: AppControlWritesToPathSchema.parse(`/appPolicy/catalogGuide/${settingId}`),
+    effectKey: AppControlSettingIdSchema.parse(settingId),
+    effectStatus: AppControlEffectStatusSchema.parse(effectStatus),
+    runtimeOwner: AppControlRuntimeOwnerSchema.parse(runtimeOwner),
+    capabilityState: guideCapabilityStateFor(effectStatus),
+    capabilityRequirement: guideCapabilityRequirementFor(sectionTitle, groupTitle, sourceText),
+    proofRequirement: guideProofRequirementFor(sectionTitle, groupTitle, sourceText),
+    visibilityConditions: visibilityConditionsFor(settingId),
+    enabledConditions: enabledConditionsFor(settingId, effectStatus, runtimeOwner),
+    validationRules: validationRulesFor(settingId, controlKind),
+    unsafeOrUnsupportedFallback: guideFallbackFor(effectStatus, sectionTitle, groupTitle, sourceText),
+  };
+}
+
+function getSectionDraftFromSetting(
   sections: Map<string, SectionDraft>,
-  seed: AppControlCatalogSettingSeed,
-  sourceOrder: number
+  setting: AppControlCatalogSetting
 ): SectionDraft {
-  const [sectionId, title, policyLane] = seed;
+  const sectionId = String(setting.sectionId);
   const existing = sections.get(sectionId);
   if (existing !== undefined) {
     return existing;
   }
   return {
-    sectionId: AppControlSectionIdSchema.parse(sectionId),
-    title,
-    sourceOrder,
-    policyLane: AppControlUiTabSchema.parse(policyLane),
+    sectionId: setting.sectionId,
+    title: setting.sourceHeadingPath[0] ?? String(setting.sectionId),
+    sourceOrder: setting.sourceOrder,
+    policyLane: setting.policyLane,
     groups: new Map(),
   };
 }
@@ -363,6 +450,232 @@ function finalizeGroup(group: GroupDraft): AppControlCatalogGroup {
   };
 }
 
+function guidePolicyLaneFor(sectionTitle: string, groupTitle: string, sourceText: string) {
+  const searchable = `${sectionTitle} ${groupTitle} ${sourceText}`;
+  if (/^Capability matrix row \|/u.test(sourceText)) {
+    return 'evidence';
+  }
+  if (/time|duration|budget|schedule|timer|foreground today|grace/iu.test(searchable)) {
+    return 'schedule';
+  }
+  if (/approval|ask parent|approve|deny|extend|unanswered/iu.test(searchable)) {
+    return 'approvals';
+  }
+  if (/audit|retention|custody|report|redact|storage|journal|visible|summary/iu.test(searchable)) {
+    return /report|summary|visible|parent sees/iu.test(searchable) ? 'reports' : 'audit';
+  }
+  if (
+    /install|uninstall|setup|mdm|managed-device|device owner|entitlement|supervised|custody model/iu.test(searchable)
+  ) {
+    return 'setup';
+  }
+  if (/enforce|block|shield|suspend|hide|terminate|strict action|adapter result|rollback|launch/iu.test(searchable)) {
+    return 'enforcement';
+  }
+  if (
+    /evidence|inventory|process|window|foreground|package|identity|category|session|running|unknown|proof/iu.test(
+      searchable
+    )
+  ) {
+    return 'evidence';
+  }
+  return 'rules';
+}
+
+function guideControlKindFor(sectionTitle: string, groupTitle: string, sourceText: string): AppControlKind {
+  const searchable = `${sectionTitle} ${groupTitle} ${sourceText}`.toLowerCase();
+  if (/^Capability matrix row \|/u.test(sourceText)) {
+    return 'read-only-status';
+  }
+  if (/minutes|seconds|hours|days|duration|budget|timer/u.test(searchable)) {
+    return 'number';
+  }
+  if (/audit|retention|custody|delete|redact/u.test(searchable)) {
+    return 'retention';
+  }
+  if (/actions|terminate|block|shield|suspend|hide|install|uninstall|launch/u.test(searchable)) {
+    return 'action-list';
+  }
+  if (/targets|identity|category|package|bundle|process|window|unknown app/u.test(searchable)) {
+    return 'multi-choice';
+  }
+  return guideOptionsFor(sourceText).length > 0 ? 'single-choice' : 'toggle';
+}
+
+function guideOptionsFor(sourceText: string): readonly AppControlCatalogOptionSeed[] {
+  const matrixOptions = matrixOptionSeedsFromSourceText(sourceText);
+  if (matrixOptions.length > 0) {
+    return matrixOptions;
+  }
+  const colonIndex = sourceText.indexOf(':');
+  if (colonIndex === -1) {
+    return [];
+  }
+  return sourceText
+    .slice(colonIndex + 1)
+    .replace(/\.$/u, '')
+    .split(/,|;|\bor\b/iu)
+    .map((part) => cleanOptionLabel(part))
+    .filter((part) => part.length > 0);
+}
+
+function matrixOptionSeedsFromSourceText(sourceText: string): readonly AppControlCatalogOptionSeed[] {
+  if (!/^Capability matrix row \|/u.test(sourceText)) {
+    return [];
+  }
+  return sourceText
+    .split(' | ')
+    .slice(1)
+    .map((part) => {
+      const separatorIndex = part.indexOf('=');
+      const heading = separatorIndex === -1 ? 'Cell' : part.slice(0, separatorIndex);
+      const value = separatorIndex === -1 ? part : part.slice(separatorIndex + 1);
+      return {
+        value: `matrix-${slugToken(heading)}`,
+        label: `${heading}: ${value}`,
+        meaning: `Capability matrix answer for ${heading}.`,
+      };
+    });
+}
+
+function guideEffectStatusFor(sectionTitle: string, groupTitle: string, sourceText: string) {
+  const searchable = `${sectionTitle} ${groupTitle} ${sourceText}`;
+  if (/manual|required setup|mdm|device-owner|supervised|entitlement|custody model|AppLocker|WDAC/iu.test(searchable)) {
+    return 'manual-required';
+  }
+  if (/permission|visibility-limited|privacy|protected|unreadable|uncontrollable/iu.test(searchable)) {
+    return /limited|partial|varies/iu.test(searchable) ? 'permission-limited' : 'permission-required';
+  }
+  if (
+    /proof|unknown|confidence|must not|does not prove|cannot prove|without proof|source\/confidence/iu.test(searchable)
+  ) {
+    return 'proof-required';
+  }
+  if (/future|later|not yet|planned|missing|gap/iu.test(sourceText)) {
+    return 'future-gap';
+  }
+  if (/unsupported|unavailable|stale|degraded|fallback|adapter-error|varies|partial|miss/iu.test(searchable)) {
+    return 'degraded';
+  }
+  if (/audit|retention|report|redact|local-first|parent-owned|never collect|show/iu.test(searchable)) {
+    return 'already-represented';
+  }
+  return 'needs-effect-wiring';
+}
+
+function guideRuntimeOwnerFor(sectionTitle: string, groupTitle: string, sourceText: string) {
+  const searchable = `${sectionTitle} ${groupTitle} ${sourceText}`;
+  if (/audit|retention|custody|report|redact|local-first|parent-owned|journal|storage/iu.test(searchable)) {
+    return 'parent-owned-storage';
+  }
+  if (
+    /manual|mdm|device-owner|supervised|entitlement|AppLocker|WDAC|platform management|permission/iu.test(searchable)
+  ) {
+    return 'os-adapter';
+  }
+  if (/policy|decision|rule|fallback|compile|deterministic/iu.test(searchable)) {
+    return 'parent-domain';
+  }
+  return 'child-agent';
+}
+
+function guideCapabilityStateFor(effectStatus: string): AppControlCapabilityState {
+  if (effectStatus === 'manual-required') {
+    return 'manual-required';
+  }
+  if (effectStatus === 'permission-required') {
+    return 'permission-required';
+  }
+  if (effectStatus === 'permission-limited') {
+    return 'permission-limited';
+  }
+  if (effectStatus === 'future-gap') {
+    return 'future-gap';
+  }
+  if (effectStatus === 'degraded') {
+    return 'degraded';
+  }
+  if (effectStatus === 'proof-required') {
+    return 'protected';
+  }
+  return 'available';
+}
+
+function guideCapabilityRequirementFor(sectionTitle: string, groupTitle: string, sourceText: string): string {
+  const searchable = `${sectionTitle} ${groupTitle} ${sourceText}`;
+  if (/unknown/iu.test(searchable)) {
+    return 'unknown-app-state-must-remain-explicit';
+  }
+  if (
+    /block|shield|suspend|hide|terminate|install|uninstall|AppLocker|WDAC|MDM|device-owner|entitlement/iu.test(
+      searchable
+    )
+  ) {
+    return 'platform-adapter-proof-required-before-product-claim';
+  }
+  if (/inventory|package|bundle|identity|process|window|foreground|duration|session/iu.test(searchable)) {
+    return 'typed-local-app-evidence-required';
+  }
+  if (/audit|retention|report|redact|custody/iu.test(searchable)) {
+    return 'parent-owned-local-storage-and-redaction';
+  }
+  return 'app-control-capability-registry';
+}
+
+function guideProofRequirementFor(sectionTitle: string, groupTitle: string, sourceText: string): string | null {
+  const searchable = `${sectionTitle} ${groupTitle} ${sourceText}`;
+  if (
+    /broad app blocking|block launch|AppLocker|WDAC|shield|suspend|hide|install|uninstall|MDM|device-owner|entitlement/iu.test(
+      searchable
+    )
+  ) {
+    return 'strict app control requires real platform adapter or managed-device proof.';
+  }
+  if (/unknown|confidence|identity|category|proof|evidence|foreground|duration|process|window/iu.test(searchable)) {
+    return 'app claims require fresh evidence references with confidence and custody.';
+  }
+  return null;
+}
+
+function guideFallbackFor(effectStatus: string, sectionTitle: string, groupTitle: string, sourceText: string): string {
+  if (/unknown/iu.test(`${sectionTitle} ${groupTitle} ${sourceText}`)) {
+    return 'Keep unknown apps labeled unknown; do not promote to known, risky, game, or blocked without proof.';
+  }
+  if (effectStatus === 'manual-required') {
+    return 'Disable strict action or show manual-required until platform setup and adapter proof exist.';
+  }
+  if (effectStatus === 'permission-required' || effectStatus === 'permission-limited') {
+    return 'Show permission-limited state and compile observe, warn, or ask fallback instead of hidden enforcement.';
+  }
+  if (effectStatus === 'degraded') {
+    return 'Render degraded capability and keep unsupported behavior out of compiled enforcement plans.';
+  }
+  if (effectStatus === 'proof-required') {
+    return 'Require evidence proof before strict effect; otherwise fall back to observe, warn, ask, or unavailable.';
+  }
+  if (effectStatus === 'future-gap') {
+    return 'Expose as future or planning-only; do not claim current runtime behavior.';
+  }
+  return 'Portal renders the control; child-agent/runtime ownership remains explicit.';
+}
+
+function guideHelperTextFor(sectionTitle: string, groupTitle: string, sourceText: string): string {
+  const proof = guideProofRequirementFor(sectionTitle, groupTitle, sourceText);
+  return proof ?? guideCapabilityRequirementFor(sectionTitle, groupTitle, sourceText);
+}
+
+function questionFromGuideText(sourceText: string): string {
+  const trimmed = sourceText.replace(/\.$/u, '');
+  if (trimmed.endsWith('?')) {
+    return trimmed;
+  }
+  const colonIndex = trimmed.indexOf(':');
+  if (colonIndex !== -1) {
+    return `Configure ${trimmed.slice(0, colonIndex).toLowerCase()}.`;
+  }
+  return `Represent ${trimmed.charAt(0).toLowerCase()}${trimmed.slice(1)}?`;
+}
+
 function optionsFromSeeds(
   settingId: string,
   controlKind: string,
@@ -384,6 +697,27 @@ function optionsFromSeeds(
     ];
   }
   return optionSeeds.map((optionSeed) => optionFromSeed(settingId, optionSeed, defaultValue));
+}
+
+function optionsFromGuideSeeds(
+  settingId: string,
+  optionSeeds: readonly AppControlCatalogOptionSeed[]
+): AppControlCatalogOption[] {
+  if (optionSeeds.length > 0) {
+    return optionSeeds.map((optionSeed) => optionFromSeed(settingId, optionSeed, null));
+  }
+  return [
+    optionFromSeed(
+      settingId,
+      { value: 'represented', label: 'Represented', meaning: 'This guide control is represented in the catalog.' },
+      null
+    ),
+    optionFromSeed(
+      settingId,
+      { value: 'not-represented', label: 'Not represented', meaning: 'This guide control is not selected.' },
+      null
+    ),
+  ];
 }
 
 function optionFromSeed(
@@ -517,6 +851,18 @@ function titleFromToken(value: string): string {
     .split('-')
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(' ');
+}
+
+function slugToken(value: string): string {
+  const slugged = value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/gu, '-')
+    .replace(/^-+|-+$/gu, '');
+  return slugged.length > 0 ? slugged : 'item';
+}
+
+function cleanOptionLabel(value: string): string {
+  return titleFromToken(value.trim().replace(/\.$/u, '').replace(/\s+/gu, '-'));
 }
 
 function bySourceOrder<T extends { readonly sourceOrder: number }>(left: T, right: T): number {

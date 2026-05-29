@@ -157,6 +157,7 @@ export const AppControlCatalogSettingSchema = withParser(
     sourceSection: AppControlSectionIdSchema,
     sourceGroup: AppControlGroupIdSchema,
     sourceOrder: Schema.Number,
+    sourceLine: Schema.Number,
     sourceText: AppControlCatalogTextSchema,
     originalSourceText: AppControlCatalogTextSchema,
     question: AppControlCatalogTextSchema,

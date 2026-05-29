@@ -5,6 +5,9 @@ import { describe, expect, it } from 'vitest';
 import {
   AppControlCapabilities,
   BaselineAppControlAuthoringCatalog,
+  BaselineAppControlFullCatalog,
+  AppControlFullCatalogSettingCount,
+  AppControlGuideSettingCount,
   appControlCatalogAcceptedOptionCount,
   appControlCatalogCanRender,
   appControlCatalogGroupCount,
@@ -12,6 +15,7 @@ import {
   appControlCatalogSettingCount,
   appControlCatalogSettings,
   appControlCatalogSourceOptionCount,
+  appControlFullCatalogSettings,
   buildAppControlEffectivePolicyPlan,
   decodeAppControlEffectivePolicy,
   decodeAppControlPolicyValueForCatalog,
@@ -55,16 +59,36 @@ interface SourceCapability {
   readonly affectsSettings: readonly string[];
 }
 
+interface SourceGuideSetting {
+  readonly sectionTitle: string;
+  readonly groupTitle: string;
+  readonly sourceLine: number;
+  readonly sourceText: string;
+}
+
+interface SourceGuideSettingParse {
+  readonly setting: SourceGuideSetting;
+  readonly nextIndex: number;
+}
+
 const SourceProposal = readSourceProposal();
 const SourceSections = SourceProposal.authoringManifest.sections;
 const SourceFields = SourceSections.flatMap((section) => section.fields);
+const SourceGuideSettings = readSourceGuideSettings();
 const CatalogSettings = appControlCatalogSettings()
   .slice()
   .sort((left, right) => left.sourceOrder - right.sourceOrder);
+const FullCatalogSettings = appControlFullCatalogSettings()
+  .slice()
+  .sort((left, right) => left.sourceOrder - right.sourceOrder);
+const FullGuideSettings = FullCatalogSettings.filter(
+  (setting) => setting.sourceDocument === 'docs/app-control-capability-guide.md'
+).sort((left, right) => left.sourceLine - right.sourceLine);
 
 describe('app-control policy catalog contracts', () => {
   registerSourceCaptureCases();
   registerHierarchyCases();
+  registerFullGuideCatalogCases();
   registerRenderMetadataCases();
   registerCapabilityTruthCases();
   registerPolicyContractCases();
@@ -137,6 +161,50 @@ function registerHierarchyCases() {
       'strict-actions',
     ]);
     expect(appControlCatalogCanRender()).toBe(true);
+  });
+}
+
+function registerFullGuideCatalogCases() {
+  it('captures the Apps capability-guide bullets as a D-style full catalog', () => {
+    expect(SourceGuideSettings.length).toBe(317);
+    expect(AppControlGuideSettingCount).toBe(317);
+    expect(AppControlFullCatalogSettingCount).toBe(346);
+    expect(BaselineAppControlFullCatalog.settingCount).toBe(346);
+    expect(appControlCatalogCanRender(BaselineAppControlFullCatalog)).toBe(true);
+    expect(FullGuideSettings.map((setting) => setting.sourceText)).toEqual(
+      SourceGuideSettings.map((setting) => setting.sourceText)
+    );
+    expect(FullGuideSettings.map((setting) => setting.sourceLine)).toEqual(
+      SourceGuideSettings.map((setting) => setting.sourceLine)
+    );
+    expect(new Set(FullCatalogSettings.map((setting) => String(setting.settingId))).size).toBe(346);
+    expect(BaselineAppControlFullCatalog.sections.length).toBe(21);
+    expect(BaselineAppControlFullCatalog.sections.reduce((count, section) => count + section.groups.length, 0)).toBe(
+      49
+    );
+  });
+
+  it('keeps guide truth boundaries visible across the full catalog', () => {
+    const capabilityMatrix = fullGuideSettingByText('Capability matrix row | Capability=Installed app inventory');
+    const broadBlocking = fullGuideSettingByText('broad app blocking remains manual-required');
+    const unknownApps = fullGuideSettingByText('Show unknown apps as unknown');
+    const portalBoundary = fullGuideSettingByText('Parent portal is an authoring and visibility surface');
+
+    expect(capabilityMatrix.controlKind).toBe('read-only-status');
+    expect(capabilityMatrix.cardKind).toBe('status-card');
+    expect(capabilityMatrix.acceptedOptions.map((option) => option.label)).toContain('Windows: Yes, partial by source');
+    expect(capabilityMatrix.acceptedOptions.map((option) => option.label)).toContain(
+      'Important limit: Inventory is not proof of current use.'
+    );
+    expect(broadBlocking.effectStatus).toBe('manual-required');
+    expect(broadBlocking.capabilityState).toBe('manual-required');
+    expect(broadBlocking.proofRequirement).toBe(
+      'strict app control requires real platform adapter or managed-device proof.'
+    );
+    expect(unknownApps.effectStatus).toBe('proof-required');
+    expect(unknownApps.unsafeOrUnsupportedFallback).toContain('Keep unknown apps labeled unknown');
+    expect(portalBoundary.runtimeOwner).toBe('parent-domain');
+    expect(portalBoundary.unsafeOrUnsupportedFallback).toContain('Portal renders');
   });
 }
 
@@ -345,6 +413,130 @@ function readSourceProposal(): SourceProposal {
   return JSON.parse(jsonBlock[1] ?? '{}') as SourceProposal;
 }
 
+function readSourceGuideSettings(): SourceGuideSetting[] {
+  const lines = readFileSync(join(process.cwd(), '..', '..', 'docs', 'app-control-capability-guide.md'), 'utf8').split(
+    /\r?\n/u
+  );
+  const excludedSections = new Set(['Source References']);
+  const settings: SourceGuideSetting[] = [];
+  let sectionTitle = '';
+  let groupTitle = '';
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index] ?? '';
+    const parsedSectionTitle = sectionTitleFromLine(line);
+    const parsedGroupTitle = groupTitleFromLine(line);
+    const parsedTableSetting = guideTableSettingFromLine(line, index, sectionTitle, groupTitle, excludedSections);
+    const parsedSetting = guideSettingFromLine(lines, index, sectionTitle, groupTitle, excludedSections);
+    if (parsedSectionTitle !== null) {
+      sectionTitle = parsedSectionTitle;
+      groupTitle = sectionTitle;
+    } else if (parsedGroupTitle !== null) {
+      groupTitle = parsedGroupTitle;
+    } else if (parsedTableSetting !== null) {
+      settings.push(parsedTableSetting.setting);
+    } else if (parsedSetting !== null) {
+      settings.push(parsedSetting.setting);
+      index = parsedSetting.nextIndex;
+    }
+  }
+  return settings;
+}
+
+function sectionTitleFromLine(line: string) {
+  return /^## (.+)$/u.exec(line)?.[1] ?? null;
+}
+
+function groupTitleFromLine(line: string) {
+  return /^### (.+)$/u.exec(line)?.[1] ?? null;
+}
+
+function guideTableSettingFromLine(
+  line: string,
+  index: number,
+  sectionTitle: string,
+  groupTitle: string,
+  excludedSections: ReadonlySet<string>
+): SourceGuideSettingParse | null {
+  if (excludedSections.has(sectionTitle) || sectionTitle !== 'Capability Matrix') {
+    return null;
+  }
+  const cells = tableCellsFromLine(line);
+  if (cells === null || cells[0] === 'Capability') {
+    return null;
+  }
+  return {
+    setting: { sectionTitle, groupTitle, sourceLine: index + 1, sourceText: capabilityMatrixSourceText(cells) },
+    nextIndex: index,
+  };
+}
+
+function guideSettingFromLine(
+  lines: readonly string[],
+  index: number,
+  sectionTitle: string,
+  groupTitle: string,
+  excludedSections: ReadonlySet<string>
+): SourceGuideSettingParse | null {
+  const settingMatch = /^- (.+)$/u.exec(lines[index] ?? '');
+  if (settingMatch === null || excludedSections.has(sectionTitle)) {
+    return null;
+  }
+  const sourceLine = index + 1;
+  let sourceText = settingMatch[1] ?? '';
+  let cursor = index + 1;
+  while (cursor < lines.length) {
+    const continuation = continuationLine(lines[cursor] ?? '');
+    if (continuation === null) {
+      break;
+    }
+    sourceText = `${sourceText} ${continuation}`;
+    cursor += 1;
+  }
+  return {
+    setting: { sectionTitle, groupTitle, sourceLine, sourceText },
+    nextIndex: cursor - 1,
+  };
+}
+
+function tableCellsFromLine(line: string) {
+  if (!/^\|.*\|\s*$/u.test(line)) {
+    return null;
+  }
+  const cells = line
+    .trim()
+    .slice(1, -1)
+    .split('|')
+    .map((cell) => cell.trim());
+  if (cells.length < 2 || cells.every((cell) => /^-+$/u.test(cell.replace(/\s+/gu, '')))) {
+    return null;
+  }
+  return cells;
+}
+
+function capabilityMatrixSourceText(cells: readonly string[]) {
+  const headings = [
+    'Capability',
+    'Windows',
+    'macOS',
+    'Linux',
+    'Android',
+    'iOS/iPadOS',
+    'Required proof',
+    'Important limit',
+  ];
+  return `Capability matrix row | ${cells
+    .map((cell, index) => `${headings[index] ?? `Column ${index + 1}`}=${cell}`)
+    .join(' | ')}`;
+}
+
+function continuationLine(line: string) {
+  const match = /^\s{2,}(\S.*)$/u.exec(line);
+  if (match === null || /^\s*-\s/u.test(line)) {
+    return null;
+  }
+  return match[1]?.trim() ?? null;
+}
+
 function sourceOptionCount() {
   return SourceFields.reduce((count, field) => count + (field.options?.length ?? 0), 0);
 }
@@ -376,6 +568,14 @@ function capabilityById(capabilityId: string) {
     throw new Error(`Missing capability ${capabilityId}`);
   }
   return capability;
+}
+
+function fullGuideSettingByText(sourceText: string) {
+  const setting = FullGuideSettings.find((candidate) => candidate.sourceText.includes(sourceText));
+  if (setting === undefined) {
+    throw new Error(`Missing full guide setting ${sourceText}`);
+  }
+  return setting;
 }
 
 function countSettingsBy(property: 'cardKind' | 'effectStatus' | 'capabilityState' | 'runtimeOwner') {
