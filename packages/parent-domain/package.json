@@ -117,6 +117,10 @@
       "import": "./dist/v0-9-mobile-controller-discovery-runtime.js",
       "types": "./dist/v0-9-mobile-controller-discovery-runtime.d.ts"
     },
+    "./v0-9-mobile-controller-observer-runtime": {
+      "import": "./dist/v0-9-mobile-controller-observer-runtime.js",
+      "types": "./dist/v0-9-mobile-controller-observer-runtime.d.ts"
+    },
     "./policy": {
       "import": "./dist/policy.js",
       "types": "./dist/policy.d.ts"
