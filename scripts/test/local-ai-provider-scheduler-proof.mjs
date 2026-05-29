@@ -1,5 +1,5 @@
 import { spawn } from 'node:child_process';
-import { mkdtemp, rm } from 'node:fs/promises';
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
@@ -24,8 +24,19 @@ const proofPort = ParentDevPort.WebSocketSmokeAgent;
 const healthUrl = createAgentHealthUrl(proofPort);
 const wsUrl = createAgentWebSocketUrl(proofPort);
 const devLogDir = await mkdtemp(join(tmpdir(), 'ocentra-parent-local-ai-scheduler-proof-'));
+const proofOutputDir = join(process.cwd(), 'test-results', 'local-ai-provider-scheduler-proof');
+const proofOutputPath = join(proofOutputDir, 'proof.json');
+const successfulCommands = [];
 
 await runPackageCommand(['run', 'build:contracts']);
+await runPackageCommand([
+  'run',
+  'test',
+  '--workspace',
+  '@ocentra-parent/parent-domain',
+  '--',
+  'local-ai-provider-scheduler.test.ts',
+]);
 await runCommand('cargo', ['build', '-p', 'ocentra-parent-agent-service']);
 await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-protocol', 'local_ai_provider_scheduler']);
 await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-service', 'local_ai_provider_scheduler']);
@@ -48,8 +59,9 @@ const serviceOutput = collectOutput(service);
 try {
   await waitForHttp(healthUrl);
   await runUnavailableLifecycleProof();
+  await writeSchedulerProof();
   console.log(
-    'local-ai-provider-scheduler-proof-ok: unavailable lifecycle, singleton scheduler, and priority queue tests passed'
+    `local-ai-provider-scheduler-proof-ok: unavailable lifecycle, singleton scheduler, and priority queue tests passed (${proofOutputPath})`
   );
 } finally {
   await stopProcessTreeAndWait(service);
@@ -163,6 +175,35 @@ function commandEnvelope(messageId, command, payload) {
   };
 }
 
+async function writeSchedulerProof() {
+  await mkdir(proofOutputDir, { recursive: true });
+  const proof = {
+    proofGeneratedAt: new Date().toISOString(),
+    proofTopic: 'local-ai-provider-runtime-scheduler',
+    commands: successfulCommands,
+    claimsProven: [
+      'one-ai-provider-role-per-physical-device',
+      'one-local-model-runtime-access-lane-per-device',
+      'child-safety-jobs-prioritized-above-parent-assistant-jobs',
+      'queued-degraded-unavailable-provider-states',
+      'no-duplicate-local-model-load-for-same-physical-device',
+      'parent-assistant-job-submission-to-local-provider-when-allowed',
+      'parent-and-child-roles-share-provider-runtime-on-one-physical-device',
+    ],
+    evidence: {
+      typescriptContractTest: '@ocentra-parent/parent-domain local-ai-provider-scheduler.test.ts',
+      rustProtocolParityTest: 'cargo test -p ocentra-parent-agent-protocol local_ai_provider_scheduler',
+      rustServiceSchedulerTest: 'cargo test -p ocentra-parent-agent-service local_ai_provider_scheduler',
+      liveUnavailableLifecycle: {
+        healthUrl,
+        webSocketUrl: wsUrl,
+        executionEnabled: false,
+      },
+    },
+  };
+  await writeFile(proofOutputPath, `${JSON.stringify(proof, null, 2)}\n`, 'utf8');
+}
+
 async function waitForHttp(url) {
   const startedAt = Date.now();
   while (Date.now() - startedAt < 30000) {
@@ -188,6 +229,7 @@ function runCommand(command, args) {
     child.on('error', reject);
     child.on('exit', (code) => {
       if (code === 0) {
+        successfulCommands.push(`${command} ${args.join(' ')}`);
         resolve();
         return;
       }

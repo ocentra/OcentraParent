@@ -221,6 +221,7 @@ impl LocalAiProviderSchedulerRuntime {
         } else {
             LocalAiProviderSchedulerLifecycle::Idle
         };
+        status.duplicate_runtime_blocked = status.queue.total() > 0;
         status.degraded_state = if status.queue.total() > 0 {
             LocalAiDegradedState::Overloaded
         } else {

@@ -77,6 +77,18 @@ const unavailableDecisionWithoutReason = {
   duplicateRuntimeBlocked: false,
 } as const;
 
+const queuedDecisionWithoutRuntimeLaneBlock = {
+  ...queuedDecision,
+  duplicateRuntimeBlocked: false,
+} as const;
+
+const runningDecisionWithoutRuntimeLaneBlock = {
+  ...queuedDecision,
+  jobStatus: 'running',
+  queuePosition: null,
+  duplicateRuntimeBlocked: false,
+} as const;
+
 describe('local AI provider scheduler contracts', () => {
   it('accepts idle singleton provider state for one physical device', () => {
     expect(LocalAiProviderSchedulerStatusSchema.parse(idleSchedulerStatus)).toEqual(idleSchedulerStatus);
@@ -113,6 +125,16 @@ describe('local AI provider scheduler contracts', () => {
 
   it('accepts queued decision with selected singleton runtime and queue position', () => {
     expect(LocalAiProviderSchedulerDecisionSchema.parse(queuedDecision)).toEqual(queuedDecision);
+  });
+
+  it('rejects queued decision that does not block duplicate runtime loading', () => {
+    expect(LocalAiProviderSchedulerDecisionSchema.safeParse(queuedDecisionWithoutRuntimeLaneBlock).success).toBe(false);
+  });
+
+  it('rejects running decision that does not prove singleton runtime ownership', () => {
+    expect(LocalAiProviderSchedulerDecisionSchema.safeParse(runningDecisionWithoutRuntimeLaneBlock).success).toBe(
+      false
+    );
   });
 
   it('rejects unavailable decision without a reason', () => {

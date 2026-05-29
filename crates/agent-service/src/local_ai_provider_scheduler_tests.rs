@@ -9,8 +9,8 @@ use std::{
 use ocentra_parent_agent_protocol::{
     constants, LocalAiChatGenerationResult, LocalAiGenerationState,
     LocalAiProviderSchedulerJobClass, LocalAiProviderSchedulerJobStatus,
-    LocalAiProviderSchedulerLifecycle, LocalAiProviderSchedulerStatus, LocalAiResourceClass,
-    LocalModelRuntimeStatus,
+    LocalAiProviderSchedulerLifecycle, LocalAiProviderSchedulerStatus,
+    LocalAiProviderSingletonScope, LocalAiResourceClass, LocalModelRuntimeStatus,
 };
 use tokio::sync::{Mutex as TokioMutex, Notify};
 
@@ -105,10 +105,7 @@ async fn parent_and_child_jobs_share_one_runtime_lane() {
         LocalAiGenerationState::Complete
     );
     assert_eq!(max_active_jobs.load(Ordering::SeqCst), 1);
-    assert_eq!(
-        scheduler.status_snapshot().lifecycle_state,
-        LocalAiProviderSchedulerLifecycle::Idle
-    );
+    assert_idle_singleton_scheduler_status(&scheduler);
 }
 
 #[tokio::test]
@@ -161,6 +158,21 @@ async fn child_safety_job_preempts_queued_parent_job_after_runtime_lane_frees() 
     })
     .await;
 
+    let queued_status = scheduler.status_snapshot();
+    assert_eq!(
+        queued_status.lifecycle_state,
+        LocalAiProviderSchedulerLifecycle::Queued
+    );
+    assert_eq!(
+        queued_status.current_job_class,
+        Some(LocalAiProviderSchedulerJobClass::ParentReport)
+    );
+    assert!(queued_status.duplicate_runtime_blocked);
+    assert_eq!(
+        queued_status.runtime_reference_id,
+        constants::local_ai_runtime::RUNTIME_REFERENCE_LOCAL_LLAMA_CLI
+    );
+
     release_holder.notify_one();
 
     let (holder_result, parent_result, child_result) = tokio::join!(holder, parent, child);
@@ -210,6 +222,27 @@ async fn assert_observed_job_order(
             LocalAiProviderSchedulerJobClass::ParentAssistant,
         ]
     );
+}
+
+fn assert_idle_singleton_scheduler_status(scheduler: &LocalAiProviderSchedulerRuntime) {
+    let status = scheduler.status_snapshot();
+    assert_eq!(
+        status.lifecycle_state,
+        LocalAiProviderSchedulerLifecycle::Idle
+    );
+    assert_eq!(
+        status.singleton_scope,
+        LocalAiProviderSingletonScope::PhysicalDevice
+    );
+    assert_eq!(
+        status.physical_device_id,
+        constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL
+    );
+    assert_eq!(
+        status.runtime_reference_id,
+        constants::local_ai_runtime::RUNTIME_REFERENCE_LOCAL_LLAMA_CLI
+    );
+    assert!(!status.duplicate_runtime_blocked);
 }
 
 fn spawn_observed_job(
