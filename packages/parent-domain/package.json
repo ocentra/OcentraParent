@@ -41,6 +41,10 @@
       "import": "./dist/enforcement.js",
       "types": "./dist/enforcement.d.ts"
     },
+    "./enforcement-readiness": {
+      "import": "./dist/enforcement-readiness.js",
+      "types": "./dist/enforcement-readiness.d.ts"
+    },
     "./game-control-catalog": {
       "import": "./dist/game-control-catalog.js",
       "types": "./dist/game-control-catalog.d.ts"

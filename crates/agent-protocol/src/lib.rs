@@ -22,6 +22,7 @@ mod browser_unmanaged_enforcement;
 mod browser_values;
 pub mod constants;
 mod enforcement;
+mod enforcement_readiness;
 mod journal;
 mod lan_pairing;
 mod lan_pairing_authority;
@@ -52,6 +53,7 @@ pub use browser_policy_values::*;
 pub use browser_read_model::*;
 pub use browser_unmanaged_enforcement::*;
 pub use enforcement::*;
+pub use enforcement_readiness::*;
 pub use journal::*;
 pub use lan_pairing::*;
 pub use lan_pairing_authority::*;
@@ -105,6 +107,8 @@ mod browser_read_model_tests;
 mod enforcement_audit_boundary_tests;
 #[cfg(test)]
 mod enforcement_permission_dependency_tests;
+#[cfg(test)]
+mod enforcement_readiness_tests;
 #[cfg(test)]
 mod enforcement_tests;
 #[cfg(test)]

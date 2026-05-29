@@ -35,6 +35,7 @@ mod browser_managed_session;
 mod enforcement_adapter;
 mod enforcement_app_time_limit;
 mod enforcement_boundary;
+mod enforcement_readiness;
 mod enforcement_timer_state;
 mod journal;
 mod journal_crypto;
@@ -90,6 +91,7 @@ pub use enforcement_boundary::{
     EnforcementAuthorizationOutcome, EnforcementBoundaryInput, EnforcementBoundaryOutcome,
     EnforcementBoundaryRejection,
 };
+pub use enforcement_readiness::broad_os_adapter_readiness;
 pub use enforcement_timer_state::{
     active_timer_state_from_outcome, cancelled_timer_outcome, expired_timer_outcome,
     restart_recovered_timer_outcome, EnforcementTimerTransitionIds,
@@ -151,6 +153,8 @@ mod enforcement_approval_audit_tests;
 mod enforcement_audit_boundary_tests;
 #[cfg(test)]
 mod enforcement_permission_dependency_tests;
+#[cfg(test)]
+mod enforcement_readiness_tests;
 #[cfg(test)]
 mod enforcement_tests;
 #[cfg(test)]
