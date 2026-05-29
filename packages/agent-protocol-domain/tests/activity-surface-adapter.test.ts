@@ -156,6 +156,7 @@ describe('activity surface adapter event parsing', () => {
 
     expect(command.command).toBe('agent.activity.report.history.list');
     expect(parsed.ok).toBe(true);
+    expect(parsed.ok ? parsed.value.storageState : null).toBe('saved');
     expect(parsed.ok ? parsed.value.reports[0]?.savedState : null).toBe('saved');
   });
 
@@ -229,6 +230,8 @@ function historicalReportList() {
     schemaVersion: ActivitySurfaceSchemaVersion,
     request: Request,
     state: 'ready',
+    storageState: 'saved',
+    storageReason: null,
     reports: [
       {
         schemaVersion: ActivitySurfaceSchemaVersion,

@@ -30,6 +30,9 @@ pub const ACTIVITY_REPORT_SUMMARY_ID_LABEL: &str = "report=";
 pub const ACTIVITY_REPORT_SUMMARY_STATE_LABEL: &str = ", savedState=";
 pub const ACTIVITY_REPORT_SUMMARY_SECTIONS_LABEL: &str = ", sections=";
 pub const ACTIVITY_REPORT_SUMMARY_SOURCE_LABEL: &str = ", sources=";
+pub const ACTIVITY_REPORT_SUMMARY_READY_SECTIONS_LABEL: &str = ", readySections=";
+pub const ACTIVITY_REPORT_SUMMARY_OFFLINE_SOURCES_LABEL: &str = ", offlineSources=";
+pub const ACTIVITY_REPORT_SUMMARY_UNAVAILABLE_SOURCES_LABEL: &str = ", unavailableSources=";
 pub const PROMPT_SYSTEM: &str =
     "Answer as a parent-facing assistant. Cite the provided evidence. Do not enforce directly.";
 pub const PROMPT_QUESTION_LABEL: &str = "Question:";

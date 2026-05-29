@@ -140,6 +140,8 @@ export const ActivityHistoricalReportListSchema = withParser(
     schemaVersion: Schema.Literal(ActivitySurfaceSchemaVersion),
     request: ActivitySurfaceRequestSchema,
     state: ActivityReadModelStateSchema,
+    storageState: ActivitySavedReportStateSchema,
+    storageReason: Schema.Union(ActivityReportSummarySchema, Schema.Null),
     reports: Schema.Array(ActivityHistoricalReportListItemSchema),
   })
 );

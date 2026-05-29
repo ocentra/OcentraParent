@@ -49,6 +49,8 @@ fn activity_history_list_carries_saved_report_metadata_and_parsed_document() {
         schema_version: ACTIVITY_SURFACE_SCHEMA_VERSION,
         request: sample_surface_request(),
         state: ActivityReadModelState::Ready,
+        storage_state: ActivitySavedReportState::Saved,
+        storage_reason: None,
         reports: vec![super::ActivityHistoricalReportListItem {
             schema_version: ACTIVITY_SURFACE_SCHEMA_VERSION,
             report_id: "activity-report-daily-1".to_string(),
@@ -65,6 +67,7 @@ fn activity_history_list_carries_saved_report_metadata_and_parsed_document() {
     let serialized = serde_json::to_value(&list).expect("history serializes");
 
     assert_eq!(serialized["reports"][0]["savedState"], "saved");
+    assert_eq!(serialized["storageState"], "saved");
     assert_eq!(
         serialized["reports"][0]["parsedReport"]["frequency"],
         "daily"
