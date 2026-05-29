@@ -77,6 +77,10 @@
       "import": "./dist/lan-pairing.js",
       "types": "./dist/lan-pairing.d.ts"
     },
+    "./network-control-catalog": {
+      "import": "./dist/network-control-catalog.js",
+      "types": "./dist/network-control-catalog.d.ts"
+    },
     "./package-info": {
       "import": "./dist/package-info.js",
       "types": "./dist/package-info.d.ts"
