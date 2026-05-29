@@ -45,6 +45,10 @@
       "import": "./dist/enforcement-host-adapter-preflight.js",
       "types": "./dist/enforcement-host-adapter-preflight.d.ts"
     },
+    "./enforcement-process-package-identity": {
+      "import": "./dist/enforcement-process-package-identity.js",
+      "types": "./dist/enforcement-process-package-identity.d.ts"
+    },
     "./enforcement-readiness": {
       "import": "./dist/enforcement-readiness.js",
       "types": "./dist/enforcement-readiness.d.ts"

@@ -20,6 +20,7 @@
     "v0-8-enforcement-adapter-product-proof-continuation",
     "v0-8-broad-os-adapter-proof-readiness",
     "v0-8-host-adapter-proof-preflight",
+    "v0-8-process-package-identity-proof-bridge",
     "v0-9-household-lan-proof-readiness",
     "v0-9-household-lan-production-discovery-proof",
     "platform-lan-enforcement-production-proof",
@@ -418,6 +419,41 @@
         "A preflight row presented as real OS enforcement.",
         "A missing-artifact checklist presented as completed manual proof.",
         "Process/window/network evidence presented as exact browser URL, tab, title, download source, page content, HTTPS content, or user intent."
+      ]
+    },
+    {
+      "id": "v0-8-process-package-identity-proof-bridge",
+      "title": "V0.8 Process Package Identity Proof Bridge",
+      "claimIds": ["v0-8-process-package-identity-proof-bridge"],
+      "expectationFiles": [
+        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "proofMode": "ci-mechanical-proof",
+      "realEvidencePath": [
+        "Build contracts from the current commit.",
+        "Run the parent-domain process/package identity bridge contract test.",
+        "Verify installed app inventory, process lineage, executable identity, package identity, publisher/signature, inventory/process matching, unsupported identity, rollback readiness, and audit custody requirements are captured.",
+        "Verify every bridge row links to the host-adapter process-package preflight gate.",
+        "Emit a proof artifact that keeps broad app blocking manual-required or not-claimed without real Windows host identity, apply, rollback, and audit artifacts."
+      ],
+      "ciCommands": ["node scripts/test/v0-8-process-package-identity-proof-bridge.mjs"],
+      "requiredArtifacts": [
+        "test-results/v0-8-process-package-identity-proof-bridge/proof.json",
+        "packages/parent-domain/src/enforcement-process-package-identity.ts",
+        "packages/parent-domain/tests/enforcement-process-package-identity.test.ts",
+        "docs/checkpoints/v0-8-process-package-identity-proof-bridge-2026-05-29.md"
+      ],
+      "knownGaps": [
+        "This bridge is contract and CI-mechanical proof only, not product-ready broad app blocking.",
+        "Installed inventory, process lineage, package identity, publisher/signature, apply, rollback, and audit custody still require real Windows host artifacts before claims upgrade.",
+        "Local focused proof does not run visible browser, managed-browser intervention, portal Playwright, full validate, package validation, Android device-owner proof, or iOS entitlement proof."
+      ],
+      "notProof": [
+        "A contract bridge row presented as completed host identity proof.",
+        "A process name, display label, or launcher row presented as package identity.",
+        "A rollback-readiness checklist presented as completed rollback enforcement."
       ]
     },
     {
@@ -1423,6 +1459,70 @@
         "Run managed browser exact URL proof inside the managed browser boundary before upgrading managed-browser exact URL claims.",
         "Run explicit browser integration proof before representing unmanaged browser exact URL, active tab, title, download, page, HTTPS content, or intent.",
         "Run admin hardening, anti-tamper, rollback, and bypass-resistance proof before upgrading hardening claims."
+      ]
+    },
+    {
+      "id": "v0-8-process-package-identity-proof-bridge",
+      "roadmapSlice": "V0.8 process package identity proof bridge",
+      "expectationFiles": [
+        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "claim": "V0.8 process package identity proof bridge has typed parent-domain and proof-harness coverage for installed app inventory, process lineage, executable identity, package identity, publisher/signature state, unsupported identity fallback, rollback readiness non-claims, and audit custody requirements before broad app blocking can upgrade.",
+      "privilegedCapability": true,
+      "ciProof": {
+        "commands": ["node scripts/test/v0-8-process-package-identity-proof-bridge.mjs"],
+        "jobs": ["Worker B V0.8 process package identity proof bridge"]
+      },
+      "platformCoverage": {
+        "windows": "manual-required",
+        "linux": "manual-required",
+        "macos": "manual-required",
+        "android": "manual-required",
+        "ios": "manual-required"
+      },
+      "runtimeSurfaceCoverage": {
+        "installedAppInventory": {
+          "state": "manual-required",
+          "proof": "Bridge contract requires a real Windows installed app inventory source, source adapter id, timestamp, and package or executable identity before app targets can upgrade."
+        },
+        "processLineage": {
+          "state": "manual-required",
+          "proof": "Bridge contract requires pid, parent pid when visible, executable path, process start time, adapter id, freshness, and custody evidence."
+        },
+        "packageIdentity": {
+          "state": "manual-required",
+          "proof": "Bridge contract distinguishes package family/product identity, unpackaged executable identity, launcher evidence, and typed unknown identity without silently promoting unknown apps."
+        },
+        "publisherSignature": {
+          "state": "manual-required",
+          "proof": "Bridge contract requires publisher/signature verification or a typed unsigned, invalid, unavailable, or manual-required state tied to the same package or executable identity."
+        },
+        "unsupportedIdentity": {
+          "state": "unavailable",
+          "proof": "Bridge contract records unsupported, permission-limited, unknown, or missing host identity as unavailable instead of making an app proof claim."
+        },
+        "rollbackReadiness": {
+          "state": "not-claimed",
+          "proof": "Bridge contract refuses to claim broad app rollback readiness until apply and rollback artifacts exist for the same package or executable identity."
+        },
+        "auditCustody": {
+          "state": "manual-required",
+          "proof": "Bridge contract requires real service audit custody tying identity evidence refs, parent rule or policy decision, adapter result or fallback, and audit event ids."
+        }
+      },
+      "knownGaps": [
+        "This slice does not implement broad app blocking, network/domain blocking, managed exact URL enforcement, unmanaged browser exact evidence, admin hardening, anti-tamper, rollback enforcement, Android child enforcement, or iOS child enforcement.",
+        "It is a process/package identity proof bridge and claim-upgrade refusal artifact, not a real Windows host inventory proof run.",
+        "Local focused proof does not run visible browser, managed-browser intervention, portal Playwright, full validate, package validation, Android device-owner proof, or iOS entitlement proof."
+      ],
+      "manualProofChecklist": [
+        "Archive test-results/v0-8-process-package-identity-proof-bridge/proof.json with the commit SHA.",
+        "Run Windows host proof for installed app inventory, process lineage, executable identity, package identity, publisher/signature status, and inventory/process joins.",
+        "Record unsupported, permission-limited, unknown, unpackaged, unsigned, invalid-signature, and stale evidence states instead of upgrading them to known app targets.",
+        "Run block apply and rollback proof for the same identity before upgrading broad app rollback readiness.",
+        "Record real service audit custody with identity evidence refs, policy decision, adapter result or manual-required state, fallback, and audit event ids before upgrading product claims."
       ]
     },
     {
