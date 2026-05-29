@@ -19,6 +19,7 @@
     "v0-8-os-adapter-proof-hardening",
     "v0-8-enforcement-adapter-product-proof-continuation",
     "v0-8-broad-os-adapter-proof-readiness",
+    "v0-8-host-adapter-proof-preflight",
     "v0-9-household-lan-proof-readiness",
     "v0-9-household-lan-production-discovery-proof",
     "platform-lan-enforcement-production-proof",
@@ -382,6 +383,41 @@
         "A readiness matrix entry presented as real OS enforcement.",
         "Owned-process or app time-limit proof presented as broad app blocking.",
         "Unmanaged browser process-only evidence presented as exact browser evidence."
+      ]
+    },
+    {
+      "id": "v0-8-host-adapter-proof-preflight",
+      "title": "V0.8 Host Adapter Proof Preflight",
+      "claimIds": ["v0-8-host-adapter-proof-preflight"],
+      "expectationFiles": [
+        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "proofMode": "ci-mechanical-proof",
+      "realEvidencePath": [
+        "Build contracts from the current commit.",
+        "Run the parent-domain host adapter proof preflight contract test.",
+        "Verify every preflight row links to the broad OS adapter readiness matrix.",
+        "Verify process/package identity, network filter, managed browser, explicit browser integration, and rollback/anti-tamper gates all require manual evidence before broad claim upgrades.",
+        "Emit a proof artifact that rejects product-ready broad app/domain/browser enforcement without real host artifacts."
+      ],
+      "ciCommands": ["node scripts/test/v0-8-host-adapter-proof-preflight.mjs"],
+      "requiredArtifacts": [
+        "test-results/v0-8-host-adapter-proof-preflight/proof.json",
+        "packages/parent-domain/src/enforcement-host-adapter-preflight.ts",
+        "packages/parent-domain/tests/enforcement-host-adapter-preflight.test.ts",
+        "docs/checkpoints/v0-8-host-adapter-proof-preflight-2026-05-29.md"
+      ],
+      "knownGaps": [
+        "This preflight proof is a manual evidence gate and does not implement product-ready broad blocking.",
+        "Process/package identity, network filter, managed browser exact URL, explicit browser integration, admin hardening, anti-tamper, rollback, and bypass resistance require real host artifacts before claims upgrade.",
+        "Local focused proof does not run visible browser, managed-browser intervention, portal Playwright, package validation, Android device-owner proof, or iOS entitlement proof."
+      ],
+      "notProof": [
+        "A preflight row presented as real OS enforcement.",
+        "A missing-artifact checklist presented as completed manual proof.",
+        "Process/window/network evidence presented as exact browser URL, tab, title, download source, page content, HTTPS content, or user intent."
       ]
     },
     {
@@ -1330,6 +1366,63 @@
         "Run Windows host proof for owned-process terminate, app time-limit lifecycle, broad app/domain/browser unavailable states, managed/unmanaged browser boundaries, service logs, and encrypted audit storage.",
         "Record OS-approved app/package identity, network filter, managed browser exact URL, admin hardening, anti-tamper, rollback, and bypass-resistance artifacts before upgrading any broad blocking claim.",
         "Record Android device-owner/package lifecycle and iOS Family Controls/entitlement/device artifacts before upgrading mobile child claims."
+      ]
+    },
+    {
+      "id": "v0-8-host-adapter-proof-preflight",
+      "roadmapSlice": "V0.8 host adapter proof preflight",
+      "expectationFiles": [
+        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "claim": "V0.8 host adapter proof preflight has typed parent-domain and proof-harness coverage that lists the manual artifacts required before broad app/domain/browser OS-adapter, managed/unmanaged browser exact URL, process/package identity, rollback, anti-tamper, and bypass-resistance claims can upgrade.",
+      "privilegedCapability": true,
+      "ciProof": {
+        "commands": ["node scripts/test/v0-8-host-adapter-proof-preflight.mjs"],
+        "jobs": ["Worker B V0.8 host adapter proof preflight"]
+      },
+      "platformCoverage": {
+        "windows": "manual-required",
+        "linux": "manual-required",
+        "macos": "manual-required",
+        "android": "manual-required",
+        "ios": "manual-required"
+      },
+      "runtimeSurfaceCoverage": {
+        "processPackageIdentity": {
+          "state": "manual-required",
+          "proof": "Preflight contract requires OS-approved package id, executable path, publisher/signature, installed app inventory, process lineage, block apply, rollback, and audit evidence before broad app blocking can upgrade."
+        },
+        "networkDomainFilter": {
+          "state": "manual-required",
+          "proof": "Preflight contract requires host network filter or DNS/VPN adapter apply and rollback evidence with metadata-only custody before network/domain blocking can upgrade."
+        },
+        "managedBrowserBoundary": {
+          "state": "manual-required",
+          "proof": "Preflight contract requires managed session, bridge state, active document or tab evidence, command result, and audit evidence before service-command or exact URL claims can upgrade."
+        },
+        "unmanagedBrowserExactEvidence": {
+          "state": "not-claimed",
+          "proof": "Preflight contract rejects unmanaged exact URL, active tab, title, download, page, HTTPS content, or intent claims unless a managed browser or explicit browser integration produces exact evidence."
+        },
+        "rollbackAntiTamper": {
+          "state": "manual-required",
+          "proof": "Preflight contract requires admin hardening, service install, tamper attempt, rollback token/result, bypass-resistance, and audit custody evidence before hardening claims can upgrade."
+        }
+      },
+      "knownGaps": [
+        "This slice does not implement broad app blocking, network/domain blocking, managed exact URL enforcement, unmanaged browser exact evidence, admin hardening, anti-tamper, rollback, Android child enforcement, or iOS child enforcement.",
+        "It is a proof preflight and claim-upgrade refusal artifact, not a real-host manual proof run.",
+        "Local focused proof does not run visible browser, managed-browser intervention, portal Playwright, full validate, package validation, Android device-owner proof, or iOS entitlement proof."
+      ],
+      "manualProofChecklist": [
+        "Archive test-results/v0-8-host-adapter-proof-preflight/proof.json with the commit SHA.",
+        "Run Windows host proof for process/package identity, block apply, rollback, and audit ids before upgrading broad app blocking.",
+        "Run host network filter or DNS/VPN proof for domain apply/rollback with metadata-only custody before upgrading network/domain blocking.",
+        "Run managed browser exact URL proof inside the managed browser boundary before upgrading managed-browser exact URL claims.",
+        "Run explicit browser integration proof before representing unmanaged browser exact URL, active tab, title, download, page, HTTPS content, or intent.",
+        "Run admin hardening, anti-tamper, rollback, and bypass-resistance proof before upgrading hardening claims."
       ]
     },
     {
