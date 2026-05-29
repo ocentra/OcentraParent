@@ -65,6 +65,10 @@ mod enforcement_timer_state_path;
 mod enforcement_timer_tests;
 mod event_builder;
 mod fields;
+#[cfg_attr(not(test), allow(dead_code))]
+mod host_identity_read_model;
+#[cfg(test)]
+mod host_identity_read_model_tests;
 mod lan_pairing;
 mod lan_pairing_audit;
 #[cfg(test)]
