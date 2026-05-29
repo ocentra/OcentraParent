@@ -11,6 +11,7 @@ use ocentra_parent_agent_protocol::{
     ActivitySurfaceScopeKind, ACTIVITY_SURFACE_SCHEMA_VERSION,
 };
 
+use crate::activity_surface_report_file_name::report_file_name;
 use crate::time::timestamp_now;
 
 pub(crate) fn save_report_document(report: ActivityReportDocument) -> ActivityReportDocument {
@@ -22,7 +23,7 @@ pub(crate) fn draft_metadata_for_report(
 ) -> ActivitySavedReportMetadata {
     saved_metadata(
         &report.report_id,
-        &report_file_name(&report.report_id),
+        &report_file_name(report),
         ActivitySavedReportState::Draft,
         None,
         Some(constants::activity_surface::SUMMARY_STORAGE_DRAFT.to_string()),
@@ -33,7 +34,7 @@ pub(crate) fn save_report_document_to_dir(
     mut report: ActivityReportDocument,
     directory: PathBuf,
 ) -> ActivityReportDocument {
-    let file_name = report_file_name(&report.report_id);
+    let file_name = report_file_name(&report);
     let saved_at = timestamp_now();
     report.saved_metadata = Some(saved_metadata(
         &report.report_id,
@@ -140,7 +141,7 @@ fn history_item_from_report(
             path.file_name()
                 .map(|value| value.to_string_lossy().into_owned())
         })
-        .unwrap_or_else(|| report_file_name(&report.report_id));
+        .unwrap_or_else(|| report_file_name(&report));
     let saved_state = metadata
         .as_ref()
         .map(|value| value.saved_state)
@@ -193,28 +194,6 @@ fn saved_metadata(
         saved_at,
         storage_reason,
     }
-}
-
-fn report_file_name(report_id: &str) -> String {
-    let mut name: String = report_id
-        .chars()
-        .map(|value| {
-            if value.is_ascii_alphanumeric()
-                || value == constants::delimiter::HYPHEN
-                || value == '_'
-            {
-                value
-            } else {
-                constants::delimiter::HYPHEN
-            }
-        })
-        .collect();
-    if name.is_empty() {
-        name.push_str(constants::activity_surface::REPORT_ID_FALLBACK);
-    }
-    name.push(constants::delimiter::DOT);
-    name.push_str(constants::activity_surface::REPORT_FILE_EXTENSION);
-    name
 }
 
 fn activity_report_storage_dir() -> PathBuf {
