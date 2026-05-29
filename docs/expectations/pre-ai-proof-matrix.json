@@ -18,6 +18,7 @@
     "v08-v09-product-proof-final-pass",
     "v0-8-os-adapter-proof-hardening",
     "v0-8-enforcement-adapter-product-proof-continuation",
+    "v0-8-broad-os-adapter-proof-readiness",
     "v0-9-household-lan-proof-readiness",
     "v0-9-household-lan-production-discovery-proof",
     "platform-lan-enforcement-production-proof",
@@ -345,6 +346,42 @@
         "A proof artifact with a rejected claim-upgrade decision presented as product-ready enforcement.",
         "A successful owned-process or app time-limit result presented as global app blocking.",
         "A browser process or service-command target value presented as exact browser evidence."
+      ]
+    },
+    {
+      "id": "v0-8-broad-os-adapter-proof-readiness",
+      "title": "V0.8 Broad OS Adapter Proof Readiness",
+      "claimIds": ["v0-8-broad-os-adapter-proof-readiness"],
+      "expectationFiles": [
+        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "proofMode": "ci-mechanical-proof",
+      "realEvidencePath": [
+        "Build contracts from the current commit.",
+        "Run the parent-domain broad OS adapter readiness contract test.",
+        "Run Rust protocol and core readiness tests that serialize the readiness matrix and verify manual-required, unavailable, implemented, and not-claimed states.",
+        "Run the focused Rust service test proving broad app, network/domain, and managed-browser service-command targets return unavailable/manual-required results without adapter execution.",
+        "Emit a proof artifact that keeps broad app/domain/browser blocking, exact unmanaged browser evidence, admin hardening, anti-tamper, rollback, Android, and iOS claims manual-required, unavailable, or not-claimed until real artifacts exist."
+      ],
+      "ciCommands": ["node scripts/test/v0-8-broad-os-adapter-proof-readiness.mjs"],
+      "requiredArtifacts": [
+        "test-results/v0-8-broad-os-adapter-proof-readiness/proof.json",
+        "packages/parent-domain/src/enforcement-readiness.ts",
+        "crates/agent-protocol/src/enforcement_readiness.rs",
+        "crates/agent-core/src/enforcement_readiness.rs",
+        "crates/agent-service/src/enforcement_tests.rs"
+      ],
+      "knownGaps": [
+        "This readiness proof is contract/protocol/service-path proof, not product-ready broad OS blocking.",
+        "Exact URL, active tab, page title, download source, page text, HTTPS content, and user intent remain unavailable without managed browser or explicit browser integration proof.",
+        "Admin hardening, anti-tamper, rollback, Android device-owner, iOS Family Controls, signing, stores, and production mobile enforcement remain manual-required."
+      ],
+      "notProof": [
+        "A readiness matrix entry presented as real OS enforcement.",
+        "Owned-process or app time-limit proof presented as broad app blocking.",
+        "Unmanaged browser process-only evidence presented as exact browser evidence."
       ]
     },
     {
@@ -1238,6 +1275,61 @@
         "Record broad app, network/domain, and managed-browser service commands returning manual-required or unavailable until real host adapters exist.",
         "Record managed-browser exact URL proof from the managed browser boundary before upgrading any exact URL enforcement claim.",
         "Record Android device-owner and iOS Family Controls entitlement/device artifacts before upgrading mobile child enforcement claims."
+      ]
+    },
+    {
+      "id": "v0-8-broad-os-adapter-proof-readiness",
+      "roadmapSlice": "V0.8 broad OS adapter proof readiness",
+      "expectationFiles": [
+        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "claim": "V0.8 broad OS adapter proof readiness has typed parent-domain, Rust protocol, Rust core, service-boundary, and proof-harness coverage that distinguishes implemented owned-process/time-limit/process-only browser boundaries from manual-required broad app/domain/browser control, exact evidence, admin hardening, anti-tamper, rollback, Android, and iOS claims.",
+      "privilegedCapability": true,
+      "ciProof": {
+        "commands": ["node scripts/test/v0-8-broad-os-adapter-proof-readiness.mjs"],
+        "jobs": ["Worker B V0.8 broad OS adapter proof readiness"]
+      },
+      "platformCoverage": {
+        "windows": "real-local-windows-proof",
+        "linux": "manual-required",
+        "macos": "manual-required",
+        "android": "manual-required",
+        "ios": "manual-required"
+      },
+      "runtimeSurfaceCoverage": {
+        "ownedProcessAndTimer": {
+          "state": "implemented",
+          "proof": "Readiness matrix keeps owned-process terminate and app time-limit as implemented only for the proved pid/name, timer lifecycle, audit, and storage paths."
+        },
+        "broadAppDomainBrowserBlocking": {
+          "state": "manual-required",
+          "proof": "Readiness matrix and service test keep app block, network/domain block, managed-browser service-command, and managed exact URL control manual-required or unavailable unless real host artifacts are added."
+        },
+        "unmanagedBrowserProcessOnly": {
+          "state": "implemented",
+          "proof": "Readiness matrix records unmanaged browser coverage as process-only pid/name behavior and forbids URL, tab, title, download, page, HTTPS content, or intent claims."
+        },
+        "unmanagedBrowserExactEvidence": {
+          "state": "not-claimed",
+          "proof": "Readiness matrix requires managed browser or explicit browser integration proof before exact unmanaged browser evidence can be represented."
+        },
+        "adminAntiTamperRollback": {
+          "state": "manual-required",
+          "proof": "Readiness matrix requires admin hardening, anti-tamper, rollback, and bypass-resistance artifacts before any broad product claim can upgrade."
+        }
+      },
+      "knownGaps": [
+        "This slice does not implement global app blocking, network/domain blocking, managed exact URL enforcement, admin hardening, anti-tamper, rollback, Android child enforcement, or iOS child enforcement.",
+        "Local focused proof does not run visible browser, managed browser intervention, portal Playwright, or package validation.",
+        "Non-Windows hosts remain manual-required or unavailable for privileged OS adapter claims."
+      ],
+      "manualProofChecklist": [
+        "Archive test-results/v0-8-broad-os-adapter-proof-readiness/proof.json with the commit SHA.",
+        "Run Windows host proof for owned-process terminate, app time-limit lifecycle, broad app/domain/browser unavailable states, managed/unmanaged browser boundaries, service logs, and encrypted audit storage.",
+        "Record OS-approved app/package identity, network filter, managed browser exact URL, admin hardening, anti-tamper, rollback, and bypass-resistance artifacts before upgrading any broad blocking claim.",
+        "Record Android device-owner/package lifecycle and iOS Family Controls/entitlement/device artifacts before upgrading mobile child claims."
       ]
     },
     {

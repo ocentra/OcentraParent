@@ -131,3 +131,99 @@ pub const TEST_PROCESS_TARGET_ID: &str = "target-process-1";
 pub const TEST_PROCESS_TARGET_VALUE: &str = "owned-child-process";
 pub const TEST_CHILD_DEVICE_ID: &str = "child-device-1";
 pub const TEST_CHILD_DEVICE_LABEL: &str = "Child Windows PC";
+
+pub const READINESS_MATRIX_ID_V0_8_BROAD_OS_ADAPTER: &str = "v0-8-broad-os-adapter-readiness";
+pub const READINESS_ID_OWNED_PROCESS_TERMINATE: &str = "readiness-owned-process-terminate";
+pub const READINESS_ID_APP_TIME_LIMIT: &str = "readiness-app-time-limit";
+pub const READINESS_ID_BROAD_APP_BLOCKING: &str = "readiness-broad-app-blocking";
+pub const READINESS_ID_NETWORK_DOMAIN_BLOCKING: &str = "readiness-network-domain-blocking";
+pub const READINESS_ID_MANAGED_BROWSER_SERVICE_COMMAND: &str =
+    "readiness-managed-browser-service-command";
+pub const READINESS_ID_MANAGED_BROWSER_EXACT_URL: &str =
+    "readiness-managed-browser-exact-url-control";
+pub const READINESS_ID_UNMANAGED_BROWSER_PROCESS_ONLY: &str =
+    "readiness-unmanaged-browser-process-only";
+pub const READINESS_ID_UNMANAGED_BROWSER_EXACT_EVIDENCE: &str =
+    "readiness-unmanaged-browser-exact-evidence";
+pub const READINESS_ID_ADMIN_ANTI_TAMPER_ROLLBACK: &str = "readiness-admin-anti-tamper-rollback";
+
+pub const BROAD_CAPABILITY_OWNED_PROCESS_TERMINATE: &str = "owned-process-terminate";
+pub const BROAD_CAPABILITY_APP_TIME_LIMIT: &str = "app-time-limit";
+pub const BROAD_CAPABILITY_BROAD_APP_BLOCKING: &str = "broad-app-blocking";
+pub const BROAD_CAPABILITY_NETWORK_DOMAIN_BLOCKING: &str = "network-domain-blocking";
+pub const BROAD_CAPABILITY_MANAGED_BROWSER_SERVICE_COMMAND: &str =
+    "managed-browser-service-command";
+pub const BROAD_CAPABILITY_MANAGED_BROWSER_EXACT_URL_CONTROL: &str =
+    "managed-browser-exact-url-control";
+pub const BROAD_CAPABILITY_UNMANAGED_BROWSER_PROCESS_ONLY: &str = "unmanaged-browser-process-only";
+pub const BROAD_CAPABILITY_UNMANAGED_BROWSER_EXACT_EVIDENCE: &str =
+    "unmanaged-browser-exact-evidence";
+pub const BROAD_CAPABILITY_ADMIN_ANTI_TAMPER_ROLLBACK: &str = "admin-anti-tamper-rollback";
+
+pub const READINESS_IMPLEMENTED: &str = "implemented";
+pub const READINESS_MANUAL_REQUIRED: &str = "manual-required";
+pub const READINESS_UNAVAILABLE: &str = "unavailable";
+pub const READINESS_NOT_CLAIMED: &str = "not-claimed";
+
+pub const PROOF_REAL_SERVICE: &str = "real-service-proof";
+pub const PROOF_CI_MECHANICAL: &str = "ci-mechanical-proof";
+pub const PROOF_MANUAL_REQUIRED: &str = "manual-proof-required";
+pub const PROOF_NOT_PROVED: &str = "not-proved";
+
+pub const RUNTIME_OWNER_RUST_SERVICE: &str = "rust-service";
+pub const RUNTIME_OWNER_OS_ADAPTER: &str = "os-adapter";
+pub const RUNTIME_OWNER_MANAGED_BROWSER_BOUNDARY: &str = "managed-browser-boundary";
+pub const RUNTIME_OWNER_MANUAL_PROOF: &str = "manual-proof";
+pub const RUNTIME_OWNER_NOT_IMPLEMENTED: &str = "not-implemented";
+
+pub const CLAIM_BOUNDARY_OWNED_PROCESS_TERMINATE: &str =
+    "Only owned-process pid plus expected-process-name termination is proved; this is not global app blocking.";
+pub const CLAIM_BOUNDARY_APP_TIME_LIMIT: &str =
+    "App time-limit proof is tied to owned-process expiration, restart recovery, cancel, expiry, audit, and storage.";
+pub const CLAIM_BOUNDARY_BROAD_APP_BLOCKING: &str =
+    "Broad installed-app blocking is not proved by owned-process termination or app time-limit behavior.";
+pub const CLAIM_BOUNDARY_NETWORK_DOMAIN_BLOCKING: &str =
+    "Network flow metadata is not decrypted content and does not prove domain blocking enforcement.";
+pub const CLAIM_BOUNDARY_MANAGED_BROWSER_SERVICE_COMMAND: &str =
+    "A managed-browser service-command target string is not exact URL enforcement proof.";
+pub const CLAIM_BOUNDARY_MANAGED_BROWSER_EXACT_URL: &str =
+    "Exact URL, active tab, and page-title control require the managed browser boundary.";
+pub const CLAIM_BOUNDARY_UNMANAGED_BROWSER_PROCESS_ONLY: &str =
+    "Unmanaged browser proof is process-only and cannot become URL, tab, title, download, page, or intent evidence.";
+pub const CLAIM_BOUNDARY_UNMANAGED_BROWSER_EXACT_EVIDENCE: &str =
+    "Unmanaged browser process/window/network evidence does not prove exact URL, active tab, title, download source, page text, HTTPS content, or intent.";
+pub const CLAIM_BOUNDARY_ADMIN_ANTI_TAMPER_ROLLBACK: &str =
+    "Admin hardening, anti-tamper, bypass resistance, and broad rollback are not proved by V0.8 adapter tests.";
+
+pub const FALLBACK_OWNED_PROCESS_TERMINATE: &str =
+    "Reject missing pid/name mismatch and return unavailable on unsupported hosts.";
+pub const FALLBACK_APP_TIME_LIMIT: &str =
+    "Return unavailable when the active timer state or platform adapter cannot support the request.";
+pub const FALLBACK_BROAD_APP_BLOCKING: &str =
+    "Return manual-required or unavailable and avoid an adapter request until OS-approved proof exists.";
+pub const FALLBACK_NETWORK_DOMAIN_BLOCKING: &str =
+    "Return manual-required or unavailable until a host network control adapter has proof.";
+pub const FALLBACK_MANAGED_BROWSER_SERVICE_COMMAND: &str =
+    "Return manual-required or unavailable until managed browser command enforcement proof exists.";
+pub const FALLBACK_MANAGED_BROWSER_EXACT_URL: &str =
+    "Keep exact URL control manual-required unless managed browser evidence and enforcement proof are present.";
+pub const FALLBACK_UNMANAGED_BROWSER_PROCESS_ONLY: &str =
+    "Restrict control to pid/name guardrails and preserve exact browser evidence as not-claimed.";
+pub const FALLBACK_UNMANAGED_BROWSER_EXACT_EVIDENCE: &str =
+    "Use managed browser or another explicit browser integration before representing exact evidence.";
+pub const FALLBACK_ADMIN_ANTI_TAMPER_ROLLBACK: &str =
+    "Keep product claims manual-required until real host hardening and rollback evidence exists.";
+
+pub const ARTIFACT_OS_APP_IDENTITY: &str = "OS-approved app/package identity proof";
+pub const ARTIFACT_APP_BLOCK_ROLLBACK: &str = "installed-app block and rollback proof";
+pub const ARTIFACT_NETWORK_FILTER: &str = "OS network filter adapter proof";
+pub const ARTIFACT_DOMAIN_BLOCK_ROLLBACK: &str = "domain block apply and rollback proof";
+pub const ARTIFACT_MANAGED_BROWSER_COMMAND: &str = "managed-browser command enforcement proof";
+pub const ARTIFACT_EXACT_URL_APPLY_AUDIT: &str = "exact URL apply and audit proof";
+pub const ARTIFACT_MANAGED_BROWSER_ACTIVE_TAB: &str = "managed browser active tab proof";
+pub const ARTIFACT_MANAGED_EXACT_URL: &str = "managed exact URL enforcement artifact";
+pub const ARTIFACT_BROWSER_INTEGRATION: &str =
+    "managed browser or explicit browser integration proof";
+pub const ARTIFACT_ADMIN_HARDENING: &str = "admin hardening proof";
+pub const ARTIFACT_ANTI_TAMPER: &str = "anti-tamper proof";
+pub const ARTIFACT_ROLLBACK_BYPASS: &str = "rollback and bypass-resistance proof";

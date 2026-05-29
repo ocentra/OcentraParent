@@ -36,15 +36,15 @@ const EnforcementIntentSourceSchema = withParser(
   Schema.Literal('parent-portal', 'parent-rule', 'local-policy-evaluator', 'system-recovery')
 );
 
-const EnforcementAdapterKindSchema = withParser(
+export const EnforcementAdapterKindSchema = withParser(
   Schema.Literal('process-control', 'network-control', 'managed-browser-control', 'timer-control')
 );
 
-const EnforcementModeSchema = withParser(
+export const EnforcementModeSchema = withParser(
   Schema.Literal('terminate-process', 'block-process', 'temporary-block', 'time-limit', 'ask-parent', 'observe-only')
 );
 
-const EnforcementCapabilityStateSchema = withParser(
+export const EnforcementCapabilityStateSchema = withParser(
   Schema.Literal('supported', 'unavailable', 'degraded', 'dry-run', 'observe-only', 'manual-required')
 );
 

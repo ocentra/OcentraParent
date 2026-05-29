@@ -1,10 +1,10 @@
 use std::fs::{read_to_string, remove_file};
 
-use ocentra_parent_agent_core::ActivityStore;
+use ocentra_parent_agent_core::{broad_os_adapter_readiness, ActivityStore};
 use ocentra_parent_agent_protocol::{
-    constants, policy_constants, AgentCommandEnvelope, AgentCommandName, AgentEventName,
-    AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue, LogFields,
-    AGENT_PROTOCOL_SCHEMA_VERSION,
+    constants, policy_constants, AgentCommandEnvelope, AgentCommandName, AgentEventEnvelope,
+    AgentEventName, AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue,
+    LogFields, AGENT_PROTOCOL_SCHEMA_VERSION,
 };
 
 use crate::enforcement_api::{build_enforcement_audit_report_with_paths, EnforcementJournalPaths};
@@ -133,21 +133,24 @@ async fn dry_run_enforcement_execute_journals_without_adapter_request() {
 
 #[tokio::test]
 async fn enforcement_execute_reports_manual_required_service_states_for_unwired_adapters() {
-    for (suffix, target_type, expected_kind) in [
+    for (suffix, target_type, expected_kind, readiness_id) in [
         (
             constants::enforcement::MODE_BLOCK_PROCESS,
             policy_constants::TARGET_TYPE_APP,
             constants::enforcement::ADAPTER_KIND_PROCESS_CONTROL,
+            constants::enforcement::READINESS_ID_BROAD_APP_BLOCKING,
         ),
         (
             constants::enforcement::ADAPTER_KIND_NETWORK_CONTROL,
             policy_constants::TARGET_TYPE_DOMAIN,
             constants::enforcement::ADAPTER_KIND_NETWORK_CONTROL,
+            constants::enforcement::READINESS_ID_NETWORK_DOMAIN_BLOCKING,
         ),
         (
             constants::enforcement::ADAPTER_KIND_MANAGED_BROWSER_CONTROL,
             policy_constants::TARGET_TYPE_SITE,
             constants::enforcement::ADAPTER_KIND_MANAGED_BROWSER_CONTROL,
+            constants::enforcement::READINESS_ID_MANAGED_BROWSER_SERVICE_COMMAND,
         ),
     ] {
         let paths = temp_paths(suffix);
@@ -166,38 +169,63 @@ async fn enforcement_execute_reports_manual_required_service_states_for_unwired_
                 constants::enforcement::RESULT_UNAVAILABLE.to_string()
             ))
         );
-        let action = payload_string(&event.payload, constants::field::ENFORCEMENT_ACTION)
-            .and_then(|text| {
-                serde_json::from_str::<ocentra_parent_agent_protocol::EnforcementAction>(text).ok()
-            })
-            .expect(constants::error::AGENT_EVENT_SERIALIZES);
-        let result = payload_string(&event.payload, constants::field::ENFORCEMENT_RESULT)
-            .and_then(|text| {
-                serde_json::from_str::<ocentra_parent_agent_protocol::EnforcementResult>(text).ok()
-            })
-            .expect(constants::error::AGENT_EVENT_SERIALIZES);
+        assert_unwired_adapter_readiness(&event, expected_kind, readiness_id);
+    }
+}
 
-        assert_eq!(action.adapter_kind.as_protocol_str(), expected_kind);
-        #[cfg(windows)]
-        {
-            assert_eq!(
-                result.capability.capability_state.as_protocol_str(),
-                constants::enforcement::CAPABILITY_MANUAL_REQUIRED
-            );
-            assert_eq!(
-                result
-                    .unavailable_status
-                    .as_ref()
-                    .map(|status| status.unavailable_reason.as_protocol_str()),
-                Some(constants::enforcement::UNAVAILABLE_MANUAL_REQUIRED)
-            );
-        }
-        #[cfg(not(windows))]
+fn assert_unwired_adapter_readiness(
+    event: &AgentEventEnvelope,
+    expected_kind: &str,
+    readiness_id: &str,
+) {
+    let action = payload_string(&event.payload, constants::field::ENFORCEMENT_ACTION)
+        .and_then(|text| {
+            serde_json::from_str::<ocentra_parent_agent_protocol::EnforcementAction>(text).ok()
+        })
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let result = payload_string(&event.payload, constants::field::ENFORCEMENT_RESULT)
+        .and_then(|text| {
+            serde_json::from_str::<ocentra_parent_agent_protocol::EnforcementResult>(text).ok()
+        })
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let readiness = broad_os_adapter_readiness(policy_constants::TEST_EVALUATED_AT)
+        .entries
+        .into_iter()
+        .find(|entry| entry.readiness_id == readiness_id)
+        .expect(readiness_id);
+
+    assert_eq!(action.adapter_kind.as_protocol_str(), expected_kind);
+    assert_eq!(
+        readiness.adapter_kind.as_protocol_str(),
+        action.adapter_kind.as_protocol_str()
+    );
+    assert_eq!(
+        readiness.readiness_state.as_protocol_str(),
+        result.capability.capability_state.as_protocol_str()
+    );
+    assert_manual_or_unavailable_result(&result);
+}
+
+fn assert_manual_or_unavailable_result(result: &ocentra_parent_agent_protocol::EnforcementResult) {
+    #[cfg(windows)]
+    {
         assert_eq!(
             result.capability.capability_state.as_protocol_str(),
-            constants::enforcement::CAPABILITY_UNAVAILABLE
+            constants::enforcement::CAPABILITY_MANUAL_REQUIRED
+        );
+        assert_eq!(
+            result
+                .unavailable_status
+                .as_ref()
+                .map(|status| status.unavailable_reason.as_protocol_str()),
+            Some(constants::enforcement::UNAVAILABLE_MANUAL_REQUIRED)
         );
     }
+    #[cfg(not(windows))]
+    assert_eq!(
+        result.capability.capability_state.as_protocol_str(),
+        constants::enforcement::CAPABILITY_UNAVAILABLE
+    );
 }
 
 fn command(dry_run: bool) -> AgentCommandEnvelope {
