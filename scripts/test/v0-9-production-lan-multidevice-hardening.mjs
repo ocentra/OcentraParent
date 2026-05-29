@@ -99,6 +99,7 @@ const proofSteps = [
       'parent-desktop-controller-ai-provider:unsupported-capability-rejected',
       'parent-mobile-observer-scaffold:provider-unavailable',
       'parent-mobile-observer-scaffold:controller-job-degraded-with-provider-unavailable',
+      'parent-mobile-observer-scaffold:observer-job-rejected',
       'parent-desktop-busy-ai-provider:provider-busy',
       'parent-desktop-busy-ai-provider:busy-job-degraded',
     ],
@@ -178,11 +179,40 @@ for (const step of proofSteps) {
   checkedSteps.push(checkedStep);
 }
 
+const discoveryEvidence = await readStepEvidence('discovery-challenge');
+const pairingEvidence = await readStepEvidence('pairing-control');
+const providerEvidence = await readStepEvidence('lan-ai-provider-pool');
+const localTwoServiceProof = buildLocalTwoServiceProof(pairingEvidence);
+const controllerAuthorityProof = buildControllerAuthorityProof(pairingEvidence);
+const parentMobileControllerObserverProof = buildParentMobileControllerObserverProof(providerEvidence);
+
 const proof = {
   schemaVersion: 1,
   checkedAt: new Date().toISOString(),
   proofMode: 'local-multi-service-production-lan-hardening',
   checkedSteps,
+  localTwoServiceProof,
+  discoveryProof: {
+    proofBoundary: 'local-real-service-discovery-processes',
+    wrongOriginRejectedBeforeUpgrade: assertionPresent(
+      discoveryEvidence,
+      'wrong-origin-websocket-rejected-before-upgrade'
+    ),
+    wrongDeviceChallengeRejected: assertionPresent(
+      discoveryEvidence,
+      'wrong-agent-port-challenge-rejected-as-wrong-device'
+    ),
+    replayRejected: assertionsWithSuffix(discoveryEvidence, 'challenge-proof-replay-rejected'),
+    staleOrExpiredRejected: assertionsWithSuffix(discoveryEvidence, 'stale-proof-rejected').concat(
+      assertionsWithSuffix(discoveryEvidence, 'expired-challenge-rejected-as-stale')
+    ),
+  },
+  controllerAuthorityProof,
+  parentMobileControllerObserverProof,
+  cloudRelayDecision: {
+    state: 'not-implemented',
+    proofBoundary: 'no-cloud-relay-contract-or-runtime-in-this-v0-9-proof',
+  },
   claimsProvedLocally: [
     'production LAN states use explicit discovered/pending/paired/revoked/stale/offline/unavailable contract values',
     'trusted registry persists selected route and recovers it after restart',
@@ -191,11 +221,14 @@ const proof = {
     'direct discovery proof rejects wrong-origin proof, malformed proof, stale proof, expired challenge, replayed proof, and wrong-device challenge traffic',
     'selected-device stale and offline read-model states reject control through focused Rust service and core registry proof',
     'LAN AI provider routing covers authorized result, unsupported capability, busy, unavailable, and observer rejection',
+    'revocation is observed before subsequent control rejection in the local proof artifact',
+    'parent mobile controller/observer state remains backend-scaffold or manual-required instead of mobile UX parity',
   ],
   claimsNotProvedLocally: [
     'real household router discovery across two physical devices',
     'OS firewall prompts and mobile background behavior on Windows/macOS/Linux/Android/iOS',
     'device-owner policy, iOS Family Controls, app-store or MDM deployment behavior',
+    'cloud relay routing, storage, or authentication behavior',
   ],
   manualTwoDeviceChecklist,
 };
@@ -235,4 +268,87 @@ function assertRequiredAssertions(step, assertions) {
 
 function relativeToWorkspace(path) {
   return path.replace(`${process.cwd()}\\`, '').replaceAll('\\', '/');
+}
+
+async function readStepEvidence(label) {
+  const step = proofSteps.find((candidate) => candidate.label === label);
+  if (!step?.evidencePath) {
+    throw new Error(`Missing evidence step ${label}`);
+  }
+  return JSON.parse(await readFile(step.evidencePath, 'utf8'));
+}
+
+function buildLocalTwoServiceProof(pairingEvidence) {
+  const services = pairingEvidence.services ?? [];
+  if (services.length !== 2) {
+    throw new Error(`Expected two local service processes in pairing proof, received ${services.length}`);
+  }
+  return {
+    proofBoundary: 'local-two-service-mechanical-proof',
+    serviceCount: services.length,
+    services: services.map((service) => ({
+      label: service.label,
+      childDeviceId: service.childDeviceId,
+      registryPersistence: service.registryPersistence,
+    })),
+    selectedRouteRecovery: assertionsWithSuffix(pairingEvidence, 'restart-restores-selected-route'),
+    acceptedAfterRestart: assertionsWithSuffix(pairingEvidence, 'restart-recovered-approval-accepted'),
+    wrongDeviceRejected: assertionPresent(pairingEvidence, 'wrong-agent-port-rejected-as-wrong-device'),
+  };
+}
+
+function buildControllerAuthorityProof(pairingEvidence) {
+  const assertions = pairingEvidence.assertions ?? [];
+  const revocationIndex = assertions.indexOf('first-child-agent:route-revoked');
+  const rejectedIndex = assertions.indexOf('first-child-agent:revoked-control-rejected');
+  if (revocationIndex < 0 || rejectedIndex < 0 || revocationIndex > rejectedIndex) {
+    throw new Error('Expected route revocation to be recorded before revoked control rejection.');
+  }
+  return {
+    proofBoundary: 'local-controller-authority-real-service-proof',
+    observerReadOnlyRejected: assertionsWithSuffix(pairingEvidence, 'observer-write-rejected'),
+    observerReadAllowed: assertionsWithSuffix(pairingEvidence, 'observer-rule-query-accepted'),
+    leaseLifecycle: assertionsWithSuffix(pairingEvidence, 'controller-lease-renewed')
+      .concat(assertionsWithSuffix(pairingEvidence, 'controller-lease-released'))
+      .concat(assertionsWithSuffix(pairingEvidence, 'controller-lease-reacquired')),
+    takeover: assertionsWithSuffix(pairingEvidence, 'controller-lease-takeover-denied').concat(
+      assertionsWithSuffix(pairingEvidence, 'controller-lease-takeover-accepted')
+    ),
+    dishonestStateRejections: assertionsWithSuffix(pairingEvidence, 'replay-rejected')
+      .concat(assertionsWithSuffix(pairingEvidence, 'stale-control-rejected'))
+      .concat(assertionsWithSuffix(pairingEvidence, 'missing-controller-lease-rejected'))
+      .concat(assertionsWithSuffix(pairingEvidence, 'expired-controller-lease-rejected'))
+      .concat(assertionsWithSuffix(pairingEvidence, 'wrong-controller-rejected')),
+    revocationBeforeControl: {
+      routeRevokedAssertion: assertions[revocationIndex],
+      controlRejectedAssertion: assertions[rejectedIndex],
+    },
+  };
+}
+
+function buildParentMobileControllerObserverProof(providerEvidence) {
+  return {
+    proofBoundary: 'parent-mobile-backend-scaffold-without-mobile-ux-parity',
+    observerReadOnlyRejected: assertionPresent(
+      providerEvidence,
+      'parent-mobile-observer-scaffold:observer-job-rejected'
+    ),
+    controllerJobDegraded: assertionPresent(
+      providerEvidence,
+      'parent-mobile-observer-scaffold:controller-job-degraded-with-provider-unavailable'
+    ),
+    providerUnavailable: assertionPresent(providerEvidence, 'parent-mobile-observer-scaffold:provider-unavailable'),
+    mobileWriteAuthorityState: 'manual-required-real-mobile-package-proof',
+  };
+}
+
+function assertionsWithSuffix(evidence, suffix) {
+  return (evidence.assertions ?? []).filter((assertion) => assertion.endsWith(suffix));
+}
+
+function assertionPresent(evidence, assertion) {
+  if (!(evidence.assertions ?? []).includes(assertion)) {
+    throw new Error(`Expected evidence assertion ${assertion}`);
+  }
+  return assertion;
 }

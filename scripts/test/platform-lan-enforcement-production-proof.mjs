@@ -154,6 +154,17 @@ function assertV09Production(evidence) {
     'trusted registry persists selected route and recovers it after restart',
     'V0.9 route recovery claim'
   );
+  assertEqual(
+    evidence.controllerAuthorityProof.revocationBeforeControl.controlRejectedAssertion,
+    'first-child-agent:revoked-control-rejected',
+    'V0.9 revocation-before-control claim'
+  );
+  assertEqual(
+    evidence.parentMobileControllerObserverProof.mobileWriteAuthorityState,
+    'manual-required-real-mobile-package-proof',
+    'V0.9 parent mobile write authority boundary'
+  );
+  assertEqual(evidence.cloudRelayDecision.state, 'not-implemented', 'V0.9 cloud relay non-claim');
   assertArrayIncludes(
     evidence.claimsNotProvedLocally,
     'real household router discovery across two physical devices',

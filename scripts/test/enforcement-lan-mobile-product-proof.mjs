@@ -153,6 +153,17 @@ function assertProductionLan(productionProof, lanProof, householdLanReadiness) {
     'real household router discovery across two physical devices',
     'physical household discovery boundary'
   );
+  assertEqual(
+    lanProof.controllerAuthorityProof.revocationBeforeControl.controlRejectedAssertion,
+    'first-child-agent:revoked-control-rejected',
+    'revocation-before-control product boundary'
+  );
+  assertEqual(
+    lanProof.parentMobileControllerObserverProof.mobileWriteAuthorityState,
+    'manual-required-real-mobile-package-proof',
+    'parent mobile product write authority boundary'
+  );
+  assertEqual(lanProof.cloudRelayDecision.state, 'not-implemented', 'cloud relay product boundary');
   const checklist = lanProof.manualTwoDeviceChecklist?.[0];
   assertArrayIncludes(
     checklist?.requiredArtifacts,

@@ -10,6 +10,14 @@ export const ParentMobileStoreDistributionStateSchema = withParser(Schema.Litera
 export const ParentMobileControllerStateSchema = withParser(
   Schema.Literal('observer', 'active-controller', 'manual-required', 'unavailable')
 );
+export const ParentMobileCommandAuthorityStateSchema = withParser(
+  Schema.Literal(
+    'observer-read-only',
+    'active-controller-backend-proof',
+    'controller-takeover-manual-required',
+    'unavailable'
+  )
+);
 export const ParentMobileServiceAvailabilityStateSchema = withParser(
   Schema.Literal('available', 'degraded', 'unavailable', 'manual-required', 'not-implemented')
 );
@@ -61,6 +69,7 @@ export const ParentMobileControllerProofSchema = withParser(
     controllerState: ParentMobileControllerStateSchema,
     controllerLeaseId: Schema.Union(ParentMobileControllerLeaseIdSchema, Schema.Null),
     takeoverRequestAllowed: Schema.Boolean,
+    commandAuthorityState: ParentMobileCommandAuthorityStateSchema,
   })
 );
 
@@ -118,8 +127,8 @@ function parentMobileRuntimeReadModelIsConsistent(readModel: ParentMobileRuntime
     return false;
   }
 
-  if (readModel.controllerProof.controllerState === 'active-controller') {
-    return readModel.controllerProof.controllerLeaseId !== null;
+  if (!parentMobileControllerProofIsConsistent(readModel.controllerProof)) {
+    return false;
   }
 
   if (readModel.assistantJobProof.route === 'lan-ai-provider') {
@@ -127,6 +136,34 @@ function parentMobileRuntimeReadModelIsConsistent(readModel: ParentMobileRuntime
   }
 
   return readModel.assistantJobProof.providerId === null && readModel.assistantJobProof.unavailableReason !== null;
+}
+
+function parentMobileControllerProofIsConsistent(
+  controllerProof: ParentMobileRuntimeReadModelCandidate['controllerProof']
+): boolean {
+  if (controllerProof.controllerState === 'active-controller') {
+    return (
+      controllerProof.controllerLeaseId !== null &&
+      controllerProof.commandAuthorityState === 'active-controller-backend-proof'
+    );
+  }
+
+  if (controllerProof.controllerState === 'observer') {
+    return (
+      controllerProof.controllerLeaseId === null &&
+      controllerProof.takeoverRequestAllowed === false &&
+      controllerProof.commandAuthorityState === 'observer-read-only'
+    );
+  }
+
+  if (controllerProof.controllerState === 'manual-required') {
+    return (
+      controllerProof.controllerLeaseId === null &&
+      controllerProof.commandAuthorityState === 'controller-takeover-manual-required'
+    );
+  }
+
+  return controllerProof.controllerLeaseId === null && controllerProof.commandAuthorityState === 'unavailable';
 }
 
 function parentMobileLanAiProviderJobIsConsistent(
@@ -148,6 +185,7 @@ export type ParentMobilePackageState = Infer<typeof ParentMobilePackageStateSche
 export type ParentMobileSigningState = Infer<typeof ParentMobileSigningStateSchema>;
 export type ParentMobileStoreDistributionState = Infer<typeof ParentMobileStoreDistributionStateSchema>;
 export type ParentMobileControllerState = Infer<typeof ParentMobileControllerStateSchema>;
+export type ParentMobileCommandAuthorityState = Infer<typeof ParentMobileCommandAuthorityStateSchema>;
 export type ParentMobileServiceAvailabilityState = Infer<typeof ParentMobileServiceAvailabilityStateSchema>;
 export type ParentMobileAssistantJobRoute = Infer<typeof ParentMobileAssistantJobRouteSchema>;
 export type ParentMobileAssistantJobState = Infer<typeof ParentMobileAssistantJobStateSchema>;

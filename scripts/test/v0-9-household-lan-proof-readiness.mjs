@@ -111,6 +111,9 @@ async function main() {
           requiredAssertionsFor(productionProof, 'rust-trusted-registry-expiry-and-reachability')
         ),
       },
+      controllerAuthority: productionProof.controllerAuthorityProof,
+      parentMobileControllerObserver: productionProof.parentMobileControllerObserverProof,
+      cloudRelayDecision: productionProof.cloudRelayDecision,
     },
     readinessGate: {
       localMultiServiceProof: {
@@ -190,6 +193,17 @@ function assertProductionProof(proof) {
     'LAN AI provider routing covers authorized result, unsupported capability, busy, unavailable, and observer rejection',
     'LAN AI provider proof'
   );
+  assertEqual(
+    proof.controllerAuthorityProof.revocationBeforeControl.controlRejectedAssertion,
+    'first-child-agent:revoked-control-rejected',
+    'revocation-before-control proof'
+  );
+  assertEqual(
+    proof.parentMobileControllerObserverProof.mobileWriteAuthorityState,
+    'manual-required-real-mobile-package-proof',
+    'parent mobile write authority proof state'
+  );
+  assertEqual(proof.cloudRelayDecision.state, 'not-implemented', 'cloud relay decision state');
   assertArrayIncludes(
     proof.claimsNotProvedLocally,
     'real household router discovery across two physical devices',
