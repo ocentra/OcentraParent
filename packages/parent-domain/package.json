@@ -5,6 +5,10 @@
   "type": "module",
   "description": "Parent product contract boundary placeholder.",
   "exports": {
+    "./app-control-catalog": {
+      "import": "./dist/app-control-catalog.js",
+      "types": "./dist/app-control-catalog.d.ts"
+    },
     "./browser-control-baseline-manifest": {
       "import": "./dist/browser-control-baseline-manifest.js",
       "types": "./dist/browser-control-baseline-manifest.d.ts"
