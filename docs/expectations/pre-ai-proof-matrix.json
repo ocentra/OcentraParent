@@ -23,6 +23,7 @@
     "v0-8-process-package-identity-proof-bridge",
     "v0-8-host-identity-read-model-proof",
     "v0-8-windows-adapter-capability-proof",
+    "v0-8-windows-adapter-artifact-gate",
     "v0-9-household-lan-proof-readiness",
     "v0-9-household-lan-production-discovery-proof",
     "platform-lan-enforcement-production-proof",
@@ -531,6 +532,43 @@
       "notProof": [
         "A capability proof row presented as completed broad app/domain/browser enforcement.",
         "Host identity readiness presented as block authority without apply, rollback, and audit artifacts.",
+        "Unmanaged browser process-only behavior presented as exact URL, active tab, title, download, page, HTTPS content, or intent evidence."
+      ]
+    },
+    {
+      "id": "v0-8-windows-adapter-artifact-gate",
+      "title": "V0.8 Windows Adapter Artifact Gate",
+      "claimIds": ["v0-8-windows-adapter-artifact-gate"],
+      "expectationFiles": [
+        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "proofMode": "ci-mechanical-proof",
+      "realEvidencePath": [
+        "Build the Rust protocol and service artifact gate from the current commit.",
+        "Run the Windows adapter artifact gate protocol and service read-model tests.",
+        "Run the prior Windows adapter capability proof harness to keep capability/readiness rows sequenced before artifact gating.",
+        "Verify app, domain/network, managed-browser, unmanaged-browser, unsupported OS, rollback, and audit claim upgrades are refused unless required artifact references are present.",
+        "Emit a proof artifact showing complete app artifact references only reach manual review and never set product-ready broad blocking."
+      ],
+      "ciCommands": ["node scripts/test/v0-8-windows-adapter-artifact-gate.mjs"],
+      "requiredArtifacts": [
+        "test-results/v0-8-windows-adapter-artifact-gate/proof.json",
+        "crates/agent-protocol/src/windows_adapter_artifact_gate.rs",
+        "crates/agent-protocol/src/windows_adapter_artifact_gate_tests.rs",
+        "crates/agent-service/src/windows_adapter_artifact_gate_read_model.rs",
+        "crates/agent-service/src/windows_adapter_artifact_gate_read_model_tests.rs",
+        "docs/checkpoints/v0-8-windows-adapter-artifact-gate-2026-05-29.md"
+      ],
+      "knownGaps": [
+        "This gate validates artifact-reference requirements but does not produce real Windows host artifacts.",
+        "Broad app blocking, network/domain blocking, managed-browser exact URL enforcement, unmanaged browser exact evidence, admin hardening, anti-tamper, and rollback enforcement remain unclaimed until host proofs exist.",
+        "Local focused proof does not run visible browser, managed-browser intervention, portal Playwright, full validate, package validation, Android device-owner proof, or iOS entitlement proof."
+      ],
+      "notProof": [
+        "A complete artifact-reference set presented as product-ready broad blocking.",
+        "Capability/readiness rows presented as apply, rollback, or audit custody artifacts.",
         "Unmanaged browser process-only behavior presented as exact URL, active tab, title, download, page, HTTPS content, or intent evidence."
       ]
     },
@@ -1811,6 +1849,70 @@
         "Run host network filter or DNS/VPN adapter apply and rollback proof before upgrading domain/network blocking.",
         "Run managed-browser active-tab and exact URL enforcement proof before upgrading exact URL control.",
         "Record unsupported OS, unmanaged-browser exact evidence, admin hardening, anti-tamper, and bypass-resistance artifacts before upgrading product claims."
+      ]
+    },
+    {
+      "id": "v0-8-windows-adapter-artifact-gate",
+      "roadmapSlice": "V0.8 Windows adapter artifact gate",
+      "expectationFiles": [
+        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "claim": "V0.8 Windows adapter artifact gate has Rust protocol and service read-model coverage that refuses app, domain/network, managed-browser, unmanaged-browser, unsupported OS, rollback, and audit claim upgrades until required artifact references exist, and complete refs only reach manual review.",
+      "privilegedCapability": true,
+      "ciProof": {
+        "commands": ["node scripts/test/v0-8-windows-adapter-artifact-gate.mjs"],
+        "jobs": ["Worker B V0.8 Windows adapter artifact gate"]
+      },
+      "platformCoverage": {
+        "windows": "manual-required",
+        "linux": "not-applicable",
+        "macos": "not-applicable",
+        "android": "manual-required",
+        "ios": "manual-required"
+      },
+      "runtimeSurfaceCoverage": {
+        "appTargets": {
+          "state": "refused-missing-artifacts",
+          "proof": "Artifact gate requires same-identity app or package evidence, apply result, rollback result, and audit custody event refs before app target claims can reach manual review."
+        },
+        "domainNetworkTargets": {
+          "state": "refused-missing-artifacts",
+          "proof": "Artifact gate requires network/domain filter apply result, filter rollback result, and audit custody event refs before domain claims can reach manual review."
+        },
+        "managedBrowserExactUrl": {
+          "state": "refused-missing-artifacts",
+          "proof": "Artifact gate requires managed-browser exact URL evidence and audit custody event refs before managed exact URL claims can reach manual review."
+        },
+        "unmanagedBrowserExactUrl": {
+          "state": "refused-unsupported-surface",
+          "proof": "Artifact gate refuses unmanaged browser exact URL upgrades because the current capability surface remains process-only."
+        },
+        "unsupportedOsTargets": {
+          "state": "refused-unsupported-surface",
+          "proof": "Artifact gate refuses unsupported OS claim upgrades instead of borrowing Windows adapter artifacts."
+        },
+        "rollbackAudit": {
+          "state": "refused-missing-artifacts",
+          "proof": "Artifact gate requires same-identity apply, rollback, and audit custody refs before rollback or audit claims can reach manual review."
+        },
+        "manualReviewOnly": {
+          "state": "implemented",
+          "proof": "Complete artifact references produce ready-for-manual-review while claimUpgradeAllowed remains false."
+        }
+      },
+      "knownGaps": [
+        "This slice does not implement real Windows artifact collection, broad app blocking, network/domain blocking, managed exact URL enforcement, unmanaged browser exact evidence, admin hardening, anti-tamper, rollback enforcement, Android child enforcement, or iOS child enforcement.",
+        "It is a Rust protocol/service claim-upgrade gate and proof artifact, not a Windows host adapter proof run.",
+        "Local focused proof does not run visible browser, managed-browser intervention, portal Playwright, full validate, package validation, Android device-owner proof, or iOS entitlement proof."
+      ],
+      "manualProofChecklist": [
+        "Archive test-results/v0-8-windows-adapter-artifact-gate/proof.json with the commit SHA.",
+        "Capture real Windows same-identity app/package, apply result, rollback result, and audit custody event refs before requesting app claim manual review.",
+        "Capture real network/domain filter apply and rollback refs before requesting domain/network claim manual review.",
+        "Capture managed-browser exact URL evidence refs and custody events before requesting exact URL manual review.",
+        "Keep unmanaged browser exact URL, unsupported OS, admin hardening, anti-tamper, and bypass-resistance claims refused until dedicated host artifacts exist."
       ]
     },
     {

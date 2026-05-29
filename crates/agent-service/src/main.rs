@@ -155,6 +155,10 @@ mod snapshot;
 mod time;
 mod websocket;
 #[cfg_attr(not(test), allow(dead_code))]
+mod windows_adapter_artifact_gate_read_model;
+#[cfg(test)]
+mod windows_adapter_artifact_gate_read_model_tests;
+#[cfg_attr(not(test), allow(dead_code))]
 mod windows_adapter_capability_read_model;
 #[cfg(test)]
 mod windows_adapter_capability_read_model_tests;
