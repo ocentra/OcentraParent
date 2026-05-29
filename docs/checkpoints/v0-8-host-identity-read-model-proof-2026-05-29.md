@@ -58,7 +58,7 @@ The proof command runs the Rust protocol tests, Rust service read-model tests, a
 test-results/v0-8-host-identity-read-model-proof/proof.json
 ```
 
-The pre-AI matrix registration for this specific claim is deferred because another worker currently owns the `docs/expectations/pre-ai-proof-matrix.json` lock. This checkpoint and proof artifact are ready for matrix registration when that lock clears.
+The pre-AI matrix now registers this claim and checkpoint scenario as `v0-8-host-identity-read-model-proof`. The proof command validates that matrix registration through `npm run test:pre-ai-proof`.
 
 ## Manual Gaps Before Claim Upgrade
 

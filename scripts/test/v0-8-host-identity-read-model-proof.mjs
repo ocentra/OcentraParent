@@ -17,6 +17,7 @@ async function main() {
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-service', 'host_identity_read_model']);
   await runCommand('cmd', ['/c', 'npm', 'run', 'test:pre-ai-proof']);
   proofLabels.push('pre-ai-proof.current-matrix-valid');
+  proofLabels.push('v0.8.host-identity-read-model.matrix-registered');
   proofLabels.push('v0.8.host-identity-read-model.rust-protocol-service');
 
   const proof = {
@@ -66,9 +67,10 @@ async function main() {
         'Audit custody requires real service evidence refs, policy decision, adapter outcome or fallback, and audit event ids before claims upgrade.',
     },
     matrixRegistration: {
-      state: 'deferred-lock-conflict',
+      state: 'registered',
       path: 'docs/expectations/pre-ai-proof-matrix.json',
-      dependency: 'codex-d owns the pre-AI matrix lock; codex-b did not force this edit',
+      claimId: 'v0-8-host-identity-read-model-proof',
+      checkpointScenarioId: 'v0-8-host-identity-read-model-proof',
     },
   };
 
