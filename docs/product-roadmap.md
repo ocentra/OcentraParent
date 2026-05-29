@@ -184,6 +184,12 @@ Current local slice:
   signing/entitlements in
   `test-results/enforcement-lan-mobile-product-proof/proof.json` when run
   locally.
+- The cross-platform deliverables/package proof checkpoint records current
+  local proof outputs and GitHub Actions package-preview state in
+  [`cross-platform-deliverables-package-proof-checkpoint-2026-05-29.md`](checkpoints/cross-platform-deliverables-package-proof-checkpoint-2026-05-29.md),
+  while keeping physical household LAN, mobile child-agent behavior, signing,
+  stores, entitlements, cloud relay, and broad OS blocking as manual-required,
+  unavailable, scaffold, or not-implemented states.
 - The Windows managed/unmanaged browser enforcement proof command records
   owned-process pid/name guardrails, unmanaged browser terminate and warn
   service results without exact URL claims, broad app blocking manual-required
