@@ -130,23 +130,34 @@ function localAiProviderSchedulerDecisionIsConsistent(decision: LocalAiProviderS
     return (
       decision.selectedRuntimeReferenceId === null &&
       decision.queuePosition === null &&
-      decision.unavailableReason !== null
+      decision.unavailableReason !== null &&
+      decision.duplicateRuntimeBlocked === false
     );
   }
 
   if (decision.jobStatus === 'queued') {
-    return decision.selectedRuntimeReferenceId !== null && decision.queuePosition !== null;
+    return (
+      decision.selectedRuntimeReferenceId !== null &&
+      decision.queuePosition !== null &&
+      decision.unavailableReason === null &&
+      decision.duplicateRuntimeBlocked
+    );
   }
 
   if (decision.jobStatus === 'running' || decision.jobStatus === 'accepted' || decision.jobStatus === 'complete') {
     return (
       decision.selectedRuntimeReferenceId !== null &&
       decision.queuePosition === null &&
-      decision.unavailableReason === null
+      decision.unavailableReason === null &&
+      decision.duplicateRuntimeBlocked
     );
   }
 
-  return decision.selectedRuntimeReferenceId !== null && decision.unavailableReason === null;
+  return (
+    decision.selectedRuntimeReferenceId !== null &&
+    decision.unavailableReason === null &&
+    decision.duplicateRuntimeBlocked
+  );
 }
 
 function totalQueuedJobs(queue: LocalAiProviderSchedulerQueue): number {
