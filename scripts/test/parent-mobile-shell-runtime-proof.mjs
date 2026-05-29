@@ -9,6 +9,91 @@ const proofPath = join(outputDir, 'proof.json');
 const commands = [];
 const proofLabels = [];
 
+const androidParentMobileCapabilities = [
+  capabilityProof(
+    'parent-mobile-observer',
+    'scaffold',
+    'typed observer read model and package launch target',
+    'observer state is represented without mobile UX parity'
+  ),
+  capabilityProof(
+    'parent-mobile-controller',
+    'manual-required',
+    'real mobile package and device controller takeover proof',
+    'no parent mobile write authority is claimed from scaffold state'
+  ),
+  capabilityProof(
+    'foreground-mobile-service',
+    'manual-required',
+    'Android emulator or device foreground-service and notification proof',
+    'manifest declaration is not foreground behavior proof'
+  ),
+  capabilityProof(
+    'notifications',
+    'manual-required',
+    'Android notification permission prompt and delivery proof',
+    'permission declaration is not runtime notification proof'
+  ),
+  capabilityProof(
+    'package-lifecycle',
+    'manual-required',
+    'Android install launch background update and uninstall proof',
+    'debug package mechanics are not store or lifecycle proof'
+  ),
+  capabilityProof(
+    'store-distribution',
+    'planned',
+    'Google Play signing and release-track proof',
+    'store distribution is not wired'
+  ),
+];
+
+const iosParentMobileCapabilities = [
+  capabilityProof(
+    'parent-mobile-observer',
+    'scaffold',
+    'typed observer read model and simulator app target',
+    'observer state is represented without mobile UX parity'
+  ),
+  capabilityProof(
+    'parent-mobile-controller',
+    'manual-required',
+    'real signed mobile package and device controller takeover proof',
+    'no parent mobile write authority is claimed from simulator scaffold'
+  ),
+  capabilityProof(
+    'foreground-mobile-service',
+    'unavailable',
+    'iOS has no Android-style foreground service',
+    'foreground service is not an iOS parent mobile claim'
+  ),
+  capabilityProof(
+    'notifications',
+    'manual-required',
+    'iOS notification permission and delivery proof',
+    'notification behavior requires device or simulator permission evidence'
+  ),
+  capabilityProof(
+    'background-execution',
+    'manual-required',
+    'iOS background mode entitlement and device behavior proof',
+    'simulator app target is not background execution proof'
+  ),
+  capabilityProof(
+    'signing-entitlements',
+    'manual-required',
+    'Apple signing team provisioning and entitlement proof',
+    'simulator build is not signing or entitlement proof'
+  ),
+  capabilityProof(
+    'testflight-distribution',
+    'manual-required',
+    'TestFlight build upload install and launch proof',
+    'TestFlight distribution is not wired'
+  ),
+  capabilityProof('store-distribution', 'planned', 'App Store release-track proof', 'store distribution is not wired'),
+];
+
 await main();
 
 async function main() {
@@ -26,6 +111,7 @@ async function main() {
 
   const runtimeModels = await parentMobileRuntimeModels();
   const packageProof = await assertPackageShells();
+  const capabilityProof = await assertParentMobileCapabilityData(runtimeModels);
   const matrixProof = await assertProofMatrix();
   const scriptProof = await assertScriptWiring();
 
@@ -53,6 +139,7 @@ async function main() {
     runtimeProof: {
       androidObserver: summarizeRuntimeModel(runtimeModels.androidObserver),
       iosObserver: summarizeRuntimeModel(runtimeModels.iosObserver),
+      platformCapabilities: capabilityProof,
       localModelExecutionDefault: 'disabled-by-default',
       childAgentBehaviorClaim: 'not-claimed',
     },
@@ -65,6 +152,8 @@ async function main() {
       'Parent mobile controller takeover remains manual-required until a real Android or iOS mobile package/device proof exists.',
       'LAN AI provider submission is represented through typed route/degraded states; no local model execution runs on parent mobile by default.',
       'Cloud relay remains not implemented and is not counted as LAN or local service proof.',
+      'Android notification permission, foreground-service behavior, package lifecycle, and Google Play distribution remain manual-required or planned until emulator/device/store proof exists.',
+      'iOS notification permission, background execution, signing, TestFlight, and App Store distribution remain manual-required or planned until Mac/Xcode/device proof exists.',
       'Android/iOS child-agent permissions, device-owner policy, Family Controls, TestFlight, and store signing remain separate manual-required platform claims.',
     ],
   };
@@ -115,6 +204,7 @@ async function parentMobileRuntimeModels() {
     localModelExecutionState: 'disabled-by-default',
     localModelExecutionAllowed: false,
     childAgentBehaviorClaim: 'not-claimed',
+    platformCapabilities: androidParentMobileCapabilities,
     updatedAt: '2026-05-28T16:00:00.000Z',
   });
   const iosObserver = module.ParentMobileRuntimeReadModelSchema.parse({
@@ -152,6 +242,7 @@ async function parentMobileRuntimeModels() {
     localModelExecutionState: 'disabled-by-default',
     localModelExecutionAllowed: false,
     childAgentBehaviorClaim: 'not-claimed',
+    platformCapabilities: iosParentMobileCapabilities,
     updatedAt: '2026-05-28T16:00:00.000Z',
   });
   proofLabels.push('parent-mobile-runtime.contract-parse');
@@ -173,6 +264,7 @@ async function assertPackageShells() {
 
   assertIncludes(androidManifest, 'android.intent.action.MAIN', 'Android launch activity');
   assertIncludes(androidManifest, 'FOREGROUND_SERVICE_DATA_SYNC', 'Android foreground service permission');
+  assertIncludes(androidManifest, 'POST_NOTIFICATIONS', 'Android notification permission declaration');
   assertIncludes(androidActivity, 'startForegroundService', 'Android service launch path');
   assertIncludes(androidService, 'startForeground', 'Android foreground service start');
   assertIncludes(androidReleaseScript, 'gradlew.bat assembleDebug', 'Android debug package command');
@@ -203,6 +295,30 @@ async function assertPackageShells() {
         'scripts/release/ios/build-simulator-app.sh',
       ],
     },
+  };
+}
+
+async function assertParentMobileCapabilityData(runtimeModels) {
+  const modulePath = join(repoRoot, 'packages', 'parent-domain', 'dist', 'capabilities.js');
+  if (!existsSync(modulePath)) {
+    throw new Error(`Missing built platform capability module: ${modulePath}`);
+  }
+  const module = await import(`file:///${modulePath.replaceAll('\\', '/')}`);
+  const platformCapabilities = module.ParentControlPlatformCapabilities;
+
+  assertCapabilityStatus(platformCapabilities, 'android', 'parent-mobile-observer', 'scaffold');
+  assertCapabilityStatus(platformCapabilities, 'android', 'parent-mobile-controller', 'manual-required');
+  assertCapabilityStatus(platformCapabilities, 'android', 'notifications', 'manual-required');
+  assertCapabilityStatus(platformCapabilities, 'android', 'package-lifecycle', 'manual-required');
+  assertCapabilityStatus(platformCapabilities, 'ios', 'parent-mobile-observer', 'scaffold');
+  assertCapabilityStatus(platformCapabilities, 'ios', 'parent-mobile-controller', 'manual-required');
+  assertCapabilityStatus(platformCapabilities, 'ios', 'foreground-mobile-service', 'unavailable');
+  assertCapabilityStatus(platformCapabilities, 'ios', 'signing-entitlements', 'manual-required');
+
+  proofLabels.push('parent-mobile-capabilities.platform-boundaries');
+  return {
+    android: summarizeCapabilityStates(runtimeModels.androidObserver.platformCapabilities),
+    ios: summarizeCapabilityStates(runtimeModels.iosObserver.platformCapabilities),
   };
 }
 
@@ -289,9 +405,18 @@ function summarizeRuntimeModel(readModel) {
     cloudRelay: readModel.serviceAvailability.cloudRelay,
     assistantJobRoute: readModel.assistantJobProof.route,
     assistantJobState: readModel.assistantJobProof.jobState,
+    capabilityStates: summarizeCapabilityStates(readModel.platformCapabilities),
     localModelExecutionAllowed: readModel.localModelExecutionAllowed,
     childAgentBehaviorClaim: readModel.childAgentBehaviorClaim,
   };
+}
+
+function summarizeCapabilityStates(entries) {
+  return Object.fromEntries(entries.map((entry) => [entry.capability, entry.status]));
+}
+
+function capabilityProof(capability, status, proofRequirement, claimBoundary) {
+  return { capability, status, proofRequirement, claimBoundary };
 }
 
 async function readRepoFile(path) {
@@ -341,5 +466,15 @@ function assertIncludes(value, expected, label) {
 function assertArrayIncludes(values, expected, label) {
   if (!Array.isArray(values) || !values.includes(expected)) {
     throw new Error(`${label}: missing ${expected}`);
+  }
+}
+
+function assertCapabilityStatus(platformCapabilities, platform, capability, expectedStatus) {
+  const platformEntry = platformCapabilities.find((entry) => entry.platform === platform);
+  const capabilityEntry = platformEntry?.capabilities.find((entry) => entry.capability === capability);
+  if (capabilityEntry?.status !== expectedStatus) {
+    throw new Error(
+      `${platform} ${capability}: expected ${expectedStatus}, got ${capabilityEntry?.status ?? 'missing'}`
+    );
   }
 }

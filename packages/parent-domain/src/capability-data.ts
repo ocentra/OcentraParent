@@ -93,6 +93,11 @@ export const ParentControlPlatformCapabilityInputs = [
         note: 'Android debug APK foreground service preview builds in CI.',
       },
       {
+        capability: 'notifications',
+        status: 'manual-required',
+        note: 'Android notification permission and delivery behavior requires emulator or physical-device proof.',
+      },
+      {
         capability: 'local-storage',
         status: 'scaffold',
         note: 'Android local storage compatibility must be proved on emulator or device before child-agent support is claimed.',

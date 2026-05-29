@@ -116,8 +116,11 @@ test('mobile platform projects define real installable app targets', () => {
   assert.match(androidManifest, /android\.intent\.action\.MAIN/u);
   assert.match(androidManifest, /OcentraParentAgentService/u);
   assert.match(androidManifest, /foregroundServiceType="dataSync"/u);
+  assert.match(androidManifest, /POST_NOTIFICATIONS/u);
   assert.match(iosProject, /productType = "com\.apple\.product-type\.application"/u);
   assert.match(iosProject, /PRODUCT_BUNDLE_IDENTIFIER = ca\.ocentra\.parent\.agent/u);
+  assert.match(parentMobileProof, /platformCapabilities/u);
+  assert.match(parentMobileProof, /parent-mobile-capabilities\.platform-boundaries/u);
   assert.match(parentMobileProof, /localModelExecutionAllowed !== false/u);
   assert.match(parentMobileProof, /childAgentBehaviorClaim !== 'not-claimed'/u);
   assert.match(parentMobileProof, /node scripts\/test\/parent-mobile-shell-runtime-proof\.mjs/u);

@@ -61,6 +61,7 @@ describe('parent control platform capabilities', () => {
 
     expectCapabilityStatuses(androidCapabilities, [
       [ParentControlCapabilityName.ForegroundMobileService, ParentControlCapabilityStatus.ManualRequired],
+      [ParentControlCapabilityName.Notifications, ParentControlCapabilityStatus.ManualRequired],
       [ParentControlCapabilityName.LocalStorage, ParentControlCapabilityStatus.Scaffold],
       [ParentControlCapabilityName.TypedProtocolBridge, ParentControlCapabilityStatus.Scaffold],
       [ParentControlCapabilityName.UsageStats, ParentControlCapabilityStatus.ManualRequired],
