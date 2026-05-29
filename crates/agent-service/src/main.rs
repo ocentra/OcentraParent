@@ -23,7 +23,10 @@ mod activity_surface_payload_tests;
 mod activity_surface_read_model_states;
 mod activity_surface_read_models;
 mod activity_surface_report;
+mod activity_surface_report_file_name;
 mod activity_surface_report_store;
+#[cfg(test)]
+mod activity_surface_report_store_tests;
 mod activity_surface_request;
 mod activity_surface_store;
 mod app;
