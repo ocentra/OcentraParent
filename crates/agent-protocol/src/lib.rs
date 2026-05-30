@@ -36,6 +36,7 @@ mod parent_assistant;
 mod screen_evidence;
 mod transport;
 mod windows_adapter_artifact_gate;
+mod windows_adapter_artifact_ingestion;
 mod windows_adapter_capability;
 
 pub use activity::*;
@@ -70,6 +71,7 @@ pub use parent_assistant::*;
 pub use screen_evidence::*;
 pub use transport::*;
 pub use windows_adapter_artifact_gate::*;
+pub use windows_adapter_artifact_ingestion::*;
 pub use windows_adapter_capability::*;
 
 pub const CRATE_NAME: &str = "ocentra-parent-agent-protocol";
@@ -147,5 +149,7 @@ mod screen_evidence_tests;
 mod tests;
 #[cfg(test)]
 mod windows_adapter_artifact_gate_tests;
+#[cfg(test)]
+mod windows_adapter_artifact_ingestion_tests;
 #[cfg(test)]
 mod windows_adapter_capability_tests;

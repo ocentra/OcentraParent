@@ -133,6 +133,29 @@ fn windows_adapter_artifact_gate_rejects_audit_artifacts_without_custody_event_i
     assert!(!app.claim_upgrade_allowed);
 }
 
+#[test]
+fn windows_adapter_artifact_gate_rejects_non_audit_artifacts_without_custody_event_ids() {
+    let mut artifacts = complete_app_artifacts();
+    let apply = artifacts
+        .iter_mut()
+        .find(|artifact| artifact.artifact_kind == WindowsAdapterArtifactKind::AdapterApplyResult)
+        .expect(artifact_gate::READ_MODEL_ID_V0_8);
+    apply.custody_event_id = None;
+
+    let proof = evaluate_windows_adapter_artifact_gate(policy::TEST_EVALUATED_AT, &artifacts);
+    let app = entry_for(&proof, WindowsAdapterCapabilitySurface::AppTarget);
+
+    assert_eq!(
+        app.decision,
+        WindowsAdapterArtifactGateDecision::RefusedMissingArtifacts
+    );
+    assert_eq!(
+        app.missing_artifact_kinds,
+        vec![WindowsAdapterArtifactKind::AdapterApplyResult]
+    );
+    assert!(!app.claim_upgrade_allowed);
+}
+
 fn entry_for(
     proof: &ocentra_parent_agent_protocol::WindowsAdapterArtifactGateProof,
     surface: WindowsAdapterCapabilitySurface,
@@ -149,17 +172,17 @@ fn complete_app_artifacts() -> Vec<WindowsAdapterArtifactEvidence> {
         evidence(
             artifact_gate::TEST_ARTIFACT_APP_IDENTITY,
             WindowsAdapterArtifactKind::SameIdentityAppPackageEvidence,
-            None,
+            Some(artifact_gate::TEST_CUSTODY_EVENT_ID),
         ),
         evidence(
             artifact_gate::TEST_ARTIFACT_APP_APPLY,
             WindowsAdapterArtifactKind::AdapterApplyResult,
-            None,
+            Some(artifact_gate::TEST_CUSTODY_EVENT_ID),
         ),
         evidence(
             artifact_gate::TEST_ARTIFACT_APP_ROLLBACK,
             WindowsAdapterArtifactKind::AdapterRollbackResult,
-            None,
+            Some(artifact_gate::TEST_CUSTODY_EVENT_ID),
         ),
         evidence(
             artifact_gate::TEST_ARTIFACT_AUDIT,

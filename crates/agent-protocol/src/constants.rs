@@ -160,6 +160,8 @@ pub mod browser;
 pub mod host_identity;
 #[path = "constants/windows_adapter_artifact_gate.rs"]
 pub mod windows_adapter_artifact_gate;
+#[path = "constants/windows_adapter_artifact_ingestion.rs"]
+pub mod windows_adapter_artifact_ingestion;
 #[path = "constants/windows_adapter_capability.rs"]
 pub mod windows_adapter_capability;
 
