@@ -85,6 +85,20 @@ const services = [
     providerBusy: true,
     providerCapabilities: 'chat-completion,summarization',
   },
+  {
+    label: 'parent-desktop-degraded-ai-provider',
+    port: 4497,
+    childDeviceId: 'child-device-platform-degraded-provider',
+    pairingId: 'pairing-platform-degraded-provider',
+    challengeId: 'challenge-platform-degraded-provider',
+    proofDigest: 'sha256:platform-degraded-provider-proof',
+    routeId: 'route-platform-degraded-provider-local-network',
+    evidenceReferenceIds: 'activity-event-platform-degraded-provider',
+    surface: 'parent-desktop',
+    deviceRoles: 'parent-controller,child-agent,ai-provider',
+    providerOptIn: false,
+    providerCapabilities: 'chat-completion,summarization',
+  },
 ];
 
 await rm(outputDir, { recursive: true, force: true });
@@ -103,7 +117,8 @@ try {
   const providerProof = await runProviderPoolLifecycle(runningServices[0]);
   const mobileProof = await runMobileObserverScaffoldLifecycle(runningServices[1]);
   const busyProof = await runBusyProviderLifecycle(runningServices[2]);
-  assertions.push(...providerProof, ...mobileProof, ...busyProof);
+  const degradedProof = await runDegradedProviderLifecycle(runningServices[3]);
+  assertions.push(...providerProof, ...mobileProof, ...busyProof, ...degradedProof);
 
   await writeEvidence(assertions, runningServices);
   console.log(`platform-roles-lan-ai-provider-pool-ok:${assertions.join(',')}`);
@@ -286,6 +301,45 @@ async function runBusyProviderLifecycle(service) {
     assertPayloadValue(busyJob.payload, 'lanAiJobState', 'degraded');
     assertPayloadValue(busyJob.payload, 'unavailableReason', 'overloaded');
     labels.push(`${service.label}:busy-job-degraded`);
+
+    return labels;
+  } finally {
+    socket.close();
+  }
+}
+
+async function runDegradedProviderLifecycle(service) {
+  const socket = await openWebSocket(service, allowedOrigin);
+  try {
+    const labels = [];
+    await pairAndSelect(socket, service);
+    labels.push(`${service.label}:route-selected`);
+
+    const providerStatus = await sendCommand(
+      socket,
+      buildLanAiProviderStatusCommand(service, 'intent-platform-degraded-provider-status')
+    );
+    assertEvent(providerStatus, 'agent.lan-pairing.status.reported');
+    assertPayloadValue(providerStatus.payload, 'lanAiProviderStatus', 'lan-ai-provider-degraded');
+    assertPayloadValue(providerStatus.payload, 'lanAiProviderRoutingState', 'degraded');
+    labels.push(`${service.label}:provider-degraded`);
+
+    const degradedJob = await sendCommand(
+      socket,
+      buildLanAiJobCommand(
+        service,
+        'intent-platform-degraded-provider-job',
+        parentAuthorityActiveController,
+        'chat-completion'
+      )
+    );
+    assertEvent(degradedJob, 'agent.lan-ai.job.reported');
+    assertPayloadValue(degradedJob.payload, 'auditEventType', 'lan-ai-job-degraded');
+    assertPayloadValue(degradedJob.payload, 'lanAiProviderStatus', 'lan-ai-provider-degraded');
+    assertPayloadValue(degradedJob.payload, 'lanAiProviderRoutingState', 'degraded');
+    assertPayloadValue(degradedJob.payload, 'lanAiJobState', 'degraded');
+    assertPayloadValue(degradedJob.payload, 'unavailableReason', 'provider-unavailable');
+    labels.push(`${service.label}:degraded-job-degraded`);
 
     return labels;
   } finally {

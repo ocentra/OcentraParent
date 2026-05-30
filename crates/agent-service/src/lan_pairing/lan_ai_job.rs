@@ -210,7 +210,7 @@ fn lan_ai_rejection_event(
         }
         None => rejected_control_audit_fields(&command, &reason, None, origin),
     };
-    payload.extend(lan_ai_provider_fields(runtime));
+    payload.extend(lan_ai_provider_fields_for_rejection(runtime, &reason));
     payload.extend(lan_ai_job_rejected_fields(&command, intent));
     build_event(
         constants::event_id::COMMAND_REJECTED,
@@ -266,6 +266,40 @@ fn lan_ai_provider_fields(runtime: &LanPairingRuntime) -> LogFields {
             LogFieldValue::String(unavailable_reason_for_status(provider_status).to_string()),
         ),
     ])
+}
+
+fn lan_ai_provider_fields_for_rejection(
+    runtime: &LanPairingRuntime,
+    reason: &LanPairingRejectionReason,
+) -> LogFields {
+    let mut fields = lan_ai_provider_fields(runtime);
+    if matches!(
+        reason,
+        LanPairingRejectionReason::Anonymous
+            | LanPairingRejectionReason::WrongOrigin
+            | LanPairingRejectionReason::WrongDevice
+            | LanPairingRejectionReason::Expired
+            | LanPairingRejectionReason::Replayed
+            | LanPairingRejectionReason::Malformed
+            | LanPairingRejectionReason::Stale
+            | LanPairingRejectionReason::Offline
+            | LanPairingRejectionReason::Revoked
+            | LanPairingRejectionReason::LocalNetworkDisabled
+            | LanPairingRejectionReason::UnsupportedRoute
+            | LanPairingRejectionReason::UnselectedDevice
+            | LanPairingRejectionReason::ControllerLeaseMissing
+            | LanPairingRejectionReason::ControllerLeaseExpired
+            | LanPairingRejectionReason::WrongController
+            | LanPairingRejectionReason::TakeoverDenied
+    ) {
+        fields.insert(
+            constants::field::LAN_AI_PROVIDER_ROUTING_STATE.to_string(),
+            LogFieldValue::String(
+                constants::value::LAN_AI_PROVIDER_ROUTING_UNAVAILABLE.to_string(),
+            ),
+        );
+    }
+    fields
 }
 
 fn lan_ai_job_fields(
