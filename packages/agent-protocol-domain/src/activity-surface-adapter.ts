@@ -55,6 +55,7 @@ export type ActivitySurfaceAdapterResult<TValue> =
     }
   | {
       readonly ok: false;
+      readonly state: ActivitySurfaceAdapterState;
       readonly reason: ActivitySurfaceAdapterFailureReason;
     };
 
@@ -240,6 +241,7 @@ function reportDocumentState(report: ActivityReportDocument, event: AgentEventEn
 function adapterFailure(reason: ActivitySurfaceAdapterFailureReason): ActivitySurfaceAdapterResult<never> {
   return {
     ok: false,
+    state: ActivityReadModelStateSchema.parse('unavailable'),
     reason,
   };
 }
