@@ -6,9 +6,9 @@ use std::{
 
 use ocentra_parent_agent_protocol::{
     constants, ActivityHistoricalReportList, ActivityHistoricalReportListItem,
-    ActivityReadModelState, ActivityReportDocument, ActivitySavedReportMetadata,
-    ActivitySavedReportState, ActivitySurfaceRequest, ActivitySurfaceScope,
-    ActivitySurfaceScopeKind, ACTIVITY_SURFACE_SCHEMA_VERSION,
+    ActivityReadModelState, ActivityReportDocument, ActivityReportSourceStateSummary,
+    ActivitySavedReportMetadata, ActivitySavedReportState, ActivitySurfaceRequest,
+    ActivitySurfaceScope, ActivitySurfaceScopeKind, ACTIVITY_SURFACE_SCHEMA_VERSION,
 };
 
 use crate::activity_surface_report_file_name::report_file_name;
@@ -67,17 +67,25 @@ pub(crate) fn history_list_from_dir(
     directory: PathBuf,
 ) -> ActivityHistoricalReportList {
     match load_saved_reports(&request, &directory) {
-        Ok(reports) => ActivityHistoricalReportList {
+        Ok(result) => ActivityHistoricalReportList {
             schema_version: ACTIVITY_SURFACE_SCHEMA_VERSION,
             request,
-            state: if reports.is_empty() {
+            state: if result.reports.is_empty() {
                 ActivityReadModelState::Empty
             } else {
                 ActivityReadModelState::Ready
             },
-            storage_state: ActivitySavedReportState::Saved,
-            storage_reason: None,
-            reports,
+            storage_state: if result.skipped_reports == 0 {
+                ActivitySavedReportState::Saved
+            } else {
+                ActivitySavedReportState::Degraded
+            },
+            storage_reason: if result.skipped_reports == 0 {
+                None
+            } else {
+                Some(constants::activity_surface::SUMMARY_STORAGE_DEGRADED.to_string())
+            },
+            reports: result.reports,
         },
         Err(_) => ActivityHistoricalReportList {
             schema_version: ACTIVITY_SURFACE_SCHEMA_VERSION,
@@ -108,22 +116,28 @@ fn write_report_to_dir(
 fn load_saved_reports(
     request: &ActivitySurfaceRequest,
     directory: &Path,
-) -> Result<Vec<ActivityHistoricalReportListItem>, ()> {
+) -> Result<LoadSavedReportsResult, ()> {
     if !directory.exists() {
-        return Ok(Vec::new());
+        return Ok(LoadSavedReportsResult {
+            reports: Vec::new(),
+            skipped_reports: 0,
+        });
     }
 
     let entries = read_dir(directory).map_err(|_| ())?;
     let mut reports = Vec::new();
+    let mut skipped_reports = 0;
     for entry in entries {
         let path = entry.map_err(|_| ())?.path();
         if !path_is_report_json(&path) {
             continue;
         }
         let Ok(body) = read_to_string(&path) else {
+            skipped_reports += 1;
             continue;
         };
         let Ok(report) = serde_json::from_str::<ActivityReportDocument>(&body) else {
+            skipped_reports += 1;
             continue;
         };
         if scope_matches(&request.scope, &report.scope) {
@@ -132,7 +146,10 @@ fn load_saved_reports(
     }
 
     reports.sort_by(|left, right| right.report_date.cmp(&left.report_date));
-    Ok(reports)
+    Ok(LoadSavedReportsResult {
+        reports,
+        skipped_reports,
+    })
 }
 
 fn history_item_from_report(
@@ -167,7 +184,37 @@ fn history_item_from_report(
         summary: history_summary(&report),
         saved_state,
         saved_at,
+        source_state_summary: source_state_summary(&report),
         parsed_report: report,
+    }
+}
+
+fn source_state_summary(report: &ActivityReportDocument) -> ActivityReportSourceStateSummary {
+    ActivityReportSourceStateSummary {
+        total_sources: report.source_states.len() as u64,
+        ready_sources: report
+            .source_states
+            .iter()
+            .filter(|source| source.state == ActivityReadModelState::Ready)
+            .count() as u64,
+        offline_sources: report
+            .source_states
+            .iter()
+            .filter(|source| source.state == ActivityReadModelState::Offline)
+            .count() as u64,
+        unavailable_sources: report
+            .source_states
+            .iter()
+            .filter(|source| source.state == ActivityReadModelState::Unavailable)
+            .count() as u64,
+        error_sources: report
+            .source_states
+            .iter()
+            .filter(|source| {
+                source.reachability_state
+                    == ocentra_parent_agent_protocol::ActivityReportSourceReachabilityState::Error
+            })
+            .count() as u64,
     }
 }
 
@@ -228,4 +275,9 @@ fn scope_matches(request: &ActivitySurfaceScope, report: &ActivitySurfaceScope) 
                 && request.device_id == report.device_id
         }
     }
+}
+
+struct LoadSavedReportsResult {
+    reports: Vec<ActivityHistoricalReportListItem>,
+    skipped_reports: u64,
 }

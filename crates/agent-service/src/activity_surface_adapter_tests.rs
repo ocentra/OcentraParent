@@ -70,6 +70,7 @@ async fn activity_surface_report_uses_real_activity_store_snapshot() {
         history.storage_state,
         ocentra_parent_agent_protocol::ActivitySavedReportState::Saved
     );
+    assert_eq!(history.reports[0].source_state_summary.ready_sources, 1);
     assert_eq!(history.reports[0].parsed_report.report_id, report.report_id);
 }
 
@@ -168,7 +169,11 @@ async fn activity_report_history_skips_rejected_json_without_losing_saved_report
     assert_eq!(history.state, ActivityReadModelState::Ready);
     assert_eq!(
         history.storage_state,
-        ocentra_parent_agent_protocol::ActivitySavedReportState::Saved
+        ocentra_parent_agent_protocol::ActivitySavedReportState::Degraded
+    );
+    assert_eq!(
+        history.storage_reason,
+        Some(constants::activity_surface::SUMMARY_STORAGE_DEGRADED.to_string())
     );
     assert_eq!(history.reports.len(), 1);
     assert_eq!(history.reports[0].parsed_report.report_id, report.report_id);

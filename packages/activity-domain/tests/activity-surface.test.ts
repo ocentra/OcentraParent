@@ -87,6 +87,39 @@ const ReportDocument = {
   ],
 } as const;
 
+const SourceStateSummary = {
+  totalSources: 2,
+  readySources: 1,
+  offlineSources: 1,
+  unavailableSources: 0,
+  errorSources: 0,
+} as const;
+
+const SavedReportDocument = {
+  ...ReportDocument,
+  savedMetadata: {
+    reportId: 'activity-report-daily-1',
+    fileName: 'activity-report-daily-1.json',
+    savedState: 'saved',
+    savedAt: '2026-05-27T06:22:00Z',
+    storageReason: null,
+  },
+} as const;
+
+const SavedHistoryItem = {
+  schemaVersion: ActivitySurfaceSchemaVersion,
+  reportId: 'activity-report-daily-1',
+  fileName: 'activity-report-daily-1.json',
+  reportDate: '2026-05-27T06:21:00Z',
+  rangeStart: '2026-05-27T00:00:00Z',
+  rangeEnd: '2026-05-27T06:20:00Z',
+  summary: 'Daily report draft',
+  savedState: 'saved',
+  savedAt: '2026-05-27T06:22:00Z',
+  sourceStateSummary: SourceStateSummary,
+  parsedReport: SavedReportDocument,
+} as const;
+
 describe('activity surface contracts', () => {
   it('ActivitySurfaceScopeSchema: accepts family and device scopes with exact target ids', () => {
     expect(ActivitySurfaceScopeSchema.parse(FamilyScope).familyId).toBe('family-local-1');
@@ -151,32 +184,11 @@ describe('activity report history contracts', () => {
       state: 'ready',
       storageState: 'saved',
       storageReason: null,
-      reports: [
-        {
-          schemaVersion: ActivitySurfaceSchemaVersion,
-          reportId: 'activity-report-daily-1',
-          fileName: 'activity-report-daily-1.json',
-          reportDate: '2026-05-27T06:21:00Z',
-          rangeStart: '2026-05-27T00:00:00Z',
-          rangeEnd: '2026-05-27T06:20:00Z',
-          summary: 'Daily report draft',
-          savedState: 'saved',
-          savedAt: '2026-05-27T06:22:00Z',
-          parsedReport: {
-            ...ReportDocument,
-            savedMetadata: {
-              reportId: 'activity-report-daily-1',
-              fileName: 'activity-report-daily-1.json',
-              savedState: 'saved',
-              savedAt: '2026-05-27T06:22:00Z',
-              storageReason: null,
-            },
-          },
-        },
-      ],
+      reports: [SavedHistoryItem],
     });
 
     expect(parsed.reports[0]?.parsedReport.savedMetadata?.savedState).toBe('saved');
+    expect(parsed.reports[0]?.sourceStateSummary.offlineSources).toBe(1);
   });
 
   it('ActivityHistoricalReportListSchema: rejects malformed persisted report metadata', () => {
@@ -189,16 +201,8 @@ describe('activity report history contracts', () => {
         storageReason: null,
         reports: [
           {
-            schemaVersion: ActivitySurfaceSchemaVersion,
-            reportId: 'activity-report-daily-1',
+            ...SavedHistoryItem,
             fileName: '',
-            reportDate: '2026-05-27T06:21:00Z',
-            rangeStart: '2026-05-27T00:00:00Z',
-            rangeEnd: '2026-05-27T06:20:00Z',
-            summary: 'Daily report draft',
-            savedState: 'saved',
-            savedAt: '2026-05-27T06:22:00Z',
-            parsedReport: ReportDocument,
           },
         ],
       }).success
@@ -217,6 +221,20 @@ describe('activity report history contracts', () => {
 
     expect(parsed.storageState).toBe('storage-unavailable');
     expect(parsed.storageReason).toBe('Local parent report storage is unavailable.');
+  });
+
+  it('ActivityHistoricalReportListSchema: accepts degraded report storage with saved rows', () => {
+    const parsed = ActivityHistoricalReportListSchema.parse({
+      schemaVersion: ActivitySurfaceSchemaVersion,
+      request: ActivityRequest,
+      state: 'ready',
+      storageState: 'degraded',
+      storageReason: 'Some saved activity report files could not be read or parsed.',
+      reports: [SavedHistoryItem],
+    });
+
+    expect(parsed.storageState).toBe('degraded');
+    expect(parsed.reports[0]?.sourceStateSummary.totalSources).toBe(2);
   });
 });
 

@@ -123,6 +123,7 @@ describe('parent assistant request contracts', () => {
       actionIntentId: 'parent-assistant-action-intent-1',
       previewState: 'draft',
       preview: ActionPreview,
+      evidenceContext: [EvidenceContext],
       requiresControllerLease: true,
       childAgentContractRequired: true,
       enforcementApplied: false,
@@ -131,6 +132,7 @@ describe('parent assistant request contracts', () => {
     });
 
     expect(parsed.previewState).toBe('draft');
+    expect(parsed.evidenceContext[0]?.citationLabel).toBe('Activity summary 1');
     expect(parsed.policyWritten).toBe(false);
     expect(
       ParentAssistantActionPreviewResultSchema.safeParse({

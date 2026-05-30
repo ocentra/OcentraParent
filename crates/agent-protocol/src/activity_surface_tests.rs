@@ -3,10 +3,10 @@ use super::{
     ActivityGamesReadModel, ActivityHistoricalReportList, ActivityNetworkReadModel,
     ActivityReadModelState, ActivityReportDocument, ActivityReportFrequency, ActivityReportRequest,
     ActivityReportSection, ActivityReportSectionKind, ActivityReportSourceReachabilityState,
-    ActivityReportSourceState, ActivitySavedReportMetadata, ActivitySavedReportState,
-    ActivityScreenReadModel, ActivityScreenReadModelRow, ActivitySurfaceRequest,
-    ActivitySurfaceScope, ActivitySurfaceScopeKind, AgentCommandName, AgentEventName,
-    ACTIVITY_SURFACE_SCHEMA_VERSION,
+    ActivityReportSourceState, ActivityReportSourceStateSummary, ActivitySavedReportMetadata,
+    ActivitySavedReportState, ActivityScreenReadModel, ActivityScreenReadModelRow,
+    ActivitySurfaceRequest, ActivitySurfaceScope, ActivitySurfaceScopeKind, AgentCommandName,
+    AgentEventName, ACTIVITY_SURFACE_SCHEMA_VERSION,
 };
 
 #[test]
@@ -61,6 +61,13 @@ fn activity_history_list_carries_saved_report_metadata_and_parsed_document() {
             summary: "Saved daily report".to_string(),
             saved_state: ActivitySavedReportState::Saved,
             saved_at: Some("2026-05-27T06:22:00Z".to_string()),
+            source_state_summary: ActivityReportSourceStateSummary {
+                total_sources: 2,
+                ready_sources: 1,
+                offline_sources: 1,
+                unavailable_sources: 0,
+                error_sources: 0,
+            },
             parsed_report: sample_report_document(ActivityReportFrequency::Daily),
         }],
     };
@@ -68,6 +75,10 @@ fn activity_history_list_carries_saved_report_metadata_and_parsed_document() {
 
     assert_eq!(serialized["reports"][0]["savedState"], "saved");
     assert_eq!(serialized["storageState"], "saved");
+    assert_eq!(
+        serialized["reports"][0]["sourceStateSummary"]["offlineSources"],
+        1
+    );
     assert_eq!(
         serialized["reports"][0]["parsedReport"]["frequency"],
         "daily"

@@ -122,6 +122,7 @@ const ParentAssistantActionPreviewResultBaseSchema = Schema.Struct({
   actionIntentId: ParentAssistantActionIntentIdSchema,
   previewState: ParentAssistantActionPreviewStateSchema,
   preview: ParentAssistantActionPreviewSchema,
+  evidenceContext: Schema.Array(ParentAssistantEvidenceContextSchema),
   requiresControllerLease: Schema.Boolean,
   childAgentContractRequired: Schema.Literal(true),
   enforcementApplied: Schema.Literal(false),
@@ -437,7 +438,7 @@ function parentAssistantActionPreviewResultIsSafe(result: ParentAssistantActionP
     return false;
   }
 
-  return result.previewState !== 'draft' || result.preview.previewId !== null;
+  return (result.previewState !== 'draft' || result.preview.previewId !== null) && result.evidenceContext.length > 0;
 }
 
 export type ParentAssistantScope = Infer<typeof ParentAssistantScopeSchema>;

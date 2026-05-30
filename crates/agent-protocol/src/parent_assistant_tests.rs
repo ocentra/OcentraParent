@@ -92,6 +92,7 @@ fn parent_assistant_action_preview_result_serializes_draft_without_enforcement()
         action_intent_id: "parent-assistant-action-intent-1".to_string(),
         preview_state: ParentAssistantActionPreviewState::Draft,
         preview: sample_action_preview(false),
+        evidence_context: vec![sample_evidence_context()],
         requires_controller_lease: true,
         child_agent_contract_required: true,
         enforcement_applied: false,
@@ -102,6 +103,10 @@ fn parent_assistant_action_preview_result_serializes_draft_without_enforcement()
 
     assert_eq!(serialized["previewState"], "draft");
     assert_eq!(serialized["preview"]["enforcementApplied"], false);
+    assert_eq!(
+        serialized["evidenceContext"][0]["evidence"]["kind"],
+        "query-store-summary"
+    );
     assert_eq!(serialized["policyWritten"], false);
     assert_eq!(serialized["childAgentContractRequired"], true);
 }

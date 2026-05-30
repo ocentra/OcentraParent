@@ -16,6 +16,7 @@ use crate::{
     local_ai_provider_scheduler::local_ai_provider_scheduler,
     local_ai_runtime_config::LocalAiRuntimeConfigSnapshot,
     local_ai_runtime_status::local_ai_runtime_status_for_model_from_config,
+    parent_assistant_evidence_context::evidence_contexts_from_command,
     parent_assistant_payload::{
         parent_assistant_action_confirm_payload, parent_assistant_action_preview_payload,
         parent_assistant_provider_status_payload, parent_assistant_run_cancel_payload,
@@ -250,6 +251,7 @@ fn action_confirm_result_for_command(
 fn action_preview_result_for_command(
     command: &AgentCommandEnvelope,
 ) -> ParentAssistantActionPreviewResult {
+    let previewed_at = timestamp_now();
     let question = string_payload_field(command, constants::field::PARENT_ASSISTANT_QUESTION)
         .unwrap_or_else(|| constants::parent_assistant::DEFAULT_QUESTION.to_string());
     let preview = preview_only_action(&question);
@@ -262,6 +264,7 @@ fn action_preview_result_for_command(
         )
         .unwrap_or_else(|| constants::parent_assistant::DEFAULT_ACTION_INTENT_ID.to_string()),
         preview_state: ParentAssistantActionPreviewState::Draft,
+        evidence_context: evidence_contexts_from_command(command, None, previewed_at),
         requires_controller_lease: preview.requires_controller_lease,
         child_agent_contract_required: true,
         enforcement_applied: false,
