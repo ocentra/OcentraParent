@@ -117,6 +117,10 @@
       "import": "./dist/parent-mobile-service-bridge-runtime.js",
       "types": "./dist/parent-mobile-service-bridge-runtime.d.ts"
     },
+    "./parent-mobile-controller-observer-handoff-runtime": {
+      "import": "./dist/parent-mobile-controller-observer-handoff-runtime.js",
+      "types": "./dist/parent-mobile-controller-observer-handoff-runtime.d.ts"
+    },
     "./v0-9-mobile-controller-discovery-runtime": {
       "import": "./dist/v0-9-mobile-controller-discovery-runtime.js",
       "types": "./dist/v0-9-mobile-controller-discovery-runtime.d.ts"
