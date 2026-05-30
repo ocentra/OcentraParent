@@ -212,6 +212,8 @@ describe('activity surface adapter event parsing', () => {
     expect(parsed.ok).toBe(true);
     expect(parsed.ok ? parsed.state : null).toBe('empty');
     expect(missing.ok).toBe(false);
+    expect(missing.ok ? null : missing.state).toBe('unavailable');
+    expect(missing.ok ? null : missing.reason).toBe('missing-json-field');
   });
 });
 
