@@ -103,6 +103,8 @@ async function main() {
           'controller-job-degraded-with-provider-unavailable',
           'provider-busy',
           'busy-job-degraded',
+          'provider-degraded',
+          'degraded-job-degraded',
         ]),
       },
       staleOfflineSelectedDevice: {
@@ -190,7 +192,7 @@ function assertProductionProof(proof) {
   );
   assertArrayIncludes(
     proof.claimsProvedLocally,
-    'LAN AI provider routing covers authorized result, unsupported capability, busy, unavailable, and observer rejection',
+    'LAN AI provider routing covers authorized result, unsupported capability, busy, degraded, unavailable, and observer rejection',
     'LAN AI provider proof'
   );
   assertEqual(
@@ -253,6 +255,8 @@ function assertProviderProof(proof) {
     'parent-desktop-controller-ai-provider:controller-job-completed-observer-job-rejected',
     'parent-mobile-observer-scaffold:controller-job-degraded-with-provider-unavailable',
     'parent-desktop-busy-ai-provider:busy-job-degraded',
+    'parent-desktop-degraded-ai-provider:provider-degraded',
+    'parent-desktop-degraded-ai-provider:degraded-job-degraded',
   ]) {
     assertArrayIncludes(proof.assertions, expected, 'LAN AI provider assertion');
   }

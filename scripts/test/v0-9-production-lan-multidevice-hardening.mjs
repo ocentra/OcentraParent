@@ -105,6 +105,8 @@ const proofSteps = [
       'parent-mobile-observer-scaffold:observer-job-rejected',
       'parent-desktop-busy-ai-provider:provider-busy',
       'parent-desktop-busy-ai-provider:busy-job-degraded',
+      'parent-desktop-degraded-ai-provider:provider-degraded',
+      'parent-desktop-degraded-ai-provider:degraded-job-degraded',
     ],
   },
   {
@@ -224,7 +226,8 @@ const proof = {
     'active controller proof rejects observer writes, stale intents, replayed intents, wrong-device targets, missing or expired leases, wrong controllers, revoked pairings, and denied takeover',
     'direct discovery proof rejects wrong-origin proof, malformed proof, stale proof, expired challenge, replayed proof, and wrong-device challenge traffic',
     'selected-device stale and offline read-model states reject control through focused Rust service and core registry proof',
-    'LAN AI provider routing covers authorized result, unsupported capability, busy, unavailable, and observer rejection',
+    'LAN AI provider routing covers authorized result, unsupported capability, busy, degraded, unavailable, and observer rejection',
+    'LAN AI provider routing covers degraded provider state without claiming real household provider readiness',
     'revocation is observed before subsequent control rejection in the local proof artifact',
     'parent mobile controller/observer state remains backend-scaffold or manual-required instead of mobile UX parity',
   ],

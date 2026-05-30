@@ -1,15 +1,16 @@
 use ocentra_parent_agent_protocol::{
-    constants, AgentCommandName, AgentEventName, DeviceRoleRuntimeReadModel,
+    constants, AgentCommandName, AgentEventEnvelope, AgentEventName, DeviceRoleRuntimeReadModel,
     DeviceRuntimeAiProviderState, DeviceRuntimeLocalAiClaim, DeviceRuntimeRole,
     DeviceRuntimeRoleEntry, DeviceRuntimeRoleState, DeviceRuntimeRouteState, DeviceRuntimeSurface,
     LanPairingParentAuthority, LogFieldValue, LogFields,
 };
 
 use crate::{
+    lan_pairing::LanPairingRuntime,
     lan_pairing_test_assertions::assert_rejection_with_audit,
     lan_pairing_test_commands::{
-        command_for_target, intent_payload_for_kind, local_network_target, paired_runtime,
-        serialize_command,
+        command_for_target, intent_payload, intent_payload_for_kind, local_network_target,
+        paired_runtime, route_revoke_command, serialize_command,
     },
     websocket::handle_command_text_for_test,
 };
@@ -149,6 +150,52 @@ async fn authorized_lan_ai_job_submit_routes_to_opted_in_provider() {
 }
 
 #[tokio::test]
+async fn degraded_lan_ai_provider_routes_as_degraded_policy_state() {
+    let runtime = degraded_lan_ai_provider_runtime().await;
+    let event = handle_command_text_for_test(
+        &serialize_command(command_for_target(
+            AgentCommandName::AgentLanAiJobSubmit,
+            local_network_target(constants::lan_pairing::CHILD_DEVICE_ID),
+            lan_ai_job_payload(constants::value::LAN_PARENT_AUTHORITY_ACTIVE_CONTROLLER),
+        )),
+        runtime,
+        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+    )
+    .await;
+
+    assert_eq!(event.event, AgentEventName::AgentLanAiJobReported);
+    assert_eq!(
+        event.payload.get(constants::field::LAN_AI_PROVIDER_STATUS),
+        Some(&LogFieldValue::String(
+            constants::value::LAN_AI_PROVIDER_STATUS_DEGRADED.to_string()
+        ))
+    );
+    assert_eq!(
+        event
+            .payload
+            .get(constants::field::LAN_AI_PROVIDER_ROUTING_STATE),
+        Some(&LogFieldValue::String(
+            constants::value::LAN_AI_PROVIDER_ROUTING_DEGRADED.to_string()
+        ))
+    );
+    assert_eq!(
+        event.payload.get(constants::field::LAN_AI_JOB_STATE),
+        Some(&LogFieldValue::String(
+            constants::value::LAN_AI_JOB_STATE_DEGRADED.to_string()
+        ))
+    );
+    assert_eq!(
+        event
+            .payload
+            .get(constants::field::LOCAL_AI_UNAVAILABLE_REASON),
+        Some(&LogFieldValue::String(
+            constants::local_ai_runtime::DEGRADED_PROVIDER_UNAVAILABLE.to_string()
+        ))
+    );
+    assert_no_raw_lan_ai_markers(&event.payload);
+}
+
+#[tokio::test]
 async fn unsupported_lan_ai_capability_is_rejected_after_authority_checks() {
     let runtime = lan_ai_provider_runtime().await;
     let event = handle_command_text_for_test(
@@ -177,6 +224,35 @@ async fn unsupported_lan_ai_capability_is_rejected_after_authority_checks() {
         ))
     );
     assert_no_raw_lan_ai_markers(&event.payload);
+}
+
+#[tokio::test]
+async fn lan_ai_job_submit_reports_provider_unavailable_for_stale_offline_and_revoked_routes() {
+    let stale_runtime = lan_ai_provider_runtime().await;
+    assert!(stale_runtime.mark_selected_stale_for_test(constants::lan_pairing::EXPIRED_AT));
+    let stale_event = lan_ai_job_event(stale_runtime).await;
+
+    let offline_runtime = lan_ai_provider_runtime().await;
+    assert!(offline_runtime.mark_selected_offline_for_test(constants::lan_pairing::OBSERVED_AT));
+    let offline_event = lan_ai_job_event(offline_runtime).await;
+
+    let revoked_runtime = lan_ai_provider_runtime().await;
+    let _ = handle_command_text_for_test(
+        &serialize_command(route_revoke_command(intent_payload(
+            constants::lan_pairing::REVOKE_INTENT_ID,
+            constants::lan_pairing::CHILD_DEVICE_ID,
+            constants::lan_pairing::PROOF_DIGEST,
+            constants::lan_pairing::EXPIRES_AT,
+        ))),
+        revoked_runtime.clone(),
+        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+    )
+    .await;
+    let revoked_event = lan_ai_job_event(revoked_runtime).await;
+
+    assert_route_blocked_provider(&stale_event, constants::value::LAN_REASON_STALE);
+    assert_route_blocked_provider(&offline_event, constants::value::LAN_REASON_OFFLINE);
+    assert_route_blocked_provider(&revoked_event, constants::value::LAN_REASON_REVOKED);
 }
 
 #[tokio::test]
@@ -230,7 +306,30 @@ fn lan_ai_job_payload_for_capability(authority: &str, capability: &str) -> LogFi
     payload
 }
 
-async fn lan_ai_provider_runtime() -> crate::lan_pairing::LanPairingRuntime {
+async fn lan_ai_job_event(runtime: LanPairingRuntime) -> AgentEventEnvelope {
+    handle_command_text_for_test(
+        &serialize_command(command_for_target(
+            AgentCommandName::AgentLanAiJobSubmit,
+            local_network_target(constants::lan_pairing::CHILD_DEVICE_ID),
+            lan_ai_job_payload(constants::value::LAN_PARENT_AUTHORITY_ACTIVE_CONTROLLER),
+        )),
+        runtime,
+        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+    )
+    .await
+}
+
+async fn degraded_lan_ai_provider_runtime() -> LanPairingRuntime {
+    lan_ai_provider_runtime_with_state(DeviceRuntimeAiProviderState::Degraded).await
+}
+
+async fn lan_ai_provider_runtime() -> LanPairingRuntime {
+    lan_ai_provider_runtime_with_state(DeviceRuntimeAiProviderState::Available).await
+}
+
+async fn lan_ai_provider_runtime_with_state(
+    provider_state: DeviceRuntimeAiProviderState,
+) -> LanPairingRuntime {
     let mut runtime = paired_runtime().await;
     runtime.device_roles = DeviceRoleRuntimeReadModel {
         schema_version: constants::lan_pairing::SCHEMA_VERSION_TEXT.to_string(),
@@ -247,7 +346,7 @@ async fn lan_ai_provider_runtime() -> crate::lan_pairing::LanPairingRuntime {
         parent_authority: Some(LanPairingParentAuthority::ActiveController),
         selected_route_id: Some(constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK.to_string()),
         route_state: DeviceRuntimeRouteState::LocalNetwork,
-        lan_ai_provider_state: DeviceRuntimeAiProviderState::Available,
+        lan_ai_provider_state: provider_state,
         local_ai_runtime_claim: DeviceRuntimeLocalAiClaim::SharedPhysicalDeviceSingleton,
         updated_at: constants::local_ai_runtime::TEST_CHECKED_AT.to_string(),
     };
@@ -256,6 +355,29 @@ async fn lan_ai_provider_runtime() -> crate::lan_pairing::LanPairingRuntime {
         constants::local_ai_runtime::CAPABILITY_SUMMARIZATION.to_string(),
     ];
     runtime
+}
+
+fn assert_route_blocked_provider(event: &AgentEventEnvelope, reason: &str) {
+    assert_rejection_with_audit(
+        event,
+        reason,
+        constants::value::LAN_AUDIT_LAN_AI_JOB_REJECTED,
+    );
+    assert_eq!(
+        event
+            .payload
+            .get(constants::field::LAN_AI_PROVIDER_ROUTING_STATE),
+        Some(&LogFieldValue::String(
+            constants::value::LAN_AI_PROVIDER_ROUTING_UNAVAILABLE.to_string()
+        ))
+    );
+    assert_eq!(
+        event.payload.get(constants::field::LAN_AI_JOB_STATUS),
+        Some(&LogFieldValue::String(
+            constants::value::LAN_AI_JOB_STATE_REJECTED.to_string()
+        ))
+    );
+    assert_no_raw_lan_ai_markers(&event.payload);
 }
 
 fn role_entry(role: DeviceRuntimeRole) -> DeviceRuntimeRoleEntry {

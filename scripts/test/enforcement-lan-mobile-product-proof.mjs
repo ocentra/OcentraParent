@@ -6,6 +6,7 @@ import { join, relative } from 'node:path';
 const repoRoot = process.cwd();
 const outputDir = join(repoRoot, 'test-results', 'enforcement-lan-mobile-product-proof');
 const proofPath = join(outputDir, 'proof.json');
+const householdProductProofPath = join(repoRoot, 'test-results', 'v0-9-household-lan-product-proof', 'proof.json');
 const commands = [];
 const proofLabels = [];
 
@@ -26,6 +27,7 @@ async function main() {
     'tests/capabilities.test.ts',
   ]);
   await runCommand('cmd', ['/c', 'node', 'scripts/test/platform-os-lan-mobile-proof.mjs']);
+  await runCommand('cmd', ['/c', 'node', 'scripts/test/v0-9-household-lan-product-proof.mjs']);
 
   const aggregateProof = await readJson(join(repoRoot, 'test-results', 'platform-os-lan-mobile-proof', 'proof.json'));
   const productionProof = await readJson(
@@ -37,11 +39,12 @@ async function main() {
   const householdLanReadiness = await readJson(
     join(repoRoot, 'test-results', 'v0-9-household-lan-proof-readiness', 'proof.json')
   );
+  const householdProductProof = await readJson(householdProductProofPath);
   const capabilities = await platformCapabilities();
   const matrix = await readJson(join(repoRoot, 'docs', 'expectations', 'pre-ai-proof-matrix.json'));
 
   assertOsEnforcement(aggregateProof, capabilities);
-  assertProductionLan(productionProof, lanProof, householdLanReadiness);
+  assertProductionLan(productionProof, lanProof, householdLanReadiness, householdProductProof);
   assertMobileProductStates(capabilities);
   assertProofMatrix(matrix);
 
@@ -65,6 +68,7 @@ async function main() {
         repoRoot,
         join(repoRoot, 'test-results', 'v0-9-household-lan-proof-readiness', 'proof.json')
       ),
+      householdProductProof: relative(repoRoot, householdProductProofPath),
     },
     productProof: {
       osEnforcement: capabilitySummary(capabilities, 'windows', [
@@ -81,6 +85,7 @@ async function main() {
         localClaims: lanProof.claimsProvedLocally,
         notLocalClaims: lanProof.claimsNotProvedLocally,
         readinessGate: householdLanReadiness.readinessGate,
+        householdProductReadModel: householdProductProof.householdProductReadModel,
         observedLocalServiceStates: householdLanReadiness.observedLocalServiceStates,
         cloudRelayDecision: productionProof.productionTruth.cloudRelayDecision,
       },
@@ -149,7 +154,7 @@ function assertOsEnforcement(aggregateProof, capabilities) {
   proofLabels.push('v0.8.os-enforcement.browser-boundary-nonclaim-states');
 }
 
-function assertProductionLan(productionProof, lanProof, householdLanReadiness) {
+function assertProductionLan(productionProof, lanProof, householdLanReadiness, householdProductProof) {
   assertEqual(
     productionProof.productionTruth.cloudRelayDecision.includes('no cloud relay behavior is implemented'),
     true,
@@ -193,8 +198,64 @@ function assertProductionLan(productionProof, lanProof, householdLanReadiness) {
     'household physical LAN gate'
   );
   assertEqual(householdLanReadiness.readinessGate.cloudRelay.state, 'not-implemented', 'cloud relay LAN gate');
+  assertEqual(
+    householdProductProof.productReadinessDecision,
+    'not-ready-for-product-ready-household-lan-claim',
+    'household product proof decision'
+  );
+  assertEqual(
+    householdProductProof.physicalHouseholdLanProofState,
+    'manual-required',
+    'household product physical LAN state'
+  );
+  assertEqual(
+    householdProductProof.parentMobileControllerProofState,
+    'manual-required',
+    'household product mobile state'
+  );
+  assertEqual(householdProductProof.cloudRelayState, 'not-implemented', 'household product cloud relay state');
+  assertHouseholdProductReadModel(householdProductProof.householdProductReadModel);
   proofLabels.push('v0.9.production-lan.household-manual-proof-boundary');
   proofLabels.push('v0.9.production-lan.household-readiness-gate');
+  proofLabels.push('v0.9.production-lan.household-product-proof-read-model');
+}
+
+function assertHouseholdProductReadModel(readModel) {
+  assertArrayIncludes(
+    readModel.selectedProviderPolicyEvidence.map((entry) => entry.routingState),
+    'degraded',
+    'household provider degraded evidence'
+  );
+  assertArrayIncludes(
+    readModel.selectedProviderPolicyEvidence.map((entry) => entry.routingState),
+    'unavailable',
+    'household provider unavailable evidence'
+  );
+  assertArrayIncludes(
+    readModel.selectedProviderPolicyEvidence.map((entry) => entry.routingState),
+    'authorized-result',
+    'household provider authorized-result evidence'
+  );
+  assertArrayIncludes(
+    readModel.selectedRouteEvidence.map((entry) => entry.rejectionReason),
+    'revoked',
+    'household route revoked evidence'
+  );
+  assertArrayIncludes(
+    readModel.selectedRouteEvidence.map((entry) => entry.rejectionReason),
+    'wrong-origin',
+    'household route wrong-origin evidence'
+  );
+  assertArrayIncludes(
+    readModel.manualProofGates.map((entry) => entry.gate),
+    'two-physical-hosts',
+    'household manual two-host gate'
+  );
+  assertArrayIncludes(
+    readModel.manualProofGates.map((entry) => entry.gate),
+    'physical-stale-offline-selected-device',
+    'household manual stale/offline gate'
+  );
 }
 
 function assertMobileProductStates(capabilities) {
