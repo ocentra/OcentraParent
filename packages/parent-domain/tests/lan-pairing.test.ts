@@ -255,6 +255,8 @@ function registerControlContractTests(): void {
     const { auditEvent, intent, response, routeSelectedAuditEvent, selectedTarget } = acceptedControlContracts();
 
     expect(selectedTarget.selectedChildDeviceId).toBe('child-device-1');
+    expect(selectedTarget.trustState).toBe('paired');
+    expect(selectedTarget.offlineAt).toBeNull();
     expect(intent.intentKind).toBe('rule-query');
     expect(response.state).toBe('accepted');
     expect(auditEvent.eventType).toBe('control-accepted');
@@ -373,9 +375,11 @@ function selectedRouteTargetFor(proof: ReturnType<typeof acceptedProof>) {
     selectedChildDeviceId: childDevice.deviceId,
     routeId: proof.routeId,
     pairingId: proof.pairingId,
+    trustState: 'paired',
     networkMode: 'local-network',
     reachability: 'online',
     staleAt: null,
+    offlineAt: null,
   });
 }
 

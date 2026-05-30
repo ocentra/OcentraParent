@@ -9,7 +9,7 @@ use super::{
     LanPairingProofPreview, LanPairingRejectionReason, LanPairingResponseState,
     LanPairingRestartBehavior, LanPairingRouteRequirement, LanPairingRouteSelectionRequest,
     LanPairingRoutingDecision, LanPairingRuntimeSupportSurface, LanPairingTransport,
-    LanPairingUnsupportedHttpEndpoint, LanTrustedDeviceRegistryEntry,
+    LanPairingTrustState, LanPairingUnsupportedHttpEndpoint, LanTrustedDeviceRegistryEntry,
     LanTrustedDeviceRegistrySnapshot, ParentEvidenceReference, ParentEvidenceReferenceKind,
 };
 
@@ -212,9 +212,11 @@ fn lan_pairing_read_model_values_keep_local_network_state_explicit() {
         selected_child_device_id: constants::lan_pairing::CHILD_DEVICE_ID.to_string(),
         route_id: constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK.to_string(),
         pairing_id: Some(constants::lan_pairing::PAIRING_ID.to_string()),
+        trust_state: LanPairingTrustState::Paired,
         network_mode: LanPairingNetworkMode::LocalNetwork,
         reachability: LanPairingDeviceReachability::Stale,
         stale_at: Some(constants::lan_pairing::OBSERVED_AT.to_string()),
+        offline_at: None,
     };
     let intent = super::LanParentIntentEnvelope {
         schema_version: constants::lan_pairing::SCHEMA_VERSION,
@@ -243,6 +245,8 @@ fn lan_pairing_read_model_values_keep_local_network_state_explicit() {
 
     assert_eq!(selected_json["networkMode"], "local-network");
     assert_eq!(selected_json["reachability"], "stale");
+    assert_eq!(selected_json["trustState"], "paired");
+    assert_eq!(selected_json["offlineAt"], serde_json::Value::Null);
     assert_eq!(intent_json["intentKind"], "rule-query");
     assert_eq!(
         intent_json["evidenceReferences"][0]["kind"],
@@ -430,9 +434,11 @@ fn lan_pairing_registry_snapshot_and_route_decision_make_selection_explicit() {
         selected_child_device_id: constants::lan_pairing::CHILD_DEVICE_ID.to_string(),
         route_id: constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK.to_string(),
         pairing_id: Some(constants::lan_pairing::PAIRING_ID.to_string()),
+        trust_state: LanPairingTrustState::Paired,
         network_mode: LanPairingNetworkMode::LocalNetwork,
         reachability: LanPairingDeviceReachability::Online,
         stale_at: None,
+        offline_at: None,
     };
     let snapshot = LanTrustedDeviceRegistrySnapshot {
         schema_version: constants::lan_pairing::SCHEMA_VERSION,
@@ -478,6 +484,11 @@ fn lan_pairing_registry_snapshot_and_route_decision_make_selection_explicit() {
     assert_eq!(
         snapshot_json["selectedTarget"]["selectedChildDeviceId"],
         constants::lan_pairing::CHILD_DEVICE_ID
+    );
+    assert_eq!(snapshot_json["selectedTarget"]["trustState"], "paired");
+    assert_eq!(
+        snapshot_json["selectedTarget"]["offlineAt"],
+        serde_json::Value::Null
     );
     assert_eq!(
         selection_json["targetChildDeviceId"],

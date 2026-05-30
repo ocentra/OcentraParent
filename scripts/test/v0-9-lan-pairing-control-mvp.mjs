@@ -163,9 +163,14 @@ async function runLanLifecycle(service, { revokeAtEnd }) {
     assertPayloadValue(selected.payload, 'auditEventType', 'route-selected');
     assertPayloadValue(selected.payload, 'authenticationState', 'paired');
     assertPayloadValue(selected.payload, 'selectedChildDeviceId', service.childDeviceId);
+    assertPayloadValue(selected.payload, 'selectedPairingId', service.pairingId);
     assertPayloadValue(selected.payload, 'selectedRouteId', service.routeId);
+    assertPayloadValue(selected.payload, 'selectedRouteTrustState', 'paired');
+    assertPayloadValue(selected.payload, 'selectedRouteStaleAt', expiresAt);
+    assertPayloadValue(selected.payload, 'selectedRouteOfflineAt', '');
     assertPayloadValue(selected.payload, 'discoveryState', 'paired');
     labels.push(`${service.label}:route-selected`);
+    labels.push(`${service.label}:selected-route-trust-state-paired`);
 
     const accepted = await sendCommand(
       socket,
@@ -416,11 +421,16 @@ async function runPersistentRestartLifecycle(service) {
     assertPayloadValue(restartStatus.payload, 'authenticationState', 'paired');
     assertPayloadValue(restartStatus.payload, 'trustedDeviceIds', service.childDeviceId);
     assertPayloadValue(restartStatus.payload, 'selectedChildDeviceId', service.childDeviceId);
+    assertPayloadValue(restartStatus.payload, 'selectedPairingId', service.pairingId);
     assertPayloadValue(restartStatus.payload, 'selectedRouteId', service.routeId);
+    assertPayloadValue(restartStatus.payload, 'selectedRouteTrustState', 'paired');
+    assertPayloadValue(restartStatus.payload, 'selectedRouteStaleAt', expiresAt);
+    assertPayloadValue(restartStatus.payload, 'selectedRouteOfflineAt', '');
     assertPayloadValue(restartStatus.payload, 'discoveryState', 'paired');
     assertPayloadValue(restartStatus.payload, 'persistenceMode', 'local-json-registry');
     assertPayloadValue(restartStatus.payload, 'restartBehavior', 'restore-trusted-registry-selected-route');
     labels.push(`${service.label}:restart-restores-selected-route`);
+    labels.push(`${service.label}:restart-restores-selected-route-trust-state`);
 
     const acceptedAfterRestart = await sendCommand(
       socket,

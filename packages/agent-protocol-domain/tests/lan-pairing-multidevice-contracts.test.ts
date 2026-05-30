@@ -12,7 +12,11 @@ import {
   AgentProtocolDefaults,
 } from '../src/contracts';
 import { AgentLanPairingChallengeRequestSchema } from '../src/lan-pairing-challenge';
-import { AgentLanPairingRejectionReasonSchema, AgentPairingStateSchema } from '../src/security';
+import {
+  AgentLanPairingRejectionReasonSchema,
+  AgentLanSelectedRouteTrustStateSchema,
+  AgentPairingStateSchema,
+} from '../src/security';
 
 describe('LAN pairing multi-device protocol contracts', () => {
   it(
@@ -64,6 +68,12 @@ function assertPairingStates() {
   expect(AgentProtocolDefaults.Field.LanRestartBehavior).toBe('restartBehavior');
   expect(AgentProtocolDefaults.LanSelectedDeviceReachability.Stale).toBe('stale');
   expect(AgentProtocolDefaults.LanSelectedDeviceReachability.Offline).toBe('offline');
+  expect(AgentLanSelectedRouteTrustStateSchema.parse('paired')).toBe('paired');
+  expect(AgentProtocolDefaults.LanSelectedRouteTrustState.Paired).toBe('paired');
+  expect(AgentProtocolDefaults.Field.LanSelectedPairingId).toBe('selectedPairingId');
+  expect(AgentProtocolDefaults.Field.LanSelectedRouteTrustState).toBe('selectedRouteTrustState');
+  expect(AgentProtocolDefaults.Field.LanSelectedRouteOfflineAt).toBe('selectedRouteOfflineAt');
+  expect(AgentProtocolDefaults.Field.LanSelectedRouteStaleAt).toBe('selectedRouteStaleAt');
   expect(AgentLanPairingRejectionReasonSchema.parse('local-network-disabled')).toBe('local-network-disabled');
   expect(AgentLanPairingRejectionReasonSchema.parse('controller-lease-missing')).toBe('controller-lease-missing');
   expect(AgentLanPairingRejectionReasonSchema.parse('controller-lease-expired')).toBe('controller-lease-expired');

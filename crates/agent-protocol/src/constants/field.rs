@@ -122,6 +122,7 @@ pub const LAN_SELECTED_PAIRING_ID: &str = "selectedPairingId";
 pub const LAN_SELECTED_ROUTE_ID: &str = "selectedRouteId";
 pub const LAN_SELECTED_ROUTE_OFFLINE_AT: &str = "selectedRouteOfflineAt";
 pub const LAN_SELECTED_ROUTE_STALE_AT: &str = "selectedRouteStaleAt";
+pub const LAN_SELECTED_ROUTE_TRUST_STATE: &str = "selectedRouteTrustState";
 pub const LAN_RESTART_BEHAVIOR: &str = "restartBehavior";
 pub const LAN_SUPPORTED_WEBSOCKET_COMMANDS: &str = "supportedWebSocketCommands";
 pub const LAN_TRUSTED_DEVICE_IDS: &str = "trustedDeviceIds";

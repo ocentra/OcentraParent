@@ -279,6 +279,37 @@ pub(crate) fn assert_status_selection(
     );
 }
 
+pub(crate) fn assert_status_selected_route_trust(
+    event: &AgentEventEnvelope,
+    pairing_id: &str,
+    trust_state: &str,
+    stale_at: &str,
+    offline_at: &str,
+) {
+    assert_eq!(
+        event.payload.get(constants::field::LAN_SELECTED_PAIRING_ID),
+        Some(&LogFieldValue::String(pairing_id.to_string()))
+    );
+    assert_eq!(
+        event
+            .payload
+            .get(constants::field::LAN_SELECTED_ROUTE_TRUST_STATE),
+        Some(&LogFieldValue::String(trust_state.to_string()))
+    );
+    assert_eq!(
+        event
+            .payload
+            .get(constants::field::LAN_SELECTED_ROUTE_STALE_AT),
+        Some(&LogFieldValue::String(stale_at.to_string()))
+    );
+    assert_eq!(
+        event
+            .payload
+            .get(constants::field::LAN_SELECTED_ROUTE_OFFLINE_AT),
+        Some(&LogFieldValue::String(offline_at.to_string()))
+    );
+}
+
 pub(crate) fn assert_rejection(event: &AgentEventEnvelope, reason: &str) {
     assert_rejection_with_audit(event, reason, constants::value::LAN_AUDIT_CONTROL_REJECTED);
 }

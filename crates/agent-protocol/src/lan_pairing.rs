@@ -234,9 +234,11 @@ pub struct LanSelectedRouteTarget {
     pub selected_child_device_id: String,
     pub route_id: String,
     pub pairing_id: Option<String>,
+    pub trust_state: LanPairingTrustState,
     pub network_mode: LanPairingNetworkMode,
     pub reachability: LanPairingDeviceReachability,
     pub stale_at: Option<String>,
+    pub offline_at: Option<String>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

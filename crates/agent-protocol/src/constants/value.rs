@@ -67,6 +67,7 @@ pub const LAN_PAIRING_UNPAIRED: &str = "unpaired";
 pub const LAN_PAIRING_PAIRING: &str = "pairing";
 pub const LAN_PAIRING_PAIRED: &str = "paired";
 pub const LAN_PAIRING_REVOKED: &str = "revoked";
+pub const LAN_PAIRING_EXPIRED: &str = "expired";
 pub const LAN_PERSISTENCE_IN_MEMORY_FAIL_CLOSED: &str = "in-memory-fail-closed";
 pub const LAN_PERSISTENCE_LOCAL_JSON_REGISTRY: &str = "local-json-registry";
 pub const LAN_RESTART_FAIL_CLOSED_UNPAIRED: &str = "fail-closed-unpaired";

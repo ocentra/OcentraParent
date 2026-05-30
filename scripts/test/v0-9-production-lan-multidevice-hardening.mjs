@@ -45,6 +45,7 @@ const proofSteps = [
       'first-child-agent:pairing-proof-accepted-unselected',
       'first-child-agent:unselected-control-rejected',
       'first-child-agent:route-selected',
+      'first-child-agent:selected-route-trust-state-paired',
       'first-child-agent:rule-query-accepted',
       'first-child-agent:observer-rule-query-accepted',
       'first-child-agent:observer-write-rejected',
@@ -67,6 +68,7 @@ const proofSteps = [
       'second-child-agent:pairing-proof-accepted-unselected',
       'second-child-agent:unselected-control-rejected',
       'second-child-agent:route-selected',
+      'second-child-agent:selected-route-trust-state-paired',
       'second-child-agent:rule-query-accepted',
       'second-child-agent:observer-rule-query-accepted',
       'second-child-agent:observer-write-rejected',
@@ -85,6 +87,7 @@ const proofSteps = [
       'second-child-agent:observer-lan-ai-job-rejected',
       'second-child-agent:controller-lease-takeover-accepted',
       'second-child-agent:restart-restores-selected-route',
+      'second-child-agent:restart-restores-selected-route-trust-state',
       'second-child-agent:restart-recovered-approval-accepted',
       'wrong-agent-port-rejected-as-wrong-device',
     ],
@@ -216,6 +219,7 @@ const proof = {
   claimsProvedLocally: [
     'production LAN states use explicit discovered/pending/paired/revoked/stale/offline/unavailable contract values',
     'trusted registry persists selected route and recovers it after restart',
+    'selected route status reports selected pairing id, selected-route trust state, stale time, and offline time',
     'active controller write authority rejects observer writes, stale intents, replay, wrong device, and denied takeover',
     'active controller proof rejects observer writes, stale intents, replayed intents, wrong-device targets, missing or expired leases, wrong controllers, revoked pairings, and denied takeover',
     'direct discovery proof rejects wrong-origin proof, malformed proof, stale proof, expired challenge, replayed proof, and wrong-device challenge traffic',
@@ -292,6 +296,9 @@ function buildLocalTwoServiceProof(pairingEvidence) {
       registryPersistence: service.registryPersistence,
     })),
     selectedRouteRecovery: assertionsWithSuffix(pairingEvidence, 'restart-restores-selected-route'),
+    selectedRouteTrust: assertionsWithSuffix(pairingEvidence, 'selected-route-trust-state-paired').concat(
+      assertionsWithSuffix(pairingEvidence, 'restart-restores-selected-route-trust-state')
+    ),
     acceptedAfterRestart: assertionsWithSuffix(pairingEvidence, 'restart-recovered-approval-accepted'),
     wrongDeviceRejected: assertionPresent(pairingEvidence, 'wrong-agent-port-rejected-as-wrong-device'),
   };

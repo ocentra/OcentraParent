@@ -123,9 +123,11 @@ export const LanSelectedRouteTargetSchema = withParser(
     selectedChildDeviceId: ParentDeviceIdSchema,
     routeId: LanPairingRouteIdSchema,
     pairingId: Schema.Union(LanPairingIdSchema, Schema.Null),
+    trustState: LanPairingTrustStateSchema,
     networkMode: LanPairingNetworkModeSchema,
     reachability: LanPairingDeviceReachabilitySchema,
     staleAt: Schema.Union(LanPairingTimestampSchema, Schema.Null),
+    offlineAt: Schema.Union(LanPairingTimestampSchema, Schema.Null),
   })
 );
 

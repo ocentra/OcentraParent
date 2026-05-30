@@ -12,8 +12,9 @@ use crate::{
     lan_pairing::LanPairingRuntime,
     lan_pairing_test_support::{
         assert_accepted_control, assert_persistent_selected_route_support_surface,
-        assert_status_selection, command_for_target, health_command, intent_payload,
-        pairing_command, proof_payload, route_select_command, serialize_command,
+        assert_status_selected_route_trust, assert_status_selection, command_for_target,
+        health_command, intent_payload, pairing_command, proof_payload, route_select_command,
+        serialize_command,
     },
     websocket::handle_command_text_for_test,
 };
@@ -41,6 +42,13 @@ async fn lan_pairing_persistent_registry_recovers_selected_route_after_restart()
         constants::lan_pairing::CHILD_DEVICE_ID,
         constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK,
         constants::lan_pairing::CHILD_DEVICE_ID,
+    );
+    assert_status_selected_route_trust(
+        &restarted_status,
+        constants::lan_pairing::PAIRING_ID,
+        constants::value::LAN_PAIRING_PAIRED,
+        constants::lan_pairing::EXPIRES_AT,
+        constants::value::EMPTY,
     );
     assert_accepted_control(&accepted_after_restart);
 }
