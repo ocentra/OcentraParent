@@ -56,6 +56,7 @@
     "test:tooling": "node scripts/test/parent-mobile-shell-runtime-proof.mjs && node --test scripts/test/*.test.mjs",
     "test:parent-mobile-shell-runtime-proof": "npm run build --workspace @ocentra-parent/parent-domain && node scripts/test/parent-mobile-shell-runtime-proof.mjs",
     "test:parent-mobile-service-bridge": "node scripts/test/parent-mobile-service-bridge-proof.mjs",
+    "test:parent-mobile-controller-observer-handoff": "node scripts/test/parent-mobile-controller-observer-handoff-proof.mjs",
     "test:unit": "turbo run test",
     "test:contract": "turbo run test --filter=@ocentra-parent/logging-domain --filter=@ocentra-parent/agent-protocol-domain --filter=@ocentra-parent/portal-domain --filter=@ocentra-parent/text-domain",
     "test:local": "npm run test && cargo test --workspace",
