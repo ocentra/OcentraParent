@@ -29,6 +29,7 @@
     "v0-9-household-lan-proof-readiness",
     "v0-9-household-lan-production-discovery-proof",
     "v0-9-production-discovery-proof",
+    "v0-9-production-discovery-household-proof",
     "platform-lan-enforcement-production-proof",
     "platform-os-lan-mobile-proof",
     "enforcement-lan-mobile-product-proof",
@@ -752,6 +753,43 @@
         "A selected route presented as physical household discovery.",
         "Local loopback or local-process traffic presented as real router/firewall behavior.",
         "Cloud relay, mobile controller UX, or real mobile background behavior presented as implemented."
+      ]
+    },
+    {
+      "id": "v0-9-production-discovery-household-proof",
+      "title": "V0.9 Production Discovery And Household Route Proof",
+      "claimIds": ["v0-9-production-discovery-household-proof"],
+      "expectationFiles": [
+        "docs/expectations/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
+        "docs/expectations/lan-pairing.md",
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "proofMode": "ci-mechanical-proof",
+      "realEvidencePath": [
+        "Run the V0.9 production discovery product truth proof through real local Rust service artifacts.",
+        "Run the household LAN product read-model proof and parse the typed contract output.",
+        "Verify paired, failed-unpaired, wrong-origin, wrong-device, replay, revocation, stale, offline, unavailable, and manual-required route checks stay machine-readable.",
+        "Verify selected provider policy evidence distinguishes authorized result, unsupported capability, busy, degraded, unavailable, route-blocked, stale, offline, wrong-origin, wrong-device, replay, and revoked states.",
+        "Verify physical household LAN, mobile controller, router discovery, and cloud relay stay explicit non-claims with a cloud-relay not-implemented/manual-decision state."
+      ],
+      "ciCommands": ["node scripts/test/v0-9-production-discovery-household-proof.mjs"],
+      "requiredArtifacts": [
+        "test-results/v0-9-production-discovery-household-proof/proof.json",
+        "test-results/v0-9-production-discovery-proof/proof.json",
+        "test-results/v0-9-household-lan-product-proof/proof.json",
+        "test-results/v0-9-household-lan-production-discovery-proof/proof.json",
+        "test-results/v0-9-production-lan-multidevice-hardening/proof.json"
+      ],
+      "knownGaps": [
+        "The proof uses local real Rust service processes; it is not physical household router discovery.",
+        "Two physical devices, router/firewall evidence, mobile controller behavior, mobile background behavior, and real provider host behavior remain manual-required.",
+        "Cloud relay remains not implemented and requires a separate manual product decision plus authenticated relay proof before any relay claim."
+      ],
+      "notProof": [
+        "A local multi-service WebSocket run presented as physical household LAN readiness.",
+        "A selected local route presented as router discovery, firewall, NAT, or OS local-network permission proof.",
+        "A cloud-relay manual-decision state presented as cloud relay runtime implementation."
       ]
     },
     {
@@ -1648,6 +1686,67 @@
         "Run V0.9 LAN proof across two physical household devices and record parent/child host names or IPs, router reachability, firewall/OS prompts, origin allowlist, selected-route trust state, route selection, takeover, revocation, wrong-origin/wrong-device rejection, replay rejection, stale/offline selected-device behavior, failed-unpaired command rejection, and provider state.",
         "Record Android and iOS parent mobile observer/controller behavior before upgrading mobile authority states.",
         "Record a separate authenticated cloud relay proof before counting cloud relay as implemented."
+      ]
+    },
+    {
+      "id": "v0-9-production-discovery-household-proof",
+      "roadmapSlice": "V0.9 production discovery and household route proof",
+      "expectationFiles": [
+        "docs/expectations/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
+        "docs/expectations/lan-pairing.md",
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "claim": "V0.9 production discovery and household route proof verifies typed production discovery states, paired and failed-unpaired route checks, wrong-origin/wrong-device/replay/revocation rejection, stale/offline/unavailable/manual-required states, selected provider policy evidence, and explicit cloud-relay not-implemented/manual-decision non-claims.",
+      "privilegedCapability": true,
+      "ciProof": {
+        "commands": ["node scripts/test/v0-9-production-discovery-household-proof.mjs"],
+        "jobs": ["Worker B V0.9 production discovery household proof"]
+      },
+      "platformCoverage": {
+        "windows": "ci-mechanical-proof",
+        "linux": "ci-mechanical-proof",
+        "macos": "ci-mechanical-proof",
+        "android": "manual-required",
+        "ios": "manual-required"
+      },
+      "runtimeSurfaceCoverage": {
+        "productionDiscovery": {
+          "state": "ci-mechanical-proof",
+          "proof": "The proof composes production discovery and household product read-model artifacts from real local Rust service processes while preserving local-service versus physical-household boundaries."
+        },
+        "routeChecks": {
+          "state": "implemented",
+          "proof": "The typed read model carries paired accepted, failed-unpaired, wrong-origin, wrong-device, replay, revocation, stale, offline, unavailable, and manual-required route check outcomes."
+        },
+        "selectedProviderPolicy": {
+          "state": "implemented",
+          "proof": "Selected provider policy evidence distinguishes authorized result, unsupported capability, busy, degraded, unavailable, stale, offline, wrong-origin, wrong-device, replay, and revoked states."
+        },
+        "physicalHouseholdLan": {
+          "state": "manual-required",
+          "proof": "Two physical devices, router/firewall evidence, origin allowlist, stale/offline behavior, failed-unpaired results, and provider artifacts are still required before household LAN readiness can be claimed."
+        },
+        "parentMobileController": {
+          "state": "manual-required",
+          "proof": "Real Android or iOS parent mobile package controller behavior remains a manual proof gate and is not provided by this non-visual proof."
+        },
+        "cloudRelay": {
+          "implementationState": "not-implemented",
+          "decisionState": "manual-decision-required",
+          "proof": "Cloud relay has no runtime, storage, authentication, or route implementation in this proof and requires a separate product decision plus authenticated relay proof before any claim."
+        }
+      },
+      "knownGaps": [
+        "Local real-service proof is not physical household router discovery.",
+        "Real router/firewall behavior, mobile controller write authority, mobile background behavior, and cloud relay remain manual-required or not implemented.",
+        "Selected-route trust state is local trusted-registry proof, not device-owner, MDM, router, mobile-platform, or cloud-relay proof."
+      ],
+      "manualProofChecklist": [
+        "Archive test-results/v0-9-production-discovery-household-proof/proof.json with the commit SHA.",
+        "Run V0.9 LAN proof across two physical household devices and record parent/child host names or IPs, router reachability, firewall/OS prompts, origin allowlist, selected-route trust state, route selection, takeover, revocation, wrong-origin/wrong-device rejection, replay rejection, stale/offline selected-device behavior, failed-unpaired command rejection, and provider state.",
+        "Record Android and iOS parent mobile observer/controller behavior before upgrading mobile authority states.",
+        "Record a separate product decision and authenticated cloud relay proof before counting cloud relay as implemented."
       ]
     },
     {
