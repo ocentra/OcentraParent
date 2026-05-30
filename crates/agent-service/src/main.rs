@@ -17,6 +17,8 @@ mod activity_surface_adapter;
 #[cfg(test)]
 mod activity_surface_adapter_tests;
 mod activity_surface_api;
+#[cfg(test)]
+mod activity_surface_main_backed_adapter_tests;
 mod activity_surface_payload;
 #[cfg(test)]
 mod activity_surface_payload_tests;
