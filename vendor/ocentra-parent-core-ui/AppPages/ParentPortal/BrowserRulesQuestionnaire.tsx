@@ -36,6 +36,9 @@ export type BrowserRulesQuestion = {
   readonly header: string;
   readonly title: string;
   readonly kind: BrowserRulesQuestionKind;
+  readonly disabled?: boolean;
+  readonly enforcementDisabled?: boolean;
+  readonly enforcementHidden?: boolean;
   readonly multiSelect?: boolean;
   readonly value?: string;
   readonly selected?: readonly string[];
@@ -366,10 +369,12 @@ function getBrowserRulesBubbleMetrics(question: BrowserRulesQuestion, width: num
       BROWSER_RULES_QUESTIONNAIRE_LAYOUT.bodyContentInsetX * 2
   );
   const choiceMinWidth = getBrowserRulesControlMinWidth(question);
+  const enforcementHidden = question.enforcementHidden === true;
   const inlineMinWidth =
     choiceMinWidth +
-    BROWSER_RULES_CONTROL_LAYOUT.enforcementControlMinWidth +
-    BROWSER_RULES_QUESTIONNAIRE_LAYOUT.controlColumnGap;
+    (enforcementHidden
+      ? 0
+      : BROWSER_RULES_CONTROL_LAYOUT.enforcementControlMinWidth + BROWSER_RULES_QUESTIONNAIRE_LAYOUT.controlColumnGap);
   const controlsInline = bodyContentWidth >= inlineMinWidth;
   const targetEnforcementWidth = Math.floor(
     bodyContentWidth * BROWSER_RULES_CONTROL_LAYOUT.enforcementControlFluidRatio
@@ -381,14 +386,18 @@ function getBrowserRulesBubbleMetrics(question: BrowserRulesQuestion, width: num
         BROWSER_RULES_CONTROL_LAYOUT.enforcementControlMaxWidth
       )
     : Math.min(bodyContentWidth, BROWSER_RULES_CONTROL_LAYOUT.enforcementDefaultWidth);
-  const choiceControlWidth = controlsInline
-    ? bodyContentWidth - enforcementControlWidth - BROWSER_RULES_QUESTIONNAIRE_LAYOUT.controlColumnGap
-    : bodyContentWidth;
+  const choiceControlWidth = enforcementHidden
+    ? bodyContentWidth
+    : controlsInline
+      ? bodyContentWidth - enforcementControlWidth - BROWSER_RULES_QUESTIONNAIRE_LAYOUT.controlColumnGap
+      : bodyContentWidth;
   const choiceControlHeight = getBrowserRulesChoiceHeight(question, choiceControlWidth);
   const enforcementControlHeight = getBrowserRulesEnforcementChoiceHeight(enforcementControlWidth);
-  const contentHeight = controlsInline
-    ? Math.max(choiceControlHeight, enforcementControlHeight)
-    : choiceControlHeight + BROWSER_RULES_QUESTIONNAIRE_LAYOUT.rowGap + enforcementControlHeight;
+  const contentHeight = enforcementHidden
+    ? choiceControlHeight
+    : controlsInline
+      ? Math.max(choiceControlHeight, enforcementControlHeight)
+      : choiceControlHeight + BROWSER_RULES_QUESTIONNAIRE_LAYOUT.rowGap + enforcementControlHeight;
   const enforcementAlignSelf = 'flex-start';
   const expandedBodyHeight = contentHeight + BROWSER_RULES_QUESTIONNAIRE_LAYOUT.bodyContentInsetY * 2;
   const bodyHeight = question.collapsed
@@ -767,7 +776,7 @@ export function BrowserRulesQuestionnaire({
           >
             {columnQuestions.map((question) => (
               <BrowserRulesQuestionBubble
-                disabled={disabled}
+                disabled={disabled || question.disabled === true}
                 key={question.id}
                 question={question}
                 widthHint={layout.columnWidth}
@@ -983,12 +992,14 @@ function BrowserRulesQuestionBubble({
                     disabled={disabled}
                     question={question}
                   />
-                  <EnforcementPanel
-                    alignSelf={visualMetrics.enforcementAlignSelf}
-                    controlWidth={visualMetrics.enforcementControlWidth}
-                    disabled={disabled}
-                    question={question}
-                  />
+                  {question.enforcementHidden === true ? null : (
+                    <EnforcementPanel
+                      alignSelf={visualMetrics.enforcementAlignSelf}
+                      controlWidth={visualMetrics.enforcementControlWidth}
+                      disabled={disabled || question.enforcementDisabled === true}
+                      question={question}
+                    />
+                  )}
                 </div>
               </foreignObject>
             )
