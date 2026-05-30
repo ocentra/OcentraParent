@@ -35,6 +35,13 @@ describe('portal dev text', () => {
     expect(PortalDevText[PortalDevTextToken.PolicyPreviewNoEnforcement]).toBe('Protection mode: advisory.');
     expect(PortalDevText[PortalDevTextToken.GetPolicyPreviewReadModel]).toBe('Refresh policy decision');
     expect(PortalDevText[PortalDevTextToken.GetBrowserInterventionReadModel]).toBe('Refresh browser protection');
+    expect(PortalDevText[PortalDevTextToken.GetActivityReportDaily]).toBe('Build daily activity report');
+    expect(PortalDevText[PortalDevTextToken.GetActivityReportHistory]).toBe('Refresh activity report history');
+    expect(PortalDevText[PortalDevTextToken.GetActivityScreenReadModel]).toBe('Refresh activity screen');
+    expect(PortalDevText[PortalDevTextToken.GetActivityAppUseReadModel]).toBe('Refresh activity app use');
+    expect(PortalDevText[PortalDevTextToken.GetActivityBrowserReadModel]).toBe('Refresh activity browser');
+    expect(PortalDevText[PortalDevTextToken.GetActivityGamesReadModel]).toBe('Refresh activity games');
+    expect(PortalDevText[PortalDevTextToken.GetActivityNetworkReadModel]).toBe('Refresh activity network');
     expect(PortalDevText[PortalDevTextToken.CommandResult]).toBe('Command result');
     expect(PortalDevText[PortalDevTextToken.CopyResult]).toBe('Copy result');
   });

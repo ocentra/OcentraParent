@@ -96,6 +96,48 @@ export const PortalCommandButtons = [
     payload: {},
   },
   {
+    label: resolvePortalDevText(PortalDevTextToken.GetActivityReportDaily),
+    command: AgentCommand.ActivityReportDailyGenerate,
+    resultEvent: AgentEvent.ActivityReportGenerated,
+    payload: {},
+  },
+  {
+    label: resolvePortalDevText(PortalDevTextToken.GetActivityReportHistory),
+    command: AgentCommand.ActivityReportHistoryList,
+    resultEvent: AgentEvent.ActivityReportHistoryReported,
+    payload: {},
+  },
+  {
+    label: resolvePortalDevText(PortalDevTextToken.GetActivityScreenReadModel),
+    command: AgentCommand.ActivityScreenReadModelGet,
+    resultEvent: AgentEvent.ActivityScreenReadModelReported,
+    payload: {},
+  },
+  {
+    label: resolvePortalDevText(PortalDevTextToken.GetActivityAppUseReadModel),
+    command: AgentCommand.ActivityAppUseReadModelGet,
+    resultEvent: AgentEvent.ActivityAppUseReadModelReported,
+    payload: {},
+  },
+  {
+    label: resolvePortalDevText(PortalDevTextToken.GetActivityBrowserReadModel),
+    command: AgentCommand.ActivityBrowserReadModelGet,
+    resultEvent: AgentEvent.ActivityBrowserReadModelReported,
+    payload: {},
+  },
+  {
+    label: resolvePortalDevText(PortalDevTextToken.GetActivityGamesReadModel),
+    command: AgentCommand.ActivityGamesReadModelGet,
+    resultEvent: AgentEvent.ActivityGamesReadModelReported,
+    payload: {},
+  },
+  {
+    label: resolvePortalDevText(PortalDevTextToken.GetActivityNetworkReadModel),
+    command: AgentCommand.ActivityNetworkReadModelGet,
+    resultEvent: AgentEvent.ActivityNetworkReadModelReported,
+    payload: {},
+  },
+  {
     label: resolvePortalDevText(PortalDevTextToken.GetBrowserInterventionReadModel),
     command: AgentCommand.BrowserInterventionReadModelGet,
     resultEvent: AgentEvent.BrowserInterventionReadModelReported,

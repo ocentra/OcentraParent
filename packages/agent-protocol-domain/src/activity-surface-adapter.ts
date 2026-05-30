@@ -30,7 +30,16 @@ import {
 import { AgentProtocolSchemaVersion, type AgentRoute } from './primitives';
 
 export type ActivitySurfaceReportFrequency = 'daily' | 'weekly' | 'monthly';
-export type ActivitySurfaceReadModelKind = 'screen' | 'app-use' | 'browser' | 'games' | 'network';
+export const ActivitySurfaceReadModelKindName = {
+  Screen: 'screen',
+  AppUse: 'app-use',
+  Browser: 'browser',
+  Games: 'games',
+  Network: 'network',
+} as const;
+
+export type ActivitySurfaceReadModelKind =
+  (typeof ActivitySurfaceReadModelKindName)[keyof typeof ActivitySurfaceReadModelKindName];
 export type ActivitySurfaceAdapterFailureReason =
   | 'wrong-event'
   | 'missing-json-field'
@@ -242,27 +251,27 @@ function reportCommandForFrequency(frequency: ActivitySurfaceReportFrequency): A
 }
 
 function readModelCommandForKind(kind: ActivitySurfaceReadModelKind): AgentCommandEnvelope['command'] {
-  if (kind === 'screen') return AgentCommand.ActivityScreenReadModelGet;
-  if (kind === 'app-use') return AgentCommand.ActivityAppUseReadModelGet;
-  if (kind === 'browser') return AgentCommand.ActivityBrowserReadModelGet;
-  if (kind === 'games') return AgentCommand.ActivityGamesReadModelGet;
+  if (kind === ActivitySurfaceReadModelKindName.Screen) return AgentCommand.ActivityScreenReadModelGet;
+  if (kind === ActivitySurfaceReadModelKindName.AppUse) return AgentCommand.ActivityAppUseReadModelGet;
+  if (kind === ActivitySurfaceReadModelKindName.Browser) return AgentCommand.ActivityBrowserReadModelGet;
+  if (kind === ActivitySurfaceReadModelKindName.Games) return AgentCommand.ActivityGamesReadModelGet;
   return AgentCommand.ActivityNetworkReadModelGet;
 }
 
 function readModelEventForKind(kind: ActivitySurfaceReadModelKind): AgentEventEnvelope['event'] {
-  if (kind === 'screen') return AgentEvent.ActivityScreenReadModelReported;
-  if (kind === 'app-use') return AgentEvent.ActivityAppUseReadModelReported;
-  if (kind === 'browser') return AgentEvent.ActivityBrowserReadModelReported;
-  if (kind === 'games') return AgentEvent.ActivityGamesReadModelReported;
+  if (kind === ActivitySurfaceReadModelKindName.Screen) return AgentEvent.ActivityScreenReadModelReported;
+  if (kind === ActivitySurfaceReadModelKindName.AppUse) return AgentEvent.ActivityAppUseReadModelReported;
+  if (kind === ActivitySurfaceReadModelKindName.Browser) return AgentEvent.ActivityBrowserReadModelReported;
+  if (kind === ActivitySurfaceReadModelKindName.Games) return AgentEvent.ActivityGamesReadModelReported;
   return AgentEvent.ActivityNetworkReadModelReported;
 }
 
 function readModelSchemaForKind(
   kind: ActivitySurfaceReadModelKind
 ): ActivitySurfaceSchemaParser<ActivitySurfaceReadModel> {
-  if (kind === 'screen') return ActivityScreenReadModelSchema;
-  if (kind === 'app-use') return ActivityAppUseReadModelSchema;
-  if (kind === 'browser') return ActivityBrowserReadModelSchema;
-  if (kind === 'games') return ActivityGamesReadModelSchema;
+  if (kind === ActivitySurfaceReadModelKindName.Screen) return ActivityScreenReadModelSchema;
+  if (kind === ActivitySurfaceReadModelKindName.AppUse) return ActivityAppUseReadModelSchema;
+  if (kind === ActivitySurfaceReadModelKindName.Browser) return ActivityBrowserReadModelSchema;
+  if (kind === ActivitySurfaceReadModelKindName.Games) return ActivityGamesReadModelSchema;
   return ActivityNetworkReadModelSchema;
 }

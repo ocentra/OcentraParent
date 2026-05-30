@@ -19,6 +19,8 @@ async function main() {
   await runNpmWorkspace('@ocentra-parent/agent-protocol-domain', ['test', '--', 'activity-surface-adapter']);
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-protocol', 'activity_surface']);
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-service', 'activity_surface']);
+  await runCommand('cargo', ['build', '-p', 'ocentra-parent-agent-service']);
+  await runCommand('node', ['scripts/test/portal-local-smoke.mjs']);
   await runCommand('node', ['scripts/test/activity-parent-assistant-runtime-proof.mjs']);
   await runNpmScript('test:pre-ai-proof');
 
@@ -29,6 +31,7 @@ async function main() {
   proofLabels.push('activity-surface-main-backed-adapter.contracts');
   proofLabels.push('activity-surface-main-backed-adapter.rust-protocol-service');
   proofLabels.push('activity-surface-main-backed-adapter.real-service-runtime');
+  proofLabels.push('activity-surface-main-backed-adapter.portal-smoke');
 
   const proof = {
     schemaVersion: 1,
@@ -46,6 +49,8 @@ async function main() {
       rustServiceAdapter: 'crates/agent-service/src/activity_surface_adapter.rs',
       rustServiceReadModels: 'crates/agent-service/src/activity_surface_read_models.rs',
       rustDispatcherTest: 'crates/agent-service/src/activity_surface_main_backed_adapter_tests.rs',
+      portalSmoke: 'scripts/test/portal-local-smoke.mjs',
+      portalPlaywright: 'apps/portal/e2e/portal-ui.spec.ts',
       runtimeProof: 'scripts/test/activity-parent-assistant-runtime-proof.mjs',
       proofMatrix: 'docs/expectations/pre-ai-proof-matrix.json',
       checkpoint: 'docs/checkpoints/activity-surface-main-backed-adapter-proof-2026-05-29.md',
@@ -67,7 +72,7 @@ async function main() {
     knownGaps: [
       'The C-owned visual Activity UI seam still needs to consume the merged adapter surface.',
       'Family fan-out beyond local service state and data storage destination selection remain typed local or unavailable behavior.',
-      'This focused proof does not run visible browser, Playwright, full validate, package validation, Android device-owner proof, or iOS entitlement proof.',
+      'This focused proof runs portal-local smoke but not full Playwright, full validate, Android device-owner proof, or iOS entitlement proof.',
     ],
   };
 
