@@ -55,6 +55,7 @@ export const AgentProtocolDefaults = {
   },
   LanSelectedRouteTrustState: {
     Unpaired: AgentLanSelectedRouteTrustStateSchema.parse('unpaired'),
+    Pairing: AgentLanSelectedRouteTrustStateSchema.parse('pairing'),
     Paired: AgentLanSelectedRouteTrustStateSchema.parse('paired'),
     Revoked: AgentLanSelectedRouteTrustStateSchema.parse('revoked'),
     Expired: AgentLanSelectedRouteTrustStateSchema.parse('expired'),

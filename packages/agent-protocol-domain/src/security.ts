@@ -31,7 +31,7 @@ export const AgentPairingStateSchema = withParser(
 
 export const AgentLanSelectedDeviceReachabilitySchema = withParser(Schema.Literal('online', 'offline', 'stale'));
 export const AgentLanSelectedRouteTrustStateSchema = withParser(
-  Schema.Literal('unpaired', 'paired', 'revoked', 'expired')
+  Schema.Literal('unpaired', 'pairing', 'paired', 'revoked', 'expired')
 );
 export const AgentLanPairingNetworkModeSchema = withParser(Schema.Literal('loopback', 'local-network'));
 export const AgentLanPairingParentAuthoritySchema = withParser(Schema.Literal('active-controller', 'observer'));

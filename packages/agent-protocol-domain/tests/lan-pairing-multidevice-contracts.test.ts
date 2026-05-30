@@ -68,7 +68,9 @@ function assertPairingStates() {
   expect(AgentProtocolDefaults.Field.LanRestartBehavior).toBe('restartBehavior');
   expect(AgentProtocolDefaults.LanSelectedDeviceReachability.Stale).toBe('stale');
   expect(AgentProtocolDefaults.LanSelectedDeviceReachability.Offline).toBe('offline');
+  expect(AgentLanSelectedRouteTrustStateSchema.parse('pairing')).toBe('pairing');
   expect(AgentLanSelectedRouteTrustStateSchema.parse('paired')).toBe('paired');
+  expect(AgentProtocolDefaults.LanSelectedRouteTrustState.Pairing).toBe('pairing');
   expect(AgentProtocolDefaults.LanSelectedRouteTrustState.Paired).toBe('paired');
   expect(AgentProtocolDefaults.Field.LanSelectedPairingId).toBe('selectedPairingId');
   expect(AgentProtocolDefaults.Field.LanSelectedRouteTrustState).toBe('selectedRouteTrustState');
