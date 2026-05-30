@@ -24,6 +24,7 @@
     "v0-8-cross-platform-enforcement-capability-proof",
     "v0-8-browser-domain-adapter-proof",
     "v0-8-os-adapter-manual-artifact-gates",
+    "v0-8-broad-os-adapter-runtime-proof",
     "v0-8-host-adapter-proof-preflight",
     "v0-8-process-package-identity-proof-bridge",
     "v0-8-host-identity-read-model-proof",
@@ -590,6 +591,45 @@
         "A manual gate entry presented as product-ready blocking.",
         "Windows proof presented as Linux, macOS, Android, or iOS support.",
         "A process-only or domain-observation artifact presented as exact browser, host network filter, or mobile privileged capability proof."
+      ]
+    },
+    {
+      "id": "v0-8-broad-os-adapter-runtime-proof",
+      "title": "V0.8 Broad OS Adapter Runtime Proof",
+      "claimIds": ["v0-8-broad-os-adapter-runtime-proof"],
+      "expectationFiles": [
+        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/expectations/platforms.md",
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/policy.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "proofMode": "ci-mechanical-proof",
+      "realEvidencePath": [
+        "Build contracts from the current commit.",
+        "Run the parent-domain broad OS adapter runtime proof contract test.",
+        "Run the existing broad OS adapter, browser/domain adapter, and OS adapter manual artifact gate proof harnesses.",
+        "Emit a proof artifact that composes owned-process and timer runtime boundaries, managed-browser session intervention, broad app manual gates, network/domain manual gates, exact browser evidence gaps, and non-Windows/mobile target states.",
+        "Verify no read-model entry sets broad installed-app blocking, network/domain blocking, managed exact URL, unmanaged exact evidence, unsupported platform, or mobile privilege claim flags."
+      ],
+      "ciCommands": ["node scripts/test/v0-8-broad-os-adapter-runtime-proof.mjs"],
+      "requiredArtifacts": [
+        "test-results/v0-8-broad-os-adapter-runtime-proof/proof.json",
+        "packages/parent-domain/src/v0-8-broad-os-adapter-runtime-proof.ts",
+        "packages/parent-domain/tests/v0-8-broad-os-adapter-runtime-proof.test.ts",
+        "scripts/test/v0-8-broad-os-adapter-runtime-proof.mjs",
+        "docs/checkpoints/v0-8-broad-os-adapter-runtime-proof-2026-05-30.md"
+      ],
+      "knownGaps": [
+        "This proof composes prior runtime and manual-gate slices; it does not implement global app blocking, network/domain blocking, managed exact URL enforcement, unmanaged exact browser evidence, Linux host support, macOS host support, Android privileged support, or iOS entitlement-backed support.",
+        "Owned-process pid/name guardrails, app timer lifecycle, and managed-session intervention remain implemented boundaries only.",
+        "Android, iOS, signing, TestFlight, stores, and physical device behavior remain manual-required until target-specific artifacts exist."
+      ],
+      "notProof": [
+        "An aggregate proof artifact presented as product-ready broad app/domain/browser enforcement.",
+        "Owned-process or timer behavior presented as global installed-app blocking.",
+        "Managed-session intervention presented as exact active-tab URL enforcement.",
+        "Process-only unmanaged browser behavior presented as exact URL, title, page, download, HTTPS content, or intent evidence."
       ]
     },
     {
@@ -2450,6 +2490,87 @@
         "Capture Linux and macOS service/package/permission/apply/rollback/audit artifacts before upgrading desktop support outside Windows.",
         "Capture Android UsageStats, accessibility, VPN/DNS, device-owner, managed-profile, package lifecycle, signing, foreground service, and device artifacts before upgrading Android support.",
         "Capture iOS Family Controls, DeviceActivity, Screen Time, Network Extension, background, signing, TestFlight, install, and device artifacts before upgrading iOS support."
+      ]
+    },
+    {
+      "id": "v0-8-broad-os-adapter-runtime-proof",
+      "roadmapSlice": "V0.8 broad OS adapter runtime proof",
+      "expectationFiles": [
+        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/expectations/platforms.md",
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/policy.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "claim": "V0.8 broad OS adapter runtime proof has typed parent-domain and proof-harness coverage that composes the broad OS adapter, browser/domain adapter, manual artifact gate, and product proof slices without upgrading broad app/domain/browser, exact browser evidence, unsupported platform, or mobile privileged claims.",
+      "privilegedCapability": true,
+      "ciProof": {
+        "commands": ["node scripts/test/v0-8-broad-os-adapter-runtime-proof.mjs"],
+        "jobs": ["Worker B V0.8 broad OS adapter runtime proof"]
+      },
+      "platformCoverage": {
+        "windows": "real-local-windows-proof",
+        "linux": "not-yet-proven",
+        "macos": "manual-required",
+        "android": "manual-required",
+        "ios": "manual-required"
+      },
+      "runtimeSurfaceCoverage": {
+        "ownedProcessAndTimerRuntime": {
+          "state": "implemented-boundary",
+          "proof": "Windows owned-process pid/name guardrails and app timer lifecycle are composed as runtime boundaries only and do not upgrade broad installed-app blocking."
+        },
+        "managedBrowserSessionRuntime": {
+          "state": "implemented-boundary",
+          "proof": "Windows managed-browser session intervention is composed as a managed-session runtime boundary only and does not upgrade exact active-tab URL control."
+        },
+        "broadInstalledAppRuntime": {
+          "state": "manual-required",
+          "proof": "Broad installed-app runtime claims require same app identity, host apply, rollback, and audit custody artifacts before upgrade."
+        },
+        "networkDomainRuntime": {
+          "state": "manual-required",
+          "proof": "Network/domain runtime claims require host DNS/filter/VPN apply, rollback, and audit custody artifacts and are not proved by observation or browser policy records."
+        },
+        "managedBrowserExactUrlRuntime": {
+          "state": "manual-required",
+          "proof": "Managed exact URL runtime claims require active-tab, exact URL apply, rollback, and audit artifacts before upgrade."
+        },
+        "unmanagedBrowserExactEvidence": {
+          "state": "not-claimed",
+          "proof": "Unmanaged browser exact URL, active tab, title, page, download, HTTPS content, and intent evidence remain not-claimed without explicit browser integration proof."
+        },
+        "linuxHostRuntime": {
+          "state": "unavailable",
+          "proof": "Linux host runtime support remains unavailable in this final pass and cannot inherit Windows runtime proof."
+        },
+        "macosHostRuntime": {
+          "state": "manual-required",
+          "proof": "macOS host runtime support requires target-specific permission, package, service, apply, rollback, and audit artifacts."
+        },
+        "androidMobileRuntime": {
+          "state": "manual-required",
+          "proof": "Android privileged runtime support requires device-owner or managed-profile, UsageStats, accessibility or VPN/DNS, package lifecycle, signing, and device artifacts."
+        },
+        "iosMobileRuntime": {
+          "state": "manual-required",
+          "proof": "iOS privileged runtime support requires Family Controls, DeviceActivity, Screen Time, Network Extension, entitlement, signing, TestFlight, and device artifacts."
+        }
+      },
+      "knownGaps": [
+        "This slice does not implement global installed-app blocking, host network/domain blocking, managed exact URL enforcement, unmanaged browser exact evidence, Linux support, macOS support, Android child enforcement, iOS child enforcement, signing, TestFlight, stores, or physical device behavior.",
+        "It is an aggregate runtime proof over existing typed proof slices, not a new host adapter implementation.",
+        "Owned-process, timer, and managed-session proof boundaries stay narrower than broad app/domain/browser runtime enforcement."
+      ],
+      "manualProofChecklist": [
+        "Archive test-results/v0-8-broad-os-adapter-runtime-proof/proof.json with the commit SHA.",
+        "Run Windows host proof for broad app identity, apply, rollback, and audit custody before upgrading broad app runtime claims.",
+        "Run host DNS/filter/VPN apply, rollback, and custody proof before upgrading network/domain runtime claims.",
+        "Run managed browser active-tab and exact URL apply/rollback/audit proof before upgrading managed exact URL runtime claims.",
+        "Run explicit unmanaged browser integration proof before upgrading unmanaged URL, title, page, download, HTTPS content, or intent evidence.",
+        "Run Linux and macOS package, permission, service, apply, rollback, and audit proof before upgrading desktop support outside Windows.",
+        "Run Android device-owner or managed-profile, UsageStats, accessibility or VPN/DNS, package lifecycle, signing, and real-device proof before upgrading Android support.",
+        "Run iOS Family Controls, DeviceActivity, Screen Time, Network Extension, entitlement, signing, TestFlight/device install, and release proof before upgrading iOS support."
       ]
     },
     {
