@@ -109,9 +109,21 @@ function assertActionPreviewResult(payload) {
     result.previewState !== 'draft' ||
     result.preview?.actionKind !== 'policy-suggestion' ||
     result.requiresControllerLease !== true ||
-    result.childAgentContractRequired !== true
+    result.childAgentContractRequired !== true ||
+    !Array.isArray(result.evidenceContext) ||
+    result.evidenceContext.length < 2
   ) {
     throw new Error(`Parent Assistant action preview was not a policy draft: ${JSON.stringify(result)}`);
+  }
+  const reportContext = result.evidenceContext.find((context) => context.citationLabel === 'Activity report');
+  if (
+    reportContext?.evidence?.evidenceReferenceId !== 'activity-report-daily-local' ||
+    !String(reportContext.allowedSummary).includes('savedState=saved') ||
+    !String(reportContext.allowedSummary).includes('offlineSources=1')
+  ) {
+    throw new Error(
+      `Parent Assistant action preview did not cite the saved Activity report: ${JSON.stringify(result)}`
+    );
   }
   if (
     result.enforcementApplied !== false ||
@@ -133,7 +145,58 @@ function actionPreviewCommand() {
     payload: {
       [AgentProtocolDefaults.Field.ParentAssistantActionIntentId]: 'parent-assistant-action-intent-proof',
       [AgentProtocolDefaults.Field.ParentAssistantQuestion]: 'Suggest a policy rule from recent activity.',
+      [AgentProtocolDefaults.Field.ActivityReportDocument]: JSON.stringify(activityReport()),
     },
+  };
+}
+
+function activityReport() {
+  return {
+    schemaVersion: 1,
+    reportId: 'activity-report-daily-local',
+    frequency: 'daily',
+    scope: {
+      scopeKind: 'family',
+      familyId: 'family-local',
+      deviceId: null,
+    },
+    requestedAt: '2026-05-28T14:54:00Z',
+    rangeStart: '2026-05-28T00:00:00Z',
+    rangeEnd: '2026-05-28T14:54:00Z',
+    generatedAt: '2026-05-28T14:54:01Z',
+    savedMetadata: {
+      reportId: 'activity-report-daily-local',
+      fileName: 'activity-report-daily-local.json',
+      savedState: 'saved',
+      savedAt: '2026-05-28T14:54:02Z',
+      storageReason: 'Activity report is saved in local parent report storage.',
+    },
+    sourceStates: [
+      {
+        deviceId: 'local-dev-agent',
+        reachabilityState: 'reachable',
+        state: 'ready',
+        reason: 'Family scope is backed by the reachable local child-device query store.',
+        lastUpdatedAt: '2026-05-28T14:53:00Z',
+      },
+      {
+        deviceId: 'family-child-offline',
+        reachabilityState: 'offline',
+        state: 'offline',
+        reason: 'Child-device source is registered but not reachable for this report request.',
+        lastUpdatedAt: null,
+      },
+    ],
+    sections: [
+      {
+        sectionKind: 'summary',
+        title: 'Summary',
+        state: 'ready',
+        summary: 'Activity data is available from the local query store.',
+        itemCount: 1,
+        evidence: [],
+      },
+    ],
   };
 }
 

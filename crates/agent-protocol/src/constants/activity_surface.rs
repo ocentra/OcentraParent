@@ -18,6 +18,8 @@ pub const SUMMARY_STORE_UNAVAILABLE: &str = "Local activity query store is unava
 pub const SUMMARY_STORAGE_UNAVAILABLE: &str = "Local parent report storage is unavailable.";
 pub const SUMMARY_STORAGE_SAVED: &str = "Activity report is saved in local parent report storage.";
 pub const SUMMARY_STORAGE_DRAFT: &str = "Activity report is generated as an unsaved local draft.";
+pub const SUMMARY_STORAGE_DEGRADED: &str =
+    "Some saved activity report files could not be read or parsed.";
 pub const SUMMARY_HISTORY_EMPTY: &str = "No saved activity reports are available for this request.";
 pub const SUMMARY_DEVICE_OFFLINE: &str =
     "Requested device is not available in the local activity store.";
@@ -55,6 +57,7 @@ pub const STATE_SCAFFOLD_ONLY: &str = "scaffold-only";
 pub const SAVED_STATE_DRAFT: &str = "draft";
 pub const SAVED_STATE_SAVED: &str = "saved";
 pub const SAVED_STATE_STORAGE_UNAVAILABLE: &str = "storage-unavailable";
+pub const SAVED_STATE_DEGRADED: &str = "degraded";
 pub const SAVED_STATE_SCAFFOLD_ONLY: &str = "scaffold-only";
 pub const SOURCE_REACHABLE: &str = "reachable";
 pub const SOURCE_UNREACHABLE: &str = "unreachable";

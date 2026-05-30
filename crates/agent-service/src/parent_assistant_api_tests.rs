@@ -5,9 +5,12 @@ use std::{
 };
 
 use ocentra_parent_agent_protocol::{
-    constants, policy_constants, AgentCommandEnvelope, AgentCommandName, AgentEventName,
-    AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue, LogLevel,
-    ParentAssistantActionConfirmResult, ParentAssistantActionPreviewKind,
+    constants, policy_constants, ActivityReadModelState, ActivityReportDocument,
+    ActivityReportFrequency, ActivityReportSection, ActivityReportSectionKind,
+    ActivityReportSourceReachabilityState, ActivityReportSourceState, ActivitySavedReportMetadata,
+    ActivitySavedReportState, ActivitySurfaceScope, ActivitySurfaceScopeKind, AgentCommandEnvelope,
+    AgentCommandName, AgentEventName, AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute,
+    LogFieldValue, LogLevel, ParentAssistantActionConfirmResult, ParentAssistantActionPreviewKind,
     ParentAssistantActionPreviewResult, ParentAssistantActionPreviewState,
     ParentAssistantApiAuthorizationState, ParentAssistantApiProviderAccessState,
     ParentAssistantBackendState, ParentAssistantEvidenceContext, ParentAssistantProviderState,
@@ -72,7 +75,7 @@ fn parent_assistant_thread_list_reads_durable_local_store_after_create() {
     let created = thread_response_for_command_in_dir(&create, directory.clone());
     let listed = thread_response_for_command_in_dir(&list, directory.clone());
 
-    remove_temp_dir(directory);
+    let _ = fs::remove_dir_all(directory);
 
     assert_eq!(
         created.backend_state,
@@ -271,6 +274,10 @@ fn parent_assistant_action_preview_returns_draft_without_policy_write_or_enforce
                     constants::parent_assistant::TEST_POLICY_QUESTION.to_string(),
                 ),
             ),
+            (
+                constants::field::ACTIVITY_REPORT_DOCUMENT,
+                LogFieldValue::String(activity_report_document_json()),
+            ),
         ]),
     ));
     let result =
@@ -289,6 +296,21 @@ fn parent_assistant_action_preview_returns_draft_without_policy_write_or_enforce
         ParentAssistantActionPreviewKind::PolicySuggestion
     );
     assert!(result.requires_controller_lease);
+    assert_eq!(result.evidence_context.len(), 2);
+    let report_context = result
+        .evidence_context
+        .iter()
+        .find(|context| {
+            context.citation_label == constants::parent_assistant::ACTIVITY_REPORT_CITATION_LABEL
+        })
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    assert_eq!(
+        report_context.evidence.evidence_reference_id,
+        constants::activity_surface::REPORT_ID_DAILY
+    );
+    assert!(report_context
+        .allowed_summary
+        .contains(constants::activity_surface::SAVED_STATE_SAVED));
     assert!(!result.enforcement_applied);
     assert!(!result.policy_written);
     assert!(!result.preview.enforcement_applied);
@@ -402,6 +424,61 @@ fn evidence_context() -> ParentAssistantEvidenceContext {
     }
 }
 
+fn activity_report_document_json() -> String {
+    serde_json::to_string(&ActivityReportDocument {
+        schema_version: ocentra_parent_agent_protocol::ACTIVITY_SURFACE_SCHEMA_VERSION,
+        report_id: constants::activity_surface::REPORT_ID_DAILY.to_string(),
+        frequency: ActivityReportFrequency::Daily,
+        scope: ActivitySurfaceScope {
+            scope_kind: ActivitySurfaceScopeKind::Family,
+            family_id: Some(constants::activity_surface::DEFAULT_FAMILY_ID.to_string()),
+            device_id: None,
+        },
+        requested_at: constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string(),
+        range_start: constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
+        range_end: constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string(),
+        generated_at: constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string(),
+        saved_metadata: Some(ActivitySavedReportMetadata {
+            report_id: constants::activity_surface::REPORT_ID_DAILY.to_string(),
+            file_name: constants::activity_surface::REPORT_FILE_DAILY.to_string(),
+            saved_state: ActivitySavedReportState::Saved,
+            saved_at: Some(constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string()),
+            storage_reason: Some(constants::activity_surface::SUMMARY_STORAGE_SAVED.to_string()),
+        }),
+        source_states: vec![
+            ActivityReportSourceState {
+                device_id: constants::activity_surface::DEFAULT_DEVICE_ID.to_string(),
+                reachability_state: ActivityReportSourceReachabilityState::Reachable,
+                state: ActivityReadModelState::Ready,
+                reason: Some(constants::activity_surface::SUMMARY_FAMILY_LOCAL_SOURCE.to_string()),
+                last_updated_at: Some(
+                    constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string(),
+                ),
+            },
+            ActivityReportSourceState {
+                device_id: constants::activity_surface::FAMILY_SOURCE_OFFLINE_ID.to_string(),
+                reachability_state: ActivityReportSourceReachabilityState::Offline,
+                state: ActivityReadModelState::Offline,
+                reason: Some(
+                    constants::activity_surface::SUMMARY_FAMILY_SOURCE_UNREACHABLE.to_string(),
+                ),
+                last_updated_at: Some(
+                    constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string(),
+                ),
+            },
+        ],
+        sections: vec![ActivityReportSection {
+            section_kind: ActivityReportSectionKind::Summary,
+            title: constants::activity_surface::SECTION_SUMMARY.to_string(),
+            state: ActivityReadModelState::Ready,
+            summary: constants::activity_surface::SUMMARY_READY.to_string(),
+            item_count: 1,
+            evidence: Vec::new(),
+        }],
+    })
+    .expect(constants::error::AGENT_EVENT_SERIALIZES)
+}
+
 fn unique_temp_dir() -> PathBuf {
     let mut name = constants::parent_assistant::THREAD_STORAGE_DIR.to_string();
     name.push(constants::delimiter::HYPHEN);
@@ -418,8 +495,4 @@ fn nanos_now() -> u128 {
         .duration_since(UNIX_EPOCH)
         .expect(constants::error::AGENT_EVENT_SERIALIZES)
         .as_nanos()
-}
-
-fn remove_temp_dir(path: PathBuf) {
-    let _ = fs::remove_dir_all(path);
 }

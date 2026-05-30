@@ -243,6 +243,7 @@ function actionPreviewResult() {
       childAgentContractRequired: true,
       enforcementApplied: false,
     },
+    evidenceContext: [answerPayload().citations[0]],
     requiresControllerLease: true,
     childAgentContractRequired: true,
     enforcementApplied: false,

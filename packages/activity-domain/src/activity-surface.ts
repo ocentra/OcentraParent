@@ -32,7 +32,7 @@ export const ActivityReportSourceReachabilityStateSchema = withParser(
   Schema.Literal('reachable', 'unreachable', 'offline', 'error')
 );
 export const ActivitySavedReportStateSchema = withParser(
-  Schema.Literal('draft', 'saved', 'storage-unavailable', 'scaffold-only')
+  Schema.Literal('draft', 'saved', 'storage-unavailable', 'degraded', 'scaffold-only')
 );
 
 const ActivitySurfaceScopeBaseSchema = Schema.Struct({
@@ -104,6 +104,16 @@ export const ActivitySavedReportMetadataSchema = withParser(
   })
 );
 
+export const ActivityReportSourceStateSummarySchema = withParser(
+  Schema.Struct({
+    totalSources: NonNegativeActivityCount,
+    readySources: NonNegativeActivityCount,
+    offlineSources: NonNegativeActivityCount,
+    unavailableSources: NonNegativeActivityCount,
+    errorSources: NonNegativeActivityCount,
+  })
+);
+
 export const ActivityReportDocumentSchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal(ActivitySurfaceSchemaVersion),
@@ -131,6 +141,7 @@ export const ActivityHistoricalReportListItemSchema = withParser(
     summary: ActivityReportSummarySchema,
     savedState: ActivitySavedReportStateSchema,
     savedAt: Schema.Union(ActivityTimestampSchema, Schema.Null),
+    sourceStateSummary: ActivityReportSourceStateSummarySchema,
     parsedReport: ActivityReportDocumentSchema,
   })
 );
@@ -247,6 +258,7 @@ export type ActivityReportSourceReachabilityState = Infer<typeof ActivityReportS
 export type ActivityReportSourceState = Infer<typeof ActivityReportSourceStateSchema>;
 export type ActivityReportSection = Infer<typeof ActivityReportSectionSchema>;
 export type ActivitySavedReportMetadata = Infer<typeof ActivitySavedReportMetadataSchema>;
+export type ActivityReportSourceStateSummary = Infer<typeof ActivityReportSourceStateSummarySchema>;
 export type ActivityReportDocument = Infer<typeof ActivityReportDocumentSchema>;
 export type ActivityHistoricalReportListItem = Infer<typeof ActivityHistoricalReportListItemSchema>;
 export type ActivityHistoricalReportList = Infer<typeof ActivityHistoricalReportListSchema>;

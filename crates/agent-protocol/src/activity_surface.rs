@@ -74,6 +74,8 @@ pub enum ActivitySavedReportState {
     Saved,
     #[serde(rename = "storage-unavailable")]
     StorageUnavailable,
+    #[serde(rename = "degraded")]
+    Degraded,
     #[serde(rename = "scaffold-only")]
     ScaffoldOnly,
 }
@@ -140,6 +142,16 @@ pub struct ActivitySavedReportMetadata {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct ActivityReportSourceStateSummary {
+    pub total_sources: u64,
+    pub ready_sources: u64,
+    pub offline_sources: u64,
+    pub unavailable_sources: u64,
+    pub error_sources: u64,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ActivityReportDocument {
     pub schema_version: u16,
     pub report_id: String,
@@ -166,6 +178,7 @@ pub struct ActivityHistoricalReportListItem {
     pub summary: String,
     pub saved_state: ActivitySavedReportState,
     pub saved_at: Option<String>,
+    pub source_state_summary: ActivityReportSourceStateSummary,
     pub parsed_report: ActivityReportDocument,
 }
 

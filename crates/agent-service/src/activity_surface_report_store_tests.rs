@@ -52,6 +52,34 @@ fn activity_report_store_keeps_family_and_device_reports_separate() {
     assert_eq!(family_history.reports.len(), 1);
     assert_eq!(device_history.reports.len(), 1);
     assert_eq!(
+        family_history.reports[0].source_state_summary.total_sources,
+        3
+    );
+    assert_eq!(
+        family_history.reports[0].source_state_summary.ready_sources,
+        1
+    );
+    assert_eq!(
+        family_history.reports[0]
+            .source_state_summary
+            .offline_sources,
+        1
+    );
+    assert_eq!(
+        family_history.reports[0]
+            .source_state_summary
+            .unavailable_sources,
+        1
+    );
+    assert_eq!(
+        family_history.reports[0].source_state_summary.error_sources,
+        1
+    );
+    assert_eq!(
+        device_history.reports[0].source_state_summary.total_sources,
+        1
+    );
+    assert_eq!(
         family_history.reports[0].parsed_report.scope.scope_kind,
         ActivitySurfaceScopeKind::Family
     );
@@ -84,6 +112,33 @@ fn activity_report_history_returns_storage_unavailable_for_unreadable_storage_pa
         Some(constants::activity_surface::SUMMARY_STORAGE_UNAVAILABLE.to_string())
     );
     assert_eq!(history.reports.len(), 0);
+}
+
+#[test]
+fn activity_report_history_marks_partial_parse_failures_as_degraded() {
+    let report_dir = TempReportDir::new();
+    save_report_document_to_dir(
+        report(family_scope(), family_source_states()),
+        report_dir.path(),
+    );
+    let mut rejected = report_dir.path();
+    rejected.push(constants::activity_surface::REPORT_ID_FALLBACK);
+    rejected.set_extension(constants::activity_surface::REPORT_FILE_EXTENSION);
+    write(
+        rejected,
+        constants::activity_surface::SUMMARY_STORE_UNAVAILABLE,
+    )
+    .expect(constants::error::AGENT_EVENT_SERIALIZES);
+
+    let history = history_list_from_dir(surface_request(family_scope()), report_dir.path());
+
+    assert_eq!(history.state, ActivityReadModelState::Ready);
+    assert_eq!(history.storage_state, ActivitySavedReportState::Degraded);
+    assert_eq!(
+        history.storage_reason,
+        Some(constants::activity_surface::SUMMARY_STORAGE_DEGRADED.to_string())
+    );
+    assert_eq!(history.reports.len(), 1);
 }
 
 fn assert_family_source_states(source_states: &[ActivityReportSourceState]) {

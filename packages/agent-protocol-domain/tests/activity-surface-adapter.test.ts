@@ -245,6 +245,13 @@ function historicalReportList() {
         summary: 'Saved daily report',
         savedState: 'saved',
         savedAt: '2026-05-27T20:10:02Z',
+        sourceStateSummary: {
+          totalSources: 1,
+          readySources: 1,
+          offlineSources: 0,
+          unavailableSources: 0,
+          errorSources: 0,
+        },
         parsedReport: Report,
       },
     ],

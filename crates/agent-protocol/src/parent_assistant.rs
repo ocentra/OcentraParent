@@ -163,6 +163,7 @@ pub struct ParentAssistantActionPreviewResult {
     pub action_intent_id: String,
     pub preview_state: ParentAssistantActionPreviewState,
     pub preview: ParentAssistantActionPreview,
+    pub evidence_context: Vec<ParentAssistantEvidenceContext>,
     pub requires_controller_lease: bool,
     pub child_agent_contract_required: bool,
     pub enforcement_applied: bool,

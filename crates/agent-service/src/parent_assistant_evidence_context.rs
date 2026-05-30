@@ -214,6 +214,7 @@ fn saved_state_label(report: &ActivityReportDocument) -> &'static str {
         ActivitySavedReportState::StorageUnavailable => {
             constants::activity_surface::SAVED_STATE_STORAGE_UNAVAILABLE
         }
+        ActivitySavedReportState::Degraded => constants::activity_surface::SAVED_STATE_DEGRADED,
         ActivitySavedReportState::ScaffoldOnly => {
             constants::activity_surface::SAVED_STATE_SCAFFOLD_ONLY
         }
