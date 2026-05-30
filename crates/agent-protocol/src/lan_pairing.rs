@@ -8,6 +8,12 @@ pub use device_roles::*;
 #[path = "lan_pairing/discovery_states.rs"]
 mod discovery_states;
 pub use discovery_states::*;
+#[path = "lan_pairing/household_proof.rs"]
+mod household_proof;
+pub use household_proof::*;
+#[cfg(test)]
+#[path = "lan_pairing/household_proof_tests.rs"]
+mod household_proof_tests;
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]

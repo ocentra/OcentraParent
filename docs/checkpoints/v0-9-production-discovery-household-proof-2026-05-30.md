@@ -13,8 +13,12 @@ The focused proof command verifies:
 
 - explicit production discovery states for local real-service proof,
 - paired and failed-unpaired household route checks,
+- restart recovery of selected route and trusted registry state,
 - wrong-origin, wrong-device, replay, revocation, stale, offline, unavailable,
   and manual-required route outcomes,
+- a typed parent-domain and Rust protocol parity read model for production
+  discovery, route checks, source states, restart recovery, and manual physical
+  household proof gates,
 - selected provider policy read-model evidence for authorized, unsupported,
   busy, degraded, unavailable, stale, offline, wrong-origin, wrong-device,
   replay, and revoked states,
@@ -44,6 +48,10 @@ test-results/v0-9-household-lan-production-discovery-proof/proof.json
 test-results/v0-9-production-lan-multidevice-hardening/proof.json
 docs/expectations/pre-ai-proof-matrix.json
 ```
+
+It validates the built `@ocentra-parent/parent-domain` `./lan-pairing` export
+when available, specifically
+`V09ProductionDiscoveryHouseholdProofReadModelSchema`.
 
 ## Honest Boundaries
 

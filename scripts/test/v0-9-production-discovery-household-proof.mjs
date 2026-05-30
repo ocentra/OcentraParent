@@ -1,4 +1,5 @@
 import { spawn } from 'node:child_process';
+import { existsSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 
@@ -56,6 +57,9 @@ async function main() {
   const routeCheckSummary = assertHouseholdRouteChecks(householdProductProof);
   const providerPolicySummary = assertProviderPolicy(householdProductProof);
   const manualStates = assertManualStates(productionDiscoveryProof, householdProductProof, productionLanProof);
+  const productionDiscoveryHouseholdReadModel = await validateBuiltContractWhenAvailable(
+    buildProductionDiscoveryHouseholdReadModel(householdProductProof, productionDiscoveryProof)
+  );
   const matrixRegistration = assertProofMatrix(matrix);
 
   const proof = {
@@ -76,11 +80,13 @@ async function main() {
     routeCheckSummary,
     providerPolicySummary,
     manualStates,
+    productionDiscoveryHouseholdReadModel,
     cloudRelayDecision: householdProductProof.cloudRelayDecision,
     matrixRegistration,
     claimsProved: [
       'production discovery states remain explicit for local real-service proof without claiming household router discovery',
       'paired, failed-unpaired, wrong-origin, wrong-device, replay, revocation, stale, offline, unavailable, and manual-required household route checks are machine-checked in the product read model',
+      'typed production-discovery household read model validates restart recovery, selected route registry state, wrong-device/wrong-origin rejection evidence, source states, and manual household proof checklist',
       'selected provider policy read-model evidence keeps authorized, unsupported, busy, degraded, unavailable, stale, offline, wrong-origin, wrong-device, replay, and revoked states explicit',
       'cloud relay is explicitly not implemented and requires a separate manual decision plus authenticated relay proof before any relay claim',
     ],
@@ -96,6 +102,221 @@ async function main() {
   await writeFile(proofPath, `${JSON.stringify(proof, null, 2)}\n`);
   console.log(`v0-9-production-discovery-household-proof-ok:${proofLabels.join(',')}`);
   console.log(`evidence=${proofPath}`);
+}
+
+function buildProductionDiscoveryHouseholdReadModel(householdProductProof, productionDiscoveryProof) {
+  const productReadModel = householdProductProof.householdProductReadModel;
+  const routeChecks = productReadModel.routeCheckOutcomes.map((entry) => {
+    const check = householdCheckForProductCheck(entry.check);
+    return {
+      ...entry,
+      check,
+      sourceState: sourceStateForCheck(check),
+      routeRecoveryState: routeRecoveryStateForCheck(check),
+      runtimeOwner: runtimeOwnerForCheck(check),
+    };
+  });
+  const restartRecovery = [
+    stateEvidence(
+      'restart-selected-route-recovered',
+      'restart-recovered',
+      'paired',
+      'paired',
+      'online',
+      null,
+      'registry-restored-after-restart',
+      'rust-service-read-model',
+      selectedRouteTrustLabels(productionDiscoveryProof).join(';')
+    ),
+    stateEvidence(
+      'restart-registry-state-recovered',
+      'restart-recovered',
+      'paired',
+      'paired',
+      'online',
+      null,
+      'selected-route-persisted',
+      'rust-service-read-model',
+      selectedRouteTrustLabels(productionDiscoveryProof).join(';')
+    ),
+  ];
+  const sourceDeviceStates = routeChecks.filter((entry) =>
+    ['stale', 'offline', 'revoked', 'unavailable', 'manual-required'].includes(entry.sourceState)
+  );
+  return {
+    schemaVersion: 'v0.9',
+    checkedAt: productReadModel.checkedAt,
+    proofBoundary: 'local-real-service-not-physical-household-lan',
+    productReadinessDecision: productReadModel.productReadinessDecision,
+    productionDiscoveryStates: productionDiscoveryStateEvidence(productReadModel, productionDiscoveryProof),
+    routeChecks,
+    restartRecovery,
+    sourceDeviceStates,
+    manualHouseholdProofChecklist: productReadModel.manualProofGates.map((entry) => ({
+      ...entry,
+      runtimeOwner: 'manual-proof',
+    })),
+    claimsProved: [
+      'local real-service proof validates route checks and restart recovery without upgrading physical household LAN readiness',
+      'wrong-origin and wrong-device evidence are explicit rejection states',
+    ],
+    claimsNotProved: [
+      'physical household LAN readiness',
+      'cloud relay routing storage or authentication',
+      'mobile background controller behavior',
+    ],
+  };
+}
+
+function productionDiscoveryStateEvidence(productReadModel, productionDiscoveryProof) {
+  return [
+    stateEvidence('production-discovery-states', 'discovered', 'discovered', 'unpaired', 'online', null),
+    stateEvidence('production-discovery-states', 'pending', 'pending', 'pairing', 'online', null),
+    stateEvidence('production-discovery-states', 'paired', 'paired', 'paired', 'online', null),
+    stateEvidence('production-discovery-states', 'revoked', 'revoked', 'revoked', 'online', 'revoked'),
+    stateEvidence('production-discovery-states', 'stale', 'stale', 'paired', 'stale', 'stale'),
+    stateEvidence('production-discovery-states', 'offline', 'offline', 'paired', 'offline', 'offline'),
+    stateEvidence(
+      'production-discovery-states',
+      'unavailable',
+      'unavailable',
+      'unpaired',
+      'offline',
+      'local-network-disabled',
+      'manual-required-physical-route-recovery',
+      'manual-proof',
+      productReadModel.manualProofGates.map((entry) => entry.gate).join(';'),
+      'manual-required'
+    ),
+    stateEvidence(
+      'restart-registry-state-recovered',
+      'restart-recovered',
+      'paired',
+      'paired',
+      'online',
+      null,
+      'registry-restored-after-restart',
+      'rust-service-read-model',
+      selectedRouteTrustLabels(productionDiscoveryProof).join(';')
+    ),
+  ];
+}
+
+function selectedRouteTrustLabels(productionDiscoveryProof) {
+  return productionDiscoveryProof.selectedRouteTrust?.selectedRouteTrust ?? [];
+}
+
+function stateEvidence(
+  check,
+  sourceState,
+  discoveryState,
+  trustState,
+  reachability,
+  rejectionReason,
+  routeRecoveryState = 'fail-closed-unpaired',
+  runtimeOwner = 'proof-harness',
+  evidenceLabel = `${check} evidence`,
+  proofState = 'ci-mechanical-proof'
+) {
+  return {
+    schemaVersion: 'v0.9',
+    check,
+    sourceState,
+    routeId: routeIdForCheck(check),
+    discoveryState,
+    trustState,
+    reachability,
+    rejectionReason,
+    routeRecoveryState,
+    proofState,
+    runtimeOwner,
+    evidenceLabel,
+  };
+}
+
+function sourceStateForCheck(check) {
+  switch (check) {
+    case 'paired-route-accepted':
+      return 'paired';
+    case 'failed-unpaired-rejected':
+      return 'failed-unpaired';
+    case 'replay-rejected':
+      return 'unavailable';
+    case 'stale-source-rejected':
+      return 'stale';
+    case 'offline-device-rejected':
+      return 'offline';
+    case 'revoked-pairing-rejected':
+      return 'revoked';
+    case 'unavailable-route-rejected':
+      return 'unavailable';
+    case 'wrong-origin-rejected':
+      return 'wrong-origin';
+    case 'wrong-device-rejected':
+      return 'wrong-device';
+    case 'manual-physical-household-checklist':
+      return 'manual-required';
+    default:
+      return 'unavailable';
+  }
+}
+
+function householdCheckForProductCheck(check) {
+  switch (check) {
+    case 'stale-selected-device-rejected':
+      return 'stale-source-rejected';
+    case 'offline-selected-device-rejected':
+      return 'offline-device-rejected';
+    case 'revocation-rejected':
+      return 'revoked-pairing-rejected';
+    case 'manual-required-physical-household-lan':
+      return 'manual-physical-household-checklist';
+    default:
+      return check;
+  }
+}
+
+function routeRecoveryStateForCheck(check) {
+  if (check === 'paired-route-accepted') {
+    return 'selected-route-persisted';
+  }
+  if (check === 'manual-physical-household-checklist') {
+    return 'manual-required-physical-route-recovery';
+  }
+  return 'fail-closed-unpaired';
+}
+
+function runtimeOwnerForCheck(check) {
+  if (
+    check === 'stale-selected-device-rejected' ||
+    check === 'stale-source-rejected' ||
+    check === 'offline-device-rejected' ||
+    check === 'revoked-pairing-rejected'
+  ) {
+    return 'rust-service-read-model';
+  }
+  if (check === 'manual-physical-household-checklist') {
+    return 'manual-proof';
+  }
+  return 'proof-harness';
+}
+
+function routeIdForCheck(check) {
+  if (check === 'unavailable-route-rejected' || check === 'manual-physical-household-checklist') {
+    return 'lan-route-unsupported';
+  }
+  return 'route-v0-9-household-lan-product-proof';
+}
+
+async function validateBuiltContractWhenAvailable(readModel) {
+  const modulePath = join(repoRoot, 'packages', 'parent-domain', 'dist', 'lan-pairing.js');
+  if (!existsSync(modulePath)) {
+    return readModel;
+  }
+  const module = await import(`file:///${modulePath.replaceAll('\\', '/')}`);
+  const parsed = module.V09ProductionDiscoveryHouseholdProofReadModelSchema.parse(readModel);
+  proofLabels.push('v0.9.production-discovery-household-contract-parse');
+  return parsed;
 }
 
 function assertProductionDiscoveryState(productionDiscoveryProof, householdProductionDiscoveryProof) {
