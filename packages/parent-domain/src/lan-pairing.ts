@@ -4,4 +4,5 @@ export * from './lan-pairing-control';
 export * from './lan-pairing-support';
 export * from './lan-pairing-product-proof';
 export * from './lan-pairing-provider-selection-proof';
+export * from './v0-9-production-discovery-household-proof';
 export * from './device-roles';
