@@ -26,8 +26,10 @@ async function main() {
     proofLabels: [
       'activity-mia-final-pass.report-persistence',
       'activity-mia-final-pass.family-device-states',
+      'activity-mia-final-pass.source-stale-unreachable-summary',
       'activity-mia-final-pass.adapter-handoff',
       'activity-mia-final-pass.parent-assistant-evidence',
+      'activity-mia-final-pass.saved-report-metadata-citation',
       'activity-mia-final-pass.c-owned-paths-not-touched',
     ],
     evidence: {
@@ -44,18 +46,20 @@ async function main() {
       reportPersistence:
         'Generated Activity reports carry draft metadata, saveActivityReport persists saved JSON metadata, listHistoricalReports exposes saved metadata, and storage-unavailable fallback remains typed.',
       familyDeviceBehavior:
-        'Family reports carry reachable/offline/error source states while device-scoped remote requests degrade to typed offline reports.',
+        'Family reports carry reachable/offline/stale/unreachable/error source states while device-scoped remote requests degrade to typed offline reports.',
+      sourceStateSummary:
+        'Saved report history rows count stale and unreachable sources separately from offline, unavailable, and error sources.',
       adapterHandoff:
         'The TypeScript service-adapter boundary creates report/history/read-model commands and parses generated/saved/history/read-model events with typed unavailable failures.',
       parentAssistantEvidence:
-        'Parent Assistant/MIA cites saved Activity report context, ready section counts, offline/unavailable source counts, and child-contract action-preview boundaries.',
+        'Parent Assistant/MIA cites saved Activity report metadata, ready section counts, offline/stale/unreachable/unavailable source counts, and child-contract action-preview boundaries.',
       cOwnedPathPolicy:
         'This proof does not edit C-owned Activity UI, vendor portal, temp scratchpad, parent-assistant API integration, service main.rs, or websocket.rs paths.',
     },
     counts: {
       coveredActivityTabs: adapterProof.productTruth.coveredTabs.length,
       upstreamProofLabels: adapterProof.proofLabels.length,
-      finalPassProofLabels: 5,
+      finalPassProofLabels: 7,
       cOwnedPathsTouched: 0,
     },
     knownGaps: [

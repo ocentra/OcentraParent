@@ -8,8 +8,9 @@ use std::{
 use ocentra_parent_agent_protocol::{
     constants, ActivityReadModelState, ActivityReportDocument, ActivityReportFrequency,
     ActivityReportSection, ActivityReportSectionKind, ActivityReportSourceReachabilityState,
-    ActivityReportSourceState, ActivitySavedReportState, ActivitySurfaceRequest,
-    ActivitySurfaceScope, ActivitySurfaceScopeKind, ACTIVITY_SURFACE_SCHEMA_VERSION,
+    ActivityReportSourceState, ActivityReportSourceStateSummary, ActivitySavedReportState,
+    ActivitySurfaceRequest, ActivitySurfaceScope, ActivitySurfaceScopeKind,
+    ACTIVITY_SURFACE_SCHEMA_VERSION,
 };
 
 use crate::activity_surface_report_store::{history_list_from_dir, save_report_document_to_dir};
@@ -51,30 +52,7 @@ fn activity_report_store_keeps_family_and_device_reports_separate() {
     assert_eq!(family_history.storage_reason, None);
     assert_eq!(family_history.reports.len(), 1);
     assert_eq!(device_history.reports.len(), 1);
-    assert_eq!(
-        family_history.reports[0].source_state_summary.total_sources,
-        3
-    );
-    assert_eq!(
-        family_history.reports[0].source_state_summary.ready_sources,
-        1
-    );
-    assert_eq!(
-        family_history.reports[0]
-            .source_state_summary
-            .offline_sources,
-        1
-    );
-    assert_eq!(
-        family_history.reports[0]
-            .source_state_summary
-            .unavailable_sources,
-        1
-    );
-    assert_eq!(
-        family_history.reports[0].source_state_summary.error_sources,
-        1
-    );
+    assert_family_source_summary(&family_history.reports[0].source_state_summary);
     assert_eq!(
         device_history.reports[0].source_state_summary.total_sources,
         1
@@ -142,7 +120,7 @@ fn activity_report_history_marks_partial_parse_failures_as_degraded() {
 }
 
 fn assert_family_source_states(source_states: &[ActivityReportSourceState]) {
-    assert_eq!(source_states.len(), 3);
+    assert_eq!(source_states.len(), 4);
     assert_eq!(
         source_states[0].reachability_state,
         ActivityReportSourceReachabilityState::Reachable
@@ -155,9 +133,24 @@ fn assert_family_source_states(source_states: &[ActivityReportSourceState]) {
     assert_eq!(source_states[1].state, ActivityReadModelState::Offline);
     assert_eq!(
         source_states[2].reachability_state,
+        ActivityReportSourceReachabilityState::Unreachable
+    );
+    assert_eq!(source_states[2].state, ActivityReadModelState::Stale);
+    assert_eq!(
+        source_states[3].reachability_state,
         ActivityReportSourceReachabilityState::Error
     );
-    assert_eq!(source_states[2].state, ActivityReadModelState::Unavailable);
+    assert_eq!(source_states[3].state, ActivityReadModelState::Unavailable);
+}
+
+fn assert_family_source_summary(summary: &ActivityReportSourceStateSummary) {
+    assert_eq!(summary.total_sources, 4);
+    assert_eq!(summary.ready_sources, 1);
+    assert_eq!(summary.offline_sources, 1);
+    assert_eq!(summary.stale_sources, 1);
+    assert_eq!(summary.unavailable_sources, 1);
+    assert_eq!(summary.unreachable_sources, 1);
+    assert_eq!(summary.error_sources, 1);
 }
 
 fn report(
@@ -229,6 +222,12 @@ fn family_source_states() -> Vec<ActivityReportSourceState> {
             ActivityReportSourceReachabilityState::Offline,
             ActivityReadModelState::Offline,
             constants::activity_surface::SUMMARY_FAMILY_SOURCE_UNREACHABLE,
+        ),
+        source_record(
+            constants::activity_surface::FAMILY_SOURCE_STALE_ID,
+            ActivityReportSourceReachabilityState::Unreachable,
+            ActivityReadModelState::Stale,
+            constants::activity_surface::SUMMARY_FAMILY_SOURCE_STALE,
         ),
         source_record(
             constants::activity_surface::FAMILY_SOURCE_ERROR_ID,

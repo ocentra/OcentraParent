@@ -221,15 +221,29 @@ fn parent_assistant_request_cites_activity_report_document_when_supplied() {
     assert!(report_context
         .allowed_summary
         .contains(constants::activity_surface::SAVED_STATE_SAVED));
+    let mut file_name = constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_FILE_LABEL.to_string();
+    file_name.push_str(constants::activity_surface::REPORT_FILE_DAILY);
+    let mut saved_at =
+        constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_SAVED_AT_LABEL.to_string();
+    saved_at.push_str(constants::activity_store::TEST_SECOND_OBSERVED_AT);
+    let mut storage_reason =
+        constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_STORAGE_REASON_LABEL.to_string();
+    storage_reason.push_str(constants::activity_surface::SUMMARY_STORAGE_SAVED);
     let mut ready_sections =
         constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_READY_SECTIONS_LABEL.to_string();
     ready_sections.push('1');
     let mut offline_sources =
         constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_OFFLINE_SOURCES_LABEL.to_string();
     offline_sources.push('1');
+    let mut stale_sources =
+        constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_STALE_SOURCES_LABEL.to_string();
+    stale_sources.push('1');
     let mut unavailable_sources =
         constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_UNAVAILABLE_SOURCES_LABEL.to_string();
     unavailable_sources.push('1');
+    let mut unreachable_sources =
+        constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_UNREACHABLE_SOURCES_LABEL.to_string();
+    unreachable_sources.push('1');
     let mut section_kinds =
         constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_SECTION_KINDS_LABEL.to_string();
     section_kinds.push_str(constants::activity_surface::SECTION_SUMMARY);
@@ -240,11 +254,18 @@ fn parent_assistant_request_cites_activity_report_document_when_supplied() {
         constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_UNAVAILABLE_SOURCE_IDS_LABEL
             .to_string();
     unavailable_source_ids.push_str(constants::activity_surface::FAMILY_SOURCE_ERROR_ID);
+    assert!(report_context.allowed_summary.contains(&file_name));
+    assert!(report_context.allowed_summary.contains(&saved_at));
+    assert!(report_context.allowed_summary.contains(&storage_reason));
     assert!(report_context.allowed_summary.contains(&ready_sections));
     assert!(report_context.allowed_summary.contains(&offline_sources));
+    assert!(report_context.allowed_summary.contains(&stale_sources));
     assert!(report_context
         .allowed_summary
         .contains(&unavailable_sources));
+    assert!(report_context
+        .allowed_summary
+        .contains(&unreachable_sources));
     assert!(report_context.allowed_summary.contains(&section_kinds));
     assert!(report_context.allowed_summary.contains(&offline_source_ids));
     assert!(report_context
@@ -397,6 +418,15 @@ fn saved_report_document() -> ActivityReportDocument {
                     constants::activity_surface::SUMMARY_FAMILY_SOURCE_UNREACHABLE.to_string(),
                 ),
                 last_updated_at: None,
+            },
+            ActivityReportSourceState {
+                device_id: constants::activity_surface::FAMILY_SOURCE_STALE_ID.to_string(),
+                reachability_state: ActivityReportSourceReachabilityState::Unreachable,
+                state: ActivityReadModelState::Stale,
+                reason: Some(constants::activity_surface::SUMMARY_FAMILY_SOURCE_STALE.to_string()),
+                last_updated_at: Some(
+                    constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
+                ),
             },
             ActivityReportSourceState {
                 device_id: constants::activity_surface::FAMILY_SOURCE_ERROR_ID.to_string(),
