@@ -158,6 +158,8 @@ pub mod activity_surface;
 pub mod browser;
 #[path = "constants/host_identity.rs"]
 pub mod host_identity;
+#[path = "constants/v08_cross_platform_enforcement_capability_proof.rs"]
+pub mod v08_cross_platform_enforcement_capability_proof;
 #[path = "constants/v08_os_adapter_product_proof.rs"]
 pub mod v08_os_adapter_product_proof;
 #[path = "constants/windows_adapter_artifact_gate.rs"]

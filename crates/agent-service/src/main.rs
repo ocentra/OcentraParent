@@ -54,6 +54,10 @@ mod dev_log;
 mod enforcement_api;
 mod enforcement_capability;
 #[cfg_attr(not(test), allow(dead_code))]
+mod enforcement_cross_platform_capability_proof_read_model;
+#[cfg(test)]
+mod enforcement_cross_platform_capability_proof_read_model_tests;
+#[cfg_attr(not(test), allow(dead_code))]
 mod enforcement_os_adapter_product_proof_read_model;
 #[cfg(test)]
 mod enforcement_os_adapter_product_proof_read_model_tests;

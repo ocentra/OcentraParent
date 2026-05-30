@@ -21,6 +21,7 @@
     "v0-8-enforcement-adapter-product-proof-continuation",
     "v0-8-broad-os-adapter-proof-readiness",
     "v0-8-broad-os-adapter-proof",
+    "v0-8-cross-platform-enforcement-capability-proof",
     "v0-8-host-adapter-proof-preflight",
     "v0-8-process-package-identity-proof-bridge",
     "v0-8-host-identity-read-model-proof",
@@ -468,6 +469,45 @@
         "A Windows managed-browser intervention run presented as unmanaged browser exact evidence.",
         "Owned-process pid/name termination presented as global installed-app blocking.",
         "Windows proof presented as Linux, macOS, Android, or iOS support."
+      ]
+    },
+    {
+      "id": "v0-8-cross-platform-enforcement-capability-proof",
+      "title": "V0.8 Cross-Platform Enforcement Capability Proof",
+      "claimIds": ["v0-8-cross-platform-enforcement-capability-proof"],
+      "expectationFiles": [
+        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/expectations/platforms.md",
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "proofMode": "ci-mechanical-proof",
+      "realEvidencePath": [
+        "Build contracts from the current commit.",
+        "Run the parent-domain cross-platform enforcement capability proof contract test.",
+        "Run focused Rust protocol and service read-model tests that serialize implemented-boundary, manual-required, scaffold, and planned states.",
+        "Emit a proof artifact that keeps broad app blocking, network/domain blocking, non-Windows desktop adapters, Android privileged enforcement, iOS Family Controls, signing, TestFlight, and stores manual-required, scaffold, or planned until real target artifacts exist.",
+        "Verify no read-model entry sets broad blocking, exact URL, privileged mobile, or production distribution claim flags."
+      ],
+      "ciCommands": ["node scripts/test/v0-8-cross-platform-enforcement-capability-proof.mjs"],
+      "requiredArtifacts": [
+        "test-results/v0-8-cross-platform-enforcement-capability-proof/proof.json",
+        "packages/parent-domain/src/v0-8-cross-platform-enforcement-capability-proof.ts",
+        "packages/parent-domain/tests/v0-8-cross-platform-enforcement-capability-proof.test.ts",
+        "crates/agent-protocol/src/enforcement_cross_platform_capability_proof.rs",
+        "crates/agent-service/src/enforcement_cross_platform_capability_proof_read_model.rs",
+        "scripts/test/v0-8-cross-platform-enforcement-capability-proof.mjs",
+        "docs/checkpoints/v0-8-cross-platform-enforcement-capability-proof-2026-05-30.md"
+      ],
+      "knownGaps": [
+        "This proof records cross-platform capability state boundaries; it is not broad installed-app blocking, network/domain blocking, or mobile child enforcement.",
+        "Linux and macOS entries are scaffold-only until host-specific adapter apply/rollback and permission artifacts exist.",
+        "Android device-owner, Android package lifecycle, iOS Family Controls, iOS signing, and iOS TestFlight remain manual-required; Android store and iOS store distribution remain planned."
+      ],
+      "notProof": [
+        "A Windows owned-process or timer proof presented as global installed-app blocking.",
+        "A package preview or mobile scaffold presented as Android device-owner or iOS Family Controls support.",
+        "Signing, TestFlight, Google Play, or App Store plans presented as privileged enforcement readiness."
       ]
     },
     {
@@ -2117,6 +2157,76 @@
         "Run Linux and macOS host-specific adapter proof before upgrading desktop support outside Windows.",
         "Run Android device-owner or managed-profile, UsageStats, accessibility or VPN/DNS, and package lifecycle proof before upgrading Android child support.",
         "Run iOS Family Controls, DeviceActivity, Network Extension, signing, entitlement, and TestFlight/device proof before upgrading iOS child support."
+      ]
+    },
+    {
+      "id": "v0-8-cross-platform-enforcement-capability-proof",
+      "roadmapSlice": "V0.8 cross-platform enforcement capability proof",
+      "expectationFiles": [
+        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/expectations/platforms.md",
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "claim": "V0.8 cross-platform enforcement capability proof has typed parent-domain, Rust protocol, service read-model, and proof-harness coverage that records Windows implemented boundaries separately from manual-required broad app/domain blocking, desktop scaffold adapters, privileged mobile manual gates, signing, TestFlight, and store distribution plans.",
+      "privilegedCapability": true,
+      "ciProof": {
+        "commands": ["node scripts/test/v0-8-cross-platform-enforcement-capability-proof.mjs"],
+        "jobs": ["Worker B V0.8 cross-platform enforcement capability proof"]
+      },
+      "platformCoverage": {
+        "windows": "real-local-windows-proof",
+        "linux": "scaffold-only",
+        "macos": "scaffold-only",
+        "android": "manual-required",
+        "ios": "manual-required"
+      },
+      "runtimeSurfaceCoverage": {
+        "windowsImplementedBoundaries": {
+          "state": "implemented-boundary",
+          "proof": "Owned-process terminate, app time-limit lifecycle, managed-browser boundary, and unmanaged-browser process boundary are recorded as Windows implemented-boundary entries only."
+        },
+        "broadAppBlocking": {
+          "state": "manual-required",
+          "proof": "Broad installed-app blocking still requires OS-approved app identity, apply, rollback, and audit custody artifacts."
+        },
+        "networkDomainBlocking": {
+          "state": "manual-required",
+          "proof": "Network/domain blocking still requires host network filter or DNS/VPN adapter apply, rollback, and custody evidence."
+        },
+        "desktopAdapterScaffold": {
+          "state": "scaffold",
+          "proof": "Linux and macOS package or service preview evidence remains scaffold-only until target OS adapter apply/rollback proof exists."
+        },
+        "androidPrivilegedMobile": {
+          "state": "manual-required",
+          "proof": "Android device-owner policy and package lifecycle require real device-owner or managed-profile enrollment, policy apply, and lifecycle artifacts before claims upgrade."
+        },
+        "androidStore": {
+          "state": "planned",
+          "proof": "Google Play signing, release track, and policy review remain planned distribution work and are not child enforcement support."
+        },
+        "iosFamilyControlsSigningTestflight": {
+          "state": "manual-required",
+          "proof": "iOS Family Controls, DeviceActivity, signing, entitlements, and TestFlight require approved entitlement, signing, and device or TestFlight artifacts."
+        },
+        "iosStores": {
+          "state": "planned",
+          "proof": "iOS store distribution is planned and cannot be used as privileged child enforcement evidence."
+        }
+      },
+      "knownGaps": [
+        "This slice does not implement broad app blocking, network/domain blocking, Linux support, macOS support, Android child enforcement, iOS child enforcement, signing, TestFlight, Google Play, App Store, or production distribution.",
+        "Local proof does not certify device-owner policy, Family Controls entitlement approval, mobile package lifecycle, real device install, store review, or physical target OS permission prompts.",
+        "Managed and unmanaged browser exact URL evidence remains outside this proof unless a separate browser integration artifact proves it."
+      ],
+      "manualProofChecklist": [
+        "Archive test-results/v0-8-cross-platform-enforcement-capability-proof/proof.json with the commit SHA.",
+        "Run Windows host proof for broad installed-app identity, block apply, rollback, and audit custody before upgrading broad app claims.",
+        "Run host network filter or DNS/VPN apply and rollback proof before upgrading network/domain claims.",
+        "Run Linux and macOS host-specific service-manager, package, permission, adapter apply, and rollback proof before upgrading desktop support outside Windows.",
+        "Run Android device-owner or managed-profile enrollment, policy apply, package lifecycle, release signing, and policy review proof before upgrading Android child support.",
+        "Run iOS Family Controls, DeviceActivity, signing, entitlement, TestFlight/device install, App Store Connect, and release proof before upgrading iOS child support."
       ]
     },
     {
