@@ -20,6 +20,7 @@
     "v0-8-os-adapter-proof-hardening",
     "v0-8-enforcement-adapter-product-proof-continuation",
     "v0-8-broad-os-adapter-proof-readiness",
+    "v0-8-broad-os-adapter-proof",
     "v0-8-host-adapter-proof-preflight",
     "v0-8-process-package-identity-proof-bridge",
     "v0-8-host-identity-read-model-proof",
@@ -428,6 +429,44 @@
         "A readiness matrix entry presented as real OS enforcement.",
         "Owned-process or app time-limit proof presented as broad app blocking.",
         "Unmanaged browser process-only evidence presented as exact browser evidence."
+      ]
+    },
+    {
+      "id": "v0-8-broad-os-adapter-proof",
+      "title": "V0.8 Broad OS Adapter Proof",
+      "claimIds": ["v0-8-broad-os-adapter-proof"],
+      "expectationFiles": [
+        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/expectations/platforms.md",
+        "docs/expectations/capture.md",
+        "docs/expectations/policy.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "proofMode": "ci-mechanical-proof",
+      "realEvidencePath": [
+        "Build contracts from the current commit.",
+        "Run the parent-domain broad OS adapter proof contract test plus the existing V0.8 readiness and product proof tests.",
+        "Run focused Rust protocol and service tests that keep manual-required app/domain/browser states unavailable without adapter execution.",
+        "Emit a proof artifact that records Windows managed-session, owned-process, unmanaged process, and timer mechanics separately from broad OS blocking claims.",
+        "Record Linux, macOS, Android, and iOS target support as manual-required or unavailable instead of borrowing Windows proof."
+      ],
+      "ciCommands": ["node scripts/test/v0-8-broad-os-adapter-proof.mjs"],
+      "requiredArtifacts": [
+        "test-results/v0-8-broad-os-adapter-proof/proof.json",
+        "packages/parent-domain/src/v0-8-broad-os-adapter-proof.ts",
+        "packages/parent-domain/tests/v0-8-broad-os-adapter-proof.test.ts",
+        "scripts/test/v0-8-broad-os-adapter-proof.mjs",
+        "docs/checkpoints/v0-8-broad-os-adapter-proof-2026-05-30.md"
+      ],
+      "knownGaps": [
+        "This proof records managed-session intervention, owned-process guardrails, unmanaged process terminate/warn, and app timer lifecycle boundaries; it is not broad installed-app blocking.",
+        "Network/domain blocking, managed exact URL control, admin hardening, anti-tamper, rollback, Linux, macOS, Android, and iOS support still require real target artifacts before claims upgrade.",
+        "Unmanaged browser exact URL, active tab, title, page text, download source, HTTPS content, and intent remain not-claimed without managed browser or explicit browser integration proof."
+      ],
+      "notProof": [
+        "A Windows managed-browser intervention run presented as unmanaged browser exact evidence.",
+        "Owned-process pid/name termination presented as global installed-app blocking.",
+        "Windows proof presented as Linux, macOS, Android, or iOS support."
       ]
     },
     {
@@ -1902,6 +1941,86 @@
         "Run Windows host proof for owned-process terminate, app time-limit lifecycle, broad app/domain/browser unavailable states, managed/unmanaged browser boundaries, service logs, and encrypted audit storage.",
         "Record OS-approved app/package identity, network filter, managed browser exact URL, admin hardening, anti-tamper, rollback, and bypass-resistance artifacts before upgrading any broad blocking claim.",
         "Record Android device-owner/package lifecycle and iOS Family Controls/entitlement/device artifacts before upgrading mobile child claims."
+      ]
+    },
+    {
+      "id": "v0-8-broad-os-adapter-proof",
+      "roadmapSlice": "V0.8 broad OS adapter proof",
+      "expectationFiles": [
+        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/expectations/platforms.md",
+        "docs/expectations/capture.md",
+        "docs/expectations/policy.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "claim": "V0.8 broad OS adapter proof has typed parent-domain and proof-harness coverage that records Windows managed-session intervention, owned-process pid/name guardrails, unmanaged process terminate/warn boundary, and app timer lifecycle without upgrading broad app/domain/browser, exact browser evidence, non-Windows, Android, iOS, admin hardening, rollback, or anti-tamper claims.",
+      "privilegedCapability": true,
+      "ciProof": {
+        "commands": ["node scripts/test/v0-8-broad-os-adapter-proof.mjs"],
+        "jobs": ["Worker B V0.8 broad OS adapter proof"]
+      },
+      "platformCoverage": {
+        "windows": "real-local-windows-proof",
+        "linux": "manual-required",
+        "macos": "manual-required",
+        "android": "manual-required",
+        "ios": "manual-required"
+      },
+      "runtimeSurfaceCoverage": {
+        "managedSessionIntervention": {
+          "state": "implemented",
+          "proof": "Windows managed-browser intervention is recorded as managed-session-path proof only and does not upgrade unmanaged browser or system-wide URL claims."
+        },
+        "ownedProcessPidNameGuardrail": {
+          "state": "implemented",
+          "proof": "Owned process pid/name termination is proved only for process-scoped enforcement and does not become broad installed-app blocking."
+        },
+        "unmanagedProcessBoundary": {
+          "state": "implemented",
+          "proof": "Unmanaged browser support is process terminate/warn only and excludes URL, active tab, title, download, page, HTTPS content, and intent evidence."
+        },
+        "appTimeLimitLifecycle": {
+          "state": "implemented",
+          "proof": "App timer lifecycle remains scoped to timer custody, restart recovery, parent cancel, expiry, and audit behavior."
+        },
+        "broadInstalledAppBlocking": {
+          "state": "manual-required",
+          "proof": "Broad installed-app blocking still requires OS-approved app identity, apply, rollback, and audit custody artifacts."
+        },
+        "networkDomainBlocking": {
+          "state": "manual-required",
+          "proof": "Network/domain blocking still requires host network filter or DNS/VPN adapter apply, rollback, and audit custody artifacts."
+        },
+        "managedBrowserExactUrl": {
+          "state": "manual-required",
+          "proof": "Managed exact URL control still requires active-tab and exact URL apply/rollback/audit artifacts."
+        },
+        "unmanagedBrowserExactEvidence": {
+          "state": "not-claimed",
+          "proof": "Unmanaged browser exact URL, active tab, title, page, download, HTTPS content, and intent remain not-claimed without managed or explicit browser integration proof."
+        },
+        "linuxBroadAdapter": {
+          "state": "unavailable",
+          "proof": "Linux broad OS adapter support is unavailable in this proof and cannot inherit Windows behavior."
+        },
+        "macosAndroidIosAdapters": {
+          "state": "manual-required",
+          "proof": "macOS, Android, and iOS require target-platform permission, entitlement, package, device policy, and rollback artifacts before support upgrades."
+        }
+      },
+      "knownGaps": [
+        "This slice does not implement global app blocking, network/domain blocking, managed exact URL enforcement, admin hardening, anti-tamper, rollback, Linux support, macOS support, Android child enforcement, or iOS child enforcement.",
+        "Local proof does not certify production packaging, signing, stores, entitlements, device-owner policy, Family Controls, or target OS permission prompts.",
+        "Unmanaged browser exact evidence remains not-claimed without a managed browser or another explicit browser integration."
+      ],
+      "manualProofChecklist": [
+        "Archive test-results/v0-8-broad-os-adapter-proof/proof.json with the commit SHA.",
+        "Run Windows host proof for broad installed-app identity, block apply, rollback, and audit custody before upgrading broad app claims.",
+        "Run host network filter or DNS/VPN apply and rollback proof before upgrading network/domain claims.",
+        "Run managed browser active-tab and exact URL apply/rollback/audit proof before upgrading exact managed browser claims.",
+        "Run Linux and macOS host-specific adapter proof before upgrading desktop support outside Windows.",
+        "Run Android device-owner or managed-profile, UsageStats, accessibility or VPN/DNS, and package lifecycle proof before upgrading Android child support.",
+        "Run iOS Family Controls, DeviceActivity, Network Extension, signing, entitlement, and TestFlight/device proof before upgrading iOS child support."
       ]
     },
     {
