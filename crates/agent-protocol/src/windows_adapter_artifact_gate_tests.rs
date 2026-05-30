@@ -1,5 +1,6 @@
 use super::{
     constants, constants::windows_adapter_artifact_gate as artifact_gate,
+    constants::windows_adapter_artifact_ingestion as artifact_ingestion,
     constants::windows_adapter_capability as windows_adapter, policy_constants as policy,
     WindowsAdapterArtifactEvidence, WindowsAdapterArtifactGateDecision,
     WindowsAdapterArtifactGateEntry, WindowsAdapterArtifactGateProof, WindowsAdapterArtifactKind,
@@ -68,7 +69,7 @@ fn windows_adapter_artifact_evidence_serializes_custody_event_refs() {
         surface: WindowsAdapterCapabilitySurface::AppTarget,
         subject_ref: artifact_gate::TEST_SUBJECT_REF.to_string(),
         custody_event_id: Some(artifact_gate::TEST_CUSTODY_EVENT_ID.to_string()),
-        verified_at: policy::TEST_EVALUATED_AT.to_string(),
+        verified_at: artifact_ingestion::TEST_INGESTED_AT.to_string(),
     };
 
     let serialized =

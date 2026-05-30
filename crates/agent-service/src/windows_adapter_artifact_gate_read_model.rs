@@ -268,8 +268,10 @@ fn missing_artifact_kinds(
 fn artifact_satisfies_kind(artifact: &WindowsAdapterArtifactEvidence) -> bool {
     !artifact.artifact_id.is_empty()
         && !artifact.subject_ref.is_empty()
-        && (artifact.artifact_kind != WindowsAdapterArtifactKind::AuditCustodyEvent
-            || artifact.custody_event_id.is_some())
+        && artifact
+            .custody_event_id
+            .as_deref()
+            .is_some_and(|custody_event_id| !custody_event_id.is_empty())
 }
 
 fn gate_decision(
