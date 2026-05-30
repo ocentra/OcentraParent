@@ -23,6 +23,7 @@
     "v0-8-broad-os-adapter-proof",
     "v0-8-cross-platform-enforcement-capability-proof",
     "v0-8-browser-domain-adapter-proof",
+    "v0-8-os-adapter-manual-artifact-gates",
     "v0-8-host-adapter-proof-preflight",
     "v0-8-process-package-identity-proof-bridge",
     "v0-8-host-identity-read-model-proof",
@@ -551,6 +552,44 @@
         "A process-only unmanaged browser result presented as URL, tab, title, page, HTTPS content, or intent evidence.",
         "Browser policy records or domain observation presented as host network/domain blocking.",
         "Windows proof presented as Linux, macOS, Android, or iOS support."
+      ]
+    },
+    {
+      "id": "v0-8-os-adapter-manual-artifact-gates",
+      "title": "V0.8 OS Adapter Manual Artifact Gates",
+      "claimIds": ["v0-8-os-adapter-manual-artifact-gates"],
+      "expectationFiles": [
+        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/expectations/platforms.md",
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/policy.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "proofMode": "ci-mechanical-proof",
+      "realEvidencePath": [
+        "Build contracts from the current commit.",
+        "Run the parent-domain OS adapter manual artifact gates contract test.",
+        "Emit a proof artifact that records Windows host, Linux, macOS, Android, and iOS capability gates as manual-required, not-claimed, or unavailable.",
+        "Verify no read-model entry sets product-ready blocking, broad app blocking, network/domain blocking, managed exact URL, unmanaged exact evidence, unsupported platform, or mobile privilege claim flags.",
+        "Keep package.json, C-owned UI/vendor paths, A V0.9 household paths, and D parent-mobile package/runtime paths untouched."
+      ],
+      "ciCommands": ["node scripts/test/v0-8-os-adapter-manual-artifact-gates.mjs"],
+      "requiredArtifacts": [
+        "test-results/v0-8-os-adapter-manual-artifact-gates/proof.json",
+        "packages/parent-domain/src/v0-8-os-adapter-manual-artifact-gates.ts",
+        "packages/parent-domain/tests/v0-8-os-adapter-manual-artifact-gates.test.ts",
+        "scripts/test/v0-8-os-adapter-manual-artifact-gates.mjs",
+        "docs/checkpoints/v0-8-os-adapter-manual-artifact-gates-2026-05-30.md"
+      ],
+      "knownGaps": [
+        "This proof records manual artifact gates only; it is not product-ready app, network, browser, desktop OS, Android, or iOS enforcement.",
+        "Linux adapter artifact gates are unavailable and macOS gates remain manual-required until target-specific service/package/permission artifacts exist.",
+        "Android and iOS privileged capability support remains manual-required until real package, device, permission, entitlement, signing, and distribution artifacts exist."
+      ],
+      "notProof": [
+        "A manual gate entry presented as product-ready blocking.",
+        "Windows proof presented as Linux, macOS, Android, or iOS support.",
+        "A process-only or domain-observation artifact presented as exact browser, host network filter, or mobile privileged capability proof."
       ]
     },
     {
@@ -2346,6 +2385,71 @@
         "Run Linux and macOS host-specific permission, package, service-manager, adapter apply, rollback, and audit proof before upgrading desktop support outside Windows.",
         "Run Android VPN/DNS, device-owner or managed-profile, package lifecycle, signing, and real-device proof before upgrading Android browser/domain support.",
         "Run iOS Network Extension, Family Controls, DeviceActivity, entitlement, signing, TestFlight/device install, and release proof before upgrading iOS browser/domain support."
+      ]
+    },
+    {
+      "id": "v0-8-os-adapter-manual-artifact-gates",
+      "roadmapSlice": "V0.8 OS adapter manual artifact gates",
+      "expectationFiles": [
+        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/expectations/platforms.md",
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/policy.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "claim": "V0.8 OS adapter manual artifact gates have typed parent-domain and proof-harness coverage that keeps Windows host, Linux, macOS, Android, and iOS privileged capability claims manual-required, not-claimed, or unavailable until target-specific artifacts exist.",
+      "privilegedCapability": true,
+      "ciProof": {
+        "commands": ["node scripts/test/v0-8-os-adapter-manual-artifact-gates.mjs"],
+        "jobs": ["Worker B V0.8 OS adapter manual artifact gates"]
+      },
+      "platformCoverage": {
+        "windows": "manual-required",
+        "linux": "not-yet-proven",
+        "macos": "manual-required",
+        "android": "manual-required",
+        "ios": "manual-required"
+      },
+      "runtimeSurfaceCoverage": {
+        "productReadyBlocking": {
+          "state": "not-claimed",
+          "proof": "Every entry keeps productReadyBlockingClaimed false; gates only describe manual artifact requirements and unavailable or not-claimed states."
+        },
+        "windowsHostArtifacts": {
+          "state": "manual-required",
+          "proof": "Windows broad app identity, process/package identity, owned-process terminate, parent cancel, network/domain filter apply plus rollback, managed-browser exact URL, restart recovery, audit custody, service permission, and package lifecycle require host artifacts before claims upgrade."
+        },
+        "unmanagedBrowserExactEvidence": {
+          "state": "not-claimed",
+          "proof": "Unmanaged browser exact URL, title, page, download, HTTPS content, and intent evidence remain not-claimed without explicit browser integration artifacts."
+        },
+        "linuxMacosHostArtifacts": {
+          "state": "manual-required",
+          "proof": "Linux is unavailable in this proof; macOS remains manual-required until target-specific service, package, permission, apply, rollback, and audit artifacts exist."
+        },
+        "androidPrivilegedArtifacts": {
+          "state": "manual-required",
+          "proof": "Android UsageStats, accessibility, VPN/DNS, device-owner, managed-profile, and package lifecycle require emulator or physical-device artifacts before support upgrades."
+        },
+        "iosEntitlementArtifacts": {
+          "state": "manual-required",
+          "proof": "iOS Family Controls, DeviceActivity, Screen Time, Network Extension, background execution, signing, and TestFlight require entitlement, signing, distribution, and device artifacts before support upgrades."
+        }
+      },
+      "knownGaps": [
+        "This slice does not implement product-ready broad app blocking, network/domain blocking, managed exact URL enforcement, unmanaged exact browser evidence, Linux or macOS host adapters, Android privileged enforcement, or iOS entitlement-backed enforcement.",
+        "It is a typed manual artifact gate and proof harness, not a Rust service adapter or mobile package implementation.",
+        "No C-owned UI/vendor paths, A V0.9 household paths, D parent-mobile paths, or package manifests are part of this proof."
+      ],
+      "manualProofChecklist": [
+        "Archive test-results/v0-8-os-adapter-manual-artifact-gates/proof.json with the commit SHA.",
+        "Capture Windows same-identity app/package, apply, rollback, audit custody, service permission, and package lifecycle artifacts before upgrading broad app or owned process claims.",
+        "Capture host network filter or DNS/VPN apply, rollback, and audit custody artifacts before upgrading network/domain claims.",
+        "Capture managed browser active-tab URL, exact URL apply, rollback, and audit custody artifacts before upgrading managed browser exact URL claims.",
+        "Capture explicit browser integration artifacts before upgrading unmanaged URL, title, page, download, HTTPS content, or intent evidence claims.",
+        "Capture Linux and macOS service/package/permission/apply/rollback/audit artifacts before upgrading desktop support outside Windows.",
+        "Capture Android UsageStats, accessibility, VPN/DNS, device-owner, managed-profile, package lifecycle, signing, foreground service, and device artifacts before upgrading Android support.",
+        "Capture iOS Family Controls, DeviceActivity, Screen Time, Network Extension, background, signing, TestFlight, install, and device artifacts before upgrading iOS support."
       ]
     },
     {
