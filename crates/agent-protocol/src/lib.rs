@@ -22,6 +22,7 @@ mod browser_unmanaged_enforcement;
 mod browser_values;
 pub mod constants;
 mod enforcement;
+mod enforcement_os_adapter_product_proof;
 mod enforcement_readiness;
 mod host_identity;
 mod journal;
@@ -57,6 +58,7 @@ pub use browser_policy_values::*;
 pub use browser_read_model::*;
 pub use browser_unmanaged_enforcement::*;
 pub use enforcement::*;
+pub use enforcement_os_adapter_product_proof::*;
 pub use enforcement_readiness::*;
 pub use host_identity::*;
 pub use journal::*;
@@ -113,6 +115,8 @@ mod browser_policy_tests;
 mod browser_read_model_tests;
 #[cfg(test)]
 mod enforcement_audit_boundary_tests;
+#[cfg(test)]
+mod enforcement_os_adapter_product_proof_tests;
 #[cfg(test)]
 mod enforcement_permission_dependency_tests;
 #[cfg(test)]

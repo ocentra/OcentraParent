@@ -53,6 +53,10 @@ mod browser_runtime_tests;
 mod dev_log;
 mod enforcement_api;
 mod enforcement_capability;
+#[cfg_attr(not(test), allow(dead_code))]
+mod enforcement_os_adapter_product_proof_read_model;
+#[cfg(test)]
+mod enforcement_os_adapter_product_proof_read_model_tests;
 mod enforcement_payload;
 #[cfg(test)]
 mod enforcement_tests;
