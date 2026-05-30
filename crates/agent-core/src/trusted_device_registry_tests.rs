@@ -4,7 +4,7 @@ use std::sync::atomic::{AtomicU64, Ordering};
 use ocentra_parent_agent_protocol::{
     constants, policy_constants, LanPairingAuthenticationState, LanPairingDeviceReachability,
     LanPairingDeviceRef, LanPairingIntentKind, LanPairingParentAuthority, LanPairingProof,
-    LanPairingRejectionReason, LanParentIntentEnvelope,
+    LanPairingRejectionReason, LanPairingTrustState, LanParentIntentEnvelope,
 };
 
 use crate::TrustedDeviceRegistry;
@@ -282,6 +282,8 @@ fn trusted_device_registry_reports_revoked_stale_and_offline_selected_state() {
         stale_target.reachability,
         LanPairingDeviceReachability::Stale
     );
+    assert_eq!(stale_target.trust_state, LanPairingTrustState::Paired);
+    assert_eq!(stale_target.offline_at, None);
     assert_eq!(
         stale_registry.validate_intent(
             &intent(
@@ -298,6 +300,11 @@ fn trusted_device_registry_reports_revoked_stale_and_offline_selected_state() {
     assert_eq!(
         offline_target.reachability,
         LanPairingDeviceReachability::Offline
+    );
+    assert_eq!(offline_target.trust_state, LanPairingTrustState::Paired);
+    assert_eq!(
+        offline_target.offline_at.as_deref(),
+        Some(constants::lan_pairing::OBSERVED_AT)
     );
     assert_eq!(
         offline_registry.validate_intent(
@@ -381,6 +388,7 @@ fn trusted_device_registry_persists_selected_route_for_restart_recovery() {
         selected.route_id,
         constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK
     );
+    assert_eq!(selected.trust_state, LanPairingTrustState::Paired);
     assert_eq!(
         loaded.validate_intent(
             &intent(

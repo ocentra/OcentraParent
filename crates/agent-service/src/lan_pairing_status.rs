@@ -13,6 +13,8 @@ use crate::{
     time::timestamp_now,
 };
 
+mod selection;
+
 #[derive(Clone, Debug)]
 struct LanPairingStatus {
     pairing_state: &'static str,
@@ -301,19 +303,39 @@ fn state_pairs(status: &LanPairingStatus) -> Vec<(&'static str, LogFieldValue)> 
         ),
         (
             constants::field::LAN_SELECTED_CHILD_DEVICE_ID,
-            LogFieldValue::String(selected_child_device_id(status)),
+            LogFieldValue::String(selection::child_device_id(status.selected_target.as_ref())),
+        ),
+        (
+            constants::field::LAN_SELECTED_PAIRING_ID,
+            LogFieldValue::String(selection::pairing_id(status.selected_target.as_ref())),
+        ),
+        (
+            constants::field::LAN_SELECTED_ROUTE_TRUST_STATE,
+            LogFieldValue::String(
+                selection::route_trust_state(status.selected_target.as_ref()).to_string(),
+            ),
         ),
         (
             constants::field::LAN_SELECTED_DEVICE_REACHABILITY,
-            LogFieldValue::String(selected_device_reachability(status).to_string()),
+            LogFieldValue::String(
+                selection::reachability(status.selected_target.as_ref()).to_string(),
+            ),
         ),
         (
             constants::field::LAN_SELECTED_DEVICE_STALE_AT,
-            LogFieldValue::String(selected_device_stale_at(status)),
+            LogFieldValue::String(selection::stale_at(status.selected_target.as_ref())),
         ),
         (
             constants::field::LAN_SELECTED_ROUTE_ID,
-            LogFieldValue::String(selected_route_id(status)),
+            LogFieldValue::String(selection::route_id(status.selected_target.as_ref())),
+        ),
+        (
+            constants::field::LAN_SELECTED_ROUTE_STALE_AT,
+            LogFieldValue::String(selection::stale_at(status.selected_target.as_ref())),
+        ),
+        (
+            constants::field::LAN_SELECTED_ROUTE_OFFLINE_AT,
+            LogFieldValue::String(selection::offline_at(status.selected_target.as_ref())),
         ),
     ]
 }
@@ -336,41 +358,4 @@ fn authentication_state(selected: &Option<LanSelectedRouteTarget>) -> &'static s
     } else {
         constants::value::LAN_AUTH_UNPAIRED
     }
-}
-
-fn selected_child_device_id(status: &LanPairingStatus) -> String {
-    status
-        .selected_target
-        .as_ref()
-        .map(|target| target.selected_child_device_id.clone())
-        .unwrap_or_default()
-}
-
-fn selected_route_id(status: &LanPairingStatus) -> String {
-    status
-        .selected_target
-        .as_ref()
-        .map(|target| target.route_id.clone())
-        .unwrap_or_default()
-}
-
-fn selected_device_reachability(status: &LanPairingStatus) -> &'static str {
-    match status
-        .selected_target
-        .as_ref()
-        .map(|target| &target.reachability)
-    {
-        Some(LanPairingDeviceReachability::Online) => constants::value::LAN_REACHABILITY_ONLINE,
-        Some(LanPairingDeviceReachability::Offline) => constants::value::LAN_REACHABILITY_OFFLINE,
-        Some(LanPairingDeviceReachability::Stale) => constants::value::LAN_REACHABILITY_STALE,
-        None => constants::value::EMPTY,
-    }
-}
-
-fn selected_device_stale_at(status: &LanPairingStatus) -> String {
-    status
-        .selected_target
-        .as_ref()
-        .and_then(|target| target.stale_at.clone())
-        .unwrap_or_default()
 }

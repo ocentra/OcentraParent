@@ -76,6 +76,7 @@ async function main() {
       proofBoundary: 'local-real-service-processes-not-physical-household-lan',
       productionDiscoveryStates,
       routeControlRejections,
+      selectedRouteTrust: productionProof.localTwoServiceProof.selectedRouteTrust,
       selectedDeviceReadinessStates: {
         stale: requiredAssertionsFor(productionProof, 'rust-selected-device-state').filter((assertion) =>
           assertion.includes('stale')
@@ -91,6 +92,7 @@ async function main() {
     claimsProved: [
       'production discovery state labels remain explicit for discovered, pending, paired, revoked, stale, offline, and unavailable/manual-gated states',
       'paired, unpaired, wrong-origin, wrong-device, replay, stale, revoked, observer-read-only, missing-lease, expired-lease, and wrong-controller routes are gathered from real local service proof artifacts',
+      'selected-route trust state, selected pairing id, stale time, and offline time are explicit in local service status proof artifacts',
       'selected-device stale and offline readiness states are backed by Rust service and core registry proof assertions',
       'physical household LAN readiness is refused without required two-device, router, firewall, origin, stale/offline, failed-unpaired, and provider artifacts',
     ],
@@ -135,13 +137,16 @@ function assertProductionDiscoveryStates(productionProof, discoveryProof, pairin
   for (const expected of [
     'first-child-agent:pairing-proof-accepted-unselected',
     'first-child-agent:route-selected',
+    'first-child-agent:selected-route-trust-state-paired',
     'first-child-agent:route-revoked',
     'second-child-agent:restart-restores-selected-route',
+    'second-child-agent:restart-restores-selected-route-trust-state',
   ]) {
     assertArrayIncludes(pairingProof.assertions, expected, 'route state assertion');
   }
 
   proofLabels.push('v0.9.production-discovery.explicit-state-labels');
+  proofLabels.push('v0.9.selected-route.trust-state-explicit');
   return {
     discovered: 'parent-domain contract proof: LanPairingDiscoveryDeviceSchema accepts discoveryState=discovered',
     pending: 'first-discovery-agent:challenge-preview-issued',

@@ -30,6 +30,9 @@ export const AgentPairingStateSchema = withParser(
 );
 
 export const AgentLanSelectedDeviceReachabilitySchema = withParser(Schema.Literal('online', 'offline', 'stale'));
+export const AgentLanSelectedRouteTrustStateSchema = withParser(
+  Schema.Literal('unpaired', 'pairing', 'paired', 'revoked', 'expired')
+);
 export const AgentLanPairingNetworkModeSchema = withParser(Schema.Literal('loopback', 'local-network'));
 export const AgentLanPairingParentAuthoritySchema = withParser(Schema.Literal('active-controller', 'observer'));
 export const AgentLanPairingProductionDiscoveryStateSchema = withParser(
@@ -246,6 +249,7 @@ type AgentPairingId = typeof AgentPairingIdSchema.Type;
 type AgentPairingTokenHash = typeof AgentPairingTokenHashSchema.Type;
 type AgentPairingState = Infer<typeof AgentPairingStateSchema>;
 type AgentLanSelectedDeviceReachability = Infer<typeof AgentLanSelectedDeviceReachabilitySchema>;
+type AgentLanSelectedRouteTrustState = Infer<typeof AgentLanSelectedRouteTrustStateSchema>;
 type AgentLanPairingAddressRef = typeof AgentLanPairingAddressRefSchema.Type;
 type AgentLanPairingChallengeId = typeof AgentLanPairingChallengeIdSchema.Type;
 type AgentLanPairingIntentId = typeof AgentLanPairingIntentIdSchema.Type;
@@ -289,6 +293,7 @@ export type {
   AgentLanAiProviderRoutingState,
   AgentLanParentIntentEnvelope,
   AgentLanSelectedDeviceReachability,
+  AgentLanSelectedRouteTrustState,
   AgentPairingId,
   AgentPairingProof,
   AgentPairingState,
