@@ -109,7 +109,9 @@ export const ActivityReportSourceStateSummarySchema = withParser(
     totalSources: NonNegativeActivityCount,
     readySources: NonNegativeActivityCount,
     offlineSources: NonNegativeActivityCount,
+    staleSources: NonNegativeActivityCount,
     unavailableSources: NonNegativeActivityCount,
+    unreachableSources: NonNegativeActivityCount,
     errorSources: NonNegativeActivityCount,
   })
 );

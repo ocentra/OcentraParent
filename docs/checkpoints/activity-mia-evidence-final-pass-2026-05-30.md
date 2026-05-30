@@ -23,13 +23,16 @@ Activity/report read models.
 - Family reports carry reachable, offline, and error source states. Remote
   device-scoped requests degrade to typed offline reports when the device source
   is unavailable.
+- Saved report history rows now distinguish stale and unreachable source counts
+  from offline, unavailable, and error counts so C can render source health
+  without guessing.
 - The TypeScript Activity adapter creates command payloads and parses report,
   history, and tab read-model events for the future C-owned visual surface.
 - Adapter failures now carry a typed `unavailable` state and a reason so the UI
   can render a disabled/unavailable card without inventing state.
 - Parent Assistant/MIA cites saved Activity report evidence, ready section
-  counts, offline/unavailable source counts, and action-preview child-agent
-  contract boundaries.
+  counts, saved file/time/storage metadata, offline/stale/unreachable/
+  unavailable source counts, and action-preview child-agent contract boundaries.
 
 ## Non-Claims
 

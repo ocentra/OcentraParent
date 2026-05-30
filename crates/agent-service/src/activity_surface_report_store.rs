@@ -202,10 +202,23 @@ fn source_state_summary(report: &ActivityReportDocument) -> ActivityReportSource
             .iter()
             .filter(|source| source.state == ActivityReadModelState::Offline)
             .count() as u64,
+        stale_sources: report
+            .source_states
+            .iter()
+            .filter(|source| source.state == ActivityReadModelState::Stale)
+            .count() as u64,
         unavailable_sources: report
             .source_states
             .iter()
             .filter(|source| source.state == ActivityReadModelState::Unavailable)
+            .count() as u64,
+        unreachable_sources: report
+            .source_states
+            .iter()
+            .filter(|source| {
+                source.reachability_state
+                    == ocentra_parent_agent_protocol::ActivityReportSourceReachabilityState::Unreachable
+            })
             .count() as u64,
         error_sources: report
             .source_states

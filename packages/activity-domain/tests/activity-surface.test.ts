@@ -91,7 +91,9 @@ const SourceStateSummary = {
   totalSources: 2,
   readySources: 1,
   offlineSources: 1,
+  staleSources: 0,
   unavailableSources: 0,
+  unreachableSources: 0,
   errorSources: 0,
 } as const;
 

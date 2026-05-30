@@ -31,11 +31,14 @@ pub const SUMMARY_FAMILY_SOURCE_UNREACHABLE: &str =
     "Child-device source is registered but not reachable for this report request.";
 pub const SUMMARY_FAMILY_SOURCE_ERROR: &str =
     "Child-device source returned an error before report material could be aggregated.";
+pub const SUMMARY_FAMILY_SOURCE_STALE: &str =
+    "Child-device source has stale report material and needs a fresh activity sync.";
 pub const SUMMARY_SCAFFOLD_ONLY: &str =
     "This Activity read model is typed but not wired to local storage yet.";
 pub const FAMILY_FANOUT_SOURCE_ID: &str = "family-fanout-unavailable";
 pub const FAMILY_SOURCE_OFFLINE_ID: &str = "family-child-offline";
 pub const FAMILY_SOURCE_ERROR_ID: &str = "family-child-error";
+pub const FAMILY_SOURCE_STALE_ID: &str = "family-child-stale";
 pub const SECTION_SUMMARY: &str = "Summary";
 pub const SECTION_SCREEN: &str = "Screen";
 pub const SECTION_APP_USE: &str = "App Use";

@@ -146,7 +146,9 @@ pub struct ActivityReportSourceStateSummary {
     pub total_sources: u64,
     pub ready_sources: u64,
     pub offline_sources: u64,
+    pub stale_sources: u64,
     pub unavailable_sources: u64,
+    pub unreachable_sources: u64,
     pub error_sources: u64,
 }
 

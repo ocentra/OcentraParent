@@ -118,8 +118,15 @@ function assertActionPreviewResult(payload) {
   const reportContext = result.evidenceContext.find((context) => context.citationLabel === 'Activity report');
   if (
     reportContext?.evidence?.evidenceReferenceId !== 'activity-report-daily-local' ||
+    !String(reportContext.allowedSummary).includes('fileName=activity-report-daily-local.json') ||
+    !String(reportContext.allowedSummary).includes('savedAt=2026-05-28T14:54:02Z') ||
+    !String(reportContext.allowedSummary).includes(
+      'storageReason=Activity report is saved in local parent report storage.'
+    ) ||
     !String(reportContext.allowedSummary).includes('savedState=saved') ||
-    !String(reportContext.allowedSummary).includes('offlineSources=1')
+    !String(reportContext.allowedSummary).includes('offlineSources=1') ||
+    !String(reportContext.allowedSummary).includes('staleSources=1') ||
+    !String(reportContext.allowedSummary).includes('unreachableSources=1')
   ) {
     throw new Error(
       `Parent Assistant action preview did not cite the saved Activity report: ${JSON.stringify(result)}`
@@ -185,6 +192,13 @@ function activityReport() {
         state: 'offline',
         reason: 'Child-device source is registered but not reachable for this report request.',
         lastUpdatedAt: null,
+      },
+      {
+        deviceId: 'family-child-stale',
+        reachabilityState: 'unreachable',
+        state: 'stale',
+        reason: 'Child-device source has stale report material and needs a fresh activity sync.',
+        lastUpdatedAt: '2026-05-28T13:54:00Z',
       },
     ],
     sections: [
