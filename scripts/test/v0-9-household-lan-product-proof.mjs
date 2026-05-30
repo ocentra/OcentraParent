@@ -52,6 +52,8 @@ async function main() {
     physicalHouseholdLanProofState: 'manual-required',
     parentMobileControllerProofState: 'manual-required',
     cloudRelayState: 'not-implemented',
+    cloudRelayDecision: cloudRelayDecision(),
+    routeCheckOutcomes: routeCheckOutcomes(),
     selectedRouteEvidence: selectedRouteEvidence(),
     selectedProviderPolicyEvidence: selectedProviderPolicyEvidence(),
     manualProofGates: manualProofGates(),
@@ -79,12 +81,15 @@ async function main() {
     physicalHouseholdLanProofState: readModel.physicalHouseholdLanProofState,
     parentMobileControllerProofState: readModel.parentMobileControllerProofState,
     cloudRelayState: readModel.cloudRelayState,
+    cloudRelayDecision: readModel.cloudRelayDecision,
+    routeCheckOutcomes: readModel.routeCheckOutcomes,
     householdProductReadModel: readModel,
     claimsProvedByThisProof: [
       'local direct WebSocket proof artifacts are converted into a product read model without claiming physical household LAN readiness',
       'failed unpaired, wrong-origin, wrong-device, replayed, revoked, stale, and offline selected-route paths are present in product evidence',
       'LAN AI provider routing evidence distinguishes authorized result, unsupported capability, busy, degraded, unavailable, and route-blocked states',
       'manual physical household LAN, real mobile package, real provider host, and cloud relay gates remain explicit product blockers',
+      'cloud relay is represented as not implemented with a separate manual-decision-required state before any relay claim',
     ],
     claimsNotProvedByThisProof: [
       'two physical household LAN devices were exercised',
@@ -117,6 +122,85 @@ function selectedRouteEvidence() {
     routeEvidence('revoked', 'revoked', 'online', 'revoked', 'first-child-agent:revoked-control-rejected'),
     routeEvidence('stale', 'paired', 'stale', 'stale', 'rust-service:selected-device-stale-control-rejected'),
     routeEvidence('offline', 'paired', 'offline', 'offline', 'rust-service:selected-device-offline-control-rejected'),
+  ];
+}
+
+function routeCheckOutcomes() {
+  return [
+    routeCheckOutcome('paired-route-accepted', 'paired', 'paired', 'online', null, 'first-child-agent:route-selected'),
+    routeCheckOutcome(
+      'failed-unpaired-rejected',
+      'unavailable',
+      'unpaired',
+      'online',
+      'anonymous',
+      'first-child-agent:anonymous-rejected'
+    ),
+    routeCheckOutcome(
+      'wrong-origin-rejected',
+      'unavailable',
+      'paired',
+      'online',
+      'wrong-origin',
+      'wrong-origin-websocket-rejected-before-upgrade'
+    ),
+    routeCheckOutcome(
+      'wrong-device-rejected',
+      'unavailable',
+      'paired',
+      'online',
+      'wrong-device',
+      'wrong-agent-port-rejected-as-wrong-device'
+    ),
+    routeCheckOutcome(
+      'replay-rejected',
+      'unavailable',
+      'paired',
+      'online',
+      'replayed',
+      'first-child-agent:replay-rejected'
+    ),
+    routeCheckOutcome(
+      'revocation-rejected',
+      'revoked',
+      'revoked',
+      'online',
+      'revoked',
+      'first-child-agent:revoked-control-rejected'
+    ),
+    routeCheckOutcome(
+      'stale-selected-device-rejected',
+      'stale',
+      'paired',
+      'stale',
+      'stale',
+      'rust-service:selected-device-stale-control-rejected'
+    ),
+    routeCheckOutcome(
+      'offline-selected-device-rejected',
+      'offline',
+      'paired',
+      'offline',
+      'offline',
+      'rust-service:selected-device-offline-control-rejected'
+    ),
+    routeCheckOutcome(
+      'unavailable-route-rejected',
+      'unavailable',
+      'paired',
+      'online',
+      'unsupported-route',
+      'parent-desktop-controller-ai-provider:unsupported-capability-rejected'
+    ),
+    routeCheckOutcome(
+      'manual-required-physical-household-lan',
+      'unavailable',
+      'unpaired',
+      'offline',
+      'local-network-disabled',
+      'manual physical household LAN proof gate',
+      'manual-required'
+    ),
   ];
 }
 
@@ -205,6 +289,28 @@ function routeEvidence(discoveryState, trustState, reachability, rejectionReason
   };
 }
 
+function routeCheckOutcome(
+  check,
+  discoveryState,
+  trustState,
+  reachability,
+  rejectionReason,
+  evidenceLabel,
+  proofState = 'ci-mechanical-proof'
+) {
+  return {
+    schemaVersion,
+    routeId,
+    check,
+    discoveryState,
+    trustState,
+    reachability,
+    rejectionReason,
+    proofState,
+    evidenceLabel,
+  };
+}
+
 function providerEvidence(
   routingState,
   selectedRouteTrustState,
@@ -221,6 +327,16 @@ function providerEvidence(
     rejectionReason,
     proofState: 'ci-mechanical-proof',
     evidenceLabel,
+  };
+}
+
+function cloudRelayDecision() {
+  return {
+    schemaVersion,
+    implementationState: 'not-implemented',
+    decisionState: 'manual-decision-required',
+    requiredDecisionSummary: 'separate authenticated cloud relay proof is required before any relay claim',
+    proofBoundary: 'no cloud relay contract, runtime, storage, authentication, or routing exists in this V0.9 proof',
   };
 }
 
@@ -289,6 +405,26 @@ function assertProviderAssertions(proof) {
 }
 
 function assertReadModel(readModel) {
+  assertEqual(readModel.cloudRelayDecision.implementationState, 'not-implemented', 'cloud relay implementation state');
+  assertEqual(readModel.cloudRelayDecision.decisionState, 'manual-decision-required', 'cloud relay decision state');
+  for (const expected of [
+    'paired-route-accepted',
+    'failed-unpaired-rejected',
+    'wrong-origin-rejected',
+    'wrong-device-rejected',
+    'replay-rejected',
+    'revocation-rejected',
+    'stale-selected-device-rejected',
+    'offline-selected-device-rejected',
+    'unavailable-route-rejected',
+    'manual-required-physical-household-lan',
+  ]) {
+    assertArrayIncludes(
+      readModel.routeCheckOutcomes.map((entry) => entry.check),
+      expected,
+      'route check outcomes'
+    );
+  }
   assertArrayIncludes(
     readModel.selectedRouteEvidence.map((entry) => entry.rejectionReason),
     'wrong-origin',
