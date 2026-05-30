@@ -113,6 +113,10 @@
       "import": "./dist/parent-mobile-runtime.js",
       "types": "./dist/parent-mobile-runtime.d.ts"
     },
+    "./parent-mobile-service-bridge-runtime": {
+      "import": "./dist/parent-mobile-service-bridge-runtime.js",
+      "types": "./dist/parent-mobile-service-bridge-runtime.d.ts"
+    },
     "./v0-9-mobile-controller-discovery-runtime": {
       "import": "./dist/v0-9-mobile-controller-discovery-runtime.js",
       "types": "./dist/v0-9-mobile-controller-discovery-runtime.d.ts"
