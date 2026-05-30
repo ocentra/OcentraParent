@@ -31,6 +31,7 @@ mod lan_pairing_authority;
 mod lan_pairing_support;
 mod local_ai_runtime;
 mod local_ai_runtime_boundary;
+mod local_ai_runtime_provider_proof;
 mod logging;
 mod network_flow;
 mod parent_assistant;
@@ -67,6 +68,7 @@ pub use lan_pairing_authority::*;
 pub use lan_pairing_support::*;
 pub use local_ai_runtime::*;
 pub use local_ai_runtime_boundary::*;
+pub use local_ai_runtime_provider_proof::*;
 pub use logging::*;
 pub use network_flow::*;
 pub use parent_assistant::*;
@@ -137,6 +139,8 @@ mod local_ai_chat_generation_protocol_tests;
 mod local_ai_model_cache_tests;
 #[cfg(test)]
 mod local_ai_provider_scheduler_tests;
+#[cfg(test)]
+mod local_ai_runtime_provider_proof_tests;
 #[cfg(test)]
 mod local_ai_runtime_tests;
 #[cfg(test)]

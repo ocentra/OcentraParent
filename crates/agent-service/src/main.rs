@@ -132,6 +132,10 @@ mod local_ai_runtime_model_selection;
 mod local_ai_runtime_payload;
 #[cfg(test)]
 mod local_ai_runtime_payload_tests;
+#[cfg_attr(not(test), allow(dead_code))]
+mod local_ai_runtime_provider_proof_read_model;
+#[cfg(test)]
+mod local_ai_runtime_provider_proof_read_model_tests;
 mod local_ai_runtime_readiness;
 mod local_ai_runtime_status;
 #[cfg(test)]
