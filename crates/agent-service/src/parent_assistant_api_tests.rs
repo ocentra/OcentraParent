@@ -9,11 +9,11 @@ use ocentra_parent_agent_protocol::{
     AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue, LogLevel,
     ParentAssistantActionConfirmResult, ParentAssistantActionPreviewKind,
     ParentAssistantActionPreviewResult, ParentAssistantActionPreviewState,
-    ParentAssistantApiAuthorizationState, ParentAssistantBackendState,
-    ParentAssistantEvidenceContext, ParentAssistantProviderState, ParentAssistantProviderStatus,
-    ParentAssistantRunCancelResult, ParentAssistantRunCancelState, ParentAssistantRunState,
-    ParentAssistantThreadResponse, ParentAssistantThreadState, ParentEvidenceReference,
-    ParentEvidenceReferenceKind, AGENT_PROTOCOL_SCHEMA_VERSION,
+    ParentAssistantApiAuthorizationState, ParentAssistantApiProviderAccessState,
+    ParentAssistantBackendState, ParentAssistantEvidenceContext, ParentAssistantProviderState,
+    ParentAssistantProviderStatus, ParentAssistantRunCancelResult, ParentAssistantRunCancelState,
+    ParentAssistantRunState, ParentAssistantThreadResponse, ParentAssistantThreadState,
+    ParentEvidenceReference, ParentEvidenceReferenceKind, AGENT_PROTOCOL_SCHEMA_VERSION,
 };
 
 use crate::{
@@ -125,18 +125,24 @@ fn parent_assistant_provider_status_reports_local_runtime_and_api_boundary() {
             .api_provider_boundary
             .child_safety_or_enforcement_use_allowed
     );
+    assert!(status.api_provider_boundary.parent_authorization_required);
+    assert!(status.api_provider_boundary.evidence_citation_required);
 }
 
 #[test]
 fn parent_assistant_api_boundary_requires_authorization_without_remote_adapter_claim() {
-    let boundary = api_boundary::api_provider_boundary_for_authorization(
+    let boundary = api_boundary::api_provider_boundary_for_access_state(
         &[evidence_context()],
-        ParentAssistantApiAuthorizationState::Authorized,
+        ParentAssistantApiProviderAccessState::AuthorizedUnavailable,
     );
 
     assert_eq!(
         boundary.authorization_state,
         ParentAssistantApiAuthorizationState::Authorized
+    );
+    assert_eq!(
+        boundary.access_state,
+        ParentAssistantApiProviderAccessState::AuthorizedUnavailable
     );
     assert_eq!(
         boundary.provider_id,
@@ -151,19 +157,53 @@ fn parent_assistant_api_boundary_requires_authorization_without_remote_adapter_c
         Some(constants::parent_assistant::API_PROVIDER_AUTHORIZED_UNAVAILABLE_REASON)
     );
     assert!(!boundary.child_safety_or_enforcement_use_allowed);
+    assert!(boundary.parent_authorization_required);
+    assert!(boundary.evidence_citation_required);
+    assert_eq!(
+        boundary.retention_state,
+        constants::parent_assistant::API_PROVIDER_RETENTION_PARENT_AUTHORIZED
+    );
     assert_eq!(boundary.citations.len(), 1);
+
+    let degraded_boundary = api_boundary::api_provider_boundary_for_access_state(
+        &[evidence_context()],
+        ParentAssistantApiProviderAccessState::AuthorizedDegraded,
+    );
+
+    assert_eq!(
+        degraded_boundary.authorization_state,
+        ParentAssistantApiAuthorizationState::Authorized
+    );
+    assert_eq!(
+        degraded_boundary.access_state,
+        ParentAssistantApiProviderAccessState::AuthorizedDegraded
+    );
+    assert_eq!(
+        degraded_boundary.provider_state,
+        ParentAssistantProviderState::Degraded
+    );
+    assert_eq!(
+        degraded_boundary.unavailable_reason.as_deref(),
+        Some(constants::parent_assistant::API_PROVIDER_AUTHORIZED_DEGRADED_REASON)
+    );
+    assert!(!degraded_boundary.child_safety_or_enforcement_use_allowed);
+    assert_eq!(degraded_boundary.citations.len(), 1);
 }
 
 #[test]
 fn parent_assistant_api_boundary_denies_api_without_authorization() {
-    let boundary = api_boundary::api_provider_boundary_for_authorization(
+    let boundary = api_boundary::api_provider_boundary_for_access_state(
         &[evidence_context()],
-        ParentAssistantApiAuthorizationState::NotAuthorized,
+        ParentAssistantApiProviderAccessState::NotAuthorized,
     );
 
     assert_eq!(
         boundary.authorization_state,
         ParentAssistantApiAuthorizationState::NotAuthorized
+    );
+    assert_eq!(
+        boundary.access_state,
+        ParentAssistantApiProviderAccessState::NotAuthorized
     );
     assert_eq!(
         boundary.provider_id,
@@ -178,6 +218,12 @@ fn parent_assistant_api_boundary_denies_api_without_authorization() {
         Some(constants::parent_assistant::API_PROVIDER_NOT_AUTHORIZED_REASON)
     );
     assert!(!boundary.child_safety_or_enforcement_use_allowed);
+    assert!(boundary.parent_authorization_required);
+    assert!(boundary.evidence_citation_required);
+    assert_eq!(
+        boundary.retention_state,
+        constants::parent_assistant::API_PROVIDER_RETENTION_NO_AUTHORIZATION
+    );
     assert_eq!(boundary.citations.len(), 1);
 }
 

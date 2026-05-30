@@ -74,9 +74,15 @@ const ApiProviderBoundary = {
   schemaVersion: ParentContractSchemaVersion.V0_6,
   providerId: 'api-provider-not-authorized',
   authorizationState: 'not-authorized',
+  accessState: 'not-authorized',
+  parentAuthorizationRequired: true,
+  evidenceCitationRequired: true,
   custodyLabel: 'parent-authorized-api-ai',
+  custodyState: 'parent-owned-citations-only',
   retentionPolicy: 'no-retention-without-parent-authorization',
+  retentionState: 'no-retention-without-parent-authorization',
   deletionPolicy: 'delete-provider-cache-on-parent-request',
+  deletionState: 'delete-provider-cache-on-parent-request',
   citations: [EvidenceContext],
   providerState: 'unavailable',
   unavailableReason: 'api-ai-provider-not-authorized',
@@ -229,7 +235,27 @@ describe('parent assistant API provider boundary contracts', () => {
   it('ParentAssistantApiProviderBoundarySchema: accepts not-authorized unavailable API state with custody and deletion rules', () => {
     const parsed = ParentAssistantApiProviderBoundarySchema.parse(ApiProviderBoundary);
 
+    expect(parsed.accessState).toBe('not-authorized');
     expect(parsed.providerState).toBe('unavailable');
+    expect(parsed.parentAuthorizationRequired).toBe(true);
+    expect(parsed.evidenceCitationRequired).toBe(true);
+    expect(parsed.deletionState).toBe('delete-provider-cache-on-parent-request');
+    expect(parsed.childSafetyOrEnforcementUseAllowed).toBe(false);
+  });
+
+  it('ParentAssistantApiProviderBoundarySchema: accepts authorized degraded API state without safety decision use', () => {
+    const parsed = ParentAssistantApiProviderBoundarySchema.parse({
+      ...ApiProviderBoundary,
+      providerId: 'api-provider-authorized',
+      authorizationState: 'authorized',
+      accessState: 'authorized-degraded',
+      retentionState: 'parent-authorized-no-default-retention',
+      providerState: 'degraded',
+      unavailableReason: 'api-ai-provider-authorized-degraded',
+    });
+
+    expect(parsed.authorizationState).toBe('authorized');
+    expect(parsed.accessState).toBe('authorized-degraded');
     expect(parsed.childSafetyOrEnforcementUseAllowed).toBe(false);
   });
 
@@ -239,13 +265,32 @@ describe('parent assistant API provider boundary contracts', () => {
         schemaVersion: ParentContractSchemaVersion.V0_6,
         providerId: 'api-provider-not-configured',
         authorizationState: 'not-authorized',
+        accessState: 'not-authorized',
+        parentAuthorizationRequired: true,
+        evidenceCitationRequired: true,
         custodyLabel: 'parent-authorized-api-ai',
+        custodyState: 'parent-owned-citations-only',
         retentionPolicy: 'no-retention-without-parent-authorization',
+        retentionState: 'no-retention-without-parent-authorization',
         deletionPolicy: 'delete-provider-cache-on-parent-request',
+        deletionState: 'delete-provider-cache-on-parent-request',
         citations: [EvidenceContext],
         providerState: 'unavailable',
         unavailableReason: 'api-ai-provider-not-authorized',
         childSafetyOrEnforcementUseAllowed: true,
+      }).success
+    ).toBe(false);
+  });
+
+  it('ParentAssistantApiProviderBoundarySchema: rejects authorized API state without citations', () => {
+    expect(
+      ParentAssistantApiProviderBoundarySchema.safeParse({
+        ...ApiProviderBoundary,
+        providerId: 'api-provider-authorized',
+        authorizationState: 'authorized',
+        accessState: 'authorized-unavailable',
+        retentionState: 'parent-authorized-no-default-retention',
+        citations: [],
       }).success
     ).toBe(false);
   });

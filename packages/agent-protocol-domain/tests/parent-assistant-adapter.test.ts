@@ -74,6 +74,7 @@ it('parses full answer payloads with citations, preview, and API custody boundar
   expect(parsed.ok ? parsed.value.citations.length : 0).toBe(1);
   expect(parsed.ok ? parsed.value.actionPreview.enforcementApplied : true).toBe(false);
   expect(parsed.ok ? parsed.value.apiProviderBoundary.authorizationState : null).toBe('not-authorized');
+  expect(parsed.ok ? parsed.value.apiProviderBoundary.accessState : null).toBe('not-authorized');
 });
 
 it('rejects wrong events and invalid answer JSON', () => {
@@ -106,6 +107,7 @@ it('parses provider status runtime events', () => {
   );
 
   expect(provider.ok ? provider.value.apiProviderBoundary.authorizationState : null).toBe('not-authorized');
+  expect(provider.ok ? provider.value.apiProviderBoundary.parentAuthorizationRequired : false).toBe(true);
 });
 
 it('parses run cancel runtime events', () => {
@@ -291,9 +293,15 @@ function answerPayload() {
       schemaVersion: 'v0.6',
       providerId: 'api-provider-not-authorized',
       authorizationState: 'not-authorized',
+      accessState: 'not-authorized',
+      parentAuthorizationRequired: true,
+      evidenceCitationRequired: true,
       custodyLabel: 'parent-authorized-api-ai',
+      custodyState: 'parent-owned-citations-only',
       retentionPolicy: 'no-retention-without-parent-authorization',
+      retentionState: 'no-retention-without-parent-authorization',
       deletionPolicy: 'delete-provider-cache-on-parent-request',
+      deletionState: 'delete-provider-cache-on-parent-request',
       citations: [citation],
       providerState: 'unavailable',
       unavailableReason: 'api-ai-provider-not-authorized',

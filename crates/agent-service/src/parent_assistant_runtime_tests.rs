@@ -13,9 +13,10 @@ use ocentra_parent_agent_protocol::{
     LocalAiDegradedState, LocalAiProviderSchedulerJobClass, LocalAiProviderSchedulerJobStatus,
     ParentActorReference, ParentActorRole, ParentAssistantActionPreviewKind,
     ParentAssistantAnswerState, ParentAssistantApiAuthorizationState,
-    ParentAssistantEvidenceContext, ParentAssistantGenerateRequest, ParentAssistantProviderState,
-    ParentAssistantRunState, ParentAssistantScope, ParentEvidenceReference,
-    ParentEvidenceReferenceKind, ACTIVITY_SURFACE_SCHEMA_VERSION, AGENT_PROTOCOL_SCHEMA_VERSION,
+    ParentAssistantApiProviderAccessState, ParentAssistantEvidenceContext,
+    ParentAssistantGenerateRequest, ParentAssistantProviderState, ParentAssistantRunState,
+    ParentAssistantScope, ParentEvidenceReference, ParentEvidenceReferenceKind,
+    ACTIVITY_SURFACE_SCHEMA_VERSION, AGENT_PROTOCOL_SCHEMA_VERSION,
 };
 
 use crate::{
@@ -59,6 +60,12 @@ async fn parent_assistant_unconfigured_provider_returns_cited_unavailable_answer
         answer.api_provider_boundary.authorization_state,
         ParentAssistantApiAuthorizationState::NotAuthorized
     );
+    assert_eq!(
+        answer.api_provider_boundary.access_state,
+        ParentAssistantApiProviderAccessState::NotAuthorized
+    );
+    assert!(answer.api_provider_boundary.parent_authorization_required);
+    assert!(answer.api_provider_boundary.evidence_citation_required);
     assert!(
         !answer
             .api_provider_boundary
@@ -141,6 +148,13 @@ async fn parent_assistant_request_prepares_policy_preview_without_enforcement_or
         answer.api_provider_boundary.provider_state,
         ParentAssistantProviderState::Unavailable
     );
+    assert_eq!(
+        answer.api_provider_boundary.access_state,
+        ParentAssistantApiProviderAccessState::NotAuthorized
+    );
+    assert!(answer.api_provider_boundary.parent_authorization_required);
+    assert!(answer.api_provider_boundary.evidence_citation_required);
+    assert!(!answer.action_preview.enforcement_applied);
 }
 
 #[test]

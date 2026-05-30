@@ -55,6 +55,16 @@ pub enum ParentAssistantApiAuthorizationState {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ParentAssistantApiProviderAccessState {
+    #[serde(rename = "not-authorized")]
+    NotAuthorized,
+    #[serde(rename = "authorized-unavailable")]
+    AuthorizedUnavailable,
+    #[serde(rename = "authorized-degraded")]
+    AuthorizedDegraded,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ParentAssistantActionPreviewKind {
     #[serde(rename = "none")]
     None,
@@ -183,9 +193,15 @@ pub struct ParentAssistantApiProviderBoundary {
     pub schema_version: String,
     pub provider_id: String,
     pub authorization_state: ParentAssistantApiAuthorizationState,
+    pub access_state: ParentAssistantApiProviderAccessState,
+    pub parent_authorization_required: bool,
+    pub evidence_citation_required: bool,
     pub custody_label: String,
+    pub custody_state: String,
     pub retention_policy: String,
+    pub retention_state: String,
     pub deletion_policy: String,
+    pub deletion_state: String,
     pub citations: Vec<ParentAssistantEvidenceContext>,
     pub provider_state: ParentAssistantProviderState,
     pub unavailable_reason: Option<String>,
