@@ -381,6 +381,8 @@ pub mod error {
 
 #[path = "constants/local_ai_runtime.rs"]
 pub mod local_ai_runtime;
+#[path = "constants/local_ai_runtime_provider_proof.rs"]
+pub mod local_ai_runtime_provider_proof;
 #[path = "constants/parent_assistant.rs"]
 pub mod parent_assistant;
 
