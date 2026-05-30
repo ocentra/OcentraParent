@@ -20,24 +20,6 @@ pub(crate) fn api_provider_boundary(
     api_provider_boundary_for_access_state(citations, access_state)
 }
 
-pub(crate) fn api_provider_boundary_for_authorization(
-    citations: &[ParentAssistantEvidenceContext],
-    authorization_state: ParentAssistantApiAuthorizationState,
-) -> ParentAssistantApiProviderBoundary {
-    match authorization_state {
-        ParentAssistantApiAuthorizationState::Authorized => api_provider_boundary_for_access_state(
-            citations,
-            ParentAssistantApiProviderAccessState::AuthorizedUnavailable,
-        ),
-        ParentAssistantApiAuthorizationState::NotAuthorized => {
-            api_provider_boundary_for_access_state(
-                citations,
-                ParentAssistantApiProviderAccessState::NotAuthorized,
-            )
-        }
-    }
-}
-
 pub(crate) fn api_provider_boundary_for_access_state(
     citations: &[ParentAssistantEvidenceContext],
     access_state: ParentAssistantApiProviderAccessState,
