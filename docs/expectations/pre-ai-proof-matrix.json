@@ -22,6 +22,7 @@
     "v0-8-broad-os-adapter-proof-readiness",
     "v0-8-broad-os-adapter-proof",
     "v0-8-cross-platform-enforcement-capability-proof",
+    "v0-8-browser-domain-adapter-proof",
     "v0-8-host-adapter-proof-preflight",
     "v0-8-process-package-identity-proof-bridge",
     "v0-8-host-identity-read-model-proof",
@@ -508,6 +509,48 @@
         "A Windows owned-process or timer proof presented as global installed-app blocking.",
         "A package preview or mobile scaffold presented as Android device-owner or iOS Family Controls support.",
         "Signing, TestFlight, Google Play, or App Store plans presented as privileged enforcement readiness."
+      ]
+    },
+    {
+      "id": "v0-8-browser-domain-adapter-proof",
+      "title": "V0.8 Browser/Domain Adapter Proof",
+      "claimIds": ["v0-8-browser-domain-adapter-proof"],
+      "expectationFiles": [
+        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/expectations/platforms.md",
+        "docs/expectations/capture.md",
+        "docs/expectations/policy.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "proofMode": "ci-mechanical-proof",
+      "realEvidencePath": [
+        "Build contracts from the current commit.",
+        "Run the parent-domain browser/domain adapter proof contract test.",
+        "Run focused Rust protocol and service read-model tests that serialize implemented-boundary, degraded-boundary, manual-required, unavailable, and not-claimed states.",
+        "Run the browser policy rollback service test for the runtime seam used by rollback visibility.",
+        "Emit a proof artifact that keeps managed exact URL, unmanaged exact evidence, network/domain blocking, unsupported OS, Android, and iOS claims manual-required, unavailable, or not-claimed until real target artifacts exist.",
+        "Verify no read-model entry sets managed exact URL, unmanaged exact URL, network/domain blocking, broad browser control, or unsupported OS claim flags."
+      ],
+      "ciCommands": ["node scripts/test/v0-8-browser-domain-adapter-proof.mjs"],
+      "requiredArtifacts": [
+        "test-results/v0-8-browser-domain-adapter-proof/proof.json",
+        "packages/parent-domain/src/v0-8-browser-domain-adapter-proof.ts",
+        "packages/parent-domain/tests/v0-8-browser-domain-adapter-proof.test.ts",
+        "crates/agent-protocol/src/enforcement_browser_domain_adapter_proof.rs",
+        "crates/agent-service/src/enforcement_browser_domain_adapter_proof_read_model.rs",
+        "scripts/test/v0-8-browser-domain-adapter-proof.mjs",
+        "docs/checkpoints/v0-8-browser-domain-adapter-proof-2026-05-30.md"
+      ],
+      "knownGaps": [
+        "This proof records browser/domain adapter state boundaries; it is not managed browser exact URL enforcement, unmanaged browser exact evidence, or host network/domain blocking.",
+        "Linux and macOS browser/domain adapter entries remain unavailable until host-specific adapter apply/rollback and permission artifacts exist.",
+        "Android and iOS browser/domain entries remain manual-required until real device, entitlement, VPN/DNS, package, signing, and lifecycle artifacts exist."
+      ],
+      "notProof": [
+        "A managed-session intervention state presented as exact active-tab URL enforcement.",
+        "A process-only unmanaged browser result presented as URL, tab, title, page, HTTPS content, or intent evidence.",
+        "Browser policy records or domain observation presented as host network/domain blocking.",
+        "Windows proof presented as Linux, macOS, Android, or iOS support."
       ]
     },
     {
@@ -2227,6 +2270,82 @@
         "Run Linux and macOS host-specific service-manager, package, permission, adapter apply, and rollback proof before upgrading desktop support outside Windows.",
         "Run Android device-owner or managed-profile enrollment, policy apply, package lifecycle, release signing, and policy review proof before upgrading Android child support.",
         "Run iOS Family Controls, DeviceActivity, signing, entitlement, TestFlight/device install, App Store Connect, and release proof before upgrading iOS child support."
+      ]
+    },
+    {
+      "id": "v0-8-browser-domain-adapter-proof",
+      "roadmapSlice": "V0.8 browser/domain adapter proof",
+      "expectationFiles": [
+        "docs/expectations/roadmap-v0-8-enforcement-adapters.md",
+        "docs/expectations/platforms.md",
+        "docs/expectations/capture.md",
+        "docs/expectations/policy.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "claim": "V0.8 browser/domain adapter proof has typed parent-domain, Rust protocol, service read-model, and proof-harness coverage that records Windows managed-browser intervention, unmanaged browser terminate/warn, audit, restart recovery, and rollback visibility without upgrading exact URL, network/domain blocking, broad browser control, unsupported OS, Android, or iOS claims.",
+      "privilegedCapability": true,
+      "ciProof": {
+        "commands": ["node scripts/test/v0-8-browser-domain-adapter-proof.mjs"],
+        "jobs": ["Worker B V0.8 browser/domain adapter proof"]
+      },
+      "platformCoverage": {
+        "windows": "real-local-windows-proof",
+        "linux": "not-yet-proven",
+        "macos": "not-yet-proven",
+        "android": "manual-required",
+        "ios": "manual-required"
+      },
+      "runtimeSurfaceCoverage": {
+        "managedBrowserIntervention": {
+          "state": "implemented-boundary",
+          "proof": "Managed browser intervention state is recorded only for the Ocentra-owned managed-session boundary and does not upgrade exact active-tab URL enforcement."
+        },
+        "managedBrowserExactUrl": {
+          "state": "manual-required",
+          "proof": "Managed exact URL enforcement requires active-tab evidence, exact URL apply, rollback, and audit custody artifacts before claims upgrade."
+        },
+        "unmanagedBrowserTerminate": {
+          "state": "implemented-boundary",
+          "proof": "Unmanaged browser terminate proof remains process-only with pid/name guardrails and is not URL, tab, page, or intent evidence."
+        },
+        "unmanagedBrowserWarn": {
+          "state": "degraded-boundary",
+          "proof": "Unmanaged browser warning returns a degraded no-op until notification delivery and browser integration exist."
+        },
+        "unmanagedBrowserExactEvidence": {
+          "state": "not-claimed",
+          "proof": "Unmanaged browser exact URL, active tab, title, page, download source, HTTPS content, and intent evidence remain not-claimed."
+        },
+        "networkDomainBlocking": {
+          "state": "manual-required",
+          "proof": "Network/domain blocking requires host DNS/VPN/filter apply, rollback, and custody evidence and is not proved by browser policy or domain observation records."
+        },
+        "networkDomainAdapterUnavailable": {
+          "state": "unavailable",
+          "proof": "The Windows service boundary can report network/domain adapter unavailable states but does not perform host filtering."
+        },
+        "auditRestartRollbackVisibility": {
+          "state": "implemented-boundary",
+          "proof": "Audit, restart recovery, and browser policy rollback visibility are limited to existing service/read-model seams and cannot upgrade broad browser/domain claims."
+        },
+        "unsupportedTargets": {
+          "state": "manual-required",
+          "proof": "Linux and macOS browser/domain adapters are unavailable; Android and iOS browser/domain control remain manual-required until real device and entitlement artifacts exist."
+        }
+      },
+      "knownGaps": [
+        "This slice does not implement managed browser exact active-tab URL enforcement, unmanaged browser exact evidence, host network/domain blocking, or broad browser control.",
+        "Local proof does not certify Linux or macOS browser/domain support, Android VPN/DNS or device-owner support, iOS Network Extension or Family Controls support, signing, TestFlight, stores, or device behavior.",
+        "Browser policy rollback visibility is policy-revision rollback only and is not host-level browser/domain enforcement rollback."
+      ],
+      "manualProofChecklist": [
+        "Archive test-results/v0-8-browser-domain-adapter-proof/proof.json with the commit SHA.",
+        "Run managed browser active-tab evidence, exact URL apply, rollback, and audit custody proof before upgrading exact managed browser claims.",
+        "Run explicit browser integration proof for unmanaged active tab, URL, title, page, download source, HTTPS content, and intent evidence before upgrading unmanaged exact evidence claims.",
+        "Run host DNS/VPN/filter apply, rollback, and custody proof before upgrading network/domain claims.",
+        "Run Linux and macOS host-specific permission, package, service-manager, adapter apply, rollback, and audit proof before upgrading desktop support outside Windows.",
+        "Run Android VPN/DNS, device-owner or managed-profile, package lifecycle, signing, and real-device proof before upgrading Android browser/domain support.",
+        "Run iOS Network Extension, Family Controls, DeviceActivity, entitlement, signing, TestFlight/device install, and release proof before upgrading iOS browser/domain support."
       ]
     },
     {

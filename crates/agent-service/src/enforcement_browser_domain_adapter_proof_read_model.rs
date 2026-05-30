@@ -1,0 +1,490 @@
+use ocentra_parent_agent_protocol::{
+    constants::v08_browser_domain_adapter_proof as proof, policy_constants, ParentPlatform,
+    V08BrowserDomainAdapterExecutionState, V08BrowserDomainAdapterProofCapabilityName,
+    V08BrowserDomainAdapterProofCapabilityStatus, V08BrowserDomainAdapterProofClaimState,
+    V08BrowserDomainAdapterProofEntry, V08BrowserDomainAdapterProofEvidenceKind,
+    V08BrowserDomainAdapterProofReadModel, V08BrowserDomainAdapterProofSurface,
+};
+
+pub(crate) fn v08_browser_domain_adapter_proof_read_model(
+    generated_at: &str,
+) -> V08BrowserDomainAdapterProofReadModel {
+    V08BrowserDomainAdapterProofReadModel {
+        schema_version: policy_constants::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
+        read_model_id: proof::READ_MODEL_ID.to_string(),
+        generated_at: generated_at.to_string(),
+        source_read_model_ids: vec![
+            proof::SOURCE_BROAD_OS_PROOF.to_string(),
+            proof::SOURCE_CROSS_PLATFORM_PROOF.to_string(),
+            proof::SOURCE_OS_PRODUCT_PROOF.to_string(),
+            proof::SOURCE_BROWSER_POLICY_RUNTIME.to_string(),
+        ],
+        entries: entry_specs()
+            .iter()
+            .map(|spec| entry_from_spec(spec, generated_at))
+            .collect(),
+    }
+}
+
+struct EntrySpec {
+    proof_entry_id: &'static str,
+    surface: V08BrowserDomainAdapterProofSurface,
+    platform: ParentPlatform,
+    capability: V08BrowserDomainAdapterProofCapabilityName,
+    capability_status: V08BrowserDomainAdapterProofCapabilityStatus,
+    evidence_kind: V08BrowserDomainAdapterProofEvidenceKind,
+    product_claim_state: V08BrowserDomainAdapterProofClaimState,
+    adapter_execution_state: V08BrowserDomainAdapterExecutionState,
+    linked_proof_commands: &'static [&'static str],
+    linked_proof_artifacts: &'static [&'static str],
+    manual_proof_requirements: &'static [&'static str],
+    claim_boundary: &'static str,
+    fallback_behavior: &'static str,
+}
+
+struct ProofEvidence {
+    linked_proof_commands: &'static [&'static str],
+    linked_proof_artifacts: &'static [&'static str],
+    manual_proof_requirements: &'static [&'static str],
+}
+
+struct BoundaryText {
+    claim_boundary: &'static str,
+    fallback_behavior: &'static str,
+}
+
+fn entry_specs() -> Vec<EntrySpec> {
+    let mut specs = Vec::new();
+    specs.extend(implemented_specs());
+    specs.extend(manual_and_unmanaged_gap_specs());
+    specs.extend(network_specs());
+    specs.extend(unsupported_target_specs());
+    specs
+}
+
+fn implemented_specs() -> Vec<EntrySpec> {
+    vec![
+        implemented_spec(
+            proof::ENTRY_ID_MANAGED_INTERVENTION,
+            V08BrowserDomainAdapterProofSurface::WindowsManagedBrowserInterventionState,
+            V08BrowserDomainAdapterProofCapabilityName::ManagedBrowserControl,
+            V08BrowserDomainAdapterProofEvidenceKind::ManagedBrowser,
+            linked_evidence(
+                &[proof::COMMAND_MANAGED_BROWSER_PROOF],
+                &[proof::ARTIFACT_MANAGED_BROWSER_PROOF],
+            ),
+            boundary_text(
+                proof::CLAIM_MANAGED_INTERVENTION,
+                proof::FALLBACK_MANAGED_INTERVENTION,
+            ),
+        ),
+        implemented_spec(
+            proof::ENTRY_ID_UNMANAGED_TERMINATE,
+            V08BrowserDomainAdapterProofSurface::WindowsUnmanagedBrowserTerminateBoundary,
+            V08BrowserDomainAdapterProofCapabilityName::UnmanagedBrowserDetection,
+            V08BrowserDomainAdapterProofEvidenceKind::UnmanagedBrowser,
+            linked_evidence(
+                &[proof::COMMAND_UNMANAGED_BROWSER_PROOF],
+                &[proof::ARTIFACT_UNMANAGED_BROWSER_PROOF],
+            ),
+            boundary_text(
+                proof::CLAIM_UNMANAGED_TERMINATE,
+                proof::FALLBACK_UNMANAGED_TERMINATE,
+            ),
+        ),
+        implemented_spec(
+            proof::ENTRY_ID_AUDIT_VISIBILITY,
+            V08BrowserDomainAdapterProofSurface::WindowsAuditVisibilityBoundary,
+            V08BrowserDomainAdapterProofCapabilityName::LocalStorage,
+            V08BrowserDomainAdapterProofEvidenceKind::Audit,
+            linked_evidence(
+                &[proof::COMMAND_APP_TIME_LIMIT_PROOF],
+                &[proof::ARTIFACT_APP_TIME_LIMIT_PROOF],
+            ),
+            boundary_text(
+                proof::CLAIM_AUDIT_VISIBILITY,
+                proof::FALLBACK_AUDIT_VISIBILITY,
+            ),
+        ),
+        implemented_spec(
+            proof::ENTRY_ID_RESTART_RECOVERY,
+            V08BrowserDomainAdapterProofSurface::WindowsRestartRecoveryVisibilityBoundary,
+            V08BrowserDomainAdapterProofCapabilityName::AppTimeLimit,
+            V08BrowserDomainAdapterProofEvidenceKind::RestartRecovery,
+            linked_evidence(
+                &[proof::COMMAND_APP_TIME_LIMIT_PROOF],
+                &[proof::ARTIFACT_APP_TIME_LIMIT_PROOF],
+            ),
+            boundary_text(
+                proof::CLAIM_RESTART_RECOVERY,
+                proof::FALLBACK_RESTART_RECOVERY,
+            ),
+        ),
+        implemented_spec(
+            proof::ENTRY_ID_BROWSER_POLICY_ROLLBACK,
+            V08BrowserDomainAdapterProofSurface::WindowsBrowserPolicyRollbackVisibility,
+            V08BrowserDomainAdapterProofCapabilityName::ManagedBrowserControl,
+            V08BrowserDomainAdapterProofEvidenceKind::Rollback,
+            linked_evidence(
+                &[proof::COMMAND_BROWSER_POLICY_ROLLBACK_TEST],
+                &[proof::ARTIFACT_BROWSER_POLICY_ROLLBACK_TEST],
+            ),
+            boundary_text(
+                proof::CLAIM_BROWSER_POLICY_ROLLBACK,
+                proof::FALLBACK_BROWSER_POLICY_ROLLBACK,
+            ),
+        ),
+    ]
+}
+
+fn manual_and_unmanaged_gap_specs() -> Vec<EntrySpec> {
+    vec![
+        manual_spec(
+            proof::ENTRY_ID_MANAGED_EXACT_URL,
+            V08BrowserDomainAdapterProofSurface::WindowsManagedBrowserExactUrlManual,
+            ParentPlatform::Windows,
+            V08BrowserDomainAdapterProofCapabilityName::ManagedBrowserControl,
+            V08BrowserDomainAdapterProofEvidenceKind::ManagedBrowser,
+            manual_evidence(&[
+                proof::REQUIREMENT_ACTIVE_TAB,
+                proof::REQUIREMENT_EXACT_URL_APPLY,
+                proof::REQUIREMENT_ROLLBACK,
+                proof::REQUIREMENT_AUDIT_CUSTODY,
+            ]),
+            boundary_text(
+                proof::CLAIM_MANAGED_EXACT_URL,
+                proof::FALLBACK_MANAGED_EXACT_URL,
+            ),
+        ),
+        degraded_spec(
+            proof::ENTRY_ID_UNMANAGED_WARN,
+            V08BrowserDomainAdapterProofSurface::WindowsUnmanagedBrowserWarnNoop,
+            V08BrowserDomainAdapterProofCapabilityName::UnmanagedBrowserDetection,
+            V08BrowserDomainAdapterProofEvidenceKind::UnmanagedBrowser,
+            degraded_evidence(
+                &[proof::COMMAND_UNMANAGED_BROWSER_PROOF],
+                &[proof::ARTIFACT_UNMANAGED_WARN_EVENT],
+                &[
+                    proof::REQUIREMENT_WARNING_DELIVERY,
+                    proof::REQUIREMENT_BROWSER_INTEGRATION,
+                ],
+            ),
+            boundary_text(proof::CLAIM_UNMANAGED_WARN, proof::FALLBACK_UNMANAGED_WARN),
+        ),
+        not_claimed_spec(
+            proof::ENTRY_ID_UNMANAGED_EXACT_EVIDENCE,
+            V08BrowserDomainAdapterProofSurface::WindowsUnmanagedBrowserExactEvidenceNotClaimed,
+            ParentPlatform::Windows,
+            V08BrowserDomainAdapterProofCapabilityName::UnmanagedBrowserDetection,
+            V08BrowserDomainAdapterProofEvidenceKind::UnmanagedBrowser,
+            manual_evidence(&[
+                proof::REQUIREMENT_MANAGED_PROFILE,
+                proof::REQUIREMENT_BROWSER_EXTENSION,
+                proof::REQUIREMENT_ACTIVE_TAB_CUSTODY,
+            ]),
+            boundary_text(
+                proof::CLAIM_UNMANAGED_EXACT_EVIDENCE,
+                proof::FALLBACK_UNMANAGED_EXACT_EVIDENCE,
+            ),
+        ),
+    ]
+}
+
+fn network_specs() -> Vec<EntrySpec> {
+    vec![
+        manual_spec(
+            proof::ENTRY_ID_NETWORK_FILTER_MANUAL,
+            V08BrowserDomainAdapterProofSurface::WindowsNetworkDomainFilterManual,
+            ParentPlatform::Windows,
+            V08BrowserDomainAdapterProofCapabilityName::NetworkDomainBlocking,
+            V08BrowserDomainAdapterProofEvidenceKind::NetworkDomain,
+            manual_evidence(&[
+                proof::REQUIREMENT_NETWORK_FILTER,
+                proof::REQUIREMENT_DNS_VPN_APPLY,
+                proof::REQUIREMENT_ROLLBACK,
+                proof::REQUIREMENT_AUDIT_CUSTODY,
+            ]),
+            boundary_text(
+                proof::CLAIM_NETWORK_FILTER_MANUAL,
+                proof::FALLBACK_NETWORK_FILTER_MANUAL,
+            ),
+        ),
+        unavailable_spec(
+            proof::ENTRY_ID_NETWORK_ADAPTER_UNAVAILABLE,
+            V08BrowserDomainAdapterProofSurface::WindowsNetworkDomainAdapterUnavailable,
+            ParentPlatform::Windows,
+            V08BrowserDomainAdapterProofCapabilityName::NetworkDomainBlocking,
+            V08BrowserDomainAdapterProofEvidenceKind::NetworkDomain,
+            manual_evidence(&[
+                proof::REQUIREMENT_SERVICE_UNAVAILABLE,
+                proof::REQUIREMENT_ADAPTER_INSTALL,
+                proof::REQUIREMENT_OPERATOR_RETRY,
+            ]),
+            boundary_text(
+                proof::CLAIM_NETWORK_ADAPTER_UNAVAILABLE,
+                proof::FALLBACK_NETWORK_ADAPTER_UNAVAILABLE,
+            ),
+        ),
+    ]
+}
+
+fn unsupported_target_specs() -> Vec<EntrySpec> {
+    vec![
+        unavailable_spec(
+            proof::ENTRY_ID_LINUX_ADAPTER,
+            V08BrowserDomainAdapterProofSurface::LinuxBrowserDomainAdapterUnavailable,
+            ParentPlatform::Linux,
+            V08BrowserDomainAdapterProofCapabilityName::ManagedBrowserControl,
+            V08BrowserDomainAdapterProofEvidenceKind::UnsupportedTarget,
+            manual_evidence(&[
+                proof::REQUIREMENT_LINUX_SERVICE,
+                proof::REQUIREMENT_LINUX_ADAPTER,
+            ]),
+            boundary_text(proof::CLAIM_LINUX_ADAPTER, proof::FALLBACK_LINUX_ADAPTER),
+        ),
+        unavailable_spec(
+            proof::ENTRY_ID_MACOS_ADAPTER,
+            V08BrowserDomainAdapterProofSurface::MacosBrowserDomainAdapterUnavailable,
+            ParentPlatform::Macos,
+            V08BrowserDomainAdapterProofCapabilityName::ManagedBrowserControl,
+            V08BrowserDomainAdapterProofEvidenceKind::UnsupportedTarget,
+            manual_evidence(&[
+                proof::REQUIREMENT_MACOS_PERMISSION,
+                proof::REQUIREMENT_MACOS_ADAPTER,
+            ]),
+            boundary_text(proof::CLAIM_MACOS_ADAPTER, proof::FALLBACK_MACOS_ADAPTER),
+        ),
+        manual_spec(
+            proof::ENTRY_ID_ANDROID_ADAPTER,
+            V08BrowserDomainAdapterProofSurface::AndroidBrowserDomainAdapterManual,
+            ParentPlatform::Android,
+            V08BrowserDomainAdapterProofCapabilityName::VpnDnsFiltering,
+            V08BrowserDomainAdapterProofEvidenceKind::UnsupportedTarget,
+            manual_evidence(&[
+                proof::REQUIREMENT_ANDROID_VPN_DNS,
+                proof::REQUIREMENT_ANDROID_DEVICE_OWNER,
+                proof::REQUIREMENT_ANDROID_PACKAGE,
+            ]),
+            boundary_text(
+                proof::CLAIM_ANDROID_ADAPTER,
+                proof::FALLBACK_ANDROID_ADAPTER,
+            ),
+        ),
+        manual_spec(
+            proof::ENTRY_ID_IOS_ADAPTER,
+            V08BrowserDomainAdapterProofSurface::IosBrowserDomainAdapterManual,
+            ParentPlatform::Ios,
+            V08BrowserDomainAdapterProofCapabilityName::NetworkExtension,
+            V08BrowserDomainAdapterProofEvidenceKind::UnsupportedTarget,
+            manual_evidence(&[
+                proof::REQUIREMENT_IOS_NETWORK_EXTENSION,
+                proof::REQUIREMENT_IOS_FAMILY_DEVICE,
+                proof::REQUIREMENT_IOS_TESTFLIGHT,
+            ]),
+            boundary_text(proof::CLAIM_IOS_ADAPTER, proof::FALLBACK_IOS_ADAPTER),
+        ),
+    ]
+}
+
+fn linked_evidence(
+    linked_proof_commands: &'static [&'static str],
+    linked_proof_artifacts: &'static [&'static str],
+) -> ProofEvidence {
+    ProofEvidence {
+        linked_proof_commands,
+        linked_proof_artifacts,
+        manual_proof_requirements: &[],
+    }
+}
+
+fn degraded_evidence(
+    linked_proof_commands: &'static [&'static str],
+    linked_proof_artifacts: &'static [&'static str],
+    manual_proof_requirements: &'static [&'static str],
+) -> ProofEvidence {
+    ProofEvidence {
+        linked_proof_commands,
+        linked_proof_artifacts,
+        manual_proof_requirements,
+    }
+}
+
+fn manual_evidence(manual_proof_requirements: &'static [&'static str]) -> ProofEvidence {
+    ProofEvidence {
+        linked_proof_commands: &[],
+        linked_proof_artifacts: &[],
+        manual_proof_requirements,
+    }
+}
+
+fn boundary_text(claim_boundary: &'static str, fallback_behavior: &'static str) -> BoundaryText {
+    BoundaryText {
+        claim_boundary,
+        fallback_behavior,
+    }
+}
+
+fn implemented_spec(
+    proof_entry_id: &'static str,
+    surface: V08BrowserDomainAdapterProofSurface,
+    capability: V08BrowserDomainAdapterProofCapabilityName,
+    evidence_kind: V08BrowserDomainAdapterProofEvidenceKind,
+    evidence: ProofEvidence,
+    text: BoundaryText,
+) -> EntrySpec {
+    EntrySpec {
+        proof_entry_id,
+        surface,
+        platform: ParentPlatform::Windows,
+        capability,
+        capability_status: V08BrowserDomainAdapterProofCapabilityStatus::Implemented,
+        evidence_kind,
+        product_claim_state: V08BrowserDomainAdapterProofClaimState::ImplementedBoundary,
+        adapter_execution_state: V08BrowserDomainAdapterExecutionState::ExecutesRealService,
+        linked_proof_commands: evidence.linked_proof_commands,
+        linked_proof_artifacts: evidence.linked_proof_artifacts,
+        manual_proof_requirements: evidence.manual_proof_requirements,
+        claim_boundary: text.claim_boundary,
+        fallback_behavior: text.fallback_behavior,
+    }
+}
+
+fn degraded_spec(
+    proof_entry_id: &'static str,
+    surface: V08BrowserDomainAdapterProofSurface,
+    capability: V08BrowserDomainAdapterProofCapabilityName,
+    evidence_kind: V08BrowserDomainAdapterProofEvidenceKind,
+    evidence: ProofEvidence,
+    text: BoundaryText,
+) -> EntrySpec {
+    EntrySpec {
+        proof_entry_id,
+        surface,
+        platform: ParentPlatform::Windows,
+        capability,
+        capability_status: V08BrowserDomainAdapterProofCapabilityStatus::Supported,
+        evidence_kind,
+        product_claim_state: V08BrowserDomainAdapterProofClaimState::DegradedBoundary,
+        adapter_execution_state: V08BrowserDomainAdapterExecutionState::ReturnsDegradedNoop,
+        linked_proof_commands: evidence.linked_proof_commands,
+        linked_proof_artifacts: evidence.linked_proof_artifacts,
+        manual_proof_requirements: evidence.manual_proof_requirements,
+        claim_boundary: text.claim_boundary,
+        fallback_behavior: text.fallback_behavior,
+    }
+}
+
+fn manual_spec(
+    proof_entry_id: &'static str,
+    surface: V08BrowserDomainAdapterProofSurface,
+    platform: ParentPlatform,
+    capability: V08BrowserDomainAdapterProofCapabilityName,
+    evidence_kind: V08BrowserDomainAdapterProofEvidenceKind,
+    evidence: ProofEvidence,
+    text: BoundaryText,
+) -> EntrySpec {
+    EntrySpec {
+        proof_entry_id,
+        surface,
+        platform,
+        capability,
+        capability_status: V08BrowserDomainAdapterProofCapabilityStatus::ManualRequired,
+        evidence_kind,
+        product_claim_state: V08BrowserDomainAdapterProofClaimState::ManualRequired,
+        adapter_execution_state: V08BrowserDomainAdapterExecutionState::ReturnsManualRequired,
+        linked_proof_commands: evidence.linked_proof_commands,
+        linked_proof_artifacts: evidence.linked_proof_artifacts,
+        manual_proof_requirements: evidence.manual_proof_requirements,
+        claim_boundary: text.claim_boundary,
+        fallback_behavior: text.fallback_behavior,
+    }
+}
+
+fn unavailable_spec(
+    proof_entry_id: &'static str,
+    surface: V08BrowserDomainAdapterProofSurface,
+    platform: ParentPlatform,
+    capability: V08BrowserDomainAdapterProofCapabilityName,
+    evidence_kind: V08BrowserDomainAdapterProofEvidenceKind,
+    evidence: ProofEvidence,
+    text: BoundaryText,
+) -> EntrySpec {
+    EntrySpec {
+        proof_entry_id,
+        surface,
+        platform,
+        capability,
+        capability_status: V08BrowserDomainAdapterProofCapabilityStatus::Unavailable,
+        evidence_kind,
+        product_claim_state: V08BrowserDomainAdapterProofClaimState::Unavailable,
+        adapter_execution_state: V08BrowserDomainAdapterExecutionState::ReturnsUnavailable,
+        linked_proof_commands: evidence.linked_proof_commands,
+        linked_proof_artifacts: evidence.linked_proof_artifacts,
+        manual_proof_requirements: evidence.manual_proof_requirements,
+        claim_boundary: text.claim_boundary,
+        fallback_behavior: text.fallback_behavior,
+    }
+}
+
+fn not_claimed_spec(
+    proof_entry_id: &'static str,
+    surface: V08BrowserDomainAdapterProofSurface,
+    platform: ParentPlatform,
+    capability: V08BrowserDomainAdapterProofCapabilityName,
+    evidence_kind: V08BrowserDomainAdapterProofEvidenceKind,
+    evidence: ProofEvidence,
+    text: BoundaryText,
+) -> EntrySpec {
+    EntrySpec {
+        proof_entry_id,
+        surface,
+        platform,
+        capability,
+        capability_status: V08BrowserDomainAdapterProofCapabilityStatus::NotImplemented,
+        evidence_kind,
+        product_claim_state: V08BrowserDomainAdapterProofClaimState::NotClaimed,
+        adapter_execution_state: V08BrowserDomainAdapterExecutionState::NotInvoked,
+        linked_proof_commands: evidence.linked_proof_commands,
+        linked_proof_artifacts: evidence.linked_proof_artifacts,
+        manual_proof_requirements: evidence.manual_proof_requirements,
+        claim_boundary: text.claim_boundary,
+        fallback_behavior: text.fallback_behavior,
+    }
+}
+
+fn entry_from_spec(spec: &EntrySpec, generated_at: &str) -> V08BrowserDomainAdapterProofEntry {
+    V08BrowserDomainAdapterProofEntry {
+        schema_version: policy_constants::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
+        proof_entry_id: spec.proof_entry_id.to_string(),
+        surface: spec.surface,
+        platform: spec.platform,
+        capability: spec.capability,
+        capability_status: spec.capability_status,
+        evidence_kind: spec.evidence_kind,
+        product_claim_state: spec.product_claim_state,
+        adapter_execution_state: spec.adapter_execution_state,
+        linked_proof_commands: spec
+            .linked_proof_commands
+            .iter()
+            .map(|value| (*value).to_string())
+            .collect(),
+        linked_proof_artifacts: spec
+            .linked_proof_artifacts
+            .iter()
+            .map(|value| (*value).to_string())
+            .collect(),
+        manual_proof_requirements: spec
+            .manual_proof_requirements
+            .iter()
+            .map(|value| (*value).to_string())
+            .collect(),
+        claim_boundary: spec.claim_boundary.to_string(),
+        fallback_behavior: spec.fallback_behavior.to_string(),
+        managed_exact_url_claimed: false,
+        unmanaged_exact_url_claimed: false,
+        network_domain_blocking_claimed: false,
+        broad_browser_control_claimed: false,
+        unsupported_os_claimed: false,
+        last_checked_at: generated_at.to_string(),
+    }
+}

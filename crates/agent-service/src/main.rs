@@ -52,6 +52,10 @@ mod browser_runtime_status;
 mod browser_runtime_tests;
 mod dev_log;
 mod enforcement_api;
+#[cfg_attr(not(test), allow(dead_code))]
+mod enforcement_browser_domain_adapter_proof_read_model;
+#[cfg(test)]
+mod enforcement_browser_domain_adapter_proof_read_model_tests;
 mod enforcement_capability;
 #[cfg_attr(not(test), allow(dead_code))]
 mod enforcement_cross_platform_capability_proof_read_model;
