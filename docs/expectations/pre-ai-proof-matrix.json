@@ -8,6 +8,7 @@
     "v0.3-windows-process-window",
     "v0.4-windows-network-domain",
     "v0.5-live-activity-portal",
+    "activity-surface-main-backed-adapter",
     "v0.5.1-browser-url-tab",
     "v0.5.2-app-game-sessions",
     "v0.5.3-screen-evidence-queue",
@@ -206,6 +207,41 @@
         "A Vite-only portal run without the Rust service.",
         "A stale process on the expected port that was not launched by the test.",
         "A cloud or relay path presented as LAN pairing proof."
+      ]
+    },
+    {
+      "id": "activity-surface-main-backed-adapter",
+      "title": "Activity Surface Main-Backed Adapter Proof",
+      "claimIds": ["activity-surface-main-backed-adapter"],
+      "expectationFiles": [
+        "docs/expectations/roadmap-v0-5-live-activity-portal.md",
+        "docs/expectations/portal.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "proofMode": "ci-mechanical-proof",
+      "realEvidencePath": [
+        "Build TypeScript contracts from the current commit.",
+        "Run Activity domain and agent protocol-domain adapter tests for report, history, save, and tab read-model payloads.",
+        "Run Rust protocol and service tests proving the Activity dispatcher returns typed report and read-model events.",
+        "Run the real Rust service runtime proof for Reports plus Screen, App Use, Browser, Games, and Network commands.",
+        "Emit a proof artifact that records Vite as a development shell only and keeps C UI layout files out of scope."
+      ],
+      "ciCommands": ["node scripts/test/activity-surface-main-backed-adapter-proof.mjs"],
+      "requiredArtifacts": [
+        "test-results/activity-surface-main-backed-adapter/proof.json",
+        "crates/agent-service/src/activity_surface_main_backed_adapter_tests.rs",
+        "scripts/test/activity-surface-main-backed-adapter-proof.mjs",
+        "docs/checkpoints/activity-surface-main-backed-adapter-proof-2026-05-29.md"
+      ],
+      "knownGaps": [
+        "This proof does not wire the C-owned visual Activity UI seam.",
+        "Family fan-out beyond local service state and data storage destination selection remain typed local or unavailable behavior.",
+        "Local focused proof does not run visible browser, Playwright, full validate, package validation, Android device-owner proof, or iOS entitlement proof."
+      ],
+      "notProof": [
+        "A Vite-only portal run without the Rust service.",
+        "UI-check fixture data presented as product Activity data.",
+        "A C visual layout change presented as the service/read-model adapter proof."
       ]
     },
     {
@@ -1081,6 +1117,52 @@
         "ios": "scaffold-only"
       },
       "knownGaps": ["Mobile parent app parity is not claimed by the current Vite development portal."],
+      "manualProofChecklist": []
+    },
+    {
+      "id": "activity-surface-main-backed-adapter",
+      "roadmapSlice": "Activity Surface Main-Backed Adapter",
+      "expectationFiles": [
+        "docs/expectations/roadmap-v0-5-live-activity-portal.md",
+        "docs/expectations/portal.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "claim": "The Activity surface has typed domain, protocol-domain, Rust protocol, and Rust service/read-model adapter coverage for Reports plus Screen, App Use, Browser, Games, and Network responses without Vite-owned product data.",
+      "privilegedCapability": false,
+      "ciProof": {
+        "commands": ["node scripts/test/activity-surface-main-backed-adapter-proof.mjs"],
+        "jobs": ["Worker B Activity surface main-backed adapter proof"]
+      },
+      "platformCoverage": {
+        "windows": "ci-mechanical-proof",
+        "linux": "ci-mechanical-proof",
+        "macos": "ci-mechanical-proof",
+        "android": "scaffold-only",
+        "ios": "scaffold-only"
+      },
+      "runtimeSurfaceCoverage": {
+        "contracts": {
+          "state": "ci-mechanical-proof",
+          "proof": "Activity domain and agent protocol-domain tests cover report documents, saved report/history payloads, adapter event parsing, and tab read-model payloads."
+        },
+        "rustServiceAdapter": {
+          "state": "ci-mechanical-proof",
+          "proof": "Rust protocol and service tests plus the runtime proof cover Activity report generation/save/history and Screen/App Use/Browser/Games/Network read-model commands."
+        },
+        "typedUnavailableStates": {
+          "state": "implemented",
+          "proof": "Unavailable, offline, empty, stale, permission-required, and scaffold-only states are encoded as Activity read-model states instead of UI-check fallbacks."
+        },
+        "viteDataOwnership": {
+          "state": "not-owned",
+          "proof": "The proof runs typed commands against the Rust service and records Vite as the development shell only."
+        }
+      },
+      "knownGaps": [
+        "The C-owned visual Activity UI seam still needs to consume the merged adapter surface.",
+        "Family fan-out beyond local service state and data storage destination selection remain typed local or unavailable behavior.",
+        "Mobile parent app parity is not claimed by this non-visual service adapter proof."
+      ],
       "manualProofChecklist": []
     },
     {
