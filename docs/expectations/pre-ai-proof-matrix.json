@@ -31,6 +31,7 @@
     "v0-9-household-lan-production-discovery-proof",
     "v0-9-production-discovery-proof",
     "v0-9-production-discovery-household-proof",
+    "v0-9-prod-discovery-provider-selection-proof",
     "platform-lan-enforcement-production-proof",
     "platform-os-lan-mobile-proof",
     "enforcement-lan-mobile-product-proof",
@@ -828,6 +829,44 @@
       "notProof": [
         "A local multi-service WebSocket run presented as physical household LAN readiness.",
         "A selected local route presented as router discovery, firewall, NAT, or OS local-network permission proof.",
+        "A cloud-relay manual-decision state presented as cloud relay runtime implementation."
+      ]
+    },
+    {
+      "id": "v0-9-prod-discovery-provider-selection-proof",
+      "title": "V0.9 Production Discovery Provider Selection Proof",
+      "claimIds": ["v0-9-prod-discovery-provider-selection-proof"],
+      "expectationFiles": [
+        "docs/expectations/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
+        "docs/expectations/lan-pairing.md",
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "proofMode": "ci-mechanical-proof",
+      "realEvidencePath": [
+        "Build TypeScript contracts from the current commit.",
+        "Run the focused parent-domain provider-selection contract test.",
+        "Run Rust protocol serialization and Rust service read-model tests for provider selection.",
+        "Run the production discovery household proof and compose its explicit manual-required and not-implemented states.",
+        "Verify selected, rejected, degraded, unavailable, manual-required, and not-implemented provider candidates remain typed and machine-readable.",
+        "Verify physical household provider proof and optional cloud relay remain explicit non-claims until real artifacts exist."
+      ],
+      "ciCommands": ["node scripts/test/v0-9-prod-discovery-provider-selection-proof.mjs"],
+      "requiredArtifacts": [
+        "test-results/v0-9-prod-discovery-provider-selection-proof/proof.json",
+        "test-results/v0-9-production-discovery-household-proof/proof.json",
+        "packages/parent-domain/tests/lan-pairing-provider-selection-proof.test.ts output",
+        "cargo test -p ocentra-parent-agent-protocol lan_pairing_provider_selection output",
+        "cargo test -p ocentra-parent-agent-service lan_pairing_provider_selection_read_model output"
+      ],
+      "knownGaps": [
+        "The proof uses local contract and Rust read-model tests; it is not physical household router discovery.",
+        "Two physical devices, router/firewall evidence, mobile controller UX, mobile background behavior, and real provider host behavior remain manual-required.",
+        "Cloud relay remains not implemented and requires a separate manual product decision plus authenticated relay proof before any relay provider claim."
+      ],
+      "notProof": [
+        "A provider selection read model presented as physical household LAN readiness.",
+        "An unavailable or degraded provider candidate presented as cloud relay or product-ready fallback.",
         "A cloud-relay manual-decision state presented as cloud relay runtime implementation."
       ]
     },
@@ -1786,6 +1825,63 @@
         "Run V0.9 LAN proof across two physical household devices and record parent/child host names or IPs, router reachability, firewall/OS prompts, origin allowlist, selected-route trust state, route selection, takeover, revocation, wrong-origin/wrong-device rejection, replay rejection, stale/offline selected-device behavior, failed-unpaired command rejection, and provider state.",
         "Record Android and iOS parent mobile observer/controller behavior before upgrading mobile authority states.",
         "Record a separate product decision and authenticated cloud relay proof before counting cloud relay as implemented."
+      ]
+    },
+    {
+      "id": "v0-9-prod-discovery-provider-selection-proof",
+      "roadmapSlice": "V0.9 production discovery and household provider-selection proof",
+      "expectationFiles": [
+        "docs/expectations/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
+        "docs/expectations/lan-pairing.md",
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "claim": "V0.9 production discovery/provider selection proof verifies typed candidate lifecycle, authorized provider policy, paired and failed-unpaired provider states, route-blocked unavailable states, manual-required physical household provider proof, and cloud-relay not-implemented/manual-decision non-claims.",
+      "privilegedCapability": true,
+      "ciProof": {
+        "commands": ["node scripts/test/v0-9-prod-discovery-provider-selection-proof.mjs"],
+        "jobs": ["Worker B V0.9 production discovery provider-selection proof"]
+      },
+      "platformCoverage": {
+        "windows": "ci-mechanical-proof",
+        "linux": "ci-mechanical-proof",
+        "macos": "ci-mechanical-proof",
+        "android": "manual-required",
+        "ios": "manual-required"
+      },
+      "runtimeSurfaceCoverage": {
+        "providerSelectionLifecycle": {
+          "state": "implemented",
+          "proof": "The typed read model carries selected, rejected, degraded, unavailable, manual-required, and not-implemented provider candidates."
+        },
+        "authorizedProviderPolicy": {
+          "state": "implemented",
+          "proof": "Focused TypeScript, Rust protocol, and Rust service tests prove authorized provider selection plus unsupported, unpaired, stale, offline, and route-blocked refusal states."
+        },
+        "pairedAndFailedDiscovery": {
+          "state": "implemented",
+          "proof": "The provider-selection proof composes the production discovery household proof so paired, failed-unpaired, wrong-origin, wrong-device, replay, revocation, stale, offline, and unavailable states remain explicit."
+        },
+        "physicalHouseholdProvider": {
+          "state": "manual-required",
+          "proof": "Two physical household devices, provider host evidence, router/firewall evidence, origin allowlist, stale/offline artifacts, and revocation artifacts remain required before household provider readiness can be claimed."
+        },
+        "cloudRelayProvider": {
+          "implementationState": "not-implemented",
+          "decisionState": "manual-decision-required",
+          "proof": "Cloud relay provider selection has no runtime, storage, authentication, or route implementation in this proof and requires a separate product decision plus authenticated relay proof before any claim."
+        }
+      },
+      "knownGaps": [
+        "Local contract and service proof is not physical household router discovery.",
+        "Real provider host behavior, mobile controller UX, mobile background LAN behavior, router/firewall evidence, and cloud relay remain manual-required or not implemented.",
+        "Provider selection is policy/read-model proof, not device-owner, MDM, router, mobile-platform, or cloud-relay proof."
+      ],
+      "manualProofChecklist": [
+        "Archive test-results/v0-9-prod-discovery-provider-selection-proof/proof.json with the commit SHA.",
+        "Run V0.9 provider selection across two physical household devices and record provider host identity, selected route id, origin allowlist, stale/offline behavior, revocation behavior, failed-unpaired rejection, and route-blocked provider decisions.",
+        "Record Android and iOS parent mobile provider/controller behavior before upgrading mobile authority states.",
+        "Record a separate product decision and authenticated cloud relay proof before counting cloud relay provider selection as implemented."
       ]
     },
     {

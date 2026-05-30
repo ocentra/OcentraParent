@@ -28,6 +28,7 @@ mod host_identity;
 mod journal;
 mod lan_pairing;
 mod lan_pairing_authority;
+mod lan_pairing_provider_selection;
 mod lan_pairing_support;
 mod local_ai_runtime;
 mod local_ai_runtime_boundary;
@@ -65,6 +66,7 @@ pub use host_identity::*;
 pub use journal::*;
 pub use lan_pairing::*;
 pub use lan_pairing_authority::*;
+pub use lan_pairing_provider_selection::*;
 pub use lan_pairing_support::*;
 pub use local_ai_runtime::*;
 pub use local_ai_runtime_boundary::*;
@@ -131,6 +133,8 @@ mod enforcement_unavailable_tests;
 mod host_identity_tests;
 #[cfg(test)]
 mod journal_tests;
+#[cfg(test)]
+mod lan_pairing_provider_selection_tests;
 #[cfg(test)]
 mod lan_pairing_tests;
 #[cfg(test)]
