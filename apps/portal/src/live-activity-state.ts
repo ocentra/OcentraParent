@@ -16,6 +16,23 @@ import {
   type ActivityRecentSummary,
 } from '@ocentra-parent/activity-domain/query';
 import type { ActivityNetworkFlowReadModel } from '@ocentra-parent/activity-domain/network-flow';
+import type {
+  ActivityAppUseReadModel,
+  ActivityBrowserReadModel,
+  ActivityGamesReadModel,
+  ActivityHistoricalReportList,
+  ActivityNetworkReadModel,
+  ActivityReportDocument,
+  ActivityScreenReadModel,
+} from '@ocentra-parent/activity-domain/activity-surface';
+import {
+  ActivitySurfaceReadModelKindName,
+  parseActivityReadModelEvent,
+  parseActivityReportDocumentEvent,
+  parseActivityReportHistoryEvent,
+  type ActivitySurfaceAdapterResult,
+  type ActivitySurfaceReadModelKind,
+} from '@ocentra-parent/agent-protocol-domain/activity-surface-adapter';
 import {
   AgentEvent,
   AgentProtocolDefaults,
@@ -31,6 +48,13 @@ import { parseBrowserInterventionReadModel } from './browser-intervention-read-m
 import { parseNetworkFlowReadModel } from './network-flow-read-model';
 import { parsePolicyPreviewReadModel, type PortalPolicyPreviewReadModel } from './policy-preview-read-model';
 
+type ActivitySurfaceReadModel =
+  | ActivityScreenReadModel
+  | ActivityAppUseReadModel
+  | ActivityBrowserReadModel
+  | ActivityGamesReadModel
+  | ActivityNetworkReadModel;
+
 export interface PortalLiveActivityState {
   readonly ingestEvent: AgentEventEnvelope | null;
   readonly ingestStatus: ActivityIngestStatus | null;
@@ -42,6 +66,20 @@ export interface PortalLiveActivityState {
   readonly browserManagedStatus: BrowserManagedSessionStatus | null;
   readonly activityMemoryGraphEvent: AgentEventEnvelope | null;
   readonly activityMemoryGraphReadModel: PortalActivityMemoryGraphReadModel | null;
+  readonly activityReportEvent: AgentEventEnvelope | null;
+  readonly activityReport: ActivitySurfaceAdapterResult<ActivityReportDocument> | null;
+  readonly activityReportHistoryEvent: AgentEventEnvelope | null;
+  readonly activityReportHistory: ActivitySurfaceAdapterResult<ActivityHistoricalReportList> | null;
+  readonly activityScreenReadModelEvent: AgentEventEnvelope | null;
+  readonly activityScreenReadModel: ActivitySurfaceAdapterResult<ActivitySurfaceReadModel> | null;
+  readonly activityAppUseReadModelEvent: AgentEventEnvelope | null;
+  readonly activityAppUseReadModel: ActivitySurfaceAdapterResult<ActivitySurfaceReadModel> | null;
+  readonly activityBrowserReadModelEvent: AgentEventEnvelope | null;
+  readonly activityBrowserReadModel: ActivitySurfaceAdapterResult<ActivitySurfaceReadModel> | null;
+  readonly activityGamesReadModelEvent: AgentEventEnvelope | null;
+  readonly activityGamesReadModel: ActivitySurfaceAdapterResult<ActivitySurfaceReadModel> | null;
+  readonly activityNetworkReadModelEvent: AgentEventEnvelope | null;
+  readonly activityNetworkReadModel: ActivitySurfaceAdapterResult<ActivitySurfaceReadModel> | null;
   readonly browserInterventionEvent: AgentEventEnvelope | null;
   readonly browserInterventionReadModel: BrowserInterventionReadModel | null;
   readonly networkFlowEvent: AgentEventEnvelope | null;
@@ -56,6 +94,13 @@ export function resolveLiveActivityState(events: readonly AgentEventEnvelope[]):
   const browserEvidenceEvent = latestEvent(events, AgentEvent.BrowserEvidenceRecentReported);
   const browserManagedEvent = latestEvent(events, AgentEvent.BrowserManagedStatusReported);
   const activityMemoryGraphEvent = latestEvent(events, AgentEvent.ActivityMemoryGraphReported);
+  const activityReportEvent = latestActivityReportEvent(events);
+  const activityReportHistoryEvent = latestEvent(events, AgentEvent.ActivityReportHistoryReported);
+  const activityScreenReadModelEvent = latestEvent(events, AgentEvent.ActivityScreenReadModelReported);
+  const activityAppUseReadModelEvent = latestEvent(events, AgentEvent.ActivityAppUseReadModelReported);
+  const activityBrowserReadModelEvent = latestEvent(events, AgentEvent.ActivityBrowserReadModelReported);
+  const activityGamesReadModelEvent = latestEvent(events, AgentEvent.ActivityGamesReadModelReported);
+  const activityNetworkReadModelEvent = latestEvent(events, AgentEvent.ActivityNetworkReadModelReported);
   const browserInterventionEvent = latestEvent(events, AgentEvent.BrowserInterventionReadModelReported);
   const networkFlowEvent = latestEvent(events, AgentEvent.NetworkFlowReadModelReported);
   const policyPreviewEvent = latestEvent(events, AgentEvent.PolicyPreviewReadModelReported);
@@ -73,6 +118,35 @@ export function resolveLiveActivityState(events: readonly AgentEventEnvelope[]):
     activityMemoryGraphEvent,
     activityMemoryGraphReadModel:
       activityMemoryGraphEvent === null ? null : parseActivityMemoryGraphReadModel(activityMemoryGraphEvent.payload),
+    activityReportEvent,
+    activityReport: parseNullableActivityReportEvent(activityReportEvent),
+    activityReportHistoryEvent,
+    activityReportHistory: parseNullableActivityReportHistoryEvent(activityReportHistoryEvent),
+    activityScreenReadModelEvent,
+    activityScreenReadModel: parseNullableActivityReadModelEvent(
+      ActivitySurfaceReadModelKindName.Screen,
+      activityScreenReadModelEvent
+    ),
+    activityAppUseReadModelEvent,
+    activityAppUseReadModel: parseNullableActivityReadModelEvent(
+      ActivitySurfaceReadModelKindName.AppUse,
+      activityAppUseReadModelEvent
+    ),
+    activityBrowserReadModelEvent,
+    activityBrowserReadModel: parseNullableActivityReadModelEvent(
+      ActivitySurfaceReadModelKindName.Browser,
+      activityBrowserReadModelEvent
+    ),
+    activityGamesReadModelEvent,
+    activityGamesReadModel: parseNullableActivityReadModelEvent(
+      ActivitySurfaceReadModelKindName.Games,
+      activityGamesReadModelEvent
+    ),
+    activityNetworkReadModelEvent,
+    activityNetworkReadModel: parseNullableActivityReadModelEvent(
+      ActivitySurfaceReadModelKindName.Network,
+      activityNetworkReadModelEvent
+    ),
     browserInterventionEvent,
     browserInterventionReadModel:
       browserInterventionEvent === null ? null : parseBrowserInterventionReadModel(browserInterventionEvent.payload),
@@ -86,6 +160,42 @@ export function resolveLiveActivityState(events: readonly AgentEventEnvelope[]):
 
 function latestEvent(events: readonly AgentEventEnvelope[], eventName: AgentEventName): AgentEventEnvelope | null {
   return events.find((event) => event.event === eventName) ?? null;
+}
+
+function latestActivityReportEvent(events: readonly AgentEventEnvelope[]): AgentEventEnvelope | null {
+  return (
+    events.find(
+      (event) => event.event === AgentEvent.ActivityReportSaved || event.event === AgentEvent.ActivityReportGenerated
+    ) ?? null
+  );
+}
+
+function parseNullableActivityReportEvent(
+  event: AgentEventEnvelope | null
+): ActivitySurfaceAdapterResult<ActivityReportDocument> | null {
+  if (event === null) {
+    return null;
+  }
+  return parseActivityReportDocumentEvent(event);
+}
+
+function parseNullableActivityReportHistoryEvent(
+  event: AgentEventEnvelope | null
+): ActivitySurfaceAdapterResult<ActivityHistoricalReportList> | null {
+  if (event === null) {
+    return null;
+  }
+  return parseActivityReportHistoryEvent(event);
+}
+
+function parseNullableActivityReadModelEvent(
+  kind: ActivitySurfaceReadModelKind,
+  event: AgentEventEnvelope | null
+): ActivitySurfaceAdapterResult<ActivitySurfaceReadModel> | null {
+  if (event === null) {
+    return null;
+  }
+  return parseActivityReadModelEvent(kind, event);
 }
 
 function parseIngestStatus(payload: AgentProtocolLogFields): ActivityIngestStatus | null {

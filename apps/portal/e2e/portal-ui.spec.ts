@@ -43,6 +43,13 @@ async function assertCommandControls(page: Page): Promise<void> {
   await expect(page.getByRole('button', { name: 'Refresh recent activity' })).toBeEnabled();
   await expect(page.getByRole('button', { name: 'Refresh web evidence' })).toBeEnabled();
   await expect(page.getByRole('button', { name: 'Refresh memory links' })).toBeEnabled();
+  await expect(page.getByRole('button', { name: 'Build daily activity report' })).toBeEnabled();
+  await expect(page.getByRole('button', { name: 'Refresh activity report history' })).toBeEnabled();
+  await expect(page.getByRole('button', { name: 'Refresh activity screen' })).toBeEnabled();
+  await expect(page.getByRole('button', { name: 'Refresh activity app use' })).toBeEnabled();
+  await expect(page.getByRole('button', { name: 'Refresh activity browser' })).toBeEnabled();
+  await expect(page.getByRole('button', { name: 'Refresh activity games' })).toBeEnabled();
+  await expect(page.getByRole('button', { name: 'Refresh activity network' })).toBeEnabled();
   await expect(page.getByRole('button', { name: 'Refresh browser protection' })).toBeEnabled();
   await expect(page.getByRole('button', { name: 'Refresh managed browser' })).toBeEnabled();
   await expect(page.getByRole('button', { name: 'Refresh network activity' })).toBeEnabled();
@@ -110,6 +117,48 @@ async function assertNetworkFlowResult(page: Page, commandResult: Locator): Prom
 async function assertActivityReadModelResults(page: Page, commandResult: Locator): Promise<void> {
   await assertCommandResult(page, commandResult, 'Refresh web evidence', 'agent.browser.evidence.recent.reported');
   await assertCommandResult(page, commandResult, 'Refresh memory links', 'agent.activity.memory-graph.reported');
+  await assertActivityCommandResult(
+    page,
+    commandResult,
+    'Build daily activity report',
+    'agent.activity.report.generated'
+  );
+  await assertActivityCommandResult(
+    page,
+    commandResult,
+    'Refresh activity report history',
+    'agent.activity.report.history.reported'
+  );
+  await assertActivityCommandResult(
+    page,
+    commandResult,
+    'Refresh activity screen',
+    'agent.activity.screen.read-model.reported'
+  );
+  await assertActivityCommandResult(
+    page,
+    commandResult,
+    'Refresh activity app use',
+    'agent.activity.app-use.read-model.reported'
+  );
+  await assertActivityCommandResult(
+    page,
+    commandResult,
+    'Refresh activity browser',
+    'agent.activity.browser.read-model.reported'
+  );
+  await assertActivityCommandResult(
+    page,
+    commandResult,
+    'Refresh activity games',
+    'agent.activity.games.read-model.reported'
+  );
+  await assertActivityCommandResult(
+    page,
+    commandResult,
+    'Refresh activity network',
+    'agent.activity.network.read-model.reported'
+  );
 }
 
 async function assertRawEventLog(page: Page): Promise<void> {
@@ -124,6 +173,13 @@ async function assertRawEventLog(page: Page): Promise<void> {
   await expect(page.getByText('agent.activity.recent.summary.reported')).toHaveCount(3);
   await expect(page.getByText('agent.browser.evidence.recent.reported')).toHaveCount(3);
   await expect(page.getByText('agent.activity.memory-graph.reported')).toHaveCount(3);
+  await expect(page.getByText('agent.activity.report.generated')).toHaveCount(2);
+  await expect(page.getByText('agent.activity.report.history.reported')).toHaveCount(2);
+  await expect(page.getByText('agent.activity.screen.read-model.reported')).toHaveCount(2);
+  await expect(page.getByText('agent.activity.app-use.read-model.reported')).toHaveCount(2);
+  await expect(page.getByText('agent.activity.browser.read-model.reported')).toHaveCount(2);
+  await expect(page.getByText('agent.activity.games.read-model.reported')).toHaveCount(2);
+  await expect(page.getByText('agent.activity.network.read-model.reported')).toHaveCount(2);
   await expect(page.getByText('agent.browser.intervention.read-model.reported')).toHaveCount(3);
   await expect(page.getByText('agent.browser.managed.status.reported')).toHaveCount(2);
   await expect(page.getByText('agent.network.flow.read-model.reported')).toHaveCount(3);
@@ -141,6 +197,16 @@ async function assertCommandResult(
   await page.getByRole('button', { name: commandName }).click();
   await expect(commandResult.getByText(eventName)).toHaveCount(1);
   await expect(commandResult.locator('.log')).toHaveCount(1);
+}
+
+async function assertActivityCommandResult(
+  page: Page,
+  commandResult: Locator,
+  commandName: string,
+  eventName: string
+): Promise<void> {
+  await assertCommandResult(page, commandResult, commandName, eventName);
+  await expect(commandResult.getByText('activitySurfaceState')).toHaveCount(1);
 }
 
 async function assertOverview(page: Page): Promise<void> {

@@ -79,10 +79,45 @@ function assertTypedActivityAdapterStates() {
       field: AgentProtocolDefaults.Field.ActivityReportDocument,
     },
     {
+      messageId: 'cmd-portal-smoke-activity-report-history',
+      command: AgentCommand.ActivityReportHistoryList,
+      event: AgentEvent.ActivityReportHistoryReported,
+      field: AgentProtocolDefaults.Field.ActivityReports,
+    },
+    {
+      messageId: 'cmd-portal-smoke-activity-screen',
+      command: AgentCommand.ActivityScreenReadModelGet,
+      event: AgentEvent.ActivityScreenReadModelReported,
+      field: AgentProtocolDefaults.Field.ActivityReadModel,
+      readModelKind: 'screen',
+    },
+    {
+      messageId: 'cmd-portal-smoke-activity-app-use',
+      command: AgentCommand.ActivityAppUseReadModelGet,
+      event: AgentEvent.ActivityAppUseReadModelReported,
+      field: AgentProtocolDefaults.Field.ActivityReadModel,
+      readModelKind: 'app-use',
+    },
+    {
+      messageId: 'cmd-portal-smoke-activity-browser',
+      command: AgentCommand.ActivityBrowserReadModelGet,
+      event: AgentEvent.ActivityBrowserReadModelReported,
+      field: AgentProtocolDefaults.Field.ActivityReadModel,
+      readModelKind: 'browser',
+    },
+    {
+      messageId: 'cmd-portal-smoke-activity-games',
+      command: AgentCommand.ActivityGamesReadModelGet,
+      event: AgentEvent.ActivityGamesReadModelReported,
+      field: AgentProtocolDefaults.Field.ActivityReadModel,
+      readModelKind: 'games',
+    },
+    {
       messageId: 'cmd-portal-smoke-activity-network',
       command: AgentCommand.ActivityNetworkReadModelGet,
       event: AgentEvent.ActivityNetworkReadModelReported,
       field: AgentProtocolDefaults.Field.ActivityReadModel,
+      readModelKind: 'network',
     },
   ];
 
@@ -131,7 +166,7 @@ function assertTypedActivityAdapterStates() {
           fail(new Error(`Expected ${step.event}, received ${parsed.event}`));
           return;
         }
-        assertSurfacePayload(parsed.payload, step.field);
+        assertSurfacePayload(parsed.payload, step.field, step.readModelKind);
         stepIndex += 1;
         if (stepIndex === steps.length) {
           complete();
@@ -147,10 +182,13 @@ function assertTypedActivityAdapterStates() {
   });
 }
 
-function assertSurfacePayload(payload, jsonField) {
+function assertSurfacePayload(payload, jsonField, readModelKind) {
   const state = payload[AgentProtocolDefaults.Field.ActivitySurfaceState];
   if (!allowedActivityStates().has(state)) {
     throw new Error(`Activity adapter state was not typed: ${JSON.stringify(payload)}`);
+  }
+  if (readModelKind !== undefined && payload[AgentProtocolDefaults.Field.ActivityReadModelKind] !== readModelKind) {
+    throw new Error(`Activity adapter returned wrong read-model kind: ${JSON.stringify(payload)}`);
   }
   const jsonValue = payload[jsonField];
   if (typeof jsonValue !== 'string') {
@@ -159,6 +197,9 @@ function assertSurfacePayload(payload, jsonField) {
   const parsed = JSON.parse(jsonValue);
   if (parsed.schemaVersion !== 1) {
     throw new Error(`Activity adapter returned unexpected schema version: ${jsonValue}`);
+  }
+  if (typeof parsed.state === 'string' && parsed.state !== state) {
+    throw new Error(`Activity adapter payload state did not match event state: ${jsonValue}`);
   }
 }
 
