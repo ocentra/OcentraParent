@@ -59,6 +59,7 @@
     "test:parent-mobile-controller-observer-handoff": "node scripts/test/parent-mobile-controller-observer-handoff-proof.mjs",
     "test:child-android-protocol-package-lifecycle-proof": "node scripts/test/child-android-protocol-package-lifecycle-proof.mjs",
     "test:child-android-storage-protocol-capability-proof": "node scripts/test/child-android-storage-protocol-capability-proof.mjs",
+    "test:child-android-service-protocol-capability-proof": "node scripts/test/child-android-service-protocol-capability-proof.mjs",
     "test:unit": "turbo run test",
     "test:contract": "turbo run test --filter=@ocentra-parent/logging-domain --filter=@ocentra-parent/agent-protocol-domain --filter=@ocentra-parent/portal-domain --filter=@ocentra-parent/text-domain",
     "test:local": "npm run test && cargo test --workspace",

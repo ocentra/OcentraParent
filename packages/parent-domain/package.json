@@ -41,6 +41,10 @@
       "import": "./dist/child-android-lifecycle-proof.js",
       "types": "./dist/child-android-lifecycle-proof.d.ts"
     },
+    "./child-android-service-protocol-proof": {
+      "import": "./dist/child-android-service-protocol-proof.js",
+      "types": "./dist/child-android-service-protocol-proof.d.ts"
+    },
     "./child-android-storage-protocol-proof": {
       "import": "./dist/child-android-storage-protocol-proof.js",
       "types": "./dist/child-android-storage-protocol-proof.d.ts"

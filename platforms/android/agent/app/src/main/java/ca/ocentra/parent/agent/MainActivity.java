@@ -12,6 +12,7 @@ public final class MainActivity extends Activity {
         startForegroundService(new Intent(this, OcentraParentAgentService.class));
         Bundle lifecycleProof = ChildAndroidLifecycleProof.createStatusBundle();
         Bundle storageProof = ChildAndroidStorageProtocolProof.createStorageProtocolBundle();
+        Bundle serviceProof = ChildAndroidServiceProtocolProof.createServiceProtocolBundle();
 
         TextView status = new TextView(this);
         status.setText(
@@ -19,7 +20,9 @@ public final class MainActivity extends Activity {
             "\n" +
             lifecycleProof.getString(ChildAndroidLifecycleProof.FIELD_BRIDGE_STATE) +
             "\n" +
-            storageProof.getString(ChildAndroidStorageProtocolProof.FIELD_STORAGE_BRIDGE_STATE)
+            storageProof.getString(ChildAndroidStorageProtocolProof.FIELD_STORAGE_BRIDGE_STATE) +
+            "\n" +
+            serviceProof.getString(ChildAndroidServiceProtocolProof.FIELD_FOREGROUND_SERVICE_STATUS)
         );
         status.setTextSize(18);
         status.setPadding(32, 32, 32, 32);
