@@ -42,6 +42,7 @@
     "child-android-protocol-package-lifecycle-proof",
     "child-android-storage-protocol-capability-proof",
     "child-android-service-protocol-capability-proof",
+    "child-android-permission-capability-proof",
     "parent-mobile-shell-runtime-proof",
     "v0-9-mobile-controller-discovery-runtime-proof",
     "v0-9-mobile-controller-observer-runtime-proof",
@@ -1296,6 +1297,41 @@
         "A package-local Bundle status export presented as remote transport or hosted child activity storage.",
         "UsageStats, accessibility, VPN/DNS, device-owner, or managed-profile behavior without device artifacts.",
         "Package-local service constants presented as Android child enforcement parity."
+      ]
+    },
+    {
+      "id": "child-android-permission-capability-proof",
+      "title": "Child Android Permission Package Capability Proof",
+      "claimIds": ["child-android-permission-capability-proof"],
+      "expectationFiles": [
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/platforms.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "proofMode": "ci-mechanical-proof",
+      "realEvidencePath": [
+        "Build TypeScript contracts from the current commit.",
+        "Run the parent-domain Child Android permission/package contract test.",
+        "Build the Android debug APK through the repo release package script.",
+        "Verify the permission/package native bridge, manifest permission declarations, app-private storage scaffold, APK artifact, and SHA-256 checksum.",
+        "Record POST_NOTIFICATIONS as manual-runtime-required, UsageStats as settings-grant-required, accessibility and VPN/DNS as not implemented, and device-owner plus managed profile as blocked until device/enrollment proof exists."
+      ],
+      "ciCommands": ["node scripts/test/child-android-permission-capability-proof.mjs"],
+      "requiredArtifacts": [
+        "test-results/child-android-permission-capability-proof/proof.json",
+        "target/release-packages/android/ocentra-parent-agent-android-debug-latest.apk",
+        "target/release-packages/android/ocentra-parent-agent-android-debug-latest.apk.sha256",
+        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/ChildAndroidPermissionCapabilityProof.java"
+      ],
+      "knownGaps": [
+        "CI proof compiles package-local permission/package mechanics but does not install or run the APK on a device.",
+        "Notification grant, UsageStats settings grant and observation, accessibility, VPN/DNS, device-owner enrollment, managed-profile enrollment, install/update/background/reboot/uninstall, and external child-agent transport remain manual-required, unavailable, blocked, or unimplemented until runtime/device artifacts exist."
+      ],
+      "notProof": [
+        "Manifest permission declarations presented as runtime grants or notification delivery.",
+        "UsageStats, accessibility, VPN/DNS, device-owner, or managed-profile behavior without device artifacts.",
+        "Debug APK build and checksum presented as install/update/background/reboot/uninstall lifecycle behavior.",
+        "Package-local permission constants presented as Android child enforcement parity."
       ]
     },
     {
@@ -3467,6 +3503,76 @@
         "The proof does not run on an emulator or physical Android device.",
         "Foreground runtime behavior, UsageStats permission grant, accessibility, VPN/DNS, device-owner, managed-profile, remote status export, and external child-agent service transport remain manual-required, unavailable, blocked, or not implemented.",
         "The package-local service bridge does not prove Android child enforcement parity."
+      ],
+      "manualProofChecklist": []
+    },
+    {
+      "id": "child-android-permission-capability-proof",
+      "roadmapSlice": "Child Android permission/package capability proof",
+      "expectationFiles": [
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/platforms.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "claim": "Child Android permission/package capability proof compiles a package-local native permission bridge into the debug APK, validates a typed parent-domain permission read model, proves manifest-declared foreground service and notification permissions plus package-local app-private storage scaffold, and records notification grant, UsageStats, accessibility, VPN/DNS, device-owner, managed-profile, and lifecycle behavior without over-claiming device proof.",
+      "privilegedCapability": false,
+      "ciProof": {
+        "commands": ["node scripts/test/child-android-permission-capability-proof.mjs"],
+        "jobs": ["Worker D Child Android permission/package capability proof"]
+      },
+      "platformCoverage": {
+        "windows": "not-applicable",
+        "linux": "not-applicable",
+        "macos": "not-applicable",
+        "android": "ci-mechanical-proof",
+        "ios": "not-applicable"
+      },
+      "runtimeSurfaceCoverage": {
+        "packageDebugApk": {
+          "state": "ci-mechanical-proof",
+          "proof": "The Android debug APK and SHA-256 checksum are produced by the repo package script."
+        },
+        "foregroundServicePermissions": {
+          "state": "declared-in-manifest",
+          "proof": "FOREGROUND_SERVICE and FOREGROUND_SERVICE_DATA_SYNC are declared in AndroidManifest.xml."
+        },
+        "postNotifications": {
+          "state": "manual-runtime-required",
+          "proof": "POST_NOTIFICATIONS is declared, but runtime grant and notification delivery require emulator or physical-device evidence."
+        },
+        "usageStats": {
+          "state": "settings-grant-required",
+          "proof": "PACKAGE_USAGE_STATS is not declared by design and needs a user/device settings grant plus observation artifact before it is available."
+        },
+        "accessibility": {
+          "state": "not-implemented",
+          "proof": "No AccessibilityService declaration, grant, or behavior is claimed."
+        },
+        "vpnDns": {
+          "state": "not-implemented",
+          "proof": "No VPN service, DNS adapter, or filtering behavior is claimed."
+        },
+        "deviceOwner": {
+          "state": "blocked",
+          "proof": "No device-owner enrollment or policy action is claimed."
+        },
+        "managedProfile": {
+          "state": "blocked",
+          "proof": "No managed-profile enrollment or behavior is claimed."
+        },
+        "packageLifecycle": {
+          "state": "manual-required",
+          "proof": "Debug APK build/checksum and manifest declarations are CI proof; install/update/background/reboot/uninstall remain manual-required."
+        },
+        "externalPermissionTransport": {
+          "state": "not-implemented",
+          "proof": "The permission proof is package-local Bundle metadata and not LAN/WebSocket child-agent transport."
+        }
+      },
+      "knownGaps": [
+        "The proof does not run on an emulator or physical Android device.",
+        "Notification grant, UsageStats settings grant, accessibility, VPN/DNS, device-owner, managed-profile, install/update/background/reboot/uninstall, and external child-agent permission transport remain manual-required, unavailable, blocked, or not implemented.",
+        "The package-local permission bridge does not prove Android child enforcement parity."
       ],
       "manualProofChecklist": []
     },
