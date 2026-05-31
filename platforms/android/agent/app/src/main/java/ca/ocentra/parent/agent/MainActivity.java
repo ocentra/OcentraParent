@@ -13,6 +13,7 @@ public final class MainActivity extends Activity {
         Bundle lifecycleProof = ChildAndroidLifecycleProof.createStatusBundle();
         Bundle storageProof = ChildAndroidStorageProtocolProof.createStorageProtocolBundle();
         Bundle serviceProof = ChildAndroidServiceProtocolProof.createServiceProtocolBundle();
+        Bundle permissionProof = ChildAndroidPermissionCapabilityProof.createPermissionCapabilityBundle();
 
         TextView status = new TextView(this);
         status.setText(
@@ -22,7 +23,9 @@ public final class MainActivity extends Activity {
             "\n" +
             storageProof.getString(ChildAndroidStorageProtocolProof.FIELD_STORAGE_BRIDGE_STATE) +
             "\n" +
-            serviceProof.getString(ChildAndroidServiceProtocolProof.FIELD_FOREGROUND_SERVICE_STATUS)
+            serviceProof.getString(ChildAndroidServiceProtocolProof.FIELD_FOREGROUND_SERVICE_STATUS) +
+            "\n" +
+            permissionProof.getString(ChildAndroidPermissionCapabilityProof.FIELD_PERMISSION_BRIDGE_STATE)
         );
         status.setTextSize(18);
         status.setPadding(32, 32, 32, 32);

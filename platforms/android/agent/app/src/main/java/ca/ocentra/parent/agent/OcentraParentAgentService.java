@@ -15,6 +15,7 @@ public final class OcentraParentAgentService extends Service {
     private Bundle lifecycleProof;
     private Bundle storageProof;
     private Bundle serviceProof;
+    private Bundle permissionProof;
 
     @Override
     public void onCreate() {
@@ -22,6 +23,7 @@ public final class OcentraParentAgentService extends Service {
         lifecycleProof = ChildAndroidLifecycleProof.createStatusBundle();
         storageProof = ChildAndroidStorageProtocolProof.createStorageProtocolBundle();
         serviceProof = ChildAndroidServiceProtocolProof.createServiceProtocolBundle();
+        permissionProof = ChildAndroidPermissionCapabilityProof.createPermissionCapabilityBundle();
         ensureNotificationChannel();
         startForeground(NOTIFICATION_ID, buildNotification());
     }
@@ -31,6 +33,7 @@ public final class OcentraParentAgentService extends Service {
         lifecycleProof = ChildAndroidLifecycleProof.createStatusBundle();
         storageProof = ChildAndroidStorageProtocolProof.createStorageProtocolBundle();
         serviceProof = ChildAndroidServiceProtocolProof.createServiceProtocolBundle();
+        permissionProof = ChildAndroidPermissionCapabilityProof.createPermissionCapabilityBundle();
         return START_STICKY;
     }
 
@@ -65,7 +68,9 @@ public final class OcentraParentAgentService extends Service {
                 " " +
                 storageProof.getString(ChildAndroidStorageProtocolProof.FIELD_STORAGE_BRIDGE_STATE) +
                 " " +
-                serviceProof.getString(ChildAndroidServiceProtocolProof.FIELD_FOREGROUND_SERVICE_STATUS)
+                serviceProof.getString(ChildAndroidServiceProtocolProof.FIELD_FOREGROUND_SERVICE_STATUS) +
+                " " +
+                permissionProof.getString(ChildAndroidPermissionCapabilityProof.FIELD_PERMISSION_BRIDGE_STATE)
             )
             .setSmallIcon(android.R.drawable.ic_menu_view)
             .setOngoing(true)
