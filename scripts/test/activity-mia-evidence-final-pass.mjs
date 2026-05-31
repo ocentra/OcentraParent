@@ -31,6 +31,7 @@ async function main() {
       'activity-mia-final-pass.family-device-request-builders',
       'activity-mia-final-pass.adapter-operation-manifest',
       'activity-mia-final-pass.adapter-failure-metadata',
+      'activity-mia-final-pass.c-consumption-helper-map',
       'activity-mia-final-pass.parent-assistant-evidence',
       'activity-mia-final-pass.saved-report-metadata-citation',
       'activity-mia-final-pass.c-owned-paths-not-touched',
@@ -45,7 +46,7 @@ async function main() {
       rustFamilySources: 'crates/agent-service/src/activity_family_sources_tests.rs',
       rustParentAssistantContext: 'crates/agent-service/src/parent_assistant_evidence_context.rs',
       runtimeProof: 'scripts/test/activity-parent-assistant-runtime-proof.mjs',
-      checkpoint: 'docs/checkpoints/activity-report-persistence-family-mia-context-2026-05-31.md',
+      checkpoint: 'docs/checkpoints/activity-mia-final-pass-service-adapter-consumption-2026-05-31.md',
     },
     coverage: {
       reportPersistence:
@@ -55,7 +56,7 @@ async function main() {
       sourceStateSummary:
         'Saved report history rows count stale and unreachable sources separately from offline, unavailable, and error sources.',
       adapterHandoff:
-        'The TypeScript service-adapter boundary creates family/device request documents, report/history/read-model commands, exposes a C-consumable operation manifest with failure metadata, and parses generated/saved/history/read-model events with typed unavailable failures.',
+        'The TypeScript service-adapter boundary creates family/device request documents, report/history/read-model commands, exposes a C-consumable operation manifest with helper/parser names and failure metadata, and parses generated/saved/history/read-model events with typed unavailable failures.',
       parentAssistantEvidence:
         'Parent Assistant/MIA cites saved Activity report metadata, ready section counts, offline/stale/unreachable/unavailable source counts, stale/unreachable source ids where available, and child-contract action-preview boundaries.',
       cOwnedPathPolicy:
@@ -64,7 +65,7 @@ async function main() {
     counts: {
       coveredActivityTabs: adapterProof.productTruth.coveredTabs.length,
       upstreamProofLabels: adapterProof.proofLabels.length,
-      finalPassProofLabels: 10,
+      finalPassProofLabels: 11,
       cOwnedPathsTouched: 0,
     },
     knownGaps: [

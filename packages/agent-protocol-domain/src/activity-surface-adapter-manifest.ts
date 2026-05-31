@@ -15,8 +15,36 @@ export const ActivitySurfaceAdapterOperationId = {
   GetNetworkActivity: 'getNetworkActivity',
 } as const;
 
+export const ActivitySurfaceAdapterCommandBuilder = {
+  ReportGenerate: 'createActivityReportGenerateCommand',
+  ReportSave: 'createActivityReportSaveCommand',
+  ReportHistory: 'createActivityReportHistoryCommand',
+  ReadModel: 'createActivityReadModelCommand',
+} as const;
+
+export const ActivitySurfaceAdapterEventParser = {
+  ReportDocument: 'parseActivityReportDocumentEvent',
+  ReportHistory: 'parseActivityReportHistoryEvent',
+  ReadModel: 'parseActivityReadModelEvent',
+} as const;
+
 export const ActivitySurfaceAdapterManifestReadModelKindSchema = withParser(
   Schema.Literal('screen', 'app-use', 'browser', 'games', 'network')
+);
+export const ActivitySurfaceAdapterCommandBuilderSchema = withParser(
+  Schema.Literal(
+    ActivitySurfaceAdapterCommandBuilder.ReportGenerate,
+    ActivitySurfaceAdapterCommandBuilder.ReportSave,
+    ActivitySurfaceAdapterCommandBuilder.ReportHistory,
+    ActivitySurfaceAdapterCommandBuilder.ReadModel
+  )
+);
+export const ActivitySurfaceAdapterEventParserSchema = withParser(
+  Schema.Literal(
+    ActivitySurfaceAdapterEventParser.ReportDocument,
+    ActivitySurfaceAdapterEventParser.ReportHistory,
+    ActivitySurfaceAdapterEventParser.ReadModel
+  )
 );
 export const ActivitySurfaceAdapterFailureReasonSchema = withParser(
   Schema.Literal('wrong-event', 'missing-json-field', 'invalid-json', 'invalid-payload')
@@ -68,6 +96,8 @@ export const ActivitySurfaceAdapterOperationSchema = withParser(
       AgentProtocolDefaults.Field.ActivityReports,
       AgentProtocolDefaults.Field.ActivityReadModel
     ),
+    commandBuilder: ActivitySurfaceAdapterCommandBuilderSchema,
+    eventParser: ActivitySurfaceAdapterEventParserSchema,
     responseKind: ActivitySurfaceAdapterResponseKindSchema,
     readModelKind: Schema.Union(ActivitySurfaceAdapterManifestReadModelKindSchema, Schema.Null),
     productDataOwner: ActivitySurfaceAdapterProductDataOwnerSchema,
@@ -82,6 +112,8 @@ export const ActivitySurfaceAdapterOperationSchema = withParser(
 );
 
 export type ActivitySurfaceAdapterOperation = Infer<typeof ActivitySurfaceAdapterOperationSchema>;
+export type ActivitySurfaceAdapterCommandBuilderName = Infer<typeof ActivitySurfaceAdapterCommandBuilderSchema>;
+export type ActivitySurfaceAdapterEventParserName = Infer<typeof ActivitySurfaceAdapterEventParserSchema>;
 export type ActivitySurfaceAdapterFailureReason = Infer<typeof ActivitySurfaceAdapterFailureReasonSchema>;
 export type ActivitySurfaceAdapterResponseKind = Infer<typeof ActivitySurfaceAdapterResponseKindSchema>;
 export type ActivitySurfaceAdapterManifestReadModelKind = Infer<
@@ -184,6 +216,8 @@ function adapterOperation(
     command,
     successEvent,
     payloadField,
+    commandBuilder: commandBuilderForOperation(operationId),
+    eventParser: eventParserForResponse(responseKind),
     responseKind,
     readModelKind,
     productDataOwner: 'rust-service-read-model',
@@ -195,4 +229,39 @@ function adapterOperation(
     failureReasons: ['wrong-event', 'missing-json-field', 'invalid-json', 'invalid-payload'],
     unavailableState: 'unavailable',
   });
+}
+
+function commandBuilderForOperation(
+  operationId: ActivitySurfaceAdapterOperation['operationId']
+): ActivitySurfaceAdapterCommandBuilderName {
+  if (operationId === ActivitySurfaceAdapterOperationId.SaveActivityReport) {
+    return ActivitySurfaceAdapterCommandBuilder.ReportSave;
+  }
+  if (operationId === ActivitySurfaceAdapterOperationId.ListHistoricalReports) {
+    return ActivitySurfaceAdapterCommandBuilder.ReportHistory;
+  }
+  if (
+    operationId === ActivitySurfaceAdapterOperationId.GetScreenActivity ||
+    operationId === ActivitySurfaceAdapterOperationId.GetAppUseActivity ||
+    operationId === ActivitySurfaceAdapterOperationId.GetBrowserActivity ||
+    operationId === ActivitySurfaceAdapterOperationId.GetGamesActivity ||
+    operationId === ActivitySurfaceAdapterOperationId.GetNetworkActivity
+  ) {
+    return ActivitySurfaceAdapterCommandBuilder.ReadModel;
+  }
+
+  return ActivitySurfaceAdapterCommandBuilder.ReportGenerate;
+}
+
+function eventParserForResponse(
+  responseKind: ActivitySurfaceAdapterResponseKind
+): ActivitySurfaceAdapterEventParserName {
+  if (responseKind === 'report-history') {
+    return ActivitySurfaceAdapterEventParser.ReportHistory;
+  }
+  if (responseKind === 'tab-read-model') {
+    return ActivitySurfaceAdapterEventParser.ReadModel;
+  }
+
+  return ActivitySurfaceAdapterEventParser.ReportDocument;
 }
