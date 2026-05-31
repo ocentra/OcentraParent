@@ -13,11 +13,13 @@ public final class OcentraParentAgentService extends Service {
     private static final String CHANNEL_ID = "ocentra_parent_agent";
     private static final int NOTIFICATION_ID = 4477;
     private Bundle lifecycleProof;
+    private Bundle storageProof;
 
     @Override
     public void onCreate() {
         super.onCreate();
         lifecycleProof = ChildAndroidLifecycleProof.createStatusBundle();
+        storageProof = ChildAndroidStorageProtocolProof.createStorageProtocolBundle();
         ensureNotificationChannel();
         startForeground(NOTIFICATION_ID, buildNotification());
     }
@@ -25,6 +27,7 @@ public final class OcentraParentAgentService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         lifecycleProof = ChildAndroidLifecycleProof.createStatusBundle();
+        storageProof = ChildAndroidStorageProtocolProof.createStorageProtocolBundle();
         return START_STICKY;
     }
 
@@ -55,7 +58,9 @@ public final class OcentraParentAgentService extends Service {
             .setContentText(
                 getString(R.string.notification_text) +
                 " " +
-                lifecycleProof.getString(ChildAndroidLifecycleProof.FIELD_BRIDGE_STATE)
+                lifecycleProof.getString(ChildAndroidLifecycleProof.FIELD_BRIDGE_STATE) +
+                " " +
+                storageProof.getString(ChildAndroidStorageProtocolProof.FIELD_STORAGE_BRIDGE_STATE)
             )
             .setSmallIcon(android.R.drawable.ic_menu_view)
             .setOngoing(true)

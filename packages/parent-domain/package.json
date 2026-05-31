@@ -41,6 +41,10 @@
       "import": "./dist/child-android-lifecycle-proof.js",
       "types": "./dist/child-android-lifecycle-proof.d.ts"
     },
+    "./child-android-storage-protocol-proof": {
+      "import": "./dist/child-android-storage-protocol-proof.js",
+      "types": "./dist/child-android-storage-protocol-proof.d.ts"
+    },
     "./enforcement": {
       "import": "./dist/enforcement.js",
       "types": "./dist/enforcement.d.ts"
