@@ -5783,6 +5783,7 @@ function manageWorkspaceTabs(kind: ManageWorkspaceKind): readonly ManageWorkspac
   return [
     { id: 'rules', label: 'Rules', icon: PolicyShieldDocumentIcon, tone: 'gold' },
     { id: 'schedule', label: 'Schedule', icon: ScheduleCalendarClockIcon, tone: 'purple' },
+    { id: 'budget', label: 'Budget', icon: ScheduleCalendarClockIcon, tone: 'gold' },
     { id: 'approvals', label: 'Approvals', icon: AlertNotificationBellIcon, tone: 'cyan' },
     { id: 'audit', label: 'Audit', icon: AuditCloudLogsIcon, tone: 'cyan' },
   ];
@@ -5819,7 +5820,8 @@ function manageWorkspaceDefaultTabId(
     if (key.includes('memory')) return 'memory';
     return 'runtime';
   }
-  if (key.includes('schedule') || key.includes('budget')) return 'schedule';
+  if (key.includes('budget')) return 'budget';
+  if (key.includes('schedule')) return 'schedule';
   if (key.includes('approval') || key.includes('ask')) return 'approvals';
   if (key.includes('enforce') || key.includes('dry-run')) return 'rules';
   if (key.includes('audit') || key.includes('preview')) return 'audit';
@@ -5935,7 +5937,9 @@ function manageWorkspaceSummary(
         ? 'family defaults'
         : 'per-device overrides';
   if (activeTab === 'schedule')
-    return `Configure ${scope} for ${area} time windows, budgets, school, bedtime, and temporary exceptions.`;
+    return `Configure ${scope} for ${area} time windows, school, bedtime, and temporary exceptions.`;
+  if (activeTab === 'budget')
+    return `Configure ${scope} for ${area} caps, counting rules, reset windows, and override inheritance.`;
   if (activeTab === 'approvals')
     return `Configure ${scope} for ${area} ask-parent flows, expiry, reasons, parent response, and audit trail.`;
   if (activeTab === 'enforcement')
@@ -6511,15 +6515,38 @@ function manageWorkspaceCards(
         tone: 'purple',
       },
       {
-        label: 'Budgets',
-        value: 'Daily / Weekly',
-        body: `${area} budgets belong here, not in a separate side-panel page.`,
+        label: 'Action window',
+        value: 'Allow / Ask / Block',
+        body: 'The timeline decides when a rule posture is active; numeric caps stay in Budget.',
         tone: 'gold',
       },
       {
         label: 'Exceptions',
         value: 'Temporary',
         body: 'Parent-approved one-off windows should create an audit event.',
+        tone: 'cyan',
+      },
+    ];
+  }
+  if (activeTab === 'budget') {
+    return [
+      { label: 'Target', value: scope, body: targetBody, tone: 'cyan' },
+      {
+        label: 'Cap',
+        value: 'Daily / Weekly',
+        body: `${area} caps define how many minutes are available before the rule posture changes.`,
+        tone: 'gold',
+      },
+      {
+        label: 'Counting',
+        value: 'Evidence based',
+        body: 'Only child-device session evidence should spend budget time; the portal does not run timers.',
+        tone: 'purple',
+      },
+      {
+        label: 'Override',
+        value: 'Inherited first',
+        body: 'Per-device budgets stay grey until the parent explicitly overrides the family default.',
         tone: 'cyan',
       },
     ];
@@ -6624,6 +6651,7 @@ type ManageWorkspaceChoiceOption = {
 
 function managePolicyPrimaryChoiceTitle(activeTab: string): string {
   if (activeTab === 'schedule') return 'Window';
+  if (activeTab === 'budget') return 'Cap';
   if (activeTab === 'approvals') return 'Request';
   if (activeTab === 'enforcement') return 'Adapter';
   if (activeTab === 'audit') return 'View';
@@ -6637,6 +6665,14 @@ function managePolicyPrimaryChoiceOptions(activeTab: string): readonly ManageWor
       { value: 'school', label: 'School' },
       { value: 'bedtime', label: 'Bedtime' },
       { value: 'custom', label: 'Custom' },
+    ];
+  }
+  if (activeTab === 'budget') {
+    return [
+      { value: 'none', label: 'None' },
+      { value: 'total', label: 'Total' },
+      { value: 'target', label: 'Per Target' },
+      { value: 'strict', label: 'Strict' },
     ];
   }
   if (activeTab === 'approvals') {
@@ -6670,7 +6706,8 @@ function managePolicyPrimaryChoiceOptions(activeTab: string): readonly ManageWor
 }
 
 function managePolicySecondaryChoiceTitle(activeTab: string): string {
-  if (activeTab === 'schedule') return 'Budget';
+  if (activeTab === 'schedule') return 'Action';
+  if (activeTab === 'budget') return 'Counts';
   if (activeTab === 'approvals') return 'Expiry';
   if (activeTab === 'enforcement') return 'Mode';
   if (activeTab === 'audit') return 'Source';
@@ -6680,9 +6717,17 @@ function managePolicySecondaryChoiceTitle(activeTab: string): string {
 function managePolicySecondaryChoiceOptions(activeTab: string): readonly ManageWorkspaceChoiceOption[] {
   if (activeTab === 'schedule') {
     return [
-      { value: 'none', label: 'None' },
-      { value: 'daily', label: 'Daily' },
-      { value: 'weekly', label: 'Weekly' },
+      { value: 'allow', label: 'Allow' },
+      { value: 'ask', label: 'Ask' },
+      { value: 'block', label: 'Block' },
+    ];
+  }
+  if (activeTab === 'budget') {
+    return [
+      { value: 'all', label: 'All' },
+      { value: 'managed', label: 'Managed' },
+      { value: 'unmanaged', label: 'Unmanaged' },
+      { value: 'selected', label: 'Selected' },
     ];
   }
   if (activeTab === 'approvals') {
@@ -6732,6 +6777,39 @@ function managePolicySettingRows(
         ]
       : [];
 
+  if (activeTab === 'budget') {
+    return [
+      ...missingDevice,
+      {
+        label: 'Total cap',
+        value: area === 'Browser' ? 'Managed + unmanaged' : `${area} evidence`,
+        body:
+          area === 'Browser'
+            ? 'Overall browser time is the parent cap; managed and unmanaged browser time can each spend from it.'
+            : `${area} budgets count real child-device session evidence before changing rule posture.`,
+        tone: 'gold',
+      },
+      {
+        label: 'Target caps',
+        value: 'Optional override',
+        body: `${area} categories can inherit the total cap or set their own daily or weekly limit.`,
+        tone: 'cyan',
+      },
+      {
+        label: 'Schedule link',
+        value: 'Windows gate caps',
+        body: 'Schedules decide when a cap is active; Budget decides how much time can be spent.',
+        tone: 'purple',
+      },
+      {
+        label: 'Inheritance',
+        value: target,
+        body: 'Family budgets apply first. Per-device rows stay disabled until a parent turns on an override.',
+        tone: 'cyan',
+      },
+    ];
+  }
+
   if (area === 'Browser') {
     if (activeTab === 'schedule') {
       return [
@@ -6739,7 +6817,7 @@ function managePolicySettingRows(
         {
           label: 'Target',
           value: target,
-          body: 'Browser windows and budgets are scoped to family defaults or the selected child override.',
+          body: 'Browser time windows are scoped to family defaults or the selected child override.',
           tone: 'cyan',
         },
         {
@@ -8149,15 +8227,57 @@ const POLICY_APPROVAL_ROWS_BY_AREA = {
   ],
 } as const;
 const BROWSER_POLICY_APPROVAL_COLUMNS = ['Request', 'Allowed', 'Notify', 'No answer', 'Duration', 'Record'] as const;
-const BROWSER_POLICY_AUDIT_ROWS = [
-  ['Policy status', 'Summary', 'Always', 'Standard'],
-  ['Rule decision', 'Detailed', 'On match', 'Standard'],
-  ['Approval', 'Detailed', 'On request', 'Long'],
-  ['Capability failure', 'Detailed', 'Immediate', 'Standard'],
-  ['Emergency', 'Full', 'Immediate', 'Long'],
-  ['Data export/delete', 'Full', 'Immediate', 'Long'],
+const BROWSER_POLICY_BUDGET_ROWS = [
+  ['Total browser time', 'Managed + unmanaged sessions', '120 min/day', 'Active windows', 'Family default'],
+  ['Managed browser time', 'Chrome / Edge managed tabs', '90 min/day', 'School can exclude', 'Override optional'],
+  ['Unmanaged browser time', 'Detected browser process', 'Ask or block', 'Always counts', 'Strict override'],
+  ['Social / video / games', 'Category targets', '45 min/day', 'Rule windows', 'Per target'],
+  ['Search / downloads', 'Activity targets', 'Ask after cap', 'Bedtime stricter', 'Audit trail'],
 ] as const;
-const BROWSER_POLICY_AUDIT_COLUMNS = ['Event', 'Report detail', 'Notify', 'Retention'] as const;
+const POLICY_BUDGET_ROWS_BY_AREA = {
+  Apps: [
+    ['Total app time', 'Foreground app sessions', '120 min/day', 'Active windows', 'Family default'],
+    ['School tools', 'Approved study apps', 'Uncapped window', 'School hours', 'Override optional'],
+    ['Chat / media apps', 'Category targets', '45 min/day', 'Bedtime stricter', 'Per category'],
+    ['Unknown apps', 'Unclassified launches', 'Ask first', 'Always counts', 'Strict override'],
+    ['Grace time', 'Approved extensions', 'Parent entered', 'Expires', 'Audit trail'],
+  ],
+  Games: [
+    ['Total game time', 'Foreground game sessions', '60 min/day', 'Active windows', 'Family default'],
+    ['School day cap', 'Weekday sessions', '30 min/day', 'After homework', 'Override optional'],
+    ['Weekend cap', 'Saturday / Sunday', '120 min/day', 'Weekend windows', 'Per device'],
+    ['Cloud / browser games', 'Web game targets', '45 min/day', 'Rule windows', 'Per target'],
+    ['Extra play', 'Approved extensions', 'Parent entered', 'Expires', 'Audit trail'],
+  ],
+  Screen: [
+    ['Analysis budget', 'Screen review jobs', 'Digest cadence', 'Active windows', 'Family default'],
+    ['Strict mode', 'High-risk triggers', 'Short interval', 'Rule windows', 'Override optional'],
+    ['Live view', 'Parent request only', 'Session cap', 'Parent present', 'Audit trail'],
+    ['Protected surfaces', 'Unavailable states', 'No capture', 'Always respected', 'Locked'],
+  ],
+  Network: [
+    ['Total web traffic', 'Flow summaries', 'Daily cap', 'Active windows', 'Family default'],
+    ['Unknown domains', 'New endpoint flows', 'Ask first', 'Always counts', 'Strict override'],
+    ['VPN / proxy', 'Bypass signals', 'Block or ask', 'Always active', 'Audit trail'],
+    ['High volume', 'Bandwidth summary', 'Notify cap', 'Schedule aware', 'Per device'],
+  ],
+  Tracking: [
+    ['Location checks', 'Known-place updates', 'Normal cadence', 'Active windows', 'Family default'],
+    ['School hours', 'Expected place proof', 'Strict cadence', 'School window', 'Override optional'],
+    ['Unknown place', 'Unexpected location', 'Immediate ask', 'Always active', 'Audit trail'],
+    ['Route history', 'Parent-visible trail', 'Retention cap', 'After schedule', 'Per device'],
+  ],
+} as const;
+const BROWSER_POLICY_BUDGET_COLUMNS = ['Budget', 'What counts', 'Cap', 'Schedule link', 'Override'] as const;
+const BROWSER_POLICY_AUDIT_ROWS = [
+  ['Effective policy', 'Family + override', 'Before apply', 'Pass / conflict'],
+  ['Rule vs schedule', 'Action windows', 'Before apply', 'No overlap'],
+  ['Budget proof', 'Cap + evidence path', 'Before apply', 'Timer ready'],
+  ['Approval expiry', 'Ask result fallback', 'On request', 'Typed outcome'],
+  ['Capability state', 'Adapter support', 'Before enforce', 'Ready / unavailable'],
+  ['Audit custody', 'Event refs only', 'After apply', 'Retained'],
+] as const;
+const BROWSER_POLICY_AUDIT_COLUMNS = ['Check', 'Verifies', 'When', 'Result'] as const;
 const BROWSER_POLICY_MATRIX_COLORS = {
   defaultRules: '#37d7ff',
   allow: '#41f385',
@@ -8170,14 +8290,18 @@ function policyApprovalRowsForArea(area: string) {
   return POLICY_APPROVAL_ROWS_BY_AREA[area] ?? BROWSER_POLICY_APPROVAL_ROWS;
 }
 
+function policyBudgetRowsForArea(area: string) {
+  return POLICY_BUDGET_ROWS_BY_AREA[area] ?? BROWSER_POLICY_BUDGET_ROWS;
+}
+
 function policyAuditRowsForArea(area: string) {
   return [
-    [`${area} status`, 'Summary', 'Always', 'Standard'],
-    ['Rule decision', 'Detailed', 'On match', 'Standard'],
-    ['Approval', 'Detailed', 'On request', 'Long'],
-    ['Capability failure', 'Detailed', 'Immediate', 'Standard'],
-    ['Emergency', 'Full', 'Immediate', 'Long'],
-    ['Data export/delete', 'Full', 'Immediate', 'Long'],
+    [`${area} effective policy`, 'Family + override', 'Before apply', 'Pass / conflict'],
+    ['Rule vs schedule', 'Action windows', 'Before apply', 'No overlap'],
+    ['Budget proof', 'Cap + evidence path', 'Before apply', 'Timer ready'],
+    ['Approval expiry', 'Ask result fallback', 'On request', 'Typed outcome'],
+    ['Capability state', 'Adapter support', 'Before enforce', 'Ready / unavailable'],
+    ['Audit custody', 'Event refs only', 'After apply', 'Retained'],
   ] as const;
 }
 
@@ -8223,6 +8347,19 @@ function BrowserPolicyTabMatrixSurface({
   if (tabId === 'approvals') {
     return (
       <BrowserPolicyApprovalsMatrix
+        policyAreaLabel={policyAreaLabel}
+        x={x}
+        y={y}
+        w={w}
+        h={h}
+        disabled={disabled}
+        cfg={cfg}
+      />
+    );
+  }
+  if (tabId === 'budget') {
+    return (
+      <BrowserPolicyBudgetMatrix
         policyAreaLabel={policyAreaLabel}
         x={x}
         y={y}
@@ -8282,6 +8419,169 @@ function BrowserPolicyMatrixShell({
       ) : null}
       {children}
     </g>
+  );
+}
+
+function BrowserPolicyBudgetMatrix({
+  policyAreaLabel,
+  x,
+  y,
+  w,
+  h,
+  disabled,
+  cfg,
+}: {
+  policyAreaLabel: string;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  disabled?: boolean;
+  cfg: ParentPortalSvgControls;
+}) {
+  const rows = policyBudgetRowsForArea(policyAreaLabel);
+  const tableX = x + 18;
+  const tableY = y + 54;
+  const tableW = w - 36;
+  const tableH = Math.max(230, h - 84);
+  const compact = tableW < 760;
+  const visibleColumns = compact ? BROWSER_POLICY_BUDGET_COLUMNS.slice(0, 4) : BROWSER_POLICY_BUDGET_COLUMNS;
+  const budgetW = Math.max(124, tableW * (compact ? 0.27 : 0.22));
+  const capW = Math.max(86, tableW * 0.14);
+  const scheduleW = Math.max(116, tableW * (compact ? 0.24 : 0.18));
+  const overrideW = compact ? 0 : Math.max(108, tableW * 0.16);
+  const countW = Math.max(120, tableW - budgetW - capW - scheduleW - overrideW);
+  const columnWidths = compact ? [budgetW, countW, capW, scheduleW] : [budgetW, countW, capW, scheduleW, overrideW];
+  const columnStarts: number[] = [];
+  let runningColumnX = 0;
+  columnWidths.forEach((columnWidth) => {
+    columnStarts.push(runningColumnX);
+    runningColumnX += columnWidth;
+  });
+  const rowH = Math.max(34, Math.min(50, (tableH - 74) / rows.length));
+  const guideY = 30;
+  const rowsY = 68;
+
+  return (
+    <BrowserPolicyMatrixShell
+      x={x}
+      y={y}
+      w={w}
+      h={h}
+      title={`${policyAreaLabel}: budgets and caps`}
+      subtitle="Limit means minutes here; schedules only choose when those caps run"
+      disabled={disabled}
+      cfg={cfg}
+    >
+      <g transform={`translate(${tableX}, ${tableY})`}>
+        <rect width={tableW} height={tableH} rx={5} fill="rgba(4, 20, 37, 0.92)" stroke={cfg.colors.panelStroke} />
+        <g transform={`translate(8, ${guideY - 18})`}>
+          {[
+            ['Family default', 'applies first', cfg.colors.cyan],
+            ['Device override', 'grey until enabled', cfg.colors.gold],
+            ['Schedule', 'gates active time', BROWSER_POLICY_MATRIX_COLORS.ask],
+          ].map((item, index) => {
+            const pillW = compact ? (tableW - 28) / 3 : 172;
+            const pillX = index * (pillW + 8);
+            return (
+              <g key={`browser-policy-budget-guide:${item[0]}`} transform={`translate(${pillX}, 0)`}>
+                <rect
+                  width={pillW}
+                  height={26}
+                  rx={4}
+                  fill="rgba(5, 27, 46, 0.86)"
+                  stroke={item[2]}
+                  strokeWidth={0.72}
+                  opacity={0.95}
+                />
+                <circle cx={11} cy={13} r={3.2} fill={item[2]} />
+                <text x={21} y={11} fontSize={8.9} fontWeight={950} fill={cfg.colors.bodyText}>
+                  {truncateTextForWidth(item[0], pillW - 30, 8.9, 0.58)}
+                </text>
+                <text x={21} y={21} fontSize={7.8} fontWeight={760} fill={cfg.colors.mutedText}>
+                  {truncateTextForWidth(item[1], pillW - 30, 7.8, 0.58)}
+                </text>
+              </g>
+            );
+          })}
+        </g>
+        <g transform={`translate(8, ${rowsY - 23})`}>
+          {visibleColumns.map((column, index) => (
+            <text
+              key={`browser-policy-budget-column:${column}`}
+              x={columnStarts[index] + (index === 0 ? 8 : columnWidths[index] / 2)}
+              y={13}
+              textAnchor={index === 0 ? 'start' : 'middle'}
+              fontSize={9.8}
+              fontWeight={950}
+              fill={cfg.colors.gold}
+            >
+              {column}
+            </text>
+          ))}
+        </g>
+        <g transform={`translate(8, ${rowsY})`}>
+          {rows.map((row, rowIndex) => {
+            const rowFill = rowIndex % 2 === 0 ? 'rgba(7, 27, 47, 0.74)' : 'rgba(7, 23, 42, 0.74)';
+            const capText = row[2];
+            return (
+              <g key={`browser-policy-budget-row:${row[0]}`} transform={`translate(0, ${rowIndex * rowH})`}>
+                <rect
+                  width={tableW - 16}
+                  height={rowH - 6}
+                  rx={4}
+                  fill={rowFill}
+                  stroke={cfg.colors.panelStroke}
+                  strokeWidth={0.72}
+                />
+                <rect
+                  x={budgetW + countW + 8}
+                  y={7}
+                  width={Math.max(38, capW - 16)}
+                  height={rowH - 20}
+                  rx={3}
+                  fill="rgba(255, 211, 106, 0.16)"
+                  stroke={BROWSER_POLICY_MATRIX_COLORS.limit}
+                  strokeWidth={0.75}
+                />
+                <path
+                  d={`M ${budgetW + countW + 13} ${rowH - 13} H ${budgetW + countW + Math.max(34, capW - 13)}`}
+                  stroke={BROWSER_POLICY_MATRIX_COLORS.limit}
+                  strokeWidth={2.2}
+                  strokeLinecap="round"
+                  opacity={0.7}
+                />
+                {row.slice(0, visibleColumns.length).map((value, index) => {
+                  const cellX = columnStarts[index] + 8;
+                  const cellW = columnWidths[index] - 16;
+                  const fill =
+                    index === 0
+                      ? cfg.colors.bodyText
+                      : index === 2
+                        ? BROWSER_POLICY_MATRIX_COLORS.limit
+                        : index === 4
+                          ? cfg.colors.cyan
+                          : cfg.colors.mutedText;
+                  return (
+                    <text
+                      key={`browser-policy-budget-cell:${row[0]}:${index}`}
+                      x={index === 0 ? cellX : cellX + cellW / 2}
+                      y={rowH / 2 + 3}
+                      textAnchor={index === 0 ? 'start' : 'middle'}
+                      fontSize={fitSingleLineTextSize(value, cellW, 8.2, 10.8, 0.56)}
+                      fontWeight={index === 0 || value === capText ? 920 : 780}
+                      fill={fill}
+                    >
+                      {truncateTextForWidth(value, cellW, 10.8, 0.56)}
+                    </text>
+                  );
+                })}
+              </g>
+            );
+          })}
+        </g>
+      </g>
+    </BrowserPolicyMatrixShell>
   );
 }
 
@@ -8936,8 +9236,8 @@ function BrowserPolicyAuditMatrix({
       y={y}
       w={w}
       h={h}
-      title={`${policyAreaLabel}: reports, retention, and proof`}
-      subtitle="One place for parent-visible history and evidence limits"
+      title={`${policyAreaLabel}: effective-policy checkpoint`}
+      subtitle="Conflicts, inheritance, budgets, approvals, and capability state before apply"
       disabled={disabled}
       cfg={cfg}
     >
@@ -9714,7 +10014,11 @@ function ManageWorkspacePanel({
   const policyAreaActive = kind === 'policy';
   const policyRulesChoiceMode = policyAreaActive && activeTabKey === 'rules';
   const policyMatrixMode =
-    policyAreaActive && (activeTabKey === 'schedule' || activeTabKey === 'approvals' || activeTabKey === 'audit');
+    policyAreaActive &&
+    (activeTabKey === 'schedule' ||
+      activeTabKey === 'budget' ||
+      activeTabKey === 'approvals' ||
+      activeTabKey === 'audit');
   const policyCustomSurfaceMode = policyRulesChoiceMode || policyMatrixMode;
   const policyPrimaryOptions = useMemo(() => managePolicyPrimaryChoiceOptions(activeTabKey), [activeTabKey]);
   const policySecondaryOptions = useMemo(() => managePolicySecondaryChoiceOptions(activeTabKey), [activeTabKey]);
