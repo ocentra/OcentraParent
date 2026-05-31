@@ -30,6 +30,10 @@ const app = requirePortalRoot();
 const root = createRoot(app);
 const state = createPortalRuntimeState(agentWsUrl);
 let revision = 0;
+let appLoadingHideRequested = false;
+const APP_LOADING_FADE_FALLBACK_MS = 920;
+
+installAppLoadingHider();
 
 writePortalDevLog(DevLogMessage.PortalStarted, {
   [DevLogField.AgentWebSocketUrl]: agentWsUrl,
@@ -59,6 +63,7 @@ function refresh(): void {
       route: getRoute(),
       state,
       theme,
+      onProductSurfaceReady: hideAppLoadingAfterPaint,
       rerender: refresh,
     })
   );
@@ -88,6 +93,48 @@ function requirePortalRoot(): HTMLDivElement {
     throw new Error(PortalText.Resolve(PortalTextToken.RootMissing));
   }
   return rootElement;
+}
+
+function installAppLoadingHider(): void {
+  (globalThis as unknown as Record<typeof PortalDom.Runtime.HideAppLoading, unknown>)[
+    PortalDom.Runtime.HideAppLoading
+  ] = () => {
+    const loader = document.getElementById(PortalDom.Ids.AppLoading);
+    if (loader === null) {
+      return;
+    }
+    loader.classList.add(PortalDom.Classes.AppLoadingHide);
+    const applyHidden = () => {
+      if (!loader.classList.contains(PortalDom.Classes.AppLoadingHidden)) {
+        loader.classList.add(PortalDom.Classes.AppLoadingHidden);
+      }
+    };
+    loader.addEventListener(
+      PortalDom.Events.TransitionEnd,
+      (event) => {
+        if (event.target === loader) {
+          applyHidden();
+        }
+      },
+      { once: true }
+    );
+    window.setTimeout(applyHidden, APP_LOADING_FADE_FALLBACK_MS);
+  };
+}
+
+function hideAppLoadingAfterPaint(): void {
+  if (appLoadingHideRequested || typeof window === PortalDom.Runtime.Undefined) {
+    return;
+  }
+  appLoadingHideRequested = true;
+  window.requestAnimationFrame(() => {
+    window.requestAnimationFrame(() => {
+      const hideAppLoading = (globalThis as unknown as Record<typeof PortalDom.Runtime.HideAppLoading, unknown>)[
+        PortalDom.Runtime.HideAppLoading
+      ] as (() => void) | undefined;
+      hideAppLoading?.();
+    });
+  });
 }
 
 refresh();

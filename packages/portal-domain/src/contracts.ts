@@ -136,6 +136,13 @@ export const PortalDom = {
   RootSelector: '#app',
   HashPrefix: '#/',
   EmptyHashRoute: '',
+  Ids: {
+    AppLoading: 'app-loading',
+  },
+  Runtime: {
+    HideAppLoading: '__hideAppLoading',
+    Undefined: 'undefined',
+  },
   Tags: {
     Aside: 'aside',
     Anchor: 'a',
@@ -173,6 +180,8 @@ export const PortalDom = {
     AppStatus: 'app-status',
     AppStatusBar: 'app-status-bar',
     AppToolbar: 'app-toolbar',
+    AppLoadingHidden: 'hidden',
+    AppLoadingHide: 'hide',
     CapabilityGrid: 'capability-grid',
     CapabilityItem: 'capability-item',
     ClipboardBuffer: 'clipboard-buffer',
@@ -296,6 +305,7 @@ export const PortalDom = {
     Message: 'message',
     Open: 'open',
     Storage: 'storage',
+    TransitionEnd: 'transitionend',
   },
   ButtonType: {
     Button: 'button',

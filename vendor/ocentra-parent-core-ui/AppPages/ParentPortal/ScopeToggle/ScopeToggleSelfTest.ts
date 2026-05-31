@@ -1,12 +1,14 @@
 import { defaultScopeToggleConfig } from './ScopeToggleConfig';
 import { calculateScopeToggleMetrics } from './ScopeToggleMetrics';
 import { getNextScopeToggleValue, normalizeScopeToggleOptions } from './ScopeToggleOptions';
+import { parentNavIconAssetUrls } from '../../../Common/NavSvgIcons/ParentNavSvgIcons';
 
 type AssertFn = (condition: boolean, message: string) => void;
 
 export function runScopeToggleSelfTests(assert: AssertFn = console.assert): void {
   const config = defaultScopeToggleConfig;
   const defaultOptions = normalizeScopeToggleOptions(config);
+  const renamedOptions = normalizeScopeToggleOptions(config, undefined, 'Household', 'Per Device');
   const defaultMetrics = calculateScopeToggleMetrics(config, config.text.title, defaultOptions);
   const fiveOptions = normalizeScopeToggleOptions(config, [
     { value: 'family', label: 'Family' },
@@ -32,6 +34,19 @@ export function runScopeToggleSelfTests(assert: AssertFn = console.assert): void
   const longMetrics = calculateScopeToggleMetrics(config, 'Very Long Scope Title', longOptions);
 
   assert(defaultMetrics.optionWidth > 0, 'Each scope option must have a positive width.');
+  assert(
+    defaultOptions[0]?.iconHref === parentNavIconAssetUrls.FamilyIcon,
+    'Family option should carry the reusable family SVG asset.'
+  );
+  assert(
+    defaultOptions[1]?.iconHref === parentNavIconAssetUrls.DevicesMultiScreenIcon,
+    'Per-device option should carry the reusable device SVG asset.'
+  );
+  assert(
+    renamedOptions[0]?.iconHref === parentNavIconAssetUrls.FamilyIcon &&
+      renamedOptions[1]?.iconHref === parentNavIconAssetUrls.DevicesMultiScreenIcon,
+    'Renamed default options should preserve their icon assets.'
+  );
   assert(
     defaultMetrics.trackX === defaultMetrics.titleBoxX + defaultMetrics.titleBoxWidth,
     'Track should start immediately after the Scope box.'

@@ -35,6 +35,7 @@ export const PARENT_PORTAL_NAV_LABELS = {
   Screen: 'SCREEN',
   AppsGames: 'APP USE',
   Network: 'NETWORK',
+  Tracking: 'TRACKING',
   Alerts: 'ALERTS',
   Channels: 'CHANNELS',
   Drives: 'DRIVES',
@@ -140,7 +141,7 @@ export const PARENT_PORTAL_NAV_ITEMS: readonly ParentPortalNavItem[] = [
   {
     label: PARENT_PORTAL_NAV_LABELS.Ai,
     detail: 'Local and API AI',
-    icon: 'ai-guide',
+    icon: 'ai-setup',
     tabId: 'aiStatus',
     groupId: 'guide',
     tone: 'cyan',
@@ -204,7 +205,7 @@ export const PARENT_PORTAL_NAV_ITEMS: readonly ParentPortalNavItem[] = [
   {
     label: PARENT_PORTAL_NAV_LABELS.Apps,
     detail: 'App rules and budgets',
-    icon: 'activity',
+    icon: 'app',
     tabId: 'controls',
     groupId: 'manage',
     sectionLabel: PARENT_PORTAL_NAV_LABELS.Policies,
@@ -214,7 +215,7 @@ export const PARENT_PORTAL_NAV_ITEMS: readonly ParentPortalNavItem[] = [
   {
     label: PARENT_PORTAL_NAV_LABELS.Games,
     detail: 'Game limits and sessions',
-    icon: 'activity',
+    icon: 'games',
     tabId: 'controls',
     groupId: 'manage',
     sectionLabel: PARENT_PORTAL_NAV_LABELS.Policies,
@@ -240,6 +241,16 @@ export const PARENT_PORTAL_NAV_ITEMS: readonly ParentPortalNavItem[] = [
     sectionLabel: PARENT_PORTAL_NAV_LABELS.Policies,
     tone: 'cyan',
     routePath: '#/policy-network',
+  },
+  {
+    label: PARENT_PORTAL_NAV_LABELS.Tracking,
+    detail: 'Device location policy',
+    icon: 'devices',
+    tabId: 'controls',
+    groupId: 'manage',
+    sectionLabel: PARENT_PORTAL_NAV_LABELS.Policies,
+    tone: 'cyan',
+    routePath: '#/policy-tracking',
   },
   {
     label: PARENT_PORTAL_NAV_LABELS.DataPrivacy,

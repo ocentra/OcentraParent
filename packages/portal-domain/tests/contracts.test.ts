@@ -106,6 +106,7 @@ function expectManageItemOrder(): void {
     '#/policy-games',
     '#/policy-screen',
     '#/policy-network',
+    '#/policy-tracking',
     '#/drive-connections',
     '#/ai-runtime',
     '#/subscription',
@@ -198,6 +199,7 @@ describe('portal route schema contracts', () => {
       'policy-games',
       'policy-screen',
       'policy-network',
+      'policy-tracking',
       'rule-management',
       'schedules',
       'approvals',
@@ -238,12 +240,14 @@ describe('portal route schema contracts', () => {
     expect(PortalRouteSchema.safeParse('policy-games').success).toBe(true);
     expect(PortalRouteSchema.safeParse('policy-screen').success).toBe(true);
     expect(PortalRouteSchema.safeParse('policy-network').success).toBe(true);
+    expect(PortalRouteSchema.safeParse('policy-tracking').success).toBe(true);
     expect(PortalRouteSchema.safeParse('frame-tuner').success).toBe(false);
     expect(PortalRouteSchema.safeParse('billing').success).toBe(false);
     expect(PortalRouteDescriptors.map((descriptor) => descriptor.route)).toContain(PortalRoute.PolicyApps);
     expect(PortalRouteDescriptors.map((descriptor) => descriptor.route)).toContain(PortalRoute.PolicyGames);
     expect(PortalRouteDescriptors.map((descriptor) => descriptor.route)).toContain(PortalRoute.PolicyScreen);
     expect(PortalRouteDescriptors.map((descriptor) => descriptor.route)).toContain(PortalRoute.PolicyNetwork);
+    expect(PortalRouteDescriptors.map((descriptor) => descriptor.route)).toContain(PortalRoute.PolicyTracking);
     expect(PortalRouteDescriptors.map((descriptor) => descriptor.group)).toContain(PortalRouteGroup.Monitor);
     expect(PortalRouteDescriptors.map((descriptor) => descriptor.label)).toContain('Start here');
     expect(PortalRouteDescriptors.map((descriptor) => descriptor.label)).toContain('Activity');
@@ -286,6 +290,7 @@ describe('portal guide route contracts', () => {
       '#/policy-games',
       '#/policy-screen',
       '#/policy-network',
+      '#/policy-tracking',
     ]);
     expect(manageItems.some((item) => item.routePath === '#/rule-management')).toBe(false);
     expect(manageItems.some((item) => item.routePath === '#/schedules')).toBe(false);
@@ -299,6 +304,7 @@ describe('portal guide route contracts', () => {
     expect(parentPortalRouteContext(PortalRoute.PolicyGames).pageMode).toBe('parentManage');
     expect(parentPortalRouteContext(PortalRoute.PolicyScreen).pageMode).toBe('parentManage');
     expect(parentPortalRouteContext(PortalRoute.PolicyNetwork).pageMode).toBe('parentManage');
+    expect(parentPortalRouteContext(PortalRoute.PolicyTracking).pageMode).toBe('parentManage');
     expect(parentPortalRouteContext(PortalRoute.AiGuide).pageMode).toBe('parentGuide');
     expect(parentPortalRouteContext(PortalRoute.ReportsGuide).pageMode).toBe('parentGuide');
     expect(parentPortalRouteContext(PortalRoute.AiRuntime).pageMode).toBe('parentManage');
@@ -388,6 +394,7 @@ describe('portal manage section contracts', () => {
       '#/policy-games',
       '#/policy-screen',
       '#/policy-network',
+      '#/policy-tracking',
     ]);
     expectManageAccountAndControlBuckets();
     expectManageCollapsedSections();

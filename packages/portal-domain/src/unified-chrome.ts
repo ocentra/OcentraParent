@@ -14,6 +14,7 @@ export const PortalUnifiedChrome = {
     OutlineHeaderBrand: 'portal-outline-header__brand',
     OutlineHeaderBrandLogo: 'portal-outline-header__brand-logo',
     OutlineHeaderBrandLogoMount: 'portal-outline-header__brand-logo-mount',
+    OutlineHeaderBrandLogoSpinner: 'portal-outline-header__brand-logo-spinner',
     OutlineHeaderConnector: 'portal-outline-header__connector',
     OutlineHeaderConnectorBox: 'portal-outline-header__connector-box',
     OutlineHeaderConnectorSvg: 'portal-outline-header__connector-svg',
@@ -33,6 +34,7 @@ export const PortalUnifiedChrome = {
     FooterVersion: 'oc-unified-footer__version',
   },
   Attributes: {
+    HeaderLogoLoading: 'data-oc-header-logo-loading',
     ShellHeaderExtension: 'data-oc-shell-header-extension',
   },
   Alt: {

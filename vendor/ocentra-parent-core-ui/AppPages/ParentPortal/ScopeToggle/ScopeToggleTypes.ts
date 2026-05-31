@@ -1,10 +1,22 @@
-import type { CSSProperties } from 'react';
+import type { CSSProperties, ReactElement } from 'react';
 import type { ScopeToggleConfig } from './ScopeToggleConfig';
 
 export type ScopeToggleOption = {
   value: string;
   label: string;
+  iconHref?: string;
 };
+
+export type ScopeToggleTitleSlot = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  centerX: number;
+  centerY: number;
+};
+
+export type ScopeToggleTitleRenderer = (slot: ScopeToggleTitleSlot) => ReactElement;
 
 export type DeepPartial<T> = T extends readonly (infer U)[]
   ? readonly U[]
@@ -15,6 +27,9 @@ export type DeepPartial<T> = T extends readonly (infer U)[]
       : T;
 
 export type ScopeToggleProps = {
+  x?: number;
+  y?: number;
+  renderMode?: 'html' | 'svg';
   value?: string;
   defaultValue?: string;
   title?: string;
@@ -24,6 +39,7 @@ export type ScopeToggleProps = {
   disabled?: boolean;
   className?: string;
   style?: CSSProperties;
+  titleRenderer?: ScopeToggleTitleRenderer;
   onChange?: (value: string, option: ScopeToggleOption, index: number) => void;
   config?: DeepPartial<ScopeToggleConfig>;
 };

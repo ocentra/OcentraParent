@@ -15,11 +15,11 @@ export function normalizeScopeToggleOptions(
 
   if (!options && (leftOption || rightOption)) {
     normalizedOptions[0] = {
-      value: normalizedOptions[0]?.value ?? 'family',
+      ...(normalizedOptions[0] ?? { value: 'family', label: 'Family' }),
       label: leftOption ?? normalizedOptions[0]?.label ?? 'Family',
     };
     normalizedOptions[1] = {
-      value: normalizedOptions[1]?.value ?? 'device',
+      ...(normalizedOptions[1] ?? { value: 'device', label: 'Per Device' }),
       label: rightOption ?? normalizedOptions[1]?.label ?? 'Per Device',
     };
   }

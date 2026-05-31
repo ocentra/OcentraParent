@@ -1,4 +1,5 @@
 import type { DeepPartial, ScopeToggleOption } from './ScopeToggleTypes';
+import { parentNavIconAssetUrls } from '../../../Common/NavSvgIcons/ParentNavSvgIcons';
 
 export const defaultScopeToggleConfig = {
   preview: {
@@ -23,6 +24,8 @@ export const defaultScopeToggleConfig = {
     trackMinWidth: 360,
     trackHeight: 46,
     optionPaddingX: 28,
+    optionIconSize: 22,
+    optionIconGap: 7,
     dividerWidth: 1,
     maxOptions: 5,
     outerPadX: 4,
@@ -55,8 +58,8 @@ export const defaultScopeToggleConfig = {
   text: {
     title: 'Scope',
     options: [
-      { value: 'family', label: 'Family' },
-      { value: 'device', label: 'Per Device' },
+      { value: 'family', label: 'Family', iconHref: parentNavIconAssetUrls.FamilyIcon },
+      { value: 'device', label: 'Per Device', iconHref: parentNavIconAssetUrls.DevicesMultiScreenIcon },
     ] as ScopeToggleOption[],
     titleFontSize: 18,
     optionFontSize: 18,
@@ -169,6 +172,8 @@ export const defaultScopeToggleConfig = {
     sliderGlossHover: 0.62,
     divider: 0.8,
     disabled: 0.45,
+    optionIconIdle: 0.9,
+    optionIconSelected: 1,
   },
   hover: {
     pressScale: 0.992,

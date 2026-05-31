@@ -12,6 +12,7 @@ import { DeviceChoiceGridLegend } from './DeviceChoiceGridLegend';
 import { DeviceChoiceGridScopeSelector } from './DeviceChoiceGridScopeSelector';
 import { DeviceChoiceGridSelectedInfo } from './DeviceChoiceGridSelectedInfo';
 import { getLanSlots, makePortalSlots } from './DeviceChoiceGridSlots';
+import { DEVICE_CHOICE_DEFAULT_SCOPE_VALUES } from './DeviceChoiceGridTypes';
 import type {
   DeviceChoiceGridCellPosition,
   DeviceChoiceGridIds,
@@ -38,11 +39,13 @@ export function DeviceChoiceGrid({
   disabled = false,
   deviceSelectionDisabled = false,
   showScopeSelector = true,
+  scopeValues,
   className,
   style,
   onChange,
   onScopeChange,
   onAddToPortal,
+  scopeIcons,
   config: override,
 }: DeviceChoiceGridProps): ReactElement {
   const cfg = useMemo(() => mergeDeviceChoiceGridConfig(defaultDeviceChoiceGridConfig, override), [override]);
@@ -76,6 +79,7 @@ export function DeviceChoiceGrid({
           : cfg.text.options.length;
   const lanSourceCount = Math.max(explicitLanSourceCount, cfg.layout.columns);
   const currentScope = scope ?? internalScope;
+  const activeScopeValues = scopeValues ?? DEVICE_CHOICE_DEFAULT_SCOPE_VALUES;
   const lanPlan = createDeviceChoiceGridGridPlan({
     availableH: cfg.svg.height,
     availableW: cfg.svg.width,
@@ -122,7 +126,10 @@ export function DeviceChoiceGrid({
     [rawLanItems, activePortalIds]
   );
   const items = useMemo(
-    () => (currentScope === 'parent' ? makePortalSlots(lanItems, activePortalIds, shape.totalSlots) : lanItems),
+    () =>
+      currentScope === 'parent' || currentScope === 'portal'
+        ? makePortalSlots(lanItems, activePortalIds, shape.totalSlots)
+        : lanItems,
     [currentScope, lanItems, activePortalIds, shape.totalSlots]
   );
 
@@ -141,7 +148,7 @@ export function DeviceChoiceGrid({
   const selectedIndexRaw = selectedValue ? items.findIndex((slot) => slot.value === selectedValue) : -1;
   const selectedIndex = selectedIndexRaw >= 0 ? selectedIndexRaw : -1;
   const selected = selectedIndex >= 0 ? (items[selectedIndex] ?? null) : null;
-  const layout = createDeviceChoiceGridLayout(cfg, shape, items);
+  const layout = createDeviceChoiceGridLayout(cfg, shape, items, activeScopeValues);
   const clampedScrollY = Math.min(scrollY, layout.maxScrollY);
 
   useEffect(() => {
@@ -293,6 +300,8 @@ export function DeviceChoiceGrid({
             scopeSliderX={layout.scopeSliderX}
             titleW={layout.titleW}
             titleX={layout.titleX}
+            scopeValues={activeScopeValues}
+            {...(scopeIcons ? { scopeIcons } : {})}
             onScopeSelect={selectScope}
           />
         ) : null}

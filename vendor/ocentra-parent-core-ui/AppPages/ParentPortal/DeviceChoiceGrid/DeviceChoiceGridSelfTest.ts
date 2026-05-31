@@ -111,8 +111,10 @@ export function runDeviceChoiceGridSelfTests(assert: AssertFn = console.assert):
     'Status colors should be connected green, available cyan, and offline red.'
   );
   assert(
-    cfg.text.scopeOptions.lan === 'LAN Devices' && cfg.text.scopeOptions.parent === 'Parent Portal',
-    'Header should be a two-choice LAN Devices / Parent Portal toggle.'
+    cfg.text.scopeOptions.lan === 'LAN Devices' &&
+      cfg.text.scopeOptions.parent === 'Parent Portal' &&
+      cfg.text.scopeOptions.portal === 'Portal',
+    'Header should support LAN Devices / Parent Portal / Portal scopes.'
   );
   assert(
     cfg.layout.scopeIconSize > 0 && cfg.layout.scopeIconGap > 0,

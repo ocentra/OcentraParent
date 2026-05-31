@@ -1,6 +1,6 @@
 import type { DeviceChoiceGridConfig } from './DeviceChoiceGridConfig';
 import { clampGridCount, estimateTextWidth, topRoundRectPath } from './DeviceChoiceGridGeometry';
-import type { DeviceSlot, ScopeValue } from './DeviceChoiceGridTypes';
+import { DEVICE_CHOICE_DEFAULT_SCOPE_VALUES, type DeviceSlot, type ScopeValue } from './DeviceChoiceGridTypes';
 
 export type DeviceChoiceGridGridPlan = {
   columns: number;
@@ -141,8 +141,9 @@ export function createDeviceChoiceGridShape({
   portalRows: number;
   portalColumns: number;
 }): DeviceChoiceGridShape {
-  const rowCount = currentScope === 'parent' ? portalRows : lanRows;
-  const columnCount = currentScope === 'parent' ? portalColumns : lanColumns;
+  const usesPortalGrid = currentScope === 'parent' || currentScope === 'portal';
+  const rowCount = usesPortalGrid ? portalRows : lanRows;
+  const columnCount = usesPortalGrid ? portalColumns : lanColumns;
   return {
     currentScope,
     lanRows,
@@ -161,7 +162,8 @@ export function createDeviceChoiceGridShape({
 export function createDeviceChoiceGridLayout(
   cfg: DeviceChoiceGridConfig,
   shape: DeviceChoiceGridShape,
-  items: DeviceSlot[]
+  items: DeviceSlot[],
+  scopeValues: readonly ScopeValue[] = DEVICE_CHOICE_DEFAULT_SCOPE_VALUES
 ): DeviceChoiceGridLayoutMetrics {
   const svgW = Math.max(1, cfg.svg.width);
   const svgH = Math.max(1, cfg.svg.height);
@@ -184,15 +186,14 @@ export function createDeviceChoiceGridLayout(
   const frameGridH = shape.frameRows * cellH + (shape.frameRows - 1) * cfg.layout.gapY;
   const availableOuterW = Math.max(frameGridW + cfg.layout.outerPad * 2 + gridSafePadX * 2, svgW - contentPadX * 2);
   const scopeIconW = cfg.layout.scopeIconSize + cfg.layout.scopeIconGap;
-  const titleW = Math.max(
-    cfg.layout.scopeOptionW * 2,
-    Math.max(
-      estimateTextWidth(cfg.text.scopeOptions.lan, cfg.text.optionSize) + scopeIconW,
-      estimateTextWidth(cfg.text.scopeOptions.parent, cfg.text.optionSize) + scopeIconW
-    ) *
-      2 +
-      36
+  const activeScopeValues = scopeValues.length > 0 ? scopeValues : DEVICE_CHOICE_DEFAULT_SCOPE_VALUES;
+  const scopeOptionCount = activeScopeValues.length;
+  const widestScopeLabelW = Math.max(
+    ...activeScopeValues.map(
+      (scopeValue) => estimateTextWidth(cfg.text.scopeOptions[scopeValue], cfg.text.optionSize) + scopeIconW
+    )
   );
+  const titleW = Math.max(cfg.layout.scopeOptionW * scopeOptionCount, widestScopeLabelW * scopeOptionCount + 36);
   const contentW = Math.max(availableOuterW, titleW) + contentPadX * 2;
   const gridOuterY = gridTop - cfg.layout.outerPad;
   const minOuterH =
@@ -227,8 +228,8 @@ export function createDeviceChoiceGridLayout(
   const activeGridX = gridX + (frameGridW - activeGridW) / 2;
   const activeGridY = gridViewportY + gridSafePadY;
   const titleX = (viewBoxW - titleW) / 2;
-  const scopeOptionW = titleW / 2;
-  const scopeSliderX = currentScopeSliderX(cfg, titleX, scopeOptionW, shape);
+  const scopeOptionW = titleW / scopeOptionCount;
+  const scopeSliderX = currentScopeSliderX(cfg, titleX, scopeOptionW, shape, activeScopeValues);
 
   return {
     activeGridX,
@@ -313,7 +314,9 @@ function currentScopeSliderX(
   cfg: DeviceChoiceGridConfig,
   titleX: number,
   scopeOptionW: number,
-  shape: DeviceChoiceGridShape
+  shape: DeviceChoiceGridShape,
+  scopeValues: readonly ScopeValue[]
 ): number {
-  return shape.currentScope === 'lan' ? titleX + cfg.layout.scopeInset : titleX + scopeOptionW + cfg.layout.scopeInset;
+  const scopeIndex = Math.max(0, scopeValues.indexOf(shape.currentScope));
+  return titleX + scopeOptionW * scopeIndex + cfg.layout.scopeInset;
 }
