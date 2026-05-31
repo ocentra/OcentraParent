@@ -39,6 +39,7 @@
     "platform-lan-enforcement-production-proof",
     "platform-os-lan-mobile-proof",
     "enforcement-lan-mobile-product-proof",
+    "child-android-protocol-package-lifecycle-proof",
     "parent-mobile-shell-runtime-proof",
     "v0-9-mobile-controller-discovery-runtime-proof",
     "v0-9-mobile-controller-observer-runtime-proof",
@@ -1188,6 +1189,41 @@
         "A scaffolded package presented as completed parent mobile UX parity.",
         "A parent mobile shell proof presented as Android or iOS child-agent behavior.",
         "A degraded LAN AI state presented as local model execution on the phone."
+      ]
+    },
+    {
+      "id": "child-android-protocol-package-lifecycle-proof",
+      "title": "Child Android Protocol Package Lifecycle Proof",
+      "claimIds": ["child-android-protocol-package-lifecycle-proof"],
+      "expectationFiles": [
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/platforms.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "proofMode": "ci-mechanical-proof",
+      "realEvidencePath": [
+        "Build TypeScript contracts from the current commit.",
+        "Run the parent-domain Child Android lifecycle contract test.",
+        "Build the Android debug APK through the repo release package script.",
+        "Verify the manifest permissions, launcher activity, foreground service path, native lifecycle proof bridge constants, APK artifact, and SHA-256 checksum.",
+        "Record manual-required boundaries for Android OS capabilities that need emulator or physical-device evidence."
+      ],
+      "ciCommands": ["node scripts/test/child-android-protocol-package-lifecycle-proof.mjs"],
+      "requiredArtifacts": [
+        "test-results/child-android-protocol-package-lifecycle-proof/proof.json",
+        "target/release-packages/android/ocentra-parent-agent-android-debug-latest.apk",
+        "target/release-packages/android/ocentra-parent-agent-android-debug-latest.apk.sha256",
+        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/ChildAndroidLifecycleProof.java"
+      ],
+      "knownGaps": [
+        "CI proof compiles package-local bridge mechanics but does not install or run the APK on a device.",
+        "Android permission grants, foreground/background behavior, reboot recovery, uninstall behavior, device owner, accessibility, VPN/DNS, UsageStats, managed profile, and store distribution remain manual-required or not yet proven."
+      ],
+      "notProof": [
+        "A manifest permission declaration presented as a runtime permission grant.",
+        "A debug APK build presented as install/update/background/reboot/uninstall lifecycle behavior.",
+        "Package-local Bundle constants presented as LAN/WebSocket child-agent transport.",
+        "Android device-owner, accessibility, VPN/DNS, UsageStats, or managed-profile behavior without emulator or physical-device artifacts."
       ]
     },
     {
@@ -3159,6 +3195,84 @@
         "Run Android package lifecycle and child capability proof for foreground service, storage, protocol bridge, UsageStats, accessibility, VPN/DNS, device-owner, and managed-profile before upgrading Android support.",
         "Run iOS signing/entitlement/TestFlight proof for Family Controls, DeviceActivity, Screen Time, Network Extension, notifications, and background execution before upgrading iOS support."
       ]
+    },
+    {
+      "id": "child-android-protocol-package-lifecycle-proof",
+      "roadmapSlice": "Child Android protocol package lifecycle proof",
+      "expectationFiles": [
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/platforms.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "claim": "Child Android protocol/package lifecycle proof compiles a package-local native bridge into the debug APK, validates a typed parent-domain lifecycle read model, produces APK/checksum artifacts, and keeps Android foreground service, notification, UsageStats, accessibility, VPN/DNS, device-owner, managed-profile, install/update/background/reboot/uninstall, and store distribution claims capability-specific and honest.",
+      "privilegedCapability": false,
+      "ciProof": {
+        "commands": ["node scripts/test/child-android-protocol-package-lifecycle-proof.mjs"],
+        "jobs": ["Worker D Child Android protocol package lifecycle proof"]
+      },
+      "platformCoverage": {
+        "windows": "not-applicable",
+        "linux": "not-applicable",
+        "macos": "not-applicable",
+        "android": "ci-mechanical-proof",
+        "ios": "not-applicable"
+      },
+      "runtimeSurfaceCoverage": {
+        "foregroundService": {
+          "state": "ci-mechanical-proof",
+          "proof": "Manifest declaration, MainActivity start path, foreground Service code, and debug APK compilation are proved; runtime foreground behavior still requires emulator or device evidence."
+        },
+        "notificationPermission": {
+          "state": "manual-required",
+          "proof": "POST_NOTIFICATIONS is declared, but prompt grant and notification delivery remain manual-required runtime evidence."
+        },
+        "typedProtocolBridge": {
+          "state": "ci-mechanical-proof",
+          "proof": "ChildAndroidLifecycleProof exposes package-local lifecycle, capability, and package proof command/event constants through a native Bundle parsed by the parent-domain contract."
+        },
+        "localStorage": {
+          "state": "scaffold-only",
+          "proof": "Local storage remains scaffold until device persistence proof exists."
+        },
+        "usageStats": {
+          "state": "manual-required",
+          "proof": "UsageStats needs a real permission grant and observation artifact."
+        },
+        "accessibility": {
+          "state": "manual-required",
+          "proof": "No AccessibilityService grant or behavior is claimed."
+        },
+        "vpnDns": {
+          "state": "manual-required",
+          "proof": "No VPN or DNS filtering adapter behavior is claimed."
+        },
+        "deviceOwner": {
+          "state": "manual-required",
+          "proof": "No device-owner enrollment or policy action is claimed."
+        },
+        "managedProfile": {
+          "state": "manual-required",
+          "proof": "No managed-profile enrollment or behavior is claimed."
+        },
+        "packageLifecycle": {
+          "state": "ci-mechanical-proof",
+          "proof": "Debug APK build and checksum are proved; install, update, background, reboot, and uninstall remain manual-required."
+        },
+        "storeDistribution": {
+          "state": "not-yet-proven",
+          "proof": "Google Play signing and release tracks are planned but not wired."
+        },
+        "childAndroidEnforcementParity": {
+          "state": "not-yet-proven",
+          "proof": "This proof does not claim Android child enforcement parity."
+        }
+      },
+      "knownGaps": [
+        "The proof does not run on an emulator or physical Android device.",
+        "Foreground service behavior, notification grant/delivery, UsageStats, accessibility, VPN/DNS, device-owner, managed-profile, install/update/background/reboot/uninstall, and store distribution remain manual-required or not yet proven.",
+        "The package-local bridge is not LAN/WebSocket child-agent transport and does not prove child Android enforcement parity."
+      ],
+      "manualProofChecklist": []
     },
     {
       "id": "parent-mobile-shell-runtime-proof",

@@ -6,21 +6,25 @@ import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.IBinder;
 
 public final class OcentraParentAgentService extends Service {
     private static final String CHANNEL_ID = "ocentra_parent_agent";
     private static final int NOTIFICATION_ID = 4477;
+    private Bundle lifecycleProof;
 
     @Override
     public void onCreate() {
         super.onCreate();
+        lifecycleProof = ChildAndroidLifecycleProof.createStatusBundle();
         ensureNotificationChannel();
         startForeground(NOTIFICATION_ID, buildNotification());
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        lifecycleProof = ChildAndroidLifecycleProof.createStatusBundle();
         return START_STICKY;
     }
 
@@ -48,7 +52,11 @@ public final class OcentraParentAgentService extends Service {
 
         return builder
             .setContentTitle(getString(R.string.app_name))
-            .setContentText(getString(R.string.notification_text))
+            .setContentText(
+                getString(R.string.notification_text) +
+                " " +
+                lifecycleProof.getString(ChildAndroidLifecycleProof.FIELD_BRIDGE_STATE)
+            )
             .setSmallIcon(android.R.drawable.ic_menu_view)
             .setOngoing(true)
             .build();
