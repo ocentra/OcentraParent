@@ -43,6 +43,7 @@
     "child-android-storage-protocol-capability-proof",
     "child-android-service-protocol-capability-proof",
     "child-android-permission-capability-proof",
+    "child-ios-entitlement-capability-proof",
     "parent-mobile-shell-runtime-proof",
     "v0-9-mobile-controller-discovery-runtime-proof",
     "v0-9-mobile-controller-observer-runtime-proof",
@@ -1332,6 +1333,40 @@
         "UsageStats, accessibility, VPN/DNS, device-owner, or managed-profile behavior without device artifacts.",
         "Debug APK build and checksum presented as install/update/background/reboot/uninstall lifecycle behavior.",
         "Package-local permission constants presented as Android child enforcement parity."
+      ]
+    },
+    {
+      "id": "child-ios-entitlement-capability-proof",
+      "title": "Child iOS Entitlement Package Capability Proof",
+      "claimIds": ["child-ios-entitlement-capability-proof"],
+      "expectationFiles": [
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/platforms.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "proofMode": "ci-mechanical-proof",
+      "realEvidencePath": [
+        "Build TypeScript contracts from the current commit.",
+        "Run the parent-domain Child iOS entitlement/package contract test.",
+        "Verify the iOS simulator target, bundle identifier, Info.plist scaffold, status surface labels, and simulator build script without invoking unavailable Apple signing or device tooling.",
+        "Record Family Controls, DeviceActivity, Screen Time, Network Extension, notifications, background execution, signing, TestFlight, App Store, and physical device states as manual-required, entitlement-required, signing-required, device-proof-required, planned, or not implemented until Apple artifacts exist."
+      ],
+      "ciCommands": ["node scripts/test/child-ios-entitlement-capability-proof.mjs"],
+      "requiredArtifacts": [
+        "test-results/child-ios-entitlement-capability-proof/proof.json",
+        "packages/parent-domain/src/child-ios-entitlement-capability-proof.ts",
+        "packages/parent-domain/tests/child-ios-entitlement-capability-proof.test.ts",
+        "platforms/ios/OcentraParentAgent/AgentStatusViewController.swift",
+        "scripts/release/ios/build-simulator-app.sh"
+      ],
+      "knownGaps": [
+        "CI proof inspects iOS simulator/package scaffold source and does not run Xcode, install an app, or exercise a simulator or physical device in this worker environment.",
+        "Family Controls, DeviceActivity, Screen Time, Network Extension, notification authorization/delivery, background execution, signing/provisioning, TestFlight, App Store, device install, and external child-agent transport remain manual-required, entitlement-required, signing-required, device-proof-required, planned, or not implemented until Apple artifacts exist."
+      ],
+      "notProof": [
+        "A simulator target or status label presented as Family Controls, DeviceActivity, Screen Time, Network Extension, notification, or background execution behavior.",
+        "A bundle identifier or unsigned simulator build script presented as signing, provisioning, entitlement approval, TestFlight, or App Store proof.",
+        "iOS scaffold source presented as child-agent parity, physical-device behavior, or external LAN/WebSocket transport."
       ]
     },
     {
@@ -3575,6 +3610,82 @@
         "The package-local permission bridge does not prove Android child enforcement parity."
       ],
       "manualProofChecklist": []
+    },
+    {
+      "id": "child-ios-entitlement-capability-proof",
+      "roadmapSlice": "Child iOS entitlement/package capability proof",
+      "expectationFiles": [
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/platforms.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "claim": "Child iOS entitlement/package capability proof validates a typed parent-domain iOS entitlement read model, proves the simulator target, bundle id, Info.plist scaffold, status surface labels, and simulator build script are present, and records Family Controls, DeviceActivity, Screen Time, Network Extension, notifications, background execution, signing, TestFlight, App Store, physical-device, and external child-agent states without over-claiming Apple artifacts.",
+      "privilegedCapability": false,
+      "ciProof": {
+        "commands": ["node scripts/test/child-ios-entitlement-capability-proof.mjs"],
+        "jobs": ["Worker D child iOS entitlement/package capability proof"]
+      },
+      "platformCoverage": {
+        "windows": "not-applicable",
+        "linux": "not-applicable",
+        "macos": "ci-mechanical-proof",
+        "android": "not-applicable",
+        "ios": "ci-mechanical-proof"
+      },
+      "runtimeSurfaceCoverage": {
+        "simulatorTarget": {
+          "state": "ci-mechanical-proof",
+          "proof": "The Xcode project declares an iOS application target and bundle identifier for ca.ocentra.parent.agent."
+        },
+        "statusSurface": {
+          "state": "simulator-scaffold",
+          "proof": "AgentStatusViewController exposes honest status labels for manual-required entitlement/device states."
+        },
+        "familyControls": {
+          "state": "entitlement-required",
+          "proof": "No Family Controls entitlement or behavior is claimed without Apple approval and device evidence."
+        },
+        "deviceActivityScreenTime": {
+          "state": "entitlement-required",
+          "proof": "DeviceActivity and Screen Time APIs remain not declared and require entitlement plus schedule/apply artifacts."
+        },
+        "networkExtension": {
+          "state": "entitlement-required",
+          "proof": "No Network Extension entitlement or filter behavior is claimed."
+        },
+        "notifications": {
+          "state": "manual-required",
+          "proof": "No notification authorization or delivery behavior is claimed."
+        },
+        "backgroundExecution": {
+          "state": "manual-required",
+          "proof": "No background mode entitlement or background behavior is claimed."
+        },
+        "signingEntitlements": {
+          "state": "signing-required",
+          "proof": "The simulator build script disables code signing; Apple signing/provisioning/entitlements remain manual-required."
+        },
+        "testflightDevice": {
+          "state": "device-proof-required",
+          "proof": "No TestFlight, device install, or physical-device behavior is claimed."
+        },
+        "externalTransport": {
+          "state": "not-implemented",
+          "proof": "The iOS proof is source/status scaffold metadata and not LAN/WebSocket child-agent transport."
+        }
+      },
+      "knownGaps": [
+        "The proof does not run Xcode, install an iOS app, or exercise a simulator or physical device in this worker environment.",
+        "Family Controls, DeviceActivity, Screen Time, Network Extension, notifications, background execution, signing/provisioning, TestFlight, App Store, physical-device install, and external child-agent transport remain manual-required, entitlement-required, signing-required, device-proof-required, planned, or not implemented.",
+        "The iOS status surface does not prove child-agent parity or enforcement behavior."
+      ],
+      "manualProofChecklist": [
+        "Archive test-results/child-ios-entitlement-capability-proof/proof.json with the commit SHA.",
+        "Run the iOS simulator package build on a Mac and archive xcodebuild output plus generated app/zip checksums.",
+        "Record Apple signing team, provisioning profile, and entitlement approval state for Family Controls, DeviceActivity, Screen Time, Network Extension, notifications, and background modes.",
+        "Run TestFlight or physical-device install proof and archive device behavior for notifications, background execution, and any approved child-control APIs before upgrading support.",
+        "Record that iOS child-agent parity and external transport remain unclaimed until a real child iOS runtime bridge exists."
+      ]
     },
     {
       "id": "parent-mobile-shell-runtime-proof",
