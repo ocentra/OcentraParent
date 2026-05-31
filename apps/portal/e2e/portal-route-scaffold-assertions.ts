@@ -330,9 +330,10 @@ async function assertSidePanelFoldouts(page: Page): Promise<void> {
 }
 
 async function clickSidePanelButton(page: Page, name: string): Promise<void> {
-  const button = page.getByRole('button', { name });
+  const button = page.getByRole('button', { exact: true, name });
   await expect(button).toBeVisible();
-  await button.click({ force: true });
+  await button.focus();
+  await button.press('Enter');
 }
 
 async function expandSidePanelGroup(page: Page, label: string): Promise<void> {
