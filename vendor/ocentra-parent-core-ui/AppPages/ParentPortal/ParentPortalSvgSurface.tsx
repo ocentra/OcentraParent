@@ -57,6 +57,7 @@ import {
 } from './ParentPortalGoldenFrameForeignObject';
 import { DeviceChoiceGrid } from './DeviceChoiceGrid/DeviceChoiceGrid';
 import type { DeviceChoiceGridProps, DeviceSlot } from './DeviceChoiceGrid/DeviceChoiceGridTypes';
+import { WeeklySchedulerScratchPage } from './WeeklySchedulerScratchPage';
 import { AnimatedSidebarIconButton } from './AnimatedSidebarIconButton';
 import { ChatBubbleSvg, estimateChatBubbleHeight } from './ParentPortalChatBubble';
 import { defaultChatBubbleConfig as defaultRulesBubbleConfig, RulesBubbleSvgFrame } from './ParentPortalRulesBubble';
@@ -8178,6 +8179,17 @@ function policyAuditRowsForArea(area: string) {
   ] as const;
 }
 
+function weeklySchedulerPolicyAreaForLabel(policyAreaLabel: string) {
+  const normalizedLabel = policyAreaLabel.toLowerCase();
+  if (normalizedLabel.includes('app')) {
+    return 'apps';
+  }
+  if (normalizedLabel.includes('game')) {
+    return 'games';
+  }
+  return 'browser';
+}
+
 function BrowserPolicyTabMatrixSurface({
   policyAreaLabel,
   tabId,
@@ -8199,15 +8211,11 @@ function BrowserPolicyTabMatrixSurface({
 }) {
   if (tabId === 'schedule') {
     return (
-      <BrowserPolicyScheduleMatrix
-        policyAreaLabel={policyAreaLabel}
-        x={x}
-        y={y}
-        w={w}
-        h={h}
-        disabled={disabled}
-        cfg={cfg}
-      />
+      <foreignObject x={x} y={y} width={w} height={h}>
+        <div xmlns="http://www.w3.org/1999/xhtml" style={{ height: h, overflow: 'hidden', width: w }}>
+          <WeeklySchedulerScratchPage embedded policyArea={weeklySchedulerPolicyAreaForLabel(policyAreaLabel)} />
+        </div>
+      </foreignObject>
     );
   }
   if (tabId === 'approvals') {
