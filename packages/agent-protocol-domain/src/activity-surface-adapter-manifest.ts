@@ -18,6 +18,9 @@ export const ActivitySurfaceAdapterOperationId = {
 export const ActivitySurfaceAdapterManifestReadModelKindSchema = withParser(
   Schema.Literal('screen', 'app-use', 'browser', 'games', 'network')
 );
+export const ActivitySurfaceAdapterFailureReasonSchema = withParser(
+  Schema.Literal('wrong-event', 'missing-json-field', 'invalid-json', 'invalid-payload')
+);
 export const ActivitySurfaceAdapterResponseKindSchema = withParser(
   Schema.Literal('report-document', 'report-history', 'tab-read-model')
 );
@@ -72,11 +75,14 @@ export const ActivitySurfaceAdapterOperationSchema = withParser(
     viteDataOwner: Schema.Literal(false),
     supportsFamilyScope: Schema.Boolean,
     supportsDeviceScope: Schema.Boolean,
+    failureState: ActivityReadModelStateSchema,
+    failureReasons: Schema.Array(ActivitySurfaceAdapterFailureReasonSchema),
     unavailableState: ActivityReadModelStateSchema,
   })
 );
 
 export type ActivitySurfaceAdapterOperation = Infer<typeof ActivitySurfaceAdapterOperationSchema>;
+export type ActivitySurfaceAdapterFailureReason = Infer<typeof ActivitySurfaceAdapterFailureReasonSchema>;
 export type ActivitySurfaceAdapterResponseKind = Infer<typeof ActivitySurfaceAdapterResponseKindSchema>;
 export type ActivitySurfaceAdapterManifestReadModelKind = Infer<
   typeof ActivitySurfaceAdapterManifestReadModelKindSchema
@@ -185,6 +191,8 @@ function adapterOperation(
     viteDataOwner: false,
     supportsFamilyScope: true,
     supportsDeviceScope: true,
+    failureState: 'unavailable',
+    failureReasons: ['wrong-event', 'missing-json-field', 'invalid-json', 'invalid-payload'],
     unavailableState: 'unavailable',
   });
 }

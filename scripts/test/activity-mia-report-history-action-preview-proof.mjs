@@ -31,6 +31,7 @@ async function main() {
       'activity-mia-report-history.source-state-summary',
       'activity-mia-action-preview.saved-report-citations',
       'activity-mia-action-preview.report-source-id-citations',
+      'activity-mia-action-preview.stale-unreachable-source-id-citations',
       'activity-mia-action-preview.child-contract-non-enforcement',
     ],
     evidence: {
@@ -50,7 +51,7 @@ async function main() {
       degradedStorage:
         'Partially unreadable or unparsable saved report storage stays renderable with storageState=degraded and an explicit reason.',
       savedReportCitations:
-        'Parent Assistant/MIA action-preview results carry evidenceContext from saved Activity reports when a report is supplied, including stale/unreachable/unavailable source ids where available.',
+        'Parent Assistant/MIA action-preview results carry evidenceContext from saved Activity reports when a report is supplied, including stale/unreachable/unavailable source ids from family fan-out records where available.',
       childContractBoundary:
         'Action preview and confirm remain non-enforcing and require child-agent/controller contracts before policy or enforcement writes.',
       nonVisualScope:
@@ -58,7 +59,7 @@ async function main() {
     },
     counts: {
       upstreamFinalPassProofLabels: finalPassProof.proofLabels.length,
-      proofLabels: 6,
+      proofLabels: 7,
       cOwnedPathsTouched: 0,
       actionPreviewRuntimeProofs: 1,
     },
@@ -77,7 +78,9 @@ async function main() {
 function assertFinalPassProof(finalPassProof) {
   for (const label of [
     'activity-mia-final-pass.report-persistence',
+    'activity-mia-final-pass.family-device-request-builders',
     'activity-mia-final-pass.adapter-operation-manifest',
+    'activity-mia-final-pass.adapter-failure-metadata',
     'activity-mia-final-pass.parent-assistant-evidence',
     'activity-mia-final-pass.c-owned-paths-not-touched',
   ]) {

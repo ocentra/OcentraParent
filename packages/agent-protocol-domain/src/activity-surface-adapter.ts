@@ -7,6 +7,8 @@ import {
   ActivityReadModelStateSchema,
   ActivityReportDocumentSchema,
   ActivityScreenReadModelSchema,
+  ActivitySurfaceRequestSchema,
+  ActivitySurfaceSchemaVersion,
 } from '@ocentra-parent/activity-domain/activity-surface';
 import type {
   ActivityAppUseReadModel,
@@ -83,6 +85,20 @@ export type ActivitySurfaceCommandTargetInput = {
   readonly route: AgentRoute;
 };
 
+export type CreateActivityFamilyRequestInput = {
+  readonly familyId: unknown;
+  readonly requestedAt: unknown;
+  readonly rangeStart: unknown;
+  readonly rangeEnd: unknown;
+};
+
+export type CreateActivityDeviceRequestInput = {
+  readonly deviceId: unknown;
+  readonly requestedAt: unknown;
+  readonly rangeStart: unknown;
+  readonly rangeEnd: unknown;
+};
+
 export type CreateActivitySurfaceCommandInput = {
   readonly messageId: string;
   readonly sentAt: string;
@@ -92,6 +108,34 @@ export type CreateActivitySurfaceCommandInput = {
   readonly report?: ActivityReportDocument;
   readonly familySources?: readonly ActivityReportSourceState[];
 };
+
+export function createActivityFamilyRequest(input: CreateActivityFamilyRequestInput): ActivitySurfaceRequest {
+  return ActivitySurfaceRequestSchema.parse({
+    schemaVersion: ActivitySurfaceSchemaVersion,
+    scope: {
+      scopeKind: 'family',
+      familyId: input.familyId,
+      deviceId: null,
+    },
+    requestedAt: input.requestedAt,
+    rangeStart: input.rangeStart,
+    rangeEnd: input.rangeEnd,
+  });
+}
+
+export function createActivityDeviceRequest(input: CreateActivityDeviceRequestInput): ActivitySurfaceRequest {
+  return ActivitySurfaceRequestSchema.parse({
+    schemaVersion: ActivitySurfaceSchemaVersion,
+    scope: {
+      scopeKind: 'device',
+      familyId: null,
+      deviceId: input.deviceId,
+    },
+    requestedAt: input.requestedAt,
+    rangeStart: input.rangeStart,
+    rangeEnd: input.rangeEnd,
+  });
+}
 
 export function createActivityReportGenerateCommand(
   frequency: ActivitySurfaceReportFrequency,

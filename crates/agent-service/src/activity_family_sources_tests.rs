@@ -12,7 +12,7 @@ use crate::{
 };
 
 #[test]
-fn activity_family_sources_parse_reachable_offline_and_error_records_from_command_payload() {
+fn activity_family_sources_parse_reachable_offline_stale_and_error_records_from_command_payload() {
     let sources = family_sources_from_command(&command_with_sources(vec![
         source_record(
             constants::activity_surface::DEFAULT_DEVICE_ID,
@@ -25,13 +25,18 @@ fn activity_family_sources_parse_reachable_offline_and_error_records_from_comman
             ActivityReadModelState::Offline,
         ),
         source_record(
+            constants::activity_surface::FAMILY_SOURCE_STALE_ID,
+            ActivityReportSourceReachabilityState::Unreachable,
+            ActivityReadModelState::Stale,
+        ),
+        source_record(
             constants::activity_surface::FAMILY_SOURCE_ERROR_ID,
             ActivityReportSourceReachabilityState::Error,
             ActivityReadModelState::Unavailable,
         ),
     ]));
 
-    assert_eq!(sources.len(), 3);
+    assert_eq!(sources.len(), 4);
     assert_eq!(
         sources[0].reachability_state,
         ActivityReportSourceReachabilityState::Reachable
@@ -42,6 +47,11 @@ fn activity_family_sources_parse_reachable_offline_and_error_records_from_comman
     );
     assert_eq!(
         sources[2].reachability_state,
+        ActivityReportSourceReachabilityState::Unreachable
+    );
+    assert_eq!(sources[2].state, ActivityReadModelState::Stale);
+    assert_eq!(
+        sources[3].reachability_state,
         ActivityReportSourceReachabilityState::Error
     );
 }
@@ -65,7 +75,7 @@ fn activity_family_sources_return_error_record_for_invalid_source_payload() {
 }
 
 #[tokio::test]
-async fn activity_family_report_preserves_reachable_offline_and_error_source_records() {
+async fn activity_family_report_preserves_reachable_offline_stale_and_error_source_records() {
     let snapshot = crate::activity_surface_store::ActivitySurfaceStoreSnapshot {
         device_id: constants::activity_surface::DEFAULT_DEVICE_ID.to_string(),
         recent_returned: 1,
@@ -86,6 +96,11 @@ async fn activity_family_report_preserves_reachable_offline_and_error_source_rec
                 ActivityReadModelState::Offline,
             ),
             source_record(
+                constants::activity_surface::FAMILY_SOURCE_STALE_ID,
+                ActivityReportSourceReachabilityState::Unreachable,
+                ActivityReadModelState::Stale,
+            ),
+            source_record(
                 constants::activity_surface::FAMILY_SOURCE_ERROR_ID,
                 ActivityReportSourceReachabilityState::Error,
                 ActivityReadModelState::Unavailable,
@@ -93,7 +108,7 @@ async fn activity_family_report_preserves_reachable_offline_and_error_source_rec
         ],
     );
 
-    assert_eq!(report.source_states.len(), 3);
+    assert_eq!(report.source_states.len(), 4);
     assert_eq!(
         report.source_states[0].reachability_state,
         ActivityReportSourceReachabilityState::Reachable
@@ -104,6 +119,11 @@ async fn activity_family_report_preserves_reachable_offline_and_error_source_rec
     );
     assert_eq!(
         report.source_states[2].reachability_state,
+        ActivityReportSourceReachabilityState::Unreachable
+    );
+    assert_eq!(report.source_states[2].state, ActivityReadModelState::Stale);
+    assert_eq!(
+        report.source_states[3].reachability_state,
         ActivityReportSourceReachabilityState::Error
     );
     assert_eq!(report.sections[2].state, ActivityReadModelState::Ready);
