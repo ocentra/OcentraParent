@@ -81,6 +81,7 @@ function assertFinalPassProof(finalPassProof) {
     'activity-mia-final-pass.family-device-request-builders',
     'activity-mia-final-pass.adapter-operation-manifest',
     'activity-mia-final-pass.adapter-failure-metadata',
+    'activity-mia-final-pass.c-consumption-helper-map',
     'activity-mia-final-pass.parent-assistant-evidence',
     'activity-mia-final-pass.c-owned-paths-not-touched',
   ]) {

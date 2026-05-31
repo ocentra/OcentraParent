@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { ActivitySurfaceSchemaVersion } from '@ocentra-parent/activity-domain/activity-surface';
 import {
+  ActivitySurfaceAdapterCommandBuilder,
+  ActivitySurfaceAdapterEventParser,
   ActivitySurfaceAdapterOperationId,
   ActivitySurfaceAdapterOperationManifest,
   createActivityDeviceRequest,
@@ -122,6 +124,7 @@ describe('activity surface adapter boundary', () => {
   specifyAdapterManifest();
   specifyRequestCreation();
   specifyCommandCreation();
+  specifyStorageUnavailableHistoryParsing();
   specifyEventParsing();
 });
 
@@ -151,9 +154,13 @@ function specifyAdapterManifest() {
     expect(history?.successEvent).toBe('agent.activity.report.history.reported');
     expect(history?.payloadField).toBe('activityReports');
     expect(history?.responseKind).toBe('report-history');
+    expect(history?.commandBuilder).toBe(ActivitySurfaceAdapterCommandBuilder.ReportHistory);
+    expect(history?.eventParser).toBe(ActivitySurfaceAdapterEventParser.ReportHistory);
     expect(network?.command).toBe('agent.activity.network.read-model.get');
     expect(network?.successEvent).toBe('agent.activity.network.read-model.reported');
     expect(network?.readModelKind).toBe('network');
+    expect(network?.commandBuilder).toBe(ActivitySurfaceAdapterCommandBuilder.ReadModel);
+    expect(network?.eventParser).toBe(ActivitySurfaceAdapterEventParser.ReadModel);
     expect(
       ActivitySurfaceAdapterOperationManifest.every(
         (operation) =>
@@ -163,6 +170,8 @@ function specifyAdapterManifest() {
           operation.failureState === 'unavailable' &&
           operation.failureReasons.includes('wrong-event') &&
           operation.failureReasons.includes('missing-json-field') &&
+          operation.commandBuilder.length > 0 &&
+          operation.eventParser.length > 0 &&
           operation.unavailableState === 'unavailable'
       )
     ).toBe(true);
@@ -193,6 +202,14 @@ function specifyRequestCreation() {
   });
 
   it('rejects malformed Activity requests before command creation', () => {
+    expect(() =>
+      createActivityFamilyRequest({
+        familyId: '',
+        requestedAt: Request.requestedAt,
+        rangeStart: Request.rangeStart,
+        rangeEnd: Request.rangeEnd,
+      })
+    ).toThrow();
     expect(() =>
       createActivityDeviceRequest({
         deviceId: '',
@@ -307,6 +324,21 @@ function specifyEventParsing() {
   });
 }
 
+function specifyStorageUnavailableHistoryParsing() {
+  it('parses storage-unavailable report history without promoting it to ready', () => {
+    const parsed = parseActivityReportHistoryEvent(
+      eventEnvelope(AgentEvent.ActivityReportHistoryReported, {
+        [AgentProtocolDefaults.Field.ActivityReports]: JSON.stringify(storageUnavailableHistory()),
+      })
+    );
+
+    expect(parsed.ok).toBe(true);
+    expect(parsed.ok ? parsed.state : null).toBe('unavailable');
+    expect(parsed.ok ? parsed.value.storageState : null).toBe('storage-unavailable');
+    expect(parsed.ok ? parsed.value.reports.length : null).toBe(0);
+  });
+}
+
 function commandInput() {
   return {
     messageId: 'cmd-activity-1',
@@ -347,6 +379,17 @@ function historicalReportList() {
         parsedReport: Report,
       },
     ],
+  } as const;
+}
+
+function storageUnavailableHistory() {
+  return {
+    schemaVersion: ActivitySurfaceSchemaVersion,
+    request: Request,
+    state: 'unavailable',
+    storageState: 'storage-unavailable',
+    storageReason: 'Activity report storage is unavailable.',
+    reports: [],
   } as const;
 }
 
