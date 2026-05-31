@@ -40,6 +40,7 @@
     "platform-os-lan-mobile-proof",
     "enforcement-lan-mobile-product-proof",
     "child-android-protocol-package-lifecycle-proof",
+    "child-android-storage-protocol-capability-proof",
     "parent-mobile-shell-runtime-proof",
     "v0-9-mobile-controller-discovery-runtime-proof",
     "v0-9-mobile-controller-observer-runtime-proof",
@@ -1224,6 +1225,41 @@
         "A debug APK build presented as install/update/background/reboot/uninstall lifecycle behavior.",
         "Package-local Bundle constants presented as LAN/WebSocket child-agent transport.",
         "Android device-owner, accessibility, VPN/DNS, UsageStats, or managed-profile behavior without emulator or physical-device artifacts."
+      ]
+    },
+    {
+      "id": "child-android-storage-protocol-capability-proof",
+      "title": "Child Android Storage Protocol Capability Proof",
+      "claimIds": ["child-android-storage-protocol-capability-proof"],
+      "expectationFiles": [
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/platforms.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "proofMode": "ci-mechanical-proof",
+      "realEvidencePath": [
+        "Build TypeScript contracts from the current commit.",
+        "Run the parent-domain Child Android storage protocol contract test.",
+        "Build the Android debug APK through the repo release package script.",
+        "Verify the storage protocol bridge constants, package-local app-private storage target, explicit disabled journal/query-store gaps, hosted-storage not-default state, APK artifact, and SHA-256 checksum.",
+        "Record that encrypted journal, SQLite query store, parent-owned export, external transport, and device persistence still require runtime/device proof."
+      ],
+      "ciCommands": ["node scripts/test/child-android-storage-protocol-capability-proof.mjs"],
+      "requiredArtifacts": [
+        "test-results/child-android-storage-protocol-capability-proof/proof.json",
+        "target/release-packages/android/ocentra-parent-agent-android-debug-latest.apk",
+        "target/release-packages/android/ocentra-parent-agent-android-debug-latest.apk.sha256",
+        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/ChildAndroidStorageProtocolProof.java"
+      ],
+      "knownGaps": [
+        "CI proof compiles package-local storage protocol mechanics but does not install or run the APK on a device.",
+        "Encrypted evidence journal, SQLite query store, parent-owned export, external LAN/WebSocket transport, and Android storage persistence remain not implemented, planned, or manual-required until runtime/device artifacts exist."
+      ],
+      "notProof": [
+        "Package-local app-private storage constants presented as durable encrypted evidence persistence.",
+        "Hosted child activity storage presented as default product storage.",
+        "A debug APK build presented as emulator or physical-device storage behavior.",
+        "Package-local Bundle constants presented as LAN/WebSocket child-agent storage transport."
       ]
     },
     {
@@ -3271,6 +3307,64 @@
         "The proof does not run on an emulator or physical Android device.",
         "Foreground service behavior, notification grant/delivery, UsageStats, accessibility, VPN/DNS, device-owner, managed-profile, install/update/background/reboot/uninstall, and store distribution remain manual-required or not yet proven.",
         "The package-local bridge is not LAN/WebSocket child-agent transport and does not prove child Android enforcement parity."
+      ],
+      "manualProofChecklist": []
+    },
+    {
+      "id": "child-android-storage-protocol-capability-proof",
+      "roadmapSlice": "Child Android storage/protocol capability proof",
+      "expectationFiles": [
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/platforms.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "claim": "Child Android storage/protocol capability proof compiles a package-local native storage bridge into the debug APK, validates a typed parent-domain storage read model, keeps app-private files as a scaffolded local target, marks encrypted journal and SQLite query store unimplemented, keeps parent-owned export planned, and records Ocentra-hosted child activity storage as not-default and unimplemented.",
+      "privilegedCapability": false,
+      "ciProof": {
+        "commands": ["node scripts/test/child-android-storage-protocol-capability-proof.mjs"],
+        "jobs": ["Worker D Child Android storage/protocol capability proof"]
+      },
+      "platformCoverage": {
+        "windows": "not-applicable",
+        "linux": "not-applicable",
+        "macos": "not-applicable",
+        "android": "ci-mechanical-proof",
+        "ios": "not-applicable"
+      },
+      "runtimeSurfaceCoverage": {
+        "appPrivateFiles": {
+          "state": "package-local-scaffold",
+          "proof": "ChildAndroidStorageProtocolProof names app-private files as the local package storage target; runtime persistence still requires emulator or physical-device evidence."
+        },
+        "storageProtocolSnapshot": {
+          "state": "ci-mechanical-proof",
+          "proof": "ChildAndroidStorageProtocolProof exposes storage snapshot, capability proof, and protocol proof command/event constants through a native Bundle parsed by the parent-domain contract."
+        },
+        "encryptedEvidenceJournal": {
+          "state": "not-implemented",
+          "proof": "Encrypted journal persistence is explicitly disabled until runtime persistence, custody, and deletion proof exists."
+        },
+        "sqliteQueryStore": {
+          "state": "not-implemented",
+          "proof": "SQLite query store persistence is explicitly disabled for child Android in this proof."
+        },
+        "parentOwnedExport": {
+          "state": "planned",
+          "proof": "Parent-owned export is planned and must remain an explicit parent action, not default child activity storage."
+        },
+        "ocentraHostedStorage": {
+          "state": "not-default",
+          "proof": "Ocentra-hosted child activity storage is not implemented and is never the default store for child activity."
+        },
+        "externalStorageTransport": {
+          "state": "not-implemented",
+          "proof": "The storage proof is package-local Bundle metadata and not LAN/WebSocket child-agent transport."
+        }
+      },
+      "knownGaps": [
+        "The proof does not run on an emulator or physical Android device.",
+        "Encrypted evidence journal persistence, SQLite query store persistence, parent-owned export, external storage transport, raw image/activity custody, and deletion behavior remain unimplemented or manual-required.",
+        "The package-local storage bridge does not prove Android child enforcement parity or default hosted storage."
       ],
       "manualProofChecklist": []
     },
