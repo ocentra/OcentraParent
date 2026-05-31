@@ -43,6 +43,7 @@
     "child-android-storage-protocol-capability-proof",
     "child-android-service-protocol-capability-proof",
     "child-android-permission-capability-proof",
+    "child-android-privileged-capability-proof",
     "child-ios-entitlement-capability-proof",
     "parent-mobile-shell-runtime-proof",
     "v0-9-mobile-controller-discovery-runtime-proof",
@@ -1333,6 +1334,40 @@
         "UsageStats, accessibility, VPN/DNS, device-owner, or managed-profile behavior without device artifacts.",
         "Debug APK build and checksum presented as install/update/background/reboot/uninstall lifecycle behavior.",
         "Package-local permission constants presented as Android child enforcement parity."
+      ]
+    },
+    {
+      "id": "child-android-privileged-capability-proof",
+      "title": "Child Android Privileged Capability Proof",
+      "claimIds": ["child-android-privileged-capability-proof"],
+      "expectationFiles": [
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/platforms.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "proofMode": "ci-mechanical-proof",
+      "realEvidencePath": [
+        "Build TypeScript contracts from the current commit.",
+        "Run the parent-domain Child Android privileged capability contract test.",
+        "Build the Android debug APK through the repo release package script.",
+        "Verify the package-local privileged capability bridge, launcher/service wiring, manifest non-declarations for privileged adapters, APK artifact, and SHA-256 checksum.",
+        "Record UsageStats settings and observation as settings/manual-device proof, Accessibility and VPN/DNS as not declared or not implemented, device-owner and managed profile as blocked, physical-device behavior as device-proof-required, and external transport as not implemented."
+      ],
+      "ciCommands": ["node scripts/test/child-android-privileged-capability-proof.mjs"],
+      "requiredArtifacts": [
+        "test-results/child-android-privileged-capability-proof/proof.json",
+        "target/release-packages/android/ocentra-parent-agent-android-debug-latest.apk",
+        "target/release-packages/android/ocentra-parent-agent-android-debug-latest.apk.sha256",
+        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/ChildAndroidPrivilegedCapabilityProof.java"
+      ],
+      "knownGaps": [
+        "CI proof compiles package-local privileged capability labels but does not install or run the APK on an emulator or physical device.",
+        "UsageStats grant/observation, AccessibilityService grant/behavior, VPN/DNS filtering, device-owner enrollment, managed-profile enrollment, physical-device runtime behavior, and external child-agent transport remain manual-required, unavailable, blocked, device-proof-required, or not implemented until device artifacts exist."
+      ],
+      "notProof": [
+        "A package-local status label presented as UsageStats grant or observed usage events.",
+        "A missing manifest declaration presented as AccessibilityService, VPN/DNS, device-owner, or managed-profile behavior.",
+        "Debug APK build and checksum presented as enrollment, physical-device behavior, or child-agent parity."
       ]
     },
     {
@@ -3610,6 +3645,76 @@
         "The package-local permission bridge does not prove Android child enforcement parity."
       ],
       "manualProofChecklist": []
+    },
+    {
+      "id": "child-android-privileged-capability-proof",
+      "roadmapSlice": "Child Android privileged capability proof",
+      "expectationFiles": [
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/platforms.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "claim": "Child Android privileged capability proof compiles a package-local native privileged capability bridge into the debug APK, validates a typed parent-domain privileged read model, proves launcher/service status wiring and manifest non-declarations for privileged adapters, and records UsageStats, Accessibility, VPN/DNS, device-owner, managed-profile, physical-device, and external transport states without over-claiming device or enrollment proof.",
+      "privilegedCapability": true,
+      "ciProof": {
+        "commands": ["node scripts/test/child-android-privileged-capability-proof.mjs"],
+        "jobs": ["Worker D Child Android privileged capability proof"]
+      },
+      "platformCoverage": {
+        "windows": "not-applicable",
+        "linux": "not-applicable",
+        "macos": "not-applicable",
+        "android": "manual-required",
+        "ios": "not-applicable"
+      },
+      "runtimeSurfaceCoverage": {
+        "privilegedStatusBundle": {
+          "state": "package-local-scaffold",
+          "proof": "The native privileged capability bridge compiles into the Android debug package and is referenced by the launcher activity and foreground service."
+        },
+        "usageStats": {
+          "state": "settings-grant-required",
+          "proof": "PACKAGE_USAGE_STATS is not declared by design; settings grant and observed usage events require device artifacts."
+        },
+        "accessibility": {
+          "state": "not-implemented",
+          "proof": "No AccessibilityService declaration, grant, or behavior is claimed."
+        },
+        "vpnDns": {
+          "state": "not-implemented",
+          "proof": "No VpnService, DNS adapter, or filtering behavior is claimed."
+        },
+        "deviceOwner": {
+          "state": "blocked",
+          "proof": "No device-owner enrollment or policy action is claimed."
+        },
+        "managedProfile": {
+          "state": "blocked",
+          "proof": "No managed-profile enrollment or behavior is claimed."
+        },
+        "physicalDevice": {
+          "state": "device-proof-required",
+          "proof": "No emulator or physical-device behavior is claimed from package-local status labels."
+        },
+        "externalTransport": {
+          "state": "not-implemented",
+          "proof": "The privileged proof is package-local Bundle metadata and not LAN/WebSocket child-agent transport."
+        }
+      },
+      "knownGaps": [
+        "The proof does not run on an emulator or physical Android device.",
+        "UsageStats grant/observation, AccessibilityService grant/behavior, VPN/DNS filtering, device-owner enrollment, managed-profile enrollment, physical-device runtime behavior, and external child-agent privileged transport remain manual-required, unavailable, blocked, device-proof-required, or not implemented.",
+        "The package-local privileged bridge does not prove Android child enforcement parity."
+      ],
+      "manualProofChecklist": [
+        "Archive test-results/child-android-privileged-capability-proof/proof.json with the commit SHA.",
+        "Run APK install on emulator or physical device and record package install output before upgrading device proof.",
+        "Record UsageStats settings grant and observed usage events before upgrading UsageStats support.",
+        "Record AccessibilityService declaration, user grant, and behavior before upgrading accessibility support.",
+        "Record VpnService/DNS adapter declaration, user grant, and filtering behavior before upgrading VPN/DNS support.",
+        "Record device-owner or managed-profile enrollment artifacts before upgrading policy states.",
+        "Record child-agent parity and external transport artifacts before claiming remote child privileged control."
+      ]
     },
     {
       "id": "child-ios-entitlement-capability-proof",
