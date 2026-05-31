@@ -244,6 +244,13 @@ function activityPayload() {
         lastUpdatedAt: null,
       },
       {
+        deviceId: 'child-device-stale',
+        reachabilityState: 'unreachable',
+        state: 'stale',
+        reason: 'Child source has stale report material and needs a fresh activity sync.',
+        lastUpdatedAt: '2026-05-31T15:45:00Z',
+      },
+      {
         deviceId: 'child-device-error',
         reachabilityState: 'error',
         state: 'unavailable',
@@ -346,11 +353,21 @@ function assertParentAssistantUnavailable(event) {
   if (
     !String(reportCitation.allowedSummary).includes('readySections=') ||
     !String(reportCitation.allowedSummary).includes('offlineSources=') ||
+    !String(reportCitation.allowedSummary).includes('staleSources=') ||
+    !String(reportCitation.allowedSummary).includes('unreachableSources=') ||
     !String(reportCitation.allowedSummary).includes('unavailableSources=')
   ) {
     throw new Error(
       `Parent Assistant Activity report citation omitted report counts: ${reportCitation.allowedSummary}`
     );
+  }
+  if (
+    !String(reportCitation.allowedSummary).includes('offlineSourceIds=child-device-offline') ||
+    !String(reportCitation.allowedSummary).includes('staleSourceIds=child-device-stale') ||
+    !String(reportCitation.allowedSummary).includes('unreachableSourceIds=child-device-stale') ||
+    !String(reportCitation.allowedSummary).includes('unavailableSourceIds=child-device-error')
+  ) {
+    throw new Error(`Parent Assistant Activity report citation omitted source ids: ${reportCitation.allowedSummary}`);
   }
   const preview = parseJsonField(payload, AgentProtocolDefaults.Field.ParentAssistantActionPreview);
   if (preview.childAgentContractRequired !== true || preview.enforcementApplied !== false) {
@@ -472,7 +489,12 @@ function assertParentAssistantActionConfirm(event) {
 
 function assertFamilySourceStates(report) {
   const reachabilityStates = new Set(report.sourceStates?.map((source) => source.reachabilityState));
-  if (!reachabilityStates.has('reachable') || !reachabilityStates.has('offline') || !reachabilityStates.has('error')) {
+  if (
+    !reachabilityStates.has('reachable') ||
+    !reachabilityStates.has('offline') ||
+    !reachabilityStates.has('unreachable') ||
+    !reachabilityStates.has('error')
+  ) {
     throw new Error(`Activity family fan-out source states were not preserved: ${JSON.stringify(report.sourceStates)}`);
   }
 }

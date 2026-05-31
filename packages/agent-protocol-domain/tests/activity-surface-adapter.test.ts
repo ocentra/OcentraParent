@@ -3,6 +3,8 @@ import { ActivitySurfaceSchemaVersion } from '@ocentra-parent/activity-domain/ac
 import {
   ActivitySurfaceAdapterOperationId,
   ActivitySurfaceAdapterOperationManifest,
+  createActivityDeviceRequest,
+  createActivityFamilyRequest,
   createActivityReadModelCommand,
   createActivityReportGenerateCommand,
   createActivityReportHistoryCommand,
@@ -118,6 +120,7 @@ const FamilySources = [
 
 describe('activity surface adapter boundary', () => {
   specifyAdapterManifest();
+  specifyRequestCreation();
   specifyCommandCreation();
   specifyEventParsing();
 });
@@ -157,9 +160,47 @@ function specifyAdapterManifest() {
           operation.productDataOwner === 'rust-service-read-model' &&
           operation.uiConsumer === 'c-owned-activity-ui' &&
           operation.viteDataOwner === false &&
+          operation.failureState === 'unavailable' &&
+          operation.failureReasons.includes('wrong-event') &&
+          operation.failureReasons.includes('missing-json-field') &&
           operation.unavailableState === 'unavailable'
       )
     ).toBe(true);
+  });
+}
+
+function specifyRequestCreation() {
+  it('creates family and device requests through the Activity request schema', () => {
+    const family = createActivityFamilyRequest({
+      familyId: 'family-local',
+      requestedAt: Request.requestedAt,
+      rangeStart: Request.rangeStart,
+      rangeEnd: Request.rangeEnd,
+    });
+    const device = createActivityDeviceRequest({
+      deviceId: 'child-device-2',
+      requestedAt: Request.requestedAt,
+      rangeStart: Request.rangeStart,
+      rangeEnd: Request.rangeEnd,
+    });
+
+    expect(family.scope.scopeKind).toBe('family');
+    expect(family.scope.familyId).toBe('family-local');
+    expect(family.scope.deviceId).toBe(null);
+    expect(device.scope.scopeKind).toBe('device');
+    expect(device.scope.familyId).toBe(null);
+    expect(device.scope.deviceId).toBe('child-device-2');
+  });
+
+  it('rejects malformed Activity requests before command creation', () => {
+    expect(() =>
+      createActivityDeviceRequest({
+        deviceId: '',
+        requestedAt: Request.requestedAt,
+        rangeStart: Request.rangeStart,
+        rangeEnd: Request.rangeEnd,
+      })
+    ).toThrow();
   });
 }
 
