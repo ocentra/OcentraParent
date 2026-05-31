@@ -306,6 +306,7 @@ async function assertSidePanelFoldouts(page: Page): Promise<void> {
   await expect(page.getByRole('button', { name: 'Open START HERE' })).toBeVisible();
   await clickSidePanelButton(page, 'Collapse GUIDE');
   await expect(page.getByRole('button', { name: 'Expand GUIDE' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Open START HERE' })).toHaveCount(0);
   await clickSidePanelButton(page, 'Expand MANAGE');
   await expect(page.getByRole('button', { name: 'Collapse MANAGE' })).toBeVisible();
   await expect(page.getByRole('button', { name: `Open ${PARENT_PORTAL_NAV_LABELS.Portal}` })).toBeVisible();
@@ -374,8 +375,8 @@ async function assertManageTargetSelectorSemantics(page: Page): Promise<void> {
   await page.goto('/#/settings-rules');
   await expect(surface).toBeVisible();
   await expect(targetSelector).toHaveCount(0);
-  await expect(surface.locator('text').filter({ hasText: 'Portal / Settings' }).first()).toBeVisible();
-  await expect(surface.locator('text').filter({ hasText: 'Family Settings' }).first()).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: 'PORTAL' }).first()).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: 'Parent owned' }).first()).toBeVisible();
 
   await page.goto('/#/lan-pairing');
   await expect(targetSelector).toHaveCount(0);

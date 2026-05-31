@@ -7466,6 +7466,7 @@ function ManageSupportContactForm({
   y,
   w,
   h,
+  cfg,
   workspaceTarget,
   disabled,
   decisionChoice,
@@ -7478,6 +7479,7 @@ function ManageSupportContactForm({
   y: number;
   w: number;
   h: number;
+  cfg: ParentPortalSvgControls;
   workspaceTarget: ManageWorkspaceTarget;
   disabled?: boolean;
   decisionChoice: string;
