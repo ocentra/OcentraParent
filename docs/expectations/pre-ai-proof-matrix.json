@@ -41,7 +41,8 @@
     "enforcement-lan-mobile-product-proof",
     "parent-mobile-shell-runtime-proof",
     "v0-9-mobile-controller-discovery-runtime-proof",
-    "v0-9-mobile-controller-observer-runtime-proof"
+    "v0-9-mobile-controller-observer-runtime-proof",
+    "v0-9-household-discovery-mobile-controller-product-proof"
   ],
   "checkpointScenarios": [
     {
@@ -1300,6 +1301,42 @@
         "A successful archive build presented as installed service autostart.",
         "A simulator launch presented as device-owner, TestFlight, or entitlement proof.",
         "Unsigned preview artifacts presented as production release readiness."
+      ]
+    },
+    {
+      "id": "v0-9-household-discovery-mobile-controller-product-proof",
+      "title": "V0.9 Household Discovery Mobile Controller Product Proof",
+      "claimIds": ["v0-9-household-discovery-mobile-controller-product-proof"],
+      "expectationFiles": [
+        "docs/expectations/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
+        "docs/expectations/lan-pairing.md",
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/platforms.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "proofMode": "ci-mechanical-proof",
+      "realEvidencePath": [
+        "Build contracts from the current commit.",
+        "Run the existing production household discovery, production LAN mobile controller, mobile discovery runtime, mobile observer runtime, and controller-observer handoff proof harnesses.",
+        "Compose the source proof artifacts into one typed parent-domain read model that keeps physical household LAN, parent mobile write authority, mobile background behavior, and cloud relay as manual-required or not implemented.",
+        "Verify the aggregate proof matrix entry and archive the emitted proof artifact."
+      ],
+      "ciCommands": ["node scripts/test/v0-9-household-discovery-mobile-controller-product-proof.mjs"],
+      "requiredArtifacts": [
+        "test-results/v0-9-household-discovery-mobile-controller-product-proof/proof.json",
+        "packages/parent-domain/src/v0-9-household-discovery-mobile-controller-product-proof.ts",
+        "scripts/test/v0-9-household-discovery-mobile-controller-product-proof.mjs",
+        "docs/checkpoints/v0-9-household-discovery-mobile-controller-product-proof-2026-05-30.md"
+      ],
+      "knownGaps": [
+        "This proof composes local-service and parent-mobile runtime artifacts; it is not two physical household devices on a real router.",
+        "Real Android or iOS parent mobile write authority, mobile background LAN behavior, signing, stores, and entitlements remain manual-required.",
+        "Cloud relay remains not implemented and requires a separate authenticated relay proof before any remote-control claim."
+      ],
+      "notProof": [
+        "A local multi-service proof presented as production household router discovery.",
+        "A parent mobile observer read model presented as mobile controller write authority.",
+        "A not-implemented cloud relay state presented as remote control support."
       ]
     }
   ],
@@ -3323,6 +3360,76 @@
         "Archive test-results/v0-9-mobile-controller-observer-runtime-proof/proof.json with the commit SHA.",
         "Run Android and iOS parent mobile packages on real devices and record observer read, controller takeover request, controller release, notification, foreground/background LAN behavior, and degraded provider states.",
         "Run V0.9 LAN proof across two physical household devices and record router/firewall, origin allowlist, route selection, takeover, release, revocation, wrong-origin, wrong-device, failed-unpaired, stale/offline, and provider artifacts.",
+        "Record signing, store, entitlement, notification, and background behavior artifacts before upgrading mobile package readiness.",
+        "Record a separate authenticated cloud relay proof before counting cloud relay as implemented."
+      ]
+    },
+    {
+      "id": "v0-9-household-discovery-mobile-controller-product-proof",
+      "roadmapSlice": "V0.9 household discovery and parent mobile controller product proof",
+      "expectationFiles": [
+        "docs/expectations/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
+        "docs/expectations/lan-pairing.md",
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/platforms.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "claim": "V0.9 household discovery/mobile controller product proof composes local production discovery, paired and rejected route checks, selected-route recovery, parent-mobile observer/controller route states, observer read-only operation coverage, backend controller release, and explicit non-claims for physical household LAN, real mobile write authority, mobile background behavior, and cloud relay.",
+      "privilegedCapability": false,
+      "ciProof": {
+        "commands": ["node scripts/test/v0-9-household-discovery-mobile-controller-product-proof.mjs"],
+        "jobs": ["Worker B V0.9 household discovery mobile controller product proof"]
+      },
+      "platformCoverage": {
+        "windows": "ci-mechanical-proof",
+        "linux": "not-applicable",
+        "macos": "ci-mechanical-proof",
+        "android": "ci-mechanical-proof",
+        "ios": "ci-mechanical-proof"
+      },
+      "runtimeSurfaceCoverage": {
+        "householdDiscoveryStateLabels": {
+          "state": "ci-mechanical-proof",
+          "proof": "Aggregate parent-domain read model requires discovered, pending, paired, revoked, stale, offline, and unavailable production discovery states from source proofs."
+        },
+        "routeChecks": {
+          "state": "ci-mechanical-proof",
+          "proof": "Paired route acceptance plus failed-unpaired, wrong-origin, wrong-device, replay, revoked, stale, offline, and unavailable rejections are composed from source proof artifacts."
+        },
+        "parentMobileObserverRoutes": {
+          "state": "scaffold",
+          "proof": "Android remains observer read-only and iOS remains controller-takeover manual-required without granting mobile write authority."
+        },
+        "controllerObserverOperations": {
+          "state": "ci-mechanical-proof",
+          "proof": "Observer read-only operations, rejected write/pair/revoke operations, backend controller release, and manual takeover request are represented in typed operation evidence."
+        },
+        "physicalHouseholdLan": {
+          "state": "manual-required",
+          "proof": "Physical two-device household LAN, router/firewall, local-network permission, stale/offline device, and revocation artifacts remain required before product readiness can be claimed."
+        },
+        "parentMobileWriteAuthority": {
+          "state": "manual-required",
+          "proof": "Real Android or iOS package/device controller takeover and mobile background LAN behavior remain required before mobile write authority can be claimed."
+        },
+        "cloudRelay": {
+          "state": "not-implemented",
+          "proof": "Cloud relay routing, authentication, storage, and remote control remain unimplemented and are not counted as LAN proof."
+        },
+        "cUiOwnership": {
+          "state": "not-applicable",
+          "proof": "This proof is non-visual and leaves C-owned UI/vendor paths untouched."
+        }
+      },
+      "knownGaps": [
+        "Local service proof is not physical household router discovery or two physical household devices.",
+        "Parent mobile write authority, mobile background behavior, signing, stores, entitlements, notifications, and physical device proof remain manual-required.",
+        "Cloud relay remains not implemented and not claimed."
+      ],
+      "manualProofChecklist": [
+        "Archive test-results/v0-9-household-discovery-mobile-controller-product-proof/proof.json with the commit SHA.",
+        "Run V0.9 LAN proof across two physical household devices and record router/firewall, origin allowlist, route selection, takeover, release, revocation, wrong-origin, wrong-device, failed-unpaired, stale/offline, and provider artifacts.",
+        "Run Android and iOS parent mobile packages on real devices and record observer read, controller takeover request, write rejection, controller release, notification, and foreground/background LAN behavior.",
         "Record signing, store, entitlement, notification, and background behavior artifacts before upgrading mobile package readiness.",
         "Record a separate authenticated cloud relay proof before counting cloud relay as implemented."
       ]
