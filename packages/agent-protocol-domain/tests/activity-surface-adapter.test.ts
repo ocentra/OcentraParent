@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { ActivitySurfaceSchemaVersion } from '@ocentra-parent/activity-domain/activity-surface';
 import {
+  ActivitySurfaceAdapterOperationId,
+  ActivitySurfaceAdapterOperationManifest,
   createActivityReadModelCommand,
   createActivityReportGenerateCommand,
   createActivityReportHistoryCommand,
@@ -115,6 +117,53 @@ const FamilySources = [
 ] as const;
 
 describe('activity surface adapter boundary', () => {
+  specifyAdapterManifest();
+  specifyCommandCreation();
+  specifyEventParsing();
+});
+
+function specifyAdapterManifest() {
+  it('exports the C-consumable operation manifest without Vite-owned product data', () => {
+    expect(ActivitySurfaceAdapterOperationManifest.map((operation) => operation.operationId)).toEqual([
+      ActivitySurfaceAdapterOperationId.GetDailyReport,
+      ActivitySurfaceAdapterOperationId.GetWeeklyReport,
+      ActivitySurfaceAdapterOperationId.GetMonthlyReport,
+      ActivitySurfaceAdapterOperationId.SaveActivityReport,
+      ActivitySurfaceAdapterOperationId.ListHistoricalReports,
+      ActivitySurfaceAdapterOperationId.GetScreenActivity,
+      ActivitySurfaceAdapterOperationId.GetAppUseActivity,
+      ActivitySurfaceAdapterOperationId.GetBrowserActivity,
+      ActivitySurfaceAdapterOperationId.GetGamesActivity,
+      ActivitySurfaceAdapterOperationId.GetNetworkActivity,
+    ]);
+
+    const history = ActivitySurfaceAdapterOperationManifest.find(
+      (operation) => operation.operationId === ActivitySurfaceAdapterOperationId.ListHistoricalReports
+    );
+    const network = ActivitySurfaceAdapterOperationManifest.find(
+      (operation) => operation.operationId === ActivitySurfaceAdapterOperationId.GetNetworkActivity
+    );
+
+    expect(history?.command).toBe('agent.activity.report.history.list');
+    expect(history?.successEvent).toBe('agent.activity.report.history.reported');
+    expect(history?.payloadField).toBe('activityReports');
+    expect(history?.responseKind).toBe('report-history');
+    expect(network?.command).toBe('agent.activity.network.read-model.get');
+    expect(network?.successEvent).toBe('agent.activity.network.read-model.reported');
+    expect(network?.readModelKind).toBe('network');
+    expect(
+      ActivitySurfaceAdapterOperationManifest.every(
+        (operation) =>
+          operation.productDataOwner === 'rust-service-read-model' &&
+          operation.uiConsumer === 'c-owned-activity-ui' &&
+          operation.viteDataOwner === false &&
+          operation.unavailableState === 'unavailable'
+      )
+    ).toBe(true);
+  });
+}
+
+function specifyCommandCreation() {
   it('creates report and read-model commands with family or device scope payloads', () => {
     const reportCommand = createActivityReportGenerateCommand('daily', commandInput());
     const readModelCommand = createActivityReadModelCommand('network', commandInput());
@@ -143,9 +192,9 @@ describe('activity surface adapter boundary', () => {
     expect(sources[0]?.reachabilityState).toBe('offline');
     expect(sources[1]?.reachabilityState).toBe('error');
   });
-});
+}
 
-describe('activity surface adapter event parsing', () => {
+function specifyEventParsing() {
   it('creates and parses historical report list messages for the Activity UI handoff', () => {
     const command = createActivityReportHistoryCommand(commandInput());
     const parsed = parseActivityReportHistoryEvent(
@@ -215,7 +264,7 @@ describe('activity surface adapter event parsing', () => {
     expect(missing.ok ? null : missing.state).toBe('unavailable');
     expect(missing.ok ? null : missing.reason).toBe('missing-json-field');
   });
-});
+}
 
 function commandInput() {
   return {

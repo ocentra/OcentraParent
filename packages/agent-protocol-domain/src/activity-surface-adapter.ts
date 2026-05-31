@@ -29,6 +29,8 @@ import {
 } from './contracts';
 import { AgentProtocolSchemaVersion, type AgentRoute } from './primitives';
 
+export * from './activity-surface-adapter-manifest';
+
 export type ActivitySurfaceReportFrequency = 'daily' | 'weekly' | 'monthly';
 export const ActivitySurfaceReadModelKindName = {
   Screen: 'screen',

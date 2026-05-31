@@ -28,6 +28,7 @@ async function main() {
       'activity-mia-final-pass.family-device-states',
       'activity-mia-final-pass.source-stale-unreachable-summary',
       'activity-mia-final-pass.adapter-handoff',
+      'activity-mia-final-pass.adapter-operation-manifest',
       'activity-mia-final-pass.parent-assistant-evidence',
       'activity-mia-final-pass.saved-report-metadata-citation',
       'activity-mia-final-pass.c-owned-paths-not-touched',
@@ -36,11 +37,12 @@ async function main() {
       upstreamProof: relative(repoRoot, adapterProofPath),
       activityDomain: 'packages/activity-domain/src/activity-surface.ts',
       adapterBoundary: 'packages/agent-protocol-domain/src/activity-surface-adapter.ts',
+      adapterOperationManifest: 'packages/agent-protocol-domain/src/activity-surface-adapter-manifest.ts',
       adapterBoundaryTest: 'packages/agent-protocol-domain/tests/activity-surface-adapter.test.ts',
       rustReportStore: 'crates/agent-service/src/activity_surface_report_store.rs',
       rustParentAssistantContext: 'crates/agent-service/src/parent_assistant_evidence_context.rs',
       runtimeProof: 'scripts/test/activity-parent-assistant-runtime-proof.mjs',
-      checkpoint: 'docs/checkpoints/activity-mia-evidence-final-pass-2026-05-30.md',
+      checkpoint: 'docs/checkpoints/activity-reports-adapter-mia-evidence-final-pass-2026-05-31.md',
     },
     coverage: {
       reportPersistence:
@@ -50,16 +52,16 @@ async function main() {
       sourceStateSummary:
         'Saved report history rows count stale and unreachable sources separately from offline, unavailable, and error sources.',
       adapterHandoff:
-        'The TypeScript service-adapter boundary creates report/history/read-model commands and parses generated/saved/history/read-model events with typed unavailable failures.',
+        'The TypeScript service-adapter boundary creates report/history/read-model commands, exposes a C-consumable operation manifest, and parses generated/saved/history/read-model events with typed unavailable failures.',
       parentAssistantEvidence:
-        'Parent Assistant/MIA cites saved Activity report metadata, ready section counts, offline/stale/unreachable/unavailable source counts, and child-contract action-preview boundaries.',
+        'Parent Assistant/MIA cites saved Activity report metadata, ready section counts, offline/stale/unreachable/unavailable source counts, source ids where available, and child-contract action-preview boundaries.',
       cOwnedPathPolicy:
         'This proof does not edit C-owned Activity UI, vendor portal, temp scratchpad, parent-assistant API integration, service main.rs, or websocket.rs paths.',
     },
     counts: {
       coveredActivityTabs: adapterProof.productTruth.coveredTabs.length,
       upstreamProofLabels: adapterProof.proofLabels.length,
-      finalPassProofLabels: 7,
+      finalPassProofLabels: 8,
       cOwnedPathsTouched: 0,
     },
     knownGaps: [
