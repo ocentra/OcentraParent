@@ -41,6 +41,7 @@
     "enforcement-lan-mobile-product-proof",
     "child-android-protocol-package-lifecycle-proof",
     "child-android-storage-protocol-capability-proof",
+    "child-android-service-protocol-capability-proof",
     "parent-mobile-shell-runtime-proof",
     "v0-9-mobile-controller-discovery-runtime-proof",
     "v0-9-mobile-controller-observer-runtime-proof",
@@ -1260,6 +1261,41 @@
         "Hosted child activity storage presented as default product storage.",
         "A debug APK build presented as emulator or physical-device storage behavior.",
         "Package-local Bundle constants presented as LAN/WebSocket child-agent storage transport."
+      ]
+    },
+    {
+      "id": "child-android-service-protocol-capability-proof",
+      "title": "Child Android Service Protocol Capability Proof",
+      "claimIds": ["child-android-service-protocol-capability-proof"],
+      "expectationFiles": [
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/platforms.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "proofMode": "ci-mechanical-proof",
+      "realEvidencePath": [
+        "Build TypeScript contracts from the current commit.",
+        "Run the parent-domain Child Android service protocol contract test.",
+        "Build the Android debug APK through the repo release package script.",
+        "Verify the foreground service status bridge, storage bridge reference, status export fields, capability labels, APK artifact, and SHA-256 checksum.",
+        "Record UsageStats as permission-required, accessibility and VPN/DNS as unavailable, and device-owner plus managed profile as blocked until device/enrollment proof exists."
+      ],
+      "ciCommands": ["node scripts/test/child-android-service-protocol-capability-proof.mjs"],
+      "requiredArtifacts": [
+        "test-results/child-android-service-protocol-capability-proof/proof.json",
+        "target/release-packages/android/ocentra-parent-agent-android-debug-latest.apk",
+        "target/release-packages/android/ocentra-parent-agent-android-debug-latest.apk.sha256",
+        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/ChildAndroidServiceProtocolProof.java"
+      ],
+      "knownGaps": [
+        "CI proof compiles package-local service protocol mechanics but does not install or run the APK on a device.",
+        "Foreground service runtime behavior, UsageStats permission grant, accessibility, VPN/DNS, device-owner enrollment, managed-profile enrollment, and external child-agent transport remain manual-required, unavailable, blocked, or unimplemented until runtime/device artifacts exist."
+      ],
+      "notProof": [
+        "A foreground service declaration presented as emulator or physical-device runtime behavior.",
+        "A package-local Bundle status export presented as remote transport or hosted child activity storage.",
+        "UsageStats, accessibility, VPN/DNS, device-owner, or managed-profile behavior without device artifacts.",
+        "Package-local service constants presented as Android child enforcement parity."
       ]
     },
     {
@@ -3365,6 +3401,72 @@
         "The proof does not run on an emulator or physical Android device.",
         "Encrypted evidence journal persistence, SQLite query store persistence, parent-owned export, external storage transport, raw image/activity custody, and deletion behavior remain unimplemented or manual-required.",
         "The package-local storage bridge does not prove Android child enforcement parity or default hosted storage."
+      ],
+      "manualProofChecklist": []
+    },
+    {
+      "id": "child-android-service-protocol-capability-proof",
+      "roadmapSlice": "Child Android service/protocol capability proof",
+      "expectationFiles": [
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/platforms.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "claim": "Child Android service/protocol capability proof compiles a package-local native service bridge into the debug APK, validates a typed parent-domain service read model, proves foreground service status and storage bridge reference as package-local scaffolds, exposes status export fields only through a native Bundle, and records UsageStats, accessibility, VPN/DNS, device-owner, and managed-profile labels without over-claiming device behavior.",
+      "privilegedCapability": false,
+      "ciProof": {
+        "commands": ["node scripts/test/child-android-service-protocol-capability-proof.mjs"],
+        "jobs": ["Worker D Child Android service/protocol capability proof"]
+      },
+      "platformCoverage": {
+        "windows": "not-applicable",
+        "linux": "not-applicable",
+        "macos": "not-applicable",
+        "android": "ci-mechanical-proof",
+        "ios": "not-applicable"
+      },
+      "runtimeSurfaceCoverage": {
+        "foregroundServiceStatus": {
+          "state": "ci-mechanical-proof",
+          "proof": "ChildAndroidServiceProtocolProof names the foreground service class, notification channel, notification id, and dataSync service type; runtime behavior still requires emulator or physical-device evidence."
+        },
+        "storageProtocolBridge": {
+          "state": "scaffold-only",
+          "proof": "The service proof references ChildAndroidStorageProtocolProof.BRIDGE_STATE and keeps external service transport not implemented."
+        },
+        "statusExportSurface": {
+          "state": "package-local-bundle",
+          "proof": "Service status fields are exported only through Android Bundle metadata inside the package."
+        },
+        "usageStats": {
+          "state": "permission-required",
+          "proof": "UsageStats needs a real permission grant and observation artifact before it can be treated as available."
+        },
+        "accessibility": {
+          "state": "unavailable",
+          "proof": "No AccessibilityService declaration, grant, or behavior is claimed."
+        },
+        "vpnDns": {
+          "state": "unavailable",
+          "proof": "No VPN or DNS filtering service declaration or adapter behavior is claimed."
+        },
+        "deviceOwner": {
+          "state": "blocked",
+          "proof": "No device-owner enrollment or policy action is claimed."
+        },
+        "managedProfile": {
+          "state": "blocked",
+          "proof": "No managed-profile enrollment or behavior is claimed."
+        },
+        "externalServiceTransport": {
+          "state": "not-implemented",
+          "proof": "The service proof is package-local Bundle metadata and not LAN/WebSocket child-agent transport."
+        }
+      },
+      "knownGaps": [
+        "The proof does not run on an emulator or physical Android device.",
+        "Foreground runtime behavior, UsageStats permission grant, accessibility, VPN/DNS, device-owner, managed-profile, remote status export, and external child-agent service transport remain manual-required, unavailable, blocked, or not implemented.",
+        "The package-local service bridge does not prove Android child enforcement parity."
       ],
       "manualProofChecklist": []
     },
