@@ -105,15 +105,21 @@ function buildReadModel(householdDiscoveryProof, productionMobileProof, mobileDi
   const householdReadModel = householdDiscoveryProof.productionDiscoveryHouseholdReadModel;
   const discoveryReadModel = mobileDiscoveryProof.runtimeReadModel;
   const observerReadModel = mobileObserverProof.runtimeReadModel;
+  const routeChecks = householdReadModel.routeChecks.filter(isAggregateRouteCheck).map(routeCheckEvidence);
+  const observerOperations = observerReadModel.mobileReadModels.flatMap((mobileReadModel) =>
+    mobileReadModel.operationProofs.map((entry) => observerOperationEvidence(entry, mobileReadModel.platform))
+  );
   return {
     schemaVersion: proofId,
     checkedAt: householdReadModel.checkedAt,
     sourceProofs: sourceProofInputs(),
     productionDiscoveryStates: discoveryReadModel.householdDiscovery.discoveryStatesCovered,
-    routeChecks: householdReadModel.routeChecks.filter(isAggregateRouteCheck).map(routeCheckEvidence),
+    routeChecks,
     mobileRoutes: discoveryReadModel.mobileRouteReadModels.map(mobileRouteEvidence),
-    observerOperations: observerReadModel.mobileReadModels[0].operationProofs.map(observerOperationEvidence),
+    observerOperations,
     controllerTransitions: discoveryReadModel.controllerTransitions,
+    selectedTrustedDeviceEvidence: selectedTrustedDeviceEvidence(productionMobileProof),
+    auditProofCustody: auditProofCustody(routeChecks, observerOperations, householdReadModel, productionMobileProof),
     manualProofBoundary: {
       physicalHouseholdLan: productionMobileProof.manualProofGates.physicalHouseholdLan.state,
       parentMobileWriteAuthority: productionMobileProof.manualProofGates.parentMobileControllerObserver.state,
@@ -124,7 +130,11 @@ function buildReadModel(householdDiscoveryProof, productionMobileProof, mobileDi
         (entry) => entry.requiredArtifactSummary
       ),
     },
-    claimsProved: ['local production discovery and parent mobile observer route proof are composed'],
+    claimsProved: [
+      'local production discovery and parent mobile observer route proof are composed',
+      'selected device storage, trusted registry recovery, and route security rejection labels are carried into the aggregate proof',
+      'Android and iOS observer operations are audited without upgrading parent mobile write authority',
+    ],
     claimsNotProved: [
       'physical household LAN readiness',
       'real parent mobile write authority',
@@ -186,13 +196,46 @@ function mobileRouteEvidence(entry) {
   };
 }
 
-function observerOperationEvidence(entry) {
+function observerOperationEvidence(entry, platform) {
   return {
+    platform,
     operation: entry.operation,
     operationState: entry.operationState,
     rejectionReason: entry.rejectionReason,
     proofState: operationProofState(entry.operationState),
-    proofLabel: entry.proofLabel,
+    proofLabel: `${platform}:${entry.proofLabel}`,
+  };
+}
+
+function selectedTrustedDeviceEvidence(productionMobileProof) {
+  const serviceBoundary = productionMobileProof.localServiceProof.twoServiceBoundary;
+  const controllerAuthority = productionMobileProof.localServiceProof.controllerAuthority;
+  const selectedDeviceRejectionLabels = controllerAuthority.dishonestStateRejections.concat([
+    controllerAuthority.revocationBeforeControl.routeRevokedAssertion,
+    controllerAuthority.revocationBeforeControl.controlRejectedAssertion,
+  ]);
+  return {
+    storageState: 'ci-mechanical-proof',
+    securityState: 'ci-mechanical-proof',
+    selectedRouteRecoveryLabels: serviceBoundary.selectedRouteRecovery.concat(serviceBoundary.acceptedAfterRestart),
+    trustedRegistryLabels: serviceBoundary.services.map((service) => `${service.label}:${service.registryPersistence}`),
+    selectedRouteTrustLabels: serviceBoundary.selectedRouteTrust,
+    selectedDeviceRejectionLabels,
+    wrongDeviceRejectionLabel: serviceBoundary.wrongDeviceRejected,
+    proofLabel: 'trusted-device-selected-device-storage-security-proof',
+  };
+}
+
+function auditProofCustody(routeChecks, observerOperations, householdReadModel, productionMobileProof) {
+  return {
+    proofState: 'ci-mechanical-proof',
+    physicalDeviceProofState: productionMobileProof.manualProofGates.physicalHouseholdLan.state,
+    routeAuditLabels: routeChecks.map((entry) => entry.proofLabel),
+    observerAuditLabels: observerOperations.map((entry) => entry.proofLabel),
+    manualBoundaryLabels: householdReadModel.manualHouseholdProofChecklist.map(
+      (entry) => entry.requiredArtifactSummary
+    ),
+    proofLabel: 'aggregate-route-observer-audit-proof-custody',
   };
 }
 
@@ -242,17 +285,91 @@ function assertReadModel(readModel) {
   assertEqual(readModel.manualProofBoundary.physicalHouseholdLan, 'manual-required', 'physical household state');
   assertEqual(readModel.manualProofBoundary.cloudRelayImplementation, 'not-implemented', 'cloud relay state');
   assertArrayIncludes(readModel.productionDiscoveryStates, 'stale', 'stale source state');
-  assertArrayIncludes(
-    readModel.routeChecks.map((entry) => entry.check),
-    'failed-unpaired-rejected',
-    'failed unpaired check'
-  );
+  assertRouteRejections(readModel.routeChecks);
   assertArrayIncludes(
     readModel.mobileRoutes.map((entry) => entry.commandAuthorityState),
     'observer-read-only',
     'observer authority'
   );
+  assertObserverOperations(readModel.observerOperations);
+  assertSelectedTrustedDeviceEvidence(readModel.selectedTrustedDeviceEvidence);
+  assertAuditProofCustody(readModel.auditProofCustody, readModel.routeChecks, readModel.observerOperations);
   proofLabels.push('aggregate-read-model.honest');
+}
+
+function assertRouteRejections(routeChecks) {
+  const expectedRejections = new Map([
+    ['paired-route-accepted', null],
+    ['failed-unpaired-rejected', 'anonymous'],
+    ['wrong-origin-rejected', 'wrong-origin'],
+    ['wrong-device-rejected', 'wrong-device'],
+    ['replay-rejected', 'replayed'],
+    ['revoked-pairing-rejected', 'revoked'],
+    ['stale-source-rejected', 'stale'],
+    ['offline-device-rejected', 'offline'],
+    ['unavailable-route-rejected', 'unsupported-route'],
+  ]);
+  const byCheck = new Map(routeChecks.map((entry) => [entry.check, entry]));
+  for (const [check, rejectionReason] of expectedRejections.entries()) {
+    const entry = byCheck.get(check);
+    if (!entry) {
+      throw new Error(`Missing aggregate route check ${check}.`);
+    }
+    assertEqual(entry.rejectionReason, rejectionReason, `${check} rejection reason`);
+  }
+  proofLabels.push('aggregate-route-rejections.exhaustive');
+}
+
+function assertObserverOperations(observerOperations) {
+  for (const platform of ['android', 'ios']) {
+    const operations = observerOperations.filter((entry) => entry.platform === platform);
+    const byOperation = new Map(operations.map((entry) => [entry.operation, entry]));
+    for (const operation of [
+      'observe-status',
+      'preview-policy-draft',
+      'refresh-capabilities',
+      'request-controller-takeover',
+      'release-controller-lease',
+      'submit-lan-ai-job',
+      'write-policy',
+      'approve-override',
+      'pair-device',
+      'revoke-device',
+    ]) {
+      if (!byOperation.has(operation)) {
+        throw new Error(`Missing ${platform} observer operation ${operation}.`);
+      }
+    }
+    assertEqual(byOperation.get('write-policy').rejectionReason, 'observer-read-only', `${platform} write rejection`);
+    assertEqual(
+      byOperation.get('submit-lan-ai-job').rejectionReason,
+      'lan-ai-provider-unavailable',
+      `${platform} LAN AI rejection`
+    );
+  }
+  proofLabels.push('aggregate-observer-operations.android-ios-complete');
+}
+
+function assertSelectedTrustedDeviceEvidence(evidence) {
+  assertEqual(evidence.storageState, 'ci-mechanical-proof', 'selected trusted device storage state');
+  assertEqual(evidence.securityState, 'ci-mechanical-proof', 'selected trusted device security state');
+  assertArrayLengthAtLeast(evidence.selectedRouteRecoveryLabels, 2, 'selected route recovery labels');
+  assertArrayLengthAtLeast(evidence.trustedRegistryLabels, 2, 'trusted registry labels');
+  assertArrayLengthAtLeast(evidence.selectedRouteTrustLabels, 3, 'selected route trust labels');
+  assertArrayLengthAtLeast(evidence.selectedDeviceRejectionLabels, 8, 'selected device rejection labels');
+  if (!evidence.wrongDeviceRejectionLabel.includes('wrong-device')) {
+    throw new Error(`Wrong-device rejection label was not explicit: ${evidence.wrongDeviceRejectionLabel}`);
+  }
+  proofLabels.push('aggregate-selected-trusted-device.storage-security');
+}
+
+function assertAuditProofCustody(custody, routeChecks, observerOperations) {
+  assertEqual(custody.proofState, 'ci-mechanical-proof', 'audit custody state');
+  assertEqual(custody.physicalDeviceProofState, 'manual-required', 'physical device custody state');
+  assertArrayLengthAtLeast(custody.routeAuditLabels, routeChecks.length, 'route audit labels');
+  assertArrayLengthAtLeast(custody.observerAuditLabels, observerOperations.length, 'observer audit labels');
+  assertArrayLengthAtLeast(custody.manualBoundaryLabels, 5, 'manual boundary custody labels');
+  proofLabels.push('aggregate-audit-proof-custody.manual-boundary-honest');
 }
 
 function assertProofMatrix(matrix) {
@@ -306,5 +423,11 @@ function assertEqual(actual, expected, label) {
 function assertArrayIncludes(values, expected, label) {
   if (!Array.isArray(values) || !values.includes(expected)) {
     throw new Error(`${label}: expected ${expected}`);
+  }
+}
+
+function assertArrayLengthAtLeast(values, expected, label) {
+  if (!Array.isArray(values) || values.length < expected) {
+    throw new Error(`${label}: expected at least ${expected}, received ${values?.length ?? 0}`);
   }
 }
