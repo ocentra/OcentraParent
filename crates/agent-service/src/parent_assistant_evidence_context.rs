@@ -148,6 +148,18 @@ fn report_context_summary(report: &ActivityReportDocument) -> String {
         report,
         ActivityReadModelState::Offline,
     ));
+    summary.push_str(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_STALE_SOURCE_IDS_LABEL);
+    summary.push_str(&source_ids_with_state(
+        report,
+        ActivityReadModelState::Stale,
+    ));
+    summary.push_str(
+        constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_UNREACHABLE_SOURCE_IDS_LABEL,
+    );
+    summary.push_str(&source_ids_with_reachability(
+        report,
+        ocentra_parent_agent_protocol::ActivityReportSourceReachabilityState::Unreachable,
+    ));
     summary.push_str(
         constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_UNAVAILABLE_SOURCE_IDS_LABEL,
     );
@@ -206,6 +218,19 @@ fn source_ids_with_state(report: &ActivityReportDocument, state: ActivityReadMod
             .source_states
             .iter()
             .filter(|source| source.state == state)
+            .map(|source| source.device_id.as_str()),
+    )
+}
+
+fn source_ids_with_reachability(
+    report: &ActivityReportDocument,
+    state: ocentra_parent_agent_protocol::ActivityReportSourceReachabilityState,
+) -> String {
+    joined_or_none(
+        report
+            .source_states
+            .iter()
+            .filter(|source| source.reachability_state == state)
             .map(|source| source.device_id.as_str()),
     )
 }

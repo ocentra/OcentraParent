@@ -40,6 +40,8 @@ pub const ACTIVITY_REPORT_SUMMARY_UNAVAILABLE_SOURCES_LABEL: &str = ", unavailab
 pub const ACTIVITY_REPORT_SUMMARY_UNREACHABLE_SOURCES_LABEL: &str = ", unreachableSources=";
 pub const ACTIVITY_REPORT_SUMMARY_SECTION_KINDS_LABEL: &str = ", sectionKinds=";
 pub const ACTIVITY_REPORT_SUMMARY_OFFLINE_SOURCE_IDS_LABEL: &str = ", offlineSourceIds=";
+pub const ACTIVITY_REPORT_SUMMARY_STALE_SOURCE_IDS_LABEL: &str = ", staleSourceIds=";
+pub const ACTIVITY_REPORT_SUMMARY_UNREACHABLE_SOURCE_IDS_LABEL: &str = ", unreachableSourceIds=";
 pub const ACTIVITY_REPORT_SUMMARY_UNAVAILABLE_SOURCE_IDS_LABEL: &str = ", unavailableSourceIds=";
 pub const ACTIVITY_REPORT_SUMMARY_NONE: &str = "none";
 pub const PROMPT_SYSTEM: &str =
