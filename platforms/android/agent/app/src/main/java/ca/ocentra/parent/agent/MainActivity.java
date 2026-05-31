@@ -10,9 +10,14 @@ public final class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         startForegroundService(new Intent(this, OcentraParentAgentService.class));
+        Bundle lifecycleProof = ChildAndroidLifecycleProof.createStatusBundle();
 
         TextView status = new TextView(this);
-        status.setText(R.string.agent_status);
+        status.setText(
+            getString(R.string.agent_status) +
+            "\n" +
+            lifecycleProof.getString(ChildAndroidLifecycleProof.FIELD_BRIDGE_STATE)
+        );
         status.setTextSize(18);
         status.setPadding(32, 32, 32, 32);
         setContentView(status);

@@ -37,6 +37,10 @@
       "import": "./dist/capabilities.js",
       "types": "./dist/capabilities.d.ts"
     },
+    "./child-android-lifecycle-proof": {
+      "import": "./dist/child-android-lifecycle-proof.js",
+      "types": "./dist/child-android-lifecycle-proof.d.ts"
+    },
     "./enforcement": {
       "import": "./dist/enforcement.js",
       "types": "./dist/enforcement.d.ts"
