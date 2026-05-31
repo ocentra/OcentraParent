@@ -50,6 +50,29 @@ it('creates runtime commands with typed Activity report JSON for report-backed c
   expect(report.savedMetadata.savedState).toBe('saved');
 });
 
+it('creates runtime commands with explicit API authorization custody terms', () => {
+  const message = createParentAssistantRuntimeCommand('message-send', {
+    ...commandInput(),
+    apiAuthorizationContext: {
+      authorizationState: 'authorized',
+      parentAuthorizationRequired: true,
+      evidenceCitationRequired: true,
+      custodyLabel: 'parent-authorized-api-ai',
+      retentionState: 'parent-authorized-no-default-retention',
+      deletionState: 'delete-provider-cache-on-parent-request',
+    },
+  });
+
+  expect(message.payload[AgentProtocolDefaults.Field.ParentAssistantApiAuthorizationState]).toBe('authorized');
+  expect(message.payload[AgentProtocolDefaults.Field.ParentAssistantApiCustodyLabel]).toBe('parent-authorized-api-ai');
+  expect(message.payload[AgentProtocolDefaults.Field.ParentAssistantApiRetentionState]).toBe(
+    'parent-authorized-no-default-retention'
+  );
+  expect(message.payload[AgentProtocolDefaults.Field.ParentAssistantApiDeletionState]).toBe(
+    'delete-provider-cache-on-parent-request'
+  );
+});
+
 it('creates thread, cancel, and confirm commands with stable payload fields', () => {
   const thread = createParentAssistantRuntimeCommand('thread-open', commandInput());
   const cancel = createParentAssistantRuntimeCommand('run-cancel', commandInput());

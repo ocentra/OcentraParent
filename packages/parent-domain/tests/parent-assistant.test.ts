@@ -4,6 +4,7 @@ import {
   ParentAssistantActionPreviewResultSchema,
   ParentAssistantActionConfirmResultSchema,
   ParentAssistantAnswerSchema,
+  ParentAssistantApiAuthorizationContextSchema,
   ParentAssistantApiProviderBoundarySchema,
   ParentAssistantGenerateRequestSchema,
   ParentAssistantProviderStatusSchema,
@@ -230,6 +231,27 @@ describe('parent assistant unavailable answer contracts', () => {
     });
 
     expect(parsed.unavailableReason).toBe('local-ai-provider-unconfigured');
+  });
+});
+
+describe('parent assistant API authorization context contracts', () => {
+  it('ParentAssistantApiAuthorizationContextSchema: requires explicit parent custody and retention proof', () => {
+    const parsed = ParentAssistantApiAuthorizationContextSchema.parse({
+      authorizationState: 'authorized',
+      parentAuthorizationRequired: true,
+      evidenceCitationRequired: true,
+      custodyLabel: 'parent-authorized-api-ai',
+      retentionState: 'parent-authorized-no-default-retention',
+      deletionState: 'delete-provider-cache-on-parent-request',
+    });
+
+    expect(parsed.authorizationState).toBe('authorized');
+    expect(
+      ParentAssistantApiAuthorizationContextSchema.safeParse({
+        ...parsed,
+        retentionState: 'no-retention-without-parent-authorization',
+      }).success
+    ).toBe(false);
   });
 });
 

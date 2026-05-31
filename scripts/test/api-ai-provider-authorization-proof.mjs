@@ -57,6 +57,19 @@ function runApiProviderAuthorizationProof() {
   return new Promise((resolve, reject) => {
     const socket = new WebSocket(wsUrl);
     let settled = false;
+    let stepIndex = 0;
+    const steps = [
+      {
+        name: 'env-only-fails-closed',
+        authorizationTerms: false,
+        assertPayload: assertEnvOnlyFailsClosedAnswerResult,
+      },
+      {
+        name: 'explicit-parent-authorized-degraded',
+        authorizationTerms: true,
+        assertPayload: assertAuthorizedDegradedAnswerResult,
+      },
+    ];
     const timer = setTimeout(() => fail(new Error('API AI provider authorization proof timed out')), 30000);
 
     const fail = (error) => {
@@ -80,7 +93,7 @@ function runApiProviderAuthorizationProof() {
     };
 
     socket.addEventListener('open', () => {
-      socket.send(JSON.stringify(answerGenerateCommand()));
+      socket.send(JSON.stringify(answerGenerateCommand(steps[stepIndex])));
     });
 
     socket.addEventListener('message', (message) => {
@@ -94,8 +107,13 @@ function runApiProviderAuthorizationProof() {
           return;
         }
 
-        assertAnswerResult(parsed.payload);
-        complete();
+        steps[stepIndex].assertPayload(parsed.payload);
+        stepIndex += 1;
+        if (stepIndex >= steps.length) {
+          complete();
+          return;
+        }
+        socket.send(JSON.stringify(answerGenerateCommand(steps[stepIndex])));
       } catch (error) {
         fail(error instanceof Error ? error : new Error(String(error)));
       }
@@ -105,7 +123,25 @@ function runApiProviderAuthorizationProof() {
   });
 }
 
-function assertAnswerResult(payload) {
+function assertEnvOnlyFailsClosedAnswerResult(payload) {
+  const answer = parseJsonField(payload, AgentProtocolDefaults.Field.ParentAssistantAnswer);
+  const boundary = answer.apiProviderBoundary;
+  if (
+    boundary.authorizationState !== 'not-authorized' ||
+    boundary.accessState !== 'not-authorized' ||
+    boundary.providerState !== 'unavailable' ||
+    boundary.retentionState !== 'no-retention-without-parent-authorization'
+  ) {
+    throw new Error(`API AI provider did not fail closed without explicit parent terms: ${JSON.stringify(boundary)}`);
+  }
+  if (boundary.childSafetyOrEnforcementUseAllowed !== false || answer.actionPreview.enforcementApplied !== false) {
+    throw new Error(
+      `API AI provider crossed into child safety or enforcement without explicit terms: ${JSON.stringify(answer)}`
+    );
+  }
+}
+
+function assertAuthorizedDegradedAnswerResult(payload) {
   const answer = parseJsonField(payload, AgentProtocolDefaults.Field.ParentAssistantAnswer);
   const boundary = answer.apiProviderBoundary;
   if (
@@ -142,20 +178,30 @@ function assertAnswerResult(payload) {
   }
 }
 
-function answerGenerateCommand() {
+function answerGenerateCommand(step) {
   return {
     schemaVersion: 1,
-    messageId: 'cmd-api-ai-provider-authorization-proof',
+    messageId: `cmd-api-ai-provider-authorization-proof-${step.name}`,
     sentAt: new Date().toISOString(),
     source: { peerId: 'portal-dev', role: 'portal' },
     target: { deviceId: 'local-dev-agent', platform: 'windows', route: 'localhost' },
     command: AgentCommand.ParentAssistantAnswerGenerate,
     payload: {
-      [AgentProtocolDefaults.Field.ParentAssistantRequestId]: 'parent-assistant-request-api-proof',
+      [AgentProtocolDefaults.Field.ParentAssistantRequestId]: `parent-assistant-request-api-proof-${step.name}`,
       [AgentProtocolDefaults.Field.ParentAssistantQuestion]: 'Suggest a policy rule from recent activity.',
       [AgentProtocolDefaults.Field.ParentAssistantEvidenceSummary]:
         'Recent Activity evidence is cited for parent review.',
+      ...(step.authorizationTerms ? parentAuthorizedApiContextPayload() : {}),
     },
+  };
+}
+
+function parentAuthorizedApiContextPayload() {
+  return {
+    [AgentProtocolDefaults.Field.ParentAssistantApiAuthorizationState]: 'authorized',
+    [AgentProtocolDefaults.Field.ParentAssistantApiCustodyLabel]: 'parent-authorized-api-ai',
+    [AgentProtocolDefaults.Field.ParentAssistantApiRetentionState]: 'parent-authorized-no-default-retention',
+    [AgentProtocolDefaults.Field.ParentAssistantApiDeletionState]: 'delete-provider-cache-on-parent-request',
   };
 }
 

@@ -207,7 +207,7 @@ fn provider_status_for_command(command: &AgentCommandEnvelope) -> ParentAssistan
         unavailable_reason,
         queue_depth,
         busy,
-        api_provider_boundary: api_boundary::api_provider_boundary(&citations),
+        api_provider_boundary: api_boundary::api_provider_boundary_for_command(command, &citations),
     }
 }
 

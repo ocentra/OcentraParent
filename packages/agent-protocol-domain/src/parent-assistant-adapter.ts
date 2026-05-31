@@ -109,6 +109,15 @@ export type ParentAssistantCommandTargetInput = {
   readonly route: AgentRoute;
 };
 
+type ParentAssistantApiAuthorizationContextInput = {
+  readonly authorizationState: 'authorized';
+  readonly parentAuthorizationRequired: true;
+  readonly evidenceCitationRequired: true;
+  readonly custodyLabel: 'parent-authorized-api-ai';
+  readonly retentionState: 'parent-authorized-no-default-retention';
+  readonly deletionState: 'delete-provider-cache-on-parent-request';
+};
+
 export type CreateParentAssistantCommandInput = {
   readonly messageId: string;
   readonly sentAt: string;
@@ -121,6 +130,7 @@ export type CreateParentAssistantCommandInput = {
   readonly actionIntentId?: string;
   readonly evidenceSummary?: string;
   readonly activityReport?: ActivityReportDocument;
+  readonly apiAuthorizationContext?: ParentAssistantApiAuthorizationContextInput;
   readonly modelId?: string;
   readonly maxOutputTokens?: number;
   readonly timeoutMs?: number;
@@ -275,6 +285,14 @@ function commandPayload(input: CreateParentAssistantCommandInput): AgentCommandE
   }
   if (input.activityReport !== undefined) {
     payload[AgentProtocolDefaults.Field.ActivityReportDocument] = JSON.stringify(input.activityReport);
+  }
+  if (input.apiAuthorizationContext !== undefined) {
+    payload[AgentProtocolDefaults.Field.ParentAssistantApiAuthorizationState] =
+      input.apiAuthorizationContext.authorizationState;
+    payload[AgentProtocolDefaults.Field.ParentAssistantApiCustodyLabel] = input.apiAuthorizationContext.custodyLabel;
+    payload[AgentProtocolDefaults.Field.ParentAssistantApiRetentionState] =
+      input.apiAuthorizationContext.retentionState;
+    payload[AgentProtocolDefaults.Field.ParentAssistantApiDeletionState] = input.apiAuthorizationContext.deletionState;
   }
   if (input.threadId !== undefined) {
     payload[AgentProtocolDefaults.Field.ParentAssistantThreadId] = input.threadId;
