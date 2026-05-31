@@ -134,6 +134,13 @@ fn parent_assistant_provider_status_reports_local_runtime_and_api_boundary() {
 
 #[test]
 fn parent_assistant_api_boundary_requires_authorization_without_remote_adapter_claim() {
+    assert!(!api_boundary::api_authorization_context_is_complete(
+        &command(
+            AgentCommandName::AgentParentAssistantProviderStatusGet,
+            Default::default(),
+        )
+    ));
+
     let boundary = api_boundary::api_provider_boundary_for_access_state(
         &[evidence_context()],
         ParentAssistantApiProviderAccessState::AuthorizedUnavailable,

@@ -1,15 +1,26 @@
 use std::env;
 
 use ocentra_parent_agent_protocol::{
-    constants, policy_constants as policy, ParentAssistantApiAuthorizationState,
-    ParentAssistantApiProviderAccessState, ParentAssistantApiProviderBoundary,
-    ParentAssistantEvidenceContext, ParentAssistantProviderState,
+    constants, policy_constants as policy, AgentCommandEnvelope, LogFieldValue,
+    ParentAssistantApiAuthorizationState, ParentAssistantApiProviderAccessState,
+    ParentAssistantApiProviderBoundary, ParentAssistantEvidenceContext,
+    ParentAssistantProviderState,
 };
 
 pub(crate) fn api_provider_boundary(
     citations: &[ParentAssistantEvidenceContext],
 ) -> ParentAssistantApiProviderBoundary {
-    let access_state = if !api_authorized() {
+    api_provider_boundary_for_access_state(
+        citations,
+        ParentAssistantApiProviderAccessState::NotAuthorized,
+    )
+}
+
+pub(crate) fn api_provider_boundary_for_command(
+    command: &AgentCommandEnvelope,
+    citations: &[ParentAssistantEvidenceContext],
+) -> ParentAssistantApiProviderBoundary {
+    let access_state = if !api_authorized() || !api_authorization_context_is_complete(command) {
         ParentAssistantApiProviderAccessState::NotAuthorized
     } else if api_degraded() {
         ParentAssistantApiProviderAccessState::AuthorizedDegraded
@@ -18,6 +29,26 @@ pub(crate) fn api_provider_boundary(
     };
 
     api_provider_boundary_for_access_state(citations, access_state)
+}
+
+pub(crate) fn api_authorization_context_is_complete(command: &AgentCommandEnvelope) -> bool {
+    command_field_matches(
+        command,
+        constants::field::PARENT_ASSISTANT_API_AUTHORIZATION_STATE,
+        constants::parent_assistant::API_PROVIDER_AUTHORIZATION_AUTHORIZED,
+    ) && command_field_matches(
+        command,
+        constants::field::PARENT_ASSISTANT_API_CUSTODY_LABEL,
+        constants::parent_assistant::API_PROVIDER_CUSTODY_LABEL,
+    ) && command_field_matches(
+        command,
+        constants::field::PARENT_ASSISTANT_API_RETENTION_STATE,
+        constants::parent_assistant::API_PROVIDER_RETENTION_PARENT_AUTHORIZED,
+    ) && command_field_matches(
+        command,
+        constants::field::PARENT_ASSISTANT_API_DELETION_STATE,
+        constants::parent_assistant::API_PROVIDER_DELETION_STATE,
+    )
 }
 
 pub(crate) fn api_provider_boundary_for_access_state(
@@ -128,4 +159,15 @@ fn api_degraded() -> bool {
     env::var(constants::parent_assistant::API_PROVIDER_DEGRADED_ENV)
         .map(|value| value == constants::value::TRUE)
         .unwrap_or(false)
+}
+
+fn command_field_matches(
+    command: &AgentCommandEnvelope,
+    key: &'static str,
+    expected: &'static str,
+) -> bool {
+    matches!(
+        command.payload.get(key),
+        Some(LogFieldValue::String(value)) if value == expected
+    )
 }

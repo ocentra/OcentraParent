@@ -90,11 +90,11 @@ pub(crate) async fn generate_parent_assistant_answer_with_scheduler(
     if runtime.unavailable_reason.is_some() {
         scheduler
             .record_unavailable_job(&runtime, LocalAiProviderSchedulerJobClass::ParentAssistant);
-        return unavailable_answer(request, &runtime);
+        return answer_with_api_boundary(command, unavailable_answer(request, &runtime));
     }
     if scheduler.status_snapshot().current_job_class.is_some() {
         scheduler.record_queued_job(&runtime, LocalAiProviderSchedulerJobClass::ParentAssistant);
-        return degraded_busy_answer(request, &runtime);
+        return answer_with_api_boundary(command, degraded_busy_answer(request, &runtime));
     }
 
     let generation_request = generation_request_from_parent_request(&request, config, model_id);
@@ -105,7 +105,16 @@ pub(crate) async fn generate_parent_assistant_answer_with_scheduler(
             || run_local_ai_chat_generation(&command.message_id, generation_request, config),
         )
         .await;
-    answer_from_generation_result(request, result)
+    answer_with_api_boundary(command, answer_from_generation_result(request, result))
+}
+
+fn answer_with_api_boundary(
+    command: &AgentCommandEnvelope,
+    mut answer: ParentAssistantAnswer,
+) -> ParentAssistantAnswer {
+    answer.api_provider_boundary =
+        api_boundary::api_provider_boundary_for_command(command, &answer.citations);
+    answer
 }
 
 pub(crate) fn request_from_command(

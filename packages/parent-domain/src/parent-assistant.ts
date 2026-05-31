@@ -66,7 +66,7 @@ export const ParentAssistantProviderStateSchema = withParser(Schema.Literal('con
 export const ParentAssistantAnswerStateSchema = withParser(
   Schema.Literal('answered', 'queued', 'degraded', 'unavailable')
 );
-export const ParentAssistantApiAuthorizationStateSchema = withParser(Schema.Literal('authorized', 'not-authorized'));
+const ParentAssistantApiAuthorizationStateSchema = withParser(Schema.Literal('authorized', 'not-authorized'));
 const ParentAssistantApiProviderAccessStateSchema = withParser(
   Schema.Literal('not-authorized', 'authorized-unavailable', 'authorized-degraded')
 );
@@ -157,6 +157,27 @@ export const ParentAssistantGenerateRequestSchema = withParser(
     maxOutputTokens: ParentAssistantPositiveCount,
     timeoutMs: ParentAssistantPositiveCount,
   })
+);
+
+const ParentAssistantApiAuthorizationContextBaseSchema = Schema.Struct({
+  authorizationState: ParentAssistantApiAuthorizationStateSchema,
+  parentAuthorizationRequired: Schema.Literal(true),
+  evidenceCitationRequired: Schema.Literal(true),
+  custodyLabel: ParentAssistantCustodyLabelSchema,
+  retentionState: ParentAssistantApiProviderRetentionStateSchema,
+  deletionState: ParentAssistantApiProviderDeletionStateSchema,
+});
+
+type ParentAssistantApiAuthorizationContextCandidate = Infer<typeof ParentAssistantApiAuthorizationContextBaseSchema>;
+
+export const ParentAssistantApiAuthorizationContextSchema = withParser(
+  ParentAssistantApiAuthorizationContextBaseSchema.pipe(
+    Schema.filter(
+      (context) =>
+        parentAssistantApiAuthorizationContextIsComplete(context) ||
+        'Expected API AI authorization context to prove explicit parent authorization, custody, retention, deletion, and evidence-citation requirements'
+    )
+  )
 );
 
 const ParentAssistantApiProviderBoundaryBaseSchema = Schema.Struct({
@@ -368,6 +389,19 @@ function parentAssistantApiProviderBoundaryHasRequiredProof(
     boundary.childSafetyOrEnforcementUseAllowed === false &&
     boundary.parentAuthorizationRequired === true &&
     boundary.evidenceCitationRequired === true
+  );
+}
+
+function parentAssistantApiAuthorizationContextIsComplete(
+  context: ParentAssistantApiAuthorizationContextCandidate
+): boolean {
+  return (
+    context.authorizationState === 'authorized' &&
+    context.parentAuthorizationRequired === true &&
+    context.evidenceCitationRequired === true &&
+    context.custodyLabel === 'parent-authorized-api-ai' &&
+    context.retentionState === 'parent-authorized-no-default-retention' &&
+    context.deletionState === 'delete-provider-cache-on-parent-request'
   );
 }
 
