@@ -112,52 +112,7 @@ export function browserPolicyComputedFlag(
   flagId: BrowserPolicyComputedFlagId,
   answers: BrowserPolicyAnswerMap
 ): boolean {
-  switch (flagId) {
-    case 'policyIsOff':
-      return browserPolicyRootAnswer(answers) === 'off';
-    case 'policyIsOn':
-      return browserPolicyRootAnswer(answers) === 'on';
-    case 'policyPaused':
-      return browserPolicyRootAnswer(answers) === 'paused';
-    case 'emergencyOverrideActive':
-      return browserPolicyEmergencyOverrideActive(answers);
-    case 'askParentExists':
-      return browserPolicyAskParentExists(answers);
-    case 'limitExists':
-      return (
-        browserPolicyHas(answers, '1.2', 'limit') ||
-        browserPolicyHas(answers, '6.1', 'limit-time') ||
-        browserPolicyHas(answers, '8.1', 'limit')
-      );
-    case 'downloadsSelected':
-      return browserPolicyHas(answers, '5.1', 'downloads');
-    case 'searchSelected':
-      return browserPolicyHasAny(answers, '5.1', ['search-terms', 'safe-search']);
-    case 'videoSelected':
-      return browserPolicyHas(answers, '5.1', 'video');
-    case 'exactEvidenceSelected':
-      return browserPolicyExactEvidenceSelected(answers);
-    case 'managedBrowserRequired':
-      return browserPolicyManagedBrowserRequired(answers);
-    case 'reportsEnabled':
-      return (answers['14.1'] ?? []).some((optionId) => optionId !== 'policy-status');
-    case 'auditEnabled':
-      return browserPolicyHasAny(answers, '18.1', ['minimal', 'standard', 'detailed', 'custom']);
-    case 'setupRelevant':
-      return browserPolicySetupRelevant(answers);
-    case 'classificationServiceReferenced':
-      return browserPolicyHas(answers, '5.1', 'category') || browserPolicyHas(answers, '5.2', 'classification-service');
-    case 'multiTargetActionMatrixRelevant':
-      return browserPolicyCount(answers, '5.1') >= 2 && browserPolicyCount(answers, '6.1') >= 2;
-    case 'evidencePrivacyVisible':
-      return browserPolicyEvidencePrivacyVisible(answers);
-    case 'notificationEventsRelevant':
-      return browserPolicyNotificationEventsRelevant(answers);
-    case 'unsupportedCapabilityRelevant':
-      return browserPolicyUnsupportedCapabilityRelevant(answers);
-    case 'storedBrowserDataExists':
-      return browserPolicyStoredBrowserDataExists(answers);
-  }
+  return BrowserPolicyComputedFlagEvaluators[flagId](answers);
 }
 
 function browserPolicyRootAnswer(answers: BrowserPolicyAnswerMap): string {
@@ -296,6 +251,37 @@ function browserPolicyStoredBrowserDataExists(answers: BrowserPolicyAnswerMap): 
   );
 }
 
+const BrowserPolicyComputedFlagEvaluators: Record<
+  BrowserPolicyComputedFlagId,
+  (answers: BrowserPolicyAnswerMap) => boolean
+> = {
+  policyIsOff: (answers) => browserPolicyRootAnswer(answers) === 'off',
+  policyIsOn: (answers) => browserPolicyRootAnswer(answers) === 'on',
+  policyPaused: (answers) => browserPolicyRootAnswer(answers) === 'paused',
+  emergencyOverrideActive: browserPolicyEmergencyOverrideActive,
+  askParentExists: browserPolicyAskParentExists,
+  limitExists: (answers) =>
+    browserPolicyHas(answers, '1.2', 'limit') ||
+    browserPolicyHas(answers, '6.1', 'limit-time') ||
+    browserPolicyHas(answers, '8.1', 'limit'),
+  downloadsSelected: (answers) => browserPolicyHas(answers, '5.1', 'downloads'),
+  searchSelected: (answers) => browserPolicyHasAny(answers, '5.1', ['search-terms', 'safe-search']),
+  videoSelected: (answers) => browserPolicyHas(answers, '5.1', 'video'),
+  exactEvidenceSelected: browserPolicyExactEvidenceSelected,
+  managedBrowserRequired: browserPolicyManagedBrowserRequired,
+  reportsEnabled: (answers) => (answers['14.1'] ?? []).some((optionId) => optionId !== 'policy-status'),
+  auditEnabled: (answers) => browserPolicyHasAny(answers, '18.1', ['minimal', 'standard', 'detailed', 'custom']),
+  setupRelevant: browserPolicySetupRelevant,
+  classificationServiceReferenced: (answers) =>
+    browserPolicyHas(answers, '5.1', 'category') || browserPolicyHas(answers, '5.2', 'classification-service'),
+  multiTargetActionMatrixRelevant: (answers) =>
+    browserPolicyCount(answers, '5.1') >= 2 && browserPolicyCount(answers, '6.1') >= 2,
+  evidencePrivacyVisible: browserPolicyEvidencePrivacyVisible,
+  notificationEventsRelevant: browserPolicyNotificationEventsRelevant,
+  unsupportedCapabilityRelevant: browserPolicyUnsupportedCapabilityRelevant,
+  storedBrowserDataExists: browserPolicyStoredBrowserDataExists,
+};
+
 export function browserPolicyForestSourceSettingIds(): ReadonlyMap<BrowserPolicyQuestionId, readonly string[]> {
   const settingsByQuestion = new Map<BrowserPolicyQuestionId, string[]>();
   BrowserPolicyQuestionIds.forEach((id) => settingsByQuestion.set(id, []));
@@ -320,23 +306,53 @@ function conditionListMatches(
 
 function browserPolicyQuestionIdForSetting(uiTab: string, sourceText: string): BrowserPolicyQuestionId {
   const text = sourceText.toLowerCase();
-  if (uiTab === 'ai' || text.includes(' ai ') || text.includes('classification')) return 'A1';
-  if (uiTab === 'audit') return '18.2';
-  if (uiTab === 'data') return '17.1';
-  if (uiTab === 'reports') return '14.1';
-  if (uiTab === 'approvals') return '12.1';
-  if (uiTab === 'schedule') return text.includes('budget') || text.includes('quota') ? '11.2' : '10.1';
-  if (uiTab === 'setup') return '16.1';
-  if (uiTab === 'platform') return '15.2';
-  if (text.includes('download')) return '9.1';
-  if (text.includes('search')) return '7.1';
-  if (text.includes('video') || text.includes('channel')) return '8.1';
-  if (text.includes('managed browser') || text.includes('profile') || text.includes('extension')) return '3.1';
-  if (text.includes('unmanaged') || text.includes('bypass') || text.includes('tor') || text.includes('portable'))
-    return '4.1';
-  if (text.includes('url') || text.includes('domain') || text.includes('category') || text.includes('rule'))
-    return '5.1';
-  if (text.includes('evidence') || text.includes('proof') || text.includes('privacy')) return '13.1';
-  if (text.includes('browser') || text.includes('discover') || text.includes('coverage')) return '2.1';
-  return '1.2';
+  if (uiTab === 'ai' || browserPolicySourceTextIncludesAny(text, BrowserPolicyAiSourceTerms)) {
+    return 'A1';
+  }
+  if (uiTab === 'schedule') {
+    return browserPolicyScheduleQuestionIdForSetting(text);
+  }
+  return (
+    BrowserPolicyQuestionIdByUiTab.get(uiTab) ??
+    browserPolicyQuestionIdForSourceText(text) ??
+    BrowserPolicyFallbackQuestionId
+  );
+}
+
+const BrowserPolicyAiSourceTerms = [' ai ', 'classification'] as const;
+const BrowserPolicyScheduleBudgetSourceTerms = ['budget', 'quota'] as const;
+const BrowserPolicyFallbackQuestionId = '1.2' satisfies BrowserPolicyQuestionId;
+const BrowserPolicyQuestionIdByUiTab = new Map<string, BrowserPolicyQuestionId>([
+  ['audit', '18.2'],
+  ['data', '17.1'],
+  ['reports', '14.1'],
+  ['approvals', '12.1'],
+  ['setup', '16.1'],
+  ['platform', '15.2'],
+]);
+const BrowserPolicyQuestionSourceRules: readonly {
+  readonly terms: readonly string[];
+  readonly questionId: BrowserPolicyQuestionId;
+}[] = [
+  { terms: ['download'], questionId: '9.1' },
+  { terms: ['search'], questionId: '7.1' },
+  { terms: ['video', 'channel'], questionId: '8.1' },
+  { terms: ['managed browser', 'profile', 'extension'], questionId: '3.1' },
+  { terms: ['unmanaged', 'bypass', 'tor', 'portable'], questionId: '4.1' },
+  { terms: ['url', 'domain', 'category', 'rule'], questionId: '5.1' },
+  { terms: ['evidence', 'proof', 'privacy'], questionId: '13.1' },
+  { terms: ['browser', 'discover', 'coverage'], questionId: '2.1' },
+];
+
+function browserPolicyScheduleQuestionIdForSetting(text: string): BrowserPolicyQuestionId {
+  return browserPolicySourceTextIncludesAny(text, BrowserPolicyScheduleBudgetSourceTerms) ? '11.2' : '10.1';
+}
+
+function browserPolicyQuestionIdForSourceText(text: string): BrowserPolicyQuestionId | undefined {
+  return BrowserPolicyQuestionSourceRules.find((rule) => browserPolicySourceTextIncludesAny(text, rule.terms))
+    ?.questionId;
+}
+
+function browserPolicySourceTextIncludesAny(text: string, terms: readonly string[]): boolean {
+  return terms.some((term) => text.includes(term));
 }
