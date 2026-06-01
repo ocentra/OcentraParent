@@ -37,9 +37,11 @@ import {
 } from '@ocentra-parent/agent-protocol-domain/activity-surface-adapter';
 import {
   AgentEvent,
+  AgentLanBrowserAddDeviceReadModelSchema,
   AgentProtocolDefaults,
   type AgentEventEnvelope,
   type AgentEventName,
+  type AgentLanBrowserAddDeviceReadModel,
   type AgentProtocolLogFields,
 } from '@ocentra-parent/agent-protocol-domain/contracts';
 import {
@@ -87,6 +89,8 @@ export interface PortalLiveActivityState {
   readonly browserInterventionReadModel: BrowserInterventionReadModel | null;
   readonly networkFlowEvent: AgentEventEnvelope | null;
   readonly networkFlowReadModel: ActivityNetworkFlowReadModel | null;
+  readonly lanPairingStatusEvent: AgentEventEnvelope | null;
+  readonly lanAddDeviceReadModel: AgentLanBrowserAddDeviceReadModel | null;
   readonly policyPreviewEvent: AgentEventEnvelope | null;
   readonly policyPreviewReadModel: PortalPolicyPreviewReadModel | null;
 }
@@ -106,6 +110,7 @@ export function resolveLiveActivityState(events: readonly AgentEventEnvelope[]):
   const activityNetworkReadModelEvent = latestEvent(events, AgentEvent.ActivityNetworkReadModelReported);
   const browserInterventionEvent = latestEvent(events, AgentEvent.BrowserInterventionReadModelReported);
   const networkFlowEvent = latestEvent(events, AgentEvent.NetworkFlowReadModelReported);
+  const lanPairingStatusEvent = latestEvent(events, AgentEvent.LanPairingStatusReported);
   const policyPreviewEvent = latestEvent(events, AgentEvent.PolicyPreviewReadModelReported);
 
   return {
@@ -156,6 +161,9 @@ export function resolveLiveActivityState(events: readonly AgentEventEnvelope[]):
       browserInterventionEvent === null ? null : parseBrowserInterventionReadModel(browserInterventionEvent.payload),
     networkFlowEvent,
     networkFlowReadModel: networkFlowEvent === null ? null : parseNetworkFlowReadModel(networkFlowEvent.payload),
+    lanPairingStatusEvent,
+    lanAddDeviceReadModel:
+      lanPairingStatusEvent === null ? null : parseLanAddDeviceReadModel(lanPairingStatusEvent.payload),
     policyPreviewEvent,
     policyPreviewReadModel:
       policyPreviewEvent === null ? null : parsePolicyPreviewReadModel(policyPreviewEvent.payload),
@@ -211,6 +219,29 @@ function parseNullableActivityReadModelEvent(
     return null;
   }
   return parseActivityReadModelEvent(kind, event);
+}
+
+function parseLanAddDeviceReadModel(payload: AgentProtocolLogFields): AgentLanBrowserAddDeviceReadModel | null {
+  const rawReadModel = payload[AgentProtocolDefaults.Field.LanAddDeviceReadModel];
+  const readModel = parseJsonRecord(rawReadModel);
+  const parsed = AgentLanBrowserAddDeviceReadModelSchema.safeParse(readModel);
+
+  if (!parsed.success) {
+    return null;
+  }
+  return parsed.data;
+}
+
+function parseJsonRecord(value: unknown): unknown {
+  if (typeof value !== AgentProtocolDefaults.Primitive.String) {
+    return value;
+  }
+
+  try {
+    return JSON.parse(String(value));
+  } catch {
+    return null;
+  }
 }
 
 function parseIngestStatus(payload: AgentProtocolLogFields): ActivityIngestStatus | null {
