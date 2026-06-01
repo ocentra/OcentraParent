@@ -218,6 +218,8 @@ export const AgentProtocolDefaults = {
     LanDiscoveryStatus: 'discoveryStatus',
     LanAddDeviceReadModel: 'addDeviceReadModel',
     LanAddDeviceState: 'addDeviceState',
+    LanDiscoveredDevices: 'discoveredDevices',
+    LanPairingRequests: 'pairingRequests',
     LanChildDevice: 'childDevice',
     LanDiscoverySource: 'discoverySource',
     LanLocalServiceDiscoveryState: 'localServiceDiscoveryState',

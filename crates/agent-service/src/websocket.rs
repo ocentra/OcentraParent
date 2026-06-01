@@ -219,6 +219,8 @@ async fn build_command_event(
         | AgentCommandName::AgentLanPairingRouteSelect
         | AgentCommandName::AgentLanPairingRouteRevoke
         | AgentCommandName::AgentLanPairingStatusGet
+        | AgentCommandName::AgentLanPairingBrowserDiscoveryScan
+        | AgentCommandName::AgentLanPairingAddDeviceRequest
         | AgentCommandName::AgentLanPairingControllerLeaseRenew
         | AgentCommandName::AgentLanPairingControllerLeaseRelease
         | AgentCommandName::AgentLanPairingControllerLeaseTakeover

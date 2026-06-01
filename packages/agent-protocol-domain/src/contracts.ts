@@ -64,6 +64,16 @@ export {
   type AgentLanTrustedDeviceRegistryEntry,
 } from './lan-pairing-browser-add-device-state';
 export {
+  AgentLanBrowserAddDeviceRequestSchema,
+  AgentLanBrowserDiscoveryScanRequestSchema,
+  AgentLanBrowserRuntimeCommandSchema,
+  AgentLanBrowserRuntimeEventSchema,
+  type AgentLanBrowserAddDeviceRequest,
+  type AgentLanBrowserDiscoveryScanRequest,
+  type AgentLanBrowserRuntimeCommand,
+  type AgentLanBrowserRuntimeEvent,
+} from './lan-pairing-browser-runtime';
+export {
   AgentLanPairingAddressRefSchema,
   AgentLanPairingAuditEventSchema,
   AgentLanPairingChallengeIdSchema,
@@ -169,6 +179,8 @@ export const AgentCommandNameSchema = withParser(
     'agent.lan-pairing.route.select',
     'agent.lan-pairing.route.revoke',
     'agent.lan-pairing.status.get',
+    'agent.lan-pairing.browser-discovery.scan',
+    'agent.lan-pairing.add-device.request',
     'agent.lan-pairing.controller-lease.renew',
     'agent.lan-pairing.controller-lease.release',
     'agent.lan-pairing.controller-lease.takeover',
@@ -224,6 +236,8 @@ export const AgentEventNameSchema = withParser(
     'agent.parent-assistant.provider.degraded',
     'agent.parent-assistant.error.reported',
     'agent.lan-pairing.status.reported',
+    'agent.lan-pairing.browser-discovery.reported',
+    'agent.lan-pairing.add-device.reported',
     'agent.lan-pairing.audit.reported',
     'agent.lan-ai.job.reported'
   )
@@ -318,6 +332,8 @@ export const AgentCommand = {
   LanPairingRouteSelect: AgentCommandNameSchema.parse('agent.lan-pairing.route.select'),
   LanPairingRouteRevoke: AgentCommandNameSchema.parse('agent.lan-pairing.route.revoke'),
   LanPairingStatusGet: AgentCommandNameSchema.parse('agent.lan-pairing.status.get'),
+  LanPairingBrowserDiscoveryScan: AgentCommandNameSchema.parse('agent.lan-pairing.browser-discovery.scan'),
+  LanPairingAddDeviceRequest: AgentCommandNameSchema.parse('agent.lan-pairing.add-device.request'),
   LanPairingControllerLeaseRenew: AgentCommandNameSchema.parse('agent.lan-pairing.controller-lease.renew'),
   LanPairingControllerLeaseRelease: AgentCommandNameSchema.parse('agent.lan-pairing.controller-lease.release'),
   LanPairingControllerLeaseTakeover: AgentCommandNameSchema.parse('agent.lan-pairing.controller-lease.takeover'),
@@ -330,6 +346,8 @@ export const AgentLanPairingSupportedWebSocketCommand = {
   RouteSelect: AgentCommand.LanPairingRouteSelect,
   RouteRevoke: AgentCommand.LanPairingRouteRevoke,
   StatusGet: AgentCommand.LanPairingStatusGet,
+  BrowserDiscoveryScan: AgentCommand.LanPairingBrowserDiscoveryScan,
+  AddDeviceRequest: AgentCommand.LanPairingAddDeviceRequest,
   ControllerLeaseRenew: AgentCommand.LanPairingControllerLeaseRenew,
   ControllerLeaseRelease: AgentCommand.LanPairingControllerLeaseRelease,
   ControllerLeaseTakeover: AgentCommand.LanPairingControllerLeaseTakeover,
@@ -383,6 +401,8 @@ export const AgentEvent = {
   ParentAssistantProviderDegraded: AgentEventNameSchema.parse('agent.parent-assistant.provider.degraded'),
   ParentAssistantErrorReported: AgentEventNameSchema.parse('agent.parent-assistant.error.reported'),
   LanPairingStatusReported: AgentEventNameSchema.parse('agent.lan-pairing.status.reported'),
+  LanPairingBrowserDiscoveryReported: AgentEventNameSchema.parse('agent.lan-pairing.browser-discovery.reported'),
+  LanPairingAddDeviceReported: AgentEventNameSchema.parse('agent.lan-pairing.add-device.reported'),
   LanPairingAuditReported: AgentEventNameSchema.parse('agent.lan-pairing.audit.reported'),
   LanAiJobReported: AgentEventNameSchema.parse('agent.lan-ai.job.reported'),
 } as const;
