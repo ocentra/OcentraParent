@@ -1,4 +1,5 @@
 export * from './lan-pairing-values';
+export * from './household-device-spine';
 export * from './lan-pairing-device';
 export * from './lan-pairing-browser-runtime';
 export * from './lan-pairing-control';
@@ -6,4 +7,5 @@ export * from './lan-pairing-support';
 export * from './lan-pairing-product-proof';
 export * from './lan-pairing-provider-selection-proof';
 export * from './v0-9-production-discovery-household-proof';
+export * from './v0-9-household-lan-pairing-proof';
 export * from './device-roles';

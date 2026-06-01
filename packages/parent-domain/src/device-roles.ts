@@ -8,7 +8,7 @@ import {
 } from './lan-pairing-values';
 
 export const DeviceRuntimeRoleSchema = withParser(
-  Schema.Literal('parent-controller', 'parent-observer', 'child-agent', 'ai-provider')
+  Schema.Literal('parent-controller', 'parent-observer', 'child-agent', 'portal', 'ai-provider')
 );
 
 export const DeviceRuntimeRoleStateSchema = withParser(

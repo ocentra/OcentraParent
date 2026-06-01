@@ -124,6 +124,15 @@ function activityAdapterLanPairingTests(): void {
 
     expect(state.lanPairingStatusEvent?.event).toBe(AgentEvent.LanPairingStatusReported);
     expect(state.lanAddDeviceReadModel?.addDeviceState).toBe('paired');
+    expect(state.lanAddDeviceReadModel?.canonicalHouseholdDevices[0]?.displayName).toBe('Pixel child');
+    expect(state.lanAddDeviceReadModel?.canonicalHouseholdDevices[0]?.roleBadges).toEqual([
+      'child-agent',
+      'portal',
+      'parent-controller',
+    ]);
+    expect(state.lanAddDeviceReadModel?.canonicalHouseholdDevices[0]?.networkIdentity.ipAddresses).toEqual([
+      '192.168.2.44',
+    ]);
     expect(state.lanAddDeviceReadModel?.selectedDeviceReadiness).toMatchObject({
       selectedChildDeviceId: 'child-android-1',
       reachability: 'online',
@@ -341,44 +350,105 @@ function lanAddDeviceReadModel() {
       infrastructureDeviceCount: 0,
       unsupportedDeviceCount: 0,
     },
-    discoveredDevices: [
-      {
-        schemaVersion: 1,
-        discoveredAt: '2026-06-01T15:00:00Z',
-        childDevice: {
-          deviceId: 'child-android-1',
-          childProfileId: 'child-profile-1',
-          label: 'Pixel child',
-          platform: 'android',
-        },
-        agentPeerId: 'child-peer-1',
-        routeId: 'lan-route-local-1',
-        networkMode: 'local-network',
-        reachability: 'online',
-        addressRef: 'lan-address-ref-1',
-        discoveryStatus: 'websocket-direct',
-        discoveryState: 'paired',
-      },
-    ],
+    discoveredDevices: [lanDiscoveredDevice()],
+    canonicalHouseholdDevices: [lanCanonicalHouseholdDevice()],
     pairingRequests: [],
     trustedDeviceRegistry: [],
     trustedDeviceIds: ['child-android-1'],
     revokedDeviceIds: [],
-    selectedDeviceReadiness: {
-      schemaVersion: 1,
-      selectedChildDeviceId: 'child-android-1',
-      routeId: 'lan-route-local-1',
-      pairingId: 'pairing-child-android-1',
-      trustState: 'paired',
-      reachability: 'online',
-      readyForControl: true,
-      staleAt: null,
-      offlineAt: null,
-    },
+    selectedDeviceReadiness: lanSelectedDeviceReadiness(),
     controllerAuthority: 'observer',
     observerAuthority: 'observer',
     routeRequirementLabels: ['Local service route only'],
     auditCheckLabels: ['No physical device-owner proof'],
     honestNonClaims: ['physical-device-owner-unavailable'],
+  };
+}
+
+function lanDiscoveredDevice() {
+  return {
+    schemaVersion: 1,
+    discoveredAt: '2026-06-01T15:00:00Z',
+    childDevice: {
+      deviceId: 'child-android-1',
+      childProfileId: 'child-profile-1',
+      label: 'Pixel child',
+      platform: 'android',
+    },
+    agentPeerId: 'child-peer-1',
+    routeId: 'lan-route-local-1',
+    networkMode: 'local-network',
+    reachability: 'online',
+    addressRef: 'lan-address-ref-1',
+    discoveryStatus: 'websocket-direct',
+    discoveryState: 'paired',
+  };
+}
+
+function lanCanonicalHouseholdDevice() {
+  return {
+    schemaVersion: 1,
+    canonicalDeviceId: 'child-android-1',
+    displayName: 'Pixel child',
+    classification: 'child-agent',
+    roleBadges: ['child-agent', 'portal', 'parent-controller'],
+    enrollable: true,
+    discoveryState: 'paired',
+    trustState: 'paired',
+    routeId: 'lan-route-local-1',
+    routeState: 'local-network',
+    networkMode: 'local-network',
+    sourceLabels: ['local-service'],
+    networkIdentity: lanCanonicalNetworkIdentity(),
+    childAgentInventory: lanChildAgentInventory(),
+    policyTargetSurfaces: ['devices', 'policy', 'browser', 'app', 'screen', 'network', 'activity', 'tracking', 'ai'],
+  };
+}
+
+function lanCanonicalNetworkIdentity() {
+  return {
+    hostname: 'pixel-child',
+    ipAddresses: ['192.168.2.44'],
+    macAddress: 'AA-BB-CC-DD-EE-FF',
+    macVendor: null,
+    networkInterfaces: ['Wi-Fi'],
+    reachability: 'online',
+    confidence: 'agent-confirmed',
+    staleAt: null,
+    offlineAt: null,
+  };
+}
+
+function lanChildAgentInventory() {
+  return {
+    deviceName: 'Pixel child',
+    platform: 'android',
+    os: 'android',
+    cpuModel: null,
+    cpuCores: null,
+    memoryTotal: null,
+    gpuModel: null,
+    gpuDriver: null,
+    gpuMemory: null,
+    nvidiaSmi: null,
+    networkInterfaces: ['Wi-Fi'],
+    capabilities: ['direct-websocket', 'device-inventory', 'pairing-route'],
+    roleState: 'implemented',
+    routeState: 'local-network',
+    pairingTrustState: 'paired',
+  };
+}
+
+function lanSelectedDeviceReadiness() {
+  return {
+    schemaVersion: 1,
+    selectedChildDeviceId: 'child-android-1',
+    routeId: 'lan-route-local-1',
+    pairingId: 'pairing-child-android-1',
+    trustState: 'paired',
+    reachability: 'online',
+    readyForControl: true,
+    staleAt: null,
+    offlineAt: null,
   };
 }

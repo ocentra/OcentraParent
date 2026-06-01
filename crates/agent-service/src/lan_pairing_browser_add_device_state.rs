@@ -10,6 +10,7 @@ use crate::lan_network_inventory;
 use crate::lan_pairing_browser_add_device_scan::{
     push_if_absent, same_physical_network_device, scan_summary,
 };
+use crate::lan_pairing_household_device_spine;
 use crate::{lan_pairing::LanPairingRuntime, time::timestamp_now};
 
 pub(crate) fn browser_add_device_pairs(
@@ -106,6 +107,11 @@ fn browser_add_device_read_model(
     } else {
         LanPairingProductionDiscoveryState::Discovered
     };
+    let canonical_household_devices =
+        lan_pairing_household_device_spine::canonical_household_devices(
+            &discovered_devices,
+            &trusted_device_registry,
+        );
     LanBrowserAddDeviceReadModel {
         schema_version: constants::lan_pairing::SCHEMA_VERSION,
         generated_at: generated_at.clone(),
@@ -120,6 +126,7 @@ fn browser_add_device_read_model(
         cloud_relay_state: LanPairingProductionDiscoveryState::Unavailable,
         scan_summary: scan_summary(&discovered_devices),
         discovered_devices,
+        canonical_household_devices,
         pairing_requests: pairing_requests(runtime, &generated_at),
         trusted_device_registry,
         trusted_device_ids: runtime.trusted_device_ids(),

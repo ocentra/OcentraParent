@@ -129,6 +129,10 @@
       "import": "./dist/lan-pairing.js",
       "types": "./dist/lan-pairing.d.ts"
     },
+    "./household-device-spine": {
+      "import": "./dist/household-device-spine.js",
+      "types": "./dist/household-device-spine.d.ts"
+    },
     "./network-control-catalog": {
       "import": "./dist/network-control-catalog.js",
       "types": "./dist/network-control-catalog.d.ts"
@@ -160,6 +164,10 @@
     "./v0-9-household-multi-device-proof-gates": {
       "import": "./dist/v0-9-household-multi-device-proof-gates.js",
       "types": "./dist/v0-9-household-multi-device-proof-gates.d.ts"
+    },
+    "./v0-9-household-lan-pairing-proof": {
+      "import": "./dist/v0-9-household-lan-pairing-proof.js",
+      "types": "./dist/v0-9-household-lan-pairing-proof.d.ts"
     },
     "./v0-9-mobile-controller-discovery-runtime": {
       "import": "./dist/v0-9-mobile-controller-discovery-runtime.js",

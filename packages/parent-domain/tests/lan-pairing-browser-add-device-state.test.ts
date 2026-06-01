@@ -23,6 +23,15 @@ describe('browser-first LAN add-device read model', () => {
     expect(LanPairingProductionDiscoveryStates.Expired).toBe('expired');
     expect(LanPairingProductionDiscoveryStates.ManualRequired).toBe('manual-required');
   });
+
+  it('rejects duplicate canonical household device rows in the add-device read model', () => {
+    expect(() =>
+      LanBrowserAddDeviceReadModelSchema.parse({
+        ...readModelFixture(),
+        canonicalHouseholdDevices: [canonicalHouseholdDevice(), canonicalHouseholdDevice()],
+      })
+    ).toThrow(/one canonical row/u);
+  });
 });
 
 function readModelFixture() {
@@ -44,6 +53,7 @@ function readModelFixture() {
       unsupportedDeviceCount: 0,
     },
     discoveredDevices: [discoveredDevice()],
+    canonicalHouseholdDevices: [canonicalHouseholdDevice()],
     pairingRequests: [pairingRequest()],
     trustedDeviceRegistry: [trustedRegistryEntry()],
     trustedDeviceIds: ['child-device-1'],
@@ -55,6 +65,36 @@ function readModelFixture() {
     auditCheckLabels: ['wrong-origin', 'wrong-device', 'replayed', 'stale', 'revoked'],
     honestNonClaims: ['physical-household-lan-manual-required', 'cloud-relay-not-implemented'],
   };
+}
+
+function canonicalHouseholdDevice() {
+  return {
+    schemaVersion: 'v0.9',
+    canonicalDeviceId: 'child-device-1',
+    displayName: 'Mia Windows PC',
+    classification: 'child-agent',
+    roleBadges: ['child-agent'],
+    enrollable: true,
+    discoveryState: 'paired',
+    trustState: 'paired',
+    routeId: 'lan-route-child-1',
+    routeState: 'local-network',
+    networkMode: 'local-network',
+    sourceLabels: ['trusted-registry'],
+    networkIdentity: {
+      hostname: null,
+      ipAddresses: [],
+      macAddress: null,
+      macVendor: null,
+      networkInterfaces: [],
+      reachability: 'stale',
+      confidence: 'manual-required',
+      staleAt: generatedAt,
+      offlineAt: null,
+    },
+    childAgentInventory: null,
+    policyTargetSurfaces: ['devices', 'policy', 'browser', 'app', 'screen', 'network', 'activity', 'tracking', 'ai'],
+  } as const;
 }
 
 function discoveredDevice() {
