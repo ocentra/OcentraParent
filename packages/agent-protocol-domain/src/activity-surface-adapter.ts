@@ -1,4 +1,9 @@
 import {
+  activityFamilyAggregationModelFromHistory,
+  activityFamilyAggregationModelFromReport,
+  type ActivityFamilyAggregationModel,
+} from '@ocentra-parent/activity-domain/activity-family-aggregation';
+import {
   ActivityAppUseReadModelSchema,
   ActivityBrowserReadModelSchema,
   ActivityGamesReadModelSchema,
@@ -62,6 +67,21 @@ export type ActivitySurfaceAdapterResult<TValue> =
       readonly state: ActivitySurfaceAdapterState;
       readonly reason: ActivitySurfaceAdapterFailureReason;
     };
+
+export type ActivityServiceUiSpine = {
+  readonly dataOwner: 'rust-service-read-model';
+  readonly uiConsumer: 'c-owned-activity-ui';
+  readonly viteDataOwner: false;
+  readonly currentState: ActivitySurfaceAdapterState;
+  readonly report: ActivitySurfaceAdapterResult<ActivityReportDocument> | null;
+  readonly reportHistory: ActivitySurfaceAdapterResult<ActivityHistoricalReportList> | null;
+  readonly familyAggregation: ActivitySurfaceAdapterResult<ActivityFamilyAggregationModel> | null;
+  readonly screen: ActivitySurfaceAdapterResult<ActivitySurfaceReadModel> | null;
+  readonly appUse: ActivitySurfaceAdapterResult<ActivitySurfaceReadModel> | null;
+  readonly browser: ActivitySurfaceAdapterResult<ActivitySurfaceReadModel> | null;
+  readonly games: ActivitySurfaceAdapterResult<ActivitySurfaceReadModel> | null;
+  readonly network: ActivitySurfaceAdapterResult<ActivitySurfaceReadModel> | null;
+};
 
 type ActivitySurfaceSchemaParser<TValue> = {
   readonly safeParse: (input: unknown) => { readonly success: boolean; readonly data?: TValue };
@@ -195,6 +215,48 @@ export function parseActivityReadModelEvent(
   return parsePayloadJson(event, AgentProtocolDefaults.Field.ActivityReadModel, readModelSchemaForKind(kind));
 }
 
+export function parseActivityServiceUiSpineEvents(events: readonly AgentEventEnvelope[]): ActivityServiceUiSpine {
+  const report = parseNullableActivityReportEvent(latestActivityReportEvent(events));
+  const reportHistory = parseNullableActivityReportHistoryEvent(
+    latestEvent(events, AgentEvent.ActivityReportHistoryReported)
+  );
+  const screen = parseNullableActivityReadModelEvent(
+    ActivitySurfaceReadModelKindName.Screen,
+    latestEvent(events, AgentEvent.ActivityScreenReadModelReported)
+  );
+  const appUse = parseNullableActivityReadModelEvent(
+    ActivitySurfaceReadModelKindName.AppUse,
+    latestEvent(events, AgentEvent.ActivityAppUseReadModelReported)
+  );
+  const browser = parseNullableActivityReadModelEvent(
+    ActivitySurfaceReadModelKindName.Browser,
+    latestEvent(events, AgentEvent.ActivityBrowserReadModelReported)
+  );
+  const games = parseNullableActivityReadModelEvent(
+    ActivitySurfaceReadModelKindName.Games,
+    latestEvent(events, AgentEvent.ActivityGamesReadModelReported)
+  );
+  const network = parseNullableActivityReadModelEvent(
+    ActivitySurfaceReadModelKindName.Network,
+    latestEvent(events, AgentEvent.ActivityNetworkReadModelReported)
+  );
+
+  return {
+    dataOwner: 'rust-service-read-model',
+    uiConsumer: 'c-owned-activity-ui',
+    viteDataOwner: false,
+    currentState: firstReportedState(browser, report, reportHistory),
+    report,
+    reportHistory,
+    familyAggregation: parseFamilyAggregation(report, reportHistory),
+    screen,
+    appUse,
+    browser,
+    games,
+    network,
+  };
+}
+
 function createActivityCommand(
   command: AgentCommandEnvelope['command'],
   input: CreateActivitySurfaceCommandInput
@@ -262,6 +324,85 @@ function parsePayloadJson<TValue>(
     state: stateFromValue(value, event),
     value,
   };
+}
+
+function parseNullableActivityReportEvent(
+  event: AgentEventEnvelope | null
+): ActivitySurfaceAdapterResult<ActivityReportDocument> | null {
+  if (event === null) {
+    return null;
+  }
+  return parseActivityReportDocumentEvent(event);
+}
+
+function parseNullableActivityReportHistoryEvent(
+  event: AgentEventEnvelope | null
+): ActivitySurfaceAdapterResult<ActivityHistoricalReportList> | null {
+  if (event === null) {
+    return null;
+  }
+  return parseActivityReportHistoryEvent(event);
+}
+
+function parseNullableActivityReadModelEvent(
+  kind: ActivitySurfaceReadModelKind,
+  event: AgentEventEnvelope | null
+): ActivitySurfaceAdapterResult<ActivitySurfaceReadModel> | null {
+  if (event === null) {
+    return null;
+  }
+  return parseActivityReadModelEvent(kind, event);
+}
+
+function parseFamilyAggregation(
+  report: ActivitySurfaceAdapterResult<ActivityReportDocument> | null,
+  reportHistory: ActivitySurfaceAdapterResult<ActivityHistoricalReportList> | null
+): ActivitySurfaceAdapterResult<ActivityFamilyAggregationModel> | null {
+  if (report?.ok === true) {
+    return parseFamilyAggregationValue(() => activityFamilyAggregationModelFromReport(report.value));
+  }
+  if (reportHistory?.ok === true) {
+    return parseFamilyAggregationValue(() => activityFamilyAggregationModelFromHistory(reportHistory.value));
+  }
+  return null;
+}
+
+function parseFamilyAggregationValue(
+  parse: () => ActivityFamilyAggregationModel
+): ActivitySurfaceAdapterResult<ActivityFamilyAggregationModel> {
+  try {
+    const value = parse();
+    return {
+      ok: true,
+      state: value.state,
+      value,
+    };
+  } catch {
+    return adapterFailure('invalid-payload');
+  }
+}
+
+function firstReportedState(
+  primary: ActivitySurfaceAdapterResult<unknown> | null,
+  secondary: ActivitySurfaceAdapterResult<unknown> | null,
+  fallback: ActivitySurfaceAdapterResult<unknown> | null
+): ActivitySurfaceAdapterState {
+  return primary?.state ?? secondary?.state ?? fallback?.state ?? ActivityReadModelStateSchema.parse('unavailable');
+}
+
+function latestActivityReportEvent(events: readonly AgentEventEnvelope[]): AgentEventEnvelope | null {
+  return (
+    events.find(
+      (event) => event.event === AgentEvent.ActivityReportSaved || event.event === AgentEvent.ActivityReportGenerated
+    ) ?? null
+  );
+}
+
+function latestEvent(
+  events: readonly AgentEventEnvelope[],
+  eventName: AgentEventEnvelope['event']
+): AgentEventEnvelope | null {
+  return events.find((event) => event.event === eventName) ?? null;
 }
 
 function payloadState(value: unknown): ActivitySurfaceAdapterState {

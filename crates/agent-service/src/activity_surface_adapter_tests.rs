@@ -4,12 +4,15 @@ use std::{
     time::{SystemTime, UNIX_EPOCH},
 };
 
-use ocentra_parent_agent_core::ActivityStore;
+use ocentra_parent_agent_core::{
+    browser_tab_observation_event, ActivityStore, BrowserBridgeTargetObservation,
+};
 use ocentra_parent_agent_protocol::{
     constants, ActivityEvent, ActivityEventKind, ActivityObserver, ActivityReadModelState,
     ActivityRecentSummary, ActivityReportFrequency, ActivityReportRequest, ActivitySource,
     ActivitySubject, ActivitySubjectKind, ActivitySurfaceRequest, ActivitySurfaceScope,
-    ActivitySurfaceScopeKind, LogFieldValue, LogFields, ACTIVITY_QUERY_SCHEMA_VERSION,
+    ActivitySurfaceScopeKind, BrowserActiveTabState, BrowserCapabilityStatus, BrowserChannel,
+    BrowserCustodyLabel, BrowserFamily, LogFieldValue, LogFields, ACTIVITY_QUERY_SCHEMA_VERSION,
     ACTIVITY_SCHEMA_VERSION, ACTIVITY_SURFACE_SCHEMA_VERSION,
 };
 
@@ -75,10 +78,35 @@ async fn activity_surface_report_uses_real_activity_store_snapshot() {
 }
 
 #[tokio::test]
-async fn activity_tab_read_models_map_ready_empty_and_unavailable_states() {
+async fn activity_tab_read_models_map_service_backed_ready_and_unavailable_states() {
     let store_path = temp_store_path();
     cleanup_store(&store_path);
     write_process_event(&store_path);
+    let store = ActivityStore::open(&store_path).expect(constants::error::ACTIVITY_STORE_OPENS);
+    let browser_event = browser_tab_observation_event(
+        BrowserBridgeTargetObservation {
+            browser_family: BrowserFamily::Edge,
+            browser_channel: BrowserChannel::Stable,
+            managed_browser_session_id: constants::browser::SESSION_ID_DEV.to_string(),
+            profile_id: constants::browser::PROFILE_ID_DEV.to_string(),
+            process_id: 4242,
+            target_id: constants::activity_store::TEST_BROWSER_TARGET_ID.to_string(),
+            tab_id: Some(constants::activity_store::TEST_BROWSER_TAB_ID.to_string()),
+            window_id: None,
+            active_state: BrowserActiveTabState::Unknown,
+            url: constants::activity_store::TEST_BROWSER_URL.to_string(),
+            title: Some(constants::activity_store::TEST_BROWSER_TITLE.to_string()),
+            capability_status: BrowserCapabilityStatus::TabListOnly,
+            custody_label: BrowserCustodyLabel::ChildDeviceLocal,
+        },
+        constants::activity_store::TEST_FIRST_OBSERVED_AT,
+        constants::activity_store::TEST_SECOND_OBSERVED_AT,
+        0,
+    )
+    .expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET);
+    store
+        .ingest_events(&[browser_event])
+        .expect(constants::error::ACTIVITY_STORE_INGESTS);
 
     let recent = load_recent_summary_from_path(store_path.clone()).await;
     let browser = load_browser_model_from_path(store_path.clone()).await;
@@ -89,9 +117,12 @@ async fn activity_tab_read_models_map_ready_empty_and_unavailable_states() {
     cleanup_store(&store_path);
 
     assert_eq!(app_use.state, ActivityReadModelState::Ready);
-    assert_eq!(app_use.rows[0].launch_count, 1);
-    assert_eq!(browser_model.state, ActivityReadModelState::Empty);
-    assert_eq!(browser_model.rows.len(), 0);
+    assert_eq!(app_use.rows[0].launch_count, 2);
+    assert_eq!(browser_model.state, ActivityReadModelState::Ready);
+    assert_eq!(
+        browser_model.rows[0].domain_label,
+        constants::activity_store::TEST_BROWSER_DOMAIN
+    );
     assert_eq!(network_model.state, ActivityReadModelState::Unavailable);
 }
 

@@ -27,10 +27,12 @@ import type {
 } from '@ocentra-parent/activity-domain/activity-surface';
 import {
   ActivitySurfaceReadModelKindName,
+  parseActivityServiceUiSpineEvents,
   parseActivityReadModelEvent,
   parseActivityReportDocumentEvent,
   parseActivityReportHistoryEvent,
   type ActivitySurfaceAdapterResult,
+  type ActivityServiceUiSpine,
   type ActivitySurfaceReadModelKind,
 } from '@ocentra-parent/agent-protocol-domain/activity-surface-adapter';
 import {
@@ -56,6 +58,7 @@ type ActivitySurfaceReadModel =
   | ActivityNetworkReadModel;
 
 export interface PortalLiveActivityState {
+  readonly activityServiceUiSpine: ActivityServiceUiSpine;
   readonly ingestEvent: AgentEventEnvelope | null;
   readonly ingestStatus: ActivityIngestStatus | null;
   readonly recentSummaryEvent: AgentEventEnvelope | null;
@@ -106,6 +109,7 @@ export function resolveLiveActivityState(events: readonly AgentEventEnvelope[]):
   const policyPreviewEvent = latestEvent(events, AgentEvent.PolicyPreviewReadModelReported);
 
   return {
+    activityServiceUiSpine: parseActivityServiceUiSpineEvents(events),
     ingestEvent,
     ingestStatus: ingestEvent === null ? null : parseIngestStatus(ingestEvent.payload),
     recentSummaryEvent,
