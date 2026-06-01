@@ -36,8 +36,12 @@ control while being more honest about managed versus unmanaged sources.
 ## Current Ocentra State
 
 - Managed browser URL/tab evidence direction and status contracts exist.
-- Browser/domain adapter proof exists in limited/manual-required form.
-- Unmanaged browser states can be represented as possible bypass.
+- Browser/domain adapter proof now uses surface-specific contract guards so
+  managed-session intervention, managed exact-URL manual-required state,
+  unmanaged process-only termination/warn state, and network/domain manual or
+  unavailable state cannot be drifted into stronger claims by direct parsing.
+- Unmanaged browser states can be represented as possible bypass and
+  process-only fallback, not exact URL/tab proof.
 - The raw browser setting inventory and reduced questionnaire forest are now
   preserved as design inputs, not product-complete implementation proof.
 
@@ -56,6 +60,8 @@ fallback, and parent-facing rule UX are not product-complete.
 - [ ] Dry-run preview with evidence refs.
 - [ ] Adapter capability status.
 - [ ] Real blocking/terminate proof where claimed.
+- [ ] Exact active-tab enforcement and host domain blocking proof before any
+      managed URL or network/domain claim upgrade.
 
 ## Next AI Instructions
 

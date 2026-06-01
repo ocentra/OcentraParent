@@ -36,6 +36,9 @@ without fake anti-tamper claims.
 
 - Enforcement contracts, audit, rollback, capability status, timer/recovery,
   and owned-process time-limit proof exist in progress form.
+- Browser/domain adapter proof now preserves exact surface states for
+  managed-session intervention, unmanaged process-only fallback, and
+  manual-required or unavailable browser/domain gaps.
 - Broad app/browser/domain/network enforcement is not product-complete.
 - Tamper/uninstall protection is a tracked gap.
 

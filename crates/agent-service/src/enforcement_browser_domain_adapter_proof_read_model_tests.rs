@@ -2,8 +2,10 @@ use std::collections::BTreeMap;
 
 use ocentra_parent_agent_protocol::{
     constants::{self, v08_browser_domain_adapter_proof as proof},
-    policy_constants, ParentPlatform, V08BrowserDomainAdapterProofClaimState,
-    V08BrowserDomainAdapterProofEntry, V08BrowserDomainAdapterProofReadModel,
+    policy_constants, ParentPlatform, V08BrowserDomainAdapterExecutionState,
+    V08BrowserDomainAdapterProofCapabilityName, V08BrowserDomainAdapterProofCapabilityStatus,
+    V08BrowserDomainAdapterProofClaimState, V08BrowserDomainAdapterProofEntry,
+    V08BrowserDomainAdapterProofEvidenceKind, V08BrowserDomainAdapterProofReadModel,
     V08BrowserDomainAdapterProofSurface,
 };
 
@@ -43,6 +45,48 @@ fn browser_domain_read_model_preserves_honest_adapter_states() {
     assert!(read_model
         .source_read_model_ids
         .contains(&proof::SOURCE_CROSS_PLATFORM_PROOF.to_string()));
+}
+
+#[test]
+fn browser_domain_read_model_keeps_surface_states_exact() {
+    let read_model =
+        v08_browser_domain_adapter_proof_read_model(policy_constants::TEST_EVALUATED_AT);
+    assert_surface_state(
+        &read_model.entries,
+        V08BrowserDomainAdapterProofSurface::WindowsManagedBrowserInterventionState,
+        V08BrowserDomainAdapterProofCapabilityName::ManagedBrowserControl,
+        V08BrowserDomainAdapterProofCapabilityStatus::Implemented,
+        V08BrowserDomainAdapterProofEvidenceKind::ManagedBrowser,
+        V08BrowserDomainAdapterProofClaimState::ImplementedBoundary,
+        V08BrowserDomainAdapterExecutionState::ExecutesRealService,
+    );
+    assert_surface_state(
+        &read_model.entries,
+        V08BrowserDomainAdapterProofSurface::WindowsManagedBrowserExactUrlManual,
+        V08BrowserDomainAdapterProofCapabilityName::ManagedBrowserControl,
+        V08BrowserDomainAdapterProofCapabilityStatus::ManualRequired,
+        V08BrowserDomainAdapterProofEvidenceKind::ManagedBrowser,
+        V08BrowserDomainAdapterProofClaimState::ManualRequired,
+        V08BrowserDomainAdapterExecutionState::ReturnsManualRequired,
+    );
+    assert_surface_state(
+        &read_model.entries,
+        V08BrowserDomainAdapterProofSurface::WindowsUnmanagedBrowserExactEvidenceNotClaimed,
+        V08BrowserDomainAdapterProofCapabilityName::UnmanagedBrowserDetection,
+        V08BrowserDomainAdapterProofCapabilityStatus::NotImplemented,
+        V08BrowserDomainAdapterProofEvidenceKind::UnmanagedBrowser,
+        V08BrowserDomainAdapterProofClaimState::NotClaimed,
+        V08BrowserDomainAdapterExecutionState::NotInvoked,
+    );
+    assert_surface_state(
+        &read_model.entries,
+        V08BrowserDomainAdapterProofSurface::WindowsNetworkDomainFilterManual,
+        V08BrowserDomainAdapterProofCapabilityName::NetworkDomainBlocking,
+        V08BrowserDomainAdapterProofCapabilityStatus::ManualRequired,
+        V08BrowserDomainAdapterProofEvidenceKind::NetworkDomain,
+        V08BrowserDomainAdapterProofClaimState::ManualRequired,
+        V08BrowserDomainAdapterExecutionState::ReturnsManualRequired,
+    );
 }
 
 #[test]
@@ -143,6 +187,24 @@ fn entry_for(
         .iter()
         .find(|entry| entry.surface == surface)
         .expect(proof::READ_MODEL_ID)
+}
+
+fn assert_surface_state(
+    entries: &[V08BrowserDomainAdapterProofEntry],
+    surface: V08BrowserDomainAdapterProofSurface,
+    capability: V08BrowserDomainAdapterProofCapabilityName,
+    capability_status: V08BrowserDomainAdapterProofCapabilityStatus,
+    evidence_kind: V08BrowserDomainAdapterProofEvidenceKind,
+    product_claim_state: V08BrowserDomainAdapterProofClaimState,
+    adapter_execution_state: V08BrowserDomainAdapterExecutionState,
+) {
+    let entry = entry_for(entries, surface);
+
+    assert_eq!(entry.capability, capability);
+    assert_eq!(entry.capability_status, capability_status);
+    assert_eq!(entry.evidence_kind, evidence_kind);
+    assert_eq!(entry.product_claim_state, product_claim_state);
+    assert_eq!(entry.adapter_execution_state, adapter_execution_state);
 }
 
 fn count_claims(entries: &[V08BrowserDomainAdapterProofEntry]) -> BTreeMap<&'static str, usize> {
