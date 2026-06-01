@@ -30,6 +30,8 @@ use crate::{
     },
 };
 
+mod activity_history_context_tests;
+
 #[tokio::test]
 async fn parent_assistant_unconfigured_provider_returns_cited_unavailable_answer() {
     let scheduler = LocalAiProviderSchedulerRuntime::new_for_test();

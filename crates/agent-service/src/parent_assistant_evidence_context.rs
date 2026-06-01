@@ -1,7 +1,7 @@
 use ocentra_parent_agent_protocol::{
-    constants, ActivityReadModelState, ActivityReportDocument, ActivityReportSectionKind,
-    ActivitySavedReportState, AgentCommandEnvelope, LogFieldValue, ParentAssistantEvidenceContext,
-    ParentEvidenceReference, ParentEvidenceReferenceKind,
+    constants, ActivityHistoricalReportList, ActivityReadModelState, ActivityReportDocument,
+    ActivityReportSectionKind, ActivitySavedReportState, AgentCommandEnvelope, LogFieldValue,
+    ParentAssistantEvidenceContext, ParentEvidenceReference, ParentEvidenceReferenceKind,
 };
 
 use crate::{
@@ -48,11 +48,26 @@ pub(crate) fn evidence_contexts_from_command(
         }
     }
 
-    if let Some(report) = report_document_from_command(command) {
+    if let Some(report) = report_document_from_command(command)
+        .or_else(|| report_document_from_history_command(command))
+    {
         contexts.push(report_evidence_context(&report));
     }
 
     contexts
+}
+
+fn report_document_from_history_command(
+    command: &AgentCommandEnvelope,
+) -> Option<ActivityReportDocument> {
+    string_payload_field(command, constants::field::ACTIVITY_REPORTS)
+        .and_then(|value| serde_json::from_str::<ActivityHistoricalReportList>(&value).ok())
+        .and_then(|history| {
+            history
+                .reports
+                .first()
+                .map(|history_item| history_item.parsed_report.clone())
+        })
 }
 
 fn activity_summary_from_snapshot(snapshot: Option<&ActivitySurfaceStoreSnapshot>) -> String {
