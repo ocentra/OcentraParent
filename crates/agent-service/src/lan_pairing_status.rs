@@ -9,6 +9,7 @@ use crate::{
     fields::fields_from_pairs,
     lan_pairing::{validate_local_child_target, LanPairingChallengeState, LanPairingRuntime},
     lan_pairing_audit::{challenge_issued_audit_fields, rejected_control_audit_fields},
+    lan_pairing_browser_add_device_state::browser_add_device_pairs,
     lan_pairing_payload::parse_challenge_request,
     time::timestamp_now,
 };
@@ -33,6 +34,11 @@ pub(crate) fn pairing_status_event(
 ) -> AgentEventEnvelope {
     let status = pairing_status(runtime);
     let mut pairs = support_surface_pairs(runtime);
+    pairs.extend(browser_add_device_pairs(
+        runtime,
+        &command,
+        discovery_state(&status),
+    ));
     pairs.extend(state_pairs(&status));
     build_event(
         constants::lan_pairing::EVENT_STATUS_REPORTED,

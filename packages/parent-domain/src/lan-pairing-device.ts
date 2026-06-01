@@ -5,6 +5,7 @@ import {
   LanPairingAddressRefSchema,
   LanPairingAgentPeerIdSchema,
   LanPairingChallengeIdSchema,
+  LanPairingDiscoverySourceSchema,
   LanPairingDeviceReachabilitySchema,
   LanPairingEnablementStateSchema,
   LanPairingIdSchema,
@@ -16,6 +17,8 @@ import {
   LanPairingSchemaVersionSchema,
   LanPairingTimestampSchema,
   LanPairingTrustStateSchema,
+  LanPairingRejectionReasonSchema,
+  LanPairingParentAuthoritySchema,
 } from './lan-pairing-values';
 import { LanPairingRuntimeSupportStatusSchema } from './lan-pairing-support';
 
@@ -131,6 +134,58 @@ export const LanSelectedRouteTargetSchema = withParser(
   })
 );
 
+export const LanBrowserAddDevicePairingRequestSchema = withParser(
+  Schema.Struct({
+    schemaVersion: LanPairingSchemaVersionSchema,
+    challengeId: LanPairingChallengeIdSchema,
+    childDeviceId: ParentDeviceIdSchema,
+    parentDeviceId: ParentDeviceIdSchema,
+    routeId: LanPairingRouteIdSchema,
+    origin: LanPairingOriginSchema,
+    pairingState: LanPairingProductionDiscoveryStateSchema,
+    rejectionReason: Schema.Union(LanPairingRejectionReasonSchema, Schema.Null),
+    issuedAt: LanPairingTimestampSchema,
+    expiresAt: LanPairingTimestampSchema,
+  })
+);
+
+export const LanSelectedDeviceReadinessSchema = withParser(
+  Schema.Struct({
+    schemaVersion: LanPairingSchemaVersionSchema,
+    selectedChildDeviceId: Schema.Union(ParentDeviceIdSchema, Schema.Null),
+    routeId: Schema.Union(LanPairingRouteIdSchema, Schema.Null),
+    pairingId: Schema.Union(LanPairingIdSchema, Schema.Null),
+    trustState: LanPairingTrustStateSchema,
+    reachability: LanPairingDeviceReachabilitySchema,
+    readyForControl: Schema.Boolean,
+    staleAt: Schema.Union(LanPairingTimestampSchema, Schema.Null),
+    offlineAt: Schema.Union(LanPairingTimestampSchema, Schema.Null),
+  })
+);
+
+export const LanBrowserAddDeviceReadModelSchema = withParser(
+  Schema.Struct({
+    schemaVersion: LanPairingSchemaVersionSchema,
+    generatedAt: LanPairingTimestampSchema,
+    discoverySource: LanPairingDiscoverySourceSchema,
+    addDeviceState: LanPairingProductionDiscoveryStateSchema,
+    localServiceDiscoveryState: LanPairingProductionDiscoveryStateSchema,
+    physicalHouseholdLanState: LanPairingProductionDiscoveryStateSchema,
+    cloudRelayState: LanPairingProductionDiscoveryStateSchema,
+    discoveredDevices: Schema.Array(LanPairingDiscoveryDeviceSchema),
+    pairingRequests: Schema.Array(LanBrowserAddDevicePairingRequestSchema),
+    trustedDeviceRegistry: Schema.Array(LanTrustedDeviceRegistryEntrySchema),
+    trustedDeviceIds: Schema.Array(ParentDeviceIdSchema),
+    revokedDeviceIds: Schema.Array(ParentDeviceIdSchema),
+    selectedDeviceReadiness: LanSelectedDeviceReadinessSchema,
+    controllerAuthority: LanPairingParentAuthoritySchema,
+    observerAuthority: LanPairingParentAuthoritySchema,
+    routeRequirementLabels: Schema.Array(Schema.String.pipe(Schema.minLength(1))),
+    auditCheckLabels: Schema.Array(Schema.String.pipe(Schema.minLength(1))),
+    honestNonClaims: Schema.Array(Schema.String.pipe(Schema.minLength(1))),
+  })
+);
+
 export type LanPairingEnablement = Infer<typeof LanPairingEnablementSchema>;
 export type LanPairingDiscoveryDevice = Infer<typeof LanPairingDiscoveryDeviceSchema>;
 export type LanPairingChallenge = Infer<typeof LanPairingChallengeSchema>;
@@ -139,3 +194,6 @@ export type LanPairingProofPreview = Infer<typeof LanPairingProofPreviewSchema>;
 export type LanPairingProof = Infer<typeof LanPairingProofSchema>;
 export type LanTrustedDeviceRegistryEntry = Infer<typeof LanTrustedDeviceRegistryEntrySchema>;
 export type LanSelectedRouteTarget = Infer<typeof LanSelectedRouteTargetSchema>;
+export type LanBrowserAddDevicePairingRequest = Infer<typeof LanBrowserAddDevicePairingRequestSchema>;
+export type LanSelectedDeviceReadiness = Infer<typeof LanSelectedDeviceReadinessSchema>;
+export type LanBrowserAddDeviceReadModel = Infer<typeof LanBrowserAddDeviceReadModelSchema>;

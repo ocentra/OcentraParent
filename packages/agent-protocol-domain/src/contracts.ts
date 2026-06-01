@@ -50,6 +50,20 @@ export {
   type SerializedAgentMessage,
 } from './primitives';
 export {
+  AgentLanBrowserAddDeviceDiscoveryDeviceSchema,
+  AgentLanBrowserAddDevicePairingRequestSchema,
+  AgentLanBrowserAddDeviceReadModelSchema,
+  AgentLanPairingDiscoverySourceSchema,
+  AgentLanSelectedDeviceReadinessSchema,
+  AgentLanTrustedDeviceRegistryEntrySchema,
+  type AgentLanBrowserAddDeviceDiscoveryDevice,
+  type AgentLanBrowserAddDevicePairingRequest,
+  type AgentLanBrowserAddDeviceReadModel,
+  type AgentLanPairingDiscoverySource,
+  type AgentLanSelectedDeviceReadiness,
+  type AgentLanTrustedDeviceRegistryEntry,
+} from './lan-pairing-browser-add-device-state';
+export {
   AgentLanPairingAddressRefSchema,
   AgentLanPairingAuditEventSchema,
   AgentLanPairingChallengeIdSchema,
