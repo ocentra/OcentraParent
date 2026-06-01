@@ -1,12 +1,11 @@
 import type { ReactElement } from 'react';
 import {
-  PARENT_PORTAL_CONTENT,
   PARENT_PORTAL_ROUTE,
-  PARENT_PORTAL_ROWS,
   PortalDom,
   PortalRoute,
   PortalConnectionState,
   parentPortalRouteContext,
+  resolveParentPortalServiceState,
   type PortalRoute as PortalRouteValue,
   type PortalConnectionState as PortalConnectionStateValue,
 } from '@ocentra-parent/portal-domain/contracts';
@@ -34,6 +33,10 @@ export function ParentPortalRoute({
 }: ParentPortalRouteProps): ReactElement {
   const routeContext = parentPortalRouteContext(route);
   const activityState = resolveLiveActivityState(state.events);
+  const serviceState = resolveParentPortalServiceState({
+    connectionState: state.connectionState,
+    events: state.events,
+  });
   return (
     <div className={PARENT_PORTAL_ROUTE.ClassName}>
       <ParentPortalSvgSurface
@@ -41,11 +44,11 @@ export function ParentPortalRoute({
         controlCode={1}
         seasonId={seasonLabelForConnection(state.connectionState)}
         lastUpdated={latestReportedAt(state)}
-        parentPortalRows={PARENT_PORTAL_ROWS}
-        userEntry={PARENT_PORTAL_ROWS[0] ?? null}
+        parentPortalRows={serviceState.parentPortalRows}
+        userEntry={serviceState.userEntry}
         nearbyAbove={[]}
         nearbyBelow={[]}
-        content={PARENT_PORTAL_CONTENT}
+        content={serviceState.content}
         controls={controls}
         initialNavLabel={routeContext.navLabel}
         initialSelectedControlId={routeContext.selectedControlId}
