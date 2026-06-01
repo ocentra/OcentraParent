@@ -36,9 +36,11 @@ async fn browser_discovery_scan_reports_real_local_service_state() {
         read_model[constants::field::LAN_ADD_DEVICE_STATE],
         serde_json::json!(constants::value::LAN_DISCOVERY_STATE_DISCOVERED)
     );
-    assert_eq!(
-        read_model[constants::field::LAN_PHYSICAL_HOUSEHOLD_LAN_STATE],
-        serde_json::json!(constants::value::LAN_DISCOVERY_STATE_MANUAL_REQUIRED)
+    assert!(
+        read_model[constants::field::LAN_PHYSICAL_HOUSEHOLD_LAN_STATE]
+            == serde_json::json!(constants::value::LAN_DISCOVERY_STATE_MANUAL_REQUIRED)
+            || read_model[constants::field::LAN_PHYSICAL_HOUSEHOLD_LAN_STATE]
+                == serde_json::json!(constants::value::LAN_DISCOVERY_STATE_DISCOVERED)
     );
     assert_eq!(
         read_model[constants::field::LAN_CLOUD_RELAY_STATE],

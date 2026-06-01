@@ -4,9 +4,9 @@ use std::{
 };
 
 use ocentra_parent_agent_protocol::{
-    constants, DeviceRoleRuntimeReadModel, DeviceRuntimeAiProviderState,
-    DeviceRuntimeLocalAiClaim, DeviceRuntimeRole, DeviceRuntimeRoleEntry, DeviceRuntimeRoleState,
-    DeviceRuntimeRouteState, DeviceRuntimeSurface, LanPairingParentAuthority,
+    constants, DeviceRoleRuntimeReadModel, DeviceRuntimeAiProviderState, DeviceRuntimeLocalAiClaim,
+    DeviceRuntimeRole, DeviceRuntimeRoleEntry, DeviceRuntimeRoleState, DeviceRuntimeRouteState,
+    DeviceRuntimeSurface, LanPairingParentAuthority,
 };
 use serde::Serialize;
 
@@ -20,7 +20,9 @@ pub struct ParentDesktopPlatformProofState {
     activity_adapter_state: String,
     parent_assistant_provider_state: DeviceRuntimeAiProviderState,
     route_state: DeviceRuntimeRouteState,
+    route_source_state: DeviceRuntimeRouteState,
     lan_ai_provider_state: DeviceRuntimeAiProviderState,
+    degraded_source_state: DeviceRuntimeAiProviderState,
     backend_kind: String,
 }
 
@@ -43,7 +45,9 @@ fn configured_agent_address() -> String {
         .unwrap_or_else(|_| constants::bind::DEFAULT_AGENT_ADDR.to_string())
 }
 
-fn parent_platform_proof_state_for_address(agent_address: String) -> ParentDesktopPlatformProofState {
+fn parent_platform_proof_state_for_address(
+    agent_address: String,
+) -> ParentDesktopPlatformProofState {
     let service_state = if agent_service_connects(&agent_address) {
         constants::value::PARENT_DESKTOP_SERVICE_CONNECTED
     } else {
@@ -58,7 +62,9 @@ fn parent_platform_proof_state_for_address(agent_address: String) -> ParentDeskt
         activity_adapter_state: service_state.to_string(),
         parent_assistant_provider_state: device_role_state.lan_ai_provider_state.clone(),
         route_state: device_role_state.route_state.clone(),
+        route_source_state: device_role_state.route_state.clone(),
         lan_ai_provider_state: device_role_state.lan_ai_provider_state.clone(),
+        degraded_source_state: device_role_state.lan_ai_provider_state.clone(),
         device_role_state,
         backend_kind: constants::value::PARENT_DESKTOP_BACKEND_RUST_SERVICE.to_string(),
     }
@@ -107,8 +113,9 @@ mod tests {
 
     #[test]
     fn parent_platform_proof_state_uses_rust_service_connection_for_package_runtime() {
-        let state =
-            parent_platform_proof_state_for_address(constants::test_network::LOOPBACK_ANY_PORT.to_string());
+        let state = parent_platform_proof_state_for_address(
+            constants::test_network::LOOPBACK_ANY_PORT.to_string(),
+        );
 
         assert_eq!(
             state.service_state,
@@ -120,7 +127,15 @@ mod tests {
         );
         assert_eq!(state.route_state, DeviceRuntimeRouteState::LocalNetwork);
         assert_eq!(
+            state.route_source_state,
+            DeviceRuntimeRouteState::LocalNetwork
+        );
+        assert_eq!(
             state.lan_ai_provider_state,
+            DeviceRuntimeAiProviderState::Degraded
+        );
+        assert_eq!(
+            state.degraded_source_state,
             DeviceRuntimeAiProviderState::Degraded
         );
         assert_eq!(

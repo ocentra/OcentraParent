@@ -210,11 +210,86 @@ async function assertManageRouteSurface(surface: ReturnType<Page['locator']>): P
 }
 
 async function assertLanPairingRouteSurface(page: Page, surface: ReturnType<Page['locator']>): Promise<void> {
-  await expect(surface.locator('text').filter({ hasText: 'Local Area Network' }).first()).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Scan Local Area Network' })).toBeVisible();
-  await expect(surface.locator('text').filter({ hasText: 'Info' }).first()).toBeVisible();
-  await expect(surface.locator('text').filter({ hasText: 'Update' }).first()).toBeVisible();
-  await expect(surface.locator('text').filter({ hasText: 'Capability' }).first()).toBeVisible();
+  const viewport = page.viewportSize();
+  await page.setViewportSize({
+    width: Math.max(viewport?.width ?? 1280, 1600),
+    height: Math.max(viewport?.height ?? 720, 960),
+  });
+
+  try {
+    await expect(surface.locator('text').filter({ hasText: 'Local Area Network' }).first()).toBeVisible();
+    const scanButton = page.getByRole('button', { name: 'Scan Local Area Network' });
+    await expect(scanButton).toBeVisible();
+    await scanButton.click({ force: true });
+    await expect(surface.locator('text').filter({ hasText: 'Info' }).first()).toBeVisible();
+    await expect(surface.locator('text').filter({ hasText: 'Update' }).first()).toBeVisible();
+    await expect(surface.locator('text').filter({ hasText: 'Capability' }).first()).toBeVisible();
+
+    const localAgentChoice = page.getByRole('button', { name: 'Select local-dev-agent' });
+    await expect(localAgentChoice).toBeVisible();
+    await localAgentChoice.click({ force: true });
+    await expect(surface.locator('text').filter({ hasText: 'Device : local-dev-agent' }).first()).toBeVisible();
+
+    await page.getByRole('tab', { name: 'Show LAN pairing Capability' }).click({ force: true });
+    await expect(surface.locator('text').filter({ hasText: 'Agent' }).first()).toBeVisible();
+    await expect(surface.locator('text').filter({ hasText: 'ocentra-local-service' }).first()).toBeVisible();
+    await expect(surface.locator('text').filter({ hasText: 'CPU' }).first()).toBeVisible();
+    await expect(surface.locator('text').filter({ hasText: 'GPU' }).first()).toBeVisible();
+    await expect(surface.locator('text').filter({ hasText: 'Memory' }).first()).toBeVisible();
+    await expect(surface.locator('text').filter({ hasText: 'Device ID' }).first()).toBeVisible();
+
+    await assertOptionalLanNeighborRouteProof(page, surface);
+    await assertOptionalRouterInfrastructureProof(page);
+    await assertNoSyntheticLanDevices(page, surface);
+  } finally {
+    if (viewport) {
+      await page.setViewportSize(viewport);
+    }
+  }
+}
+
+async function assertOptionalLanNeighborRouteProof(page: Page, surface: ReturnType<Page['locator']>): Promise<void> {
+  const neighborChoice = page.getByRole('button', { name: /^Select LAN \d{1,3}(?:\.\d{1,3}){3}$/ }).first();
+  if ((await neighborChoice.count()) === 0) {
+    return;
+  }
+
+  const ariaLabel = (await neighborChoice.getAttribute('aria-label')) ?? '';
+  const neighborLabel = ariaLabel.replace(/^Select /, '');
+  await neighborChoice.click({ force: true });
+  await page.getByRole('tab', { name: 'Show LAN pairing Info' }).click({ force: true });
+  const infoText = await surfaceText(surface);
+  expect(infoText).toContain(neighborLabel);
+  expect(infoText).toMatch(/\bIP\b/);
+  expect(infoText).toMatch(/\bMAC\b/);
+  expect(infoText).toMatch(/\binterface\b/i);
+
+  await page.getByRole('tab', { name: 'Show LAN pairing Capability' }).click({ force: true });
+  const capabilityText = await surfaceText(surface);
+  expect(capabilityText).toContain('Not reported');
+}
+
+async function assertOptionalRouterInfrastructureProof(page: Page): Promise<void> {
+  const routerChoice = page.getByRole('button', { name: /^LAN \d{1,3}(?:\.\d{1,3}){3} is unsupported$/ }).first();
+  if ((await routerChoice.count()) === 0) {
+    return;
+  }
+
+  const ariaLabel = (await routerChoice.getAttribute('aria-label')) ?? '';
+  const routerLabel = ariaLabel.replace(/ is unsupported$/, '');
+  await expect(page.getByRole('button', { exact: true, name: `Select ${routerLabel}` })).toHaveCount(0);
+}
+
+async function assertNoSyntheticLanDevices(page: Page, surface: ReturnType<Page['locator']>): Promise<void> {
+  await expect(page.getByRole('button', { name: 'Select Aarav laptop' })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Select Mina tablet' })).toHaveCount(0);
+  await expect(surface.locator('text').filter({ hasText: 'Aarav laptop' })).toHaveCount(0);
+  await expect(surface.locator('text').filter({ hasText: 'Mina tablet' })).toHaveCount(0);
+  await expect(surface.locator('text').filter({ hasText: 'UI check device' })).toHaveCount(0);
+}
+
+async function surfaceText(surface: ReturnType<Page['locator']>): Promise<string> {
+  return (await surface.locator('text').allTextContents()).join(' ');
 }
 
 async function assertControlRouteSurface(surface: ReturnType<Page['locator']>): Promise<void> {
@@ -236,6 +311,7 @@ async function assertPolicyGuideDeepLinks(page: Page): Promise<void> {
   const surface = page.locator('svg.parent-portal-svg-surface');
   await page.goto('/#/browser-settings');
   await expect(surface.locator('[aria-label="Open Browser Rules guide"]')).toBeVisible();
+  await assertBrowserPolicyDeviceTargets(page, surface);
   await surface.locator('[aria-label="Open Browser Budget guide"]').click({ force: true });
   await expect(page).toHaveURL(/#\/policy\?guideTopic=browser-policy-guide&guidePage=2$/);
   await expect(surface.locator('text').filter({ hasText: 'BROWSER BUDGET' }).first()).toBeVisible();
@@ -244,6 +320,23 @@ async function assertPolicyGuideDeepLinks(page: Page): Promise<void> {
   await expect(page).toHaveURL(/#\/browser-settings$/);
   await page.goto('/#/policy-apps');
   await expect(surface.locator('[aria-label="Open Apps Rules guide"]')).toBeVisible();
+}
+
+async function assertBrowserPolicyDeviceTargets(page: Page, surface: ReturnType<Page['locator']>): Promise<void> {
+  const viewport = page.viewportSize();
+  await page.setViewportSize({
+    width: Math.max(viewport?.width ?? 1280, 1600),
+    height: Math.max(viewport?.height ?? 720, 960),
+  });
+  try {
+    await expect(surface.locator('text').filter({ hasText: 'Per Device' }).first()).toBeVisible();
+    await expect(surface.locator('text').filter({ hasText: 'local-dev-agent' }).first()).toBeVisible();
+    await expect(surface.locator('text').filter({ hasText: /^LAN 192\.168\.2\.1$/ })).toHaveCount(0);
+  } finally {
+    if (viewport) {
+      await page.setViewportSize(viewport);
+    }
+  }
 }
 
 async function assertActivityManageSurface(page: Page, surface: ReturnType<Page['locator']>): Promise<void> {
@@ -269,7 +362,12 @@ async function assertActivityManageSurface(page: Page, surface: ReturnType<Page[
 }
 
 async function assertActivityReportSurface(page: Page, surface: ReturnType<Page['locator']>): Promise<void> {
-  await expect(surface.locator('text').filter({ hasText: 'Report device : No device selected' }).first()).toBeVisible();
+  await expect(
+    surface
+      .locator('text')
+      .filter({ hasText: /Report device : (?!No device selected).+/ })
+      .first()
+  ).toBeVisible();
   await expect(surface.locator('text').filter({ hasText: 'Frequency' }).first()).toBeVisible();
   await expect(surface.locator('text').filter({ hasText: 'Report viewer' }).first()).toBeVisible();
   await expect(surface.locator('text').filter({ hasText: 'SELECTED REPORT' }).first()).toBeVisible();
@@ -347,8 +445,7 @@ async function assertSidePanelFoldouts(page: Page): Promise<void> {
 async function clickSidePanelButton(page: Page, name: string): Promise<void> {
   const button = page.getByRole('button', { exact: true, name });
   await expect(button).toBeVisible();
-  await button.focus();
-  await button.press('Enter');
+  await button.click({ force: true });
 }
 
 async function expandSidePanelGroup(page: Page, label: string): Promise<void> {
