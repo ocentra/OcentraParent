@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { AgentEventEnvelopeSchema } from '@ocentra-parent/agent-protocol-domain/contracts';
+import { ActivitySurfaceSchemaVersion } from '@ocentra-parent/activity-domain/activity-surface';
+import {
+  AgentEventEnvelopeSchema,
+  AgentProtocolDefaults,
+  type AgentEventName,
+} from '@ocentra-parent/agent-protocol-domain/contracts';
 import { resolveLiveActivityState } from '../src/live-activity-state';
 
 describe('portal live activity state', () => {
@@ -31,6 +36,28 @@ describe('portal live activity state', () => {
     expect(state.browserEvidenceReadModel?.returned).toBe(0);
     expect(state.browserEvidenceReadModel?.rows.length).toBe(0);
     expect(state.browserEvidenceReadModel?.capabilityStatus).toBeNull();
+  });
+
+  it('uses the latest matching events for portal live activity state', () => {
+    const state = resolveLiveActivityState([
+      browserEvidenceEvent('evt-browser-earlier', 'https://earlier.example/learn'),
+      activityReportEvent({
+        eventId: 'evt-report-earlier',
+        event: 'agent.activity.report.generated',
+        reportId: 'activity-report-earlier',
+      }),
+      browserEvidenceEvent('evt-browser-latest', 'https://latest.example/learn'),
+      activityReportEvent({
+        eventId: 'evt-report-latest',
+        event: 'agent.activity.report.saved',
+        reportId: 'activity-report-latest',
+      }),
+    ]);
+
+    expect(state.browserEvidenceEvent?.eventId).toBe('evt-browser-latest');
+    expect(state.browserEvidenceReadModel?.rows.at(0)?.url).toBe('https://latest.example/learn');
+    expect(state.activityReportEvent?.eventId).toBe('evt-report-latest');
+    expect(state.activityReport?.ok ? state.activityReport.value.reportId : null).toBe('activity-report-latest');
   });
 });
 
@@ -93,10 +120,13 @@ function ingestStatusEvent() {
   });
 }
 
-function browserEvidenceEvent() {
+function browserEvidenceEvent(eventId = 'evt-browser', url = 'https://example.test/learn') {
+  const origin = new URL(url).origin;
+  const domain = new URL(url).hostname;
+
   return AgentEventEnvelopeSchema.parse({
     schemaVersion: 1,
-    eventId: 'evt-browser',
+    eventId,
     correlationId: 'cmd-browser',
     sentAt: '2026-05-21T01:00:01Z',
     source: {
@@ -127,15 +157,76 @@ function browserEvidenceEvent() {
       tabId: null,
       targetId: 'target-1',
       activeState: 'unknown',
-      url: 'https://example.test/learn',
-      origin: 'https://example.test',
-      domain: 'example.test',
+      url,
+      origin,
+      domain,
       title: 'Example learning page',
       freshUntil: '2026-05-21T01:00:30Z',
       staleAt: '2026-05-21T01:00:30Z',
       capabilityStatus: 'tab-list-only',
       custodyLabel: 'child-device-local',
       queryVisibility: 'live-local',
+    },
+    snapshot: null,
+  });
+}
+
+function activityReportEvent(input: {
+  readonly eventId: unknown;
+  readonly event: AgentEventName;
+  readonly reportId: unknown;
+}) {
+  return AgentEventEnvelopeSchema.parse({
+    schemaVersion: 1,
+    eventId: input.eventId,
+    correlationId: 'cmd-report',
+    sentAt: '2026-05-21T01:00:01Z',
+    source: {
+      peerId: 'local-dev-agent',
+      role: 'agent-service',
+    },
+    target: {
+      peerId: 'portal-dev',
+      role: 'portal',
+    },
+    event: input.event,
+    severity: 'info',
+    payload: {
+      [AgentProtocolDefaults.Field.ActivitySurfaceState]: 'ready',
+      [AgentProtocolDefaults.Field.ActivityReportDocument]: JSON.stringify({
+        schemaVersion: ActivitySurfaceSchemaVersion,
+        reportId: input.reportId,
+        frequency: 'daily',
+        scope: {
+          scopeKind: 'device',
+          familyId: null,
+          deviceId: 'local-dev-agent',
+        },
+        requestedAt: '2026-05-21T01:00:00Z',
+        rangeStart: '2026-05-21T00:00:00Z',
+        rangeEnd: '2026-05-21T01:00:00Z',
+        generatedAt: '2026-05-21T01:00:01Z',
+        savedMetadata: null,
+        sourceStates: [
+          {
+            deviceId: 'local-dev-agent',
+            reachabilityState: 'reachable',
+            state: 'ready',
+            reason: null,
+            lastUpdatedAt: '2026-05-21T01:00:00Z',
+          },
+        ],
+        sections: [
+          {
+            sectionKind: 'summary',
+            title: 'Summary',
+            state: 'ready',
+            summary: 'Activity data is available from the local query store.',
+            itemCount: 1,
+            evidence: [],
+          },
+        ],
+      }),
     },
     snapshot: null,
   });

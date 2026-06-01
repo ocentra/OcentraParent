@@ -163,15 +163,26 @@ export function resolveLiveActivityState(events: readonly AgentEventEnvelope[]):
 }
 
 function latestEvent(events: readonly AgentEventEnvelope[], eventName: AgentEventName): AgentEventEnvelope | null {
-  return events.find((event) => event.event === eventName) ?? null;
+  for (let index = events.length - 1; index >= 0; index -= 1) {
+    const event = events[index];
+    if (event !== undefined && event.event === eventName) {
+      return event;
+    }
+  }
+  return null;
 }
 
 function latestActivityReportEvent(events: readonly AgentEventEnvelope[]): AgentEventEnvelope | null {
-  return (
-    events.find(
-      (event) => event.event === AgentEvent.ActivityReportSaved || event.event === AgentEvent.ActivityReportGenerated
-    ) ?? null
-  );
+  for (let index = events.length - 1; index >= 0; index -= 1) {
+    const event = events[index];
+    if (
+      event !== undefined &&
+      (event.event === AgentEvent.ActivityReportSaved || event.event === AgentEvent.ActivityReportGenerated)
+    ) {
+      return event;
+    }
+  }
+  return null;
 }
 
 function parseNullableActivityReportEvent(

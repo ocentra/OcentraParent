@@ -98,6 +98,28 @@ const FamilyReport = {
   ],
 } as const;
 
+const LatestFamilyReport = {
+  ...FamilyReport,
+  reportId: 'activity-report-family-local-latest-20260527T201500Z',
+  generatedAt: '2026-05-27T20:15:01Z',
+  sourceStates: [
+    {
+      deviceId: 'local-dev-agent',
+      reachabilityState: 'reachable',
+      state: 'ready',
+      reason: null,
+      lastUpdatedAt: '2026-05-27T20:14:00Z',
+    },
+    {
+      deviceId: 'child-device-latest-offline',
+      reachabilityState: 'offline',
+      state: 'offline',
+      reason: 'Latest child source is offline for this report.',
+      lastUpdatedAt: null,
+    },
+  ],
+} as const;
+
 const UnavailableReport = {
   ...Report,
   reportId: 'activity-report-daily-local-unavailable-20260527T201000Z',
@@ -386,6 +408,36 @@ function specifyServiceUiSpineParsing() {
     expect(spine.browser).toBe(null);
     expect(spine.familyAggregation).toBe(null);
   });
+
+  it('uses the latest matching service events for the portal-facing UI spine', () => {
+    const spine = parseActivityServiceUiSpineEvents([
+      eventEnvelope(AgentEvent.ActivityBrowserReadModelReported, {
+        [AgentProtocolDefaults.Field.ActivitySurfaceState]: 'ready',
+        [AgentProtocolDefaults.Field.ActivityReadModelKind]: 'browser',
+        [AgentProtocolDefaults.Field.Returned]: 1,
+        [AgentProtocolDefaults.Field.ActivityReadModel]: JSON.stringify(browserReadModel('earlier.example')),
+      }),
+      eventEnvelope(AgentEvent.ActivityReportGenerated, {
+        [AgentProtocolDefaults.Field.ActivitySurfaceState]: 'ready',
+        [AgentProtocolDefaults.Field.ActivityReportDocument]: JSON.stringify(FamilyReport),
+      }),
+      eventEnvelope(AgentEvent.ActivityBrowserReadModelReported, {
+        [AgentProtocolDefaults.Field.ActivitySurfaceState]: 'ready',
+        [AgentProtocolDefaults.Field.ActivityReadModelKind]: 'browser',
+        [AgentProtocolDefaults.Field.Returned]: 1,
+        [AgentProtocolDefaults.Field.ActivityReadModel]: JSON.stringify(browserReadModel('latest.example')),
+      }),
+      eventEnvelope(AgentEvent.ActivityReportSaved, {
+        [AgentProtocolDefaults.Field.ActivitySurfaceState]: 'ready',
+        [AgentProtocolDefaults.Field.ActivityReportDocument]: JSON.stringify(LatestFamilyReport),
+      }),
+    ]);
+
+    expect(spine.browser?.ok ? spine.browser.value.rows[0]?.domainLabel : null).toBe('latest.example');
+    expect(spine.familyAggregation?.ok ? spine.familyAggregation.value.offlineDeviceIds : null).toEqual([
+      'child-device-latest-offline',
+    ]);
+  });
 }
 
 function specifyStorageUnavailableHistoryParsing() {
@@ -403,7 +455,7 @@ function specifyStorageUnavailableHistoryParsing() {
   });
 }
 
-function browserReadModel() {
+function browserReadModel(domainLabel = 'example.test') {
   return {
     schemaVersion: ActivitySurfaceSchemaVersion,
     request: Request,
@@ -413,7 +465,7 @@ function browserReadModel() {
     rows: [
       {
         rowId: 'browser-evidence-row-1',
-        domainLabel: 'example.test',
+        domainLabel,
         deviceId: 'local-dev-agent',
         state: 'ready',
         visitCount: 1,
