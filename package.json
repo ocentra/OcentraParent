@@ -60,6 +60,7 @@
     "test:child-android-protocol-package-lifecycle-proof": "node scripts/test/child-android-protocol-package-lifecycle-proof.mjs",
     "test:child-android-permission-capability-proof": "node scripts/test/child-android-permission-capability-proof.mjs",
     "test:child-android-privileged-capability-proof": "node scripts/test/child-android-privileged-capability-proof.mjs",
+    "test:child-android-device-proof-artifact-gate": "node scripts/test/child-android-device-proof-artifact-gate.mjs",
     "test:child-ios-entitlement-capability-proof": "node scripts/test/child-ios-entitlement-capability-proof.mjs",
     "test:child-android-storage-protocol-capability-proof": "node scripts/test/child-android-storage-protocol-capability-proof.mjs",
     "test:child-android-service-protocol-capability-proof": "node scripts/test/child-android-service-protocol-capability-proof.mjs",
