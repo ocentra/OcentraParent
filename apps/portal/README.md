@@ -1,8 +1,10 @@
 # Portal App
 
-Minimal Vite dev portal for local and LAN agent visibility.
+Vite development portal for local and LAN parent visibility.
 
-This is not the product portal. It exists so the Rust agent service can be seen and validated while the repo is still in scaffold mode.
+This is the fast HMR surface for proving parent workflows against the real Rust
+service. It is not allowed to become the source of truth for child-device
+capture, AI safety decisions, policy evaluation, timers, or enforcement.
 
 The product parent portal should become a packaged parent-owned desktop/mobile
 surface. Tauri is the preferred desktop-shell candidate unless a later
@@ -29,3 +31,35 @@ cmd /c npm run test:e2e --workspace @ocentra-parent/portal
 ```
 
 The Playwright check starts the Rust agent and Vite portal on the scaffold smoke ports, verifies WebSocket connection state, clicks command buttons, checks rendered event output, and fails on browser console or page errors.
+
+## Ownership
+
+- Renders parent-facing surfaces for devices, activity, policy, data, AI, and
+  account areas.
+- Sends typed intents and queries through `@ocentra-parent/agent-protocol-domain`.
+- Displays service-backed capability status, custody labels, evidence refs, and
+  degraded states.
+- Provides Playwright proof for real portal-to-Rust behavior.
+
+## Must Not Own
+
+- Runtime policy evaluation.
+- Local AI model execution.
+- Timer recovery.
+- OS enforcement adapters.
+- Child-device capture.
+- Unvalidated fake "normal" data paths.
+
+## Connected Docs
+
+- [Portal expectations](../../docs/expectations/portal.md)
+- [Real evidence proof](../../docs/expectations/real-evidence-proof.md)
+- [Product capability checklist](../../docs/product-capability-checklist.md)
+
+## Gaps To Fill
+
+- Complete first-run setup, child profiles, policy authoring, schedules,
+  reports, notifications, and AI action previews.
+- Keep replacing UI-check data with service-backed read models.
+- Make every route label live/local/LAN/relay/cache/unavailable source state
+  clearly.

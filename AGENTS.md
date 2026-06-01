@@ -6,6 +6,38 @@ This repo follows Ocentra-style scaffold discipline. Keep changes narrow, contra
 
 Before coding, read `.ocentra-ai/rules/ocentra-parent-rules.mdc`. It routes work to granular rule files for tests, domain boundaries, protocol/WebSocket, Rust service, portal, logging/redaction, localhost security, source shape, and validation.
 
+## Product Feature Doc Protocol
+
+Before starting product, feature, roadmap, policy, UI, AI, platform, enforcement, remote, or reporting work, use the focused product-doc path. Do not bulk-read every roadmap, checkpoint, and expectation file.
+
+Minimum reading path:
+
+1. Read `docs/feature-list.md` and identify the single feature doc that owns the work.
+2. Read only that `docs/features/*.md` file, plus any second feature doc if the task clearly crosses a second feature boundary.
+3. Read the expectation files linked by the feature doc that match the files you will touch.
+4. Read the relevant milestone section in `docs/product-roadmap.md` only when the task changes milestone scope, status, order, or completion claims.
+5. Read the relevant rows in `docs/product-capability-checklist.md` before and after the work when the task changes feature status, proof, or gaps.
+6. Read the README for each touched app/package/crate/platform area before editing that area.
+
+Context hygiene:
+
+- Do not load all files under `docs/expectations`, `docs/features`, or `docs/checkpoints`.
+- Do not open historical checkpoint files unless the feature doc, checklist, roadmap, or hub assignment names them as current proof.
+- Do not use old checkpoint wording to override the current `docs/feature-list.md`, `docs/product-capability-checklist.md`, or `docs/product-roadmap.md`.
+- If no feature doc owns the task, create or update the missing feature doc before making broad implementation claims.
+
+Before reporting `DONE`, update the documentation layer that changed:
+
+- update the owning `docs/features/*.md` checklist/current-state/gap when implementation changes status or proof;
+- update `docs/product-capability-checklist.md` when a feature moves status, gains proof, or gains a new gap;
+- update `docs/product-roadmap.md` when milestone order, scope, or completion changes;
+- update expectation docs when the acceptance contract changes;
+- update the touched module README when ownership, flow, or module gaps change;
+- update `README.md` only when user-facing positioning changes;
+- update `docs/competitor-capability-map.md` only when competitor parity, rejection, or tracking changes.
+
+Every worker `DONE` or PR-ready report must say which feature doc and checklist row were updated, or explicitly say that no product-doc update was needed and why.
+
 Before editing or committing, run `npm run lanes:status`, `npm run lanes:guard`, `npm run hub:status`, and `npm run hub:guard` from the checkout you are using. Each active worktree lane must be claimed in `C:\Users\sujan\.codex\ocentra-parent-worktrees.json` with the lane owner, thread label, branch, task, and next action. Cross-chat instructions, reports, and file locks live under `C:\Users\sujan\.codex\ocentra-parent-hub`. The pre-commit hook runs both guards automatically.
 
 When starting in a worker lane, run `npm run hub:inbox` and acknowledge the latest hub instruction with `npm run hub:ack` before committing. Before starting or resuming assigned work, report `STARTED` back to the hub so the primary coordinator has a timestamped handoff. Before editing files, claim your intended ownership with `npm run hub:lock -- --paths "path/or/package,other/path" --reason "short scope"`. Report progress back to the hub with `npm run hub:report -- --summary "short status" --details "validation, blockers, touched files"`. When work is done, verify it, run the lint/tests requested in the hub mail, make a local commit on the worker branch, push that branch when ready for review, and report `DONE` with exact validation, commit state, touched packages/files, known gaps/risks, and detailed scope of what changed. If the user or primary asks the worker to prepare or create a PR, the worker may open the PR and include the same detailed scope in the PR body. Workers must not merge PRs or push directly to `main` unless the user explicitly asks for that exact action. Keep `hub:report` semantic: `STARTED`, meaningful progress, `BLOCKED`, and `DONE`. Use `npm run hub:heartbeat -- --state idle --note "waiting for instruction"` for per-minute liveness or idle notes instead of overwriting work state. Keep hub reports short unless the hub mail specifically asks for detail.

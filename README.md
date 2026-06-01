@@ -12,6 +12,8 @@ truth for child activity data.
 ## Contents
 
 - [What This App Is](#what-this-app-is)
+- [Why Ocentra](#why-ocentra)
+- [Product Capability Contract](#product-capability-contract)
 - [Data Custody Rule](#data-custody-rule)
 - [How The System Works](#how-the-system-works)
 - [Remote Parent Access](#remote-parent-access)
@@ -47,6 +49,62 @@ transparent capabilities, honest status, typed rules, local privacy boundaries,
 and auditable outcomes. Parents decide which observation modes, schedules,
 categories, time limits, report paths, and enforcement actions fit their child
 and household.
+
+## Why Ocentra
+
+Most parental-control products start from an account, a cloud dashboard, or a
+platform ecosystem. Ocentra starts from the child device. The product goal is a
+local agent that can see real device activity, explain it with evidence, apply
+parent rules, and keep child activity data out of Ocentra custody by default.
+
+Ocentra should matter to parents because it is designed around these promises:
+
+- Local-first protection: activity evidence, AI classification, policy
+  decisions, timers, and enforcement run on the child device by default.
+- No default child-data warehouse: Ocentra-hosted services are for account,
+  billing, downloads, entitlement, notification routing, relay, and optional
+  stateless compile boundaries, not default storage of child activity.
+- AI for high-tech and low-tech parents: a parent should be able to ask the
+  assistant to set a bedtime schedule, block or limit a category, explain why a
+  video or app was flagged, draft a rule, preview the result, and tune it in the
+  portal.
+- Context-aware control: Ocentra is built to combine browser URL evidence,
+  app/game sessions, network summaries, local screen summaries, schedules,
+  parent rules, and local AI output instead of only offering simple allow/block
+  toggles.
+- Social and video direction: social apps, video URLs, visible content, and
+  interaction context must become first-class evidence and policy targets where
+  platform permissions allow them. The goal is not to trust a single age rating
+  when local evidence can support a better parent decision.
+- Honest platform status: if a capability is unsupported, degraded,
+  manual-required, scaffold-only, or waiting on an OS entitlement, the product
+  must say so.
+
+Compared with Google Family Link, Apple Screen Time, Microsoft Family Safety,
+Bark, Qustodio, Norton Family, Net Nanny, Canopy, Kidslox, FamilyTime, and
+FamiSafe, Ocentra's intended position is local-first, AI-assisted, and
+evidence-backed. The current parity/gap map is tracked in
+[Competitor Capability Map](docs/competitor-capability-map.md).
+
+## Product Capability Contract
+
+The README is the product-facing entry point. The authoritative requirements
+live in:
+
+- [Product Constitution](docs/product-constitution.md): why Ocentra exists, what
+  claims are allowed, and what status words mean.
+- [Product Capability Checklist](docs/product-capability-checklist.md): feature
+  status, expectation docs, current proof, and next gap.
+- [Feature List](docs/feature-list.md): per-feature docs with competitor
+  pressure, roadmap links, expectations, gaps, and checklists.
+- [Feature Expectations](docs/feature-expectations.md): expectation files that
+  define what each feature must prove.
+- [Product Roadmap](docs/product-roadmap.md): milestone order from V0.1 through
+  production hardening.
+
+User-facing product copy may describe the intended finished product. Repository
+status must still point back to the checklist and roadmap so "what we have" and
+"what we are building" stay separate.
 
 ## Data Custody Rule
 
@@ -214,11 +272,11 @@ Security and privacy commitments:
 
 ## Current Repository State
 
-This repository is currently in scaffold-first mode. The committed foundation
-includes workspace layout, domain boundaries, validation gates, test structure,
-Rust crate boundaries, local and LAN dev APIs, a minimal Vite portal, MSI release
-packaging, package-preview scaffolds for every target platform, signed updater
-scaffolding, dependency/security gates, and SBOM generation.
+This repository is beyond the initial scaffold, but it is not yet a finished
+consumer parental-control product. The committed foundation includes workspace
+layout, domain boundaries, validation gates, Rust crate boundaries, local and
+LAN dev APIs, a Vite development portal, MSI/update scaffolding, package-preview
+scaffolds for target platforms, dependency/security gates, and SBOM generation.
 
 Implemented foundation:
 
@@ -226,29 +284,44 @@ Implemented foundation:
 - Effect Schema domain contracts.
 - Rust protocol parity for shared contracts.
 - Encrypted append-only activity journal.
-- SQLite activity query direction.
-- Local Rust service and WebSocket intent/event scaffold.
+- SQLite activity query/read-model direction.
+- Local Rust service and WebSocket intent/event paths.
 - Local and LAN dev scripts with fixed ports.
 - Windows MSI and updater scaffold.
 - Package-preview scaffolds for Linux, macOS, Android, and iOS.
 - Security scans, dependency policy, validation gates, and CI.
 
-Not implemented yet:
+Current proof-backed work includes browser URL/tab evidence direction,
+app/game sessions, network summaries, local screen-analysis queue summaries,
+local AI dry-run policy evaluation, local provider/runtime status, activity
+report persistence/family fanout/MIA context, enforcement spine proof, LAN
+pairing/control proof, parent desktop shell proof, and Android/iOS packaging
+scaffolds.
 
-- Windows Filtering Platform capture.
-- Local AI safety evaluation.
-- Blocking or enforcement.
-- Parent policy UI.
-- Parent-owned storage sync and remote report compilation.
-- Notification delivery.
-- Browser URL/tab evidence capture.
-- Production Tauri parent portal.
-- Mobile agents.
-- Production mobile store distribution.
+Not product-complete yet:
+
+- Consumer first-run setup, child profiles, co-parent/observer UX, and recovery.
+- Full parent policy UI for rules, schedules, exceptions, approvals, and audit.
+- Product-grade parent assistant flow for "ask AI to set this up" actions.
+- Broad app/browser/domain/network enforcement adapters across platforms.
+- Social/message/video monitoring as a first-class product area.
+- Location/geofence/SOS/battery product runtime.
+- Android child-agent privileged behavior on real devices.
+- iOS child-agent entitlement/device proof.
+- Remote away-from-home control without default Ocentra child-data custody.
+- Notification delivery, reports, billing, public website, support, store
+  distribution, and production signing.
+
+Use [Product Capability Checklist](docs/product-capability-checklist.md) for the
+current feature-by-feature status.
 
 ## Important Docs
 
 - [Product Roadmap](docs/product-roadmap.md)
+- [Product Constitution](docs/product-constitution.md)
+- [Feature List](docs/feature-list.md)
+- [Product Capability Checklist](docs/product-capability-checklist.md)
+- [Competitor Capability Map](docs/competitor-capability-map.md)
 - [Feature Expectations](docs/feature-expectations.md)
 - [Data Custody And Local-First Expectations](docs/expectations/data-custody.md)
 - [Cloud Feature Expectations](docs/expectations/cloud.md)
@@ -291,28 +364,30 @@ Not implemented yet:
 
 ```text
 apps/
-  portal/        Vite dev portal for local and LAN agent visibility.
-  local-api/     Reserved local query/control API package placeholder.
+  portal/          Vite dev portal for local and LAN agent visibility.
+  parent-desktop/  Tauri parent desktop shell candidate.
+  local-api/       Reserved TypeScript API boundary.
 packages/
-  schema-domain/     Shared Effect Schema helpers.
-  endpoint-domain/   Endpoint/path/header brand boundaries.
-  agent-protocol-domain/ WebSocket intent/event contracts.
-  text-domain/       Schema-backed display text tokens.
-  portal-domain/     Portal route, DOM, and dev intent contracts.
-  parent-domain/     Parent product contract placeholder.
-  activity-domain/   Device activity contract placeholder.
-  logging-domain/    Effect Schema operational logging contracts.
+  schema-domain/          Shared Effect Schema helpers.
+  endpoint-domain/        Endpoint/path/header brand boundaries.
+  agent-protocol-domain/  WebSocket command/event contracts.
+  text-domain/            Schema-backed display text tokens.
+  portal-domain/          Portal route, DOM, nav, and service-state contracts.
+  parent-domain/          Family, policy, enforcement, AI, LAN, mobile, and control contracts.
+  activity-domain/        Capture, evidence, journal, query, browser, app/game, network, and screen contracts.
+  logging-domain/         Effect Schema operational logging contracts.
 crates/
-  agent-core/      Agent core placeholder.
-  agent-protocol/  Rust protocol structs matching shared contracts.
-  agent-service/   Rust local API smoke service.
+  agent-core/      Local runtime core and adapter helpers.
+  agent-protocol/  Rust protocol structs/constants matching shared contracts.
+  agent-service/   Rust local/LAN HTTP and WebSocket service.
+  agent-updater/   Update and maintenance binaries.
 scripts/
   validation, dependency policy, platform packaging, smoke, and git hook guardrails.
 platforms/
-  android/      Android APK scaffold with a foreground agent service.
-  ios/          iOS simulator app scaffold with an Xcode project.
+  android/      Android scaffold and future Android child-agent/parent-mobile proof.
+  ios/          iOS simulator scaffold and future entitlement/device proof.
 docs/
-  architecture and expectations.
+  constitution, roadmap, capability checklist, expectations, architecture, and checkpoints.
 ```
 
 ## Commands

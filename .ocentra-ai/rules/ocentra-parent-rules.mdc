@@ -10,6 +10,20 @@ Read this file before coding in this repo. It is a router, not the whole ruleboo
 
 Do not add product behavior until the relevant scaffold boundary exists, is typed, and is validated.
 
+## Product Feature Doc Route
+
+For product-facing work, route by feature before routing by code layer:
+
+1. Read `docs/feature-list.md`.
+2. Read the one matching `docs/features/*.md` file.
+3. Read only the expectation docs linked by that feature doc that match the task.
+4. Read the touched module README before editing that module.
+5. Update the feature doc and `docs/product-capability-checklist.md` if status, proof, or gap changes.
+
+Do not bulk-load all roadmap, expectation, feature, or checkpoint docs. Open
+historical checkpoint files only when the current feature doc, checklist,
+roadmap, or hub assignment names them as proof.
+
 ## Always Read
 
 - `.ocentra-ai/rules/ocentra-parent-validation.mdc`

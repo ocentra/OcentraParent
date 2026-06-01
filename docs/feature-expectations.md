@@ -2,6 +2,13 @@
 
 This is the entry point for feature expectations. It tells future AI agents and human contributors where to look before implementing a feature. The expectation files define what a feature must prove; they do not prescribe a single implementation path.
 
+For product meaning and status language, read
+[Product Constitution](product-constitution.md) first. For the current
+feature-by-feature status, read
+[Product Capability Checklist](product-capability-checklist.md). For
+per-feature docs, read [Feature List](feature-list.md). For competitor parity
+gaps, read [Competitor Capability Map](competitor-capability-map.md).
+
 ## Prime Directive
 
 Every feature must move Ocentra Parent toward a trustworthy family-safety product:
@@ -20,6 +27,10 @@ If a change cannot explain what parent problem it solves, what evidence it creat
 
 ## Universal Expectations
 
+- [Product constitution](product-constitution.md)
+- [Feature list](feature-list.md)
+- [Product capability checklist](product-capability-checklist.md)
+- [Competitor capability map](competitor-capability-map.md)
 - [Feature request expectations](expectations/feature-request.md)
 - [Universal done definition](expectations/universal-done.md)
 - [Code quality expectations](expectations/code-quality.md)
@@ -30,6 +41,7 @@ If a change cannot explain what parent problem it solves, what evidence it creat
 ## Feature Expectations
 
 - [Contract feature expectations](expectations/contracts.md)
+- [Family setup expectations](expectations/family-setup.md)
 - [Evidence storage expectations](expectations/evidence-storage.md)
 - [Data custody and local-first expectations](expectations/data-custody.md)
 - [Capture feature expectations](expectations/capture.md)
@@ -40,6 +52,10 @@ If a change cannot explain what parent problem it solves, what evidence it creat
 - [Portal feature expectations](expectations/portal.md)
 - [Policy feature expectations](expectations/policy.md)
 - [Enforcement feature expectations](expectations/enforcement.md)
+- [Social and video control expectations](expectations/social-video-control.md)
+- [Location and geofence expectations](expectations/location-geofence.md)
+- [App install and purchase approval expectations](expectations/app-install-purchase-approval.md)
+- [Tamper and uninstall protection expectations](expectations/tamper-uninstall-protection.md)
 - [LAN pairing expectations](expectations/lan-pairing.md)
 - [Cloud feature expectations](expectations/cloud.md)
 - [Notification feature expectations](expectations/notifications.md)
@@ -49,6 +65,25 @@ If a change cannot explain what parent problem it solves, what evidence it creat
 - [Release and installer expectations](expectations/release-installer.md)
 - [Billing and subscription expectations](expectations/billing.md)
 - [Platform expectations](expectations/platforms.md)
+
+## Feature Documentation Requirement
+
+Every product capability must have a row in
+[Product Capability Checklist](product-capability-checklist.md) and a
+per-feature document linked from [Feature List](feature-list.md). A capability
+that is user-visible, privacy-sensitive, platform-specific, AI-backed,
+enforcement-backed, remote, or subscription-gated must also point to an
+expectation file.
+
+Each feature row or expectation file must answer:
+
+- What parent-visible behavior should exist?
+- Which child-device/runtime behavior is required?
+- Which platforms are in scope?
+- What data is captured, stored, synced, or exposed?
+- What is local-only, parent-owned, Ocentra-hosted, unavailable, or degraded?
+- What proof makes the product claim true?
+- What remains a gap?
 
 ## How To Use These Files
 
