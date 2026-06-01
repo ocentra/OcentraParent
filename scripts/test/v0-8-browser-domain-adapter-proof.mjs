@@ -160,9 +160,43 @@ function assertReadModel(readModel, summary) {
     assertSetHas(surfaces, expectedSurface, 'browser/domain surface coverage');
   }
 
+  for (const expectedState of expectedSurfaceStates()) {
+    assertSurfaceState(readModel, expectedState);
+  }
+
   proofLabels.push('v0.8.browser-domain-adapter.read-model');
   proofLabels.push('v0.8.browser-domain-adapter.no-claim-upgrade');
   proofLabels.push('v0.8.browser-domain-adapter.manual-unsupported-gates');
+  proofLabels.push('v0.8.browser-domain-adapter.surface-state-guard');
+}
+
+function expectedSurfaceStates() {
+  return [
+    ['windows-managed-browser-intervention-state', 'implemented-boundary', 'executes-real-service', 'implemented'],
+    ['windows-managed-browser-exact-url-manual', 'manual-required', 'returns-manual-required', 'manual-required'],
+    ['windows-unmanaged-browser-terminate-boundary', 'implemented-boundary', 'executes-real-service', 'implemented'],
+    ['windows-unmanaged-browser-warn-noop', 'degraded-boundary', 'returns-degraded-noop', 'supported'],
+    ['windows-unmanaged-browser-exact-evidence-not-claimed', 'not-claimed', 'not-invoked', 'not-implemented'],
+    ['windows-network-domain-filter-manual', 'manual-required', 'returns-manual-required', 'manual-required'],
+    ['windows-network-domain-adapter-unavailable', 'unavailable', 'returns-unavailable', 'unavailable'],
+    ['windows-audit-visibility-boundary', 'implemented-boundary', 'executes-real-service', 'implemented'],
+    ['windows-restart-recovery-visibility-boundary', 'implemented-boundary', 'executes-real-service', 'implemented'],
+    ['windows-browser-policy-rollback-visibility', 'implemented-boundary', 'executes-real-service', 'implemented'],
+    ['linux-browser-domain-adapter-unavailable', 'unavailable', 'returns-unavailable', 'unavailable'],
+    ['macos-browser-domain-adapter-unavailable', 'unavailable', 'returns-unavailable', 'unavailable'],
+    ['android-browser-domain-adapter-manual', 'manual-required', 'returns-manual-required', 'manual-required'],
+    ['ios-browser-domain-adapter-manual', 'manual-required', 'returns-manual-required', 'manual-required'],
+  ];
+}
+
+function assertSurfaceState(readModel, [surface, productClaimState, adapterExecutionState, capabilityStatus]) {
+  const entry = readModel.entries.find((candidate) => candidate.surface === surface);
+  if (entry === undefined) {
+    throw new Error(`surface state guard: missing ${surface}`);
+  }
+  assertEqual(entry.productClaimState, productClaimState, `${surface} productClaimState`);
+  assertEqual(entry.adapterExecutionState, adapterExecutionState, `${surface} adapterExecutionState`);
+  assertEqual(entry.capabilityStatus, capabilityStatus, `${surface} capabilityStatus`);
 }
 
 function assertProofMatrix(matrix) {

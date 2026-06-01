@@ -135,24 +135,7 @@ function browserDomainAdapterEntryIsHonest(entry: V08BrowserDomainAdapterProofEn
     return false;
   }
 
-  switch (entry.productClaimState) {
-    case 'implemented-boundary':
-      return browserDomainAdapterEntryIsImplementedBoundary(entry);
-    case 'degraded-boundary':
-      return browserDomainAdapterEntryIsDegradedBoundary(entry);
-    case 'manual-required':
-      return browserDomainAdapterEntryMatchesState(entry, ParentControlCapabilityStatus.ManualRequired, [
-        'returns-manual-required',
-      ]);
-    case 'unavailable':
-      return browserDomainAdapterEntryMatchesState(entry, ParentControlCapabilityStatus.Unavailable, [
-        'returns-unavailable',
-      ]);
-    case 'not-claimed':
-      return browserDomainAdapterEntryMatchesState(entry, ParentControlCapabilityStatus.NotImplemented, [
-        'not-invoked',
-      ]);
-  }
+  return browserDomainAdapterEntryMatchesSurfaceExpectation(entry);
 }
 
 function browserDomainAdapterEntryHasClaimUpgrade(entry: V08BrowserDomainAdapterProofEntryCandidate): boolean {
@@ -165,42 +148,206 @@ function browserDomainAdapterEntryHasClaimUpgrade(entry: V08BrowserDomainAdapter
   ].some(Boolean);
 }
 
-function browserDomainAdapterEntryIsImplementedBoundary(entry: V08BrowserDomainAdapterProofEntryCandidate): boolean {
-  return (
-    entry.platform === 'windows' &&
-    implementedCapabilityStatuses.includes(entry.capabilityStatus) &&
-    entry.adapterExecutionState === 'executes-real-service' &&
-    entry.linkedProofCommands.length > 0 &&
-    entry.linkedProofArtifacts.length > 0
-  );
-}
-
-function browserDomainAdapterEntryIsDegradedBoundary(entry: V08BrowserDomainAdapterProofEntryCandidate): boolean {
-  return (
-    entry.platform === 'windows' &&
-    implementedCapabilityStatuses.includes(entry.capabilityStatus) &&
-    entry.adapterExecutionState === 'returns-degraded-noop' &&
-    entry.linkedProofCommands.length > 0 &&
-    entry.manualProofRequirements.length > 0
-  );
-}
-
-function browserDomainAdapterEntryMatchesState(
-  entry: V08BrowserDomainAdapterProofEntryCandidate,
-  capabilityStatus: ParentControlCapabilityStatus,
-  executionStates: readonly V08BrowserDomainAdapterExecutionState[]
+function browserDomainAdapterEntryMatchesSurfaceExpectation(
+  entry: V08BrowserDomainAdapterProofEntryCandidate
 ): boolean {
+  const expectation = browserDomainAdapterSurfaceExpectations.find((candidate) => candidate.surface === entry.surface);
+  if (expectation === undefined) {
+    return false;
+  }
+
   return (
-    entry.capabilityStatus === capabilityStatus &&
-    executionStates.includes(entry.adapterExecutionState) &&
-    entry.manualProofRequirements.length > 0
+    entry.platform === expectation.platform &&
+    entry.capability === expectation.capability &&
+    entry.capabilityStatus === expectation.capabilityStatus &&
+    entry.evidenceKind === expectation.evidenceKind &&
+    entry.productClaimState === expectation.productClaimState &&
+    entry.adapterExecutionState === expectation.adapterExecutionState &&
+    browserDomainAdapterEntryMatchesEvidenceExpectation(entry, expectation.evidenceExpectation)
   );
 }
 
-const implementedCapabilityStatuses = [
-  ParentControlCapabilityStatus.Implemented,
-  ParentControlCapabilityStatus.Supported,
-] as const;
+function browserDomainAdapterEntryMatchesEvidenceExpectation(
+  entry: V08BrowserDomainAdapterProofEntryCandidate,
+  evidenceExpectation: BrowserDomainAdapterEvidenceExpectation
+): boolean {
+  switch (evidenceExpectation) {
+    case 'linked-proof':
+      return (
+        entry.linkedProofCommands.length > 0 &&
+        entry.linkedProofArtifacts.length > 0 &&
+        entry.manualProofRequirements.length === 0
+      );
+    case 'linked-degraded-proof':
+      return (
+        entry.linkedProofCommands.length > 0 &&
+        entry.linkedProofArtifacts.length > 0 &&
+        entry.manualProofRequirements.length > 0
+      );
+    case 'manual-proof':
+      return (
+        entry.linkedProofCommands.length === 0 &&
+        entry.linkedProofArtifacts.length === 0 &&
+        entry.manualProofRequirements.length > 0
+      );
+  }
+}
+
+type BrowserDomainAdapterEvidenceExpectation = 'linked-proof' | 'linked-degraded-proof' | 'manual-proof';
+
+type BrowserDomainAdapterSurfaceExpectation = {
+  surface: V08BrowserDomainAdapterProofSurface;
+  platform: ParentControlPlatform;
+  capability: typeof ParentControlCapabilityNameSchema.Type;
+  capabilityStatus: typeof ParentControlCapabilityStatusSchema.Type;
+  evidenceKind: V08BrowserDomainAdapterProofEvidenceKind;
+  productClaimState: V08BrowserDomainAdapterProofClaimState;
+  adapterExecutionState: V08BrowserDomainAdapterExecutionState;
+  evidenceExpectation: BrowserDomainAdapterEvidenceExpectation;
+};
+
+const browserDomainAdapterSurfaceExpectations: readonly BrowserDomainAdapterSurfaceExpectation[] = [
+  {
+    surface: 'windows-managed-browser-intervention-state',
+    platform: 'windows',
+    capability: ParentControlCapabilityName.ManagedBrowserControl,
+    capabilityStatus: ParentControlCapabilityStatus.Implemented,
+    evidenceKind: 'managed-browser',
+    productClaimState: 'implemented-boundary',
+    adapterExecutionState: 'executes-real-service',
+    evidenceExpectation: 'linked-proof',
+  },
+  {
+    surface: 'windows-managed-browser-exact-url-manual',
+    platform: 'windows',
+    capability: ParentControlCapabilityName.ManagedBrowserControl,
+    capabilityStatus: ParentControlCapabilityStatus.ManualRequired,
+    evidenceKind: 'managed-browser',
+    productClaimState: 'manual-required',
+    adapterExecutionState: 'returns-manual-required',
+    evidenceExpectation: 'manual-proof',
+  },
+  {
+    surface: 'windows-unmanaged-browser-terminate-boundary',
+    platform: 'windows',
+    capability: ParentControlCapabilityName.UnmanagedBrowserDetection,
+    capabilityStatus: ParentControlCapabilityStatus.Implemented,
+    evidenceKind: 'unmanaged-browser',
+    productClaimState: 'implemented-boundary',
+    adapterExecutionState: 'executes-real-service',
+    evidenceExpectation: 'linked-proof',
+  },
+  {
+    surface: 'windows-unmanaged-browser-warn-noop',
+    platform: 'windows',
+    capability: ParentControlCapabilityName.UnmanagedBrowserDetection,
+    capabilityStatus: ParentControlCapabilityStatus.Supported,
+    evidenceKind: 'unmanaged-browser',
+    productClaimState: 'degraded-boundary',
+    adapterExecutionState: 'returns-degraded-noop',
+    evidenceExpectation: 'linked-degraded-proof',
+  },
+  {
+    surface: 'windows-unmanaged-browser-exact-evidence-not-claimed',
+    platform: 'windows',
+    capability: ParentControlCapabilityName.UnmanagedBrowserDetection,
+    capabilityStatus: ParentControlCapabilityStatus.NotImplemented,
+    evidenceKind: 'unmanaged-browser',
+    productClaimState: 'not-claimed',
+    adapterExecutionState: 'not-invoked',
+    evidenceExpectation: 'manual-proof',
+  },
+  {
+    surface: 'windows-network-domain-filter-manual',
+    platform: 'windows',
+    capability: ParentControlCapabilityName.NetworkDomainBlocking,
+    capabilityStatus: ParentControlCapabilityStatus.ManualRequired,
+    evidenceKind: 'network-domain',
+    productClaimState: 'manual-required',
+    adapterExecutionState: 'returns-manual-required',
+    evidenceExpectation: 'manual-proof',
+  },
+  {
+    surface: 'windows-network-domain-adapter-unavailable',
+    platform: 'windows',
+    capability: ParentControlCapabilityName.NetworkDomainBlocking,
+    capabilityStatus: ParentControlCapabilityStatus.Unavailable,
+    evidenceKind: 'network-domain',
+    productClaimState: 'unavailable',
+    adapterExecutionState: 'returns-unavailable',
+    evidenceExpectation: 'manual-proof',
+  },
+  {
+    surface: 'windows-audit-visibility-boundary',
+    platform: 'windows',
+    capability: ParentControlCapabilityName.LocalStorage,
+    capabilityStatus: ParentControlCapabilityStatus.Implemented,
+    evidenceKind: 'audit',
+    productClaimState: 'implemented-boundary',
+    adapterExecutionState: 'executes-real-service',
+    evidenceExpectation: 'linked-proof',
+  },
+  {
+    surface: 'windows-restart-recovery-visibility-boundary',
+    platform: 'windows',
+    capability: ParentControlCapabilityName.AppTimeLimit,
+    capabilityStatus: ParentControlCapabilityStatus.Implemented,
+    evidenceKind: 'restart-recovery',
+    productClaimState: 'implemented-boundary',
+    adapterExecutionState: 'executes-real-service',
+    evidenceExpectation: 'linked-proof',
+  },
+  {
+    surface: 'windows-browser-policy-rollback-visibility',
+    platform: 'windows',
+    capability: ParentControlCapabilityName.ManagedBrowserControl,
+    capabilityStatus: ParentControlCapabilityStatus.Implemented,
+    evidenceKind: 'rollback',
+    productClaimState: 'implemented-boundary',
+    adapterExecutionState: 'executes-real-service',
+    evidenceExpectation: 'linked-proof',
+  },
+  {
+    surface: 'linux-browser-domain-adapter-unavailable',
+    platform: 'linux',
+    capability: ParentControlCapabilityName.ManagedBrowserControl,
+    capabilityStatus: ParentControlCapabilityStatus.Unavailable,
+    evidenceKind: 'unsupported-target',
+    productClaimState: 'unavailable',
+    adapterExecutionState: 'returns-unavailable',
+    evidenceExpectation: 'manual-proof',
+  },
+  {
+    surface: 'macos-browser-domain-adapter-unavailable',
+    platform: 'macos',
+    capability: ParentControlCapabilityName.ManagedBrowserControl,
+    capabilityStatus: ParentControlCapabilityStatus.Unavailable,
+    evidenceKind: 'unsupported-target',
+    productClaimState: 'unavailable',
+    adapterExecutionState: 'returns-unavailable',
+    evidenceExpectation: 'manual-proof',
+  },
+  {
+    surface: 'android-browser-domain-adapter-manual',
+    platform: 'android',
+    capability: ParentControlCapabilityName.VpnDnsFiltering,
+    capabilityStatus: ParentControlCapabilityStatus.ManualRequired,
+    evidenceKind: 'unsupported-target',
+    productClaimState: 'manual-required',
+    adapterExecutionState: 'returns-manual-required',
+    evidenceExpectation: 'manual-proof',
+  },
+  {
+    surface: 'ios-browser-domain-adapter-manual',
+    platform: 'ios',
+    capability: ParentControlCapabilityName.NetworkExtension,
+    capabilityStatus: ParentControlCapabilityStatus.ManualRequired,
+    evidenceKind: 'unsupported-target',
+    productClaimState: 'manual-required',
+    adapterExecutionState: 'returns-manual-required',
+    evidenceExpectation: 'manual-proof',
+  },
+];
 
 export type V08BrowserDomainAdapterProofReadModelId = typeof V08BrowserDomainAdapterProofReadModelIdSchema.Type;
 export type V08BrowserDomainAdapterProofEntryId = typeof V08BrowserDomainAdapterProofEntryIdSchema.Type;

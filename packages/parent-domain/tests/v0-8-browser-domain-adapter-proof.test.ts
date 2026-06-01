@@ -12,6 +12,7 @@ describe('V0.8 browser domain adapter proof', () => {
   recordsUnmanagedBrowserBoundaries();
   keepsNetworkAndUnsupportedTargetsBounded();
   recordsAuditRestartAndRollbackVisibility();
+  rejectsSurfaceStateDrift();
   rejectsClaimUpgrades();
 });
 
@@ -129,6 +130,45 @@ function recordsAuditRestartAndRollbackVisibility() {
       'cargo test -p ocentra-parent-agent-service browser_policy_rollback_restores_earlier_persisted_revision'
     );
     expect(rollback.claimBoundary).toContain('stored policy revision rollback only');
+  });
+}
+
+function rejectsSurfaceStateDrift() {
+  it('rejects state drift for exact URL, unmanaged exact evidence, and network surfaces', () => {
+    const exactUrl = entryFor(V08BrowserDomainAdapterProofSurface.WindowsManagedBrowserExactUrlManual);
+    const unmanagedExact = entryFor(V08BrowserDomainAdapterProofSurface.WindowsUnmanagedBrowserExactEvidenceNotClaimed);
+    const networkManual = entryFor(V08BrowserDomainAdapterProofSurface.WindowsNetworkDomainFilterManual);
+
+    expect(() =>
+      V08BrowserDomainAdapterProofEntrySchema.parse({
+        ...exactUrl,
+        proofEntryId: 'invalid-managed-exact-url-state-upgrade',
+        capabilityStatus: 'implemented',
+        productClaimState: 'implemented-boundary',
+        adapterExecutionState: 'executes-real-service',
+        linkedProofCommands: ['node scripts/test/managed-browser-intervention-proof.mjs'],
+        linkedProofArtifacts: ['test-results/managed-browser-intervention-proof/proof.json'],
+        manualProofRequirements: [],
+      })
+    ).toThrow();
+    expect(() =>
+      V08BrowserDomainAdapterProofEntrySchema.parse({
+        ...unmanagedExact,
+        proofEntryId: 'invalid-unmanaged-exact-evidence-state-upgrade',
+        capabilityStatus: 'supported',
+        productClaimState: 'degraded-boundary',
+        adapterExecutionState: 'returns-degraded-noop',
+        linkedProofCommands: ['node scripts/test/windows-managed-unmanaged-browser-enforcement-proof.mjs'],
+        linkedProofArtifacts: ['unmanaged browser warning no-op service event'],
+      })
+    ).toThrow();
+    expect(() =>
+      V08BrowserDomainAdapterProofEntrySchema.parse({
+        ...networkManual,
+        proofEntryId: 'invalid-network-domain-capability-drift',
+        capability: 'managed-browser-control',
+      })
+    ).toThrow();
   });
 }
 
