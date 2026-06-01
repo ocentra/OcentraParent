@@ -59,6 +59,7 @@ import { DeviceChoiceGrid } from './DeviceChoiceGrid/DeviceChoiceGrid';
 import type { DeviceChoiceGridProps, DeviceSlot } from './DeviceChoiceGrid/DeviceChoiceGridTypes';
 import {
   createParentPortalActivityUiIntent,
+  createParentPortalLanPairingPortalIds,
   createParentPortalLanPairingUiSlots,
   parentPortalActivityAdapterRecord,
 } from './activity-ui-intent';
@@ -235,6 +236,7 @@ type ParentPortalActivityState = {
   activityMemoryGraphReadModel?: Record<string, unknown> | null;
   browserInterventionReadModel?: Record<string, unknown> | null;
   networkFlowReadModel?: Record<string, unknown> | null;
+  lanAddDeviceReadModel?: Record<string, unknown> | null;
   screenEvidenceRecentSummary?: Record<string, unknown> | null;
   appGameSessionReport?: Record<string, unknown> | null;
   appGameSessionQueryResult?: Record<string, unknown> | null;
@@ -10718,8 +10720,11 @@ function ManageControlPanel({
   const controlsActive = isPortalLane || isDeviceOpsLane || overrideMode === 'perDevice';
   const isLanPairingPanel = isLanPairingManageTitle(spec.title);
   const isReportsPanel = isReportsManageTitle(spec.title);
-  const lanPairingSlots = useMemo(() => createParentPortalLanPairingUiSlots(parentPortalRows), [parentPortalRows]);
-  const lanPairingPortalIds = useMemo(() => [], []);
+  const lanPairingSlots = useMemo(
+    () => createParentPortalLanPairingUiSlots(parentPortalRows, activityState?.lanAddDeviceReadModel),
+    [activityState?.lanAddDeviceReadModel, parentPortalRows]
+  );
+  const lanPairingPortalIds = useMemo(() => createParentPortalLanPairingPortalIds(lanPairingSlots), [lanPairingSlots]);
   const lanPairingPanelPadX = Math.max(18, Math.min(34, Math.round(w * 0.018)));
   const lanPairingPanelPadY = 0;
   const lanPairingAvailableW = Math.max(1, w - lanPairingPanelPadX * 2);

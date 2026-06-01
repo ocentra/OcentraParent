@@ -10,6 +10,12 @@ import {
 import { PARENT_PORTAL_SERVICE_STATE, resolveParentPortalServiceState } from '../src/contracts';
 
 describe('portal service-backed parent portal state', () => {
+  parentPortalServiceRowTests();
+  parentPortalLanAddDeviceRowTests();
+  parentPortalActivityNetworkRowTests();
+});
+
+function parentPortalServiceRowTests(): void {
   it('uses real service events as the overview and manage row source', () => {
     const state = serviceBackedState();
     expect(state.content.modes.parentOverview.rowSource).toBe('api');
@@ -63,7 +69,62 @@ describe('portal service-backed parent portal state', () => {
       trend: 'unavailable',
     });
   });
+}
 
+function parentPortalLanAddDeviceRowTests(): void {
+  it('prefers service add-device readiness and selected-device state for LAN rows', () => {
+    const state = resolveParentPortalServiceState({
+      connectionState: PARENT_PORTAL_SERVICE_STATE.Connection.Connected,
+      events: [
+        payloadEvent(AgentEvent.LanPairingStatusReported, {
+          [AgentProtocolDefaults.Field.LanAddDeviceState]: 'manual-required',
+          [AgentProtocolDefaults.Field.LanLocalServiceDiscoveryState]: 'manual-required',
+          [AgentProtocolDefaults.Field.LanTrustedDeviceCount]: 0,
+          [AgentProtocolDefaults.Field.LanPendingPairingCount]: 1,
+          [AgentProtocolDefaults.Field.LanSelectedChildDeviceId]: 'child-android-1',
+          [AgentProtocolDefaults.Field.LanSelectedDeviceReady]: false,
+          [AgentProtocolDefaults.Field.LanSelectedDeviceReachability]: 'stale',
+        }),
+      ],
+    });
+
+    expect(state.parentPortalRows[1]).toMatchObject({
+      label: 'LAN discovery',
+      readyCount: 2,
+      gapCount: 1,
+      trend: 'manual-required',
+    });
+    expect(state.parentPortalRows[2]).toMatchObject({
+      label: 'Device pairing',
+      readyCount: 1,
+      gapCount: 0,
+      trend: 'stale',
+    });
+  });
+
+  it('surfaces selected ready-for-control as a visible ready current-device state', () => {
+    const state = resolveParentPortalServiceState({
+      connectionState: PARENT_PORTAL_SERVICE_STATE.Connection.Connected,
+      events: [
+        payloadEvent(AgentEvent.LanPairingStatusReported, {
+          [AgentProtocolDefaults.Field.LanAddDeviceState]: 'paired',
+          [AgentProtocolDefaults.Field.LanTrustedDeviceCount]: 1,
+          [AgentProtocolDefaults.Field.LanSelectedChildDeviceId]: 'child-android-1',
+          [AgentProtocolDefaults.Field.LanSelectedDeviceReady]: true,
+          [AgentProtocolDefaults.Field.LanSelectedDeviceReachability]: 'online',
+        }),
+      ],
+    });
+
+    expect(state.parentPortalRows[2]).toMatchObject({
+      label: 'Device pairing',
+      readyCount: 2,
+      trend: 'ready',
+    });
+  });
+}
+
+function parentPortalActivityNetworkRowTests(): void {
   it('surfaces degraded Activity and network adapter states from service events', () => {
     const state = resolveParentPortalServiceState({
       connectionState: PARENT_PORTAL_SERVICE_STATE.Connection.Connected,
@@ -88,7 +149,7 @@ describe('portal service-backed parent portal state', () => {
       trend: 'unavailable',
     });
   });
-});
+}
 
 function serviceBackedState() {
   return resolveParentPortalServiceState({
