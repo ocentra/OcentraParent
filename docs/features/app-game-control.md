@@ -36,6 +36,10 @@ control with better evidence and local audit.
 
 - App/game session contracts and read-model proof exist.
 - Package/process identity and owned-process time-limit proof are in progress.
+- The V0.8 product-control spine separates app time-limit and scoped
+  owned-process control from broad installed-app blocking, so downstream policy
+  and device surfaces can show time-limit/control-capable versus report-only or
+  manual-required states.
 - Broad app blocking remains manual-required or unproved by platform.
 - Raw app and game control setting inventories are preserved as design inputs,
   not product-complete implementation proof.

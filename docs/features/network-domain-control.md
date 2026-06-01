@@ -35,6 +35,8 @@ compete on control while staying clear about attribution confidence and privacy.
 
 - Network flow summaries and unusual-indicator reconciliation exist in proof
   form.
+- The V0.8 product-control spine keeps network/domain blocking report-only and
+  manual-required, distinct from network observation and policy dry-run state.
 - Network/domain blocking is not broadly product-complete.
 - Raw network control settings are preserved as design inputs, not
   product-complete implementation proof.

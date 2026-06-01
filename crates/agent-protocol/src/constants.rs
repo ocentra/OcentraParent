@@ -162,6 +162,8 @@ pub mod host_identity;
 pub mod v08_browser_domain_adapter_proof;
 #[path = "constants/v08_cross_platform_enforcement_capability_proof.rs"]
 pub mod v08_cross_platform_enforcement_capability_proof;
+#[path = "constants/v08_enforcement_product_control_spine.rs"]
+pub mod v08_enforcement_product_control_spine;
 #[path = "constants/v08_os_adapter_product_proof.rs"]
 pub mod v08_os_adapter_product_proof;
 #[path = "constants/windows_adapter_artifact_gate.rs"]
