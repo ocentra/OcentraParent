@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   type ChildAndroidDeviceProofArtifactGateReadModel,
+  ChildAndroidAddDevicePairingReadinessStateSchema,
   ChildAndroidDeviceProofArtifactGateReadModelSchema,
 } from '../src/child-android-device-proof-artifact-gate';
 
@@ -8,6 +9,7 @@ describe('child Android device proof artifact gate contracts', () => {
   acceptsHonestDeviceProofGate();
   rejectsMissingSourceProof();
   rejectsDeviceReadinessUpgrade();
+  rejectsPairingInputOverclaim();
   rejectsUsageStatsDeviceEvidenceUpgrade();
   rejectsEnrollmentOrStoreSigningUpgrade();
   rejectsExternalTransportOrParityClaim();
@@ -24,9 +26,11 @@ function acceptsHonestDeviceProofGate(): void {
     expect(parsed.addDevicePairingReadiness).toEqual({
       surface: 'parent-add-device-pairing',
       readinessState: 'manual-required',
+      inputs: addDevicePairingInputs(),
       parentVisibleSummary:
         'Android add-device/pairing readiness remains manual-required until emulator or physical-device artifacts exist',
     });
+    expect(ChildAndroidAddDevicePairingReadinessStateSchema.parse('not-implemented')).toBe('not-implemented');
     expect(parsed.childAndroidDeviceReadinessState).toBe('manual-required');
     expect(parsed.sourceProofs.map((entry) => entry.source)).toEqual([
       'child-android-protocol-package-lifecycle-proof',
@@ -90,6 +94,30 @@ function rejectsDeviceReadinessUpgrade(): void {
         addDevicePairingReadiness: {
           ...model.addDevicePairingReadiness,
           readinessState: 'implemented',
+        },
+      }).success
+    ).toBe(false);
+  });
+}
+
+function rejectsPairingInputOverclaim(): void {
+  it('ChildAndroidDeviceProofArtifactGateReadModelSchema: rejects add-device input overclaim', () => {
+    const model = validReadModel();
+
+    expect(
+      ChildAndroidDeviceProofArtifactGateReadModelSchema.safeParse({
+        ...model,
+        addDevicePairingReadiness: {
+          ...model.addDevicePairingReadiness,
+          inputs: model.addDevicePairingReadiness.inputs.map((entry) =>
+            entry.input === 'privileged'
+              ? {
+                  ...entry,
+                  readinessState: 'implemented',
+                  parentVisibleSummary: 'implemented Android privileged controls',
+                }
+              : entry
+          ),
         },
       }).success
     ).toBe(false);
@@ -194,6 +222,7 @@ function validReadModel(): ChildAndroidDeviceProofArtifactGateReadModel {
     addDevicePairingReadiness: {
       surface: 'parent-add-device-pairing',
       readinessState: 'manual-required',
+      inputs: addDevicePairingInputs(),
       parentVisibleSummary:
         'Android add-device/pairing readiness remains manual-required until emulator or physical-device artifacts exist',
     },
@@ -238,6 +267,30 @@ function sourceProofs(): ChildAndroidDeviceProofArtifactGateReadModel['sourcePro
     sourceProof('child-android-permission-capability-proof'),
     sourceProof('child-android-privileged-capability-proof'),
   ];
+}
+
+function addDevicePairingInputs(): ChildAndroidDeviceProofArtifactGateReadModel['addDevicePairingReadiness']['inputs'] {
+  return [
+    addDevicePairingInput('package', 'child-android-protocol-package-lifecycle-proof', 'scaffold'),
+    addDevicePairingInput('service', 'child-android-service-protocol-capability-proof', 'manual-required'),
+    addDevicePairingInput('storage', 'child-android-storage-protocol-capability-proof', 'scaffold'),
+    addDevicePairingInput('protocol', 'child-android-storage-protocol-capability-proof', 'scaffold'),
+    addDevicePairingInput('permission', 'child-android-permission-capability-proof', 'manual-required'),
+    addDevicePairingInput('privileged', 'child-android-privileged-capability-proof', 'not-implemented'),
+  ];
+}
+
+function addDevicePairingInput(
+  input: ChildAndroidDeviceProofArtifactGateReadModel['addDevicePairingReadiness']['inputs'][number]['input'],
+  source: ChildAndroidDeviceProofArtifactGateReadModel['addDevicePairingReadiness']['inputs'][number]['source'],
+  readinessState: ChildAndroidDeviceProofArtifactGateReadModel['addDevicePairingReadiness']['inputs'][number]['readinessState']
+): ChildAndroidDeviceProofArtifactGateReadModel['addDevicePairingReadiness']['inputs'][number] {
+  return {
+    input,
+    source,
+    readinessState,
+    parentVisibleSummary: `${input} add-device input remains ${readinessState}`,
+  };
 }
 
 function sourceProof(

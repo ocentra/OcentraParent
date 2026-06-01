@@ -3794,7 +3794,7 @@
         },
         "addDevicePairingReadiness": {
           "state": "manual-required",
-          "proof": "The parent-visible add-device/pairing readiness entry exists, but it remains manual-required until emulator or physical-device artifacts exist and is not remote-control proof."
+          "proof": "The parent-visible add-device/pairing readiness entry lists package, service, storage, protocol, permission, and privileged inputs with honest implemented/scaffold/manual-required/unavailable/not-implemented state vocabulary; the rollup remains manual-required until emulator or physical-device artifacts exist and is not remote-control proof."
         },
         "emulatorOrPhysicalDevice": {
           "state": "manual-required",
@@ -3836,7 +3836,7 @@
       "knownGaps": [
         "The gate does not install or run the APK on an emulator or physical Android device.",
         "Notification grant, UsageStats settings grant and observation, AccessibilityService behavior, VPN/DNS behavior, device-owner enrollment, managed-profile enrollment, Play Store signing, and external child-agent transport remain manual-required, unavailable, blocked, not implemented, or planned.",
-        "The add-device/pairing readiness entry is parent-visible only as manual-required and does not prove remote-control or remote desktop behavior.",
+        "The add-device/pairing readiness entry is parent-visible only as manual-required, includes honest input states, and does not prove remote-control or remote desktop behavior.",
         "The gate does not prove Android child enforcement parity or real privileged behavior."
       ],
       "manualProofChecklist": [

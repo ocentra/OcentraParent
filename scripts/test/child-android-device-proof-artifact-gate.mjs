@@ -67,7 +67,7 @@ async function main() {
       packageArtifacts: 'ci-mechanical-proof: debug APK and SHA-256 checksum are present',
       statusBundles: 'package-local-scaffold: status bundle source artifacts exist but remain package-local only',
       addDevicePairingReadiness:
-        'manual-required: parent-visible add-device/pairing entry is present but still waits for real device artifacts',
+        'manual-required: parent-visible add-device/pairing entry exposes package, service, storage, protocol, permission, and privileged inputs',
     },
     androidDeviceProofStillManual: [
       'Parent add-device/pairing readiness entry before emulator or physical-device artifacts',
@@ -154,6 +154,7 @@ function buildRuntimeReadModel(sourceProofs, packageArtifacts) {
     addDevicePairingReadiness: {
       surface: 'parent-add-device-pairing',
       readinessState: 'manual-required',
+      inputs: addDevicePairingInputs(),
       parentVisibleSummary:
         'Android add-device/pairing readiness remains manual-required until emulator or physical-device artifacts exist',
     },
@@ -187,6 +188,26 @@ function buildRuntimeReadModel(sourceProofs, packageArtifacts) {
       'Android child enforcement parity is not proved by package-local proof outputs',
       'UsageStats grant, Accessibility, VPN/DNS, device-owner, managed-profile, signing, and external transport remain unproved',
     ],
+  };
+}
+
+function addDevicePairingInputs() {
+  return [
+    addDevicePairingInput('package', 'child-android-protocol-package-lifecycle-proof', 'scaffold'),
+    addDevicePairingInput('service', 'child-android-service-protocol-capability-proof', 'manual-required'),
+    addDevicePairingInput('storage', 'child-android-storage-protocol-capability-proof', 'scaffold'),
+    addDevicePairingInput('protocol', 'child-android-storage-protocol-capability-proof', 'scaffold'),
+    addDevicePairingInput('permission', 'child-android-permission-capability-proof', 'manual-required'),
+    addDevicePairingInput('privileged', 'child-android-privileged-capability-proof', 'not-implemented'),
+  ];
+}
+
+function addDevicePairingInput(input, source, readinessState) {
+  return {
+    input,
+    source,
+    readinessState,
+    parentVisibleSummary: `${input} add-device input remains ${readinessState}`,
   };
 }
 

@@ -11,6 +11,7 @@ add-device/pairing path.
 - The five existing child Android proof scripts produce proof outputs.
 - The Android debug APK and SHA-256 checksum are present.
 - Package-local status bundle source artifacts are represented in a typed read model.
+- Add-device/pairing readiness lists package, service, storage, protocol, permission, and privileged inputs with honest states.
 - The add-device/pairing readiness entry remains manual-required until emulator or physical-device artifacts exist.
 - The gate rejects upgrades from package proof to Android device readiness without real artifacts.
 

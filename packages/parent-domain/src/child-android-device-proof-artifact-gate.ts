@@ -23,10 +23,13 @@ export const ChildAndroidDeviceProofReadinessStateSchema = withParser(
   Schema.Literal('ci-package-only', 'manual-required', 'device-proof-required')
 );
 export const ChildAndroidAddDevicePairingReadinessStateSchema = withParser(
-  Schema.Literal('implemented', 'scaffold', 'manual-required', 'unavailable')
+  Schema.Literal('implemented', 'scaffold', 'manual-required', 'unavailable', 'not-implemented')
 );
 export const ChildAndroidAddDevicePairingReadinessSurfaceSchema = withParser(
   Schema.Literal('parent-add-device-pairing')
+);
+export const ChildAndroidAddDevicePairingReadinessInputSchema = withParser(
+  Schema.Literal('package', 'service', 'storage', 'protocol', 'permission', 'privileged')
 );
 export const ChildAndroidDeviceProofArtifactClassSchema = withParser(
   Schema.Literal(
@@ -127,6 +130,14 @@ export const ChildAndroidAddDevicePairingReadinessSchema = withParser(
   Schema.Struct({
     surface: ChildAndroidAddDevicePairingReadinessSurfaceSchema,
     readinessState: ChildAndroidAddDevicePairingReadinessStateSchema,
+    inputs: Schema.Array(
+      Schema.Struct({
+        input: ChildAndroidAddDevicePairingReadinessInputSchema,
+        source: ChildAndroidDeviceProofSourceSchema,
+        readinessState: ChildAndroidAddDevicePairingReadinessStateSchema,
+        parentVisibleSummary: ChildAndroidDeviceProofBoundarySchema,
+      })
+    ),
     parentVisibleSummary: ChildAndroidDeviceProofBoundarySchema,
   })
 );
@@ -318,6 +329,36 @@ const CiEvidenceStatuses = new Set<ChildAndroidDeviceProofArtifactStatus>([
   'package-local-scaffold',
 ]);
 
+const AddDevicePairingInputExpectations = {
+  package: {
+    source: 'child-android-protocol-package-lifecycle-proof',
+    readinessState: 'scaffold',
+  },
+  service: {
+    source: 'child-android-service-protocol-capability-proof',
+    readinessState: 'manual-required',
+  },
+  storage: {
+    source: 'child-android-storage-protocol-capability-proof',
+    readinessState: 'scaffold',
+  },
+  protocol: {
+    source: 'child-android-storage-protocol-capability-proof',
+    readinessState: 'scaffold',
+  },
+  permission: {
+    source: 'child-android-permission-capability-proof',
+    readinessState: 'manual-required',
+  },
+  privileged: {
+    source: 'child-android-privileged-capability-proof',
+    readinessState: 'not-implemented',
+  },
+} as const satisfies Record<
+  ChildAndroidAddDevicePairingReadinessInput,
+  Pick<ChildAndroidAddDevicePairingReadiness['inputs'][number], 'source' | 'readinessState'>
+>;
+
 function childAndroidDeviceProofArtifactGateIsHonest(
   readModel: ChildAndroidDeviceProofArtifactGateReadModelCandidate
 ): boolean {
@@ -339,7 +380,25 @@ function addDevicePairingReadinessIsHonest(
   return (
     readiness.surface === 'parent-add-device-pairing' &&
     readiness.readinessState === 'manual-required' &&
+    addDevicePairingInputsAreHonest(readiness.inputs) &&
     readiness.parentVisibleSummary.includes('add-device/pairing readiness remains manual-required')
+  );
+}
+
+function addDevicePairingInputsAreHonest(
+  inputs: ReadonlyArray<ChildAndroidAddDevicePairingReadiness['inputs'][number]>
+): boolean {
+  const byInput = new Map(inputs.map((entry) => [entry.input, entry] as const));
+  return (
+    byInput.size === inputs.length &&
+    Object.entries(AddDevicePairingInputExpectations).every(([input, expected]) => {
+      const entry = byInput.get(input as ChildAndroidAddDevicePairingReadinessInput);
+      return (
+        entry?.source === expected.source &&
+        entry.readinessState === expected.readinessState &&
+        entry.parentVisibleSummary.includes(entry.readinessState)
+      );
+    })
   );
 }
 
@@ -423,6 +482,7 @@ export type ChildAndroidAddDevicePairingReadinessState = Infer<typeof ChildAndro
 export type ChildAndroidAddDevicePairingReadinessSurface = Infer<
   typeof ChildAndroidAddDevicePairingReadinessSurfaceSchema
 >;
+export type ChildAndroidAddDevicePairingReadinessInput = Infer<typeof ChildAndroidAddDevicePairingReadinessInputSchema>;
 export type ChildAndroidDeviceProofArtifactClass = Infer<typeof ChildAndroidDeviceProofArtifactClassSchema>;
 export type ChildAndroidDeviceProofArtifactRequirement = Infer<typeof ChildAndroidDeviceProofArtifactRequirementSchema>;
 export type ChildAndroidDeviceProofArtifactStatus = Infer<typeof ChildAndroidDeviceProofArtifactStatusSchema>;
