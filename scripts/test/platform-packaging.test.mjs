@@ -67,6 +67,8 @@ test('parent desktop Tauri package connects to the Rust service instead of Vite 
   assert.match(tauriLib, /TcpStream::connect_timeout/u);
   assert.match(tauriLib, /activity_adapter_state/u);
   assert.match(tauriLib, /parent_assistant_provider_state/u);
+  assert.match(tauriLib, /route_source_state/u);
+  assert.match(tauriLib, /degraded_source_state/u);
   assert.match(tauriLib, /PARENT_DESKTOP_BACKEND_RUST_SERVICE/u);
   assert.doesNotMatch(tauriLib, /VITE_|devUrl|portal:dev/u);
   assert.match(packageJson, /"tauri:check": "cargo check --manifest-path src-tauri\/Cargo.toml"/u);

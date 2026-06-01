@@ -7,6 +7,7 @@ import {
   AgentCommand,
   AgentEvent,
   AgentEventEnvelopeSchema,
+  AgentLanBrowserAddDeviceReadModelSchema,
   AgentProtocolDefaults,
 } from '@ocentra-parent/agent-protocol-domain/contracts';
 
@@ -72,6 +73,7 @@ try {
     throw new Error('Portal HTML shell did not include the expected title.');
   }
   await assertTypedActivityAdapterStates();
+  await assertTypedLanBrowserDiscoveryReadModel();
   await assertDevServerLogWritten();
   console.log('portal-local-smoke-ok');
 } finally {
@@ -191,6 +193,69 @@ function assertTypedActivityAdapterStates() {
   });
 }
 
+function assertTypedLanBrowserDiscoveryReadModel() {
+  return new Promise((resolve, reject) => {
+    const socket = new WebSocket(createAgentWebSocketUrl(agentPort));
+    let settled = false;
+    const timer = setTimeout(() => fail(new Error('LAN browser discovery smoke timed out')), 10000);
+
+    const fail = (error) => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      clearTimeout(timer);
+      socket.close();
+      reject(error);
+    };
+
+    const complete = () => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      clearTimeout(timer);
+      socket.close();
+      resolve();
+    };
+
+    socket.addEventListener('open', () => {
+      socket.send(
+        JSON.stringify(
+          commandEnvelope(
+            'cmd-portal-smoke-lan-browser-discovery',
+            AgentCommand.LanPairingBrowserDiscoveryScan,
+            {
+              schemaVersion: 1,
+              requestedDiscoverySource: 'local-service',
+            },
+            localNetworkTarget()
+          )
+        )
+      );
+    });
+
+    socket.addEventListener('message', (message) => {
+      try {
+        const parsed = AgentEventEnvelopeSchema.parse(JSON.parse(String(message.data)));
+        if (parsed.event === AgentEvent.ConnectionReady) {
+          return;
+        }
+        if (parsed.event !== AgentEvent.LanPairingBrowserDiscoveryReported) {
+          fail(new Error(`Expected ${AgentEvent.LanPairingBrowserDiscoveryReported}, received ${parsed.event}`));
+          return;
+        }
+        assertLanAddDeviceReadModel(parsed.payload);
+        complete();
+      } catch (error) {
+        fail(error instanceof Error ? error : new Error(String(error)));
+      }
+    });
+
+    socket.addEventListener('error', () => fail(new Error('LAN browser discovery smoke WebSocket failed')));
+  });
+}
+
 function assertSurfacePayload(payload, jsonField, readModelKind) {
   const state = payload[AgentProtocolDefaults.Field.ActivitySurfaceState];
   if (!allowedActivityStates().has(state)) {
@@ -212,6 +277,63 @@ function assertSurfacePayload(payload, jsonField, readModelKind) {
   }
 }
 
+function assertLanAddDeviceReadModel(payload) {
+  if (!allowedLanDiscoverySources().has(payload[AgentProtocolDefaults.Field.LanDiscoverySource])) {
+    throw new Error(`LAN browser discovery source was not typed: ${JSON.stringify(payload)}`);
+  }
+  const jsonValue = payload[AgentProtocolDefaults.Field.LanAddDeviceReadModel];
+  if (typeof jsonValue !== 'string') {
+    throw new Error(`LAN browser discovery did not include addDeviceReadModel: ${JSON.stringify(payload)}`);
+  }
+
+  const readModel = AgentLanBrowserAddDeviceReadModelSchema.parse(JSON.parse(jsonValue));
+  if (!allowedLanDiscoverySources().has(readModel.discoverySource)) {
+    throw new Error(`LAN read model discovery source was not typed: ${jsonValue}`);
+  }
+  if (readModel.addDeviceState !== 'discovered' || readModel.localServiceDiscoveryState !== 'discovered') {
+    throw new Error(`LAN local-service discovery was not discovered: ${jsonValue}`);
+  }
+  if (!allowedPhysicalLanStates().has(readModel.physicalHouseholdLanState)) {
+    throw new Error(`LAN physical household state was not explicit: ${jsonValue}`);
+  }
+  if (readModel.cloudRelayState !== 'unavailable') {
+    throw new Error(`LAN cloud relay state was not unavailable: ${jsonValue}`);
+  }
+  assertDiscoveredLanDevices(readModel, jsonValue);
+  if (!readModel.honestNonClaims.includes('remote-desktop-not-implemented')) {
+    throw new Error(`LAN read model claimed remote desktop support: ${jsonValue}`);
+  }
+  if (!readModel.honestNonClaims.includes('cloud-relay-not-implemented')) {
+    throw new Error(`LAN read model missed cloud relay non-claim: ${jsonValue}`);
+  }
+}
+
+function assertDiscoveredLanDevices(readModel, jsonValue) {
+  const localAgent = readModel.discoveredDevices.find((device) => device.childDevice.deviceId === 'local-dev-agent');
+  if (localAgent === undefined || localAgent.childDevice.agentStatus !== 'ocentra-local-service') {
+    throw new Error(`LAN read model did not expose the connected local agent: ${jsonValue}`);
+  }
+  if (localAgent.childDevice.hardwareProfile === null) {
+    throw new Error(`LAN connected agent did not expose typed inventory: ${jsonValue}`);
+  }
+
+  const router = readModel.discoveredDevices.find((device) => device.childDevice.platform === 'router');
+  if (router !== undefined && router.childDevice.agentStatus !== null) {
+    throw new Error(`LAN router row incorrectly claimed an agent: ${jsonValue}`);
+  }
+  if (router !== undefined && router.childDevice.hardwareProfile !== null) {
+    throw new Error(`LAN router row incorrectly exposed agent inventory: ${jsonValue}`);
+  }
+}
+
+function allowedLanDiscoverySources() {
+  return new Set(['local-service', 'physical-household-lan']);
+}
+
+function allowedPhysicalLanStates() {
+  return new Set(['manual-required', 'discovered']);
+}
+
 function allowedActivityStates() {
   return new Set(['ready', 'empty', 'unavailable', 'offline', 'stale', 'permission-required', 'scaffold-only']);
 }
@@ -225,13 +347,21 @@ function activityPayload() {
   };
 }
 
-function commandEnvelope(messageId, command, payload) {
+function localNetworkTarget() {
+  return { deviceId: 'local-dev-agent', platform: 'windows', route: 'local-network' };
+}
+
+function localhostTarget() {
+  return { deviceId: 'local-dev-agent', platform: 'windows', route: 'localhost' };
+}
+
+function commandEnvelope(messageId, command, payload, target = localhostTarget()) {
   return {
     schemaVersion: 1,
     messageId,
     sentAt: new Date().toISOString(),
     source: { peerId: 'portal-dev', role: 'portal' },
-    target: { deviceId: 'local-dev-agent', platform: 'windows', route: 'localhost' },
+    target,
     command,
     payload,
   };

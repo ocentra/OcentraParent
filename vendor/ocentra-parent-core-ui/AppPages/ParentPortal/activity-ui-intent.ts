@@ -1,4 +1,9 @@
-import type { DeviceKind, DevicePlatformKind, DeviceSlot } from './DeviceChoiceGrid/DeviceChoiceGridTypes';
+import type {
+  DeviceKind,
+  DevicePlatformKind,
+  DeviceSlot,
+  SelectableDeviceStatus,
+} from './DeviceChoiceGrid/DeviceChoiceGridTypes';
 
 type ActivityAdapterResultLike = {
   readonly ok?: unknown;
@@ -136,6 +141,90 @@ export function createParentPortalLanPairingPortalIds(slots: readonly DeviceSlot
     .slice(0, 1);
 }
 
+export function createParentPortalCanonicalDeviceSlots(
+  activitySlots: readonly DeviceSlot[],
+  lanPairingSlots: readonly DeviceSlot[]
+): readonly DeviceSlot[] {
+  const devices = new Map<string, DeviceSlot>();
+  for (const slot of lanPairingSlots) {
+    upsertCanonicalDeviceSlot(devices, slot);
+  }
+  for (const slot of activitySlots) {
+    upsertCanonicalDeviceSlot(devices, slot);
+  }
+  return Array.from(devices.values()).map((slot, slotIndex) => ({ ...slot, slotIndex }));
+}
+
+function upsertCanonicalDeviceSlot(devices: Map<string, DeviceSlot>, slot: DeviceSlot): void {
+  if (!canonicalDeviceSlotSelectable(slot)) return;
+  const existing = devices.get(slot.value) ?? matchingCanonicalDeviceSlot(devices, slot);
+  const merged = existing ? mergedCanonicalDeviceSlot(existing, slot) : slot;
+  if (existing && existing.value !== merged.value) {
+    devices.delete(existing.value);
+  }
+  devices.set(merged.value, merged);
+}
+
+function canonicalDeviceSlotSelectable(slot: DeviceSlot): boolean {
+  return !!slot.device && slot.status !== 'empty' && !infrastructureDeviceSlot(slot);
+}
+
+function infrastructureDeviceSlot(slot: DeviceSlot): boolean {
+  return slot.badge === 'infrastructure' || slot.device?.platform === 'router' || slot.device?.type === 'router';
+}
+
+function matchingCanonicalDeviceSlot(devices: Map<string, DeviceSlot>, slot: DeviceSlot): DeviceSlot | undefined {
+  for (const existing of devices.values()) {
+    if (samePhysicalDeviceValue(slot.value, existing.value)) return existing;
+    if (samePhysicalDeviceValue(slot.device?.id, existing.device?.id)) return existing;
+    if (samePhysicalDeviceValue(slot.device?.mac, existing.device?.mac)) return existing;
+    if (
+      (slotHasAgentFacet(slot) || slotHasAgentFacet(existing)) &&
+      samePhysicalDeviceValue(slot.device?.ip, existing.device?.ip)
+    ) {
+      return existing;
+    }
+  }
+  return undefined;
+}
+
+function mergedCanonicalDeviceSlot(existing: DeviceSlot, incoming: DeviceSlot): DeviceSlot {
+  const incomingPreferred =
+    slotHasAgentFacet(incoming) ||
+    (!slotHasAgentFacet(existing) && deviceSlotStatusRank(incoming.status) > deviceSlotStatusRank(existing.status));
+  const preferred = incomingPreferred ? incoming : existing;
+  const fallback = incomingPreferred ? existing : incoming;
+  const status =
+    deviceSlotStatusRank(incoming.status) > deviceSlotStatusRank(existing.status) ? incoming.status : existing.status;
+  const badge = preferred.badge ?? fallback.badge;
+  const device = preferred.device
+    ? {
+        ...fallback.device,
+        ...preferred.device,
+        status: selectableDeviceStatus(status),
+      }
+    : fallback.device;
+  return {
+    ...fallback,
+    ...preferred,
+    status,
+    ...(badge ? { badge } : {}),
+    ...(device ? { device } : {}),
+  };
+}
+
+function selectableDeviceStatus(status: DeviceSlot['status']): SelectableDeviceStatus {
+  return status === 'empty' ? 'unsupported' : status;
+}
+
+function deviceSlotStatusRank(status: DeviceSlot['status']): number {
+  if (status === 'connected') return 4;
+  if (status === 'available') return 3;
+  if (status === 'offline') return 2;
+  if (status === 'unsupported') return 1;
+  return 0;
+}
+
 function serviceRow(
   rows: readonly ParentPortalServiceRowLike[],
   primaryArea: string,
@@ -194,15 +283,23 @@ function collectDiscoveredLanDevices(readModel: Record<string, unknown>, devices
       gpuDriver: stringValue(hardwareProfile?.['gpuDriver']),
       gpuMemory: stringValue(hardwareProfile?.['gpuMemory']),
       nvidiaSmi: stringValue(hardwareProfile?.['nvidiaSmi']),
-      state: lanDiscoveryDeviceState(item),
+      state: lanDiscoveryDeviceState(item, childDevice),
       routeId: stringValue(item?.['routeId']),
     });
   }
 }
 
-function lanDiscoveryDeviceState(discoveredDevice: Record<string, unknown> | null): string {
+function lanDiscoveryDeviceState(
+  discoveredDevice: Record<string, unknown> | null,
+  childDevice: Record<string, unknown> | null
+): string {
   const discoveryStatus = stringValue(discoveredDevice?.['discoveryStatus']);
   const discoveryState = stringValue(discoveredDevice?.['discoveryState']);
+  const platform = stringValue(childDevice?.['platform']);
+  const agentStatus = stringValue(childDevice?.['agentStatus']);
+  if (platform === 'router' && !agentStatus) {
+    return 'infrastructure';
+  }
   if (
     discoveryStatus === 'manual-required' ||
     discoveryStatus === 'unavailable' ||
@@ -283,6 +380,13 @@ function collectSelectedLanDevice(readModel: Record<string, unknown>, devices: M
   });
 }
 
+type LanAgentFacetInput = {
+  readonly agentStatus?: string | undefined;
+  readonly cpuModel?: string | undefined;
+  readonly memoryTotal?: string | undefined;
+  readonly gpuModel?: string | undefined;
+};
+
 function upsertLanDeviceSlot(
   devices: Map<string, DeviceSlot>,
   input: {
@@ -308,7 +412,14 @@ function upsertLanDeviceSlot(
     readonly preferState?: boolean;
   }
 ): void {
-  const existing = devices.get(input.deviceId);
+  const existing = devices.get(input.deviceId) ?? matchingPhysicalDeviceSlot(devices, input);
+  const slotValue = mergedLanDeviceSlotValue(existing, input);
+  const incomingHasAgentFacet = hasAgentFacet(input);
+  const existingHasAgentFacet = existing ? slotHasAgentFacet(existing) : false;
+  const slotLabel = mergedLanDeviceLabel(existing, input, slotValue, devices.size);
+  if (existing && existing.value !== slotValue) {
+    devices.delete(existing.value);
+  }
   const state =
     input.preferState ||
     !existing ||
@@ -316,18 +427,21 @@ function upsertLanDeviceSlot(
       ? input.state
       : stringValue(existing.badge);
   const status = activityDeviceChoiceStatus(state);
-  devices.set(input.deviceId, {
-    value: input.deviceId,
-    label: input.label || activityDeviceShortLabel(input.deviceId, devices.size),
+  devices.set(slotValue, {
+    value: slotValue,
+    label: slotLabel,
     status,
     slotIndex: existing?.slotIndex ?? devices.size,
     badge: state,
     device: {
-      id: input.deviceId,
-      name: input.label || input.deviceId,
+      id: slotValue,
+      name: slotLabel,
       ip: input.ip || existing?.device?.ip,
       mac: input.mac || existing?.device?.mac,
-      hostname: input.hostname || existing?.device?.hostname,
+      hostname:
+        existingHasAgentFacet && !incomingHasAgentFacet
+          ? existing?.device?.hostname || input.hostname
+          : input.hostname || existing?.device?.hostname,
       networkInterface: input.networkInterface || existing?.device?.networkInterface,
       agentStatus: input.agentStatus || existing?.device?.agentStatus,
       manufacturer: input.manufacturer || existing?.device?.manufacturer,
@@ -344,6 +458,62 @@ function upsertLanDeviceSlot(
       status,
     },
   });
+}
+
+function matchingPhysicalDeviceSlot(
+  devices: Map<string, DeviceSlot>,
+  input: {
+    readonly ip?: string;
+    readonly mac?: string;
+  } & LanAgentFacetInput
+): DeviceSlot | undefined {
+  for (const slot of devices.values()) {
+    if (samePhysicalDeviceValue(input.mac, slot.device?.mac)) return slot;
+    if (!hasAgentFacet(input) && !slotHasAgentFacet(slot)) continue;
+    if (samePhysicalDeviceValue(input.ip, slot.device?.ip)) return slot;
+  }
+  return undefined;
+}
+
+function samePhysicalDeviceValue(left: string | undefined, right: string | undefined): boolean {
+  const normalizedLeft = left?.trim().toLowerCase();
+  const normalizedRight = right?.trim().toLowerCase();
+  return !!normalizedLeft && normalizedLeft === normalizedRight;
+}
+
+function mergedLanDeviceSlotValue(
+  existing: DeviceSlot | undefined,
+  input: { readonly deviceId: string } & LanAgentFacetInput
+): string {
+  if (!existing) return input.deviceId;
+  if (hasAgentFacet(input)) return input.deviceId;
+  return existing.value;
+}
+
+function mergedLanDeviceLabel(
+  existing: DeviceSlot | undefined,
+  input: { readonly deviceId: string; readonly label: string } & LanAgentFacetInput,
+  slotValue: string,
+  slotIndex: number
+): string {
+  if (!existing || hasAgentFacet(input)) {
+    return input.label || activityDeviceShortLabel(slotValue, slotIndex);
+  }
+  if (existing.label && !existing.label.startsWith('LAN ')) return existing.label;
+  return input.label || existing.label || activityDeviceShortLabel(slotValue, slotIndex);
+}
+
+function slotHasAgentFacet(slot: DeviceSlot): boolean {
+  return hasAgentFacet({
+    agentStatus: slot.device?.agentStatus,
+    cpuModel: slot.device?.cpuModel,
+    memoryTotal: slot.device?.memoryTotal,
+    gpuModel: slot.device?.gpuModel,
+  });
+}
+
+function hasAgentFacet(input: LanAgentFacetInput): boolean {
+  return !!(input.agentStatus || input.cpuModel || input.memoryTotal || input.gpuModel);
 }
 
 function normalizeDevicePlatform(value: string): DevicePlatformKind {
@@ -465,6 +635,7 @@ function activityDeviceStateRank(state: string): number {
     case 'permission-required':
     case 'scaffold-only':
     case 'unavailable':
+    case 'infrastructure':
     case 'manual-required':
     case 'rejected':
     case 'expired':

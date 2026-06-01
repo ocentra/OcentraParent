@@ -59,6 +59,7 @@ import { DeviceChoiceGrid } from './DeviceChoiceGrid/DeviceChoiceGrid';
 import type { DeviceChoiceGridProps, DeviceSlot } from './DeviceChoiceGrid/DeviceChoiceGridTypes';
 import {
   createParentPortalActivityUiIntent,
+  createParentPortalCanonicalDeviceSlots,
   createParentPortalLanPairingPortalIds,
   createParentPortalLanPairingUiSlots,
   parentPortalActivityAdapterRecord,
@@ -3914,17 +3915,37 @@ function manageGlobalTargetLabel(lane: ManageLaneId): string {
   return 'Family';
 }
 
-function manageDeviceChoices(devices: readonly string[]): readonly string[] {
-  return devices.filter((device) => !assetKey(device).includes('family-default')).slice(0, 6);
+function manageDeviceChoices(devices: readonly string[], runtimeSlots: readonly DeviceSlot[] = []): readonly string[] {
+  const choices: string[] = [];
+  for (const slot of runtimeSlots) {
+    const label = slot.label || slot.device?.name || slot.value;
+    if (label) choices.push(label);
+  }
+  choices.push(...devices.filter((device) => !assetKey(device).includes('family-default')));
+  return uniqueManageDeviceChoices(choices).slice(0, 6);
 }
 
-function manageDefaultDeviceSelection(spec: ManageControlSpec): string {
-  return manageDeviceChoices(spec.devices)[0] ?? '';
+function uniqueManageDeviceChoices(choices: readonly string[]): readonly string[] {
+  const seen = new Set<string>();
+  return choices.filter((choice) => {
+    const key = assetKey(choice);
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
-function manageInitialScopeForSpec(lane: ManageLaneId, spec: ManageControlSpec): ManageScopeId {
+function manageDefaultDeviceSelection(spec: ManageControlSpec, runtimeSlots: readonly DeviceSlot[] = []): string {
+  return manageDeviceChoices(spec.devices, runtimeSlots)[0] ?? '';
+}
+
+function manageInitialScopeForSpec(
+  lane: ManageLaneId,
+  spec: ManageControlSpec,
+  runtimeSlots: readonly DeviceSlot[] = []
+): ManageScopeId {
   if (lane === 'portal') return 'global';
-  return manageDeviceChoices(spec.devices).length > 0 ? manageScopeForLane(lane) : 'global';
+  return manageDeviceChoices(spec.devices, runtimeSlots).length > 0 ? manageScopeForLane(lane) : 'global';
 }
 
 function isLanPairingManageTitle(title: string): boolean {
@@ -9707,6 +9728,7 @@ function ManageWorkspacePanel({
   onNavigate,
   activeNavLabel,
   selectedControlName,
+  runtimeDeviceSlots,
   cfg,
 }: {
   x: number;
@@ -9720,6 +9742,7 @@ function ManageWorkspacePanel({
   onNavigate?: (routePath: string) => void;
   activeNavLabel: string;
   selectedControlName: string;
+  runtimeDeviceSlots: readonly DeviceSlot[];
   cfg: ParentPortalSvgControls;
 }) {
   const tabs = manageWorkspaceTabs(kind);
@@ -9766,7 +9789,13 @@ function ManageWorkspacePanel({
     setPolicySecondaryChoice(policySecondaryOptions[0]?.value ?? '');
   }, [policySecondaryOptions]);
   const targetSurfaceEnabled = hasTargetSelector;
-  const workspaceSlots = useMemo(() => reportPlanSeatSlots(ACTIVITY_REPORT_BASIC_CHILD_DEVICE_SEATS), []);
+  const workspaceSlots = useMemo(
+    () =>
+      runtimeDeviceSlots.length > 0
+        ? runtimeDeviceSlots
+        : reportPlanSeatSlots(ACTIVITY_REPORT_BASIC_CHILD_DEVICE_SEATS),
+    [runtimeDeviceSlots]
+  );
   const workspacePortalIds = useMemo(
     () => workspaceSlots.filter((slot) => slot.device).map((slot) => slot.value),
     [workspaceSlots]
@@ -10433,6 +10462,7 @@ function ManageTargetPanel({
   selectedControlName,
   spec,
   lane,
+  runtimeDeviceSlots,
   themeColor,
   targetSelection,
   onTargetChange,
@@ -10446,6 +10476,7 @@ function ManageTargetPanel({
   selectedControlName: string;
   spec: ManageControlSpec;
   lane: ManageLaneId;
+  runtimeDeviceSlots?: readonly DeviceSlot[];
   themeColor?: string;
   targetSelection: ManageTargetSelection;
   onTargetChange: (selection: ManageTargetSelection) => void;
@@ -10454,7 +10485,7 @@ function ManageTargetPanel({
   const scopeChoices = manageScopeChoicesForLane(lane);
   const browserChoices = manageBrowserTargetsForKey(activeNavLabel, selectedControlName);
   const color = themeColor ?? toneColor(MANAGE_LANES.find((item) => item.id === lane)?.tone ?? 'cyan', cfg);
-  const deviceChoices = manageDeviceChoices(spec.devices);
+  const deviceChoices = manageDeviceChoices(spec.devices, runtimeDeviceSlots);
   const browserRowVisible = browserChoices.length > 0;
   const globalChoice = scopeChoices.find((choice) => choice.scope === 'global') ?? scopeChoices[0];
   const perDeviceChoice = scopeChoices.find((choice) => choice.scope === 'perDevice') ?? null;
@@ -10801,6 +10832,10 @@ function ManageControlPanel({
   const activityUiIntent = useMemo(
     () => createParentPortalActivityUiIntent(activityState, reportPlanSeatLimit),
     [activityState, reportPlanSeatLimit]
+  );
+  const runtimeDeviceSlots = useMemo(
+    () => createParentPortalCanonicalDeviceSlots(activityUiIntent.deviceSlots, lanPairingSlots),
+    [activityUiIntent.deviceSlots, lanPairingSlots]
   );
   const reportScopeValue =
     targetSelection.scope === 'perDevice' || activityUiIntent.hasServiceBackedDeviceRows ? 'device' : 'family';
@@ -11904,6 +11939,7 @@ function ManageControlPanel({
           onNavigate={onNavigate}
           activeNavLabel={activeNavLabel}
           selectedControlName={selectedControlName}
+          runtimeDeviceSlots={runtimeDeviceSlots}
           cfg={cfg}
         />
       ) : (
@@ -15159,6 +15195,18 @@ function MainBoard({
     () => (manageMode ? manageControlSpecFor(activeNavLabel, selectedControlName) : null),
     [activeNavLabel, manageMode, selectedControlName]
   );
+  const manageActivityUiIntent = useMemo(
+    () => createParentPortalActivityUiIntent(activityState, ACTIVITY_REPORT_BASIC_CHILD_DEVICE_SEATS),
+    [activityState]
+  );
+  const manageLanPairingSlots = useMemo(
+    () => createParentPortalLanPairingUiSlots(parentPortalRows, activityState?.lanAddDeviceReadModel),
+    [activityState?.lanAddDeviceReadModel, parentPortalRows]
+  );
+  const manageRuntimeDeviceSlots = useMemo(
+    () => createParentPortalCanonicalDeviceSlots(manageActivityUiIntent.deviceSlots, manageLanPairingSlots),
+    [manageActivityUiIntent.deviceSlots, manageLanPairingSlots]
+  );
   const manageWorkspaceKind =
     manageMode && manageCurrentSpec
       ? manageWorkspaceKindFor(activeNavLabel, selectedControlName, manageCurrentSpec.title)
@@ -15197,13 +15245,15 @@ function MainBoard({
     if (!manageMode || !manageCurrentSpec) return;
     const nextScope = isReportsManageTitle(manageCurrentSpec.title)
       ? 'global'
-      : manageInitialScopeForSpec(manageLane, manageCurrentSpec);
+      : manageInitialScopeForSpec(manageLane, manageCurrentSpec, manageRuntimeDeviceSlots);
     setManageTargetSelection({
       scope: nextScope,
-      device: isLanPairingManageTitle(manageCurrentSpec.title) ? '' : manageDefaultDeviceSelection(manageCurrentSpec),
+      device: isLanPairingManageTitle(manageCurrentSpec.title)
+        ? ''
+        : manageDefaultDeviceSelection(manageCurrentSpec, manageRuntimeDeviceSlots),
       browser: manageBrowserTargets[0]?.label ?? 'All targets',
     });
-  }, [manageBrowserTargets, manageCurrentSpec, manageLane, manageMode]);
+  }, [manageBrowserTargets, manageCurrentSpec, manageLane, manageMode, manageRuntimeDeviceSlots]);
   const controlBrowserMode = !guideMode && !manageMode && (tableVariant === 'controls' || aiBrowserMode);
   const expandedControlCategory =
     controlBrowserMode && selectedCategory && expandedCategoryId === selectedCategory.id ? selectedCategory : null;
@@ -15613,6 +15663,7 @@ function MainBoard({
                     selectedControlName={selectedControlName}
                     spec={manageCurrentSpec}
                     lane={manageLane}
+                    runtimeDeviceSlots={manageRuntimeDeviceSlots}
                     themeColor={activeGroupThemeColor}
                     targetSelection={manageTargetSelection}
                     onTargetChange={setManageTargetSelection}

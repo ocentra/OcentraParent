@@ -83,59 +83,97 @@ async function waitForHttp(url) {
 }
 
 function runWebSocketSmoke() {
-  return new Promise((resolve, reject) => {
-    const events = [];
-    let unpairedRejected = false;
-    let routeSelected = false;
-    const socket = new WebSocket(wsUrl, { headers: { Origin: allowedOrigin } });
-    const timer = setTimeout(() => {
-      socket.close();
-      reject(new Error('LAN WebSocket smoke timed out'));
-    }, 10000);
+  const events = [];
+  return withTimeout(
+    runLanWebSocketSmoke(events),
+    45000,
+    () => `LAN WebSocket smoke timed out after events=${events.join(',') || '<none>'}`
+  );
+}
 
-    socket.addEventListener('open', () => {
-      socket.send(JSON.stringify(buildUnpairedHealthCommand()));
-    });
+async function runLanWebSocketSmoke(events) {
+  const pairing = await sendLanCommand(buildPairingCommand(), events);
+  if (pairing.event !== 'agent.lan-pairing.status.reported') {
+    throw new Error(`Expected LAN pairing status after proof, received ${pairing.event}`);
+  }
+  assertLanSupportSurface(pairing.payload);
 
-    socket.addEventListener('message', (message) => {
-      const parsed = AgentEventEnvelopeSchema.parse(JSON.parse(String(message.data)));
-      events.push(parsed.event);
-      if (parsed.event === 'agent.command.rejected') {
-        if (!unpairedRejected) {
-          assertUnpairedControlRejected(parsed.payload);
-          unpairedRejected = true;
-          socket.send(JSON.stringify(buildPairingCommand()));
+  const routeSelection = await sendLanCommand(buildRouteSelectCommand(), events);
+  if (routeSelection.event !== 'agent.lan-pairing.status.reported') {
+    throw new Error(`Expected LAN route selection status, received ${routeSelection.event}`);
+  }
+  assertLanSupportSurface(routeSelection.payload);
+
+  const pairedHealth = await sendLanCommand(buildPairedHealthCommand(), events);
+  if (pairedHealth.event !== 'agent.health.reported') {
+    throw new Error(`Expected paired LAN health report, received ${pairedHealth.event}`);
+  }
+  assertPayloadValue(pairedHealth.payload, 'intentKind', 'rule-query');
+  assertPairedControlAccepted(pairedHealth.payload);
+
+  const anonymous = await sendLanCommand(buildUnpairedHealthCommand(), events);
+  if (anonymous.event !== 'agent.command.rejected') {
+    throw new Error(`Expected anonymous LAN command rejection, received ${anonymous.event}`);
+  }
+  assertUnpairedControlRejected(anonymous.payload);
+
+  return events;
+}
+
+function sendLanCommand(command, events) {
+  return withTimeout(
+    new Promise((resolve, reject) => {
+      const socket = new WebSocket(wsUrl, { headers: { Origin: allowedOrigin } });
+      let result;
+      let settled = false;
+
+      socket.addEventListener('open', () => {
+        socket.send(JSON.stringify(command));
+      });
+
+      socket.addEventListener('message', (message) => {
+        let parsed;
+        try {
+          parsed = AgentEventEnvelopeSchema.parse(JSON.parse(String(message.data)));
+        } catch (error) {
+          if (!settled) {
+            settled = true;
+            socket.close();
+            reject(error);
+          }
           return;
         }
-        clearTimeout(timer);
-        socket.close();
-        reject(new Error(`LAN WebSocket smoke rejected command: ${JSON.stringify(parsed.payload)}`));
-        return;
-      }
-      if (parsed.event === 'agent.lan-pairing.status.reported') {
-        assertLanSupportSurface(parsed.payload);
-        if (!routeSelected) {
-          routeSelected = true;
-          socket.send(JSON.stringify(buildRouteSelectCommand()));
+        events.push(parsed.event);
+        if (parsed.event === 'agent.connection.ready') {
           return;
         }
-        socket.send(JSON.stringify(buildPairedHealthCommand()));
-        return;
-      }
-      if (parsed.event === 'agent.health.reported') {
-        assertPayloadValue(parsed.payload, 'intentKind', 'rule-query');
-        assertPairedControlAccepted(parsed.payload);
-        clearTimeout(timer);
+        result = parsed;
         socket.close();
-        resolve(events);
-      }
-    });
+      });
 
-    socket.addEventListener('error', () => {
-      clearTimeout(timer);
-      reject(new Error('LAN WebSocket smoke failed'));
-    });
-  });
+      socket.addEventListener('close', () => {
+        if (settled) {
+          return;
+        }
+        settled = true;
+        if (result !== undefined) {
+          resolve(result);
+          return;
+        }
+        reject(new Error(`LAN WebSocket ${command.command} closed before a command response`));
+      });
+
+      socket.addEventListener('error', () => {
+        if (settled) {
+          return;
+        }
+        settled = true;
+        reject(new Error(`LAN WebSocket ${command.command} failed`));
+      });
+    }),
+    15000,
+    () => `LAN WebSocket ${command.command} timed out after events=${events.join(',') || '<none>'}`
+  );
 }
 
 function assertUnpairedControlRejected(payload) {
@@ -278,4 +316,14 @@ function collectOutput(child) {
   child.stdout.on('data', (chunk) => chunks.push(String(chunk)));
   child.stderr.on('data', (chunk) => chunks.push(String(chunk)));
   return () => chunks.join('');
+}
+
+function withTimeout(promise, timeoutMs, message) {
+  let timer;
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => {
+      timer = setTimeout(() => reject(new Error(typeof message === 'function' ? message() : message)), timeoutMs);
+    }),
+  ]).finally(() => clearTimeout(timer));
 }

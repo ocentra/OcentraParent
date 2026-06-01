@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { ActivitySurfaceSchemaVersion } from '@ocentra-parent/activity-domain/activity-surface';
 import {
   createParentPortalActivityUiIntent,
+  createParentPortalCanonicalDeviceSlots,
   createParentPortalLanPairingPortalIds,
   createParentPortalLanPairingUiSlots,
   parentPortalActivityAdapterRecord,
@@ -112,6 +113,8 @@ function parentPortalLanPairingIntentTests(): void {
     expect(createParentPortalLanPairingPortalIds(slots)).toEqual(['child-android-1']);
   });
 
+  parentPortalRuntimeLanPairingIntentTests();
+
   it('shows read-model manual-required or unavailable states as service status when no device evidence exists', () => {
     expect(createParentPortalLanPairingUiSlots([], emptyLanAddDeviceReadModel('manual-required'))).toEqual([
       {
@@ -123,6 +126,93 @@ function parentPortalLanPairingIntentTests(): void {
       },
     ]);
   });
+}
+
+function parentPortalRuntimeLanPairingIntentTests(): void {
+  it('keeps local-agent hardware separate from observed LAN neighbor network fields', () => {
+    const slots = createParentPortalLanPairingUiSlots([], runtimeLanAddDeviceReadModel());
+
+    expect(slots.map((slot) => [slot.value, slot.label, slot.status, slot.badge])).toEqual([
+      ['local-dev-agent', 'local-dev-agent', 'connected', 'online'],
+      ['lan-device-54271e97c331', 'LAN 192.168.2.42', 'connected', 'online'],
+      ['lan-device-001122334455', 'LAN 192.168.2.1', 'unsupported', 'infrastructure'],
+    ]);
+    expect(slots.find((slot) => slot.value === 'lan-device-b42e993e72b9')).toBeUndefined();
+
+    expectLocalAgentRuntimeSlot(slots);
+    expectLanNeighborRuntimeSlot(slots);
+    expectRouterInfrastructureSlot(slots);
+  });
+
+  it('feeds canonical policy target slots from the same service-backed device spine', () => {
+    const lanSlots = createParentPortalLanPairingUiSlots([], runtimeLanAddDeviceReadModel());
+    const activitySlots = createParentPortalActivityUiIntent(
+      {
+        activityBrowserReadModel: adapterResult(runtimeBrowserTargetReadModel()),
+      },
+      3
+    ).deviceSlots;
+    const canonicalSlots = createParentPortalCanonicalDeviceSlots(activitySlots, lanSlots);
+
+    expect(canonicalSlots.find((slot) => slot.value === 'local-dev-agent')).toMatchObject({
+      label: 'local-dev-agent',
+      status: 'connected',
+      badge: 'online',
+    });
+    expect(canonicalSlots.find((slot) => slot.value === 'child-device-2')).toMatchObject({
+      label: 'CE2',
+      status: 'unsupported',
+      badge: 'permission-required',
+    });
+    expect(canonicalSlots.find((slot) => slot.value === 'lan-device-001122334455')).toBeUndefined();
+  });
+}
+
+function expectLocalAgentRuntimeSlot(slots: ReturnType<typeof createParentPortalLanPairingUiSlots>): void {
+  const localAgent = slots.find((slot) => slot.value === 'local-dev-agent');
+  expect(localAgent?.device).toMatchObject({
+    ip: '192.168.2.10',
+    mac: 'b4-2e-99-3e-72-b9',
+    hostname: 'GAMEDEV',
+    networkInterface: 'Ethernet 2',
+    agentStatus: 'ocentra-local-service',
+    cpuModel: 'AMD Ryzen 9 3900X 12-Core Processor',
+    memoryTotal: '63 GiB',
+    gpuModel: 'GeForce RTX 2070 SUPER',
+  });
+}
+
+function expectLanNeighborRuntimeSlot(slots: ReturnType<typeof createParentPortalLanPairingUiSlots>): void {
+  const lanNeighbor = slots.find((slot) => slot.value === 'lan-device-54271e97c331');
+  expect(lanNeighbor?.device).toMatchObject({
+    ip: '192.168.2.42',
+    mac: '54-27-1e-97-c3-31',
+    hostname: 'unknown-host',
+    networkInterface: 'Ethernet 2',
+  });
+  expectNoAgentHardware(lanNeighbor?.device);
+}
+
+function expectRouterInfrastructureSlot(slots: ReturnType<typeof createParentPortalLanPairingUiSlots>): void {
+  const router = slots.find((slot) => slot.value === 'lan-device-001122334455');
+  expect(router?.device).toMatchObject({
+    ip: '192.168.2.1',
+    mac: '00-11-22-33-44-55',
+    hostname: 'unknown-host',
+    networkInterface: 'Gateway',
+    type: 'router',
+    platform: 'router',
+    status: 'unsupported',
+  });
+  expectNoAgentHardware(router?.device);
+}
+
+function expectNoAgentHardware(device: unknown): void {
+  const typedDevice = device as { agentStatus?: string; cpuModel?: string; memoryTotal?: string; gpuModel?: string };
+  expect(typedDevice?.agentStatus).toBeUndefined();
+  expect(typedDevice?.cpuModel).toBeUndefined();
+  expect(typedDevice?.memoryTotal).toBeUndefined();
+  expect(typedDevice?.gpuModel).toBeUndefined();
 }
 
 function serviceBackedActivityIntent() {
@@ -220,6 +310,33 @@ function browserPermissionRequiredReadModel() {
   } as const;
 }
 
+function runtimeBrowserTargetReadModel() {
+  return {
+    ...browserPermissionRequiredReadModel(),
+    state: 'ready',
+    rows: [
+      {
+        rowId: 'browser-row-local-agent',
+        domainLabel: 'local.example',
+        deviceId: 'local-dev-agent',
+        state: 'ready',
+        visitCount: 1,
+        totalMs: 60000,
+        evidenceDigest: null,
+      },
+      {
+        rowId: 'browser-row-permission-required',
+        domainLabel: 'school.example',
+        deviceId: 'child-device-2',
+        state: 'permission-required',
+        visitCount: 1,
+        totalMs: 120000,
+        evidenceDigest: null,
+      },
+    ],
+  } as const;
+}
+
 function adapterResult(value: Record<string, unknown>) {
   return {
     ok: true,
@@ -288,6 +405,149 @@ function connectedLanHardwareProfile() {
     gpuDriver: 'driver-test',
     gpuMemory: 'shared',
     nvidiaSmi: null,
+  } as const;
+}
+
+function runtimeLanAddDeviceReadModel() {
+  return {
+    ...lanAddDeviceReadModel(),
+    discoverySource: 'physical-household-lan',
+    physicalHouseholdLanState: 'discovered',
+    discoveredDevices: [
+      localAgentRuntimeDiscoveryDevice(),
+      duplicateLocalRuntimeNetworkNeighbor(),
+      networkNeighborRuntimeDiscoveryDevice(),
+      routerRuntimeDiscoveryDevice(),
+    ],
+    selectedDeviceReadiness: {
+      schemaVersion: 1,
+      selectedChildDeviceId: 'local-dev-agent',
+      routeId: 'lan-route-local-network',
+      pairingId: null,
+      trustState: 'unpaired',
+      reachability: 'online',
+      readyForControl: false,
+      staleAt: null,
+      offlineAt: null,
+    },
+  } as const;
+}
+
+function localAgentRuntimeDiscoveryDevice() {
+  return {
+    schemaVersion: 1,
+    discoveredAt: '2026-06-01T15:20:00Z',
+    childDevice: {
+      deviceId: 'local-dev-agent',
+      childProfileId: null,
+      label: 'local-dev-agent',
+      platform: 'windows',
+      ipAddress: '192.168.2.10',
+      macAddress: 'b4-2e-99-3e-72-b9',
+      hostname: 'GAMEDEV',
+      networkInterface: 'Ethernet 2',
+      agentStatus: 'ocentra-local-service',
+      hardwareProfile: localAgentRuntimeHardwareProfile(),
+    },
+    agentPeerId: 'portal-dev',
+    routeId: 'lan-route-local-network',
+    networkMode: 'local-network',
+    reachability: 'online',
+    addressRef: 'lan-address-ref-direct-websocket',
+    discoveryStatus: 'websocket-direct',
+    discoveryState: 'discovered',
+  } as const;
+}
+
+function localAgentRuntimeHardwareProfile() {
+  return {
+    manufacturer: 'Gigabyte Technology Co., Ltd.',
+    model: 'X570 AORUS MASTER',
+    cpuModel: 'AMD Ryzen 9 3900X 12-Core Processor',
+    cpuCores: '12 cores / 24 logical',
+    memoryTotal: '63 GiB',
+    gpuModel: 'GeForce RTX 2070 SUPER',
+    gpuDriver: '456.71',
+    gpuMemory: '8192 MiB',
+    nvidiaSmi: 'GeForce RTX 2070 SUPER driver 456.71 8192 MiB VRAM',
+  } as const;
+}
+
+function networkNeighborRuntimeDiscoveryDevice() {
+  return {
+    schemaVersion: 1,
+    discoveredAt: '2026-06-01T15:20:02Z',
+    childDevice: {
+      deviceId: 'lan-device-54271e97c331',
+      childProfileId: null,
+      label: 'LAN 192.168.2.42',
+      platform: 'unknown',
+      ipAddress: '192.168.2.42',
+      macAddress: '54-27-1e-97-c3-31',
+      hostname: 'unknown-host',
+      networkInterface: 'Ethernet 2',
+      agentStatus: null,
+      hardwareProfile: null,
+    },
+    agentPeerId: 'portal-dev',
+    routeId: 'lan-route-local-network',
+    networkMode: 'local-network',
+    reachability: 'online',
+    addressRef: 'lan-address-ref-network-neighbor',
+    discoveryStatus: 'network-neighbor',
+    discoveryState: 'discovered',
+  } as const;
+}
+
+function duplicateLocalRuntimeNetworkNeighbor() {
+  return {
+    schemaVersion: 1,
+    discoveredAt: '2026-06-01T15:20:01Z',
+    childDevice: {
+      deviceId: 'lan-device-b42e993e72b9',
+      childProfileId: null,
+      label: 'LAN 192.168.2.10',
+      platform: 'unknown',
+      ipAddress: '192.168.2.10',
+      macAddress: 'b4-2e-99-3e-72-b9',
+      hostname: 'unknown-host',
+      networkInterface: 'Ethernet 2',
+      agentStatus: null,
+      hardwareProfile: null,
+    },
+    agentPeerId: 'portal-dev',
+    routeId: 'lan-route-local-network',
+    networkMode: 'local-network',
+    reachability: 'online',
+    addressRef: 'lan-address-ref-network-neighbor',
+    discoveryStatus: 'network-neighbor',
+    discoveryState: 'discovered',
+  } as const;
+}
+
+function routerRuntimeDiscoveryDevice() {
+  return {
+    schemaVersion: 1,
+    discoveredAt: '2026-06-01T15:20:03Z',
+    childDevice: {
+      deviceId: 'lan-device-001122334455',
+      childProfileId: null,
+      label: 'LAN 192.168.2.1',
+      platform: 'router',
+      ipAddress: '192.168.2.1',
+      macAddress: '00-11-22-33-44-55',
+      hostname: 'unknown-host',
+      networkInterface: 'Gateway',
+      agentStatus: null,
+      hardwareProfile: null,
+    },
+    agentPeerId: 'portal-dev',
+    routeId: 'lan-route-local-network',
+    networkMode: 'local-network',
+    reachability: 'online',
+    addressRef: 'lan-address-ref-network-neighbor',
+    discoveryStatus: 'network-neighbor',
+    discoveryState: 'discovered',
   } as const;
 }
 
