@@ -6,6 +6,7 @@ use ocentra_parent_agent_protocol::{
     LanPairingTrustState, LanSelectedDeviceReadiness, LogFieldValue,
 };
 
+use crate::lan_network_inventory;
 use crate::{lan_pairing::LanPairingRuntime, time::timestamp_now};
 
 pub(crate) fn browser_add_device_pairs(
@@ -89,15 +90,31 @@ fn browser_add_device_read_model(
     let generated_at = timestamp_now();
     let selected = runtime.selected_target();
     let trusted_device_registry = trusted_device_registry(runtime);
+    let network_devices = lan_network_inventory::discover_lan_network_devices();
+    let physical_household_lan_state = if network_devices.is_empty() {
+        LanPairingProductionDiscoveryState::ManualRequired
+    } else {
+        LanPairingProductionDiscoveryState::Discovered
+    };
     LanBrowserAddDeviceReadModel {
         schema_version: constants::lan_pairing::SCHEMA_VERSION,
         generated_at: generated_at.clone(),
-        discovery_source: LanPairingDiscoverySource::LocalService,
+        discovery_source: if network_devices.is_empty() {
+            LanPairingDiscoverySource::LocalService
+        } else {
+            LanPairingDiscoverySource::PhysicalHouseholdLan
+        },
         add_device_state: discovery_state_for(discovery_state),
         local_service_discovery_state: discovery_state_for(discovery_state),
-        physical_household_lan_state: LanPairingProductionDiscoveryState::ManualRequired,
+        physical_household_lan_state,
         cloud_relay_state: LanPairingProductionDiscoveryState::Unavailable,
-        discovered_devices: discovered_devices(runtime, command, discovery_state, &generated_at),
+        discovered_devices: discovered_devices(
+            runtime,
+            command,
+            discovery_state,
+            &generated_at,
+            &network_devices,
+        ),
         pairing_requests: pairing_requests(runtime, &generated_at),
         trusted_device_registry,
         trusted_device_ids: runtime.trusted_device_ids(),
@@ -119,58 +136,127 @@ fn discovered_devices(
     command: &AgentCommandEnvelope,
     discovery_state: &str,
     generated_at: &str,
+    network_devices: &[lan_network_inventory::LanNetworkInventoryDevice],
 ) -> Vec<LanBrowserAddDeviceDiscoveryDevice> {
-    let mut devices: Vec<LanBrowserAddDeviceDiscoveryDevice> = runtime
-        .selected_target()
-        .map(|target| target.reachability)
-        .into_iter()
-        .chain(std::iter::once(LanPairingDeviceReachability::Online))
-        .next()
-        .map(|reachability| (reachability, runtime.registry.lock()))
-        .and_then(|(reachability, registry)| {
-            registry.ok().map(|registry| {
-                registry
-                    .entries()
-                    .iter()
-                    .map(|entry| LanBrowserAddDeviceDiscoveryDevice {
-                        schema_version: constants::lan_pairing::SCHEMA_VERSION,
-                        discovered_at: generated_at.to_string(),
-                        child_device: entry.child_device.clone(),
-                        agent_peer_id: command.source.peer_id.clone(),
-                        route_id: entry.route_id.clone(),
-                        network_mode: LanPairingNetworkMode::LocalNetwork,
-                        reachability: reachability.clone(),
-                        address_ref: constants::lan_pairing::ADDRESS_REF_DIRECT_WEBSOCKET
-                            .to_string(),
-                        discovery_status: LanPairingDiscoveryRuntimeStatus::WebsocketDirect,
-                        discovery_state: discovery_state_for(discovery_state),
-                    })
-                    .collect()
-            })
-        })
-        .unwrap_or_default();
+    let mut devices = registry_discovered_devices(runtime, command, discovery_state, generated_at);
+    push_if_absent(
+        &mut devices,
+        local_agent_discovery_device(command, discovery_state, generated_at),
+    );
 
-    if devices.is_empty() {
-        devices.push(LanBrowserAddDeviceDiscoveryDevice {
-            schema_version: constants::lan_pairing::SCHEMA_VERSION,
-            discovered_at: generated_at.to_string(),
-            child_device: LanPairingDeviceRef {
-                device_id: command.target.device_id.clone(),
-                child_profile_id: None,
-                label: command.target.device_id.clone(),
-                platform: command.target.platform.clone(),
-            },
-            agent_peer_id: command.source.peer_id.clone(),
-            route_id: constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK.to_string(),
-            network_mode: LanPairingNetworkMode::LocalNetwork,
-            reachability: LanPairingDeviceReachability::Online,
-            address_ref: constants::lan_pairing::ADDRESS_REF_DIRECT_WEBSOCKET.to_string(),
-            discovery_status: LanPairingDiscoveryRuntimeStatus::WebsocketDirect,
-            discovery_state: discovery_state_for(discovery_state),
-        });
+    for network_device in network_devices {
+        push_if_absent(
+            &mut devices,
+            network_neighbor_discovery_device(command, generated_at, network_device),
+        );
     }
 
     devices
+}
+
+fn registry_discovered_devices(
+    runtime: &LanPairingRuntime,
+    command: &AgentCommandEnvelope,
+    discovery_state: &str,
+    generated_at: &str,
+) -> Vec<LanBrowserAddDeviceDiscoveryDevice> {
+    let reachability = runtime
+        .selected_target()
+        .map(|target| target.reachability)
+        .unwrap_or(LanPairingDeviceReachability::Online);
+    runtime
+        .registry
+        .lock()
+        .map(|registry| {
+            registry
+                .entries()
+                .iter()
+                .map(|entry| LanBrowserAddDeviceDiscoveryDevice {
+                    schema_version: constants::lan_pairing::SCHEMA_VERSION,
+                    discovered_at: generated_at.to_string(),
+                    child_device: entry.child_device.clone(),
+                    agent_peer_id: command.source.peer_id.clone(),
+                    route_id: entry.route_id.clone(),
+                    network_mode: LanPairingNetworkMode::LocalNetwork,
+                    reachability: reachability.clone(),
+                    address_ref: constants::lan_pairing::ADDRESS_REF_DIRECT_WEBSOCKET.to_string(),
+                    discovery_status: LanPairingDiscoveryRuntimeStatus::WebsocketDirect,
+                    discovery_state: discovery_state_for(discovery_state),
+                })
+                .collect()
+        })
+        .unwrap_or_default()
+}
+
+fn local_agent_discovery_device(
+    command: &AgentCommandEnvelope,
+    discovery_state: &str,
+    generated_at: &str,
+) -> LanBrowserAddDeviceDiscoveryDevice {
+    LanBrowserAddDeviceDiscoveryDevice {
+        schema_version: constants::lan_pairing::SCHEMA_VERSION,
+        discovered_at: generated_at.to_string(),
+        child_device: lan_network_inventory::local_agent_device_ref(
+            command.target.device_id.clone(),
+            command.target.platform.clone(),
+        ),
+        agent_peer_id: command.source.peer_id.clone(),
+        route_id: constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK.to_string(),
+        network_mode: LanPairingNetworkMode::LocalNetwork,
+        reachability: LanPairingDeviceReachability::Online,
+        address_ref: constants::lan_pairing::ADDRESS_REF_DIRECT_WEBSOCKET.to_string(),
+        discovery_status: LanPairingDiscoveryRuntimeStatus::WebsocketDirect,
+        discovery_state: discovery_state_for(discovery_state),
+    }
+}
+
+fn network_neighbor_discovery_device(
+    command: &AgentCommandEnvelope,
+    generated_at: &str,
+    network_device: &lan_network_inventory::LanNetworkInventoryDevice,
+) -> LanBrowserAddDeviceDiscoveryDevice {
+    LanBrowserAddDeviceDiscoveryDevice {
+        schema_version: constants::lan_pairing::SCHEMA_VERSION,
+        discovered_at: generated_at.to_string(),
+        child_device: network_neighbor_child_device(network_device),
+        agent_peer_id: command.source.peer_id.clone(),
+        route_id: constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK.to_string(),
+        network_mode: LanPairingNetworkMode::LocalNetwork,
+        reachability: network_device.reachability.clone(),
+        address_ref: constants::lan_pairing::ADDRESS_REF_NETWORK_NEIGHBOR.to_string(),
+        discovery_status: LanPairingDiscoveryRuntimeStatus::NetworkNeighbor,
+        discovery_state: LanPairingProductionDiscoveryState::Discovered,
+    }
+}
+
+fn network_neighbor_child_device(
+    network_device: &lan_network_inventory::LanNetworkInventoryDevice,
+) -> LanPairingDeviceRef {
+    let mut child_device = LanPairingDeviceRef::new(
+        network_device.device_id.clone(),
+        None,
+        network_device.label.clone(),
+        network_device.platform.clone(),
+    );
+    child_device.ip_address = Some(network_device.ip_address.clone());
+    child_device.mac_address = Some(network_device.mac_address.clone());
+    child_device.hostname =
+        Some(constants::lan_pairing::NETWORK_NEIGHBOR_UNKNOWN_HOSTNAME.to_string());
+    child_device.network_interface = network_device.network_interface.clone();
+    child_device
+}
+
+fn push_if_absent(
+    devices: &mut Vec<LanBrowserAddDeviceDiscoveryDevice>,
+    device: LanBrowserAddDeviceDiscoveryDevice,
+) {
+    if devices
+        .iter()
+        .any(|existing| existing.child_device.device_id == device.child_device.device_id)
+    {
+        return;
+    }
+    devices.push(device);
 }
 
 fn trusted_device_registry(

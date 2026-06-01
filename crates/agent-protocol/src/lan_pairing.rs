@@ -8,6 +8,9 @@ pub use device_roles::*;
 #[path = "lan_pairing/discovery_states.rs"]
 mod discovery_states;
 pub use discovery_states::*;
+#[path = "lan_pairing/device_hardware.rs"]
+mod device_hardware;
+pub use device_hardware::*;
 #[path = "lan_pairing/household_proof.rs"]
 mod household_proof;
 pub use household_proof::*;
@@ -53,6 +56,7 @@ pub enum LanPairingDeviceReachability {
 pub enum LanPairingDiscoveryRuntimeStatus {
     PlannedUnsupported,
     WebsocketDirect,
+    NetworkNeighbor,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -134,6 +138,40 @@ pub struct LanPairingDeviceRef {
     pub child_profile_id: Option<String>,
     pub label: String,
     pub platform: String,
+    #[serde(default)]
+    pub ip_address: Option<String>,
+    #[serde(default)]
+    pub mac_address: Option<String>,
+    #[serde(default)]
+    pub hostname: Option<String>,
+    #[serde(default)]
+    pub network_interface: Option<String>,
+    #[serde(default)]
+    pub agent_status: Option<String>,
+    #[serde(default)]
+    pub hardware_profile: Option<LanPairingDeviceHardwareProfile>,
+}
+
+impl LanPairingDeviceRef {
+    pub fn new(
+        device_id: String,
+        child_profile_id: Option<String>,
+        label: String,
+        platform: String,
+    ) -> Self {
+        Self {
+            device_id,
+            child_profile_id,
+            label,
+            platform,
+            ip_address: None,
+            mac_address: None,
+            hostname: None,
+            network_interface: None,
+            agent_status: None,
+            hardware_profile: None,
+        }
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

@@ -27,8 +27,20 @@ export type DeviceChoiceGridScopeIcon =
 export type LanDevice = {
   id: string;
   name: string;
-  ip?: string;
-  mac?: string;
+  ip?: string | undefined;
+  mac?: string | undefined;
+  hostname?: string | undefined;
+  networkInterface?: string | undefined;
+  agentStatus?: string | undefined;
+  manufacturer?: string | undefined;
+  model?: string | undefined;
+  cpuModel?: string | undefined;
+  cpuCores?: string | undefined;
+  memoryTotal?: string | undefined;
+  gpuModel?: string | undefined;
+  gpuDriver?: string | undefined;
+  gpuMemory?: string | undefined;
+  nvidiaSmi?: string | undefined;
   type?: DeviceKind;
   platform?: DevicePlatformKind;
   status?: SelectableDeviceStatus;

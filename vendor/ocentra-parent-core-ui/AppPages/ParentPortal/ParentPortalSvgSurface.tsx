@@ -1063,7 +1063,7 @@ function initialNavItemForContext(
 
 function deviceOpsNavItemForRoute(navItems: NavItem[], routePath: string): NavItem | undefined {
   if (!MANAGE_DEVICE_OPS_ROUTE_KEYS.has(assetKey(routePath))) return undefined;
-  return navItems.find((item) => item.routePath === '#/lan-pairing');
+  return navItems.find((item) => item.routePath === '#/devices');
 }
 
 function routeControlIdForRoutePath(content: ParentPortalContentData, routePath?: string): string | undefined {
@@ -4132,6 +4132,13 @@ function lanPairingDetailRowsFor(
     return [
       ...sharedRows,
       { label: 'IP', value: lanPairingMissingDeviceValue(selectedDevice.device?.ip), tone: 'cyan' },
+      { label: 'MAC', value: lanPairingMissingDeviceValue(selectedDevice.device?.mac), tone: 'purple' },
+      { label: 'Host', value: lanPairingMissingDeviceValue(selectedDevice.device?.hostname), tone: 'gold' },
+      {
+        label: 'Interface',
+        value: lanPairingMissingDeviceValue(selectedDevice.device?.networkInterface),
+        tone: 'cyan',
+      },
       {
         label: 'Device ID',
         value: lanPairingMissingDeviceValue(selectedDevice.device?.id ?? selectedDevice.value),
@@ -4143,6 +4150,14 @@ function lanPairingDetailRowsFor(
     return [
       ...sharedRows,
       { label: 'Type', value: lanPairingDeviceType(selectedDevice), tone: 'cyan' },
+      { label: 'Agent', value: lanPairingMissingDeviceValue(selectedDevice.device?.agentStatus), tone: 'gold' },
+      { label: 'CPU', value: lanPairingMissingDeviceValue(selectedDevice.device?.cpuModel), tone: 'purple' },
+      { label: 'Cores', value: lanPairingMissingDeviceValue(selectedDevice.device?.cpuCores), tone: 'cyan' },
+      { label: 'Memory', value: lanPairingMissingDeviceValue(selectedDevice.device?.memoryTotal), tone: 'gold' },
+      { label: 'GPU', value: lanPairingMissingDeviceValue(selectedDevice.device?.gpuModel), tone: 'purple' },
+      { label: 'GPU driver', value: lanPairingMissingDeviceValue(selectedDevice.device?.gpuDriver), tone: 'cyan' },
+      { label: 'GPU memory', value: lanPairingMissingDeviceValue(selectedDevice.device?.gpuMemory), tone: 'gold' },
+      { label: 'NVIDIA SMI', value: lanPairingMissingDeviceValue(selectedDevice.device?.nvidiaSmi), tone: 'purple' },
       {
         label: 'Device ID',
         value: lanPairingMissingDeviceValue(selectedDevice.device?.id ?? selectedDevice.value),
@@ -4154,9 +4169,19 @@ function lanPairingDetailRowsFor(
     { label: 'Name', value: lanPairingDeviceName(selectedDevice), tone: 'cyan' },
     { label: 'IP', value: lanPairingMissingDeviceValue(selectedDevice.device?.ip), tone: 'gold' },
     { label: 'MAC', value: lanPairingMissingDeviceValue(selectedDevice.device?.mac), tone: 'purple' },
+    { label: 'Host', value: lanPairingMissingDeviceValue(selectedDevice.device?.hostname), tone: 'cyan' },
+    {
+      label: 'Interface',
+      value: lanPairingMissingDeviceValue(selectedDevice.device?.networkInterface),
+      tone: 'gold',
+    },
     { label: 'Status', value: lanPairingDeviceStatus(selectedDevice), tone: 'cyan' },
     { label: 'Platform', value: lanPairingDevicePlatform(selectedDevice), tone: 'gold' },
     { label: 'Type', value: lanPairingDeviceType(selectedDevice), tone: 'purple' },
+    { label: 'Agent', value: lanPairingMissingDeviceValue(selectedDevice.device?.agentStatus), tone: 'cyan' },
+    { label: 'CPU', value: lanPairingMissingDeviceValue(selectedDevice.device?.cpuModel), tone: 'gold' },
+    { label: 'GPU', value: lanPairingMissingDeviceValue(selectedDevice.device?.gpuModel), tone: 'purple' },
+    { label: 'Memory', value: lanPairingMissingDeviceValue(selectedDevice.device?.memoryTotal), tone: 'cyan' },
     {
       label: 'Device ID',
       value: lanPairingMissingDeviceValue(selectedDevice.device?.id ?? selectedDevice.value),

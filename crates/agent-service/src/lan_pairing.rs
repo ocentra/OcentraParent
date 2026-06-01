@@ -437,10 +437,10 @@ fn pairing_rejection_event(
 }
 
 fn device_ref(device_id: &str, platform: &str) -> LanPairingDeviceRef {
-    LanPairingDeviceRef {
-        device_id: device_id.to_string(),
-        child_profile_id: None,
-        label: device_id.to_string(),
-        platform: platform.to_string(),
-    }
+    LanPairingDeviceRef::new(
+        device_id.to_string(),
+        None,
+        device_id.to_string(),
+        platform.to_string(),
+    )
 }

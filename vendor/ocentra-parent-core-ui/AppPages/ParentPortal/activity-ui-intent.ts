@@ -175,10 +175,25 @@ function collectDiscoveredLanDevices(readModel: Record<string, unknown>, devices
     const childDevice = recordValue(item?.['childDevice']);
     const deviceId = stringValue(childDevice?.['deviceId']);
     if (!deviceId) continue;
+    const hardwareProfile = recordValue(childDevice?.['hardwareProfile']);
     upsertLanDeviceSlot(devices, {
       deviceId,
       label: stringValue(childDevice?.['label']) || deviceId,
       platform: normalizeDevicePlatform(stringValue(childDevice?.['platform'])),
+      ip: stringValue(childDevice?.['ipAddress']),
+      mac: stringValue(childDevice?.['macAddress']),
+      hostname: stringValue(childDevice?.['hostname']),
+      networkInterface: stringValue(childDevice?.['networkInterface']),
+      agentStatus: stringValue(childDevice?.['agentStatus']),
+      manufacturer: stringValue(hardwareProfile?.['manufacturer']),
+      model: stringValue(hardwareProfile?.['model']),
+      cpuModel: stringValue(hardwareProfile?.['cpuModel']),
+      cpuCores: stringValue(hardwareProfile?.['cpuCores']),
+      memoryTotal: stringValue(hardwareProfile?.['memoryTotal']),
+      gpuModel: stringValue(hardwareProfile?.['gpuModel']),
+      gpuDriver: stringValue(hardwareProfile?.['gpuDriver']),
+      gpuMemory: stringValue(hardwareProfile?.['gpuMemory']),
+      nvidiaSmi: stringValue(hardwareProfile?.['nvidiaSmi']),
       state: lanDiscoveryDeviceState(item),
       routeId: stringValue(item?.['routeId']),
     });
@@ -210,10 +225,25 @@ function collectTrustedLanDevices(readModel: Record<string, unknown>, devices: M
     const deviceId = stringValue(childDevice?.['deviceId']);
     if (!deviceId) continue;
     const revokedAt = stringValue(item?.['revokedAt']);
+    const hardwareProfile = recordValue(childDevice?.['hardwareProfile']);
     upsertLanDeviceSlot(devices, {
       deviceId,
       label: stringValue(childDevice?.['label']) || deviceId,
       platform: normalizeDevicePlatform(stringValue(childDevice?.['platform'])),
+      ip: stringValue(childDevice?.['ipAddress']),
+      mac: stringValue(childDevice?.['macAddress']),
+      hostname: stringValue(childDevice?.['hostname']),
+      networkInterface: stringValue(childDevice?.['networkInterface']),
+      agentStatus: stringValue(childDevice?.['agentStatus']),
+      manufacturer: stringValue(hardwareProfile?.['manufacturer']),
+      model: stringValue(hardwareProfile?.['model']),
+      cpuModel: stringValue(hardwareProfile?.['cpuModel']),
+      cpuCores: stringValue(hardwareProfile?.['cpuCores']),
+      memoryTotal: stringValue(hardwareProfile?.['memoryTotal']),
+      gpuModel: stringValue(hardwareProfile?.['gpuModel']),
+      gpuDriver: stringValue(hardwareProfile?.['gpuDriver']),
+      gpuMemory: stringValue(hardwareProfile?.['gpuMemory']),
+      nvidiaSmi: stringValue(hardwareProfile?.['nvidiaSmi']),
       state: revokedAt ? 'revoked' : stringValue(item?.['trustState']) || 'paired',
       routeId: stringValue(item?.['routeId']),
     });
@@ -259,6 +289,20 @@ function upsertLanDeviceSlot(
     readonly deviceId: string;
     readonly label: string;
     readonly platform: DevicePlatformKind;
+    readonly ip?: string;
+    readonly mac?: string;
+    readonly hostname?: string;
+    readonly networkInterface?: string;
+    readonly agentStatus?: string;
+    readonly manufacturer?: string;
+    readonly model?: string;
+    readonly cpuModel?: string;
+    readonly cpuCores?: string;
+    readonly memoryTotal?: string;
+    readonly gpuModel?: string;
+    readonly gpuDriver?: string;
+    readonly gpuMemory?: string;
+    readonly nvidiaSmi?: string;
     readonly state: string;
     readonly routeId: string;
     readonly preferState?: boolean;
@@ -281,6 +325,20 @@ function upsertLanDeviceSlot(
     device: {
       id: input.deviceId,
       name: input.label || input.deviceId,
+      ip: input.ip || existing?.device?.ip,
+      mac: input.mac || existing?.device?.mac,
+      hostname: input.hostname || existing?.device?.hostname,
+      networkInterface: input.networkInterface || existing?.device?.networkInterface,
+      agentStatus: input.agentStatus || existing?.device?.agentStatus,
+      manufacturer: input.manufacturer || existing?.device?.manufacturer,
+      model: input.model || existing?.device?.model,
+      cpuModel: input.cpuModel || existing?.device?.cpuModel,
+      cpuCores: input.cpuCores || existing?.device?.cpuCores,
+      memoryTotal: input.memoryTotal || existing?.device?.memoryTotal,
+      gpuModel: input.gpuModel || existing?.device?.gpuModel,
+      gpuDriver: input.gpuDriver || existing?.device?.gpuDriver,
+      gpuMemory: input.gpuMemory || existing?.device?.gpuMemory,
+      nvidiaSmi: input.nvidiaSmi || existing?.device?.nvidiaSmi,
       type: normalizeDeviceKind(input.platform),
       platform: input.platform,
       status,

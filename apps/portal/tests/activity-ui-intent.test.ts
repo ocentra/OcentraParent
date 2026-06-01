@@ -97,6 +97,17 @@ function parentPortalLanPairingIntentTests(): void {
       ['child-android-1', 'Pixel child', 'connected', 'ready'],
       ['child-android-2', 'Android manual', 'unsupported', 'manual-required'],
     ]);
+    expect(slots[0]?.device).toMatchObject({
+      ip: '192.168.2.42',
+      mac: '54-27-1e-97-c3-31',
+      hostname: 'pixel-child',
+      networkInterface: 'Ethernet 2',
+      agentStatus: 'ocentra-child-agent',
+      manufacturer: 'Google',
+      model: 'Pixel test',
+      cpuModel: 'Tensor test',
+      gpuModel: 'Mali test',
+    });
     expect(slots.every((slot) => slot.value !== 'lan-pairing-service-state')).toBe(true);
     expect(createParentPortalLanPairingPortalIds(slots)).toEqual(['child-android-1']);
   });
@@ -226,62 +237,91 @@ function lanAddDeviceReadModel() {
     localServiceDiscoveryState: 'paired',
     physicalHouseholdLanState: 'manual-required',
     cloudRelayState: 'unavailable',
-    discoveredDevices: [
-      {
-        schemaVersion: 1,
-        discoveredAt: '2026-06-01T15:00:00Z',
-        childDevice: {
-          deviceId: 'child-android-1',
-          childProfileId: 'child-profile-1',
-          label: 'Pixel child',
-          platform: 'android',
-        },
-        agentPeerId: 'child-peer-1',
-        routeId: 'lan-route-local-1',
-        networkMode: 'local-network',
-        reachability: 'online',
-        addressRef: 'lan-address-ref-1',
-        discoveryStatus: 'websocket-direct',
-        discoveryState: 'paired',
-      },
-      {
-        schemaVersion: 1,
-        discoveredAt: '2026-06-01T15:00:02Z',
-        childDevice: {
-          deviceId: 'child-android-2',
-          childProfileId: 'child-profile-2',
-          label: 'Android manual',
-          platform: 'android',
-        },
-        agentPeerId: 'child-peer-2',
-        routeId: 'lan-route-manual-1',
-        networkMode: 'local-network',
-        reachability: 'stale',
-        addressRef: 'lan-address-ref-2',
-        discoveryStatus: 'planned-unsupported',
-        discoveryState: 'manual-required',
-      },
-    ],
+    discoveredDevices: [connectedLanDiscoveryDevice(), manualLanDiscoveryDevice()],
     pairingRequests: [],
     trustedDeviceRegistry: [],
     trustedDeviceIds: ['child-android-1'],
     revokedDeviceIds: [],
-    selectedDeviceReadiness: {
-      schemaVersion: 1,
-      selectedChildDeviceId: 'child-android-1',
-      routeId: 'lan-route-local-1',
-      pairingId: 'pairing-child-android-1',
-      trustState: 'paired',
-      reachability: 'online',
-      readyForControl: true,
-      staleAt: null,
-      offlineAt: null,
-    },
+    selectedDeviceReadiness: connectedLanSelectedDeviceReadiness(),
     controllerAuthority: 'observer',
     observerAuthority: 'observer',
     routeRequirementLabels: ['Local service route only'],
     auditCheckLabels: ['No physical device-owner proof'],
     honestNonClaims: ['physical-device-owner-unavailable'],
+  } as const;
+}
+
+function connectedLanDiscoveryDevice() {
+  return {
+    schemaVersion: 1,
+    discoveredAt: '2026-06-01T15:00:00Z',
+    childDevice: {
+      deviceId: 'child-android-1',
+      childProfileId: 'child-profile-1',
+      label: 'Pixel child',
+      platform: 'android',
+      ipAddress: '192.168.2.42',
+      macAddress: '54-27-1e-97-c3-31',
+      hostname: 'pixel-child',
+      networkInterface: 'Ethernet 2',
+      agentStatus: 'ocentra-child-agent',
+      hardwareProfile: connectedLanHardwareProfile(),
+    },
+    agentPeerId: 'child-peer-1',
+    routeId: 'lan-route-local-1',
+    networkMode: 'local-network',
+    reachability: 'online',
+    addressRef: 'lan-address-ref-1',
+    discoveryStatus: 'websocket-direct',
+    discoveryState: 'paired',
+  } as const;
+}
+
+function connectedLanHardwareProfile() {
+  return {
+    manufacturer: 'Google',
+    model: 'Pixel test',
+    cpuModel: 'Tensor test',
+    cpuCores: '8 cores',
+    memoryTotal: '8 GiB',
+    gpuModel: 'Mali test',
+    gpuDriver: 'driver-test',
+    gpuMemory: 'shared',
+    nvidiaSmi: null,
+  } as const;
+}
+
+function manualLanDiscoveryDevice() {
+  return {
+    schemaVersion: 1,
+    discoveredAt: '2026-06-01T15:00:02Z',
+    childDevice: {
+      deviceId: 'child-android-2',
+      childProfileId: 'child-profile-2',
+      label: 'Android manual',
+      platform: 'android',
+    },
+    agentPeerId: 'child-peer-2',
+    routeId: 'lan-route-manual-1',
+    networkMode: 'local-network',
+    reachability: 'stale',
+    addressRef: 'lan-address-ref-2',
+    discoveryStatus: 'planned-unsupported',
+    discoveryState: 'manual-required',
+  } as const;
+}
+
+function connectedLanSelectedDeviceReadiness() {
+  return {
+    schemaVersion: 1,
+    selectedChildDeviceId: 'child-android-1',
+    routeId: 'lan-route-local-1',
+    pairingId: 'pairing-child-android-1',
+    trustState: 'paired',
+    reachability: 'online',
+    readyForControl: true,
+    staleAt: null,
+    offlineAt: null,
   } as const;
 }
 

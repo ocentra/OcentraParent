@@ -83,6 +83,9 @@ mod fields;
 mod host_identity_read_model;
 #[cfg(test)]
 mod host_identity_read_model_tests;
+mod lan_network_inventory;
+mod lan_network_inventory_command;
+mod lan_network_inventory_hardware;
 mod lan_pairing;
 mod lan_pairing_audit;
 mod lan_pairing_browser_add_device_state;

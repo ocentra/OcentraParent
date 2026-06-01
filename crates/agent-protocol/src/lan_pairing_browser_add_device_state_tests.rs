@@ -1,7 +1,9 @@
 use crate::{
-    constants, LanBrowserAddDeviceReadModel, LanPairingDeviceReachability,
-    LanPairingDiscoverySource, LanPairingParentAuthority, LanPairingProductionDiscoveryState,
-    LanPairingTrustState, LanSelectedDeviceReadiness, LAN_PAIRING_SCHEMA_VERSION,
+    constants, LanBrowserAddDeviceDiscoveryDevice, LanBrowserAddDeviceReadModel,
+    LanPairingDeviceHardwareProfile, LanPairingDeviceReachability, LanPairingDeviceRef,
+    LanPairingDiscoveryRuntimeStatus, LanPairingDiscoverySource, LanPairingNetworkMode,
+    LanPairingParentAuthority, LanPairingProductionDiscoveryState, LanPairingTrustState,
+    LanSelectedDeviceReadiness, LAN_PAIRING_SCHEMA_VERSION,
 };
 
 #[test]
@@ -59,4 +61,53 @@ fn browser_add_device_read_model_serializes_honest_states() {
         serde_json::json!(false)
     );
     assert_eq!(value["trustedDeviceRegistry"], serde_json::json!([]));
+}
+
+#[test]
+fn discovered_device_serializes_network_and_hardware_details() {
+    let mut child_device = LanPairingDeviceRef::new(
+        constants::lan_pairing::LOCAL_AGENT_DEVICE_ID.to_string(),
+        None,
+        constants::lan_pairing::LOCAL_AGENT_LABEL.to_string(),
+        constants::lan_pairing::PLATFORM_WINDOWS.to_string(),
+    );
+    child_device.ip_address = Some("192.168.2.42".to_string());
+    child_device.mac_address = Some("54-27-1e-97-c3-31".to_string());
+    child_device.hostname = Some("GAMEDEV".to_string());
+    child_device.network_interface = Some("Ethernet 2".to_string());
+    child_device.agent_status = Some(constants::lan_pairing::LOCAL_AGENT_STATUS.to_string());
+    child_device.hardware_profile = Some(LanPairingDeviceHardwareProfile {
+        manufacturer: Some("Gigabyte Technology Co., Ltd.".to_string()),
+        model: Some("X570 AORUS MASTER".to_string()),
+        cpu_model: Some("AMD Ryzen 9 3900X 12-Core Processor".to_string()),
+        cpu_cores: Some("12 cores / 24 logical".to_string()),
+        memory_total: Some("63 GiB".to_string()),
+        gpu_model: Some("GeForce RTX 2070 SUPER".to_string()),
+        gpu_driver: Some("456.71".to_string()),
+        gpu_memory: Some("8192 MiB".to_string()),
+        nvidia_smi: Some("GeForce RTX 2070 SUPER driver 456.71 8192 MiB VRAM".to_string()),
+    });
+
+    let device = LanBrowserAddDeviceDiscoveryDevice {
+        schema_version: LAN_PAIRING_SCHEMA_VERSION,
+        discovered_at: "2026-06-01T15:20:00.000Z".to_string(),
+        child_device,
+        agent_peer_id: constants::lan_pairing::PARENT_PEER_ID.to_string(),
+        route_id: constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK.to_string(),
+        network_mode: LanPairingNetworkMode::LocalNetwork,
+        reachability: LanPairingDeviceReachability::Online,
+        address_ref: constants::lan_pairing::ADDRESS_REF_DIRECT_WEBSOCKET.to_string(),
+        discovery_status: LanPairingDiscoveryRuntimeStatus::WebsocketDirect,
+        discovery_state: LanPairingProductionDiscoveryState::Discovered,
+    };
+
+    let json = serde_json::to_value(&device).expect("device serializes");
+    assert_eq!(
+        json["childDevice"]["ipAddress"],
+        serde_json::json!("192.168.2.42")
+    );
+    assert_eq!(
+        json["childDevice"]["hardwareProfile"]["gpuModel"],
+        serde_json::json!("GeForce RTX 2070 SUPER")
+    );
 }

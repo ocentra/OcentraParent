@@ -584,19 +584,19 @@ fn trusted_entry(
 }
 
 fn child_device() -> LanPairingDeviceRef {
-    LanPairingDeviceRef {
-        device_id: constants::lan_pairing::CHILD_DEVICE_ID.to_string(),
-        child_profile_id: Some(policy_constants::TEST_CHILD_PROFILE_ID.to_string()),
-        label: policy_constants::TEST_PARENT_DEVICE_LABEL.to_string(),
-        platform: policy_constants::TEST_PARENT_DEVICE_PLATFORM_WINDOWS.to_string(),
-    }
+    LanPairingDeviceRef::new(
+        constants::lan_pairing::CHILD_DEVICE_ID.to_string(),
+        Some(policy_constants::TEST_CHILD_PROFILE_ID.to_string()),
+        policy_constants::TEST_PARENT_DEVICE_LABEL.to_string(),
+        policy_constants::TEST_PARENT_DEVICE_PLATFORM_WINDOWS.to_string(),
+    )
 }
 
 fn parent_device() -> LanPairingDeviceRef {
-    LanPairingDeviceRef {
-        device_id: constants::lan_pairing::PARENT_DEVICE_ID.to_string(),
-        child_profile_id: None,
-        label: policy_constants::TEST_PARENT_DEVICE_LABEL.to_string(),
-        platform: policy_constants::TEST_PARENT_DEVICE_PLATFORM_WINDOWS.to_string(),
-    }
+    LanPairingDeviceRef::new(
+        constants::lan_pairing::PARENT_DEVICE_ID.to_string(),
+        None,
+        policy_constants::TEST_PARENT_DEVICE_LABEL.to_string(),
+        policy_constants::TEST_PARENT_DEVICE_PLATFORM_WINDOWS.to_string(),
+    )
 }
