@@ -6,9 +6,12 @@ pub enum LanPairingProductionDiscoveryState {
     Discovered,
     Pending,
     Paired,
+    Rejected,
+    Expired,
     Revoked,
     Stale,
     Offline,
+    ManualRequired,
     Unavailable,
 }
 

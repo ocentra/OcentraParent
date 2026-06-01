@@ -85,6 +85,9 @@ mod host_identity_read_model;
 mod host_identity_read_model_tests;
 mod lan_pairing;
 mod lan_pairing_audit;
+mod lan_pairing_browser_add_device_state;
+#[cfg(test)]
+mod lan_pairing_browser_add_device_state_tests;
 #[cfg(test)]
 mod lan_pairing_multidevice_tests;
 mod lan_pairing_payload;

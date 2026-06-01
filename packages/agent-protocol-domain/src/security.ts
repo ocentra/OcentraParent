@@ -36,7 +36,18 @@ export const AgentLanSelectedRouteTrustStateSchema = withParser(
 export const AgentLanPairingNetworkModeSchema = withParser(Schema.Literal('loopback', 'local-network'));
 export const AgentLanPairingParentAuthoritySchema = withParser(Schema.Literal('active-controller', 'observer'));
 export const AgentLanPairingProductionDiscoveryStateSchema = withParser(
-  Schema.Literal('discovered', 'pending', 'paired', 'revoked', 'stale', 'offline', 'unavailable')
+  Schema.Literal(
+    'discovered',
+    'pending',
+    'paired',
+    'rejected',
+    'expired',
+    'revoked',
+    'stale',
+    'offline',
+    'manual-required',
+    'unavailable'
+  )
 );
 export const AgentLanPairingRuntimeSupportStatusSchema = withParser(
   Schema.Literal('planned-unsupported', 'websocket-direct')

@@ -28,7 +28,21 @@ export const LanPairingTrustStateSchema = withParser(
 );
 export const LanPairingDeviceReachabilitySchema = withParser(Schema.Literal('online', 'offline', 'stale'));
 export const LanPairingProductionDiscoveryStateSchema = withParser(
-  Schema.Literal('discovered', 'pending', 'paired', 'revoked', 'stale', 'offline', 'unavailable')
+  Schema.Literal(
+    'discovered',
+    'pending',
+    'paired',
+    'rejected',
+    'expired',
+    'revoked',
+    'stale',
+    'offline',
+    'manual-required',
+    'unavailable'
+  )
+);
+export const LanPairingDiscoverySourceSchema = withParser(
+  Schema.Literal('local-service', 'physical-household-lan', 'cloud-relay')
 );
 export const LanPairingIntentKindSchema = withParser(
   Schema.Literal(
@@ -114,6 +128,7 @@ export type LanPairingEnablementState = Infer<typeof LanPairingEnablementStateSc
 export type LanPairingTrustState = Infer<typeof LanPairingTrustStateSchema>;
 type LanPairingDeviceReachability = Infer<typeof LanPairingDeviceReachabilitySchema>;
 type LanPairingProductionDiscoveryState = Infer<typeof LanPairingProductionDiscoveryStateSchema>;
+type LanPairingDiscoverySource = Infer<typeof LanPairingDiscoverySourceSchema>;
 type LanPairingIntentKind = Infer<typeof LanPairingIntentKindSchema>;
 type LanPairingResponseState = Infer<typeof LanPairingResponseStateSchema>;
 type LanAiProviderRoutingState = Infer<typeof LanAiProviderRoutingStateSchema>;
@@ -129,6 +144,7 @@ export type {
   LanPairingControllerLeaseId,
   LanPairingDeviceReachability,
   LanPairingProductionDiscoveryState,
+  LanPairingDiscoverySource,
   LanPairingId,
   LanPairingIntentId,
   LanPairingIntentKind,
@@ -188,4 +204,23 @@ export const LanPairingRejectionReason = {
   TakeoverDenied: LanPairingRejectionReasonSchema.parse('takeover-denied'),
   LanAiProviderUnavailable: LanPairingRejectionReasonSchema.parse('lan-ai-provider-unavailable'),
   LanAiJobUnauthorized: LanPairingRejectionReasonSchema.parse('lan-ai-job-unauthorized'),
+} as const;
+
+export const LanPairingProductionDiscoveryStates = {
+  Discovered: LanPairingProductionDiscoveryStateSchema.parse('discovered'),
+  Pending: LanPairingProductionDiscoveryStateSchema.parse('pending'),
+  Paired: LanPairingProductionDiscoveryStateSchema.parse('paired'),
+  Rejected: LanPairingProductionDiscoveryStateSchema.parse('rejected'),
+  Expired: LanPairingProductionDiscoveryStateSchema.parse('expired'),
+  Revoked: LanPairingProductionDiscoveryStateSchema.parse('revoked'),
+  Stale: LanPairingProductionDiscoveryStateSchema.parse('stale'),
+  Offline: LanPairingProductionDiscoveryStateSchema.parse('offline'),
+  ManualRequired: LanPairingProductionDiscoveryStateSchema.parse('manual-required'),
+  Unavailable: LanPairingProductionDiscoveryStateSchema.parse('unavailable'),
+} as const;
+
+export const LanPairingDiscoverySources = {
+  LocalService: LanPairingDiscoverySourceSchema.parse('local-service'),
+  PhysicalHouseholdLan: LanPairingDiscoverySourceSchema.parse('physical-household-lan'),
+  CloudRelay: LanPairingDiscoverySourceSchema.parse('cloud-relay'),
 } as const;
