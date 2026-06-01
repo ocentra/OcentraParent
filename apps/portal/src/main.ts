@@ -70,7 +70,8 @@ function refresh(): void {
 }
 
 function getRoute(): PortalRouteValue {
-  const route = window.location.hash.replace(/^#\/?/u, PortalDom.EmptyHashRoute);
+  const routeHash = window.location.hash.replace(/^#\/?/u, PortalDom.EmptyHashRoute);
+  const route = routeHash.split(PortalDom.HashQuerySeparator)[0] ?? PortalDom.EmptyHashRoute;
   const parsedRoute = PortalRouteSchema.safeParse(route);
   if (parsedRoute.success && PortalRoutes.some((portalRoute) => portalRoute === parsedRoute.data)) {
     return parsedRoute.data;

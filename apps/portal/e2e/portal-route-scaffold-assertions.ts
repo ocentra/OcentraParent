@@ -141,6 +141,7 @@ export async function assertRouteScaffolds(page: Page): Promise<void> {
   }
   await assertSidePanelFoldouts(page);
   await assertDuplicateLabelSidePanelRoutes(page);
+  await assertPolicyGuideDeepLinks(page);
   await assertManageTargetSelectorSemantics(page);
   await assertSupportContactRoute(page);
   await assertAssistantEntryAvailable(page);
@@ -229,6 +230,20 @@ async function assertGuideDashboardRouteSurface(page: Page, surface: ReturnType<
 async function assertGuideRouteSurface(page: Page): Promise<void> {
   await expect(page.getByRole('button', { name: 'Show QUICK READ' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Show QUICK ACTION' })).toBeVisible();
+}
+
+async function assertPolicyGuideDeepLinks(page: Page): Promise<void> {
+  const surface = page.locator('svg.parent-portal-svg-surface');
+  await page.goto('/#/browser-settings');
+  await expect(surface.locator('[aria-label="Open Browser Rules guide"]')).toBeVisible();
+  await surface.locator('[aria-label="Open Browser Budget guide"]').click({ force: true });
+  await expect(page).toHaveURL(/#\/policy\?guideTopic=browser-policy-guide&guidePage=2$/);
+  await expect(surface.locator('text').filter({ hasText: 'BROWSER BUDGET' }).first()).toBeVisible();
+  await page.getByRole('button', { name: 'Show QUICK ACTION' }).click({ force: true });
+  await page.getByRole('button', { name: 'Open Browser setup' }).click({ force: true });
+  await expect(page).toHaveURL(/#\/browser-settings$/);
+  await page.goto('/#/policy-apps');
+  await expect(surface.locator('[aria-label="Open Apps Rules guide"]')).toBeVisible();
 }
 
 async function assertActivityManageSurface(page: Page, surface: ReturnType<Page['locator']>): Promise<void> {

@@ -54,7 +54,7 @@ export const PARENT_PORTAL_NAV_LABELS = {
   Settings: 'SETTINGS',
 } as const;
 
-export type ParentPortalHashRoutePath = `#/${PortalRouteValue}`;
+export type ParentPortalHashRoutePath = `#/${PortalRouteValue}` | `#/${PortalRouteValue}?${string}`;
 export type ParentPortalNavLabel = (typeof PARENT_PORTAL_NAV_LABELS)[keyof typeof PARENT_PORTAL_NAV_LABELS];
 export type ParentPortalNavSectionLabel =
   | typeof PARENT_PORTAL_NAV_LABELS.Portal
