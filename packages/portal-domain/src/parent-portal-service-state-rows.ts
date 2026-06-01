@@ -29,6 +29,7 @@ function localAgentRow(connectionState: ParentPortalServiceConnectionState): Par
       1,
       0,
       PARENT_PORTAL_ROUTE.StatusText.Local,
+      PARENT_PORTAL_SERVICE_STATE.Area.Runtime,
       'cyan'
     );
   }
@@ -40,6 +41,7 @@ function localAgentRow(connectionState: ParentPortalServiceConnectionState): Par
       0,
       1,
       PARENT_PORTAL_ROUTE.StatusText.Connecting,
+      PARENT_PORTAL_SERVICE_STATE.Area.Runtime,
       'gold'
     );
   }
@@ -51,17 +53,27 @@ function localAgentRow(connectionState: ParentPortalServiceConnectionState): Par
       0,
       1,
       PARENT_PORTAL_ROUTE.StatusText.CheckService,
+      PARENT_PORTAL_SERVICE_STATE.Area.Runtime,
       'red'
     );
   }
-  return row(PARENT_PORTAL_SERVICE_STATE.Label.LocalAgent, 1, 0, 0, 1, PARENT_PORTAL_ROUTE.StatusText.Offline, 'muted');
+  return row(
+    PARENT_PORTAL_SERVICE_STATE.Label.LocalAgent,
+    1,
+    0,
+    0,
+    1,
+    PARENT_PORTAL_ROUTE.StatusText.Offline,
+    PARENT_PORTAL_SERVICE_STATE.Area.Runtime,
+    'muted'
+  );
 }
 
 function lanDiscoveryRow(input: ParentPortalServiceStateInput): ParentPortalRow {
   const event = latestEvent(input.events, AgentEvent.LanPairingStatusReported);
   const payload = event?.payload ?? null;
   const trend =
-    textValue(payload, AgentProtocolDefaults.Field.LanDiscoveryState) ?? missingTrend(input.connectionState);
+    textValue(payload, AgentProtocolDefaults.Field.LanDiscoveryState) ?? manualRequiredTrend(input.connectionState);
   const readyCount = numberValue(payload, AgentProtocolDefaults.Field.LanTrustedDeviceCount) ?? 0;
   const gapCount = event === null || readyCount === 0 ? 1 : 0;
   return row(
@@ -71,6 +83,7 @@ function lanDiscoveryRow(input: ParentPortalServiceStateInput): ParentPortalRow 
     readyCount,
     gapCount,
     trend,
+    PARENT_PORTAL_SERVICE_STATE.Area.Lan,
     'purple'
   );
 }
@@ -84,7 +97,7 @@ function devicePairingRow(input: ParentPortalServiceStateInput): ParentPortalRow
   const trend =
     textValue(payload, AgentProtocolDefaults.Field.LanSelectedDeviceReachability) ??
     textValue(payload, AgentProtocolDefaults.Field.LanPairingState) ??
-    missingTrend(input.connectionState);
+    manualRequiredTrend(input.connectionState);
   return row(
     PARENT_PORTAL_SERVICE_STATE.Label.DevicePairing,
     3,
@@ -92,6 +105,7 @@ function devicePairingRow(input: ParentPortalServiceStateInput): ParentPortalRow
     readyCount,
     readyCount > 0 ? 0 : 1,
     trend,
+    PARENT_PORTAL_SERVICE_STATE.Area.CurrentDevice,
     'cyan'
   );
 }
@@ -103,7 +117,7 @@ function browserActivityRow(input: ParentPortalServiceStateInput): ParentPortalR
   const trend =
     textValue(payload, AgentProtocolDefaults.Field.ManagedState) ??
     textValue(payload, AgentProtocolDefaults.Field.CapabilityStatus) ??
-    missingTrend(input.connectionState);
+    unavailableTrend(input.connectionState);
   const readyCount = eventCount(managed, evidence);
   return row(
     PARENT_PORTAL_SERVICE_STATE.Label.BrowserActivity,
@@ -112,6 +126,7 @@ function browserActivityRow(input: ParentPortalServiceStateInput): ParentPortalR
     readyCount,
     readyCount > 0 ? 0 : 1,
     trend,
+    PARENT_PORTAL_SERVICE_STATE.Area.Browser,
     'gold'
   );
 }
@@ -130,6 +145,7 @@ function activityReportsRow(input: ParentPortalServiceStateInput): ParentPortalR
     readyCount,
     readyCount > 0 ? 0 : 1,
     trend,
+    PARENT_PORTAL_SERVICE_STATE.Area.Activity,
     'red'
   );
 }
@@ -142,7 +158,7 @@ function networkTrackingRow(input: ParentPortalServiceStateInput): ParentPortalR
   const trend =
     textValue(latest?.payload ?? null, AgentProtocolDefaults.Field.ActivitySurfaceState) ??
     textValue(latest?.payload ?? null, AgentProtocolDefaults.Field.CapabilityStatus) ??
-    missingTrend(input.connectionState);
+    unavailableTrend(input.connectionState);
   return row(
     PARENT_PORTAL_SERVICE_STATE.Label.NetworkTracking,
     6,
@@ -150,6 +166,7 @@ function networkTrackingRow(input: ParentPortalServiceStateInput): ParentPortalR
     returned,
     latest === null ? 1 : 0,
     trend,
+    PARENT_PORTAL_SERVICE_STATE.Area.Network,
     'purple'
   );
 }
@@ -158,6 +175,8 @@ function activityEvents(events: readonly AgentEventEnvelope[]): AgentEventEnvelo
   return [
     latestEvent(events, AgentEvent.ActivityIngestStatusReported),
     latestEvent(events, AgentEvent.ActivityRecentSummaryReported),
+    latestEvent(events, AgentEvent.ActivityReportGenerated),
+    latestEvent(events, AgentEvent.ActivityReportSaved),
     latestEvent(events, AgentEvent.ActivityReportHistoryReported),
     latestEvent(events, AgentEvent.ActivityScreenReadModelReported),
     latestEvent(events, AgentEvent.ActivityAppUseReadModelReported),
@@ -182,6 +201,7 @@ function row(
   readyCount: NonNullable<ParentPortalRow['readyCount']>,
   gapCount: NonNullable<ParentPortalRow['gapCount']>,
   trend: NonNullable<ParentPortalRow['trend']>,
+  primaryArea: NonNullable<ParentPortalRow['primaryArea']>,
   tone: ParentPortalTone
 ): ParentPortalRow {
   return {
@@ -190,15 +210,24 @@ function row(
     signalScore,
     readyCount,
     gapCount,
-    primaryArea: PARENT_PORTAL_SERVICE_STATE.Area.Service,
+    primaryArea,
     trend,
     tone,
   };
 }
 
-function missingTrend(connectionState: ParentPortalServiceConnectionState): NonNullable<ParentPortalRow['trend']> {
+function manualRequiredTrend(
+  connectionState: ParentPortalServiceConnectionState
+): NonNullable<ParentPortalRow['trend']> {
   if (connectionState === PARENT_PORTAL_SERVICE_STATE.Connection.Connected) {
-    return PARENT_PORTAL_SERVICE_STATE.Trend.NotReported;
+    return PARENT_PORTAL_SERVICE_STATE.Trend.ManualRequired;
+  }
+  return PARENT_PORTAL_SERVICE_STATE.Trend.Offline;
+}
+
+function unavailableTrend(connectionState: ParentPortalServiceConnectionState): NonNullable<ParentPortalRow['trend']> {
+  if (connectionState === PARENT_PORTAL_SERVICE_STATE.Connection.Connected) {
+    return PARENT_PORTAL_SERVICE_STATE.Trend.Unavailable;
   }
   return PARENT_PORTAL_SERVICE_STATE.Trend.Offline;
 }
@@ -222,7 +251,7 @@ function activityTrend(
 ): NonNullable<ParentPortalRow['trend']> {
   return (
     textValue(payload, AgentProtocolDefaults.Field.ActivitySurfaceState) ??
-    (sourceCount > 0 ? PARENT_PORTAL_SERVICE_STATE.Trend.Reported : missingTrend(connectionState))
+    (sourceCount > 0 ? PARENT_PORTAL_SERVICE_STATE.Trend.Reported : unavailableTrend(connectionState))
   );
 }
 

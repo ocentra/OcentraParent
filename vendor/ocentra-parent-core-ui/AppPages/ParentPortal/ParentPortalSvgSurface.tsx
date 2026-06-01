@@ -57,6 +57,11 @@ import {
 } from './ParentPortalGoldenFrameForeignObject';
 import { DeviceChoiceGrid } from './DeviceChoiceGrid/DeviceChoiceGrid';
 import type { DeviceChoiceGridProps, DeviceSlot } from './DeviceChoiceGrid/DeviceChoiceGridTypes';
+import {
+  createParentPortalActivityUiIntent,
+  createParentPortalLanPairingUiSlots,
+  parentPortalActivityAdapterRecord,
+} from './activity-ui-intent';
 import { WeeklySchedulerScratchPage } from './WeeklySchedulerScratchPage';
 import { AnimatedSidebarIconButton } from './AnimatedSidebarIconButton';
 import { ChatBubbleSvg, estimateChatBubbleHeight } from './ParentPortalChatBubble';
@@ -218,6 +223,13 @@ type ParentPortalSvgSurfaceProps = {
 type ParentPortalActivityState = {
   ingestStatus?: Record<string, unknown> | null;
   recentSummary?: Record<string, unknown> | null;
+  activityReport?: unknown;
+  activityReportHistory?: unknown;
+  activityScreenReadModel?: unknown;
+  activityAppUseReadModel?: unknown;
+  activityBrowserReadModel?: unknown;
+  activityGamesReadModel?: unknown;
+  activityNetworkReadModel?: unknown;
   browserEvidenceReadModel?: Record<string, unknown> | null;
   browserManagedStatus?: Record<string, unknown> | null;
   activityMemoryGraphReadModel?: Record<string, unknown> | null;
@@ -3930,73 +3942,9 @@ function emptyReportPlanSeatSlot(slotIndex: number): DeviceSlot {
   };
 }
 
-function activityUiCheckParams(): URLSearchParams {
-  if (typeof window === 'undefined') {
-    return new URLSearchParams();
-  }
-
-  const params = new URLSearchParams(window.location.search);
-  const hashQueryStart = window.location.hash.indexOf('?');
-  if (hashQueryStart >= 0) {
-    const hashParams = new URLSearchParams(window.location.hash.slice(hashQueryStart + 1));
-    for (const [key, value] of hashParams.entries()) {
-      params.set(key, value);
-    }
-  }
-
-  return params;
-}
-
-function activityReportUiCheckFakeDeviceCount(planSeatLimit: number): number {
-  if (typeof window === 'undefined') {
-    return 0;
-  }
-
-  const params = activityUiCheckParams();
-  const maxCount = clampValue(planSeatLimit, 0, ACTIVITY_REPORT_MAX_CHILD_DEVICE_SEATS);
-  const rawCount = params.get(ACTIVITY_REPORT_UI_CHECK_QUERY_KEY);
-  if (rawCount === null) {
-    return ACTIVITY_REPORT_UI_CHECK_FAKE_DATA_DEFAULT_ENABLED
-      ? clampValue(ACTIVITY_REPORT_UI_CHECK_FAKE_DATA_DEFAULT_COUNT, 0, maxCount)
-      : 0;
-  }
-
-  const parsedCount = Number.parseInt(rawCount, 10);
-  if (!Number.isFinite(parsedCount) || parsedCount <= 0) {
-    return 0;
-  }
-
-  return clampValue(parsedCount, 0, maxCount);
-}
-
-function activityReportUiCheckFakeSlot(slotIndex: number): DeviceSlot {
-  const deviceNumber = slotIndex + 1;
-  const label = `D${String(deviceNumber).padStart(3, '0')}`;
-  const status = slotIndex % 3 === 1 ? 'offline' : 'connected';
-  const platform = slotIndex % 2 === 0 ? 'windows' : 'android';
-
-  return {
-    value: `activity-ui-check-device-${deviceNumber}`,
-    label,
-    status,
-    device: {
-      id: `activity-ui-check-device-${deviceNumber}`,
-      name: label,
-      ip: `192.168.1.${20 + deviceNumber}`,
-      mac: `02:00:00:00:00:${String(deviceNumber).padStart(2, '0')}`,
-      type: slotIndex % 2 === 0 ? 'laptop' : 'tablet',
-      platform,
-      status,
-    },
-    platform,
-    slotIndex,
-  };
-}
-
 function reportPlanSeatSlots(planSeatLimit: number): DeviceSlot[] {
   const seatLimit = clampValue(Math.round(planSeatLimit), 1, ACTIVITY_REPORT_MAX_CHILD_DEVICE_SEATS);
-  const uiCheckDeviceCount = activityReportUiCheckFakeDeviceCount(seatLimit);
-  const slots = Array.from({ length: uiCheckDeviceCount }, (_, index) => activityReportUiCheckFakeSlot(index));
+  const slots: DeviceSlot[] = [];
   while (slots.length < seatLimit) {
     slots.push(emptyReportPlanSeatSlot(slots.length));
   }
@@ -4113,14 +4061,6 @@ const ACTIVITY_REPORT_SELECTOR_BASE_H = 146;
 const ACTIVITY_REPORT_SELECTOR_ROW_H = MANAGE_DEVICE_GRID_CELL_H + MANAGE_DEVICE_GRID_GAP_Y;
 const LAN_PAIRING_SCAN_ICON_HREF = '/images/scan.png';
 const LAN_PAIRING_HEADER_TITLE = 'Local Area Network';
-const LAN_PAIRING_UI_CHECK_QUERY_KEY = 'ocentraLanPairingUiCheckFakeDeviceCount';
-const LAN_PAIRING_UI_CHECK_MAX_DEVICE_COUNT = 100;
-const LAN_PAIRING_UI_CHECK_FAKE_DATA_DEFAULT_ENABLED = false;
-const LAN_PAIRING_UI_CHECK_FAKE_DATA_DEFAULT_COUNT = 100;
-const ACTIVITY_REPORT_UI_CHECK_QUERY_KEY = 'ocentraActivityUiCheckFakeDeviceCount';
-const ACTIVITY_EVIDENCE_UI_CHECK_QUERY_KEY = 'ocentraActivityUiCheckFakeEvidence';
-const ACTIVITY_REPORT_UI_CHECK_FAKE_DATA_DEFAULT_ENABLED = false;
-const ACTIVITY_REPORT_UI_CHECK_FAKE_DATA_DEFAULT_COUNT = ACTIVITY_REPORT_BASIC_CHILD_DEVICE_SEATS;
 
 type LanPairingDetailTabId = 'info' | 'update' | 'capability';
 
@@ -4256,17 +4196,6 @@ type ActivityManageDetailRow = {
   readonly tone: Tone;
 };
 
-type ActivityUiCheckEvidenceBundle = {
-  readonly browserEvidenceReadModel: Record<string, unknown>;
-  readonly browserManagedStatus: Record<string, unknown>;
-  readonly networkFlowReadModel: Record<string, unknown>;
-  readonly screenEvidenceRecentSummary: Record<string, unknown>;
-  readonly appGameSessionReport: Record<string, unknown>;
-  readonly appGameSessionQueryResult: Record<string, unknown>;
-  readonly gameSessionReport: Record<string, unknown>;
-  readonly gameSessionQueryResult: Record<string, unknown>;
-};
-
 function activityManageTargetLabel(scopeValue: string, selectedDevice: DeviceSlot | null): string {
   if (scopeValue !== 'device') return 'Family';
   return selectedDevice?.label ?? 'Select device';
@@ -4301,10 +4230,6 @@ function activityLatestRow(model: Record<string, unknown> | null | undefined): R
   return activityStateRows(model)[0] ?? null;
 }
 
-function activitySessionRows(model: Record<string, unknown> | null | undefined): readonly Record<string, unknown>[] {
-  return activityRecordArray(model?.sessions);
-}
-
 function activityFormatDurationMs(value: unknown): string {
   const duration = typeof value === 'number' && Number.isFinite(value) ? value : null;
   if (duration === null) return 'Not reported';
@@ -4335,245 +4260,6 @@ function activityEndpointLabel(value: unknown): string {
 
 function activityEvidenceCount(value: unknown): string {
   return Array.isArray(value) ? String(value.length) : activityStateValue(value);
-}
-
-function activityUiCheckEvidenceEnabled(): boolean {
-  const params = activityUiCheckParams();
-  const rawEvidence = params.get(ACTIVITY_EVIDENCE_UI_CHECK_QUERY_KEY);
-  if (rawEvidence !== null) {
-    return rawEvidence === '1' || rawEvidence.toLowerCase() === 'true';
-  }
-
-  const rawDeviceCount = params.get(ACTIVITY_REPORT_UI_CHECK_QUERY_KEY);
-  if (rawDeviceCount === null) return ACTIVITY_REPORT_UI_CHECK_FAKE_DATA_DEFAULT_ENABLED;
-  const parsedDeviceCount = Number.parseInt(rawDeviceCount, 10);
-  return Number.isFinite(parsedDeviceCount) && parsedDeviceCount > 0;
-}
-
-function activityUiCheckEvidenceBundle(selectedDevice: DeviceSlot | null): ActivityUiCheckEvidenceBundle | null {
-  if (!activityUiCheckEvidenceEnabled()) return null;
-  const deviceId = selectedDevice?.device?.id ?? selectedDevice?.value ?? 'activity-ui-check-device';
-  const observedAt = '2026-05-27T00:00:00.000Z';
-  const freshUntil = '2026-05-27T00:05:00.000Z';
-  const evidence = [{ evidenceId: 'activity-ui-check-evidence-1', sourceId: 'activity-ui-check-source' }];
-
-  return {
-    browserManagedStatus: {
-      schemaVersion: 1,
-      checkedAt: observedAt,
-      managedBrowserSessionId: 'activity-ui-check-browser-session',
-      browserFamily: 'chrome',
-      browserChannel: 'stable',
-      browserVersion: 'ui-check',
-      profileId: 'activity-ui-check-profile',
-      profilePathRef: 'child-device-managed-browser-profile',
-      processId: 4242,
-      bridgeKind: 'chromium-devtools-protocol',
-      bridgeEndpointRef: 'localhost-child-agent-bridge',
-      managedState: 'bridge-connected',
-      capabilityStatus: 'available',
-      degradedReason: null,
-      startedAt: observedAt,
-      custodyLabel: 'local-network-child-agent',
-      queryVisibility: 'live-lan',
-    },
-    browserEvidenceReadModel: {
-      schemaVersion: 1,
-      generatedAt: observedAt,
-      limit: 10,
-      returned: 1,
-      latestEventId: 'activity-ui-check-browser-event',
-      latestObservedAt: observedAt,
-      capabilityStatus: 'available',
-      custodyLabel: 'local-network-child-agent',
-      queryVisibility: 'live-lan',
-      rows: [
-        {
-          schemaVersion: 1,
-          browserEvidenceId: 'activity-ui-check-browser-evidence',
-          observedAt,
-          freshUntil,
-          sourceId: 'activity-ui-check-source',
-          adapterId: 'managed-chromium-devtools',
-          deviceId,
-          browserFamily: 'chrome',
-          browserChannel: 'stable',
-          managedBrowserSessionId: 'activity-ui-check-browser-session',
-          profileId: 'activity-ui-check-profile',
-          processId: 4242,
-          windowId: 'activity-ui-check-window',
-          tabId: 'activity-ui-check-tab',
-          targetId: 'activity-ui-check-target',
-          activeState: 'known-active',
-          url: 'https://example.invalid/school/assignment',
-          origin: 'https://example.invalid',
-          domain: 'example.invalid',
-          title: 'School assignment',
-          capabilityStatus: 'available',
-          degradedReason: null,
-          staleAt: freshUntil,
-          custodyLabel: 'local-network-child-agent',
-          queryVisibility: 'live-lan',
-        },
-      ],
-    },
-    networkFlowReadModel: {
-      schemaVersion: 1,
-      generatedAt: observedAt,
-      custody: 'live-lan-child-agent',
-      limit: 10,
-      returned: 1,
-      capabilityStatus: 'available',
-      rows: [
-        {
-          schemaVersion: 1,
-          eventId: 'activity-ui-check-network-event',
-          observedAt,
-          observer: 'network-flow',
-          capabilityStatus: 'available',
-          adapterId: 'windows-network-flow',
-          protocol: 'tcp',
-          tcpState: 'established',
-          localEndpoint: { ip: '192.0.2.20', port: 51514 },
-          destinationEndpoint: { ip: '198.51.100.10', port: 443 },
-          destinationDomain: 'example.invalid',
-          domainAttributionStatus: 'domain-known',
-          processAttributionStatus: 'process-attributed',
-          processId: 4242,
-          processName: 'chrome.exe',
-          counters: {
-            connectionCount: 3,
-            bytesSent: 18432,
-            bytesReceived: 145408,
-            firstSeenAt: observedAt,
-            lastSeenAt: freshUntil,
-          },
-          evidence,
-        },
-      ],
-    },
-    screenEvidenceRecentSummary: {
-      schemaVersion: 1,
-      generatedAt: observedAt,
-      custodyState: 'child-device-query-store',
-      limit: 10,
-      returned: 1,
-      queueHealth: {
-        schemaVersion: 1,
-        generatedAt: observedAt,
-        custodyState: 'child-device-query-store',
-        pendingCount: 0,
-        expiredCount: 0,
-        deletePendingCount: 0,
-        deleteFailedCount: 0,
-        latestQueueJobId: 'activity-ui-check-screen-job',
-        latestStatus: 'analyzed',
-        lastSuccessfulAnalysisAt: observedAt,
-      },
-      latestResultId: 'activity-ui-check-screen-result',
-      latestSummary: 'Local screen analysis reported school work with no retained image.',
-      latestPrimaryCategory: 'school',
-      latestConfidence: 0.86,
-      latestImageDeletionState: 'deleted',
-      latestPolicyEligible: true,
-      evidence,
-      results: [],
-    },
-    appGameSessionReport: {
-      schemaVersion: 1,
-      limit: 10,
-      returned: 1,
-      catalogReadyState: 'catalogReady',
-      firstObservedAt: observedAt,
-      lastObservedAt: freshUntil,
-      mostRecentSessionId: 'activity-ui-check-app-session',
-      mostRecentClassificationState: 'knownApp',
-      mostRecentProcessIdentity: 'activity-ui-check-app-process',
-      mostRecentDisplayName: 'Homework Editor',
-      mostRecentRunningDurationMs: 1860000,
-      mostRecentForegroundDurationMs: 1620000,
-      mostRecentEvidenceCount: 4,
-    },
-    appGameSessionQueryResult: {
-      schemaVersion: 1,
-      limit: 10,
-      returned: 1,
-      catalogReadyState: 'catalogReady',
-      firstObservedAt: observedAt,
-      lastObservedAt: freshUntil,
-      sessions: [
-        {
-          schemaVersion: 1,
-          sessionId: 'activity-ui-check-app-session',
-          primaryProcessIdentity: 'activity-ui-check-app-process',
-          displayName: 'Homework Editor',
-          classificationState: 'knownApp',
-          catalogReadyState: 'catalogReady',
-          inventoryEntryId: 'activity-ui-check-app-inventory',
-          launcherRef: null,
-          catalogRef: null,
-          startedAt: observedAt,
-          lastObservedAt: freshUntil,
-          endedAt: null,
-          runningDurationMs: 1860000,
-          foregroundDurationMs: 1620000,
-          backgroundDurationMs: 240000,
-          observationCount: 12,
-          evidenceCount: 4,
-          evidence,
-          aiDigestRef: null,
-          confidence: 0.91,
-        },
-      ],
-    },
-    gameSessionReport: {
-      schemaVersion: 1,
-      limit: 10,
-      returned: 1,
-      catalogReadyState: 'catalogReady',
-      firstObservedAt: observedAt,
-      lastObservedAt: freshUntil,
-      mostRecentSessionId: 'activity-ui-check-game-session',
-      mostRecentClassificationState: 'knownGame',
-      mostRecentProcessIdentity: 'activity-ui-check-game-process',
-      mostRecentDisplayName: 'Known Game Session',
-      mostRecentRunningDurationMs: 780000,
-      mostRecentForegroundDurationMs: 720000,
-      mostRecentEvidenceCount: 3,
-    },
-    gameSessionQueryResult: {
-      schemaVersion: 1,
-      limit: 10,
-      returned: 1,
-      catalogReadyState: 'catalogReady',
-      firstObservedAt: observedAt,
-      lastObservedAt: freshUntil,
-      sessions: [
-        {
-          schemaVersion: 1,
-          sessionId: 'activity-ui-check-game-session',
-          primaryProcessIdentity: 'activity-ui-check-game-process',
-          displayName: 'Known Game Session',
-          classificationState: 'knownGame',
-          catalogReadyState: 'catalogReady',
-          inventoryEntryId: 'activity-ui-check-game-inventory',
-          launcherRef: 'steam',
-          catalogRef: 'activity-ui-check-game-catalog',
-          startedAt: observedAt,
-          lastObservedAt: freshUntil,
-          endedAt: null,
-          runningDurationMs: 780000,
-          foregroundDurationMs: 720000,
-          backgroundDurationMs: 60000,
-          observationCount: 8,
-          evidenceCount: 3,
-          evidence,
-          aiDigestRef: null,
-          confidence: 0.89,
-        },
-      ],
-    },
-  };
 }
 
 function activityPerDeviceGateRows(
@@ -4623,6 +4309,15 @@ function activityUnavailableRows(
   ];
 }
 
+function activityReportHistoryLabel(reportHistory: Record<string, unknown> | null): string {
+  if (!reportHistory) return 'Unavailable';
+  const reports = reportHistory.reports;
+  const count = Array.isArray(reports) ? reports.length : 0;
+  const state = activityStateValue(reportHistory.state);
+  const storage = activityStateValue(reportHistory.storageState);
+  return count > 0 ? `${count} saved (${storage})` : `${state}; ${storage}`;
+}
+
 function activityRowsFromReadModels(
   tab: ActivityManageTabId,
   scopeValue: string,
@@ -4635,28 +4330,39 @@ function activityRowsFromReadModels(
 ): readonly ActivityManageDetailRow[] {
   const targetLabel = activityManageTargetLabel(scopeValue, selectedDevice);
   const gateRows = tab === 'reports' ? [] : activityPerDeviceGateRows(tab, scopeValue, selectedDevice);
-  const uiCheckEvidence = selectedDevice ? activityUiCheckEvidenceBundle(selectedDevice) : null;
   const recent = activityState?.recentSummary;
-  const browser = activityState?.browserEvidenceReadModel ?? uiCheckEvidence?.browserEvidenceReadModel;
-  const browserManaged = activityState?.browserManagedStatus ?? uiCheckEvidence?.browserManagedStatus;
-  const network = activityState?.networkFlowReadModel ?? uiCheckEvidence?.networkFlowReadModel;
-  const screen = activityState?.screenEvidenceRecentSummary ?? uiCheckEvidence?.screenEvidenceRecentSummary;
-  const appReport = activityState?.appGameSessionReport ?? uiCheckEvidence?.appGameSessionReport;
-  const appQuery = activityState?.appGameSessionQueryResult ?? uiCheckEvidence?.appGameSessionQueryResult;
-  const gameReport = activityState?.gameSessionReport ?? uiCheckEvidence?.gameSessionReport;
-  const gameQuery = activityState?.gameSessionQueryResult ?? uiCheckEvidence?.gameSessionQueryResult;
+  const reportDocument = parentPortalActivityAdapterRecord(activityState?.activityReport);
+  const reportHistory = parentPortalActivityAdapterRecord(activityState?.activityReportHistory);
+  const screen = parentPortalActivityAdapterRecord(activityState?.activityScreenReadModel);
+  const appUse = parentPortalActivityAdapterRecord(activityState?.activityAppUseReadModel);
+  const browser = parentPortalActivityAdapterRecord(activityState?.activityBrowserReadModel);
+  const games = parentPortalActivityAdapterRecord(activityState?.activityGamesReadModel);
+  const network = parentPortalActivityAdapterRecord(activityState?.activityNetworkReadModel);
+  const browserManaged = activityState?.browserManagedStatus;
+  const browserEvidence = activityState?.browserEvidenceReadModel;
+  const networkFlow = activityState?.networkFlowReadModel;
   const ingest = activityState?.ingestStatus;
-  const browserRow = activityLatestRow(browser);
-  const networkRow = activityLatestRow(network);
-  const appSession = activitySessionRows(appQuery)[0] ?? null;
-  const gameSession = activitySessionRows(gameQuery)[0] ?? null;
+  const screenRow = activityLatestRow(screen);
+  const appRow = activityLatestRow(appUse);
+  const browserRow = activityLatestRow(browser) ?? activityLatestRow(browserEvidence);
+  const gameRow = activityLatestRow(games);
+  const networkRow = activityLatestRow(network) ?? activityLatestRow(networkFlow);
 
   if (tab === 'reports') {
     return [
       { label: 'Report target', value: targetLabel, tone: 'cyan' },
       { label: 'Frequency', value: frequencyLabel, tone: 'gold' },
       { label: 'Mode', value: scopeValue === 'device' ? overrideLabel : 'Family defaults', tone: 'purple' },
-      { label: 'History', value: 'No saved report read model reported', tone: 'cyan' },
+      {
+        label: 'Report state',
+        value: activityStateValue(reportDocument?.savedMetadata ? 'saved' : reportDocument?.generatedAt, 'Unavailable'),
+        tone: 'cyan',
+      },
+      {
+        label: 'History',
+        value: activityReportHistoryLabel(reportHistory),
+        tone: 'cyan',
+      },
       { label: 'Generate', value: syncStatus || 'Report command not exposed', tone: 'gold' },
       { label: 'Last action', value: lastAction || 'Ready', tone: 'purple' },
     ];
@@ -4668,157 +4374,163 @@ function activityRowsFromReadModels(
 
   if (tab === 'screen') {
     if (!screen) {
-      return activityUnavailableRows('Screen evidence summary', 'ScreenEvidenceRecentSummary', gateRows);
+      return activityUnavailableRows('Screen read model', 'ActivityScreenReadModelReported', gateRows);
     }
-    const queueHealth = activityRecord(screen.queueHealth);
     return [
       ...gateRows,
       {
         label: 'Latest summary',
-        value: activityStateValue(screen.latestSummary, 'No screen summary reported'),
+        value: activityStateValue(screen.summary, 'No screen summary reported'),
         tone: 'cyan',
       },
-      { label: 'Visible category', value: activityStateValue(screen.latestPrimaryCategory), tone: 'gold' },
-      { label: 'Confidence', value: activityStateValue(screen.latestConfidence), tone: 'purple' },
-      { label: 'Queue status', value: activityStateValue(queueHealth?.latestStatus), tone: 'cyan' },
-      { label: 'Pending jobs', value: activityStateValue(queueHealth?.pendingCount), tone: 'gold' },
-      { label: 'Image state', value: activityStateValue(screen.latestImageDeletionState), tone: 'purple' },
-      { label: 'Custody', value: activityStateValue(screen.custodyState), tone: 'cyan' },
-      { label: 'Evidence refs', value: activityEvidenceCount(screen.evidence), tone: 'gold' },
+      { label: 'Read model state', value: activityStateValue(screen.state), tone: 'gold' },
+      { label: 'Top row', value: activityStateValue(screenRow?.label), tone: 'purple' },
+      { label: 'Total time', value: activityFormatDurationMs(screenRow?.totalMs), tone: 'cyan' },
+      { label: 'Foreground time', value: activityFormatDurationMs(screenRow?.foregroundMs), tone: 'gold' },
+      { label: 'Background time', value: activityFormatDurationMs(screenRow?.backgroundMs), tone: 'purple' },
+      { label: 'Evidence refs', value: activityEvidenceCount(screenRow?.evidence), tone: 'gold' },
     ];
   }
 
   if (tab === 'apps') {
-    if (!appReport && !appSession) {
-      return activityUnavailableRows('App session summary', 'AppGameSessionReport', gateRows);
+    if (!appUse && !appRow) {
+      return activityUnavailableRows('App use read model', 'ActivityAppUseReadModelReported', gateRows);
     }
     return [
       ...gateRows,
       {
         label: 'Current app',
-        value: activityStateValue(appSession?.displayName ?? appReport?.mostRecentDisplayName),
+        value: activityStateValue(appRow?.appName),
         tone: 'cyan',
       },
       {
-        label: 'Classification',
-        value: activityStateValue(appSession?.classificationState ?? appReport?.mostRecentClassificationState),
+        label: 'Read model state',
+        value: activityStateValue(appRow?.state ?? appUse?.state),
         tone: 'gold',
       },
       {
-        label: 'Running time',
-        value: activityFormatDurationMs(appSession?.runningDurationMs ?? appReport?.mostRecentRunningDurationMs),
+        label: 'Total time',
+        value: activityFormatDurationMs(appRow?.totalMs),
         tone: 'purple',
       },
       {
-        label: 'Foreground time',
-        value: activityFormatDurationMs(appSession?.foregroundDurationMs ?? appReport?.mostRecentForegroundDurationMs),
+        label: 'Launches',
+        value: activityStateValue(appRow?.launchCount),
         tone: 'cyan',
       },
       {
-        label: 'Catalog',
-        value: activityStateValue(appSession?.catalogReadyState ?? appReport?.catalogReadyState),
+        label: 'Summary',
+        value: activityStateValue(appUse?.summary),
         tone: 'gold',
       },
       {
         label: 'Evidence refs',
-        value: activityEvidenceCount(appSession?.evidence ?? appReport?.mostRecentEvidenceCount),
+        value: activityEvidenceCount(appRow?.evidence),
         tone: 'purple',
       },
       {
-        label: 'Last observed',
-        value: activityStateValue(appSession?.lastObservedAt ?? appReport?.lastObservedAt),
+        label: 'Generated',
+        value: activityStateValue(appUse?.generatedAt),
         tone: 'cyan',
       },
     ];
   }
 
   if (tab === 'browser') {
-    if (!browserRow && !browser && !browserManaged) {
-      return activityUnavailableRows('Browser tab evidence', 'BrowserEvidenceReadModel', gateRows);
+    if (!browserRow && !browser && !browserManaged && !browserEvidence) {
+      return activityUnavailableRows('Browser activity read model', 'ActivityBrowserReadModelReported', gateRows);
     }
     return [
       ...gateRows,
-      { label: 'Active URL', value: activityStateValue(browserRow?.url, 'No active tab URL reported'), tone: 'cyan' },
-      { label: 'Page title', value: activityStateValue(browserRow?.title), tone: 'gold' },
-      { label: 'Domain', value: activityStateValue(browserRow?.domain ?? browserRow?.origin), tone: 'purple' },
+      {
+        label: 'Domain',
+        value: activityStateValue(browserRow?.domainLabel ?? browserRow?.domain ?? browserRow?.origin),
+        tone: 'cyan',
+      },
+      { label: 'Visits', value: activityStateValue(browserRow?.visitCount), tone: 'gold' },
+      { label: 'Total time', value: activityFormatDurationMs(browserRow?.totalMs), tone: 'purple' },
       {
         label: 'Browser',
         value: activityStateValue(browserRow?.browserFamily ?? browserManaged?.browserFamily),
         tone: 'cyan',
       },
-      { label: 'Tab state', value: activityStateValue(browserRow?.activeState), tone: 'gold' },
+      { label: 'Read model state', value: activityStateValue(browserRow?.state ?? browser?.state), tone: 'gold' },
       {
         label: 'Capability',
-        value: activityStateValue(browserRow?.capabilityStatus ?? browser?.capabilityStatus),
+        value: activityStateValue(browserRow?.capabilityStatus ?? browserEvidence?.capabilityStatus ?? browser?.state),
         tone: 'purple',
       },
       { label: 'Managed state', value: activityStateValue(browserManaged?.managedState), tone: 'cyan' },
       {
-        label: 'Evidence ID',
-        value: activityStateValue(browserRow?.browserEvidenceId ?? browser?.latestEventId),
+        label: 'Evidence',
+        value: activityStateValue(browserRow?.evidenceDigest ?? browserEvidence?.latestEventId),
         tone: 'gold',
       },
     ];
   }
 
   if (tab === 'games') {
-    if (!gameReport && !gameSession) {
-      return activityUnavailableRows('Game session summary', 'AppGameSessionReport for games', gateRows);
+    if (!games && !gameRow) {
+      return activityUnavailableRows('Games read model', 'ActivityGamesReadModelReported', gateRows);
     }
     return [
       ...gateRows,
       {
         label: 'Current game',
-        value: activityStateValue(gameSession?.displayName ?? gameReport?.mostRecentDisplayName),
+        value: activityStateValue(gameRow?.displayName),
         tone: 'cyan',
       },
       {
-        label: 'Classification',
-        value: activityStateValue(gameSession?.classificationState ?? gameReport?.mostRecentClassificationState),
+        label: 'Read model state',
+        value: activityStateValue(gameRow?.state ?? games?.state),
         tone: 'gold',
       },
       {
-        label: 'Running time',
-        value: activityFormatDurationMs(gameSession?.runningDurationMs ?? gameReport?.mostRecentRunningDurationMs),
+        label: 'Total time',
+        value: activityFormatDurationMs(gameRow?.totalMs),
         tone: 'purple',
       },
       {
-        label: 'Foreground time',
-        value: activityFormatDurationMs(
-          gameSession?.foregroundDurationMs ?? gameReport?.mostRecentForegroundDurationMs
-        ),
+        label: 'Sessions',
+        value: activityStateValue(gameRow?.sessionCount),
         tone: 'cyan',
       },
       {
-        label: 'Catalog',
-        value: activityStateValue(gameSession?.catalogReadyState ?? gameReport?.catalogReadyState),
+        label: 'Summary',
+        value: activityStateValue(games?.summary),
         tone: 'gold',
       },
-      { label: 'Launcher', value: activityStateValue(gameSession?.launcherRef), tone: 'purple' },
       {
         label: 'Evidence refs',
-        value: activityEvidenceCount(gameSession?.evidence ?? gameReport?.mostRecentEvidenceCount),
+        value: activityEvidenceCount(gameRow?.evidence),
         tone: 'cyan',
       },
     ];
   }
 
   if (tab === 'network') {
-    if (!networkRow && !network) {
-      return activityUnavailableRows('Network flow read model', 'NetworkFlowReadModel', gateRows);
+    if (!networkRow && !network && !networkFlow) {
+      return activityUnavailableRows('Network activity read model', 'ActivityNetworkReadModelReported', gateRows);
     }
-    const endpoint = networkRow?.destinationDomain ?? activityEndpointLabel(networkRow?.destinationEndpoint);
+    const endpoint =
+      networkRow?.destinationLabel ??
+      networkRow?.destinationDomain ??
+      activityEndpointLabel(networkRow?.destinationEndpoint);
     const counters = activityRecord(networkRow?.counters);
     return [
       ...gateRows,
       { label: 'Destination', value: activityStateValue(endpoint), tone: 'purple' },
       { label: 'Process', value: activityStateValue(networkRow?.processName), tone: 'cyan' },
-      { label: 'Protocol', value: activityStateValue(networkRow?.protocol), tone: 'gold' },
-      { label: 'TCP state', value: activityStateValue(networkRow?.tcpState), tone: 'purple' },
-      { label: 'Connections', value: activityStateValue(counters?.connectionCount), tone: 'gold' },
+      { label: 'Read model state', value: activityStateValue(networkRow?.state ?? network?.state), tone: 'gold' },
+      {
+        label: 'Connections',
+        value: activityStateValue(networkRow?.connectionCount ?? counters?.connectionCount),
+        tone: 'gold',
+      },
+      { label: 'Total bytes', value: activityFormatBytes(networkRow?.totalBytes), tone: 'cyan' },
       { label: 'Received', value: activityFormatBytes(counters?.bytesReceived), tone: 'cyan' },
       { label: 'Sent', value: activityFormatBytes(counters?.bytesSent), tone: 'gold' },
-      { label: 'Custody', value: activityStateValue(network?.custody), tone: 'purple' },
+      { label: 'Summary', value: activityStateValue(network?.summary ?? networkFlow?.custody), tone: 'purple' },
     ];
   }
 
@@ -4828,69 +4540,6 @@ function activityRowsFromReadModels(
     { label: 'Ingested', value: activityStateValue(ingest?.eventsIngested), tone: 'purple' },
     { label: 'Stored', value: activityStateValue(ingest?.eventsStored), tone: 'cyan' },
   ];
-}
-
-function lanPairingDiscoverySlots(): DeviceSlot[] {
-  const uiCheckDeviceCount = lanPairingUiCheckFakeDeviceCount();
-  if (uiCheckDeviceCount > 0) {
-    return lanPairingUiCheckFakeSlots(uiCheckDeviceCount);
-  }
-
-  return [];
-}
-
-function lanPairingUiCheckFakeDeviceCount(): number {
-  if (typeof window === 'undefined') {
-    return 0;
-  }
-
-  const params = new URLSearchParams(window.location.search);
-  const hashQueryStart = window.location.hash.indexOf('?');
-  if (hashQueryStart >= 0) {
-    const hashParams = new URLSearchParams(window.location.hash.slice(hashQueryStart + 1));
-    for (const [key, value] of hashParams.entries()) {
-      params.set(key, value);
-    }
-  }
-
-  const rawCount = params.get(LAN_PAIRING_UI_CHECK_QUERY_KEY);
-  if (rawCount === null) {
-    return LAN_PAIRING_UI_CHECK_FAKE_DATA_DEFAULT_ENABLED ? LAN_PAIRING_UI_CHECK_FAKE_DATA_DEFAULT_COUNT : 0;
-  }
-
-  const count = rawCount ? Number.parseInt(rawCount, 10) : 0;
-  if (!Number.isFinite(count) || count <= 0) {
-    return 0;
-  }
-
-  return clampValue(count, 0, LAN_PAIRING_UI_CHECK_MAX_DEVICE_COUNT);
-}
-
-function lanPairingUiCheckFakeSlots(count: number): DeviceSlot[] {
-  const platforms = ['windows', 'macos', 'linux', 'android', 'ios', 'router'] as const;
-  const types = ['desktop', 'laptop', 'desktop', 'mobile', 'tablet', 'router'] as const;
-  const statuses = ['connected', 'available', 'offline', 'unsupported'] as const;
-
-  return Array.from({ length: count }, (_, index) => {
-    const slotNumber = index + 1;
-    const platform = platforms[index % platforms.length] ?? 'unknown';
-    const status = statuses[index % statuses.length] ?? 'available';
-    return {
-      value: `ui-check-device-${slotNumber}`,
-      label: `D${String(slotNumber).padStart(3, '0')}`,
-      status,
-      slotIndex: index,
-      device: {
-        id: `ui-check-device-${slotNumber}`,
-        name: `UI check device ${slotNumber}`,
-        ip: `192.168.88.${slotNumber}`,
-        mac: `02:00:5E:${String(slotNumber).padStart(2, '0')}:AA:${String((slotNumber * 7) % 100).padStart(2, '0')}`,
-        platform,
-        type: types[index % types.length] ?? 'unknown',
-        status,
-      },
-    };
-  });
 }
 
 function manageTargetLabel(lane: ManageLaneId, selection: ManageTargetSelection): string {
@@ -10975,6 +10624,7 @@ function ManageControlPanel({
   targetSelection,
   onTargetChange,
   activityState,
+  parentPortalRows,
   onNavigate,
   cfg,
 }: {
@@ -10990,6 +10640,7 @@ function ManageControlPanel({
   targetSelection: ManageTargetSelection;
   onTargetChange?: (selection: ManageTargetSelection) => void;
   activityState?: ParentPortalActivityState | null;
+  parentPortalRows: ParentPortalRow[];
   onNavigate?: (routePath: string) => void;
   cfg: ParentPortalSvgControls;
 }) {
@@ -11067,9 +10718,7 @@ function ManageControlPanel({
   const controlsActive = isPortalLane || isDeviceOpsLane || overrideMode === 'perDevice';
   const isLanPairingPanel = isLanPairingManageTitle(spec.title);
   const isReportsPanel = isReportsManageTitle(spec.title);
-  const uiCheckDeviceCount = lanPairingUiCheckFakeDeviceCount();
-  const uiCheckDeviceSlots = uiCheckDeviceCount > 0 ? lanPairingUiCheckFakeSlots(uiCheckDeviceCount) : [];
-  const lanPairingSlots = uiCheckDeviceSlots.length > 0 ? uiCheckDeviceSlots : lanPairingDiscoverySlots();
+  const lanPairingSlots = useMemo(() => createParentPortalLanPairingUiSlots(parentPortalRows), [parentPortalRows]);
   const lanPairingPortalIds = useMemo(() => [], []);
   const lanPairingPanelPadX = Math.max(18, Math.min(34, Math.round(w * 0.018)));
   const lanPairingPanelPadY = 0;
@@ -11119,11 +10768,14 @@ function ManageControlPanel({
   );
   const lanPairingVisibleRows = lanPairingDetailRows.slice(0, lanPairingDetailVisibleCount);
   const reportPlanSeatLimit = ACTIVITY_REPORT_BASIC_CHILD_DEVICE_SEATS;
-  const activityUiCheckMode =
-    activityReportUiCheckFakeDeviceCount(reportPlanSeatLimit) > 0 || activityUiCheckEvidenceEnabled();
-  const reportScopeValue = targetSelection.scope === 'perDevice' || activityUiCheckMode ? 'device' : 'family';
+  const activityUiIntent = useMemo(
+    () => createParentPortalActivityUiIntent(activityState, reportPlanSeatLimit),
+    [activityState, reportPlanSeatLimit]
+  );
+  const reportScopeValue =
+    targetSelection.scope === 'perDevice' || activityUiIntent.hasServiceBackedDeviceRows ? 'device' : 'family';
   const reportFamilyScope = reportScopeValue !== 'device';
-  const reportSlots = useMemo(() => reportPlanSeatSlots(reportPlanSeatLimit), [reportPlanSeatLimit]);
+  const reportSlots = activityUiIntent.deviceSlots;
   const reportPortalIds = useMemo(
     () => reportSlots.filter((slot) => slot.device).map((slot) => slot.value),
     [reportSlots]
@@ -11132,10 +10784,10 @@ function ManageControlPanel({
   const reportSelectedValue =
     reportScopeValue === 'device'
       ? (reportSelectedSlotValue(reportSlots, targetSelection.device) ??
-        (activityUiCheckMode ? firstReportSelectableSlot?.value : undefined))
+        (activityUiIntent.hasServiceBackedDeviceRows ? firstReportSelectableSlot?.value : undefined))
       : undefined;
   const reportSelectedSlot = reportSlots.find((slot) => slot.value === reportSelectedValue) ?? null;
-  const activityReportFiles = useMemo(() => [], []);
+  const activityReportFiles = activityUiIntent.reportFiles;
   const activityReportSelectedFile =
     activityReportFiles.find((file) => file.id === activityReportSelectedFileId) ?? activityReportFiles[0] ?? null;
   const activityReportViewerReport = activityReportDraft ?? activityReportSelectedFile?.report ?? null;
@@ -13521,6 +13173,7 @@ function ParentPortalDetailPanel({
   activeNavGroupId,
   detail,
   rows,
+  parentPortalRows,
   selectedControlName,
   themeTone,
   themeColor,
@@ -13544,6 +13197,7 @@ function ParentPortalDetailPanel({
   activeNavGroupId: string;
   detail: TabDetail;
   rows: DisplayRow[];
+  parentPortalRows: ParentPortalRow[];
   selectedControlName: string;
   themeTone?: Tone;
   themeColor?: string;
@@ -13599,6 +13253,7 @@ function ParentPortalDetailPanel({
         }
         onTargetChange={onManageTargetChange}
         activityState={activityState}
+        parentPortalRows={parentPortalRows}
         onNavigate={onNavigate}
         cfg={cfg}
       />
@@ -15279,6 +14934,7 @@ function MainBoard({
   activeNavGroupId,
   activeTab,
   rows,
+  parentPortalRows,
   tabs,
   tabDetails,
   controlAreas,
@@ -15312,6 +14968,7 @@ function MainBoard({
   activeNavGroupId: string;
   activeTab: ParentPortalTabId;
   rows: DisplayRow[];
+  parentPortalRows: ParentPortalRow[];
   tabs: ParentPortalContentData['tabs'];
   tabDetails: ParentPortalContentData['tabDetails'];
   controlAreas: ControlArea[];
@@ -16069,6 +15726,7 @@ function MainBoard({
                 activeNavGroupId={activeNavGroupId}
                 detail={detail}
                 rows={tableRows}
+                parentPortalRows={parentPortalRows}
                 selectedControlName={selectedControlName}
                 themeTone={manageThemeTone}
                 themeColor={activeGroupThemeColor}
@@ -16804,6 +16462,7 @@ export function ParentPortalSvgSurface({
             activeNavGroupId={activeNavGroupId}
             activeTab={activeTab}
             rows={rows}
+            parentPortalRows={parentPortalRows}
             tabs={tabs}
             tabDetails={tabDetails}
             controlAreas={controlAreas}

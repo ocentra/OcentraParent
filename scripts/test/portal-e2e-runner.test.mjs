@@ -9,8 +9,10 @@ test('portal e2e owns agent and portal cleanup outside Playwright webServer', ()
 
   assert.equal(portalManifest.scripts['test:e2e'], 'node ../../scripts/test/portal-playwright-runner.mjs');
   assert.equal(configSource.includes('webServer'), false);
+  assert.equal(configSource.includes('OCENTRA_PARENT_PORTAL_PORT'), true);
   assert.equal(runnerSource.includes('stopProcessTree'), true);
   assert.equal(runnerSource.includes('SIGKILL'), true);
+  assert.equal(runnerSource.includes('resolveParentDevPort'), true);
 });
 
 test('portal local smoke waits for process shutdown before temp cleanup', () => {
@@ -22,4 +24,5 @@ test('portal local smoke waits for process shutdown before temp cleanup', () => 
   assert.notEqual(removeIndex, -1);
   assert.equal(stopIndex < removeIndex, true);
   assert.equal(smokeSource.includes('stopProcessTreeAndWait'), true);
+  assert.equal(smokeSource.includes('resolveParentDevPort'), true);
 });

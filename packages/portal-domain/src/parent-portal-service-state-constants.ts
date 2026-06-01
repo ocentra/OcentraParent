@@ -20,11 +20,21 @@ export const PARENT_PORTAL_SERVICE_STATE = {
   },
   Area: {
     Service: 'Service',
+    Runtime: 'Runtime',
+    Lan: 'LAN',
+    CurrentDevice: 'Current device',
+    Browser: 'Browser',
+    Activity: 'Activity',
+    Network: 'Network',
   },
   Trend: {
     NotReported: 'not-reported',
     Offline: 'offline',
     Reported: 'reported',
+    Unavailable: 'unavailable',
+    ManualRequired: 'manual-required',
+    PermissionRequired: 'permission-required',
+    ScaffoldOnly: 'scaffold-only',
   },
 } as const;
 
