@@ -13,6 +13,10 @@
       "import": "./dist/activity-surface.js",
       "types": "./dist/activity-surface.d.ts"
     },
+    "./activity-family-aggregation": {
+      "import": "./dist/activity-family-aggregation.js",
+      "types": "./dist/activity-family-aggregation.d.ts"
+    },
     "./contracts": {
       "import": "./dist/contracts.js",
       "types": "./dist/contracts.d.ts"

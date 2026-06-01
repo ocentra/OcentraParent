@@ -2,6 +2,7 @@ use std::{
     env,
     fs::{remove_dir_all, remove_file, write},
     path::PathBuf,
+    sync::atomic::{AtomicU64, Ordering},
     time::{SystemTime, UNIX_EPOCH},
 };
 
@@ -14,6 +15,8 @@ use ocentra_parent_agent_protocol::{
 };
 
 use crate::activity_surface_report_store::{history_list_from_dir, save_report_document_to_dir};
+
+static TEMP_REPORT_DIR_COUNTER: AtomicU64 = AtomicU64::new(0);
 
 #[test]
 fn activity_report_store_keeps_family_and_device_reports_separate() {
@@ -273,6 +276,12 @@ impl TempReportDir {
         directory_name.push_str(constants::activity_surface::REPORT_STORAGE_DIR);
         directory_name.push(constants::delimiter::HYPHEN);
         directory_name.push_str(&nanos_now().to_string());
+        directory_name.push(constants::delimiter::HYPHEN);
+        directory_name.push_str(
+            &TEMP_REPORT_DIR_COUNTER
+                .fetch_add(1, Ordering::Relaxed)
+                .to_string(),
+        );
         path.push(directory_name);
         Self { path }
     }
