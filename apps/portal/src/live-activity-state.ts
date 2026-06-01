@@ -27,10 +27,12 @@ import type {
 } from '@ocentra-parent/activity-domain/activity-surface';
 import {
   ActivitySurfaceReadModelKindName,
+  parseActivityServiceUiSpineEvents,
   parseActivityReadModelEvent,
   parseActivityReportDocumentEvent,
   parseActivityReportHistoryEvent,
   type ActivitySurfaceAdapterResult,
+  type ActivityServiceUiSpine,
   type ActivitySurfaceReadModelKind,
 } from '@ocentra-parent/agent-protocol-domain/activity-surface-adapter';
 import {
@@ -56,6 +58,7 @@ type ActivitySurfaceReadModel =
   | ActivityNetworkReadModel;
 
 export interface PortalLiveActivityState {
+  readonly activityServiceUiSpine: ActivityServiceUiSpine;
   readonly ingestEvent: AgentEventEnvelope | null;
   readonly ingestStatus: ActivityIngestStatus | null;
   readonly recentSummaryEvent: AgentEventEnvelope | null;
@@ -106,6 +109,7 @@ export function resolveLiveActivityState(events: readonly AgentEventEnvelope[]):
   const policyPreviewEvent = latestEvent(events, AgentEvent.PolicyPreviewReadModelReported);
 
   return {
+    activityServiceUiSpine: parseActivityServiceUiSpineEvents(events),
     ingestEvent,
     ingestStatus: ingestEvent === null ? null : parseIngestStatus(ingestEvent.payload),
     recentSummaryEvent,
@@ -159,15 +163,26 @@ export function resolveLiveActivityState(events: readonly AgentEventEnvelope[]):
 }
 
 function latestEvent(events: readonly AgentEventEnvelope[], eventName: AgentEventName): AgentEventEnvelope | null {
-  return events.find((event) => event.event === eventName) ?? null;
+  for (let index = events.length - 1; index >= 0; index -= 1) {
+    const event = events[index];
+    if (event !== undefined && event.event === eventName) {
+      return event;
+    }
+  }
+  return null;
 }
 
 function latestActivityReportEvent(events: readonly AgentEventEnvelope[]): AgentEventEnvelope | null {
-  return (
-    events.find(
-      (event) => event.event === AgentEvent.ActivityReportSaved || event.event === AgentEvent.ActivityReportGenerated
-    ) ?? null
-  );
+  for (let index = events.length - 1; index >= 0; index -= 1) {
+    const event = events[index];
+    if (
+      event !== undefined &&
+      (event.event === AgentEvent.ActivityReportSaved || event.event === AgentEvent.ActivityReportGenerated)
+    ) {
+      return event;
+    }
+  }
+  return null;
 }
 
 function parseNullableActivityReportEvent(

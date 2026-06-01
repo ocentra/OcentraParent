@@ -14,6 +14,7 @@ import {
   parseActivityReadModelEvent,
   parseActivityReportDocumentEvent,
   parseActivityReportHistoryEvent,
+  parseActivityServiceUiSpineEvents,
 } from '../src/activity-surface-adapter';
 import { AgentEvent, AgentProtocolDefaults } from '../src/contracts';
 
@@ -67,6 +68,54 @@ const Report = {
       summary: 'Activity data is available from the local query store.',
       itemCount: 1,
       evidence: [],
+    },
+  ],
+} as const;
+
+const FamilyReport = {
+  ...Report,
+  reportId: 'activity-report-family-local-20260527T201000Z',
+  scope: {
+    scopeKind: 'family',
+    familyId: 'family-local',
+    deviceId: null,
+  },
+  sourceStates: [
+    {
+      deviceId: 'local-dev-agent',
+      reachabilityState: 'reachable',
+      state: 'ready',
+      reason: null,
+      lastUpdatedAt: '2026-05-27T20:09:00Z',
+    },
+    {
+      deviceId: 'child-device-offline',
+      reachabilityState: 'offline',
+      state: 'offline',
+      reason: 'Child source is offline for this report.',
+      lastUpdatedAt: null,
+    },
+  ],
+} as const;
+
+const LatestFamilyReport = {
+  ...FamilyReport,
+  reportId: 'activity-report-family-local-latest-20260527T201500Z',
+  generatedAt: '2026-05-27T20:15:01Z',
+  sourceStates: [
+    {
+      deviceId: 'local-dev-agent',
+      reachabilityState: 'reachable',
+      state: 'ready',
+      reason: null,
+      lastUpdatedAt: '2026-05-27T20:14:00Z',
+    },
+    {
+      deviceId: 'child-device-latest-offline',
+      reachabilityState: 'offline',
+      state: 'offline',
+      reason: 'Latest child source is offline for this report.',
+      lastUpdatedAt: null,
     },
   ],
 } as const;
@@ -126,6 +175,7 @@ describe('activity surface adapter boundary', () => {
   specifyCommandCreation();
   specifyStorageUnavailableHistoryParsing();
   specifyEventParsing();
+  specifyServiceUiSpineParsing();
 });
 
 function specifyAdapterManifest() {
@@ -324,6 +374,72 @@ function specifyEventParsing() {
   });
 }
 
+function specifyServiceUiSpineParsing() {
+  it('builds a C-consumable service UI spine from service-owned browser and family events', () => {
+    const spine = parseActivityServiceUiSpineEvents([
+      eventEnvelope(AgentEvent.ActivityBrowserReadModelReported, {
+        [AgentProtocolDefaults.Field.ActivitySurfaceState]: 'ready',
+        [AgentProtocolDefaults.Field.ActivityReadModelKind]: 'browser',
+        [AgentProtocolDefaults.Field.Returned]: 1,
+        [AgentProtocolDefaults.Field.ActivityReadModel]: JSON.stringify(browserReadModel()),
+      }),
+      eventEnvelope(AgentEvent.ActivityReportGenerated, {
+        [AgentProtocolDefaults.Field.ActivitySurfaceState]: 'ready',
+        [AgentProtocolDefaults.Field.ActivityReportDocument]: JSON.stringify(FamilyReport),
+      }),
+    ]);
+
+    expect(spine.dataOwner).toBe('rust-service-read-model');
+    expect(spine.uiConsumer).toBe('c-owned-activity-ui');
+    expect(spine.viteDataOwner).toBe(false);
+    expect(spine.currentState).toBe('ready');
+    expect(spine.browser?.ok).toBe(true);
+    expect(spine.browser?.ok ? spine.browser.value.rows[0]?.domainLabel : null).toBe('example.test');
+    expect(spine.familyAggregation?.ok).toBe(true);
+    expect(spine.familyAggregation?.ok ? spine.familyAggregation.value.offlineDeviceIds : null).toEqual([
+      'child-device-offline',
+    ]);
+  });
+
+  it('reports unavailable spine state when no service events have arrived', () => {
+    const spine = parseActivityServiceUiSpineEvents([]);
+
+    expect(spine.currentState).toBe('unavailable');
+    expect(spine.browser).toBe(null);
+    expect(spine.familyAggregation).toBe(null);
+  });
+
+  it('uses the latest matching service events for the portal-facing UI spine', () => {
+    const spine = parseActivityServiceUiSpineEvents([
+      eventEnvelope(AgentEvent.ActivityBrowserReadModelReported, {
+        [AgentProtocolDefaults.Field.ActivitySurfaceState]: 'ready',
+        [AgentProtocolDefaults.Field.ActivityReadModelKind]: 'browser',
+        [AgentProtocolDefaults.Field.Returned]: 1,
+        [AgentProtocolDefaults.Field.ActivityReadModel]: JSON.stringify(browserReadModel('earlier.example')),
+      }),
+      eventEnvelope(AgentEvent.ActivityReportGenerated, {
+        [AgentProtocolDefaults.Field.ActivitySurfaceState]: 'ready',
+        [AgentProtocolDefaults.Field.ActivityReportDocument]: JSON.stringify(FamilyReport),
+      }),
+      eventEnvelope(AgentEvent.ActivityBrowserReadModelReported, {
+        [AgentProtocolDefaults.Field.ActivitySurfaceState]: 'ready',
+        [AgentProtocolDefaults.Field.ActivityReadModelKind]: 'browser',
+        [AgentProtocolDefaults.Field.Returned]: 1,
+        [AgentProtocolDefaults.Field.ActivityReadModel]: JSON.stringify(browserReadModel('latest.example')),
+      }),
+      eventEnvelope(AgentEvent.ActivityReportSaved, {
+        [AgentProtocolDefaults.Field.ActivitySurfaceState]: 'ready',
+        [AgentProtocolDefaults.Field.ActivityReportDocument]: JSON.stringify(LatestFamilyReport),
+      }),
+    ]);
+
+    expect(spine.browser?.ok ? spine.browser.value.rows[0]?.domainLabel : null).toBe('latest.example');
+    expect(spine.familyAggregation?.ok ? spine.familyAggregation.value.offlineDeviceIds : null).toEqual([
+      'child-device-latest-offline',
+    ]);
+  });
+}
+
 function specifyStorageUnavailableHistoryParsing() {
   it('parses storage-unavailable report history without promoting it to ready', () => {
     const parsed = parseActivityReportHistoryEvent(
@@ -337,6 +453,27 @@ function specifyStorageUnavailableHistoryParsing() {
     expect(parsed.ok ? parsed.value.storageState : null).toBe('storage-unavailable');
     expect(parsed.ok ? parsed.value.reports.length : null).toBe(0);
   });
+}
+
+function browserReadModel(domainLabel = 'example.test') {
+  return {
+    schemaVersion: ActivitySurfaceSchemaVersion,
+    request: Request,
+    state: 'ready',
+    generatedAt: '2026-05-27T20:10:01Z',
+    summary: 'Activity data is available from the local query store.',
+    rows: [
+      {
+        rowId: 'browser-evidence-row-1',
+        domainLabel,
+        deviceId: 'local-dev-agent',
+        state: 'ready',
+        visitCount: 1,
+        totalMs: 0,
+        evidenceDigest: null,
+      },
+    ],
+  } as const;
 }
 
 function commandInput() {
