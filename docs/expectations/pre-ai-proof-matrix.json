@@ -48,7 +48,8 @@
     "parent-mobile-shell-runtime-proof",
     "v0-9-mobile-controller-discovery-runtime-proof",
     "v0-9-mobile-controller-observer-runtime-proof",
-    "v0-9-household-discovery-mobile-controller-product-proof"
+    "v0-9-household-discovery-mobile-controller-product-proof",
+    "child-android-device-proof-artifact-gate"
   ],
   "checkpointScenarios": [
     {
@@ -1368,6 +1369,47 @@
         "A package-local status label presented as UsageStats grant or observed usage events.",
         "A missing manifest declaration presented as AccessibilityService, VPN/DNS, device-owner, or managed-profile behavior.",
         "Debug APK build and checksum presented as enrollment, physical-device behavior, or child-agent parity."
+      ]
+    },
+    {
+      "id": "child-android-device-proof-artifact-gate",
+      "title": "Child Android Device Proof Artifact Gate",
+      "claimIds": ["child-android-device-proof-artifact-gate"],
+      "expectationFiles": [
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/platforms.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "proofMode": "manual-required",
+      "realEvidencePath": [
+        "Build TypeScript contracts from the current commit.",
+        "Run the parent-domain Child Android device proof artifact gate contract test.",
+        "Run the existing child Android lifecycle, storage, service, permission, and privileged proof scripts and parse their proof outputs.",
+        "Verify the Android debug APK, checksum, package-local status bundle source, and proof matrix wiring.",
+        "Verify the parent-visible add-device/pairing readiness entry stays manual-required and is not remote-control proof.",
+        "Record every emulator or physical-device requirement as manual-required, unavailable, blocked, not implemented, or planned until real artifacts exist."
+      ],
+      "ciCommands": ["node scripts/test/child-android-device-proof-artifact-gate.mjs"],
+      "requiredArtifacts": [
+        "test-results/child-android-device-proof-artifact-gate/proof.json",
+        "test-results/child-android-protocol-package-lifecycle-proof/proof.json",
+        "test-results/child-android-storage-protocol-capability-proof/proof.json",
+        "test-results/child-android-service-protocol-capability-proof/proof.json",
+        "test-results/child-android-permission-capability-proof/proof.json",
+        "test-results/child-android-privileged-capability-proof/proof.json",
+        "target/release-packages/android/ocentra-parent-agent-android-debug-latest.apk",
+        "target/release-packages/android/ocentra-parent-agent-android-debug-latest.apk.sha256"
+      ],
+      "knownGaps": [
+        "CI proof composes package-local child Android proof outputs but does not install or run the APK on a device.",
+        "Runtime permission grants, foreground/background behavior, UsageStats observation, AccessibilityService behavior, VPN/DNS filtering, device-owner enrollment, managed-profile enrollment, Play Store signing, and external transport remain manual-required or unproven."
+      ],
+      "notProof": [
+        "A debug APK and checksum presented as emulator or physical-device readiness.",
+        "Package-local Bundle constants presented as LAN/WebSocket child-agent transport.",
+        "Manifest declarations or status labels presented as runtime permission grants.",
+        "A parent-visible add-device/pairing entry presented as remote-control, remote desktop, or child-agent parity proof.",
+        "UsageStats, accessibility, VPN/DNS, device-owner, managed-profile, signing, or enforcement parity claims without real artifacts."
       ]
     },
     {
@@ -3714,6 +3756,95 @@
         "Record VpnService/DNS adapter declaration, user grant, and filtering behavior before upgrading VPN/DNS support.",
         "Record device-owner or managed-profile enrollment artifacts before upgrading policy states.",
         "Record child-agent parity and external transport artifacts before claiming remote child privileged control."
+      ]
+    },
+    {
+      "id": "child-android-device-proof-artifact-gate",
+      "roadmapSlice": "Child Android device proof artifact gate",
+      "expectationFiles": [
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/platforms.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "claim": "Child Android device proof artifact gate composes the existing child Android package, storage, service, permission, and privileged proof outputs into a typed parent-domain readiness gate for parent-visible add-device/pairing flows while separating CI/package artifacts from emulator or physical-device evidence requirements.",
+      "privilegedCapability": false,
+      "ciProof": {
+        "commands": ["node scripts/test/child-android-device-proof-artifact-gate.mjs"],
+        "jobs": ["Worker D Child Android device proof artifact gate"]
+      },
+      "platformCoverage": {
+        "windows": "not-applicable",
+        "linux": "not-applicable",
+        "macos": "not-applicable",
+        "android": "manual-required",
+        "ios": "not-applicable"
+      },
+      "runtimeSurfaceCoverage": {
+        "sourceProofComposition": {
+          "state": "ci-mechanical-proof",
+          "proof": "The gate reads proof outputs from the lifecycle, storage, service, permission, and privileged child Android proof scripts."
+        },
+        "packageArtifacts": {
+          "state": "ci-mechanical-proof",
+          "proof": "The Android debug APK and SHA-256 checksum are CI/package artifacts only."
+        },
+        "packageLocalStatusBundles": {
+          "state": "package-local-scaffold",
+          "proof": "Native status bundle source artifacts are present, but they are not external child-agent transport or device behavior."
+        },
+        "addDevicePairingReadiness": {
+          "state": "manual-required",
+          "proof": "The parent-visible add-device/pairing readiness entry exists, but it remains manual-required until emulator or physical-device artifacts exist and is not remote-control proof."
+        },
+        "emulatorOrPhysicalDevice": {
+          "state": "manual-required",
+          "proof": "APK install, runtime foreground service behavior, notification grant, UsageStats observation, and physical-device behavior require emulator or device artifacts."
+        },
+        "usageStats": {
+          "state": "manual-required",
+          "proof": "UsageStats still requires a settings grant and observed usage artifact before support is claimed."
+        },
+        "accessibility": {
+          "state": "not-yet-proven",
+          "proof": "No AccessibilityService declaration, user grant, or behavior artifact is collected."
+        },
+        "vpnDns": {
+          "state": "not-yet-proven",
+          "proof": "No VPN service, DNS adapter, user grant, or filtering behavior artifact is collected."
+        },
+        "deviceOwner": {
+          "state": "manual-required",
+          "proof": "No device-owner enrollment or policy action artifact is collected."
+        },
+        "managedProfile": {
+          "state": "manual-required",
+          "proof": "No managed-profile enrollment or behavior artifact is collected."
+        },
+        "playStoreSigning": {
+          "state": "not-yet-proven",
+          "proof": "Play Store signing and release-track artifacts remain planned and uncollected."
+        },
+        "externalChildAgentTransport": {
+          "state": "not-yet-proven",
+          "proof": "No LAN/WebSocket Android child-agent runtime transport artifact is collected."
+        },
+        "childAndroidEnforcementParity": {
+          "state": "not-yet-proven",
+          "proof": "The gate does not claim Android child enforcement parity."
+        }
+      },
+      "knownGaps": [
+        "The gate does not install or run the APK on an emulator or physical Android device.",
+        "Notification grant, UsageStats settings grant and observation, AccessibilityService behavior, VPN/DNS behavior, device-owner enrollment, managed-profile enrollment, Play Store signing, and external child-agent transport remain manual-required, unavailable, blocked, not implemented, or planned.",
+        "The add-device/pairing readiness entry is parent-visible only as manual-required and does not prove remote-control or remote desktop behavior.",
+        "The gate does not prove Android child enforcement parity or real privileged behavior."
+      ],
+      "manualProofChecklist": [
+        "Archive test-results/child-android-device-proof-artifact-gate/proof.json with the commit SHA.",
+        "Install the APK on an emulator or physical device and capture package manager output before upgrading device readiness.",
+        "Record foreground service runtime and notification permission grant evidence before upgrading runtime states.",
+        "Record UsageStats settings grant and observed usage events before upgrading UsageStats support.",
+        "Record AccessibilityService, VPN/DNS, device-owner, managed-profile, Play Store signing, and external transport artifacts before claiming those capabilities."
       ]
     },
     {

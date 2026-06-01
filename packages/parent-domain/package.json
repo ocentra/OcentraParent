@@ -49,6 +49,10 @@
       "import": "./dist/child-android-privileged-capability-proof.js",
       "types": "./dist/child-android-privileged-capability-proof.d.ts"
     },
+    "./child-android-device-proof-artifact-gate": {
+      "import": "./dist/child-android-device-proof-artifact-gate.js",
+      "types": "./dist/child-android-device-proof-artifact-gate.d.ts"
+    },
     "./child-ios-entitlement-capability-proof": {
       "import": "./dist/child-ios-entitlement-capability-proof.js",
       "types": "./dist/child-ios-entitlement-capability-proof.d.ts"
