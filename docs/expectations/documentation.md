@@ -2,8 +2,22 @@
 
 Docs must change when the product claim changes.
 
+Documentation is part of the product contract. Product-facing docs explain why a
+parent would choose Ocentra. Expectation docs define what must be true. Module
+READMEs explain where the work belongs. Checkpoints record proof; they do not
+replace the constitution, roadmap, or capability checklist.
+
 ## Update Docs When Changing
 
+- Root README user-facing positioning.
+- [Product constitution](../product-constitution.md) when product truths or
+  status language change.
+- [Product capability checklist](../product-capability-checklist.md) when a
+  feature moves status, gains proof, or gets a new gap.
+- [Feature list](../feature-list.md) and its per-feature docs when a feature
+  changes status, scope, competitor gap, roadmap placement, or checklist.
+- [Competitor capability map](../competitor-capability-map.md) when parity
+  requirements or competitor baselines change.
 - Roadmap status.
 - Architecture boundaries.
 - Public intents or contracts.
@@ -13,6 +27,38 @@ Docs must change when the product claim changes.
 - Security/privacy posture.
 - Validation gates.
 - Parent-visible behavior.
+- Module README ownership and gap notes when an app, package, crate, or platform
+  area changes responsibility.
+
+## Required Structure
+
+Every feature-facing documentation update should leave these files consistent:
+
+- `README.md`: user-facing product promise plus honest repo status links.
+- `docs/product-constitution.md`: product truths, status vocabulary, claim gate.
+- `docs/product-roadmap.md`: milestone order and acceptance links.
+- `docs/product-capability-checklist.md`: current status, proof, and next gap.
+- `docs/feature-list.md` and `docs/features/*.md`: per-feature expectations,
+  competitor pressure, gaps, and checklists.
+- `docs/feature-expectations.md`: expectation index.
+- relevant `docs/expectations/*.md`: acceptance contract.
+- relevant module README: ownership, flow, gaps, and connected docs.
+
+## AI Agent Reading Rule
+
+Agents should read docs by task, not by folder:
+
+1. Start with `docs/feature-list.md`.
+2. Open the one owning `docs/features/*.md` file.
+3. Open only the linked expectation docs that apply to the task.
+4. Open the relevant milestone section of `docs/product-roadmap.md` only when
+   milestone scope or status may change.
+5. Open the relevant `docs/product-capability-checklist.md` rows before and
+   after status/proof/gap changes.
+6. Open module READMEs only for touched modules.
+
+Do not bulk-read all feature docs, expectation docs, or checkpoint records.
+Checkpoints are proof records, not routing docs.
 
 ## Docs Should Not
 
@@ -20,7 +66,13 @@ Docs must change when the product claim changes.
 - Hide uncertainty.
 - Use marketing wording where a technical limitation matters.
 - Duplicate contract truth when a domain package owns the real schema.
+- Let historical checkpoint wording override current roadmap/checklist status.
+- Treat a scaffold, package preview, or UI shell as product completion.
+- Say "done" without naming platform scope and proof.
 
 ## Done Signal
 
-The docs make it clear what is implemented, what is scaffold-only, what remains intentionally out of scope, and which expectation files apply to the feature.
+The docs make it clear what is implemented, what is scaffold-only, what remains
+intentionally out of scope, what is a tracked gap, which expectation files apply,
+which module owns the behavior, and what proof is required before the product
+claim can be called done.

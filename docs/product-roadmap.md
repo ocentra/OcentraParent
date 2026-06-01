@@ -1,8 +1,29 @@
 # Ocentra Parent Product Roadmap
 
-This roadmap describes the product we are building, the order we intend to build it in, and the acceptance bar for each stage. It is intentionally product-facing and implementation-facing: every milestone should produce a real vertical slice, not a fake demo.
+This roadmap describes the product we are building, the order we intend to build
+it in, and the acceptance bar for each stage. It is intentionally
+product-facing and implementation-facing: every milestone should produce a real
+vertical slice, not a fake demo.
 
-Per-feature acceptance expectations live in [`feature-expectations.md`](feature-expectations.md). Each milestone below links to the expectation files that define what the feature must prove without over-prescribing how it must be implemented. Runtime claims also follow the [real evidence proof expectations](expectations/real-evidence-proof.md) and the [pre-AI proof matrix](expectations/pre-ai-proof-matrix.json).
+Read this roadmap with:
+
+- [Product Constitution](product-constitution.md) for product truth, allowed
+  claims, and status vocabulary.
+- [Product Capability Checklist](product-capability-checklist.md) for the fast
+  feature-by-feature done/in-progress/gap view.
+- [Feature List](feature-list.md) for per-feature docs with expectation,
+  competitor, gap, and checklist detail.
+- [Competitor Capability Map](competitor-capability-map.md) for parity gaps
+  against Google, Apple, Microsoft, Bark, Qustodio, and other serious parental
+  control products.
+- [`feature-expectations.md`](feature-expectations.md) for the expectation files
+  each milestone must satisfy.
+
+Roadmap text may describe the intended product. A product capability is not
+claimed as done unless the checklist, expectation docs, proof record, and module
+README agree on the status. Runtime claims also follow the
+[real evidence proof expectations](expectations/real-evidence-proof.md) and the
+[pre-AI proof matrix](expectations/pre-ai-proof-matrix.json).
 
 ## Product Goal
 
@@ -34,6 +55,32 @@ on the child device, parent device, LAN, or a parent-configured storage provider
 Ocentra-hosted services are for downloads, account/subscription, entitlement,
 update metadata, minimal notification routing, authenticated relay, and optional
 stateless compile/report operations that do not retain child activity data.
+
+## Product Parity Requirements
+
+The roadmap must cover every capability a serious parent would reasonably expect
+after comparing Ocentra with Google Family Link, Apple Screen Time, Microsoft
+Family Safety, Bark, Qustodio, Norton Family, Net Nanny, Canopy, Kidslox,
+FamilyTime, and FamiSafe.
+
+The current parity gap map is
+[Competitor Capability Map](competitor-capability-map.md). The fast product
+status table is
+[Product Capability Checklist](product-capability-checklist.md).
+
+The competitor pass adds these explicit roadmap requirements:
+
+- Family setup, child profiles, co-parent/observer roles, recovery, and route
+  status must be treated as product foundation, not portal polish.
+- Social and video controls must be first-class policy/evidence targets, not
+  vague "AI will understand it" claims.
+- Location, geofence, battery/SOS/check-in, and stale/unavailable state must be
+  either built or explicitly rejected before consumer positioning.
+- Install and purchase approvals must have a platform-specific answer.
+- Tamper/uninstall protection must have honest integrity status and alerting,
+  without stealth or privilege-escalation behavior.
+- Remote away-from-home access must preserve local-first custody while still
+  being useful for real parents.
 
 ## Current Position
 
@@ -817,6 +864,7 @@ Expectation links:
 - [Evidence storage expectations](expectations/evidence-storage.md)
 - [Capture feature expectations](expectations/capture.md)
 - [Portal feature expectations](expectations/portal.md)
+- [Family setup expectations](expectations/family-setup.md)
 - [Policy feature expectations](expectations/policy.md)
 - [Release and installer expectations](expectations/release-installer.md)
 - [Platform expectations](expectations/platforms.md)
@@ -826,6 +874,7 @@ Deliverables:
 
 - Windows MSI install/uninstall.
 - Headless service autostart.
+- Single-household local setup, child profile, and device role status.
 - Local portal.
 - Process/window capture.
 - Network/domain observation.
@@ -982,8 +1031,13 @@ Expectation links:
 - [V5 milestone expectations](expectations/roadmap-v5-parent-policy-product.md)
 - [Policy feature expectations](expectations/policy.md)
 - [Portal feature expectations](expectations/portal.md)
+- [Family setup expectations](expectations/family-setup.md)
 - [Sync and export expectations](expectations/sync-export.md)
 - [Billing and subscription expectations](expectations/billing.md)
+- [Social and video control expectations](expectations/social-video-control.md)
+- [Location and geofence expectations](expectations/location-geofence.md)
+- [App install and purchase approval expectations](expectations/app-install-purchase-approval.md)
+- [Tamper and uninstall protection expectations](expectations/tamper-uninstall-protection.md)
 
 Deliverables:
 
@@ -991,11 +1045,15 @@ Deliverables:
 - Family setup.
 - Child profiles.
 - App/site/category rules.
+- Social app, video URL/channel, and platform-category rules.
 - Time budgets.
 - Permission requests.
+- App install and purchase approval model where platforms allow it.
 - Schedules.
+- Location/geofence settings where platforms allow them.
 - Reports.
 - Audit history.
+- Agent integrity, stale, permission-loss, and uninstall/tamper status.
 - Source/custody indicators for local, LAN, parent-owned storage, and
   Ocentra-hosted non-activity metadata.
 
@@ -1020,6 +1078,8 @@ Expectation links:
 - [Evidence storage expectations](expectations/evidence-storage.md)
 - [Release and installer expectations](expectations/release-installer.md)
 - [Platform deliverables expectations](expectations/platform-deliverables.md)
+- [Location and geofence expectations](expectations/location-geofence.md)
+- [Tamper and uninstall protection expectations](expectations/tamper-uninstall-protection.md)
 
 Deliverables:
 
@@ -1027,6 +1087,8 @@ Deliverables:
 - iOS capability investigation and approved APIs.
 - Shared Rust/domain core where practical.
 - Platform-specific capture/enforcement adapters.
+- Platform-specific location, notification, integrity, and permission-state
+  adapters.
 - Mobile packaging and store-readiness docs.
 
 Acceptance:

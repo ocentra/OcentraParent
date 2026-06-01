@@ -7,6 +7,9 @@ target/
 package-lock.json
 *.wxs
 
+# Generated raw review inventories should remain byte-for-byte stable.
+docs/*-settings-inventory.md
+
 # Native platform build outputs
 platforms/android/**/.gradle/
 platforms/android/**/.kotlin/
