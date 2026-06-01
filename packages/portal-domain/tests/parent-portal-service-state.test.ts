@@ -52,13 +52,40 @@ describe('portal service-backed parent portal state', () => {
       label: 'LAN discovery',
       readyCount: 0,
       gapCount: 1,
-      trend: 'not-reported',
+      primaryArea: 'LAN',
+      trend: 'manual-required',
     });
     expect(state.parentPortalRows[3]).toMatchObject({
       label: 'Browser activity',
       readyCount: 0,
       gapCount: 1,
-      trend: 'not-reported',
+      primaryArea: 'Browser',
+      trend: 'unavailable',
+    });
+  });
+
+  it('surfaces degraded Activity and network adapter states from service events', () => {
+    const state = resolveParentPortalServiceState({
+      connectionState: PARENT_PORTAL_SERVICE_STATE.Connection.Connected,
+      events: [
+        payloadEvent(AgentEvent.ActivityBrowserReadModelReported, {
+          [AgentProtocolDefaults.Field.ActivitySurfaceState]: 'permission-required',
+        }),
+        payloadEvent(AgentEvent.ActivityNetworkReadModelReported, {
+          [AgentProtocolDefaults.Field.ActivitySurfaceState]: 'unavailable',
+        }),
+      ],
+    });
+
+    expect(state.parentPortalRows[4]).toMatchObject({
+      label: 'Activity reports',
+      primaryArea: 'Activity',
+      trend: 'permission-required',
+    });
+    expect(state.parentPortalRows[5]).toMatchObject({
+      label: 'Network tracking',
+      primaryArea: 'Network',
+      trend: 'unavailable',
     });
   });
 });

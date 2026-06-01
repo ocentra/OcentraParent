@@ -17,14 +17,23 @@ import {
   createPortalCommandsUrl,
   isLikelyParentAgentOccupant,
   isLikelyParentPortalOccupant,
+  resolveParentDevPort,
 } from '../dev/local-dev-config.mjs';
 import { ensurePortFree } from '../dev/port-utils.mjs';
 import { resolveDebugAgentServicePath, spawnVitePortal, stopProcessTree } from './agent-service-process.mjs';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const portalRoot = path.join(repoRoot, 'apps', 'portal');
-const agentPort = ParentDevPort.PortalSmokeAgent;
-const portalPort = ParentDevPort.PortalSmokePortal;
+const agentPort = resolveParentDevPort(
+  process.env[ParentDevEnv.AgentPort],
+  ParentDevPort.PortalSmokeAgent,
+  ParentDevEnv.AgentPort
+);
+const portalPort = resolveParentDevPort(
+  process.env[ParentDevEnv.PortalPort],
+  ParentDevPort.PortalSmokePortal,
+  ParentDevEnv.PortalPort
+);
 const devLogDir = await mkdtemp(path.join(tmpdir(), 'ocentra-parent-e2e-log-'));
 const children = [];
 

@@ -82,6 +82,13 @@ describe('portal Activity surface adapter state', () => {
     expectAdapterState(state.activityBrowserReadModel, 'permission-required');
     expectAdapterState(state.activityGamesReadModel, 'scaffold-only');
     expectAdapterState(state.activityNetworkReadModel, 'unavailable');
+    expect(state.activityServiceUiSpine.dataOwner).toBe('rust-service-read-model');
+    expect(state.activityServiceUiSpine.uiConsumer).toBe('c-owned-activity-ui');
+    expect(state.activityServiceUiSpine.viteDataOwner).toBe(false);
+    expect(state.activityServiceUiSpine.screen?.ok).toBe(true);
+    expect(state.activityServiceUiSpine.appUse?.state).toBe('empty');
+    expect(state.activityServiceUiSpine.browser?.state).toBe('permission-required');
+    expect(state.activityServiceUiSpine.network?.state).toBe('unavailable');
   });
 
   it('keeps malformed adapter payloads visible as typed parser failures', () => {

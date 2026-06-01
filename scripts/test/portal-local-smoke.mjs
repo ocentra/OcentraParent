@@ -21,6 +21,7 @@ import {
   createPortalCommandsUrl,
   isLikelyParentAgentOccupant,
   isLikelyParentPortalOccupant,
+  resolveParentDevPort,
 } from '../dev/local-dev-config.mjs';
 import { ensurePortFree } from '../dev/port-utils.mjs';
 import {
@@ -30,8 +31,16 @@ import {
   stopProcessTreeAndWait,
 } from './agent-service-process.mjs';
 
-const agentPort = ParentDevPort.PortalSmokeAgent;
-const portalPort = ParentDevPort.PortalSmokePortal;
+const agentPort = resolveParentDevPort(
+  process.env[ParentDevEnv.AgentPort],
+  ParentDevPort.PortalSmokeAgent,
+  ParentDevEnv.AgentPort
+);
+const portalPort = resolveParentDevPort(
+  process.env[ParentDevEnv.PortalPort],
+  ParentDevPort.PortalSmokePortal,
+  ParentDevEnv.PortalPort
+);
 const devLogDir = await mkdtemp(join(tmpdir(), 'ocentra-parent-portal-log-'));
 
 await ensurePortFree(agentPort, isLikelyParentAgentOccupant, console.log);

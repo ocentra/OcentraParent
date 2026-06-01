@@ -273,7 +273,10 @@ async function assertActivityReportSurface(page: Page, surface: ReturnType<Page[
   await expect(surface.locator('text').filter({ hasText: 'Frequency' }).first()).toBeVisible();
   await expect(surface.locator('text').filter({ hasText: 'Report viewer' }).first()).toBeVisible();
   await expect(surface.locator('text').filter({ hasText: 'SELECTED REPORT' }).first()).toBeVisible();
-  await expect(surface.locator('text').filter({ hasText: 'No saved activity reports reported' }).first()).toBeVisible();
+  await expect(page.getByRole('button', { name: /^Open activity-report-.+\.json$/ })).toBeVisible();
+  await expect(
+    surface.locator('text').filter({ hasText: 'Activity data is available from the local query store.' }).first()
+  ).toBeVisible();
   await expect(page.getByRole('button', { name: 'Generate Daily activity report' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Save generated activity report' })).toBeVisible();
   await expect(surface.locator('text').filter({ hasText: 'Daily' }).first()).toBeVisible();
