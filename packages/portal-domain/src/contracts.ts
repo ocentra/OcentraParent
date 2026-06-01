@@ -77,6 +77,11 @@ export {
   type ParentPortalTone,
 } from './parent-portal-data';
 export {
+  PARENT_PORTAL_SERVICE_STATE,
+  resolveParentPortalServiceState,
+  type ParentPortalServiceState,
+} from './parent-portal-service-state';
+export {
   PARENT_PORTAL_NAV_LABELS,
   type ParentPortalHashRoutePath,
   type ParentPortalNavGroup,

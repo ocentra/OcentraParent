@@ -11,6 +11,10 @@ export const PortalOverviewCommands = [
     payload: {},
   },
   {
+    command: AgentCommand.LanPairingStatusGet,
+    payload: {},
+  },
+  {
     command: AgentCommand.ActivityIngestStatusGet,
     payload: {},
   },
@@ -23,7 +27,35 @@ export const PortalOverviewCommands = [
     payload: {},
   },
   {
+    command: AgentCommand.BrowserManagedBridgePoll,
+    payload: {},
+  },
+  {
     command: AgentCommand.ActivityMemoryGraphGet,
+    payload: {},
+  },
+  {
+    command: AgentCommand.ActivityReportHistoryList,
+    payload: {},
+  },
+  {
+    command: AgentCommand.ActivityScreenReadModelGet,
+    payload: {},
+  },
+  {
+    command: AgentCommand.ActivityAppUseReadModelGet,
+    payload: {},
+  },
+  {
+    command: AgentCommand.ActivityBrowserReadModelGet,
+    payload: {},
+  },
+  {
+    command: AgentCommand.ActivityGamesReadModelGet,
+    payload: {},
+  },
+  {
+    command: AgentCommand.ActivityNetworkReadModelGet,
     payload: {},
   },
   {
