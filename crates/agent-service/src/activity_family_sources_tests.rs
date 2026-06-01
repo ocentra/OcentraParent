@@ -129,6 +129,41 @@ async fn activity_family_report_preserves_reachable_offline_stale_and_error_sour
     assert_eq!(report.sections[2].state, ActivityReadModelState::Ready);
 }
 
+#[tokio::test]
+async fn activity_family_report_without_query_store_keeps_family_fanout_unavailable_source() {
+    let report = report_document(family_report_request(), None, Vec::new());
+
+    assert_eq!(report.source_states.len(), 2);
+    assert_eq!(
+        report.source_states[0].device_id,
+        constants::activity_surface::DEFAULT_DEVICE_ID
+    );
+    assert_eq!(
+        report.source_states[0].reachability_state,
+        ActivityReportSourceReachabilityState::Unreachable
+    );
+    assert_eq!(
+        report.source_states[0].state,
+        ActivityReadModelState::Unavailable
+    );
+    assert_eq!(
+        report.source_states[1].device_id,
+        constants::activity_surface::FAMILY_FANOUT_SOURCE_ID
+    );
+    assert_eq!(
+        report.source_states[1].reachability_state,
+        ActivityReportSourceReachabilityState::Unreachable
+    );
+    assert_eq!(
+        report.source_states[1].state,
+        ActivityReadModelState::Unavailable
+    );
+    assert_eq!(
+        report.sections[0].state,
+        ActivityReadModelState::Unavailable
+    );
+}
+
 fn command_with_sources(sources: Vec<ActivityReportSourceState>) -> AgentCommandEnvelope {
     let encoded_sources =
         serde_json::to_string(&sources).expect(constants::error::AGENT_EVENT_SERIALIZES);
