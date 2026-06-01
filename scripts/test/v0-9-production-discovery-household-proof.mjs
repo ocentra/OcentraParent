@@ -38,6 +38,7 @@ const sensitiveEvidenceMarkers = [
 ];
 
 await main();
+process.exit(0);
 
 async function main() {
   await mkdir(outputDir, { recursive: true });

@@ -14,6 +14,7 @@ import {
 } from './parent-mobile-runtime';
 import { ParentTimestampSchema } from './reference-primitives';
 import {
+  type V09MobileControllerObserverOperation,
   V09MobileControllerObserverOperationSchema,
   V09MobileControllerObserverOperationStateSchema,
 } from './v0-9-mobile-controller-observer-runtime';
@@ -107,10 +108,35 @@ export const V09HouseholdDiscoveryMobileRouteEvidenceSchema = withParser(
 
 export const V09HouseholdDiscoveryMobileControllerOperationEvidenceSchema = withParser(
   Schema.Struct({
+    platform: ParentMobilePlatformSchema,
     operation: V09MobileControllerObserverOperationSchema,
     operationState: V09MobileControllerObserverOperationStateSchema,
     rejectionReason: Schema.Union(LanPairingRejectionReasonSchema, Schema.Null),
     proofState: V09RuntimeProofStateSchema,
+    proofLabel: V09HouseholdDiscoveryMobileControllerProofLabelSchema,
+  })
+);
+
+export const V09HouseholdDiscoveryMobileControllerSelectedTrustedDeviceEvidenceSchema = withParser(
+  Schema.Struct({
+    storageState: V09RuntimeProofStateSchema,
+    securityState: V09RuntimeProofStateSchema,
+    selectedRouteRecoveryLabels: Schema.Array(V09HouseholdDiscoveryMobileControllerProofLabelSchema),
+    trustedRegistryLabels: Schema.Array(V09HouseholdDiscoveryMobileControllerProofLabelSchema),
+    selectedRouteTrustLabels: Schema.Array(V09HouseholdDiscoveryMobileControllerProofLabelSchema),
+    selectedDeviceRejectionLabels: Schema.Array(V09HouseholdDiscoveryMobileControllerProofLabelSchema),
+    wrongDeviceRejectionLabel: V09HouseholdDiscoveryMobileControllerProofLabelSchema,
+    proofLabel: V09HouseholdDiscoveryMobileControllerProofLabelSchema,
+  })
+);
+
+export const V09HouseholdDiscoveryMobileControllerAuditProofCustodySchema = withParser(
+  Schema.Struct({
+    proofState: V09RuntimeProofStateSchema,
+    physicalDeviceProofState: V09RuntimeProofStateSchema,
+    routeAuditLabels: Schema.Array(V09HouseholdDiscoveryMobileControllerProofLabelSchema),
+    observerAuditLabels: Schema.Array(V09HouseholdDiscoveryMobileControllerProofLabelSchema),
+    manualBoundaryLabels: Schema.Array(V09HouseholdDiscoveryMobileControllerClaimBoundarySchema),
     proofLabel: V09HouseholdDiscoveryMobileControllerProofLabelSchema,
   })
 );
@@ -144,6 +170,8 @@ const V09HouseholdDiscoveryMobileControllerProductProofReadModelBaseSchema = Sch
   mobileRoutes: Schema.Array(V09HouseholdDiscoveryMobileRouteEvidenceSchema),
   observerOperations: Schema.Array(V09HouseholdDiscoveryMobileControllerOperationEvidenceSchema),
   controllerTransitions: Schema.Array(V09HouseholdDiscoveryMobileControllerTransitionEvidenceSchema),
+  selectedTrustedDeviceEvidence: V09HouseholdDiscoveryMobileControllerSelectedTrustedDeviceEvidenceSchema,
+  auditProofCustody: V09HouseholdDiscoveryMobileControllerAuditProofCustodySchema,
   manualProofBoundary: V09HouseholdDiscoveryMobileControllerManualBoundarySchema,
   claimsProved: Schema.Array(V09HouseholdDiscoveryMobileControllerProofLabelSchema),
   claimsNotProved: Schema.Array(V09HouseholdDiscoveryMobileControllerClaimBoundarySchema),
@@ -193,6 +221,38 @@ const RequiredRouteChecks = [
   'unavailable-route-rejected',
 ] as const satisfies ReadonlyArray<V09HouseholdDiscoveryMobileControllerRouteCheck>;
 
+const ExpectedRouteRejections: ReadonlyMap<
+  V09HouseholdDiscoveryMobileControllerRouteCheck,
+  Infer<typeof LanPairingRejectionReasonSchema> | null
+> = new Map([
+  ['paired-route-accepted', null],
+  ['failed-unpaired-rejected', 'anonymous'],
+  ['wrong-origin-rejected', 'wrong-origin'],
+  ['wrong-device-rejected', 'wrong-device'],
+  ['replay-rejected', 'replayed'],
+  ['revoked-pairing-rejected', 'revoked'],
+  ['stale-source-rejected', 'stale'],
+  ['offline-device-rejected', 'offline'],
+  ['unavailable-route-rejected', 'unsupported-route'],
+]);
+
+const RequiredObserverOperations = [
+  'observe-status',
+  'preview-policy-draft',
+  'refresh-capabilities',
+  'request-controller-takeover',
+  'release-controller-lease',
+  'submit-lan-ai-job',
+  'write-policy',
+  'approve-override',
+  'pair-device',
+  'revoke-device',
+] as const satisfies ReadonlyArray<V09MobileControllerObserverOperation>;
+
+const RequiredObserverPlatforms = ['android', 'ios'] as const satisfies ReadonlyArray<
+  Infer<typeof ParentMobilePlatformSchema>
+>;
+
 function householdDiscoveryMobileControllerProofIsHonest(
   readModel: V09HouseholdDiscoveryMobileControllerProductProofReadModelCandidate
 ): boolean {
@@ -203,6 +263,8 @@ function householdDiscoveryMobileControllerProofIsHonest(
     mobileRoutesAreHonest(readModel.mobileRoutes) &&
     observerOperationsAreHonest(readModel.observerOperations) &&
     controllerTransitionsAreComplete(readModel.controllerTransitions) &&
+    selectedTrustedDeviceEvidenceIsHonest(readModel.selectedTrustedDeviceEvidence) &&
+    auditProofCustodyIsHonest(readModel.auditProofCustody, readModel.routeChecks, readModel.observerOperations) &&
     manualBoundaryIsHonest(readModel.manualProofBoundary)
   );
 }
@@ -225,14 +287,17 @@ function routeChecksAreComplete(
   routeChecks: ReadonlyArray<V09HouseholdDiscoveryMobileControllerRouteEvidence>
 ): boolean {
   const byCheck = new Map(routeChecks.map((entry) => [entry.check, entry] as const));
-  return (
-    RequiredRouteChecks.every((check) => byCheck.has(check)) &&
-    byCheck.get('paired-route-accepted')?.rejectionReason === null &&
-    byCheck.get('failed-unpaired-rejected')?.rejectionReason === 'anonymous' &&
-    byCheck.get('wrong-origin-rejected')?.rejectionReason === 'wrong-origin' &&
-    byCheck.get('wrong-device-rejected')?.rejectionReason === 'wrong-device' &&
-    byCheck.get('replay-rejected')?.rejectionReason === 'replayed'
-  );
+  return RequiredRouteChecks.every((check) => routeCheckHasExpectedRejection(byCheck, check));
+}
+
+function routeCheckHasExpectedRejection(
+  routeChecks: ReadonlyMap<
+    V09HouseholdDiscoveryMobileControllerRouteCheck,
+    V09HouseholdDiscoveryMobileControllerRouteEvidence
+  >,
+  check: V09HouseholdDiscoveryMobileControllerRouteCheck
+): boolean {
+  return routeChecks.get(check)?.rejectionReason === ExpectedRouteRejections.get(check);
 }
 
 function mobileRoutesAreHonest(routes: ReadonlyArray<V09HouseholdDiscoveryMobileRouteEvidence>): boolean {
@@ -247,13 +312,43 @@ function mobileRoutesAreHonest(routes: ReadonlyArray<V09HouseholdDiscoveryMobile
 function observerOperationsAreHonest(
   operations: ReadonlyArray<V09HouseholdDiscoveryMobileControllerOperationEvidence>
 ): boolean {
-  const byOperation = new Map(operations.map((operation) => [operation.operation, operation] as const));
+  return RequiredObserverPlatforms.every((platform) => observerPlatformOperationsAreHonest(operations, platform));
+}
+
+function observerPlatformOperationsAreHonest(
+  operations: ReadonlyArray<V09HouseholdDiscoveryMobileControllerOperationEvidence>,
+  platform: V09HouseholdDiscoveryMobileControllerOperationEvidence['platform']
+): boolean {
+  const platformOperations = operations.filter((operation) => operation.platform === platform);
+  const byOperation = new Map(platformOperations.map((operation) => [operation.operation, operation] as const));
+  return RequiredObserverOperations.every((operation) => operationIsHonest(byOperation.get(operation), operation));
+}
+
+function operationIsHonest(
+  operation: V09HouseholdDiscoveryMobileControllerOperationEvidence | undefined,
+  operationName: V09MobileControllerObserverOperation
+): boolean {
+  if (operation === undefined) {
+    return false;
+  }
+  if (['observe-status', 'preview-policy-draft', 'refresh-capabilities'].includes(operationName)) {
+    return operation.operationState === 'allowed-read-only' && operation.rejectionReason === null;
+  }
+  if (['write-policy', 'approve-override', 'pair-device', 'revoke-device'].includes(operationName)) {
+    return (
+      operation.operationState === 'rejected-observer-read-only' && operation.rejectionReason === 'observer-read-only'
+    );
+  }
+  if (operationName === 'request-controller-takeover') {
+    return (
+      operation.operationState === 'manual-required-mobile-package' && operation.rejectionReason === 'takeover-denied'
+    );
+  }
+  if (operationName === 'release-controller-lease') {
+    return operation.operationState === 'proved-local-service' && operation.rejectionReason === null;
+  }
   return (
-    byOperation.get('observe-status')?.operationState === 'allowed-read-only' &&
-    byOperation.get('request-controller-takeover')?.operationState === 'manual-required-mobile-package' &&
-    byOperation.get('write-policy')?.operationState === 'rejected-observer-read-only' &&
-    byOperation.get('pair-device')?.operationState === 'rejected-observer-read-only' &&
-    byOperation.get('revoke-device')?.operationState === 'rejected-observer-read-only'
+    operation.operationState === 'degraded-provider' && operation.rejectionReason === 'lan-ai-provider-unavailable'
   );
 }
 
@@ -263,6 +358,34 @@ function controllerTransitionsAreComplete(
   const covered = new Set(transitions.map((transition) => transition.transition));
   return ['takeover', 'release', 'renew', 'degraded-provider', 'failed-unpaired'].every((transition) =>
     covered.has(transition as V09HouseholdDiscoveryMobileControllerTransitionEvidence['transition'])
+  );
+}
+
+function selectedTrustedDeviceEvidenceIsHonest(
+  evidence: V09HouseholdDiscoveryMobileControllerSelectedTrustedDeviceEvidence
+): boolean {
+  return (
+    evidence.storageState === 'ci-mechanical-proof' &&
+    evidence.securityState === 'ci-mechanical-proof' &&
+    evidence.selectedRouteRecoveryLabels.length >= 2 &&
+    evidence.trustedRegistryLabels.length >= 2 &&
+    evidence.selectedRouteTrustLabels.length >= 3 &&
+    evidence.selectedDeviceRejectionLabels.length >= 8 &&
+    evidence.wrongDeviceRejectionLabel.includes('wrong-device')
+  );
+}
+
+function auditProofCustodyIsHonest(
+  custody: V09HouseholdDiscoveryMobileControllerAuditProofCustody,
+  routeChecks: ReadonlyArray<V09HouseholdDiscoveryMobileControllerRouteEvidence>,
+  operations: ReadonlyArray<V09HouseholdDiscoveryMobileControllerOperationEvidence>
+): boolean {
+  return (
+    custody.proofState === 'ci-mechanical-proof' &&
+    custody.physicalDeviceProofState === 'manual-required' &&
+    custody.routeAuditLabels.length >= routeChecks.length &&
+    custody.observerAuditLabels.length >= operations.length &&
+    custody.manualBoundaryLabels.length >= 5
   );
 }
 
@@ -295,6 +418,12 @@ export type V09HouseholdDiscoveryMobileControllerRouteEvidence = Infer<
 export type V09HouseholdDiscoveryMobileRouteEvidence = Infer<typeof V09HouseholdDiscoveryMobileRouteEvidenceSchema>;
 export type V09HouseholdDiscoveryMobileControllerOperationEvidence = Infer<
   typeof V09HouseholdDiscoveryMobileControllerOperationEvidenceSchema
+>;
+export type V09HouseholdDiscoveryMobileControllerSelectedTrustedDeviceEvidence = Infer<
+  typeof V09HouseholdDiscoveryMobileControllerSelectedTrustedDeviceEvidenceSchema
+>;
+export type V09HouseholdDiscoveryMobileControllerAuditProofCustody = Infer<
+  typeof V09HouseholdDiscoveryMobileControllerAuditProofCustodySchema
 >;
 export type V09HouseholdDiscoveryMobileControllerTransitionEvidence = Infer<
   typeof V09HouseholdDiscoveryMobileControllerTransitionEvidenceSchema

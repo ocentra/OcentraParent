@@ -43,11 +43,30 @@ const readModel = {
     ),
   ],
   observerOperations: [
-    operation('observe-status', 'allowed-read-only', null, 'ci-mechanical-proof'),
-    operation('request-controller-takeover', 'manual-required-mobile-package', 'takeover-denied', 'manual-required'),
-    operation('write-policy', 'rejected-observer-read-only', 'observer-read-only', 'ci-mechanical-proof'),
-    operation('pair-device', 'rejected-observer-read-only', 'observer-read-only', 'ci-mechanical-proof'),
-    operation('revoke-device', 'rejected-observer-read-only', 'observer-read-only', 'ci-mechanical-proof'),
+    ...['android', 'ios'].flatMap((platform) => [
+      operation(platform, 'observe-status', 'allowed-read-only', null, 'ci-mechanical-proof'),
+      operation(platform, 'preview-policy-draft', 'allowed-read-only', null, 'ci-mechanical-proof'),
+      operation(platform, 'refresh-capabilities', 'allowed-read-only', null, 'ci-mechanical-proof'),
+      operation(
+        platform,
+        'request-controller-takeover',
+        'manual-required-mobile-package',
+        'takeover-denied',
+        'manual-required'
+      ),
+      operation(platform, 'release-controller-lease', 'proved-local-service', null, 'ci-mechanical-proof'),
+      operation(platform, 'submit-lan-ai-job', 'degraded-provider', 'lan-ai-provider-unavailable', 'degraded'),
+      operation(platform, 'write-policy', 'rejected-observer-read-only', 'observer-read-only', 'ci-mechanical-proof'),
+      operation(
+        platform,
+        'approve-override',
+        'rejected-observer-read-only',
+        'observer-read-only',
+        'ci-mechanical-proof'
+      ),
+      operation(platform, 'pair-device', 'rejected-observer-read-only', 'observer-read-only', 'ci-mechanical-proof'),
+      operation(platform, 'revoke-device', 'rejected-observer-read-only', 'observer-read-only', 'ci-mechanical-proof'),
+    ]),
   ],
   controllerTransitions: [
     transition('takeover', 'manual-required-mobile-package', 'takeover-denied'),
@@ -56,6 +75,69 @@ const readModel = {
     transition('degraded-provider', 'degraded', 'lan-ai-provider-unavailable'),
     transition('failed-unpaired', 'rejected', 'anonymous'),
   ],
+  selectedTrustedDeviceEvidence: {
+    storageState: 'ci-mechanical-proof',
+    securityState: 'ci-mechanical-proof',
+    selectedRouteRecoveryLabels: [
+      'second-child-agent:restart-restores-selected-route',
+      'second-child-agent:restart-recovered-approval-accepted',
+    ],
+    trustedRegistryLabels: ['first-child-agent:local-json-registry', 'second-child-agent:local-json-registry'],
+    selectedRouteTrustLabels: [
+      'first-child-agent:selected-route-trust-state-paired',
+      'second-child-agent:selected-route-trust-state-paired',
+      'second-child-agent:restart-restores-selected-route-trust-state',
+    ],
+    selectedDeviceRejectionLabels: [
+      'first-child-agent:replay-rejected',
+      'second-child-agent:replay-rejected',
+      'first-child-agent:stale-control-rejected',
+      'second-child-agent:stale-control-rejected',
+      'first-child-agent:missing-controller-lease-rejected',
+      'second-child-agent:missing-controller-lease-rejected',
+      'first-child-agent:route-revoked',
+      'first-child-agent:revoked-control-rejected',
+    ],
+    wrongDeviceRejectionLabel: 'wrong-agent-port-rejected-as-wrong-device',
+    proofLabel: 'trusted-device-selected-device-storage-security-proof',
+  },
+  auditProofCustody: {
+    proofState: 'ci-mechanical-proof',
+    physicalDeviceProofState: 'manual-required',
+    routeAuditLabels: [
+      'paired-route-accepted:ci-mechanical-proof',
+      'failed-unpaired-rejected:ci-mechanical-proof',
+      'wrong-origin-rejected:ci-mechanical-proof',
+      'wrong-device-rejected:ci-mechanical-proof',
+      'replay-rejected:ci-mechanical-proof',
+      'revoked-pairing-rejected:ci-mechanical-proof',
+      'stale-source-rejected:ci-mechanical-proof',
+      'offline-device-rejected:ci-mechanical-proof',
+      'unavailable-route-rejected:unavailable',
+    ],
+    observerAuditLabels: [
+      ...['android', 'ios'].flatMap((platform) => [
+        `${platform}:parent-mobile:observer-status-read-model`,
+        `${platform}:parent-mobile:observer-policy-preview-read-model`,
+        `${platform}:parent-mobile:capability-refresh-read-model`,
+        `${platform}:first-child-agent:controller-lease-takeover-denied`,
+        `${platform}:first-child-agent:controller-lease-released`,
+        `${platform}:parent-mobile-observer-scaffold:controller-job-degraded-with-provider-unavailable`,
+        `${platform}:first-child-agent:observer-policy-write-rejected`,
+        `${platform}:first-child-agent:observer-approval-rejected`,
+        `${platform}:first-child-agent:observer-pair-device-rejected`,
+        `${platform}:first-child-agent:observer-revoke-device-rejected`,
+      ]),
+    ],
+    manualBoundaryLabels: [
+      'two physical household devices on the same LAN',
+      'router or firewall reachability evidence',
+      'allowed-origin artifact from the physical controller',
+      'real Android or iOS package controller takeover artifact',
+      'revocation followed by rejected control artifact',
+    ],
+    proofLabel: 'aggregate-route-observer-audit-proof-custody',
+  },
   manualProofBoundary: {
     physicalHouseholdLan: 'manual-required',
     parentMobileWriteAuthority: 'manual-required',
@@ -82,60 +164,11 @@ describe('V0.9 household discovery mobile controller product proof contracts', (
   it('accepts an aggregate proof that keeps physical household and mobile authority manual-required', () => {
     const parsed = V09HouseholdDiscoveryMobileControllerProductProofReadModelSchema.parse(readModel);
 
-    expect(parsed.sourceProofs.map((proof) => proof.source)).toEqual([
-      'v0-9-production-discovery-household-proof',
-      'v0-9-production-lan-mobile-controller-proof',
-      'v0-9-mobile-controller-discovery-runtime-proof',
-      'v0-9-mobile-controller-observer-runtime-proof',
-      'parent-mobile-controller-observer-handoff-proof',
-    ]);
-    expect(parsed.productionDiscoveryStates).toEqual([
-      'discovered',
-      'pending',
-      'paired',
-      'revoked',
-      'stale',
-      'offline',
-      'unavailable',
-    ]);
-    expect(parsed.mobileRoutes.map((route) => route.commandAuthorityState)).toEqual([
-      'observer-read-only',
-      'controller-takeover-manual-required',
-    ]);
-    expect(parsed.manualProofBoundary.physicalHouseholdLan).toBe('manual-required');
-    expect(parsed.manualProofBoundary.cloudRelayImplementation).toBe('not-implemented');
+    expectAcceptedReadModel(parsed);
   });
 
   it('rejects route, mobile, and cloud relay overclaims', () => {
-    expect(
-      V09HouseholdDiscoveryMobileControllerProductProofReadModelSchema.safeParse({
-        ...readModel,
-        routeChecks: readModel.routeChecks.filter((entry) => entry.check !== 'wrong-origin-rejected'),
-      }).success
-    ).toBe(false);
-    expect(
-      V09HouseholdDiscoveryMobileControllerProductProofReadModelSchema.safeParse({
-        ...readModel,
-        mobileRoutes: readModel.mobileRoutes.map((route) =>
-          route.platform === 'android'
-            ? {
-                ...route,
-                controllerState: 'active-controller',
-                commandAuthorityState: 'active-controller-backend-proof',
-              }
-            : route
-        ),
-      }).success
-    ).toBe(false);
-    expect(
-      V09HouseholdDiscoveryMobileControllerProductProofReadModelSchema.safeParse({
-        ...readModel,
-        manualProofBoundary: {
-          ...readModel.manualProofBoundary,
-          cloudRelayImplementation: 'ci-mechanical-proof',
-        },
-      }).success
-    ).toBe(false);
+    expectRejectedReadModelVariants();
   });
 
   it('keeps source proof and route check vocabularies explicit', () => {
@@ -148,6 +181,92 @@ describe('V0.9 household discovery mobile controller product proof contracts', (
     ).toBe(false);
   });
 });
+
+function expectAcceptedReadModel(
+  parsed: ReturnType<typeof V09HouseholdDiscoveryMobileControllerProductProofReadModelSchema.parse>
+) {
+  expect(parsed.sourceProofs.map((proof) => proof.source)).toEqual([
+    'v0-9-production-discovery-household-proof',
+    'v0-9-production-lan-mobile-controller-proof',
+    'v0-9-mobile-controller-discovery-runtime-proof',
+    'v0-9-mobile-controller-observer-runtime-proof',
+    'parent-mobile-controller-observer-handoff-proof',
+  ]);
+  expect(parsed.productionDiscoveryStates).toEqual([
+    'discovered',
+    'pending',
+    'paired',
+    'revoked',
+    'stale',
+    'offline',
+    'unavailable',
+  ]);
+  expect(parsed.mobileRoutes.map((route) => route.commandAuthorityState)).toEqual([
+    'observer-read-only',
+    'controller-takeover-manual-required',
+  ]);
+  expect(parsed.observerOperations).toHaveLength(20);
+  expect(parsed.selectedTrustedDeviceEvidence.storageState).toBe('ci-mechanical-proof');
+  expect(parsed.auditProofCustody.physicalDeviceProofState).toBe('manual-required');
+  expect(parsed.manualProofBoundary.physicalHouseholdLan).toBe('manual-required');
+  expect(parsed.manualProofBoundary.cloudRelayImplementation).toBe('not-implemented');
+}
+
+function expectRejectedReadModelVariants() {
+  expectRejectedReadModel({
+    ...readModel,
+    routeChecks: readModel.routeChecks.filter((entry) => entry.check !== 'wrong-origin-rejected'),
+  });
+  expectRejectedReadModel({
+    ...readModel,
+    mobileRoutes: readModel.mobileRoutes.map((route) =>
+      route.platform === 'android'
+        ? {
+            ...route,
+            controllerState: 'active-controller',
+            commandAuthorityState: 'active-controller-backend-proof',
+          }
+        : route
+    ),
+  });
+  expectRejectedReadModel({
+    ...readModel,
+    routeChecks: readModel.routeChecks.map((entry) =>
+      entry.check === 'revoked-pairing-rejected' ? { ...entry, rejectionReason: null } : entry
+    ),
+  });
+  expectRejectedReadModel({
+    ...readModel,
+    observerOperations: readModel.observerOperations.filter(
+      (entry) => entry.platform !== 'ios' || entry.operation !== 'submit-lan-ai-job'
+    ),
+  });
+  expectRejectedReadModel({
+    ...readModel,
+    selectedTrustedDeviceEvidence: {
+      ...readModel.selectedTrustedDeviceEvidence,
+      storageState: 'manual-required',
+    },
+  });
+  expectRejectedReadModel({
+    ...readModel,
+    auditProofCustody: {
+      ...readModel.auditProofCustody,
+      physicalDeviceProofState: 'ci-mechanical-proof',
+    },
+  });
+  expectRejectedReadModel({
+    ...readModel,
+    manualProofBoundary: {
+      ...readModel.manualProofBoundary,
+      cloudRelayImplementation: 'ci-mechanical-proof',
+    },
+  });
+}
+
+function expectRejectedReadModel(candidate: unknown) {
+  expect(V09HouseholdDiscoveryMobileControllerProductProofReadModelSchema.safeParse(candidate).success).toBe(false);
+}
 
 function proofInput(source: unknown) {
   return {
@@ -199,8 +318,15 @@ function mobileRoute(
   };
 }
 
-function operation(operationName: unknown, operationState: unknown, rejectionReason: unknown, proofState: unknown) {
+function operation(
+  platform: unknown,
+  operationName: unknown,
+  operationState: unknown,
+  rejectionReason: unknown,
+  proofState: unknown
+) {
   return {
+    platform,
     operation: operationName,
     operationState,
     rejectionReason,
