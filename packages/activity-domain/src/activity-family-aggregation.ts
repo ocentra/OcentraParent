@@ -42,6 +42,8 @@ const ActivityFamilyAggregationModelBaseSchema = Schema.Struct({
   errorDeviceIds: Schema.Array(ActivityDeviceIdSchema),
 });
 
+type ActivityFamilyAggregationModelCandidate = Infer<typeof ActivityFamilyAggregationModelBaseSchema>;
+
 export const ActivityFamilyAggregationModelSchema = withParser(
   ActivityFamilyAggregationModelBaseSchema.pipe(
     Schema.filter(
@@ -53,6 +55,15 @@ export const ActivityFamilyAggregationModelSchema = withParser(
       (model) =>
         model.sourceStateSummary.totalSources === model.sourceStates.length ||
         'Expected Activity family aggregation sourceStateSummary.totalSources to match sourceStates length'
+    ),
+    Schema.filter(
+      (model) =>
+        sourceStateSummaryMatches(model.sourceStateSummary, model.sourceStates) ||
+        'Expected Activity family aggregation sourceStateSummary counts to match sourceStates'
+    ),
+    Schema.filter(
+      (model) =>
+        deviceIdBucketsMatch(model) || 'Expected Activity family aggregation device-id buckets to match sourceStates'
     )
   )
 );
@@ -171,6 +182,37 @@ function summarizeSourceStates(sourceStates: readonly ActivityReportSourceState[
     unreachableSources: countSourcesWithReachability(sourceStates, 'unreachable'),
     errorSources: countSourcesWithReachability(sourceStates, 'error'),
   };
+}
+
+function sourceStateSummaryMatches(
+  sourceStateSummary: ActivityReportSourceStateSummary,
+  sourceStates: readonly ActivityReportSourceState[]
+): boolean {
+  const expected = summarizeSourceStates(sourceStates);
+  return (
+    sourceStateSummary.totalSources === expected.totalSources &&
+    sourceStateSummary.readySources === expected.readySources &&
+    sourceStateSummary.offlineSources === expected.offlineSources &&
+    sourceStateSummary.staleSources === expected.staleSources &&
+    sourceStateSummary.unavailableSources === expected.unavailableSources &&
+    sourceStateSummary.unreachableSources === expected.unreachableSources &&
+    sourceStateSummary.errorSources === expected.errorSources
+  );
+}
+
+function deviceIdBucketsMatch(model: ActivityFamilyAggregationModelCandidate): boolean {
+  return (
+    deviceIdsMatch(model.readyDeviceIds, deviceIdsWithState(model.sourceStates, 'ready')) &&
+    deviceIdsMatch(model.offlineDeviceIds, deviceIdsWithState(model.sourceStates, 'offline')) &&
+    deviceIdsMatch(model.staleDeviceIds, deviceIdsWithState(model.sourceStates, 'stale')) &&
+    deviceIdsMatch(model.unavailableDeviceIds, deviceIdsWithState(model.sourceStates, 'unavailable')) &&
+    deviceIdsMatch(model.unreachableDeviceIds, deviceIdsWithReachability(model.sourceStates, 'unreachable')) &&
+    deviceIdsMatch(model.errorDeviceIds, deviceIdsWithReachability(model.sourceStates, 'error'))
+  );
+}
+
+function deviceIdsMatch(actual: ReadonlyArray<ActivityDeviceId>, expected: ReadonlyArray<ActivityDeviceId>): boolean {
+  return actual.length === expected.length && actual.every((deviceId, index) => deviceId === expected[index]);
 }
 
 function countSourcesWithState(

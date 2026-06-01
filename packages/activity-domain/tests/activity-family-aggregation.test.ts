@@ -144,6 +144,40 @@ function expectAggregationRejected(input: unknown) {
   expect(ActivityFamilyAggregationModelSchema.safeParse(input).success).toBe(false);
 }
 
+function expectStaleReadySourceCountRejected(model: ActivityFamilyAggregationModel) {
+  expectAggregationRejected({
+    ...model,
+    sourceStateSummary: {
+      ...model.sourceStateSummary,
+      readySources: 0,
+    },
+  });
+}
+
+function expectStaleReadyDeviceBucketRejected(model: ActivityFamilyAggregationModel) {
+  expectAggregationRejected({
+    ...model,
+    readyDeviceIds: ['child-device-2'],
+  });
+}
+
+function expectStorageUnavailableFallback(model: ActivityFamilyAggregationModel) {
+  expect(model.state).toBe('unavailable');
+  expect(model.storageState).toBe('storage-unavailable');
+  expect(model.sourceStateSummary.totalSources).toBe(0);
+  expect(model.sourceStates).toEqual([]);
+}
+
+function expectDeviceScopedRecordRejected(model: ActivityFamilyAggregationModel) {
+  expectAggregationRejected({
+    ...model,
+    request: {
+      ...ActivityRequest,
+      scope: DeviceScope,
+    },
+  });
+}
+
 describe('activity family aggregation contracts', () => {
   it('builds a service-owned family aggregation model from saved report history', () => {
     const model = activityFamilyAggregationModelFromHistory(FamilyHistory);
@@ -167,20 +201,11 @@ describe('activity family aggregation contracts', () => {
       reports: [],
     });
 
-    expect(model.state).toBe('unavailable');
-    expect(model.storageState).toBe('storage-unavailable');
-    expect(model.sourceStateSummary.totalSources).toBe(0);
-    expect(model.sourceStates).toEqual([]);
+    expectStorageUnavailableFallback(model);
   });
 
   it('rejects device-scoped records as family aggregation models', () => {
-    expectAggregationRejected({
-      ...activityFamilyAggregationModelFromReport(FamilyReport),
-      request: {
-        ...ActivityRequest,
-        scope: DeviceScope,
-      },
-    });
+    expectDeviceScopedRecordRejected(activityFamilyAggregationModelFromReport(FamilyReport));
   });
 
   it('rejects mismatched source summaries and Vite-owned product data claims', () => {
@@ -198,5 +223,17 @@ describe('activity family aggregation contracts', () => {
       ...model,
       viteDataOwner: true,
     });
+  });
+
+  it('rejects stale source summary counts when totalSources still matches', () => {
+    const model = activityFamilyAggregationModelFromHistory(FamilyHistory);
+
+    expectStaleReadySourceCountRejected(model);
+  });
+
+  it('rejects stale device-id buckets when source counts still match', () => {
+    const model = activityFamilyAggregationModelFromHistory(FamilyHistory);
+
+    expectStaleReadyDeviceBucketRejected(model);
   });
 });
