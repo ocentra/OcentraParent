@@ -86,7 +86,10 @@ export {
   type ParentPortalNavSectionLabel,
 } from './parent-portal-nav';
 export {
+  PARENT_PORTAL_GUIDE_QUERY,
   PARENT_PORTAL_GUIDE_TOPICS,
+  PARENT_PORTAL_POLICY_GUIDE_TAB_PAGES,
+  PARENT_PORTAL_POLICY_GUIDE_TOPIC_IDS,
   type ParentPortalGuideNote,
   type ParentPortalGuidePage,
   type ParentPortalGuideTopic,
@@ -135,6 +138,7 @@ export const PortalConnectionState = {
 export const PortalDom = {
   RootSelector: '#app',
   HashPrefix: '#/',
+  HashQuerySeparator: '?',
   EmptyHashRoute: '',
   Ids: {
     AppLoading: 'app-loading',

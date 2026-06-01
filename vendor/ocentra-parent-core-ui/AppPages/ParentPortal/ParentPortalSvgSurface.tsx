@@ -63,6 +63,9 @@ import { ChatBubbleSvg, estimateChatBubbleHeight } from './ParentPortalChatBubbl
 import { defaultChatBubbleConfig as defaultRulesBubbleConfig, RulesBubbleSvgFrame } from './ParentPortalRulesBubble';
 import {
   PARENT_ASSISTANT_PORTAL_QUICK_ACTIONS,
+  PARENT_PORTAL_GUIDE_QUERY,
+  PARENT_PORTAL_POLICY_GUIDE_TAB_PAGES,
+  PARENT_PORTAL_POLICY_GUIDE_TOPIC_IDS,
   type ParentAssistantPortalQuickActionId,
 } from '@ocentra-parent/portal-domain/contracts';
 import {
@@ -3741,6 +3744,58 @@ function guideRoutePathForManageKey(activeNavLabel: string, selectedControlName:
   )
     return '#/activity';
   return '#/start';
+}
+
+function guideRoutePathForManageTab(activeNavLabel: string, selectedControlName: string, tabId: string): string {
+  const topicId = policyGuideTopicIdForManageKey(activeNavLabel, selectedControlName);
+  if (!topicId) return guideRoutePathForManageKey(activeNavLabel, selectedControlName);
+  const page = policyGuidePageForManageTab(tabId);
+  const query = new URLSearchParams({
+    [PARENT_PORTAL_GUIDE_QUERY.Topic]: topicId,
+    [PARENT_PORTAL_GUIDE_QUERY.Page]: String(page),
+  });
+  return `#/policy?${query.toString()}`;
+}
+
+function policyGuideTopicIdForManageKey(activeNavLabel: string, selectedControlName: string): string | null {
+  const key = `${assetKey(activeNavLabel)} ${assetKey(selectedControlName)}`;
+  if (key.includes('game')) return PARENT_PORTAL_POLICY_GUIDE_TOPIC_IDS.Games;
+  if (key.includes('app')) return PARENT_PORTAL_POLICY_GUIDE_TOPIC_IDS.Apps;
+  if (key.includes('screen') || key.includes('network')) return PARENT_PORTAL_POLICY_GUIDE_TOPIC_IDS.ScreenNetwork;
+  if (key.includes('tracking') || key.includes('location')) return PARENT_PORTAL_POLICY_GUIDE_TOPIC_IDS.Tracking;
+  if (
+    key.includes('browser') ||
+    key.includes('rule') ||
+    key.includes('policy') ||
+    key.includes('schedule') ||
+    key.includes('budget') ||
+    key.includes('approval') ||
+    key.includes('audit') ||
+    key.includes('enforce')
+  ) {
+    return PARENT_PORTAL_POLICY_GUIDE_TOPIC_IDS.Browser;
+  }
+  return null;
+}
+
+function policyGuidePageForManageTab(tabId: string): number {
+  if (tabId === 'schedule') return PARENT_PORTAL_POLICY_GUIDE_TAB_PAGES.Schedule;
+  if (tabId === 'budget') return PARENT_PORTAL_POLICY_GUIDE_TAB_PAGES.Budget;
+  if (tabId === 'approvals') return PARENT_PORTAL_POLICY_GUIDE_TAB_PAGES.Approvals;
+  if (tabId === 'audit') return PARENT_PORTAL_POLICY_GUIDE_TAB_PAGES.Audit;
+  return PARENT_PORTAL_POLICY_GUIDE_TAB_PAGES.Rules;
+}
+
+function guideRouteFocusFromHash(): { topicId: string; page: number } | null {
+  if (typeof window === 'undefined') return null;
+  const hashQueryStart = window.location.hash.indexOf('?');
+  if (hashQueryStart < 0) return null;
+  const params = new URLSearchParams(window.location.hash.slice(hashQueryStart + 1));
+  const topicId = params.get(PARENT_PORTAL_GUIDE_QUERY.Topic);
+  if (!topicId) return null;
+  const rawPage = params.get(PARENT_PORTAL_GUIDE_QUERY.Page);
+  const page = rawPage === null ? 0 : Number.parseInt(rawPage, 10);
+  return { topicId, page: Number.isFinite(page) ? page : 0 };
 }
 
 function manageLaneForKey(activeNavLabel: string, selectedControlName: string): ManageLaneId {
@@ -10246,13 +10301,20 @@ function ManageWorkspacePanel({
           const tabRadius = selected ? 11 : 9;
           const tabIconSize = Math.max(14, Math.min(21, currentTabH - 12));
           const tabTextSize = compact ? 10.4 : 12.4;
-          const tabTextMaxW = tabW - tabIconSize - 25;
+          const showTabGuideInfo = kind === 'policy' && Boolean(onNavigate);
+          const tabInfoR = showTabGuideInfo ? Math.max(6, Math.min(8, currentTabH * 0.24)) : 0;
+          const tabInfoCx = tabX + tabW - 15;
+          const tabInfoCy = tabY + currentTabH / 2;
+          const tabTextMaxW = tabW - tabIconSize - (showTabGuideInfo ? 48 : 25);
           const tabText = truncateTextForWidth(tab.label, tabTextMaxW, tabTextSize, 0.58);
           const tabTextW = Math.min(tabTextMaxW, tabText.length * tabTextSize * 0.58);
           const tabGroupW = tabIconSize + 7 + tabTextW;
-          const tabIconX = tabX + Math.max(8, (tabW - tabGroupW) / 2);
+          const tabIconX = tabX + Math.max(8, ((showTabGuideInfo ? tabW - 26 : tabW) - tabGroupW) / 2);
           const tabIconY = tabY + (currentTabH - tabIconSize) / 2;
           const TabIcon = tab.icon;
+          const tabGuideRoutePath = showTabGuideInfo
+            ? guideRoutePathForManageTab(activeNavLabel, selectedControlName, tab.id)
+            : '';
           return (
             <g
               key={`manage-workspace-tab:${kind}:${tab.id}`}
@@ -10313,6 +10375,46 @@ function ManageWorkspacePanel({
               >
                 {tabText}
               </text>
+              {showTabGuideInfo ? (
+                <g
+                  className="parent-portal-svg-clickable"
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`Open ${policyAreaLabel} ${tab.label} guide`}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    onNavigate?.(tabGuideRoutePath);
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.key !== 'Enter' && event.key !== ' ') return;
+                    event.preventDefault();
+                    event.stopPropagation();
+                    onNavigate?.(tabGuideRoutePath);
+                  }}
+                >
+                  <circle
+                    cx={tabInfoCx}
+                    cy={tabInfoCy}
+                    r={tabInfoR}
+                    fill={selected ? colorAlpha(tabColor, '36') : 'rgba(2, 12, 22, 0.86)'}
+                    stroke={selected ? cfg.colors.bodyText : tabColor}
+                    strokeWidth={selected ? 1.1 : 0.85}
+                    opacity={selected ? 0.95 : 0.76}
+                  />
+                  <text
+                    x={tabInfoCx}
+                    y={tabInfoCy + tabInfoR * 0.42}
+                    textAnchor="middle"
+                    fontSize={Math.max(8, tabInfoR * 1.32)}
+                    fontWeight={950}
+                    fill={selected ? cfg.colors.bodyText : tabColor}
+                    pointerEvents="none"
+                  >
+                    i
+                  </text>
+                </g>
+              ) : null}
             </g>
           );
         })}
@@ -10517,7 +10619,9 @@ function ManageWorkspacePanel({
           disabled={policyChoiceDisabled}
           enforcementChoice={browserRulesEnforcementChoice}
           onEnforcementChange={setBrowserRulesEnforcementChoice}
-          onInfoClick={() => onNavigate?.(guideRoutePathForManageKey(activeNavLabel, selectedControlName))}
+          onInfoClick={() =>
+            onNavigate?.(guideRoutePathForManageTab(activeNavLabel, selectedControlName, activeTabKey))
+          }
         />
       ) : policyMatrixMode ? (
         <BrowserPolicyTabMatrixSurface
@@ -15260,6 +15364,9 @@ function MainBoard({
     guideTopicPool.find((topic) => normalizeSelectionId(topic.id) === normalizeSelectionId(selectedGuideTopicId)) ??
     guideTopicPool[0] ??
     null;
+  const guideRouteFocus = guideMode ? guideRouteFocusFromHash() : null;
+  const guideRouteFocusTopicId = guideRouteFocus?.topicId ?? '';
+  const guideRouteFocusPage = guideRouteFocus?.page ?? 0;
   const guideDashboardMode = guideOverviewMode && !guideDashboardDrilldown;
   useEffect(() => {
     const firstTopic = guideTopicPool[0];
@@ -15276,6 +15383,17 @@ function MainBoard({
     setGuidePage(0);
     setGuideQuickPanelMode('read');
   }, [activeNavKey]);
+  useEffect(() => {
+    if (!guideMode || !guideRouteFocusTopicId) return;
+    const targetTopic = guideTopicPool.find(
+      (topic) => normalizeSelectionId(topic.id) === normalizeSelectionId(guideRouteFocusTopicId)
+    );
+    if (!targetTopic) return;
+    setSelectedGuideTopicId(targetTopic.id);
+    setGuidePage(clampValue(guideRouteFocusPage, 0, Math.max(0, targetTopic.pages.length - 1)));
+    setGuideDashboardDrilldown(true);
+    setGuideQuickPanelMode('read');
+  }, [guideMode, guideRouteFocusPage, guideRouteFocusTopicId, guideTopicPool]);
   useEffect(() => {
     setGuideQuickPanelMode('read');
   }, [selectedGuideTopicId]);
