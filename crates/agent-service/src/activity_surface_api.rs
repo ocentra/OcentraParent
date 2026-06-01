@@ -1,6 +1,6 @@
 use ocentra_parent_agent_protocol::{
-    constants, ActivityReportFrequency, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName,
-    LogLevel,
+    constants, ActivityReportDocument, ActivityReportFrequency, ActivitySavedReportState,
+    AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, LogLevel,
 };
 
 use crate::{
@@ -29,12 +29,13 @@ pub async fn build_activity_monthly_report(command: AgentCommandEnvelope) -> Age
 
 pub async fn build_activity_report_save(command: AgentCommandEnvelope) -> AgentEventEnvelope {
     let report = build_saved_activity_report(&command).await;
+    let level = activity_report_save_log_level(&report);
     build_event(
         constants::event_id::ACTIVITY_REPORT_SAVED,
         &command.message_id,
         command.source,
         AgentEventName::AgentActivityReportSaved,
-        LogLevel::Warn,
+        level,
         activity_report_document_payload(&report),
         None,
     )
@@ -51,6 +52,17 @@ pub async fn build_activity_report_history(command: AgentCommandEnvelope) -> Age
         activity_history_payload(&history),
         None,
     )
+}
+
+fn activity_report_save_log_level(report: &ActivityReportDocument) -> LogLevel {
+    match report
+        .saved_metadata
+        .as_ref()
+        .map(|metadata| metadata.saved_state)
+    {
+        Some(ActivitySavedReportState::Saved) => LogLevel::Info,
+        _ => LogLevel::Warn,
+    }
 }
 
 pub async fn build_activity_screen_read_model(command: AgentCommandEnvelope) -> AgentEventEnvelope {

@@ -25,6 +25,8 @@ use crate::{
     },
 };
 
+mod activity_surface_report_command_tests;
+
 #[tokio::test]
 async fn activity_surface_report_uses_real_activity_store_snapshot() {
     let store_path = temp_store_path();
