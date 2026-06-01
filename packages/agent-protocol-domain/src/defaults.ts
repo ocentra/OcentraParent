@@ -81,6 +81,8 @@ export const AgentProtocolDefaults = {
   },
   LanRuntimeSupportStatus: {
     PlannedUnsupported: AgentLanPairingRuntimeSupportStatusSchema.parse('planned-unsupported'),
+    WebsocketDirect: AgentLanPairingRuntimeSupportStatusSchema.parse('websocket-direct'),
+    NetworkNeighbor: AgentLanPairingRuntimeSupportStatusSchema.parse('network-neighbor'),
   },
   LanIntentKind: {
     HealthQuery: AgentLanPairingIntentKindSchema.parse('health-query'),

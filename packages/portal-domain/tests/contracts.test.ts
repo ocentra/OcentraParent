@@ -99,7 +99,7 @@ function summarizeManageItem(item: ParentPortalNavItem) {
 function expectManageItemOrder(): void {
   expect(manageNavItems().map((item) => item.routePath)).toEqual([
     '#/settings-rules',
-    '#/lan-pairing',
+    '#/devices',
     '#/activity',
     '#/browser-settings',
     '#/policy-apps',
@@ -173,7 +173,7 @@ function expectManageCollapsedSections(): void {
   expectNoManageSectionChildren(PARENT_PORTAL_NAV_LABELS.Account);
   expectManageStandaloneItem(PARENT_PORTAL_NAV_LABELS.Devices, {
     icon: 'lan',
-    routePath: '#/lan-pairing',
+    routePath: '#/devices',
     sectionLabel: undefined,
   });
   expectNoManageSectionChildren(PARENT_PORTAL_NAV_LABELS.Devices);

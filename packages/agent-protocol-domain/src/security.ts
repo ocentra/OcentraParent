@@ -50,7 +50,7 @@ export const AgentLanPairingProductionDiscoveryStateSchema = withParser(
   )
 );
 export const AgentLanPairingRuntimeSupportStatusSchema = withParser(
-  Schema.Literal('planned-unsupported', 'websocket-direct')
+  Schema.Literal('planned-unsupported', 'websocket-direct', 'network-neighbor')
 );
 export const AgentLanAiProviderRoutingStateSchema = withParser(
   Schema.Literal('authorized-result', 'busy', 'degraded', 'unavailable', 'unsupported-capability')
@@ -127,6 +127,28 @@ export const AgentLanPairingDeviceRefSchema = withParser(
     childProfileId: Schema.Union(NonEmptySecurityText, Schema.Null),
     label: NonEmptySecurityText,
     platform: AgentPlatformSchema,
+    ipAddress: Schema.optionalWith(Schema.Union(NonEmptySecurityText, Schema.Null), { default: () => null }),
+    macAddress: Schema.optionalWith(Schema.Union(NonEmptySecurityText, Schema.Null), { default: () => null }),
+    hostname: Schema.optionalWith(Schema.Union(NonEmptySecurityText, Schema.Null), { default: () => null }),
+    networkInterface: Schema.optionalWith(Schema.Union(NonEmptySecurityText, Schema.Null), { default: () => null }),
+    agentStatus: Schema.optionalWith(Schema.Union(NonEmptySecurityText, Schema.Null), { default: () => null }),
+    hardwareProfile: Schema.optionalWith(
+      Schema.Union(
+        Schema.Struct({
+          manufacturer: Schema.optionalWith(Schema.Union(NonEmptySecurityText, Schema.Null), { default: () => null }),
+          model: Schema.optionalWith(Schema.Union(NonEmptySecurityText, Schema.Null), { default: () => null }),
+          cpuModel: Schema.optionalWith(Schema.Union(NonEmptySecurityText, Schema.Null), { default: () => null }),
+          cpuCores: Schema.optionalWith(Schema.Union(NonEmptySecurityText, Schema.Null), { default: () => null }),
+          memoryTotal: Schema.optionalWith(Schema.Union(NonEmptySecurityText, Schema.Null), { default: () => null }),
+          gpuModel: Schema.optionalWith(Schema.Union(NonEmptySecurityText, Schema.Null), { default: () => null }),
+          gpuDriver: Schema.optionalWith(Schema.Union(NonEmptySecurityText, Schema.Null), { default: () => null }),
+          gpuMemory: Schema.optionalWith(Schema.Union(NonEmptySecurityText, Schema.Null), { default: () => null }),
+          nvidiaSmi: Schema.optionalWith(Schema.Union(NonEmptySecurityText, Schema.Null), { default: () => null }),
+        }),
+        Schema.Null
+      ),
+      { default: () => null }
+    ),
   })
 );
 

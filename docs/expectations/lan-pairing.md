@@ -46,6 +46,10 @@ Pairing contracts belong in shared domain packages before runtime code consumes 
 - Pairing proof contract.
 - Trusted device registry.
 - Device identity display.
+- Parent Devices route renders service-backed local-agent identity, host CPU/GPU
+  and memory details, and observed LAN neighbor IP/MAC/interface data without
+  inventing hardware details for devices that have not reported through an
+  agent.
 - Multi-device rule/query/approval routing.
 - Pairing revocation path.
 - Pairing audit events in the local evidence pipeline.
@@ -60,6 +64,8 @@ Pairing contracts belong in shared domain packages before runtime code consumes 
 - Portal can distinguish devices.
 - Tests cover rejected and accepted routes.
 - Parent-visible UI makes the selected device clear.
+- Parent-visible UI distinguishes the local Rust agent from LAN neighbors and
+  shows `Not reported` for CPU/GPU/memory fields that are not agent-backed.
 - The same command sent to the wrong paired device is rejected rather than applied to the currently selected device by accident.
 - Pairing state survives service restart through an explicit local registry or produces a safe unpaired state.
 - Sensitive child activity details are not included in discovery beacons or pairing challenge previews.

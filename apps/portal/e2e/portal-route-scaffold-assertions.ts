@@ -339,7 +339,7 @@ async function assertSidePanelFoldouts(page: Page): Promise<void> {
   await expect(page.getByRole('button', { name: `Open ${PARENT_PORTAL_NAV_LABELS.AppsGames}` })).toHaveCount(0);
   await expect(page.getByRole('button', { name: `Open ${PARENT_PORTAL_NAV_LABELS.Builder}` })).toHaveCount(0);
   await clickSidePanelButton(page, `Open ${PARENT_PORTAL_NAV_LABELS.Devices}`);
-  await expect(page).toHaveURL(/#\/lan-pairing$/);
+  await expect(page).toHaveURL(/#\/devices$/);
   await clickSidePanelButton(page, 'Collapse MANAGE');
   await expect(page.getByRole('button', { name: 'Expand MANAGE' })).toBeVisible();
 }

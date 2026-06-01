@@ -181,7 +181,7 @@ export const PARENT_PORTAL_NAV_ITEMS: readonly ParentPortalNavItem[] = [
     tabId: 'routines',
     groupId: 'manage',
     tone: 'cyan',
-    routePath: '#/lan-pairing',
+    routePath: '#/devices',
   },
   {
     label: PARENT_PORTAL_NAV_LABELS.Activity,
