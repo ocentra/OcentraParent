@@ -16,6 +16,7 @@ public final class OcentraParentAgentService extends Service {
     private Bundle storageProof;
     private Bundle serviceProof;
     private Bundle permissionProof;
+    private Bundle privilegedProof;
 
     @Override
     public void onCreate() {
@@ -24,6 +25,7 @@ public final class OcentraParentAgentService extends Service {
         storageProof = ChildAndroidStorageProtocolProof.createStorageProtocolBundle();
         serviceProof = ChildAndroidServiceProtocolProof.createServiceProtocolBundle();
         permissionProof = ChildAndroidPermissionCapabilityProof.createPermissionCapabilityBundle();
+        privilegedProof = ChildAndroidPrivilegedCapabilityProof.createPrivilegedCapabilityBundle();
         ensureNotificationChannel();
         startForeground(NOTIFICATION_ID, buildNotification());
     }
@@ -34,6 +36,7 @@ public final class OcentraParentAgentService extends Service {
         storageProof = ChildAndroidStorageProtocolProof.createStorageProtocolBundle();
         serviceProof = ChildAndroidServiceProtocolProof.createServiceProtocolBundle();
         permissionProof = ChildAndroidPermissionCapabilityProof.createPermissionCapabilityBundle();
+        privilegedProof = ChildAndroidPrivilegedCapabilityProof.createPrivilegedCapabilityBundle();
         return START_STICKY;
     }
 
@@ -70,7 +73,9 @@ public final class OcentraParentAgentService extends Service {
                 " " +
                 serviceProof.getString(ChildAndroidServiceProtocolProof.FIELD_FOREGROUND_SERVICE_STATUS) +
                 " " +
-                permissionProof.getString(ChildAndroidPermissionCapabilityProof.FIELD_PERMISSION_BRIDGE_STATE)
+                permissionProof.getString(ChildAndroidPermissionCapabilityProof.FIELD_PERMISSION_BRIDGE_STATE) +
+                " " +
+                privilegedProof.getString(ChildAndroidPrivilegedCapabilityProof.FIELD_PRIVILEGED_BRIDGE_STATE)
             )
             .setSmallIcon(android.R.drawable.ic_menu_view)
             .setOngoing(true)

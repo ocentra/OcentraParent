@@ -45,6 +45,10 @@
       "import": "./dist/child-android-permission-capability-proof.js",
       "types": "./dist/child-android-permission-capability-proof.d.ts"
     },
+    "./child-android-privileged-capability-proof": {
+      "import": "./dist/child-android-privileged-capability-proof.js",
+      "types": "./dist/child-android-privileged-capability-proof.d.ts"
+    },
     "./child-ios-entitlement-capability-proof": {
       "import": "./dist/child-ios-entitlement-capability-proof.js",
       "types": "./dist/child-ios-entitlement-capability-proof.d.ts"
