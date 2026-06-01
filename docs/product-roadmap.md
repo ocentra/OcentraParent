@@ -852,7 +852,10 @@ Acceptance:
 Purpose:
 
 Support the parent-away-from-home use case without making Ocentra the family-data
-store.
+store. V2 is the remote capability fabric milestone: remote health, route
+status, rule/query/approval relay, report access, screen visibility, and the
+remote desktop/control horizon all attach to one typed route, session,
+capability, custody, and audit model.
 
 Expectation links:
 
@@ -863,28 +866,44 @@ Expectation links:
 - [LAN pairing expectations](expectations/lan-pairing.md)
 - [Static analysis and security expectations](expectations/static-analysis-security.md)
 
+Architecture references:
+
+- [RustDesk remote capabilities first pass](architecture/rustdesk_remote_capabilities_first_pass.md)
+- [Remote capability fabric V2 plan](architecture/remote-capability-fabric-v2-plan.md)
+
 Deliverables:
 
-- Cloudflare control plane.
+- Remote capability fabric contract foundation.
+- Rust-first rendezvous/relay proof path, with hosted control-plane deployment
+  optional and contract-bound.
 - Authenticated device registry.
+- Device heartbeat and parent-visible route status.
+- Remote route/session/capability read models.
+- Remote access portal surface.
 - Remote rule/query/approval event relay.
 - Parent-owned storage connector contracts.
 - Sync queue for parent-owned storage or local cache.
 - Stateless report compile contract where remote compilation exists.
 - Conflict handling.
-- Device heartbeat.
+- Direct-first and forced-relay proof modes.
+- Remote desktop capability taxonomy, with view-only live screen and remote
+  input/control modeled separately before implementation.
 - `family.ocentra.ca` download/account/subscription/status surface.
 - Packaged parent portal direction, with Tauri as preferred desktop candidate.
 
 Acceptance:
 
 - Parent can see device/account health remotely.
+- Parent can see route, session, capability, custody, and source labels.
 - Parent can view reports from local cache, reachable child agent, or
   parent-owned storage with source/custody clearly labeled.
 - Local-first operation still works if cloud is unavailable.
 - Device rule updates, approval decisions, and visibility requests are authenticated and auditable.
 - Ocentra-hosted infrastructure does not retain child activity evidence or
   generated reports by default.
+- Remote desktop and remote control are represented as explicit staged
+  capability families rather than a separate utility outside the Ocentra
+  contracts.
 
 ### V3 Notifications
 
