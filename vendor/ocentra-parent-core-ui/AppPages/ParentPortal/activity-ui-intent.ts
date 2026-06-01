@@ -1,4 +1,4 @@
-import type { DeviceSlot } from './DeviceChoiceGrid/DeviceChoiceGridTypes';
+import type { DeviceKind, DevicePlatformKind, DeviceSlot } from './DeviceChoiceGrid/DeviceChoiceGridTypes';
 
 type ActivityAdapterResultLike = {
   readonly ok?: unknown;
@@ -22,6 +22,7 @@ export type ParentPortalActivityStateLike = {
   readonly activityBrowserReadModel?: ActivityAdapterResultLike | null;
   readonly activityGamesReadModel?: ActivityAdapterResultLike | null;
   readonly activityNetworkReadModel?: ActivityAdapterResultLike | null;
+  readonly lanAddDeviceReadModel?: Record<string, unknown> | null;
 };
 
 export type ParentPortalActivityReportFile = {
@@ -108,13 +109,31 @@ export function parentPortalActivityAdapterRecord(
 }
 
 export function createParentPortalLanPairingUiSlots(
-  rows: readonly ParentPortalServiceRowLike[]
+  rows: readonly ParentPortalServiceRowLike[],
+  addDeviceReadModel?: Record<string, unknown> | null
 ): readonly DeviceSlot[] {
+  const deviceSlots = addDeviceReadModel ? lanDeviceSlots(addDeviceReadModel) : [];
+  if (deviceSlots.length > 0) {
+    return deviceSlots;
+  }
+
   const deviceRow = serviceRow(rows, 'Current device', 'Device pairing');
   const discoveryRow = serviceRow(rows, 'LAN', 'LAN discovery');
-  if (!deviceRow && !discoveryRow) return [];
-  const state = stringValue(deviceRow?.trend) || stringValue(discoveryRow?.trend) || 'unavailable';
+  const state =
+    stringValue(addDeviceReadModel?.['addDeviceState']) ||
+    stringValue(addDeviceReadModel?.['localServiceDiscoveryState']) ||
+    stringValue(deviceRow?.trend) ||
+    stringValue(discoveryRow?.trend) ||
+    '';
+  if (!deviceRow && !discoveryRow && !state) return [];
   return [lanServiceSlot(state)];
+}
+
+export function createParentPortalLanPairingPortalIds(slots: readonly DeviceSlot[]): readonly string[] {
+  return slots
+    .filter((slot) => slot.device && slot.status === 'connected')
+    .map((slot) => slot.value)
+    .slice(0, 1);
 }
 
 function serviceRow(
@@ -130,14 +149,164 @@ function serviceRow(
 }
 
 function lanServiceSlot(state: string): DeviceSlot {
-  const status = activityDeviceChoiceStatus(state);
+  const status = activityDeviceChoiceStatus(state || 'unavailable');
   return {
     value: 'lan-pairing-service-state',
     label: 'LAN',
     status,
     slotIndex: 0,
-    badge: state,
+    badge: state || 'unavailable',
   };
+}
+
+function lanDeviceSlots(readModel: Record<string, unknown>): readonly DeviceSlot[] {
+  const devices = new Map<string, DeviceSlot>();
+  collectDiscoveredLanDevices(readModel, devices);
+  collectTrustedLanDevices(readModel, devices);
+  collectPairingRequestDevices(readModel, devices);
+  collectSelectedLanDevice(readModel, devices);
+  return Array.from(devices.values()).map((slot, slotIndex) => ({ ...slot, slotIndex }));
+}
+
+function collectDiscoveredLanDevices(readModel: Record<string, unknown>, devices: Map<string, DeviceSlot>): void {
+  const discoveredDevices = arrayValue(readModel['discoveredDevices']);
+  for (const discoveredDevice of discoveredDevices) {
+    const item = recordValue(discoveredDevice);
+    const childDevice = recordValue(item?.['childDevice']);
+    const deviceId = stringValue(childDevice?.['deviceId']);
+    if (!deviceId) continue;
+    upsertLanDeviceSlot(devices, {
+      deviceId,
+      label: stringValue(childDevice?.['label']) || deviceId,
+      platform: normalizeDevicePlatform(stringValue(childDevice?.['platform'])),
+      state: lanDiscoveryDeviceState(item),
+      routeId: stringValue(item?.['routeId']),
+    });
+  }
+}
+
+function lanDiscoveryDeviceState(discoveredDevice: Record<string, unknown> | null): string {
+  const discoveryStatus = stringValue(discoveredDevice?.['discoveryStatus']);
+  const discoveryState = stringValue(discoveredDevice?.['discoveryState']);
+  if (
+    discoveryStatus === 'manual-required' ||
+    discoveryStatus === 'unavailable' ||
+    discoveryState === 'manual-required' ||
+    discoveryState === 'unavailable' ||
+    discoveryState === 'rejected' ||
+    discoveryState === 'expired' ||
+    discoveryState === 'revoked'
+  ) {
+    return discoveryState || discoveryStatus;
+  }
+  return stringValue(discoveredDevice?.['reachability']) || discoveryState || discoveryStatus || 'unavailable';
+}
+
+function collectTrustedLanDevices(readModel: Record<string, unknown>, devices: Map<string, DeviceSlot>): void {
+  const registry = arrayValue(readModel['trustedDeviceRegistry']);
+  for (const registryEntry of registry) {
+    const item = recordValue(registryEntry);
+    const childDevice = recordValue(item?.['childDevice']);
+    const deviceId = stringValue(childDevice?.['deviceId']);
+    if (!deviceId) continue;
+    const revokedAt = stringValue(item?.['revokedAt']);
+    upsertLanDeviceSlot(devices, {
+      deviceId,
+      label: stringValue(childDevice?.['label']) || deviceId,
+      platform: normalizeDevicePlatform(stringValue(childDevice?.['platform'])),
+      state: revokedAt ? 'revoked' : stringValue(item?.['trustState']) || 'paired',
+      routeId: stringValue(item?.['routeId']),
+    });
+  }
+}
+
+function collectPairingRequestDevices(readModel: Record<string, unknown>, devices: Map<string, DeviceSlot>): void {
+  const pairingRequests = arrayValue(readModel['pairingRequests']);
+  for (const pairingRequest of pairingRequests) {
+    const item = recordValue(pairingRequest);
+    const deviceId = stringValue(item?.['childDeviceId']);
+    if (!deviceId) continue;
+    upsertLanDeviceSlot(devices, {
+      deviceId,
+      label: activityDeviceShortLabel(deviceId, devices.size),
+      platform: 'unknown',
+      state: stringValue(item?.['pairingState']) || 'manual-required',
+      routeId: stringValue(item?.['routeId']),
+    });
+  }
+}
+
+function collectSelectedLanDevice(readModel: Record<string, unknown>, devices: Map<string, DeviceSlot>): void {
+  const selected = recordValue(readModel['selectedDeviceReadiness']);
+  const deviceId = stringValue(selected?.['selectedChildDeviceId']);
+  if (!deviceId) return;
+  upsertLanDeviceSlot(devices, {
+    deviceId,
+    label: devices.get(deviceId)?.label || activityDeviceShortLabel(deviceId, devices.size),
+    platform: devices.get(deviceId)?.device?.platform || 'unknown',
+    state:
+      selected?.['readyForControl'] === true
+        ? 'ready'
+        : stringValue(selected?.['reachability']) || stringValue(selected?.['trustState']) || 'unavailable',
+    routeId: stringValue(selected?.['routeId']),
+    preferState: true,
+  });
+}
+
+function upsertLanDeviceSlot(
+  devices: Map<string, DeviceSlot>,
+  input: {
+    readonly deviceId: string;
+    readonly label: string;
+    readonly platform: DevicePlatformKind;
+    readonly state: string;
+    readonly routeId: string;
+    readonly preferState?: boolean;
+  }
+): void {
+  const existing = devices.get(input.deviceId);
+  const state =
+    input.preferState ||
+    !existing ||
+    activityDeviceStateRank(input.state) >= activityDeviceStateRank(stringValue(existing.badge))
+      ? input.state
+      : stringValue(existing.badge);
+  const status = activityDeviceChoiceStatus(state);
+  devices.set(input.deviceId, {
+    value: input.deviceId,
+    label: input.label || activityDeviceShortLabel(input.deviceId, devices.size),
+    status,
+    slotIndex: existing?.slotIndex ?? devices.size,
+    badge: state,
+    device: {
+      id: input.deviceId,
+      name: input.label || input.deviceId,
+      type: normalizeDeviceKind(input.platform),
+      platform: input.platform,
+      status,
+    },
+  });
+}
+
+function normalizeDevicePlatform(value: string): DevicePlatformKind {
+  if (
+    value === 'windows' ||
+    value === 'macos' ||
+    value === 'linux' ||
+    value === 'android' ||
+    value === 'ios' ||
+    value === 'router'
+  ) {
+    return value;
+  }
+  return 'unknown';
+}
+
+function normalizeDeviceKind(platform: DevicePlatformKind): DeviceKind {
+  if (platform === 'windows' || platform === 'macos' || platform === 'linux') return 'desktop';
+  if (platform === 'android' || platform === 'ios') return 'mobile';
+  if (platform === 'router') return 'router';
+  return 'unknown';
 }
 
 function activityDeviceSlots(deviceStates: ReadonlyMap<string, string>, planSeatLimit: number): readonly DeviceSlot[] {
@@ -222,7 +391,12 @@ function activityDeviceStateRank(state: string): number {
   switch (state) {
     case 'ready':
     case 'reachable':
+    case 'online':
+    case 'paired':
       return 5;
+    case 'discovered':
+    case 'pending':
+    case 'pairing':
     case 'empty':
       return 4;
     case 'stale':
@@ -233,6 +407,10 @@ function activityDeviceStateRank(state: string): number {
     case 'permission-required':
     case 'scaffold-only':
     case 'unavailable':
+    case 'manual-required':
+    case 'rejected':
+    case 'expired':
+    case 'revoked':
     case 'error':
       return 1;
     default:
@@ -260,7 +438,9 @@ function activityDeviceSlot(deviceId: string, state: string, slotIndex: number):
 
 function activityDeviceChoiceStatus(state: string): 'connected' | 'available' | 'offline' | 'unsupported' {
   if (state === 'ready' || state === 'reachable' || state === 'online' || state === 'paired') return 'connected';
-  if (state === 'empty' || state === 'stale') return 'available';
+  if (state === 'empty' || state === 'stale' || state === 'discovered' || state === 'pending' || state === 'pairing') {
+    return 'available';
+  }
   if (state === 'offline' || state === 'unreachable') return 'offline';
   return 'unsupported';
 }
@@ -390,6 +570,10 @@ function stringValue(value: unknown): string {
 
 function recordValue(value: unknown): Record<string, unknown> | null {
   return isRecord(value) ? value : null;
+}
+
+function arrayValue(value: unknown): readonly unknown[] {
+  return Array.isArray(value) ? value : [];
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

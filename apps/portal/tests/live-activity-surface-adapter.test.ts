@@ -107,6 +107,22 @@ describe('portal Activity surface adapter state', () => {
     }
     expect(state.activityNetworkReadModelEvent?.event).toBe(AgentEvent.ActivityNetworkReadModelReported);
   });
+
+  it('parses LAN add-device readiness from the real status event payload', () => {
+    const state = resolveLiveActivityState([
+      payloadEvent(AgentEvent.LanPairingStatusReported, {
+        [AgentProtocolDefaults.Field.LanAddDeviceReadModel]: JSON.stringify(lanAddDeviceReadModel()),
+      }),
+    ]);
+
+    expect(state.lanPairingStatusEvent?.event).toBe(AgentEvent.LanPairingStatusReported);
+    expect(state.lanAddDeviceReadModel?.addDeviceState).toBe('paired');
+    expect(state.lanAddDeviceReadModel?.selectedDeviceReadiness).toMatchObject({
+      selectedChildDeviceId: 'child-android-1',
+      reachability: 'online',
+      readyForControl: true,
+    });
+  });
 });
 
 function activitySurfaceEvents() {
@@ -244,4 +260,76 @@ function surfaceEventWithRawPayload(
     },
     snapshot: null,
   });
+}
+
+function payloadEvent(event: (typeof AgentEvent)[keyof typeof AgentEvent], payload: Record<string, unknown>) {
+  return AgentEventEnvelopeSchema.parse({
+    schemaVersion: 1,
+    eventId: `evt-${event}`,
+    correlationId: `cmd-${event}`,
+    sentAt: '2026-05-30T14:00:01Z',
+    source: {
+      peerId: 'local-dev-agent',
+      role: 'agent-service',
+    },
+    target: {
+      peerId: 'portal-dev',
+      role: 'portal',
+    },
+    event,
+    severity: 'info',
+    payload,
+    snapshot: null,
+  });
+}
+
+function lanAddDeviceReadModel() {
+  return {
+    schemaVersion: 1,
+    generatedAt: '2026-06-01T15:01:00Z',
+    discoverySource: 'local-service',
+    addDeviceState: 'paired',
+    localServiceDiscoveryState: 'paired',
+    physicalHouseholdLanState: 'manual-required',
+    cloudRelayState: 'unavailable',
+    discoveredDevices: [
+      {
+        schemaVersion: 1,
+        discoveredAt: '2026-06-01T15:00:00Z',
+        childDevice: {
+          deviceId: 'child-android-1',
+          childProfileId: 'child-profile-1',
+          label: 'Pixel child',
+          platform: 'android',
+        },
+        agentPeerId: 'child-peer-1',
+        routeId: 'lan-route-local-1',
+        networkMode: 'local-network',
+        reachability: 'online',
+        addressRef: 'lan-address-ref-1',
+        discoveryStatus: 'websocket-direct',
+        discoveryState: 'paired',
+      },
+    ],
+    pairingRequests: [],
+    trustedDeviceRegistry: [],
+    trustedDeviceIds: ['child-android-1'],
+    revokedDeviceIds: [],
+    selectedDeviceReadiness: {
+      schemaVersion: 1,
+      selectedChildDeviceId: 'child-android-1',
+      routeId: 'lan-route-local-1',
+      pairingId: 'pairing-child-android-1',
+      trustState: 'paired',
+      reachability: 'online',
+      readyForControl: true,
+      staleAt: null,
+      offlineAt: null,
+    },
+    controllerAuthority: 'observer',
+    observerAuthority: 'observer',
+    routeRequirementLabels: ['Local service route only'],
+    auditCheckLabels: ['No physical device-owner proof'],
+    honestNonClaims: ['physical-device-owner-unavailable'],
+  };
 }

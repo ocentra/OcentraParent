@@ -168,6 +168,10 @@ pub enum AgentCommandName {
     AgentLanPairingRouteRevoke,
     #[serde(rename = "agent.lan-pairing.status.get")]
     AgentLanPairingStatusGet,
+    #[serde(rename = "agent.lan-pairing.browser-discovery.scan")]
+    AgentLanPairingBrowserDiscoveryScan,
+    #[serde(rename = "agent.lan-pairing.add-device.request")]
+    AgentLanPairingAddDeviceRequest,
     #[serde(rename = "agent.lan-pairing.controller-lease.renew")]
     AgentLanPairingControllerLeaseRenew,
     #[serde(rename = "agent.lan-pairing.controller-lease.release")]
@@ -272,6 +276,10 @@ pub enum AgentEventName {
     AgentParentAssistantErrorReported,
     #[serde(rename = "agent.lan-pairing.status.reported")]
     AgentLanPairingStatusReported,
+    #[serde(rename = "agent.lan-pairing.browser-discovery.reported")]
+    AgentLanPairingBrowserDiscoveryReported,
+    #[serde(rename = "agent.lan-pairing.add-device.reported")]
+    AgentLanPairingAddDeviceReported,
     #[serde(rename = "agent.lan-pairing.audit.reported")]
     AgentLanPairingAuditReported,
     #[serde(rename = "agent.lan-ai.job.reported")]

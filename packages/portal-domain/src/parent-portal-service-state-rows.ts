@@ -73,9 +73,13 @@ function lanDiscoveryRow(input: ParentPortalServiceStateInput): ParentPortalRow 
   const event = latestEvent(input.events, AgentEvent.LanPairingStatusReported);
   const payload = event?.payload ?? null;
   const trend =
-    textValue(payload, AgentProtocolDefaults.Field.LanDiscoveryState) ?? manualRequiredTrend(input.connectionState);
-  const readyCount = numberValue(payload, AgentProtocolDefaults.Field.LanTrustedDeviceCount) ?? 0;
-  const gapCount = event === null || readyCount === 0 ? 1 : 0;
+    textValue(payload, AgentProtocolDefaults.Field.LanAddDeviceState) ??
+    textValue(payload, AgentProtocolDefaults.Field.LanLocalServiceDiscoveryState) ??
+    textValue(payload, AgentProtocolDefaults.Field.LanDiscoveryState) ??
+    manualRequiredTrend(input.connectionState);
+  const readyCount = lanVisibleDeviceCount(payload);
+  const gapCount =
+    event === null || readyCount === 0 || trend === PARENT_PORTAL_SERVICE_STATE.Trend.ManualRequired ? 1 : 0;
   return row(
     PARENT_PORTAL_SERVICE_STATE.Label.LanDiscovery,
     2,
@@ -93,10 +97,13 @@ function devicePairingRow(input: ParentPortalServiceStateInput): ParentPortalRow
   const payload = event?.payload ?? null;
   const trustedCount = numberValue(payload, AgentProtocolDefaults.Field.LanTrustedDeviceCount) ?? 0;
   const selected = presentText(payload, AgentProtocolDefaults.Field.LanSelectedChildDeviceId);
+  const selectedReady = payload?.[AgentProtocolDefaults.Field.LanSelectedDeviceReady] === true;
   const readyCount = trustedCount + (selected === null ? 0 : 1);
   const trend =
+    (selectedReady ? 'ready' : null) ??
     textValue(payload, AgentProtocolDefaults.Field.LanSelectedDeviceReachability) ??
     textValue(payload, AgentProtocolDefaults.Field.LanPairingState) ??
+    textValue(payload, AgentProtocolDefaults.Field.LanAddDeviceState) ??
     manualRequiredTrend(input.connectionState);
   return row(
     PARENT_PORTAL_SERVICE_STATE.Label.DevicePairing,
@@ -108,6 +115,13 @@ function devicePairingRow(input: ParentPortalServiceStateInput): ParentPortalRow
     PARENT_PORTAL_SERVICE_STATE.Area.CurrentDevice,
     'cyan'
   );
+}
+
+function lanVisibleDeviceCount(payload: AgentProtocolLogFields | null): number {
+  const trustedCount = numberValue(payload, AgentProtocolDefaults.Field.LanTrustedDeviceCount) ?? 0;
+  const pendingCount = numberValue(payload, AgentProtocolDefaults.Field.LanPendingPairingCount) ?? 0;
+  const selectedCount = presentText(payload, AgentProtocolDefaults.Field.LanSelectedChildDeviceId) === null ? 0 : 1;
+  return Math.max(trustedCount, selectedCount) + pendingCount;
 }
 
 function browserActivityRow(input: ParentPortalServiceStateInput): ParentPortalRow {

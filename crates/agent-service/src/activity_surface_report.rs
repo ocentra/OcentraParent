@@ -96,6 +96,7 @@ fn source_states_for_request(
 
 fn unavailable_report_document(request: ActivityReportRequest) -> ActivityReportDocument {
     let generated_at = timestamp_now();
+    let source_states = unavailable_source_states_for_request(&request.scope);
     let mut report = ActivityReportDocument {
         schema_version: ACTIVITY_SURFACE_SCHEMA_VERSION,
         report_id: report_id(request.frequency, &generated_at),
@@ -106,13 +107,7 @@ fn unavailable_report_document(request: ActivityReportRequest) -> ActivityReport
         range_end: request.range_end,
         generated_at,
         saved_metadata: None,
-        source_states: vec![ActivityReportSourceState {
-            device_id: constants::activity_surface::DEFAULT_DEVICE_ID.to_string(),
-            reachability_state: ActivityReportSourceReachabilityState::Unreachable,
-            state: ActivityReadModelState::Unavailable,
-            reason: Some(constants::activity_surface::SUMMARY_STORE_UNAVAILABLE.to_string()),
-            last_updated_at: None,
-        }],
+        source_states,
         sections: vec![
             unavailable_section(ActivityReportSectionKind::Summary),
             unavailable_section(ActivityReportSectionKind::Screen),
@@ -124,6 +119,27 @@ fn unavailable_report_document(request: ActivityReportRequest) -> ActivityReport
     };
     report.saved_metadata = Some(draft_metadata_for_report(&report));
     report
+}
+
+fn unavailable_source_states_for_request(
+    scope: &ActivitySurfaceScope,
+) -> Vec<ActivityReportSourceState> {
+    let mut source_states = vec![ActivityReportSourceState {
+        device_id: scope
+            .device_id
+            .clone()
+            .unwrap_or_else(|| constants::activity_surface::DEFAULT_DEVICE_ID.to_string()),
+        reachability_state: ActivityReportSourceReachabilityState::Unreachable,
+        state: ActivityReadModelState::Unavailable,
+        reason: Some(constants::activity_surface::SUMMARY_STORE_UNAVAILABLE.to_string()),
+        last_updated_at: None,
+    }];
+
+    if scope.scope_kind == ActivitySurfaceScopeKind::Family {
+        source_states.push(default_family_fanout_record());
+    }
+
+    source_states
 }
 
 fn offline_device_report_document(request: ActivityReportRequest) -> ActivityReportDocument {
