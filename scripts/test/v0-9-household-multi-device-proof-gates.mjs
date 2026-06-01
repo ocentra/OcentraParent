@@ -653,8 +653,7 @@ function trustedRegistryEntry(routeId, pairingState, deviceState, proofLabel) {
 }
 
 async function parseReadModel(readModel) {
-  const modulePath = join(repoRoot, 'packages', 'parent-domain', 'dist', 'v0-9-household-multi-device-proof-gates.js');
-  const module = await import(`file:///${modulePath.replaceAll('\\', '/')}`);
+  const module = await import('@ocentra-parent/parent-domain/v0-9-household-multi-device-proof-gates');
   proofLabels.push('parent-domain.v0.9-household-multi-device-proof-gates-parse');
   return module.V09HouseholdMultiDeviceProofGateReadModelSchema.parse(readModel);
 }
