@@ -2,12 +2,16 @@ pub const COMMAND_PROOF_SUBMIT: &str = "agent.lan-pairing.proof.submit";
 pub const COMMAND_ROUTE_SELECT: &str = "agent.lan-pairing.route.select";
 pub const COMMAND_ROUTE_REVOKE: &str = "agent.lan-pairing.route.revoke";
 pub const COMMAND_STATUS_GET: &str = "agent.lan-pairing.status.get";
+pub const COMMAND_BROWSER_DISCOVERY_SCAN: &str = "agent.lan-pairing.browser-discovery.scan";
+pub const COMMAND_ADD_DEVICE_REQUEST: &str = "agent.lan-pairing.add-device.request";
 pub const COMMAND_CONTROLLER_LEASE_RENEW: &str = "agent.lan-pairing.controller-lease.renew";
 pub const COMMAND_CONTROLLER_LEASE_RELEASE: &str = "agent.lan-pairing.controller-lease.release";
 pub const COMMAND_CONTROLLER_LEASE_TAKEOVER: &str = "agent.lan-pairing.controller-lease.takeover";
 pub const COMMAND_LAN_AI_PROVIDER_STATUS_GET: &str = "agent.lan-ai.provider.status.get";
 pub const COMMAND_LAN_AI_JOB_SUBMIT: &str = "agent.lan-ai.job.submit";
 pub const EVENT_STATUS_REPORTED: &str = "agent.lan-pairing.status.reported";
+pub const EVENT_BROWSER_DISCOVERY_REPORTED: &str = "agent.lan-pairing.browser-discovery.reported";
+pub const EVENT_ADD_DEVICE_REPORTED: &str = "agent.lan-pairing.add-device.reported";
 pub const EVENT_AUDIT_REPORTED: &str = "agent.lan-pairing.audit.reported";
 pub const EVENT_LAN_AI_JOB_REPORTED: &str = "agent.lan-ai.job.reported";
 pub const DEVICE_ROLES_ENV: &str = "OCENTRA_PARENT_DEVICE_ROLES";
@@ -21,6 +25,8 @@ pub const SUPPORTED_WEBSOCKET_COMMANDS: &[&str] = &[
     COMMAND_ROUTE_SELECT,
     COMMAND_ROUTE_REVOKE,
     COMMAND_STATUS_GET,
+    COMMAND_BROWSER_DISCOVERY_SCAN,
+    COMMAND_ADD_DEVICE_REQUEST,
     COMMAND_CONTROLLER_LEASE_RENEW,
     COMMAND_CONTROLLER_LEASE_RELEASE,
     COMMAND_CONTROLLER_LEASE_TAKEOVER,

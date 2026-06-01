@@ -88,6 +88,9 @@ mod lan_pairing_audit;
 mod lan_pairing_browser_add_device_state;
 #[cfg(test)]
 mod lan_pairing_browser_add_device_state_tests;
+mod lan_pairing_browser_runtime;
+#[cfg(test)]
+mod lan_pairing_browser_runtime_tests;
 #[cfg(test)]
 mod lan_pairing_multidevice_tests;
 mod lan_pairing_payload;

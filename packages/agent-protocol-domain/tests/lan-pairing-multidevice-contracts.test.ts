@@ -49,6 +49,8 @@ function assertSupportedWebSocketCommands() {
     'agent.lan-pairing.route.select',
     'agent.lan-pairing.route.revoke',
     'agent.lan-pairing.status.get',
+    'agent.lan-pairing.browser-discovery.scan',
+    'agent.lan-pairing.add-device.request',
     'agent.lan-pairing.controller-lease.renew',
     'agent.lan-pairing.controller-lease.release',
     'agent.lan-pairing.controller-lease.takeover',

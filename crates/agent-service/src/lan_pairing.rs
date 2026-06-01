@@ -27,6 +27,7 @@ use crate::{
         rejected_control_audit_fields, rejected_pairing_audit_fields, revoked_route_audit_fields,
         selected_route_audit_fields,
     },
+    lan_pairing_browser_runtime::{browser_add_device_request_event, browser_discovery_scan_event},
     lan_pairing_payload::{is_challenge_request, parse_intent, parse_pairing_proof},
     lan_pairing_status::{pairing_challenge_status_event, pairing_status_event},
     time::timestamp_now,
@@ -111,6 +112,18 @@ pub async fn route_lan_command(
 
     if command.command == AgentCommandName::AgentLanPairingStatusGet {
         return LanCommandDecision::Respond(lan_pairing_status_get(runtime, origin, command));
+    }
+
+    if command.command == AgentCommandName::AgentLanPairingBrowserDiscoveryScan {
+        return LanCommandDecision::Respond(browser_discovery_scan_event(&runtime, command));
+    }
+
+    if command.command == AgentCommandName::AgentLanPairingAddDeviceRequest {
+        return LanCommandDecision::Respond(browser_add_device_request_event(
+            &runtime,
+            origin.as_deref(),
+            command,
+        ));
     }
 
     if command.command == AgentCommandName::AgentLanPairingControllerLeaseRenew {

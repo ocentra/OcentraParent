@@ -161,7 +161,7 @@ function assertLanSupportSurface(payload) {
   assertPayloadValue(
     payload,
     'supportedWebSocketCommands',
-    'agent.lan-pairing.proof.submit,agent.lan-pairing.route.select,agent.lan-pairing.route.revoke,agent.lan-pairing.status.get,agent.lan-pairing.controller-lease.renew,agent.lan-pairing.controller-lease.release,agent.lan-pairing.controller-lease.takeover,agent.lan-ai.provider.status.get,agent.lan-ai.job.submit'
+    'agent.lan-pairing.proof.submit,agent.lan-pairing.route.select,agent.lan-pairing.route.revoke,agent.lan-pairing.status.get,agent.lan-pairing.browser-discovery.scan,agent.lan-pairing.add-device.request,agent.lan-pairing.controller-lease.renew,agent.lan-pairing.controller-lease.release,agent.lan-pairing.controller-lease.takeover,agent.lan-ai.provider.status.get,agent.lan-ai.job.submit'
   );
   assertPayloadValue(
     payload,
