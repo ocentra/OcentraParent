@@ -16,7 +16,8 @@ transports.
   V0.8 dispatch proof path.
 - Enforcement supported-adapter runtime proof event parsing, including the
   integrity runtime audit read model carried by
-  `agent.enforcement.supported-adapter-runtime-proof.reported`.
+  `agent.enforcement.supported-adapter-runtime-proof.reported` and its nested
+  V0.8 integrity alert/status bridge.
 
 ## Must Not Own
 
@@ -60,7 +61,8 @@ flowchart LR
   `enforcement-supported-adapter-runtime-proof-adapter` export; the event also
   carries the integrity audit read model for result, timer, rollback,
   child-status, parent-override, permission-loss, heartbeat, and tamper/manual
-  visibility.
+  visibility, plus nested permission-loss, stale-heartbeat, stopped-or-removed,
+  and tamper/manual alert/status bridge rows.
 - Integrity audit events are parent-visible proof state only. Broad
   app/domain/browser blocking, notification delivery, tamper resistance, mobile
   enforcement, stealth/persistence, and privilege escalation stay unclaimed

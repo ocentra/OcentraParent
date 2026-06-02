@@ -1,7 +1,10 @@
 use std::collections::BTreeMap;
 
 use ocentra_parent_agent_protocol::{
-    constants::{self, v08_enforcement_integrity_runtime_audit as proof},
+    constants::{
+        self, v08_enforcement_integrity_runtime_audit as proof,
+        v08_integrity_alert_status_bridge as bridge,
+    },
     policy_constants, AgentCommandEnvelope, AgentCommandName, AgentEventEnvelope, AgentEventName,
     AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue, LogFields,
     V08EnforcementIntegrityRuntimeAuditEntry, V08EnforcementIntegrityRuntimeAuditIntegrityState,
@@ -21,6 +24,11 @@ fn enforcement_integrity_runtime_audit_read_model_covers_required_states() {
 
     assert_eq!(read_model.read_model_id, proof::READ_MODEL_ID);
     assert_eq!(read_model.entries.len(), 14);
+    assert_eq!(
+        read_model.integrity_alert_status_bridge.read_model_id,
+        bridge::READ_MODEL_ID
+    );
+    assert_eq!(read_model.integrity_alert_status_bridge.entries.len(), 4);
     assert_eq!(result_count(&result_counts, proof::RESULT_SUCCEEDED), 1);
     assert_eq!(result_count(&result_counts, proof::RESULT_FAILED), 2);
     assert_eq!(result_count(&result_counts, proof::RESULT_UNAVAILABLE), 3);
@@ -96,6 +104,16 @@ fn enforcement_integrity_runtime_audit_preserves_no_claim_flags() {
         .entries
         .iter()
         .all(|entry| !entry.privilege_escalation_claimed));
+    assert!(read_model
+        .integrity_alert_status_bridge
+        .entries
+        .iter()
+        .all(|entry| !entry.provider_delivery_claimed));
+    assert!(read_model
+        .integrity_alert_status_bridge
+        .entries
+        .iter()
+        .all(|entry| !entry.tamper_resistance_claimed));
 }
 
 #[tokio::test]
@@ -115,6 +133,11 @@ async fn supported_adapter_runtime_websocket_event_includes_integrity_audit_read
 
     assert_eq!(read_model.read_model_id, proof::READ_MODEL_ID);
     assert_eq!(read_model.entries.len(), 14);
+    assert_eq!(
+        read_model.integrity_alert_status_bridge.read_model_id,
+        bridge::READ_MODEL_ID
+    );
+    assert_eq!(read_model.integrity_alert_status_bridge.entries.len(), 4);
     assert_entry_integrity(
         &read_model.entries,
         proof::ENTRY_PERMISSION_LOSS,
@@ -128,6 +151,11 @@ async fn supported_adapter_runtime_websocket_event_includes_integrity_audit_read
     assert!(read_model
         .source_read_model_ids
         .contains(&proof::SOURCE_TIMER_RECOVERY_STATE.to_string()));
+    assert!(read_model
+        .integrity_alert_status_bridge
+        .entries
+        .iter()
+        .any(|entry| entry.bridge_entry_id == bridge::ENTRY_STOPPED_OR_REMOVED));
 }
 
 async fn send_supported_adapter_runtime_proof_command() -> AgentEventEnvelope {

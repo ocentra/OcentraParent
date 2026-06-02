@@ -6,6 +6,7 @@ import {
   ParentTimestampSchema,
 } from './reference-primitives';
 
+export * from './v0-8-integrity-alert-status-bridge';
 export * from './v0-8-enforcement-integrity-runtime-audit';
 
 const NonEmptySupportedAdapterText = Schema.String.pipe(Schema.minLength(1));

@@ -21,6 +21,8 @@ function registerReadModelSummaryTest() {
 
     expect(readModel.readModelId).toBe('v0-8-enforcement-integrity-runtime-audit');
     expect(readModel.entries).toHaveLength(14);
+    expect(readModel.integrityAlertStatusBridge.readModelId).toBe('v0-8-integrity-alert-status-bridge');
+    expect(readModel.integrityAlertStatusBridge.entries).toHaveLength(4);
     expect(countBy(readModel.entries.map((entry) => entry.result))).toEqual({
       succeeded: 1,
       expired: 1,
@@ -153,6 +155,27 @@ function registerIntegrityStateTest() {
       privilegeEscalationClaimed: false,
     });
     expect(tamper.manualProofRequirements).toContain('security review before hardening');
+    expect(V08EnforcementIntegrityRuntimeAuditReadModel.integrityAlertStatusBridge.entries).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          integrityAlertState: 'permission-loss',
+          providerDeliveryClaimed: false,
+          tamperResistanceClaimed: false,
+        }),
+        expect.objectContaining({
+          integrityAlertState: 'stale-heartbeat',
+          deliveryState: 'not-delivered-provider-not-configured',
+        }),
+        expect.objectContaining({
+          integrityAlertState: 'stopped-or-removed',
+          parentVisibleStatus: 'agent-stopped-or-removed',
+        }),
+        expect.objectContaining({
+          integrityAlertState: 'tamper-manual-required',
+          auditState: 'manual-required',
+        }),
+      ])
+    );
   });
 }
 

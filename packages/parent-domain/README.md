@@ -16,6 +16,10 @@ mobile readiness, and control catalogs.
 - V0.8 enforcement integrity runtime audit contracts that link supported action
   results, timer recovery/rollback, child-status refs, parent-override audit
   refs, permission-loss, integrity heartbeat, and tamper/manual states.
+- V0.8 integrity alert/status bridge contracts that expose permission-loss,
+  stale-heartbeat, stopped-or-removed, and tamper/manual parent-visible status
+  rows with notification intent/status refs, audit refs, integrity refs, and
+  drill-in refs.
 - Local AI runtime, provider, scheduler, context, and reference contracts.
 - Parent assistant and action-preview contracts.
 - LAN pairing, device roles, controller/observer states, and provider routing.
@@ -78,3 +82,7 @@ flowchart LR
   proof; broad app/domain/browser blocking, notification delivery, tamper
   resistance, mobile enforcement, stealth/persistence, and privilege escalation
   remain unclaimed.
+- Integrity alert/status bridge proof remains notification intent/status and
+  audit drill-in proof only; provider delivery, UI, anti-tamper resistance,
+  broad blocking, mobile enforcement, stealth/persistence, and privilege
+  escalation stay unclaimed.

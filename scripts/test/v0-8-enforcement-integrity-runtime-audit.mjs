@@ -30,12 +30,24 @@ async function main() {
     'run',
     'test',
     '--workspace',
+    '@ocentra-parent/parent-domain',
+    '--',
+    'v0-8-integrity-alert-status-bridge',
+  ]);
+  await runCommand('cmd', [
+    '/c',
+    'npm',
+    'run',
+    'test',
+    '--workspace',
     '@ocentra-parent/agent-protocol-domain',
     '--',
     'enforcement-supported-adapter-runtime-proof-adapter',
   ]);
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-protocol', 'enforcement_integrity_runtime_audit']);
+  await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-protocol', 'integrity_alert_status_bridge']);
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-service', 'enforcement_integrity_runtime_audit']);
+  await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-service', 'integrity_alert_status_bridge']);
 
   const { V08EnforcementIntegrityRuntimeAuditReadModel } =
     await import('../../packages/parent-domain/dist/v0-8-enforcement-integrity-runtime-audit.js');
@@ -95,6 +107,10 @@ async function main() {
 function summarizeReadModel(readModel) {
   return {
     entries: readModel.entries.length,
+    integrityAlertStatusBridgeEntries: readModel.integrityAlertStatusBridge.entries.length,
+    integrityAlertStatusBridgeStates: countBy(
+      readModel.integrityAlertStatusBridge.entries.map((entry) => entry.integrityAlertState)
+    ),
     byPlatform: countBy(readModel.entries.map((entry) => entry.platform)),
     byResult: countBy(readModel.entries.map((entry) => entry.result)),
     byExecution: countBy(readModel.entries.map((entry) => entry.execution)),
@@ -110,12 +126,23 @@ function summarizeReadModel(readModel) {
     mobilePrivilegeClaimed: readModel.entries.filter((entry) => entry.mobilePrivilegeClaimed).length,
     stealthPersistenceClaimed: readModel.entries.filter((entry) => entry.stealthPersistenceClaimed).length,
     privilegeEscalationClaimed: readModel.entries.filter((entry) => entry.privilegeEscalationClaimed).length,
+    integrityAlertProviderDeliveryClaimed: readModel.integrityAlertStatusBridge.entries.filter(
+      (entry) => entry.providerDeliveryClaimed
+    ).length,
+    integrityAlertTamperResistanceClaimed: readModel.integrityAlertStatusBridge.entries.filter(
+      (entry) => entry.tamperResistanceClaimed
+    ).length,
   };
 }
 
 function assertReadModel(readModel, summary) {
   assertEqual(readModel.readModelId, 'v0-8-enforcement-integrity-runtime-audit', 'read model id');
   assertEqual(summary.entries, 14, 'entry count');
+  assertEqual(summary.integrityAlertStatusBridgeEntries, 4, 'integrity alert bridge entry count');
+  assertEqual(summary.integrityAlertStatusBridgeStates['permission-loss'], 1, 'permission alert count');
+  assertEqual(summary.integrityAlertStatusBridgeStates['stale-heartbeat'], 1, 'stale alert count');
+  assertEqual(summary.integrityAlertStatusBridgeStates['stopped-or-removed'], 1, 'stopped alert count');
+  assertEqual(summary.integrityAlertStatusBridgeStates['tamper-manual-required'], 1, 'tamper alert count');
   assertEqual(summary.byPlatform.windows, 13, 'Windows entry count');
   assertEqual(summary.byPlatform.ios, 1, 'iOS entry count');
   assertEqual(summary.byResult.succeeded, 1, 'succeeded count');
@@ -149,6 +176,8 @@ function assertReadModel(readModel, summary) {
   assertEqual(summary.mobilePrivilegeClaimed, 0, 'mobile privilege claim count');
   assertEqual(summary.stealthPersistenceClaimed, 0, 'stealth persistence claim count');
   assertEqual(summary.privilegeEscalationClaimed, 0, 'privilege escalation claim count');
+  assertEqual(summary.integrityAlertProviderDeliveryClaimed, 0, 'integrity alert provider delivery claim count');
+  assertEqual(summary.integrityAlertTamperResistanceClaimed, 0, 'integrity alert tamper claim count');
 
   for (const sourceReadModelId of [
     'v0-8-supported-adapter-runtime-proof',
@@ -192,6 +221,7 @@ function assertReadModel(readModel, summary) {
   proofLabels.push('v0.8.enforcement-integrity-runtime-audit.contract-boundary');
   proofLabels.push('v0.8.enforcement-integrity-runtime-audit.protocol-parity');
   proofLabels.push('v0.8.enforcement-integrity-runtime-audit.service-event-payload');
+  proofLabels.push('v0.8.enforcement-integrity-runtime-audit.alert-status-bridge');
   proofLabels.push('v0.8.enforcement-integrity-runtime-audit.no-execution-boundaries');
   proofLabels.push('v0.8.enforcement-integrity-runtime-audit.no-claim-upgrade');
 }

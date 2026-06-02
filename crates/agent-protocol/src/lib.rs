@@ -32,6 +32,7 @@ mod enforcement_product_control_spine;
 mod enforcement_readiness;
 mod enforcement_supported_adapter_runtime_proof;
 mod host_identity;
+mod integrity_alert_status_bridge;
 mod journal;
 mod lan_pairing;
 mod lan_pairing_authority;
@@ -79,6 +80,7 @@ pub use enforcement_product_control_spine::*;
 pub use enforcement_readiness::*;
 pub use enforcement_supported_adapter_runtime_proof::*;
 pub use host_identity::*;
+pub use integrity_alert_status_bridge::*;
 pub use journal::*;
 pub use lan_pairing::*;
 pub use lan_pairing_authority::*;
@@ -163,6 +165,8 @@ mod enforcement_tests;
 mod enforcement_unavailable_tests;
 #[cfg(test)]
 mod host_identity_tests;
+#[cfg(test)]
+mod integrity_alert_status_bridge_tests;
 #[cfg(test)]
 mod journal_tests;
 #[cfg(test)]

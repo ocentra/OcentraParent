@@ -8,6 +8,8 @@ use ocentra_parent_agent_protocol::{
     V08EnforcementIntegrityRuntimeAuditSurface, V08EnforcementIntegrityRuntimeAuditTimerState,
 };
 
+use super::integrity_alert_status_bridge_read_model::v08_integrity_alert_status_bridge_read_model;
+
 pub(crate) fn v08_enforcement_integrity_runtime_audit_read_model(
     generated_at: &str,
 ) -> V08EnforcementIntegrityRuntimeAuditReadModel {
@@ -26,6 +28,7 @@ pub(crate) fn v08_enforcement_integrity_runtime_audit_read_model(
             .iter()
             .map(|spec| entry_from_spec(spec, generated_at))
             .collect(),
+        integrity_alert_status_bridge: v08_integrity_alert_status_bridge_read_model(generated_at),
     }
 }
 

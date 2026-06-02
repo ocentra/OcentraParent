@@ -38,6 +38,9 @@ mod enforcement_supported_adapter_runtime_proof_read_model;
 #[cfg(test)]
 mod enforcement_supported_adapter_runtime_proof_read_model_tests;
 mod enforcement_supported_adapter_runtime_proof_report;
+mod integrity_alert_status_bridge_read_model;
+#[cfg(test)]
+mod integrity_alert_status_bridge_read_model_tests;
 
 pub use self::enforcement_broad_adapter_proof_report::build_enforcement_broad_adapter_proof_report;
 use self::enforcement_product_control_payload::{

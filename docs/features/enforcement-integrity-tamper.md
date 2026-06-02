@@ -67,20 +67,28 @@ without fake anti-tamper claims.
   observe-only, stale/wrong-device rejection, manual-required, unavailable,
   recovery-needed, unsupported, permission-loss, heartbeat, rollback,
   parent-override, child-status, and tamper/manual states.
+- Integrity alert/status bridge proof now nests a schema-backed four-entry read
+  model inside the integrity runtime audit payload for permission-loss, stale
+  heartbeat, stopped-or-removed, and tamper/manual-required parent-visible
+  states. It carries notification intent/status refs, audit refs, integrity refs,
+  and drill-in refs while preserving provider-delivery, anti-tamper, broad
+  blocking, mobile enforcement, stealth, and privilege-escalation non-claims.
 - Broad app/browser/domain/network enforcement is not product-complete.
 - Tamper/uninstall protection is a tracked gap.
 
 ## Current Gap
 
-Broad adapters, child-facing messages, integrity heartbeat, permission-loss
-alerts, uninstall detection, and platform-specific proof remain. The integrity
-runtime audit makes these states parent-visible in contracts/protocol/service
-proof, but permission restoration, fresh heartbeat alerting, uninstall
-detection artifacts, service restart timer persistence, and anti-tamper behavior
-are still manual-required or unavailable. Tamper/uninstall is represented as
-manual-required/rejected state, not as anti-tamper behavior. The broad-adapter,
-supported-adapter, and integrity audit proofs give service visibility into
-adapter gaps but do not prove anti-tamper behavior or notification delivery.
+Broad adapters, finished child-facing messages, delivered notifications,
+uninstall detection artifacts, and platform-specific proof remain. The integrity
+runtime audit and alert/status bridge make permission loss, stale heartbeat,
+stopped-or-removed, and tamper/manual-required states parent-visible in
+contracts/protocol/service proof, but permission restoration, fresh heartbeat
+delivery, uninstall detection artifacts, service restart timer persistence, and
+anti-tamper behavior are still manual-required or unavailable. Tamper/uninstall
+is represented as manual-required/rejected state, not as anti-tamper behavior.
+The broad-adapter, supported-adapter, integrity audit, and alert/status bridge
+proofs give service visibility into adapter gaps but do not prove anti-tamper
+behavior or notification provider delivery.
 
 ## Checklist
 
@@ -93,9 +101,11 @@ adapter gaps but do not prove anti-tamper behavior or notification delivery.
       needs implementation.
 - [ ] Parent override is represented as auditable intent refs; finished approval
       UX remains.
-- [ ] Integrity heartbeat is represented as running/stale state; real alerting
-      and freshness proof remain.
-- [ ] Permission-loss and uninstall/tamper alerts are explicit states; real
+- [x] Integrity heartbeat is represented as running/stale state with
+      parent-visible alert/status refs; real provider delivery and freshness
+      proof remain.
+- [x] Permission-loss, stopped/removed, and uninstall/tamper alerts are explicit
+      parent-visible states with notification intent/status and audit refs; real
       permission restoration, uninstall detection, and delivery proof remain.
 - [ ] No stealth or privilege-escalation behavior.
 
@@ -103,7 +113,8 @@ adapter gaps but do not prove anti-tamper behavior or notification delivery.
 
 Do not block from a category label alone. Do not add anti-tamper behavior
 without security/product design. Use
-`scripts/test/v0-8-enforcement-integrity-runtime-audit.mjs` as the current proof
-for runtime audit visibility, and require new platform artifacts before
-upgrading broad blocking, notification, mobile, service-persistence, or tamper
-claims.
+`scripts/test/v0-8-enforcement-integrity-runtime-audit.mjs` and
+`scripts/test/v0-8-integrity-alert-status-bridge.mjs` as the current proof for
+runtime audit and alert/status visibility, and require new platform artifacts
+before upgrading broad blocking, notification delivery, mobile,
+service-persistence, or tamper claims.
