@@ -24,6 +24,9 @@ export const V09MobileControllerObserverRuntimeSchemaVersionSchema = withParser(
 export const V09MobileControllerObserverRoleSchema = withParser(
   Schema.Literal('observer', 'controller-candidate', 'degraded-observer')
 );
+export const V09MobileControllerObserverRouteKindSchema = withParser(
+  Schema.Literal('local-service', 'lan-service', 'cloud-relay', 'parent-cache', 'parent-owned-storage')
+);
 export const V09MobileControllerObserverReadinessStateSchema = withParser(
   Schema.Literal('ci-mechanical-proof', 'manual-required', 'degraded', 'unavailable', 'not-implemented')
 );
@@ -77,6 +80,9 @@ export const V09MobileControllerObserverProofRequirementSchema = NonEmptyV09Obse
 export const V09MobileControllerObserverClaimBoundarySchema = NonEmptyV09ObserverRuntimeText.pipe(
   Schema.brand('V09MobileControllerObserverClaimBoundary')
 );
+const V09MobileControllerObserverRouteIdSchema = NonEmptyV09ObserverRuntimeText.pipe(
+  Schema.brand('V09MobileControllerObserverRouteId')
+);
 
 export const V09MobileControllerObserverPackageReadinessSchema = withParser(
   Schema.Struct({
@@ -96,6 +102,15 @@ export const V09MobileControllerObserverCapabilityStateSchema = withParser(
     status: ParentControlCapabilityStatusSchema,
     proofRequirement: V09MobileControllerObserverProofRequirementSchema,
     claimBoundary: V09MobileControllerObserverClaimBoundarySchema,
+  })
+);
+
+export const V09MobileControllerObserverRouteStatusSchema = withParser(
+  Schema.Struct({
+    routeKind: V09MobileControllerObserverRouteKindSchema,
+    state: ParentMobileServiceAvailabilityStateSchema,
+    selectedRouteId: Schema.Union(V09MobileControllerObserverRouteIdSchema, Schema.Null),
+    proofRequirement: V09MobileControllerObserverProofRequirementSchema,
   })
 );
 
@@ -121,6 +136,7 @@ export const V09MobileControllerObserverReadModelSchema = withParser(
     controllerState: ParentMobileControllerStateSchema,
     commandAuthorityState: ParentMobileCommandAuthorityStateSchema,
     serviceState: ParentMobileServiceAvailabilityStateSchema,
+    routeStatuses: Schema.Array(V09MobileControllerObserverRouteStatusSchema),
     packageReadiness: V09MobileControllerObserverPackageReadinessSchema,
     capabilities: Schema.Array(V09MobileControllerObserverCapabilityStateSchema),
     operationProofs: Schema.Array(V09MobileControllerObserverOperationProofSchema),
@@ -189,6 +205,14 @@ const RequiredObserverOperations = [
   'pair-device',
   'revoke-device',
 ] as const satisfies ReadonlyArray<V09MobileControllerObserverOperation>;
+
+const RequiredObserverRouteKinds = [
+  'local-service',
+  'lan-service',
+  'cloud-relay',
+  'parent-cache',
+  'parent-owned-storage',
+] as const satisfies ReadonlyArray<V09MobileControllerObserverRouteKind>;
 
 const ReadOnlyOperations = [
   'observe-status',
@@ -304,7 +328,22 @@ function mobileReadModelIsHonest(readModel: V09MobileControllerObserverReadModel
     return false;
   }
 
-  return operationProofsAreHonest(readModel.operationProofs);
+  return routeStatusesAreHonest(readModel) && operationProofsAreHonest(readModel.operationProofs);
+}
+
+function routeStatusesAreHonest(readModel: V09MobileControllerObserverReadModel): boolean {
+  const byKind = new Map(readModel.routeStatuses.map((route) => [route.routeKind, route] as const));
+  if (byKind.size !== readModel.routeStatuses.length || !RequiredObserverRouteKinds.every((kind) => byKind.has(kind))) {
+    return false;
+  }
+
+  return (
+    byKind.get('cloud-relay')?.state === 'not-implemented' &&
+    byKind.get('parent-cache')?.state === 'stale' &&
+    byKind.get('parent-owned-storage')?.state === 'offline' &&
+    byKind.get('lan-service')?.state === readModel.serviceState &&
+    byKind.get('local-service')?.state !== 'available'
+  );
 }
 
 function operationProofsAreHonest(proofs: ReadonlyArray<V09MobileControllerObserverOperationProof>): boolean {
@@ -328,6 +367,7 @@ function operationProofIsHonest(proof: V09MobileControllerObserverOperationProof
 }
 
 export type V09MobileControllerObserverRole = Infer<typeof V09MobileControllerObserverRoleSchema>;
+export type V09MobileControllerObserverRouteKind = Infer<typeof V09MobileControllerObserverRouteKindSchema>;
 export type V09MobileControllerObserverReadinessState = Infer<typeof V09MobileControllerObserverReadinessStateSchema>;
 export type V09MobileControllerObserverOperation = Infer<typeof V09MobileControllerObserverOperationSchema>;
 export type V09MobileControllerObserverOperationState = Infer<typeof V09MobileControllerObserverOperationStateSchema>;
@@ -337,6 +377,7 @@ export type V09MobileControllerObserverPackageReadiness = Infer<
   typeof V09MobileControllerObserverPackageReadinessSchema
 >;
 export type V09MobileControllerObserverCapabilityState = Infer<typeof V09MobileControllerObserverCapabilityStateSchema>;
+export type V09MobileControllerObserverRouteStatus = Infer<typeof V09MobileControllerObserverRouteStatusSchema>;
 export type V09MobileControllerObserverOperationProof = Infer<typeof V09MobileControllerObserverOperationProofSchema>;
 export type V09MobileControllerObserverReadModel = Infer<typeof V09MobileControllerObserverReadModelSchema>;
 export type V09MobileControllerObserverProofInput = Infer<typeof V09MobileControllerObserverProofInputSchema>;

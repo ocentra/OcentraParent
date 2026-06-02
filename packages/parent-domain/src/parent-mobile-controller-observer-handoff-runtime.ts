@@ -132,7 +132,11 @@ export const ParentMobileControllerObserverRouteSnapshotSchema = withParser(
     providerLifecycleState: LanProviderSelectionLifecycleStateSchema,
     providerPolicyDecision: LanProviderSelectionPolicyDecisionSchema,
     providerId: Schema.Union(ParentMobileControllerObserverHandoffProviderIdSchema, Schema.Null),
+    localServiceState: ParentMobileServiceBridgeProofStateSchema,
+    lanServiceState: ParentMobileServiceBridgeProofStateSchema,
     cloudRelayState: ParentMobileServiceBridgeProofStateSchema,
+    parentCacheState: ParentMobileServiceBridgeProofStateSchema,
+    parentOwnedStorageState: ParentMobileServiceBridgeProofStateSchema,
     routeRequirement: ParentMobileControllerObserverHandoffRequirementSchema,
   })
 );
@@ -188,6 +192,8 @@ export const ParentMobileControllerObserverHandoffClaimBoundariesSchema = withPa
     parentMobileWriteAuthority: ParentMobileControllerObserverHandoffClaimBoundarySchema,
     mobileParity: ParentMobileControllerObserverHandoffClaimBoundarySchema,
     childMobileAgentBehavior: ParentMobileControllerObserverHandoffClaimBoundarySchema,
+    androidChildAgentBehavior: ParentMobileControllerObserverHandoffClaimBoundarySchema,
+    iosChildAgentBehavior: ParentMobileControllerObserverHandoffClaimBoundarySchema,
     androidDeviceOwner: ParentMobileControllerObserverHandoffClaimBoundarySchema,
     iosFamilyControls: ParentMobileControllerObserverHandoffClaimBoundarySchema,
     signingStoresEntitlements: ParentMobileControllerObserverHandoffClaimBoundarySchema,
@@ -356,6 +362,9 @@ function leaseSnapshotIsHonest(
 function routeSnapshotIsHonest(routeSnapshot: ParentMobileControllerObserverRouteSnapshot): boolean {
   return (
     routeSnapshot.cloudRelayState === 'not-implemented' &&
+    routeSnapshot.parentCacheState === 'stale' &&
+    routeSnapshot.parentOwnedStorageState === 'offline' &&
+    routeSnapshot.localServiceState !== 'available' &&
     routeSnapshot.providerLifecycleState !== 'candidate-selected' &&
     routeSnapshot.routeState !== 'cloud-relay-not-implemented' &&
     routeSnapshot.providerPolicyDecision !== 'select-authorized-provider'

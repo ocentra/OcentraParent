@@ -43,6 +43,13 @@ area.
   DeviceActivity, Screen Time, Network Extension, notifications/background,
   signing, TestFlight, App Store, device proof, and external transport are not
   promoted to product support.
+- `parent-mobile-service-bridge-proof` and
+  `parent-mobile-controller-observer-handoff-proof` cover iOS parent mobile
+  separately from iOS child-agent support. The parent-mobile proof keeps iOS as
+  controller-candidate/manual-required, LAN/provider routing unavailable,
+  cloud-relay not-implemented, parent-cache stale, parent-owned-storage offline,
+  local model execution disabled, and signing/TestFlight/device proof
+  unclaimed.
 
 ## Gaps To Fill
 

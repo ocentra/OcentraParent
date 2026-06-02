@@ -194,8 +194,13 @@ const RuntimeReadModel = {
     parentMobileWriteAuthority: 'manual-required until real Android or iOS package/device controller proof exists',
     physicalHouseholdLan: 'manual-required until two physical devices and router/firewall artifacts exist',
     cloudRelay: 'not implemented and not counted as local, LAN, or mobile proof',
+    parentOwnedStorage: 'parent-owned storage is offline in this proof and does not silently replace LAN service',
     phoneLocalModel: 'disabled by default; parent mobile does not load a phone-local model for assistant work',
     packageServiceLaunch: 'manual-required until foreground/background mobile service launch is proven on device',
+    androidParentMobile: 'Android parent mobile observer proof stays separate from Android child-agent authority',
+    iosParentMobile: 'iOS parent mobile controller-candidate proof stays separate from iOS child-agent authority',
+    androidChildAgent: 'Android child-agent foreground service and Device Owner claims are not proved here',
+    iosChildAgent: 'iOS child-agent Family Controls and DeviceActivity claims are not proved here',
     cUiOwnership: 'C UI can render this later, but this proof does not touch UI or vendor paths',
   },
   updatedAt: CheckedAt,
@@ -217,6 +222,8 @@ function registerAcceptedStateTests(): void {
       'local-service',
       'lan-service',
       'cloud-relay',
+      'parent-cache',
+      'parent-owned-storage',
       'mobile-package',
     ]);
     expect(parsed.mobileBridgeReadModels[0]?.aiSubmission.jobState).toBe('degraded');
@@ -224,6 +231,8 @@ function registerAcceptedStateTests(): void {
     expect(parsed.mobileBridgeReadModels[0]?.operationProofs.map((proof) => proof.operation)).toEqual([
       'service-status-read',
       'lan-route-status-read',
+      'parent-cache-status-read',
+      'parent-owned-storage-status-read',
       'capability-refresh',
       'package-service-launch',
       'controller-takeover-request',
@@ -263,6 +272,17 @@ function registerBridgeClaimGuardrailTests(): void {
 
     expect(ParentMobileServiceBridgeRuntimeReadModelSchema.safeParse(localModelClaim).success).toBe(false);
     expect(ParentMobileServiceBridgeRuntimeReadModelSchema.safeParse(submittedProviderClaim).success).toBe(false);
+  });
+
+  it('rejects missing parent cache or parent-owned storage route status coverage', () => {
+    const missingParentStorage = withMobilePatch('android', {
+      connections: AndroidReadModel.connections.filter(
+        (connection) =>
+          connection.connectionKind !== 'parent-cache' && connection.connectionKind !== 'parent-owned-storage'
+      ),
+    });
+
+    expect(ParentMobileServiceBridgeRuntimeReadModelSchema.safeParse(missingParentStorage).success).toBe(false);
   });
 
   it('rejects active controller authority from the parent mobile service bridge', () => {
@@ -341,14 +361,22 @@ function serviceConnections(lanState: 'degraded' | 'manual-required') {
     connection('local-service', 'manual-required', 'manual-proof', null),
     connection('lan-service', lanState, 'lan-ai-provider', 'route-parent-mobile-lan-provider'),
     connection('cloud-relay', 'not-implemented', 'cloud-relay-not-implemented', null),
+    connection('parent-cache', 'stale', 'parent-cache', null),
+    connection('parent-owned-storage', 'offline', 'parent-owned-storage', null),
     connection('mobile-package', 'ci-mechanical-proof', 'parent-mobile-shell', null),
   ] as const;
 }
 
 function connection(
   connectionKind: ParentMobileServiceBridgeConnectionKind,
-  state: 'manual-required' | 'degraded' | 'not-implemented' | 'ci-mechanical-proof',
-  runtimeOwner: 'manual-proof' | 'lan-ai-provider' | 'cloud-relay-not-implemented' | 'parent-mobile-shell',
+  state: 'manual-required' | 'degraded' | 'not-implemented' | 'ci-mechanical-proof' | 'stale' | 'offline',
+  runtimeOwner:
+    | 'manual-proof'
+    | 'lan-ai-provider'
+    | 'cloud-relay-not-implemented'
+    | 'parent-mobile-shell'
+    | 'parent-cache'
+    | 'parent-owned-storage',
   selectedRouteId: 'route-parent-mobile-lan-provider' | null
 ) {
   return {
@@ -376,6 +404,20 @@ function readOnlyOperationProofs() {
     ),
     operationProof(
       'lan-route-status-read',
+      'completed',
+      'allowed-read-only',
+      'parent-mobile-shell',
+      'observer-read-only'
+    ),
+    operationProof(
+      'parent-cache-status-read',
+      'completed',
+      'allowed-read-only',
+      'parent-mobile-shell',
+      'observer-read-only'
+    ),
+    operationProof(
+      'parent-owned-storage-status-read',
       'completed',
       'allowed-read-only',
       'parent-mobile-shell',

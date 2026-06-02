@@ -90,6 +90,8 @@ const RuntimeReadModel = {
     parentMobileWriteAuthority: 'manual-required until real mobile controller package authority exists',
     mobileParity: 'not claimed by controller-observer handoff proof',
     childMobileAgentBehavior: 'not claimed; this is parent mobile shell proof only',
+    androidChildAgentBehavior: 'not claimed; Android child-agent behavior belongs to child-agent platform proof',
+    iosChildAgentBehavior: 'not claimed; iOS child-agent behavior belongs to entitlement/platform proof',
     androidDeviceOwner: 'not claimed; Android device-owner behavior belongs to child-agent proof',
     iosFamilyControls: 'not claimed; Family Controls requires entitlement and platform proof',
     signingStoresEntitlements: 'manual-required for app signing store and entitlement proof',
@@ -164,9 +166,15 @@ function registerRouteGuardrailTests(): void {
       routeState: 'cloud-relay-not-implemented',
       cloudRelayState: 'available',
     });
+    const storageFallbackClaim = withRoutePatch('android', {
+      parentOwnedStorageState: 'available',
+    });
 
     expect(ParentMobileControllerObserverHandoffRuntimeReadModelSchema.safeParse(selectedProvider).success).toBe(false);
     expect(ParentMobileControllerObserverHandoffRuntimeReadModelSchema.safeParse(cloudRelayClaim).success).toBe(false);
+    expect(ParentMobileControllerObserverHandoffRuntimeReadModelSchema.safeParse(storageFallbackClaim).success).toBe(
+      false
+    );
   });
 }
 
@@ -237,7 +245,11 @@ function routeSnapshot(
     providerLifecycleState,
     providerPolicyDecision,
     providerId,
+    localServiceState: 'manual-required',
+    lanServiceState: routeState === 'selected-route-degraded' ? 'degraded' : 'manual-required',
     cloudRelayState: 'not-implemented',
+    parentCacheState: 'stale',
+    parentOwnedStorageState: 'offline',
     routeRequirement: `${routeState} must remain explicit and must not silently fall back to cloud relay`,
   };
 }

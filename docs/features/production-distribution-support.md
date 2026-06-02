@@ -58,6 +58,14 @@ dev-only repo when it claims consumer readiness.
   install/manual Play signing, iOS Xcode target, iOS simulator status, iOS
   signing, and iOS TestFlight/device proof without promoting any store or
   signing claim.
+- Parent mobile route-status/service-bridge proof now records Android parent
+  mobile, iOS parent mobile, Android child agent, and iOS child agent as
+  separate claim boundaries. It proves typed local-service, LAN-service,
+  cloud-relay, parent-cache, parent-owned-storage, mobile-package, observer
+  read-only, controller-takeover manual-required, LAN AI provider degraded or
+  unavailable, phone-local-model disabled, and package/signing/store
+  manual-required states without promoting mobile controller authority or child
+  mobile parity.
 - Billing/support/public website/store distribution are planned or incomplete.
 
 ## Current Gap
@@ -80,9 +88,21 @@ package/runtime proof.
 - [ ] Android Play signing/store proof if shipped. Current
       `mobile-child-agent-capability-proof` row keeps Play signing planned and
       device install manual-required.
+- [ ] Android parent mobile route-status/service bridge proof. Current
+      `parent-mobile-service-bridge-proof` and
+      `parent-mobile-controller-observer-handoff-proof` keep Android parent
+      mobile observer/request-first, controller authority manual-required,
+      parent cache stale, parent-owned storage offline, and child-agent parity
+      unclaimed.
 - [ ] iOS TestFlight/App Store proof if shipped. Current
       `mobile-child-agent-capability-proof` row keeps signing-required,
       TestFlight/device proof manual-required, and App Store planned.
+- [ ] iOS parent mobile route-status/service bridge proof. Current
+      `parent-mobile-service-bridge-proof` and
+      `parent-mobile-controller-observer-handoff-proof` keep iOS parent mobile
+      controller-candidate behavior manual-required, LAN/provider routing
+      unavailable, parent cache stale, parent-owned storage offline, and
+      entitlement/TestFlight/device proof unclaimed.
 - [ ] Billing/subscription/account flow.
 - [ ] Privacy, retention, export/delete, and support docs.
 - [ ] Support bundle redaction proof scaffold and incident process. Current

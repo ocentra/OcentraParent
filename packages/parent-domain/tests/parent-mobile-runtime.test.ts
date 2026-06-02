@@ -31,6 +31,15 @@ function registerAcceptedStateTests(): void {
       'package-lifecycle',
       'store-distribution',
     ]);
+    expect(parsed.serviceAvailability.routeStatuses.map((entry) => entry.routeKind)).toEqual([
+      'local-service',
+      'lan-service',
+      'cloud-relay',
+      'parent-cache',
+      'parent-owned-storage',
+    ]);
+    expect(parsed.serviceAvailability.parentCache).toBe('stale');
+    expect(parsed.serviceAvailability.parentOwnedStorage).toBe('offline');
   });
 
   it('ParentMobileRuntimeReadModelSchema: accepts submitted LAN provider job with provider identity', () => {
@@ -97,6 +106,20 @@ function registerAssistantJobGuardrailTests(): void {
           jobState: 'unavailable',
           providerId: 'lan-ai-provider-family-pc',
           unavailableReason: 'lan-ai-provider-unavailable',
+        },
+      }).success
+    ).toBe(false);
+  });
+
+  it('ParentMobileRuntimeReadModelSchema: rejects missing parent-owned storage route status', () => {
+    expect(
+      ParentMobileRuntimeReadModelSchema.safeParse({
+        ...AndroidObserverReadModel,
+        serviceAvailability: {
+          ...AndroidObserverReadModel.serviceAvailability,
+          routeStatuses: AndroidObserverReadModel.serviceAvailability.routeStatuses.filter(
+            (route) => route.routeKind !== 'parent-owned-storage'
+          ),
         },
       }).success
     ).toBe(false);

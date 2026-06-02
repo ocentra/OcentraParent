@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { V09MobileControllerObserverRuntimeReadModelSchema } from '../src/v0-9-mobile-controller-observer-runtime';
+import type { ParentMobileServiceAvailabilityState } from '../src/parent-mobile-runtime';
+import {
+  V09MobileControllerObserverRuntimeReadModelSchema,
+  type V09MobileControllerObserverRouteKind,
+} from '../src/v0-9-mobile-controller-observer-runtime';
 
 const CheckedAt = '2026-05-29T20:35:00.000Z';
 
@@ -123,6 +127,7 @@ const AndroidReadModel = {
   controllerState: 'observer',
   commandAuthorityState: 'observer-read-only',
   serviceState: 'degraded',
+  routeStatuses: routeStatuses('manual-required', 'degraded', 'route-parent-mobile-lan-provider'),
   packageReadiness: {
     packageState: 'ci-mechanical-proof',
     runtimeState: 'ci-mechanical-proof',
@@ -163,6 +168,7 @@ const IosReadModel = {
   controllerState: 'manual-required',
   commandAuthorityState: 'controller-takeover-manual-required',
   serviceState: 'manual-required',
+  routeStatuses: routeStatuses('manual-required', 'manual-required', null),
   packageReadiness: {
     packageState: 'ci-mechanical-proof',
     runtimeState: 'ci-mechanical-proof',
@@ -230,6 +236,13 @@ function registerAcceptedStateTests(): void {
 
     expect(parsed.cloudRelayState).toBe('not-implemented');
     expect(parsed.mobileReadModels.map((readModel) => readModel.platform)).toEqual(['android', 'ios']);
+    expect(parsed.mobileReadModels[0]?.routeStatuses.map((route) => route.routeKind)).toEqual([
+      'local-service',
+      'lan-service',
+      'cloud-relay',
+      'parent-cache',
+      'parent-owned-storage',
+    ]);
     expect(parsed.mobileReadModels[0]?.operationProofs.map((proof) => proof.operation)).toEqual([
       'observe-status',
       'preview-policy-draft',
@@ -322,9 +335,23 @@ function registerProofHarnessGuardrailTests(): void {
       ...RuntimeReadModel,
       cloudRelayState: 'ci-mechanical-proof',
     };
+    const cacheFreshnessClaim = {
+      ...RuntimeReadModel,
+      mobileReadModels: RuntimeReadModel.mobileReadModels.map((readModel) =>
+        readModel.platform === 'android'
+          ? {
+              ...readModel,
+              routeStatuses: readModel.routeStatuses.map((route) =>
+                route.routeKind === 'parent-cache' ? { ...route, state: 'available' } : route
+              ),
+            }
+          : readModel
+      ),
+    };
 
     expect(V09MobileControllerObserverRuntimeReadModelSchema.safeParse(missingSourceProof).success).toBe(false);
     expect(V09MobileControllerObserverRuntimeReadModelSchema.safeParse(cloudRelayClaim).success).toBe(false);
+    expect(V09MobileControllerObserverRuntimeReadModelSchema.safeParse(cacheFreshnessClaim).success).toBe(false);
   });
 
   it('rejects package readiness without explicit manual capability gaps', () => {
@@ -356,5 +383,32 @@ function withOperation(operation: (typeof OperationProofs)[number]['operation'],
         proof.operation === operation ? { ...proof, ...patch } : proof
       ),
     })),
+  };
+}
+
+function routeStatuses(
+  localService: ParentMobileServiceAvailabilityState,
+  lanService: ParentMobileServiceAvailabilityState,
+  selectedRouteId: 'route-parent-mobile-lan-provider' | null
+) {
+  return [
+    routeStatus('local-service', localService, null),
+    routeStatus('lan-service', lanService, selectedRouteId),
+    routeStatus('cloud-relay', 'not-implemented', null),
+    routeStatus('parent-cache', 'stale', null),
+    routeStatus('parent-owned-storage', 'offline', null),
+  ] as const;
+}
+
+function routeStatus(
+  routeKind: V09MobileControllerObserverRouteKind,
+  state: ParentMobileServiceAvailabilityState,
+  selectedRouteId: 'route-parent-mobile-lan-provider' | null
+) {
+  return {
+    routeKind,
+    state,
+    selectedRouteId,
+    proofRequirement: `${routeKind} status must stay explicit in the V0.9 parent mobile observer runtime`,
   };
 }
