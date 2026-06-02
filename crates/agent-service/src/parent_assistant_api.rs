@@ -264,7 +264,7 @@ fn action_preview_result_for_command(
         )
         .unwrap_or_else(|| constants::parent_assistant::DEFAULT_ACTION_INTENT_ID.to_string()),
         preview_state: ParentAssistantActionPreviewState::Draft,
-        evidence_context: evidence_contexts_from_command(command, None, previewed_at),
+        evidence_context: evidence_contexts_from_command(command, None, None, previewed_at),
         requires_controller_lease: preview.requires_controller_lease,
         child_agent_contract_required: true,
         enforcement_applied: false,

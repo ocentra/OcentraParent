@@ -6,15 +6,20 @@ use ocentra_parent_agent_protocol::{
 };
 
 use crate::{
-    fields::fields_from_pairs, local_ai_runtime_config::LocalAiRuntimeConfigSnapshot,
+    activity_surface_report_store::save_report_document, fields::fields_from_pairs,
+    local_ai_runtime_config::LocalAiRuntimeConfigSnapshot,
+    parent_assistant_report_history::activity_report_history_from_command,
     parent_assistant_runtime::request_from_command,
 };
+
+static REPORT_ENV_LOCK: tokio::sync::Mutex<()> = tokio::sync::Mutex::const_new(());
 
 #[test]
 fn parent_assistant_request_cites_saved_activity_report_history_when_supplied() {
     let request = request_from_command(
         &history_context_command(),
         &LocalAiRuntimeConfigSnapshot::unconfigured(),
+        None,
         None,
     );
 
@@ -43,6 +48,47 @@ fn parent_assistant_request_cites_saved_activity_report_history_when_supplied() 
     assert!(report_context
         .allowed_summary
         .contains(constants::activity_surface::FAMILY_SOURCE_OFFLINE_ID));
+}
+
+#[tokio::test]
+async fn parent_assistant_runtime_loads_saved_history_without_report_payload() {
+    let _guard = REPORT_ENV_LOCK.lock().await;
+    let report_root = temp_report_root();
+    cleanup_report_root(&report_root);
+    std::env::set_var(constants::env_var::DEV_LOG_DIR, &report_root);
+    save_report_document(super::saved_report_document());
+
+    let stored_history = activity_report_history_from_command(&super::command())
+        .await
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let request = request_from_command(
+        &super::command(),
+        &LocalAiRuntimeConfigSnapshot::unconfigured(),
+        None,
+        Some(stored_history),
+    );
+
+    std::env::remove_var(constants::env_var::DEV_LOG_DIR);
+    cleanup_report_root(&report_root);
+
+    let report_context = request
+        .evidence_context
+        .iter()
+        .find(|context| {
+            context.citation_label == constants::parent_assistant::ACTIVITY_REPORT_CITATION_LABEL
+        })
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+
+    assert_eq!(
+        report_context.evidence.evidence_reference_id,
+        constants::activity_surface::REPORT_ID_DAILY
+    );
+    assert!(report_context
+        .allowed_summary
+        .contains(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_STORAGE_REASON_LABEL));
+    assert!(report_context
+        .allowed_summary
+        .contains(constants::activity_surface::SUMMARY_STORAGE_SAVED));
 }
 
 fn history_context_command() -> ocentra_parent_agent_protocol::AgentCommandEnvelope {
@@ -94,4 +140,27 @@ fn history_list() -> ActivityHistoricalReportList {
             parsed_report: report,
         }],
     }
+}
+
+fn temp_report_root() -> std::path::PathBuf {
+    let mut path = std::env::temp_dir();
+    let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
+    name.push_str(&std::process::id().to_string());
+    name.push(constants::delimiter::HYPHEN);
+    name.push_str(&nanos_now().to_string());
+    name.push(constants::delimiter::HYPHEN);
+    name.push_str(constants::dev_log::DEFAULT_DIR);
+    path.push(name);
+    path
+}
+
+fn cleanup_report_root(path: &std::path::PathBuf) {
+    let _ = std::fs::remove_dir_all(path);
+}
+
+fn nanos_now() -> u128 {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .expect(constants::error::AGENT_EVENT_SERIALIZES)
+        .as_nanos()
 }

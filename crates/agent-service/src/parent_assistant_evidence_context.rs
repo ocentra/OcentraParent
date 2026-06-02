@@ -12,6 +12,7 @@ use crate::{
 pub(crate) fn evidence_contexts_from_command(
     command: &AgentCommandEnvelope,
     activity_snapshot: Option<ActivitySurfaceStoreSnapshot>,
+    stored_report_history: Option<ActivityHistoricalReportList>,
     observed_at: String,
 ) -> Vec<ParentAssistantEvidenceContext> {
     let allowed_summary =
@@ -50,6 +51,12 @@ pub(crate) fn evidence_contexts_from_command(
 
     if let Some(report) = report_document_from_command(command)
         .or_else(|| report_document_from_history_command(command))
+        .or_else(|| {
+            stored_report_history
+                .as_ref()
+                .and_then(|history| history.reports.first())
+                .map(|history_item| history_item.parsed_report.clone())
+        })
     {
         contexts.push(report_evidence_context(&report));
     }

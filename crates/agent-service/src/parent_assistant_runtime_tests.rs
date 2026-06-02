@@ -130,6 +130,7 @@ async fn parent_assistant_request_prepares_policy_preview_without_enforcement_or
         &policy_question_command(),
         &LocalAiRuntimeConfigSnapshot::unconfigured(),
         None,
+        None,
     );
     let answer = generate_parent_assistant_answer_with_scheduler(
         &policy_question_command(),
@@ -176,6 +177,7 @@ fn parent_assistant_request_cites_activity_snapshot_when_prompt_has_no_summary()
         &command(),
         &LocalAiRuntimeConfigSnapshot::unconfigured(),
         Some(snapshot),
+        None,
     );
 
     assert_eq!(
@@ -201,6 +203,7 @@ fn parent_assistant_request_cites_activity_report_document_when_supplied() {
     let request = request_from_command(
         &report_context_command(),
         &LocalAiRuntimeConfigSnapshot::unconfigured(),
+        None,
         None,
     );
 
@@ -281,6 +284,7 @@ fn parent_assistant_request_preserves_thread_and_message_ids_from_command() {
     let request = request_from_command(
         &thread_message_command(),
         &LocalAiRuntimeConfigSnapshot::unconfigured(),
+        None,
         None,
     );
 

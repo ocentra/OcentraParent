@@ -122,6 +122,33 @@ fn activity_report_history_marks_partial_parse_failures_as_degraded() {
     assert_eq!(history.reports.len(), 1);
 }
 
+#[test]
+fn activity_report_history_filters_saved_reports_to_requested_range() {
+    let report_dir = TempReportDir::new();
+    save_report_document_to_dir(
+        report(family_scope(), family_source_states()),
+        report_dir.path(),
+    );
+    let mut future_report = report(family_scope(), family_source_states());
+    future_report.report_id = constants::activity_surface::REPORT_ID_WEEKLY.to_string();
+    future_report.range_start = constants::activity_store::TEST_THIRD_OBSERVED_AT.to_string();
+    future_report.range_end = constants::activity_store::TEST_THIRD_OBSERVED_AT.to_string();
+    save_report_document_to_dir(future_report, report_dir.path());
+
+    let history = history_list_from_dir(surface_request(family_scope()), report_dir.path());
+
+    assert_eq!(history.state, ActivityReadModelState::Ready);
+    assert_eq!(history.reports.len(), 1);
+    assert_eq!(
+        history.reports[0].report_id,
+        constants::activity_surface::REPORT_ID_DAILY
+    );
+    assert_eq!(
+        history.reports[0].range_end,
+        constants::activity_store::TEST_SECOND_OBSERVED_AT
+    );
+}
+
 fn assert_family_source_states(source_states: &[ActivityReportSourceState]) {
     assert_eq!(source_states.len(), 4);
     assert_eq!(

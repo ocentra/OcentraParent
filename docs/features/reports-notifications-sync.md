@@ -34,14 +34,17 @@ custody.
 ## Current Ocentra State
 
 - Activity report persistence/family fanout/MIA context proof is in progress.
+- Saved Activity reports are stored as local JSON report documents and
+  historical report queries now preserve scope, requested window, parsed report
+  metadata, and typed storage fallback states.
 - Notification and sync/export expectation docs exist.
 - Parent-facing reports, alert delivery, and connectors are incomplete.
 
 ## Current Gap
 
-Need report UI, report history, trend summaries, cited assistant Q&A,
-notification providers, quiet hours, escalation, delivery status, connectors,
-retention, and delete/export controls.
+Need report UI, trend summaries, cited assistant Q&A as a complete product
+flow, notification providers, quiet hours, escalation, delivery status,
+connectors, retention, and delete/export controls.
 
 ## Checklist
 
