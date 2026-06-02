@@ -107,6 +107,7 @@ function expectManageItemOrder(): void {
     '#/policy-screen',
     '#/policy-network',
     '#/policy-tracking',
+    '#/policy-remote-screen',
     '#/drive-connections',
     '#/ai-runtime',
     '#/subscription',
@@ -200,6 +201,7 @@ describe('portal route schema contracts', () => {
       'policy-screen',
       'policy-network',
       'policy-tracking',
+      'policy-remote-screen',
       'rule-management',
       'schedules',
       'approvals',
@@ -291,6 +293,7 @@ describe('portal guide route contracts', () => {
       '#/policy-screen',
       '#/policy-network',
       '#/policy-tracking',
+      '#/policy-remote-screen',
     ]);
     expect(manageItems.some((item) => item.routePath === '#/rule-management')).toBe(false);
     expect(manageItems.some((item) => item.routePath === '#/schedules')).toBe(false);
@@ -395,6 +398,7 @@ describe('portal manage section contracts', () => {
       '#/policy-screen',
       '#/policy-network',
       '#/policy-tracking',
+      '#/policy-remote-screen',
     ]);
     expectManageAccountAndControlBuckets();
     expectManageCollapsedSections();
