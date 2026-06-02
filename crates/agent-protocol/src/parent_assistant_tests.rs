@@ -37,6 +37,14 @@ fn parent_assistant_request_serializes_cited_evidence_context() {
         serialized["evidenceContext"][0]["evidence"]["kind"],
         "query-store-summary"
     );
+    assert_eq!(
+        serialized["evidenceContext"][0]["rawChildEvidenceIncluded"],
+        false
+    );
+    assert_eq!(
+        serialized["evidenceContext"][0]["directEnforcementAllowed"],
+        false
+    );
 }
 
 #[test]
@@ -369,5 +377,9 @@ fn sample_evidence_context() -> ParentAssistantEvidenceContext {
         },
         citation_label: "Activity summary 1".to_string(),
         allowed_summary: "App use was higher than the daily baseline.".to_string(),
+        custody_label: "parent-owned-activity-summary".to_string(),
+        source_label: "activity-query-store-summary".to_string(),
+        raw_child_evidence_included: false,
+        direct_enforcement_allowed: false,
     }
 }

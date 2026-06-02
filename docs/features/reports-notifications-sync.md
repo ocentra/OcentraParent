@@ -33,10 +33,18 @@ custody.
 
 ## Current Ocentra State
 
-- Activity report persistence/family fanout/MIA context proof is in progress.
+- Activity report persistence/family fanout/MIA context proof exists for the
+  backend/read-model boundary.
 - Saved Activity reports are stored as local JSON report documents and
   historical report queries now preserve scope, requested window, parsed report
-  metadata, and typed storage fallback states.
+  metadata, typed storage fallback states, parent-local custody/source labels,
+  and `rawChildEvidenceIncluded=false`.
+- Family Activity report aggregation preserves ready/offline/stale/unavailable,
+  unreachable, and error source states for service-owned UI handoff without
+  making Vite or portal UI the product-data owner.
+- Parent Assistant/MIA evidence context can cite saved Activity report history
+  with parent-owned report custody and `directEnforcementAllowed=false`; it is
+  citation context only.
 - Notification and sync/export expectation docs exist.
 - V0.8 integrity alert/status bridge proof now creates minimal notification
   intent/status refs for permission-loss, stale heartbeat, stopped-or-removed,
@@ -55,11 +63,13 @@ flow, real notification provider adapters, retry execution, provider receipt
 ingestion, parent controls, connectors, retention, and delete/export controls.
 The V0.8 integrity bridge and provider status boundary prove only minimal
 notification intent/status/readiness references and audit drill-in, not provider
-delivery or UI.
+delivery or UI. Activity report persistence/family fanout/MIA context proof does
+not claim physical household fanout, raw child evidence transfer, provider
+notification delivery, policy writes, or child-device enforcement.
 
 ## Checklist
 
-- [ ] Report contract and storage/custody state.
+- [x] Report contract and storage/custody state.
 - [ ] Evidence citations in reports.
 - [ ] Parent-owned export/sync connector status.
 - [ ] Notification rule contract.

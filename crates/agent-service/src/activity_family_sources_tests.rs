@@ -1,9 +1,10 @@
 use ocentra_parent_agent_protocol::{
-    constants, ActivityReadModelState, ActivityReportFrequency, ActivityReportRequest,
-    ActivityReportSourceReachabilityState, ActivityReportSourceState, ActivitySurfaceScope,
-    ActivitySurfaceScopeKind, AgentCommandEnvelope, AgentCommandName, AgentMessageTarget,
-    AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue, LogFields,
-    ACTIVITY_SURFACE_SCHEMA_VERSION, AGENT_PROTOCOL_SCHEMA_VERSION,
+    constants, ActivityReadModelState, ActivityReportCustodyLabel, ActivityReportFrequency,
+    ActivityReportRequest, ActivityReportSourceLabel, ActivityReportSourceReachabilityState,
+    ActivityReportSourceState, ActivitySurfaceScope, ActivitySurfaceScopeKind,
+    AgentCommandEnvelope, AgentCommandName, AgentMessageTarget, AgentPeer, AgentPeerRole,
+    AgentRoute, LogFieldValue, LogFields, ACTIVITY_SURFACE_SCHEMA_VERSION,
+    AGENT_PROTOCOL_SCHEMA_VERSION,
 };
 
 use crate::{
@@ -42,6 +43,10 @@ fn activity_family_sources_parse_reachable_offline_stale_and_error_records_from_
         ActivityReportSourceReachabilityState::Reachable
     );
     assert_eq!(
+        sources[0].source_label,
+        ActivityReportSourceLabel::ActivityQueryStoreSummary
+    );
+    assert_eq!(
         sources[1].reachability_state,
         ActivityReportSourceReachabilityState::Offline
     );
@@ -72,6 +77,11 @@ fn activity_family_sources_return_error_record_for_invalid_source_payload() {
         ActivityReportSourceReachabilityState::Error
     );
     assert_eq!(sources[0].state, ActivityReadModelState::Unavailable);
+    assert_eq!(
+        sources[0].source_label,
+        ActivityReportSourceLabel::FamilyFanoutSourceState
+    );
+    assert!(!sources[0].raw_child_evidence_included);
 }
 
 #[tokio::test]
@@ -112,6 +122,10 @@ async fn activity_family_report_preserves_reachable_offline_stale_and_error_sour
     assert_eq!(
         report.source_states[0].reachability_state,
         ActivityReportSourceReachabilityState::Reachable
+    );
+    assert_eq!(
+        report.source_states[0].source_label,
+        ActivityReportSourceLabel::ActivityQueryStoreSummary
     );
     assert_eq!(
         report.source_states[1].reachability_state,
@@ -158,6 +172,11 @@ async fn activity_family_report_without_query_store_keeps_family_fanout_unavaila
         report.source_states[1].state,
         ActivityReadModelState::Unavailable
     );
+    assert_eq!(
+        report.source_states[1].source_label,
+        ActivityReportSourceLabel::FamilyFanoutSourceState
+    );
+    assert!(!report.source_states[1].raw_child_evidence_included);
     assert_eq!(
         report.sections[0].state,
         ActivityReadModelState::Unavailable
@@ -220,5 +239,12 @@ fn source_record(
         state,
         reason: Some(constants::activity_surface::SUMMARY_FAMILY_LOCAL_SOURCE.to_string()),
         last_updated_at: Some(constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string()),
+        custody_label: ActivityReportCustodyLabel::ChildDeviceLocalSummary,
+        source_label: if reachability_state == ActivityReportSourceReachabilityState::Reachable {
+            ActivityReportSourceLabel::ActivityQueryStoreSummary
+        } else {
+            ActivityReportSourceLabel::FamilyFanoutSourceState
+        },
+        raw_child_evidence_included: false,
     }
 }

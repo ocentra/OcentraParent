@@ -1,8 +1,9 @@
 use ocentra_parent_agent_protocol::{
-    constants, ActivityReadModelState, ActivityReportDocument, ActivityReportFrequency,
-    ActivityReportRequest, ActivityReportSection, ActivityReportSectionKind,
-    ActivityReportSourceReachabilityState, ActivityReportSourceState, ActivitySurfaceScope,
-    ActivitySurfaceScopeKind, ACTIVITY_SURFACE_SCHEMA_VERSION,
+    constants, ActivityReadModelState, ActivityReportCustodyLabel, ActivityReportDocument,
+    ActivityReportFrequency, ActivityReportRequest, ActivityReportSection,
+    ActivityReportSectionKind, ActivityReportSourceLabel, ActivityReportSourceReachabilityState,
+    ActivityReportSourceState, ActivitySurfaceScope, ActivitySurfaceScopeKind,
+    ACTIVITY_SURFACE_SCHEMA_VERSION,
 };
 
 use crate::{
@@ -81,6 +82,9 @@ fn source_states_for_request(
         state: source_state,
         reason: Some(constants::activity_surface::SUMMARY_FAMILY_LOCAL_SOURCE.to_string()),
         last_updated_at: snapshot.last_observed_at.clone(),
+        custody_label: ActivityReportCustodyLabel::ChildDeviceLocalSummary,
+        source_label: ActivityReportSourceLabel::ActivityQueryStoreSummary,
+        raw_child_evidence_included: false,
     }];
 
     if scope.scope_kind == ActivitySurfaceScopeKind::Family {
@@ -133,6 +137,9 @@ fn unavailable_source_states_for_request(
         state: ActivityReadModelState::Unavailable,
         reason: Some(constants::activity_surface::SUMMARY_STORE_UNAVAILABLE.to_string()),
         last_updated_at: None,
+        custody_label: ActivityReportCustodyLabel::ChildDeviceLocalSummary,
+        source_label: ActivityReportSourceLabel::ActivityQueryStoreSummary,
+        raw_child_evidence_included: false,
     }];
 
     if scope.scope_kind == ActivitySurfaceScopeKind::Family {
@@ -163,6 +170,9 @@ fn offline_device_report_document(request: ActivityReportRequest) -> ActivityRep
             state: ActivityReadModelState::Offline,
             reason: Some(constants::activity_surface::SUMMARY_DEVICE_OFFLINE.to_string()),
             last_updated_at: None,
+            custody_label: ActivityReportCustodyLabel::ChildDeviceLocalSummary,
+            source_label: ActivityReportSourceLabel::ActivityQueryStoreSummary,
+            raw_child_evidence_included: false,
         }],
         sections: vec![
             offline_section(ActivityReportSectionKind::Summary),

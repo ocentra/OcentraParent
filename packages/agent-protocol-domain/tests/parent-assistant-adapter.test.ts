@@ -284,6 +284,10 @@ function answerPayload() {
     },
     citationLabel: 'Recent activity',
     allowedSummary: 'Recent Activity evidence is available.',
+    custodyLabel: 'parent-owned-activity-summary',
+    sourceLabel: 'activity-query-store-summary',
+    rawChildEvidenceIncluded: false,
+    directEnforcementAllowed: false,
   };
 
   return {
@@ -355,6 +359,9 @@ function activityReport() {
       savedState: 'saved',
       savedAt: '2026-05-28T14:54:02Z',
       storageReason: 'Activity report is saved in local parent report storage.',
+      custodyLabel: 'parent-device-local-report-json',
+      sourceLabel: 'saved-report-json',
+      rawChildEvidenceIncluded: false,
     },
     sourceStates: [
       {
@@ -363,6 +370,9 @@ function activityReport() {
         state: 'ready',
         reason: null,
         lastUpdatedAt: '2026-05-28T14:53:00Z',
+        custodyLabel: 'child-device-local-summary',
+        sourceLabel: 'activity-query-store-summary',
+        rawChildEvidenceIncluded: false,
       },
     ],
     sections: [

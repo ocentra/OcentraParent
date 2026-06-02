@@ -141,6 +141,10 @@ pub struct ParentAssistantEvidenceContext {
     pub evidence: ParentEvidenceReference,
     pub citation_label: String,
     pub allowed_summary: String,
+    pub custody_label: String,
+    pub source_label: String,
+    pub raw_child_evidence_included: bool,
+    pub direct_enforcement_allowed: bool,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

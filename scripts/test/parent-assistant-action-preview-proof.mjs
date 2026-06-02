@@ -177,6 +177,9 @@ function activityReport() {
       savedState: 'saved',
       savedAt: '2026-05-28T14:54:02Z',
       storageReason: 'Activity report is saved in local parent report storage.',
+      custodyLabel: 'parent-device-local-report-json',
+      sourceLabel: 'saved-report-json',
+      rawChildEvidenceIncluded: false,
     },
     sourceStates: [
       {
@@ -185,6 +188,9 @@ function activityReport() {
         state: 'ready',
         reason: 'Family scope is backed by the reachable local child-device query store.',
         lastUpdatedAt: '2026-05-28T14:53:00Z',
+        custodyLabel: 'child-device-local-summary',
+        sourceLabel: 'activity-query-store-summary',
+        rawChildEvidenceIncluded: false,
       },
       {
         deviceId: 'family-child-offline',
@@ -192,6 +198,9 @@ function activityReport() {
         state: 'offline',
         reason: 'Child-device source is registered but not reachable for this report request.',
         lastUpdatedAt: null,
+        custodyLabel: 'child-device-local-summary',
+        sourceLabel: 'family-fanout-source-state',
+        rawChildEvidenceIncluded: false,
       },
       {
         deviceId: 'family-child-stale',
@@ -199,6 +208,9 @@ function activityReport() {
         state: 'stale',
         reason: 'Child-device source has stale report material and needs a fresh activity sync.',
         lastUpdatedAt: '2026-05-28T13:54:00Z',
+        custodyLabel: 'child-device-local-summary',
+        sourceLabel: 'family-fanout-source-state',
+        rawChildEvidenceIncluded: false,
       },
     ],
     sections: [

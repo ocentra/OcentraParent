@@ -38,6 +38,10 @@ const EvidenceContext = {
   },
   citationLabel: 'Activity summary 1',
   allowedSummary: 'App use was higher than the daily baseline.',
+  custodyLabel: 'parent-owned-activity-summary',
+  sourceLabel: 'activity-query-store-summary',
+  rawChildEvidenceIncluded: false,
+  directEnforcementAllowed: false,
 } as const;
 
 const Request = {
@@ -95,7 +99,23 @@ describe('parent assistant request contracts', () => {
     const parsed = ParentAssistantGenerateRequestSchema.parse(Request);
 
     expect(parsed.evidenceContext[0]?.citationLabel).toBe('Activity summary 1');
+    expect(parsed.evidenceContext[0]?.rawChildEvidenceIncluded).toBe(false);
+    expect(parsed.evidenceContext[0]?.directEnforcementAllowed).toBe(false);
     expect(parsed.scope.device?.deviceId).toBe('child-device-1');
+  });
+
+  it('ParentAssistantGenerateRequestSchema: rejects raw child evidence in MIA context', () => {
+    expect(
+      ParentAssistantGenerateRequestSchema.safeParse({
+        ...Request,
+        evidenceContext: [
+          {
+            ...EvidenceContext,
+            rawChildEvidenceIncluded: true,
+          },
+        ],
+      }).success
+    ).toBe(false);
   });
 
   it('ParentAssistantGenerateRequestSchema: rejects empty parent questions', () => {

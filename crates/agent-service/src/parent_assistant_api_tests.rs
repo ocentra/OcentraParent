@@ -5,12 +5,13 @@ use std::{
 };
 
 use ocentra_parent_agent_protocol::{
-    constants, policy_constants, ActivityReadModelState, ActivityReportDocument,
-    ActivityReportFrequency, ActivityReportSection, ActivityReportSectionKind,
-    ActivityReportSourceReachabilityState, ActivityReportSourceState, ActivitySavedReportMetadata,
-    ActivitySavedReportState, ActivitySurfaceScope, ActivitySurfaceScopeKind, AgentCommandEnvelope,
-    AgentCommandName, AgentEventName, AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute,
-    LogFieldValue, LogLevel, ParentAssistantActionConfirmResult, ParentAssistantActionPreviewKind,
+    constants, policy_constants, ActivityReadModelState, ActivityReportCustodyLabel,
+    ActivityReportDocument, ActivityReportFrequency, ActivityReportSection,
+    ActivityReportSectionKind, ActivityReportSourceLabel, ActivityReportSourceReachabilityState,
+    ActivityReportSourceState, ActivitySavedReportMetadata, ActivitySavedReportState,
+    ActivitySurfaceScope, ActivitySurfaceScopeKind, AgentCommandEnvelope, AgentCommandName,
+    AgentEventName, AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue,
+    LogLevel, ParentAssistantActionConfirmResult, ParentAssistantActionPreviewKind,
     ParentAssistantActionPreviewResult, ParentAssistantActionPreviewState,
     ParentAssistantApiAuthorizationState, ParentAssistantApiProviderAccessState,
     ParentAssistantBackendState, ParentAssistantEvidenceContext, ParentAssistantProviderState,
@@ -315,6 +316,16 @@ fn parent_assistant_action_preview_returns_draft_without_policy_write_or_enforce
         report_context.evidence.evidence_reference_id,
         constants::activity_surface::REPORT_ID_DAILY
     );
+    assert_eq!(
+        report_context.custody_label,
+        constants::parent_assistant::EVIDENCE_CUSTODY_ACTIVITY_REPORT
+    );
+    assert_eq!(
+        report_context.source_label,
+        constants::parent_assistant::EVIDENCE_SOURCE_SAVED_ACTIVITY_REPORT_HISTORY
+    );
+    assert!(!report_context.raw_child_evidence_included);
+    assert!(!report_context.direct_enforcement_allowed);
     assert!(report_context
         .allowed_summary
         .contains(constants::activity_surface::SAVED_STATE_SAVED));
@@ -428,6 +439,11 @@ fn evidence_context() -> ParentAssistantEvidenceContext {
         },
         citation_label: constants::parent_assistant::DEFAULT_CITATION_LABEL.to_string(),
         allowed_summary: constants::parent_assistant::DEFAULT_ALLOWED_SUMMARY.to_string(),
+        custody_label: constants::parent_assistant::EVIDENCE_CUSTODY_ACTIVITY_SUMMARY.to_string(),
+        source_label: constants::parent_assistant::EVIDENCE_SOURCE_ACTIVITY_QUERY_STORE_SUMMARY
+            .to_string(),
+        raw_child_evidence_included: false,
+        direct_enforcement_allowed: false,
     }
 }
 
@@ -451,6 +467,9 @@ fn activity_report_document_json() -> String {
             saved_state: ActivitySavedReportState::Saved,
             saved_at: Some(constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string()),
             storage_reason: Some(constants::activity_surface::SUMMARY_STORAGE_SAVED.to_string()),
+            custody_label: ActivityReportCustodyLabel::ParentDeviceLocalReportJson,
+            source_label: ActivityReportSourceLabel::SavedReportJson,
+            raw_child_evidence_included: false,
         }),
         source_states: vec![
             ActivityReportSourceState {
@@ -461,6 +480,9 @@ fn activity_report_document_json() -> String {
                 last_updated_at: Some(
                     constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string(),
                 ),
+                custody_label: ActivityReportCustodyLabel::ChildDeviceLocalSummary,
+                source_label: ActivityReportSourceLabel::ActivityQueryStoreSummary,
+                raw_child_evidence_included: false,
             },
             ActivityReportSourceState {
                 device_id: constants::activity_surface::FAMILY_SOURCE_OFFLINE_ID.to_string(),
@@ -472,6 +494,9 @@ fn activity_report_document_json() -> String {
                 last_updated_at: Some(
                     constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string(),
                 ),
+                custody_label: ActivityReportCustodyLabel::ChildDeviceLocalSummary,
+                source_label: ActivityReportSourceLabel::FamilyFanoutSourceState,
+                raw_child_evidence_included: false,
             },
         ],
         sections: vec![ActivityReportSection {

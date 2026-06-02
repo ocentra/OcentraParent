@@ -36,6 +36,9 @@ configure, explain, and preview rules.
 - Parent Assistant now uses the local service to load the latest saved Activity
   report history as evidence context when the command does not already carry a
   report payload, while preserving explicit report/history payload precedence.
+- MIA/report-history evidence contexts now carry typed parent-owned custody and
+  source labels, `rawChildEvidenceIncluded=false`, and
+  `directEnforcementAllowed=false`.
 - Provider routing and local AI scheduler work is in progress/proof-backed.
 - Finished portal chat/action flow is not done.
 
@@ -44,13 +47,15 @@ configure, explain, and preview rules.
 Assistant threads, cited answers, action previews, rule-writing flow, provider
 status UI, parent approval, and child-agent validation are incomplete as one
 product flow. Saved report citations have runtime proof, but the portal chat
-surface still needs C-owned integration.
+surface still needs C-owned integration. MIA evidence context remains
+read-model/report citation context only; it does not transfer raw child evidence,
+write policy, or enforce on child devices.
 
 ## Checklist
 
 - [ ] Assistant thread contract.
-- [ ] Evidence-cited answer contract.
-- [ ] Action preview contract.
+- [x] Evidence-cited answer contract.
+- [x] Action preview contract.
 - [ ] Draft rule/schedule/approval actions.
 - [ ] Provider status and degraded state.
 - [ ] Parent confirmation before write.

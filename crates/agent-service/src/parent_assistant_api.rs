@@ -283,6 +283,11 @@ fn default_evidence_context() -> ParentAssistantEvidenceContext {
         },
         citation_label: constants::parent_assistant::DEFAULT_CITATION_LABEL.to_string(),
         allowed_summary: constants::parent_assistant::DEFAULT_ALLOWED_SUMMARY.to_string(),
+        custody_label: constants::parent_assistant::EVIDENCE_CUSTODY_ACTIVITY_SUMMARY.to_string(),
+        source_label: constants::parent_assistant::EVIDENCE_SOURCE_ACTIVITY_QUERY_STORE_SUMMARY
+            .to_string(),
+        raw_child_evidence_included: false,
+        direct_enforcement_allowed: false,
     }
 }
 

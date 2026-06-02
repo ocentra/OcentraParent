@@ -214,6 +214,9 @@ function activityReportEvent(input: {
             state: 'ready',
             reason: null,
             lastUpdatedAt: '2026-05-21T01:00:00Z',
+            custodyLabel: 'child-device-local-summary',
+            sourceLabel: 'activity-query-store-summary',
+            rawChildEvidenceIncluded: false,
           },
         ],
         sections: [

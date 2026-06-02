@@ -1,6 +1,7 @@
 use ocentra_parent_agent_protocol::{
-    constants, ActivityReadModelState, ActivityReportSourceReachabilityState,
-    ActivityReportSourceState, AgentCommandEnvelope, LogFieldValue,
+    constants, ActivityReadModelState, ActivityReportCustodyLabel, ActivityReportSourceLabel,
+    ActivityReportSourceReachabilityState, ActivityReportSourceState, AgentCommandEnvelope,
+    LogFieldValue,
 };
 
 pub(crate) fn family_sources_from_command(
@@ -24,6 +25,9 @@ pub(crate) fn default_family_fanout_record() -> ActivityReportSourceState {
         state: ActivityReadModelState::Unavailable,
         reason: Some(constants::activity_surface::SUMMARY_FAMILY_FANOUT_UNAVAILABLE.to_string()),
         last_updated_at: None,
+        custody_label: ActivityReportCustodyLabel::ChildDeviceLocalSummary,
+        source_label: ActivityReportSourceLabel::FamilyFanoutSourceState,
+        raw_child_evidence_included: false,
     }
 }
 
@@ -34,5 +38,8 @@ pub(crate) fn family_source_error_record() -> ActivityReportSourceState {
         state: ActivityReadModelState::Unavailable,
         reason: Some(constants::activity_surface::SUMMARY_FAMILY_SOURCE_ERROR.to_string()),
         last_updated_at: None,
+        custody_label: ActivityReportCustodyLabel::ChildDeviceLocalSummary,
+        source_label: ActivityReportSourceLabel::FamilyFanoutSourceState,
+        raw_child_evidence_included: false,
     }
 }

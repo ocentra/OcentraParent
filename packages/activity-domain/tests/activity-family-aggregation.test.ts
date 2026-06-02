@@ -43,6 +43,9 @@ const FamilyReport = {
     savedState: 'saved',
     savedAt: '2026-06-01T00:02:00Z',
     storageReason: null,
+    custodyLabel: 'parent-device-local-report-json',
+    sourceLabel: 'saved-report-json',
+    rawChildEvidenceIncluded: false,
   },
   sourceStates: [
     {
@@ -51,6 +54,9 @@ const FamilyReport = {
       state: 'ready',
       reason: 'Local child source is ready',
       lastUpdatedAt: '2026-06-01T00:00:30Z',
+      custodyLabel: 'child-device-local-summary',
+      sourceLabel: 'activity-query-store-summary',
+      rawChildEvidenceIncluded: false,
     },
     {
       deviceId: 'child-device-2',
@@ -58,6 +64,9 @@ const FamilyReport = {
       state: 'offline',
       reason: 'Child device is offline',
       lastUpdatedAt: null,
+      custodyLabel: 'child-device-local-summary',
+      sourceLabel: 'family-fanout-source-state',
+      rawChildEvidenceIncluded: false,
     },
     {
       deviceId: 'child-device-3',
@@ -65,6 +74,9 @@ const FamilyReport = {
       state: 'stale',
       reason: 'Child source is stale',
       lastUpdatedAt: '2026-05-31T23:00:00Z',
+      custodyLabel: 'child-device-local-summary',
+      sourceLabel: 'family-fanout-source-state',
+      rawChildEvidenceIncluded: false,
     },
     {
       deviceId: 'child-device-4',
@@ -72,6 +84,9 @@ const FamilyReport = {
       state: 'unavailable',
       reason: 'Child source returned an error',
       lastUpdatedAt: null,
+      custodyLabel: 'child-device-local-summary',
+      sourceLabel: 'family-fanout-source-state',
+      rawChildEvidenceIncluded: false,
     },
   ],
   sections: [
@@ -113,6 +128,9 @@ const FamilyHistory = {
         errorSources: 1,
       },
       parsedReport: FamilyReport,
+      custodyLabel: 'parent-device-local-history',
+      sourceLabel: 'saved-report-history',
+      rawChildEvidenceIncluded: false,
     },
   ],
 } as const;
@@ -122,6 +140,13 @@ function expectServiceOwnedFamilyBuckets(model: ActivityFamilyAggregationModel) 
   expect(model.uiConsumer).toBe('c-owned-activity-ui');
   expect(model.viteDataOwner).toBe(false);
   expect(model.storageState).toBe('saved');
+  expect(model.sourceStates.every((source) => source.rawChildEvidenceIncluded === false)).toBe(true);
+  expect(model.sourceStates.map((source) => source.sourceLabel)).toEqual([
+    'activity-query-store-summary',
+    'family-fanout-source-state',
+    'family-fanout-source-state',
+    'family-fanout-source-state',
+  ]);
   expect(model.sourceStateSummary.totalSources).toBe(4);
   expect(model.readyDeviceIds).toEqual(['child-device-1']);
   expect(model.offlineDeviceIds).toEqual(['child-device-2']);

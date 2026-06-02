@@ -80,6 +80,28 @@ pub enum ActivitySavedReportState {
     ScaffoldOnly,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ActivityReportCustodyLabel {
+    #[serde(rename = "child-device-local-summary")]
+    ChildDeviceLocalSummary,
+    #[serde(rename = "parent-device-local-report-json")]
+    ParentDeviceLocalReportJson,
+    #[serde(rename = "parent-device-local-history")]
+    ParentDeviceLocalHistory,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ActivityReportSourceLabel {
+    #[serde(rename = "activity-query-store-summary")]
+    ActivityQueryStoreSummary,
+    #[serde(rename = "family-fanout-source-state")]
+    FamilyFanoutSourceState,
+    #[serde(rename = "saved-report-json")]
+    SavedReportJson,
+    #[serde(rename = "saved-report-history")]
+    SavedReportHistory,
+}
+
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ActivitySurfaceScope {
@@ -117,6 +139,9 @@ pub struct ActivityReportSourceState {
     pub state: ActivityReadModelState,
     pub reason: Option<String>,
     pub last_updated_at: Option<String>,
+    pub custody_label: ActivityReportCustodyLabel,
+    pub source_label: ActivityReportSourceLabel,
+    pub raw_child_evidence_included: bool,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -138,6 +163,9 @@ pub struct ActivitySavedReportMetadata {
     pub saved_state: ActivitySavedReportState,
     pub saved_at: Option<String>,
     pub storage_reason: Option<String>,
+    pub custody_label: ActivityReportCustodyLabel,
+    pub source_label: ActivityReportSourceLabel,
+    pub raw_child_evidence_included: bool,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -182,6 +210,9 @@ pub struct ActivityHistoricalReportListItem {
     pub saved_at: Option<String>,
     pub source_state_summary: ActivityReportSourceStateSummary,
     pub parsed_report: ActivityReportDocument,
+    pub custody_label: ActivityReportCustodyLabel,
+    pub source_label: ActivityReportSourceLabel,
+    pub raw_child_evidence_included: bool,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

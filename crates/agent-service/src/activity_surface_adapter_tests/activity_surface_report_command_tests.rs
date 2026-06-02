@@ -16,11 +16,11 @@ use crate::{
     activity_surface_report::report_document,
 };
 
-static REPORT_ENV_LOCK: tokio::sync::Mutex<()> = tokio::sync::Mutex::const_new(());
-
 #[tokio::test]
 async fn activity_report_save_and_history_commands_round_trip_real_json_storage() {
-    let _guard = REPORT_ENV_LOCK.lock().await;
+    let _guard = crate::activity_report_env_lock::REPORT_ENV_LOCK
+        .lock()
+        .await;
     let report_root = temp_report_root();
     super::cleanup_report_dir(&report_root);
     env::set_var(constants::env_var::DEV_LOG_DIR, &report_root);

@@ -43,6 +43,15 @@ pub const ACTIVITY_REPORT_SUMMARY_OFFLINE_SOURCE_IDS_LABEL: &str = ", offlineSou
 pub const ACTIVITY_REPORT_SUMMARY_STALE_SOURCE_IDS_LABEL: &str = ", staleSourceIds=";
 pub const ACTIVITY_REPORT_SUMMARY_UNREACHABLE_SOURCE_IDS_LABEL: &str = ", unreachableSourceIds=";
 pub const ACTIVITY_REPORT_SUMMARY_UNAVAILABLE_SOURCE_IDS_LABEL: &str = ", unavailableSourceIds=";
+pub const ACTIVITY_REPORT_SUMMARY_CUSTODY_LABEL: &str = ", custodyLabel=";
+pub const ACTIVITY_REPORT_SUMMARY_SOURCE_DATA_LABEL: &str = ", sourceLabel=";
+pub const ACTIVITY_REPORT_SUMMARY_RAW_CHILD_EVIDENCE_LABEL: &str = ", rawChildEvidenceIncluded=";
+pub const EVIDENCE_CUSTODY_ACTIVITY_SUMMARY: &str = "parent-owned-activity-summary";
+pub const EVIDENCE_CUSTODY_ACTIVITY_EVENT: &str = "parent-owned-activity-event";
+pub const EVIDENCE_CUSTODY_ACTIVITY_REPORT: &str = "parent-owned-activity-report";
+pub const EVIDENCE_SOURCE_ACTIVITY_QUERY_STORE_SUMMARY: &str = "activity-query-store-summary";
+pub const EVIDENCE_SOURCE_ACTIVITY_EVENT_CITATION: &str = "activity-event-citation";
+pub const EVIDENCE_SOURCE_SAVED_ACTIVITY_REPORT_HISTORY: &str = "saved-activity-report-history";
 pub const ACTIVITY_REPORT_SUMMARY_NONE: &str = "none";
 pub const PROMPT_SYSTEM: &str =
     "Answer as a parent-facing assistant. Cite the provided evidence. Do not enforce directly.";

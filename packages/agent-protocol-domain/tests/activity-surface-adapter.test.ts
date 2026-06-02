@@ -58,6 +58,9 @@ const Report = {
       state: 'ready',
       reason: null,
       lastUpdatedAt: '2026-05-27T20:09:00Z',
+      custodyLabel: 'child-device-local-summary',
+      sourceLabel: 'activity-query-store-summary',
+      rawChildEvidenceIncluded: false,
     },
   ],
   sections: [
@@ -87,6 +90,9 @@ const FamilyReport = {
       state: 'ready',
       reason: null,
       lastUpdatedAt: '2026-05-27T20:09:00Z',
+      custodyLabel: 'child-device-local-summary',
+      sourceLabel: 'activity-query-store-summary',
+      rawChildEvidenceIncluded: false,
     },
     {
       deviceId: 'child-device-offline',
@@ -94,6 +100,9 @@ const FamilyReport = {
       state: 'offline',
       reason: 'Child source is offline for this report.',
       lastUpdatedAt: null,
+      custodyLabel: 'child-device-local-summary',
+      sourceLabel: 'family-fanout-source-state',
+      rawChildEvidenceIncluded: false,
     },
   ],
 } as const;
@@ -109,6 +118,9 @@ const LatestFamilyReport = {
       state: 'ready',
       reason: null,
       lastUpdatedAt: '2026-05-27T20:14:00Z',
+      custodyLabel: 'child-device-local-summary',
+      sourceLabel: 'activity-query-store-summary',
+      rawChildEvidenceIncluded: false,
     },
     {
       deviceId: 'child-device-latest-offline',
@@ -116,6 +128,9 @@ const LatestFamilyReport = {
       state: 'offline',
       reason: 'Latest child source is offline for this report.',
       lastUpdatedAt: null,
+      custodyLabel: 'child-device-local-summary',
+      sourceLabel: 'family-fanout-source-state',
+      rawChildEvidenceIncluded: false,
     },
   ],
 } as const;
@@ -130,6 +145,9 @@ const UnavailableReport = {
       state: 'unavailable',
       reason: 'Activity query store is unavailable.',
       lastUpdatedAt: null,
+      custodyLabel: 'child-device-local-summary',
+      sourceLabel: 'activity-query-store-summary',
+      rawChildEvidenceIncluded: false,
     },
   ],
   sections: [
@@ -159,6 +177,9 @@ const FamilySources = [
     state: 'offline',
     reason: 'Child source is offline for this report.',
     lastUpdatedAt: null,
+    custodyLabel: 'child-device-local-summary',
+    sourceLabel: 'family-fanout-source-state',
+    rawChildEvidenceIncluded: false,
   },
   {
     deviceId: 'child-device-error',
@@ -166,6 +187,9 @@ const FamilySources = [
     state: 'unavailable',
     reason: 'Child source returned an error.',
     lastUpdatedAt: null,
+    custodyLabel: 'child-device-local-summary',
+    sourceLabel: 'family-fanout-source-state',
+    rawChildEvidenceIncluded: false,
   },
 ] as const;
 
@@ -514,6 +538,9 @@ function historicalReportList() {
           errorSources: 0,
         },
         parsedReport: Report,
+        custodyLabel: 'parent-device-local-history',
+        sourceLabel: 'saved-report-history',
+        rawChildEvidenceIncluded: false,
       },
     ],
   } as const;
