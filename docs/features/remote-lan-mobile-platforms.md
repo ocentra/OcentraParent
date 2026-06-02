@@ -48,6 +48,10 @@ PC while preserving local-first custody.
 - Parent desktop release-support proof separates parent mobile bridge state from
   child Android/iOS agent claims and keeps signing, stores, TestFlight, Play,
   relay, and mobile child-agent parity manual-required or not implemented.
+- `mobile-child-agent-capability-proof` now aggregates the Android package,
+  storage/protocol, service, permission, privileged, device-gate, and iOS
+  entitlement proof states into one platform matrix without upgrading any mobile
+  child-agent parity, entitlement, signing, store, or external-transport claim.
 - Optional remote relay and full mobile child-agent parity are not complete.
 
 ## Current Gap
@@ -69,8 +73,17 @@ distribution remain.
 - [ ] Controller lease and observer read-only state.
 - [ ] Route status: local, LAN, relay, cache, stale, offline, unavailable.
 - [ ] Optional relay without default child-data custody.
-- [ ] Android child-agent real device proof.
-- [ ] iOS child-agent entitlement/device proof.
+- [ ] Android child-agent real device proof. Current aggregate proof covers
+      `mobile-child-agent-capability-proof` contract/test/harness rows for
+      foreground service, storage/protocol bridge, notifications, UsageStats,
+      Accessibility, VPN/DNS, Device Owner, managed profile, Play signing, and
+      external transport; real emulator/device behavior remains manual-required.
+- [ ] iOS child-agent entitlement/device proof. Current aggregate proof covers
+      `mobile-child-agent-capability-proof` contract/test/harness rows for
+      simulator status, Family Controls, DeviceActivity, Screen Time, Network
+      Extension, notifications/background execution, signing, TestFlight,
+      device proof, App Store, and external transport; entitlement/device
+      behavior remains manual-required.
 - [ ] Parent mobile app proof separated from child mobile agent proof.
       Current release-support proof models this split for handoff/reporting, but
       real parent mobile UX, store signing, and child mobile agent proof remain.

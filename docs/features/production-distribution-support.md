@@ -49,6 +49,11 @@ dev-only repo when it claims consumer readiness.
 - Parent desktop release-support proof now records update/rollback posture,
   signing/store claim boundaries, support diagnostic redaction fields, CI
   artifact expectations, and manual platform proof requirements.
+- `mobile-child-agent-capability-proof` adds package/runtime hook evidence for
+  Android debug APK/checksum, Android package-local status, Android device
+  install/manual Play signing, iOS Xcode target, iOS simulator status, iOS
+  signing, and iOS TestFlight/device proof without promoting any store or
+  signing claim.
 - Billing/support/public website/store distribution are planned or incomplete.
 
 ## Current Gap
@@ -65,8 +70,12 @@ package/runtime proof.
 - [ ] Parent desktop package runtime proof tied to installer/update smoke.
 - [ ] Updater channel, rollback, and failure status.
 - [ ] macOS signing/notarization if shipped.
-- [ ] Android Play signing/store proof if shipped.
-- [ ] iOS TestFlight/App Store proof if shipped.
+- [ ] Android Play signing/store proof if shipped. Current
+      `mobile-child-agent-capability-proof` row keeps Play signing planned and
+      device install manual-required.
+- [ ] iOS TestFlight/App Store proof if shipped. Current
+      `mobile-child-agent-capability-proof` row keeps signing-required,
+      TestFlight/device proof manual-required, and App Store planned.
 - [ ] Billing/subscription/account flow.
 - [ ] Privacy, retention, export/delete, and support docs.
 - [ ] Support bundle redaction proof scaffold and incident process.

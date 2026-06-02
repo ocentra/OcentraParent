@@ -35,6 +35,15 @@ area.
 - [Mobile agents expectations](../../docs/expectations/roadmap-v6-mobile-agents.md)
 - [Android proof checkpoint](../../docs/checkpoints/child-android-device-proof-artifact-gate-2026-06-01.md)
 
+## Current Proof
+
+- `mobile-child-agent-capability-proof` aggregates Android child-agent package,
+  service, storage/protocol, permission, privileged, and device-gate proof rows.
+- Current aggregate state is scaffold/manual-required/not-implemented: foreground
+  service runtime, notifications, UsageStats, Accessibility, VPN/DNS, Device
+  Owner, managed profile, Play signing, device proof, and external transport are
+  not promoted to product support.
+
 ## Gaps To Fill
 
 - Child-agent runtime parity is manual-required.

@@ -47,6 +47,10 @@ and clear degraded states.
 - Parent desktop release-support proof now records child desktop service state
   separately from parent shell state, and keeps child Android/iOS agent behavior
   manual-required until real device proof exists.
+- `mobile-child-agent-capability-proof` adds a shared parent-domain read model,
+  focused test, and proof harness that reconcile child Android/iOS capability
+  states across existing Android package/service/storage/permission/privileged
+  proof gates and iOS entitlement proof without claiming real mobile parity.
 - Production service hardening and all adapter paths are not complete.
 
 ## Current Gap
@@ -65,7 +69,12 @@ and support diagnostics.
 - [ ] Evidence capture and journal writes.
 - [ ] Policy and AI read paths.
 - [ ] Enforcement adapter dispatch with audit.
-- [ ] Capability and degraded-state reporting.
+- [ ] Capability and degraded-state reporting. Current mobile capability proof
+      covers `mobile-child-agent-capability-proof` scaffold/manual-required/
+      not-implemented rows for Android foreground service, UsageStats,
+      Accessibility, VPN/DNS, Device Owner, managed profile, Play signing, and
+      iOS Family Controls, DeviceActivity, Network Extension, notifications,
+      background execution, signing, TestFlight, and device proof.
 - [ ] Updater status and rollback.
 - [ ] Support diagnostics with redaction. Current release-support proof covers
       support-safe diagnostic fields for package/runtime handoff; production

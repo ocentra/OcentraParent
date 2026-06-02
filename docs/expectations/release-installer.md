@@ -29,6 +29,10 @@ Release features are product features because parents need install/update paths 
 - Update paths reject unsigned or incorrectly signed manifests once signing is enabled.
 - Package claims match real artifacts.
 - Parent-facing install flow is understandable for non-technical users.
+- `mobile-child-agent-capability-proof` package/runtime hooks may reference
+  Android debug APK/checksum and iOS simulator/Xcode artifacts, but Play
+  signing, TestFlight, App Store, physical-device install, and mobile child
+  parity stay manual-required or planned until those release artifacts exist.
 
 ## Non-Goals
 

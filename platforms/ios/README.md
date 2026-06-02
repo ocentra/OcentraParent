@@ -34,6 +34,16 @@ area.
 - [Mobile agents expectations](../../docs/expectations/roadmap-v6-mobile-agents.md)
 - [iOS entitlement checkpoint](../../docs/checkpoints/child-ios-entitlement-capability-proof-2026-05-31.md)
 
+## Current Proof
+
+- `mobile-child-agent-capability-proof` aggregates iOS child-agent simulator,
+  entitlement, signing, TestFlight/device, App Store, and external-transport
+  proof rows.
+- Current aggregate state is simulator/manual-required/planned: Family Controls,
+  DeviceActivity, Screen Time, Network Extension, notifications/background,
+  signing, TestFlight, App Store, device proof, and external transport are not
+  promoted to product support.
+
 ## Gaps To Fill
 
 - Current support is scaffold/simulator proof, not child-agent parity.

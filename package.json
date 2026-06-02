@@ -56,6 +56,7 @@
     "test:tooling": "node scripts/test/parent-mobile-shell-runtime-proof.mjs && node --test scripts/test/*.test.mjs",
     "test:parent-mobile-shell-runtime-proof": "npm run build --workspace @ocentra-parent/parent-domain && node scripts/test/parent-mobile-shell-runtime-proof.mjs",
     "test:parent-desktop-release-support-proof": "node scripts/test/parent-desktop-release-support-proof.mjs",
+    "test:mobile-child-agent-capability-proof": "node scripts/test/mobile-child-agent-capability-proof.mjs",
     "test:parent-mobile-service-bridge": "node scripts/test/parent-mobile-service-bridge-proof.mjs",
     "test:parent-mobile-controller-observer-handoff": "node scripts/test/parent-mobile-controller-observer-handoff-proof.mjs",
     "test:child-android-protocol-package-lifecycle-proof": "node scripts/test/child-android-protocol-package-lifecycle-proof.mjs",
