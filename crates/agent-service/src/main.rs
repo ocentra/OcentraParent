@@ -66,6 +66,9 @@ mod enforcement_os_adapter_product_proof_read_model;
 #[cfg(test)]
 mod enforcement_os_adapter_product_proof_read_model_tests;
 mod enforcement_payload;
+mod enforcement_policy_dispatch_read_model;
+#[cfg(test)]
+mod enforcement_policy_dispatch_read_model_tests;
 #[cfg(test)]
 mod enforcement_tests;
 mod enforcement_timer_api;

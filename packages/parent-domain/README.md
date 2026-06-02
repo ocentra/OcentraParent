@@ -10,6 +10,9 @@ mobile readiness, and control catalogs.
 - Enforcement intents, results, capability states, timers, and readiness.
 - V0.8 enforcement product-control spine contracts that separate implemented,
   degraded, dry-run, manual-required, unavailable, and not-claimed states.
+- V0.8 enforcement policy-dispatch contracts that validate parent-authored
+  intents, evidence refs, adapter matrix rows, timer/approval/audit state, and
+  child-facing reason codes before dispatch-ready claims.
 - Local AI runtime, provider, scheduler, context, and reference contracts.
 - Parent assistant and action-preview contracts.
 - LAN pairing, device roles, controller/observer states, and provider routing.
@@ -65,3 +68,6 @@ flowchart LR
 - Billing/subscription entitlements need to stay outside core safety decisions.
 - V0.8 broad app, network/domain, exact URL, notification, and tamper controls
   remain manual-required or not-claimed until platform adapter proof exists.
+- Policy-dispatch proof is currently service/read-model proof; finished
+  parent/child UX, notification delivery, network/domain blocking, broad app
+  blocking, and tamper protection remain proof-gated gaps.

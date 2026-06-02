@@ -168,6 +168,7 @@ export const AgentCommandNameSchema = withParser(
     'agent.enforcement.timer.expire',
     'agent.enforcement.override.cancel',
     'agent.enforcement.product-control-spine.get',
+    'agent.enforcement.policy-dispatch.get',
     'agent.parent-assistant.thread.list',
     'agent.parent-assistant.thread.create',
     'agent.parent-assistant.thread.open',
@@ -230,6 +231,7 @@ export const AgentEventNameSchema = withParser(
     'agent.enforcement.audit.reported',
     'agent.enforcement.timer.reported',
     'agent.enforcement.product-control-spine.reported',
+    'agent.enforcement.policy-dispatch.reported',
     'agent.parent-assistant.thread.updated',
     'agent.parent-assistant.message.accepted',
     'agent.parent-assistant.run.started',
@@ -323,6 +325,7 @@ export const AgentCommand = {
   EnforcementTimerExpire: AgentCommandNameSchema.parse('agent.enforcement.timer.expire'),
   EnforcementOverrideCancel: AgentCommandNameSchema.parse('agent.enforcement.override.cancel'),
   EnforcementProductControlSpineGet: AgentCommandNameSchema.parse('agent.enforcement.product-control-spine.get'),
+  EnforcementPolicyDispatchGet: AgentCommandNameSchema.parse('agent.enforcement.policy-dispatch.get'),
   ParentAssistantThreadList: AgentCommandNameSchema.parse('agent.parent-assistant.thread.list'),
   ParentAssistantThreadCreate: AgentCommandNameSchema.parse('agent.parent-assistant.thread.create'),
   ParentAssistantThreadOpen: AgentCommandNameSchema.parse('agent.parent-assistant.thread.open'),
@@ -399,6 +402,7 @@ export const AgentEvent = {
   EnforcementProductControlSpineReported: AgentEventNameSchema.parse(
     'agent.enforcement.product-control-spine.reported'
   ),
+  EnforcementPolicyDispatchReported: AgentEventNameSchema.parse('agent.enforcement.policy-dispatch.reported'),
   ParentAssistantThreadUpdated: AgentEventNameSchema.parse('agent.parent-assistant.thread.updated'),
   ParentAssistantMessageAccepted: AgentEventNameSchema.parse('agent.parent-assistant.message.accepted'),
   ParentAssistantRunStarted: AgentEventNameSchema.parse('agent.parent-assistant.run.started'),

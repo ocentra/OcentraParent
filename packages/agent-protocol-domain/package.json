@@ -17,6 +17,10 @@
       "import": "./dist/enforcement-product-control-adapter.js",
       "types": "./dist/enforcement-product-control-adapter.d.ts"
     },
+    "./enforcement-policy-dispatch-adapter": {
+      "import": "./dist/enforcement-policy-dispatch-adapter.js",
+      "types": "./dist/enforcement-policy-dispatch-adapter.d.ts"
+    },
     "./parent-assistant-adapter": {
       "import": "./dist/parent-assistant-adapter.js",
       "types": "./dist/parent-assistant-adapter.d.ts"

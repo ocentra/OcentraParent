@@ -47,13 +47,19 @@ without fake anti-tamper claims.
   WebSocket read model and typed agent-protocol adapter that link
   cross-platform, browser/domain, and OS-adapter proof sources while preserving
   manual-required and not-claimed states.
+- Policy-dispatch proof now adds a schema-backed dispatch read model and
+  WebSocket event for parent-authored intents, service validation, adapter
+  capability matrix state, app/game evidence handoff, timer recovery,
+  approval/override audit refs, child reason codes, and deterministic proof JSON.
 - Broad app/browser/domain/network enforcement is not product-complete.
 - Tamper/uninstall protection is a tracked gap.
 
 ## Current Gap
 
 Broad adapters, child-facing messages, integrity heartbeat, permission-loss
-alerts, uninstall detection, and platform-specific proof remain.
+alerts, uninstall detection, and platform-specific proof remain. Tamper/uninstall
+is represented as scaffold/rejected in dispatch proof, not as anti-tamper
+behavior.
 
 ## Checklist
 

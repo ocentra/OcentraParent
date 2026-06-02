@@ -9,6 +9,8 @@ Rust protocol parity crate for data that crosses the TypeScript/Rust boundary.
 - Exact field names and enum values mirrored from TypeScript contracts.
 - V0.8 enforcement product-control read-model, command, event, and payload
   constants shared by the Rust service and TypeScript protocol adapter.
+- V0.8 enforcement policy-dispatch read-model, command, event, and payload
+  constants shared by the Rust service and TypeScript protocol adapter.
 
 ## Must Not Own
 
@@ -41,3 +43,6 @@ flowchart LR
 - Keep constants granular so service/core code does not invent strings.
 - Product-control no-claim boundaries must stay explicit in protocol structs
   until platform adapter evidence proves a broader claim.
+- Policy-dispatch structs must preserve implemented, report-only, degraded,
+  unavailable, manual-required, and scaffold states without upgrading broad
+  adapter claims.

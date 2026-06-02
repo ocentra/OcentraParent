@@ -17,6 +17,7 @@ use crate::{
     activity_store_path::{activity_db_path, activity_journal_key_path, activity_journal_path},
     enforcement_os_adapter_product_proof_read_model::product_control_spine::v08_enforcement_product_control_spine_read_model,
     enforcement_payload::{parse_enforcement_command_payload, EnforcementCommandPayload},
+    enforcement_policy_dispatch_read_model::v08_enforcement_policy_dispatch_read_model,
     enforcement_timer_state_file::store_active_timer_state_for_outcome,
     enforcement_timer_state_path::enforcement_timer_state_path,
     event_builder::build_event,
@@ -26,7 +27,9 @@ use crate::{
 
 mod enforcement_product_control_payload;
 
-use self::enforcement_product_control_payload::enforcement_product_control_spine_payload;
+use self::enforcement_product_control_payload::{
+    enforcement_policy_dispatch_payload, enforcement_product_control_spine_payload,
+};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) struct EnforcementJournalPaths {
@@ -64,6 +67,22 @@ pub async fn build_enforcement_product_control_spine_report(
         AgentEventName::AgentEnforcementProductControlSpineReported,
         LogLevel::Info,
         enforcement_product_control_spine_payload(&read_model),
+        None,
+    )
+}
+
+pub async fn build_enforcement_policy_dispatch_report(
+    command: AgentCommandEnvelope,
+) -> AgentEventEnvelope {
+    let generated_at = timestamp_now();
+    let read_model = v08_enforcement_policy_dispatch_read_model(&generated_at);
+    build_event(
+        constants::event_id::ENFORCEMENT_POLICY_DISPATCH_REPORTED,
+        &command.message_id,
+        command.source,
+        AgentEventName::AgentEnforcementPolicyDispatchReported,
+        LogLevel::Info,
+        enforcement_policy_dispatch_payload(&read_model),
         None,
     )
 }
