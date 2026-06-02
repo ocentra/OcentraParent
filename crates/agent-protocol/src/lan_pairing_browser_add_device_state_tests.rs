@@ -1,14 +1,14 @@
 use crate::{
     constants, LanBrowserAddDeviceDiscoveryDevice, LanBrowserAddDeviceReadModel,
-    LanBrowserAddDeviceScanSummary, LanPairingDeviceHardwareProfile, LanPairingDeviceReachability,
-    LanCanonicalHouseholdDevice, LanCanonicalHouseholdDeviceClassification,
-    LanCanonicalHouseholdDeviceConfidence, LanCanonicalHouseholdDeviceRole,
-    LanCanonicalHouseholdDeviceSource, LanCanonicalHouseholdNetworkIdentity,
-    LanCanonicalHouseholdRoleState, LanCanonicalHouseholdRouteState, LanCanonicalHouseholdSurface,
-    LanChildAgentInventoryPacket,
-    LanPairingDeviceRef, LanPairingDiscoveryRuntimeStatus, LanPairingDiscoverySource,
-    LanPairingNetworkMode, LanPairingParentAuthority, LanPairingProductionDiscoveryState,
-    LanPairingTrustState, LanSelectedDeviceReadiness, LAN_PAIRING_SCHEMA_VERSION,
+    LanBrowserAddDeviceScanSummary, LanCanonicalHouseholdDevice,
+    LanCanonicalHouseholdDeviceClassification, LanCanonicalHouseholdDeviceConfidence,
+    LanCanonicalHouseholdDeviceRole, LanCanonicalHouseholdDeviceSource,
+    LanCanonicalHouseholdNetworkIdentity, LanCanonicalHouseholdRoleState,
+    LanCanonicalHouseholdRouteState, LanCanonicalHouseholdSurface, LanChildAgentInventoryPacket,
+    LanPairingDeviceHardwareProfile, LanPairingDeviceReachability, LanPairingDeviceRef,
+    LanPairingDiscoveryRuntimeStatus, LanPairingDiscoverySource, LanPairingNetworkMode,
+    LanPairingParentAuthority, LanPairingProductionDiscoveryState, LanPairingTrustState,
+    LanSelectedDeviceReadiness, LAN_PAIRING_SCHEMA_VERSION,
 };
 
 #[test]

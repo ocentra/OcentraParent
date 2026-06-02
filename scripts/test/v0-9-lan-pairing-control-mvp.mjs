@@ -35,6 +35,19 @@ const parentAuthorityActiveController = 'active-controller';
 const parentAuthorityObserver = 'observer';
 const platform = 'windows';
 const webSocketEventTimeoutMs = 20000;
+const supportedWebSocketCommands = [
+  'agent.lan-pairing.proof.submit',
+  'agent.lan-pairing.route.select',
+  'agent.lan-pairing.route.revoke',
+  'agent.lan-pairing.status.get',
+  'agent.lan-pairing.browser-discovery.scan',
+  'agent.lan-pairing.add-device.request',
+  'agent.lan-pairing.controller-lease.renew',
+  'agent.lan-pairing.controller-lease.release',
+  'agent.lan-pairing.controller-lease.takeover',
+  'agent.lan-ai.provider.status.get',
+  'agent.lan-ai.job.submit',
+].join(',');
 const sensitiveEvidenceMarkers = [
   'activity.sqlite',
   'activity.ndjson',
@@ -740,11 +753,7 @@ function buildLanAiJobCommand(service, intentId, parentAuthority = parentAuthori
 
 function assertLanSupportSurface(payload) {
   assertPayloadValue(payload, 'transport', 'websocket');
-  assertPayloadValue(
-    payload,
-    'supportedWebSocketCommands',
-    'agent.lan-pairing.proof.submit,agent.lan-pairing.route.select,agent.lan-pairing.route.revoke,agent.lan-pairing.status.get,agent.lan-pairing.controller-lease.renew,agent.lan-pairing.controller-lease.release,agent.lan-pairing.controller-lease.takeover,agent.lan-ai.provider.status.get,agent.lan-ai.job.submit'
-  );
+  assertPayloadValue(payload, 'supportedWebSocketCommands', supportedWebSocketCommands);
   assertPayloadValue(payload, 'discoveryStatus', 'websocket-direct');
   assertPayloadValue(payload, 'challengeStatus', 'websocket-direct');
   assertPayloadValue(payload, 'proofPreviewStatus', 'websocket-direct');
