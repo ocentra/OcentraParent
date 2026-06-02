@@ -26,6 +26,10 @@ development paths and orchestrates runtime commands.
   integrity heartbeat, tamper/manual states, and nested integrity alert/status
   bridge rows for permission loss, stale heartbeat, stopped/removed, and tamper
   manual review.
+- V0.9 signed LAN discovery/relay spine read-model rows for adapter evidence,
+  signed proof rejection, selected-route safety, parent decision audits,
+  relay/cache unavailable state, parent-owned storage unavailable state, and no
+  Ocentra child-data custody claims.
 
 ## Must Not Own
 
@@ -75,3 +79,6 @@ flowchart LR
   intent/status and audit drill-in proof only; provider delivery, UI, anti-tamper
   resistance, broad blocking, mobile enforcement, stealth/persistence, and
   privilege escalation remain unclaimed.
+- Signed LAN hello/heartbeat, two-host household proof, real relay, and real
+  cache routes remain manual-required or not implemented until runtime adapters
+  and artifacts exist.

@@ -4116,6 +4116,18 @@ type LanPairingContextRow = {
   readonly tone: Tone;
 };
 
+type LanPairingActionId = 'add' | 'select' | 'rename' | 'trust' | 'ignore' | 'restore' | 'revoke';
+
+type LanPairingActionButton = {
+  readonly id: LanPairingActionId;
+  readonly label: string;
+  readonly tone: Tone;
+  readonly enabled: boolean;
+  readonly command: AgentCommandName;
+  readonly payload: Record<string, string> | null;
+  readonly status: string;
+};
+
 function lanPairingMissingDeviceValue(value?: string): string {
   const trimmed = value?.trim();
   return trimmed ? trimmed : 'Not reported';
@@ -4129,6 +4141,11 @@ function lanPairingHumanLabel(value?: string): string {
     .filter(Boolean)
     .map((part) => part.slice(0, 1).toUpperCase() + part.slice(1))
     .join(' ');
+}
+
+function lanPairingOptionalHumanLabel(value?: string): string {
+  const source = value?.trim();
+  return source ? lanPairingHumanLabel(source) : 'Not reported';
 }
 
 function lanPairingDeviceName(slot: DeviceSlot): string {
@@ -4166,6 +4183,62 @@ function lanPairingDeviceRoute(slot: DeviceSlot): string {
   return lanPairingMissingDeviceValue(slot.device?.routeId);
 }
 
+function lanPairingDeviceRouteState(slot: DeviceSlot): string {
+  return lanPairingOptionalHumanLabel(slot.device?.routeState || slot.device?.readinessState);
+}
+
+function lanPairingDeviceCustody(slot: DeviceSlot): string {
+  return lanPairingOptionalHumanLabel(slot.device?.custodyLabel || slot.device?.relayCacheCustody);
+}
+
+function lanPairingDeviceParentDecision(slot: DeviceSlot): string {
+  return lanPairingOptionalHumanLabel(slot.device?.parentDecision);
+}
+
+function lanPairingDeviceSignedProof(slot: DeviceSlot): string {
+  return lanPairingOptionalHumanLabel(slot.device?.signedProofCheck);
+}
+
+function lanPairingDeviceSignedProofState(slot: DeviceSlot): string {
+  return lanPairingOptionalHumanLabel(slot.device?.signedProofState);
+}
+
+function lanPairingDeviceRouteSafety(slot: DeviceSlot): string {
+  return lanPairingOptionalHumanLabel(slot.device?.routeSafety);
+}
+
+function lanPairingDeviceRouteSafetyResult(slot: DeviceSlot): string {
+  const state = lanPairingOptionalHumanLabel(slot.device?.routeSafetyState);
+  const reason = lanPairingOptionalHumanLabel(slot.device?.routeSafetyReason);
+  return reason === 'Not reported' ? state : `${state} / ${reason}`;
+}
+
+function lanPairingDeviceRelayCache(slot: DeviceSlot): string {
+  const check = lanPairingOptionalHumanLabel(slot.device?.relayCacheCheck);
+  const state = lanPairingOptionalHumanLabel(slot.device?.relayCacheState);
+  return check === 'Not reported' ? state : `${check} / ${state}`;
+}
+
+function lanPairingDeviceManualProof(slot: DeviceSlot): string {
+  return lanPairingMissingDeviceValue(slot.device?.manualProof);
+}
+
+function lanPairingDeviceClaimsNotProved(slot: DeviceSlot): string {
+  return lanPairingMissingDeviceValue(slot.device?.claimsNotProved);
+}
+
+function lanPairingDeviceAudit(slot: DeviceSlot): string {
+  return lanPairingMissingDeviceValue(slot.device?.auditLabel);
+}
+
+function lanPairingDeviceRequirement(slot: DeviceSlot): string {
+  return lanPairingMissingDeviceValue(slot.device?.requirementLabel);
+}
+
+function lanPairingDeviceEvidence(slot: DeviceSlot): string {
+  return lanPairingMissingDeviceValue(slot.device?.evidenceLabel || slot.device?.sourceConfidence);
+}
+
 function lanPairingDeviceState(slot: DeviceSlot): string {
   return lanPairingHumanLabel(slot.device?.sourceState || slot.badge || slot.status);
 }
@@ -4178,20 +4251,170 @@ function lanPairingDeviceIsInfrastructure(slot: DeviceSlot): boolean {
   return slot.badge === 'infrastructure' || slot.device?.type === 'router' || slot.device?.platform === 'router';
 }
 
+function lanPairingActionButtonsFor(slot: DeviceSlot | null): readonly LanPairingActionButton[] {
+  return [
+    lanPairingActionButton(
+      'add',
+      'Add',
+      'cyan',
+      AgentCommand.LanPairingAddDeviceRequest,
+      lanPairingAddDeviceCommandPayload(slot)
+    ),
+    lanPairingActionButton(
+      'select',
+      'Select',
+      'gold',
+      AgentCommand.LanPairingRouteSelect,
+      lanPairingRouteIntentCommandPayload(slot)
+    ),
+    lanPairingActionButton(
+      'rename',
+      'Rename',
+      'purple',
+      AgentCommand.LanPairingAddDeviceRequest,
+      lanPairingHouseholdActionCommandPayload(slot, AgentProtocolDefaults.LanHouseholdActionKind.Rename)
+    ),
+    lanPairingActionButton(
+      'trust',
+      'Trust',
+      'cyan',
+      AgentCommand.LanPairingAddDeviceRequest,
+      lanPairingHouseholdActionCommandPayload(slot, AgentProtocolDefaults.LanHouseholdActionKind.Trust)
+    ),
+    lanPairingActionButton(
+      'ignore',
+      'Ignore',
+      'gold',
+      AgentCommand.LanPairingAddDeviceRequest,
+      lanPairingHouseholdActionCommandPayload(slot, AgentProtocolDefaults.LanHouseholdActionKind.Ignore)
+    ),
+    lanPairingActionButton(
+      'restore',
+      'Restore',
+      'purple',
+      AgentCommand.LanPairingAddDeviceRequest,
+      lanPairingHouseholdActionCommandPayload(slot, AgentProtocolDefaults.LanHouseholdActionKind.Restore)
+    ),
+    lanPairingActionButton(
+      'revoke',
+      'Revoke',
+      'gold',
+      AgentCommand.LanPairingRouteRevoke,
+      lanPairingRouteIntentCommandPayload(slot)
+    ),
+  ];
+}
+
+function lanPairingActionButton(
+  id: LanPairingActionId,
+  label: string,
+  tone: Tone,
+  command: AgentCommandName,
+  payload: Record<string, string> | null
+): LanPairingActionButton {
+  return {
+    id,
+    label,
+    tone,
+    enabled: payload !== null,
+    command,
+    payload,
+    status: payload ? 'Ready' : 'Unavailable',
+  };
+}
+
+function lanPairingAddDeviceCommandPayload(slot: DeviceSlot | null): Record<string, string> | null {
+  if (!slot) return null;
+  if (lanPairingDeviceIsInfrastructure(slot) || slot.status === 'unsupported') return null;
+  const childDeviceId = slot.device?.id || slot.value;
+  const routeId = slot.device?.routeId;
+  if (!childDeviceId || !routeId) return null;
+  const issuedAt = new Date().toISOString();
+  const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString();
+  const origin = typeof window === 'undefined' ? 'http://127.0.0.1:4678' : window.location.origin;
+  return {
+    [AgentProtocolDefaults.Field.LanChildDeviceId]: childDeviceId,
+    [AgentProtocolDefaults.Field.LanParentDeviceId]: AgentProtocolDefaults.Peer.PortalDev.peerId,
+    [AgentProtocolDefaults.Field.LanRouteId]: routeId,
+    [AgentProtocolDefaults.Field.Origin]: origin,
+    [AgentProtocolDefaults.Field.StartedAt]: issuedAt,
+    [AgentProtocolDefaults.Field.StaleAt]: expiresAt,
+  };
+}
+
+function lanPairingHouseholdActionCommandPayload(
+  slot: DeviceSlot | null,
+  actionKind: string
+): Record<string, string> | null {
+  if (!slot) return null;
+  const basePayload = lanPairingAddDeviceCommandPayload(slot);
+  const canonicalDeviceId = slot.device?.id || slot.value;
+  if (!basePayload || !canonicalDeviceId) return null;
+  const issuedAt = basePayload[AgentProtocolDefaults.Field.StartedAt];
+  const payload = {
+    ...basePayload,
+    [AgentProtocolDefaults.Field.LanHouseholdActionId]: `lan-ui-${actionKind}-${Date.now()}`,
+    [AgentProtocolDefaults.Field.LanHouseholdActionKind]: actionKind,
+    [AgentProtocolDefaults.Field.LanCanonicalDeviceId]: canonicalDeviceId,
+    [AgentProtocolDefaults.Field.LanParentActorId]: AgentProtocolDefaults.Peer.PortalDev.peerId,
+    [AgentProtocolDefaults.Field.LanHouseholdActionDisplayName]: lanPairingDeviceName(slot),
+  };
+  if (slot.device?.childProfileId) {
+    payload[AgentProtocolDefaults.Field.LanHouseholdActionChildProfileId] = slot.device.childProfileId;
+  }
+  if (actionKind === AgentProtocolDefaults.LanHouseholdActionKind.Ignore) {
+    payload[AgentProtocolDefaults.Field.LanHouseholdActionRevokedAt] = issuedAt;
+  }
+  return payload;
+}
+
+function lanPairingRouteIntentCommandPayload(slot: DeviceSlot | null): Record<string, string> | null {
+  if (!slot || lanPairingDeviceIsInfrastructure(slot) || slot.status === 'unsupported') return null;
+  const childDeviceId = slot.device?.id || slot.value;
+  const routeId = slot.device?.routeId;
+  const pairingId = slot.device?.pairingId;
+  const proofDigest = slot.device?.proofDigest;
+  if (!childDeviceId || !routeId || !pairingId || !proofDigest) return null;
+  const issuedAt = new Date().toISOString();
+  const staleAt = slot.device?.expiresAt || new Date(Date.now() + 5 * 60 * 1000).toISOString();
+  const leaseExpiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString();
+  return {
+    [AgentProtocolDefaults.Field.LanIntentId]: `lan-ui-intent-${Date.now()}`,
+    [AgentProtocolDefaults.Field.LanIntentKind]: AgentProtocolDefaults.LanIntentKind.ConfigurationUpdate,
+    [AgentProtocolDefaults.Field.LanChildDeviceId]: childDeviceId,
+    [AgentProtocolDefaults.Field.LanRouteId]: routeId,
+    [AgentProtocolDefaults.Field.LanPairingId]: pairingId,
+    [AgentProtocolDefaults.Field.LanProofDigest]: proofDigest,
+    [AgentProtocolDefaults.Field.Origin]: slot.device?.origin || lanPairingPortalOrigin(),
+    [AgentProtocolDefaults.Field.StartedAt]: issuedAt,
+    [AgentProtocolDefaults.Field.StaleAt]: staleAt,
+    [AgentProtocolDefaults.Field.LanControllerLeaseId]: `lan-ui-lease-${Date.now()}`,
+    [AgentProtocolDefaults.Field.LanControllerDeviceId]: AgentProtocolDefaults.Peer.PortalDev.peerId,
+    [AgentProtocolDefaults.Field.LanParentActorId]: AgentProtocolDefaults.Peer.PortalDev.peerId,
+    [AgentProtocolDefaults.Field.LanParentAuthority]: AgentProtocolDefaults.LanParentAuthority.ActiveController,
+    [AgentProtocolDefaults.Field.LanControllerLeaseIssuedAt]: issuedAt,
+    [AgentProtocolDefaults.Field.LanControllerLeaseExpiresAt]: leaseExpiresAt,
+  };
+}
+
+function lanPairingPortalOrigin(): string {
+  return typeof window === 'undefined' ? 'http://127.0.0.1:4678' : window.location.origin;
+}
+
 function lanPairingContextRowsFor(selectedDevice: DeviceSlot | null): readonly LanPairingContextRow[] {
   if (!selectedDevice) {
     return [
       { label: 'Selected device', value: 'No valid service-backed device selected', tone: 'gold' },
       { label: 'Source', value: 'Unavailable', tone: 'purple' },
       { label: 'Control', value: 'Unavailable', tone: 'cyan' },
-      { label: 'Route', value: 'Not reported', tone: 'gold' },
+      { label: 'Custody', value: 'Not reported', tone: 'gold' },
     ];
   }
   return [
     { label: 'Selected device', value: lanPairingDeviceName(selectedDevice), tone: 'cyan' },
     { label: 'Source', value: lanPairingDeviceSource(selectedDevice), tone: 'purple' },
     { label: 'Control', value: lanPairingDeviceControlState(selectedDevice), tone: 'gold' },
-    { label: 'Route', value: lanPairingDeviceRoute(selectedDevice), tone: 'cyan' },
+    { label: 'Custody', value: lanPairingDeviceCustody(selectedDevice), tone: 'cyan' },
   ];
 }
 
@@ -4215,6 +4438,12 @@ function lanPairingDetailRowsFor(
       ...sharedRows,
       { label: 'Source', value: lanPairingDeviceSource(selectedDevice), tone: 'purple' },
       { label: 'Route', value: lanPairingDeviceRoute(selectedDevice), tone: 'gold' },
+      { label: 'Route state', value: lanPairingDeviceRouteState(selectedDevice), tone: 'cyan' },
+      { label: 'Parent decision', value: lanPairingDeviceParentDecision(selectedDevice), tone: 'purple' },
+      { label: 'Route safety', value: lanPairingDeviceRouteSafety(selectedDevice), tone: 'gold' },
+      { label: 'Route result', value: lanPairingDeviceRouteSafetyResult(selectedDevice), tone: 'purple' },
+      { label: 'Relay/cache', value: lanPairingDeviceRelayCache(selectedDevice), tone: 'cyan' },
+      { label: 'Audit', value: lanPairingDeviceAudit(selectedDevice), tone: 'gold' },
       { label: 'IP', value: lanPairingMissingDeviceValue(selectedDevice.device?.ip), tone: 'cyan' },
       { label: 'MAC', value: lanPairingMissingDeviceValue(selectedDevice.device?.mac), tone: 'purple' },
       { label: 'Host', value: lanPairingMissingDeviceValue(selectedDevice.device?.hostname), tone: 'gold' },
@@ -4233,6 +4462,18 @@ function lanPairingDetailRowsFor(
   if (tab === 'capability') {
     return [
       ...sharedRows,
+      {
+        label: 'Device ID',
+        value: lanPairingMissingDeviceValue(selectedDevice.device?.id ?? selectedDevice.value),
+        tone: 'gold',
+      },
+      { label: 'Signed proof', value: lanPairingDeviceSignedProof(selectedDevice), tone: 'gold' },
+      { label: 'Proof state', value: lanPairingDeviceSignedProofState(selectedDevice), tone: 'cyan' },
+      { label: 'Custody', value: lanPairingDeviceCustody(selectedDevice), tone: 'purple' },
+      { label: 'Manual proof', value: lanPairingDeviceManualProof(selectedDevice), tone: 'gold' },
+      { label: 'Unproved claim', value: lanPairingDeviceClaimsNotProved(selectedDevice), tone: 'purple' },
+      { label: 'Requirement', value: lanPairingDeviceRequirement(selectedDevice), tone: 'cyan' },
+      { label: 'Evidence', value: lanPairingDeviceEvidence(selectedDevice), tone: 'gold' },
       { label: 'Type', value: lanPairingDeviceType(selectedDevice), tone: 'cyan' },
       { label: 'Agent', value: lanPairingMissingDeviceValue(selectedDevice.device?.agentStatus), tone: 'gold' },
       { label: 'CPU', value: lanPairingMissingDeviceValue(selectedDevice.device?.cpuModel), tone: 'purple' },
@@ -4242,11 +4483,6 @@ function lanPairingDetailRowsFor(
       { label: 'GPU driver', value: lanPairingMissingDeviceValue(selectedDevice.device?.gpuDriver), tone: 'cyan' },
       { label: 'GPU memory', value: lanPairingMissingDeviceValue(selectedDevice.device?.gpuMemory), tone: 'gold' },
       { label: 'NVIDIA SMI', value: lanPairingMissingDeviceValue(selectedDevice.device?.nvidiaSmi), tone: 'purple' },
-      {
-        label: 'Device ID',
-        value: lanPairingMissingDeviceValue(selectedDevice.device?.id ?? selectedDevice.value),
-        tone: 'gold',
-      },
     ];
   }
   return [
@@ -4254,6 +4490,10 @@ function lanPairingDetailRowsFor(
     { label: 'Source', value: lanPairingDeviceSource(selectedDevice), tone: 'purple' },
     { label: 'Control', value: lanPairingDeviceControlState(selectedDevice), tone: 'gold' },
     { label: 'Route', value: lanPairingDeviceRoute(selectedDevice), tone: 'cyan' },
+    { label: 'Route state', value: lanPairingDeviceRouteState(selectedDevice), tone: 'purple' },
+    { label: 'Custody', value: lanPairingDeviceCustody(selectedDevice), tone: 'gold' },
+    { label: 'Signed proof', value: lanPairingDeviceSignedProof(selectedDevice), tone: 'cyan' },
+    { label: 'Manual proof', value: lanPairingDeviceManualProof(selectedDevice), tone: 'purple' },
     { label: 'IP', value: lanPairingMissingDeviceValue(selectedDevice.device?.ip), tone: 'gold' },
     { label: 'MAC', value: lanPairingMissingDeviceValue(selectedDevice.device?.mac), tone: 'purple' },
     { label: 'Host', value: lanPairingMissingDeviceValue(selectedDevice.device?.hostname), tone: 'cyan' },
@@ -4390,6 +4630,70 @@ function activityEvidenceCount(value: unknown): string {
   return Array.isArray(value) ? String(value.length) : activityStateValue(value);
 }
 
+function activityStringArray(value: unknown): readonly string[] {
+  return Array.isArray(value)
+    ? value.map((item) => activityStateValue(item, '')).filter((item) => item.length > 0)
+    : [];
+}
+
+function activityListSummary(value: unknown): string {
+  const items = activityStringArray(value);
+  if (items.length <= 2) return items.join(', ') || 'Not reported';
+  return `${items.slice(0, 2).join(', ')} +${items.length - 2}`;
+}
+
+function activityLanRouteSafetyRow(
+  signedSpine: Record<string, unknown> | null,
+  selectedDevice: DeviceSlot | null
+): Record<string, unknown> | null {
+  const rows = activityRecordArray(signedSpine?.routeSafetyRows);
+  const selectedRouteId = activityStateValue(selectedDevice?.device?.routeId, '');
+  return (
+    rows.find((row) => activitySameDeviceValue(activityStateValue(row.routeId, ''), selectedRouteId)) ?? rows[0] ?? null
+  );
+}
+
+function activityLanSpineStateRow(
+  signedSpine: Record<string, unknown> | null,
+  key: string
+): Record<string, unknown> | null {
+  return activityRecordArray(signedSpine?.[key])[0] ?? null;
+}
+
+function activityLanSignedAdapterRow(signedSpine: Record<string, unknown> | null): Record<string, unknown> | null {
+  const rows = activityRecordArray(signedSpine?.adapterRows);
+  return (
+    rows.find((row) => activityStateValue(row.adapter, '') === 'signed-child-agent-heartbeat') ??
+    rows.find((row) => activityStateValue(row.adapter, '') === 'signed-child-agent-hello') ??
+    rows[0] ??
+    null
+  );
+}
+
+function activityLanAdapterLabel(row: Record<string, unknown> | null): string {
+  if (!row) return 'Not reported';
+  return `${activityStateValue(row.adapter)}; ${activityStateValue(row.proofState)}`;
+}
+
+function activityLanSignedProofLabel(row: Record<string, unknown> | null): string {
+  if (!row) return 'Not reported';
+  return `${activityStateValue(row.check)}; ${activityStateValue(row.proofState)}`;
+}
+
+function activityLanRouteSafetyLabel(row: Record<string, unknown> | null): string {
+  if (!row) return 'Not reported';
+  const reason = activityStateValue(row.rejectionReason, '');
+  const result = activityStateValue(row.responseState ?? row.discoveryState);
+  return reason
+    ? `${activityStateValue(row.check)}; ${result}; ${reason}`
+    : `${activityStateValue(row.check)}; ${result}`;
+}
+
+function activityLanRelayCacheLabel(row: Record<string, unknown> | null): string {
+  if (!row) return 'Not reported';
+  return `${activityStateValue(row.check)}; ${activityStateValue(row.decisionState ?? row.proofState)}`;
+}
+
 function activityPerDeviceGateRows(
   tab: ActivityManageTabId,
   scopeValue: string,
@@ -4447,6 +4751,12 @@ function activityLanDiagnosticsRows(
   const canonicalDevices = activityRecordArray(addDeviceReadModel.canonicalHouseholdDevices);
   const householdDecisions = activityRecordArray(addDeviceReadModel.householdDeviceDecisions);
   const scanSummary = activityRecord(addDeviceReadModel.scanSummary);
+  const signedSpine = activityRecord(addDeviceReadModel.signedDiscoveryRelaySpine);
+  const signedProofRow = activityLanSpineStateRow(signedSpine, 'signedProofRows');
+  const routeSafetyRow = activityLanRouteSafetyRow(signedSpine, selectedDevice);
+  const relayCacheRow = activityLanSpineStateRow(signedSpine, 'relayCacheRows');
+  const signedAdapterRow = activityLanSignedAdapterRow(signedSpine);
+  const selectedReadiness = activityRecord(addDeviceReadModel.selectedDeviceReadiness);
   const selectedCanonicalDevice =
     scopeValue === 'device' && selectedDevice
       ? canonicalDevices.find((device) => activityCanonicalDeviceMatchesSlot(device, selectedDevice))
@@ -4465,6 +4775,7 @@ function activityLanDiagnosticsRows(
   );
   const latestEvidence = evidenceRecords[0] ?? null;
   const latestDecision = relevantDecisions[0] ?? null;
+  const policyTargetSurfaces = relevantDevices.flatMap((device) => activityStringArray(device.policyTargetSurfaces));
   const sourceLabels = Array.from(
     new Set(
       evidenceRecords.map((record) => activityStateValue(record.source, '')).filter((source) => source.length > 0)
@@ -4479,10 +4790,39 @@ function activityLanDiagnosticsRows(
     ...gateRows,
     { label: 'LAN target', value: targetLabel, tone: 'cyan' },
     { label: 'LAN read model', value: activityStateValue(addDeviceReadModel.addDeviceState), tone: 'gold' },
+    { label: 'Cloud relay', value: activityStateValue(addDeviceReadModel.cloudRelayState), tone: 'purple' },
     {
       label: 'Physical LAN',
       value: activityStateValue(addDeviceReadModel.physicalHouseholdLanState),
       tone: 'purple',
+    },
+    {
+      label: 'Selected route',
+      value: `${activityStateValue(selectedReadiness?.routeId)}; ${activityStateValue(selectedReadiness?.trustState)}`,
+      tone: 'cyan',
+    },
+    { label: 'Signed proof', value: activityLanSignedProofLabel(signedProofRow), tone: 'gold' },
+    { label: 'Route safety', value: activityLanRouteSafetyLabel(routeSafetyRow), tone: 'purple' },
+    { label: 'Relay/cache', value: activityLanRelayCacheLabel(relayCacheRow), tone: 'cyan' },
+    {
+      label: 'Manual proof',
+      value: activityListSummary(signedSpine?.manualProofRequired),
+      tone: 'gold',
+    },
+    {
+      label: 'Unproved claims',
+      value: activityListSummary(signedSpine?.claimsNotProved ?? addDeviceReadModel.honestNonClaims),
+      tone: 'purple',
+    },
+    {
+      label: 'Route requirements',
+      value: activityListSummary(addDeviceReadModel.routeRequirementLabels),
+      tone: 'cyan',
+    },
+    {
+      label: 'Audit checks',
+      value: activityListSummary(addDeviceReadModel.auditCheckLabels),
+      tone: 'gold',
     },
     {
       label: 'Canonical devices',
@@ -4511,6 +4851,31 @@ function activityLanDiagnosticsRows(
       value: `agent ${activityStateValue(scanSummary?.agentDeviceCount)} / passive ${activityStateValue(
         scanSummary?.passiveDeviceCount
       )} / infrastructure ${activityStateValue(scanSummary?.infrastructureDeviceCount)}`,
+      tone: 'gold',
+    },
+    {
+      label: 'Scan first seen',
+      value: activityStateValue(latestEvidence?.firstSeenAt ?? addDeviceReadModel.generatedAt),
+      tone: 'cyan',
+    },
+    {
+      label: 'Scan last seen',
+      value: activityStateValue(latestEvidence?.lastSeenAt ?? addDeviceReadModel.generatedAt),
+      tone: 'gold',
+    },
+    {
+      label: 'Evidence expiry',
+      value: activityStateValue(latestEvidence?.expiresAt),
+      tone: 'purple',
+    },
+    {
+      label: 'Signed adapter',
+      value: activityLanAdapterLabel(signedAdapterRow),
+      tone: 'cyan',
+    },
+    {
+      label: 'Policy targets',
+      value: activityListSummary(policyTargetSurfaces),
       tone: 'gold',
     },
   ];
@@ -4599,7 +4964,12 @@ function activityRowsFromReadModels(
     ];
   }
 
-  if (gateRows.length > 0 && scopeValue === 'device' && (!selectedDevice || selectedDevice.status === 'empty')) {
+  if (
+    tab !== 'network' &&
+    gateRows.length > 0 &&
+    scopeValue === 'device' &&
+    (!selectedDevice || selectedDevice.status === 'empty')
+  ) {
     return gateRows;
   }
 
@@ -11201,6 +11571,7 @@ function ManageControlPanel({
   const lanPairingDetailRowH = 44;
   const lanPairingDetailRows = lanPairingDetailRowsFor(lanPairingActiveTab, lanPairingSelectedSlot);
   const lanPairingContextRows = lanPairingContextRowsFor(lanPairingSelectedSlot);
+  const lanPairingActionButtons = lanPairingActionButtonsFor(lanPairingSelectedSlot);
   const lanPairingContextGap = 10;
   const lanPairingContextColumns = lanPairingBodyW > 760 ? 4 : 2;
   const lanPairingContextRowH = 38;
@@ -11209,10 +11580,19 @@ function ManageControlPanel({
     (lanPairingBodyW - 40 - lanPairingContextGap * (lanPairingContextColumns - 1)) / lanPairingContextColumns
   );
   const lanPairingContextY = lanPairingBodyY + 22;
-  const lanPairingDetailRowTop =
+  const lanPairingActionGap = 8;
+  const lanPairingActionColumns = lanPairingBodyW > 1120 ? 7 : lanPairingBodyW > 760 ? 4 : 2;
+  const lanPairingActionRowH = 31;
+  const lanPairingActionW = Math.max(
+    88,
+    (lanPairingBodyW - 40 - lanPairingActionGap * (lanPairingActionColumns - 1)) / lanPairingActionColumns
+  );
+  const lanPairingActionY =
     lanPairingContextY +
     Math.ceil(lanPairingContextRows.length / lanPairingContextColumns) * (lanPairingContextRowH + 8) +
-    10;
+    4;
+  const lanPairingActionRowCount = Math.ceil(lanPairingActionButtons.length / lanPairingActionColumns);
+  const lanPairingDetailRowTop = lanPairingActionY + lanPairingActionRowCount * (lanPairingActionRowH + 6) + 10;
   const lanPairingDetailRowsBottom = lanPairingBodyY + lanPairingBodyH - 20;
   const lanPairingDetailVisibleCount = Math.max(
     1,
@@ -11442,8 +11822,15 @@ function ManageControlPanel({
                 onAddToPortal={(choice) => {
                   setLanPairingSelectedSlot(choice);
                   onTargetChange?.({ ...targetSelection, scope: 'perDevice', device: choice.label });
-                  setLastAction(`${choice.label} added to Parent Portal`);
-                  setSyncStatus('Pending Rust sync');
+                  const payload = lanPairingAddDeviceCommandPayload(choice);
+                  if (!payload) {
+                    setLastAction(`${choice.label} has no controllable LAN route`);
+                    setSyncStatus('Visible only');
+                    return;
+                  }
+                  onAgentCommand?.(AgentCommand.LanPairingAddDeviceRequest, payload);
+                  setLastAction(`${choice.label} add-device requested`);
+                  setSyncStatus('Pending LAN proof');
                 }}
                 config={manageDeviceGridConfig(lanPairingGridW, lanPairingGridH)}
               />
@@ -11519,6 +11906,64 @@ function ManageControlPanel({
                   </text>
                   <text x={rowX + 12} y={rowY + 29} fontSize={11.2} fontWeight={780} fill={cfg.colors.bodyText}>
                     {truncateTextForWidth(row.value, lanPairingContextRowW - 24, 11.2, 0.58)}
+                  </text>
+                </g>
+              );
+            })}
+            {lanPairingActionButtons.map((action, index) => {
+              const actionColor = toneColor(action.tone, cfg);
+              const column = index % lanPairingActionColumns;
+              const rowIndex = Math.floor(index / lanPairingActionColumns);
+              const actionX = lanPairingBodyX + 20 + column * (lanPairingActionW + lanPairingActionGap);
+              const actionY = lanPairingActionY + rowIndex * (lanPairingActionRowH + 6);
+              const actionOpacity = action.enabled ? 0.96 : 0.42;
+              const actionText = truncateTextForWidth(action.label, lanPairingActionW - 28, 11.2, 0.58);
+              const handleLanAction = () => {
+                if (!action.enabled || !action.payload) {
+                  setLastAction(`${action.label} unavailable`);
+                  setSyncStatus('LAN proof missing');
+                  return;
+                }
+                onAgentCommand?.(action.command, action.payload);
+                setLastAction(`${action.label} requested`);
+                setSyncStatus('LAN command sent');
+              };
+              return (
+                <g
+                  key={`lan-pairing-action:${action.id}`}
+                  className={action.enabled ? 'parent-portal-svg-clickable' : undefined}
+                  role="button"
+                  tabIndex={0}
+                  aria-disabled={!action.enabled}
+                  aria-label={`LAN ${action.label}`}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    handleLanAction();
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.key !== 'Enter' && event.key !== ' ') return;
+                    event.preventDefault();
+                    event.stopPropagation();
+                    handleLanAction();
+                  }}
+                >
+                  <title>{action.status}</title>
+                  <path
+                    d={cutRectPath(actionX, actionY, lanPairingActionW, lanPairingActionRowH, 8)}
+                    fill={action.enabled ? colorAlpha(actionColor, '24') : 'rgba(2, 12, 22, 0.68)'}
+                    stroke={action.enabled ? actionColor : cfg.colors.panelStroke}
+                    strokeWidth={0.9}
+                    opacity={actionOpacity}
+                  />
+                  <circle cx={actionX + 14} cy={actionY + 15.5} r={3.5} fill={actionColor} opacity={actionOpacity} />
+                  <text
+                    x={actionX + 25}
+                    y={actionY + 20}
+                    fontSize={11.2}
+                    fontWeight={900}
+                    fill={action.enabled ? cfg.colors.bodyText : cfg.colors.mutedText}
+                  >
+                    {actionText}
                   </text>
                 </g>
               );

@@ -17,6 +17,9 @@ Rust protocol parity crate for data that crosses the TypeScript/Rust boundary.
 - V0.8 integrity alert/status bridge structs/constants nested in the integrity
   runtime audit payload for permission-loss, stale heartbeat, stopped/removed,
   and tamper/manual parent-visible status proof.
+- V0.9 signed LAN discovery/relay spine structs, enums, constants, and parity
+  tests for adapter evidence, signed proof rejection, route safety, relay/cache
+  availability, parent-owned storage, and custody labels.
 
 ## Must Not Own
 
@@ -62,3 +65,6 @@ flowchart LR
   refs and audit drill-in while keeping provider delivery, anti-tamper
   resistance, broad blocking, mobile enforcement, stealth/persistence, and
   privilege escalation unclaimed.
+- Signed LAN discovery structs must preserve manual-required/not-implemented
+  states for physical household proof, signed child-agent artifacts, relay, and
+  cache routes until service/runtime proof is real.

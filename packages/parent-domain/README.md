@@ -23,6 +23,9 @@ mobile readiness, and control catalogs.
 - Local AI runtime, provider, scheduler, context, and reference contracts.
 - Parent assistant and action-preview contracts.
 - LAN pairing, device roles, controller/observer states, and provider routing.
+- V0.9 signed LAN discovery/relay spine contracts that keep adapter evidence,
+  signed proof rejection, route safety, relay/cache availability, parent-owned
+  storage, and child-data custody claims explicit.
 - Browser/app/game/network/screen/tracking control catalogs.
 - Android/iOS/platform proof and capability status contracts where product
   meaning belongs in TypeScript first.
@@ -86,3 +89,5 @@ flowchart LR
   audit drill-in proof only; provider delivery, UI, anti-tamper resistance,
   broad blocking, mobile enforcement, stealth/persistence, and privilege
   escalation stay unclaimed.
+- Signed LAN hello/heartbeat and physical household readiness remain
+  manual-required until real second-child-agent artifacts are attached.

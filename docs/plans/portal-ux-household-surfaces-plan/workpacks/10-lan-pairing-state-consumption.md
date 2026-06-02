@@ -7,7 +7,17 @@ Sources: [20-step plan](../portal-ux-household-surfaces-20-step-plan.md),
 ## Where We Are
 
 B owns the full LAN plan. C must consume those states without duplicating LAN
-truth.
+truth. For the current B lane, this means B owns the LAN-specific service-to-UI
+wiring while C remains responsible for broad portal visual polish.
+
+Current screenshots show the existing Devices/LAN surface can render the
+service-backed add-device grid, local agent row, passive LAN rows,
+router/infrastructure row, selected-device detail tabs, Activity/Network
+network evidence fields, and Network policy family/per-device target controls.
+Branch `codex/v0-9-lan-signed-discovery-relay-spine` adds more typed LAN state
+for signed discovery, route custody, relay/cache unavailable, revoked/offline,
+and manual-required proof. The unfinished work is making those states actionable
+and inspectable for the parent.
 
 ## Where We Want To Be
 
@@ -17,11 +27,34 @@ and manual-required.
 
 ## Requirement Checklist
 
-- [ ] Use B/service read models for LAN state.
-- [ ] Keep routers/infrastructure visible but non-enrollable.
-- [ ] Show assignment/ignore/revocation state where available.
-- [ ] Show manual-required physical proof labels.
-- [ ] Test LAN fixture states without claiming real LAN proof.
+- [x] Use B/service read models for LAN state.
+- [x] Keep routers/infrastructure visible but non-enrollable.
+- [x] Keep signed discovery, relay/cache, revoked/offline, and
+      manual-required proof states in B-owned typed contracts/service state
+      rather than a portal-only truth.
+- [x] Show assignment/ignore/revocation state where available from
+      `householdDeviceDecisions` and signed relay route-safety audit rows.
+- [x] Show manual-required physical proof labels.
+- [x] Test LAN fixture states without claiming real LAN proof.
+- [x] Wire the existing add-device parent action to
+      `agent.lan-pairing.add-device.request` when a selected device has a
+      controllable LAN route.
+- [x] Wire first-class parent controls for add, route select, rename, trust,
+      ignore, restore, revoke, and route-custody decisions through existing LAN
+      add-device decision fields plus route select/revoke commands. Portal
+      transport routes those commands to the selected local-network child
+      target.
+- [x] Render Activity/Network LAN diagnostics for service-backed selected
+      route, evidence, signed proof, revocation/route rejection state,
+      relay/cache unavailable, parent decisions, route requirements, audit
+      checks, and manual/unproved proof state.
+- [x] Add richer Activity/Network diagnostics for scan/evidence first-seen and
+      last-seen timing, evidence expiry, signed adapter proof state, and
+      policy-target history.
+- [x] Add live browser proof screenshots. Captured on B lane ports in
+      `output/playwright/lan-ux-proof/devices-lan-controls.png`,
+      `output/playwright/lan-ux-proof/activity-network-diagnostics.png`, and
+      `output/playwright/lan-ux-proof/policy-network-targets.png`.
 
 ## Acceptance And Proof
 

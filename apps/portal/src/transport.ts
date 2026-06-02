@@ -1,4 +1,12 @@
-import { type AgentCommandName, type AgentProtocolLogFields } from '@ocentra-parent/agent-protocol-domain/contracts';
+import {
+  AgentLanPairingSupportedWebSocketCommand,
+  AgentProtocolDefaults,
+  decodeAgentDeviceId,
+  isAgentProtocolLogText,
+  type AgentCommandName,
+  type AgentMessageTarget,
+  type AgentProtocolLogFields,
+} from '@ocentra-parent/agent-protocol-domain/contracts';
 import { PortalConnectionState, PortalDom, PortalOverviewCommands } from '@ocentra-parent/portal-domain/contracts';
 import { createAgentCommand, parseAgentEventMessage, serializeAgentCommand } from './agent-client';
 import { DevLogField, DevLogMessage, writePortalDevLog } from './dev-logger';
@@ -80,8 +88,40 @@ function sendSocketCommand(
   command: AgentCommandName,
   payload: AgentProtocolLogFields
 ): void {
-  socket.send(serializeAgentCommand(createAgentCommand(command, payload, state.target)));
+  const target = resolvePortalCommandTarget(state.target, command, payload);
+  socket.send(serializeAgentCommand(createAgentCommand(command, payload, target)));
   writePortalDevLog(DevLogMessage.PortalCommandSent, {
     [DevLogField.Command]: command,
   });
+}
+
+export function resolvePortalCommandTarget(
+  baseTarget: AgentMessageTarget,
+  command: AgentCommandName,
+  payload: AgentProtocolLogFields
+): AgentMessageTarget {
+  if (!Object.values(AgentLanPairingSupportedWebSocketCommand).includes(command)) {
+    return baseTarget;
+  }
+  const childDeviceId = payload[AgentProtocolDefaults.Field.LanChildDeviceId];
+  if (!isAgentProtocolLogText(childDeviceId) || !childDeviceId.trim()) {
+    if (command === AgentLanPairingSupportedWebSocketCommand.StatusGet) {
+      return {
+        ...baseTarget,
+        route: AgentProtocolDefaults.Target.LocalhostWindowsAgent.route,
+      };
+    }
+    if (command !== AgentLanPairingSupportedWebSocketCommand.BrowserDiscoveryScan) {
+      return baseTarget;
+    }
+    return {
+      ...baseTarget,
+      route: AgentProtocolDefaults.Target.LocalNetworkWindowsAgent.route,
+    };
+  }
+  return {
+    ...baseTarget,
+    deviceId: decodeAgentDeviceId(childDeviceId),
+    route: AgentProtocolDefaults.Target.LocalNetworkWindowsAgent.route,
+  };
 }

@@ -1,5 +1,6 @@
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import { AgentDeviceIdSchema, AgentPeerIdSchema, AgentProtocolSchemaVersion, AgentTimestampSchema } from './primitives';
+import { AgentLanSignedDiscoveryRelaySpineSchema } from './lan-signed-discovery-relay-spine';
 import {
   AgentLanPairingAddressRefSchema,
   AgentLanPairingDeviceRefSchema,
@@ -331,6 +332,9 @@ export const AgentLanBrowserAddDeviceReadModelSchema = withParser(
       Schema.Union(AgentLanProductionHouseholdProofSummarySchema, Schema.Null),
       { default: () => null }
     ),
+    signedDiscoveryRelaySpine: Schema.optionalWith(Schema.Union(AgentLanSignedDiscoveryRelaySpineSchema, Schema.Null), {
+      default: () => null,
+    }),
     trustedDeviceIds: Schema.Array(AgentDeviceIdSchema),
     revokedDeviceIds: Schema.Array(AgentDeviceIdSchema),
     selectedDeviceReadiness: AgentLanSelectedDeviceReadinessSchema,
@@ -343,6 +347,7 @@ export const AgentLanBrowserAddDeviceReadModelSchema = withParser(
 );
 
 export type AgentLanPairingDiscoverySource = Infer<typeof AgentLanPairingDiscoverySourceSchema>;
+export type AgentLanHouseholdDeviceActionKind = Infer<typeof AgentLanHouseholdDeviceActionKindSchema>;
 export type AgentLanBrowserAddDeviceDiscoveryDevice = Infer<typeof AgentLanBrowserAddDeviceDiscoveryDeviceSchema>;
 export type AgentLanBrowserAddDevicePairingRequest = Infer<typeof AgentLanBrowserAddDevicePairingRequestSchema>;
 export type AgentLanBrowserAddDeviceScanSummary = Infer<typeof AgentLanBrowserAddDeviceScanSummarySchema>;

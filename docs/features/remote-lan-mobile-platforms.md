@@ -47,6 +47,22 @@ PC while preserving local-first custody.
   stale/offline selected-device, relay/cache, second physical child-agent,
   Android/iOS parity, and store-signing rows without upgrading manual or
   not-implemented claims.
+- The V0.9 signed discovery/relay spine now adds typed adapter rows for passive
+  LAN neighbor, router/infrastructure, mDNS, SSDP, router DHCP, manual direct
+  address, signed child-agent hello, and signed child-agent heartbeat. It also
+  exposes signed proof rejection rows, route safety rows, relay/cache decision
+  rows, explicit parent-owned storage unavailability, and no Ocentra child-data
+  custody claims across parent-domain, agent-protocol-domain, Rust protocol,
+  Rust service state, and the focused proof harness.
+- Parent portal LAN detail and Activity/Network diagnostics now consume the
+  signed discovery/relay spine for route custody, signed proof, relay/cache
+  unavailable state, parent decision/audit labels, route requirements, manual
+  proof, and unproved claims. Devices/LAN now exposes first-class add, route
+  select, rename, trust, ignore, restore, and revoke controls through existing
+  add-device household-decision and route command surfaces, and portal transport
+  routes LAN commands to the selected local-network child target. Activity/
+  Network diagnostics also show scan/evidence timing, evidence expiry, signed
+  adapter proof state, and policy-target history.
 - Parent desktop Tauri proof now serializes active-controller route,
   observer-read-only, live local-network custody, relay unavailable, cache
   unavailable, and parent-owned storage unavailable states without implementing
@@ -64,11 +80,13 @@ PC while preserving local-first custody.
 ## Current Gap
 
 Physical household proof still needs a second installed child agent, signed LAN
-agent hello/heartbeat artifacts, stronger name discovery such as
-mDNS/SSDP/router DHCP integration, and live parent UX around the typed
-assignment/rename/ignore/revocation states. Optional remote relay, cache route,
-mobile permissions, Android Device Owner/Accessibility/VPN/DNS/UsageStats proof,
-iOS Family Controls/DeviceActivity/Network Extension proof, signing, and store
+agent hello/heartbeat artifacts, and stronger name discovery such as
+mDNS/SSDP/router DHCP integration. Browser screenshot proof now exists for the
+current B-lane Devices/LAN, Activity/Network, and Network policy surfaces, but
+that is not two-physical-child household proof. Optional remote relay, cache
+route, mobile permissions, Android Device Owner/Accessibility/VPN/DNS/UsageStats
+proof, iOS Family
+Controls/DeviceActivity/Network Extension proof, signing, and store
 distribution remain.
 
 ## Checklist
@@ -76,15 +94,26 @@ distribution remain.
 - [ ] LAN discovery and pairing. Current proof covers Windows neighbor-table
       inventory, local child-agent hardware inventory, scan summary counts, passive
       neighbor/router separation, portal target filtering, and typed production
-      proof rows; signed hello/heartbeat, mDNS/SSDP/router DHCP names, and
+      proof rows. The signed discovery/relay spine now type-checks signed
+      hello/heartbeat manual-required rows, stale/expired/replayed/wrong-origin/
+      wrong-device/revoked/anonymous rejection rows, mDNS/SSDP/router DHCP manual
+      rows, and route-safety rows; actual signed hello/heartbeat artifacts and
+      second-child-agent pairing proof remain manual-required. Portal LAN detail
+      and Activity/Network diagnostics consume these fields, and Devices/LAN
+      exposes command-backed action controls. Browser screenshot proof exists
+      under `output/playwright/lan-ux-proof/`; real signed hello/heartbeat and
       second-child-agent pairing proof remain manual-required.
 - [ ] Trusted registry and revocation. Current proof covers typed registry,
-      trust, parent decision, revocation, stale, and offline rows; live household
-      revocation/recovery UX remains.
+      trust, parent decision, revocation, stale, and offline rows; portal
+      diagnostics now show the read-model/audit state and command-backed
+      Devices/LAN controls can request trust/ignore/restore/revoke. Live
+      two-device household recovery proof remains.
 - [ ] Controller lease and observer read-only state.
 - [ ] Route status: local, LAN, relay, cache, stale, offline, unavailable.
 - [ ] Optional relay without default child-data custody. Current production LAN
-      proof explicitly marks relay and cache routes not implemented.
+      proof and signed discovery/relay spine explicitly mark relay route, queued
+      relay, cache route, and parent-owned storage unavailable/not implemented
+      while preserving no Ocentra child-data custody.
 - [ ] Android child-agent real device proof. Current aggregate proof covers
       `mobile-child-agent-capability-proof` contract/test/harness rows for
       foreground service, storage/protocol bridge, notifications, UsageStats,

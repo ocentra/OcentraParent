@@ -113,6 +113,27 @@ const EXPECTED_AGENT_EVENT_ENTRIES = [
   ['LanAiJobReported', 'agent.lan-ai.job.reported'],
 ] as const satisfies ReadonlyArray<readonly [keyof typeof AgentEvent, unknown]>;
 
+const EXPECTED_LAN_HOUSEHOLD_ACTION_FIELD_ENTRIES = [
+  ['LanHouseholdActionId', 'householdActionId'],
+  ['LanHouseholdActionKind', 'householdActionKind'],
+  ['LanHouseholdActionChildProfileId', 'childProfileId'],
+  ['LanHouseholdActionDisplayName', 'displayName'],
+  ['LanHouseholdActionRevokedAt', 'revokedAt'],
+] as const satisfies ReadonlyArray<readonly [keyof typeof AgentProtocolDefaults.Field, unknown]>;
+
+const EXPECTED_LAN_HOUSEHOLD_ACTION_KIND_ENTRIES = [
+  ['Assign', 'assign'],
+  ['Rename', 'rename'],
+  ['Ignore', 'ignore'],
+  ['Restore', 'restore'],
+  ['Trust', 'trust'],
+] as const satisfies ReadonlyArray<readonly [keyof typeof AgentProtocolDefaults.LanHouseholdActionKind, unknown]>;
+
+const EXPECTED_LAN_PARENT_AUTHORITY_ENTRIES = [
+  ['ActiveController', 'active-controller'],
+  ['Observer', 'observer'],
+] as const satisfies ReadonlyArray<readonly [keyof typeof AgentProtocolDefaults.LanParentAuthority, unknown]>;
+
 function expectConstantEntries<TConstants extends object>(
   constants: TConstants,
   entries: ReadonlyArray<readonly [keyof TConstants, unknown]>
@@ -218,6 +239,12 @@ it('AgentLanPairingSupportedWebSocketCommand: keeps V0.9 LAN pairing support lim
     'agent.lan-ai.job.submit',
   ]);
   expect(Object.values(AgentLanPairingSupportedWebSocketCommand)).not.toContain('agent.lan-pairing.discovery.http');
+});
+
+it('AgentProtocolDefaults: exposes LAN household action fields for add-device decisions', () => {
+  expectConstantEntries(AgentProtocolDefaults.Field, EXPECTED_LAN_HOUSEHOLD_ACTION_FIELD_ENTRIES);
+  expectConstantEntries(AgentProtocolDefaults.LanHouseholdActionKind, EXPECTED_LAN_HOUSEHOLD_ACTION_KIND_ENTRIES);
+  expectConstantEntries(AgentProtocolDefaults.LanParentAuthority, EXPECTED_LAN_PARENT_AUTHORITY_ENTRIES);
 });
 
 it('AgentProtocolDefaults.Field: exposes local AI model cache payload fields', () => {

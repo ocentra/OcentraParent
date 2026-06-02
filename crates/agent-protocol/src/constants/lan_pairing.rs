@@ -145,10 +145,23 @@ pub const HOUSEHOLD_ACTION_ID: &str = "household-action-1";
 pub const HOUSEHOLD_RESTORE_ACTION_ID: &str = "household-action-restore-1";
 pub const HOUSEHOLD_RENAMED_DEVICE_LABEL: &str = "Bedroom Windows PC";
 pub const PRODUCTION_PROOF_FIELD_SUMMARY: &str = "productionHouseholdProof";
+pub const SIGNED_DISCOVERY_RELAY_FIELD_SUMMARY: &str = "signedDiscoveryRelaySpine";
 pub const PRODUCTION_PROOF_FIELD_STATUS_ROWS: &str = "statusRows";
 pub const PRODUCTION_PROOF_FIELD_PROOF_STATE: &str = "proofState";
 pub const PRODUCTION_PROOF_FIELD_NOT_IMPLEMENTED: &str = "notImplemented";
 pub const PRODUCTION_PROOF_FIELD_CLAIMS_NOT_PROVED: &str = "claimsNotProved";
+pub const SIGNED_DISCOVERY_RELAY_FIELD_ADAPTER_ROWS: &str = "adapterRows";
+pub const SIGNED_DISCOVERY_RELAY_FIELD_ADAPTER: &str = "adapter";
+pub const SIGNED_DISCOVERY_RELAY_FIELD_SIGNED_PROOF_ROWS: &str = "signedProofRows";
+pub const SIGNED_DISCOVERY_RELAY_FIELD_REJECTION_REASON: &str = "rejectionReason";
+pub const SIGNED_DISCOVERY_RELAY_FIELD_RELAY_CACHE_ROWS: &str = "relayCacheRows";
+pub const SIGNED_DISCOVERY_RELAY_FIELD_CUSTODY_LABEL: &str = "custodyLabel";
+pub const SIGNED_DISCOVERY_RELAY_FIELD_ROUTE_SAFETY_ROWS: &str = "routeSafetyRows";
+pub const SIGNED_DISCOVERY_RELAY_FIELD_CHECK: &str = "check";
+pub const SIGNED_DISCOVERY_RELAY_ADAPTER_SIGNED_CHILD_AGENT_HELLO: &str =
+    "signed-child-agent-hello";
+pub const SIGNED_DISCOVERY_RELAY_CUSTODY_NO_CHILD_DATA: &str = "no-ocentra-child-data-custody";
+pub const SIGNED_DISCOVERY_RELAY_ROUTE_CHECK_SELECTED_CUSTODY: &str = "selected-route-custody";
 pub const PRODUCTION_PROOF_CAPABILITY_SIGNED_HELLO: &str = "signed-lan-hello";
 pub const PRODUCTION_PROOF_CAPABILITY_SIGNED_HEARTBEAT: &str = "signed-lan-heartbeat";
 pub const PRODUCTION_PROOF_CAPABILITY_PASSIVE_NEIGHBOR: &str = "passive-neighbor-discovery";
@@ -249,6 +262,8 @@ pub const PRODUCTION_PROOF_NON_CLAIM_IOS: &str =
     "iOS child-agent parity remains manual-required until entitlement device and transport artifacts are attached";
 pub const PRODUCTION_PROOF_NON_CLAIM_STORE: &str =
     "store signing remains manual-required until signing store and release artifacts are attached";
+pub const SIGNED_DISCOVERY_RELAY_NON_CLAIM_PARENT_STORAGE: &str =
+    "parent-owned storage is unavailable until a parent-selected storage adapter exists";
 pub const NETWORK_NEIGHBOR_LABEL_PREFIX: &str = "LAN ";
 pub const NETWORK_NEIGHBOR_UNKNOWN_HOSTNAME: &str = "unknown-host";
 pub const PLATFORM_UNKNOWN: &str = "unknown";

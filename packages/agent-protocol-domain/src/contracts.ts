@@ -9,6 +9,7 @@ import {
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import {
   AgentCorrelationIdSchema,
+  AgentDeviceIdSchema,
   AgentEventIdSchema,
   AgentMessageIdSchema,
   AgentMessageTargetSchema,
@@ -55,6 +56,7 @@ export {
   AgentLanBrowserAddDeviceReadModelSchema,
   AgentLanBrowserAddDeviceScanSummarySchema,
   AgentLanCanonicalHouseholdDeviceSchema,
+  AgentLanHouseholdDeviceActionKindSchema,
   AgentLanPairingDiscoverySourceSchema,
   AgentLanSelectedDeviceReadinessSchema,
   AgentLanTrustedDeviceRegistryEntrySchema,
@@ -63,10 +65,41 @@ export {
   type AgentLanBrowserAddDeviceReadModel,
   type AgentLanBrowserAddDeviceScanSummary,
   type AgentLanCanonicalHouseholdDevice,
+  type AgentLanHouseholdDeviceActionKind,
   type AgentLanPairingDiscoverySource,
   type AgentLanSelectedDeviceReadiness,
   type AgentLanTrustedDeviceRegistryEntry,
 } from './lan-pairing-browser-add-device-state';
+export {
+  AgentLanSignedDiscoveryRelayAdapterKindSchema,
+  AgentLanSignedDiscoveryRelayAdapterRowSchema,
+  AgentLanSignedDiscoveryRelayCacheCheckSchema,
+  AgentLanSignedDiscoveryRelayCacheRowSchema,
+  AgentLanSignedDiscoveryRelayCustodyLabelSchema,
+  AgentLanSignedDiscoveryRelayDecisionStateSchema,
+  AgentLanSignedDiscoveryRelayProofStateSchema,
+  AgentLanSignedDiscoveryRelayRuntimeOwnerSchema,
+  AgentLanSignedDiscoveryRelayRouteSafetyCheckSchema,
+  AgentLanSignedDiscoveryRelayRouteSafetyRowSchema,
+  AgentLanSignedDiscoveryRelaySignedProofCheckSchema,
+  AgentLanSignedDiscoveryRelaySignedProofRowSchema,
+  AgentLanSignedDiscoveryRelaySourceConfidenceSchema,
+  AgentLanSignedDiscoveryRelaySpineSchema,
+  type AgentLanSignedDiscoveryRelayAdapterKind,
+  type AgentLanSignedDiscoveryRelayAdapterRow,
+  type AgentLanSignedDiscoveryRelayCacheCheck,
+  type AgentLanSignedDiscoveryRelayCacheRow,
+  type AgentLanSignedDiscoveryRelayCustodyLabel,
+  type AgentLanSignedDiscoveryRelayDecisionState,
+  type AgentLanSignedDiscoveryRelayProofState,
+  type AgentLanSignedDiscoveryRelayRuntimeOwner,
+  type AgentLanSignedDiscoveryRelayRouteSafetyCheck,
+  type AgentLanSignedDiscoveryRelayRouteSafetyRow,
+  type AgentLanSignedDiscoveryRelaySignedProofCheck,
+  type AgentLanSignedDiscoveryRelaySignedProofRow,
+  type AgentLanSignedDiscoveryRelaySourceConfidence,
+  type AgentLanSignedDiscoveryRelaySpine,
+} from './lan-signed-discovery-relay-spine';
 export {
   AgentLanBrowserAddDeviceRequestSchema,
   AgentLanBrowserDiscoveryScanRequestSchema,
@@ -290,10 +323,15 @@ export type AgentProtocolLogFields = LogFields;
 export type AgentProtocolLogLevel = LogLevel;
 export type AgentProtocolSnapshot = AgentLogSnapshot;
 
+export const decodeAgentDeviceId = Schema.decodeUnknownSync(AgentDeviceIdSchema);
 export const decodeAgentMessageId = Schema.decodeUnknownSync(AgentMessageIdSchema);
 export const decodeAgentTimestamp = Schema.decodeUnknownSync(AgentTimestampSchema);
 export const decodeAgentWebSocketUrl = Schema.decodeUnknownSync(AgentWebSocketUrlSchema);
 export const decodeSerializedAgentMessage = Schema.decodeUnknownSync(SerializedAgentMessageSchema);
+
+export function isAgentProtocolLogText(value: unknown): value is string {
+  return typeof value === 'string';
+}
 
 export const AgentCommand = {
   HealthCheck: AgentCommandNameSchema.parse('agent.health.check'),

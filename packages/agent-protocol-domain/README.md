@@ -12,6 +12,9 @@ transports.
 - Adapter-specific command/event contracts for activity, browser policy,
   parent assistant, LAN, enforcement product-control runtime state, and related
   paths.
+- V0.9 signed LAN discovery/relay spine payloads for add-device read models,
+  including adapter rows, signed proof rows, route safety rows, and relay/cache
+  rows consumed by the Rust service and parent surfaces.
 - Enforcement policy-dispatch read-model event parsing for the service-backed
   V0.8 dispatch proof path.
 - Enforcement supported-adapter runtime proof event parsing, including the
@@ -67,3 +70,6 @@ flowchart LR
   app/domain/browser blocking, notification delivery, tamper resistance, mobile
   enforcement, stealth/persistence, and privilege escalation stay unclaimed
   until separate platform proof exists.
+- V0.9 signed LAN discovery/relay spine contracts still report signed
+  child-agent artifacts, physical household proof, relay, and cache routes as
+  manual or not implemented until real runtime proof exists.

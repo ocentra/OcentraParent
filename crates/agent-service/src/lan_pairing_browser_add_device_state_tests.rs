@@ -84,6 +84,11 @@ fn assert_empty_runtime_read_model(read_model: &Value) {
                 source.as_str() == Some(constants::lan_pairing::LAN_SCAN_SOURCE_LOCAL_SERVICE)
             })
     );
+    assert_empty_runtime_production_household_proof(read_model);
+    assert_empty_runtime_signed_discovery_relay_spine(read_model);
+}
+
+fn assert_empty_runtime_production_household_proof(read_model: &Value) {
     let production_household_proof =
         &read_model[constants::lan_pairing::PRODUCTION_PROOF_FIELD_SUMMARY];
     assert_eq!(
@@ -110,6 +115,31 @@ fn assert_empty_runtime_read_model(read_model: &Value) {
         .iter()
         .any(|claim| claim.as_str()
             == Some(constants::lan_pairing::PRODUCTION_PROOF_NON_CLAIM_SIGNED)));
+}
+
+fn assert_empty_runtime_signed_discovery_relay_spine(read_model: &Value) {
+    let signed_discovery_relay_spine =
+        &read_model[constants::lan_pairing::SIGNED_DISCOVERY_RELAY_FIELD_SUMMARY];
+    assert_eq!(
+        signed_discovery_relay_spine
+            [constants::lan_pairing::SIGNED_DISCOVERY_RELAY_FIELD_ADAPTER_ROWS][6]
+            [constants::lan_pairing::SIGNED_DISCOVERY_RELAY_FIELD_ADAPTER],
+        serde_json::json!(
+            constants::lan_pairing::SIGNED_DISCOVERY_RELAY_ADAPTER_SIGNED_CHILD_AGENT_HELLO
+        )
+    );
+    assert_eq!(
+        signed_discovery_relay_spine
+            [constants::lan_pairing::SIGNED_DISCOVERY_RELAY_FIELD_SIGNED_PROOF_ROWS][3]
+            [constants::lan_pairing::SIGNED_DISCOVERY_RELAY_FIELD_REJECTION_REASON],
+        serde_json::json!(constants::value::LAN_REASON_ANONYMOUS)
+    );
+    assert_eq!(
+        signed_discovery_relay_spine
+            [constants::lan_pairing::SIGNED_DISCOVERY_RELAY_FIELD_RELAY_CACHE_ROWS][4]
+            [constants::lan_pairing::SIGNED_DISCOVERY_RELAY_FIELD_CUSTODY_LABEL],
+        serde_json::json!(constants::lan_pairing::SIGNED_DISCOVERY_RELAY_CUSTODY_NO_CHILD_DATA)
+    );
 }
 
 #[tokio::test]
@@ -149,20 +179,8 @@ async fn lan_status_marks_selected_trusted_device_ready_for_control() {
             [constants::field::LAN_READY_FOR_CONTROL],
         serde_json::json!(true)
     );
-    assert_eq!(
-        read_model[constants::lan_pairing::PRODUCTION_PROOF_FIELD_SUMMARY]
-            [constants::lan_pairing::PRODUCTION_PROOF_FIELD_STATUS_ROWS]
-            .as_array()
-            .expect(constants::value::LAN_HONEST_NON_CLAIMS_ARRAY_EXPECTATION)
-            .iter()
-            .find(|row| row[constants::field::CAPABILITY]
-                == serde_json::json!(
-                    constants::lan_pairing::PRODUCTION_PROOF_CAPABILITY_ROUTE_CUSTODY
-                ))
-            .expect(constants::value::LAN_READ_MODEL_JSON_EXPECTATION)
-            [constants::field::LAN_DISCOVERY_STATE],
-        serde_json::json!(constants::value::LAN_DISCOVERY_STATE_PAIRED)
-    );
+    assert_paired_production_route_custody(&read_model);
+    assert_paired_signed_route_custody(&read_model);
     assert_eq!(
         read_model[constants::field::LAN_CANONICAL_HOUSEHOLD_DEVICES][0]
             [constants::field::LAN_POLICY_TARGET_SURFACES],
@@ -177,6 +195,42 @@ async fn lan_status_marks_selected_trusted_device_ready_for_control() {
             constants::lan_pairing::SURFACE_TRACKING,
             constants::lan_pairing::SURFACE_AI
         ])
+    );
+}
+
+fn assert_paired_production_route_custody(read_model: &Value) {
+    assert_eq!(
+        read_model[constants::lan_pairing::PRODUCTION_PROOF_FIELD_SUMMARY]
+            [constants::lan_pairing::PRODUCTION_PROOF_FIELD_STATUS_ROWS]
+            .as_array()
+            .expect(constants::value::LAN_HONEST_NON_CLAIMS_ARRAY_EXPECTATION)
+            .iter()
+            .find(|row| row[constants::field::CAPABILITY]
+                == serde_json::json!(
+                    constants::lan_pairing::PRODUCTION_PROOF_CAPABILITY_ROUTE_CUSTODY
+                ))
+            .expect(constants::value::LAN_READ_MODEL_JSON_EXPECTATION)
+            [constants::field::LAN_DISCOVERY_STATE],
+        serde_json::json!(constants::value::LAN_DISCOVERY_STATE_PAIRED)
+    );
+}
+
+fn assert_paired_signed_route_custody(read_model: &Value) {
+    assert_eq!(
+        read_model[constants::lan_pairing::SIGNED_DISCOVERY_RELAY_FIELD_SUMMARY]
+            [constants::lan_pairing::SIGNED_DISCOVERY_RELAY_FIELD_ROUTE_SAFETY_ROWS]
+            .as_array()
+            .expect(constants::value::LAN_HONEST_NON_CLAIMS_ARRAY_EXPECTATION)
+            .iter()
+            .find(
+                |row| row[constants::lan_pairing::SIGNED_DISCOVERY_RELAY_FIELD_CHECK]
+                    == serde_json::json!(
+                        constants::lan_pairing::SIGNED_DISCOVERY_RELAY_ROUTE_CHECK_SELECTED_CUSTODY
+                    )
+            )
+            .expect(constants::value::LAN_READ_MODEL_JSON_EXPECTATION)
+            [constants::field::LAN_DISCOVERY_STATE],
+        serde_json::json!(constants::value::LAN_DISCOVERY_STATE_PAIRED)
     );
 }
 
