@@ -16,13 +16,17 @@ test('support diagnostic redaction keeps only support-safe fields', () => {
   const redacted = redactSupportDiagnostic({
     appVersion: '0.1.1',
     authToken: 'do-not-keep',
+    clipboardData: 'copied private text',
+    commandLine: 'agent.exe --token hidden',
     correlationId: 'support-case-123',
-    eventTypes: ['service.health.changed', 'package.preview.generated'],
+    eventTypes: ['service.health.changed', 'https://example.invalid/private'],
     featureFlags: {
       desktopRuntime: true,
       privatePath: 'C:\\Users\\child\\Downloads',
     },
     journalPath: 'agent-journal.ndjson',
+    keystrokes: 'typed secret',
+    messageContents: 'private message body',
     mode: 'preview',
     packageSource: 'package-preview',
     platform: 'windows',
@@ -41,7 +45,7 @@ test('support diagnostic redaction keeps only support-safe fields', () => {
   assert.deepEqual(redacted, {
     appVersion: '0.1.1',
     correlationId: 'support-case-123',
-    eventTypes: ['service.health.changed', 'package.preview.generated'],
+    eventTypes: ['service.health.changed', '[redacted]'],
     featureFlags: {
       desktopRuntime: true,
     },
@@ -50,7 +54,11 @@ test('support diagnostic redaction keeps only support-safe fields', () => {
     platform: 'windows',
     redactionsApplied: [
       'authtoken',
+      'clipboarddata',
+      'commandline',
       'journalpath',
+      'keystrokes',
+      'messagecontents',
       'privatepath',
       'rawchildactivity',
       'rawurl',
@@ -71,11 +79,17 @@ test('release-support proof separates preview mechanics from product claims', ()
   });
   const matrixRows = Object.fromEntries(proof.platformCapabilityMatrix.map((row) => [row.target, row]));
 
-  assert.deepEqual(proof.workpacks.completed, ['04', '06', '09', '10', '11', '12', '15', '16', '17', '18', '20']);
-  assert.deepEqual(proof.workpacks.partial, ['19']);
-  assert.match(proof.workpacks.partialReason, /docs\/product-capability-checklist\.md/u);
+  assert.deepEqual(proof.workpacks.completed, ['04', '06', '09', '10', '11', '12', '15', '16', '17', '18', '19', '20']);
+  assert.deepEqual(proof.workpacks.partial, []);
+  assert.equal(proof.workpacks.partialReason, null);
   assert.equal(proof.branchBoundary.main.productionPublish, false);
   assert.equal(proof.branchBoundary.production.productionPublish, true);
+  assert.equal(proof.packageRuntimeEvidence.packageFrontendSource, 'built-portal-dist');
+  assert.equal(proof.packageRuntimeEvidence.backendBoundary, 'rust-service-boundary');
+  assert.equal(proof.packageRuntimeEvidence.serviceLaunchOwner, 'package-service-manager');
+  assert.equal(proof.packageRuntimeEvidence.fixedAgentAddress, '127.0.0.1:4477');
+  assert.equal(proof.packageRuntimeEvidence.portConflictPolicy, 'no-foreign-process-reclaim');
+  assert.equal(proof.packageRuntimeEvidence.nonClaim.includes('not production'), true);
   assert.equal(proof.updateChannelRollback.productionUpdate.manifestSignature, 'required');
   assert.equal(proof.updateChannelRollback.productionUpdate.unsignedPreviewAccepted, false);
   assert.deepEqual(Object.keys(matrixRows), [
@@ -97,6 +111,21 @@ test('release-support proof separates preview mechanics from product claims', ()
   assert.equal(matrixRows.signing.proofLevel, 'manual-required');
   assert.equal(matrixRows.store.proofLevel, 'manual-required');
   assert.equal(matrixRows.support.proofLevel, 'preview-only');
+  assert.deepEqual(proof.supportDiagnostics.forbiddenTerms, [
+    'token',
+    'secret',
+    'childname',
+    'childactivity',
+    'rawurl',
+    'screenshot',
+    'journal',
+    'sqlite',
+    'privatepath',
+    'commandline',
+    'keystroke',
+    'clipboard',
+    'messagecontent',
+  ]);
   assert.deepEqual(
     proof.signingStoreClaims.map((claim) => [claim.id, claim.productionClaim]),
     [
@@ -106,6 +135,17 @@ test('release-support proof separates preview mechanics from product claims', ()
       ['ios-testflight-store', false],
     ]
   );
+});
+
+test('parent-domain package exposes the release-support contract', () => {
+  const parentDomainPackage = JSON.parse(
+    readFileSync(join(repoRoot, 'packages', 'parent-domain', 'package.json'), 'utf8')
+  );
+
+  assert.deepEqual(parentDomainPackage.exports['./parent-desktop-release-support'], {
+    import: './dist/parent-desktop-release-support.js',
+    types: './dist/parent-desktop-release-support.d.ts',
+  });
 });
 
 test('release-support proof matches current CI preview and production release boundaries', () => {

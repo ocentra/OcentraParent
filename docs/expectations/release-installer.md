@@ -12,8 +12,8 @@ Release features are product features because parents need install/update paths 
 - Signature verification where applicable.
 - Clear production/manual release boundary.
 - Release-support proof covering update/rollback posture, signing/store claim
-  boundaries, support diagnostic redaction, CI artifacts, and manual proof
-  requirements.
+  boundaries, package-runtime evidence, support diagnostic redaction, CI
+  artifacts, and manual proof requirements.
 
 ## Acceptance
 
@@ -28,6 +28,11 @@ Release features are product features because parents need install/update paths 
   command lines, keystrokes, clipboard data, and message contents.
 - Update paths reject unsigned or incorrectly signed manifests once signing is enabled.
 - Package claims match real artifacts.
+- Parent desktop package-runtime proof names built portal dist, the Rust service
+  boundary, package service-manager ownership, fixed loopback process ownership,
+  connect-or-degrade behavior, blank-window guard state, and signed-channel
+  update posture without treating Vite or preview CI artifacts as production
+  release evidence.
 - Parent-facing install flow is understandable for non-technical users.
 - `mobile-child-agent-capability-proof` package/runtime hooks may reference
   Android debug APK/checksum and iOS simulator/Xcode artifacts, but Play

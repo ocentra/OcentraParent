@@ -7,6 +7,7 @@ import type {
   ParentDesktopReleaseSupportManualRunbookEntry,
   ParentDesktopReleaseSupportMobileBridgeBoundary,
   ParentDesktopReleaseSupportOperation,
+  ParentDesktopReleaseSupportPackageRuntimeEvidence,
   ParentDesktopReleaseSupportReadModel,
   ParentDesktopReleaseSupportSigningStoreState,
   ParentDesktopReleaseSupportSigningSurface,
@@ -49,11 +50,25 @@ const RequiredDiagnosticFields = [
   'capability',
   'degraded-state',
 ] as const satisfies ReadonlyArray<ParentDesktopReleaseSupportDiagnosticField>;
+const RequiredRedactedFieldLabels = [
+  'tokens',
+  'child activity',
+  'raw urls',
+  'screenshots',
+  'journals',
+  'SQLite snapshots',
+  'private paths',
+  'command lines',
+  'keystrokes',
+  'clipboard data',
+  'message contents',
+] as const;
 
 export function parentDesktopReleaseSupportReadModelIsHonest(readModel: ParentDesktopReleaseSupportReadModel): boolean {
   return (
     observerAuthorityIsReadOnly(readModel.observerAuthority) &&
     mobileBoundaryIsSeparate(readModel.mobileBridgeBoundary) &&
+    packageRuntimeEvidenceIsHonest(readModel.packageRuntimeEvidence) &&
     updateStatesAreHonest(readModel.updateStates) &&
     signingStoreStatesAreManual(readModel.signingStoreStates) &&
     matrixCoversRequiredTargets(readModel.platformCapabilityMatrix) &&
@@ -61,6 +76,43 @@ export function parentDesktopReleaseSupportReadModelIsHonest(readModel: ParentDe
     supportDiagnosticsAreRedacted(readModel.supportDiagnostics) &&
     manualRunbookCoversRequiredTargets(readModel.manualRunbook)
   );
+}
+
+function packageRuntimeEvidenceIsHonest(evidence: ParentDesktopReleaseSupportPackageRuntimeEvidence): boolean {
+  return (
+    packageRuntimeBoundaryIsHonest(evidence) &&
+    packageRuntimeStatesAreHonest(evidence) &&
+    evidence.supportDiagnosticState !== 'unavailable' &&
+    packageRuntimeNonClaimIsHonest(evidence)
+  );
+}
+
+function packageRuntimeBoundaryIsHonest(evidence: ParentDesktopReleaseSupportPackageRuntimeEvidence): boolean {
+  return [
+    evidence.packageFrontendSource === 'built-portal-dist',
+    evidence.backendBoundary === 'rust-service-boundary',
+    evidence.serviceLaunchOwner === 'package-service-manager',
+    evidence.fixedAgentAddress.includes('127.0.0.1:4477'),
+    evidence.portOwnership === 'fixed-loopback',
+    evidence.portConflictPolicy === 'no-foreign-process-reclaim',
+    evidence.processOwnership === 'parent-shell-only',
+    evidence.blankWindowGuard === 'frontend-dist-required',
+    evidence.updateRollbackPosture === 'signed-channel-required',
+  ].every((entry) => entry);
+}
+
+function packageRuntimeStatesAreHonest(evidence: ParentDesktopReleaseSupportPackageRuntimeEvidence): boolean {
+  const serviceStateIsHonest =
+    evidence.serviceHealthState === 'implemented' ||
+    evidence.serviceHealthState === 'degraded' ||
+    evidence.serviceHealthState === 'manual-required';
+  const connectStateIsHonest =
+    evidence.connectOrDegradeState === 'implemented' || evidence.connectOrDegradeState === 'degraded';
+  return serviceStateIsHonest && connectStateIsHonest;
+}
+
+function packageRuntimeNonClaimIsHonest(evidence: ParentDesktopReleaseSupportPackageRuntimeEvidence): boolean {
+  return evidence.nonClaim.includes('not signing') && evidence.nonClaim.includes('not production');
 }
 
 function observerAuthorityIsReadOnly(
@@ -159,10 +211,39 @@ function supportDiagnosticsAreRedacted(diagnostics: ParentDesktopReleaseSupportD
   }
 
   const forbiddenValues = ['secret', 'token', 'raw-journal', 'sqlite', 'child-private-data'];
-  return diagnostics.entries.every((entry) => {
-    const value = entry.value.toLowerCase();
-    return entry.redactionState === 'redacted' || !forbiddenValues.some((forbidden) => value.includes(forbidden));
-  });
+  const expandedForbiddenValues = [
+    ...forbiddenValues,
+    'rawurl',
+    'raw url',
+    'http://',
+    'https://',
+    'screenshot',
+    'journal',
+    'private path',
+    'privatepath',
+    'command line',
+    'commandline',
+    'keystroke',
+    'clipboard',
+    'message content',
+    'messagecontent',
+    'child activity',
+    'childactivity',
+  ];
+  const redactedLabels = new Set(diagnostics.redactedFields.map((field) => field.toLowerCase()));
+  const requiredRedactionsPresent = RequiredRedactedFieldLabels.every((field) =>
+    redactedLabels.has(field.toLowerCase())
+  );
+
+  return (
+    requiredRedactionsPresent &&
+    diagnostics.entries.every((entry) => {
+      const value = entry.value.toLowerCase();
+      return (
+        entry.redactionState === 'redacted' || !expandedForbiddenValues.some((forbidden) => value.includes(forbidden))
+      );
+    })
+  );
 }
 
 function manualRunbookCoversRequiredTargets(entries: ReadonlyArray<ParentDesktopReleaseSupportManualRunbookEntry>) {

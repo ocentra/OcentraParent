@@ -51,16 +51,16 @@ async function main() {
     },
     readModel,
     workpacks: {
-      completed: ['04', '06', '09', '10', '11', '12', '15', '16', '17', '18', '20'],
-      partial: ['19'],
-      partialReason:
-        'docs/product-capability-checklist.md is currently locked by codex-a; feature docs carry D-owned state and checklist wording must be reconciled by primary after lock release.',
+      completed: ['04', '06', '09', '10', '11', '12', '15', '16', '17', '18', '19', '20'],
+      partial: [],
+      partialReason: null,
     },
     claimsProved: [
       'Parent observer read-only state rejects policy writes, approvals, and controller takeover.',
       'Parent mobile bridge state is separate from child Android and child iOS agent claims.',
+      'Parent desktop package runtime uses built portal dist, the Rust service boundary, fixed loopback ownership, and package service-manager launch evidence.',
       'Update, rollback, signing, notarization, store, TestFlight, Play, and production promotion states remain explicit and manual-required where proof is missing.',
-      'Support diagnostics include version, commit, platform, package, service, route, capability, and degraded state without secrets or private child data.',
+      'Support diagnostics include version, commit, platform, package, service, route, capability, and degraded state without secrets, private child data, raw URLs, command lines, keystrokes, clipboard data, message contents, journals, SQLite snapshots, screenshots, or private paths.',
       'Package preview CI artifact status is recorded as pending/manual-required unless a real Actions artifact context proves readiness.',
     ],
     claimsNotProved: [
@@ -89,6 +89,7 @@ function buildReadModel(version, commit, ciArtifactProof) {
       parentMobileClaim: 'parent mobile bridge is a parent shell route boundary only',
       childAgentNonClaim: 'child Android and child iOS agent parity is not claimed by parent desktop release support',
     },
+    packageRuntimeEvidence: packageRuntimeEvidence(ciArtifactProof),
     updateStates: updateStates(),
     signingStoreStates: signingStoreStates(),
     platformCapabilityMatrix: platformRows(),
@@ -116,6 +117,25 @@ function authority(operation, result, rejectionReason) {
     authorityRole: 'observer',
     rejectionReason,
     proofRequirement: `${operation} must preserve parent observer read-only authority`,
+  };
+}
+
+function packageRuntimeEvidence(ciArtifactProof) {
+  return {
+    packageFrontendSource: 'built-portal-dist',
+    backendBoundary: 'rust-service-boundary',
+    serviceLaunchOwner: 'package-service-manager',
+    serviceHealthState: 'implemented',
+    connectOrDegradeState: 'degraded',
+    fixedAgentAddress: '127.0.0.1:4477',
+    portOwnership: 'fixed-loopback',
+    portConflictPolicy: 'no-foreign-process-reclaim',
+    processOwnership: 'parent-shell-only',
+    blankWindowGuard: 'frontend-dist-required',
+    updateRollbackPosture: 'signed-channel-required',
+    artifactState: ciArtifactProof.artifactState,
+    supportDiagnosticState: 'preview-only',
+    nonClaim: 'CI package preview is not signing not production not store distribution proof',
   };
 }
 
@@ -218,7 +238,19 @@ function supportDiagnostics(version, commit) {
       diagnostic('capability', 'observer read-only release support'),
       diagnostic('degraded-state', 'signing store relay and rollback are manual-required'),
     ],
-    redactedFields: ['secrets', 'tokens', 'raw journals', 'SQLite contents', 'private child data'],
+    redactedFields: [
+      'tokens',
+      'child activity',
+      'raw urls',
+      'screenshots',
+      'journals',
+      'SQLite snapshots',
+      'private paths',
+      'command lines',
+      'keystrokes',
+      'clipboard data',
+      'message contents',
+    ],
   };
 }
 
@@ -258,6 +290,11 @@ function assertReadModel(readModel) {
   assert.equal(readModel.schemaVersion, 'parent-desktop-release-support-proof');
   assert.equal(readModel.observerAuthority.find((entry) => entry.operation === 'write-policy').result, 'rejected');
   assert.equal(readModel.mobileBridgeBoundary.childAndroidAgentState, 'manual-required');
+  assert.equal(readModel.packageRuntimeEvidence.packageFrontendSource, 'built-portal-dist');
+  assert.equal(readModel.packageRuntimeEvidence.backendBoundary, 'rust-service-boundary');
+  assert.equal(readModel.packageRuntimeEvidence.serviceLaunchOwner, 'package-service-manager');
+  assert.equal(readModel.packageRuntimeEvidence.portConflictPolicy, 'no-foreign-process-reclaim');
+  assert.equal(readModel.packageRuntimeEvidence.processOwnership, 'parent-shell-only');
   assert.equal(
     readModel.updateStates.find((entry) => entry.channel === 'unsigned-preview').rollbackState,
     'rollback-unavailable'

@@ -11,6 +11,7 @@ describe('parent desktop release support proof contracts', () => {
   registerAcceptedStateTest();
   registerObserverAuthorityGuardrailTest();
   registerMobileBridgeGuardrailTest();
+  registerPackageRuntimeGuardrailTests();
   registerReleaseClaimGuardrailTests();
   registerSupportAndRunbookGuardrailTests();
 });
@@ -27,6 +28,22 @@ function registerAcceptedStateTest(): void {
       'take-controller',
     ]);
     expect(parsed.mobileBridgeBoundary.childAndroidAgentState).toBe('manual-required');
+    expect(parsed.packageRuntimeEvidence).toEqual({
+      packageFrontendSource: 'built-portal-dist',
+      backendBoundary: 'rust-service-boundary',
+      serviceLaunchOwner: 'package-service-manager',
+      serviceHealthState: 'implemented',
+      connectOrDegradeState: 'degraded',
+      fixedAgentAddress: '127.0.0.1:4477',
+      portOwnership: 'fixed-loopback',
+      portConflictPolicy: 'no-foreign-process-reclaim',
+      processOwnership: 'parent-shell-only',
+      blankWindowGuard: 'frontend-dist-required',
+      updateRollbackPosture: 'signed-channel-required',
+      artifactState: 'not-checked-local',
+      supportDiagnosticState: 'preview-only',
+      nonClaim: 'CI package preview is not signing not production not store distribution proof',
+    });
     expect(parsed.updateStates.find((entry) => entry.channel === 'unsigned-preview')?.rollbackState).toBe(
       'rollback-unavailable'
     );
@@ -68,6 +85,27 @@ function registerMobileBridgeGuardrailTest(): void {
 
     expect(ParentDesktopReleaseSupportReadModelSchema.safeParse(androidParityClaim).success).toBe(false);
     expect(ParentDesktopReleaseSupportReadModelSchema.safeParse(iosParityClaim).success).toBe(false);
+  });
+}
+
+function registerPackageRuntimeGuardrailTests(): void {
+  it('rejects packaged desktop runtime evidence that treats Vite as the backend', () => {
+    const viteBackendClaim = withPackageRuntimeEvidence({ backendBoundary: 'vite-dev-backend' });
+    const missingServiceManagerClaim = withPackageRuntimeEvidence({ serviceLaunchOwner: 'tauri-shell' });
+
+    expect(ParentDesktopReleaseSupportReadModelSchema.safeParse(viteBackendClaim).success).toBe(false);
+    expect(ParentDesktopReleaseSupportReadModelSchema.safeParse(missingServiceManagerClaim).success).toBe(false);
+  });
+
+  it('rejects foreign process ownership or production artifact overclaims', () => {
+    const foreignPortClaim = withPackageRuntimeEvidence({ portConflictPolicy: 'reclaim-any-listener' });
+    const productionClaim = withPackageRuntimeEvidence({
+      artifactState: 'present',
+      nonClaim: 'CI package preview is production signing proof',
+    });
+
+    expect(ParentDesktopReleaseSupportReadModelSchema.safeParse(foreignPortClaim).success).toBe(false);
+    expect(ParentDesktopReleaseSupportReadModelSchema.safeParse(productionClaim).success).toBe(false);
   });
 }
 
@@ -119,9 +157,14 @@ function registerSupportAndRunbookGuardrailTests(): void {
       },
     };
     const leakedToken = withDiagnostic('service', { value: 'token=abc123', redactionState: 'safe' });
+    const leakedCommandLine = withDiagnostic('route', {
+      value: 'command line contained child browser URL',
+      redactionState: 'safe',
+    });
 
     expect(ParentDesktopReleaseSupportReadModelSchema.safeParse(missingCommit).success).toBe(false);
     expect(ParentDesktopReleaseSupportReadModelSchema.safeParse(leakedToken).success).toBe(false);
+    expect(ParentDesktopReleaseSupportReadModelSchema.safeParse(leakedCommandLine).success).toBe(false);
   });
 
   it('rejects incomplete platform matrices and manual runbooks', () => {
@@ -143,6 +186,13 @@ function registerSupportAndRunbookGuardrailTests(): void {
 
 function withMobileBoundary(patch: object) {
   return { ...RuntimeReadModel, mobileBridgeBoundary: { ...RuntimeReadModel.mobileBridgeBoundary, ...patch } };
+}
+
+function withPackageRuntimeEvidence(patch: object) {
+  return {
+    ...RuntimeReadModel,
+    packageRuntimeEvidence: { ...RuntimeReadModel.packageRuntimeEvidence, ...patch },
+  };
 }
 
 function withObserverOperation(operation: ParentDesktopReleaseSupportOperation, patch: object) {
