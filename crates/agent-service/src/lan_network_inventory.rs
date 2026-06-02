@@ -1,5 +1,7 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::net::Ipv4Addr;
+use std::process::{Command, Stdio};
+use std::sync::{Mutex, OnceLock};
 
 use ocentra_parent_agent_protocol::{constants, LanPairingDeviceReachability, LanPairingDeviceRef};
 
@@ -7,6 +9,8 @@ use crate::lan_network_inventory_command::{
     command_json_records, command_stdout, normalize_mac_address, record_text, value_text,
 };
 use crate::lan_network_inventory_hardware::{local_hardware_profile, local_network_identity};
+
+static NETBIOS_CACHE_WARMED_IPS: OnceLock<Mutex<HashSet<String>>> = OnceLock::new();
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) struct LanNetworkInventoryDevice {
@@ -87,10 +91,15 @@ fn network_device_from_windows_neighbor(
             .filter(|character| *character != '-')
             .collect::<String>(),
     );
+    let reachability =
+        reachability_from_windows_state(record.get(constants::lan_pairing::JSON_KEY_STATE));
     let hostname = record_text(&record, constants::lan_pairing::JSON_KEY_HOSTNAME)
         .map(|value| value.trim_end_matches('.').to_string())
         .filter(|value| !value.is_empty())
         .or_else(|| netbios_names.get(&ip_address).cloned());
+    if hostname.is_none() {
+        warm_netbios_cache(&ip_address, &reachability, &platform);
+    }
     let label = hostname
         .clone()
         .unwrap_or_else(|| network_neighbor_label(&ip_address));
@@ -103,9 +112,7 @@ fn network_device_from_windows_neighbor(
         mac_address,
         hostname,
         network_interface: record_text(&record, constants::lan_pairing::JSON_KEY_INTERFACE_ALIAS),
-        reachability: reachability_from_windows_state(
-            record.get(constants::lan_pairing::JSON_KEY_STATE),
-        ),
+        reachability,
     })
 }
 
@@ -133,6 +140,32 @@ fn netbios_cache_entry(line: &str) -> Option<(String, String)> {
         return None;
     }
     Some((columns[3].to_string(), columns[0].to_string()))
+}
+
+fn warm_netbios_cache(
+    ip_address: &str,
+    reachability: &LanPairingDeviceReachability,
+    platform: &str,
+) {
+    if reachability != &LanPairingDeviceReachability::Online
+        || platform == constants::lan_pairing::PLATFORM_ROUTER
+    {
+        return;
+    }
+    let cache = NETBIOS_CACHE_WARMED_IPS.get_or_init(|| Mutex::new(HashSet::new()));
+    if !cache
+        .lock()
+        .map(|mut warmed| warmed.insert(ip_address.to_string()))
+        .unwrap_or(false)
+    {
+        return;
+    }
+    let _ = Command::new(constants::lan_pairing::NBTSTAT_EXE)
+        .arg(constants::lan_pairing::NBTSTAT_ADAPTER_STATUS_ARG)
+        .arg(ip_address)
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .spawn();
 }
 
 fn network_neighbor_label(ip_address: &str) -> String {

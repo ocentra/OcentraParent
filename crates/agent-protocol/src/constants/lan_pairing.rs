@@ -127,6 +127,7 @@ pub const POWERSHELL_GPU_COMMAND: &str = "[Console]::OutputEncoding=[Text.UTF8En
 pub const POWERSHELL_COMPUTER_SYSTEM_COMMAND: &str = "[Console]::OutputEncoding=[Text.UTF8Encoding]::UTF8; Get-CimInstance Win32_ComputerSystem | Select-Object TotalPhysicalMemory,Manufacturer,Model,Name | ConvertTo-Json -Compress";
 pub const NBTSTAT_EXE: &str = "nbtstat";
 pub const NBTSTAT_CACHE_ARG: &str = "-c";
+pub const NBTSTAT_ADAPTER_STATUS_ARG: &str = "-A";
 pub const NBTSTAT_UNIQUE_MARKER: &str = "UNIQUE";
 pub const NVIDIA_SMI_EXE: &str = "nvidia-smi";
 pub const NVIDIA_SMI_QUERY_ARG: &str = "--query-gpu=name,driver_version,memory.total";
