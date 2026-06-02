@@ -264,6 +264,7 @@ type DisplayRow = {
   signal: string;
   signals: string;
   readyCount: string;
+  gapCount: string;
   readiness: string;
   primaryArea: string;
   trend: string;
@@ -1155,6 +1156,7 @@ function toDisplayRows(
       signal: row.signalScore.toLocaleString(),
       signals: (readyCount + gapCount).toLocaleString(),
       readyCount: readyCount.toLocaleString(),
+      gapCount: gapCount.toLocaleString(),
       readiness,
       primaryArea: row.primaryArea ?? primaryArea,
       trend: row.trend ?? (index % 3 === 0 ? '+2' : index % 3 === 1 ? '+1' : '-'),
@@ -1208,15 +1210,109 @@ function rowsForCategoryScope(rows: DisplayRow[], selectedCategoryLabel: string)
   }));
 }
 
+const PORTAL_PRODUCT_ROUTE_STATUS_MAX_ROWS = 4;
+const PORTAL_PRODUCT_TREND_LABELS: Record<string, string> = {
+  'backend-not-connected': 'Backend not connected',
+  'implemented-boundary': 'Implemented boundary',
+  'manual-required': 'Manual required',
+  'not-claimed': 'Not claimed',
+  'not-reported': 'Not reported',
+  'permission-required': 'Permission required',
+  'read-only': 'Read only',
+  'scaffold-only': 'Scaffold only',
+};
+
+function formatPortalTrendLabel(value: string): string {
+  const normalized = assetKey(value);
+  if (PORTAL_PRODUCT_TREND_LABELS[normalized]) return PORTAL_PRODUCT_TREND_LABELS[normalized];
+  if (!normalized) return 'Not reported';
+  if (/^[+-]?\d+$/.test(value.trim())) return value;
+  return titleCaseControlName(normalized.replace(/-/g, ' '));
+}
+
+function productShellReadinessDetail(row: DisplayRow): string {
+  return `${row.readyCount}/${row.signals} ready`;
+}
+
+function productShellRouteKeywords(routeKey: string): readonly string[] {
+  if (routeKey.includes('browser') || routeKey.includes('web')) {
+    return ['browser', 'managed-web', 'browser-activity', 'enforcement-readiness'];
+  }
+  if (routeKey.includes('rule') || routeKey.includes('policy')) {
+    return ['policy', 'browser', 'managed-web', 'schedule-plan', 'approval-queue', 'enforcement-readiness'];
+  }
+  if (routeKey.includes('schedule')) return ['schedule-plan', 'policy', 'browser'];
+  if (routeKey.includes('approval')) return ['approval-queue', 'policy', 'enforcement-readiness'];
+  if (routeKey.includes('enforce')) return ['enforcement-readiness', 'policy', 'browser'];
+  if (routeKey.includes('app')) return ['app-policy', 'app-and-game-sessions', 'enforcement-readiness'];
+  if (routeKey.includes('game')) return ['game-policy', 'app-and-game-sessions', 'enforcement-readiness'];
+  if (routeKey.includes('screen')) return ['screen-analysis', 'remote-screen-policy', 'enforcement-readiness'];
+  if (routeKey.includes('network')) return ['network-activity', 'network-tracking', 'enforcement-readiness'];
+  if (routeKey.includes('tracking')) return ['tracking-policy', 'remote-access', 'manual-required'];
+  if (routeKey.includes('device') || routeKey.includes('lan') || routeKey.includes('capability')) {
+    return ['device-pairing', 'lan-discovery', 'household-setup', 'capability-status'];
+  }
+  if (routeKey.includes('remote')) return ['remote-access', 'remote-screen-policy', 'backend-not-connected'];
+  if (routeKey.includes('report') || routeKey.includes('activity')) {
+    return ['reports-surface', 'activity-reports', 'activity-store', 'network-activity'];
+  }
+  if (routeKey.includes('ai') || routeKey.includes('api') || routeKey.includes('memory')) {
+    return ['assistant-entry', 'api-providers', 'memory-setup'];
+  }
+  if (
+    routeKey.includes('drive') ||
+    routeKey.includes('export') ||
+    routeKey.includes('audit') ||
+    routeKey.includes('data')
+  ) {
+    return ['data-custody', 'drive', 'export-retention', 'audit-history'];
+  }
+  if (routeKey.includes('notification') || routeKey.includes('alert')) {
+    return ['alerts', 'notification-channels', 'household-setup'];
+  }
+  if (routeKey.includes('subscription') || routeKey.includes('entitlement')) {
+    return ['subscription', 'entitlements', 'support'];
+  }
+  if (routeKey.includes('support') || routeKey.includes('diagnostic')) return ['support', 'capability-status'];
+  return ['household-setup', 'family-settings', 'capability-status'];
+}
+
+function productShellDisplayRowsForRoute(
+  parentPortalRows: ParentPortalRow[],
+  activeNavLabel: string,
+  selectedControlName: string,
+  specTitle: string
+): DisplayRow[] {
+  const rows = toDisplayRows(parentPortalRows, 'parentManage', selectedControlName);
+  if (rows.length === 0) return [];
+  const routeKey = assetKey(`${activeNavLabel} ${selectedControlName} ${specTitle}`);
+  const keywords = productShellRouteKeywords(routeKey);
+  const matched = rows.filter((row) => {
+    const rowKey = assetKey(`${row.label} ${row.primaryArea} ${row.trend}`);
+    return keywords.some((keyword) => rowKey.includes(keyword));
+  });
+  const source = matched.length > 0 ? matched : rows;
+  const seen = new Set<string>();
+  const uniqueRows: DisplayRow[] = [];
+  for (const row of source) {
+    const key = assetKey(`${row.id} ${row.label} ${row.primaryArea}`);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    uniqueRows.push(row);
+    if (uniqueRows.length >= PORTAL_PRODUCT_ROUTE_STATUS_MAX_ROWS) break;
+  }
+  return uniqueRows;
+}
+
 function rowTopCard(row: DisplayRow): ParentPortalTopCardItem {
   return {
     kind: 'row',
     key: `row:${row.id}`,
     row,
     title: row.label,
-    subtitle: `Order ${row.order} / ${row.primaryArea}`,
-    value: row.signal,
-    detail: `${row.readiness} ready`,
+    subtitle: row.primaryArea,
+    value: formatPortalTrendLabel(row.trend),
+    detail: productShellReadinessDetail(row),
     tone: row.tone,
   };
 }
@@ -14114,6 +14210,104 @@ function ManageActionButton({ x, y, w, h, action, themeColor, onSelect, cfg }) {
   );
 }
 
+function ProductShellRouteReadinessStrip({
+  x,
+  y,
+  w,
+  h,
+  rows,
+  themeTone,
+  themeColor,
+  cfg,
+}: {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  rows: DisplayRow[];
+  themeTone: Tone;
+  themeColor?: string;
+  cfg: ParentPortalSvgControls;
+}) {
+  if (rows.length === 0 || w <= 0 || h <= 0) return null;
+  const color = themeColor ?? toneColor(themeTone, cfg);
+  const chipCount = Math.min(rows.length, w < 650 ? 2 : w < 980 ? 3 : PORTAL_PRODUCT_ROUTE_STATUS_MAX_ROWS);
+  const visibleRows = rows.slice(0, chipCount);
+  const pad = 10;
+  const labelW = w < 650 ? 106 : 146;
+  const chipGap = 8;
+  const chipW = Math.max(112, (w - pad * 2 - labelW - chipGap * visibleRows.length) / Math.max(1, visibleRows.length));
+  const chipH = Math.max(30, h - pad * 2);
+  const chipY = y + (h - chipH) / 2;
+  return (
+    <g aria-label="Route readiness product shell status" pointerEvents="none">
+      <path
+        d={cutRectPath(x, y, w, h, 9)}
+        fill={colorAlpha(cfg.colors.panelFill, 'f2')}
+        stroke={color}
+        strokeWidth={1}
+        strokeOpacity={0.58}
+      />
+      <path
+        d={`M ${x + pad} ${y + h - 8} H ${x + Math.min(w - pad, labelW - 8)}`}
+        stroke={color}
+        strokeWidth={1.1}
+        opacity={0.72}
+        filter="url(#parentPortalGlow)"
+      />
+      <text x={x + pad} y={y + h * 0.42} fontSize={10.2} fontWeight={950} fill={cfg.colors.bodyText}>
+        ROUTE
+      </text>
+      <text x={x + pad} y={y + h * 0.68} fontSize={10.2} fontWeight={950} fill={color}>
+        READINESS
+      </text>
+      {visibleRows.map((row, index) => {
+        const chipX = x + pad + labelW + index * (chipW + chipGap);
+        const rowColor = toneColor(row.tone, cfg);
+        const status = formatPortalTrendLabel(row.trend);
+        const titleSize = fitSingleLineTextSize(row.label, chipW - 22, 9.8, 12.2, 0.57);
+        const statusSize = fitSingleLineTextSize(status, chipW - 22, 8.2, 10.4, 0.57);
+        return (
+          <g key={`${row.id}:route-readiness:${index}`}>
+            <path
+              d={cutRectPath(chipX, chipY, chipW, chipH, 7)}
+              fill={colorAlpha(rowColor, '1f')}
+              stroke={rowColor}
+              strokeWidth={1}
+              strokeOpacity={0.7}
+            />
+            <path
+              d={cutRectPath(chipX + 4, chipY + 4, chipW - 8, chipH - 8, 5)}
+              fill="none"
+              stroke={rowColor}
+              strokeWidth={0.65}
+              opacity={0.32}
+            />
+            <text
+              x={chipX + 10}
+              y={chipY + Math.max(14, chipH * 0.42)}
+              fontSize={titleSize}
+              fontWeight={940}
+              fill={cfg.colors.bodyText}
+            >
+              {truncateTextForWidth(row.label, chipW - 20, titleSize, 0.57)}
+            </text>
+            <text
+              x={chipX + 10}
+              y={chipY + Math.max(26, chipH * 0.72)}
+              fontSize={statusSize}
+              fontWeight={820}
+              fill={rowColor}
+            >
+              {truncateTextForWidth(`${status} / ${productShellReadinessDetail(row)}`, chipW - 20, statusSize, 0.57)}
+            </text>
+          </g>
+        );
+      })}
+    </g>
+  );
+}
+
 function ParentPortalDetailPanel({
   x,
   y,
@@ -14164,49 +14358,97 @@ function ParentPortalDetailPanel({
   cfg: ParentPortalSvgControls;
 }) {
   if (guideTopic) {
+    const routeStatusRows = productShellDisplayRowsForRoute(
+      parentPortalRows,
+      activeNavLabel,
+      selectedControlName,
+      guideTopic.title
+    );
+    const showRouteStatus = routeStatusRows.length > 0 && h >= 320;
+    const routeStatusH = showRouteStatus ? (w < 660 ? 58 : 50) : 0;
+    const routeStatusGap = showRouteStatus ? 8 : 0;
+    const guidePanelH = Math.max(1, h - routeStatusH - routeStatusGap);
     return (
-      <GuideTopicDetailPanel
-        x={x}
-        y={y}
-        w={w}
-        h={h}
-        topic={guideTopic}
-        page={guidePage}
-        onPageChange={onGuidePageChange}
-        quickPanelMode={quickPanelMode}
-        onQuickPanelModeChange={onQuickPanelModeChange}
-        onNoteSelect={onGuideNoteSelect}
-        themeColor={themeColor}
-        cfg={cfg}
-      />
+      <g>
+        <GuideTopicDetailPanel
+          x={x}
+          y={y}
+          w={w}
+          h={guidePanelH}
+          topic={guideTopic}
+          page={guidePage}
+          onPageChange={onGuidePageChange}
+          quickPanelMode={quickPanelMode}
+          onQuickPanelModeChange={onQuickPanelModeChange}
+          onNoteSelect={onGuideNoteSelect}
+          themeColor={themeColor}
+          cfg={cfg}
+        />
+        {showRouteStatus ? (
+          <ProductShellRouteReadinessStrip
+            x={x}
+            y={y + guidePanelH + routeStatusGap}
+            w={w}
+            h={routeStatusH}
+            rows={routeStatusRows}
+            themeTone={guideTopic.tone}
+            themeColor={themeColor}
+            cfg={cfg}
+          />
+        ) : null}
+      </g>
     );
   }
   const manageSpec = activeNavGroupId === 'manage' ? manageControlSpecFor(activeNavLabel, selectedControlName) : null;
   if (manageSpec) {
+    const routeStatusRows = productShellDisplayRowsForRoute(
+      parentPortalRows,
+      activeNavLabel,
+      selectedControlName,
+      manageSpec.title
+    );
+    const showRouteStatus = routeStatusRows.length > 0 && h >= 300;
+    const routeStatusH = showRouteStatus ? (w < 660 ? 58 : 50) : 0;
+    const routeStatusGap = showRouteStatus ? 8 : 0;
+    const managePanelH = Math.max(1, h - routeStatusH - routeStatusGap);
     return (
-      <ManageControlPanel
-        x={x}
-        y={y}
-        w={w}
-        h={h}
-        activeNavLabel={activeNavLabel}
-        selectedControlName={selectedControlName}
-        spec={manageSpec}
-        themeTone={themeTone ?? detail.tone}
-        themeColor={themeColor}
-        targetSelection={
-          manageTargetSelection ?? {
-            scope: manageInitialScopeForSpec(manageLaneForKey(activeNavLabel, selectedControlName), manageSpec),
-            device: manageDefaultDeviceSelection(manageSpec),
-            browser: manageBrowserTargetsForKey(activeNavLabel, selectedControlName)[0]?.label ?? 'All targets',
+      <g>
+        <ManageControlPanel
+          x={x}
+          y={y}
+          w={w}
+          h={managePanelH}
+          activeNavLabel={activeNavLabel}
+          selectedControlName={selectedControlName}
+          spec={manageSpec}
+          themeTone={themeTone ?? detail.tone}
+          themeColor={themeColor}
+          targetSelection={
+            manageTargetSelection ?? {
+              scope: manageInitialScopeForSpec(manageLaneForKey(activeNavLabel, selectedControlName), manageSpec),
+              device: manageDefaultDeviceSelection(manageSpec),
+              browser: manageBrowserTargetsForKey(activeNavLabel, selectedControlName)[0]?.label ?? 'All targets',
+            }
           }
-        }
-        onTargetChange={onManageTargetChange}
-        activityState={activityState}
-        parentPortalRows={parentPortalRows}
-        onNavigate={onNavigate}
-        cfg={cfg}
-      />
+          onTargetChange={onManageTargetChange}
+          activityState={activityState}
+          parentPortalRows={parentPortalRows}
+          onNavigate={onNavigate}
+          cfg={cfg}
+        />
+        {showRouteStatus ? (
+          <ProductShellRouteReadinessStrip
+            x={x}
+            y={y + managePanelH + routeStatusGap}
+            w={w}
+            h={routeStatusH}
+            rows={routeStatusRows}
+            themeTone={themeTone ?? detail.tone}
+            themeColor={themeColor}
+            cfg={cfg}
+          />
+        ) : null}
+      </g>
     );
   }
   const color = themeColor ?? toneColor(detail.tone, cfg);
@@ -15179,7 +15421,7 @@ function ParentPortalTopCarouselCard({
             fill={color}
             pointerEvents="none"
           >
-            {item.row.trend}
+            {item.value}
           </text>
           <text
             x={rowDrawFrameX + rowDrawFrameW * 0.72}

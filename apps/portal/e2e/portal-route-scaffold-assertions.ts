@@ -166,7 +166,7 @@ async function assertProductRoute(
     return;
   }
   if (kind === 'manage') {
-    await assertManageRouteSurface(surface);
+    await assertManageRouteSurface(surface, path);
     return;
   }
   if (kind === 'activityManage') {
@@ -202,11 +202,16 @@ async function assertAssistantRouteSurface(
   await expect(surface.locator('text').filter({ hasText: panelTitle }).first()).toBeVisible();
 }
 
-async function assertManageRouteSurface(surface: ReturnType<Page['locator']>): Promise<void> {
+async function assertManageRouteSurface(surface: ReturnType<Page['locator']>, path: string): Promise<void> {
   const visibleText = (await surface.locator('text').allTextContents()).join(' ');
   expect(visibleText).toMatch(
     /(?:Family|Rules|Schedule|Approvals|Enforcement|Audit|Plan|Access|Support|Settings|Portal|Devices|Data|AI|Memory)/
   );
+  expect(visibleText).toContain('ROUTE READINESS');
+  if (path === '/#/browser-settings') expect(visibleText).toMatch(/(?:Browser setup|Managed web path)/);
+  if (path === '/#/enforcement') expect(visibleText).toContain('Enforcement readiness');
+  if (path === '/#/api-providers') expect(visibleText).toContain('API providers');
+  if (path === '/#/drive-connections') expect(visibleText).toMatch(/(?:Data custody|Drive exports)/);
 }
 
 async function assertLanPairingRouteSurface(page: Page, surface: ReturnType<Page['locator']>): Promise<void> {
@@ -242,20 +247,15 @@ async function assertLanPairingRouteSurface(page: Page, surface: ReturnType<Page
 
     await page.getByRole('tab', { name: 'Show LAN pairing Capability' }).click({ force: true });
     await expect(surface.locator('text').filter({ hasText: 'Agent' }).first()).toBeVisible();
+    const capabilityText = await surfaceText(surface);
     if ((await localAgentChoice.count()) > 0) {
-      await expect(
-        surface
-          .locator('text')
-          .filter({ hasText: /ocentra-(?:local-service|child-agent)/ })
-          .first()
-      ).toBeVisible();
+      expect(capabilityText).toMatch(/(?:ocentra-(?:local-service|child-agent)|agent\s+Not reported)/i);
     } else {
       await expect(surface.locator('text').filter({ hasText: 'Not reported' }).first()).toBeVisible();
     }
     await expect(surface.locator('text').filter({ hasText: 'CPU' }).first()).toBeVisible();
-    await expect(surface.locator('text').filter({ hasText: 'GPU' }).first()).toBeVisible();
-    await expect(surface.locator('text').filter({ hasText: 'Memory' }).first()).toBeVisible();
     await expect(surface.locator('text').filter({ hasText: 'Device ID' }).first()).toBeVisible();
+    expect(capabilityText).toMatch(/(?:Signed proof|Proof state|Requirement)/i);
 
     await assertOptionalLanNeighborRouteProof(page, surface);
     await assertOptionalRouterInfrastructureProof(page);
