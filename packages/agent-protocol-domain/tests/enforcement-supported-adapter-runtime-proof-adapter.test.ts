@@ -1,4 +1,7 @@
-import { V08SupportedAdapterRuntimeProofReadModel } from '@ocentra-parent/parent-domain/v0-8-supported-adapter-runtime-proof';
+import {
+  V08EnforcementIntegrityRuntimeAuditReadModel,
+  V08SupportedAdapterRuntimeProofReadModel,
+} from '@ocentra-parent/parent-domain/v0-8-supported-adapter-runtime-proof';
 import { describe, expect, it } from 'vitest';
 import { AgentEvent, AgentEventEnvelopeSchema, AgentProtocolDefaults } from '../src/contracts';
 import { parseEnforcementSupportedAdapterRuntimeProofEvent } from '../src/enforcement-supported-adapter-runtime-proof-adapter';
@@ -9,6 +12,9 @@ describe('enforcement supported adapter runtime proof adapter', () => {
       eventEnvelope(AgentEvent.EnforcementSupportedAdapterRuntimeProofReported, {
         [AgentProtocolDefaults.Field.EnforcementSupportedAdapterRuntimeProofReadModel]: JSON.stringify(
           V08SupportedAdapterRuntimeProofReadModel
+        ),
+        [AgentProtocolDefaults.Field.EnforcementIntegrityRuntimeAuditReadModel]: JSON.stringify(
+          V08EnforcementIntegrityRuntimeAuditReadModel
         ),
       })
     );
@@ -32,15 +38,35 @@ describe('enforcement supported adapter runtime proof adapter', () => {
       expect(parsed.readModel.entries.every((entry) => !entry.tamperHardeningClaimed)).toBe(true);
       expect(parsed.readModel.entries.every((entry) => !entry.mobileControlClaimed)).toBe(true);
       expect(parsed.readModel.entries.every((entry) => !entry.unsupportedPlatformBehaviorClaimed)).toBe(true);
+      expect(parsed.integrityAuditReadModel.readModelId).toBe('v0-8-enforcement-integrity-runtime-audit');
+      expect(parsed.integrityAuditReadModel.entries).toHaveLength(14);
+      expect(countBy(parsed.integrityAuditReadModel.entries.map((entry) => entry.result))).toEqual({
+        succeeded: 1,
+        expired: 1,
+        'rolled-back': 1,
+        superseded: 1,
+        'no-op': 1,
+        failed: 2,
+        'observe-only': 1,
+        'manual-required': 2,
+        unavailable: 3,
+        unsupported: 1,
+      });
+      expect(parsed.integrityAuditReadModel.entries.every((entry) => !entry.tamperHardeningClaimed)).toBe(true);
+      expect(parsed.integrityAuditReadModel.entries.every((entry) => !entry.stealthPersistenceClaimed)).toBe(true);
+      expect(parsed.integrityAuditReadModel.entries.every((entry) => !entry.privilegeEscalationClaimed)).toBe(true);
     }
   });
 
-  it('rejects unexpected events malformed json missing read models and invalid claim upgrades', () => {
+  it('rejects unexpected events malformed json missing read models and invalid supported adapter claim upgrades', () => {
     expect(
       parseEnforcementSupportedAdapterRuntimeProofEvent(
         eventEnvelope(AgentEvent.HealthReported, {
           [AgentProtocolDefaults.Field.EnforcementSupportedAdapterRuntimeProofReadModel]: JSON.stringify(
             V08SupportedAdapterRuntimeProofReadModel
+          ),
+          [AgentProtocolDefaults.Field.EnforcementIntegrityRuntimeAuditReadModel]: JSON.stringify(
+            V08EnforcementIntegrityRuntimeAuditReadModel
           ),
         })
       )
@@ -50,6 +76,9 @@ describe('enforcement supported adapter runtime proof adapter', () => {
       parseEnforcementSupportedAdapterRuntimeProofEvent(
         eventEnvelope(AgentEvent.EnforcementSupportedAdapterRuntimeProofReported, {
           [AgentProtocolDefaults.Field.EnforcementSupportedAdapterRuntimeProofReadModel]: '{',
+          [AgentProtocolDefaults.Field.EnforcementIntegrityRuntimeAuditReadModel]: JSON.stringify(
+            V08EnforcementIntegrityRuntimeAuditReadModel
+          ),
         })
       )
     ).toEqual({ status: 'rejected', reason: 'invalid-read-model-json' });
@@ -72,9 +101,54 @@ describe('enforcement supported adapter runtime proof adapter', () => {
               },
             ],
           }),
+          [AgentProtocolDefaults.Field.EnforcementIntegrityRuntimeAuditReadModel]: JSON.stringify(
+            V08EnforcementIntegrityRuntimeAuditReadModel
+          ),
         })
       )
     ).toEqual({ status: 'rejected', reason: 'invalid-read-model' });
+  });
+
+  it('rejects missing malformed and invalid integrity runtime audit read models', () => {
+    expect(
+      parseEnforcementSupportedAdapterRuntimeProofEvent(
+        eventEnvelope(AgentEvent.EnforcementSupportedAdapterRuntimeProofReported, {
+          [AgentProtocolDefaults.Field.EnforcementSupportedAdapterRuntimeProofReadModel]: JSON.stringify(
+            V08SupportedAdapterRuntimeProofReadModel
+          ),
+        })
+      )
+    ).toEqual({ status: 'rejected', reason: 'missing-integrity-audit-read-model' });
+
+    expect(
+      parseEnforcementSupportedAdapterRuntimeProofEvent(
+        eventEnvelope(AgentEvent.EnforcementSupportedAdapterRuntimeProofReported, {
+          [AgentProtocolDefaults.Field.EnforcementSupportedAdapterRuntimeProofReadModel]: JSON.stringify(
+            V08SupportedAdapterRuntimeProofReadModel
+          ),
+          [AgentProtocolDefaults.Field.EnforcementIntegrityRuntimeAuditReadModel]: '{',
+        })
+      )
+    ).toEqual({ status: 'rejected', reason: 'invalid-integrity-audit-read-model-json' });
+
+    expect(
+      parseEnforcementSupportedAdapterRuntimeProofEvent(
+        eventEnvelope(AgentEvent.EnforcementSupportedAdapterRuntimeProofReported, {
+          [AgentProtocolDefaults.Field.EnforcementSupportedAdapterRuntimeProofReadModel]: JSON.stringify(
+            V08SupportedAdapterRuntimeProofReadModel
+          ),
+          [AgentProtocolDefaults.Field.EnforcementIntegrityRuntimeAuditReadModel]: JSON.stringify({
+            ...V08EnforcementIntegrityRuntimeAuditReadModel,
+            entries: [
+              {
+                ...V08EnforcementIntegrityRuntimeAuditReadModel.entries[0],
+                tamperHardeningClaimed: true,
+              },
+            ],
+          }),
+        })
+      )
+    ).toEqual({ status: 'rejected', reason: 'invalid-integrity-audit-read-model' });
   });
 });
 

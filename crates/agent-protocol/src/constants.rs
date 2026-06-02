@@ -175,6 +175,8 @@ pub mod v08_cross_platform_enforcement_capability_proof;
 pub mod v08_enforcement_policy_dispatch;
 #[path = "constants/v08_enforcement_product_control_spine.rs"]
 pub mod v08_enforcement_product_control_spine;
+#[path = "constants/v08_enforcement_integrity_runtime_audit.rs"]
+pub mod v08_enforcement_integrity_runtime_audit;
 #[path = "constants/v08_os_adapter_product_proof.rs"]
 pub mod v08_os_adapter_product_proof;
 #[path = "constants/v08_supported_adapter_runtime_proof.rs"]
