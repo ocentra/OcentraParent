@@ -45,6 +45,7 @@ mod local_ai_runtime_boundary;
 mod local_ai_runtime_provider_proof;
 mod logging;
 mod network_flow;
+mod notification_provider_status_boundary;
 mod parent_assistant;
 mod screen_evidence;
 mod transport;
@@ -93,6 +94,7 @@ pub use local_ai_runtime_boundary::*;
 pub use local_ai_runtime_provider_proof::*;
 pub use logging::*;
 pub use network_flow::*;
+pub use notification_provider_status_boundary::*;
 pub use parent_assistant::*;
 pub use screen_evidence::*;
 pub use transport::*;
@@ -191,6 +193,8 @@ mod local_ai_runtime_tests;
 mod local_provider_adapter_readiness_tests;
 #[cfg(test)]
 mod network_flow_tests;
+#[cfg(test)]
+mod notification_provider_status_boundary_tests;
 #[cfg(test)]
 mod parent_assistant_tests;
 #[cfg(test)]

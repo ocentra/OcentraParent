@@ -9,6 +9,10 @@ import {
   V08IntegrityAlertStatusBridgeReadModel,
   V08IntegrityAlertStatusBridgeReadModelSchema,
 } from './v0-8-integrity-alert-status-bridge';
+import {
+  V08NotificationProviderStatusBoundaryReadModel,
+  V08NotificationProviderStatusBoundaryReadModelSchema,
+} from './v0-8-notification-provider-status-boundary';
 
 const NonEmptyIntegrityAuditText = Schema.String.pipe(Schema.minLength(1));
 
@@ -190,6 +194,7 @@ export const V08EnforcementIntegrityRuntimeAuditReadModelSchema = withParser(
     sourceReadModelIds: Schema.Array(V08EnforcementIntegrityRuntimeAuditReferenceSchema),
     entries: Schema.Array(V08EnforcementIntegrityRuntimeAuditEntrySchema),
     integrityAlertStatusBridge: V08IntegrityAlertStatusBridgeReadModelSchema,
+    notificationProviderStatusBoundary: V08NotificationProviderStatusBoundaryReadModelSchema,
   }).pipe(
     Schema.filter(
       (readModel) =>
@@ -358,6 +363,7 @@ const SourceReadModelIds = {
   EnforcementAuditJournal: 'enforcement-audit-journal',
   TimerRecoveryState: 'enforcement-timer-recovery-state',
   IntegrityAlertStatusBridge: 'v0-8-integrity-alert-status-bridge',
+  NotificationProviderStatusBoundary: 'v0-8-notification-provider-status-boundary',
 } as const;
 
 export const V08EnforcementIntegrityRuntimeAuditReadModel = V08EnforcementIntegrityRuntimeAuditReadModelSchema.parse({
@@ -366,6 +372,7 @@ export const V08EnforcementIntegrityRuntimeAuditReadModel = V08EnforcementIntegr
   generatedAt,
   sourceReadModelIds: Object.values(SourceReadModelIds),
   integrityAlertStatusBridge: V08IntegrityAlertStatusBridgeReadModel,
+  notificationProviderStatusBoundary: V08NotificationProviderStatusBoundaryReadModel,
   entries: [
     supportedEntry({
       auditEntryId: 'app-time-limit-action-succeeded',

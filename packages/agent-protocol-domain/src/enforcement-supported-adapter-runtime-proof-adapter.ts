@@ -2,6 +2,7 @@ import {
   V08EnforcementIntegrityRuntimeAuditReadModelSchema,
   type V08EnforcementIntegrityRuntimeAuditReadModel,
   type V08IntegrityAlertStatusBridgeReadModel,
+  type V08NotificationProviderStatusBoundaryReadModel,
   V08SupportedAdapterRuntimeProofReadModelSchema,
   type V08SupportedAdapterRuntimeProofReadModel,
 } from '@ocentra-parent/parent-domain/v0-8-supported-adapter-runtime-proof';
@@ -13,6 +14,7 @@ export type EnforcementSupportedAdapterRuntimeProofParseResult =
       readonly readModel: V08SupportedAdapterRuntimeProofReadModel;
       readonly integrityAuditReadModel: V08EnforcementIntegrityRuntimeAuditReadModel;
       readonly integrityAlertStatusBridge: V08IntegrityAlertStatusBridgeReadModel;
+      readonly notificationProviderStatusBoundary: V08NotificationProviderStatusBoundaryReadModel;
     }
   | {
       readonly status: 'rejected';
@@ -68,6 +70,7 @@ export function parseEnforcementSupportedAdapterRuntimeProofEvent(
     readModel: parsed.data,
     integrityAuditReadModel: parsedAudit.data,
     integrityAlertStatusBridge: parsedAudit.data.integrityAlertStatusBridge,
+    notificationProviderStatusBoundary: parsedAudit.data.notificationProviderStatusBoundary,
   };
 }
 

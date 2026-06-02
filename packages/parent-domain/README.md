@@ -20,6 +20,10 @@ mobile readiness, and control catalogs.
   stale-heartbeat, stopped-or-removed, and tamper/manual parent-visible status
   rows with notification intent/status refs, audit refs, integrity refs, and
   drill-in refs.
+- V0.8 notification provider status boundary contracts that represent queued,
+  delivered, failed, unavailable, and manual-required provider states plus
+  quiet-hours/escalation readiness as read-model proof without provider
+  delivery claims.
 - Local AI runtime, provider, scheduler, context, and reference contracts.
 - Parent assistant and action-preview contracts.
 - LAN pairing, device roles, controller/observer states, and provider routing.
@@ -91,3 +95,7 @@ flowchart LR
   escalation stay unclaimed.
 - Signed LAN hello/heartbeat and physical household readiness remain
   manual-required until real second-child-agent artifacts are attached.
+- Notification provider status boundary proof remains status/readiness
+  contract/read-model proof only; provider adapters, provider receipts,
+  delivered receipt ingestion, retry execution, quiet-hours scheduling,
+  escalation delivery, parent controls, and notification UI remain unclaimed.

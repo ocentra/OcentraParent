@@ -4,6 +4,7 @@ use ocentra_parent_agent_protocol::{
     constants::{
         self, v08_enforcement_integrity_runtime_audit as proof,
         v08_integrity_alert_status_bridge as bridge,
+        v08_notification_provider_status_boundary as boundary,
     },
     policy_constants, AgentCommandEnvelope, AgentCommandName, AgentEventEnvelope, AgentEventName,
     AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue, LogFields,
@@ -29,6 +30,19 @@ fn enforcement_integrity_runtime_audit_read_model_covers_required_states() {
         bridge::READ_MODEL_ID
     );
     assert_eq!(read_model.integrity_alert_status_bridge.entries.len(), 4);
+    assert_eq!(
+        read_model
+            .notification_provider_status_boundary
+            .read_model_id,
+        boundary::READ_MODEL_ID
+    );
+    assert_eq!(
+        read_model
+            .notification_provider_status_boundary
+            .entries
+            .len(),
+        5
+    );
     assert_eq!(result_count(&result_counts, proof::RESULT_SUCCEEDED), 1);
     assert_eq!(result_count(&result_counts, proof::RESULT_FAILED), 2);
     assert_eq!(result_count(&result_counts, proof::RESULT_UNAVAILABLE), 3);
@@ -114,6 +128,21 @@ fn enforcement_integrity_runtime_audit_preserves_no_claim_flags() {
         .entries
         .iter()
         .all(|entry| !entry.tamper_resistance_claimed));
+    assert!(read_model
+        .notification_provider_status_boundary
+        .entries
+        .iter()
+        .all(|entry| !entry.provider_delivery_observed));
+    assert!(read_model
+        .notification_provider_status_boundary
+        .entries
+        .iter()
+        .all(|entry| !entry.delivered_notification_claimed));
+    assert!(read_model
+        .notification_provider_status_boundary
+        .entries
+        .iter()
+        .any(|entry| entry.status_entry_id == boundary::ENTRY_DELIVERED));
 }
 
 #[tokio::test]
@@ -138,6 +167,19 @@ async fn supported_adapter_runtime_websocket_event_includes_integrity_audit_read
         bridge::READ_MODEL_ID
     );
     assert_eq!(read_model.integrity_alert_status_bridge.entries.len(), 4);
+    assert_eq!(
+        read_model
+            .notification_provider_status_boundary
+            .read_model_id,
+        boundary::READ_MODEL_ID
+    );
+    assert_eq!(
+        read_model
+            .notification_provider_status_boundary
+            .entries
+            .len(),
+        5
+    );
     assert_entry_integrity(
         &read_model.entries,
         proof::ENTRY_PERMISSION_LOSS,
@@ -156,6 +198,11 @@ async fn supported_adapter_runtime_websocket_event_includes_integrity_audit_read
         .entries
         .iter()
         .any(|entry| entry.bridge_entry_id == bridge::ENTRY_STOPPED_OR_REMOVED));
+    assert!(read_model
+        .notification_provider_status_boundary
+        .entries
+        .iter()
+        .any(|entry| entry.status_entry_id == boundary::ENTRY_MANUAL_REQUIRED));
 }
 
 async fn send_supported_adapter_runtime_proof_command() -> AgentEventEnvelope {

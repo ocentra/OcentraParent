@@ -48,6 +48,15 @@ function registerAcceptedProofEventTest() {
       expect(parsed.integrityAuditReadModel.entries).toHaveLength(14);
       expect(parsed.integrityAlertStatusBridge.readModelId).toBe('v0-8-integrity-alert-status-bridge');
       expect(parsed.integrityAlertStatusBridge.entries).toHaveLength(4);
+      expect(parsed.notificationProviderStatusBoundary.readModelId).toBe('v0-8-notification-provider-status-boundary');
+      expect(parsed.notificationProviderStatusBoundary.entries).toHaveLength(5);
+      expect(countBy(parsed.notificationProviderStatusBoundary.entries.map((entry) => entry.providerStatus))).toEqual({
+        queued: 1,
+        delivered: 1,
+        failed: 1,
+        unavailable: 1,
+        'manual-required': 1,
+      });
       expect(parsed.integrityAlertStatusBridge.entries.map((entry) => entry.integrityAlertState)).toEqual([
         'permission-loss',
         'stale-heartbeat',
@@ -71,6 +80,12 @@ function registerAcceptedProofEventTest() {
       expect(parsed.integrityAuditReadModel.entries.every((entry) => !entry.privilegeEscalationClaimed)).toBe(true);
       expect(parsed.integrityAlertStatusBridge.entries.every((entry) => !entry.providerDeliveryClaimed)).toBe(true);
       expect(parsed.integrityAlertStatusBridge.entries.every((entry) => !entry.tamperResistanceClaimed)).toBe(true);
+      expect(parsed.notificationProviderStatusBoundary.entries.every((entry) => !entry.providerDeliveryObserved)).toBe(
+        true
+      );
+      expect(
+        parsed.notificationProviderStatusBoundary.entries.every((entry) => !entry.deliveredNotificationClaimed)
+      ).toBe(true);
     }
   });
 }
@@ -165,6 +180,28 @@ function registerIntegrityAuditRejectionTest() {
                 {
                   ...V08EnforcementIntegrityRuntimeAuditReadModel.integrityAlertStatusBridge.entries[0],
                   providerDeliveryClaimed: true,
+                },
+              ],
+            },
+          }),
+        })
+      )
+    ).toEqual({ status: 'rejected', reason: 'invalid-integrity-audit-read-model' });
+
+    expect(
+      parseEnforcementSupportedAdapterRuntimeProofEvent(
+        eventEnvelope(AgentEvent.EnforcementSupportedAdapterRuntimeProofReported, {
+          [AgentProtocolDefaults.Field.EnforcementSupportedAdapterRuntimeProofReadModel]: JSON.stringify(
+            V08SupportedAdapterRuntimeProofReadModel
+          ),
+          [AgentProtocolDefaults.Field.EnforcementIntegrityRuntimeAuditReadModel]: JSON.stringify({
+            ...V08EnforcementIntegrityRuntimeAuditReadModel,
+            notificationProviderStatusBoundary: {
+              ...V08EnforcementIntegrityRuntimeAuditReadModel.notificationProviderStatusBoundary,
+              entries: [
+                {
+                  ...V08EnforcementIntegrityRuntimeAuditReadModel.notificationProviderStatusBoundary.entries[0],
+                  deliveredNotificationClaimed: true,
                 },
               ],
             },

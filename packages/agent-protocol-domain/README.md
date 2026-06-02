@@ -20,7 +20,7 @@ transports.
 - Enforcement supported-adapter runtime proof event parsing, including the
   integrity runtime audit read model carried by
   `agent.enforcement.supported-adapter-runtime-proof.reported` and its nested
-  V0.8 integrity alert/status bridge.
+  V0.8 integrity alert/status bridge and notification provider status boundary.
 
 ## Must Not Own
 
@@ -65,7 +65,8 @@ flowchart LR
   carries the integrity audit read model for result, timer, rollback,
   child-status, parent-override, permission-loss, heartbeat, and tamper/manual
   visibility, plus nested permission-loss, stale-heartbeat, stopped-or-removed,
-  and tamper/manual alert/status bridge rows.
+  and tamper/manual alert/status bridge rows and queued, delivered, failed,
+  unavailable, and manual-required provider status rows.
 - Integrity audit events are parent-visible proof state only. Broad
   app/domain/browser blocking, notification delivery, tamper resistance, mobile
   enforcement, stealth/persistence, and privilege escalation stay unclaimed
@@ -73,3 +74,7 @@ flowchart LR
 - V0.9 signed LAN discovery/relay spine contracts still report signed
   child-agent artifacts, physical household proof, relay, and cache routes as
   manual or not implemented until real runtime proof exists.
+- Notification provider status parsing remains proof-state parsing only. Real
+  provider delivery, webhook receipts, retry execution, quiet-hours scheduling,
+  escalation delivery, and parent preference controls remain outside this
+  adapter.

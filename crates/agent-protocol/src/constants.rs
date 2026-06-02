@@ -179,6 +179,8 @@ pub mod v08_enforcement_policy_dispatch;
 pub mod v08_enforcement_product_control_spine;
 #[path = "constants/v08_integrity_alert_status_bridge.rs"]
 pub mod v08_integrity_alert_status_bridge;
+#[path = "constants/v08_notification_provider_status_boundary.rs"]
+pub mod v08_notification_provider_status_boundary;
 #[path = "constants/v08_os_adapter_product_proof.rs"]
 pub mod v08_os_adapter_product_proof;
 #[path = "constants/v08_supported_adapter_runtime_proof.rs"]

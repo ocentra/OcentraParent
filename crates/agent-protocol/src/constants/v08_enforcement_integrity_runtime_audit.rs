@@ -5,6 +5,8 @@ pub const SOURCE_POLICY_DISPATCH_PROOF: &str = "v0-8-enforcement-policy-dispatch
 pub const SOURCE_PRODUCT_CONTROL_SPINE: &str = "v0-8-enforcement-product-control-spine";
 pub const SOURCE_ENFORCEMENT_AUDIT_JOURNAL: &str = "enforcement-audit-journal";
 pub const SOURCE_TIMER_RECOVERY_STATE: &str = "enforcement-timer-recovery-state";
+pub const SOURCE_NOTIFICATION_PROVIDER_STATUS_BOUNDARY: &str =
+    "v0-8-notification-provider-status-boundary";
 
 pub const ENTRY_APP_TIME_LIMIT_SUCCEEDED: &str = "app-time-limit-action-succeeded";
 pub const ENTRY_APP_TIME_LIMIT_EXPIRED: &str = "app-time-limit-action-expired";

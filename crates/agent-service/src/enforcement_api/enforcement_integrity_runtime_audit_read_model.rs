@@ -9,6 +9,7 @@ use ocentra_parent_agent_protocol::{
 };
 
 use super::integrity_alert_status_bridge_read_model::v08_integrity_alert_status_bridge_read_model;
+use super::notification_provider_status_boundary_read_model::v08_notification_provider_status_boundary_read_model;
 
 pub(crate) fn v08_enforcement_integrity_runtime_audit_read_model(
     generated_at: &str,
@@ -23,12 +24,16 @@ pub(crate) fn v08_enforcement_integrity_runtime_audit_read_model(
             proof::SOURCE_PRODUCT_CONTROL_SPINE.to_string(),
             proof::SOURCE_ENFORCEMENT_AUDIT_JOURNAL.to_string(),
             proof::SOURCE_TIMER_RECOVERY_STATE.to_string(),
+            proof::SOURCE_NOTIFICATION_PROVIDER_STATUS_BOUNDARY.to_string(),
         ],
         entries: entry_specs()
             .iter()
             .map(|spec| entry_from_spec(spec, generated_at))
             .collect(),
         integrity_alert_status_bridge: v08_integrity_alert_status_bridge_read_model(generated_at),
+        notification_provider_status_boundary: v08_notification_provider_status_boundary_read_model(
+            generated_at,
+        ),
     }
 }
 
