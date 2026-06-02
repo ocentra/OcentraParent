@@ -184,6 +184,7 @@ export const AgentProtocolDefaults = {
     EnforcementTimerStateId: 'enforcementTimerStateId',
     EnforcementProductControlSpineReadModel: 'enforcementProductControlSpineReadModel',
     EnforcementPolicyDispatchReadModel: 'enforcementPolicyDispatchReadModel',
+    EnforcementBroadAdapterProofReadModel: 'enforcementBroadAdapterProofReadModel',
     DecisionSource: 'decisionSource',
     Entries: 'entries',
     EventsIngested: 'eventsIngested',

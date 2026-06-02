@@ -51,6 +51,10 @@ without fake anti-tamper claims.
   WebSocket event for parent-authored intents, service validation, adapter
   capability matrix state, app/game evidence handoff, timer recovery,
   approval/override audit refs, child reason codes, and deterministic proof JSON.
+- Broad-adapter proof now adds a schema-backed ten-entry runtime read model,
+  WebSocket command/event, TypeScript protocol adapter, and proof JSON that
+  separates implemented-boundary, manual-required, unavailable, and not-claimed
+  outcomes without upgrading broad app/browser/domain or mobile privilege claims.
 - Broad app/browser/domain/network enforcement is not product-complete.
 - Tamper/uninstall protection is a tracked gap.
 
@@ -59,7 +63,8 @@ without fake anti-tamper claims.
 Broad adapters, child-facing messages, integrity heartbeat, permission-loss
 alerts, uninstall detection, and platform-specific proof remain. Tamper/uninstall
 is represented as scaffold/rejected in dispatch proof, not as anti-tamper
-behavior.
+behavior. The broad-adapter proof gives service visibility into adapter gaps but
+does not prove anti-tamper behavior.
 
 ## Checklist
 

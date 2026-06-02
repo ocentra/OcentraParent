@@ -50,6 +50,10 @@ control while being more honest about managed versus unmanaged sources.
 - The V0.8 policy-dispatch proof now carries unmanaged browser process fallback
   as report-only with real evidence references, child reason codes, audit refs,
   and service-backed source state instead of exact URL claims.
+- The V0.8 broad-adapter proof now exposes a service-backed WebSocket read
+  model and typed protocol adapter where managed browser session support is an
+  implemented boundary, managed exact URL remains manual-required, and
+  unmanaged exact evidence remains not-claimed.
 - Unmanaged browser states can be represented as possible bypass and
   process-only fallback, not exact URL/tab proof.
 - The raw browser setting inventory and reduced questionnaire forest are now
@@ -59,6 +63,8 @@ control while being more honest about managed versus unmanaged sources.
 
 Managed-browser exact URL action, category filtering, warning delivery,
 unmanaged fallback UX, and parent-facing rule UX are not product-complete.
+The broad-adapter proof adds runtime visibility for those states but does not
+upgrade exact URL, unmanaged exact evidence, or host domain blocking claims.
 Policy dispatch proves the report-only boundary, not active tab enforcement.
 
 ## Checklist

@@ -44,6 +44,9 @@ compete on control while staying clear about attribution confidence and privacy.
 - The V0.8 policy-dispatch proof now returns network/domain blocking as
   manual-required with stored network-flow evidence refs, route/source state,
   audit refs, and child reason codes.
+- The V0.8 broad-adapter proof now exposes the network/domain runtime gate over
+  a Rust service WebSocket read model and TypeScript protocol adapter while
+  keeping host DNS/filter apply, rollback, and audit artifacts manual-required.
 - Network/domain blocking is not broadly product-complete.
 - Raw network control settings are preserved as design inputs, not
   product-complete implementation proof.
@@ -52,7 +55,8 @@ compete on control while staying clear about attribution confidence and privacy.
 
 Real OS/domain blocking adapter proof, DNS/VPN/proxy handling, attribution
 quality, and parent-facing rule UX remain. Policy dispatch does not upgrade
-network/domain blocking beyond manual-required.
+network/domain blocking beyond manual-required, and the broad-adapter proof
+keeps the same manual-required host-filter boundary.
 
 ## Checklist
 

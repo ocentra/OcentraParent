@@ -47,6 +47,9 @@ control with better evidence and local audit.
   policy decision, schedule, app/game session evidence refs, adapter capability,
   timer state, approval state, audit refs, and child reason codes before
   dispatch-ready app/game time-limit states.
+- The V0.8 broad-adapter proof now exposes a service-backed runtime read model
+  that keeps owned-process/app timer support as implemented-boundary while
+  broad installed-app blocking remains manual-required.
 - Broad app blocking remains manual-required or unproved by platform.
 - Raw app and game control setting inventories are preserved as design inputs,
   not product-complete implementation proof.
@@ -56,7 +59,7 @@ control with better evidence and local audit.
 Parent-visible app catalog, category quality, install/approval linkage, child
 request flow, broad blocking, and cross-platform parity are incomplete. Broad
 installed-app blocking remains manual-required beyond the scoped
-owned-process/app-session proof.
+owned-process/app-session proof, including in the broad-adapter service proof.
 
 ## Checklist
 
