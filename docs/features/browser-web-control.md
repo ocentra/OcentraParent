@@ -40,6 +40,9 @@ control while being more honest about managed versus unmanaged sources.
   managed-session intervention, managed exact-URL manual-required state,
   unmanaged process-only termination/warn state, and network/domain manual or
   unavailable state cannot be drifted into stronger claims by direct parsing.
+- The V0.8 product-control spine now exposes managed browser session control,
+  unmanaged process-only fallback, and managed/unmanaged exact URL gaps as
+  separate parent-visible action states for downstream policy/device screens.
 - Unmanaged browser states can be represented as possible bypass and
   process-only fallback, not exact URL/tab proof.
 - The raw browser setting inventory and reduced questionnaire forest are now

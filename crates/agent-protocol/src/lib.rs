@@ -25,6 +25,7 @@ mod enforcement;
 mod enforcement_browser_domain_adapter_proof;
 mod enforcement_cross_platform_capability_proof;
 mod enforcement_os_adapter_product_proof;
+mod enforcement_product_control_spine;
 mod enforcement_readiness;
 mod host_identity;
 mod journal;
@@ -67,6 +68,7 @@ pub use enforcement::*;
 pub use enforcement_browser_domain_adapter_proof::*;
 pub use enforcement_cross_platform_capability_proof::*;
 pub use enforcement_os_adapter_product_proof::*;
+pub use enforcement_product_control_spine::*;
 pub use enforcement_readiness::*;
 pub use host_identity::*;
 pub use journal::*;
@@ -135,6 +137,8 @@ mod enforcement_cross_platform_capability_proof_tests;
 mod enforcement_os_adapter_product_proof_tests;
 #[cfg(test)]
 mod enforcement_permission_dependency_tests;
+#[cfg(test)]
+mod enforcement_product_control_spine_tests;
 #[cfg(test)]
 mod enforcement_readiness_tests;
 #[cfg(test)]

@@ -39,12 +39,16 @@ without fake anti-tamper claims.
 - Browser/domain adapter proof now preserves exact surface states for
   managed-session intervention, unmanaged process-only fallback, and
   manual-required or unavailable browser/domain gaps.
+- Product-control spine contracts now expose parent-visible action states for
+  observe, warn, time-limit, scoped process block, ask-parent, dry-run preview,
+  and report-only surfaces without upgrading broad app, network/domain, exact
+  URL, notification, or tamper claims.
 - Broad app/browser/domain/network enforcement is not product-complete.
 - Tamper/uninstall protection is a tracked gap.
 
 ## Current Gap
 
-Broad adapters, child-facing messages, recovery after restart, integrity
+Broad adapters, service read-model wiring, child-facing messages, integrity
 heartbeat, permission-loss alerts, uninstall detection, and platform-specific
 proof remain.
 
