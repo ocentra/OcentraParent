@@ -1,8 +1,9 @@
 use ocentra_parent_agent_protocol::{
     constants, ActivityHistoricalReportList, ActivityHistoricalReportListItem,
-    ActivityReadModelState, ActivityReportSourceStateSummary, ActivitySavedReportState,
-    ActivitySurfaceRequest, ActivitySurfaceScope, ActivitySurfaceScopeKind,
-    ParentEvidenceReferenceKind, ACTIVITY_SURFACE_SCHEMA_VERSION,
+    ActivityReadModelState, ActivityReportCustodyLabel, ActivityReportSourceLabel,
+    ActivityReportSourceStateSummary, ActivitySavedReportState, ActivitySurfaceRequest,
+    ActivitySurfaceScope, ActivitySurfaceScopeKind, ParentEvidenceReferenceKind,
+    ACTIVITY_SURFACE_SCHEMA_VERSION,
 };
 
 use crate::{
@@ -11,8 +12,6 @@ use crate::{
     parent_assistant_report_history::activity_report_history_from_command,
     parent_assistant_runtime::request_from_command,
 };
-
-static REPORT_ENV_LOCK: tokio::sync::Mutex<()> = tokio::sync::Mutex::const_new(());
 
 #[test]
 fn parent_assistant_request_cites_saved_activity_report_history_when_supplied() {
@@ -48,21 +47,34 @@ fn parent_assistant_request_cites_saved_activity_report_history_when_supplied() 
     assert!(report_context
         .allowed_summary
         .contains(constants::activity_surface::FAMILY_SOURCE_OFFLINE_ID));
+    assert_eq!(
+        report_context.custody_label,
+        constants::parent_assistant::EVIDENCE_CUSTODY_ACTIVITY_REPORT
+    );
+    assert_eq!(
+        report_context.source_label,
+        constants::parent_assistant::EVIDENCE_SOURCE_SAVED_ACTIVITY_REPORT_HISTORY
+    );
+    assert!(!report_context.raw_child_evidence_included);
+    assert!(!report_context.direct_enforcement_allowed);
 }
 
 #[tokio::test]
 async fn parent_assistant_runtime_loads_saved_history_without_report_payload() {
-    let _guard = REPORT_ENV_LOCK.lock().await;
+    let _guard = crate::activity_report_env_lock::REPORT_ENV_LOCK
+        .lock()
+        .await;
     let report_root = temp_report_root();
     cleanup_report_root(&report_root);
     std::env::set_var(constants::env_var::DEV_LOG_DIR, &report_root);
     save_report_document(super::saved_report_document());
 
-    let stored_history = activity_report_history_from_command(&super::command())
-        .await
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let stored_history =
+        activity_report_history_from_command(&super::command_with_payload(Default::default()))
+            .await
+            .expect(constants::error::AGENT_EVENT_SERIALIZES);
     let request = request_from_command(
-        &super::command(),
+        &super::command_with_payload(Default::default()),
         &LocalAiRuntimeConfigSnapshot::unconfigured(),
         None,
         Some(stored_history),
@@ -89,6 +101,8 @@ async fn parent_assistant_runtime_loads_saved_history_without_report_payload() {
     assert!(report_context
         .allowed_summary
         .contains(constants::activity_surface::SUMMARY_STORAGE_SAVED));
+    assert!(!report_context.raw_child_evidence_included);
+    assert!(!report_context.direct_enforcement_allowed);
 }
 
 fn history_context_command() -> ocentra_parent_agent_protocol::AgentCommandEnvelope {
@@ -138,6 +152,9 @@ fn history_list() -> ActivityHistoricalReportList {
                 error_sources: 1,
             },
             parsed_report: report,
+            custody_label: ActivityReportCustodyLabel::ParentDeviceLocalHistory,
+            source_label: ActivityReportSourceLabel::SavedReportHistory,
+            raw_child_evidence_included: false,
         }],
     }
 }

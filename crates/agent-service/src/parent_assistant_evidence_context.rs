@@ -32,6 +32,11 @@ pub(crate) fn evidence_contexts_from_command(
         },
         citation_label: constants::parent_assistant::DEFAULT_CITATION_LABEL.to_string(),
         allowed_summary,
+        custody_label: constants::parent_assistant::EVIDENCE_CUSTODY_ACTIVITY_SUMMARY.to_string(),
+        source_label: constants::parent_assistant::EVIDENCE_SOURCE_ACTIVITY_QUERY_STORE_SUMMARY
+            .to_string(),
+        raw_child_evidence_included: false,
+        direct_enforcement_allowed: false,
     }];
 
     if let Some(snapshot) = activity_snapshot {
@@ -45,6 +50,12 @@ pub(crate) fn evidence_contexts_from_command(
                 citation_label: constants::parent_assistant::ACTIVITY_EVENT_CITATION_LABEL
                     .to_string(),
                 allowed_summary: activity_event_summary(&last_event_id),
+                custody_label: constants::parent_assistant::EVIDENCE_CUSTODY_ACTIVITY_EVENT
+                    .to_string(),
+                source_label: constants::parent_assistant::EVIDENCE_SOURCE_ACTIVITY_EVENT_CITATION
+                    .to_string(),
+                raw_child_evidence_included: false,
+                direct_enforcement_allowed: false,
             });
         }
     }
@@ -123,10 +134,25 @@ fn report_evidence_context(report: &ActivityReportDocument) -> ParentAssistantEv
         },
         citation_label: constants::parent_assistant::ACTIVITY_REPORT_CITATION_LABEL.to_string(),
         allowed_summary: report_context_summary(report),
+        custody_label: constants::parent_assistant::EVIDENCE_CUSTODY_ACTIVITY_REPORT.to_string(),
+        source_label: constants::parent_assistant::EVIDENCE_SOURCE_SAVED_ACTIVITY_REPORT_HISTORY
+            .to_string(),
+        raw_child_evidence_included: false,
+        direct_enforcement_allowed: false,
     }
 }
 
 fn report_context_summary(report: &ActivityReportDocument) -> String {
+    let metadata = report.saved_metadata.as_ref();
+    let custody_label = metadata
+        .map(|_| constants::activity_surface::CUSTODY_PARENT_DEVICE_LOCAL_REPORT_JSON)
+        .unwrap_or(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_NONE);
+    let source_label = metadata
+        .map(|_| constants::activity_surface::SOURCE_SAVED_REPORT_JSON)
+        .unwrap_or(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_NONE);
+    let raw_child_evidence_included = metadata
+        .map(|value| value.raw_child_evidence_included)
+        .unwrap_or(false);
     let mut summary = constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_PREFIX.to_string();
     summary.push_str(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_ID_LABEL);
     summary.push_str(&report.report_id);
@@ -140,8 +166,6 @@ fn report_context_summary(report: &ActivityReportDocument) -> String {
     summary.push_str(saved_metadata_value(report, SavedMetadataValue::StorageReason).as_str());
     summary.push_str(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_SECTIONS_LABEL);
     summary.push_str(&report.sections.len().to_string());
-    summary.push_str(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_SOURCE_LABEL);
-    summary.push_str(&report.source_states.len().to_string());
     summary.push_str(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_READY_SECTIONS_LABEL);
     summary.push_str(&count_sections_with_state(report, ActivityReadModelState::Ready).to_string());
     summary.push_str(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_OFFLINE_SOURCES_LABEL);
@@ -189,6 +213,12 @@ fn report_context_summary(report: &ActivityReportDocument) -> String {
         report,
         ActivityReadModelState::Unavailable,
     ));
+    summary.push_str(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_CUSTODY_LABEL);
+    summary.push_str(custody_label);
+    summary.push_str(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_SOURCE_DATA_LABEL);
+    summary.push_str(source_label);
+    summary.push_str(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_RAW_CHILD_EVIDENCE_LABEL);
+    summary.push_str(&raw_child_evidence_included.to_string());
     summary
 }
 

@@ -236,28 +236,29 @@ function activityPayload() {
     [AgentProtocolDefaults.Field.RangeStart]: '1970-01-01T00:00:00Z',
     [AgentProtocolDefaults.Field.RangeEnd]: new Date().toISOString(),
     [AgentProtocolDefaults.Field.ActivityFamilySources]: JSON.stringify([
-      {
-        deviceId: 'child-device-offline',
-        reachabilityState: 'offline',
-        state: 'offline',
-        reason: 'Child source is offline for this report.',
-        lastUpdatedAt: null,
-      },
-      {
-        deviceId: 'child-device-stale',
-        reachabilityState: 'unreachable',
-        state: 'stale',
-        reason: 'Child source has stale report material and needs a fresh activity sync.',
-        lastUpdatedAt: '2026-05-31T15:45:00Z',
-      },
-      {
-        deviceId: 'child-device-error',
-        reachabilityState: 'error',
-        state: 'unavailable',
-        reason: 'Child source returned an error.',
-        lastUpdatedAt: null,
-      },
+      familySource('child-device-offline', 'offline', 'offline', 'Child source is offline for this report.', null),
+      familySource(
+        'child-device-stale',
+        'unreachable',
+        'stale',
+        'Child source has stale report material and needs a fresh activity sync.',
+        '2026-05-31T15:45:00Z'
+      ),
+      familySource('child-device-error', 'error', 'unavailable', 'Child source returned an error.', null),
     ]),
+  };
+}
+
+function familySource(deviceId, reachabilityState, state, reason, lastUpdatedAt) {
+  return {
+    deviceId,
+    reachabilityState,
+    state,
+    reason,
+    lastUpdatedAt,
+    custodyLabel: 'child-device-local-summary',
+    sourceLabel: 'family-fanout-source-state',
+    rawChildEvidenceIncluded: false,
   };
 }
 
@@ -274,6 +275,7 @@ function assertReportDocument(event) {
   if (report.savedMetadata?.savedState !== 'draft' || report.savedMetadata.savedAt !== null) {
     throw new Error(`Activity report generation did not return an unsaved draft: ${JSON.stringify(report)}`);
   }
+  assertSavedMetadataLabels(report);
   assertFamilySourceStates(report);
 }
 
@@ -287,6 +289,7 @@ function assertSavedReportDocument(event) {
   if (typeof report.savedMetadata?.fileName !== 'string' || !report.savedMetadata.fileName.endsWith('.json')) {
     throw new Error(`Activity report save did not return a saved JSON file name: ${JSON.stringify(report)}`);
   }
+  assertSavedMetadataLabels(report);
   savedActivityReport = report;
 }
 
@@ -305,6 +308,13 @@ function assertReportHistory(event) {
   }
   if (history.reports[0]?.parsedReport?.savedMetadata?.savedState !== 'saved') {
     throw new Error(`Activity report history did not carry saved metadata: ${JSON.stringify(history)}`);
+  }
+  if (
+    history.reports[0]?.custodyLabel !== 'parent-device-local-history' ||
+    history.reports[0]?.sourceLabel !== 'saved-report-history' ||
+    history.reports[0]?.rawChildEvidenceIncluded !== false
+  ) {
+    throw new Error(`Activity report history did not carry parent-owned history labels: ${JSON.stringify(history)}`);
   }
 }
 
@@ -346,7 +356,11 @@ function assertParentAssistantUnavailable(event) {
   const reportCitation = answer.citations.find((citation) => citation.citationLabel === 'Activity report');
   if (
     reportCitation?.evidence?.evidenceReferenceId !== savedActivityReport?.reportId ||
-    !String(reportCitation?.allowedSummary).includes('savedState=saved')
+    !String(reportCitation?.allowedSummary).includes('savedState=saved') ||
+    reportCitation?.custodyLabel !== 'parent-owned-activity-report' ||
+    reportCitation?.sourceLabel !== 'saved-activity-report-history' ||
+    reportCitation?.rawChildEvidenceIncluded !== false ||
+    reportCitation?.directEnforcementAllowed !== false
   ) {
     throw new Error(`Parent Assistant did not cite the saved Activity report: ${JSON.stringify(answer.citations)}`);
   }
@@ -496,6 +510,26 @@ function assertFamilySourceStates(report) {
     !reachabilityStates.has('error')
   ) {
     throw new Error(`Activity family fan-out source states were not preserved: ${JSON.stringify(report.sourceStates)}`);
+  }
+  if (
+    report.sourceStates.some(
+      (source) =>
+        source.rawChildEvidenceIncluded !== false ||
+        source.custodyLabel !== 'child-device-local-summary' ||
+        !['activity-query-store-summary', 'family-fanout-source-state'].includes(source.sourceLabel)
+    )
+  ) {
+    throw new Error(`Activity family fan-out source labels were not preserved: ${JSON.stringify(report.sourceStates)}`);
+  }
+}
+
+function assertSavedMetadataLabels(report) {
+  if (
+    report.savedMetadata?.custodyLabel !== 'parent-device-local-report-json' ||
+    report.savedMetadata?.sourceLabel !== 'saved-report-json' ||
+    report.savedMetadata?.rawChildEvidenceIncluded !== false
+  ) {
+    throw new Error(`Activity report metadata did not carry parent-owned JSON labels: ${JSON.stringify(report)}`);
   }
 }
 

@@ -34,6 +34,17 @@ export const ActivityReportSourceReachabilityStateSchema = withParser(
 export const ActivitySavedReportStateSchema = withParser(
   Schema.Literal('draft', 'saved', 'storage-unavailable', 'degraded', 'scaffold-only')
 );
+const ActivityReportCustodyLabelSchema = withParser(
+  Schema.Literal('child-device-local-summary', 'parent-device-local-report-json', 'parent-device-local-history')
+);
+const ActivityReportSourceLabelSchema = withParser(
+  Schema.Literal(
+    'activity-query-store-summary',
+    'family-fanout-source-state',
+    'saved-report-json',
+    'saved-report-history'
+  )
+);
 
 const ActivitySurfaceScopeBaseSchema = Schema.Struct({
   scopeKind: ActivitySurfaceScopeKindSchema,
@@ -80,6 +91,13 @@ export const ActivityReportSourceStateSchema = withParser(
     state: ActivityReadModelStateSchema,
     reason: Schema.Union(ActivityReportSummarySchema, Schema.Null),
     lastUpdatedAt: Schema.Union(ActivityTimestampSchema, Schema.Null),
+    custodyLabel: Schema.optionalWith(ActivityReportCustodyLabelSchema, {
+      default: () => 'child-device-local-summary' as const,
+    }),
+    sourceLabel: Schema.optionalWith(ActivityReportSourceLabelSchema, {
+      default: () => 'activity-query-store-summary' as const,
+    }),
+    rawChildEvidenceIncluded: Schema.optionalWith(Schema.Literal(false), { default: () => false as const }),
   })
 );
 
@@ -101,6 +119,11 @@ export const ActivitySavedReportMetadataSchema = withParser(
     savedState: ActivitySavedReportStateSchema,
     savedAt: Schema.Union(ActivityTimestampSchema, Schema.Null),
     storageReason: Schema.Union(ActivityReportSummarySchema, Schema.Null),
+    custodyLabel: Schema.optionalWith(ActivityReportCustodyLabelSchema, {
+      default: () => 'parent-device-local-report-json' as const,
+    }),
+    sourceLabel: Schema.optionalWith(ActivityReportSourceLabelSchema, { default: () => 'saved-report-json' as const }),
+    rawChildEvidenceIncluded: Schema.optionalWith(Schema.Literal(false), { default: () => false as const }),
   })
 );
 
@@ -145,6 +168,13 @@ export const ActivityHistoricalReportListItemSchema = withParser(
     savedAt: Schema.Union(ActivityTimestampSchema, Schema.Null),
     sourceStateSummary: ActivityReportSourceStateSummarySchema,
     parsedReport: ActivityReportDocumentSchema,
+    custodyLabel: Schema.optionalWith(ActivityReportCustodyLabelSchema, {
+      default: () => 'parent-device-local-history' as const,
+    }),
+    sourceLabel: Schema.optionalWith(ActivityReportSourceLabelSchema, {
+      default: () => 'saved-report-history' as const,
+    }),
+    rawChildEvidenceIncluded: Schema.optionalWith(Schema.Literal(false), { default: () => false as const }),
   })
 );
 

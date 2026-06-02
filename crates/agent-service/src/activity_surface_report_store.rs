@@ -6,9 +6,10 @@ use std::{
 
 use ocentra_parent_agent_protocol::{
     constants, ActivityHistoricalReportList, ActivityHistoricalReportListItem,
-    ActivityReadModelState, ActivityReportDocument, ActivityReportSourceStateSummary,
-    ActivitySavedReportMetadata, ActivitySavedReportState, ActivitySurfaceRequest,
-    ActivitySurfaceScope, ActivitySurfaceScopeKind, ACTIVITY_SURFACE_SCHEMA_VERSION,
+    ActivityReadModelState, ActivityReportCustodyLabel, ActivityReportDocument,
+    ActivityReportSourceLabel, ActivityReportSourceStateSummary, ActivitySavedReportMetadata,
+    ActivitySavedReportState, ActivitySurfaceRequest, ActivitySurfaceScope,
+    ActivitySurfaceScopeKind, ACTIVITY_SURFACE_SCHEMA_VERSION,
 };
 
 use crate::activity_surface_report_file_name::report_file_name;
@@ -186,6 +187,9 @@ fn history_item_from_report(
         saved_at,
         source_state_summary: source_state_summary(&report),
         parsed_report: report,
+        custody_label: ActivityReportCustodyLabel::ParentDeviceLocalHistory,
+        source_label: ActivityReportSourceLabel::SavedReportHistory,
+        raw_child_evidence_included: false,
     }
 }
 
@@ -259,6 +263,9 @@ fn saved_metadata(
         saved_state,
         saved_at,
         storage_reason,
+        custody_label: ActivityReportCustodyLabel::ParentDeviceLocalReportJson,
+        source_label: ActivityReportSourceLabel::SavedReportJson,
+        raw_child_evidence_included: false,
     }
 }
 

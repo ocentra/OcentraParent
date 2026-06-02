@@ -35,10 +35,13 @@ show the same parent value, but with local custody and evidence citations.
 - Local evidence and read-model direction exists.
 - Browser/app/network/screen evidence paths are represented through contracts
   and service/read-model proof.
-- Activity report persistence and family fanout proof is in progress/PR-ready.
+- Activity report persistence and family fanout proof exists for the
+  backend/read-model boundary.
 - Activity report history now loads saved JSON report documents through the
   Rust service store, filters by family/device scope and requested report
   window, and returns typed saved/degraded/storage-unavailable states.
+- Activity report source records, saved JSON metadata, and history rows now
+  carry typed custody/source labels and `rawChildEvidenceIncluded=false`.
 
 ## Current Gap
 
@@ -52,7 +55,9 @@ and retention/export controls.
 - [ ] Evidence ids and source ids for every observation.
 - [ ] Journal write and replay path.
 - [ ] SQLite/read-model query state.
-- [ ] Custody and retention labels.
+- [x] Custody/source labels for Activity report source records, saved metadata,
+      and history rows.
+- [ ] Retention labels.
 - [ ] Corruption/degraded/recovery state.
 - [ ] Report/history query coverage.
 - [ ] Parent-owned export/delete path.

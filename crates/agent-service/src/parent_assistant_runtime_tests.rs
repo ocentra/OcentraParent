@@ -5,11 +5,12 @@ use std::{
 };
 
 use ocentra_parent_agent_protocol::{
-    constants, policy_constants as policy, ActivityReadModelState, ActivityReportDocument,
-    ActivityReportFrequency, ActivityReportSection, ActivityReportSectionKind,
-    ActivityReportSourceReachabilityState, ActivityReportSourceState, ActivitySavedReportMetadata,
-    ActivitySavedReportState, ActivitySurfaceScope, ActivitySurfaceScopeKind, AgentCommandEnvelope,
-    AgentCommandName, AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, FamilyReference,
+    constants, policy_constants as policy, ActivityReadModelState, ActivityReportCustodyLabel,
+    ActivityReportDocument, ActivityReportFrequency, ActivityReportSection,
+    ActivityReportSectionKind, ActivityReportSourceLabel, ActivityReportSourceReachabilityState,
+    ActivityReportSourceState, ActivitySavedReportMetadata, ActivitySavedReportState,
+    ActivitySurfaceScope, ActivitySurfaceScopeKind, AgentCommandEnvelope, AgentCommandName,
+    AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, FamilyReference,
     LocalAiDegradedState, LocalAiProviderSchedulerJobClass, LocalAiProviderSchedulerJobStatus,
     ParentActorReference, ParentActorRole, ParentAssistantActionPreviewKind,
     ParentAssistantAnswerState, ParentAssistantApiAuthorizationState,
@@ -38,7 +39,7 @@ async fn parent_assistant_unconfigured_provider_returns_cited_unavailable_answer
     let config = LocalAiRuntimeConfigSnapshot::unconfigured();
 
     let answer = generate_parent_assistant_answer_with_scheduler(
-        &command(),
+        &command_with_payload(Default::default()),
         request(None),
         &config,
         &scheduler,
@@ -98,7 +99,7 @@ async fn parent_assistant_busy_provider_degrades_without_running_or_enforcing() 
     scheduler.record_running_job(&runtime, LocalAiProviderSchedulerJobClass::ParentReport);
 
     let answer = generate_parent_assistant_answer_with_scheduler(
-        &command(),
+        &command_with_payload(Default::default()),
         request(Some(config.model_id().to_string())),
         &config,
         &scheduler,
@@ -174,7 +175,7 @@ fn parent_assistant_request_cites_activity_snapshot_when_prompt_has_no_summary()
     };
 
     let request = request_from_command(
-        &command(),
+        &command_with_payload(Default::default()),
         &LocalAiRuntimeConfigSnapshot::unconfigured(),
         Some(snapshot),
         None,
@@ -196,6 +197,8 @@ fn parent_assistant_request_cites_activity_snapshot_when_prompt_has_no_summary()
         request.evidence_context[1].evidence.kind,
         ParentEvidenceReferenceKind::ActivityEvent
     );
+    assert!(!request.evidence_context[0].raw_child_evidence_included);
+    assert!(!request.evidence_context[0].direct_enforcement_allowed);
 }
 
 #[test]
@@ -228,11 +231,7 @@ fn parent_assistant_request_cites_activity_report_document_when_supplied() {
         fragment.push_str(value);
         fragment
     };
-    let count = |prefix: &str| {
-        let mut fragment = prefix.to_string();
-        fragment.push('1');
-        fragment
-    };
+    let raw_child_evidence_flag = false.to_string();
     let expected_fragments = [
         constants::activity_surface::SAVED_STATE_SAVED.to_string(),
         label(
@@ -247,36 +246,41 @@ fn parent_assistant_request_cites_activity_report_document_when_supplied() {
             constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_STORAGE_REASON_LABEL,
             constants::activity_surface::SUMMARY_STORAGE_SAVED,
         ),
-        count(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_READY_SECTIONS_LABEL),
-        count(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_OFFLINE_SOURCES_LABEL),
-        count(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_STALE_SOURCES_LABEL),
-        count(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_UNAVAILABLE_SOURCES_LABEL),
-        count(constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_UNREACHABLE_SOURCES_LABEL),
-        label(
-            constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_SECTION_KINDS_LABEL,
-            constants::activity_surface::SECTION_SUMMARY,
-        ),
         label(
             constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_OFFLINE_SOURCE_IDS_LABEL,
             constants::activity_surface::FAMILY_SOURCE_OFFLINE_ID,
         ),
         label(
-            constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_STALE_SOURCE_IDS_LABEL,
-            constants::activity_surface::FAMILY_SOURCE_STALE_ID,
-        ),
-        label(
-            constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_UNREACHABLE_SOURCE_IDS_LABEL,
-            constants::activity_surface::FAMILY_SOURCE_STALE_ID,
-        ),
-        label(
             constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_UNAVAILABLE_SOURCE_IDS_LABEL,
             constants::activity_surface::FAMILY_SOURCE_ERROR_ID,
+        ),
+        label(
+            constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_CUSTODY_LABEL,
+            constants::activity_surface::CUSTODY_PARENT_DEVICE_LOCAL_REPORT_JSON,
+        ),
+        label(
+            constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_SOURCE_DATA_LABEL,
+            constants::activity_surface::SOURCE_SAVED_REPORT_JSON,
+        ),
+        label(
+            constants::parent_assistant::ACTIVITY_REPORT_SUMMARY_RAW_CHILD_EVIDENCE_LABEL,
+            &raw_child_evidence_flag,
         ),
     ];
 
     for fragment in expected_fragments {
         assert!(report_context.allowed_summary.contains(&fragment));
     }
+    assert_eq!(
+        report_context.custody_label,
+        constants::parent_assistant::EVIDENCE_CUSTODY_ACTIVITY_REPORT
+    );
+    assert_eq!(
+        report_context.source_label,
+        constants::parent_assistant::EVIDENCE_SOURCE_SAVED_ACTIVITY_REPORT_HISTORY
+    );
+    assert!(!report_context.raw_child_evidence_included);
+    assert!(!report_context.direct_enforcement_allowed);
 }
 
 #[test]
@@ -339,15 +343,17 @@ fn request(model_id: Option<String>) -> ParentAssistantGenerateRequest {
             },
             citation_label: constants::parent_assistant::DEFAULT_CITATION_LABEL.to_string(),
             allowed_summary: constants::parent_assistant::DEFAULT_ALLOWED_SUMMARY.to_string(),
+            custody_label: constants::parent_assistant::EVIDENCE_CUSTODY_ACTIVITY_SUMMARY
+                .to_string(),
+            source_label: constants::parent_assistant::EVIDENCE_SOURCE_ACTIVITY_QUERY_STORE_SUMMARY
+                .to_string(),
+            raw_child_evidence_included: false,
+            direct_enforcement_allowed: false,
         }],
         model_id,
         max_output_tokens: constants::local_ai_runtime::DEFAULT_GENERATION_MAX_TOKENS,
         timeout_ms: constants::local_ai_runtime::DEFAULT_GENERATION_TIMEOUT_MS,
     }
-}
-
-fn command() -> AgentCommandEnvelope {
-    command_with_payload(fields_from_pairs(Vec::new()))
 }
 
 fn policy_question_command() -> AgentCommandEnvelope {
@@ -406,42 +412,43 @@ fn saved_report_document() -> ActivityReportDocument {
             saved_state: ActivitySavedReportState::Saved,
             saved_at: Some(constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string()),
             storage_reason: Some(constants::activity_surface::SUMMARY_STORAGE_SAVED.to_string()),
+            custody_label: ActivityReportCustodyLabel::ParentDeviceLocalReportJson,
+            source_label: ActivityReportSourceLabel::SavedReportJson,
+            raw_child_evidence_included: false,
         }),
         source_states: vec![
-            ActivityReportSourceState {
-                device_id: constants::activity_surface::DEFAULT_DEVICE_ID.to_string(),
-                reachability_state: ActivityReportSourceReachabilityState::Reachable,
-                state: ActivityReadModelState::Ready,
-                reason: Some(constants::activity_surface::SUMMARY_FAMILY_LOCAL_SOURCE.to_string()),
-                last_updated_at: Some(
-                    constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string(),
-                ),
-            },
-            ActivityReportSourceState {
-                device_id: constants::activity_surface::FAMILY_SOURCE_OFFLINE_ID.to_string(),
-                reachability_state: ActivityReportSourceReachabilityState::Offline,
-                state: ActivityReadModelState::Offline,
-                reason: Some(
-                    constants::activity_surface::SUMMARY_FAMILY_SOURCE_UNREACHABLE.to_string(),
-                ),
-                last_updated_at: None,
-            },
-            ActivityReportSourceState {
-                device_id: constants::activity_surface::FAMILY_SOURCE_STALE_ID.to_string(),
-                reachability_state: ActivityReportSourceReachabilityState::Unreachable,
-                state: ActivityReadModelState::Stale,
-                reason: Some(constants::activity_surface::SUMMARY_FAMILY_SOURCE_STALE.to_string()),
-                last_updated_at: Some(
-                    constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
-                ),
-            },
-            ActivityReportSourceState {
-                device_id: constants::activity_surface::FAMILY_SOURCE_ERROR_ID.to_string(),
-                reachability_state: ActivityReportSourceReachabilityState::Error,
-                state: ActivityReadModelState::Unavailable,
-                reason: Some(constants::activity_surface::SUMMARY_FAMILY_SOURCE_ERROR.to_string()),
-                last_updated_at: None,
-            },
+            report_source_state(
+                constants::activity_surface::DEFAULT_DEVICE_ID,
+                ActivityReportSourceReachabilityState::Reachable,
+                ActivityReadModelState::Ready,
+                constants::activity_surface::SUMMARY_FAMILY_LOCAL_SOURCE,
+                Some(constants::activity_store::TEST_SECOND_OBSERVED_AT),
+                ActivityReportSourceLabel::ActivityQueryStoreSummary,
+            ),
+            report_source_state(
+                constants::activity_surface::FAMILY_SOURCE_OFFLINE_ID,
+                ActivityReportSourceReachabilityState::Offline,
+                ActivityReadModelState::Offline,
+                constants::activity_surface::SUMMARY_FAMILY_SOURCE_UNREACHABLE,
+                None,
+                ActivityReportSourceLabel::FamilyFanoutSourceState,
+            ),
+            report_source_state(
+                constants::activity_surface::FAMILY_SOURCE_STALE_ID,
+                ActivityReportSourceReachabilityState::Unreachable,
+                ActivityReadModelState::Stale,
+                constants::activity_surface::SUMMARY_FAMILY_SOURCE_STALE,
+                Some(constants::activity_store::TEST_FIRST_OBSERVED_AT),
+                ActivityReportSourceLabel::FamilyFanoutSourceState,
+            ),
+            report_source_state(
+                constants::activity_surface::FAMILY_SOURCE_ERROR_ID,
+                ActivityReportSourceReachabilityState::Error,
+                ActivityReadModelState::Unavailable,
+                constants::activity_surface::SUMMARY_FAMILY_SOURCE_ERROR,
+                None,
+                ActivityReportSourceLabel::FamilyFanoutSourceState,
+            ),
         ],
         sections: vec![ActivityReportSection {
             section_kind: ActivityReportSectionKind::Summary,
@@ -451,6 +458,26 @@ fn saved_report_document() -> ActivityReportDocument {
             item_count: 1,
             evidence: Vec::new(),
         }],
+    }
+}
+
+fn report_source_state(
+    device_id: &str,
+    reachability_state: ActivityReportSourceReachabilityState,
+    state: ActivityReadModelState,
+    reason: &str,
+    last_updated_at: Option<&str>,
+    source_label: ActivityReportSourceLabel,
+) -> ActivityReportSourceState {
+    ActivityReportSourceState {
+        device_id: device_id.to_string(),
+        reachability_state,
+        state,
+        reason: Some(reason.to_string()),
+        last_updated_at: last_updated_at.map(str::to_string),
+        custody_label: ActivityReportCustodyLabel::ChildDeviceLocalSummary,
+        source_label,
+        raw_child_evidence_included: false,
     }
 }
 

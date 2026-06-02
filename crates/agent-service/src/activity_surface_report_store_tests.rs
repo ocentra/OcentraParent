@@ -7,11 +7,11 @@ use std::{
 };
 
 use ocentra_parent_agent_protocol::{
-    constants, ActivityReadModelState, ActivityReportDocument, ActivityReportFrequency,
-    ActivityReportSection, ActivityReportSectionKind, ActivityReportSourceReachabilityState,
-    ActivityReportSourceState, ActivityReportSourceStateSummary, ActivitySavedReportState,
-    ActivitySurfaceRequest, ActivitySurfaceScope, ActivitySurfaceScopeKind,
-    ACTIVITY_SURFACE_SCHEMA_VERSION,
+    constants, ActivityReadModelState, ActivityReportCustodyLabel, ActivityReportDocument,
+    ActivityReportFrequency, ActivityReportSection, ActivityReportSectionKind,
+    ActivityReportSourceLabel, ActivityReportSourceReachabilityState, ActivityReportSourceState,
+    ActivityReportSourceStateSummary, ActivitySavedReportState, ActivitySurfaceRequest,
+    ActivitySurfaceScope, ActivitySurfaceScopeKind, ACTIVITY_SURFACE_SCHEMA_VERSION,
 };
 
 use crate::activity_surface_report_store::{history_list_from_dir, save_report_document_to_dir};
@@ -42,6 +42,15 @@ fn activity_report_store_keeps_family_and_device_reports_separate() {
     assert!(device_metadata
         .file_name
         .contains(constants::activity_surface::SCOPE_DEVICE));
+    assert_eq!(
+        family_metadata.custody_label,
+        ActivityReportCustodyLabel::ParentDeviceLocalReportJson
+    );
+    assert_eq!(
+        family_metadata.source_label,
+        ActivityReportSourceLabel::SavedReportJson
+    );
+    assert!(!family_metadata.raw_child_evidence_included);
 
     let family_history = history_list_from_dir(surface_request(family_scope()), report_dir.path());
     let device_history = history_list_from_dir(surface_request(device_scope()), report_dir.path());
@@ -55,6 +64,15 @@ fn activity_report_store_keeps_family_and_device_reports_separate() {
     assert_eq!(family_history.storage_reason, None);
     assert_eq!(family_history.reports.len(), 1);
     assert_eq!(device_history.reports.len(), 1);
+    assert_eq!(
+        family_history.reports[0].custody_label,
+        ActivityReportCustodyLabel::ParentDeviceLocalHistory
+    );
+    assert_eq!(
+        family_history.reports[0].source_label,
+        ActivityReportSourceLabel::SavedReportHistory
+    );
+    assert!(!family_history.reports[0].raw_child_evidence_included);
     assert_family_source_summary(&family_history.reports[0].source_state_summary);
     assert_eq!(
         device_history.reports[0].source_state_summary.total_sources,
@@ -157,10 +175,19 @@ fn assert_family_source_states(source_states: &[ActivityReportSourceState]) {
     );
     assert_eq!(source_states[0].state, ActivityReadModelState::Ready);
     assert_eq!(
+        source_states[0].source_label,
+        ActivityReportSourceLabel::ActivityQueryStoreSummary
+    );
+    assert!(!source_states[0].raw_child_evidence_included);
+    assert_eq!(
         source_states[1].reachability_state,
         ActivityReportSourceReachabilityState::Offline
     );
     assert_eq!(source_states[1].state, ActivityReadModelState::Offline);
+    assert_eq!(
+        source_states[1].source_label,
+        ActivityReportSourceLabel::FamilyFanoutSourceState
+    );
     assert_eq!(
         source_states[2].reachability_state,
         ActivityReportSourceReachabilityState::Unreachable
@@ -289,6 +316,13 @@ fn source_record(
         state,
         reason: Some(reason.to_string()),
         last_updated_at: Some(constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string()),
+        custody_label: ActivityReportCustodyLabel::ChildDeviceLocalSummary,
+        source_label: if reachability_state == ActivityReportSourceReachabilityState::Reachable {
+            ActivityReportSourceLabel::ActivityQueryStoreSummary
+        } else {
+            ActivityReportSourceLabel::FamilyFanoutSourceState
+        },
+        raw_child_evidence_included: false,
     }
 }
 

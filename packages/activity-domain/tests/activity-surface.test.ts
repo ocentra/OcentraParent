@@ -58,6 +58,9 @@ const ReportDocument = {
       state: 'ready',
       reason: null,
       lastUpdatedAt: '2026-05-27T06:19:00Z',
+      custodyLabel: 'child-device-local-summary',
+      sourceLabel: 'activity-query-store-summary',
+      rawChildEvidenceIncluded: false,
     },
     {
       deviceId: 'child-device-2',
@@ -65,6 +68,9 @@ const ReportDocument = {
       state: 'offline',
       reason: 'Device is offline for this family report',
       lastUpdatedAt: null,
+      custodyLabel: 'child-device-local-summary',
+      sourceLabel: 'family-fanout-source-state',
+      rawChildEvidenceIncluded: false,
     },
   ],
   sections: [
@@ -105,6 +111,9 @@ const SavedReportDocument = {
     savedState: 'saved',
     savedAt: '2026-05-27T06:22:00Z',
     storageReason: null,
+    custodyLabel: 'parent-device-local-report-json',
+    sourceLabel: 'saved-report-json',
+    rawChildEvidenceIncluded: false,
   },
 } as const;
 
@@ -120,6 +129,9 @@ const SavedHistoryItem = {
   savedAt: '2026-05-27T06:22:00Z',
   sourceStateSummary: SourceStateSummary,
   parsedReport: SavedReportDocument,
+  custodyLabel: 'parent-device-local-history',
+  sourceLabel: 'saved-report-history',
+  rawChildEvidenceIncluded: false,
 } as const;
 
 describe('activity surface contracts', () => {
@@ -158,6 +170,8 @@ describe('activity surface contracts', () => {
 
     expect(parsed.sourceStates[1]?.state).toBe('offline');
     expect(parsed.sourceStates[1]?.reachabilityState).toBe('offline');
+    expect(parsed.sourceStates[1]?.sourceLabel).toBe('family-fanout-source-state');
+    expect(parsed.sourceStates[1]?.rawChildEvidenceIncluded).toBe(false);
     expect(parsed.sections[1]?.state).toBe('unavailable');
   });
 
@@ -171,6 +185,20 @@ describe('activity surface contracts', () => {
             state: 'ready',
             reason: null,
             lastUpdatedAt: '2026-05-27T06:19:00Z',
+          },
+        ],
+      }).success
+    ).toBe(false);
+  });
+
+  it('ActivityReportDocumentSchema: rejects source records that include raw child evidence', () => {
+    expect(
+      ActivityReportDocumentSchema.safeParse({
+        ...ReportDocument,
+        sourceStates: [
+          {
+            ...ReportDocument.sourceStates[0],
+            rawChildEvidenceIncluded: true,
           },
         ],
       }).success
@@ -190,6 +218,8 @@ describe('activity report history contracts', () => {
     });
 
     expect(parsed.reports[0]?.parsedReport.savedMetadata?.savedState).toBe('saved');
+    expect(parsed.reports[0]?.custodyLabel).toBe('parent-device-local-history');
+    expect(parsed.reports[0]?.rawChildEvidenceIncluded).toBe(false);
     expect(parsed.reports[0]?.sourceStateSummary.offlineSources).toBe(1);
   });
 

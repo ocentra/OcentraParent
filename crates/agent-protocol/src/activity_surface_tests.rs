@@ -1,8 +1,9 @@
 use super::{
     ActivityAppUseReadModel, ActivityBrowserReadModel, ActivityEvidenceKind, ActivityEvidenceRef,
     ActivityGamesReadModel, ActivityHistoricalReportList, ActivityNetworkReadModel,
-    ActivityReadModelState, ActivityReportDocument, ActivityReportFrequency, ActivityReportRequest,
-    ActivityReportSection, ActivityReportSectionKind, ActivityReportSourceReachabilityState,
+    ActivityReadModelState, ActivityReportCustodyLabel, ActivityReportDocument,
+    ActivityReportFrequency, ActivityReportRequest, ActivityReportSection,
+    ActivityReportSectionKind, ActivityReportSourceLabel, ActivityReportSourceReachabilityState,
     ActivityReportSourceState, ActivityReportSourceStateSummary, ActivitySavedReportMetadata,
     ActivitySavedReportState, ActivityScreenReadModel, ActivityScreenReadModelRow,
     ActivitySurfaceRequest, ActivitySurfaceScope, ActivitySurfaceScopeKind, AgentCommandName,
@@ -37,6 +38,14 @@ fn activity_report_document_serializes_report_sections_and_source_states() {
     );
     assert_eq!(serialized["sourceStates"][1]["state"], "offline");
     assert_eq!(
+        serialized["sourceStates"][1]["sourceLabel"],
+        "family-fanout-source-state"
+    );
+    assert_eq!(
+        serialized["sourceStates"][1]["rawChildEvidenceIncluded"],
+        false
+    );
+    assert_eq!(
         serialized["sourceStates"][1]["reachabilityState"],
         "offline"
     );
@@ -61,6 +70,9 @@ fn activity_history_list_carries_saved_report_metadata_and_parsed_document() {
             summary: "Saved daily report".to_string(),
             saved_state: ActivitySavedReportState::Saved,
             saved_at: Some("2026-05-27T06:22:00Z".to_string()),
+            custody_label: ActivityReportCustodyLabel::ParentDeviceLocalHistory,
+            source_label: ActivityReportSourceLabel::SavedReportHistory,
+            raw_child_evidence_included: false,
             source_state_summary: ActivityReportSourceStateSummary {
                 total_sources: 2,
                 ready_sources: 1,
@@ -203,6 +215,9 @@ fn sample_report_document(frequency: ActivityReportFrequency) -> ActivityReportD
             saved_state: ActivitySavedReportState::Draft,
             saved_at: None,
             storage_reason: None,
+            custody_label: ActivityReportCustodyLabel::ParentDeviceLocalReportJson,
+            source_label: ActivityReportSourceLabel::SavedReportJson,
+            raw_child_evidence_included: false,
         }),
         source_states: vec![
             ActivityReportSourceState {
@@ -211,6 +226,9 @@ fn sample_report_document(frequency: ActivityReportFrequency) -> ActivityReportD
                 state: ActivityReadModelState::Ready,
                 reason: None,
                 last_updated_at: Some("2026-05-27T06:19:00Z".to_string()),
+                custody_label: ActivityReportCustodyLabel::ChildDeviceLocalSummary,
+                source_label: ActivityReportSourceLabel::ActivityQueryStoreSummary,
+                raw_child_evidence_included: false,
             },
             ActivityReportSourceState {
                 device_id: "child-device-2".to_string(),
@@ -218,6 +236,9 @@ fn sample_report_document(frequency: ActivityReportFrequency) -> ActivityReportD
                 state: ActivityReadModelState::Offline,
                 reason: Some("Device is offline for this family report".to_string()),
                 last_updated_at: None,
+                custody_label: ActivityReportCustodyLabel::ChildDeviceLocalSummary,
+                source_label: ActivityReportSourceLabel::FamilyFanoutSourceState,
+                raw_child_evidence_included: false,
             },
         ],
         sections: vec![

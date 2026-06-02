@@ -12,6 +12,8 @@ mod activity_memory_graph_payload;
 mod activity_memory_graph_payload_tests;
 mod activity_network_flow_payload;
 mod activity_payload;
+#[cfg(test)]
+mod activity_report_env_lock;
 mod activity_store_path;
 mod activity_surface_adapter;
 #[cfg(test)]

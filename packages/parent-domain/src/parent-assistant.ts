@@ -51,6 +51,12 @@ export const ParentAssistantAnswerTextSchema = NonEmptyParentAssistantText.pipe(
 export const ParentAssistantCitationLabelSchema = NonEmptyParentAssistantText.pipe(
   Schema.brand('ParentAssistantCitationLabel')
 );
+const ParentAssistantEvidenceCustodyLabelSchema = withParser(
+  Schema.Literal('parent-owned-activity-summary', 'parent-owned-activity-event', 'parent-owned-activity-report')
+);
+const ParentAssistantEvidenceSourceLabelSchema = withParser(
+  Schema.Literal('activity-query-store-summary', 'activity-event-citation', 'saved-activity-report-history')
+);
 export const ParentAssistantActionPreviewIdSchema = NonEmptyParentAssistantText.pipe(
   Schema.brand('ParentAssistantActionPreviewId')
 );
@@ -101,6 +107,10 @@ export const ParentAssistantEvidenceContextSchema = withParser(
     evidence: ParentEvidenceReferenceSchema,
     citationLabel: ParentAssistantCitationLabelSchema,
     allowedSummary: ParentAssistantAnswerTextSchema,
+    custodyLabel: ParentAssistantEvidenceCustodyLabelSchema,
+    sourceLabel: ParentAssistantEvidenceSourceLabelSchema,
+    rawChildEvidenceIncluded: Schema.Literal(false),
+    directEnforcementAllowed: Schema.Literal(false),
   })
 );
 

@@ -39,6 +39,8 @@ async function main() {
       'activity-reports-family-fanout.offline-stale-unavailable-source-ids',
       'activity-reports-family-fanout.storage-unavailable-fallback',
       'activity-reports-family-fanout.mia-report-history-citations',
+      'activity-reports-family-fanout.custody-source-labels',
+      'activity-reports-family-fanout.no-raw-child-evidence',
       'activity-reports-family-fanout.c-owned-paths-not-touched',
     ],
     evidence: {
@@ -59,6 +61,10 @@ async function main() {
         'The aggregation contract requires dataOwner=rust-service-read-model and viteDataOwner=false so Portal remains a renderer/consumer.',
       sourceStates:
         'Ready, offline, stale, unavailable, unreachable, and error source ids remain explicit for family fan-out and MIA citation context.',
+      custodyLabels:
+        'Activity report source states, saved JSON metadata, history rows, and Parent Assistant/MIA evidence contexts carry typed custody/source labels.',
+      noRawEvidence:
+        'Activity report and Parent Assistant/MIA context proof keeps rawChildEvidenceIncluded=false and directEnforcementAllowed=false.',
       storageFallback:
         'A storage-unavailable history response stays renderable as unavailable with zero sources instead of being promoted to ready.',
       cOwnedPathPolicy: 'The proof rejects C-owned portal UI/domain path edits in this non-visual worker slice.',
@@ -66,7 +72,7 @@ async function main() {
     touchedFiles,
     counts: {
       upstreamProofLabels: upstreamProof.proofLabels.length,
-      proofLabels: 7,
+      proofLabels: 9,
       cOwnedPathsTouched: 0,
     },
     knownGaps: [
