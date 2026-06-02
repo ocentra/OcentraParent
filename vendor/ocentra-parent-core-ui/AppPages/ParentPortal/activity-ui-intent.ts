@@ -498,9 +498,9 @@ function upsertLanDeviceSlot(
     readonly gpuDriver?: string | undefined;
     readonly gpuMemory?: string | undefined;
     readonly nvidiaSmi?: string | undefined;
+    readonly routeId?: string | undefined;
     readonly portalEligible?: boolean | undefined;
     readonly state: string;
-    readonly routeId: string;
     readonly preferState?: boolean;
   }
 ): void {
@@ -546,6 +546,8 @@ function upsertLanDeviceSlot(
       gpuDriver: input.gpuDriver || existing?.device?.gpuDriver,
       gpuMemory: input.gpuMemory || existing?.device?.gpuMemory,
       nvidiaSmi: input.nvidiaSmi || existing?.device?.nvidiaSmi,
+      routeId: input.routeId || existing?.device?.routeId,
+      sourceState: state || existing?.device?.sourceState,
       portalEligible,
       type: normalizeDeviceKind(input.platform),
       platform: input.platform,
