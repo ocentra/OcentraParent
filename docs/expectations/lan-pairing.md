@@ -50,6 +50,11 @@ Pairing contracts belong in shared domain packages before runtime code consumes 
   and memory details, and observed LAN neighbor IP/MAC/interface data without
   inventing hardware details for devices that have not reported through an
   agent.
+- Parent Devices route renders a service-backed scan summary that counts
+  child-agent, passive LAN, and infrastructure/router evidence separately.
+- If the local child agent also appears in passive LAN evidence, it is merged
+  into one device row with agent and LAN badges rather than duplicated as an
+  IP-only neighbor.
 - Multi-device rule/query/approval routing.
 - Pairing revocation path.
 - Pairing audit events in the local evidence pipeline.
@@ -66,6 +71,9 @@ Pairing contracts belong in shared domain packages before runtime code consumes 
 - Parent-visible UI makes the selected device clear.
 - Parent-visible UI distinguishes the local Rust agent from LAN neighbors and
   shows `Not reported` for CPU/GPU/memory fields that are not agent-backed.
+- Parent-visible UI keeps passive LAN neighbors and routers out of controllable
+  Policy/Activity/Parent Portal target lists until an agent-backed pairing path
+  exists.
 - The same command sent to the wrong paired device is rejected rather than applied to the currently selected device by accident.
 - Pairing state survives service restart through an explicit local registry or produces a safe unpaired state.
 - Sensitive child activity details are not included in discovery beacons or pairing challenge previews.

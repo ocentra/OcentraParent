@@ -35,20 +35,26 @@ and clear degraded states.
 ## Current Ocentra State
 
 - Local/LAN Rust service and WebSocket command paths exist.
+- The local service reports hostname, IP/MAC/interface, CPU, memory, GPU, and
+  NVIDIA `nvidia-smi` inventory for the connected child agent when the platform
+  exposes those details.
 - Many read-model and proof paths are service-backed.
 - Windows installer/updater scaffolding exists.
 - Production service hardening and all adapter paths are not complete.
 
 ## Current Gap
 
-The service is real enough for local/LAN proof, but not yet a fully hardened
-consumer child-agent across capture, enforcement, notifications, updates,
-tamper/integrity, and support diagnostics.
+The service is real enough for local/LAN proof and local hardware visibility,
+but not yet a fully hardened consumer child-agent across signed LAN
+advertisement, capture, enforcement, notifications, updates, tamper/integrity,
+and support diagnostics.
 
 ## Checklist
 
 - [ ] Installed service health and restart behavior.
 - [ ] Local/LAN command validation and origin checks.
+- [ ] LAN child-agent identity advertisement, heartbeat, and pairing proof
+      across a second physical child device.
 - [ ] Evidence capture and journal writes.
 - [ ] Policy and AI read paths.
 - [ ] Enforcement adapter dispatch with audit.

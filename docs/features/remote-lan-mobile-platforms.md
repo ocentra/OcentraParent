@@ -37,20 +37,28 @@ PC while preserving local-first custody.
 ## Current Ocentra State
 
 - LAN pairing/control proof and add-device state are in progress.
+- The parent service now emits a typed LAN scan summary, merges the local
+  child-agent device with matching passive LAN evidence, and keeps passive
+  neighbors/router rows separate from controllable child-agent targets.
 - Parent desktop Tauri proof exists.
 - Android/iOS package scaffolds and proof gates exist.
 - Optional remote relay and full mobile child-agent parity are not complete.
 
 ## Current Gap
 
-Physical household proof, parent route UI, optional remote relay, mobile
+Physical household proof still needs a second installed child agent, signed LAN
+agent hello/heartbeat, assign/rename/ignore flows, and stronger name discovery
+such as mDNS/SSDP/router DHCP integration. Optional remote relay, mobile
 permissions, Android Device Owner/Accessibility/VPN/DNS/UsageStats proof, iOS
 Family Controls/DeviceActivity/Network Extension proof, signing, and store
 distribution remain.
 
 ## Checklist
 
-- [ ] LAN discovery and pairing.
+- [ ] LAN discovery and pairing. Current proof covers Windows neighbor-table
+      inventory, local child-agent hardware inventory, scan summary counts, passive
+      neighbor/router separation, and portal target filtering; mDNS/SSDP/router DHCP
+      names and second-child-agent pairing proof remain.
 - [ ] Trusted registry and revocation.
 - [ ] Controller lease and observer read-only state.
 - [ ] Route status: local, LAN, relay, cache, stale, offline, unavailable.

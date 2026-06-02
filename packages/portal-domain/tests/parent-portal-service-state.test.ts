@@ -146,6 +146,7 @@ function parentPortalLanDiscoveryScanRowTests(): void {
           AgentEvent.LanPairingBrowserDiscoveryReported,
           {
             [AgentProtocolDefaults.Field.LanAddDeviceState]: 'paired',
+            [AgentProtocolDefaults.Field.LanAddDeviceReadModel]: lanReadModelWithScanSummary(4),
             [AgentProtocolDefaults.Field.LanTrustedDeviceCount]: 1,
             [AgentProtocolDefaults.Field.LanSelectedChildDeviceId]: 'local-dev-agent',
             [AgentProtocolDefaults.Field.LanSelectedDeviceReachability]: 'online',
@@ -157,7 +158,7 @@ function parentPortalLanDiscoveryScanRowTests(): void {
 
     expect(state.parentPortalRows[1]).toMatchObject({
       label: 'LAN discovery',
-      readyCount: 1,
+      readyCount: 4,
       trend: 'paired',
     });
     expect(state.parentPortalRows[2]).toMatchObject({
@@ -165,6 +166,48 @@ function parentPortalLanDiscoveryScanRowTests(): void {
       readyCount: 2,
       trend: 'online',
     });
+  });
+}
+
+function lanReadModelWithScanSummary(scannedDeviceCount: number): string {
+  return JSON.stringify({
+    schemaVersion: 1,
+    generatedAt: '2026-06-01T13:55:04Z',
+    discoverySource: 'physical-household-lan',
+    addDeviceState: 'paired',
+    localServiceDiscoveryState: 'paired',
+    physicalHouseholdLanState: 'discovered',
+    cloudRelayState: 'unavailable',
+    scanSummary: {
+      schemaVersion: 1,
+      sourceLabels: ['local-service', 'windows-neighbor-table'],
+      scannedDeviceCount,
+      agentDeviceCount: 1,
+      passiveDeviceCount: 2,
+      infrastructureDeviceCount: 1,
+      unsupportedDeviceCount: 3,
+    },
+    discoveredDevices: [],
+    pairingRequests: [],
+    trustedDeviceRegistry: [],
+    trustedDeviceIds: [],
+    revokedDeviceIds: [],
+    selectedDeviceReadiness: {
+      schemaVersion: 1,
+      selectedChildDeviceId: null,
+      routeId: null,
+      pairingId: null,
+      trustState: 'unpaired',
+      reachability: 'offline',
+      readyForControl: false,
+      staleAt: null,
+      offlineAt: null,
+    },
+    controllerAuthority: 'active-controller',
+    observerAuthority: 'observer',
+    routeRequirementLabels: [],
+    auditCheckLabels: [],
+    honestNonClaims: [],
   });
 }
 

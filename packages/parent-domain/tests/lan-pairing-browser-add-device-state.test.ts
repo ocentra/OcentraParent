@@ -10,6 +10,11 @@ describe('browser-first LAN add-device read model', () => {
     expect(parsed.discoverySource).toBe('local-service');
     expect(parsed.physicalHouseholdLanState).toBe('manual-required');
     expect(parsed.cloudRelayState).toBe('unavailable');
+    expect(parsed.scanSummary).toMatchObject({
+      sourceLabels: ['local-service'],
+      scannedDeviceCount: 1,
+      agentDeviceCount: 1,
+    });
     expect(parsed.trustedDeviceRegistry[0]?.childDevice.deviceId).toBe('child-device-1');
     expect(parsed.trustedDeviceIds).toEqual(['child-device-1']);
     expect(parsed.selectedDeviceReadiness.readyForControl).toBe(false);
@@ -29,6 +34,15 @@ function readModelFixture() {
     localServiceDiscoveryState: 'pending',
     physicalHouseholdLanState: 'manual-required',
     cloudRelayState: 'unavailable',
+    scanSummary: {
+      schemaVersion: 'v0.9',
+      sourceLabels: ['local-service'],
+      scannedDeviceCount: 1,
+      agentDeviceCount: 1,
+      passiveDeviceCount: 0,
+      infrastructureDeviceCount: 0,
+      unsupportedDeviceCount: 0,
+    },
     discoveredDevices: [discoveredDevice()],
     pairingRequests: [pairingRequest()],
     trustedDeviceRegistry: [trustedRegistryEntry()],

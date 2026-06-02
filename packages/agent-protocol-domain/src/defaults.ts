@@ -227,6 +227,7 @@ export const AgentProtocolDefaults = {
     LanLocalServiceDiscoveryState: 'localServiceDiscoveryState',
     LanPhysicalHouseholdLanState: 'physicalHouseholdLanState',
     LanCloudRelayState: 'cloudRelayState',
+    LanScanSummary: 'scanSummary',
     LanSelectedDeviceReady: 'selectedDeviceReady',
     LanSelectedDeviceReadiness: 'selectedDeviceReadiness',
     LanReadyForControl: 'readyForControl',

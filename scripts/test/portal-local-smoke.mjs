@@ -299,12 +299,25 @@ function assertLanAddDeviceReadModel(payload) {
   if (readModel.cloudRelayState !== 'unavailable') {
     throw new Error(`LAN cloud relay state was not unavailable: ${jsonValue}`);
   }
+  assertLanScanSummary(readModel, jsonValue);
   assertDiscoveredLanDevices(readModel, jsonValue);
   if (!readModel.honestNonClaims.includes('remote-desktop-not-implemented')) {
     throw new Error(`LAN read model claimed remote desktop support: ${jsonValue}`);
   }
   if (!readModel.honestNonClaims.includes('cloud-relay-not-implemented')) {
     throw new Error(`LAN read model missed cloud relay non-claim: ${jsonValue}`);
+  }
+}
+
+function assertLanScanSummary(readModel, jsonValue) {
+  if (readModel.scanSummary.scannedDeviceCount < 1) {
+    throw new Error(`LAN scan summary did not include the local agent: ${jsonValue}`);
+  }
+  if (readModel.scanSummary.agentDeviceCount < 1) {
+    throw new Error(`LAN scan summary did not count the connected child agent: ${jsonValue}`);
+  }
+  if (!readModel.scanSummary.sourceLabels.includes('local-service')) {
+    throw new Error(`LAN scan summary missed local-service source evidence: ${jsonValue}`);
   }
 }
 

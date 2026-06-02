@@ -36,6 +36,10 @@ export const PARENT_PORTAL_SERVICE_STATE = {
     PermissionRequired: 'permission-required',
     ScaffoldOnly: 'scaffold-only',
   },
+  Field: {
+    LanScanSummary: 'scanSummary',
+    ScannedDeviceCount: 'scannedDeviceCount',
+  },
 } as const;
 
 export const SERVICE_BACKED_CONTENT: ParentPortalContent = {

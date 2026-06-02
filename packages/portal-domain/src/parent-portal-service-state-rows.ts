@@ -118,10 +118,34 @@ function devicePairingRow(input: ParentPortalServiceStateInput): ParentPortalRow
 }
 
 function lanVisibleDeviceCount(payload: AgentProtocolLogFields | null): number {
+  const scanSummaryCount = lanScanSummaryDeviceCount(payload);
+  if (scanSummaryCount !== null) {
+    return scanSummaryCount;
+  }
   const trustedCount = numberValue(payload, AgentProtocolDefaults.Field.LanTrustedDeviceCount) ?? 0;
   const pendingCount = numberValue(payload, AgentProtocolDefaults.Field.LanPendingPairingCount) ?? 0;
   const selectedCount = presentText(payload, AgentProtocolDefaults.Field.LanSelectedChildDeviceId) === null ? 0 : 1;
   return Math.max(trustedCount, selectedCount) + pendingCount;
+}
+
+function lanScanSummaryDeviceCount(payload: AgentProtocolLogFields | null): number | null {
+  const jsonValue = textValue(payload, AgentProtocolDefaults.Field.LanAddDeviceReadModel);
+  if (jsonValue === null) {
+    return null;
+  }
+  try {
+    const parsed = JSON.parse(jsonValue) as unknown;
+    if (!isRecord(parsed)) {
+      return null;
+    }
+    const scanSummary = parsed[PARENT_PORTAL_SERVICE_STATE.Field.LanScanSummary];
+    if (!isRecord(scanSummary)) {
+      return null;
+    }
+    return finiteNumber(scanSummary[PARENT_PORTAL_SERVICE_STATE.Field.ScannedDeviceCount]);
+  } catch {
+    return null;
+  }
 }
 
 function browserActivityRow(input: ParentPortalServiceStateInput): ParentPortalRow {
@@ -306,5 +330,13 @@ function presentText(payload: AgentProtocolLogFields | null, field: string): str
 
 function numberValue(payload: AgentProtocolLogFields | null, field: string): number | null {
   const value = payload?.[field];
+  return finiteNumber(value);
+}
+
+function finiteNumber(value: unknown): number | null {
   return typeof value === 'number' && Number.isFinite(value) ? value : null;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }

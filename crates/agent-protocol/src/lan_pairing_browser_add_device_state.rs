@@ -46,6 +46,18 @@ pub struct LanBrowserAddDevicePairingRequest {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct LanBrowserAddDeviceScanSummary {
+    pub schema_version: u16,
+    pub source_labels: Vec<String>,
+    pub scanned_device_count: u32,
+    pub agent_device_count: u32,
+    pub passive_device_count: u32,
+    pub infrastructure_device_count: u32,
+    pub unsupported_device_count: u32,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct LanSelectedDeviceReadiness {
     pub schema_version: u16,
     pub selected_child_device_id: Option<String>,
@@ -68,6 +80,7 @@ pub struct LanBrowserAddDeviceReadModel {
     pub local_service_discovery_state: LanPairingProductionDiscoveryState,
     pub physical_household_lan_state: LanPairingProductionDiscoveryState,
     pub cloud_relay_state: LanPairingProductionDiscoveryState,
+    pub scan_summary: LanBrowserAddDeviceScanSummary,
     pub discovered_devices: Vec<LanBrowserAddDeviceDiscoveryDevice>,
     pub pairing_requests: Vec<LanBrowserAddDevicePairingRequest>,
     pub trusted_device_registry: Vec<LanTrustedDeviceRegistryEntry>,

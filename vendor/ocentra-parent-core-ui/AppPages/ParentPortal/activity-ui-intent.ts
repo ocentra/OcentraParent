@@ -334,7 +334,7 @@ function canonicalLanDeviceState(
 ): string {
   if (classification === 'network-infrastructure') return 'infrastructure';
   if (classification === 'unsupported-lan-device' || classification === 'unknown-lan-device') {
-    return reachability || discoveryState || 'unsupported-lan-device';
+    return passiveLanDeviceState(reachability, discoveryState);
   }
   return reachability || trustState || discoveryState || 'unavailable';
 }
@@ -382,6 +382,9 @@ function lanDiscoveryDeviceState(
   if (platform === 'router' && !agentStatus) {
     return 'infrastructure';
   }
+  if (!agentStatus && discoveryStatus === 'network-neighbor') {
+    return passiveLanDeviceState(stringValue(discoveredDevice?.['reachability']), discoveryState);
+  }
   if (
     discoveryStatus === 'manual-required' ||
     discoveryStatus === 'unavailable' ||
@@ -394,6 +397,12 @@ function lanDiscoveryDeviceState(
     return discoveryState || discoveryStatus;
   }
   return stringValue(discoveredDevice?.['reachability']) || discoveryState || discoveryStatus || 'unavailable';
+}
+
+function passiveLanDeviceState(reachability: string, discoveryState: string): string {
+  if (reachability === 'offline') return 'offline';
+  if (reachability === 'stale') return 'stale';
+  return discoveryState === 'unavailable' || discoveryState === 'manual-required' ? discoveryState : 'discovered';
 }
 
 function collectTrustedLanDevices(readModel: Record<string, unknown>, devices: Map<string, DeviceSlot>): void {
