@@ -11,6 +11,9 @@ pub use discovery_states::*;
 #[path = "lan_pairing/device_hardware.rs"]
 mod device_hardware;
 pub use device_hardware::*;
+#[path = "lan_pairing/household_device_spine.rs"]
+mod household_device_spine;
+pub use household_device_spine::*;
 #[path = "lan_pairing/household_proof.rs"]
 mod household_proof;
 pub use household_proof::*;

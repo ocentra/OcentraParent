@@ -16,6 +16,68 @@ import {
 } from './security';
 
 const NonEmptyLanAddDeviceText = Schema.String.pipe(Schema.minLength(1));
+
+const AgentLanHouseholdDeviceHardwareProfileSchema = Schema.Struct({
+  manufacturer: Schema.Union(NonEmptyLanAddDeviceText, Schema.Null),
+  model: Schema.Union(NonEmptyLanAddDeviceText, Schema.Null),
+  cpuModel: Schema.Union(NonEmptyLanAddDeviceText, Schema.Null),
+  cpuCores: Schema.Union(NonEmptyLanAddDeviceText, Schema.Null),
+  memoryTotal: Schema.Union(NonEmptyLanAddDeviceText, Schema.Null),
+  gpuModel: Schema.Union(NonEmptyLanAddDeviceText, Schema.Null),
+  gpuDriver: Schema.Union(NonEmptyLanAddDeviceText, Schema.Null),
+  gpuMemory: Schema.Union(NonEmptyLanAddDeviceText, Schema.Null),
+  nvidiaSmi: Schema.Union(NonEmptyLanAddDeviceText, Schema.Null),
+});
+
+const AgentLanChildAgentInventoryPacketSchema = Schema.Struct({
+  deviceName: NonEmptyLanAddDeviceText,
+  platform: NonEmptyLanAddDeviceText,
+  os: NonEmptyLanAddDeviceText,
+  cpuModel: Schema.Union(NonEmptyLanAddDeviceText, Schema.Null),
+  cpuCores: Schema.Union(NonEmptyLanAddDeviceText, Schema.Null),
+  memoryTotal: Schema.Union(NonEmptyLanAddDeviceText, Schema.Null),
+  gpuModel: Schema.Union(NonEmptyLanAddDeviceText, Schema.Null),
+  gpuDriver: Schema.Union(NonEmptyLanAddDeviceText, Schema.Null),
+  gpuMemory: Schema.Union(NonEmptyLanAddDeviceText, Schema.Null),
+  nvidiaSmi: Schema.Union(NonEmptyLanAddDeviceText, Schema.Null),
+  networkInterfaces: Schema.Array(NonEmptyLanAddDeviceText),
+  capabilities: Schema.Array(NonEmptyLanAddDeviceText),
+  roleState: NonEmptyLanAddDeviceText,
+  routeState: NonEmptyLanAddDeviceText,
+  pairingTrustState: AgentLanSelectedRouteTrustStateSchema,
+});
+
+const AgentLanCanonicalHouseholdDeviceSchema = Schema.Struct({
+  schemaVersion: Schema.Literal(AgentProtocolSchemaVersion),
+  canonicalDeviceId: AgentDeviceIdSchema,
+  displayName: NonEmptyLanAddDeviceText,
+  classification: NonEmptyLanAddDeviceText,
+  roleBadges: Schema.Array(NonEmptyLanAddDeviceText),
+  enrollable: Schema.Boolean,
+  discoveryState: AgentLanPairingProductionDiscoveryStateSchema,
+  trustState: AgentLanSelectedRouteTrustStateSchema,
+  routeId: Schema.Union(AgentLanPairingRouteIdSchema, Schema.Null),
+  routeState: NonEmptyLanAddDeviceText,
+  networkMode: AgentLanPairingNetworkModeSchema,
+  sourceLabels: Schema.Array(NonEmptyLanAddDeviceText),
+  networkIdentity: Schema.Struct({
+    hostname: Schema.Union(NonEmptyLanAddDeviceText, Schema.Null),
+    ipAddresses: Schema.Array(NonEmptyLanAddDeviceText),
+    macAddress: Schema.Union(NonEmptyLanAddDeviceText, Schema.Null),
+    macVendor: Schema.Union(NonEmptyLanAddDeviceText, Schema.Null),
+    networkInterfaces: Schema.Array(NonEmptyLanAddDeviceText),
+    reachability: AgentLanSelectedDeviceReachabilitySchema,
+    confidence: NonEmptyLanAddDeviceText,
+    staleAt: Schema.Union(AgentTimestampSchema, Schema.Null),
+    offlineAt: Schema.Union(AgentTimestampSchema, Schema.Null),
+  }),
+  childAgentInventory: Schema.Union(AgentLanChildAgentInventoryPacketSchema, Schema.Null),
+  hardwareProfile: Schema.optionalWith(Schema.Union(AgentLanHouseholdDeviceHardwareProfileSchema, Schema.Null), {
+    default: () => null,
+  }),
+  policyTargetSurfaces: Schema.Array(NonEmptyLanAddDeviceText),
+});
+
 export const AgentLanPairingDiscoverySourceSchema = withParser(
   Schema.Literal('local-service', 'physical-household-lan', 'cloud-relay')
 );
@@ -90,6 +152,7 @@ export const AgentLanBrowserAddDeviceReadModelSchema = withParser(
     physicalHouseholdLanState: AgentLanPairingProductionDiscoveryStateSchema,
     cloudRelayState: AgentLanPairingProductionDiscoveryStateSchema,
     discoveredDevices: Schema.Array(AgentLanBrowserAddDeviceDiscoveryDeviceSchema),
+    canonicalHouseholdDevices: Schema.Array(AgentLanCanonicalHouseholdDeviceSchema),
     pairingRequests: Schema.Array(AgentLanBrowserAddDevicePairingRequestSchema),
     trustedDeviceRegistry: Schema.Array(AgentLanTrustedDeviceRegistryEntrySchema),
     trustedDeviceIds: Schema.Array(AgentDeviceIdSchema),

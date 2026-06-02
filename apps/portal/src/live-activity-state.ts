@@ -110,7 +110,11 @@ export function resolveLiveActivityState(events: readonly AgentEventEnvelope[]):
   const activityNetworkReadModelEvent = latestEvent(events, AgentEvent.ActivityNetworkReadModelReported);
   const browserInterventionEvent = latestEvent(events, AgentEvent.BrowserInterventionReadModelReported);
   const networkFlowEvent = latestEvent(events, AgentEvent.NetworkFlowReadModelReported);
-  const lanPairingStatusEvent = latestEvent(events, AgentEvent.LanPairingStatusReported);
+  const lanPairingStatusEvent = latestEventOf(events, [
+    AgentEvent.LanPairingStatusReported,
+    AgentEvent.LanPairingBrowserDiscoveryReported,
+    AgentEvent.LanPairingAddDeviceReported,
+  ]);
   const policyPreviewEvent = latestEvent(events, AgentEvent.PolicyPreviewReadModelReported);
 
   return {
@@ -171,26 +175,33 @@ export function resolveLiveActivityState(events: readonly AgentEventEnvelope[]):
 }
 
 function latestEvent(events: readonly AgentEventEnvelope[], eventName: AgentEventName): AgentEventEnvelope | null {
-  for (let index = events.length - 1; index >= 0; index -= 1) {
+  return latestEventOf(events, [eventName]);
+}
+
+function latestEventOf(
+  events: readonly AgentEventEnvelope[],
+  eventNames: readonly AgentEventName[]
+): AgentEventEnvelope | null {
+  let latest: AgentEventEnvelope | null = null;
+  let latestTime = Number.NEGATIVE_INFINITY;
+  let latestIndex = -1;
+  for (let index = 0; index < events.length; index += 1) {
     const event = events[index];
-    if (event !== undefined && event.event === eventName) {
-      return event;
+    if (event !== undefined && eventNames.includes(event.event)) {
+      const sentAt = Date.parse(event.sentAt);
+      const eventTime = Number.isFinite(sentAt) ? sentAt : index;
+      if (eventTime > latestTime || (eventTime === latestTime && index > latestIndex)) {
+        latest = event;
+        latestTime = eventTime;
+        latestIndex = index;
+      }
     }
   }
-  return null;
+  return latest;
 }
 
 function latestActivityReportEvent(events: readonly AgentEventEnvelope[]): AgentEventEnvelope | null {
-  for (let index = events.length - 1; index >= 0; index -= 1) {
-    const event = events[index];
-    if (
-      event !== undefined &&
-      (event.event === AgentEvent.ActivityReportSaved || event.event === AgentEvent.ActivityReportGenerated)
-    ) {
-      return event;
-    }
-  }
-  return null;
+  return latestEventOf(events, [AgentEvent.ActivityReportSaved, AgentEvent.ActivityReportGenerated]);
 }
 
 function parseNullableActivityReportEvent(

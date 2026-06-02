@@ -11,6 +11,13 @@ describe('browser-first LAN add-device read model', () => {
     expect(parsed.physicalHouseholdLanState).toBe('manual-required');
     expect(parsed.cloudRelayState).toBe('unavailable');
     expect(parsed.trustedDeviceRegistry[0]?.childDevice.deviceId).toBe('child-device-1');
+    expect(parsed.canonicalHouseholdDevices).toHaveLength(2);
+    expect(parsed.canonicalHouseholdDevices[0]?.displayName).toBe('GAMEDEV');
+    expect(parsed.canonicalHouseholdDevices[0]?.roleBadges).toEqual([
+      'child-agent',
+      'portal',
+      'parent-controller',
+    ]);
     expect(parsed.trustedDeviceIds).toEqual(['child-device-1']);
     expect(parsed.selectedDeviceReadiness.readyForControl).toBe(false);
     expect(parsed.auditCheckLabels).toEqual(['wrong-origin', 'wrong-device', 'replayed', 'stale', 'revoked']);
@@ -30,6 +37,7 @@ function readModelFixture() {
     physicalHouseholdLanState: 'manual-required',
     cloudRelayState: 'unavailable',
     discoveredDevices: [discoveredDevice()],
+    canonicalHouseholdDevices: [canonicalHouseholdDeviceRef(), routerDevice()],
     pairingRequests: [pairingRequest()],
     trustedDeviceRegistry: [trustedRegistryEntry()],
     trustedDeviceIds: ['child-device-1'],
@@ -94,6 +102,22 @@ function childDeviceRef() {
     childProfileId: 'child-profile-1',
     label: 'Mia Windows PC',
     platform: 'windows',
+    ipAddress: '192.168.2.42',
+    macAddress: '54-27-1e-97-c3-31',
+    hostname: 'GAMEDEV',
+    networkInterface: 'Ethernet 2',
+    agentStatus: 'ocentra-local-service',
+    hardwareProfile: {
+      manufacturer: 'Gigabyte Technology Co., Ltd.',
+      model: 'X570 AORUS MASTER',
+      cpuModel: 'AMD Ryzen 9 3900X 12-Core Processor',
+      cpuCores: '12 cores / 24 logical',
+      memoryTotal: '63 GiB',
+      gpuModel: 'GeForce RTX 2070 SUPER',
+      gpuDriver: '456.71',
+      gpuMemory: '8192 MiB',
+      nvidiaSmi: 'GeForce RTX 2070 SUPER driver 456.71 8192 MiB VRAM',
+    },
   };
 }
 
@@ -106,11 +130,62 @@ function parentDeviceRef() {
   };
 }
 
+function canonicalHouseholdDeviceRef() {
+  return {
+    schemaVersion: 'v0.9',
+    canonicalDeviceId: 'child-device-1',
+    displayName: 'GAMEDEV',
+    classification: 'child-agent',
+    roleBadges: ['child-agent', 'portal', 'parent-controller'],
+    enrollable: true,
+    discoveryState: 'paired',
+    trustState: 'paired',
+    routeId: 'lan-route-local-network',
+    routeState: 'local-network',
+    networkMode: 'local-network',
+    sourceLabels: ['local-service', 'network-neighbor', 'trusted-registry'],
+    networkIdentity: {
+      hostname: 'GAMEDEV',
+      ipAddresses: ['192.168.2.42'],
+      macAddress: '54-27-1e-97-c3-31',
+      macVendor: null,
+      networkInterfaces: ['Ethernet 2'],
+      reachability: 'online',
+      confidence: 'mac-ip-match',
+      staleAt: null,
+      offlineAt: null,
+    },
+    childAgentInventory: {
+      deviceName: 'GAMEDEV',
+      platform: 'windows',
+      os: 'windows',
+      cpuModel: 'AMD Ryzen 9 3900X 12-Core Processor',
+      cpuCores: '12 cores / 24 logical',
+      memoryTotal: '63 GiB',
+      gpuModel: 'GeForce RTX 2070 SUPER',
+      gpuDriver: '456.71',
+      gpuMemory: '8192 MiB',
+      nvidiaSmi: 'GeForce RTX 2070 SUPER driver 456.71 8192 MiB VRAM',
+      networkInterfaces: ['Ethernet 2'],
+      capabilities: ['direct-websocket', 'device-inventory', 'pairing-route'],
+      roleState: 'implemented',
+      routeState: 'local-network',
+      pairingTrustState: 'paired',
+    },
+    policyTargetSurfaces: ['devices', 'policy', 'browser', 'app', 'screen', 'network', 'activity', 'tracking', 'ai'],
+  };
+}
+
 function trustedRegistryEntry() {
   return {
     schemaVersion: 'v0.9',
     pairingId: 'pairing-child-device-1',
-    childDevice: childDeviceRef(),
+    childDevice: {
+      deviceId: 'child-device-1',
+      childProfileId: null,
+      label: 'Mia Windows PC',
+      platform: 'windows',
+    },
     parentDevice: parentDeviceRef(),
     routeId: 'lan-route-child-1',
     origin: 'http://127.0.0.1:4678',
@@ -120,4 +195,34 @@ function trustedRegistryEntry() {
     expiresAt: '2026-06-01T16:20:00.000Z',
     revokedAt: null,
   };
+}
+
+function routerDevice() {
+  return {
+    schemaVersion: 'v0.9',
+    canonicalDeviceId: 'lan-physical-mac-001122334455',
+    displayName: 'LAN 192.168.2.1',
+    classification: 'network-infrastructure',
+    roleBadges: [],
+    enrollable: false,
+    discoveryState: 'discovered',
+    trustState: 'unpaired',
+    routeId: null,
+    routeState: 'unavailable',
+    networkMode: 'local-network',
+    sourceLabels: ['network-neighbor'],
+    networkIdentity: {
+      hostname: null,
+      ipAddresses: ['192.168.2.1'],
+      macAddress: '00-11-22-33-44-55',
+      macVendor: null,
+      networkInterfaces: ['Ethernet 2'],
+      reachability: 'online',
+      confidence: 'network-neighbor',
+      staleAt: null,
+      offlineAt: null,
+    },
+    childAgentInventory: null,
+    policyTargetSurfaces: ['devices', 'network'],
+  } as const;
 }

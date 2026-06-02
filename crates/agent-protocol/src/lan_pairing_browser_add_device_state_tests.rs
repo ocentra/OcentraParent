@@ -1,9 +1,13 @@
 use crate::{
-    constants, LanBrowserAddDeviceDiscoveryDevice, LanBrowserAddDeviceReadModel,
-    LanPairingDeviceHardwareProfile, LanPairingDeviceReachability, LanPairingDeviceRef,
-    LanPairingDiscoveryRuntimeStatus, LanPairingDiscoverySource, LanPairingNetworkMode,
-    LanPairingParentAuthority, LanPairingProductionDiscoveryState, LanPairingTrustState,
-    LanSelectedDeviceReadiness, LAN_PAIRING_SCHEMA_VERSION,
+    constants, DeviceRuntimeRoleState, DeviceRuntimeRouteState, LanBrowserAddDeviceDiscoveryDevice,
+    LanBrowserAddDeviceReadModel, LanCanonicalHouseholdDevice,
+    LanCanonicalHouseholdDeviceClassification, LanCanonicalHouseholdDeviceConfidence,
+    LanCanonicalHouseholdDeviceRole, LanCanonicalHouseholdDeviceSource,
+    LanCanonicalHouseholdNetworkIdentity, LanCanonicalHouseholdSurface,
+    LanChildAgentInventoryPacket, LanPairingDeviceHardwareProfile, LanPairingDeviceReachability,
+    LanPairingDeviceRef, LanPairingDiscoveryRuntimeStatus, LanPairingDiscoverySource,
+    LanPairingNetworkMode, LanPairingParentAuthority, LanPairingProductionDiscoveryState,
+    LanPairingTrustState, LanSelectedDeviceReadiness, LAN_PAIRING_SCHEMA_VERSION,
 };
 
 #[test]
@@ -17,6 +21,7 @@ fn browser_add_device_read_model_serializes_honest_states() {
         physical_household_lan_state: LanPairingProductionDiscoveryState::ManualRequired,
         cloud_relay_state: LanPairingProductionDiscoveryState::Unavailable,
         discovered_devices: Vec::new(),
+        canonical_household_devices: vec![canonical_child_agent_device(), canonical_router_device()],
         pairing_requests: Vec::new(),
         trusted_device_registry: Vec::new(),
         trusted_device_ids: Vec::new(),
@@ -35,14 +40,14 @@ fn browser_add_device_read_model_serializes_honest_states() {
         controller_authority: LanPairingParentAuthority::ActiveController,
         observer_authority: LanPairingParentAuthority::Observer,
         route_requirement_labels: vec![
-            constants::lan_pairing::ROUTE_REQUIREMENT_ALLOWED_ORIGIN.to_string()
+            constants::lan_pairing::ROUTE_REQUIREMENT_ALLOWED_ORIGIN.to_string(),
         ],
         audit_check_labels: vec![
             constants::value::LAN_REASON_WRONG_ORIGIN.to_string(),
             constants::value::LAN_REASON_REPLAYED.to_string(),
         ],
         honest_non_claims: vec![
-            constants::value::LAN_NON_CLAIM_CLOUD_RELAY_NOT_IMPLEMENTED.to_string()
+            constants::value::LAN_NON_CLAIM_CLOUD_RELAY_NOT_IMPLEMENTED.to_string(),
         ],
     };
 
@@ -59,6 +64,14 @@ fn browser_add_device_read_model_serializes_honest_states() {
     assert_eq!(
         value["selectedDeviceReadiness"]["readyForControl"],
         serde_json::json!(false)
+    );
+    assert_eq!(
+        value["canonicalHouseholdDevices"][0]["displayName"],
+        serde_json::json!("GAMEDEV")
+    );
+    assert_eq!(
+        value["canonicalHouseholdDevices"][1]["classification"],
+        serde_json::json!("network-infrastructure")
     );
     assert_eq!(value["trustedDeviceRegistry"], serde_json::json!([]));
 }
@@ -110,4 +123,105 @@ fn discovered_device_serializes_network_and_hardware_details() {
         json["childDevice"]["hardwareProfile"]["gpuModel"],
         serde_json::json!("GeForce RTX 2070 SUPER")
     );
+}
+
+fn canonical_child_agent_device() -> LanCanonicalHouseholdDevice {
+    LanCanonicalHouseholdDevice {
+        schema_version: LAN_PAIRING_SCHEMA_VERSION,
+        canonical_device_id: "child-device-1".to_string(),
+        display_name: "GAMEDEV".to_string(),
+        classification: LanCanonicalHouseholdDeviceClassification::ChildAgent,
+        role_badges: vec![
+            LanCanonicalHouseholdDeviceRole::ChildAgent,
+            LanCanonicalHouseholdDeviceRole::Portal,
+            LanCanonicalHouseholdDeviceRole::ParentController,
+        ],
+        enrollable: true,
+        discovery_state: LanPairingProductionDiscoveryState::Paired,
+        trust_state: LanPairingTrustState::Paired,
+        route_id: Some(constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK.to_string()),
+        route_state: DeviceRuntimeRouteState::LocalNetwork,
+        network_mode: LanPairingNetworkMode::LocalNetwork,
+        source_labels: vec![
+            LanCanonicalHouseholdDeviceSource::LocalService,
+            LanCanonicalHouseholdDeviceSource::NetworkNeighbor,
+            LanCanonicalHouseholdDeviceSource::TrustedRegistry,
+        ],
+        network_identity: LanCanonicalHouseholdNetworkIdentity {
+            hostname: Some("GAMEDEV".to_string()),
+            ip_addresses: vec![constants::lan_pairing::TEST_LAN_IP.to_string()],
+            mac_address: Some(constants::lan_pairing::TEST_LAN_MAC.to_string()),
+            mac_vendor: None,
+            network_interfaces: vec![constants::lan_pairing::TEST_NETWORK_INTERFACE.to_string()],
+            reachability: LanPairingDeviceReachability::Online,
+            confidence: LanCanonicalHouseholdDeviceConfidence::MacIpMatch,
+            stale_at: None,
+            offline_at: None,
+        },
+        child_agent_inventory: Some(LanChildAgentInventoryPacket {
+            device_name: "GAMEDEV".to_string(),
+            platform: constants::lan_pairing::PLATFORM_WINDOWS.to_string(),
+            os: constants::lan_pairing::PLATFORM_WINDOWS.to_string(),
+            cpu_model: Some("AMD Ryzen 9 3900X 12-Core Processor".to_string()),
+            cpu_cores: Some("12 cores / 24 logical".to_string()),
+            memory_total: Some("63 GiB".to_string()),
+            gpu_model: Some("GeForce RTX 2070 SUPER".to_string()),
+            gpu_driver: Some("456.71".to_string()),
+            gpu_memory: Some("8192 MiB".to_string()),
+            nvidia_smi: Some("GeForce RTX 2070 SUPER driver 456.71 8192 MiB VRAM".to_string()),
+            network_interfaces: vec![constants::lan_pairing::TEST_NETWORK_INTERFACE.to_string()],
+            capabilities: vec![
+                constants::lan_pairing::CHILD_AGENT_CAPABILITY_DIRECT_WEBSOCKET.to_string(),
+                constants::lan_pairing::CHILD_AGENT_CAPABILITY_DEVICE_INVENTORY.to_string(),
+                constants::lan_pairing::CHILD_AGENT_CAPABILITY_PAIRING_ROUTE.to_string(),
+            ],
+            role_state: DeviceRuntimeRoleState::Implemented,
+            route_state: DeviceRuntimeRouteState::LocalNetwork,
+            pairing_trust_state: LanPairingTrustState::Paired,
+        }),
+        policy_target_surfaces: vec![
+            LanCanonicalHouseholdSurface::Devices,
+            LanCanonicalHouseholdSurface::Policy,
+            LanCanonicalHouseholdSurface::Browser,
+            LanCanonicalHouseholdSurface::App,
+            LanCanonicalHouseholdSurface::Screen,
+            LanCanonicalHouseholdSurface::Network,
+            LanCanonicalHouseholdSurface::Activity,
+            LanCanonicalHouseholdSurface::Tracking,
+            LanCanonicalHouseholdSurface::Ai,
+        ],
+    }
+}
+
+fn canonical_router_device() -> LanCanonicalHouseholdDevice {
+    LanCanonicalHouseholdDevice {
+        schema_version: LAN_PAIRING_SCHEMA_VERSION,
+        canonical_device_id: "lan-physical-mac-001122334455".to_string(),
+        display_name: "LAN 192.168.2.1".to_string(),
+        classification: LanCanonicalHouseholdDeviceClassification::NetworkInfrastructure,
+        role_badges: Vec::new(),
+        enrollable: false,
+        discovery_state: LanPairingProductionDiscoveryState::Discovered,
+        trust_state: LanPairingTrustState::Unpaired,
+        route_id: None,
+        route_state: DeviceRuntimeRouteState::Unavailable,
+        network_mode: LanPairingNetworkMode::LocalNetwork,
+        source_labels: vec![LanCanonicalHouseholdDeviceSource::NetworkNeighbor],
+        network_identity: LanCanonicalHouseholdNetworkIdentity {
+            hostname: None,
+            ip_addresses: vec![constants::lan_pairing::TEST_ROUTER_IP.to_string()],
+            mac_address: Some(constants::lan_pairing::TEST_ROUTER_MAC.to_string()),
+            mac_vendor: None,
+            network_interfaces: vec![constants::lan_pairing::TEST_NETWORK_INTERFACE.to_string()],
+            reachability: LanPairingDeviceReachability::Online,
+            confidence: LanCanonicalHouseholdDeviceConfidence::NetworkNeighbor,
+            stale_at: None,
+            offline_at: None,
+        },
+        child_agent_inventory: None,
+        policy_target_surfaces: vec![
+            LanCanonicalHouseholdSurface::Devices,
+            LanCanonicalHouseholdSurface::Network,
+        ],
+    }
 }

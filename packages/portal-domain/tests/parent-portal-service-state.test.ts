@@ -122,6 +122,43 @@ function parentPortalLanAddDeviceRowTests(): void {
       trend: 'ready',
     });
   });
+
+  it('uses explicit LAN discovery scan reports for visible device rows', () => {
+    const state = resolveParentPortalServiceState({
+      connectionState: PARENT_PORTAL_SERVICE_STATE.Connection.Connected,
+      events: [
+        payloadEvent(
+          AgentEvent.LanPairingStatusReported,
+          {
+            [AgentProtocolDefaults.Field.LanAddDeviceState]: 'manual-required',
+            [AgentProtocolDefaults.Field.LanTrustedDeviceCount]: 0,
+          },
+          '2026-06-01T13:55:00Z'
+        ),
+        payloadEvent(
+          AgentEvent.LanPairingBrowserDiscoveryReported,
+          {
+            [AgentProtocolDefaults.Field.LanAddDeviceState]: 'paired',
+            [AgentProtocolDefaults.Field.LanTrustedDeviceCount]: 1,
+            [AgentProtocolDefaults.Field.LanSelectedChildDeviceId]: 'local-dev-agent',
+            [AgentProtocolDefaults.Field.LanSelectedDeviceReachability]: 'online',
+          },
+          '2026-06-01T13:55:04Z'
+        ),
+      ],
+    });
+
+    expect(state.parentPortalRows[1]).toMatchObject({
+      label: 'LAN discovery',
+      readyCount: 1,
+      trend: 'paired',
+    });
+    expect(state.parentPortalRows[2]).toMatchObject({
+      label: 'Device pairing',
+      readyCount: 2,
+      trend: 'online',
+    });
+  });
 }
 
 function parentPortalActivityNetworkRowTests(): void {
@@ -180,12 +217,16 @@ function lanStatusEvent(): AgentEventEnvelope {
   });
 }
 
-function payloadEvent(event: AgentEventName, payload: AgentProtocolLogFields): AgentEventEnvelope {
+function payloadEvent(
+  event: AgentEventName,
+  payload: AgentProtocolLogFields,
+  sentAt = '2026-06-01T13:55:00Z'
+): AgentEventEnvelope {
   return AgentEventEnvelopeSchema.parse({
     schemaVersion: 1,
     eventId: `evt-${event}`,
     correlationId: `cmd-${event}`,
-    sentAt: '2026-06-01T13:55:00Z',
+    sentAt,
     source: {
       peerId: 'local-dev-agent',
       role: 'agent-service',

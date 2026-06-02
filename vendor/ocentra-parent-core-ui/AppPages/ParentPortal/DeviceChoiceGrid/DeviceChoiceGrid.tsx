@@ -175,7 +175,7 @@ export function DeviceChoiceGrid({
   };
 
   const addToPortal = (slot: DeviceSlot) => {
-    if (slot.status !== 'available') {
+    if (!canAddToPortal(slot)) {
       return;
     }
     const nextIds = activePortalIds.includes(slot.value) ? activePortalIds : [...activePortalIds, slot.value];
@@ -189,11 +189,20 @@ export function DeviceChoiceGrid({
     onScopeChange?.('parent');
   };
 
+  const canAddToPortal = (slot: DeviceSlot): boolean =>
+    slot.status === 'available' && slot.device?.portalEligible !== false;
+
   const selectScope = (scopeValue: ScopeValue) => {
     if (!scope) {
       setInternalScope(scopeValue);
     }
     onScopeChange?.(scopeValue);
+  };
+  const selectScopeFromOverlay = (scopeValue: ScopeValue) => {
+    if (disabled) {
+      return;
+    }
+    selectScope(scopeValue);
   };
 
   const onWheel = (event: WheelEvent<SVGSVGElement>) => {
@@ -209,10 +218,35 @@ export function DeviceChoiceGrid({
   const root: CSSProperties = {
     width: layout.svgW,
     height: layout.svgH,
+    position: 'relative',
     opacity: disabled ? cfg.opacity.disabled : 1,
     transition: cfg.transition.root,
     cursor: disabled ? 'not-allowed' : 'default',
     ...style,
+  };
+  const viewBoxWWithInset = layout.viewBoxW + cfg.svg.inset * 2;
+  const viewBoxHWithInset = layout.viewBoxH + cfg.svg.inset * 2;
+  const svgScaleX = layout.svgW / viewBoxWWithInset;
+  const svgScaleY = layout.svgH / viewBoxHWithInset;
+  const scopeOverlayStyle: CSSProperties = {
+    position: 'absolute',
+    left: (layout.titleX + cfg.svg.inset) * svgScaleX,
+    top: (cfg.layout.titleY + cfg.svg.inset) * svgScaleY,
+    width: layout.titleW * svgScaleX,
+    height: cfg.layout.titleH * svgScaleY,
+    display: 'flex',
+    pointerEvents: disabled ? 'none' : 'auto',
+  };
+  const scopeOverlayButtonStyle: CSSProperties = {
+    appearance: 'none',
+    background: 'transparent',
+    border: 0,
+    cursor: disabled ? 'not-allowed' : 'pointer',
+    height: '100%',
+    margin: 0,
+    opacity: 0,
+    padding: 0,
+    width: layout.scopeOptionW * svgScaleX,
   };
   const outerOpacity = hover ? cfg.opacity.outerHover : cfg.opacity.outer;
   const outerGlowOpacity = hover ? cfg.opacity.outerGlowHover : cfg.opacity.outerGlow;
@@ -302,7 +336,6 @@ export function DeviceChoiceGrid({
             titleX={layout.titleX}
             scopeValues={activeScopeValues}
             {...(scopeIcons ? { scopeIcons } : {})}
-            onScopeSelect={selectScope}
           />
         ) : null}
         <DeviceChoiceGridConnectors
@@ -357,7 +390,7 @@ export function DeviceChoiceGrid({
                   press={index === pressed}
                   shineOpacity={shineOpacity}
                   showAdd={
-                    currentScope === 'lan' && active && status === 'available' && !activePortalIds.includes(item.value)
+                    currentScope === 'lan' && active && canAddToPortal(item) && !activePortalIds.includes(item.value)
                   }
                   onAddToPortal={addToPortal}
                   onHoverChange={setHovered}
@@ -386,6 +419,28 @@ export function DeviceChoiceGrid({
           />
         ) : null}
       </svg>
+      {showScopeSelector ? (
+        <div style={scopeOverlayStyle}>
+          {activeScopeValues.map((scopeValue) => (
+            <button
+              key={`scope-target:${scopeValue}`}
+              type="button"
+              aria-label={`Select ${cfg.text.scopeOptions[scopeValue]}`}
+              disabled={disabled}
+              onPointerDown={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                selectScopeFromOverlay(scopeValue);
+              }}
+              onClick={(event) => {
+                event.stopPropagation();
+                selectScopeFromOverlay(scopeValue);
+              }}
+              style={scopeOverlayButtonStyle}
+            />
+          ))}
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -1,11 +1,13 @@
 use ocentra_parent_agent_protocol::{
     constants, BrowserCapabilityStatus, BrowserChannel, BrowserFamily, BrowserManagedState,
-    LogFieldValue,
+    BrowserQueryVisibilityLabel, LogFieldValue,
 };
 
 use crate::{
     browser_payload::browser_managed_status_payload,
-    browser_runtime_status::{missing_browser_status, unmanaged_browser_status},
+    browser_runtime_status::{
+        managed_profile_ready_status, missing_browser_status, unmanaged_browser_status,
+    },
 };
 
 #[test]
@@ -54,5 +56,42 @@ fn unmanaged_browser_status_reports_discoverable_but_unmanaged_process() {
     assert_eq!(
         payload[constants::field::REASON],
         LogFieldValue::String(constants::value::MANAGED_BROWSER_UNMANAGED_PROCESS.to_string())
+    );
+}
+
+#[test]
+fn managed_profile_ready_status_is_headless_until_explicit_launch() {
+    let status = managed_profile_ready_status(
+        constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
+        BrowserFamily::Chrome,
+        BrowserChannel::Stable,
+    );
+    let payload = browser_managed_status_payload(&status);
+
+    assert_eq!(
+        status.managed_state,
+        BrowserManagedState::ManagedProfileReady
+    );
+    assert_eq!(
+        status.capability_status,
+        BrowserCapabilityStatus::BridgeMissing
+    );
+    assert_eq!(
+        status.query_visibility,
+        BrowserQueryVisibilityLabel::LiveLocal
+    );
+    assert_eq!(status.process_id, None);
+    assert_eq!(status.started_at, None);
+    assert_eq!(
+        payload[constants::field::MANAGED_STATE],
+        LogFieldValue::String(constants::browser::MANAGED_STATE_MANAGED_PROFILE_READY.to_string())
+    );
+    assert_eq!(
+        payload[constants::field::PROCESS_ID],
+        LogFieldValue::Null(())
+    );
+    assert_eq!(
+        payload[constants::field::STARTED_AT],
+        LogFieldValue::Null(())
     );
 }

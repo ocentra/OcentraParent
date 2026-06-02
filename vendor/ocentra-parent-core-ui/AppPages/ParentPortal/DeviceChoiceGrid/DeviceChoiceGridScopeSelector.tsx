@@ -20,7 +20,6 @@ type DeviceChoiceGridScopeSelectorProps = {
   titleX: number;
   scopeValues?: readonly ScopeValue[];
   scopeIcons?: Partial<Record<ScopeValue, DeviceChoiceGridScopeIcon>>;
-  onScopeSelect: (scope: ScopeValue) => void;
 };
 
 const DEFAULT_SCOPE_ICONS: Record<ScopeValue, DeviceChoiceGridScopeIcon> = {
@@ -45,13 +44,12 @@ export function DeviceChoiceGridScopeSelector({
   titleX,
   scopeValues = DEVICE_CHOICE_DEFAULT_SCOPE_VALUES,
   scopeIcons,
-  onScopeSelect,
 }: DeviceChoiceGridScopeSelectorProps): ReactElement {
   const titleGlowOpacity = hover ? cfg.opacity.titleGlowHover : cfg.opacity.titleGlow;
   const activeScopeValues = scopeValues.length > 0 ? scopeValues : DEVICE_CHOICE_DEFAULT_SCOPE_VALUES;
 
   return (
-    <g role="group" aria-label="Scope selector" onClick={(event) => event.stopPropagation()}>
+    <g aria-hidden="true" onClick={(event) => event.stopPropagation()}>
       <rect
         x={titleX}
         y={cfg.layout.titleY}
@@ -114,27 +112,7 @@ export function DeviceChoiceGridScopeSelector({
         const selected = currentScope === scopeValue;
 
         return (
-          <g
-            key={scopeValue}
-            role="button"
-            tabIndex={disabled ? -1 : 0}
-            aria-label={`Select ${label}`}
-            onClick={(event) => {
-              event.stopPropagation();
-              if (!disabled) {
-                onScopeSelect(scopeValue);
-              }
-            }}
-            onKeyDown={(event) => {
-              if (event.key === 'Enter' || event.key === ' ') {
-                event.preventDefault();
-                if (!disabled) {
-                  onScopeSelect(scopeValue);
-                }
-              }
-            }}
-            style={{ cursor: disabled ? 'not-allowed' : 'pointer', outline: 'none' }}
-          >
+          <g key={scopeValue} style={{ cursor: disabled ? 'not-allowed' : 'pointer', outline: 'none' }}>
             <rect
               x={optionX}
               y={cfg.layout.titleY}

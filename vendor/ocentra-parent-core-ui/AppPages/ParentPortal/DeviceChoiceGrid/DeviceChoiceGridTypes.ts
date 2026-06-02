@@ -41,6 +41,7 @@ export type LanDevice = {
   gpuDriver?: string | undefined;
   gpuMemory?: string | undefined;
   nvidiaSmi?: string | undefined;
+  portalEligible?: boolean | undefined;
   type?: DeviceKind;
   platform?: DevicePlatformKind;
   status?: SelectableDeviceStatus;

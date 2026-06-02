@@ -2,6 +2,10 @@ import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/ef
 import { ParentDeviceIdSchema } from './reference-primitives';
 import { ChildProfileReferenceSchema, ParentDeviceReferenceSchema } from './references';
 import {
+  HouseholdDeviceSpineEntrySchema,
+  HouseholdLanDeviceRefSchema,
+} from './household-device-spine';
+import {
   LanPairingAddressRefSchema,
   LanPairingAgentPeerIdSchema,
   LanPairingChallengeIdSchema,
@@ -37,7 +41,7 @@ export const LanPairingDiscoveryDeviceSchema = withParser(
     schemaVersion: LanPairingSchemaVersionSchema,
     discoveredAt: LanPairingTimestampSchema,
     childProfile: ChildProfileReferenceSchema,
-    childDevice: ParentDeviceReferenceSchema,
+    childDevice: HouseholdLanDeviceRefSchema,
     agentPeerId: LanPairingAgentPeerIdSchema,
     routeId: LanPairingRouteIdSchema,
     networkMode: LanPairingNetworkModeSchema,
@@ -173,6 +177,7 @@ export const LanBrowserAddDeviceReadModelSchema = withParser(
     physicalHouseholdLanState: LanPairingProductionDiscoveryStateSchema,
     cloudRelayState: LanPairingProductionDiscoveryStateSchema,
     discoveredDevices: Schema.Array(LanPairingDiscoveryDeviceSchema),
+    canonicalHouseholdDevices: Schema.Array(HouseholdDeviceSpineEntrySchema),
     pairingRequests: Schema.Array(LanBrowserAddDevicePairingRequestSchema),
     trustedDeviceRegistry: Schema.Array(LanTrustedDeviceRegistryEntrySchema),
     trustedDeviceIds: Schema.Array(ParentDeviceIdSchema),

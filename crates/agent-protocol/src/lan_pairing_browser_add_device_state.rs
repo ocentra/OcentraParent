@@ -1,9 +1,10 @@
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    LanPairingDeviceReachability, LanPairingDeviceRef, LanPairingDiscoveryRuntimeStatus,
-    LanPairingNetworkMode, LanPairingParentAuthority, LanPairingProductionDiscoveryState,
-    LanPairingRejectionReason, LanPairingTrustState, LanTrustedDeviceRegistryEntry,
+    LanCanonicalHouseholdDevice, LanPairingDeviceReachability, LanPairingDeviceRef,
+    LanPairingDiscoveryRuntimeStatus, LanPairingNetworkMode, LanPairingParentAuthority,
+    LanPairingProductionDiscoveryState, LanPairingRejectionReason, LanPairingTrustState,
+    LanTrustedDeviceRegistryEntry,
 };
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -69,6 +70,7 @@ pub struct LanBrowserAddDeviceReadModel {
     pub physical_household_lan_state: LanPairingProductionDiscoveryState,
     pub cloud_relay_state: LanPairingProductionDiscoveryState,
     pub discovered_devices: Vec<LanBrowserAddDeviceDiscoveryDevice>,
+    pub canonical_household_devices: Vec<LanCanonicalHouseholdDevice>,
     pub pairing_requests: Vec<LanBrowserAddDevicePairingRequest>,
     pub trusted_device_registry: Vec<LanTrustedDeviceRegistryEntry>,
     pub trusted_device_ids: Vec<String>,

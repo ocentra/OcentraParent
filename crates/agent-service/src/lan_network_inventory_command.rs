@@ -19,7 +19,23 @@ pub(crate) fn command_json_single(program: &str, args: &[&str]) -> Option<serde_
     command_json_records(program, args).into_iter().next()
 }
 
+pub(crate) fn command_json_single_owned(
+    program: &str,
+    args: Vec<String>,
+) -> Option<serde_json::Value> {
+    command_stdout_owned(program, args)
+        .and_then(|output| serde_json::from_str::<serde_json::Value>(&output).ok())
+}
+
 pub(crate) fn command_stdout(program: &str, args: &[&str]) -> Option<String> {
+    let output = Command::new(program).args(args).output().ok()?;
+    if !output.status.success() {
+        return None;
+    }
+    clean_string(Some(String::from_utf8_lossy(&output.stdout).to_string()))
+}
+
+pub(crate) fn command_stdout_owned(program: &str, args: Vec<String>) -> Option<String> {
     let output = Command::new(program).args(args).output().ok()?;
     if !output.status.success() {
         return None;

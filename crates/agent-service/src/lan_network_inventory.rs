@@ -3,7 +3,7 @@ use std::net::Ipv4Addr;
 use ocentra_parent_agent_protocol::{constants, LanPairingDeviceReachability, LanPairingDeviceRef};
 
 use crate::lan_network_inventory_command::{
-    command_json_records, normalize_mac_address, record_text, value_text,
+    command_json_records, command_json_single_owned, normalize_mac_address, record_text, value_text,
 };
 use crate::lan_network_inventory_hardware::{local_hardware_profile, local_network_identity};
 
@@ -14,6 +14,7 @@ pub(crate) struct LanNetworkInventoryDevice {
     pub(crate) platform: String,
     pub(crate) ip_address: String,
     pub(crate) mac_address: String,
+    pub(crate) hostname: Option<String>,
     pub(crate) network_interface: Option<String>,
     pub(crate) reachability: LanPairingDeviceReachability,
 }
@@ -85,8 +86,13 @@ fn network_device_from_windows_neighbor(
             .filter(|character| *character != '-')
             .collect::<String>(),
     );
-    let mut label = String::from(constants::lan_pairing::NETWORK_NEIGHBOR_LABEL_PREFIX);
-    label.push_str(&ip_address);
+    let hostname = record_text(&record, constants::lan_pairing::JSON_KEY_HOSTNAME)
+        .or_else(|| reverse_dns_hostname(&ip_address));
+    let label = hostname.clone().unwrap_or_else(|| {
+        let mut fallback = String::from(constants::lan_pairing::NETWORK_NEIGHBOR_LABEL_PREFIX);
+        fallback.push_str(&ip_address);
+        fallback
+    });
 
     Some(LanNetworkInventoryDevice {
         device_id,
@@ -94,6 +100,7 @@ fn network_device_from_windows_neighbor(
         platform,
         ip_address,
         mac_address,
+        hostname,
         network_interface: record_text(&record, constants::lan_pairing::JSON_KEY_INTERFACE_ALIAS),
         reachability: reachability_from_windows_state(
             record.get(constants::lan_pairing::JSON_KEY_STATE),
@@ -112,6 +119,26 @@ fn is_household_unicast(ip: Ipv4Addr) -> bool {
 
 fn likely_router_address(ip: Ipv4Addr) -> bool {
     matches!(ip.octets()[3], 1 | 254)
+}
+
+fn reverse_dns_hostname(ip_address: &str) -> Option<String> {
+    let command = format!(
+        "{}{}{}",
+        constants::lan_pairing::POWERSHELL_REVERSE_DNS_COMMAND_PREFIX,
+        ip_address,
+        constants::lan_pairing::POWERSHELL_REVERSE_DNS_COMMAND_SUFFIX
+    );
+    command_json_single_owned(
+        constants::lan_pairing::POWERSHELL_EXE,
+        vec![
+            constants::lan_pairing::POWERSHELL_NO_PROFILE_ARG.to_string(),
+            constants::lan_pairing::POWERSHELL_EXECUTION_POLICY_ARG.to_string(),
+            constants::lan_pairing::POWERSHELL_BYPASS_ARG.to_string(),
+            constants::lan_pairing::POWERSHELL_COMMAND_ARG.to_string(),
+            command,
+        ],
+    )
+    .and_then(|value| value_text(&value))
 }
 
 fn reachability_from_windows_state(

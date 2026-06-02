@@ -121,6 +121,10 @@
       "import": "./dist/lan-pairing.js",
       "types": "./dist/lan-pairing.d.ts"
     },
+    "./household-device-spine": {
+      "import": "./dist/household-device-spine.js",
+      "types": "./dist/household-device-spine.d.ts"
+    },
     "./network-control-catalog": {
       "import": "./dist/network-control-catalog.js",
       "types": "./dist/network-control-catalog.d.ts"

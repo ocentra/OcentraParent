@@ -55,6 +55,7 @@ export const PortalProductText: Record<PortalProductTextTokenValue, DisplayText>
   [PortalProductTextToken.SchedulesBudgets]: decodeDisplayText('Schedules and budgets'),
   [PortalProductTextToken.Approvals]: decodeDisplayText('Approvals'),
   [PortalProductTextToken.ScreenAnalysis]: decodeDisplayText('Screen analysis'),
+  [PortalProductTextToken.RemoteScreen]: decodeDisplayText('Remote screen'),
   [PortalProductTextToken.AppGameSessions]: decodeDisplayText('App and game sessions'),
   [PortalProductTextToken.DeviceInventory]: decodeDisplayText('Device inventory'),
   [PortalProductTextToken.Pairing]: decodeDisplayText('Pairing'),
