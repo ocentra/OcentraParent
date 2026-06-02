@@ -23,6 +23,8 @@ Rust protocol parity crate for data that crosses the TypeScript/Rust boundary.
 - V0.8 notification provider status boundary structs/constants nested in the
   integrity runtime audit payload for queued, delivered, failed, unavailable,
   manual-required, quiet-hours, and escalation readiness proof.
+- V0.9 LAN source-matrix structs, constants, and parity tests for workpack and
+  discovery-source proof status rows consumed by service-backed diagnostics.
 
 ## Must Not Own
 
@@ -79,3 +81,5 @@ flowchart LR
   readiness, preference, audit, and receipt-required refs while keeping delivery
   implementation, observed delivery, sensitive provider payloads, and provider
   child-evidence storage unclaimed.
+- LAN source-matrix structs must preserve weak-source fences so passive or
+  manual discovery evidence cannot become child-agent confirmation by accident.

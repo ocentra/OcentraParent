@@ -20,6 +20,12 @@ pub use signed_discovery_relay_spine::{
     LanSignedDiscoveryRelaySignedProofCheck, LanSignedDiscoveryRelaySignedProofRow,
     LanSignedDiscoveryRelaySourceConfidence, LanSignedDiscoveryRelaySpineSummary,
 };
+mod source_matrix;
+pub use source_matrix::{
+    LanDiscoverySourceAuthority, LanDiscoverySourceKind, LanDiscoverySourceMatrix,
+    LanDiscoverySourceRow, LanDiscoverySourceRuntimePath, LanDiscoverySourceStatus,
+    LanDiscoverySourceUiSurface, LanPlanWorkpackId, LanPlanWorkpackStatusRow,
+};
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
@@ -308,6 +314,8 @@ pub struct LanBrowserAddDeviceReadModel {
     pub production_household_proof: Option<LanProductionHouseholdProofSummary>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub signed_discovery_relay_spine: Option<LanSignedDiscoveryRelaySpineSummary>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub lan_discovery_source_matrix: Option<LanDiscoverySourceMatrix>,
     pub trusted_device_ids: Vec<String>,
     pub revoked_device_ids: Vec<String>,
     pub selected_device_readiness: LanSelectedDeviceReadiness,

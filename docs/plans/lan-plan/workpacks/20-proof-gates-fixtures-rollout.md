@@ -35,6 +35,11 @@ artifacts.
 
 - [x] `scripts/test/v0-9-lan-signed-discovery-relay-spine.mjs` proves the
       signed-discovery relay spine remains coherent for this branch slice.
+- [x] `scripts/test/v0-9-lan-source-matrix-plan-completion.mjs` proves the
+      plan-completion source matrix remains coherent across TypeScript
+      contracts, Rust protocol, Rust service state, and portal render data.
+      Latest local evidence is
+      `test-results/v0-9-lan-source-matrix-plan-completion/proof.json`.
 - [x] Feature docs updated by this branch keep real physical household proof,
       relay/cache, mobile parity, signing, and store readiness as remaining
       gaps.
@@ -50,12 +55,18 @@ artifacts.
 - [ ] Add proof matrix rows for ARP table, ARP sweep, mDNS, SSDP, IP-only
       merge avoidance, IP change, child confirmation, spoof rejection,
       offline, manual assignment, confidence explanation, and malformed packets.
+- [x] Add a source-matrix proof row family for all 20 workpacks and discovery
+      sources. The matrix is intentionally status-based: weak/manual sources
+      are visible but cannot confirm child-agent identity or assign a child
+      profile.
 - [x] Add visual snapshot proof for Devices/LAN, Activity/Network diagnostics,
       policy network targeting, and the current pairing/assignment/trust/ignore
       action surface. Current artifacts:
-      `output/playwright/lan-ux-proof/devices-lan-controls.png`,
-      `output/playwright/lan-ux-proof/activity-network-diagnostics.png`, and
-      `output/playwright/lan-ux-proof/policy-network-targets.png`.
+      `output/playwright/lan-source-matrix-plan-completion/devices-lan-source-matrix.png`,
+      `output/playwright/lan-source-matrix-plan-completion/activity-network-source-matrix.png`,
+      `output/playwright/lan-source-matrix-plan-completion/policy-network-target-binding.png`,
+      and
+      `output/playwright/lan-source-matrix-plan-completion/browser-proof.json`.
 - [ ] Keep manual validation artifacts for Windows, macOS, Linux, router,
       Windows laptop, MacBook, Linux machine, iPhone, Android phone, TV,
       printer, Chromecast/Google TV, console where available, and child agent.
@@ -88,7 +99,10 @@ artifacts.
 
 - CI gates include format, schema-boundary checks, Rust clippy/tests,
   TypeScript unit/integration/contract tests, security parser tests, and
-  Playwright mocked UI tests.
+  Playwright fixture-backed UI tests.
+- Source-matrix proof gates must keep weak/manual/not-implemented source rows
+  visible in product diagnostics instead of upgrading them to implemented in
+  docs only.
 - Manual review gates include current UI screenshots or browser snapshots so
   visible product behavior can be checked before relying on tests alone.
 - Coverage targets: core model, merge, classifier, and security logic at 90

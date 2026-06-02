@@ -32,7 +32,7 @@ data.
 
 - Contract and service tests cover valid advertisement, missing required fields,
   unsupported platform, paired/unpaired state, and sanitized TXT values.
-- Security tests prove fake `_ocentra-agent` announcements do not confirm a
+- Security tests prove spoofed `_ocentra-agent` announcements do not confirm a
   device without signed hello.
 - Platform docs keep Android/iOS background and Bonjour limits explicit.
 
