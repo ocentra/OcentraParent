@@ -47,6 +47,18 @@ runtime boundary used by smoke tests:
 - port conflict policy: package/runtime proof records fixed Ocentra Parent ports
   and does not reclaim unrelated processes.
 
+`cmd /c npm run test:parent-desktop-release-support-proof` adds the release
+support proof around that runtime boundary. It builds and tests
+`@ocentra-parent/parent-domain`, writes
+`test-results/parent-desktop-release-support-proof/proof.json`, and validates a
+typed read model with built portal dist, Rust-service boundary, package
+service-manager launch ownership, fixed loopback/process ownership,
+connect-or-degrade posture, signed-channel update posture, manual-required CI
+artifact state, and support-safe diagnostic redaction. The diagnostic contract
+rejects tokens, child activity, raw URLs, screenshots, journals, SQLite
+snapshots, private paths, command lines, keystrokes, clipboard data, and message
+contents.
+
 This is CI-mechanical package/runtime proof. It is not signing, installer
 release, update-channel, store, notarization, mobile, or child-device authority
 proof.

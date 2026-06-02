@@ -67,6 +67,14 @@ export const ParentDesktopReleaseSupportDiagnosticFieldSchema = withParser(
   Schema.Literal('version', 'commit', 'platform', 'package', 'service', 'route', 'capability', 'degraded-state')
 );
 export const ParentDesktopReleaseSupportRedactionStateSchema = withParser(Schema.Literal('safe', 'redacted'));
+const ParentDesktopReleaseSupportFrontendSourceSchema = withParser(Schema.Literal('built-portal-dist'));
+const ParentDesktopReleaseSupportBackendBoundarySchema = withParser(Schema.Literal('rust-service-boundary'));
+const ParentDesktopReleaseSupportServiceLaunchOwnerSchema = withParser(Schema.Literal('package-service-manager'));
+const ParentDesktopReleaseSupportPortOwnershipSchema = withParser(Schema.Literal('fixed-loopback'));
+const ParentDesktopReleaseSupportPortConflictPolicySchema = withParser(Schema.Literal('no-foreign-process-reclaim'));
+const ParentDesktopReleaseSupportProcessOwnershipSchema = withParser(Schema.Literal('parent-shell-only'));
+const ParentDesktopReleaseSupportBlankWindowGuardSchema = withParser(Schema.Literal('frontend-dist-required'));
+const ParentDesktopReleaseSupportUpdateRollbackPostureSchema = withParser(Schema.Literal('signed-channel-required'));
 
 const ReleaseSupportLabelSchema = NonEmptyReleaseSupportText.pipe(Schema.brand('ParentDesktopReleaseSupportLabel'));
 const ReleaseSupportRequirementSchema = NonEmptyReleaseSupportText.pipe(
@@ -96,6 +104,25 @@ export const ParentDesktopReleaseSupportMobileBridgeBoundarySchema = withParser(
     childIosAgentState: ParentDesktopReleaseSupportStateSchema,
     parentMobileClaim: ReleaseSupportLabelSchema,
     childAgentNonClaim: ReleaseSupportLabelSchema,
+  })
+);
+
+export const ParentDesktopReleaseSupportPackageRuntimeEvidenceSchema = withParser(
+  Schema.Struct({
+    packageFrontendSource: ParentDesktopReleaseSupportFrontendSourceSchema,
+    backendBoundary: ParentDesktopReleaseSupportBackendBoundarySchema,
+    serviceLaunchOwner: ParentDesktopReleaseSupportServiceLaunchOwnerSchema,
+    serviceHealthState: ParentDesktopReleaseSupportStateSchema,
+    connectOrDegradeState: ParentDesktopReleaseSupportStateSchema,
+    fixedAgentAddress: ReleaseSupportLabelSchema,
+    portOwnership: ParentDesktopReleaseSupportPortOwnershipSchema,
+    portConflictPolicy: ParentDesktopReleaseSupportPortConflictPolicySchema,
+    processOwnership: ParentDesktopReleaseSupportProcessOwnershipSchema,
+    blankWindowGuard: ParentDesktopReleaseSupportBlankWindowGuardSchema,
+    updateRollbackPosture: ParentDesktopReleaseSupportUpdateRollbackPostureSchema,
+    artifactState: ParentDesktopReleaseSupportArtifactStateSchema,
+    supportDiagnosticState: ParentDesktopReleaseSupportStateSchema,
+    nonClaim: ReleaseSupportLabelSchema,
   })
 );
 
@@ -174,6 +201,7 @@ const ParentDesktopReleaseSupportReadModelBaseSchema = Schema.Struct({
   schemaVersion: ParentDesktopReleaseSupportSchemaVersionSchema,
   observerAuthority: Schema.Array(ParentDesktopReleaseSupportAuthorityOperationSchema),
   mobileBridgeBoundary: ParentDesktopReleaseSupportMobileBridgeBoundarySchema,
+  packageRuntimeEvidence: ParentDesktopReleaseSupportPackageRuntimeEvidenceSchema,
   updateStates: Schema.Array(ParentDesktopReleaseSupportUpdateStateSchema),
   signingStoreStates: Schema.Array(ParentDesktopReleaseSupportSigningStoreStateSchema),
   platformCapabilityMatrix: Schema.Array(ParentDesktopReleaseSupportCapabilityRowSchema),
@@ -209,6 +237,9 @@ export type ParentDesktopReleaseSupportMobileBridgeBoundary = Infer<
 export type ParentDesktopReleaseSupportUpdateState = Infer<typeof ParentDesktopReleaseSupportUpdateStateSchema>;
 export type ParentDesktopReleaseSupportSigningStoreState = Infer<
   typeof ParentDesktopReleaseSupportSigningStoreStateSchema
+>;
+export type ParentDesktopReleaseSupportPackageRuntimeEvidence = Infer<
+  typeof ParentDesktopReleaseSupportPackageRuntimeEvidenceSchema
 >;
 export type ParentDesktopReleaseSupportCapabilityRow = Infer<typeof ParentDesktopReleaseSupportCapabilityRowSchema>;
 export type ParentDesktopReleaseSupportCiArtifactProof = Infer<typeof ParentDesktopReleaseSupportCiArtifactProofSchema>;

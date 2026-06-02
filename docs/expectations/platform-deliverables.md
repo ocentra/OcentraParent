@@ -26,6 +26,10 @@ Use GitHub Actions and package-preview jobs to catch cross-platform drift early:
   where the repo has scaffolded lanes.
 - Run install or launch smoke checks where runners can do that honestly.
 - Treat runner failures as integration work for the owning platform slice.
+- For parent desktop package-runtime proof, require built frontend dist,
+  Rust-service boundary, service-manager launch ownership, fixed loopback
+  process ownership, connect-or-degrade state, support-safe diagnostics, and
+  explicit preview/manual-required non-claims.
 
 CI is not enough for:
 
@@ -67,6 +71,10 @@ deliverables planning pass:
   portal reachability, encrypted journal writes, SQLite rebuild, process/window
   capture, browser URL/tab evidence, app/game session evidence, network/domain
   summaries, screen-analysis queue summaries, and dry-run policy preview.
+- Package/runtime release-support proof may show Windows CI/package mechanics
+  and support redaction, but signing, production updater rollback, store
+  distribution, and production support remain manual-required until real
+  artifacts and credentials prove them.
 - Run Windows local tests before product checkpoint signoff. CI may supplement
   but must not replace the local PC proof.
 

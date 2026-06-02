@@ -58,6 +58,7 @@ export function buildReleaseSupportProof(options = {}) {
     ciArtifactProof: buildCiArtifactProof(),
     generatedAt: options.generatedAt ?? new Date().toISOString(),
     manualProofRunbook: buildManualProofRunbook(),
+    packageRuntimeEvidence: buildPackageRuntimeEvidence(),
     platformCapabilityMatrix: buildPlatformCapabilityMatrix(),
     schemaVersion: 1,
     signingStoreClaims: buildSigningStoreClaims(),
@@ -101,6 +102,25 @@ function buildUpdateChannelRollback() {
       rollback: 'scaffolded-not-product-claimed',
       unsignedPreviewAccepted: true,
     },
+  };
+}
+
+function buildPackageRuntimeEvidence() {
+  return {
+    packageFrontendSource: 'built-portal-dist',
+    backendBoundary: 'rust-service-boundary',
+    serviceLaunchOwner: 'package-service-manager',
+    serviceHealthState: 'implemented',
+    connectOrDegradeState: 'degraded',
+    fixedAgentAddress: '127.0.0.1:4477',
+    portOwnership: 'fixed-loopback',
+    portConflictPolicy: 'no-foreign-process-reclaim',
+    processOwnership: 'parent-shell-only',
+    blankWindowGuard: 'frontend-dist-required',
+    updateRollbackPosture: 'signed-channel-required',
+    artifactState: 'manual-required',
+    supportDiagnosticState: 'preview-only',
+    nonClaim: 'CI package preview is not signing not production not store distribution proof',
   };
 }
 
@@ -194,6 +214,9 @@ function safeDiagnosticValue(value, redactions) {
   if (Array.isArray(value)) {
     return value.map((entry) => safeDiagnosticValue(entry, redactions));
   }
+  if (typeof value === 'string') {
+    return safeDiagnosticString(value, redactions);
+  }
   if (!isRecord(value)) {
     return value;
   }
@@ -207,6 +230,28 @@ function safeDiagnosticValue(value, redactions) {
     sanitized[key] = safeDiagnosticValue(nested, redactions);
   }
   return sanitized;
+}
+
+function safeDiagnosticString(value, redactions) {
+  const normalized = value.toLowerCase().replace(/[\s_-]/gu, '');
+  const term = SUPPORT_DIAGNOSTIC_FORBIDDEN_TERMS.find((forbidden) => normalized.includes(forbidden));
+  if (term !== undefined) {
+    redactions.add(term);
+    return '[redacted]';
+  }
+  if (/https?:\/\//iu.test(value)) {
+    redactions.add('rawurl');
+    return '[redacted]';
+  }
+  if (/[A-Za-z]:\\/u.test(value)) {
+    redactions.add('privatepath');
+    return '[redacted]';
+  }
+  if (/\bbearer\s+\S+/iu.test(value) || /sk-[A-Za-z0-9]/u.test(value)) {
+    redactions.add('token');
+    return '[redacted]';
+  }
+  return value;
 }
 
 function collectForbiddenTerms(value, redactions) {

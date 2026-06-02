@@ -16,13 +16,17 @@ test('support diagnostic redaction keeps only support-safe fields', () => {
   const redacted = redactSupportDiagnostic({
     appVersion: '0.1.1',
     authToken: 'do-not-keep',
+    clipboardData: 'copied private text',
+    commandLine: 'agent.exe --token hidden',
     correlationId: 'support-case-123',
-    eventTypes: ['service.health.changed', 'package.preview.generated'],
+    eventTypes: ['service.health.changed', 'https://example.invalid/private'],
     featureFlags: {
       desktopRuntime: true,
       privatePath: 'C:\\Users\\child\\Downloads',
     },
     journalPath: 'agent-journal.ndjson',
+    keystrokes: 'typed secret',
+    messageContents: 'private message body',
     mode: 'preview',
     packageSource: 'package-preview',
     platform: 'windows',
@@ -41,7 +45,7 @@ test('support diagnostic redaction keeps only support-safe fields', () => {
   assert.deepEqual(redacted, {
     appVersion: '0.1.1',
     correlationId: 'support-case-123',
-    eventTypes: ['service.health.changed', 'package.preview.generated'],
+    eventTypes: ['service.health.changed', '[redacted]'],
     featureFlags: {
       desktopRuntime: true,
     },
@@ -50,7 +54,11 @@ test('support diagnostic redaction keeps only support-safe fields', () => {
     platform: 'windows',
     redactionsApplied: [
       'authtoken',
+      'clipboarddata',
+      'commandline',
       'journalpath',
+      'keystrokes',
+      'messagecontents',
       'privatepath',
       'rawchildactivity',
       'rawurl',
@@ -76,6 +84,12 @@ test('release-support proof separates preview mechanics from product claims', ()
   assert.match(proof.workpacks.partialReason, /docs\/product-capability-checklist\.md/u);
   assert.equal(proof.branchBoundary.main.productionPublish, false);
   assert.equal(proof.branchBoundary.production.productionPublish, true);
+  assert.equal(proof.packageRuntimeEvidence.packageFrontendSource, 'built-portal-dist');
+  assert.equal(proof.packageRuntimeEvidence.backendBoundary, 'rust-service-boundary');
+  assert.equal(proof.packageRuntimeEvidence.serviceLaunchOwner, 'package-service-manager');
+  assert.equal(proof.packageRuntimeEvidence.fixedAgentAddress, '127.0.0.1:4477');
+  assert.equal(proof.packageRuntimeEvidence.portConflictPolicy, 'no-foreign-process-reclaim');
+  assert.equal(proof.packageRuntimeEvidence.nonClaim.includes('not production'), true);
   assert.equal(proof.updateChannelRollback.productionUpdate.manifestSignature, 'required');
   assert.equal(proof.updateChannelRollback.productionUpdate.unsignedPreviewAccepted, false);
   assert.deepEqual(Object.keys(matrixRows), [
@@ -97,6 +111,21 @@ test('release-support proof separates preview mechanics from product claims', ()
   assert.equal(matrixRows.signing.proofLevel, 'manual-required');
   assert.equal(matrixRows.store.proofLevel, 'manual-required');
   assert.equal(matrixRows.support.proofLevel, 'preview-only');
+  assert.deepEqual(proof.supportDiagnostics.forbiddenTerms, [
+    'token',
+    'secret',
+    'childname',
+    'childactivity',
+    'rawurl',
+    'screenshot',
+    'journal',
+    'sqlite',
+    'privatepath',
+    'commandline',
+    'keystroke',
+    'clipboard',
+    'messagecontent',
+  ]);
   assert.deepEqual(
     proof.signingStoreClaims.map((claim) => [claim.id, claim.productionClaim]),
     [
