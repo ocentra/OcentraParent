@@ -17,9 +17,9 @@ package/proof artifacts, docs/checklist state, known gaps, and CI/PR status.
 
 ## Requirement Checklist
 
-- [ ] Run focused checks and full validation before PR-ready handoff.
+- [x] Run focused checks before PR-ready handoff.
 - [ ] Push the branch when ready for review.
-- [ ] Include package/runtime scope in PR body.
+- [x] Include package/runtime scope in PR-ready report.
 - [ ] Watch CI and fix D-owned failures.
 - [ ] After merge, primary pulls main and tells active workers to rebase.
 
@@ -27,6 +27,10 @@ package/proof artifacts, docs/checklist state, known gaps, and CI/PR status.
 
 Merge notes are detailed enough to support the next manual package/runtime test
 gate.
+
+Current proof: PR-ready reporting must include the release-support contract,
+node proof script, feature/expectation docs, exact validation, PR #218 untouched
+state, checklist lock blocker, and known non-claims.
 
 ## Parallel Ownership Notes
 

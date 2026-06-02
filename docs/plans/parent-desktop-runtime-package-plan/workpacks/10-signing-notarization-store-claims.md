@@ -17,15 +17,19 @@ manual-required, preview-only, or proved.
 
 ## Requirement Checklist
 
-- [ ] Add matrix rows for signing/store states.
-- [ ] Keep credentials out of source.
-- [ ] Record manual proof requirements.
-- [ ] Avoid store distribution claims before artifacts exist.
-- [ ] Update release docs/checklist when status changes.
+- [x] Add matrix rows for signing/store states.
+- [x] Keep credentials out of source.
+- [x] Record manual proof requirements.
+- [x] Avoid store distribution claims before artifacts exist.
+- [x] Update release docs/checklist when status changes.
 
 ## Acceptance And Proof
 
 No branch report can claim store/signing readiness without named artifacts.
+
+Current proof: Windows signing, macOS notarization, Google Play, TestFlight,
+and App Store states remain manual-required. The contract rejects implemented
+signing/store states without real credential/artifact proof.
 
 ## Parallel Ownership Notes
 

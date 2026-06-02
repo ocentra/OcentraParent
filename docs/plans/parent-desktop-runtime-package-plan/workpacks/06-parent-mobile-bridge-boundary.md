@@ -17,16 +17,20 @@ agent claims remain scaffold/manual-required.
 
 ## Requirement Checklist
 
-- [ ] Split parent mobile from child Android/iOS agent rows.
-- [ ] Label mobile package scaffold/proof level.
-- [ ] Avoid claiming Device Owner, Family Controls, VPN/DNS, or entitlements.
-- [ ] Keep mobile service provider routing optional/degraded.
-- [ ] Update platform docs when status changes.
+- [x] Split parent mobile from child Android/iOS agent rows.
+- [x] Label mobile package scaffold/proof level.
+- [x] Avoid claiming Device Owner, Family Controls, VPN/DNS, or entitlements.
+- [x] Keep mobile service provider routing optional/degraded.
+- [x] Update platform docs when status changes.
 
 ## Acceptance And Proof
 
 Reports never say "mobile support" without naming parent versus child and proof
 level.
+
+Current proof: the release-support matrix has separate `parent-mobile`,
+`child-android`, and `child-ios` rows. It rejects child mobile agent parity
+claims from the parent desktop release-support proof.
 
 ## Parallel Ownership Notes
 

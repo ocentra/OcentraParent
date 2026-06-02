@@ -45,6 +45,9 @@ PC while preserving local-first custody.
   unavailable, and parent-owned storage unavailable states without implementing
   LAN discovery itself.
 - Android/iOS package scaffolds and proof gates exist.
+- Parent desktop release-support proof separates parent mobile bridge state from
+  child Android/iOS agent claims and keeps signing, stores, TestFlight, Play,
+  relay, and mobile child-agent parity manual-required or not implemented.
 - Optional remote relay and full mobile child-agent parity are not complete.
 
 ## Current Gap
@@ -69,6 +72,8 @@ distribution remain.
 - [ ] Android child-agent real device proof.
 - [ ] iOS child-agent entitlement/device proof.
 - [ ] Parent mobile app proof separated from child mobile agent proof.
+      Current release-support proof models this split for handoff/reporting, but
+      real parent mobile UX, store signing, and child mobile agent proof remain.
 
 ## Next AI Instructions
 

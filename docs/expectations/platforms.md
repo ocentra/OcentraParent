@@ -104,12 +104,18 @@ behavior belongs behind platform adapters and must be proved per platform.
   safety evaluation, policy execution, enforcement adapters, timers, or scripts.
 - It should label data source and custody clearly: live local/LAN, parent cache,
   parent-owned storage, Ocentra-hosted non-activity metadata, or unavailable.
+- Release-support proof must split parent desktop shell, parent mobile bridge,
+  child desktop agent, child Android agent, child iOS agent, relay, signing,
+  stores, and support states. Observer read-only state cannot imply policy write,
+  approval, controller, capture, enforcement, timer, or local AI authority.
 
 ## Validation Gates
 
 - Platform claim matrix in release notes or feature handoff for each completed platform-facing slice.
 - Pre-AI proof matrix entry for each completed runtime claim.
 - Real package install or launch smoke for scaffold claims.
+- Manual platform proof records must name host/device, command or UI action,
+  permissions, package version, logs/screenshots/proof JSON, and known gaps.
 - Real OS capability tests, guarded integration tests, or documented manual evidence for capture, network/domain observation, pairing, enforcement, notifications, and background behavior.
 - Contract and Rust parity tests for every platform event or command shape.
 - Security review for LAN exposure, cloud relay, provider credentials, export/sync, device identity, and enforcement.

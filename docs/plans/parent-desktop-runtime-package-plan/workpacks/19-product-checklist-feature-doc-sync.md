@@ -17,11 +17,11 @@ service, platform, signing, store, relay, and support status.
 
 ## Requirement Checklist
 
-- [ ] Update `docs/features/production-distribution-support.md` when package
+- [x] Update `docs/features/production-distribution-support.md` when package
       proof changes.
-- [ ] Update `docs/features/child-agent-local-service.md` when service connection
+- [x] Update `docs/features/child-agent-local-service.md` when service connection
       status changes.
-- [ ] Update `docs/features/remote-lan-mobile-platforms.md` when route/platform
+- [x] Update `docs/features/remote-lan-mobile-platforms.md` when route/platform
       status changes.
 - [ ] Update checklist rows when proof/status changes.
 - [ ] If locked, report exact desired checklist language.
@@ -30,6 +30,13 @@ service, platform, signing, store, relay, and support status.
 
 D `DONE` report includes committed docs or a precise blocker note for primary to
 reconcile.
+
+Current status: feature docs are updated. `docs/product-capability-checklist.md`
+is locked by A, so D must report desired row language for primary: parent
+desktop shell has release-support proof for observer authority, update/rollback
+posture, support diagnostics, manual platform proof, and CI artifact honesty;
+signing, stores, production rollback, relay, and mobile child-agent parity
+remain manual-required/not implemented.
 
 ## Parallel Ownership Notes
 

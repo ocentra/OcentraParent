@@ -46,6 +46,9 @@ dev-only repo when it claims consumer readiness.
 - Windows package lifecycle proof installs/starts the service wrapper and probes
   the Rust service health endpoint; this remains CI/mechanical proof, not signed
   release proof.
+- Parent desktop release-support proof now records update/rollback posture,
+  signing/store claim boundaries, support diagnostic redaction fields, CI
+  artifact expectations, and manual platform proof requirements.
 - Billing/support/public website/store distribution are planned or incomplete.
 
 ## Current Gap
@@ -66,7 +69,7 @@ package/runtime proof.
 - [ ] iOS TestFlight/App Store proof if shipped.
 - [ ] Billing/subscription/account flow.
 - [ ] Privacy, retention, export/delete, and support docs.
-- [ ] Support bundle redaction and incident process.
+- [ ] Support bundle redaction proof scaffold and incident process.
 
 ## Next AI Instructions
 

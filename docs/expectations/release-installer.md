@@ -11,6 +11,9 @@ Release features are product features because parents need install/update paths 
 - Update manifest where applicable.
 - Signature verification where applicable.
 - Clear production/manual release boundary.
+- Release-support proof covering update/rollback posture, signing/store claim
+  boundaries, support diagnostic redaction, CI artifacts, and manual proof
+  requirements.
 
 ## Acceptance
 
@@ -20,6 +23,9 @@ Release features are product features because parents need install/update paths 
 - Final PRs into `main` are CI integration events, not release events.
 - Product releases can intentionally batch multiple completed milestones.
 - Installer paths are documented.
+- Support diagnostics keep only support-safe fields and redact tokens, child
+  activity, raw URLs, screenshots, journals, SQLite snapshots, private paths,
+  command lines, keystrokes, clipboard data, and message contents.
 - Update paths reject unsigned or incorrectly signed manifests once signing is enabled.
 - Package claims match real artifacts.
 - Parent-facing install flow is understandable for non-technical users.

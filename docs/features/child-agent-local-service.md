@@ -44,6 +44,9 @@ and clear degraded states.
   ownership, connect-or-degrade behavior, route/source/custody labels, and
   degraded state when the service socket is unavailable.
 - Windows installer/updater scaffolding exists.
+- Parent desktop release-support proof now records child desktop service state
+  separately from parent shell state, and keeps child Android/iOS agent behavior
+  manual-required until real device proof exists.
 - Production service hardening and all adapter paths are not complete.
 
 ## Current Gap
@@ -64,7 +67,9 @@ and support diagnostics.
 - [ ] Enforcement adapter dispatch with audit.
 - [ ] Capability and degraded-state reporting.
 - [ ] Updater status and rollback.
-- [ ] Support diagnostics with redaction.
+- [ ] Support diagnostics with redaction. Current release-support proof covers
+      support-safe diagnostic fields for package/runtime handoff; production
+      support workflow and incident process remain.
 
 ## Next AI Instructions
 
