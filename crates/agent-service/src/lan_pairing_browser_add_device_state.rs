@@ -9,6 +9,7 @@ use ocentra_parent_agent_protocol::{
 
 mod production_household_proof;
 mod signed_discovery_relay_spine;
+mod source_matrix;
 
 use crate::lan_network_inventory;
 use crate::lan_pairing_browser_add_device_scan::{
@@ -19,6 +20,7 @@ use crate::{lan_pairing::LanPairingRuntime, time::timestamp_now};
 
 use self::production_household_proof::production_household_proof_summary;
 use self::signed_discovery_relay_spine::signed_discovery_relay_spine_summary;
+use self::source_matrix::lan_discovery_source_matrix;
 
 pub(crate) fn browser_add_device_pairs(
     runtime: &LanPairingRuntime,
@@ -139,6 +141,7 @@ fn browser_add_device_read_model(
         &household_device_decisions,
         &selected_device_readiness,
     );
+    let lan_discovery_source_matrix = lan_discovery_source_matrix(&generated_at, &scan_summary);
     LanBrowserAddDeviceReadModel {
         schema_version: constants::lan_pairing::SCHEMA_VERSION,
         generated_at: generated_at.clone(),
@@ -159,6 +162,7 @@ fn browser_add_device_read_model(
         household_device_decisions,
         production_household_proof: Some(production_household_proof),
         signed_discovery_relay_spine: Some(signed_discovery_relay_spine),
+        lan_discovery_source_matrix: Some(lan_discovery_source_matrix),
         trusted_device_ids: runtime.trusted_device_ids(),
         revoked_device_ids: runtime.revoked_device_ids(),
         selected_device_readiness,

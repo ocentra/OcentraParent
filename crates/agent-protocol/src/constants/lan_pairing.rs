@@ -146,6 +146,16 @@ pub const HOUSEHOLD_RESTORE_ACTION_ID: &str = "household-action-restore-1";
 pub const HOUSEHOLD_RENAMED_DEVICE_LABEL: &str = "Bedroom Windows PC";
 pub const PRODUCTION_PROOF_FIELD_SUMMARY: &str = "productionHouseholdProof";
 pub const SIGNED_DISCOVERY_RELAY_FIELD_SUMMARY: &str = "signedDiscoveryRelaySpine";
+pub const LAN_SOURCE_MATRIX_FIELD_SUMMARY: &str = "lanDiscoverySourceMatrix";
+pub const LAN_SOURCE_MATRIX_FIELD_WORKPACK_ROWS: &str = "workpackRows";
+pub const LAN_SOURCE_MATRIX_FIELD_SOURCE_ROWS: &str = "sourceRows";
+pub const LAN_SOURCE_MATRIX_FIELD_WORKPACK_ID: &str = "workpackId";
+pub const LAN_SOURCE_MATRIX_FIELD_SOURCE: &str = "source";
+pub const LAN_SOURCE_MATRIX_FIELD_STATUS: &str = "status";
+pub const LAN_SOURCE_MATRIX_FIELD_AUTHORITY: &str = "authority";
+pub const LAN_SOURCE_MATRIX_FIELD_UI_SURFACE: &str = "uiSurface";
+pub const LAN_SOURCE_MATRIX_FIELD_CAN_CONFIRM: &str = "canConfirmChildAgent";
+pub const LAN_SOURCE_MATRIX_FIELD_REQUIRED_ARTIFACT: &str = "requiredArtifactSummary";
 pub const PRODUCTION_PROOF_FIELD_STATUS_ROWS: &str = "statusRows";
 pub const PRODUCTION_PROOF_FIELD_PROOF_STATE: &str = "proofState";
 pub const PRODUCTION_PROOF_FIELD_NOT_IMPLEMENTED: &str = "notImplemented";
@@ -264,6 +274,44 @@ pub const PRODUCTION_PROOF_NON_CLAIM_STORE: &str =
     "store signing remains manual-required until signing store and release artifacts are attached";
 pub const SIGNED_DISCOVERY_RELAY_NON_CLAIM_PARENT_STORAGE: &str =
     "parent-owned storage is unavailable until a parent-selected storage adapter exists";
+pub const LAN_SOURCE_MATRIX_CLAIM_READ_MODEL: &str =
+    "all LAN plan workpacks are represented in a service-backed source matrix read model";
+pub const LAN_SOURCE_MATRIX_CLAIM_WEAK_SOURCES: &str =
+    "weak LAN discovery sources cannot confirm child identity or assign child profiles";
+pub const LAN_SOURCE_MATRIX_NON_CLAIM_PACKET_MODE: &str =
+    "packet-mode ARP sweep and passive listeners remain gated until packet driver artifacts exist";
+pub const LAN_SOURCE_MATRIX_NON_CLAIM_PHYSICAL: &str =
+    "physical household LAN completion remains manual-required until real two-host proof is attached";
+pub const LAN_SOURCE_MATRIX_NON_CLAIM_MDNS_SSDP: &str =
+    "mDNS/SSDP advertisement and responder behavior remains manual-required until fixtures and LAN captures exist";
+pub const LAN_SOURCE_MATRIX_ARTIFACT_PACKET_MODE: &str =
+    "Attach packet-driver or fake packet IO proof with selected interface, subnet cap, timing, and malformed packet fixtures.";
+pub const LAN_SOURCE_MATRIX_ARTIFACT_MDNS_SSDP: &str =
+    "Attach mDNS/DNS-SD and SSDP/UPnP fixtures or LAN captures with sanitized host/service names.";
+pub const LAN_SOURCE_MATRIX_ARTIFACT_SIGNED_CHILD: &str =
+    "Attach signed child-agent hello and heartbeat payloads with nonce, family hash, route id, and replay rejection logs.";
+pub const LAN_SOURCE_MATRIX_ARTIFACT_PHYSICAL: &str =
+    "Attach two physical child-agent host proof, router/firewall reachability, screenshots, and generated proof JSON.";
+pub const LAN_SOURCE_MATRIX_TITLE_01: &str = "Contract boundary and Effect schemas";
+pub const LAN_SOURCE_MATRIX_TITLE_02: &str = "Evidence model and device record";
+pub const LAN_SOURCE_MATRIX_TITLE_03: &str = "Interface detection";
+pub const LAN_SOURCE_MATRIX_TITLE_04: &str = "Neighbor table ingestion";
+pub const LAN_SOURCE_MATRIX_TITLE_05: &str = "Targeted ARP checks";
+pub const LAN_SOURCE_MATRIX_TITLE_06: &str = "Bounded ARP sweep";
+pub const LAN_SOURCE_MATRIX_TITLE_07: &str = "Passive discovery listeners";
+pub const LAN_SOURCE_MATRIX_TITLE_08: &str = "mDNS and DNS-SD discovery";
+pub const LAN_SOURCE_MATRIX_TITLE_09: &str = "SSDP and UPnP discovery";
+pub const LAN_SOURCE_MATRIX_TITLE_10: &str = "NetBIOS, LLMNR, and reverse DNS";
+pub const LAN_SOURCE_MATRIX_TITLE_11: &str = "Light service probing";
+pub const LAN_SOURCE_MATRIX_TITLE_12: &str = "OUI and vendor lookup";
+pub const LAN_SOURCE_MATRIX_TITLE_13: &str = "Merge and de-duplication engine";
+pub const LAN_SOURCE_MATRIX_TITLE_14: &str = "Explainable classification";
+pub const LAN_SOURCE_MATRIX_TITLE_15: &str = "Household device store";
+pub const LAN_SOURCE_MATRIX_TITLE_16: &str = "Read models and LAN events";
+pub const LAN_SOURCE_MATRIX_TITLE_17: &str = "Parent and child mDNS advertisements";
+pub const LAN_SOURCE_MATRIX_TITLE_18: &str = "Signed child hello and heartbeat";
+pub const LAN_SOURCE_MATRIX_TITLE_19: &str = "Assignment, revocation, and audit";
+pub const LAN_SOURCE_MATRIX_TITLE_20: &str = "Proof gates, fixtures, and rollout";
 pub const NETWORK_NEIGHBOR_LABEL_PREFIX: &str = "LAN ";
 pub const NETWORK_NEIGHBOR_UNKNOWN_HOSTNAME: &str = "unknown-host";
 pub const PLATFORM_UNKNOWN: &str = "unknown";
