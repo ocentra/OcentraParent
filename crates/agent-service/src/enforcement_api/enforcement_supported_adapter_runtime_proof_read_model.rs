@@ -48,39 +48,67 @@ struct EntrySpec {
     fallback_behavior: &'static str,
 }
 
+struct ImplementedSpecInput {
+    proof_entry_id: &'static str,
+    runtime_boundary: V08SupportedAdapterRuntimeBoundary,
+    adapter_capability: V08SupportedAdapterCapability,
+    target_identity_state: V08SupportedAdapterTargetIdentityState,
+    rollback_reference_state: V08SupportedAdapterRollbackReferenceState,
+    evidence_refs: &'static [&'static str],
+    linked_proof_commands: &'static [&'static str],
+    linked_proof_artifacts: &'static [&'static str],
+    claim_boundary: &'static str,
+    fallback_behavior: &'static str,
+}
+
+struct ManualSpecInput {
+    proof_entry_id: &'static str,
+    runtime_boundary: V08SupportedAdapterRuntimeBoundary,
+    platform: ParentPlatform,
+    adapter_capability: V08SupportedAdapterCapability,
+    target_identity_state: V08SupportedAdapterTargetIdentityState,
+    manual_proof_requirements: &'static [&'static str],
+    claim_boundary: &'static str,
+    fallback_behavior: &'static str,
+}
+
 fn entry_specs() -> Vec<EntrySpec> {
     vec![
         app_game_timer_spec(),
         network_observe_spec(),
-        manual_spec(
-            proof::ENTRY_ID_BROAD_APP_MANUAL,
-            V08SupportedAdapterRuntimeBoundary::WindowsBroadInstalledAppBlockingManualGate,
-            ParentPlatform::Windows,
-            V08SupportedAdapterCapability::BroadInstalledAppBlocking,
-            V08SupportedAdapterTargetIdentityState::InsufficientForBroadTarget,
-            &[
+        manual_spec(ManualSpecInput {
+            proof_entry_id: proof::ENTRY_ID_BROAD_APP_MANUAL,
+            runtime_boundary:
+                V08SupportedAdapterRuntimeBoundary::WindowsBroadInstalledAppBlockingManualGate,
+            platform: ParentPlatform::Windows,
+            adapter_capability: V08SupportedAdapterCapability::BroadInstalledAppBlocking,
+            target_identity_state:
+                V08SupportedAdapterTargetIdentityState::InsufficientForBroadTarget,
+            manual_proof_requirements: &[
                 proof::REQUIREMENT_SAME_APP_IDENTITY,
                 proof::REQUIREMENT_HOST_BLOCK_APPLY,
                 proof::REQUIREMENT_ROLLBACK,
                 proof::REQUIREMENT_AUDIT_CUSTODY,
             ],
-            proof::CLAIM_BROAD_APP_MANUAL,
-            proof::FALLBACK_BROAD_APP_MANUAL,
-        ),
-        manual_spec(
-            proof::ENTRY_ID_HOST_NETWORK_MANUAL,
-            V08SupportedAdapterRuntimeBoundary::WindowsHostNetworkDomainBlockingManualGate,
-            ParentPlatform::Windows,
-            V08SupportedAdapterCapability::HostNetworkDomainBlocking,
-            V08SupportedAdapterTargetIdentityState::InsufficientForBroadTarget,
-            &[
+            claim_boundary: proof::CLAIM_BROAD_APP_MANUAL,
+            fallback_behavior: proof::FALLBACK_BROAD_APP_MANUAL,
+        }),
+        manual_spec(ManualSpecInput {
+            proof_entry_id: proof::ENTRY_ID_HOST_NETWORK_MANUAL,
+            runtime_boundary:
+                V08SupportedAdapterRuntimeBoundary::WindowsHostNetworkDomainBlockingManualGate,
+            platform: ParentPlatform::Windows,
+            adapter_capability: V08SupportedAdapterCapability::HostNetworkDomainBlocking,
+            target_identity_state:
+                V08SupportedAdapterTargetIdentityState::InsufficientForBroadTarget,
+            manual_proof_requirements: &[
                 proof::REQUIREMENT_HOST_DNS_OR_FILTER_APPLY,
                 proof::REQUIREMENT_ROLLBACK,
                 proof::REQUIREMENT_AUDIT_CUSTODY,
             ],
-            proof::CLAIM_HOST_NETWORK_MANUAL,
-            proof::FALLBACK_HOST_NETWORK_MANUAL,
-        ),
+            claim_boundary: proof::CLAIM_HOST_NETWORK_MANUAL,
+            fallback_behavior: proof::FALLBACK_HOST_NETWORK_MANUAL,
+        }),
         exact_active_tab_not_claimed_spec(),
         permission_dependency_degraded_spec(),
         unavailable_spec(),
@@ -109,53 +137,54 @@ fn entry_specs() -> Vec<EntrySpec> {
 }
 
 fn app_game_timer_spec() -> EntrySpec {
-    implemented_spec(
-        proof::ENTRY_ID_APP_GAME_TIMER,
-        V08SupportedAdapterRuntimeBoundary::WindowsAppGameOwnedProcessTimeLimit,
-        V08SupportedAdapterCapability::AppGameOwnedProcessTimeLimit,
-        V08SupportedAdapterTargetIdentityState::ProcessSessionEvidenceBacked,
-        V08SupportedAdapterRollbackReferenceState::TimerRecoveryBacked,
-        &[
+    implemented_spec(ImplementedSpecInput {
+        proof_entry_id: proof::ENTRY_ID_APP_GAME_TIMER,
+        runtime_boundary: V08SupportedAdapterRuntimeBoundary::WindowsAppGameOwnedProcessTimeLimit,
+        adapter_capability: V08SupportedAdapterCapability::AppGameOwnedProcessTimeLimit,
+        target_identity_state: V08SupportedAdapterTargetIdentityState::ProcessSessionEvidenceBacked,
+        rollback_reference_state: V08SupportedAdapterRollbackReferenceState::TimerRecoveryBacked,
+        evidence_refs: &[
             proof::REF_APP_SESSION_EVIDENCE,
             proof::REF_OWNED_PROCESS_IDENTITY,
             proof::REF_TIMER_STATE,
         ],
-        &[
+        linked_proof_commands: &[
             proof::COMMAND_APP_TIME_LIMIT_ADAPTER,
             proof::COMMAND_ENFORCEMENT_TIMER_CARGO,
         ],
-        &[
+        linked_proof_artifacts: &[
             proof::ARTIFACT_APP_TIME_LIMIT_PROOF,
             proof::ARTIFACT_ENFORCEMENT_TIMER_STATE,
         ],
-        proof::CLAIM_APP_GAME_TIMER,
-        proof::FALLBACK_APP_GAME_TIMER,
-    )
+        claim_boundary: proof::CLAIM_APP_GAME_TIMER,
+        fallback_behavior: proof::FALLBACK_APP_GAME_TIMER,
+    })
 }
 
 fn network_observe_spec() -> EntrySpec {
-    implemented_spec(
-        proof::ENTRY_ID_NETWORK_OBSERVE,
-        V08SupportedAdapterRuntimeBoundary::WindowsNetworkFlowObservePolicyHandoff,
-        V08SupportedAdapterCapability::NetworkFlowObservePolicyHandoff,
-        V08SupportedAdapterTargetIdentityState::NetworkFlowEvidenceBacked,
-        V08SupportedAdapterRollbackReferenceState::ObserveOnlyNotNeeded,
-        &[
+    implemented_spec(ImplementedSpecInput {
+        proof_entry_id: proof::ENTRY_ID_NETWORK_OBSERVE,
+        runtime_boundary:
+            V08SupportedAdapterRuntimeBoundary::WindowsNetworkFlowObservePolicyHandoff,
+        adapter_capability: V08SupportedAdapterCapability::NetworkFlowObservePolicyHandoff,
+        target_identity_state: V08SupportedAdapterTargetIdentityState::NetworkFlowEvidenceBacked,
+        rollback_reference_state: V08SupportedAdapterRollbackReferenceState::ObserveOnlyNotNeeded,
+        evidence_refs: &[
             proof::REF_NETWORK_FLOW_SUMMARY,
             proof::REF_DOMAIN_ATTRIBUTION_STATE,
             proof::REF_POLICY_PREVIEW,
         ],
-        &[
+        linked_proof_commands: &[
             proof::COMMAND_NETWORK_FLOW_CARGO,
             proof::COMMAND_POLICY_DISPATCH_PROOF,
         ],
-        &[
+        linked_proof_artifacts: &[
             proof::ARTIFACT_NETWORK_FLOW_DIGEST,
             proof::ARTIFACT_POLICY_DISPATCH_PROOF,
         ],
-        proof::CLAIM_NETWORK_OBSERVE,
-        proof::FALLBACK_NETWORK_OBSERVE,
-    )
+        claim_boundary: proof::CLAIM_NETWORK_OBSERVE,
+        fallback_behavior: proof::FALLBACK_NETWORK_OBSERVE,
+    })
 }
 
 fn exact_active_tab_not_claimed_spec() -> EntrySpec {
@@ -264,18 +293,20 @@ fn unsupported_spec() -> EntrySpec {
     }
 }
 
-fn implemented_spec(
-    proof_entry_id: &'static str,
-    runtime_boundary: V08SupportedAdapterRuntimeBoundary,
-    adapter_capability: V08SupportedAdapterCapability,
-    target_identity_state: V08SupportedAdapterTargetIdentityState,
-    rollback_reference_state: V08SupportedAdapterRollbackReferenceState,
-    evidence_refs: &'static [&'static str],
-    linked_proof_commands: &'static [&'static str],
-    linked_proof_artifacts: &'static [&'static str],
-    claim_boundary: &'static str,
-    fallback_behavior: &'static str,
-) -> EntrySpec {
+fn implemented_spec(input: ImplementedSpecInput) -> EntrySpec {
+    let ImplementedSpecInput {
+        proof_entry_id,
+        runtime_boundary,
+        adapter_capability,
+        target_identity_state,
+        rollback_reference_state,
+        evidence_refs,
+        linked_proof_commands,
+        linked_proof_artifacts,
+        claim_boundary,
+        fallback_behavior,
+    } = input;
+
     EntrySpec {
         proof_entry_id,
         runtime_boundary,
@@ -297,16 +328,18 @@ fn implemented_spec(
     }
 }
 
-fn manual_spec(
-    proof_entry_id: &'static str,
-    runtime_boundary: V08SupportedAdapterRuntimeBoundary,
-    platform: ParentPlatform,
-    adapter_capability: V08SupportedAdapterCapability,
-    target_identity_state: V08SupportedAdapterTargetIdentityState,
-    manual_proof_requirements: &'static [&'static str],
-    claim_boundary: &'static str,
-    fallback_behavior: &'static str,
-) -> EntrySpec {
+fn manual_spec(input: ManualSpecInput) -> EntrySpec {
+    let ManualSpecInput {
+        proof_entry_id,
+        runtime_boundary,
+        platform,
+        adapter_capability,
+        target_identity_state,
+        manual_proof_requirements,
+        claim_boundary,
+        fallback_behavior,
+    } = input;
+
     EntrySpec {
         proof_entry_id,
         runtime_boundary,
@@ -334,16 +367,16 @@ fn mobile_manual_spec(
     platform: ParentPlatform,
     manual_proof_requirements: &'static [&'static str],
 ) -> EntrySpec {
-    manual_spec(
+    manual_spec(ManualSpecInput {
         proof_entry_id,
         runtime_boundary,
         platform,
-        V08SupportedAdapterCapability::MobileChildControlAdapter,
-        V08SupportedAdapterTargetIdentityState::UnsupportedPlatformTarget,
+        adapter_capability: V08SupportedAdapterCapability::MobileChildControlAdapter,
+        target_identity_state: V08SupportedAdapterTargetIdentityState::UnsupportedPlatformTarget,
         manual_proof_requirements,
-        proof::CLAIM_MOBILE_MANUAL,
-        proof::FALLBACK_MOBILE_MANUAL,
-    )
+        claim_boundary: proof::CLAIM_MOBILE_MANUAL,
+        fallback_behavior: proof::FALLBACK_MOBILE_MANUAL,
+    })
 }
 
 fn entry_from_spec(spec: &EntrySpec, generated_at: &str) -> V08SupportedAdapterRuntimeProofEntry {
