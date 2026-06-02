@@ -165,41 +165,79 @@ function supportedAdapterRuntimeProofEntryIsHonest(entry: V08SupportedAdapterRun
     return false;
   }
 
+  return supportedAdapterRuntimeProofEntryStateMatchesProof(entry);
+}
+
+function supportedAdapterRuntimeProofEntryStateMatchesProof(
+  entry: V08SupportedAdapterRuntimeProofEntryCandidate
+): boolean {
   switch (entry.runtimeState) {
     case 'implemented-boundary':
-      return (
-        entry.platform === 'windows' &&
-        entry.adapterResult === 'supported-boundary-proved' &&
-        entry.platformSupportState === 'supported-on-windows' &&
-        entry.refusalReason === 'none' &&
-        entry.evidenceRefs.length > 0 &&
-        entry.linkedProofArtifacts.length > 0 &&
-        entry.manualProofRequirements.length === 0
-      );
+      return supportedAdapterRuntimeProofImplementedBoundaryIsHonest(entry);
     case 'manual-required':
-      return entry.adapterResult === 'manual-proof-required' && entry.manualProofRequirements.length > 0;
+      return supportedAdapterRuntimeProofManualRequiredIsHonest(entry);
     case 'unavailable':
-      return (
-        entry.adapterResult === 'target-unavailable' &&
-        entry.platformSupportState === 'unavailable-on-target' &&
-        entry.manualProofRequirements.length > 0
-      );
+      return supportedAdapterRuntimeProofUnavailableIsHonest(entry);
     case 'not-claimed':
-      return entry.adapterResult === 'not-claimed' && entry.manualProofRequirements.length > 0;
+      return supportedAdapterRuntimeProofNotClaimedIsHonest(entry);
     case 'unsupported':
-      return (
-        entry.adapterResult === 'unsupported-platform' &&
-        entry.platformSupportState === 'unsupported-platform' &&
-        entry.manualProofRequirements.length > 0
-      );
+      return supportedAdapterRuntimeProofUnsupportedIsHonest(entry);
     case 'degraded':
-      return (
-        entry.adapterResult === 'degraded-permission-or-dependency' &&
-        entry.platformSupportState === 'degraded' &&
-        entry.refusalReason === 'permission-or-dependency-degraded' &&
-        entry.manualProofRequirements.length > 0
-      );
+      return supportedAdapterRuntimeProofDegradedIsHonest(entry);
   }
+}
+
+function supportedAdapterRuntimeProofImplementedBoundaryIsHonest(
+  entry: V08SupportedAdapterRuntimeProofEntryCandidate
+): boolean {
+  return (
+    entry.platform === 'windows' &&
+    entry.adapterResult === 'supported-boundary-proved' &&
+    entry.platformSupportState === 'supported-on-windows' &&
+    entry.refusalReason === 'none' &&
+    entry.evidenceRefs.length > 0 &&
+    entry.linkedProofArtifacts.length > 0 &&
+    entry.manualProofRequirements.length === 0
+  );
+}
+
+function supportedAdapterRuntimeProofManualRequiredIsHonest(
+  entry: V08SupportedAdapterRuntimeProofEntryCandidate
+): boolean {
+  return entry.adapterResult === 'manual-proof-required' && entry.manualProofRequirements.length > 0;
+}
+
+function supportedAdapterRuntimeProofUnavailableIsHonest(
+  entry: V08SupportedAdapterRuntimeProofEntryCandidate
+): boolean {
+  return (
+    entry.adapterResult === 'target-unavailable' &&
+    entry.platformSupportState === 'unavailable-on-target' &&
+    entry.manualProofRequirements.length > 0
+  );
+}
+
+function supportedAdapterRuntimeProofNotClaimedIsHonest(entry: V08SupportedAdapterRuntimeProofEntryCandidate): boolean {
+  return entry.adapterResult === 'not-claimed' && entry.manualProofRequirements.length > 0;
+}
+
+function supportedAdapterRuntimeProofUnsupportedIsHonest(
+  entry: V08SupportedAdapterRuntimeProofEntryCandidate
+): boolean {
+  return (
+    entry.adapterResult === 'unsupported-platform' &&
+    entry.platformSupportState === 'unsupported-platform' &&
+    entry.manualProofRequirements.length > 0
+  );
+}
+
+function supportedAdapterRuntimeProofDegradedIsHonest(entry: V08SupportedAdapterRuntimeProofEntryCandidate): boolean {
+  return (
+    entry.adapterResult === 'degraded-permission-or-dependency' &&
+    entry.platformSupportState === 'degraded' &&
+    entry.refusalReason === 'permission-or-dependency-degraded' &&
+    entry.manualProofRequirements.length > 0
+  );
 }
 
 function supportedAdapterRuntimeProofEntryHasClaimUpgrade(
