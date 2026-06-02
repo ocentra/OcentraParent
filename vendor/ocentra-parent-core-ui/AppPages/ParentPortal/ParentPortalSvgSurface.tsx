@@ -11513,6 +11513,7 @@ function ManageControlPanel({
                   text: {
                     scopeOptions: { lan: 'Family', parent: 'Per Device' },
                     selectedInfoLabel: 'Report device',
+                    selectedInfoEmptyLabel: reportScopeValue === 'device' ? 'No device selected' : 'Whole family',
                   },
                 })}
               />
