@@ -71,7 +71,9 @@ test('release-support proof separates preview mechanics from product claims', ()
   });
   const matrixRows = Object.fromEntries(proof.platformCapabilityMatrix.map((row) => [row.id, row]));
 
-  assert.deepEqual(proof.workpacks, ['09', '10', '11', '12', '15', '16', '17', '18']);
+  assert.deepEqual(proof.workpacks.completed, ['04', '06', '09', '10', '11', '12', '15', '16', '17', '18', '20']);
+  assert.deepEqual(proof.workpacks.partial, ['19']);
+  assert.match(proof.workpacks.partialReason, /docs\/product-capability-checklist\.md/u);
   assert.equal(proof.branchBoundary.main.productionPublish, false);
   assert.equal(proof.branchBoundary.production.productionPublish, true);
   assert.equal(proof.updateChannelRollback.productionUpdate.manifestSignature, 'required');
