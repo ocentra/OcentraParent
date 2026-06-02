@@ -9,6 +9,9 @@ use ocentra_parent_agent_protocol::{
 
 use crate::enforcement_os_adapter_product_proof_read_model::v08_os_adapter_product_proof_read_model;
 
+mod product_control_api_tests;
+mod product_control_spine_tests;
+
 #[test]
 fn product_proof_read_model_captures_v0_8_adapter_boundaries() {
     let read_model = v08_os_adapter_product_proof_read_model(policy_constants::TEST_EVALUATED_AT);

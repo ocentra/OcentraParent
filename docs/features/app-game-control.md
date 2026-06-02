@@ -40,6 +40,9 @@ control with better evidence and local audit.
   owned-process control from broad installed-app blocking, so downstream policy
   and device surfaces can show time-limit/control-capable versus report-only or
   manual-required states.
+- The V0.8 product-control runtime path now exposes app time-limit and scoped
+  owned-process states through a Rust service WebSocket read model and typed
+  agent-protocol adapter while broad app blocking stays manual-required.
 - Broad app blocking remains manual-required or unproved by platform.
 - Raw app and game control setting inventories are preserved as design inputs,
   not product-complete implementation proof.

@@ -98,6 +98,8 @@ pub mod event_id {
     pub const BROWSER_POLICY_ROLLBACK_REJECTED: &str = "browser-policy-rollback-rejected";
     pub const ENFORCEMENT_AUDIT_REPORTED: &str = "enforcement-audit-reported";
     pub const ENFORCEMENT_TIMER_REPORTED: &str = "enforcement-timer-reported";
+    pub const ENFORCEMENT_PRODUCT_CONTROL_SPINE_REPORTED: &str =
+        "enforcement-product-control-spine-reported";
     pub const PARENT_ASSISTANT_THREAD_UPDATED: &str = "parent-assistant-thread-updated";
     pub const PARENT_ASSISTANT_MESSAGE_ACCEPTED: &str = "parent-assistant-message-accepted";
     pub const PARENT_ASSISTANT_RUN_STARTED: &str = "parent-assistant-run-started";

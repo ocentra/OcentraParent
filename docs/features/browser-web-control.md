@@ -43,6 +43,10 @@ control while being more honest about managed versus unmanaged sources.
 - The V0.8 product-control spine now exposes managed browser session control,
   unmanaged process-only fallback, and managed/unmanaged exact URL gaps as
   separate parent-visible action states for downstream policy/device screens.
+- The V0.8 product-control runtime path now exposes those browser states through
+  a Rust service WebSocket read model and typed agent-protocol adapter that link
+  back to browser/domain adapter proof and keep exact URL control
+  manual-required or not-claimed.
 - Unmanaged browser states can be represented as possible bypass and
   process-only fallback, not exact URL/tab proof.
 - The raw browser setting inventory and reduced questionnaire forest are now
@@ -50,8 +54,8 @@ control while being more honest about managed versus unmanaged sources.
 
 ## Current Gap
 
-Managed-browser enforcement, category filtering, exact URL action, unmanaged
-fallback, and parent-facing rule UX are not product-complete.
+Managed-browser exact URL action, category filtering, warning delivery,
+unmanaged fallback UX, and parent-facing rule UX are not product-complete.
 
 ## Checklist
 

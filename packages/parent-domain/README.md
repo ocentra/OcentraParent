@@ -8,6 +8,8 @@ mobile readiness, and control catalogs.
 - Parent/family/child/device product contracts.
 - Policy rules, schedules, targets, decisions, permissions, and audit shapes.
 - Enforcement intents, results, capability states, timers, and readiness.
+- V0.8 enforcement product-control spine contracts that separate implemented,
+  degraded, dry-run, manual-required, unavailable, and not-claimed states.
 - Local AI runtime, provider, scheduler, context, and reference contracts.
 - Parent assistant and action-preview contracts.
 - LAN pairing, device roles, controller/observer states, and provider routing.
@@ -61,3 +63,5 @@ flowchart LR
 - Location/geofence/SOS/battery needs runtime contracts and platform proof.
 - Store/install approval and purchase controls need platform-specific scope.
 - Billing/subscription entitlements need to stay outside core safety decisions.
+- V0.8 broad app, network/domain, exact URL, notification, and tamper controls
+  remain manual-required or not-claimed until platform adapter proof exists.

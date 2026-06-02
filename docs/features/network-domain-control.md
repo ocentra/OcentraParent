@@ -37,6 +37,10 @@ compete on control while staying clear about attribution confidence and privacy.
   form.
 - The V0.8 product-control spine keeps network/domain blocking report-only and
   manual-required, distinct from network observation and policy dry-run state.
+- The V0.8 product-control runtime path now exposes that network/domain state
+  through a Rust service WebSocket read model and typed agent-protocol adapter
+  that link to browser/domain and OS-adapter proof without claiming host
+  filtering.
 - Network/domain blocking is not broadly product-complete.
 - Raw network control settings are preserved as design inputs, not
   product-complete implementation proof.

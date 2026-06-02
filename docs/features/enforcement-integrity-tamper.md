@@ -43,14 +43,17 @@ without fake anti-tamper claims.
   observe, warn, time-limit, scoped process block, ask-parent, dry-run preview,
   and report-only surfaces without upgrading broad app, network/domain, exact
   URL, notification, or tamper claims.
+- Product-control runtime proof now wires the merged spine into a Rust service
+  WebSocket read model and typed agent-protocol adapter that link
+  cross-platform, browser/domain, and OS-adapter proof sources while preserving
+  manual-required and not-claimed states.
 - Broad app/browser/domain/network enforcement is not product-complete.
 - Tamper/uninstall protection is a tracked gap.
 
 ## Current Gap
 
-Broad adapters, service read-model wiring, child-facing messages, integrity
-heartbeat, permission-loss alerts, uninstall detection, and platform-specific
-proof remain.
+Broad adapters, child-facing messages, integrity heartbeat, permission-loss
+alerts, uninstall detection, and platform-specific proof remain.
 
 ## Checklist
 

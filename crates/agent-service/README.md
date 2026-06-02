@@ -11,6 +11,9 @@ development paths and orchestrates runtime commands.
 - LAN bind/origin restrictions and dev service lifecycle.
 - Runtime orchestration around core, protocol, AI, policy, activity, and
   enforcement paths.
+- V0.8 product-control spine runtime reports through
+  `agent.enforcement.product-control-spine.get` without upgrading unsupported
+  broad adapter claims.
 
 ## Must Not Own
 
@@ -46,3 +49,5 @@ flowchart LR
 - Complete service-backed portal read models for all parent surfaces.
 - Platform adapter execution proof for capture, enforcement, notifications, and
   remote routing.
+- Product-complete broad app, network/domain, exact URL, notification, and
+  tamper enforcement still require platform-specific adapter proof.
