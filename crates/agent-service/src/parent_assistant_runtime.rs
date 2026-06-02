@@ -1,10 +1,11 @@
 use ocentra_parent_agent_protocol::{
-    constants, policy_constants as policy, AgentCommandEnvelope, AgentEventEnvelope,
-    AgentEventName, LocalAiDegradedState, LocalAiGenerationState, LocalAiProviderSchedulerJobClass,
-    LocalAiProviderSchedulerJobStatus, LogFieldValue, LogLevel, ParentActorReference,
-    ParentActorRole, ParentAssistantActionPreview, ParentAssistantActionPreviewKind,
-    ParentAssistantAnswer, ParentAssistantAnswerState, ParentAssistantGenerateRequest,
-    ParentAssistantProviderState, ParentAssistantRunState, ParentAssistantScope,
+    constants, policy_constants as policy, ActivityHistoricalReportList, AgentCommandEnvelope,
+    AgentEventEnvelope, AgentEventName, LocalAiDegradedState, LocalAiGenerationState,
+    LocalAiProviderSchedulerJobClass, LocalAiProviderSchedulerJobStatus, LogFieldValue, LogLevel,
+    ParentActorReference, ParentActorRole, ParentAssistantActionPreview,
+    ParentAssistantActionPreviewKind, ParentAssistantAnswer, ParentAssistantAnswerState,
+    ParentAssistantGenerateRequest, ParentAssistantProviderState, ParentAssistantRunState,
+    ParentAssistantScope,
 };
 
 use crate::{
@@ -18,6 +19,7 @@ use crate::{
     parent_assistant_api::{api_boundary, thread_store},
     parent_assistant_evidence_context::evidence_contexts_from_command,
     parent_assistant_payload::parent_assistant_answer_payload,
+    parent_assistant_report_history::activity_report_history_from_command,
     time::timestamp_now,
 };
 
@@ -28,7 +30,8 @@ pub async fn build_parent_assistant_answer_report(
         .await
         .unwrap_or_else(|_| LocalAiRuntimeConfigSnapshot::unconfigured());
     let snapshot = local_store_snapshot().await;
-    let request = request_from_command(&command, &config, snapshot);
+    let stored_report_history = activity_report_history_from_command(&command).await;
+    let request = request_from_command(&command, &config, snapshot, stored_report_history);
     let answer = generate_parent_assistant_answer(&command, request, &config).await;
     thread_store::record_message_for_thread(&answer.thread_id);
     let severity = if answer.answer_state == ParentAssistantAnswerState::Answered {
@@ -121,6 +124,7 @@ pub(crate) fn request_from_command(
     command: &AgentCommandEnvelope,
     config: &LocalAiRuntimeConfigSnapshot,
     activity_snapshot: Option<ActivitySurfaceStoreSnapshot>,
+    stored_report_history: Option<ActivityHistoricalReportList>,
 ) -> ParentAssistantGenerateRequest {
     let asked_at = timestamp_now();
     ParentAssistantGenerateRequest {
@@ -147,6 +151,7 @@ pub(crate) fn request_from_command(
         evidence_context: evidence_contexts_from_command(
             command,
             activity_snapshot,
+            stored_report_history,
             asked_at.clone(),
         ),
         model_id: string_payload_field(command, constants::field::LOCAL_AI_MODEL_ID)

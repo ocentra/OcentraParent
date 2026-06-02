@@ -36,11 +36,16 @@ show the same parent value, but with local custody and evidence citations.
 - Browser/app/network/screen evidence paths are represented through contracts
   and service/read-model proof.
 - Activity report persistence and family fanout proof is in progress/PR-ready.
+- Activity report history now loads saved JSON report documents through the
+  Rust service store, filters by family/device scope and requested report
+  window, and returns typed saved/degraded/storage-unavailable states.
 
 ## Current Gap
 
-Retention, migration, corruption recovery, parent-owned export, report history,
-and cross-feature query coverage are not yet product-complete.
+Retention, migration, corruption recovery, parent-owned export, and
+cross-feature query coverage are not yet product-complete. Report history has
+service-backed JSON storage/query proof but still needs product UI integration
+and retention/export controls.
 
 ## Checklist
 

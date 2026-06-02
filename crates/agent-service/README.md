@@ -11,6 +11,8 @@ development paths and orchestrates runtime commands.
 - LAN bind/origin restrictions and dev service lifecycle.
 - Runtime orchestration around core, protocol, AI, policy, activity, and
   enforcement paths.
+- Local Activity report JSON storage/history queries and Parent Assistant
+  evidence context assembly from service-owned Activity read models.
 - V0.8 product-control spine runtime reports through
   `agent.enforcement.product-control-spine.get` without upgrading unsupported
   broad adapter claims.
@@ -50,6 +52,8 @@ flowchart LR
 
 - Production service hardening and diagnostics.
 - Complete service-backed portal read models for all parent surfaces.
+- Parent portal Activity UI wiring remains C-owned; this crate exposes the
+  typed report/read-model events and saved-report evidence context only.
 - Platform adapter execution proof for capture, enforcement, notifications, and
   remote routing.
 - Product-complete broad app, network/domain, exact URL, notification, and

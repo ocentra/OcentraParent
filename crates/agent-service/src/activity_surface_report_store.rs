@@ -140,7 +140,7 @@ fn load_saved_reports(
             skipped_reports += 1;
             continue;
         };
-        if scope_matches(&request.scope, &report.scope) {
+        if scope_matches(&request.scope, &report.scope) && range_matches(request, &report) {
             reports.push(history_item_from_report(path, report));
         }
     }
@@ -288,6 +288,11 @@ fn scope_matches(request: &ActivitySurfaceScope, report: &ActivitySurfaceScope) 
                 && request.device_id == report.device_id
         }
     }
+}
+
+fn range_matches(request: &ActivitySurfaceRequest, report: &ActivityReportDocument) -> bool {
+    report.range_end.as_str() >= request.range_start.as_str()
+        && report.range_start.as_str() <= request.range_end.as_str()
 }
 
 struct LoadSavedReportsResult {

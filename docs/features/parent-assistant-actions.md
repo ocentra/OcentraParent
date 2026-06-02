@@ -33,6 +33,9 @@ configure, explain, and preview rules.
 ## Current Ocentra State
 
 - Parent assistant contracts and MIA/activity evidence context proof exist.
+- Parent Assistant now uses the local service to load the latest saved Activity
+  report history as evidence context when the command does not already carry a
+  report payload, while preserving explicit report/history payload precedence.
 - Provider routing and local AI scheduler work is in progress/proof-backed.
 - Finished portal chat/action flow is not done.
 
@@ -40,7 +43,8 @@ configure, explain, and preview rules.
 
 Assistant threads, cited answers, action previews, rule-writing flow, provider
 status UI, parent approval, and child-agent validation are incomplete as one
-product flow.
+product flow. Saved report citations have runtime proof, but the portal chat
+surface still needs C-owned integration.
 
 ## Checklist
 

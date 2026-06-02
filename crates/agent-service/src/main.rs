@@ -184,6 +184,7 @@ mod parent_assistant_api;
 mod parent_assistant_api_tests;
 mod parent_assistant_evidence_context;
 mod parent_assistant_payload;
+mod parent_assistant_report_history;
 mod parent_assistant_runtime;
 #[cfg(test)]
 mod parent_assistant_runtime_tests;
