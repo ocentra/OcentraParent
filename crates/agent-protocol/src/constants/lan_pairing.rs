@@ -145,6 +145,7 @@ pub const HOUSEHOLD_ACTION_ID: &str = "household-action-1";
 pub const HOUSEHOLD_RESTORE_ACTION_ID: &str = "household-action-restore-1";
 pub const HOUSEHOLD_RENAMED_DEVICE_LABEL: &str = "Bedroom Windows PC";
 pub const PRODUCTION_PROOF_FIELD_SUMMARY: &str = "productionHouseholdProof";
+pub const SIGNED_DISCOVERY_RELAY_FIELD_SUMMARY: &str = "signedDiscoveryRelaySpine";
 pub const PRODUCTION_PROOF_FIELD_STATUS_ROWS: &str = "statusRows";
 pub const PRODUCTION_PROOF_FIELD_PROOF_STATE: &str = "proofState";
 pub const PRODUCTION_PROOF_FIELD_NOT_IMPLEMENTED: &str = "notImplemented";
@@ -249,6 +250,8 @@ pub const PRODUCTION_PROOF_NON_CLAIM_IOS: &str =
     "iOS child-agent parity remains manual-required until entitlement device and transport artifacts are attached";
 pub const PRODUCTION_PROOF_NON_CLAIM_STORE: &str =
     "store signing remains manual-required until signing store and release artifacts are attached";
+pub const SIGNED_DISCOVERY_RELAY_NON_CLAIM_PARENT_STORAGE: &str =
+    "parent-owned storage is unavailable until a parent-selected storage adapter exists";
 pub const NETWORK_NEIGHBOR_LABEL_PREFIX: &str = "LAN ";
 pub const NETWORK_NEIGHBOR_UNKNOWN_HOSTNAME: &str = "unknown-host";
 pub const PLATFORM_UNKNOWN: &str = "unknown";

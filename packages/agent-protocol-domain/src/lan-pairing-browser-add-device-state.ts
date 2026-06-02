@@ -1,5 +1,6 @@
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import { AgentDeviceIdSchema, AgentPeerIdSchema, AgentProtocolSchemaVersion, AgentTimestampSchema } from './primitives';
+import { AgentLanSignedDiscoveryRelaySpineSchema } from './lan-signed-discovery-relay-spine';
 import {
   AgentLanPairingAddressRefSchema,
   AgentLanPairingDeviceRefSchema,
@@ -329,6 +330,10 @@ export const AgentLanBrowserAddDeviceReadModelSchema = withParser(
     householdDeviceDecisions: Schema.Array(AgentLanHouseholdDeviceDecisionSchema),
     productionHouseholdProof: Schema.optionalWith(
       Schema.Union(AgentLanProductionHouseholdProofSummarySchema, Schema.Null),
+      { default: () => null }
+    ),
+    signedDiscoveryRelaySpine: Schema.optionalWith(
+      Schema.Union(AgentLanSignedDiscoveryRelaySpineSchema, Schema.Null),
       { default: () => null }
     ),
     trustedDeviceIds: Schema.Array(AgentDeviceIdSchema),

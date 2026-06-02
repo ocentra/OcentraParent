@@ -8,6 +8,7 @@ use ocentra_parent_agent_protocol::{
 };
 
 mod production_household_proof;
+mod signed_discovery_relay_spine;
 
 use crate::lan_network_inventory;
 use crate::lan_pairing_browser_add_device_scan::{
@@ -17,6 +18,7 @@ use crate::lan_pairing_household_device_spine;
 use crate::{lan_pairing::LanPairingRuntime, time::timestamp_now};
 
 use self::production_household_proof::production_household_proof_summary;
+use self::signed_discovery_relay_spine::signed_discovery_relay_spine_summary;
 
 pub(crate) fn browser_add_device_pairs(
     runtime: &LanPairingRuntime,
@@ -129,6 +131,14 @@ fn browser_add_device_read_model(
         &household_device_decisions,
         &selected_device_readiness,
     );
+    let signed_discovery_relay_spine = signed_discovery_relay_spine_summary(
+        &generated_at,
+        physical_household_lan_state.clone(),
+        &scan_summary,
+        &trusted_device_registry,
+        &household_device_decisions,
+        &selected_device_readiness,
+    );
     LanBrowserAddDeviceReadModel {
         schema_version: constants::lan_pairing::SCHEMA_VERSION,
         generated_at: generated_at.clone(),
@@ -148,6 +158,7 @@ fn browser_add_device_read_model(
         trusted_device_registry,
         household_device_decisions,
         production_household_proof: Some(production_household_proof),
+        signed_discovery_relay_spine: Some(signed_discovery_relay_spine),
         trusted_device_ids: runtime.trusted_device_ids(),
         revoked_device_ids: runtime.revoked_device_ids(),
         selected_device_readiness,
@@ -423,6 +434,7 @@ fn expired_pairing_count(model: &LanBrowserAddDeviceReadModel) -> usize {
 
 fn audit_check_labels() -> Vec<String> {
     [
+        constants::value::LAN_REASON_ANONYMOUS,
         constants::value::LAN_REASON_WRONG_ORIGIN,
         constants::value::LAN_REASON_WRONG_DEVICE,
         constants::value::LAN_REASON_REPLAYED,

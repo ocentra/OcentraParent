@@ -3,6 +3,7 @@ export * from './lan-discovery-evidence';
 export * from './lan-device-parent-actions';
 export * from './household-device-spine';
 export * from './lan-production-household-proof';
+export * from './lan-signed-discovery-relay-spine';
 export * from './lan-pairing-device';
 export * from './lan-pairing-browser-runtime';
 export * from './lan-pairing-control';

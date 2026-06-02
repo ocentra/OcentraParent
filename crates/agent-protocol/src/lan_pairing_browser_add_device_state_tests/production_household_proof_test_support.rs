@@ -24,6 +24,9 @@ pub(super) fn browser_add_device_read_model_fixture() -> LanBrowserAddDeviceRead
         trusted_device_registry: Vec::new(),
         household_device_decisions: vec![household_decision()],
         production_household_proof: Some(production_household_proof()),
+        signed_discovery_relay_spine: Some(
+            super::signed_discovery_relay_spine_test_support::signed_discovery_relay_spine_fixture(),
+        ),
         trusted_device_ids: Vec::new(),
         revoked_device_ids: Vec::new(),
         selected_device_readiness: selected_device_readiness_fixture(),
@@ -71,6 +74,9 @@ pub(super) fn assert_browser_add_device_read_model_json(value: &serde_json::Valu
     assert_eq!(
         value["productionHouseholdProof"]["notImplemented"],
         serde_json::json!(["relay-route", "cache-route"])
+    );
+    super::signed_discovery_relay_spine_test_support::assert_signed_discovery_relay_spine_json(
+        &value["signedDiscoveryRelaySpine"],
     );
     assert_eq!(
         value["canonicalHouseholdDevices"][0]["policyTargetSurfaces"],

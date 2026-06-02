@@ -110,6 +110,20 @@ fn assert_empty_runtime_read_model(read_model: &Value) {
         .iter()
         .any(|claim| claim.as_str()
             == Some(constants::lan_pairing::PRODUCTION_PROOF_NON_CLAIM_SIGNED)));
+    let signed_discovery_relay_spine =
+        &read_model[constants::lan_pairing::SIGNED_DISCOVERY_RELAY_FIELD_SUMMARY];
+    assert_eq!(
+        signed_discovery_relay_spine["adapterRows"][6]["adapter"],
+        serde_json::json!("signed-child-agent-hello")
+    );
+    assert_eq!(
+        signed_discovery_relay_spine["signedProofRows"][3]["rejectionReason"],
+        serde_json::json!(constants::value::LAN_REASON_ANONYMOUS)
+    );
+    assert_eq!(
+        signed_discovery_relay_spine["relayCacheRows"][4]["custodyLabel"],
+        serde_json::json!("no-ocentra-child-data-custody")
+    );
 }
 
 #[tokio::test]
@@ -159,6 +173,16 @@ async fn lan_status_marks_selected_trusted_device_ready_for_control() {
                 == serde_json::json!(
                     constants::lan_pairing::PRODUCTION_PROOF_CAPABILITY_ROUTE_CUSTODY
                 ))
+            .expect(constants::value::LAN_READ_MODEL_JSON_EXPECTATION)
+            [constants::field::LAN_DISCOVERY_STATE],
+        serde_json::json!(constants::value::LAN_DISCOVERY_STATE_PAIRED)
+    );
+    assert_eq!(
+        read_model[constants::lan_pairing::SIGNED_DISCOVERY_RELAY_FIELD_SUMMARY]["routeSafetyRows"]
+            .as_array()
+            .expect(constants::value::LAN_HONEST_NON_CLAIMS_ARRAY_EXPECTATION)
+            .iter()
+            .find(|row| row["check"] == serde_json::json!("selected-route-custody"))
             .expect(constants::value::LAN_READ_MODEL_JSON_EXPECTATION)
             [constants::field::LAN_DISCOVERY_STATE],
         serde_json::json!(constants::value::LAN_DISCOVERY_STATE_PAIRED)
