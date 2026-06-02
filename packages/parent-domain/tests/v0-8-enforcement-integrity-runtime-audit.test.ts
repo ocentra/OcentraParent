@@ -23,6 +23,8 @@ function registerReadModelSummaryTest() {
     expect(readModel.entries).toHaveLength(14);
     expect(readModel.integrityAlertStatusBridge.readModelId).toBe('v0-8-integrity-alert-status-bridge');
     expect(readModel.integrityAlertStatusBridge.entries).toHaveLength(4);
+    expect(readModel.notificationProviderStatusBoundary.readModelId).toBe('v0-8-notification-provider-status-boundary');
+    expect(readModel.notificationProviderStatusBoundary.entries).toHaveLength(5);
     expect(countBy(readModel.entries.map((entry) => entry.result))).toEqual({
       succeeded: 1,
       expired: 1,
@@ -61,6 +63,12 @@ function registerReadModelSummaryTest() {
     expect(readModel.entries.every((entry) => !entry.mobilePrivilegeClaimed)).toBe(true);
     expect(readModel.entries.every((entry) => !entry.stealthPersistenceClaimed)).toBe(true);
     expect(readModel.entries.every((entry) => !entry.privilegeEscalationClaimed)).toBe(true);
+    expect(readModel.notificationProviderStatusBoundary.entries.every((entry) => !entry.providerDeliveryObserved)).toBe(
+      true
+    );
+    expect(
+      readModel.notificationProviderStatusBoundary.entries.every((entry) => !entry.deliveredNotificationClaimed)
+    ).toBe(true);
   });
 }
 
@@ -173,6 +181,25 @@ function registerIntegrityStateTest() {
         expect.objectContaining({
           integrityAlertState: 'tamper-manual-required',
           auditState: 'manual-required',
+        }),
+      ])
+    );
+    expect(V08EnforcementIntegrityRuntimeAuditReadModel.notificationProviderStatusBoundary.entries).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          providerStatus: 'queued',
+          quietHoursReadiness: 'ready',
+          providerDeliveryImplemented: false,
+        }),
+        expect.objectContaining({
+          providerStatus: 'delivered',
+          statusProofState: 'delivery-receipt-required',
+          deliveredNotificationClaimed: false,
+        }),
+        expect.objectContaining({
+          providerStatus: 'manual-required',
+          escalationReadiness: 'manual-required',
+          sensitiveProviderPayloadClaimed: false,
         }),
       ])
     );

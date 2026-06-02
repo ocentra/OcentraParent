@@ -20,6 +20,9 @@ Rust protocol parity crate for data that crosses the TypeScript/Rust boundary.
 - V0.9 signed LAN discovery/relay spine structs, enums, constants, and parity
   tests for adapter evidence, signed proof rejection, route safety, relay/cache
   availability, parent-owned storage, and custody labels.
+- V0.8 notification provider status boundary structs/constants nested in the
+  integrity runtime audit payload for queued, delivered, failed, unavailable,
+  manual-required, quiet-hours, and escalation readiness proof.
 
 ## Must Not Own
 
@@ -68,3 +71,11 @@ flowchart LR
 - Signed LAN discovery structs must preserve manual-required/not-implemented
   states for physical household proof, signed child-agent artifacts, relay, and
   cache routes until service/runtime proof is real.
+- Notification provider status boundary structs must preserve delivered as
+  receipt-required contract coverage only. Real delivery receipts, provider
+  webhooks, retry execution, quiet-hours scheduling, escalation delivery, and
+  parent preference controls remain outside this crate.
+- Notification provider status boundary structs must preserve provider status,
+  readiness, preference, audit, and receipt-required refs while keeping delivery
+  implementation, observed delivery, sensitive provider payloads, and provider
+  child-evidence storage unclaimed.

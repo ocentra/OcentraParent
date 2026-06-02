@@ -25,7 +25,9 @@ development paths and orchestrates runtime commands.
   timer recovery/rollback, child-status, parent-override, permission-loss,
   integrity heartbeat, tamper/manual states, and nested integrity alert/status
   bridge rows for permission loss, stale heartbeat, stopped/removed, and tamper
-  manual review.
+  manual review, plus nested notification provider status boundary rows for
+  queued, delivered, failed, unavailable, manual-required, quiet-hours, and
+  escalation readiness.
 - V0.9 signed LAN discovery/relay spine read-model rows for adapter evidence,
   signed proof rejection, selected-route safety, parent decision audits,
   relay/cache unavailable state, parent-owned storage unavailable state, and no
@@ -82,3 +84,7 @@ flowchart LR
 - Signed LAN hello/heartbeat, two-host household proof, real relay, and real
   cache routes remain manual-required or not implemented until runtime adapters
   and artifacts exist.
+- Notification provider status boundary read models are backend
+  status/readiness proof only; provider adapters, provider receipts, retry
+  execution, quiet-hours scheduling, escalation delivery, parent controls,
+  notification UI, and Ocentra-hosted child activity storage remain unclaimed.

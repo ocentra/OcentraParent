@@ -42,15 +42,20 @@ custody.
   intent/status refs for permission-loss, stale heartbeat, stopped-or-removed,
   and tamper/manual-required enforcement integrity states, with authenticated
   drill-in refs back to audit evidence.
+- V0.8 notification provider status boundary proof now represents queued,
+  delivered, failed, unavailable, and manual-required provider status contract
+  states, plus quiet-hours and escalation readiness refs, through the existing
+  supported-adapter runtime proof event payload.
 - Parent-facing reports, alert delivery, and connectors are incomplete.
 
 ## Current Gap
 
 Need report UI, trend summaries, cited assistant Q&A as a complete product
-flow, notification providers, quiet hours, escalation, delivered/failed provider
-status, connectors, retention, and delete/export controls. The V0.8 integrity
-bridge proves only minimal notification intent/status references and audit
-drill-in, not provider delivery or UI.
+flow, real notification provider adapters, retry execution, provider receipt
+ingestion, parent controls, connectors, retention, and delete/export controls.
+The V0.8 integrity bridge and provider status boundary prove only minimal
+notification intent/status/readiness references and audit drill-in, not provider
+delivery or UI.
 
 ## Checklist
 
@@ -60,8 +65,10 @@ drill-in, not provider delivery or UI.
 - [ ] Notification rule contract.
 - [x] Minimal payload and authenticated drill-in refs exist for V0.8 integrity
       alert/status bridge states.
-- [ ] Delivery/queued/failed provider status.
-- [ ] Quiet hours and escalation.
+- [x] Delivery/queued/failed/unavailable/manual-required provider status
+      read-model proof exists without provider delivery claims.
+- [x] Quiet-hours and escalation readiness read-model proof exists without
+      parent controls or provider delivery.
 - [ ] Retention/delete controls.
 
 ## Next AI Instructions
@@ -70,4 +77,6 @@ Do not put sensitive child detail in notification payloads. Do not store reports
 in Ocentra-hosted systems by default. Keep report source and custody labels
 visible. Treat `scripts/test/v0-8-integrity-alert-status-bridge.mjs` as
 notification intent/status proof only; require provider artifacts before claiming
-delivery.
+delivery. Treat `scripts/test/v0-8-notification-provider-status-boundary.mjs`
+as provider status/readiness proof only; require provider adapter, receipt,
+retry, and parent-control artifacts before claiming notification delivery.

@@ -1,6 +1,9 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{ParentPlatform, V08IntegrityAlertStatusBridgeReadModel};
+use crate::{
+    ParentPlatform, V08IntegrityAlertStatusBridgeReadModel,
+    V08NotificationProviderStatusBoundaryReadModel,
+};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum V08EnforcementIntegrityRuntimeAuditSurface {
@@ -216,4 +219,5 @@ pub struct V08EnforcementIntegrityRuntimeAuditReadModel {
     pub source_read_model_ids: Vec<String>,
     pub entries: Vec<V08EnforcementIntegrityRuntimeAuditEntry>,
     pub integrity_alert_status_bridge: V08IntegrityAlertStatusBridgeReadModel,
+    pub notification_provider_status_boundary: V08NotificationProviderStatusBoundaryReadModel,
 }

@@ -2,6 +2,7 @@ use crate::{
     constants::{
         self, v08_enforcement_integrity_runtime_audit as proof,
         v08_integrity_alert_status_bridge as bridge,
+        v08_notification_provider_status_boundary as boundary,
     },
     policy_constants, ParentPlatform, V08EnforcementIntegrityRuntimeAuditAuditState,
     V08EnforcementIntegrityRuntimeAuditChildState, V08EnforcementIntegrityRuntimeAuditEntry,
@@ -13,7 +14,10 @@ use crate::{
     V08IntegrityAlertAuditState, V08IntegrityAlertDeliveryState,
     V08IntegrityAlertNotificationIntentState, V08IntegrityAlertParentVisibleStatus,
     V08IntegrityAlertState, V08IntegrityAlertStatusBridgeEntry,
-    V08IntegrityAlertStatusBridgeReadModel,
+    V08IntegrityAlertStatusBridgeReadModel, V08NotificationEscalationReadiness,
+    V08NotificationProviderDeliveryClaim, V08NotificationProviderStatus,
+    V08NotificationProviderStatusBoundaryEntry, V08NotificationProviderStatusBoundaryReadModel,
+    V08NotificationProviderStatusProofState, V08NotificationQuietHoursReadiness,
 };
 
 #[test]
@@ -62,6 +66,7 @@ fn enforcement_integrity_runtime_audit_read_model_preserves_non_claim_flags() {
             ),
         ],
         integrity_alert_status_bridge: bridge_read_model(),
+        notification_provider_status_boundary: provider_boundary_read_model(),
     };
     let reparsed = serde_json::from_value::<V08EnforcementIntegrityRuntimeAuditReadModel>(
         serde_json::to_value(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES),
@@ -103,6 +108,7 @@ fn enforcement_integrity_runtime_audit_read_model_preserves_non_claim_flags() {
         .entries
         .iter()
         .all(|entry| !entry.provider_delivery_claimed));
+    assert_provider_boundary_preserves_non_claims(&reparsed.notification_provider_status_boundary);
 }
 
 fn entry(
@@ -180,6 +186,58 @@ fn bridge_read_model() -> V08IntegrityAlertStatusBridgeReadModel {
             mobile_enforcement_claimed: false,
             stealth_persistence_claimed: false,
             privilege_escalation_claimed: false,
+            last_checked_at: policy_constants::TEST_EVALUATED_AT.to_string(),
+        }],
+    }
+}
+
+fn assert_provider_boundary_preserves_non_claims(
+    read_model: &V08NotificationProviderStatusBoundaryReadModel,
+) {
+    assert_eq!(read_model.read_model_id, boundary::READ_MODEL_ID);
+    assert!(read_model
+        .entries
+        .iter()
+        .all(|entry| !entry.provider_delivery_observed));
+    assert!(read_model
+        .entries
+        .iter()
+        .all(|entry| !entry.delivered_notification_claimed));
+}
+
+fn provider_boundary_read_model() -> V08NotificationProviderStatusBoundaryReadModel {
+    V08NotificationProviderStatusBoundaryReadModel {
+        schema_version: policy_constants::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
+        read_model_id: boundary::READ_MODEL_ID.to_string(),
+        generated_at: policy_constants::TEST_EVALUATED_AT.to_string(),
+        source_read_model_ids: vec![boundary::SOURCE_REPORTS_NOTIFICATIONS_SYNC.to_string()],
+        entries: vec![V08NotificationProviderStatusBoundaryEntry {
+            schema_version: policy_constants::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
+            status_entry_id: boundary::ENTRY_DELIVERED.to_string(),
+            provider_status: V08NotificationProviderStatus::Delivered,
+            status_proof_state: V08NotificationProviderStatusProofState::DeliveryReceiptRequired,
+            quiet_hours_readiness: V08NotificationQuietHoursReadiness::DeferNoncritical,
+            escalation_readiness: V08NotificationEscalationReadiness::WaitingWindow,
+            delivery_claim_state: V08NotificationProviderDeliveryClaim::ReceiptRequired,
+            notification_intent_ref: boundary::REF_NOTIFICATION_INTENT.to_string(),
+            notification_status_ref: boundary::REF_STATUS_DELIVERED.to_string(),
+            provider_attempt_ref: boundary::REF_ATTEMPT_DELIVERED.to_string(),
+            audit_refs: vec![boundary::REF_AUDIT.to_string()],
+            preference_refs: vec![boundary::REF_PARENT_PREFERENCES.to_string()],
+            readiness_refs: vec![
+                boundary::REF_QUIET_DEFER_NONCRITICAL.to_string(),
+                boundary::REF_ESCALATION_WAITING_WINDOW.to_string(),
+            ],
+            provider_receipt_refs: vec![boundary::REF_PROVIDER_RECEIPT_REQUIRED.to_string()],
+            manual_proof_requirements: vec![
+                boundary::REQUIREMENT_PROVIDER_RECEIPT_ARTIFACT.to_string()
+            ],
+            minimal_payload_boundary: boundary::BOUNDARY_DELIVERED.to_string(),
+            provider_delivery_implemented: false,
+            provider_delivery_observed: false,
+            delivered_notification_claimed: false,
+            sensitive_provider_payload_claimed: false,
+            provider_stores_child_evidence_claimed: false,
             last_checked_at: policy_constants::TEST_EVALUATED_AT.to_string(),
         }],
     }
