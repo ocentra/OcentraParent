@@ -49,7 +49,7 @@ update last confirmed, online, stale, and offline state.
 - Child hello tests cover valid signed hello, missing device id, missing nonce,
   invalid signature, wrong family, expired timestamp, replay, unknown future
   version, and unknown capability.
-- Heartbeat fake-clock tests cover valid heartbeat, wrong signature, timeout,
+- Heartbeat explicit-timestamp tests cover valid heartbeat, wrong signature, timeout,
   late heartbeat recovery, stale, and offline transitions.
 - Manual proof captures second physical child-agent hello and heartbeat before
   production household LAN readiness is claimed.

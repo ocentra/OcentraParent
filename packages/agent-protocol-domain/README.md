@@ -15,6 +15,8 @@ transports.
 - V0.9 signed LAN discovery/relay spine payloads for add-device read models,
   including adapter rows, signed proof rows, route safety rows, and relay/cache
   rows consumed by the Rust service and parent surfaces.
+- V0.9 LAN source-matrix payloads that carry 20 workpack rows and discovery
+  source rows from product contracts into service-backed portal diagnostics.
 - Enforcement policy-dispatch read-model event parsing for the service-backed
   V0.8 dispatch proof path.
 - Enforcement supported-adapter runtime proof event parsing, including the
@@ -78,3 +80,5 @@ flowchart LR
   provider delivery, webhook receipts, retry execution, quiet-hours scheduling,
   escalation delivery, and parent preference controls remain outside this
   adapter.
+- LAN source-matrix parsing keeps unavailable/manual source rows visible but
+  does not upgrade them into production discovery adapters.

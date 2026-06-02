@@ -66,6 +66,9 @@ export type LanDevice = {
   relayCacheCustody?: string | undefined;
   manualProof?: string | undefined;
   claimsNotProved?: string | undefined;
+  lanWorkpackStatus?: string | undefined;
+  lanSourceProof?: string | undefined;
+  lanWeakSourceProof?: string | undefined;
   parentDecision?: string | undefined;
   auditLabel?: string | undefined;
   requirementLabel?: string | undefined;

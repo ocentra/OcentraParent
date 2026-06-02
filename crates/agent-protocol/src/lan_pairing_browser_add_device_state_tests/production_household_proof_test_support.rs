@@ -28,6 +28,9 @@ pub(super) fn browser_add_device_read_model_fixture() -> LanBrowserAddDeviceRead
             super::signed_discovery_relay_spine_test_support::signed_discovery_relay_spine_fixture(
             ),
         ),
+        lan_discovery_source_matrix: Some(
+            super::source_matrix_test_support::source_matrix_fixture(),
+        ),
         trusted_device_ids: Vec::new(),
         revoked_device_ids: Vec::new(),
         selected_device_readiness: selected_device_readiness_fixture(),
@@ -78,6 +81,9 @@ pub(super) fn assert_browser_add_device_read_model_json(value: &serde_json::Valu
     );
     super::signed_discovery_relay_spine_test_support::assert_signed_discovery_relay_spine_json(
         &value["signedDiscoveryRelaySpine"],
+    );
+    super::source_matrix_test_support::assert_source_matrix_json(
+        &value[constants::lan_pairing::LAN_SOURCE_MATRIX_FIELD_SUMMARY],
     );
     assert_eq!(
         value["canonicalHouseholdDevices"][0]["policyTargetSurfaces"],

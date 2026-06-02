@@ -517,6 +517,9 @@ type LanDeviceEvidenceInput = {
   readonly relayCacheCustody?: string | undefined;
   readonly manualProof?: string | undefined;
   readonly claimsNotProved?: string | undefined;
+  readonly lanWorkpackStatus?: string | undefined;
+  readonly lanSourceProof?: string | undefined;
+  readonly lanWeakSourceProof?: string | undefined;
   readonly parentDecision?: string | undefined;
   readonly auditLabel?: string | undefined;
   readonly requirementLabel?: string | undefined;
@@ -537,6 +540,7 @@ function lanDeviceEvidence(
   const signedProofRow = firstLanSpineRecord(signedSpine, 'signedProofRows');
   const relayCacheRow = firstLanSpineRecord(signedSpine, 'relayCacheRows');
   const adapterRow = preferredLanSpineAdapterRow(signedSpine, selectedMatches);
+  const sourceMatrix = recordValue(readModel['lanDiscoverySourceMatrix']);
   const registryEntry = preferredLanTrustedRegistryEntry(readModel, deviceId, routeId);
   const childDevice = recordValue(registryEntry?.['childDevice']);
   const parentDevice = recordValue(registryEntry?.['parentDevice']);
@@ -564,6 +568,9 @@ function lanDeviceEvidence(
     relayCacheCustody: stringValue(relayCacheRow?.['custodyLabel']),
     manualProof: lanEvidenceSummary(signedSpine?.['manualProofRequired']),
     claimsNotProved: lanEvidenceSummary(signedSpine?.['claimsNotProved']),
+    lanWorkpackStatus: lanSourceMatrixWorkpackSummary(sourceMatrix),
+    lanSourceProof: lanSourceMatrixImplementedSummary(sourceMatrix),
+    lanWeakSourceProof: lanSourceMatrixWeakSourceSummary(sourceMatrix),
     parentDecision: lanHouseholdDecisionLabel(decision),
     auditLabel: firstString(readModel['auditCheckLabels']),
     requirementLabel: firstString(readModel['routeRequirementLabels']),
@@ -651,6 +658,32 @@ function lanEvidenceSummary(value: unknown): string {
   return `${items.slice(0, 2).join(', ')} +${items.length - 2}`;
 }
 
+function lanSourceMatrixWorkpackSummary(sourceMatrix: Record<string, unknown> | null): string {
+  const rows = recordArrayValue(sourceMatrix?.['workpackRows']);
+  if (rows.length === 0) return '';
+  const complete = rows.filter((row) => stringValue(row['status']) === 'implemented').length;
+  const partial = rows.filter((row) => stringValue(row['status']) === 'partial').length;
+  const manual = rows.filter((row) => stringValue(row['status']) === 'manual-required').length;
+  const missing = rows.filter((row) => stringValue(row['status']) === 'not-implemented').length;
+  return `workpacks ${complete}/${rows.length} implemented; ${partial} partial; ${manual} manual; ${missing} missing`;
+}
+
+function lanSourceMatrixImplementedSummary(sourceMatrix: Record<string, unknown> | null): string {
+  const labels = recordArrayValue(sourceMatrix?.['sourceRows'])
+    .filter((row) => stringValue(row['status']) === 'implemented')
+    .map((row) => stringValue(row['source']))
+    .filter((source) => source.length > 0);
+  return lanEvidenceSummary(labels);
+}
+
+function lanSourceMatrixWeakSourceSummary(sourceMatrix: Record<string, unknown> | null): string {
+  const weak = recordArrayValue(sourceMatrix?.['sourceRows']).filter(
+    (row) => row['canConfirmChildAgent'] !== true && row['canAssignChildProfile'] !== true
+  ).length;
+  const total = recordArrayValue(sourceMatrix?.['sourceRows']).length;
+  return total > 0 ? `weak sources fenced ${weak}/${total}` : '';
+}
+
 function compactLanDeviceEvidence(input: LanDeviceEvidenceInput): LanDeviceEvidenceInput {
   return Object.fromEntries(
     Object.entries(input).filter(([, value]) => value !== undefined && value !== '')
@@ -708,6 +741,9 @@ function upsertLanDeviceSlot(
     readonly relayCacheCustody?: string | undefined;
     readonly manualProof?: string | undefined;
     readonly claimsNotProved?: string | undefined;
+    readonly lanWorkpackStatus?: string | undefined;
+    readonly lanSourceProof?: string | undefined;
+    readonly lanWeakSourceProof?: string | undefined;
     readonly parentDecision?: string | undefined;
     readonly auditLabel?: string | undefined;
     readonly requirementLabel?: string | undefined;
@@ -784,6 +820,9 @@ function upsertLanDeviceSlot(
       relayCacheCustody: input.relayCacheCustody || existing?.device?.relayCacheCustody,
       manualProof: input.manualProof || existing?.device?.manualProof,
       claimsNotProved: input.claimsNotProved || existing?.device?.claimsNotProved,
+      lanWorkpackStatus: input.lanWorkpackStatus || existing?.device?.lanWorkpackStatus,
+      lanSourceProof: input.lanSourceProof || existing?.device?.lanSourceProof,
+      lanWeakSourceProof: input.lanWeakSourceProof || existing?.device?.lanWeakSourceProof,
       parentDecision: input.parentDecision || existing?.device?.parentDecision,
       auditLabel: input.auditLabel || existing?.device?.auditLabel,
       requirementLabel: input.requirementLabel || existing?.device?.requirementLabel,

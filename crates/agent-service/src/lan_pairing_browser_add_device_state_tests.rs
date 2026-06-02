@@ -86,6 +86,7 @@ fn assert_empty_runtime_read_model(read_model: &Value) {
     );
     assert_empty_runtime_production_household_proof(read_model);
     assert_empty_runtime_signed_discovery_relay_spine(read_model);
+    assert_empty_runtime_lan_source_matrix(read_model);
 }
 
 fn assert_empty_runtime_production_household_proof(read_model: &Value) {
@@ -139,6 +140,35 @@ fn assert_empty_runtime_signed_discovery_relay_spine(read_model: &Value) {
             [constants::lan_pairing::SIGNED_DISCOVERY_RELAY_FIELD_RELAY_CACHE_ROWS][4]
             [constants::lan_pairing::SIGNED_DISCOVERY_RELAY_FIELD_CUSTODY_LABEL],
         serde_json::json!(constants::lan_pairing::SIGNED_DISCOVERY_RELAY_CUSTODY_NO_CHILD_DATA)
+    );
+}
+
+fn assert_empty_runtime_lan_source_matrix(read_model: &Value) {
+    let matrix = &read_model[constants::lan_pairing::LAN_SOURCE_MATRIX_FIELD_SUMMARY];
+    assert_eq!(
+        matrix[constants::lan_pairing::LAN_SOURCE_MATRIX_FIELD_WORKPACK_ROWS]
+            .as_array()
+            .expect(constants::value::LAN_READ_MODEL_JSON_EXPECTATION)
+            .len(),
+        20
+    );
+    assert_eq!(
+        matrix[constants::lan_pairing::LAN_SOURCE_MATRIX_FIELD_WORKPACK_ROWS][17]
+            [constants::lan_pairing::LAN_SOURCE_MATRIX_FIELD_WORKPACK_ID],
+        serde_json::json!(constants::lan_pairing::LAN_SOURCE_MATRIX_WORKPACK_ID_SIGNED_CHILD_HELLO)
+    );
+    assert_eq!(
+        matrix[constants::lan_pairing::LAN_SOURCE_MATRIX_FIELD_SOURCE_ROWS][0]
+            [constants::lan_pairing::LAN_SOURCE_MATRIX_FIELD_CAN_CONFIRM],
+        serde_json::json!(false)
+    );
+    assert!(
+        matrix[constants::lan_pairing::PRODUCTION_PROOF_FIELD_CLAIMS_NOT_PROVED]
+            .as_array()
+            .expect(constants::value::LAN_HONEST_NON_CLAIMS_ARRAY_EXPECTATION)
+            .iter()
+            .any(|claim| claim.as_str()
+                == Some(constants::lan_pairing::LAN_SOURCE_MATRIX_NON_CLAIM_PACKET_MODE))
     );
 }
 

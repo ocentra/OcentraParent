@@ -63,6 +63,14 @@ PC while preserving local-first custody.
   routes LAN commands to the selected local-network child target. Activity/
   Network diagnostics also show scan/evidence timing, evidence expiry, signed
   adapter proof state, and policy-target history.
+- The LAN source-matrix follow-up now carries all 20 LAN plan workpacks and
+  concrete discovery source rows through parent-domain, agent-protocol-domain,
+  Rust protocol, Rust service state, and Activity/Network diagnostics. The
+  focused proof script writes
+  `test-results/v0-9-lan-source-matrix-plan-completion/proof.json`, and B-lane
+  browser artifacts under
+  `output/playwright/lan-source-matrix-plan-completion/` show Devices/LAN,
+  Activity/Network source-matrix diagnostics, and Network policy target binding.
 - Parent desktop Tauri proof now serializes active-controller route,
   observer-read-only, live local-network custody, relay unavailable, cache
   unavailable, and parent-owned storage unavailable states without implementing
@@ -82,10 +90,10 @@ PC while preserving local-first custody.
 Physical household proof still needs a second installed child agent, signed LAN
 agent hello/heartbeat artifacts, and stronger name discovery such as
 mDNS/SSDP/router DHCP integration. Browser screenshot proof now exists for the
-current B-lane Devices/LAN, Activity/Network, and Network policy surfaces, but
-that is not two-physical-child household proof. Optional remote relay, cache
-route, mobile permissions, Android Device Owner/Accessibility/VPN/DNS/UsageStats
-proof, iOS Family
+current B-lane Devices/LAN, Activity/Network source-matrix diagnostics, and
+Network policy surfaces, but that is not two-physical-child household proof.
+Optional remote relay, cache route, mobile permissions, Android Device
+Owner/Accessibility/VPN/DNS/UsageStats proof, iOS Family
 Controls/DeviceActivity/Network Extension proof, signing, and store
 distribution remain.
 
@@ -101,8 +109,9 @@ distribution remain.
       second-child-agent pairing proof remain manual-required. Portal LAN detail
       and Activity/Network diagnostics consume these fields, and Devices/LAN
       exposes command-backed action controls. Browser screenshot proof exists
-      under `output/playwright/lan-ux-proof/`; real signed hello/heartbeat and
-      second-child-agent pairing proof remain manual-required.
+      under `output/playwright/lan-source-matrix-plan-completion/`; real signed
+      hello/heartbeat and second-child-agent pairing proof remain
+      manual-required.
 - [ ] Trusted registry and revocation. Current proof covers typed registry,
       trust, parent decision, revocation, stale, and offline rows; portal
       diagnostics now show the read-model/audit state and command-backed
