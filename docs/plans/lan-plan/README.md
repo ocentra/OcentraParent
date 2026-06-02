@@ -6,6 +6,10 @@ household inventory, pairing, and related UI/UX requirements.
 - [V0.9 LAN Discovery 20-Step Plan](v0-9-lan-discovery-20-step-plan.md)
 - [V0.9 LAN Discovery Test Blueprint](v0-9-lan-discovery-test-blueprint.md)
 - [LAN Discovery UI/UX Requirements Guide](ui-ux-requirements-guide.md)
+- [LAN Plan Implementation Checklist](implementation-checklist.md)
+- [LAN Source Index](source-index.md)
+- [Current LAN Snapshot](current-lan-snapshot.md)
+- [Pasted Content Coverage Audit](pasted-content-coverage-audit.md)
 
 The rule remains:
 
@@ -78,6 +82,10 @@ all screens or that ChatGPT knew the current C-lane UI implementation.
 ## Parallel Coordination Rules
 
 - Lock the workpack doc and the exact implementation paths before editing.
+- Use the [implementation checklist](implementation-checklist.md), [source
+  index](source-index.md), [current snapshot](current-lan-snapshot.md), and
+  [coverage audit](pasted-content-coverage-audit.md) before splitting work
+  across multiple agents.
 - Do not create a second source of truth. Durable state belongs in the canonical
   household device registry; read models and portal rows are derived from it.
 - Build TypeScript domain contracts first, Rust protocol/service parity second,
