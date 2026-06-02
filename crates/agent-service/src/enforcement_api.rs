@@ -31,11 +31,16 @@ mod enforcement_broad_adapter_proof_read_model;
 mod enforcement_broad_adapter_proof_read_model_tests;
 mod enforcement_broad_adapter_proof_report;
 mod enforcement_product_control_payload;
+mod enforcement_supported_adapter_runtime_proof_read_model;
+#[cfg(test)]
+mod enforcement_supported_adapter_runtime_proof_read_model_tests;
+mod enforcement_supported_adapter_runtime_proof_report;
 
 pub use self::enforcement_broad_adapter_proof_report::build_enforcement_broad_adapter_proof_report;
 use self::enforcement_product_control_payload::{
     enforcement_policy_dispatch_payload, enforcement_product_control_spine_payload,
 };
+pub use self::enforcement_supported_adapter_runtime_proof_report::build_enforcement_supported_adapter_runtime_proof_report;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) struct EnforcementJournalPaths {

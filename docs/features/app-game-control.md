@@ -50,6 +50,10 @@ control with better evidence and local audit.
 - The V0.8 broad-adapter proof now exposes a service-backed runtime read model
   that keeps owned-process/app timer support as implemented-boundary while
   broad installed-app blocking remains manual-required.
+- The V0.8 supported-adapter runtime proof now narrows the implemented app/game
+  claim to Windows owned-process time-limit support with evidence, timer,
+  rollback, and audit references while keeping package-wide app blocking
+  manual-required.
 - Broad app blocking remains manual-required or unproved by platform.
 - Raw app and game control setting inventories are preserved as design inputs,
   not product-complete implementation proof.
@@ -59,7 +63,8 @@ control with better evidence and local audit.
 Parent-visible app catalog, category quality, install/approval linkage, child
 request flow, broad blocking, and cross-platform parity are incomplete. Broad
 installed-app blocking remains manual-required beyond the scoped
-owned-process/app-session proof, including in the broad-adapter service proof.
+owned-process/app-session proof, including in the broad-adapter and
+supported-adapter runtime service proofs.
 
 ## Checklist
 

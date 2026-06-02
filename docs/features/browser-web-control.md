@@ -54,6 +54,9 @@ control while being more honest about managed versus unmanaged sources.
   model and typed protocol adapter where managed browser session support is an
   implemented boundary, managed exact URL remains manual-required, and
   unmanaged exact evidence remains not-claimed.
+- The V0.8 supported-adapter runtime proof now keeps exact active-tab
+  enforcement explicitly not-claimed while app/game and network observe-only
+  supported boundaries are represented separately.
 - Unmanaged browser states can be represented as possible bypass and
   process-only fallback, not exact URL/tab proof.
 - The raw browser setting inventory and reduced questionnaire forest are now
@@ -65,7 +68,8 @@ Managed-browser exact URL action, category filtering, warning delivery,
 unmanaged fallback UX, and parent-facing rule UX are not product-complete.
 The broad-adapter proof adds runtime visibility for those states but does not
 upgrade exact URL, unmanaged exact evidence, or host domain blocking claims.
-Policy dispatch proves the report-only boundary, not active tab enforcement.
+Policy dispatch and supported-adapter runtime proof preserve the report-only or
+not-claimed boundary, not active tab enforcement.
 
 ## Checklist
 
