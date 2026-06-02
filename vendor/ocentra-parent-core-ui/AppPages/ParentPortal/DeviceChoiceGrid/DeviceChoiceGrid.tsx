@@ -144,6 +144,17 @@ export function DeviceChoiceGrid({
     }
   }, [internalValue, items, value]);
 
+  useEffect(() => {
+    if (value !== undefined || internalValue !== null) {
+      return;
+    }
+
+    const firstSelectable = firstSelectableDeviceSlot(items);
+    if (firstSelectable) {
+      setInternalValue(firstSelectable.value);
+    }
+  }, [internalValue, items, value]);
+
   const selectedValue = value ?? internalValue;
   const selectedIndexRaw = selectedValue ? items.findIndex((slot) => slot.value === selectedValue) : -1;
   const selectedIndex = selectedIndexRaw >= 0 ? selectedIndexRaw : -1;
@@ -443,4 +454,8 @@ export function DeviceChoiceGrid({
       ) : null}
     </div>
   );
+}
+
+function firstSelectableDeviceSlot(items: readonly DeviceSlot[]): DeviceSlot | undefined {
+  return items.find((slot) => slot.status !== 'empty');
 }

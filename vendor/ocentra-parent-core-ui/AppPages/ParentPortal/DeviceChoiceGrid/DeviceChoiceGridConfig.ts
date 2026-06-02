@@ -55,10 +55,10 @@ export const defaultDeviceChoiceGridConfig = {
     addButtonInset: 0,
     addButtonCutoutPad: 4,
     selectedInfoYGap: 8,
-    selectedInfoH: 26,
+    selectedInfoH: 62,
     selectedInfoPadX: 14,
-    selectedInfoIconBox: 19,
-    selectedInfoIconGap: 7,
+    selectedInfoIconBox: 32,
+    selectedInfoIconGap: 9,
   },
   radius: {
     title: 10,

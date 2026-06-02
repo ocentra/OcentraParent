@@ -10987,7 +10987,7 @@ function ManageControlPanel({
     [activityState?.lanAddDeviceReadModel, parentPortalRows]
   );
   const lanPairingPortalIds = useMemo(() => createParentPortalLanPairingPortalIds(lanPairingSlots), [lanPairingSlots]);
-  const firstLanPairingSelectableSlot = lanPairingSlots.find((slot) => slot.device && slot.status !== 'empty') ?? null;
+  const firstLanPairingSelectableSlot = lanPairingSlots.find((slot) => slot.status !== 'empty') ?? null;
   useEffect(() => {
     if (!isLanPairingPanel || !firstLanPairingSelectableSlot) return;
     if (lanPairingSelectedSlot && lanPairingSlots.some((slot) => slot.value === lanPairingSelectedSlot.value)) return;
