@@ -20,15 +20,19 @@ async fn lan_status_reports_browser_first_add_device_read_model_from_service_sta
     .await;
 
     assert_eq!(event.event, AgentEventName::AgentLanPairingStatusReported);
+    assert_empty_runtime_payload(&event.payload);
+    let read_model = read_model_payload(&event.payload);
+    assert_empty_runtime_read_model(&read_model);
+}
+
+fn assert_empty_runtime_payload(payload: &ocentra_parent_agent_protocol::LogFields) {
     assert_eq!(
-        event.payload.get(constants::field::LAN_DISCOVERY_SOURCE),
+        payload.get(constants::field::LAN_DISCOVERY_SOURCE),
         Some(&LogFieldValue::String(
             constants::value::LAN_DISCOVERY_SOURCE_LOCAL_SERVICE.to_string()
         ))
     );
-    let physical_lan_state = event
-        .payload
-        .get(constants::field::LAN_PHYSICAL_HOUSEHOLD_LAN_STATE);
+    let physical_lan_state = payload.get(constants::field::LAN_PHYSICAL_HOUSEHOLD_LAN_STATE);
     assert!(matches!(
         physical_lan_state,
         Some(LogFieldValue::String(value))
@@ -36,18 +40,18 @@ async fn lan_status_reports_browser_first_add_device_read_model_from_service_sta
                 || value == constants::value::LAN_DISCOVERY_STATE_DISCOVERED
     ));
     assert_eq!(
-        event.payload.get(constants::field::LAN_CLOUD_RELAY_STATE),
+        payload.get(constants::field::LAN_CLOUD_RELAY_STATE),
         Some(&LogFieldValue::String(
             constants::value::LAN_DISCOVERY_STATE_UNAVAILABLE.to_string()
         ))
     );
     assert_eq!(
-        event
-            .payload
-            .get(constants::field::LAN_SELECTED_DEVICE_READY),
+        payload.get(constants::field::LAN_SELECTED_DEVICE_READY),
         Some(&LogFieldValue::Boolean(false))
     );
-    let read_model = read_model_payload(&event.payload);
+}
+
+fn assert_empty_runtime_read_model(read_model: &Value) {
     assert_eq!(
         read_model[constants::field::LAN_ADD_DEVICE_STATE],
         serde_json::json!(constants::value::LAN_DISCOVERY_STATE_DISCOVERED)
@@ -80,6 +84,32 @@ async fn lan_status_reports_browser_first_add_device_read_model_from_service_sta
                 source.as_str() == Some(constants::lan_pairing::LAN_SCAN_SOURCE_LOCAL_SERVICE)
             })
     );
+    let production_household_proof =
+        &read_model[constants::lan_pairing::PRODUCTION_PROOF_FIELD_SUMMARY];
+    assert_eq!(
+        production_household_proof[constants::lan_pairing::PRODUCTION_PROOF_FIELD_STATUS_ROWS][0]
+            [constants::field::CAPABILITY],
+        serde_json::json!(constants::lan_pairing::PRODUCTION_PROOF_CAPABILITY_SIGNED_HELLO)
+    );
+    assert_eq!(
+        production_household_proof[constants::lan_pairing::PRODUCTION_PROOF_FIELD_STATUS_ROWS][0]
+            [constants::lan_pairing::PRODUCTION_PROOF_FIELD_PROOF_STATE],
+        serde_json::json!(constants::lan_pairing::PRODUCTION_PROOF_STATE_MANUAL_REQUIRED)
+    );
+    assert_eq!(
+        production_household_proof[constants::lan_pairing::PRODUCTION_PROOF_FIELD_NOT_IMPLEMENTED],
+        serde_json::json!([
+            constants::lan_pairing::PRODUCTION_PROOF_CAPABILITY_RELAY_ROUTE,
+            constants::lan_pairing::PRODUCTION_PROOF_CAPABILITY_CACHE_ROUTE
+        ])
+    );
+    assert!(production_household_proof
+        [constants::lan_pairing::PRODUCTION_PROOF_FIELD_CLAIMS_NOT_PROVED]
+        .as_array()
+        .expect(constants::value::LAN_HONEST_NON_CLAIMS_ARRAY_EXPECTATION)
+        .iter()
+        .any(|claim| claim.as_str()
+            == Some(constants::lan_pairing::PRODUCTION_PROOF_NON_CLAIM_SIGNED)));
 }
 
 #[tokio::test]
@@ -118,6 +148,20 @@ async fn lan_status_marks_selected_trusted_device_ready_for_control() {
         read_model[constants::field::LAN_SELECTED_DEVICE_READINESS]
             [constants::field::LAN_READY_FOR_CONTROL],
         serde_json::json!(true)
+    );
+    assert_eq!(
+        read_model[constants::lan_pairing::PRODUCTION_PROOF_FIELD_SUMMARY]
+            [constants::lan_pairing::PRODUCTION_PROOF_FIELD_STATUS_ROWS]
+            .as_array()
+            .expect(constants::value::LAN_HONEST_NON_CLAIMS_ARRAY_EXPECTATION)
+            .iter()
+            .find(|row| row[constants::field::CAPABILITY]
+                == serde_json::json!(
+                    constants::lan_pairing::PRODUCTION_PROOF_CAPABILITY_ROUTE_CUSTODY
+                ))
+            .expect(constants::value::LAN_READ_MODEL_JSON_EXPECTATION)
+            [constants::field::LAN_DISCOVERY_STATE],
+        serde_json::json!(constants::value::LAN_DISCOVERY_STATE_PAIRED)
     );
     assert_eq!(
         read_model[constants::field::LAN_CANONICAL_HOUSEHOLD_DEVICES][0]

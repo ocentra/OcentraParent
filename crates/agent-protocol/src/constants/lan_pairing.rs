@@ -144,6 +144,111 @@ pub const HOUSEHOLD_ACTION_TRUST: &str = "trust";
 pub const HOUSEHOLD_ACTION_ID: &str = "household-action-1";
 pub const HOUSEHOLD_RESTORE_ACTION_ID: &str = "household-action-restore-1";
 pub const HOUSEHOLD_RENAMED_DEVICE_LABEL: &str = "Bedroom Windows PC";
+pub const PRODUCTION_PROOF_FIELD_SUMMARY: &str = "productionHouseholdProof";
+pub const PRODUCTION_PROOF_FIELD_STATUS_ROWS: &str = "statusRows";
+pub const PRODUCTION_PROOF_FIELD_PROOF_STATE: &str = "proofState";
+pub const PRODUCTION_PROOF_FIELD_NOT_IMPLEMENTED: &str = "notImplemented";
+pub const PRODUCTION_PROOF_FIELD_CLAIMS_NOT_PROVED: &str = "claimsNotProved";
+pub const PRODUCTION_PROOF_CAPABILITY_SIGNED_HELLO: &str = "signed-lan-hello";
+pub const PRODUCTION_PROOF_CAPABILITY_SIGNED_HEARTBEAT: &str = "signed-lan-heartbeat";
+pub const PRODUCTION_PROOF_CAPABILITY_PASSIVE_NEIGHBOR: &str = "passive-neighbor-discovery";
+pub const PRODUCTION_PROOF_CAPABILITY_ROUTER_NEIGHBOR: &str = "router-neighbor-discovery";
+pub const PRODUCTION_PROOF_CAPABILITY_MDNS: &str = "mdns-name-discovery";
+pub const PRODUCTION_PROOF_CAPABILITY_SSDP: &str = "ssdp-name-discovery";
+pub const PRODUCTION_PROOF_CAPABILITY_ROUTER_DHCP: &str = "router-dhcp-name-discovery";
+pub const PRODUCTION_PROOF_CAPABILITY_TRUSTED_REGISTRY: &str = "trusted-registry";
+pub const PRODUCTION_PROOF_CAPABILITY_PARENT_ASSIGNMENT: &str = "parent-assignment";
+pub const PRODUCTION_PROOF_CAPABILITY_PARENT_RENAME: &str = "parent-rename";
+pub const PRODUCTION_PROOF_CAPABILITY_PARENT_IGNORE: &str = "parent-ignore";
+pub const PRODUCTION_PROOF_CAPABILITY_PARENT_REVOCATION: &str = "parent-revocation";
+pub const PRODUCTION_PROOF_CAPABILITY_ROUTE_CUSTODY: &str = "route-custody";
+pub const PRODUCTION_PROOF_CAPABILITY_STALE_SELECTED: &str = "stale-selected-device";
+pub const PRODUCTION_PROOF_CAPABILITY_OFFLINE_SELECTED: &str = "offline-selected-device";
+pub const PRODUCTION_PROOF_CAPABILITY_RELAY_ROUTE: &str = "relay-route";
+pub const PRODUCTION_PROOF_CAPABILITY_CACHE_ROUTE: &str = "cache-route";
+pub const PRODUCTION_PROOF_CAPABILITY_SECOND_PHYSICAL_AGENT: &str = "second-physical-child-agent";
+pub const PRODUCTION_PROOF_CAPABILITY_ANDROID_PARITY: &str = "android-child-agent-parity";
+pub const PRODUCTION_PROOF_CAPABILITY_IOS_PARITY: &str = "ios-child-agent-parity";
+pub const PRODUCTION_PROOF_CAPABILITY_STORE_SIGNING: &str = "store-signing";
+pub const PRODUCTION_PROOF_STATE_CI_MECHANICAL: &str = "ci-mechanical-proof";
+pub const PRODUCTION_PROOF_STATE_MANUAL_REQUIRED: &str = "manual-required";
+pub const PRODUCTION_PROOF_STATE_NOT_IMPLEMENTED: &str = "not-implemented";
+pub const PRODUCTION_PROOF_LABEL_SIGNED_HELLO: &str =
+    "signed LAN hello is manual-required until a second installed child agent signs a family-scoped hello";
+pub const PRODUCTION_PROOF_LABEL_SIGNED_HEARTBEAT: &str =
+    "signed LAN heartbeat is manual-required until a second installed child agent emits a signed heartbeat";
+pub const PRODUCTION_PROOF_LABEL_PASSIVE_NEIGHBOR: &str =
+    "Windows neighbor table scan feeds passive LAN evidence into the read model";
+pub const PRODUCTION_PROOF_LABEL_ROUTER_NEIGHBOR: &str =
+    "router or infrastructure classification is read-model state, not child-agent proof";
+pub const PRODUCTION_PROOF_LABEL_MDNS: &str =
+    "mDNS name discovery remains manual-required until service discovery packets are parsed";
+pub const PRODUCTION_PROOF_LABEL_SSDP: &str =
+    "SSDP name discovery remains manual-required until UPnP discovery packets are parsed";
+pub const PRODUCTION_PROOF_LABEL_ROUTER_DHCP: &str =
+    "router DHCP name discovery remains manual-required until router integration is proven";
+pub const PRODUCTION_PROOF_LABEL_TRUSTED_REGISTRY: &str =
+    "trusted registry entries are service-backed local state";
+pub const PRODUCTION_PROOF_LABEL_PARENT_ASSIGNMENT: &str =
+    "parent assignment decisions are durable registry state when present";
+pub const PRODUCTION_PROOF_LABEL_PARENT_RENAME: &str =
+    "parent rename decisions are durable registry state when present";
+pub const PRODUCTION_PROOF_LABEL_PARENT_IGNORE: &str =
+    "parent ignore decisions revoke enrollable surfaces without deleting evidence";
+pub const PRODUCTION_PROOF_LABEL_PARENT_REVOCATION: &str =
+    "revoked pairings remain explicit before route control is accepted";
+pub const PRODUCTION_PROOF_LABEL_ROUTE_CUSTODY: &str =
+    "selected route custody is reported separately from discovery";
+pub const PRODUCTION_PROOF_LABEL_STALE_SELECTED: &str =
+    "stale selected-device state is explicit when selected route evidence is stale";
+pub const PRODUCTION_PROOF_LABEL_OFFLINE_SELECTED: &str =
+    "offline selected-device state is explicit when selected route evidence is offline";
+pub const PRODUCTION_PROOF_LABEL_RELAY_ROUTE: &str =
+    "cloud relay route is not implemented in this LAN proof";
+pub const PRODUCTION_PROOF_LABEL_CACHE_ROUTE: &str =
+    "parent cache route is not implemented in this LAN proof";
+pub const PRODUCTION_PROOF_LABEL_SECOND_PHYSICAL_AGENT: &str =
+    "second physical child-agent proof is manual-required";
+pub const PRODUCTION_PROOF_LABEL_ANDROID_PARITY: &str =
+    "Android child-agent parity is manual-required until real device artifacts exist";
+pub const PRODUCTION_PROOF_LABEL_IOS_PARITY: &str =
+    "iOS child-agent parity is manual-required until entitlement and device artifacts exist";
+pub const PRODUCTION_PROOF_LABEL_STORE_SIGNING: &str =
+    "store signing remains manual-required until signing and store artifacts exist";
+pub const PRODUCTION_PROOF_ARTIFACT_SIGNED_HELLO: &str =
+    "Attach signed hello payload, nonce, signature, family hash, route id, and service log from a second physical child agent.";
+pub const PRODUCTION_PROOF_ARTIFACT_SIGNED_HEARTBEAT: &str =
+    "Attach signed heartbeat payload, expiry/replay evidence, route id, and service log from a second physical child agent.";
+pub const PRODUCTION_PROOF_ARTIFACT_MDNS: &str =
+    "Attach captured mDNS/DNS-SD discovery packet or parser fixture from the household LAN.";
+pub const PRODUCTION_PROOF_ARTIFACT_SSDP: &str =
+    "Attach captured SSDP/UPnP discovery packet or parser fixture from the household LAN.";
+pub const PRODUCTION_PROOF_ARTIFACT_ROUTER_DHCP: &str =
+    "Attach router DHCP name evidence or router integration proof from the household network.";
+pub const PRODUCTION_PROOF_ARTIFACT_SECOND_PHYSICAL_AGENT: &str =
+    "Attach proof JSON and logs from two distinct physical hosts on the same router or subnet.";
+pub const PRODUCTION_PROOF_ARTIFACT_ANDROID_PARITY: &str =
+    "Attach real Android child-agent device proof, permissions, package, and transport artifacts.";
+pub const PRODUCTION_PROOF_ARTIFACT_IOS_PARITY: &str =
+    "Attach real iOS entitlement, device, package, and transport artifacts.";
+pub const PRODUCTION_PROOF_ARTIFACT_STORE_SIGNING: &str =
+    "Attach signing, Play/TestFlight/App Store, installer, and checksum artifacts before release claims.";
+pub const PRODUCTION_PROOF_CLAIM_PASSIVE_NEIGHBOR: &str =
+    "passive Windows neighbor evidence is represented in typed LAN read-model state";
+pub const PRODUCTION_PROOF_CLAIM_REGISTRY_ROUTE: &str =
+    "trusted registry, route custody, stale/offline, and parent decisions are represented in typed LAN read-model state";
+pub const PRODUCTION_PROOF_NON_CLAIM_PHYSICAL: &str =
+    "physical household LAN readiness remains manual-required until two physical child-agent hosts and router/firewall artifacts are attached";
+pub const PRODUCTION_PROOF_NON_CLAIM_SIGNED: &str =
+    "signed LAN hello and heartbeat remain manual-required until a second installed child agent signs them";
+pub const PRODUCTION_PROOF_NON_CLAIM_CLOUD: &str =
+    "cloud relay routing storage and authentication are not implemented in this LAN proof";
+pub const PRODUCTION_PROOF_NON_CLAIM_ANDROID: &str =
+    "Android child-agent parity remains manual-required until real device permission and transport artifacts are attached";
+pub const PRODUCTION_PROOF_NON_CLAIM_IOS: &str =
+    "iOS child-agent parity remains manual-required until entitlement device and transport artifacts are attached";
+pub const PRODUCTION_PROOF_NON_CLAIM_STORE: &str =
+    "store signing remains manual-required until signing store and release artifacts are attached";
 pub const NETWORK_NEIGHBOR_LABEL_PREFIX: &str = "LAN ";
 pub const NETWORK_NEIGHBOR_UNKNOWN_HOSTNAME: &str = "unknown-host";
 pub const PLATFORM_UNKNOWN: &str = "unknown";
