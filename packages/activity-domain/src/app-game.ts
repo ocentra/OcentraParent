@@ -2,6 +2,7 @@ import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/ef
 import { ActivityEvidenceRefSchema } from './contracts';
 import { ActivityEvidenceDigestSchema, ActivityEvidenceIdSchema, ActivityTimestampSchema } from './primitives';
 import {
+  AppGameAiActionHintSchema,
   AppGameAiDigestRefSchema,
   AppGameCapabilityStatusSchema,
   AppGameCatalogReadyStateSchema,
@@ -9,9 +10,12 @@ import {
   AppGameClassificationStateSchema,
   AppGameConfidenceSchema,
   AppGameDisplayNameSchema,
+  AppGameEvidenceClaimIdSchema,
+  AppGameEvidenceClaimKindSchema,
   AppGameExecutablePathSchema,
   AppGameForegroundStateSchema,
   AppGameInventoryEntryIdSchema,
+  AppGameIdentityStrengthSchema,
   AppGameLauncherKindSchema,
   AppGameLauncherRefSchema,
   AppGameNonNegativeCountSchema,
@@ -19,6 +23,7 @@ import {
   AppGameObservationModeSchema,
   AppGameProcessIdentitySchema,
   AppGameProcessNameSchema,
+  AppGameRuntimeStateSchema,
   AppGameSchemaVersion,
   AppGameSessionIdSchema,
   AppGameUnavailableReasonSchema,
@@ -42,6 +47,58 @@ export const AppGameInventoryEntrySchema = withParser(
     confidence: AppGameConfidenceSchema,
     evidence: Schema.Array(ActivityEvidenceRefSchema),
   })
+);
+
+const AppGameEvidenceClaimBaseSchema = Schema.Struct({
+  schemaVersion: Schema.Literal(AppGameSchemaVersion),
+  claimId: AppGameEvidenceClaimIdSchema,
+  observedAt: ActivityTimestampSchema,
+  claimKind: AppGameEvidenceClaimKindSchema,
+  observationMode: AppGameObservationModeSchema,
+  displayName: AppGameDisplayNameSchema,
+  identityStrength: AppGameIdentityStrengthSchema,
+  classificationState: AppGameClassificationStateSchema,
+  catalogReadyState: AppGameCatalogReadyStateSchema,
+  runtimeState: AppGameRuntimeStateSchema,
+  foregroundState: AppGameForegroundStateSchema,
+  inventoryEntryId: Schema.Union(AppGameInventoryEntryIdSchema, Schema.Null),
+  processIdentity: Schema.Union(AppGameProcessIdentitySchema, Schema.Null),
+  launcherRef: Schema.Union(AppGameLauncherRefSchema, Schema.Null),
+  catalogRef: Schema.Union(AppGameCatalogRefSchema, Schema.Null),
+  confidence: AppGameConfidenceSchema,
+  evidence: Schema.Array(ActivityEvidenceRefSchema),
+});
+
+export const AppGameEvidenceClaimSchema = withParser(
+  AppGameEvidenceClaimBaseSchema.pipe(
+    Schema.filter(
+      (claim) =>
+        claim.identityStrength !== 'displayNameOnly' ||
+        (claim.confidence <= 0.3 &&
+          claim.inventoryEntryId === null &&
+          claim.processIdentity === null &&
+          claim.launcherRef === null &&
+          claim.catalogRef === null) ||
+        'Expected display-name-only app/game identity to remain weak and unlinked'
+    )
+  )
+    .pipe(
+      Schema.filter(
+        (claim) =>
+          claim.claimKind !== 'inventory' ||
+          (claim.runtimeState === 'notClaimed' && claim.foregroundState === 'notClaimed') ||
+          'Expected inventory evidence to avoid running or foreground claims'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (claim) =>
+          claim.claimKind !== 'launcher' ||
+          claim.classificationState !== 'knownGame' ||
+          claim.identityStrength === 'childGameProof' ||
+          'Expected launcher evidence to require child-game proof before known-game classification'
+      )
+    )
 );
 
 export const AppGameProcessObservationSchema = withParser(
@@ -148,10 +205,27 @@ export const AppGameAiDigestReferenceSchema = withParser(
   })
 );
 
+export const AppGameAiClassificationDigestSchema = withParser(
+  Schema.Struct({
+    schemaVersion: Schema.Literal(AppGameSchemaVersion),
+    digestRef: AppGameAiDigestRefSchema,
+    digest: Schema.Union(ActivityEvidenceDigestSchema, Schema.Null),
+    generatedAt: ActivityTimestampSchema,
+    classificationState: AppGameClassificationStateSchema,
+    confidence: AppGameConfidenceSchema,
+    actionHints: Schema.Array(AppGameAiActionHintSchema),
+    sourceEvidenceIds: Schema.Array(ActivityEvidenceIdSchema),
+    sourceSessionIds: Schema.Array(AppGameSessionIdSchema),
+    unavailableReason: Schema.Union(AppGameUnavailableReasonSchema, Schema.Null),
+  })
+);
+
 export type AppGameInventoryEntry = Infer<typeof AppGameInventoryEntrySchema>;
+export type AppGameEvidenceClaim = Infer<typeof AppGameEvidenceClaimSchema>;
 export type AppGameProcessObservation = Infer<typeof AppGameProcessObservationSchema>;
 export type AppGameSessionSummary = Infer<typeof AppGameSessionSummarySchema>;
 export type AppGameSessionQuery = Infer<typeof AppGameSessionQuerySchema>;
 export type AppGameSessionQueryResult = Infer<typeof AppGameSessionQueryResultSchema>;
 export type AppGameSessionReport = Infer<typeof AppGameSessionReportSchema>;
 export type AppGameAiDigestReference = Infer<typeof AppGameAiDigestReferenceSchema>;
+export type AppGameAiClassificationDigest = Infer<typeof AppGameAiClassificationDigestSchema>;
