@@ -47,6 +47,13 @@ PC while preserving local-first custody.
   stale/offline selected-device, relay/cache, second physical child-agent,
   Android/iOS parity, and store-signing rows without upgrading manual or
   not-implemented claims.
+- The V0.9 signed discovery/relay spine now adds typed adapter rows for passive
+  LAN neighbor, router/infrastructure, mDNS, SSDP, router DHCP, manual direct
+  address, signed child-agent hello, and signed child-agent heartbeat. It also
+  exposes signed proof rejection rows, route safety rows, relay/cache decision
+  rows, explicit parent-owned storage unavailability, and no Ocentra child-data
+  custody claims across parent-domain, agent-protocol-domain, Rust protocol,
+  Rust service state, and the focused proof harness.
 - Parent desktop Tauri proof now serializes active-controller route,
   observer-read-only, live local-network custody, relay unavailable, cache
   unavailable, and parent-owned storage unavailable states without implementing
@@ -76,7 +83,10 @@ distribution remain.
 - [ ] LAN discovery and pairing. Current proof covers Windows neighbor-table
       inventory, local child-agent hardware inventory, scan summary counts, passive
       neighbor/router separation, portal target filtering, and typed production
-      proof rows; signed hello/heartbeat, mDNS/SSDP/router DHCP names, and
+      proof rows. The signed discovery/relay spine now type-checks signed
+      hello/heartbeat manual-required rows, stale/expired/replayed/wrong-origin/
+      wrong-device/revoked/anonymous rejection rows, mDNS/SSDP/router DHCP manual
+      rows, and route-safety rows; actual signed hello/heartbeat artifacts and
       second-child-agent pairing proof remain manual-required.
 - [ ] Trusted registry and revocation. Current proof covers typed registry,
       trust, parent decision, revocation, stale, and offline rows; live household
@@ -84,7 +94,9 @@ distribution remain.
 - [ ] Controller lease and observer read-only state.
 - [ ] Route status: local, LAN, relay, cache, stale, offline, unavailable.
 - [ ] Optional relay without default child-data custody. Current production LAN
-      proof explicitly marks relay and cache routes not implemented.
+      proof and signed discovery/relay spine explicitly mark relay route, queued
+      relay, cache route, and parent-owned storage unavailable/not implemented
+      while preserving no Ocentra child-data custody.
 - [ ] Android child-agent real device proof. Current aggregate proof covers
       `mobile-child-agent-capability-proof` contract/test/harness rows for
       foreground service, storage/protocol bridge, notifications, UsageStats,

@@ -12,6 +12,7 @@ use crate::{
 };
 
 mod production_household_proof_test_support;
+mod signed_discovery_relay_spine_test_support;
 
 #[test]
 fn browser_add_device_read_model_serializes_honest_states() {
@@ -20,6 +21,14 @@ fn browser_add_device_read_model_serializes_honest_states() {
     let json = serde_json::to_string(&model).expect("read model serializes");
     let value: serde_json::Value = serde_json::from_str(&json).expect("read model parses");
     production_household_proof_test_support::assert_browser_add_device_read_model_json(&value);
+}
+
+#[test]
+fn signed_discovery_relay_spine_serializes_adapter_rejection_and_relay_boundaries() {
+    let spine = signed_discovery_relay_spine_test_support::signed_discovery_relay_spine_fixture();
+
+    let json = serde_json::to_value(&spine).expect("signed discovery relay spine serializes");
+    signed_discovery_relay_spine_test_support::assert_signed_discovery_relay_spine_json(&json);
 }
 
 #[test]

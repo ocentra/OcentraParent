@@ -44,6 +44,11 @@ match that usability while keeping child-device authority local.
   custody, stale/offline selected-device, and manual-required physical
   household proof rows, so family setup can display truthfully what is ready
   versus what still needs real devices.
+- The add-device read model also carries a signed discovery/relay spine summary
+  with signed child-agent hello/heartbeat manual-required rows, stale/expired/
+  replayed/wrong-origin/wrong-device/revoked/anonymous rejection rows, selected
+  route custody, parent decision audit rows, relay/cache unavailability,
+  parent-owned storage unavailability, and no Ocentra child-data custody state.
 - Parent portal route and device surfaces exist in development form.
 - First-run consumer setup is not product-complete.
 
@@ -60,14 +65,16 @@ source/proof state, and recover from stale/revoked/offline devices.
 - [ ] Parent-controller and parent-observer role UI.
 - [x] Add-device/pairing read model backed by Rust service state, including
       production household proof rows for trusted registry, route custody,
-      stale/offline selected-device, and manual-required real household proof.
+      stale/offline selected-device, signed discovery/relay spine rows, relay/
+      cache non-custody rows, and manual-required real household proof.
 - [ ] First-run add-device UX that lets a parent assign, rename, ignore,
       restore, and trust a device from the portal without raw protocol fields.
 - [ ] Revocation and recovery flow. Current proof covers typed revocation state;
       parent recovery UX remains.
 - [ ] Source labels: local, LAN, relay, cache, parent-owned storage,
-      unavailable. Current proof marks relay/cache not implemented and keeps
-      physical household proof manual-required.
+      unavailable. Current proof marks relay/cache and parent-owned storage not
+      implemented/unavailable, keeps no Ocentra child-data custody explicit, and
+      keeps physical household proof manual-required.
 - [ ] Portal tests for setup and degraded states.
 - [ ] Real LAN proof before claiming multi-device household readiness. Current
       proof harness is contract/Rust-service backed and single-machine; two

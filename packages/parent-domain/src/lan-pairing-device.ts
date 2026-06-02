@@ -24,6 +24,7 @@ import { LanPairingRuntimeSupportStatusSchema } from './lan-pairing-support';
 import { HouseholdDeviceSpineEntrySchema, HouseholdLanDeviceRefSchema } from './household-device-spine';
 import { LanHouseholdDeviceDecisionSchema } from './lan-device-parent-actions';
 import { LanProductionHouseholdProofSummarySchema } from './lan-production-household-proof';
+import { LanSignedDiscoveryRelaySpineSchema } from './lan-signed-discovery-relay-spine';
 
 export const LanPairingEnablementSchema = withParser(
   Schema.Struct({
@@ -200,6 +201,9 @@ export const LanBrowserAddDeviceReadModelSchema = withParser(
     trustedDeviceRegistry: Schema.Array(LanTrustedDeviceRegistryEntrySchema),
     householdDeviceDecisions: Schema.Array(LanHouseholdDeviceDecisionSchema),
     productionHouseholdProof: Schema.optionalWith(Schema.Union(LanProductionHouseholdProofSummarySchema, Schema.Null), {
+      default: () => null,
+    }),
+    signedDiscoveryRelaySpine: Schema.optionalWith(Schema.Union(LanSignedDiscoveryRelaySpineSchema, Schema.Null), {
       default: () => null,
     }),
     trustedDeviceIds: Schema.Array(ParentDeviceIdSchema),

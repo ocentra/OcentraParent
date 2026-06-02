@@ -11,6 +11,15 @@ pub use production_household_proof::{
     LanProductionHouseholdProofCapability, LanProductionHouseholdProofStatus,
     LanProductionHouseholdProofSummary,
 };
+mod signed_discovery_relay_spine;
+pub use signed_discovery_relay_spine::{
+    LanSignedDiscoveryRelayAdapterKind, LanSignedDiscoveryRelayAdapterRow,
+    LanSignedDiscoveryRelayCacheCheck, LanSignedDiscoveryRelayCacheRow,
+    LanSignedDiscoveryRelayCustodyLabel, LanSignedDiscoveryRelayDecisionState,
+    LanSignedDiscoveryRelayRouteSafetyCheck, LanSignedDiscoveryRelayRouteSafetyRow,
+    LanSignedDiscoveryRelaySignedProofCheck, LanSignedDiscoveryRelaySignedProofRow,
+    LanSignedDiscoveryRelaySourceConfidence, LanSignedDiscoveryRelaySpineSummary,
+};
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
@@ -297,6 +306,8 @@ pub struct LanBrowserAddDeviceReadModel {
     pub household_device_decisions: Vec<LanHouseholdDeviceDecision>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub production_household_proof: Option<LanProductionHouseholdProofSummary>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub signed_discovery_relay_spine: Option<LanSignedDiscoveryRelaySpineSummary>,
     pub trusted_device_ids: Vec<String>,
     pub revoked_device_ids: Vec<String>,
     pub selected_device_readiness: LanSelectedDeviceReadiness,
