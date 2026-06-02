@@ -51,10 +51,15 @@ export function DeviceChoiceGridCell({
       ? `${item.label} is unsupported`
       : `Select ${item.label}`;
   const showLabel = !empty && item.label.trim().length > 0;
+  const badgeLabel = item.badge?.trim() ?? '';
+  const showBadge = !empty && badgeLabel.length > 0;
   const estimatedLabelW = item.label.length * cfg.text.optionSize * 0.62;
+  const estimatedBadgeW = badgeLabel.length * Math.max(8, cfg.text.optionSize * 0.72) * 0.62;
   const labelW = cellW - 20;
   const fittedLabelW = estimatedLabelW > labelW ? labelW : undefined;
+  const fittedBadgeW = estimatedBadgeW > labelW ? labelW : undefined;
   const labelX = position.x + cellW / 2;
+  const labelY = position.y + cellH / 2 + cfg.text.optionSize * (showBadge && cellH >= 36 ? 0.02 : 0.35);
 
   return (
     <g
@@ -194,7 +199,7 @@ export function DeviceChoiceGridCell({
       {showLabel ? (
         <text
           x={labelX}
-          y={position.y + cellH / 2 + cfg.text.optionSize * 0.35}
+          y={labelY}
           textAnchor="middle"
           fill={
             empty || status === 'unsupported'
@@ -211,6 +216,23 @@ export function DeviceChoiceGridCell({
           lengthAdjust={fittedLabelW ? 'spacingAndGlyphs' : undefined}
         >
           {item.label}
+        </text>
+      ) : null}
+      {showBadge ? (
+        <text
+          x={labelX}
+          y={position.y + cellH - 7}
+          textAnchor="middle"
+          fill={active ? cfg.colors.selectedText : statusColor}
+          fontFamily={cfg.text.font}
+          fontSize={Math.max(8, cfg.text.optionSize * 0.72)}
+          fontWeight={cfg.text.optionWeight}
+          opacity={active ? 0.74 : 0.82}
+          pointerEvents="none"
+          textLength={fittedBadgeW}
+          lengthAdjust={fittedBadgeW ? 'spacingAndGlyphs' : undefined}
+        >
+          {badgeLabel}
         </text>
       ) : null}
       {showAdd ? (

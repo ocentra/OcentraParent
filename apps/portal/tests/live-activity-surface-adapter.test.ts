@@ -62,6 +62,11 @@ const ReportDocument = {
 } as const;
 
 describe('portal Activity surface adapter state', () => {
+  activityAdapterReadModelTests();
+  activityAdapterLanPairingTests();
+});
+
+function activityAdapterReadModelTests(): void {
   it('parses report, history, and every tab read model from real adapter events', () => {
     const state = resolveLiveActivityState(activitySurfaceEvents());
 
@@ -107,7 +112,9 @@ describe('portal Activity surface adapter state', () => {
     }
     expect(state.activityNetworkReadModelEvent?.event).toBe(AgentEvent.ActivityNetworkReadModelReported);
   });
+}
 
+function activityAdapterLanPairingTests(): void {
   it('parses LAN add-device readiness from the real status event payload', () => {
     const state = resolveLiveActivityState([
       payloadEvent(AgentEvent.LanPairingStatusReported, {
@@ -123,7 +130,32 @@ describe('portal Activity surface adapter state', () => {
       readyForControl: true,
     });
   });
-});
+
+  it('uses explicit LAN scan reports as the current add-device read model', () => {
+    const state = resolveLiveActivityState([
+      payloadEvent(
+        AgentEvent.LanPairingStatusReported,
+        {
+          [AgentProtocolDefaults.Field.LanAddDeviceReadModel]: JSON.stringify({
+            ...lanAddDeviceReadModel(),
+            addDeviceState: 'manual-required',
+          }),
+        },
+        '2026-06-01T15:00:00Z'
+      ),
+      payloadEvent(
+        AgentEvent.LanPairingBrowserDiscoveryReported,
+        {
+          [AgentProtocolDefaults.Field.LanAddDeviceReadModel]: JSON.stringify(lanAddDeviceReadModel()),
+        },
+        '2026-06-01T15:00:04Z'
+      ),
+    ]);
+
+    expect(state.lanPairingStatusEvent?.event).toBe(AgentEvent.LanPairingBrowserDiscoveryReported);
+    expect(state.lanAddDeviceReadModel?.addDeviceState).toBe('paired');
+  });
+}
 
 function activitySurfaceEvents() {
   return [
@@ -262,12 +294,16 @@ function surfaceEventWithRawPayload(
   });
 }
 
-function payloadEvent(event: (typeof AgentEvent)[keyof typeof AgentEvent], payload: Record<string, unknown>) {
+function payloadEvent(
+  event: (typeof AgentEvent)[keyof typeof AgentEvent],
+  payload: Record<string, unknown>,
+  sentAt = '2026-05-30T14:00:01Z'
+) {
   return AgentEventEnvelopeSchema.parse({
     schemaVersion: 1,
     eventId: `evt-${event}`,
     correlationId: `cmd-${event}`,
-    sentAt: '2026-05-30T14:00:01Z',
+    sentAt,
     source: {
       peerId: 'local-dev-agent',
       role: 'agent-service',

@@ -58,6 +58,12 @@ function parentPortalActivityIntentTests(): void {
 }
 
 function parentPortalLanPairingIntentTests(): void {
+  parentPortalLanPairingStatusTests();
+  parentPortalLanPairingReadModelTests();
+  parentPortalRuntimeLanPairingIntentTests();
+}
+
+function parentPortalLanPairingStatusTests(): void {
   it('maps LAN pairing service rows into an honest status slot without discovered devices', () => {
     expect(
       createParentPortalLanPairingUiSlots([
@@ -80,7 +86,9 @@ function parentPortalLanPairingIntentTests(): void {
 
     expect(createParentPortalLanPairingUiSlots([])).toEqual([]);
   });
+}
 
+function parentPortalLanPairingReadModelTests(): void {
   it('renders real LAN add-device read-model devices without synthetic fallback devices', () => {
     const slots = createParentPortalLanPairingUiSlots(
       [
@@ -113,8 +121,6 @@ function parentPortalLanPairingIntentTests(): void {
     expect(createParentPortalLanPairingPortalIds(slots)).toEqual(['child-android-1']);
   });
 
-  parentPortalRuntimeLanPairingIntentTests();
-
   it('shows read-model manual-required or unavailable states as service status when no device evidence exists', () => {
     expect(createParentPortalLanPairingUiSlots([], emptyLanAddDeviceReadModel('manual-required'))).toEqual([
       {
@@ -126,22 +132,92 @@ function parentPortalLanPairingIntentTests(): void {
       },
     ]);
   });
+
+  it('shows connected LAN service rows as scanning until the first LAN read model arrives', () => {
+    expect(
+      createParentPortalLanPairingUiSlots([
+        {
+          label: 'LAN discovery',
+          primaryArea: 'LAN',
+          readyCount: 0,
+          signalScore: 0,
+          trend: 'manual-required',
+        },
+      ])
+    ).toEqual([
+      {
+        value: 'lan-pairing-service-state',
+        label: 'Scanning LAN',
+        status: 'available',
+        slotIndex: 0,
+        badge: 'scanning',
+      },
+    ]);
+  });
 }
 
 function parentPortalRuntimeLanPairingIntentTests(): void {
+  parentPortalRuntimeNeighborTests();
+  parentPortalRuntimeCanonicalTargetTests();
+}
+
+function parentPortalRuntimeNeighborTests(): void {
   it('keeps local-agent hardware separate from observed LAN neighbor network fields', () => {
     const slots = createParentPortalLanPairingUiSlots([], runtimeLanAddDeviceReadModel());
 
     expect(slots.map((slot) => [slot.value, slot.label, slot.status, slot.badge])).toEqual([
-      ['local-dev-agent', 'local-dev-agent', 'connected', 'online'],
+      ['local-dev-agent', 'GAMEDEV', 'connected', 'online'],
       ['lan-device-54271e97c331', 'LAN 192.168.2.42', 'connected', 'online'],
       ['lan-device-001122334455', 'LAN 192.168.2.1', 'unsupported', 'infrastructure'],
     ]);
     expect(slots.find((slot) => slot.value === 'lan-device-b42e993e72b9')).toBeUndefined();
+    expect(createParentPortalLanPairingPortalIds(slots)).toEqual(['local-dev-agent']);
 
     expectLocalAgentRuntimeSlot(slots);
     expectLanNeighborRuntimeSlot(slots);
     expectRouterInfrastructureSlot(slots);
+  });
+}
+
+function parentPortalRuntimeCanonicalTargetTests(): void {
+  it('uses the canonical household spine to keep LAN neighbors out of controlled-device scopes', () => {
+    const slots = createParentPortalLanPairingUiSlots([], canonicalRuntimeLanAddDeviceReadModel());
+
+    expect(slots.map((slot) => [slot.value, slot.label, slot.status, slot.badge])).toEqual([
+      ['lan-physical-mac-b42e993e72b9', 'GAMEDEV', 'connected', 'online'],
+      ['lan-physical-mac-54271e97c331', 'HPSUJAN', 'connected', 'online'],
+      ['lan-physical-mac-001122334455', 'LAN 192.168.2.1', 'unsupported', 'infrastructure'],
+    ]);
+    expect(createParentPortalLanPairingPortalIds(slots)).toEqual(['lan-physical-mac-b42e993e72b9']);
+    expect(createParentPortalCanonicalDeviceSlots([], slots).map((slot) => [slot.value, slot.label])).toEqual([
+      ['lan-physical-mac-b42e993e72b9', 'GAMEDEV'],
+    ]);
+
+    const localAgent = slots.find((slot) => slot.value === 'lan-physical-mac-b42e993e72b9');
+    expect(localAgent?.device).toMatchObject({
+      portalEligible: true,
+      agentStatus: 'ocentra-child-agent',
+      cpuModel: 'AMD Ryzen 9 3900X 12-Core Processor',
+      memoryTotal: '63 GiB',
+      gpuModel: 'GeForce RTX 2070 SUPER',
+    });
+
+    const lanNeighbor = slots.find((slot) => slot.value === 'lan-physical-mac-54271e97c331');
+    expect(lanNeighbor?.device).toMatchObject({
+      portalEligible: false,
+      ip: '192.168.2.42',
+      mac: '54-27-1e-97-c3-31',
+      hostname: 'HPSUJAN',
+    });
+    expectNoAgentHardware(lanNeighbor?.device);
+
+    const router = slots.find((slot) => slot.value === 'lan-physical-mac-001122334455');
+    expect(router?.device).toMatchObject({
+      portalEligible: false,
+      platform: 'router',
+      type: 'router',
+      status: 'unsupported',
+    });
   });
 
   it('feeds canonical policy target slots from the same service-backed device spine', () => {
@@ -155,7 +231,7 @@ function parentPortalRuntimeLanPairingIntentTests(): void {
     const canonicalSlots = createParentPortalCanonicalDeviceSlots(activitySlots, lanSlots);
 
     expect(canonicalSlots.find((slot) => slot.value === 'local-dev-agent')).toMatchObject({
-      label: 'local-dev-agent',
+      label: 'GAMEDEV',
       status: 'connected',
       badge: 'online',
     });
@@ -164,6 +240,7 @@ function parentPortalRuntimeLanPairingIntentTests(): void {
       status: 'unsupported',
       badge: 'permission-required',
     });
+    expect(canonicalSlots.find((slot) => slot.value === 'lan-device-54271e97c331')).toBeUndefined();
     expect(canonicalSlots.find((slot) => slot.value === 'lan-device-001122334455')).toBeUndefined();
   });
 }
@@ -171,6 +248,7 @@ function parentPortalRuntimeLanPairingIntentTests(): void {
 function expectLocalAgentRuntimeSlot(slots: ReturnType<typeof createParentPortalLanPairingUiSlots>): void {
   const localAgent = slots.find((slot) => slot.value === 'local-dev-agent');
   expect(localAgent?.device).toMatchObject({
+    name: 'GAMEDEV',
     ip: '192.168.2.10',
     mac: 'b4-2e-99-3e-72-b9',
     hostname: 'GAMEDEV',
@@ -430,6 +508,123 @@ function runtimeLanAddDeviceReadModel() {
       staleAt: null,
       offlineAt: null,
     },
+  } as const;
+}
+
+function canonicalRuntimeLanAddDeviceReadModel() {
+  return {
+    ...runtimeLanAddDeviceReadModel(),
+    canonicalHouseholdDevices: [
+      localAgentCanonicalHouseholdDevice(),
+      lanNeighborCanonicalHouseholdDevice(),
+      routerCanonicalHouseholdDevice(),
+    ],
+  } as const;
+}
+
+function localAgentCanonicalHouseholdDevice() {
+  return {
+    schemaVersion: 1,
+    canonicalDeviceId: 'lan-physical-mac-b42e993e72b9',
+    displayName: 'GAMEDEV',
+    classification: 'child-agent',
+    roleBadges: ['child-agent', 'parent-controller'],
+    enrollable: true,
+    discoveryState: 'paired',
+    trustState: 'paired',
+    routeId: 'lan-route-local-network',
+    routeState: 'local-network',
+    networkMode: 'local-network',
+    sourceLabels: ['local-service', 'network-neighbor'],
+    networkIdentity: {
+      hostname: 'GAMEDEV',
+      ipAddresses: ['192.168.2.10'],
+      macAddress: 'b4-2e-99-3e-72-b9',
+      macVendor: null,
+      networkInterfaces: ['Ethernet 2'],
+      reachability: 'online',
+      confidence: 'mac-ip-match',
+      staleAt: null,
+      offlineAt: null,
+    },
+    childAgentInventory: {
+      deviceName: 'GAMEDEV',
+      platform: 'windows',
+      os: 'Windows',
+      cpuModel: 'AMD Ryzen 9 3900X 12-Core Processor',
+      cpuCores: '12 cores / 24 logical',
+      memoryTotal: '63 GiB',
+      gpuModel: 'GeForce RTX 2070 SUPER',
+      gpuDriver: '456.71',
+      gpuMemory: '8192 MiB',
+      nvidiaSmi: 'GeForce RTX 2070 SUPER driver 456.71 8192 MiB VRAM',
+      networkInterfaces: ['Ethernet 2'],
+      capabilities: ['direct-websocket', 'device-inventory'],
+      roleState: 'implemented',
+      routeState: 'local-network',
+      pairingTrustState: 'paired',
+    },
+    policyTargetSurfaces: ['devices', 'policy', 'browser', 'activity', 'tracking'],
+  } as const;
+}
+
+function lanNeighborCanonicalHouseholdDevice() {
+  return {
+    schemaVersion: 1,
+    canonicalDeviceId: 'lan-physical-mac-54271e97c331',
+    displayName: 'HPSUJAN',
+    classification: 'unknown-lan-device',
+    roleBadges: [],
+    enrollable: false,
+    discoveryState: 'discovered',
+    trustState: 'unpaired',
+    routeId: null,
+    routeState: 'unavailable',
+    networkMode: 'local-network',
+    sourceLabels: ['network-neighbor'],
+    networkIdentity: {
+      hostname: 'HPSUJAN',
+      ipAddresses: ['192.168.2.42'],
+      macAddress: '54-27-1e-97-c3-31',
+      macVendor: null,
+      networkInterfaces: ['Ethernet 2'],
+      reachability: 'online',
+      confidence: 'network-neighbor',
+      staleAt: null,
+      offlineAt: null,
+    },
+    childAgentInventory: null,
+    policyTargetSurfaces: ['devices', 'network'],
+  } as const;
+}
+
+function routerCanonicalHouseholdDevice() {
+  return {
+    schemaVersion: 1,
+    canonicalDeviceId: 'lan-physical-mac-001122334455',
+    displayName: 'LAN 192.168.2.1',
+    classification: 'network-infrastructure',
+    roleBadges: ['router'],
+    enrollable: false,
+    discoveryState: 'discovered',
+    trustState: 'unpaired',
+    routeId: null,
+    routeState: 'unavailable',
+    networkMode: 'local-network',
+    sourceLabels: ['gateway'],
+    networkIdentity: {
+      hostname: null,
+      ipAddresses: ['192.168.2.1'],
+      macAddress: '00-11-22-33-44-55',
+      macVendor: null,
+      networkInterfaces: ['Gateway'],
+      reachability: 'online',
+      confidence: 'network-neighbor',
+      staleAt: null,
+      offlineAt: null,
+    },
+    childAgentInventory: null,
+    policyTargetSurfaces: ['devices', 'network'],
   } as const;
 }
 

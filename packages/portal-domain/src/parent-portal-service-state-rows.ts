@@ -70,7 +70,7 @@ function localAgentRow(connectionState: ParentPortalServiceConnectionState): Par
 }
 
 function lanDiscoveryRow(input: ParentPortalServiceStateInput): ParentPortalRow {
-  const event = latestEvent(input.events, AgentEvent.LanPairingStatusReported);
+  const event = latestLanPairingEvent(input.events);
   const payload = event?.payload ?? null;
   const trend =
     textValue(payload, AgentProtocolDefaults.Field.LanAddDeviceState) ??
@@ -93,7 +93,7 @@ function lanDiscoveryRow(input: ParentPortalServiceStateInput): ParentPortalRow 
 }
 
 function devicePairingRow(input: ParentPortalServiceStateInput): ParentPortalRow {
-  const event = latestEvent(input.events, AgentEvent.LanPairingStatusReported);
+  const event = latestLanPairingEvent(input.events);
   const payload = event?.payload ?? null;
   const trustedCount = numberValue(payload, AgentProtocolDefaults.Field.LanTrustedDeviceCount) ?? 0;
   const selected = presentText(payload, AgentProtocolDefaults.Field.LanSelectedChildDeviceId);
@@ -200,12 +200,37 @@ function activityEvents(events: readonly AgentEventEnvelope[]): AgentEventEnvelo
 }
 
 function latestEvent(events: readonly AgentEventEnvelope[], eventName: AgentEventName): AgentEventEnvelope | null {
-  for (let index = events.length - 1; index >= 0; index -= 1) {
-    if (events[index]?.event === eventName) {
-      return events[index] ?? null;
+  return latestEventOf(events, [eventName]);
+}
+
+function latestLanPairingEvent(events: readonly AgentEventEnvelope[]): AgentEventEnvelope | null {
+  return latestEventOf(events, [
+    AgentEvent.LanPairingStatusReported,
+    AgentEvent.LanPairingBrowserDiscoveryReported,
+    AgentEvent.LanPairingAddDeviceReported,
+  ]);
+}
+
+function latestEventOf(
+  events: readonly AgentEventEnvelope[],
+  eventNames: readonly AgentEventName[]
+): AgentEventEnvelope | null {
+  let latest: AgentEventEnvelope | null = null;
+  let latestTime = Number.NEGATIVE_INFINITY;
+  let latestIndex = -1;
+  for (let index = 0; index < events.length; index += 1) {
+    const event = events[index];
+    if (event !== undefined && eventNames.includes(event.event)) {
+      const sentAt = Date.parse(event.sentAt);
+      const eventTime = Number.isFinite(sentAt) ? sentAt : index;
+      if (eventTime > latestTime || (eventTime === latestTime && index > latestIndex)) {
+        latest = event;
+        latestTime = eventTime;
+        latestIndex = index;
+      }
     }
   }
-  return null;
+  return latest;
 }
 
 function row(

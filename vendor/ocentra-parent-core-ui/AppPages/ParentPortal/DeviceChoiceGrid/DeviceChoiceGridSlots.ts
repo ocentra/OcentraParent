@@ -63,7 +63,7 @@ export function makePortalSlots(lanSlots: DeviceSlot[], portalIds: string[], tot
     if (added.length >= totalSlots) {
       break;
     }
-    if (slot.device && (slot.status === 'connected' || portalIdSet.has(slot.value))) {
+    if (portalSlotEligible(slot) && (slot.status === 'connected' || portalIdSet.has(slot.value))) {
       const portalStatus = slot.status === 'offline' ? 'offline' : 'connected';
       added.push({ ...slot, status: portalStatus, slotIndex: added.length });
     }
@@ -73,6 +73,10 @@ export function makePortalSlots(lanSlots: DeviceSlot[], portalIds: string[], tot
     added.push(emptyPortalSlot(added.length));
   }
   return added;
+}
+
+function portalSlotEligible(slot: DeviceSlot): boolean {
+  return !!slot.device && slot.device.portalEligible !== false;
 }
 
 export function makeDemoDeviceSlots(count: number): DeviceSlot[] {

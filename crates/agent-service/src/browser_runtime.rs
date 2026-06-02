@@ -4,7 +4,7 @@ use std::{
 };
 
 use ocentra_parent_agent_core::{
-    collect_process_snapshot, launch_managed_browser, poll_chromium_bridge,
+    collect_process_snapshot, managed_browser_launch_plan, poll_chromium_bridge,
     unmanaged_browser_processes, BrowserBridgePollConfig, BrowserManagedLaunchConfig,
     BrowserUnmanagedProcessObservation,
 };
@@ -19,8 +19,8 @@ use crate::{
     browser_payload::browser_managed_status_payload,
     browser_runtime_paths::{managed_browser_executable_path, managed_browser_profile_dir},
     browser_runtime_status::{
-        bridge_disconnected_status, connected_status, missing_browser_status,
-        profile_missing_status, running_managed_status, status_with_error,
+        bridge_disconnected_status, connected_status, managed_profile_ready_status,
+        missing_browser_status, profile_missing_status, status_with_error,
         unmanaged_browser_status,
     },
     event_builder::build_event,
@@ -54,7 +54,7 @@ fn resolve_browser_managed_status() -> BrowserManagedSessionStatus {
     let checked_at = timestamp_now();
     match configured_bridge_port() {
         Ok(Some(port)) => bridge_poll_status(checked_at, port),
-        Ok(None) => launch_or_missing_status(checked_at),
+        Ok(None) => managed_profile_or_missing_status(checked_at),
         Err(reason) => status_with_error(checked_at, reason),
     }
 }
@@ -95,7 +95,7 @@ fn bridge_poll_status(checked_at: String, port: u16) -> BrowserManagedSessionSta
     }
 }
 
-fn launch_or_missing_status(checked_at: String) -> BrowserManagedSessionStatus {
+fn managed_profile_or_missing_status(checked_at: String) -> BrowserManagedSessionStatus {
     let Some(executable) = managed_browser_executable_path() else {
         if let Some(process) = first_unmanaged_browser_process() {
             return unmanaged_browser_status(
@@ -118,13 +118,10 @@ fn launch_or_missing_status(checked_at: String) -> BrowserManagedSessionStatus {
         bridge_port: constants::browser::DEVTOOLS_DEFAULT_BRIDGE_PORT,
     };
 
-    match launch_managed_browser(config) {
-        Ok(launch) => running_managed_status(
-            checked_at,
-            launch.process_id,
-            launch.browser_family,
-            launch.browser_channel,
-        ),
+    match managed_browser_launch_plan(config) {
+        Ok(plan) => {
+            managed_profile_ready_status(checked_at, plan.browser_family, plan.browser_channel)
+        }
         Err(error) => status_with_error(checked_at, error.reason()),
     }
 }
