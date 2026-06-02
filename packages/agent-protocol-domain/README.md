@@ -14,6 +14,9 @@ transports.
   paths.
 - Enforcement policy-dispatch read-model event parsing for the service-backed
   V0.8 dispatch proof path.
+- Enforcement supported-adapter runtime proof event parsing, including the
+  integrity runtime audit read model carried by
+  `agent.enforcement.supported-adapter-runtime-proof.reported`.
 
 ## Must Not Own
 
@@ -52,3 +55,13 @@ flowchart LR
 - V0.8 policy-dispatch runtime state is parsed from
   `agent.enforcement.policy-dispatch.reported` by the
   `enforcement-policy-dispatch-adapter` export.
+- V0.8 supported-adapter runtime proof is parsed from
+  `agent.enforcement.supported-adapter-runtime-proof.reported` by the
+  `enforcement-supported-adapter-runtime-proof-adapter` export; the event also
+  carries the integrity audit read model for result, timer, rollback,
+  child-status, parent-override, permission-loss, heartbeat, and tamper/manual
+  visibility.
+- Integrity audit events are parent-visible proof state only. Broad
+  app/domain/browser blocking, notification delivery, tamper resistance, mobile
+  enforcement, stealth/persistence, and privilege escalation stay unclaimed
+  until separate platform proof exists.

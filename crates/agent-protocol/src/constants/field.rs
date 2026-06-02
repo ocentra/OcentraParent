@@ -69,6 +69,8 @@ pub const ENFORCEMENT_BROAD_ADAPTER_PROOF_READ_MODEL: &str =
     "enforcementBroadAdapterProofReadModel";
 pub const ENFORCEMENT_SUPPORTED_ADAPTER_RUNTIME_PROOF_READ_MODEL: &str =
     "enforcementSupportedAdapterRuntimeProofReadModel";
+pub const ENFORCEMENT_INTEGRITY_RUNTIME_AUDIT_READ_MODEL: &str =
+    "enforcementIntegrityRuntimeAuditReadModel";
 pub const ENTRIES: &str = "entries";
 pub const EVENTS_INGESTED: &str = "eventsIngested";
 pub const EVENTS_STORED: &str = "eventsStored";

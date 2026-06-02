@@ -11,6 +11,9 @@ Rust protocol parity crate for data that crosses the TypeScript/Rust boundary.
   constants shared by the Rust service and TypeScript protocol adapter.
 - V0.8 enforcement policy-dispatch read-model, command, event, and payload
   constants shared by the Rust service and TypeScript protocol adapter.
+- V0.8 supported-adapter runtime proof and enforcement integrity runtime audit
+  structs/constants, including no-claim fields mirrored into the service event
+  payload.
 
 ## Must Not Own
 
@@ -46,3 +49,9 @@ flowchart LR
 - Policy-dispatch structs must preserve implemented, report-only, degraded,
   unavailable, manual-required, and scaffold states without upgrading broad
   adapter claims.
+- Integrity runtime audit structs must preserve unsupported, unavailable,
+  manual-required, dry-run, observe-only, stale/rejected, timer recovery,
+  rollback, child-status, parent-override, permission-loss, heartbeat, and
+  tamper/manual states without claiming broad app/domain/browser blocking,
+  notification delivery, tamper resistance, mobile enforcement,
+  stealth/persistence, or privilege escalation.

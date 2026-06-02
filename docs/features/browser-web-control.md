@@ -57,6 +57,10 @@ control while being more honest about managed versus unmanaged sources.
 - The V0.8 supported-adapter runtime proof now keeps exact active-tab
   enforcement explicitly not-claimed while app/game and network observe-only
   supported boundaries are represented separately.
+- The V0.8 enforcement integrity runtime audit now carries browser/web-related
+  non-execution states through the supported-adapter event path: dry-run and
+  observe-only states do not execute adapters, stale/wrong-device intents reject
+  before execution, and exact active-tab enforcement remains unclaimed.
 - Unmanaged browser states can be represented as possible bypass and
   process-only fallback, not exact URL/tab proof.
 - The raw browser setting inventory and reduced questionnaire forest are now
@@ -69,7 +73,10 @@ unmanaged fallback UX, and parent-facing rule UX are not product-complete.
 The broad-adapter proof adds runtime visibility for those states but does not
 upgrade exact URL, unmanaged exact evidence, or host domain blocking claims.
 Policy dispatch and supported-adapter runtime proof preserve the report-only or
-not-claimed boundary, not active tab enforcement.
+not-claimed boundary, not active tab enforcement. The integrity runtime audit
+adds proof that dry-run, observe-only, rejected, unavailable, and manual-required
+states stay non-executing, but it still does not prove managed exact URL or
+active-tab enforcement.
 
 ## Checklist
 
@@ -88,4 +95,6 @@ not-claimed boundary, not active tab enforcement.
 
 Keep managed and unmanaged browser claims separate. Do not claim page semantics
 from network metadata. If adding web control, update browser expectations,
-policy contracts, enforcement status, and portal source labels together.
+policy contracts, enforcement status, and portal source labels together. Any
+future exact active-tab claim must add new managed-browser artifacts beyond the
+current integrity runtime audit proof.

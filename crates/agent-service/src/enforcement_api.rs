@@ -30,6 +30,9 @@ mod enforcement_broad_adapter_proof_read_model;
 #[cfg(test)]
 mod enforcement_broad_adapter_proof_read_model_tests;
 mod enforcement_broad_adapter_proof_report;
+mod enforcement_integrity_runtime_audit_read_model;
+#[cfg(test)]
+mod enforcement_integrity_runtime_audit_read_model_tests;
 mod enforcement_product_control_payload;
 mod enforcement_supported_adapter_runtime_proof_read_model;
 #[cfg(test)]

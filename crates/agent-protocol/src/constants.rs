@@ -171,6 +171,8 @@ pub mod host_identity;
 pub mod v08_browser_domain_adapter_proof;
 #[path = "constants/v08_cross_platform_enforcement_capability_proof.rs"]
 pub mod v08_cross_platform_enforcement_capability_proof;
+#[path = "constants/v08_enforcement_integrity_runtime_audit.rs"]
+pub mod v08_enforcement_integrity_runtime_audit;
 #[path = "constants/v08_enforcement_policy_dispatch.rs"]
 pub mod v08_enforcement_policy_dispatch;
 #[path = "constants/v08_enforcement_product_control_spine.rs"]

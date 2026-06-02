@@ -19,6 +19,11 @@ development paths and orchestrates runtime commands.
 - V0.8 policy-dispatch runtime reports through
   `agent.enforcement.policy-dispatch.get` with validated capability matrix,
   evidence refs, timers, approvals, audit refs, and child reason codes.
+- V0.8 supported-adapter runtime proof reports through
+  `agent.enforcement.supported-adapter-runtime-proof.get`, including the
+  enforcement integrity runtime audit read model for supported action results,
+  timer recovery/rollback, child-status, parent-override, permission-loss,
+  integrity heartbeat, and tamper/manual states.
 
 ## Must Not Own
 
@@ -60,3 +65,7 @@ flowchart LR
   tamper enforcement still require platform-specific adapter proof.
 - Policy-dispatch read models are backend proof hooks; C-owned visual UX and
   D-owned packaging/release proof remain outside this crate's scope.
+- Integrity runtime audit read models are backend proof hooks only; broad
+  app/domain/browser blocking, notification delivery, tamper resistance, mobile
+  enforcement, stealth/persistence, and privilege escalation remain unclaimed
+  until separate platform/runtime proof exists.
