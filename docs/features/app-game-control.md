@@ -19,6 +19,8 @@ require typed policy decisions and platform adapter proof.
   [enforcement](../expectations/enforcement.md).
 - Supporting docs: [app settings inventory](../app-control-settings-inventory.md)
   and [game settings inventory](../game-control-settings-inventory.md).
+- Native app planning:
+  [native apps plan](../plans/app-plan/README.md).
 - Browser-game planning:
   [browser games/cloud gaming gating plan](../plans/browser-plan/v0-5-browser-games-cloud-gaming-gating-plan.md).
 - Modules: `packages/activity-domain`, `packages/parent-domain`,

@@ -9,6 +9,11 @@ stores locally before AI, policy, or enforcement uses it.
 Browser-game and cloud-gaming web planning lives in
 [V0.5 Browser Games Cloud Gaming And Game Portal Gating Plan](../plans/browser-plan/v0-5-browser-games-cloud-gaming-gating-plan.md).
 
+Native app planning lives in
+[Native Apps Plan](../plans/app-plan/README.md). The app plan narrows the
+non-browser app side of this combined app/game expectation and keeps
+platform-specific authority tiers manual-required until proof exists.
+
 Detailed architecture and phased contract planning live in
 [App And Game Evidence Sessions Architecture](../architecture/app-game-evidence-sessions.md).
 

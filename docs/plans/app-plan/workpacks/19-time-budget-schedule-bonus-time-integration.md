@@ -1,0 +1,68 @@
+# 19 Time Budget Schedule Bonus-Time Integration
+
+Sources: [full scope plan](../v0-5-native-apps-full-scope-plan.md),
+[test blueprint](../v0-5-native-apps-test-blueprint.md), and
+`docs/expectations/policy.md`.
+
+## Where We Are
+
+Scoped Windows owned-process time-limit proof exists, and policy foundations
+exist. Native app budgets must be wired to replayable app sessions rather than
+portal refresh or guessed runtime state.
+
+## Where We Want To Be
+
+Schedules, time budgets, bonus time, and approvals consume session summaries
+with evidence refs. Dry-run and manual-required modes are visible and auditable.
+
+## Scope
+
+- App time budget target and schedule refs.
+- Running versus foreground duration budget modes.
+- Bonus time and allow-once interactions.
+- Dry-run policy decisions.
+- Almost-finished, reached-limit, request-more-time, and audit states.
+- Manual-required fallback when enforcement cannot run.
+
+## Touched Paths
+
+- `packages/parent-domain/src/policy.ts`
+- `packages/parent-domain/src/enforcement-policy-dispatch.ts`
+- `crates/agent-core/src/enforcement_app_time_limit*`
+- app/session read-model paths when assigned.
+
+## Tests And Proof
+
+- Time budget consumes session summary, not raw portal timer.
+- Dry-run records would-limit without terminate/block.
+- Bonus time changes policy decision with audit refs.
+- Foreground-only budgets use foreground evidence only.
+- Manual-required state prevents adapter calls.
+
+## AI Worker Checklist
+
+Fill this before reporting `DONE` or PR-ready:
+
+- [ ] Confirm source docs read: [folder README](../README.md), [source index](../source-index.md), [current snapshot](../current-app-snapshot.md), [full scope plan](../v0-5-native-apps-full-scope-plan.md), [platform deep dive](../v0-5-native-apps-platform-deep-dive.md), [test blueprint](../v0-5-native-apps-test-blueprint.md), [UI/UX guide](../ui-ux-requirements-guide.md), [main checklist](../implementation-checklist.md), and this workpack.
+- [ ] Confirm this is native/installed-app scope, not browser pages, browser games, or game-specific product semantics unless the source docs explicitly route that handoff.
+- [ ] Hub lock covers this workpack and exact implementation/docs paths.
+- [ ] Existing app/game source layout inspected; no parallel app-control truth created.
+- [ ] Before-state source snapshot recorded in `output/app-plan-proof/<workpack-id>/00-source-snapshot.md` or explicit docs-only N/A reason.
+- [ ] Contracts updated first where this workpack changes behavior.
+- [ ] Rust/service/portal parity updated only after TypeScript contracts exist.
+- [ ] Raw evidence artifacts captured where applicable: inventory rows, process/package observations, foreground observations, session summaries, journal entries, SQLite/read-model rows, policy decisions, approval requests, authority-tier rows, and enforcement results.
+- [ ] Tests/proof listed in this workpack and [test blueprint](../v0-5-native-apps-test-blueprint.md) are implemented or explicitly marked manual-required with reason.
+- [ ] Required fixtures are present or N/A with reason for inventory, runtime, foreground, session, policy, enforcement, UI, malicious metadata, stale state, and manual-required state.
+- [ ] Validation command outputs saved in the proof pack and summarized in [main checklist](../implementation-checklist.md).
+- [ ] UI snapshots captured for every touched parent portal, child UX, policy authoring, approval, evidence drawer, dashboard, stale, degraded, or manual-required state; if no UI changed, `ui-not-applicable.md` records why.
+- [ ] Security/no-claim negative proof captured where applicable: inventory is not usage, running is not foreground, foreground is not content, AI cannot enforce, manual-required cannot call adapters, and private paths/command lines do not leak.
+- [ ] Manual platform proof captured for any claim stronger than observe-only, including OS/device version, authority tier, permission/enrollment setup, commands/UI steps, screenshots/logs, rollback, and cleanup.
+- [ ] Platform limitations use capability status language: observe-only, permission-required, managed-device-required, admin/root-required, system-extension-required, supervised-device-required, manual-required, or not-claimed, with proof needed to move up.
+- [ ] Evidence/proof artifact paths recorded in [main checklist](../implementation-checklist.md).
+- [ ] Feature/expectation/product-checklist/README update decision recorded in [main checklist](../implementation-checklist.md).
+- [ ] Known gaps, deferred items, and no-claim boundaries recorded before `DONE`.
+
+## Manual-Required Gaps
+
+Time-budget policy can be proof-complete in dry-run before enforcement is
+available on a platform.

@@ -4,6 +4,12 @@ This plan defines the V0.5.2 bridge from low-level process/window capture to
 parent-usable native app and game evidence. It is a local device evidence plan,
 not an AI scanner and not a cloud activity store.
 
+Native app implementation planning lives in
+[Native Apps Plan](../plans/app-plan/README.md). That folder narrows the
+non-browser app side of this combined app/game architecture, adds
+authority-tier routing for platform control, and keeps this file as the shared
+source architecture.
+
 Browser games are covered by browser URL/tab evidence. This document covers
 native Windows apps, native games, launchers, Microsoft Store packages, and
 known game install/library signals where the child-device agent can observe them
