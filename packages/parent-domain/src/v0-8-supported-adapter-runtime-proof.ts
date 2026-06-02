@@ -6,6 +6,8 @@ import {
   ParentTimestampSchema,
 } from './reference-primitives';
 
+export * from './v0-8-enforcement-integrity-runtime-audit';
+
 const NonEmptySupportedAdapterText = Schema.String.pipe(Schema.minLength(1));
 
 export const V08SupportedAdapterRuntimeProofReadModelIdSchema = NonEmptySupportedAdapterText.pipe(

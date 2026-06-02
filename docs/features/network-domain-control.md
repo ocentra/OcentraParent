@@ -50,6 +50,10 @@ compete on control while staying clear about attribution confidence and privacy.
 - The V0.8 supported-adapter runtime proof now marks Windows network/domain as
   an implemented observe-only policy handoff over stored flow evidence while
   host DNS/filter enforcement remains manual-required.
+- The V0.8 enforcement integrity runtime audit now includes a
+  network-domain-observe-only result with flow evidence refs and an explicit
+  host-network-domain-filter manual-required row with required apply/rollback
+  artifacts, preserving the no host-filter execution boundary.
 - Network/domain blocking is not broadly product-complete.
 - Raw network control settings are preserved as design inputs, not
   product-complete implementation proof.
@@ -60,7 +64,8 @@ Real OS/domain blocking adapter proof, DNS/VPN/proxy handling, attribution
 quality, and parent-facing rule UX remain. Policy dispatch does not upgrade
 network/domain blocking beyond manual-required, and the broad-adapter proof
 and supported-adapter runtime proof keep the same manual-required host-filter
-boundary.
+boundary. The integrity runtime audit proves observe-only and manual-required
+state visibility, not DNS, VPN, packet, or host filter enforcement.
 
 ## Checklist
 
@@ -76,4 +81,6 @@ boundary.
 ## Next AI Instructions
 
 Separate observation, attribution, classification, and enforcement. Add unknown
-states instead of guessing a process, site, or category.
+states instead of guessing a process, site, or category. Host network/domain
+blocking needs explicit apply, rollback, and audit artifacts before any claim
+upgrade beyond the current integrity runtime audit.

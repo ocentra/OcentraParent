@@ -54,6 +54,12 @@ control with better evidence and local audit.
   claim to Windows owned-process time-limit support with evidence, timer,
   rollback, and audit references while keeping package-wide app blocking
   manual-required.
+- The V0.8 enforcement integrity runtime audit now exposes supported app/game
+  time-limit success, expiry, rollback, parent override/supersede, dry-run,
+  stale decision rejection, wrong-device rejection, child-status refs, timer
+  refs, rollback refs, audit refs, and permission/dependency unavailable states
+  through TypeScript/Rust/service proof without upgrading broad installed-app
+  blocking.
 - Broad app blocking remains manual-required or unproved by platform.
 - Raw app and game control setting inventories are preserved as design inputs,
   not product-complete implementation proof.
@@ -64,7 +70,10 @@ Parent-visible app catalog, category quality, install/approval linkage, child
 request flow, broad blocking, and cross-platform parity are incomplete. Broad
 installed-app blocking remains manual-required beyond the scoped
 owned-process/app-session proof, including in the broad-adapter and
-supported-adapter runtime service proofs.
+supported-adapter runtime service proofs. The integrity runtime audit proves
+typed timer/rollback/child-status visibility for scoped app/game outcomes, but
+does not prove package-wide app blocking, polished child request UX, install
+approval, or cross-platform parity.
 
 ## Checklist
 
@@ -73,7 +82,8 @@ supported-adapter runtime service proofs.
 - [ ] Category and unknown-state handling.
 - [ ] App/category schedule and time-budget rules.
 - [ ] Ask-parent and bonus-time flow.
-- [ ] Child-facing reason/status.
+- [ ] Child-facing reason/status is referenced in the runtime audit; finished
+      child request/status UX remains.
 - [ ] Adapter capability status per platform.
 - [ ] Blocking/time-limit proof before done claim.
 
@@ -81,4 +91,6 @@ supported-adapter runtime service proofs.
 
 Do not equate session evidence with blocking. Keep app identity quality,
 category confidence, policy decisions, and adapter results as separate typed
-states.
+states. Treat
+`scripts/test/v0-8-enforcement-integrity-runtime-audit.mjs` as scoped
+app/game time-limit audit proof only, not broad installed-app blocking proof.
