@@ -43,6 +43,13 @@ area.
   service runtime, notifications, UsageStats, Accessibility, VPN/DNS, Device
   Owner, managed profile, Play signing, device proof, and external transport are
   not promoted to product support.
+- `parent-mobile-service-bridge-proof` and
+  `parent-mobile-controller-observer-handoff-proof` cover Android parent mobile
+  separately from Android child-agent support. The parent-mobile proof exposes
+  local-service unavailable, LAN-service degraded, cloud-relay not-implemented,
+  parent-cache stale, parent-owned-storage offline, observer read-only, and
+  controller-takeover manual-required states without claiming Device Owner,
+  foreground child-agent runtime, Play signing, store release, or phone-local AI.
 
 ## Gaps To Fill
 

@@ -4,7 +4,12 @@ This workspace is the production desktop shell for the parent portal. The Vite p
 
 The desktop shell does not execute child-device capture, policy enforcement, or AI model work. It connects to the local Ocentra Parent agent through the typed portal WebSocket path and displays only the read models the service exposes.
 
-Parent mobile runtime proof uses the same contract boundary as a shell wrapper: Android and iOS package mechanics may prove launch scaffolds, but parent mobile remains observer/request-first, routes assistant/report work to LAN service providers when available, and never runs local model execution by default.
+Parent mobile runtime proof uses the same contract boundary as a shell wrapper:
+Android and iOS package mechanics may prove launch scaffolds, but parent mobile
+remains observer/request-first, routes assistant/report work to LAN service
+providers when available, exposes stale/offline cache and parent-owned storage
+states as unavailable custody paths, and never runs local model execution by
+default.
 
 Useful commands:
 
@@ -30,8 +35,8 @@ runtime boundary used by smoke tests:
 - runtime readiness: connected when the Rust service socket accepts, degraded
   when unavailable;
 - route/source/custody states: active-controller route, observer read-only,
-  live local-network custody, relay unavailable, parent cache unavailable, and
-  parent-owned storage unavailable are serialized for route and support proof;
+  live local-network custody, relay not implemented, parent cache stale, and
+  parent-owned storage offline are serialized for route and support proof;
 - package service proof: Windows service install starts `OcentraParentAgent`,
   probes `http://127.0.0.1:4477/health`, and fails the lifecycle proof when
   health is unavailable;
@@ -42,8 +47,8 @@ runtime boundary used by smoke tests:
   distribution remain manual-required;
 - support/platform proof: support diagnostics expose only redacted
   version/commit/platform/package/service/route fields, and the platform matrix
-  keeps parent desktop, parent mobile, child agents, signing, store, and relay
-  rows split;
+  keeps parent desktop, Android parent mobile, iOS parent mobile, Android child
+  agent, iOS child agent, signing, store, cache/storage, and relay rows split;
 - port conflict policy: package/runtime proof records fixed Ocentra Parent ports
   and does not reclaim unrelated processes.
 
@@ -67,7 +72,8 @@ proof.
 
 - Packages the parent portal as a desktop app for parent-owned devices.
 - Connects to local, LAN, relay, cache, or parent-owned storage paths through
-  typed contracts as those paths become available.
+  typed contracts as those paths become available, with cache/storage allowed to
+  stay stale/offline instead of silently replacing the selected route.
 - Presents parent-controller and parent-observer status without taking
   child-agent authority.
 
@@ -87,5 +93,6 @@ proof.
 ## Gaps To Fill
 
 - Production packaging and signing.
-- Route-status UX for local, LAN, relay, cache, and unavailable sources.
+- Route-status UX for local, LAN, relay, cache, parent-owned storage, and
+  unavailable sources.
 - Parent assistant/report workflows that call real service/provider paths.

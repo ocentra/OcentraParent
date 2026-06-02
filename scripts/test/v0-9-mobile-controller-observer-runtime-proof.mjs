@@ -47,7 +47,12 @@ async function main() {
     '--',
     'tests/v0-9-mobile-controller-observer-runtime.test.ts',
   ]);
-  await runCommand('cmd', ['/c', 'node', 'scripts/test/v0-9-mobile-controller-discovery-runtime-proof.mjs']);
+  await ensureProofArtifact(discoveryRuntimeProofPath, 'v0-9-mobile-controller-discovery-runtime-proof', [
+    'cmd',
+    '/c',
+    'node',
+    'scripts/test/v0-9-mobile-controller-discovery-runtime-proof.mjs',
+  ]);
 
   const parentMobileProof = await readJson(parentMobileProofPath);
   const productionMobileProof = await readJson(productionMobileProofPath);
@@ -82,6 +87,7 @@ async function main() {
     claimsProved: [
       'Parent mobile observer read-only operations are typed separately from rejected write operations.',
       'Controller takeover remains manual-required for mobile packages while backend release proof remains local-service-owned.',
+      'Local service, LAN service, relay, parent cache, and parent-owned storage route states stay explicit in parent mobile observer read models.',
       'LAN AI job submission from parent mobile is represented as degraded provider state, not phone-local model execution.',
       'Package readiness records manual mobile proof gaps for signing, stores, notifications, background behavior, and controller authority.',
       'The proof harness composes parent mobile shell, production mobile controller, and discovery runtime proof artifacts.',
@@ -90,6 +96,7 @@ async function main() {
       'real Android or iOS parent mobile controller write authority',
       'physical household LAN router or firewall behavior',
       'cloud relay routing, authentication, or storage',
+      'parent-owned storage sync or cache freshness',
       'Android child device-owner behavior or iOS Family Controls behavior',
       'C-owned UI rendering or vendor visual changes',
     ],
@@ -149,6 +156,7 @@ function buildMobileReadModel(platform, mobileSummary) {
     controllerState: mobileSummary.controllerState,
     commandAuthorityState: mobileSummary.commandAuthorityState,
     serviceState: mobileSummary.lanService,
+    routeStatuses: routeStatuses(mobileSummary),
     packageReadiness: {
       packageState: mobileSummary.packageState,
       runtimeState: 'ci-mechanical-proof',
@@ -180,6 +188,27 @@ function capabilityStates(capabilityStatesByName) {
     proofRequirement: `${capability} remains ${status} until real mobile artifacts prove otherwise`,
     claimBoundary: `${capability} is not upgraded by parent mobile observer runtime proof`,
   }));
+}
+
+function routeStatuses(mobileSummary) {
+  const selectedRouteId =
+    mobileSummary.assistantJobRoute === 'lan-ai-provider' ? 'route-parent-mobile-lan-provider' : null;
+  return [
+    routeStatus('local-service', mobileSummary.localService, null),
+    routeStatus('lan-service', mobileSummary.lanService, selectedRouteId),
+    routeStatus('cloud-relay', mobileSummary.cloudRelay, null),
+    routeStatus('parent-cache', mobileSummary.parentCache, null),
+    routeStatus('parent-owned-storage', mobileSummary.parentOwnedStorage, null),
+  ];
+}
+
+function routeStatus(routeKind, state, selectedRouteId) {
+  return {
+    routeKind,
+    state,
+    selectedRouteId,
+    proofRequirement: `${routeKind} status must stay explicit in the V0.9 parent mobile observer runtime`,
+  };
 }
 
 function operationProofs() {
@@ -366,6 +395,12 @@ function assertRuntimeReadModel(readModel) {
     const operationStates = Object.fromEntries(
       readModelEntry.operationProofs.map((proof) => [proof.operation, proof.operationState])
     );
+    const routeStates = Object.fromEntries(
+      readModelEntry.routeStatuses.map((routeStatusEntry) => [routeStatusEntry.routeKind, routeStatusEntry.state])
+    );
+    assertEqual(routeStates['cloud-relay'], 'not-implemented', 'observer cloud relay route');
+    assertEqual(routeStates['parent-cache'], 'stale', 'observer parent cache route');
+    assertEqual(routeStates['parent-owned-storage'], 'offline', 'observer parent-owned storage route');
     assertEqual(operationStates['write-policy'], 'rejected-observer-read-only', 'observer write policy state');
     assertEqual(
       operationStates['request-controller-takeover'],
@@ -421,6 +456,24 @@ async function runCommand(commandName, args) {
 
 async function readJson(path) {
   return JSON.parse(await readFile(path, 'utf8'));
+}
+
+async function ensureProofArtifact(path, expectedMode, commandSpec) {
+  if (await proofArtifactMatches(path, expectedMode)) {
+    commands.push(`reuse-proof ${relative(repoRoot, path).replaceAll('\\', '/')}`);
+    return;
+  }
+  const [commandName, ...args] = commandSpec;
+  await runCommand(commandName, args);
+}
+
+async function proofArtifactMatches(path, expectedMode) {
+  try {
+    const proof = await readJson(path);
+    return proof.proofMode === expectedMode;
+  } catch {
+    return false;
+  }
 }
 
 async function gitHead() {

@@ -181,12 +181,7 @@ async function parentMobileRuntimeModels() {
       signingState: 'manual-required',
       storeDistributionState: 'manual-required',
     },
-    serviceAvailability: {
-      localService: 'manual-required',
-      lanService: 'degraded',
-      cloudRelay: 'not-implemented',
-      selectedRouteId: 'route-parent-mobile-lan-provider',
-    },
+    serviceAvailability: serviceAvailability('manual-required', 'degraded', 'route-parent-mobile-lan-provider'),
     controllerProof: {
       controllerState: 'observer',
       controllerLeaseId: null,
@@ -219,12 +214,7 @@ async function parentMobileRuntimeModels() {
       signingState: 'manual-required',
       storeDistributionState: 'manual-required',
     },
-    serviceAvailability: {
-      localService: 'manual-required',
-      lanService: 'manual-required',
-      cloudRelay: 'not-implemented',
-      selectedRouteId: null,
-    },
+    serviceAvailability: serviceAvailability('manual-required', 'manual-required', null),
     controllerProof: {
       controllerState: 'manual-required',
       controllerLeaseId: null,
@@ -385,6 +375,8 @@ function assertRuntimeModel(readModel, platform) {
   if (readModel.serviceAvailability.cloudRelay !== 'not-implemented') {
     throw new Error(`${platform} parent mobile model must keep cloud relay not implemented.`);
   }
+  assertRouteState(readModel, 'parent-cache', 'stale', `${platform} parent cache state`);
+  assertRouteState(readModel, 'parent-owned-storage', 'offline', `${platform} parent-owned storage state`);
   if (platform === 'android' && readModel.controllerProof.commandAuthorityState !== 'observer-read-only') {
     throw new Error('Android parent mobile proof must remain observer read-only until real package proof exists.');
   }
@@ -403,6 +395,11 @@ function summarizeRuntimeModel(readModel) {
     localService: readModel.serviceAvailability.localService,
     lanService: readModel.serviceAvailability.lanService,
     cloudRelay: readModel.serviceAvailability.cloudRelay,
+    parentCache: readModel.serviceAvailability.parentCache,
+    parentOwnedStorage: readModel.serviceAvailability.parentOwnedStorage,
+    routeStatuses: Object.fromEntries(
+      readModel.serviceAvailability.routeStatuses.map((entry) => [entry.routeKind, entry.state])
+    ),
     assistantJobRoute: readModel.assistantJobProof.route,
     assistantJobState: readModel.assistantJobProof.jobState,
     capabilityStates: summarizeCapabilityStates(readModel.platformCapabilities),
@@ -417,6 +414,41 @@ function summarizeCapabilityStates(entries) {
 
 function capabilityProof(capability, status, proofRequirement, claimBoundary) {
   return { capability, status, proofRequirement, claimBoundary };
+}
+
+function serviceAvailability(localService, lanService, selectedRouteId) {
+  return {
+    localService,
+    lanService,
+    cloudRelay: 'not-implemented',
+    parentCache: 'stale',
+    parentOwnedStorage: 'offline',
+    selectedRouteId,
+    routeStatuses: [
+      routeStatus('local-service', localService, 'local-service', null),
+      routeStatus('lan-service', lanService, 'lan-service', selectedRouteId),
+      routeStatus('cloud-relay', 'not-implemented', 'unavailable', null),
+      routeStatus('parent-cache', 'stale', 'parent-cache', null),
+      routeStatus('parent-owned-storage', 'offline', 'parent-owned-storage', null),
+    ],
+  };
+}
+
+function routeStatus(routeKind, state, custody, selectedRouteId) {
+  return {
+    routeKind,
+    state,
+    custody,
+    selectedRouteId,
+    proofRequirement: `${routeKind} status must stay explicit in the parent mobile shell read model`,
+  };
+}
+
+function assertRouteState(readModel, routeKind, expectedState, label) {
+  const routeStatus = readModel.serviceAvailability.routeStatuses.find((entry) => entry.routeKind === routeKind);
+  if (routeStatus?.state !== expectedState) {
+    throw new Error(`${label}: expected ${expectedState}, received ${routeStatus?.state ?? 'missing'}`);
+  }
 }
 
 async function readRepoFile(path) {

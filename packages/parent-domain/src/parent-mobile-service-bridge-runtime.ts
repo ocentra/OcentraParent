@@ -24,10 +24,26 @@ export const ParentMobileServiceBridgeRuntimeSchemaVersionSchema = withParser(
   Schema.Literal('parent-mobile-service-bridge-proof')
 );
 export const ParentMobileServiceBridgeConnectionKindSchema = withParser(
-  Schema.Literal('local-service', 'lan-service', 'cloud-relay', 'mobile-package')
+  Schema.Literal(
+    'local-service',
+    'lan-service',
+    'cloud-relay',
+    'parent-cache',
+    'parent-owned-storage',
+    'mobile-package'
+  )
 );
 export const ParentMobileServiceBridgeProofStateSchema = withParser(
-  Schema.Literal('available', 'degraded', 'unavailable', 'manual-required', 'not-implemented', 'ci-mechanical-proof')
+  Schema.Literal(
+    'available',
+    'degraded',
+    'unavailable',
+    'manual-required',
+    'not-implemented',
+    'ci-mechanical-proof',
+    'stale',
+    'offline'
+  )
 );
 export const ParentMobileServiceBridgeRoleSchema = withParser(
   Schema.Literal('observer', 'controller-candidate', 'degraded-observer')
@@ -36,6 +52,8 @@ export const ParentMobileServiceBridgeOperationSchema = withParser(
   Schema.Literal(
     'service-status-read',
     'lan-route-status-read',
+    'parent-cache-status-read',
+    'parent-owned-storage-status-read',
     'capability-refresh',
     'package-service-launch',
     'controller-takeover-request',
@@ -68,7 +86,9 @@ export const ParentMobileServiceBridgeRuntimeOwnerSchema = withParser(
     'agent-service',
     'lan-ai-provider',
     'manual-proof',
-    'cloud-relay-not-implemented'
+    'cloud-relay-not-implemented',
+    'parent-cache',
+    'parent-owned-storage'
   )
 );
 export const ParentMobileServiceBridgeAssistantRouteSchema = withParser(
@@ -204,8 +224,13 @@ export const ParentMobileServiceBridgeClaimBoundariesSchema = withParser(
     parentMobileWriteAuthority: ParentMobileServiceBridgeClaimBoundarySchema,
     physicalHouseholdLan: ParentMobileServiceBridgeClaimBoundarySchema,
     cloudRelay: ParentMobileServiceBridgeClaimBoundarySchema,
+    parentOwnedStorage: ParentMobileServiceBridgeClaimBoundarySchema,
     phoneLocalModel: ParentMobileServiceBridgeClaimBoundarySchema,
     packageServiceLaunch: ParentMobileServiceBridgeClaimBoundarySchema,
+    androidParentMobile: ParentMobileServiceBridgeClaimBoundarySchema,
+    iosParentMobile: ParentMobileServiceBridgeClaimBoundarySchema,
+    androidChildAgent: ParentMobileServiceBridgeClaimBoundarySchema,
+    iosChildAgent: ParentMobileServiceBridgeClaimBoundarySchema,
     cUiOwnership: ParentMobileServiceBridgeClaimBoundarySchema,
   })
 );
@@ -244,12 +269,16 @@ const RequiredConnectionKinds = [
   'local-service',
   'lan-service',
   'cloud-relay',
+  'parent-cache',
+  'parent-owned-storage',
   'mobile-package',
 ] as const satisfies ReadonlyArray<ParentMobileServiceBridgeConnectionKind>;
 
 const RequiredOperations = [
   'service-status-read',
   'lan-route-status-read',
+  'parent-cache-status-read',
+  'parent-owned-storage-status-read',
   'capability-refresh',
   'package-service-launch',
   'controller-takeover-request',
@@ -280,6 +309,20 @@ const StaticOperationExpectations: ReadonlyMap<ParentMobileServiceBridgeOperatio
     ),
     staticOperation(
       'lan-route-status-read',
+      'completed',
+      'allowed-read-only',
+      'parent-mobile-shell',
+      'observer-read-only'
+    ),
+    staticOperation(
+      'parent-cache-status-read',
+      'completed',
+      'allowed-read-only',
+      'parent-mobile-shell',
+      'observer-read-only'
+    ),
+    staticOperation(
+      'parent-owned-storage-status-read',
       'completed',
       'allowed-read-only',
       'parent-mobile-shell',
@@ -404,6 +447,8 @@ function serviceConnectionsAreHonest(connections: ReadonlyArray<ParentMobileServ
 
   return (
     byKind.get('cloud-relay')?.state === 'not-implemented' &&
+    byKind.get('parent-cache')?.state === 'stale' &&
+    byKind.get('parent-owned-storage')?.state === 'offline' &&
     byKind.get('mobile-package')?.state === 'ci-mechanical-proof' &&
     byKind.get('local-service')?.state !== 'available'
   );

@@ -32,8 +32,18 @@ async function main() {
     '--',
     'tests/parent-mobile-service-bridge-runtime.test.ts',
   ]);
-  await runNodeScript('scripts/test/v0-9-production-lan-mobile-controller-proof.mjs');
-  await runNodeScript('scripts/test/v0-9-mobile-controller-observer-runtime-proof.mjs');
+  await ensureProofArtifact(productionMobileProofPath, 'v0-9-production-lan-mobile-controller-proof', [
+    'cmd',
+    '/c',
+    'node',
+    'scripts/test/v0-9-production-lan-mobile-controller-proof.mjs',
+  ]);
+  await ensureProofArtifact(observerProofPath, 'v0-9-mobile-controller-observer-runtime-proof', [
+    'cmd',
+    '/c',
+    'node',
+    'scripts/test/v0-9-mobile-controller-observer-runtime-proof.mjs',
+  ]);
 
   const parentMobileProof = await readJson(parentMobileProofPath);
   const productionMobileProof = await readJson(productionMobileProofPath);
@@ -73,6 +83,7 @@ async function main() {
     },
     claimsProved: [
       'Parent mobile local service, LAN service, cloud relay, and mobile package bridge states are explicit and typed.',
+      'Parent mobile parent-cache and parent-owned storage route states are explicit stale/offline states, not silent fallback paths.',
       'Observer mobile surfaces remain read-only for policy writes and approval decisions.',
       'Controller takeover remains manual-required for Android and iOS package/device authority.',
       'LAN AI provider submission is degraded or unavailable and never becomes phone-local model execution.',
@@ -83,6 +94,7 @@ async function main() {
       'foreground/background mobile service launch on a real device',
       'physical household LAN router or firewall behavior',
       'cloud relay routing, authentication, or storage',
+      'parent-owned storage sync or cache freshness',
       'phone-local model execution for parent mobile assistant work',
       'C-owned UI rendering or vendor visual changes',
     ],
@@ -129,8 +141,14 @@ function buildRuntimeReadModel(parentMobileProof, productionMobileProof, observe
       parentMobileWriteAuthority: observerProof.runtimeReadModel.claimBoundaries.parentMobileWriteAuthority,
       physicalHouseholdLan: productionMobileProof.manualProofGates.physicalHouseholdLan.requiredArtifacts.join('; '),
       cloudRelay: observerProof.runtimeReadModel.claimBoundaries.cloudRelay,
+      parentOwnedStorage:
+        'parent-owned storage is offline in this proof and does not silently replace LAN service or cloud relay',
       phoneLocalModel: 'disabled by default; parent mobile does not load a phone-local model for assistant work',
       packageServiceLaunch: 'manual-required until foreground/background mobile service launch is proven on device',
+      androidParentMobile: 'Android parent mobile observer proof stays separate from Android child-agent authority',
+      iosParentMobile: 'iOS parent mobile controller-candidate proof stays separate from iOS child-agent authority',
+      androidChildAgent: 'Android child-agent foreground service and Device Owner claims are not proved here',
+      iosChildAgent: 'iOS child-agent Family Controls and DeviceActivity claims are not proved here',
       cUiOwnership: 'C UI can render this later, but this proof does not touch UI or vendor paths',
     },
     updatedAt: observerProof.checkedAt,
@@ -157,6 +175,8 @@ function serviceConnections(mobileSummary) {
     connection('local-service', mobileSummary.localService, 'manual-proof', null),
     connection('lan-service', mobileSummary.lanService, 'lan-ai-provider', 'route-parent-mobile-lan-provider'),
     connection('cloud-relay', mobileSummary.cloudRelay, 'cloud-relay-not-implemented', null),
+    connection('parent-cache', mobileSummary.parentCache, 'parent-cache', null),
+    connection('parent-owned-storage', mobileSummary.parentOwnedStorage, 'parent-owned-storage', null),
     connection('mobile-package', mobileSummary.packageState, 'parent-mobile-shell', null),
   ];
 }
@@ -200,6 +220,20 @@ function operationProofs(aiState) {
     ),
     operationProof(
       'lan-route-status-read',
+      'completed',
+      'allowed-read-only',
+      'parent-mobile-shell',
+      'observer-read-only'
+    ),
+    operationProof(
+      'parent-cache-status-read',
+      'completed',
+      'allowed-read-only',
+      'parent-mobile-shell',
+      'observer-read-only'
+    ),
+    operationProof(
+      'parent-owned-storage-status-read',
       'completed',
       'allowed-read-only',
       'parent-mobile-shell',
@@ -339,6 +373,8 @@ function assertParentMobileProof(proof) {
   );
   assertEqual(proof.runtimeProof.androidObserver.cloudRelay, 'not-implemented', 'Android cloud relay');
   assertEqual(proof.runtimeProof.iosObserver.cloudRelay, 'not-implemented', 'iOS cloud relay');
+  assertEqual(proof.runtimeProof.androidObserver.parentCache, 'stale', 'Android parent cache');
+  assertEqual(proof.runtimeProof.iosObserver.parentOwnedStorage, 'offline', 'iOS parent-owned storage');
   assertEqual(proof.runtimeProof.localModelExecutionDefault, 'disabled-by-default', 'phone-local model default');
   assertEqual(proof.runtimeProof.childAgentBehaviorClaim, 'not-claimed', 'child-agent non-claim');
   proofLabels.push('parent-mobile-shell.boundaries');
@@ -377,6 +413,16 @@ function assertRuntimeReadModel(readModel) {
       `${model.platform} cloud relay`
     );
     assertEqual(model.aiSubmission.localModelExecutionAllowed, false, `${model.platform} local model execution`);
+    assertEqual(
+      model.connections.find((connection) => connection.connectionKind === 'parent-cache').state,
+      'stale',
+      `${model.platform} parent cache`
+    );
+    assertEqual(
+      model.connections.find((connection) => connection.connectionKind === 'parent-owned-storage').state,
+      'offline',
+      `${model.platform} parent-owned storage`
+    );
     assertArrayLengthAtLeast(model.packageReadiness.missingCapabilityProofs, 5, `${model.platform} package gaps`);
   }
   proofLabels.push('service-bridge.runtime-read-model');
@@ -423,6 +469,24 @@ async function runCommand(commandName, args) {
 
 async function readJson(path) {
   return JSON.parse(await readFile(path, 'utf8'));
+}
+
+async function ensureProofArtifact(path, expectedMode, commandSpec) {
+  if (await proofArtifactMatches(path, expectedMode)) {
+    commands.push(`reuse-proof ${relative(repoRoot, path).replaceAll('\\', '/')}`);
+    return;
+  }
+  const [commandName, ...args] = commandSpec;
+  await runCommand(commandName, args);
+}
+
+async function proofArtifactMatches(path, expectedMode) {
+  try {
+    const proof = await readJson(path);
+    return proof.proofMode === expectedMode;
+  } catch {
+    return false;
+  }
 }
 
 async function gitHead() {

@@ -1,4 +1,7 @@
+import type { ParentMobileServiceAvailabilityState } from '../src/parent-mobile-runtime';
+
 const CheckedAt = '2026-05-28T16:05:00.000Z';
+type ParentMobileFixtureRouteId = 'route-parent-mobile-lan-provider' | null;
 
 export const AndroidParentMobileCapabilities = [
   {
@@ -102,12 +105,7 @@ export const AndroidObserverReadModel = {
     signingState: 'manual-required',
     storeDistributionState: 'manual-required',
   },
-  serviceAvailability: {
-    localService: 'manual-required',
-    lanService: 'degraded',
-    cloudRelay: 'not-implemented',
-    selectedRouteId: 'route-parent-mobile-lan-provider',
-  },
+  serviceAvailability: serviceAvailability('manual-required', 'degraded', 'route-parent-mobile-lan-provider'),
   controllerProof: {
     controllerState: 'observer',
     controllerLeaseId: null,
@@ -141,12 +139,7 @@ export const IosObserverReadModel = {
     signingState: 'manual-required',
     storeDistributionState: 'manual-required',
   },
-  serviceAvailability: {
-    localService: 'manual-required',
-    lanService: 'manual-required',
-    cloudRelay: 'not-implemented',
-    selectedRouteId: null,
-  },
+  serviceAvailability: serviceAvailability('manual-required', 'manual-required', null),
   controllerProof: {
     controllerState: 'manual-required',
     controllerLeaseId: null,
@@ -169,6 +162,7 @@ export const SubmittedLanProviderReadModel = {
   serviceAvailability: {
     ...AndroidObserverReadModel.serviceAvailability,
     lanService: 'available',
+    routeStatuses: parentMobileRouteStatuses('manual-required', 'available', 'route-parent-mobile-lan-provider'),
   },
   assistantJobProof: {
     ...AndroidObserverReadModel.assistantJobProof,
@@ -177,3 +171,48 @@ export const SubmittedLanProviderReadModel = {
     unavailableReason: null,
   },
 } as const;
+
+function serviceAvailability(
+  localService: ParentMobileServiceAvailabilityState,
+  lanService: ParentMobileServiceAvailabilityState,
+  selectedRouteId: ParentMobileFixtureRouteId
+) {
+  return {
+    localService,
+    lanService,
+    cloudRelay: 'not-implemented',
+    parentCache: 'stale',
+    parentOwnedStorage: 'offline',
+    selectedRouteId,
+    routeStatuses: parentMobileRouteStatuses(localService, lanService, selectedRouteId),
+  } as const;
+}
+
+function parentMobileRouteStatuses(
+  localService: ParentMobileServiceAvailabilityState,
+  lanService: ParentMobileServiceAvailabilityState,
+  selectedRouteId: ParentMobileFixtureRouteId
+) {
+  return [
+    routeStatus('local-service', localService, 'local-service', null),
+    routeStatus('lan-service', lanService, 'lan-service', selectedRouteId),
+    routeStatus('cloud-relay', 'not-implemented', 'unavailable', null),
+    routeStatus('parent-cache', 'stale', 'parent-cache', null),
+    routeStatus('parent-owned-storage', 'offline', 'parent-owned-storage', null),
+  ] as const;
+}
+
+function routeStatus(
+  routeKind: 'local-service' | 'lan-service' | 'cloud-relay' | 'parent-cache' | 'parent-owned-storage',
+  state: ParentMobileServiceAvailabilityState,
+  custody: 'local-service' | 'lan-service' | 'unavailable' | 'parent-cache' | 'parent-owned-storage',
+  selectedRouteId: ParentMobileFixtureRouteId
+) {
+  return {
+    routeKind,
+    state,
+    custody,
+    selectedRouteId,
+    proofRequirement: `${routeKind} status must stay explicit in the parent mobile shell read model`,
+  };
+}

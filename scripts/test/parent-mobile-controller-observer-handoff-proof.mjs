@@ -49,8 +49,18 @@ async function main() {
     '--',
     'tests/parent-mobile-controller-observer-handoff-runtime.test.ts',
   ]);
-  await runNodeScript('scripts/test/parent-mobile-service-bridge-proof.mjs');
-  await runNodeScript('scripts/test/v0-9-prod-discovery-provider-selection-proof.mjs');
+  await ensureProofArtifact(serviceBridgeProofPath, 'parent-mobile-service-bridge-proof', [
+    'cmd',
+    '/c',
+    'node',
+    'scripts/test/parent-mobile-service-bridge-proof.mjs',
+  ]);
+  await ensureProofArtifact(providerSelectionProofPath, 'v0-9-prod-discovery-provider-selection-proof', [
+    'cmd',
+    '/c',
+    'node',
+    'scripts/test/v0-9-prod-discovery-provider-selection-proof.mjs',
+  ]);
 
   const serviceBridgeProof = await readJson(serviceBridgeProofPath);
   const productionMobileProof = await readJson(productionMobileProofPath);
@@ -90,6 +100,7 @@ async function main() {
       'Parent mobile observer handoff exposes controller lease visibility without granting mobile write authority.',
       'Controller takeover remains denied or manual-required until real mobile package and device authority proof exists.',
       'Selected route and provider handoff states stay degraded, unavailable, or manual-required instead of claiming provider readiness.',
+      'Parent cache and parent-owned storage handoff states stay stale/offline instead of silently replacing LAN or relay routes.',
       'LAN AI handoff stays degraded or unavailable and never runs a phone-local model by default.',
       'Cloud relay, mobile parity, child mobile agent behavior, Android device-owner, iOS Family Controls, signing, stores, and entitlements remain explicit non-claims.',
     ],
@@ -98,6 +109,7 @@ async function main() {
       'remote control through a mobile shell',
       'physical household LAN or provider readiness on two devices',
       'cloud relay routing, authentication, storage, or fallback behavior',
+      'parent-owned storage sync or cache freshness',
       'phone-local model execution',
       'C-owned UI rendering or vendor visual changes',
     ],
@@ -148,6 +160,8 @@ function buildRuntimeReadModel(serviceBridgeProof, providerSelectionProof, disco
       parentMobileWriteAuthority: serviceBridgeProof.runtimeReadModel.claimBoundaries.parentMobileWriteAuthority,
       mobileParity: 'not claimed by controller-observer handoff proof',
       childMobileAgentBehavior: discoveryRuntimeProof.runtimeReadModel.claimBoundaries.mobileChildAgentBehavior,
+      androidChildAgentBehavior: serviceBridgeProof.runtimeReadModel.claimBoundaries.androidChildAgent,
+      iosChildAgentBehavior: serviceBridgeProof.runtimeReadModel.claimBoundaries.iosChildAgent,
       androidDeviceOwner: 'not claimed; Android device-owner behavior belongs to child-agent platform proof',
       iosFamilyControls: 'not claimed; iOS Family Controls requires entitlements and platform proof',
       signingStoresEntitlements: discoveryRuntimeProof.runtimeReadModel.claimBoundaries.storesSigningEntitlements,
@@ -202,7 +216,11 @@ function routeSnapshot(platform, bridgeModel, route) {
     providerLifecycleState: route.lifecycleState,
     providerPolicyDecision: route.policyDecision,
     providerId: platform === 'android' ? route.providerPeerId : null,
-    cloudRelayState: cloudRelayConnection(bridgeModel).state,
+    localServiceState: connectionState(bridgeModel, 'local-service'),
+    lanServiceState: connectionState(bridgeModel, 'lan-service'),
+    cloudRelayState: connectionState(bridgeModel, 'cloud-relay'),
+    parentCacheState: connectionState(bridgeModel, 'parent-cache'),
+    parentOwnedStorageState: connectionState(bridgeModel, 'parent-owned-storage'),
     routeRequirement: `${route.lifecycleState} provider route must stay explicit and must not silently fall back to cloud relay`,
   };
 }
@@ -312,9 +330,17 @@ function findBridgeModel(serviceBridgeProof, platform) {
 }
 
 function cloudRelayConnection(bridgeModel) {
-  const connection = bridgeModel.connections.find((entry) => entry.connectionKind === 'cloud-relay');
+  return bridgeConnection(bridgeModel, 'cloud-relay');
+}
+
+function connectionState(bridgeModel, connectionKind) {
+  return bridgeConnection(bridgeModel, connectionKind).state;
+}
+
+function bridgeConnection(bridgeModel, connectionKind) {
+  const connection = bridgeModel.connections.find((entry) => entry.connectionKind === connectionKind);
   if (!connection) {
-    throw new Error('Missing cloud relay connection.');
+    throw new Error(`Missing ${connectionKind} connection.`);
   }
   return connection;
 }
@@ -381,6 +407,8 @@ function assertRuntimeReadModel(readModel) {
     assertArrayIncludes(phases, 'handoff-lan-ai-provider', `${model.platform} LAN AI phase`);
     assertArrayIncludes(phases, 'disable-phone-local-model', `${model.platform} phone-local model phase`);
     assertEqual(model.lanAiHandoff.localModelExecutionAllowed, false, `${model.platform} local model`);
+    assertEqual(model.routeSnapshot.parentCacheState, 'stale', `${model.platform} parent cache state`);
+    assertEqual(model.routeSnapshot.parentOwnedStorageState, 'offline', `${model.platform} parent storage state`);
   }
   proofLabels.push('handoff-runtime.read-model-boundaries');
 }
@@ -426,6 +454,24 @@ async function runCommand(commandName, args) {
 
 async function readJson(path) {
   return JSON.parse(await readFile(path, 'utf8'));
+}
+
+async function ensureProofArtifact(path, expectedMode, commandSpec) {
+  if (await proofArtifactMatches(path, expectedMode)) {
+    commands.push(`reuse-proof ${relativePath(path)}`);
+    return;
+  }
+  const [commandName, ...args] = commandSpec;
+  await runCommand(commandName, args);
+}
+
+async function proofArtifactMatches(path, expectedMode) {
+  try {
+    const proof = await readJson(path);
+    return proof.proofMode === expectedMode;
+  } catch {
+    return false;
+  }
 }
 
 async function gitHead() {
