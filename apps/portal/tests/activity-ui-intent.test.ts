@@ -444,6 +444,7 @@ function lanAddDeviceReadModel() {
     discoveredDevices: [connectedLanDiscoveryDevice(), manualLanDiscoveryDevice()],
     pairingRequests: [],
     trustedDeviceRegistry: [],
+    householdDeviceDecisions: [],
     trustedDeviceIds: ['child-android-1'],
     revokedDeviceIds: [],
     selectedDeviceReadiness: connectedLanSelectedDeviceReadiness(),

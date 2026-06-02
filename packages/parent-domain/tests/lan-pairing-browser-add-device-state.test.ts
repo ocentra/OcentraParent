@@ -16,12 +16,22 @@ describe('browser-first LAN add-device read model', () => {
       agentDeviceCount: 1,
     });
     expect(parsed.trustedDeviceRegistry[0]?.childDevice.deviceId).toBe('child-device-1');
+    expect(parsed.householdDeviceDecisions[0]?.actionKind).toBe('rename');
     expect(parsed.trustedDeviceIds).toEqual(['child-device-1']);
     expect(parsed.selectedDeviceReadiness.readyForControl).toBe(false);
     expect(parsed.auditCheckLabels).toEqual(['wrong-origin', 'wrong-device', 'replayed', 'stale', 'revoked']);
     expect(LanPairingProductionDiscoveryStates.Rejected).toBe('rejected');
     expect(LanPairingProductionDiscoveryStates.Expired).toBe('expired');
     expect(LanPairingProductionDiscoveryStates.ManualRequired).toBe('manual-required');
+  });
+
+  it('rejects duplicate canonical household device rows in the add-device read model', () => {
+    expect(() =>
+      LanBrowserAddDeviceReadModelSchema.parse({
+        ...readModelFixture(),
+        canonicalHouseholdDevices: [canonicalHouseholdDevice(), canonicalHouseholdDevice()],
+      })
+    ).toThrow(/one canonical row/u);
   });
 });
 
@@ -44,8 +54,10 @@ function readModelFixture() {
       unsupportedDeviceCount: 0,
     },
     discoveredDevices: [discoveredDevice()],
+    canonicalHouseholdDevices: [canonicalHouseholdDevice()],
     pairingRequests: [pairingRequest()],
     trustedDeviceRegistry: [trustedRegistryEntry()],
+    householdDeviceDecisions: [householdDecision()],
     trustedDeviceIds: ['child-device-1'],
     revokedDeviceIds: [],
     selectedDeviceReadiness: selectedReadiness(),
@@ -55,6 +67,69 @@ function readModelFixture() {
     auditCheckLabels: ['wrong-origin', 'wrong-device', 'replayed', 'stale', 'revoked'],
     honestNonClaims: ['physical-household-lan-manual-required', 'cloud-relay-not-implemented'],
   };
+}
+
+function canonicalHouseholdDevice() {
+  return {
+    schemaVersion: 'v0.9',
+    canonicalDeviceId: 'child-device-1',
+    displayName: 'Mia Windows PC',
+    classification: 'child-agent',
+    roleBadges: ['child-agent'],
+    enrollable: true,
+    discoveryState: 'paired',
+    trustState: 'paired',
+    routeId: 'lan-route-child-1',
+    routeState: 'local-network',
+    networkMode: 'local-network',
+    sourceLabels: ['trusted-registry'],
+    networkIdentity: {
+      hostname: null,
+      ipAddresses: [],
+      macAddress: null,
+      macVendor: null,
+      networkInterfaces: [],
+      reachability: 'stale',
+      confidence: 'manual-required',
+      staleAt: generatedAt,
+      offlineAt: null,
+      evidenceRecords: [trustedRegistryEvidenceRecord()],
+    },
+    childAgentInventory: null,
+    policyTargetSurfaces: ['devices', 'policy', 'browser', 'app', 'screen', 'network', 'activity', 'tracking', 'ai'],
+  } as const;
+}
+
+function trustedRegistryEvidenceRecord() {
+  return {
+    schemaVersion: 'v0.9',
+    evidenceId: 'lan-evidence-trusted-registry-child-device-1',
+    source: 'trusted-registry',
+    evidenceKind: 'trusted-registry',
+    deviceId: 'child-device-1',
+    value: 'child-device-1',
+    normalizedValue: 'child-device-1',
+    firstSeenAt: generatedAt,
+    lastSeenAt: generatedAt,
+    expiresAt: null,
+    confidence: 'manual-required',
+    mergeKey: 'trusted:child-device-1',
+    note: null,
+  } as const;
+}
+
+function householdDecision() {
+  return {
+    schemaVersion: 'v0.9',
+    actionId: 'household-action-1',
+    actionKind: 'rename',
+    canonicalDeviceId: 'child-device-1',
+    childProfileId: null,
+    displayName: 'Mia Windows PC',
+    parentActorId: 'parent-actor-1',
+    decidedAt: generatedAt,
+    revokedAt: null,
+  } as const;
 }
 
 function discoveredDevice() {

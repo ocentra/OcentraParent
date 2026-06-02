@@ -52,6 +52,14 @@ async fn lan_status_reports_browser_first_add_device_read_model_from_service_sta
         read_model[constants::field::LAN_ADD_DEVICE_STATE],
         serde_json::json!(constants::value::LAN_DISCOVERY_STATE_DISCOVERED)
     );
+    let canonical_devices = read_model[constants::field::LAN_CANONICAL_HOUSEHOLD_DEVICES]
+        .as_array()
+        .expect(constants::value::LAN_READ_MODEL_JSON_EXPECTATION);
+    assert!(canonical_devices.iter().any(|device| device
+        [constants::field::LAN_CANONICAL_DEVICE_ID]
+        .as_str()
+        .map(|value| !value.is_empty())
+        .unwrap_or(false)));
     assert_eq!(
         read_model[constants::field::LAN_TRUSTED_DEVICE_REGISTRY],
         serde_json::json!([])
@@ -110,6 +118,21 @@ async fn lan_status_marks_selected_trusted_device_ready_for_control() {
         read_model[constants::field::LAN_SELECTED_DEVICE_READINESS]
             [constants::field::LAN_READY_FOR_CONTROL],
         serde_json::json!(true)
+    );
+    assert_eq!(
+        read_model[constants::field::LAN_CANONICAL_HOUSEHOLD_DEVICES][0]
+            [constants::field::LAN_POLICY_TARGET_SURFACES],
+        serde_json::json!([
+            constants::lan_pairing::SURFACE_DEVICES,
+            constants::lan_pairing::SURFACE_POLICY,
+            constants::lan_pairing::SURFACE_BROWSER,
+            constants::lan_pairing::SURFACE_APP,
+            constants::lan_pairing::SURFACE_SCREEN,
+            constants::lan_pairing::SURFACE_NETWORK,
+            constants::lan_pairing::SURFACE_ACTIVITY,
+            constants::lan_pairing::SURFACE_TRACKING,
+            constants::lan_pairing::SURFACE_AI
+        ])
     );
 }
 

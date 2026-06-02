@@ -16,6 +16,7 @@ import {
 } from './security';
 
 const NonEmptyLanAddDeviceText = Schema.String.pipe(Schema.minLength(1));
+const AgentLanCanonicalDeviceIdSchema = NonEmptyLanAddDeviceText.pipe(Schema.brand('AgentLanCanonicalDeviceId'));
 export const AgentLanPairingDiscoverySourceSchema = withParser(
   Schema.Literal('local-service', 'physical-household-lan', 'cloud-relay')
 );
@@ -76,6 +77,161 @@ export const AgentLanSelectedDeviceReadinessSchema = withParser(
   })
 );
 
+export const AgentLanCanonicalHouseholdDeviceRoleSchema = withParser(
+  Schema.Literal('parent-controller', 'parent-observer', 'child-agent', 'portal', 'ai-provider')
+);
+
+export const AgentLanCanonicalHouseholdDeviceClassificationSchema = withParser(
+  Schema.Literal('child-agent', 'network-infrastructure', 'unsupported-lan-device', 'unknown-lan-device')
+);
+
+export const AgentLanCanonicalHouseholdDeviceSourceSchema = withParser(
+  Schema.Literal('local-service', 'network-neighbor', 'trusted-registry')
+);
+
+export const AgentLanCanonicalHouseholdDeviceConfidenceSchema = withParser(
+  Schema.Literal('agent-confirmed', 'mac-ip-match', 'network-neighbor', 'manual-required')
+);
+
+export const AgentLanDiscoveryEvidenceSourceSchema = withParser(
+  Schema.Literal(
+    'local-service',
+    'windows-neighbor-table',
+    'dns-cache',
+    'netbios',
+    'trusted-registry',
+    'parent-assignment',
+    'child-agent-hello',
+    'child-agent-heartbeat'
+  )
+);
+
+export const AgentLanDiscoveryEvidenceKindSchema = withParser(
+  Schema.Literal(
+    'interface',
+    'ip-address',
+    'mac-address',
+    'hostname',
+    'vendor',
+    'router-classification',
+    'child-agent-presence',
+    'trusted-registry',
+    'parent-decision',
+    'route'
+  )
+);
+
+export const AgentLanDiscoveryEvidenceConfidenceSchema = withParser(
+  Schema.Literal('confirmed', 'strong', 'weak', 'manual-required', 'rejected')
+);
+
+export const AgentLanHouseholdDeviceActionKindSchema = withParser(
+  Schema.Literal('assign', 'rename', 'ignore', 'restore', 'trust')
+);
+
+export const AgentLanHouseholdDeviceDecisionSchema = withParser(
+  Schema.Struct({
+    schemaVersion: Schema.Literal(AgentProtocolSchemaVersion),
+    actionId: NonEmptyLanAddDeviceText,
+    actionKind: AgentLanHouseholdDeviceActionKindSchema,
+    canonicalDeviceId: AgentLanCanonicalDeviceIdSchema,
+    childProfileId: Schema.Union(NonEmptyLanAddDeviceText, Schema.Null),
+    displayName: Schema.Union(NonEmptyLanAddDeviceText, Schema.Null),
+    parentActorId: NonEmptyLanAddDeviceText,
+    decidedAt: AgentTimestampSchema,
+    revokedAt: Schema.Union(AgentTimestampSchema, Schema.Null),
+  })
+);
+
+export const AgentLanDiscoveryEvidenceRecordSchema = withParser(
+  Schema.Struct({
+    schemaVersion: Schema.Literal(AgentProtocolSchemaVersion),
+    evidenceId: NonEmptyLanAddDeviceText,
+    source: AgentLanDiscoveryEvidenceSourceSchema,
+    evidenceKind: AgentLanDiscoveryEvidenceKindSchema,
+    deviceId: AgentDeviceIdSchema,
+    value: NonEmptyLanAddDeviceText,
+    normalizedValue: NonEmptyLanAddDeviceText,
+    firstSeenAt: AgentTimestampSchema,
+    lastSeenAt: AgentTimestampSchema,
+    expiresAt: Schema.Union(AgentTimestampSchema, Schema.Null),
+    confidence: AgentLanDiscoveryEvidenceConfidenceSchema,
+    mergeKey: NonEmptyLanAddDeviceText,
+    note: Schema.Union(NonEmptyLanAddDeviceText, Schema.Null),
+  })
+);
+
+export const AgentLanCanonicalHouseholdRouteStateSchema = withParser(
+  Schema.Literal('localhost', 'local-network', 'manual-required', 'unavailable')
+);
+
+export const AgentLanCanonicalHouseholdRoleStateSchema = withParser(
+  Schema.Literal('implemented', 'scaffold', 'manual-required', 'unavailable')
+);
+
+export const AgentLanCanonicalHouseholdSurfaceSchema = withParser(
+  Schema.Literal('devices', 'policy', 'browser', 'app', 'screen', 'network', 'activity', 'tracking', 'ai')
+);
+
+export const AgentLanCanonicalHouseholdNetworkIdentitySchema = withParser(
+  Schema.Struct({
+    hostname: Schema.Union(NonEmptyLanAddDeviceText, Schema.Null),
+    ipAddresses: Schema.Array(NonEmptyLanAddDeviceText),
+    macAddress: Schema.Union(NonEmptyLanAddDeviceText, Schema.Null),
+    macVendor: Schema.Union(NonEmptyLanAddDeviceText, Schema.Null),
+    networkInterfaces: Schema.Array(NonEmptyLanAddDeviceText),
+    reachability: AgentLanSelectedDeviceReachabilitySchema,
+    confidence: AgentLanCanonicalHouseholdDeviceConfidenceSchema,
+    staleAt: Schema.Union(AgentTimestampSchema, Schema.Null),
+    offlineAt: Schema.Union(AgentTimestampSchema, Schema.Null),
+    evidenceRecords: Schema.Array(AgentLanDiscoveryEvidenceRecordSchema).pipe(
+      Schema.filter(
+        (records) => records.length > 0 || 'Expected agent canonical LAN devices to include evidence records'
+      )
+    ),
+  })
+);
+
+export const AgentLanChildAgentInventoryPacketSchema = withParser(
+  Schema.Struct({
+    deviceName: NonEmptyLanAddDeviceText,
+    platform: NonEmptyLanAddDeviceText,
+    os: NonEmptyLanAddDeviceText,
+    cpuModel: Schema.Union(NonEmptyLanAddDeviceText, Schema.Null),
+    cpuCores: Schema.Union(NonEmptyLanAddDeviceText, Schema.Null),
+    memoryTotal: Schema.Union(NonEmptyLanAddDeviceText, Schema.Null),
+    gpuModel: Schema.Union(NonEmptyLanAddDeviceText, Schema.Null),
+    gpuDriver: Schema.Union(NonEmptyLanAddDeviceText, Schema.Null),
+    gpuMemory: Schema.Union(NonEmptyLanAddDeviceText, Schema.Null),
+    nvidiaSmi: Schema.Union(NonEmptyLanAddDeviceText, Schema.Null),
+    networkInterfaces: Schema.Array(NonEmptyLanAddDeviceText),
+    capabilities: Schema.Array(NonEmptyLanAddDeviceText),
+    roleState: AgentLanCanonicalHouseholdRoleStateSchema,
+    routeState: AgentLanCanonicalHouseholdRouteStateSchema,
+    pairingTrustState: AgentLanSelectedRouteTrustStateSchema,
+  })
+);
+
+export const AgentLanCanonicalHouseholdDeviceSchema = withParser(
+  Schema.Struct({
+    schemaVersion: Schema.Literal(AgentProtocolSchemaVersion),
+    canonicalDeviceId: AgentLanCanonicalDeviceIdSchema,
+    displayName: NonEmptyLanAddDeviceText,
+    classification: AgentLanCanonicalHouseholdDeviceClassificationSchema,
+    roleBadges: Schema.Array(AgentLanCanonicalHouseholdDeviceRoleSchema),
+    enrollable: Schema.Boolean,
+    discoveryState: AgentLanPairingProductionDiscoveryStateSchema,
+    trustState: AgentLanSelectedRouteTrustStateSchema,
+    routeId: Schema.Union(AgentLanPairingRouteIdSchema, Schema.Null),
+    routeState: AgentLanCanonicalHouseholdRouteStateSchema,
+    networkMode: AgentLanPairingNetworkModeSchema,
+    sourceLabels: Schema.Array(AgentLanCanonicalHouseholdDeviceSourceSchema),
+    networkIdentity: AgentLanCanonicalHouseholdNetworkIdentitySchema,
+    childAgentInventory: Schema.Union(AgentLanChildAgentInventoryPacketSchema, Schema.Null),
+    policyTargetSurfaces: Schema.Array(AgentLanCanonicalHouseholdSurfaceSchema),
+  })
+);
+
 export const AgentLanTrustedDeviceRegistryEntrySchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal(AgentProtocolSchemaVersion),
@@ -103,8 +259,16 @@ export const AgentLanBrowserAddDeviceReadModelSchema = withParser(
     cloudRelayState: AgentLanPairingProductionDiscoveryStateSchema,
     scanSummary: AgentLanBrowserAddDeviceScanSummarySchema,
     discoveredDevices: Schema.Array(AgentLanBrowserAddDeviceDiscoveryDeviceSchema),
+    canonicalHouseholdDevices: Schema.Array(AgentLanCanonicalHouseholdDeviceSchema).pipe(
+      Schema.filter(
+        (devices) =>
+          new Set(devices.map((device) => device.canonicalDeviceId)).size === devices.length ||
+          'Expected one canonical row per physical household/LAN device in the agent add-device read model'
+      )
+    ),
     pairingRequests: Schema.Array(AgentLanBrowserAddDevicePairingRequestSchema),
     trustedDeviceRegistry: Schema.Array(AgentLanTrustedDeviceRegistryEntrySchema),
+    householdDeviceDecisions: Schema.Array(AgentLanHouseholdDeviceDecisionSchema),
     trustedDeviceIds: Schema.Array(AgentDeviceIdSchema),
     revokedDeviceIds: Schema.Array(AgentDeviceIdSchema),
     selectedDeviceReadiness: AgentLanSelectedDeviceReadinessSchema,
@@ -121,5 +285,8 @@ export type AgentLanBrowserAddDeviceDiscoveryDevice = Infer<typeof AgentLanBrows
 export type AgentLanBrowserAddDevicePairingRequest = Infer<typeof AgentLanBrowserAddDevicePairingRequestSchema>;
 export type AgentLanBrowserAddDeviceScanSummary = Infer<typeof AgentLanBrowserAddDeviceScanSummarySchema>;
 export type AgentLanSelectedDeviceReadiness = Infer<typeof AgentLanSelectedDeviceReadinessSchema>;
+export type AgentLanDiscoveryEvidenceRecord = Infer<typeof AgentLanDiscoveryEvidenceRecordSchema>;
+export type AgentLanHouseholdDeviceDecision = Infer<typeof AgentLanHouseholdDeviceDecisionSchema>;
+export type AgentLanCanonicalHouseholdDevice = Infer<typeof AgentLanCanonicalHouseholdDeviceSchema>;
 export type AgentLanTrustedDeviceRegistryEntry = Infer<typeof AgentLanTrustedDeviceRegistryEntrySchema>;
 export type AgentLanBrowserAddDeviceReadModel = Infer<typeof AgentLanBrowserAddDeviceReadModelSchema>;

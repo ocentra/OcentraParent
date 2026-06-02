@@ -12,16 +12,49 @@ describe('agent protocol browser-first LAN add-device state', () => {
     expect(parsed.discoveredDevices[0]?.childDevice.hardwareProfile?.cpuModel).toContain('Ryzen');
     expect(parsed.discoveredDevices[1]?.childDevice.ipAddress).toBe('192.168.2.42');
     expect(parsed.discoveredDevices[1]?.discoveryStatus).toBe('network-neighbor');
-    expect(parsed.scanSummary).toMatchObject({
-      scannedDeviceCount: 2,
-      agentDeviceCount: 1,
-      passiveDeviceCount: 1,
-      infrastructureDeviceCount: 0,
-    });
+    expect(parsed.scanSummary.sourceLabels).toEqual(['local-service', 'windows-neighbor-table']);
+    expect(parsed.scanSummary.scannedDeviceCount).toBe(2);
+    expect(parsed.scanSummary.agentDeviceCount).toBe(1);
+    expect(parsed.scanSummary.passiveDeviceCount).toBe(1);
+    expect(parsed.scanSummary.infrastructureDeviceCount).toBe(0);
+    expect(parsed.scanSummary.unsupportedDeviceCount).toBe(1);
+    expect(parsed.canonicalHouseholdDevices).toHaveLength(2);
+    expect(parsed.canonicalHouseholdDevices[0]?.canonicalDeviceId).toBe('lan-physical-mac-54271e97c331');
+    expect(parsed.canonicalHouseholdDevices[0]?.roleBadges).toEqual(['child-agent', 'portal', 'parent-controller']);
+    expect(parsed.canonicalHouseholdDevices[0]?.networkIdentity.evidenceRecords).toHaveLength(5);
+    expect(parsed.canonicalHouseholdDevices[1]?.classification).toBe('network-infrastructure');
+    expect(parsed.canonicalHouseholdDevices[1]?.enrollable).toBe(false);
     expect(parsed.trustedDeviceRegistry[0]?.childDevice.deviceId).toBe('child-device-1');
+    expect(parsed.householdDeviceDecisions[0]?.actionKind).toBe('rename');
     expect(parsed.selectedDeviceReadiness.readyForControl).toBe(false);
     expect(AgentProtocolDefaults.Field.LanAddDeviceReadModel).toBe('addDeviceReadModel');
     expect(AgentProtocolDefaults.Field.LanSelectedDeviceReady).toBe('selectedDeviceReady');
+  });
+
+  it('rejects duplicate canonical household rows in the protocol add-device read model', () => {
+    expect(() =>
+      AgentLanBrowserAddDeviceReadModelSchema.parse({
+        ...lanAddDeviceReadModelFixture(),
+        canonicalHouseholdDevices: [canonicalChildAgentDevice(), canonicalChildAgentDevice()],
+      })
+    ).toThrow(/one canonical row/u);
+  });
+
+  it('rejects canonical household rows without evidence records', () => {
+    expect(() =>
+      AgentLanBrowserAddDeviceReadModelSchema.parse({
+        ...lanAddDeviceReadModelFixture(),
+        canonicalHouseholdDevices: [
+          {
+            ...canonicalRouterDevice(),
+            networkIdentity: {
+              ...canonicalRouterDevice().networkIdentity,
+              evidenceRecords: [],
+            },
+          },
+        ],
+      })
+    ).toThrow(/evidence record/u);
   });
 });
 
@@ -44,8 +77,10 @@ function lanAddDeviceReadModelFixture() {
       unsupportedDeviceCount: 1,
     },
     discoveredDevices: [localAgentDiscoveryDevice(), networkNeighborDiscoveryDevice()],
+    canonicalHouseholdDevices: [canonicalChildAgentDevice(), canonicalRouterDevice()],
     pairingRequests: [pendingPairingRequest()],
     trustedDeviceRegistry: [trustedDeviceRegistryEntry()],
+    householdDeviceDecisions: [householdDecision()],
     trustedDeviceIds: ['child-device-1'],
     revokedDeviceIds: [],
     selectedDeviceReadiness: selectedDeviceReadiness(),
@@ -54,6 +89,132 @@ function lanAddDeviceReadModelFixture() {
     routeRequirementLabels: ['allowed-origin', 'target-device-match', 'non-replayed-intent'],
     auditCheckLabels: ['wrong-origin', 'wrong-device', 'replayed', 'stale', 'revoked'],
     honestNonClaims: ['physical-household-lan-manual-required', 'cloud-relay-not-implemented'],
+  } as const;
+}
+
+function householdDecision() {
+  return {
+    schemaVersion: AgentProtocolDefaults.SchemaVersion,
+    actionId: 'lan-action-rename-1',
+    actionKind: 'rename',
+    canonicalDeviceId: 'lan-physical-mac-54271e97c331',
+    childProfileId: null,
+    displayName: 'GAMEDEV Study PC',
+    parentActorId: 'parent-actor-1',
+    decidedAt: '2026-06-01T15:20:00.000Z',
+    revokedAt: null,
+  } as const;
+}
+
+function canonicalChildAgentDevice() {
+  return {
+    schemaVersion: AgentProtocolDefaults.SchemaVersion,
+    canonicalDeviceId: 'lan-physical-mac-54271e97c331',
+    displayName: 'GAMEDEV',
+    classification: 'child-agent',
+    roleBadges: ['child-agent', 'portal', 'parent-controller'],
+    enrollable: true,
+    discoveryState: 'paired',
+    trustState: 'paired',
+    routeId: 'lan-route-local-network',
+    routeState: 'local-network',
+    networkMode: 'local-network',
+    sourceLabels: ['local-service', 'network-neighbor', 'trusted-registry'],
+    networkIdentity: {
+      hostname: 'GAMEDEV',
+      ipAddresses: ['192.168.2.42'],
+      macAddress: '54-27-1e-97-c3-31',
+      macVendor: null,
+      networkInterfaces: ['Ethernet 2'],
+      reachability: 'online',
+      confidence: 'agent-confirmed',
+      staleAt: null,
+      offlineAt: null,
+      evidenceRecords: [
+        evidenceRecord('local-service', 'ip-address', '192.168.2.42', 'ip:192.168.2.42', 'confirmed'),
+        evidenceRecord('local-service', 'mac-address', '54-27-1e-97-c3-31', 'mac:54271e97c331', 'confirmed'),
+        evidenceRecord('local-service', 'hostname', 'GAMEDEV', 'hostname:gamedev', 'confirmed'),
+        evidenceRecord('local-service', 'interface', 'Ethernet 2', 'interface:ethernet2', 'confirmed'),
+        evidenceRecord(
+          'local-service',
+          'child-agent-presence',
+          'ocentra-local-service',
+          'agent:lan-physical-mac-54271e97c331',
+          'confirmed'
+        ),
+      ],
+    },
+    childAgentInventory: {
+      deviceName: 'GAMEDEV',
+      platform: 'windows',
+      os: 'windows',
+      cpuModel: 'AMD Ryzen 9 3900X 12-Core Processor',
+      cpuCores: '12 cores / 24 logical',
+      memoryTotal: '63 GiB',
+      gpuModel: 'GeForce RTX 2070 SUPER',
+      gpuDriver: '456.71',
+      gpuMemory: '8192 MiB',
+      nvidiaSmi: 'GeForce RTX 2070 SUPER driver 456.71 8192 MiB VRAM',
+      networkInterfaces: ['Ethernet 2'],
+      capabilities: ['direct-websocket', 'device-inventory', 'pairing-route'],
+      roleState: 'implemented',
+      routeState: 'local-network',
+      pairingTrustState: 'paired',
+    },
+    policyTargetSurfaces: ['devices', 'policy', 'browser', 'app', 'screen', 'network', 'activity', 'tracking', 'ai'],
+  } as const;
+}
+
+function canonicalRouterDevice() {
+  return {
+    schemaVersion: AgentProtocolDefaults.SchemaVersion,
+    canonicalDeviceId: 'lan-physical-mac-001122334455',
+    displayName: 'LAN 192.168.2.1',
+    classification: 'network-infrastructure',
+    roleBadges: [],
+    enrollable: false,
+    discoveryState: 'discovered',
+    trustState: 'unpaired',
+    routeId: null,
+    routeState: 'unavailable',
+    networkMode: 'local-network',
+    sourceLabels: ['network-neighbor'],
+    networkIdentity: {
+      hostname: null,
+      ipAddresses: ['192.168.2.1'],
+      macAddress: '00-11-22-33-44-55',
+      macVendor: null,
+      networkInterfaces: ['Ethernet 2'],
+      reachability: 'online',
+      confidence: 'network-neighbor',
+      staleAt: null,
+      offlineAt: null,
+      evidenceRecords: [
+        evidenceRecord('windows-neighbor-table', 'ip-address', '192.168.2.1', 'ip:192.168.2.1', 'strong'),
+        evidenceRecord('windows-neighbor-table', 'mac-address', '00-11-22-33-44-55', 'mac:001122334455', 'strong'),
+        evidenceRecord('windows-neighbor-table', 'router-classification', 'router', 'router:192.168.2.1', 'strong'),
+      ],
+    },
+    childAgentInventory: null,
+    policyTargetSurfaces: ['devices', 'network'],
+  } as const;
+}
+
+function evidenceRecord(source: string, evidenceKind: string, value: string, mergeKey: string, confidence: string) {
+  return {
+    schemaVersion: AgentProtocolDefaults.SchemaVersion,
+    evidenceId: `lan-evidence-${source}-${evidenceKind}-${value.toLowerCase().replace(/[^a-z0-9]/gu, '')}`,
+    source,
+    evidenceKind,
+    deviceId: 'lan-physical-mac-54271e97c331',
+    value,
+    normalizedValue: value.toLowerCase(),
+    firstSeenAt: '2026-06-01T15:20:00.000Z',
+    lastSeenAt: '2026-06-01T15:20:00.000Z',
+    expiresAt: null,
+    confidence,
+    mergeKey,
+    note: null,
   } as const;
 }
 

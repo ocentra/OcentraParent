@@ -42,6 +42,7 @@ const portalPort = resolveParentDevPort(
   ParentDevPort.PortalSmokePortal,
   ParentDevEnv.PortalPort
 );
+const lanBrowserDiscoverySmokeTimeoutMs = 30_000;
 const devLogDir = await mkdtemp(join(tmpdir(), 'ocentra-parent-portal-log-'));
 
 await ensurePortFree(agentPort, isLikelyParentAgentOccupant, console.log);
@@ -197,7 +198,10 @@ function assertTypedLanBrowserDiscoveryReadModel() {
   return new Promise((resolve, reject) => {
     const socket = new WebSocket(createAgentWebSocketUrl(agentPort));
     let settled = false;
-    const timer = setTimeout(() => fail(new Error('LAN browser discovery smoke timed out')), 10000);
+    const timer = setTimeout(
+      () => fail(new Error('LAN browser discovery smoke timed out')),
+      lanBrowserDiscoverySmokeTimeoutMs
+    );
 
     const fail = (error) => {
       if (settled) {

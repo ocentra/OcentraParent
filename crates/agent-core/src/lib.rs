@@ -184,6 +184,8 @@ mod process_capture_tests;
 #[cfg(test)]
 mod screen_evidence_queue_tests;
 #[cfg(test)]
+mod trusted_device_registry_test_fixtures;
+#[cfg(test)]
 mod trusted_device_registry_tests;
 #[cfg(test)]
 mod window_capture_tests;

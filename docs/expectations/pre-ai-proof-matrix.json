@@ -32,6 +32,7 @@
     "v0-8-windows-adapter-artifact-gate",
     "v0-8-windows-adapter-artifact-ingestion-proof",
     "v0-9-household-lan-proof-readiness",
+    "v0-9-household-lan-pairing-proof",
     "v0-9-household-lan-production-discovery-proof",
     "v0-9-production-discovery-proof",
     "v0-9-production-discovery-household-proof",
@@ -892,6 +893,43 @@
         "A local multi-service WebSocket run presented as household LAN product readiness.",
         "A generated manual checklist presented as physical two-device evidence.",
         "A degraded or unavailable LAN AI state presented as cloud relay or mobile provider completion."
+      ]
+    },
+    {
+      "id": "v0-9-household-lan-pairing-proof",
+      "title": "V0.9 Household LAN Pairing Proof",
+      "claimIds": ["v0-9-household-lan-pairing-proof"],
+      "expectationFiles": [
+        "docs/expectations/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
+        "docs/expectations/lan-pairing.md",
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "proofMode": "ci-mechanical-proof",
+      "realEvidencePath": [
+        "Run the browser-first LAN add-device state proof, browser pairing runtime proof, and household LAN readiness gate.",
+        "Compose their generated artifacts into a typed parent-domain household LAN pairing read model.",
+        "Verify local-service discovery, add-device pairing states, trusted registry, selected readiness, runtime scan/add-device events, route security labels, canonical household device merge/classification/inventory state, target surfaces, and manual gates remain explicit.",
+        "Reject any upgrade to physical household LAN, cloud relay, or remote desktop/control readiness without separate real artifacts."
+      ],
+      "ciCommands": ["node scripts/test/v0-9-household-lan-pairing-proof.mjs"],
+      "requiredArtifacts": [
+        "test-results/v0-9-household-lan-pairing-proof/proof.json",
+        "test-results/browser-first-lan-discovery-add-device-state/proof.json",
+        "test-results/lan-browser-discovery-pairing-runtime/proof.json",
+        "test-results/v0-9-household-lan-proof-readiness/proof.json"
+      ],
+      "knownGaps": [
+        "The proof composes local-service browser-first pairing artifacts, not physical household router discovery.",
+        "Canonical household-device rows are derived from the LAN add-device read model with local-agent/network-neighbor merge behavior, child-agent inventory packets, and router/unsupported non-enrollable classification; visible pages still need adapters to consume those rows.",
+        "Two physical devices, router/firewall evidence, parent mobile controller behavior, and mobile background behavior remain manual-required.",
+        "Cloud relay and remote desktop/control remain not implemented and cannot be counted as LAN pairing proof."
+      ],
+      "notProof": [
+        "A browser-first local service read model presented as physical household LAN readiness.",
+        "A runtime wrong-origin rejection presented as router, firewall, or mobile-device proof.",
+        "A typed manual gate presented as cloud relay or remote desktop implementation.",
+        "A LAN Devices-only row presented as a canonical policy target without shared target-surface coverage."
       ]
     },
     {
@@ -2103,6 +2141,71 @@
         "Run V0.9 LAN proof across two physical household devices and record parent/child host names or IPs, router reachability, firewall/OS prompts, origin allowlist, route selection, takeover, revocation, wrong-origin/wrong-device rejection, replay rejection, stale/offline selected-device behavior, failed-unpaired command rejection, and provider state.",
         "Record Android and iOS parent mobile observer/controller behavior before upgrading mobile authority states.",
         "Record a separate authenticated cloud relay proof before counting cloud relay as implemented."
+      ]
+    },
+    {
+      "id": "v0-9-household-lan-pairing-proof",
+      "roadmapSlice": "V0.9 household LAN pairing proof",
+      "expectationFiles": [
+        "docs/expectations/roadmap-v0-9-lan-pairing-multi-device-local-control.md",
+        "docs/expectations/lan-pairing.md",
+        "docs/expectations/platform-deliverables.md",
+        "docs/expectations/real-evidence-proof.md"
+      ],
+      "claim": "V0.9 household LAN pairing proof composes browser-first add-device state, browser pairing runtime events, route security labels, trusted registry, selected readiness, canonical household-device merge/classification/inventory state, target surfaces, and household readiness gates while keeping physical household LAN, mobile controller write authority, cloud relay, and remote desktop/control unclaimed.",
+      "privilegedCapability": true,
+      "ciProof": {
+        "commands": ["node scripts/test/v0-9-household-lan-pairing-proof.mjs"],
+        "jobs": ["Worker B V0.9 household LAN pairing proof"]
+      },
+      "platformCoverage": {
+        "windows": "ci-mechanical-proof",
+        "linux": "ci-mechanical-proof",
+        "macos": "ci-mechanical-proof",
+        "android": "manual-required",
+        "ios": "manual-required"
+      },
+      "runtimeSurfaceCoverage": {
+        "browserFirstLanPairing": {
+          "state": "implemented",
+          "proof": "Browser-first add-device state and runtime proof cover local-service discovery, scan/add-device events, pending and trusted-device state, wrong-origin rejection, and selected readiness."
+        },
+        "addDevicePairingStates": {
+          "state": "implemented",
+          "proof": "The aggregate read model requires discovered, pending, paired, rejected, expired, revoked, stale, and offline add-device pairing states before parsing."
+        },
+        "routeSecurity": {
+          "state": "implemented",
+          "proof": "Allowed origin, target device, non-replayed intent, wrong-origin, wrong-device, replayed, stale, revoked, and offline checks are explicit route security evidence."
+        },
+        "canonicalHouseholdDeviceRows": {
+          "state": "implemented",
+          "proof": "The LAN add-device read model derives canonical household device targets for devices, policy, browser, app, screen, network, activity, tracking, and AI surfaces, rather than carrying a separate store or LAN Devices-only rows."
+        },
+        "canonicalHouseholdDeviceSpine": {
+          "state": "implemented",
+          "proof": "The add-device read model exposes canonical rows that merge local-agent and LAN-neighbor sources, keep routers and unsupported devices non-enrollable, and enrich reachable child agents with inventory and route or trust state."
+        },
+        "physicalHouseholdLan": {
+          "state": "manual-required",
+          "proof": "Two physical household hosts, router reachability, firewall/local-network permission, origin allowlist, revocation/rejection, and stale/offline artifacts remain manual gates."
+        },
+        "cloudRelayAndRemoteControl": {
+          "state": "not-implemented",
+          "proof": "Cloud relay and remote desktop/control are explicit non-claims in the aggregate proof."
+        }
+      },
+      "knownGaps": [
+        "The proof composes browser-first local-service artifacts, not product-ready physical household router discovery.",
+        "Visible devices/policy/browser/app/screen/network/activity/tracking/AI pages still need adapters to consume the canonical household-device rows from the LAN add-device read model.",
+        "Real Android/iOS parent mobile controller behavior and background behavior remain manual-required.",
+        "Cloud relay and remote desktop/control remain not implemented and need separate proof slices."
+      ],
+      "manualProofChecklist": [
+        "Archive test-results/v0-9-household-lan-pairing-proof/proof.json with the commit SHA.",
+        "Run the pairing proof across two physical household devices and record router reachability, firewall or local-network permission, origin allowlist, selected-device stale/offline behavior, wrong-origin/wrong-device/replay/revocation rejection, and failed-unpaired rejection.",
+        "Record Android and iOS parent mobile package controller/observer behavior before upgrading mobile authority.",
+        "Record separate authenticated cloud relay and remote-control proof before counting either as implemented."
       ]
     },
     {

@@ -1,6 +1,7 @@
 use ocentra_parent_agent_protocol::{
-    constants, LanPairingChallengeRequest, LanPairingIntentKind, LanPairingParentAuthority,
-    LanPairingProof, LanPairingRejectionReason, LanParentIntentEnvelope, LogFieldValue, LogFields,
+    constants, LanHouseholdDeviceActionKind, LanHouseholdDeviceDecision,
+    LanPairingChallengeRequest, LanPairingIntentKind, LanPairingParentAuthority, LanPairingProof,
+    LanPairingRejectionReason, LanParentIntentEnvelope, LogFieldValue, LogFields,
     ParentEvidenceReference, ParentEvidenceReferenceKind,
 };
 
@@ -72,6 +73,60 @@ pub(crate) fn parse_intent(
         controller_lease_expires_at: controller_lease.expires_at,
         evidence_references,
     })
+}
+
+pub(crate) fn parse_household_device_decision(
+    fields: &LogFields,
+    observed_at: &str,
+) -> Option<Result<LanHouseholdDeviceDecision, LanPairingRejectionReason>> {
+    if !fields.contains_key(constants::lan_pairing::HOUSEHOLD_ACTION_KIND_FIELD) {
+        return None;
+    }
+    Some(parse_household_device_decision_fields(fields, observed_at))
+}
+
+fn parse_household_device_decision_fields(
+    fields: &LogFields,
+    observed_at: &str,
+) -> Result<LanHouseholdDeviceDecision, LanPairingRejectionReason> {
+    let action_kind = required_household_action_kind(fields)?;
+    let decided_at = optional_string(fields, constants::field::STARTED_AT)
+        .unwrap_or_else(|| observed_at.to_string());
+    Ok(LanHouseholdDeviceDecision {
+        schema_version: constants::lan_pairing::SCHEMA_VERSION,
+        action_id: required_string(fields, constants::lan_pairing::HOUSEHOLD_ACTION_ID_FIELD)?,
+        action_kind,
+        canonical_device_id: required_string(fields, constants::field::LAN_CANONICAL_DEVICE_ID)?,
+        child_profile_id: optional_string(
+            fields,
+            constants::lan_pairing::HOUSEHOLD_ACTION_CHILD_PROFILE_ID_FIELD,
+        ),
+        display_name: optional_string(
+            fields,
+            constants::lan_pairing::HOUSEHOLD_ACTION_DISPLAY_NAME_FIELD,
+        ),
+        parent_actor_id: required_string(fields, constants::field::LAN_PARENT_ACTOR_ID)?,
+        decided_at,
+        revoked_at: optional_string(
+            fields,
+            constants::lan_pairing::HOUSEHOLD_ACTION_REVOKED_AT_FIELD,
+        ),
+    })
+}
+
+fn required_household_action_kind(
+    fields: &LogFields,
+) -> Result<LanHouseholdDeviceActionKind, LanPairingRejectionReason> {
+    match required_string(fields, constants::lan_pairing::HOUSEHOLD_ACTION_KIND_FIELD)?.as_str() {
+        constants::lan_pairing::HOUSEHOLD_ACTION_ASSIGN => Ok(LanHouseholdDeviceActionKind::Assign),
+        constants::lan_pairing::HOUSEHOLD_ACTION_RENAME => Ok(LanHouseholdDeviceActionKind::Rename),
+        constants::lan_pairing::HOUSEHOLD_ACTION_IGNORE => Ok(LanHouseholdDeviceActionKind::Ignore),
+        constants::lan_pairing::HOUSEHOLD_ACTION_RESTORE => {
+            Ok(LanHouseholdDeviceActionKind::Restore)
+        }
+        constants::lan_pairing::HOUSEHOLD_ACTION_TRUST => Ok(LanHouseholdDeviceActionKind::Trust),
+        _ => Err(LanPairingRejectionReason::Malformed),
+    }
 }
 
 fn parse_controller_lease(
@@ -169,6 +224,13 @@ fn required_controller_lease_string(
     key: &str,
 ) -> Result<String, LanPairingRejectionReason> {
     required_string(fields, key).map_err(|_| LanPairingRejectionReason::ControllerLeaseMissing)
+}
+
+fn optional_string(fields: &LogFields, key: &str) -> Option<String> {
+    match fields.get(key) {
+        Some(LogFieldValue::String(value)) if !value.is_empty() => Some(value.clone()),
+        _ => None,
+    }
 }
 
 fn required_string(fields: &LogFields, key: &str) -> Result<String, LanPairingRejectionReason> {

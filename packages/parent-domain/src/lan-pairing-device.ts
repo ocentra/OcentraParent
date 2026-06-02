@@ -21,6 +21,8 @@ import {
   LanPairingParentAuthoritySchema,
 } from './lan-pairing-values';
 import { LanPairingRuntimeSupportStatusSchema } from './lan-pairing-support';
+import { HouseholdDeviceSpineEntrySchema, HouseholdLanDeviceRefSchema } from './household-device-spine';
+import { LanHouseholdDeviceDecisionSchema } from './lan-device-parent-actions';
 
 export const LanPairingEnablementSchema = withParser(
   Schema.Struct({
@@ -37,7 +39,7 @@ export const LanPairingDiscoveryDeviceSchema = withParser(
     schemaVersion: LanPairingSchemaVersionSchema,
     discoveredAt: LanPairingTimestampSchema,
     childProfile: ChildProfileReferenceSchema,
-    childDevice: ParentDeviceReferenceSchema,
+    childDevice: HouseholdLanDeviceRefSchema,
     agentPeerId: LanPairingAgentPeerIdSchema,
     routeId: LanPairingRouteIdSchema,
     networkMode: LanPairingNetworkModeSchema,
@@ -186,8 +188,16 @@ export const LanBrowserAddDeviceReadModelSchema = withParser(
     cloudRelayState: LanPairingProductionDiscoveryStateSchema,
     scanSummary: LanBrowserAddDeviceScanSummarySchema,
     discoveredDevices: Schema.Array(LanPairingDiscoveryDeviceSchema),
+    canonicalHouseholdDevices: Schema.Array(HouseholdDeviceSpineEntrySchema).pipe(
+      Schema.filter(
+        (devices) =>
+          new Set(devices.map((device) => device.canonicalDeviceId)).size === devices.length ||
+          'Expected one canonical row per physical household/LAN device in the LAN add-device read model'
+      )
+    ),
     pairingRequests: Schema.Array(LanBrowserAddDevicePairingRequestSchema),
     trustedDeviceRegistry: Schema.Array(LanTrustedDeviceRegistryEntrySchema),
+    householdDeviceDecisions: Schema.Array(LanHouseholdDeviceDecisionSchema),
     trustedDeviceIds: Schema.Array(ParentDeviceIdSchema),
     revokedDeviceIds: Schema.Array(ParentDeviceIdSchema),
     selectedDeviceReadiness: LanSelectedDeviceReadinessSchema,
