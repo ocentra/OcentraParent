@@ -72,7 +72,7 @@ export function buildReleaseSupportProof(options = {}) {
       completed: ['04', '06', '09', '10', '11', '12', '15', '16', '17', '18', '20'],
       partial: ['19'],
       partialReason:
-        'Workpack 19 is partial only because codex-a currently owns docs/product-capability-checklist.md and packages/parent-domain/package.json; D-owned feature docs and release-support proof output are current, with the checklist row and package export queued until those files land or are released.',
+        'Workpack 19 is partial only because codex-b currently owns docs/product-capability-checklist.md; D-owned feature docs, package export, and release-support proof output are current, with the checklist row queued until that file lands or is released.',
     },
   };
 }

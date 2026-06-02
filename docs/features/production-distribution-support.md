@@ -94,7 +94,8 @@ package/runtime proof.
 
 Do not promote scaffold package previews to product support. Every release claim
 must name platform, signing/store state, smoke proof, support path, and known
-limitations. The queued product checklist row should preserve this wording:
-parent desktop package runtime release-support proof is preview/mechanical
-evidence only, not signing, store, notarization, Play, TestFlight, production
-updater rollback, or child mobile parity proof.
+limitations. The product checklist row remains queued behind the active
+checklist lock and should preserve this wording once available: parent desktop
+package runtime release-support proof is preview/mechanical evidence only, not
+signing, store, notarization, Play, TestFlight, production updater rollback, or
+child mobile parity proof.

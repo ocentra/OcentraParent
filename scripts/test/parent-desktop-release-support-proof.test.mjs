@@ -82,7 +82,7 @@ test('release-support proof separates preview mechanics from product claims', ()
   assert.deepEqual(proof.workpacks.completed, ['04', '06', '09', '10', '11', '12', '15', '16', '17', '18', '20']);
   assert.deepEqual(proof.workpacks.partial, ['19']);
   assert.match(proof.workpacks.partialReason, /docs\/product-capability-checklist\.md/u);
-  assert.match(proof.workpacks.partialReason, /packages\/parent-domain\/package\.json/u);
+  assert.doesNotMatch(proof.workpacks.partialReason, /packages\/parent-domain\/package\.json/u);
   assert.equal(proof.branchBoundary.main.productionPublish, false);
   assert.equal(proof.branchBoundary.production.productionPublish, true);
   assert.equal(proof.packageRuntimeEvidence.packageFrontendSource, 'built-portal-dist');
@@ -136,6 +136,17 @@ test('release-support proof separates preview mechanics from product claims', ()
       ['ios-testflight-store', false],
     ]
   );
+});
+
+test('parent-domain package exposes the release-support contract', () => {
+  const parentDomainPackage = JSON.parse(
+    readFileSync(join(repoRoot, 'packages', 'parent-domain', 'package.json'), 'utf8')
+  );
+
+  assert.deepEqual(parentDomainPackage.exports['./parent-desktop-release-support'], {
+    import: './dist/parent-desktop-release-support.js',
+    types: './dist/parent-desktop-release-support.d.ts',
+  });
 });
 
 test('release-support proof matches current CI preview and production release boundaries', () => {
