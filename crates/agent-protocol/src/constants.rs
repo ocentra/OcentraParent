@@ -101,6 +101,8 @@ pub mod event_id {
     pub const ENFORCEMENT_PRODUCT_CONTROL_SPINE_REPORTED: &str =
         "enforcement-product-control-spine-reported";
     pub const ENFORCEMENT_POLICY_DISPATCH_REPORTED: &str = "enforcement-policy-dispatch-reported";
+    pub const ENFORCEMENT_BROAD_ADAPTER_PROOF_REPORTED: &str =
+        "enforcement-broad-adapter-proof-reported";
     pub const PARENT_ASSISTANT_THREAD_UPDATED: &str = "parent-assistant-thread-updated";
     pub const PARENT_ASSISTANT_MESSAGE_ACCEPTED: &str = "parent-assistant-message-accepted";
     pub const PARENT_ASSISTANT_RUN_STARTED: &str = "parent-assistant-run-started";
@@ -159,6 +161,8 @@ pub mod activity_subject_kind;
 pub mod activity_surface;
 #[path = "constants/browser.rs"]
 pub mod browser;
+#[path = "constants/enforcement_broad_adapter_proof.rs"]
+pub mod enforcement_broad_adapter_proof;
 #[path = "constants/host_identity.rs"]
 pub mod host_identity;
 #[path = "constants/v08_browser_domain_adapter_proof.rs"]

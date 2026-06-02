@@ -21,8 +21,8 @@ use crate::{
     browser_policy_runtime::BrowserPolicyRuntime,
     browser_runtime::build_browser_managed_status_report,
     enforcement_api::{
-        build_enforcement_audit_report, build_enforcement_policy_dispatch_report,
-        build_enforcement_product_control_spine_report,
+        build_enforcement_audit_report, build_enforcement_broad_adapter_proof_report,
+        build_enforcement_policy_dispatch_report, build_enforcement_product_control_spine_report,
     },
     enforcement_timer_api::build_enforcement_timer_report,
     event_builder::{build_event, portal_peer},
@@ -217,7 +217,8 @@ async fn build_command_event(
         | AgentCommandName::AgentEnforcementOverrideCancel
         | AgentCommandName::AgentEnforcementExecute
         | AgentCommandName::AgentEnforcementProductControlSpineGet
-        | AgentCommandName::AgentEnforcementPolicyDispatchGet => {
+        | AgentCommandName::AgentEnforcementPolicyDispatchGet
+        | AgentCommandName::AgentEnforcementBroadAdapterProofGet => {
             build_enforcement_command_report(command).await
         }
         AgentCommandName::AgentLanPairingProofSubmit
@@ -244,6 +245,9 @@ async fn build_enforcement_command_report(command: AgentCommandEnvelope) -> Agen
         }
         AgentCommandName::AgentEnforcementPolicyDispatchGet => {
             build_enforcement_policy_dispatch_report(command).await
+        }
+        AgentCommandName::AgentEnforcementBroadAdapterProofGet => {
+            build_enforcement_broad_adapter_proof_report(command).await
         }
         AgentCommandName::AgentEnforcementTimerRecover
         | AgentCommandName::AgentEnforcementTimerExpire

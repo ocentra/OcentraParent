@@ -89,6 +89,18 @@
       "import": "./dist/v0-8-enforcement-product-control-spine.js",
       "types": "./dist/v0-8-enforcement-product-control-spine.d.ts"
     },
+    "./v0-8-broad-os-adapter-proof": {
+      "import": "./dist/v0-8-broad-os-adapter-proof.js",
+      "types": "./dist/v0-8-broad-os-adapter-proof.d.ts"
+    },
+    "./v0-8-broad-os-adapter-runtime-proof": {
+      "import": "./dist/v0-8-broad-os-adapter-runtime-proof.js",
+      "types": "./dist/v0-8-broad-os-adapter-runtime-proof.d.ts"
+    },
+    "./v0-8-browser-domain-adapter-proof": {
+      "import": "./dist/v0-8-browser-domain-adapter-proof.js",
+      "types": "./dist/v0-8-browser-domain-adapter-proof.d.ts"
+    },
     "./game-control-catalog": {
       "import": "./dist/game-control-catalog.js",
       "types": "./dist/game-control-catalog.d.ts"
