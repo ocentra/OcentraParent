@@ -30,7 +30,7 @@ triggers.
 
 ## Acceptance And Proof
 
-- Integration tests use fake packet/responder sources and fake clocks.
+- Integration tests use fixture packet/responder sources and explicit timestamps.
 - Presence tests prove passive return can restore stale/offline state without
   creating duplicate cards.
 - Security tests cover malformed and oversized passive payloads.

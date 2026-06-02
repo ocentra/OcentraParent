@@ -28,7 +28,7 @@ and TLS certificate subject. It does not crawl pages.
 
 ## Acceptance And Proof
 
-- Local fake server tests cover closed port, HTTP title, HTTPS certificate,
+- Local controlled server tests cover closed port, HTTP title, HTTPS certificate,
   redirect, timeout, max concurrency, and no crawling.
 - Security tests cover malicious title, path traversal text, invalid UTF-8, and
   oversized responses.
