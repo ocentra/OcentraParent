@@ -17,15 +17,20 @@ revoke, or take controller authority.
 
 ## Requirement Checklist
 
-- [ ] Represent observer read-only state.
-- [ ] Reject or disable write actions for observer role.
-- [ ] Show why an action is unavailable.
-- [ ] Include audit/status refs where available.
-- [ ] Test observer output.
+- [x] Represent observer read-only state.
+- [x] Reject or disable write actions for observer role.
+- [x] Show why an action is unavailable.
+- [x] Include support/status refs where available.
+- [x] Test observer output.
 
 ## Acceptance And Proof
 
 Observer state cannot be mistaken for controller authority in package proof.
+
+Current proof: `packages/parent-domain/src/parent-desktop-release-support.ts`
+and `packages/parent-domain/tests/parent-desktop-release-support.test.ts`
+accept read-only service/route reads and reject observer policy writes,
+approval decisions, and controller takeover.
 
 ## Parallel Ownership Notes
 

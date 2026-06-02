@@ -17,16 +17,20 @@ available, rollback unavailable, and production boundary.
 
 ## Requirement Checklist
 
-- [ ] Represent update channel and rollback states.
-- [ ] Keep unsigned preview labels.
-- [ ] Reject production claims without signing proof.
-- [ ] Add tests for matrix/proof output.
-- [ ] Update release docs when status changes.
+- [x] Represent update channel and rollback states.
+- [x] Keep unsigned preview labels.
+- [x] Reject production claims without signing proof.
+- [x] Add tests for matrix/proof output.
+- [x] Update release docs when status changes.
 
 ## Acceptance And Proof
 
 Parents/support can tell whether update behavior is production, preview, or
 manual-required.
+
+Current proof: scaffold, unsigned-preview, signature-required, production
+promotion, and rollback-unavailable states are parsed and tested. Rollback
+available is rejected for unsigned preview or unpromoted production state.
 
 ## Parallel Ownership Notes
 

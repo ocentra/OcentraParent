@@ -17,15 +17,19 @@ promotion boundaries.
 
 ## Requirement Checklist
 
-- [ ] Keep production publishing out of `main`.
-- [ ] Label PR/merge as CI/package preview events.
-- [ ] Document explicit production promotion.
-- [ ] Avoid release notes that claim store/signing without proof.
-- [ ] Review workflow changes carefully.
+- [x] Keep production publishing out of `main`.
+- [x] Label PR/merge as CI/package preview events.
+- [x] Document explicit production promotion.
+- [x] Avoid release notes that claim store/signing without proof.
+- [x] Review workflow changes carefully.
 
 ## Acceptance And Proof
 
 Merging a package branch to `main` cannot silently publish production releases.
+
+Current proof: `scripts/test/parent-desktop-release-support-proof.test.mjs`
+checks that package preview artifacts live in the preview workflow and that
+production publishing remains on the `production` branch with required secrets.
 
 ## Parallel Ownership Notes
 

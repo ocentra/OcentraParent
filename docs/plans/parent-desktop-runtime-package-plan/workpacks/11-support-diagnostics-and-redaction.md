@@ -17,15 +17,20 @@ service state, and non-private diagnostic ids with redaction.
 
 ## Requirement Checklist
 
-- [ ] Define allowed support fields.
-- [ ] Redact secrets, tokens, raw journals, SQLite data, and child activity.
-- [ ] Include package/service/source state.
-- [ ] Test redaction.
-- [ ] Document support use.
+- [x] Define allowed support fields.
+- [x] Redact secrets, tokens, raw journals, SQLite data, and child activity.
+- [x] Include package/service/source state.
+- [x] Test redaction.
+- [x] Document support use.
 
 ## Acceptance And Proof
 
 Support output is useful for troubleshooting and safe to share in reports.
+
+Current proof: support diagnostics require version, commit, platform, package,
+service, route, capability, and degraded-state fields. The proof rejects
+unredacted sensitive values and the release helper strips forbidden diagnostic
+fields from support output.
 
 ## Parallel Ownership Notes
 

@@ -17,15 +17,20 @@ action, permission state, logs/screenshots, and observed result.
 
 ## Requirement Checklist
 
-- [ ] Define manual proof artifacts per platform.
-- [ ] Include distinct parent/child and package/runtime claims.
-- [ ] Record signing/store/entitlement gaps.
-- [ ] Keep artifacts out of source unless intentionally tracked.
-- [ ] Update proof matrix after manual checks.
+- [x] Define manual proof artifacts per platform.
+- [x] Include distinct parent/child and package/runtime claims.
+- [x] Record signing/store/entitlement gaps.
+- [x] Keep artifacts out of source unless intentionally tracked.
+- [x] Update proof matrix after manual checks.
 
 ## Acceptance And Proof
 
 Manual proof requirements are explicit before any production claim is made.
+
+Current proof: manual runbook rows require host/device, command or UI action,
+permissions, package version, logs/screenshots/proof JSON, and known gaps for
+parent desktop, parent mobile, child desktop, child Android, child iOS, relay,
+signing, store, and support.
 
 ## Parallel Ownership Notes
 

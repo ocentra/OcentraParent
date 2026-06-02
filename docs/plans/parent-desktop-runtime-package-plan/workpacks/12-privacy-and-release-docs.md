@@ -17,15 +17,19 @@ what is signed, what is preview-only, and what remains unavailable.
 
 ## Requirement Checklist
 
-- [ ] Update feature docs when status changes.
-- [ ] Keep README wording honest.
-- [ ] Label child activity custody.
-- [ ] Document package preview boundaries.
-- [ ] Record manual proof gaps.
+- [x] Update feature docs when status changes.
+- [x] Keep release wording honest.
+- [x] Label child activity custody.
+- [x] Document package preview boundaries.
+- [x] Record manual proof gaps.
 
 ## Acceptance And Proof
 
 Docs match package/proof state at PR-ready handoff.
+
+Current proof: feature and expectation docs now state that package previews,
+support diagnostics, signing, stores, mobile, relay, and rollback are not
+production claims until real proof exists.
 
 ## Parallel Ownership Notes
 
