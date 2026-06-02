@@ -20,7 +20,9 @@ use crate::{
     browser_policy_api::build_browser_policy_event,
     browser_policy_runtime::BrowserPolicyRuntime,
     browser_runtime::build_browser_managed_status_report,
-    enforcement_api::build_enforcement_audit_report,
+    enforcement_api::{
+        build_enforcement_audit_report, build_enforcement_product_control_spine_report,
+    },
     enforcement_timer_api::build_enforcement_timer_report,
     event_builder::{build_event, portal_peer},
     fields::fields_from_pairs,
@@ -210,6 +212,9 @@ async fn build_command_event(
             build_parent_assistant_scaffold_event(command)
         }
         AgentCommandName::AgentEnforcementExecute => build_enforcement_audit_report(command).await,
+        AgentCommandName::AgentEnforcementProductControlSpineGet => {
+            build_enforcement_product_control_spine_report(command).await
+        }
         AgentCommandName::AgentEnforcementTimerRecover
         | AgentCommandName::AgentEnforcementTimerExpire
         | AgentCommandName::AgentEnforcementOverrideCancel => {

@@ -15,6 +15,7 @@ use ocentra_parent_agent_protocol::{
 use crate::{
     activity_capture::record_activity_events_to_paths,
     activity_store_path::{activity_db_path, activity_journal_key_path, activity_journal_path},
+    enforcement_os_adapter_product_proof_read_model::product_control_spine::v08_enforcement_product_control_spine_read_model,
     enforcement_payload::{parse_enforcement_command_payload, EnforcementCommandPayload},
     enforcement_timer_state_file::store_active_timer_state_for_outcome,
     enforcement_timer_state_path::enforcement_timer_state_path,
@@ -22,6 +23,10 @@ use crate::{
     fields::fields_from_pairs,
     time::timestamp_now,
 };
+
+mod enforcement_product_control_payload;
+
+use self::enforcement_product_control_payload::enforcement_product_control_spine_payload;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) struct EnforcementJournalPaths {
@@ -45,6 +50,22 @@ impl EnforcementJournalPaths {
 pub async fn build_enforcement_audit_report(command: AgentCommandEnvelope) -> AgentEventEnvelope {
     build_enforcement_audit_report_with_paths(command, EnforcementJournalPaths::from_environment())
         .await
+}
+
+pub async fn build_enforcement_product_control_spine_report(
+    command: AgentCommandEnvelope,
+) -> AgentEventEnvelope {
+    let generated_at = timestamp_now();
+    let read_model = v08_enforcement_product_control_spine_read_model(&generated_at);
+    build_event(
+        constants::event_id::ENFORCEMENT_PRODUCT_CONTROL_SPINE_REPORTED,
+        &command.message_id,
+        command.source,
+        AgentEventName::AgentEnforcementProductControlSpineReported,
+        LogLevel::Info,
+        enforcement_product_control_spine_payload(&read_model),
+        None,
+    )
 }
 
 pub(crate) async fn build_enforcement_audit_report_with_paths(

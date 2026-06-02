@@ -38,7 +38,10 @@ match this usability while keeping policy local and auditable.
 - Policy-preview service/API/read-model paths exist.
 - The V0.8 product-control spine now carries dry-run preview, ask-parent,
   approval/override audit, restart recovery, and rollback/audit states as
-  separate typed parent-visible actions before service-side execution wiring.
+  separate typed parent-visible actions.
+- The V0.8 product-control runtime path now exposes those policy/audit states
+  through a Rust service WebSocket read model and typed agent-protocol adapter
+  that keep dry-run preview separate from adapter execution.
 - Complete nontechnical authoring UX is not done.
 
 ## Current Gap

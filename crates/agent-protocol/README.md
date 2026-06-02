@@ -7,6 +7,8 @@ Rust protocol parity crate for data that crosses the TypeScript/Rust boundary.
 - Serde structs and enums for Rust-crossing command/event payloads.
 - Protocol constants used by Rust service/core code.
 - Exact field names and enum values mirrored from TypeScript contracts.
+- V0.8 enforcement product-control read-model, command, event, and payload
+  constants shared by the Rust service and TypeScript protocol adapter.
 
 ## Must Not Own
 
@@ -37,3 +39,5 @@ flowchart LR
 
 - Add parity tests for every new Rust-crossing shape.
 - Keep constants granular so service/core code does not invent strings.
+- Product-control no-claim boundaries must stay explicit in protocol structs
+  until platform adapter evidence proves a broader claim.

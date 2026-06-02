@@ -81,6 +81,10 @@
       "import": "./dist/enforcement-readiness.js",
       "types": "./dist/enforcement-readiness.d.ts"
     },
+    "./v0-8-enforcement-product-control-spine": {
+      "import": "./dist/v0-8-enforcement-product-control-spine.js",
+      "types": "./dist/v0-8-enforcement-product-control-spine.d.ts"
+    },
     "./game-control-catalog": {
       "import": "./dist/game-control-catalog.js",
       "types": "./dist/game-control-catalog.d.ts"

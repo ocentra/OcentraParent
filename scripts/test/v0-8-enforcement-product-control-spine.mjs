@@ -25,6 +25,18 @@ async function main() {
     'v0-8-enforcement-product-control-spine',
   ]);
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-protocol', 'enforcement_product_control_spine']);
+  await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-service', 'product_control']);
+  await runCommand('cmd', [
+    '/c',
+    'npm',
+    'run',
+    'test',
+    '--workspace',
+    '@ocentra-parent/agent-protocol-domain',
+    '--',
+    'contracts',
+    'enforcement-product-control-adapter',
+  ]);
 
   const { V08EnforcementProductControlSpineReadModel } =
     await import('../../packages/parent-domain/dist/v0-8-enforcement-product-control-spine.js');
@@ -44,11 +56,23 @@ async function main() {
       tsContractTest: 'packages/parent-domain/tests/v0-8-enforcement-product-control-spine.test.ts',
       rustProtocol: 'crates/agent-protocol/src/enforcement_product_control_spine.rs',
       rustProtocolTest: 'crates/agent-protocol/src/enforcement_product_control_spine_tests.rs',
+      rustServiceCommand: 'agent.enforcement.product-control-spine.get',
+      rustServiceEvent: 'agent.enforcement.product-control-spine.reported',
+      rustServiceReadModel:
+        'crates/agent-service/src/enforcement_os_adapter_product_proof_read_model/product_control_spine.rs',
+      rustServiceReadModelTest:
+        'crates/agent-service/src/enforcement_os_adapter_product_proof_read_model_tests/product_control_spine_tests.rs',
+      rustServiceApiTest:
+        'crates/agent-service/src/enforcement_os_adapter_product_proof_read_model_tests/product_control_api_tests.rs',
+      tsProtocolAdapter: 'packages/agent-protocol-domain/src/enforcement-product-control-adapter.ts',
+      tsProtocolAdapterTest: 'packages/agent-protocol-domain/tests/enforcement-product-control-adapter.test.ts',
       proofHarness: 'scripts/test/v0-8-enforcement-product-control-spine.mjs',
     },
     counts: summary,
     claimsProved: [
       'Parent-visible V0.8 product-control actions are typed per surface',
+      'Rust service product-control read model links the spine to cross-platform, browser/domain, and OS-adapter proof sources',
+      'WebSocket command and TypeScript adapter expose the service-backed product-control read model to runtime consumers',
       'Owned-process, app-time-limit, managed-browser-session, approval, restart, rollback, and policy preview states stay separated',
       'Broad app blocking, network/domain blocking, managed exact URL control, unmanaged exact URL evidence, permission-loss alerts, and tamper/uninstall alerts remain manual-required or not-claimed',
     ],
@@ -59,7 +83,6 @@ async function main() {
       'unmanaged browser exact URL evidence',
       'notification delivery for permission loss',
       'tamper resistance or uninstall hardening',
-      'service read-model wiring while B owns crates/agent-service/src/main.rs',
     ],
   };
 
@@ -108,6 +131,8 @@ function assertReadModel(readModel, summary) {
   }
 
   proofLabels.push('v0.8.product-control-spine.read-model');
+  proofLabels.push('v0.8.product-control-spine.websocket-runtime-path');
+  proofLabels.push('v0.8.product-control-spine.ts-adapter');
   proofLabels.push('v0.8.product-control-spine.action-state-guard');
   proofLabels.push('v0.8.product-control-spine.no-claim-upgrade');
 }

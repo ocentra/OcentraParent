@@ -167,6 +167,7 @@ export const AgentCommandNameSchema = withParser(
     'agent.enforcement.timer.recover',
     'agent.enforcement.timer.expire',
     'agent.enforcement.override.cancel',
+    'agent.enforcement.product-control-spine.get',
     'agent.parent-assistant.thread.list',
     'agent.parent-assistant.thread.create',
     'agent.parent-assistant.thread.open',
@@ -228,6 +229,7 @@ export const AgentEventNameSchema = withParser(
     'agent.browser-policy.rollback.rejected',
     'agent.enforcement.audit.reported',
     'agent.enforcement.timer.reported',
+    'agent.enforcement.product-control-spine.reported',
     'agent.parent-assistant.thread.updated',
     'agent.parent-assistant.message.accepted',
     'agent.parent-assistant.run.started',
@@ -320,6 +322,7 @@ export const AgentCommand = {
   EnforcementTimerRecover: AgentCommandNameSchema.parse('agent.enforcement.timer.recover'),
   EnforcementTimerExpire: AgentCommandNameSchema.parse('agent.enforcement.timer.expire'),
   EnforcementOverrideCancel: AgentCommandNameSchema.parse('agent.enforcement.override.cancel'),
+  EnforcementProductControlSpineGet: AgentCommandNameSchema.parse('agent.enforcement.product-control-spine.get'),
   ParentAssistantThreadList: AgentCommandNameSchema.parse('agent.parent-assistant.thread.list'),
   ParentAssistantThreadCreate: AgentCommandNameSchema.parse('agent.parent-assistant.thread.create'),
   ParentAssistantThreadOpen: AgentCommandNameSchema.parse('agent.parent-assistant.thread.open'),
@@ -393,6 +396,9 @@ export const AgentEvent = {
   BrowserPolicyRollbackRejected: AgentEventNameSchema.parse('agent.browser-policy.rollback.rejected'),
   EnforcementAuditReported: AgentEventNameSchema.parse('agent.enforcement.audit.reported'),
   EnforcementTimerReported: AgentEventNameSchema.parse('agent.enforcement.timer.reported'),
+  EnforcementProductControlSpineReported: AgentEventNameSchema.parse(
+    'agent.enforcement.product-control-spine.reported'
+  ),
   ParentAssistantThreadUpdated: AgentEventNameSchema.parse('agent.parent-assistant.thread.updated'),
   ParentAssistantMessageAccepted: AgentEventNameSchema.parse('agent.parent-assistant.message.accepted'),
   ParentAssistantRunStarted: AgentEventNameSchema.parse('agent.parent-assistant.run.started'),

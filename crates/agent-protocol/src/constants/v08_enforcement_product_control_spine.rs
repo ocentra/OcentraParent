@@ -1,4 +1,6 @@
 pub const READ_MODEL_ID: &str = "v0-8-enforcement-product-control-spine";
+pub const COMMAND_GET: &str = "agent.enforcement.product-control-spine.get";
+pub const EVENT_REPORTED: &str = "agent.enforcement.product-control-spine.reported";
 
 pub const ENTRY_ID_OWNED_PROCESS: &str = "v0-8-product-control-owned-process-time-limit";
 pub const ENTRY_ID_APP_TIME_LIMIT: &str = "v0-8-product-control-app-time-limit";
@@ -139,3 +141,24 @@ pub const REQUIREMENT_DELIVERY_RECEIPT: &str = "parent-visible delivery receipt"
 pub const REQUIREMENT_TAMPER_DESIGN: &str = "explicit tamper/uninstall product design";
 pub const REQUIREMENT_REMOVAL_DETECTOR: &str = "service removal detector";
 pub const REQUIREMENT_NON_STEALTH_ALERT: &str = "non-stealth parent alert proof";
+
+pub const CLAIM_POLICY_DRY_RUN: &str =
+    "Policy preview is dry-run-only and must not execute adapter behavior from portal-authored rules.";
+pub const FALLBACK_POLICY_DRY_RUN: &str =
+    "Return preview-only state until a child-device agent validates and executes a typed policy decision.";
+pub const CLAIM_APPROVAL_OVERRIDE: &str =
+    "Approval and override audit references are typed control state, not portal-side enforcement authority.";
+pub const FALLBACK_APPROVAL_OVERRIDE: &str =
+    "Reject stale or missing approval references and preserve audit-only state when execution is unavailable.";
+pub const CLAIM_CHILD_EXPLANATION: &str =
+    "Child-facing explanation remains manual-required until the child device can show policy reason and request flow state.";
+pub const FALLBACK_CHILD_EXPLANATION: &str =
+    "Report parent-visible audit state only until child delivery and acknowledgement are proved.";
+pub const CLAIM_PERMISSION_LOSS: &str =
+    "Permission-loss alerts remain manual-required until detector and delivery status are proved.";
+pub const FALLBACK_PERMISSION_LOSS: &str =
+    "Report local status only until notification delivery and acknowledgement proof exist.";
+pub const CLAIM_TAMPER_UNINSTALL: &str =
+    "Tamper/uninstall alerts remain manual-required and do not imply stealth or persistence hardening.";
+pub const FALLBACK_TAMPER_UNINSTALL: &str =
+    "Report manual-required until product/security design and non-stealth alert proof exist.";

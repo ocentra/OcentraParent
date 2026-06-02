@@ -62,6 +62,8 @@ pub const ENFORCEMENT_TIMER_EVENT_ID: &str = "enforcementTimerEventId";
 pub const ENFORCEMENT_TIMER_EVENT_KIND: &str = "enforcementTimerEventKind";
 pub const ENFORCEMENT_TIMER_STATE: &str = "enforcementTimerState";
 pub const ENFORCEMENT_TIMER_STATE_ID: &str = "enforcementTimerStateId";
+pub const ENFORCEMENT_PRODUCT_CONTROL_SPINE_READ_MODEL: &str =
+    "enforcementProductControlSpineReadModel";
 pub const ENTRIES: &str = "entries";
 pub const EVENTS_INGESTED: &str = "eventsIngested";
 pub const EVENTS_STORED: &str = "eventsStored";

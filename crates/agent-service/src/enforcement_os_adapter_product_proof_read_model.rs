@@ -19,6 +19,8 @@ use crate::{
     windows_adapter_capability_read_model::windows_adapter_capability_proof,
 };
 
+pub(crate) mod product_control_spine;
+
 pub(crate) fn v08_os_adapter_product_proof_read_model(
     generated_at: &str,
 ) -> V08OsAdapterProductProofReadModel {

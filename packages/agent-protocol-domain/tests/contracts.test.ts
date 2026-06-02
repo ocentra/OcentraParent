@@ -40,6 +40,7 @@ const EXPECTED_AGENT_COMMAND_ENTRIES = [
   ['EnforcementTimerRecover', 'agent.enforcement.timer.recover'],
   ['EnforcementTimerExpire', 'agent.enforcement.timer.expire'],
   ['EnforcementOverrideCancel', 'agent.enforcement.override.cancel'],
+  ['EnforcementProductControlSpineGet', 'agent.enforcement.product-control-spine.get'],
   ['ParentAssistantThreadList', 'agent.parent-assistant.thread.list'],
   ['ParentAssistantThreadCreate', 'agent.parent-assistant.thread.create'],
   ['ParentAssistantThreadOpen', 'agent.parent-assistant.thread.open'],
@@ -97,6 +98,7 @@ const EXPECTED_AGENT_EVENT_ENTRIES = [
   ['BrowserPolicyRollbackRejected', 'agent.browser-policy.rollback.rejected'],
   ['EnforcementAuditReported', 'agent.enforcement.audit.reported'],
   ['EnforcementTimerReported', 'agent.enforcement.timer.reported'],
+  ['EnforcementProductControlSpineReported', 'agent.enforcement.product-control-spine.reported'],
   ['ParentAssistantThreadUpdated', 'agent.parent-assistant.thread.updated'],
   ['ParentAssistantMessageAccepted', 'agent.parent-assistant.message.accepted'],
   ['ParentAssistantRunStarted', 'agent.parent-assistant.run.started'],
@@ -313,6 +315,9 @@ it('AgentProtocolDefaults.Field: exposes read-model payload fields', () => {
   expect(AgentProtocolDefaults.Field.EnforcementStatus).toBe('enforcementStatus');
   expect(AgentProtocolDefaults.Field.EnforcementTimerState).toBe('enforcementTimerState');
   expect(AgentProtocolDefaults.Field.EnforcementTimerStateId).toBe('enforcementTimerStateId');
+  expect(AgentProtocolDefaults.Field.EnforcementProductControlSpineReadModel).toBe(
+    'enforcementProductControlSpineReadModel'
+  );
   expect(AgentProtocolDefaults.Field.EvidenceReferenceIds).toBe('evidenceReferenceIds');
   expect(AgentProtocolDefaults.Field.MostRecentSubjectName).toBe('mostRecentSubjectName');
   expect(AgentProtocolDefaults.Field.UnmanagedBrowserEnforcement).toBe('unmanagedBrowserEnforcement');

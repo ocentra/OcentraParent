@@ -10,7 +10,8 @@ transports.
 - Security envelope fields and validation.
 - Protocol defaults that must match Rust.
 - Adapter-specific command/event contracts for activity, browser policy,
-  parent assistant, LAN, and related paths.
+  parent assistant, LAN, enforcement product-control runtime state, and related
+  paths.
 
 ## Must Not Own
 
@@ -42,3 +43,7 @@ flowchart LR
   introduced here only after product/domain contracts exist.
 - Rust parity tests must cover exact field and enum values before the service
   claims support.
+- V0.8 product-control runtime state is parsed from
+  `agent.enforcement.product-control-spine.reported` by the
+  `enforcement-product-control-adapter` export; product semantics stay in
+  `parent-domain`.
