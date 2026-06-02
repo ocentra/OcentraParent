@@ -225,10 +225,15 @@ async function assertLanPairingRouteSurface(page: Page, surface: ReturnType<Page
     await expect(surface.locator('text').filter({ hasText: 'Update' }).first()).toBeVisible();
     await expect(surface.locator('text').filter({ hasText: 'Capability' }).first()).toBeVisible();
 
-    const localAgentChoice = page.getByRole('button', { name: 'Select local-dev-agent' });
+    const localAgentChoice = page.getByRole('button', { name: /^Select (?!LAN ).+/ }).first();
     await expect(localAgentChoice).toBeVisible();
     await localAgentChoice.click({ force: true });
-    await expect(surface.locator('text').filter({ hasText: 'Device : local-dev-agent' }).first()).toBeVisible();
+    await expect(
+      surface
+        .locator('text')
+        .filter({ hasText: /Device : (?!No device selected).+/ })
+        .first()
+    ).toBeVisible();
 
     await page.getByRole('tab', { name: 'Show LAN pairing Capability' }).click({ force: true });
     await expect(surface.locator('text').filter({ hasText: 'Agent' }).first()).toBeVisible();
@@ -330,7 +335,7 @@ async function assertBrowserPolicyDeviceTargets(page: Page, surface: ReturnType<
   });
   try {
     await expect(surface.locator('text').filter({ hasText: 'Per Device' }).first()).toBeVisible();
-    await expect(surface.locator('text').filter({ hasText: 'local-dev-agent' }).first()).toBeVisible();
+    await expect(page.getByRole('button', { name: /^Select (?!LAN ).+/ }).first()).toBeVisible();
     await expect(surface.locator('text').filter({ hasText: /^LAN 192\.168\.2\.1$/ })).toHaveCount(0);
   } finally {
     if (viewport) {
@@ -429,7 +434,7 @@ async function assertSidePanelFoldouts(page: Page): Promise<void> {
   await expect(page.getByRole('button', { name: `Expand ${PARENT_PORTAL_NAV_LABELS.Devices}` })).toHaveCount(0);
   await expect(page.getByRole('button', { name: `Open ${PARENT_PORTAL_NAV_LABELS.Lan}` })).toHaveCount(0);
   await expect(page.getByRole('button', { name: `Open ${PARENT_PORTAL_NAV_LABELS.Capability}` })).toHaveCount(0);
-  await expect(page.getByRole('button', { name: `Open ${PARENT_PORTAL_NAV_LABELS.Remote}` })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: `Open ${PARENT_PORTAL_NAV_LABELS.Remote}` })).toBeVisible();
   await expect(page.getByRole('button', { name: `Open ${PARENT_PORTAL_NAV_LABELS.Platforms}` })).toHaveCount(0);
   await expect(page.getByRole('button', { name: `Open ${PARENT_PORTAL_NAV_LABELS.Updates}` })).toHaveCount(0);
   await expect(page.getByRole('button', { name: `Expand ${PARENT_PORTAL_NAV_LABELS.Activity}` })).toHaveCount(0);

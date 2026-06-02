@@ -3655,6 +3655,7 @@ const MANAGE_ROUTE_KEYS = new Set([
   'policy-screen',
   'policy-network',
   'policy-tracking',
+  'policy-remote-screen',
   'rule-management',
   'schedules',
   'approvals',
@@ -3700,6 +3701,7 @@ const MANAGE_CHILD_POLICY_ROUTE_KEYS = new Set([
   'policy-screen',
   'policy-network',
   'policy-tracking',
+  'policy-remote-screen',
   'rule-management',
   'schedules',
   'approvals',
@@ -3978,6 +3980,10 @@ function reportSelectedSlotValue(slots: readonly DeviceSlot[], device: string): 
   return slots.find((slot) => slot.label === device || slot.device?.name === device)?.value;
 }
 
+function reportDeviceSelectionAvailable(slots: readonly DeviceSlot[], device: string): boolean {
+  return Boolean(reportSelectedSlotValue(slots, device));
+}
+
 type ManageDeviceGridConfigOverride = NonNullable<DeviceChoiceGridProps['config']>;
 const FAMILY_DEVICE_SCOPE_ICONS: NonNullable<DeviceChoiceGridProps['scopeIcons']> = {
   lan: { href: parentNavIconAssetUrls.FamilyIcon },
@@ -4211,7 +4217,15 @@ function lanPairingDetailRowsFor(
   ];
 }
 
-type ActivityManageTabId = 'reports' | 'screen' | 'apps' | 'browser' | 'games' | 'network';
+type ActivityManageTabId =
+  | 'reports'
+  | 'screen'
+  | 'tracking'
+  | 'remoteScreen'
+  | 'apps'
+  | 'browser'
+  | 'games'
+  | 'network';
 
 const ACTIVITY_MANAGE_TABS: readonly {
   readonly id: ActivityManageTabId;
@@ -4220,11 +4234,13 @@ const ACTIVITY_MANAGE_TABS: readonly {
   readonly tone: Tone;
 }[] = [
   { id: 'reports', label: 'Reports', icon: ReportDocumentIcon, tone: 'purple' },
-  { id: 'screen', label: 'Screen', icon: ScreenAnalysisIcon, tone: 'cyan' },
-  { id: 'apps', label: 'App Use', icon: AppIcon, tone: 'gold' },
   { id: 'browser', label: 'Browser', icon: BrowserStackIcon, tone: 'cyan' },
+  { id: 'apps', label: 'App Use', icon: AppIcon, tone: 'gold' },
   { id: 'games', label: 'Games', icon: GamesIcon, tone: 'purple' },
+  { id: 'screen', label: 'Screen', icon: ScreenAnalysisIcon, tone: 'cyan' },
   { id: 'network', label: 'Network', icon: WebGlobeIcon, tone: 'cyan' },
+  { id: 'tracking', label: 'Tracking', icon: TrackingLocationIcon, tone: 'gold' },
+  { id: 'remoteScreen', label: 'Remote Screen', icon: RemoteAccessMonitorsIcon, tone: 'purple' },
 ];
 
 const ACTIVITY_REPORT_FREQUENCY_OPTIONS = [
@@ -4251,6 +4267,10 @@ function activityManageTargetLabel(scopeValue: string, selectedDevice: DeviceSlo
 
 function activityManageTabLabel(tab: ActivityManageTabId): string {
   return ACTIVITY_MANAGE_TABS.find((item) => item.id === tab)?.label ?? 'Activity';
+}
+
+function activityTabRequiresDevice(tab: ActivityManageTabId): boolean {
+  return tab !== 'reports';
 }
 
 function activityStateValue(value: unknown, fallback = 'Not reported'): string {
@@ -4319,9 +4339,9 @@ function activityPerDeviceGateRows(
   if (scopeValue !== 'device') {
     return [
       {
-        label: 'Per-device required',
-        value: `Switch to Per Device to inspect ${tabLabel.toLowerCase()} activity.`,
-        tone: 'gold',
+        label: 'Family aggregate',
+        value: `Showing household-level ${tabLabel.toLowerCase()} summary when the Rust read model reports it.`,
+        tone: 'cyan',
       },
     ];
   }
@@ -4416,7 +4436,7 @@ function activityRowsFromReadModels(
     ];
   }
 
-  if (gateRows.length > 0 && (scopeValue !== 'device' || !selectedDevice || selectedDevice.status === 'empty')) {
+  if (gateRows.length > 0 && scopeValue === 'device' && (!selectedDevice || selectedDevice.status === 'empty')) {
     return gateRows;
   }
 
@@ -4437,6 +4457,49 @@ function activityRowsFromReadModels(
       { label: 'Foreground time', value: activityFormatDurationMs(screenRow?.foregroundMs), tone: 'gold' },
       { label: 'Background time', value: activityFormatDurationMs(screenRow?.backgroundMs), tone: 'purple' },
       { label: 'Evidence refs', value: activityEvidenceCount(screenRow?.evidence), tone: 'gold' },
+    ];
+  }
+
+  if (tab === 'tracking') {
+    return [
+      ...gateRows,
+      {
+        label: 'Backend not implemented yet',
+        value: 'Rust child-agent tracking read model is not wired yet.',
+        tone: 'gold',
+      },
+      {
+        label: 'Expected backend',
+        value: 'Location, geofence, route, and device-status evidence must come from Rust contracts.',
+        tone: 'cyan',
+      },
+      {
+        label: 'Current UI state',
+        value: scopeValue === 'device' ? targetLabel : 'Family aggregate placeholder',
+        tone: 'purple',
+      },
+    ];
+  }
+
+  if (tab === 'remoteScreen') {
+    return [
+      ...gateRows,
+      {
+        label: 'Backend not implemented yet',
+        value: 'Live remote screen is a separate Rust capability and is not wired yet.',
+        tone: 'gold',
+      },
+      {
+        label: 'Not screen analysis',
+        value:
+          'Screen analysis is periodic local summaries; remote screen is parent live view with permission and audit.',
+        tone: 'cyan',
+      },
+      {
+        label: 'Required proof',
+        value: 'Needs route/session/capability state, custody labels, platform permission, and stop/revoke audit.',
+        tone: 'purple',
+      },
     ];
   }
 
@@ -4927,6 +4990,54 @@ function manageControlSpecFor(activeNavLabel: string, selectedControlName: strin
         { label: 'Open capability', detail: 'Review what this device supports.', tone: 'purple' },
       ],
       status: baseStatus,
+    };
+  }
+
+  if (key.includes('remote-screen')) {
+    return {
+      title: 'Remote Screen Policy',
+      devices,
+      modes: [
+        { label: 'Off', detail: 'Do not allow live viewing.', tone: 'cyan' },
+        { label: 'Ask first', detail: 'Require a parent-approved session.', tone: 'gold' },
+        { label: 'Live view', detail: 'Backend not implemented yet.', tone: 'purple' },
+      ],
+      options: [
+        {
+          label: 'Backend not implemented yet',
+          detail: 'Live remote screen requires Rust session, custody, permission, and audit wiring.',
+          enabled: false,
+          tone: 'red',
+        },
+        {
+          label: 'Separate from screen analysis',
+          detail: 'Screen analysis is periodic summaries; remote screen is live parent viewing.',
+          enabled: true,
+          tone: 'cyan',
+        },
+        {
+          label: 'Require child-device capability',
+          detail: 'Only child agents that advertise live screen support should be selectable.',
+          enabled: true,
+          tone: 'gold',
+        },
+        {
+          label: 'Record audit event',
+          detail: 'Every live view request must be visible in parent audit.',
+          enabled: true,
+          tone: 'purple',
+        },
+      ],
+      actions: [
+        { label: 'Check support', detail: 'Backend not implemented yet.', tone: 'cyan' },
+        { label: 'Request view', detail: 'Requires future Rust live-view session support.', tone: 'gold' },
+        { label: 'Open audit', detail: 'Review live-view policy decisions when wired.', tone: 'purple' },
+      ],
+      status: [
+        { label: 'Backend', detail: 'Not implemented yet', tone: 'red' },
+        { label: 'Scope', detail: 'Per child device', tone: 'cyan' },
+        { label: 'Custody', detail: 'Local first', tone: 'gold' },
+      ],
     };
   }
 
@@ -5438,7 +5549,8 @@ function manageWorkspaceKindFor(
     navKey.includes('game') ||
     navKey.includes('screen') ||
     navKey.includes('network') ||
-    navKey.includes('tracking')
+    navKey.includes('tracking') ||
+    navKey.includes('remote-screen')
   )
     return 'policy';
   const key = `${navKey} ${assetKey(selectedControlName)} ${assetKey(title ?? '')}`;
@@ -5490,7 +5602,8 @@ function manageWorkspaceKindFor(
     key.includes('game') ||
     key.includes('screen') ||
     key.includes('network') ||
-    key.includes('tracking')
+    key.includes('tracking') ||
+    key.includes('remote-screen')
   )
     return 'policy';
   return null;
@@ -5590,6 +5703,7 @@ function manageWorkspaceTitle(kind: ManageWorkspaceKind): string {
 
 function managePolicyAreaLabel(activeNavLabel: string, selectedControlName: string): string {
   const key = `${assetKey(activeNavLabel)} ${assetKey(selectedControlName)}`;
+  if (key.includes('remote-screen')) return 'Remote Screen';
   if (key.includes('app')) return 'Apps';
   if (key.includes('game')) return 'Games';
   if (key.includes('screen')) return 'Screen';
@@ -5602,6 +5716,7 @@ function managePolicyAreaIcon(activeNavLabel: string, selectedControlName: strin
   const area = managePolicyAreaLabel(activeNavLabel, selectedControlName);
   if (area === 'Apps') return AppIcon;
   if (area === 'Games') return GamesIcon;
+  if (area === 'Remote Screen') return RemoteAccessMonitorsIcon;
   if (area === 'Screen') return ScreenAnalysisIcon;
   if (area === 'Network') return WebGlobeIcon;
   if (area === 'Tracking') return TrackingLocationIcon;
@@ -5688,6 +5803,13 @@ function manageWorkspaceSummary(
       : workspaceTarget === 'family'
         ? 'family defaults'
         : 'per-device overrides';
+  if (area === 'remote screen') {
+    if (activeTab === 'schedule')
+      return `Configure ${scope} for remote screen request windows, child consent, and stop/revoke behavior. Backend not implemented yet.`;
+    if (activeTab === 'audit')
+      return `Review ${scope} for remote screen session requests, custody labels, parent actions, and stop/revoke audit. Backend not implemented yet.`;
+    return `Remote screen live-view backend is not implemented yet; Rust session, capability, permission, custody, and audit wiring are required.`;
+  }
   if (activeTab === 'schedule')
     return `Configure ${scope} for ${area} time windows, school, bedtime, and temporary exceptions.`;
   if (activeTab === 'budget')
@@ -6257,6 +6379,75 @@ function manageWorkspaceCards(
       : workspaceTarget === 'family'
         ? `Family ${area.toLowerCase()} defaults apply until a child override exists.`
         : `A child device must be selected before ${area.toLowerCase()} overrides can be sent.`;
+  if (area === 'Remote Screen') {
+    if (activeTab === 'schedule') {
+      return [
+        { label: 'Target', value: scope, body: targetBody, tone: 'cyan' },
+        {
+          label: 'Backend',
+          value: 'Not implemented yet',
+          body: 'Rust remote screen request windows, session timers, consent, and revoke flow are not wired.',
+          tone: 'red',
+        },
+        {
+          label: 'Permission',
+          value: 'Required',
+          body: 'Child-agent capability and platform permission state must be reported before live view is enabled.',
+          tone: 'gold',
+        },
+        {
+          label: 'Stop/revoke',
+          value: 'Required',
+          body: 'Remote screen sessions need a visible child-device stop path and parent-side revoke audit.',
+          tone: 'purple',
+        },
+      ];
+    }
+    if (activeTab === 'audit') {
+      return [
+        { label: 'Target', value: scope, body: targetBody, tone: 'cyan' },
+        {
+          label: 'Backend',
+          value: 'Not implemented yet',
+          body: 'Remote screen audit requires Rust session, route, custody, permission, start, stop, and revoke events.',
+          tone: 'red',
+        },
+        {
+          label: 'Custody',
+          value: 'Required',
+          body: 'Audit must label local, LAN, relay, parent cache, or unavailable source before showing live-view history.',
+          tone: 'gold',
+        },
+        {
+          label: 'Separate feature',
+          value: 'Not screen analysis',
+          body: 'Screen analysis records periodic local summaries; remote screen is parent live view.',
+          tone: 'purple',
+        },
+      ];
+    }
+    return [
+      { label: 'Target', value: scope, body: targetBody, tone: 'cyan' },
+      {
+        label: 'Backend',
+        value: 'Not implemented yet',
+        body: 'Live remote screen requires Rust route/session/capability wiring before any parent can view a child screen.',
+        tone: 'red',
+      },
+      {
+        label: 'Permission',
+        value: 'Capability gated',
+        body: 'The child agent must report supported, permission-required, denied, or platform-unsupported state.',
+        tone: 'gold',
+      },
+      {
+        label: 'Scope',
+        value: 'View only',
+        body: 'Remote input/control remains a separate later capability, not part of the live-view stub.',
+        tone: 'purple',
+      },
+    ];
+  }
   if (activeTab === 'schedule') {
     return [
       { label: 'Target', value: scope, body: targetBody, tone: 'cyan' },
@@ -7540,6 +7731,14 @@ const POLICY_FIRST_PASS_AREA_TARGETS = {
     { value: 'manual-capture', label: 'Manual capture' },
     { value: 'protected-state', label: 'Protected state' },
   ],
+  'Remote Screen': [
+    { value: 'live-view-session', label: 'Live view session' },
+    { value: 'parent-request', label: 'Parent request' },
+    { value: 'child-device-screen', label: 'Child device screen' },
+    { value: 'consent-mode', label: 'Consent mode' },
+    { value: 'stop-revoke', label: 'Stop/revoke' },
+    { value: 'unsupported-state', label: 'Unsupported state' },
+  ],
   Network: [
     { value: 'domain', label: 'Domain' },
     { value: 'ip-address', label: 'IP address' },
@@ -7579,6 +7778,13 @@ const POLICY_FIRST_PASS_AREA_PROOF = {
     { value: 'evidence-ref', label: 'Evidence ref' },
     { value: 'delete-proof', label: 'Delete proof' },
     { value: 'unavailable-state', label: 'Unavailable state' },
+  ],
+  'Remote Screen': [
+    { value: 'session-capability', label: 'Session capability' },
+    { value: 'device-agent-state', label: 'Child agent state' },
+    { value: 'custody-audit', label: 'Custody/audit' },
+    { value: 'permission-state', label: 'Permission state' },
+    { value: 'stop-event', label: 'Stop event' },
   ],
   Network: [
     { value: 'dns-domain', label: 'DNS/domain' },
@@ -10781,6 +10987,12 @@ function ManageControlPanel({
     [activityState?.lanAddDeviceReadModel, parentPortalRows]
   );
   const lanPairingPortalIds = useMemo(() => createParentPortalLanPairingPortalIds(lanPairingSlots), [lanPairingSlots]);
+  const firstLanPairingSelectableSlot = lanPairingSlots.find((slot) => slot.device && slot.status !== 'empty') ?? null;
+  useEffect(() => {
+    if (!isLanPairingPanel || !firstLanPairingSelectableSlot) return;
+    if (lanPairingSelectedSlot && lanPairingSlots.some((slot) => slot.value === lanPairingSelectedSlot.value)) return;
+    setLanPairingSelectedSlot(firstLanPairingSelectableSlot);
+  }, [firstLanPairingSelectableSlot, isLanPairingPanel, lanPairingSelectedSlot, lanPairingSlots]);
   const lanPairingPanelPadX = Math.max(18, Math.min(34, Math.round(w * 0.018)));
   const lanPairingPanelPadY = 0;
   const lanPairingAvailableW = Math.max(1, w - lanPairingPanelPadX * 2);
@@ -10837,10 +11049,9 @@ function ManageControlPanel({
     () => createParentPortalCanonicalDeviceSlots(activityUiIntent.deviceSlots, lanPairingSlots),
     [activityUiIntent.deviceSlots, lanPairingSlots]
   );
-  const reportScopeValue =
-    targetSelection.scope === 'perDevice' || activityUiIntent.hasServiceBackedDeviceRows ? 'device' : 'family';
+  const reportScopeValue = targetSelection.scope === 'perDevice' ? 'device' : 'family';
   const reportFamilyScope = reportScopeValue !== 'device';
-  const reportSlots = activityUiIntent.deviceSlots;
+  const reportSlots = runtimeDeviceSlots;
   const reportPortalIds = useMemo(
     () => reportSlots.filter((slot) => slot.device).map((slot) => slot.value),
     [reportSlots]
@@ -10848,8 +11059,7 @@ function ManageControlPanel({
   const firstReportSelectableSlot = reportSlots.find((slot) => slot.device && slot.status !== 'empty');
   const reportSelectedValue =
     reportScopeValue === 'device'
-      ? (reportSelectedSlotValue(reportSlots, targetSelection.device) ??
-        (activityUiIntent.hasServiceBackedDeviceRows ? firstReportSelectableSlot?.value : undefined))
+      ? (reportSelectedSlotValue(reportSlots, targetSelection.device) ?? firstReportSelectableSlot?.value)
       : undefined;
   const reportSelectedSlot = reportSlots.find((slot) => slot.value === reportSelectedValue) ?? null;
   const activityReportFiles = activityUiIntent.reportFiles;
@@ -10894,7 +11104,13 @@ function ManageControlPanel({
   };
   const activityManageTab =
     ACTIVITY_MANAGE_TABS.find((tab) => tab.id === activityManageActiveTab) ?? ACTIVITY_MANAGE_TABS[0];
-  const activityManageTabColor = toneColor(activityManageTab.tone, cfg);
+  const activityDetailTabsDisabled = reportFamilyScope;
+  const effectiveActivityManageTab =
+    activityDetailTabsDisabled && activityTabRequiresDevice(activityManageTab.id)
+      ? ACTIVITY_MANAGE_TABS[0]
+      : activityManageTab;
+  const effectiveActivityManageTabId = effectiveActivityManageTab.id;
+  const activityManageTabColor = toneColor(effectiveActivityManageTab.tone, cfg);
   const activityBodyY = reportDividerY + 16;
   const activityBodyAvailableH = Math.max(1, y + h - activityBodyY - 8);
   const activityTabsCompact = reportAvailableW < 560;
@@ -10913,7 +11129,7 @@ function ManageControlPanel({
   const activityBodyPanelH = Math.max(1, y + h - activityBodyPanelY - 8);
   const activityBodyPanelX = reportTopX;
   const activityBodyPanelW = reportAvailableW;
-  const activityReportsSelected = activityManageActiveTab === 'reports';
+  const activityReportsSelected = effectiveActivityManageTabId === 'reports';
   const activityReportInnerX = activityBodyPanelX + 18;
   const activityReportInnerY = activityBodyPanelY + (activityReportsSelected ? 2 : 18);
   const activityReportInnerW = Math.max(1, activityBodyPanelW - 36);
@@ -10975,7 +11191,8 @@ function ManageControlPanel({
     Math.max(1, Math.floor(Math.max(1, activityReportSplitH - 52) / (activityReportRowH + activityReportRowGap)))
   );
   const activityReportViewerTarget =
-    activityReportViewerReport?.targetLabel ?? (reportFamilyScope ? 'Family' : 'Select a device');
+    activityReportViewerReport?.targetLabel ??
+    (reportFamilyScope ? 'Family' : (reportSelectedSlot?.label ?? 'Select a device'));
   const activityReportViewerState = activityReportViewerReport?.saved
     ? `Saved JSON: ${activityReportViewerReport.fileName}`
     : activityReportViewerReport
@@ -10995,7 +11212,7 @@ function ManageControlPanel({
     activityMonitorPanelY + activityMonitorPanelH - activityMonitorContentY - 18
   );
   const activityMonitorRows = activityRowsFromReadModels(
-    activityManageActiveTab,
+    effectiveActivityManageTabId,
     reportScopeValue,
     reportSelectedSlot,
     activityReportFrequencyLabel,
@@ -11296,6 +11513,7 @@ function ManageControlPanel({
                   text: {
                     scopeOptions: { lan: 'Family', parent: 'Per Device' },
                     selectedInfoLabel: 'Report device',
+                    selectedInfoEmptyLabel: reportScopeValue === 'device' ? 'No device selected' : 'Whole family',
                   },
                 })}
               />
@@ -11799,8 +12017,10 @@ function ManageControlPanel({
               opacity={0.32}
             />
             {ACTIVITY_MANAGE_TABS.map((tab, index) => {
-              const selected = tab.id === activityManageActiveTab;
+              const disabledTab = activityDetailTabsDisabled && activityTabRequiresDevice(tab.id);
+              const selected = tab.id === effectiveActivityManageTabId;
               const tabColor = toneColor(tab.tone, cfg);
+              const tabPaintColor = disabledTab ? cfg.colors.mutedText : tabColor;
               const tabColumn = index % activityTabColumns;
               const tabRow = Math.floor(index / activityTabColumns);
               const tabBaseY = activityBodyY + tabRow * activityTabH;
@@ -11824,13 +12044,20 @@ function ManageControlPanel({
               return (
                 <g
                   key={`activity-tab:${tab.id}`}
-                  className="parent-portal-svg-clickable"
+                  className={disabledTab ? undefined : 'parent-portal-svg-clickable'}
                   role="tab"
-                  tabIndex={0}
-                  aria-label={`Show activity ${tab.label}`}
+                  tabIndex={disabledTab ? -1 : 0}
+                  aria-label={
+                    disabledTab ? `${tab.label} requires Per Device activity scope` : `Show activity ${tab.label}`
+                  }
+                  aria-disabled={disabledTab}
                   aria-selected={selected}
                   onClick={(event) => {
                     event.stopPropagation();
+                    if (disabledTab) {
+                      setLastAction(`${tab.label} requires Per Device`);
+                      return;
+                    }
                     setActivityManageActiveTab(tab.id);
                     setLastAction(`${tab.label} tab`);
                   }}
@@ -11838,6 +12065,10 @@ function ManageControlPanel({
                     if (event.key !== 'Enter' && event.key !== ' ') return;
                     event.preventDefault();
                     event.stopPropagation();
+                    if (disabledTab) {
+                      setLastAction(`${tab.label} requires Per Device`);
+                      return;
+                    }
                     setActivityManageActiveTab(tab.id);
                     setLastAction(`${tab.label} tab`);
                   }}
@@ -11847,7 +12078,7 @@ function ManageControlPanel({
                     <path
                       d={topRoundedRectPath(tabX - 2, tabY - 2, activityTabW + 4, tabH + 3, tabRadius + 2)}
                       fill="none"
-                      stroke={tabColor}
+                      stroke={tabPaintColor}
                       strokeWidth={3}
                       opacity={0.18}
                       filter="url(#parentPortalGlow)"
@@ -11855,8 +12086,8 @@ function ManageControlPanel({
                   ) : null}
                   <path
                     d={topRoundedRectPath(tabX, tabY, activityTabW, tabH, tabRadius)}
-                    fill={selected ? colorAlpha(tabColor, '24') : 'rgba(2, 12, 22, 0.72)'}
-                    opacity={selected ? 1 : 0.78}
+                    fill={selected ? colorAlpha(tabPaintColor, '24') : 'rgba(2, 12, 22, 0.72)'}
+                    opacity={disabledTab ? 0.42 : selected ? 1 : 0.78}
                   />
                   <path
                     d={topRoundedRectPath(tabX + 5, tabY + 4, activityTabW - 10, tabGlossH, Math.max(4, tabRadius - 4))}
@@ -11894,16 +12125,16 @@ function ManageControlPanel({
                   <path
                     d={topRoundedRectPath(tabX, tabY, activityTabW, tabH, tabRadius)}
                     fill="none"
-                    stroke={selected ? tabColor : cfg.colors.panelStroke}
+                    stroke={selected ? tabPaintColor : cfg.colors.panelStroke}
                     strokeWidth={selected ? 1.25 : 0.8}
-                    opacity={selected ? 0.98 : 0.55}
+                    opacity={disabledTab ? 0.3 : selected ? 0.98 : 0.55}
                   />
                   <path
                     d={`M ${tabX + 16} ${tabY + tabH - 6} H ${tabX + activityTabW - 16}`}
-                    stroke={tabColor}
+                    stroke={tabPaintColor}
                     strokeWidth={selected ? 1.8 : 1.1}
                     strokeLinecap="round"
-                    opacity={selected ? 0.95 : 0.42}
+                    opacity={disabledTab ? 0.22 : selected ? 0.95 : 0.42}
                   />
                   <TabIcon x={tabIconX} y={tabIconY} width={tabIconSize} height={tabIconSize} />
                   <text
@@ -11912,7 +12143,8 @@ function ManageControlPanel({
                     textAnchor="start"
                     fontSize={tabTextSize}
                     fontWeight={selected ? 950 : 850}
-                    fill={selected ? cfg.colors.bodyText : cfg.colors.mutedText}
+                    fill={disabledTab ? cfg.colors.mutedText : selected ? cfg.colors.bodyText : cfg.colors.mutedText}
+                    opacity={disabledTab ? 0.56 : 1}
                     pointerEvents="none"
                   >
                     {tabText}
@@ -15166,6 +15398,7 @@ function MainBoard({
   const [selectedSubcategoryIdOverride, setSelectedSubcategoryIdOverride] = useState<string | null>(null);
   const [expandedCategoryId, setExpandedCategoryId] = useState<string | null>(null);
   const [hoveredTopControlKey, setHoveredControlAreaKey] = useState<string | null>(null);
+  const [lanPairingScanRequestedAtMs, setLanPairingScanRequestedAtMs] = useState<number | null>(null);
   const manageLane = selectedQuickControl ? manageLaneForControl(selectedQuickControl) : 'childPolicy';
   const selectedControlCategoryId =
     selectedCategoryIdOverride ??
@@ -15241,19 +15474,51 @@ function MainBoard({
     device: '',
     browser: 'Chrome',
   }));
+  const manageTargetContextKey = `${manageMode ? 'manage' : 'browse'}:${activeNavLabel}:${selectedControlName}:${
+    manageCurrentSpec?.title ?? ''
+  }:${manageLane}`;
+  const previousManageTargetContextKeyRef = useRef('');
   useEffect(() => {
     if (!manageMode || !manageCurrentSpec) return;
-    const nextScope = isReportsManageTitle(manageCurrentSpec.title)
+    const contextChanged = previousManageTargetContextKeyRef.current !== manageTargetContextKey;
+    previousManageTargetContextKeyRef.current = manageTargetContextKey;
+    const defaultScope = isReportsManageTitle(manageCurrentSpec.title)
       ? 'global'
       : manageInitialScopeForSpec(manageLane, manageCurrentSpec, manageRuntimeDeviceSlots);
-    setManageTargetSelection({
-      scope: nextScope,
-      device: isLanPairingManageTitle(manageCurrentSpec.title)
-        ? ''
-        : manageDefaultDeviceSelection(manageCurrentSpec, manageRuntimeDeviceSlots),
-      browser: manageBrowserTargets[0]?.label ?? 'All targets',
+    const defaultDevice = isLanPairingManageTitle(manageCurrentSpec.title)
+      ? ''
+      : manageDefaultDeviceSelection(manageCurrentSpec, manageRuntimeDeviceSlots);
+    const defaultBrowser = manageBrowserTargets[0]?.label ?? 'All targets';
+    setManageTargetSelection((current) => {
+      const nextScope = contextChanged ? defaultScope : current.scope;
+      const currentDeviceAvailable = reportDeviceSelectionAvailable(manageRuntimeDeviceSlots, current.device);
+      const nextDevice =
+        isLanPairingManageTitle(manageCurrentSpec.title) || nextScope !== 'perDevice'
+          ? defaultDevice
+          : currentDeviceAvailable
+            ? current.device
+            : defaultDevice;
+      const nextBrowser =
+        !contextChanged && manageBrowserTargets.some((target) => target.label === current.browser)
+          ? current.browser
+          : defaultBrowser;
+      if (current.scope === nextScope && current.device === nextDevice && current.browser === nextBrowser) {
+        return current;
+      }
+      return {
+        scope: nextScope,
+        device: nextDevice,
+        browser: nextBrowser,
+      };
     });
-  }, [manageBrowserTargets, manageCurrentSpec, manageLane, manageMode, manageRuntimeDeviceSlots]);
+  }, [
+    manageBrowserTargets,
+    manageCurrentSpec,
+    manageLane,
+    manageMode,
+    manageRuntimeDeviceSlots,
+    manageTargetContextKey,
+  ]);
   const controlBrowserMode = !guideMode && !manageMode && (tableVariant === 'controls' || aiBrowserMode);
   const expandedControlCategory =
     controlBrowserMode && selectedCategory && expandedCategoryId === selectedCategory.id ? selectedCategory : null;
@@ -15296,6 +15561,16 @@ function MainBoard({
   const activityManageGridMode =
     manageMode && manageCurrentSpec ? isReportsManageTitle(manageCurrentSpec.title) : false;
   const manageDeviceGridMode = lanPairingDeviceGridMode || activityManageGridMode;
+  const latestLanPairingEventId = activityState?.lanPairingStatusEvent?.eventId ?? '';
+  useEffect(() => {
+    if (!latestLanPairingEventId) return;
+    setLanPairingScanRequestedAtMs(null);
+  }, [latestLanPairingEventId]);
+  useEffect(() => {
+    if (lanPairingScanRequestedAtMs === null) return;
+    const timeoutId = window.setTimeout(() => setLanPairingScanRequestedAtMs(null), 8000);
+    return () => window.clearTimeout(timeoutId);
+  }, [lanPairingScanRequestedAtMs]);
   const manageSharedWorkspaceFrameMode = manageDeviceGridMode || manageWorkspaceFullFrameMode;
   const manageTopSelectorRequired = (!manageMode || !managePortalSection) && !manageDeviceGridMode;
   const detailPanelCanFocus = manageTopSelectorRequired;
@@ -15488,19 +15763,29 @@ function MainBoard({
     manageMode && manageCurrentSpec ? guideRoutePathForManageKey(activeNavLabel, selectedControlName) : null;
   const manageDeviceGridScanAction = manageDeviceGridMode ? (
     <ParentPortalHeaderAction
-      x={mainX + mainW - 136}
+      x={mainX + mainW - 154}
       y={bottomPanelY + 18}
-      w={104}
+      w={122}
       h={29}
       tone="cyan"
       accentColor={activeGroupThemeColor}
       active
-      label="SCAN"
+      label={
+        lanPairingDeviceGridMode && (lanPairingScanRequestedAtMs !== null || !activityState?.lanAddDeviceReadModel)
+          ? 'SCANNING'
+          : 'SCAN'
+      }
       iconHref={LAN_PAIRING_SCAN_ICON_HREF}
       onClick={() => {
-        onAgentCommand?.(AgentCommand.LanPairingStatusGet, {
-          [AgentProtocolDefaults.Field.LanRouteId]: AgentProtocolDefaults.Target.LocalNetworkWindowsAgent.route,
-        });
+        if (lanPairingDeviceGridMode) {
+          setLanPairingScanRequestedAtMs(Date.now());
+        }
+        onAgentCommand?.(
+          lanPairingDeviceGridMode ? AgentCommand.LanPairingBrowserDiscoveryScan : AgentCommand.LanPairingStatusGet,
+          {
+            [AgentProtocolDefaults.Field.LanRouteId]: AgentProtocolDefaults.Target.LocalNetworkWindowsAgent.route,
+          }
+        );
       }}
       ariaLabel="Scan Local Area Network"
       cfg={cfg}

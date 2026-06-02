@@ -44,6 +44,7 @@ export const PortalProductTextToken = {
   SchedulesBudgets: decodeTextTokenId('portal.dev.schedulesBudgets'),
   Approvals: decodeTextTokenId('portal.dev.approvals'),
   ScreenAnalysis: decodeTextTokenId('portal.dev.screenAnalysis'),
+  RemoteScreen: decodeTextTokenId('portal.dev.remoteScreen'),
   AppGameSessions: decodeTextTokenId('portal.dev.appGameSessions'),
   DeviceInventory: decodeTextTokenId('portal.dev.deviceInventory'),
   Pairing: decodeTextTokenId('portal.dev.pairing'),

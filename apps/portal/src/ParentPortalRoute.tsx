@@ -73,7 +73,7 @@ export function ParentPortalRoute({
 
 function latestReportedAt(state: PortalRuntimeState): string {
   return (
-    state.events.at(-1)?.sentAt ?? state.latestSnapshot?.entries.at(-1)?.timestamp ?? PARENT_PORTAL_ROUTE.EmptyTimestamp
+    state.events[0]?.sentAt ?? state.latestSnapshot?.entries.at(-1)?.timestamp ?? PARENT_PORTAL_ROUTE.EmptyTimestamp
   );
 }
 
