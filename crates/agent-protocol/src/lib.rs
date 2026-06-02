@@ -29,6 +29,7 @@ mod enforcement_os_adapter_product_proof;
 mod enforcement_policy_dispatch;
 mod enforcement_product_control_spine;
 mod enforcement_readiness;
+mod enforcement_supported_adapter_runtime_proof;
 mod host_identity;
 mod journal;
 mod lan_pairing;
@@ -74,6 +75,7 @@ pub use enforcement_os_adapter_product_proof::*;
 pub use enforcement_policy_dispatch::*;
 pub use enforcement_product_control_spine::*;
 pub use enforcement_readiness::*;
+pub use enforcement_supported_adapter_runtime_proof::*;
 pub use host_identity::*;
 pub use journal::*;
 pub use lan_pairing::*;
@@ -149,6 +151,8 @@ mod enforcement_policy_dispatch_tests;
 mod enforcement_product_control_spine_tests;
 #[cfg(test)]
 mod enforcement_readiness_tests;
+#[cfg(test)]
+mod enforcement_supported_adapter_runtime_proof_tests;
 #[cfg(test)]
 mod enforcement_tests;
 #[cfg(test)]

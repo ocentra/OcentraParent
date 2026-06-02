@@ -25,6 +25,10 @@
       "import": "./dist/enforcement-broad-adapter-proof-adapter.js",
       "types": "./dist/enforcement-broad-adapter-proof-adapter.d.ts"
     },
+    "./enforcement-supported-adapter-runtime-proof-adapter": {
+      "import": "./dist/enforcement-supported-adapter-runtime-proof-adapter.js",
+      "types": "./dist/enforcement-supported-adapter-runtime-proof-adapter.d.ts"
+    },
     "./parent-assistant-adapter": {
       "import": "./dist/parent-assistant-adapter.js",
       "types": "./dist/parent-assistant-adapter.d.ts"

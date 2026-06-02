@@ -185,6 +185,7 @@ export const AgentProtocolDefaults = {
     EnforcementProductControlSpineReadModel: 'enforcementProductControlSpineReadModel',
     EnforcementPolicyDispatchReadModel: 'enforcementPolicyDispatchReadModel',
     EnforcementBroadAdapterProofReadModel: 'enforcementBroadAdapterProofReadModel',
+    EnforcementSupportedAdapterRuntimeProofReadModel: 'enforcementSupportedAdapterRuntimeProofReadModel',
     DecisionSource: 'decisionSource',
     Entries: 'entries',
     EventsIngested: 'eventsIngested',

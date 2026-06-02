@@ -23,6 +23,7 @@ use crate::{
     enforcement_api::{
         build_enforcement_audit_report, build_enforcement_broad_adapter_proof_report,
         build_enforcement_policy_dispatch_report, build_enforcement_product_control_spine_report,
+        build_enforcement_supported_adapter_runtime_proof_report,
     },
     enforcement_timer_api::build_enforcement_timer_report,
     event_builder::{build_event, portal_peer},
@@ -218,23 +219,32 @@ async fn build_command_event(
         | AgentCommandName::AgentEnforcementExecute
         | AgentCommandName::AgentEnforcementProductControlSpineGet
         | AgentCommandName::AgentEnforcementPolicyDispatchGet
-        | AgentCommandName::AgentEnforcementBroadAdapterProofGet => {
+        | AgentCommandName::AgentEnforcementBroadAdapterProofGet
+        | AgentCommandName::AgentEnforcementSupportedAdapterRuntimeProofGet => {
             build_enforcement_command_report(command).await
         }
-        AgentCommandName::AgentLanPairingProofSubmit
-        | AgentCommandName::AgentLanPairingRouteSelect
-        | AgentCommandName::AgentLanPairingRouteRevoke
-        | AgentCommandName::AgentLanPairingStatusGet
-        | AgentCommandName::AgentLanPairingBrowserDiscoveryScan
-        | AgentCommandName::AgentLanPairingAddDeviceRequest
-        | AgentCommandName::AgentLanPairingControllerLeaseRenew
-        | AgentCommandName::AgentLanPairingControllerLeaseRelease
-        | AgentCommandName::AgentLanPairingControllerLeaseTakeover
-        | AgentCommandName::AgentLanAiProviderStatusGet
-        | AgentCommandName::AgentLanAiJobSubmit => {
+        command_name if is_lan_runtime_command(&command_name) => {
             build_lan_pairing_status_report(lan_pairing, command)
         }
+        _ => build_log_snapshot_report(command),
     }
+}
+
+fn is_lan_runtime_command(command: &AgentCommandName) -> bool {
+    matches!(
+        command,
+        AgentCommandName::AgentLanPairingProofSubmit
+            | AgentCommandName::AgentLanPairingRouteSelect
+            | AgentCommandName::AgentLanPairingRouteRevoke
+            | AgentCommandName::AgentLanPairingStatusGet
+            | AgentCommandName::AgentLanPairingBrowserDiscoveryScan
+            | AgentCommandName::AgentLanPairingAddDeviceRequest
+            | AgentCommandName::AgentLanPairingControllerLeaseRenew
+            | AgentCommandName::AgentLanPairingControllerLeaseRelease
+            | AgentCommandName::AgentLanPairingControllerLeaseTakeover
+            | AgentCommandName::AgentLanAiProviderStatusGet
+            | AgentCommandName::AgentLanAiJobSubmit
+    )
 }
 
 async fn build_enforcement_command_report(command: AgentCommandEnvelope) -> AgentEventEnvelope {
@@ -248,6 +258,9 @@ async fn build_enforcement_command_report(command: AgentCommandEnvelope) -> Agen
         }
         AgentCommandName::AgentEnforcementBroadAdapterProofGet => {
             build_enforcement_broad_adapter_proof_report(command).await
+        }
+        AgentCommandName::AgentEnforcementSupportedAdapterRuntimeProofGet => {
+            build_enforcement_supported_adapter_runtime_proof_report(command).await
         }
         AgentCommandName::AgentEnforcementTimerRecover
         | AgentCommandName::AgentEnforcementTimerExpire

@@ -103,6 +103,8 @@ pub mod event_id {
     pub const ENFORCEMENT_POLICY_DISPATCH_REPORTED: &str = "enforcement-policy-dispatch-reported";
     pub const ENFORCEMENT_BROAD_ADAPTER_PROOF_REPORTED: &str =
         "enforcement-broad-adapter-proof-reported";
+    pub const ENFORCEMENT_SUPPORTED_ADAPTER_RUNTIME_PROOF_REPORTED: &str =
+        "enforcement-supported-adapter-runtime-proof-reported";
     pub const PARENT_ASSISTANT_THREAD_UPDATED: &str = "parent-assistant-thread-updated";
     pub const PARENT_ASSISTANT_MESSAGE_ACCEPTED: &str = "parent-assistant-message-accepted";
     pub const PARENT_ASSISTANT_RUN_STARTED: &str = "parent-assistant-run-started";
@@ -175,6 +177,8 @@ pub mod v08_enforcement_policy_dispatch;
 pub mod v08_enforcement_product_control_spine;
 #[path = "constants/v08_os_adapter_product_proof.rs"]
 pub mod v08_os_adapter_product_proof;
+#[path = "constants/v08_supported_adapter_runtime_proof.rs"]
+pub mod v08_supported_adapter_runtime_proof;
 #[path = "constants/windows_adapter_artifact_gate.rs"]
 pub mod windows_adapter_artifact_gate;
 #[path = "constants/windows_adapter_artifact_ingestion.rs"]

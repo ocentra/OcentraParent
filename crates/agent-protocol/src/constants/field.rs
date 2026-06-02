@@ -67,6 +67,8 @@ pub const ENFORCEMENT_PRODUCT_CONTROL_SPINE_READ_MODEL: &str =
 pub const ENFORCEMENT_POLICY_DISPATCH_READ_MODEL: &str = "enforcementPolicyDispatchReadModel";
 pub const ENFORCEMENT_BROAD_ADAPTER_PROOF_READ_MODEL: &str =
     "enforcementBroadAdapterProofReadModel";
+pub const ENFORCEMENT_SUPPORTED_ADAPTER_RUNTIME_PROOF_READ_MODEL: &str =
+    "enforcementSupportedAdapterRuntimeProofReadModel";
 pub const ENTRIES: &str = "entries";
 pub const EVENTS_INGESTED: &str = "eventsIngested";
 pub const EVENTS_STORED: &str = "eventsStored";

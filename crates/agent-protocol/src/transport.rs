@@ -146,6 +146,8 @@ pub enum AgentCommandName {
     AgentEnforcementPolicyDispatchGet,
     #[serde(rename = "agent.enforcement.broad-adapter-proof.get")]
     AgentEnforcementBroadAdapterProofGet,
+    #[serde(rename = "agent.enforcement.supported-adapter-runtime-proof.get")]
+    AgentEnforcementSupportedAdapterRuntimeProofGet,
     #[serde(rename = "agent.parent-assistant.thread.list")]
     AgentParentAssistantThreadList,
     #[serde(rename = "agent.parent-assistant.thread.create")]
@@ -268,6 +270,8 @@ pub enum AgentEventName {
     AgentEnforcementPolicyDispatchReported,
     #[serde(rename = "agent.enforcement.broad-adapter-proof.reported")]
     AgentEnforcementBroadAdapterProofReported,
+    #[serde(rename = "agent.enforcement.supported-adapter-runtime-proof.reported")]
+    AgentEnforcementSupportedAdapterRuntimeProofReported,
     #[serde(rename = "agent.parent-assistant.thread.updated")]
     AgentParentAssistantThreadUpdated,
     #[serde(rename = "agent.parent-assistant.message.accepted")]

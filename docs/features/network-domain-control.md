@@ -47,6 +47,9 @@ compete on control while staying clear about attribution confidence and privacy.
 - The V0.8 broad-adapter proof now exposes the network/domain runtime gate over
   a Rust service WebSocket read model and TypeScript protocol adapter while
   keeping host DNS/filter apply, rollback, and audit artifacts manual-required.
+- The V0.8 supported-adapter runtime proof now marks Windows network/domain as
+  an implemented observe-only policy handoff over stored flow evidence while
+  host DNS/filter enforcement remains manual-required.
 - Network/domain blocking is not broadly product-complete.
 - Raw network control settings are preserved as design inputs, not
   product-complete implementation proof.
@@ -56,7 +59,8 @@ compete on control while staying clear about attribution confidence and privacy.
 Real OS/domain blocking adapter proof, DNS/VPN/proxy handling, attribution
 quality, and parent-facing rule UX remain. Policy dispatch does not upgrade
 network/domain blocking beyond manual-required, and the broad-adapter proof
-keeps the same manual-required host-filter boundary.
+and supported-adapter runtime proof keep the same manual-required host-filter
+boundary.
 
 ## Checklist
 
