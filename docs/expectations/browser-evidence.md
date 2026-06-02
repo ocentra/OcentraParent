@@ -8,6 +8,8 @@ child is seeing.
 
 The focused implementation architecture lives in
 [Browser URL And Tab Evidence Capture Architecture](../architecture/browser-url-tab-evidence-capture.md).
+The current implementation and proof plan lives in
+[Browser Plan](../plans/browser-plan/README.md).
 
 ## Outcome Bar
 

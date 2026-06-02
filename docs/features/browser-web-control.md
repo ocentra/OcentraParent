@@ -21,6 +21,17 @@ Blocking requires typed policy decisions and adapter proof.
   [raw 1,057-setting inventory](../browser-control-1057-settings-inventory.md)
   and
   [questionnaire forest v1](../browser-policy-questionnaire-forest-v1.md).
+- Working plan:
+  [browser plan](../plans/browser-plan/README.md), including the
+  [source index](../plans/browser-plan/source-index.md),
+  [current snapshot](../plans/browser-plan/current-browser-snapshot.md),
+  [full scope plan](../plans/browser-plan/v0-5-managed-browser-full-scope-plan.md),
+  [URL/video AI intelligence plan](../plans/browser-plan/v0-5-browser-url-video-ai-intelligence-plan.md),
+  [social platform account/feed gating plan](../plans/browser-plan/v0-5-social-platform-account-feed-gating-plan.md),
+  [browser games/cloud gaming gating plan](../plans/browser-plan/v0-5-browser-games-cloud-gaming-gating-plan.md),
+  [test blueprint](../plans/browser-plan/v0-5-managed-browser-test-blueprint.md),
+  [UI/UX guide](../plans/browser-plan/ui-ux-requirements-guide.md), and
+  [workpacks](../plans/browser-plan/workpacks/01-contract-boundary-and-effect-schemas.md).
 - Modules: `packages/activity-domain`, `packages/parent-domain`,
   `packages/agent-protocol-domain`, `crates/agent-service`.
 
@@ -97,4 +108,7 @@ Keep managed and unmanaged browser claims separate. Do not claim page semantics
 from network metadata. If adding web control, update browser expectations,
 policy contracts, enforcement status, and portal source labels together. Any
 future exact active-tab claim must add new managed-browser artifacts beyond the
-current integrity runtime audit proof.
+current integrity runtime audit proof. Use the browser plan folder for
+implementation sequencing and workpack ownership; do not recreate browser
+contracts, URL/video intelligence, policy catalogs, or UI surfaces outside the
+existing package/crate layout unless an ownership boundary changes.

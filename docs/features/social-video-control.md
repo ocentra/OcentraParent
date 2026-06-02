@@ -18,6 +18,10 @@ privacy boundary, confidence, parent rule, and action.
 - Expectations: [social/video](../expectations/social-video-control.md),
   [policy](../expectations/policy.md), [AI](../expectations/ai.md),
   [screen evidence](../expectations/screen-evidence.md).
+- Browser URL/video intelligence planning:
+  [browser URL and video AI intelligence plan](../plans/browser-plan/v0-5-browser-url-video-ai-intelligence-plan.md).
+- Browser social/platform gating planning:
+  [social platform account feed and gating plan](../plans/browser-plan/v0-5-social-platform-account-feed-gating-plan.md).
 - Modules: `packages/parent-domain`, `packages/activity-domain`,
   `crates/agent-service`.
 
@@ -56,4 +60,12 @@ settings, alert contracts, confidence handling, platform proof, or parent UI.
 
 Do not claim "we analyze the video itself" until the actual input, model/runtime
 path, confidence, decision, and audit output are proved. Build the source and
-privacy model first.
+privacy model first. Managed-browser URL/video intelligence work belongs in the
+browser plan and must feed this feature only through evidence-backed,
+confidence-labeled social/video contracts. Managed-browser social account,
+secondary-account, feed, short-video, livestream, messaging-route, and upload
+gates belong in the browser plan until source evidence or action leaves the
+browser boundary.
+Browser-game cloud streams and UGC/multiplayer game risk are adjacent to
+social/video risk, but the browser-game source plan owns managed-browser game
+evidence until the source becomes social/video or native-app specific.

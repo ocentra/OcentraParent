@@ -19,6 +19,8 @@ require typed policy decisions and platform adapter proof.
   [enforcement](../expectations/enforcement.md).
 - Supporting docs: [app settings inventory](../app-control-settings-inventory.md)
   and [game settings inventory](../game-control-settings-inventory.md).
+- Browser-game planning:
+  [browser games/cloud gaming gating plan](../plans/browser-plan/v0-5-browser-games-cloud-gaming-gating-plan.md).
 - Modules: `packages/activity-domain`, `packages/parent-domain`,
   `crates/agent-core`, `crates/agent-service`.
 
@@ -94,3 +96,6 @@ category confidence, policy decisions, and adapter results as separate typed
 states. Treat
 `scripts/test/v0-8-enforcement-integrity-runtime-audit.mjs` as scoped
 app/game time-limit audit proof only, not broad installed-app blocking proof.
+Browser-game and cloud-gaming web surfaces belong in the browser plan when the
+source is managed browser evidence; native games, launchers, process/session
+duration, and broad app blocking stay in this app/game feature.

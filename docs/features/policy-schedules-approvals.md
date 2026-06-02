@@ -19,6 +19,10 @@ records decisions, and executes only supported enforcement actions.
 - Expectations: [policy](../expectations/policy.md),
   [family setup](../expectations/family-setup.md),
   [enforcement](../expectations/enforcement.md).
+- Browser/social approval planning:
+  [social platform account feed and gating plan](../plans/browser-plan/v0-5-social-platform-account-feed-gating-plan.md).
+- Browser-game approval planning:
+  [browser games/cloud gaming gating plan](../plans/browser-plan/v0-5-browser-games-cloud-gaming-gating-plan.md).
 - Modules: `packages/parent-domain`, `packages/portal-domain`,
   `packages/agent-protocol-domain`, `crates/agent-service`.
 
@@ -69,4 +73,10 @@ delivery or finished parent approval UX.
 ## Next AI Instructions
 
 Keep policy evaluation out of the browser. Add contracts and evaluator proof
-before UI convenience. Never let AI output directly become enforcement.
+before UI convenience. Never let AI output directly become enforcement. Social
+account creation, secondary-account, feed, short-video, messaging-route, and
+unknown-social ask-parent flows must use typed approval and policy decision
+contracts rather than browser-only gates.
+Browser-game unknown-start, cloud-gaming, game account, purchase, loot-box,
+download, unblocked-site, and educational-game approval/time-budget flows must
+also use typed policy and approval contracts.

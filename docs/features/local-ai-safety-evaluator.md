@@ -18,6 +18,12 @@ does not directly enforce.
   product.
 - Expectations: [AI](../expectations/ai.md), [policy](../expectations/policy.md),
   [data custody](../expectations/data-custody.md).
+- Browser URL/video AI planning:
+  [browser URL and video AI intelligence plan](../plans/browser-plan/v0-5-browser-url-video-ai-intelligence-plan.md).
+- Browser social/platform AI planning:
+  [social platform account feed and gating plan](../plans/browser-plan/v0-5-social-platform-account-feed-gating-plan.md).
+- Browser-game AI planning:
+  [browser games/cloud gaming gating plan](../plans/browser-plan/v0-5-browser-games-cloud-gaming-gating-plan.md).
 - Modules: `packages/parent-domain`, `crates/agent-service`,
   `crates/agent-core`.
 
@@ -59,3 +65,11 @@ explanations, and validation against real evidence.
 
 Keep AI as input to policy, not authority. If local model execution is not
 available, expose unavailable/degraded state and deterministic fallback.
+Browser URL/video AI work must consume typed browser evidence and return
+schema-valid classification evidence; it must not read browser state directly or
+enforce without parent policy. Social platform AI work must classify typed
+signup/feed/account/messaging evidence only and must not accuse, approve, block,
+or enforce without parent policy and audit refs.
+Browser-game AI work must classify typed game URL, runtime-signal, metadata,
+cloud, UGC, educational, purchase, and memory evidence only; it must not inspect
+game chat, cloud-streamed frames, or native game state without separate proof.

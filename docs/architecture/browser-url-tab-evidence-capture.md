@@ -3,6 +3,11 @@
 Status: V0.5.1 research/spec. This document defines the browser evidence
 architecture before runtime implementation. It does not add feature code.
 
+Working plan: [Browser Plan](../plans/browser-plan/README.md). Use that folder
+for implementation sequencing, current snapshot, test blueprint, UI/UX
+requirements, and workpack ownership. Keep this architecture file as source
+truth for the browser evidence boundary.
+
 ## Product Claim
 
 Ocentra Parent may claim exact browser URL/tab visibility only inside a managed
