@@ -88,6 +88,7 @@ mod lan_network_inventory_command;
 mod lan_network_inventory_hardware;
 mod lan_pairing;
 mod lan_pairing_audit;
+mod lan_pairing_browser_add_device_scan;
 mod lan_pairing_browser_add_device_state;
 #[cfg(test)]
 mod lan_pairing_browser_add_device_state_tests;

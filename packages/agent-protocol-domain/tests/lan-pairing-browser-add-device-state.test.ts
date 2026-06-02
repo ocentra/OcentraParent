@@ -12,6 +12,12 @@ describe('agent protocol browser-first LAN add-device state', () => {
     expect(parsed.discoveredDevices[0]?.childDevice.hardwareProfile?.cpuModel).toContain('Ryzen');
     expect(parsed.discoveredDevices[1]?.childDevice.ipAddress).toBe('192.168.2.42');
     expect(parsed.discoveredDevices[1]?.discoveryStatus).toBe('network-neighbor');
+    expect(parsed.scanSummary).toMatchObject({
+      scannedDeviceCount: 2,
+      agentDeviceCount: 1,
+      passiveDeviceCount: 1,
+      infrastructureDeviceCount: 0,
+    });
     expect(parsed.trustedDeviceRegistry[0]?.childDevice.deviceId).toBe('child-device-1');
     expect(parsed.selectedDeviceReadiness.readyForControl).toBe(false);
     expect(AgentProtocolDefaults.Field.LanAddDeviceReadModel).toBe('addDeviceReadModel');
@@ -28,6 +34,15 @@ function lanAddDeviceReadModelFixture() {
     localServiceDiscoveryState: AgentProtocolDefaults.LanProductionDiscoveryState.Pending,
     physicalHouseholdLanState: AgentProtocolDefaults.LanProductionDiscoveryState.Discovered,
     cloudRelayState: AgentProtocolDefaults.LanProductionDiscoveryState.Unavailable,
+    scanSummary: {
+      schemaVersion: AgentProtocolDefaults.SchemaVersion,
+      sourceLabels: ['local-service', 'windows-neighbor-table'],
+      scannedDeviceCount: 2,
+      agentDeviceCount: 1,
+      passiveDeviceCount: 1,
+      infrastructureDeviceCount: 0,
+      unsupportedDeviceCount: 1,
+    },
     discoveredDevices: [localAgentDiscoveryDevice(), networkNeighborDiscoveryDevice()],
     pairingRequests: [pendingPairingRequest()],
     trustedDeviceRegistry: [trustedDeviceRegistryEntry()],

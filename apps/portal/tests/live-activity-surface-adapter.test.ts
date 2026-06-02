@@ -129,6 +129,10 @@ function activityAdapterLanPairingTests(): void {
       reachability: 'online',
       readyForControl: true,
     });
+    expect(state.lanAddDeviceReadModel?.scanSummary).toMatchObject({
+      scannedDeviceCount: 1,
+      agentDeviceCount: 1,
+    });
   });
 
   it('uses explicit LAN scan reports as the current add-device read model', () => {
@@ -328,6 +332,15 @@ function lanAddDeviceReadModel() {
     localServiceDiscoveryState: 'paired',
     physicalHouseholdLanState: 'manual-required',
     cloudRelayState: 'unavailable',
+    scanSummary: {
+      schemaVersion: 1,
+      sourceLabels: ['local-service'],
+      scannedDeviceCount: 1,
+      agentDeviceCount: 1,
+      passiveDeviceCount: 0,
+      infrastructureDeviceCount: 0,
+      unsupportedDeviceCount: 0,
+    },
     discoveredDevices: [
       {
         schemaVersion: 1,

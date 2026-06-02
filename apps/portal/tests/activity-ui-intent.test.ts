@@ -167,7 +167,7 @@ function parentPortalRuntimeNeighborTests(): void {
 
     expect(slots.map((slot) => [slot.value, slot.label, slot.status, slot.badge])).toEqual([
       ['local-dev-agent', 'GAMEDEV', 'connected', 'online'],
-      ['lan-device-54271e97c331', 'LAN 192.168.2.42', 'connected', 'online'],
+      ['lan-device-54271e97c331', 'LAN 192.168.2.42', 'available', 'discovered'],
       ['lan-device-001122334455', 'LAN 192.168.2.1', 'unsupported', 'infrastructure'],
     ]);
     expect(slots.find((slot) => slot.value === 'lan-device-b42e993e72b9')).toBeUndefined();
@@ -185,7 +185,7 @@ function parentPortalRuntimeCanonicalTargetTests(): void {
 
     expect(slots.map((slot) => [slot.value, slot.label, slot.status, slot.badge])).toEqual([
       ['lan-physical-mac-b42e993e72b9', 'GAMEDEV', 'connected', 'online'],
-      ['lan-physical-mac-54271e97c331', 'HPSUJAN', 'connected', 'online'],
+      ['lan-physical-mac-54271e97c331', 'HPSUJAN', 'available', 'discovered'],
       ['lan-physical-mac-001122334455', 'LAN 192.168.2.1', 'unsupported', 'infrastructure'],
     ]);
     expect(createParentPortalLanPairingPortalIds(slots)).toEqual(['lan-physical-mac-b42e993e72b9']);
@@ -432,6 +432,15 @@ function lanAddDeviceReadModel() {
     localServiceDiscoveryState: 'paired',
     physicalHouseholdLanState: 'manual-required',
     cloudRelayState: 'unavailable',
+    scanSummary: {
+      schemaVersion: 1,
+      sourceLabels: ['local-service'],
+      scannedDeviceCount: 2,
+      agentDeviceCount: 1,
+      passiveDeviceCount: 0,
+      infrastructureDeviceCount: 0,
+      unsupportedDeviceCount: 1,
+    },
     discoveredDevices: [connectedLanDiscoveryDevice(), manualLanDiscoveryDevice()],
     pairingRequests: [],
     trustedDeviceRegistry: [],
@@ -491,9 +500,17 @@ function runtimeLanAddDeviceReadModel() {
     ...lanAddDeviceReadModel(),
     discoverySource: 'physical-household-lan',
     physicalHouseholdLanState: 'discovered',
+    scanSummary: {
+      schemaVersion: 1,
+      sourceLabels: ['local-service', 'windows-neighbor-table'],
+      scannedDeviceCount: 3,
+      agentDeviceCount: 1,
+      passiveDeviceCount: 1,
+      infrastructureDeviceCount: 1,
+      unsupportedDeviceCount: 2,
+    },
     discoveredDevices: [
       localAgentRuntimeDiscoveryDevice(),
-      duplicateLocalRuntimeNetworkNeighbor(),
       networkNeighborRuntimeDiscoveryDevice(),
       routerRuntimeDiscoveryDevice(),
     ],
@@ -679,32 +696,6 @@ function networkNeighborRuntimeDiscoveryDevice() {
       platform: 'unknown',
       ipAddress: '192.168.2.42',
       macAddress: '54-27-1e-97-c3-31',
-      hostname: 'unknown-host',
-      networkInterface: 'Ethernet 2',
-      agentStatus: null,
-      hardwareProfile: null,
-    },
-    agentPeerId: 'portal-dev',
-    routeId: 'lan-route-local-network',
-    networkMode: 'local-network',
-    reachability: 'online',
-    addressRef: 'lan-address-ref-network-neighbor',
-    discoveryStatus: 'network-neighbor',
-    discoveryState: 'discovered',
-  } as const;
-}
-
-function duplicateLocalRuntimeNetworkNeighbor() {
-  return {
-    schemaVersion: 1,
-    discoveredAt: '2026-06-01T15:20:01Z',
-    childDevice: {
-      deviceId: 'lan-device-b42e993e72b9',
-      childProfileId: null,
-      label: 'LAN 192.168.2.10',
-      platform: 'unknown',
-      ipAddress: '192.168.2.10',
-      macAddress: 'b4-2e-99-3e-72-b9',
       hostname: 'unknown-host',
       networkInterface: 'Ethernet 2',
       agentStatus: null,

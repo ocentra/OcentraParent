@@ -50,6 +50,18 @@ export const AgentLanBrowserAddDevicePairingRequestSchema = withParser(
   })
 );
 
+export const AgentLanBrowserAddDeviceScanSummarySchema = withParser(
+  Schema.Struct({
+    schemaVersion: Schema.Literal(AgentProtocolSchemaVersion),
+    sourceLabels: Schema.Array(NonEmptyLanAddDeviceText),
+    scannedDeviceCount: Schema.Number,
+    agentDeviceCount: Schema.Number,
+    passiveDeviceCount: Schema.Number,
+    infrastructureDeviceCount: Schema.Number,
+    unsupportedDeviceCount: Schema.Number,
+  })
+);
+
 export const AgentLanSelectedDeviceReadinessSchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal(AgentProtocolSchemaVersion),
@@ -89,6 +101,7 @@ export const AgentLanBrowserAddDeviceReadModelSchema = withParser(
     localServiceDiscoveryState: AgentLanPairingProductionDiscoveryStateSchema,
     physicalHouseholdLanState: AgentLanPairingProductionDiscoveryStateSchema,
     cloudRelayState: AgentLanPairingProductionDiscoveryStateSchema,
+    scanSummary: AgentLanBrowserAddDeviceScanSummarySchema,
     discoveredDevices: Schema.Array(AgentLanBrowserAddDeviceDiscoveryDeviceSchema),
     pairingRequests: Schema.Array(AgentLanBrowserAddDevicePairingRequestSchema),
     trustedDeviceRegistry: Schema.Array(AgentLanTrustedDeviceRegistryEntrySchema),
@@ -106,6 +119,7 @@ export const AgentLanBrowserAddDeviceReadModelSchema = withParser(
 export type AgentLanPairingDiscoverySource = Infer<typeof AgentLanPairingDiscoverySourceSchema>;
 export type AgentLanBrowserAddDeviceDiscoveryDevice = Infer<typeof AgentLanBrowserAddDeviceDiscoveryDeviceSchema>;
 export type AgentLanBrowserAddDevicePairingRequest = Infer<typeof AgentLanBrowserAddDevicePairingRequestSchema>;
+export type AgentLanBrowserAddDeviceScanSummary = Infer<typeof AgentLanBrowserAddDeviceScanSummarySchema>;
 export type AgentLanSelectedDeviceReadiness = Infer<typeof AgentLanSelectedDeviceReadinessSchema>;
 export type AgentLanTrustedDeviceRegistryEntry = Infer<typeof AgentLanTrustedDeviceRegistryEntrySchema>;
 export type AgentLanBrowserAddDeviceReadModel = Infer<typeof AgentLanBrowserAddDeviceReadModelSchema>;

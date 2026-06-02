@@ -7,6 +7,9 @@ use ocentra_parent_agent_protocol::{
 };
 
 use crate::lan_network_inventory;
+use crate::lan_pairing_browser_add_device_scan::{
+    push_if_absent, same_physical_network_device, scan_summary,
+};
 use crate::{lan_pairing::LanPairingRuntime, time::timestamp_now};
 
 pub(crate) fn browser_add_device_pairs(
@@ -91,6 +94,13 @@ fn browser_add_device_read_model(
     let selected = runtime.selected_target();
     let trusted_device_registry = trusted_device_registry(runtime);
     let network_devices = lan_network_inventory::discover_lan_network_devices();
+    let discovered_devices = discovered_devices(
+        runtime,
+        command,
+        discovery_state,
+        &generated_at,
+        &network_devices,
+    );
     let physical_household_lan_state = if network_devices.is_empty() {
         LanPairingProductionDiscoveryState::ManualRequired
     } else {
@@ -108,13 +118,8 @@ fn browser_add_device_read_model(
         local_service_discovery_state: discovery_state_for(discovery_state),
         physical_household_lan_state,
         cloud_relay_state: LanPairingProductionDiscoveryState::Unavailable,
-        discovered_devices: discovered_devices(
-            runtime,
-            command,
-            discovery_state,
-            &generated_at,
-            &network_devices,
-        ),
+        scan_summary: scan_summary(&discovered_devices),
+        discovered_devices,
         pairing_requests: pairing_requests(runtime, &generated_at),
         trusted_device_registry,
         trusted_device_ids: runtime.trusted_device_ids(),
@@ -139,12 +144,13 @@ fn discovered_devices(
     network_devices: &[lan_network_inventory::LanNetworkInventoryDevice],
 ) -> Vec<LanBrowserAddDeviceDiscoveryDevice> {
     let mut devices = registry_discovered_devices(runtime, command, discovery_state, generated_at);
-    push_if_absent(
-        &mut devices,
-        local_agent_discovery_device(command, discovery_state, generated_at),
-    );
+    let local_agent = local_agent_discovery_device(command, discovery_state, generated_at);
+    push_if_absent(&mut devices, local_agent.clone());
 
     for network_device in network_devices {
+        if same_physical_network_device(&local_agent.child_device, network_device) {
+            continue;
+        }
         push_if_absent(
             &mut devices,
             network_neighbor_discovery_device(command, generated_at, network_device),
@@ -241,22 +247,11 @@ fn network_neighbor_child_device(
     child_device.ip_address = Some(network_device.ip_address.clone());
     child_device.mac_address = Some(network_device.mac_address.clone());
     child_device.hostname =
-        Some(constants::lan_pairing::NETWORK_NEIGHBOR_UNKNOWN_HOSTNAME.to_string());
+        Some(network_device.hostname.clone().unwrap_or_else(|| {
+            constants::lan_pairing::NETWORK_NEIGHBOR_UNKNOWN_HOSTNAME.to_string()
+        }));
     child_device.network_interface = network_device.network_interface.clone();
     child_device
-}
-
-fn push_if_absent(
-    devices: &mut Vec<LanBrowserAddDeviceDiscoveryDevice>,
-    device: LanBrowserAddDeviceDiscoveryDevice,
-) {
-    if devices
-        .iter()
-        .any(|existing| existing.child_device.device_id == device.child_device.device_id)
-    {
-        return;
-    }
-    devices.push(device);
 }
 
 fn trusted_device_registry(

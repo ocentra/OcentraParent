@@ -149,6 +149,18 @@ export const LanBrowserAddDevicePairingRequestSchema = withParser(
   })
 );
 
+export const LanBrowserAddDeviceScanSummarySchema = withParser(
+  Schema.Struct({
+    schemaVersion: LanPairingSchemaVersionSchema,
+    sourceLabels: Schema.Array(Schema.String.pipe(Schema.minLength(1))),
+    scannedDeviceCount: Schema.Number,
+    agentDeviceCount: Schema.Number,
+    passiveDeviceCount: Schema.Number,
+    infrastructureDeviceCount: Schema.Number,
+    unsupportedDeviceCount: Schema.Number,
+  })
+);
+
 export const LanSelectedDeviceReadinessSchema = withParser(
   Schema.Struct({
     schemaVersion: LanPairingSchemaVersionSchema,
@@ -172,6 +184,7 @@ export const LanBrowserAddDeviceReadModelSchema = withParser(
     localServiceDiscoveryState: LanPairingProductionDiscoveryStateSchema,
     physicalHouseholdLanState: LanPairingProductionDiscoveryStateSchema,
     cloudRelayState: LanPairingProductionDiscoveryStateSchema,
+    scanSummary: LanBrowserAddDeviceScanSummarySchema,
     discoveredDevices: Schema.Array(LanPairingDiscoveryDeviceSchema),
     pairingRequests: Schema.Array(LanBrowserAddDevicePairingRequestSchema),
     trustedDeviceRegistry: Schema.Array(LanTrustedDeviceRegistryEntrySchema),
@@ -195,5 +208,6 @@ export type LanPairingProof = Infer<typeof LanPairingProofSchema>;
 export type LanTrustedDeviceRegistryEntry = Infer<typeof LanTrustedDeviceRegistryEntrySchema>;
 export type LanSelectedRouteTarget = Infer<typeof LanSelectedRouteTargetSchema>;
 export type LanBrowserAddDevicePairingRequest = Infer<typeof LanBrowserAddDevicePairingRequestSchema>;
+export type LanBrowserAddDeviceScanSummary = Infer<typeof LanBrowserAddDeviceScanSummarySchema>;
 export type LanSelectedDeviceReadiness = Infer<typeof LanSelectedDeviceReadinessSchema>;
 export type LanBrowserAddDeviceReadModel = Infer<typeof LanBrowserAddDeviceReadModelSchema>;

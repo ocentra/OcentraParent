@@ -1,9 +1,9 @@
 use crate::{
     constants, LanBrowserAddDeviceDiscoveryDevice, LanBrowserAddDeviceReadModel,
-    LanPairingDeviceHardwareProfile, LanPairingDeviceReachability, LanPairingDeviceRef,
-    LanPairingDiscoveryRuntimeStatus, LanPairingDiscoverySource, LanPairingNetworkMode,
-    LanPairingParentAuthority, LanPairingProductionDiscoveryState, LanPairingTrustState,
-    LanSelectedDeviceReadiness, LAN_PAIRING_SCHEMA_VERSION,
+    LanBrowserAddDeviceScanSummary, LanPairingDeviceHardwareProfile, LanPairingDeviceReachability,
+    LanPairingDeviceRef, LanPairingDiscoveryRuntimeStatus, LanPairingDiscoverySource,
+    LanPairingNetworkMode, LanPairingParentAuthority, LanPairingProductionDiscoveryState,
+    LanPairingTrustState, LanSelectedDeviceReadiness, LAN_PAIRING_SCHEMA_VERSION,
 };
 
 #[test]
@@ -16,6 +16,7 @@ fn browser_add_device_read_model_serializes_honest_states() {
         local_service_discovery_state: LanPairingProductionDiscoveryState::Pending,
         physical_household_lan_state: LanPairingProductionDiscoveryState::ManualRequired,
         cloud_relay_state: LanPairingProductionDiscoveryState::Unavailable,
+        scan_summary: scan_summary(),
         discovered_devices: Vec::new(),
         pairing_requests: Vec::new(),
         trusted_device_registry: Vec::new(),
@@ -59,6 +60,10 @@ fn browser_add_device_read_model_serializes_honest_states() {
     assert_eq!(
         value["selectedDeviceReadiness"]["readyForControl"],
         serde_json::json!(false)
+    );
+    assert_eq!(
+        value[constants::field::LAN_SCAN_SUMMARY][constants::field::SOURCE_LABELS],
+        serde_json::json!([constants::lan_pairing::LAN_SCAN_SOURCE_LOCAL_SERVICE])
     );
     assert_eq!(value["trustedDeviceRegistry"], serde_json::json!([]));
 }
@@ -110,4 +115,16 @@ fn discovered_device_serializes_network_and_hardware_details() {
         json["childDevice"]["hardwareProfile"]["gpuModel"],
         serde_json::json!("GeForce RTX 2070 SUPER")
     );
+}
+
+fn scan_summary() -> LanBrowserAddDeviceScanSummary {
+    LanBrowserAddDeviceScanSummary {
+        schema_version: LAN_PAIRING_SCHEMA_VERSION,
+        source_labels: vec![constants::lan_pairing::LAN_SCAN_SOURCE_LOCAL_SERVICE.to_string()],
+        scanned_device_count: 0,
+        agent_device_count: 0,
+        passive_device_count: 0,
+        infrastructure_device_count: 0,
+        unsupported_device_count: 0,
+    }
 }

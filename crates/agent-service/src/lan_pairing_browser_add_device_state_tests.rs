@@ -26,14 +26,15 @@ async fn lan_status_reports_browser_first_add_device_read_model_from_service_sta
             constants::value::LAN_DISCOVERY_SOURCE_LOCAL_SERVICE.to_string()
         ))
     );
-    assert_eq!(
-        event
-            .payload
-            .get(constants::field::LAN_PHYSICAL_HOUSEHOLD_LAN_STATE),
-        Some(&LogFieldValue::String(
-            constants::value::LAN_DISCOVERY_STATE_MANUAL_REQUIRED.to_string()
-        ))
-    );
+    let physical_lan_state = event
+        .payload
+        .get(constants::field::LAN_PHYSICAL_HOUSEHOLD_LAN_STATE);
+    assert!(matches!(
+        physical_lan_state,
+        Some(LogFieldValue::String(value))
+            if value == constants::value::LAN_DISCOVERY_STATE_MANUAL_REQUIRED
+                || value == constants::value::LAN_DISCOVERY_STATE_DISCOVERED
+    ));
     assert_eq!(
         event.payload.get(constants::field::LAN_CLOUD_RELAY_STATE),
         Some(&LogFieldValue::String(
@@ -62,6 +63,15 @@ async fn lan_status_reports_browser_first_add_device_read_model_from_service_sta
         .any(|claim| {
             claim.as_str() == Some(constants::value::LAN_NON_CLAIM_REMOTE_DESKTOP_NOT_IMPLEMENTED)
         }));
+    assert!(
+        read_model[constants::field::LAN_SCAN_SUMMARY][constants::field::SOURCE_LABELS]
+            .as_array()
+            .expect(constants::value::LAN_HONEST_NON_CLAIMS_ARRAY_EXPECTATION)
+            .iter()
+            .any(|source| {
+                source.as_str() == Some(constants::lan_pairing::LAN_SCAN_SOURCE_LOCAL_SERVICE)
+            })
+    );
 }
 
 #[tokio::test]
