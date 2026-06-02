@@ -38,13 +38,19 @@ custody.
   historical report queries now preserve scope, requested window, parsed report
   metadata, and typed storage fallback states.
 - Notification and sync/export expectation docs exist.
+- V0.8 integrity alert/status bridge proof now creates minimal notification
+  intent/status refs for permission-loss, stale heartbeat, stopped-or-removed,
+  and tamper/manual-required enforcement integrity states, with authenticated
+  drill-in refs back to audit evidence.
 - Parent-facing reports, alert delivery, and connectors are incomplete.
 
 ## Current Gap
 
 Need report UI, trend summaries, cited assistant Q&A as a complete product
-flow, notification providers, quiet hours, escalation, delivery status,
-connectors, retention, and delete/export controls.
+flow, notification providers, quiet hours, escalation, delivered/failed provider
+status, connectors, retention, and delete/export controls. The V0.8 integrity
+bridge proves only minimal notification intent/status references and audit
+drill-in, not provider delivery or UI.
 
 ## Checklist
 
@@ -52,8 +58,9 @@ connectors, retention, and delete/export controls.
 - [ ] Evidence citations in reports.
 - [ ] Parent-owned export/sync connector status.
 - [ ] Notification rule contract.
-- [ ] Minimal payload and authenticated drill-in.
-- [ ] Delivery/queued/failed status.
+- [x] Minimal payload and authenticated drill-in refs exist for V0.8 integrity
+      alert/status bridge states.
+- [ ] Delivery/queued/failed provider status.
 - [ ] Quiet hours and escalation.
 - [ ] Retention/delete controls.
 
@@ -61,4 +68,6 @@ connectors, retention, and delete/export controls.
 
 Do not put sensitive child detail in notification payloads. Do not store reports
 in Ocentra-hosted systems by default. Keep report source and custody labels
-visible.
+visible. Treat `scripts/test/v0-8-integrity-alert-status-bridge.mjs` as
+notification intent/status proof only; require provider artifacts before claiming
+delivery.

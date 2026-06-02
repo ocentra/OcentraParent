@@ -1,5 +1,8 @@
 use crate::{
-    constants::{self, v08_enforcement_integrity_runtime_audit as proof},
+    constants::{
+        self, v08_enforcement_integrity_runtime_audit as proof,
+        v08_integrity_alert_status_bridge as bridge,
+    },
     policy_constants, ParentPlatform, V08EnforcementIntegrityRuntimeAuditAuditState,
     V08EnforcementIntegrityRuntimeAuditChildState, V08EnforcementIntegrityRuntimeAuditEntry,
     V08EnforcementIntegrityRuntimeAuditExecution,
@@ -7,6 +10,10 @@ use crate::{
     V08EnforcementIntegrityRuntimeAuditIntentState, V08EnforcementIntegrityRuntimeAuditReadModel,
     V08EnforcementIntegrityRuntimeAuditResult, V08EnforcementIntegrityRuntimeAuditRollbackState,
     V08EnforcementIntegrityRuntimeAuditSurface, V08EnforcementIntegrityRuntimeAuditTimerState,
+    V08IntegrityAlertAuditState, V08IntegrityAlertDeliveryState,
+    V08IntegrityAlertNotificationIntentState, V08IntegrityAlertParentVisibleStatus,
+    V08IntegrityAlertState, V08IntegrityAlertStatusBridgeEntry,
+    V08IntegrityAlertStatusBridgeReadModel,
 };
 
 #[test]
@@ -54,6 +61,7 @@ fn enforcement_integrity_runtime_audit_read_model_preserves_non_claim_flags() {
                 V08EnforcementIntegrityRuntimeAuditIntegrityState::TamperSignalManualRequired,
             ),
         ],
+        integrity_alert_status_bridge: bridge_read_model(),
     };
     let reparsed = serde_json::from_value::<V08EnforcementIntegrityRuntimeAuditReadModel>(
         serde_json::to_value(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES),
@@ -86,6 +94,15 @@ fn enforcement_integrity_runtime_audit_read_model_preserves_non_claim_flags() {
         .entries
         .iter()
         .all(|entry| !entry.privilege_escalation_claimed));
+    assert_eq!(
+        reparsed.integrity_alert_status_bridge.read_model_id,
+        bridge::READ_MODEL_ID
+    );
+    assert!(reparsed
+        .integrity_alert_status_bridge
+        .entries
+        .iter()
+        .all(|entry| !entry.provider_delivery_claimed));
 }
 
 fn entry(
@@ -127,5 +144,43 @@ fn entry(
         stealth_persistence_claimed: false,
         privilege_escalation_claimed: false,
         last_checked_at: policy_constants::TEST_EVALUATED_AT.to_string(),
+    }
+}
+
+fn bridge_read_model() -> V08IntegrityAlertStatusBridgeReadModel {
+    V08IntegrityAlertStatusBridgeReadModel {
+        schema_version: policy_constants::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
+        read_model_id: bridge::READ_MODEL_ID.to_string(),
+        generated_at: policy_constants::TEST_EVALUATED_AT.to_string(),
+        source_read_model_ids: vec![bridge::SOURCE_ENFORCEMENT_INTEGRITY_RUNTIME_AUDIT.to_string()],
+        entries: vec![V08IntegrityAlertStatusBridgeEntry {
+            schema_version: policy_constants::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
+            bridge_entry_id: bridge::ENTRY_PERMISSION_LOSS.to_string(),
+            integrity_alert_state: V08IntegrityAlertState::PermissionLoss,
+            parent_visible_status: V08IntegrityAlertParentVisibleStatus::PermissionActionRequired,
+            notification_intent_state: V08IntegrityAlertNotificationIntentState::IntentCreated,
+            delivery_state: V08IntegrityAlertDeliveryState::NotDeliveredProviderNotConfigured,
+            audit_state: V08IntegrityAlertAuditState::AuditRefBacked,
+            reason_code_ref: bridge::REF_REASON_PERMISSION_LOSS.to_string(),
+            status_ref: bridge::REF_STATUS_PERMISSION_ACTION_REQUIRED.to_string(),
+            notification_intent_refs: vec![
+                bridge::REF_NOTIFICATION_INTENT_PERMISSION_LOSS.to_string()
+            ],
+            notification_status_refs: vec![
+                bridge::REF_NOTIFICATION_STATUS_PROVIDER_NOT_CONFIGURED.to_string()
+            ],
+            audit_refs: vec![bridge::REF_AUDIT_PERMISSION_LOSS.to_string()],
+            integrity_refs: vec![bridge::REF_INTEGRITY_PERMISSION_STATE.to_string()],
+            drill_in_refs: vec![bridge::REF_DRILL_IN_PERMISSION_LOSS.to_string()],
+            manual_proof_requirements: vec![bridge::REQUIREMENT_PERMISSION_RESTORE.to_string()],
+            boundary: bridge::BOUNDARY_PERMISSION_LOSS.to_string(),
+            provider_delivery_claimed: false,
+            broad_blocking_claimed: false,
+            tamper_resistance_claimed: false,
+            mobile_enforcement_claimed: false,
+            stealth_persistence_claimed: false,
+            privilege_escalation_claimed: false,
+            last_checked_at: policy_constants::TEST_EVALUATED_AT.to_string(),
+        }],
     }
 }

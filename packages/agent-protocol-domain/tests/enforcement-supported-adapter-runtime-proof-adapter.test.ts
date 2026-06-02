@@ -46,6 +46,14 @@ function registerAcceptedProofEventTest() {
       expect(parsed.readModel.entries.every((entry) => !entry.unsupportedPlatformBehaviorClaimed)).toBe(true);
       expect(parsed.integrityAuditReadModel.readModelId).toBe('v0-8-enforcement-integrity-runtime-audit');
       expect(parsed.integrityAuditReadModel.entries).toHaveLength(14);
+      expect(parsed.integrityAlertStatusBridge.readModelId).toBe('v0-8-integrity-alert-status-bridge');
+      expect(parsed.integrityAlertStatusBridge.entries).toHaveLength(4);
+      expect(parsed.integrityAlertStatusBridge.entries.map((entry) => entry.integrityAlertState)).toEqual([
+        'permission-loss',
+        'stale-heartbeat',
+        'stopped-or-removed',
+        'tamper-manual-required',
+      ]);
       expect(countBy(parsed.integrityAuditReadModel.entries.map((entry) => entry.result))).toEqual({
         succeeded: 1,
         expired: 1,
@@ -61,6 +69,8 @@ function registerAcceptedProofEventTest() {
       expect(parsed.integrityAuditReadModel.entries.every((entry) => !entry.tamperHardeningClaimed)).toBe(true);
       expect(parsed.integrityAuditReadModel.entries.every((entry) => !entry.stealthPersistenceClaimed)).toBe(true);
       expect(parsed.integrityAuditReadModel.entries.every((entry) => !entry.privilegeEscalationClaimed)).toBe(true);
+      expect(parsed.integrityAlertStatusBridge.entries.every((entry) => !entry.providerDeliveryClaimed)).toBe(true);
+      expect(parsed.integrityAlertStatusBridge.entries.every((entry) => !entry.tamperResistanceClaimed)).toBe(true);
     }
   });
 }
@@ -149,12 +159,15 @@ function registerIntegrityAuditRejectionTest() {
           ),
           [AgentProtocolDefaults.Field.EnforcementIntegrityRuntimeAuditReadModel]: JSON.stringify({
             ...V08EnforcementIntegrityRuntimeAuditReadModel,
-            entries: [
-              {
-                ...V08EnforcementIntegrityRuntimeAuditReadModel.entries[0],
-                tamperHardeningClaimed: true,
-              },
-            ],
+            integrityAlertStatusBridge: {
+              ...V08EnforcementIntegrityRuntimeAuditReadModel.integrityAlertStatusBridge,
+              entries: [
+                {
+                  ...V08EnforcementIntegrityRuntimeAuditReadModel.integrityAlertStatusBridge.entries[0],
+                  providerDeliveryClaimed: true,
+                },
+              ],
+            },
           }),
         })
       )

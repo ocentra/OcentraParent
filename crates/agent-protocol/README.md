@@ -14,6 +14,9 @@ Rust protocol parity crate for data that crosses the TypeScript/Rust boundary.
 - V0.8 supported-adapter runtime proof and enforcement integrity runtime audit
   structs/constants, including no-claim fields mirrored into the service event
   payload.
+- V0.8 integrity alert/status bridge structs/constants nested in the integrity
+  runtime audit payload for permission-loss, stale heartbeat, stopped/removed,
+  and tamper/manual parent-visible status proof.
 
 ## Must Not Own
 
@@ -55,3 +58,7 @@ flowchart LR
   tamper/manual states without claiming broad app/domain/browser blocking,
   notification delivery, tamper resistance, mobile enforcement,
   stealth/persistence, or privilege escalation.
+- Integrity alert/status bridge structs must preserve notification intent/status
+  refs and audit drill-in while keeping provider delivery, anti-tamper
+  resistance, broad blocking, mobile enforcement, stealth/persistence, and
+  privilege escalation unclaimed.

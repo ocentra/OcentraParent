@@ -23,7 +23,9 @@ development paths and orchestrates runtime commands.
   `agent.enforcement.supported-adapter-runtime-proof.get`, including the
   enforcement integrity runtime audit read model for supported action results,
   timer recovery/rollback, child-status, parent-override, permission-loss,
-  integrity heartbeat, and tamper/manual states.
+  integrity heartbeat, tamper/manual states, and nested integrity alert/status
+  bridge rows for permission loss, stale heartbeat, stopped/removed, and tamper
+  manual review.
 
 ## Must Not Own
 
@@ -69,3 +71,7 @@ flowchart LR
   app/domain/browser blocking, notification delivery, tamper resistance, mobile
   enforcement, stealth/persistence, and privilege escalation remain unclaimed
   until separate platform/runtime proof exists.
+- Integrity alert/status bridge read models are backend notification
+  intent/status and audit drill-in proof only; provider delivery, UI, anti-tamper
+  resistance, broad blocking, mobile enforcement, stealth/persistence, and
+  privilege escalation remain unclaimed.
