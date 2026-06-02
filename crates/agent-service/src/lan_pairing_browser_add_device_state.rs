@@ -7,12 +7,16 @@ use ocentra_parent_agent_protocol::{
     LogFieldValue,
 };
 
+mod production_household_proof;
+
 use crate::lan_network_inventory;
 use crate::lan_pairing_browser_add_device_scan::{
     push_if_absent, same_physical_network_device, scan_summary,
 };
 use crate::lan_pairing_household_device_spine;
 use crate::{lan_pairing::LanPairingRuntime, time::timestamp_now};
+
+use self::production_household_proof::production_household_proof_summary;
 
 pub(crate) fn browser_add_device_pairs(
     runtime: &LanPairingRuntime,
@@ -115,6 +119,16 @@ fn browser_add_device_read_model(
             &trusted_device_registry,
             &household_device_decisions,
         );
+    let scan_summary = scan_summary(&discovered_devices);
+    let selected_device_readiness = selected_device_readiness(selected);
+    let production_household_proof = production_household_proof_summary(
+        &generated_at,
+        physical_household_lan_state.clone(),
+        &scan_summary,
+        &trusted_device_registry,
+        &household_device_decisions,
+        &selected_device_readiness,
+    );
     LanBrowserAddDeviceReadModel {
         schema_version: constants::lan_pairing::SCHEMA_VERSION,
         generated_at: generated_at.clone(),
@@ -127,15 +141,16 @@ fn browser_add_device_read_model(
         local_service_discovery_state: discovery_state_for(discovery_state),
         physical_household_lan_state,
         cloud_relay_state: LanPairingProductionDiscoveryState::Unavailable,
-        scan_summary: scan_summary(&discovered_devices),
+        scan_summary,
         discovered_devices,
         canonical_household_devices,
         pairing_requests: pairing_requests(runtime, &generated_at),
         trusted_device_registry,
         household_device_decisions,
+        production_household_proof: Some(production_household_proof),
         trusted_device_ids: runtime.trusted_device_ids(),
         revoked_device_ids: runtime.revoked_device_ids(),
-        selected_device_readiness: selected_device_readiness(selected),
+        selected_device_readiness,
         controller_authority: LanPairingParentAuthority::ActiveController,
         observer_authority: LanPairingParentAuthority::Observer,
         route_requirement_labels: constants::lan_pairing::ROUTE_REQUIREMENTS

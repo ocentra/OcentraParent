@@ -6,6 +6,12 @@ use crate::{
     LanPairingRejectionReason, LanPairingTrustState, LanTrustedDeviceRegistryEntry,
 };
 
+mod production_household_proof;
+pub use production_household_proof::{
+    LanProductionHouseholdProofCapability, LanProductionHouseholdProofStatus,
+    LanProductionHouseholdProofSummary,
+};
+
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum LanPairingDiscoverySource {
@@ -289,6 +295,8 @@ pub struct LanBrowserAddDeviceReadModel {
     pub pairing_requests: Vec<LanBrowserAddDevicePairingRequest>,
     pub trusted_device_registry: Vec<LanTrustedDeviceRegistryEntry>,
     pub household_device_decisions: Vec<LanHouseholdDeviceDecision>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub production_household_proof: Option<LanProductionHouseholdProofSummary>,
     pub trusted_device_ids: Vec<String>,
     pub revoked_device_ids: Vec<String>,
     pub selected_device_readiness: LanSelectedDeviceReadiness,

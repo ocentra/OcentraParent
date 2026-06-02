@@ -40,6 +40,13 @@ PC while preserving local-first custody.
 - The parent service now emits a typed LAN scan summary, merges the local
   child-agent device with matching passive LAN evidence, and keeps passive
   neighbors/router rows separate from controllable child-agent targets.
+- The V0.9 production household proof summary is contract-backed across
+  parent-domain, agent-protocol-domain, Rust protocol, and Rust service state.
+  It exposes signed hello/heartbeat, passive/router discovery, mDNS/SSDP/router
+  DHCP name discovery, trusted registry, parent decisions, route custody,
+  stale/offline selected-device, relay/cache, second physical child-agent,
+  Android/iOS parity, and store-signing rows without upgrading manual or
+  not-implemented claims.
 - Parent desktop Tauri proof now serializes active-controller route,
   observer-read-only, live local-network custody, relay unavailable, cache
   unavailable, and parent-owned storage unavailable states without implementing
@@ -57,22 +64,27 @@ PC while preserving local-first custody.
 ## Current Gap
 
 Physical household proof still needs a second installed child agent, signed LAN
-agent hello/heartbeat, assign/rename/ignore flows, and stronger name discovery
-such as mDNS/SSDP/router DHCP integration. Optional remote relay, mobile
-permissions, Android Device Owner/Accessibility/VPN/DNS/UsageStats proof, iOS
-Family Controls/DeviceActivity/Network Extension proof, signing, and store
+agent hello/heartbeat artifacts, stronger name discovery such as
+mDNS/SSDP/router DHCP integration, and live parent UX around the typed
+assignment/rename/ignore/revocation states. Optional remote relay, cache route,
+mobile permissions, Android Device Owner/Accessibility/VPN/DNS/UsageStats proof,
+iOS Family Controls/DeviceActivity/Network Extension proof, signing, and store
 distribution remain.
 
 ## Checklist
 
 - [ ] LAN discovery and pairing. Current proof covers Windows neighbor-table
       inventory, local child-agent hardware inventory, scan summary counts, passive
-      neighbor/router separation, and portal target filtering; mDNS/SSDP/router DHCP
-      names and second-child-agent pairing proof remain.
-- [ ] Trusted registry and revocation.
+      neighbor/router separation, portal target filtering, and typed production
+      proof rows; signed hello/heartbeat, mDNS/SSDP/router DHCP names, and
+      second-child-agent pairing proof remain manual-required.
+- [ ] Trusted registry and revocation. Current proof covers typed registry,
+      trust, parent decision, revocation, stale, and offline rows; live household
+      revocation/recovery UX remains.
 - [ ] Controller lease and observer read-only state.
 - [ ] Route status: local, LAN, relay, cache, stale, offline, unavailable.
-- [ ] Optional relay without default child-data custody.
+- [ ] Optional relay without default child-data custody. Current production LAN
+      proof explicitly marks relay and cache routes not implemented.
 - [ ] Android child-agent real device proof. Current aggregate proof covers
       `mobile-child-agent-capability-proof` contract/test/harness rows for
       foreground service, storage/protocol bridge, notifications, UsageStats,

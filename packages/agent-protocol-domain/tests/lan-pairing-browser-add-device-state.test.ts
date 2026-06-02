@@ -3,32 +3,15 @@ import { AgentLanBrowserAddDeviceReadModelSchema, AgentProtocolDefaults } from '
 
 describe('agent protocol browser-first LAN add-device state', () => {
   it('parses the service event read model D can consume without portal fixtures', () => {
-    const parsed = AgentLanBrowserAddDeviceReadModelSchema.parse(lanAddDeviceReadModelFixture());
+    const parsed = parseLanAddDeviceReadModelFixture();
 
-    expect(parsed.discoverySource).toBe('local-service');
-    expect(parsed.addDeviceState).toBe('pending');
-    expect(parsed.physicalHouseholdLanState).toBe('discovered');
-    expect(parsed.cloudRelayState).toBe('unavailable');
-    expect(parsed.discoveredDevices[0]?.childDevice.hardwareProfile?.cpuModel).toContain('Ryzen');
-    expect(parsed.discoveredDevices[1]?.childDevice.ipAddress).toBe('192.168.2.42');
-    expect(parsed.discoveredDevices[1]?.discoveryStatus).toBe('network-neighbor');
-    expect(parsed.scanSummary.sourceLabels).toEqual(['local-service', 'windows-neighbor-table']);
-    expect(parsed.scanSummary.scannedDeviceCount).toBe(2);
-    expect(parsed.scanSummary.agentDeviceCount).toBe(1);
-    expect(parsed.scanSummary.passiveDeviceCount).toBe(1);
-    expect(parsed.scanSummary.infrastructureDeviceCount).toBe(0);
-    expect(parsed.scanSummary.unsupportedDeviceCount).toBe(1);
-    expect(parsed.canonicalHouseholdDevices).toHaveLength(2);
-    expect(parsed.canonicalHouseholdDevices[0]?.canonicalDeviceId).toBe('lan-physical-mac-54271e97c331');
-    expect(parsed.canonicalHouseholdDevices[0]?.roleBadges).toEqual(['child-agent', 'portal', 'parent-controller']);
-    expect(parsed.canonicalHouseholdDevices[0]?.networkIdentity.evidenceRecords).toHaveLength(5);
-    expect(parsed.canonicalHouseholdDevices[1]?.classification).toBe('network-infrastructure');
-    expect(parsed.canonicalHouseholdDevices[1]?.enrollable).toBe(false);
-    expect(parsed.trustedDeviceRegistry[0]?.childDevice.deviceId).toBe('child-device-1');
-    expect(parsed.householdDeviceDecisions[0]?.actionKind).toBe('rename');
-    expect(parsed.selectedDeviceReadiness.readyForControl).toBe(false);
-    expect(AgentProtocolDefaults.Field.LanAddDeviceReadModel).toBe('addDeviceReadModel');
-    expect(AgentProtocolDefaults.Field.LanSelectedDeviceReady).toBe('selectedDeviceReady');
+    expectDiscoveryState(parsed);
+    expectDiscoveredDeviceState(parsed);
+    expectScanSummaryState(parsed);
+    expectCanonicalHouseholdDeviceState(parsed);
+    expectRegistryAndDecisionState(parsed);
+    expectProductionHouseholdProofState(parsed);
+    expectSelectedDeviceAndDefaultFields(parsed);
   });
 
   it('rejects duplicate canonical household rows in the protocol add-device read model', () => {
@@ -58,6 +41,59 @@ describe('agent protocol browser-first LAN add-device state', () => {
   });
 });
 
+function parseLanAddDeviceReadModelFixture() {
+  return AgentLanBrowserAddDeviceReadModelSchema.parse(lanAddDeviceReadModelFixture());
+}
+
+type ParsedLanAddDeviceReadModel = ReturnType<typeof parseLanAddDeviceReadModelFixture>;
+
+function expectDiscoveryState(parsed: ParsedLanAddDeviceReadModel) {
+  expect(parsed.discoverySource).toBe('local-service');
+  expect(parsed.addDeviceState).toBe('pending');
+  expect(parsed.physicalHouseholdLanState).toBe('discovered');
+  expect(parsed.cloudRelayState).toBe('unavailable');
+}
+
+function expectDiscoveredDeviceState(parsed: ParsedLanAddDeviceReadModel) {
+  expect(parsed.discoveredDevices[0]?.childDevice.hardwareProfile?.cpuModel).toContain('Ryzen');
+  expect(parsed.discoveredDevices[1]?.childDevice.ipAddress).toBe('192.168.2.42');
+  expect(parsed.discoveredDevices[1]?.discoveryStatus).toBe('network-neighbor');
+}
+
+function expectScanSummaryState(parsed: ParsedLanAddDeviceReadModel) {
+  expect(parsed.scanSummary.sourceLabels).toEqual(['local-service', 'windows-neighbor-table']);
+  expect(parsed.scanSummary.scannedDeviceCount).toBe(2);
+  expect(parsed.scanSummary.agentDeviceCount).toBe(1);
+  expect(parsed.scanSummary.passiveDeviceCount).toBe(1);
+  expect(parsed.scanSummary.infrastructureDeviceCount).toBe(0);
+  expect(parsed.scanSummary.unsupportedDeviceCount).toBe(1);
+}
+
+function expectCanonicalHouseholdDeviceState(parsed: ParsedLanAddDeviceReadModel) {
+  expect(parsed.canonicalHouseholdDevices).toHaveLength(2);
+  expect(parsed.canonicalHouseholdDevices[0]?.canonicalDeviceId).toBe('lan-physical-mac-54271e97c331');
+  expect(parsed.canonicalHouseholdDevices[0]?.roleBadges).toEqual(['child-agent', 'portal', 'parent-controller']);
+  expect(parsed.canonicalHouseholdDevices[0]?.networkIdentity.evidenceRecords).toHaveLength(5);
+  expect(parsed.canonicalHouseholdDevices[1]?.classification).toBe('network-infrastructure');
+  expect(parsed.canonicalHouseholdDevices[1]?.enrollable).toBe(false);
+}
+
+function expectRegistryAndDecisionState(parsed: ParsedLanAddDeviceReadModel) {
+  expect(parsed.trustedDeviceRegistry[0]?.childDevice.deviceId).toBe('child-device-1');
+  expect(parsed.householdDeviceDecisions[0]?.actionKind).toBe('rename');
+}
+
+function expectProductionHouseholdProofState(parsed: ParsedLanAddDeviceReadModel) {
+  expect(parsed.productionHouseholdProof?.manualProofRequired).toContain('signed-lan-hello');
+  expect(parsed.productionHouseholdProof?.notImplemented).toEqual(['relay-route', 'cache-route']);
+}
+
+function expectSelectedDeviceAndDefaultFields(parsed: ParsedLanAddDeviceReadModel) {
+  expect(parsed.selectedDeviceReadiness.readyForControl).toBe(false);
+  expect(AgentProtocolDefaults.Field.LanAddDeviceReadModel).toBe('addDeviceReadModel');
+  expect(AgentProtocolDefaults.Field.LanSelectedDeviceReady).toBe('selectedDeviceReady');
+}
+
 function lanAddDeviceReadModelFixture() {
   return {
     schemaVersion: AgentProtocolDefaults.SchemaVersion,
@@ -81,6 +117,7 @@ function lanAddDeviceReadModelFixture() {
     pairingRequests: [pendingPairingRequest()],
     trustedDeviceRegistry: [trustedDeviceRegistryEntry()],
     householdDeviceDecisions: [householdDecision()],
+    productionHouseholdProof: productionHouseholdProof(),
     trustedDeviceIds: ['child-device-1'],
     revokedDeviceIds: [],
     selectedDeviceReadiness: selectedDeviceReadiness(),
@@ -89,6 +126,72 @@ function lanAddDeviceReadModelFixture() {
     routeRequirementLabels: ['allowed-origin', 'target-device-match', 'non-replayed-intent'],
     auditCheckLabels: ['wrong-origin', 'wrong-device', 'replayed', 'stale', 'revoked'],
     honestNonClaims: ['physical-household-lan-manual-required', 'cloud-relay-not-implemented'],
+  } as const;
+}
+
+function productionHouseholdProof() {
+  return {
+    schemaVersion: AgentProtocolDefaults.SchemaVersion,
+    generatedAt: '2026-06-01T15:20:00.000Z',
+    statusRows: [
+      productionStatus('signed-lan-hello', 'manual-required', 'manual-required', 'manual-proof'),
+      productionStatus('signed-lan-heartbeat', 'manual-required', 'manual-required', 'manual-proof'),
+      productionStatus('passive-neighbor-discovery', 'discovered', 'ci-mechanical-proof', 'rust-service-read-model'),
+      productionStatus('router-neighbor-discovery', 'discovered', 'ci-mechanical-proof', 'rust-service-read-model'),
+      productionStatus('mdns-name-discovery', 'manual-required', 'manual-required', 'manual-proof'),
+      productionStatus('ssdp-name-discovery', 'manual-required', 'manual-required', 'manual-proof'),
+      productionStatus('router-dhcp-name-discovery', 'manual-required', 'manual-required', 'manual-proof'),
+      productionStatus('trusted-registry', 'paired', 'ci-mechanical-proof', 'rust-service-read-model'),
+      productionStatus('parent-assignment', 'manual-required', 'ci-mechanical-proof', 'rust-service-read-model'),
+      productionStatus('parent-rename', 'discovered', 'ci-mechanical-proof', 'rust-service-read-model'),
+      productionStatus('parent-ignore', 'manual-required', 'ci-mechanical-proof', 'rust-service-read-model'),
+      productionStatus('parent-revocation', 'manual-required', 'ci-mechanical-proof', 'rust-service-read-model'),
+      productionStatus('route-custody', 'paired', 'ci-mechanical-proof', 'rust-service-read-model'),
+      productionStatus('stale-selected-device', 'manual-required', 'ci-mechanical-proof', 'rust-service-read-model'),
+      productionStatus('offline-selected-device', 'offline', 'ci-mechanical-proof', 'rust-service-read-model'),
+      productionStatus('relay-route', 'unavailable', 'not-implemented', 'manual-proof'),
+      productionStatus('cache-route', 'unavailable', 'not-implemented', 'manual-proof'),
+      productionStatus('second-physical-child-agent', 'manual-required', 'manual-required', 'manual-proof'),
+      productionStatus('android-child-agent-parity', 'manual-required', 'manual-required', 'manual-proof'),
+      productionStatus('ios-child-agent-parity', 'manual-required', 'manual-required', 'manual-proof'),
+      productionStatus('store-signing', 'manual-required', 'manual-required', 'manual-proof'),
+    ],
+    manualProofRequired: [
+      'signed-lan-hello',
+      'signed-lan-heartbeat',
+      'mdns-name-discovery',
+      'ssdp-name-discovery',
+      'router-dhcp-name-discovery',
+      'second-physical-child-agent',
+      'android-child-agent-parity',
+      'ios-child-agent-parity',
+      'store-signing',
+    ],
+    notImplemented: ['relay-route', 'cache-route'],
+    claimsProved: [
+      'passive Windows neighbor evidence is represented in typed LAN read-model state',
+      'trusted registry, route custody, stale/offline, and parent decisions are represented in typed LAN read-model state',
+    ],
+    claimsNotProved: [
+      'physical household LAN readiness remains manual-required until two physical child-agent hosts and router/firewall artifacts are attached',
+      'signed LAN hello and heartbeat remain manual-required until a second installed child agent signs them',
+      'cloud relay routing storage and authentication are not implemented in this LAN proof',
+      'Android child-agent parity remains manual-required until real device permission and transport artifacts are attached',
+      'iOS child-agent parity remains manual-required until entitlement device and transport artifacts are attached',
+      'store signing remains manual-required until signing store and release artifacts are attached',
+    ],
+  } as const;
+}
+
+function productionStatus(capability: string, discoveryState: string, proofState: string, runtimeOwner: string) {
+  return {
+    schemaVersion: AgentProtocolDefaults.SchemaVersion,
+    capability,
+    discoveryState,
+    proofState,
+    runtimeOwner,
+    evidenceLabel: `${capability} proof state`,
+    requiredArtifactSummary: proofState === 'manual-required' ? `${capability} artifact required` : null,
   } as const;
 }
 

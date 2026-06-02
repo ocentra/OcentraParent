@@ -143,6 +143,64 @@ export const AgentLanHouseholdDeviceDecisionSchema = withParser(
   })
 );
 
+export const AgentLanProductionHouseholdProofCapabilitySchema = withParser(
+  Schema.Literal(
+    'signed-lan-hello',
+    'signed-lan-heartbeat',
+    'passive-neighbor-discovery',
+    'router-neighbor-discovery',
+    'mdns-name-discovery',
+    'ssdp-name-discovery',
+    'router-dhcp-name-discovery',
+    'trusted-registry',
+    'parent-assignment',
+    'parent-rename',
+    'parent-ignore',
+    'parent-revocation',
+    'route-custody',
+    'stale-selected-device',
+    'offline-selected-device',
+    'relay-route',
+    'cache-route',
+    'second-physical-child-agent',
+    'android-child-agent-parity',
+    'ios-child-agent-parity',
+    'store-signing'
+  )
+);
+
+export const AgentLanProductionHouseholdProofStateSchema = withParser(
+  Schema.Literal('ci-mechanical-proof', 'manual-required', 'not-implemented')
+);
+
+export const AgentLanProductionHouseholdProofRuntimeOwnerSchema = withParser(
+  Schema.Literal('parent-domain-contract', 'agent-protocol', 'rust-service-read-model', 'proof-harness', 'manual-proof')
+);
+
+export const AgentLanProductionHouseholdProofStatusSchema = withParser(
+  Schema.Struct({
+    schemaVersion: Schema.Literal(AgentProtocolSchemaVersion),
+    capability: AgentLanProductionHouseholdProofCapabilitySchema,
+    discoveryState: AgentLanPairingProductionDiscoveryStateSchema,
+    proofState: AgentLanProductionHouseholdProofStateSchema,
+    runtimeOwner: AgentLanProductionHouseholdProofRuntimeOwnerSchema,
+    evidenceLabel: NonEmptyLanAddDeviceText,
+    requiredArtifactSummary: Schema.Union(NonEmptyLanAddDeviceText, Schema.Null),
+  })
+);
+
+export const AgentLanProductionHouseholdProofSummarySchema = withParser(
+  Schema.Struct({
+    schemaVersion: Schema.Literal(AgentProtocolSchemaVersion),
+    generatedAt: AgentTimestampSchema,
+    statusRows: Schema.Array(AgentLanProductionHouseholdProofStatusSchema),
+    manualProofRequired: Schema.Array(AgentLanProductionHouseholdProofCapabilitySchema),
+    notImplemented: Schema.Array(AgentLanProductionHouseholdProofCapabilitySchema),
+    claimsProved: Schema.Array(NonEmptyLanAddDeviceText),
+    claimsNotProved: Schema.Array(NonEmptyLanAddDeviceText),
+  })
+);
+
 export const AgentLanDiscoveryEvidenceRecordSchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal(AgentProtocolSchemaVersion),
@@ -269,6 +327,10 @@ export const AgentLanBrowserAddDeviceReadModelSchema = withParser(
     pairingRequests: Schema.Array(AgentLanBrowserAddDevicePairingRequestSchema),
     trustedDeviceRegistry: Schema.Array(AgentLanTrustedDeviceRegistryEntrySchema),
     householdDeviceDecisions: Schema.Array(AgentLanHouseholdDeviceDecisionSchema),
+    productionHouseholdProof: Schema.optionalWith(
+      Schema.Union(AgentLanProductionHouseholdProofSummarySchema, Schema.Null),
+      { default: () => null }
+    ),
     trustedDeviceIds: Schema.Array(AgentDeviceIdSchema),
     revokedDeviceIds: Schema.Array(AgentDeviceIdSchema),
     selectedDeviceReadiness: AgentLanSelectedDeviceReadinessSchema,
@@ -285,6 +347,13 @@ export type AgentLanBrowserAddDeviceDiscoveryDevice = Infer<typeof AgentLanBrows
 export type AgentLanBrowserAddDevicePairingRequest = Infer<typeof AgentLanBrowserAddDevicePairingRequestSchema>;
 export type AgentLanBrowserAddDeviceScanSummary = Infer<typeof AgentLanBrowserAddDeviceScanSummarySchema>;
 export type AgentLanSelectedDeviceReadiness = Infer<typeof AgentLanSelectedDeviceReadinessSchema>;
+export type AgentLanProductionHouseholdProofCapability = Infer<typeof AgentLanProductionHouseholdProofCapabilitySchema>;
+export type AgentLanProductionHouseholdProofState = Infer<typeof AgentLanProductionHouseholdProofStateSchema>;
+export type AgentLanProductionHouseholdProofRuntimeOwner = Infer<
+  typeof AgentLanProductionHouseholdProofRuntimeOwnerSchema
+>;
+export type AgentLanProductionHouseholdProofStatus = Infer<typeof AgentLanProductionHouseholdProofStatusSchema>;
+export type AgentLanProductionHouseholdProofSummary = Infer<typeof AgentLanProductionHouseholdProofSummarySchema>;
 export type AgentLanDiscoveryEvidenceRecord = Infer<typeof AgentLanDiscoveryEvidenceRecordSchema>;
 export type AgentLanHouseholdDeviceDecision = Infer<typeof AgentLanHouseholdDeviceDecisionSchema>;
 export type AgentLanCanonicalHouseholdDevice = Infer<typeof AgentLanCanonicalHouseholdDeviceSchema>;
