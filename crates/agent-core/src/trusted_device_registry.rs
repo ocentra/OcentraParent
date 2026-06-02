@@ -6,8 +6,8 @@ use std::{
 };
 
 use ocentra_parent_agent_protocol::{
-    constants, LanPairingDeviceReachability, LanPairingDeviceRef, LanPairingProof,
-    LanPairingRejectionReason, LanPairingTrustState, LanParentIntentEnvelope,
+    constants, LanHouseholdDeviceDecision, LanPairingDeviceReachability, LanPairingDeviceRef,
+    LanPairingProof, LanPairingRejectionReason, LanPairingTrustState, LanParentIntentEnvelope,
     LanTrustedDeviceRegistryEntry,
 };
 use serde_json::{json, Value};
@@ -15,6 +15,7 @@ use serde_json::{json, Value};
 #[derive(Clone, Debug, Default)]
 pub struct TrustedDeviceRegistry {
     pub(crate) entries: Vec<LanTrustedDeviceRegistryEntry>,
+    pub(crate) household_device_decisions: Vec<LanHouseholdDeviceDecision>,
     accepted_intent_ids: BTreeSet<String>,
     pub(crate) selected_pairing_id: Option<String>,
     pub(crate) selected_route_stale_at: Option<String>,
@@ -29,6 +30,7 @@ impl TrustedDeviceRegistry {
     pub fn from_entries(entries: Vec<LanTrustedDeviceRegistryEntry>) -> Self {
         Self {
             entries,
+            household_device_decisions: Vec::new(),
             accepted_intent_ids: BTreeSet::new(),
             selected_pairing_id: None,
             selected_route_stale_at: None,
@@ -51,6 +53,20 @@ impl TrustedDeviceRegistry {
 
     pub fn entries(&self) -> &[LanTrustedDeviceRegistryEntry] {
         &self.entries
+    }
+
+    pub fn household_device_decisions(&self) -> &[LanHouseholdDeviceDecision] {
+        &self.household_device_decisions
+    }
+
+    pub fn apply_household_device_decision(
+        &mut self,
+        decision: LanHouseholdDeviceDecision,
+    ) -> bool {
+        self.household_device_decisions
+            .retain(|candidate| candidate.action_id != decision.action_id);
+        self.household_device_decisions.push(decision);
+        true
     }
 
     pub fn accept_pairing_proof(
@@ -96,6 +112,8 @@ impl TrustedDeviceRegistry {
             optional_string(&value, constants::field::LAN_SELECTED_ROUTE_STALE_AT);
         registry.selected_route_offline_at =
             optional_string(&value, constants::field::LAN_SELECTED_ROUTE_OFFLINE_AT);
+        registry.household_device_decisions =
+            household_device_decisions_from_json(&value).unwrap_or_default();
         Some(registry)
     }
 
@@ -103,6 +121,7 @@ impl TrustedDeviceRegistry {
         json!({
             constants::field::SCHEMA_VERSION: 1,
             constants::field::ENTRIES: self.entries,
+            constants::lan_pairing::REGISTRY_KEY_HOUSEHOLD_DEVICE_DECISIONS: &self.household_device_decisions,
             constants::field::LAN_SELECTED_PAIRING_ID: self.selected_pairing_id,
             constants::field::LAN_SELECTED_ROUTE_STALE_AT: self.selected_route_stale_at,
             constants::field::LAN_SELECTED_ROUTE_OFFLINE_AT: self.selected_route_offline_at,
@@ -209,6 +228,12 @@ impl TrustedDeviceRegistry {
         self.accepted_intent_ids.insert(intent.intent_id.clone());
         Ok(())
     }
+}
+
+fn household_device_decisions_from_json(value: &Value) -> Option<Vec<LanHouseholdDeviceDecision>> {
+    value
+        .get(constants::lan_pairing::REGISTRY_KEY_HOUSEHOLD_DEVICE_DECISIONS)
+        .and_then(|decisions| serde_json::from_value(decisions.clone()).ok())
 }
 
 fn optional_string(value: &Value, key: &str) -> Option<String> {

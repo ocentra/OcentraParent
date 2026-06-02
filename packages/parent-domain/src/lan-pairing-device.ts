@@ -22,6 +22,7 @@ import {
 } from './lan-pairing-values';
 import { LanPairingRuntimeSupportStatusSchema } from './lan-pairing-support';
 import { HouseholdDeviceSpineEntrySchema, HouseholdLanDeviceRefSchema } from './household-device-spine';
+import { LanHouseholdDeviceDecisionSchema } from './lan-device-parent-actions';
 
 export const LanPairingEnablementSchema = withParser(
   Schema.Struct({
@@ -196,6 +197,7 @@ export const LanBrowserAddDeviceReadModelSchema = withParser(
     ),
     pairingRequests: Schema.Array(LanBrowserAddDevicePairingRequestSchema),
     trustedDeviceRegistry: Schema.Array(LanTrustedDeviceRegistryEntrySchema),
+    householdDeviceDecisions: Schema.Array(LanHouseholdDeviceDecisionSchema),
     trustedDeviceIds: Schema.Array(ParentDeviceIdSchema),
     revokedDeviceIds: Schema.Array(ParentDeviceIdSchema),
     selectedDeviceReadiness: LanSelectedDeviceReadinessSchema,

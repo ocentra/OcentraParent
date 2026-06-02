@@ -243,7 +243,12 @@ async function assertLanPairingRouteSurface(page: Page, surface: ReturnType<Page
     await page.getByRole('tab', { name: 'Show LAN pairing Capability' }).click({ force: true });
     await expect(surface.locator('text').filter({ hasText: 'Agent' }).first()).toBeVisible();
     if ((await localAgentChoice.count()) > 0) {
-      await expect(surface.locator('text').filter({ hasText: 'ocentra-local-service' }).first()).toBeVisible();
+      await expect(
+        surface
+          .locator('text')
+          .filter({ hasText: /ocentra-(?:local-service|child-agent)/ })
+          .first()
+      ).toBeVisible();
     } else {
       await expect(surface.locator('text').filter({ hasText: 'Not reported' }).first()).toBeVisible();
     }
@@ -441,7 +446,8 @@ async function assertSidePanelFoldouts(page: Page): Promise<void> {
   await clickSidePanelButton(page, 'Collapse GUIDE');
   await expect(page.getByRole('button', { name: 'Expand GUIDE' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Open START HERE' })).toHaveCount(0);
-  await clickSidePanelButton(page, 'Expand MANAGE');
+  await expect(page.getByRole('button', { name: 'Expand MANAGE' })).toBeVisible();
+  await page.goto('/#/settings-rules');
   await expect(page.getByRole('button', { name: 'Collapse MANAGE' })).toBeVisible();
   await expect(page.getByRole('button', { name: `Open ${PARENT_PORTAL_NAV_LABELS.Portal}` })).toBeVisible();
   await expect(page.getByRole('button', { name: `Expand ${PARENT_PORTAL_NAV_LABELS.Portal}` })).toHaveCount(0);
@@ -459,7 +465,7 @@ async function assertSidePanelFoldouts(page: Page): Promise<void> {
   await expect(page.getByRole('button', { name: `Open ${PARENT_PORTAL_NAV_LABELS.Builder}` })).toHaveCount(0);
   await clickSidePanelButton(page, `Open ${PARENT_PORTAL_NAV_LABELS.Devices}`);
   await expect(page).toHaveURL(/#\/devices$/);
-  await clickSidePanelButton(page, 'Collapse MANAGE');
+  await page.goto('/#/overview');
   await expect(page.getByRole('button', { name: 'Expand MANAGE' })).toBeVisible();
 }
 

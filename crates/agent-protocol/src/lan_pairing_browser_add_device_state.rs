@@ -108,6 +108,86 @@ pub enum LanCanonicalHouseholdDeviceConfidence {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
+pub enum LanDiscoveryEvidenceSource {
+    LocalService,
+    WindowsNeighborTable,
+    DnsCache,
+    Netbios,
+    TrustedRegistry,
+    ParentAssignment,
+    ChildAgentHello,
+    ChildAgentHeartbeat,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum LanDiscoveryEvidenceKind {
+    Interface,
+    IpAddress,
+    MacAddress,
+    Hostname,
+    Vendor,
+    RouterClassification,
+    ChildAgentPresence,
+    TrustedRegistry,
+    ParentDecision,
+    Route,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum LanDiscoveryEvidenceConfidence {
+    Confirmed,
+    Strong,
+    Weak,
+    ManualRequired,
+    Rejected,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LanDiscoveryEvidenceRecord {
+    pub schema_version: u16,
+    pub evidence_id: String,
+    pub source: LanDiscoveryEvidenceSource,
+    pub evidence_kind: LanDiscoveryEvidenceKind,
+    pub device_id: String,
+    pub value: String,
+    pub normalized_value: String,
+    pub first_seen_at: String,
+    pub last_seen_at: String,
+    pub expires_at: Option<String>,
+    pub confidence: LanDiscoveryEvidenceConfidence,
+    pub merge_key: String,
+    pub note: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum LanHouseholdDeviceActionKind {
+    Assign,
+    Rename,
+    Ignore,
+    Restore,
+    Trust,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LanHouseholdDeviceDecision {
+    pub schema_version: u16,
+    pub action_id: String,
+    pub action_kind: LanHouseholdDeviceActionKind,
+    pub canonical_device_id: String,
+    pub child_profile_id: Option<String>,
+    pub display_name: Option<String>,
+    pub parent_actor_id: String,
+    pub decided_at: String,
+    pub revoked_at: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
 pub enum LanCanonicalHouseholdRouteState {
     Localhost,
     LocalNetwork,
@@ -150,6 +230,7 @@ pub struct LanCanonicalHouseholdNetworkIdentity {
     pub confidence: LanCanonicalHouseholdDeviceConfidence,
     pub stale_at: Option<String>,
     pub offline_at: Option<String>,
+    pub evidence_records: Vec<LanDiscoveryEvidenceRecord>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -207,6 +288,7 @@ pub struct LanBrowserAddDeviceReadModel {
     pub canonical_household_devices: Vec<LanCanonicalHouseholdDevice>,
     pub pairing_requests: Vec<LanBrowserAddDevicePairingRequest>,
     pub trusted_device_registry: Vec<LanTrustedDeviceRegistryEntry>,
+    pub household_device_decisions: Vec<LanHouseholdDeviceDecision>,
     pub trusted_device_ids: Vec<String>,
     pub revoked_device_ids: Vec<String>,
     pub selected_device_readiness: LanSelectedDeviceReadiness,

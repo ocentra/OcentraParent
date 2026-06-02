@@ -100,6 +100,7 @@ function acceptsProof() {
   ]);
   expect(parsed.boundarySummary.cloudRelayState).toBe('not-implemented');
   expect(parsed.boundarySummary.remoteControlState).toBe('not-implemented');
+  expect(parsed.addDeviceReadModel.householdDeviceDecisions[0]?.actionKind).toBe('rename');
   expect(parsed.addDeviceReadModel.canonicalHouseholdDevices[0]?.roleBadges).toEqual(['child-agent']);
   expect(parsed.addDeviceReadModel.canonicalHouseholdDevices[0]?.policyTargetSurfaces).toEqual([
     'devices',
@@ -171,6 +172,7 @@ function addDeviceReadModel() {
       pairingRequest('offline', 'offline'),
     ],
     trustedDeviceRegistry: [trustedRegistryEntry()],
+    householdDeviceDecisions: [householdDecision()],
     trustedDeviceIds: [childDeviceId],
     revokedDeviceIds: [],
     selectedDeviceReadiness: {
@@ -216,10 +218,29 @@ function canonicalHouseholdDevice() {
       confidence: 'manual-required',
       staleAt: checkedAt,
       offlineAt: null,
+      evidenceRecords: [trustedRegistryEvidenceRecord()],
     },
     childAgentInventory: null,
     policyTargetSurfaces: ['devices', 'policy', 'browser', 'app', 'screen', 'network', 'activity', 'tracking', 'ai'],
   };
+}
+
+function trustedRegistryEvidenceRecord() {
+  return {
+    schemaVersion: 'v0.9',
+    evidenceId: 'lan-evidence-trusted-registry-child-device-1',
+    source: 'trusted-registry',
+    evidenceKind: 'trusted-registry',
+    deviceId: childDeviceId,
+    value: childDeviceId,
+    normalizedValue: childDeviceId,
+    firstSeenAt: checkedAt,
+    lastSeenAt: checkedAt,
+    expiresAt: null,
+    confidence: 'manual-required',
+    mergeKey: `trusted:${childDeviceId}`,
+    note: null,
+  } as const;
 }
 
 function discoveredDevice(reachability: unknown) {
@@ -250,6 +271,20 @@ function pairingRequest(pairingState: unknown, rejectionReason: unknown) {
     rejectionReason,
     issuedAt: checkedAt,
     expiresAt: '2026-06-01T19:50:00.000Z',
+  };
+}
+
+function householdDecision() {
+  return {
+    schemaVersion: 'v0.9',
+    actionId: 'household-action-1',
+    actionKind: 'rename',
+    canonicalDeviceId: childDeviceId,
+    childProfileId: null,
+    displayName: 'Mia Windows PC',
+    parentActorId: 'parent-actor-1',
+    decidedAt: checkedAt,
+    revokedAt: null,
   };
 }
 

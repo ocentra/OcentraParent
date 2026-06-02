@@ -35,6 +35,10 @@ match that usability while keeping child-device authority local.
 
 - Device roles, controller/observer concepts, trusted registry, route selection,
   stale/offline/degraded states, and LAN pairing proof are in progress.
+- The V0.9 LAN spine now has a canonical household device row contract with
+  source-backed LAN evidence records, durable parent decisions for
+  assign/rename/ignore/restore/trust, and Activity > Network diagnostics that
+  expose decision/evidence counts from the same read model.
 - Parent portal route and device surfaces exist in development form.
 - First-run consumer setup is not product-complete.
 
@@ -49,7 +53,9 @@ source state, and recover from stale/revoked/offline devices.
 - [ ] Household profile contract.
 - [ ] Child profile contract and UI.
 - [ ] Parent-controller and parent-observer role UI.
-- [ ] Add-device/pairing flow backed by Rust service state.
+- [x] Add-device/pairing read model backed by Rust service state.
+- [ ] First-run add-device UX that lets a parent assign, rename, ignore,
+      restore, and trust a device from the portal without raw protocol fields.
 - [ ] Revocation and recovery flow.
 - [ ] Source labels: local, LAN, relay, cache, parent-owned storage,
       unavailable.

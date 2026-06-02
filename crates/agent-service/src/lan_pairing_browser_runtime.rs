@@ -3,8 +3,10 @@ use ocentra_parent_agent_protocol::{
 };
 
 use crate::{
-    lan_pairing::LanPairingRuntime,
+    lan_pairing::{rejection_event, LanPairingRuntime},
+    lan_pairing_payload::parse_household_device_decision,
     lan_pairing_status::{pairing_challenge_status_event, pairing_status_event},
+    time::timestamp_now,
 };
 
 pub(crate) fn browser_discovery_scan_event(
@@ -24,6 +26,27 @@ pub(crate) fn browser_add_device_request_event(
     origin: Option<&str>,
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
+    match parse_household_device_decision(&command.payload, &timestamp_now()) {
+        Some(Ok(decision)) => {
+            runtime
+                .registry
+                .lock()
+                .map(|mut registry| {
+                    registry.apply_household_device_decision(decision);
+                    runtime.persist_registry(&registry);
+                })
+                .ok();
+            return retag_lan_pairing_event(
+                pairing_status_event(runtime, command),
+                constants::lan_pairing::EVENT_ADD_DEVICE_REPORTED,
+                AgentEventName::AgentLanPairingAddDeviceReported,
+                LogLevel::Info,
+            );
+        }
+        Some(Err(reason)) => return rejection_event(command, reason, None, origin),
+        None => {}
+    }
+
     let event = pairing_challenge_status_event(runtime, origin, command);
     if event.event == AgentEventName::AgentLanPairingStatusReported {
         retag_lan_pairing_event(

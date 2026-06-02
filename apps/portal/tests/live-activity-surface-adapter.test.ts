@@ -354,6 +354,7 @@ function lanAddDeviceReadModel() {
     canonicalHouseholdDevices: [lanCanonicalHouseholdDevice()],
     pairingRequests: [],
     trustedDeviceRegistry: [],
+    householdDeviceDecisions: [],
     trustedDeviceIds: ['child-android-1'],
     revokedDeviceIds: [],
     selectedDeviceReadiness: lanSelectedDeviceReadiness(),
@@ -416,6 +417,25 @@ function lanCanonicalNetworkIdentity() {
     confidence: 'agent-confirmed',
     staleAt: null,
     offlineAt: null,
+    evidenceRecords: [lanDiscoveryEvidenceRecord()],
+  };
+}
+
+function lanDiscoveryEvidenceRecord() {
+  return {
+    schemaVersion: 1,
+    evidenceId: 'lan-evidence-local-service-child-android-1',
+    source: 'local-service',
+    evidenceKind: 'child-agent-presence',
+    deviceId: 'child-android-1',
+    value: 'child-peer-1',
+    normalizedValue: 'child-peer-1',
+    firstSeenAt: '2026-06-01T15:00:00Z',
+    lastSeenAt: '2026-06-01T15:00:00Z',
+    expiresAt: null,
+    confidence: 'confirmed',
+    mergeKey: 'agent:child-peer-1',
+    note: 'Local service reported the child agent.',
   };
 }
 

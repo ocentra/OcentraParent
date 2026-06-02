@@ -5,6 +5,8 @@ use crate::{
     LanCanonicalHouseholdDeviceRole, LanCanonicalHouseholdDeviceSource,
     LanCanonicalHouseholdNetworkIdentity, LanCanonicalHouseholdRoleState,
     LanCanonicalHouseholdRouteState, LanCanonicalHouseholdSurface, LanChildAgentInventoryPacket,
+    LanDiscoveryEvidenceConfidence, LanDiscoveryEvidenceKind, LanDiscoveryEvidenceRecord,
+    LanDiscoveryEvidenceSource, LanHouseholdDeviceActionKind, LanHouseholdDeviceDecision,
     LanPairingDeviceHardwareProfile, LanPairingDeviceReachability, LanPairingDeviceRef,
     LanPairingDiscoveryRuntimeStatus, LanPairingDiscoverySource, LanPairingNetworkMode,
     LanPairingParentAuthority, LanPairingProductionDiscoveryState, LanPairingTrustState,
@@ -26,6 +28,7 @@ fn browser_add_device_read_model_serializes_honest_states() {
         canonical_household_devices: vec![canonical_child_agent_device()],
         pairing_requests: Vec::new(),
         trusted_device_registry: Vec::new(),
+        household_device_decisions: vec![household_decision()],
         trusted_device_ids: Vec::new(),
         revoked_device_ids: Vec::new(),
         selected_device_readiness: LanSelectedDeviceReadiness {
@@ -73,12 +76,34 @@ fn browser_add_device_read_model_serializes_honest_states() {
     );
     assert_eq!(value["trustedDeviceRegistry"], serde_json::json!([]));
     assert_eq!(
+        value["householdDeviceDecisions"][0]["actionKind"],
+        serde_json::json!("rename")
+    );
+    assert_eq!(
         value["canonicalHouseholdDevices"][0]["policyTargetSurfaces"],
         serde_json::json!([
             "devices", "policy", "browser", "app", "screen", "network", "activity", "tracking",
             "ai"
         ])
     );
+    assert_eq!(
+        value["canonicalHouseholdDevices"][0]["networkIdentity"]["evidenceRecords"][0]["source"],
+        serde_json::json!("local-service")
+    );
+}
+
+fn household_decision() -> LanHouseholdDeviceDecision {
+    LanHouseholdDeviceDecision {
+        schema_version: LAN_PAIRING_SCHEMA_VERSION,
+        action_id: "lan-action-rename-1".to_string(),
+        action_kind: LanHouseholdDeviceActionKind::Rename,
+        canonical_device_id: "lan-physical-mac-54271e97c331".to_string(),
+        child_profile_id: None,
+        display_name: Some("GAMEDEV Study PC".to_string()),
+        parent_actor_id: constants::lan_pairing::PARENT_ACTOR_ID.to_string(),
+        decided_at: "2026-06-01T15:20:00.000Z".to_string(),
+        revoked_at: None,
+    }
 }
 
 #[test]
@@ -164,39 +189,112 @@ fn canonical_child_agent_device() -> LanCanonicalHouseholdDevice {
             LanCanonicalHouseholdDeviceSource::NetworkNeighbor,
             LanCanonicalHouseholdDeviceSource::TrustedRegistry,
         ],
-        network_identity: LanCanonicalHouseholdNetworkIdentity {
-            hostname: Some("GAMEDEV".to_string()),
-            ip_addresses: vec!["192.168.2.42".to_string()],
-            mac_address: Some("54-27-1e-97-c3-31".to_string()),
-            mac_vendor: None,
-            network_interfaces: vec!["Ethernet 2".to_string()],
-            reachability: LanPairingDeviceReachability::Online,
-            confidence: LanCanonicalHouseholdDeviceConfidence::AgentConfirmed,
-            stale_at: None,
-            offline_at: None,
-        },
-        child_agent_inventory: Some(LanChildAgentInventoryPacket {
-            device_name: "GAMEDEV".to_string(),
-            platform: constants::lan_pairing::PLATFORM_WINDOWS.to_string(),
-            os: constants::lan_pairing::PLATFORM_WINDOWS.to_string(),
-            cpu_model: Some("AMD Ryzen 9 3900X 12-Core Processor".to_string()),
-            cpu_cores: Some("12 cores / 24 logical".to_string()),
-            memory_total: Some("63 GiB".to_string()),
-            gpu_model: Some("GeForce RTX 2070 SUPER".to_string()),
-            gpu_driver: Some("456.71".to_string()),
-            gpu_memory: Some("8192 MiB".to_string()),
-            nvidia_smi: Some("GeForce RTX 2070 SUPER driver 456.71 8192 MiB VRAM".to_string()),
-            network_interfaces: vec!["Ethernet 2".to_string()],
-            capabilities: vec![
-                constants::lan_pairing::CHILD_AGENT_CAPABILITY_DIRECT_WEBSOCKET.to_string(),
-                constants::lan_pairing::CHILD_AGENT_CAPABILITY_DEVICE_INVENTORY.to_string(),
-                constants::lan_pairing::CHILD_AGENT_CAPABILITY_PAIRING_ROUTE.to_string(),
-            ],
-            role_state: LanCanonicalHouseholdRoleState::Implemented,
-            route_state: LanCanonicalHouseholdRouteState::LocalNetwork,
-            pairing_trust_state: LanPairingTrustState::Paired,
-        }),
+        network_identity: canonical_network_identity(),
+        child_agent_inventory: Some(canonical_inventory_packet()),
         policy_target_surfaces: all_child_agent_surfaces(),
+    }
+}
+
+fn canonical_network_identity() -> LanCanonicalHouseholdNetworkIdentity {
+    LanCanonicalHouseholdNetworkIdentity {
+        hostname: Some("GAMEDEV".to_string()),
+        ip_addresses: vec!["192.168.2.42".to_string()],
+        mac_address: Some("54-27-1e-97-c3-31".to_string()),
+        mac_vendor: None,
+        network_interfaces: vec!["Ethernet 2".to_string()],
+        reachability: LanPairingDeviceReachability::Online,
+        confidence: LanCanonicalHouseholdDeviceConfidence::AgentConfirmed,
+        stale_at: None,
+        offline_at: None,
+        evidence_records: canonical_evidence_records(),
+    }
+}
+
+fn canonical_evidence_records() -> Vec<LanDiscoveryEvidenceRecord> {
+    vec![
+        evidence_record(
+            LanDiscoveryEvidenceSource::LocalService,
+            LanDiscoveryEvidenceKind::IpAddress,
+            "192.168.2.42",
+            "ip:192.168.2.42",
+            LanDiscoveryEvidenceConfidence::Confirmed,
+        ),
+        evidence_record(
+            LanDiscoveryEvidenceSource::LocalService,
+            LanDiscoveryEvidenceKind::MacAddress,
+            "54-27-1e-97-c3-31",
+            "mac:54271e97c331",
+            LanDiscoveryEvidenceConfidence::Confirmed,
+        ),
+        evidence_record(
+            LanDiscoveryEvidenceSource::LocalService,
+            LanDiscoveryEvidenceKind::Hostname,
+            "GAMEDEV",
+            "hostname:gamedev",
+            LanDiscoveryEvidenceConfidence::Confirmed,
+        ),
+        evidence_record(
+            LanDiscoveryEvidenceSource::LocalService,
+            LanDiscoveryEvidenceKind::Interface,
+            "Ethernet 2",
+            "interface:ethernet2",
+            LanDiscoveryEvidenceConfidence::Confirmed,
+        ),
+        evidence_record(
+            LanDiscoveryEvidenceSource::LocalService,
+            LanDiscoveryEvidenceKind::ChildAgentPresence,
+            constants::lan_pairing::LOCAL_AGENT_STATUS,
+            "agent:lan-physical-mac-54271e97c331",
+            LanDiscoveryEvidenceConfidence::Confirmed,
+        ),
+    ]
+}
+
+fn canonical_inventory_packet() -> LanChildAgentInventoryPacket {
+    LanChildAgentInventoryPacket {
+        device_name: "GAMEDEV".to_string(),
+        platform: constants::lan_pairing::PLATFORM_WINDOWS.to_string(),
+        os: constants::lan_pairing::PLATFORM_WINDOWS.to_string(),
+        cpu_model: Some("AMD Ryzen 9 3900X 12-Core Processor".to_string()),
+        cpu_cores: Some("12 cores / 24 logical".to_string()),
+        memory_total: Some("63 GiB".to_string()),
+        gpu_model: Some("GeForce RTX 2070 SUPER".to_string()),
+        gpu_driver: Some("456.71".to_string()),
+        gpu_memory: Some("8192 MiB".to_string()),
+        nvidia_smi: Some("GeForce RTX 2070 SUPER driver 456.71 8192 MiB VRAM".to_string()),
+        network_interfaces: vec!["Ethernet 2".to_string()],
+        capabilities: vec![
+            constants::lan_pairing::CHILD_AGENT_CAPABILITY_DIRECT_WEBSOCKET.to_string(),
+            constants::lan_pairing::CHILD_AGENT_CAPABILITY_DEVICE_INVENTORY.to_string(),
+            constants::lan_pairing::CHILD_AGENT_CAPABILITY_PAIRING_ROUTE.to_string(),
+        ],
+        role_state: LanCanonicalHouseholdRoleState::Implemented,
+        route_state: LanCanonicalHouseholdRouteState::LocalNetwork,
+        pairing_trust_state: LanPairingTrustState::Paired,
+    }
+}
+
+fn evidence_record(
+    source: LanDiscoveryEvidenceSource,
+    evidence_kind: LanDiscoveryEvidenceKind,
+    value: &str,
+    merge_key: &str,
+    confidence: LanDiscoveryEvidenceConfidence,
+) -> LanDiscoveryEvidenceRecord {
+    LanDiscoveryEvidenceRecord {
+        schema_version: LAN_PAIRING_SCHEMA_VERSION,
+        evidence_id: merge_key.replace(':', "-"),
+        source,
+        evidence_kind,
+        device_id: "lan-physical-mac-54271e97c331".to_string(),
+        value: value.to_string(),
+        normalized_value: value.to_ascii_lowercase(),
+        first_seen_at: "2026-06-01T15:20:00.000Z".to_string(),
+        last_seen_at: "2026-06-01T15:20:00.000Z".to_string(),
+        expires_at: None,
+        confidence,
+        merge_key: merge_key.to_string(),
+        note: None,
     }
 }
 

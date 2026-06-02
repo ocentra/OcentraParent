@@ -107,6 +107,27 @@ async fn add_device_request_rejects_wrong_origin_without_trusting_device() {
 }
 
 #[tokio::test]
+async fn add_device_request_persists_household_decision_in_read_model() {
+    let event = handle_command_text_for_test(
+        &serialize_command(add_device_request_command(household_decision_payload())),
+        LanPairingRuntime::empty(),
+        Some(constants::lan_pairing::ALLOWED_ORIGIN.to_string()),
+    )
+    .await;
+
+    assert_eq!(
+        event.event,
+        AgentEventName::AgentLanPairingAddDeviceReported
+    );
+    let read_model = read_model_payload(&event.payload);
+    assert_eq!(
+        read_model[constants::lan_pairing::REGISTRY_KEY_HOUSEHOLD_DEVICE_DECISIONS][0]
+            [constants::lan_pairing::HOUSEHOLD_DECISION_ACTION_KIND_FIELD],
+        serde_json::json!(constants::lan_pairing::HOUSEHOLD_ACTION_RENAME)
+    );
+}
+
+#[tokio::test]
 async fn paired_runtime_scan_exposes_registry_and_selected_readiness() {
     let event = handle_command_text_for_test(
         &serialize_command(browser_discovery_scan_command(LogFields::new())),
@@ -184,4 +205,49 @@ fn challenge_request_payload() -> LogFields {
             LogFieldValue::String(constants::lan_pairing::EXPIRES_AT.to_string()),
         ),
     ])
+}
+
+fn household_decision_payload() -> LogFields {
+    fields_from_pairs(vec![
+        (
+            constants::lan_pairing::HOUSEHOLD_ACTION_ID_FIELD,
+            LogFieldValue::String(constants::lan_pairing::HOUSEHOLD_ACTION_ID.to_string()),
+        ),
+        (
+            constants::lan_pairing::HOUSEHOLD_ACTION_KIND_FIELD,
+            LogFieldValue::String(constants::lan_pairing::HOUSEHOLD_ACTION_RENAME.to_string()),
+        ),
+        (
+            constants::field::LAN_CANONICAL_DEVICE_ID,
+            LogFieldValue::String(local_agent_canonical_device_id()),
+        ),
+        (
+            constants::lan_pairing::HOUSEHOLD_ACTION_DISPLAY_NAME_FIELD,
+            LogFieldValue::String(
+                constants::lan_pairing::HOUSEHOLD_RENAMED_DEVICE_LABEL.to_string(),
+            ),
+        ),
+        (
+            constants::field::LAN_PARENT_ACTOR_ID,
+            LogFieldValue::String(constants::lan_pairing::PARENT_ACTOR_ID.to_string()),
+        ),
+        (
+            constants::field::STARTED_AT,
+            LogFieldValue::String(constants::lan_pairing::OBSERVED_AT.to_string()),
+        ),
+    ])
+}
+
+fn local_agent_canonical_device_id() -> String {
+    let mut id = String::from(constants::lan_pairing::CANONICAL_DEVICE_ID_PREFIX);
+    id.push_str(&compact_identifier(constants::lan_pairing::CHILD_DEVICE_ID));
+    id
+}
+
+fn compact_identifier(value: &str) -> String {
+    value
+        .chars()
+        .filter(|character| character.is_ascii_alphanumeric())
+        .flat_map(char::to_lowercase)
+        .collect()
 }

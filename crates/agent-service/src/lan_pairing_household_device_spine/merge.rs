@@ -97,6 +97,7 @@ fn merge_network_identity(
         &mut existing.network_interfaces,
         incoming.network_interfaces,
     );
+    merge_evidence_records(&mut existing.evidence_records, incoming.evidence_records);
     existing.confidence = merged_confidence(existing_sources, incoming_sources);
     existing
 }
@@ -179,6 +180,20 @@ fn merge_strings(existing: &mut Vec<String>, incoming: Vec<String>) {
             .any(|entry| entry.eq_ignore_ascii_case(&value))
         {
             existing.push(value);
+        }
+    }
+}
+
+fn merge_evidence_records(
+    existing: &mut Vec<ocentra_parent_agent_protocol::LanDiscoveryEvidenceRecord>,
+    incoming: Vec<ocentra_parent_agent_protocol::LanDiscoveryEvidenceRecord>,
+) {
+    for record in incoming {
+        if !existing
+            .iter()
+            .any(|entry| entry.merge_key.eq_ignore_ascii_case(&record.merge_key))
+        {
+            existing.push(record);
         }
     }
 }

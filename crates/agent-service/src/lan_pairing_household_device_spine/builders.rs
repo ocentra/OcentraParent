@@ -17,10 +17,12 @@ pub(super) fn device_from_discovery(
     let device = &discovered.child_device;
     let classification = classification_for(device, false);
     let is_child_agent = classification == LanCanonicalHouseholdDeviceClassification::ChildAgent;
+    let source = source_for_discovery(discovered.discovery_status.clone());
     let network_identity = network_identity_for(
         device,
         discovered.reachability.clone(),
         confidence_for_discovery(discovered.discovery_status.clone()),
+        source.clone(),
     );
     LanCanonicalHouseholdDevice {
         schema_version: constants::lan_pairing::SCHEMA_VERSION,
@@ -33,7 +35,7 @@ pub(super) fn device_from_discovery(
         route_id: route_id_for(is_child_agent, Some(discovered.route_id.clone())),
         route_state: route_state_for(is_child_agent, discovered.discovery_status.clone()),
         network_mode: discovered.network_mode.clone(),
-        source_labels: vec![source_for_discovery(discovered.discovery_status.clone())],
+        source_labels: vec![source],
         child_agent_inventory: child_agent_inventory_for(
             is_child_agent,
             device,
@@ -54,6 +56,7 @@ pub(super) fn device_from_registry(
         device,
         LanPairingDeviceReachability::Stale,
         LanCanonicalHouseholdDeviceConfidence::ManualRequired,
+        LanCanonicalHouseholdDeviceSource::TrustedRegistry,
     );
     LanCanonicalHouseholdDevice {
         schema_version: constants::lan_pairing::SCHEMA_VERSION,

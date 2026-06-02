@@ -1,3 +1,6 @@
+mod evidence;
+
+use self::evidence::evidence_records_for;
 use ocentra_parent_agent_protocol::{
     constants, LanCanonicalHouseholdDeviceClassification, LanCanonicalHouseholdDeviceConfidence,
     LanCanonicalHouseholdDeviceRole, LanCanonicalHouseholdDeviceSource,
@@ -11,11 +14,6 @@ pub(super) fn canonical_device_id(device: &LanPairingDeviceRef) -> String {
     if let Some(mac) = device.mac_address.as_ref() {
         let mut id = String::from(constants::lan_pairing::CANONICAL_DEVICE_MAC_PREFIX);
         id.push_str(&compact_identifier(mac));
-        return id;
-    }
-    if let Some(ip) = device.ip_address.as_ref() {
-        let mut id = String::from(constants::lan_pairing::CANONICAL_DEVICE_IP_PREFIX);
-        id.push_str(&compact_identifier(ip));
         return id;
     }
     let mut id = String::from(constants::lan_pairing::CANONICAL_DEVICE_ID_PREFIX);
@@ -47,6 +45,7 @@ pub(super) fn network_identity_for(
     device: &LanPairingDeviceRef,
     reachability: LanPairingDeviceReachability,
     confidence: LanCanonicalHouseholdDeviceConfidence,
+    source: LanCanonicalHouseholdDeviceSource,
 ) -> LanCanonicalHouseholdNetworkIdentity {
     LanCanonicalHouseholdNetworkIdentity {
         hostname: known_hostname(device),
@@ -58,6 +57,7 @@ pub(super) fn network_identity_for(
         offline_at: offline_at_for(&reachability),
         reachability,
         confidence,
+        evidence_records: evidence_records_for(device, source),
     }
 }
 

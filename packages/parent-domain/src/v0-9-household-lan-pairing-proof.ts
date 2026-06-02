@@ -1,7 +1,7 @@
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import { LanBrowserAddDeviceReadModelSchema, type LanBrowserAddDeviceReadModel } from './lan-pairing-device';
 import {
-  LanPairingProductionDiscoveryStateSchema,
+  type LanPairingProductionDiscoveryStateSchema,
   LanPairingRejectionReasonSchema,
   LanPairingRouteIdSchema,
 } from './lan-pairing-values';

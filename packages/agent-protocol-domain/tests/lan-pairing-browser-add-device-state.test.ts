@@ -21,9 +21,11 @@ describe('agent protocol browser-first LAN add-device state', () => {
     expect(parsed.canonicalHouseholdDevices).toHaveLength(2);
     expect(parsed.canonicalHouseholdDevices[0]?.canonicalDeviceId).toBe('lan-physical-mac-54271e97c331');
     expect(parsed.canonicalHouseholdDevices[0]?.roleBadges).toEqual(['child-agent', 'portal', 'parent-controller']);
+    expect(parsed.canonicalHouseholdDevices[0]?.networkIdentity.evidenceRecords).toHaveLength(5);
     expect(parsed.canonicalHouseholdDevices[1]?.classification).toBe('network-infrastructure');
     expect(parsed.canonicalHouseholdDevices[1]?.enrollable).toBe(false);
     expect(parsed.trustedDeviceRegistry[0]?.childDevice.deviceId).toBe('child-device-1');
+    expect(parsed.householdDeviceDecisions[0]?.actionKind).toBe('rename');
     expect(parsed.selectedDeviceReadiness.readyForControl).toBe(false);
     expect(AgentProtocolDefaults.Field.LanAddDeviceReadModel).toBe('addDeviceReadModel');
     expect(AgentProtocolDefaults.Field.LanSelectedDeviceReady).toBe('selectedDeviceReady');
@@ -36,6 +38,23 @@ describe('agent protocol browser-first LAN add-device state', () => {
         canonicalHouseholdDevices: [canonicalChildAgentDevice(), canonicalChildAgentDevice()],
       })
     ).toThrow(/one canonical row/u);
+  });
+
+  it('rejects canonical household rows without evidence records', () => {
+    expect(() =>
+      AgentLanBrowserAddDeviceReadModelSchema.parse({
+        ...lanAddDeviceReadModelFixture(),
+        canonicalHouseholdDevices: [
+          {
+            ...canonicalRouterDevice(),
+            networkIdentity: {
+              ...canonicalRouterDevice().networkIdentity,
+              evidenceRecords: [],
+            },
+          },
+        ],
+      })
+    ).toThrow(/evidence record/u);
   });
 });
 
@@ -61,6 +80,7 @@ function lanAddDeviceReadModelFixture() {
     canonicalHouseholdDevices: [canonicalChildAgentDevice(), canonicalRouterDevice()],
     pairingRequests: [pendingPairingRequest()],
     trustedDeviceRegistry: [trustedDeviceRegistryEntry()],
+    householdDeviceDecisions: [householdDecision()],
     trustedDeviceIds: ['child-device-1'],
     revokedDeviceIds: [],
     selectedDeviceReadiness: selectedDeviceReadiness(),
@@ -69,6 +89,20 @@ function lanAddDeviceReadModelFixture() {
     routeRequirementLabels: ['allowed-origin', 'target-device-match', 'non-replayed-intent'],
     auditCheckLabels: ['wrong-origin', 'wrong-device', 'replayed', 'stale', 'revoked'],
     honestNonClaims: ['physical-household-lan-manual-required', 'cloud-relay-not-implemented'],
+  } as const;
+}
+
+function householdDecision() {
+  return {
+    schemaVersion: AgentProtocolDefaults.SchemaVersion,
+    actionId: 'lan-action-rename-1',
+    actionKind: 'rename',
+    canonicalDeviceId: 'lan-physical-mac-54271e97c331',
+    childProfileId: null,
+    displayName: 'GAMEDEV Study PC',
+    parentActorId: 'parent-actor-1',
+    decidedAt: '2026-06-01T15:20:00.000Z',
+    revokedAt: null,
   } as const;
 }
 
@@ -96,6 +130,19 @@ function canonicalChildAgentDevice() {
       confidence: 'agent-confirmed',
       staleAt: null,
       offlineAt: null,
+      evidenceRecords: [
+        evidenceRecord('local-service', 'ip-address', '192.168.2.42', 'ip:192.168.2.42', 'confirmed'),
+        evidenceRecord('local-service', 'mac-address', '54-27-1e-97-c3-31', 'mac:54271e97c331', 'confirmed'),
+        evidenceRecord('local-service', 'hostname', 'GAMEDEV', 'hostname:gamedev', 'confirmed'),
+        evidenceRecord('local-service', 'interface', 'Ethernet 2', 'interface:ethernet2', 'confirmed'),
+        evidenceRecord(
+          'local-service',
+          'child-agent-presence',
+          'ocentra-local-service',
+          'agent:lan-physical-mac-54271e97c331',
+          'confirmed'
+        ),
+      ],
     },
     childAgentInventory: {
       deviceName: 'GAMEDEV',
@@ -142,9 +189,32 @@ function canonicalRouterDevice() {
       confidence: 'network-neighbor',
       staleAt: null,
       offlineAt: null,
+      evidenceRecords: [
+        evidenceRecord('windows-neighbor-table', 'ip-address', '192.168.2.1', 'ip:192.168.2.1', 'strong'),
+        evidenceRecord('windows-neighbor-table', 'mac-address', '00-11-22-33-44-55', 'mac:001122334455', 'strong'),
+        evidenceRecord('windows-neighbor-table', 'router-classification', 'router', 'router:192.168.2.1', 'strong'),
+      ],
     },
     childAgentInventory: null,
     policyTargetSurfaces: ['devices', 'network'],
+  } as const;
+}
+
+function evidenceRecord(source: string, evidenceKind: string, value: string, mergeKey: string, confidence: string) {
+  return {
+    schemaVersion: AgentProtocolDefaults.SchemaVersion,
+    evidenceId: `lan-evidence-${source}-${evidenceKind}-${value.toLowerCase().replace(/[^a-z0-9]/gu, '')}`,
+    source,
+    evidenceKind,
+    deviceId: 'lan-physical-mac-54271e97c331',
+    value,
+    normalizedValue: value.toLowerCase(),
+    firstSeenAt: '2026-06-01T15:20:00.000Z',
+    lastSeenAt: '2026-06-01T15:20:00.000Z',
+    expiresAt: null,
+    confidence,
+    mergeKey,
+    note: null,
   } as const;
 }
 

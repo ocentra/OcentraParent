@@ -100,6 +100,8 @@ mod lan_pairing_browser_runtime;
 mod lan_pairing_browser_runtime_tests;
 mod lan_pairing_household_device_spine;
 #[cfg(test)]
+mod lan_pairing_household_device_spine_test_fixtures;
+#[cfg(test)]
 mod lan_pairing_household_device_spine_tests;
 #[cfg(test)]
 mod lan_pairing_multidevice_tests;

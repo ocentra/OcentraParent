@@ -1,9 +1,10 @@
 use ocentra_parent_agent_protocol::{
     constants, AgentCommandEnvelope, LanBrowserAddDeviceDiscoveryDevice,
-    LanBrowserAddDevicePairingRequest, LanBrowserAddDeviceReadModel, LanPairingDeviceReachability,
-    LanPairingDeviceRef, LanPairingDiscoveryRuntimeStatus, LanPairingDiscoverySource,
-    LanPairingNetworkMode, LanPairingParentAuthority, LanPairingProductionDiscoveryState,
-    LanPairingTrustState, LanSelectedDeviceReadiness, LogFieldValue,
+    LanBrowserAddDevicePairingRequest, LanBrowserAddDeviceReadModel, LanHouseholdDeviceDecision,
+    LanPairingDeviceReachability, LanPairingDeviceRef, LanPairingDiscoveryRuntimeStatus,
+    LanPairingDiscoverySource, LanPairingNetworkMode, LanPairingParentAuthority,
+    LanPairingProductionDiscoveryState, LanPairingTrustState, LanSelectedDeviceReadiness,
+    LogFieldValue,
 };
 
 use crate::lan_network_inventory;
@@ -94,6 +95,7 @@ fn browser_add_device_read_model(
     let generated_at = timestamp_now();
     let selected = runtime.selected_target();
     let trusted_device_registry = trusted_device_registry(runtime);
+    let household_device_decisions = household_device_decisions(runtime);
     let network_devices = lan_network_inventory::discover_lan_network_devices();
     let discovered_devices = discovered_devices(
         runtime,
@@ -111,6 +113,7 @@ fn browser_add_device_read_model(
         lan_pairing_household_device_spine::canonical_household_devices(
             &discovered_devices,
             &trusted_device_registry,
+            &household_device_decisions,
         );
     LanBrowserAddDeviceReadModel {
         schema_version: constants::lan_pairing::SCHEMA_VERSION,
@@ -129,6 +132,7 @@ fn browser_add_device_read_model(
         canonical_household_devices,
         pairing_requests: pairing_requests(runtime, &generated_at),
         trusted_device_registry,
+        household_device_decisions,
         trusted_device_ids: runtime.trusted_device_ids(),
         revoked_device_ids: runtime.revoked_device_ids(),
         selected_device_readiness: selected_device_readiness(selected),
@@ -268,6 +272,14 @@ fn trusted_device_registry(
         .registry
         .lock()
         .map(|registry| registry.entries().to_vec())
+        .unwrap_or_default()
+}
+
+fn household_device_decisions(runtime: &LanPairingRuntime) -> Vec<LanHouseholdDeviceDecision> {
+    runtime
+        .registry
+        .lock()
+        .map(|registry| registry.household_device_decisions().to_vec())
         .unwrap_or_default()
 }
 

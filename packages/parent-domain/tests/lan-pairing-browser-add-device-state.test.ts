@@ -16,6 +16,7 @@ describe('browser-first LAN add-device read model', () => {
       agentDeviceCount: 1,
     });
     expect(parsed.trustedDeviceRegistry[0]?.childDevice.deviceId).toBe('child-device-1');
+    expect(parsed.householdDeviceDecisions[0]?.actionKind).toBe('rename');
     expect(parsed.trustedDeviceIds).toEqual(['child-device-1']);
     expect(parsed.selectedDeviceReadiness.readyForControl).toBe(false);
     expect(parsed.auditCheckLabels).toEqual(['wrong-origin', 'wrong-device', 'replayed', 'stale', 'revoked']);
@@ -56,6 +57,7 @@ function readModelFixture() {
     canonicalHouseholdDevices: [canonicalHouseholdDevice()],
     pairingRequests: [pairingRequest()],
     trustedDeviceRegistry: [trustedRegistryEntry()],
+    householdDeviceDecisions: [householdDecision()],
     trustedDeviceIds: ['child-device-1'],
     revokedDeviceIds: [],
     selectedDeviceReadiness: selectedReadiness(),
@@ -91,9 +93,42 @@ function canonicalHouseholdDevice() {
       confidence: 'manual-required',
       staleAt: generatedAt,
       offlineAt: null,
+      evidenceRecords: [trustedRegistryEvidenceRecord()],
     },
     childAgentInventory: null,
     policyTargetSurfaces: ['devices', 'policy', 'browser', 'app', 'screen', 'network', 'activity', 'tracking', 'ai'],
+  } as const;
+}
+
+function trustedRegistryEvidenceRecord() {
+  return {
+    schemaVersion: 'v0.9',
+    evidenceId: 'lan-evidence-trusted-registry-child-device-1',
+    source: 'trusted-registry',
+    evidenceKind: 'trusted-registry',
+    deviceId: 'child-device-1',
+    value: 'child-device-1',
+    normalizedValue: 'child-device-1',
+    firstSeenAt: generatedAt,
+    lastSeenAt: generatedAt,
+    expiresAt: null,
+    confidence: 'manual-required',
+    mergeKey: 'trusted:child-device-1',
+    note: null,
+  } as const;
+}
+
+function householdDecision() {
+  return {
+    schemaVersion: 'v0.9',
+    actionId: 'household-action-1',
+    actionKind: 'rename',
+    canonicalDeviceId: 'child-device-1',
+    childProfileId: null,
+    displayName: 'Mia Windows PC',
+    parentActorId: 'parent-actor-1',
+    decidedAt: generatedAt,
+    revokedAt: null,
   } as const;
 }
 

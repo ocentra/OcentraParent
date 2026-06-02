@@ -10,8 +10,13 @@ import {
   LanPairingTrustStateSchema,
 } from './lan-pairing-values';
 import { DeviceRuntimeRoleSchema, DeviceRuntimeRoleStateSchema, DeviceRuntimeRouteStateSchema } from './device-roles';
+import { LanDiscoveryEvidenceRecordSchema } from './lan-discovery-evidence';
 
 const NonEmptyHouseholdDeviceText = Schema.String.pipe(Schema.minLength(1));
+
+export const HouseholdCanonicalDeviceIdSchema = NonEmptyHouseholdDeviceText.pipe(
+  Schema.brand('HouseholdCanonicalDeviceId')
+);
 
 export const HouseholdDevicePlatformSchema = withParser(
   Schema.Literal('windows', 'linux', 'macos', 'android', 'ios', 'router', 'unknown')
@@ -93,6 +98,11 @@ export const HouseholdDeviceNetworkIdentitySchema = withParser(
     confidence: HouseholdDeviceInventoryConfidenceSchema,
     staleAt: Schema.Union(LanPairingTimestampSchema, Schema.Null),
     offlineAt: Schema.Union(LanPairingTimestampSchema, Schema.Null),
+    evidenceRecords: Schema.Array(LanDiscoveryEvidenceRecordSchema).pipe(
+      Schema.filter(
+        (records) => records.length > 0 || 'Expected canonical LAN devices to include at least one evidence record'
+      )
+    ),
   })
 );
 
@@ -118,7 +128,7 @@ export const ChildAgentInventoryPacketSchema = withParser(
 
 const HouseholdDeviceBaseSchema = Schema.Struct({
   schemaVersion: LanPairingSchemaVersionSchema,
-  canonicalDeviceId: ParentDeviceIdSchema,
+  canonicalDeviceId: HouseholdCanonicalDeviceIdSchema,
   displayName: ParentDeviceLabelSchema,
   classification: HouseholdDeviceClassificationSchema,
   roleBadges: Schema.Array(DeviceRuntimeRoleSchema),
@@ -171,6 +181,7 @@ export type HouseholdDeviceClassification = Infer<typeof HouseholdDeviceClassifi
 export type HouseholdDeviceInventorySource = Infer<typeof HouseholdDeviceInventorySourceSchema>;
 export type HouseholdDeviceInventoryConfidence = Infer<typeof HouseholdDeviceInventoryConfidenceSchema>;
 export type HouseholdDevicePolicyTargetSurface = Infer<typeof HouseholdDevicePolicyTargetSurfaceSchema>;
+export type HouseholdCanonicalDeviceId = typeof HouseholdCanonicalDeviceIdSchema.Type;
 export type HouseholdLanDeviceRef = Infer<typeof HouseholdLanDeviceRefSchema>;
 export type HouseholdDeviceNetworkIdentity = Infer<typeof HouseholdDeviceNetworkIdentitySchema>;
 export type ChildAgentInventoryPacket = Infer<typeof ChildAgentInventoryPacketSchema>;

@@ -4437,6 +4437,108 @@ function activityUnavailableRows(
   ];
 }
 
+function activityLanDiagnosticsRows(
+  addDeviceReadModel: Record<string, unknown> | null | undefined,
+  scopeValue: string,
+  selectedDevice: DeviceSlot | null,
+  gateRows: readonly ActivityManageDetailRow[]
+): readonly ActivityManageDetailRow[] | null {
+  if (!addDeviceReadModel) return null;
+  const canonicalDevices = activityRecordArray(addDeviceReadModel.canonicalHouseholdDevices);
+  const householdDecisions = activityRecordArray(addDeviceReadModel.householdDeviceDecisions);
+  const scanSummary = activityRecord(addDeviceReadModel.scanSummary);
+  const selectedCanonicalDevice =
+    scopeValue === 'device' && selectedDevice
+      ? canonicalDevices.find((device) => activityCanonicalDeviceMatchesSlot(device, selectedDevice))
+      : null;
+  const relevantDevices = selectedCanonicalDevice ? [selectedCanonicalDevice] : canonicalDevices;
+  const relevantDecisions = selectedCanonicalDevice
+    ? householdDecisions.filter((decision) =>
+        activitySameDeviceValue(
+          activityStateValue(decision.canonicalDeviceId, ''),
+          activityStateValue(selectedCanonicalDevice.canonicalDeviceId, '')
+        )
+      )
+    : householdDecisions;
+  const evidenceRecords = relevantDevices.flatMap((device) =>
+    activityRecordArray(activityRecord(device.networkIdentity)?.evidenceRecords)
+  );
+  const latestEvidence = evidenceRecords[0] ?? null;
+  const latestDecision = relevantDecisions[0] ?? null;
+  const sourceLabels = Array.from(
+    new Set(
+      evidenceRecords.map((record) => activityStateValue(record.source, '')).filter((source) => source.length > 0)
+    )
+  );
+  const targetLabel = selectedCanonicalDevice
+    ? activityStateValue(selectedCanonicalDevice.displayName)
+    : scopeValue === 'device'
+      ? activityManageTargetLabel(scopeValue, selectedDevice)
+      : 'Family';
+  return [
+    ...gateRows,
+    { label: 'LAN target', value: targetLabel, tone: 'cyan' },
+    { label: 'LAN read model', value: activityStateValue(addDeviceReadModel.addDeviceState), tone: 'gold' },
+    {
+      label: 'Physical LAN',
+      value: activityStateValue(addDeviceReadModel.physicalHouseholdLanState),
+      tone: 'purple',
+    },
+    {
+      label: 'Canonical devices',
+      value: activityStateValue(selectedCanonicalDevice ? 1 : canonicalDevices.length),
+      tone: 'cyan',
+    },
+    { label: 'Evidence records', value: activityStateValue(evidenceRecords.length), tone: 'gold' },
+    { label: 'Parent decisions', value: activityStateValue(relevantDecisions.length), tone: 'purple' },
+    {
+      label: 'Latest decision',
+      value: activityStateValue(latestDecision?.actionKind ?? latestDecision?.displayName),
+      tone: 'gold',
+    },
+    {
+      label: 'Sources',
+      value: sourceLabels.length > 0 ? sourceLabels.join(', ') : activityStateValue(scanSummary?.sourceLabels),
+      tone: 'cyan',
+    },
+    {
+      label: 'Latest evidence',
+      value: activityStateValue(latestEvidence?.evidenceKind ?? latestEvidence?.value),
+      tone: 'purple',
+    },
+    {
+      label: 'Scan summary',
+      value: `agent ${activityStateValue(scanSummary?.agentDeviceCount)} / passive ${activityStateValue(
+        scanSummary?.passiveDeviceCount
+      )} / infrastructure ${activityStateValue(scanSummary?.infrastructureDeviceCount)}`,
+      tone: 'gold',
+    },
+  ];
+}
+
+function activityCanonicalDeviceMatchesSlot(device: Record<string, unknown>, slot: DeviceSlot): boolean {
+  const networkIdentity = activityRecord(device.networkIdentity);
+  const deviceIds = [activityStateValue(device.canonicalDeviceId, ''), activityStateValue(device.routeId, '')];
+  const ipAddresses = activityRecordArray(networkIdentity?.ipAddresses);
+  const networkIps = Array.isArray(networkIdentity?.ipAddresses)
+    ? networkIdentity.ipAddresses.map((value) => activityStateValue(value, ''))
+    : [];
+  return (
+    deviceIds.some(
+      (deviceId) => activitySameDeviceValue(deviceId, slot.value) || activitySameDeviceValue(deviceId, slot.device?.id)
+    ) ||
+    activitySameDeviceValue(activityStateValue(networkIdentity?.macAddress, ''), slot.device?.mac) ||
+    networkIps.some((ip) => activitySameDeviceValue(ip, slot.device?.ip)) ||
+    ipAddresses.some((ip) => activitySameDeviceValue(activityStateValue(ip, ''), slot.device?.ip))
+  );
+}
+
+function activitySameDeviceValue(left: string | undefined, right: string | undefined): boolean {
+  const normalizedLeft = left?.trim().toLowerCase();
+  const normalizedRight = right?.trim().toLowerCase();
+  return !!normalizedLeft && normalizedLeft === normalizedRight;
+}
+
 function activityReportHistoryLabel(reportHistory: Record<string, unknown> | null): string {
   if (!reportHistory) return 'Unavailable';
   const reports = reportHistory.reports;
@@ -4469,6 +4571,7 @@ function activityRowsFromReadModels(
   const browserManaged = activityState?.browserManagedStatus;
   const browserEvidence = activityState?.browserEvidenceReadModel;
   const networkFlow = activityState?.networkFlowReadModel;
+  const lanAddDeviceReadModel = activityState?.lanAddDeviceReadModel;
   const ingest = activityState?.ingestStatus;
   const screenRow = activityLatestRow(screen);
   const appRow = activityLatestRow(appUse);
@@ -4681,14 +4784,17 @@ function activityRowsFromReadModels(
 
   if (tab === 'network') {
     if (!networkRow && !network && !networkFlow) {
-      return activityUnavailableRows('Network activity read model', 'ActivityNetworkReadModelReported', gateRows);
+      return (
+        activityLanDiagnosticsRows(lanAddDeviceReadModel, scopeValue, selectedDevice, gateRows) ??
+        activityUnavailableRows('Network activity read model', 'ActivityNetworkReadModelReported', gateRows)
+      );
     }
     const endpoint =
       networkRow?.destinationLabel ??
       networkRow?.destinationDomain ??
       activityEndpointLabel(networkRow?.destinationEndpoint);
     const counters = activityRecord(networkRow?.counters);
-    return [
+    const networkRows = [
       ...gateRows,
       { label: 'Destination', value: activityStateValue(endpoint), tone: 'purple' },
       { label: 'Process', value: activityStateValue(networkRow?.processName), tone: 'cyan' },
@@ -4703,6 +4809,8 @@ function activityRowsFromReadModels(
       { label: 'Sent', value: activityFormatBytes(counters?.bytesSent), tone: 'gold' },
       { label: 'Summary', value: activityStateValue(network?.summary ?? networkFlow?.custody), tone: 'purple' },
     ];
+    const lanRows = activityLanDiagnosticsRows(lanAddDeviceReadModel, scopeValue, selectedDevice, []);
+    return lanRows ? [...networkRows, ...lanRows] : networkRows;
   }
 
   return [
