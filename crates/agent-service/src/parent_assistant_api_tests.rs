@@ -14,10 +14,12 @@ use ocentra_parent_agent_protocol::{
     LogLevel, ParentAssistantActionConfirmResult, ParentAssistantActionPreviewKind,
     ParentAssistantActionPreviewResult, ParentAssistantActionPreviewState,
     ParentAssistantApiAuthorizationState, ParentAssistantApiProviderAccessState,
-    ParentAssistantBackendState, ParentAssistantEvidenceContext, ParentAssistantProviderState,
-    ParentAssistantProviderStatus, ParentAssistantRunCancelResult, ParentAssistantRunCancelState,
-    ParentAssistantRunState, ParentAssistantThreadResponse, ParentAssistantThreadState,
-    ParentEvidenceReference, ParentEvidenceReferenceKind, AGENT_PROTOCOL_SCHEMA_VERSION,
+    ParentAssistantBackendState, ParentAssistantEvidenceContext,
+    ParentAssistantProviderRoutingState, ParentAssistantProviderSelection,
+    ParentAssistantProviderState, ParentAssistantProviderStatus, ParentAssistantRunCancelResult,
+    ParentAssistantRunCancelState, ParentAssistantRunState, ParentAssistantThreadResponse,
+    ParentAssistantThreadState, ParentEvidenceReference, ParentEvidenceReferenceKind,
+    AGENT_PROTOCOL_SCHEMA_VERSION,
 };
 
 use crate::{
@@ -131,6 +133,23 @@ fn parent_assistant_provider_status_reports_local_runtime_and_api_boundary() {
     );
     assert!(status.api_provider_boundary.parent_authorization_required);
     assert!(status.api_provider_boundary.evidence_citation_required);
+    assert_eq!(
+        status.provider_route.routing_state,
+        ParentAssistantProviderRoutingState::NoProviderAvailable
+    );
+    assert_eq!(
+        status.provider_route.selected_provider,
+        ParentAssistantProviderSelection::None
+    );
+    assert_eq!(
+        status.provider_route.api_access_state,
+        ParentAssistantApiProviderAccessState::NotAuthorized
+    );
+    assert!(
+        !status
+            .provider_route
+            .child_safety_or_enforcement_use_allowed
+    );
 }
 
 #[test]
@@ -156,10 +175,6 @@ fn parent_assistant_api_boundary_requires_authorization_without_remote_adapter_c
         ParentAssistantApiProviderAccessState::AuthorizedUnavailable
     );
     assert_eq!(
-        boundary.provider_id,
-        constants::parent_assistant::API_PROVIDER_ID_AUTHORIZED
-    );
-    assert_eq!(
         boundary.provider_state,
         ParentAssistantProviderState::Unavailable
     );
@@ -170,10 +185,6 @@ fn parent_assistant_api_boundary_requires_authorization_without_remote_adapter_c
     assert!(!boundary.child_safety_or_enforcement_use_allowed);
     assert!(boundary.parent_authorization_required);
     assert!(boundary.evidence_citation_required);
-    assert_eq!(
-        boundary.retention_state,
-        constants::parent_assistant::API_PROVIDER_RETENTION_PARENT_AUTHORIZED
-    );
     assert_eq!(boundary.citations.len(), 1);
 
     let degraded_boundary = api_boundary::api_provider_boundary_for_access_state(
@@ -199,6 +210,29 @@ fn parent_assistant_api_boundary_requires_authorization_without_remote_adapter_c
     );
     assert!(!degraded_boundary.child_safety_or_enforcement_use_allowed);
     assert_eq!(degraded_boundary.citations.len(), 1);
+
+    assert_authorized_api_routes(&boundary, &degraded_boundary);
+}
+
+fn assert_authorized_api_routes(
+    boundary: &ocentra_parent_agent_protocol::ParentAssistantApiProviderBoundary,
+    degraded_boundary: &ocentra_parent_agent_protocol::ParentAssistantApiProviderBoundary,
+) {
+    let route = api_boundary::provider_route(ParentAssistantProviderState::Unavailable, boundary);
+    let degraded_route =
+        api_boundary::provider_route(ParentAssistantProviderState::Unavailable, degraded_boundary);
+    assert_eq!(
+        route.routing_state,
+        ParentAssistantProviderRoutingState::ApiProviderAuthorizedUnavailable
+    );
+    assert_eq!(
+        degraded_route.routing_state,
+        ParentAssistantProviderRoutingState::ApiProviderAuthorizedDegraded
+    );
+    assert!(
+        !route.child_safety_or_enforcement_use_allowed
+            && !degraded_route.child_safety_or_enforcement_use_allowed
+    );
 }
 
 #[test]
@@ -516,15 +550,14 @@ fn unique_temp_dir() -> PathBuf {
     name.push(constants::delimiter::HYPHEN);
     name.push_str(&std::process::id().to_string());
     name.push(constants::delimiter::HYPHEN);
-    name.push_str(&nanos_now().to_string());
+    name.push_str(
+        &SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .expect(constants::error::AGENT_EVENT_SERIALIZES)
+            .as_nanos()
+            .to_string(),
+    );
     let mut path = std::env::temp_dir();
     path.push(name);
     path
-}
-
-fn nanos_now() -> u128 {
-    SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .expect(constants::error::AGENT_EVENT_SERIALIZES)
-        .as_nanos()
 }

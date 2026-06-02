@@ -193,6 +193,9 @@ fn provider_status_for_command(command: &AgentCommandEnvelope) -> ParentAssistan
         .unavailable_reason
         .or_else(|| scheduler_status.unavailable_reason.clone());
     let citations = [default_evidence_context()];
+    let api_provider_boundary =
+        api_boundary::api_provider_boundary_for_command(command, &citations);
+    let provider_route = api_boundary::provider_route(provider_state, &api_provider_boundary);
 
     ParentAssistantProviderStatus {
         schema_version: policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
@@ -207,7 +210,8 @@ fn provider_status_for_command(command: &AgentCommandEnvelope) -> ParentAssistan
         unavailable_reason,
         queue_depth,
         busy,
-        api_provider_boundary: api_boundary::api_provider_boundary_for_command(command, &citations),
+        api_provider_boundary,
+        provider_route,
     }
 }
 

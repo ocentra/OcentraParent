@@ -4,7 +4,8 @@ use ocentra_parent_agent_protocol::{
     constants, policy_constants as policy, AgentCommandEnvelope, LogFieldValue,
     ParentAssistantApiAuthorizationState, ParentAssistantApiProviderAccessState,
     ParentAssistantApiProviderBoundary, ParentAssistantEvidenceContext,
-    ParentAssistantProviderState,
+    ParentAssistantProviderRoute, ParentAssistantProviderRoutingState,
+    ParentAssistantProviderSelection, ParentAssistantProviderState,
 };
 
 pub(crate) fn api_provider_boundary(
@@ -63,6 +64,74 @@ pub(crate) fn api_provider_boundary_for_access_state(
         ParentAssistantApiProviderAccessState::AuthorizedDegraded => {
             authorized_degraded_boundary(citations)
         }
+    }
+}
+
+pub(crate) fn provider_route(
+    local_provider_state: ParentAssistantProviderState,
+    api_boundary: &ParentAssistantApiProviderBoundary,
+) -> ParentAssistantProviderRoute {
+    let (routing_state, selected_provider, reason) =
+        provider_route_parts(local_provider_state, api_boundary);
+    ParentAssistantProviderRoute {
+        routing_state,
+        selected_provider,
+        local_provider_state,
+        api_provider_state: api_boundary.provider_state,
+        api_access_state: api_boundary.access_state,
+        evidence_citation_required: true,
+        remote_ai_optional: true,
+        child_safety_or_enforcement_use_allowed: false,
+        reason: reason.to_string(),
+    }
+}
+
+fn provider_route_parts(
+    local_provider_state: ParentAssistantProviderState,
+    api_boundary: &ParentAssistantApiProviderBoundary,
+) -> (
+    ParentAssistantProviderRoutingState,
+    ParentAssistantProviderSelection,
+    &'static str,
+) {
+    match local_provider_state {
+        ParentAssistantProviderState::Configured => (
+            ParentAssistantProviderRoutingState::LocalProviderReady,
+            ParentAssistantProviderSelection::Local,
+            constants::parent_assistant::PROVIDER_ROUTE_LOCAL_READY_REASON,
+        ),
+        ParentAssistantProviderState::Degraded => (
+            ParentAssistantProviderRoutingState::LocalProviderDegraded,
+            ParentAssistantProviderSelection::Local,
+            constants::parent_assistant::PROVIDER_ROUTE_LOCAL_DEGRADED_REASON,
+        ),
+        ParentAssistantProviderState::Unavailable => unavailable_provider_route(api_boundary),
+    }
+}
+
+fn unavailable_provider_route(
+    api_boundary: &ParentAssistantApiProviderBoundary,
+) -> (
+    ParentAssistantProviderRoutingState,
+    ParentAssistantProviderSelection,
+    &'static str,
+) {
+    match api_boundary.access_state {
+        ParentAssistantApiProviderAccessState::AuthorizedUnavailable => (
+            ParentAssistantProviderRoutingState::ApiProviderAuthorizedUnavailable,
+            ParentAssistantProviderSelection::None,
+            constants::parent_assistant::PROVIDER_ROUTE_API_UNAVAILABLE_REASON,
+        ),
+        ParentAssistantApiProviderAccessState::AuthorizedDegraded => (
+            ParentAssistantProviderRoutingState::ApiProviderAuthorizedDegraded,
+            ParentAssistantProviderSelection::None,
+            constants::parent_assistant::PROVIDER_ROUTE_API_DEGRADED_REASON,
+        ),
+        ParentAssistantApiProviderAccessState::NotAuthorized => (
+            ParentAssistantProviderRoutingState::NoProviderAvailable,
+            ParentAssistantProviderSelection::None,
+            constants::parent_assistant::PROVIDER_ROUTE_NONE_REASON,
+        ),
     }
 }
 

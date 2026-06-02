@@ -185,6 +185,7 @@ describe('parent assistant answer contracts', () => {
       citations: [EvidenceContext],
       actionPreview: ActionPreview,
       apiProviderBoundary: ApiProviderBoundary,
+      providerRoute: providerRoute('configured', 'local-provider-ready', 'local'),
       promptVersion: 'parent-assistant-local-v1',
     });
 
@@ -212,6 +213,7 @@ describe('parent assistant answer contracts', () => {
         citations: [],
         actionPreview: ActionPreview,
         apiProviderBoundary: ApiProviderBoundary,
+        providerRoute: providerRoute('configured', 'local-provider-ready', 'local'),
         promptVersion: 'parent-assistant-local-v1',
       }).success
     ).toBe(false);
@@ -247,6 +249,7 @@ describe('parent assistant unavailable answer contracts', () => {
         enforcementApplied: false,
       },
       apiProviderBoundary: ApiProviderBoundary,
+      providerRoute: providerRoute('unavailable', 'no-provider-available', 'none'),
       promptVersion: 'parent-assistant-local-v1',
     });
 
@@ -340,7 +343,7 @@ describe('parent assistant API provider boundary contracts', () => {
   });
 });
 
-describe('parent assistant backend runtime contracts', () => {
+describe('parent assistant backend thread contracts', () => {
   it('ParentAssistantRunStateSchema: accepts scheduler-backed run states and rejects non-contract states', () => {
     expect(ParentAssistantRunStateSchema.parse('queued')).toBe('queued');
     expect(ParentAssistantRunStateSchema.parse('unavailable')).toBe('unavailable');
@@ -359,7 +362,9 @@ describe('parent assistant backend runtime contracts', () => {
     expect(parsed.activeThread?.state).toBe('open');
     expect(parsed.threads[0]?.backendState).toBe('durable-local');
   });
+});
 
+describe('parent assistant provider status route contracts', () => {
   it('ParentAssistantProviderStatusSchema: exposes local provider and API custody boundaries', () => {
     const parsed = ParentAssistantProviderStatusSchema.parse({
       schemaVersion: ParentContractSchemaVersion.V0_6,
@@ -375,12 +380,67 @@ describe('parent assistant backend runtime contracts', () => {
       queueDepth: 0,
       busy: false,
       apiProviderBoundary: ApiProviderBoundary,
+      providerRoute: providerRoute('unavailable', 'no-provider-available', 'none'),
     });
 
     expect(parsed.apiProviderBoundary.authorizationState).toBe('not-authorized');
     expect(parsed.busy).toBe(false);
+    expect(parsed.providerRoute.selectedProvider).toBe('none');
+    expect(parsed.providerRoute.routingState).toBe('no-provider-available');
   });
 
+  it('ParentAssistantProviderStatusSchema: rejects provider routes that allow child-safety use', () => {
+    expect(
+      ParentAssistantProviderStatusSchema.safeParse({
+        schemaVersion: ParentContractSchemaVersion.V0_6,
+        backendState: 'runtime-backed',
+        providerId: 'local-provider-llama-cli',
+        modelId: 'local-gguf-chat-model',
+        providerState: 'unavailable',
+        runState: 'unavailable',
+        schedulerJobStatus: 'unavailable',
+        schedulerStatus: schedulerStatus('unavailable'),
+        degradedState: 'provider-unavailable',
+        unavailableReason: 'local-ai-provider-unconfigured',
+        queueDepth: 0,
+        busy: false,
+        apiProviderBoundary: ApiProviderBoundary,
+        providerRoute: {
+          ...providerRoute('unavailable', 'no-provider-available', 'none'),
+          childSafetyOrEnforcementUseAllowed: true,
+        },
+      }).success
+    ).toBe(false);
+  });
+
+  it('ParentAssistantProviderStatusSchema: rejects provider routes that do not match API custody boundary', () => {
+    expect(
+      ParentAssistantProviderStatusSchema.safeParse({
+        schemaVersion: ParentContractSchemaVersion.V0_6,
+        backendState: 'runtime-backed',
+        providerId: 'local-provider-llama-cli',
+        modelId: 'local-gguf-chat-model',
+        providerState: 'unavailable',
+        runState: 'unavailable',
+        schedulerJobStatus: 'unavailable',
+        schedulerStatus: schedulerStatus('unavailable'),
+        degradedState: 'provider-unavailable',
+        unavailableReason: 'local-ai-provider-unconfigured',
+        queueDepth: 0,
+        busy: false,
+        apiProviderBoundary: ApiProviderBoundary,
+        providerRoute: {
+          ...providerRoute('unavailable', 'no-provider-available', 'none'),
+          routingState: 'api-provider-authorized-degraded',
+          apiProviderState: 'degraded',
+          apiAccessState: 'authorized-degraded',
+        },
+      }).success
+    ).toBe(false);
+  });
+});
+
+describe('parent assistant runtime result contracts', () => {
   it('ParentAssistantRunCancelResultSchema: reports no-active-run without pretending to stop a runtime', () => {
     const parsed = ParentAssistantRunCancelResultSchema.parse({
       schemaVersion: ParentContractSchemaVersion.V0_6,
@@ -431,6 +491,30 @@ function threadRecord(state: 'open' | 'archived') {
     createdAt: '2026-05-28T17:20:00Z',
     updatedAt: '2026-05-28T17:20:01Z',
     messageCount: 0,
+  } as const;
+}
+
+function providerRoute(
+  localProviderState: 'configured' | 'degraded' | 'unavailable',
+  routingState:
+    | 'local-provider-ready'
+    | 'local-provider-degraded'
+    | 'local-provider-unavailable'
+    | 'api-provider-authorized-unavailable'
+    | 'api-provider-authorized-degraded'
+    | 'no-provider-available',
+  selectedProvider: 'local' | 'api' | 'none'
+) {
+  return {
+    routingState,
+    selectedProvider,
+    localProviderState,
+    apiProviderState: ApiProviderBoundary.providerState,
+    apiAccessState: ApiProviderBoundary.accessState,
+    evidenceCitationRequired: true,
+    remoteAiOptional: true,
+    childSafetyOrEnforcementUseAllowed: false,
+    reason: 'Local provider routing keeps API AI optional and outside child safety decisions.',
   } as const;
 }
 

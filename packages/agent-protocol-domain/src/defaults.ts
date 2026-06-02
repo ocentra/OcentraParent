@@ -371,6 +371,7 @@ export const AgentProtocolDefaults = {
     ParentAssistantCitationCount: 'parentAssistantCitationCount',
     ParentAssistantEvidenceSummary: 'parentAssistantEvidenceSummary',
     ParentAssistantProviderState: 'parentAssistantProviderState',
+    ParentAssistantProviderRoute: 'parentAssistantProviderRoute',
     ParentAssistantQuestion: 'parentAssistantQuestion',
     ParentAssistantRequestId: 'parentAssistantRequestId',
     QueryVisibility: 'queryVisibility',

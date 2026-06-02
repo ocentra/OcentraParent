@@ -50,6 +50,13 @@ pub(crate) fn parent_assistant_answer_payload(answer: &ParentAssistantAnswer) ->
             ),
         ),
         (
+            constants::parent_assistant::FIELD_PROVIDER_ROUTE,
+            LogFieldValue::String(
+                serde_json::to_string(&answer.provider_route)
+                    .expect(constants::error::AGENT_EVENT_SERIALIZES),
+            ),
+        ),
+        (
             constants::field::LOCAL_AI_RESULT_ID,
             optional_string(answer.local_ai_result_id.as_ref()),
         ),
@@ -130,6 +137,11 @@ pub(crate) fn parent_assistant_provider_status_payload(
         json_string_field(
             constants::field::PARENT_ASSISTANT_API_PROVIDER_BOUNDARY,
             serde_json::to_string(&status.api_provider_boundary)
+                .expect(constants::error::AGENT_EVENT_SERIALIZES),
+        ),
+        json_string_field(
+            constants::parent_assistant::FIELD_PROVIDER_ROUTE,
+            serde_json::to_string(&status.provider_route)
                 .expect(constants::error::AGENT_EVENT_SERIALIZES),
         ),
     ])
