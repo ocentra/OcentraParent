@@ -3,34 +3,15 @@ import { AgentLanBrowserAddDeviceReadModelSchema, AgentProtocolDefaults } from '
 
 describe('agent protocol browser-first LAN add-device state', () => {
   it('parses the service event read model D can consume without portal fixtures', () => {
-    const parsed = AgentLanBrowserAddDeviceReadModelSchema.parse(lanAddDeviceReadModelFixture());
+    const parsed = parseLanAddDeviceReadModelFixture();
 
-    expect(parsed.discoverySource).toBe('local-service');
-    expect(parsed.addDeviceState).toBe('pending');
-    expect(parsed.physicalHouseholdLanState).toBe('discovered');
-    expect(parsed.cloudRelayState).toBe('unavailable');
-    expect(parsed.discoveredDevices[0]?.childDevice.hardwareProfile?.cpuModel).toContain('Ryzen');
-    expect(parsed.discoveredDevices[1]?.childDevice.ipAddress).toBe('192.168.2.42');
-    expect(parsed.discoveredDevices[1]?.discoveryStatus).toBe('network-neighbor');
-    expect(parsed.scanSummary.sourceLabels).toEqual(['local-service', 'windows-neighbor-table']);
-    expect(parsed.scanSummary.scannedDeviceCount).toBe(2);
-    expect(parsed.scanSummary.agentDeviceCount).toBe(1);
-    expect(parsed.scanSummary.passiveDeviceCount).toBe(1);
-    expect(parsed.scanSummary.infrastructureDeviceCount).toBe(0);
-    expect(parsed.scanSummary.unsupportedDeviceCount).toBe(1);
-    expect(parsed.canonicalHouseholdDevices).toHaveLength(2);
-    expect(parsed.canonicalHouseholdDevices[0]?.canonicalDeviceId).toBe('lan-physical-mac-54271e97c331');
-    expect(parsed.canonicalHouseholdDevices[0]?.roleBadges).toEqual(['child-agent', 'portal', 'parent-controller']);
-    expect(parsed.canonicalHouseholdDevices[0]?.networkIdentity.evidenceRecords).toHaveLength(5);
-    expect(parsed.canonicalHouseholdDevices[1]?.classification).toBe('network-infrastructure');
-    expect(parsed.canonicalHouseholdDevices[1]?.enrollable).toBe(false);
-    expect(parsed.trustedDeviceRegistry[0]?.childDevice.deviceId).toBe('child-device-1');
-    expect(parsed.householdDeviceDecisions[0]?.actionKind).toBe('rename');
-    expect(parsed.productionHouseholdProof?.manualProofRequired).toContain('signed-lan-hello');
-    expect(parsed.productionHouseholdProof?.notImplemented).toEqual(['relay-route', 'cache-route']);
-    expect(parsed.selectedDeviceReadiness.readyForControl).toBe(false);
-    expect(AgentProtocolDefaults.Field.LanAddDeviceReadModel).toBe('addDeviceReadModel');
-    expect(AgentProtocolDefaults.Field.LanSelectedDeviceReady).toBe('selectedDeviceReady');
+    expectDiscoveryState(parsed);
+    expectDiscoveredDeviceState(parsed);
+    expectScanSummaryState(parsed);
+    expectCanonicalHouseholdDeviceState(parsed);
+    expectRegistryAndDecisionState(parsed);
+    expectProductionHouseholdProofState(parsed);
+    expectSelectedDeviceAndDefaultFields(parsed);
   });
 
   it('rejects duplicate canonical household rows in the protocol add-device read model', () => {
@@ -59,6 +40,59 @@ describe('agent protocol browser-first LAN add-device state', () => {
     ).toThrow(/evidence record/u);
   });
 });
+
+function parseLanAddDeviceReadModelFixture() {
+  return AgentLanBrowserAddDeviceReadModelSchema.parse(lanAddDeviceReadModelFixture());
+}
+
+type ParsedLanAddDeviceReadModel = ReturnType<typeof parseLanAddDeviceReadModelFixture>;
+
+function expectDiscoveryState(parsed: ParsedLanAddDeviceReadModel) {
+  expect(parsed.discoverySource).toBe('local-service');
+  expect(parsed.addDeviceState).toBe('pending');
+  expect(parsed.physicalHouseholdLanState).toBe('discovered');
+  expect(parsed.cloudRelayState).toBe('unavailable');
+}
+
+function expectDiscoveredDeviceState(parsed: ParsedLanAddDeviceReadModel) {
+  expect(parsed.discoveredDevices[0]?.childDevice.hardwareProfile?.cpuModel).toContain('Ryzen');
+  expect(parsed.discoveredDevices[1]?.childDevice.ipAddress).toBe('192.168.2.42');
+  expect(parsed.discoveredDevices[1]?.discoveryStatus).toBe('network-neighbor');
+}
+
+function expectScanSummaryState(parsed: ParsedLanAddDeviceReadModel) {
+  expect(parsed.scanSummary.sourceLabels).toEqual(['local-service', 'windows-neighbor-table']);
+  expect(parsed.scanSummary.scannedDeviceCount).toBe(2);
+  expect(parsed.scanSummary.agentDeviceCount).toBe(1);
+  expect(parsed.scanSummary.passiveDeviceCount).toBe(1);
+  expect(parsed.scanSummary.infrastructureDeviceCount).toBe(0);
+  expect(parsed.scanSummary.unsupportedDeviceCount).toBe(1);
+}
+
+function expectCanonicalHouseholdDeviceState(parsed: ParsedLanAddDeviceReadModel) {
+  expect(parsed.canonicalHouseholdDevices).toHaveLength(2);
+  expect(parsed.canonicalHouseholdDevices[0]?.canonicalDeviceId).toBe('lan-physical-mac-54271e97c331');
+  expect(parsed.canonicalHouseholdDevices[0]?.roleBadges).toEqual(['child-agent', 'portal', 'parent-controller']);
+  expect(parsed.canonicalHouseholdDevices[0]?.networkIdentity.evidenceRecords).toHaveLength(5);
+  expect(parsed.canonicalHouseholdDevices[1]?.classification).toBe('network-infrastructure');
+  expect(parsed.canonicalHouseholdDevices[1]?.enrollable).toBe(false);
+}
+
+function expectRegistryAndDecisionState(parsed: ParsedLanAddDeviceReadModel) {
+  expect(parsed.trustedDeviceRegistry[0]?.childDevice.deviceId).toBe('child-device-1');
+  expect(parsed.householdDeviceDecisions[0]?.actionKind).toBe('rename');
+}
+
+function expectProductionHouseholdProofState(parsed: ParsedLanAddDeviceReadModel) {
+  expect(parsed.productionHouseholdProof?.manualProofRequired).toContain('signed-lan-hello');
+  expect(parsed.productionHouseholdProof?.notImplemented).toEqual(['relay-route', 'cache-route']);
+}
+
+function expectSelectedDeviceAndDefaultFields(parsed: ParsedLanAddDeviceReadModel) {
+  expect(parsed.selectedDeviceReadiness.readyForControl).toBe(false);
+  expect(AgentProtocolDefaults.Field.LanAddDeviceReadModel).toBe('addDeviceReadModel');
+  expect(AgentProtocolDefaults.Field.LanSelectedDeviceReady).toBe('selectedDeviceReady');
+}
 
 function lanAddDeviceReadModelFixture() {
   return {
