@@ -40,7 +40,10 @@ PC while preserving local-first custody.
 - The parent service now emits a typed LAN scan summary, merges the local
   child-agent device with matching passive LAN evidence, and keeps passive
   neighbors/router rows separate from controllable child-agent targets.
-- Parent desktop Tauri proof exists.
+- Parent desktop Tauri proof now serializes active-controller route,
+  observer-read-only, live local-network custody, relay unavailable, cache
+  unavailable, and parent-owned storage unavailable states without implementing
+  LAN discovery itself.
 - Android/iOS package scaffolds and proof gates exist.
 - Optional remote relay and full mobile child-agent parity are not complete.
 
