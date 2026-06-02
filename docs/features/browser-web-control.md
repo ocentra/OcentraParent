@@ -47,6 +47,9 @@ control while being more honest about managed versus unmanaged sources.
   a Rust service WebSocket read model and typed agent-protocol adapter that link
   back to browser/domain adapter proof and keep exact URL control
   manual-required or not-claimed.
+- The V0.8 policy-dispatch proof now carries unmanaged browser process fallback
+  as report-only with real evidence references, child reason codes, audit refs,
+  and service-backed source state instead of exact URL claims.
 - Unmanaged browser states can be represented as possible bypass and
   process-only fallback, not exact URL/tab proof.
 - The raw browser setting inventory and reduced questionnaire forest are now
@@ -56,6 +59,7 @@ control while being more honest about managed versus unmanaged sources.
 
 Managed-browser exact URL action, category filtering, warning delivery,
 unmanaged fallback UX, and parent-facing rule UX are not product-complete.
+Policy dispatch proves the report-only boundary, not active tab enforcement.
 
 ## Checklist
 

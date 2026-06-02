@@ -69,6 +69,10 @@
       "import": "./dist/enforcement.js",
       "types": "./dist/enforcement.d.ts"
     },
+    "./enforcement-policy-dispatch": {
+      "import": "./dist/enforcement-policy-dispatch.js",
+      "types": "./dist/enforcement-policy-dispatch.d.ts"
+    },
     "./enforcement-host-adapter-preflight": {
       "import": "./dist/enforcement-host-adapter-preflight.js",
       "types": "./dist/enforcement-host-adapter-preflight.d.ts"

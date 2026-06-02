@@ -21,7 +21,8 @@ use crate::{
     browser_policy_runtime::BrowserPolicyRuntime,
     browser_runtime::build_browser_managed_status_report,
     enforcement_api::{
-        build_enforcement_audit_report, build_enforcement_product_control_spine_report,
+        build_enforcement_audit_report, build_enforcement_policy_dispatch_report,
+        build_enforcement_product_control_spine_report,
     },
     enforcement_timer_api::build_enforcement_timer_report,
     event_builder::{build_event, portal_peer},
@@ -211,14 +212,13 @@ async fn build_command_event(
         | AgentCommandName::AgentParentAssistantProviderStatusGet => {
             build_parent_assistant_scaffold_event(command)
         }
-        AgentCommandName::AgentEnforcementExecute => build_enforcement_audit_report(command).await,
-        AgentCommandName::AgentEnforcementProductControlSpineGet => {
-            build_enforcement_product_control_spine_report(command).await
-        }
         AgentCommandName::AgentEnforcementTimerRecover
         | AgentCommandName::AgentEnforcementTimerExpire
-        | AgentCommandName::AgentEnforcementOverrideCancel => {
-            build_enforcement_timer_report(command).await
+        | AgentCommandName::AgentEnforcementOverrideCancel
+        | AgentCommandName::AgentEnforcementExecute
+        | AgentCommandName::AgentEnforcementProductControlSpineGet
+        | AgentCommandName::AgentEnforcementPolicyDispatchGet => {
+            build_enforcement_command_report(command).await
         }
         AgentCommandName::AgentLanPairingProofSubmit
         | AgentCommandName::AgentLanPairingRouteSelect
@@ -233,6 +233,24 @@ async fn build_command_event(
         | AgentCommandName::AgentLanAiJobSubmit => {
             build_lan_pairing_status_report(lan_pairing, command)
         }
+    }
+}
+
+async fn build_enforcement_command_report(command: AgentCommandEnvelope) -> AgentEventEnvelope {
+    match command.command.clone() {
+        AgentCommandName::AgentEnforcementExecute => build_enforcement_audit_report(command).await,
+        AgentCommandName::AgentEnforcementProductControlSpineGet => {
+            build_enforcement_product_control_spine_report(command).await
+        }
+        AgentCommandName::AgentEnforcementPolicyDispatchGet => {
+            build_enforcement_policy_dispatch_report(command).await
+        }
+        AgentCommandName::AgentEnforcementTimerRecover
+        | AgentCommandName::AgentEnforcementTimerExpire
+        | AgentCommandName::AgentEnforcementOverrideCancel => {
+            build_enforcement_timer_report(command).await
+        }
+        _ => build_log_snapshot_report(command),
     }
 }
 

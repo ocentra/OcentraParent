@@ -42,12 +42,18 @@ match this usability while keeping policy local and auditable.
 - The V0.8 product-control runtime path now exposes those policy/audit states
   through a Rust service WebSocket read model and typed agent-protocol adapter
   that keep dry-run preview separate from adapter execution.
+- The V0.8 policy-dispatch proof now validates parent-authored dispatch intents
+  with actor, device, policy decision, schedule/time-budget reference, evidence
+  refs, approval state, override/audit refs, route/source state, and timer
+  recovery state before reporting dispatch-ready or rejected states.
 - Complete nontechnical authoring UX is not done.
 
 ## Current Gap
 
 Profiles, schedule builder, rule templates, conflict UX, ask-parent flow, bonus
-time, approvals, and full audit history are incomplete.
+time, approvals, and full audit history are incomplete. The new dispatch proof
+types approval/override state and audit refs but does not claim notification
+delivery or finished parent approval UX.
 
 ## Checklist
 

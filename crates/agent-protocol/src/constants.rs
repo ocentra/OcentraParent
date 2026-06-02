@@ -100,6 +100,7 @@ pub mod event_id {
     pub const ENFORCEMENT_TIMER_REPORTED: &str = "enforcement-timer-reported";
     pub const ENFORCEMENT_PRODUCT_CONTROL_SPINE_REPORTED: &str =
         "enforcement-product-control-spine-reported";
+    pub const ENFORCEMENT_POLICY_DISPATCH_REPORTED: &str = "enforcement-policy-dispatch-reported";
     pub const PARENT_ASSISTANT_THREAD_UPDATED: &str = "parent-assistant-thread-updated";
     pub const PARENT_ASSISTANT_MESSAGE_ACCEPTED: &str = "parent-assistant-message-accepted";
     pub const PARENT_ASSISTANT_RUN_STARTED: &str = "parent-assistant-run-started";
@@ -164,6 +165,8 @@ pub mod host_identity;
 pub mod v08_browser_domain_adapter_proof;
 #[path = "constants/v08_cross_platform_enforcement_capability_proof.rs"]
 pub mod v08_cross_platform_enforcement_capability_proof;
+#[path = "constants/v08_enforcement_policy_dispatch.rs"]
+pub mod v08_enforcement_policy_dispatch;
 #[path = "constants/v08_enforcement_product_control_spine.rs"]
 pub mod v08_enforcement_product_control_spine;
 #[path = "constants/v08_os_adapter_product_proof.rs"]

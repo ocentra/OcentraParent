@@ -14,6 +14,9 @@ development paths and orchestrates runtime commands.
 - V0.8 product-control spine runtime reports through
   `agent.enforcement.product-control-spine.get` without upgrading unsupported
   broad adapter claims.
+- V0.8 policy-dispatch runtime reports through
+  `agent.enforcement.policy-dispatch.get` with validated capability matrix,
+  evidence refs, timers, approvals, audit refs, and child reason codes.
 
 ## Must Not Own
 
@@ -51,3 +54,5 @@ flowchart LR
   remote routing.
 - Product-complete broad app, network/domain, exact URL, notification, and
   tamper enforcement still require platform-specific adapter proof.
+- Policy-dispatch read models are backend proof hooks; C-owned visual UX and
+  D-owned packaging/release proof remain outside this crate's scope.

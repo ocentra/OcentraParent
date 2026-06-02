@@ -35,6 +35,7 @@ mod browser_managed_session;
 mod enforcement_adapter;
 mod enforcement_app_time_limit;
 mod enforcement_boundary;
+mod enforcement_policy_dispatch;
 mod enforcement_readiness;
 mod enforcement_timer_state;
 mod journal;
@@ -90,6 +91,9 @@ pub use enforcement_boundary::{
     authorize_enforcement_boundary, evaluate_enforcement_boundary, EnforcementAdapterRequest,
     EnforcementAuthorizationOutcome, EnforcementBoundaryInput, EnforcementBoundaryOutcome,
     EnforcementBoundaryRejection,
+};
+pub use enforcement_policy_dispatch::{
+    validate_enforcement_policy_dispatch_read_model, EnforcementPolicyDispatchValidation,
 };
 pub use enforcement_readiness::broad_os_adapter_readiness;
 pub use enforcement_timer_state::{
@@ -153,6 +157,8 @@ mod enforcement_approval_audit_tests;
 mod enforcement_audit_boundary_tests;
 #[cfg(test)]
 mod enforcement_permission_dependency_tests;
+#[cfg(test)]
+mod enforcement_policy_dispatch_tests;
 #[cfg(test)]
 mod enforcement_readiness_tests;
 #[cfg(test)]

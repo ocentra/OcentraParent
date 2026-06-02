@@ -8,6 +8,9 @@ service shell.
 - Platform-neutral core helpers.
 - Evidence/journal/query-store runtime support.
 - Local adapter logic that can be tested without WebSocket transport.
+- Policy-dispatch validation that can reject wrong actor/device/evidence,
+  source, route, and capability combinations before the service exposes
+  dispatch-ready state.
 - Windows-specific capture/enforcement helpers when they are behind explicit
   platform boundaries.
 
@@ -41,3 +44,5 @@ flowchart LR
 - Keep adapters split by platform and capability.
 - Add real OS proof before a helper becomes a product claim.
 - Keep long-running capture/enforcement work nonblocking for service health.
+- Keep policy-dispatch validation platform-neutral and deterministic; adapter
+  execution stays behind explicit proof boundaries.

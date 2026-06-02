@@ -43,6 +43,10 @@ control with better evidence and local audit.
 - The V0.8 product-control runtime path now exposes app time-limit and scoped
   owned-process states through a Rust service WebSocket read model and typed
   agent-protocol adapter while broad app blocking stays manual-required.
+- The V0.8 policy-dispatch proof now validates parent actor, target device,
+  policy decision, schedule, app/game session evidence refs, adapter capability,
+  timer state, approval state, audit refs, and child reason codes before
+  dispatch-ready app/game time-limit states.
 - Broad app blocking remains manual-required or unproved by platform.
 - Raw app and game control setting inventories are preserved as design inputs,
   not product-complete implementation proof.
@@ -50,7 +54,9 @@ control with better evidence and local audit.
 ## Current Gap
 
 Parent-visible app catalog, category quality, install/approval linkage, child
-request flow, broad blocking, and cross-platform parity are incomplete.
+request flow, broad blocking, and cross-platform parity are incomplete. Broad
+installed-app blocking remains manual-required beyond the scoped
+owned-process/app-session proof.
 
 ## Checklist
 

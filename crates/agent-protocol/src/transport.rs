@@ -142,6 +142,8 @@ pub enum AgentCommandName {
     AgentEnforcementOverrideCancel,
     #[serde(rename = "agent.enforcement.product-control-spine.get")]
     AgentEnforcementProductControlSpineGet,
+    #[serde(rename = "agent.enforcement.policy-dispatch.get")]
+    AgentEnforcementPolicyDispatchGet,
     #[serde(rename = "agent.parent-assistant.thread.list")]
     AgentParentAssistantThreadList,
     #[serde(rename = "agent.parent-assistant.thread.create")]
@@ -260,6 +262,8 @@ pub enum AgentEventName {
     AgentEnforcementTimerReported,
     #[serde(rename = "agent.enforcement.product-control-spine.reported")]
     AgentEnforcementProductControlSpineReported,
+    #[serde(rename = "agent.enforcement.policy-dispatch.reported")]
+    AgentEnforcementPolicyDispatchReported,
     #[serde(rename = "agent.parent-assistant.thread.updated")]
     AgentParentAssistantThreadUpdated,
     #[serde(rename = "agent.parent-assistant.message.accepted")]

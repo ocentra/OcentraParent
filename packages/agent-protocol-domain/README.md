@@ -12,6 +12,8 @@ transports.
 - Adapter-specific command/event contracts for activity, browser policy,
   parent assistant, LAN, enforcement product-control runtime state, and related
   paths.
+- Enforcement policy-dispatch read-model event parsing for the service-backed
+  V0.8 dispatch proof path.
 
 ## Must Not Own
 
@@ -47,3 +49,6 @@ flowchart LR
   `agent.enforcement.product-control-spine.reported` by the
   `enforcement-product-control-adapter` export; product semantics stay in
   `parent-domain`.
+- V0.8 policy-dispatch runtime state is parsed from
+  `agent.enforcement.policy-dispatch.reported` by the
+  `enforcement-policy-dispatch-adapter` export.
