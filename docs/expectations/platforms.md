@@ -108,6 +108,11 @@ behavior belongs behind platform adapters and must be proved per platform.
   child desktop agent, child Android agent, child iOS agent, relay, signing,
   stores, and support states. Observer read-only state cannot imply policy write,
   approval, controller, capture, enforcement, timer, or local AI authority.
+- `mobile-child-agent-capability-proof` is the aggregate proof hook for child
+  Android/iOS mobile capability rows; it may record scaffold/manual-required/
+  blocked/not-implemented states, but it must not upgrade real device,
+  entitlement, signing, store, or external-transport claims without matching
+  artifacts.
 
 ## Validation Gates
 

@@ -95,6 +95,11 @@ deliverables planning pass:
   compatibility, foreground service behavior, notification permission,
   accessibility, VPN/DNS, device-owner, or managed-profile assumptions as each
   becomes relevant.
+- `mobile-child-agent-capability-proof` may aggregate current Android
+  child-agent scaffold/manual-required rows, but real Android support still
+  needs emulator/device artifacts for foreground service, UsageStats,
+  Accessibility, VPN/DNS, Device Owner, managed profile, Play signing, and
+  transport behavior.
 - Do not imply desktop-level capture or enforcement unless Android policy and
   device-management mode actually support it.
 
@@ -105,6 +110,10 @@ deliverables planning pass:
   signing proof.
 - Family Controls, Screen Time APIs, Network Extension, notifications, and
   background execution need separate entitlement and review evidence.
+- `mobile-child-agent-capability-proof` may aggregate current iOS
+  child-agent simulator/manual-required rows, but real iOS support still needs
+  Apple entitlement, signing, TestFlight/device, App Store, notification,
+  background, and Network Extension artifacts.
 - If Apple-approved APIs cannot provide a capability, document the limitation
   instead of claiming parity.
 

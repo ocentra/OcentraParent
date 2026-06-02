@@ -27,6 +27,10 @@ Supporting expectation files: [platforms](platforms.md),
 - Mobile packaging and install/update/store-readiness evidence is available for each claimed platform.
 - CI/emulator/simulator evidence is paired with real-device, entitlement, or
   managed-device notes where OS policy requires it.
+- `mobile-child-agent-capability-proof` keeps Android and iOS child-agent
+  package/runtime/capability state visible before full mobile parity; its proof
+  is scaffold/manual-required unless real device, entitlement, signing, store,
+  or transport artifacts are attached.
 
 ## Validation
 
