@@ -26,6 +26,14 @@ layout overlap at common desktop and mobile widths.
 
 Screenshots and Playwright checks support manual visual review.
 
+Current assistant chat proof:
+
+- `apps/portal/e2e/assistant-chat-ui-proof.spec.ts` verifies keyboard
+  collapse/expand, keyboard copy, and browser-console cleanliness for the MIA
+  chat bubble on `/#/assistant`.
+- Desktop and mobile screenshots are captured under
+  `output/playwright/assistant-chat-ui-proof/` for visual review.
+
 ## Parallel Ownership Notes
 
 This workpack is owned by C/user visual direction.

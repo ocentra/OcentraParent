@@ -1,4 +1,13 @@
-import { useEffect, useId, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import {
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type KeyboardEvent,
+  type ReactNode,
+} from 'react';
 
 const defaultChatBubbleText = '';
 
@@ -207,6 +216,8 @@ type ChatBubbleGeometry = {
   shouldScroll: boolean;
 };
 
+type HeaderButton = 'collapse' | 'copy';
+
 function mergeConfig(base: ChatBubbleConfig, override?: DeepPartial<ChatBubbleConfig>): ChatBubbleConfig {
   if (!override) return base;
 
@@ -404,7 +415,7 @@ function CopyDocumentIcon({
 }
 
 function DefaultTextContent({ text }: { text: string }) {
-  return <div style={{ whiteSpace: 'pre-wrap' }}>{text}</div>;
+  return <div style={{ overflowWrap: 'anywhere', whiteSpace: 'pre-wrap' }}>{text}</div>;
 }
 
 export function ChatBubbleSvg({
@@ -430,7 +441,8 @@ export function ChatBubbleSvg({
   const [isHovering, setIsHovering] = useState(false);
   const [isPressed, setIsPressed] = useState(false);
   const [internalCollapsed, setInternalCollapsed] = useState(false);
-  const [hoveredHeaderButton, setHoveredHeaderButton] = useState<'collapse' | 'copy' | null>(null);
+  const [hoveredHeaderButton, setHoveredHeaderButton] = useState<HeaderButton | null>(null);
+  const [focusedHeaderButton, setFocusedHeaderButton] = useState<HeaderButton | null>(null);
   const [contentHeight, setContentHeight] = useState(0);
   const [renderBodyContent, setRenderBodyContent] = useState(true);
   const contentMeasureRef = useRef<HTMLDivElement | null>(null);
@@ -442,6 +454,35 @@ export function ChatBubbleSvg({
   const fallbackContentHeight = estimateTextHeight(config, text);
   const measuredContentHeight = contentHeight || fallbackContentHeight;
   const geometry = calculateGeometry(config, width, measuredContentHeight, isCollapsed);
+  const activeHeaderButton = focusedHeaderButton ?? hoveredHeaderButton;
+  const articleLabel = messageLabel ?? (text || headerLabel || 'Chat message');
+
+  const activateHeaderButton = (event: KeyboardEvent<SVGGElement>, action: () => void) => {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    event.preventDefault();
+    event.stopPropagation();
+    action();
+  };
+
+  const toggleCollapsed = () => {
+    if (disabled) return;
+    const nextCollapsed = !isCollapsed;
+    if (collapsed === undefined) {
+      setRenderBodyContent(false);
+      window.setTimeout(() => setInternalCollapsed(nextCollapsed), config.body.contentFadeDelayMs);
+    }
+    onCollapsedChange?.(nextCollapsed);
+  };
+
+  const copyMessage = () => {
+    if (disabled) return;
+    if (onCopyClick) {
+      onCopyClick();
+      return;
+    }
+    const writePromise = navigator.clipboard?.writeText(text);
+    if (writePromise) void writePromise;
+  };
 
   useEffect(() => {
     const element = contentMeasureRef.current;
@@ -602,6 +643,9 @@ export function ChatBubbleSvg({
     transform: `translateY(${bodyTextTranslateY}px)`,
     transition: config.transition.body,
     whiteSpace: 'normal',
+    overflowWrap: 'anywhere',
+    wordBreak: 'break-word',
+    hyphens: 'auto',
     boxSizing: 'border-box',
     scrollbarColor: `${config.colors.scrollbarThumb} ${config.colors.scrollbarTrack}`,
     scrollbarWidth: 'thin',
@@ -620,6 +664,9 @@ export function ChatBubbleSvg({
     fontWeight: config.typography.fontWeight,
     letterSpacing: config.typography.letterSpacing,
     whiteSpace: 'normal',
+    overflowWrap: 'anywhere',
+    wordBreak: 'break-word',
+    hyphens: 'auto',
     boxSizing: 'border-box',
   };
 
@@ -627,7 +674,7 @@ export function ChatBubbleSvg({
     <div
       className={className}
       role="article"
-      aria-label={messageLabel ?? text}
+      aria-label={articleLabel}
       style={rootStyle}
       onPointerEnter={() => setIsHovering(true)}
       onPointerLeave={() => {
@@ -880,18 +927,19 @@ export function ChatBubbleSvg({
         />
         <g
           role="button"
+          tabIndex={disabled ? -1 : 0}
           aria-label={isCollapsed ? expandLabel : collapseLabel}
+          aria-expanded={!isCollapsed}
+          aria-disabled={disabled || undefined}
+          onFocus={() => setFocusedHeaderButton('collapse')}
+          onBlur={() => setFocusedHeaderButton(null)}
           onPointerEnter={() => setHoveredHeaderButton('collapse')}
           onPointerLeave={() => setHoveredHeaderButton(null)}
           onClick={(event) => {
             event.stopPropagation();
-            const nextCollapsed = !isCollapsed;
-            if (collapsed === undefined) {
-              setRenderBodyContent(false);
-              window.setTimeout(() => setInternalCollapsed(nextCollapsed), config.body.contentFadeDelayMs);
-            }
-            onCollapsedChange?.(nextCollapsed);
+            toggleCollapsed();
           }}
+          onKeyDown={(event) => activateHeaderButton(event, toggleCollapsed)}
           style={{ cursor: 'pointer', ...svgStyle }}
         >
           <rect
@@ -900,10 +948,10 @@ export function ChatBubbleSvg({
             width={config.controls.buttonSize}
             height={config.controls.buttonSize}
             rx={config.controls.buttonRadius}
-            fill={hoveredHeaderButton === 'collapse' ? config.colors.controlFillHover : config.colors.controlFill}
-            stroke={hoveredHeaderButton === 'collapse' ? config.colors.controlStrokeHover : config.colors.controlStroke}
+            fill={activeHeaderButton === 'collapse' ? config.colors.controlFillHover : config.colors.controlFill}
+            stroke={activeHeaderButton === 'collapse' ? config.colors.controlStrokeHover : config.colors.controlStroke}
             strokeWidth={config.controls.buttonStrokeWidth}
-            opacity={hoveredHeaderButton === 'collapse' ? config.opacity.controlHover : config.opacity.controlIdle}
+            opacity={activeHeaderButton === 'collapse' ? config.opacity.controlHover : config.opacity.controlIdle}
           />
           <path
             d={`M${collapseButtonCenterX - config.controls.chevronSize * 0.5} ${collapseButtonCenterY - config.controls.chevronSize * 0.24}L${collapseButtonCenterX} ${collapseButtonCenterY + config.controls.chevronSize * 0.24}L${collapseButtonCenterX + config.controls.chevronSize * 0.5} ${collapseButtonCenterY - config.controls.chevronSize * 0.24}`}
@@ -935,19 +983,20 @@ export function ChatBubbleSvg({
         {showCopy ? (
           <g
             role="button"
+            tabIndex={disabled ? -1 : 0}
             aria-label={copyLabel}
+            aria-disabled={disabled || undefined}
             opacity={copyOpacity}
             style={{ cursor: 'pointer', ...svgStyle }}
+            onFocus={() => setFocusedHeaderButton('copy')}
+            onBlur={() => setFocusedHeaderButton(null)}
             onPointerEnter={() => setHoveredHeaderButton('copy')}
             onPointerLeave={() => setHoveredHeaderButton(null)}
             onClick={(event) => {
               event.stopPropagation();
-              if (onCopyClick) {
-                onCopyClick();
-                return;
-              }
-              void navigator.clipboard?.writeText(text);
+              copyMessage();
             }}
+            onKeyDown={(event) => activateHeaderButton(event, copyMessage)}
           >
             <rect
               x={copyButtonBoxX}
@@ -955,17 +1004,17 @@ export function ChatBubbleSvg({
               width={config.controls.buttonSize}
               height={config.controls.buttonSize}
               rx={config.controls.buttonRadius}
-              fill={hoveredHeaderButton === 'copy' ? config.colors.controlFillHover : config.colors.controlFill}
-              stroke={hoveredHeaderButton === 'copy' ? config.colors.controlStrokeHover : config.colors.controlStroke}
+              fill={activeHeaderButton === 'copy' ? config.colors.controlFillHover : config.colors.controlFill}
+              stroke={activeHeaderButton === 'copy' ? config.colors.controlStrokeHover : config.colors.controlStroke}
               strokeWidth={config.controls.buttonStrokeWidth}
-              opacity={hoveredHeaderButton === 'copy' ? config.opacity.controlHover : config.opacity.controlIdle}
+              opacity={activeHeaderButton === 'copy' ? config.opacity.controlHover : config.opacity.controlIdle}
             />
             <CopyDocumentIcon
               x={copyX}
               y={copyY}
               size={copySize}
               config={config}
-              opacity={hoveredHeaderButton === 'copy' ? 1 : config.opacity.copyIdle}
+              opacity={activeHeaderButton === 'copy' ? 1 : config.opacity.copyIdle}
             />
           </g>
         ) : null}
