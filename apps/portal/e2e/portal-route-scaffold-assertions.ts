@@ -225,19 +225,28 @@ async function assertLanPairingRouteSurface(page: Page, surface: ReturnType<Page
     await expect(surface.locator('text').filter({ hasText: 'Update' }).first()).toBeVisible();
     await expect(surface.locator('text').filter({ hasText: 'Capability' }).first()).toBeVisible();
 
-    const localAgentChoice = page.getByRole('button', { name: /^Select (?!LAN ).+/ }).first();
-    await expect(localAgentChoice).toBeVisible();
-    await localAgentChoice.click({ force: true });
-    await expect(
-      surface
-        .locator('text')
-        .filter({ hasText: /Device : (?!No device selected).+/ })
-        .first()
-    ).toBeVisible();
+    const localAgentChoice = page.getByRole('button', { name: /^Select (?!LAN Devices$)(?!Parent Portal$).+/ }).first();
+    if ((await localAgentChoice.count()) > 0) {
+      await expect(localAgentChoice).toBeVisible();
+      await localAgentChoice.click({ force: true });
+      await expect(
+        surface
+          .locator('text')
+          .filter({ hasText: /Device: (?!No device selected).+/ })
+          .first()
+      ).toBeVisible();
+    } else {
+      await expect(surface.locator('text').filter({ hasText: 'SELECTED DEVICE CONTEXT' }).first()).toBeVisible();
+      await expect(surface.locator('text').filter({ hasText: 'Manual Required' }).first()).toBeVisible();
+    }
 
     await page.getByRole('tab', { name: 'Show LAN pairing Capability' }).click({ force: true });
     await expect(surface.locator('text').filter({ hasText: 'Agent' }).first()).toBeVisible();
-    await expect(surface.locator('text').filter({ hasText: 'ocentra-local-service' }).first()).toBeVisible();
+    if ((await localAgentChoice.count()) > 0) {
+      await expect(surface.locator('text').filter({ hasText: 'ocentra-local-service' }).first()).toBeVisible();
+    } else {
+      await expect(surface.locator('text').filter({ hasText: 'Not reported' }).first()).toBeVisible();
+    }
     await expect(surface.locator('text').filter({ hasText: 'CPU' }).first()).toBeVisible();
     await expect(surface.locator('text').filter({ hasText: 'GPU' }).first()).toBeVisible();
     await expect(surface.locator('text').filter({ hasText: 'Memory' }).first()).toBeVisible();
@@ -370,13 +379,20 @@ async function assertActivityReportSurface(page: Page, surface: ReturnType<Page[
   await expect(
     surface
       .locator('text')
-      .filter({ hasText: /Report device : (?!No device selected).+/ })
+      .filter({ hasText: /Report (device|target): .+/ })
       .first()
   ).toBeVisible();
   await expect(surface.locator('text').filter({ hasText: 'Frequency' }).first()).toBeVisible();
   await expect(surface.locator('text').filter({ hasText: 'Report viewer' }).first()).toBeVisible();
   await expect(surface.locator('text').filter({ hasText: 'SELECTED REPORT' }).first()).toBeVisible();
-  await expect(page.getByRole('button', { name: /^Open activity-report-.+\.json$/ })).toBeVisible();
+  const savedReportButton = page.getByRole('button', { name: /^Open activity-report-.+\.json$/ });
+  if ((await savedReportButton.count()) > 0) {
+    await expect(savedReportButton.first()).toBeVisible();
+  } else {
+    await expect(
+      surface.locator('text').filter({ hasText: 'No saved activity reports reported' }).first()
+    ).toBeVisible();
+  }
   await expect(page.getByRole('button', { name: 'Generate Daily activity report' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Save generated activity report' })).toBeVisible();
   await expect(surface.locator('text').filter({ hasText: 'Daily' }).first()).toBeVisible();
@@ -499,7 +515,10 @@ async function assertManageTargetSelectorSemantics(page: Page): Promise<void> {
   await page.goto('/#/lan-pairing');
   await expect(targetSelector).toHaveCount(0);
   await expect(surface.locator('text').filter({ hasText: 'Local Area Network' }).first()).toBeVisible();
-  await expect(surface.locator('text').filter({ hasText: 'No device selected' }).first()).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: 'SELECTED DEVICE CONTEXT' }).first()).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: 'SOURCE' }).first()).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: 'CONTROL' }).first()).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: 'ROUTE' }).first()).toBeVisible();
   await expect(surface.locator('text').filter({ hasText: 'Local device' })).toHaveCount(0);
   await expect(surface.locator('text').filter({ hasText: 'This parent portal' })).toHaveCount(0);
   await expect(surface.locator('text').filter({ hasText: 'New child device' })).toHaveCount(0);

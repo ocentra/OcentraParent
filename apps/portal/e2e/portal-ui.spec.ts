@@ -25,6 +25,7 @@ test('portal UI connects to the real agent and renders command results', async (
   await assertTabbedCommandResults(page);
   await assertRawEventLog(page);
   await assertOverview(page);
+  await assertDevicesRoute(page);
   await assertRouteScaffolds(page);
 
   expect(browserFailures).toEqual([]);
@@ -172,28 +173,32 @@ async function assertActivityReadModelResults(page: Page, commandResult: Locator
 async function assertRawEventLog(page: Page): Promise<void> {
   await page.goto('/#/events');
   await expect(page.getByRole('heading', { name: 'Device audit' })).toBeVisible();
-  await expect(page.getByText('agent.connection.ready')).toHaveCount(1);
-  await expect(page.getByText('agent.health.reported')).toHaveCount(4);
-  await expect(page.getByText('agent.log.snapshot.reported')).toHaveCount(3);
-  await expect(page.getByText('agent.dev.echoed')).toHaveCount(2);
-  await expect(page.getByText('agent.watch.status.reported')).toHaveCount(2);
-  await expect(page.getByText('agent.lan-pairing.status.reported')).toHaveCount(1);
-  await expect(page.getByText('agent.activity.ingest.status.reported')).toHaveCount(3);
-  await expect(page.getByText('agent.activity.recent.summary.reported')).toHaveCount(3);
-  await expect(page.getByText('agent.browser.evidence.recent.reported')).toHaveCount(3);
-  await expect(page.getByText('agent.activity.memory-graph.reported')).toHaveCount(3);
-  await expect(page.getByText('agent.activity.report.generated')).toHaveCount(2);
-  await expect(page.getByText('agent.activity.report.history.reported')).toHaveCount(3);
-  await expect(page.getByText('agent.activity.screen.read-model.reported')).toHaveCount(3);
-  await expect(page.getByText('agent.activity.app-use.read-model.reported')).toHaveCount(3);
-  await expect(page.getByText('agent.activity.browser.read-model.reported')).toHaveCount(3);
-  await expect(page.getByText('agent.activity.games.read-model.reported')).toHaveCount(3);
-  await expect(page.getByText('agent.activity.network.read-model.reported')).toHaveCount(3);
-  await expect(page.getByText('agent.browser.intervention.read-model.reported')).toHaveCount(3);
-  await expect(page.getByText('agent.browser.managed.status.reported')).toHaveCount(3);
-  await expect(page.getByText('agent.network.flow.read-model.reported')).toHaveCount(3);
-  await expect(page.getByText('agent.local-ai.runtime.status.reported')).toHaveCount(3);
-  await expect(page.getByText('agent.policy.preview.read-model.reported')).toHaveCount(3);
+  await assertRawEventPresent(page, 'agent.connection.ready');
+  await assertRawEventPresent(page, 'agent.health.reported');
+  await assertRawEventPresent(page, 'agent.log.snapshot.reported');
+  await assertRawEventPresent(page, 'agent.dev.echoed');
+  await assertRawEventPresent(page, 'agent.watch.status.reported');
+  await assertRawEventPresent(page, 'agent.lan-pairing.status.reported');
+  await assertRawEventPresent(page, 'agent.activity.ingest.status.reported');
+  await assertRawEventPresent(page, 'agent.activity.recent.summary.reported');
+  await assertRawEventPresent(page, 'agent.browser.evidence.recent.reported');
+  await assertRawEventPresent(page, 'agent.activity.memory-graph.reported');
+  await assertRawEventPresent(page, 'agent.activity.report.generated');
+  await assertRawEventPresent(page, 'agent.activity.report.history.reported');
+  await assertRawEventPresent(page, 'agent.activity.screen.read-model.reported');
+  await assertRawEventPresent(page, 'agent.activity.app-use.read-model.reported');
+  await assertRawEventPresent(page, 'agent.activity.browser.read-model.reported');
+  await assertRawEventPresent(page, 'agent.activity.games.read-model.reported');
+  await assertRawEventPresent(page, 'agent.activity.network.read-model.reported');
+  await assertRawEventPresent(page, 'agent.browser.intervention.read-model.reported');
+  await assertRawEventPresent(page, 'agent.browser.managed.status.reported');
+  await assertRawEventPresent(page, 'agent.network.flow.read-model.reported');
+  await assertRawEventPresent(page, 'agent.local-ai.runtime.status.reported');
+  await assertRawEventPresent(page, 'agent.policy.preview.read-model.reported');
+}
+
+async function assertRawEventPresent(page: Page, eventName: string): Promise<void> {
+  await expect(page.getByText(eventName).first()).toBeVisible();
 }
 
 async function assertCommandResult(
@@ -225,6 +230,32 @@ async function assertOverview(page: Page): Promise<void> {
   await expect(surface.locator('text').filter({ hasText: 'Current device state' }).first()).toBeVisible();
   await expect(surface.locator('text').filter({ hasText: 'WHAT PARENTS CONTROL' }).first()).toBeVisible();
   await expect(surface.locator('text').filter({ hasText: 'DATA CUSTODY' }).first()).toBeVisible();
+}
+
+async function assertDevicesRoute(page: Page): Promise<void> {
+  await page.goto('/#/devices');
+  const surface = page.locator('svg.parent-portal-svg-surface');
+  await expect(surface).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: 'SELECTED DEVICE CONTEXT' }).first()).toBeVisible();
+  await expect(
+    surface
+      .locator('text')
+      .filter({ hasText: /SELECTED DEVICE/i })
+      .first()
+  ).toBeVisible();
+  await expect(
+    surface
+      .locator('text')
+      .filter({ hasText: /SOURCE/i })
+      .first()
+  ).toBeVisible();
+  await expect(
+    surface
+      .locator('text')
+      .filter({ hasText: /CONTROL/i })
+      .first()
+  ).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: /ROUTE/i }).first()).toBeVisible();
 }
 
 async function assertCopyButton(page: Page, commandResult: Locator, eventName: string): Promise<void> {

@@ -13,7 +13,9 @@ const DEVICE_SELECTED_INFO_COPY = {
   Empty: '',
   InfrastructureRole: 'Network infrastructure',
   LanSource: 'LAN neighbor',
+  LocalAndLanSource: 'Child agent + LAN',
   NotReported: 'Not reported',
+  RoutePrefix: 'Route',
   ServiceRole: 'Service state',
   Separator: ' | ',
 } as const;
@@ -157,6 +159,9 @@ function selectedDeviceInfoLines(slot: DeviceSlot, cfg: DeviceChoiceGridConfig):
 
 function deviceSourceLabel(slot: DeviceSlot): string {
   if (!slot.device) return DEVICE_SELECTED_INFO_COPY.ServiceRole;
+  if (deviceSlotHasAgent(slot) && firstDeviceText(slot.device.ip, slot.device.mac)) {
+    return DEVICE_SELECTED_INFO_COPY.LocalAndLanSource;
+  }
   if (deviceSlotHasAgent(slot)) return DEVICE_SELECTED_INFO_COPY.AgentSource;
   if (deviceSlotIsInfrastructure(slot)) return DEVICE_SELECTED_INFO_COPY.InfrastructureRole;
   return DEVICE_SELECTED_INFO_COPY.LanSource;
@@ -185,7 +190,9 @@ function deviceHardwareLabel(slot: DeviceSlot): string {
 }
 
 function deviceStateLabel(slot: DeviceSlot): string {
-  return humanizeDeviceToken(slot.badge) || humanizeDeviceToken(slot.status);
+  const state = humanizeDeviceToken(slot.device?.sourceState ?? slot.badge) || humanizeDeviceToken(slot.status);
+  const route = humanizeDeviceToken(slot.device?.routeId);
+  return compactDeviceLine([state, route ? `${DEVICE_SELECTED_INFO_COPY.RoutePrefix}: ${route}` : '']);
 }
 
 function compactDeviceLine(parts: readonly string[]): string {

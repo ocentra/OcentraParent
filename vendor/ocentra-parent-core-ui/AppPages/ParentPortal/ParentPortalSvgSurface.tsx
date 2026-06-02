@@ -4110,6 +4110,12 @@ type LanPairingDetailRow = {
   readonly tone: Tone;
 };
 
+type LanPairingContextRow = {
+  readonly label: string;
+  readonly value: string;
+  readonly tone: Tone;
+};
+
 function lanPairingMissingDeviceValue(value?: string): string {
   const trimmed = value?.trim();
   return trimmed ? trimmed : 'Not reported';
@@ -4129,16 +4135,64 @@ function lanPairingDeviceName(slot: DeviceSlot): string {
   return lanPairingMissingDeviceValue(slot.device?.name ?? slot.label);
 }
 
-function lanPairingDeviceStatus(slot: DeviceSlot): string {
-  return lanPairingHumanLabel(slot.status);
-}
-
 function lanPairingDevicePlatform(slot: DeviceSlot): string {
   return lanPairingHumanLabel(slot.platform ?? slot.device?.platform);
 }
 
 function lanPairingDeviceType(slot: DeviceSlot): string {
   return lanPairingHumanLabel(slot.device?.type);
+}
+
+function lanPairingDeviceSource(slot: DeviceSlot): string {
+  if (lanPairingDeviceHasAgent(slot) && (slot.device?.ip || slot.device?.mac)) return 'Child agent + LAN evidence';
+  if (lanPairingDeviceHasAgent(slot)) return 'Local child agent';
+  if (lanPairingDeviceIsInfrastructure(slot)) return 'Network infrastructure';
+  if (slot.device?.ip || slot.device?.mac || slot.device?.hostname) return 'LAN discovered';
+  return 'Service state';
+}
+
+function lanPairingDeviceControlState(slot: DeviceSlot): string {
+  const state = slot.device?.sourceState || slot.badge || slot.status;
+  if (lanPairingDeviceIsInfrastructure(slot) || slot.status === 'unsupported') return 'Visible only';
+  if (state === 'manual-required') return 'Manual required';
+  if (state === 'unavailable' || state === 'degraded') return lanPairingHumanLabel(state);
+  if (slot.status === 'offline') return 'Offline';
+  if (slot.status === 'connected' && lanPairingDeviceHasAgent(slot)) return 'Policy target';
+  if (lanPairingDeviceHasAgent(slot)) return 'Setup needed';
+  return 'Visible only';
+}
+
+function lanPairingDeviceRoute(slot: DeviceSlot): string {
+  return lanPairingMissingDeviceValue(slot.device?.routeId);
+}
+
+function lanPairingDeviceState(slot: DeviceSlot): string {
+  return lanPairingHumanLabel(slot.device?.sourceState || slot.badge || slot.status);
+}
+
+function lanPairingDeviceHasAgent(slot: DeviceSlot): boolean {
+  return Boolean(slot.device?.agentStatus?.trim());
+}
+
+function lanPairingDeviceIsInfrastructure(slot: DeviceSlot): boolean {
+  return slot.badge === 'infrastructure' || slot.device?.type === 'router' || slot.device?.platform === 'router';
+}
+
+function lanPairingContextRowsFor(selectedDevice: DeviceSlot | null): readonly LanPairingContextRow[] {
+  if (!selectedDevice) {
+    return [
+      { label: 'Selected device', value: 'No valid service-backed device selected', tone: 'gold' },
+      { label: 'Source', value: 'Unavailable', tone: 'purple' },
+      { label: 'Control', value: 'Unavailable', tone: 'cyan' },
+      { label: 'Route', value: 'Not reported', tone: 'gold' },
+    ];
+  }
+  return [
+    { label: 'Selected device', value: lanPairingDeviceName(selectedDevice), tone: 'cyan' },
+    { label: 'Source', value: lanPairingDeviceSource(selectedDevice), tone: 'purple' },
+    { label: 'Control', value: lanPairingDeviceControlState(selectedDevice), tone: 'gold' },
+    { label: 'Route', value: lanPairingDeviceRoute(selectedDevice), tone: 'cyan' },
+  ];
 }
 
 function lanPairingDetailRowsFor(
@@ -4151,13 +4205,16 @@ function lanPairingDetailRowsFor(
 
   const sharedRows: readonly LanPairingDetailRow[] = [
     { label: 'Name', value: lanPairingDeviceName(selectedDevice), tone: 'cyan' },
-    { label: 'Status', value: lanPairingDeviceStatus(selectedDevice), tone: 'gold' },
+    { label: 'State', value: lanPairingDeviceState(selectedDevice), tone: 'gold' },
+    { label: 'Control', value: lanPairingDeviceControlState(selectedDevice), tone: 'cyan' },
     { label: 'Platform', value: lanPairingDevicePlatform(selectedDevice), tone: 'purple' },
   ];
 
   if (tab === 'update') {
     return [
       ...sharedRows,
+      { label: 'Source', value: lanPairingDeviceSource(selectedDevice), tone: 'purple' },
+      { label: 'Route', value: lanPairingDeviceRoute(selectedDevice), tone: 'gold' },
       { label: 'IP', value: lanPairingMissingDeviceValue(selectedDevice.device?.ip), tone: 'cyan' },
       { label: 'MAC', value: lanPairingMissingDeviceValue(selectedDevice.device?.mac), tone: 'purple' },
       { label: 'Host', value: lanPairingMissingDeviceValue(selectedDevice.device?.hostname), tone: 'gold' },
@@ -4194,6 +4251,9 @@ function lanPairingDetailRowsFor(
   }
   return [
     { label: 'Name', value: lanPairingDeviceName(selectedDevice), tone: 'cyan' },
+    { label: 'Source', value: lanPairingDeviceSource(selectedDevice), tone: 'purple' },
+    { label: 'Control', value: lanPairingDeviceControlState(selectedDevice), tone: 'gold' },
+    { label: 'Route', value: lanPairingDeviceRoute(selectedDevice), tone: 'cyan' },
     { label: 'IP', value: lanPairingMissingDeviceValue(selectedDevice.device?.ip), tone: 'gold' },
     { label: 'MAC', value: lanPairingMissingDeviceValue(selectedDevice.device?.mac), tone: 'purple' },
     { label: 'Host', value: lanPairingMissingDeviceValue(selectedDevice.device?.hostname), tone: 'cyan' },
@@ -4202,7 +4262,7 @@ function lanPairingDetailRowsFor(
       value: lanPairingMissingDeviceValue(selectedDevice.device?.networkInterface),
       tone: 'gold',
     },
-    { label: 'Status', value: lanPairingDeviceStatus(selectedDevice), tone: 'cyan' },
+    { label: 'State', value: lanPairingDeviceState(selectedDevice), tone: 'cyan' },
     { label: 'Platform', value: lanPairingDevicePlatform(selectedDevice), tone: 'gold' },
     { label: 'Type', value: lanPairingDeviceType(selectedDevice), tone: 'purple' },
     { label: 'Agent', value: lanPairingMissingDeviceValue(selectedDevice.device?.agentStatus), tone: 'cyan' },
@@ -11032,7 +11092,19 @@ function ManageControlPanel({
   );
   const lanPairingDetailRowH = 44;
   const lanPairingDetailRows = lanPairingDetailRowsFor(lanPairingActiveTab, lanPairingSelectedSlot);
-  const lanPairingDetailRowTop = lanPairingBodyY + 24;
+  const lanPairingContextRows = lanPairingContextRowsFor(lanPairingSelectedSlot);
+  const lanPairingContextGap = 10;
+  const lanPairingContextColumns = lanPairingBodyW > 760 ? 4 : 2;
+  const lanPairingContextRowH = 38;
+  const lanPairingContextRowW = Math.max(
+    118,
+    (lanPairingBodyW - 40 - lanPairingContextGap * (lanPairingContextColumns - 1)) / lanPairingContextColumns
+  );
+  const lanPairingContextY = lanPairingBodyY + 22;
+  const lanPairingDetailRowTop =
+    lanPairingContextY +
+    Math.ceil(lanPairingContextRows.length / lanPairingContextColumns) * (lanPairingContextRowH + 8) +
+    10;
   const lanPairingDetailRowsBottom = lanPairingBodyY + lanPairingBodyH - 20;
   const lanPairingDetailVisibleCount = Math.max(
     1,
@@ -11316,6 +11388,33 @@ function ManageControlPanel({
               strokeWidth={0.7}
               opacity={0.25}
             />
+            <text x={lanPairingBodyX + 20} y={lanPairingBodyY + 15} fontSize={10.4} fontWeight={950} fill={color}>
+              SELECTED DEVICE CONTEXT
+            </text>
+            {lanPairingContextRows.map((row, index) => {
+              const rowColor = toneColor(row.tone, cfg);
+              const column = index % lanPairingContextColumns;
+              const rowIndex = Math.floor(index / lanPairingContextColumns);
+              const rowX = lanPairingBodyX + 20 + column * (lanPairingContextRowW + lanPairingContextGap);
+              const rowY = lanPairingContextY + rowIndex * (lanPairingContextRowH + 8);
+              return (
+                <g key={`lan-pairing-context:${row.label}`}>
+                  <path
+                    d={cutRectPath(rowX, rowY, lanPairingContextRowW, lanPairingContextRowH, 8)}
+                    fill={colorAlpha(rowColor, '12')}
+                    stroke={rowColor}
+                    strokeWidth={0.82}
+                    opacity={0.94}
+                  />
+                  <text x={rowX + 12} y={rowY + 14} fontSize={9.2} fontWeight={950} fill={rowColor}>
+                    {truncateTextForWidth(row.label.toUpperCase(), lanPairingContextRowW - 24, 9.2, 0.58)}
+                  </text>
+                  <text x={rowX + 12} y={rowY + 29} fontSize={11.2} fontWeight={780} fill={cfg.colors.bodyText}>
+                    {truncateTextForWidth(row.value, lanPairingContextRowW - 24, 11.2, 0.58)}
+                  </text>
+                </g>
+              );
+            })}
             {lanPairingVisibleRows.map((row, index) => {
               const rowColor = toneColor(row.tone, cfg);
               const column = index % lanPairingDetailColumnCount;
