@@ -139,8 +139,11 @@ pub struct ActivityReportSourceState {
     pub state: ActivityReadModelState,
     pub reason: Option<String>,
     pub last_updated_at: Option<String>,
+    #[serde(default = "default_source_state_custody_label")]
     pub custody_label: ActivityReportCustodyLabel,
+    #[serde(default = "default_source_state_source_label")]
     pub source_label: ActivityReportSourceLabel,
+    #[serde(default)]
     pub raw_child_evidence_included: bool,
 }
 
@@ -163,8 +166,11 @@ pub struct ActivitySavedReportMetadata {
     pub saved_state: ActivitySavedReportState,
     pub saved_at: Option<String>,
     pub storage_reason: Option<String>,
+    #[serde(default = "default_saved_metadata_custody_label")]
     pub custody_label: ActivityReportCustodyLabel,
+    #[serde(default = "default_saved_metadata_source_label")]
     pub source_label: ActivityReportSourceLabel,
+    #[serde(default)]
     pub raw_child_evidence_included: bool,
 }
 
@@ -210,9 +216,36 @@ pub struct ActivityHistoricalReportListItem {
     pub saved_at: Option<String>,
     pub source_state_summary: ActivityReportSourceStateSummary,
     pub parsed_report: ActivityReportDocument,
+    #[serde(default = "default_history_item_custody_label")]
     pub custody_label: ActivityReportCustodyLabel,
+    #[serde(default = "default_history_item_source_label")]
     pub source_label: ActivityReportSourceLabel,
+    #[serde(default)]
     pub raw_child_evidence_included: bool,
+}
+
+fn default_source_state_custody_label() -> ActivityReportCustodyLabel {
+    ActivityReportCustodyLabel::ChildDeviceLocalSummary
+}
+
+fn default_source_state_source_label() -> ActivityReportSourceLabel {
+    ActivityReportSourceLabel::ActivityQueryStoreSummary
+}
+
+fn default_saved_metadata_custody_label() -> ActivityReportCustodyLabel {
+    ActivityReportCustodyLabel::ParentDeviceLocalReportJson
+}
+
+fn default_saved_metadata_source_label() -> ActivityReportSourceLabel {
+    ActivityReportSourceLabel::SavedReportJson
+}
+
+fn default_history_item_custody_label() -> ActivityReportCustodyLabel {
+    ActivityReportCustodyLabel::ParentDeviceLocalHistory
+}
+
+fn default_history_item_source_label() -> ActivityReportSourceLabel {
+    ActivityReportSourceLabel::SavedReportHistory
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

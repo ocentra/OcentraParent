@@ -91,9 +91,13 @@ export const ActivityReportSourceStateSchema = withParser(
     state: ActivityReadModelStateSchema,
     reason: Schema.Union(ActivityReportSummarySchema, Schema.Null),
     lastUpdatedAt: Schema.Union(ActivityTimestampSchema, Schema.Null),
-    custodyLabel: ActivityReportCustodyLabelSchema,
-    sourceLabel: ActivityReportSourceLabelSchema,
-    rawChildEvidenceIncluded: Schema.Literal(false),
+    custodyLabel: Schema.optionalWith(ActivityReportCustodyLabelSchema, {
+      default: () => 'child-device-local-summary' as const,
+    }),
+    sourceLabel: Schema.optionalWith(ActivityReportSourceLabelSchema, {
+      default: () => 'activity-query-store-summary' as const,
+    }),
+    rawChildEvidenceIncluded: Schema.optionalWith(Schema.Literal(false), { default: () => false as const }),
   })
 );
 
@@ -115,9 +119,11 @@ export const ActivitySavedReportMetadataSchema = withParser(
     savedState: ActivitySavedReportStateSchema,
     savedAt: Schema.Union(ActivityTimestampSchema, Schema.Null),
     storageReason: Schema.Union(ActivityReportSummarySchema, Schema.Null),
-    custodyLabel: ActivityReportCustodyLabelSchema,
-    sourceLabel: ActivityReportSourceLabelSchema,
-    rawChildEvidenceIncluded: Schema.Literal(false),
+    custodyLabel: Schema.optionalWith(ActivityReportCustodyLabelSchema, {
+      default: () => 'parent-device-local-report-json' as const,
+    }),
+    sourceLabel: Schema.optionalWith(ActivityReportSourceLabelSchema, { default: () => 'saved-report-json' as const }),
+    rawChildEvidenceIncluded: Schema.optionalWith(Schema.Literal(false), { default: () => false as const }),
   })
 );
 
@@ -162,9 +168,13 @@ export const ActivityHistoricalReportListItemSchema = withParser(
     savedAt: Schema.Union(ActivityTimestampSchema, Schema.Null),
     sourceStateSummary: ActivityReportSourceStateSummarySchema,
     parsedReport: ActivityReportDocumentSchema,
-    custodyLabel: ActivityReportCustodyLabelSchema,
-    sourceLabel: ActivityReportSourceLabelSchema,
-    rawChildEvidenceIncluded: Schema.Literal(false),
+    custodyLabel: Schema.optionalWith(ActivityReportCustodyLabelSchema, {
+      default: () => 'parent-device-local-history' as const,
+    }),
+    sourceLabel: Schema.optionalWith(ActivityReportSourceLabelSchema, {
+      default: () => 'saved-report-history' as const,
+    }),
+    rawChildEvidenceIncluded: Schema.optionalWith(Schema.Literal(false), { default: () => false as const }),
   })
 );
 
