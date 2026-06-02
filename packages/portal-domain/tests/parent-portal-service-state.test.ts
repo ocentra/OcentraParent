@@ -7,12 +7,19 @@ import {
   type AgentEventName,
   type AgentProtocolLogFields,
 } from '@ocentra-parent/agent-protocol-domain/contracts';
-import { PARENT_PORTAL_SERVICE_STATE, resolveParentPortalServiceState } from '../src/contracts';
+import {
+  PARENT_PORTAL_CONTENT,
+  PARENT_PORTAL_ROUTE_CONTEXT,
+  PARENT_PORTAL_SERVICE_STATE,
+  PortalRoute,
+  resolveParentPortalServiceState,
+} from '../src/contracts';
 
 describe('portal service-backed parent portal state', () => {
   parentPortalServiceRowTests();
   parentPortalLanAddDeviceRowTests();
   parentPortalActivityNetworkRowTests();
+  parentPortalProductShellRowTests();
 });
 
 function parentPortalServiceRowTests(): void {
@@ -21,14 +28,7 @@ function parentPortalServiceRowTests(): void {
     expect(state.content.modes.parentOverview.rowSource).toBe('api');
     expect(state.content.modes.parentManage.rowSource).toBe('api');
     expect(state.userEntry?.label).toBe('Local agent');
-    expect(state.parentPortalRows.map((row) => row.label)).toEqual([
-      'Local agent',
-      'LAN discovery',
-      'Device pairing',
-      'Browser activity',
-      'Activity reports',
-      'Network tracking',
-    ]);
+    expect(state.parentPortalRows.map((row) => row.label)).toEqual(expectedServiceRowLabels());
   });
 
   it('maps LAN and device service events into visible row readiness', () => {
@@ -67,6 +67,63 @@ function parentPortalServiceRowTests(): void {
       gapCount: 1,
       primaryArea: 'Browser',
       trend: 'unavailable',
+    });
+  });
+}
+
+function parentPortalProductShellRowTests(): void {
+  it('adds route-scoped product shell rows for manage surfaces without sample fallback claims', () => {
+    const state = resolveParentPortalServiceState({
+      connectionState: PARENT_PORTAL_SERVICE_STATE.Connection.Connected,
+      events: [],
+    });
+    const rowAreas = new Set(state.parentPortalRows.map((row) => normalizedPortalTarget(row.primaryArea ?? '')));
+    const selectableTargets = selectableParentPortalTargets();
+    const missingTargets: string[] = [];
+
+    for (const route of productShellRoutes()) {
+      const routeContext = PARENT_PORTAL_ROUTE_CONTEXT[route];
+      const control = selectableTargets.get(routeContext?.selectedControlId ?? '');
+      expect(control).toBeDefined();
+      if (!rowAreas.has(normalizedPortalTarget(control?.name ?? ''))) {
+        missingTargets.push(`${route}:${routeContext?.selectedControlId ?? ''}:${control?.name ?? ''}`);
+      }
+    }
+    expect(missingTargets).toEqual([]);
+    expect(rowByPrimaryArea(state.parentPortalRows, 'AI SETUP')).toMatchObject({
+      label: 'Assistant entry',
+      trend: 'backend-not-connected',
+    });
+    expect(rowByPrimaryArea(state.parentPortalRows, 'REMOTE SCREEN POLICY')).toMatchObject({
+      label: 'Remote screen policy',
+      trend: 'backend-not-connected',
+    });
+  });
+
+  it('uses policy and assistant events when those product shell backends report', () => {
+    const state = resolveParentPortalServiceState({
+      connectionState: PARENT_PORTAL_SERVICE_STATE.Connection.Connected,
+      events: [
+        payloadEvent(AgentEvent.PolicyPreviewReadModelReported, {
+          [AgentProtocolDefaults.Field.PolicyHandoffState]: 'observer-only',
+        }),
+        payloadEvent(AgentEvent.ParentAssistantProviderDegraded, {
+          [AgentProtocolDefaults.Field.ParentAssistantBackendState]: 'degraded',
+        }),
+      ],
+    });
+
+    expect(rowByPrimaryArea(state.parentPortalRows, 'APP POLICY')).toMatchObject({
+      label: 'App policy',
+      readyCount: 1,
+      gapCount: 0,
+      trend: 'observer-only',
+    });
+    expect(rowByPrimaryArea(state.parentPortalRows, 'AI SETUP')).toMatchObject({
+      label: 'Assistant entry',
+      readyCount: 1,
+      gapCount: 0,
+      trend: 'degraded',
     });
   });
 }
@@ -236,6 +293,97 @@ function parentPortalActivityNetworkRowTests(): void {
       trend: 'unavailable',
     });
   });
+}
+
+function expectedServiceRowLabels(): string[] {
+  return [
+    'Local agent',
+    'LAN discovery',
+    'Device pairing',
+    'Browser activity',
+    'Activity reports',
+    'Network tracking',
+    'Household setup',
+    'Household setup',
+    'Managed web path',
+    'Browser setup',
+    'Activity store',
+    'App and game sessions',
+    'Reports surface',
+    'App policy',
+    'Game policy',
+    'Screen analysis',
+    'Network activity',
+    'Tracking policy',
+    'Remote screen policy',
+    'Schedule plan',
+    'Approval queue',
+    'Enforcement readiness',
+    'Assistant entry',
+    'API providers',
+    'API providers',
+    'Memory setup',
+    'Data custody',
+    'Data custody',
+    'Export retention',
+    'Alerts',
+    'Notification channels',
+    'Remote access',
+    'Audit history',
+    'Support',
+    'Subscription',
+    'Entitlements',
+    'Device pairing',
+    'LAN discovery',
+    'Household setup',
+  ];
+}
+
+function productShellRoutes(): PortalRoute[] {
+  return [
+    PortalRoute.Overview,
+    PortalRoute.Activity,
+    PortalRoute.Browser,
+    PortalRoute.BrowserSettings,
+    PortalRoute.PolicyApps,
+    PortalRoute.PolicyGames,
+    PortalRoute.PolicyScreen,
+    PortalRoute.PolicyNetwork,
+    PortalRoute.PolicyTracking,
+    PortalRoute.PolicyRemoteScreen,
+    PortalRoute.Devices,
+    PortalRoute.LanPairing,
+    PortalRoute.CapabilityStatus,
+    PortalRoute.Notifications,
+    PortalRoute.NotificationChannels,
+    PortalRoute.DriveConnections,
+    PortalRoute.ExportRetention,
+    PortalRoute.RemoteAccess,
+    PortalRoute.AuditHistory,
+    PortalRoute.Subscription,
+    PortalRoute.Entitlements,
+    PortalRoute.Diagnostics,
+    PortalRoute.SettingsRules,
+    PortalRoute.AiRuntime,
+    PortalRoute.ApiProviders,
+    PortalRoute.MemorySettings,
+  ];
+}
+
+function selectableParentPortalTargets(): ReadonlyMap<string, { readonly name: string }> {
+  const controls = [...PARENT_PORTAL_CONTENT.controlAreas, ...PARENT_PORTAL_CONTENT.quickControls];
+  return new Map(controls.map((control) => [control.id, { name: control.name }]));
+}
+
+function rowByPrimaryArea(rows: readonly { readonly primaryArea?: string }[], primaryArea: string) {
+  const normalized = normalizedPortalTarget(primaryArea);
+  const row = rows.find((entry) => normalizedPortalTarget(entry.primaryArea ?? '') === normalized);
+  expect(row).toBeDefined();
+  return row;
+}
+
+function normalizedPortalTarget(value: string): string {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, '');
 }
 
 function serviceBackedState() {
