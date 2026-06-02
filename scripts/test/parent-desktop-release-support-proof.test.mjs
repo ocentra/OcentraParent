@@ -79,10 +79,9 @@ test('release-support proof separates preview mechanics from product claims', ()
   });
   const matrixRows = Object.fromEntries(proof.platformCapabilityMatrix.map((row) => [row.target, row]));
 
-  assert.deepEqual(proof.workpacks.completed, ['04', '06', '09', '10', '11', '12', '15', '16', '17', '18', '20']);
-  assert.deepEqual(proof.workpacks.partial, ['19']);
-  assert.match(proof.workpacks.partialReason, /docs\/product-capability-checklist\.md/u);
-  assert.doesNotMatch(proof.workpacks.partialReason, /packages\/parent-domain\/package\.json/u);
+  assert.deepEqual(proof.workpacks.completed, ['04', '06', '09', '10', '11', '12', '15', '16', '17', '18', '19', '20']);
+  assert.deepEqual(proof.workpacks.partial, []);
+  assert.equal(proof.workpacks.partialReason, null);
   assert.equal(proof.branchBoundary.main.productionPublish, false);
   assert.equal(proof.branchBoundary.production.productionPublish, true);
   assert.equal(proof.packageRuntimeEvidence.packageFrontendSource, 'built-portal-dist');
