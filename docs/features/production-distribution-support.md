@@ -37,17 +37,29 @@ dev-only repo when it claims consumer readiness.
 
 - Windows MSI/updater scaffolding exists.
 - Cross-platform package previews exist as CI mechanics.
+- Parent desktop Tauri package proof exposes built-portal frontend state,
+  Rust-service backend kind, package service-manager launch ownership, service
+  health endpoint, runtime readiness, fixed port/process ownership,
+  connect-or-degrade behavior, route/source/custody labels, support redaction,
+  preview/manual-required release states, platform-matrix split rows, and
+  blank-window guard state without treating Vite as a packaged backend.
+- Windows package lifecycle proof installs/starts the service wrapper and probes
+  the Rust service health endpoint; this remains CI/mechanical proof, not signed
+  release proof.
 - Billing/support/public website/store distribution are planned or incomplete.
 
 ## Current Gap
 
 Need production signing, release channels, app store paths, Play/TestFlight,
 support docs, privacy/legal docs, billing entitlement flows, update rollback,
-support bundle redaction, and public download/account/status surfaces.
+public download/account/status surfaces, production support workflows, and real
+signed installer/update-channel/store evidence beyond CI-mechanical
+package/runtime proof.
 
 ## Checklist
 
 - [ ] Windows signing and installer release proof.
+- [ ] Parent desktop package runtime proof tied to installer/update smoke.
 - [ ] Updater channel, rollback, and failure status.
 - [ ] macOS signing/notarization if shipped.
 - [ ] Android Play signing/store proof if shipped.

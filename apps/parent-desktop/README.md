@@ -16,6 +16,41 @@ cmd /c npm run tauri:build --workspace @ocentra-parent/parent-desktop
 
 For parallel worker demos, keep running the lane-specific Rust agent and Vite portal ports from the hub assignment, then use the Vite URL for visual HMR validation.
 
+## Runtime Package Proof
+
+The desktop Tauri command `parent_platform_proof_state` reports the package
+runtime boundary used by smoke tests:
+
+- built portal frontend source: packaged builds use `apps/portal/dist`;
+- backend kind: the shell expects the Rust agent service, not Vite as a backend;
+- service launch owner: installer/package service manager starts the Rust
+  service; Tauri connects to that service or reports degraded readiness;
+- service health endpoint, connect timeout, and fixed loopback agent address
+  ownership;
+- runtime readiness: connected when the Rust service socket accepts, degraded
+  when unavailable;
+- route/source/custody states: active-controller route, observer read-only,
+  live local-network custody, relay unavailable, parent cache unavailable, and
+  parent-owned storage unavailable are serialized for route and support proof;
+- package service proof: Windows service install starts `OcentraParentAgent`,
+  probes `http://127.0.0.1:4477/health`, and fails the lifecycle proof when
+  health is unavailable;
+- process ownership: the parent desktop shell does not run child-agent capture,
+  policy enforcement, timers, or local model execution;
+- preview/release state: package preview is unsigned, update channel is
+  scaffold-only, rollback is unavailable, and signing/notarization/store
+  distribution remain manual-required;
+- support/platform proof: support diagnostics expose only redacted
+  version/commit/platform/package/service/route fields, and the platform matrix
+  keeps parent desktop, parent mobile, child agents, signing, store, and relay
+  rows split;
+- port conflict policy: package/runtime proof records fixed Ocentra Parent ports
+  and does not reclaim unrelated processes.
+
+This is CI-mechanical package/runtime proof. It is not signing, installer
+release, update-channel, store, notarization, mobile, or child-device authority
+proof.
+
 ## Ownership
 
 - Packages the parent portal as a desktop app for parent-owned devices.

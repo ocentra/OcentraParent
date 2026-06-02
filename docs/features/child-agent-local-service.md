@@ -39,6 +39,10 @@ and clear degraded states.
   NVIDIA `nvidia-smi` inventory for the connected child agent when the platform
   exposes those details.
 - Many read-model and proof paths are service-backed.
+- Parent desktop package proof now reports Rust-service health/readiness,
+  backend kind, package service-manager launch ownership, fixed loopback port
+  ownership, connect-or-degrade behavior, route/source/custody labels, and
+  degraded state when the service socket is unavailable.
 - Windows installer/updater scaffolding exists.
 - Production service hardening and all adapter paths are not complete.
 

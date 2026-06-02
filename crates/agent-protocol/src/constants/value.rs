@@ -117,6 +117,40 @@ pub const DEVICE_RUNTIME_LOCAL_AI_CLAIM_SHARED_SINGLETON: &str = "shared-physica
 pub const PARENT_DESKTOP_BACKEND_RUST_SERVICE: &str = "rust-agent-service";
 pub const PARENT_DESKTOP_SERVICE_CONNECTED: &str = "connected";
 pub const PARENT_DESKTOP_SERVICE_UNAVAILABLE: &str = "unavailable";
+pub const PARENT_DESKTOP_RUNTIME_READY: &str = "runtime-ready";
+pub const PARENT_DESKTOP_RUNTIME_DEGRADED: &str = "runtime-degraded";
+pub const PARENT_DESKTOP_FRONTEND_BUILT_PORTAL_DIST: &str = "built-portal-dist";
+pub const PARENT_DESKTOP_HMR_BACKEND_NOT_USED: &str = "hmr-backend-not-used";
+pub const PARENT_DESKTOP_PROCESS_OWNER_SHELL_ONLY: &str = "parent-desktop-shell-only";
+pub const PARENT_DESKTOP_CONTROLLER_ROUTE_ACTIVE_CONTROLLER: &str = "active-controller-route";
+pub const PARENT_DESKTOP_OBSERVER_READ_ONLY: &str = "observer-read-only";
+pub const PARENT_DESKTOP_SOURCE_CUSTODY_LIVE_LOCAL_NETWORK: &str = "live-local-network-custody";
+pub const PARENT_DESKTOP_RELAY_ROUTE_UNAVAILABLE: &str = "relay-route-unavailable";
+pub const PARENT_DESKTOP_PARENT_CACHE_UNAVAILABLE: &str = "parent-cache-unavailable";
+pub const PARENT_DESKTOP_PARENT_STORAGE_UNAVAILABLE: &str = "parent-owned-storage-unavailable";
+pub const PARENT_DESKTOP_SERVICE_LAUNCH_OWNER_PACKAGE_SERVICE: &str = "package-service-manager";
+pub const PARENT_DESKTOP_SERVICE_LAUNCH_STRATEGY_CONNECT_OR_DEGRADE: &str =
+    "connect-existing-service-or-degrade";
+pub const PARENT_DESKTOP_PACKAGE_SERVICE_AUTO_START: &str = "package-installs-auto-start-service";
+pub const PARENT_DESKTOP_PACKAGE_HEALTH_PROBE_REQUIRED: &str = "package-health-probe-required";
+pub const PARENT_DESKTOP_PORT_CONFLICT_POLICY_NO_FOREIGN_RECLAIM: &str = "no-foreign-port-reclaim";
+pub const PARENT_DESKTOP_PORT_OWNERSHIP_FIXED_LOOPBACK: &str = "fixed-agent-4477-portal-4478";
+pub const PARENT_DESKTOP_BLANK_WINDOW_GUARD_FRONTEND_DIST: &str = "frontend-dist-configured";
+pub const PARENT_DESKTOP_PACKAGE_PREVIEW_UNSIGNED: &str = "unsigned-package-preview";
+pub const PARENT_DESKTOP_UPDATE_CHANNEL_SCAFFOLD: &str = "update-channel-scaffold";
+pub const PARENT_DESKTOP_ROLLBACK_UNAVAILABLE: &str = "rollback-unavailable";
+pub const PARENT_DESKTOP_SIGNING_MANUAL_REQUIRED: &str = "signing-manual-required";
+pub const PARENT_DESKTOP_NOTARIZATION_MANUAL_REQUIRED: &str = "notarization-manual-required";
+pub const PARENT_DESKTOP_STORE_DISTRIBUTION_MANUAL_REQUIRED: &str =
+    "store-distribution-manual-required";
+pub const PARENT_DESKTOP_SUPPORT_DIAGNOSTICS_REDACTED: &str = "support-diagnostics-redacted";
+pub const PARENT_DESKTOP_SUPPORT_OUTPUT_ALLOWED_FIELDS: &str =
+    "support-fields-version-commit-platform-package-service-route";
+pub const PARENT_DESKTOP_PLATFORM_MATRIX_SPLIT_PROOF_ROWS: &str =
+    "platform-matrix-split-proof-rows";
+pub const PARENT_DESKTOP_RELEASE_BRANCH_PRODUCTION_PROMOTION_REQUIRED: &str =
+    "production-promotion-required";
+pub const PARENT_DESKTOP_ARTIFACT_PROOF_CI_PREVIEW: &str = "ci-package-preview-artifact-proof";
 pub const LAN_AI_PROVIDER_STATUS_UNAVAILABLE: &str = "lan-ai-provider-unavailable";
 pub const LAN_AI_PROVIDER_STATUS_AVAILABLE: &str = "lan-ai-provider-available";
 pub const LAN_AI_PROVIDER_STATUS_DEGRADED: &str = "lan-ai-provider-degraded";
