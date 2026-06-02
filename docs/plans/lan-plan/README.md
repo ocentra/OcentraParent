@@ -19,6 +19,10 @@ LAN scan discovers. Child agent confirms. Parent assigns.
   lease state, trusted registry state, route recovery, local child-agent
   hardware inventory, Windows neighbor-table inventory, service scan summary,
   passive neighbor/router separation, and portal target filtering.
+- Branch `codex/v0-9-lan-signed-discovery-relay-spine` adds the next
+  protocol/service proof layer for signed discovery, route custody, trusted
+  registry safety, relay/cache unavailable states, and manual-required physical
+  proof labels. That proof is not the finished parent-facing LAN workflow.
 - This working lane owns the full LAN discovery plan end to end: contracts,
   Rust/service wiring, portal UI/UX surfaces, Activity/Network diagnostics, and
   proof. It still must not claim production household LAN readiness.
@@ -121,3 +125,62 @@ all screens or that ChatGPT knew the current C-lane UI implementation.
   including the portal UI/UX surfaces needed for this plan. Other lanes are
   coordination boundaries only; they are not a reason to split this LAN work
   into two truths.
+
+## Progress Reconciliation - 2026-06-02
+
+Checked items below mean there is concrete proof in merged `main` or in branch
+`codex/v0-9-lan-signed-discovery-relay-spine`. They do not mark a whole
+workpack complete unless every requirement in that workpack is complete.
+
+- [x] Main has the baseline V0.9 household LAN read model: local child-agent
+      inventory, passive neighbor/router separation, scan summary, trusted
+      registry input, selected-device readiness, route recovery, and portal
+      target filtering.
+- [x] Branch `codex/v0-9-lan-signed-discovery-relay-spine` adds typed
+      signed-discovery and relay/cache spine contracts in `parent-domain` and
+      `agent-protocol-domain`.
+- [x] The same branch adds Rust protocol/service parity for signed discovery
+      rows, rejected discovery states, route custody safety, trusted registry
+      route checks, and relay/cache unavailable/manual-required states.
+- [x] `scripts/test/v0-9-lan-signed-discovery-relay-spine.mjs` exists as the
+      focused proof harness for this branch and keeps physical household proof,
+      real relay/cache, and mobile/store/signing claims manual-required unless
+      separately proved.
+- [x] Feature docs for remote/LAN/mobile platforms and family setup/device
+      roles were updated on this branch to describe the signed discovery relay
+      proof and remaining gaps.
+- [x] Parent-facing Devices/LAN UX now consumes the signed discovery relay
+      spine from the B read model for selected-device route custody, signed
+      proof, relay/cache unavailable, manual-proof, audit, route requirement,
+      unproved-claim, and parent-decision labels.
+- [x] Devices/LAN add-to-portal now sends the existing
+      `agent.lan-pairing.add-device.request` command when the selected LAN slot
+      has a controllable service route, while unsupported/router slots remain
+      visible-only.
+- [x] Parent-facing Devices/LAN UX now has first-class action controls for
+      add, route select, rename, trust, ignore, restore, and revoke. Add,
+      rename/trust/ignore/restore decisions use the existing
+      `agent.lan-pairing.add-device.request` household-decision fields; route
+      select/revoke use LAN route commands, and the portal transport now routes
+      LAN commands to the selected local-network child target.
+- [x] Activity/Network diagnostics now render service-backed LAN read-model
+      state for selected/family target, cloud relay, physical LAN state,
+      selected route, signed proof, route safety, relay/cache, manual proof,
+      unproved claims, route requirements, audit checks, canonical devices,
+      evidence records, parent decisions, sources, and latest evidence.
+- [x] Activity/Network diagnostics now include lightweight LAN scan/evidence
+      timeline rows, signed adapter/heartbeat proof state, and policy-target
+      history in addition to route/evidence/decision state.
+- [x] Live browser proof was captured on the B lane dev ports for Devices/LAN,
+      Activity/Network diagnostics, and Network policy target binding:
+      `output/playwright/lan-ux-proof/devices-lan-controls.png`,
+      `output/playwright/lan-ux-proof/activity-network-diagnostics.png`, and
+      `output/playwright/lan-ux-proof/policy-network-targets.png`. This proves
+      the current service-backed surfaces render; it does not prove
+      two-physical-child household readiness.
+- [ ] Real production household proof still needs a second installed child
+      agent, signed hello/heartbeat artifacts, router/firewall reachability,
+      and captured manual validation artifacts.
+- [ ] Cloud relay/cache, parent-owned storage, Android/iOS child parity,
+      package signing, and store-distribution claims remain unavailable or
+      manual-required until separate implementation proof exists.

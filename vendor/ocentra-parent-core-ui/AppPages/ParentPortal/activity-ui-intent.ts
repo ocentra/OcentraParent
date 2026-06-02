@@ -296,6 +296,7 @@ function collectCanonicalLanDevices(readModel: Record<string, unknown>, devices:
     const reachability = stringValue(networkIdentity?.['reachability']);
     const discoveryState = stringValue(item?.['discoveryState']);
     const trustState = stringValue(item?.['trustState']);
+    const routeId = stringValue(item?.['routeId']);
     upsertLanDeviceSlot(devices, {
       deviceId,
       label: stringValue(item?.['displayName']) || deviceId,
@@ -316,7 +317,13 @@ function collectCanonicalLanDevices(readModel: Record<string, unknown>, devices:
       gpuMemory: stringValue(childAgentInventory?.['gpuMemory']),
       nvidiaSmi: stringValue(childAgentInventory?.['nvidiaSmi']),
       state: canonicalLanDeviceState(classification, reachability, discoveryState, trustState),
-      routeId: stringValue(item?.['routeId']),
+      routeId,
+      routeState: stringValue(item?.['routeState']),
+      trustState,
+      discoveryState,
+      sourceConfidence: stringValue(networkIdentity?.['confidence']),
+      evidenceLabel: firstString(item?.['sourceLabels']),
+      ...lanDeviceEvidence(readModel, deviceId, routeId),
     });
   }
 }
@@ -347,6 +354,8 @@ function collectDiscoveredLanDevices(readModel: Record<string, unknown>, devices
     const deviceId = stringValue(childDevice?.['deviceId']);
     if (!deviceId) continue;
     const hardwareProfile = recordValue(childDevice?.['hardwareProfile']);
+    const routeId = stringValue(item?.['routeId']);
+    const discoveryState = stringValue(item?.['discoveryState']);
     upsertLanDeviceSlot(devices, {
       deviceId,
       label: stringValue(childDevice?.['label']) || deviceId,
@@ -366,7 +375,11 @@ function collectDiscoveredLanDevices(readModel: Record<string, unknown>, devices
       gpuMemory: stringValue(hardwareProfile?.['gpuMemory']),
       nvidiaSmi: stringValue(hardwareProfile?.['nvidiaSmi']),
       state: lanDiscoveryDeviceState(item, childDevice),
-      routeId: stringValue(item?.['routeId']),
+      routeId,
+      discoveryState,
+      sourceConfidence: stringValue(item?.['discoveryStatus']),
+      evidenceLabel: stringValue(item?.['addressRef']),
+      ...lanDeviceEvidence(readModel, deviceId, routeId),
     });
   }
 }
@@ -414,6 +427,8 @@ function collectTrustedLanDevices(readModel: Record<string, unknown>, devices: M
     if (!deviceId) continue;
     const revokedAt = stringValue(item?.['revokedAt']);
     const hardwareProfile = recordValue(childDevice?.['hardwareProfile']);
+    const routeId = stringValue(item?.['routeId']);
+    const trustState = stringValue(item?.['trustState']);
     upsertLanDeviceSlot(devices, {
       deviceId,
       label: stringValue(childDevice?.['label']) || deviceId,
@@ -432,8 +447,10 @@ function collectTrustedLanDevices(readModel: Record<string, unknown>, devices: M
       gpuDriver: stringValue(hardwareProfile?.['gpuDriver']),
       gpuMemory: stringValue(hardwareProfile?.['gpuMemory']),
       nvidiaSmi: stringValue(hardwareProfile?.['nvidiaSmi']),
-      state: revokedAt ? 'revoked' : stringValue(item?.['trustState']) || 'paired',
-      routeId: stringValue(item?.['routeId']),
+      state: revokedAt ? 'revoked' : trustState || 'paired',
+      routeId,
+      trustState,
+      ...lanDeviceEvidence(readModel, deviceId, routeId),
     });
   }
 }
@@ -450,6 +467,7 @@ function collectPairingRequestDevices(readModel: Record<string, unknown>, device
       platform: 'unknown',
       state: stringValue(item?.['pairingState']) || 'manual-required',
       routeId: stringValue(item?.['routeId']),
+      ...lanDeviceEvidence(readModel, deviceId, stringValue(item?.['routeId'])),
     });
   }
 }
@@ -467,8 +485,176 @@ function collectSelectedLanDevice(readModel: Record<string, unknown>, devices: M
         ? 'ready'
         : stringValue(selected?.['reachability']) || stringValue(selected?.['trustState']) || 'unavailable',
     routeId: stringValue(selected?.['routeId']),
+    trustState: stringValue(selected?.['trustState']),
+    readinessState:
+      selected?.['readyForControl'] === true ? 'ready-for-control' : stringValue(selected?.['reachability']),
+    ...lanDeviceEvidence(readModel, deviceId, stringValue(selected?.['routeId'])),
     preferState: true,
   });
+}
+
+type LanDeviceEvidenceInput = {
+  readonly pairingId?: string | undefined;
+  readonly proofDigest?: string | undefined;
+  readonly origin?: string | undefined;
+  readonly expiresAt?: string | undefined;
+  readonly trustedAt?: string | undefined;
+  readonly parentDeviceId?: string | undefined;
+  readonly childProfileId?: string | undefined;
+  readonly routeState?: string | undefined;
+  readonly trustState?: string | undefined;
+  readonly discoveryState?: string | undefined;
+  readonly readinessState?: string | undefined;
+  readonly sourceConfidence?: string | undefined;
+  readonly custodyLabel?: string | undefined;
+  readonly signedProofCheck?: string | undefined;
+  readonly signedProofState?: string | undefined;
+  readonly routeSafety?: string | undefined;
+  readonly routeSafetyState?: string | undefined;
+  readonly routeSafetyReason?: string | undefined;
+  readonly relayCacheCheck?: string | undefined;
+  readonly relayCacheState?: string | undefined;
+  readonly relayCacheCustody?: string | undefined;
+  readonly manualProof?: string | undefined;
+  readonly claimsNotProved?: string | undefined;
+  readonly parentDecision?: string | undefined;
+  readonly auditLabel?: string | undefined;
+  readonly requirementLabel?: string | undefined;
+  readonly evidenceLabel?: string | undefined;
+};
+
+function lanDeviceEvidence(
+  readModel: Record<string, unknown>,
+  deviceId: string,
+  routeId: string
+): LanDeviceEvidenceInput {
+  const selectedReadiness = recordValue(readModel['selectedDeviceReadiness']);
+  const selectedMatches =
+    samePhysicalDeviceValue(deviceId, stringValue(selectedReadiness?.['selectedChildDeviceId'])) ||
+    samePhysicalDeviceValue(routeId, stringValue(selectedReadiness?.['routeId']));
+  const signedSpine = recordValue(readModel['signedDiscoveryRelaySpine']);
+  const routeSafetyRow = preferredLanSpineRouteRow(signedSpine, routeId);
+  const signedProofRow = firstLanSpineRecord(signedSpine, 'signedProofRows');
+  const relayCacheRow = firstLanSpineRecord(signedSpine, 'relayCacheRows');
+  const adapterRow = preferredLanSpineAdapterRow(signedSpine, selectedMatches);
+  const registryEntry = preferredLanTrustedRegistryEntry(readModel, deviceId, routeId);
+  const childDevice = recordValue(registryEntry?.['childDevice']);
+  const parentDevice = recordValue(registryEntry?.['parentDevice']);
+  const decision = latestLanHouseholdDecision(readModel, deviceId);
+  return compactLanDeviceEvidence({
+    pairingId:
+      (selectedMatches ? stringValue(selectedReadiness?.['pairingId']) : '') ||
+      stringValue(registryEntry?.['pairingId']),
+    proofDigest: stringValue(registryEntry?.['proofDigest']),
+    origin: stringValue(registryEntry?.['origin']),
+    expiresAt: stringValue(registryEntry?.['expiresAt']),
+    trustedAt: stringValue(registryEntry?.['trustedAt']),
+    parentDeviceId: stringValue(parentDevice?.['deviceId']),
+    childProfileId: stringValue(childDevice?.['childProfileId']) || stringValue(decision?.['childProfileId']),
+    readinessState: selectedMatches ? lanSelectedReadinessLabel(selectedReadiness) : undefined,
+    sourceConfidence: stringValue(adapterRow?.['sourceConfidence']),
+    custodyLabel: stringValue(routeSafetyRow?.['custodyLabel']) || stringValue(relayCacheRow?.['custodyLabel']),
+    signedProofCheck: stringValue(signedProofRow?.['check']),
+    signedProofState: stringValue(signedProofRow?.['proofState']) || stringValue(adapterRow?.['proofState']),
+    routeSafety: stringValue(routeSafetyRow?.['check']),
+    routeSafetyState: stringValue(routeSafetyRow?.['responseState']) || stringValue(routeSafetyRow?.['discoveryState']),
+    routeSafetyReason: stringValue(routeSafetyRow?.['rejectionReason']),
+    relayCacheCheck: stringValue(relayCacheRow?.['check']),
+    relayCacheState: stringValue(relayCacheRow?.['decisionState']) || stringValue(relayCacheRow?.['proofState']),
+    relayCacheCustody: stringValue(relayCacheRow?.['custodyLabel']),
+    manualProof: lanEvidenceSummary(signedSpine?.['manualProofRequired']),
+    claimsNotProved: lanEvidenceSummary(signedSpine?.['claimsNotProved']),
+    parentDecision: lanHouseholdDecisionLabel(decision),
+    auditLabel: firstString(readModel['auditCheckLabels']),
+    requirementLabel: firstString(readModel['routeRequirementLabels']),
+    evidenceLabel:
+      stringValue(routeSafetyRow?.['evidenceLabel']) ||
+      stringValue(signedProofRow?.['evidenceLabel']) ||
+      stringValue(adapterRow?.['evidenceLabel']),
+  });
+}
+
+function preferredLanSpineRouteRow(
+  signedSpine: Record<string, unknown> | null,
+  routeId: string
+): Record<string, unknown> | null {
+  const rows = recordArrayValue(signedSpine?.['routeSafetyRows']);
+  return rows.find((row) => samePhysicalDeviceValue(stringValue(row['routeId']), routeId)) ?? rows[0] ?? null;
+}
+
+function preferredLanSpineAdapterRow(
+  signedSpine: Record<string, unknown> | null,
+  selectedMatches: boolean
+): Record<string, unknown> | null {
+  const rows = recordArrayValue(signedSpine?.['adapterRows']);
+  if (selectedMatches) {
+    return (
+      rows.find((row) => stringValue(row['adapter']) === 'signed-child-agent-hello') ??
+      rows.find((row) => stringValue(row['adapter']) === 'signed-child-agent-heartbeat') ??
+      rows[0] ??
+      null
+    );
+  }
+  return rows[0] ?? null;
+}
+
+function firstLanSpineRecord(signedSpine: Record<string, unknown> | null, key: string): Record<string, unknown> | null {
+  return recordArrayValue(signedSpine?.[key])[0] ?? null;
+}
+
+function latestLanHouseholdDecision(
+  readModel: Record<string, unknown>,
+  deviceId: string
+): Record<string, unknown> | null {
+  return (
+    recordArrayValue(readModel['householdDeviceDecisions']).find((decision) =>
+      samePhysicalDeviceValue(stringValue(decision['canonicalDeviceId']), deviceId)
+    ) ?? null
+  );
+}
+
+function preferredLanTrustedRegistryEntry(
+  readModel: Record<string, unknown>,
+  deviceId: string,
+  routeId: string
+): Record<string, unknown> | null {
+  const entries = recordArrayValue(readModel['trustedDeviceRegistry']);
+  return (
+    entries.find((entry) => {
+      const childDevice = recordValue(entry['childDevice']);
+      return (
+        samePhysicalDeviceValue(stringValue(childDevice?.['deviceId']), deviceId) ||
+        samePhysicalDeviceValue(stringValue(entry['routeId']), routeId)
+      );
+    }) ?? null
+  );
+}
+
+function lanSelectedReadinessLabel(selectedReadiness: Record<string, unknown> | null): string {
+  if (!selectedReadiness) return '';
+  if (selectedReadiness['readyForControl'] === true) return 'ready-for-control';
+  return stringValue(selectedReadiness['reachability']) || stringValue(selectedReadiness['trustState']);
+}
+
+function lanHouseholdDecisionLabel(decision: Record<string, unknown> | null): string {
+  if (!decision) return '';
+  const actionKind = stringValue(decision['actionKind']);
+  const displayName = stringValue(decision['displayName']);
+  const revokedAt = stringValue(decision['revokedAt']);
+  if (revokedAt && actionKind) return `${actionKind} revoked`;
+  return actionKind || displayName;
+}
+
+function lanEvidenceSummary(value: unknown): string {
+  const items = stringArrayValue(value);
+  if (items.length <= 2) return items.join(', ');
+  return `${items.slice(0, 2).join(', ')} +${items.length - 2}`;
+}
+
+function compactLanDeviceEvidence(input: LanDeviceEvidenceInput): LanDeviceEvidenceInput {
+  return Object.fromEntries(
+    Object.entries(input).filter(([, value]) => value !== undefined && value !== '')
+  ) as LanDeviceEvidenceInput;
 }
 
 type LanAgentFacetInput = {
@@ -499,6 +685,33 @@ function upsertLanDeviceSlot(
     readonly gpuMemory?: string | undefined;
     readonly nvidiaSmi?: string | undefined;
     readonly routeId?: string | undefined;
+    readonly pairingId?: string | undefined;
+    readonly proofDigest?: string | undefined;
+    readonly origin?: string | undefined;
+    readonly expiresAt?: string | undefined;
+    readonly trustedAt?: string | undefined;
+    readonly parentDeviceId?: string | undefined;
+    readonly childProfileId?: string | undefined;
+    readonly routeState?: string | undefined;
+    readonly trustState?: string | undefined;
+    readonly discoveryState?: string | undefined;
+    readonly readinessState?: string | undefined;
+    readonly sourceConfidence?: string | undefined;
+    readonly custodyLabel?: string | undefined;
+    readonly signedProofCheck?: string | undefined;
+    readonly signedProofState?: string | undefined;
+    readonly routeSafety?: string | undefined;
+    readonly routeSafetyState?: string | undefined;
+    readonly routeSafetyReason?: string | undefined;
+    readonly relayCacheCheck?: string | undefined;
+    readonly relayCacheState?: string | undefined;
+    readonly relayCacheCustody?: string | undefined;
+    readonly manualProof?: string | undefined;
+    readonly claimsNotProved?: string | undefined;
+    readonly parentDecision?: string | undefined;
+    readonly auditLabel?: string | undefined;
+    readonly requirementLabel?: string | undefined;
+    readonly evidenceLabel?: string | undefined;
     readonly portalEligible?: boolean | undefined;
     readonly state: string;
     readonly preferState?: boolean;
@@ -547,7 +760,34 @@ function upsertLanDeviceSlot(
       gpuMemory: input.gpuMemory || existing?.device?.gpuMemory,
       nvidiaSmi: input.nvidiaSmi || existing?.device?.nvidiaSmi,
       routeId: input.routeId || existing?.device?.routeId,
+      pairingId: input.pairingId || existing?.device?.pairingId,
+      proofDigest: input.proofDigest || existing?.device?.proofDigest,
+      origin: input.origin || existing?.device?.origin,
+      expiresAt: input.expiresAt || existing?.device?.expiresAt,
+      trustedAt: input.trustedAt || existing?.device?.trustedAt,
+      parentDeviceId: input.parentDeviceId || existing?.device?.parentDeviceId,
+      childProfileId: input.childProfileId || existing?.device?.childProfileId,
+      routeState: input.routeState || existing?.device?.routeState,
+      trustState: input.trustState || existing?.device?.trustState,
+      discoveryState: input.discoveryState || existing?.device?.discoveryState,
+      readinessState: input.readinessState || existing?.device?.readinessState,
       sourceState: state || existing?.device?.sourceState,
+      sourceConfidence: input.sourceConfidence || existing?.device?.sourceConfidence,
+      custodyLabel: input.custodyLabel || existing?.device?.custodyLabel,
+      signedProofCheck: input.signedProofCheck || existing?.device?.signedProofCheck,
+      signedProofState: input.signedProofState || existing?.device?.signedProofState,
+      routeSafety: input.routeSafety || existing?.device?.routeSafety,
+      routeSafetyState: input.routeSafetyState || existing?.device?.routeSafetyState,
+      routeSafetyReason: input.routeSafetyReason || existing?.device?.routeSafetyReason,
+      relayCacheCheck: input.relayCacheCheck || existing?.device?.relayCacheCheck,
+      relayCacheState: input.relayCacheState || existing?.device?.relayCacheState,
+      relayCacheCustody: input.relayCacheCustody || existing?.device?.relayCacheCustody,
+      manualProof: input.manualProof || existing?.device?.manualProof,
+      claimsNotProved: input.claimsNotProved || existing?.device?.claimsNotProved,
+      parentDecision: input.parentDecision || existing?.device?.parentDecision,
+      auditLabel: input.auditLabel || existing?.device?.auditLabel,
+      requirementLabel: input.requirementLabel || existing?.device?.requirementLabel,
+      evidenceLabel: input.evidenceLabel || existing?.device?.evidenceLabel,
       portalEligible,
       type: normalizeDeviceKind(input.platform),
       platform: input.platform,
@@ -944,8 +1184,20 @@ function firstString(value: unknown): string {
   return '';
 }
 
+function stringArrayValue(value: unknown): readonly string[] {
+  return arrayValue(value)
+    .map(stringValue)
+    .filter((item) => item.length > 0);
+}
+
 function recordValue(value: unknown): Record<string, unknown> | null {
   return isRecord(value) ? value : null;
+}
+
+function recordArrayValue(value: unknown): readonly Record<string, unknown>[] {
+  return arrayValue(value)
+    .map(recordValue)
+    .filter((record): record is Record<string, unknown> => record !== null);
 }
 
 function arrayValue(value: unknown): readonly unknown[] {

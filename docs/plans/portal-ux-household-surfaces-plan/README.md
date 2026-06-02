@@ -27,6 +27,31 @@ Service tells truth. Portal makes it usable. Parent decides.
   enforcement adapters, policy evaluation, AI execution, timers, package
   runtime, or release engineering.
 
+## B-Lane LAN UX Addendum - 2026-06-02
+
+This folder remains the broad household UX plan, but the LAN-specific workflow
+is not split away from the LAN implementation. For the current
+`codex/v0-9-lan-signed-discovery-relay-spine` branch, B owns the service-backed
+LAN UX wiring needed for signed discovery, trusted registry/route custody,
+relay/cache unavailable states, assign/rename/ignore/revoke decisions,
+degraded/offline/manual-required states, and Activity/Network LAN diagnostics.
+C still owns broad shell visual coherence and general portal look/feel.
+
+- [x] The LAN plan and feature docs now identify B as the owner of the
+      service-to-UI LAN workflow for this slice.
+- [x] Existing portal screenshots prove there are visible Devices/LAN,
+      Activity/Network, and Network policy surfaces to wire against.
+- [x] B now wires LAN-specific selected-device detail, Activity/Network
+      diagnostics, signed discovery, route custody, relay/cache unavailable,
+      manual-required proof, parent-decision/audit state, first-class LAN
+      action controls, and the existing add-device/route command surfaces
+      through typed service/domain state.
+- [x] Browser/Playwright snapshots prove the current service-backed LAN UX
+      surfaces on B-lane ports. Proof artifacts:
+      `output/playwright/lan-ux-proof/devices-lan-controls.png`,
+      `output/playwright/lan-ux-proof/activity-network-diagnostics.png`, and
+      `output/playwright/lan-ux-proof/policy-network-targets.png`.
+
 ## Where We Want To Be
 
 Ocentra Parent needs a service-backed parent portal that:

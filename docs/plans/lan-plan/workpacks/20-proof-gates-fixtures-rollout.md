@@ -12,6 +12,18 @@ household LAN readiness is still not proven. The pasted test blueprint requires
 fixtures, property tests, Playwright coverage, performance gates, manual
 validation, and explicit CI gates.
 
+Branch `codex/v0-9-lan-signed-discovery-relay-spine` adds the focused proof
+harness for signed discovery, route custody, trusted registry safety,
+relay/cache unavailable states, and manual-required physical proof. It does not
+finish the full fixture family, visual snapshot proof, or manual two-device
+household validation.
+
+The portal now also has focused unit/parser fixture coverage for consuming the
+signed discovery relay spine in LAN UI intent and live activity-state parsing.
+Live B-port screenshots now prove the current service-backed Devices/LAN,
+Activity/Network, and Network policy surfaces render. They are still not a
+substitute for two-device household validation or platform manual artifacts.
+
 ## Where We Want To Be
 
 Every LAN discovery claim has a proof level: implemented, scaffold,
@@ -21,6 +33,14 @@ artifacts.
 
 ## Requirement Checklist
 
+- [x] `scripts/test/v0-9-lan-signed-discovery-relay-spine.mjs` proves the
+      signed-discovery relay spine remains coherent for this branch slice.
+- [x] Feature docs updated by this branch keep real physical household proof,
+      relay/cache, mobile parity, signing, and store readiness as remaining
+      gaps.
+- [x] Portal tests cover LAN UI-intent consumption and live activity parser
+      preservation of signed-proof, route-custody, relay/cache unavailable,
+      manual-proof, and parent-decision fields.
 - [ ] Keep test layout explicit: unit, integration, contract, e2e, fixtures,
       Playwright, security, persistence, performance, and CI validation gates.
 - [ ] Add fixture names for ARP, mDNS, SSDP, child-agent, API/SQLite, and UI
@@ -30,9 +50,12 @@ artifacts.
 - [ ] Add proof matrix rows for ARP table, ARP sweep, mDNS, SSDP, IP-only
       merge avoidance, IP change, child confirmation, spoof rejection,
       offline, manual assignment, confidence explanation, and malformed packets.
-- [ ] Add visual snapshot proof for Devices/LAN, Activity/Network diagnostics,
-      policy network targeting, and any pairing/assignment/trust/ignore surface
-      before claiming UI readiness.
+- [x] Add visual snapshot proof for Devices/LAN, Activity/Network diagnostics,
+      policy network targeting, and the current pairing/assignment/trust/ignore
+      action surface. Current artifacts:
+      `output/playwright/lan-ux-proof/devices-lan-controls.png`,
+      `output/playwright/lan-ux-proof/activity-network-diagnostics.png`, and
+      `output/playwright/lan-ux-proof/policy-network-targets.png`.
 - [ ] Keep manual validation artifacts for Windows, macOS, Linux, router,
       Windows laptop, MacBook, Linux machine, iPhone, Android phone, TV,
       printer, Chromecast/Google TV, console where available, and child agent.

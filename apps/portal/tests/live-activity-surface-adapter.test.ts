@@ -123,25 +123,9 @@ function activityAdapterLanPairingTests(): void {
     ]);
 
     expect(state.lanPairingStatusEvent?.event).toBe(AgentEvent.LanPairingStatusReported);
-    expect(state.lanAddDeviceReadModel?.addDeviceState).toBe('paired');
-    expect(state.lanAddDeviceReadModel?.canonicalHouseholdDevices[0]?.displayName).toBe('Pixel child');
-    expect(state.lanAddDeviceReadModel?.canonicalHouseholdDevices[0]?.roleBadges).toEqual([
-      'child-agent',
-      'portal',
-      'parent-controller',
-    ]);
-    expect(state.lanAddDeviceReadModel?.canonicalHouseholdDevices[0]?.networkIdentity.ipAddresses).toEqual([
-      '192.168.2.44',
-    ]);
-    expect(state.lanAddDeviceReadModel?.selectedDeviceReadiness).toMatchObject({
-      selectedChildDeviceId: 'child-android-1',
-      reachability: 'online',
-      readyForControl: true,
-    });
-    expect(state.lanAddDeviceReadModel?.scanSummary).toMatchObject({
-      scannedDeviceCount: 1,
-      agentDeviceCount: 1,
-    });
+    expectLanReadinessState(state);
+    expectLanCanonicalDeviceState(state);
+    expectLanSignedDiscoveryRelayState(state);
   });
 
   it('uses explicit LAN scan reports as the current add-device read model', () => {
@@ -167,6 +151,48 @@ function activityAdapterLanPairingTests(): void {
 
     expect(state.lanPairingStatusEvent?.event).toBe(AgentEvent.LanPairingBrowserDiscoveryReported);
     expect(state.lanAddDeviceReadModel?.addDeviceState).toBe('paired');
+  });
+}
+
+type LiveLanActivityState = ReturnType<typeof resolveLiveActivityState>;
+
+function expectLanReadinessState(state: LiveLanActivityState): void {
+  expect(state.lanAddDeviceReadModel?.selectedDeviceReadiness).toMatchObject({
+    selectedChildDeviceId: 'child-android-1',
+    reachability: 'online',
+    readyForControl: true,
+  });
+  expect(state.lanAddDeviceReadModel?.scanSummary).toMatchObject({
+    scannedDeviceCount: 1,
+    agentDeviceCount: 1,
+  });
+}
+
+function expectLanCanonicalDeviceState(state: LiveLanActivityState): void {
+  expect(state.lanAddDeviceReadModel?.addDeviceState).toBe('paired');
+  expect(state.lanAddDeviceReadModel?.canonicalHouseholdDevices[0]?.displayName).toBe('Pixel child');
+  expect(state.lanAddDeviceReadModel?.canonicalHouseholdDevices[0]?.roleBadges).toEqual([
+    'child-agent',
+    'portal',
+    'parent-controller',
+  ]);
+  expect(state.lanAddDeviceReadModel?.canonicalHouseholdDevices[0]?.networkIdentity.ipAddresses).toEqual([
+    '192.168.2.44',
+  ]);
+}
+
+function expectLanSignedDiscoveryRelayState(state: LiveLanActivityState): void {
+  expect(state.lanAddDeviceReadModel?.signedDiscoveryRelaySpine?.signedProofRows[0]).toMatchObject({
+    check: 'signed-hello-manual-required',
+    proofState: 'manual-required',
+  });
+  expect(state.lanAddDeviceReadModel?.signedDiscoveryRelaySpine?.routeSafetyRows[0]).toMatchObject({
+    check: 'selected-route-custody',
+    custodyLabel: 'parent-local-service',
+  });
+  expect(state.lanAddDeviceReadModel?.signedDiscoveryRelaySpine?.relayCacheRows[0]).toMatchObject({
+    check: 'relay-route-unavailable',
+    decisionState: 'unavailable',
   });
 }
 
@@ -355,6 +381,7 @@ function lanAddDeviceReadModel() {
     pairingRequests: [],
     trustedDeviceRegistry: [],
     householdDeviceDecisions: [],
+    signedDiscoveryRelaySpine: signedDiscoveryRelaySpine(),
     trustedDeviceIds: ['child-android-1'],
     revokedDeviceIds: [],
     selectedDeviceReadiness: lanSelectedDeviceReadiness(),
@@ -383,6 +410,68 @@ function lanDiscoveredDevice() {
     addressRef: 'lan-address-ref-1',
     discoveryStatus: 'websocket-direct',
     discoveryState: 'paired',
+  };
+}
+
+function signedDiscoveryRelaySpine() {
+  return {
+    schemaVersion: 1,
+    generatedAt: '2026-06-01T15:01:05Z',
+    adapterRows: [
+      {
+        schemaVersion: 1,
+        adapter: 'signed-child-agent-hello',
+        discoveryState: 'manual-required',
+        proofState: 'manual-required',
+        sourceConfidence: 'manual-required',
+        custodyLabel: 'signed-child-agent-artifact',
+        runtimeOwner: 'manual-proof',
+        evidenceLabel: 'Second physical child-agent signed hello is manual proof.',
+        requiredArtifactSummary: 'Install child agent on another household device and capture signed hello.',
+      },
+    ],
+    signedProofRows: [
+      {
+        schemaVersion: 1,
+        check: 'signed-hello-manual-required',
+        discoveryState: 'manual-required',
+        responseState: 'degraded',
+        rejectionReason: null,
+        proofState: 'manual-required',
+        runtimeOwner: 'manual-proof',
+        evidenceLabel: 'Signed hello needs a second physical child-agent device.',
+      },
+    ],
+    routeSafetyRows: [
+      {
+        schemaVersion: 1,
+        check: 'selected-route-custody',
+        routeId: 'lan-route-local-1',
+        discoveryState: 'paired',
+        responseState: 'accepted',
+        rejectionReason: null,
+        proofState: 'ci-mechanical-proof',
+        runtimeOwner: 'rust-service-read-model',
+        custodyLabel: 'parent-local-service',
+        evidenceLabel: 'Selected route remains parent-local custody.',
+      },
+    ],
+    relayCacheRows: [
+      {
+        schemaVersion: 1,
+        check: 'relay-route-unavailable',
+        decisionState: 'unavailable',
+        discoveryState: 'unavailable',
+        proofState: 'not-implemented',
+        runtimeOwner: 'manual-proof',
+        custodyLabel: 'no-ocentra-child-data-custody',
+        evidenceLabel: 'Cloud relay is unavailable and not child data custody.',
+      },
+    ],
+    manualProofRequired: ['signed-child-agent-hello', 'signed-child-agent-heartbeat'],
+    notImplemented: ['relay-route-unavailable', 'cache-route-unavailable', 'parent-owned-storage-unavailable'],
+    claimsProved: ['route custody rejects wrong target'],
+    claimsNotProved: ['physical household signed child hello requires second device'],
   };
 }
 

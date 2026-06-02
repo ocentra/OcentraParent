@@ -25,7 +25,7 @@ export interface PortalRuntimeState {
 export function createPortalRuntimeState(agentWsUrl: AgentWebSocketUrl): PortalRuntimeState {
   return {
     agentWsUrl,
-    target: resolveAgentTarget(agentWsUrl),
+    target: resolveAgentTarget(),
     socket: null,
     connectionState: PortalConnectionState.Disconnected,
     selectedCommandResultEvent: AgentEvent.HealthReported,
@@ -34,10 +34,6 @@ export function createPortalRuntimeState(agentWsUrl: AgentWebSocketUrl): PortalR
   };
 }
 
-function resolveAgentTarget(agentWsUrl: AgentWebSocketUrl): AgentMessageTarget {
-  const hostname = new URL(agentWsUrl).hostname;
-  if (hostname === AgentProtocolDefaults.Host.LoopbackIp || hostname === AgentProtocolDefaults.Host.LocalhostName) {
-    return AgentProtocolDefaults.Target.LocalhostWindowsAgent;
-  }
-  return AgentProtocolDefaults.Target.LocalNetworkWindowsAgent;
+function resolveAgentTarget(): AgentMessageTarget {
+  return AgentProtocolDefaults.Target.LocalhostWindowsAgent;
 }

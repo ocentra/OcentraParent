@@ -5,8 +5,10 @@ import {
   AgentProtocolSchemaVersion,
   AgentWebSocketUrlSchema,
 } from './primitives';
+import { AgentLanHouseholdDeviceActionKindSchema } from './lan-pairing-browser-add-device-state';
 import {
   AgentLanPairingIntentKindSchema,
+  AgentLanPairingParentAuthoritySchema,
   AgentLanPairingProductionDiscoveryStateSchema,
   AgentLanSelectedDeviceReachabilitySchema,
   AgentLanSelectedRouteTrustStateSchema,
@@ -95,6 +97,17 @@ export const AgentProtocolDefaults = {
     ControllerLeaseTakeover: AgentLanPairingIntentKindSchema.parse('controller-lease-takeover'),
     LanAiProviderStatus: AgentLanPairingIntentKindSchema.parse('lan-ai-provider-status'),
     LanAiJobSubmit: AgentLanPairingIntentKindSchema.parse('lan-ai-job-submit'),
+  },
+  LanHouseholdActionKind: {
+    Assign: AgentLanHouseholdDeviceActionKindSchema.parse('assign'),
+    Rename: AgentLanHouseholdDeviceActionKindSchema.parse('rename'),
+    Ignore: AgentLanHouseholdDeviceActionKindSchema.parse('ignore'),
+    Restore: AgentLanHouseholdDeviceActionKindSchema.parse('restore'),
+    Trust: AgentLanHouseholdDeviceActionKindSchema.parse('trust'),
+  },
+  LanParentAuthority: {
+    ActiveController: AgentLanPairingParentAuthoritySchema.parse('active-controller'),
+    Observer: AgentLanPairingParentAuthoritySchema.parse('observer'),
   },
   LanResponseState: {
     Accepted: AgentLanPairingResponseStateSchema.parse('accepted'),
@@ -227,6 +240,11 @@ export const AgentProtocolDefaults = {
     LanAddDeviceState: 'addDeviceState',
     LanCanonicalHouseholdDevices: 'canonicalHouseholdDevices',
     LanCanonicalDeviceId: 'canonicalDeviceId',
+    LanHouseholdActionId: 'householdActionId',
+    LanHouseholdActionKind: 'householdActionKind',
+    LanHouseholdActionChildProfileId: 'childProfileId',
+    LanHouseholdActionDisplayName: 'displayName',
+    LanHouseholdActionRevokedAt: 'revokedAt',
     LanDiscoveredDevices: 'discoveredDevices',
     LanPairingRequests: 'pairingRequests',
     LanChildDevice: 'childDevice',

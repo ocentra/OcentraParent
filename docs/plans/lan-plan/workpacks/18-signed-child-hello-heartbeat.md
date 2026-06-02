@@ -11,6 +11,12 @@ Current V0.9 proof includes local/LAN route and command validation, but physical
 household readiness still lacks a signed LAN child hello and heartbeat from a
 second child-agent device.
 
+Branch `codex/v0-9-lan-signed-discovery-relay-spine` adds signed discovery
+spine rows and rejection states for the branch proof harness. That is a
+verified protocol/service proof layer for signed discovery readiness, but it
+does not replace a real paired child-agent hello and heartbeat from a second
+physical device.
+
 ## Where We Want To Be
 
 After pairing, the child agent connects outward to the parent when possible and
@@ -21,6 +27,14 @@ update last confirmed, online, stale, and offline state.
 
 ## Requirement Checklist
 
+- [x] Current branch records signed-discovery proof rows and rejection outcomes
+      for invalid, revoked, wrong-target, unavailable, and manual-required
+      states in typed contracts and Rust protocol/service parity.
+- [x] Current branch keeps physical second-device household proof
+      manual-required instead of claiming CI can prove it.
+- [x] Portal LAN selected-device details and Activity/Network diagnostics now
+      show signed-hello/signed-heartbeat manual-required labels from the typed
+      read model.
 - [ ] Reject unsigned, invalid-signature, expired, replayed, wrong-family,
       wrong-device, unpaired, and wrong-protocol hello payloads.
 - [ ] Accept unknown future capability only when the contract says it is safe.

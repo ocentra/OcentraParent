@@ -181,67 +181,115 @@ function parentPortalRuntimeNeighborTests(): void {
 
 function parentPortalRuntimeCanonicalTargetTests(): void {
   it('uses the canonical household spine to keep LAN neighbors out of controlled-device scopes', () => {
-    const slots = createParentPortalLanPairingUiSlots([], canonicalRuntimeLanAddDeviceReadModel());
-
-    expect(slots.map((slot) => [slot.value, slot.label, slot.status, slot.badge])).toEqual([
-      ['lan-physical-mac-b42e993e72b9', 'GAMEDEV', 'connected', 'online'],
-      ['lan-physical-mac-54271e97c331', 'HPSUJAN', 'available', 'discovered'],
-      ['lan-physical-mac-001122334455', 'LAN 192.168.2.1', 'unsupported', 'infrastructure'],
-    ]);
-    expect(createParentPortalLanPairingPortalIds(slots)).toEqual(['lan-physical-mac-b42e993e72b9']);
-    expect(createParentPortalCanonicalDeviceSlots([], slots).map((slot) => [slot.value, slot.label])).toEqual([
-      ['lan-physical-mac-b42e993e72b9', 'GAMEDEV'],
-    ]);
-
-    const localAgent = slots.find((slot) => slot.value === 'lan-physical-mac-b42e993e72b9');
-    expect(localAgent?.device).toMatchObject({
-      portalEligible: true,
-      agentStatus: 'ocentra-child-agent',
-      cpuModel: 'AMD Ryzen 9 3900X 12-Core Processor',
-      memoryTotal: '63 GiB',
-      gpuModel: 'GeForce RTX 2070 SUPER',
-    });
-
-    const lanNeighbor = slots.find((slot) => slot.value === 'lan-physical-mac-54271e97c331');
-    expect(lanNeighbor?.device).toMatchObject({
-      portalEligible: false,
-      ip: '192.168.2.42',
-      mac: '54-27-1e-97-c3-31',
-      hostname: 'HPSUJAN',
-    });
-    expectNoAgentHardware(lanNeighbor?.device);
-
-    const router = slots.find((slot) => slot.value === 'lan-physical-mac-001122334455');
-    expect(router?.device).toMatchObject({
-      portalEligible: false,
-      platform: 'router',
-      type: 'router',
-      status: 'unsupported',
-    });
+    expectCanonicalHouseholdSpineTargetSlots();
   });
 
   it('feeds canonical policy target slots from the same service-backed device spine', () => {
-    const lanSlots = createParentPortalLanPairingUiSlots([], runtimeLanAddDeviceReadModel());
-    const activitySlots = createParentPortalActivityUiIntent(
-      {
-        activityBrowserReadModel: adapterResult(runtimeBrowserTargetReadModel()),
-      },
-      3
-    ).deviceSlots;
-    const canonicalSlots = createParentPortalCanonicalDeviceSlots(activitySlots, lanSlots);
+    expectCanonicalPolicyTargetSlots();
+  });
 
-    expect(canonicalSlots.find((slot) => slot.value === 'local-dev-agent')).toMatchObject({
-      label: 'GAMEDEV',
-      status: 'connected',
-      badge: 'online',
-    });
-    expect(canonicalSlots.find((slot) => slot.value === 'child-device-2')).toMatchObject({
-      label: 'CE2',
-      status: 'unsupported',
-      badge: 'permission-required',
-    });
-    expect(canonicalSlots.find((slot) => slot.value === 'lan-device-54271e97c331')).toBeUndefined();
-    expect(canonicalSlots.find((slot) => slot.value === 'lan-device-001122334455')).toBeUndefined();
+  it('surfaces signed discovery, custody, relay, and parent decision evidence from the LAN read model', () => {
+    expectLanSignedDiscoveryRelaySlotEvidence();
+  });
+}
+
+function expectCanonicalHouseholdSpineTargetSlots(): void {
+  const slots = createParentPortalLanPairingUiSlots([], canonicalRuntimeLanAddDeviceReadModel());
+
+  expect(slots.map((slot) => [slot.value, slot.label, slot.status, slot.badge])).toEqual([
+    ['lan-physical-mac-b42e993e72b9', 'GAMEDEV', 'connected', 'online'],
+    ['lan-physical-mac-54271e97c331', 'HPSUJAN', 'available', 'discovered'],
+    ['lan-physical-mac-001122334455', 'LAN 192.168.2.1', 'unsupported', 'infrastructure'],
+  ]);
+  expect(createParentPortalLanPairingPortalIds(slots)).toEqual(['lan-physical-mac-b42e993e72b9']);
+  expect(createParentPortalCanonicalDeviceSlots([], slots).map((slot) => [slot.value, slot.label])).toEqual([
+    ['lan-physical-mac-b42e993e72b9', 'GAMEDEV'],
+  ]);
+
+  expectCanonicalLocalAgentSlot(slots);
+  expectCanonicalLanNeighborSlot(slots);
+  expectCanonicalRouterSlot(slots);
+}
+
+function expectCanonicalLocalAgentSlot(slots: ReturnType<typeof createParentPortalLanPairingUiSlots>): void {
+  const localAgent = slots.find((slot) => slot.value === 'lan-physical-mac-b42e993e72b9');
+  expect(localAgent?.device).toMatchObject({
+    portalEligible: true,
+    agentStatus: 'ocentra-child-agent',
+    cpuModel: 'AMD Ryzen 9 3900X 12-Core Processor',
+    memoryTotal: '63 GiB',
+    gpuModel: 'GeForce RTX 2070 SUPER',
+  });
+}
+
+function expectCanonicalLanNeighborSlot(slots: ReturnType<typeof createParentPortalLanPairingUiSlots>): void {
+  const lanNeighbor = slots.find((slot) => slot.value === 'lan-physical-mac-54271e97c331');
+  expect(lanNeighbor?.device).toMatchObject({
+    portalEligible: false,
+    ip: '192.168.2.42',
+    mac: '54-27-1e-97-c3-31',
+    hostname: 'HPSUJAN',
+  });
+  expectNoAgentHardware(lanNeighbor?.device);
+}
+
+function expectCanonicalRouterSlot(slots: ReturnType<typeof createParentPortalLanPairingUiSlots>): void {
+  const router = slots.find((slot) => slot.value === 'lan-physical-mac-001122334455');
+  expect(router?.device).toMatchObject({
+    portalEligible: false,
+    platform: 'router',
+    type: 'router',
+    status: 'unsupported',
+  });
+}
+
+function expectCanonicalPolicyTargetSlots(): void {
+  const lanSlots = createParentPortalLanPairingUiSlots([], runtimeLanAddDeviceReadModel());
+  const activitySlots = createParentPortalActivityUiIntent(
+    {
+      activityBrowserReadModel: adapterResult(runtimeBrowserTargetReadModel()),
+    },
+    3
+  ).deviceSlots;
+  const canonicalSlots = createParentPortalCanonicalDeviceSlots(activitySlots, lanSlots);
+
+  expect(canonicalSlots.find((slot) => slot.value === 'local-dev-agent')).toMatchObject({
+    label: 'GAMEDEV',
+    status: 'connected',
+    badge: 'online',
+  });
+  expect(canonicalSlots.find((slot) => slot.value === 'child-device-2')).toMatchObject({
+    label: 'CE2',
+    status: 'unsupported',
+    badge: 'permission-required',
+  });
+  expect(canonicalSlots.find((slot) => slot.value === 'lan-device-54271e97c331')).toBeUndefined();
+  expect(canonicalSlots.find((slot) => slot.value === 'lan-device-001122334455')).toBeUndefined();
+}
+
+function expectLanSignedDiscoveryRelaySlotEvidence(): void {
+  const slots = createParentPortalLanPairingUiSlots([], canonicalRuntimeLanAddDeviceReadModel());
+  const localAgent = slots.find((slot) => slot.value === 'lan-physical-mac-b42e993e72b9');
+
+  expect(localAgent?.device).toMatchObject({
+    pairingId: 'pairing-local-agent-1',
+    proofDigest: 'sha256:local-agent-proof',
+    origin: 'http://127.0.0.1:4678',
+    parentDeviceId: 'portal-dev',
+    childProfileId: 'child-profile-1',
+    custodyLabel: 'parent-local-service',
+    signedProofCheck: 'signed-hello-manual-required',
+    signedProofState: 'manual-required',
+    routeSafety: 'selected-route-custody',
+    routeSafetyState: 'accepted',
+    relayCacheCheck: 'relay-route-unavailable',
+    relayCacheState: 'unavailable',
+    manualProof: 'signed-child-agent-hello, signed-child-agent-heartbeat',
+    claimsNotProved: 'physical household signed child hello requires second device',
+    parentDecision: 'assign',
+    auditLabel: 'Signed hello manual proof required',
+    requirementLabel: 'Only trusted signed child-agent routes become controllable',
+    evidenceLabel: 'Selected route remains parent-local custody',
   });
 }
 
@@ -532,11 +580,132 @@ function runtimeLanAddDeviceReadModel() {
 function canonicalRuntimeLanAddDeviceReadModel() {
   return {
     ...runtimeLanAddDeviceReadModel(),
+    signedDiscoveryRelaySpine: signedDiscoveryRelaySpine(),
+    trustedDeviceRegistry: [localAgentTrustedRegistryEntry()],
+    trustedDeviceIds: ['local-dev-agent'],
+    householdDeviceDecisions: [localAgentHouseholdDecision()],
+    routeRequirementLabels: ['Only trusted signed child-agent routes become controllable'],
+    auditCheckLabels: ['Signed hello manual proof required'],
+    honestNonClaims: ['physical household signed child hello requires second device'],
     canonicalHouseholdDevices: [
       localAgentCanonicalHouseholdDevice(),
       lanNeighborCanonicalHouseholdDevice(),
       routerCanonicalHouseholdDevice(),
     ],
+  } as const;
+}
+
+function signedDiscoveryRelaySpine() {
+  return {
+    schemaVersion: 1,
+    generatedAt: '2026-06-01T15:21:00Z',
+    adapterRows: [
+      {
+        schemaVersion: 1,
+        adapter: 'signed-child-agent-hello',
+        discoveryState: 'manual-required',
+        proofState: 'manual-required',
+        sourceConfidence: 'manual-required',
+        custodyLabel: 'signed-child-agent-artifact',
+        runtimeOwner: 'manual-proof',
+        evidenceLabel: 'Second physical child-agent signed hello is manual proof.',
+        requiredArtifactSummary: 'Install child agent on another household device and capture signed hello.',
+      },
+    ],
+    signedProofRows: [
+      {
+        schemaVersion: 1,
+        check: 'signed-hello-manual-required',
+        discoveryState: 'manual-required',
+        responseState: 'degraded',
+        rejectionReason: null,
+        proofState: 'manual-required',
+        runtimeOwner: 'manual-proof',
+        evidenceLabel: 'Signed hello needs a second physical child-agent device.',
+      },
+    ],
+    routeSafetyRows: [
+      {
+        schemaVersion: 1,
+        check: 'selected-route-custody',
+        routeId: 'lan-route-local-network',
+        discoveryState: 'paired',
+        responseState: 'accepted',
+        rejectionReason: null,
+        proofState: 'ci-mechanical-proof',
+        runtimeOwner: 'rust-service-read-model',
+        custodyLabel: 'parent-local-service',
+        evidenceLabel: 'Selected route remains parent-local custody',
+      },
+      {
+        schemaVersion: 1,
+        check: 'parent-assign-decision-audited',
+        routeId: 'lan-route-local-network',
+        discoveryState: 'paired',
+        responseState: 'accepted',
+        rejectionReason: null,
+        proofState: 'ci-mechanical-proof',
+        runtimeOwner: 'rust-service-read-model',
+        custodyLabel: 'parent-local-service',
+        evidenceLabel: 'Parent assign decision is retained in the read model.',
+      },
+    ],
+    relayCacheRows: [
+      {
+        schemaVersion: 1,
+        check: 'relay-route-unavailable',
+        decisionState: 'unavailable',
+        discoveryState: 'unavailable',
+        proofState: 'not-implemented',
+        runtimeOwner: 'manual-proof',
+        custodyLabel: 'no-ocentra-child-data-custody',
+        evidenceLabel: 'Cloud relay is unavailable and not child data custody.',
+      },
+    ],
+    manualProofRequired: ['signed-child-agent-hello', 'signed-child-agent-heartbeat'],
+    notImplemented: ['relay-route-unavailable', 'cache-route-unavailable', 'parent-owned-storage-unavailable'],
+    claimsProved: ['route custody rejects wrong target'],
+    claimsNotProved: ['physical household signed child hello requires second device'],
+  } as const;
+}
+
+function localAgentHouseholdDecision() {
+  return {
+    schemaVersion: 1,
+    actionId: 'lan-action-assign-local-agent',
+    actionKind: 'assign',
+    canonicalDeviceId: 'lan-physical-mac-b42e993e72b9',
+    childProfileId: 'child-profile-1',
+    displayName: 'GAMEDEV',
+    parentActorId: 'parent-actor-1',
+    decidedAt: '2026-06-01T15:21:05Z',
+    revokedAt: null,
+  } as const;
+}
+
+function localAgentTrustedRegistryEntry() {
+  return {
+    schemaVersion: 1,
+    pairingId: 'pairing-local-agent-1',
+    childDevice: {
+      deviceId: 'local-dev-agent',
+      childProfileId: 'child-profile-1',
+      label: 'GAMEDEV',
+      platform: 'windows',
+    },
+    parentDevice: {
+      deviceId: 'portal-dev',
+      childProfileId: 'parent-profile-1',
+      label: 'Parent portal',
+      platform: 'windows',
+    },
+    routeId: 'lan-route-local-network',
+    origin: 'http://127.0.0.1:4678',
+    proofDigest: 'sha256:local-agent-proof',
+    trustState: 'paired',
+    trustedAt: '2026-06-01T15:20:00Z',
+    expiresAt: '2026-06-01T16:20:00Z',
+    revokedAt: null,
   } as const;
 }
 

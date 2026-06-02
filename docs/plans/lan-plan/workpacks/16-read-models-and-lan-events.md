@@ -13,6 +13,14 @@ LAN device grid, Activity tabs, and Network evidence summary fields. Production
 discovery needs a replayable LAN event stream plus read models that all portal
 surfaces can consume.
 
+Branch `codex/v0-9-lan-signed-discovery-relay-spine` adds a typed
+protocol/service proof layer for signed discovery rows, rejected discovery
+states, route custody safety, relay/cache unavailable states, and
+manual-required physical proof labels. That is proof that the read-model data
+spine exists for this slice. The portal now consumes that spine for selected
+LAN detail rows and Activity/Network diagnostics. That is not proof that the
+full replayable event stream or visual/browser proof is complete.
+
 ## Where We Want To Be
 
 LAN events and read models expose scan state, discovered devices, trusted
@@ -22,6 +30,16 @@ Activity/Network diagnostics that make service behavior visually inspectable.
 
 ## Requirement Checklist
 
+- [x] Baseline read-model snapshots expose LAN pairing status, scan summary,
+      add-device route state, selected-device readiness, portal target
+      filtering, and signed-discovery relay/cache proof states.
+- [x] Current branch labels relay/cache unavailable, physical household proof
+      manual-required, and unsupported/non-controllable infrastructure states
+      through typed service/domain state instead of prose-only docs.
+- [x] Portal LAN selected-device details and Activity/Network diagnostics now
+      consume the signed discovery relay spine, route custody, relay/cache,
+      parent-decision, audit, route-requirement, and manual-proof read-model
+      fields without inventing portal-only LAN state.
 - [ ] Event types include interface changed, scan started, scan finished,
       evidence found, device found, device updated, online, offline, agent
       discovered, agent confirmed, and unknown detected.
@@ -31,9 +49,14 @@ Activity/Network diagnostics that make service behavior visually inspectable.
 - [ ] Portal can replay snapshot plus events without duplicate cards.
 - [ ] Empty, unavailable, degraded, stale, offline, agent-offline, and
       manual-required states are explicit.
-- [ ] Activity / Network diagnostics show scan sessions, evidence sources,
-      merge decisions, pairing/heartbeat/revocation events, route rejections,
-      network-flow evidence, weak-proof behavior, and policy target binding.
+- [x] Activity / Network diagnostics now show scan/evidence first-seen and
+      last-seen timing, evidence expiry, signed adapter proof state, and
+      policy-target history.
+- [x] Visual snapshot proof exists for the current service-backed Devices/LAN,
+      Activity/Network diagnostics, and Network policy target surfaces under
+      `output/playwright/lan-ux-proof/`.
+- [ ] Replayable scan sessions, full pairing/heartbeat event history, richer
+      network-flow evidence remain open.
 
 ## Acceptance And Proof
 

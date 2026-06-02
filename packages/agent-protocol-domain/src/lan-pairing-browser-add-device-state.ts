@@ -347,6 +347,7 @@ export const AgentLanBrowserAddDeviceReadModelSchema = withParser(
 );
 
 export type AgentLanPairingDiscoverySource = Infer<typeof AgentLanPairingDiscoverySourceSchema>;
+export type AgentLanHouseholdDeviceActionKind = Infer<typeof AgentLanHouseholdDeviceActionKindSchema>;
 export type AgentLanBrowserAddDeviceDiscoveryDevice = Infer<typeof AgentLanBrowserAddDeviceDiscoveryDeviceSchema>;
 export type AgentLanBrowserAddDevicePairingRequest = Infer<typeof AgentLanBrowserAddDevicePairingRequestSchema>;
 export type AgentLanBrowserAddDeviceScanSummary = Infer<typeof AgentLanBrowserAddDeviceScanSummarySchema>;

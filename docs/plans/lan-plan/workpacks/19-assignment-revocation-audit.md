@@ -11,6 +11,14 @@ Current proof includes trusted registry and route-control direction, but the
 full parent assignment, rename, trust, ignore, revocation, and audit behavior is
 not product complete across restart, rescan, and portal flows.
 
+Branch `codex/v0-9-lan-signed-discovery-relay-spine` strengthens the typed
+registry, route-custody, revoked-route, relay/cache unavailable, and rejected
+decision states. Parent-facing read-model consumption now shows parent
+decision/audit/route-custody state and sends the existing add-device request
+command for controllable LAN slots. First-class rename, trust, ignore, restore,
+and revoke controls still need matching command surfaces before they can be
+called product complete.
+
 ## Where We Want To Be
 
 Parent decisions are durable and explicit. Parent assignment links a device to a
@@ -20,22 +28,38 @@ audited and survive restart.
 
 ## Requirement Checklist
 
-- [ ] Add assignment, rename, trust, ignore, revoke, restore, and audit
-      contracts.
+- [x] Current branch proves route-custody and trusted-registry safety states for
+      accepted and rejected signed discovery/relay decisions.
+- [x] Current branch models revoked, unavailable, manual-required, and
+      wrong-target route states without allowing weak LAN evidence to become
+      authority.
+- [x] Portal selected-device details and Activity/Network diagnostics now show
+      parent decision/audit rows, route custody, route rejection state, and
+      relay/cache custody from the typed LAN read model.
+- [x] Portal add-to-parent flow now calls the existing
+      `agent.lan-pairing.add-device.request` command only for selected LAN
+      slots with a controllable route.
+- [x] Expose first-class portal controls for add, route select, rename, trust,
+      ignore, restore, and revoke by reusing existing LAN command surfaces:
+      `agent.lan-pairing.add-device.request` for household decisions plus route
+      select/revoke commands for route custody. Portal command routing now sends
+      LAN commands to the selected local-network child target.
 - [ ] Reject anonymous, wrong-origin, wrong-route, wrong-device, replayed, and
       expired pairing/control requests.
 - [ ] Preserve assignment and rename through rescan and weak evidence changes.
 - [ ] Apply revocation before any new rule, query, approval, or heartbeat
       authority is accepted.
-- [ ] Show selected-device and route status clearly in parent-visible state.
+- [x] Show selected-device and route status clearly in parent-visible state.
 
 ## Acceptance And Proof
 
 - Service tests cover anonymous rejection, accepted pairing, wrong origin,
   wrong device, revoked device, service restart, safe unpaired fallback, and
   audited command rejection.
-- Portal tests cover assignment modal, child selection, rename, trust, ignore,
-  selected-device display, accepted route, rejected route, and offline/stale.
+- Portal tests cover LAN slot metadata for parent decisions/proof fields and
+  portal transport routing for LAN commands to local-network child targets.
+  Full first-run setup, editable rename input, recovery, and degraded UX tests
+  remain tracked in the family setup feature gap.
 - Audit records include source, route, actor, target device, reason, and
   outcome.
 
