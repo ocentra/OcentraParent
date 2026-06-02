@@ -20,6 +20,8 @@ Rust protocol parity crate for data that crosses the TypeScript/Rust boundary.
 - V0.9 signed LAN discovery/relay spine structs, enums, constants, and parity
   tests for adapter evidence, signed proof rejection, route safety, relay/cache
   availability, parent-owned storage, and custody labels.
+- V0.9 LAN source-matrix structs, constants, and parity tests for workpack and
+  discovery-source proof status rows consumed by service-backed diagnostics.
 
 ## Must Not Own
 
@@ -68,3 +70,5 @@ flowchart LR
 - Signed LAN discovery structs must preserve manual-required/not-implemented
   states for physical household proof, signed child-agent artifacts, relay, and
   cache routes until service/runtime proof is real.
+- LAN source-matrix structs must preserve weak-source fences so passive or
+  manual discovery evidence cannot become child-agent confirmation by accident.

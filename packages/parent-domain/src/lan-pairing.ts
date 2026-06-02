@@ -1,5 +1,6 @@
 export * from './lan-pairing-values';
 export * from './lan-discovery-evidence';
+export * from './lan-discovery-source-matrix';
 export * from './lan-device-parent-actions';
 export * from './household-device-spine';
 export * from './lan-production-household-proof';

@@ -67,7 +67,7 @@ presence, but they cannot confirm a child device.
 
 Requirement: Default CI tests must not depend on the user's real LAN.
 
-Proof: Scanner tests use fixtures, fake packet IO, fake responders, fake clocks,
+Proof: Scanner tests use fixtures, controlled packet IO, controlled local responders, explicit timestamps,
 and local test servers.
 
 Acceptance: Real LAN proof is manual or explicitly tagged integration evidence,
@@ -189,12 +189,12 @@ incomplete MACs.
 Acceptance: Neighbor ingestion produces IP, MAC, interface, state, timestamp,
 and source evidence without platform-specific leakage.
 
-### LAN-TEST-015: ARP sweep uses fake packet IO in CI
+### LAN-TEST-015: ARP sweep uses controlled packet IO in CI
 
 Requirement: ARP sweep logic must be tested through a packet IO abstraction, not
 real packet drivers in default CI.
 
-Proof: Integration tests use fake packet IO to assert host range selection,
+Proof: Integration tests use controlled packet IO to assert host range selection,
 network/broadcast exclusion, response window behavior, malformed replies,
 deduplication, and no-reply behavior.
 
@@ -205,7 +205,7 @@ Acceptance: Packet-mode driver availability does not decide whether CI passes.
 Requirement: mDNS tests must cover service enumeration, A/AAAA, SRV, TXT, common
 device services, and Ocentra agent service discovery.
 
-Proof: Integration tests use fixture packets or fake responders for Apple,
+Proof: Integration tests use fixture packets or controlled local responders for Apple,
 Android, Chromecast, printer, workstation, and Ocentra agent cases.
 
 Acceptance: mDNS enriches records without bad duplicates.
@@ -216,7 +216,7 @@ Requirement: SSDP tests must cover M-SEARCH, LOCATION parsing, description XML,
 friendly name, manufacturer, model, device type, UDN/UUID, missing LOCATION,
 bad XML, and timeout behavior.
 
-Proof: Fake UDP and HTTP responders serve router, TV, console, printer, missing,
+Proof: Controlled UDP and HTTP responders serve router, TV, console, printer, missing,
 malformed, and timeout fixtures.
 
 Acceptance: SSDP enriches discovered devices without crashing or treating
@@ -227,7 +227,7 @@ routers as enrollable child-agent targets.
 Requirement: TCP/HTTP/HTTPS probing must run only on discovered hosts and must
 collect bounded identity hints only.
 
-Proof: Integration tests use local fake servers for closed port, HTTP title,
+Proof: Integration tests use local controlled servers for closed port, HTTP title,
 HTTPS certificate subject, timeout, max concurrency, and no link crawling.
 
 Acceptance: Service probing cannot become broad port scanning or page crawling.
@@ -252,7 +252,7 @@ Requirement: Heartbeats must update last-confirmed time and online state, while
 missing heartbeats transition online to stale and offline without deleting the
 device record.
 
-Proof: Fake-clock tests cover valid heartbeat, wrong signature, wrong family,
+Proof: Explicit timestamp tests cover valid heartbeat, wrong signature, wrong family,
 timeout, late heartbeat recovery, stale, and offline transitions.
 
 Acceptance: Presence display is deterministic and secure.
@@ -299,7 +299,7 @@ Acceptance: Parent inventory state can be rebuilt from a snapshot plus events.
 
 ### LAN-TEST-024: Spoofed agent rejection
 
-Requirement: Fake mDNS Ocentra agent announcements, valid-looking unsigned
+Requirement: Spoofed mDNS Ocentra agent announcements, valid-looking unsigned
 hellos, copied signatures, wrong family messages, oversized TXT records, and
 malformed TXT records must not confirm a device.
 
@@ -335,10 +335,10 @@ Acceptance: Local API exposure is not an open LAN control surface.
 ### LAN-TEST-027: Empty and progressive scan UI
 
 Requirement: The UI must handle empty inventory, scan start, device found,
-device updated, and scan finished states without fake devices or duplicate
+device updated, and scan finished states without invented devices or duplicate
 cards.
 
-Proof: Playwright tests drive mocked event streams for empty state and
+Proof: Playwright tests drive contract-backed recorded event streams for empty state and
 progressive scan.
 
 Acceptance: Users see real scan progress and stable card updates.
@@ -444,7 +444,7 @@ Acceptance: LAN discovery feels fast and does not punish larger home networks.
 ### LAN-TEST-036: CI validation gates
 
 Requirement: Merge is not acceptable until formatting, clippy, unit,
-integration, contract, security parser, schema snapshot, and Playwright mocked
+integration, contract, security parser, schema snapshot, and Playwright fixture-backed
 UI tests pass, or an explicit omission record is documented.
 
 Proof: CI or local gate commands include Rust format, clippy with warnings
@@ -460,7 +460,7 @@ The first implementation must not go below this baseline:
 
 - Unit: interface filtering, ARP parser, OUI lookup, evidence update, merge
   scoring, classifier, child hello signature, heartbeat state.
-- Integration: scanner pipeline, fake ARP sweep, fake mDNS, fake SSDP, SQLite
+- Integration: scanner pipeline, controlled ARP sweep, controlled mDNS, controlled SSDP, SQLite
   persistence, child hello endpoint.
 - Contract: device record JSON, child hello JSON, LAN event stream JSON.
 - E2E: first scan unknown devices, child agent confirms device, DHCP IP change,

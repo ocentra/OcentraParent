@@ -26,6 +26,9 @@ mobile readiness, and control catalogs.
 - V0.9 signed LAN discovery/relay spine contracts that keep adapter evidence,
   signed proof rejection, route safety, relay/cache availability, parent-owned
   storage, and child-data custody claims explicit.
+- V0.9 LAN source-matrix plan-completion contracts that expose all 20 LAN
+  workpacks and discovery source rows with honest proof statuses and weak-source
+  fences.
 - Browser/app/game/network/screen/tracking control catalogs.
 - Android/iOS/platform proof and capability status contracts where product
   meaning belongs in TypeScript first.
@@ -91,3 +94,6 @@ flowchart LR
   escalation stay unclaimed.
 - Signed LAN hello/heartbeat and physical household readiness remain
   manual-required until real second-child-agent artifacts are attached.
+- LAN source-matrix proof is contract/read-model proof. It does not implement
+  targeted ARP, bounded ARP sweep, packet listeners, real mDNS/SSDP
+  advertisements, relay/cache, or physical household validation.

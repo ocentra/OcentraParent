@@ -4752,6 +4752,7 @@ function activityLanDiagnosticsRows(
   const householdDecisions = activityRecordArray(addDeviceReadModel.householdDeviceDecisions);
   const scanSummary = activityRecord(addDeviceReadModel.scanSummary);
   const signedSpine = activityRecord(addDeviceReadModel.signedDiscoveryRelaySpine);
+  const sourceMatrix = activityRecord(addDeviceReadModel.lanDiscoverySourceMatrix);
   const signedProofRow = activityLanSpineStateRow(signedSpine, 'signedProofRows');
   const routeSafetyRow = activityLanRouteSafetyRow(signedSpine, selectedDevice);
   const relayCacheRow = activityLanSpineStateRow(signedSpine, 'relayCacheRows');
@@ -4796,6 +4797,7 @@ function activityLanDiagnosticsRows(
       value: activityStateValue(addDeviceReadModel.physicalHouseholdLanState),
       tone: 'purple',
     },
+    ...activityLanSourceMatrixRows(sourceMatrix),
     {
       label: 'Selected route',
       value: `${activityStateValue(selectedReadiness?.routeId)}; ${activityStateValue(selectedReadiness?.trustState)}`,
@@ -4877,6 +4879,45 @@ function activityLanDiagnosticsRows(
       label: 'Policy targets',
       value: activityListSummary(policyTargetSurfaces),
       tone: 'gold',
+    },
+  ];
+}
+
+function activityLanSourceMatrixRows(sourceMatrix: Record<string, unknown> | null): readonly ActivityManageDetailRow[] {
+  if (!sourceMatrix) return [];
+  const workpackRows = activityRecordArray(sourceMatrix.workpackRows);
+  const sourceRows = activityRecordArray(sourceMatrix.sourceRows);
+  const implemented = workpackRows.filter((row) => activityStateValue(row.status, '') === 'implemented').length;
+  const partial = workpackRows.filter((row) => activityStateValue(row.status, '') === 'partial').length;
+  const manual = workpackRows.filter((row) => activityStateValue(row.status, '') === 'manual-required').length;
+  const missing = workpackRows.filter((row) => activityStateValue(row.status, '') === 'not-implemented').length;
+  const implementedSources = sourceRows
+    .filter((row) => activityStateValue(row.status, '') === 'implemented')
+    .map((row) => activityStateValue(row.source, ''))
+    .filter((source) => source.length > 0);
+  const weakSources = sourceRows.filter(
+    (row) => row.canConfirmChildAgent !== true && row.canAssignChildProfile !== true
+  ).length;
+  return [
+    {
+      label: 'LAN workpacks',
+      value: `${implemented}/${workpackRows.length} implemented; ${partial} partial; ${manual} manual; ${missing} missing`,
+      tone: 'cyan',
+    },
+    {
+      label: 'Source proof',
+      value: activityListSummary(implementedSources),
+      tone: 'gold',
+    },
+    {
+      label: 'Weak source fence',
+      value: `weak sources cannot confirm or assign: ${weakSources}/${sourceRows.length}`,
+      tone: 'purple',
+    },
+    {
+      label: 'Matrix generated',
+      value: activityStateValue(sourceMatrix.generatedAt),
+      tone: 'cyan',
     },
   ];
 }
