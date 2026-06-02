@@ -115,13 +115,15 @@ function buildSigningStoreClaims() {
 
 function buildPlatformCapabilityMatrix() {
   return [
-    matrixRow('windows-msi-preview', 'parent-desktop', 'windows', 'implemented-preview'),
-    matrixRow('linux-deb-preview', 'parent-desktop', 'linux', 'implemented-preview'),
-    matrixRow('macos-pkg-preview', 'parent-desktop', 'macos', 'implemented-preview'),
-    matrixRow('android-debug-apk-preview', 'child-mobile', 'android', 'scaffold-only'),
-    matrixRow('ios-simulator-preview', 'child-mobile', 'ios', 'scaffold-only'),
-    matrixRow('production-signing-and-stores', 'release', 'cross-platform', 'manual-required'),
-    matrixRow('support-diagnostic-bundle', 'support', 'cross-platform', 'scaffolded-contract'),
+    matrixRow('parent-desktop', 'unsigned-preview', 'implemented', 'preview-only', 'preview-only'),
+    matrixRow('parent-mobile', 'scaffold', 'manual-required', 'manual-required', 'manual-required'),
+    matrixRow('child-desktop', 'preview-only', 'implemented', 'preview-only', 'manual-required'),
+    matrixRow('child-android', 'scaffold', 'manual-required', 'manual-required', 'manual-required'),
+    matrixRow('child-ios', 'scaffold', 'manual-required', 'manual-required', 'manual-required'),
+    matrixRow('relay', 'not-implemented', 'not-implemented', 'not-implemented', 'not-ready'),
+    matrixRow('signing', 'signature-required', 'manual-required', 'manual-required', 'manual-required'),
+    matrixRow('store', 'manual-required', 'manual-required', 'manual-required', 'manual-required'),
+    matrixRow('support', 'preview-only', 'preview-only', 'preview-only', 'preview-only'),
   ];
 }
 
@@ -176,13 +178,15 @@ function claimRow(id, surface, platform, state) {
   return { id, platform, productionClaim: false, state, surface };
 }
 
-function matrixRow(id, surface, platform, state) {
+function matrixRow(target, packageState, serviceState, capabilityState, proofLevel) {
   return {
-    id,
-    platform,
-    productClaim: state === 'implemented-preview' ? 'preview-only' : 'not-claimed',
-    state,
-    surface,
+    target,
+    packageState,
+    serviceState,
+    routeState: target === 'relay' ? 'not-implemented' : 'preview-only',
+    capabilityState,
+    proofLevel,
+    nonClaim: `${target} state is limited to the named proof level and does not upgrade unsupported platform behavior`,
   };
 }
 

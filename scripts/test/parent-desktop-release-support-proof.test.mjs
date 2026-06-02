@@ -69,7 +69,7 @@ test('release-support proof separates preview mechanics from product claims', ()
   const proof = buildReleaseSupportProof({
     generatedAt: '2026-06-02T00:00:00.000Z',
   });
-  const matrixRows = Object.fromEntries(proof.platformCapabilityMatrix.map((row) => [row.id, row]));
+  const matrixRows = Object.fromEntries(proof.platformCapabilityMatrix.map((row) => [row.target, row]));
 
   assert.deepEqual(proof.workpacks.completed, ['04', '06', '09', '10', '11', '12', '15', '16', '17', '18', '20']);
   assert.deepEqual(proof.workpacks.partial, ['19']);
@@ -78,11 +78,25 @@ test('release-support proof separates preview mechanics from product claims', ()
   assert.equal(proof.branchBoundary.production.productionPublish, true);
   assert.equal(proof.updateChannelRollback.productionUpdate.manifestSignature, 'required');
   assert.equal(proof.updateChannelRollback.productionUpdate.unsignedPreviewAccepted, false);
-  assert.equal(matrixRows['windows-msi-preview'].state, 'implemented-preview');
-  assert.equal(matrixRows['android-debug-apk-preview'].state, 'scaffold-only');
-  assert.equal(matrixRows['ios-simulator-preview'].state, 'scaffold-only');
-  assert.equal(matrixRows['production-signing-and-stores'].state, 'manual-required');
-  assert.equal(matrixRows['support-diagnostic-bundle'].state, 'scaffolded-contract');
+  assert.deepEqual(Object.keys(matrixRows), [
+    'parent-desktop',
+    'parent-mobile',
+    'child-desktop',
+    'child-android',
+    'child-ios',
+    'relay',
+    'signing',
+    'store',
+    'support',
+  ]);
+  assert.equal(matrixRows['parent-desktop'].proofLevel, 'preview-only');
+  assert.equal(matrixRows['parent-mobile'].proofLevel, 'manual-required');
+  assert.equal(matrixRows['child-android'].proofLevel, 'manual-required');
+  assert.equal(matrixRows['child-ios'].proofLevel, 'manual-required');
+  assert.equal(matrixRows.relay.proofLevel, 'not-ready');
+  assert.equal(matrixRows.signing.proofLevel, 'manual-required');
+  assert.equal(matrixRows.store.proofLevel, 'manual-required');
+  assert.equal(matrixRows.support.proofLevel, 'preview-only');
   assert.deepEqual(
     proof.signingStoreClaims.map((claim) => [claim.id, claim.productionClaim]),
     [

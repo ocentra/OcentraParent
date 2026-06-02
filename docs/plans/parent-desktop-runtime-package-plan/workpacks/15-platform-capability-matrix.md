@@ -25,7 +25,7 @@ matching feature-doc/checklist update.
 - [x] Include parent desktop/mobile and child-agent rows separately.
 - [x] Include signing/store/relay rows.
 - [x] Generate or test deterministic output.
-- [x] Sync docs/checklist when rows change.
+- [x] Sync D-owned feature/expectation/workpack docs when rows change; product checklist wording stays tracked in workpack 19 until the codex-a lock clears.
 
 ## Acceptance And Proof
 
