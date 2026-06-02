@@ -29,7 +29,7 @@ configured cap.
 
 ## Acceptance And Proof
 
-- Integration tests use fake packet IO for host range selection, no-reply,
+- Integration tests use controlled packet IO for host range selection, no-reply,
   malformed replies, duplicate replies, response-window timeout, and
   network/broadcast exclusion.
 - Performance proof keeps `/24` packet build under the target window.

@@ -205,7 +205,7 @@ Required diagnostic coverage:
   to the canonical household device target before enforcement or observation
   claims become product-visible.
 
-The Activity / Network view should not become a fake log console. It should
+The Activity / Network view should not become a pretend log console. It should
 render typed read models and event history from the Rust service so the user can
 visually inspect what happened and report UI/product gaps.
 

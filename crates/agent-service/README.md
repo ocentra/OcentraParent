@@ -32,6 +32,8 @@ development paths and orchestrates runtime commands.
   signed proof rejection, selected-route safety, parent decision audits,
   relay/cache unavailable state, parent-owned storage unavailable state, and no
   Ocentra child-data custody claims.
+- V0.9 LAN source-matrix read-model rows that expose plan workpack/source
+  status, implemented-source proof, and weak-source fences to the parent portal.
 
 ## Must Not Own
 
@@ -88,3 +90,5 @@ flowchart LR
   status/readiness proof only; provider adapters, provider receipts, retry
   execution, quiet-hours scheduling, escalation delivery, parent controls,
   notification UI, and Ocentra-hosted child activity storage remain unclaimed.
+- LAN source-matrix output is diagnostic/proof state only; it must not be used
+  to imply missing production discovery adapters are implemented.

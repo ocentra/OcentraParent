@@ -191,8 +191,9 @@ function deviceHardwareLabel(slot: DeviceSlot): string {
 
 function deviceStateLabel(slot: DeviceSlot): string {
   const state = humanizeDeviceToken(slot.device?.sourceState ?? slot.badge) || humanizeDeviceToken(slot.status);
+  const sourceProof = firstDeviceText(slot.device?.lanSourceProof, slot.device?.lanWeakSourceProof);
   const route = humanizeDeviceToken(slot.device?.routeId);
-  return compactDeviceLine([state, route ? `${DEVICE_SELECTED_INFO_COPY.RoutePrefix}: ${route}` : '']);
+  return compactDeviceLine([state, sourceProof, route ? `${DEVICE_SELECTED_INFO_COPY.RoutePrefix}: ${route}` : '']);
 }
 
 function compactDeviceLine(parts: readonly string[]): string {

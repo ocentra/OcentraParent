@@ -5,10 +5,11 @@ import { assertRouteScaffolds } from './portal-route-scaffold-assertions';
 test.setTimeout(120_000);
 
 const portalShellReadyTimeoutMs = 30_000;
+const defaultPortalPort = '4490';
 
 test('portal UI connects to the real agent and renders command results', async ({ context, page }) => {
   const browserFailures = collectBrowserFailures(page);
-  await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: 'http://127.0.0.1:4490' });
+  await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: portalOrigin() });
   await page.goto('/#/commands');
   await expect(page.getByRole('button', { exact: true, name: 'Home' })).toBeVisible({
     timeout: portalShellReadyTimeoutMs,
@@ -22,6 +23,7 @@ test('portal UI connects to the real agent and renders command results', async (
 
   await assertAuthDialog(page);
   await assertCommandControls(page);
+  await assertInitialOverviewCommandDrain(page);
   await assertTabbedCommandResults(page);
   await assertRawEventLog(page);
   await assertOverview(page);
@@ -30,6 +32,11 @@ test('portal UI connects to the real agent and renders command results', async (
 
   expect(browserFailures).toEqual([]);
 });
+
+function portalOrigin(): string {
+  const portalPort = process.env['OCENTRA_PARENT_PORTAL_PORT']?.trim() || defaultPortalPort;
+  return `http://127.0.0.1:${portalPort}`;
+}
 
 async function assertAuthDialog(page: Page): Promise<void> {
   await page.getByRole('button', { exact: true, name: 'Login' }).click();
@@ -66,6 +73,14 @@ async function assertCommandControls(page: Page): Promise<void> {
   await expect(page.getByRole('button', { name: 'Refresh policy decision' })).toBeEnabled();
   await expect(page.getByRole('heading', { name: 'Command result' })).toBeVisible();
   await expect(page.locator('.summary')).toHaveCount(1);
+}
+
+async function assertInitialOverviewCommandDrain(page: Page): Promise<void> {
+  const commandResult = page.locator('.command-result-panel');
+  await expect(commandResult.getByText('agent.policy.preview.read-model.reported')).toHaveCount(1, {
+    timeout: portalShellReadyTimeoutMs,
+  });
+  await expect(commandResult.locator('.log')).toHaveCount(1);
 }
 
 async function assertTabbedCommandResults(page: Page): Promise<void> {

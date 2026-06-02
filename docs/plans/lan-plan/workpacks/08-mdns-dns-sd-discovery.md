@@ -30,7 +30,7 @@ signed hello.
 
 ## Acceptance And Proof
 
-- Fixture/fake responder tests cover Apple, Android, Chromecast, printer,
+- Fixture-controlled responder tests cover Apple, Android, Chromecast, printer,
   workstation, and Ocentra agent cases.
 - Malformed, oversized, invalid UTF-8, and hostile-name fixtures do not panic
   and do not break UI.
