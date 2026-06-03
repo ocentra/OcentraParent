@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-03T22:57:38.588Z",
-  "commit": "5c708d17dc6e11dcaff81f5d6af91737256af78d",
+  "checkedAt": "2026-06-03T23:04:12.510Z",
+  "commit": "9f98935f96c51aff23570a147ca1477ebdbd0835",
   "workpackId": "32-journal-sqlite-and-read-model-proof",
   "proofMode": "tracking-service-read-model",
   "requiredProofTier": "P2_HOSTED_CI",
