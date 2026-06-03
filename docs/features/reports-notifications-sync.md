@@ -74,6 +74,14 @@ custody.
   results, and delete results without claiming transfer runtime, connector
   OAuth, portal UI, report compiler runtime, account/subscription backend, raw
   child evidence upload by default, or Ocentra-hosted child evidence custody.
+- Parent-owned local export/delete runtime proof now represents
+  parent-authorized Windows local export and delete jobs with queued, running,
+  written, delete requested, delete confirmed, delete failed, offline queued,
+  and manual-required states; encrypted local output metadata; delete
+  confirmation; audit refs; and source evidence retention for local safety
+  without claiming cloud transfer, connector OAuth/provider API, portal UI,
+  remote report compilation, child-device mutation, raw evidence upload, or
+  Ocentra-hosted family data custody.
 - Stateless report compiler status contract proof now represents parent-
   authorized remote report compilation requests from parent-owned storage,
   source connector/cursor refs, requested data classes and time windows,
@@ -105,6 +113,11 @@ connector status, cursor, conflict, import, and delete result states, but does
 not claim real export/import/upload/download runtime, connector OAuth,
 provider API calls, portal controls, report compiler runtime, or Ocentra-hosted
 child data custody.
+The parent-owned local export/delete runtime proof adds typed local export queue,
+encrypted local output, delete confirmation/failure, offline queue, and
+manual-required states, but does not claim cloud transfer, connector OAuth,
+provider API calls, portal controls, remote report compilation, child-device
+mutation, raw evidence upload, or Ocentra-hosted child data custody.
 The stateless report compiler status proof adds typed request/status/result
 state for parent-authorized report compilation from parent-owned storage, but
 does not claim a compiler runtime, cloud worker, connector OAuth/provider API,
@@ -123,6 +136,11 @@ delivery, policy writes, or child-device enforcement.
 - [x] Parent-owned export/sync connector status contract proof exists without
       transfer runtime, connector OAuth, provider API, portal UI, or
       Ocentra-hosted child data custody claims.
+- [x] Parent-owned local export/delete runtime proof exists for local queued,
+      written, delete confirmed/failed, offline queued, and manual-required
+      states without cloud transfer, connector OAuth/provider API, portal UI,
+      remote compiler, child mutation, raw evidence upload, or Ocentra-hosted
+      custody claims.
 - [x] Stateless report compiler status contract proof exists for
       parent-authorized compilation from parent-owned storage without compiler
       runtime, cloud worker, connector OAuth/provider API, portal UI,
@@ -159,6 +177,11 @@ sync/export manifest and connector-status contract proof only; require real
 transfer runtime, connector OAuth/provider artifacts, parent-visible controls,
 retention/delete execution, and import/rebuild proof before claiming product
 sync/export.
+Treat `scripts/test/parent-owned-local-export-runtime-proof.mjs` as
+parent-domain local export/delete runtime-state proof only; require a real
+filesystem writer, retention scheduler, delete executor, durable audit
+persistence, physical Windows smoke proof, and parent-visible controls before
+claiming product export/delete runtime.
 Treat `scripts/test/stateless-report-compiler-status-proof.mjs` as
 parent-domain stateless report compiler request/status/result proof only;
 require a real compiler runtime, cloud worker, connector OAuth/provider

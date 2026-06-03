@@ -84,6 +84,11 @@ Remote access must not silently turn Ocentra into a family-data warehouse.
   connector/cursor refs, status refs, temporary artifact TTLs, deletion
   confirmation, and audit refs, but it must not retain source child evidence or
   generated reports in Ocentra-hosted systems by default.
+- Local export/delete runtime status may reference parent-authorized job ids,
+  local output refs, checksums, delete request refs, queue refs, and audit refs,
+  but it must preserve source local evidence for safety, delete only the
+  exported parent-owned output when requested, and avoid Ocentra-hosted copies by
+  default.
 - Any support bundle must make included data classes obvious before export.
 - Support incident handoff must be parent-initiated and parent-approved before
   export; Ocentra must not silently upload or retain child activity as support

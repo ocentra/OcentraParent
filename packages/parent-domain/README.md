@@ -35,6 +35,10 @@ mobile readiness, and control catalogs.
   connector/cursor refs, requested data classes and time windows, temp TTL and
   deletion confirmation, redaction/minimization, audit refs, and custody
   non-mutation boundaries.
+- Parent-owned local export/delete runtime-state contracts for
+  parent-authorized Windows local export queues, encrypted local output
+  metadata, delete confirmation/failure, offline/manual states, source evidence
+  retention for local safety, and no cloud/provider/UI/custody overclaims.
 - V0.9 signed LAN discovery/relay spine contracts that keep adapter evidence,
   signed proof rejection, route safety, relay/cache availability, parent-owned
   storage, and child-data custody claims explicit.
@@ -102,6 +106,10 @@ flowchart LR
   contract/status proof only; real compiler runtime/cloud worker, connector
   OAuth/provider APIs, portal controls/UI, upload/download, deletion execution,
   custody/security review, and real storage/cache implementation remain
+  unclaimed.
+- Parent-owned local export/delete runtime proof remains read-model proof only;
+  real filesystem writers, retention schedulers, delete executors, durable audit
+  persistence, physical Windows smoke proof, and parent-visible controls remain
   unclaimed.
 - V0.8 broad app, network/domain, exact URL, notification, and tamper controls
   remain manual-required or not-claimed until platform adapter proof exists.
