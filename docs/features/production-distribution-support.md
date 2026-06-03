@@ -87,6 +87,12 @@ dev-only repo when it claims consumer readiness.
   retained evidence-export access, parent-visible resolution labels, and
   existing-local-safety continuation. It remains contract proof only and does
   not add provider, backend, portal, or child-device runtime code.
+- `billing-account-runtime-boundary-proof` adds parent-domain account runtime
+  boundary rows for account status available, backend unavailable, provider
+  unavailable, and entitlement signing manual-required states. It proves no
+  Stripe SDK or provider secrets in app/source, no portal billing UI, no
+  child-device entitlement consumption, no child-activity custody, and visible
+  local-safety fallback when the backend/provider path is unavailable.
 - Billing/support/public website/store distribution are planned or incomplete.
 
 ## Current Gap
@@ -138,6 +144,10 @@ package/runtime proof.
       status proof rows, over-limit device-denial rules, existing-device
       grace/manual paths, and all current billing failure kinds while keeping
       provider/runtime work unimplemented.
+      `billing-account-runtime-boundary-proof` adds account status,
+      backend/provider unavailable, and entitlement-signing manual-required
+      runtime-boundary proof without adding Stripe/provider secrets, portal UI,
+      child-device consumption, or child-activity custody.
 - [ ] Privacy, retention, export/delete, and support docs.
 - [ ] Support bundle redaction proof scaffold and incident process. Current
       release-support proof requires parent consent, incident/status metadata,
