@@ -4,16 +4,19 @@ import {
   V08BrowserDomainAdapterProofReadModel,
   V08BrowserDomainAdapterProofReadModelSchema,
   V08BrowserDomainAdapterProofSurface,
+  V08WindowsAppControlProofStateSchema,
 } from '../src/v0-8-browser-domain-adapter-proof';
 
 describe('V0.8 browser domain adapter proof', () => {
   capturesBrowserAndDomainAdapterStates();
+  recordsWindowsAppControlReadinessStates();
   separatesManagedBrowserFromExactUrl();
   recordsUnmanagedBrowserBoundaries();
   keepsNetworkAndUnsupportedTargetsBounded();
   recordsAuditRestartAndRollbackVisibility();
   rejectsSurfaceStateDrift();
   rejectsClaimUpgrades();
+  rejectsWindowsAppControlClaimUpgrades();
 });
 
 function capturesBrowserAndDomainAdapterStates() {
@@ -38,6 +41,7 @@ function capturesBrowserAndDomainAdapterStates() {
       ios: 1,
     });
     expect(new Set(readModel.entries.map((entry) => entry.proofEntryId)).size).toBe(readModel.entries.length);
+    expect(readModel.windowsAppControlStates).toHaveLength(6);
     expect(
       readModel.entries.every(
         (entry) =>
@@ -46,6 +50,44 @@ function capturesBrowserAndDomainAdapterStates() {
           !entry.networkDomainBlockingClaimed &&
           !entry.broadBrowserControlClaimed &&
           !entry.unsupportedOsClaimed
+      )
+    ).toBe(true);
+  });
+}
+
+function recordsWindowsAppControlReadinessStates() {
+  it('records Windows AppLocker/App Control readiness without claiming prevention', () => {
+    const readModel = V08BrowserDomainAdapterProofReadModelSchema.parse(V08BrowserDomainAdapterProofReadModel);
+    const readinessCounts = countBy(readModel.windowsAppControlStates.map((state) => state.readinessState));
+    const readiness = appControlStateFor('readiness-check');
+    const auditOnly = appControlStateFor('audit-only');
+    const enforced = appControlStateFor('enforced');
+    const manualRequired = appControlStateFor('manual-required');
+    const unavailable = appControlStateFor('unavailable');
+    const failed = appControlStateFor('failed');
+
+    expect(readinessCounts).toEqual({
+      'readiness-check': 1,
+      'audit-only': 1,
+      enforced: 1,
+      'manual-required': 1,
+      unavailable: 1,
+      failed: 1,
+    });
+    expect(readiness.ruleIdentityKinds).toEqual(['publisher', 'path', 'hash', 'package']);
+    expect(auditOnly.eventStates).toContain('audit-visible');
+    expect(enforced.policyMutationState).toBe('create-update-manual-required');
+    expect(enforced.eventStates).toContain('rollback-visible');
+    expect(manualRequired.adminRequirement).toBe('manual-operator-required');
+    expect(unavailable.ruleIdentityKinds).toHaveLength(0);
+    expect(failed.eventStates).toContain('failure-visible');
+    expect(
+      readModel.windowsAppControlStates.every(
+        (state) =>
+          !state.appControlPreventionClaimed &&
+          !state.policyCreationClaimed &&
+          !state.policyUpdateClaimed &&
+          !state.rollbackClaimed
       )
     ).toBe(true);
   });
@@ -210,12 +252,59 @@ function rejectsClaimUpgrades() {
   });
 }
 
+function rejectsWindowsAppControlClaimUpgrades() {
+  it('rejects Windows AppLocker/App Control claim upgrades and incomplete state coverage', () => {
+    const enforced = appControlStateFor('enforced');
+    const unavailable = appControlStateFor('unavailable');
+
+    expect(() =>
+      V08WindowsAppControlProofStateSchema.parse({
+        ...enforced,
+        proofStateId: 'invalid-app-control-prevention-upgrade',
+        appControlPreventionClaimed: true,
+      })
+    ).toThrow();
+    expect(() =>
+      V08WindowsAppControlProofStateSchema.parse({
+        ...enforced,
+        proofStateId: 'invalid-app-control-policy-creation-upgrade',
+        policyCreationClaimed: true,
+      })
+    ).toThrow();
+    expect(() =>
+      V08WindowsAppControlProofStateSchema.parse({
+        ...unavailable,
+        proofStateId: 'invalid-app-control-unavailable-identities',
+        ruleIdentityKinds: ['publisher'],
+      })
+    ).toThrow();
+    expect(() =>
+      V08BrowserDomainAdapterProofReadModelSchema.parse({
+        ...V08BrowserDomainAdapterProofReadModel,
+        windowsAppControlStates: V08BrowserDomainAdapterProofReadModel.windowsAppControlStates.filter(
+          (state) => state.readinessState !== 'failed'
+        ),
+      })
+    ).toThrow();
+  });
+}
+
 function entryFor(surface: string) {
   const entry = V08BrowserDomainAdapterProofReadModel.entries.find((candidate) => candidate.surface === surface);
   if (entry === undefined) {
     throw new Error(`Missing V0.8 browser/domain adapter proof entry: ${surface}`);
   }
   return entry;
+}
+
+function appControlStateFor(readinessState: string) {
+  const state = V08BrowserDomainAdapterProofReadModel.windowsAppControlStates.find(
+    (candidate) => candidate.readinessState === readinessState
+  );
+  if (state === undefined) {
+    throw new Error(`Missing V0.8 Windows app-control proof state: ${readinessState}`);
+  }
+  return state;
 }
 
 function countBy(values: readonly string[]) {

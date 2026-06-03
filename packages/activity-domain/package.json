@@ -25,6 +25,62 @@
       "import": "./dist/browser.js",
       "types": "./dist/browser.d.ts"
     },
+    "./browser-managed-profile-store": {
+      "import": "./dist/browser-managed-profile-store.js",
+      "types": "./dist/browser-managed-profile-store.d.ts"
+    },
+    "./browser-hidden-analysis-loader": {
+      "import": "./dist/browser-hidden-analysis-loader.js",
+      "types": "./dist/browser-hidden-analysis-loader.d.ts"
+    },
+    "./browser-hidden-analysis-schemas": {
+      "import": "./dist/browser-hidden-analysis-schemas.js",
+      "types": "./dist/browser-hidden-analysis-schemas.d.ts"
+    },
+    "./browser-ai-analysis-schemas": {
+      "import": "./dist/browser-ai-analysis-schemas.js",
+      "types": "./dist/browser-ai-analysis-schemas.d.ts"
+    },
+    "./browser-ai-provider-routing-schemas": {
+      "import": "./dist/browser-ai-provider-routing-schemas.js",
+      "types": "./dist/browser-ai-provider-routing-schemas.d.ts"
+    },
+    "./browser-ai-family-hub-routing-schemas": {
+      "import": "./dist/browser-ai-family-hub-routing-schemas.js",
+      "types": "./dist/browser-ai-family-hub-routing-schemas.d.ts"
+    },
+    "./browser-ai-remote-boundary-schemas": {
+      "import": "./dist/browser-ai-remote-boundary-schemas.js",
+      "types": "./dist/browser-ai-remote-boundary-schemas.d.ts"
+    },
+    "./browser-ai-prompt-template-schemas": {
+      "import": "./dist/browser-ai-prompt-template-schemas.js",
+      "types": "./dist/browser-ai-prompt-template-schemas.d.ts"
+    },
+    "./browser-ai-risk-benefit-model-schemas": {
+      "import": "./dist/browser-ai-risk-benefit-model-schemas.js",
+      "types": "./dist/browser-ai-risk-benefit-model-schemas.d.ts"
+    },
+    "./browser-ai-analysis-queue-schemas": {
+      "import": "./dist/browser-ai-analysis-queue-schemas.js",
+      "types": "./dist/browser-ai-analysis-queue-schemas.d.ts"
+    },
+    "./browser-ai-memory-cache-store-schemas": {
+      "import": "./dist/browser-ai-memory-cache-store-schemas.js",
+      "types": "./dist/browser-ai-memory-cache-store-schemas.d.ts"
+    },
+    "./browser-ai-knowledge-graph-schemas": {
+      "import": "./dist/browser-ai-knowledge-graph-schemas.js",
+      "types": "./dist/browser-ai-knowledge-graph-schemas.d.ts"
+    },
+    "./browser-ai-policy-evaluator-schemas": {
+      "import": "./dist/browser-ai-policy-evaluator-schemas.js",
+      "types": "./dist/browser-ai-policy-evaluator-schemas.d.ts"
+    },
+    "./browser-ai-post-analysis-action-schemas": {
+      "import": "./dist/browser-ai-post-analysis-action-schemas.js",
+      "types": "./dist/browser-ai-post-analysis-action-schemas.d.ts"
+    },
     "./capture": {
       "import": "./dist/capture.js",
       "types": "./dist/capture.d.ts"

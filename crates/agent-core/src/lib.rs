@@ -30,10 +30,14 @@ mod browser_bridge_event;
 mod browser_bridge_fields;
 mod browser_bridge_http;
 mod browser_bridge_ids;
+mod browser_bridge_native_host;
 mod browser_bridge_poll;
 mod browser_intervention_event;
 mod browser_managed_discovery;
 mod browser_managed_session;
+mod browser_performance_health;
+mod browser_windows_inventory;
+mod browser_windows_inventory_paths;
 mod enforcement_adapter;
 mod enforcement_app_time_limit;
 mod enforcement_boundary;
@@ -65,8 +69,8 @@ pub use browser_bridge_event::{
     browser_tab_observation_event, BrowserBridgeEventError, BrowserBridgeTargetObservation,
 };
 pub use browser_bridge_poll::{
-    poll_chromium_bridge, BrowserBridgePollConfig, BrowserBridgePollError,
-    BrowserBridgePollSnapshot,
+    poll_chromium_bridge, BrowserBridgeExpectedCustody, BrowserBridgePollConfig,
+    BrowserBridgePollError, BrowserBridgePollSnapshot,
 };
 pub use browser_intervention_event::{
     browser_intervention_applied_event, BrowserInterventionObservation,
@@ -77,9 +81,18 @@ pub use browser_managed_discovery::{
     BrowserUnmanagedProcessObservation,
 };
 pub use browser_managed_session::{
-    launch_managed_browser, managed_browser_launch_plan, BrowserManagedLaunch,
+    create_or_repair_managed_browser_profile_store, delete_managed_browser_profile_store,
+    launch_managed_browser, load_managed_browser_profile_store, managed_browser_launch_plan,
+    reserve_managed_browser_bridge_port, BrowserManagedBridgePortReservation, BrowserManagedLaunch,
     BrowserManagedLaunchConfig, BrowserManagedLaunchError, BrowserManagedLaunchPlan,
+    BrowserManagedProfileStoreConfig, BrowserManagedProfileStoreError,
+    BrowserManagedProfileStoreRecord,
 };
+pub use browser_windows_inventory::{
+    windows_browser_executable_identity, windows_browser_inventory_observations,
+    BrowserWindowsExecutableIdentity, BrowserWindowsInventoryObservation,
+};
+pub use browser_windows_inventory_paths::windows_browser_inventory_candidate_paths;
 pub use enforcement_adapter::{
     app_block_control_capability, managed_browser_control_capability, network_control_capability,
     process_control_capability, terminate_owned_process, timer_control_capability,
@@ -149,11 +162,23 @@ mod activity_store_tests;
 #[cfg(test)]
 mod activity_store_tracking_tests;
 #[cfg(test)]
+mod browser_bridge_cdp_adapter_tests;
+#[cfg(test)]
+mod browser_bridge_native_host_tests;
+#[cfg(test)]
+mod browser_bridge_poll_security_tests;
+#[cfg(test)]
+mod browser_bridge_poll_test_support;
+#[cfg(test)]
 mod browser_bridge_poll_tests;
 #[cfg(test)]
 mod browser_bridge_tests;
 #[cfg(test)]
 mod browser_managed_session_tests;
+#[cfg(test)]
+mod browser_performance_health_tests;
+#[cfg(test)]
+mod browser_windows_inventory_tests;
 #[cfg(test)]
 mod enforcement_app_time_limit_tests;
 #[cfg(test)]

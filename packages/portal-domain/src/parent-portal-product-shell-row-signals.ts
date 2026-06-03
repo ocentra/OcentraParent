@@ -6,6 +6,7 @@ import {
   type AgentProtocolLogFields,
 } from '@ocentra-parent/agent-protocol-domain/contracts';
 import type { ParentPortalRow } from './parent-portal-data';
+import { PortalBrowserInventoryFields } from './details';
 import type { ParentPortalServiceConnectionState, ParentPortalServiceStateInput } from './parent-portal-service-state';
 import { PARENT_PORTAL_SERVICE_STATE } from './parent-portal-service-state-constants';
 import type { ProductShellSignalKind } from './parent-portal-product-shell-row-specs';
@@ -23,6 +24,22 @@ export function productShellSignals(
   return {
     household: householdSignal(input),
     browser: browserSignal(input),
+    browserInventory: browserInventorySignal(input),
+    browserExactUrl: browserInventoryCapabilitySignal(
+      input,
+      PortalBrowserInventoryFields.ExactUrlCapability,
+      PARENT_PORTAL_SERVICE_STATE.Trend.NotClaimed
+    ),
+    browserActiveTab: browserInventoryCapabilitySignal(
+      input,
+      PortalBrowserInventoryFields.ActiveTabCapability,
+      PARENT_PORTAL_SERVICE_STATE.Trend.NotClaimed
+    ),
+    browserUnmanagedFallback: browserInventoryCapabilitySignal(
+      input,
+      PortalBrowserInventoryFields.UnmanagedFallbackCapability,
+      PARENT_PORTAL_SERVICE_STATE.Trend.ManualRequired
+    ),
     activity: activitySignal(input),
     network: networkSignal(input),
     policy: policySignal(input, manualRequiredTrend(input.connectionState)),
@@ -73,9 +90,10 @@ function householdTrend(
 
 function browserSignal(input: ParentPortalServiceStateInput): ProductShellSignal {
   const managed = latestEvent(input.events, AgentEvent.BrowserManagedStatusReported);
+  const inventory = latestEvent(input.events, AgentEvent.BrowserInventoryReadModelReported);
   const evidence = latestEvent(input.events, AgentEvent.BrowserEvidenceRecentReported);
-  const latest = managed ?? evidence;
-  const readyCount = eventCount(managed, evidence);
+  const latest = managed ?? inventory ?? evidence;
+  const readyCount = eventCount(managed, inventory, evidence);
   const payload = latest?.payload ?? null;
   return {
     signalScore: eventScore(latest),
@@ -85,6 +103,38 @@ function browserSignal(input: ParentPortalServiceStateInput): ProductShellSignal
       textValue(payload, AgentProtocolDefaults.Field.ManagedState) ??
       textValue(payload, AgentProtocolDefaults.Field.CapabilityStatus) ??
       unavailableTrend(input.connectionState),
+  };
+}
+
+function browserInventorySignal(input: ParentPortalServiceStateInput): ProductShellSignal {
+  const inventory = latestEvent(input.events, AgentEvent.BrowserInventoryReadModelReported);
+  const payload = inventory?.payload ?? null;
+  const returned = numberValue(payload, AgentProtocolDefaults.Field.Returned) ?? 0;
+  return {
+    signalScore: eventScore(inventory),
+    readyCount: returned,
+    gapCount: inventory === null || returned === 0 ? 1 : 0,
+    trend:
+      textValue(payload, PortalBrowserInventoryFields.RunningState) ??
+      textValue(payload, AgentProtocolDefaults.Field.CapabilityStatus) ??
+      unavailableTrend(input.connectionState),
+  };
+}
+
+function browserInventoryCapabilitySignal(
+  input: ParentPortalServiceStateInput,
+  field: string,
+  fallbackTrend: NonNullable<ParentPortalRow['trend']>
+): ProductShellSignal {
+  const inventory = latestEvent(input.events, AgentEvent.BrowserInventoryReadModelReported);
+  const payload = inventory?.payload ?? null;
+  const trend =
+    textValue(payload, field) ?? (inventory === null ? unavailableTrend(input.connectionState) : fallbackTrend);
+  return {
+    signalScore: eventScore(inventory),
+    readyCount: inventory === null ? 0 : 1,
+    gapCount: inventory === null || trend === PARENT_PORTAL_SERVICE_STATE.Trend.NotClaimed ? 1 : 0,
+    trend,
   };
 }
 

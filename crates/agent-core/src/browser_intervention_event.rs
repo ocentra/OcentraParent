@@ -3,9 +3,10 @@ use ocentra_parent_agent_protocol::{
     ActivitySubjectKind, BrowserBoundaryState, BrowserChannel, BrowserCustodyLabel,
     BrowserExactUrlClaimState, BrowserFamily, BrowserInterventionAction,
     BrowserInterventionCapabilityState, BrowserInterventionDecisionSource,
-    BrowserInterventionMechanism, BrowserInterventionOutcome, BrowserInterventionTargetType,
-    BrowserQueryVisibilityLabel, BrowserUnmanagedDetectionState, BrowserUnmanagedEnforcementState,
-    LogFieldValue, LogFields, ACTIVITY_SCHEMA_VERSION,
+    BrowserInterventionDeliveryState, BrowserInterventionMechanism, BrowserInterventionOutcome,
+    BrowserInterventionTargetType, BrowserQueryVisibilityLabel, BrowserUnmanagedDetectionState,
+    BrowserUnmanagedEnforcementState, BrowserUnmanagedFallbackActionState, LogFieldValue,
+    LogFields, ACTIVITY_SCHEMA_VERSION,
 };
 
 mod ids;
@@ -16,6 +17,9 @@ pub struct BrowserInterventionObservation {
     pub managed_browser_session_id: Option<String>,
     pub profile_id: Option<String>,
     pub process_id: Option<u32>,
+    pub intervention_action_id: Option<String>,
+    pub intervention_audit_id: Option<String>,
+    pub evidence_reference_ids: Vec<String>,
     pub policy_decision_id: Option<String>,
     pub decision_source: BrowserInterventionDecisionSource,
     pub intervention_action: BrowserInterventionAction,
@@ -28,6 +32,8 @@ pub struct BrowserInterventionObservation {
     pub browser_boundary_state: BrowserBoundaryState,
     pub exact_url_claim_state: BrowserExactUrlClaimState,
     pub unmanaged_detection_state: BrowserUnmanagedDetectionState,
+    pub unmanaged_fallback_action: BrowserUnmanagedFallbackActionState,
+    pub child_delivery_state: BrowserInterventionDeliveryState,
     pub managed_session_intervention_capability: BrowserInterventionCapabilityState,
     pub unmanaged_browser_enforcement: BrowserUnmanagedEnforcementState,
     pub reason: Option<String>,
@@ -42,6 +48,21 @@ pub fn browser_intervention_applied_event(
 ) -> ActivityEvent {
     let intervention_id = ids::browser_intervention_id(sequence_index);
     let mut fields = browser_intervention_fields(&observation, &intervention_id);
+    insert_optional_text(
+        &mut fields,
+        constants::field::BROWSER_INTERVENTION_ACTION_ID,
+        &observation.intervention_action_id,
+    );
+    insert_optional_text(
+        &mut fields,
+        constants::field::BROWSER_INTERVENTION_AUDIT_ID,
+        &observation.intervention_audit_id,
+    );
+    insert_optional_text_list(
+        &mut fields,
+        constants::field::EVIDENCE_REFERENCE_IDS,
+        &observation.evidence_reference_ids,
+    );
     insert_optional_text(
         &mut fields,
         constants::field::POLICY_DECISION_ID,
@@ -196,6 +217,16 @@ fn insert_intervention_state_fields(
     );
     insert_protocol_text(
         fields,
+        constants::field::UNMANAGED_FALLBACK_ACTION.to_string(),
+        observation.unmanaged_fallback_action.as_protocol_str(),
+    );
+    insert_protocol_text(
+        fields,
+        constants::field::CHILD_DELIVERY_STATE.to_string(),
+        observation.child_delivery_state.as_protocol_str(),
+    );
+    insert_protocol_text(
+        fields,
         constants::field::MANAGED_SESSION_INTERVENTION_CAPABILITY.to_string(),
         observation
             .managed_session_intervention_capability
@@ -226,6 +257,16 @@ fn insert_optional_text(fields: &mut LogFields, key: &str, value: &Option<String
     if let Some(text) = value {
         fields.insert(key.to_string(), LogFieldValue::String(text.clone()));
     }
+}
+
+fn insert_optional_text_list(fields: &mut LogFields, key: &str, values: &[String]) {
+    if values.is_empty() {
+        return;
+    }
+    fields.insert(
+        key.to_string(),
+        LogFieldValue::String(values.join(&constants::delimiter::LIST.to_string())),
+    );
 }
 
 fn insert_optional_protocol(fields: &mut LogFields, key: &str, value: Option<&str>) {

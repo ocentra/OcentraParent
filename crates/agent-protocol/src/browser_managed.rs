@@ -91,6 +91,193 @@ impl BrowserQueryVisibilityLabel {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum BrowserManagedProfileLifecycleState {
+    #[serde(rename = "ready")]
+    Ready,
+    #[serde(rename = "missing")]
+    Missing,
+    #[serde(rename = "repair-required")]
+    RepairRequired,
+    #[serde(rename = "deleted")]
+    Deleted,
+    #[serde(rename = "unsafe-default-profile")]
+    UnsafeDefaultProfile,
+    #[serde(rename = "unowned-profile")]
+    UnownedProfile,
+    #[serde(rename = "unavailable")]
+    Unavailable,
+}
+
+impl BrowserManagedProfileLifecycleState {
+    pub fn as_protocol_str(&self) -> &'static str {
+        match self {
+            Self::Ready => constants::browser::PROFILE_STORE_LIFECYCLE_READY,
+            Self::Missing => constants::browser::PROFILE_STORE_LIFECYCLE_MISSING,
+            Self::RepairRequired => constants::browser::PROFILE_STORE_LIFECYCLE_REPAIR_REQUIRED,
+            Self::Deleted => constants::browser::PROFILE_STORE_LIFECYCLE_DELETED,
+            Self::UnsafeDefaultProfile => {
+                constants::browser::PROFILE_STORE_LIFECYCLE_UNSAFE_DEFAULT_PROFILE
+            }
+            Self::UnownedProfile => constants::browser::PROFILE_STORE_LIFECYCLE_UNOWNED_PROFILE,
+            Self::Unavailable => constants::browser::PROFILE_STORE_LIFECYCLE_UNAVAILABLE,
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum BrowserUnmanagedDetectionConfidence {
+    #[serde(rename = "high")]
+    High,
+    #[serde(rename = "medium")]
+    Medium,
+    #[serde(rename = "low")]
+    Low,
+}
+
+impl BrowserUnmanagedDetectionConfidence {
+    pub fn as_protocol_str(&self) -> &'static str {
+        match self {
+            Self::High => constants::browser::UNMANAGED_DETECTION_CONFIDENCE_HIGH,
+            Self::Medium => constants::browser::UNMANAGED_DETECTION_CONFIDENCE_MEDIUM,
+            Self::Low => constants::browser::UNMANAGED_DETECTION_CONFIDENCE_LOW,
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum BrowserUnmanagedProcessKind {
+    #[serde(rename = "supported-browser")]
+    SupportedBrowser,
+    #[serde(rename = "unsupported-browser")]
+    UnsupportedBrowser,
+    #[serde(rename = "portable-browser")]
+    PortableBrowser,
+    #[serde(rename = "tor-privacy-browser")]
+    TorPrivacyBrowser,
+    #[serde(rename = "packaged-browser")]
+    PackagedBrowser,
+    #[serde(rename = "embedded-browser-like")]
+    EmbeddedBrowserLike,
+    #[serde(rename = "unknown-browser-like")]
+    UnknownBrowserLike,
+    #[serde(rename = "possible-social-bypass")]
+    PossibleSocialBypass,
+    #[serde(rename = "possible-browser-game-bypass")]
+    PossibleBrowserGameBypass,
+    #[serde(rename = "possible-cloud-gaming-bypass")]
+    PossibleCloudGamingBypass,
+}
+
+impl BrowserUnmanagedProcessKind {
+    pub fn as_protocol_str(&self) -> &'static str {
+        match self {
+            Self::SupportedBrowser => constants::browser::UNMANAGED_PROCESS_KIND_SUPPORTED_BROWSER,
+            Self::UnsupportedBrowser => {
+                constants::browser::UNMANAGED_PROCESS_KIND_UNSUPPORTED_BROWSER
+            }
+            Self::PortableBrowser => constants::browser::UNMANAGED_PROCESS_KIND_PORTABLE_BROWSER,
+            Self::TorPrivacyBrowser => {
+                constants::browser::UNMANAGED_PROCESS_KIND_TOR_PRIVACY_BROWSER
+            }
+            Self::PackagedBrowser => constants::browser::UNMANAGED_PROCESS_KIND_PACKAGED_BROWSER,
+            Self::EmbeddedBrowserLike => {
+                constants::browser::UNMANAGED_PROCESS_KIND_EMBEDDED_BROWSER_LIKE
+            }
+            Self::UnknownBrowserLike => {
+                constants::browser::UNMANAGED_PROCESS_KIND_UNKNOWN_BROWSER_LIKE
+            }
+            Self::PossibleSocialBypass => {
+                constants::browser::UNMANAGED_PROCESS_KIND_POSSIBLE_SOCIAL_BYPASS
+            }
+            Self::PossibleBrowserGameBypass => {
+                constants::browser::UNMANAGED_PROCESS_KIND_POSSIBLE_BROWSER_GAME_BYPASS
+            }
+            Self::PossibleCloudGamingBypass => {
+                constants::browser::UNMANAGED_PROCESS_KIND_POSSIBLE_CLOUD_GAMING_BYPASS
+            }
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum BrowserUnmanagedDetectionReason {
+    #[serde(rename = "supported-browser-outside-managed-session")]
+    SupportedBrowserOutsideManagedSession,
+    #[serde(rename = "unsupported-browser-process")]
+    UnsupportedBrowserProcess,
+    #[serde(rename = "portable-browser-process")]
+    PortableBrowserProcess,
+    #[serde(rename = "tor-privacy-browser-process")]
+    TorPrivacyBrowserProcess,
+    #[serde(rename = "packaged-browser-process")]
+    PackagedBrowserProcess,
+    #[serde(rename = "browser-like-process")]
+    BrowserLikeProcess,
+    #[serde(rename = "possible-social-bypass")]
+    PossibleSocialBypass,
+    #[serde(rename = "possible-browser-game-bypass")]
+    PossibleBrowserGameBypass,
+    #[serde(rename = "possible-cloud-gaming-bypass")]
+    PossibleCloudGamingBypass,
+}
+
+impl BrowserUnmanagedDetectionReason {
+    pub fn as_protocol_str(&self) -> &'static str {
+        match self {
+            Self::SupportedBrowserOutsideManagedSession => {
+                constants::browser::UNMANAGED_DETECTION_REASON_SUPPORTED_BROWSER_OUTSIDE_MANAGED_SESSION
+            }
+            Self::UnsupportedBrowserProcess => {
+                constants::browser::UNMANAGED_DETECTION_REASON_UNSUPPORTED_BROWSER_PROCESS
+            }
+            Self::PortableBrowserProcess => {
+                constants::browser::UNMANAGED_DETECTION_REASON_PORTABLE_BROWSER_PROCESS
+            }
+            Self::TorPrivacyBrowserProcess => {
+                constants::browser::UNMANAGED_DETECTION_REASON_TOR_PRIVACY_BROWSER_PROCESS
+            }
+            Self::PackagedBrowserProcess => {
+                constants::browser::UNMANAGED_DETECTION_REASON_PACKAGED_BROWSER_PROCESS
+            }
+            Self::BrowserLikeProcess => {
+                constants::browser::UNMANAGED_DETECTION_REASON_BROWSER_LIKE_PROCESS
+            }
+            Self::PossibleSocialBypass => {
+                constants::browser::UNMANAGED_DETECTION_REASON_POSSIBLE_SOCIAL_BYPASS
+            }
+            Self::PossibleBrowserGameBypass => {
+                constants::browser::UNMANAGED_DETECTION_REASON_POSSIBLE_BROWSER_GAME_BYPASS
+            }
+            Self::PossibleCloudGamingBypass => {
+                constants::browser::UNMANAGED_DETECTION_REASON_POSSIBLE_CLOUD_GAMING_BYPASS
+            }
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BrowserManagedProfileStoreEntry {
+    pub schema_version: u16,
+    pub profile_id: String,
+    pub profile_path_ref: String,
+    pub profile_root_ref: String,
+    pub profile_scope_id: String,
+    pub device_id: String,
+    pub browser_family: BrowserFamily,
+    pub browser_channel: BrowserChannel,
+    pub lifecycle_state: BrowserManagedProfileLifecycleState,
+    pub custody_label: BrowserCustodyLabel,
+    pub policy_revision: String,
+    pub created_at: String,
+    pub updated_at: String,
+    pub missing_since: Option<String>,
+    pub repaired_at: Option<String>,
+    pub deleted_at: Option<String>,
+    pub repair_reason: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct BrowserManagedSessionStatus {
     pub schema_version: u16,
@@ -101,9 +288,20 @@ pub struct BrowserManagedSessionStatus {
     pub browser_version: Option<String>,
     pub profile_id: Option<String>,
     pub profile_path_ref: Option<String>,
+    pub profile_root_ref: Option<String>,
+    pub profile_scope_id: Option<String>,
+    pub profile_lifecycle_state: Option<BrowserManagedProfileLifecycleState>,
+    pub policy_revision: Option<String>,
     pub process_id: Option<u32>,
     pub bridge_kind: Option<BrowserBridgeKind>,
     pub bridge_endpoint_ref: Option<String>,
+    pub unmanaged_process_name: Option<String>,
+    pub unmanaged_executable_path_ref: Option<String>,
+    pub unmanaged_signature_ref: Option<String>,
+    pub unmanaged_process_hash_ref: Option<String>,
+    pub unmanaged_process_kind: Option<BrowserUnmanagedProcessKind>,
+    pub unmanaged_detection_confidence: Option<BrowserUnmanagedDetectionConfidence>,
+    pub unmanaged_detection_reason: Option<BrowserUnmanagedDetectionReason>,
     pub managed_state: BrowserManagedState,
     pub capability_status: BrowserCapabilityStatus,
     pub degraded_reason: Option<String>,

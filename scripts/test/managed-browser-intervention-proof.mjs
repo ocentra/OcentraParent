@@ -21,6 +21,19 @@ const blockedSiteUrl =
 const blockedVideoUrl =
   process.env.OCENTRA_PARENT_MANAGED_BROWSER_INTERVENTION_BLOCKED_VIDEO_URL ??
   'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
+const socialSignupUrl =
+  process.env.OCENTRA_PARENT_MANAGED_BROWSER_INTERVENTION_SOCIAL_SIGNUP_URL ??
+  'https://www.instagram.com/accounts/emailsignup/';
+const socialShortVideoUrl =
+  process.env.OCENTRA_PARENT_MANAGED_BROWSER_INTERVENTION_SOCIAL_SHORT_VIDEO_URL ??
+  'https://www.tiktok.com/@ocentra/video/1';
+const browserGameUrl =
+  process.env.OCENTRA_PARENT_MANAGED_BROWSER_INTERVENTION_BROWSER_GAME_URL ?? 'https://poki.com/en/g/example-game';
+const gamePurchaseUrl =
+  process.env.OCENTRA_PARENT_MANAGED_BROWSER_INTERVENTION_GAME_PURCHASE_URL ??
+  'https://store.steampowered.com/app/10/?purchase=1';
+const cloudGamingUrl =
+  process.env.OCENTRA_PARENT_MANAGED_BROWSER_INTERVENTION_CLOUD_GAMING_URL ?? 'https://www.xbox.com/en-US/play';
 const allowedUrl =
   process.env.OCENTRA_PARENT_MANAGED_BROWSER_INTERVENTION_ALLOWED_URL ??
   'data:text/html,<title>Ocentra allowed control</title><main>OCENTRA_MANAGED_BROWSER_ALLOWED</main>';
@@ -31,13 +44,85 @@ const ruleSet = [
     id: 'blocked-site-host',
     url: blockedSiteUrl,
     label: 'Disallowed site',
+    targetType: 'site',
+    action: 'block',
+    mechanism: 'managed-block-page',
+    outcome: 'blocked',
+    deliveryState: 'block-page-rendered',
+    marker: blockMarker,
     match: (url) => hostMatches('example.com', url),
   },
   {
     id: 'blocked-youtube-video-url',
     url: blockedVideoUrl,
     label: 'Disallowed YouTube video URL',
+    targetType: 'video',
+    action: 'block',
+    mechanism: 'managed-block-page',
+    outcome: 'blocked',
+    deliveryState: 'block-page-rendered',
+    marker: blockMarker,
     match: (url) => hostMatches('www.youtube.com', url) && new URL(url).pathname === '/watch',
+  },
+  {
+    id: 'social-signup-approval-hold',
+    url: socialSignupUrl,
+    label: 'Social account creation approval hold',
+    targetType: 'social-account-creation',
+    action: 'approval-hold',
+    mechanism: 'approval-hold-page',
+    outcome: 'approval-required',
+    deliveryState: 'approval-hold-rendered',
+    marker: 'OCENTRA_MANAGED_BROWSER_APPROVAL_HOLD',
+    match: (url) => hostMatches('www.instagram.com', url) && new URL(url).pathname.includes('/accounts/'),
+  },
+  {
+    id: 'social-short-video-warning',
+    url: socialShortVideoUrl,
+    label: 'Social short-video route warning',
+    targetType: 'social-short-video-feed',
+    action: 'warn',
+    mechanism: 'managed-block-page',
+    outcome: 'warned',
+    deliveryState: 'warn-page-rendered',
+    marker: 'OCENTRA_MANAGED_BROWSER_WARNED',
+    match: (url) => hostMatches('www.tiktok.com', url) && new URL(url).pathname.includes('/video/'),
+  },
+  {
+    id: 'browser-game-checking-hold',
+    url: browserGameUrl,
+    label: 'Browser game checking hold',
+    targetType: 'browser-game',
+    action: 'checking-hold',
+    mechanism: 'checking-hold-page',
+    outcome: 'held',
+    deliveryState: 'checking-hold-rendered',
+    marker: 'OCENTRA_MANAGED_BROWSER_CHECKING_HOLD',
+    match: (url) => hostMatches('poki.com', url),
+  },
+  {
+    id: 'game-purchase-approval-hold',
+    url: gamePurchaseUrl,
+    label: 'Game purchase approval hold',
+    targetType: 'game-purchase',
+    action: 'approval-hold',
+    mechanism: 'approval-hold-page',
+    outcome: 'approval-required',
+    deliveryState: 'approval-hold-rendered',
+    marker: 'OCENTRA_MANAGED_BROWSER_GAME_PURCHASE_APPROVAL',
+    match: (url) => hostMatches('store.steampowered.com', url),
+  },
+  {
+    id: 'cloud-gaming-approval-hold',
+    url: cloudGamingUrl,
+    label: 'Cloud gaming approval hold',
+    targetType: 'cloud-gaming',
+    action: 'approval-hold',
+    mechanism: 'approval-hold-page',
+    outcome: 'approval-required',
+    deliveryState: 'approval-hold-rendered',
+    marker: 'OCENTRA_MANAGED_BROWSER_CLOUD_GAMING_APPROVAL',
+    match: (url) => hostMatches('www.xbox.com', url),
   },
 ];
 
@@ -70,6 +155,11 @@ async function main() {
     generatedAt: new Date().toISOString(),
     blockedSiteUrl,
     blockedVideoUrl,
+    socialSignupUrl,
+    socialShortVideoUrl,
+    browserGameUrl,
+    gamePurchaseUrl,
+    cloudGamingUrl,
     allowedUrl,
     blockMarker,
     browsers: results,
@@ -106,7 +196,7 @@ async function runChromiumInterventionProof(browser) {
 
       const cases = [];
       for (const rule of ruleSet) {
-        cases.push(await observeChromiumNavigation(browser, client, rule.url, true, rule.id));
+        cases.push(await observeChromiumNavigation(browser, client, rule.url, true, rule.id, rule));
       }
       cases.push(await observeChromiumNavigation(browser, client, allowedUrl, false, 'allowed-control'));
 
@@ -137,13 +227,7 @@ async function handleChromiumRequestPaused(client, event, interventions) {
     return;
   }
   const html = blockPageHtml(rule, requestUrl, 'chromium-devtools-protocol');
-  interventions.push({
-    bridge: 'chromium-devtools-protocol',
-    method: 'Fetch.fulfillRequest',
-    ruleId: rule.id,
-    requestedUrl: requestUrl,
-    observedAt: new Date().toISOString(),
-  });
+  interventions.push(interventionRecord(rule, requestUrl, 'chromium-devtools-protocol', 'Fetch.fulfillRequest'));
   await client.command('Fetch.fulfillRequest', {
     requestId: event.params.requestId,
     responseCode: 451,
@@ -156,26 +240,36 @@ async function handleChromiumRequestPaused(client, event, interventions) {
   });
 }
 
-async function observeChromiumNavigation(browser, client, url, expectedBlocked, ruleId) {
+async function observeChromiumNavigation(browser, client, url, expectedBlocked, ruleId, rule = null) {
   await client.command('Page.navigate', { url });
   await waitForChromiumReady(client);
   const markerPresent = await evaluateChromiumValue(
     client,
     `document.body.textContent.includes(${JSON.stringify(blockMarker)})`
   );
+  const ruleMarkerPresent =
+    rule === null
+      ? false
+      : await evaluateChromiumValue(client, `document.body.textContent.includes(${JSON.stringify(rule.marker)})`);
   const title = await evaluateChromiumValue(client, 'document.title');
   const locationHref = await evaluateChromiumValue(client, 'location.href');
   const screenshotPath = await captureChromiumScreenshot(browser, client, ruleId);
   return {
     ruleId,
+    targetType: rule?.targetType ?? null,
+    interventionAction: rule?.action ?? null,
+    interventionMechanism: rule?.mechanism ?? null,
+    interventionOutcome: rule?.outcome ?? null,
+    childDeliveryState: rule?.deliveryState ?? null,
     requestedUrl: url,
     observedUrl: locationHref,
     title,
     expectedBlocked,
     blockMarkerPresent: markerPresent === true,
+    ruleMarkerPresent,
     interventionProof:
-      expectedBlocked && markerPresent === true
-        ? 'blocked-page-rendered-before-target-document'
+      expectedBlocked && markerPresent === true && ruleMarkerPresent === true
+        ? 'managed-intervention-page-rendered-before-target-document'
         : !expectedBlocked && markerPresent === false
           ? 'allowed-navigation-did-not-render-block-page'
           : 'unexpected-page-state',
@@ -207,12 +301,17 @@ async function runFirefoxInterventionProof(browser) {
         urlPatterns: [
           { type: 'pattern', protocol: 'https', hostname: 'example.com' },
           { type: 'pattern', protocol: 'https', hostname: 'www.youtube.com', pathname: '/watch' },
+          { type: 'pattern', protocol: 'https', hostname: 'www.instagram.com' },
+          { type: 'pattern', protocol: 'https', hostname: 'www.tiktok.com' },
+          { type: 'pattern', protocol: 'https', hostname: 'poki.com' },
+          { type: 'pattern', protocol: 'https', hostname: 'store.steampowered.com' },
+          { type: 'pattern', protocol: 'https', hostname: 'www.xbox.com' },
         ],
       });
 
       const cases = [];
       for (const rule of ruleSet) {
-        cases.push(await observeFirefoxNavigation(browser, bidi, context, rule.url, true, rule.id));
+        cases.push(await observeFirefoxNavigation(browser, bidi, context, rule.url, true, rule.id, rule));
       }
       cases.push(await observeFirefoxNavigation(browser, bidi, context, allowedUrl, false, 'allowed-control'));
 
@@ -242,13 +341,7 @@ async function handleFirefoxBeforeRequest(bidi, event, interventions) {
     return;
   }
   const html = blockPageHtml(rule, requestUrl, 'webdriver-bidi');
-  interventions.push({
-    bridge: 'webdriver-bidi',
-    method: 'network.provideResponse',
-    ruleId: rule.id,
-    requestedUrl: requestUrl,
-    observedAt: new Date().toISOString(),
-  });
+  interventions.push(interventionRecord(rule, requestUrl, 'webdriver-bidi', 'network.provideResponse'));
   await bidi.command('network.provideResponse', {
     request: event.params.request.request,
     statusCode: 451,
@@ -261,7 +354,7 @@ async function handleFirefoxBeforeRequest(bidi, event, interventions) {
   });
 }
 
-async function observeFirefoxNavigation(browser, bidi, context, url, expectedBlocked, ruleId) {
+async function observeFirefoxNavigation(browser, bidi, context, url, expectedBlocked, ruleId, rule = null) {
   await bidi.command('browsingContext.navigate', { context, url, wait: 'complete' }).catch(() => ({}));
   await delay(750);
   const markerPresent = await evaluateFirefoxValue(
@@ -269,19 +362,29 @@ async function observeFirefoxNavigation(browser, bidi, context, url, expectedBlo
     context,
     `document.body.textContent.includes(${JSON.stringify(blockMarker)})`
   );
+  const ruleMarkerPresent =
+    rule === null
+      ? false
+      : await evaluateFirefoxValue(bidi, context, `document.body.textContent.includes(${JSON.stringify(rule.marker)})`);
   const title = await evaluateFirefoxValue(bidi, context, 'document.title');
   const locationHref = await evaluateFirefoxValue(bidi, context, 'location.href');
   const screenshotPath = await captureFirefoxScreenshot(browser, bidi, context, ruleId);
   return {
     ruleId,
+    targetType: rule?.targetType ?? null,
+    interventionAction: rule?.action ?? null,
+    interventionMechanism: rule?.mechanism ?? null,
+    interventionOutcome: rule?.outcome ?? null,
+    childDeliveryState: rule?.deliveryState ?? null,
     requestedUrl: url,
     observedUrl: locationHref,
     title,
     expectedBlocked,
     blockMarkerPresent: markerPresent === true,
+    ruleMarkerPresent,
     interventionProof:
-      expectedBlocked && markerPresent === true
-        ? 'blocked-page-rendered-before-target-document'
+      expectedBlocked && markerPresent === true && ruleMarkerPresent === true
+        ? 'managed-intervention-page-rendered-before-target-document'
         : !expectedBlocked && markerPresent === false
           ? 'allowed-navigation-did-not-render-block-page'
           : 'unexpected-page-state',
@@ -323,22 +426,57 @@ async function launchFirefoxProfile(browser) {
 }
 
 function blockPageHtml(rule, requestedUrl, bridge) {
+  const pageTitle = pageTitleForRule(rule);
   return `<!doctype html>
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Ocentra managed browser blocked</title>
+    <title>${pageTitle}</title>
   </head>
   <body>
     <main>
-      <h1>${blockMarker}</h1>
+      <h1>${escapeHtml(rule.marker)}</h1>
+      <p hidden>${blockMarker}</p>
       <p>Rule: ${escapeHtml(rule.id)}</p>
       <p>Label: ${escapeHtml(rule.label)}</p>
+      <p>Action: ${escapeHtml(rule.action)}</p>
+      <p>Target type: ${escapeHtml(rule.targetType)}</p>
+      <p>Outcome: ${escapeHtml(rule.outcome)}</p>
+      <p>Delivery: ${escapeHtml(rule.deliveryState)}</p>
       <p>Bridge: ${escapeHtml(bridge)}</p>
-      <p>Blocked URL: ${escapeHtml(requestedUrl)}</p>
+      <p>Requested URL: ${escapeHtml(requestedUrl)}</p>
     </main>
   </body>
 </html>`;
+}
+
+function pageTitleForRule(rule) {
+  if (rule.action === 'block') {
+    return 'Ocentra managed browser blocked';
+  }
+  if (rule.action === 'warn') {
+    return 'Ocentra managed browser warning';
+  }
+  return 'Ocentra managed browser hold';
+}
+
+function interventionRecord(rule, requestedUrl, bridge, method) {
+  return {
+    bridge,
+    method,
+    ruleId: rule.id,
+    policyDecisionId: `policy-decision-${rule.id}`,
+    interventionActionId: `browser-action-${rule.id}`,
+    interventionAuditId: `browser-audit-${rule.id}`,
+    evidenceReferenceIds: [`browser-evidence-${rule.id}`],
+    interventionAction: rule.action,
+    interventionTargetType: rule.targetType,
+    interventionMechanism: rule.mechanism,
+    interventionOutcome: rule.outcome,
+    childDeliveryState: rule.deliveryState,
+    requestedUrl,
+    observedAt: new Date().toISOString(),
+  };
 }
 
 function ruleForUrl(url) {
@@ -352,13 +490,24 @@ function assertionsForCases(cases) {
   return {
     blockedSiteBlocked: casePassed(cases, 'blocked-site-host', true),
     youtubeVideoBlocked: casePassed(cases, 'blocked-youtube-video-url', true),
+    socialSignupApprovalHoldRendered: casePassed(cases, 'social-signup-approval-hold', true),
+    socialShortVideoWarningRendered: casePassed(cases, 'social-short-video-warning', true),
+    browserGameCheckingHoldRendered: casePassed(cases, 'browser-game-checking-hold', true),
+    gamePurchaseApprovalHoldRendered: casePassed(cases, 'game-purchase-approval-hold', true),
+    cloudGamingApprovalHoldRendered: casePassed(cases, 'cloud-gaming-approval-hold', true),
     allowedControlNotBlocked: casePassed(cases, 'allowed-control', false),
   };
 }
 
 function casePassed(cases, ruleId, expectedBlocked) {
   const item = cases.find((testCase) => testCase.ruleId === ruleId);
-  return item !== undefined && item.blockMarkerPresent === expectedBlocked;
+  if (item === undefined) {
+    return false;
+  }
+  if (!expectedBlocked) {
+    return item.blockMarkerPresent === false && item.ruleMarkerPresent === false;
+  }
+  return item.blockMarkerPresent === true && item.ruleMarkerPresent === true;
 }
 
 function summarize(results) {
@@ -370,6 +519,21 @@ function summarize(results) {
     if (!result.assertions.youtubeVideoBlocked) {
       failures.push(`${result.browser.id}: YouTube video URL did not render managed block page`);
     }
+    if (!result.assertions.socialSignupApprovalHoldRendered) {
+      failures.push(`${result.browser.id}: social signup did not render managed approval hold page`);
+    }
+    if (!result.assertions.socialShortVideoWarningRendered) {
+      failures.push(`${result.browser.id}: social short-video route did not render managed warning page`);
+    }
+    if (!result.assertions.browserGameCheckingHoldRendered) {
+      failures.push(`${result.browser.id}: browser game did not render managed checking hold page`);
+    }
+    if (!result.assertions.gamePurchaseApprovalHoldRendered) {
+      failures.push(`${result.browser.id}: game purchase did not render managed approval hold page`);
+    }
+    if (!result.assertions.cloudGamingApprovalHoldRendered) {
+      failures.push(`${result.browser.id}: cloud gaming did not render managed approval hold page`);
+    }
     if (!result.assertions.allowedControlNotBlocked) {
       failures.push(`${result.browser.id}: allowed control rendered block page`);
     }
@@ -378,6 +542,11 @@ function summarize(results) {
     supportedBrowserCount: results.length,
     blockedSiteProofs: results.filter((result) => result.assertions.blockedSiteBlocked).length,
     youtubeVideoProofs: results.filter((result) => result.assertions.youtubeVideoBlocked).length,
+    socialSignupApprovalProofs: results.filter((result) => result.assertions.socialSignupApprovalHoldRendered).length,
+    socialShortVideoWarningProofs: results.filter((result) => result.assertions.socialShortVideoWarningRendered).length,
+    browserGameCheckingProofs: results.filter((result) => result.assertions.browserGameCheckingHoldRendered).length,
+    gamePurchaseApprovalProofs: results.filter((result) => result.assertions.gamePurchaseApprovalHoldRendered).length,
+    cloudGamingApprovalProofs: results.filter((result) => result.assertions.cloudGamingApprovalHoldRendered).length,
     allowedControlProofs: results.filter((result) => result.assertions.allowedControlNotBlocked).length,
     failures,
   };
@@ -387,13 +556,13 @@ function printSummary(evidence, evidencePath) {
   console.log(`managed-browser-intervention-proof-ok=${evidence.summary.failures.length === 0}`);
   console.log(`evidence=${evidencePath}`);
   console.log(
-    `supportedBrowsers=${evidence.summary.supportedBrowserCount} blockedSiteProofs=${evidence.summary.blockedSiteProofs} youtubeVideoProofs=${evidence.summary.youtubeVideoProofs} allowedControlProofs=${evidence.summary.allowedControlProofs}`
+    `supportedBrowsers=${evidence.summary.supportedBrowserCount} blockedSiteProofs=${evidence.summary.blockedSiteProofs} youtubeVideoProofs=${evidence.summary.youtubeVideoProofs} socialSignupApprovalProofs=${evidence.summary.socialSignupApprovalProofs} socialShortVideoWarningProofs=${evidence.summary.socialShortVideoWarningProofs} browserGameCheckingProofs=${evidence.summary.browserGameCheckingProofs} gamePurchaseApprovalProofs=${evidence.summary.gamePurchaseApprovalProofs} cloudGamingApprovalProofs=${evidence.summary.cloudGamingApprovalProofs} allowedControlProofs=${evidence.summary.allowedControlProofs}`
   );
   for (const browser of evidence.browsers) {
     console.log(`${browser.browser.id} ${browser.browser.bridge} ${browser.browser.executablePath}`);
     for (const testCase of browser.cases) {
       console.log(
-        `  ${testCase.ruleId}: requested=${testCase.requestedUrl} observed=${testCase.observedUrl} proof=${testCase.interventionProof} screenshot=${testCase.screenshotPath}`
+        `  ${testCase.ruleId}: action=${testCase.interventionAction} delivery=${testCase.childDeliveryState} requested=${testCase.requestedUrl} observed=${testCase.observedUrl} proof=${testCase.interventionProof} screenshot=${testCase.screenshotPath}`
       );
     }
   }

@@ -1,7 +1,10 @@
-use ocentra_parent_agent_core::{tracking_read_model_for_store, ActivityStore};
+use ocentra_parent_agent_core::{
+    collect_process_snapshot, tracking_read_model_for_store,
+    windows_browser_inventory_observations, ActivityStore,
+};
 use ocentra_parent_agent_protocol::{
     constants, ActivityIngestStatus, ActivityRecentSummary, AgentCommandEnvelope,
-    AgentEventEnvelope, AgentEventName, LogLevel,
+    AgentEventEnvelope, AgentEventName, BrowserInventoryReadModel, LogLevel,
 };
 
 use crate::{
@@ -11,6 +14,8 @@ use crate::{
     },
     activity_store_path::activity_db_path,
     browser_evidence_payload::browser_evidence_read_model_payload,
+    browser_inventory_read_model::browser_inventory_read_model_from_windows_inventory,
+    browser_payload::browser_inventory_read_model_payload,
     event_builder::build_event,
     time::timestamp_now,
     tracking_read_model_payload::tracking_read_model_payload,
@@ -86,6 +91,21 @@ pub async fn build_browser_evidence_recent_report(
     }
 }
 
+pub async fn build_browser_inventory_read_model_report(
+    command: AgentCommandEnvelope,
+) -> AgentEventEnvelope {
+    let read_model = load_browser_inventory_read_model().await;
+    build_event(
+        constants::event_id::BROWSER_INVENTORY_READ_MODEL_REPORTED,
+        &command.message_id,
+        command.source,
+        AgentEventName::AgentBrowserInventoryReadModelReported,
+        LogLevel::Info,
+        browser_inventory_read_model_payload(&read_model),
+        None,
+    )
+}
+
 pub async fn build_network_flow_read_model_report(
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
@@ -126,6 +146,21 @@ pub async fn build_activity_tracking_read_model_report(
             AgentEventName::AgentActivityTrackingReadModelReported,
         ),
     }
+}
+
+async fn load_browser_inventory_read_model() -> BrowserInventoryReadModel {
+    let generated_at = timestamp_now();
+    let fallback_generated_at = generated_at.clone();
+    tokio::task::spawn_blocking(move || {
+        let process_observations =
+            collect_process_snapshot(constants::browser::PROCESS_SCAN_LIMIT_BROWSER_DISCOVERY);
+        let observations = windows_browser_inventory_observations(&[], &process_observations, None);
+        browser_inventory_read_model_from_windows_inventory(generated_at, &observations)
+    })
+    .await
+    .unwrap_or_else(|_| {
+        browser_inventory_read_model_from_windows_inventory(fallback_generated_at, &[])
+    })
 }
 
 async fn load_activity_ingest_status() -> Option<ActivityIngestStatus> {

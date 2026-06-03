@@ -39,6 +39,34 @@ export function renderBrowserStatusSummary(container: HTMLElement, liveActivity:
   );
 }
 
+export function renderBrowserInventorySummary(container: HTMLElement, liveActivity: PortalLiveActivityState): void {
+  const status = eventStatus(liveActivity.browserInventoryEvent);
+  const readModel = liveActivity.browserInventoryReadModel;
+  const latestRow = readModel?.rows[0] ?? null;
+  const body = readModel === null ? PortalDetails.BrowserInventoryUnavailable : PortalDetails.BrowserInventory;
+
+  container.append(
+    productStatusCard(
+      PortalDetails.BrowserInventory,
+      body,
+      PortalDom.Classes.ProductStatusCardEvidence,
+      readableBadge(status),
+      [
+        { label: PortalDetails.Status, value: status },
+        { label: PortalDetails.RowsReturned, value: detail(readModel?.returned) },
+        { label: PortalDetails.BrowserFamily, value: detail(latestRow?.browserFamily) },
+        { label: PortalDetails.RunningState, value: detail(latestRow?.runningState) },
+        { label: PortalDetails.ManagementTier, value: detail(latestRow?.managementTier) },
+        { label: PortalDetails.SupportTier, value: detail(latestRow?.supportTier) },
+        { label: PortalDetails.ExactUrlCapability, value: detail(latestRow?.exactUrlCapability) },
+        { label: PortalDetails.ActiveTabCapability, value: detail(latestRow?.activeTabCapability) },
+        { label: PortalDetails.UnmanagedFallback, value: detail(latestRow?.unmanagedFallbackCapability) },
+        { label: PortalDetails.Custody, value: detail(readModel?.custodyLabel) },
+      ]
+    )
+  );
+}
+
 export function renderBrowserEvidenceSummary(container: HTMLElement, liveActivity: PortalLiveActivityState): void {
   const status = eventStatus(liveActivity.browserEvidenceEvent);
   const readModel = liveActivity.browserEvidenceReadModel;
@@ -54,6 +82,7 @@ export function renderBrowserEvidenceSummary(container: HTMLElement, liveActivit
         { label: PortalDetails.Status, value: status },
         { label: PortalDetails.RowsReturned, value: detail(readModel?.returned) },
         { label: PortalDetails.Domain, value: detail(latestRow?.domain) },
+        { label: PortalDetails.ActiveState, value: detail(latestRow?.activeState) },
         { label: PortalDetails.Custody, value: detail(readModel?.custodyLabel) },
       ]
     )
@@ -81,6 +110,10 @@ export function renderBrowserProtectionSummary(container: HTMLElement, liveActiv
         {
           label: PortalDetails.InterventionAction,
           value: detail(latestRow?.interventionAction),
+        },
+        {
+          label: PortalDetails.UnmanagedFallbackAction,
+          value: detail(readModel?.unmanagedFallbackAction),
         },
       ]
     )

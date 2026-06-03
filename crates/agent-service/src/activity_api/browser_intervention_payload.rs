@@ -60,6 +60,15 @@ fn browser_intervention_read_model_pairs(
                     .to_string(),
             ),
         ),
+        (
+            constants::field::UNMANAGED_FALLBACK_ACTION,
+            LogFieldValue::String(
+                read_model
+                    .unmanaged_fallback_action
+                    .as_protocol_str()
+                    .to_string(),
+            ),
+        ),
     ]
 }
 
@@ -107,6 +116,18 @@ fn browser_intervention_decision_pairs(row: Option<&BrowserInterventionRow>) -> 
         (
             constants::field::POLICY_DECISION_ID,
             optional_string(row.and_then(|value| value.policy_decision_id.as_ref())),
+        ),
+        (
+            constants::field::BROWSER_INTERVENTION_ACTION_ID,
+            optional_string(row.and_then(|value| value.intervention_action_id.as_ref())),
+        ),
+        (
+            constants::field::BROWSER_INTERVENTION_AUDIT_ID,
+            optional_string(row.and_then(|value| value.intervention_audit_id.as_ref())),
+        ),
+        (
+            constants::field::EVIDENCE_REFERENCE_IDS,
+            optional_string_list(row.map(|value| &value.evidence_reference_ids)),
         ),
         (
             constants::field::DECISION_SOURCE,
@@ -163,6 +184,10 @@ fn browser_intervention_state_pairs(row: Option<&BrowserInterventionRow>) -> Vec
             optional_enum(row.map(|value| value.unmanaged_detection_state.as_protocol_str())),
         ),
         (
+            constants::field::CHILD_DELIVERY_STATE,
+            optional_enum(row.map(|value| value.child_delivery_state.as_protocol_str())),
+        ),
+        (
             constants::field::REASON,
             optional_string(row.and_then(|value| value.reason.as_ref())),
         ),
@@ -195,5 +220,14 @@ fn optional_u32(value: Option<u32>) -> LogFieldValue {
     match value {
         Some(number) => LogFieldValue::Number(number as f64),
         None => LogFieldValue::Null(()),
+    }
+}
+
+fn optional_string_list(value: Option<&Vec<String>>) -> LogFieldValue {
+    match value {
+        Some(items) if !items.is_empty() => {
+            LogFieldValue::String(items.join(&constants::delimiter::LIST.to_string()))
+        }
+        _ => LogFieldValue::Null(()),
     }
 }

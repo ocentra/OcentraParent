@@ -39,10 +39,20 @@ pub enum BrowserInterventionAction {
     Warn,
     #[serde(rename = "block")]
     Block,
+    #[serde(rename = "redirect")]
+    Redirect,
     #[serde(rename = "time-limit")]
     TimeLimit,
     #[serde(rename = "ask-parent")]
     AskParent,
+    #[serde(rename = "approval-hold")]
+    ApprovalHold,
+    #[serde(rename = "checking-hold")]
+    CheckingHold,
+    #[serde(rename = "terminate-process")]
+    TerminateProcess,
+    #[serde(rename = "relaunch-managed")]
+    RelaunchManaged,
     #[serde(rename = "monitor")]
     Monitor,
     #[serde(rename = "unknown")]
@@ -55,8 +65,13 @@ impl BrowserInterventionAction {
             Self::Allow => constants::browser::INTERVENTION_ACTION_ALLOW,
             Self::Warn => constants::browser::INTERVENTION_ACTION_WARN,
             Self::Block => constants::browser::INTERVENTION_ACTION_BLOCK,
+            Self::Redirect => constants::browser::INTERVENTION_ACTION_REDIRECT,
             Self::TimeLimit => constants::browser::INTERVENTION_ACTION_TIME_LIMIT,
             Self::AskParent => constants::browser::INTERVENTION_ACTION_ASK_PARENT,
+            Self::ApprovalHold => constants::browser::INTERVENTION_ACTION_APPROVAL_HOLD,
+            Self::CheckingHold => constants::browser::INTERVENTION_ACTION_CHECKING_HOLD,
+            Self::TerminateProcess => constants::browser::INTERVENTION_ACTION_TERMINATE_PROCESS,
+            Self::RelaunchManaged => constants::browser::INTERVENTION_ACTION_RELAUNCH_MANAGED,
             Self::Monitor => constants::browser::INTERVENTION_ACTION_MONITOR,
             Self::Unknown => constants::browser::INTERVENTION_ACTION_UNKNOWN,
         }
@@ -73,6 +88,32 @@ pub enum BrowserInterventionTargetType {
     Url,
     #[serde(rename = "video")]
     Video,
+    #[serde(rename = "social-account-creation")]
+    SocialAccountCreation,
+    #[serde(rename = "social-feed")]
+    SocialFeed,
+    #[serde(rename = "social-short-video-feed")]
+    SocialShortVideoFeed,
+    #[serde(rename = "social-messaging")]
+    SocialMessaging,
+    #[serde(rename = "social-upload-post")]
+    SocialUploadPost,
+    #[serde(rename = "social-livestream")]
+    SocialLivestream,
+    #[serde(rename = "unknown-social-site")]
+    UnknownSocialSite,
+    #[serde(rename = "browser-game")]
+    BrowserGame,
+    #[serde(rename = "game-account")]
+    GameAccount,
+    #[serde(rename = "game-purchase")]
+    GamePurchase,
+    #[serde(rename = "cloud-gaming")]
+    CloudGaming,
+    #[serde(rename = "unknown-game")]
+    UnknownGame,
+    #[serde(rename = "unblocked-game-site")]
+    UnblockedGameSite,
     #[serde(rename = "browser-process")]
     BrowserProcess,
     #[serde(rename = "browser-session")]
@@ -88,6 +129,31 @@ impl BrowserInterventionTargetType {
             Self::Domain => constants::browser::INTERVENTION_TARGET_TYPE_DOMAIN,
             Self::Url => constants::browser::INTERVENTION_TARGET_TYPE_URL,
             Self::Video => constants::browser::INTERVENTION_TARGET_TYPE_VIDEO,
+            Self::SocialAccountCreation => {
+                constants::browser::INTERVENTION_TARGET_TYPE_SOCIAL_ACCOUNT_CREATION
+            }
+            Self::SocialFeed => constants::browser::INTERVENTION_TARGET_TYPE_SOCIAL_FEED,
+            Self::SocialShortVideoFeed => {
+                constants::browser::INTERVENTION_TARGET_TYPE_SOCIAL_SHORT_VIDEO_FEED
+            }
+            Self::SocialMessaging => constants::browser::INTERVENTION_TARGET_TYPE_SOCIAL_MESSAGING,
+            Self::SocialUploadPost => {
+                constants::browser::INTERVENTION_TARGET_TYPE_SOCIAL_UPLOAD_POST
+            }
+            Self::SocialLivestream => {
+                constants::browser::INTERVENTION_TARGET_TYPE_SOCIAL_LIVESTREAM
+            }
+            Self::UnknownSocialSite => {
+                constants::browser::INTERVENTION_TARGET_TYPE_UNKNOWN_SOCIAL_SITE
+            }
+            Self::BrowserGame => constants::browser::INTERVENTION_TARGET_TYPE_BROWSER_GAME,
+            Self::GameAccount => constants::browser::INTERVENTION_TARGET_TYPE_GAME_ACCOUNT,
+            Self::GamePurchase => constants::browser::INTERVENTION_TARGET_TYPE_GAME_PURCHASE,
+            Self::CloudGaming => constants::browser::INTERVENTION_TARGET_TYPE_CLOUD_GAMING,
+            Self::UnknownGame => constants::browser::INTERVENTION_TARGET_TYPE_UNKNOWN_GAME,
+            Self::UnblockedGameSite => {
+                constants::browser::INTERVENTION_TARGET_TYPE_UNBLOCKED_GAME_SITE
+            }
             Self::BrowserProcess => constants::browser::INTERVENTION_TARGET_TYPE_BROWSER_PROCESS,
             Self::BrowserSession => constants::browser::INTERVENTION_TARGET_TYPE_BROWSER_SESSION,
             Self::Unknown => constants::browser::INTERVENTION_TARGET_TYPE_UNKNOWN,
@@ -103,6 +169,12 @@ pub enum BrowserInterventionMechanism {
     WebDriverBidiNetwork,
     #[serde(rename = "managed-extension")]
     ManagedExtension,
+    #[serde(rename = "managed-block-page")]
+    ManagedBlockPage,
+    #[serde(rename = "approval-hold-page")]
+    ApprovalHoldPage,
+    #[serde(rename = "checking-hold-page")]
+    CheckingHoldPage,
     #[serde(rename = "os-app-control")]
     OsAppControl,
     #[serde(rename = "owned-webview")]
@@ -121,6 +193,9 @@ impl BrowserInterventionMechanism {
                 constants::browser::INTERVENTION_MECHANISM_WEBDRIVER_BIDI_NETWORK
             }
             Self::ManagedExtension => constants::browser::INTERVENTION_MECHANISM_MANAGED_EXTENSION,
+            Self::ManagedBlockPage => constants::browser::INTERVENTION_MECHANISM_MANAGED_BLOCK_PAGE,
+            Self::ApprovalHoldPage => constants::browser::INTERVENTION_MECHANISM_APPROVAL_HOLD_PAGE,
+            Self::CheckingHoldPage => constants::browser::INTERVENTION_MECHANISM_CHECKING_HOLD_PAGE,
             Self::OsAppControl => constants::browser::INTERVENTION_MECHANISM_OS_APP_CONTROL,
             Self::OwnedWebView => constants::browser::INTERVENTION_MECHANISM_OWNED_WEBVIEW,
             Self::MonitorOnly => constants::browser::INTERVENTION_MECHANISM_MONITOR_ONLY,
@@ -135,8 +210,22 @@ pub enum BrowserInterventionOutcome {
     Applied,
     #[serde(rename = "allowed")]
     Allowed,
+    #[serde(rename = "warned")]
+    Warned,
     #[serde(rename = "blocked")]
     Blocked,
+    #[serde(rename = "redirected")]
+    Redirected,
+    #[serde(rename = "approval-required")]
+    ApprovalRequired,
+    #[serde(rename = "held")]
+    Held,
+    #[serde(rename = "terminated")]
+    Terminated,
+    #[serde(rename = "relaunch-started")]
+    RelaunchStarted,
+    #[serde(rename = "manual-required")]
+    ManualRequired,
     #[serde(rename = "failed")]
     Failed,
     #[serde(rename = "unsupported")]
@@ -150,7 +239,14 @@ impl BrowserInterventionOutcome {
         match self {
             Self::Applied => constants::browser::INTERVENTION_OUTCOME_APPLIED,
             Self::Allowed => constants::browser::INTERVENTION_OUTCOME_ALLOWED,
+            Self::Warned => constants::browser::INTERVENTION_OUTCOME_WARNED,
             Self::Blocked => constants::browser::INTERVENTION_OUTCOME_BLOCKED,
+            Self::Redirected => constants::browser::INTERVENTION_OUTCOME_REDIRECTED,
+            Self::ApprovalRequired => constants::browser::INTERVENTION_OUTCOME_APPROVAL_REQUIRED,
+            Self::Held => constants::browser::INTERVENTION_OUTCOME_HELD,
+            Self::Terminated => constants::browser::INTERVENTION_OUTCOME_TERMINATED,
+            Self::RelaunchStarted => constants::browser::INTERVENTION_OUTCOME_RELAUNCH_STARTED,
+            Self::ManualRequired => constants::browser::INTERVENTION_OUTCOME_MANUAL_REQUIRED,
             Self::Failed => constants::browser::INTERVENTION_OUTCOME_FAILED,
             Self::Unsupported => constants::browser::INTERVENTION_OUTCOME_UNSUPPORTED,
             Self::MonitorOnly => constants::browser::INTERVENTION_OUTCOME_MONITOR_ONLY,
@@ -196,6 +292,63 @@ impl BrowserInterventionCapabilityState {
                 constants::browser::INTERVENTION_CAPABILITY_DISABLED_BY_PARENT
             }
             Self::AdapterError => constants::browser::INTERVENTION_CAPABILITY_ADAPTER_ERROR,
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum BrowserUnmanagedFallbackActionState {
+    #[serde(rename = "report-only")]
+    ReportOnly,
+    #[serde(rename = "warn-child")]
+    WarnChild,
+    #[serde(rename = "ask-parent")]
+    AskParent,
+    #[serde(rename = "terminate-process")]
+    TerminateProcess,
+    #[serde(rename = "relaunch-managed-browser")]
+    RelaunchManagedBrowser,
+    #[serde(rename = "os-block-configured")]
+    OsBlockConfigured,
+    #[serde(rename = "os-block-manual-required")]
+    OsBlockManualRequired,
+    #[serde(rename = "allowed-unmanaged-exception")]
+    AllowedUnmanagedException,
+    #[serde(rename = "degraded")]
+    Degraded,
+    #[serde(rename = "unavailable")]
+    Unavailable,
+}
+
+impl Default for BrowserUnmanagedFallbackActionState {
+    fn default() -> Self {
+        Self::Unavailable
+    }
+}
+
+impl BrowserUnmanagedFallbackActionState {
+    pub fn as_protocol_str(&self) -> &'static str {
+        match self {
+            Self::ReportOnly => constants::browser::UNMANAGED_FALLBACK_ACTION_REPORT_ONLY,
+            Self::WarnChild => constants::browser::UNMANAGED_FALLBACK_ACTION_WARN_CHILD,
+            Self::AskParent => constants::browser::UNMANAGED_FALLBACK_ACTION_ASK_PARENT,
+            Self::TerminateProcess => {
+                constants::browser::UNMANAGED_FALLBACK_ACTION_TERMINATE_PROCESS
+            }
+            Self::RelaunchManagedBrowser => {
+                constants::browser::UNMANAGED_FALLBACK_ACTION_RELAUNCH_MANAGED_BROWSER
+            }
+            Self::OsBlockConfigured => {
+                constants::browser::UNMANAGED_FALLBACK_ACTION_OS_BLOCK_CONFIGURED
+            }
+            Self::OsBlockManualRequired => {
+                constants::browser::UNMANAGED_FALLBACK_ACTION_OS_BLOCK_MANUAL_REQUIRED
+            }
+            Self::AllowedUnmanagedException => {
+                constants::browser::UNMANAGED_FALLBACK_ACTION_ALLOWED_UNMANAGED_EXCEPTION
+            }
+            Self::Degraded => constants::browser::UNMANAGED_FALLBACK_ACTION_DEGRADED,
+            Self::Unavailable => constants::browser::UNMANAGED_FALLBACK_ACTION_UNAVAILABLE,
         }
     }
 }
@@ -264,6 +417,50 @@ pub enum BrowserUnmanagedDetectionState {
     ManualRequired,
     #[serde(rename = "unavailable")]
     Unavailable,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum BrowserInterventionDeliveryState {
+    #[serde(rename = "not-delivered")]
+    NotDelivered,
+    #[serde(rename = "warn-page-rendered")]
+    WarnPageRendered,
+    #[serde(rename = "block-page-rendered")]
+    BlockPageRendered,
+    #[serde(rename = "approval-hold-rendered")]
+    ApprovalHoldRendered,
+    #[serde(rename = "checking-hold-rendered")]
+    CheckingHoldRendered,
+    #[serde(rename = "portal-row-only")]
+    PortalRowOnly,
+    #[serde(rename = "manual-required")]
+    ManualRequired,
+}
+
+impl Default for BrowserInterventionDeliveryState {
+    fn default() -> Self {
+        Self::NotDelivered
+    }
+}
+
+impl BrowserInterventionDeliveryState {
+    pub fn as_protocol_str(&self) -> &'static str {
+        match self {
+            Self::NotDelivered => constants::browser::INTERVENTION_DELIVERY_NOT_DELIVERED,
+            Self::WarnPageRendered => constants::browser::INTERVENTION_DELIVERY_WARN_PAGE_RENDERED,
+            Self::BlockPageRendered => {
+                constants::browser::INTERVENTION_DELIVERY_BLOCK_PAGE_RENDERED
+            }
+            Self::ApprovalHoldRendered => {
+                constants::browser::INTERVENTION_DELIVERY_APPROVAL_HOLD_RENDERED
+            }
+            Self::CheckingHoldRendered => {
+                constants::browser::INTERVENTION_DELIVERY_CHECKING_HOLD_RENDERED
+            }
+            Self::PortalRowOnly => constants::browser::INTERVENTION_DELIVERY_PORTAL_ROW_ONLY,
+            Self::ManualRequired => constants::browser::INTERVENTION_DELIVERY_MANUAL_REQUIRED,
+        }
+    }
 }
 
 impl BrowserUnmanagedDetectionState {
