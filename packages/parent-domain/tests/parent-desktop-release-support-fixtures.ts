@@ -2,6 +2,7 @@ import type {
   ParentDesktopReleaseSupportOperation,
   ParentDesktopReleaseSupportTarget,
 } from '../src/parent-desktop-release-support';
+import { SupportIncidentHandoff } from './parent-desktop-release-support-incident-fixtures';
 
 export const RuntimeReadModel = {
   schemaVersion: 'parent-desktop-release-support-proof',
@@ -80,6 +81,7 @@ export const RuntimeReadModel = {
       'message contents',
     ],
   },
+  supportIncidentHandoff: SupportIncidentHandoff,
   manualRunbook: manualRunbook(),
   updatedAt: '2026-06-02T05:45:00.000Z',
 } as const;

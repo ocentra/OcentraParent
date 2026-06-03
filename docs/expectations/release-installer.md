@@ -13,7 +13,8 @@ Release features are product features because parents need install/update paths 
 - Clear production/manual release boundary.
 - Release-support proof covering update/rollback posture, signing/store claim
   boundaries, package-runtime evidence, support diagnostic redaction, CI
-  artifacts, and manual proof requirements.
+  artifacts, support incident handoff metadata, parent consent, safe
+  support-bundle manifest disclosure, and manual proof requirements.
 
 ## Acceptance
 
@@ -26,6 +27,21 @@ Release features are product features because parents need install/update paths 
 - Support diagnostics keep only support-safe fields and redact tokens, child
   activity, raw URLs, screenshots, journals, SQLite snapshots, private paths,
   command lines, keystrokes, clipboard data, and message contents.
+- Support incident handoff requires explicit parent consent and visible
+  support-bundle data-class disclosure before export.
+- Support bundle manifests may include release version, commit, platform,
+  package/runtime, service, route, capability, degraded state, redaction
+  summary, manual proof reference, and incident status metadata only.
+- Support incident handoff must exclude tokens, child activity, raw URLs,
+  screenshots, journals, SQLite snapshots, private paths, commands, keystrokes,
+  clipboard data, and message contents.
+- Support diagnostic references must point to support-safe proof JSON,
+  workflow, redaction summary, manual runbook, or status-row references; they
+  must not point to private user paths, command logs, raw URLs, screenshots,
+  journals, SQLite stores, clipboard data, or message contents.
+- Production support backend upload, account lookup, billing escalation, remote
+  support, and production SLA remain explicit manual-required or
+  not-implemented states until real support workflows exist.
 - Update paths reject unsigned or incorrectly signed manifests once signing is enabled.
 - Package claims match real artifacts.
 - Parent desktop package-runtime proof names built portal dist, the Rust service

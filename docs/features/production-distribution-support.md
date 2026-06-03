@@ -48,11 +48,13 @@ dev-only repo when it claims consumer readiness.
   release proof.
 - Parent desktop release-support proof now records update/rollback posture,
   signing/store claim boundaries, package-runtime evidence, support diagnostic
-  redaction fields, CI artifact expectations, and manual platform proof
-  requirements. The typed proof requires built portal dist, Rust-service
-  boundary, package service-manager launch ownership, fixed loopback process
-  ownership, connect-or-degrade behavior, signed-channel update posture, and
-  explicit not-signing/not-production non-claims.
+  redaction fields, CI artifact expectations, production-support incident
+  handoff metadata, parent consent, disclosed support-bundle data classes,
+  support-safe diagnostic references, and manual platform proof requirements.
+  The typed proof requires built portal dist, Rust-service boundary, package
+  service-manager launch ownership, fixed loopback process ownership,
+  connect-or-degrade behavior, signed-channel update posture, and explicit
+  not-signing/not-production/non-upload non-claims.
 - `mobile-child-agent-capability-proof` adds package/runtime hook evidence for
   Android debug APK/checksum, Android package-local status, Android device
   install/manual Play signing, iOS Xcode target, iOS simulator status, iOS
@@ -106,9 +108,14 @@ package/runtime proof.
 - [ ] Billing/subscription/account flow.
 - [ ] Privacy, retention, export/delete, and support docs.
 - [ ] Support bundle redaction proof scaffold and incident process. Current
-      release-support proof blocks tokens, child activity, raw URLs,
-      screenshots, journals, SQLite snapshots, private paths, command lines,
-      keystrokes, clipboard data, and message contents from support output.
+      release-support proof requires parent consent, incident/status metadata,
+      visible support-bundle data-class disclosure, support-safe diagnostic
+      references, manual-required production support states, and blocks tokens,
+      child activity, raw URLs, screenshots, journals, SQLite snapshots, private
+      paths, commands, keystrokes, clipboard data, and message contents from
+      support output. Real support backend upload, billing/account escalation,
+      public account lookup, remote support, and production SLA remain
+      unimplemented/manual-required.
 
 ## Next AI Instructions
 

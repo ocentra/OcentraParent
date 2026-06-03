@@ -1,6 +1,12 @@
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import { parentDesktopReleaseSupportReadModelIsHonest } from './parent-desktop-release-support-guards';
+import {
+  ParentDesktopReleaseSupportIncidentHandoffSchema,
+  type ParentDesktopReleaseSupportIncidentHandoff,
+} from './parent-desktop-release-support-incident';
 import { ParentTimestampSchema } from './reference-primitives';
+
+export { ParentDesktopReleaseSupportIncidentHandoffSchema, type ParentDesktopReleaseSupportIncidentHandoff };
 
 const NonEmptyReleaseSupportText = Schema.String.pipe(Schema.minLength(1));
 
@@ -207,6 +213,7 @@ const ParentDesktopReleaseSupportReadModelBaseSchema = Schema.Struct({
   platformCapabilityMatrix: Schema.Array(ParentDesktopReleaseSupportCapabilityRowSchema),
   ciArtifactProof: ParentDesktopReleaseSupportCiArtifactProofSchema,
   supportDiagnostics: ParentDesktopReleaseSupportDiagnosticsSchema,
+  supportIncidentHandoff: ParentDesktopReleaseSupportIncidentHandoffSchema,
   manualRunbook: Schema.Array(ParentDesktopReleaseSupportManualRunbookEntrySchema),
   updatedAt: ParentTimestampSchema,
 });

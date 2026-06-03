@@ -14,6 +14,7 @@ import type {
   ParentDesktopReleaseSupportTarget,
   ParentDesktopReleaseSupportUpdateState,
 } from './parent-desktop-release-support';
+import { parentDesktopReleaseSupportIncidentHandoffIsHonest } from './parent-desktop-release-support-incident-guards';
 
 const RequiredOperations = [
   'read-service-state',
@@ -74,6 +75,7 @@ export function parentDesktopReleaseSupportReadModelIsHonest(readModel: ParentDe
     matrixCoversRequiredTargets(readModel.platformCapabilityMatrix) &&
     ciArtifactProofIsHonest(readModel.ciArtifactProof) &&
     supportDiagnosticsAreRedacted(readModel.supportDiagnostics) &&
+    parentDesktopReleaseSupportIncidentHandoffIsHonest(readModel.supportIncidentHandoff) &&
     manualRunbookCoversRequiredTargets(readModel.manualRunbook)
   );
 }
