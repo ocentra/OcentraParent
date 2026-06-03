@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { PermissionRequestSchema, PolicyDecisionHandoffState, PolicyDecisionSchema } from '../src/policy';
+import {
+  PermissionRequestSchema,
+  PolicyAction,
+  PolicyDecisionHandoffState,
+  PolicyDecisionSchema,
+  selectStricterPolicyAction,
+} from '../src/policy';
 
 const evidenceReference = {
   evidenceReferenceId: 'evidence-1',
@@ -46,5 +52,15 @@ describe('parent policy decision contracts', () => {
       enforcementHandoffState: 'disabled',
       expiresAt: null,
     });
+  });
+
+  it('selectStricterPolicyAction: prevents local AI from weakening parent rules', () => {
+    expect(selectStricterPolicyAction(PolicyAction.Block, PolicyAction.Allow)).toBe(PolicyAction.Block);
+    expect(selectStricterPolicyAction(PolicyAction.TimeLimit, PolicyAction.Warn)).toBe(PolicyAction.TimeLimit);
+    expect(selectStricterPolicyAction(PolicyAction.AskParent, PolicyAction.Unknown)).toBe(PolicyAction.AskParent);
+  });
+
+  it('selectStricterPolicyAction: keeps stronger local AI result as a stricter candidate', () => {
+    expect(selectStricterPolicyAction(PolicyAction.Warn, PolicyAction.Block)).toBe(PolicyAction.Block);
   });
 });

@@ -14,6 +14,21 @@ import {
 } from './app-game-primitives';
 import { AppGameProductKindSchema } from './app-game-identity-primitives';
 import { AppGameInventoryDetectionStateSchema } from './app-game-inventory-primitives';
+import {
+  ScreenEvidenceConfidenceSchema,
+  ScreenEvidenceImageDigestSchema,
+  ScreenEvidenceModelRuntimeRefSchema,
+  ScreenEvidenceQueueJobIdSchema,
+} from './screen-evidence-primitives';
+import {
+  ScreenCapabilityStatusSchema,
+  ScreenCaptureReasonSchema,
+  ScreenCaptureScopeSchema,
+  ScreenDeletionStateSchema,
+  ScreenEvidenceCustodyStateSchema,
+  ScreenLocalModelProviderKindSchema,
+  ScreenVisibleCategorySchema,
+} from './screen-evidence-states';
 
 const NonEmptyActivitySurfaceText = Schema.String.pipe(Schema.minLength(1));
 const NonNegativeActivityCount = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
@@ -217,6 +232,18 @@ export const ActivityScreenReadModelSchema = withParser(
         totalMs: NonNegativeActivityDuration,
         foregroundMs: NonNegativeActivityDuration,
         backgroundMs: NonNegativeActivityDuration,
+        captureReason: ScreenCaptureReasonSchema,
+        captureScope: ScreenCaptureScopeSchema,
+        capabilityStatus: ScreenCapabilityStatusSchema,
+        queueJobId: ScreenEvidenceQueueJobIdSchema,
+        modelRuntimeRef: ScreenEvidenceModelRuntimeRefSchema,
+        providerKind: ScreenLocalModelProviderKindSchema,
+        primaryCategory: Schema.Union(ScreenVisibleCategorySchema, Schema.Null),
+        confidence: ScreenEvidenceConfidenceSchema,
+        imageDeletionState: ScreenDeletionStateSchema,
+        policyEligible: Schema.Boolean,
+        imageDigest: ScreenEvidenceImageDigestSchema,
+        custodyState: ScreenEvidenceCustodyStateSchema,
         evidence: Schema.Array(ActivityEvidenceRefSchema),
       })
     ),

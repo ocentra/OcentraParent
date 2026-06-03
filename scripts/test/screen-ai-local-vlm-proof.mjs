@@ -24,27 +24,12 @@ const scenarioFilter = new Set(
     .filter((entry) => entry.length > 0)
 );
 
-const canonicalPrimaryCategories = new Map(
-  [
-    'school',
-    'video',
-    'chat',
-    'game',
-    'adultContent',
-    'violence',
-    'bypassTool',
-    'shopping',
-    'productivity',
-    'unknown',
-  ].map((category) => [category.toLowerCase(), category])
-);
-
 const scenarios = [
   {
     id: 'youtube-ordinary-video',
     title: 'Ocentra AI Proof YouTube Ordinary Video',
     surface: 'browser',
-    captureReason: 'managedUrlChange',
+    captureReason: 'managedBrowserUrlChange',
     captureScope: 'managedBrowserWindow',
     expectedPrimaryCategory: 'video',
     expectedAction: 'warn',
@@ -56,7 +41,7 @@ const scenarios = [
     id: 'youtube-education-video',
     title: 'Ocentra AI Proof YouTube Education Video',
     surface: 'browser',
-    captureReason: 'managedUrlChange',
+    captureReason: 'managedBrowserUrlChange',
     captureScope: 'managedBrowserWindow',
     expectedPrimaryCategory: 'school',
     expectedAction: 'allow',
@@ -68,7 +53,7 @@ const scenarios = [
     id: 'vimeo-video',
     title: 'Ocentra AI Proof Vimeo Video',
     surface: 'browser',
-    captureReason: 'managedUrlChange',
+    captureReason: 'managedBrowserUrlChange',
     captureScope: 'managedBrowserWindow',
     expectedPrimaryCategory: 'video',
     expectedAction: 'warn',
@@ -80,7 +65,7 @@ const scenarios = [
     id: 'facebook-social-feed',
     title: 'Ocentra AI Proof Facebook Social Feed',
     surface: 'browser',
-    captureReason: 'managedUrlChange',
+    captureReason: 'managedBrowserUrlChange',
     captureScope: 'managedBrowserWindow',
     expectedPrimaryCategory: 'chat',
     expectedAction: 'warn',
@@ -92,7 +77,7 @@ const scenarios = [
     id: 'browser-game',
     title: 'Ocentra AI Proof Browser Game',
     surface: 'browser',
-    captureReason: 'appGameForegroundStart',
+    captureReason: 'browserGameDetected',
     captureScope: 'managedBrowserWindow',
     expectedPrimaryCategory: 'game',
     expectedAction: 'time-limit',
@@ -117,7 +102,7 @@ const scenarios = [
     id: 'shopping',
     title: 'Ocentra AI Proof Shopping Page',
     surface: 'browser',
-    captureReason: 'managedUrlChange',
+    captureReason: 'managedBrowserUrlChange',
     captureScope: 'managedBrowserWindow',
     expectedPrimaryCategory: 'shopping',
     expectedAction: 'ask-parent',
@@ -142,7 +127,7 @@ const scenarios = [
     id: 'native-app-productivity',
     title: 'Ocentra AI Proof Native App Productivity',
     surface: 'nativeNotepad',
-    captureReason: 'foregroundAppChange',
+    captureReason: 'nativeAppForegroundStart',
     captureScope: 'activeWindow',
     expectedPrimaryCategory: 'productivity',
     expectedAction: 'allow',
@@ -154,7 +139,7 @@ const scenarios = [
     id: 'native-game',
     title: 'Ocentra AI Proof Native Game Window',
     surface: 'nativeNotepad',
-    captureReason: 'appGameForegroundStart',
+    captureReason: 'nativeGameForegroundStart',
     captureScope: 'activeWindow',
     expectedPrimaryCategory: 'game',
     expectedAction: 'ask-parent',
@@ -163,10 +148,24 @@ const scenarios = [
     promptHint: 'Return primary_category game when a native game or game lobby is visible.',
   },
   {
+    id: 'unknown-native-process',
+    title: 'Ocentra AI Proof Unknown Native Process',
+    surface: 'nativeNotepad',
+    captureReason: 'unknownProcessForegroundStart',
+    captureScope: 'selectedWindow',
+    expectedPrimaryCategory: 'unknown',
+    expectedAction: 'ask-parent',
+    expectedUnknownState: 'low-confidence',
+    expectedUncertaintyReason: 'lowConfidence',
+    fixtureKind: 'controlled-unknown-native-process-window-fixture',
+    visibleText: ['Unknown application window', 'Unlabeled tool panel', 'No clear app name or child-safe category'],
+    promptHint: 'Return primary_category unknown and confidence below 0.5 for this ambiguous unknown native process.',
+  },
+  {
     id: 'native-owned-process-time-limit',
     title: 'Ocentra AI Proof Native Owned Process Time Limit',
     surface: 'nativeNotepad',
-    captureReason: 'appGameForegroundStart',
+    captureReason: 'nativeGameForegroundStart',
     captureScope: 'activeWindow',
     expectedPrimaryCategory: 'game',
     expectedAction: 'time-limit',
@@ -219,7 +218,7 @@ const cadenceScenario = {
   id: 'timed-cadence-repeated-analysis',
   title: 'Ocentra AI Proof Timed Cadence',
   surface: 'browser',
-  captureReason: 'cadence',
+  captureReason: 'timedCadence',
   captureScope: 'managedBrowserWindow',
   expectedPrimaryCategory: 'productivity',
   expectedAction: 'allow',
@@ -265,7 +264,8 @@ mkdirSync(nativeFixtureRoot, { recursive: true });
 await runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/activity-domain']);
 await runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
 
-const { ScreenAnalysisResultSchema } = await import('../../packages/activity-domain/dist/screen-evidence.js');
+const { ScreenAnalysisResultSchema, ScreenLocalModelOutputSchema } =
+  await import('../../packages/activity-domain/dist/screen-evidence.js');
 const parentSchemas = await import('../../packages/parent-domain/dist/local-ai.js');
 const policySchemas = await import('../../packages/parent-domain/dist/policy.js');
 const summary = [];
@@ -600,7 +600,7 @@ function runDisabledScenario() {
     '# disabled-no-capture-no-ai\n\nParent disabled screen analysis. The pipeline must not capture or analyze.\n'
   );
   writeJson(join(pipelineDir, '02-trigger-input.json'), {
-    trigger: 'managedUrlChange',
+    trigger: 'managedBrowserUrlChange',
     suppressedByParentSetting: true,
   });
   writeJson(join(pipelineDir, '03-capture-proof.json'), {
@@ -668,7 +668,7 @@ async function openNotepadSurface(scenario, visibleText) {
   const fileName = `${safeTitle}-${process.pid}-${Date.now()}.txt`;
   const fixturePath = join(nativeFixtureRoot, fileName);
   writeFileSync(fixturePath, `${scenario.title}\r\n\r\n${visibleText.join('\r\n')}\r\n`);
-  const windowTitleContains = basename(fixturePath);
+  const windowTitleContains = scenario.windowTitleContains ?? safeTitle;
   const child = spawn('notepad.exe', [resolve(fixturePath)], { windowsHide: false, detached: false });
   return {
     windowTitleContains,
@@ -786,11 +786,9 @@ function runVlm(scenario, imagePath) {
 }
 
 function normalizeModelEvidence(scenario, parsedModel) {
-  const explicitCategory = normalizePrimaryCategory(parsedModel.primary_category ?? parsedModel.category);
-  const modelText = [
-    parsedModel.visible_text,
-    Array.isArray(parsedModel.risk_signals) ? parsedModel.risk_signals.join(' ') : parsedModel.risk_signals,
-  ]
+  const modelOutput = ScreenLocalModelOutputSchema.parse(parsedModel);
+  const explicitCategory = modelOutput.primary_category;
+  const modelText = [modelOutput.visible_text, modelOutput.risk_signals.join(' ')]
     .filter((value) => value !== undefined && value !== null)
     .join(' ')
     .toLowerCase();
@@ -800,24 +798,13 @@ function normalizeModelEvidence(scenario, parsedModel) {
       `VLM did not classify ${scenario.id} as ${scenario.expectedPrimaryCategory}: ${JSON.stringify(parsedModel)}`
     );
   }
-  const confidence = normalizeConfidence(scenario, parsedModel.confidence);
+  const confidence = normalizeConfidence(scenario, modelOutput.confidence);
   return {
     primaryCategory: category,
-    visibleText: String(parsedModel.visible_text ?? scenario.visibleText?.join(' ') ?? scenario.title),
+    visibleText: modelOutput.visible_text,
     confidence,
-    riskSignals: normalizeRiskSignals(scenario, parsedModel.risk_signals),
+    riskSignals: normalizeRiskSignals(scenario, modelOutput.risk_signals),
   };
-}
-
-function normalizePrimaryCategory(value) {
-  if (value === undefined || value === null) {
-    return null;
-  }
-  const compact = String(value)
-    .trim()
-    .replace(/[\s_-]+/gu, '')
-    .toLowerCase();
-  return canonicalPrimaryCategories.get(compact) ?? null;
 }
 
 function categoryFromText(value) {
@@ -998,11 +985,21 @@ function buildFamilyPolicySet(scenario, screenAnalysis) {
 
 function evaluatePolicyDryRun(screenAnalysis, localAiSafetyResult, familyPolicySet) {
   const selectedRule = familyPolicySet.rules[0];
+  const action =
+    selectedRule === undefined
+      ? localAiSafetyResult.action
+      : policySchemas.selectStricterPolicyAction(selectedRule.action, localAiSafetyResult.action);
+  const reasonCodes =
+    selectedRule === undefined
+      ? localAiSafetyResult.reasonCodes
+      : action === selectedRule.action
+        ? [selectedRule.reasonCode]
+        : [selectedRule.reasonCode, ...localAiSafetyResult.reasonCodes];
   return {
     schemaVersion: 'v0.6',
     decisionId: `policy-decision-${screenAnalysis.screenAnalysisResultId}`,
-    action: selectedRule?.action ?? localAiSafetyResult.action,
-    reasonCodes: selectedRule !== undefined ? [selectedRule.reasonCode] : localAiSafetyResult.reasonCodes,
+    action,
+    reasonCodes,
     evidenceReferences: localAiSafetyResult.evidenceReferences,
     ruleIds: selectedRule !== undefined ? [selectedRule.ruleId] : [],
     localAiResultId: localAiSafetyResult.resultId,
