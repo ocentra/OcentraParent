@@ -40,9 +40,13 @@ only with explicit parent settings.
   policy eligibility with focused contract tests plus
   `scripts/test/screen-evidence-settings-retention-proof.mjs`.
 - Local AI and policy can consume evidence summaries in dry-run paths.
-- Windows local adapter proof now captures active-window, selected-window, and
-  parent-opt-in primary-display scopes with encrypted temporary custody and raw
-  delete-after-success proof.
+- The desktop local adapter path now uses the shared `xcap` capture API on
+  Windows/macOS and an X11 command backend on Linux. Windows proof captures
+  active-window, selected-window, and parent-opt-in primary-display scopes with
+  encrypted temporary custody and raw delete-after-success proof. Linux WSLg
+  proof captures a real X11 selected window with encrypted custody and raw
+  deletion. macOS live capture proof still requires platform execution evidence
+  before parity is claimed.
 - Android child-agent scaffold now has emulator MediaProjection proof with
   explicit OS consent, foreground service, captured frame digest, and raw temp
   deletion. Physical Android parity and silent background capture are not
@@ -54,9 +58,9 @@ only with explicit parent settings.
 ## Current Gap
 
 Opt-in UI, product screenshot capture scheduling, OCR/vision model quality,
-runtime service/read-model wiring, physical Android/iOS/macOS/Linux proof,
-enforcement handoff, checklist status movement, and parent explanation UX
-remain.
+runtime service/read-model wiring, physical Android/iOS proof, live macOS
+capture proof, Linux root/Wayland portal proof, enforcement handoff, checklist
+status movement, and parent explanation UX remain.
 
 ## Checklist
 

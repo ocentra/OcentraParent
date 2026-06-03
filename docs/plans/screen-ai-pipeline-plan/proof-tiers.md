@@ -55,6 +55,12 @@ permission/session path. WSL/WSLg compile or fixture runs are not Linux
 child-device capture proof unless the same adapter captures real pixels and
 records custody/deletion.
 
+Current stacked branch Linux proof records the WSLg/X11 selected-window side of
+that rule at `output/screen-plan-proof/linux-wslg/proof-summary.json`: WSLg
+display session, real X11 window capture, encrypted temporary custody, and raw
+temporary PNG deletion. This does not satisfy WSLg root-display capture, native
+Wayland portal capture, or broad Linux compositor parity.
+
 Mac and iOS proof require real user-assisted hardware/session evidence when the
 current worker machine cannot exercise the platform. Before that evidence
 exists, the plan can claim only compile/degraded behavior for those platforms,
