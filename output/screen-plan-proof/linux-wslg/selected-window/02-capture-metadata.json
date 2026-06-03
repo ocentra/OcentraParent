@@ -1,0 +1,21 @@
+{
+  "actualScope": "selectedWindow",
+  "analysisTempPath": null,
+  "appNameDigest": "c2f512c2c884a02e53e5a1d5fabaa27ef553b71ef52d593efed1ab8591650b6f",
+  "appNamePresent": true,
+  "captured": true,
+  "height": 220,
+  "imageByteSize": 3099,
+  "imageDigest": "d07b86f7c0f5de389863ae26f41aeee101fcd892dc9f04d5ff05fc492a1f2c08",
+  "monitorId": null,
+  "monitorNameDigest": null,
+  "monitorNamePresent": false,
+  "pid": null,
+  "rawImagePersistedInProof": false,
+  "requestedScope": "selectedWindow",
+  "status": "available",
+  "titleDigest": "89e6aeca141d920f11740324de2937a460e52e67d4d1cc6973c4c8eac4734e37",
+  "titlePresent": true,
+  "width": 220,
+  "windowId": 6291466
+}

@@ -1,0 +1,10 @@
+{
+  "keepRawUntilAnalysis": false,
+  "platform": "linux",
+  "proofClaim": "real-active-window-capture-custody",
+  "proofTier": "P3_LOCAL_DEV_MACHINE",
+  "requestedScope": "selectedWindow",
+  "runId": "q7w4toKRtRgAAAAAAAAAAA",
+  "status": "available",
+  "targetWindowTitleContains": "OcentraWslgProof"
+}

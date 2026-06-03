@@ -1,5 +1,10 @@
 use ocentra_parent_agent_protocol::ActivityCaptureCapabilityStatus;
 
+#[cfg(any(target_os = "windows", target_os = "macos"))]
+mod desktop_xcap;
+#[cfg(all(target_os = "linux", not(target_env = "ohos")))]
+mod linux_x11;
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ScreenCaptureScope {
     ActiveWindow,
@@ -70,140 +75,35 @@ fn degraded_capture(
     })
 }
 
-#[cfg(not(windows))]
+#[cfg(not(any(
+    target_os = "windows",
+    target_os = "macos",
+    all(target_os = "linux", not(target_env = "ohos"))
+)))]
 fn degraded_selected_window(status: ActivityCaptureCapabilityStatus) -> ScreenCaptureAttempt {
     degraded_capture(status, ScreenCaptureScope::SelectedWindow)
 }
 
-fn degraded_primary_display(status: ActivityCaptureCapabilityStatus) -> ScreenCaptureAttempt {
-    degraded_capture(status, ScreenCaptureScope::PrimaryDisplay)
-}
-
-#[cfg(windows)]
+#[cfg(any(target_os = "windows", target_os = "macos"))]
 fn platform_capture_active_window_png() -> ScreenCaptureAttempt {
-    platform_capture_window_png(
-        |window| {
-            matches!(window.is_focused(), Ok(true)) && !matches!(window.is_minimized(), Ok(true))
-        },
-        ScreenCaptureScope::ActiveWindow,
-    )
+    desktop_xcap::capture_active_window_png()
 }
 
-#[cfg(windows)]
+#[cfg(any(target_os = "windows", target_os = "macos"))]
 fn platform_capture_window_title_contains_png(title_contains: &str) -> ScreenCaptureAttempt {
-    platform_capture_window_png(
-        |window| {
-            !matches!(window.is_minimized(), Ok(true))
-                && window
-                    .title()
-                    .is_ok_and(|title| title.contains(title_contains))
-        },
-        ScreenCaptureScope::SelectedWindow,
-    )
+    desktop_xcap::capture_window_title_contains_png(title_contains)
 }
 
-#[cfg(windows)]
-fn platform_capture_window_png(
-    matches_window: impl Fn(&xcap::Window) -> bool,
-    scope: ScreenCaptureScope,
-) -> ScreenCaptureAttempt {
-    let windows = match xcap::Window::all() {
-        Ok(windows) => windows,
-        Err(_) => return degraded_capture(ActivityCaptureCapabilityStatus::AdapterError, scope),
-    };
-
-    let Some(window) = windows.into_iter().find(matches_window) else {
-        return degraded_capture(ActivityCaptureCapabilityStatus::NoActiveWindow, scope);
-    };
-
-    let image = match window.capture_image() {
-        Ok(image) => image,
-        Err(_) => return degraded_capture(ActivityCaptureCapabilityStatus::AccessDenied, scope),
-    };
-
-    let width = image.width();
-    let height = image.height();
-    let png_bytes = match encode_png(image) {
-        Ok(png_bytes) => png_bytes,
-        Err(_) => return degraded_capture(ActivityCaptureCapabilityStatus::AdapterError, scope),
-    };
-
-    ScreenCaptureAttempt::Captured(CapturedScreenImage {
-        metadata: ScreenCaptureMetadata {
-            status: ActivityCaptureCapabilityStatus::Available,
-            scope,
-            pid: window.pid().ok(),
-            app_name: window.app_name().ok(),
-            title: window.title().ok(),
-            window_id: window.id().ok(),
-            monitor_id: window
-                .current_monitor()
-                .ok()
-                .and_then(|monitor| monitor.id().ok()),
-            monitor_name: window
-                .current_monitor()
-                .ok()
-                .and_then(|monitor| monitor.name().ok()),
-        },
-        width,
-        height,
-        png_bytes,
-    })
-}
-
-#[cfg(windows)]
+#[cfg(any(target_os = "windows", target_os = "macos"))]
 fn platform_capture_primary_display_png() -> ScreenCaptureAttempt {
-    let monitors = match xcap::Monitor::all() {
-        Ok(monitors) => monitors,
-        Err(_) => return degraded_primary_display(ActivityCaptureCapabilityStatus::AdapterError),
-    };
-
-    let Some(monitor) = monitors
-        .iter()
-        .find(|monitor| matches!(monitor.is_primary(), Ok(true)))
-        .or_else(|| monitors.first())
-    else {
-        return degraded_primary_display(ActivityCaptureCapabilityStatus::NoActiveWindow);
-    };
-
-    let image = match monitor.capture_image() {
-        Ok(image) => image,
-        Err(_) => return degraded_primary_display(ActivityCaptureCapabilityStatus::AccessDenied),
-    };
-
-    let width = image.width();
-    let height = image.height();
-    let png_bytes = match encode_png(image) {
-        Ok(png_bytes) => png_bytes,
-        Err(_) => return degraded_primary_display(ActivityCaptureCapabilityStatus::AdapterError),
-    };
-
-    ScreenCaptureAttempt::Captured(CapturedScreenImage {
-        metadata: ScreenCaptureMetadata {
-            status: ActivityCaptureCapabilityStatus::Available,
-            scope: ScreenCaptureScope::PrimaryDisplay,
-            pid: None,
-            app_name: None,
-            title: None,
-            window_id: None,
-            monitor_id: monitor.id().ok(),
-            monitor_name: monitor.name().ok(),
-        },
-        width,
-        height,
-        png_bytes,
-    })
+    desktop_xcap::capture_primary_display_png()
 }
 
-#[cfg(windows)]
-fn encode_png(image: xcap::image::RgbaImage) -> Result<Vec<u8>, xcap::image::ImageError> {
-    let mut writer = std::io::Cursor::new(Vec::new());
-    let dynamic_image = xcap::image::DynamicImage::ImageRgba8(image);
-    dynamic_image.write_to(&mut writer, xcap::image::ImageFormat::Png)?;
-    Ok(writer.into_inner())
-}
-
-#[cfg(not(windows))]
+#[cfg(not(any(
+    target_os = "windows",
+    target_os = "macos",
+    all(target_os = "linux", not(target_env = "ohos"))
+)))]
 fn platform_capture_active_window_png() -> ScreenCaptureAttempt {
     degraded_capture(
         ActivityCaptureCapabilityStatus::Unavailable,
@@ -211,14 +111,40 @@ fn platform_capture_active_window_png() -> ScreenCaptureAttempt {
     )
 }
 
-#[cfg(not(windows))]
+#[cfg(not(any(
+    target_os = "windows",
+    target_os = "macos",
+    all(target_os = "linux", not(target_env = "ohos"))
+)))]
 fn platform_capture_window_title_contains_png(_title_contains: &str) -> ScreenCaptureAttempt {
     degraded_selected_window(ActivityCaptureCapabilityStatus::Unavailable)
 }
 
-#[cfg(not(windows))]
+#[cfg(not(any(
+    target_os = "windows",
+    target_os = "macos",
+    all(target_os = "linux", not(target_env = "ohos"))
+)))]
 fn platform_capture_primary_display_png() -> ScreenCaptureAttempt {
-    degraded_primary_display(ActivityCaptureCapabilityStatus::Unavailable)
+    degraded_capture(
+        ActivityCaptureCapabilityStatus::Unavailable,
+        ScreenCaptureScope::PrimaryDisplay,
+    )
+}
+
+#[cfg(all(target_os = "linux", not(target_env = "ohos")))]
+fn platform_capture_active_window_png() -> ScreenCaptureAttempt {
+    linux_x11::capture_active_window_png()
+}
+
+#[cfg(all(target_os = "linux", not(target_env = "ohos")))]
+fn platform_capture_window_title_contains_png(title_contains: &str) -> ScreenCaptureAttempt {
+    linux_x11::capture_window_title_contains_png(title_contains)
+}
+
+#[cfg(all(target_os = "linux", not(target_env = "ohos")))]
+fn platform_capture_primary_display_png() -> ScreenCaptureAttempt {
+    linux_x11::capture_primary_display_png()
 }
 
 #[cfg(test)]
