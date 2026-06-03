@@ -168,3 +168,22 @@ export const PolicyDecisionHandoffState = {
   Pending: PolicyDecisionHandoffStateSchema.parse('pending'),
   HandedOff: PolicyDecisionHandoffStateSchema.parse('handed-off'),
 } as const;
+
+export const PolicyActionStrictnessRank = Object.freeze(
+  Object.fromEntries([
+    [PolicyAction.Allow, 0],
+    [PolicyAction.Warn, 10],
+    [PolicyAction.Unknown, 20],
+    [PolicyAction.AskParent, 30],
+    [PolicyAction.TimeLimit, 40],
+    [PolicyAction.Block, 50],
+  ] as const)
+) as Readonly<Record<PolicyAction, number>>;
+
+export function comparePolicyActionStrictness(left: PolicyAction, right: PolicyAction): number {
+  return PolicyActionStrictnessRank[left] - PolicyActionStrictnessRank[right];
+}
+
+export function selectStricterPolicyAction(parentRuleAction: PolicyAction, localAiAction: PolicyAction): PolicyAction {
+  return comparePolicyActionStrictness(parentRuleAction, localAiAction) >= 0 ? parentRuleAction : localAiAction;
+}

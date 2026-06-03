@@ -270,7 +270,7 @@ pub struct ActivityTabReadModel<Row> {
     pub rows: Vec<Row>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ActivityScreenReadModelRow {
     pub row_id: String,
@@ -280,6 +280,18 @@ pub struct ActivityScreenReadModelRow {
     pub total_ms: u64,
     pub foreground_ms: u64,
     pub background_ms: u64,
+    pub capture_reason: String,
+    pub capture_scope: String,
+    pub capability_status: String,
+    pub queue_job_id: String,
+    pub model_runtime_ref: String,
+    pub provider_kind: String,
+    pub primary_category: Option<String>,
+    pub confidence: f64,
+    pub image_deletion_state: String,
+    pub policy_eligible: bool,
+    pub image_digest: String,
+    pub custody_state: String,
     pub evidence: Vec<ActivityEvidenceRef>,
 }
 
