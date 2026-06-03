@@ -81,6 +81,13 @@ Remote access must not silently turn Ocentra into a family-data warehouse.
 - Ocentra logs must minimize child details and prefer ids, status, reason codes,
   and delivery state over activity content.
 - Any support bundle must make included data classes obvious before export.
+- Support incident handoff must be parent-initiated and parent-approved before
+  export; Ocentra must not silently upload or retain child activity as support
+  data.
+- Support bundles may disclose release/package/service status metadata, support
+  redaction summaries, and manual proof references, but must exclude child
+  activity, raw URLs, screenshots, journals, SQLite stores, private paths,
+  commands, keystrokes, clipboard content, and message contents.
 - Any future feature that stores family activity in Ocentra infrastructure
   requires a new explicit product, privacy, security, retention, and deletion
   design before implementation.
