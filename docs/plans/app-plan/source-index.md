@@ -87,6 +87,8 @@ and update them only when their acceptance contract or generated data changes.
 ## TypeScript Ownership
 
 - `packages/activity-domain/src/app-game.ts`
+- `packages/activity-domain/src/app-game-category-risk-primitives.ts`
+- `packages/activity-domain/src/app-game-category-risk.ts`
 - `packages/activity-domain/src/app-game-primitives.ts`
 - `packages/activity-domain/src/app-game-foreground.ts`
 - `packages/activity-domain/tests/app-game-foreground.test.ts`
@@ -180,6 +182,7 @@ packs mirror the app/game proof roots and record product-doc decisions.
 | WP08 Windows process runtime          | `output/app-plan-proof/08-windows-process-runtime-evidence-adapter` | `output/app-game-plan-proof/08-windows-process-runtime-evidence-adapter` | Runtime parser proof only          |
 | WP09 Windows foreground evidence      | `output/app-plan-proof/09-windows-foreground-app-evidence-adapter`  | `output/app-game-plan-proof/09-windows-foreground-evidence-adapter`      | Foreground parser proof only       |
 | WP10 cross-platform authority matrix  | `output/app-plan-proof/10-cross-platform-authority-matrix`          | `output/app-game-plan-proof/11-cross-platform-authority-matrix`          | Authority contract proof only      |
+| WP11 app category/risk taxonomy       | `output/app-plan-proof/11-app-category-and-risk-taxonomy`           | `output/app-game-plan-proof/12-app-game-category-and-risk-taxonomy`      | Category/risk contract proof only  |
 
 These completed rows do not add live OS crawling, journal ingest, SQLite replay,
 service events, portal rows, content knowledge, policy execution, install
@@ -189,6 +192,7 @@ assigned to later app-plan/app-game workpacks.
 ## Current Test Files
 
 - `packages/activity-domain/tests/app-game.test.ts`
+- `packages/activity-domain/tests/app-game-category-risk.test.ts`
 - `packages/parent-domain/tests/app-control-policy-catalog.test.ts`
 - `packages/parent-domain/tests/app-game-control-platform-authority.test.ts`
 - `packages/parent-domain/tests/enforcement-approval-audit.test.ts`

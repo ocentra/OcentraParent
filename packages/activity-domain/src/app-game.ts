@@ -52,6 +52,7 @@ export * from './app-game-identity-primitives';
 export * from './app-game-inventory';
 export * from './app-game-inventory-primitives';
 export * from './app-game-launcher';
+export * from './app-game-category-risk';
 export * from './app-game-foreground';
 export * from './app-game-primitives';
 export * from './app-game-runtime';

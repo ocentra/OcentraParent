@@ -57,6 +57,8 @@ Current app/game evidence and session contracts live in:
 - `packages/activity-domain/src/app-game-identity-primitives.ts`
 - `packages/activity-domain/src/app-game-inventory-primitives.ts`
 - `packages/activity-domain/src/app-game-inventory.ts`
+- `packages/activity-domain/src/app-game-category-risk-primitives.ts`
+- `packages/activity-domain/src/app-game-category-risk.ts`
 - `packages/activity-domain/src/app-game-runtime.ts`
 - `packages/activity-domain/src/app-game-foreground.ts`
 - `packages/activity-domain/src/app-game.ts`
@@ -64,6 +66,7 @@ Current app/game evidence and session contracts live in:
 - `packages/activity-domain/tests/app-game-evidence-claim.test.ts`
 - `packages/activity-domain/tests/app-game-identity.test.ts`
 - `packages/activity-domain/tests/app-game-inventory.test.ts`
+- `packages/activity-domain/tests/app-game-category-risk.test.ts`
 - `packages/activity-domain/tests/app-game-runtime.test.ts`
 - `packages/activity-domain/tests/app-game-foreground.test.ts`
 
@@ -235,12 +238,23 @@ session proof, Windows AppLocker/App Control hard-block proof routing, and
 duplicate platform/action matrix rejection. It does not prove runtime platform
 adapters, Rust protocol/service parity, portal UI, or real device authority.
 
+WP12 proof on `codex/app-game-category-risk-taxonomy` adds an activity-domain
+category/risk taxonomy contract under
+`output/app-game-plan-proof/12-app-game-category-and-risk-taxonomy/`. It covers
+native app categories, native game categories, risk candidates, game context
+signals, source refs, confidence, reason codes, evidence refs, parent display
+overrides, AI digest refs, policy-candidate actions, duplicate candidate
+rejection, and no-direct-enforcement guards. It does not prove live catalog
+enrichment, local AI classifier quality, policy compiler routing, portal
+category UI, service/read-model parity, or adapter authority.
+
 ## Current Test Files
 
 - `packages/activity-domain/tests/app-game.test.ts`
 - `packages/activity-domain/tests/app-game-evidence-claim.test.ts`
 - `packages/activity-domain/tests/app-game-identity.test.ts`
 - `packages/activity-domain/tests/app-game-inventory.test.ts`
+- `packages/activity-domain/tests/app-game-category-risk.test.ts`
 - `packages/activity-domain/tests/app-game-runtime.test.ts`
 - `packages/activity-domain/tests/app-game-launcher.test.ts`
 - `packages/parent-domain/tests/app-control-policy-catalog.test.ts`

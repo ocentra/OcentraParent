@@ -40,6 +40,11 @@ Proved today:
   TypeScript contract and test proof for authority tier, setup state, proof
   state, parent-visible limitation, proof-needed fields, and no-execute gates
   across Windows, macOS, Linux, Android, and iOS/iPadOS hard-control actions.
+- App/game category-risk taxonomy rows now have first-class activity-domain
+  TypeScript contract and test proof for native app categories, native game
+  categories, risk candidates, game context signals, source refs, confidence,
+  reason codes, evidence refs, parent display overrides, AI digest refs,
+  policy-candidate actions, duplicate ids, and `notEnforcement` state.
 - App-control and game-control catalog/authoring contracts exist in
   `packages/parent-domain`.
 - Rust app/game session protocol mirrors exist.
@@ -66,7 +71,9 @@ Not proved today:
 - Product-complete native game catalog, live launcher disambiguation, and game
   budgets.
 - New/unknown app and unknown game approval flow.
-- Risk app and game-risk candidates with source/confidence.
+- Live category/risk classification, catalog enrichment, policy compiler
+  routing, service/read-model parity, and portal category/risk rows for the new
+  WP12 contract.
 - Broad app/game blocking outside scoped owned-process proof.
 - macOS, Linux, Android, iOS, MDM, supervised/device-owner, Endpoint Security,
   AppLocker/App Control, Screen Time, ManagedSettings, store/signing, entitlement,
@@ -88,8 +95,8 @@ app/game contract stack from this plan:
   proof;
 - foreground evidence rows beyond the staged foreground-window parser proof,
   including live capture, journal replay, and portal foreground rows;
-- runtime-fed native app and native game category quality beyond inventory
-  candidates;
+- runtime-fed native app and native game category quality beyond the WP12
+  category/risk taxonomy contract proof;
 - rating, UGC, multiplayer, and purchase signals;
 - policy targets for app and game product slices;
 - unknown app and unknown game approval requests;
@@ -138,7 +145,7 @@ Missing portal states include:
 - launcher-game candidate rows;
 - unknown app and unknown game approval requests;
 - game budget and game category rows;
-- risk app and risk game candidates;
+- live risk app and risk game candidate production rows;
 - platform capability matrix with manual-required proof;
 - malicious/long metadata resilience screenshots.
 
@@ -167,8 +174,9 @@ Missing portal states include:
   crawling, journal/read-model ingest, service events, portal rows, and
   game-budget policy are not product-complete. A launcher row must not become a
   game session unless linked child-game proof exists.
-- Game categories, ratings, UGC, multiplayer, and purchase signals are policy
-  inputs and parent-facing context, not safety decisions by themselves.
+- Game categories, ratings, UGC, multiplayer, purchase signals, and app risk
+  labels are now represented as contract-level policy inputs, but not live
+  classifier output, product UI proof, or safety decisions by themselves.
 - Existing scoped Windows owned-process time-limit proof should be reused, not
   expanded into broad blocking claims.
 
@@ -206,6 +214,9 @@ Missing portal states include:
   not add AppLocker/App Control, MDM, Endpoint Security, Device Owner/Profile
   Owner, FamilyControls/ManagedSettings, cgroup/systemd, root/admin, kiosk, or
   single-app runtime adapters.
+- WP12 adds category/risk taxonomy contract/test proof only. It does not add
+  live category enrichment, local AI classifier quality, policy compiler
+  routing, service/read-model parity, portal rows, or direct enforcement.
 - Next implementation work should either add live Windows inventory source
   readers, journal/read-model ingest, or mirror the remaining WP01/WP04
   TypeScript shapes into Rust protocol before service/runtime consumers depend

@@ -74,6 +74,11 @@ control with better evidence and local audit.
   action, authority tier, setup state, proof state, parent-visible limitation,
   proof needed to claim, and no-execute guards for Windows, macOS, Linux,
   Android, and iOS/iPadOS hard-control rows.
+- App/game category-risk taxonomy contracts now represent native app
+  categories, native game categories, risk candidates, game context signals,
+  source kind, source ref, confidence, reason code, evidence refs, parent
+  display override, AI digest refs, policy-candidate action, and a
+  `notEnforcement` guard.
 - Broad app blocking remains manual-required or unproved by platform.
 - Raw app and game control setting inventories are preserved as design inputs,
   not product-complete implementation proof.
@@ -91,7 +96,10 @@ does not prove package-wide app blocking, polished child request UX, install
 approval, or runtime cross-platform parity. The authority matrix is contract
 proof only; it does not prove AppLocker/App Control, MDM, Endpoint Security,
 Device Owner/Profile Owner, FamilyControls/ManagedSettings, cgroup/systemd, or
-kiosk/single-app adapter behavior.
+kiosk/single-app adapter behavior. The category/risk taxonomy is contract proof
+only; it does not prove live catalog enrichment, local AI classifier quality,
+policy compiler routing, portal category UI, or runtime app/game category
+decisions.
 
 ## Checklist
 
