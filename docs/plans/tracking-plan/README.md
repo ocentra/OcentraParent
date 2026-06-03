@@ -143,6 +143,12 @@ flowchart TD
   reports citation IDs in `trackingReadModel`; the parent portal consumes that
   event as a narrow live summary, while richer product read models remain
   pending.
+- `scripts/test/tracking-plan-pre-device-proof.mjs` now closes the pre-device
+  accounting gap. It reruns the tracking contract/runtime/service proof stack,
+  runs the child mobile scaffold proof stack, confirms Android debug package
+  proof through the existing Android artifact gate, and writes
+  `output/tracking-plan-proof/pre-device-gap-closure/proof-summary.json` plus
+  Android Studio, iOS simulator, WSL/local, and physical-device proof plans.
 - WP33 tracked `proof-summary.json` records `minimumSeriousMvpAuditSummary`;
   the runtime proof also writes the full `minimumSeriousMvpAudit` into
   generated
@@ -150,10 +156,10 @@ flowchart TD
   These audits are first-checkpoint reconciliations only; they explicitly block
   product-complete, PR-ready, and full-scope claims until the remaining proof
   gaps are closed.
-- Platform permission proof, Android/iOS background behavior proof, provider
-  runtime, alert delivery, physical-device proof, authority-enrolled proof,
-  full portal UI proof, and live service-backed retention UI are not
-  product-complete.
+- Android Studio/emulator, iOS simulator, WSL/local, physical-device,
+  authority-enrolled, provider runtime, alert delivery, full portal UI, and live
+  service-backed retention UI proof remain not product-complete until their
+  listed artifacts are collected.
 
 ## Where We Want To Be
 
@@ -195,6 +201,13 @@ the 33 workpacks. Passing that checkpoint can justify continuing from a
 code-ready/proof-ready slice, but it cannot justify a product-complete,
 PR-ready, or full-scope claim unless the assigned runtime, UI, product-doc,
 platform, and proof-tier requirements are also filled.
+
+The pre-device gate is also not final scope. Passing
+`node scripts/test/tracking-plan-pre-device-proof.mjs` means the CI/local
+tracking proof stack, mobile scaffold proof stack, Android package artifact
+gate, and manual proof plans are in order before device work starts. It does
+not prove physical Android/iOS behavior, enrolled-device authority, hosted full
+UI accessibility, or production readiness.
 
 ## Parallel Coordination Rules
 
@@ -336,3 +349,8 @@ feature product-complete.
       plus a narrow P2 service-read-model summary. Live parent/child UI,
       screenshots, accessibility, richer service-data, and richer
       service-backed evidence-citation proof remain pending.
+- [x] Pre-device proof gate exists and passed locally on 2026-06-03 through
+      `node scripts/test/tracking-plan-pre-device-proof.mjs`; artifact root:
+      `output/tracking-plan-proof/pre-device-gap-closure/`. This does not mark
+      Android Studio/emulator, iOS simulator, physical-device, authority,
+      hosted full UI accessibility, or production-pilot proof complete.

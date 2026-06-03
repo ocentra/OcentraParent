@@ -24,6 +24,8 @@ Proof root: `output/tracking-plan-proof/08-android-foreground-location-adapter/`
 - `03-runtime-location-evidence.json`
 - `15-manual-platform-proof.md`
 - `16-validation-commands.log`
+- Pre-device plan:
+  `output/tracking-plan-proof/pre-device-gap-closure/android-studio-local-proof-plan.json`
 
 ## AI Worker Checklist
 
@@ -32,10 +34,16 @@ Proof root: `output/tracking-plan-proof/08-android-foreground-location-adapter/`
 - [ ] Prove last-known sample or unavailable state.
 - [ ] Preserve accuracy and timestamp from provider.
 - [ ] Document device, OS version, app build, and proof commands.
+- [x] Generate the Android Studio/local proof artifact plan before device work.
 
 ## Where We Are
 
-This workpack is planning-only until its implementation branch produces the proof root below. Existing source docs describe the intended capability, but runtime/product-complete behavior is not claimed yet.
+This workpack now has pre-device proof routing from
+`node scripts/test/tracking-plan-pre-device-proof.mjs`. The generated Android
+Studio/local plan lists the APK build, `adb`, permission-state, runtime
+location-evidence, and status artifacts that must be collected before any
+foreground Android location claim. Runtime/product-complete behavior is still
+not claimed.
 
 ## Where We Want To Be
 

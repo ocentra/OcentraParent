@@ -24,6 +24,8 @@ Proof root: `output/tracking-plan-proof/09-android-background-location-and-geofe
 - `05-geofence-transition-proof.json`
 - `15-manual-platform-proof.md`
 - `16-validation-commands.log`
+- Pre-device plan:
+  `output/tracking-plan-proof/pre-device-gap-closure/android-studio-local-proof-plan.json`
 
 ## AI Worker Checklist
 
@@ -32,10 +34,17 @@ Proof root: `output/tracking-plan-proof/09-android-background-location-and-geofe
 - [ ] Prove enter, exit, and dwell transitions.
 - [ ] Represent active geofence limit.
 - [ ] Add battery/background degraded proof before claims.
+- [x] Generate the Android Studio/local and physical-device proof artifact plan
+      before device work.
 
 ## Where We Are
 
-This workpack is planning-only until its implementation branch produces the proof root below. Existing source docs describe the intended capability, but runtime/product-complete behavior is not claimed yet.
+This workpack now has pre-device proof routing from
+`node scripts/test/tracking-plan-pre-device-proof.mjs`. The generated Android
+Studio/local and physical-device plans list the permission, geofence definition,
+location event, transition, alert decision, screenshot, and logcat artifacts
+required before any Android background/geofence claim. Background runtime and
+product-complete behavior are still not claimed.
 
 ## Where We Want To Be
 

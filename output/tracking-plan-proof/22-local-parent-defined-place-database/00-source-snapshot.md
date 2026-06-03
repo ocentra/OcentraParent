@@ -1,7 +1,7 @@
 # 22-local-parent-defined-place-database Source Snapshot
 
-- checkedAt: 2026-06-03T12:11:23.621Z
-- commit: b975ebe636e8cce63f6b6d3536e63f75de4a3555
+- checkedAt: 2026-06-03T17:22:17.415Z
+- commit: 8467bedfff418ab63a16d066e84bab527ec340f6
 - proofState: contract-proof-partial
 - summary: Parent-defined place record contract exists; CRUD/export/delete store remains pending.
 - activity contracts: packages/activity-domain/src/tracking.ts

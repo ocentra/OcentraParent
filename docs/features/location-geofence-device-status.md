@@ -62,6 +62,13 @@ expose location or device-status features. Parents expect this category.
   live summary beside the P1 fixture rows. The repeatable proof command is
   `node scripts/test/tracking-plan-service-read-model-proof.mjs`, with artifact
   `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json`.
+- Pre-device gap-closure proof now exists through
+  `node scripts/test/tracking-plan-pre-device-proof.mjs`. It reruns the
+  tracking contract/runtime/service proofs, runs the mobile child-agent
+  scaffold proof stack, builds the Android debug package through the existing
+  Android proof scripts, and writes the aggregate artifact
+  `output/tracking-plan-proof/pre-device-gap-closure/proof-summary.json` plus
+  Android Studio, iOS simulator, WSL/local, and physical-device proof plans.
 - Platform permissions, mobile physical-device proof, full runtime adapters,
   provider delivery, notification delivery, full parent/child UI, hosted screenshots,
   accessibility, and richer live service-backed UI evidence citations remain not
@@ -72,11 +79,11 @@ expose location or device-status features. Parents expect this category.
 ## Current Gap
 
 Location/geofence is now in contract, P1 fixture/runtime proof, narrow P2
-service read-model proof, and narrow portal summary-consumption proof progress,
-but remains a tracked product gap until platform adapters, richer product read
-models, provider delivery, notifications, physical-device proof, full
-parent/child UI snapshots, accessibility, hosted UI proof, and richer live
-service-backed UI evidence citations are proved.
+service read-model proof, narrow portal summary-consumption proof, and
+pre-device proof-gate progress. It remains a tracked product gap until platform
+adapters, richer product read models, provider delivery, notifications,
+physical-device proof, full parent/child UI snapshots, accessibility, hosted UI
+proof, and richer live service-backed UI evidence citations are proved.
 
 ## Checklist
 
@@ -101,6 +108,8 @@ service-backed UI evidence citations are proved.
       read model.
 - [x] P1 parent portal tracking-state fixture surface, local parent-route screenshot,
       and local proof artifact references.
+- [x] Pre-device gap-closure proof gate and Android Studio/iOS simulator/WSL/manual
+      proof plans.
 - [ ] Richer live service-backed UI citations beyond the narrow summary.
 - [ ] Live parent/child UI screenshots, hosted proof, and accessibility proof.
 
@@ -110,7 +119,8 @@ Do not infer precise location from IP/network data. Treat mobile permission,
 background execution, retention, and custody as first-class requirements.
 Use `docs/plans/tracking-plan/README.md` for implementation sequencing and
 workpack ownership. Keep AI as evidence, not authority, and keep LAN/IP/Wi-Fi
-presence as hints only. The next implementation layers are richer tracking
-journal/read-model surfaces, full portal UI snapshots, Android Studio/local
-proof where applicable, then physical Android/iOS proof and authority proof only
-when matching devices are enrolled.
+presence as hints only. The pre-device proof gate is now repeatable; the next
+implementation layers are richer tracking journal/read-model surfaces, full
+portal UI snapshots/accessibility, Android Studio/local proof, WSL/local replay
+where useful, then physical Android/iOS proof and authority proof only when
+matching devices are enrolled.
