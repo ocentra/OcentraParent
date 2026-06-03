@@ -160,12 +160,26 @@ output/app-plan-proof/<workpack-id>/
 
 ## Shared App/Game Proof Bridge
 
-WP09 foreground app evidence is covered by the shared app/game branch
-`codex/app-game-windows-foreground-evidence` with app-plan proof mirrored under
-`output/app-plan-proof/09-windows-foreground-app-evidence-adapter/`. This is
-contract/protocol/parser proof only: it does not add live foreground polling,
-journal ingest, SQLite replay, service events, portal rows, content knowledge,
-policy execution, or broad blocking.
+The native app plan uses the shared app/game evidence spine through the early
+evidence workpacks instead of creating parallel app-only truth. App-plan proof
+packs mirror the app/game proof roots and record product-doc decisions.
+
+| App-plan workpack                     | App-plan proof root                                                 | Shared app/game proof root                                               | Boundary                           |
+| ------------------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------------ | ---------------------------------- |
+| WP01 contract boundary                | `output/app-plan-proof/01-contract-boundary-and-effect-schemas`     | `output/app-game-plan-proof/01-contract-boundary-and-effect-schemas`     | Contract/proof reconciliation only |
+| WP02 source reconciliation            | `output/app-plan-proof/02-source-index-and-doc-reconciliation`      | `output/app-game-plan-proof/02-source-index-and-doc-reconciliation`      | Routing/docs only                  |
+| WP03 snapshot/gap map                 | `output/app-plan-proof/03-current-app-snapshot-and-gap-map`         | `output/app-game-plan-proof/03-current-app-game-snapshot-and-gap-map`    | Snapshot/gap proof only            |
+| WP04 app identity                     | `output/app-plan-proof/04-app-identity-model`                       | `output/app-game-plan-proof/04-app-game-identity-model`                  | Contract proof only                |
+| WP05 installed inventory model        | `output/app-plan-proof/05-installed-app-inventory-model`            | `output/app-game-plan-proof/05-inventory-evidence-model`                 | Contract proof only                |
+| WP06 Windows installed inventory      | `output/app-plan-proof/06-windows-installed-app-inventory-adapter`  | `output/app-game-plan-proof/06-windows-installed-inventory-adapter`      | Parser proof only                  |
+| WP07 Windows Store/UWP/AppX inventory | `output/app-plan-proof/07-windows-store-uwp-appx-inventory-adapter` | `output/app-game-plan-proof/07-windows-store-uwp-appx-inventory-adapter` | Parser proof only                  |
+| WP08 Windows process runtime          | `output/app-plan-proof/08-windows-process-runtime-evidence-adapter` | `output/app-game-plan-proof/08-windows-process-runtime-evidence-adapter` | Runtime parser proof only          |
+| WP09 Windows foreground evidence      | `output/app-plan-proof/09-windows-foreground-app-evidence-adapter`  | `output/app-game-plan-proof/09-windows-foreground-evidence-adapter`      | Foreground parser proof only       |
+
+These completed rows do not add live OS crawling, journal ingest, SQLite replay,
+service events, portal rows, content knowledge, policy execution, install
+control, broad blocking, or cross-platform parity. Those claims remain assigned
+to later app-plan/app-game workpacks.
 
 ## Current Test Files
 

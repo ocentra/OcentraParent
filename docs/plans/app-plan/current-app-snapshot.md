@@ -113,6 +113,25 @@ Existing portal/source areas that app work should extend:
 
 ## Proof That Exists
 
+The native app plan now mirrors the shared app/game proof spine for WP01-WP09:
+
+```text
+output/app-plan-proof/01-contract-boundary-and-effect-schemas
+output/app-plan-proof/02-source-index-and-doc-reconciliation
+output/app-plan-proof/03-current-app-snapshot-and-gap-map
+output/app-plan-proof/04-app-identity-model
+output/app-plan-proof/05-installed-app-inventory-model
+output/app-plan-proof/06-windows-installed-app-inventory-adapter
+output/app-plan-proof/07-windows-store-uwp-appx-inventory-adapter
+output/app-plan-proof/08-windows-process-runtime-evidence-adapter
+output/app-plan-proof/09-windows-foreground-app-evidence-adapter
+```
+
+Those proof packs point back to `output/app-game-plan-proof/*` for the shared
+contract, parser, and docs evidence. They prove staged foundations only; they do
+not move product status for live app capture, storage, portal, policy,
+enforcement, install approval, or cross-platform parity.
+
 Current focused proof scripts include:
 
 ```text
