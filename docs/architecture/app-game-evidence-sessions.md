@@ -10,6 +10,11 @@ non-browser app side of this combined app/game architecture, adds
 authority-tier routing for platform control, and keeps this file as the shared
 source architecture.
 
+Shared native app/game implementation planning lives in
+[App + Game Plan](../plans/app-game-plan/README.md). That folder owns the
+combined evidence-spine workpacks, native game slice, app/game test blueprint,
+and proof-pack routing while this architecture remains the source contract.
+
 Browser games are covered by browser URL/tab evidence. This document covers
 native Windows apps, native games, launchers, Microsoft Store packages, and
 known game install/library signals where the child-device agent can observe them
