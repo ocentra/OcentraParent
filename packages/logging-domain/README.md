@@ -42,6 +42,19 @@ This contract is metadata-only. It does not claim provider adapters, send/retry
 execution, webhook receipt ingestion, credentials, notification history UI, raw
 child data, raw evidence payloads, or Ocentra-hosted child evidence custody.
 
+## Tamper Integrity Audit Contract
+
+`src/tamper-integrity-audit.ts` owns the logging-domain proof for
+tamper/integrity audit rows. It records stale/offline heartbeat, permission
+loss, stopped service, removed agent, uninstall detection,
+tamper/manual-required, and admin-removal flow states with redaction-safe
+operational refs.
+
+This contract is metadata-only. It does not claim stealth behavior, privilege
+escalation, hidden persistence, notification provider delivery, admin-removal
+blocking, raw child data, raw evidence payloads, raw URLs, screenshots, command
+lines, private paths, or message contents.
+
 ## Gaps To Fill
 
 - Keep log contracts aligned with every new remote, notification, and support

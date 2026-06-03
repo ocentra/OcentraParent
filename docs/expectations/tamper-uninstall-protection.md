@@ -37,6 +37,15 @@ Expected contract families:
 - Parent can distinguish offline, stale, stopped, removed, permission-denied,
   outdated, and unsupported states.
 - Alerts carry minimal detail and authenticated drill-in.
+- Tamper integrity audit logs carry only redaction-safe operational refs and
+  status fields for stale/offline heartbeat, permission loss, stopped/removed,
+  uninstall detection, tamper/manual-required, and admin removal flow states.
+- Tamper integrity audit logs must not include raw child activity, raw evidence
+  payloads, raw URLs, screenshots, command lines, private paths, or message
+  contents.
+- Audit proofs must keep stealth behavior, privilege escalation, hidden
+  persistence, provider delivery, and admin-removal blocking as explicit
+  non-claims until security/product/legal review and platform proof exist.
 - Platform-specific protection claims cite real proof.
 - Removal and support paths are documented.
 
@@ -44,6 +53,8 @@ Expected contract families:
 
 - TypeScript schema tests for integrity, heartbeat, tamper, uninstall,
   permission, and alert states.
+- Logging-domain contract proof for redaction-safe tamper/integrity audit rows
+  and no-claim boundaries.
 - Rust/service tests for heartbeat and degraded-state reporting.
 - Real platform/manual proof for service manager, Device Owner, managed profile,
   Screen Time/Family Controls, launchd/systemd, or other OS capabilities before
@@ -57,6 +68,7 @@ Expected contract families:
 - Do not block parent/admin removal without explicit product/legal/security
   design.
 - Do not claim anti-tamper from heartbeat alone.
+- Do not claim notification provider delivery from audit/log rows alone.
 
 ## Done Signal
 

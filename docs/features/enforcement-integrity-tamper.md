@@ -19,8 +19,8 @@ non-stealth.
 - Expectations: [enforcement](../expectations/enforcement.md),
   [tamper/uninstall](../expectations/tamper-uninstall-protection.md),
   [platforms](../expectations/platforms.md).
-- Modules: `packages/parent-domain`, `crates/agent-core`,
-  `crates/agent-service`, platform folders.
+- Modules: `packages/parent-domain`, `packages/logging-domain`,
+  `crates/agent-core`, `crates/agent-service`, platform folders.
 
 ## Competitor Pressure
 
@@ -73,6 +73,13 @@ without fake anti-tamper claims.
   states. It carries notification intent/status refs, audit refs, integrity refs,
   and drill-in refs while preserving provider-delivery, anti-tamper, broad
   blocking, mobile enforcement, stealth, and privilege-escalation non-claims.
+- Tamper integrity audit logging proof now adds a logging-domain contract and
+  proof JSON for stale/offline heartbeat, permission loss, stopped service,
+  removed agent, uninstall detection, tamper/manual-required state, and
+  documented admin-removal flow refs. It limits payloads to redaction-safe
+  operational refs and status fields while preserving no stealth, no privilege
+  escalation, no provider delivery, no admin-removal blocking, and no raw child
+  data/evidence claims.
 - Broad app/browser/domain/network enforcement is not product-complete.
 - Tamper/uninstall protection is a tracked gap.
 
@@ -87,8 +94,9 @@ delivery, uninstall detection artifacts, service restart timer persistence, and
 anti-tamper behavior are still manual-required or unavailable. Tamper/uninstall
 is represented as manual-required/rejected state, not as anti-tamper behavior.
 The broad-adapter, supported-adapter, integrity audit, and alert/status bridge
-proofs give service visibility into adapter gaps but do not prove anti-tamper
-behavior or notification provider delivery.
+proofs plus the logging-domain tamper integrity audit proof give service/logging
+visibility into adapter gaps but do not prove anti-tamper behavior, uninstall
+artifact capture, admin-removal blocking, or notification provider delivery.
 
 ## Checklist
 
@@ -107,6 +115,10 @@ behavior or notification provider delivery.
 - [x] Permission-loss, stopped/removed, and uninstall/tamper alerts are explicit
       parent-visible states with notification intent/status and audit refs; real
       permission restoration, uninstall detection, and delivery proof remain.
+- [x] Tamper integrity audit logs keep stale/offline heartbeat, permission loss,
+      stopped/removed, uninstall detection, tamper/manual-required, and admin
+      removal flow references redaction-safe without claiming stealth, privilege
+      escalation, provider delivery, or admin-removal blocking.
 - [ ] No stealth or privilege-escalation behavior.
 
 ## Next AI Instructions
@@ -115,6 +127,9 @@ Do not block from a category label alone. Do not add anti-tamper behavior
 without security/product design. Use
 `scripts/test/v0-8-enforcement-integrity-runtime-audit.mjs` and
 `scripts/test/v0-8-integrity-alert-status-bridge.mjs` as the current proof for
-runtime audit and alert/status visibility, and require new platform artifacts
-before upgrading broad blocking, notification delivery, mobile,
-service-persistence, or tamper claims.
+runtime audit and alert/status visibility. Use
+`scripts/test/tamper-integrity-audit-contract-proof.mjs` as the logging-domain
+proof for redaction-safe tamper/integrity audit rows, and require new platform
+artifacts before upgrading broad blocking, notification delivery, mobile,
+service-persistence, uninstall detection, admin-removal blocking, or tamper
+claims.
