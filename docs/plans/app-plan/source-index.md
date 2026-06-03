@@ -90,6 +90,7 @@ and update them only when their acceptance contract or generated data changes.
 - `packages/activity-domain/src/app-game-category-risk-primitives.ts`
 - `packages/activity-domain/src/app-game-category-risk.ts`
 - `packages/activity-domain/src/app-game-primitives.ts`
+- `packages/activity-domain/src/app-game-session-primitives.ts`
 - `packages/activity-domain/src/app-game-foreground.ts`
 - `packages/activity-domain/tests/app-game-foreground.test.ts`
 - `packages/activity-domain/tests/app-game.test.ts`
@@ -116,6 +117,10 @@ split must be schema-backed, test-backed, and reconciled in this source index.
 - `crates/agent-protocol/src/app_game.rs`
 - `crates/agent-protocol/src/app_game_tests.rs`
 - `crates/agent-core/src/activity_store_app_game.rs`
+- `crates/agent-core/src/activity_store_app_game/app_game_sessionization.rs`
+- `crates/agent-core/src/activity_store_app_game/app_game_session_rollups.rs`
+- `crates/agent-core/src/activity_store_app_game/app_game_session_time.rs`
+- `crates/agent-core/src/activity_store_app_game/app_game_sessionization_tests.rs`
 - `crates/agent-core/src/activity_store_app_game/app_game_windows_foreground.rs`
 - `crates/agent-core/src/activity_store_app_game/app_game_windows_foreground_tests.rs`
 - `crates/agent-core/src/activity_store_app_game_observation.rs`
@@ -183,11 +188,18 @@ packs mirror the app/game proof roots and record product-doc decisions.
 | WP09 Windows foreground evidence      | `output/app-plan-proof/09-windows-foreground-app-evidence-adapter`  | `output/app-game-plan-proof/09-windows-foreground-evidence-adapter`      | Foreground parser proof only       |
 | WP10 cross-platform authority matrix  | `output/app-plan-proof/10-cross-platform-authority-matrix`          | `output/app-game-plan-proof/11-cross-platform-authority-matrix`          | Authority contract proof only      |
 | WP11 app category/risk taxonomy       | `output/app-plan-proof/11-app-category-and-risk-taxonomy`           | `output/app-game-plan-proof/12-app-game-category-and-risk-taxonomy`      | Category/risk contract proof only  |
+| WP12 app sessionization/duration      | `output/app-plan-proof/12-app-sessionization-and-duration-engine`   | `output/app-game-plan-proof/13-sessionization-and-duration-engine`       | SQLite-row session reducer proof   |
 
-These completed rows do not add live OS crawling, journal ingest, SQLite replay,
-service events, portal rows, content knowledge, policy execution, install
-control, broad blocking, or runtime cross-platform parity. Those claims remain
-assigned to later app-plan/app-game workpacks.
+These completed rows do not add live OS crawling, encrypted journal-file
+ingest, service events, portal rows, content knowledge, policy execution,
+install control, broad blocking, or runtime cross-platform parity. Those claims
+remain assigned to later app-plan/app-game workpacks.
+
+The WP12/WP13 sessionization proof narrows that storage gap: deterministic
+replay from stored SQLite observation rows is now covered for process and
+foreground session summaries plus daily rollups. Encrypted journal-file
+ingest/replay, service events, portal rows, policy execution, live source
+subscriptions, and platform authority proof remain later work.
 
 ## Current Test Files
 
@@ -197,6 +209,7 @@ assigned to later app-plan/app-game workpacks.
 - `packages/parent-domain/tests/app-game-control-platform-authority.test.ts`
 - `packages/parent-domain/tests/enforcement-approval-audit.test.ts`
 - `crates/agent-protocol/src/app_game_tests.rs`
+- `crates/agent-core/src/activity_store_app_game/app_game_sessionization_tests.rs`
 - `crates/agent-core/src/activity_store_app_game_tests.rs`
 - `crates/agent-core/src/enforcement_app_time_limit_tests.rs`
 - `apps/portal/tests/live-activity-state.test.ts`
