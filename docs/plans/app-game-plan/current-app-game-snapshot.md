@@ -98,6 +98,11 @@ Proved today:
   rows with evidence refs, approval/tamper feature routes, context-only
   store/purchase guards, parent-visible manual-required states, and no adapter
   or policy-decision claims.
+- App/game performance-health proof now records generated-scale budget rows for
+  1,000 inventory records, 500 runtime rows, 500 foreground transitions, 10,000
+  journal records, 100,000 replay observations, 1,000 policy compile parses,
+  500 existing dashboard intent rows, and parent-visible degraded adapter
+  health without claiming live platform throughput or browser DOM render proof.
 - App-control and game-control catalog/authoring contracts exist in
   `packages/parent-domain`.
 - Rust app/game session protocol mirrors exist.
@@ -156,6 +161,10 @@ Not proved today:
 - Live store integration, install/purchase approval UI, package-manager or store
   interception, billing entitlement logic, uninstall blocking, and anti-tamper
   behavior. WP26 proves handoff routing and no-claim guards only.
+- Live OS inventory/process/foreground throughput, encrypted journal disk
+  throughput and corruption recovery, browser DOM/Playwright rendering for 500
+  app/game rows, and live adapter health telemetry. WP27 proves generated-scale
+  and existing dashboard intent bounds only.
 
 ## Current Contracts
 
@@ -197,12 +206,14 @@ guards. WP25 now adds platform-extension routing contracts for MAC, IOS,
 ANDROID, and LINUX rows, including proof-pack and cross-plan handoff
 requirements. WP26 now adds install/store handoff contracts for new inventory,
 installer/updater, store package install, game purchase signal, uninstall, and
-tamper candidate rows. Those catalogs, authority contracts, approval contracts,
-budget contracts, compiler contracts, time-budget contracts, child UX contracts,
-extension routing contracts, and install/store handoff contracts are
-product-control inputs, not a complete shared evidence spine, live approval
-workflow, live game budget product flow, runtime evaluator, child UI, or proof
-that broad app/game blocking works.
+tamper candidate rows. WP27 now adds performance-health contracts for generated
+scale budgets and degraded adapter health. Those catalogs, authority contracts,
+approval contracts, budget contracts, compiler contracts, time-budget
+contracts, child UX contracts, extension routing contracts, install/store
+handoff contracts, and performance-health contracts are product-control inputs,
+not a complete shared evidence spine, live approval workflow, live game budget
+product flow, runtime evaluator, child UI, live platform throughput proof, or
+proof that broad app/game blocking works.
 
 ## Current Runtime
 

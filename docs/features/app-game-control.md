@@ -135,6 +135,11 @@ control with better evidence and local audit.
   evidence, app-install/purchase approval, or enforcement-integrity/tamper docs
   with evidence refs, parent-visible manual-required states, and no adapter or
   policy-decision claims.
+- App/game performance-health contracts now record generated-scale budgets for
+  inventory, runtime polling, foreground debounce, journal writes, session
+  replay, policy compile, existing dashboard intent rows, and parent-visible
+  degraded adapter health without claiming live OS, live adapter, or browser DOM
+  throughput.
 - App/game category-risk taxonomy contracts now represent native app
   categories, native game categories, risk candidates, game context signals,
   source kind, source ref, confidence, reason code, evidence refs, parent
@@ -184,6 +189,10 @@ The install/store handoff proof is contract-only: it does not prove live store
 integration, Google Play, Apple App Store, Microsoft Store, package-manager
 interception, billing entitlement logic, portal approval UI, platform adapter
 execution, uninstall blocking, or anti-tamper behavior.
+The performance-health proof is contract/generated-scale only: it does not
+prove live OS inventory/process/foreground throughput, encrypted journal disk
+throughput or corruption recovery, browser DOM/Playwright rendering, live
+platform adapters, approval/store behavior, or broad blocking.
 The unknown approval proof is still contract-level: it does not yet provide
 finished parent/child approval UI, notification delivery, persisted service
 read models, live candidate creation from platform adapters, or platform hard

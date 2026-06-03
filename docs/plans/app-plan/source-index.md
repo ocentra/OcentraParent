@@ -117,6 +117,9 @@ and update them only when their acceptance contract or generated data changes.
 - `packages/parent-domain/src/app-game-platform-extension-routing-ios-data.ts`
 - `packages/parent-domain/src/app-game-platform-extension-routing-android-data.ts`
 - `packages/parent-domain/src/app-game-platform-extension-routing-linux-data.ts`
+- `packages/parent-domain/src/app-game-performance-health.ts`
+- `packages/parent-domain/src/app-game-performance-health-rules.ts`
+- `packages/parent-domain/src/app-game-performance-health-proof.ts`
 - `packages/parent-domain/src/app-game-policy-target-compiler.ts`
 - `packages/parent-domain/src/app-game-policy-target-compiler-rules.ts`
 - `packages/parent-domain/src/app-riskdetection.ts`
@@ -217,6 +220,8 @@ classification, run timers, or enforce.
 - `node scripts/test/app-riskdetection-proof.mjs`
 - `node scripts/test/app-game-ai-classifier-boundary-proof.mjs`
 - `node scripts/test/app-game-platform-extension-routing-proof.mjs`
+- `node scripts/test/app-game-install-store-handoff-proof.mjs`
+- `node scripts/test/app-game-performance-health-proof.mjs`
 
 Future app-specific proof scripts should use:
 
@@ -256,6 +261,8 @@ packs mirror the app/game proof roots and record product-doc decisions.
 | WP22 broad blocking proof gates       | `output/app-plan-proof/22-broad-blocking-proof-gates`                           | `output/app-game-plan-proof/23-broad-blocking-proof-gates`                       | No-claim/manual-required gate proof    |
 | WP23 app AI classifier digest         | `output/app-plan-proof/23-app-ai-classifier-digest-boundary`                    | `output/app-game-plan-proof/24-ai-classifier-digest-boundary`                    | Classifier boundary contract proof     |
 | WP24 platform extension proof routing | `output/app-plan-proof/24-platform-extension-checklist-and-proof-routing`       | `output/app-game-plan-proof/25-platform-extension-checklist-and-proof-routing`   | Extension routing contract proof       |
+| WP25 install/uninstall handoff        | `output/app-plan-proof/25-install-and-uninstall-approval-handoff`               | `output/app-game-plan-proof/26-install-uninstall-purchase-store-handoffs`        | Install/store handoff contract proof   |
+| WP26 performance and service health   | `output/app-plan-proof/26-performance-and-service-health`                       | `output/app-game-plan-proof/27-performance-and-service-health`                   | Generated-scale performance proof      |
 
 These completed rows do not add live OS crawling, content knowledge, policy
 execution, install control, parent/child approval UI, notification delivery,
@@ -300,6 +307,12 @@ game purchase signal, uninstall, and tamper candidate rows. Store and purchase
 signals remain context-only, approval refs must cite evidence, uninstall/tamper
 rows route to enforcement-integrity/tamper docs, and adapter execution plus
 policy decisions remain not-claimed.
+Performance and service-health proof now cross-records the shared app/game WP27
+matrix for generated inventory, runtime, foreground, journal, replay, policy
+compile, existing dashboard intent, and degraded adapter-health budgets. It is
+generated-scale and existing-intent proof only; live OS throughput, encrypted
+journal disk/corruption, browser DOM/Playwright rendering, live adapters,
+approval/store behavior, and broad blocking remain gaps.
 Dedicated approval UI, notification delivery, service persistence/read models,
 policy runtime, game-budget, live source, live source subscriptions, journal
 corruption/recovery, runtime platform adapters, and portal capability matrix UI
@@ -324,6 +337,7 @@ remain later work.
 - `packages/parent-domain/tests/app-game-ai-classifier-boundary.test.ts`
 - `packages/parent-domain/tests/app-game-platform-extension-routing.test.ts`
 - `packages/parent-domain/tests/app-game-install-store-handoff.test.ts`
+- `packages/parent-domain/tests/app-game-performance-health.test.ts`
 - `packages/parent-domain/tests/enforcement-approval-audit.test.ts`
 - `crates/agent-protocol/src/app_game_tests.rs`
 - `crates/agent-core/src/activity_store_app_game/app_game_sessionization_tests.rs`

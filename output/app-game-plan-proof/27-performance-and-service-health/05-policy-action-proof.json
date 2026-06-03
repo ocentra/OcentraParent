@@ -1,0 +1,6 @@
+{
+  "schemaVersion": 1,
+  "parsedPolicyCompileDecisions": 1000,
+  "dryRunOnly": true,
+  "adapterExecutionClaim": "not-claimed"
+}

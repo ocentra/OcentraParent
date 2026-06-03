@@ -130,7 +130,8 @@ Existing portal/source areas that app work should extend:
 
 ## Proof That Exists
 
-The native app plan now mirrors the shared app/game proof spine for WP01-WP16:
+The native app plan now mirrors the shared app/game proof spine for completed
+and cross-recorded workpacks:
 
 ```text
 output/app-plan-proof/01-contract-boundary-and-effect-schemas
@@ -155,6 +156,7 @@ output/app-plan-proof/20-child-facing-app-warning-block-request-ux
 output/app-plan-proof/23-app-ai-classifier-digest-boundary
 output/app-plan-proof/24-platform-extension-checklist-and-proof-routing
 output/app-plan-proof/25-install-and-uninstall-approval-handoff
+output/app-plan-proof/26-performance-and-service-health
 ```
 
 Those proof packs point back to `output/app-game-plan-proof/*` for the shared
@@ -174,6 +176,7 @@ node scripts/test/v0-8-enforcement-timer-recovery-mvp.mjs
 node scripts/test/app-game-broad-blocking-proof-gates.mjs
 node scripts/test/app-game-platform-extension-routing-proof.mjs
 node scripts/test/app-game-install-store-handoff-proof.mjs
+node scripts/test/app-game-performance-health-proof.mjs
 ```
 
 These are scoped proof harnesses. They do not prove broad app blocking support,
@@ -259,6 +262,12 @@ polished app catalog UI, install approval, or cross-platform parity.
   purchase signals remain context-only, approval refs cite evidence, and
   uninstall/tamper rows route to the tamper feature without adapter or policy
   claims.
+- Native app performance-health proof now cross-records the shared app/game
+  WP27 matrix for generated inventory, runtime, foreground, journal, replay,
+  policy compile, existing dashboard intent, and degraded adapter health
+  budgets. It is generated-scale and intent-level proof only; live OS
+  throughput, encrypted journal disk/corruption, browser DOM/Playwright render,
+  live adapters, install/store approval, and broad blocking remain gaps.
 - App category/risk taxonomy, native app risk detection, and native app AI
   classifier boundary now have contract/test proof, but live classifier
   enrichment, portal category/risk/classifier rows, runtime app risk detection,

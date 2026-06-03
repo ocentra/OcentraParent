@@ -98,6 +98,9 @@ Current app-control and app/game policy/catalog meaning lives in:
 - `packages/parent-domain/src/app-game-platform-extension-routing-ios-data.ts`
 - `packages/parent-domain/src/app-game-platform-extension-routing-android-data.ts`
 - `packages/parent-domain/src/app-game-platform-extension-routing-linux-data.ts`
+- `packages/parent-domain/src/app-game-performance-health.ts`
+- `packages/parent-domain/src/app-game-performance-health-rules.ts`
+- `packages/parent-domain/src/app-game-performance-health-proof.ts`
 - `packages/parent-domain/src/app-game-policy-target-compiler.ts`
 - `packages/parent-domain/src/app-game-policy-target-compiler-rules.ts`
 - `packages/parent-domain/src/app-game-time-budget-policy.ts`
@@ -206,6 +209,8 @@ scan the OS, classify apps, run timers, or call enforcement adapters.
 - `node scripts/test/app-game-broad-blocking-proof-gates.mjs`
 - `node scripts/test/app-game-ai-classifier-boundary-proof.mjs`
 - `node scripts/test/app-game-platform-extension-routing-proof.mjs`
+- `node scripts/test/app-game-install-store-handoff-proof.mjs`
+- `node scripts/test/app-game-performance-health-proof.mjs`
 
 These scripts prove scoped app/game paths only. They do not prove broad
 installed-app blocking, launcher/game disambiguation, game budgets, ratings, UGC
@@ -461,6 +466,21 @@ policy decisions remain not-claimed. It does not prove live store APIs,
 approval UI, platform adapters, billing entitlement logic, uninstall blocking,
 or anti-tamper behavior.
 
+WP27 proof on `codex/app-game-read-model-service-events` adds
+`packages/parent-domain/src/app-game-performance-health.ts`,
+`packages/parent-domain/src/app-game-performance-health-rules.ts`,
+`packages/parent-domain/src/app-game-performance-health-proof.ts`, and
+`scripts/test/app-game-performance-health-proof.mjs`, then records evidence
+under `output/app-game-plan-proof/27-performance-and-service-health/`. The
+proof matrix covers inventory scan bounds, runtime polling bounds, foreground
+debounce bounds, journal write volume, session replay cost, policy compile
+cost, existing dashboard intent row cost, and degraded adapter health state.
+Generated smoke covers 1,000 inventory rows, 500 runtime rows, 500 foreground
+rows, 10,000 journal records, 100,000 replay observations, 1,000 policy compile
+parses, and 500 existing dashboard intent rows. It does not prove live OS
+throughput, encrypted journal disk or corruption recovery, browser DOM or
+Playwright rendering, live adapters, approval/store behavior, or broad blocking.
+
 ## Current Test Files
 
 - `packages/activity-domain/tests/app-game.test.ts`
@@ -484,6 +504,7 @@ or anti-tamper behavior.
 - `packages/parent-domain/tests/app-game-broad-blocking-proof-gates.test.ts`
 - `packages/parent-domain/tests/app-game-ai-classifier-boundary.test.ts`
 - `packages/parent-domain/tests/app-game-install-store-handoff.test.ts`
+- `packages/parent-domain/tests/app-game-performance-health.test.ts`
 - `packages/parent-domain/tests/app-game-platform-extension-routing.test.ts`
 - `packages/parent-domain/tests/native-game-budget-policy.test.ts`
 - `packages/parent-domain/tests/enforcement-approval-audit.test.ts`
