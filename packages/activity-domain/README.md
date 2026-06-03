@@ -6,7 +6,7 @@ Shared activity and evidence contracts for child-device observations.
 
 - Capture source and status contracts.
 - Browser URL/tab evidence shapes.
-- App/game session contracts.
+- App/game identity and session contracts.
 - Network flow summary contracts.
 - Screen evidence summary contracts.
 - Journal/query/read-model primitives.
