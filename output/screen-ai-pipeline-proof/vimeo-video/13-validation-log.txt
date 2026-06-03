@@ -1,0 +1,3 @@
+scenario=vimeo-video
+category=video
+action=warn

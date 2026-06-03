@@ -1,0 +1,3 @@
+scenario=shopping
+category=shopping
+action=ask-parent

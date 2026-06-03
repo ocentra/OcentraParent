@@ -1,0 +1,23 @@
+{
+  "scenarioId": "shopping",
+  "title": "Ocentra AI Proof Shopping Page",
+  "parentVisibleSummary": "Local AI saw shopping evidence and policy selected ask-parent.",
+  "category": "shopping",
+  "confidence": 1,
+  "action": "ask-parent",
+  "evidenceReferences": [
+    {
+      "evidenceReferenceId": "screen-analysis-evidence-shopping",
+      "kind": "activity-event",
+      "observedAt": "2026-06-03T13:59:51.651Z"
+    }
+  ],
+  "parentRuleReferences": [
+    "screen-policy-shopping"
+  ],
+  "rawImageRetained": false,
+  "imageDeletionState": "deleted",
+  "aiDoesNotEnforceDirectly": true,
+  "dryRun": true,
+  "nonClaim": "Proof UI snapshot is an artifact preview, not the production portal runtime."
+}

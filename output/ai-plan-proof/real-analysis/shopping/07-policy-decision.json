@@ -1,0 +1,67 @@
+{
+  "familyPolicySet": {
+    "schemaVersion": "v0.6",
+    "family": {
+      "familyId": "screen-ai-proof-family"
+    },
+    "childProfiles": [
+      {
+        "childProfileId": "screen-ai-proof-child",
+        "displayName": "Proof child"
+      }
+    ],
+    "devices": [
+      {
+        "deviceId": "screen-ai-proof-device",
+        "childProfileId": "screen-ai-proof-child",
+        "label": "Windows proof desktop",
+        "platform": "windows"
+      }
+    ],
+    "policyVersion": "screen-ai-proof-policy-v1",
+    "rules": [
+      {
+        "ruleId": "screen-policy-shopping",
+        "target": {
+          "targetId": "screen-category-target-shopping",
+          "targetType": "category",
+          "targetValue": "shopping"
+        },
+        "action": "ask-parent",
+        "scheduleId": null,
+        "priority": 100,
+        "reasonCode": "screen-category-shopping",
+        "createdBy": {
+          "actorId": "screen-ai-proof-parent",
+          "role": "parent"
+        },
+        "enabled": true,
+        "effectiveFrom": null,
+        "effectiveUntil": null
+      }
+    ],
+    "schedules": []
+  },
+  "policyDecision": {
+    "schemaVersion": "v0.6",
+    "decisionId": "policy-decision-screen-analysis-shopping",
+    "action": "ask-parent",
+    "reasonCodes": [
+      "screen-category-shopping"
+    ],
+    "evidenceReferences": [
+      {
+        "evidenceReferenceId": "screen-analysis-evidence-shopping",
+        "kind": "activity-event",
+        "observedAt": "2026-06-03T13:59:51.651Z"
+      }
+    ],
+    "ruleIds": [
+      "screen-policy-shopping"
+    ],
+    "localAiResultId": "local-ai-result-shopping",
+    "dryRun": true,
+    "enforcementHandoffState": "disabled",
+    "expiresAt": null
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "scenarioId": "school-productivity",
+  "sourceEvidenceRefs": [
+    {
+      "evidenceId": "screen-evidence-school-productivity",
+      "kind": "screenshot",
+      "digest": "aaad7ed7c9c5196fa637aab9140585c1e02d18fd87e49d6dc09a2b6547c34c26",
+      "uri": null
+    }
+  ],
+  "promptVersion": "screen-ai-local-vlm-matrix-proof-v2",
+  "contextBuiltFromTypedCaptureMetadata": true,
+  "directOsOrBrowserScanByModel": false
+}

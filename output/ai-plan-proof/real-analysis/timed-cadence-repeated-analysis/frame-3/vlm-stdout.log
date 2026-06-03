@@ -1,0 +1,14 @@
+
+```json
+{
+  "primary_category": "productivity",
+  "visible_text": [
+    "Expected visible category: productivity",
+    "Timed cadence proof frame 3",
+    "Reviewing completed checklist",
+    "Productivity activity visible"
+  ],
+  "risk_signals": [],
+  "confidence": 0.95
+}
+```

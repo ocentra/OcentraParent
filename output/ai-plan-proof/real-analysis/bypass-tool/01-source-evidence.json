@@ -1,0 +1,14 @@
+{
+  "scenarioId": "bypass-tool",
+  "surface": "browser",
+  "fixtureKind": "controlled-bypass-tool-fixture",
+  "captureReason": "policyAmbiguity",
+  "captureScope": "managedBrowserWindow",
+  "visibleTextFixture": [
+    "VPN proxy bypass tool",
+    "Private tunnel and unblock button",
+    "Hide traffic from school network"
+  ],
+  "realWindowCapture": true,
+  "liveExternalUrl": false
+}

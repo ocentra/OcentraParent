@@ -1,0 +1,9 @@
+{
+  "scenarioId": "timed-cadence-repeated-analysis",
+  "requestedCadenceSeconds": 2,
+  "analyzedFrameCount": 3,
+  "uniqueFrameDigests": 3,
+  "queueFlooded": false,
+  "maxOutstandingRawImages": 1,
+  "rawImagesDeletedAfterEachFrame": true
+}

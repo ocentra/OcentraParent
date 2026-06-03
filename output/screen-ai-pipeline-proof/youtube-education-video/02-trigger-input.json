@@ -1,0 +1,5 @@
+{
+  "trigger": "managedUrlChange",
+  "source": "controlled-browser-education-video-fixture",
+  "scope": "managedBrowserWindow"
+}

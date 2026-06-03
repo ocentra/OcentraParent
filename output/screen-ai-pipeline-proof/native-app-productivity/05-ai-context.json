@@ -1,0 +1,14 @@
+{
+  "scenarioId": "native-app-productivity",
+  "sourceEvidenceRefs": [
+    {
+      "evidenceId": "screen-evidence-native-app-productivity",
+      "kind": "screenshot",
+      "digest": "10889ec733b8e16f4e909e1b080d700a81eb4b328ad2ac291e8883f774ab2139",
+      "uri": null
+    }
+  ],
+  "promptVersion": "screen-ai-local-vlm-matrix-proof-v2",
+  "contextBuiltFromTypedCaptureMetadata": true,
+  "directOsOrBrowserScanByModel": false
+}

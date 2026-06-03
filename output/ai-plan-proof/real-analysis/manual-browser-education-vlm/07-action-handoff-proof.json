@@ -5,5 +5,6 @@
   "aiDoesNotEnforceDirectly": true,
   "evidenceLinked": true,
   "localAiResultLinked": true,
-  "rawImageDeletedBeforePolicyDecision": true
+  "rawImageDeletedBeforePolicyDecision": true,
+  "supersededBy": "school-productivity"
 }

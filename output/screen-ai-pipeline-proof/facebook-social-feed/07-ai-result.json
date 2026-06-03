@@ -1,0 +1,125 @@
+{
+  "screenResult": {
+    "schemaVersion": 1,
+    "screenAnalysisResultId": "screen-analysis-facebook-social-feed",
+    "queueJobId": "screen-capture-proof-facebook-social-feed",
+    "analyzedAt": "2026-06-03T13:57:56.428Z",
+    "modelRuntimeRef": "local-qwen2-vl-2b-llama-mtmd",
+    "modelId": "Qwen2-VL-2B-Instruct-Q4_K_M",
+    "providerKind": "localVision",
+    "promptOrTemplateVersion": "screen-ai-local-vlm-matrix-proof-v2",
+    "captureReason": "managedUrlChange",
+    "captureScope": "managedBrowserWindow",
+    "capabilityStatus": "ready",
+    "summary": "Expected visible category: chat,Facebook style social feed,Friend requests and messages,Chat and social posts visible",
+    "visibleCategoryCandidates": [
+      {
+        "category": "chat",
+        "confidence": 1,
+        "evidenceRefs": [
+          {
+            "evidenceId": "screen-evidence-facebook-social-feed",
+            "kind": "screenshot",
+            "digest": "9a73b0ed70c235066bfebf0eb6f8fc7db5555420ddc8139fdc90e799366acce0",
+            "uri": null
+          }
+        ]
+      }
+    ],
+    "primaryCategory": "chat",
+    "riskSignals": [],
+    "ocrTextSnippets": [
+      {
+        "text": "Expected visible category: chat,Facebook style social feed,Friend requests and messages,Chat and social posts visible",
+        "confidence": 1,
+        "evidenceRefs": [
+          {
+            "evidenceId": "screen-evidence-facebook-social-feed",
+            "kind": "screenshot",
+            "digest": "9a73b0ed70c235066bfebf0eb6f8fc7db5555420ddc8139fdc90e799366acce0",
+            "uri": null
+          }
+        ]
+      }
+    ],
+    "redactionNotes": [],
+    "confidence": 1,
+    "uncertaintyReason": null,
+    "sourceEvidenceRefs": [
+      {
+        "evidenceId": "screen-evidence-facebook-social-feed",
+        "kind": "screenshot",
+        "digest": "9a73b0ed70c235066bfebf0eb6f8fc7db5555420ddc8139fdc90e799366acce0",
+        "uri": null
+      }
+    ],
+    "imageDigest": "9a73b0ed70c235066bfebf0eb6f8fc7db5555420ddc8139fdc90e799366acce0",
+    "rawImageRetained": false,
+    "imageDeletionState": "deleted",
+    "custodyState": "child-device-query-store",
+    "policyEligible": true
+  },
+  "localAiSafetyResult": {
+    "schemaVersion": "v0.6",
+    "resultId": "local-ai-result-facebook-social-feed",
+    "requestId": "local-ai-request-facebook-social-feed",
+    "action": "warn",
+    "confidence": 1,
+    "unknownState": "none",
+    "degradedState": "none",
+    "reasonCodes": [
+      "screen-category-chat"
+    ],
+    "explanationReference": "screen-analysis-result:screen-analysis-facebook-social-feed",
+    "evidenceReferences": [
+      {
+        "evidenceReferenceId": "screen-analysis-evidence-facebook-social-feed",
+        "kind": "activity-event",
+        "observedAt": "2026-06-03T13:57:56.428Z"
+      }
+    ],
+    "parentRuleReferences": [
+      "screen-policy-facebook-social-feed"
+    ],
+    "memoryReferences": [],
+    "graphReferences": [],
+    "modelRuntime": {
+      "runtimeReferenceId": "runtime-local-qwen2-vl-2b-llama-mtmd",
+      "providerId": "local-qwen2-vl",
+      "modelId": "Qwen2-VL-2B-Instruct-Q4_K_M",
+      "modelReference": "local-model-cache/Qwen2-VL-2B-Instruct-Q4_K_M.gguf",
+      "privacyMode": "local-only",
+      "adapterBoundary": "local-adapter-ready",
+      "executionState": "dry-run-ready",
+      "providerSource": "local-model-cache",
+      "loadState": "loaded",
+      "capabilityFlags": [
+        "classification",
+        "safety-decision"
+      ],
+      "resourceClass": "cpu",
+      "degradedState": "none",
+      "lastCheckedAt": "2026-06-03T13:57:56.428Z",
+      "unavailableReason": null
+    },
+    "promptVersion": "screen-ai-local-vlm-matrix-proof-v2",
+    "expiresAt": null
+  },
+  "parsedModel": {
+    "primary_category": "chat",
+    "visible_text": [
+      "Expected visible category: chat",
+      "Facebook style social feed",
+      "Friend requests and messages",
+      "Chat and social posts visible"
+    ],
+    "risk_signals": [],
+    "confidence": 1
+  },
+  "normalized": {
+    "primaryCategory": "chat",
+    "visibleText": "Expected visible category: chat,Facebook style social feed,Friend requests and messages,Chat and social posts visible",
+    "confidence": 1,
+    "riskSignals": []
+  }
+}

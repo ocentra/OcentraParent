@@ -1,0 +1,14 @@
+{
+  "scenarioId": "school-productivity",
+  "surface": "browser",
+  "fixtureKind": "controlled-education-fixture",
+  "captureReason": "manualParentTestCapture",
+  "captureScope": "managedBrowserWindow",
+  "visibleTextFixture": [
+    "School Lesson: Fractions",
+    "Category: school",
+    "Activity: education practice"
+  ],
+  "realWindowCapture": true,
+  "liveExternalUrl": false
+}

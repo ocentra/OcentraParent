@@ -1,0 +1,124 @@
+{
+  "screenResult": {
+    "schemaVersion": 1,
+    "screenAnalysisResultId": "screen-analysis-timed-cadence-repeated-analysis-frame-1",
+    "queueJobId": "screen-capture-proof-timed-cadence-repeated-analysis-frame-1",
+    "analyzedAt": "2026-06-03T14:04:57.960Z",
+    "modelRuntimeRef": "local-qwen2-vl-2b-llama-mtmd",
+    "modelId": "Qwen2-VL-2B-Instruct-Q4_K_M",
+    "providerKind": "localVision",
+    "promptOrTemplateVersion": "screen-ai-local-vlm-matrix-proof-v2",
+    "captureReason": "cadence",
+    "captureScope": "managedBrowserWindow",
+    "capabilityStatus": "ready",
+    "summary": "Timed cadence proof frame 1,Writing homework notes,Productivity activity visible",
+    "visibleCategoryCandidates": [
+      {
+        "category": "productivity",
+        "confidence": 0.95,
+        "evidenceRefs": [
+          {
+            "evidenceId": "screen-evidence-timed-cadence-repeated-analysis-frame-1",
+            "kind": "screenshot",
+            "digest": "39a33ab477ac6c8f0172e5ddad75712c69f532c5acb875edf9f2bf6254bbcee7",
+            "uri": null
+          }
+        ]
+      }
+    ],
+    "primaryCategory": "productivity",
+    "riskSignals": [],
+    "ocrTextSnippets": [
+      {
+        "text": "Timed cadence proof frame 1,Writing homework notes,Productivity activity visible",
+        "confidence": 0.95,
+        "evidenceRefs": [
+          {
+            "evidenceId": "screen-evidence-timed-cadence-repeated-analysis-frame-1",
+            "kind": "screenshot",
+            "digest": "39a33ab477ac6c8f0172e5ddad75712c69f532c5acb875edf9f2bf6254bbcee7",
+            "uri": null
+          }
+        ]
+      }
+    ],
+    "redactionNotes": [],
+    "confidence": 0.95,
+    "uncertaintyReason": null,
+    "sourceEvidenceRefs": [
+      {
+        "evidenceId": "screen-evidence-timed-cadence-repeated-analysis-frame-1",
+        "kind": "screenshot",
+        "digest": "39a33ab477ac6c8f0172e5ddad75712c69f532c5acb875edf9f2bf6254bbcee7",
+        "uri": null
+      }
+    ],
+    "imageDigest": "39a33ab477ac6c8f0172e5ddad75712c69f532c5acb875edf9f2bf6254bbcee7",
+    "rawImageRetained": false,
+    "imageDeletionState": "deleted",
+    "custodyState": "child-device-query-store",
+    "policyEligible": true
+  },
+  "localAiSafetyResult": {
+    "schemaVersion": "v0.6",
+    "resultId": "local-ai-result-timed-cadence-repeated-analysis-frame-1",
+    "requestId": "local-ai-request-timed-cadence-repeated-analysis-frame-1",
+    "action": "allow",
+    "confidence": 0.95,
+    "unknownState": "none",
+    "degradedState": "none",
+    "reasonCodes": [
+      "screen-category-productivity"
+    ],
+    "explanationReference": "screen-analysis-result:screen-analysis-timed-cadence-repeated-analysis-frame-1",
+    "evidenceReferences": [
+      {
+        "evidenceReferenceId": "screen-analysis-evidence-timed-cadence-repeated-analysis-frame-1",
+        "kind": "activity-event",
+        "observedAt": "2026-06-03T14:04:57.960Z"
+      }
+    ],
+    "parentRuleReferences": [
+      "screen-policy-timed-cadence-repeated-analysis-frame-1"
+    ],
+    "memoryReferences": [],
+    "graphReferences": [],
+    "modelRuntime": {
+      "runtimeReferenceId": "runtime-local-qwen2-vl-2b-llama-mtmd",
+      "providerId": "local-qwen2-vl",
+      "modelId": "Qwen2-VL-2B-Instruct-Q4_K_M",
+      "modelReference": "local-model-cache/Qwen2-VL-2B-Instruct-Q4_K_M.gguf",
+      "privacyMode": "local-only",
+      "adapterBoundary": "local-adapter-ready",
+      "executionState": "dry-run-ready",
+      "providerSource": "local-model-cache",
+      "loadState": "loaded",
+      "capabilityFlags": [
+        "classification",
+        "safety-decision"
+      ],
+      "resourceClass": "cpu",
+      "degradedState": "none",
+      "lastCheckedAt": "2026-06-03T14:04:57.960Z",
+      "unavailableReason": null
+    },
+    "promptVersion": "screen-ai-local-vlm-matrix-proof-v2",
+    "expiresAt": null
+  },
+  "parsedModel": {
+    "primary_category": "productivity",
+    "visible_text": [
+      "Timed cadence proof frame 1",
+      "Writing homework notes",
+      "Productivity activity visible"
+    ],
+    "risk_signals": [],
+    "confidence": 0.95
+  },
+  "normalized": {
+    "primaryCategory": "productivity",
+    "visibleText": "Timed cadence proof frame 1,Writing homework notes,Productivity activity visible",
+    "confidence": 0.95,
+    "riskSignals": []
+  }
+}

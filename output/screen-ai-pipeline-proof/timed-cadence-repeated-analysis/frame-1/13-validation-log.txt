@@ -1,0 +1,3 @@
+scenario=timed-cadence-repeated-analysis-frame-1
+category=productivity
+action=allow

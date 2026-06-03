@@ -1,0 +1,14 @@
+{
+  "scenarioId": "youtube-education-video",
+  "sourceEvidenceRefs": [
+    {
+      "evidenceId": "screen-evidence-youtube-education-video",
+      "kind": "screenshot",
+      "digest": "81fa6e96b9d6d8d785feb2de82e1bf5da034ed875b4ca3d7577da59979f7822b",
+      "uri": null
+    }
+  ],
+  "promptVersion": "screen-ai-local-vlm-matrix-proof-v2",
+  "contextBuiltFromTypedCaptureMetadata": true,
+  "directOsOrBrowserScanByModel": false
+}

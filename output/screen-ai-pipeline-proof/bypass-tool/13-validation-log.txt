@@ -1,0 +1,3 @@
+scenario=bypass-tool
+category=bypassTool
+action=block

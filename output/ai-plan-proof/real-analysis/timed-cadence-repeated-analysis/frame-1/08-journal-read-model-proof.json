@@ -1,0 +1,18 @@
+{
+  "scenarioId": "timed-cadence-repeated-analysis-frame-1",
+  "journalEntryId": "journal-screen-ai-timed-cadence-repeated-analysis-frame-1",
+  "trigger": "cadence",
+  "captureResultId": "screen-capture-proof-timed-cadence-repeated-analysis-frame-1",
+  "screenAnalysisResultId": "screen-analysis-timed-cadence-repeated-analysis-frame-1",
+  "localAiResultId": "local-ai-result-timed-cadence-repeated-analysis-frame-1",
+  "policyDecisionId": "policy-decision-screen-analysis-timed-cadence-repeated-analysis-frame-1",
+  "deletionState": "deleted",
+  "readModelRows": [
+    {
+      "rowId": "parent-screen-ai-row-timed-cadence-repeated-analysis-frame-1",
+      "category": "productivity",
+      "action": "allow",
+      "confidence": 0.95
+    }
+  ]
+}

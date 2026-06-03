@@ -1,0 +1,14 @@
+{
+  "scenarioId": "timed-cadence-repeated-analysis-frame-3",
+  "sourceEvidenceRefs": [
+    {
+      "evidenceId": "screen-evidence-timed-cadence-repeated-analysis-frame-3",
+      "kind": "screenshot",
+      "digest": "331c81165deea41e0b23e4d5a6574b75901cda7eed25b6fee43e87451742ee16",
+      "uri": null
+    }
+  ],
+  "promptVersion": "screen-ai-local-vlm-matrix-proof-v2",
+  "contextBuiltFromTypedCaptureMetadata": true,
+  "directOsOrBrowserScanByModel": false
+}

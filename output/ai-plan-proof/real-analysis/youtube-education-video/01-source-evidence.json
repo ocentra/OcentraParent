@@ -1,0 +1,14 @@
+{
+  "scenarioId": "youtube-education-video",
+  "surface": "browser",
+  "fixtureKind": "controlled-browser-education-video-fixture",
+  "captureReason": "managedUrlChange",
+  "captureScope": "managedBrowserWindow",
+  "visibleTextFixture": [
+    "YouTube education video",
+    "Algebra lesson for school",
+    "Teacher explains fractions"
+  ],
+  "realWindowCapture": true,
+  "liveExternalUrl": false
+}

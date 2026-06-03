@@ -1,0 +1,18 @@
+{
+  "scenarioId": "adult-or-violence-controlled-fixture",
+  "journalEntryId": "journal-screen-ai-adult-or-violence-controlled-fixture",
+  "trigger": "policyAmbiguity",
+  "captureResultId": "screen-capture-proof-adult-or-violence-controlled-fixture",
+  "screenAnalysisResultId": "screen-analysis-adult-or-violence-controlled-fixture",
+  "localAiResultId": "local-ai-result-adult-or-violence-controlled-fixture",
+  "policyDecisionId": "policy-decision-screen-analysis-adult-or-violence-controlled-fixture",
+  "deletionState": "deleted",
+  "readModelRows": [
+    {
+      "rowId": "parent-screen-ai-row-adult-or-violence-controlled-fixture",
+      "category": "violence",
+      "action": "block",
+      "confidence": 1
+    }
+  ]
+}

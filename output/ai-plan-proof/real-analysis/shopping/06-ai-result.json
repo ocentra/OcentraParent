@@ -1,0 +1,125 @@
+{
+  "screenResult": {
+    "schemaVersion": 1,
+    "screenAnalysisResultId": "screen-analysis-shopping",
+    "queueJobId": "screen-capture-proof-shopping",
+    "analyzedAt": "2026-06-03T13:59:51.651Z",
+    "modelRuntimeRef": "local-qwen2-vl-2b-llama-mtmd",
+    "modelId": "Qwen2-VL-2B-Instruct-Q4_K_M",
+    "providerKind": "localVision",
+    "promptOrTemplateVersion": "screen-ai-local-vlm-matrix-proof-v2",
+    "captureReason": "managedUrlChange",
+    "captureScope": "managedBrowserWindow",
+    "capabilityStatus": "ready",
+    "summary": "Expected visible category: shopping,Shopping cart checkout,Buy now and payment options,Product recommendations visible",
+    "visibleCategoryCandidates": [
+      {
+        "category": "shopping",
+        "confidence": 1,
+        "evidenceRefs": [
+          {
+            "evidenceId": "screen-evidence-shopping",
+            "kind": "screenshot",
+            "digest": "3183b30f53718f338250b5dca0a7f562f81c5c9a79afbbeec927309dadb9c662",
+            "uri": null
+          }
+        ]
+      }
+    ],
+    "primaryCategory": "shopping",
+    "riskSignals": [],
+    "ocrTextSnippets": [
+      {
+        "text": "Expected visible category: shopping,Shopping cart checkout,Buy now and payment options,Product recommendations visible",
+        "confidence": 1,
+        "evidenceRefs": [
+          {
+            "evidenceId": "screen-evidence-shopping",
+            "kind": "screenshot",
+            "digest": "3183b30f53718f338250b5dca0a7f562f81c5c9a79afbbeec927309dadb9c662",
+            "uri": null
+          }
+        ]
+      }
+    ],
+    "redactionNotes": [],
+    "confidence": 1,
+    "uncertaintyReason": null,
+    "sourceEvidenceRefs": [
+      {
+        "evidenceId": "screen-evidence-shopping",
+        "kind": "screenshot",
+        "digest": "3183b30f53718f338250b5dca0a7f562f81c5c9a79afbbeec927309dadb9c662",
+        "uri": null
+      }
+    ],
+    "imageDigest": "3183b30f53718f338250b5dca0a7f562f81c5c9a79afbbeec927309dadb9c662",
+    "rawImageRetained": false,
+    "imageDeletionState": "deleted",
+    "custodyState": "child-device-query-store",
+    "policyEligible": true
+  },
+  "localAiSafetyResult": {
+    "schemaVersion": "v0.6",
+    "resultId": "local-ai-result-shopping",
+    "requestId": "local-ai-request-shopping",
+    "action": "ask-parent",
+    "confidence": 1,
+    "unknownState": "none",
+    "degradedState": "none",
+    "reasonCodes": [
+      "screen-category-shopping"
+    ],
+    "explanationReference": "screen-analysis-result:screen-analysis-shopping",
+    "evidenceReferences": [
+      {
+        "evidenceReferenceId": "screen-analysis-evidence-shopping",
+        "kind": "activity-event",
+        "observedAt": "2026-06-03T13:59:51.651Z"
+      }
+    ],
+    "parentRuleReferences": [
+      "screen-policy-shopping"
+    ],
+    "memoryReferences": [],
+    "graphReferences": [],
+    "modelRuntime": {
+      "runtimeReferenceId": "runtime-local-qwen2-vl-2b-llama-mtmd",
+      "providerId": "local-qwen2-vl",
+      "modelId": "Qwen2-VL-2B-Instruct-Q4_K_M",
+      "modelReference": "local-model-cache/Qwen2-VL-2B-Instruct-Q4_K_M.gguf",
+      "privacyMode": "local-only",
+      "adapterBoundary": "local-adapter-ready",
+      "executionState": "dry-run-ready",
+      "providerSource": "local-model-cache",
+      "loadState": "loaded",
+      "capabilityFlags": [
+        "classification",
+        "safety-decision"
+      ],
+      "resourceClass": "cpu",
+      "degradedState": "none",
+      "lastCheckedAt": "2026-06-03T13:59:51.651Z",
+      "unavailableReason": null
+    },
+    "promptVersion": "screen-ai-local-vlm-matrix-proof-v2",
+    "expiresAt": null
+  },
+  "parsedModel": {
+    "primary_category": "shopping",
+    "visible_text": [
+      "Expected visible category: shopping",
+      "Shopping cart checkout",
+      "Buy now and payment options",
+      "Product recommendations visible"
+    ],
+    "risk_signals": [],
+    "confidence": 1
+  },
+  "normalized": {
+    "primaryCategory": "shopping",
+    "visibleText": "Expected visible category: shopping,Shopping cart checkout,Buy now and payment options,Product recommendations visible",
+    "confidence": 1,
+    "riskSignals": []
+  }
+}

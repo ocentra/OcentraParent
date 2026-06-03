@@ -1,0 +1,3 @@
+scenario=youtube-ordinary-video
+category=video
+action=warn

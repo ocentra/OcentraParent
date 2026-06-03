@@ -1,0 +1,23 @@
+{
+  "scenarioId": "native-game",
+  "title": "Ocentra AI Proof Native Game Window",
+  "parentVisibleSummary": "Local AI saw game evidence and policy selected ask-parent.",
+  "category": "game",
+  "confidence": 0.95,
+  "action": "ask-parent",
+  "evidenceReferences": [
+    {
+      "evidenceReferenceId": "screen-analysis-evidence-native-game",
+      "kind": "activity-event",
+      "observedAt": "2026-06-03T14:02:30.629Z"
+    }
+  ],
+  "parentRuleReferences": [
+    "screen-policy-native-game"
+  ],
+  "rawImageRetained": false,
+  "imageDeletionState": "deleted",
+  "aiDoesNotEnforceDirectly": true,
+  "dryRun": true,
+  "nonClaim": "Proof UI snapshot is an artifact preview, not the production portal runtime."
+}

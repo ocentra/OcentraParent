@@ -1,0 +1,12 @@
+{
+  "scenarioId": "disabled-no-capture-no-ai",
+  "screenAnalysisParentSetting": {
+    "enabled": false,
+    "triggerCaptureEnabled": false,
+    "cadenceCaptureEnabled": false
+  },
+  "captureAttempted": false,
+  "aiAnalysisAttempted": false,
+  "policyActionFromScreen": false,
+  "expectedOutcome": "no capture no AI analysis no screen-derived policy decision"
+}

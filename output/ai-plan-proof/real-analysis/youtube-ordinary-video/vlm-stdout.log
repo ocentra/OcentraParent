@@ -1,0 +1,14 @@
+
+```json
+{
+  "primary_category": "video",
+  "visible_text": [
+    "Expected visible category: video",
+    "YouTube video player",
+    "Ordinary music highlights",
+    "Comments and recommendations visible"
+  ],
+  "risk_signals": [],
+  "confidence": 1.0
+}
+```

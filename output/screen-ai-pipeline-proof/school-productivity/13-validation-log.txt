@@ -1,0 +1,3 @@
+scenario=school-productivity
+category=school
+action=allow

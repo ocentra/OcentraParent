@@ -1,0 +1,18 @@
+{
+  "scenarioId": "facebook-social-feed",
+  "journalEntryId": "journal-screen-ai-facebook-social-feed",
+  "trigger": "managedUrlChange",
+  "captureResultId": "screen-capture-proof-facebook-social-feed",
+  "screenAnalysisResultId": "screen-analysis-facebook-social-feed",
+  "localAiResultId": "local-ai-result-facebook-social-feed",
+  "policyDecisionId": "policy-decision-screen-analysis-facebook-social-feed",
+  "deletionState": "deleted",
+  "readModelRows": [
+    {
+      "rowId": "parent-screen-ai-row-facebook-social-feed",
+      "category": "chat",
+      "action": "warn",
+      "confidence": 1
+    }
+  ]
+}

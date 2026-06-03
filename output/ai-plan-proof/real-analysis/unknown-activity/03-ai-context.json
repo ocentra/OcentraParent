@@ -1,0 +1,14 @@
+{
+  "scenarioId": "unknown-activity",
+  "sourceEvidenceRefs": [
+    {
+      "evidenceId": "screen-evidence-unknown-activity",
+      "kind": "screenshot",
+      "digest": "eff6a715b97339ba657023ba1615fb61ad617ddb9fdae77e1287f7bf39ffa28c",
+      "uri": null
+    }
+  ],
+  "promptVersion": "screen-ai-local-vlm-matrix-proof-v2",
+  "contextBuiltFromTypedCaptureMetadata": true,
+  "directOsOrBrowserScanByModel": false
+}

@@ -1,0 +1,24 @@
+{
+  "captureDir": "output\\screen-ai-pipeline-proof\\school-productivity\\capture",
+  "captureMetadata": {
+    "actualScope": "selectedWindow",
+    "analysisTempPath": "output\\screen-ai-pipeline-proof\\school-productivity\\capture\\capture.png.tmp",
+    "appNameDigest": "445d6290691548b5a602994dec2eea134cf7871217e14700d14f92437605e6f6",
+    "appNamePresent": true,
+    "captured": true,
+    "height": 721,
+    "imageByteSize": 90548,
+    "imageDigest": "aaad7ed7c9c5196fa637aab9140585c1e02d18fd87e49d6dc09a2b6547c34c26",
+    "monitorId": 65639,
+    "monitorNameDigest": "fc2b61e60bd49f1e7549634104eeb412b74b89cdbc3e2b6eebf6ca7ec8ac1a98",
+    "monitorNamePresent": true,
+    "pid": 39692,
+    "rawImagePersistedInProof": false,
+    "requestedScope": "selectedWindow",
+    "status": "available",
+    "titleDigest": "b65fc6160d7d87af8f4acb8a8b53aff6cc591c4db85adb52fdfa6dc855d7be89",
+    "titlePresent": true,
+    "width": 962,
+    "windowId": 12979800
+  }
+}

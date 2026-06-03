@@ -1,0 +1,135 @@
+{
+  "screenResult": {
+    "schemaVersion": 1,
+    "screenAnalysisResultId": "screen-analysis-adult-or-violence-controlled-fixture",
+    "queueJobId": "screen-capture-proof-adult-or-violence-controlled-fixture",
+    "analyzedAt": "2026-06-03T14:04:24.881Z",
+    "modelRuntimeRef": "local-qwen2-vl-2b-llama-mtmd",
+    "modelId": "Qwen2-VL-2B-Instruct-Q4_K_M",
+    "providerKind": "localVision",
+    "promptOrTemplateVersion": "screen-ai-local-vlm-matrix-proof-v2",
+    "captureReason": "policyAmbiguity",
+    "captureScope": "managedBrowserWindow",
+    "capabilityStatus": "ready",
+    "summary": "Expected visible category: violence",
+    "visibleCategoryCandidates": [
+      {
+        "category": "violence",
+        "confidence": 1,
+        "evidenceRefs": [
+          {
+            "evidenceId": "screen-evidence-adult-or-violence-controlled-fixture",
+            "kind": "screenshot",
+            "digest": "125a652811b3edb3a1b12ae055fdda049db1f44bd004d4f687e5bcecee8c6155",
+            "uri": null
+          }
+        ]
+      }
+    ],
+    "primaryCategory": "violence",
+    "riskSignals": [
+      {
+        "signal": "unsafeVisibleContent",
+        "confidence": 1,
+        "evidenceRefs": [
+          {
+            "evidenceId": "screen-evidence-adult-or-violence-controlled-fixture",
+            "kind": "screenshot",
+            "digest": "125a652811b3edb3a1b12ae055fdda049db1f44bd004d4f687e5bcecee8c6155",
+            "uri": null
+          }
+        ]
+      }
+    ],
+    "ocrTextSnippets": [
+      {
+        "text": "Expected visible category: violence",
+        "confidence": 1,
+        "evidenceRefs": [
+          {
+            "evidenceId": "screen-evidence-adult-or-violence-controlled-fixture",
+            "kind": "screenshot",
+            "digest": "125a652811b3edb3a1b12ae055fdda049db1f44bd004d4f687e5bcecee8c6155",
+            "uri": null
+          }
+        ]
+      }
+    ],
+    "redactionNotes": [],
+    "confidence": 1,
+    "uncertaintyReason": null,
+    "sourceEvidenceRefs": [
+      {
+        "evidenceId": "screen-evidence-adult-or-violence-controlled-fixture",
+        "kind": "screenshot",
+        "digest": "125a652811b3edb3a1b12ae055fdda049db1f44bd004d4f687e5bcecee8c6155",
+        "uri": null
+      }
+    ],
+    "imageDigest": "125a652811b3edb3a1b12ae055fdda049db1f44bd004d4f687e5bcecee8c6155",
+    "rawImageRetained": false,
+    "imageDeletionState": "deleted",
+    "custodyState": "child-device-query-store",
+    "policyEligible": true
+  },
+  "localAiSafetyResult": {
+    "schemaVersion": "v0.6",
+    "resultId": "local-ai-result-adult-or-violence-controlled-fixture",
+    "requestId": "local-ai-request-adult-or-violence-controlled-fixture",
+    "action": "block",
+    "confidence": 1,
+    "unknownState": "none",
+    "degradedState": "none",
+    "reasonCodes": [
+      "screen-category-violence"
+    ],
+    "explanationReference": "screen-analysis-result:screen-analysis-adult-or-violence-controlled-fixture",
+    "evidenceReferences": [
+      {
+        "evidenceReferenceId": "screen-analysis-evidence-adult-or-violence-controlled-fixture",
+        "kind": "activity-event",
+        "observedAt": "2026-06-03T14:04:24.881Z"
+      }
+    ],
+    "parentRuleReferences": [
+      "screen-policy-adult-or-violence-controlled-fixture"
+    ],
+    "memoryReferences": [],
+    "graphReferences": [],
+    "modelRuntime": {
+      "runtimeReferenceId": "runtime-local-qwen2-vl-2b-llama-mtmd",
+      "providerId": "local-qwen2-vl",
+      "modelId": "Qwen2-VL-2B-Instruct-Q4_K_M",
+      "modelReference": "local-model-cache/Qwen2-VL-2B-Instruct-Q4_K_M.gguf",
+      "privacyMode": "local-only",
+      "adapterBoundary": "local-adapter-ready",
+      "executionState": "dry-run-ready",
+      "providerSource": "local-model-cache",
+      "loadState": "loaded",
+      "capabilityFlags": [
+        "classification",
+        "safety-decision"
+      ],
+      "resourceClass": "cpu",
+      "degradedState": "none",
+      "lastCheckedAt": "2026-06-03T14:04:24.881Z",
+      "unavailableReason": null
+    },
+    "promptVersion": "screen-ai-local-vlm-matrix-proof-v2",
+    "expiresAt": null
+  },
+  "parsedModel": {
+    "primary_category": "violence",
+    "visible_text": "Expected visible category: violence",
+    "risk_signals": "Controlled safety fixture, Violence keyword visible for detector test, No unsafe image is loaded",
+    "confidence": 1
+  },
+  "normalized": {
+    "primaryCategory": "violence",
+    "visibleText": "Expected visible category: violence",
+    "confidence": 1,
+    "riskSignals": [
+      "unsafeVisibleContent"
+    ]
+  }
+}

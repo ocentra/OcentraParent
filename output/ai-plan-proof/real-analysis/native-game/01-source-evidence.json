@@ -1,0 +1,14 @@
+{
+  "scenarioId": "native-game",
+  "surface": "nativeNotepad",
+  "fixtureKind": "controlled-native-game-window-fixture",
+  "captureReason": "appGameForegroundStart",
+  "captureScope": "activeWindow",
+  "visibleTextFixture": [
+    "Native game window",
+    "Multiplayer lobby",
+    "Start match, chat, and store buttons visible"
+  ],
+  "realWindowCapture": true,
+  "liveExternalUrl": false
+}

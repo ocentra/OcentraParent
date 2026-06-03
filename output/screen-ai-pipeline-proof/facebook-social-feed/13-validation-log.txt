@@ -1,0 +1,3 @@
+scenario=facebook-social-feed
+category=chat
+action=warn

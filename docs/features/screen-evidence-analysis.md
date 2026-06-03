@@ -52,6 +52,14 @@ only with explicit parent settings.
   inputs, cadence-due decisions, debounce, and disabled-parent suppression. The
   Windows trigger matrix proof captures real browser and Notepad windows after
   scheduler enqueue decisions and deletes raw temp images.
+- `scripts/test/screen-ai-local-vlm-proof.mjs` now runs a local Qwen2-VL proof
+  matrix over 15 real window captures plus a disabled no-capture/no-AI row. The
+  matrix covers controlled browser video, education video, Vimeo-style video,
+  social feed/chat, browser game, bypass tool, shopping, school/productivity,
+  native app, controlled native game window, unknown low-confidence fallback,
+  controlled violence text, and three timed cadence frames. Every captured row
+  validates screen analysis, local AI safety result, deterministic policy
+  dry-run, parent explanation artifact, and raw image deletion.
 - Android child-agent scaffold now has emulator MediaProjection proof with
   explicit OS consent, foreground service, captured frame digest, and raw temp
   deletion. Physical Android parity and silent background capture are not
@@ -62,10 +70,13 @@ only with explicit parent settings.
 
 ## Current Gap
 
-Opt-in UI, service-owned background timer/foreground watchers, OCR/vision model
-quality, runtime service/read-model wiring, physical Android/iOS proof, live
-macOS capture proof, Linux root/Wayland portal proof, enforcement handoff,
-checklist status movement, and parent explanation UX remain.
+Opt-in UI, service-owned background timer/foreground watchers, live external
+URL/account operator proof, OCR/vision quality beyond controlled fixtures,
+runtime service/read-model wiring, physical Android/iOS proof, live macOS
+capture proof, Linux root/Wayland portal proof, real action adapter dispatch
+and rollback proof, checklist status movement, and production parent
+explanation UX remain. These are remaining screen+AI delivery items, not
+external handoff excuses.
 
 ## Checklist
 
