@@ -8,6 +8,7 @@ Shared endpoint, path, header, query, version, and route-boundary constants.
 - Header/query/version constants.
 - Endpoint brands and decoders.
 - LAN pairing endpoint constants that cross runtime boundaries.
+- Parent-owned sync/export and remote connector status route contracts.
 
 ## Must Not Own
 
@@ -30,8 +31,12 @@ flowchart LR
 
 - [Contract expectations](../../docs/expectations/contracts.md)
 - [LAN pairing expectations](../../docs/expectations/lan-pairing.md)
+- [Sync/export expectations](../../docs/expectations/sync-export.md)
+- [Cloud expectations](../../docs/expectations/cloud.md)
 
 ## Gaps To Fill
 
 - Keep endpoint constants aligned with Rust service paths and tests.
+- Keep `sync-export-endpoint-contract-proof` as route contract proof only until
+  parent-owned storage connectors and transfer runtime are implemented.
 - Add endpoint docs when remote relay/account APIs become real.

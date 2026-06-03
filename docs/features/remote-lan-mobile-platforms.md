@@ -84,6 +84,14 @@ PC while preserving local-first custody.
 - Parent desktop release-support proof separates parent mobile bridge state from
   child Android/iOS agent claims and keeps signing, stores, TestFlight, Play,
   relay, and mobile child-agent parity manual-required or not implemented.
+- Parent-owned sync/export endpoint contract proof now defines versioned
+  endpoint-domain paths, headers, query params, and contract-version labels for
+  parent-owned export status/sync cursor/import preview/delete status and remote
+  connector status boundaries. The focused
+  `sync-export-endpoint-contract-proof` harness writes
+  `test-results/sync-export-endpoint-contract-proof/proof.json` and keeps
+  connector OAuth, upload/download runtime, Ocentra-hosted family data custody,
+  account/subscription backend, and portal UI unclaimed.
 - `mobile-child-agent-capability-proof` now aggregates the Android package,
   storage/protocol, service, permission, privileged, device-gate, and iOS
   entitlement proof states into one platform matrix without upgrading any mobile
@@ -97,7 +105,8 @@ agent hello/heartbeat artifacts, and stronger name discovery such as
 mDNS/SSDP/router DHCP integration. Browser screenshot proof now exists for the
 current B-lane Devices/LAN, Activity/Network source-matrix diagnostics, and
 Network policy surfaces, but that is not two-physical-child household proof.
-Optional remote relay, cache route, mobile permissions, Android Device
+Optional remote relay, cache route, parent-owned sync/export transfer runtime,
+connector OAuth/revocation, mobile permissions, Android Device
 Owner/Accessibility/VPN/DNS/UsageStats proof, iOS Family
 Controls/DeviceActivity/Network Extension proof, signing, and store
 distribution remain.
@@ -129,7 +138,11 @@ distribution remain.
 - [ ] Optional relay without default child-data custody. Current production LAN
       proof and signed discovery/relay spine explicitly mark relay route, queued
       relay, cache route, and parent-owned storage unavailable/not implemented
-      while preserving no Ocentra child-data custody.
+      while preserving no Ocentra child-data custody. The
+      `sync-export-endpoint-contract-proof` adds route/header/query/version
+      contracts for parent-owned sync/export and remote connector status without
+      implementing relay, connector OAuth, upload/download, account/subscription
+      backend, portal UI, or Ocentra-hosted family data custody.
 - [ ] Android child-agent real device proof. Current aggregate proof covers
       `mobile-child-agent-capability-proof` contract/test/harness rows for
       foreground service, storage/protocol bridge, notifications, UsageStats,
