@@ -65,11 +65,64 @@ only with explicit parent settings.
   explanation artifact, and raw image deletion. Live external site/account proof
   remains required before product-complete claims for YouTube, Vimeo, Facebook,
   shopping, or similar real services.
+- `scripts/test/screen-ai-prerequisite-merge-proof.mjs` records the merged
+  PR258 checkpoint commit and verifies the current branch contains the screen
+  capture and AI analysis proof artifacts before this continuation claims the
+  prerequisite stack.
+- Local model output now has a strict `ScreenLocalModelOutputSchema` guard, and
+  `scripts/test/screen-ai-invalid-output-proof.mjs` proves invalid category,
+  confidence, risk-signal, or missing-text output cannot become a screen analysis
+  result or policy candidate.
+- `selectStricterPolicyAction` in `@ocentra-parent/parent-domain/policy` and
+  `scripts/test/screen-ai-stricter-rule-proof.mjs` prove local AI cannot weaken
+  a stricter parent rule before policy handoff. This is a policy candidate gate;
+  it does not claim final enforcement execution.
+- `scripts/test/screen-ai-local-vlm-proof.mjs` includes an
+  `unknown-native-process` scenario that opens a controlled native window,
+  triggers `unknownProcessForegroundStart`, captures the selected window,
+  analyzes it through the local VLM path, records low-confidence unknown state,
+  and produces an ask-parent dry-run without retaining the raw image.
+- `scripts/test/screen-ai-local-vlm-proof.mjs` also proves a controlled
+  `native-game` path: it triggers `nativeGameForegroundStart`, captures a real
+  selected native window, classifies it as `game` through the local VLM path,
+  and produces an ask-parent dry-run. This remains a local-machine controlled
+  window proof; service-owned foreground watcher wiring is still separate.
+- `scripts/test/screen-ai-ocr-route-proof.mjs` proves the local OCR route can
+  turn typed OCR text evidence into a schema-valid `ScreenAnalysisResult` and
+  parent policy dry-run without a vision model or retained raw image. This is
+  a route/contract proof; production OCR adapter execution remains separate.
+- `scripts/test/screen-ai-local-text-route-proof.mjs` proves screen-derived
+  typed activity evidence can enter `LocalAiEvaluationInput`, produce a
+  schema-valid local-only `LocalAiSafetyResult`, and hand off to a dry-run
+  policy decision with evidence, memory, graph, and rule references intact.
+  This is a local text route contract proof, not live model inference or model
+  quality proof.
+- `scripts/test/screen-ai-deterministic-route-proof.mjs` proves
+  structured screen-adjacent evidence can create a `deterministicRules`
+  analysis route and dry-run policy decision without claiming captured pixels,
+  OCR, VLM, or raw-image custody. The route requires local evidence, known
+  category, sufficient confidence, and `unavailableNoImage` deletion state.
+- `scripts/test/screen-ai-observe-policy-proof.mjs` proves observe-only parent
+  settings can still permit local screen analysis while rejecting policy
+  handoff. The proof validates `policyUseEnabled:false`,
+  `policyEligible:false`, no policy decision creation, and rejection of
+  `policyUseEnabled:true` while `analysisMode` is `observeOnly`.
+- `scripts/test/screen-ai-protected-surface-proof.mjs` proves protected
+  surfaces degrade honestly: capability status is `protectedSurface`, custody is
+  unavailable, no raw image or model provider is claimed, no policy decision is
+  created, and a policy-eligible protected result is rejected. Live OS
+  permission prompt proof remains separate.
 - `scripts/test/screen-ai-action-dispatch-proof.mjs` now links the
   screen-derived native owned-process time-limit policy decision into the real
   Windows Rust service time-limit adapter path. The proof preserves the screen
   policy decision ID and evidence refs through dispatch, restart recovery,
   parent cancel, expiry, and a real Windows process-termination result.
+- `scripts/test/screen-ai-portal-chain-proof.mjs` now proves the real Rust
+  service read model reaches the parent portal Activity Screen tab and renders
+  trigger, capture scope, AI provider/category/confidence, policy eligibility,
+  raw image deletion, custody, queue, digest, and evidence refs. This is
+  service-to-portal chain proof from a seeded local activity event, not live
+  external-account trigger proof.
 - Android child-agent scaffold now has emulator MediaProjection proof with
   explicit OS consent, foreground service, captured frame digest, and raw temp
   deletion. Physical Android parity and silent background capture are not
@@ -82,11 +135,12 @@ only with explicit parent settings.
 
 Opt-in UI, service-owned background timer/foreground watchers, live external
 URL/account operator proof, OCR/vision quality beyond controlled fixtures,
-runtime service/read-model wiring, physical Android/iOS proof, live macOS
-capture proof, Linux root/Wayland portal proof, browser/network/mobile/broad
-block action adapters from screen-derived decisions, checklist status movement,
-and production parent explanation UX remain. These are remaining screen+AI
-delivery items, not external handoff excuses.
+service-owned live trigger/event producers beyond seeded proof, physical
+Android/iOS proof, live macOS capture proof, Linux root/Wayland portal proof,
+browser/network/mobile/broad block action adapters from screen-derived
+decisions, checklist status movement, and production parent explanation UX
+remain. These are remaining screen+AI delivery items, not external handoff
+excuses.
 
 ## Checklist
 

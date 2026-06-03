@@ -8,7 +8,14 @@ export const ScreenCaptureTriggerSchema = withParser(
   Schema.Literal(
     'foregroundAppChange',
     'managedUrlChange',
+    'managedBrowserUrlChange',
     'appGameForegroundStart',
+    'browserGameDetected',
+    'nativeAppForegroundStart',
+    'nativeGameForegroundStart',
+    'launcherForegroundStart',
+    'unknownProcessForegroundStart',
+    'timedCadence',
     'unusualNetworkChange',
     'policyAmbiguity',
     'manualParentTestCapture'
@@ -20,7 +27,14 @@ export const ScreenCaptureReasonSchema = withParser(
     'cadence',
     'foregroundAppChange',
     'managedUrlChange',
+    'managedBrowserUrlChange',
     'appGameForegroundStart',
+    'browserGameDetected',
+    'nativeAppForegroundStart',
+    'nativeGameForegroundStart',
+    'launcherForegroundStart',
+    'unknownProcessForegroundStart',
+    'timedCadence',
     'unusualNetworkChange',
     'policyAmbiguity',
     'manualParentTestCapture',
@@ -29,7 +43,15 @@ export const ScreenCaptureReasonSchema = withParser(
 );
 
 export const ScreenCaptureScopeSchema = withParser(
-  Schema.Literal('fullScreen', 'activeDisplay', 'activeWindow', 'managedBrowserWindow', 'unsupported')
+  Schema.Literal(
+    'fullScreen',
+    'primaryDisplay',
+    'activeDisplay',
+    'selectedWindow',
+    'activeWindow',
+    'managedBrowserWindow',
+    'unsupported'
+  )
 );
 
 export const ScreenCapabilityStatusSchema = withParser(
@@ -87,7 +109,7 @@ export const ScreenEvidenceCustodyStateSchema = withParser(
 
 export const ScreenImageFormatSchema = withParser(Schema.Literal('png', 'jpeg', 'webp', 'bmp', 'unknown'));
 export const ScreenLocalModelProviderKindSchema = withParser(
-  Schema.Literal('localOcr', 'localVision', 'localMultimodal', 'unavailable')
+  Schema.Literal('deterministicRules', 'localOcr', 'localVision', 'localMultimodal', 'unavailable')
 );
 export const ScreenVisibleCategorySchema = withParser(
   Schema.Literal(

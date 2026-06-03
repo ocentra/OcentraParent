@@ -41,6 +41,21 @@ const EvidenceRef = {
   uri: null,
 } as const;
 
+const ScreenChainFields = {
+  captureReason: 'nativeAppForegroundStart',
+  captureScope: 'activeWindow',
+  capabilityStatus: 'ready',
+  queueJobId: 'screen-queue-job-1',
+  modelRuntimeRef: 'local-vision-runtime-1',
+  providerKind: 'localVision',
+  primaryCategory: 'productivity',
+  confidence: 0.91,
+  imageDeletionState: 'deleted',
+  policyEligible: true,
+  imageDigest: 'sha256:screen-image-digest',
+  custodyState: 'child-device-journal',
+} as const;
+
 const ReportDocument = {
   schemaVersion: ActivitySurfaceSchemaVersion,
   reportId: 'activity-report-daily-1',
@@ -288,11 +303,41 @@ describe('activity screen and app-use read-model contracts', () => {
             totalMs: 3600000,
             foregroundMs: 2400000,
             backgroundMs: 1200000,
+            ...ScreenChainFields,
             evidence: [EvidenceRef],
           },
         ],
       }).rows[0]?.foregroundMs
     ).toBe(2400000);
+  });
+
+  it('ActivityScreenReadModelSchema: carries capture AI policy and deletion chain fields', () => {
+    const parsed = ActivityScreenReadModelSchema.parse({
+      schemaVersion: ActivitySurfaceSchemaVersion,
+      request: ActivityRequest,
+      state: 'ready',
+      generatedAt: '2026-05-27T06:21:00Z',
+      summary: 'Screen use ready',
+      rows: [
+        {
+          rowId: 'screen-row-1',
+          label: 'Visible productivity window',
+          deviceId: 'child-device-1',
+          state: 'ready',
+          totalMs: 0,
+          foregroundMs: 0,
+          backgroundMs: 0,
+          ...ScreenChainFields,
+          evidence: [EvidenceRef],
+        },
+      ],
+    });
+
+    expect(parsed.rows[0]?.captureReason).toBe('nativeAppForegroundStart');
+    expect(parsed.rows[0]?.providerKind).toBe('localVision');
+    expect(parsed.rows[0]?.primaryCategory).toBe('productivity');
+    expect(parsed.rows[0]?.imageDeletionState).toBe('deleted');
+    expect(parsed.rows[0]?.policyEligible).toBe(true);
   });
 
   it('ActivityAppUseReadModelSchema: accepts empty app-use read models', () => {

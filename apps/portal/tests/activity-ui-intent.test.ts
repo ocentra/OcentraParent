@@ -25,6 +25,7 @@ describe('parent portal Activity UI intent', () => {
 function parentPortalActivityIntentTests(): void {
   it('renders service-backed device slots and report files from adapter results', () => {
     const intent = serviceBackedActivityIntent();
+    const screen = parentPortalActivityAdapterRecord(adapterResult(screenReadModel()));
 
     expect(intent.hasServiceBackedDeviceRows).toBe(true);
     expect(intent.deviceSlots.map((slot) => [slot.value, slot.status, slot.badge])).toEqual([
@@ -33,6 +34,12 @@ function parentPortalActivityIntentTests(): void {
       ['activity-empty-seat-3', 'empty', undefined],
     ]);
     expect(intent.reportFiles.map((file) => file.id)).toEqual(['activity-report-1', 'saved-report-1']);
+    expect(screen?.rows[0]).toMatchObject({
+      captureReason: 'nativeAppForegroundStart',
+      providerKind: 'localVision',
+      imageDeletionState: 'deleted',
+      policyEligible: true,
+    });
   });
   it('keeps absent or failed service adapter data unavailable without creating devices', () => {
     const intent = createParentPortalActivityUiIntent(
@@ -450,6 +457,40 @@ function browserPermissionRequiredReadModel() {
         visitCount: 1,
         totalMs: 120000,
         evidenceDigest: null,
+      },
+    ],
+  } as const;
+}
+
+function screenReadModel() {
+  return {
+    schemaVersion: ActivitySurfaceSchemaVersion,
+    request: ActivityRequest,
+    state: 'ready',
+    generatedAt: '2026-06-01T15:00:01Z',
+    summary: 'Screen summary is available from the local capture journal.',
+    rows: [
+      {
+        rowId: 'screen-row-1',
+        label: 'Visible activity summary',
+        deviceId: 'child-device-1',
+        state: 'ready',
+        totalMs: 60000,
+        foregroundMs: 60000,
+        backgroundMs: 0,
+        captureReason: 'nativeAppForegroundStart',
+        captureScope: 'activeWindow',
+        capabilityStatus: 'ready',
+        queueJobId: 'screen-queue-job-1',
+        modelRuntimeRef: 'local-vision-runtime-1',
+        providerKind: 'localVision',
+        primaryCategory: 'productivity',
+        confidence: 0.91,
+        imageDeletionState: 'deleted',
+        policyEligible: true,
+        imageDigest: 'sha256:screen-image-digest',
+        custodyState: 'child-device-journal',
+        evidence: [],
       },
     ],
   } as const;

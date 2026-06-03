@@ -5121,6 +5121,18 @@ function activityEvidenceCount(value: unknown): string {
   return Array.isArray(value) ? String(value.length) : activityStateValue(value);
 }
 
+function activityPercentValue(value: unknown): string {
+  const number = typeof value === 'number' && Number.isFinite(value) ? value : null;
+  if (number === null) return 'Not reported';
+  return `${Math.round(number * 100)}%`;
+}
+
+function activityDigestLabel(value: unknown): string {
+  const text = activityStateValue(value, '');
+  if (!text) return 'Not reported';
+  return text.length > 28 ? `${text.slice(0, 28)}...` : text;
+}
+
 function activityStringArray(value: unknown): readonly string[] {
   return Array.isArray(value)
     ? value.map((item) => activityStateValue(item, '')).filter((item) => item.length > 0)
@@ -5518,9 +5530,17 @@ function activityRowsFromReadModels(
       },
       { label: 'Read model state', value: activityStateValue(screen.state), tone: 'gold' },
       { label: 'Top row', value: activityStateValue(screenRow?.label), tone: 'purple' },
-      { label: 'Total time', value: activityFormatDurationMs(screenRow?.totalMs), tone: 'cyan' },
-      { label: 'Foreground time', value: activityFormatDurationMs(screenRow?.foregroundMs), tone: 'gold' },
-      { label: 'Background time', value: activityFormatDurationMs(screenRow?.backgroundMs), tone: 'purple' },
+      { label: 'Trigger', value: activityStateValue(screenRow?.captureReason), tone: 'cyan' },
+      { label: 'Capture scope', value: activityStateValue(screenRow?.captureScope), tone: 'gold' },
+      { label: 'Capability', value: activityStateValue(screenRow?.capabilityStatus), tone: 'purple' },
+      { label: 'AI provider', value: activityStateValue(screenRow?.providerKind), tone: 'cyan' },
+      { label: 'Category', value: activityStateValue(screenRow?.primaryCategory), tone: 'purple' },
+      { label: 'Confidence', value: activityPercentValue(screenRow?.confidence), tone: 'gold' },
+      { label: 'Policy eligible', value: activityStateValue(screenRow?.policyEligible), tone: 'cyan' },
+      { label: 'Raw image', value: activityStateValue(screenRow?.imageDeletionState), tone: 'gold' },
+      { label: 'Custody', value: activityStateValue(screenRow?.custodyState), tone: 'purple' },
+      { label: 'Queue job', value: activityStateValue(screenRow?.queueJobId), tone: 'cyan' },
+      { label: 'Image digest', value: activityDigestLabel(screenRow?.imageDigest), tone: 'gold' },
       { label: 'Evidence refs', value: activityEvidenceCount(screenRow?.evidence), tone: 'gold' },
     ];
   }

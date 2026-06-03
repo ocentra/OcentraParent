@@ -7,7 +7,10 @@ use super::{
     ActivityReportSourceState, ActivityReportSourceStateSummary, ActivitySavedReportMetadata,
     ActivitySavedReportState, ActivityScreenReadModel, ActivityScreenReadModelRow,
     ActivitySurfaceRequest, ActivitySurfaceScope, ActivitySurfaceScopeKind, AgentCommandName,
-    AgentEventName, ACTIVITY_SURFACE_SCHEMA_VERSION,
+    AgentEventName, ACTIVITY_SURFACE_SCHEMA_VERSION, SCREEN_CAPABILITY_READY,
+    SCREEN_CAPTURE_REASON_MANUAL_PARENT_TEST, SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW,
+    SCREEN_CATEGORY_SCHOOL, SCREEN_CUSTODY_JOURNAL, SCREEN_DELETION_DELETED,
+    SCREEN_POLICY_CONFIDENCE_READY, SCREEN_PROVIDER_LOCAL_VISION,
 };
 
 #[test]
@@ -115,14 +118,25 @@ fn activity_screen_read_model_serializes_foreground_and_background_ms() {
             total_ms: 3_600_000,
             foreground_ms: 2_400_000,
             background_ms: 1_200_000,
+            capture_reason: SCREEN_CAPTURE_REASON_MANUAL_PARENT_TEST.to_string(),
+            capture_scope: SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW.to_string(),
+            capability_status: SCREEN_CAPABILITY_READY.to_string(),
+            queue_job_id: "screen-queue-job-1".to_string(),
+            model_runtime_ref: "local-vision-runtime-1".to_string(),
+            provider_kind: SCREEN_PROVIDER_LOCAL_VISION.to_string(),
+            primary_category: Some(SCREEN_CATEGORY_SCHOOL.to_string()),
+            confidence: SCREEN_POLICY_CONFIDENCE_READY,
+            image_deletion_state: SCREEN_DELETION_DELETED.to_string(),
+            policy_eligible: true,
+            image_digest: "sha256:screen-image-digest".to_string(),
+            custody_state: SCREEN_CUSTODY_JOURNAL.to_string(),
             evidence: vec![sample_evidence()],
         }],
     };
 
-    assert_eq!(
-        serde_json::to_value(screen).expect("screen serializes")["rows"][0]["foregroundMs"],
-        2_400_000
-    );
+    let screen_json = serde_json::to_value(&screen).expect("screen serializes");
+    assert_eq!(screen_json["rows"][0]["foregroundMs"], 2_400_000);
+    assert_eq!(screen_json["rows"][0]["imageDeletionState"], SCREEN_DELETION_DELETED);
 }
 
 #[test]
