@@ -104,6 +104,13 @@ control with better evidence and local audit.
 - The Windows owned-process time-limit proof now extends that same real-service
   harness with dry-run and stale-action negative paths while preserving the
   manual-required boundary for broad package/app blocking.
+- The app/game broad-blocking proof gates now add a focused parent-domain
+  matrix for block-launch, allowlist/hide/suspend/shield, AppLocker audit-only,
+  Android normal-mode hide/suspend, iOS shielding, and iOS process-kill
+  no-claim states. It proves manual-required, unavailable, and not-claimed
+  rows cannot dispatch adapters and names setup, authority-tier, rollback,
+  audit, and platform-specific proof needed before any broad blocking claim can
+  move up.
 - The V0.8 enforcement integrity runtime audit now exposes supported app/game
   time-limit success, expiry, rollback, parent override/supersede, dry-run,
   stale decision rejection, wrong-device rejection, child-status refs, timer
@@ -134,17 +141,18 @@ App/Game Sessions surface, but category quality, unknown approvals, game budget
 policy, live launcher crawling, install/approval linkage, child request flow,
 broad blocking, and cross-platform parity are incomplete. Broad installed-app
 blocking remains manual-required beyond the scoped
-owned-process/app-session proof, including in the broad-adapter and
-supported-adapter runtime service proofs. The integrity runtime audit proves
-typed timer/rollback/child-status visibility for scoped app/game outcomes, but
-does not prove package-wide app blocking, polished child request UX, install
-approval, or runtime cross-platform parity. The authority matrix is contract
-proof only; it does not prove AppLocker/App Control, MDM, Endpoint Security,
-Device Owner/Profile Owner, FamilyControls/ManagedSettings, cgroup/systemd, or
-kiosk/single-app adapter behavior. The category/risk taxonomy is contract proof
-only; it does not prove live catalog enrichment, local AI classifier quality,
-policy compiler routing, portal category UI, or runtime app/game category
-decisions.
+owned-process/app-session proof, including in the broad-adapter,
+supported-adapter runtime service proofs, and the focused broad-blocking gate
+matrix. The integrity runtime audit proves typed timer/rollback/child-status
+visibility for scoped app/game outcomes, but does not prove package-wide app
+blocking, polished child request UX, install approval, or runtime
+cross-platform parity. The authority and broad-blocking gate matrices are
+contract proof only; they do not prove AppLocker/App Control, MDM, Endpoint
+Security, Device Owner/Profile Owner, FamilyControls/ManagedSettings,
+cgroup/systemd, or kiosk/single-app adapter behavior. The category/risk
+taxonomy is contract proof only; it does not prove live catalog enrichment,
+local AI classifier quality, policy compiler routing, portal category UI, or
+runtime app/game category decisions.
 The unknown approval proof is still contract-level: it does not yet provide
 finished parent/child approval UI, notification delivery, persisted service
 read models, live candidate creation from platform adapters, or platform hard
@@ -197,8 +205,14 @@ persistence, Rust/WebSocket parity, or platform adapter execution.
       time-limit, request, manual-required, and unavailable states with
       evidence/child refs and no diagnostics; live child UI, notifications,
       service persistence, and platform execution remain.
-- [ ] Adapter capability status per platform.
-- [ ] Blocking/time-limit proof before done claim.
+- [ ] Adapter capability status per platform. Cross-platform authority and
+      broad-blocking gate contracts now record manual-required, unavailable,
+      and not-claimed proof requirements, but runtime adapter capability/UI
+      proof remains.
+- [ ] Blocking/time-limit proof before done claim. Scoped owned-process
+      time-limit proof exists; broad block-launch/hide/suspend/shield and
+      allowlist remain manual-required or not-claimed until platform setup,
+      authority-tier, rollback, audit, and platform proof are attached.
 
 ## Next AI Instructions
 

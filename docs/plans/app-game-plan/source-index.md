@@ -190,6 +190,7 @@ scan the OS, classify apps, run timers, or call enforcement adapters.
 - `node scripts/test/v0-8-enforcement-integrity-runtime-audit.mjs`
 - `node scripts/test/v0-8-cross-platform-enforcement-capability-proof.mjs`
 - `node scripts/test/v0-8-enforcement-timer-recovery-mvp.mjs`
+- `node scripts/test/app-game-broad-blocking-proof-gates.mjs`
 
 These scripts prove scoped app/game paths only. They do not prove broad
 installed-app blocking, launcher/game disambiguation, game budgets, ratings, UGC
@@ -384,6 +385,22 @@ after that rejection, owned/current expiry through the scoped process adapter,
 and broad app/game package blocking as an explicit no-claim/manual-required
 boundary.
 
+WP23 proof on `codex/app-game-read-model-service-events` adds
+`packages/parent-domain/src/app-game-broad-blocking-proof-gates.ts`,
+`packages/parent-domain/src/app-game-broad-blocking-proof-gate-data.ts`, and
+`packages/parent-domain/src/app-game-broad-blocking-proof-gate-rules.ts`, then
+records evidence under
+`output/app-game-plan-proof/23-broad-blocking-proof-gates/`. It covers focused
+manual-required, unavailable, and not-claimed gates for Windows AppLocker/App
+Control block launch, AppLocker audit-only non-enforce proof, macOS hard-block
+requirements, Linux mechanism/distro/session requirements, Android normal-mode
+hide/suspend requirements, iOS ManagedSettings shield requirements, and iOS
+process-kill no-claim state. It proves these gates cannot dispatch adapters and
+that supported upgrade candidates need setup, authority-tier, rollback, audit,
+and platform-specific proof references. It does not add runtime platform
+adapters, service events, portal UI screenshots, rollback execution, or any
+broad app/game blocking support claim.
+
 ## Current Test Files
 
 - `packages/activity-domain/tests/app-game.test.ts`
@@ -404,6 +421,7 @@ boundary.
 - `packages/parent-domain/tests/app-game-policy-target-compiler.test.ts`
 - `packages/parent-domain/tests/app-game-time-budget-policy.test.ts`
 - `packages/parent-domain/tests/app-game-time-budget-policy-recovery.test.ts`
+- `packages/parent-domain/tests/app-game-broad-blocking-proof-gates.test.ts`
 - `packages/parent-domain/tests/native-game-budget-policy.test.ts`
 - `packages/parent-domain/tests/enforcement-approval-audit.test.ts`
 - `crates/agent-protocol/src/app_game_tests.rs`

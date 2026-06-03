@@ -197,6 +197,7 @@ classification, run timers, or enforce.
 - `node scripts/test/v0-8-enforcement-integrity-runtime-audit.mjs`
 - `node scripts/test/v0-8-cross-platform-enforcement-capability-proof.mjs`
 - `node scripts/test/v0-8-enforcement-timer-recovery-mvp.mjs`
+- `node scripts/test/app-game-broad-blocking-proof-gates.mjs`
 
 Future app-specific proof scripts should use:
 
@@ -232,10 +233,11 @@ packs mirror the app/game proof roots and record product-doc decisions.
 | WP19 app time budget integration      | `output/app-plan-proof/19-time-budget-schedule-bonus-time-integration`          | `output/app-game-plan-proof/20-time-budget-schedule-bonus-time-integration`      | Time-budget contract proof only        |
 | WP20 child app warning/request UX     | `output/app-plan-proof/20-child-facing-app-warning-block-request-ux`            | `output/app-game-plan-proof/21-child-facing-warning-and-request-ux`              | Child UX contract/text proof only      |
 | WP21 owned-process time-limit proof   | `output/app-plan-proof/21-windows-owned-process-terminate-time-limit-proof`     | `output/app-game-plan-proof/22-windows-owned-process-terminate-time-limit-proof` | Scoped real-service process proof only |
+| WP22 broad blocking proof gates       | `output/app-plan-proof/22-broad-blocking-proof-gates`                           | `output/app-game-plan-proof/23-broad-blocking-proof-gates`                       | No-claim/manual-required gate proof    |
 
 These completed rows do not add live OS crawling, content knowledge, policy
 execution, install control, parent/child approval UI, notification delivery,
-broad blocking, or runtime cross-platform parity.
+broad blocking support, or runtime cross-platform parity.
 Those claims remain assigned to later app-plan/app-game workpacks.
 
 The WP12/WP13/WP14/WP15/WP16/WP18 sessionization, read-model, portal-surface,
@@ -256,10 +258,13 @@ dry-run/manual-required handoff, and timer recovery refs before native app
 budget decisions can be represented. App child-facing UX proof now requires
 safe copy tokens, evidence refs, child reason/status refs, and no diagnostic or
 adapter-action overclaim before warning/request/manual/unavailable states can
-be represented. Dedicated approval UI,
-notification delivery, service persistence/read models, policy runtime,
-game-budget, live source, live source subscriptions, journal
-corruption/recovery, and platform authority proof remain later work.
+be represented. Broad-blocking gate proof now requires setup, authority-tier,
+rollback, audit, and platform-specific proof before
+block-launch/hide/suspend/shield support claims can dispatch adapters.
+Dedicated approval UI, notification delivery, service persistence/read models,
+policy runtime, game-budget, live source, live source subscriptions, journal
+corruption/recovery, runtime platform adapters, and portal capability matrix UI
+remain later work.
 
 ## Current Test Files
 
@@ -275,6 +280,7 @@ corruption/recovery, and platform authority proof remain later work.
 - `packages/parent-domain/tests/app-game-policy-target-compiler.test.ts`
 - `packages/parent-domain/tests/app-game-time-budget-policy.test.ts`
 - `packages/parent-domain/tests/app-game-time-budget-policy-recovery.test.ts`
+- `packages/parent-domain/tests/app-game-broad-blocking-proof-gates.test.ts`
 - `packages/parent-domain/tests/enforcement-approval-audit.test.ts`
 - `crates/agent-protocol/src/app_game_tests.rs`
 - `crates/agent-core/src/activity_store_app_game/app_game_sessionization_tests.rs`

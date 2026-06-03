@@ -168,9 +168,10 @@ node scripts/test/v0-8-enforcement-product-control-spine.mjs
 node scripts/test/v0-8-enforcement-integrity-runtime-audit.mjs
 node scripts/test/v0-8-cross-platform-enforcement-capability-proof.mjs
 node scripts/test/v0-8-enforcement-timer-recovery-mvp.mjs
+node scripts/test/app-game-broad-blocking-proof-gates.mjs
 ```
 
-These are scoped proof harnesses. They do not prove broad app blocking,
+These are scoped proof harnesses. They do not prove broad app blocking support,
 polished app catalog UI, install approval, or cross-platform parity.
 
 ## Current Gaps
@@ -223,13 +224,20 @@ polished app catalog UI, install approval, or cross-platform parity.
   app/game real-service proof for dry-run no-action, stale action mismatch
   rejection before adapter execution, timer recovery/cancel, and scoped
   owned/current expiry. It is still not broad app/package blocking.
+- Native app broad-blocking proof gates now cross-record the shared app/game
+  contract proof that manual-required, unavailable, and not-claimed
+  block-launch/hide/suspend/shield/process-kill states cannot dispatch adapters
+  and must name setup, authority-tier, rollback, audit, and platform proof
+  before moving up. It is not AppLocker/App Control, MDM, Endpoint Security,
+  Device Owner/Profile Owner, FamilyControls/ManagedSettings, cgroup/systemd,
+  or rollback execution proof.
 - App category/risk taxonomy now has contract/test proof, but live classifier
   enrichment, policy routing, portal category rows, and runtime app risk
   detection remain incomplete.
 - Parent app catalog/dashboard has an initial service-backed App/Game Sessions
   surface, but it is not product-complete.
-- Broad app blocking remains manual-required outside scoped owned-process
-  proof.
+- Broad app blocking remains manual-required outside scoped owned-process proof
+  and the focused no-claim/manual-required broad-blocking gate contract.
 - Platform-specific authority tiers are now modeled as shared app/game
   parent-domain contract proof, but the portal UI and runtime adapter proof are
   not complete.

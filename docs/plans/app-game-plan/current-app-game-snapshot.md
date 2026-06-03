@@ -76,6 +76,14 @@ Proved today:
   no-action, stale action mismatch rejection before adapter execution,
   recover/cancel of the preserved timer, and owned/current expiry through the
   existing process adapter.
+- Broad app/game blocking proof gates now cover manual-required, unavailable,
+  and not-claimed contract states for Windows AppLocker/App Control, AppLocker
+  audit-only non-enforce proof, macOS hard-block proof, Linux
+  mechanism/distro/session proof, Android normal-mode hide/suspend, iOS
+  ManagedSettings shielding, and iOS process-kill no-claim. The gate matrix
+  proves these states cannot dispatch adapters and that supported upgrades
+  require setup, authority-tier, rollback, audit, and platform-specific proof
+  references.
 - App-control and game-control catalog/authoring contracts exist in
   `packages/parent-domain`.
 - Rust app/game session protocol mirrors exist.
@@ -113,6 +121,11 @@ Not proved today:
   routing, service/read-model parity, and portal category/risk rows for the new
   WP12 contract.
 - Broad app/game blocking outside scoped owned-process proof.
+- Broad-blocking gate contracts now make no-claim/manual-required platform
+  requirements explicit, but they do not implement AppLocker/App Control, MDM,
+  Endpoint Security, Device Owner/Profile Owner, FamilyControls/
+  ManagedSettings, cgroup/systemd, AppArmor/SELinux, package restriction,
+  rollback execution, service events, or portal capability UI.
 - macOS, Linux, Android, iOS, MDM, supervised/device-owner, Endpoint Security,
   AppLocker/App Control, Screen Time, ManagedSettings, store/signing, entitlement,
   kiosk, and single-app claims.
@@ -274,6 +287,9 @@ Missing portal states include:
   classifier output, product UI proof, or safety decisions by themselves.
 - Existing scoped Windows owned-process time-limit proof should be reused, not
   expanded into broad blocking claims.
+- Existing broad-blocking gate proof should be reused as the no-claim guard
+  before any future platform adapter, rollback, or UI work moves broad
+  blocking out of manual-required/unavailable/not-claimed state.
 
 ## Worker Handoff Notes - 2026-06-02
 
@@ -351,6 +367,10 @@ Missing portal states include:
   overlay rendering, portal preview screenshots, notification delivery, service
   persistence, Rust/WebSocket parity, adapter execution, or platform
   shield/block behavior.
+- WP23 adds parent-domain app/game broad-blocking proof gates for Windows,
+  macOS, Linux, Android, and iOS/iPadOS manual-required, unavailable, and
+  not-claimed states. It does not add runtime adapters, service events, portal
+  UI, rollback execution, or any broad app/game blocking support claim.
 - Next implementation work should either add dedicated portal dashboard
   consumption of the service rows, live Windows inventory source readers, or
   mirror the remaining WP01/WP04 TypeScript shapes into Rust protocol before
