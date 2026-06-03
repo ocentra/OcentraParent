@@ -15,6 +15,9 @@ Proved today:
 - App/game inventory evidence rows now exist as TypeScript contract proof with
   source, custody, category candidates, stale/permission-limited states, and
   no-use guards.
+- Rust protocol now mirrors app/game inventory evidence rows, and `agent-core`
+  has a typed Windows-installed inventory record adapter/parser proof that keeps
+  inventory separate from runtime or foreground use.
 - App-control and game-control catalog/authoring contracts exist in
   `packages/parent-domain`.
 - Rust app/game session protocol mirrors exist.
@@ -27,6 +30,8 @@ Proved today:
 Not proved today:
 
 - Product-complete app inventory and identity quality.
+- Live Windows registry, Start Menu, executable metadata, signature/hash, or
+  launcher manifest crawling.
 - Product-complete native game catalog, launcher disambiguation, and game
   budgets.
 - New/unknown app and unknown game approval flow.
@@ -64,10 +69,11 @@ complete shared evidence spine or a proof that broad app/game blocking works.
 ## Current Runtime
 
 `crates/agent-core` currently has SQLite-backed app/game observation and session
-helpers plus scoped Windows owned-process time-limit helpers. This is a strong
-base for workpacks 08, 12, 13, and 21, but it is not the same as:
+helpers, a typed Windows-installed inventory record adapter/parser proof, and
+scoped Windows owned-process time-limit helpers. This is a strong base for
+workpacks 08, 12, 13, and 21, but it is not the same as:
 
-- installed app inventory adapters;
+- live Windows installed app inventory crawling;
 - UWP/AppX inventory adapters;
 - launcher manifest adapters;
 - foreground app evidence adapters;
@@ -98,11 +104,12 @@ Missing portal states include:
 
 - App/game identity contracts are present, but runtime identity merge behavior
   and adapter-fed identity refs are not implemented yet.
-- Inventory evidence row contracts are present, but platform adapters, journal
-  ingest, read models, and portal rows are not implemented yet.
+- Inventory evidence row contracts and Rust inventory-row parity are present,
+  and the first Windows installed-record adapter/parser proof exists, but live
+  platform crawling, journal ingest, read models, and portal rows are not
+  implemented yet.
 - Rust protocol parity has not yet mirrored the WP01 evidence claim, AI digest,
-  app/game control authority schemas, WP04 identity schemas, or WP05 inventory
-  row schemas.
+  app/game control authority schemas, or WP04 identity schemas.
 - Journal and SQLite ingest do not yet store the new evidence claim and
   authority proof shapes.
 - Portal app/game dashboard rows do not yet consume the new contracts.
@@ -124,9 +131,13 @@ Missing portal states include:
   identity merge, inventory adapters, Rust parity, or portal identity rows.
 - WP05 adds TypeScript inventory evidence row proof only. It does not add
   platform adapters, journal ingest, Rust parity, or portal inventory rows.
-- Next implementation work should either add Windows inventory adapters or
-  mirror the WP01/WP04/WP05 TypeScript shapes into Rust protocol before
-  service/runtime consumers depend on them.
+- WP06 adds Rust inventory-row parity and a typed Windows installed inventory
+  adapter/parser proof only. It does not add live registry crawling, shell-link
+  parsing, journal ingest, service/runtime inventory events, or portal inventory
+  rows.
+- Next implementation work should either add live Windows inventory source
+  readers or mirror the remaining WP01/WP04 TypeScript shapes into Rust protocol
+  before service/runtime consumers depend on them.
 
 ## Enhancement Rule
 
