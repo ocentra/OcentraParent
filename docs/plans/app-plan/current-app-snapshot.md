@@ -27,6 +27,8 @@ proof.
 
 - app/game inventory entries;
 - process observations;
+- foreground evidence rows for active-window focus as staged
+  contract/protocol/parser proof;
 - session summaries;
 - session query/result/report shapes;
 - AI digest references;
@@ -84,6 +86,8 @@ docs remain in place.
 - SQLite-backed app/game observation helpers;
 - app/game row mapping helpers;
 - session summary/report derivation from stored rows;
+- staged Windows foreground-window parser proof that can apply foreground
+  duration to existing runtime summaries without claiming content;
 - scoped Windows app time-limit capability helpers;
 - owned-process terminate/time-limit target validation;
 - app time-limit tests.
@@ -132,7 +136,9 @@ polished app catalog UI, install approval, or cross-platform parity.
 - Windows installed-app inventory needs stronger source-specific proof.
 - Windows Store/UWP/AppX identity needs separate proof from Win32 executable
   identity.
-- Foreground evidence needs explicit no-content UI labels.
+- Foreground evidence now has shared app/game contract/protocol/parser proof,
+  but still needs live window capture wiring, journal/SQLite replay, service
+  events, portal rows, and explicit no-content UI labels.
 - Session duration and daily app rollups need stronger replay proof.
 - New/unknown app approval and child request UX are incomplete.
 - Risk-app categories need source/confidence and no-content no-claim guards.
