@@ -71,3 +71,33 @@ test('repository secret scan allows environment templates while still scanning t
     assert.match(result.stdout, /Secret scan passed for 1 file\(s\)\./u);
   });
 });
+
+test('staged secret scan allows risk-benefit proof slugs', () => {
+  withTempRepo((root) => {
+    assert.equal(runGit(root, ['init']).status, 0);
+    writeFileSync(
+      join(root, 'proof.md'),
+      'output/browser-plan-proof/game-11-game-risk-benefit-signal-model/\n',
+      'utf8'
+    );
+    assert.equal(runGit(root, ['add', 'proof.md']).status, 0);
+
+    const result = runScanner(root);
+
+    assert.equal(result.status, 0);
+    assert.match(result.stdout, /Secret scan passed for 1 file\(s\)\./u);
+  });
+});
+
+test('staged secret scan rejects OpenAI keys at token boundaries', () => {
+  withTempRepo((root) => {
+    assert.equal(runGit(root, ['init']).status, 0);
+    writeFileSync(join(root, 'secret.md'), `OPENAI_API_KEY=${'sk-' + 'abcdefghijklmnopqrstuvwxyz123456'}\n`, 'utf8');
+    assert.equal(runGit(root, ['add', 'secret.md']).status, 0);
+
+    const result = runScanner(root);
+
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /secret\.md: OpenAI key/u);
+  });
+});

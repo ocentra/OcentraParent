@@ -46,7 +46,7 @@ Adjacent, not owned here:
 | GAME-08 | Hidden analysis profile safety for games  | `output/browser-plan-proof/game-08-hidden-analysis-profile-safety/`          |
 | GAME-09 | Educational game classifier contract      | `output/browser-plan-proof/game-09-educational-game-classifier-contract/`    |
 | GAME-10 | Browser game AI analysis contract         | `output/browser-plan-proof/game-10-browser-game-ai-analysis-contract/`       |
-| GAME-11 | Game risk/benefit signal model            | `output/browser-plan-proof/game-11-game-riskbenefit-signal-model/`           |
+| GAME-11 | Game risk/benefit signal model            | `output/browser-plan-proof/game-11-game-risk-benefit-signal-model/`          |
 | GAME-12 | Browser game memory/cache                 | `output/browser-plan-proof/game-12-browser-game-memory-cache/`               |
 | GAME-13 | Game account/signup/purchase gating       | `output/browser-plan-proof/game-13-game-account-signup-purchase-gating/`     |
 | GAME-14 | Cloud gaming gating                       | `output/browser-plan-proof/game-14-cloud-gaming-gating/`                     |

@@ -43,7 +43,7 @@ Adjacent, not owned here:
 | SOCIAL-08 | Feed/reels/shorts route classification    | `output/browser-plan-proof/social-08-feed-reels-shorts-route-classification/`       |
 | SOCIAL-09 | Video/social metadata extractor           | `output/browser-plan-proof/social-09-video-social-metadata-extractor/`              |
 | SOCIAL-10 | Social AI analysis contracts              | `output/browser-plan-proof/social-10-social-ai-analysis-contracts/`                 |
-| SOCIAL-11 | Social risk/benefit signal model          | `output/browser-plan-proof/social-11-social-riskbenefit-signal-model/`              |
+| SOCIAL-11 | Social risk/benefit signal model          | `output/browser-plan-proof/social-11-social-risk-benefit-signal-model/`             |
 | SOCIAL-12 | Parent policy compiler for social targets | `output/browser-plan-proof/social-12-parent-policy-compiler-social-targets/`        |
 | SOCIAL-13 | Managed browser account creation gate     | `output/browser-plan-proof/social-13-managed-browser-account-creation-gate/`        |
 | SOCIAL-14 | Managed browser feed/short/video gate     | `output/browser-plan-proof/social-14-managed-browser-feed-short-video-gate/`        |
