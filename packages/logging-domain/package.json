@@ -13,6 +13,14 @@
       "import": "./dist/notification-audit-history.js",
       "types": "./dist/notification-audit-history.d.ts"
     },
+    "./tamper-integrity-audit": {
+      "import": "./dist/tamper-integrity-audit.js",
+      "types": "./dist/tamper-integrity-audit.d.ts"
+    },
+    "./tamper-integrity-audit-read-model": {
+      "import": "./dist/tamper-integrity-audit-read-model.js",
+      "types": "./dist/tamper-integrity-audit-read-model.d.ts"
+    },
     "./package-info": {
       "import": "./dist/package-info.js",
       "types": "./dist/package-info.d.ts"
