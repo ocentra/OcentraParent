@@ -26,6 +26,7 @@ async function main() {
     'tests/billing-account.test.ts',
   ]);
 
+  const packageExport = await assertPackageExport();
   const contract = await assertBuiltContract();
   const documentation = await assertDocumentationProof();
   const commit = await gitHead();
@@ -38,6 +39,7 @@ async function main() {
     evidence: {
       contract: 'packages/endpoint-domain/src/constants/billing-account.ts',
       contractTest: 'packages/endpoint-domain/tests/billing-account.test.ts',
+      packageExport,
       documentation,
       output: relativePath(proofPath),
     },
@@ -56,12 +58,20 @@ async function main() {
       'account/subscription backend implementation',
       'signed entitlement snapshot runtime',
       'download/update handler implementation',
-      'package subpath export pending explicit lock',
     ],
   };
 
   await writeFile(proofPath, `${JSON.stringify(proof, null, 2)}\n`);
   console.log(`billing-account-endpoint-contract-proof-ok:${relativePath(proofPath)}`);
+}
+
+async function assertPackageExport() {
+  const packageJson = JSON.parse(await readRepoFile('packages/endpoint-domain/package.json'));
+  assert.deepEqual(packageJson.exports['./constants/billing-account'], {
+    import: './dist/constants/billing-account.js',
+    types: './dist/constants/billing-account.d.ts',
+  });
+  return 'packages/endpoint-domain/package.json#exports[./constants/billing-account]';
 }
 
 async function assertBuiltContract() {

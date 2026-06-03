@@ -42,6 +42,6 @@ flowchart LR
 - Keep `sync-export-endpoint-contract-proof` as route contract proof only until
   parent-owned storage connectors and transfer runtime are implemented.
 - Keep `billing-account-endpoint-contract-proof` as route contract proof only
-  until billing provider, account backend, entitlement runtime, package subpath
-  export, and updater/download handlers are explicitly assigned.
+  until billing provider, account backend, entitlement runtime, and
+  updater/download handlers are explicitly assigned.
 - Add endpoint docs when remote relay/account APIs become real.
