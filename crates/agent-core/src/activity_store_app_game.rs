@@ -5,6 +5,12 @@ use ocentra_parent_agent_protocol::{
 };
 use rusqlite::Connection;
 
+// WP06 stages the typed parser before live Windows source readers call it.
+#[allow(dead_code)]
+pub(crate) mod app_game_windows_inventory;
+#[cfg(test)]
+mod app_game_windows_inventory_tests;
+
 use crate::{
     activity_store_app_game_observation::AppGameObservation,
     activity_store_app_game_rows::app_game_rows, ActivityStoreError,
