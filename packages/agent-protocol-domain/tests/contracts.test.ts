@@ -316,6 +316,13 @@ it('AgentProtocolDefaults.Field: exposes parent assistant payload fields', () =>
 });
 
 it('AgentProtocolDefaults.Field: exposes read-model payload fields', () => {
+  expectReadModelBridgeAndActivityFields();
+  expectReadModelBrowserInterventionFields();
+  expectReadModelEnforcementAndUnmanagedFields();
+  expect(AgentProtocolDefaults.Delimiter.List).toBe(',');
+});
+
+function expectReadModelBridgeAndActivityFields() {
   expect(AgentProtocolDefaults.Field.BridgeEndpointRef).toBe('bridgeEndpointRef');
   expect(AgentProtocolDefaults.Field.BridgeKind).toBe('bridgeKind');
   expect(AgentProtocolDefaults.Field.ActivityDigest).toBe('activityDigest');
@@ -323,7 +330,15 @@ it('AgentProtocolDefaults.Field: exposes read-model payload fields', () => {
   expect(AgentProtocolDefaults.Field.DatabaseReady).toBe('databaseReady');
   expect(AgentProtocolDefaults.Field.BrowserEvidenceId).toBe('browserEvidenceId');
   expect(AgentProtocolDefaults.Field.BrowserInterventionId).toBe('browserInterventionId');
+  expect(AgentProtocolDefaults.Field.BrowserInterventionActionId).toBe('browserInterventionActionId');
+  expect(AgentProtocolDefaults.Field.BrowserInterventionAuditId).toBe('browserInterventionAuditId');
+  expect(AgentProtocolDefaults.Field.BrowserBoundaryState).toBe('browserBoundaryState');
+  expect(AgentProtocolDefaults.Field.ChildDeliveryState).toBe('childDeliveryState');
+}
+
+function expectReadModelBrowserInterventionFields() {
   expect(AgentProtocolDefaults.Field.DecisionSource).toBe('decisionSource');
+  expect(AgentProtocolDefaults.Field.ExactUrlClaimState).toBe('exactUrlClaimState');
   expect(AgentProtocolDefaults.Field.FreshUntil).toBe('freshUntil');
   expect(AgentProtocolDefaults.Field.InterventionAction).toBe('interventionAction');
   expect(AgentProtocolDefaults.Field.InterventionMechanism).toBe('interventionMechanism');
@@ -339,6 +354,9 @@ it('AgentProtocolDefaults.Field: exposes read-model payload fields', () => {
   expect(AgentProtocolDefaults.Field.StaleAt).toBe('staleAt');
   expect(AgentProtocolDefaults.Field.TabId).toBe('tabId');
   expect(AgentProtocolDefaults.Field.WindowId).toBe('windowId');
+}
+
+function expectReadModelEnforcementAndUnmanagedFields() {
   expect(AgentProtocolDefaults.Field.CapabilityStatus).toBe('capabilityStatus');
   expect(AgentProtocolDefaults.Field.DestinationDomain).toBe('destinationDomain');
   expect(AgentProtocolDefaults.Field.EnforcementActionId).toBe('enforcementActionId');
@@ -352,7 +370,16 @@ it('AgentProtocolDefaults.Field: exposes read-model payload fields', () => {
   expect(AgentProtocolDefaults.Field.EvidenceReferenceIds).toBe('evidenceReferenceIds');
   expect(AgentProtocolDefaults.Field.MostRecentSubjectName).toBe('mostRecentSubjectName');
   expect(AgentProtocolDefaults.Field.UnmanagedBrowserEnforcement).toBe('unmanagedBrowserEnforcement');
-});
+  expect(AgentProtocolDefaults.Field.UnmanagedFallbackAction).toBe('unmanagedFallbackAction');
+  expect(AgentProtocolDefaults.Field.UnmanagedDetectionConfidence).toBe('unmanagedDetectionConfidence');
+  expect(AgentProtocolDefaults.Field.UnmanagedDetectionReason).toBe('unmanagedDetectionReason');
+  expect(AgentProtocolDefaults.Field.UnmanagedDetectionState).toBe('unmanagedDetectionState');
+  expect(AgentProtocolDefaults.Field.UnmanagedExecutablePathRef).toBe('unmanagedExecutablePathRef');
+  expect(AgentProtocolDefaults.Field.UnmanagedProcessHashRef).toBe('unmanagedProcessHashRef');
+  expect(AgentProtocolDefaults.Field.UnmanagedProcessKind).toBe('unmanagedProcessKind');
+  expect(AgentProtocolDefaults.Field.UnmanagedProcessName).toBe('unmanagedProcessName');
+  expect(AgentProtocolDefaults.Field.UnmanagedSignatureRef).toBe('unmanagedSignatureRef');
+}
 
 it('AgentProtocolDefaults.Field: exposes browser policy payload fields', () => {
   expect(AgentProtocolDefaults.Field.BrowserPolicyRequest).toBe('browserPolicyRequest');

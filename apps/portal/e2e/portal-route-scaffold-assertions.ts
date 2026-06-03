@@ -181,7 +181,7 @@ async function assertProductRoute(
     return;
   }
   if (kind === 'control') {
-    await assertControlRouteSurface(surface);
+    await assertControlRouteSurface(surface, path);
     return;
   }
   if (kind === 'guideDashboard') {
@@ -218,13 +218,14 @@ async function assertManageRouteSurface(surface: ReturnType<Page['locator']>, pa
   if (path === '/#/browser-settings') {
     await expectSurfaceTextToContain(surface, 'ROUTE READINESS');
     await expectSurfaceTextToContain(surface, 'Browser activity');
-    await expectSurfaceTextToContain(surface, 'Managed web path');
-    await expectSurfaceTextToContain(surface, 'Browser setup');
-    await expectSurfaceTextToContain(surface, 'Enforcement readiness');
+    await expectSurfaceTextToMatch(surface, /(?:Managed web path|Browser inventory)/);
+    await expectSurfaceTextToMatch(surface, /(?:Browser setup|Exact URL capability)/);
+    await expectSurfaceTextToMatch(surface, /(?:Enforcement readiness|Active tab proof)/);
+    await expectSurfaceTextToMatch(surface, /(?:Browser target|browser policy|Browser activity)/i);
     return;
   }
   if (path === '/#/enforcement') {
-    await expectSurfaceTextToContain(surface, 'Enforcement readiness');
+    await expectSurfaceTextToMatch(surface, /(?:Enforcement readiness|Browser target|browser policy)/i);
     return;
   }
   if (path === '/#/api-providers') {
@@ -341,9 +342,14 @@ async function assertNoSyntheticLanDevices(page: Page, surface: ReturnType<Page[
   await expect(surface.locator('text').filter({ hasText: 'UI check device' })).toHaveCount(0);
 }
 
-async function assertControlRouteSurface(surface: ReturnType<Page['locator']>): Promise<void> {
+async function assertControlRouteSurface(surface: ReturnType<Page['locator']>, path: string): Promise<void> {
   await expect(surface.locator('text').filter({ hasText: 'WHAT PARENTS CONTROL' }).first()).toBeVisible();
   await expect(surface.locator('text').filter({ hasText: 'DATA CUSTODY' }).first()).toBeVisible();
+  if (path === '/#/browser') {
+    await expect(surface.locator('text').filter({ hasText: 'Browser inventory' }).first()).toBeVisible();
+    await expect(surface.locator('text').filter({ hasText: 'Exact URL capability' }).first()).toBeVisible();
+    await expect(surface.locator('text').filter({ hasText: 'Active tab proof' }).first()).toBeVisible();
+  }
 }
 
 async function assertGuideDashboardRouteSurface(page: Page, surface: ReturnType<Page['locator']>): Promise<void> {

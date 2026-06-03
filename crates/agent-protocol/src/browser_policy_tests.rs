@@ -1,9 +1,14 @@
 use super::{
     constants, policy_constants as policy, AgentCommandEnvelope, AgentCommandName,
     AgentEventEnvelope, AgentEventName, AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute,
-    BrowserPolicyPatch, BrowserPolicyPatchRequest, BrowserPolicyRejectionReason,
-    BrowserPolicyUpdateKind, BrowserPolicyUpdateResponse, BrowserPolicyUpdateStatus, LogFieldValue,
-    LogFields, LogLevel, AGENT_PROTOCOL_SCHEMA_VERSION,
+    BrowserPolicyActionExecutionState, BrowserPolicyAiAuthority, BrowserPolicyBudgets,
+    BrowserPolicyDefaultPosture, BrowserPolicyDiscovery, BrowserPolicyEffectivePolicy,
+    BrowserPolicyEffectiveRule, BrowserPolicyEvidenceProofLevel, BrowserPolicyEvidenceRequirement,
+    BrowserPolicyExecutionMode, BrowserPolicyPatch, BrowserPolicyPatchRequest,
+    BrowserPolicyProofFallback, BrowserPolicyRejectionReason, BrowserPolicyRuleAction,
+    BrowserPolicyTargetProofRequirement, BrowserPolicyUpdateKind, BrowserPolicyUpdateResponse,
+    BrowserPolicyUpdateStatus, BrowserPolicyUrlTargetType, LogFieldValue, LogFields, LogLevel,
+    AGENT_PROTOCOL_SCHEMA_VERSION,
 };
 
 #[test]
@@ -135,4 +140,54 @@ fn browser_policy_rejected_event_serializes_typed_reason() {
         response_value["rejectionReason"],
         constants::browser_policy::REJECTION_SCAFFOLD_UNAVAILABLE
     );
+}
+
+#[test]
+fn browser_policy_effective_rule_serializes_compiler_result_fields() {
+    let effective_policy = BrowserPolicyEffectivePolicy {
+        schema_version: policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
+        policy_id: constants::browser_policy::POLICY_ID.to_string(),
+        revision_id: constants::browser_policy::REVISION_ID.to_string(),
+        compiled_hash: constants::browser_policy::COMPILED_HASH_PREFIX.to_string(),
+        compiled_at: constants::browser_policy::TEST_SENT_AT.to_string(),
+        execution_mode: BrowserPolicyExecutionMode::DryRun,
+        default_posture: BrowserPolicyDefaultPosture::Warn,
+        fallback_posture: None,
+        discovery: BrowserPolicyDiscovery::default(),
+        budgets: BrowserPolicyBudgets {
+            enabled: true,
+            default_daily_minutes: Some(30),
+            counting_mode: Default::default(),
+        },
+        rules: vec![BrowserPolicyEffectiveRule {
+            rule_id: constants::browser_policy::DEFAULT_RULE_ID.to_string(),
+            target_type: BrowserPolicyUrlTargetType::CloudGaming,
+            target_value: constants::browser_policy::DEFAULT_TARGET_VALUE.to_string(),
+            default_posture: BrowserPolicyDefaultPosture::Warn,
+            evidence: BrowserPolicyEvidenceRequirement {
+                url_scope: Default::default(),
+                required_proof: BrowserPolicyEvidenceProofLevel::BrowserGameRuntimeSignal,
+                proof_fallback: Some(BrowserPolicyProofFallback::AskParent),
+                when_proof_unavailable: BrowserPolicyProofFallback::Ask,
+                never_collect: Vec::new(),
+            },
+            action: BrowserPolicyRuleAction::Ask,
+            target_proof_requirement: BrowserPolicyTargetProofRequirement::BrowserGameRuntimeSignal,
+            capability_state: super::BrowserPolicyCapabilityState::ManualRequired,
+            action_execution: BrowserPolicyActionExecutionState::DryRunNoExecution,
+            ai_authority: BrowserPolicyAiAuthority::AiCandidateOnly,
+            compile_note: constants::browser_policy::COMPILE_NOTE_GAME_REQUIRED.to_string(),
+        }],
+    };
+
+    let serialized = serde_json::to_value(effective_policy).expect("effective policy serializes");
+    let rule = &serialized["rules"][0];
+
+    assert_eq!(rule["targetType"], "cloud-gaming");
+    assert_eq!(
+        rule["targetProofRequirement"],
+        "browser-game-runtime-signal"
+    );
+    assert_eq!(rule["actionExecution"], "dry-run-no-execution");
+    assert_eq!(rule["aiAuthority"], "ai-candidate-only");
 }

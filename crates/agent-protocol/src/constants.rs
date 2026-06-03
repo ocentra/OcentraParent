@@ -19,6 +19,8 @@ pub mod env_var {
     pub const LOCAL_APP_DATA: &str = "LOCALAPPDATA";
     pub const MANAGED_BROWSER_BRIDGE_PORT: &str = "OCENTRA_PARENT_MANAGED_BROWSER_BRIDGE_PORT";
     pub const MANAGED_BROWSER_EXECUTABLE: &str = "OCENTRA_PARENT_MANAGED_BROWSER_EXECUTABLE";
+    pub const MANAGED_BROWSER_LAUNCH_ON_STATUS: &str =
+        "OCENTRA_PARENT_MANAGED_BROWSER_LAUNCH_ON_STATUS";
     pub const MANAGED_BROWSER_PROFILE_DIR: &str = "OCENTRA_PARENT_MANAGED_BROWSER_PROFILE_DIR";
     pub const PROGRAM_FILES: &str = "PROGRAMFILES";
     pub const PROGRAM_FILES_X86: &str = "ProgramFiles(x86)";
@@ -82,6 +84,7 @@ pub mod event_id {
     pub const ACTIVITY_GAMES_READ_MODEL_REPORTED: &str = "activity-games-read-model-reported";
     pub const ACTIVITY_NETWORK_READ_MODEL_REPORTED: &str = "activity-network-read-model-reported";
     pub const ACTIVITY_TRACKING_READ_MODEL_REPORTED: &str = "activity-tracking-read-model-reported";
+    pub const BROWSER_INVENTORY_READ_MODEL_REPORTED: &str = "browser-inventory-read-model-reported";
     pub const BROWSER_EVIDENCE_RECENT_REPORTED: &str = "browser-evidence-recent-reported";
     pub const BROWSER_MANAGED_STATUS_REPORTED: &str = "browser-managed-status-reported";
     pub const NETWORK_FLOW_READ_MODEL_REPORTED: &str = "network-flow-read-model-reported";
@@ -229,6 +232,10 @@ pub mod browser_policy {
         "managedBrowser.bridgeRequirements";
     pub const FIELD_ID_MANAGED_BROWSER_INTEGRATION_MECHANISMS: &str =
         "managedBrowser.integrationMechanisms";
+    pub const FIELD_ID_MANAGED_BROWSER_POLICY_WRITER_CONTROLS: &str =
+        "managedBrowser.policyWriterControls";
+    pub const FIELD_ID_MANAGED_BROWSER_POLICY_WRITER_FALLBACK: &str =
+        "managedBrowser.policyWriterFallback";
     pub const FIELD_ID_UNMANAGED_BROWSER_MODE: &str = "unmanagedBrowser.mode";
     pub const FIELD_ID_UNMANAGED_BROWSER_GRACE_SECONDS: &str = "unmanagedBrowser.graceSeconds";
     pub const FIELD_ID_UNMANAGED_BROWSER_ALLOW_RECOVER_LAUNCH_URL: &str =
@@ -243,9 +250,21 @@ pub mod browser_policy {
     pub const FIELD_ID_ALLOWED_TARGET_TYPES: &str = "rules.allowedTargetTypes";
     pub const FIELD_ID_ALLOWED_ACTIONS: &str = "rules.allowedActions";
     pub const FIELD_ID_RULE_ITEMS: &str = "rules.items";
+    pub const FIELD_ID_URL_ALLOW_LIST: &str = "rules.urlAllowList";
+    pub const FIELD_ID_URL_BLOCK_LIST: &str = "rules.urlBlockList";
     pub const FIELD_ID_BUDGETS_ENABLED: &str = "budgets.enabled";
     pub const FIELD_ID_DAILY_BUDGET_MINUTES: &str = "budgets.defaultDailyMinutes";
     pub const FIELD_ID_BUDGET_COUNTING_MODE: &str = "budgets.countingMode";
+    pub const FIELD_ID_BROWSER_GAME_EDUCATIONAL_MODE: &str = "browserGames.educationalGameMode";
+    pub const FIELD_ID_BROWSER_GAME_UNKNOWN_MODE: &str = "browserGames.unknownGameMode";
+    pub const FIELD_ID_BROWSER_GAME_CLOUD_GAMING_APPROVAL: &str =
+        "browserGames.cloudGamingApproval";
+    pub const FIELD_ID_BROWSER_GAME_PURCHASE_ACCOUNT_APPROVAL: &str =
+        "browserGames.purchaseAccountApproval";
+    pub const FIELD_ID_BROWSER_GAME_UNBLOCKED_PORTAL_MODE: &str =
+        "browserGames.unblockedPortalMode";
+    pub const FIELD_ID_BROWSER_GAME_WEBGL_CANVAS_MODE: &str = "browserGames.webglCanvasMode";
+    pub const FIELD_ID_BROWSER_GAME_DAILY_BUDGET_MINUTES: &str = "browserGames.defaultDailyMinutes";
     pub const FIELD_ID_DOWNLOAD_MODE: &str = "downloads.mode";
     pub const FIELD_ID_DOWNLOAD_BLOCKED_TYPES: &str = "downloads.blockedTypes";
     pub const FIELD_ID_DOWNLOAD_STATE: &str = "downloads.state";
@@ -280,6 +299,10 @@ pub mod browser_policy {
         "/browserPolicy/managedBrowser/bridgeRequirements";
     pub const WRITES_TO_MANAGED_BROWSER_INTEGRATION_MECHANISMS: &str =
         "/browserPolicy/managedBrowser/integrationMechanisms";
+    pub const WRITES_TO_MANAGED_BROWSER_POLICY_WRITER_CONTROLS: &str =
+        "/browserPolicy/managedBrowser/policyWriterControls";
+    pub const WRITES_TO_MANAGED_BROWSER_POLICY_WRITER_FALLBACK: &str =
+        "/browserPolicy/managedBrowser/policyWriterFallback";
     pub const WRITES_TO_UNMANAGED_BROWSER_MODE: &str = "/browserPolicy/unmanagedBrowser/mode";
     pub const WRITES_TO_UNMANAGED_BROWSER_GRACE_SECONDS: &str =
         "/browserPolicy/unmanagedBrowser/graceSeconds";
@@ -296,9 +319,25 @@ pub mod browser_policy {
     pub const WRITES_TO_ALLOWED_TARGET_TYPES: &str = "/browserPolicy/rules/allowedTargetTypes";
     pub const WRITES_TO_ALLOWED_ACTIONS: &str = "/browserPolicy/rules/allowedActions";
     pub const WRITES_TO_RULE_ITEMS: &str = "/browserPolicy/rules/items";
+    pub const WRITES_TO_URL_ALLOW_LIST: &str = "/browserPolicy/rules/urlAllowList";
+    pub const WRITES_TO_URL_BLOCK_LIST: &str = "/browserPolicy/rules/urlBlockList";
     pub const WRITES_TO_BUDGETS_ENABLED: &str = "/browserPolicy/budgets/enabled";
     pub const WRITES_TO_DAILY_BUDGET_MINUTES: &str = "/browserPolicy/budgets/defaultDailyMinutes";
     pub const WRITES_TO_BUDGET_COUNTING_MODE: &str = "/browserPolicy/budgets/countingMode";
+    pub const WRITES_TO_BROWSER_GAME_EDUCATIONAL_MODE: &str =
+        "/browserPolicy/browserGames/educationalGameMode";
+    pub const WRITES_TO_BROWSER_GAME_UNKNOWN_MODE: &str =
+        "/browserPolicy/browserGames/unknownGameMode";
+    pub const WRITES_TO_BROWSER_GAME_CLOUD_GAMING_APPROVAL: &str =
+        "/browserPolicy/browserGames/cloudGamingApproval";
+    pub const WRITES_TO_BROWSER_GAME_PURCHASE_ACCOUNT_APPROVAL: &str =
+        "/browserPolicy/browserGames/purchaseAccountApproval";
+    pub const WRITES_TO_BROWSER_GAME_UNBLOCKED_PORTAL_MODE: &str =
+        "/browserPolicy/browserGames/unblockedPortalMode";
+    pub const WRITES_TO_BROWSER_GAME_WEBGL_CANVAS_MODE: &str =
+        "/browserPolicy/browserGames/webglCanvasMode";
+    pub const WRITES_TO_BROWSER_GAME_DAILY_BUDGET_MINUTES: &str =
+        "/browserPolicy/browserGames/defaultDailyMinutes";
     pub const WRITES_TO_DOWNLOAD_MODE: &str = "/browserPolicy/downloads/mode";
     pub const WRITES_TO_DOWNLOAD_BLOCKED_TYPES: &str = "/browserPolicy/downloads/blockedTypes";
     pub const WRITES_TO_DOWNLOAD_STATE: &str = "/browserPolicy/downloads/state";
@@ -335,6 +374,46 @@ pub mod browser_policy {
     pub const DEFAULT_CAPABILITY_LABEL: &str = "Managed browser active tab proof";
     pub const DEFAULT_CAPABILITY_REASON: &str =
         "Compiler scaffold does not claim managed browser proof is installed.";
+    pub const POLICY_WRITER_CAPABILITY_ID: &str = "managed-browser-policy-writer";
+    pub const POLICY_WRITER_CAPABILITY_LABEL: &str = "Managed browser policy writer";
+    pub const POLICY_WRITER_CAPABILITY_REASON: &str =
+        "Managed browser policy writer stays manual-required until adapter proof exists.";
+    pub const CAPABILITY_STATE_READY: &str = "ready";
+    pub const CAPABILITY_STATE_SUPPORTED: &str = "supported";
+    pub const DOMAIN_CAPABILITY_ID: &str = "browser-domain-proof";
+    pub const DOMAIN_CAPABILITY_LABEL: &str = "Browser domain proof";
+    pub const CLASSIFIER_CAPABILITY_ID: &str = "browser-category-classifier-proof";
+    pub const CLASSIFIER_CAPABILITY_LABEL: &str = "Browser category classifier proof";
+    pub const SOCIAL_CAPABILITY_ID: &str = "browser-social-route-proof";
+    pub const SOCIAL_CAPABILITY_LABEL: &str = "Social route evidence proof";
+    pub const GAME_CAPABILITY_ID: &str = "browser-game-runtime-proof";
+    pub const GAME_CAPABILITY_LABEL: &str = "Browser game runtime proof";
+    pub const ACTION_ADAPTER_CAPABILITY_ID: &str = "browser-action-adapter-proof";
+    pub const ACTION_ADAPTER_CAPABILITY_LABEL: &str = "Browser action adapter proof";
+    pub const PROCESS_CAPABILITY_ID: &str = "unmanaged-browser-process-proof";
+    pub const PROCESS_CAPABILITY_LABEL: &str = "Unmanaged browser process proof";
+    pub const COMPILE_NOTE_PARENT_POLICY: &str =
+        "Compiled from deterministic parent policy; AI output is candidate evidence only.";
+    pub const COMPILE_NOTE_MANAGED_EXACT_URL: &str =
+        "Exact URL target requires fresh managed active-tab proof.";
+    pub const COMPILE_NOTE_DOMAIN_OR_MANAGED: &str =
+        "Domain target accepts managed URL evidence or network-domain proof.";
+    pub const COMPILE_NOTE_CLASSIFIER_REQUIRED: &str =
+        "Category target remains manual-required until classifier proof exists.";
+    pub const COMPILE_NOTE_URL_METADATA_REQUIRED: &str =
+        "Search or video target remains manual-required until URL metadata proof exists.";
+    pub const COMPILE_NOTE_SOCIAL_REQUIRED: &str =
+        "Social target remains manual-required until social route evidence exists.";
+    pub const COMPILE_NOTE_GAME_REQUIRED: &str =
+        "Browser game target remains manual-required until game runtime evidence exists.";
+    pub const COMPILE_NOTE_POLICY_WRITER_REQUIRED: &str =
+        "Managed browser policy output remains manual-required until writer adapter proof exists.";
+    pub const COMPILE_NOTE_PROCESS_REQUIRED: &str =
+        "Unmanaged browser target requires process detection proof.";
+    pub const COMPILE_NOTE_ACTION_ADAPTER_REQUIRED: &str =
+        "Enforcement action remains manual-required until adapter proof exists.";
+    pub const COMPILE_NOTE_OBSERVE_DRY_RUN: &str =
+        "Observe and dry-run modes do not execute browser adapters.";
     pub const REVISION_PREFIX: &str = "browser-policy-revision-";
     pub const COMPILED_HASH_PREFIX: &str = "browser-policy-compiled-";
     pub const AUDIT_PREFIX: &str = "browser-policy-audit-";

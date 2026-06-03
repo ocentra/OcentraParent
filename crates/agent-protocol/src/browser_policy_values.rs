@@ -12,7 +12,7 @@ pub enum BrowserPolicyDefaultPosture {
     Ask,
     #[serde(rename = "limit")]
     Limit,
-    #[serde(rename = "ask-parent")]
+    #[serde(rename = "parent-review")]
     AskParent,
     #[serde(rename = "block")]
     Block,
@@ -69,6 +69,8 @@ pub enum BrowserPolicyManagedBrowserMode {
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BrowserPolicyUnmanagedBrowserMode {
+    #[serde(rename = "report-only")]
+    ReportOnly,
     #[serde(rename = "observe-only")]
     ObserveOnly,
     #[serde(rename = "network-domain-only")]
@@ -77,14 +79,26 @@ pub enum BrowserPolicyUnmanagedBrowserMode {
     ManualReview,
     #[serde(rename = "allow")]
     Allow,
+    #[serde(rename = "allowed-unmanaged-exception")]
+    AllowedUnmanagedException,
     #[serde(rename = "monitor")]
     Monitor,
+    #[serde(rename = "warn-child")]
+    WarnChild,
     #[serde(rename = "warn")]
     Warn,
+    #[serde(rename = "parent-review")]
+    AskParent,
     #[serde(rename = "ask")]
     Ask,
+    #[serde(rename = "terminate-process")]
+    TerminateProcess,
     #[serde(rename = "relaunch-managed")]
     RelaunchManaged,
+    #[serde(rename = "os-block-configured")]
+    OsBlockConfigured,
+    #[serde(rename = "os-block-manual-required")]
+    OsBlockManualRequired,
     #[serde(rename = "block")]
     Block,
 }
@@ -114,6 +128,56 @@ pub enum BrowserPolicyUrlTargetType {
     CapabilityState,
     #[serde(rename = "download")]
     Download,
+    #[serde(rename = "social-platform")]
+    SocialPlatform,
+    #[serde(rename = "social-route-kind")]
+    SocialRouteKind,
+    #[serde(rename = "social-account-creation")]
+    SocialAccountCreation,
+    #[serde(rename = "social-unknown-account")]
+    SocialUnknownAccount,
+    #[serde(rename = "social-secondary-account")]
+    SocialSecondaryAccount,
+    #[serde(rename = "social-feed")]
+    SocialFeed,
+    #[serde(rename = "social-short-video-feed")]
+    SocialShortVideoFeed,
+    #[serde(rename = "social-messaging")]
+    SocialMessaging,
+    #[serde(rename = "social-upload-post")]
+    SocialUploadPost,
+    #[serde(rename = "social-livestream")]
+    SocialLivestream,
+    #[serde(rename = "unknown-social-site")]
+    UnknownSocialSite,
+    #[serde(rename = "browser-game")]
+    BrowserGame,
+    #[serde(rename = "browser-game-platform")]
+    BrowserGamePlatform,
+    #[serde(rename = "browser-game-portal")]
+    BrowserGamePortal,
+    #[serde(rename = "browser-game-url")]
+    BrowserGameUrl,
+    #[serde(rename = "educational-game")]
+    EducationalGame,
+    #[serde(rename = "cloud-gaming")]
+    CloudGaming,
+    #[serde(rename = "webgl-canvas-game")]
+    WebglCanvasGame,
+    #[serde(rename = "multiplayer-ugc-game")]
+    MultiplayerUgcGame,
+    #[serde(rename = "game-chat")]
+    GameChat,
+    #[serde(rename = "game-account")]
+    GameAccount,
+    #[serde(rename = "game-purchase")]
+    GamePurchase,
+    #[serde(rename = "game-loot-box")]
+    GameLootBox,
+    #[serde(rename = "unknown-game")]
+    UnknownGame,
+    #[serde(rename = "unblocked-game-site")]
+    UnblockedGameSite,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -134,13 +198,25 @@ pub enum BrowserPolicyEvidenceProofLevel {
     FreshManagedTabList,
     #[serde(rename = "fresh-managed-active-tab")]
     FreshManagedActiveTab,
+    #[serde(rename = "classifier-category")]
+    ClassifierCategory,
+    #[serde(rename = "url-shape-metadata")]
+    UrlShapeMetadata,
+    #[serde(rename = "social-route-evidence")]
+    SocialRouteEvidence,
+    #[serde(rename = "browser-game-runtime-signal")]
+    BrowserGameRuntimeSignal,
+    #[serde(rename = "browser-policy-writer")]
+    BrowserPolicyWriter,
+    #[serde(rename = "adapter-action")]
+    AdapterAction,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BrowserPolicyProofFallback {
     #[serde(rename = "downgrade-to-domain")]
     DowngradeToDomain,
-    #[serde(rename = "ask-parent")]
+    #[serde(rename = "parent-review")]
     AskParent,
     #[serde(rename = "block-until-proof")]
     BlockUntilProof,
@@ -175,7 +251,7 @@ pub enum BrowserPolicyDownloadState {
     Warn,
     #[serde(rename = "ask")]
     Ask,
-    #[serde(rename = "ask-parent")]
+    #[serde(rename = "parent-review")]
     AskParent,
     #[serde(rename = "block")]
     Block,
@@ -253,4 +329,59 @@ pub enum BrowserPolicyCapabilityState {
     Ready,
     #[serde(rename = "manual-required")]
     ManualRequired,
+}
+
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+pub enum BrowserPolicyTargetProofRequirement {
+    #[default]
+    #[serde(rename = "none")]
+    None,
+    #[serde(rename = "managed-exact-url")]
+    ManagedExactUrl,
+    #[serde(rename = "domain-or-managed-url")]
+    DomainOrManagedUrl,
+    #[serde(rename = "classifier-category")]
+    ClassifierCategory,
+    #[serde(rename = "url-shape-metadata")]
+    UrlShapeMetadata,
+    #[serde(rename = "social-route-evidence")]
+    SocialRouteEvidence,
+    #[serde(rename = "browser-game-runtime-signal")]
+    BrowserGameRuntimeSignal,
+    #[serde(rename = "browser-policy-writer")]
+    BrowserPolicyWriter,
+    #[serde(rename = "process-detection")]
+    ProcessDetection,
+    #[serde(rename = "download-evidence")]
+    DownloadEvidence,
+    #[serde(rename = "capability-state")]
+    CapabilityState,
+    #[serde(rename = "adapter-action")]
+    AdapterAction,
+}
+
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+pub enum BrowserPolicyActionExecutionState {
+    #[default]
+    #[serde(rename = "observe-only")]
+    ObserveOnly,
+    #[serde(rename = "dry-run-no-execution")]
+    DryRunNoExecution,
+    #[serde(rename = "deterministic-parent-policy")]
+    DeterministicParentPolicy,
+    #[serde(rename = "adapter-ready")]
+    AdapterReady,
+    #[serde(rename = "manual-required")]
+    ManualRequired,
+    #[serde(rename = "unavailable")]
+    Unavailable,
+}
+
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+pub enum BrowserPolicyAiAuthority {
+    #[default]
+    #[serde(rename = "parent-policy-only")]
+    ParentPolicyOnly,
+    #[serde(rename = "ai-candidate-only")]
+    AiCandidateOnly,
 }

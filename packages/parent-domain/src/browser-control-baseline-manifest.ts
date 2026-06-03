@@ -174,6 +174,38 @@ export const BaselineBrowserControlAuthoringManifest = BrowserControlAuthoringMa
           ['chromium-cdp', 'webdriver-bidi', 'managed-extension-native-host', 'browser-policy', 'owned-webview'],
           []
         ),
+        multiSelectField(
+          BrowserControlManifestDefaults.Field.ManagedBrowserPolicyWriterControls,
+          BrowserControlWritesToPath.ManagedBrowserPolicyWriterControls,
+          'Which managed Chrome/Edge policy-writer inputs may be authored?',
+          [
+            'disable-incognito',
+            'disable-guest-browsing',
+            'disable-profile-adding',
+            'limit-history-deletion',
+            'force-safe-search',
+            'force-restricted-mode',
+          ],
+          [
+            'disable-incognito',
+            'disable-guest-browsing',
+            'disable-profile-adding',
+            'limit-history-deletion',
+            'force-safe-search',
+            'force-restricted-mode',
+            'url-allow-list',
+            'url-block-list',
+          ],
+          []
+        ),
+        selectField(
+          BrowserControlManifestDefaults.Field.ManagedBrowserPolicyWriterFallback,
+          BrowserControlWritesToPath.ManagedBrowserPolicyWriterFallback,
+          'What if managed browser policy writing is unsupported?',
+          'manual-required',
+          ['observe-only', 'manual-required', 'degraded', 'unsupported', 'not-claimed'],
+          []
+        ),
       ],
     },
     {
@@ -186,8 +218,17 @@ export const BaselineBrowserControlAuthoringManifest = BrowserControlAuthoringMa
           BrowserControlManifestDefaults.Field.UnmanagedBrowserMode,
           BrowserControlWritesToPath.UnmanagedBrowserMode,
           'What should happen to unmanaged browsers?',
-          'monitor',
-          ['allow', 'monitor', 'warn', 'ask', 'relaunch-managed', 'block'],
+          'report-only',
+          [
+            'report-only',
+            'allowed-unmanaged-exception',
+            'warn-child',
+            'parent-review',
+            'terminate-process',
+            'relaunch-managed',
+            'os-block-configured',
+            'os-block-manual-required',
+          ],
           []
         ),
         numberField(
@@ -308,6 +349,11 @@ export const BaselineBrowserControlAuthoringManifest = BrowserControlAuthoringMa
             'browser-process',
             'capability-state',
             'download',
+            'browser-game-portal',
+            'cloud-gaming',
+            'webgl-canvas-game',
+            'game-account',
+            'game-purchase',
           ],
           []
         ),
@@ -326,6 +372,7 @@ export const BaselineBrowserControlAuthoringManifest = BrowserControlAuthoringMa
             'redirect',
             'close-tab',
             'close-browser',
+            'terminate-process',
             'relaunch-managed',
           ],
           []
@@ -335,6 +382,24 @@ export const BaselineBrowserControlAuthoringManifest = BrowserControlAuthoringMa
           BrowserControlManifestDefaults.Field.RuleItems,
           BrowserControlWritesToPath.RuleItems,
           'Rules',
+          [],
+          [],
+          []
+        ),
+        field(
+          'target-list',
+          BrowserControlManifestDefaults.Field.UrlAllowList,
+          BrowserControlWritesToPath.UrlAllowList,
+          'Allowed URL or domain list',
+          [],
+          [],
+          []
+        ),
+        field(
+          'target-list',
+          BrowserControlManifestDefaults.Field.UrlBlockList,
+          BrowserControlWritesToPath.UrlBlockList,
+          'Blocked URL or domain list',
           [],
           [],
           []
@@ -374,6 +439,69 @@ export const BaselineBrowserControlAuthoringManifest = BrowserControlAuthoringMa
             'unmanaged-as-unknown-web-time',
           ],
           [equals(BrowserControlWritesToPath.BudgetsEnabled, true)]
+        ),
+      ],
+    },
+    {
+      sectionId: BrowserControlManifestDefaults.Section.BrowserGames,
+      title: 'Browser games and cloud gaming',
+      description: 'Author educational game, unknown game, cloud gaming, account, purchase, portal, and canvas rules.',
+      visibleWhen: [enabled, notEquals(BrowserControlWritesToPath.DefaultPosture, 'allow')],
+      fields: [
+        selectField(
+          BrowserControlManifestDefaults.Field.BrowserGameEducationalMode,
+          BrowserControlWritesToPath.BrowserGameEducationalMode,
+          'What should happen to educational browser games?',
+          'allow',
+          ['allow', 'observe', 'warn', 'parent-review', 'limit', 'block', 'manual-required'],
+          []
+        ),
+        selectField(
+          BrowserControlManifestDefaults.Field.BrowserGameUnknownMode,
+          BrowserControlWritesToPath.BrowserGameUnknownMode,
+          'What should happen to unknown browser games?',
+          'parent-review',
+          ['allow', 'observe', 'warn', 'parent-review', 'limit', 'block', 'manual-required'],
+          []
+        ),
+        selectField(
+          BrowserControlManifestDefaults.Field.BrowserGameCloudGamingApproval,
+          BrowserControlWritesToPath.BrowserGameCloudGamingApproval,
+          'How should cloud gaming be approved?',
+          'parent-review',
+          ['allow', 'parent-review', 'block', 'manual-required'],
+          []
+        ),
+        selectField(
+          BrowserControlManifestDefaults.Field.BrowserGamePurchaseAccountApproval,
+          BrowserControlWritesToPath.BrowserGamePurchaseAccountApproval,
+          'How should game purchases and accounts be approved?',
+          'parent-review',
+          ['allow', 'parent-review', 'block', 'manual-required'],
+          []
+        ),
+        selectField(
+          BrowserControlManifestDefaults.Field.BrowserGameUnblockedPortalMode,
+          BrowserControlWritesToPath.BrowserGameUnblockedPortalMode,
+          'What should happen to unblocked game portals?',
+          'warn',
+          ['allow', 'observe', 'warn', 'parent-review', 'limit', 'block', 'manual-required'],
+          []
+        ),
+        selectField(
+          BrowserControlManifestDefaults.Field.BrowserGameWebglCanvasMode,
+          BrowserControlWritesToPath.BrowserGameWebglCanvasMode,
+          'What should happen to WebGL or canvas games?',
+          'observe',
+          ['allow', 'observe', 'warn', 'parent-review', 'limit', 'block', 'manual-required'],
+          []
+        ),
+        numberField(
+          BrowserControlManifestDefaults.Field.BrowserGameDailyBudgetMinutes,
+          BrowserControlWritesToPath.BrowserGameDailyBudgetMinutes,
+          'Default daily browser-game minutes',
+          30,
+          []
         ),
       ],
     },

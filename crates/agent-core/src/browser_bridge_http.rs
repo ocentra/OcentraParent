@@ -14,17 +14,16 @@ pub fn read_devtools_body(
     request_line: &str,
 ) -> Result<String, BrowserBridgePollError> {
     let timeout = Duration::from_millis(constants::browser::DEVTOOLS_TIMEOUT_MS);
-    let mut stream =
-        TcpStream::connect_timeout(endpoint, timeout).map_err(|_| BrowserBridgePollError::Io)?;
+    let mut stream = TcpStream::connect_timeout(endpoint, timeout).map_err(map_io_error)?;
     stream
         .set_read_timeout(Some(timeout))
-        .map_err(|_| BrowserBridgePollError::Io)?;
+        .map_err(map_io_error)?;
     stream
         .set_write_timeout(Some(timeout))
-        .map_err(|_| BrowserBridgePollError::Io)?;
+        .map_err(map_io_error)?;
     stream
         .write_all(devtools_request(request_line).as_bytes())
-        .map_err(|_| BrowserBridgePollError::Io)?;
+        .map_err(map_io_error)?;
 
     let mut response = Vec::new();
     let mut buffer = [0; 4096];
@@ -33,6 +32,9 @@ pub fn read_devtools_body(
             Ok(0) => break,
             Ok(read) => {
                 response.extend_from_slice(&buffer[..read]);
+                if response.len() > constants::browser::DEVTOOLS_MAX_RESPONSE_BYTES {
+                    return Err(BrowserBridgePollError::ResponseTooLarge);
+                }
                 if let Some(body) = complete_http_response_body(&response)? {
                     return Ok(body);
                 }
@@ -46,7 +48,7 @@ pub fn read_devtools_body(
                 if error.kind() == ErrorKind::Interrupted {
                     continue;
                 }
-                break;
+                return Err(BrowserBridgePollError::Timeout);
             }
             Err(_) => return Err(BrowserBridgePollError::Io),
         }
@@ -70,10 +72,13 @@ fn http_response_body(response: &str) -> Result<String, BrowserBridgePollError> 
     if !response.starts_with(constants::browser::HTTP_OK_PREFIX) {
         return Err(BrowserBridgePollError::InvalidHttpResponse);
     }
-    response
-        .split_once(constants::browser::HTTP_BODY_SEPARATOR)
-        .map(|(_, body)| body.to_string())
-        .ok_or(BrowserBridgePollError::InvalidHttpResponse)
+    let Some((_, body)) = response.split_once(constants::browser::HTTP_BODY_SEPARATOR) else {
+        return Err(BrowserBridgePollError::InvalidHttpResponse);
+    };
+    if body.len() > constants::browser::DEVTOOLS_MAX_RESPONSE_BYTES {
+        return Err(BrowserBridgePollError::ResponseTooLarge);
+    }
+    Ok(body.to_string())
 }
 
 fn complete_http_response_body(response: &[u8]) -> Result<Option<String>, BrowserBridgePollError> {
@@ -89,6 +94,9 @@ fn complete_http_response_body(response: &[u8]) -> Result<Option<String>, Browse
     let Some(content_length) = content_length(headers) else {
         return Ok(None);
     };
+    if content_length > constants::browser::DEVTOOLS_MAX_RESPONSE_BYTES {
+        return Err(BrowserBridgePollError::ResponseTooLarge);
+    }
     if body.len() < content_length {
         return Ok(None);
     }
@@ -108,4 +116,11 @@ fn content_length(headers: &str) -> Option<usize> {
             .strip_prefix(constants::browser::HTTP_HEADER_CONTENT_LENGTH)
             .and_then(|value| value.trim().parse::<usize>().ok())
     })
+}
+
+fn map_io_error(error: std::io::Error) -> BrowserBridgePollError {
+    if matches!(error.kind(), ErrorKind::TimedOut | ErrorKind::WouldBlock) {
+        return BrowserBridgePollError::Timeout;
+    }
+    BrowserBridgePollError::Io
 }

@@ -158,17 +158,17 @@ function browserPolicyAskParentExists(answers: BrowserPolicyAnswerMap): boolean 
 
 function browserPolicyHasAnyAskParentTrigger(answers: BrowserPolicyAnswerMap): boolean {
   return (
-    browserPolicyHasAny(answers, '1.2', ['ask-parent']) ||
-    browserPolicyHasAny(answers, '2.3', ['ask-parent']) ||
-    browserPolicyHasAny(answers, '4.1', ['ask-parent']) ||
-    browserPolicyHasAny(answers, '5.2', ['ask-parent']) ||
-    browserPolicyHasAny(answers, '5.3', ['ask-parent']) ||
-    browserPolicyHasAny(answers, '6.1', ['ask-parent']) ||
-    browserPolicyHasAny(answers, '7.1', ['ask-parent']) ||
-    browserPolicyHasAny(answers, '8.1', ['ask-parent']) ||
-    browserPolicyHasAny(answers, '9.1', ['ask-parent']) ||
-    browserPolicyHasAny(answers, '9.3', ['ask-parent']) ||
-    browserPolicyHasAny(answers, '15.2', ['ask-parent'])
+    browserPolicyHasAny(answers, '1.2', ['parent-review']) ||
+    browserPolicyHasAny(answers, '2.3', ['parent-review']) ||
+    browserPolicyHasAny(answers, '4.1', ['parent-review']) ||
+    browserPolicyHasAny(answers, '5.2', ['parent-review']) ||
+    browserPolicyHasAny(answers, '5.3', ['parent-review']) ||
+    browserPolicyHasAny(answers, '6.1', ['parent-review']) ||
+    browserPolicyHasAny(answers, '7.1', ['parent-review']) ||
+    browserPolicyHasAny(answers, '8.1', ['parent-review']) ||
+    browserPolicyHasAny(answers, '9.1', ['parent-review']) ||
+    browserPolicyHasAny(answers, '9.3', ['parent-review']) ||
+    browserPolicyHasAny(answers, '15.2', ['parent-review'])
   );
 }
 
@@ -191,7 +191,7 @@ function browserPolicySetupRelevant(answers: BrowserPolicyAnswerMap): boolean {
   return (
     browserPolicyHasAny(answers, '3.1', ['prefer-managed', 'managed-exact', 'managed-all']) ||
     browserPolicyHasAny(answers, '2.2', ['standard', 'strict', 'custom']) ||
-    browserPolicyHasAny(answers, '2.3', ['ask-parent', 'block-until-approved']) ||
+    browserPolicyHasAny(answers, '2.3', ['parent-review', 'block-until-approved']) ||
     browserPolicyComputedFlag('unsupportedCapabilityRelevant', answers)
   );
 }
@@ -217,17 +217,17 @@ function browserPolicyNotificationEventsRelevant(answers: BrowserPolicyAnswerMap
 
 function browserPolicyHasAnyNotificationTrigger(answers: BrowserPolicyAnswerMap): boolean {
   return (
-    browserPolicyHasAny(answers, '2.3', ['notify-parent', 'ask-parent', 'block-until-approved']) ||
+    browserPolicyHasAny(answers, '2.3', ['notify-parent', 'parent-review', 'block-until-approved']) ||
     browserPolicyHasAny(answers, '4.1', [
       'warn',
       'notify-parent',
-      'ask-parent',
+      'parent-review',
       'close',
       'close-open-managed',
       'block-launch',
     ]) ||
-    browserPolicyHasAny(answers, '6.1', ['warn', 'ask-parent', 'block', 'close-browser']) ||
-    browserPolicyHasAny(answers, '9.1', ['notify-parent', 'ask-parent', 'block-risky', 'block-all-approved']) ||
+    browserPolicyHasAny(answers, '6.1', ['warn', 'parent-review', 'block', 'close-browser']) ||
+    browserPolicyHasAny(answers, '9.1', ['notify-parent', 'parent-review', 'block-risky', 'block-all-approved']) ||
     browserPolicyComputedFlag('limitExists', answers) ||
     browserPolicyHasAnyRoot(answers, ['paused', 'emergency-allow', 'emergency-block'])
   );
@@ -249,6 +249,10 @@ function browserPolicyStoredBrowserDataExists(answers: BrowserPolicyAnswerMap): 
     browserPolicyCount(answers, '13.1') > 0 ||
     browserPolicyCount(answers, '12.1') > 0
   );
+}
+
+function browserPolicyBrowserGamesRelevant(answers: BrowserPolicyAnswerMap): boolean {
+  return browserPolicyRootAnswer(answers) === 'on' && browserPolicyHas(answers, '5.1', 'browser-games');
 }
 
 const BrowserPolicyComputedFlagEvaluators: Record<
@@ -280,6 +284,7 @@ const BrowserPolicyComputedFlagEvaluators: Record<
   notificationEventsRelevant: browserPolicyNotificationEventsRelevant,
   unsupportedCapabilityRelevant: browserPolicyUnsupportedCapabilityRelevant,
   storedBrowserDataExists: browserPolicyStoredBrowserDataExists,
+  browserGamesRelevant: browserPolicyBrowserGamesRelevant,
 };
 
 export function browserPolicyForestSourceSettingIds(): ReadonlyMap<BrowserPolicyQuestionId, readonly string[]> {

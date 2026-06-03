@@ -6,6 +6,17 @@ The repo has Windows-oriented managed browser proof scripts and process
 snapshots, but not a full product inventory adapter that reconciles registry,
 known paths, AppX/MSIX packages, shortcuts, and running processes.
 
+2026-06-02 codex-d progress: `agent-core` now has a Windows browser inventory
+observation adapter for known-path and process-snapshot fixtures. It classifies
+managed Edge/Chrome/Chrome-for-Testing candidates, unproved Chromium forks
+(Brave, Vivaldi, Opera, Chromium) as manual-required candidates, Firefox/Tor/
+DuckDuckGo/Arc-style browsers as unsupported until a later adapter proves them,
+and running browser processes as process-only evidence without URL claims. The
+service can convert these observations into the existing browser inventory
+read-model rows. This does not yet enumerate registry uninstall entries, Start
+Menu shortcuts, live AppX/MSIX packages, signatures, hashes, or real Windows
+manual inventory evidence.
+
 ## Where We Want To Be
 
 Windows inventory can detect supported, candidate, unsupported, packaged,
@@ -38,23 +49,27 @@ portable, and block-only browsers without collecting URLs.
 
 Fill this before reporting `DONE` or PR-ready:
 
-- [ ] Confirm source docs read: [folder README](../README.md), [source index](../source-index.md), [current snapshot](../current-browser-snapshot.md), [full scope plan](../v0-5-managed-browser-full-scope-plan.md), [test blueprint](../v0-5-managed-browser-test-blueprint.md), [UI/UX guide](../ui-ux-requirements-guide.md), [main checklist](../implementation-checklist.md), and this workpack.
-- [ ] Check enhancement overlap: URL/video AI intelligence, social platform/account/feed gating, and browser games/cloud gaming.
-- [ ] Hub lock covers this workpack and exact implementation/docs paths.
-- [ ] Existing source layout inspected; no parallel browser truth created.
-- [ ] Before-state source snapshot recorded in `output/browser-plan-proof/<workpack-id>/00-source-snapshot.md` or explicit docs-only N/A reason.
-- [ ] Contracts updated first where this workpack changes behavior.
-- [ ] Rust/service/portal parity updated only after contracts exist.
-- [ ] Raw evidence artifacts captured where applicable: bridge/CDP payloads, managed session state, unmanaged process rows, journal entries, SQLite/read-model rows, policy decisions, and action results.
-- [ ] Tests/proof listed in this workpack are implemented or explicitly marked manual-required with reason.
-- [ ] Validation command outputs saved in the proof pack and summarized in [main checklist](../implementation-checklist.md).
-- [ ] UI snapshots captured for every touched parent portal, child UX, block/warn, policy authoring, or dashboard state; if no UI changed, `ui-not-applicable.md` records why.
-- [ ] Security/no-claim negative proof captured where applicable: no default profile attach, no unowned bridge, no unmanaged exact URL claim, no raw debugger URL exposure, and no AI direct enforcement.
-- [ ] Manual platform proof captured for real browser/OS claims, including OS/browser version, command steps, screenshots/logs, and manual-required labels.
-- [ ] Evidence/proof artifact paths recorded in [main checklist](../implementation-checklist.md).
-- [ ] Feature/expectation/product-checklist/README update decision recorded in [main checklist](../implementation-checklist.md).
-- [ ] Known gaps, deferred items, and no-claim boundaries recorded before `DONE`.
+- [x] Confirm source docs read: [folder README](../README.md), [source index](../source-index.md), [current snapshot](../current-browser-snapshot.md), [full scope plan](../v0-5-managed-browser-full-scope-plan.md), [test blueprint](../v0-5-managed-browser-test-blueprint.md), [UI/UX guide](../ui-ux-requirements-guide.md), [main checklist](../implementation-checklist.md), and this workpack.
+- [x] Check enhancement overlap: URL/video AI intelligence, social platform/account/feed gating, and browser games/cloud gaming.
+- [x] Hub lock covers this workpack and exact implementation/docs paths.
+- [x] Existing source layout inspected; no parallel browser truth created; managed launch identity now reuses the Windows inventory identity path.
+- [x] Before-state source snapshot recorded in `output/browser-plan-proof/04-windows-browser-inventory-adapter/00-source-snapshot.md`.
+- [x] Contracts updated first where this workpack changes behavior.
+- [x] Rust/service parity updated only after contracts exist; portal parity remains deferred because no UI surface changed.
+- [x] Raw evidence artifacts captured or marked N/A for this fixture-backed slice: known-path fixtures and process observations feed the adapter; no registry, shortcut, AppX/MSIX, signature/hash, journal, SQLite, policy, or action behavior changed.
+- [x] Tests/proof listed in this workpack are implemented for known-path/process fixture parsing and service row conversion; registry, shortcut, AppX/MSIX, live OS inventory, signatures, hashes, and manual platform proof remain manual-required.
+- [x] Validation command outputs saved in the proof pack and summarized in [main checklist](../implementation-checklist.md).
+- [x] UI snapshots captured for every touched parent portal, child UX, block/warn, policy authoring, or dashboard state; no UI changed, so `ui-not-applicable.md` records why.
+- [x] Security/no-claim negative proof captured for this slice: unmanaged running processes remain process-only, unproved Chromium forks are manual-required, unsupported browsers stay unsupported, and no URL collection path was added.
+- [x] Manual platform proof captured for real browser/OS claims; no new real OS/browser claim was made, so `09-manual-platform-proof.md` records the pending manual-required boundary.
+- [x] Evidence/proof artifact paths recorded in [main checklist](../implementation-checklist.md).
+- [x] Feature/expectation/product-checklist/README update decision recorded in [main checklist](../implementation-checklist.md).
+- [x] Known gaps, deferred items, and no-claim boundaries recorded before `DONE`.
 
 ## Manual-Required Gaps
 
 Detecting a browser does not claim exact URL or app-control blocking.
+Remaining adapter work requires registry uninstall entry enumeration, Start Menu
+shortcut parsing, live AppX/MSIX package enumeration, publisher/signature/hash
+refs, actual Windows manual capture, and portal/read-model consumption before
+this workpack can be marked complete.

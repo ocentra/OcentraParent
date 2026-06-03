@@ -81,6 +81,38 @@ impl BrowserActiveTabState {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum BrowserActiveProofSource {
+    #[serde(rename = "target-list-only")]
+    TargetListOnly,
+    #[serde(rename = "cdp-focus-activation")]
+    CdpFocusActivation,
+    #[serde(rename = "managed-extension-event")]
+    ManagedExtensionEvent,
+    #[serde(rename = "foreground-correlation")]
+    ForegroundCorrelation,
+    #[serde(rename = "owned-shell-event")]
+    OwnedShellEvent,
+}
+
+impl BrowserActiveProofSource {
+    pub fn as_protocol_str(&self) -> &'static str {
+        match self {
+            Self::TargetListOnly => constants::browser::ACTIVE_PROOF_SOURCE_TARGET_LIST_ONLY,
+            Self::CdpFocusActivation => {
+                constants::browser::ACTIVE_PROOF_SOURCE_CDP_FOCUS_ACTIVATION
+            }
+            Self::ManagedExtensionEvent => {
+                constants::browser::ACTIVE_PROOF_SOURCE_MANAGED_EXTENSION_EVENT
+            }
+            Self::ForegroundCorrelation => {
+                constants::browser::ACTIVE_PROOF_SOURCE_FOREGROUND_CORRELATION
+            }
+            Self::OwnedShellEvent => constants::browser::ACTIVE_PROOF_SOURCE_OWNED_SHELL_EVENT,
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BrowserCapabilityStatus {
     #[serde(rename = "available")]
     Available,
@@ -162,6 +194,7 @@ pub struct BrowserEvidenceRecentSummary {
     pub managed_browser_session_id: Option<String>,
     pub browser_family: Option<String>,
     pub active_state: Option<String>,
+    pub active_proof_source: Option<String>,
     pub url: Option<String>,
     pub origin: Option<String>,
     pub domain: Option<String>,

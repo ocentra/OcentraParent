@@ -30,7 +30,7 @@ const textExtensions = new Set([
   '.yaml',
 ]);
 const secretPatterns = [
-  { label: 'OpenAI key', pattern: /sk-[A-Za-z0-9_-]{20,}/u },
+  { label: 'OpenAI key', pattern: /(?<![A-Za-z0-9_-])sk-[A-Za-z0-9_-]{20,}/u },
   { label: 'GitHub token', pattern: /gh[pousr]_[A-Za-z0-9_]{30,}/u },
   { label: 'Google API key', pattern: /AIza[0-9A-Za-z_-]{35}/u },
   { label: 'Google OAuth client secret', pattern: /GOCSPX-[0-9A-Za-z_-]{28,}/u },

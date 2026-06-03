@@ -132,10 +132,14 @@ Additional proof scripts include:
 ```text
 node scripts/test/v0-8-browser-domain-adapter-proof.mjs
 node scripts/test/windows-managed-unmanaged-browser-enforcement-proof.mjs
+node scripts/test/browser-performance-health-proof.mjs
+node scripts/test/browser-plan-e2e-manual-proof-artifacts.mjs
 ```
 
 The managed-browser matrix and intervention scripts are real installed-browser
-proof harnesses, not default CI unit tests.
+proof harnesses, not default CI unit tests. The performance-health and
+artifact-manifest scripts are fixture/index proof gates that keep runtime and
+manual-required claims explicit.
 
 ## Current Gaps
 

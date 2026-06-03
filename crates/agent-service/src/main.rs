@@ -3,6 +3,8 @@
 mod activity_api;
 mod activity_capture;
 #[cfg(test)]
+mod activity_capture_browser_tests;
+#[cfg(test)]
 mod activity_capture_tests;
 mod activity_family_sources;
 #[cfg(test)]
@@ -35,11 +37,18 @@ mod activity_surface_request;
 mod activity_surface_store;
 mod app;
 mod browser_evidence_payload;
+#[cfg_attr(not(test), allow(dead_code))]
+mod browser_inventory_read_model;
+#[cfg(test)]
+mod browser_inventory_read_model_tests;
 mod browser_payload;
 mod browser_policy_api;
 #[cfg(test)]
 mod browser_policy_api_tests;
 mod browser_policy_compiler;
+mod browser_policy_compiler_assessment;
+#[cfg(test)]
+mod browser_policy_compiler_tests;
 #[cfg(test)]
 mod browser_policy_manifest_patch_tests;
 mod browser_policy_payload;
@@ -54,6 +63,8 @@ mod browser_runtime_status;
 mod browser_runtime_tests;
 mod dev_log;
 mod enforcement_api;
+#[cfg_attr(not(test), allow(dead_code))]
+mod enforcement_browser_domain_adapter_app_control_proof_states;
 #[cfg_attr(not(test), allow(dead_code))]
 mod enforcement_browser_domain_adapter_proof_read_model;
 #[cfg(test)]

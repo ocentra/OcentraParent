@@ -75,12 +75,14 @@ async function main() {
       'Windows unmanaged browser terminate remains process-scoped pid/name proof only',
       'Windows unmanaged browser warning remains a degraded no-op boundary until notification and browser integration exist',
       'Audit, restart recovery, and browser policy rollback visibility are recorded as service/read-model boundaries',
+      'Windows AppLocker/App Control readiness, audit-only, enforced, manual-required, unavailable, and failed states are represented without claiming launch prevention',
       'Domain/network blocking, exact managed URL enforcement, unsupported OS, Android, and iOS entries remain manual-required, unavailable, or not-claimed',
     ],
     claimsNotProved: [
       'managed browser exact active-tab URL enforcement',
       'unmanaged browser URL, active tab, title, page, download source, HTTPS content, or intent certainty',
       'host network or domain blocking',
+      'Windows AppLocker, WDAC, or App Control for Business policy creation/update, launch blocking, rollback, or production prevention',
       'broad browser control outside the proved managed-session and process-only boundaries',
       'Linux or macOS browser/domain support',
       'Android VPN/DNS, device-owner, package lifecycle, or managed-profile enforcement',
@@ -90,6 +92,7 @@ async function main() {
       'managed browser active-tab evidence, exact URL apply, rollback, and audit custody artifacts',
       'explicit browser integration for unmanaged active tab, page, title, download, HTTPS content, and intent evidence',
       'host DNS/VPN/filter adapter apply, rollback, and custody evidence before network/domain claims upgrade',
+      'Windows edition, administrator permission, AppLocker/WDAC policy provider, audit/enforce policy apply, rollback, and failure artifacts',
       'Linux and macOS host-specific permission, package, service-manager, adapter apply, rollback, and audit proof',
       'Android VPN/DNS, device-owner or managed-profile, package lifecycle, and real-device proof',
       'iOS Network Extension, Family Controls, DeviceActivity, entitlement, signing, TestFlight, and device proof',
@@ -104,6 +107,8 @@ async function main() {
 function summarizeReadModel(readModel) {
   return {
     entries: readModel.entries.length,
+    windowsAppControlStates: readModel.windowsAppControlStates.length,
+    byWindowsAppControlReadinessState: countBy(readModel.windowsAppControlStates.map((state) => state.readinessState)),
     byPlatform: countBy(readModel.entries.map((entry) => entry.platform)),
     byCapabilityStatus: countBy(readModel.entries.map((entry) => entry.capabilityStatus)),
     byProductClaimState: countBy(readModel.entries.map((entry) => entry.productClaimState)),
@@ -113,12 +118,26 @@ function summarizeReadModel(readModel) {
     networkDomainBlockingClaimed: readModel.entries.filter((entry) => entry.networkDomainBlockingClaimed).length,
     broadBrowserControlClaimed: readModel.entries.filter((entry) => entry.broadBrowserControlClaimed).length,
     unsupportedOsClaimed: readModel.entries.filter((entry) => entry.unsupportedOsClaimed).length,
+    appControlPreventionClaimed: readModel.windowsAppControlStates.filter((state) => state.appControlPreventionClaimed)
+      .length,
+    appControlPolicyCreationClaimed: readModel.windowsAppControlStates.filter((state) => state.policyCreationClaimed)
+      .length,
+    appControlPolicyUpdateClaimed: readModel.windowsAppControlStates.filter((state) => state.policyUpdateClaimed)
+      .length,
+    appControlRollbackClaimed: readModel.windowsAppControlStates.filter((state) => state.rollbackClaimed).length,
   };
 }
 
 function assertReadModel(readModel, summary) {
   assertEqual(readModel.readModelId, 'v0-8-browser-domain-adapter-proof', 'read model id');
   assertEqual(summary.entries, 14, 'entry count');
+  assertEqual(summary.windowsAppControlStates, 6, 'Windows app-control state count');
+  assertEqual(summary.byWindowsAppControlReadinessState['readiness-check'], 1, 'app-control readiness count');
+  assertEqual(summary.byWindowsAppControlReadinessState['audit-only'], 1, 'app-control audit-only count');
+  assertEqual(summary.byWindowsAppControlReadinessState.enforced, 1, 'app-control enforced count');
+  assertEqual(summary.byWindowsAppControlReadinessState['manual-required'], 1, 'app-control manual count');
+  assertEqual(summary.byWindowsAppControlReadinessState.unavailable, 1, 'app-control unavailable count');
+  assertEqual(summary.byWindowsAppControlReadinessState.failed, 1, 'app-control failed count');
   assertEqual(summary.byPlatform.windows, 10, 'Windows entry count');
   assertEqual(summary.byPlatform.linux, 1, 'Linux entry count');
   assertEqual(summary.byPlatform.macos, 1, 'macOS entry count');
@@ -139,6 +158,10 @@ function assertReadModel(readModel, summary) {
   assertEqual(summary.networkDomainBlockingClaimed, 0, 'network/domain claim count');
   assertEqual(summary.broadBrowserControlClaimed, 0, 'broad browser control claim count');
   assertEqual(summary.unsupportedOsClaimed, 0, 'unsupported OS claim count');
+  assertEqual(summary.appControlPreventionClaimed, 0, 'app-control prevention claim count');
+  assertEqual(summary.appControlPolicyCreationClaimed, 0, 'app-control policy creation claim count');
+  assertEqual(summary.appControlPolicyUpdateClaimed, 0, 'app-control policy update claim count');
+  assertEqual(summary.appControlRollbackClaimed, 0, 'app-control rollback claim count');
 
   const surfaces = new Set(readModel.entries.map((entry) => entry.surface));
   for (const expectedSurface of [
@@ -163,11 +186,15 @@ function assertReadModel(readModel, summary) {
   for (const expectedState of expectedSurfaceStates()) {
     assertSurfaceState(readModel, expectedState);
   }
+  for (const expectedState of expectedAppControlStates()) {
+    assertAppControlState(readModel, expectedState);
+  }
 
   proofLabels.push('v0.8.browser-domain-adapter.read-model');
   proofLabels.push('v0.8.browser-domain-adapter.no-claim-upgrade');
   proofLabels.push('v0.8.browser-domain-adapter.manual-unsupported-gates');
   proofLabels.push('v0.8.browser-domain-adapter.surface-state-guard');
+  proofLabels.push('v0.8.windows-app-control.state-representation');
 }
 
 function expectedSurfaceStates() {
@@ -187,6 +214,35 @@ function expectedSurfaceStates() {
     ['android-browser-domain-adapter-manual', 'manual-required', 'returns-manual-required', 'manual-required'],
     ['ios-browser-domain-adapter-manual', 'manual-required', 'returns-manual-required', 'manual-required'],
   ];
+}
+
+function expectedAppControlStates() {
+  return [
+    ['readiness-check', 'detect-only', 'administrator-required', 'manual-proof-required', 4],
+    ['audit-only', 'audit-only-visible', 'administrator-required', 'audit-visible', 4],
+    ['enforced', 'create-update-manual-required', 'administrator-required', 'rollback-visible', 4],
+    ['manual-required', 'manual-setup-required', 'manual-operator-required', 'manual-proof-required', 4],
+    ['unavailable', 'unavailable', 'service-permission-required', 'unavailable', 0],
+    ['failed', 'failed', 'administrator-required', 'failure-visible', 4],
+  ];
+}
+
+function assertAppControlState(
+  readModel,
+  [readinessState, policyMutationState, adminRequirement, eventState, ruleIdentityKindCount]
+) {
+  const state = readModel.windowsAppControlStates.find((candidate) => candidate.readinessState === readinessState);
+  if (state === undefined) {
+    throw new Error(`app-control state guard: missing ${readinessState}`);
+  }
+  assertEqual(state.policyMutationState, policyMutationState, `${readinessState} policyMutationState`);
+  assertEqual(state.adminRequirement, adminRequirement, `${readinessState} adminRequirement`);
+  assertEqual(state.ruleIdentityKinds.length, ruleIdentityKindCount, `${readinessState} ruleIdentityKind count`);
+  assertSetHas(new Set(state.eventStates), eventState, `${readinessState} event state`);
+  assertEqual(state.appControlPreventionClaimed, false, `${readinessState} prevention claim`);
+  assertEqual(state.policyCreationClaimed, false, `${readinessState} policy creation claim`);
+  assertEqual(state.policyUpdateClaimed, false, `${readinessState} policy update claim`);
+  assertEqual(state.rollbackClaimed, false, `${readinessState} rollback claim`);
 }
 
 function assertSurfaceState(readModel, [surface, productClaimState, adapterExecutionState, capabilityStatus]) {

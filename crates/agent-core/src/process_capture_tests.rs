@@ -10,6 +10,7 @@ fn process_observation_event_maps_snapshot_to_activity_contract() {
         ProcessObservation {
             pid: 4242,
             name: constants::activity_store::TEST_PROCESS_SUBJECT_NAME.to_string(),
+            executable_path: None,
         },
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
         0,

@@ -22,6 +22,7 @@ import { renderCommands } from './portal-command-controls';
 import { renderDashboard } from './portal-dashboard';
 import {
   renderBrowserEvidenceSummary,
+  renderBrowserInventorySummary,
   renderBrowserProtectionSummary,
   renderBrowserStatusSummary,
 } from './portal-browser-route-panels';
@@ -171,6 +172,7 @@ function renderBrowserRoute(container: HTMLElement, state: PortalRuntimeState): 
   renderBrowserGuidance(container);
   renderDashboard(container, (dashboard) => {
     renderBrowserStatusSummary(dashboard, liveActivity);
+    renderBrowserInventorySummary(dashboard, liveActivity);
     renderBrowserEvidenceSummary(dashboard, liveActivity);
     renderBrowserProtectionSummary(dashboard, liveActivity);
   });

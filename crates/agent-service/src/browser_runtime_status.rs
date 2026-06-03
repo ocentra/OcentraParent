@@ -1,8 +1,13 @@
 use ocentra_parent_agent_protocol::{
     constants, BrowserBridgeKind, BrowserCapabilityStatus, BrowserChannel, BrowserCustodyLabel,
-    BrowserFamily, BrowserManagedSessionStatus, BrowserManagedState, BrowserQueryVisibilityLabel,
+    BrowserFamily, BrowserManagedProfileLifecycleState, BrowserManagedProfileStoreEntry,
+    BrowserManagedSessionStatus, BrowserManagedState, BrowserQueryVisibilityLabel,
     BROWSER_EVIDENCE_SCHEMA_VERSION,
 };
+
+#[cfg(test)]
+use ocentra_parent_agent_core::BrowserManagedLaunchPlan;
+use ocentra_parent_agent_core::{BrowserManagedLaunch, BrowserUnmanagedProcessObservation};
 
 pub fn missing_browser_status(checked_at: String) -> BrowserManagedSessionStatus {
     BrowserManagedSessionStatus {
@@ -14,9 +19,20 @@ pub fn missing_browser_status(checked_at: String) -> BrowserManagedSessionStatus
         browser_version: None,
         profile_id: None,
         profile_path_ref: None,
+        profile_root_ref: None,
+        profile_scope_id: None,
+        profile_lifecycle_state: None,
+        policy_revision: None,
         process_id: None,
         bridge_kind: None,
         bridge_endpoint_ref: None,
+        unmanaged_process_name: None,
+        unmanaged_executable_path_ref: None,
+        unmanaged_signature_ref: None,
+        unmanaged_process_hash_ref: None,
+        unmanaged_process_kind: None,
+        unmanaged_detection_confidence: None,
+        unmanaged_detection_reason: None,
         managed_state: BrowserManagedState::NotInstalled,
         capability_status: BrowserCapabilityStatus::ManagedProfileMissing,
         degraded_reason: Some(constants::value::MANAGED_BROWSER_EXECUTABLE_MISSING.to_string()),
@@ -31,19 +47,25 @@ pub fn profile_missing_status(checked_at: String) -> BrowserManagedSessionStatus
     status.managed_state = BrowserManagedState::InstalledSupported;
     status.degraded_reason =
         Some(constants::value::MANAGED_BROWSER_PROFILE_DIR_MISSING.to_string());
+    status.profile_lifecycle_state = Some(BrowserManagedProfileLifecycleState::Missing);
     status
 }
 
 pub fn unmanaged_browser_status(
     checked_at: String,
-    process_id: u32,
-    browser_family: BrowserFamily,
-    browser_channel: BrowserChannel,
+    process: BrowserUnmanagedProcessObservation,
 ) -> BrowserManagedSessionStatus {
     let mut status = missing_browser_status(checked_at);
-    status.process_id = Some(process_id);
-    status.browser_family = Some(browser_family);
-    status.browser_channel = Some(browser_channel);
+    status.process_id = Some(process.process_id);
+    status.browser_family = Some(process.browser_family);
+    status.browser_channel = Some(process.browser_channel);
+    status.unmanaged_process_name = Some(process.process_name);
+    status.unmanaged_executable_path_ref = process.executable_path_ref;
+    status.unmanaged_signature_ref = process.signature_ref;
+    status.unmanaged_process_hash_ref = process.process_hash_ref;
+    status.unmanaged_process_kind = Some(process.process_kind);
+    status.unmanaged_detection_confidence = Some(process.detection_confidence);
+    status.unmanaged_detection_reason = Some(process.detection_reason);
     status.managed_state = BrowserManagedState::InstalledSupported;
     status.capability_status = BrowserCapabilityStatus::UnmanagedBrowser;
     status.degraded_reason = Some(constants::value::MANAGED_BROWSER_UNMANAGED_PROCESS.to_string());
@@ -55,10 +77,49 @@ pub fn managed_profile_ready_status(
     checked_at: String,
     browser_family: BrowserFamily,
     browser_channel: BrowserChannel,
+    profile_store_entry: BrowserManagedProfileStoreEntry,
 ) -> BrowserManagedSessionStatus {
     let mut status = base_managed_status(checked_at);
     status.browser_family = Some(browser_family);
     status.browser_channel = Some(browser_channel);
+    apply_profile_store_entry(&mut status, profile_store_entry);
+    status
+}
+
+#[cfg(test)]
+pub fn launch_pending_status(
+    checked_at: String,
+    plan: BrowserManagedLaunchPlan,
+    profile_store_entry: BrowserManagedProfileStoreEntry,
+) -> BrowserManagedSessionStatus {
+    let mut status = base_managed_status(checked_at);
+    status.browser_family = Some(plan.browser_family);
+    status.browser_channel = Some(plan.browser_channel);
+    status.managed_state = BrowserManagedState::LaunchPending;
+    status.capability_status = BrowserCapabilityStatus::BridgeMissing;
+    status.degraded_reason = Some(constants::value::MANAGED_BROWSER_LAUNCH_PENDING.to_string());
+    apply_profile_store_entry(&mut status, profile_store_entry);
+    status
+}
+
+pub fn running_managed_status(
+    checked_at: String,
+    launch: BrowserManagedLaunch,
+    profile_store_entry: BrowserManagedProfileStoreEntry,
+    started_at: String,
+) -> BrowserManagedSessionStatus {
+    let mut status = base_managed_status(checked_at);
+    status.browser_family = Some(launch.browser_family);
+    status.browser_channel = Some(launch.browser_channel);
+    status.profile_path_ref = Some(launch.profile_path_ref);
+    status.process_id = Some(launch.process_id);
+    status.managed_state = BrowserManagedState::RunningManaged;
+    status.capability_status = BrowserCapabilityStatus::BridgeMissing;
+    status.degraded_reason =
+        Some(constants::value::MANAGED_BROWSER_BRIDGE_CONNECT_PENDING.to_string());
+    status.started_at = Some(started_at);
+    apply_profile_store_entry(&mut status, profile_store_entry);
+    status.bridge_endpoint_ref = Some(launch.bridge_endpoint_ref);
     status
 }
 
@@ -105,11 +166,22 @@ fn base_managed_status(checked_at: String) -> BrowserManagedSessionStatus {
         browser_version: None,
         profile_id: Some(constants::browser::PROFILE_ID_DEV.to_string()),
         profile_path_ref: Some(constants::browser::PROFILE_PATH_REF_MANAGED.to_string()),
+        profile_root_ref: Some(constants::browser::PROFILE_ROOT_REF_MANAGED.to_string()),
+        profile_scope_id: Some(constants::browser::PROFILE_SCOPE_ID_DEV.to_string()),
+        profile_lifecycle_state: Some(BrowserManagedProfileLifecycleState::Ready),
+        policy_revision: Some(constants::browser::PROFILE_POLICY_REVISION_DEV.to_string()),
         process_id: None,
         bridge_kind: Some(BrowserBridgeKind::ChromiumDevtoolsProtocol),
         bridge_endpoint_ref: Some(
             constants::browser::BRIDGE_ENDPOINT_REF_LOOPBACK_DEVTOOLS.to_string(),
         ),
+        unmanaged_process_name: None,
+        unmanaged_executable_path_ref: None,
+        unmanaged_signature_ref: None,
+        unmanaged_process_hash_ref: None,
+        unmanaged_process_kind: None,
+        unmanaged_detection_confidence: None,
+        unmanaged_detection_reason: None,
         managed_state: BrowserManagedState::ManagedProfileReady,
         capability_status: BrowserCapabilityStatus::BridgeMissing,
         degraded_reason: None,
@@ -117,4 +189,16 @@ fn base_managed_status(checked_at: String) -> BrowserManagedSessionStatus {
         custody_label: BrowserCustodyLabel::ChildDeviceLocal,
         query_visibility: BrowserQueryVisibilityLabel::LiveLocal,
     }
+}
+
+fn apply_profile_store_entry(
+    status: &mut BrowserManagedSessionStatus,
+    entry: BrowserManagedProfileStoreEntry,
+) {
+    status.profile_id = Some(entry.profile_id);
+    status.profile_path_ref = Some(entry.profile_path_ref);
+    status.profile_root_ref = Some(entry.profile_root_ref);
+    status.profile_scope_id = Some(entry.profile_scope_id);
+    status.profile_lifecycle_state = Some(entry.lifecycle_state);
+    status.policy_revision = Some(entry.policy_revision);
 }
