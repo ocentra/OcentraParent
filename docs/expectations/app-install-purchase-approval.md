@@ -13,6 +13,9 @@ answer before claiming parity.
   risk/context where available.
 - Parent can see which store/source metadata fields still require platform API,
   entitlement, package-source, or manual proof before product support is claimed.
+- Parent can see which package-source artifact rows still require host/device
+  package identity, installer-source, receipt, signing, entitlement, or package
+  manager proof before product support is claimed.
 - Parent can see when the platform does not allow Ocentra to intercept or
   control install/purchase flow.
 
@@ -48,6 +51,10 @@ Expected contract families:
 - Platform-source metadata limitation rows name the store source, required
   artifacts, unavailable/manual-required state, limitation report ref, and
   explicit no-store-integration/no-interception boundary.
+- Package-source artifact rows name the package identity/source fields, required
+  artifacts, manual/device-proof/unavailable state, limitation report ref, and
+  explicit no-attached-artifact/no-store-integration/no-platform-adapter/no-real
+  interception/no-child-activity-data boundary.
 
 ## Validation Gates
 
@@ -55,6 +62,9 @@ Expected contract families:
   child-facing states, audit/report status, policy rules, and audit events.
 - TypeScript schema tests for platform-source metadata limitation rows and
   missing-platform-row rejection.
+- TypeScript schema tests and a proof harness for package-source artifact rows,
+  missing package-source row rejection, missing field coverage rejection, and
+  adapter/store/interception overclaim rejection.
 - Platform proof for Google Play, Apple App Store, Microsoft Store, or other
   store hooks before claiming integration.
 - Portal tests for approval flow when UI exists.
@@ -65,6 +75,8 @@ Expected contract families:
 - Do not imply Apple/Google ecosystem parity without approved APIs.
 - Do not let billing entitlements decide child safety approvals.
 - Do not treat contract-only child-facing/report rows as delivered runtime UX.
+- Do not treat package-source artifact requirement rows as captured host/device
+  artifacts.
 
 ## Done Signal
 

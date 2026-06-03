@@ -31,6 +31,7 @@ async function main() {
     parsedReadModel.platformSupportMatrix
   );
   const platformSourceMetadata = parsedReadModel.platformSourceMetadata;
+  const packageSourceArtifacts = parsedReadModel.packageSourceArtifacts;
   assert.equal(supportStateCounts.supported > 0, true);
   assert.equal(supportStateCounts['manual-required'] > 0, true);
   assert.equal(supportStateCounts.unavailable > 0, true);
@@ -51,6 +52,30 @@ async function main() {
   assert.deepEqual(
     platformSourceMetadata.map((row) => row.interceptionClaim),
     ['not-claimed', 'not-claimed', 'not-claimed', 'not-claimed', 'not-claimed']
+  );
+  assert.deepEqual(
+    packageSourceArtifacts.map((row) => `${row.platform}:${row.storeSurface}:${row.artifactStatus}`),
+    [
+      'windows:microsoft-store:manual-required',
+      'macos:mac-app-store:manual-required',
+      'linux:linux-package-manager:unavailable',
+      'android:google-play:device-proof-required',
+      'ios:apple-app-store:device-proof-required',
+    ]
+  );
+  assert.deepEqual(
+    packageSourceArtifacts.map((row) => row.artifactEvidenceClaim),
+    ['not-attached', 'not-attached', 'not-attached', 'not-attached', 'not-attached']
+  );
+  assert.deepEqual(
+    packageSourceArtifacts.map((row) => row.childDataCustody),
+    [
+      'no-child-activity-data',
+      'no-child-activity-data',
+      'no-child-activity-data',
+      'no-child-activity-data',
+      'no-child-activity-data',
+    ]
   );
   assert.deepEqual(
     parsedReadModel.approvalDecisions.map((decision) => decision.decisionAction),
@@ -79,6 +104,7 @@ async function main() {
     evidence: {
       contract: 'packages/parent-domain/src/app-install-purchase-approval.ts',
       platformSourceContract: 'packages/parent-domain/src/app-install-purchase-approval-platform-sources.ts',
+      packageSourceContract: 'packages/parent-domain/src/app-install-purchase-approval-package-sources.ts',
       contractTest: 'packages/parent-domain/tests/app-install-purchase-approval.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       output: relative(repoRoot, proofPath),
@@ -118,6 +144,28 @@ async function main() {
       storeIntegrationClaim: row.storeIntegrationClaim,
       platformAdapterClaim: row.platformAdapterClaim,
       interceptionClaim: row.interceptionClaim,
+      claimBoundary: row.claimBoundary,
+    })),
+    packageSourceArtifacts: packageSourceArtifacts.map((row) => ({
+      platform: row.platform,
+      storeSurface: row.storeSurface,
+      platformSourceRowId: row.platformSourceRowId,
+      packageSourceKind: row.packageSourceKind,
+      artifactStatus: row.artifactStatus,
+      approvalPathState: row.approvalPathState,
+      packageSourceFieldsRequired: row.packageSourceFieldsRequired,
+      packageSourceFieldsAttached: row.packageSourceFieldsAttached,
+      requestKindCoverage: row.requestKindCoverage,
+      requiredArtifacts: row.requiredArtifacts,
+      artifactEvidenceClaim: row.artifactEvidenceClaim,
+      artifactEvidencePath: row.artifactEvidencePath,
+      artifactCapturedAt: row.artifactCapturedAt,
+      limitationReason: row.limitationReason,
+      limitationReportRef: row.limitationReportRef,
+      storeIntegrationClaim: row.storeIntegrationClaim,
+      platformAdapterClaim: row.platformAdapterClaim,
+      interceptionClaim: row.interceptionClaim,
+      childDataCustody: row.childDataCustody,
       claimBoundary: row.claimBoundary,
     })),
     childFacingStates: parsedReadModel.childFacingStates.map((state) => ({
