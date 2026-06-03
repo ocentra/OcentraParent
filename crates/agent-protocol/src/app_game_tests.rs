@@ -1,16 +1,21 @@
 use super::{
     constants, AppGameInventoryCategoryCandidate, AppGameInventoryEvidenceRow,
-    AppGameSessionReport, AppGameSessionSummary, APP_GAME_CAPABILITY_STATUS_AVAILABLE,
-    APP_GAME_CATALOG_NOT_LOADED, APP_GAME_CATALOG_READY, APP_GAME_CLASSIFICATION_KNOWN_GAME,
+    AppGameRuntimeEvidenceRow, AppGameSessionReport, AppGameSessionSummary,
+    APP_GAME_CAPABILITY_STATUS_AVAILABLE, APP_GAME_CATALOG_NOT_LOADED, APP_GAME_CATALOG_READY,
+    APP_GAME_CLASSIFICATION_KNOWN_APP, APP_GAME_CLASSIFICATION_KNOWN_GAME,
     APP_GAME_CLASSIFICATION_POSSIBLY_GAME, APP_GAME_CONFIDENCE_FOREGROUND_CANDIDATE,
     APP_GAME_FOREGROUND_NOT_CLAIMED, APP_GAME_INVENTORY_CATEGORY_GAME,
     APP_GAME_INVENTORY_CUSTODY_LAUNCHER_MANIFEST, APP_GAME_INVENTORY_CUSTODY_STORE_PACKAGE,
     APP_GAME_INVENTORY_SOURCE_LAUNCHER_MANIFEST, APP_GAME_INVENTORY_SOURCE_STORE_PACKAGE,
-    APP_GAME_INVENTORY_STATE_INSTALLED, APP_GAME_PRODUCT_NATIVE_GAME, APP_GAME_RUNTIME_NOT_CLAIMED,
+    APP_GAME_INVENTORY_STATE_INSTALLED, APP_GAME_OBSERVATION_MODE_PROCESS_SNAPSHOT,
+    APP_GAME_PRODUCT_NATIVE_GAME, APP_GAME_RUNTIME_NOT_CLAIMED, APP_GAME_RUNTIME_RUNNING,
     APP_GAME_SCHEMA_VERSION, APP_GAME_TEST_CATALOG_REF, APP_GAME_TEST_DISPLAY_LABEL,
-    APP_GAME_TEST_EXECUTABLE_PATH_REF, APP_GAME_TEST_LAUNCHER_APP_ID,
+    APP_GAME_TEST_EXECUTABLE_PATH_REF, APP_GAME_TEST_FILE_HASH_REF, APP_GAME_TEST_LAUNCHER_APP_ID,
     APP_GAME_TEST_LAUNCHER_MANIFEST_ID, APP_GAME_TEST_LAUNCHER_REF,
-    APP_GAME_TEST_LAUNCHER_SOURCE_REF, APP_GAME_TEST_STORE_GAME_BUNDLE_ID,
+    APP_GAME_TEST_LAUNCHER_SOURCE_REF, APP_GAME_TEST_PARENT_PROCESS_ID, APP_GAME_TEST_PROCESS_ID,
+    APP_GAME_TEST_PROCESS_IDENTITY, APP_GAME_TEST_PROCESS_NAME,
+    APP_GAME_TEST_PUBLISHER_SIGNATURE_REF, APP_GAME_TEST_REGISTRY_SOURCE_REF,
+    APP_GAME_TEST_RUNTIME_EVIDENCE_ID, APP_GAME_TEST_STORE_GAME_BUNDLE_ID,
     APP_GAME_TEST_STORE_GAME_CATALOG_REF, APP_GAME_TEST_STORE_GAME_DISPLAY_LABEL,
     APP_GAME_TEST_STORE_GAME_PACKAGE_ID, APP_GAME_TEST_STORE_GAME_SOURCE_REF,
     APP_GAME_TEST_STORE_GAME_STORE_ID, APP_GAME_TEST_STORE_GAME_USER_MODEL_ID,
@@ -96,6 +101,42 @@ fn app_game_session_report_serializes_flat_portal_visibility_shape() {
 }
 
 #[test]
+fn app_game_runtime_evidence_row_serializes_process_runtime_without_foreground_claim() {
+    let row = runtime_evidence_row();
+
+    let serialized = serde_json::to_value(row).expect(constants::error::AGENT_EVENT_SERIALIZES);
+
+    assert_eq!(serialized["schemaVersion"], APP_GAME_SCHEMA_VERSION);
+    assert_eq!(
+        serialized["runtimeEvidenceId"],
+        APP_GAME_TEST_RUNTIME_EVIDENCE_ID
+    );
+    assert_eq!(
+        serialized["processIdentity"],
+        APP_GAME_TEST_PROCESS_IDENTITY
+    );
+    assert_eq!(serialized["processId"], APP_GAME_TEST_PROCESS_ID);
+    assert_eq!(
+        serialized["parentProcessId"],
+        APP_GAME_TEST_PARENT_PROCESS_ID
+    );
+    assert_eq!(
+        serialized["publisherSignatureRef"],
+        APP_GAME_TEST_PUBLISHER_SIGNATURE_REF
+    );
+    assert_eq!(serialized["fileHashRef"], APP_GAME_TEST_FILE_HASH_REF);
+    assert_eq!(serialized["runtimeState"], APP_GAME_RUNTIME_RUNNING);
+    assert_eq!(
+        serialized["foregroundState"],
+        APP_GAME_FOREGROUND_NOT_CLAIMED
+    );
+    assert_eq!(
+        serialized["observationMode"],
+        APP_GAME_OBSERVATION_MODE_PROCESS_SNAPSHOT
+    );
+}
+
+#[test]
 fn app_game_inventory_row_serializes_to_typescript_contract_shape() {
     let row = launcher_inventory_row();
 
@@ -167,6 +208,35 @@ fn app_game_store_inventory_row_serializes_first_class_package_identity() {
         serialized["foregroundState"],
         APP_GAME_FOREGROUND_NOT_CLAIMED
     );
+}
+
+fn runtime_evidence_row() -> AppGameRuntimeEvidenceRow {
+    AppGameRuntimeEvidenceRow {
+        schema_version: APP_GAME_SCHEMA_VERSION,
+        runtime_evidence_id: APP_GAME_TEST_RUNTIME_EVIDENCE_ID.to_string(),
+        observed_at: constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string(),
+        process_identity: APP_GAME_TEST_PROCESS_IDENTITY.to_string(),
+        process_id: APP_GAME_TEST_PROCESS_ID,
+        parent_process_id: Some(APP_GAME_TEST_PARENT_PROCESS_ID),
+        process_name: APP_GAME_TEST_PROCESS_NAME.to_string(),
+        executable_path_ref: Some(APP_GAME_TEST_EXECUTABLE_PATH_REF.to_string()),
+        publisher_signature_ref: Some(APP_GAME_TEST_PUBLISHER_SIGNATURE_REF.to_string()),
+        file_hash_ref: Some(APP_GAME_TEST_FILE_HASH_REF.to_string()),
+        inventory_entry_id: Some(APP_GAME_TEST_REGISTRY_SOURCE_REF.to_string()),
+        launcher_ref: None,
+        catalog_ref: Some(APP_GAME_TEST_CATALOG_REF.to_string()),
+        started_at: Some(constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string()),
+        exited_at: None,
+        running_duration_ms: 300000,
+        runtime_state: APP_GAME_RUNTIME_RUNNING.to_string(),
+        foreground_state: APP_GAME_FOREGROUND_NOT_CLAIMED.to_string(),
+        observation_mode: APP_GAME_OBSERVATION_MODE_PROCESS_SNAPSHOT.to_string(),
+        classification_state: APP_GAME_CLASSIFICATION_KNOWN_APP.to_string(),
+        catalog_ready_state: APP_GAME_CATALOG_READY.to_string(),
+        capability_status: APP_GAME_CAPABILITY_STATUS_AVAILABLE.to_string(),
+        confidence: 0.82,
+        evidence: Vec::new(),
+    }
 }
 
 fn launcher_inventory_row() -> AppGameInventoryEvidenceRow {
