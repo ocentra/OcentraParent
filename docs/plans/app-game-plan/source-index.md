@@ -55,10 +55,13 @@ Current app/game evidence and session contracts live in:
 
 - `packages/activity-domain/src/app-game-primitives.ts`
 - `packages/activity-domain/src/app-game-identity-primitives.ts`
+- `packages/activity-domain/src/app-game-inventory-primitives.ts`
+- `packages/activity-domain/src/app-game-inventory.ts`
 - `packages/activity-domain/src/app-game.ts`
 - `packages/activity-domain/tests/app-game.test.ts`
 - `packages/activity-domain/tests/app-game-evidence-claim.test.ts`
 - `packages/activity-domain/tests/app-game-identity.test.ts`
+- `packages/activity-domain/tests/app-game-inventory.test.ts`
 
 Current app-control and app/game policy/catalog meaning lives in:
 
@@ -145,11 +148,19 @@ and identity-merge proof under
 replace inventory adapters, Rust protocol parity, runtime merge behavior, or
 portal identity rows.
 
+WP05 proof on `codex/app-game-inventory-evidence-model` adds contract-only
+inventory evidence rows with source, custody, category candidates, stale and
+permission-limited states, and no-use guards under
+`output/app-game-plan-proof/05-inventory-evidence-model/`. That proof does not
+replace platform inventory adapters, journal ingest, runtime use evidence, or
+portal inventory rows.
+
 ## Current Test Files
 
 - `packages/activity-domain/tests/app-game.test.ts`
 - `packages/activity-domain/tests/app-game-evidence-claim.test.ts`
 - `packages/activity-domain/tests/app-game-identity.test.ts`
+- `packages/activity-domain/tests/app-game-inventory.test.ts`
 - `packages/parent-domain/tests/app-control-policy-catalog.test.ts`
 - `packages/parent-domain/tests/game-control-policy-catalog.test.ts`
 - `packages/parent-domain/tests/app-game-control-authority.test.ts`
