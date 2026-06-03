@@ -357,20 +357,20 @@ describe('portal collapsed manage route contracts', () => {
       selectedControlId: 'reports-settings',
     });
     expect(parentPortalRouteContext(PortalRoute.RuleManagement)).toMatchObject({
-      navLabel: PARENT_PORTAL_NAV_LABELS.Browser,
-      selectedControlId: 'browser-settings',
+      navLabel: PARENT_PORTAL_NAV_LABELS.RuleSet,
+      selectedControlId: 'rules-management',
     });
     expect(parentPortalRouteContext(PortalRoute.Schedules)).toMatchObject({
-      navLabel: PARENT_PORTAL_NAV_LABELS.Browser,
-      selectedControlId: 'browser-settings',
+      navLabel: PARENT_PORTAL_NAV_LABELS.Schedules,
+      selectedControlId: 'schedules-budgets',
     });
     expect(parentPortalRouteContext(PortalRoute.Approvals)).toMatchObject({
-      navLabel: PARENT_PORTAL_NAV_LABELS.Browser,
-      selectedControlId: 'browser-settings',
+      navLabel: PARENT_PORTAL_NAV_LABELS.Approvals,
+      selectedControlId: 'approvals',
     });
     expect(parentPortalRouteContext(PortalRoute.Enforcement)).toMatchObject({
-      navLabel: PARENT_PORTAL_NAV_LABELS.Browser,
-      selectedControlId: 'browser-settings',
+      navLabel: PARENT_PORTAL_NAV_LABELS.Enforce,
+      selectedControlId: 'enforcement-readiness',
     });
   });
 });
