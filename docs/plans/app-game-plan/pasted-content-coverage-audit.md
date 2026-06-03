@@ -25,24 +25,37 @@ C:\Users\sujan\.codex\attachments\1a64e280-5cfb-4c39-b7d8-9811f60191db\pasted-te
 | Test blueprint and proof pack                       | [test blueprint](v0-5-app-game-test-blueprint.md), [implementation checklist](implementation-checklist.md)                                                                 | Proof root is `output/app-game-plan-proof/<workpack-id>/`.                                   |
 | Required fixtures and UI states                     | [test blueprint](v0-5-app-game-test-blueprint.md), [UI guide](ui-ux-requirements-guide.md)                                                                                 | Includes app/game dashboard, launcher UI, approvals, evidence drawer, and capability matrix. |
 
+## Attachment Section Coverage
+
+| Pasted section                                                                               | Consolidated plan target                                                                                                                            | Coverage decision                                                                                         |
+| -------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| Doc 1 sections 1-3, product rule/source docs/spine                                           | [README](README.md), [source index](source-index.md), [shared evidence spine plan](v0-5-app-game-shared-evidence-spine-plan.md)                     | Keep as shared route and no-claim rules.                                                                  |
+| Doc 1 section 4, inventory/runtime/launcher evidence                                         | [shared evidence spine plan](v0-5-app-game-shared-evidence-spine-plan.md), workpacks 05-10                                                          | Implement through typed evidence contracts, then Rust and adapter proof.                                  |
+| Doc 1 section 5, shared contracts                                                            | workpacks 01, 04, 05, 08, 10, 13-15, 24                                                                                                             | WP01 starts this with evidence claim, runtime state, identity-strength, AI digest, and authority schemas. |
+| Doc 1 sections 6-7, native apps/native games                                                 | [native apps slice](v0-5-native-apps-product-slice-plan.md), [native games slice](v0-5-native-games-product-slice-plan.md)                          | Keep separate product meaning while sharing low-level evidence.                                           |
+| Doc 1 sections 8-9, platform tiers/reality matrix                                            | [platform deep dive](v0-5-app-game-platform-deep-dive.md), workpacks 11, 22, 23, 25                                                                 | Manual-required until platform-specific adapter proof exists.                                             |
+| Doc 1 sections 10-12, read models/parent UX/child UX                                         | workpacks 15-18, 21, [UI guide](ui-ux-requirements-guide.md)                                                                                        | Portal and child UX must consume stored read models, not run scanners.                                    |
+| Doc 1 section 13, workpack split                                                             | [workpacks README](workpacks/README.md), [implementation checklist](implementation-checklist.md)                                                    | Consolidated into 28 workpacks with app/game combined execution and separate product slices.              |
+| Doc 1 sections 14-15, must-not-claim/minimum MVP                                             | [README](README.md), [test blueprint](v0-5-app-game-test-blueprint.md), [implementation checklist](implementation-checklist.md)                     | Merge blockers keep inventory/use, runtime/foreground, launcher/game, and AI/authority separate.          |
+| Doc 2 sections 1-4, proof rule/test layers/invariants                                        | [test blueprint](v0-5-app-game-test-blueprint.md), [workpacks README](workpacks/README.md)                                                          | Proof packs are required per workpack.                                                                    |
+| Doc 2 sections 5-8, unit/integration/contract/security-negative tests                        | [test blueprint](v0-5-app-game-test-blueprint.md), workpack test sections                                                                           | WP01 covers first security-negative contract tests; runtime and storage tests remain open.                |
+| Doc 2 sections 9-12, platform/E2E/Playwright/fixtures                                        | [platform deep dive](v0-5-app-game-platform-deep-dive.md), [UI guide](ui-ux-requirements-guide.md), workpacks 16, 21-23, 25, 28                     | Platform and UI proof cannot be claimed before service-backed evidence exists.                            |
+| Doc 2 sections 13-18, performance/CI/merge blockers/proof pack/worker instructions/final bar | [test blueprint](v0-5-app-game-test-blueprint.md), [implementation checklist](implementation-checklist.md), [workpacks README](workpacks/README.md) | Each workpack must produce focused proof and report gaps before DONE.                                     |
+
 ## Bridge Gaps
 
-The current lock state prevents editing these existing source-truth files in
-this docs-only pass:
+Reconciled in WP02/WP03:
 
 - `docs/plans/app-plan`
 - `docs/features/app-game-control.md`
 - `docs/expectations/app-game-evidence.md`
 - `docs/architecture/app-game-evidence-sessions.md`
-- `docs/app-control-capability-guide.md`
 
-Once those locks are released, bridge edits should:
+Remaining bridge gaps:
 
-- link the app-game plan from the app/game feature and expectation docs;
-- update the existing app-plan README to point native game work to this shared
-  app-game plan;
-- clarify that native games are not deferred anymore, but are worked through the
-  shared app/game evidence spine;
-- preserve browser-game routing to browser-plan;
-- update product checklist rows only when proof/status changes, not for this
-  docs-only plan creation.
+- `docs/app-control-capability-guide.md` remains a source guide for app-control
+  capabilities and should not be rewritten as app/game implementation proof.
+- Product capability checklist rows should change only when runtime proof changes
+  product status; no checklist update is needed for WP02/WP03 doc routing.
+- Browser-plan keeps browser-game/cloud-gaming work. This app/game plan keeps
+  native app/game and launcher scope.
