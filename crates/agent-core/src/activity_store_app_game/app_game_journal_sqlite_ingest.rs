@@ -54,19 +54,19 @@ pub(crate) fn app_game_inventory_journal_event(
         &serde_json::to_string(row).map_err(|_| AppGameJournalSqliteIngestError::Json)?,
         None,
     );
-    Ok(activity_event(
-        row.inventory_entry_id.clone(),
-        row.observed_at.clone(),
-        ActivityObserver::AgentService,
-        ActivityEventKind::DeviceIdleStateObserved,
-        ActivitySubjectKind::Device,
-        APP_GAME_JOURNAL_INVENTORY_SUBJECT_ID.to_string(),
-        Some(row.display_label.clone()),
+    Ok(activity_event(ActivityEventInput {
+        event_id: row.inventory_entry_id.clone(),
+        observed_at: row.observed_at.clone(),
+        observer: ActivityObserver::AgentService,
+        kind: ActivityEventKind::DeviceIdleStateObserved,
+        subject_kind: ActivitySubjectKind::Device,
+        subject_id: APP_GAME_JOURNAL_INVENTORY_SUBJECT_ID.to_string(),
+        display_name: Some(row.display_label.clone()),
         device_id,
         platform,
         fields,
-        row.evidence.clone(),
-    ))
+        evidence: row.evidence.clone(),
+    }))
 }
 
 pub(crate) fn app_game_runtime_journal_event(
@@ -97,19 +97,19 @@ pub(crate) fn app_game_runtime_journal_event(
         &row.capability_status,
     );
     insert_boolean(&mut fields, constants::field::FOREGROUND, false);
-    Ok(activity_event(
-        row.runtime_evidence_id.clone(),
-        row.observed_at.clone(),
-        ActivityObserver::WindowsProcess,
-        ActivityEventKind::ProcessObserved,
-        ActivitySubjectKind::Process,
-        row.process_identity.clone(),
-        Some(row.process_name.clone()),
+    Ok(activity_event(ActivityEventInput {
+        event_id: row.runtime_evidence_id.clone(),
+        observed_at: row.observed_at.clone(),
+        observer: ActivityObserver::WindowsProcess,
+        kind: ActivityEventKind::ProcessObserved,
+        subject_kind: ActivitySubjectKind::Process,
+        subject_id: row.process_identity.clone(),
+        display_name: Some(row.process_name.clone()),
         device_id,
         platform,
         fields,
-        row.evidence.clone(),
-    ))
+        evidence: row.evidence.clone(),
+    }))
 }
 
 pub(crate) fn app_game_foreground_journal_event(
@@ -144,19 +144,19 @@ pub(crate) fn app_game_foreground_journal_event(
         constants::field::FOREGROUND,
         row.foreground_state == APP_GAME_FOREGROUND_FOREGROUND,
     );
-    Ok(activity_event(
-        row.foreground_evidence_id.clone(),
-        row.observed_at.clone(),
-        ActivityObserver::WindowsWindow,
-        ActivityEventKind::WindowFocused,
-        ActivitySubjectKind::Window,
-        row.process_identity.clone(),
-        Some(row.process_name.clone()),
+    Ok(activity_event(ActivityEventInput {
+        event_id: row.foreground_evidence_id.clone(),
+        observed_at: row.observed_at.clone(),
+        observer: ActivityObserver::WindowsWindow,
+        kind: ActivityEventKind::WindowFocused,
+        subject_kind: ActivitySubjectKind::Window,
+        subject_id: row.process_identity.clone(),
+        display_name: Some(row.process_name.clone()),
         device_id,
         platform,
         fields,
-        row.evidence.clone(),
-    ))
+        evidence: row.evidence.clone(),
+    }))
 }
 
 pub(crate) fn app_game_launcher_journal_event(
@@ -170,19 +170,19 @@ pub(crate) fn app_game_launcher_journal_event(
         &serde_json::to_string(row).map_err(|_| AppGameJournalSqliteIngestError::Json)?,
         Some(&row.classification_state),
     );
-    Ok(activity_event(
-        row.launcher_evidence_id.clone(),
-        row.observed_at.clone(),
-        ActivityObserver::AgentService,
-        ActivityEventKind::DeviceIdleStateObserved,
-        ActivitySubjectKind::Device,
-        APP_GAME_JOURNAL_LAUNCHER_SUBJECT_ID.to_string(),
-        row.launcher_process_name.clone(),
+    Ok(activity_event(ActivityEventInput {
+        event_id: row.launcher_evidence_id.clone(),
+        observed_at: row.observed_at.clone(),
+        observer: ActivityObserver::AgentService,
+        kind: ActivityEventKind::DeviceIdleStateObserved,
+        subject_kind: ActivitySubjectKind::Device,
+        subject_id: APP_GAME_JOURNAL_LAUNCHER_SUBJECT_ID.to_string(),
+        display_name: row.launcher_process_name.clone(),
         device_id,
         platform,
         fields,
-        row.evidence.clone(),
-    ))
+        evidence: row.evidence.clone(),
+    }))
 }
 
 fn validate_inventory_row(
@@ -295,7 +295,7 @@ fn fields_for_row(row_kind: &str, row_json: &str, classification_state: Option<&
     fields
 }
 
-fn activity_event(
+struct ActivityEventInput<'a> {
     event_id: String,
     observed_at: String,
     observer: ActivityObserver,
@@ -303,29 +303,31 @@ fn activity_event(
     subject_kind: ActivitySubjectKind,
     subject_id: String,
     display_name: Option<String>,
-    device_id: &str,
-    platform: &str,
+    device_id: &'a str,
+    platform: &'a str,
     fields: LogFields,
     evidence: Vec<ocentra_parent_agent_protocol::ActivityEvidenceRef>,
-) -> ActivityEvent {
+}
+
+fn activity_event(input: ActivityEventInput<'_>) -> ActivityEvent {
     ActivityEvent {
         schema_version: ACTIVITY_SCHEMA_VERSION,
-        event_id,
-        observed_at,
+        event_id: input.event_id,
+        observed_at: input.observed_at,
         source: ActivitySource {
-            device_id: device_id.to_string(),
-            platform: platform.to_string(),
-            observer,
+            device_id: input.device_id.to_string(),
+            platform: input.platform.to_string(),
+            observer: input.observer,
             source_id: APP_GAME_JOURNAL_SOURCE_ID.to_string(),
         },
-        kind,
+        kind: input.kind,
         subject: ActivitySubject {
-            kind: subject_kind,
-            subject_id,
-            display_name,
+            kind: input.subject_kind,
+            subject_id: input.subject_id,
+            display_name: input.display_name,
         },
-        fields,
-        evidence,
+        fields: input.fields,
+        evidence: input.evidence,
     }
 }
 
