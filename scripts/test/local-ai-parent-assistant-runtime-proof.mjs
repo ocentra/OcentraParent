@@ -26,8 +26,12 @@ async function main() {
   ]);
   await runCommand('node', ['scripts/test/activity-parent-assistant-runtime-proof.mjs']);
 
-  const { LocalAiParentAssistantRuntimeProofReadModel } =
-    await import('../../packages/parent-domain/dist/local-ai-parent-assistant-runtime-proof-values.js');
+  const proofContractModule = await import('@ocentra-parent/parent-domain/local-ai-parent-assistant-runtime-proof');
+  const proofValuesModule =
+    await import('@ocentra-parent/parent-domain/local-ai-parent-assistant-runtime-proof-values');
+  assertPublicPackageImports(proofContractModule, proofValuesModule);
+
+  const { LocalAiParentAssistantRuntimeProofReadModel } = proofValuesModule;
   const proofSummary = summarizeReadModel(LocalAiParentAssistantRuntimeProofReadModel);
   assertReadModel(LocalAiParentAssistantRuntimeProofReadModel, proofSummary);
 
@@ -122,6 +126,25 @@ function assertReadModel(readModel, summary) {
   proofLabels.push('local-ai.parent-assistant.action-contract-boundary');
 }
 
+function assertPublicPackageImports(proofContractModule, proofValuesModule) {
+  assertModuleExport(
+    proofContractModule,
+    'LocalAiParentAssistantRuntimeProofReadModelSchema',
+    'public proof read-model schema export'
+  );
+  assertModuleExport(
+    proofContractModule,
+    'decodeLocalAiParentAssistantRuntimeProofReadModel',
+    'public proof read-model decoder export'
+  );
+  assertModuleExport(
+    proofValuesModule,
+    'LocalAiParentAssistantRuntimeProofReadModel',
+    'public proof read-model values export'
+  );
+  proofLabels.push('local-ai.parent-assistant.public-package-imports');
+}
+
 async function runCommand(command, args) {
   commands.push([command, ...args].join(' '));
   await new Promise((resolve, reject) => {
@@ -160,5 +183,11 @@ function assertEqual(actual, expected, label) {
 function assertSetHas(set, value, label) {
   if (!set.has(value)) {
     throw new Error(`${label}: missing ${value}`);
+  }
+}
+
+function assertModuleExport(module, exportName, label) {
+  if (!(exportName in module)) {
+    throw new Error(`${label}: missing ${exportName}`);
   }
 }

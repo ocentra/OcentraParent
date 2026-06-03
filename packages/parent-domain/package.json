@@ -157,6 +157,14 @@
       "import": "./dist/local-ai-provider-scheduler.js",
       "types": "./dist/local-ai-provider-scheduler.d.ts"
     },
+    "./local-ai-parent-assistant-runtime-proof": {
+      "import": "./dist/local-ai-parent-assistant-runtime-proof.js",
+      "types": "./dist/local-ai-parent-assistant-runtime-proof.d.ts"
+    },
+    "./local-ai-parent-assistant-runtime-proof-values": {
+      "import": "./dist/local-ai-parent-assistant-runtime-proof-values.js",
+      "types": "./dist/local-ai-parent-assistant-runtime-proof-values.d.ts"
+    },
     "./local-ai-references": {
       "import": "./dist/local-ai-references.js",
       "types": "./dist/local-ai-references.d.ts"
