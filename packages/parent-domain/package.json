@@ -109,6 +109,10 @@
       "import": "./dist/v0-8-notification-provider-status-boundary.js",
       "types": "./dist/v0-8-notification-provider-status-boundary.d.ts"
     },
+    "./v3-notification-rule-provider-retry-contract": {
+      "import": "./dist/v3-notification-rule-provider-retry-contract.js",
+      "types": "./dist/v3-notification-rule-provider-retry-contract.d.ts"
+    },
     "./v0-8-browser-domain-adapter-proof": {
       "import": "./dist/v0-8-browser-domain-adapter-proof.js",
       "types": "./dist/v0-8-browser-domain-adapter-proof.d.ts"
