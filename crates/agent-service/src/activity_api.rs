@@ -1,4 +1,4 @@
-use ocentra_parent_agent_core::ActivityStore;
+use ocentra_parent_agent_core::{tracking_read_model_for_store, ActivityStore};
 use ocentra_parent_agent_protocol::{
     constants, ActivityIngestStatus, ActivityRecentSummary, AgentCommandEnvelope,
     AgentEventEnvelope, AgentEventName, LogLevel,
@@ -13,6 +13,7 @@ use crate::{
     browser_evidence_payload::browser_evidence_read_model_payload,
     event_builder::build_event,
     time::timestamp_now,
+    tracking_read_model_payload::tracking_read_model_payload,
 };
 
 mod activity_memory_graph_report;
@@ -106,6 +107,27 @@ pub async fn build_network_flow_read_model_report(
     }
 }
 
+pub async fn build_activity_tracking_read_model_report(
+    command: AgentCommandEnvelope,
+) -> AgentEventEnvelope {
+    match load_activity_tracking_read_model().await {
+        Some(read_model) => build_event(
+            constants::event_id::ACTIVITY_TRACKING_READ_MODEL_REPORTED,
+            &command.message_id,
+            command.source,
+            AgentEventName::AgentActivityTrackingReadModelReported,
+            LogLevel::Info,
+            tracking_read_model_payload(&read_model),
+            None,
+        ),
+        None => activity_store_error_event(
+            command,
+            constants::event_id::ACTIVITY_TRACKING_READ_MODEL_REPORTED,
+            AgentEventName::AgentActivityTrackingReadModelReported,
+        ),
+    }
+}
+
 async fn load_activity_ingest_status() -> Option<ActivityIngestStatus> {
     let path = activity_db_path();
     tokio::task::spawn_blocking(move || {
@@ -158,6 +180,23 @@ async fn load_network_flow_read_model(
                 &timestamp_now(),
             )
             .ok()
+    })
+    .await
+    .ok()
+    .flatten()
+}
+
+async fn load_activity_tracking_read_model(
+) -> Option<ocentra_parent_agent_protocol::TrackingReadModel> {
+    let path = activity_db_path();
+    tokio::task::spawn_blocking(move || {
+        let store = ActivityStore::open(path).ok()?;
+        tracking_read_model_for_store(
+            &store,
+            constants::activity_store::DEFAULT_RECENT_LIMIT,
+            &timestamp_now(),
+        )
+        .ok()
     })
     .await
     .ok()

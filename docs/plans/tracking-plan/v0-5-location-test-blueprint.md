@@ -229,6 +229,9 @@ manual-required gaps before it can be reported DONE or PR-ready.
 
 ## Minimum Serious MVP Test Set
 
+This is the first target test set. It is not the complete product test goal and
+does not replace the 33-workpack proof checklist.
+
 - Last-known location with accuracy/freshness/custody labels.
 - Stale/offline/permission-denied/low-accuracy states.
 - Enter and exit a geofence with evidence/rule refs.

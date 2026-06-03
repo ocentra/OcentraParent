@@ -36,8 +36,9 @@ mobile readiness, and control catalogs.
 - Browser/app/game/network/screen/tracking control catalogs.
 - Android/iOS/platform proof and capability status contracts where product
   meaning belongs in TypeScript first.
-- Tracking location policy, AI routing, acknowledgement, alert intent,
-  escalation, temporary live, and missing-device product contracts.
+- Tracking location policy, AI routing, acknowledgement, child check-in, alert
+  intent, escalation, temporary live, and missing-device product contracts plus
+  P1 acknowledgement/check-in runtime helper proof.
 
 ## Must Not Own
 
@@ -82,9 +83,9 @@ flowchart LR
   product contracts and UI flow.
 - Social/message/video controls need explicit product contracts, privacy
   boundaries, and platform source rules.
-- Location/geofence/SOS/battery now has tracking contract proof; platform
-  adapters, Rust journal/SQLite runtime, retention/delete/export runtime,
-  provider delivery, notification delivery, and UI proof remain open.
+- Location/geofence/SOS/battery now has tracking contract proof plus P1
+  acknowledgement/check-in helper proof; platform adapters, provider delivery,
+  notification delivery, and live UI proof remain open.
 - Store/install approval and purchase controls need platform-specific scope.
 - Billing/subscription entitlements need to stay outside core safety decisions.
 - V0.8 broad app, network/domain, exact URL, notification, and tamper controls

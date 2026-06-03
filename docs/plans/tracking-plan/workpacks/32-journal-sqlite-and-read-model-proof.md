@@ -27,6 +27,7 @@ Proof root: `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`
 - `05-geofence-transition-proof.json`
 - `10-journal-sqlite-proof.json`
 - `14-retention-delete-proof.json`
+- `18-service-read-model-proof.json`
 - `16-validation-commands.log`
 
 ## AI Worker Checklist
@@ -39,7 +40,16 @@ Proof root: `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`
 
 ## Where We Are
 
-This workpack has focused contract proof from `codex/tracking-plan-full-scope` under the proof root below. Runtime, platform, provider, and UI behavior is not claimed beyond the proof state recorded in `proof-summary.json` and the implementation checklist.
+This workpack has P0 contract proof, P1 Rust ActivityStore SQLite ingest proof,
+and P2 service-command proof for tracking event kinds from
+`codex/tracking-plan-full-scope` under the proof root below. The service proof
+adds a narrow `agent.activity.tracking.read-model.get` command that returns
+SQLite tracking rows and citation IDs through `trackingReadModel`; the parent
+portal now consumes that event as a narrow live summary on the `policy-tracking`
+route. Full UI, platform replay, deletion/tombstone replay, export, and
+physical-device product claims are not claimed beyond the proof state recorded
+in `proof-summary.json`, `10-journal-sqlite-proof.json`,
+`18-service-read-model-proof.json`, and the implementation checklist.
 
 ## Where We Want To Be
 
@@ -61,14 +71,30 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Manual-Required Gaps
 
-- Platform, provider, UI, retention, or runtime claims remain manual-required until the assigned proof artifacts exist.
+- Hosted portal screenshot/accessibility proof, deletion/tombstone replay,
+  richer product read models, full UI, platform replay, export, provider, and
+  physical-device claims remain manual-required until the assigned proof
+  artifacts exist.
 - Any unsupported platform or provider failure must surface as degraded/manual-required state, not as a silent success.
 
 ## Fill This Before Reporting DONE Or PR-ready
 
 - [x] Workpack id and branch: `codex/tracking-plan-full-scope`.
-- [x] Touched files: tracking contract files, proof script, product docs, checklist, and this workpack doc.
-- [x] Validation commands and results: `node scripts/test/tracking-plan-contract-proof.mjs` passed.
-- [x] Proof artifacts under `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`.
-- [x] Product doc/checklist updates: owning feature doc, feature list, capability checklist, implementation checklist, tracking snapshot, and package READMEs updated.
-- [x] Known gaps/manual-required states: Android/iOS, precise desktop, provider delivery, runtime engines, retention/delete/export, Rust journal/SQLite, notifications, and UI remain proof-gated as applicable.
+- [x] Touched files: Rust ActivityStore/protocol files, tracking
+      contract/runtime files, proof scripts, tracking plan docs, checklist, and
+      this workpack doc.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-plan-runtime-proof.mjs` passed; focused
+      service proof command
+      `node scripts/test/tracking-plan-service-read-model-proof.mjs` passed.
+- [x] Proof artifacts under
+      `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`,
+      including `10-journal-sqlite-proof.json` and
+      `18-service-read-model-proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, feature list, product
+      capability checklist, implementation checklist, and this workpack doc
+      updated for the P2 service read-model proof.
+- [x] Known gaps/manual-required states: hosted portal screenshot/accessibility
+      proof, deletion/tombstone replay, richer read models, full UI, platform
+      replay, export, Android/iOS physical proof, provider delivery, and
+      notifications remain proof-gated as applicable.

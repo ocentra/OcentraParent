@@ -35,7 +35,12 @@ Proof root: `output/tracking-plan-proof/15-geofence-transition-engine/`
 
 ## Where We Are
 
-This workpack has focused contract proof from `codex/tracking-plan-full-scope` under the proof root below. Runtime, platform, provider, and UI behavior is not claimed beyond the proof state recorded in `proof-summary.json` and the implementation checklist.
+This workpack has P0 contract proof and P1 fixture proof for deterministic
+enter/exit/dwell/ambiguous geofence transition evaluation from
+`codex/tracking-plan-full-scope` under the proof root below. Android/iOS
+physical geofence delivery, alert policy integration, and UI behavior are not
+claimed beyond the proof state recorded in `proof-summary.json`,
+`05-geofence-transition-proof.json`, and the implementation checklist.
 
 ## Where We Want To Be
 
@@ -57,14 +62,23 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Manual-Required Gaps
 
-- Platform, provider, UI, retention, or runtime claims remain manual-required until the assigned proof artifacts exist.
+- Android/iOS physical geofence behavior, UI, and alert integration claims
+  remain manual-required until the assigned proof artifacts exist.
 - Any unsupported platform or provider failure must surface as degraded/manual-required state, not as a silent success.
 
 ## Fill This Before Reporting DONE Or PR-ready
 
 - [x] Workpack id and branch: `codex/tracking-plan-full-scope`.
-- [x] Touched files: tracking contract files, proof script, product docs, checklist, and this workpack doc.
-- [x] Validation commands and results: `node scripts/test/tracking-plan-contract-proof.mjs` passed.
-- [x] Proof artifacts under `output/tracking-plan-proof/15-geofence-transition-engine/`.
-- [x] Product doc/checklist updates: owning feature doc, feature list, capability checklist, implementation checklist, tracking snapshot, and package READMEs updated.
-- [x] Known gaps/manual-required states: Android/iOS, precise desktop, provider delivery, runtime engines, retention/delete/export, Rust journal/SQLite, notifications, and UI remain proof-gated as applicable.
+- [x] Touched files: tracking contract/runtime files, proof scripts, tracking
+      plan docs, checklist, and this workpack doc.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-plan-runtime-proof.mjs` passed.
+- [x] Proof artifacts under
+      `output/tracking-plan-proof/15-geofence-transition-engine/`, including
+      `05-geofence-transition-proof.json`.
+- [ ] Product doc/checklist updates: tracking plan/checklist updated; central
+      product capability checklist reconciliation remains pending while that
+      shared doc is actively locked outside this lane.
+- [x] Known gaps/manual-required states: Android/iOS physical geofence proof,
+      alert policy integration, provider delivery, notifications, and UI remain
+      proof-gated as applicable.

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-03T03:35:22.659Z",
-  "commit": "a808e3a15e58ba684fdd50c91aca002dfc9434da",
+  "checkedAt": "2026-06-03T07:52:24.644Z",
+  "commit": "e37d15f4a2f350530a9c4f5b5dc1180199e3a6b2",
   "workpackId": "22-local-parent-defined-place-database",
   "proofState": "contract-proof-partial",
   "summary": "Parent-defined place record contract exists; CRUD/export/delete store remains pending.",

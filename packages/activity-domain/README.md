@@ -10,7 +10,8 @@ Shared activity and evidence contracts for child-device observations.
 - Network flow summary contracts.
 - Screen evidence summary contracts.
 - Tracking location, device-status, geofence, nearby-place, and read-model
-  evidence contracts.
+  evidence contracts plus P1 deterministic geofence, expected-place, retention
+  delete, parent-owned export, and tracking event ingest helpers.
 - Journal/query/read-model primitives.
 - Activity surface and family aggregation contracts.
 
@@ -48,9 +49,9 @@ flowchart LR
 ## Gaps To Fill
 
 - Social evidence needs first-class expectation docs and contracts.
-- Tracking evidence now has focused contract proof; platform adapters, Rust
-  journal/SQLite ingest, retention/delete/export runtime, provider runtime,
-  and UI proof remain open.
+- Tracking evidence now has focused contract proof plus P1 deterministic
+  runtime and Rust ActivityStore ingest proof; platform adapters, provider
+  runtime, and live service-backed UI proof remain open.
 - Activity reports need complete parent-facing history, trend, and assistant
   query flows.
 - Evidence contracts must keep unknown/degraded/unavailable states explicit.

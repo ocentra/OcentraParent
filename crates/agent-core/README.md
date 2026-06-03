@@ -7,6 +7,8 @@ service shell.
 
 - Platform-neutral core helpers.
 - Evidence/journal/query-store runtime support.
+- Tracking read-model queries over ActivityStore SQLite rows for
+  location/geofence/expected-place/check-in/retention journal evidence.
 - Local adapter logic that can be tested without WebSocket transport.
 - Policy-dispatch validation that can reject wrong actor/device/evidence,
   source, route, and capability combinations before the service exposes
@@ -46,3 +48,6 @@ flowchart LR
 - Keep long-running capture/enforcement work nonblocking for service health.
 - Keep policy-dispatch validation platform-neutral and deterministic; adapter
   execution stays behind explicit proof boundaries.
+- Tracking read-model queries are query-store proof only; narrow portal summary
+  consumption exists, while platform replay, deletion/tombstone behavior, richer
+  UI, and physical-device artifacts remain separate proof gaps.

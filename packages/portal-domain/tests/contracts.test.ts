@@ -444,6 +444,10 @@ describe('portal command contracts', () => {
     expect(PortalCommandButtons.map((button) => button.resultEvent)).toContain(
       'agent.network.flow.read-model.reported'
     );
+    expect(PortalCommandButtons.map((button) => button.command)).toContain('agent.activity.tracking.read-model.get');
+    expect(PortalCommandButtons.map((button) => button.resultEvent)).toContain(
+      'agent.activity.tracking.read-model.reported'
+    );
     expect(PortalCommandButtons.map((button) => button.command)).toContain('agent.local-ai.runtime.status.get');
     expect(PortalCommandButtons.map((button) => button.resultEvent)).toContain(
       'agent.local-ai.runtime.status.reported'
@@ -469,6 +473,7 @@ describe('portal command contracts', () => {
       'agent.activity.network.read-model.get',
       'agent.browser.intervention.read-model.get',
       'agent.network.flow.read-model.get',
+      'agent.activity.tracking.read-model.get',
       'agent.local-ai.runtime.status.get',
       'agent.policy.preview.read-model.get',
     ]);

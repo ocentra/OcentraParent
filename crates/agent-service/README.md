@@ -34,6 +34,9 @@ development paths and orchestrates runtime commands.
   Ocentra child-data custody claims.
 - V0.9 LAN source-matrix read-model rows that expose plan workpack/source
   status, implemented-source proof, and weak-source fences to the parent portal.
+- Tracking service read-model reports through
+  `agent.activity.tracking.read-model.get`, backed by ActivityStore SQLite rows
+  and citation IDs in the `trackingReadModel` payload field.
 
 ## Must Not Own
 
@@ -92,3 +95,6 @@ flowchart LR
   notification UI, and Ocentra-hosted child activity storage remain unclaimed.
 - LAN source-matrix output is diagnostic/proof state only; it must not be used
   to imply missing production discovery adapters are implemented.
+- Tracking read-model output is consumed by a narrow parent portal summary only;
+  child UI, richer product read models, physical-device proof, and
+  provider/notification delivery remain separate gaps.

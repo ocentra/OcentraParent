@@ -23,6 +23,10 @@ import {
   TrackingParentDefinedPlaceSchema,
   TrackingReadModelSchema,
   TrackingRetentionPolicySchema,
+  applyTrackingRetentionDelete,
+  applyTrackingRetentionExport,
+  evaluateTrackingExpectedPlaceDecision,
+  evaluateTrackingGeofenceTransition,
 } from '../src/tracking';
 
 describe('tracking evidence contracts', () => {
@@ -128,5 +132,87 @@ describe('tracking rule and nearby place contracts', () => {
     expect(decision.outcome).toBe('where-expected');
     expect(nearby.ambiguityState).toBe('clear');
     expect(place.placeId).toBe('home');
+  });
+});
+
+describe('tracking first-target runtime helpers', () => {
+  it('evaluates geofence and expected-place decisions from parsed evidence', () => {
+    const transition = evaluateTrackingGeofenceTransition({
+      transitionId: 'runtime-home-enter-transition',
+      observedAt: '2026-06-03T02:01:00.000Z',
+      rule: TrackingGeofenceRuleSchema.parse(CircleRule),
+      location: TrackingLocationEvidenceSchema.parse(LocationEvidence),
+      wasInside: false,
+    });
+    const decision = evaluateTrackingExpectedPlaceDecision({
+      decisionId: 'runtime-expected-place-decision',
+      observedAt: '2026-06-03T02:01:00.000Z',
+      schedule: TrackingExpectedPlaceScheduleSchema.parse(ExpectedPlaceSchedule),
+      location: TrackingLocationEvidenceSchema.parse(LocationEvidence),
+      transition,
+    });
+
+    expect(transition.transition).toBe('enter');
+    expect(transition.locationEvidenceId).toBe(LocationEvidence.evidenceId);
+    expect(decision.outcome).toBe('where-expected');
+    expect(decision.evidence.length).toBeGreaterThan(0);
+  });
+
+  it('keeps low-accuracy geofence samples ambiguous instead of alert-ready', () => {
+    const transition = evaluateTrackingGeofenceTransition({
+      transitionId: 'runtime-low-accuracy-transition',
+      observedAt: '2026-06-03T02:01:00.000Z',
+      rule: TrackingGeofenceRuleSchema.parse(CircleRule),
+      location: TrackingLocationEvidenceSchema.parse({
+        ...LocationEvidence,
+        evidenceId: 'low-accuracy-location',
+        accuracyMeters: 250,
+        reasonCodes: ['low-accuracy-sample'],
+      }),
+      wasInside: false,
+    });
+
+    expect(transition.transition).toBe('ambiguous');
+    expect(transition.reasonCodes).toContain('location-accuracy-below-rule-threshold');
+  });
+});
+
+describe('tracking retention runtime helpers', () => {
+  it('deletes retained tracking rows from the read model and marks stale history', () => {
+    const proof = applyTrackingRetentionDelete({
+      readModel: TrackingReadModelSchema.parse(trackingReadModelSample()),
+      generatedAt: '2026-06-03T03:00:00.000Z',
+      deletedEvidenceIds: [LocationEvidence.evidenceId],
+    });
+
+    expect(proof.beforeLocationRows).toBe(1);
+    expect(proof.afterLocationRows).toBe(0);
+    expect(proof.readModel.locationRows).toHaveLength(0);
+    expect(proof.readModel.geofenceTransitions).toHaveLength(0);
+    expect(proof.readModel.timeline).toHaveLength(0);
+    expect(proof.readModel.capabilityStatus).toBe('stale');
+  });
+
+  it('exports a parent-owned local snapshot without enabling remote sync', () => {
+    const proof = applyTrackingRetentionExport({
+      readModel: TrackingReadModelSchema.parse(trackingReadModelSample()),
+      generatedAt: '2026-06-03T03:05:00.000Z',
+      policy: TrackingRetentionPolicySchema.parse({
+        ...RetentionPolicy,
+        policyId: 'tracking-retention-parent-export',
+        mode: 'export-only',
+        custodyLabel: 'parent-owned-export',
+        auditRefs: ['tracking-retention-parent-export'],
+      }),
+    });
+
+    expect(proof.exportAllowed).toBe(true);
+    expect(proof.sourceLocationRows).toBe(1);
+    expect(proof.exportedLocationRows).toBe(1);
+    expect(proof.custodyLabel).toBe('parent-owned-export');
+    expect(proof.retentionMode).toBe('export-only');
+    expect(proof.remoteSyncDefault).toBe('disabled');
+    expect(proof.readModel.locationRows[0]?.custodyLabel).toBe('parent-owned-export');
+    expect(proof.readModel.deviceStatusRows[0]?.retentionMode).toBe('export-only');
   });
 });

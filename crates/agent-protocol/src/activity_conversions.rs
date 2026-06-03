@@ -10,6 +10,8 @@ impl ActivityObserver {
             Self::ManagedBrowserBridge => constants::activity_observer::MANAGED_BROWSER_BRIDGE,
             Self::BrowserExtension => constants::activity_observer::BROWSER_EXTENSION,
             Self::LocalAi => constants::activity_observer::LOCAL_AI,
+            Self::TrackingEngine => constants::activity_observer::TRACKING_ENGINE,
+            Self::AndroidLocation => constants::activity_observer::ANDROID_LOCATION,
         }
     }
 
@@ -24,6 +26,8 @@ impl ActivityObserver {
             }
             constants::activity_observer::BROWSER_EXTENSION => Some(Self::BrowserExtension),
             constants::activity_observer::LOCAL_AI => Some(Self::LocalAi),
+            constants::activity_observer::TRACKING_ENGINE => Some(Self::TrackingEngine),
+            constants::activity_observer::ANDROID_LOCATION => Some(Self::AndroidLocation),
             _ => None,
         }
     }
@@ -49,6 +53,19 @@ impl ActivityEventKind {
             Self::ScreenAnalysisSummarized => {
                 constants::activity_event_kind::SCREEN_ANALYSIS_SUMMARIZED
             }
+            Self::LocationObserved => constants::activity_event_kind::LOCATION_OBSERVED,
+            Self::TrackingGeofenceTransitionEvaluated => {
+                constants::activity_event_kind::TRACKING_GEOFENCE_TRANSITION_EVALUATED
+            }
+            Self::TrackingExpectedPlaceEvaluated => {
+                constants::activity_event_kind::TRACKING_EXPECTED_PLACE_EVALUATED
+            }
+            Self::TrackingChildCheckInResponded => {
+                constants::activity_event_kind::TRACKING_CHILD_CHECK_IN_RESPONDED
+            }
+            Self::TrackingRetentionDeleted => {
+                constants::activity_event_kind::TRACKING_RETENTION_DELETED
+            }
         }
     }
 
@@ -71,6 +88,19 @@ impl ActivityEventKind {
             constants::activity_event_kind::SCREEN_ANALYSIS_SUMMARIZED => {
                 Some(Self::ScreenAnalysisSummarized)
             }
+            constants::activity_event_kind::LOCATION_OBSERVED => Some(Self::LocationObserved),
+            constants::activity_event_kind::TRACKING_GEOFENCE_TRANSITION_EVALUATED => {
+                Some(Self::TrackingGeofenceTransitionEvaluated)
+            }
+            constants::activity_event_kind::TRACKING_EXPECTED_PLACE_EVALUATED => {
+                Some(Self::TrackingExpectedPlaceEvaluated)
+            }
+            constants::activity_event_kind::TRACKING_CHILD_CHECK_IN_RESPONDED => {
+                Some(Self::TrackingChildCheckInResponded)
+            }
+            constants::activity_event_kind::TRACKING_RETENTION_DELETED => {
+                Some(Self::TrackingRetentionDeleted)
+            }
             _ => None,
         }
     }
@@ -86,6 +116,10 @@ impl ActivitySubjectKind {
             Self::Video => constants::activity_subject_kind::VIDEO,
             Self::Device => constants::activity_subject_kind::DEVICE,
             Self::Intervention => constants::activity_subject_kind::INTERVENTION,
+            Self::Location => constants::activity_subject_kind::LOCATION,
+            Self::TrackingRule => constants::activity_subject_kind::TRACKING_RULE,
+            Self::CheckIn => constants::activity_subject_kind::CHECK_IN,
+            Self::Retention => constants::activity_subject_kind::RETENTION,
         }
     }
 
@@ -98,6 +132,10 @@ impl ActivitySubjectKind {
             constants::activity_subject_kind::VIDEO => Some(Self::Video),
             constants::activity_subject_kind::DEVICE => Some(Self::Device),
             constants::activity_subject_kind::INTERVENTION => Some(Self::Intervention),
+            constants::activity_subject_kind::LOCATION => Some(Self::Location),
+            constants::activity_subject_kind::TRACKING_RULE => Some(Self::TrackingRule),
+            constants::activity_subject_kind::CHECK_IN => Some(Self::CheckIn),
+            constants::activity_subject_kind::RETENTION => Some(Self::Retention),
             _ => None,
         }
     }

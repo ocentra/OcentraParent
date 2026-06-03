@@ -14,6 +14,8 @@ import {
   TrackingPolicyRuleSchema,
   TrackingPolicySchemaVersion,
   TrackingTemporaryLiveTrackingGrantSchema,
+  evaluateTrackingAcknowledgementImpact,
+  resolveTrackingChildCheckIn,
 } from '../src/tracking-location-policy';
 
 const EvidenceTrace = {
@@ -223,6 +225,52 @@ describe('tracking location policy contracts', () => {
     expect(noEvidenceDecision.success).toBe(false);
     expect(unsafeRemoteRoute.success).toBe(false);
     expect(aiAuthority.success).toBe(false);
+  });
+});
+
+describe('tracking location policy runtime helpers', () => {
+  it('evaluates parent acknowledgement and critical alert non-suppression', () => {
+    const alert = TrackingAlertIntentSchema.parse(Alert);
+    const acknowledgement = TrackingAcknowledgementSchema.parse(Acknowledgement);
+    const infoImpact = evaluateTrackingAcknowledgementImpact({
+      alert,
+      acknowledgement,
+      evaluatedAt: '2026-06-03T02:04:00.000Z',
+    });
+    const criticalImpact = evaluateTrackingAcknowledgementImpact({
+      alert: TrackingAlertIntentSchema.parse({
+        ...Alert,
+        alertId: 'tracking-alert-critical-1',
+        severity: 'critical',
+      }),
+      acknowledgement,
+      evaluatedAt: '2026-06-03T02:04:00.000Z',
+    });
+
+    expect(infoImpact.suppressesParentAlert).toBe(true);
+    expect(infoImpact.state).toBe('suppressed-by-acknowledgement');
+    expect(criticalImpact.suppressesParentAlert).toBe(false);
+    expect(criticalImpact.state).toBe('critical-still-alert');
+  });
+
+  it('resolves child check-in response and expiry state without direct enforcement', () => {
+    const request = TrackingChildCheckInRequestSchema.parse(CheckInRequest);
+    const response = TrackingChildCheckInResponseSchema.parse(CheckInResponse);
+    const answered = resolveTrackingChildCheckIn({
+      request,
+      response,
+      evaluatedAt: '2026-06-03T02:06:00.000Z',
+    });
+    const expired = resolveTrackingChildCheckIn({
+      request,
+      response: null,
+      evaluatedAt: '2026-06-03T02:13:00.000Z',
+    });
+
+    expect(answered.state).toBe('answered');
+    expect(answered.escalates).toBe(false);
+    expect(expired.state).toBe('escalated');
+    expect(expired.escalates).toBe(true);
   });
 });
 

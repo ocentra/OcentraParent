@@ -1,7 +1,7 @@
 # 24-ai-provider-routing Source Snapshot
 
-- checkedAt: 2026-06-03T03:35:22.659Z
-- commit: a808e3a15e58ba684fdd50c91aca002dfc9434da
+- checkedAt: 2026-06-03T07:52:24.644Z
+- commit: e37d15f4a2f350530a9c4f5b5dc1180199e3a6b2
 - proofState: contract-proof-complete
 - summary: Tracking AI provider route states keep remote data disabled unless parent-approved remote is selected.
 - activity contracts: packages/activity-domain/src/tracking.ts

@@ -88,6 +88,75 @@ fn activity_store_reports_duplicate_ingest_without_double_counting() {
     assert_eq!(second.events_stored, 1);
 }
 
+#[test]
+fn activity_store_ingests_tracking_mvp_events_into_sqlite() {
+    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+    let location = tracking_activity_event(
+        constants::activity_store::TEST_TRACKING_LOCATION_EVENT_ID,
+        constants::activity_store::TEST_TRACKING_LOCATION_OBSERVED_AT,
+        ActivityEventKind::LocationObserved,
+        ActivityObserver::AndroidLocation,
+        ActivitySubjectKind::Location,
+    );
+    let geofence = tracking_activity_event(
+        constants::activity_store::TEST_TRACKING_GEOFENCE_EVENT_ID,
+        constants::activity_store::TEST_TRACKING_GEOFENCE_OBSERVED_AT,
+        ActivityEventKind::TrackingGeofenceTransitionEvaluated,
+        ActivityObserver::TrackingEngine,
+        ActivitySubjectKind::TrackingRule,
+    );
+    let expected_place = tracking_activity_event(
+        constants::activity_store::TEST_TRACKING_EXPECTED_PLACE_EVENT_ID,
+        constants::activity_store::TEST_TRACKING_EXPECTED_PLACE_OBSERVED_AT,
+        ActivityEventKind::TrackingExpectedPlaceEvaluated,
+        ActivityObserver::TrackingEngine,
+        ActivitySubjectKind::TrackingRule,
+    );
+    let check_in = tracking_activity_event(
+        constants::activity_store::TEST_TRACKING_CHECK_IN_EVENT_ID,
+        constants::activity_store::TEST_TRACKING_CHECK_IN_OBSERVED_AT,
+        ActivityEventKind::TrackingChildCheckInResponded,
+        ActivityObserver::TrackingEngine,
+        ActivitySubjectKind::CheckIn,
+    );
+    let retention_delete = tracking_activity_event(
+        constants::activity_store::TEST_TRACKING_RETENTION_DELETE_EVENT_ID,
+        constants::activity_store::TEST_TRACKING_RETENTION_DELETE_OBSERVED_AT,
+        ActivityEventKind::TrackingRetentionDeleted,
+        ActivityObserver::TrackingEngine,
+        ActivitySubjectKind::Retention,
+    );
+
+    let status = store
+        .ingest_events(&[
+            location,
+            geofence,
+            expected_place,
+            check_in,
+            retention_delete,
+        ])
+        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+    let summary = store
+        .recent_summary(constants::activity_store::DEFAULT_RECENT_LIMIT)
+        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+
+    assert_eq!(status.events_ingested, 5);
+    assert_eq!(status.events_stored, 5);
+    assert_eq!(summary.returned, 5);
+    assert_eq!(
+        summary.most_recent_kind,
+        Some(ActivityEventKind::TrackingRetentionDeleted)
+    );
+    assert_eq!(
+        summary.most_recent_observer,
+        Some(ActivityObserver::TrackingEngine)
+    );
+    assert_eq!(
+        summary.most_recent_subject_kind,
+        Some(ActivitySubjectKind::Retention)
+    );
+}
+
 fn activity_event(event_id: &str, observed_at: &str) -> ActivityEvent {
     let mut fields = LogFields::new();
     fields.insert(
@@ -110,6 +179,48 @@ fn activity_event(event_id: &str, observed_at: &str) -> ActivityEvent {
             kind: ActivitySubjectKind::Process,
             subject_id: constants::activity_store::TEST_PROCESS_SUBJECT_ID.to_string(),
             display_name: Some(constants::activity_store::TEST_PROCESS_SUBJECT_NAME.to_string()),
+        },
+        fields,
+        evidence: Vec::new(),
+    }
+}
+
+fn tracking_activity_event(
+    event_id: &str,
+    observed_at: &str,
+    kind: ActivityEventKind,
+    observer: ActivityObserver,
+    subject_kind: ActivitySubjectKind,
+) -> ActivityEvent {
+    let mut fields = LogFields::new();
+    fields.insert(
+        constants::field::CAPABILITY_STATUS.to_string(),
+        LogFieldValue::String(
+            constants::activity_store::TEST_TRACKING_CAPABILITY_STATUS_RECENT.to_string(),
+        ),
+    );
+    fields.insert(
+        constants::field::EVIDENCE_REFERENCE_IDS.to_string(),
+        LogFieldValue::String(
+            constants::activity_store::TEST_TRACKING_EVIDENCE_REFERENCE_ID.to_string(),
+        ),
+    );
+
+    ActivityEvent {
+        schema_version: ACTIVITY_SCHEMA_VERSION,
+        event_id: event_id.to_string(),
+        observed_at: observed_at.to_string(),
+        source: ActivitySource {
+            device_id: constants::activity_store::TEST_REMOTE_DEVICE_ID.to_string(),
+            platform: constants::activity_store::TEST_TRACKING_PLATFORM_ANDROID.to_string(),
+            observer,
+            source_id: constants::activity_store::TEST_TRACKING_SOURCE_ID.to_string(),
+        },
+        kind,
+        subject: ActivitySubject {
+            kind: subject_kind,
+            subject_id: constants::activity_store::TEST_TRACKING_SUBJECT_ID.to_string(),
+            display_name: Some(constants::activity_store::TEST_TRACKING_SUBJECT_NAME.to_string()),
         },
         fields,
         evidence: Vec::new(),

@@ -5,3 +5,7 @@ pub const URL: &str = "url";
 pub const VIDEO: &str = "video";
 pub const DEVICE: &str = "device";
 pub const INTERVENTION: &str = "intervention";
+pub const LOCATION: &str = "location";
+pub const TRACKING_RULE: &str = "tracking-rule";
+pub const CHECK_IN: &str = "check-in";
+pub const RETENTION: &str = "retention";

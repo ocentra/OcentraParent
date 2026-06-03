@@ -243,4 +243,5 @@ export const TrackingLocationPolicyReadModelSchema = withParser(
 
 export * from './tracking-location-policy-primitives';
 export * from './tracking-location-policy-platform-proof';
+export * from './tracking-location-policy-runtime';
 export type * from './tracking-location-policy-types';

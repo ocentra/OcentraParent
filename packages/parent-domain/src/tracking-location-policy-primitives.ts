@@ -14,7 +14,9 @@ export const TrackingProviderRouteIdSchema = TrackingPolicyText.pipe(Schema.bran
 export const TrackingEscalationIdSchema = TrackingPolicyText.pipe(Schema.brand('TrackingEscalationId'));
 export const TrackingLiveTrackingGrantIdSchema = TrackingPolicyText.pipe(Schema.brand('TrackingLiveTrackingGrantId'));
 export const TrackingMissingDeviceCaseIdSchema = TrackingPolicyText.pipe(Schema.brand('TrackingMissingDeviceCaseId'));
-export const TrackingPolicyReasonCodeSchema = TrackingPolicyText.pipe(Schema.brand('TrackingPolicyReasonCode'));
+export const TrackingPolicyReasonCodeSchema = withParser(
+  TrackingPolicyText.pipe(Schema.brand('TrackingPolicyReasonCode'))
+);
 export const TrackingPolicyAuditRefSchema = TrackingPolicyText.pipe(Schema.brand('TrackingPolicyAuditRef'));
 
 export const TrackingPolicyTargetKindSchema = withParser(

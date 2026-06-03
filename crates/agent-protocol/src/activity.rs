@@ -34,6 +34,10 @@ pub enum ActivityObserver {
     BrowserExtension,
     #[serde(rename = "local-ai")]
     LocalAi,
+    #[serde(rename = "tracking-engine")]
+    TrackingEngine,
+    #[serde(rename = "android-location")]
+    AndroidLocation,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -56,6 +60,16 @@ pub enum ActivityEventKind {
     DeviceIdleStateObserved,
     #[serde(rename = "activity.screen.analysis.summarized")]
     ScreenAnalysisSummarized,
+    #[serde(rename = "activity.location.observed")]
+    LocationObserved,
+    #[serde(rename = "activity.tracking.geofence-transition.evaluated")]
+    TrackingGeofenceTransitionEvaluated,
+    #[serde(rename = "activity.tracking.expected-place.evaluated")]
+    TrackingExpectedPlaceEvaluated,
+    #[serde(rename = "activity.tracking.child-check-in.responded")]
+    TrackingChildCheckInResponded,
+    #[serde(rename = "activity.tracking.retention.deleted")]
+    TrackingRetentionDeleted,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -74,6 +88,14 @@ pub enum ActivitySubjectKind {
     Device,
     #[serde(rename = "intervention")]
     Intervention,
+    #[serde(rename = "location")]
+    Location,
+    #[serde(rename = "tracking-rule")]
+    TrackingRule,
+    #[serde(rename = "check-in")]
+    CheckIn,
+    #[serde(rename = "retention")]
+    Retention,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

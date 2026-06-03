@@ -41,6 +41,10 @@
       "import": "./dist/screen-evidence.js",
       "types": "./dist/screen-evidence.d.ts"
     },
+    "./tracking": {
+      "import": "./dist/tracking.js",
+      "types": "./dist/tracking.d.ts"
+    },
     "./journal": {
       "import": "./dist/journal.js",
       "types": "./dist/journal.d.ts"

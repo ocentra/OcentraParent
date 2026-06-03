@@ -23,6 +23,7 @@ const EXPECTED_AGENT_COMMAND_ENTRIES = [
   ['ActivityBrowserReadModelGet', 'agent.activity.browser.read-model.get'],
   ['ActivityGamesReadModelGet', 'agent.activity.games.read-model.get'],
   ['ActivityNetworkReadModelGet', 'agent.activity.network.read-model.get'],
+  ['ActivityTrackingReadModelGet', 'agent.activity.tracking.read-model.get'],
   ['BrowserEvidenceRecentGet', 'agent.browser.evidence.recent.get'],
   ['BrowserManagedBridgePoll', 'agent.browser.managed.bridge.poll'],
   ['BrowserInterventionReadModelGet', 'agent.browser.intervention.read-model.get'],
@@ -80,6 +81,7 @@ const EXPECTED_AGENT_EVENT_ENTRIES = [
   ['ActivityBrowserReadModelReported', 'agent.activity.browser.read-model.reported'],
   ['ActivityGamesReadModelReported', 'agent.activity.games.read-model.reported'],
   ['ActivityNetworkReadModelReported', 'agent.activity.network.read-model.reported'],
+  ['ActivityTrackingReadModelReported', 'agent.activity.tracking.read-model.reported'],
   ['BrowserEvidenceRecentReported', 'agent.browser.evidence.recent.reported'],
   ['BrowserManagedStatusReported', 'agent.browser.managed.status.reported'],
   ['BrowserInterventionReadModelReported', 'agent.browser.intervention.read-model.reported'],
@@ -317,6 +319,7 @@ it('AgentProtocolDefaults.Field: exposes read-model payload fields', () => {
   expect(AgentProtocolDefaults.Field.BridgeEndpointRef).toBe('bridgeEndpointRef');
   expect(AgentProtocolDefaults.Field.BridgeKind).toBe('bridgeKind');
   expect(AgentProtocolDefaults.Field.ActivityDigest).toBe('activityDigest');
+  expect(AgentProtocolDefaults.Field.ActivityTrackingReadModel).toBe('trackingReadModel');
   expect(AgentProtocolDefaults.Field.DatabaseReady).toBe('databaseReady');
   expect(AgentProtocolDefaults.Field.BrowserEvidenceId).toBe('browserEvidenceId');
   expect(AgentProtocolDefaults.Field.BrowserInterventionId).toBe('browserInterventionId');
