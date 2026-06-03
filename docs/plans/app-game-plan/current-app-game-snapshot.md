@@ -10,6 +10,8 @@ Proved today:
 - App/game session contracts and read-model proof exist.
 - App/game evidence claim, AI classification digest, and parent app/game control
   authority schemas now exist as TypeScript contract proof.
+- App/game layered identity and identity-merge schemas now exist as TypeScript
+  contract proof.
 - App-control and game-control catalog/authoring contracts exist in
   `packages/parent-domain`.
 - Rust app/game session protocol mirrors exist.
@@ -34,12 +36,12 @@ Not proved today:
 ## Current Contracts
 
 `packages/activity-domain` currently provides combined app/game primitives,
-inventory entry, process observation, evidence claim, session
-summary/query/report, AI digest reference, and AI classification digest
-contracts. These support useful evidence and session proof, but they do not yet
-cover the complete shared app/game contract stack from this plan:
+identity and identity-merge proof, inventory entry, process observation,
+evidence claim, session summary/query/report, AI digest reference, and AI
+classification digest contracts. These support useful evidence and session
+proof, but they do not yet cover the complete shared app/game contract stack
+from this plan:
 
-- layered app/game identity beyond the initial identity-strength guard values;
 - platform-specific inventory source type;
 - launcher evidence and launcher-only state beyond the initial launcher
   no-claim guards;
@@ -91,10 +93,10 @@ Missing portal states include:
 
 ## Current Gaps
 
-- App/game contract names are combined, but several enum values and proof gates
-  still need explicit game-specific meaning.
+- App/game identity contracts are present, but runtime identity merge behavior
+  and adapter-fed identity refs are not implemented yet.
 - Rust protocol parity has not yet mirrored the WP01 evidence claim, AI digest,
-  or app/game control authority schemas.
+  app/game control authority schemas, or WP04 identity schemas.
 - Journal and SQLite ingest do not yet store the new evidence claim and
   authority proof shapes.
 - Portal app/game dashboard rows do not yet consume the new contracts.
@@ -112,9 +114,11 @@ Missing portal states include:
   `output/app-game-plan-proof/01-contract-boundary-and-effect-schemas/`.
 - WP02/WP03 reconcile routing and snapshot docs only. They do not change product
   checklist status and do not claim runtime completion.
+- WP04 adds TypeScript identity model proof only. It does not add runtime
+  identity merge, inventory adapters, Rust parity, or portal identity rows.
 - Next implementation work should either add richer identity/inventory contracts
-  or mirror the WP01 TypeScript shapes into Rust protocol before service/runtime
-  consumers depend on them.
+  or mirror the WP01/WP04 TypeScript shapes into Rust protocol before
+  service/runtime consumers depend on them.
 
 ## Enhancement Rule
 
