@@ -12,6 +12,18 @@ type AppInstallPurchaseApprovalState =
 type AppInstallPurchaseApprovalExpiryState = 'not-expiring' | 'time-box-active' | 'expired' | 'review-needed';
 type AppInstallPurchaseApprovalDecisionAction = 'approve' | 'deny' | 'time-box' | 'review-needed';
 type AppInstallPurchaseApprovalPurchaseKind = 'one-time-purchase' | 'in-app-purchase' | 'subscription';
+type AppInstallPurchaseApprovalChildFacingStatus =
+  | 'pending-parent-review-visible'
+  | 'approved-visible'
+  | 'denied-visible'
+  | 'time-box-visible'
+  | 'review-needed-visible';
+type AppInstallPurchaseApprovalAuditReportSurface =
+  | 'request-audit-history'
+  | 'parent-decision-audit-history'
+  | 'child-facing-state-report'
+  | 'platform-limitation-report';
+type AppInstallPurchaseApprovalProofIntegrationState = 'contract-only' | 'manual-required' | 'unavailable';
 type AppInstallPurchaseApprovalNonClaim =
   | 'no-store-integration'
   | 'no-billing-entitlement-logic'
@@ -68,12 +80,32 @@ interface AppInstallPurchaseApprovalPlatformSupportRowRuleInput {
   readonly claimBoundary: { readonly includes: (needle: 'contract proof') => boolean };
 }
 
+interface AppInstallPurchaseApprovalChildFacingStateRuleInput {
+  readonly childVisibleStatus: AppInstallPurchaseApprovalChildFacingStatus;
+  readonly sourceApprovalState: AppInstallPurchaseApprovalStateSnapshotRuleInput;
+  readonly deliveryState: AppInstallPurchaseApprovalSupportState;
+  readonly auditEventRefs: readonly unknown[];
+  readonly reportRefs: readonly unknown[];
+  readonly claimBoundary: { readonly includes: (needle: 'contract proof' | 'no platform adapter') => boolean };
+}
+
+interface AppInstallPurchaseApprovalAuditReportIntegrationRuleInput {
+  readonly surface: AppInstallPurchaseApprovalAuditReportSurface;
+  readonly integrationState: AppInstallPurchaseApprovalProofIntegrationState;
+  readonly auditEventRefs: readonly unknown[];
+  readonly reportRefs: readonly unknown[];
+  readonly proofRequirement: unknown;
+  readonly claimBoundary: { readonly includes: (needle: 'contract proof' | 'no portal runtime') => boolean };
+}
+
 interface AppInstallPurchaseApprovalContractProofRuleInput {
   readonly installRequest: { readonly requestKind: AppInstallPurchaseApprovalRequestKind };
   readonly purchaseRequest: { readonly requestKind: AppInstallPurchaseApprovalRequestKind };
   readonly subscriptionRequest: { readonly requestKind: AppInstallPurchaseApprovalRequestKind };
   readonly approvalDecisions: readonly AppInstallPurchaseApprovalDecisionRuleInput[];
   readonly platformSupportMatrix: readonly AppInstallPurchaseApprovalPlatformSupportRowRuleInput[];
+  readonly childFacingStates: readonly AppInstallPurchaseApprovalChildFacingStateRuleInput[];
+  readonly auditReportIntegration: readonly AppInstallPurchaseApprovalAuditReportIntegrationRuleInput[];
   readonly nonClaims: readonly AppInstallPurchaseApprovalNonClaim[];
   readonly storeIntegrationClaim: 'not-claimed';
   readonly billingEntitlementClaim: 'not-claimed';
@@ -86,6 +118,19 @@ interface AppInstallPurchaseApprovalContractProofRuleInput {
 const RequiredPlatformRows = ['windows', 'macos', 'linux', 'android', 'ios'] as const;
 const RequiredDecisionActions = ['approve', 'deny', 'time-box', 'review-needed'] as const;
 const RequiredSupportStates = ['supported', 'manual-required', 'unavailable'] as const;
+const RequiredChildFacingStatuses = [
+  'pending-parent-review-visible',
+  'approved-visible',
+  'denied-visible',
+  'time-box-visible',
+  'review-needed-visible',
+] as const;
+const RequiredAuditReportSurfaces = [
+  'request-audit-history',
+  'parent-decision-audit-history',
+  'child-facing-state-report',
+  'platform-limitation-report',
+] as const;
 const RequiredNonClaims = [
   'no-store-integration',
   'no-billing-entitlement-logic',
@@ -174,7 +219,39 @@ export function platformSupportRowIsHonest(row: AppInstallPurchaseApprovalPlatfo
   );
 }
 
+export function childFacingStateIsConsistent(state: AppInstallPurchaseApprovalChildFacingStateRuleInput): boolean {
+  return (
+    state.auditEventRefs.length > 0 &&
+    state.reportRefs.length > 0 &&
+    state.deliveryState !== 'supported' &&
+    state.claimBoundary.includes('contract proof') &&
+    state.claimBoundary.includes('no platform adapter') &&
+    childVisibleStatusMatchesApprovalState(state)
+  );
+}
+
+export function auditReportIntegrationIsHonest(
+  integration: AppInstallPurchaseApprovalAuditReportIntegrationRuleInput
+): boolean {
+  return (
+    integration.auditEventRefs.length > 0 &&
+    integration.reportRefs.length > 0 &&
+    integration.proofRequirement !== null &&
+    integration.claimBoundary.includes('contract proof') &&
+    integration.claimBoundary.includes('no portal runtime')
+  );
+}
+
 export function appInstallPurchaseApprovalContractProofIsHonest(
+  proof: AppInstallPurchaseApprovalContractProofRuleInput
+): boolean {
+  return (
+    appInstallPurchaseApprovalContractProofShapesAreComplete(proof) &&
+    appInstallPurchaseApprovalContractProofClaimsAreContractOnly(proof)
+  );
+}
+
+function appInstallPurchaseApprovalContractProofShapesAreComplete(
   proof: AppInstallPurchaseApprovalContractProofRuleInput
 ): boolean {
   return (
@@ -182,7 +259,16 @@ export function appInstallPurchaseApprovalContractProofIsHonest(
     decisionActionsArePresent(proof.approvalDecisions) &&
     platformMatrixIsComplete(proof.platformSupportMatrix) &&
     platformMatrixContainsAllSupportStates(proof.platformSupportMatrix) &&
-    nonClaimsAreComplete(proof.nonClaims) &&
+    childFacingStatesAreComplete(proof.childFacingStates) &&
+    auditReportIntegrationIsComplete(proof.auditReportIntegration) &&
+    nonClaimsAreComplete(proof.nonClaims)
+  );
+}
+
+function appInstallPurchaseApprovalContractProofClaimsAreContractOnly(
+  proof: AppInstallPurchaseApprovalContractProofRuleInput
+): boolean {
+  return (
     proof.storeIntegrationClaim === 'not-claimed' &&
     proof.billingEntitlementClaim === 'not-claimed' &&
     proof.portalUiClaim === 'not-implemented' &&
@@ -190,6 +276,22 @@ export function appInstallPurchaseApprovalContractProofIsHonest(
     proof.interceptionClaim === 'not-claimed' &&
     proof.runtimeBlockingSeparation === 'separate-from-generic-app-blocking'
   );
+}
+
+function childVisibleStatusMatchesApprovalState(state: AppInstallPurchaseApprovalChildFacingStateRuleInput): boolean {
+  if (state.sourceApprovalState.state === 'pending-parent-review') {
+    return state.childVisibleStatus === 'pending-parent-review-visible';
+  }
+  if (state.sourceApprovalState.state === 'approved') {
+    return state.childVisibleStatus === 'approved-visible';
+  }
+  if (state.sourceApprovalState.state === 'denied') {
+    return state.childVisibleStatus === 'denied-visible';
+  }
+  if (state.sourceApprovalState.state === 'time-box-active') {
+    return state.childVisibleStatus === 'time-box-visible';
+  }
+  return state.sourceApprovalState.state === 'review-needed' && state.childVisibleStatus === 'review-needed-visible';
 }
 
 function metadataFieldsArePresent(metadata: AppInstallPurchaseApprovalStoreMetadataRuleInput): boolean {
@@ -248,6 +350,24 @@ function platformMatrixContainsAllSupportStates(
     states.add(row.approvalDeliveryState);
   }
   return RequiredSupportStates.every((state) => states.has(state));
+}
+
+function childFacingStatesAreComplete(states: readonly AppInstallPurchaseApprovalChildFacingStateRuleInput[]): boolean {
+  const statuses = new Set(states.map((state) => state.childVisibleStatus));
+  return (
+    RequiredChildFacingStatuses.every((status) => statuses.has(status)) &&
+    states.every((state) => childFacingStateIsConsistent(state))
+  );
+}
+
+function auditReportIntegrationIsComplete(
+  rows: readonly AppInstallPurchaseApprovalAuditReportIntegrationRuleInput[]
+): boolean {
+  const surfaces = new Set(rows.map((row) => row.surface));
+  return (
+    RequiredAuditReportSurfaces.every((surface) => surfaces.has(surface)) &&
+    rows.every((row) => auditReportIntegrationIsHonest(row))
+  );
 }
 
 function nonClaimsAreComplete(nonClaims: readonly AppInstallPurchaseApprovalNonClaim[]): boolean {

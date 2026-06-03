@@ -40,7 +40,8 @@ generic app blocking covers this concern.
   contract-only install requests, purchase/subscription requests, store
   metadata freshness/source states, approval decisions, approval expiry and
   review-needed states, audit event refs, platform
-  support/manual-required/unavailable rows, and explicit non-claims.
+  support/manual-required/unavailable rows, child-facing pending/result state
+  rows, audit/report integration status rows, and explicit non-claims.
 - `scripts/test/app-install-purchase-approval-contract-proof.mjs` records the
   contract proof and non-claims under
   `test-results/app-install-purchase-approval-contract-proof/proof.json` when
@@ -49,11 +50,12 @@ generic app blocking covers this concern.
 
 ## Current Gap
 
-Ocentra still needs platform adapters, approved store/API proof, child-facing
-pending/result state, portal UX, report integration, and proof for each
-store/platform path. The current parent-domain proof does not implement Google
-Play, Apple App Store, Microsoft Store, billing entitlement, platform
-interception, portal, or runtime app-blocking behavior.
+Ocentra still needs platform adapters, approved store/API proof, child-device
+delivery for pending/result state, portal UX, runtime report integration, and
+proof for each store/platform path. The current parent-domain proof does not
+implement Google Play, Apple App Store, Microsoft Store, billing entitlement,
+platform interception, portal, child-device delivery, runtime reports, or
+runtime app-blocking behavior.
 
 ## Checklist
 
@@ -61,14 +63,16 @@ interception, portal, or runtime app-blocking behavior.
 - [x] Purchase/subscription request contract.
 - [x] Store metadata source, rating, category, publisher, freshness.
 - [x] Parent approval/deny/time-box/review-needed flow contract.
-- [ ] Child-facing pending/result state where platform allows it.
+- [x] Child-facing pending/result state contract with manual-required delivery
+      until platform proof exists.
 - [x] Platform-specific unavailable/manual-required states.
-- [ ] Audit and report integration.
+- [x] Audit and report integration status contract with no portal/runtime report
+      claim.
 - [ ] Portal tests and platform proof before product claim.
 
 ## Next AI Instructions
 
-Do not fold this into generic app blocking. Start with platform capability
-research and contracts, then UI and runtime proof. If the OS/store does not
-allow interception, document the limitation and offer the closest safe parent
-workflow.
+Do not fold this into generic app blocking. The next proof should attach real
+platform/store artifacts or portal/report runtime evidence before upgrading
+manual-required child delivery or report status. If the OS/store does not allow
+interception, document the limitation and offer the closest safe parent workflow.

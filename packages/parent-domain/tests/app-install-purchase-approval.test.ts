@@ -10,7 +10,11 @@ import { AppInstallPurchaseApprovalContractProofReadModel } from '../src/app-ins
 
 describe('app install and purchase approval contracts', () => {
   acceptsTheContractOnlyInstallPurchaseAndSubscriptionProof();
+  acceptsChildFacingPendingAndResultStatesWithAuditReportRefs();
+  acceptsAuditAndReportIntegrationStatusWithoutRuntimeClaims();
   rejectsPlatformStoreBillingRuntimePortalAndBypassOverclaims();
+  rejectsChildFacingStatesThatInventDeliveryOrMismatchApprovalState();
+  rejectsAuditReportIntegrationRowsThatOmitAuditReportRefsOrClaimPortalRuntime();
   rejectsUnscopedApprovalAndReviewDecisions();
   acceptsExpiredApprovalSnapshotsAndRejectsMismatchedExpiryState();
   rejectsUnavailableMetadataThatInventsStoreFields();
@@ -42,6 +46,13 @@ function acceptsTheContractOnlyInstallPurchaseAndSubscriptionProof(): void {
       'time-box': 1,
       'review-needed': 1,
     });
+    expect(childVisibleStatusCounts(proof)).toEqual({
+      'pending-parent-review-visible': 1,
+      'approved-visible': 1,
+      'denied-visible': 1,
+      'time-box-visible': 1,
+      'review-needed-visible': 1,
+    });
     expect(proof.nonClaims).toEqual([
       'no-store-integration',
       'no-billing-entitlement-logic',
@@ -51,6 +62,44 @@ function acceptsTheContractOnlyInstallPurchaseAndSubscriptionProof(): void {
       'no-real-install-or-purchase-interception',
       'not-generic-app-blocking',
     ]);
+  });
+}
+
+function acceptsChildFacingPendingAndResultStatesWithAuditReportRefs(): void {
+  it('accepts child-facing pending result and review-needed states only as manual-required contract delivery', () => {
+    const proof = AppInstallPurchaseApprovalContractProofSchema.parse(AppInstallPurchaseApprovalContractProofReadModel);
+
+    expect(proof.childFacingStates.map((state) => state.childVisibleStatus)).toEqual([
+      'pending-parent-review-visible',
+      'approved-visible',
+      'denied-visible',
+      'time-box-visible',
+      'review-needed-visible',
+    ]);
+    for (const state of proof.childFacingStates) {
+      expect(state.deliveryState).toBe('manual-required');
+      expect(state.auditEventRefs.length).toBeGreaterThan(0);
+      expect(state.reportRefs).toEqual(['app-install-purchase-child-facing-report-ref']);
+      expect(state.claimBoundary).toContain('no platform adapter');
+    }
+  });
+}
+
+function acceptsAuditAndReportIntegrationStatusWithoutRuntimeClaims(): void {
+  it('accepts audit and report integration status rows without portal or report runtime claims', () => {
+    const proof = AppInstallPurchaseApprovalContractProofSchema.parse(AppInstallPurchaseApprovalContractProofReadModel);
+
+    expect(proof.auditReportIntegration.map((row) => [row.surface, row.integrationState])).toEqual([
+      ['request-audit-history', 'contract-only'],
+      ['parent-decision-audit-history', 'contract-only'],
+      ['child-facing-state-report', 'manual-required'],
+      ['platform-limitation-report', 'manual-required'],
+    ]);
+    for (const row of proof.auditReportIntegration) {
+      expect(row.auditEventRefs.length).toBeGreaterThan(0);
+      expect(row.reportRefs.length).toBeGreaterThan(0);
+      expect(row.claimBoundary).toContain('no portal runtime');
+    }
   });
 }
 
@@ -67,6 +116,56 @@ function rejectsPlatformStoreBillingRuntimePortalAndBypassOverclaims(): void {
     ]) {
       expect(AppInstallPurchaseApprovalContractProofSchema.safeParse(invalidProof).success).toBe(false);
     }
+  });
+}
+
+function rejectsChildFacingStatesThatInventDeliveryOrMismatchApprovalState(): void {
+  it('rejects child-facing states that claim delivery support or mismatch the approval state', () => {
+    const childState = AppInstallPurchaseApprovalContractProofReadModel.childFacingStates[0];
+
+    expect(
+      contractProofWithChildState({
+        ...childState,
+        deliveryState: 'supported',
+      }).success
+    ).toBe(false);
+    expect(
+      contractProofWithChildState({
+        ...childState,
+        childVisibleStatus: 'approved-visible',
+      }).success
+    ).toBe(false);
+    expect(
+      contractProofWithChildState({
+        ...childState,
+        reportRefs: [],
+      }).success
+    ).toBe(false);
+  });
+}
+
+function rejectsAuditReportIntegrationRowsThatOmitAuditReportRefsOrClaimPortalRuntime(): void {
+  it('rejects audit report integration rows missing audit report refs or no-portal-runtime boundaries', () => {
+    const reportRow = AppInstallPurchaseApprovalContractProofReadModel.auditReportIntegration[0];
+
+    expect(
+      contractProofWithAuditReportRow({
+        ...reportRow,
+        auditEventRefs: [],
+      }).success
+    ).toBe(false);
+    expect(
+      contractProofWithAuditReportRow({
+        ...reportRow,
+        reportRefs: [],
+      }).success
+    ).toBe(false);
+    expect(
+      contractProofWithAuditReportRow({
+        ...reportRow,
+        claimBoundary: 'contract proof only',
+      }).success
+    ).toBe(false);
   });
 }
 
@@ -228,6 +327,27 @@ function metadataFreshnessCounts(proof: typeof AppInstallPurchaseApprovalContrac
 
 function decisionActionCounts(proof: typeof AppInstallPurchaseApprovalContractProofReadModel) {
   return countBy(proof.approvalDecisions.map((decision) => decision.decisionAction));
+}
+
+function childVisibleStatusCounts(proof: typeof AppInstallPurchaseApprovalContractProofReadModel) {
+  return countBy(proof.childFacingStates.map((state) => state.childVisibleStatus));
+}
+
+function contractProofWithChildState(childState: unknown) {
+  return AppInstallPurchaseApprovalContractProofSchema.safeParse({
+    ...AppInstallPurchaseApprovalContractProofReadModel,
+    childFacingStates: [childState, ...AppInstallPurchaseApprovalContractProofReadModel.childFacingStates.slice(1)],
+  });
+}
+
+function contractProofWithAuditReportRow(reportRow: unknown) {
+  return AppInstallPurchaseApprovalContractProofSchema.safeParse({
+    ...AppInstallPurchaseApprovalContractProofReadModel,
+    auditReportIntegration: [
+      reportRow,
+      ...AppInstallPurchaseApprovalContractProofReadModel.auditReportIntegration.slice(1),
+    ],
+  });
 }
 
 function countBy(values: readonly string[]) {
