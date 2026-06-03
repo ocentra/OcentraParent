@@ -1,7 +1,7 @@
 # 23-ai-location-safety-analysis-contracts Source Snapshot
 
-- checkedAt: 2026-06-03T11:39:16.984Z
-- commit: 8bd747bb7358224251a2722e219f447d69926a5b
+- checkedAt: 2026-06-03T12:01:13.812Z
+- commit: 45aa6e29f3cf7d74423d8dc26fa94fd4796e8a1c
 - proofState: contract-proof-complete
 - summary: Location AI analysis input/result is evidence-cited and cannot trigger alert or act as final authority.
 - activity contracts: packages/activity-domain/src/tracking.ts
