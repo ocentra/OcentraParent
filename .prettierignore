@@ -6,6 +6,7 @@ coverage/
 target/
 package-lock.json
 *.wxs
+.gitleaks.toml
 
 # Generated raw review inventories should remain byte-for-byte stable.
 docs/*-settings-inventory.md
