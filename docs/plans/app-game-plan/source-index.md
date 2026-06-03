@@ -92,6 +92,8 @@ Current Rust protocol and runtime proof paths include:
 - `crates/agent-protocol/src/app_game.rs`
 - `crates/agent-protocol/src/app_game_tests.rs`
 - `crates/agent-core/src/activity_store_app_game.rs`
+- `crates/agent-core/src/activity_store_app_game/app_game_windows_inventory.rs`
+- `crates/agent-core/src/activity_store_app_game/app_game_windows_inventory_tests.rs`
 - `crates/agent-core/src/activity_store_app_game_observation.rs`
 - `crates/agent-core/src/activity_store_app_game_rows.rs`
 - `crates/agent-core/src/activity_store_app_game_tests.rs`
@@ -154,6 +156,16 @@ permission-limited states, and no-use guards under
 `output/app-game-plan-proof/05-inventory-evidence-model/`. That proof does not
 replace platform inventory adapters, journal ingest, runtime use evidence, or
 portal inventory rows.
+
+WP06 proof on `codex/app-game-windows-installed-inventory` mirrors the WP05
+inventory row shape into Rust protocol and adds a narrow `agent-core`
+Windows-installed inventory record adapter/parser proof under
+`output/app-game-plan-proof/06-windows-installed-inventory-adapter/`. That proof
+covers registry-like records, Start Menu shortcut records, launcher manifest
+game rows, strong-identity dedupe, display-only non-merge, and no-use guards. It
+does not prove live registry crawling, shell-link parsing, executable metadata,
+signature/hash collection, journal ingest, service events, portal rows, or broad
+blocking.
 
 ## Current Test Files
 
