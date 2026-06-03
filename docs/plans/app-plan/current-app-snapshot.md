@@ -151,6 +151,7 @@ output/app-plan-proof/15-parent-portal-app-inventory-running-session-surfaces
 output/app-plan-proof/16-new-app-and-unknown-app-approval-flow
 output/app-plan-proof/18-policy-target-compiler-for-app-rules
 output/app-plan-proof/19-time-budget-schedule-bonus-time-integration
+output/app-plan-proof/20-child-facing-app-warning-block-request-ux
 ```
 
 Those proof packs point back to `output/app-game-plan-proof/*` for the shared
@@ -212,6 +213,12 @@ polished app catalog UI, install approval, or cross-platform parity.
   execution, or broad installed-app blocking. WP17 risk app detection remains
   open because `packages/activity-domain` was locked by `codex-a` during this
   pass.
+- Native app child-facing warning/request UX now has shared parent-domain and
+  text-domain contract proof for warning, approval-needed, time-limit, request
+  submitted/approved/denied, manual-required, and unavailable states. It does
+  not yet provide live native app child UI, portal preview screenshots, native
+  overlay rendering, notification delivery, service persistence,
+  Rust/WebSocket parity, adapter execution, or broad installed-app blocking.
 - App category/risk taxonomy now has contract/test proof, but live classifier
   enrichment, policy routing, portal category rows, and runtime app risk
   detection remain incomplete.

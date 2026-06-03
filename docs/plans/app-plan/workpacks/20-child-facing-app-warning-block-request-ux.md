@@ -66,3 +66,28 @@ Fill this before reporting `DONE` or PR-ready:
 
 Child UX can request, warn, or explain before the platform can enforce. It must
 not claim a block happened unless action proof exists.
+
+## Completion - 2026-06-03
+
+- Owner: `codex-c`
+- Branch: `codex/app-game-read-model-service-events`
+- App-plan proof root:
+  `output/app-plan-proof/20-child-facing-app-warning-block-request-ux/`
+- Shared app/game proof root:
+  `output/app-game-plan-proof/21-child-facing-warning-and-request-ux/`
+
+Completed:
+
+- Cross-recorded from shared app/game WP21 instead of creating app-only
+  duplicate child UX truth.
+- Added TypeScript parent-domain child UX contracts and text-domain copy tokens
+  for warning, approval-needed, time-limit, ask-parent/more-time request,
+  manual-required, unavailable, approved, and denied states.
+- Covered the native app target view through native-app and unknown-app target
+  kinds while keeping private diagnostics out of child-facing payloads.
+
+Deferred:
+
+- Live native app child UI, portal preview screenshots, overlay rendering,
+  notification delivery, service persistence, Rust/WebSocket parity, adapter
+  execution, and broad installed-app blocking remain later work.

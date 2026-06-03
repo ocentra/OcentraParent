@@ -83,6 +83,8 @@ Current app-control and app/game policy/catalog meaning lives in:
 - `packages/parent-domain/src/game-control-catalog-schema.ts`
 - `packages/parent-domain/src/game-control-catalog-data.ts`
 - `packages/parent-domain/src/enforcement-policy-dispatch.ts`
+- `packages/parent-domain/src/app-game-child-facing-ux.ts`
+- `packages/parent-domain/src/app-game-child-facing-ux-rules.ts`
 - `packages/parent-domain/src/app-game-control-approval-flow.ts`
 - `packages/parent-domain/src/app-game-control-authority.ts`
 - `packages/parent-domain/src/app-game-control-authority-rules.ts`
@@ -97,6 +99,7 @@ Current app-control and app/game policy/catalog meaning lives in:
 - `packages/parent-domain/src/policy.ts`
 - `packages/parent-domain/tests/app-control-policy-catalog.test.ts`
 - `packages/parent-domain/tests/game-control-policy-catalog.test.ts`
+- `packages/parent-domain/tests/app-game-child-facing-ux.test.ts`
 - `packages/parent-domain/tests/app-game-control-authority.test.ts`
 - `packages/parent-domain/tests/app-game-unknown-approval-flow.test.ts`
 - `packages/parent-domain/tests/app-game-control-platform-authority.test.ts`
@@ -109,6 +112,11 @@ Current app-control and app/game policy/catalog meaning lives in:
 New shared app/game schemas should extend these packages first. Do not create a
 parallel domain package unless the existing package ownership cannot carry the
 new contract cleanly.
+
+Current app/game child-facing copy tokens live in:
+
+- `packages/text-domain/src/app-game-child-ux-text.ts`
+- `packages/text-domain/tests/app-game-child-ux-text.test.ts`
 
 ## Rust Ownership
 
@@ -355,6 +363,17 @@ does not prove Rust/service parity, runtime evaluator execution, service
 persistence, portal budget authoring or preview UI, notification delivery,
 child request UX, adapter execution, or platform timer/rollback execution.
 
+WP21 proof on `codex/app-game-read-model-service-events` adds parent-domain and
+text-domain child-facing UX contract proof under
+`output/app-game-plan-proof/21-child-facing-warning-and-request-ux/`. It covers
+warning, approval-needed, time-limit, request submitted/approved/denied,
+manual-required, and unavailable states with safe copy tokens, evidence refs,
+child reason/status refs, approval request refs, no private diagnostics, and no
+adapter-action overclaim for manual/unavailable states. It does not prove live
+child UI, overlay rendering, portal preview screenshots, notification delivery,
+service persistence, Rust/WebSocket parity, adapter execution, or platform
+shield/block behavior.
+
 ## Current Test Files
 
 - `packages/activity-domain/tests/app-game.test.ts`
@@ -367,6 +386,7 @@ child request UX, adapter execution, or platform timer/rollback execution.
 - `packages/activity-domain/tests/activity-surface.test.ts`
 - `packages/agent-protocol-domain/tests/activity-surface-adapter.test.ts`
 - `packages/parent-domain/tests/app-control-policy-catalog.test.ts`
+- `packages/parent-domain/tests/app-game-child-facing-ux.test.ts`
 - `packages/parent-domain/tests/game-control-policy-catalog.test.ts`
 - `packages/parent-domain/tests/app-game-control-authority.test.ts`
 - `packages/parent-domain/tests/app-game-unknown-approval-flow.test.ts`
@@ -386,6 +406,7 @@ child request UX, adapter execution, or platform timer/rollback execution.
 - `apps/portal/tests/live-activity-surface-adapter.test.ts`
 - `apps/portal/tests/policy-preview-live-activity-state.test.ts`
 - `apps/portal/tests/activity-ui-intent.test.ts`
+- `packages/text-domain/tests/app-game-child-ux-text.test.ts`
 
 ## Source Truth Rule
 

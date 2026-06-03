@@ -102,6 +102,8 @@ and update them only when their acceptance contract or generated data changes.
 - `packages/parent-domain/src/app-control-catalog-data.ts`
 - `packages/parent-domain/src/app-control-guide-catalog-data.ts`
 - `packages/parent-domain/src/enforcement-policy-dispatch.ts`
+- `packages/parent-domain/src/app-game-child-facing-ux.ts`
+- `packages/parent-domain/src/app-game-child-facing-ux-rules.ts`
 - `packages/parent-domain/src/app-game-control-authority.ts`
 - `packages/parent-domain/src/app-game-control-authority-rules.ts`
 - `packages/parent-domain/src/app-game-control-approval-flow.ts`
@@ -113,6 +115,7 @@ and update them only when their acceptance contract or generated data changes.
 - `packages/parent-domain/src/app-game-time-budget-policy-rules.ts`
 - `packages/parent-domain/src/policy.ts`
 - `packages/parent-domain/tests/app-control-policy-catalog.test.ts`
+- `packages/parent-domain/tests/app-game-child-facing-ux.test.ts`
 - `packages/parent-domain/tests/app-game-control-authority.test.ts`
 - `packages/parent-domain/tests/app-game-unknown-approval-flow.test.ts`
 - `packages/parent-domain/tests/app-game-control-platform-authority.test.ts`
@@ -125,6 +128,11 @@ TypeScript rule: enhance these existing app/app-game paths first. Do not create
 a parallel app domain package unless an ownership boundary genuinely changes.
 If the implementation splits app-only contracts from app/game contracts, the
 split must be schema-backed, test-backed, and reconciled in this source index.
+
+Current child-facing app/game copy tokens live in:
+
+- `packages/text-domain/src/app-game-child-ux-text.ts`
+- `packages/text-domain/tests/app-game-child-ux-text.test.ts`
 
 ## Rust Ownership
 
@@ -222,6 +230,7 @@ packs mirror the app/game proof roots and record product-doc decisions.
 | WP16 new/unknown app approval         | `output/app-plan-proof/16-new-app-and-unknown-app-approval-flow`                | `output/app-game-plan-proof/17-unknown-app-game-approval-flow`              | Approval contract proof only       |
 | WP18 app policy target compiler       | `output/app-plan-proof/18-policy-target-compiler-for-app-rules`                 | `output/app-game-plan-proof/19-policy-target-compiler-for-app-game-rules`   | Compiler contract proof only       |
 | WP19 app time budget integration      | `output/app-plan-proof/19-time-budget-schedule-bonus-time-integration`          | `output/app-game-plan-proof/20-time-budget-schedule-bonus-time-integration` | Time-budget contract proof only    |
+| WP20 child app warning/request UX     | `output/app-plan-proof/20-child-facing-app-warning-block-request-ux`            | `output/app-game-plan-proof/21-child-facing-warning-and-request-ux`         | Child UX contract/text proof only  |
 
 These completed rows do not add live OS crawling, content knowledge, policy
 execution, install control, parent/child approval UI, notification delivery,
@@ -243,7 +252,10 @@ and manual-required states. App policy target compiler proof now validates
 dry-run target decisions without runtime execution. App time-budget proof now
 requires stored session refs, schedule evidence, bonus approval/audit refs,
 dry-run/manual-required handoff, and timer recovery refs before native app
-budget decisions can be represented. Dedicated approval UI,
+budget decisions can be represented. App child-facing UX proof now requires
+safe copy tokens, evidence refs, child reason/status refs, and no diagnostic or
+adapter-action overclaim before warning/request/manual/unavailable states can
+be represented. Dedicated approval UI,
 notification delivery, service persistence/read models, policy runtime,
 game-budget, live source, live source subscriptions, journal
 corruption/recovery, and platform authority proof remain later work.
@@ -255,6 +267,7 @@ corruption/recovery, and platform authority proof remain later work.
 - `packages/activity-domain/tests/activity-surface.test.ts`
 - `packages/agent-protocol-domain/tests/activity-surface-adapter.test.ts`
 - `packages/parent-domain/tests/app-control-policy-catalog.test.ts`
+- `packages/parent-domain/tests/app-game-child-facing-ux.test.ts`
 - `packages/parent-domain/tests/app-game-control-authority.test.ts`
 - `packages/parent-domain/tests/app-game-unknown-approval-flow.test.ts`
 - `packages/parent-domain/tests/app-game-control-platform-authority.test.ts`
@@ -271,6 +284,7 @@ corruption/recovery, and platform authority proof remain later work.
 - `apps/portal/tests/live-activity-surface-adapter.test.ts`
 - `apps/portal/tests/policy-preview-live-activity-state.test.ts`
 - `apps/portal/tests/activity-ui-intent.test.ts`
+- `packages/text-domain/tests/app-game-child-ux-text.test.ts`
 
 ## Source Truth Rule
 

@@ -68,6 +68,10 @@ Proved today:
   session refs, running versus foreground duration modes, schedule evidence
   refs, bonus-time approval/audit refs, ask-parent/manual-required handoff,
   effective budget math, and restart-recovered timer refs.
+- Child-facing app/game UX contracts now provide proof for warning,
+  approval-needed, time-limit, request submitted/approved/denied,
+  manual-required, and unavailable states with text-domain copy tokens,
+  evidence refs, child reason/status refs, and private-diagnostic guards.
 - App-control and game-control catalog/authoring contracts exist in
   `packages/parent-domain`.
 - Rust app/game session protocol mirrors exist.
@@ -97,6 +101,7 @@ Not proved today:
   game budget product behavior beyond WP18 dry-run contract proof.
 - Runtime app/game policy target evaluation beyond WP19 dry-run contract proof.
 - Runtime app/game time-budget evaluation beyond WP20 dry-run contract proof.
+- Live child-facing app/game warning/request UI beyond WP21 contract/text proof.
 - Live new/unknown app and unknown game approval flow beyond the WP17
   contract-level request/decision proof.
 - Live category/risk classification, catalog enrichment, policy compiler
@@ -143,11 +148,14 @@ advisory signal boundaries, and no-enforcement handoff. WP19 now adds
 contract-level app/game policy target compiler requests and compiled dry-run
 decisions. WP20 now adds contract-level app/game time-budget decisions with
 stored session refs, schedule refs, bonus approval/audit refs, dry-run/manual
-handoff, effective budget math, and timer recovery refs. Those catalogs,
-authority contracts, approval contracts, budget contracts, compiler contracts,
-and time-budget contracts are product-control inputs, not a complete shared
-evidence spine, live approval workflow, live game budget product flow, runtime
-evaluator, or proof that broad app/game blocking works.
+handoff, effective budget math, and timer recovery refs. WP21 now adds
+contract-level child-facing warning/request cards that link copy tokens,
+evidence refs, child reason/status refs, and manual/unavailable no-action
+guards. Those catalogs, authority contracts, approval contracts, budget
+contracts, compiler contracts, time-budget contracts, and child UX contracts
+are product-control inputs, not a complete shared evidence spine, live approval
+workflow, live game budget product flow, runtime evaluator, child UI, or proof
+that broad app/game blocking works.
 
 ## Current Runtime
 
@@ -245,6 +253,13 @@ Missing portal states include:
   yet provide Rust/service parity, runtime evaluator execution, service
   persistence, portal budget authoring/preview UI, notification delivery, child
   request UX, adapter execution, or platform timer/rollback execution.
+- Child-facing app/game UX now has parent-domain/text-domain contract proof for
+  respectful warning, approval-needed, time-limit, request submitted/approved/
+  denied, manual-required, and unavailable states with safe copy tokens,
+  evidence refs, child reason/status refs, and no private diagnostics. It does
+  not yet provide live child UI, native overlay rendering, portal preview
+  screenshots, notification delivery, service persistence, Rust/WebSocket
+  parity, adapter execution, or platform shield/block behavior.
 - Launcher evidence has contract/protocol/parser proof and service DTO exposure
   from staged projection rows, but live launcher crawling, dedicated portal
   rows, and game-budget policy are not product-complete. A launcher row must
@@ -325,6 +340,12 @@ Missing portal states include:
   Rust/service parity, runtime evaluator execution, service persistence, portal
   budget authoring/preview UI, notification delivery, child request UX, adapter
   execution, or platform timer/rollback execution.
+- WP21 adds parent-domain/text-domain child-facing UX contract/test proof for
+  warning, approval-needed, time-limit, request submitted/approved/denied,
+  manual-required, and unavailable states. It does not add live child UI,
+  overlay rendering, portal preview screenshots, notification delivery, service
+  persistence, Rust/WebSocket parity, adapter execution, or platform
+  shield/block behavior.
 - Next implementation work should either add dedicated portal dashboard
   consumption of the service rows, live Windows inventory source readers, or
   mirror the remaining WP01/WP04 TypeScript shapes into Rust protocol before

@@ -75,6 +75,10 @@ control with better evidence and local audit.
   schedule evidence, bonus-time approval/audit refs, dry-run/manual-required
   handoff state, and restart-recovered timer refs before representing exceeded
   budget decisions.
+- Child-facing app/game UX contracts now represent calm warning,
+  approval-needed, time-limit, request submitted/approved/denied,
+  manual-required, and unavailable states with text-domain copy tokens,
+  evidence refs, child reason/status refs, and no private diagnostics.
 - Package/process identity and owned-process time-limit proof are in progress.
 - The V0.8 product-control spine separates app time-limit and scoped
   owned-process control from broad installed-app blocking, so downstream policy
@@ -149,6 +153,9 @@ The app/game time-budget proof is contract-level: it does not yet provide
 runtime service evaluation, Rust/WebSocket parity, portal budget authoring,
 notification delivery, child request UX, service persistence, adapter
 execution, or platform timer/rollback execution.
+The child-facing UX proof is contract/text-level: it does not yet provide a
+native child app, overlay, portal preview, notification delivery, service
+persistence, Rust/WebSocket parity, or platform adapter execution.
 
 ## Checklist
 
@@ -179,7 +186,11 @@ execution, or platform timer/rollback execution.
       states dry-run only; notification delivery and finished parent/child UX
       remain.
 - [ ] Child-facing reason/status is referenced in the runtime audit; finished
-      child request/status UX remains.
+      child request/status UX remains. Child-facing UX contracts and
+      text-domain copy tokens now cover respectful warning, approval-needed,
+      time-limit, request, manual-required, and unavailable states with
+      evidence/child refs and no diagnostics; live child UI, notifications,
+      service persistence, and platform execution remain.
 - [ ] Adapter capability status per platform.
 - [ ] Blocking/time-limit proof before done claim.
 

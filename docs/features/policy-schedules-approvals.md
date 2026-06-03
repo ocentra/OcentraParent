@@ -57,6 +57,10 @@ match this usability while keeping policy local and auditable.
 - App/game time-budget contracts now tie stored session refs, schedule proof,
   bonus-time approval/audit refs, ask-parent/manual-required dry-run states,
   and restart-recovered timer refs to parent-visible budget decisions.
+- Child-facing app/game UX contracts now represent ask-parent and more-time
+  request states with approval, evidence, child reason, and child status refs
+  while keeping manual-required and unavailable states separate from adapter
+  execution.
 - Complete nontechnical authoring UX is not done.
 
 ## Current Gap
@@ -67,7 +71,9 @@ target compiler, and app/game time-budget proofs type approval/override state,
 bonus-time refs, audit refs, target proof, timer recovery proof, and
 manual-required dry-run boundaries, but they do not claim notification
 delivery, finished parent approval UX, portal authoring, or runtime adapter
-execution.
+execution. The child-facing UX proof types request and child-status boundaries
+and provides text tokens, but it does not claim live child UI, notification
+delivery, service persistence, or platform execution.
 
 ## Checklist
 
@@ -85,8 +91,10 @@ execution.
       observe/warn/ask-parent/time-limit-dry-run/manual-required contract
       states; service execution and adapter dispatch remain.
 - [ ] Ask-parent request/approval/expiry. Contract proof now requires approval
-      refs for pending/approved states and audit refs for resolved states;
-      notification delivery and finished request UX remain.
+      refs for pending/approved states and audit refs for resolved states.
+      Child-facing app/game UX contracts now require approval, evidence, child
+      reason, and child status refs before request actions; notification
+      delivery and finished request UX remain.
 - [ ] Override and bonus-time flow. Contract proof now prevents bonus-time
       extension without approval and audit refs; parent override UI and runtime
       execution remain.
