@@ -36,6 +36,12 @@ without fake anti-tamper claims.
 
 - Enforcement contracts, audit, rollback, capability status, timer/recovery,
   and owned-process time-limit proof exist in progress form.
+- The V0.8 browser/enforcement timer recovery proof now covers
+  create/restart-recovered/cancel/recovery-needed/expired proof harness paths,
+  Rust rollback-completed and rollback-unavailable timer-state paths, and
+  parent-visible next-check/failure state in the parent-domain read model.
+  Dedicated timer extend execution remains a manual-required gap rather than a
+  claimed service command.
 - Browser/domain adapter proof now preserves exact surface states for
   managed-session intervention, unmanaged process-only fallback, and
   manual-required or unavailable browser/domain gaps.
@@ -98,8 +104,10 @@ uninstall detection artifacts, and platform-specific proof remain. The integrity
 runtime audit and alert/status bridge make permission loss, stale heartbeat,
 stopped-or-removed, and tamper/manual-required states parent-visible in
 contracts/protocol/service proof, but permission restoration, fresh heartbeat
-delivery, uninstall detection artifacts, service restart timer persistence, and
-anti-tamper behavior are still manual-required or unavailable. Tamper/uninstall
+delivery, uninstall detection artifacts, dedicated timer extend execution, and
+anti-tamper behavior are still manual-required or unavailable. Timer restart
+recovery, expiry, recovery-needed, and rollback-completed/unavailable states now
+have focused V0.8 proof, but they do not prove anti-tamper behavior. Tamper/uninstall
 is represented as manual-required/rejected state, not as anti-tamper behavior.
 The broad-adapter, supported-adapter, integrity audit, and alert/status bridge
 proofs plus the logging-domain tamper integrity audit proof and parent-domain
@@ -112,8 +120,8 @@ capture, admin-removal blocking, or notification provider delivery.
 - [x] Typed enforcement intent/action/result/audit read-model proof for V0.8
       supported, rejected, unavailable, manual-required, and unsupported states.
 - [ ] Adapter capability status.
-- [ ] Timer create/expire/recover/rollback is represented in audit proof; real
-      restart persistence beyond recovery-needed still needs proof.
+- [x] Timer create/expire/cancel/recover/rollback visibility is represented in
+      focused proof; dedicated timer extend execution remains manual-required.
 - [ ] Child-facing status is referenced in audit proof; finished child UX still
       needs implementation.
 - [ ] Parent override is represented as auditable intent refs; finished approval

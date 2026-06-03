@@ -156,6 +156,14 @@ control while being more honest about managed versus unmanaged sources.
   explicit, while launch prevention, policy creation/update, rollback, unmanaged
   exact URL, host network/domain blocking, and broad browser control remain
   unclaimed until real Windows artifacts exist.
+- The V0.8 browser/enforcement timer recovery proof now adds a parent-domain
+  read model, focused contract tests, Rust timer-state tests, and proof harness
+  evidence for timer create/restart-recovered/cancel/recovery-needed/expired
+  paths plus rollback-completed and rollback-unavailable states. The same proof
+  keeps unmanaged-browser fallback process-scoped: report-only, warn-child,
+  parent-review, terminate-process, relaunch-managed manual-required, degraded,
+  and unavailable states remain separate from exact URL/tab/title/content
+  claims.
 - Browser-plan WP21 now adds an optional extension/native-host boundary
   contract and private Rust native-message validator. The boundary keeps
   extension install/enabled/disabled/permission-required/native-host-missing,
@@ -193,6 +201,11 @@ not-claimed boundary, not active tab enforcement. The integrity runtime audit
 adds proof that dry-run, observe-only, rejected, unavailable, and manual-required
 states stay non-executing, but it still does not prove managed exact URL or
 active-tab enforcement.
+Timer recovery and unmanaged fallback now have focused V0.8 proof, including
+parent-visible next-check/failure states and process-scoped fallback outcomes,
+but that proof does not upgrade exact page evidence, host domain blocking,
+child-facing warning UX, mobile browser control, or OS-level launch-prevention
+claims.
 Windows AppLocker/App Control states are represented for readiness, audit-only,
 enforced, manual-required, unavailable, and failed paths, but this is not
 production launch-prevention proof until real Windows policy apply, refresh,

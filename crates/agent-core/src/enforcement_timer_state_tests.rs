@@ -1,13 +1,16 @@
 use super::*;
 use ocentra_parent_agent_protocol::{
-    constants::enforcement, policy_constants as policy, EnforcementAdapterKind,
-    EnforcementAuditEventKind, EnforcementCapabilityState, EnforcementCapabilityStatus,
-    EnforcementDependencyState, EnforcementIntent, EnforcementIntentSource, EnforcementMode,
-    EnforcementPermissionState, EnforcementResultStatus, EnforcementTimerEventKind,
+    constants::enforcement, policy_constants as policy, EnforcementActiveTimerState,
+    EnforcementAdapterKind, EnforcementAdapterResultCode, EnforcementAuditEventKind,
+    EnforcementCapabilityState, EnforcementCapabilityStatus, EnforcementDependencyState,
+    EnforcementIntent, EnforcementIntentSource, EnforcementMode, EnforcementPermissionState,
+    EnforcementResultStatus, EnforcementRollbackState, EnforcementTimerEventKind,
     ParentActionReference, ParentActorReference, ParentActorRole, ParentDeviceReference,
     ParentEvidenceReference, ParentEvidenceReferenceKind, ParentPlatform, PolicyAction,
     PolicyDecision, PolicyDecisionHandoffState, PolicyTarget, PolicyTargetType,
 };
+
+use crate::enforcement_adapter::EnforcementAdapterOutcome;
 
 #[test]
 fn active_timer_state_recovers_and_cancels_with_original_identity() {
@@ -64,6 +67,170 @@ fn active_timer_state_recovers_and_cancels_with_original_identity() {
         Some(enforcement::TEST_PARENT_ACTION_REFERENCE_ID)
     );
     assert!(active_timer_state_from_outcome(&cancelled, policy::TEST_EVALUATED_AT).is_none());
+}
+
+#[test]
+fn expiry_transition_clears_active_state() {
+    let expired = expired_timer_outcome(
+        &active_state(),
+        transition_ids(),
+        adapter_outcome(
+            EnforcementResultStatus::Expired,
+            EnforcementAdapterResultCode::TimerExpired,
+            None,
+            None,
+            EnforcementRollbackState::NotRequired,
+        ),
+    );
+    let expired_timer = expired
+        .timer_event
+        .as_ref()
+        .expect(enforcement::TEST_TIMER_EVENT_ID);
+    assert_eq!(
+        expired_timer.timer_event_kind,
+        EnforcementTimerEventKind::Expired
+    );
+    assert_eq!(expired.result.status, EnforcementResultStatus::Expired);
+    assert_eq!(
+        expired.audit_event.audit_event_kind,
+        EnforcementAuditEventKind::Expired
+    );
+    assert!(expired.result.next_check_at.is_none());
+    assert!(active_timer_state_from_outcome(&expired, policy::TEST_EVALUATED_AT).is_none());
+}
+
+#[test]
+fn expiry_transition_surfaces_rollback_completed_state() {
+    let rollback_completed = expired_timer_outcome(
+        &active_state(),
+        transition_ids(),
+        adapter_outcome(
+            EnforcementResultStatus::RolledBack,
+            EnforcementAdapterResultCode::RollbackCompleted,
+            None,
+            None,
+            EnforcementRollbackState::Completed,
+        ),
+    );
+    let rollback_timer = rollback_completed
+        .timer_event
+        .as_ref()
+        .expect(enforcement::TEST_TIMER_EVENT_ID);
+    assert_eq!(
+        rollback_timer.timer_event_kind,
+        EnforcementTimerEventKind::RollbackCompleted
+    );
+    assert_eq!(
+        rollback_completed.audit_event.audit_event_kind,
+        EnforcementAuditEventKind::RollbackCompleted
+    );
+    assert_eq!(
+        rollback_completed.result.rollback_state,
+        EnforcementRollbackState::Completed
+    );
+    assert!(rollback_completed.result.next_check_at.is_none());
+    assert!(
+        active_timer_state_from_outcome(&rollback_completed, policy::TEST_EVALUATED_AT).is_none()
+    );
+}
+
+#[test]
+fn expiry_transition_surfaces_rollback_unavailable_state() {
+    let rollback_unavailable = expired_timer_outcome(
+        &active_state(),
+        transition_ids(),
+        adapter_outcome(
+            EnforcementResultStatus::Unavailable,
+            EnforcementAdapterResultCode::AdapterUnavailable,
+            Some(enforcement::UNAVAILABLE_ADAPTER_UNAVAILABLE.to_string()),
+            None,
+            EnforcementRollbackState::Unavailable,
+        ),
+    );
+    let unavailable_timer = rollback_unavailable
+        .timer_event
+        .as_ref()
+        .expect(enforcement::TEST_TIMER_EVENT_ID);
+    assert_eq!(
+        unavailable_timer.timer_event_kind,
+        EnforcementTimerEventKind::Unavailable
+    );
+    assert_eq!(
+        unavailable_timer
+            .unavailable_reason
+            .as_ref()
+            .map(|reason| reason.as_protocol_str()),
+        Some(enforcement::UNAVAILABLE_ADAPTER_UNAVAILABLE)
+    );
+    assert_eq!(
+        rollback_unavailable.audit_event.audit_event_kind,
+        EnforcementAuditEventKind::Unavailable
+    );
+    assert!(rollback_unavailable.result.unavailable_status.is_some());
+    assert!(
+        active_timer_state_from_outcome(&rollback_unavailable, policy::TEST_EVALUATED_AT).is_none()
+    );
+}
+
+#[test]
+fn failed_expiry_transition_requests_recovery() {
+    let recovery_needed = expired_timer_outcome(
+        &active_state(),
+        transition_ids(),
+        adapter_outcome(
+            EnforcementResultStatus::Failed,
+            EnforcementAdapterResultCode::AdapterFailed,
+            None,
+            Some(enforcement::ADAPTER_FAILED.to_string()),
+            EnforcementRollbackState::Failed,
+        ),
+    );
+    let recovery_timer = recovery_needed
+        .timer_event
+        .as_ref()
+        .expect(enforcement::TEST_TIMER_EVENT_ID);
+    assert_eq!(
+        recovery_timer.timer_event_kind,
+        EnforcementTimerEventKind::RecoveryNeeded
+    );
+    assert_eq!(
+        recovery_timer
+            .unavailable_reason
+            .as_ref()
+            .map(|reason| reason.as_protocol_str()),
+        Some(enforcement::UNAVAILABLE_ADAPTER_ERROR)
+    );
+    assert_eq!(
+        recovery_needed.audit_event.audit_event_kind,
+        EnforcementAuditEventKind::Failed
+    );
+    assert!(recovery_needed.result.failed_reason.is_some());
+    assert!(active_timer_state_from_outcome(&recovery_needed, policy::TEST_EVALUATED_AT).is_none());
+}
+
+fn active_state() -> EnforcementActiveTimerState {
+    let outcome =
+        evaluate_enforcement_boundary(boundary_input()).expect(enforcement::TEST_TIMER_EVENT_ID);
+    active_timer_state_from_outcome(&outcome, policy::TEST_EVALUATED_AT)
+        .expect(enforcement::TEST_TIMER_STATE_ID)
+}
+
+fn adapter_outcome(
+    status: EnforcementResultStatus,
+    adapter_result_code: EnforcementAdapterResultCode,
+    unavailable_reason: Option<String>,
+    failed_reason: Option<String>,
+    rollback_state: EnforcementRollbackState,
+) -> EnforcementAdapterOutcome {
+    EnforcementAdapterOutcome {
+        status,
+        adapter_result_code,
+        completed_at: Some(policy::TEST_EVALUATED_AT.to_string()),
+        unavailable_reason,
+        failed_reason,
+        rollback_token: Some(enforcement::TEST_ROLLBACK_TOKEN.to_string()),
+        rollback_state,
+    }
 }
 
 fn boundary_input() -> EnforcementBoundaryInput {

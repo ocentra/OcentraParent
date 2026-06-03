@@ -1,7 +1,7 @@
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:net';
 import { join, relative } from 'node:path';
-import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, stat, writeFile } from 'node:fs/promises';
 import { setTimeout as delay } from 'node:timers/promises';
 
 import { resolveDebugAgentServicePath, stopProcessTreeAndWait } from './agent-service-process.mjs';
@@ -17,6 +17,13 @@ const ids = {
   timerEventId: 'timer-v08-timer-recovery',
   parentActionReferenceId: 'parent-action-v08-timer-recovery',
 };
+const expiryIds = {
+  policyDecisionId: 'decision-v08-timer-expiry',
+  actionId: 'action-v08-timer-expiry',
+  resultId: 'result-v08-timer-expiry',
+  auditEventId: 'audit-v08-timer-expiry',
+  timerEventId: 'timer-v08-timer-expiry',
+};
 
 await main();
 
@@ -30,6 +37,7 @@ async function main() {
 
   try {
     await waitForHealth(agentPort, serviceOutput);
+    await waitForStartupCapture(runRoot);
     const executeEvent = await requestEvent(agentPort, commandEnvelope('execute'));
     const executeAssertion = assertExecuteEvent(executeEvent);
 
@@ -37,6 +45,7 @@ async function main() {
     service = spawnAgentService(runRoot, agentPort);
     serviceOutput = collectOutput(service);
     await waitForHealth(agentPort, serviceOutput);
+    await waitForStartupCapture(runRoot);
 
     const recoverEvent = await requestEvent(agentPort, commandEnvelope('recover'));
     const recoverAssertion = assertRecoverEvent(recoverEvent);
@@ -44,9 +53,15 @@ async function main() {
     const cancelAssertion = assertCancelEvent(cancelEvent);
     const unavailableEvent = await requestEvent(agentPort, commandEnvelope('recover'));
     const unavailableAssertion = assertUnavailableEvent(unavailableEvent);
+    const timeLimitExecuteEvent = await requestEvent(agentPort, commandEnvelope('execute-time-limit'));
+    const timeLimitExecuteAssertion = assertTimeLimitExecuteEvent(timeLimitExecuteEvent);
+    const expireEvent = await requestEvent(agentPort, commandEnvelope('expire'));
+    const expireAssertion = assertExpireEvent(expireEvent);
     const journalText = await readFile(join(runRoot, 'activity.ndjson'), 'utf8');
-    if (journalText.includes(executeAssertion.policyDecisionId)) {
-      throw new Error('Encrypted journal contains plaintext timer policy decision id.');
+    for (const policyDecisionId of [executeAssertion.policyDecisionId, timeLimitExecuteAssertion.policyDecisionId]) {
+      if (journalText.includes(policyDecisionId)) {
+        throw new Error('Encrypted journal contains plaintext timer policy decision id.');
+      }
     }
 
     const evidence = {
@@ -60,12 +75,16 @@ async function main() {
         recover: recoverAssertion,
         cancel: cancelAssertion,
         unavailable: unavailableAssertion,
+        timeLimitExecute: timeLimitExecuteAssertion,
+        expire: expireAssertion,
       },
       events: {
         execute: eventSummary(executeEvent),
         recover: eventSummary(recoverEvent),
         cancel: eventSummary(cancelEvent),
         unavailable: eventSummary(unavailableEvent),
+        timeLimitExecute: eventSummary(timeLimitExecuteEvent),
+        expire: eventSummary(expireEvent),
       },
       artifacts: {
         activityJournal: relative(process.cwd(), join(runRoot, 'activity.ndjson')),
@@ -115,6 +134,37 @@ async function waitForHealth(agentPort, serviceOutput) {
     }
   }
   throw new Error(`Timed out waiting for service health. ${serviceOutput()}`);
+}
+
+async function waitForStartupCapture(runRoot) {
+  if (process.platform !== 'win32') {
+    return;
+  }
+  const journalPath = join(runRoot, 'activity.ndjson');
+  const deadline = Date.now() + 5_000;
+  let lastSize = -1;
+  let stableTicks = 0;
+  while (Date.now() < deadline) {
+    const currentSize = await fileSize(journalPath);
+    if (currentSize > 0 && currentSize === lastSize) {
+      stableTicks += 1;
+      if (stableTicks >= 4) {
+        return;
+      }
+    } else {
+      stableTicks = 0;
+    }
+    lastSize = currentSize;
+    await delay(250);
+  }
+}
+
+async function fileSize(path) {
+  try {
+    return (await stat(path)).size;
+  } catch {
+    return -1;
+  }
 }
 
 function requestEvent(agentPort, command) {
@@ -222,6 +272,88 @@ function assertUnavailableEvent(event) {
   };
 }
 
+function assertTimeLimitExecuteEvent(event) {
+  assertEventName(event, 'agent.enforcement.audit.reported');
+  if (process.platform !== 'win32') {
+    assertPayloadValue(event.payload, 'enforcementStatus', 'unavailable');
+    assertPayloadValue(event.payload, 'enforcementTimerEventKind', 'unavailable');
+    assertPayloadValue(event.payload, 'enforcementAdapterResultCode', 'unsupported-platform');
+    return {
+      policyDecisionId: expiryIds.policyDecisionId,
+      actionId: expiryIds.actionId,
+      timerEventKind: event.payload.enforcementTimerEventKind,
+      status: event.payload.enforcementStatus,
+      statePersisted: false,
+      platformUnsupported: true,
+      databaseReady: event.payload.databaseReady,
+      eventsStored: event.payload.eventsStored,
+    };
+  }
+
+  assertPayloadValue(event.payload, 'enforcementTimerEventKind', 'created');
+  assertPayloadValue(event.payload, 'enforcementStatus', 'no-op');
+  assertStored(event.payload);
+  const result = JSON.parse(event.payload.enforcementResult);
+  if (result.nextCheckAt === null || result.nextCheckAt === undefined) {
+    throw new Error(`Expected parent-visible nextCheckAt for time-limit execute: ${JSON.stringify(result)}`);
+  }
+  return {
+    policyDecisionId: expiryIds.policyDecisionId,
+    actionId: expiryIds.actionId,
+    timerEventKind: event.payload.enforcementTimerEventKind,
+    status: event.payload.enforcementStatus,
+    statePersisted: typeof event.payload.enforcementTimerState === 'string',
+    nextCheckAtVisible: typeof result.nextCheckAt === 'string',
+    databaseReady: event.payload.databaseReady,
+    eventsStored: event.payload.eventsStored,
+  };
+}
+
+function assertExpireEvent(event) {
+  assertEventName(event, 'agent.enforcement.timer.reported');
+  if (process.platform !== 'win32') {
+    assertPayloadValue(event.payload, 'available', false);
+    assertPayloadValue(event.payload, 'reason', 'enforcement-active-timer-state-required');
+    assertPayloadValue(event.payload, 'enforcementStatus', 'unavailable');
+    assertPayloadValue(event.payload, 'enforcementTimerEventKind', 'recovery-needed');
+    return {
+      available: event.payload.available,
+      reason: event.payload.reason,
+      status: event.payload.enforcementStatus,
+      timerEventKind: event.payload.enforcementTimerEventKind,
+      stateCleared: true,
+      platformUnsupported: true,
+    };
+  }
+
+  assertPayloadValue(event.payload, 'enforcementTimerEventKind', 'expired');
+  assertPayloadValue(event.payload, 'enforcementStatus', 'expired');
+  assertStored(event.payload);
+  if (event.payload.enforcementTimerState !== null) {
+    throw new Error('Expire event should clear persisted active timer state.');
+  }
+  const result = JSON.parse(event.payload.enforcementResult);
+  const timer = JSON.parse(event.payload.enforcementTimerEvent);
+  if (result.nextCheckAt !== null) {
+    throw new Error(`Expected expire event to clear nextCheckAt, received ${JSON.stringify(result)}`);
+  }
+  if (timer.actionId !== expiryIds.actionId || timer.policyDecisionId !== expiryIds.policyDecisionId) {
+    throw new Error(`Expired timer did not preserve identity: ${JSON.stringify(timer)}`);
+  }
+  return {
+    actionId: timer.actionId,
+    policyDecisionId: timer.policyDecisionId,
+    timerEventKind: timer.timerEventKind,
+    status: result.status,
+    rollbackState: result.rollbackState,
+    adapterResultCode: result.adapterResultCode,
+    nextCheckCleared: result.nextCheckAt === null,
+    stateCleared: true,
+    databaseReady: event.payload.databaseReady,
+    eventsStored: event.payload.eventsStored,
+  };
+}
+
 function assertStored(payload) {
   if (payload.databaseReady !== true || Number(payload.eventsStored) < 1) {
     throw new Error(`Expected journal/store proof, payload=${JSON.stringify(payload)}`);
@@ -269,6 +401,25 @@ function commandEnvelope(kind) {
       },
     };
   }
+  if (kind === 'execute-time-limit') {
+    return {
+      ...base,
+      command: 'agent.enforcement.execute',
+      payload: {
+        ...commonPayload(now, kind),
+        policyAction: 'time-limit',
+        targetType: 'app',
+        targetId: 'target-v08-timer-expiry',
+        targetValue: process.platform === 'win32' ? 'missing-v08-expiry-process.exe' : 'unsupported-platform-process',
+        dryRun: false,
+        reasonCodes: 'parent-time-limit-expired',
+        ruleIds: 'rule-v08-timer-expiry',
+        evidenceReferenceIds: 'evidence-v08-timer-expiry',
+        expiresAt: expiresAt.toISOString(),
+        enforcementIntentId: 'intent-v08-timer-expiry',
+      },
+    };
+  }
   if (kind === 'cancel') {
     return {
       ...base,
@@ -282,6 +433,16 @@ function commandEnvelope(kind) {
       },
     };
   }
+  if (kind === 'expire') {
+    return {
+      ...base,
+      command: 'agent.enforcement.timer.expire',
+      payload: {
+        ...commonPayload(now, kind),
+        processId: 4294967295,
+      },
+    };
+  }
   return {
     ...base,
     command: 'agent.enforcement.timer.recover',
@@ -290,15 +451,20 @@ function commandEnvelope(kind) {
 }
 
 function commonPayload(now, kind) {
+  const envelopeIds = idsForKind(kind);
   return {
-    policyDecisionId: ids.policyDecisionId,
+    policyDecisionId: envelopeIds.policyDecisionId,
     policyVersion: 'policy-v08-timer-recovery',
     requestedAt: now.toISOString(),
-    enforcementActionId: ids.actionId,
-    enforcementResultId: `${ids.resultId}-${kind}`,
-    enforcementAuditEventId: `${ids.auditEventId}-${kind}`,
-    enforcementTimerEventId: `${ids.timerEventId}-${kind}`,
+    enforcementActionId: envelopeIds.actionId,
+    enforcementResultId: `${envelopeIds.resultId}-${kind}`,
+    enforcementAuditEventId: `${envelopeIds.auditEventId}-${kind}`,
+    enforcementTimerEventId: `${envelopeIds.timerEventId}-${kind}`,
   };
+}
+
+function idsForKind(kind) {
+  return kind === 'execute-time-limit' || kind === 'expire' ? expiryIds : ids;
 }
 
 async function freePort() {
@@ -350,6 +516,6 @@ function printSummary(evidencePath, assertions) {
   console.log('v0-8-enforcement-timer-recovery-mvp-ok=true');
   console.log(`evidence=${evidencePath}`);
   console.log(
-    `execute=${assertions.execute.timerEventKind}/${assertions.execute.status} recover=${assertions.recover.timerEventKind} cancel=${assertions.cancel.auditEventKind} unavailable=${assertions.unavailable.reason}`
+    `execute=${assertions.execute.timerEventKind}/${assertions.execute.status} recover=${assertions.recover.timerEventKind} cancel=${assertions.cancel.auditEventKind} unavailable=${assertions.unavailable.reason} expire=${assertions.expire.timerEventKind}/${assertions.expire.status}`
   );
 }
