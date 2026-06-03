@@ -4,11 +4,27 @@ const Timestamp = '2026-06-03T09:57:32.000Z';
 const ExpiryTimestamp = '2026-06-10T09:57:32.000Z';
 const SnapshotId = 'entitlement-snapshot-family-1-active';
 
-const ProviderUnavailableFailure = billingFailureState('provider-unavailable', 'unavailable', 'local-only', true, null);
+const ProviderUnavailableFailure = billingFailureState(
+  'provider-unavailable',
+  'unavailable',
+  'local-only',
+  'wait-for-provider',
+  true,
+  null
+);
+const NetworkUnavailableFailure = billingFailureState(
+  'network-unavailable',
+  'unavailable',
+  'local-only',
+  'wait-for-provider',
+  true,
+  null
+);
 const StaleSnapshotFailure = billingFailureState(
   'stale-snapshot',
   'stale',
   'grace-with-local-safety',
+  'wait-for-provider',
   true,
   ExpiryTimestamp
 );
@@ -16,7 +32,24 @@ const PaymentRequiredFailure = billingFailureState(
   'payment-required',
   'past-due',
   'grace-with-local-safety',
+  'payment-update',
   true,
+  null
+);
+const AccountMismatchFailure = billingFailureState(
+  'account-mismatch',
+  'manual-review',
+  'manual-review-with-local-safety',
+  'manual-support-review',
+  false,
+  null
+);
+const ValidationFailedFailure = billingFailureState(
+  'validation-failed',
+  'manual-review',
+  'manual-review-with-local-safety',
+  'manual-support-review',
+  false,
   null
 );
 
@@ -67,6 +100,42 @@ export const BillingEntitlementContractProofReadModel = BillingEntitlementContra
     ],
     failureState: null,
   },
+  subscriptionStatusProofRows: [
+    subscriptionStatusProofRow('trialing', 'billing-backend', 'available', 'unchanged', 'allow-new-device', null),
+    subscriptionStatusProofRow('active', 'signed-local-snapshot', 'available', 'unchanged', 'allow-new-device', null),
+    subscriptionStatusProofRow(
+      'past-due',
+      'signed-local-snapshot',
+      'past-due',
+      'grace-with-local-safety',
+      'grace-existing-devices',
+      PaymentRequiredFailure
+    ),
+    subscriptionStatusProofRow(
+      'expired',
+      'signed-local-snapshot',
+      'stale',
+      'grace-with-local-safety',
+      'deny-new-device',
+      StaleSnapshotFailure
+    ),
+    subscriptionStatusProofRow(
+      'grace',
+      'signed-local-snapshot',
+      'grace',
+      'grace-with-local-safety',
+      'grace-existing-devices',
+      null
+    ),
+    subscriptionStatusProofRow(
+      'unavailable',
+      'unavailable',
+      'unavailable',
+      'local-only',
+      'deny-new-device',
+      NetworkUnavailableFailure
+    ),
+  ],
   billingSyncEvents: [
     billingSyncEvent(
       'billing-sync-active-1',
@@ -86,11 +155,27 @@ export const BillingEntitlementContractProofReadModel = BillingEntitlementContra
     ),
   ],
   deviceLimitDecisions: [
-    deviceLimitDecision('device-limit-allowed-1', 'allowed', 'within-plan', 'windows-child-device-1'),
-    deviceLimitDecision('device-limit-denied-1', 'denied', 'limit-exceeded', 'android-child-device-6'),
-    deviceLimitDecision('device-limit-grace-1', 'grace', 'snapshot-stale', 'ios-child-device-2'),
+    deviceLimitDecision('device-limit-allowed-1', 4, 5, false, 'allowed', 'within-plan', 'windows-child-device-1'),
+    deviceLimitDecision('device-limit-denied-1', 5, 5, false, 'denied', 'limit-exceeded', 'android-child-device-6'),
+    deviceLimitDecision('device-limit-grace-1', 5, 5, true, 'grace', 'snapshot-stale', 'ios-child-device-2'),
+    deviceLimitDecision(
+      'device-limit-manual-1',
+      5,
+      5,
+      false,
+      'manual-review',
+      'manual-review',
+      'android-child-device-7'
+    ),
   ],
-  failureStates: [ProviderUnavailableFailure, StaleSnapshotFailure, PaymentRequiredFailure],
+  failureStates: [
+    ProviderUnavailableFailure,
+    NetworkUnavailableFailure,
+    StaleSnapshotFailure,
+    PaymentRequiredFailure,
+    AccountMismatchFailure,
+    ValidationFailedFailure,
+  ],
   nonClaims: [
     'no-stripe-sdk',
     'no-billing-provider-backend',
@@ -113,16 +198,26 @@ export const BillingEntitlementKnownGaps = [
   'Account backend, entitlement signing runtime, and subscription sync delivery remain unimplemented.',
   'Portal billing UI and account-management flows remain unimplemented.',
   'Child-device safety modules do not consume these entitlement snapshots yet.',
-  'Parent-domain README and product checklist deltas are pending active lane locks.',
 ] as const;
 
 export function summarizeBillingFailureStates(
   failureStates: ReadonlyArray<BillingFailureState>
-): Record<'provider-unavailable' | 'stale-snapshot' | 'payment-required', number> {
+): Record<
+  | 'provider-unavailable'
+  | 'network-unavailable'
+  | 'stale-snapshot'
+  | 'payment-required'
+  | 'account-mismatch'
+  | 'validation-failed',
+  number
+> {
   const counts = {
     'provider-unavailable': 0,
+    'network-unavailable': 0,
     'stale-snapshot': 0,
     'payment-required': 0,
+    'account-mismatch': 0,
+    'validation-failed': 0,
   };
   for (const failureState of failureStates) {
     if (failureState.failureKind in counts) {
@@ -171,6 +266,27 @@ function featureDecision(
   } as const;
 }
 
+function subscriptionStatusProofRow(
+  subscriptionStatus: 'trialing' | 'active' | 'past-due' | 'expired' | 'grace' | 'unavailable',
+  source: 'billing-backend' | 'signed-local-snapshot' | 'unavailable',
+  parentVisibleState: 'available' | 'past-due' | 'stale' | 'grace' | 'unavailable',
+  localSafetyBehavior: 'unchanged' | 'local-only' | 'grace-with-local-safety',
+  deviceActivationBehavior: 'allow-new-device' | 'deny-new-device' | 'grace-existing-devices',
+  failureState: ReturnType<typeof billingFailureState> | null
+) {
+  return {
+    schemaVersion: 'billing-entitlement-contract-proof',
+    subscriptionStatus,
+    source,
+    parentVisibleState,
+    localSafetyBehavior,
+    evidenceExportAccess: 'retained',
+    childActivityCustody: 'not-included',
+    deviceActivationBehavior,
+    failureState,
+  } as const;
+}
+
 function billingSyncEvent(
   syncEventId: 'billing-sync-active-1' | 'billing-sync-provider-down-1',
   previousStatus: 'trialing' | 'active',
@@ -197,10 +313,13 @@ function billingSyncEvent(
 }
 
 function deviceLimitDecision(
-  decisionId: 'device-limit-allowed-1' | 'device-limit-denied-1' | 'device-limit-grace-1',
-  decision: 'allowed' | 'denied' | 'grace',
-  reasonCode: 'within-plan' | 'limit-exceeded' | 'snapshot-stale',
-  deviceId: 'windows-child-device-1' | 'android-child-device-6' | 'ios-child-device-2'
+  decisionId: 'device-limit-allowed-1' | 'device-limit-denied-1' | 'device-limit-grace-1' | 'device-limit-manual-1',
+  activeDeviceCount: 4 | 5,
+  planDeviceLimit: 5,
+  requestedDeviceAlreadyTrusted: boolean,
+  decision: 'allowed' | 'denied' | 'grace' | 'manual-review',
+  reasonCode: 'within-plan' | 'limit-exceeded' | 'snapshot-stale' | 'manual-review',
+  deviceId: 'windows-child-device-1' | 'android-child-device-6' | 'ios-child-device-2' | 'android-child-device-7'
 ) {
   return {
     schemaVersion: 'billing-entitlement-contract-proof',
@@ -212,17 +331,35 @@ function deviceLimitDecision(
       platform: deviceId.startsWith('windows') ? 'windows' : deviceId.startsWith('android') ? 'android' : 'ios',
     },
     entitlementSnapshotId: SnapshotId,
+    activeDeviceCount,
+    planDeviceLimit,
+    requestedDeviceAlreadyTrusted,
     decision,
     reasonCode,
+    deviceActivationBehavior:
+      decision === 'allowed'
+        ? 'allow-new-device'
+        : decision === 'denied'
+          ? 'deny-new-device'
+          : decision === 'grace'
+            ? 'grace-existing-devices'
+            : 'manual-review-required',
     auditReference: `audit-${decisionId}`,
     existingLocalSafetyBehavior: decision === 'allowed' ? 'unchanged' : 'grace-with-local-safety',
   } as const;
 }
 
 function billingFailureState(
-  failureKind: 'provider-unavailable' | 'stale-snapshot' | 'payment-required',
-  parentVisibleState: 'unavailable' | 'stale' | 'past-due',
-  localSafetyBehavior: 'local-only' | 'grace-with-local-safety',
+  failureKind:
+    | 'provider-unavailable'
+    | 'network-unavailable'
+    | 'stale-snapshot'
+    | 'payment-required'
+    | 'account-mismatch'
+    | 'validation-failed',
+  parentVisibleState: 'unavailable' | 'stale' | 'past-due' | 'manual-review',
+  localSafetyBehavior: 'local-only' | 'grace-with-local-safety' | 'manual-review-with-local-safety',
+  parentResolution: 'payment-update' | 'manual-support-review' | 'wait-for-provider',
   retryAllowed: boolean,
   retryAfter: typeof ExpiryTimestamp | null
 ) {
@@ -231,6 +368,8 @@ function billingFailureState(
     parentVisibleState,
     localSafetyBehavior,
     retainEvidenceExportAccess: true,
+    existingLocalSafetyContinues: true,
+    parentResolution,
     retryAllowed,
     retryAfter,
   } as const;
