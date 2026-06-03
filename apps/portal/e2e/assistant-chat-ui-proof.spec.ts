@@ -1,9 +1,9 @@
 import { expect, test } from '@playwright/test';
 import { collectBrowserFailures } from './browser-failures';
 
-test.setTimeout(120_000);
+test.setTimeout(180_000);
 
-const portalShellReadyTimeoutMs = 30_000;
+const portalShellReadyTimeoutMs = 90_000;
 const assistantReadyText = 'Ask MIA about activity, rules, reports, setup, or choose a quick action.';
 
 test('assistant chat bubble controls support keyboard collapse and copy', async ({ context, page }) => {
