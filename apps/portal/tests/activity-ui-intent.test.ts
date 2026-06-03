@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { ActivitySurfaceSchemaVersion } from '@ocentra-parent/activity-domain/activity-surface';
+import {
+  ActivityScreenReadModelSchema,
+  ActivitySurfaceSchemaVersion,
+} from '@ocentra-parent/activity-domain/activity-surface';
 import {
   createParentPortalActivityUiIntent,
   createParentPortalCanonicalDeviceSlots,
@@ -35,7 +38,9 @@ describe('parent portal Activity UI intent', () => {
 function parentPortalActivityIntentTests(): void {
   it('renders service-backed device slots and report files from adapter results', () => {
     const intent = serviceBackedActivityIntent();
-    const screen = parentPortalActivityAdapterRecord(adapterResult(screenReadModel()));
+    const screen = ActivityScreenReadModelSchema.parse(
+      parentPortalActivityAdapterRecord(adapterResult(screenReadModel()))
+    );
 
     expect(intent.hasServiceBackedDeviceRows).toBe(true);
     expect(intent.deviceSlots.map((slot) => [slot.value, slot.status, slot.badge])).toEqual([
