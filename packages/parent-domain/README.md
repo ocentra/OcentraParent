@@ -30,6 +30,11 @@ mobile readiness, and control catalogs.
 - Billing/subscription entitlement contracts for plan rows, subscription status,
   device-limit decisions, failure behavior, retained evidence export, and
   local-safety continuation without billing provider SDK ownership.
+- Parent-owned sync/export and stateless report compiler status contracts for
+  parent-authorized remote compilation from parent-owned storage, source
+  connector/cursor refs, requested data classes and time windows, temp TTL and
+  deletion confirmation, redaction/minimization, audit refs, and custody
+  non-mutation boundaries.
 - V0.9 signed LAN discovery/relay spine contracts that keep adapter evidence,
   signed proof rejection, route safety, relay/cache availability, parent-owned
   storage, and child-data custody claims explicit.
@@ -93,6 +98,11 @@ flowchart LR
 - Billing/subscription provider integration, account backend, entitlement
   signing/delivery runtime, portal UI, and child-device consumption remain
   unimplemented; current contracts keep billing outside core safety decisions.
+- Parent-owned sync/export and stateless report compiler proofs remain
+  contract/status proof only; real compiler runtime/cloud worker, connector
+  OAuth/provider APIs, portal controls/UI, upload/download, deletion execution,
+  custody/security review, and real storage/cache implementation remain
+  unclaimed.
 - V0.8 broad app, network/domain, exact URL, notification, and tamper controls
   remain manual-required or not-claimed until platform adapter proof exists.
 - Policy-dispatch proof is currently service/read-model proof; finished
