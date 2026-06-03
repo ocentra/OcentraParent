@@ -47,6 +47,7 @@ import {
   AppGameSessionIdSchema,
   AppGameUnavailableReasonSchema,
 } from './app-game-primitives';
+import { AppGameSessionEndReasonSchema, AppGameSessionRollupDateSchema } from './app-game-session-primitives';
 
 export * from './app-game-identity-primitives';
 export * from './app-game-inventory';
@@ -56,6 +57,7 @@ export * from './app-game-category-risk';
 export * from './app-game-foreground';
 export * from './app-game-primitives';
 export * from './app-game-runtime';
+export * from './app-game-session-primitives';
 
 export const AppGameInventoryEntrySchema = withParser(
   Schema.Struct({
@@ -251,9 +253,13 @@ const AppGameSessionSummaryBaseSchema = Schema.Struct({
   startedAt: ActivityTimestampSchema,
   lastObservedAt: ActivityTimestampSchema,
   endedAt: Schema.Union(ActivityTimestampSchema, Schema.Null),
+  endReason: Schema.Union(AppGameSessionEndReasonSchema, Schema.Null),
   runningDurationMs: AppGameNonNegativeDurationSchema,
   foregroundDurationMs: AppGameNonNegativeDurationSchema,
   backgroundDurationMs: AppGameNonNegativeDurationSchema,
+  lastForegroundAt: Schema.Union(ActivityTimestampSchema, Schema.Null),
+  lastBackgroundAt: Schema.Union(ActivityTimestampSchema, Schema.Null),
+  observationGapMs: AppGameNonNegativeDurationSchema,
   observationCount: AppGameNonNegativeCountSchema,
   evidenceCount: AppGameNonNegativeCountSchema,
   evidence: Schema.Array(ActivityEvidenceRefSchema),
@@ -261,14 +267,59 @@ const AppGameSessionSummaryBaseSchema = Schema.Struct({
   confidence: AppGameConfidenceSchema,
 });
 
+export const AppGameSessionDailyRollupSchema = withParser(
+  Schema.Struct({
+    schemaVersion: Schema.Literal(AppGameSchemaVersion),
+    rollupDate: AppGameSessionRollupDateSchema,
+    classificationState: AppGameClassificationStateSchema,
+    sessionCount: AppGameNonNegativeCountSchema,
+    runningDurationMs: AppGameNonNegativeDurationSchema,
+    foregroundDurationMs: AppGameNonNegativeDurationSchema,
+    backgroundDurationMs: AppGameNonNegativeDurationSchema,
+    evidenceCount: AppGameNonNegativeCountSchema,
+    sessionIds: Schema.Array(AppGameSessionIdSchema),
+    evidence: Schema.Array(ActivityEvidenceRefSchema),
+  }).pipe(
+    Schema.filter(
+      (rollup) =>
+        rollup.foregroundDurationMs + rollup.backgroundDurationMs === rollup.runningDurationMs ||
+        'Expected rollup background duration to equal running duration minus foreground duration'
+    )
+  )
+);
+
 export const AppGameSessionSummarySchema = withParser(
   AppGameSessionSummaryBaseSchema.pipe(
     Schema.filter(
       (session) =>
-        session.foregroundDurationMs + session.backgroundDurationMs <= session.runningDurationMs ||
-        'Expected foreground and background duration within running duration'
+        session.foregroundDurationMs + session.backgroundDurationMs === session.runningDurationMs ||
+        'Expected background duration to equal running duration minus foreground duration'
     )
   )
+    .pipe(
+      Schema.filter(
+        (session) =>
+          (session.endedAt === null && session.endReason === null) ||
+          (session.endedAt !== null && session.endReason !== null) ||
+          'Expected closed sessions to pair endedAt with an end reason'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (session) =>
+          session.foregroundDurationMs === 0 ||
+          session.lastForegroundAt !== null ||
+          'Expected foreground duration to cite the last foreground evidence time'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (session) =>
+          session.backgroundDurationMs === 0 ||
+          session.lastBackgroundAt !== null ||
+          'Expected background duration to cite the last background evidence time'
+      )
+    )
 );
 
 export const AppGameSessionQuerySchema = withParser(
@@ -344,6 +395,7 @@ export type AppGameIdentityMergeProof = Infer<typeof AppGameIdentityMergeProofSc
 export type AppGameEvidenceClaim = Infer<typeof AppGameEvidenceClaimSchema>;
 export type AppGameProcessObservation = Infer<typeof AppGameProcessObservationSchema>;
 export type AppGameSessionSummary = Infer<typeof AppGameSessionSummarySchema>;
+export type AppGameSessionDailyRollup = Infer<typeof AppGameSessionDailyRollupSchema>;
 export type AppGameSessionQuery = Infer<typeof AppGameSessionQuerySchema>;
 export type AppGameSessionQueryResult = Infer<typeof AppGameSessionQueryResultSchema>;
 export type AppGameSessionReport = Infer<typeof AppGameSessionReportSchema>;

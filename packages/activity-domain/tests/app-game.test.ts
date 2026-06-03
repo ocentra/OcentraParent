@@ -9,6 +9,8 @@ import {
   AppGameObservationMode,
   AppGameProcessObservationSchema,
   AppGameSchemaVersion,
+  AppGameSessionDailyRollupSchema,
+  AppGameSessionEndReason,
   AppGameSessionQueryResultSchema,
   AppGameSessionReportSchema,
   AppGameSessionSummarySchema,
@@ -34,9 +36,13 @@ const KnownGameSession = {
   startedAt: '2026-05-21T02:00:00Z',
   lastObservedAt: '2026-05-21T02:15:00Z',
   endedAt: null,
+  endReason: null,
   runningDurationMs: 900000,
   foregroundDurationMs: 600000,
   backgroundDurationMs: 300000,
+  lastForegroundAt: '2026-05-21T02:12:00Z',
+  lastBackgroundAt: '2026-05-21T02:15:00Z',
+  observationGapMs: 300000,
   observationCount: 3,
   evidenceCount: 1,
   evidence: [JournalEvidence],
@@ -169,6 +175,72 @@ const assertDurationConsistency = () => {
   expect(parsed.success).toBe(false);
 };
 
+const assertClosedSessionsRequireReason = () => {
+  const missingReason = AppGameSessionSummarySchema.safeParse({
+    ...KnownGameSession,
+    endedAt: '2026-05-21T02:15:00Z',
+    endReason: null,
+  });
+  const missingEnd = AppGameSessionSummarySchema.safeParse({
+    ...KnownGameSession,
+    endedAt: null,
+    endReason: AppGameSessionEndReason.ProcessExit,
+  });
+  const closed = AppGameSessionSummarySchema.safeParse({
+    ...KnownGameSession,
+    endedAt: '2026-05-21T02:15:00Z',
+    endReason: AppGameSessionEndReason.ProcessExit,
+  });
+
+  expect(missingReason.success).toBe(false);
+  expect(missingEnd.success).toBe(false);
+  expect(closed.success).toBe(true);
+};
+
+const assertDurationEvidenceTimesAreRequired = () => {
+  const foregroundWithoutEvidenceTime = AppGameSessionSummarySchema.safeParse({
+    ...KnownGameSession,
+    lastForegroundAt: null,
+  });
+  const backgroundWithoutEvidenceTime = AppGameSessionSummarySchema.safeParse({
+    ...KnownGameSession,
+    lastBackgroundAt: null,
+  });
+
+  expect(foregroundWithoutEvidenceTime.success).toBe(false);
+  expect(backgroundWithoutEvidenceTime.success).toBe(false);
+};
+
+const assertDailyRollupDurationConsistency = () => {
+  const validRollup = AppGameSessionDailyRollupSchema.safeParse({
+    schemaVersion: AppGameSchemaVersion,
+    rollupDate: '2026-05-21',
+    classificationState: AppGameClassificationState.KnownGame,
+    sessionCount: 1,
+    runningDurationMs: 900000,
+    foregroundDurationMs: 600000,
+    backgroundDurationMs: 300000,
+    evidenceCount: 1,
+    sessionIds: ['session-elden-ring-1'],
+    evidence: [JournalEvidence],
+  });
+  const invalidRollup = AppGameSessionDailyRollupSchema.safeParse({
+    schemaVersion: AppGameSchemaVersion,
+    rollupDate: '2026-05-21',
+    classificationState: AppGameClassificationState.KnownGame,
+    sessionCount: 1,
+    runningDurationMs: 900000,
+    foregroundDurationMs: 800000,
+    backgroundDurationMs: 300000,
+    evidenceCount: 1,
+    sessionIds: ['session-elden-ring-1'],
+    evidence: [JournalEvidence],
+  });
+
+  expect(validRollup.success).toBe(true);
+  expect(invalidRollup.success).toBe(false);
+};
+
 describe('app game activity contracts', () => {
   it('AppGameInventoryEntrySchema: accepts deterministic known-game inventory state', assertKnownGameInventoryEntry);
   it('AppGameProcessObservationSchema: preserves permission-limited unknowns', assertPermissionLimitedObservation);
@@ -176,4 +248,7 @@ describe('app game activity contracts', () => {
   it('AppGameSessionReportSchema: accepts flattened service and portal visibility state', assertSessionReport);
   it('app game confidence contracts: reject values outside the 0..1 boundary', assertConfidenceBoundaries);
   it('AppGameSessionSummarySchema: rejects durations beyond running duration', assertDurationConsistency);
+  it('AppGameSessionSummarySchema: pairs closed sessions with an end reason', assertClosedSessionsRequireReason);
+  it('AppGameSessionSummarySchema: requires duration evidence timestamps', assertDurationEvidenceTimesAreRequired);
+  it('AppGameSessionDailyRollupSchema: requires exact duration totals', assertDailyRollupDurationConsistency);
 });

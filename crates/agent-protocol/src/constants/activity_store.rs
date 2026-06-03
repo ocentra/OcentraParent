@@ -21,6 +21,7 @@ pub const TEST_TRACKING_RETENTION_DELETE_OBSERVED_AT: &str = "2026-06-03T02:04:0
 pub const TEST_CAPTURE_BROWSER_JOURNAL_SUFFIX: &str = "capture-browser-journal";
 pub const TEST_CAPTURE_BROWSER_KEY_SUFFIX: &str = "capture-browser-key";
 pub const TEST_CAPTURE_BROWSER_STORE_SUFFIX: &str = "capture-browser-store";
+pub const TEST_ROLLUP_DATE: &str = "2026-05-20";
 pub const TEST_CAPTURE_JOURNAL_SUFFIX: &str = "capture-journal";
 pub const TEST_CAPTURE_INVALID_KEY_JOURNAL_SUFFIX: &str = "capture-invalid-key-journal";
 pub const TEST_CAPTURE_INVALID_KEY_STORE_SUFFIX: &str = "capture-invalid-key-store";

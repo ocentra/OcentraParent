@@ -61,6 +61,7 @@ Current app/game evidence and session contracts live in:
 - `packages/activity-domain/src/app-game-category-risk.ts`
 - `packages/activity-domain/src/app-game-runtime.ts`
 - `packages/activity-domain/src/app-game-foreground.ts`
+- `packages/activity-domain/src/app-game-session-primitives.ts`
 - `packages/activity-domain/src/app-game.ts`
 - `packages/activity-domain/tests/app-game.test.ts`
 - `packages/activity-domain/tests/app-game-evidence-claim.test.ts`
@@ -110,6 +111,10 @@ Current Rust protocol and runtime proof paths include:
 - `crates/agent-core/src/activity_store_app_game/app_game_windows_process_runtime_tests.rs`
 - `crates/agent-core/src/activity_store_app_game/app_game_windows_foreground.rs`
 - `crates/agent-core/src/activity_store_app_game/app_game_windows_foreground_tests.rs`
+- `crates/agent-core/src/activity_store_app_game/app_game_sessionization.rs`
+- `crates/agent-core/src/activity_store_app_game/app_game_session_rollups.rs`
+- `crates/agent-core/src/activity_store_app_game/app_game_session_time.rs`
+- `crates/agent-core/src/activity_store_app_game/app_game_sessionization_tests.rs`
 - `crates/agent-core/src/activity_store_app_game_observation.rs`
 - `crates/agent-core/src/activity_store_app_game_rows.rs`
 - `crates/agent-core/src/activity_store_app_game_tests.rs`
@@ -248,6 +253,17 @@ rejection, and no-direct-enforcement guards. It does not prove live catalog
 enrichment, local AI classifier quality, policy compiler routing, portal
 category UI, service/read-model parity, or adapter authority.
 
+WP13 proof on `codex/app-game-sessionization-duration` adds deterministic
+sessionization and daily rollups over stored app/game SQLite observation rows under
+`output/app-game-plan-proof/13-sessionization-and-duration-engine/`. It covers
+process-derived running duration, foreground-window duration bounded by running
+duration, background duration, stale-gap session closure, process-exit closure,
+stable replay independent of ingestion order, session end reasons, observation
+gap tracking, and daily rollup totals by date and classification. It does not
+prove encrypted journal-file ingest/replay, live process or foreground
+subscriptions, service events, portal app/game dashboard rows, policy
+execution, UI screenshots, live launcher crawling, or broad blocking.
+
 ## Current Test Files
 
 - `packages/activity-domain/tests/app-game.test.ts`
@@ -263,6 +279,7 @@ category UI, service/read-model parity, or adapter authority.
 - `packages/parent-domain/tests/app-game-control-platform-authority.test.ts`
 - `packages/parent-domain/tests/enforcement-approval-audit.test.ts`
 - `crates/agent-protocol/src/app_game_tests.rs`
+- `crates/agent-core/src/activity_store_app_game/app_game_sessionization_tests.rs`
 - `crates/agent-core/src/activity_store_app_game_tests.rs`
 - `crates/agent-core/src/activity_store_app_game/app_game_windows_launcher_tests.rs`
 - `crates/agent-core/src/enforcement_app_time_limit_tests.rs`

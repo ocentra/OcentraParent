@@ -9,7 +9,7 @@ use ocentra_parent_agent_protocol::{
     APP_GAME_OBSERVATION_MODE_PROCESS_EXIT, APP_GAME_OBSERVATION_MODE_PROCESS_SNAPSHOT,
     APP_GAME_OBSERVATION_MODE_PROCESS_START, APP_GAME_RUNTIME_NOT_RUNNING,
     APP_GAME_RUNTIME_PERMISSION_LIMITED, APP_GAME_RUNTIME_RUNNING, APP_GAME_RUNTIME_UNKNOWN,
-    APP_GAME_SCHEMA_VERSION, APP_GAME_SESSION_ID_PREFIX,
+    APP_GAME_SCHEMA_VERSION, APP_GAME_SESSION_END_REASON_PROCESS_EXIT, APP_GAME_SESSION_ID_PREFIX,
 };
 
 pub struct WindowsProcessRuntimeRecord {
@@ -214,9 +214,20 @@ fn summary_from_runtime_row(row: &AppGameRuntimeEvidenceRow) -> AppGameSessionSu
             .unwrap_or_else(|| row.observed_at.clone()),
         last_observed_at: row.observed_at.clone(),
         ended_at: row.exited_at.clone(),
+        end_reason: row
+            .exited_at
+            .as_ref()
+            .map(|_| APP_GAME_SESSION_END_REASON_PROCESS_EXIT.to_string()),
         running_duration_ms: row.running_duration_ms,
         foreground_duration_ms: 0,
         background_duration_ms: row.running_duration_ms,
+        last_foreground_at: None,
+        last_background_at: if row.running_duration_ms > 0 {
+            Some(row.observed_at.clone())
+        } else {
+            None
+        },
+        observation_gap_ms: 0,
         observation_count: 1,
         evidence_count: row.evidence.len() as u64,
         evidence: row.evidence.clone(),
@@ -227,9 +238,17 @@ fn summary_from_runtime_row(row: &AppGameRuntimeEvidenceRow) -> AppGameSessionSu
 
 fn update_runtime_summary(summary: &mut AppGameSessionSummary, row: &AppGameRuntimeEvidenceRow) {
     summary.last_observed_at = row.observed_at.clone();
-    summary.ended_at = row.exited_at.clone().or_else(|| summary.ended_at.clone());
+    if row.exited_at.is_some() {
+        summary.ended_at = row.exited_at.clone();
+        summary.end_reason = Some(APP_GAME_SESSION_END_REASON_PROCESS_EXIT.to_string());
+    }
     summary.running_duration_ms = summary.running_duration_ms.max(row.running_duration_ms);
     summary.background_duration_ms = summary.running_duration_ms;
+    summary.last_background_at = if row.running_duration_ms > 0 {
+        Some(row.observed_at.clone())
+    } else {
+        summary.last_background_at.clone()
+    };
     summary.observation_count += 1;
     summary.evidence_count += row.evidence.len() as u64;
     summary.evidence.extend(row.evidence.clone());

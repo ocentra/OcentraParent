@@ -32,7 +32,9 @@ proof.
 - process observations;
 - foreground evidence rows for active-window focus as staged
   contract/protocol/parser proof;
-- session summaries;
+- session summaries with end reasons, observation gaps, and foreground/background
+  duration evidence timestamps;
+- daily app/game session rollup contracts;
 - session query/result/report shapes;
 - AI digest references;
 - classification states such as known app, known game, known launcher, possible
@@ -88,7 +90,10 @@ docs remain in place.
 
 - SQLite-backed app/game observation helpers;
 - app/game row mapping helpers;
-- session summary/report derivation from stored rows;
+- deterministic session summary/report derivation from stored rows, including
+  running duration, foreground duration bounded by running duration, background
+  duration, stale-gap closure, process-exit closure, replay-stable ordering, and
+  daily rollup helper proof;
 - staged Windows foreground-window parser proof that can apply foreground
   duration to existing runtime summaries without claiming content;
 - scoped Windows app time-limit capability helpers;
@@ -116,7 +121,7 @@ Existing portal/source areas that app work should extend:
 
 ## Proof That Exists
 
-The native app plan now mirrors the shared app/game proof spine for WP01-WP09:
+The native app plan now mirrors the shared app/game proof spine for WP01-WP12:
 
 ```text
 output/app-plan-proof/01-contract-boundary-and-effect-schemas
@@ -130,6 +135,7 @@ output/app-plan-proof/08-windows-process-runtime-evidence-adapter
 output/app-plan-proof/09-windows-foreground-app-evidence-adapter
 output/app-plan-proof/10-cross-platform-authority-matrix
 output/app-plan-proof/11-app-category-and-risk-taxonomy
+output/app-plan-proof/12-app-sessionization-and-duration-engine
 ```
 
 Those proof packs point back to `output/app-game-plan-proof/*` for the shared
@@ -161,9 +167,12 @@ polished app catalog UI, install approval, or cross-platform parity.
 - Windows Store/UWP/AppX identity needs separate proof from Win32 executable
   identity.
 - Foreground evidence now has shared app/game contract/protocol/parser proof,
-  but still needs live window capture wiring, journal/SQLite replay, service
-  events, portal rows, and explicit no-content UI labels.
-- Session duration and daily app rollups need stronger replay proof.
+  and stored-row sessionization can derive foreground duration, but live window
+  capture wiring, encrypted journal-file replay, service events, portal rows,
+  and explicit no-content UI labels remain incomplete.
+- Session duration and daily app rollups now have deterministic SQLite-row
+  replay proof, but encrypted journal-file ingest/replay, service events,
+  portal dashboard rows, and policy/report integration remain incomplete.
 - New/unknown app approval and child request UX are incomplete.
 - App category/risk taxonomy now has contract/test proof, but live classifier
   enrichment, policy routing, portal category rows, and runtime app risk

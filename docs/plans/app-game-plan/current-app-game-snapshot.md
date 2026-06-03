@@ -45,6 +45,9 @@ Proved today:
   categories, risk candidates, game context signals, source refs, confidence,
   reason codes, evidence refs, parent display overrides, AI digest refs,
   policy-candidate actions, duplicate ids, and `notEnforcement` state.
+- App/game sessionization now derives deterministic running, foreground,
+  background, stale-gap, process-exit, replay-stable, and daily rollup duration
+  rows from stored SQLite observations with TypeScript and Rust protocol parity.
 - App-control and game-control catalog/authoring contracts exist in
   `packages/parent-domain`.
 - Rust app/game session protocol mirrors exist.
@@ -62,12 +65,12 @@ Not proved today:
 - Live Microsoft Store/UWP/AppX/MSIX package enumeration, Store API integration,
   install approval, purchase approval, or package-wide blocking.
 - Live Windows process polling, process start/exit subscription, executable
-  metadata collection, publisher/signature/hash collection, journal ingest,
-  SQLite replay, service events, or portal runtime rows for the new WP08
-  contract.
-- Live Windows foreground-window polling, active-window subscription, journal
-  ingest, SQLite replay, service events, or portal foreground rows for the new
-  WP09 contract.
+  metadata collection, publisher/signature/hash collection, encrypted
+  journal-file ingest/replay, service events, or portal runtime rows for the
+  new WP08 contract.
+- Live Windows foreground-window polling, active-window subscription, encrypted
+  journal-file ingest/replay, service events, or portal foreground rows for the
+  new WP09 contract.
 - Product-complete native game catalog, live launcher disambiguation, and game
   budgets.
 - New/unknown app and unknown game approval flow.
@@ -94,7 +97,8 @@ app/game contract stack from this plan:
 - launcher evidence live source adapters beyond the staged launcher row/parser
   proof;
 - foreground evidence rows beyond the staged foreground-window parser proof,
-  including live capture, journal replay, and portal foreground rows;
+  including live capture, encrypted journal-file replay, and portal foreground
+  rows;
 - runtime-fed native app and native game category quality beyond the WP12
   category/risk taxonomy contract proof;
 - rating, UGC, multiplayer, and purchase signals;
@@ -112,12 +116,13 @@ proof that broad app/game blocking works.
 
 ## Current Runtime
 
-`crates/agent-core` currently has SQLite-backed app/game observation and session
-helpers, typed Windows installed-record and Store/UWP package
-adapter/parser proof, staged Windows process runtime parser proof, staged
-Windows foreground-window parser proof, staged Windows launcher evidence parser
-proof, and scoped Windows owned-process time-limit helpers. This is a strong
-base for workpacks 11, 12, 13, and 21, but it is not the same as:
+`crates/agent-core` currently has SQLite-backed app/game observation and
+deterministic sessionization helpers, typed Windows installed-record and
+Store/UWP package adapter/parser proof, staged Windows process runtime parser
+proof, staged Windows foreground-window parser proof, staged Windows launcher
+evidence parser proof, and scoped Windows owned-process time-limit helpers.
+This is a strong base for workpacks 11, 12, 13, and 21, but it is not the same
+as:
 
 - live Windows installed app inventory crawling;
 - live UWP/AppX package inventory enumeration;
@@ -159,12 +164,12 @@ Missing portal states include:
   implemented yet.
 - Runtime evidence contracts and Rust runtime-row parity are present, and a
   staged Windows process runtime parser proof exists, but live process capture,
-  executable metadata crawling, journal/SQLite ingest, service events, and
-  portal runtime rows are not implemented yet.
+  executable metadata crawling, encrypted journal-file ingest, service events,
+  and portal runtime rows are not implemented yet.
 - Foreground evidence contracts and Rust foreground-row parity are present, and
   a staged Windows foreground-window parser proof exists, but live foreground
-  capture, journal/SQLite ingest, service events, portal foreground rows, and
-  content-aware claims are not implemented.
+  capture, encrypted journal-file ingest, service events, portal foreground
+  rows, and content-aware claims are not implemented.
 - Rust protocol parity has not yet mirrored the WP01 evidence claim, AI digest,
   app/game control authority schemas, or WP04 identity schemas.
 - Journal and SQLite ingest do not yet store the new evidence claim and
@@ -217,10 +222,15 @@ Missing portal states include:
 - WP12 adds category/risk taxonomy contract/test proof only. It does not add
   live category enrichment, local AI classifier quality, policy compiler
   routing, service/read-model parity, portal rows, or direct enforcement.
+- WP13 adds deterministic local SQLite-row sessionization proof for running,
+  foreground, background, stale gap, process exit, replay order, session end
+  reasons, observation gaps, and daily rollups. It does not add encrypted
+  journal-file ingest/replay, live source subscriptions, service events, portal
+  dashboard rows, policy execution, UI proof, or broad blocking.
 - Next implementation work should either add live Windows inventory source
-  readers, journal/read-model ingest, or mirror the remaining WP01/WP04
-  TypeScript shapes into Rust protocol before service/runtime consumers depend
-  on them.
+  readers, encrypted journal ingest plus service/read-model events, or mirror
+  the remaining WP01/WP04 TypeScript shapes into Rust protocol before
+  service/runtime consumers depend on them.
 
 ## Enhancement Rule
 
