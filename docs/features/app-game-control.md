@@ -71,6 +71,10 @@ control with better evidence and local audit.
   unknown-state, category, schedule, capability, authority, device, local-user,
   and freshness proof before accepting app/game rule compile requests, and keep
   unproved block-launch in manual-required dry-run output.
+- App/game time-budget contracts now consume stored app/game session refs,
+  schedule evidence, bonus-time approval/audit refs, dry-run/manual-required
+  handoff state, and restart-recovered timer refs before representing exceeded
+  budget decisions.
 - Package/process identity and owned-process time-limit proof are in progress.
 - The V0.8 product-control spine separates app time-limit and scoped
   owned-process control from broad installed-app blocking, so downstream policy
@@ -137,10 +141,14 @@ read models, live candidate creation from platform adapters, or platform hard
 blocking.
 The native game budget proof is also contract-level: it does not yet provide a
 policy target compiler, live game budget authoring UI, service persistence,
-budget notifications, bonus-time integration, or adapter execution.
+budget notifications, or adapter execution.
 The app/game policy target compiler proof is contract-level: it does not yet
 provide runtime service evaluation, Rust/WebSocket parity, portal rule
 authoring, timer integration, notifications, rollback, or adapter execution.
+The app/game time-budget proof is contract-level: it does not yet provide
+runtime service evaluation, Rust/WebSocket parity, portal budget authoring,
+notification delivery, child request UX, service persistence, adapter
+execution, or platform timer/rollback execution.
 
 ## Checklist
 
@@ -161,8 +169,15 @@ authoring, timer integration, notifications, rollback, or adapter execution.
       App/game policy target compiler contracts now validate identity,
       unknown-state, category, schedule, capability, authority, device,
       local-user, and freshness proof before dry-run decisions; live evaluator,
-      authoring UI, persistence, timers, and enforcement remain.
-- [ ] Ask-parent and bonus-time flow.
+      authoring UI, persistence, timers, and enforcement remain. App/game
+      time-budget contracts now consume stored session refs, schedule refs,
+      bonus approval/audit refs, and timer recovery refs before dry-run or
+      manual-required decisions; live evaluator, UI, notification, persistence,
+      and adapter execution remain.
+- [ ] Ask-parent and bonus-time flow. Contract proof now requires approval and
+      audit refs before bonus time extends a budget and keeps ask-parent/manual
+      states dry-run only; notification delivery and finished parent/child UX
+      remain.
 - [ ] Child-facing reason/status is referenced in the runtime audit; finished
       child request/status UX remains.
 - [ ] Adapter capability status per platform.

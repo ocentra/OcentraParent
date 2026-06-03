@@ -150,6 +150,7 @@ output/app-plan-proof/14-app-read-models-and-service-events
 output/app-plan-proof/15-parent-portal-app-inventory-running-session-surfaces
 output/app-plan-proof/16-new-app-and-unknown-app-approval-flow
 output/app-plan-proof/18-policy-target-compiler-for-app-rules
+output/app-plan-proof/19-time-budget-schedule-bonus-time-integration
 ```
 
 Those proof packs point back to `output/app-game-plan-proof/*` for the shared
@@ -202,6 +203,15 @@ polished app catalog UI, install approval, or cross-platform parity.
   manual-required unproved block-launch. It does not yet provide runtime
   evaluator execution, service persistence, portal authoring/preview UI, timers,
   notifications, rollback, or adapter execution.
+- Native app time-budget integration now has shared parent-domain contract proof
+  for stored session refs, running versus foreground duration modes, schedule
+  evidence, bonus-time approval/audit refs, ask-parent/manual-required dry-run
+  states, effective budget math, and restart-recovered timer refs. It does not
+  yet provide live native app runtime evaluation, service persistence, portal
+  budget authoring/preview UI, notification delivery, child request UX, adapter
+  execution, or broad installed-app blocking. WP17 risk app detection remains
+  open because `packages/activity-domain` was locked by `codex-a` during this
+  pass.
 - App category/risk taxonomy now has contract/test proof, but live classifier
   enrichment, policy routing, portal category rows, and runtime app risk
   detection remain incomplete.

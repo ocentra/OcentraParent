@@ -109,12 +109,16 @@ and update them only when their acceptance contract or generated data changes.
 - `packages/parent-domain/src/app-game-control-platform-authority-rules.ts`
 - `packages/parent-domain/src/app-game-policy-target-compiler.ts`
 - `packages/parent-domain/src/app-game-policy-target-compiler-rules.ts`
+- `packages/parent-domain/src/app-game-time-budget-policy.ts`
+- `packages/parent-domain/src/app-game-time-budget-policy-rules.ts`
 - `packages/parent-domain/src/policy.ts`
 - `packages/parent-domain/tests/app-control-policy-catalog.test.ts`
 - `packages/parent-domain/tests/app-game-control-authority.test.ts`
 - `packages/parent-domain/tests/app-game-unknown-approval-flow.test.ts`
 - `packages/parent-domain/tests/app-game-control-platform-authority.test.ts`
 - `packages/parent-domain/tests/app-game-policy-target-compiler.test.ts`
+- `packages/parent-domain/tests/app-game-time-budget-policy.test.ts`
+- `packages/parent-domain/tests/app-game-time-budget-policy-recovery.test.ts`
 - `packages/parent-domain/tests/enforcement-approval-audit.test.ts`
 
 TypeScript rule: enhance these existing app/app-game paths first. Do not create
@@ -198,25 +202,26 @@ The native app plan uses the shared app/game evidence spine through the early
 evidence workpacks instead of creating parallel app-only truth. App-plan proof
 packs mirror the app/game proof roots and record product-doc decisions.
 
-| App-plan workpack                     | App-plan proof root                                                             | Shared app/game proof root                                                | Boundary                           |
-| ------------------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------- | ---------------------------------- |
-| WP01 contract boundary                | `output/app-plan-proof/01-contract-boundary-and-effect-schemas`                 | `output/app-game-plan-proof/01-contract-boundary-and-effect-schemas`      | Contract/proof reconciliation only |
-| WP02 source reconciliation            | `output/app-plan-proof/02-source-index-and-doc-reconciliation`                  | `output/app-game-plan-proof/02-source-index-and-doc-reconciliation`       | Routing/docs only                  |
-| WP03 snapshot/gap map                 | `output/app-plan-proof/03-current-app-snapshot-and-gap-map`                     | `output/app-game-plan-proof/03-current-app-game-snapshot-and-gap-map`     | Snapshot/gap proof only            |
-| WP04 app identity                     | `output/app-plan-proof/04-app-identity-model`                                   | `output/app-game-plan-proof/04-app-game-identity-model`                   | Contract proof only                |
-| WP05 installed inventory model        | `output/app-plan-proof/05-installed-app-inventory-model`                        | `output/app-game-plan-proof/05-inventory-evidence-model`                  | Contract proof only                |
-| WP06 Windows installed inventory      | `output/app-plan-proof/06-windows-installed-app-inventory-adapter`              | `output/app-game-plan-proof/06-windows-installed-inventory-adapter`       | Parser proof only                  |
-| WP07 Windows Store/UWP/AppX inventory | `output/app-plan-proof/07-windows-store-uwp-appx-inventory-adapter`             | `output/app-game-plan-proof/07-windows-store-uwp-appx-inventory-adapter`  | Parser proof only                  |
-| WP08 Windows process runtime          | `output/app-plan-proof/08-windows-process-runtime-evidence-adapter`             | `output/app-game-plan-proof/08-windows-process-runtime-evidence-adapter`  | Runtime parser proof only          |
-| WP09 Windows foreground evidence      | `output/app-plan-proof/09-windows-foreground-app-evidence-adapter`              | `output/app-game-plan-proof/09-windows-foreground-evidence-adapter`       | Foreground parser proof only       |
-| WP10 cross-platform authority matrix  | `output/app-plan-proof/10-cross-platform-authority-matrix`                      | `output/app-game-plan-proof/11-cross-platform-authority-matrix`           | Authority contract proof only      |
-| WP11 app category/risk taxonomy       | `output/app-plan-proof/11-app-category-and-risk-taxonomy`                       | `output/app-game-plan-proof/12-app-game-category-and-risk-taxonomy`       | Category/risk contract proof only  |
-| WP12 app sessionization/duration      | `output/app-plan-proof/12-app-sessionization-and-duration-engine`               | `output/app-game-plan-proof/13-sessionization-and-duration-engine`        | SQLite-row session reducer proof   |
-| WP13 journal/SQLite app ingest        | `output/app-plan-proof/13-journal-and-sqlite-app-ingest`                        | `output/app-game-plan-proof/14-journal-and-sqlite-ingest`                 | Encrypted journal replay proof     |
-| WP14 app read models/service events   | `output/app-plan-proof/14-app-read-models-and-service-events`                   | `output/app-game-plan-proof/15-read-models-and-service-events`            | Service read-model DTO proof       |
-| WP15 portal app inventory surfaces    | `output/app-plan-proof/15-parent-portal-app-inventory-running-session-surfaces` | `output/app-game-plan-proof/16-parent-portal-app-game-dashboard-surfaces` | Portal dashboard surface proof     |
-| WP16 new/unknown app approval         | `output/app-plan-proof/16-new-app-and-unknown-app-approval-flow`                | `output/app-game-plan-proof/17-unknown-app-game-approval-flow`            | Approval contract proof only       |
-| WP18 app policy target compiler       | `output/app-plan-proof/18-policy-target-compiler-for-app-rules`                 | `output/app-game-plan-proof/19-policy-target-compiler-for-app-game-rules` | Compiler contract proof only       |
+| App-plan workpack                     | App-plan proof root                                                             | Shared app/game proof root                                                  | Boundary                           |
+| ------------------------------------- | ------------------------------------------------------------------------------- | --------------------------------------------------------------------------- | ---------------------------------- |
+| WP01 contract boundary                | `output/app-plan-proof/01-contract-boundary-and-effect-schemas`                 | `output/app-game-plan-proof/01-contract-boundary-and-effect-schemas`        | Contract/proof reconciliation only |
+| WP02 source reconciliation            | `output/app-plan-proof/02-source-index-and-doc-reconciliation`                  | `output/app-game-plan-proof/02-source-index-and-doc-reconciliation`         | Routing/docs only                  |
+| WP03 snapshot/gap map                 | `output/app-plan-proof/03-current-app-snapshot-and-gap-map`                     | `output/app-game-plan-proof/03-current-app-game-snapshot-and-gap-map`       | Snapshot/gap proof only            |
+| WP04 app identity                     | `output/app-plan-proof/04-app-identity-model`                                   | `output/app-game-plan-proof/04-app-game-identity-model`                     | Contract proof only                |
+| WP05 installed inventory model        | `output/app-plan-proof/05-installed-app-inventory-model`                        | `output/app-game-plan-proof/05-inventory-evidence-model`                    | Contract proof only                |
+| WP06 Windows installed inventory      | `output/app-plan-proof/06-windows-installed-app-inventory-adapter`              | `output/app-game-plan-proof/06-windows-installed-inventory-adapter`         | Parser proof only                  |
+| WP07 Windows Store/UWP/AppX inventory | `output/app-plan-proof/07-windows-store-uwp-appx-inventory-adapter`             | `output/app-game-plan-proof/07-windows-store-uwp-appx-inventory-adapter`    | Parser proof only                  |
+| WP08 Windows process runtime          | `output/app-plan-proof/08-windows-process-runtime-evidence-adapter`             | `output/app-game-plan-proof/08-windows-process-runtime-evidence-adapter`    | Runtime parser proof only          |
+| WP09 Windows foreground evidence      | `output/app-plan-proof/09-windows-foreground-app-evidence-adapter`              | `output/app-game-plan-proof/09-windows-foreground-evidence-adapter`         | Foreground parser proof only       |
+| WP10 cross-platform authority matrix  | `output/app-plan-proof/10-cross-platform-authority-matrix`                      | `output/app-game-plan-proof/11-cross-platform-authority-matrix`             | Authority contract proof only      |
+| WP11 app category/risk taxonomy       | `output/app-plan-proof/11-app-category-and-risk-taxonomy`                       | `output/app-game-plan-proof/12-app-game-category-and-risk-taxonomy`         | Category/risk contract proof only  |
+| WP12 app sessionization/duration      | `output/app-plan-proof/12-app-sessionization-and-duration-engine`               | `output/app-game-plan-proof/13-sessionization-and-duration-engine`          | SQLite-row session reducer proof   |
+| WP13 journal/SQLite app ingest        | `output/app-plan-proof/13-journal-and-sqlite-app-ingest`                        | `output/app-game-plan-proof/14-journal-and-sqlite-ingest`                   | Encrypted journal replay proof     |
+| WP14 app read models/service events   | `output/app-plan-proof/14-app-read-models-and-service-events`                   | `output/app-game-plan-proof/15-read-models-and-service-events`              | Service read-model DTO proof       |
+| WP15 portal app inventory surfaces    | `output/app-plan-proof/15-parent-portal-app-inventory-running-session-surfaces` | `output/app-game-plan-proof/16-parent-portal-app-game-dashboard-surfaces`   | Portal dashboard surface proof     |
+| WP16 new/unknown app approval         | `output/app-plan-proof/16-new-app-and-unknown-app-approval-flow`                | `output/app-game-plan-proof/17-unknown-app-game-approval-flow`              | Approval contract proof only       |
+| WP18 app policy target compiler       | `output/app-plan-proof/18-policy-target-compiler-for-app-rules`                 | `output/app-game-plan-proof/19-policy-target-compiler-for-app-game-rules`   | Compiler contract proof only       |
+| WP19 app time budget integration      | `output/app-plan-proof/19-time-budget-schedule-bonus-time-integration`          | `output/app-game-plan-proof/20-time-budget-schedule-bonus-time-integration` | Time-budget contract proof only    |
 
 These completed rows do not add live OS crawling, content knowledge, policy
 execution, install control, parent/child approval UI, notification delivery,
@@ -224,8 +229,8 @@ broad blocking, or runtime cross-platform parity.
 Those claims remain assigned to later app-plan/app-game workpacks.
 
 The WP12/WP13/WP14/WP15/WP16/WP18 sessionization, read-model, portal-surface,
-approval-contract, and compiler-contract proof narrows the storage/UI/control
-gap in stages:
+approval-contract, compiler-contract, and WP19 time-budget-contract proof
+narrows the storage/UI/control gap in stages:
 deterministic replay from stored SQLite observation rows is covered for process
 and foreground session summaries plus daily rollups, and staged encrypted
 journal-file replay is now covered for typed inventory, runtime, foreground,
@@ -235,7 +240,10 @@ portal now has a dedicated App/Game Sessions dashboard surface that consumes the
 service read-model rows. New/unknown app approval requests are now modeled as
 contract-valid candidate, child-status, response-scope, expiry, persistence,
 and manual-required states. App policy target compiler proof now validates
-dry-run target decisions without runtime execution. Dedicated approval UI,
+dry-run target decisions without runtime execution. App time-budget proof now
+requires stored session refs, schedule evidence, bonus approval/audit refs,
+dry-run/manual-required handoff, and timer recovery refs before native app
+budget decisions can be represented. Dedicated approval UI,
 notification delivery, service persistence/read models, policy runtime,
 game-budget, live source, live source subscriptions, journal
 corruption/recovery, and platform authority proof remain later work.
@@ -251,6 +259,8 @@ corruption/recovery, and platform authority proof remain later work.
 - `packages/parent-domain/tests/app-game-unknown-approval-flow.test.ts`
 - `packages/parent-domain/tests/app-game-control-platform-authority.test.ts`
 - `packages/parent-domain/tests/app-game-policy-target-compiler.test.ts`
+- `packages/parent-domain/tests/app-game-time-budget-policy.test.ts`
+- `packages/parent-domain/tests/app-game-time-budget-policy-recovery.test.ts`
 - `packages/parent-domain/tests/enforcement-approval-audit.test.ts`
 - `crates/agent-protocol/src/app_game_tests.rs`
 - `crates/agent-core/src/activity_store_app_game/app_game_sessionization_tests.rs`

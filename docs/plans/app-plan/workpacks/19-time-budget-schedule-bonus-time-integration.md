@@ -66,3 +66,30 @@ Fill this before reporting `DONE` or PR-ready:
 
 Time-budget policy can be proof-complete in dry-run before enforcement is
 available on a platform.
+
+## Completion - 2026-06-03
+
+- Owner: `codex-c`
+- Branch: `codex/app-game-read-model-service-events`
+- App-plan proof root:
+  `output/app-plan-proof/19-time-budget-schedule-bonus-time-integration/`
+- Shared app/game proof root:
+  `output/app-game-plan-proof/20-time-budget-schedule-bonus-time-integration/`
+
+Completed:
+
+- Cross-recorded from shared app/game WP20 rather than creating app-only
+  duplicate policy truth.
+- Added TypeScript parent-domain contracts and tests for app/game time-budget
+  decisions that consume stored session refs, schedule evidence, bonus approval
+  and audit refs, dry-run/manual-required states, and timer recovery refs.
+- Covered the native app target view through all-native-apps, native-app,
+  app-category, risk-app, and native-app-session inputs.
+
+Deferred:
+
+- WP17 live risk app detection remains open because `packages/activity-domain`
+  was locked by `codex-a` during this pass.
+- Native app runtime evaluator execution, service persistence, portal app
+  budget authoring/preview UI, notification delivery, child request UX,
+  adapter execution, and broad installed-app blocking remain later work.

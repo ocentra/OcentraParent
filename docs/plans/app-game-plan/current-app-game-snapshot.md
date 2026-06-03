@@ -64,6 +64,10 @@ Proved today:
   identity-backed specific targets, unknown-state targets, category/risk/game
   signal targets, schedule proof, capability/authority refs, device/local-user
   freshness, and manual-required block-launch output.
+- App/game time-budget contracts now provide dry-run proof for stored app/game
+  session refs, running versus foreground duration modes, schedule evidence
+  refs, bonus-time approval/audit refs, ask-parent/manual-required handoff,
+  effective budget math, and restart-recovered timer refs.
 - App-control and game-control catalog/authoring contracts exist in
   `packages/parent-domain`.
 - Rust app/game session protocol mirrors exist.
@@ -92,6 +96,7 @@ Not proved today:
 - Product-complete native game catalog, live launcher disambiguation, and live
   game budget product behavior beyond WP18 dry-run contract proof.
 - Runtime app/game policy target evaluation beyond WP19 dry-run contract proof.
+- Runtime app/game time-budget evaluation beyond WP20 dry-run contract proof.
 - Live new/unknown app and unknown game approval flow beyond the WP17
   contract-level request/decision proof.
 - Live category/risk classification, catalog enrichment, policy compiler
@@ -136,10 +141,13 @@ expiry, audit-backed replay state, and manual-required outcomes. WP18 now adds
 contract-level native game budget dry-run targets, launcher inclusion policy,
 advisory signal boundaries, and no-enforcement handoff. WP19 now adds
 contract-level app/game policy target compiler requests and compiled dry-run
-decisions. Those catalogs, authority contracts, approval contracts, budget
-contracts, and compiler contracts are product-control inputs, not a complete
-shared evidence spine, live approval workflow, live game budget product flow,
-runtime evaluator, or proof that broad app/game blocking works.
+decisions. WP20 now adds contract-level app/game time-budget decisions with
+stored session refs, schedule refs, bonus approval/audit refs, dry-run/manual
+handoff, effective budget math, and timer recovery refs. Those catalogs,
+authority contracts, approval contracts, budget contracts, compiler contracts,
+and time-budget contracts are product-control inputs, not a complete shared
+evidence spine, live approval workflow, live game budget product flow, runtime
+evaluator, or proof that broad app/game blocking works.
 
 ## Current Runtime
 
@@ -230,6 +238,13 @@ Missing portal states include:
   manual-required unproved block-launch. It does not yet provide Rust/service
   parity, runtime evaluator execution, portal rule authoring/preview UI, timer
   integration, notifications, rollback, or adapter execution.
+- App/game time-budget policy now has parent-domain contract proof for stored
+  app/game session refs, running versus foreground duration modes, schedule
+  evidence, bonus-time approval/audit refs, ask-parent/manual-required dry-run
+  states, effective budget math, and restart-recovered timer refs. It does not
+  yet provide Rust/service parity, runtime evaluator execution, service
+  persistence, portal budget authoring/preview UI, notification delivery, child
+  request UX, adapter execution, or platform timer/rollback execution.
 - Launcher evidence has contract/protocol/parser proof and service DTO exposure
   from staged projection rows, but live launcher crawling, dedicated portal
   rows, and game-budget policy are not product-complete. A launcher row must
@@ -303,6 +318,13 @@ Missing portal states include:
   Rust/service parity, runtime evaluator execution, portal rule authoring,
   notifications, timers, rollback, platform adapter execution, or broad
   blocking.
+- WP20 adds parent-domain app/game time-budget contract/test proof for stored
+  session refs, running versus foreground modes, schedule evidence refs,
+  bonus-time approval/audit refs, ask-parent/manual-required dry-run states,
+  effective budget math, and restart-recovered timer refs. It does not add
+  Rust/service parity, runtime evaluator execution, service persistence, portal
+  budget authoring/preview UI, notification delivery, child request UX, adapter
+  execution, or platform timer/rollback execution.
 - Next implementation work should either add dedicated portal dashboard
   consumption of the service rows, live Windows inventory source readers, or
   mirror the remaining WP01/WP04 TypeScript shapes into Rust protocol before

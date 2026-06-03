@@ -90,6 +90,8 @@ Current app-control and app/game policy/catalog meaning lives in:
 - `packages/parent-domain/src/app-game-control-platform-authority-rules.ts`
 - `packages/parent-domain/src/app-game-policy-target-compiler.ts`
 - `packages/parent-domain/src/app-game-policy-target-compiler-rules.ts`
+- `packages/parent-domain/src/app-game-time-budget-policy.ts`
+- `packages/parent-domain/src/app-game-time-budget-policy-rules.ts`
 - `packages/parent-domain/src/native-game-budget-policy.ts`
 - `packages/parent-domain/src/native-game-budget-policy-rules.ts`
 - `packages/parent-domain/src/policy.ts`
@@ -99,6 +101,8 @@ Current app-control and app/game policy/catalog meaning lives in:
 - `packages/parent-domain/tests/app-game-unknown-approval-flow.test.ts`
 - `packages/parent-domain/tests/app-game-control-platform-authority.test.ts`
 - `packages/parent-domain/tests/app-game-policy-target-compiler.test.ts`
+- `packages/parent-domain/tests/app-game-time-budget-policy.test.ts`
+- `packages/parent-domain/tests/app-game-time-budget-policy-recovery.test.ts`
 - `packages/parent-domain/tests/native-game-budget-policy.test.ts`
 - `packages/parent-domain/tests/enforcement-approval-audit.test.ts`
 
@@ -341,6 +345,16 @@ block-launch without proof. It does not prove Rust/service parity, runtime
 evaluator execution, portal authoring or preview UI, notifications, timers,
 rollback, platform adapter execution, or broad app/game enforcement.
 
+WP20 proof on `codex/app-game-read-model-service-events` adds parent-domain
+app/game time-budget contract proof under
+`output/app-game-plan-proof/20-time-budget-schedule-bonus-time-integration/`.
+It covers stored app/game session refs, running versus foreground budget modes,
+schedule evidence, bonus-time approval/audit refs, ask-parent/manual-required
+dry-run states, effective budget math, and restart-recovered timer refs. It
+does not prove Rust/service parity, runtime evaluator execution, service
+persistence, portal budget authoring or preview UI, notification delivery,
+child request UX, adapter execution, or platform timer/rollback execution.
+
 ## Current Test Files
 
 - `packages/activity-domain/tests/app-game.test.ts`
@@ -358,6 +372,8 @@ rollback, platform adapter execution, or broad app/game enforcement.
 - `packages/parent-domain/tests/app-game-unknown-approval-flow.test.ts`
 - `packages/parent-domain/tests/app-game-control-platform-authority.test.ts`
 - `packages/parent-domain/tests/app-game-policy-target-compiler.test.ts`
+- `packages/parent-domain/tests/app-game-time-budget-policy.test.ts`
+- `packages/parent-domain/tests/app-game-time-budget-policy-recovery.test.ts`
 - `packages/parent-domain/tests/native-game-budget-policy.test.ts`
 - `packages/parent-domain/tests/enforcement-approval-audit.test.ts`
 - `crates/agent-protocol/src/app_game_tests.rs`
