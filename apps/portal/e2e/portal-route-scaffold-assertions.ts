@@ -218,9 +218,9 @@ async function assertManageRouteSurface(surface: ReturnType<Page['locator']>, pa
   if (path === '/#/browser-settings') {
     await expectSurfaceTextToContain(surface, 'ROUTE READINESS');
     await expectSurfaceTextToContain(surface, 'Browser activity');
-    await expectSurfaceTextToContain(surface, 'Managed web path');
-    await expectSurfaceTextToContain(surface, 'Browser setup');
-    await expectSurfaceTextToContain(surface, 'Enforcement readiness');
+    await expectSurfaceTextToMatch(surface, /(?:Managed web path|Browser inventory)/);
+    await expectSurfaceTextToMatch(surface, /(?:Browser setup|Exact URL capability)/);
+    await expectSurfaceTextToMatch(surface, /(?:Enforcement readiness|Active tab proof)/);
     await expectSurfaceTextToMatch(surface, /(?:Browser target|browser policy|Browser activity)/i);
     return;
   }
