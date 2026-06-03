@@ -9,6 +9,10 @@
       "import": "./dist/contracts.js",
       "types": "./dist/contracts.d.ts"
     },
+    "./notification-audit-history": {
+      "import": "./dist/notification-audit-history.js",
+      "types": "./dist/notification-audit-history.d.ts"
+    },
     "./package-info": {
       "import": "./dist/package-info.js",
       "types": "./dist/package-info.d.ts"

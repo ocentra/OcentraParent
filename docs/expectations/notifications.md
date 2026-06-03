@@ -57,6 +57,14 @@ provider adapter, real send/retry execution, observed provider receipts, raw
 evidence in provider payloads, provider child-evidence storage, parent
 preference UI, or notification history UI.
 
+`scripts/test/notification-audit-history-contract-proof.mjs` validates a
+logging-domain notification audit/history read model covering provider status,
+retry lifecycle, receipt/manual-required refs, quiet-hours/escalation refs,
+redaction-safe payload fields, and child-data non-custody. This is a logging
+contract proof only: it does not claim provider adapters, send/retry execution,
+webhook receipt ingestion, notification history UI, credentials, raw child data,
+or Ocentra-hosted child evidence custody.
+
 ## Failure Behavior
 
 - Provider failure is visible, retryable when safe, and auditable.
@@ -98,6 +106,9 @@ preference UI, or notification history UI.
 - V3 notification rule/provider retry contract proof for reason codes, provider
   channels, delivery result states, retry policies, quiet-hours decisions,
   escalation decisions, parent preferences, audit refs, and evidence refs.
+- Logging-domain notification audit/history contract proof for provider status,
+  retry lifecycle, receipt/manual-required refs, quiet-hours/escalation refs,
+  redaction-safe payload fields, and child-data non-custody.
 - Adapter boundary tests for success, retryable failure, permanent failure, webhook receipt, and disabled provider.
 - Integration tests proving notification intents reference stored evidence or policy decisions.
 - Parent-surface coverage for notification history, preference changes, quiet hours, and sensitive-detail drill-in behind authentication.
