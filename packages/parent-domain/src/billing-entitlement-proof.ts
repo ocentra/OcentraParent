@@ -113,7 +113,7 @@ export const BillingEntitlementKnownGaps = [
   'Account backend, entitlement signing runtime, and subscription sync delivery remain unimplemented.',
   'Portal billing UI and account-management flows remain unimplemented.',
   'Child-device safety modules do not consume these entitlement snapshots yet.',
-  'Package export, parent-domain README, and product checklist deltas are pending active lane locks.',
+  'Parent-domain README and product checklist deltas are pending active lane locks.',
 ] as const;
 
 export function summarizeBillingFailureStates(

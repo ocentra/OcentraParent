@@ -27,6 +27,7 @@ async function main() {
   ]);
 
   const contract = await assertBuiltContract();
+  const packageExport = await assertPublicPackageExport();
   const documentation = await assertDocumentationProof();
   const commit = await gitHead();
   const proof = {
@@ -39,6 +40,7 @@ async function main() {
       contract: 'packages/parent-domain/src/billing-entitlement.ts',
       proofModel: 'packages/parent-domain/src/billing-entitlement-proof.ts',
       contractTest: 'packages/parent-domain/tests/billing-entitlement.test.ts',
+      packageExport,
       documentation,
       output: relativePath(proofPath),
     },
@@ -60,7 +62,7 @@ async function main() {
       'subscription sync delivery runtime',
       'portal billing UI',
       'child-device entitlement consumption',
-      'package export, parent-domain README, and product checklist updates blocked by active locks',
+      'parent-domain README and product checklist updates blocked by active locks',
     ],
   };
 
@@ -99,6 +101,13 @@ async function assertBuiltContract() {
     deviceLimitDecisions: proof.deviceLimitDecisions.map((entry) => entry.decision),
     failureStates: proof.failureStates.map((entry) => entry.failureKind),
   };
+}
+
+async function assertPublicPackageExport() {
+  const module = await import('@ocentra-parent/parent-domain/billing-entitlement');
+  assert.equal(typeof module.decodeBillingEntitlementContractProof, 'function');
+  assert.ok(module.BillingEntitlementContractProofSchema);
+  return '@ocentra-parent/parent-domain/billing-entitlement';
 }
 
 async function assertDocumentationProof() {
