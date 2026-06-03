@@ -115,6 +115,10 @@ pub const TEST_ROUTER_IP: &str = "192.168.2.1";
 pub const TEST_ROUTER_MAC: &str = "00-11-22-33-44-55";
 pub const TEST_HOSTNAME: &str = "GAMEDEV";
 pub const TEST_NETWORK_INTERFACE: &str = "Ethernet 2";
+pub const TEST_NAMED_NEIGHBOR_ROW_PARSE_EXPECT: &str = "named neighbor row parses";
+pub const TEST_UNNAMED_NEIGHBOR_ROW_PARSE_EXPECT: &str = "unnamed neighbor row parses";
+pub const TEST_NEIGHBOR_CACHE_LOCK_EXPECT: &str = "cache lock";
+pub const TEST_NETBIOS_STATUS_ROW_SEPARATOR: &str = " ";
 pub const NETWORK_NEIGHBOR_DEVICE_PREFIX: &str = "lan-device-";
 pub const CANONICAL_DEVICE_MAC_PREFIX: &str = "lan-physical-mac-";
 pub const CANONICAL_DEVICE_IP_PREFIX: &str = "lan-physical-ip-";
@@ -135,12 +139,27 @@ pub const HOUSEHOLD_ACTION_KIND_FIELD: &str = "householdActionKind";
 pub const HOUSEHOLD_DECISION_ACTION_KIND_FIELD: &str = "actionKind";
 pub const HOUSEHOLD_ACTION_CHILD_PROFILE_ID_FIELD: &str = "childProfileId";
 pub const HOUSEHOLD_ACTION_DISPLAY_NAME_FIELD: &str = "displayName";
+pub const HOUSEHOLD_ACTION_DEVICE_KIND_FIELD: &str = "deviceKind";
 pub const HOUSEHOLD_ACTION_REVOKED_AT_FIELD: &str = "revokedAt";
 pub const HOUSEHOLD_ACTION_ASSIGN: &str = "assign";
 pub const HOUSEHOLD_ACTION_RENAME: &str = "rename";
 pub const HOUSEHOLD_ACTION_IGNORE: &str = "ignore";
 pub const HOUSEHOLD_ACTION_RESTORE: &str = "restore";
 pub const HOUSEHOLD_ACTION_TRUST: &str = "trust";
+pub const HOUSEHOLD_DEVICE_KIND_MOBILE: &str = "mobile";
+pub const HOUSEHOLD_DEVICE_KIND_DESKTOP: &str = "desktop";
+pub const HOUSEHOLD_DEVICE_KIND_LAPTOP: &str = "laptop";
+pub const HOUSEHOLD_DEVICE_KIND_TABLET: &str = "tablet";
+pub const HOUSEHOLD_DEVICE_KIND_ROUTER: &str = "router";
+pub const HOUSEHOLD_DEVICE_KIND_UNKNOWN: &str = "unknown";
+pub const HOUSEHOLD_DEVICE_KINDS: &[&str] = &[
+    HOUSEHOLD_DEVICE_KIND_MOBILE,
+    HOUSEHOLD_DEVICE_KIND_DESKTOP,
+    HOUSEHOLD_DEVICE_KIND_LAPTOP,
+    HOUSEHOLD_DEVICE_KIND_TABLET,
+    HOUSEHOLD_DEVICE_KIND_ROUTER,
+    HOUSEHOLD_DEVICE_KIND_UNKNOWN,
+];
 pub const HOUSEHOLD_ACTION_ID: &str = "household-action-1";
 pub const HOUSEHOLD_RESTORE_ACTION_ID: &str = "household-action-restore-1";
 pub const HOUSEHOLD_RENAMED_DEVICE_LABEL: &str = "Bedroom Windows PC";
@@ -344,6 +363,9 @@ pub const NBTSTAT_EXE: &str = "nbtstat";
 pub const NBTSTAT_CACHE_ARG: &str = "-c";
 pub const NBTSTAT_ADAPTER_STATUS_ARG: &str = "-A";
 pub const NBTSTAT_UNIQUE_MARKER: &str = "UNIQUE";
+pub const NBTSTAT_GROUP_MARKER: &str = "GROUP";
+pub const NBTSTAT_WORKSTATION_SERVICE_MARKER: &str = "<00>";
+pub const NBTSTAT_SERVER_SERVICE_MARKER: &str = "<20>";
 pub const NVIDIA_SMI_EXE: &str = "nvidia-smi";
 pub const NVIDIA_SMI_QUERY_ARG: &str = "--query-gpu=name,driver_version,memory.total";
 pub const NVIDIA_SMI_FORMAT_ARG: &str = "--format=csv,noheader,nounits";

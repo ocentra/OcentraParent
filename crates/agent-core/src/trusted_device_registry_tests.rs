@@ -424,4 +424,10 @@ fn trusted_device_registry_persists_household_device_decisions_for_restart_recov
             .as_deref(),
         Some(constants::lan_pairing::HOUSEHOLD_RENAMED_DEVICE_LABEL)
     );
+    assert_eq!(
+        loaded.household_device_decisions()[0]
+            .device_kind
+            .as_deref(),
+        Some(constants::lan_pairing::HOUSEHOLD_DEVICE_KIND_DESKTOP)
+    );
 }

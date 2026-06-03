@@ -120,6 +120,7 @@ fn household_decision() -> LanHouseholdDeviceDecision {
         canonical_device_id: "lan-physical-mac-54271e97c331".to_string(),
         child_profile_id: None,
         display_name: Some("GAMEDEV Study PC".to_string()),
+        device_kind: Some(constants::lan_pairing::HOUSEHOLD_DEVICE_KIND_DESKTOP.to_string()),
         parent_actor_id: constants::lan_pairing::PARENT_ACTOR_ID.to_string(),
         decided_at: "2026-06-01T15:20:00.000Z".to_string(),
         revoked_at: None,

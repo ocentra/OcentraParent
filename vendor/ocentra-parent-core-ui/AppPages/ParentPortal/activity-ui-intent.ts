@@ -308,6 +308,7 @@ function collectCanonicalLanDevices(readModel: Record<string, unknown>, devices:
       hostname: stringValue(networkIdentity?.['hostname']),
       networkInterface: firstString(networkIdentity?.['networkInterfaces']),
       agentStatus: childAgentBacked ? 'ocentra-child-agent' : undefined,
+      manufacturer: stringValue(networkIdentity?.['macVendor']),
       portalEligible: childAgentBacked,
       cpuModel: stringValue(childAgentInventory?.['cpuModel']),
       cpuCores: stringValue(childAgentInventory?.['cpuCores']),
@@ -521,6 +522,8 @@ type LanDeviceEvidenceInput = {
   readonly lanSourceProof?: string | undefined;
   readonly lanWeakSourceProof?: string | undefined;
   readonly parentDecision?: string | undefined;
+  readonly householdName?: string | undefined;
+  readonly parentDeviceKind?: DeviceKind | undefined;
   readonly auditLabel?: string | undefined;
   readonly requirementLabel?: string | undefined;
   readonly evidenceLabel?: string | undefined;
@@ -572,6 +575,8 @@ function lanDeviceEvidence(
     lanSourceProof: lanSourceMatrixImplementedSummary(sourceMatrix),
     lanWeakSourceProof: lanSourceMatrixWeakSourceSummary(sourceMatrix),
     parentDecision: lanHouseholdDecisionLabel(decision),
+    householdName: stringValue(decision?.['displayName']),
+    parentDeviceKind: normalizedLanDeviceKindValue(stringValue(decision?.['deviceKind'])),
     auditLabel: firstString(readModel['auditCheckLabels']),
     requirementLabel: firstString(readModel['routeRequirementLabels']),
     evidenceLabel:
@@ -613,11 +618,14 @@ function latestLanHouseholdDecision(
   readModel: Record<string, unknown>,
   deviceId: string
 ): Record<string, unknown> | null {
-  return (
-    recordArrayValue(readModel['householdDeviceDecisions']).find((decision) =>
-      samePhysicalDeviceValue(stringValue(decision['canonicalDeviceId']), deviceId)
-    ) ?? null
-  );
+  const decisions = recordArrayValue(readModel['householdDeviceDecisions']);
+  for (let index = decisions.length - 1; index >= 0; index -= 1) {
+    const decision = decisions[index];
+    if (samePhysicalDeviceValue(stringValue(decision?.['canonicalDeviceId']), deviceId)) {
+      return decision ?? null;
+    }
+  }
+  return null;
 }
 
 function preferredLanTrustedRegistryEntry(
@@ -649,6 +657,7 @@ function lanHouseholdDecisionLabel(decision: Record<string, unknown> | null): st
   const displayName = stringValue(decision['displayName']);
   const revokedAt = stringValue(decision['revokedAt']);
   if (revokedAt && actionKind) return `${actionKind} revoked`;
+  if (actionKind && displayName) return `${actionKind}: ${displayName}`;
   return actionKind || displayName;
 }
 
@@ -745,6 +754,8 @@ function upsertLanDeviceSlot(
     readonly lanSourceProof?: string | undefined;
     readonly lanWeakSourceProof?: string | undefined;
     readonly parentDecision?: string | undefined;
+    readonly householdName?: string | undefined;
+    readonly parentDeviceKind?: DeviceKind | undefined;
     readonly auditLabel?: string | undefined;
     readonly requirementLabel?: string | undefined;
     readonly evidenceLabel?: string | undefined;
@@ -758,7 +769,9 @@ function upsertLanDeviceSlot(
   const incomingHasAgentFacet = hasAgentFacet(input);
   const existingHasAgentFacet = existing ? slotHasAgentFacet(existing) : false;
   const portalEligible = (input.portalEligible ?? incomingHasAgentFacet) || existing?.device?.portalEligible === true;
-  const slotLabel = mergedLanDeviceLabel(existing, input, slotValue, devices.size);
+  const householdName = input.householdName || existing?.device?.householdName;
+  const detectedName = detectedLanDeviceName(input) || existing?.device?.detectedName;
+  const slotLabel = householdName || mergedLanDeviceLabel(existing, input, slotValue, devices.size);
   if (existing && existing.value !== slotValue) {
     devices.delete(existing.value);
   }
@@ -769,6 +782,11 @@ function upsertLanDeviceSlot(
       ? input.state
       : stringValue(existing.badge);
   const status = activityDeviceChoiceStatus(state);
+  const inferredDeviceType = inferLanDeviceKind(input);
+  const parentDeviceKind = input.parentDeviceKind ?? existing?.device?.parentDeviceKind;
+  const deviceType =
+    parentDeviceKind ??
+    (inferredDeviceType === 'unknown' ? (existing?.device?.type ?? inferredDeviceType) : inferredDeviceType);
   devices.set(slotValue, {
     value: slotValue,
     label: slotLabel,
@@ -824,11 +842,14 @@ function upsertLanDeviceSlot(
       lanSourceProof: input.lanSourceProof || existing?.device?.lanSourceProof,
       lanWeakSourceProof: input.lanWeakSourceProof || existing?.device?.lanWeakSourceProof,
       parentDecision: input.parentDecision || existing?.device?.parentDecision,
+      householdName,
+      detectedName,
+      parentDeviceKind,
       auditLabel: input.auditLabel || existing?.device?.auditLabel,
       requirementLabel: input.requirementLabel || existing?.device?.requirementLabel,
       evidenceLabel: input.evidenceLabel || existing?.device?.evidenceLabel,
       portalEligible,
-      type: normalizeDeviceKind(input.platform),
+      type: deviceType,
       platform: input.platform,
       status,
     },
@@ -902,6 +923,22 @@ function preferredLanDeviceLabel(
   return label || hostLabel || modelLabel || activityDeviceShortLabel(slotValue, slotIndex);
 }
 
+function detectedLanDeviceName(input: {
+  readonly deviceId: string;
+  readonly label: string;
+  readonly hostname?: string | undefined;
+  readonly model?: string | undefined;
+  readonly householdName?: string | undefined;
+}): string {
+  const hostLabel = usableLanDeviceName(input.hostname);
+  if (hostLabel) return hostLabel;
+  const modelLabel = usableLanDeviceName(input.model);
+  if (modelLabel) return modelLabel;
+  const label = input.label.trim();
+  if (input.householdName && label.toLowerCase() === input.householdName.toLowerCase()) return '';
+  return rawLanDeviceLabel(label, input.deviceId) ? '' : label;
+}
+
 function rawLanDeviceLabel(label: string, deviceId: string): boolean {
   const normalized = label.trim().toLowerCase();
   return (
@@ -952,6 +989,43 @@ function normalizeDeviceKind(platform: DevicePlatformKind): DeviceKind {
   if (platform === 'android' || platform === 'ios') return 'mobile';
   if (platform === 'router') return 'router';
   return 'unknown';
+}
+
+function normalizedLanDeviceKindValue(value: string): DeviceKind | undefined {
+  if (
+    value === 'mobile' ||
+    value === 'desktop' ||
+    value === 'laptop' ||
+    value === 'tablet' ||
+    value === 'router' ||
+    value === 'unknown'
+  ) {
+    return value;
+  }
+  return undefined;
+}
+
+function inferLanDeviceKind(input: {
+  readonly label: string;
+  readonly platform: DevicePlatformKind;
+  readonly hostname?: string | undefined;
+  readonly manufacturer?: string | undefined;
+  readonly model?: string | undefined;
+  readonly cpuModel?: string | undefined;
+}): DeviceKind {
+  const evidenceText = [input.label, input.hostname, input.manufacturer, input.model, input.cpuModel]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase();
+
+  if (input.platform === 'router' || /\b(router|gateway|access point|ap)\b/u.test(evidenceText)) return 'router';
+  if (/\b(ipad|tablet|galaxy tab|kindle|tab a|tab s)\b/u.test(evidenceText)) return 'tablet';
+  if (/\b(iphone|android phone|pixel|galaxy|phone)\b/u.test(evidenceText)) return 'mobile';
+  if (/\b(laptop|notebook|macbook|thinkpad|elitebook|probook|latitude|xps|vivobook|yoga)\b/u.test(evidenceText)) {
+    return 'laptop';
+  }
+  if (/\b(desktop|workstation|tower|imac|nuc|mini pc)\b/u.test(evidenceText)) return 'desktop';
+  return normalizeDeviceKind(input.platform);
 }
 
 function activityDeviceSlots(deviceStates: ReadonlyMap<string, string>, planSeatLimit: number): readonly DeviceSlot[] {

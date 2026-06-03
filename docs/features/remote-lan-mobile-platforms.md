@@ -60,9 +60,12 @@ PC while preserving local-first custody.
   proof, and unproved claims. Devices/LAN now exposes first-class add, route
   select, rename, trust, ignore, restore, and revoke controls through existing
   add-device household-decision and route command surfaces, and portal transport
-  routes LAN commands to the selected local-network child target. Activity/
-  Network diagnostics also show scan/evidence timing, evidence expiry, signed
-  adapter proof state, and policy-target history.
+  routes LAN commands to the selected local-network child target. Canonical
+  household rename/type decisions for LAN-discovered neighbors also route
+  through the local-network service path and survive portal refresh without a
+  portal-only second truth. Activity/Network diagnostics also show scan/evidence
+  timing, evidence expiry, signed adapter proof state, and policy-target
+  history.
 - The LAN source-matrix follow-up now carries all 20 LAN plan workpacks and
   concrete discovery source rows through parent-domain, agent-protocol-domain,
   Rust protocol, Rust service state, and Activity/Network diagnostics. The
@@ -71,6 +74,8 @@ PC while preserving local-first custody.
   browser artifacts under
   `output/playwright/lan-source-matrix-plan-completion/` show Devices/LAN,
   Activity/Network source-matrix diagnostics, and Network policy target binding.
+  The household identity routing proof is recorded at
+  `output/lan-plan-proof/15-household-device-store/devices-identity-routing-proof.md`.
 - Parent desktop Tauri proof now serializes active-controller route,
   observer-read-only, live local-network custody, relay unavailable, cache
   unavailable, and parent-owned storage unavailable states without implementing
@@ -108,8 +113,10 @@ distribution remain.
       rows, and route-safety rows; actual signed hello/heartbeat artifacts and
       second-child-agent pairing proof remain manual-required. Portal LAN detail
       and Activity/Network diagnostics consume these fields, and Devices/LAN
-      exposes command-backed action controls. Browser screenshot proof exists
-      under `output/playwright/lan-source-matrix-plan-completion/`; real signed
+      exposes command-backed action controls plus service-backed household
+      rename/type persistence for LAN-discovered neighbors. Browser screenshot
+      proof exists under `output/playwright/lan-source-matrix-plan-completion/`
+      and `output/lan-plan-proof/15-household-device-store/`; real signed
       hello/heartbeat and second-child-agent pairing proof remain
       manual-required.
 - [ ] Trusted registry and revocation. Current proof covers typed registry,

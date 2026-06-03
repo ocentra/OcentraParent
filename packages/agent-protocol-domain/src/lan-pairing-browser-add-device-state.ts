@@ -131,6 +131,10 @@ export const AgentLanHouseholdDeviceActionKindSchema = withParser(
   Schema.Literal('assign', 'rename', 'ignore', 'restore', 'trust')
 );
 
+const AgentLanHouseholdDeviceKindSchema = withParser(
+  Schema.Literal('mobile', 'desktop', 'laptop', 'tablet', 'router', 'unknown')
+);
+
 export const AgentLanHouseholdDeviceDecisionSchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal(AgentProtocolSchemaVersion),
@@ -139,6 +143,9 @@ export const AgentLanHouseholdDeviceDecisionSchema = withParser(
     canonicalDeviceId: AgentLanCanonicalDeviceIdSchema,
     childProfileId: Schema.Union(NonEmptyLanAddDeviceText, Schema.Null),
     displayName: Schema.Union(NonEmptyLanAddDeviceText, Schema.Null),
+    deviceKind: Schema.optionalWith(Schema.Union(AgentLanHouseholdDeviceKindSchema, Schema.Null), {
+      default: () => null,
+    }),
     parentActorId: NonEmptyLanAddDeviceText,
     decidedAt: AgentTimestampSchema,
     revokedAt: Schema.Union(AgentTimestampSchema, Schema.Null),

@@ -39,6 +39,15 @@ describe('agent protocol browser-first LAN add-device state', () => {
       })
     ).toThrow(/evidence record/u);
   });
+
+  it('rejects unknown household decision device kinds', () => {
+    expect(() =>
+      AgentLanBrowserAddDeviceReadModelSchema.parse({
+        ...lanAddDeviceReadModelFixture(),
+        householdDeviceDecisions: [{ ...householdDecision(), deviceKind: 'television' }],
+      })
+    ).toThrow();
+  });
 });
 
 function parseLanAddDeviceReadModelFixture() {
@@ -81,6 +90,7 @@ function expectCanonicalHouseholdDeviceState(parsed: ParsedLanAddDeviceReadModel
 function expectRegistryAndDecisionState(parsed: ParsedLanAddDeviceReadModel) {
   expect(parsed.trustedDeviceRegistry[0]?.childDevice.deviceId).toBe('child-device-1');
   expect(parsed.householdDeviceDecisions[0]?.actionKind).toBe('rename');
+  expect(parsed.householdDeviceDecisions[0]?.deviceKind).toBe('desktop');
 }
 
 function expectProductionHouseholdProofState(parsed: ParsedLanAddDeviceReadModel) {
@@ -203,6 +213,7 @@ function householdDecision() {
     canonicalDeviceId: 'lan-physical-mac-54271e97c331',
     childProfileId: null,
     displayName: 'GAMEDEV Study PC',
+    deviceKind: 'desktop',
     parentActorId: 'parent-actor-1',
     decidedAt: '2026-06-01T15:20:00.000Z',
     revokedAt: null,

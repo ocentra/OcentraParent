@@ -17,6 +17,7 @@ describe('browser-first LAN add-device read model', () => {
     });
     expect(parsed.trustedDeviceRegistry[0]?.childDevice.deviceId).toBe('child-device-1');
     expect(parsed.householdDeviceDecisions[0]?.actionKind).toBe('rename');
+    expect(parsed.householdDeviceDecisions[0]?.deviceKind).toBe('desktop');
     expect(parsed.trustedDeviceIds).toEqual(['child-device-1']);
     expect(parsed.selectedDeviceReadiness.readyForControl).toBe(false);
     expect(parsed.auditCheckLabels).toEqual(['wrong-origin', 'wrong-device', 'replayed', 'stale', 'revoked']);
@@ -126,6 +127,7 @@ function householdDecision() {
     canonicalDeviceId: 'child-device-1',
     childProfileId: null,
     displayName: 'Mia Windows PC',
+    deviceKind: 'desktop',
     parentActorId: 'parent-actor-1',
     decidedAt: generatedAt,
     revokedAt: null,

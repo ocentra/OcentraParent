@@ -202,6 +202,8 @@ pub struct LanHouseholdDeviceDecision {
     pub canonical_device_id: String,
     pub child_profile_id: Option<String>,
     pub display_name: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub device_kind: Option<String>,
     pub parent_actor_id: String,
     pub decided_at: String,
     pub revoked_at: Option<String>,

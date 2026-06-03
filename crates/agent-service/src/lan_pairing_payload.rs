@@ -105,6 +105,7 @@ fn parse_household_device_decision_fields(
             fields,
             constants::lan_pairing::HOUSEHOLD_ACTION_DISPLAY_NAME_FIELD,
         ),
+        device_kind: optional_household_device_kind(fields)?,
         parent_actor_id: required_string(fields, constants::field::LAN_PARENT_ACTOR_ID)?,
         decided_at,
         revoked_at: optional_string(
@@ -112,6 +113,21 @@ fn parse_household_device_decision_fields(
             constants::lan_pairing::HOUSEHOLD_ACTION_REVOKED_AT_FIELD,
         ),
     })
+}
+
+fn optional_household_device_kind(
+    fields: &LogFields,
+) -> Result<Option<String>, LanPairingRejectionReason> {
+    let Some(device_kind) = optional_string(
+        fields,
+        constants::lan_pairing::HOUSEHOLD_ACTION_DEVICE_KIND_FIELD,
+    ) else {
+        return Ok(None);
+    };
+    if constants::lan_pairing::HOUSEHOLD_DEVICE_KINDS.contains(&device_kind.as_str()) {
+        return Ok(Some(device_kind));
+    }
+    Err(LanPairingRejectionReason::Malformed)
 }
 
 fn required_household_action_kind(

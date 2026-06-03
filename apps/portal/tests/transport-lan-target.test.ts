@@ -57,3 +57,20 @@ it('resolvePortalCommandTarget: sends browser discovery scans over the local-net
     route: 'local-network',
   });
 });
+
+it('resolvePortalCommandTarget: sends canonical household decisions over the local-network route', () => {
+  const target = resolvePortalCommandTarget(
+    AgentProtocolDefaults.Target.LocalhostWindowsAgent,
+    AgentCommand.LanPairingAddDeviceRequest,
+    {
+      [AgentProtocolDefaults.Field.LanCanonicalDeviceId]: 'lan-physical-mac-54271e97c331',
+      [AgentProtocolDefaults.Field.LanHouseholdActionKind]: 'rename',
+    }
+  );
+
+  expect(target).toMatchObject({
+    deviceId: 'local-dev-agent',
+    platform: 'windows',
+    route: 'local-network',
+  });
+});

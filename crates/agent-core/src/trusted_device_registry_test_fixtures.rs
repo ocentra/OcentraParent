@@ -160,6 +160,7 @@ pub(crate) fn household_decision() -> LanHouseholdDeviceDecision {
         canonical_device_id: constants::lan_pairing::LOCAL_AGENT_DEVICE_ID.to_string(),
         child_profile_id: None,
         display_name: Some(constants::lan_pairing::HOUSEHOLD_RENAMED_DEVICE_LABEL.to_string()),
+        device_kind: Some(constants::lan_pairing::HOUSEHOLD_DEVICE_KIND_DESKTOP.to_string()),
         parent_actor_id: constants::lan_pairing::PARENT_ACTOR_ID.to_string(),
         decided_at: constants::lan_pairing::OBSERVED_AT.to_string(),
         revoked_at: None,
