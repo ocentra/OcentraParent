@@ -88,6 +88,8 @@ and update them only when their acceptance contract or generated data changes.
 
 - `packages/activity-domain/src/app-game.ts`
 - `packages/activity-domain/src/app-game-primitives.ts`
+- `packages/activity-domain/src/app-game-foreground.ts`
+- `packages/activity-domain/tests/app-game-foreground.test.ts`
 - `packages/activity-domain/tests/app-game.test.ts`
 - `packages/parent-domain/src/app-control-catalog.ts`
 - `packages/parent-domain/src/app-control-catalog-schema.ts`
@@ -108,6 +110,8 @@ split must be schema-backed, test-backed, and reconciled in this source index.
 - `crates/agent-protocol/src/app_game.rs`
 - `crates/agent-protocol/src/app_game_tests.rs`
 - `crates/agent-core/src/activity_store_app_game.rs`
+- `crates/agent-core/src/activity_store_app_game/app_game_windows_foreground.rs`
+- `crates/agent-core/src/activity_store_app_game/app_game_windows_foreground_tests.rs`
 - `crates/agent-core/src/activity_store_app_game_observation.rs`
 - `crates/agent-core/src/activity_store_app_game_rows.rs`
 - `crates/agent-core/src/activity_store_app_game_tests.rs`
@@ -153,6 +157,15 @@ Future app-specific proof scripts should use:
 ```text
 output/app-plan-proof/<workpack-id>/
 ```
+
+## Shared App/Game Proof Bridge
+
+WP09 foreground app evidence is covered by the shared app/game branch
+`codex/app-game-windows-foreground-evidence` with app-plan proof mirrored under
+`output/app-plan-proof/09-windows-foreground-app-evidence-adapter/`. This is
+contract/protocol/parser proof only: it does not add live foreground polling,
+journal ingest, SQLite replay, service events, portal rows, content knowledge,
+policy execution, or broad blocking.
 
 ## Current Test Files
 
