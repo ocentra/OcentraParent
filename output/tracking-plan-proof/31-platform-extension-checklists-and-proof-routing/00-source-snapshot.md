@@ -1,7 +1,7 @@
 # 31-platform-extension-checklists-and-proof-routing Source Snapshot
 
-- checkedAt: 2026-06-03T12:01:13.812Z
-- commit: 45aa6e29f3cf7d74423d8dc26fa94fd4796e8a1c
+- checkedAt: 2026-06-03T12:11:23.621Z
+- commit: b975ebe636e8cce63f6b6d3536e63f75de4a3555
 - proofState: contract-proof-complete
 - summary: Platform proof routes distinguish contract proof from manual-required and real-device-required claims.
 - activity contracts: packages/activity-domain/src/tracking.ts
