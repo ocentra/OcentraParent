@@ -163,6 +163,8 @@ directly, or invent policy questions outside the manifest.
 - `npm run test:managed-browser-intervention`
 - `node scripts/test/v0-8-browser-domain-adapter-proof.mjs`
 - `node scripts/test/windows-managed-unmanaged-browser-enforcement-proof.mjs`
+- `node scripts/test/browser-performance-health-proof.mjs`
+- `node scripts/test/browser-plan-e2e-manual-proof-artifacts.mjs`
 
 ## Current Test Files
 

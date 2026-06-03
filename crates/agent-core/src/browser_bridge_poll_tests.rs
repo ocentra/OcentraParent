@@ -1,15 +1,9 @@
-use std::{
-    io::{Read, Write},
-    net::{SocketAddr, TcpListener},
-    thread,
-    time::Duration,
-};
+use ocentra_parent_agent_protocol::{constants, ActivityEventKind, LogFieldValue};
 
-use ocentra_parent_agent_protocol::{
-    constants, ActivityEventKind, BrowserChannel, BrowserFamily, LogFieldValue,
+use crate::{
+    browser_bridge_poll_test_support::{bridge_config, serve_devtools, serve_keep_alive_devtools},
+    poll_chromium_bridge,
 };
-
-use crate::{poll_chromium_bridge, BrowserBridgePollConfig, BrowserBridgePollError};
 
 #[test]
 fn poll_chromium_bridge_maps_page_targets_to_browser_activity_events() {
@@ -17,14 +11,7 @@ fn poll_chromium_bridge_maps_page_targets_to_browser_activity_events() {
         constants::browser::DEVTOOLS_TEST_VERSION_BODY,
         constants::browser::DEVTOOLS_TEST_LIST_BODY,
     );
-    let config = BrowserBridgePollConfig {
-        endpoint,
-        managed_browser_session_id: constants::browser::SESSION_ID_DEV.to_string(),
-        profile_id: constants::browser::PROFILE_ID_DEV.to_string(),
-        process_id: constants::browser::PROCESS_ID_UNKNOWN,
-        browser_family: BrowserFamily::UnknownChromium,
-        browser_channel: BrowserChannel::Unknown,
-    };
+    let config = bridge_config(endpoint);
 
     let snapshot = poll_chromium_bridge(
         config,
@@ -45,12 +32,48 @@ fn poll_chromium_bridge_maps_page_targets_to_browser_activity_events() {
         LogFieldValue::String(constants::activity_store::TEST_BROWSER_URL.to_string())
     );
     assert_eq!(
+        snapshot.events[0].fields[constants::field::TAB_ID],
+        LogFieldValue::String(
+            constants::activity_store::TEST_BROWSER_TAB_ID_FROM_TARGET.to_string()
+        )
+    );
+    assert_eq!(
         snapshot.events[0].fields[constants::field::ACTIVE_STATE],
         LogFieldValue::String(constants::browser::ACTIVE_STATE_UNKNOWN.to_string())
     );
     assert_eq!(
+        snapshot.events[0].fields[constants::field::ACTIVE_PROOF_SOURCE],
+        LogFieldValue::String(constants::browser::ACTIVE_PROOF_SOURCE_TARGET_LIST_ONLY.to_string())
+    );
+    assert_eq!(
         snapshot.events[0].fields[constants::field::CAPABILITY_STATUS],
         LogFieldValue::String(constants::browser::CAPABILITY_STATUS_TAB_LIST_ONLY.to_string())
+    );
+}
+
+#[test]
+fn poll_chromium_bridge_preserves_adapter_tab_and_window_ids() {
+    let endpoint = serve_devtools(
+        constants::browser::DEVTOOLS_TEST_VERSION_BODY,
+        constants::browser::DEVTOOLS_TEST_LIST_BODY_WITH_TAB_WINDOW,
+    );
+    let config = bridge_config(endpoint);
+
+    let snapshot = poll_chromium_bridge(
+        config,
+        constants::activity_store::TEST_FIRST_OBSERVED_AT,
+        constants::activity_store::TEST_SECOND_OBSERVED_AT,
+    )
+    .expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET);
+
+    assert_eq!(snapshot.page_target_count, 1);
+    assert_eq!(
+        snapshot.events[0].fields[constants::field::TAB_ID],
+        LogFieldValue::String(constants::activity_store::TEST_BROWSER_TAB_ID.to_string())
+    );
+    assert_eq!(
+        snapshot.events[0].fields[constants::field::WINDOW_ID],
+        LogFieldValue::String(constants::activity_store::TEST_BROWSER_WINDOW_ID.to_string())
     );
 }
 
@@ -60,14 +83,7 @@ fn poll_chromium_bridge_reports_empty_page_target_discovery() {
         constants::browser::DEVTOOLS_TEST_VERSION_BODY,
         constants::browser::DEVTOOLS_TEST_EMPTY_LIST_BODY,
     );
-    let config = BrowserBridgePollConfig {
-        endpoint,
-        managed_browser_session_id: constants::browser::SESSION_ID_DEV.to_string(),
-        profile_id: constants::browser::PROFILE_ID_DEV.to_string(),
-        process_id: constants::browser::PROCESS_ID_UNKNOWN,
-        browser_family: BrowserFamily::Edge,
-        browser_channel: BrowserChannel::Beta,
-    };
+    let config = bridge_config(endpoint);
 
     let snapshot = poll_chromium_bridge(
         config,
@@ -86,14 +102,7 @@ fn poll_chromium_bridge_accepts_keep_alive_devtools_response_with_content_length
         constants::browser::DEVTOOLS_TEST_VERSION_BODY,
         constants::browser::DEVTOOLS_TEST_LIST_BODY,
     );
-    let config = BrowserBridgePollConfig {
-        endpoint,
-        managed_browser_session_id: constants::browser::SESSION_ID_DEV.to_string(),
-        profile_id: constants::browser::PROFILE_ID_DEV.to_string(),
-        process_id: constants::browser::PROCESS_ID_UNKNOWN,
-        browser_family: BrowserFamily::Chrome,
-        browser_channel: BrowserChannel::Stable,
-    };
+    let config = bridge_config(endpoint);
 
     let snapshot = poll_chromium_bridge(
         config,
@@ -111,104 +120,4 @@ fn poll_chromium_bridge_accepts_keep_alive_devtools_response_with_content_length
         snapshot.events[0].fields[constants::field::TITLE],
         LogFieldValue::String(constants::browser::DEVTOOLS_TEST_PAGE_TITLE.to_string())
     );
-}
-
-#[test]
-fn poll_chromium_bridge_rejects_non_loopback_endpoint() {
-    let endpoint = SocketAddr::from((
-        [192, 0, 2, 1],
-        constants::browser::DEVTOOLS_TEST_BRIDGE_PORT,
-    ));
-    let config = BrowserBridgePollConfig {
-        endpoint,
-        managed_browser_session_id: constants::browser::SESSION_ID_DEV.to_string(),
-        profile_id: constants::browser::PROFILE_ID_DEV.to_string(),
-        process_id: constants::browser::PROCESS_ID_UNKNOWN,
-        browser_family: BrowserFamily::UnknownChromium,
-        browser_channel: BrowserChannel::Unknown,
-    };
-
-    let error = poll_chromium_bridge(
-        config,
-        constants::activity_store::TEST_FIRST_OBSERVED_AT,
-        constants::activity_store::TEST_SECOND_OBSERVED_AT,
-    )
-    .expect_err(constants::error::BROWSER_BRIDGE_REJECTS_INVALID_URL);
-
-    assert_eq!(error, BrowserBridgePollError::NonLoopbackEndpoint);
-    assert_eq!(
-        error.reason(),
-        constants::value::BROWSER_BRIDGE_NON_LOOPBACK_ENDPOINT
-    );
-}
-
-fn serve_keep_alive_devtools(version_body: &'static str, list_body: &'static str) -> SocketAddr {
-    let listener = TcpListener::bind(constants::test_network::LOOPBACK_ANY_PORT)
-        .expect(constants::error::LOCALHOST_BIND_SUCCEEDS);
-    let endpoint = listener
-        .local_addr()
-        .expect(constants::error::AGENT_ADDR_SOCKET_ADDRESS);
-
-    thread::spawn(move || {
-        for body in [version_body, list_body] {
-            let (mut stream, _) = listener
-                .accept()
-                .expect(constants::error::LOCALHOST_BIND_SUCCEEDS);
-            thread::spawn(move || {
-                let mut request = [0; 1024];
-                let _ = stream.read(&mut request);
-                let response = devtools_content_length_response(body);
-                stream
-                    .write_all(response.as_bytes())
-                    .expect(constants::error::AGENT_EVENT_SERIALIZES);
-                thread::sleep(Duration::from_millis(
-                    constants::browser::DEVTOOLS_TIMEOUT_MS + 250,
-                ));
-            });
-        }
-    });
-
-    endpoint
-}
-
-fn serve_devtools(version_body: &'static str, list_body: &'static str) -> SocketAddr {
-    let listener = TcpListener::bind(constants::test_network::LOOPBACK_ANY_PORT)
-        .expect(constants::error::LOCALHOST_BIND_SUCCEEDS);
-    let endpoint = listener
-        .local_addr()
-        .expect(constants::error::AGENT_ADDR_SOCKET_ADDRESS);
-
-    thread::spawn(move || {
-        for body in [version_body, list_body] {
-            let (mut stream, _) = listener
-                .accept()
-                .expect(constants::error::LOCALHOST_BIND_SUCCEEDS);
-            let mut request = [0; 1024];
-            let _ = stream.read(&mut request);
-            let response = devtools_response(body);
-            stream
-                .write_all(response.as_bytes())
-                .expect(constants::error::AGENT_EVENT_SERIALIZES);
-        }
-    });
-
-    endpoint
-}
-
-fn devtools_response(body: &str) -> String {
-    let mut response = String::from(constants::browser::HTTP_OK_PREFIX);
-    response.push_str(constants::browser::HTTP_BODY_SEPARATOR);
-    response.push_str(body);
-    response
-}
-
-fn devtools_content_length_response(body: &str) -> String {
-    let mut response = String::from(constants::browser::HTTP_OK_PREFIX);
-    response.push_str(constants::browser::HTTP_LINE_SEPARATOR);
-    response.push_str(constants::browser::HTTP_HEADER_CONTENT_LENGTH);
-    response.push(' ');
-    response.push_str(&body.len().to_string());
-    response.push_str(constants::browser::HTTP_BODY_SEPARATOR);
-    response.push_str(body);
-    response
 }

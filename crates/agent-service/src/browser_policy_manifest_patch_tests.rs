@@ -2,13 +2,15 @@ use ocentra_parent_agent_protocol::{
     constants, policy_constants as policy, AgentCommandEnvelope, AgentCommandName,
     AgentEventEnvelope, AgentEventName, AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute,
     BrowserPolicyApprovalRequiredFor, BrowserPolicyApprovalUnansweredDefault,
-    BrowserPolicyAuditRequiredField, BrowserPolicyBudgetCountingMode,
+    BrowserPolicyAuditRequiredField, BrowserPolicyBrowserGameApprovalMode,
+    BrowserPolicyBrowserGamePolicyMode, BrowserPolicyBudgetCountingMode,
     BrowserPolicyCustodyAllowedUse, BrowserPolicyDefaultPosture, BrowserPolicyDownloadBlockedType,
     BrowserPolicyDownloadState, BrowserPolicyEvidenceNeverCollect, BrowserPolicyEvidenceProofLevel,
     BrowserPolicyEvidenceUrlScope, BrowserPolicyExecutionMode,
     BrowserPolicyManagedBrowserBridgeRequirement, BrowserPolicyManagedBrowserFamily,
     BrowserPolicyManagedBrowserIntegrationMechanism, BrowserPolicyManagedBrowserLaunchMode,
     BrowserPolicyManagedBrowserMode, BrowserPolicyManagedBrowserProfileMode,
+    BrowserPolicyManagedPolicyWriterControl, BrowserPolicyManagedPolicyWriterFallback,
     BrowserPolicyManagementMode, BrowserPolicyPatch, BrowserPolicyPatchRequest,
     BrowserPolicyProofFallback, BrowserPolicyRejectionReason, BrowserPolicyReportVisibleField,
     BrowserPolicyRetentionExactUrl, BrowserPolicyRule, BrowserPolicyRuleAction,
@@ -178,6 +180,7 @@ fn proposal_manifest_patches() -> Vec<BrowserPolicyPatch> {
     patches.extend(managed_browser_patches());
     patches.extend(unmanaged_browser_patches());
     patches.extend(evidence_and_rule_patches());
+    patches.extend(policy_writer_and_browser_game_patches());
     patches.extend(policy_support_patches());
     patches
 }
@@ -263,6 +266,21 @@ fn managed_browser_patches() -> Vec<BrowserPolicyPatch> {
                 BrowserPolicyManagedBrowserIntegrationMechanism::BrowserPolicy,
             ],
         ),
+        policy_patch(
+            constants::browser_policy::FIELD_ID_MANAGED_BROWSER_POLICY_WRITER_CONTROLS,
+            constants::browser_policy::WRITES_TO_MANAGED_BROWSER_POLICY_WRITER_CONTROLS,
+            vec![
+                BrowserPolicyManagedPolicyWriterControl::DisableIncognito,
+                BrowserPolicyManagedPolicyWriterControl::ForceSafeSearch,
+                BrowserPolicyManagedPolicyWriterControl::UrlAllowList,
+                BrowserPolicyManagedPolicyWriterControl::UrlBlockList,
+            ],
+        ),
+        policy_patch(
+            constants::browser_policy::FIELD_ID_MANAGED_BROWSER_POLICY_WRITER_FALLBACK,
+            constants::browser_policy::WRITES_TO_MANAGED_BROWSER_POLICY_WRITER_FALLBACK,
+            BrowserPolicyManagedPolicyWriterFallback::ManualRequired,
+        ),
     ]
 }
 
@@ -341,6 +359,46 @@ fn evidence_and_rule_patches() -> Vec<BrowserPolicyPatch> {
             constants::browser_policy::FIELD_ID_RULE_ITEMS,
             constants::browser_policy::WRITES_TO_RULE_ITEMS,
             vec![proposal_rule()],
+        ),
+        policy_patch(
+            constants::browser_policy::FIELD_ID_URL_ALLOW_LIST,
+            constants::browser_policy::WRITES_TO_URL_ALLOW_LIST,
+            vec![constants::browser_policy::DEFAULT_TARGET_VALUE.to_string()],
+        ),
+        policy_patch(
+            constants::browser_policy::FIELD_ID_URL_BLOCK_LIST,
+            constants::browser_policy::WRITES_TO_URL_BLOCK_LIST,
+            vec![constants::browser_policy::REJECTION_INVALID_REQUEST.to_string()],
+        ),
+    ]
+}
+
+fn policy_writer_and_browser_game_patches() -> Vec<BrowserPolicyPatch> {
+    vec![
+        policy_patch(
+            constants::browser_policy::FIELD_ID_BROWSER_GAME_EDUCATIONAL_MODE,
+            constants::browser_policy::WRITES_TO_BROWSER_GAME_EDUCATIONAL_MODE,
+            BrowserPolicyBrowserGamePolicyMode::Allow,
+        ),
+        policy_patch(
+            constants::browser_policy::FIELD_ID_BROWSER_GAME_UNKNOWN_MODE,
+            constants::browser_policy::WRITES_TO_BROWSER_GAME_UNKNOWN_MODE,
+            BrowserPolicyBrowserGamePolicyMode::AskParent,
+        ),
+        policy_patch(
+            constants::browser_policy::FIELD_ID_BROWSER_GAME_CLOUD_GAMING_APPROVAL,
+            constants::browser_policy::WRITES_TO_BROWSER_GAME_CLOUD_GAMING_APPROVAL,
+            BrowserPolicyBrowserGameApprovalMode::AskParent,
+        ),
+        policy_patch(
+            constants::browser_policy::FIELD_ID_BROWSER_GAME_PURCHASE_ACCOUNT_APPROVAL,
+            constants::browser_policy::WRITES_TO_BROWSER_GAME_PURCHASE_ACCOUNT_APPROVAL,
+            BrowserPolicyBrowserGameApprovalMode::AskParent,
+        ),
+        policy_patch(
+            constants::browser_policy::FIELD_ID_BROWSER_GAME_DAILY_BUDGET_MINUTES,
+            constants::browser_policy::WRITES_TO_BROWSER_GAME_DAILY_BUDGET_MINUTES,
+            Some(30_u32),
         ),
     ]
 }

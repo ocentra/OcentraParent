@@ -6,6 +6,14 @@ The architecture docs define platform posture, but runtime/browser support is
 Windows-first. macOS, Linux, Android, iOS, Safari, Firefox, and mobile browser
 support remain platform-specific or manual-required.
 
+2026-06-02 codex-d progress: `activity-domain` now exposes a typed browser
+platform inventory matrix. It keeps Windows Edge/Chrome entries fixture-backed,
+macOS/Linux Chromium candidates manual-required, Firefox/Safari/WebKit and
+external mobile browsers unsupported until platform adapters prove them, and
+Android owned-browser-shell support manual-required. The matrix rejects
+non-Windows managed exact-URL or known-active claims. This is contract proof
+only; it does not add macOS/Linux/mobile adapters or manual platform evidence.
+
 ## Where We Want To Be
 
 The browser inventory/read model can show platform-specific capability states
@@ -38,23 +46,27 @@ without claiming desktop CDP where it does not apply.
 
 Fill this before reporting `DONE` or PR-ready:
 
-- [ ] Confirm source docs read: [folder README](../README.md), [source index](../source-index.md), [current snapshot](../current-browser-snapshot.md), [full scope plan](../v0-5-managed-browser-full-scope-plan.md), [test blueprint](../v0-5-managed-browser-test-blueprint.md), [UI/UX guide](../ui-ux-requirements-guide.md), [main checklist](../implementation-checklist.md), and this workpack.
-- [ ] Check enhancement overlap: URL/video AI intelligence, social platform/account/feed gating, and browser games/cloud gaming.
-- [ ] Hub lock covers this workpack and exact implementation/docs paths.
-- [ ] Existing source layout inspected; no parallel browser truth created.
-- [ ] Before-state source snapshot recorded in `output/browser-plan-proof/<workpack-id>/00-source-snapshot.md` or explicit docs-only N/A reason.
-- [ ] Contracts updated first where this workpack changes behavior.
-- [ ] Rust/service/portal parity updated only after contracts exist.
-- [ ] Raw evidence artifacts captured where applicable: bridge/CDP payloads, managed session state, unmanaged process rows, journal entries, SQLite/read-model rows, policy decisions, and action results.
-- [ ] Tests/proof listed in this workpack are implemented or explicitly marked manual-required with reason.
-- [ ] Validation command outputs saved in the proof pack and summarized in [main checklist](../implementation-checklist.md).
-- [ ] UI snapshots captured for every touched parent portal, child UX, block/warn, policy authoring, or dashboard state; if no UI changed, `ui-not-applicable.md` records why.
-- [ ] Security/no-claim negative proof captured where applicable: no default profile attach, no unowned bridge, no unmanaged exact URL claim, no raw debugger URL exposure, and no AI direct enforcement.
-- [ ] Manual platform proof captured for real browser/OS claims, including OS/browser version, command steps, screenshots/logs, and manual-required labels.
-- [ ] Evidence/proof artifact paths recorded in [main checklist](../implementation-checklist.md).
-- [ ] Feature/expectation/product-checklist/README update decision recorded in [main checklist](../implementation-checklist.md).
-- [ ] Known gaps, deferred items, and no-claim boundaries recorded before `DONE`.
+- [x] Confirm source docs read: [folder README](../README.md), [source index](../source-index.md), [current snapshot](../current-browser-snapshot.md), [full scope plan](../v0-5-managed-browser-full-scope-plan.md), [test blueprint](../v0-5-managed-browser-test-blueprint.md), [UI/UX guide](../ui-ux-requirements-guide.md), [main checklist](../implementation-checklist.md), and this workpack.
+- [x] Check enhancement overlap: URL/video AI intelligence, social platform/account/feed gating, and browser games/cloud gaming.
+- [x] Hub lock covers this workpack and exact implementation/docs paths.
+- [x] Existing source layout inspected; no parallel browser truth created.
+- [x] Before-state source snapshot recorded in `output/browser-plan-proof/05-cross-platform-inventory-matrix/00-source-snapshot.md`.
+- [x] Contracts updated first where this workpack changes behavior.
+- [x] Rust/service/portal parity updated only after contracts exist; no Rust/service/portal surface changed in this contract-only slice.
+- [x] Raw evidence artifacts captured or marked N/A: this slice is a platform support matrix contract and has no bridge/CDP, journal, SQLite, policy, or action runtime evidence.
+- [x] Tests/proof listed in this workpack are implemented for matrix derivation and dishonest-state rejection; live macOS/Linux/Android/iOS fixtures and manual proof remain manual-required.
+- [x] Validation command outputs saved in the proof pack and summarized in [main checklist](../implementation-checklist.md).
+- [x] UI snapshots captured for every touched parent portal, child UX, block/warn, policy authoring, or dashboard state; no UI changed, so `ui-not-applicable.md` records why.
+- [x] Security/no-claim negative proof captured: non-Windows entries reject managed exact-URL and known-active claims; iOS remains unsupported; unsupported entries cannot keep exact URL available.
+- [x] Manual platform proof captured for real browser/OS claims; no new real platform claim was made, so `09-manual-platform-proof.md` records the pending manual-required boundary.
+- [x] Evidence/proof artifact paths recorded in [main checklist](../implementation-checklist.md).
+- [x] Feature/expectation/product-checklist/README update decision recorded in [main checklist](../implementation-checklist.md).
+- [x] Known gaps, deferred items, and no-claim boundaries recorded before `DONE`.
 
 ## Manual-Required Gaps
 
 No non-Windows browser product claim until real platform proof exists.
+Remaining work requires real macOS app bundle inventory, Linux desktop entry and
+package inventory, Android owned browser shell/device-policy proof, iOS
+FamilyControls/ManagedSettings/Safari-extension proof, and manual platform
+artifact tables before this workpack can be marked complete.

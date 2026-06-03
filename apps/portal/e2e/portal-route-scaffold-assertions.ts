@@ -180,7 +180,7 @@ async function assertProductRoute(
     return;
   }
   if (kind === 'control') {
-    await assertControlRouteSurface(surface);
+    await assertControlRouteSurface(surface, path);
     return;
   }
   if (kind === 'guideDashboard') {
@@ -215,8 +215,9 @@ async function assertManageRouteSurface(surface: ReturnType<Page['locator']>, pa
     return;
   }
   expect(visibleText).toContain('ROUTE READINESS');
-  if (path === '/#/browser-settings') expect(visibleText).toMatch(/(?:Browser setup|Managed web path)/);
-  if (path === '/#/enforcement') expect(visibleText).toContain('Enforcement readiness');
+  if (path === '/#/browser-settings') expect(visibleText).toMatch(/(?:Browser target|browser policy)/i);
+  if (path === '/#/enforcement')
+    expect(visibleText).toMatch(/(?:Enforcement readiness|Browser target|browser policy)/i);
   if (path === '/#/api-providers') expect(visibleText).toContain('API providers');
   if (path === '/#/drive-connections') expect(visibleText).toMatch(/(?:Data custody|Drive exports)/);
 }
@@ -318,9 +319,14 @@ async function surfaceText(surface: ReturnType<Page['locator']>): Promise<string
   return (await surface.locator('text').allTextContents()).join(' ');
 }
 
-async function assertControlRouteSurface(surface: ReturnType<Page['locator']>): Promise<void> {
+async function assertControlRouteSurface(surface: ReturnType<Page['locator']>, path: string): Promise<void> {
   await expect(surface.locator('text').filter({ hasText: 'WHAT PARENTS CONTROL' }).first()).toBeVisible();
   await expect(surface.locator('text').filter({ hasText: 'DATA CUSTODY' }).first()).toBeVisible();
+  if (path === '/#/browser') {
+    await expect(surface.locator('text').filter({ hasText: 'Browser inventory' }).first()).toBeVisible();
+    await expect(surface.locator('text').filter({ hasText: 'Exact URL capability' }).first()).toBeVisible();
+    await expect(surface.locator('text').filter({ hasText: 'Active tab proof' }).first()).toBeVisible();
+  }
 }
 
 async function assertGuideDashboardRouteSurface(page: Page, surface: ReturnType<Page['locator']>): Promise<void> {

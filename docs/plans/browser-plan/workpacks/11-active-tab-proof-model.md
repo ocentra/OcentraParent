@@ -28,29 +28,43 @@ promote target-list evidence into known-active tab evidence.
 ## Tests And Proof
 
 - Unit tests preventing target-list-only known-active mapping.
-- Stale/bridge-disconnect tests clearing current active claims.
-- Portal tests for active unknown display.
+- Bridge/read-model tests preserving target-list-only active proof source.
+- Portal parser and route scaffold tests for active unknown display.
+- Proof pack:
+  `output/browser-plan-proof/11-active-tab-proof-model/`.
+
+## Implementation Notes
+
+- Browser tab evidence now carries an explicit `activeProofSource` alongside
+  `activeState`.
+- Target-list-only evidence is contractually limited to `unknown`; it cannot be
+  promoted to `known-active` or `known-inactive`.
+- Stronger proof labels are reserved for later CDP focus/activation, managed
+  extension, foreground correlation, or owned-shell evidence.
+- Rust protocol constants, browser read models, journal replay, service browser
+  evidence payloads, and portal parser state now preserve the proof-source
+  boundary without claiming a known active tab.
 
 ## AI Worker Checklist
 
 Fill this before reporting `DONE` or PR-ready:
 
-- [ ] Confirm source docs read: [folder README](../README.md), [source index](../source-index.md), [current snapshot](../current-browser-snapshot.md), [full scope plan](../v0-5-managed-browser-full-scope-plan.md), [test blueprint](../v0-5-managed-browser-test-blueprint.md), [UI/UX guide](../ui-ux-requirements-guide.md), [main checklist](../implementation-checklist.md), and this workpack.
-- [ ] Check enhancement overlap: URL/video AI intelligence, social platform/account/feed gating, and browser games/cloud gaming.
-- [ ] Hub lock covers this workpack and exact implementation/docs paths.
-- [ ] Existing source layout inspected; no parallel browser truth created.
-- [ ] Before-state source snapshot recorded in `output/browser-plan-proof/<workpack-id>/00-source-snapshot.md` or explicit docs-only N/A reason.
-- [ ] Contracts updated first where this workpack changes behavior.
-- [ ] Rust/service/portal parity updated only after contracts exist.
-- [ ] Raw evidence artifacts captured where applicable: bridge/CDP payloads, managed session state, unmanaged process rows, journal entries, SQLite/read-model rows, policy decisions, and action results.
-- [ ] Tests/proof listed in this workpack are implemented or explicitly marked manual-required with reason.
-- [ ] Validation command outputs saved in the proof pack and summarized in [main checklist](../implementation-checklist.md).
-- [ ] UI snapshots captured for every touched parent portal, child UX, block/warn, policy authoring, or dashboard state; if no UI changed, `ui-not-applicable.md` records why.
-- [ ] Security/no-claim negative proof captured where applicable: no default profile attach, no unowned bridge, no unmanaged exact URL claim, no raw debugger URL exposure, and no AI direct enforcement.
-- [ ] Manual platform proof captured for real browser/OS claims, including OS/browser version, command steps, screenshots/logs, and manual-required labels.
-- [ ] Evidence/proof artifact paths recorded in [main checklist](../implementation-checklist.md).
-- [ ] Feature/expectation/product-checklist/README update decision recorded in [main checklist](../implementation-checklist.md).
-- [ ] Known gaps, deferred items, and no-claim boundaries recorded before `DONE`.
+- [x] Confirm source docs read: [folder README](../README.md), [source index](../source-index.md), [current snapshot](../current-browser-snapshot.md), [full scope plan](../v0-5-managed-browser-full-scope-plan.md), [test blueprint](../v0-5-managed-browser-test-blueprint.md), [UI/UX guide](../ui-ux-requirements-guide.md), [main checklist](../implementation-checklist.md), and this workpack.
+- [x] Check enhancement overlap: URL/video AI intelligence, social platform/account/feed gating, and browser games/cloud gaming.
+- [x] Hub lock covers this workpack and exact implementation/docs paths.
+- [x] Existing source layout inspected; no parallel browser truth created.
+- [x] Before-state source snapshot recorded in `output/browser-plan-proof/11-active-tab-proof-model/00-source-snapshot.md`.
+- [x] Contracts updated first where this workpack changes behavior.
+- [x] Rust/service/portal parity updated only after contracts exist.
+- [x] Raw evidence artifacts captured where applicable: bridge/read-model/service proof records active proof source; no real-browser focus source is claimed.
+- [x] Tests/proof listed in this workpack are implemented or explicitly marked manual-required with reason.
+- [x] Validation command outputs saved in the proof pack and summarized in [main checklist](../implementation-checklist.md).
+- [x] UI snapshots are not applicable; `06-ui-snapshots/ui-not-applicable.md` records why.
+- [x] Security/no-claim negative proof captured where applicable: target-list-only cannot claim known-active or known-inactive.
+- [x] Manual platform proof is not applicable; `09-manual-platform-proof.md` records why.
+- [x] Evidence/proof artifact paths recorded in [main checklist](../implementation-checklist.md).
+- [x] Feature/expectation/product-checklist/README update decision recorded in [main checklist](../implementation-checklist.md).
+- [x] Known gaps, deferred items, and no-claim boundaries recorded before `DONE`.
 
 ## Manual-Required Gaps
 
