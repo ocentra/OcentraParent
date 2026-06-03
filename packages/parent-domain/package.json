@@ -237,6 +237,14 @@
       "import": "./dist/screen-control-catalog.js",
       "types": "./dist/screen-control-catalog.d.ts"
     },
+    "./tamper-uninstall-artifact-status": {
+      "import": "./dist/tamper-uninstall-artifact-status.js",
+      "types": "./dist/tamper-uninstall-artifact-status.d.ts"
+    },
+    "./tamper-uninstall-artifact-status-read-model": {
+      "import": "./dist/tamper-uninstall-artifact-status-read-model.js",
+      "types": "./dist/tamper-uninstall-artifact-status-read-model.d.ts"
+    },
     "./tracking-control-catalog": {
       "import": "./dist/tracking-control-catalog.js",
       "types": "./dist/tracking-control-catalog.d.ts"

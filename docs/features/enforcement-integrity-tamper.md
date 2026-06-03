@@ -80,6 +80,14 @@ without fake anti-tamper claims.
   operational refs and status fields while preserving no stealth, no privilege
   escalation, no provider delivery, no admin-removal blocking, and no raw child
   data/evidence claims.
+- Tamper uninstall artifact status proof now adds a parent-domain read model and
+  proof JSON for desktop service/package removal artifacts, Android package and
+  device-owner/managed-profile artifacts, iOS Family Controls/DeviceActivity
+  artifacts, and documented admin-removal flow refs. It keeps desktop artifacts
+  manual-required, mobile artifacts device-proof-required, and admin removal
+  documented-only without claiming uninstall detection, anti-tamper behavior,
+  provider delivery, privilege escalation, stealth persistence, admin-removal
+  blocking, or raw child data custody.
 - Broad app/browser/domain/network enforcement is not product-complete.
 - Tamper/uninstall protection is a tracked gap.
 
@@ -94,9 +102,10 @@ delivery, uninstall detection artifacts, service restart timer persistence, and
 anti-tamper behavior are still manual-required or unavailable. Tamper/uninstall
 is represented as manual-required/rejected state, not as anti-tamper behavior.
 The broad-adapter, supported-adapter, integrity audit, and alert/status bridge
-proofs plus the logging-domain tamper integrity audit proof give service/logging
-visibility into adapter gaps but do not prove anti-tamper behavior, uninstall
-artifact capture, admin-removal blocking, or notification provider delivery.
+proofs plus the logging-domain tamper integrity audit proof and parent-domain
+tamper uninstall artifact status proof give service/logging/product visibility
+into adapter gaps but do not prove anti-tamper behavior, real uninstall artifact
+capture, admin-removal blocking, or notification provider delivery.
 
 ## Checklist
 
@@ -119,6 +128,10 @@ artifact capture, admin-removal blocking, or notification provider delivery.
       stopped/removed, uninstall detection, tamper/manual-required, and admin
       removal flow references redaction-safe without claiming stealth, privilege
       escalation, provider delivery, or admin-removal blocking.
+- [x] Tamper uninstall artifact status rows distinguish desktop
+      manual-required artifacts, mobile device-proof-required artifacts, and
+      documented admin-removal flow refs without claiming artifact capture,
+      stealth, privilege escalation, provider delivery, or removal blocking.
 - [ ] No stealth or privilege-escalation behavior.
 
 ## Next AI Instructions
@@ -129,7 +142,9 @@ without security/product design. Use
 `scripts/test/v0-8-integrity-alert-status-bridge.mjs` as the current proof for
 runtime audit and alert/status visibility. Use
 `scripts/test/tamper-integrity-audit-contract-proof.mjs` as the logging-domain
-proof for redaction-safe tamper/integrity audit rows, and require new platform
-artifacts before upgrading broad blocking, notification delivery, mobile,
-service-persistence, uninstall detection, admin-removal blocking, or tamper
-claims.
+proof for redaction-safe tamper/integrity audit rows. Use
+`scripts/test/tamper-uninstall-artifact-status-proof.mjs` as the parent-domain
+proof for manual-required/device-proof-required uninstall artifact statuses, and
+require new platform artifacts before upgrading broad blocking, notification
+delivery, mobile, service-persistence, uninstall detection, admin-removal
+blocking, or tamper claims.

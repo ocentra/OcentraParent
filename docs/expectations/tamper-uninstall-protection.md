@@ -43,6 +43,10 @@ Expected contract families:
 - Tamper integrity audit logs must not include raw child activity, raw evidence
   payloads, raw URLs, screenshots, command lines, private paths, or message
   contents.
+- Tamper uninstall artifact status rows distinguish desktop manual-required
+  service/package artifacts, mobile device-proof-required package or entitlement
+  artifacts, and documented admin-removal flow refs before any platform
+  detection claim can upgrade.
 - Audit proofs must keep stealth behavior, privilege escalation, hidden
   persistence, provider delivery, and admin-removal blocking as explicit
   non-claims until security/product/legal review and platform proof exist.
@@ -55,6 +59,8 @@ Expected contract families:
   permission, and alert states.
 - Logging-domain contract proof for redaction-safe tamper/integrity audit rows
   and no-claim boundaries.
+- Parent-domain contract proof for tamper uninstall artifact status rows and
+  manual/device-proof-required artifact boundaries.
 - Rust/service tests for heartbeat and degraded-state reporting.
 - Real platform/manual proof for service manager, Device Owner, managed profile,
   Screen Time/Family Controls, launchd/systemd, or other OS capabilities before
@@ -69,6 +75,7 @@ Expected contract families:
   design.
 - Do not claim anti-tamper from heartbeat alone.
 - Do not claim notification provider delivery from audit/log rows alone.
+- Do not treat artifact status rows as captured uninstall artifacts.
 
 ## Done Signal
 
