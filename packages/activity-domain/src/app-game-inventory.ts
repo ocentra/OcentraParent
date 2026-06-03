@@ -77,6 +77,9 @@ const AppGameInventoryEvidenceRowBaseSchema = Schema.Struct({
   evidence: Schema.Array(ActivityEvidenceRefSchema),
 });
 
+type AppGameInventoryEvidenceRowBase = Infer<typeof AppGameInventoryEvidenceRowBaseSchema>;
+type AppGameInventorySourceKindValue = Infer<typeof AppGameInventorySourceKindSchema>;
+
 export const AppGameInventoryEvidenceRowSchema = withParser(
   AppGameInventoryEvidenceRowBaseSchema.pipe(
     Schema.filter(
@@ -102,7 +105,22 @@ export const AppGameInventoryEvidenceRowSchema = withParser(
 export type AppGameInventoryCategoryCandidate = Infer<typeof AppGameInventoryCategoryCandidateSchema>;
 export type AppGameInventoryEvidenceRow = Infer<typeof AppGameInventoryEvidenceRowSchema>;
 
-function appGameInventoryHasNoUseClaim(row: Infer<typeof AppGameInventoryEvidenceRowBaseSchema>): boolean {
+const AppGameInventorySourceReferenceValidators = {
+  osInstalledRecord: (row: AppGameInventoryEvidenceRowBase) =>
+    row.executablePathRef !== null || row.packageId !== null || row.appUserModelId !== null,
+  shortcut: (row: AppGameInventoryEvidenceRowBase) => row.desktopEntryId !== null || row.executablePathRef !== null,
+  storePackage: (row: AppGameInventoryEvidenceRowBase) =>
+    row.packageId !== null || row.bundleId !== null || row.appUserModelId !== null || row.storeId !== null,
+  launcherManifest: (row: AppGameInventoryEvidenceRowBase) =>
+    row.launcherRef !== null || row.launcherAppId !== null || row.launcherManifestId !== null,
+  parentCatalog: (row: AppGameInventoryEvidenceRowBase) => row.catalogRef !== null,
+  managedDevice: (row: AppGameInventoryEvidenceRowBase) =>
+    row.identityId !== null || row.packageId !== null || row.bundleId !== null || row.appUserModelId !== null,
+  portableApp: (row: AppGameInventoryEvidenceRowBase) => row.executablePathRef !== null,
+  unknownSource: (row: AppGameInventoryEvidenceRowBase) => row.inventoryState !== 'installed' && row.confidence <= 0.3,
+} satisfies Record<AppGameInventorySourceKindValue, (row: AppGameInventoryEvidenceRowBase) => boolean>;
+
+function appGameInventoryHasNoUseClaim(row: AppGameInventoryEvidenceRowBase): boolean {
   return (
     row.runtimeState === 'notClaimed' &&
     row.foregroundState === 'notClaimed' &&
@@ -111,30 +129,11 @@ function appGameInventoryHasNoUseClaim(row: Infer<typeof AppGameInventoryEvidenc
   );
 }
 
-function appGameInventorySourceHasRequiredReference(row: Infer<typeof AppGameInventoryEvidenceRowBaseSchema>): boolean {
-  switch (row.sourceKind) {
-    case 'osInstalledRecord':
-      return row.executablePathRef !== null || row.packageId !== null || row.appUserModelId !== null;
-    case 'shortcut':
-      return row.desktopEntryId !== null || row.executablePathRef !== null;
-    case 'storePackage':
-      return row.packageId !== null || row.bundleId !== null || row.appUserModelId !== null || row.storeId !== null;
-    case 'launcherManifest':
-      return row.launcherRef !== null || row.launcherAppId !== null || row.launcherManifestId !== null;
-    case 'parentCatalog':
-      return row.catalogRef !== null;
-    case 'managedDevice':
-      return row.identityId !== null || row.packageId !== null || row.bundleId !== null || row.appUserModelId !== null;
-    case 'portableApp':
-      return row.executablePathRef !== null;
-    case 'unknownSource':
-      return row.inventoryState !== 'installed' && row.confidence <= 0.3;
-  }
+function appGameInventorySourceHasRequiredReference(row: AppGameInventoryEvidenceRowBase): boolean {
+  return AppGameInventorySourceReferenceValidators[row.sourceKind](row);
 }
 
-function appGameInventoryHighConfidenceHasIdentityRef(
-  row: Infer<typeof AppGameInventoryEvidenceRowBaseSchema>
-): boolean {
+function appGameInventoryHighConfidenceHasIdentityRef(row: AppGameInventoryEvidenceRowBase): boolean {
   return (
     row.confidence <= 0.3 ||
     row.identityId !== null ||
