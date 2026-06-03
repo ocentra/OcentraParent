@@ -52,6 +52,7 @@ export * from './app-game-identity-primitives';
 export * from './app-game-inventory';
 export * from './app-game-inventory-primitives';
 export * from './app-game-primitives';
+export * from './app-game-runtime';
 
 export const AppGameInventoryEntrySchema = withParser(
   Schema.Struct({
