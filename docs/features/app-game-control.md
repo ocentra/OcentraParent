@@ -129,6 +129,12 @@ control with better evidence and local audit.
   LINUX extension checklist row to authority tier, setup state, manual tags,
   proof-pack paths, and cross-plan handoff while keeping all current rows
   manual-required or not-claimed.
+- Install/store handoff contracts now route new app/game inventory,
+  installer/updater processes, store package install signals, game purchase
+  signals, uninstall deltas, and tamper/uninstall candidates to app-game
+  evidence, app-install/purchase approval, or enforcement-integrity/tamper docs
+  with evidence refs, parent-visible manual-required states, and no adapter or
+  policy-decision claims.
 - App/game category-risk taxonomy contracts now represent native app
   categories, native game categories, risk candidates, game context signals,
   source kind, source ref, confidence, reason code, evidence refs, parent
@@ -174,6 +180,10 @@ classifier boundary proof are also contract-only; they do not prove live OS
 scanning, live catalog enrichment, runtime classifier service events, portal
 evidence/classifier rendering, local model quality/provider execution, policy
 evaluator consumption, or platform enforcement.
+The install/store handoff proof is contract-only: it does not prove live store
+integration, Google Play, Apple App Store, Microsoft Store, package-manager
+interception, billing entitlement logic, portal approval UI, platform adapter
+execution, uninstall blocking, or anti-tamper behavior.
 The unknown approval proof is still contract-level: it does not yet provide
 finished parent/child approval UI, notification delivery, persisted service
 read models, live candidate creation from platform adapters, or platform hard

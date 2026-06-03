@@ -446,6 +446,21 @@ proof references. It does not prove live platform adapters, device enrollment,
 rollback execution, service events, portal UI, or runtime cross-platform
 support.
 
+WP26 proof on `codex/app-game-read-model-service-events` adds
+`packages/parent-domain/src/app-game-install-store-handoff.ts`,
+`packages/parent-domain/src/app-game-install-store-handoff-rules.ts`,
+`packages/parent-domain/src/app-game-install-store-handoff-proof.ts`, and
+`scripts/test/app-game-install-store-handoff-proof.mjs`, then records evidence
+under `output/app-game-plan-proof/26-install-uninstall-purchase-store-handoffs/`.
+The proof matrix covers new app/game inventory, installer/updater process,
+store package install, native game purchase signal, uninstall delta, and
+tamper/uninstall candidate handoffs. Store and purchase signals stay
+context-only, install approval refs must carry evidence, uninstall/tamper rows
+route to the enforcement-integrity/tamper docs, and adapter execution plus
+policy decisions remain not-claimed. It does not prove live store APIs,
+approval UI, platform adapters, billing entitlement logic, uninstall blocking,
+or anti-tamper behavior.
+
 ## Current Test Files
 
 - `packages/activity-domain/tests/app-game.test.ts`
@@ -468,6 +483,7 @@ support.
 - `packages/parent-domain/tests/app-game-time-budget-policy-recovery.test.ts`
 - `packages/parent-domain/tests/app-game-broad-blocking-proof-gates.test.ts`
 - `packages/parent-domain/tests/app-game-ai-classifier-boundary.test.ts`
+- `packages/parent-domain/tests/app-game-install-store-handoff.test.ts`
 - `packages/parent-domain/tests/app-game-platform-extension-routing.test.ts`
 - `packages/parent-domain/tests/native-game-budget-policy.test.ts`
 - `packages/parent-domain/tests/enforcement-approval-audit.test.ts`

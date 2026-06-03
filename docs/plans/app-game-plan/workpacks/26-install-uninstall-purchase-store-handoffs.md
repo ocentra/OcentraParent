@@ -28,3 +28,25 @@ App/game plan can hand off install, uninstall, purchase, and store work without
 silently claiming another feature.
 
 Use the standard checklist in [workpacks README](README.md).
+
+## Completion Note - 2026-06-03
+
+- Read source docs: app-game feature, app-install/purchase feature,
+  enforcement-integrity/tamper feature, app/game evidence expectation,
+  app-install/purchase expectation, tamper/uninstall expectation, app/app-game
+  plan READMEs, source indexes, current snapshots, platform deep dives, test
+  blueprints, UI guides, main checklists, and this workpack.
+- Locked implementation and docs under codex-c for
+  `app-game-install-store-handoff` without editing E-C-owned
+  `app-install-purchase-approval*` files or E-B-owned parent-domain export map.
+- Added parent-domain schema/rule/proof/test coverage for six handoff rows:
+  new app/game inventory, installer/updater process, store package install,
+  game purchase signal, uninstall delta, and tamper/uninstall candidate.
+- Proof output:
+  `output/app-game-plan-proof/26-install-uninstall-purchase-store-handoffs/`
+  and `test-results/app-game-install-store-handoff-proof/proof.json`.
+- UI not applicable: no parent portal, child UI, policy authoring, approval, or
+  evidence drawer source changed.
+- Product checklist unchanged: this is contract/handoff proof only and does not
+  move live store, approval UI, platform adapter, billing entitlement, uninstall
+  blocking, or anti-tamper support up.

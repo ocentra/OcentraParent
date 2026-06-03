@@ -154,6 +154,7 @@ output/app-plan-proof/19-time-budget-schedule-bonus-time-integration
 output/app-plan-proof/20-child-facing-app-warning-block-request-ux
 output/app-plan-proof/23-app-ai-classifier-digest-boundary
 output/app-plan-proof/24-platform-extension-checklist-and-proof-routing
+output/app-plan-proof/25-install-and-uninstall-approval-handoff
 ```
 
 Those proof packs point back to `output/app-game-plan-proof/*` for the shared
@@ -172,6 +173,7 @@ node scripts/test/v0-8-cross-platform-enforcement-capability-proof.mjs
 node scripts/test/v0-8-enforcement-timer-recovery-mvp.mjs
 node scripts/test/app-game-broad-blocking-proof-gates.mjs
 node scripts/test/app-game-platform-extension-routing-proof.mjs
+node scripts/test/app-game-install-store-handoff-proof.mjs
 ```
 
 These are scoped proof harnesses. They do not prove broad app blocking support,
@@ -251,6 +253,12 @@ polished app catalog UI, install approval, or cross-platform parity.
   authority tier, setup state, manual tags, proof packs, and cross-plan handoff,
   but keeps every row manual-required or not-claimed until real platform proof
   exists.
+- Native app install/uninstall approval handoff now cross-records the shared
+  app/game WP26 matrix for new inventory, installer/updater, store package
+  install, purchase signal, uninstall, and tamper candidate rows. Store and
+  purchase signals remain context-only, approval refs cite evidence, and
+  uninstall/tamper rows route to the tamper feature without adapter or policy
+  claims.
 - App category/risk taxonomy, native app risk detection, and native app AI
   classifier boundary now have contract/test proof, but live classifier
   enrichment, portal category/risk/classifier rows, runtime app risk detection,
@@ -266,6 +274,9 @@ polished app catalog UI, install approval, or cross-platform parity.
   AppLocker/App Control, Screen Time, ManagedSettings, cgroups/systemd,
   AppArmor/SELinux, Flatpak, Snap, signing, store, and entitlement claims need
   separate proof before product claims.
+- Live store integration, install/purchase approval UI, package-manager/store
+  interception, billing entitlement logic, uninstall blocking, and anti-tamper
+  behavior remain unproved.
 
 ## Where We Want To Be
 

@@ -1,0 +1,6 @@
+{
+  "schemaVersion": 1,
+  "policyDecisionClaim": "not-claimed",
+  "adapterExecutionClaim": "not-claimed",
+  "contextOnlyStoreSignals": 2
+}

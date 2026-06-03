@@ -12,7 +12,7 @@ import {
   type AppGamePlatformAuthorityTier,
   type AppGamePlatformSetupState,
 } from './app-game-control-platform-authority';
-import { EnforcementCapabilityStateSchema } from './enforcement';
+import type { EnforcementCapabilityStateSchema } from './enforcement';
 import {
   type ParentPlatform,
   ParentContractSchemaVersion,

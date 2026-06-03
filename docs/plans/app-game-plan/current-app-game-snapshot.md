@@ -93,6 +93,11 @@ Proved today:
   extension checklist rows with authority tier, setup state, manual tags,
   proof-pack paths, and cross-plan handoff, while keeping every row
   manual-required or not-claimed until real platform proof is attached.
+- Install/store handoff proof now records new inventory, installer/updater,
+  store package install, game purchase signal, uninstall, and tamper candidate
+  rows with evidence refs, approval/tamper feature routes, context-only
+  store/purchase guards, parent-visible manual-required states, and no adapter
+  or policy-decision claims.
 - App-control and game-control catalog/authoring contracts exist in
   `packages/parent-domain`.
 - Rust app/game session protocol mirrors exist.
@@ -148,6 +153,9 @@ Not proved today:
   proves route coverage and promotion guards only; it does not implement
   platform adapters, enrollment, rollback execution, service events, or portal
   capability UI.
+- Live store integration, install/purchase approval UI, package-manager or store
+  interception, billing entitlement logic, uninstall blocking, and anti-tamper
+  behavior. WP26 proves handoff routing and no-claim guards only.
 
 ## Current Contracts
 
@@ -187,11 +195,14 @@ contract-level child-facing warning/request cards that link copy tokens,
 evidence refs, child reason/status refs, and manual/unavailable no-action
 guards. WP25 now adds platform-extension routing contracts for MAC, IOS,
 ANDROID, and LINUX rows, including proof-pack and cross-plan handoff
-requirements. Those catalogs, authority contracts, approval contracts, budget
-contracts, compiler contracts, time-budget contracts, child UX contracts, and
-extension routing contracts are product-control inputs, not a complete shared
-evidence spine, live approval workflow, live game budget product flow, runtime
-evaluator, child UI, or proof that broad app/game blocking works.
+requirements. WP26 now adds install/store handoff contracts for new inventory,
+installer/updater, store package install, game purchase signal, uninstall, and
+tamper candidate rows. Those catalogs, authority contracts, approval contracts,
+budget contracts, compiler contracts, time-budget contracts, child UX contracts,
+extension routing contracts, and install/store handoff contracts are
+product-control inputs, not a complete shared evidence spine, live approval
+workflow, live game budget product flow, runtime evaluator, child UI, or proof
+that broad app/game blocking works.
 
 ## Current Runtime
 
@@ -393,6 +404,11 @@ Missing portal states include:
 - WP25 adds parent-domain platform-extension routing proof for MAC, IOS,
   ANDROID, and LINUX extension rows. It does not promote any row out of
   manual-required/not-claimed state or add runtime platform adapters.
+- WP26 adds parent-domain install/store handoff proof for new app/game
+  inventory, installer/updater process, store package install, game purchase,
+  uninstall, and tamper candidate rows. It does not add store integration,
+  approval UI, platform adapter execution, uninstall blocking, or anti-tamper
+  behavior.
 - Next implementation work should either add dedicated portal dashboard
   consumption of the service rows, live Windows inventory source readers, or
   mirror the remaining WP01/WP04 TypeScript shapes into Rust protocol before

@@ -294,6 +294,12 @@ Platform-extension routing proof now maps every MAC, IOS, ANDROID, and LINUX
 extension row to authority-tier, setup-state, manual tag, proof-pack, and
 cross-plan handoff requirements while keeping all current rows manual-required
 or not-claimed until real platform proof is attached.
+Install/uninstall approval handoff proof now cross-records the shared app/game
+WP26 handoff matrix for new inventory, installer/updater, store package install,
+game purchase signal, uninstall, and tamper candidate rows. Store and purchase
+signals remain context-only, approval refs must cite evidence, uninstall/tamper
+rows route to enforcement-integrity/tamper docs, and adapter execution plus
+policy decisions remain not-claimed.
 Dedicated approval UI, notification delivery, service persistence/read models,
 policy runtime, game-budget, live source, live source subscriptions, journal
 corruption/recovery, runtime platform adapters, and portal capability matrix UI
@@ -317,6 +323,7 @@ remain later work.
 - `packages/parent-domain/tests/app-riskdetection.test.ts`
 - `packages/parent-domain/tests/app-game-ai-classifier-boundary.test.ts`
 - `packages/parent-domain/tests/app-game-platform-extension-routing.test.ts`
+- `packages/parent-domain/tests/app-game-install-store-handoff.test.ts`
 - `packages/parent-domain/tests/enforcement-approval-audit.test.ts`
 - `crates/agent-protocol/src/app_game_tests.rs`
 - `crates/agent-core/src/activity_store_app_game/app_game_sessionization_tests.rs`

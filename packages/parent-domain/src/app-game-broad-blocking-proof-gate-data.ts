@@ -3,7 +3,7 @@ import {
   type AppGamePlatformAuthorityTier,
   type AppGamePlatformSetupState,
 } from './app-game-control-platform-authority';
-import { EnforcementCapabilityStateSchema, EnforcementModeSchema } from './enforcement';
+import type { EnforcementCapabilityStateSchema, EnforcementModeSchema } from './enforcement';
 import {
   type AppGameBroadBlockingAdapterDispatchState,
   type AppGameBroadBlockingAuditState,
