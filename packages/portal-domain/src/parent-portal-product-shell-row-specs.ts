@@ -4,6 +4,10 @@ import { PARENT_PORTAL_SERVICE_STATE } from './parent-portal-service-state-const
 export type ProductShellSignalKind =
   | 'household'
   | 'browser'
+  | 'browserInventory'
+  | 'browserExactUrl'
+  | 'browserActiveTab'
+  | 'browserUnmanagedFallback'
   | 'activity'
   | 'network'
   | 'policy'
@@ -22,6 +26,10 @@ export type ProductShellRowSpec = {
 export const PRODUCT_SHELL_ROW_SPECS: readonly ProductShellRowSpec[] = [
   rowSpec('HouseholdSetup', 7, 'FamilySettings', 'cyan', 'household'),
   rowSpec('HouseholdSetup', 7.5, 'Settings', 'cyan', 'household'),
+  rowSpec('BrowserInventory', 7.6, 'ManagedWeb', 'gold', 'browserInventory'),
+  rowSpec('ExactUrlCapability', 7.7, 'ManagedWeb', 'gold', 'browserExactUrl'),
+  rowSpec('ActiveTabProof', 7.8, 'ManagedWeb', 'gold', 'browserActiveTab'),
+  rowSpec('UnmanagedFallback', 7.9, 'ManagedWeb', 'cyan', 'browserUnmanagedFallback'),
   rowSpec('ManagedWeb', 8, 'ManagedWeb', 'gold', 'browser'),
   rowSpec('BrowserSetup', 9, 'BrowserSetup', 'gold', 'browser'),
   rowSpec('ActivityStore', 10, 'ActivityStore', 'purple', 'activity'),

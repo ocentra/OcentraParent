@@ -21,10 +21,14 @@ import {
   BrowserControlDownloadBlockedTypeSchema,
   BrowserControlEvidenceNeverCollectSchema,
   BrowserControlEvidenceUrlScopeSchema,
+  BrowserControlBrowserGameApprovalModeSchema,
+  BrowserControlBrowserGamePolicyModeSchema,
   BrowserControlManagedBrowserBridgeRequirementSchema,
   BrowserControlManagedBrowserFamilySchema,
   BrowserControlManagedBrowserIntegrationMechanismSchema,
   BrowserControlManagedBrowserLaunchModeSchema,
+  BrowserControlManagedPolicyWriterControlSchema,
+  BrowserControlManagedPolicyWriterFallbackSchema,
   BrowserControlManagedBrowserProfileModeSchema,
   BrowserControlReportVisibleFieldSchema,
   BrowserControlRetentionExactUrlSchema,
@@ -287,6 +291,12 @@ export const BrowserControlPolicyValueBaseSchema = Schema.Struct({
     integrationMechanisms: Schema.optionalWith(Schema.Array(BrowserControlManagedBrowserIntegrationMechanismSchema), {
       default: () => [],
     }),
+    policyWriterControls: Schema.optionalWith(Schema.Array(BrowserControlManagedPolicyWriterControlSchema), {
+      default: () => [],
+    }),
+    policyWriterFallback: Schema.optionalWith(BrowserControlManagedPolicyWriterFallbackSchema, {
+      default: () => 'manual-required' as const,
+    }),
   }),
   unmanagedBrowser: Schema.Struct({
     mode: BrowserControlUnmanagedBrowserModeSchema,
@@ -312,6 +322,12 @@ export const BrowserControlPolicyValueBaseSchema = Schema.Struct({
     entries: Schema.optionalWith(Schema.Array(BrowserControlRuleSchema), {
       default: () => [],
     }),
+    urlAllowList: Schema.optionalWith(Schema.Array(BrowserControlPolicyTextSchema), {
+      default: () => [],
+    }),
+    urlBlockList: Schema.optionalWith(Schema.Array(BrowserControlPolicyTextSchema), {
+      default: () => [],
+    }),
   }),
   budgets: Schema.Struct({
     enabled: Schema.optionalWith(Schema.Boolean, {
@@ -322,6 +338,34 @@ export const BrowserControlPolicyValueBaseSchema = Schema.Struct({
       default: () => 'foreground-browser-time' as const,
     }),
   }),
+  browserGames: Schema.optionalWith(
+    Schema.Struct({
+      educationalGameMode: Schema.optionalWith(BrowserControlBrowserGamePolicyModeSchema, {
+        default: () => 'allow' as const,
+      }),
+      unknownGameMode: Schema.optionalWith(BrowserControlBrowserGamePolicyModeSchema, {
+        default: () => 'parent-review' as const,
+      }),
+      cloudGamingApproval: Schema.optionalWith(BrowserControlBrowserGameApprovalModeSchema, {
+        default: () => 'parent-review' as const,
+      }),
+      purchaseAccountApproval: Schema.optionalWith(BrowserControlBrowserGameApprovalModeSchema, {
+        default: () => 'parent-review' as const,
+      }),
+      unblockedPortalMode: Schema.optionalWith(BrowserControlBrowserGamePolicyModeSchema, {
+        default: () => 'warn' as const,
+      }),
+      webglCanvasMode: Schema.optionalWith(BrowserControlBrowserGamePolicyModeSchema, {
+        default: () => 'observe' as const,
+      }),
+      defaultDailyMinutes: Schema.optionalWith(Schema.Union(Schema.Number, Schema.Null), {
+        default: () => 30,
+      }),
+    }),
+    {
+      default: defaultBrowserGames,
+    }
+  ),
   downloads: Schema.Struct({
     mode: Schema.optionalWith(BrowserControlDownloadStateSchema, {
       default: () => 'not-configured' as const,
@@ -406,9 +450,44 @@ export const BrowserControlPolicyValueSchema = withParser(
       (policy) =>
         browserControlExactUrlPolicyIsHonest(policy) ||
         'Expected exact URL browser rules to require managed proof or an explicit proof fallback'
+    ),
+    Schema.filter(
+      (policy) =>
+        browserControlBrowserGameLimitIsConsistent(policy) ||
+        'Expected browser-game limit modes to include a daily browser-game budget or fallback posture'
     )
   )
 );
+
+export const BrowserControlTargetProofRequirementSchema = withParser(
+  Schema.Literal(
+    'none',
+    'managed-exact-url',
+    'domain-or-managed-url',
+    'classifier-category',
+    'url-shape-metadata',
+    'social-route-evidence',
+    'browser-game-runtime-signal',
+    'browser-policy-writer',
+    'process-detection',
+    'download-evidence',
+    'capability-state',
+    'adapter-action'
+  )
+);
+
+export const BrowserControlActionExecutionStateSchema = withParser(
+  Schema.Literal(
+    'observe-only',
+    'dry-run-no-execution',
+    'deterministic-parent-policy',
+    'adapter-ready',
+    'manual-required',
+    'unavailable'
+  )
+);
+
+export const BrowserControlAiAuthoritySchema = withParser(Schema.Literal('parent-policy-only', 'ai-candidate-only'));
 
 export const BrowserControlEffectiveRuleSchema = withParser(
   Schema.Struct({
@@ -417,6 +496,12 @@ export const BrowserControlEffectiveRuleSchema = withParser(
     targetValue: BrowserControlPolicyTextSchema,
     defaultPosture: BrowserControlDefaultPostureSchema,
     evidence: BrowserControlEvidenceRequirementSchema,
+    action: BrowserControlRuleActionSchema,
+    targetProofRequirement: BrowserControlTargetProofRequirementSchema,
+    capabilityState: BrowserControlCapabilityStateSchema,
+    actionExecution: BrowserControlActionExecutionStateSchema,
+    aiAuthority: BrowserControlAiAuthoritySchema,
+    compileNote: BrowserControlPolicyTextSchema,
   })
 );
 
@@ -566,6 +651,9 @@ export type BrowserControlDiscovery = Infer<typeof BrowserControlDiscoverySchema
 export type BrowserControlEvidenceRequirement = Infer<typeof BrowserControlEvidenceRequirementSchema>;
 export type BrowserControlRule = Infer<typeof BrowserControlRuleSchema>;
 export type BrowserControlPolicyValue = Infer<typeof BrowserControlPolicyValueSchema>;
+export type BrowserControlTargetProofRequirement = Infer<typeof BrowserControlTargetProofRequirementSchema>;
+export type BrowserControlActionExecutionState = Infer<typeof BrowserControlActionExecutionStateSchema>;
+export type BrowserControlAiAuthority = Infer<typeof BrowserControlAiAuthoritySchema>;
 export type BrowserControlEffectiveRule = Infer<typeof BrowserControlEffectiveRuleSchema>;
 export type BrowserControlEffectivePolicy = Infer<typeof BrowserControlEffectivePolicySchema>;
 export type BrowserControlCapability = Infer<typeof BrowserControlCapabilitySchema>;
@@ -657,6 +745,27 @@ function browserControlExactUrlPolicyIsHonest(policy: BrowserControlPolicyValueC
 
 function ruleUsesExactUrlTarget(rule: BrowserControlRuleCandidate): boolean {
   return rule.targetType === 'exact-url' || rule.target?.kind === 'exact-url';
+}
+
+function browserControlBrowserGameLimitIsConsistent(policy: BrowserControlPolicyValueCandidate): boolean {
+  const gameLimitSelected =
+    policy.browserGames.educationalGameMode === 'limit' ||
+    policy.browserGames.unknownGameMode === 'limit' ||
+    policy.browserGames.unblockedPortalMode === 'limit' ||
+    policy.browserGames.webglCanvasMode === 'limit';
+  return !gameLimitSelected || policy.browserGames.defaultDailyMinutes !== null || policy.fallbackPosture !== null;
+}
+
+function defaultBrowserGames() {
+  return {
+    educationalGameMode: 'allow' as const,
+    unknownGameMode: 'parent-review' as const,
+    cloudGamingApproval: 'parent-review' as const,
+    purchaseAccountApproval: 'parent-review' as const,
+    unblockedPortalMode: 'warn' as const,
+    webglCanvasMode: 'observe' as const,
+    defaultDailyMinutes: 30,
+  };
 }
 
 function defaultChildFacing() {

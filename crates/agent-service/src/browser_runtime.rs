@@ -4,8 +4,9 @@ use std::{
 };
 
 use ocentra_parent_agent_core::{
-    collect_process_snapshot, managed_browser_launch_plan, poll_chromium_bridge,
-    unmanaged_browser_processes, BrowserBridgePollConfig, BrowserManagedLaunchConfig,
+    collect_process_snapshot, launch_managed_browser, managed_browser_launch_plan,
+    poll_chromium_bridge, reserve_managed_browser_bridge_port, unmanaged_browser_processes,
+    BrowserBridgeExpectedCustody, BrowserBridgePollConfig, BrowserManagedLaunchConfig,
     BrowserUnmanagedProcessObservation,
 };
 use ocentra_parent_agent_protocol::{
@@ -17,10 +18,10 @@ use crate::{
     activity_capture::record_activity_events_to_paths,
     activity_store_path::{activity_db_path, activity_journal_key_path, activity_journal_path},
     browser_payload::browser_managed_status_payload,
-    browser_runtime_paths::{managed_browser_executable_path, managed_browser_profile_dir},
+    browser_runtime_paths::{managed_browser_executable_path, managed_browser_profile_store},
     browser_runtime_status::{
         bridge_disconnected_status, connected_status, managed_profile_ready_status,
-        missing_browser_status, profile_missing_status, status_with_error,
+        missing_browser_status, profile_missing_status, running_managed_status, status_with_error,
         unmanaged_browser_status,
     },
     event_builder::build_event,
@@ -54,7 +55,12 @@ fn resolve_browser_managed_status() -> BrowserManagedSessionStatus {
     let checked_at = timestamp_now();
     match configured_bridge_port() {
         Ok(Some(port)) => bridge_poll_status(checked_at, port),
-        Ok(None) => managed_profile_or_missing_status(checked_at),
+        Ok(None) => {
+            if launch_on_status_enabled() {
+                return launch_managed_browser_status(checked_at);
+            }
+            managed_profile_or_missing_status(checked_at)
+        }
         Err(reason) => status_with_error(checked_at, reason),
     }
 }
@@ -67,6 +73,15 @@ fn bridge_poll_status(checked_at: String, port: u16) -> BrowserManagedSessionSta
         process_id: constants::browser::PROCESS_ID_UNKNOWN,
         browser_family: BrowserFamily::UnknownChromium,
         browser_channel: BrowserChannel::Unknown,
+        expected_custody: BrowserBridgeExpectedCustody {
+            bridge_port: port,
+            managed_browser_session_id: constants::browser::SESSION_ID_DEV.to_string(),
+            profile_id: constants::browser::PROFILE_ID_DEV.to_string(),
+            process_id: constants::browser::PROCESS_ID_UNKNOWN,
+            browser_family: BrowserFamily::UnknownChromium,
+            browser_channel: BrowserChannel::Unknown,
+            session_fresh_until: checked_at.clone(),
+        },
     };
 
     match poll_chromium_bridge(config, &checked_at, &checked_at) {
@@ -98,29 +113,52 @@ fn bridge_poll_status(checked_at: String, port: u16) -> BrowserManagedSessionSta
 fn managed_profile_or_missing_status(checked_at: String) -> BrowserManagedSessionStatus {
     let Some(executable) = managed_browser_executable_path() else {
         if let Some(process) = first_unmanaged_browser_process() {
-            return unmanaged_browser_status(
-                checked_at,
-                process.process_id,
-                process.browser_family,
-                process.browser_channel,
-            );
+            return unmanaged_browser_status(checked_at, process);
         }
         return missing_browser_status(checked_at);
     };
 
-    let Ok(profile_dir) = managed_browser_profile_dir() else {
+    let Ok(profile_store) = managed_browser_profile_store() else {
         return profile_missing_status(checked_at);
     };
 
     let config = BrowserManagedLaunchConfig {
         executable_path: executable,
-        profile_dir,
+        profile_dir: profile_store.profile_dir,
         bridge_port: constants::browser::DEVTOOLS_DEFAULT_BRIDGE_PORT,
     };
 
     match managed_browser_launch_plan(config) {
-        Ok(plan) => {
-            managed_profile_ready_status(checked_at, plan.browser_family, plan.browser_channel)
+        Ok(plan) => managed_profile_ready_status(
+            checked_at,
+            plan.browser_family,
+            plan.browser_channel,
+            profile_store.entry,
+        ),
+        Err(error) => status_with_error(checked_at, error.reason()),
+    }
+}
+
+fn launch_managed_browser_status(checked_at: String) -> BrowserManagedSessionStatus {
+    let Some(executable) = managed_browser_executable_path() else {
+        return missing_browser_status(checked_at);
+    };
+    let Ok(profile_store) = managed_browser_profile_store() else {
+        return profile_missing_status(checked_at);
+    };
+    let reservation = match reserve_managed_browser_bridge_port() {
+        Ok(reservation) => reservation,
+        Err(error) => return status_with_error(checked_at, error.reason()),
+    };
+    let config = BrowserManagedLaunchConfig {
+        executable_path: executable,
+        profile_dir: profile_store.profile_dir,
+        bridge_port: reservation.bridge_port,
+    };
+
+    match launch_managed_browser(config) {
+        Ok(launch) => {
+            running_managed_status(checked_at.clone(), launch, profile_store.entry, checked_at)
         }
         Err(error) => status_with_error(checked_at, error.reason()),
     }
@@ -150,4 +188,10 @@ fn configured_bridge_port() -> Result<Option<u16>, &'static str> {
         Err(env::VarError::NotPresent) => Ok(None),
         Err(_) => Err(constants::value::MANAGED_BROWSER_INVALID_BRIDGE_PORT),
     }
+}
+
+fn launch_on_status_enabled() -> bool {
+    env::var(constants::env_var::MANAGED_BROWSER_LAUNCH_ON_STATUS)
+        .map(|value| value == constants::value::TRUE)
+        .unwrap_or(false)
 }

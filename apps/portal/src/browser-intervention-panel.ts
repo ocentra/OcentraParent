@@ -1,4 +1,5 @@
 import type { BrowserInterventionReadModel, BrowserInterventionRow } from '@ocentra-parent/activity-domain/browser';
+import type { ActivityEvidenceId } from '@ocentra-parent/activity-domain/primitives';
 import { AgentProtocolDefaults, type AgentEventEnvelope } from '@ocentra-parent/agent-protocol-domain/contracts';
 import type { LogFieldValue } from '@ocentra-parent/logging-domain/contracts';
 import {
@@ -65,6 +66,9 @@ function appendBrowserInterventionDecisionDetails(
   appendDetail(metadata, PortalDetails.BrowserIntervention, detailFromValue(latestRow?.browserInterventionId));
   appendDetail(metadata, PortalDetails.DecisionSource, detailFromValue(latestRow?.decisionSource));
   appendDetail(metadata, PortalDetails.DecisionId, detailFromValue(latestRow?.policyDecisionId));
+  appendDetail(metadata, PortalDetails.InterventionActionId, detailFromValue(latestRow?.interventionActionId));
+  appendDetail(metadata, PortalDetails.InterventionAuditId, detailFromValue(latestRow?.interventionAuditId));
+  appendDetail(metadata, PortalDetails.EvidenceReferences, detailFromList(latestRow?.evidenceReferenceIds));
   appendDetail(metadata, PortalDetails.InterventionAction, detailFromValue(latestRow?.interventionAction));
 }
 
@@ -84,6 +88,11 @@ function appendBrowserInterventionStateDetails(
 ): void {
   appendDetail(metadata, PortalDetails.InterventionMechanism, detailFromValue(latestRow?.interventionMechanism));
   appendDetail(metadata, PortalDetails.InterventionOutcome, detailFromValue(latestRow?.interventionOutcome));
+  appendDetail(metadata, PortalDetails.BrowserBoundary, detailFromValue(latestRow?.browserBoundaryState));
+  appendDetail(metadata, PortalDetails.ExactUrlClaim, detailFromValue(latestRow?.exactUrlClaimState));
+  appendDetail(metadata, PortalDetails.UnmanagedDetection, detailFromValue(latestRow?.unmanagedDetectionState));
+  appendDetail(metadata, PortalDetails.UnmanagedFallbackAction, detailFromValue(latestRow?.unmanagedFallbackAction));
+  appendDetail(metadata, PortalDetails.InterventionChildDelivery, detailFromValue(latestRow?.childDeliveryState));
   appendDetail(metadata, PortalDetails.Reason, detailFromValue(latestRow?.reason));
   appendDetail(metadata, PortalDetails.Custody, detailFromValue(latestRow?.custodyLabel));
 }
@@ -125,6 +134,13 @@ function detailFromValue(value: LogFieldValue | undefined): PortalDetailValue {
     return notReported();
   }
   return decodePortalDetailValue(String(value));
+}
+
+function detailFromList(values: readonly ActivityEvidenceId[] | undefined): PortalDetailValue {
+  if (values === undefined || values.length === 0) {
+    return notReported();
+  }
+  return decodePortalDetailValue(values.join(AgentProtocolDefaults.Delimiter.List));
 }
 
 function notReported(): PortalDetailValue {

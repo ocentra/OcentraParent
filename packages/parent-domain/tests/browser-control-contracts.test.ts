@@ -17,7 +17,8 @@ import {
   BrowserControlUpdateRequestSchema,
 } from '../src/browser-control-policy';
 import { BrowserControlFieldIdSchema } from '../src/browser-control-identifiers';
-import { BrowserControlWritesToPath } from '../src/browser-control-values';
+import { BrowserControlUnmanagedBrowserModeSchema, BrowserControlWritesToPath } from '../src/browser-control-values';
+import { BrowserControlRuleActionSchema } from '../src/browser-control-catalog-values';
 
 const expectedSectionIds = [
   BrowserControlManifestDefaults.Section.Management,
@@ -27,6 +28,7 @@ const expectedSectionIds = [
   BrowserControlManifestDefaults.Section.UrlTabEvidence,
   BrowserControlManifestDefaults.Section.WebRules,
   BrowserControlManifestDefaults.Section.Budgets,
+  BrowserControlManifestDefaults.Section.BrowserGames,
   BrowserControlManifestDefaults.Section.Downloads,
   BrowserControlManifestDefaults.Section.Approvals,
   BrowserControlManifestDefaults.Section.Reports,
@@ -47,6 +49,8 @@ const expectedFieldIds = [
   BrowserControlManifestDefaults.Field.ManagedBrowserProfileMode,
   BrowserControlManifestDefaults.Field.ManagedBrowserBridgeRequirements,
   BrowserControlManifestDefaults.Field.ManagedBrowserIntegrationMechanisms,
+  BrowserControlManifestDefaults.Field.ManagedBrowserPolicyWriterControls,
+  BrowserControlManifestDefaults.Field.ManagedBrowserPolicyWriterFallback,
   BrowserControlManifestDefaults.Field.UnmanagedBrowserMode,
   BrowserControlManifestDefaults.Field.UnmanagedBrowserGraceSeconds,
   BrowserControlManifestDefaults.Field.UnmanagedBrowserAllowRecoverLaunchUrl,
@@ -58,9 +62,18 @@ const expectedFieldIds = [
   BrowserControlManifestDefaults.Field.AllowedTargetTypes,
   BrowserControlManifestDefaults.Field.AllowedActions,
   BrowserControlManifestDefaults.Field.RuleItems,
+  BrowserControlManifestDefaults.Field.UrlAllowList,
+  BrowserControlManifestDefaults.Field.UrlBlockList,
   BrowserControlManifestDefaults.Field.BudgetsEnabled,
   BrowserControlManifestDefaults.Field.DailyBudgetMinutes,
   BrowserControlManifestDefaults.Field.BudgetCountingMode,
+  BrowserControlManifestDefaults.Field.BrowserGameEducationalMode,
+  BrowserControlManifestDefaults.Field.BrowserGameUnknownMode,
+  BrowserControlManifestDefaults.Field.BrowserGameCloudGamingApproval,
+  BrowserControlManifestDefaults.Field.BrowserGamePurchaseAccountApproval,
+  BrowserControlManifestDefaults.Field.BrowserGameUnblockedPortalMode,
+  BrowserControlManifestDefaults.Field.BrowserGameWebglCanvasMode,
+  BrowserControlManifestDefaults.Field.BrowserGameDailyBudgetMinutes,
   BrowserControlManifestDefaults.Field.DownloadMode,
   BrowserControlManifestDefaults.Field.DownloadBlockedTypes,
   BrowserControlManifestDefaults.Field.ApprovalRequiredFor,
@@ -94,8 +107,25 @@ function registerManifestAcceptanceCases() {
     expect(parsed.success).toBe(true);
     expect(sectionIds).toEqual(expectedSectionIds);
     expect(fieldIds).toEqual(expectedFieldIds);
+    expect(writesToPaths).toContain(BrowserControlWritesToPath.ManagedBrowserPolicyWriterControls);
+    expect(writesToPaths).toContain(BrowserControlWritesToPath.ManagedBrowserPolicyWriterFallback);
+    expect(writesToPaths).toContain(BrowserControlWritesToPath.UrlAllowList);
+    expect(writesToPaths).toContain(BrowserControlWritesToPath.UrlBlockList);
+    expect(writesToPaths).toContain(BrowserControlWritesToPath.BrowserGameCloudGamingApproval);
     expect(writesToPaths).toContain(BrowserControlWritesToPath.CustodyAllowedUses);
     expect(writesToPaths).toContain(BrowserControlWritesToPath.RuleItems);
+    expect(optionValuesFor(BrowserControlManifestDefaults.Field.UnmanagedBrowserMode)).toEqual([
+      'report-only',
+      'allowed-unmanaged-exception',
+      'warn-child',
+      'parent-review',
+      'terminate-process',
+      'relaunch-managed',
+      'os-block-configured',
+      'os-block-manual-required',
+    ]);
+    expect(optionValuesFor(BrowserControlManifestDefaults.Field.AllowedActions)).toContain('terminate-process');
+    expect(optionValuesFor(BrowserControlManifestDefaults.Field.AllowedActions)).toContain('relaunch-managed');
   });
 }
 
@@ -134,6 +164,15 @@ function registerPolicyShapeCases() {
     expect(BrowserControlEffectivePolicySchema.safeParse(validEffectivePolicy()).success).toBe(true);
     expect(BrowserControlCapabilityRegistrySchema.safeParse(validCapabilityRegistry()).success).toBe(true);
     expect(BrowserControlUpdateRequestSchema.safeParse(validPatchRequest()).success).toBe(true);
+  });
+
+  it('accepts policy target compiler vocabulary for social, video, and browser-game targets', () => {
+    expect(BrowserControlPolicyValueSchema.safeParse(validCompilerVocabularyPolicy()).success).toBe(true);
+    expect(BrowserControlEffectivePolicySchema.safeParse(validCompilerVocabularyEffectivePolicy()).success).toBe(true);
+    expect(BrowserControlRuleActionSchema.safeParse('terminate-process').success).toBe(true);
+    expect(BrowserControlRuleActionSchema.safeParse('relaunch-managed').success).toBe(true);
+    expect(BrowserControlUnmanagedBrowserModeSchema.safeParse('terminate-process').success).toBe(true);
+    expect(BrowserControlUnmanagedBrowserModeSchema.safeParse('os-block-manual-required').success).toBe(true);
   });
 }
 
@@ -193,6 +232,18 @@ function registerRejectionCases() {
           requiredProof: 'network-domain',
           proofFallback: null,
           whenProofUnavailable: 'mark-unavailable',
+        },
+      }).success
+    ).toBe(false);
+  });
+
+  it('rejects unsupported managed Chrome and Edge policy-writer controls', () => {
+    expect(
+      BrowserControlPolicyValueSchema.safeParse({
+        ...validPolicy(),
+        managedBrowser: {
+          ...validPolicy().managedBrowser,
+          policyWriterControls: ['delete-browser-history-remotely'],
         },
       }).success
     ).toBe(false);
@@ -264,6 +315,43 @@ function registerPatchSafetyCases() {
 
     expect(browserControlManifestAllowsPatchRequest(BaselineBrowserControlAuthoringManifest, parsed)).toBe(true);
   });
+
+  it('allows managed Chrome and Edge policy-writer patches only through typed manifest controls', () => {
+    const parsed = BrowserControlPatchPolicyRequestSchema.parse({
+      ...validPatchRequest(),
+      patches: [
+        {
+          op: 'replace',
+          fieldId: BrowserControlManifestDefaults.Field.ManagedBrowserPolicyWriterControls,
+          writesTo: BrowserControlWritesToPath.ManagedBrowserPolicyWriterControls,
+          value: [
+            'disable-incognito',
+            'disable-guest-browsing',
+            'disable-profile-adding',
+            'limit-history-deletion',
+            'force-safe-search',
+            'force-restricted-mode',
+            'url-allow-list',
+            'url-block-list',
+          ],
+        },
+        {
+          op: 'replace',
+          fieldId: BrowserControlManifestDefaults.Field.UrlAllowList,
+          writesTo: BrowserControlWritesToPath.UrlAllowList,
+          value: ['school.example.invalid'],
+        },
+        {
+          op: 'replace',
+          fieldId: BrowserControlManifestDefaults.Field.UrlBlockList,
+          writesTo: BrowserControlWritesToPath.UrlBlockList,
+          value: ['games.example.invalid'],
+        },
+      ],
+    });
+
+    expect(browserControlManifestAllowsPatchRequest(BaselineBrowserControlAuthoringManifest, parsed)).toBe(true);
+  });
 }
 
 function validPatchRequest() {
@@ -294,6 +382,15 @@ function validPolicy() {
   };
 }
 
+function optionValuesFor(fieldId: (typeof expectedFieldIds)[number]): string[] {
+  return (
+    BaselineBrowserControlAuthoringManifest.sections
+      .flatMap((section) => section.fields)
+      .find((field) => field.fieldId === fieldId)
+      ?.options.map((option) => option.value) ?? []
+  );
+}
+
 function validPolicyCore() {
   return {
     schemaVersion: 'v0.6',
@@ -320,6 +417,17 @@ function validBrowserBoundaryPolicy() {
       profileMode: 'persistent-managed-profile',
       bridgeRequirements: ['owned-profile', 'loopback-only', 'random-port', 'reject-default-profile'],
       integrationMechanisms: ['chromium-cdp', 'browser-policy'],
+      policyWriterControls: [
+        'disable-incognito',
+        'disable-guest-browsing',
+        'disable-profile-adding',
+        'limit-history-deletion',
+        'force-safe-search',
+        'force-restricted-mode',
+        'url-allow-list',
+        'url-block-list',
+      ],
+      policyWriterFallback: 'manual-required',
     },
     unmanagedBrowser: {
       mode: 'relaunch-managed',
@@ -341,7 +449,9 @@ function validRulePolicy() {
   return {
     rules: {
       allowedTargetTypes: ['exact-url', 'domain-origin', 'site-category', 'browser-session', 'browser-process'],
-      allowedActions: ['allow', 'warn', 'ask', 'limit', 'block'],
+      allowedActions: ['allow', 'warn', 'ask', 'limit', 'block', 'terminate-process', 'relaunch-managed'],
+      urlAllowList: ['school.example.invalid'],
+      urlBlockList: ['games.example.invalid'],
       items: [
         {
           ruleId: 'browser-rule-1',
@@ -481,6 +591,91 @@ function validEffectivePolicy() {
           whenProofUnavailable: 'ask',
           neverCollect: ['page-body'],
         },
+        action: 'allow',
+        targetProofRequirement: 'domain-or-managed-url',
+        capabilityState: 'ready',
+        actionExecution: 'deterministic-parent-policy',
+        aiAuthority: 'parent-policy-only',
+        compileNote: 'Compiled from deterministic parent policy.',
+      },
+    ],
+  };
+}
+
+function validCompilerVocabularyPolicy() {
+  return {
+    ...validPolicy(),
+    managedBrowser: {
+      ...validPolicy().managedBrowser,
+      mode: 'not-required',
+    },
+    evidence: {
+      ...validPolicy().evidence,
+      requiredProof: 'browser-game-runtime-signal',
+      proofFallback: 'parent-review',
+      whenProofUnavailable: 'ask',
+    },
+    rules: {
+      ...validPolicy().rules,
+      allowedTargetTypes: [
+        'search-terms',
+        'video-channel',
+        'social-platform',
+        'social-route-kind',
+        'social-account-creation',
+        'social-unknown-account',
+        'social-secondary-account',
+        'social-feed',
+        'social-short-video-feed',
+        'social-messaging',
+        'social-upload-post',
+        'social-livestream',
+        'unknown-social-site',
+        'browser-game',
+        'browser-game-platform',
+        'browser-game-portal',
+        'browser-game-url',
+        'educational-game',
+        'cloud-gaming',
+        'webgl-canvas-game',
+        'multiplayer-ugc-game',
+        'game-chat',
+        'game-account',
+        'game-purchase',
+        'game-loot-box',
+        'unknown-game',
+        'unblocked-game-site',
+      ],
+      items: [
+        {
+          ruleId: 'browser-rule-game',
+          targetType: 'cloud-gaming',
+          targetValue: 'cloud.example.invalid',
+          enabled: true,
+          action: {
+            kind: 'ask',
+            approvalKind: 'unknown-category',
+          },
+        },
+      ],
+    },
+  };
+}
+
+function validCompilerVocabularyEffectivePolicy() {
+  return {
+    ...validEffectivePolicy(),
+    rules: [
+      {
+        ...validEffectivePolicy().rules[0],
+        targetType: 'cloud-gaming',
+        targetValue: 'cloud.example.invalid',
+        action: 'ask',
+        targetProofRequirement: 'browser-game-runtime-signal',
+        capabilityState: 'manual-required',
+        actionExecution: 'manual-required',
+        aiAuthority: 'ai-candidate-only',
+        compileNote: 'Browser game target remains manual-required until game runtime evidence exists.',
       },
     ],
   };

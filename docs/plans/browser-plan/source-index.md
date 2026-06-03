@@ -73,7 +73,7 @@ them only when the implementation status, acceptance contract, or proof changes.
 | `screen-evidence-analysis.md`        | Adjacent fallback evidence source. Screen summaries may support later context, not browser URL proof.                                                                                                                |
 | `social-video-control.md`            | Adjacent product feature. Browser URL/video intelligence and managed-browser social account/feed gates can feed social/video policy only with evidence, confidence, model/runtime, parent approval, and audit proof. |
 | `local-ai-safety-evaluator.md`       | Adjacent AI feature. Browser intelligence uses local AI as evidence and must not let model output directly enforce.                                                                                                  |
-| `policy-schedules-approvals.md`      | Shared approval/evaluator feature. Social account creation, secondary-account, and ask-parent flows must use typed approval contracts, not browser-only shortcuts.                                                   |
+| `policy-schedules-approvals.md`      | Shared approval/evaluator feature. Social account creation, secondary-account, and parent-review flows must use typed approval contracts, not browser-only shortcuts.                                                |
 | `remote-lan-mobile-platforms.md`     | Platform routing. Android/iOS/browser mobile states remain platform-specific/manual-required here.                                                                                                                   |
 | `production-distribution-support.md` | Release/support boundary. Support bundles must redact raw URLs, browser secrets, journals, SQLite, private paths, and screenshots as configured.                                                                     |
 
@@ -163,6 +163,8 @@ directly, or invent policy questions outside the manifest.
 - `npm run test:managed-browser-intervention`
 - `node scripts/test/v0-8-browser-domain-adapter-proof.mjs`
 - `node scripts/test/windows-managed-unmanaged-browser-enforcement-proof.mjs`
+- `node scripts/test/browser-performance-health-proof.mjs`
+- `node scripts/test/browser-plan-e2e-manual-proof-artifacts.mjs`
 
 ## Current Test Files
 

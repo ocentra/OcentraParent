@@ -41,6 +41,23 @@ export const BrowserControlManagedBrowserIntegrationMechanismSchema = withParser
   Schema.Literal('chromium-cdp', 'webdriver-bidi', 'managed-extension-native-host', 'browser-policy', 'owned-webview')
 );
 
+export const BrowserControlManagedPolicyWriterControlSchema = withParser(
+  Schema.Literal(
+    'disable-incognito',
+    'disable-guest-browsing',
+    'disable-profile-adding',
+    'limit-history-deletion',
+    'force-safe-search',
+    'force-restricted-mode',
+    'url-allow-list',
+    'url-block-list'
+  )
+);
+
+export const BrowserControlManagedPolicyWriterFallbackSchema = withParser(
+  Schema.Literal('observe-only', 'manual-required', 'degraded', 'unsupported', 'not-claimed')
+);
+
 export const BrowserControlUnmanagedBrowserClassificationTargetSchema = withParser(
   Schema.Literal(
     'known-browser',
@@ -81,8 +98,17 @@ export const BrowserControlRuleActionSchema = withParser(
     'redirect',
     'close-tab',
     'close-browser',
+    'terminate-process',
     'relaunch-managed'
   )
+);
+
+export const BrowserControlBrowserGamePolicyModeSchema = withParser(
+  Schema.Literal('allow', 'observe', 'warn', 'parent-review', 'limit', 'block', 'manual-required')
+);
+
+export const BrowserControlBrowserGameApprovalModeSchema = withParser(
+  Schema.Literal('allow', 'parent-review', 'block', 'manual-required')
 );
 
 export const BrowserControlBudgetCountingModeSchema = withParser(
@@ -162,12 +188,16 @@ export type BrowserControlManagedBrowserBridgeRequirement = Infer<
 export type BrowserControlManagedBrowserIntegrationMechanism = Infer<
   typeof BrowserControlManagedBrowserIntegrationMechanismSchema
 >;
+export type BrowserControlManagedPolicyWriterControl = Infer<typeof BrowserControlManagedPolicyWriterControlSchema>;
+export type BrowserControlManagedPolicyWriterFallback = Infer<typeof BrowserControlManagedPolicyWriterFallbackSchema>;
 export type BrowserControlUnmanagedBrowserClassificationTarget = Infer<
   typeof BrowserControlUnmanagedBrowserClassificationTargetSchema
 >;
 export type BrowserControlEvidenceUrlScope = Infer<typeof BrowserControlEvidenceUrlScopeSchema>;
 export type BrowserControlEvidenceNeverCollect = Infer<typeof BrowserControlEvidenceNeverCollectSchema>;
 export type BrowserControlRuleAction = Infer<typeof BrowserControlRuleActionSchema>;
+export type BrowserControlBrowserGamePolicyMode = Infer<typeof BrowserControlBrowserGamePolicyModeSchema>;
+export type BrowserControlBrowserGameApprovalMode = Infer<typeof BrowserControlBrowserGameApprovalModeSchema>;
 export type BrowserControlBudgetCountingMode = Infer<typeof BrowserControlBudgetCountingModeSchema>;
 export type BrowserControlDownloadBlockedType = Infer<typeof BrowserControlDownloadBlockedTypeSchema>;
 export type BrowserControlApprovalRequiredFor = Infer<typeof BrowserControlApprovalRequiredForSchema>;

@@ -1,6 +1,7 @@
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import {
   ActivityDeviceIdSchema,
+  ActivityEvidenceIdSchema,
   ActivityEventIdSchema,
   ActivitySourceIdSchema,
   ActivityTimestampSchema,
@@ -24,16 +25,53 @@ export const BrowserInterventionDecisionSourceSchema = withParser(
   Schema.Literal('parent-rule', 'parent-portal', 'local-ai', 'system', 'manual-test', 'unknown')
 );
 export const BrowserInterventionActionSchema = withParser(
-  Schema.Literal('allow', 'warn', 'block', 'time-limit', 'ask-parent', 'monitor', 'unknown')
+  Schema.Literal(
+    'allow',
+    'warn',
+    'block',
+    'redirect',
+    'time-limit',
+    'parent-review',
+    'approval-hold',
+    'checking-hold',
+    'terminate-process',
+    'relaunch-managed',
+    'monitor',
+    'unknown'
+  )
 );
 export const BrowserInterventionTargetTypeSchema = withParser(
-  Schema.Literal('site', 'domain', 'url', 'video', 'browser-process', 'browser-session', 'unknown')
+  Schema.Literal(
+    'site',
+    'domain',
+    'url',
+    'video',
+    'social-account-creation',
+    'social-feed',
+    'social-short-video-feed',
+    'social-messaging',
+    'social-upload-post',
+    'social-livestream',
+    'unknown-social-site',
+    'browser-game',
+    'game-account',
+    'game-purchase',
+    'cloud-gaming',
+    'unknown-game',
+    'unblocked-game-site',
+    'browser-process',
+    'browser-session',
+    'unknown'
+  )
 );
 export const BrowserInterventionMechanismSchema = withParser(
   Schema.Literal(
     'chromium-cdp-fetch',
     'webdriver-bidi-network',
     'managed-extension',
+    'managed-block-page',
+    'approval-hold-page',
+    'checking-hold-page',
     'os-app-control',
     'owned-webview',
     'monitor-only',
@@ -41,7 +79,21 @@ export const BrowserInterventionMechanismSchema = withParser(
   )
 );
 export const BrowserInterventionOutcomeSchema = withParser(
-  Schema.Literal('applied', 'allowed', 'blocked', 'failed', 'unsupported', 'monitor-only')
+  Schema.Literal(
+    'applied',
+    'allowed',
+    'warned',
+    'blocked',
+    'redirected',
+    'approval-required',
+    'held',
+    'terminated',
+    'relaunch-started',
+    'manual-required',
+    'failed',
+    'unsupported',
+    'monitor-only'
+  )
 );
 export const BrowserInterventionCapabilityStateSchema = withParser(
   Schema.Literal(
@@ -56,11 +108,35 @@ export const BrowserInterventionCapabilityStateSchema = withParser(
 );
 export const BrowserUnmanagedEnforcementStateSchema = withParser(
   Schema.Literal(
+    'report-only',
+    'warn-child',
+    'parent-review',
+    'terminate-process',
+    'relaunch-managed-browser',
+    'os-block-configured',
+    'os-block-manual-required',
+    'allowed-unmanaged-exception',
+    'degraded',
+    'unavailable',
     'monitor-only',
     'requires-os-app-control',
     'ready-to-block',
     'blocked-and-relaunched-managed',
     'unsupported'
+  )
+);
+export const BrowserUnmanagedFallbackActionStateSchema = withParser(
+  Schema.Literal(
+    'report-only',
+    'warn-child',
+    'parent-review',
+    'terminate-process',
+    'relaunch-managed-browser',
+    'os-block-configured',
+    'os-block-manual-required',
+    'allowed-unmanaged-exception',
+    'degraded',
+    'unavailable'
   )
 );
 export const BrowserBoundaryStateSchema = withParser(
@@ -72,9 +148,26 @@ export const BrowserExactUrlClaimStateSchema = withParser(
 export const BrowserUnmanagedDetectionStateSchema = withParser(
   Schema.Literal('none', 'detected', 'warned', 'terminated', 'manual-required', 'unavailable')
 );
+export const BrowserInterventionDeliveryStateSchema = withParser(
+  Schema.Literal(
+    'not-delivered',
+    'warn-page-rendered',
+    'block-page-rendered',
+    'approval-hold-rendered',
+    'checking-hold-rendered',
+    'portal-row-only',
+    'manual-required'
+  )
+);
 
 export const BrowserInterventionIdSchema = withParser(
   NonEmptyBrowserInterventionText.pipe(Schema.brand('BrowserInterventionId'))
+);
+export const BrowserInterventionActionIdSchema = withParser(
+  NonEmptyBrowserInterventionText.pipe(Schema.brand('BrowserInterventionActionId'))
+);
+export const BrowserInterventionAuditIdSchema = withParser(
+  NonEmptyBrowserInterventionText.pipe(Schema.brand('BrowserInterventionAuditId'))
 );
 export const BrowserPolicyDecisionIdSchema = withParser(
   NonEmptyBrowserInterventionText.pipe(Schema.brand('BrowserPolicyDecisionId'))
@@ -95,6 +188,15 @@ export const BrowserInterventionRowSchema = withParser(
     managedBrowserSessionId: Schema.Union(BrowserManagedSessionIdSchema, Schema.Null),
     profileId: Schema.Union(BrowserProfileIdSchema, Schema.Null),
     processId: Schema.Union(Schema.Number, Schema.Null),
+    interventionActionId: Schema.optionalWith(Schema.Union(BrowserInterventionActionIdSchema, Schema.Null), {
+      default: () => null,
+    }),
+    interventionAuditId: Schema.optionalWith(Schema.Union(BrowserInterventionAuditIdSchema, Schema.Null), {
+      default: () => null,
+    }),
+    evidenceReferenceIds: Schema.optionalWith(Schema.Array(ActivityEvidenceIdSchema), {
+      default: () => [],
+    }),
     policyDecisionId: Schema.Union(BrowserPolicyDecisionIdSchema, Schema.Null),
     decisionSource: BrowserInterventionDecisionSourceSchema,
     interventionAction: BrowserInterventionActionSchema,
@@ -113,10 +215,22 @@ export const BrowserInterventionRowSchema = withParser(
     unmanagedDetectionState: Schema.optionalWith(BrowserUnmanagedDetectionStateSchema, {
       default: () => 'unavailable' as const,
     }),
+    unmanagedFallbackAction: Schema.optionalWith(BrowserUnmanagedFallbackActionStateSchema, {
+      default: () => 'unavailable' as const,
+    }),
+    childDeliveryState: Schema.optionalWith(BrowserInterventionDeliveryStateSchema, {
+      default: () => 'not-delivered' as const,
+    }),
     reason: Schema.Union(BrowserDegradedReasonSchema, Schema.Null),
     custodyLabel: BrowserCustodyLabelSchema,
     queryVisibility: BrowserQueryVisibilityLabelSchema,
-  })
+  }).pipe(
+    Schema.filter(
+      (row) =>
+        browserInterventionRowDoesNotOverclaimUnmanaged(row) ||
+        'Expected unmanaged browser intervention rows to omit URL fields and exact URL proof'
+    )
+  )
 );
 
 export const BrowserInterventionReadModelSchema = withParser(
@@ -129,9 +243,26 @@ export const BrowserInterventionReadModelSchema = withParser(
     latestObservedAt: Schema.Union(ActivityTimestampSchema, Schema.Null),
     managedSessionInterventionCapability: BrowserInterventionCapabilityStateSchema,
     unmanagedBrowserEnforcement: BrowserUnmanagedEnforcementStateSchema,
+    unmanagedFallbackAction: Schema.optionalWith(BrowserUnmanagedFallbackActionStateSchema, {
+      default: () => 'os-block-manual-required' as const,
+    }),
     rows: Schema.Array(BrowserInterventionRowSchema),
   })
 );
+
+function browserInterventionRowDoesNotOverclaimUnmanaged(row: {
+  readonly browserBoundaryState: BrowserBoundaryState;
+  readonly requestedUrl: unknown;
+  readonly observedUrl: unknown;
+  readonly exactUrlClaimState: BrowserExactUrlClaimState;
+}): boolean {
+  const isUnmanagedBoundary =
+    row.browserBoundaryState === 'unmanaged-browser-process' || row.browserBoundaryState === 'browser-like-process';
+  if (!isUnmanagedBoundary) {
+    return true;
+  }
+  return row.requestedUrl === null && row.observedUrl === null && row.exactUrlClaimState !== 'exact-url-proven';
+}
 
 export type BrowserInterventionDecisionSource = Infer<typeof BrowserInterventionDecisionSourceSchema>;
 export type BrowserInterventionAction = Infer<typeof BrowserInterventionActionSchema>;
@@ -140,8 +271,10 @@ export type BrowserInterventionMechanism = Infer<typeof BrowserInterventionMecha
 export type BrowserInterventionOutcome = Infer<typeof BrowserInterventionOutcomeSchema>;
 export type BrowserInterventionCapabilityState = Infer<typeof BrowserInterventionCapabilityStateSchema>;
 export type BrowserUnmanagedEnforcementState = Infer<typeof BrowserUnmanagedEnforcementStateSchema>;
+export type BrowserUnmanagedFallbackActionState = Infer<typeof BrowserUnmanagedFallbackActionStateSchema>;
 export type BrowserBoundaryState = Infer<typeof BrowserBoundaryStateSchema>;
 export type BrowserExactUrlClaimState = Infer<typeof BrowserExactUrlClaimStateSchema>;
 export type BrowserUnmanagedDetectionState = Infer<typeof BrowserUnmanagedDetectionStateSchema>;
+export type BrowserInterventionDeliveryState = Infer<typeof BrowserInterventionDeliveryStateSchema>;
 export type BrowserInterventionRow = Infer<typeof BrowserInterventionRowSchema>;
 export type BrowserInterventionReadModel = Infer<typeof BrowserInterventionReadModelSchema>;

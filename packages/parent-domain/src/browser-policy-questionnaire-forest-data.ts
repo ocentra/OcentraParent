@@ -23,7 +23,7 @@ const policyIsActive = all([policyOn, not(emergencyOverride)]);
 const policyModeSelected = all([policyIsActive, answerHasAnySelected('1.2')]);
 const dryRunSelected = answerIncludesAny('1.3', ['simulate', 'simulate-report']);
 const notDryRun = not(dryRunSelected);
-const warnAskLimitBlock = answerIncludesAny('1.2', ['warn', 'ask-parent', 'limit', 'block']);
+const warnAskLimitBlock = answerIncludesAny('1.2', ['warn', 'parent-review', 'limit', 'block']);
 
 const option = (id: string, label: string): BrowserPolicyOption => ({ id, label });
 
@@ -64,7 +64,7 @@ export const BrowserPolicyQuestions = [
     [
       option('observe', 'Observe'),
       option('warn', 'Warn'),
-      option('ask-parent', 'Ask parent'),
+      option('parent-review', 'Ask parent'),
       option('limit', 'Limit'),
       option('block', 'Block'),
     ],
@@ -99,7 +99,7 @@ export const BrowserPolicyQuestions = [
       option('allow', 'Allow'),
       option('observe', 'Observe'),
       option('notify-parent', 'Notify'),
-      option('ask-parent', 'Ask parent'),
+      option('parent-review', 'Ask parent'),
       option('unmanaged', 'Treat unmanaged'),
       option('block-until-approved', 'Block until approved'),
     ],
@@ -120,7 +120,7 @@ export const BrowserPolicyQuestions = [
       all([
         policyIsActive,
         anyCondition([
-          answerIncludesAny('1.2', ['ask-parent', 'limit', 'block']),
+          answerIncludesAny('1.2', ['parent-review', 'limit', 'block']),
           computedFlag('exactEvidenceSelected'),
           answerIncludesAny('2.1', ['strict', 'custom']),
         ]),
@@ -175,7 +175,7 @@ export const BrowserPolicyQuestions = [
       option('observe', 'Observe'),
       option('warn', 'Warn child'),
       option('notify-parent', 'Notify'),
-      option('ask-parent', 'Ask parent'),
+      option('parent-review', 'Ask parent'),
       option('close', 'Close'),
       option('close-open-managed', 'Open managed'),
       option('block-launch', 'Block launch'),
@@ -185,7 +185,7 @@ export const BrowserPolicyQuestions = [
         policyIsActive,
         notDryRun,
         anyCondition([
-          answerIncludesAny('1.2', ['warn', 'ask-parent', 'limit', 'block']),
+          answerIncludesAny('1.2', ['warn', 'parent-review', 'limit', 'block']),
           answerIncludesAny('3.1', ['prefer-managed', 'managed-all']),
           answerIncludesAny('2.1', ['known', 'strict', 'custom']),
         ]),
@@ -243,6 +243,7 @@ export const BrowserPolicyQuestions = [
       option('safe-search', 'Safe search'),
       option('video', 'Video'),
       option('downloads', 'Downloads'),
+      option('browser-games', 'Browser games'),
       option('session', 'Session'),
       option('app-time', 'App time'),
       option('unknown-web', 'Unknown web'),
@@ -257,7 +258,7 @@ export const BrowserPolicyQuestions = [
       option('allow', 'Allow'),
       option('observe', 'Observe'),
       option('warn', 'Warn'),
-      option('ask-parent', 'Ask parent'),
+      option('parent-review', 'Ask parent'),
       option('block', 'Block'),
       option('classification-service', 'Classify'),
       option('deterministic-only', 'Lists only'),
@@ -271,7 +272,7 @@ export const BrowserPolicyQuestions = [
     [
       option('allow', 'Allow'),
       option('observe', 'Observe'),
-      option('ask-parent', 'Ask parent'),
+      option('parent-review', 'Ask parent'),
       option('block', 'Block'),
       option('domain-fallback', 'Use domain'),
       option('category-fallback', 'Use category'),
@@ -288,7 +289,7 @@ export const BrowserPolicyQuestions = [
       option('allow', 'Allow'),
       option('observe', 'Observe/log'),
       option('warn', 'Warn child'),
-      option('ask-parent', 'Ask parent'),
+      option('parent-review', 'Ask parent'),
       option('limit-time', 'Limit time'),
       option('block', 'Block'),
       option('redirect', 'Redirect'),
@@ -313,7 +314,7 @@ export const BrowserPolicyQuestions = [
       option('observe', 'Observe'),
       option('safe-search', 'Safe search'),
       option('warn-terms', 'Warn terms'),
-      option('ask-parent', 'Ask parent'),
+      option('parent-review', 'Ask parent'),
       option('block-terms', 'Block terms'),
     ],
     [computedFlag('searchSelected')]
@@ -340,7 +341,7 @@ export const BrowserPolicyQuestions = [
       option('observe', 'Observe'),
       option('limit', 'Limit'),
       option('warn', 'Warn'),
-      option('ask-parent', 'Ask parent'),
+      option('parent-review', 'Ask parent'),
       option('block', 'Block'),
     ],
     [computedFlag('videoSelected')]
@@ -368,7 +369,7 @@ export const BrowserPolicyQuestions = [
       option('ignore', 'Ignore'),
       option('observe', 'Observe'),
       option('notify-parent', 'Notify'),
-      option('ask-parent', 'Ask parent'),
+      option('parent-review', 'Ask parent'),
       option('block-risky', 'Block risky'),
       option('block-all-approved', 'Approve all'),
     ],
@@ -399,7 +400,7 @@ export const BrowserPolicyQuestions = [
       option('allow', 'Allow'),
       option('observe', 'Observe'),
       option('warn', 'Warn'),
-      option('ask-parent', 'Ask parent'),
+      option('parent-review', 'Ask parent'),
       option('block', 'Block'),
       option('quarantine', 'Quarantine'),
       option('report-only', 'Report only'),
@@ -637,7 +638,7 @@ export const BrowserPolicyQuestions = [
       option('monitor-only', 'Monitor only'),
       option('unmanaged', 'Unmanaged'),
       option('blocked', 'Blocked'),
-      option('ask-parent', 'Ask parent'),
+      option('parent-review', 'Ask parent'),
       option('setup-repair', 'Setup repair'),
       option('unavailable', 'Unavailable'),
     ],
@@ -650,7 +651,7 @@ export const BrowserPolicyQuestions = [
     [
       option('allow', 'Allow'),
       option('observe', 'Observe'),
-      option('ask-parent', 'Ask parent'),
+      option('parent-review', 'Ask parent'),
       option('block', 'Block'),
       option('degrade', 'Degrade'),
       option('require-managed', 'Need managed'),
@@ -749,6 +750,101 @@ export const BrowserPolicyQuestions = [
     'audit'
   ),
   question(
+    '19.1',
+    'How should educational browser games be handled?',
+    'single',
+    [
+      option('allow', 'Allow'),
+      option('observe', 'Observe'),
+      option('warn', 'Warn'),
+      option('parent-review', 'Ask parent'),
+      option('limit', 'Limit'),
+      option('block', 'Block'),
+      option('manual-required', 'Manual required'),
+    ],
+    [computedFlag('browserGamesRelevant')]
+  ),
+  question(
+    '19.2',
+    'What should happen to unknown browser games?',
+    'single',
+    [
+      option('allow', 'Allow'),
+      option('observe', 'Observe'),
+      option('warn', 'Warn'),
+      option('parent-review', 'Ask parent'),
+      option('block', 'Block'),
+      option('classify', 'Classify first'),
+      option('manual-required', 'Manual required'),
+    ],
+    [computedFlag('browserGamesRelevant')]
+  ),
+  question(
+    '19.3',
+    'How should cloud gaming be approved?',
+    'single',
+    [
+      option('allow', 'Allow'),
+      option('parent-review', 'Ask parent'),
+      option('block', 'Block'),
+      option('manual-required', 'Manual required'),
+    ],
+    [computedFlag('browserGamesRelevant')]
+  ),
+  question(
+    '19.4',
+    'How should browser game purchases and accounts be handled?',
+    'single',
+    [
+      option('allow', 'Allow'),
+      option('parent-review', 'Ask parent'),
+      option('block', 'Block'),
+      option('manual-required', 'Manual required'),
+    ],
+    [computedFlag('browserGamesRelevant')]
+  ),
+  question(
+    '19.5',
+    'What should happen to unblocked game portals?',
+    'single',
+    [
+      option('allow', 'Allow'),
+      option('observe', 'Observe'),
+      option('warn', 'Warn'),
+      option('parent-review', 'Ask parent'),
+      option('block', 'Block'),
+      option('manual-required', 'Manual required'),
+    ],
+    [computedFlag('browserGamesRelevant')]
+  ),
+  question(
+    '19.6',
+    'What should happen to WebGL or canvas games?',
+    'single',
+    [
+      option('allow', 'Allow'),
+      option('observe', 'Observe'),
+      option('warn', 'Warn'),
+      option('parent-review', 'Ask parent'),
+      option('block', 'Block'),
+      option('manual-required', 'Manual required'),
+    ],
+    [computedFlag('browserGamesRelevant')]
+  ),
+  question(
+    '19.7',
+    'Should browser games have a time budget?',
+    'single',
+    [
+      option('no', 'No'),
+      option('daily', 'Daily'),
+      option('session', 'Session'),
+      option('site', 'Per site'),
+      option('manual-required', 'Manual required'),
+    ],
+    [computedFlag('browserGamesRelevant')]
+  ),
+  question(
     'A1',
     'Can classification help browser decisions?',
     'single',
@@ -756,7 +852,7 @@ export const BrowserPolicyQuestions = [
       option('deterministic', 'Rules only'),
       option('local', 'Local classify'),
       option('portal-cloud', 'Portal classify'),
-      option('ask-parent', 'Ask parent'),
+      option('parent-review', 'Ask parent'),
     ],
     [computedFlag('classificationServiceReferenced')],
     'ai'
@@ -784,7 +880,7 @@ export const BrowserPolicyQuestions = [
     'single',
     [
       option('unknown', 'Treat unknown'),
-      option('ask-parent', 'Ask parent'),
+      option('parent-review', 'Ask parent'),
       option('deterministic', 'Use rules'),
       option('observe', 'Observe'),
       option('block', 'Block'),

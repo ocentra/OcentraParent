@@ -3,9 +3,10 @@ use serde::{Deserialize, Serialize};
 use crate::{
     BrowserBoundaryState, BrowserChannel, BrowserCustodyLabel, BrowserExactUrlClaimState,
     BrowserFamily, BrowserInterventionAction, BrowserInterventionCapabilityState,
-    BrowserInterventionDecisionSource, BrowserInterventionMechanism, BrowserInterventionOutcome,
-    BrowserInterventionTargetType, BrowserQueryVisibilityLabel, BrowserUnmanagedDetectionState,
-    BrowserUnmanagedEnforcementState,
+    BrowserInterventionDecisionSource, BrowserInterventionDeliveryState,
+    BrowserInterventionMechanism, BrowserInterventionOutcome, BrowserInterventionTargetType,
+    BrowserQueryVisibilityLabel, BrowserUnmanagedDetectionState, BrowserUnmanagedEnforcementState,
+    BrowserUnmanagedFallbackActionState,
 };
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -21,6 +22,10 @@ pub struct BrowserInterventionRow {
     pub managed_browser_session_id: Option<String>,
     pub profile_id: Option<String>,
     pub process_id: Option<u32>,
+    pub intervention_action_id: Option<String>,
+    pub intervention_audit_id: Option<String>,
+    #[serde(default)]
+    pub evidence_reference_ids: Vec<String>,
     pub policy_decision_id: Option<String>,
     pub decision_source: BrowserInterventionDecisionSource,
     pub intervention_action: BrowserInterventionAction,
@@ -33,6 +38,10 @@ pub struct BrowserInterventionRow {
     pub browser_boundary_state: BrowserBoundaryState,
     pub exact_url_claim_state: BrowserExactUrlClaimState,
     pub unmanaged_detection_state: BrowserUnmanagedDetectionState,
+    #[serde(default)]
+    pub unmanaged_fallback_action: BrowserUnmanagedFallbackActionState,
+    #[serde(default)]
+    pub child_delivery_state: BrowserInterventionDeliveryState,
     pub reason: Option<String>,
     pub custody_label: BrowserCustodyLabel,
     pub query_visibility: BrowserQueryVisibilityLabel,
@@ -49,5 +58,7 @@ pub struct BrowserInterventionReadModel {
     pub latest_observed_at: Option<String>,
     pub managed_session_intervention_capability: BrowserInterventionCapabilityState,
     pub unmanaged_browser_enforcement: BrowserUnmanagedEnforcementState,
+    #[serde(default)]
+    pub unmanaged_fallback_action: BrowserUnmanagedFallbackActionState,
     pub rows: Vec<BrowserInterventionRow>,
 }

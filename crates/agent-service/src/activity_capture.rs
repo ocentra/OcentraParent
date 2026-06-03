@@ -109,11 +109,16 @@ pub(crate) fn record_activity_events_to_paths(
 ) -> Result<ActivityIngestStatus, ActivityCaptureError> {
     let key = load_or_create_journal_key(key_path)?;
     let mut journal = ActivityJournal::open(journal_path.to_path_buf(), key)?;
+    let existing_line_count = journal.lines()?.len();
     for event in events {
         journal.append(event)?;
     }
+    let mut appended_events = Vec::new();
+    for line in journal.lines()?.into_iter().skip(existing_line_count) {
+        appended_events.push(journal.decrypt_line(&line)?);
+    }
     let store = ActivityStore::open(store_path)?;
-    Ok(store.ingest_events(events)?)
+    Ok(store.ingest_events(&appended_events)?)
 }
 
 fn load_or_create_journal_key(path: &Path) -> Result<JournalKey, ActivityCaptureError> {

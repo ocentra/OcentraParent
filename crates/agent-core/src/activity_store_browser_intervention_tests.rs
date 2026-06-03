@@ -4,8 +4,9 @@ use ocentra_parent_agent_protocol::{
     constants, ActivityEvent, BrowserBoundaryState, BrowserChannel, BrowserCustodyLabel,
     BrowserExactUrlClaimState, BrowserFamily, BrowserInterventionAction,
     BrowserInterventionCapabilityState, BrowserInterventionDecisionSource,
-    BrowserInterventionMechanism, BrowserInterventionOutcome, BrowserInterventionTargetType,
-    BrowserQueryVisibilityLabel, BrowserUnmanagedDetectionState, BrowserUnmanagedEnforcementState,
+    BrowserInterventionDeliveryState, BrowserInterventionMechanism, BrowserInterventionOutcome,
+    BrowserInterventionTargetType, BrowserQueryVisibilityLabel, BrowserUnmanagedDetectionState,
+    BrowserUnmanagedEnforcementState, BrowserUnmanagedFallbackActionState,
 };
 
 use super::{
@@ -38,6 +39,10 @@ fn activity_store_reports_typed_browser_intervention_read_model_from_ingested_ev
         read_model.unmanaged_browser_enforcement,
         BrowserUnmanagedEnforcementState::RequiresOsAppControl
     );
+    assert_eq!(
+        read_model.unmanaged_fallback_action,
+        BrowserUnmanagedFallbackActionState::OsBlockManualRequired
+    );
     let row = &read_model.rows[0];
     assert_eq!(
         row.decision_source,
@@ -68,6 +73,26 @@ fn activity_store_reports_typed_browser_intervention_read_model_from_ingested_ev
         row.unmanaged_detection_state,
         BrowserUnmanagedDetectionState::None
     );
+    assert_eq!(
+        row.intervention_action_id.as_deref(),
+        Some(constants::activity_store::TEST_BROWSER_INTERVENTION_ACTION_ID)
+    );
+    assert_eq!(
+        row.intervention_audit_id.as_deref(),
+        Some(constants::activity_store::TEST_BROWSER_INTERVENTION_AUDIT_ID)
+    );
+    assert_eq!(
+        row.evidence_reference_ids,
+        vec![constants::activity_store::TEST_BROWSER_INTERVENTION_EVIDENCE_ID.to_string()]
+    );
+    assert_eq!(
+        row.child_delivery_state,
+        BrowserInterventionDeliveryState::BlockPageRendered
+    );
+    assert_eq!(
+        row.unmanaged_fallback_action,
+        BrowserUnmanagedFallbackActionState::Unavailable
+    );
 }
 
 #[test]
@@ -75,6 +100,7 @@ fn activity_store_infers_legacy_managed_url_proof_without_overclaiming_unmanaged
     let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
     let mut event = browser_intervention_event();
     remove_browser_claim_fields(&mut event);
+    remove_browser_intervention_proof_fields(&mut event);
 
     store
         .ingest_events(std::slice::from_ref(&event))
@@ -99,6 +125,17 @@ fn activity_store_infers_legacy_managed_url_proof_without_overclaiming_unmanaged
         row.unmanaged_detection_state,
         BrowserUnmanagedDetectionState::None
     );
+    assert_eq!(row.intervention_action_id, None);
+    assert_eq!(row.intervention_audit_id, None);
+    assert_eq!(row.evidence_reference_ids.len(), 0);
+    assert_eq!(
+        row.child_delivery_state,
+        BrowserInterventionDeliveryState::NotDelivered
+    );
+    assert_eq!(
+        row.unmanaged_fallback_action,
+        BrowserUnmanagedFallbackActionState::Unavailable
+    );
 }
 
 #[test]
@@ -106,6 +143,7 @@ fn activity_store_does_not_overclaim_legacy_rows_without_managed_url_proof() {
     let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
     let mut event = browser_intervention_event();
     remove_browser_claim_fields(&mut event);
+    remove_browser_intervention_proof_fields(&mut event);
     event
         .fields
         .remove(constants::field::MANAGED_BROWSER_SESSION_ID);
@@ -131,6 +169,42 @@ fn activity_store_does_not_overclaim_legacy_rows_without_managed_url_proof() {
     assert_eq!(
         row.unmanaged_detection_state,
         BrowserUnmanagedDetectionState::Unavailable
+    );
+    assert_eq!(
+        row.unmanaged_fallback_action,
+        BrowserUnmanagedFallbackActionState::Unavailable
+    );
+}
+
+#[test]
+fn activity_store_reconstructs_unmanaged_fallback_action_state_without_url_claims() {
+    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+    let event = unmanaged_browser_terminate_event();
+
+    store
+        .ingest_events(std::slice::from_ref(&event))
+        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+    let read_model = store
+        .browser_intervention_read_model(
+            constants::activity_store::DEFAULT_RECENT_LIMIT,
+            constants::activity_store::TEST_SECOND_OBSERVED_AT,
+        )
+        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+
+    let row = &read_model.rows[0];
+    assert_eq!(
+        row.unmanaged_fallback_action,
+        BrowserUnmanagedFallbackActionState::TerminateProcess
+    );
+    assert_eq!(
+        read_model.unmanaged_fallback_action,
+        BrowserUnmanagedFallbackActionState::TerminateProcess
+    );
+    assert_eq!(row.requested_url, None);
+    assert_eq!(row.observed_url, None);
+    assert_eq!(
+        row.exact_url_claim_state,
+        BrowserExactUrlClaimState::NotClaimed
     );
 }
 
@@ -198,6 +272,10 @@ fn activity_store_reports_empty_browser_intervention_readiness_without_rows() {
         read_model.unmanaged_browser_enforcement,
         BrowserUnmanagedEnforcementState::RequiresOsAppControl
     );
+    assert_eq!(
+        read_model.unmanaged_fallback_action,
+        BrowserUnmanagedFallbackActionState::OsBlockManualRequired
+    );
 }
 
 fn browser_intervention_event() -> ActivityEvent {
@@ -208,6 +286,15 @@ fn browser_intervention_event() -> ActivityEvent {
             managed_browser_session_id: Some(constants::browser::SESSION_ID_DEV.to_string()),
             profile_id: Some(constants::browser::PROFILE_ID_DEV.to_string()),
             process_id: Some(constants::activity_store::TEST_BROWSER_PROCESS_ID),
+            intervention_action_id: Some(
+                constants::activity_store::TEST_BROWSER_INTERVENTION_ACTION_ID.to_string(),
+            ),
+            intervention_audit_id: Some(
+                constants::activity_store::TEST_BROWSER_INTERVENTION_AUDIT_ID.to_string(),
+            ),
+            evidence_reference_ids: vec![
+                constants::activity_store::TEST_BROWSER_INTERVENTION_EVIDENCE_ID.to_string(),
+            ],
             policy_decision_id: Some(
                 constants::activity_store::TEST_POLICY_DECISION_ID.to_string(),
             ),
@@ -222,6 +309,8 @@ fn browser_intervention_event() -> ActivityEvent {
             browser_boundary_state: BrowserBoundaryState::ManagedSession,
             exact_url_claim_state: BrowserExactUrlClaimState::ExactUrlProven,
             unmanaged_detection_state: BrowserUnmanagedDetectionState::None,
+            unmanaged_fallback_action: BrowserUnmanagedFallbackActionState::Unavailable,
+            child_delivery_state: BrowserInterventionDeliveryState::BlockPageRendered,
             managed_session_intervention_capability: BrowserInterventionCapabilityState::Ready,
             unmanaged_browser_enforcement: BrowserUnmanagedEnforcementState::RequiresOsAppControl,
             reason: Some(constants::activity_store::TEST_BROWSER_INTERVENTION_REASON.to_string()),
@@ -230,6 +319,51 @@ fn browser_intervention_event() -> ActivityEvent {
         },
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
         0,
+    )
+}
+
+fn unmanaged_browser_terminate_event() -> ActivityEvent {
+    browser_intervention_applied_event(
+        BrowserInterventionObservation {
+            browser_family: Some(BrowserFamily::Chrome),
+            browser_channel: Some(BrowserChannel::Stable),
+            managed_browser_session_id: None,
+            profile_id: None,
+            process_id: Some(constants::activity_store::TEST_BROWSER_PROCESS_ID),
+            intervention_action_id: Some(
+                constants::activity_store::TEST_BROWSER_INTERVENTION_ACTION_ID.to_string(),
+            ),
+            intervention_audit_id: Some(
+                constants::activity_store::TEST_BROWSER_INTERVENTION_AUDIT_ID.to_string(),
+            ),
+            evidence_reference_ids: vec![
+                constants::activity_store::TEST_BROWSER_INTERVENTION_EVIDENCE_ID.to_string(),
+            ],
+            policy_decision_id: Some(
+                constants::activity_store::TEST_POLICY_DECISION_ID.to_string(),
+            ),
+            decision_source: BrowserInterventionDecisionSource::ParentRule,
+            intervention_action: BrowserInterventionAction::TerminateProcess,
+            intervention_target_type: BrowserInterventionTargetType::BrowserProcess,
+            intervention_target_value: constants::browser::EXECUTABLE_CHROME_WINDOWS.to_string(),
+            requested_url: None,
+            observed_url: None,
+            intervention_mechanism: BrowserInterventionMechanism::OsAppControl,
+            intervention_outcome: BrowserInterventionOutcome::Terminated,
+            browser_boundary_state: BrowserBoundaryState::UnmanagedBrowserProcess,
+            exact_url_claim_state: BrowserExactUrlClaimState::NotClaimed,
+            unmanaged_detection_state: BrowserUnmanagedDetectionState::Terminated,
+            unmanaged_fallback_action: BrowserUnmanagedFallbackActionState::TerminateProcess,
+            child_delivery_state: BrowserInterventionDeliveryState::ManualRequired,
+            managed_session_intervention_capability:
+                BrowserInterventionCapabilityState::NeedsManagedSession,
+            unmanaged_browser_enforcement: BrowserUnmanagedEnforcementState::TerminateProcess,
+            reason: Some(constants::value::MANAGED_BROWSER_UNMANAGED_PROCESS.to_string()),
+            custody_label: BrowserCustodyLabel::ChildDeviceLocal,
+            query_visibility: BrowserQueryVisibilityLabel::LiveLocal,
+        },
+        constants::activity_store::TEST_FIRST_OBSERVED_AT,
+        1,
     )
 }
 
@@ -243,6 +377,19 @@ fn remove_browser_claim_fields(event: &mut ActivityEvent) {
     event
         .fields
         .remove(constants::browser::INTERVENTION_FIELD_UNMANAGED_DETECTION_STATE);
+}
+
+fn remove_browser_intervention_proof_fields(event: &mut ActivityEvent) {
+    event
+        .fields
+        .remove(constants::field::BROWSER_INTERVENTION_ACTION_ID);
+    event
+        .fields
+        .remove(constants::field::BROWSER_INTERVENTION_AUDIT_ID);
+    event
+        .fields
+        .remove(constants::field::EVIDENCE_REFERENCE_IDS);
+    event.fields.remove(constants::field::CHILD_DELIVERY_STATE);
 }
 
 fn temp_path(suffix: &str, extension: &str) -> std::path::PathBuf {

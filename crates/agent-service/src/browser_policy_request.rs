@@ -1,13 +1,15 @@
 use ocentra_parent_agent_protocol::{
     constants, AgentCommandEnvelope, BrowserPolicyApprovalRequiredFor, BrowserPolicyApprovalState,
     BrowserPolicyApprovalUnansweredDefault, BrowserPolicyAuditRequiredField,
-    BrowserPolicyAuditState, BrowserPolicyBudgetCountingMode, BrowserPolicyCustodyAllowedUse,
-    BrowserPolicyDefaultPosture, BrowserPolicyDownloadBlockedType, BrowserPolicyDownloadState,
-    BrowserPolicyEvidenceNeverCollect, BrowserPolicyEvidenceProofLevel,
+    BrowserPolicyAuditState, BrowserPolicyBrowserGameApprovalMode,
+    BrowserPolicyBrowserGamePolicyMode, BrowserPolicyBudgetCountingMode,
+    BrowserPolicyCustodyAllowedUse, BrowserPolicyDefaultPosture, BrowserPolicyDownloadBlockedType,
+    BrowserPolicyDownloadState, BrowserPolicyEvidenceNeverCollect, BrowserPolicyEvidenceProofLevel,
     BrowserPolicyEvidenceUrlScope, BrowserPolicyExecutionMode,
     BrowserPolicyManagedBrowserBridgeRequirement, BrowserPolicyManagedBrowserFamily,
     BrowserPolicyManagedBrowserIntegrationMechanism, BrowserPolicyManagedBrowserLaunchMode,
     BrowserPolicyManagedBrowserMode, BrowserPolicyManagedBrowserProfileMode,
+    BrowserPolicyManagedPolicyWriterControl, BrowserPolicyManagedPolicyWriterFallback,
     BrowserPolicyManagementMode, BrowserPolicyPatch, BrowserPolicyProofFallback,
     BrowserPolicyRejectionReason, BrowserPolicyReportState, BrowserPolicyReportVisibleField,
     BrowserPolicyRetentionExactUrl, BrowserPolicyRetentionState, BrowserPolicyRule,
@@ -237,6 +239,24 @@ fn apply_browser_policy_managed_browser_patch(
                 parse_patch_value::<Vec<BrowserPolicyManagedBrowserIntegrationMechanism>>(patch)?;
             Ok(true)
         }
+        constants::browser_policy::WRITES_TO_MANAGED_BROWSER_POLICY_WRITER_CONTROLS => {
+            require_field(
+                patch,
+                constants::browser_policy::FIELD_ID_MANAGED_BROWSER_POLICY_WRITER_CONTROLS,
+            )?;
+            policy.managed_browser.policy_writer_controls =
+                parse_patch_value::<Vec<BrowserPolicyManagedPolicyWriterControl>>(patch)?;
+            Ok(true)
+        }
+        constants::browser_policy::WRITES_TO_MANAGED_BROWSER_POLICY_WRITER_FALLBACK => {
+            require_field(
+                patch,
+                constants::browser_policy::FIELD_ID_MANAGED_BROWSER_POLICY_WRITER_FALLBACK,
+            )?;
+            policy.managed_browser.policy_writer_fallback =
+                parse_patch_value::<BrowserPolicyManagedPolicyWriterFallback>(patch)?;
+            Ok(true)
+        }
         _ => Ok(false),
     }
 }
@@ -356,6 +376,16 @@ fn apply_browser_policy_rules_patch(
             policy.rules.items = parse_patch_value::<Vec<BrowserPolicyRule>>(patch)?;
             Ok(true)
         }
+        constants::browser_policy::WRITES_TO_URL_ALLOW_LIST => {
+            require_field(patch, constants::browser_policy::FIELD_ID_URL_ALLOW_LIST)?;
+            policy.rules.url_allow_list = parse_patch_value::<Vec<String>>(patch)?;
+            Ok(true)
+        }
+        constants::browser_policy::WRITES_TO_URL_BLOCK_LIST => {
+            require_field(patch, constants::browser_policy::FIELD_ID_URL_BLOCK_LIST)?;
+            policy.rules.url_block_list = parse_patch_value::<Vec<String>>(patch)?;
+            Ok(true)
+        }
         _ => Ok(false),
     }
 }
@@ -368,6 +398,9 @@ fn apply_browser_policy_state_patch(
         return Ok(true);
     }
     if apply_browser_policy_approval_patch(policy, patch)? {
+        return Ok(true);
+    }
+    if apply_browser_policy_browser_game_patch(policy, patch)? {
         return Ok(true);
     }
     if apply_browser_policy_report_retention_patch(policy, patch)? {
@@ -433,6 +466,77 @@ fn apply_browser_policy_approval_patch(
         constants::browser_policy::WRITES_TO_APPROVAL_STATE => {
             require_field(patch, constants::browser_policy::FIELD_ID_APPROVAL_STATE)?;
             policy.approvals.state = parse_patch_value::<BrowserPolicyApprovalState>(patch)?;
+            Ok(true)
+        }
+        _ => Ok(false),
+    }
+}
+
+fn apply_browser_policy_browser_game_patch(
+    policy: &mut BrowserPolicyValue,
+    patch: &BrowserPolicyPatch,
+) -> Result<bool, BrowserPolicyRejectionReason> {
+    match patch.writes_to.as_str() {
+        constants::browser_policy::WRITES_TO_BROWSER_GAME_EDUCATIONAL_MODE => {
+            require_field(
+                patch,
+                constants::browser_policy::FIELD_ID_BROWSER_GAME_EDUCATIONAL_MODE,
+            )?;
+            policy.browser_games.educational_game_mode =
+                parse_patch_value::<BrowserPolicyBrowserGamePolicyMode>(patch)?;
+            Ok(true)
+        }
+        constants::browser_policy::WRITES_TO_BROWSER_GAME_UNKNOWN_MODE => {
+            require_field(
+                patch,
+                constants::browser_policy::FIELD_ID_BROWSER_GAME_UNKNOWN_MODE,
+            )?;
+            policy.browser_games.unknown_game_mode =
+                parse_patch_value::<BrowserPolicyBrowserGamePolicyMode>(patch)?;
+            Ok(true)
+        }
+        constants::browser_policy::WRITES_TO_BROWSER_GAME_CLOUD_GAMING_APPROVAL => {
+            require_field(
+                patch,
+                constants::browser_policy::FIELD_ID_BROWSER_GAME_CLOUD_GAMING_APPROVAL,
+            )?;
+            policy.browser_games.cloud_gaming_approval =
+                parse_patch_value::<BrowserPolicyBrowserGameApprovalMode>(patch)?;
+            Ok(true)
+        }
+        constants::browser_policy::WRITES_TO_BROWSER_GAME_PURCHASE_ACCOUNT_APPROVAL => {
+            require_field(
+                patch,
+                constants::browser_policy::FIELD_ID_BROWSER_GAME_PURCHASE_ACCOUNT_APPROVAL,
+            )?;
+            policy.browser_games.purchase_account_approval =
+                parse_patch_value::<BrowserPolicyBrowserGameApprovalMode>(patch)?;
+            Ok(true)
+        }
+        constants::browser_policy::WRITES_TO_BROWSER_GAME_UNBLOCKED_PORTAL_MODE => {
+            require_field(
+                patch,
+                constants::browser_policy::FIELD_ID_BROWSER_GAME_UNBLOCKED_PORTAL_MODE,
+            )?;
+            policy.browser_games.unblocked_portal_mode =
+                parse_patch_value::<BrowserPolicyBrowserGamePolicyMode>(patch)?;
+            Ok(true)
+        }
+        constants::browser_policy::WRITES_TO_BROWSER_GAME_WEBGL_CANVAS_MODE => {
+            require_field(
+                patch,
+                constants::browser_policy::FIELD_ID_BROWSER_GAME_WEBGL_CANVAS_MODE,
+            )?;
+            policy.browser_games.webgl_canvas_mode =
+                parse_patch_value::<BrowserPolicyBrowserGamePolicyMode>(patch)?;
+            Ok(true)
+        }
+        constants::browser_policy::WRITES_TO_BROWSER_GAME_DAILY_BUDGET_MINUTES => {
+            require_field(
+                patch,
+                constants::browser_policy::FIELD_ID_BROWSER_GAME_DAILY_BUDGET_MINUTES,
+            )?;
+            policy.browser_games.default_daily_minutes = parse_patch_value::<Option<u32>>(patch)?;
             Ok(true)
         }
         _ => Ok(false),

@@ -7,18 +7,18 @@ use ocentra_parent_agent_protocol::{
     constants, policy_constants as policy, AgentCommandEnvelope, AgentCommandName,
     AgentEventEnvelope, AgentEventName, AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute,
     BrowserPolicyApprovalState, BrowserPolicyApprovals, BrowserPolicyAudit,
-    BrowserPolicyAuditState, BrowserPolicyBudgets, BrowserPolicyDefaultPosture,
-    BrowserPolicyDiscovery, BrowserPolicyDownloadState, BrowserPolicyDownloads,
-    BrowserPolicyEvidenceProofLevel, BrowserPolicyEvidenceRequirement, BrowserPolicyExecutionMode,
-    BrowserPolicyGetRequest, BrowserPolicyManagedBrowser, BrowserPolicyManagedBrowserMode,
-    BrowserPolicyManagementMode, BrowserPolicyPatch, BrowserPolicyPatchRequest,
-    BrowserPolicyPreviewRequest, BrowserPolicyProofFallback, BrowserPolicyRejectionReason,
-    BrowserPolicyReplaceRequest, BrowserPolicyReportState, BrowserPolicyReports,
-    BrowserPolicyRetention, BrowserPolicyRetentionState, BrowserPolicyRollbackRequest,
-    BrowserPolicyRule, BrowserPolicyRules, BrowserPolicyUnmanagedBrowser,
-    BrowserPolicyUnmanagedBrowserMode, BrowserPolicyUpdateKind, BrowserPolicyUpdateResponse,
-    BrowserPolicyUpdateStatus, BrowserPolicyUrlTargetType, BrowserPolicyValue, LogFieldValue,
-    LogFields, AGENT_PROTOCOL_SCHEMA_VERSION,
+    BrowserPolicyAuditState, BrowserPolicyBrowserGames, BrowserPolicyBudgets,
+    BrowserPolicyDefaultPosture, BrowserPolicyDiscovery, BrowserPolicyDownloadState,
+    BrowserPolicyDownloads, BrowserPolicyEvidenceProofLevel, BrowserPolicyEvidenceRequirement,
+    BrowserPolicyExecutionMode, BrowserPolicyGetRequest, BrowserPolicyManagedBrowser,
+    BrowserPolicyManagedBrowserMode, BrowserPolicyManagementMode, BrowserPolicyPatch,
+    BrowserPolicyPatchRequest, BrowserPolicyPreviewRequest, BrowserPolicyProofFallback,
+    BrowserPolicyRejectionReason, BrowserPolicyReplaceRequest, BrowserPolicyReportState,
+    BrowserPolicyReports, BrowserPolicyRetention, BrowserPolicyRetentionState,
+    BrowserPolicyRollbackRequest, BrowserPolicyRule, BrowserPolicyRules,
+    BrowserPolicyUnmanagedBrowser, BrowserPolicyUnmanagedBrowserMode, BrowserPolicyUpdateKind,
+    BrowserPolicyUpdateResponse, BrowserPolicyUpdateStatus, BrowserPolicyUrlTargetType,
+    BrowserPolicyValue, LogFieldValue, LogFields, AGENT_PROTOCOL_SCHEMA_VERSION,
 };
 
 use crate::{
@@ -377,6 +377,7 @@ fn valid_policy(
             default_daily_minutes: daily_minutes,
             counting_mode: Default::default(),
         },
+        browser_games: BrowserPolicyBrowserGames::default(),
         downloads: BrowserPolicyDownloads {
             mode: BrowserPolicyDownloadState::AskParent,
             blocked_types: Vec::new(),
@@ -423,6 +424,8 @@ fn valid_policy_browser_boundary() -> (
             profile_mode: Default::default(),
             bridge_requirements: Vec::new(),
             integration_mechanisms: Vec::new(),
+            policy_writer_controls: Vec::new(),
+            policy_writer_fallback: Default::default(),
         },
         BrowserPolicyUnmanagedBrowser {
             mode: BrowserPolicyUnmanagedBrowserMode::NetworkDomainOnly,
@@ -458,6 +461,8 @@ fn valid_policy_browser_boundary() -> (
                 budget_id: None,
                 audit_level: None,
             }],
+            url_allow_list: Vec::new(),
+            url_block_list: Vec::new(),
         },
     )
 }
