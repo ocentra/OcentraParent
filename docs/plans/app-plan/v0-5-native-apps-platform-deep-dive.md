@@ -343,3 +343,21 @@ Do not write "platform unsupported" unless the plan also lists:
 The question is not possible or impossible. The question is: under what
 authority tier, with what permission, what proof, and what parent-facing setup
 cost?
+
+## Contract Proof - 2026-06-03
+
+Native app WP10 is covered by the shared app/game WP11 authority matrix contract
+in `packages/parent-domain/src/app-game-control-platform-authority.ts`. The
+contract records authority tier, setup state, proof state, capability state,
+parent-visible limitation, proof references, and proof needed to claim for each
+platform/action row. Tests prove observe-only cannot execute hard-control
+adapters, manual-required/not-claimed cannot execute, Android hide/suspend
+needs Device Owner or Profile Owner proof, iOS shield needs
+FamilyControls/ManagedSettings proof, macOS hard block needs MDM or
+Endpoint/System Extension proof, and Linux hard block needs mechanism, distro,
+and session proof.
+
+The proof pack is
+`output/app-plan-proof/10-cross-platform-authority-matrix/`. It is contract and
+test proof only; live platform crawling, app blocking, enrollment, rollback,
+service events, portal UI, and product checklist status remain unchanged.

@@ -70,6 +70,10 @@ control with better evidence and local audit.
   protocol parity and staged Windows launcher parser proof. Launcher-only,
   launcher foreground, launcher-game candidate, and proved child-game states
   are separated so launcher evidence cannot become fake known-game proof.
+- Cross-platform app/game authority matrix contracts now represent platform,
+  action, authority tier, setup state, proof state, parent-visible limitation,
+  proof needed to claim, and no-execute guards for Windows, macOS, Linux,
+  Android, and iOS/iPadOS hard-control rows.
 - Broad app blocking remains manual-required or unproved by platform.
 - Raw app and game control setting inventories are preserved as design inputs,
   not product-complete implementation proof.
@@ -84,7 +88,10 @@ owned-process/app-session proof, including in the broad-adapter and
 supported-adapter runtime service proofs. The integrity runtime audit proves
 typed timer/rollback/child-status visibility for scoped app/game outcomes, but
 does not prove package-wide app blocking, polished child request UX, install
-approval, or cross-platform parity.
+approval, or runtime cross-platform parity. The authority matrix is contract
+proof only; it does not prove AppLocker/App Control, MDM, Endpoint Security,
+Device Owner/Profile Owner, FamilyControls/ManagedSettings, cgroup/systemd, or
+kiosk/single-app adapter behavior.
 
 ## Checklist
 

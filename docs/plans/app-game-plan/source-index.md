@@ -79,10 +79,13 @@ Current app-control and app/game policy/catalog meaning lives in:
 - `packages/parent-domain/src/enforcement-policy-dispatch.ts`
 - `packages/parent-domain/src/app-game-control-authority.ts`
 - `packages/parent-domain/src/app-game-control-authority-rules.ts`
+- `packages/parent-domain/src/app-game-control-platform-authority.ts`
+- `packages/parent-domain/src/app-game-control-platform-authority-rules.ts`
 - `packages/parent-domain/src/policy.ts`
 - `packages/parent-domain/tests/app-control-policy-catalog.test.ts`
 - `packages/parent-domain/tests/game-control-policy-catalog.test.ts`
 - `packages/parent-domain/tests/app-game-control-authority.test.ts`
+- `packages/parent-domain/tests/app-game-control-platform-authority.test.ts`
 - `packages/parent-domain/tests/enforcement-approval-audit.test.ts`
 
 New shared app/game schemas should extend these packages first. Do not create a
@@ -220,6 +223,18 @@ live child-process linking, journal ingest, SQLite replay, service events,
 portal launcher rows, game-budget policy, install/purchase approval, or broad
 blocking.
 
+WP11 proof on `codex/app-game-authority-matrix` adds a parent-domain
+cross-platform authority matrix contract under
+`output/app-game-plan-proof/11-cross-platform-authority-matrix/`. It covers
+platform/action rows, authority tiers, setup states, proof states,
+parent-visible limitations, proof-needed lists, no-execute guards for
+observe-only/manual-required/not-claimed rows, Android Device Owner/Profile
+Owner hide/suspend proof, iOS FamilyControls/ManagedSettings shield proof,
+macOS MDM/Endpoint/System Extension hard-block proof, Linux mechanism/distro
+session proof, Windows AppLocker/App Control hard-block proof routing, and
+duplicate platform/action matrix rejection. It does not prove runtime platform
+adapters, Rust protocol/service parity, portal UI, or real device authority.
+
 ## Current Test Files
 
 - `packages/activity-domain/tests/app-game.test.ts`
@@ -231,6 +246,7 @@ blocking.
 - `packages/parent-domain/tests/app-control-policy-catalog.test.ts`
 - `packages/parent-domain/tests/game-control-policy-catalog.test.ts`
 - `packages/parent-domain/tests/app-game-control-authority.test.ts`
+- `packages/parent-domain/tests/app-game-control-platform-authority.test.ts`
 - `packages/parent-domain/tests/enforcement-approval-audit.test.ts`
 - `crates/agent-protocol/src/app_game_tests.rs`
 - `crates/agent-core/src/activity_store_app_game_tests.rs`

@@ -36,6 +36,10 @@ Proved today:
   launcher foreground staying launcher-only, launcher-game candidates, proved
   child-game promotion, permission-limited launcher state, and
   launcher-is-not-game guards.
+- Cross-platform authority matrix rows now have a first-class parent-domain
+  TypeScript contract and test proof for authority tier, setup state, proof
+  state, parent-visible limitation, proof-needed fields, and no-execute gates
+  across Windows, macOS, Linux, Android, and iOS/iPadOS hard-control actions.
 - App-control and game-control catalog/authoring contracts exist in
   `packages/parent-domain`.
 - Rust app/game session protocol mirrors exist.
@@ -67,6 +71,9 @@ Not proved today:
 - macOS, Linux, Android, iOS, MDM, supervised/device-owner, Endpoint Security,
   AppLocker/App Control, Screen Time, ManagedSettings, store/signing, entitlement,
   kiosk, and single-app claims.
+- Runtime adapter proof for the new authority matrix rows. The WP11 contract
+  names what proof is needed to move up, but it does not attach real platform
+  enrollment, permission, rollback, cleanup, service, or portal evidence.
 
 ## Current Contracts
 
@@ -92,8 +99,9 @@ app/game contract stack from this plan:
 `packages/parent-domain` currently provides separate app-control and
 game-control catalog schemas/data, enforcement policy dispatch contracts, and
 app/game control approval authority/request/decision/action-result contract
-proof. Those catalogs and authority contracts are product-control inputs, not a
-complete shared evidence spine or a proof that broad app/game blocking works.
+proof plus the WP11 platform authority matrix. Those catalogs and authority
+contracts are product-control inputs, not a complete shared evidence spine or a
+proof that broad app/game blocking works.
 
 ## Current Runtime
 
@@ -194,6 +202,10 @@ Missing portal states include:
   add live launcher manifest crawling, live launcher-child process linking,
   journal ingest, SQLite replay, service/runtime events, portal launcher rows,
   game-budget policy, install/purchase approval, or broad blocking.
+- WP11 adds cross-platform authority matrix contract/test proof only. It does
+  not add AppLocker/App Control, MDM, Endpoint Security, Device Owner/Profile
+  Owner, FamilyControls/ManagedSettings, cgroup/systemd, root/admin, kiosk, or
+  single-app runtime adapters.
 - Next implementation work should either add live Windows inventory source
   readers, journal/read-model ingest, or mirror the remaining WP01/WP04
   TypeScript shapes into Rust protocol before service/runtime consumers depend
