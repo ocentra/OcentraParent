@@ -1,5 +1,18 @@
 # AI Plan Implementation Checklist
 
+## Current Branch Proof Snapshot
+
+These entries summarize proof already produced on the current stacked branch.
+They are not product-complete AI claims until the service/runtime/read-model path
+consumes the same results.
+
+| Proof | Status | Artifact | Non-claim |
+| --- | --- | --- | --- |
+| Real captured screen analyzed by local VLM | P3 proved | `output/ai-plan-proof/real-analysis/manual-browser-education-vlm/02-screen-analysis-result.json` | Controlled education fixture only; more real social/video/game/app cases remain. |
+| Local AI safety result schema validation | P3 contract proved | `output/ai-plan-proof/real-analysis/manual-browser-education-vlm/04-local-ai-safety-result.json` | Script proof only until the service runtime consumes it. |
+| Parent policy dry-run decision | P3 contract proved | `output/ai-plan-proof/real-analysis/manual-browser-education-vlm/06-policy-dry-run-decision.json` | Rust dry-run evaluator wiring waits for `agent-core` lock resolution. |
+| Raw image deletion after analysis | P3 proved | `output/ai-plan-proof/real-analysis/manual-browser-education-vlm/03-deletion-after-analysis.json` | Retention/live-view modes are separate explicit opt-in work. |
+
 ## Contract And Source Truth
 
 - [ ] Source index reconciled against current repo.
@@ -53,9 +66,9 @@
 - [ ] OCR worker execution proof exists.
 - [ ] Guided VLM worker contract implemented.
 - [ ] VLM worker execution proof exists.
-- [ ] Raw image deletion proof exists.
+- [x] Raw image deletion proof exists.
 - [ ] Screen summary feeds AI context builder.
-- [ ] Real browser-use capture artifact feeds AI analysis.
+- [x] Real browser-use capture artifact feeds AI analysis.
 - [ ] Real app-use capture artifact feeds AI analysis.
 - [ ] Timed cadence capture sequence feeds repeated AI analysis without queue flood.
 
@@ -70,7 +83,7 @@
 - [ ] Native game or controlled game-window capture is analyzed.
 - [ ] Bypass-tool fixture/app is analyzed.
 - [ ] Shopping fixture/page is analyzed.
-- [ ] School/productivity fixture/page/app is analyzed.
+- [x] School/productivity fixture/page/app is analyzed.
 - [ ] Unknown activity degrades to unknown/manual-required without invented certainty.
 - [ ] Timed cadence captures can be analyzed repeatedly at bounded intervals.
 - [ ] Disabled capture produces no AI analysis from screen.
