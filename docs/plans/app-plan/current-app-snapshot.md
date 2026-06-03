@@ -164,7 +164,9 @@ polished app catalog UI, install approval, or cross-platform parity.
 - Parent app catalog/dashboard is not product-complete.
 - Broad app blocking remains manual-required outside scoped owned-process
   proof.
-- Platform-specific authority tiers are not fully modeled in contracts or UI.
+- Platform-specific authority tiers are now modeled as shared app/game
+  parent-domain contract proof, but the portal UI and runtime adapter proof are
+  not complete.
 - macOS, Linux, Android, iOS, MDM, device-owner, supervised, Endpoint Security,
   AppLocker/App Control, Screen Time, ManagedSettings, cgroups/systemd,
   AppArmor/SELinux, Flatpak, Snap, signing, store, and entitlement claims need

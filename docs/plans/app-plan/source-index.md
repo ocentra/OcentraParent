@@ -96,8 +96,12 @@ and update them only when their acceptance contract or generated data changes.
 - `packages/parent-domain/src/app-control-catalog-data.ts`
 - `packages/parent-domain/src/app-control-guide-catalog-data.ts`
 - `packages/parent-domain/src/enforcement-policy-dispatch.ts`
+- `packages/parent-domain/src/app-game-control-authority.ts`
+- `packages/parent-domain/src/app-game-control-platform-authority.ts`
+- `packages/parent-domain/src/app-game-control-platform-authority-rules.ts`
 - `packages/parent-domain/src/policy.ts`
 - `packages/parent-domain/tests/app-control-policy-catalog.test.ts`
+- `packages/parent-domain/tests/app-game-control-platform-authority.test.ts`
 - `packages/parent-domain/tests/enforcement-approval-audit.test.ts`
 
 TypeScript rule: enhance these existing app/app-game paths first. Do not create
@@ -175,16 +179,18 @@ packs mirror the app/game proof roots and record product-doc decisions.
 | WP07 Windows Store/UWP/AppX inventory | `output/app-plan-proof/07-windows-store-uwp-appx-inventory-adapter` | `output/app-game-plan-proof/07-windows-store-uwp-appx-inventory-adapter` | Parser proof only                  |
 | WP08 Windows process runtime          | `output/app-plan-proof/08-windows-process-runtime-evidence-adapter` | `output/app-game-plan-proof/08-windows-process-runtime-evidence-adapter` | Runtime parser proof only          |
 | WP09 Windows foreground evidence      | `output/app-plan-proof/09-windows-foreground-app-evidence-adapter`  | `output/app-game-plan-proof/09-windows-foreground-evidence-adapter`      | Foreground parser proof only       |
+| WP10 cross-platform authority matrix  | `output/app-plan-proof/10-cross-platform-authority-matrix`          | `output/app-game-plan-proof/11-cross-platform-authority-matrix`          | Authority contract proof only      |
 
 These completed rows do not add live OS crawling, journal ingest, SQLite replay,
 service events, portal rows, content knowledge, policy execution, install
-control, broad blocking, or cross-platform parity. Those claims remain assigned
-to later app-plan/app-game workpacks.
+control, broad blocking, or runtime cross-platform parity. Those claims remain
+assigned to later app-plan/app-game workpacks.
 
 ## Current Test Files
 
 - `packages/activity-domain/tests/app-game.test.ts`
 - `packages/parent-domain/tests/app-control-policy-catalog.test.ts`
+- `packages/parent-domain/tests/app-game-control-platform-authority.test.ts`
 - `packages/parent-domain/tests/enforcement-approval-audit.test.ts`
 - `crates/agent-protocol/src/app_game_tests.rs`
 - `crates/agent-core/src/activity_store_app_game_tests.rs`
