@@ -8,7 +8,8 @@ contracts.
 - Portal route ids and route groups.
 - DOM ids/test ids that cross source/test boundaries.
 - Parent portal nav and section descriptors.
-- Service-state display rows and dev command descriptors.
+- Service-state display rows and dev command descriptors, including the
+  tracking read-model refresh command consumed by the Policy Tracking route.
 
 ## Must Not Own
 

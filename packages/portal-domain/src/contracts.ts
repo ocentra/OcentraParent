@@ -82,6 +82,11 @@ export {
   type ParentPortalServiceState,
 } from './parent-portal-service-state';
 export {
+  TrackingStatusProofArtifacts,
+  TrackingStatusProofArtifactSchema,
+  type TrackingStatusProofArtifact,
+} from './tracking-status-proof-artifacts';
+export {
   PARENT_PORTAL_NAV_LABELS,
   type ParentPortalHashRoutePath,
   type ParentPortalNavGroup,
@@ -291,6 +296,11 @@ export const PortalDom = {
     ThemeToggle: 'theme-toggle',
     ThemeToggleButton: 'theme-toggle-button',
     ThemeToggleButtonActive: 'theme-toggle-button-active',
+    TrackingStatusOverlay: 'tracking-status-overlay',
+    TrackingStatusOverlayContent: 'tracking-status-overlay-content',
+    TrackingStatusOverlayGrid: 'tracking-status-overlay-grid',
+    TrackingStatusOverlayHeader: 'tracking-status-overlay-header',
+    TrackingStatusOverlayMeta: 'tracking-status-overlay-meta',
   },
   Attributes: {
     AriaCurrent: 'aria-current',

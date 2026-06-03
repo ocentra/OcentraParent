@@ -45,6 +45,10 @@ import {
   type AgentProtocolLogFields,
 } from '@ocentra-parent/agent-protocol-domain/contracts';
 import {
+  parseAgentActivityTrackingReadModelEvent,
+  type AgentActivityTrackingReadModelResult,
+} from '@ocentra-parent/agent-protocol-domain/tracking-read-model';
+import {
   parseActivityMemoryGraphReadModel,
   type PortalActivityMemoryGraphReadModel,
 } from '@ocentra-parent/portal-domain/contracts';
@@ -89,6 +93,8 @@ export interface PortalLiveActivityState {
   readonly browserInterventionReadModel: BrowserInterventionReadModel | null;
   readonly networkFlowEvent: AgentEventEnvelope | null;
   readonly networkFlowReadModel: ActivityNetworkFlowReadModel | null;
+  readonly activityTrackingReadModelEvent: AgentEventEnvelope | null;
+  readonly activityTrackingReadModel: AgentActivityTrackingReadModelResult | null;
   readonly lanPairingStatusEvent: AgentEventEnvelope | null;
   readonly lanAddDeviceReadModel: AgentLanBrowserAddDeviceReadModel | null;
   readonly policyPreviewEvent: AgentEventEnvelope | null;
@@ -165,12 +171,21 @@ export function resolveLiveActivityState(events: readonly AgentEventEnvelope[]):
       browserInterventionEvent === null ? null : parseBrowserInterventionReadModel(browserInterventionEvent.payload),
     networkFlowEvent,
     networkFlowReadModel: networkFlowEvent === null ? null : parseNetworkFlowReadModel(networkFlowEvent.payload),
+    ...resolveActivityTrackingReadModel(events),
     lanPairingStatusEvent,
     lanAddDeviceReadModel:
       lanPairingStatusEvent === null ? null : parseLanAddDeviceReadModel(lanPairingStatusEvent.payload),
     policyPreviewEvent,
     policyPreviewReadModel:
       policyPreviewEvent === null ? null : parsePolicyPreviewReadModel(policyPreviewEvent.payload),
+  };
+}
+
+function resolveActivityTrackingReadModel(events: readonly AgentEventEnvelope[]) {
+  const event = latestEvent(events, AgentEvent.ActivityTrackingReadModelReported);
+  return {
+    activityTrackingReadModelEvent: event,
+    activityTrackingReadModel: event === null ? null : parseAgentActivityTrackingReadModelEvent(event),
   };
 }
 

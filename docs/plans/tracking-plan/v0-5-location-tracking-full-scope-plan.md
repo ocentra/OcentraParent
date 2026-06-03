@@ -135,11 +135,24 @@ only changes need formatting, link/structure checks, and lane/hub guards.
 
 ## Minimum Serious MVP
 
-The first credible MVP is last-known location plus status/freshness,
-geofence enter/exit, expected-place schedule check, parent acknowledgement,
-child check-in, retention/delete/export, and UI states for disabled,
+This is the minimum first target, not the final tracking goal. It is the first
+credible checkpoint for implementation and proof sequencing; it is not all 33
+workpacks product-complete.
+
+The first target is last-known location plus status/freshness, geofence
+enter/exit, expected-place schedule check, parent acknowledgement, child
+check-in, retention/delete/export, and UI states for disabled,
 permission-required, stale, offline, and low-accuracy data. Background mobile
 claims remain manual-required until real-device proof exists.
+
+Do not treat this checkpoint as PR-ready or full-scope complete unless its
+runtime, UI, product-doc, validation, and proof-tier evidence are all filled.
+Remaining workpacks keep their own required tiers and missing-proof reasons.
+The current first-checkpoint reconciliation is tracked in
+`output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/proof-summary.json`
+as `minimumSeriousMvpAuditSummary`. `scripts/test/tracking-plan-runtime-proof.mjs`
+also writes the full generated `minimumSeriousMvpAudit` to
+`output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/00-run-metadata.json`.
 
 ## Implementation Sequence
 

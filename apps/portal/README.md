@@ -42,6 +42,8 @@ The Playwright check starts the Rust agent and Vite portal on the scaffold smoke
 - Displays LAN source-matrix diagnostics from the service-backed add-device read
   model so workpack/source proof status is visible in Devices/LAN and
   Activity/Network review.
+- Displays the tracking service read-model event as a narrow Policy Tracking
+  route summary; this is not full parent/child tracking UI proof.
 - Provides Playwright proof for real portal-to-Rust behavior.
 
 ## Must Not Own

@@ -11,6 +11,9 @@
 - Capability guide exists.
 - Schema proposal exists.
 - Tracking settings inventory exists with 338 raw settings.
+- Focused TypeScript contract proof now exists for tracking evidence,
+  geofence/place models, tracking AI safety evidence, tracking policy/action
+  contracts, and proof-routing states.
 - Location posture modes are represented as design inputs: Off, Last known,
   Check-in, Arrival alerts, Temporary live, and Missing device.
 - Capability/degraded vocabulary exists as raw inventory input, including
@@ -20,22 +23,16 @@
   last sync, battery percentage, charging state, low-power mode, and pending
   upload count.
 
-## Missing
+## Missing Product Runtime
 
-- Runtime `LocationEvidence` contract.
-- Runtime `DeviceStatusEvidence` contract.
-- Runtime `LocationCapabilityStatus` contract.
-- Runtime `LocationRetentionPolicy` contract.
-- Runtime `GeofenceRule` and `GeofenceTransition` contracts.
-- Expected-place schedule model.
-- Parent acknowledgement and exception model.
-- Nearby-place evidence model.
-- AI safety analysis contracts.
 - Platform adapter proof.
 - Journal/SQLite read models.
 - Parent/child UI.
 - Notification/escalation engine.
 - Retention/delete/export proof.
+- Android/iOS foreground and background location runtime.
+- Nearby-place provider runtime.
+- Expected-place and geofence transition runtime engines.
 
 ## Manual Required
 
@@ -73,18 +70,25 @@
 
 ## Product Claim Boundary
 
-The repo currently has planning documents and raw inventory, not a
-product-complete tracking runtime. Claims must stay limited to planning
-coverage until contracts, platform adapters, journal/read models, UI, and
+The repo now has planning documents, raw inventory, and a focused
+contract-proof spine for tracking. Claims must stay limited to contract proof
+until platform adapters, journal/read models, UI, provider runtime, and full
 proof packs exist.
 
 ## Contracts That Exist
 
-No dedicated runtime `LocationEvidence`, `DeviceStatusEvidence`,
-`LocationCapabilityStatus`, `GeofenceTransition`, `NearbyPlaceEvidence`,
-`LocationAiSafetyResult`, or `LocationAlert` contract is product-complete yet.
-The available contract source is the capability guide, schema proposal,
-tracking inventory, and expectation docs.
+Dedicated TypeScript tracking contracts now exist under
+`packages/activity-domain/src/tracking.ts` and
+`packages/parent-domain/src/tracking-location-policy.ts`, with tests in
+`packages/activity-domain/tests/tracking.test.ts` and
+`packages/parent-domain/tests/tracking-location-policy.test.ts`.
+
+The focused proof root is `output/tracking-plan-proof/`. Complete contract
+proof exists for workpacks 03, 04, 05, 06, 13, 14, 17, 18, 19, 21, 23, 24,
+26, and 31. Partial contract proof exists for 07, 15, 16, 22, 25, 27, 28, 29,
+32, and 33 because runtime delete/export, engines, stores, escalation, live
+tracking, missing-device UI/runtime, Rust journal/SQLite, and full platform/UI
+proof remain pending.
 
 ## Feature Routing Snapshot
 
@@ -95,8 +99,9 @@ tracking must own the child-location claim boundary and no-claim rules.
 ## Rust Runtime That Exists
 
 No Rust tracking runtime proof exists in this snapshot. Rust implementation is
-blocked on explicit TypeScript domain contracts and test-backed protocol
-mirroring.
+now unblocked by explicit TypeScript domain contracts, but still needs
+test-backed protocol mirroring, journal ingest, SQLite replay/query, and
+delete/export proof before runtime claims can move.
 
 ## Portal That Exists
 
@@ -105,13 +110,17 @@ Portal work remains blocked on contracts, read models, and UI snapshot states.
 
 ## Proof That Exists
 
-Existing proof is documentation proof only:
+Existing proof includes documentation proof plus focused contract proof:
 
 - source index;
 - current snapshot;
 - pasted-content coverage audit;
 - workpack split;
 - product-doc references.
+- `node scripts/test/tracking-plan-contract-proof.mjs`;
+- generated proof roots under `output/tracking-plan-proof/`;
+- activity-domain and parent-domain tracking contract builds/tests;
+- schema-boundary/source-shape guard proof.
 
 ## Current Gaps
 

@@ -14,6 +14,7 @@ import type { ParentPortalSvgControls } from '../../../vendor/ocentra-parent-cor
 import { resolveLiveActivityState } from './live-activity-state';
 import type { PortalRenderActions } from './portal-actions';
 import type { PortalRuntimeState } from './portal-state';
+import { shouldRenderTrackingStatusRoute, TrackingStatusRoutePanel } from './TrackingStatusRoutePanel';
 import './styles/parent-portal-route.css';
 
 type ParentPortalRouteProps = {
@@ -67,6 +68,13 @@ export function ParentPortalRoute({
         }}
         onAssistantCommand={actions.sendCommand}
       />
+      {shouldRenderTrackingStatusRoute(route) ? (
+        <TrackingStatusRoutePanel
+          actions={actions}
+          commandEnabled={state.socket?.readyState === WebSocket.OPEN}
+          liveActivity={activityState}
+        />
+      ) : null}
     </div>
   );
 }

@@ -41,6 +41,7 @@ import { renderBrowserGuidance, renderPolicyGuidance } from './portal-product-gu
 import type { PortalRuntimeState } from './portal-state';
 import { renderPolicyPreview } from './policy-preview-panel';
 import { renderSettingsRulesRoute } from './portal-settings-route-panels';
+import { renderTrackingStatusSurface } from './tracking-status-panel';
 
 type RouteRenderContext = {
   readonly container: HTMLElement;
@@ -137,6 +138,10 @@ function renderManageRouteContent(context: RouteRenderContext): boolean {
   }
   if (route === PortalRoute.SettingsRules) {
     renderSettingsRulesRoute(container, theme, rerender);
+    return true;
+  }
+  if (route === PortalRoute.PolicyTracking) {
+    renderTrackingStatusSurface(container, resolveLiveActivityState(state.events));
     return true;
   }
   if (route === PortalRoute.Commands) {

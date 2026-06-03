@@ -13,6 +13,7 @@ UI/UX requirements.
 - [V0.5 Location Platform Deep Dive](v0-5-location-platform-deep-dive.md)
 - [V0.5 Location Test Blueprint](v0-5-location-test-blueprint.md)
 - [Tracking UI/UX Requirements Guide](ui-ux-requirements-guide.md)
+- [Tracking Proof Tiers](proof-tiers.md)
 - [Tracking Plan Implementation Checklist](implementation-checklist.md)
 - [Pasted Content Coverage Audit](pasted-content-coverage-audit.md)
 
@@ -35,6 +36,11 @@ Parent acknowledgement and exceptions are first-class.
 No precise location is inferred from LAN/IP/pairing.
 No emergency/critical claim is made from one weak signal.
 Never turn uncertainty into accusation.
+CI proves contracts, logic, simulation, and hosted build/test coverage.
+Physical devices prove mobile background behavior.
+Authority-enrolled devices prove hard control.
+Until the required tier exists, product claims remain manual-required,
+authority-required, or not-claimed.
 ```
 
 ## How It Works
@@ -94,8 +100,8 @@ flowchart TD
 
 ## Where We Are
 
-- `docs/features/location-geofence-device-status.md` exists, but the feature is
-  still planned/gap.
+- `docs/features/location-geofence-device-status.md` exists, and the feature is
+  now planned/in progress from focused contract proof.
 - `docs/expectations/location-geofence.md` defines the correct boundary:
   location is separate from LAN/IP/pairing and must carry source, accuracy,
   timestamp, custody, retention, stale-state, and permission state.
@@ -110,9 +116,44 @@ flowchart TD
   Arrival alerts, Temporary live, and Missing device.
 - Current inventory already names degraded states such as service-disabled,
   manual-required, offline-last-known-only, and battery-throttled.
-- Runtime contracts, platform permission proof, Android/iOS background behavior
-  proof, alert integration, UI, journal/read-model proof, and retention/delete
-  proof are not product-complete.
+- Runtime TypeScript contracts now exist for the focused tracking contract
+  spine in `packages/activity-domain` and `packages/parent-domain`, with proof
+  roots under `output/tracking-plan-proof/`.
+- The proof-tier system in `proof-tiers.md` now separates P0/P1/P2 code
+  readiness from P4/P5/P6 product claims. Missing physical-device or
+  enrolled-device evidence is a `manual_required` or `authority_required`
+  product-claim gap, not a generic CI failure.
+- P1 fixture/simulation proof now exists for deterministic geofence
+  transition evaluation, expected-place decision evaluation, retention delete
+  read-model filtering, parent-owned retention export, UI-visible
+  deleted-history hiding, parent acknowledgement impact, child check-in
+  resolution, and Rust ActivityStore tracking event ingest into SQLite. The
+  proof artifacts are written by
+  `scripts/test/tracking-plan-runtime-proof.mjs`.
+- The same runtime proof now records a P1 parent portal tracking-state fixture
+  route and test for first-target UI states, renders local proof artifact
+  references, and captures a local rendered parent-route screenshot under
+  `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`. Live
+  parent/child UI, hosted screenshots, accessibility, and live service-backed
+  evidence citations are not product-complete.
+- `scripts/test/tracking-plan-service-read-model-proof.mjs` now records P2
+  service-boundary proof for the narrow
+  `agent.activity.tracking.read-model.get` command. The Rust service reads
+  tracking event rows from the shared ActivityStore SQLite query store and
+  reports citation IDs in `trackingReadModel`; the parent portal consumes that
+  event as a narrow live summary, while richer product read models remain
+  pending.
+- WP33 tracked `proof-summary.json` records `minimumSeriousMvpAuditSummary`;
+  the runtime proof also writes the full `minimumSeriousMvpAudit` into
+  generated
+  `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/00-run-metadata.json`.
+  These audits are first-checkpoint reconciliations only; they explicitly block
+  product-complete, PR-ready, and full-scope claims until the remaining proof
+  gaps are closed.
+- Platform permission proof, Android/iOS background behavior proof, provider
+  runtime, alert delivery, physical-device proof, authority-enrolled proof,
+  full portal UI proof, and live service-backed retention UI are not
+  product-complete.
 
 ## Where We Want To Be
 
@@ -146,6 +187,15 @@ Ocentra Parent needs an end-to-end tracking subsystem that:
   severity, acknowledgement state, and audit refs;
 - proves retention/delete and avoids Ocentra-hosted location storage by default.
 
+## First Target Is Not Final Scope
+
+The "Minimum Serious MVP" named in the full-scope plan is the first credible
+checkpoint. It is not the final tracking goal, and it is not a replacement for
+the 33 workpacks. Passing that checkpoint can justify continuing from a
+code-ready/proof-ready slice, but it cannot justify a product-complete,
+PR-ready, or full-scope claim unless the assigned runtime, UI, product-doc,
+platform, and proof-tier requirements are also filled.
+
 ## Parallel Coordination Rules
 
 - Lock the workpack doc and exact implementation/docs paths before editing.
@@ -164,6 +214,10 @@ Ocentra Parent needs an end-to-end tracking subsystem that:
 - Every worker report must name the workpack, touched paths, validation,
   product-doc updates, platform proof state, custody/retention proof, and
   manual-required gaps.
+- Every proof claim must list required proof tier, current proof tier, status,
+  artifact path, and missing proof reason. Do not fail a checklist item because
+  P4/P5 proof is unavailable in GitHub CI; fail it only if the plan or code
+  pretends that missing proof exists.
 
 ## Workpack Checklist
 
@@ -270,6 +324,15 @@ feature product-complete.
 - [ ] Parent acknowledgement/exception system is not product-complete.
 - [ ] Android background permission proof is not complete.
 - [ ] iOS background/region proof is not complete.
-- [ ] Journal/SQLite/read-model proof is not complete.
-- [ ] Retention/delete/export proof is not complete.
-- [ ] Tracking UI/UX is not product-complete.
+- [ ] Journal/SQLite/read-model proof is not product-complete. A P2 service
+      command/read-model proof exists for SQLite tracking rows and citation IDs,
+      and the parent portal consumes it as a narrow live summary. Deletion/tombstone
+      replay, richer read models, hosted portal proof, and platform replay proof
+      remain pending.
+- [x] Retention/delete/export P1 checkpoint proof exists: delete/export proof
+      and UI-visible deleted-history hiding are fixture-proved. Product
+      live-service retention settings remain pending.
+- [ ] Tracking UI/UX is not product-complete; a P1 parent portal fixture exists,
+      plus a narrow P2 service-read-model summary. Live parent/child UI,
+      screenshots, accessibility, richer service-data, and richer
+      service-backed evidence-citation proof remain pending.

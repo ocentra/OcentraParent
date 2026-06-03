@@ -14,6 +14,14 @@ Every checked item must cite one or more proof artifacts.
 - Leave a checkbox unchecked until proof exists.
 - Add the proof artifact path next to the item in the assigned workpack before
   reporting DONE or PR-ready.
+- Every proof item must list required proof tier, current proof tier, status,
+  artifact path, and missing proof reason.
+- Do not require P4/P5 proof in normal CI. CI passing P0/P1/P2 can make the
+  covered code boundary ready, but it cannot prove physical-device,
+  authority-enrolled, or production-pilot product claims.
+- Do not fail a docs/checklist task because physical proof is unavailable in
+  GitHub CI. Generate the manual proof command/artifact expectation and mark the
+  product claim `manual_required` or `authority_required`.
 - Do not mark platform behavior complete from docs, mocks, screenshots of
   settings only, or simulator-only evidence unless the workpack explicitly
   allows simulator proof.
@@ -23,66 +31,106 @@ Every checked item must cite one or more proof artifacts.
 
 ## Main Execution Gates
 
-- [ ] No precise location is inferred from LAN/IP/pairing.
-- [ ] Every location sample has source, timestamp, accuracy/hint quality,
+- [x] No precise location is inferred from LAN/IP/pairing. Contract proof:
+      `output/tracking-plan-proof/13-desktop-location-and-presence-hint-model/`.
+- [x] Every location sample has source, timestamp, accuracy/hint quality,
       freshness, custody, retention, permission state, confidence, and reason
-      codes.
-- [ ] Geofence transitions cite location evidence and geofence rule refs.
-- [ ] Expected-place decisions cite schedule and expected-place rule refs.
-- [ ] Nearby-place evidence includes query radius, distance, provider,
-      category, confidence, and ambiguity state.
-- [ ] AI location safety result is evidence only and cannot alert/escalate
-      directly.
-- [ ] Parent policy is the only authority for notification/action/escalation.
-- [ ] Parent acknowledgement and exceptions can suppress or modify alerts
-      according to rules.
-- [ ] Critical alerts cannot be suppressed by generic holiday/exception unless
-      explicitly configured.
-- [ ] Retention/delete/export behavior is implemented and tested.
-- [ ] Remote sync and remote AI are disabled by default.
+      codes. Contract proof:
+      `output/tracking-plan-proof/04-location-evidence-model/`.
+- [x] Geofence transitions cite location evidence and geofence rule refs.
+      Contract proof:
+      `output/tracking-plan-proof/15-geofence-transition-engine/`.
+- [x] Expected-place decisions cite schedule and expected-place rule refs.
+      Contract proof:
+      `output/tracking-plan-proof/16-expected-place-schedule-engine/`.
+- [x] Nearby-place evidence includes query radius, distance, provider,
+      category, confidence, and ambiguity state. Contract proof:
+      `output/tracking-plan-proof/19-nearby-place-provider-abstraction/`.
+- [x] AI location safety result is evidence only and cannot alert/escalate
+      directly. Contract proof:
+      `output/tracking-plan-proof/23-ai-location-safety-analysis-contracts/`.
+- [x] Parent policy is the only authority for notification/action/escalation.
+      Contract proof:
+      `output/tracking-plan-proof/25-policy-compiler-for-tracking-rules/`.
+- [x] Parent acknowledgement and exceptions can suppress or modify alerts
+      according to rules. Contract proof:
+      `output/tracking-plan-proof/17-parent-acknowledgement-and-exception-model/`.
+- [x] Critical alerts cannot be suppressed by generic holiday/exception unless
+      explicitly configured. Contract proof:
+      `output/tracking-plan-proof/17-parent-acknowledgement-and-exception-model/`.
+- [x] Retention/delete/export behavior is implemented and tested at P1
+      fixture tier. Retention delete, parent-owned export, and UI-visible
+      deleted-history hiding have proof in
+      `output/tracking-plan-proof/07-retention-and-custody-model/14-retention-delete-proof.json`;
+      `output/tracking-plan-proof/07-retention-and-custody-model/17-retention-export-proof.json`;
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-fixture-state-matrix.json`.
+      Product live service-backed retention settings remain pending.
+- [x] Remote sync and remote AI are disabled by default. Contract proof:
+      `output/tracking-plan-proof/07-retention-and-custody-model/`,
+      `output/tracking-plan-proof/24-ai-provider-routing/`.
 - [ ] Android background claims have real device permission/background proof.
 - [ ] iOS background/region claims have real device permission/background
       proof.
-- [ ] Desktop LAN/IP/Wi-Fi presence is labelled hint-only unless OS location
-      proof exists.
+- [x] Desktop LAN/IP/Wi-Fi presence is labelled hint-only unless OS location
+      proof exists. Contract proof:
+      `output/tracking-plan-proof/13-desktop-location-and-presence-hint-model/`.
+
+## Proof Tier Gates
+
+Use [Tracking Proof Tiers](proof-tiers.md) for every checklist item.
+
+| Gate                                                                      | Required proof tier          | Current proof tier    | Current status     | Artifact path                                                                                                                                                                                                                                                                           | Missing proof reason                                                                                                                                               |
+| ------------------------------------------------------------------------- | ---------------------------- | --------------------- | ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| No precise location inferred from LAN/IP/pairing                          | P0_CONTRACT                  | P0_CONTRACT           | proved             | `output/tracking-plan-proof/13-desktop-location-and-presence-hint-model/`                                                                                                                                                                                                               | none                                                                                                                                                               |
+| Location evidence source/time/accuracy/freshness/custody/retention schema | P0_CONTRACT                  | P0_CONTRACT           | proved             | `output/tracking-plan-proof/04-location-evidence-model/`                                                                                                                                                                                                                                | none for schema; platform ingest remains separate                                                                                                                  |
+| Geofence transitions cite location evidence and rule refs                 | P1_FIXTURE_SIMULATION        | P1_FIXTURE_SIMULATION | simulated          | `output/tracking-plan-proof/15-geofence-transition-engine/05-geofence-transition-proof.json`                                                                                                                                                                                            | Android/iOS physical geofence proof remains P4 manual-required                                                                                                     |
+| Expected-place decisions cite schedule and rule refs                      | P1_FIXTURE_SIMULATION        | P1_FIXTURE_SIMULATION | simulated          | `output/tracking-plan-proof/16-expected-place-schedule-engine/06-expected-place-proof.json`                                                                                                                                                                                             | UI and alert policy integration remain pending                                                                                                                     |
+| Nearby-place evidence carries provider/radius/category/ambiguity          | P1_FIXTURE_SIMULATION        | P0_CONTRACT           | simulated          | `output/tracking-plan-proof/19-nearby-place-provider-abstraction/`                                                                                                                                                                                                                      | provider adapter proof remains pending                                                                                                                             |
+| AI cannot directly alert/escalate                                         | P0_CONTRACT                  | P0_CONTRACT           | proved             | `output/tracking-plan-proof/23-ai-location-safety-analysis-contracts/`                                                                                                                                                                                                                  | none                                                                                                                                                               |
+| Parent policy is alert/action authority                                   | P1_FIXTURE_SIMULATION        | P0_CONTRACT           | simulated          | `output/tracking-plan-proof/25-policy-compiler-for-tracking-rules/`                                                                                                                                                                                                                     | runtime compiler/evaluator proof remains pending                                                                                                                   |
+| Retention/delete/export behavior                                          | P1_FIXTURE_SIMULATION        | P1_FIXTURE_SIMULATION | simulated          | `output/tracking-plan-proof/07-retention-and-custody-model/14-retention-delete-proof.json`; `output/tracking-plan-proof/07-retention-and-custody-model/17-retention-export-proof.json`; `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-fixture-state-matrix.json` | product live service-backed retention settings remain pending                                                                                                      |
+| Tracking service read-model command                                       | P2_HOSTED_CI                 | P2_HOSTED_CI          | proved             | `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json`                                                                                                                                                                                    | narrow portal summary consumption proved; richer product read models, deletion/tombstone replay, hosted UI/accessibility, and platform replay proof remain pending |
+| Android background behavior                                               | P4_PHYSICAL_DEVICE           | P2_HOSTED_CI          | manual_required    | `output/tracking-plan-proof/android-background-geofence/`                                                                                                                                                                                                                               | physical Android background geofence artifact missing                                                                                                              |
+| iOS background/region behavior                                            | P4_PHYSICAL_DEVICE           | P2_HOSTED_CI          | manual_required    | `output/tracking-plan-proof/ios-region-monitoring/`                                                                                                                                                                                                                                     | physical iOS region/background artifact missing                                                                                                                    |
+| Authority hard-control behavior                                           | P5_AUTHORITY_ENROLLED_DEVICE | P0_CONTRACT           | authority_required | no artifact yet                                                                                                                                                                                                                                                                         | Device Owner, supervised/MDM, AppLocker/App Control, or equivalent authority proof missing                                                                         |
 
 ## Base Workpacks
 
-| Step | Workpack                                         | Status                      | Required proof                                                            |
-| ---- | ------------------------------------------------ | --------------------------- | ------------------------------------------------------------------------- |
-| 01   | Source index and repo reconciliation             | [x] Planning folder created | Source index and coverage audit.                                          |
-| 02   | Current tracking snapshot and gap map            | [x] Planning folder created | Snapshot and gap map.                                                     |
-| 03   | Contract boundary and Effect schemas             | [ ] Not started             | TypeScript schema tests and no-claim negative tests.                      |
-| 04   | Location evidence model                          | [ ] Not started             | Valid/invalid schema tests and source/accuracy/freshness gates.           |
-| 05   | Device status model                              | [ ] Not started             | Heartbeat, battery, connectivity, pending upload, degraded state tests.   |
-| 06   | Permission and capability status model           | [ ] Not started             | Permission/platform/capability matrix tests.                              |
-| 07   | Retention and custody model                      | [ ] Not started             | Deletion, tombstone, export, custody, no-default-remote tests.            |
-| 08   | Android foreground location adapter              | [ ] Not started             | Android permission, fused/current/last known, and foreground proof.       |
-| 09   | Android background location and geofence adapter | [ ] Not started             | Background permission, enter/exit/dwell, and active geofence limit proof. |
-| 10   | Android battery connectivity and status adapter  | [ ] Not started             | Battery saver, offline, app killed, pending upload proof.                 |
-| 11   | iOS Core Location foreground adapter             | [ ] Not started             | Authorization/current sample proof.                                       |
-| 12   | iOS background region significant-change adapter | [ ] Not started             | Background/Always/region/significant-change/visit proof.                  |
-| 13   | Desktop location and presence hint model         | [ ] Not started             | Hint-only negative tests for LAN/Wi-Fi/IP.                                |
-| 14   | Geofence rule model                              | [ ] Not started             | Geometry, accuracy, grace, schedule, audit tests.                         |
-| 15   | Geofence transition engine                       | [ ] Not started             | Transition, stale, ambiguity, evidence/rule refs tests.                   |
-| 16   | Expected-place schedule engine                   | [ ] Not started             | School/home/activity/calendar/temporary schedule tests.                   |
-| 17   | Parent acknowledgement and exception model       | [ ] Not started             | Acknowledgement, holiday, false-alarm, still-alert tests.                 |
-| 18   | Child check-in flow                              | [ ] Not started             | Child copy, response, optional sample, audit, resolve-alert tests.        |
-| 19   | Nearby-place provider abstraction                | [ ] Not started             | Provider abstraction, ambiguity, retention, degradation tests.            |
-| 20   | Google Places and POI provider adapter           | [ ] Not started             | Field mask, bounded radius, response mapping, provider failure tests.     |
-| 21   | Place-risk taxonomy and ambiguity model          | [ ] Not started             | Category, ambiguity, low-accuracy, no-accusation tests.                   |
-| 22   | Local parent-defined place database              | [ ] Not started             | Parent-owned place CRUD, audit, export/delete tests.                      |
-| 23   | AI location safety analysis contracts            | [ ] Not started             | AI input/output schema, source refs, confidence, no-final-action tests.   |
-| 24   | AI provider routing                              | [ ] Not started             | Local/default, family hub, parent-approved remote, remote-disabled tests. |
-| 25   | Policy compiler for tracking rules               | [ ] Not started             | Policy action compile, capability, exception, AI candidate tests.         |
-| 26   | Alert severity and notification model            | [ ] Not started             | Severity, evidence refs, safe copy, action state tests.                   |
-| 27   | Escalation engine                                | [ ] Not started             | Acknowledgement-aware escalation and provider minimization tests.         |
-| 28   | Temporary live tracking mode                     | [ ] Not started             | Authorization, duration, disclosure, auto-expiry, retention tests.        |
-| 29   | Missing-device mode                              | [ ] Not started             | Last known, offline, battery, connectivity, parent actions tests.         |
-| 30   | Parent and child UI/UX surfaces                  | [ ] Not started             | Playwright states, accessibility, deleted-history, no-overclaim tests.    |
-| 31   | Platform extension checklists and proof routing  | [ ] Not started             | Android/iOS/desktop extension proof routing.                              |
-| 32   | Journal SQLite and read-model proof              | [ ] Not started             | Journal/replay/query/delete/read-model proof.                             |
-| 33   | Proof gates fixtures rollout and PR gate         | [ ] Not started             | Full proof pack, blockers, docs/checklist/roadmap update discipline.      |
+| Step | Workpack                                         | Status                        | Required tier         | Current tier          | Current proof status | Proof artifact path                                                                                                                                                                                                                                                                     | Missing proof reason                                                                                                                                                |
+| ---- | ------------------------------------------------ | ----------------------------- | --------------------- | --------------------- | -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 01   | Source index and repo reconciliation             | [x] Planning folder created   | P0_CONTRACT           | P0_CONTRACT           | proved               | `docs/plans/tracking-plan/source-index.md`                                                                                                                                                                                                                                              | none                                                                                                                                                                |
+| 02   | Current tracking snapshot and gap map            | [x] Planning folder created   | P0_CONTRACT           | P0_CONTRACT           | proved               | `docs/plans/tracking-plan/current-tracking-snapshot.md`                                                                                                                                                                                                                                 | none                                                                                                                                                                |
+| 03   | Contract boundary and Effect schemas             | [x] Contract proof complete   | P0_CONTRACT           | P0_CONTRACT           | proved               | `output/tracking-plan-proof/03-contract-boundary-and-effect-schemas/`                                                                                                                                                                                                                   | none                                                                                                                                                                |
+| 04   | Location evidence model                          | [x] Contract proof complete   | P0_CONTRACT           | P0_CONTRACT           | proved               | `output/tracking-plan-proof/04-location-evidence-model/`                                                                                                                                                                                                                                | runtime location ingest remains separate                                                                                                                            |
+| 05   | Device status model                              | [x] Contract proof complete   | P0_CONTRACT           | P0_CONTRACT           | proved               | `output/tracking-plan-proof/05-device-status-model/`                                                                                                                                                                                                                                    | runtime device adapter remains separate                                                                                                                             |
+| 06   | Permission and capability status model           | [x] Contract proof complete   | P0_CONTRACT           | P0_CONTRACT           | proved               | `output/tracking-plan-proof/06-permission-and-capability-status-model/`                                                                                                                                                                                                                 | platform permission artifact remains P3/P4                                                                                                                          |
+| 07   | Retention and custody model                      | [x] Fixture proof complete    | P1_FIXTURE_SIMULATION | P1_FIXTURE_SIMULATION | simulated            | `output/tracking-plan-proof/07-retention-and-custody-model/14-retention-delete-proof.json`; `output/tracking-plan-proof/07-retention-and-custody-model/17-retention-export-proof.json`; `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-fixture-state-matrix.json` | product live service-backed retention settings remain pending                                                                                                       |
+| 08   | Android foreground location adapter              | [ ] Not started               | P3_LOCAL_DEV_MACHINE  | P2_HOSTED_CI          | manual_required      | `output/tracking-plan-proof/android-foreground-location/`                                                                                                                                                                                                                               | Android runtime adapter and emulator/local proof missing                                                                                                            |
+| 09   | Android background location and geofence adapter | [ ] Not started               | P4_PHYSICAL_DEVICE    | P2_HOSTED_CI          | manual_required      | `output/tracking-plan-proof/android-background-geofence/`                                                                                                                                                                                                                               | physical Android background geofence artifact missing                                                                                                               |
+| 10   | Android battery connectivity and status adapter  | [ ] Not started               | P4_PHYSICAL_DEVICE    | P2_HOSTED_CI          | manual_required      | `output/tracking-plan-proof/android-device-status/`                                                                                                                                                                                                                                     | physical Android battery/offline/killed proof missing                                                                                                               |
+| 11   | iOS Core Location foreground adapter             | [ ] Not started               | P4_PHYSICAL_DEVICE    | P2_HOSTED_CI          | manual_required      | `output/tracking-plan-proof/ios-core-location-foreground/`                                                                                                                                                                                                                              | physical iOS Core Location proof missing                                                                                                                            |
+| 12   | iOS background region significant-change adapter | [ ] Not started               | P4_PHYSICAL_DEVICE    | P2_HOSTED_CI          | manual_required      | `output/tracking-plan-proof/ios-region-monitoring/`                                                                                                                                                                                                                                     | physical iOS background/region artifact missing                                                                                                                     |
+| 13   | Desktop location and presence hint model         | [x] Contract proof complete   | P0_CONTRACT           | P0_CONTRACT           | proved               | `output/tracking-plan-proof/13-desktop-location-and-presence-hint-model/`                                                                                                                                                                                                               | desktop OS precise location proof remains separate                                                                                                                  |
+| 14   | Geofence rule model                              | [x] Contract proof complete   | P0_CONTRACT           | P0_CONTRACT           | proved               | `output/tracking-plan-proof/14-geofence-rule-model/`                                                                                                                                                                                                                                    | none                                                                                                                                                                |
+| 15   | Geofence transition engine                       | [x] Fixture proof complete    | P1_FIXTURE_SIMULATION | P1_FIXTURE_SIMULATION | simulated            | `output/tracking-plan-proof/15-geofence-transition-engine/05-geofence-transition-proof.json`                                                                                                                                                                                            | Android/iOS physical geofence proof remains P4 manual-required                                                                                                      |
+| 16   | Expected-place schedule engine                   | [x] Fixture proof complete    | P1_FIXTURE_SIMULATION | P1_FIXTURE_SIMULATION | simulated            | `output/tracking-plan-proof/16-expected-place-schedule-engine/06-expected-place-proof.json`                                                                                                                                                                                             | UI and alert policy integration remain pending                                                                                                                      |
+| 17   | Parent acknowledgement and exception model       | [x] Fixture proof complete    | P1_FIXTURE_SIMULATION | P1_FIXTURE_SIMULATION | simulated            | `output/tracking-plan-proof/17-parent-acknowledgement-and-exception-model/09-policy-alert-proof.json`                                                                                                                                                                                   | alert delivery and portal acknowledgement UI remain pending                                                                                                         |
+| 18   | Child check-in flow                              | [x] Fixture proof complete    | P1_FIXTURE_SIMULATION | P1_FIXTURE_SIMULATION | simulated            | `output/tracking-plan-proof/18-child-check-in-flow/09-policy-alert-proof.json`                                                                                                                                                                                                          | child-device UI, delivery, timeout escalation wiring, and screenshots remain pending                                                                                |
+| 19   | Nearby-place provider abstraction                | [x] Contract proof complete   | P1_FIXTURE_SIMULATION | P0_CONTRACT           | simulated            | `output/tracking-plan-proof/19-nearby-place-provider-abstraction/`                                                                                                                                                                                                                      | provider adapter proof remains pending                                                                                                                              |
+| 20   | Google Places and POI provider adapter           | [ ] Not started               | P1_FIXTURE_SIMULATION | P0_CONTRACT           | not_claimed          | `output/tracking-plan-proof/20-google-places-and-poi-provider-adapter/`                                                                                                                                                                                                                 | adapter implementation, field-mask proof, and provider-failure proof missing                                                                                        |
+| 21   | Place-risk taxonomy and ambiguity model          | [x] Contract proof complete   | P0_CONTRACT           | P0_CONTRACT           | proved               | `output/tracking-plan-proof/21-place-category-taxonomy-and-ambiguity-model/`                                                                                                                                                                                                            | none                                                                                                                                                                |
+| 22   | Local parent-defined place database              | [ ] Contract proof partial    | P1_FIXTURE_SIMULATION | P0_CONTRACT           | simulated            | `output/tracking-plan-proof/22-local-parent-defined-place-database/`                                                                                                                                                                                                                    | CRUD/export/delete store proof missing                                                                                                                              |
+| 23   | AI location safety analysis contracts            | [x] Contract proof complete   | P0_CONTRACT           | P0_CONTRACT           | proved               | `output/tracking-plan-proof/23-ai-location-safety-analysis-contracts/`                                                                                                                                                                                                                  | runtime/provider routing proof remains separate                                                                                                                     |
+| 24   | AI provider routing                              | [x] Contract proof complete   | P0_CONTRACT           | P0_CONTRACT           | proved               | `output/tracking-plan-proof/24-ai-provider-routing/`                                                                                                                                                                                                                                    | remote provider adapter remains not claimed                                                                                                                         |
+| 25   | Policy compiler for tracking rules               | [ ] Contract proof partial    | P1_FIXTURE_SIMULATION | P0_CONTRACT           | simulated            | `output/tracking-plan-proof/25-policy-compiler-for-tracking-rules/`                                                                                                                                                                                                                     | runtime compiler/evaluator proof remains pending                                                                                                                    |
+| 26   | Alert severity and notification model            | [x] Contract proof complete   | P0_CONTRACT           | P0_CONTRACT           | proved               | `output/tracking-plan-proof/26-alert-severity-and-notification-model/`                                                                                                                                                                                                                  | provider delivery remains not claimed                                                                                                                               |
+| 27   | Escalation engine                                | [ ] Contract proof partial    | P1_FIXTURE_SIMULATION | P0_CONTRACT           | simulated            | `output/tracking-plan-proof/27-escalation-engine/`                                                                                                                                                                                                                                      | runtime execution proof remains pending                                                                                                                             |
+| 28   | Temporary live tracking mode                     | [ ] Contract proof partial    | P3_LOCAL_DEV_MACHINE  | P0_CONTRACT           | manual_required      | `output/tracking-plan-proof/28-temporary-live-tracking-mode/`                                                                                                                                                                                                                           | live runtime/UI and battery proof missing                                                                                                                           |
+| 29   | Missing-device mode                              | [ ] Contract proof partial    | P3_LOCAL_DEV_MACHINE  | P0_CONTRACT           | manual_required      | `output/tracking-plan-proof/29-missing-device-mode/`                                                                                                                                                                                                                                    | runtime/UI and offline proof missing                                                                                                                                |
+| 30   | Parent and child UI/UX surfaces                  | [ ] Fixture proof partial     | P2_HOSTED_CI          | P1_FIXTURE_SIMULATION | simulated            | `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-fixture-state-matrix.json`; `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/policy-tracking-parent-fixture.png`                                                                     | full service-data UI, child-device UI, hosted Playwright/accessibility, richer live service-backed citations, and physical-device proof remain pending              |
+| 31   | Platform extension checklists and proof routing  | [x] Contract proof complete   | P0_CONTRACT           | P0_CONTRACT           | proved               | `output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/`                                                                                                                                                                                                        | none                                                                                                                                                                |
+| 32   | Journal SQLite and read-model proof              | [ ] P2 service proof partial  | P2_HOSTED_CI          | P2_HOSTED_CI          | proved               | `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/10-journal-sqlite-proof.json`; `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json`                                                                                  | narrow portal summary consumption proved; deletion/tombstone replay, richer read models, full UI, hosted UI/accessibility, and platform replay proof remain pending |
+| 33   | Proof gates fixtures rollout and PR gate         | [ ] Minimum-MVP audit partial | P2_HOSTED_CI          | P1_FIXTURE_SIMULATION | simulated            | `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/proof-summary.json`; generated runtime artifact `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/00-run-metadata.json`                                                                   | hosted CI/a11y, live UI, platform, authority, and production proof remain pending                                                                                   |
 
 ## Proof Pack Requirements
 
@@ -106,6 +154,27 @@ Each applicable proof pack must include:
 - [ ] `15-manual-platform-proof.md`
 - [ ] `16-validation-commands.log`
 
+Focused contract proof roots generated by
+`scripts/test/tracking-plan-contract-proof.mjs` currently include
+`00-source-snapshot.md`, `01-contract-proof.log`,
+`13-security-negative-proof.log`, `15-manual-platform-proof.md`,
+`16-validation-commands.log`, and `proof-summary.json`. Full platform,
+runtime, hosted Playwright, and journal proof files remain unchecked until
+those implementations exist. WP30 additionally has P1 parent portal
+fixture evidence in `11-ui-fixture-state-matrix.json`; the repeatable
+`node scripts/test/tracking-plan-runtime-proof.mjs` command also captures a
+local rendered route screenshot at
+`11-ui-snapshots/policy-tracking-parent-fixture.png`; accessibility, child UI,
+richer service-data UI, and hosted Playwright proof remain pending.
+WP32 additionally has P2 service-command plus narrow portal summary-consumption proof from
+`node scripts/test/tracking-plan-service-read-model-proof.mjs`, written to
+`18-service-read-model-proof.json`; richer product read models and hosted
+portal proof remain pending.
+WP33 `proof-summary.json` records a tracked `minimumSeriousMvpAuditSummary`.
+The runtime proof command also records the full `minimumSeriousMvpAudit` in
+generated `00-run-metadata.json`; both are first-checkpoint P1
+reconciliations, not product-complete, PR-ready, or full-scope claims.
+
 ## Documentation Update Rule
 
 Every implementation workpack must update, or explicitly justify not updating:
@@ -125,24 +194,55 @@ Every implementation workpack must update, or explicitly justify not updating:
 - [x] Schema proposal exists.
 - [x] Raw tracking settings inventory exists.
 - [x] Tracking plan folder exists.
-- [ ] Location evidence contracts are not product-complete.
-- [ ] Geofence transition runtime proof is not product-complete.
-- [ ] Expected-place schedule engine is not product-complete.
-- [ ] Nearby-place/AI safety analysis is not product-complete.
-- [ ] Parent acknowledgement/exception system is not product-complete.
+- [x] Location evidence contracts have focused contract proof; runtime and UI
+      remain not product-complete.
+- [x] Geofence transition deterministic runtime proof exists at P1 fixture
+      tier; Android/iOS physical geofence proof remains manual-required.
+- [x] Expected-place schedule engine deterministic runtime proof exists at P1
+      fixture tier; UI and alert policy integration remain pending.
+- [x] Nearby-place/AI safety analysis contracts have focused contract proof;
+      provider runtime and UI remain not product-complete.
+- [x] Parent acknowledgement/exception fixture proof exists at P1 tier;
+      alert delivery and portal acknowledgement UI remain pending.
+- [x] Child check-in fixture proof exists at P1 tier; child-device UI,
+      delivery, timeout escalation wiring, and screenshots remain pending.
 - [ ] Android background permission proof is not complete.
 - [ ] iOS background/region proof is not complete.
-- [ ] Retention/delete/export proof is not complete.
-- [ ] Tracking UI/UX is not product-complete.
+- [x] Retention/delete/export P1 checkpoint proof exists. Retention delete has
+      P1 read-model proof, parent-owned export has P1 snapshot proof, and
+      UI-visible deleted-history hiding has P1 route fixture proof; product
+      live-service retention settings remain pending.
+- [x] Tracking service read-model command has P2 proof for SQLite tracking rows,
+      citation IDs through `trackingReadModel`, and narrow parent portal summary
+      consumption; deletion/tombstone replay, richer read models, hosted
+      UI/accessibility, and platform replay proof remain pending.
+- [ ] Tracking UI/UX is not product-complete. A P1 parent portal tracking-state
+      fixture and local parent-route screenshot exist; live parent/child UI,
+      accessibility, service-data, hosted proof, and physical-device proof
+      remain pending.
+- [x] Minimum Serious MVP first-checkpoint audit exists in tracked
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/proof-summary.json`
+      and generated
+      `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/00-run-metadata.json`;
+      it explicitly blocks product-complete, PR-ready, and full-scope claims
+      until the remaining live UI, platform, hosted, and authority
+      proof gaps are closed.
 
 ## UI Snapshot Gates
 
-- [ ] Parent dashboard snapshots cover live, stale, offline, permission
-      denied, low accuracy, ambiguous nearby place, alert, acknowledgement,
-      exception, temporary live, missing device, and retention-deleted states.
+- [x] Parent route fixture covers tracking off, permission-required, stale,
+      offline, low accuracy, ambiguous nearby place, alert, acknowledgement,
+      exception, child check-in, temporary live, missing device, and
+      retention-deleted states at P1 with local proof artifact references. The
+      runtime proof command captures a local rendered parent-route screenshot;
+      live-data screenshots, hosted Playwright/a11y proof, and child UI remain
+      pending.
 - [ ] Child snapshots cover check-in, disclosure, safe/help responses, and
       location-share consent.
-- [ ] Screenshots are stored under the assigned proof root.
+- [ ] Screenshots are stored under the assigned proof root. The runtime proof
+      command captures the local parent fixture screenshot at
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/policy-tracking-parent-fixture.png`;
+      child, live-data, and hosted screenshots remain pending.
 - [ ] Accessibility output is stored with the UI proof.
 
 ## Evidence Quality Gates

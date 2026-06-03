@@ -8,6 +8,7 @@ pub const ACTIVITY_FAMILY_SOURCES: &str = "activityFamilySources";
 pub const ACTIVITY_READ_MODEL: &str = "activityReadModel";
 pub const ACTIVITY_READ_MODEL_KIND: &str = "activityReadModelKind";
 pub const ACTIVITY_SURFACE_STATE: &str = "activitySurfaceState";
+pub const ACTIVITY_TRACKING_READ_MODEL: &str = "trackingReadModel";
 pub const ACTIVE_STATE: &str = "activeState";
 pub const ADAPTER_ID: &str = "adapterId";
 pub const BRIDGE_ENDPOINT_REF: &str = "bridgeEndpointRef";

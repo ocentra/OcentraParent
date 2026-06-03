@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-06-03T12:11:23.621Z",
+  "commit": "b975ebe636e8cce63f6b6d3536e63f75de4a3555",
+  "workpackId": "21-place-category-taxonomy-and-ambiguity-model",
+  "proofState": "contract-proof-complete",
+  "summary": "Place-risk categories and ambiguity states are schema-backed and tested.",
+  "commands": [
+    {
+      "command": "cmd /c npm --workspace @ocentra-parent/activity-domain run build",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm --workspace @ocentra-parent/activity-domain run test -- tracking",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm --workspace @ocentra-parent/parent-domain run build",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm --workspace @ocentra-parent/parent-domain run test -- tracking-location-policy",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm run lint:schema-boundaries",
+      "exitCode": 0
+    }
+  ],
+  "productClaims": {
+    "contractProof": true,
+    "androidIosBackgroundLocationClaimed": false,
+    "preciseLocationFromLanIpWifiClaimed": false,
+    "uiCompleteClaimed": false,
+    "providerDeliveryClaimed": false,
+    "remoteSyncEnabledByDefault": false
+  }
+}

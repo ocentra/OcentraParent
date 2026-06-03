@@ -23,6 +23,9 @@ transports.
   integrity runtime audit read model carried by
   `agent.enforcement.supported-adapter-runtime-proof.reported` and its nested
   V0.8 integrity alert/status bridge and notification provider status boundary.
+- Tracking read-model command/event names and the `trackingReadModel` payload
+  field for the service-backed
+  `agent.activity.tracking.read-model.get` proof path.
 
 ## Must Not Own
 
@@ -82,3 +85,7 @@ flowchart LR
   adapter.
 - LAN source-matrix parsing keeps unavailable/manual source rows visible but
   does not upgrade them into production discovery adapters.
+- Tracking read-model protocol support proves command/event parity, service
+  payload shape, and the parser used by the narrow portal summary; product
+  tracking evidence schemas remain in `activity-domain`, and full UI remains
+  separate.

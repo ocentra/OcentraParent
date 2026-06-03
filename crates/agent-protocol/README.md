@@ -25,6 +25,9 @@ Rust protocol parity crate for data that crosses the TypeScript/Rust boundary.
   manual-required, quiet-hours, and escalation readiness proof.
 - V0.9 LAN source-matrix structs, constants, and parity tests for workpack and
   discovery-source proof status rows consumed by service-backed diagnostics.
+- Tracking journal read-model structs, command/event names, payload field, and
+  parity tests for the narrow service-backed
+  `agent.activity.tracking.read-model.get` proof path.
 
 ## Must Not Own
 
@@ -83,3 +86,6 @@ flowchart LR
   child-evidence storage unclaimed.
 - LAN source-matrix structs must preserve weak-source fences so passive or
   manual discovery evidence cannot become child-agent confirmation by accident.
+- Tracking read-model structs preserve journal row and citation-id evidence
+  only; they do not claim mobile background behavior, provider delivery, or
+  product-complete tracking UI beyond narrow portal summary consumption.

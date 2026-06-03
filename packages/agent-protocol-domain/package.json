@@ -33,6 +33,10 @@
       "import": "./dist/parent-assistant-adapter.js",
       "types": "./dist/parent-assistant-adapter.d.ts"
     },
+    "./tracking-read-model": {
+      "import": "./dist/tracking-read-model.js",
+      "types": "./dist/tracking-read-model.d.ts"
+    },
     "./contracts": {
       "import": "./dist/contracts.js",
       "types": "./dist/contracts.d.ts"

@@ -106,6 +106,8 @@ pub enum AgentCommandName {
     AgentActivityGamesReadModelGet,
     #[serde(rename = "agent.activity.network.read-model.get")]
     AgentActivityNetworkReadModelGet,
+    #[serde(rename = "agent.activity.tracking.read-model.get")]
+    AgentActivityTrackingReadModelGet,
     #[serde(rename = "agent.browser.evidence.recent.get")]
     AgentBrowserEvidenceRecentGet,
     #[serde(rename = "agent.browser.managed.bridge.poll")]
@@ -228,6 +230,8 @@ pub enum AgentEventName {
     AgentActivityGamesReadModelReported,
     #[serde(rename = "agent.activity.network.read-model.reported")]
     AgentActivityNetworkReadModelReported,
+    #[serde(rename = "agent.activity.tracking.read-model.reported")]
+    AgentActivityTrackingReadModelReported,
     #[serde(rename = "agent.browser.evidence.recent.reported")]
     AgentBrowserEvidenceRecentReported,
     #[serde(rename = "agent.browser.managed.status.reported")]

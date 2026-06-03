@@ -48,6 +48,7 @@ mod network_flow;
 mod notification_provider_status_boundary;
 mod parent_assistant;
 mod screen_evidence;
+mod tracking_read_model;
 mod transport;
 mod windows_adapter_artifact_gate;
 mod windows_adapter_artifact_ingestion;
@@ -97,6 +98,7 @@ pub use network_flow::*;
 pub use notification_provider_status_boundary::*;
 pub use parent_assistant::*;
 pub use screen_evidence::*;
+pub use tracking_read_model::*;
 pub use transport::*;
 pub use windows_adapter_artifact_gate::*;
 pub use windows_adapter_artifact_ingestion::*;
@@ -203,6 +205,8 @@ mod policy_preview_tests;
 mod screen_evidence_tests;
 #[cfg(test)]
 mod tests;
+#[cfg(test)]
+mod tracking_read_model_tests;
 #[cfg(test)]
 mod windows_adapter_artifact_gate_tests;
 #[cfg(test)]

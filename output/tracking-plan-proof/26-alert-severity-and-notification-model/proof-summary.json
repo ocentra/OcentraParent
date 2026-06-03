@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-06-03T12:11:23.621Z",
+  "commit": "b975ebe636e8cce63f6b6d3536e63f75de4a3555",
+  "workpackId": "26-alert-severity-and-notification-model",
+  "proofState": "contract-proof-complete",
+  "summary": "Tracking alert intents cite policy decisions, evidence refs, severity, minimal detail mode, and notification refs.",
+  "commands": [
+    {
+      "command": "cmd /c npm --workspace @ocentra-parent/activity-domain run build",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm --workspace @ocentra-parent/activity-domain run test -- tracking",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm --workspace @ocentra-parent/parent-domain run build",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm --workspace @ocentra-parent/parent-domain run test -- tracking-location-policy",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm run lint:schema-boundaries",
+      "exitCode": 0
+    }
+  ],
+  "productClaims": {
+    "contractProof": true,
+    "androidIosBackgroundLocationClaimed": false,
+    "preciseLocationFromLanIpWifiClaimed": false,
+    "uiCompleteClaimed": false,
+    "providerDeliveryClaimed": false,
+    "remoteSyncEnabledByDefault": false
+  }
+}

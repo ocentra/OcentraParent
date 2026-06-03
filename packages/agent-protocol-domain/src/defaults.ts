@@ -150,6 +150,7 @@ export const AgentProtocolDefaults = {
     ActivityReadModel: 'activityReadModel',
     ActivityReadModelKind: 'activityReadModelKind',
     ActivitySurfaceState: 'activitySurfaceState',
+    ActivityTrackingReadModel: 'trackingReadModel',
     BridgeEndpointRef: 'bridgeEndpointRef',
     BridgeKind: 'bridgeKind',
     BrowserEvidenceId: 'browserEvidenceId',

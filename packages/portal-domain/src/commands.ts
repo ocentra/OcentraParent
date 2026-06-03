@@ -67,6 +67,10 @@ export const PortalOverviewCommands = [
     payload: {},
   },
   {
+    command: AgentCommand.ActivityTrackingReadModelGet,
+    payload: {},
+  },
+  {
     command: AgentCommand.LocalAiRuntimeStatusGet,
     payload: {},
   },
@@ -185,6 +189,12 @@ export const PortalCommandButtons = [
     label: resolvePortalDevText(PortalDevTextToken.GetNetworkFlowReadModel),
     command: AgentCommand.NetworkFlowReadModelGet,
     resultEvent: AgentEvent.NetworkFlowReadModelReported,
+    payload: {},
+  },
+  {
+    label: resolvePortalDevText(PortalDevTextToken.GetActivityTrackingReadModel),
+    command: AgentCommand.ActivityTrackingReadModelGet,
+    resultEvent: AgentEvent.ActivityTrackingReadModelReported,
     payload: {},
   },
   {
