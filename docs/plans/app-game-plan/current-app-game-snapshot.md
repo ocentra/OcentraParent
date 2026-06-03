@@ -83,7 +83,8 @@ Not proved today:
   source wiring.
 - Product-complete native game catalog, live launcher disambiguation, and game
   budgets.
-- New/unknown app and unknown game approval flow.
+- Live new/unknown app and unknown game approval flow beyond the WP17
+  contract-level request/decision proof.
 - Live category/risk classification, catalog enrichment, policy compiler
   routing, service/read-model parity, and portal category/risk rows for the new
   WP12 contract.
@@ -113,16 +114,19 @@ app/game contract stack from this plan:
   category/risk taxonomy contract proof;
 - rating, UGC, multiplayer, and purchase signals;
 - policy targets for app and game product slices;
-- unknown app and unknown game approval requests;
+- live unknown app and unknown game approval requests beyond contract proof;
 - authority tier and capability rows for every action;
 - enforcement result and rollback proof for app/game actions.
 
 `packages/parent-domain` currently provides separate app-control and
 game-control catalog schemas/data, enforcement policy dispatch contracts, and
 app/game control approval authority/request/decision/action-result contract
-proof plus the WP11 platform authority matrix. Those catalogs and authority
-contracts are product-control inputs, not a complete shared evidence spine or a
-proof that broad app/game blocking works.
+proof plus the WP11 platform authority matrix. WP17 now adds contract-level
+unknown app/game approval candidates, child status/reason refs, response scope,
+expiry, audit-backed replay state, and manual-required outcomes. Those catalogs
+and authority contracts are product-control inputs, not a complete shared
+evidence spine, live approval workflow, or proof that broad app/game blocking
+works.
 
 ## Current Runtime
 
@@ -157,7 +161,8 @@ product flow.
 Missing portal states include:
 
 - full app/game identity and catalog quality beyond reported read-model rows;
-- unknown app and unknown game approval requests;
+- live unknown app and unknown game approval request surfaces beyond contract
+  proof;
 - game budget policy authoring and category rows;
 - live risk app and risk game candidate production rows;
 - platform capability matrix rows backed by live authority proof;
@@ -195,6 +200,10 @@ Missing portal states include:
   activity-surface DTOs through a shared dashboard intent, but approval,
   policy, game-budget, live source, and platform-authority surfaces remain
   incomplete.
+- Unknown approval flow now has parent-domain contract proof for weak
+  app/game candidates, child refs, response scopes, expiry, replay state, and
+  manual-required blocks, but live candidate production, notification delivery,
+  service read models, and parent/child approval UI remain incomplete.
 - Launcher evidence has contract/protocol/parser proof and service DTO exposure
   from staged projection rows, but live launcher crawling, dedicated portal
   rows, and game-budget policy are not product-complete. A launcher row must

@@ -103,10 +103,14 @@ and update them only when their acceptance contract or generated data changes.
 - `packages/parent-domain/src/app-control-guide-catalog-data.ts`
 - `packages/parent-domain/src/enforcement-policy-dispatch.ts`
 - `packages/parent-domain/src/app-game-control-authority.ts`
+- `packages/parent-domain/src/app-game-control-authority-rules.ts`
+- `packages/parent-domain/src/app-game-control-approval-flow.ts`
 - `packages/parent-domain/src/app-game-control-platform-authority.ts`
 - `packages/parent-domain/src/app-game-control-platform-authority-rules.ts`
 - `packages/parent-domain/src/policy.ts`
 - `packages/parent-domain/tests/app-control-policy-catalog.test.ts`
+- `packages/parent-domain/tests/app-game-control-authority.test.ts`
+- `packages/parent-domain/tests/app-game-unknown-approval-flow.test.ts`
 - `packages/parent-domain/tests/app-game-control-platform-authority.test.ts`
 - `packages/parent-domain/tests/enforcement-approval-audit.test.ts`
 
@@ -208,22 +212,27 @@ packs mirror the app/game proof roots and record product-doc decisions.
 | WP13 journal/SQLite app ingest        | `output/app-plan-proof/13-journal-and-sqlite-app-ingest`                        | `output/app-game-plan-proof/14-journal-and-sqlite-ingest`                 | Encrypted journal replay proof     |
 | WP14 app read models/service events   | `output/app-plan-proof/14-app-read-models-and-service-events`                   | `output/app-game-plan-proof/15-read-models-and-service-events`            | Service read-model DTO proof       |
 | WP15 portal app inventory surfaces    | `output/app-plan-proof/15-parent-portal-app-inventory-running-session-surfaces` | `output/app-game-plan-proof/16-parent-portal-app-game-dashboard-surfaces` | Portal dashboard surface proof     |
+| WP16 new/unknown app approval         | `output/app-plan-proof/16-new-app-and-unknown-app-approval-flow`                | `output/app-game-plan-proof/17-unknown-app-game-approval-flow`            | Approval contract proof only       |
 
 These completed rows do not add live OS crawling, content knowledge, policy
-execution, install control, broad blocking, or runtime cross-platform parity.
+execution, install control, parent/child approval UI, notification delivery,
+broad blocking, or runtime cross-platform parity.
 Those claims remain assigned to later app-plan/app-game workpacks.
 
-The WP12/WP13/WP14/WP15 sessionization, read-model, and portal-surface proof
-narrows the storage/UI gap in three stages:
+The WP12/WP13/WP14/WP15/WP16 sessionization, read-model, portal-surface, and
+approval-contract proof narrows the storage/UI/control gap in four stages:
 deterministic replay from stored SQLite observation rows is covered for process
 and foreground session summaries plus daily rollups, and staged encrypted
 journal-file replay is now covered for typed inventory, runtime, foreground,
 launcher, running-now, foreground-now, and daily rollup rows. Service app-use
 activity-surface read-model rows now consume those projected rows. The parent
 portal now has a dedicated App/Game Sessions dashboard surface that consumes the
-service read-model rows. Dedicated approval, policy, game-budget, live source,
-policy execution, live source subscriptions, journal corruption/recovery, and
-platform authority proof remain later work.
+service read-model rows. New/unknown app approval requests are now modeled as
+contract-valid candidate, child-status, response-scope, expiry, persistence,
+and manual-required states. Dedicated approval UI, notification delivery,
+service persistence/read models, policy, game-budget, live source, policy
+execution, live source subscriptions, journal corruption/recovery, and platform
+authority proof remain later work.
 
 ## Current Test Files
 
@@ -232,6 +241,8 @@ platform authority proof remain later work.
 - `packages/activity-domain/tests/activity-surface.test.ts`
 - `packages/agent-protocol-domain/tests/activity-surface-adapter.test.ts`
 - `packages/parent-domain/tests/app-control-policy-catalog.test.ts`
+- `packages/parent-domain/tests/app-game-control-authority.test.ts`
+- `packages/parent-domain/tests/app-game-unknown-approval-flow.test.ts`
 - `packages/parent-domain/tests/app-game-control-platform-authority.test.ts`
 - `packages/parent-domain/tests/enforcement-approval-audit.test.ts`
 - `crates/agent-protocol/src/app_game_tests.rs`

@@ -130,7 +130,7 @@ Existing portal/source areas that app work should extend:
 
 ## Proof That Exists
 
-The native app plan now mirrors the shared app/game proof spine for WP01-WP15:
+The native app plan now mirrors the shared app/game proof spine for WP01-WP16:
 
 ```text
 output/app-plan-proof/01-contract-boundary-and-effect-schemas
@@ -148,6 +148,7 @@ output/app-plan-proof/12-app-sessionization-and-duration-engine
 output/app-plan-proof/13-journal-and-sqlite-app-ingest
 output/app-plan-proof/14-app-read-models-and-service-events
 output/app-plan-proof/15-parent-portal-app-inventory-running-session-surfaces
+output/app-plan-proof/16-new-app-and-unknown-app-approval-flow
 ```
 
 Those proof packs point back to `output/app-game-plan-proof/*` for the shared
@@ -190,7 +191,10 @@ polished app catalog UI, install approval, or cross-platform parity.
   dashboard shows duration/counts from those read models, but policy/report
   integration, live source subscriptions, and journal corruption/recovery proof
   remain incomplete.
-- New/unknown app approval and child request UX are incomplete.
+- New/unknown app approval now has contract-level candidate, child-status,
+  response-scope, expiry, replay, and manual-required proof, but live native
+  candidate production, notification delivery, service persistence/read models,
+  parent/child approval UI, and platform hard blocking remain incomplete.
 - App category/risk taxonomy now has contract/test proof, but live classifier
   enrichment, policy routing, portal category rows, and runtime app risk
   detection remain incomplete.

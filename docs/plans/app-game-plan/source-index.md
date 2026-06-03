@@ -83,6 +83,7 @@ Current app-control and app/game policy/catalog meaning lives in:
 - `packages/parent-domain/src/game-control-catalog-schema.ts`
 - `packages/parent-domain/src/game-control-catalog-data.ts`
 - `packages/parent-domain/src/enforcement-policy-dispatch.ts`
+- `packages/parent-domain/src/app-game-control-approval-flow.ts`
 - `packages/parent-domain/src/app-game-control-authority.ts`
 - `packages/parent-domain/src/app-game-control-authority-rules.ts`
 - `packages/parent-domain/src/app-game-control-platform-authority.ts`
@@ -91,6 +92,7 @@ Current app-control and app/game policy/catalog meaning lives in:
 - `packages/parent-domain/tests/app-control-policy-catalog.test.ts`
 - `packages/parent-domain/tests/game-control-policy-catalog.test.ts`
 - `packages/parent-domain/tests/app-game-control-authority.test.ts`
+- `packages/parent-domain/tests/app-game-unknown-approval-flow.test.ts`
 - `packages/parent-domain/tests/app-game-control-platform-authority.test.ts`
 - `packages/parent-domain/tests/enforcement-approval-audit.test.ts`
 
@@ -300,6 +302,17 @@ foreground, launcher, and daily rollup rows. It does not prove dedicated portal
 dashboard UI, policy/approval read models, live source subscriptions, platform
 authority changes, UI screenshots, or broad blocking.
 
+WP17 proof on `codex/app-game-read-model-service-events` adds contract-level
+unknown app/game approval flow proof under
+`output/app-game-plan-proof/17-unknown-app-game-approval-flow/`. It covers new
+inventory apps, unknown runtime processes, portable/installer candidates,
+launcher-game candidates, weak unknown game-like executables, child status and
+reason references, parent response scope, allow-once expiry, audit-backed
+replay state, and manual-required block outcomes. It does not prove live
+candidate creation from source adapters, parent/child approval UI,
+notification delivery, service persistence/read models, platform adapter hard
+blocking, or broad app/game enforcement.
+
 ## Current Test Files
 
 - `packages/activity-domain/tests/app-game.test.ts`
@@ -314,6 +327,7 @@ authority changes, UI screenshots, or broad blocking.
 - `packages/parent-domain/tests/app-control-policy-catalog.test.ts`
 - `packages/parent-domain/tests/game-control-policy-catalog.test.ts`
 - `packages/parent-domain/tests/app-game-control-authority.test.ts`
+- `packages/parent-domain/tests/app-game-unknown-approval-flow.test.ts`
 - `packages/parent-domain/tests/app-game-control-platform-authority.test.ts`
 - `packages/parent-domain/tests/enforcement-approval-audit.test.ts`
 - `crates/agent-protocol/src/app_game_tests.rs`

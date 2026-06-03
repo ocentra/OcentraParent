@@ -58,6 +58,11 @@ control with better evidence and local audit.
   surface with separate inventory, running, foreground, launcher-only,
   unknown-review, manual-required capability, game-budget gap, and evidence
   counts.
+- App/game unknown approval contracts now represent new inventory apps, unknown
+  runtime processes, portable/installer candidates, launcher-game candidates,
+  unknown game-like executables, child status/reason refs, parent response
+  scope, expiry, audit-backed replay state, and manual-required block outcomes
+  without dispatching unsupported adapters.
 - Package/process identity and owned-process time-limit proof are in progress.
 - The V0.8 product-control spine separates app time-limit and scoped
   owned-process control from broad installed-app blocking, so downstream policy
@@ -118,6 +123,10 @@ kiosk/single-app adapter behavior. The category/risk taxonomy is contract proof
 only; it does not prove live catalog enrichment, local AI classifier quality,
 policy compiler routing, portal category UI, or runtime app/game category
 decisions.
+The unknown approval proof is still contract-level: it does not yet provide
+finished parent/child approval UI, notification delivery, persisted service
+read models, live candidate creation from platform adapters, or platform hard
+blocking.
 
 ## Checklist
 
@@ -128,7 +137,10 @@ decisions.
       read-model DTOs now expose those projected rows; the parent portal now
       has a dedicated app/game dashboard surface for those rows; live source
       adapters and policy integration remain.
-- [ ] Category and unknown-state handling.
+- [ ] Category and unknown-state handling. Unknown approval contracts now keep
+      weak app/game evidence in review/report-only/manual-required states with
+      evidence refs, child status refs, expiry, and audit-backed persistence
+      fields; live candidate production and parent/child UX remain.
 - [ ] App/category schedule and time-budget rules.
 - [ ] Ask-parent and bonus-time flow.
 - [ ] Child-facing reason/status is referenced in the runtime audit; finished
