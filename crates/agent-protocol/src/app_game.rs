@@ -79,6 +79,20 @@ pub const APP_GAME_TEST_LAUNCHER_APP_ID: &str = "launcher-app-ref-ocentra-game";
 pub const APP_GAME_TEST_LAUNCHER_MANIFEST_ID: &str = "launcher-manifest-ref-ocentra-game";
 pub const APP_GAME_TEST_STORE_ID: &str = "store-ref-ocentra-game";
 pub const APP_GAME_TEST_CATALOG_REF: &str = "catalog-ref-ocentra-game";
+pub const APP_GAME_TEST_STORE_APP_SOURCE_REF: &str = "source-store-package-app";
+pub const APP_GAME_TEST_STORE_GAME_SOURCE_REF: &str = "source-store-package-game";
+pub const APP_GAME_TEST_STORE_APP_DISPLAY_LABEL: &str = "Ocentra Store App Fixture";
+pub const APP_GAME_TEST_STORE_GAME_DISPLAY_LABEL: &str = "Ocentra Store Game Fixture";
+pub const APP_GAME_TEST_STORE_APP_PACKAGE_ID: &str = "package-ref-ocentra-store-app";
+pub const APP_GAME_TEST_STORE_GAME_PACKAGE_ID: &str = "package-ref-ocentra-store-game";
+pub const APP_GAME_TEST_STORE_APP_BUNDLE_ID: &str = "bundle-ref-ocentra-store-app";
+pub const APP_GAME_TEST_STORE_GAME_BUNDLE_ID: &str = "bundle-ref-ocentra-store-game";
+pub const APP_GAME_TEST_STORE_APP_USER_MODEL_ID: &str = "aumid-ref-ocentra-store-app";
+pub const APP_GAME_TEST_STORE_GAME_USER_MODEL_ID: &str = "aumid-ref-ocentra-store-game";
+pub const APP_GAME_TEST_STORE_APP_STORE_ID: &str = "store-ref-ocentra-store-app";
+pub const APP_GAME_TEST_STORE_GAME_STORE_ID: &str = "store-ref-ocentra-store-game";
+pub const APP_GAME_TEST_STORE_APP_CATALOG_REF: &str = "catalog-ref-ocentra-store-app";
+pub const APP_GAME_TEST_STORE_GAME_CATALOG_REF: &str = "catalog-ref-ocentra-store-game";
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
