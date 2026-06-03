@@ -55,6 +55,10 @@ Expected contract families:
   artifacts, manual/device-proof/unavailable state, limitation report ref, and
   explicit no-attached-artifact/no-store-integration/no-platform-adapter/no-real
   interception/no-child-activity-data boundary.
+- Runtime proof rows link the platform/store metadata artifact requirement,
+  package-source artifact requirement, child pending/result delivery boundary,
+  and report integration boundary without claiming provider/store integration,
+  child-device delivery, runtime report delivery, or app blocking.
 
 ## Validation Gates
 
@@ -65,6 +69,9 @@ Expected contract families:
 - TypeScript schema tests and a proof harness for package-source artifact rows,
   missing package-source row rejection, missing field coverage rejection, and
   adapter/store/interception overclaim rejection.
+- TypeScript schema tests and a proof harness for runtime-boundary rows, missing
+  platform/package artifact coverage rejection, child delivery/report runtime
+  overclaim rejection, and required non-claim coverage.
 - Platform proof for Google Play, Apple App Store, Microsoft Store, or other
   store hooks before claiming integration.
 - Portal tests for approval flow when UI exists.
@@ -77,6 +84,8 @@ Expected contract families:
 - Do not treat contract-only child-facing/report rows as delivered runtime UX.
 - Do not treat package-source artifact requirement rows as captured host/device
   artifacts.
+- Do not treat runtime-boundary proof rows as provider/store integration,
+  child-device delivery, runtime report delivery, or app blocking.
 
 ## Done Signal
 

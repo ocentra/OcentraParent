@@ -50,17 +50,25 @@ generic app blocking covers this concern.
 - `scripts/test/app-install-package-source-artifact-proof.mjs` records the
   package-source artifact row proof under
   `test-results/app-install-package-source-artifact-proof/proof.json` when run.
-- No product runtime claim exists yet.
+- `packages/parent-domain/src/app-install-purchase-runtime-proof.ts` now records
+  a runtime-boundary proof that links platform/store metadata artifact
+  requirements, package-source artifact requirements, child pending/result
+  delivery rows, and report integration rows while keeping store/provider,
+  child-device delivery, runtime report delivery, and app-blocking behavior
+  unclaimed.
+- `scripts/test/app-install-purchase-runtime-proof.mjs` records that runtime
+  boundary under `test-results/app-install-purchase-runtime-proof/proof.json`
+  when run.
 
 ## Current Gap
 
 Ocentra still needs platform adapters, approved store/API proof or package-source
 artifact attachments, child-device delivery for pending/result state, portal UX,
 runtime report integration, and proof for each store/platform path. The current
-parent-domain proof does not implement Google Play, Apple App Store, Microsoft
-Store, billing entitlement, platform interception, portal, child-device
-delivery, runtime reports, runtime app-blocking behavior, or real child-device
-package-source artifact capture.
+parent-domain proof links those runtime boundary rows but does not implement
+Google Play, Apple App Store, Microsoft Store, billing entitlement, platform
+interception, portal, child-device delivery, runtime reports, runtime
+app-blocking behavior, or real child-device package-source artifact capture.
 
 ## Checklist
 
@@ -78,13 +86,15 @@ package-source artifact capture.
       claim.
 - [x] Audit and report integration status contract with no portal/runtime report
       claim.
+- [x] Runtime-boundary proof linking platform metadata, package-source artifact,
+      child delivery, and report rows without provider/store/runtime overclaims.
 - [ ] Portal tests and platform proof before product claim.
 
 ## Next AI Instructions
 
 Do not fold this into generic app blocking. The next proof should attach real
-platform/store metadata artifacts, approved API/entitlement evidence, package
-source artifacts, or portal/report runtime evidence before upgrading
-manual-required source rows, child delivery, or report status. If the OS/store
-does not allow interception, document the limitation and offer the closest safe
-parent workflow.
+platform/store metadata artifacts, approved API/entitlement evidence, real
+child-device package-source artifacts, or portal/report runtime evidence before
+upgrading manual-required source rows, child delivery, or report status. If the
+OS/store does not allow interception, document the limitation and offer the
+closest safe parent workflow.
