@@ -21,6 +21,10 @@
       "import": "./dist/app-install-purchase-approval-proof.js",
       "types": "./dist/app-install-purchase-approval-proof.d.ts"
     },
+    "./billing-entitlement": {
+      "import": "./dist/billing-entitlement.js",
+      "types": "./dist/billing-entitlement.d.ts"
+    },
     "./browser-control-baseline-manifest": {
       "import": "./dist/browser-control-baseline-manifest.js",
       "types": "./dist/browser-control-baseline-manifest.d.ts"

@@ -78,6 +78,15 @@ surfaces. The proof is route contract only; it does not add Stripe SDK code,
 billing provider logic, an account backend, portal UI, updater runtime, or
 child-activity custody.
 
+Current entitlement proof: `billing-entitlement-contract-proof` defines
+parent-domain contracts for plan entitlement rows, entitlement snapshots,
+subscription status sync events, device-limit decisions, billing failure states,
+parent-visible degraded/local-only status, retained evidence-export access, and
+explicit non-claims for Stripe SDKs, provider backends, provider token custody,
+child-activity custody, safety shutdown, and portal UI. The proof does not add
+provider integration, account storage, entitlement signing/runtime delivery,
+portal billing UI, or child-device entitlement consumption.
+
 ## Entitlement Boundaries
 
 Entitlements may gate:
@@ -114,6 +123,9 @@ Any feature that can be disabled for billing must define its degraded local beha
 - Trial state.
 - Device limit policy.
 - Grace/failure behavior.
+- Local-safety fallback and retained evidence-export behavior when billing is
+  unavailable, stale, or payment-required. Current
+  `billing-entitlement-contract-proof` covers this contract-only boundary.
 - Account, entitlement, subscription, device-limit, download, update, and
   release-status endpoint route contracts. Current
   `billing-account-endpoint-contract-proof` covers this contract-only endpoint
@@ -130,6 +142,10 @@ Any feature that can be disabled for billing must define its degraded local beha
 ## Validation Gates
 
 - TypeScript schema tests prove valid/invalid plans, entitlement snapshots, subscription statuses, billing sync events, device-limit decisions, and failure states.
+- `billing-entitlement-contract-proof` proves valid and invalid plan,
+  entitlement snapshot, subscription sync, device-limit, failure, provider
+  boundary, export-retention, and no-safety-shutdown states before provider or
+  child-device runtime code exists.
 - Endpoint-domain contract tests and `billing-account-endpoint-contract-proof`
   prove account, entitlement, subscription, device-limit, download, update, and
   release-status route boundaries before provider/backend code exists.

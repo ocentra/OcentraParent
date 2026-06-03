@@ -74,6 +74,13 @@ dev-only repo when it claims consumer readiness.
   and account download/update/status surfaces. It is route contract proof only:
   no Stripe SDK, billing provider backend, account backend, portal UI, updater
   runtime, or child-activity custody is implemented.
+- `billing-entitlement-contract-proof` defines parent-domain contracts for
+  plan entitlement rows, entitlement snapshots, subscription status sync events,
+  device-limit decisions, parent-visible failure states, local-safety fallback,
+  evidence-export retention, and explicit billing non-claims. It is contract
+  proof only: no Stripe SDK, billing provider backend, account backend,
+  entitlement signing runtime, portal UI, child-device consumption, or
+  child-activity custody is implemented.
 - Billing/support/public website/store distribution are planned or incomplete.
 
 ## Current Gap
@@ -116,7 +123,11 @@ package/runtime proof.
       account status, entitlement snapshot, subscription status, device-limit
       decision, and download/update/status surfaces only; billing provider
       integration, account backend, entitlement runtime, and UI remain
-      incomplete.
+      incomplete. Current `billing-entitlement-contract-proof` covers typed plan,
+      entitlement snapshot, subscription sync, device-limit decision, failure
+      behavior, evidence-export retention, and no-safety-shutdown contract proof
+      only; provider integration, backend storage/signing, runtime delivery,
+      portal UI, and child-device consumption remain incomplete.
 - [ ] Privacy, retention, export/delete, and support docs.
 - [ ] Support bundle redaction proof scaffold and incident process. Current
       release-support proof requires parent consent, incident/status metadata,
