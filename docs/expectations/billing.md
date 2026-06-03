@@ -97,6 +97,16 @@ snapshot, payment required, account mismatch, and validation failed. The proof
 keeps evidence export retained, parent resolution visible, existing local safety
 continuing, and child-activity custody excluded.
 
+Current account runtime boundary proof:
+`billing-account-runtime-boundary-proof` extends the parent-domain billing
+contract with account runtime boundary rows for account status available,
+backend unavailable, provider unavailable, and entitlement signing
+manual-required states. The proof keeps Stripe/provider secrets absent from
+app/source/docs, provider references backend-only, portal billing UI
+unimplemented, child-device entitlement consumption unimplemented,
+child-activity custody excluded, and parent-visible local-safety fallback
+required when backend/provider state is unavailable.
+
 ## Entitlement Boundaries
 
 Entitlements may gate:
@@ -160,6 +170,10 @@ Any feature that can be disabled for billing must define its degraded local beha
   subscription rows require failure state, new-device activation cannot pass at
   the plan limit unless the device is already trusted, and billing failures
   cannot drop existing local safety continuation.
+- `billing-account-runtime-boundary-proof` proves backend/provider unavailable
+  account runtime rows require failure state, entitlement signing runtime gaps
+  stay manual-required, and Stripe/provider secrets, portal UI, child-device
+  consumption, and child-activity custody remain non-claims.
 - Endpoint-domain contract tests and `billing-account-endpoint-contract-proof`
   prove account, entitlement, subscription, device-limit, download, update, and
   release-status route boundaries before provider/backend code exists.

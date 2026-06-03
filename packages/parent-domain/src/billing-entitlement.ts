@@ -39,6 +39,7 @@ import {
 } from './billing-entitlement-values';
 
 export * from './billing-entitlement-values';
+export * from './billing-account-runtime-boundary';
 
 export const BillingFeatureEntitlementSchema = withParser(
   Schema.Struct({
