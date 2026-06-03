@@ -6,7 +6,8 @@ use ocentra_parent_agent_protocol::{
     V08BrowserDomainAdapterProofCapabilityName, V08BrowserDomainAdapterProofCapabilityStatus,
     V08BrowserDomainAdapterProofClaimState, V08BrowserDomainAdapterProofEntry,
     V08BrowserDomainAdapterProofEvidenceKind, V08BrowserDomainAdapterProofReadModel,
-    V08BrowserDomainAdapterProofSurface,
+    V08BrowserDomainAdapterProofSurface, V08WindowsAppControlProofState,
+    V08WindowsAppControlReadinessState, V08WindowsAppControlRuleIdentityKind,
 };
 
 use crate::enforcement_browser_domain_adapter_proof_read_model::v08_browser_domain_adapter_proof_read_model;
@@ -20,6 +21,7 @@ fn browser_domain_read_model_preserves_honest_adapter_states() {
 
     assert_eq!(read_model.read_model_id, proof::READ_MODEL_ID);
     assert_eq!(read_model.entries.len(), 14);
+    assert_eq!(read_model.windows_app_control_states.len(), 6);
     assert_eq!(
         claim_count(&claim_counts, proof::CLAIM_IMPLEMENTED_BOUNDARY),
         5
@@ -45,6 +47,7 @@ fn browser_domain_read_model_preserves_honest_adapter_states() {
     assert!(read_model
         .source_read_model_ids
         .contains(&proof::SOURCE_CROSS_PLATFORM_PROOF.to_string()));
+    assert_app_control_readiness_states(&read_model.windows_app_control_states);
 }
 
 #[test]
@@ -164,6 +167,10 @@ fn browser_domain_read_model_serializes_for_service_preview() {
         &reparsed.entries,
         V08BrowserDomainAdapterProofSurface::WindowsBrowserPolicyRollbackVisibility,
     );
+    let app_control_audit = app_control_state_for(
+        &reparsed.windows_app_control_states,
+        V08WindowsAppControlReadinessState::AuditOnly,
+    );
 
     assert_eq!(reparsed.read_model_id, proof::READ_MODEL_ID);
     assert_eq!(linux.platform, ParentPlatform::Linux);
@@ -177,6 +184,11 @@ fn browser_domain_read_model_serializes_for_service_preview() {
     assert!(rollback
         .linked_proof_commands
         .contains(&proof::COMMAND_BROWSER_POLICY_ROLLBACK_TEST.to_string()));
+    assert!(app_control_audit
+        .event_states
+        .iter()
+        .any(|state| state.as_protocol_str() == proof::APP_CONTROL_EVENT_AUDIT_VISIBLE));
+    assert!(!app_control_audit.app_control_prevention_claimed);
 }
 
 fn entry_for(
@@ -205,6 +217,72 @@ fn assert_surface_state(
     assert_eq!(entry.evidence_kind, evidence_kind);
     assert_eq!(entry.product_claim_state, product_claim_state);
     assert_eq!(entry.adapter_execution_state, adapter_execution_state);
+}
+
+fn assert_app_control_readiness_states(states: &[V08WindowsAppControlProofState]) {
+    let readiness_counts = states.iter().fold(BTreeMap::new(), |mut counts, state| {
+        *counts
+            .entry(state.readiness_state.as_protocol_str())
+            .or_default() += 1;
+        counts
+    });
+    let readiness =
+        app_control_state_for(states, V08WindowsAppControlReadinessState::ReadinessCheck);
+    let enforced = app_control_state_for(states, V08WindowsAppControlReadinessState::Enforced);
+    let unavailable =
+        app_control_state_for(states, V08WindowsAppControlReadinessState::Unavailable);
+    let failed = app_control_state_for(states, V08WindowsAppControlReadinessState::Failed);
+
+    assert_eq!(
+        claim_count(&readiness_counts, proof::APP_CONTROL_READINESS_CHECK),
+        1
+    );
+    assert_eq!(
+        claim_count(&readiness_counts, proof::APP_CONTROL_AUDIT_ONLY),
+        1
+    );
+    assert_eq!(
+        claim_count(&readiness_counts, proof::APP_CONTROL_ENFORCED),
+        1
+    );
+    assert_eq!(
+        claim_count(&readiness_counts, proof::APP_CONTROL_MANUAL_REQUIRED),
+        1
+    );
+    assert_eq!(
+        claim_count(&readiness_counts, proof::APP_CONTROL_UNAVAILABLE),
+        1
+    );
+    assert_eq!(claim_count(&readiness_counts, proof::APP_CONTROL_FAILED), 1);
+    assert_eq!(readiness.rule_identity_kinds.len(), 4);
+    assert!(readiness
+        .rule_identity_kinds
+        .contains(&V08WindowsAppControlRuleIdentityKind::Publisher));
+    assert_eq!(
+        enforced.policy_mutation_state.as_protocol_str(),
+        proof::APP_CONTROL_POLICY_CREATE_UPDATE_MANUAL_REQUIRED
+    );
+    assert_eq!(unavailable.rule_identity_kinds.len(), 0);
+    assert!(failed
+        .event_states
+        .iter()
+        .any(|state| state.as_protocol_str() == proof::APP_CONTROL_EVENT_FAILURE_VISIBLE));
+    assert!(states
+        .iter()
+        .all(|state| !state.app_control_prevention_claimed
+            && !state.policy_creation_claimed
+            && !state.policy_update_claimed
+            && !state.rollback_claimed));
+}
+
+fn app_control_state_for(
+    states: &[V08WindowsAppControlProofState],
+    readiness_state: V08WindowsAppControlReadinessState,
+) -> &V08WindowsAppControlProofState {
+    states
+        .iter()
+        .find(|state| state.readiness_state == readiness_state)
+        .expect(proof::READ_MODEL_ID)
 }
 
 fn count_claims(entries: &[V08BrowserDomainAdapterProofEntry]) -> BTreeMap<&'static str, usize> {

@@ -698,6 +698,125 @@ This intelligence layer can be assigned as sub-workpacks under the browser plan:
 24. Provider degraded/fallback behavior.
 25. Proof gates, fixtures, tests, and rollout.
 
+## Implementation Checkpoint - 2026-06-03
+
+- AI-01 is represented by this plan, the browser-plan source index, and the
+  implementation checklist. The plan remains a browser-owned enhancement path
+  that starts from managed browser evidence and does not replace the social,
+  local AI, policy, memory, reporting, or enforcement source docs.
+- AI-02 now has schema-backed URL shape classification contracts in
+  `packages/activity-domain/src/browser-url-intelligence-schemas.ts`. The
+  contract accepts deterministic URL/platform/id shape rows only when exact
+  managed browser URL evidence exists, and it rejects content semantics, AI
+  decision, policy decision, and unmanaged/network exact-page claims.
+- AI-03 now has a deterministic parser helper in
+  `packages/activity-domain/src/browser-url-intelligence.ts`. The parser maps
+  supported URL shapes into the AI-02 contract for YouTube video, Shorts,
+  channel, playlist, search, Vimeo video, TikTok video/feed, and generic web
+  rows. Unsupported schemes, credential-bearing URLs, unmanaged process rows,
+  and network/domain rows stay rejected or unknown/non-exact.
+- AI-04 now has schema-backed memory hit/miss/stale/manual-required contracts
+  in `packages/activity-domain/src/browser-url-intelligence-schemas.ts`. Fresh
+  hits must cite source evidence, policy version, expiry, and an analysis or
+  parent action ref before they can drive policy input. Stale, miss, and
+  manual-required rows cannot drive policy input, and no memory row can enforce
+  directly.
+- AI-05 now has schema-backed metadata evidence contracts in
+  `packages/activity-domain/src/browser-url-metadata-schemas.ts`. Metadata rows
+  can carry browser title, OpenGraph/schema.org/platform fields, thumbnail refs,
+  duration, publish date, captions availability, and platform labels as
+  evidence for AI input, while rejecting page-body capture, transcript text
+  capture, hidden-analysis metadata without proof, AI decisions, policy
+  decisions, and platform metadata as policy authority.
+- AI-06 now has schema-backed hidden managed analysis profile design contracts
+  in `packages/activity-domain/src/browser-hidden-analysis-schemas.ts`. The
+  design requires an Ocentra-owned profile separate from the child visible
+  profile, bounded retention, timeout/summary budgets, and no child cookies,
+  session tokens, autoplay audio, downloads, form submits, CAPTCHA/login bypass
+  claims, or raw page-body retention. Metadata-only and analysis-ready states
+  require a later loader proof ref.
+- AI-07 now has a typed hidden analysis loader adapter boundary in
+  `packages/activity-domain/src/browser-hidden-analysis-loader.ts`, exported as
+  focused activity-domain subpaths. The deterministic planner can advance safe
+  queued designs to `loading` or return manual-required for disabled/unavailable
+  capability, but result schemas still reject page-body capture, transcript text
+  capture, and metadata-only or analysis-ready states without a loader proof ref.
+- AI-08 now has schema-backed AI analysis input/output contracts in
+  `packages/activity-domain/src/browser-ai-analysis-schemas.ts` with literal
+  and id values split into
+  `packages/activity-domain/src/browser-ai-analysis-values.ts`. Inputs reference
+  stored browser evidence, URL shape, metadata, memory, graph, parent rule,
+  schedule, prompt template, model preference, and custody refs without raw
+  browser state, DevTools payloads, SQLite paths, journals, or OS state. Outputs
+  expose content category/modifier, benefit/risk signals, confidence,
+  uncertainty, parent/child summaries, model/runtime refs, and candidate-only
+  policy input while rejecting final policy action, enforcement, and raw content
+  storage claims.
+- AI-09 now has schema-backed local AI provider routing contracts in
+  `packages/activity-domain/src/browser-ai-provider-routing-schemas.ts`.
+  Provider capability rows prove whether a child-device local AI route is
+  available, disabled, missing a model, unavailable, or resource-exhausted with
+  visible custody, retention, provider, and no-retention state. The deterministic
+  local planner selects a local runtime only when the AI-08 request asks for
+  local execution and the provider supports the task; otherwise it returns
+  manual-required or unavailable without silently defaulting to family hub or
+  remote AI. Routes reject hidden visibility, remote-default-for-blocking,
+  remote override, and remote-outage-disables-local-safety claims.
+- AI-10 now has schema-backed family AI hub routing contracts in
+  `packages/activity-domain/src/browser-ai-family-hub-routing-schemas.ts`. The
+  family hub route is a local-household fallback only: it can be selected after
+  the child-device local provider was attempted and did not serve the request,
+  the parent allowed household hub routing, the AI-08 request permits
+  local-preferred routing, and the hub capability proves task support,
+  no-retention custody, a household route ref, and a model runtime ref. Routes
+  reject hidden visibility, remote provider selection, remote default blocking,
+  and attempts to use the family hub before the local provider path is exhausted.
+- AI-11 now has schema-backed parent-approved remote AI boundary contracts in
+  `packages/activity-domain/src/browser-ai-remote-boundary-schemas.ts` with
+  literal/id values split into
+  `packages/activity-domain/src/browser-ai-remote-boundary-values.ts`. Remote
+  approval, capability, and route contracts require explicit parent approval,
+  visible structured data scope, no-retention mode, provider visibility, local
+  safety fallback, and audit evidence. Routes reject raw browser state, page
+  body, transcript text, screenshot access, remote default blocking, remote
+  override of stricter local rules, and remote outages disabling local safety.
+- AI-12 now has schema-backed prompt/template versioning contracts in
+  `packages/activity-domain/src/browser-ai-prompt-template-schemas.ts` with
+  lifecycle/status values split into
+  `packages/activity-domain/src/browser-ai-prompt-template-values.ts`. Prompt
+  version records track template id/version, hash refs, change refs, model and
+  policy compatibility, audit evidence, lifecycle state, supersession, and
+  memory invalidation. Registries reject duplicate active task/model templates,
+  and selection fails closed to manual-required when no active template supports
+  the requested task, model, or policy version.
+- AI-13 now has schema-backed structured category/risk/benefit model contracts
+  in `packages/activity-domain/src/browser-ai-risk-benefit-model-schemas.ts`
+  with taxonomy values split into
+  `packages/activity-domain/src/browser-ai-risk-benefit-model-values.ts`.
+  Taxonomy records make categories, modifiers, benefit signals, risk signals,
+  unknown fallbacks, and version refs first-class. Assessment records require
+  source evidence, confidence/uncertainty visibility, matching risk or benefit
+  signals for key categories, and candidate-only state while rejecting platform
+  labels as policy authority, final policy actions, and enforcement claims.
+- AI-14 now has schema-backed URL/video analysis queue contracts in
+  `packages/activity-domain/src/browser-ai-analysis-queue-schemas.ts` with job,
+  priority, status, and timeout values split into
+  `packages/activity-domain/src/browser-ai-analysis-queue-values.ts`. Queue jobs
+  carry structured AI input refs, priority, status, parent-owned timeout policy,
+  queued evidence ids, and optional matching results. P0/P1/P2 timeout
+  dispositions are priority-bound, background jobs wait/degrade, completed jobs
+  must match the input request id, and queued/running/degraded/timeout states
+  cannot carry results or claim worker runtime, policy, or enforcement authority.
+- AI-15 now has schema-backed memory/cache store contracts in
+  `packages/activity-domain/src/browser-ai-memory-cache-store-schemas.ts` with
+  key, TTL, and invalidation values split into
+  `packages/activity-domain/src/browser-ai-memory-cache-store-values.ts`. Cache
+  entries wrap existing memory-hit contracts with complete cache keys, TTL
+  classes, invalidation reasons, bounded retention, no raw content storage, and
+  no direct enforcement authority. Fresh entries must include model/prompt,
+  policy, child profile, and content locator keys; stale/invalidated entries
+  cannot drive policy input.
+
 If these become implementation assignments, create focused workpack files or
 worker messages before code changes. Do not mix all 25 into one PR.
 

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  BrowserActiveProofSource,
   BrowserActiveTabState,
   BrowserCustodyLabel,
   BrowserEvidenceRecentSummarySchema,
@@ -20,6 +21,7 @@ describe('browser evidence recent summary contracts', () => {
       managedBrowserSessionId: null,
       browserFamily: null,
       activeState: null,
+      activeProofSource: null,
       url: null,
       origin: null,
       domain: null,
@@ -47,6 +49,7 @@ describe('browser evidence recent summary contracts', () => {
       managedBrowserSessionId: 'managed-browser-session-1',
       browserFamily: BrowserFamily.Chrome,
       activeState: BrowserActiveTabState.Unknown,
+      activeProofSource: BrowserActiveProofSource.TargetListOnly,
       url: 'https://example.test/learn',
       origin: 'https://example.test',
       domain: 'example.test',

@@ -1,6 +1,7 @@
 use std::{
     fs::{remove_dir_all, remove_file, write},
     path::{Path, PathBuf},
+    sync::atomic::{AtomicU64, Ordering},
     time::{SystemTime, UNIX_EPOCH},
 };
 
@@ -11,8 +12,9 @@ use ocentra_parent_agent_protocol::{
     constants, ActivityEvent, ActivityEventKind, ActivityObserver, ActivityReadModelState,
     ActivityRecentSummary, ActivityReportFrequency, ActivityReportRequest, ActivitySource,
     ActivitySubject, ActivitySubjectKind, ActivitySurfaceRequest, ActivitySurfaceScope,
-    ActivitySurfaceScopeKind, BrowserActiveTabState, BrowserCapabilityStatus, BrowserChannel,
-    BrowserCustodyLabel, BrowserFamily, LogFieldValue, LogFields, ACTIVITY_QUERY_SCHEMA_VERSION,
+    ActivitySurfaceScopeKind, BrowserActiveProofSource, BrowserActiveTabState,
+    BrowserCapabilityStatus, BrowserChannel, BrowserCustodyLabel, BrowserFamily,
+    BrowserQueryVisibilityLabel, LogFieldValue, LogFields, ACTIVITY_QUERY_SCHEMA_VERSION,
     ACTIVITY_SCHEMA_VERSION, ACTIVITY_SURFACE_SCHEMA_VERSION,
 };
 
@@ -26,6 +28,8 @@ use crate::{
 };
 
 mod activity_surface_report_command_tests;
+
+static TEST_PATH_COUNTER: AtomicU64 = AtomicU64::new(0);
 
 #[tokio::test]
 async fn activity_surface_report_uses_real_activity_store_snapshot() {
@@ -96,10 +100,13 @@ async fn activity_tab_read_models_map_service_backed_ready_and_unavailable_state
             tab_id: Some(constants::activity_store::TEST_BROWSER_TAB_ID.to_string()),
             window_id: None,
             active_state: BrowserActiveTabState::Unknown,
+            active_proof_source: BrowserActiveProofSource::TargetListOnly,
             url: constants::activity_store::TEST_BROWSER_URL.to_string(),
             title: Some(constants::activity_store::TEST_BROWSER_TITLE.to_string()),
             capability_status: BrowserCapabilityStatus::TabListOnly,
+            degraded_reason: None,
             custody_label: BrowserCustodyLabel::ChildDeviceLocal,
+            query_visibility: BrowserQueryVisibilityLabel::LiveLocal,
         },
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
         constants::activity_store::TEST_SECOND_OBSERVED_AT,
@@ -313,6 +320,12 @@ fn temp_store_path() -> PathBuf {
     name.push(constants::delimiter::HYPHEN);
     name.push_str(&nanos_now().to_string());
     name.push(constants::delimiter::HYPHEN);
+    name.push_str(
+        &TEST_PATH_COUNTER
+            .fetch_add(1, Ordering::Relaxed)
+            .to_string(),
+    );
+    name.push(constants::delimiter::HYPHEN);
     name.push_str(constants::activity_store::TEST_STORE_SUFFIX);
 
     let mut path = std::env::temp_dir();
@@ -327,6 +340,12 @@ fn temp_report_dir() -> PathBuf {
     name.push_str(&std::process::id().to_string());
     name.push(constants::delimiter::HYPHEN);
     name.push_str(&nanos_now().to_string());
+    name.push(constants::delimiter::HYPHEN);
+    name.push_str(
+        &TEST_PATH_COUNTER
+            .fetch_add(1, Ordering::Relaxed)
+            .to_string(),
+    );
     name.push(constants::delimiter::HYPHEN);
     name.push_str(constants::activity_surface::REPORT_STORAGE_DIR);
     path.push(name);

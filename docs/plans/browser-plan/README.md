@@ -90,7 +90,8 @@ flowchart TD
   `apps/portal`.
 - Existing proof scripts cover managed browser profile matrix,
   service-backed browser evidence, managed browser intervention, V0.8
-  browser/domain adapter proof, and Windows managed/unmanaged enforcement.
+  browser/domain adapter proof, Windows managed/unmanaged enforcement, browser
+  performance health, and browser-plan artifact manifest indexing.
 - Existing docs already define the claim boundary. This folder does not replace
   those source docs. It indexes them and turns them into an implementation and
   proof plan.

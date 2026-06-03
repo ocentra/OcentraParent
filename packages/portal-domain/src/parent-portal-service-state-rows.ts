@@ -152,17 +152,18 @@ function lanScanSummaryDeviceCount(payload: AgentProtocolLogFields | null): numb
 
 function browserActivityRow(input: ParentPortalServiceStateInput): ParentPortalRow {
   const managed = latestEvent(input.events, AgentEvent.BrowserManagedStatusReported);
+  const inventory = latestEvent(input.events, AgentEvent.BrowserInventoryReadModelReported);
   const evidence = latestEvent(input.events, AgentEvent.BrowserEvidenceRecentReported);
-  const payload = managed?.payload ?? evidence?.payload ?? null;
+  const payload = managed?.payload ?? inventory?.payload ?? evidence?.payload ?? null;
   const trend =
     textValue(payload, AgentProtocolDefaults.Field.ManagedState) ??
     textValue(payload, AgentProtocolDefaults.Field.CapabilityStatus) ??
     unavailableTrend(input.connectionState);
-  const readyCount = eventCount(managed, evidence);
+  const readyCount = eventCount(managed, inventory, evidence);
   return row(
     PARENT_PORTAL_SERVICE_STATE.Label.BrowserActivity,
     4,
-    eventScore(managed ?? evidence),
+    eventScore(managed ?? inventory ?? evidence),
     readyCount,
     readyCount > 0 ? 0 : 1,
     trend,

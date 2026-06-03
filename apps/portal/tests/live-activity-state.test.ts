@@ -18,6 +18,7 @@ describe('portal live activity state', () => {
     expect(state.browserEvidenceReadModel?.returned).toBe(1);
     expect(state.browserEvidenceReadModel?.rows.at(0)?.url).toBe('https://example.test/learn');
     expect(state.browserEvidenceReadModel?.rows.at(0)?.activeState).toBe('unknown');
+    expect(state.browserEvidenceReadModel?.rows.at(0)?.activeProofSource).toBe('target-list-only');
     expect(state.browserEvidenceReadModel?.capabilityStatus).toBe('tab-list-only');
   });
 
@@ -36,6 +37,20 @@ describe('portal live activity state', () => {
     expect(state.browserEvidenceReadModel?.returned).toBe(0);
     expect(state.browserEvidenceReadModel?.rows.length).toBe(0);
     expect(state.browserEvidenceReadModel?.capabilityStatus).toBeNull();
+  });
+
+  it('parses browser inventory read-model payload fields without exact URL overclaim', () => {
+    const state = resolveLiveActivityState([browserInventoryEvent()]);
+    const latestRow = state.browserInventoryReadModel?.rows.at(0);
+
+    expect(state.browserInventoryReadModel?.returned).toBe(1);
+    expect(state.browserInventoryReadModel?.latestObservedAt).toBe('2026-05-21T01:00:00Z');
+    expect(latestRow?.browserFamily).toBe('edge');
+    expect(latestRow?.productName).toBe('Microsoft Edge');
+    expect(latestRow?.scannedAt).toBe('2026-05-21T01:00:00Z');
+    expect(latestRow?.exactUrlCapability).toBe('managed-target-list-only');
+    expect(latestRow?.activeTabCapability).toBe('target-list-only');
+    expect(latestRow?.unmanagedFallbackCapability).toBe('report-only');
   });
 
   it('uses the latest matching events for portal live activity state', () => {
@@ -157,6 +172,7 @@ function browserEvidenceEvent(eventId = 'evt-browser', url = 'https://example.te
       tabId: null,
       targetId: 'target-1',
       activeState: 'unknown',
+      activeProofSource: 'target-list-only',
       url,
       origin,
       domain,
@@ -232,6 +248,52 @@ function activityReportEvent(input: {
   });
 }
 
+function browserInventoryEvent() {
+  return AgentEventEnvelopeSchema.parse({
+    schemaVersion: 1,
+    eventId: 'evt-browser-inventory',
+    correlationId: 'cmd-browser-inventory',
+    sentAt: '2026-05-21T01:00:01Z',
+    source: {
+      peerId: 'local-dev-agent',
+      role: 'agent-service',
+    },
+    target: {
+      peerId: 'portal-dev',
+      role: 'portal',
+    },
+    event: 'agent.browser.inventory.read-model.reported',
+    severity: 'info',
+    payload: {
+      generatedAt: '2026-05-21T01:00:01Z',
+      limit: 20,
+      returned: 1,
+      latestObservedAt: '2026-05-21T01:00:00Z',
+      capabilityStatus: 'tab-list-only',
+      custodyLabel: 'child-device-local',
+      queryVisibility: 'live-local',
+      browserInventoryRowId: 'browser-inventory-row-1',
+      browserFamily: 'edge',
+      browserChannel: 'stable',
+      productName: 'Microsoft Edge',
+      browserVersion: '124.0.0.0',
+      profileId: 'managed-browser-profile-dev',
+      processId: 4242,
+      executablePathRef: 'managed-edge-path-ref',
+      installState: 'installed',
+      runningState: 'running-managed',
+      managementTier: 'managed',
+      supportTier: 'managed-target-list',
+      exactUrlCapability: 'managed-target-list-only',
+      activeTabCapability: 'target-list-only',
+      managedProfileState: 'ready',
+      unmanagedFallbackCapability: 'report-only',
+      reason: 'managed-target-list-only',
+    },
+    snapshot: null,
+  });
+}
+
 function emptyBrowserEvidenceEvent() {
   return AgentEventEnvelopeSchema.parse({
     schemaVersion: 1,
@@ -260,6 +322,7 @@ function emptyBrowserEvidenceEvent() {
       managedBrowserSessionId: null,
       browserFamily: null,
       activeState: null,
+      activeProofSource: null,
       url: null,
       origin: null,
       domain: null,
