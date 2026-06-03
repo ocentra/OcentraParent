@@ -64,6 +64,16 @@ boundaries. It is contract-only proof and does not implement connector OAuth,
 upload/download, Ocentra-hosted family data custody, account/subscription
 backend, or portal UI.
 
+Current parent-domain proof:
+`scripts/test/parent-owned-sync-export-manifest-proof.mjs` validates a
+parent-owned sync/export manifest read model covering data classes, export
+formats, encryption metadata, retention/delete policy, connector status, sync
+cursor state, conflict records, import results, and delete results. This is a
+contract proof only: it does not implement transfer runtime, connector OAuth,
+provider API calls, portal UI, report compiler runtime, account/subscription
+backend, raw child evidence upload by default, or Ocentra-hosted child evidence
+custody.
+
 ## Failure Behavior
 
 - Failed sync or export leaves local journal and query store intact.
@@ -113,6 +123,10 @@ backend, or portal UI.
 - Contract tests for manifests, data classes, encryption metadata, sync cursor, conflict records, and import/delete results.
 - Endpoint-domain contract tests and `sync-export-endpoint-contract-proof` for
   parent-owned sync/export route/header/query/version boundaries.
+- Parent-domain contract tests and
+  `parent-owned-sync-export-manifest-proof` for manifest data classes,
+  encryption metadata, connector status, sync cursor, conflict, import/delete,
+  retention/delete, and no-default-Ocentra-custody boundaries.
 - Real export/import tests using the encrypted journal and SQLite rebuild path.
 - Retry/conflict tests covering interruption, duplicate batch, stale cursor, and newer local state.
 - Parent-owned storage connector tests for revoked grants, wrong account/folder,

@@ -68,6 +68,12 @@ custody.
   refs, redaction-safe payload fields, and child-data non-custody without
   claiming provider adapters, send/retry execution, webhook receipt ingestion,
   notification history UI, credentials, or Ocentra-hosted child evidence.
+- Parent-owned sync/export manifest contract proof now represents export
+  manifest data classes, export formats, encryption metadata, retention/delete
+  policy, connector status, sync cursor states, conflict records, import
+  results, and delete results without claiming transfer runtime, connector
+  OAuth, portal UI, report compiler runtime, account/subscription backend, raw
+  child evidence upload by default, or Ocentra-hosted child evidence custody.
 - Parent-facing reports, alert delivery, and connectors are incomplete.
 
 ## Current Gap
@@ -85,6 +91,11 @@ parent controls, or notification history UI. The notification audit/history
 logging proof adds redaction-safe operational log history shape and child-data
 non-custody flags, but does not claim provider delivery, retry execution,
 webhook receipt ingestion, credentials, or parent-facing notification history.
+The parent-owned sync/export manifest proof adds typed export/retention/delete,
+connector status, cursor, conflict, import, and delete result states, but does
+not claim real export/import/upload/download runtime, connector OAuth,
+provider API calls, portal controls, report compiler runtime, or Ocentra-hosted
+child data custody.
 Activity report persistence/family fanout/MIA context proof does not claim
 physical household fanout, raw child evidence transfer, provider notification
 delivery, policy writes, or child-device enforcement.
@@ -95,7 +106,9 @@ delivery, policy writes, or child-device enforcement.
 - [x] Activity service adapter feeds the UI intent seam for reports and tab
       read-model states without Vite-owned product data.
 - [ ] Evidence citations in reports.
-- [ ] Parent-owned export/sync connector status.
+- [x] Parent-owned export/sync connector status contract proof exists without
+      transfer runtime, connector OAuth, provider API, portal UI, or
+      Ocentra-hosted child data custody claims.
 - [x] Notification rule/reason/channel/retry/preference contract proof exists
       without provider delivery claims.
 - [x] Minimal payload and authenticated drill-in refs exist for V0.8 integrity
@@ -121,4 +134,9 @@ proof only. Treat `scripts/test/notification-audit-history-contract-proof.mjs`
 as logging-domain audit/history contract proof only; require provider adapter,
 real send/retry execution, receipt ingestion, credentials, parent-control, and
 notification-history UI artifacts before claiming notification delivery or
-parent-facing notification history.
+parent-facing notification history. Treat
+`scripts/test/parent-owned-sync-export-manifest-proof.mjs` as parent-domain
+sync/export manifest and connector-status contract proof only; require real
+transfer runtime, connector OAuth/provider artifacts, parent-visible controls,
+retention/delete execution, and import/rebuild proof before claiming product
+sync/export.
