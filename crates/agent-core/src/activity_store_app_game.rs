@@ -20,6 +20,11 @@ mod app_game_windows_store_inventory_tests;
 pub(crate) mod app_game_windows_process_runtime;
 #[cfg(test)]
 mod app_game_windows_process_runtime_tests;
+// WP09 stages foreground-window evidence before live window capture calls it.
+#[allow(dead_code)]
+pub(crate) mod app_game_windows_foreground;
+#[cfg(test)]
+mod app_game_windows_foreground_tests;
 
 use crate::{
     activity_store_app_game_observation::AppGameObservation,

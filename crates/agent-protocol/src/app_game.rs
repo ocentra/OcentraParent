@@ -27,7 +27,19 @@ pub const APP_GAME_CAPABILITY_STATUS_STALE: &str = "stale";
 pub const APP_GAME_CAPABILITY_STATUS_DEGRADED: &str = "degraded";
 pub const APP_GAME_CAPABILITY_STATUS_MANUAL_REQUIRED: &str = "manualRequired";
 pub const APP_GAME_CAPABILITY_STATUS_NOT_CLAIMED: &str = "notClaimed";
+pub const APP_GAME_FOREGROUND_FOREGROUND: &str = "foreground";
+pub const APP_GAME_FOREGROUND_BACKGROUND: &str = "background";
+pub const APP_GAME_FOREGROUND_UNKNOWN: &str = "unknown";
+pub const APP_GAME_FOREGROUND_PERMISSION_LIMITED: &str = "permissionLimited";
+pub const APP_GAME_FOREGROUND_DEGRADED: &str = "degraded";
+pub const APP_GAME_FOREGROUND_ADAPTER_ERROR: &str = "adapterError";
 pub const APP_GAME_FOREGROUND_NOT_CLAIMED: &str = "notClaimed";
+pub const APP_GAME_CONTENT_KNOWLEDGE_NOT_CLAIMED: &str = "notClaimed";
+pub const APP_GAME_TITLE_CAPTURE_TITLE_REF: &str = "titleRef";
+pub const APP_GAME_TITLE_CAPTURE_TITLE_OMITTED: &str = "titleOmitted";
+pub const APP_GAME_TITLE_CAPTURE_PERMISSION_LIMITED: &str = "permissionLimited";
+pub const APP_GAME_TITLE_CAPTURE_ADAPTER_ERROR: &str = "adapterError";
+pub const APP_GAME_TITLE_CAPTURE_NOT_CLAIMED: &str = "notClaimed";
 pub const APP_GAME_RUNTIME_RUNNING: &str = "running";
 pub const APP_GAME_RUNTIME_NOT_RUNNING: &str = "notRunning";
 pub const APP_GAME_RUNTIME_NOT_CLAIMED: &str = "notClaimed";
@@ -37,6 +49,7 @@ pub const APP_GAME_RUNTIME_UNAVAILABLE: &str = "unavailable";
 pub const APP_GAME_RUNTIME_DEGRADED: &str = "degraded";
 pub const APP_GAME_RUNTIME_STALE: &str = "stale";
 pub const APP_GAME_RUNTIME_ADAPTER_ERROR: &str = "adapterError";
+pub const APP_GAME_OBSERVATION_MODE_FOREGROUND_WINDOW: &str = "foregroundWindow";
 pub const APP_GAME_OBSERVATION_MODE_PROCESS_SNAPSHOT: &str = "processSnapshot";
 pub const APP_GAME_OBSERVATION_MODE_PROCESS_START: &str = "processStart";
 pub const APP_GAME_OBSERVATION_MODE_PROCESS_EXIT: &str = "processExit";
@@ -108,6 +121,13 @@ pub const APP_GAME_TEST_RUNTIME_EVIDENCE_ID: &str = "runtime-evidence-process-42
 pub const APP_GAME_TEST_RUNTIME_EXIT_EVIDENCE_ID: &str = "runtime-evidence-process-4242-exit";
 pub const APP_GAME_TEST_RUNTIME_LAUNCHER_EVIDENCE_ID: &str = "runtime-evidence-launcher-5150";
 pub const APP_GAME_TEST_RUNTIME_PERMISSION_EVIDENCE_ID: &str = "runtime-evidence-private-6161";
+pub const APP_GAME_TEST_FOREGROUND_EVIDENCE_ID: &str = "foreground-evidence-window-4242";
+pub const APP_GAME_TEST_FOREGROUND_CLOSED_EVIDENCE_ID: &str =
+    "foreground-evidence-window-4242-closed";
+pub const APP_GAME_TEST_FOREGROUND_PERMISSION_EVIDENCE_ID: &str =
+    "foreground-evidence-window-permission-limited";
+pub const APP_GAME_TEST_WINDOW_REF: &str = "window-ref-4242";
+pub const APP_GAME_TEST_WINDOW_TITLE_REF: &str = "title-ref-4242";
 pub const APP_GAME_TEST_PROCESS_ID: u64 = 4242;
 pub const APP_GAME_TEST_PARENT_PROCESS_ID: u64 = 1000;
 pub const APP_GAME_TEST_LAUNCHER_PROCESS_ID: u64 = 5150;
@@ -189,6 +209,35 @@ pub struct AppGameRuntimeEvidenceRow {
     pub classification_state: String,
     pub catalog_ready_state: String,
     pub capability_status: String,
+    pub confidence: f64,
+    pub evidence: Vec<ActivityEvidenceRef>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AppGameForegroundEvidenceRow {
+    pub schema_version: u16,
+    pub foreground_evidence_id: String,
+    pub observed_at: String,
+    pub process_identity: String,
+    pub process_id: u64,
+    pub process_name: String,
+    pub inventory_entry_id: Option<String>,
+    pub launcher_ref: Option<String>,
+    pub catalog_ref: Option<String>,
+    pub window_ref: Option<String>,
+    pub window_title_ref: Option<String>,
+    pub title_capture_state: String,
+    pub foreground_started_at: Option<String>,
+    pub foreground_ended_at: Option<String>,
+    pub foreground_duration_ms: u64,
+    pub runtime_state: String,
+    pub foreground_state: String,
+    pub observation_mode: String,
+    pub classification_state: String,
+    pub catalog_ready_state: String,
+    pub capability_status: String,
+    pub content_knowledge_state: String,
     pub confidence: f64,
     pub evidence: Vec<ActivityEvidenceRef>,
 }
