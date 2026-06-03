@@ -90,6 +90,14 @@ Current app-control and app/game policy/catalog meaning lives in:
 - `packages/parent-domain/src/app-game-control-authority-rules.ts`
 - `packages/parent-domain/src/app-game-control-platform-authority.ts`
 - `packages/parent-domain/src/app-game-control-platform-authority-rules.ts`
+- `packages/parent-domain/src/app-game-platform-extension-routing.ts`
+- `packages/parent-domain/src/app-game-platform-extension-routing-rules.ts`
+- `packages/parent-domain/src/app-game-platform-extension-routing-data.ts`
+- `packages/parent-domain/src/app-game-platform-extension-routing-data-support.ts`
+- `packages/parent-domain/src/app-game-platform-extension-routing-macos-data.ts`
+- `packages/parent-domain/src/app-game-platform-extension-routing-ios-data.ts`
+- `packages/parent-domain/src/app-game-platform-extension-routing-android-data.ts`
+- `packages/parent-domain/src/app-game-platform-extension-routing-linux-data.ts`
 - `packages/parent-domain/src/app-game-policy-target-compiler.ts`
 - `packages/parent-domain/src/app-game-policy-target-compiler-rules.ts`
 - `packages/parent-domain/src/app-game-time-budget-policy.ts`
@@ -110,6 +118,7 @@ Current app-control and app/game policy/catalog meaning lives in:
 - `packages/parent-domain/tests/app-game-time-budget-policy.test.ts`
 - `packages/parent-domain/tests/app-game-time-budget-policy-recovery.test.ts`
 - `packages/parent-domain/tests/app-game-ai-classifier-boundary.test.ts`
+- `packages/parent-domain/tests/app-game-platform-extension-routing.test.ts`
 - `packages/parent-domain/tests/native-game-budget-policy.test.ts`
 - `packages/parent-domain/tests/enforcement-approval-audit.test.ts`
 
@@ -196,6 +205,7 @@ scan the OS, classify apps, run timers, or call enforcement adapters.
 - `node scripts/test/v0-8-enforcement-timer-recovery-mvp.mjs`
 - `node scripts/test/app-game-broad-blocking-proof-gates.mjs`
 - `node scripts/test/app-game-ai-classifier-boundary-proof.mjs`
+- `node scripts/test/app-game-platform-extension-routing-proof.mjs`
 
 These scripts prove scoped app/game paths only. They do not prove broad
 installed-app blocking, launcher/game disambiguation, game budgets, ratings, UGC
@@ -420,6 +430,22 @@ package. It does not prove live model quality, provider execution, runtime
 service events, portal rendering, policy evaluator consumption, or adapter
 enforcement.
 
+WP25 proof on `codex/app-game-read-model-service-events` adds
+`packages/parent-domain/src/app-game-platform-extension-routing.ts`,
+`packages/parent-domain/src/app-game-platform-extension-routing-rules.ts`, and
+split row data under
+`packages/parent-domain/src/app-game-platform-extension-routing-*-data.ts`, then
+records evidence under
+`output/app-game-plan-proof/25-platform-extension-checklist-and-proof-routing/`.
+The proof matrix covers all MAC, IOS, ANDROID, and LINUX extension rows with
+platform, action scope, authority tier, setup state, manual tags, proof pack
+paths, and cross-plan handoff. It rejects duplicate rows, wrong platform
+prefixes, generic unsupported labels, and promotion-ready rows missing
+authority-tier, permission/setup, rollback, manual-platform, validation, or
+proof references. It does not prove live platform adapters, device enrollment,
+rollback execution, service events, portal UI, or runtime cross-platform
+support.
+
 ## Current Test Files
 
 - `packages/activity-domain/tests/app-game.test.ts`
@@ -442,6 +468,7 @@ enforcement.
 - `packages/parent-domain/tests/app-game-time-budget-policy-recovery.test.ts`
 - `packages/parent-domain/tests/app-game-broad-blocking-proof-gates.test.ts`
 - `packages/parent-domain/tests/app-game-ai-classifier-boundary.test.ts`
+- `packages/parent-domain/tests/app-game-platform-extension-routing.test.ts`
 - `packages/parent-domain/tests/native-game-budget-policy.test.ts`
 - `packages/parent-domain/tests/enforcement-approval-audit.test.ts`
 - `crates/agent-protocol/src/app_game_tests.rs`

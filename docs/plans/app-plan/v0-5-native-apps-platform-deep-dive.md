@@ -361,3 +361,22 @@ The proof pack is
 `output/app-plan-proof/10-cross-platform-authority-matrix/`. It is contract and
 test proof only; live platform crawling, app blocking, enrollment, rollback,
 service events, portal UI, and product checklist status remain unchanged.
+
+## Extension Routing Proof - 2026-06-03
+
+Native app WP24 is covered by the shared app/game WP25 routing contract in
+`packages/parent-domain/src/app-game-platform-extension-routing.ts` with
+companion rules/data files. The matrix covers `MAC-01` through `MAC-12`,
+`IOS-01` through `IOS-12`, `ANDROID-01` through `ANDROID-14`, and `LINUX-01`
+through `LINUX-14`.
+
+Each row names platform, product scope, action scope, authority tier, setup
+state, capability status, promotion state, manual tags, app/app-game proof
+packs, and cross-plan handoff. Promotion-ready rows must attach
+authority-tier, permission/setup, rollback, manual-platform, validation, and
+proof references.
+
+The proof pack is
+`output/app-plan-proof/24-platform-extension-checklist-and-proof-routing/`.
+This is routing and negative-claim proof only; every current platform extension
+row remains manual-required or not-claimed until real platform proof exists.

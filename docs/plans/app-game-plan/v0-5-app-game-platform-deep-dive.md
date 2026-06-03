@@ -182,3 +182,22 @@ observe-only, manual-required, and not-claimed rows and require:
 
 This is not runtime platform proof. It does not add adapters, enrollment,
 rollback execution, cleanup execution, service events, or portal rows.
+
+## Extension Routing Proof - 2026-06-03
+
+WP25 adds
+`packages/parent-domain/src/app-game-platform-extension-routing.ts` and
+companion rules/data files as the proof-routing layer for platform extension
+rows. The matrix covers `MAC-01` through `MAC-12`, `IOS-01` through `IOS-12`,
+`ANDROID-01` through `ANDROID-14`, and `LINUX-01` through `LINUX-14`.
+
+The routing contract requires each row to name platform, product scope, action
+scope, authority tier, setup state, capability status, promotion state, manual
+tags, app/app-game proof packs, and cross-plan handoff. Promotion-ready rows
+must attach authority-tier, permission/setup, rollback, manual-platform,
+validation, and proof references before a future worker can claim support.
+
+The proof pack is
+`output/app-game-plan-proof/25-platform-extension-checklist-and-proof-routing/`.
+This is routing and negative-claim proof only; every current platform extension
+row remains manual-required or not-claimed until real platform proof exists.

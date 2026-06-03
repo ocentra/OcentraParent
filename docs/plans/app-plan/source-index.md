@@ -109,6 +109,14 @@ and update them only when their acceptance contract or generated data changes.
 - `packages/parent-domain/src/app-game-control-approval-flow.ts`
 - `packages/parent-domain/src/app-game-control-platform-authority.ts`
 - `packages/parent-domain/src/app-game-control-platform-authority-rules.ts`
+- `packages/parent-domain/src/app-game-platform-extension-routing.ts`
+- `packages/parent-domain/src/app-game-platform-extension-routing-rules.ts`
+- `packages/parent-domain/src/app-game-platform-extension-routing-data.ts`
+- `packages/parent-domain/src/app-game-platform-extension-routing-data-support.ts`
+- `packages/parent-domain/src/app-game-platform-extension-routing-macos-data.ts`
+- `packages/parent-domain/src/app-game-platform-extension-routing-ios-data.ts`
+- `packages/parent-domain/src/app-game-platform-extension-routing-android-data.ts`
+- `packages/parent-domain/src/app-game-platform-extension-routing-linux-data.ts`
 - `packages/parent-domain/src/app-game-policy-target-compiler.ts`
 - `packages/parent-domain/src/app-game-policy-target-compiler-rules.ts`
 - `packages/parent-domain/src/app-riskdetection.ts`
@@ -129,6 +137,7 @@ and update them only when their acceptance contract or generated data changes.
 - `packages/parent-domain/tests/app-game-time-budget-policy.test.ts`
 - `packages/parent-domain/tests/app-game-time-budget-policy-recovery.test.ts`
 - `packages/parent-domain/tests/app-game-ai-classifier-boundary.test.ts`
+- `packages/parent-domain/tests/app-game-platform-extension-routing.test.ts`
 - `packages/parent-domain/tests/enforcement-approval-audit.test.ts`
 
 TypeScript rule: enhance these existing app/app-game paths first. Do not create
@@ -207,6 +216,7 @@ classification, run timers, or enforce.
 - `node scripts/test/app-game-broad-blocking-proof-gates.mjs`
 - `node scripts/test/app-riskdetection-proof.mjs`
 - `node scripts/test/app-game-ai-classifier-boundary-proof.mjs`
+- `node scripts/test/app-game-platform-extension-routing-proof.mjs`
 
 Future app-specific proof scripts should use:
 
@@ -245,6 +255,7 @@ packs mirror the app/game proof roots and record product-doc decisions.
 | WP21 owned-process time-limit proof   | `output/app-plan-proof/21-windows-owned-process-terminate-time-limit-proof`     | `output/app-game-plan-proof/22-windows-owned-process-terminate-time-limit-proof` | Scoped real-service process proof only |
 | WP22 broad blocking proof gates       | `output/app-plan-proof/22-broad-blocking-proof-gates`                           | `output/app-game-plan-proof/23-broad-blocking-proof-gates`                       | No-claim/manual-required gate proof    |
 | WP23 app AI classifier digest         | `output/app-plan-proof/23-app-ai-classifier-digest-boundary`                    | `output/app-game-plan-proof/24-ai-classifier-digest-boundary`                    | Classifier boundary contract proof     |
+| WP24 platform extension proof routing | `output/app-plan-proof/24-platform-extension-checklist-and-proof-routing`       | `output/app-game-plan-proof/25-platform-extension-checklist-and-proof-routing`   | Extension routing contract proof       |
 
 These completed rows do not add live OS crawling, content knowledge, policy
 execution, install control, parent/child approval UI, notification delivery,
@@ -279,6 +290,10 @@ can dispatch adapters. App AI classifier boundary proof now requires stored
 evidence refs, confidence bounds, model/runtime/prompt refs, fallback state, and
 evidence-only policy handoff while rejecting direct action, duration, and raw
 scan fields before policy can consume classifier output.
+Platform-extension routing proof now maps every MAC, IOS, ANDROID, and LINUX
+extension row to authority-tier, setup-state, manual tag, proof-pack, and
+cross-plan handoff requirements while keeping all current rows manual-required
+or not-claimed until real platform proof is attached.
 Dedicated approval UI, notification delivery, service persistence/read models,
 policy runtime, game-budget, live source, live source subscriptions, journal
 corruption/recovery, runtime platform adapters, and portal capability matrix UI
@@ -301,6 +316,7 @@ remain later work.
 - `packages/parent-domain/tests/app-game-broad-blocking-proof-gates.test.ts`
 - `packages/parent-domain/tests/app-riskdetection.test.ts`
 - `packages/parent-domain/tests/app-game-ai-classifier-boundary.test.ts`
+- `packages/parent-domain/tests/app-game-platform-extension-routing.test.ts`
 - `packages/parent-domain/tests/enforcement-approval-audit.test.ts`
 - `crates/agent-protocol/src/app_game_tests.rs`
 - `crates/agent-core/src/activity_store_app_game/app_game_sessionization_tests.rs`

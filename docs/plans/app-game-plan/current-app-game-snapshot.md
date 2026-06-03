@@ -89,6 +89,10 @@ Proved today:
   proves these states cannot dispatch adapters and that supported upgrades
   require setup, authority-tier, rollback, audit, and platform-specific proof
   references.
+- Platform-extension routing proof now records all MAC, IOS, ANDROID, and LINUX
+  extension checklist rows with authority tier, setup state, manual tags,
+  proof-pack paths, and cross-plan handoff, while keeping every row
+  manual-required or not-claimed until real platform proof is attached.
 - App-control and game-control catalog/authoring contracts exist in
   `packages/parent-domain`.
 - Rust app/game session protocol mirrors exist.
@@ -140,6 +144,10 @@ Not proved today:
 - Runtime adapter proof for the new authority matrix rows. The WP11 contract
   names what proof is needed to move up, but it does not attach real platform
   enrollment, permission, rollback, cleanup, service, or portal evidence.
+- Live implementation proof for the new platform-extension routing rows. WP25
+  proves route coverage and promotion guards only; it does not implement
+  platform adapters, enrollment, rollback execution, service events, or portal
+  capability UI.
 
 ## Current Contracts
 
@@ -177,11 +185,13 @@ stored session refs, schedule refs, bonus approval/audit refs, dry-run/manual
 handoff, effective budget math, and timer recovery refs. WP21 now adds
 contract-level child-facing warning/request cards that link copy tokens,
 evidence refs, child reason/status refs, and manual/unavailable no-action
-guards. Those catalogs, authority contracts, approval contracts, budget
-contracts, compiler contracts, time-budget contracts, and child UX contracts
-are product-control inputs, not a complete shared evidence spine, live approval
-workflow, live game budget product flow, runtime evaluator, child UI, or proof
-that broad app/game blocking works.
+guards. WP25 now adds platform-extension routing contracts for MAC, IOS,
+ANDROID, and LINUX rows, including proof-pack and cross-plan handoff
+requirements. Those catalogs, authority contracts, approval contracts, budget
+contracts, compiler contracts, time-budget contracts, child UX contracts, and
+extension routing contracts are product-control inputs, not a complete shared
+evidence spine, live approval workflow, live game budget product flow, runtime
+evaluator, child UI, or proof that broad app/game blocking works.
 
 ## Current Runtime
 
@@ -380,6 +390,9 @@ Missing portal states include:
   macOS, Linux, Android, and iOS/iPadOS manual-required, unavailable, and
   not-claimed states. It does not add runtime adapters, service events, portal
   UI, rollback execution, or any broad app/game blocking support claim.
+- WP25 adds parent-domain platform-extension routing proof for MAC, IOS,
+  ANDROID, and LINUX extension rows. It does not promote any row out of
+  manual-required/not-claimed state or add runtime platform adapters.
 - Next implementation work should either add dedicated portal dashboard
   consumption of the service rows, live Windows inventory source readers, or
   mirror the remaining WP01/WP04 TypeScript shapes into Rust protocol before

@@ -153,6 +153,7 @@ output/app-plan-proof/18-policy-target-compiler-for-app-rules
 output/app-plan-proof/19-time-budget-schedule-bonus-time-integration
 output/app-plan-proof/20-child-facing-app-warning-block-request-ux
 output/app-plan-proof/23-app-ai-classifier-digest-boundary
+output/app-plan-proof/24-platform-extension-checklist-and-proof-routing
 ```
 
 Those proof packs point back to `output/app-game-plan-proof/*` for the shared
@@ -170,6 +171,7 @@ node scripts/test/v0-8-enforcement-integrity-runtime-audit.mjs
 node scripts/test/v0-8-cross-platform-enforcement-capability-proof.mjs
 node scripts/test/v0-8-enforcement-timer-recovery-mvp.mjs
 node scripts/test/app-game-broad-blocking-proof-gates.mjs
+node scripts/test/app-game-platform-extension-routing-proof.mjs
 ```
 
 These are scoped proof harnesses. They do not prove broad app blocking support,
@@ -244,6 +246,11 @@ polished app catalog UI, install approval, or cross-platform parity.
   before moving up. It is not AppLocker/App Control, MDM, Endpoint Security,
   Device Owner/Profile Owner, FamilyControls/ManagedSettings, cgroup/systemd,
   or rollback execution proof.
+- Native app platform-extension routing now cross-records the shared app/game
+  WP25 matrix for every MAC, IOS, ANDROID, and LINUX extension row. It maps
+  authority tier, setup state, manual tags, proof packs, and cross-plan handoff,
+  but keeps every row manual-required or not-claimed until real platform proof
+  exists.
 - App category/risk taxonomy, native app risk detection, and native app AI
   classifier boundary now have contract/test proof, but live classifier
   enrichment, portal category/risk/classifier rows, runtime app risk detection,

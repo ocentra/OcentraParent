@@ -125,6 +125,10 @@ control with better evidence and local audit.
   action, authority tier, setup state, proof state, parent-visible limitation,
   proof needed to claim, and no-execute guards for Windows, macOS, Linux,
   Android, and iOS/iPadOS hard-control rows.
+- Platform-extension routing contracts now map every MAC, IOS, ANDROID, and
+  LINUX extension checklist row to authority tier, setup state, manual tags,
+  proof-pack paths, and cross-plan handoff while keeping all current rows
+  manual-required or not-claimed.
 - App/game category-risk taxonomy contracts now represent native app
   categories, native game categories, risk candidates, game context signals,
   source kind, source ref, confidence, reason code, evidence refs, parent
@@ -160,7 +164,9 @@ blocking, polished child request UX, install approval, or runtime
 cross-platform parity. The authority and broad-blocking gate matrices are
 contract proof only; they do not prove AppLocker/App Control, MDM, Endpoint
 Security, Device Owner/Profile Owner, FamilyControls/ManagedSettings,
-cgroup/systemd, or kiosk/single-app adapter behavior. The category/risk
+cgroup/systemd, or kiosk/single-app adapter behavior. The platform-extension
+routing matrix adds proof-pack coverage for those rows, but it is also
+contract-only and does not prove runtime platform support. The category/risk
 taxonomy is contract proof only; it does not prove live catalog enrichment,
 local AI classifier quality, policy compiler routing, portal category UI, or
 runtime app/game category decisions. Native app risk detection and app/game AI
@@ -222,8 +228,9 @@ persistence, Rust/WebSocket parity, or platform adapter execution.
       service persistence, and platform execution remain.
 - [ ] Adapter capability status per platform. Cross-platform authority and
       broad-blocking gate contracts now record manual-required, unavailable,
-      and not-claimed proof requirements, but runtime adapter capability/UI
-      proof remains.
+      and not-claimed proof requirements. Platform-extension routing now maps
+      every MAC, IOS, ANDROID, and LINUX row to proof packs and handoffs, but
+      runtime adapter capability/UI proof remains.
 - [ ] Blocking/time-limit proof before done claim. Scoped owned-process
       time-limit proof exists; broad block-launch/hide/suspend/shield and
       allowlist remain manual-required or not-claimed until platform setup,
