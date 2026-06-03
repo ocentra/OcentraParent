@@ -94,12 +94,14 @@ pub(crate) fn write_captured_artifacts(
     write_capture_metadata(
         output_dir,
         &image,
-        requested_scope,
-        image_digest.clone(),
-        title_digest,
-        app_name_digest,
-        &raw_temp_path,
-        keep_raw_until_analysis,
+        CaptureMetadataContext {
+            requested_scope,
+            image_digest: image_digest.clone(),
+            title_digest,
+            app_name_digest,
+            raw_temp_path: &raw_temp_path,
+            keep_raw_until_analysis,
+        },
     );
     write(
         output_dir.join("03-encrypted-queue.ndjson"),
@@ -134,38 +136,42 @@ pub(crate) fn write_degraded_artifacts(output_dir: &Path, status: ActivityCaptur
     .expect(constants::error::JOURNAL_APPENDS);
 }
 
-fn write_capture_metadata(
-    output_dir: &Path,
-    image: &CapturedScreenImage,
+struct CaptureMetadataContext<'a> {
     requested_scope: &'static str,
     image_digest: String,
     title_digest: Option<String>,
     app_name_digest: Option<String>,
-    raw_temp_path: &Path,
+    raw_temp_path: &'a Path,
     keep_raw_until_analysis: bool,
+}
+
+fn write_capture_metadata(
+    output_dir: &Path,
+    image: &CapturedScreenImage,
+    context: CaptureMetadataContext<'_>,
 ) {
     write_json(
         &output_dir.join("02-capture-metadata.json"),
         json!({
             "status": ActivityCaptureCapabilityStatus::Available.as_protocol_str(),
             "captured": true,
-            "requestedScope": requested_scope,
+            "requestedScope": context.requested_scope,
             "actualScope": proof_scope_label(image.metadata.scope),
             "width": image.width,
             "height": image.height,
             "imageByteSize": image.png_bytes.len(),
-            "imageDigest": image_digest,
+            "imageDigest": context.image_digest,
             "pid": image.metadata.pid,
             "windowId": image.metadata.window_id,
             "monitorId": image.metadata.monitor_id,
             "monitorNamePresent": image.metadata.monitor_name.is_some(),
             "monitorNameDigest": image.metadata.monitor_name.as_ref().map(|monitor_name| digest_hex(monitor_name.as_bytes())),
             "titlePresent": image.metadata.title.is_some(),
-            "titleDigest": title_digest,
+            "titleDigest": context.title_digest,
             "appNamePresent": image.metadata.app_name.is_some(),
-            "appNameDigest": app_name_digest,
+            "appNameDigest": context.app_name_digest,
             "rawImagePersistedInProof": false,
-            "analysisTempPath": keep_raw_until_analysis.then_some(raw_temp_path),
+            "analysisTempPath": context.keep_raw_until_analysis.then_some(context.raw_temp_path),
         }),
     );
 }

@@ -6,19 +6,25 @@ import android.os.Bundle;
 import android.widget.TextView;
 
 public final class MainActivity extends Activity {
+    public static final String EXTRA_START_SCREEN_CAPTURE_PROOF =
+        "ca.ocentra.parent.agent.START_SCREEN_CAPTURE_PROOF";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         startForegroundService(new Intent(this, OcentraParentAgentService.class));
+        if (getIntent().getBooleanExtra(EXTRA_START_SCREEN_CAPTURE_PROOF, false)) {
+            startActivity(new Intent(this, AndroidMediaProjectionCaptureActivity.class));
+        }
         Bundle lifecycleProof = ChildAndroidLifecycleProof.createStatusBundle();
         Bundle storageProof = ChildAndroidStorageProtocolProof.createStorageProtocolBundle();
         Bundle serviceProof = ChildAndroidServiceProtocolProof.createServiceProtocolBundle();
         Bundle permissionProof = ChildAndroidPermissionCapabilityProof.createPermissionCapabilityBundle();
         Bundle privilegedProof = ChildAndroidPrivilegedCapabilityProof.createPrivilegedCapabilityBundle();
+        Bundle screenProof = ChildAndroidScreenCaptureProof.createScreenCaptureBundle();
 
         TextView status = new TextView(this);
-        status.setText(
-            getString(R.string.agent_status) +
+        String statusText = getString(R.string.agent_status) +
             "\n" +
             lifecycleProof.getString(ChildAndroidLifecycleProof.FIELD_BRIDGE_STATE) +
             "\n" +
@@ -28,8 +34,10 @@ public final class MainActivity extends Activity {
             "\n" +
             permissionProof.getString(ChildAndroidPermissionCapabilityProof.FIELD_PERMISSION_BRIDGE_STATE) +
             "\n" +
-            privilegedProof.getString(ChildAndroidPrivilegedCapabilityProof.FIELD_PRIVILEGED_BRIDGE_STATE)
-        );
+            privilegedProof.getString(ChildAndroidPrivilegedCapabilityProof.FIELD_PRIVILEGED_BRIDGE_STATE) +
+            "\n" +
+            screenProof.getString(ChildAndroidScreenCaptureProof.FIELD_SCREEN_CAPTURE_STATE);
+        status.setText(statusText);
         status.setTextSize(18);
         status.setPadding(32, 32, 32, 32);
         setContentView(status);
