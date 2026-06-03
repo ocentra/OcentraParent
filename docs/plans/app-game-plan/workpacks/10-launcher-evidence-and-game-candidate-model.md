@@ -25,4 +25,40 @@ overclaim active game play.
 
 Launchers can help identify games without becoming fake game-session proof.
 
+## Implementation
+
+- Added `AppGameLauncherEvidenceSchema` and
+  `AppGameLauncherGameProofStateSchema` in `packages/activity-domain` for
+  launcher-only, launcher manifest candidate, child process candidate,
+  deterministic child-game proof, classifier-backed child-game proof,
+  permission-limited, adapter-error, and not-claimed states.
+- Mirrored the launcher evidence row in `crates/agent-protocol` so the Rust
+  boundary carries launcher-only and child-game proof fields explicitly.
+- Added a staged `agent-core` Windows launcher evidence parser that downgrades
+  launcher overclaims to candidate or launcher-only states unless a child-game
+  evidence claim is present.
+- Product scope remains unchanged: this is contract/protocol/parser proof, not
+  live launcher crawling, service events, portal launcher rows, game-budget
+  policy, or broad blocking.
+
+## AI Worker Checklist
+
+- [x] Confirm source docs read: [folder README](../README.md), [source index](../source-index.md), [current snapshot](../current-app-game-snapshot.md), [main checklist](../implementation-checklist.md), [app/game evidence expectation](../../../expectations/app-game-evidence.md), and this workpack.
+- [x] Hub lock covers this workpack and exact implementation/docs/proof paths.
+- [x] Existing app/game source layout inspected; no parallel app-control truth created.
+- [x] TypeScript Effect Schema contract added before Rust/core consumers.
+- [x] Rust protocol parity added for the new launcher evidence row.
+- [x] Staged Windows parser proof added without claiming live launcher crawling.
+- [x] Tests prove launcher installed/running/foreground/candidate states do not become known-game proof without child-game evidence.
+- [x] Required proof pack exists under `output/app-game-plan-proof/10-launcher-evidence-and-game-candidate-model/`.
+- [x] Feature/plan docs updated; product capability checklist unchanged because product status did not move and A owns that file.
+
+## Completion Notes
+
+- Branch: `codex/app-game-launcher-candidate-model`
+- Proof: `output/app-game-plan-proof/10-launcher-evidence-and-game-candidate-model/`
+- Product-doc decision: feature current-state and app-game plan docs updated;
+  product capability checklist unchanged because this proof does not move the
+  app/game control product row to complete.
+
 Use the standard checklist in [workpacks README](README.md).

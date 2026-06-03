@@ -66,15 +66,20 @@ control with better evidence and local audit.
   refs, rollback refs, audit refs, and permission/dependency unavailable states
   through TypeScript/Rust/service proof without upgrading broad installed-app
   blocking.
+- Launcher evidence and launcher-game candidate contracts now exist with Rust
+  protocol parity and staged Windows launcher parser proof. Launcher-only,
+  launcher foreground, launcher-game candidate, and proved child-game states
+  are separated so launcher evidence cannot become fake known-game proof.
 - Broad app blocking remains manual-required or unproved by platform.
 - Raw app and game control setting inventories are preserved as design inputs,
   not product-complete implementation proof.
 
 ## Current Gap
 
-Parent-visible app catalog, category quality, install/approval linkage, child
-request flow, broad blocking, and cross-platform parity are incomplete. Broad
-installed-app blocking remains manual-required beyond the scoped
+Parent-visible app catalog, category quality, live launcher crawling,
+install/approval linkage, child request flow, broad blocking, and
+cross-platform parity are incomplete. Broad installed-app blocking remains
+manual-required beyond the scoped
 owned-process/app-session proof, including in the broad-adapter and
 supported-adapter runtime service proofs. The integrity runtime audit proves
 typed timer/rollback/child-status visibility for scoped app/game outcomes, but

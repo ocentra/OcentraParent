@@ -53,6 +53,17 @@ pub const APP_GAME_OBSERVATION_MODE_FOREGROUND_WINDOW: &str = "foregroundWindow"
 pub const APP_GAME_OBSERVATION_MODE_PROCESS_SNAPSHOT: &str = "processSnapshot";
 pub const APP_GAME_OBSERVATION_MODE_PROCESS_START: &str = "processStart";
 pub const APP_GAME_OBSERVATION_MODE_PROCESS_EXIT: &str = "processExit";
+pub const APP_GAME_OBSERVATION_MODE_LAUNCHER_MANIFEST: &str = "launcherManifest";
+pub const APP_GAME_LAUNCHER_KIND_STEAM: &str = "steam";
+pub const APP_GAME_LAUNCHER_KIND_UNKNOWN: &str = "unknownLauncher";
+pub const APP_GAME_LAUNCHER_PROOF_LAUNCHER_ONLY: &str = "launcherOnly";
+pub const APP_GAME_LAUNCHER_PROOF_MANIFEST_CANDIDATE: &str = "launcherManifestCandidate";
+pub const APP_GAME_LAUNCHER_PROOF_CHILD_PROCESS_CANDIDATE: &str = "childProcessCandidate";
+pub const APP_GAME_LAUNCHER_PROOF_DETERMINISTIC_CHILD_GAME: &str = "deterministicChildGame";
+pub const APP_GAME_LAUNCHER_PROOF_CLASSIFIER_BACKED_CHILD_GAME: &str = "classifierBackedChildGame";
+pub const APP_GAME_LAUNCHER_PROOF_PERMISSION_LIMITED: &str = "permissionLimited";
+pub const APP_GAME_LAUNCHER_PROOF_ADAPTER_ERROR: &str = "adapterError";
+pub const APP_GAME_LAUNCHER_PROOF_NOT_CLAIMED: &str = "notClaimed";
 pub const APP_GAME_PRODUCT_NATIVE_APP: &str = "nativeApp";
 pub const APP_GAME_PRODUCT_NATIVE_GAME: &str = "nativeGame";
 pub const APP_GAME_PRODUCT_LAUNCHER: &str = "launcher";
@@ -126,6 +137,13 @@ pub const APP_GAME_TEST_FOREGROUND_CLOSED_EVIDENCE_ID: &str =
     "foreground-evidence-window-4242-closed";
 pub const APP_GAME_TEST_FOREGROUND_PERMISSION_EVIDENCE_ID: &str =
     "foreground-evidence-window-permission-limited";
+pub const APP_GAME_TEST_LAUNCHER_EVIDENCE_ID: &str = "launcher-evidence-steam-only";
+pub const APP_GAME_TEST_LAUNCHER_CANDIDATE_EVIDENCE_ID: &str = "launcher-evidence-steam-candidate";
+pub const APP_GAME_TEST_LAUNCHER_KNOWN_GAME_EVIDENCE_ID: &str =
+    "launcher-evidence-steam-known-game";
+pub const APP_GAME_TEST_LAUNCHER_CHILD_PROCESS_IDENTITY: &str = "process-cs2-candidate";
+pub const APP_GAME_TEST_LAUNCHER_CHILD_INVENTORY_ENTRY_ID: &str = "inventory-cs2";
+pub const APP_GAME_TEST_LAUNCHER_CHILD_GAME_CLAIM_ID: &str = "claim-cs2-child-game";
 pub const APP_GAME_TEST_WINDOW_REF: &str = "window-ref-4242";
 pub const APP_GAME_TEST_WINDOW_TITLE_REF: &str = "title-ref-4242";
 pub const APP_GAME_TEST_PROCESS_ID: u64 = 4242;
@@ -238,6 +256,35 @@ pub struct AppGameForegroundEvidenceRow {
     pub catalog_ready_state: String,
     pub capability_status: String,
     pub content_knowledge_state: String,
+    pub confidence: f64,
+    pub evidence: Vec<ActivityEvidenceRef>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AppGameLauncherEvidenceRow {
+    pub schema_version: u16,
+    pub launcher_evidence_id: String,
+    pub observed_at: String,
+    pub launcher_kind: String,
+    pub launcher_ref: String,
+    pub launcher_inventory_entry_id: Option<String>,
+    pub launcher_manifest_id: Option<String>,
+    pub launcher_app_id: Option<String>,
+    pub launcher_process_identity: Option<String>,
+    pub launcher_process_id: Option<u64>,
+    pub launcher_process_name: Option<String>,
+    pub child_process_identity: Option<String>,
+    pub child_inventory_entry_id: Option<String>,
+    pub child_game_evidence_claim_id: Option<String>,
+    pub catalog_ref: Option<String>,
+    pub runtime_state: String,
+    pub foreground_state: String,
+    pub observation_mode: String,
+    pub classification_state: String,
+    pub catalog_ready_state: String,
+    pub capability_status: String,
+    pub game_proof_state: String,
     pub confidence: f64,
     pub evidence: Vec<ActivityEvidenceRef>,
 }

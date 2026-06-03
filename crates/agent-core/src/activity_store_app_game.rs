@@ -25,6 +25,11 @@ mod app_game_windows_process_runtime_tests;
 pub(crate) mod app_game_windows_foreground;
 #[cfg(test)]
 mod app_game_windows_foreground_tests;
+// WP10 stages launcher evidence before live launcher manifest readers call it.
+#[allow(dead_code)]
+pub(crate) mod app_game_windows_launcher;
+#[cfg(test)]
+mod app_game_windows_launcher_tests;
 
 use crate::{
     activity_store_app_game_observation::AppGameObservation,
