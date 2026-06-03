@@ -28,6 +28,8 @@ import {
 } from './reference-primitives';
 import { PolicyActionSchema, PolicyReasonCodeSchema, PolicyTargetSchema } from './policy';
 
+export * from './app-game-control-platform-authority';
+
 const NonEmptyAppGameControlText = Schema.String.pipe(Schema.minLength(1));
 
 export const AppGameControlPolicyKindSchema = withParser(Schema.Literal('app-control', 'game-control'));

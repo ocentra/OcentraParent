@@ -162,3 +162,23 @@ installed-app visibility without Apple-approved capability.
 No platform claim moves from manual-required or not-claimed to supported until
 the workpack includes authority tier, setup steps, tests, manual proof,
 rollback, cleanup, audit refs, and parent-visible capability state.
+
+## Contract Proof - 2026-06-03
+
+`packages/parent-domain/src/app-game-control-platform-authority.ts` now records
+the shared app/game authority matrix as TypeScript contract proof. The contract
+requires platform/action rows to name authority tier, setup state, proof state,
+parent-visible state, parent-visible limitation, proof references, and proof
+needed to claim. The companion rules reject hard-control execution from
+observe-only, manual-required, and not-claimed rows and require:
+
+- Android hide/suspend rows to carry Device Owner or Profile Owner proof;
+- iOS shield rows to carry FamilyControls and ManagedSettings proof;
+- macOS hard block rows to carry MDM, Endpoint Security, or System Extension
+  proof;
+- Linux hard block rows to name mechanism, distro, and session proof;
+- Windows broad block rows to carry AppLocker or App Control proof before they
+  can move out of manual-required.
+
+This is not runtime platform proof. It does not add adapters, enrollment,
+rollback execution, cleanup execution, service events, or portal rows.
