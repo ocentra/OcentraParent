@@ -15,7 +15,8 @@ use ocentra_parent_agent_protocol::{
     ParentActorReference, ParentActorRole, ParentAssistantActionPreviewKind,
     ParentAssistantAnswerState, ParentAssistantApiAuthorizationState,
     ParentAssistantApiProviderAccessState, ParentAssistantEvidenceContext,
-    ParentAssistantGenerateRequest, ParentAssistantProviderState, ParentAssistantRunState,
+    ParentAssistantGenerateRequest, ParentAssistantProviderRoutingState,
+    ParentAssistantProviderSelection, ParentAssistantProviderState, ParentAssistantRunState,
     ParentAssistantScope, ParentEvidenceReference, ParentEvidenceReferenceKind,
     ACTIVITY_SURFACE_SCHEMA_VERSION, AGENT_PROTOCOL_SCHEMA_VERSION,
 };
@@ -74,6 +75,19 @@ async fn parent_assistant_unconfigured_provider_returns_cited_unavailable_answer
             .api_provider_boundary
             .child_safety_or_enforcement_use_allowed
     );
+    assert_eq!(
+        answer.provider_route.routing_state,
+        ParentAssistantProviderRoutingState::NoProviderAvailable
+    );
+    assert_eq!(
+        answer.provider_route.selected_provider,
+        ParentAssistantProviderSelection::None
+    );
+    assert!(
+        !answer
+            .provider_route
+            .child_safety_or_enforcement_use_allowed
+    );
     assert_eq!(scheduler.status_snapshot().current_job_class, None);
 }
 
@@ -121,6 +135,14 @@ async fn parent_assistant_busy_provider_degrades_without_running_or_enforcing() 
     );
     assert_eq!(answer.degraded_state, LocalAiDegradedState::Overloaded);
     assert_eq!(answer.local_ai_result_id, None);
+    assert_eq!(
+        answer.provider_route.routing_state,
+        ParentAssistantProviderRoutingState::LocalProviderDegraded
+    );
+    assert_eq!(
+        answer.provider_route.selected_provider,
+        ParentAssistantProviderSelection::Local
+    );
     assert!(answer.action_preview.child_agent_contract_required);
     assert!(!answer.action_preview.enforcement_applied);
 }
@@ -158,6 +180,19 @@ async fn parent_assistant_request_prepares_policy_preview_without_enforcement_or
     );
     assert!(answer.api_provider_boundary.parent_authorization_required);
     assert!(answer.api_provider_boundary.evidence_citation_required);
+    assert_eq!(
+        answer.provider_route.routing_state,
+        ParentAssistantProviderRoutingState::NoProviderAvailable
+    );
+    assert_eq!(
+        answer.provider_route.selected_provider,
+        ParentAssistantProviderSelection::None
+    );
+    assert!(
+        !answer
+            .provider_route
+            .child_safety_or_enforcement_use_allowed
+    );
     assert!(!answer.action_preview.enforcement_applied);
 }
 

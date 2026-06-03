@@ -40,6 +40,9 @@ claim needs proof, not slogans.
 ## Current Ocentra State
 
 - Local AI runtime/provider status and provider scheduler proof exist.
+- Parent Assistant provider routing proof now exposes local configured,
+  degraded, unavailable, API authorized-unavailable, and API authorized-degraded
+  states without making remote/API AI part of child safety decisions.
 - Dry-run policy evaluator and evidence context builder exist in proof form.
 - Model quality, video/social coverage, and enforcement handoff remain
   incomplete.

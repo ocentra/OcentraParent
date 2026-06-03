@@ -297,6 +297,7 @@ it('AgentProtocolDefaults.Field: exposes parent assistant payload fields', () =>
   expect(AgentProtocolDefaults.Field.ParentAssistantCitationCount).toBe('parentAssistantCitationCount');
   expect(AgentProtocolDefaults.Field.ParentAssistantEvidenceSummary).toBe('parentAssistantEvidenceSummary');
   expect(AgentProtocolDefaults.Field.ParentAssistantProviderState).toBe('parentAssistantProviderState');
+  expect(AgentProtocolDefaults.Field.ParentAssistantProviderRoute).toBe('parentAssistantProviderRoute');
   expect(AgentProtocolDefaults.Field.ParentAssistantQuestion).toBe('parentAssistantQuestion');
   expect(AgentProtocolDefaults.Field.ParentAssistantRequestId).toBe('parentAssistantRequestId');
   expect(AgentProtocolDefaults.Field.ParentAssistantThreadId).toBe('assistantThreadId');

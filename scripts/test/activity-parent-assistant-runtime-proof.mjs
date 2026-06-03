@@ -400,6 +400,27 @@ function assertParentAssistantUnavailable(event) {
   ) {
     throw new Error(`Parent Assistant API AI boundary was not custody-safe: ${JSON.stringify(apiBoundary)}`);
   }
+  if (
+    answer.providerRoute?.routingState !== 'no-provider-available' ||
+    answer.providerRoute?.selectedProvider !== 'none' ||
+    answer.providerRoute?.apiAccessState !== 'not-authorized' ||
+    answer.providerRoute?.childSafetyOrEnforcementUseAllowed !== false
+  ) {
+    throw new Error(`Parent Assistant answer did not carry a safe provider route: ${JSON.stringify(answer)}`);
+  }
+  const providerRoute = parseJsonField(payload, AgentProtocolDefaults.Field.ParentAssistantProviderRoute);
+  if (
+    providerRoute.routingState !== 'no-provider-available' ||
+    providerRoute.selectedProvider !== 'none' ||
+    providerRoute.localProviderState !== 'unavailable' ||
+    providerRoute.apiProviderState !== 'unavailable' ||
+    providerRoute.apiAccessState !== 'not-authorized' ||
+    providerRoute.remoteAiOptional !== true ||
+    providerRoute.childSafetyOrEnforcementUseAllowed !== false ||
+    providerRoute.routingState !== answer.providerRoute.routingState
+  ) {
+    throw new Error(`Parent Assistant provider route was not explicit and safe: ${JSON.stringify(providerRoute)}`);
+  }
 }
 
 function parentAssistantPayload() {
@@ -455,7 +476,8 @@ function assertParentAssistantThreadRuntimeAfterMessage(event) {
 }
 
 function assertParentAssistantProviderStatus(event) {
-  const status = parseJsonField(event.payload, ParentAssistantRuntimeField.providerStatus);
+  const payload = event.payload;
+  const status = parseJsonField(payload, ParentAssistantRuntimeField.providerStatus);
   if (
     status.backendState !== 'runtime-backed' ||
     status.providerState !== 'unavailable' ||
@@ -473,6 +495,23 @@ function assertParentAssistantProviderStatus(event) {
     status.apiProviderBoundary?.childSafetyOrEnforcementUseAllowed !== false
   ) {
     throw new Error(`Parent Assistant provider status did not preserve API custody: ${JSON.stringify(status)}`);
+  }
+  if (
+    status.providerRoute?.routingState !== 'no-provider-available' ||
+    status.providerRoute?.selectedProvider !== 'none' ||
+    status.providerRoute?.apiAccessState !== 'not-authorized' ||
+    status.providerRoute?.childSafetyOrEnforcementUseAllowed !== false
+  ) {
+    throw new Error(`Parent Assistant provider status did not expose safe routing: ${JSON.stringify(status)}`);
+  }
+  const providerRoute = parseJsonField(payload, AgentProtocolDefaults.Field.ParentAssistantProviderRoute);
+  if (
+    providerRoute.routingState !== status.providerRoute.routingState ||
+    providerRoute.selectedProvider !== status.providerRoute.selectedProvider ||
+    providerRoute.apiAccessState !== status.providerRoute.apiAccessState ||
+    providerRoute.childSafetyOrEnforcementUseAllowed !== false
+  ) {
+    throw new Error(`Parent Assistant provider route payload did not match status: ${JSON.stringify(providerRoute)}`);
   }
 }
 

@@ -39,17 +39,22 @@ configure, explain, and preview rules.
 - MIA/report-history evidence contexts now carry typed parent-owned custody and
   source labels, `rawChildEvidenceIncluded=false`, and
   `directEnforcementAllowed=false`.
-- Provider routing and local AI scheduler work is in progress/proof-backed.
+- Parent Assistant answers and provider-status events now carry a typed
+  provider route for local configured/degraded/unavailable and API
+  authorized-unavailable/authorized-degraded states. The route keeps remote/API
+  AI optional, cites saved report/read-model source refs, and preserves
+  `childSafetyOrEnforcementUseAllowed=false`.
 - Finished portal chat/action flow is not done.
 
 ## Current Gap
 
-Assistant threads, cited answers, action previews, rule-writing flow, provider
-status UI, parent approval, and child-agent validation are incomplete as one
-product flow. Saved report citations have runtime proof, but the portal chat
-surface still needs C-owned integration. MIA evidence context remains
-read-model/report citation context only; it does not transfer raw child evidence,
-write policy, or enforce on child devices.
+Assistant threads, provider status UI, parent approval, child-agent validation,
+real API provider adapters, and rule-writing flow are incomplete as one product
+flow. Saved report citations, cited answers, action previews, and backend
+provider routing have runtime proof, but the portal chat surface still needs
+C-owned integration. MIA evidence context remains read-model/report citation
+context only; it does not transfer raw child evidence, write policy, or enforce
+on child devices.
 
 ## Checklist
 
@@ -57,7 +62,7 @@ write policy, or enforce on child devices.
 - [x] Evidence-cited answer contract.
 - [x] Action preview contract.
 - [ ] Draft rule/schedule/approval actions.
-- [ ] Provider status and degraded state.
+- [x] Provider status and degraded state.
 - [ ] Parent confirmation before write.
 - [ ] Child-agent validation of actions.
 - [ ] Portal chat and audit.

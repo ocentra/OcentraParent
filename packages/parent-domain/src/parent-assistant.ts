@@ -72,6 +72,17 @@ export const ParentAssistantProviderStateSchema = withParser(Schema.Literal('con
 export const ParentAssistantAnswerStateSchema = withParser(
   Schema.Literal('answered', 'queued', 'degraded', 'unavailable')
 );
+const ParentAssistantProviderSelectionSchema = withParser(Schema.Literal('local', 'api', 'none'));
+const ParentAssistantProviderRoutingStateSchema = withParser(
+  Schema.Literal(
+    'local-provider-ready',
+    'local-provider-degraded',
+    'local-provider-unavailable',
+    'api-provider-authorized-unavailable',
+    'api-provider-authorized-degraded',
+    'no-provider-available'
+  )
+);
 const ParentAssistantApiAuthorizationStateSchema = withParser(Schema.Literal('authorized', 'not-authorized'));
 const ParentAssistantApiProviderAccessStateSchema = withParser(
   Schema.Literal('not-authorized', 'authorized-unavailable', 'authorized-degraded')
@@ -221,6 +232,73 @@ export const ParentAssistantApiProviderBoundarySchema = withParser(
   )
 );
 
+const ParentAssistantProviderRouteBaseSchema = Schema.Struct({
+  routingState: ParentAssistantProviderRoutingStateSchema,
+  selectedProvider: ParentAssistantProviderSelectionSchema,
+  localProviderState: ParentAssistantProviderStateSchema,
+  apiProviderState: ParentAssistantProviderStateSchema,
+  apiAccessState: ParentAssistantApiProviderAccessStateSchema,
+  evidenceCitationRequired: Schema.Literal(true),
+  remoteAiOptional: Schema.Literal(true),
+  childSafetyOrEnforcementUseAllowed: Schema.Literal(false),
+  reason: ParentAssistantAnswerTextSchema,
+});
+
+type ParentAssistantProviderRouteCandidate = Infer<typeof ParentAssistantProviderRouteBaseSchema>;
+type ParentAssistantProviderRouteExpectation = Readonly<{
+  selectedProvider: ParentAssistantProviderRouteCandidate['selectedProvider'];
+  localProviderState: ParentAssistantProviderRouteCandidate['localProviderState'];
+  apiAccessState?: ParentAssistantProviderRouteCandidate['apiAccessState'];
+  apiProviderState?: ParentAssistantProviderRouteCandidate['apiProviderState'];
+}>;
+
+const ParentAssistantProviderRouteExpectations = {
+  'local-provider-ready': {
+    selectedProvider: 'local',
+    localProviderState: 'configured',
+  },
+  'local-provider-degraded': {
+    selectedProvider: 'local',
+    localProviderState: 'degraded',
+  },
+  'local-provider-unavailable': {
+    selectedProvider: 'none',
+    localProviderState: 'unavailable',
+    apiAccessState: 'not-authorized',
+  },
+  'api-provider-authorized-unavailable': {
+    selectedProvider: 'none',
+    localProviderState: 'unavailable',
+    apiAccessState: 'authorized-unavailable',
+    apiProviderState: 'unavailable',
+  },
+  'api-provider-authorized-degraded': {
+    selectedProvider: 'none',
+    localProviderState: 'unavailable',
+    apiAccessState: 'authorized-degraded',
+    apiProviderState: 'degraded',
+  },
+  'no-provider-available': {
+    selectedProvider: 'none',
+    localProviderState: 'unavailable',
+    apiAccessState: 'not-authorized',
+    apiProviderState: 'unavailable',
+  },
+} as const satisfies Record<
+  ParentAssistantProviderRouteCandidate['routingState'],
+  ParentAssistantProviderRouteExpectation
+>;
+
+const ParentAssistantProviderRouteSchema = withParser(
+  ParentAssistantProviderRouteBaseSchema.pipe(
+    Schema.filter(
+      (route) =>
+        parentAssistantProviderRouteIsConsistent(route) ||
+        'Expected Parent Assistant provider route to keep remote AI optional and disallow child-safety or enforcement use'
+    )
+  )
+);
+
 const ParentAssistantAnswerBaseSchema = Schema.Struct({
   schemaVersion: ParentContractSchemaVersionSchema,
   requestId: ParentAssistantRequestIdSchema,
@@ -240,6 +318,7 @@ const ParentAssistantAnswerBaseSchema = Schema.Struct({
   citations: Schema.Array(ParentAssistantEvidenceContextSchema),
   actionPreview: ParentAssistantActionPreviewSchema,
   apiProviderBoundary: ParentAssistantApiProviderBoundarySchema,
+  providerRoute: ParentAssistantProviderRouteSchema,
   promptVersion: ParentAssistantPromptVersionSchema,
 });
 
@@ -278,22 +357,33 @@ export const ParentAssistantThreadResponseSchema = withParser(
   })
 );
 
+const ParentAssistantProviderStatusBaseSchema = Schema.Struct({
+  schemaVersion: ParentContractSchemaVersionSchema,
+  backendState: ParentAssistantBackendStateSchema,
+  providerId: LocalAiProviderIdSchema,
+  modelId: LocalAiModelIdSchema,
+  providerState: ParentAssistantProviderStateSchema,
+  runState: ParentAssistantRunStateSchema,
+  schedulerJobStatus: LocalAiProviderSchedulerJobStatusSchema,
+  schedulerStatus: LocalAiProviderSchedulerStatusSchema,
+  degradedState: LocalAiDegradedStateSchema,
+  unavailableReason: Schema.Union(LocalAiUnavailableReasonSchema, Schema.Null),
+  queueDepth: Schema.Number.pipe(Schema.int()),
+  busy: Schema.Boolean,
+  apiProviderBoundary: ParentAssistantApiProviderBoundarySchema,
+  providerRoute: ParentAssistantProviderRouteSchema,
+});
+
+type ParentAssistantProviderStatusCandidate = Infer<typeof ParentAssistantProviderStatusBaseSchema>;
+
 export const ParentAssistantProviderStatusSchema = withParser(
-  Schema.Struct({
-    schemaVersion: ParentContractSchemaVersionSchema,
-    backendState: ParentAssistantBackendStateSchema,
-    providerId: LocalAiProviderIdSchema,
-    modelId: LocalAiModelIdSchema,
-    providerState: ParentAssistantProviderStateSchema,
-    runState: ParentAssistantRunStateSchema,
-    schedulerJobStatus: LocalAiProviderSchedulerJobStatusSchema,
-    schedulerStatus: LocalAiProviderSchedulerStatusSchema,
-    degradedState: LocalAiDegradedStateSchema,
-    unavailableReason: Schema.Union(LocalAiUnavailableReasonSchema, Schema.Null),
-    queueDepth: Schema.Number.pipe(Schema.int()),
-    busy: Schema.Boolean,
-    apiProviderBoundary: ParentAssistantApiProviderBoundarySchema,
-  })
+  ParentAssistantProviderStatusBaseSchema.pipe(
+    Schema.filter(
+      (status) =>
+        parentAssistantProviderRouteMatchesStatus(status) ||
+        'Expected Parent Assistant provider status route to match local provider and API boundary states'
+    )
+  )
 );
 
 export const ParentAssistantRunCancelResultSchema = withParser(
@@ -336,6 +426,10 @@ export const ParentAssistantActionConfirmResultSchema = withParser(
 );
 
 function parentAssistantAnswerIsConsistent(answer: ParentAssistantAnswerCandidate): boolean {
+  if (!parentAssistantProviderRouteMatchesAnswer(answer)) {
+    return false;
+  }
+
   switch (answer.answerState) {
     case 'answered':
       return answeredParentAssistantAnswerIsConsistent(answer);
@@ -428,6 +522,74 @@ function parentAssistantApiProviderAccessStateIsConsistent(
   }
 
   return false;
+}
+
+function parentAssistantProviderRouteIsConsistent(route: ParentAssistantProviderRouteCandidate): boolean {
+  if (!parentAssistantProviderRouteKeepsSafetyBoundaries(route)) {
+    return false;
+  }
+
+  if (!parentAssistantProviderRouteApiStateIsConsistent(route)) {
+    return false;
+  }
+
+  return parentAssistantProviderRouteMatchesExpectedState(
+    route,
+    ParentAssistantProviderRouteExpectations[route.routingState]
+  );
+}
+
+function parentAssistantProviderRouteKeepsSafetyBoundaries(route: ParentAssistantProviderRouteCandidate): boolean {
+  return (
+    route.evidenceCitationRequired === true &&
+    route.remoteAiOptional === true &&
+    route.childSafetyOrEnforcementUseAllowed === false
+  );
+}
+
+function parentAssistantProviderRouteMatchesExpectedState(
+  route: ParentAssistantProviderRouteCandidate,
+  expected: ParentAssistantProviderRouteExpectation
+): boolean {
+  return (
+    route.selectedProvider === expected.selectedProvider &&
+    route.localProviderState === expected.localProviderState &&
+    optionalParentAssistantProviderRouteValueMatches(route.apiAccessState, expected.apiAccessState) &&
+    optionalParentAssistantProviderRouteValueMatches(route.apiProviderState, expected.apiProviderState)
+  );
+}
+
+function optionalParentAssistantProviderRouteValueMatches<Value>(actual: Value, expected: Value | undefined): boolean {
+  return expected === undefined || actual === expected;
+}
+
+function parentAssistantProviderRouteApiStateIsConsistent(route: ParentAssistantProviderRouteCandidate): boolean {
+  if (route.apiAccessState === 'authorized-degraded') {
+    return route.apiProviderState === 'degraded';
+  }
+
+  return route.apiProviderState === 'unavailable';
+}
+
+function parentAssistantProviderRouteMatchesAnswer(answer: ParentAssistantAnswerCandidate): boolean {
+  return (
+    answer.providerRoute.localProviderState === answer.providerState &&
+    parentAssistantProviderRouteMatchesBoundary(answer.providerRoute, answer.apiProviderBoundary)
+  );
+}
+
+function parentAssistantProviderRouteMatchesStatus(status: ParentAssistantProviderStatusCandidate): boolean {
+  return (
+    status.providerRoute.localProviderState === status.providerState &&
+    parentAssistantProviderRouteMatchesBoundary(status.providerRoute, status.apiProviderBoundary)
+  );
+}
+
+function parentAssistantProviderRouteMatchesBoundary(
+  route: ParentAssistantProviderRouteCandidate,
+  boundary: ParentAssistantApiProviderBoundaryCandidate
+): boolean {
+  return route.apiAccessState === boundary.accessState && route.apiProviderState === boundary.providerState;
 }
 
 function notAuthorizedApiProviderBoundaryIsConsistent(boundary: ParentAssistantApiProviderBoundaryCandidate): boolean {

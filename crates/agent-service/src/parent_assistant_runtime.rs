@@ -117,6 +117,8 @@ fn answer_with_api_boundary(
 ) -> ParentAssistantAnswer {
     answer.api_provider_boundary =
         api_boundary::api_provider_boundary_for_command(command, &answer.citations);
+    answer.provider_route =
+        api_boundary::provider_route(answer.provider_state, &answer.api_provider_boundary);
     answer
 }
 
@@ -327,6 +329,8 @@ fn base_answer(
     request: ParentAssistantGenerateRequest,
     parts: ParentAssistantAnswerParts,
 ) -> ParentAssistantAnswer {
+    let api_provider_boundary = api_boundary::api_provider_boundary(&request.evidence_context);
+    let provider_route = api_boundary::provider_route(parts.provider_state, &api_provider_boundary);
     ParentAssistantAnswer {
         schema_version: request.schema_version,
         request_id: request.request_id,
@@ -345,7 +349,8 @@ fn base_answer(
         answer_text: parts.answer_text,
         citations: request.evidence_context.clone(),
         action_preview: preview_only_action(&request.question),
-        api_provider_boundary: api_boundary::api_provider_boundary(&request.evidence_context),
+        api_provider_boundary,
+        provider_route,
         prompt_version: constants::parent_assistant::PROMPT_VERSION_LOCAL_V1.to_string(),
     }
 }

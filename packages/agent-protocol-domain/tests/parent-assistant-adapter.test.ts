@@ -98,6 +98,8 @@ it('parses full answer payloads with citations, preview, and API custody boundar
   expect(parsed.ok ? parsed.value.actionPreview.enforcementApplied : true).toBe(false);
   expect(parsed.ok ? parsed.value.apiProviderBoundary.authorizationState : null).toBe('not-authorized');
   expect(parsed.ok ? parsed.value.apiProviderBoundary.accessState : null).toBe('not-authorized');
+  expect(parsed.ok ? parsed.value.providerRoute.routingState : null).toBe('no-provider-available');
+  expect(parsed.ok ? parsed.value.providerRoute.childSafetyOrEnforcementUseAllowed : true).toBe(false);
 });
 
 it('rejects wrong events and invalid answer JSON', () => {
@@ -131,6 +133,7 @@ it('parses provider status runtime events', () => {
 
   expect(provider.ok ? provider.value.apiProviderBoundary.authorizationState : null).toBe('not-authorized');
   expect(provider.ok ? provider.value.apiProviderBoundary.parentAuthorizationRequired : false).toBe(true);
+  expect(provider.ok ? provider.value.providerRoute.selectedProvider : null).toBe('none');
 });
 
 it('parses run cancel runtime events', () => {
@@ -218,6 +221,7 @@ function providerStatus() {
     queueDepth: 0,
     busy: false,
     apiProviderBoundary: answerPayload().apiProviderBoundary,
+    providerRoute: providerRoute(),
   } as const;
 }
 
@@ -335,7 +339,22 @@ function answerPayload() {
       unavailableReason: 'api-ai-provider-not-authorized',
       childSafetyOrEnforcementUseAllowed: false,
     },
+    providerRoute: providerRoute(),
     promptVersion: 'parent-assistant-local-v1',
+  } as const;
+}
+
+function providerRoute() {
+  return {
+    routingState: 'no-provider-available',
+    selectedProvider: 'none',
+    localProviderState: 'unavailable',
+    apiProviderState: 'unavailable',
+    apiAccessState: 'not-authorized',
+    evidenceCitationRequired: true,
+    remoteAiOptional: true,
+    childSafetyOrEnforcementUseAllowed: false,
+    reason: 'Local provider unavailable and API provider is not authorized.',
   } as const;
 }
 

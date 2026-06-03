@@ -114,6 +114,18 @@ pub const API_PROVIDER_NOT_AUTHORIZED_REASON: &str = "api-ai-provider-not-author
 pub const API_PROVIDER_AUTHORIZED_UNAVAILABLE_REASON: &str =
     "api-ai-provider-adapter-not-configured";
 pub const API_PROVIDER_AUTHORIZED_DEGRADED_REASON: &str = "api-ai-provider-authorized-degraded";
+pub const PROVIDER_ROUTE_LOCAL_READY_REASON: &str =
+    "Local parent-assistant provider is configured and selected.";
+pub const PROVIDER_ROUTE_LOCAL_DEGRADED_REASON: &str =
+    "Local parent-assistant provider is degraded; API AI remains optional and unavailable for safety decisions.";
+pub const PROVIDER_ROUTE_LOCAL_UNAVAILABLE_REASON: &str =
+    "Local parent-assistant provider is unavailable and no API provider is selected.";
+pub const PROVIDER_ROUTE_API_UNAVAILABLE_REASON: &str =
+    "API AI is parent-authorized but no configured API adapter is available.";
+pub const PROVIDER_ROUTE_API_DEGRADED_REASON: &str =
+    "API AI is parent-authorized but degraded; it remains outside child-safety decisions.";
+pub const PROVIDER_ROUTE_NONE_REASON: &str =
+    "No parent-assistant provider is available; cited source refs remain available for degraded answers.";
 pub const LOCAL_PROVIDER_DEGRADED: &str = "local provider returned degraded output";
 pub const LOCAL_PROVIDER_BUSY: &str = "local provider is busy";
 pub const BACKEND_STATE_SCAFFOLD_ONLY: &str = "scaffold-only";
@@ -127,6 +139,7 @@ pub const FIELD_THREAD: &str = "parentAssistantThread";
 pub const FIELD_THREAD_RESPONSE: &str = "parentAssistantThreadResponse";
 pub const FIELD_THREADS: &str = "parentAssistantThreads";
 pub const FIELD_PROVIDER_STATUS: &str = "parentAssistantProviderStatus";
+pub const FIELD_PROVIDER_ROUTE: &str = "parentAssistantProviderRoute";
 pub const FIELD_RUN_CANCEL_RESULT: &str = "parentAssistantRunCancelResult";
 pub const FIELD_ACTION_CONFIRM_RESULT: &str = "parentAssistantActionConfirmResult";
 pub const FIELD_THREAD_ID: &str = "assistantThreadId";

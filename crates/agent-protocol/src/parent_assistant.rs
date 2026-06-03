@@ -6,6 +6,13 @@ use crate::{
     ParentDeviceReference, ParentEvidenceReference,
 };
 
+mod provider_route;
+
+pub use provider_route::{
+    ParentAssistantProviderRoute, ParentAssistantProviderRoutingState,
+    ParentAssistantProviderSelection,
+};
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ParentAssistantProviderState {
     #[serde(rename = "configured")]
@@ -234,6 +241,7 @@ pub struct ParentAssistantAnswer {
     pub citations: Vec<ParentAssistantEvidenceContext>,
     pub action_preview: ParentAssistantActionPreview,
     pub api_provider_boundary: ParentAssistantApiProviderBoundary,
+    pub provider_route: ParentAssistantProviderRoute,
     pub prompt_version: String,
 }
 
@@ -276,6 +284,7 @@ pub struct ParentAssistantProviderStatus {
     pub queue_depth: u16,
     pub busy: bool,
     pub api_provider_boundary: ParentAssistantApiProviderBoundary,
+    pub provider_route: ParentAssistantProviderRoute,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

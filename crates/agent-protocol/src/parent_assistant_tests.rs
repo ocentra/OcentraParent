@@ -9,10 +9,12 @@ use super::{
     ParentAssistantAnswerState, ParentAssistantApiAuthorizationState,
     ParentAssistantApiProviderAccessState, ParentAssistantApiProviderBoundary,
     ParentAssistantBackendState, ParentAssistantEvidenceContext, ParentAssistantGenerateRequest,
-    ParentAssistantProviderState, ParentAssistantProviderStatus, ParentAssistantRunCancelResult,
-    ParentAssistantRunCancelState, ParentAssistantRunState, ParentAssistantScope,
-    ParentAssistantThreadRecord, ParentAssistantThreadResponse, ParentAssistantThreadState,
-    ParentDeviceReference, ParentEvidenceReference, ParentEvidenceReferenceKind,
+    ParentAssistantProviderRoute, ParentAssistantProviderRoutingState,
+    ParentAssistantProviderSelection, ParentAssistantProviderState, ParentAssistantProviderStatus,
+    ParentAssistantRunCancelResult, ParentAssistantRunCancelState, ParentAssistantRunState,
+    ParentAssistantScope, ParentAssistantThreadRecord, ParentAssistantThreadResponse,
+    ParentAssistantThreadState, ParentDeviceReference, ParentEvidenceReference,
+    ParentEvidenceReferenceKind,
 };
 
 #[test]
@@ -71,6 +73,7 @@ fn parent_assistant_answer_serializes_citations_and_action_preview_without_enfor
         citations: vec![sample_evidence_context()],
         action_preview: sample_action_preview(false),
         api_provider_boundary: sample_api_provider_boundary(),
+        provider_route: sample_provider_route(ParentAssistantProviderState::Configured),
         prompt_version: "parent-assistant-local-v1".to_string(),
     };
     let serialized = serde_json::to_value(&answer).expect("answer serializes");
@@ -86,6 +89,11 @@ fn parent_assistant_answer_serializes_citations_and_action_preview_without_enfor
         serialized["apiProviderBoundary"]["authorizationState"],
         "not-authorized"
     );
+    assert_eq!(
+        serialized["providerRoute"]["routingState"],
+        "local-provider-ready"
+    );
+    assert_eq!(serialized["providerRoute"]["selectedProvider"], "local");
     assert_eq!(
         serialized["actionPreview"]["childAgentContractRequired"],
         true
@@ -148,6 +156,7 @@ fn parent_assistant_unavailable_answer_serializes_typed_provider_state() {
             enforcement_applied: false,
         },
         api_provider_boundary: sample_api_provider_boundary(),
+        provider_route: sample_provider_route(ParentAssistantProviderState::Unavailable),
         prompt_version: "parent-assistant-local-v1".to_string(),
     };
     let serialized = serde_json::to_value(&answer).expect("answer serializes");
@@ -217,6 +226,7 @@ fn parent_assistant_provider_status_serializes_scheduler_and_api_boundaries() {
         queue_depth: 0,
         busy: false,
         api_provider_boundary: sample_api_provider_boundary(),
+        provider_route: sample_provider_route(ParentAssistantProviderState::Unavailable),
     };
     let serialized = serde_json::to_value(&status).expect("provider status serializes");
 
@@ -224,6 +234,14 @@ fn parent_assistant_provider_status_serializes_scheduler_and_api_boundaries() {
     assert_eq!(serialized["schedulerJobStatus"], "unavailable");
     assert_eq!(
         serialized["apiProviderBoundary"]["childSafetyOrEnforcementUseAllowed"],
+        false
+    );
+    assert_eq!(
+        serialized["providerRoute"]["routingState"],
+        "no-provider-available"
+    );
+    assert_eq!(
+        serialized["providerRoute"]["childSafetyOrEnforcementUseAllowed"],
         false
     );
 }
@@ -280,6 +298,37 @@ fn sample_api_provider_boundary() -> ParentAssistantApiProviderBoundary {
         provider_state: ParentAssistantProviderState::Unavailable,
         unavailable_reason: Some("api-ai-provider-not-authorized".to_string()),
         child_safety_or_enforcement_use_allowed: false,
+    }
+}
+
+fn sample_provider_route(
+    local_provider_state: ParentAssistantProviderState,
+) -> ParentAssistantProviderRoute {
+    let (routing_state, selected_provider) = match local_provider_state {
+        ParentAssistantProviderState::Configured => (
+            ParentAssistantProviderRoutingState::LocalProviderReady,
+            ParentAssistantProviderSelection::Local,
+        ),
+        ParentAssistantProviderState::Degraded => (
+            ParentAssistantProviderRoutingState::LocalProviderDegraded,
+            ParentAssistantProviderSelection::Local,
+        ),
+        ParentAssistantProviderState::Unavailable => (
+            ParentAssistantProviderRoutingState::NoProviderAvailable,
+            ParentAssistantProviderSelection::None,
+        ),
+    };
+
+    ParentAssistantProviderRoute {
+        routing_state,
+        selected_provider,
+        local_provider_state,
+        api_provider_state: ParentAssistantProviderState::Unavailable,
+        api_access_state: ParentAssistantApiProviderAccessState::NotAuthorized,
+        evidence_citation_required: true,
+        remote_ai_optional: true,
+        child_safety_or_enforcement_use_allowed: false,
+        reason: "Local/API provider route preserves citations and no enforcement use.".to_string(),
     }
 }
 

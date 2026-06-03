@@ -28,6 +28,7 @@ import { AgentProtocolSchemaVersion, type AgentRoute } from './primitives';
 export const ParentAssistantAdapterPayloadField = {
   ActionPreview: AgentProtocolDefaults.Field.ParentAssistantActionPreview,
   ActionConfirmResult: 'parentAssistantActionConfirmResult',
+  ProviderRoute: AgentProtocolDefaults.Field.ParentAssistantProviderRoute,
   ProviderStatus: 'parentAssistantProviderStatus',
   RunCancelResult: 'parentAssistantRunCancelResult',
   ThreadResponse: 'parentAssistantThreadResponse',
