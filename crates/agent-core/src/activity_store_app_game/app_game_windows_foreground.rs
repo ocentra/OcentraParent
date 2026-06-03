@@ -232,6 +232,12 @@ fn apply_foreground_row(summary: &mut AppGameSessionSummary, row: &AppGameForegr
     summary.background_duration_ms = summary
         .running_duration_ms
         .saturating_sub(summary.foreground_duration_ms);
+    if row.foreground_state == APP_GAME_FOREGROUND_FOREGROUND {
+        summary.last_foreground_at = row.foreground_started_at.clone();
+    }
+    if row.foreground_state == APP_GAME_FOREGROUND_BACKGROUND {
+        summary.last_background_at = row.foreground_ended_at.clone();
+    }
     summary.last_observed_at = row.observed_at.clone();
     summary.evidence_count += row.evidence.len() as u64;
     summary.evidence.extend(row.evidence.clone());

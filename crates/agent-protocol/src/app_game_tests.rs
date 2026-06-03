@@ -1,25 +1,26 @@
 use super::{
     constants, AppGameForegroundEvidenceRow, AppGameInventoryCategoryCandidate,
     AppGameInventoryEvidenceRow, AppGameLauncherEvidenceRow, AppGameRuntimeEvidenceRow,
-    AppGameSessionReport, AppGameSessionSummary, APP_GAME_CAPABILITY_STATUS_AVAILABLE,
-    APP_GAME_CATALOG_NOT_LOADED, APP_GAME_CATALOG_READY, APP_GAME_CLASSIFICATION_KNOWN_APP,
-    APP_GAME_CLASSIFICATION_KNOWN_GAME, APP_GAME_CLASSIFICATION_KNOWN_LAUNCHER,
-    APP_GAME_CLASSIFICATION_POSSIBLY_GAME, APP_GAME_CONFIDENCE_FOREGROUND_CANDIDATE,
-    APP_GAME_CONTENT_KNOWLEDGE_NOT_CLAIMED, APP_GAME_FOREGROUND_FOREGROUND,
-    APP_GAME_FOREGROUND_NOT_CLAIMED, APP_GAME_INVENTORY_CATEGORY_GAME,
-    APP_GAME_INVENTORY_CUSTODY_LAUNCHER_MANIFEST, APP_GAME_INVENTORY_CUSTODY_STORE_PACKAGE,
-    APP_GAME_INVENTORY_SOURCE_LAUNCHER_MANIFEST, APP_GAME_INVENTORY_SOURCE_STORE_PACKAGE,
-    APP_GAME_INVENTORY_STATE_INSTALLED, APP_GAME_LAUNCHER_KIND_STEAM,
-    APP_GAME_LAUNCHER_PROOF_LAUNCHER_ONLY, APP_GAME_OBSERVATION_MODE_FOREGROUND_WINDOW,
-    APP_GAME_OBSERVATION_MODE_PROCESS_SNAPSHOT, APP_GAME_PRODUCT_NATIVE_GAME,
-    APP_GAME_RUNTIME_NOT_CLAIMED, APP_GAME_RUNTIME_RUNNING, APP_GAME_SCHEMA_VERSION,
-    APP_GAME_TEST_CATALOG_REF, APP_GAME_TEST_DISPLAY_LABEL, APP_GAME_TEST_EXECUTABLE_PATH_REF,
-    APP_GAME_TEST_FILE_HASH_REF, APP_GAME_TEST_FOREGROUND_EVIDENCE_ID,
-    APP_GAME_TEST_LAUNCHER_APP_ID, APP_GAME_TEST_LAUNCHER_EVIDENCE_ID,
-    APP_GAME_TEST_LAUNCHER_MANIFEST_ID, APP_GAME_TEST_LAUNCHER_PROCESS_ID,
-    APP_GAME_TEST_LAUNCHER_PROCESS_IDENTITY, APP_GAME_TEST_LAUNCHER_PROCESS_NAME,
-    APP_GAME_TEST_LAUNCHER_REF, APP_GAME_TEST_LAUNCHER_SOURCE_REF, APP_GAME_TEST_PARENT_PROCESS_ID,
-    APP_GAME_TEST_PROCESS_ID, APP_GAME_TEST_PROCESS_IDENTITY, APP_GAME_TEST_PROCESS_NAME,
+    AppGameSessionDailyRollup, AppGameSessionReport, AppGameSessionSummary,
+    APP_GAME_CAPABILITY_STATUS_AVAILABLE, APP_GAME_CATALOG_NOT_LOADED, APP_GAME_CATALOG_READY,
+    APP_GAME_CLASSIFICATION_KNOWN_APP, APP_GAME_CLASSIFICATION_KNOWN_GAME,
+    APP_GAME_CLASSIFICATION_KNOWN_LAUNCHER, APP_GAME_CLASSIFICATION_POSSIBLY_GAME,
+    APP_GAME_CONFIDENCE_FOREGROUND_CANDIDATE, APP_GAME_CONTENT_KNOWLEDGE_NOT_CLAIMED,
+    APP_GAME_FOREGROUND_FOREGROUND, APP_GAME_FOREGROUND_NOT_CLAIMED,
+    APP_GAME_INVENTORY_CATEGORY_GAME, APP_GAME_INVENTORY_CUSTODY_LAUNCHER_MANIFEST,
+    APP_GAME_INVENTORY_CUSTODY_STORE_PACKAGE, APP_GAME_INVENTORY_SOURCE_LAUNCHER_MANIFEST,
+    APP_GAME_INVENTORY_SOURCE_STORE_PACKAGE, APP_GAME_INVENTORY_STATE_INSTALLED,
+    APP_GAME_LAUNCHER_KIND_STEAM, APP_GAME_LAUNCHER_PROOF_LAUNCHER_ONLY,
+    APP_GAME_OBSERVATION_MODE_FOREGROUND_WINDOW, APP_GAME_OBSERVATION_MODE_PROCESS_SNAPSHOT,
+    APP_GAME_PRODUCT_NATIVE_GAME, APP_GAME_RUNTIME_NOT_CLAIMED, APP_GAME_RUNTIME_RUNNING,
+    APP_GAME_SCHEMA_VERSION, APP_GAME_SESSION_END_REASON_PROCESS_EXIT, APP_GAME_TEST_CATALOG_REF,
+    APP_GAME_TEST_DISPLAY_LABEL, APP_GAME_TEST_EXECUTABLE_PATH_REF, APP_GAME_TEST_FILE_HASH_REF,
+    APP_GAME_TEST_FOREGROUND_EVIDENCE_ID, APP_GAME_TEST_LAUNCHER_APP_ID,
+    APP_GAME_TEST_LAUNCHER_EVIDENCE_ID, APP_GAME_TEST_LAUNCHER_MANIFEST_ID,
+    APP_GAME_TEST_LAUNCHER_PROCESS_ID, APP_GAME_TEST_LAUNCHER_PROCESS_IDENTITY,
+    APP_GAME_TEST_LAUNCHER_PROCESS_NAME, APP_GAME_TEST_LAUNCHER_REF,
+    APP_GAME_TEST_LAUNCHER_SOURCE_REF, APP_GAME_TEST_PARENT_PROCESS_ID, APP_GAME_TEST_PROCESS_ID,
+    APP_GAME_TEST_PROCESS_IDENTITY, APP_GAME_TEST_PROCESS_NAME,
     APP_GAME_TEST_PUBLISHER_SIGNATURE_REF, APP_GAME_TEST_REGISTRY_SOURCE_REF,
     APP_GAME_TEST_RUNTIME_EVIDENCE_ID, APP_GAME_TEST_STORE_GAME_BUNDLE_ID,
     APP_GAME_TEST_STORE_GAME_CATALOG_REF, APP_GAME_TEST_STORE_GAME_DISPLAY_LABEL,
@@ -43,10 +44,14 @@ fn app_game_session_summary_serializes_to_contract_shape() {
         catalog_ref: None,
         started_at: constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
         last_observed_at: constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string(),
-        ended_at: None,
-        running_duration_ms: 0,
-        foreground_duration_ms: 0,
-        background_duration_ms: 0,
+        ended_at: Some(constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string()),
+        end_reason: Some(APP_GAME_SESSION_END_REASON_PROCESS_EXIT.to_string()),
+        running_duration_ms: 60000,
+        foreground_duration_ms: 30000,
+        background_duration_ms: 30000,
+        last_foreground_at: Some(constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string()),
+        last_background_at: Some(constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string()),
+        observation_gap_ms: 60000,
         observation_count: 2,
         evidence_count: 1,
         evidence: Vec::new(),
@@ -66,6 +71,11 @@ fn app_game_session_summary_serializes_to_contract_shape() {
         APP_GAME_CLASSIFICATION_POSSIBLY_GAME
     );
     assert_eq!(serialized["catalogReadyState"], APP_GAME_CATALOG_NOT_LOADED);
+    assert_eq!(
+        serialized["endReason"],
+        APP_GAME_SESSION_END_REASON_PROCESS_EXIT
+    );
+    assert_eq!(serialized["observationGapMs"], 60000);
     assert!(serialized["inventoryEntryId"].is_null());
 }
 
@@ -105,6 +115,34 @@ fn app_game_session_report_serializes_flat_portal_visibility_shape() {
         APP_GAME_CLASSIFICATION_POSSIBLY_GAME
     );
     assert_eq!(serialized["mostRecentEvidenceCount"], 1);
+}
+
+#[test]
+fn app_game_daily_rollup_serializes_duration_totals() {
+    let rollup = AppGameSessionDailyRollup {
+        schema_version: APP_GAME_SCHEMA_VERSION,
+        rollup_date: "2026-05-20".to_string(),
+        classification_state: APP_GAME_CLASSIFICATION_POSSIBLY_GAME.to_string(),
+        session_count: 1,
+        running_duration_ms: 60000,
+        foreground_duration_ms: 30000,
+        background_duration_ms: 30000,
+        evidence_count: 1,
+        session_ids: vec![constants::activity_store::TEST_APP_GAME_SESSION_ID.to_string()],
+        evidence: Vec::new(),
+    };
+
+    let serialized = serde_json::to_value(rollup).expect(constants::error::AGENT_EVENT_SERIALIZES);
+
+    assert_eq!(serialized["schemaVersion"], APP_GAME_SCHEMA_VERSION);
+    assert_eq!(serialized["rollupDate"], "2026-05-20");
+    assert_eq!(
+        serialized["classificationState"],
+        APP_GAME_CLASSIFICATION_POSSIBLY_GAME
+    );
+    assert_eq!(serialized["runningDurationMs"], 60000);
+    assert_eq!(serialized["foregroundDurationMs"], 30000);
+    assert_eq!(serialized["backgroundDurationMs"], 30000);
 }
 
 #[test]

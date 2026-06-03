@@ -41,6 +41,10 @@ control with better evidence and local audit.
 ## Current Ocentra State
 
 - App/game session contracts and read-model proof exist.
+- Stored app/game observation rows now derive deterministic running,
+  foreground, background, stale-gap, process-exit, replay-stable, and daily
+  rollup duration proof without upgrading inventory, launcher, or foreground
+  evidence into content or enforcement authority.
 - Package/process identity and owned-process time-limit proof are in progress.
 - The V0.8 product-control spine separates app time-limit and scoped
   owned-process control from broad installed-app blocking, so downstream policy
@@ -104,7 +108,9 @@ decisions.
 ## Checklist
 
 - [ ] App/game inventory and identity.
-- [ ] Running and foreground session evidence.
+- [ ] Running and foreground session evidence. Contract and local
+      SQLite-row session-duration proof now exists; live journal-file ingest,
+      service events, portal dashboard rows, and policy integration remain.
 - [ ] Category and unknown-state handling.
 - [ ] App/category schedule and time-budget rules.
 - [ ] Ask-parent and bonus-time flow.

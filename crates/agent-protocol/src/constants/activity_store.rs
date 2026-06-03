@@ -13,6 +13,7 @@ pub const TEST_FILE_PREFIX: &str = "ocentra-parent-activity-store-test-";
 pub const TEST_FIRST_OBSERVED_AT: &str = "2026-05-20T00:00:00Z";
 pub const TEST_SECOND_OBSERVED_AT: &str = "2026-05-20T00:01:00Z";
 pub const TEST_THIRD_OBSERVED_AT: &str = "2026-05-20T00:02:00Z";
+pub const TEST_ROLLUP_DATE: &str = "2026-05-20";
 pub const TEST_CAPTURE_JOURNAL_SUFFIX: &str = "capture-journal";
 pub const TEST_CAPTURE_INVALID_KEY_JOURNAL_SUFFIX: &str = "capture-invalid-key-journal";
 pub const TEST_CAPTURE_INVALID_KEY_STORE_SUFFIX: &str = "capture-invalid-key-store";

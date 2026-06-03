@@ -54,6 +54,11 @@ pub const APP_GAME_OBSERVATION_MODE_PROCESS_SNAPSHOT: &str = "processSnapshot";
 pub const APP_GAME_OBSERVATION_MODE_PROCESS_START: &str = "processStart";
 pub const APP_GAME_OBSERVATION_MODE_PROCESS_EXIT: &str = "processExit";
 pub const APP_GAME_OBSERVATION_MODE_LAUNCHER_MANIFEST: &str = "launcherManifest";
+pub const APP_GAME_SESSION_END_REASON_PROCESS_EXIT: &str = "processExit";
+pub const APP_GAME_SESSION_END_REASON_TIMEOUT_INFERRED: &str = "timeoutInferred";
+pub const APP_GAME_SESSION_END_REASON_DEVICE_SHUTDOWN: &str = "deviceShutdown";
+pub const APP_GAME_SESSION_END_REASON_AGENT_RESTART: &str = "agentRestart";
+pub const APP_GAME_SESSION_END_REASON_UNKNOWN: &str = "unknown";
 pub const APP_GAME_LAUNCHER_KIND_STEAM: &str = "steam";
 pub const APP_GAME_LAUNCHER_KIND_UNKNOWN: &str = "unknownLauncher";
 pub const APP_GAME_LAUNCHER_PROOF_LAUNCHER_ONLY: &str = "launcherOnly";
@@ -174,14 +179,33 @@ pub struct AppGameSessionSummary {
     pub started_at: String,
     pub last_observed_at: String,
     pub ended_at: Option<String>,
+    pub end_reason: Option<String>,
     pub running_duration_ms: u64,
     pub foreground_duration_ms: u64,
     pub background_duration_ms: u64,
+    pub last_foreground_at: Option<String>,
+    pub last_background_at: Option<String>,
+    pub observation_gap_ms: u64,
     pub observation_count: u64,
     pub evidence_count: u64,
     pub evidence: Vec<ActivityEvidenceRef>,
     pub ai_digest_ref: Option<String>,
     pub confidence: f64,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AppGameSessionDailyRollup {
+    pub schema_version: u16,
+    pub rollup_date: String,
+    pub classification_state: String,
+    pub session_count: u64,
+    pub running_duration_ms: u64,
+    pub foreground_duration_ms: u64,
+    pub background_duration_ms: u64,
+    pub evidence_count: u64,
+    pub session_ids: Vec<String>,
+    pub evidence: Vec<ActivityEvidenceRef>,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
