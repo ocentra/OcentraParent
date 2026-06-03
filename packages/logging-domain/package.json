@@ -13,6 +13,14 @@
       "import": "./dist/notification-audit-history.js",
       "types": "./dist/notification-audit-history.d.ts"
     },
+    "./support-bundle-redaction": {
+      "import": "./dist/support-bundle-redaction.js",
+      "types": "./dist/support-bundle-redaction.d.ts"
+    },
+    "./support-bundle-redaction-read-model": {
+      "import": "./dist/support-bundle-redaction-read-model.js",
+      "types": "./dist/support-bundle-redaction-read-model.d.ts"
+    },
     "./tamper-integrity-audit": {
       "import": "./dist/tamper-integrity-audit.js",
       "types": "./dist/tamper-integrity-audit.d.ts"

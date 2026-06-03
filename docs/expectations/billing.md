@@ -107,6 +107,14 @@ unimplemented, child-device entitlement consumption unimplemented,
 child-activity custody excluded, and parent-visible local-safety fallback
 required when backend/provider state is unavailable.
 
+Current support escalation boundary proof:
+`support-bundle-redaction-proof` adds logging-domain support incident rows for
+billing escalation manual-required state and account lookup manual-required
+state. The proof keeps support bundles limited to redaction-safe billing-status
+and account-status references, rejects provider secrets, does not contact a
+billing provider, does not execute account lookup, and keeps backend upload,
+remote support, and production SLA as manual-required or not-implemented states.
+
 ## Entitlement Boundaries
 
 Entitlements may gate:
@@ -174,6 +182,12 @@ Any feature that can be disabled for billing must define its degraded local beha
   account runtime rows require failure state, entitlement signing runtime gaps
   stay manual-required, and Stripe/provider secrets, portal UI, child-device
   consumption, and child-activity custody remain non-claims.
+- `support-bundle-redaction-proof` proves billing support escalation and account
+  lookup remain support-safe manual-required states before provider/backend
+  support workflows exist, and that support bundles do not contain billing
+  provider secrets, child activity, raw URLs, screenshots, journals, SQLite
+  snapshots, private paths, command lines, keystrokes, clipboard data, or
+  message contents.
 - Endpoint-domain contract tests and `billing-account-endpoint-contract-proof`
   prove account, entitlement, subscription, device-limit, download, update, and
   release-status route boundaries before provider/backend code exists.
