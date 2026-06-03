@@ -95,27 +95,7 @@ export function actionResultApprovalStateIsConsistent(result: AppGameControlActi
 }
 
 export function actionResultCapabilityIsConsistent(result: AppGameControlActionResultRuleInput): boolean {
-  if (result.capability.capabilityState !== result.capabilityState) {
-    return false;
-  }
-
-  if (result.resultStatus === 'enforced') {
-    return result.enforcementResult?.status === 'actually-enforced' && result.capabilityState === 'supported';
-  }
-
-  if (result.resultStatus === 'would-enforce') {
-    return result.enforcementResult?.status === 'would-enforce' && result.capabilityState === 'dry-run';
-  }
-
-  if (result.capabilityState === 'manual-required') {
-    return result.resultStatus === 'manual-required' && result.enforcementResult === null;
-  }
-
-  if (result.capabilityState === 'degraded' || result.capabilityState === 'unavailable') {
-    return result.resultStatus === 'unavailable' && result.enforcementResult === null;
-  }
-
-  return true;
+  return capabilityRowStateMatches(result) && capabilityStateAllowsResult(result);
 }
 
 export function actionResultEvidenceProofIsConsistent(result: AppGameControlActionResultRuleInput): boolean {
@@ -131,4 +111,32 @@ function actionResultClaimsDispatch(result: AppGameControlActionResultRuleInput)
     result.resultStatus === 'would-enforce' ||
     result.resultStatus === 'enforced'
   );
+}
+
+function capabilityRowStateMatches(result: AppGameControlActionResultRuleInput): boolean {
+  return result.capability.capabilityState === result.capabilityState;
+}
+
+function capabilityStateAllowsResult(result: AppGameControlActionResultRuleInput): boolean {
+  if (result.resultStatus === 'enforced') {
+    return result.enforcementResult?.status === 'actually-enforced' && result.capabilityState === 'supported';
+  }
+
+  if (result.resultStatus === 'would-enforce') {
+    return result.enforcementResult?.status === 'would-enforce' && result.capabilityState === 'dry-run';
+  }
+
+  if (result.capabilityState === 'manual-required') {
+    return result.resultStatus === 'manual-required' && result.enforcementResult === null;
+  }
+
+  if (capabilityStateRequiresUnavailableResult(result)) {
+    return result.resultStatus === 'unavailable' && result.enforcementResult === null;
+  }
+
+  return true;
+}
+
+function capabilityStateRequiresUnavailableResult(result: AppGameControlActionResultRuleInput): boolean {
+  return result.capabilityState === 'degraded' || result.capabilityState === 'unavailable';
 }
