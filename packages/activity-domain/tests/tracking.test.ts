@@ -12,6 +12,7 @@ import {
   trackingReadModelSample,
 } from './tracking-fixtures';
 import {
+  TrackingCapabilityStatusSchema,
   TrackingCapabilityStatusMatrixSchema,
   TrackingDeviceStatusEvidenceSchema,
   TrackingExpectedPlaceDecisionSchema,
@@ -47,6 +48,13 @@ describe('tracking evidence contracts', () => {
 
     expect(readModel.timeline[0]?.kind).toBe('location');
     expect(readModel.locationRows[0]?.custodyLabel).toBe('child-device-local');
+  });
+
+  it('parses background-permission and unsupported tracking capability states', () => {
+    expect(TrackingCapabilityStatusSchema.parse('background-permission-required')).toBe(
+      'background-permission-required'
+    );
+    expect(TrackingCapabilityStatusSchema.parse('platform-unsupported')).toBe('platform-unsupported');
   });
 });
 

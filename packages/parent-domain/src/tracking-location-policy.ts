@@ -137,7 +137,11 @@ export const TrackingLocationAiAnalysisInputSchema = withParser(
     evidenceReferences: Schema.Array(TrackingEvidenceTraceSchema),
     policyVersion: ParentPolicyVersionSchema,
     providerRouteId: TrackingProviderRouteIdSchema,
-  })
+  }).pipe(
+    Schema.filter(
+      (input) => input.evidenceReferences.length > 0 || 'Tracking AI analysis inputs need cited location evidence'
+    )
+  )
 );
 
 export const TrackingLocationAiAnalysisResultSchema = withParser(
@@ -213,7 +217,14 @@ export const TrackingTemporaryLiveTrackingGrantSchema = withParser(
     parentApproved: Schema.Boolean,
     childDisclosureRequired: Schema.Boolean,
     auditRefs: Schema.Array(TrackingPolicyAuditRefSchema),
-  })
+  }).pipe(
+    Schema.filter(
+      (grant) =>
+        grant.state !== 'active' ||
+        (grant.parentApproved && grant.childDisclosureRequired) ||
+        'Active temporary live tracking grants need parent approval and child disclosure'
+    )
+  )
 );
 
 export const TrackingMissingDeviceCaseSchema = withParser(

@@ -6,6 +6,7 @@ import {
   TrackingChildCheckInRequestSchema,
   TrackingChildCheckInResponseSchema,
   TrackingEscalationChainSchema,
+  TrackingLocationAiAnalysisInputSchema,
   TrackingLocationAiAnalysisResultSchema,
   TrackingLocationPolicyReadModelSchema,
   TrackingMissingDeviceCaseSchema,
@@ -62,6 +63,15 @@ const ProviderRoute = {
   remoteDataAllowed: false,
   unavailableReason: null,
   auditRefs: ['remote-ai-disabled-by-default'],
+} as const;
+
+const AiInput = {
+  schemaVersion: TrackingPolicySchemaVersion,
+  analysisId: 'location-ai-result-1',
+  requestedAt: '2026-06-03T02:00:30.000Z',
+  evidenceReferences: [EvidenceTrace],
+  policyVersion: 'tracking-policy-v1',
+  providerRouteId: 'tracking-ai-route-1',
 } as const;
 
 const AiResult = {
@@ -173,12 +183,14 @@ describe('tracking location policy contracts', () => {
     const rule = TrackingPolicyRuleSchema.parse(Rule);
     const decision = TrackingPolicyDecisionSchema.parse(Decision);
     const route = TrackingAiProviderRouteSchema.parse(ProviderRoute);
+    const aiInput = TrackingLocationAiAnalysisInputSchema.parse(AiInput);
     const aiResult = TrackingLocationAiAnalysisResultSchema.parse(AiResult);
     const alert = TrackingAlertIntentSchema.parse(Alert);
 
     expect(rule.action).toBe('notify-parent');
     expect(decision.evidenceReferences[0]?.evidenceReferenceId).toBe('location-evidence-1');
     expect(route.remoteDataAllowed).toBe(false);
+    expect(aiInput.evidenceReferences).toHaveLength(1);
     expect(aiResult.isFinalAuthority).toBe(false);
     expect(alert.sensitiveDetailMode).toBe('minimal-provider-body');
   });
@@ -239,6 +251,27 @@ describe('tracking location policy negative contracts', () => {
     expect(noEvidenceDecision.success).toBe(false);
     expect(unsafeRemoteRoute.success).toBe(false);
     expect(aiAuthority.success).toBe(false);
+  });
+
+  it('rejects AI analysis inputs without cited evidence and unsafe active live grants', () => {
+    const noEvidenceAiInput = TrackingLocationAiAnalysisInputSchema.safeParse({
+      ...AiInput,
+      evidenceReferences: [],
+    });
+    const activeWithoutParentApproval = TrackingTemporaryLiveTrackingGrantSchema.safeParse({
+      ...LiveGrant,
+      state: 'active',
+      parentApproved: false,
+    });
+    const activeWithoutChildDisclosure = TrackingTemporaryLiveTrackingGrantSchema.safeParse({
+      ...LiveGrant,
+      state: 'active',
+      childDisclosureRequired: false,
+    });
+
+    expect(noEvidenceAiInput.success).toBe(false);
+    expect(activeWithoutParentApproval.success).toBe(false);
+    expect(activeWithoutChildDisclosure.success).toBe(false);
   });
 });
 

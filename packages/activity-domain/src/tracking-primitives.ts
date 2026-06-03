@@ -44,6 +44,8 @@ export const TrackingCapabilityStatusSchema = withParser(
     'stale',
     'last-known',
     'offline-last-known-only',
+    'background-permission-required',
+    'platform-unsupported',
     'permission-denied',
     'service-disabled',
     'battery-throttled',
