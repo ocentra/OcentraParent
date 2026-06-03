@@ -13,6 +13,7 @@ export const AppGameNonNegativeCountSchema = Schema.Number.pipe(
 );
 
 export const AppGameInventoryEntryIdSchema = NonEmptyAppGameText.pipe(Schema.brand('AppGameInventoryEntryId'));
+export const AppGameEvidenceClaimIdSchema = NonEmptyAppGameText.pipe(Schema.brand('AppGameEvidenceClaimId'));
 export const AppGameProcessIdentitySchema = NonEmptyAppGameText.pipe(Schema.brand('AppGameProcessIdentity'));
 export const AppGameProcessNameSchema = NonEmptyAppGameText.pipe(Schema.brand('AppGameProcessName'));
 export const AppGameDisplayNameSchema = NonEmptyAppGameText.pipe(Schema.brand('AppGameDisplayName'));
@@ -45,7 +46,17 @@ export const AppGameCatalogReadyStateSchema = withParser(
 );
 
 export const AppGameCapabilityStatusSchema = withParser(
-  Schema.Literal('available', 'unavailable', 'permissionLimited', 'unsupportedPlatform', 'adapterError', 'stale')
+  Schema.Literal(
+    'available',
+    'unavailable',
+    'permissionLimited',
+    'unsupportedPlatform',
+    'adapterError',
+    'stale',
+    'degraded',
+    'manualRequired',
+    'notClaimed'
+  )
 );
 
 export const AppGameForegroundStateSchema = withParser(
@@ -53,10 +64,53 @@ export const AppGameForegroundStateSchema = withParser(
     'foreground',
     'background',
     'notWindowed',
+    'notClaimed',
     'unknown',
     'unsupported',
     'permissionLimited',
+    'degraded',
     'adapterError'
+  )
+);
+
+export const AppGameRuntimeStateSchema = withParser(
+  Schema.Literal(
+    'running',
+    'notRunning',
+    'notClaimed',
+    'unknown',
+    'permissionLimited',
+    'unavailable',
+    'degraded',
+    'stale',
+    'adapterError'
+  )
+);
+
+export const AppGameEvidenceClaimKindSchema = withParser(
+  Schema.Literal('inventory', 'runtime', 'foreground', 'launcher', 'session', 'catalog', 'aiDigest')
+);
+
+export const AppGameIdentityStrengthSchema = withParser(
+  Schema.Literal(
+    'displayNameOnly',
+    'weak',
+    'observedProcess',
+    'catalogMatched',
+    'launcherClaimed',
+    'platformManaged',
+    'childGameProof'
+  )
+);
+
+export const AppGameAiActionHintSchema = withParser(
+  Schema.Literal(
+    'classifyOnly',
+    'summarizeEvidence',
+    'parentReview',
+    'policyDraftPreview',
+    'askParentPreview',
+    'markUnavailable'
   )
 );
 
@@ -112,10 +166,53 @@ export const AppGameForegroundState = {
   Foreground: AppGameForegroundStateSchema.parse('foreground'),
   Background: AppGameForegroundStateSchema.parse('background'),
   NotWindowed: AppGameForegroundStateSchema.parse('notWindowed'),
+  NotClaimed: AppGameForegroundStateSchema.parse('notClaimed'),
   Unknown: AppGameForegroundStateSchema.parse('unknown'),
   Unsupported: AppGameForegroundStateSchema.parse('unsupported'),
   PermissionLimited: AppGameForegroundStateSchema.parse('permissionLimited'),
+  Degraded: AppGameForegroundStateSchema.parse('degraded'),
   AdapterError: AppGameForegroundStateSchema.parse('adapterError'),
+} as const;
+
+export const AppGameRuntimeState = {
+  Running: AppGameRuntimeStateSchema.parse('running'),
+  NotRunning: AppGameRuntimeStateSchema.parse('notRunning'),
+  NotClaimed: AppGameRuntimeStateSchema.parse('notClaimed'),
+  Unknown: AppGameRuntimeStateSchema.parse('unknown'),
+  PermissionLimited: AppGameRuntimeStateSchema.parse('permissionLimited'),
+  Unavailable: AppGameRuntimeStateSchema.parse('unavailable'),
+  Degraded: AppGameRuntimeStateSchema.parse('degraded'),
+  Stale: AppGameRuntimeStateSchema.parse('stale'),
+  AdapterError: AppGameRuntimeStateSchema.parse('adapterError'),
+} as const;
+
+export const AppGameEvidenceClaimKind = {
+  Inventory: AppGameEvidenceClaimKindSchema.parse('inventory'),
+  Runtime: AppGameEvidenceClaimKindSchema.parse('runtime'),
+  Foreground: AppGameEvidenceClaimKindSchema.parse('foreground'),
+  Launcher: AppGameEvidenceClaimKindSchema.parse('launcher'),
+  Session: AppGameEvidenceClaimKindSchema.parse('session'),
+  Catalog: AppGameEvidenceClaimKindSchema.parse('catalog'),
+  AiDigest: AppGameEvidenceClaimKindSchema.parse('aiDigest'),
+} as const;
+
+export const AppGameIdentityStrength = {
+  DisplayNameOnly: AppGameIdentityStrengthSchema.parse('displayNameOnly'),
+  Weak: AppGameIdentityStrengthSchema.parse('weak'),
+  ObservedProcess: AppGameIdentityStrengthSchema.parse('observedProcess'),
+  CatalogMatched: AppGameIdentityStrengthSchema.parse('catalogMatched'),
+  LauncherClaimed: AppGameIdentityStrengthSchema.parse('launcherClaimed'),
+  PlatformManaged: AppGameIdentityStrengthSchema.parse('platformManaged'),
+  ChildGameProof: AppGameIdentityStrengthSchema.parse('childGameProof'),
+} as const;
+
+export const AppGameAiActionHint = {
+  ClassifyOnly: AppGameAiActionHintSchema.parse('classifyOnly'),
+  SummarizeEvidence: AppGameAiActionHintSchema.parse('summarizeEvidence'),
+  ParentReview: AppGameAiActionHintSchema.parse('parentReview'),
+  PolicyDraftPreview: AppGameAiActionHintSchema.parse('policyDraftPreview'),
+  AskParentPreview: AppGameAiActionHintSchema.parse('askParentPreview'),
+  MarkUnavailable: AppGameAiActionHintSchema.parse('markUnavailable'),
 } as const;
 
 export const AppGameObservationMode = {
@@ -131,5 +228,9 @@ export type AppGameClassificationState = Infer<typeof AppGameClassificationState
 export type AppGameCatalogReadyState = Infer<typeof AppGameCatalogReadyStateSchema>;
 export type AppGameCapabilityStatus = Infer<typeof AppGameCapabilityStatusSchema>;
 export type AppGameForegroundState = Infer<typeof AppGameForegroundStateSchema>;
+export type AppGameRuntimeState = Infer<typeof AppGameRuntimeStateSchema>;
+export type AppGameEvidenceClaimKind = Infer<typeof AppGameEvidenceClaimKindSchema>;
+export type AppGameIdentityStrength = Infer<typeof AppGameIdentityStrengthSchema>;
+export type AppGameAiActionHint = Infer<typeof AppGameAiActionHintSchema>;
 export type AppGameObservationMode = Infer<typeof AppGameObservationModeSchema>;
 export type AppGameLauncherKind = Infer<typeof AppGameLauncherKindSchema>;

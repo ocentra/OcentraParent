@@ -9,6 +9,10 @@
       "import": "./dist/app-control-catalog.js",
       "types": "./dist/app-control-catalog.d.ts"
     },
+    "./app-game-control-authority": {
+      "import": "./dist/app-game-control-authority.js",
+      "types": "./dist/app-game-control-authority.d.ts"
+    },
     "./browser-control-baseline-manifest": {
       "import": "./dist/browser-control-baseline-manifest.js",
       "types": "./dist/browser-control-baseline-manifest.d.ts"
