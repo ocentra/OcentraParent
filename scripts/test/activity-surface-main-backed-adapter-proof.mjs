@@ -17,6 +17,12 @@ async function main() {
   await runNpmScript('build:contracts');
   await runNpmWorkspace('@ocentra-parent/activity-domain', ['test', '--', 'activity-surface']);
   await runNpmWorkspace('@ocentra-parent/agent-protocol-domain', ['test', '--', 'activity-surface-adapter']);
+  await runNpmWorkspace('@ocentra-parent/portal', [
+    'test',
+    '--',
+    'live-activity-surface-adapter',
+    'activity-ui-intent',
+  ]);
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-protocol', 'activity_surface']);
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-service', 'activity_surface']);
   await runCommand('cargo', ['build', '-p', 'ocentra-parent-agent-service']);
@@ -31,6 +37,7 @@ async function main() {
   proofLabels.push('activity-surface-main-backed-adapter.contracts');
   proofLabels.push('activity-surface-main-backed-adapter.rust-protocol-service');
   proofLabels.push('activity-surface-main-backed-adapter.real-service-runtime');
+  proofLabels.push('activity-surface-main-backed-adapter.portal-ui-intent');
   proofLabels.push('activity-surface-main-backed-adapter.portal-smoke');
 
   const proof = {
@@ -49,6 +56,8 @@ async function main() {
       rustServiceAdapter: 'crates/agent-service/src/activity_surface_adapter.rs',
       rustServiceReadModels: 'crates/agent-service/src/activity_surface_read_models.rs',
       rustDispatcherTest: 'crates/agent-service/src/activity_surface_main_backed_adapter_tests.rs',
+      portalStateTest: 'apps/portal/tests/live-activity-surface-adapter.test.ts',
+      portalUiIntentTest: 'apps/portal/tests/activity-ui-intent.test.ts',
       portalSmoke: 'scripts/test/portal-local-smoke.mjs',
       portalPlaywright: 'apps/portal/e2e/portal-ui.spec.ts',
       runtimeProof: 'scripts/test/activity-parent-assistant-runtime-proof.mjs',
@@ -61,7 +70,8 @@ async function main() {
       coveredTabs: ['reports', 'screen', 'app-use', 'browser', 'games', 'network'],
       typedStates:
         'Ready, empty, unavailable, offline, stale, permission-required, and scaffold-only states remain explicit read-model states.',
-      uiScope: 'This proof does not edit or claim the C-owned Activity visual layout seam.',
+      uiScope:
+        'This proof covers the Activity service-to-UI intent seam; C-owned visual polish remains outside this proof.',
     },
     matrixRegistration: {
       state: 'registered',
@@ -70,7 +80,7 @@ async function main() {
       checkpointScenarioId: 'activity-surface-main-backed-adapter',
     },
     knownGaps: [
-      'The C-owned visual Activity UI seam still needs to consume the merged adapter surface.',
+      'C-owned visual polish and product UX remain incomplete, but the Activity UI intent seam consumes the merged adapter surface.',
       'Family fan-out beyond local service state and data storage destination selection remain typed local or unavailable behavior.',
       'This focused proof runs portal-local smoke but not full Playwright, full validate, Android device-owner proof, or iOS entitlement proof.',
     ],

@@ -1,6 +1,7 @@
 # Activity Surface Service Adapter Handoff
 
-The C-owned Activity UI can consume service-backed data without owning product data.
+The C-owned Activity UI consumes service-backed data without owning product
+data.
 
 Use `@ocentra-parent/agent-protocol-domain/activity-surface-adapter` to create Activity report, save/history, and tab read-model commands. Parse returned events through the same helper before rendering. The helper returns typed payloads or explicit adapter failure reasons; the UI should render those failure states instead of falling back to UI-check data.
 
@@ -10,3 +11,16 @@ Runtime source of truth remains:
 2. Rust service reads the local Activity query store or saved report store.
 3. Rust service reports typed unavailable, empty, offline, or ready states.
 4. Portal renders the typed result; Vite does not invent product data.
+
+Current handoff proof:
+
+- `apps/portal/src/live-activity-state.ts` resolves service events into the
+  Activity service UI spine.
+- `vendor/ocentra-parent-core-ui/AppPages/ParentPortal/activity-ui-intent.ts`
+  maps successful adapter results into device slots/report files and keeps
+  failed adapter results unavailable.
+- `apps/portal/tests/live-activity-surface-adapter.test.ts` proves report,
+  history, and Screen/App Use/Browser/Games/Network tab event parsing.
+- `apps/portal/tests/activity-ui-intent.test.ts` proves the UI intent layer
+  consumes service-backed adapter results without creating fixture-backed
+  devices.

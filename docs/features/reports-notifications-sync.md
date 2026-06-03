@@ -42,6 +42,10 @@ custody.
 - Family Activity report aggregation preserves ready/offline/stale/unavailable,
   unreachable, and error source states for service-owned UI handoff without
   making Vite or portal UI the product-data owner.
+- The Activity UI intent layer consumes service-backed report, history, and tab
+  read-model adapter results for Reports, Screen, App Use, Browser, Games, and
+  Network. Failed or absent adapter results stay explicit instead of creating
+  fixture-backed devices.
 - Parent Assistant/MIA evidence context can cite saved Activity report history
   with parent-owned report custody and `directEnforcementAllowed=false`; it is
   citation context only.
@@ -58,9 +62,10 @@ custody.
 
 ## Current Gap
 
-Need report UI, trend summaries, cited assistant Q&A as a complete product
-flow, real notification provider adapters, retry execution, provider receipt
-ingestion, parent controls, connectors, retention, and delete/export controls.
+Need report UI polish, trend summaries, evidence citations in report sections,
+cited assistant Q&A as a complete product flow, real notification provider
+adapters, retry execution, provider receipt ingestion, parent controls,
+connectors, retention, and delete/export controls.
 The V0.8 integrity bridge and provider status boundary prove only minimal
 notification intent/status/readiness references and audit drill-in, not provider
 delivery or UI. Activity report persistence/family fanout/MIA context proof does
@@ -70,6 +75,8 @@ notification delivery, policy writes, or child-device enforcement.
 ## Checklist
 
 - [x] Report contract and storage/custody state.
+- [x] Activity service adapter feeds the UI intent seam for reports and tab
+      read-model states without Vite-owned product data.
 - [ ] Evidence citations in reports.
 - [ ] Parent-owned export/sync connector status.
 - [ ] Notification rule contract.

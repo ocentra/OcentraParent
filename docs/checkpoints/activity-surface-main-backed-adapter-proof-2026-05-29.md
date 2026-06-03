@@ -38,6 +38,7 @@ The proof command runs:
 - Agent protocol-domain Activity adapter tests.
 - Rust protocol Activity tests.
 - Rust service Activity dispatcher/read-model tests.
+- Portal live Activity state and Activity UI intent tests.
 - Real Rust service runtime proof for Activity report and read-model commands.
 - Pre-AI proof matrix validation.
 
@@ -57,11 +58,14 @@ test-results/activity-surface-main-backed-adapter/proof.json
 - Rust service adapter: `crates/agent-service/src/activity_surface_adapter.rs`
 - Rust service read models: `crates/agent-service/src/activity_surface_read_models.rs`
 - Dispatcher proof: `crates/agent-service/src/activity_surface_main_backed_adapter_tests.rs`
+- Portal state proof: `apps/portal/tests/live-activity-surface-adapter.test.ts`
+- UI intent proof: `apps/portal/tests/activity-ui-intent.test.ts`
 - Runtime proof harness: `scripts/test/activity-surface-main-backed-adapter-proof.mjs`
 - Matrix registration: `docs/expectations/pre-ai-proof-matrix.json`
 
 ## Known Gaps
 
-- The C-owned visual Activity UI seam still needs to consume the merged adapter surface.
+- C-owned visual polish and product UX remain incomplete, but the Activity UI
+  intent seam consumes the merged adapter surface.
 - Family fan-out beyond local service state and data storage destination selection remain typed local or unavailable behavior.
 - This checkpoint does not claim mobile parent parity, Android device-owner enforcement, iOS entitlement proof, visible browser proof, Playwright proof, package validation, or full root validation.

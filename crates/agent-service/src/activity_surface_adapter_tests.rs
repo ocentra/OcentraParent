@@ -1,6 +1,7 @@
 use std::{
     fs::{remove_dir_all, remove_file, write},
     path::{Path, PathBuf},
+    sync::atomic::{AtomicU64, Ordering},
     time::{SystemTime, UNIX_EPOCH},
 };
 
@@ -26,6 +27,8 @@ use crate::{
 };
 
 mod activity_surface_report_command_tests;
+
+static TEMP_PATH_COUNTER: AtomicU64 = AtomicU64::new(0);
 
 #[tokio::test]
 async fn activity_surface_report_uses_real_activity_store_snapshot() {
@@ -309,10 +312,7 @@ fn remote_device_scope() -> ActivitySurfaceScope {
 
 fn temp_store_path() -> PathBuf {
     let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
-    name.push_str(&std::process::id().to_string());
-    name.push(constants::delimiter::HYPHEN);
-    name.push_str(&nanos_now().to_string());
-    name.push(constants::delimiter::HYPHEN);
+    name.push_str(&temp_path_suffix());
     name.push_str(constants::activity_store::TEST_STORE_SUFFIX);
 
     let mut path = std::env::temp_dir();
@@ -324,20 +324,29 @@ fn temp_store_path() -> PathBuf {
 fn temp_report_dir() -> PathBuf {
     let mut path = std::env::temp_dir();
     let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
-    name.push_str(&std::process::id().to_string());
-    name.push(constants::delimiter::HYPHEN);
-    name.push_str(&nanos_now().to_string());
-    name.push(constants::delimiter::HYPHEN);
+    name.push_str(&temp_path_suffix());
     name.push_str(constants::activity_surface::REPORT_STORAGE_DIR);
     path.push(name);
     path
 }
 
-fn nanos_now() -> u128 {
-    SystemTime::now()
+fn temp_path_suffix() -> String {
+    let mut suffix = String::new();
+    suffix.push_str(&std::process::id().to_string());
+    suffix.push(constants::delimiter::HYPHEN);
+    suffix.push_str(
+        &TEMP_PATH_COUNTER
+            .fetch_add(1, Ordering::Relaxed)
+            .to_string(),
+    );
+    suffix.push(constants::delimiter::HYPHEN);
+    let nanos = SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .expect(constants::error::AGENT_EVENT_SERIALIZES)
-        .as_nanos()
+        .as_nanos();
+    suffix.push_str(&nanos.to_string());
+    suffix.push(constants::delimiter::HYPHEN);
+    suffix
 }
 
 fn cleanup_store(store_path: &PathBuf) {

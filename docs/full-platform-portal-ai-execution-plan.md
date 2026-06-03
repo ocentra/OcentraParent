@@ -348,11 +348,11 @@ portal for child activity and not the child-agent runtime.
 
 ### Problem Statement
 
-The parent portal Activity surface currently has UI and layout work ahead of the
-runtime contract. The UI can render Reports, Screen, App Use, Browser, Games,
-and Network sections, but the data seam returns UI-check data only. That blocks
-the Activity surface from becoming a real parent product surface because it
-cannot request typed report/read-model data from the Rust runtime yet.
+The parent portal Activity surface previously had UI and layout work ahead of
+the runtime contract. The UI can render Reports, Screen, App Use, Browser,
+Games, and Network sections. The current main-backed adapter now lets that
+surface consume typed report/read-model data from the Rust runtime instead of
+falling back to UI-check data.
 
 The fix is not to make Vite the backend. Vite is only the HMR/dev shell. The
 fix is to create a main-backed Activity data contract and portal-to-Rust
@@ -365,15 +365,23 @@ come from typed Rust service/read-model paths.
 
 ### Where We Are
 
-- C has a UI-only Activity surface in
-  `vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurface.tsx`.
-- The current UI intent seam is
-  `vendor/ocentra-parent-core-ui/AppPages/ParentPortal/activity-ui-intent.ts`.
-- That seam is deliberately marked with `TODO(activity-surface-tauri)`.
-- The seam currently returns UI-check data for layout inspection only.
-- The UI intentionally hides raw TODO text from users while keeping source TODO
-  markers for the wiring pass.
-- C is user-owned; primary should not assign work in C.
+- `packages/activity-domain/src/activity-surface.ts` owns report scope,
+  frequency, document, history, source-state, and tab read-model contracts.
+- `packages/agent-protocol-domain/src/activity-surface-adapter.ts` owns the
+  portal command builders and event parsers for reports, save/history, Screen,
+  App Use, Browser, Games, and Network.
+- `crates/agent-protocol/src/activity_surface.rs` mirrors the Rust protocol
+  shapes and command/event names.
+- `crates/agent-service/src/activity_surface_adapter.rs` and
+  `crates/agent-service/src/activity_surface_api.rs` route commands to the local
+  Activity query store, saved report JSON, or typed unavailable/offline states.
+- `apps/portal/src/live-activity-state.ts` parses the service events into a
+  C-consumable Activity service spine.
+- `vendor/ocentra-parent-core-ui/AppPages/ParentPortal/activity-ui-intent.ts`
+  consumes those adapter results for the Activity UI intent and does not own
+  product data.
+- C remains user-owned; visual polish and product layout changes should stay in
+  the user-guided UI lane.
 
 The UI currently expects these functions:
 
@@ -430,66 +438,65 @@ Behavioral target:
 
 ### Current Gap
 
-The missing main-backed slice is:
+The main-backed adapter foundation is present. The remaining gap is product
+completion on top of that foundation:
 
-- shared Activity domain contracts
-- portal/agent command names and response contracts
-- Rust protocol parity
-- Rust service/read-model adapter boundary
-- real typed unavailable/local-read-model responses
-- tests proving contract, protocol, and adapter behavior
+- report UI polish and trend summaries;
+- evidence citations in report sections;
+- real family fanout beyond local service/source-state records;
+- parent-selected storage/export/retention/delete controls;
+- notification provider adapters, receipt ingestion, retry execution, and
+  parent controls.
 
-The gap is not C's UI layout. C should not have to redesign Activity to connect
-this. After the main-backed slice merges, C can pull latest `main` and replace
-`activity-ui-intent.ts` with the real adapter.
+The gap is not a second Activity data owner. Future UI work should keep using
+the merged service-backed adapter instead of adding Vite-owned fixture data.
 
-### Who Fills The Gap
+### Ownership After The Adapter Foundation
 
-- Primary: writes the work order, assigns the first free worker lane, reviews
-  branch diff/validation, creates PR, watches CI, merges when green, and tells C
-  when `main` is ready to pull.
-- Activity worker lane: implements the contract/protocol/service adapter slice
-  from fresh `main`. This can be A or B after their current assigned branches
-  are integrated or intentionally parked.
-- C: keeps the UI surface user-owned and consumes the merged adapter later. C
-  should not be asked to invent backend contracts inside the UI branch.
+- Primary: reviews integration/CI state and sequences later product slices.
+- Activity worker lane: owns service/protocol/read-model extensions when a new
+  Activity data shape is required.
+- C: keeps visual Activity UI polish user-owned and consumes the existing
+  service-backed adapter. C should not invent backend contracts inside the UI
+  branch.
 
 ### Activity Slice Checklist
 
-The assigned worker must complete every item before `DONE/PR_READY`:
+The Activity adapter foundation has these source/proof requirements:
 
-- [ ] Pull or rebase latest `main`.
-- [ ] Run `npm run hub:inbox`, acknowledge current hub mail, report `STARTED`,
+- [x] Pull or rebase latest `main`.
+- [x] Run `npm run hub:inbox`, acknowledge current hub mail, report `STARTED`,
       and lock intended paths.
-- [ ] Add `packages/activity-domain` Effect Schema contracts for Activity target
+- [x] Add `packages/activity-domain` Effect Schema contracts for Activity target
       scope, report frequency, report request, report list item, report document,
       report sections, and tab view rows for Screen, App Use, Browser, Games, and
       Network.
-- [ ] Add portal/agent command names and response contracts in the appropriate
+- [x] Add portal/agent command names and response contracts in the appropriate
       domain/protocol package. Avoid naked strings in app/runtime source.
-- [ ] Add Rust protocol parity in `crates/agent-protocol`.
-- [ ] Add Rust service/read-model adapter stubs in `crates/agent-service` that
+- [x] Add Rust protocol parity in `crates/agent-protocol`.
+- [x] Add Rust service/read-model adapter stubs in `crates/agent-service` that
       return real typed unavailable or local-read-model responses.
-- [ ] Ensure Vite does not own or fake Activity product data.
-- [ ] Keep Data storage selection as a typed unavailable/stubbed state if the
+- [x] Ensure Vite does not own or fake Activity product data.
+- [x] Keep Data storage selection as a typed unavailable/stubbed state if the
       Data surface is not wired yet.
-- [ ] Add TypeScript contract tests for accepted and rejected report
+- [x] Add TypeScript contract tests for accepted and rejected report
       requests/responses.
-- [ ] Add Rust protocol serialization/parity tests.
-- [ ] Add command/service adapter boundary tests.
-- [ ] Add focused portal smoke or Playwright coverage proving Reports plus
+- [x] Add Rust protocol serialization/parity tests.
+- [x] Add command/service adapter boundary tests.
+- [x] Add focused portal smoke or Playwright coverage proving Reports plus
       Screen/App Use/Browser/Games/Network can call the adapter and render typed
       states.
-- [ ] Run focused validation for touched packages/crates.
-- [ ] Run `npm run validate` before PR-ready unless primary explicitly accepts
+- [x] Run focused validation for touched packages/crates for the current branch.
+- [x] Run `npm run validate` before PR-ready unless primary explicitly accepts
       an omission with reason.
 - [ ] Commit locally on the worker branch after validation, push the branch when
       ready for review, open a PR when the user or primary asks, and report
       `DONE/PR_READY` with detailed scope, touched files/packages, validation
       commands/results, known gaps/risks, and PR body outline.
 
-Done means the Activity adapter foundation is merged to `main` with green CI.
-It does not mean C's UI branch has already consumed the adapter.
+Done means the Activity adapter foundation is merged to `main` with green CI and
+the current branch has refreshed validation evidence. It does not mean reports,
+notifications, export, or Activity visual polish are product-complete.
 
 ## V0.8 / V0.9 Execution Meaning
 
