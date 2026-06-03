@@ -28,7 +28,18 @@ pub const APP_GAME_CAPABILITY_STATUS_DEGRADED: &str = "degraded";
 pub const APP_GAME_CAPABILITY_STATUS_MANUAL_REQUIRED: &str = "manualRequired";
 pub const APP_GAME_CAPABILITY_STATUS_NOT_CLAIMED: &str = "notClaimed";
 pub const APP_GAME_FOREGROUND_NOT_CLAIMED: &str = "notClaimed";
+pub const APP_GAME_RUNTIME_RUNNING: &str = "running";
+pub const APP_GAME_RUNTIME_NOT_RUNNING: &str = "notRunning";
 pub const APP_GAME_RUNTIME_NOT_CLAIMED: &str = "notClaimed";
+pub const APP_GAME_RUNTIME_UNKNOWN: &str = "unknown";
+pub const APP_GAME_RUNTIME_PERMISSION_LIMITED: &str = "permissionLimited";
+pub const APP_GAME_RUNTIME_UNAVAILABLE: &str = "unavailable";
+pub const APP_GAME_RUNTIME_DEGRADED: &str = "degraded";
+pub const APP_GAME_RUNTIME_STALE: &str = "stale";
+pub const APP_GAME_RUNTIME_ADAPTER_ERROR: &str = "adapterError";
+pub const APP_GAME_OBSERVATION_MODE_PROCESS_SNAPSHOT: &str = "processSnapshot";
+pub const APP_GAME_OBSERVATION_MODE_PROCESS_START: &str = "processStart";
+pub const APP_GAME_OBSERVATION_MODE_PROCESS_EXIT: &str = "processExit";
 pub const APP_GAME_PRODUCT_NATIVE_APP: &str = "nativeApp";
 pub const APP_GAME_PRODUCT_NATIVE_GAME: &str = "nativeGame";
 pub const APP_GAME_PRODUCT_LAUNCHER: &str = "launcher";
@@ -93,6 +104,22 @@ pub const APP_GAME_TEST_STORE_APP_STORE_ID: &str = "store-ref-ocentra-store-app"
 pub const APP_GAME_TEST_STORE_GAME_STORE_ID: &str = "store-ref-ocentra-store-game";
 pub const APP_GAME_TEST_STORE_APP_CATALOG_REF: &str = "catalog-ref-ocentra-store-app";
 pub const APP_GAME_TEST_STORE_GAME_CATALOG_REF: &str = "catalog-ref-ocentra-store-game";
+pub const APP_GAME_TEST_RUNTIME_EVIDENCE_ID: &str = "runtime-evidence-process-4242";
+pub const APP_GAME_TEST_RUNTIME_EXIT_EVIDENCE_ID: &str = "runtime-evidence-process-4242-exit";
+pub const APP_GAME_TEST_RUNTIME_LAUNCHER_EVIDENCE_ID: &str = "runtime-evidence-launcher-5150";
+pub const APP_GAME_TEST_RUNTIME_PERMISSION_EVIDENCE_ID: &str = "runtime-evidence-private-6161";
+pub const APP_GAME_TEST_PROCESS_ID: u64 = 4242;
+pub const APP_GAME_TEST_PARENT_PROCESS_ID: u64 = 1000;
+pub const APP_GAME_TEST_LAUNCHER_PROCESS_ID: u64 = 5150;
+pub const APP_GAME_TEST_PERMISSION_PROCESS_ID: u64 = 6161;
+pub const APP_GAME_TEST_PROCESS_IDENTITY: &str = "process-4242";
+pub const APP_GAME_TEST_LAUNCHER_PROCESS_IDENTITY: &str = "process-5150";
+pub const APP_GAME_TEST_PERMISSION_PROCESS_IDENTITY: &str = "process-6161";
+pub const APP_GAME_TEST_PROCESS_NAME: &str = "ocentra-fixture.exe";
+pub const APP_GAME_TEST_LAUNCHER_PROCESS_NAME: &str = "steam.exe";
+pub const APP_GAME_TEST_PERMISSION_PROCESS_NAME: &str = "private-process.exe";
+pub const APP_GAME_TEST_PUBLISHER_SIGNATURE_REF: &str = "signature-ref-ocentra-fixture";
+pub const APP_GAME_TEST_FILE_HASH_REF: &str = "hash-ref-ocentra-fixture";
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -135,6 +162,35 @@ pub struct AppGameSessionReport {
     pub most_recent_running_duration_ms: Option<u64>,
     pub most_recent_foreground_duration_ms: Option<u64>,
     pub most_recent_evidence_count: Option<u64>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AppGameRuntimeEvidenceRow {
+    pub schema_version: u16,
+    pub runtime_evidence_id: String,
+    pub observed_at: String,
+    pub process_identity: String,
+    pub process_id: u64,
+    pub parent_process_id: Option<u64>,
+    pub process_name: String,
+    pub executable_path_ref: Option<String>,
+    pub publisher_signature_ref: Option<String>,
+    pub file_hash_ref: Option<String>,
+    pub inventory_entry_id: Option<String>,
+    pub launcher_ref: Option<String>,
+    pub catalog_ref: Option<String>,
+    pub started_at: Option<String>,
+    pub exited_at: Option<String>,
+    pub running_duration_ms: u64,
+    pub runtime_state: String,
+    pub foreground_state: String,
+    pub observation_mode: String,
+    pub classification_state: String,
+    pub catalog_ready_state: String,
+    pub capability_status: String,
+    pub confidence: f64,
+    pub evidence: Vec<ActivityEvidenceRef>,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
