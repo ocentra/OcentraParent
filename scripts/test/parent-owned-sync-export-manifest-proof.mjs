@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
@@ -27,6 +27,7 @@ async function main() {
   ]);
 
   const proofModule = await loadContractProofModule();
+  await assertPackageExport(proofModule);
   const readModel = proofModule.ParentOwnedSyncExportContractProofReadModel;
   const dataClassCounts = proofModule.summarizeParentOwnedSyncExportDataClasses(readModel.manifest.items);
   const connectorStatusCounts = proofModule.summarizeParentOwnedSyncExportConnectorStatuses(
@@ -63,6 +64,7 @@ async function main() {
       contract: 'packages/parent-domain/src/parent-owned-sync-export.ts',
       contractTest: 'packages/parent-domain/tests/parent-owned-sync-export.test.ts',
       builtModule: 'packages/parent-domain/dist/parent-owned-sync-export.js',
+      packageExport: '@ocentra-parent/parent-domain/parent-owned-sync-export',
       featureDoc: 'docs/features/reports-notifications-sync.md',
       expectationDoc: 'docs/expectations/sync-export.md',
       output: relative(repoRoot, proofPath),
@@ -92,6 +94,20 @@ async function main() {
 async function loadContractProofModule() {
   const modulePath = join(repoRoot, 'packages', 'parent-domain', 'dist', 'parent-owned-sync-export.js');
   return import(pathToFileURL(modulePath).href);
+}
+
+async function assertPackageExport(proofModule) {
+  const packageJson = JSON.parse(await readFile(join(repoRoot, 'packages', 'parent-domain', 'package.json'), 'utf8'));
+  assert.deepEqual(packageJson.exports['./parent-owned-sync-export'], {
+    import: './dist/parent-owned-sync-export.js',
+    types: './dist/parent-owned-sync-export.d.ts',
+  });
+
+  const exportedModule = await import('@ocentra-parent/parent-domain/parent-owned-sync-export');
+  assert.equal(
+    exportedModule.ParentOwnedSyncExportContractProofReadModel.manifest.manifestId,
+    proofModule.ParentOwnedSyncExportContractProofReadModel.manifest.manifestId
+  );
 }
 
 async function gitHead() {
