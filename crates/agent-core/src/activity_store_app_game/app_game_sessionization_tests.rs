@@ -170,6 +170,9 @@ fn process_observation() -> ProcessObservation {
     ProcessObservation {
         pid: 4242,
         name: constants::activity_store::TEST_APP_GAME_PROCESS_NAME.to_string(),
+        executable_path: Some(std::path::PathBuf::from(
+            constants::activity_store::TEST_APP_GAME_PROCESS_PATH,
+        )),
     }
 }
 
