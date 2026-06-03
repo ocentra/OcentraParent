@@ -1,5 +1,5 @@
 {
-  "adapterProofPath": "test-results\\v0-8-windows-app-time-limit-adapter-mvp\\2026-06-03T15-20-16-978Z.json",
+  "adapterProofPath": "test-results\\v0-8-windows-app-time-limit-adapter-mvp\\2026-06-03T16-58-12-877Z.json",
   "adapterAction": {
     "schemaVersion": "v0.6",
     "actionId": "action-native-owned-process-time-limit",
@@ -25,7 +25,7 @@
         "time-limit"
       ],
       "degradedReason": null,
-      "lastCheckedAt": "2026-06-03T15:20:15.321Z"
+      "lastCheckedAt": "2026-06-03T16:58:11.276Z"
     },
     "reasonCodes": [
       "screen-category-game"
@@ -34,14 +34,14 @@
       {
         "evidenceReferenceId": "screen-analysis-evidence-native-owned-process-time-limit",
         "kind": "activity-event",
-        "observedAt": "2026-06-03T15:20:15.330Z"
+        "observedAt": "2026-06-03T16:58:11.283Z"
       }
     ],
     "localAiResultId": null,
     "parentApproval": null,
     "dryRun": false,
-    "requestedAt": "2026-06-03T15:20:15.321Z",
-    "expiresAt": "2026-06-03T15:25:15.321Z",
+    "requestedAt": "2026-06-03T16:58:11.276Z",
+    "expiresAt": "2026-06-03T17:03:11.276Z",
     "rollbackToken": "enforcement-rollback-cmd-v08-app-time-limit-execute"
   },
   "adapterTimer": {
@@ -54,11 +54,11 @@
       {
         "evidenceReferenceId": "screen-analysis-evidence-native-owned-process-time-limit",
         "kind": "activity-event",
-        "observedAt": "2026-06-03T15:20:15.330Z"
+        "observedAt": "2026-06-03T16:58:11.283Z"
       }
     ],
-    "scheduledAt": "2026-06-03T15:20:15.321Z",
-    "effectiveAt": "2026-06-03T15:25:15.321Z",
+    "scheduledAt": "2026-06-03T16:58:11.276Z",
+    "effectiveAt": "2026-06-03T17:03:11.276Z",
     "rollbackToken": "enforcement-rollback-cmd-v08-app-time-limit-execute",
     "recoveredAfterRestart": true,
     "unavailableReason": null

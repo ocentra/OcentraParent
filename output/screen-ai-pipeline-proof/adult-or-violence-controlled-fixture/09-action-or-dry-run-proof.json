@@ -1,6 +1,0 @@
-{
-  "action": "block",
-  "dryRun": true,
-  "enforcementHandoffState": "disabled",
-  "aiDoesNotEnforceDirectly": true
-}

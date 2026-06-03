@@ -1,9 +1,0 @@
-
-```json
-{
-  "primary_category": "violence",
-  "visible_text": "Expected visible category: violence",
-  "risk_signals": "Controlled safety fixture, Violence keyword visible for detector test, No unsafe image is loaded",
-  "confidence": 1.0
-}
-```

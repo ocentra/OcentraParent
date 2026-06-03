@@ -1,13 +1,13 @@
 {
   "approved": true,
-  "attempt": 3,
+  "attempt": 0,
   "captureScopeChoice": {
     "selected": true,
     "text": "Entire screen",
     "x": 582,
-    "y": 1710
+    "y": 1630
   },
   "clickedText": "Start",
   "x": 1130,
-  "y": 2073
+  "y": 1993
 }

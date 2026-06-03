@@ -8,15 +8,14 @@ const repoRoot = process.cwd();
 const outputRoot = join('output', 'screen-ai-pipeline-proof');
 const aiOutputRoot = join('output', 'ai-plan-proof', 'real-analysis');
 const fixtureRoot = join(outputRoot, '_fixtures');
-const llamaRoot =
-  process.env.OCENTRA_PARENT_LLAMA_CPP_DIR ?? 'C:\\Users\\sujan\\.cache\\ocentra-parent\\llama.cpp\\b9279';
+const nativeFixtureRoot = join(process.env.TEMP ?? resolve(outputRoot), 'ocentra-screen-ai-fixtures');
+const localAiModelRoot = resolveUserCachePath('local-ai-models');
+const llamaRoot = process.env.OCENTRA_PARENT_LLAMA_CPP_DIR ?? resolveUserCachePath('llama.cpp', 'b9279');
 const vlmBinary = process.env.OCENTRA_PARENT_LOCAL_VLM_BINARY ?? join(llamaRoot, 'llama-mtmd-cli.exe');
 const vlmModel =
-  process.env.OCENTRA_PARENT_LOCAL_VLM_MODEL ??
-  'C:\\Users\\sujan\\.cache\\ocentra-parent\\local-ai-models\\Qwen2-VL-2B-Instruct-Q4_K_M.gguf';
+  process.env.OCENTRA_PARENT_LOCAL_VLM_MODEL ?? join(localAiModelRoot, 'Qwen2-VL-2B-Instruct-Q4_K_M.gguf');
 const vlmMmproj =
-  process.env.OCENTRA_PARENT_LOCAL_VLM_MMPROJ ??
-  'C:\\Users\\sujan\\.cache\\ocentra-parent\\local-ai-models\\mmproj-Qwen2-VL-2B-Instruct-Q8_0.gguf';
+  process.env.OCENTRA_PARENT_LOCAL_VLM_MMPROJ ?? join(localAiModelRoot, 'mmproj-Qwen2-VL-2B-Instruct-Q8_0.gguf');
 
 const scenarioFilter = new Set(
   (process.env.OCENTRA_SCREEN_AI_SCENARIOS ?? '')
@@ -261,6 +260,7 @@ rmSync(aiOutputRoot, { recursive: true, force: true });
 mkdirSync(outputRoot, { recursive: true });
 mkdirSync(aiOutputRoot, { recursive: true });
 mkdirSync(fixtureRoot, { recursive: true });
+mkdirSync(nativeFixtureRoot, { recursive: true });
 
 await runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/activity-domain']);
 await runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
@@ -329,7 +329,7 @@ async function runScenario(scenario) {
   let rawTempPath;
   try {
     await surface.ready();
-    runCaptureProof(scenario, captureDir);
+    runCaptureProof(scenario, captureDir, surface.windowTitleContains);
     const captureMetadata = readJson(join(captureDir, '02-capture-metadata.json'));
     rawTempPath = requireRawTempPath(captureMetadata, scenario.id);
     const vlm = runVlm(scenario, rawTempPath);
@@ -405,7 +405,7 @@ async function runScenario(scenario) {
       confidence: validatedScreenResult.confidence,
       policyAction: policyDecision.action,
       rawImagesDeletedAfterAnalysis: deletionProof.rawImageDeletedAfterAnalysis,
-      uiSnapshot: join(analysisDir, '10-ui-snapshot.png'),
+      uiSnapshotCaptured: true,
     };
   } finally {
     if (rawTempPath !== undefined) {
@@ -451,7 +451,7 @@ async function runCadenceScenario() {
       await page.waitForTimeout(900);
       let rawTempPath;
       try {
-        runCaptureProof(frameScenario, frameCaptureDir);
+        runCaptureProof(frameScenario, frameCaptureDir, frameScenario.title);
         const captureMetadata = readJson(join(frameCaptureDir, '02-capture-metadata.json'));
         rawTempPath = requireRawTempPath(captureMetadata, frameScenario.id);
         const vlm = runVlm(frameScenario, rawTempPath);
@@ -651,6 +651,7 @@ async function openBrowserSurface(scenario, visibleText) {
   });
   const page = await browser.newPage({ viewport: { width: 960, height: 640 } });
   return {
+    windowTitleContains: scenario.title,
     ready: async () => {
       await page.goto(pathToFileURL(resolve(fixturePath)).href);
       await page.bringToFront();
@@ -663,19 +664,26 @@ async function openBrowserSurface(scenario, visibleText) {
 }
 
 async function openNotepadSurface(scenario, visibleText) {
-  const fileName = `${scenario.title.replace(/[^A-Za-z0-9 ]/gu, '').replaceAll(' ', '-')}.txt`;
-  const fixturePath = join(fixtureRoot, fileName);
+  const safeTitle = scenario.title.replace(/[^A-Za-z0-9 ]/gu, '').replaceAll(' ', '-');
+  const fileName = `${safeTitle}-${process.pid}-${Date.now()}.txt`;
+  const fixturePath = join(nativeFixtureRoot, fileName);
   writeFileSync(fixturePath, `${scenario.title}\r\n\r\n${visibleText.join('\r\n')}\r\n`);
+  const windowTitleContains = basename(fixturePath);
   const child = spawn('notepad.exe', [resolve(fixturePath)], { windowsHide: false, detached: false });
   return {
+    windowTitleContains,
     ready: async () => {
-      await wait(1800);
+      if (!existsSync(fixturePath)) {
+        throw new Error(`Native screen proof fixture was not written: ${fixturePath}`);
+      }
+      await wait(2500);
     },
     close: async () => {
       if (!child.killed) {
         child.kill();
       }
       await wait(400);
+      rmSync(fixturePath, { force: true });
     },
   };
 }
@@ -714,7 +722,7 @@ function writeBrowserFixture(scenario, visibleText) {
   return fixturePath;
 }
 
-function runCaptureProof(scenario, captureDir) {
+function runCaptureProof(scenario, captureDir, windowTitleContains = scenario.title) {
   const result = spawnSync(
     'cargo',
     ['run', '-p', 'ocentra-parent-screen-capture-adapter', '--example', 'screen_capture_real_proof', '--', captureDir],
@@ -724,10 +732,7 @@ function runCaptureProof(scenario, captureDir) {
       shell: process.platform === 'win32',
       env: {
         ...process.env,
-        OCENTRA_SCREEN_CAPTURE_WINDOW_TITLE_CONTAINS:
-          scenario.surface === 'nativeNotepad'
-            ? basename(`${scenario.title.replace(/[^A-Za-z0-9 ]/gu, '').replaceAll(' ', '-')}.txt`)
-            : scenario.title,
+        OCENTRA_SCREEN_CAPTURE_WINDOW_TITLE_CONTAINS: windowTitleContains,
         OCENTRA_SCREEN_CAPTURE_KEEP_RAW_UNTIL_ANALYSIS: '1',
         OCENTRA_SCREEN_CAPTURE_SCOPE: 'selected-window',
       },
@@ -1364,7 +1369,17 @@ function currentGit(command) {
 }
 
 function redactHome(path) {
-  return path.replace(process.env.USERPROFILE ?? '', '%USERPROFILE%');
+  return [process.env.USERPROFILE, process.env.HOME]
+    .filter((home) => home !== undefined && home.length > 0)
+    .reduce((redacted, home) => redacted.replace(home, '%USERPROFILE%'), path);
+}
+
+function resolveUserCachePath(...segments) {
+  const userHome = process.env.USERPROFILE ?? process.env.HOME;
+  if (userHome === undefined || userHome.length === 0) {
+    throw new Error('Set USERPROFILE or HOME so the local VLM proof can resolve the Ocentra cache path.');
+  }
+  return join(userHome, '.cache', 'ocentra-parent', ...segments);
 }
 
 function escapeHtml(value) {

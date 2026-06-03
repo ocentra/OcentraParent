@@ -1,5 +1,0 @@
-{
-  "trigger": "managedUrlChange",
-  "source": "controlled-vimeo-video-fixture",
-  "scope": "managedBrowserWindow"
-}

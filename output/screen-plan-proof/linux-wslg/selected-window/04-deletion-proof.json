@@ -1,9 +1,0 @@
-{
-  "deletionPendingForAnalysis": false,
-  "encryptedQueueContainsRawDigest": false,
-  "encryptedQueuePath": "output/screen-plan-proof/linux-wslg/selected-window/queue/screen-evidence-queue.ndjson",
-  "existedBeforeEncryption": true,
-  "existsAfterDelete": false,
-  "rawImageDeleted": true,
-  "rawTempPath": "output/screen-plan-proof/linux-wslg/selected-window/capture.png.tmp"
-}

@@ -36,7 +36,7 @@
       "confidence": 1,
       "policyAction": "warn",
       "rawImagesDeletedAfterAnalysis": true,
-      "uiSnapshot": "output\\ai-plan-proof\\real-analysis\\youtube-ordinary-video\\10-ui-snapshot.png"
+      "uiSnapshotCaptured": true
     },
     {
       "scenarioId": "youtube-education-video",
@@ -51,7 +51,7 @@
       "confidence": 1,
       "policyAction": "allow",
       "rawImagesDeletedAfterAnalysis": true,
-      "uiSnapshot": "output\\ai-plan-proof\\real-analysis\\youtube-education-video\\10-ui-snapshot.png"
+      "uiSnapshotCaptured": true
     },
     {
       "scenarioId": "vimeo-video",
@@ -66,7 +66,7 @@
       "confidence": 1,
       "policyAction": "warn",
       "rawImagesDeletedAfterAnalysis": true,
-      "uiSnapshot": "output\\ai-plan-proof\\real-analysis\\vimeo-video\\10-ui-snapshot.png"
+      "uiSnapshotCaptured": true
     },
     {
       "scenarioId": "facebook-social-feed",
@@ -81,7 +81,7 @@
       "confidence": 1,
       "policyAction": "warn",
       "rawImagesDeletedAfterAnalysis": true,
-      "uiSnapshot": "output\\ai-plan-proof\\real-analysis\\facebook-social-feed\\10-ui-snapshot.png"
+      "uiSnapshotCaptured": true
     },
     {
       "scenarioId": "browser-game",
@@ -96,7 +96,7 @@
       "confidence": 1,
       "policyAction": "time-limit",
       "rawImagesDeletedAfterAnalysis": true,
-      "uiSnapshot": "output\\ai-plan-proof\\real-analysis\\browser-game\\10-ui-snapshot.png"
+      "uiSnapshotCaptured": true
     },
     {
       "scenarioId": "bypass-tool",
@@ -111,7 +111,7 @@
       "confidence": 1,
       "policyAction": "block",
       "rawImagesDeletedAfterAnalysis": true,
-      "uiSnapshot": "output\\ai-plan-proof\\real-analysis\\bypass-tool\\10-ui-snapshot.png"
+      "uiSnapshotCaptured": true
     },
     {
       "scenarioId": "shopping",
@@ -126,7 +126,7 @@
       "confidence": 1,
       "policyAction": "ask-parent",
       "rawImagesDeletedAfterAnalysis": true,
-      "uiSnapshot": "output\\ai-plan-proof\\real-analysis\\shopping\\10-ui-snapshot.png"
+      "uiSnapshotCaptured": true
     },
     {
       "scenarioId": "school-productivity",
@@ -141,7 +141,7 @@
       "confidence": 1,
       "policyAction": "allow",
       "rawImagesDeletedAfterAnalysis": true,
-      "uiSnapshot": "output\\ai-plan-proof\\real-analysis\\school-productivity\\10-ui-snapshot.png"
+      "uiSnapshotCaptured": true
     },
     {
       "scenarioId": "native-app-productivity",
@@ -156,7 +156,7 @@
       "confidence": 0.95,
       "policyAction": "allow",
       "rawImagesDeletedAfterAnalysis": true,
-      "uiSnapshot": "output\\ai-plan-proof\\real-analysis\\native-app-productivity\\10-ui-snapshot.png"
+      "uiSnapshotCaptured": true
     },
     {
       "scenarioId": "native-game",
@@ -168,10 +168,10 @@
       "localAiSafetyResultValidated": true,
       "policyDecisionValidated": true,
       "primaryCategory": "game",
-      "confidence": 0.95,
+      "confidence": 1,
       "policyAction": "ask-parent",
       "rawImagesDeletedAfterAnalysis": true,
-      "uiSnapshot": "output\\ai-plan-proof\\real-analysis\\native-game\\10-ui-snapshot.png"
+      "uiSnapshotCaptured": true
     },
     {
       "scenarioId": "native-owned-process-time-limit",
@@ -186,7 +186,7 @@
       "confidence": 0.95,
       "policyAction": "time-limit",
       "rawImagesDeletedAfterAnalysis": true,
-      "uiSnapshot": "output\\ai-plan-proof\\real-analysis\\native-owned-process-time-limit\\10-ui-snapshot.png"
+      "uiSnapshotCaptured": true
     },
     {
       "scenarioId": "unknown-activity",
@@ -201,7 +201,7 @@
       "confidence": 0.34,
       "policyAction": "ask-parent",
       "rawImagesDeletedAfterAnalysis": true,
-      "uiSnapshot": "output\\ai-plan-proof\\real-analysis\\unknown-activity\\10-ui-snapshot.png"
+      "uiSnapshotCaptured": true
     },
     {
       "scenarioId": "adult-or-violence-controlled-fixture",
@@ -216,7 +216,7 @@
       "confidence": 1,
       "policyAction": "block",
       "rawImagesDeletedAfterAnalysis": true,
-      "uiSnapshot": "output\\ai-plan-proof\\real-analysis\\adult-or-violence-controlled-fixture\\10-ui-snapshot.png"
+      "uiSnapshotCaptured": true
     },
     {
       "scenarioId": "timed-cadence-repeated-analysis",

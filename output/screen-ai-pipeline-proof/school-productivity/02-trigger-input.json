@@ -1,5 +1,0 @@
-{
-  "trigger": "manualParentTestCapture",
-  "source": "controlled-education-fixture",
-  "scope": "managedBrowserWindow"
-}

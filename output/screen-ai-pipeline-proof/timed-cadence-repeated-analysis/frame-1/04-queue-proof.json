@@ -1,9 +1,0 @@
-{
-  "deletionPendingForAnalysis": true,
-  "encryptedQueueContainsRawDigest": false,
-  "encryptedQueuePath": "output\\screen-ai-pipeline-proof\\timed-cadence-repeated-analysis\\frame-1\\capture\\queue\\screen-evidence-queue.ndjson",
-  "existedBeforeEncryption": true,
-  "existsAfterDelete": true,
-  "rawImageDeleted": false,
-  "rawTempPath": "output\\screen-ai-pipeline-proof\\timed-cadence-repeated-analysis\\frame-1\\capture\\capture.png.tmp"
-}

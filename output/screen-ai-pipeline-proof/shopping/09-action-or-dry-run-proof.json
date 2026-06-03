@@ -1,6 +1,0 @@
-{
-  "action": "ask-parent",
-  "dryRun": true,
-  "enforcementHandoffState": "disabled",
-  "aiDoesNotEnforceDirectly": true
-}

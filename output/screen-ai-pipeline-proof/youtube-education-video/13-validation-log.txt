@@ -1,3 +1,0 @@
-scenario=youtube-education-video
-category=school
-action=allow

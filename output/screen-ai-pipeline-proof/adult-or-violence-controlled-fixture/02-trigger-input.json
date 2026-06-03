@@ -1,5 +1,0 @@
-{
-  "trigger": "policyAmbiguity",
-  "source": "controlled-safe-risk-text-fixture",
-  "scope": "managedBrowserWindow"
-}

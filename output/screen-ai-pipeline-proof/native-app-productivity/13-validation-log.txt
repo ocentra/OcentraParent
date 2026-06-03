@@ -1,3 +1,0 @@
-scenario=native-app-productivity
-category=productivity
-action=allow

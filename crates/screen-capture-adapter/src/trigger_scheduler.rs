@@ -1,15 +1,5 @@
 use crate::ScreenCaptureScope;
-
-pub const TRIGGER_MANAGED_BROWSER_URL_CHANGE: &str = "managedBrowserUrlChange";
-pub const TRIGGER_BROWSER_GAME_DETECTED: &str = "browserGameDetected";
-pub const TRIGGER_NATIVE_APP_FOREGROUND_START: &str = "nativeAppForegroundStart";
-pub const TRIGGER_NATIVE_GAME_FOREGROUND_START: &str = "nativeGameForegroundStart";
-pub const TRIGGER_LAUNCHER_FOREGROUND_START: &str = "launcherForegroundStart";
-pub const TRIGGER_UNKNOWN_PROCESS_FOREGROUND_START: &str = "unknownProcessForegroundStart";
-pub const TRIGGER_UNUSUAL_NETWORK_CHANGE: &str = "unusualNetworkChange";
-pub const TRIGGER_POLICY_AMBIGUITY: &str = "policyAmbiguity";
-pub const TRIGGER_PARENT_MANUAL_TEST_CAPTURE: &str = "parentManualTestCapture";
-pub const TRIGGER_TIMED_CADENCE: &str = "timedCadence";
+use ocentra_parent_agent_protocol::constants::activity_capture as protocol_constants;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ScreenCaptureScheduleTrigger {
@@ -28,32 +18,60 @@ pub enum ScreenCaptureScheduleTrigger {
 impl ScreenCaptureScheduleTrigger {
     pub fn from_proof_label(value: &str) -> Option<Self> {
         match value {
-            TRIGGER_MANAGED_BROWSER_URL_CHANGE => Some(Self::ManagedBrowserUrlChange),
-            TRIGGER_BROWSER_GAME_DETECTED => Some(Self::BrowserGameDetected),
-            TRIGGER_NATIVE_APP_FOREGROUND_START => Some(Self::NativeAppForegroundStart),
-            TRIGGER_NATIVE_GAME_FOREGROUND_START => Some(Self::NativeGameForegroundStart),
-            TRIGGER_LAUNCHER_FOREGROUND_START => Some(Self::LauncherForegroundStart),
-            TRIGGER_UNKNOWN_PROCESS_FOREGROUND_START => Some(Self::UnknownProcessForegroundStart),
-            TRIGGER_UNUSUAL_NETWORK_CHANGE => Some(Self::UnusualNetworkChange),
-            TRIGGER_POLICY_AMBIGUITY => Some(Self::PolicyAmbiguity),
-            TRIGGER_PARENT_MANUAL_TEST_CAPTURE => Some(Self::ParentManualTestCapture),
-            TRIGGER_TIMED_CADENCE => Some(Self::TimedCadence),
+            protocol_constants::SCREEN_TRIGGER_MANAGED_BROWSER_URL_CHANGE => {
+                Some(Self::ManagedBrowserUrlChange)
+            }
+            protocol_constants::SCREEN_TRIGGER_BROWSER_GAME_DETECTED => {
+                Some(Self::BrowserGameDetected)
+            }
+            protocol_constants::SCREEN_TRIGGER_NATIVE_APP_FOREGROUND_START => {
+                Some(Self::NativeAppForegroundStart)
+            }
+            protocol_constants::SCREEN_TRIGGER_NATIVE_GAME_FOREGROUND_START => {
+                Some(Self::NativeGameForegroundStart)
+            }
+            protocol_constants::SCREEN_TRIGGER_LAUNCHER_FOREGROUND_START => {
+                Some(Self::LauncherForegroundStart)
+            }
+            protocol_constants::SCREEN_TRIGGER_UNKNOWN_PROCESS_FOREGROUND_START => {
+                Some(Self::UnknownProcessForegroundStart)
+            }
+            protocol_constants::SCREEN_TRIGGER_UNUSUAL_NETWORK_CHANGE => {
+                Some(Self::UnusualNetworkChange)
+            }
+            protocol_constants::SCREEN_TRIGGER_POLICY_AMBIGUITY => Some(Self::PolicyAmbiguity),
+            protocol_constants::SCREEN_TRIGGER_PARENT_MANUAL_TEST_CAPTURE => {
+                Some(Self::ParentManualTestCapture)
+            }
+            protocol_constants::SCREEN_TRIGGER_TIMED_CADENCE => Some(Self::TimedCadence),
             _ => None,
         }
     }
 
     pub fn as_proof_label(self) -> &'static str {
         match self {
-            Self::ManagedBrowserUrlChange => TRIGGER_MANAGED_BROWSER_URL_CHANGE,
-            Self::BrowserGameDetected => TRIGGER_BROWSER_GAME_DETECTED,
-            Self::NativeAppForegroundStart => TRIGGER_NATIVE_APP_FOREGROUND_START,
-            Self::NativeGameForegroundStart => TRIGGER_NATIVE_GAME_FOREGROUND_START,
-            Self::LauncherForegroundStart => TRIGGER_LAUNCHER_FOREGROUND_START,
-            Self::UnknownProcessForegroundStart => TRIGGER_UNKNOWN_PROCESS_FOREGROUND_START,
-            Self::UnusualNetworkChange => TRIGGER_UNUSUAL_NETWORK_CHANGE,
-            Self::PolicyAmbiguity => TRIGGER_POLICY_AMBIGUITY,
-            Self::ParentManualTestCapture => TRIGGER_PARENT_MANUAL_TEST_CAPTURE,
-            Self::TimedCadence => TRIGGER_TIMED_CADENCE,
+            Self::ManagedBrowserUrlChange => {
+                protocol_constants::SCREEN_TRIGGER_MANAGED_BROWSER_URL_CHANGE
+            }
+            Self::BrowserGameDetected => protocol_constants::SCREEN_TRIGGER_BROWSER_GAME_DETECTED,
+            Self::NativeAppForegroundStart => {
+                protocol_constants::SCREEN_TRIGGER_NATIVE_APP_FOREGROUND_START
+            }
+            Self::NativeGameForegroundStart => {
+                protocol_constants::SCREEN_TRIGGER_NATIVE_GAME_FOREGROUND_START
+            }
+            Self::LauncherForegroundStart => {
+                protocol_constants::SCREEN_TRIGGER_LAUNCHER_FOREGROUND_START
+            }
+            Self::UnknownProcessForegroundStart => {
+                protocol_constants::SCREEN_TRIGGER_UNKNOWN_PROCESS_FOREGROUND_START
+            }
+            Self::UnusualNetworkChange => protocol_constants::SCREEN_TRIGGER_UNUSUAL_NETWORK_CHANGE,
+            Self::PolicyAmbiguity => protocol_constants::SCREEN_TRIGGER_POLICY_AMBIGUITY,
+            Self::ParentManualTestCapture => {
+                protocol_constants::SCREEN_TRIGGER_PARENT_MANUAL_TEST_CAPTURE
+            }
+            Self::TimedCadence => protocol_constants::SCREEN_TRIGGER_TIMED_CADENCE,
         }
     }
 
@@ -99,13 +117,17 @@ pub enum ScreenCaptureSuppressionReason {
 impl ScreenCaptureSuppressionReason {
     pub fn as_proof_label(self) -> &'static str {
         match self {
-            Self::DisabledByParent => "disabledByParent",
-            Self::TriggerCaptureDisabled => "triggerCaptureDisabled",
-            Self::TriggerNotEnabled => "triggerNotEnabled",
-            Self::CadenceCaptureDisabled => "cadenceCaptureDisabled",
-            Self::CadenceNotDue => "cadenceNotDue",
-            Self::TriggerDebounced => "triggerDebounced",
-            Self::UnsupportedScope => "unsupportedScope",
+            Self::DisabledByParent => protocol_constants::SCREEN_SUPPRESSION_DISABLED_BY_PARENT,
+            Self::TriggerCaptureDisabled => {
+                protocol_constants::SCREEN_SUPPRESSION_TRIGGER_CAPTURE_DISABLED
+            }
+            Self::TriggerNotEnabled => protocol_constants::SCREEN_SUPPRESSION_TRIGGER_NOT_ENABLED,
+            Self::CadenceCaptureDisabled => {
+                protocol_constants::SCREEN_SUPPRESSION_CADENCE_CAPTURE_DISABLED
+            }
+            Self::CadenceNotDue => protocol_constants::SCREEN_SUPPRESSION_CADENCE_NOT_DUE,
+            Self::TriggerDebounced => protocol_constants::SCREEN_SUPPRESSION_TRIGGER_DEBOUNCED,
+            Self::UnsupportedScope => protocol_constants::SCREEN_SUPPRESSION_UNSUPPORTED_SCOPE,
         }
     }
 }

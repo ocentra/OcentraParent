@@ -1,5 +1,0 @@
-{
-  "trigger": "managedUrlChange",
-  "source": "controlled-browser-video-fixture",
-  "scope": "managedBrowserWindow"
-}

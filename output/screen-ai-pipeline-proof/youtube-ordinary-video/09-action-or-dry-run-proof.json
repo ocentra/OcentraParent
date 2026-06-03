@@ -1,6 +1,0 @@
-{
-  "action": "warn",
-  "dryRun": true,
-  "enforcementHandoffState": "disabled",
-  "aiDoesNotEnforceDirectly": true
-}

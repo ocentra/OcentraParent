@@ -1,5 +1,0 @@
-{
-  "trigger": "appGameForegroundStart",
-  "source": "controlled-browser-game-fixture",
-  "scope": "managedBrowserWindow"
-}

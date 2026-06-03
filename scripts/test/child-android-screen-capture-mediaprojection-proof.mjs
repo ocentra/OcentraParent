@@ -20,6 +20,7 @@ if (device === null && process.env.OCENTRA_ANDROID_START_EMULATOR === '1') {
 if (device === null) {
   throw new Error('No Android device/emulator is online; Android MediaProjection proof cannot be claimed.');
 }
+waitForAndroidReady(device);
 
 const deviceInfo = {
   serial: device,
@@ -110,12 +111,25 @@ function waitForDevice() {
   for (let attempt = 0; attempt < 90; attempt += 1) {
     const device = firstOnlineDevice();
     if (device !== null) {
-      adb(['shell', 'getprop', 'sys.boot_completed'], { allowFailure: true });
       return device;
     }
     sleep(2000);
   }
   return null;
+}
+
+function waitForAndroidReady(device) {
+  for (let attempt = 0; attempt < 90; attempt += 1) {
+    const bootCompleted = adb(['shell', 'getprop', 'sys.boot_completed'], { allowFailure: true }).stdout.trim();
+    const packageManagerReady =
+      adb(['shell', 'cmd', 'package', 'path', 'android'], { allowFailure: true }).status === 0;
+    const windowReady = adb(['shell', 'dumpsys', 'window'], { allowFailure: true }).stdout.includes('mCurrentFocus');
+    if (bootCompleted === '1' && packageManagerReady && windowReady) {
+      return;
+    }
+    sleep(2000);
+  }
+  throw new Error(`Android device/emulator did not become UI-ready for MediaProjection proof: ${device}`);
 }
 
 function firstOnlineDevice() {

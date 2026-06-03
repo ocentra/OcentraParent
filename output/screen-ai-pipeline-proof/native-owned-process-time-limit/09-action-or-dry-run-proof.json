@@ -1,6 +1,0 @@
-{
-  "action": "time-limit",
-  "dryRun": true,
-  "enforcementHandoffState": "disabled",
-  "aiDoesNotEnforceDirectly": true
-}

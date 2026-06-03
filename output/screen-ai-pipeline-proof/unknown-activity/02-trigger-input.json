@@ -1,5 +1,0 @@
-{
-  "trigger": "policyAmbiguity",
-  "source": "controlled-ambiguous-fixture",
-  "scope": "managedBrowserWindow"
-}

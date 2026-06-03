@@ -1,5 +1,0 @@
-{
-  "trigger": "appGameForegroundStart",
-  "source": "controlled-native-owned-process-time-limit-fixture",
-  "scope": "activeWindow"
-}

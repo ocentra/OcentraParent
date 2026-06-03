@@ -1,9 +1,0 @@
-{
-  "deletionPendingForAnalysis": true,
-  "encryptedQueueContainsRawDigest": false,
-  "encryptedQueuePath": "output\\screen-ai-pipeline-proof\\adult-or-violence-controlled-fixture\\capture\\queue\\screen-evidence-queue.ndjson",
-  "existedBeforeEncryption": true,
-  "existsAfterDelete": true,
-  "rawImageDeleted": false,
-  "rawTempPath": "output\\screen-ai-pipeline-proof\\adult-or-violence-controlled-fixture\\capture\\capture.png.tmp"
-}

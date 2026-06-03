@@ -1,5 +1,0 @@
-{
-  "trigger": "foregroundAppChange",
-  "source": "controlled-native-app-window-fixture",
-  "scope": "activeWindow"
-}
