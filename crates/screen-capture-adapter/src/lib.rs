@@ -3,6 +3,8 @@ use ocentra_parent_agent_protocol::ActivityCaptureCapabilityStatus;
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ScreenCaptureScope {
     ActiveWindow,
+    SelectedWindow,
+    PrimaryDisplay,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -13,6 +15,8 @@ pub struct ScreenCaptureMetadata {
     pub app_name: Option<String>,
     pub title: Option<String>,
     pub window_id: Option<u32>,
+    pub monitor_id: Option<u32>,
+    pub monitor_name: Option<String>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -46,67 +50,144 @@ pub fn capture_window_title_contains_png(title_contains: &str) -> ScreenCaptureA
     platform_capture_window_title_contains_png(title_contains)
 }
 
-fn degraded_active_window(status: ActivityCaptureCapabilityStatus) -> ScreenCaptureAttempt {
+pub fn capture_primary_display_png() -> ScreenCaptureAttempt {
+    platform_capture_primary_display_png()
+}
+
+fn degraded_capture(
+    status: ActivityCaptureCapabilityStatus,
+    scope: ScreenCaptureScope,
+) -> ScreenCaptureAttempt {
     ScreenCaptureAttempt::Degraded(ScreenCaptureMetadata {
         status,
-        scope: ScreenCaptureScope::ActiveWindow,
+        scope,
         pid: None,
         app_name: None,
         title: None,
         window_id: None,
+        monitor_id: None,
+        monitor_name: None,
     })
+}
+
+#[cfg(not(windows))]
+fn degraded_selected_window(status: ActivityCaptureCapabilityStatus) -> ScreenCaptureAttempt {
+    degraded_capture(status, ScreenCaptureScope::SelectedWindow)
+}
+
+fn degraded_primary_display(status: ActivityCaptureCapabilityStatus) -> ScreenCaptureAttempt {
+    degraded_capture(status, ScreenCaptureScope::PrimaryDisplay)
 }
 
 #[cfg(windows)]
 fn platform_capture_active_window_png() -> ScreenCaptureAttempt {
-    platform_capture_window_png(|window| {
-        matches!(window.is_focused(), Ok(true)) && !matches!(window.is_minimized(), Ok(true))
-    })
+    platform_capture_window_png(
+        |window| {
+            matches!(window.is_focused(), Ok(true)) && !matches!(window.is_minimized(), Ok(true))
+        },
+        ScreenCaptureScope::ActiveWindow,
+    )
 }
 
 #[cfg(windows)]
 fn platform_capture_window_title_contains_png(title_contains: &str) -> ScreenCaptureAttempt {
-    platform_capture_window_png(|window| {
-        !matches!(window.is_minimized(), Ok(true))
-            && window
-                .title()
-                .is_ok_and(|title| title.contains(title_contains))
-    })
+    platform_capture_window_png(
+        |window| {
+            !matches!(window.is_minimized(), Ok(true))
+                && window
+                    .title()
+                    .is_ok_and(|title| title.contains(title_contains))
+        },
+        ScreenCaptureScope::SelectedWindow,
+    )
 }
 
 #[cfg(windows)]
 fn platform_capture_window_png(
     matches_window: impl Fn(&xcap::Window) -> bool,
+    scope: ScreenCaptureScope,
 ) -> ScreenCaptureAttempt {
     let windows = match xcap::Window::all() {
         Ok(windows) => windows,
-        Err(_) => return degraded_active_window(ActivityCaptureCapabilityStatus::AdapterError),
+        Err(_) => return degraded_capture(ActivityCaptureCapabilityStatus::AdapterError, scope),
     };
 
     let Some(window) = windows.into_iter().find(matches_window) else {
-        return degraded_active_window(ActivityCaptureCapabilityStatus::NoActiveWindow);
+        return degraded_capture(ActivityCaptureCapabilityStatus::NoActiveWindow, scope);
     };
 
     let image = match window.capture_image() {
         Ok(image) => image,
-        Err(_) => return degraded_active_window(ActivityCaptureCapabilityStatus::AccessDenied),
+        Err(_) => return degraded_capture(ActivityCaptureCapabilityStatus::AccessDenied, scope),
     };
 
     let width = image.width();
     let height = image.height();
     let png_bytes = match encode_png(image) {
         Ok(png_bytes) => png_bytes,
-        Err(_) => return degraded_active_window(ActivityCaptureCapabilityStatus::AdapterError),
+        Err(_) => return degraded_capture(ActivityCaptureCapabilityStatus::AdapterError, scope),
     };
 
     ScreenCaptureAttempt::Captured(CapturedScreenImage {
         metadata: ScreenCaptureMetadata {
             status: ActivityCaptureCapabilityStatus::Available,
-            scope: ScreenCaptureScope::ActiveWindow,
+            scope,
             pid: window.pid().ok(),
             app_name: window.app_name().ok(),
             title: window.title().ok(),
             window_id: window.id().ok(),
+            monitor_id: window
+                .current_monitor()
+                .ok()
+                .and_then(|monitor| monitor.id().ok()),
+            monitor_name: window
+                .current_monitor()
+                .ok()
+                .and_then(|monitor| monitor.name().ok()),
+        },
+        width,
+        height,
+        png_bytes,
+    })
+}
+
+#[cfg(windows)]
+fn platform_capture_primary_display_png() -> ScreenCaptureAttempt {
+    let monitors = match xcap::Monitor::all() {
+        Ok(monitors) => monitors,
+        Err(_) => return degraded_primary_display(ActivityCaptureCapabilityStatus::AdapterError),
+    };
+
+    let Some(monitor) = monitors
+        .iter()
+        .find(|monitor| matches!(monitor.is_primary(), Ok(true)))
+        .or_else(|| monitors.first())
+    else {
+        return degraded_primary_display(ActivityCaptureCapabilityStatus::NoActiveWindow);
+    };
+
+    let image = match monitor.capture_image() {
+        Ok(image) => image,
+        Err(_) => return degraded_primary_display(ActivityCaptureCapabilityStatus::AccessDenied),
+    };
+
+    let width = image.width();
+    let height = image.height();
+    let png_bytes = match encode_png(image) {
+        Ok(png_bytes) => png_bytes,
+        Err(_) => return degraded_primary_display(ActivityCaptureCapabilityStatus::AdapterError),
+    };
+
+    ScreenCaptureAttempt::Captured(CapturedScreenImage {
+        metadata: ScreenCaptureMetadata {
+            status: ActivityCaptureCapabilityStatus::Available,
+            scope: ScreenCaptureScope::PrimaryDisplay,
+            pid: None,
+            app_name: None,
+            title: None,
+            window_id: None,
+            monitor_id: monitor.id().ok(),
+            monitor_name: monitor.name().ok(),
         },
         width,
         height,
@@ -124,12 +205,20 @@ fn encode_png(image: xcap::image::RgbaImage) -> Result<Vec<u8>, xcap::image::Ima
 
 #[cfg(not(windows))]
 fn platform_capture_active_window_png() -> ScreenCaptureAttempt {
-    degraded_active_window(ActivityCaptureCapabilityStatus::Unavailable)
+    degraded_capture(
+        ActivityCaptureCapabilityStatus::Unavailable,
+        ScreenCaptureScope::ActiveWindow,
+    )
 }
 
 #[cfg(not(windows))]
 fn platform_capture_window_title_contains_png(_title_contains: &str) -> ScreenCaptureAttempt {
-    degraded_active_window(ActivityCaptureCapabilityStatus::Unavailable)
+    degraded_selected_window(ActivityCaptureCapabilityStatus::Unavailable)
+}
+
+#[cfg(not(windows))]
+fn platform_capture_primary_display_png() -> ScreenCaptureAttempt {
+    degraded_primary_display(ActivityCaptureCapabilityStatus::Unavailable)
 }
 
 #[cfg(test)]
@@ -138,7 +227,10 @@ mod tests {
 
     #[test]
     fn degraded_attempt_reports_status_and_active_window_scope() {
-        let attempt = degraded_active_window(ActivityCaptureCapabilityStatus::AccessDenied);
+        let attempt = degraded_capture(
+            ActivityCaptureCapabilityStatus::AccessDenied,
+            ScreenCaptureScope::ActiveWindow,
+        );
 
         assert_eq!(
             attempt.status(),
@@ -163,6 +255,8 @@ mod tests {
                 app_name: None,
                 title: None,
                 window_id: None,
+                monitor_id: None,
+                monitor_name: None,
             },
             width: 1,
             height: 1,

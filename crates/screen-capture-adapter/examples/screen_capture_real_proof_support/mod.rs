@@ -9,7 +9,7 @@ mod queue;
 use base64::{engine::general_purpose::STANDARD, Engine as _};
 use ocentra_parent_agent_core::{JournalKey, ScreenEvidenceQueue, JOURNAL_KEY_BYTES};
 use ocentra_parent_agent_protocol::{constants, ActivityCaptureCapabilityStatus};
-use ocentra_parent_screen_capture_adapter::CapturedScreenImage;
+use ocentra_parent_screen_capture_adapter::{CapturedScreenImage, ScreenCaptureScope};
 use queue::{digest_hex, screen_queue_job};
 use serde_json::json;
 
@@ -21,6 +21,7 @@ pub(crate) fn write_run_metadata(
     run_id: &str,
     status: ActivityCaptureCapabilityStatus,
     target_title: Option<String>,
+    requested_scope: &'static str,
     keep_raw_until_analysis: bool,
 ) {
     write_json(
@@ -32,17 +33,18 @@ pub(crate) fn write_run_metadata(
             "platform": std::env::consts::OS,
             "status": status.as_protocol_str(),
             "targetWindowTitleContains": target_title,
+            "requestedScope": requested_scope,
             "keepRawUntilAnalysis": keep_raw_until_analysis,
         }),
     );
 }
 
-pub(crate) fn write_trigger_input(output_dir: &Path) {
+pub(crate) fn write_trigger_input(output_dir: &Path, requested_scope: &'static str) {
     write_json(
         &output_dir.join("01-trigger-input.json"),
         json!({
             "trigger": ocentra_parent_agent_protocol::SCREEN_CAPTURE_REASON_MANUAL_PARENT_TEST,
-            "scope": ocentra_parent_agent_protocol::SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW,
+            "scope": requested_scope,
             "source": "parent-manual-test-proof-command",
         }),
     );
@@ -52,6 +54,7 @@ pub(crate) fn write_captured_artifacts(
     output_dir: &Path,
     run_id: &str,
     image: CapturedScreenImage,
+    requested_scope: &'static str,
     keep_raw_until_analysis: bool,
 ) {
     let image_digest = digest_hex(&image.png_bytes);
@@ -74,7 +77,12 @@ pub(crate) fn write_captured_artifacts(
             .expect(constants::error::JOURNAL_OPENS);
     queue
         .append_encrypted_image(
-            &screen_queue_job(run_id, &image_digest, image.png_bytes.len()),
+            &screen_queue_job(
+                run_id,
+                requested_scope,
+                &image_digest,
+                image.png_bytes.len(),
+            ),
             &image.png_bytes,
         )
         .expect(constants::error::JOURNAL_APPENDS);
@@ -86,6 +94,7 @@ pub(crate) fn write_captured_artifacts(
     write_capture_metadata(
         output_dir,
         &image,
+        requested_scope,
         image_digest.clone(),
         title_digest,
         app_name_digest,
@@ -128,6 +137,7 @@ pub(crate) fn write_degraded_artifacts(output_dir: &Path, status: ActivityCaptur
 fn write_capture_metadata(
     output_dir: &Path,
     image: &CapturedScreenImage,
+    requested_scope: &'static str,
     image_digest: String,
     title_digest: Option<String>,
     app_name_digest: Option<String>,
@@ -139,13 +149,17 @@ fn write_capture_metadata(
         json!({
             "status": ActivityCaptureCapabilityStatus::Available.as_protocol_str(),
             "captured": true,
-            "scope": ocentra_parent_agent_protocol::SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW,
+            "requestedScope": requested_scope,
+            "actualScope": proof_scope_label(image.metadata.scope),
             "width": image.width,
             "height": image.height,
             "imageByteSize": image.png_bytes.len(),
             "imageDigest": image_digest,
             "pid": image.metadata.pid,
             "windowId": image.metadata.window_id,
+            "monitorId": image.metadata.monitor_id,
+            "monitorNamePresent": image.metadata.monitor_name.is_some(),
+            "monitorNameDigest": image.metadata.monitor_name.as_ref().map(|monitor_name| digest_hex(monitor_name.as_bytes())),
             "titlePresent": image.metadata.title.is_some(),
             "titleDigest": title_digest,
             "appNamePresent": image.metadata.app_name.is_some(),
@@ -154,6 +168,16 @@ fn write_capture_metadata(
             "analysisTempPath": keep_raw_until_analysis.then_some(raw_temp_path),
         }),
     );
+}
+
+pub(crate) fn proof_scope_label(scope: ScreenCaptureScope) -> &'static str {
+    match scope {
+        ScreenCaptureScope::ActiveWindow => {
+            ocentra_parent_agent_protocol::SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW
+        }
+        ScreenCaptureScope::SelectedWindow => "selectedWindow",
+        ScreenCaptureScope::PrimaryDisplay => "primaryDisplay",
+    }
 }
 
 fn write_deletion_proof(

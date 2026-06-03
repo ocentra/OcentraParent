@@ -3,6 +3,7 @@ use sha2::{Digest, Sha256};
 
 pub(crate) fn screen_queue_job(
     run_id: &str,
+    capture_scope: &str,
     image_digest: &str,
     image_byte_size: usize,
 ) -> ocentra_parent_agent_protocol::ScreenAnalysisQueueJob {
@@ -15,7 +16,7 @@ pub(crate) fn screen_queue_job(
         last_attempt_at: None,
         capture_reason: ocentra_parent_agent_protocol::SCREEN_CAPTURE_REASON_MANUAL_PARENT_TEST
             .to_owned(),
-        capture_scope: ocentra_parent_agent_protocol::SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW.to_owned(),
+        capture_scope: capture_scope.to_owned(),
         source_id: constants::activity_store::TEST_SCREEN_SOURCE_ID.to_owned(),
         adapter_id: constants::activity_store::TEST_SCREEN_ADAPTER_ID.to_owned(),
         device_ref: constants::peer::LOCAL_DEV_AGENT.to_owned(),

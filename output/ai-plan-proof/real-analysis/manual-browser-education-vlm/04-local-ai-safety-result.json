@@ -14,7 +14,7 @@
     {
       "evidenceReferenceId": "screen-analysis-evidence-manual-browser-education-vlm",
       "kind": "activity-event",
-      "observedAt": "2026-06-03T08:46:57.379Z"
+      "observedAt": "2026-06-03T09:17:28.736Z"
     }
   ],
   "parentRuleReferences": [
@@ -38,7 +38,7 @@
     ],
     "resourceClass": "cpu",
     "degradedState": "none",
-    "lastCheckedAt": "2026-06-03T08:46:57.379Z",
+    "lastCheckedAt": "2026-06-03T09:17:28.736Z",
     "unavailableReason": null
   },
   "promptVersion": "screen-ai-local-vlm-proof-v1",

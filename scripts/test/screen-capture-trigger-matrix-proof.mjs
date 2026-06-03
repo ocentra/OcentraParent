@@ -64,6 +64,7 @@ try {
     capturedRuns: scenarios.filter((scenario) => scenario.captured).length,
     allRawImagesDeleted: scenarios.every((scenario) => scenario.rawImageDeleted),
     distinctCapturedFrames: new Set(imageDigests).size === imageDigests.length,
+    selectedWindowScopeMatched: scenarios.every((scenario) => scenario.actualScope === 'selectedWindow'),
     productSchedulerImplemented: false,
     productForegroundTriggerImplemented: false,
     degradedIsCaptureProof: false,
@@ -76,7 +77,10 @@ try {
   writeJson(join(outputDir, 'proof-summary.json'), summary);
   if (
     process.platform === 'win32' &&
-    (summary.capturedRuns !== scenarios.length || !summary.allRawImagesDeleted || !summary.distinctCapturedFrames)
+    (summary.capturedRuns !== scenarios.length ||
+      !summary.allRawImagesDeleted ||
+      !summary.distinctCapturedFrames ||
+      !summary.selectedWindowScopeMatched)
   ) {
     throw new Error(`Windows trigger matrix proof incomplete: ${JSON.stringify(summary, null, 2)}`);
   }
@@ -96,7 +100,7 @@ function runCaptureScenario(scenarioId, options) {
     productTriggerWired: options.productTriggerWired,
     proofHarnessTrigger: options.proofHarnessTrigger,
     targetTitle: options.targetTitle,
-    expectedScope: 'activeWindow',
+    expectedScope: 'selectedWindow',
   });
   const result = spawnSync(
     'cargo',
@@ -125,6 +129,7 @@ function runCaptureScenario(scenarioId, options) {
     proofHarnessTrigger: options.proofHarnessTrigger,
     captured: metadata.captured === true,
     status: metadata.status,
+    actualScope: metadata.actualScope ?? null,
     imageDigest: metadata.imageDigest ?? null,
     imageByteSize: metadata.imageByteSize ?? null,
     rawImageDeleted: deletion?.rawImageDeleted === true,

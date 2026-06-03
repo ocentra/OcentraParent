@@ -42,6 +42,12 @@ capability, such as MediaProjection consent/foreground-service behavior. Docker,
 WSL, and Android Studio are acceptable local tools for setup and validation
 where they can exercise the real adapter boundary.
 
+Linux proof must split X11 and Wayland claims. X11 can claim only a real X11
+desktop/session capture. Wayland must prove the desktop-portal/PipeWire
+permission/session path. WSL/WSLg compile or fixture runs are not Linux
+child-device capture proof unless the same adapter captures real pixels and
+records custody/deletion.
+
 Mac and iOS proof require real user-assisted hardware/session evidence when the
 current worker machine cannot exercise the platform. Before that evidence
 exists, the plan can claim only compile/degraded behavior for those platforms,
