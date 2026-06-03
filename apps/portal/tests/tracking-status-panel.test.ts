@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { ActivityQuerySchemaVersion } from '@ocentra-parent/activity-domain/query';
 import {
   AgentEvent,
+  AgentEventEnvelopeSchema,
   AgentProtocolDefaults,
   AgentProtocolSchemaVersion,
   type AgentEventEnvelope,
@@ -129,7 +130,7 @@ describe('tracking status proof surface', () => {
 });
 
 function trackingEvent(serializedReadModel: string): AgentEventEnvelope {
-  return {
+  return AgentEventEnvelopeSchema.parse({
     schemaVersion: AgentProtocolSchemaVersion,
     eventId: 'tracking-read-model-event',
     correlationId: 'tracking-read-model-command',
@@ -148,5 +149,5 @@ function trackingEvent(serializedReadModel: string): AgentEventEnvelope {
       [AgentProtocolDefaults.Field.ActivityTrackingReadModel]: serializedReadModel,
     },
     snapshot: null,
-  };
+  });
 }
