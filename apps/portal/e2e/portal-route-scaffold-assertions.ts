@@ -135,6 +135,8 @@ const productRoutes = [
   { path: '/#/settings-rules', nav: 'SETTINGS', title: 'FAMILY SETTINGS CONTROL DETAIL', kind: 'manage' },
 ] as const;
 
+const lanManageRoutePaths = new Set(['/#/platforms-install', '/#/install-updates']);
+
 export async function assertRouteScaffolds(page: Page): Promise<void> {
   for (const route of productRoutes) {
     await assertProductRoute(page, route.path, route.title, route.kind);
@@ -207,6 +209,11 @@ async function assertManageRouteSurface(surface: ReturnType<Page['locator']>, pa
   expect(visibleText).toMatch(
     /(?:Family|Rules|Schedule|Approvals|Enforcement|Audit|Plan|Access|Support|Settings|Portal|Devices|Data|AI|Memory)/
   );
+  if (lanManageRoutePaths.has(path)) {
+    expect(visibleText).toContain('Local Area Network');
+    expect(visibleText).toContain('SELECTED DEVICE CONTEXT');
+    return;
+  }
   expect(visibleText).toContain('ROUTE READINESS');
   if (path === '/#/browser-settings') expect(visibleText).toMatch(/(?:Browser setup|Managed web path)/);
   if (path === '/#/enforcement') expect(visibleText).toContain('Enforcement readiness');
@@ -280,8 +287,8 @@ async function assertOptionalLanNeighborRouteProof(page: Page, surface: ReturnTy
   const infoText = await surfaceText(surface);
   expect(infoText).toContain(neighborLabel);
   expect(infoText).toMatch(/\bIP\b/);
-  expect(infoText).toMatch(/\bMAC\b/);
-  expect(infoText).toMatch(/\binterface\b/i);
+  expect(infoText).toMatch(/\b(?:HOST|SOURCE|STATE)\b/);
+  expect(infoText).toMatch(/\b(?:LAN discovered|Not reported|Stale|Visible only)\b/);
 
   await page.getByRole('tab', { name: 'Show LAN pairing Capability' }).click({ force: true });
   const capabilityText = await surfaceText(surface);
