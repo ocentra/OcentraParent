@@ -80,6 +80,10 @@ Remote access must not silently turn Ocentra into a family-data warehouse.
   providers, notification providers, or billing checks are unavailable.
 - Ocentra logs must minimize child details and prefer ids, status, reason codes,
   and delivery state over activity content.
+- Stateless report compilation status may reference request ids, source
+  connector/cursor refs, status refs, temporary artifact TTLs, deletion
+  confirmation, and audit refs, but it must not retain source child evidence or
+  generated reports in Ocentra-hosted systems by default.
 - Any support bundle must make included data classes obvious before export.
 - Support incident handoff must be parent-initiated and parent-approved before
   export; Ocentra must not silently upload or retain child activity as support

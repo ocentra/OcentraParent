@@ -74,6 +74,15 @@ custody.
   results, and delete results without claiming transfer runtime, connector
   OAuth, portal UI, report compiler runtime, account/subscription backend, raw
   child evidence upload by default, or Ocentra-hosted child evidence custody.
+- Stateless report compiler status contract proof now represents parent-
+  authorized remote report compilation requests from parent-owned storage,
+  source connector/cursor refs, requested data classes and time windows,
+  parent-owned output destination, queued/running/succeeded/failed/expired/
+  manual-required states, temporary input/output TTL and deletion confirmation,
+  redaction/minimization flags, audit refs, and non-mutating failure behavior
+  without claiming a report compiler runtime, cloud worker, connector OAuth/
+  provider API, portal UI, upload/download implementation, child-device
+  mutation, retained temp child evidence, or Ocentra-hosted family data custody.
 - Parent-facing reports, alert delivery, and connectors are incomplete.
 
 ## Current Gap
@@ -96,6 +105,11 @@ connector status, cursor, conflict, import, and delete result states, but does
 not claim real export/import/upload/download runtime, connector OAuth,
 provider API calls, portal controls, report compiler runtime, or Ocentra-hosted
 child data custody.
+The stateless report compiler status proof adds typed request/status/result
+state for parent-authorized report compilation from parent-owned storage, but
+does not claim a compiler runtime, cloud worker, connector OAuth/provider API,
+portal controls, upload/download implementation, retained temporary evidence,
+child-device mutation, or Ocentra-hosted child data custody.
 Activity report persistence/family fanout/MIA context proof does not claim
 physical household fanout, raw child evidence transfer, provider notification
 delivery, policy writes, or child-device enforcement.
@@ -109,6 +123,11 @@ delivery, policy writes, or child-device enforcement.
 - [x] Parent-owned export/sync connector status contract proof exists without
       transfer runtime, connector OAuth, provider API, portal UI, or
       Ocentra-hosted child data custody claims.
+- [x] Stateless report compiler status contract proof exists for
+      parent-authorized compilation from parent-owned storage without compiler
+      runtime, cloud worker, connector OAuth/provider API, portal UI,
+      upload/download implementation, child-device mutation, retained temporary
+      evidence, or Ocentra-hosted family data custody claims.
 - [x] Notification rule/reason/channel/retry/preference contract proof exists
       without provider delivery claims.
 - [x] Minimal payload and authenticated drill-in refs exist for V0.8 integrity
@@ -140,3 +159,8 @@ sync/export manifest and connector-status contract proof only; require real
 transfer runtime, connector OAuth/provider artifacts, parent-visible controls,
 retention/delete execution, and import/rebuild proof before claiming product
 sync/export.
+Treat `scripts/test/stateless-report-compiler-status-proof.mjs` as
+parent-domain stateless report compiler request/status/result proof only;
+require a real compiler runtime, cloud worker, connector OAuth/provider
+artifacts, parent UI, upload/download implementation, deletion execution, and
+custody/security review before claiming remote report compilation.
