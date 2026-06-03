@@ -1,0 +1,15 @@
+{
+  "scenarioId": "browser-use-active-window",
+  "requestedTrigger": "managedBrowserUrlChange",
+  "productTriggerWired": true,
+  "schedulerDecision": "enqueueCapture",
+  "schedulerReason": "managedBrowserUrlChange",
+  "proofHarnessTrigger": "headed-playwright-url-change-to-product-scheduler",
+  "captured": true,
+  "status": "available",
+  "actualScope": "selectedWindow",
+  "imageDigest": "60b10e66a28c4f7d9d847f008251d1f9892a774459884a43e1222723124b52e3",
+  "imageByteSize": 53600,
+  "rawImageDeleted": true,
+  "encryptedQueueOmitsRawDigest": true
+}

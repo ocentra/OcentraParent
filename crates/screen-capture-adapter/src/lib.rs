@@ -4,6 +4,7 @@ use ocentra_parent_agent_protocol::ActivityCaptureCapabilityStatus;
 mod desktop_xcap;
 #[cfg(all(target_os = "linux", not(target_env = "ohos")))]
 mod linux_x11;
+pub mod trigger_scheduler;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ScreenCaptureScope {

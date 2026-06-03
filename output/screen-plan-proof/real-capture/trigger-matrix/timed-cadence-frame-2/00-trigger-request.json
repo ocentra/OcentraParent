@@ -1,0 +1,10 @@
+{
+  "scenarioId": "timed-cadence-frame-2",
+  "requestedTrigger": "timedCadence",
+  "productTriggerWired": true,
+  "schedulerDecision": "enqueueCapture",
+  "schedulerSuppression": null,
+  "proofHarnessTrigger": "scheduler-due-cadence-proof",
+  "targetTitle": "Ocentra Screen Trigger Matrix Proof",
+  "expectedScope": "selectedWindow"
+}

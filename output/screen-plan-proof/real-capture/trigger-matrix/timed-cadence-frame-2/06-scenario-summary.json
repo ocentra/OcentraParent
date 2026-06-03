@@ -1,0 +1,15 @@
+{
+  "scenarioId": "timed-cadence-frame-2",
+  "requestedTrigger": "timedCadence",
+  "productTriggerWired": true,
+  "schedulerDecision": "enqueueCapture",
+  "schedulerReason": "timedCadence",
+  "proofHarnessTrigger": "scheduler-due-cadence-proof",
+  "captured": true,
+  "status": "available",
+  "actualScope": "selectedWindow",
+  "imageDigest": "ed23e0292a266257fcd95a43ed0f48c61ea68b463464de796ec8d2abcbdf7a97",
+  "imageByteSize": 50747,
+  "rawImageDeleted": true,
+  "encryptedQueueOmitsRawDigest": true
+}

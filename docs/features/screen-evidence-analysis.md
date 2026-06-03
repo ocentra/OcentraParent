@@ -47,6 +47,11 @@ only with explicit parent settings.
   proof captures a real X11 selected window with encrypted custody and raw
   deletion. macOS live capture proof still requires platform execution evidence
   before parity is claimed.
+- The screen-capture adapter crate now has a Rust trigger scheduler proof for
+  parent-enabled managed-browser trigger inputs, native app foreground trigger
+  inputs, cadence-due decisions, debounce, and disabled-parent suppression. The
+  Windows trigger matrix proof captures real browser and Notepad windows after
+  scheduler enqueue decisions and deletes raw temp images.
 - Android child-agent scaffold now has emulator MediaProjection proof with
   explicit OS consent, foreground service, captured frame digest, and raw temp
   deletion. Physical Android parity and silent background capture are not
@@ -57,10 +62,10 @@ only with explicit parent settings.
 
 ## Current Gap
 
-Opt-in UI, product screenshot capture scheduling, OCR/vision model quality,
-runtime service/read-model wiring, physical Android/iOS proof, live macOS
-capture proof, Linux root/Wayland portal proof, enforcement handoff, checklist
-status movement, and parent explanation UX remain.
+Opt-in UI, service-owned background timer/foreground watchers, OCR/vision model
+quality, runtime service/read-model wiring, physical Android/iOS proof, live
+macOS capture proof, Linux root/Wayland portal proof, enforcement handoff,
+checklist status movement, and parent explanation UX remain.
 
 ## Checklist
 
