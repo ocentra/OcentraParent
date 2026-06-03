@@ -138,6 +138,11 @@ const productRoutes = [
 const lanManageRoutePaths = new Set(['/#/platforms-install', '/#/install-updates']);
 const routeSurfaceReadyTimeoutMs = 30_000;
 
+type LanPairingChoiceState = {
+  readonly hasLocalAgentChoice: boolean;
+  readonly hasScanningPlaceholderChoice: boolean;
+};
+
 export async function assertRouteScaffolds(page: Page): Promise<void> {
   for (const route of productRoutes) {
     await assertProductRoute(page, route.path, route.title, route.kind);
@@ -257,40 +262,11 @@ async function assertLanPairingRouteSurface(page: Page, surface: ReturnType<Page
   });
 
   try {
-    await expect(surface.locator('text').filter({ hasText: 'Local Area Network' }).first()).toBeVisible();
-    const scanButton = page.getByRole('button', { name: 'Scan Local Area Network' });
-    await expect(scanButton).toBeVisible();
-    await scanButton.click({ force: true });
-    await expect(surface.locator('text').filter({ hasText: 'Info' }).first()).toBeVisible();
-    await expect(surface.locator('text').filter({ hasText: 'Update' }).first()).toBeVisible();
-    await expect(surface.locator('text').filter({ hasText: 'Capability' }).first()).toBeVisible();
-
-    const localAgentChoice = page.getByRole('button', { name: /^Select (?!LAN Devices$)(?!Parent Portal$).+/ }).first();
-    if ((await localAgentChoice.count()) > 0) {
-      await expect(localAgentChoice).toBeVisible();
-      await localAgentChoice.click({ force: true });
-      await expect(
-        surface
-          .locator('text')
-          .filter({ hasText: /Device: (?!No device selected).+/ })
-          .first()
-      ).toBeVisible();
-    } else {
-      await expect(surface.locator('text').filter({ hasText: 'SELECTED DEVICE CONTEXT' }).first()).toBeVisible();
-      await expect(surface.locator('text').filter({ hasText: 'Manual Required' }).first()).toBeVisible();
-    }
+    const choiceState = await assertLanPairingSelectableDeviceState(page, surface);
 
     await page.getByRole('tab', { name: 'Show LAN pairing Capability' }).click({ force: true });
-    await expect(surface.locator('text').filter({ hasText: 'Agent' }).first()).toBeVisible();
     const capabilityText = await surfaceText(surface);
-    if ((await localAgentChoice.count()) > 0) {
-      expect(capabilityText).toMatch(/(?:ocentra-(?:local-service|child-agent)|agent\s+Not reported)/i);
-    } else {
-      await expect(surface.locator('text').filter({ hasText: 'Not reported' }).first()).toBeVisible();
-    }
-    await expect(surface.locator('text').filter({ hasText: 'CPU' }).first()).toBeVisible();
-    await expect(surface.locator('text').filter({ hasText: 'Device ID' }).first()).toBeVisible();
-    expect(capabilityText).toMatch(/(?:Signed proof|Proof state|Requirement)/i);
+    await assertLanPairingCapabilitySurface(surface, capabilityText, choiceState);
 
     await assertOptionalLanNeighborRouteProof(page, surface);
     await assertOptionalRouterInfrastructureProof(page);
@@ -300,6 +276,74 @@ async function assertLanPairingRouteSurface(page: Page, surface: ReturnType<Page
       await page.setViewportSize(viewport);
     }
   }
+}
+
+async function assertLanPairingSelectableDeviceState(
+  page: Page,
+  surface: ReturnType<Page['locator']>
+): Promise<LanPairingChoiceState> {
+  await expect(surface.locator('text').filter({ hasText: 'Local Area Network' }).first()).toBeVisible();
+  const scanButton = page.getByRole('button', { name: 'Scan Local Area Network' });
+  await expect(scanButton).toBeVisible();
+  await scanButton.click({ force: true });
+  await expect(surface.locator('text').filter({ hasText: 'Info' }).first()).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: 'Update' }).first()).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: 'Capability' }).first()).toBeVisible();
+
+  const scanningPlaceholderChoice = page.getByRole('button', { name: /^Select Scanning LAN$/ }).first();
+  const localAgentChoice = page
+    .getByRole('button', { name: /^Select (?!LAN Devices$)(?!Parent Portal$)(?!Scanning LAN$).+/ })
+    .first();
+  const hasLocalAgentChoice = (await localAgentChoice.count()) > 0;
+  const hasScanningPlaceholderChoice = !hasLocalAgentChoice && (await scanningPlaceholderChoice.count()) > 0;
+  if (hasLocalAgentChoice) {
+    await expect(localAgentChoice).toBeVisible();
+    await localAgentChoice.click({ force: true });
+    await expect(
+      surface
+        .locator('text')
+        .filter({ hasText: /Device: (?!No device selected).+/ })
+        .first()
+    ).toBeVisible();
+    return { hasLocalAgentChoice, hasScanningPlaceholderChoice };
+  }
+
+  await expect(surface.locator('text').filter({ hasText: 'SELECTED DEVICE CONTEXT' }).first()).toBeVisible();
+  if (hasScanningPlaceholderChoice) {
+    await expect(scanningPlaceholderChoice).toBeVisible();
+    await expect(surface.locator('text').filter({ hasText: 'Scanning LAN' }).first()).toBeVisible();
+    await expect(
+      surface.locator('text').filter({ hasText: 'Pair or connect a child agent first' }).first()
+    ).toBeVisible();
+    return { hasLocalAgentChoice, hasScanningPlaceholderChoice };
+  }
+
+  await expect(surface.locator('text').filter({ hasText: 'Manual Required' }).first()).toBeVisible();
+  return { hasLocalAgentChoice, hasScanningPlaceholderChoice };
+}
+
+async function assertLanPairingCapabilitySurface(
+  surface: ReturnType<Page['locator']>,
+  capabilityText: string,
+  choiceState: LanPairingChoiceState
+): Promise<void> {
+  if (choiceState.hasLocalAgentChoice) {
+    await expect(surface.locator('text').filter({ hasText: 'Agent' }).first()).toBeVisible();
+    expect(capabilityText).toMatch(/(?:ocentra-(?:local-service|child-agent)|agent\s+Not reported)/i);
+    await expect(surface.locator('text').filter({ hasText: 'CPU' }).first()).toBeVisible();
+    await expect(surface.locator('text').filter({ hasText: 'Device ID' }).first()).toBeVisible();
+    expect(capabilityText).toMatch(/(?:Signed proof|Proof state|Requirement)/i);
+    return;
+  }
+
+  if (choiceState.hasScanningPlaceholderChoice) {
+    expect(capabilityText).toMatch(/(?:Scanning LAN|Visible only)/);
+    expect(capabilityText).toContain('Not reported');
+    return;
+  }
+
+  await expect(surface.locator('text').filter({ hasText: 'Not reported' }).first()).toBeVisible();
+  expect(capabilityText).toMatch(/(?:Signed proof|Proof state|Requirement|Not reported)/i);
 }
 
 async function assertOptionalLanNeighborRouteProof(page: Page, surface: ReturnType<Page['locator']>): Promise<void> {
