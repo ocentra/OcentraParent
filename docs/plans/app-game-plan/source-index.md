@@ -94,6 +94,9 @@ Current app-control and app/game policy/catalog meaning lives in:
 - `packages/parent-domain/src/app-game-policy-target-compiler-rules.ts`
 - `packages/parent-domain/src/app-game-time-budget-policy.ts`
 - `packages/parent-domain/src/app-game-time-budget-policy-rules.ts`
+- `packages/parent-domain/src/app-game-ai-classifier-boundary.ts`
+- `packages/parent-domain/src/app-game-ai-classifier-boundary-values.ts`
+- `packages/parent-domain/src/app-game-ai-classifier-boundary-data.ts`
 - `packages/parent-domain/src/native-game-budget-policy.ts`
 - `packages/parent-domain/src/native-game-budget-policy-rules.ts`
 - `packages/parent-domain/src/policy.ts`
@@ -106,6 +109,7 @@ Current app-control and app/game policy/catalog meaning lives in:
 - `packages/parent-domain/tests/app-game-policy-target-compiler.test.ts`
 - `packages/parent-domain/tests/app-game-time-budget-policy.test.ts`
 - `packages/parent-domain/tests/app-game-time-budget-policy-recovery.test.ts`
+- `packages/parent-domain/tests/app-game-ai-classifier-boundary.test.ts`
 - `packages/parent-domain/tests/native-game-budget-policy.test.ts`
 - `packages/parent-domain/tests/enforcement-approval-audit.test.ts`
 
@@ -191,6 +195,7 @@ scan the OS, classify apps, run timers, or call enforcement adapters.
 - `node scripts/test/v0-8-cross-platform-enforcement-capability-proof.mjs`
 - `node scripts/test/v0-8-enforcement-timer-recovery-mvp.mjs`
 - `node scripts/test/app-game-broad-blocking-proof-gates.mjs`
+- `node scripts/test/app-game-ai-classifier-boundary-proof.mjs`
 
 These scripts prove scoped app/game paths only. They do not prove broad
 installed-app blocking, launcher/game disambiguation, game budgets, ratings, UGC
@@ -401,6 +406,20 @@ and platform-specific proof references. It does not add runtime platform
 adapters, service events, portal UI screenshots, rollback execution, or any
 broad app/game blocking support claim.
 
+WP24 proof on `codex/app-game-read-model-service-events` adds
+`packages/parent-domain/src/app-game-ai-classifier-boundary.ts`,
+`packages/parent-domain/src/app-game-ai-classifier-boundary-values.ts`, and
+`packages/parent-domain/src/app-game-ai-classifier-boundary-data.ts`, then
+records evidence under
+`output/app-game-plan-proof/24-ai-classifier-digest-boundary/`. The proof keeps
+AI classifier output evidence-only, requires stored evidence refs, bounds
+confidence, records model/runtime/prompt and fallback refs, rejects forbidden
+action/duration/raw-scan fields before policy handoff, and reruns the existing
+activity-domain digest test without editing the codex-a-locked source-spine
+package. It does not prove live model quality, provider execution, runtime
+service events, portal rendering, policy evaluator consumption, or adapter
+enforcement.
+
 ## Current Test Files
 
 - `packages/activity-domain/tests/app-game.test.ts`
@@ -422,6 +441,7 @@ broad app/game blocking support claim.
 - `packages/parent-domain/tests/app-game-time-budget-policy.test.ts`
 - `packages/parent-domain/tests/app-game-time-budget-policy-recovery.test.ts`
 - `packages/parent-domain/tests/app-game-broad-blocking-proof-gates.test.ts`
+- `packages/parent-domain/tests/app-game-ai-classifier-boundary.test.ts`
 - `packages/parent-domain/tests/native-game-budget-policy.test.ts`
 - `packages/parent-domain/tests/enforcement-approval-audit.test.ts`
 - `crates/agent-protocol/src/app_game_tests.rs`

@@ -152,6 +152,7 @@ output/app-plan-proof/16-new-app-and-unknown-app-approval-flow
 output/app-plan-proof/18-policy-target-compiler-for-app-rules
 output/app-plan-proof/19-time-budget-schedule-bonus-time-integration
 output/app-plan-proof/20-child-facing-app-warning-block-request-ux
+output/app-plan-proof/23-app-ai-classifier-digest-boundary
 ```
 
 Those proof packs point back to `output/app-game-plan-proof/*` for the shared
@@ -219,6 +220,13 @@ polished app catalog UI, install approval, or cross-platform parity.
   no-direct-enforcement guards, and risk-app category-proof routing. It does not
   yet provide live OS scanning, live catalog enrichment, service events, portal
   evidence drawer UI, local model quality, or platform enforcement proof.
+- Native app AI classifier boundary proof now cross-records the shared app/game
+  classifier contract: stored evidence refs, confidence bounds,
+  runtime/model/prompt refs, fallback state, and evidence-only policy handoff
+  are required, while direct action, duration, and raw scan fields are rejected
+  before policy can consume classifier output. Live provider execution, service
+  events, portal rendering, policy evaluator consumption, and adapter
+  enforcement remain gaps.
 - Native app child-facing warning/request UX now has shared parent-domain and
   text-domain contract proof for warning, approval-needed, time-limit, request
   submitted/approved/denied, manual-required, and unavailable states. It does
@@ -236,10 +244,10 @@ polished app catalog UI, install approval, or cross-platform parity.
   before moving up. It is not AppLocker/App Control, MDM, Endpoint Security,
   Device Owner/Profile Owner, FamilyControls/ManagedSettings, cgroup/systemd,
   or rollback execution proof.
-- App category/risk taxonomy and native app risk detection now have
-  contract/test proof, but live classifier enrichment, portal category/risk
-  rows, runtime app risk detection, local model quality, and platform
-  enforcement remain incomplete.
+- App category/risk taxonomy, native app risk detection, and native app AI
+  classifier boundary now have contract/test proof, but live classifier
+  enrichment, portal category/risk/classifier rows, runtime app risk detection,
+  local model quality, and platform enforcement remain incomplete.
 - Parent app catalog/dashboard has an initial service-backed App/Game Sessions
   surface, but it is not product-complete.
 - Broad app blocking remains manual-required outside scoped owned-process proof

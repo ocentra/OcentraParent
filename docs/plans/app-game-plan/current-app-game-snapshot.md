@@ -45,6 +45,11 @@ Proved today:
   categories, risk candidates, game context signals, source refs, confidence,
   reason codes, evidence refs, parent display overrides, AI digest refs,
   policy-candidate actions, duplicate ids, and `notEnforcement` state.
+- App/game AI classifier boundary proof now adds a parent-domain
+  policy-facing result contract that requires stored evidence refs, confidence
+  bounds, runtime/model/prompt refs, fallback state, and evidence-only policy
+  handoff while rejecting direct action, duration, and raw scan fields before
+  policy can consume classifier output.
 - App/game sessionization now derives deterministic running, foreground,
   background, stale-gap, process-exit, replay-stable, and daily rollup duration
   rows from stored SQLite observations with TypeScript and Rust protocol parity.
@@ -120,6 +125,9 @@ Not proved today:
 - Live category/risk classification, catalog enrichment, policy compiler
   routing, service/read-model parity, and portal category/risk rows for the new
   WP12 contract.
+- Live AI classifier provider execution, model quality, runtime service events,
+  policy evaluator consumption, portal classifier rows, and adapter enforcement
+  for the WP24 classifier boundary.
 - Broad app/game blocking outside scoped owned-process proof.
 - Broad-blocking gate contracts now make no-claim/manual-required platform
   requirements explicit, but they do not implement AppLocker/App Control, MDM,
@@ -237,7 +245,8 @@ Missing portal states include:
   dedicated portal foreground rows, and content-aware claims are not
   implemented.
 - Rust protocol parity has not yet mirrored the WP01 evidence claim, AI digest,
-  app/game control authority schemas, or WP04 identity schemas.
+  app/game control authority schemas, WP04 identity schemas, or WP24
+  parent-domain classifier boundary.
 - Journal and SQLite ingest now covers staged app/game inventory, runtime,
   foreground, launcher, and daily rollup rows, and the service now maps those
   rows into app-use and games activity-surface read models. It does not yet

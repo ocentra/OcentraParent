@@ -114,6 +114,9 @@ and update them only when their acceptance contract or generated data changes.
 - `packages/parent-domain/src/app-riskdetection.ts`
 - `packages/parent-domain/src/app-riskdetection-rules.ts`
 - `packages/parent-domain/src/app-riskdetection-data.ts`
+- `packages/parent-domain/src/app-game-ai-classifier-boundary.ts`
+- `packages/parent-domain/src/app-game-ai-classifier-boundary-values.ts`
+- `packages/parent-domain/src/app-game-ai-classifier-boundary-data.ts`
 - `packages/parent-domain/src/app-game-time-budget-policy.ts`
 - `packages/parent-domain/src/app-game-time-budget-policy-rules.ts`
 - `packages/parent-domain/src/policy.ts`
@@ -125,6 +128,7 @@ and update them only when their acceptance contract or generated data changes.
 - `packages/parent-domain/tests/app-game-policy-target-compiler.test.ts`
 - `packages/parent-domain/tests/app-game-time-budget-policy.test.ts`
 - `packages/parent-domain/tests/app-game-time-budget-policy-recovery.test.ts`
+- `packages/parent-domain/tests/app-game-ai-classifier-boundary.test.ts`
 - `packages/parent-domain/tests/enforcement-approval-audit.test.ts`
 
 TypeScript rule: enhance these existing app/app-game paths first. Do not create
@@ -202,6 +206,7 @@ classification, run timers, or enforce.
 - `node scripts/test/v0-8-enforcement-timer-recovery-mvp.mjs`
 - `node scripts/test/app-game-broad-blocking-proof-gates.mjs`
 - `node scripts/test/app-riskdetection-proof.mjs`
+- `node scripts/test/app-game-ai-classifier-boundary-proof.mjs`
 
 Future app-specific proof scripts should use:
 
@@ -239,6 +244,7 @@ packs mirror the app/game proof roots and record product-doc decisions.
 | WP20 child app warning/request UX     | `output/app-plan-proof/20-child-facing-app-warning-block-request-ux`            | `output/app-game-plan-proof/21-child-facing-warning-and-request-ux`              | Child UX contract/text proof only      |
 | WP21 owned-process time-limit proof   | `output/app-plan-proof/21-windows-owned-process-terminate-time-limit-proof`     | `output/app-game-plan-proof/22-windows-owned-process-terminate-time-limit-proof` | Scoped real-service process proof only |
 | WP22 broad blocking proof gates       | `output/app-plan-proof/22-broad-blocking-proof-gates`                           | `output/app-game-plan-proof/23-broad-blocking-proof-gates`                       | No-claim/manual-required gate proof    |
+| WP23 app AI classifier digest         | `output/app-plan-proof/23-app-ai-classifier-digest-boundary`                    | `output/app-game-plan-proof/24-ai-classifier-digest-boundary`                    | Classifier boundary contract proof     |
 
 These completed rows do not add live OS crawling, content knowledge, policy
 execution, install control, parent/child approval UI, notification delivery,
@@ -267,8 +273,12 @@ be represented. Native app risk detection proof now requires risk candidates to
 carry evidence refs, source refs, confidence/source disclosure, local AI digest
 refs when AI contributes, no-content claims, and no-direct-enforcement guards
 before policy routing can treat them as app risk candidates. Broad-blocking gate
-proof now requires setup, authority-tier, rollback, audit, and platform-specific proof before
-block-launch/hide/suspend/shield support claims can dispatch adapters.
+proof now requires setup, authority-tier, rollback, audit, and
+platform-specific proof before block-launch/hide/suspend/shield support claims
+can dispatch adapters. App AI classifier boundary proof now requires stored
+evidence refs, confidence bounds, model/runtime/prompt refs, fallback state, and
+evidence-only policy handoff while rejecting direct action, duration, and raw
+scan fields before policy can consume classifier output.
 Dedicated approval UI, notification delivery, service persistence/read models,
 policy runtime, game-budget, live source, live source subscriptions, journal
 corruption/recovery, runtime platform adapters, and portal capability matrix UI
@@ -290,6 +300,7 @@ remain later work.
 - `packages/parent-domain/tests/app-game-time-budget-policy-recovery.test.ts`
 - `packages/parent-domain/tests/app-game-broad-blocking-proof-gates.test.ts`
 - `packages/parent-domain/tests/app-riskdetection.test.ts`
+- `packages/parent-domain/tests/app-game-ai-classifier-boundary.test.ts`
 - `packages/parent-domain/tests/enforcement-approval-audit.test.ts`
 - `crates/agent-protocol/src/app_game_tests.rs`
 - `crates/agent-core/src/activity_store_app_game/app_game_sessionization_tests.rs`
