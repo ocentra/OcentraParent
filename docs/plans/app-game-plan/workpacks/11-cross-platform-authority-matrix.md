@@ -28,3 +28,18 @@ Every app/game action shows what platform authority exists and what proof is
 needed to move up.
 
 Use the standard checklist in [workpacks README](README.md).
+
+## Completion Note - 2026-06-03
+
+Completed as contract/test proof on `codex/app-game-authority-matrix`:
+
+- Added `packages/parent-domain/src/app-game-control-platform-authority.ts`.
+- Added `packages/parent-domain/src/app-game-control-platform-authority-rules.ts`.
+- Added `packages/parent-domain/tests/app-game-control-platform-authority.test.ts`.
+- Re-exported the matrix from the existing app/game authority entrypoint.
+- Proof root:
+  `output/app-game-plan-proof/11-cross-platform-authority-matrix/`.
+
+The done signal is satisfied at the contract/proof-gate layer only. Runtime
+platform adapters, enrollment, rollback execution, cleanup execution, portal
+rows, and product status remain later work.
