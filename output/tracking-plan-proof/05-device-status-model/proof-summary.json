@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-06-03T03:12:57.282Z",
+  "commit": "d55d6002bfa9d66efaede0d47c13cfe4ea1860d6",
+  "workpackId": "05-device-status-model",
+  "proofState": "contract-proof-complete",
+  "summary": "Device status evidence carries heartbeat, battery, connectivity, pending upload, stale, and degraded state.",
+  "commands": [
+    {
+      "command": "cmd /c npm --workspace @ocentra-parent/activity-domain run build",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm --workspace @ocentra-parent/activity-domain run test -- tracking",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm --workspace @ocentra-parent/parent-domain run build",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm --workspace @ocentra-parent/parent-domain run test -- tracking-location-policy",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm run lint:schema-boundaries",
+      "exitCode": 0
+    }
+  ],
+  "productClaims": {
+    "contractProof": true,
+    "androidIosBackgroundLocationClaimed": false,
+    "preciseLocationFromLanIpWifiClaimed": false,
+    "uiCompleteClaimed": false,
+    "providerDeliveryClaimed": false,
+    "remoteSyncEnabledByDefault": false
+  }
+}

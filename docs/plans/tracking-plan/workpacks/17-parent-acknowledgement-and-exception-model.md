@@ -36,7 +36,7 @@ Proof root: `output/tracking-plan-proof/17-parent-acknowledgement-and-exception-
 
 ## Where We Are
 
-This workpack is planning-only until its implementation branch produces the proof root below. Existing source docs describe the intended capability, but runtime/product-complete behavior is not claimed yet.
+This workpack has focused contract proof from `codex/tracking-plan-full-scope` under the proof root below. Runtime, platform, provider, and UI behavior is not claimed beyond the proof state recorded in `proof-summary.json` and the implementation checklist.
 
 ## Where We Want To Be
 
@@ -63,9 +63,9 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Fill This Before Reporting DONE Or PR-ready
 
-- [ ] Workpack id and branch.
-- [ ] Touched files.
-- [ ] Validation commands and results.
-- [ ] Proof artifacts under `output/tracking-plan-proof/17-parent-acknowledgement-and-exception-model/`.
-- [ ] Product doc/checklist updates or reason none were needed.
-- [ ] Known gaps/manual-required states.
+- [x] Workpack id and branch: `codex/tracking-plan-full-scope`.
+- [x] Touched files: tracking contract files, proof script, product docs, checklist, and this workpack doc.
+- [x] Validation commands and results: `node scripts/test/tracking-plan-contract-proof.mjs` passed.
+- [x] Proof artifacts under `output/tracking-plan-proof/17-parent-acknowledgement-and-exception-model/`.
+- [x] Product doc/checklist updates: owning feature doc, feature list, capability checklist, implementation checklist, tracking snapshot, and package READMEs updated.
+- [x] Known gaps/manual-required states: Android/iOS, precise desktop, provider delivery, runtime engines, retention/delete/export, Rust journal/SQLite, notifications, and UI remain proof-gated as applicable.

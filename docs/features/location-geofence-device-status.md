@@ -39,30 +39,37 @@ expose location or device-status features. Parents expect this category.
   expected-place schedules, device status, child check-ins, temporary live
   tracking, missing-device mode, nearby-place intelligence, AI safety evidence,
   retention, custody, platform proof, UI, and rollout workpacks.
-- Runtime contracts, platform permissions, mobile proof, and UI are not
-  product-complete.
+- Focused TypeScript contract proof now exists for activity tracking evidence
+  and parent tracking policy/action contracts, with proof roots under
+  `output/tracking-plan-proof/` and the repeatable proof command
+  `node scripts/test/tracking-plan-contract-proof.mjs`.
+- Platform permissions, mobile proof, Rust journal/SQLite runtime,
+  retention/delete/export runtime, provider delivery, notification delivery,
+  and UI are not product-complete.
 - Raw tracking/location settings are preserved as design inputs, not
   product-complete implementation proof.
 
 ## Current Gap
 
-Location/geofence is a tracked product gap. Ocentra must build it or explicitly
-position away from it before consumer-facing parity claims.
+Location/geofence is now in contract-proof progress, but remains a tracked
+product gap until platform adapters, runtime engines, retention/delete/export,
+journal/read models, provider delivery, notifications, and parent/child UI are
+proved.
 
 ## Checklist
 
-- [ ] Location evidence contract.
-- [ ] Accuracy/source/stale-state fields.
-- [ ] Geofence rule and transition contracts.
-- [ ] Battery/connectivity status.
+- [x] Location evidence contract.
+- [x] Accuracy/source/stale-state fields.
+- [x] Geofence rule and transition contracts.
+- [x] Battery/connectivity status contract.
 - [ ] Retention/delete settings.
-- [ ] Alert integration.
+- [x] Alert intent contract.
 - [ ] Android permission/background proof.
 - [ ] iOS entitlement/background proof.
-- [ ] Expected-place schedule and exception model.
-- [ ] Parent acknowledgement and escalation model.
-- [ ] Nearby-place ambiguity and AI safety evidence model.
-- [ ] Journal/SQLite/read-model proof.
+- [x] Expected-place schedule and exception contracts.
+- [x] Parent acknowledgement and escalation contracts.
+- [x] Nearby-place ambiguity and AI safety evidence contracts.
+- [ ] Journal/SQLite/read-model runtime proof.
 
 ## Next AI Instructions
 
@@ -70,4 +77,5 @@ Do not infer precise location from IP/network data. Treat mobile permission,
 background execution, retention, and custody as first-class requirements.
 Use `docs/plans/tracking-plan/README.md` for implementation sequencing and
 workpack ownership. Keep AI as evidence, not authority, and keep LAN/IP/Wi-Fi
-presence as hints only.
+presence as hints only. The next implementation layer is Rust protocol,
+journal/SQLite read-model proof, then platform adapters and UI snapshots.

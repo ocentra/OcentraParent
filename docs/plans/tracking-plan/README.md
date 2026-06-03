@@ -94,8 +94,8 @@ flowchart TD
 
 ## Where We Are
 
-- `docs/features/location-geofence-device-status.md` exists, but the feature is
-  still planned/gap.
+- `docs/features/location-geofence-device-status.md` exists, and the feature is
+  now planned/in progress from focused contract proof.
 - `docs/expectations/location-geofence.md` defines the correct boundary:
   location is separate from LAN/IP/pairing and must carry source, accuracy,
   timestamp, custody, retention, stale-state, and permission state.
@@ -110,9 +110,12 @@ flowchart TD
   Arrival alerts, Temporary live, and Missing device.
 - Current inventory already names degraded states such as service-disabled,
   manual-required, offline-last-known-only, and battery-throttled.
-- Runtime contracts, platform permission proof, Android/iOS background behavior
-  proof, alert integration, UI, journal/read-model proof, and retention/delete
-  proof are not product-complete.
+- Runtime TypeScript contracts now exist for the focused tracking contract
+  spine in `packages/activity-domain` and `packages/parent-domain`, with proof
+  roots under `output/tracking-plan-proof/`.
+- Platform permission proof, Android/iOS background behavior proof, provider
+  runtime, alert delivery, UI, Rust journal/read-model proof, and
+  retention/delete/export proof are not product-complete.
 
 ## Where We Want To Be
 

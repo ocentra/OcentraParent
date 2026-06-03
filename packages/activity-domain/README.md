@@ -9,6 +9,8 @@ Shared activity and evidence contracts for child-device observations.
 - App/game session contracts.
 - Network flow summary contracts.
 - Screen evidence summary contracts.
+- Tracking location, device-status, geofence, nearby-place, and read-model
+  evidence contracts.
 - Journal/query/read-model primitives.
 - Activity surface and family aggregation contracts.
 
@@ -40,11 +42,15 @@ flowchart LR
 - [App/game evidence expectations](../../docs/expectations/app-game-evidence.md)
 - [Network flow expectations](../../docs/expectations/network-flow-evidence.md)
 - [Screen evidence expectations](../../docs/expectations/screen-evidence.md)
+- [Location/geofence expectations](../../docs/expectations/location-geofence.md)
 - [Product capability checklist](../../docs/product-capability-checklist.md)
 
 ## Gaps To Fill
 
-- Social and location evidence need first-class expectation docs and contracts.
+- Social evidence needs first-class expectation docs and contracts.
+- Tracking evidence now has focused contract proof; platform adapters, Rust
+  journal/SQLite ingest, retention/delete/export runtime, provider runtime,
+  and UI proof remain open.
 - Activity reports need complete parent-facing history, trend, and assistant
   query flows.
 - Evidence contracts must keep unknown/degraded/unavailable states explicit.

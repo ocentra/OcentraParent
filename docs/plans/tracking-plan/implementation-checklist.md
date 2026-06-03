@@ -23,66 +23,81 @@ Every checked item must cite one or more proof artifacts.
 
 ## Main Execution Gates
 
-- [ ] No precise location is inferred from LAN/IP/pairing.
-- [ ] Every location sample has source, timestamp, accuracy/hint quality,
+- [x] No precise location is inferred from LAN/IP/pairing. Contract proof:
+      `output/tracking-plan-proof/13-desktop-location-and-presence-hint-model/`.
+- [x] Every location sample has source, timestamp, accuracy/hint quality,
       freshness, custody, retention, permission state, confidence, and reason
-      codes.
-- [ ] Geofence transitions cite location evidence and geofence rule refs.
-- [ ] Expected-place decisions cite schedule and expected-place rule refs.
-- [ ] Nearby-place evidence includes query radius, distance, provider,
-      category, confidence, and ambiguity state.
-- [ ] AI location safety result is evidence only and cannot alert/escalate
-      directly.
-- [ ] Parent policy is the only authority for notification/action/escalation.
-- [ ] Parent acknowledgement and exceptions can suppress or modify alerts
-      according to rules.
-- [ ] Critical alerts cannot be suppressed by generic holiday/exception unless
-      explicitly configured.
+      codes. Contract proof:
+      `output/tracking-plan-proof/04-location-evidence-model/`.
+- [x] Geofence transitions cite location evidence and geofence rule refs.
+      Contract proof:
+      `output/tracking-plan-proof/15-geofence-transition-engine/`.
+- [x] Expected-place decisions cite schedule and expected-place rule refs.
+      Contract proof:
+      `output/tracking-plan-proof/16-expected-place-schedule-engine/`.
+- [x] Nearby-place evidence includes query radius, distance, provider,
+      category, confidence, and ambiguity state. Contract proof:
+      `output/tracking-plan-proof/19-nearby-place-provider-abstraction/`.
+- [x] AI location safety result is evidence only and cannot alert/escalate
+      directly. Contract proof:
+      `output/tracking-plan-proof/23-ai-location-safety-analysis-contracts/`.
+- [x] Parent policy is the only authority for notification/action/escalation.
+      Contract proof:
+      `output/tracking-plan-proof/25-policy-compiler-for-tracking-rules/`.
+- [x] Parent acknowledgement and exceptions can suppress or modify alerts
+      according to rules. Contract proof:
+      `output/tracking-plan-proof/17-parent-acknowledgement-and-exception-model/`.
+- [x] Critical alerts cannot be suppressed by generic holiday/exception unless
+      explicitly configured. Contract proof:
+      `output/tracking-plan-proof/17-parent-acknowledgement-and-exception-model/`.
 - [ ] Retention/delete/export behavior is implemented and tested.
-- [ ] Remote sync and remote AI are disabled by default.
+- [x] Remote sync and remote AI are disabled by default. Contract proof:
+      `output/tracking-plan-proof/07-retention-and-custody-model/`,
+      `output/tracking-plan-proof/24-ai-provider-routing/`.
 - [ ] Android background claims have real device permission/background proof.
 - [ ] iOS background/region claims have real device permission/background
       proof.
-- [ ] Desktop LAN/IP/Wi-Fi presence is labelled hint-only unless OS location
-      proof exists.
+- [x] Desktop LAN/IP/Wi-Fi presence is labelled hint-only unless OS location
+      proof exists. Contract proof:
+      `output/tracking-plan-proof/13-desktop-location-and-presence-hint-model/`.
 
 ## Base Workpacks
 
-| Step | Workpack                                         | Status                      | Required proof                                                            |
-| ---- | ------------------------------------------------ | --------------------------- | ------------------------------------------------------------------------- |
-| 01   | Source index and repo reconciliation             | [x] Planning folder created | Source index and coverage audit.                                          |
-| 02   | Current tracking snapshot and gap map            | [x] Planning folder created | Snapshot and gap map.                                                     |
-| 03   | Contract boundary and Effect schemas             | [ ] Not started             | TypeScript schema tests and no-claim negative tests.                      |
-| 04   | Location evidence model                          | [ ] Not started             | Valid/invalid schema tests and source/accuracy/freshness gates.           |
-| 05   | Device status model                              | [ ] Not started             | Heartbeat, battery, connectivity, pending upload, degraded state tests.   |
-| 06   | Permission and capability status model           | [ ] Not started             | Permission/platform/capability matrix tests.                              |
-| 07   | Retention and custody model                      | [ ] Not started             | Deletion, tombstone, export, custody, no-default-remote tests.            |
-| 08   | Android foreground location adapter              | [ ] Not started             | Android permission, fused/current/last known, and foreground proof.       |
-| 09   | Android background location and geofence adapter | [ ] Not started             | Background permission, enter/exit/dwell, and active geofence limit proof. |
-| 10   | Android battery connectivity and status adapter  | [ ] Not started             | Battery saver, offline, app killed, pending upload proof.                 |
-| 11   | iOS Core Location foreground adapter             | [ ] Not started             | Authorization/current sample proof.                                       |
-| 12   | iOS background region significant-change adapter | [ ] Not started             | Background/Always/region/significant-change/visit proof.                  |
-| 13   | Desktop location and presence hint model         | [ ] Not started             | Hint-only negative tests for LAN/Wi-Fi/IP.                                |
-| 14   | Geofence rule model                              | [ ] Not started             | Geometry, accuracy, grace, schedule, audit tests.                         |
-| 15   | Geofence transition engine                       | [ ] Not started             | Transition, stale, ambiguity, evidence/rule refs tests.                   |
-| 16   | Expected-place schedule engine                   | [ ] Not started             | School/home/activity/calendar/temporary schedule tests.                   |
-| 17   | Parent acknowledgement and exception model       | [ ] Not started             | Acknowledgement, holiday, false-alarm, still-alert tests.                 |
-| 18   | Child check-in flow                              | [ ] Not started             | Child copy, response, optional sample, audit, resolve-alert tests.        |
-| 19   | Nearby-place provider abstraction                | [ ] Not started             | Provider abstraction, ambiguity, retention, degradation tests.            |
-| 20   | Google Places and POI provider adapter           | [ ] Not started             | Field mask, bounded radius, response mapping, provider failure tests.     |
-| 21   | Place-risk taxonomy and ambiguity model          | [ ] Not started             | Category, ambiguity, low-accuracy, no-accusation tests.                   |
-| 22   | Local parent-defined place database              | [ ] Not started             | Parent-owned place CRUD, audit, export/delete tests.                      |
-| 23   | AI location safety analysis contracts            | [ ] Not started             | AI input/output schema, source refs, confidence, no-final-action tests.   |
-| 24   | AI provider routing                              | [ ] Not started             | Local/default, family hub, parent-approved remote, remote-disabled tests. |
-| 25   | Policy compiler for tracking rules               | [ ] Not started             | Policy action compile, capability, exception, AI candidate tests.         |
-| 26   | Alert severity and notification model            | [ ] Not started             | Severity, evidence refs, safe copy, action state tests.                   |
-| 27   | Escalation engine                                | [ ] Not started             | Acknowledgement-aware escalation and provider minimization tests.         |
-| 28   | Temporary live tracking mode                     | [ ] Not started             | Authorization, duration, disclosure, auto-expiry, retention tests.        |
-| 29   | Missing-device mode                              | [ ] Not started             | Last known, offline, battery, connectivity, parent actions tests.         |
-| 30   | Parent and child UI/UX surfaces                  | [ ] Not started             | Playwright states, accessibility, deleted-history, no-overclaim tests.    |
-| 31   | Platform extension checklists and proof routing  | [ ] Not started             | Android/iOS/desktop extension proof routing.                              |
-| 32   | Journal SQLite and read-model proof              | [ ] Not started             | Journal/replay/query/delete/read-model proof.                             |
-| 33   | Proof gates fixtures rollout and PR gate         | [ ] Not started             | Full proof pack, blockers, docs/checklist/roadmap update discipline.      |
+| Step | Workpack                                         | Status                      | Required proof                                                                                                         |
+| ---- | ------------------------------------------------ | --------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| 01   | Source index and repo reconciliation             | [x] Planning folder created | Source index and coverage audit.                                                                                       |
+| 02   | Current tracking snapshot and gap map            | [x] Planning folder created | Snapshot and gap map.                                                                                                  |
+| 03   | Contract boundary and Effect schemas             | [x] Contract proof complete | `output/tracking-plan-proof/03-contract-boundary-and-effect-schemas/`.                                                 |
+| 04   | Location evidence model                          | [x] Contract proof complete | `output/tracking-plan-proof/04-location-evidence-model/`.                                                              |
+| 05   | Device status model                              | [x] Contract proof complete | `output/tracking-plan-proof/05-device-status-model/`.                                                                  |
+| 06   | Permission and capability status model           | [x] Contract proof complete | `output/tracking-plan-proof/06-permission-and-capability-status-model/`.                                               |
+| 07   | Retention and custody model                      | [ ] Contract proof partial  | `output/tracking-plan-proof/07-retention-and-custody-model/`; runtime delete/export remains pending.                   |
+| 08   | Android foreground location adapter              | [ ] Not started             | Android permission, fused/current/last known, and foreground proof.                                                    |
+| 09   | Android background location and geofence adapter | [ ] Not started             | Background permission, enter/exit/dwell, and active geofence limit proof.                                              |
+| 10   | Android battery connectivity and status adapter  | [ ] Not started             | Battery saver, offline, app killed, pending upload proof.                                                              |
+| 11   | iOS Core Location foreground adapter             | [ ] Not started             | Authorization/current sample proof.                                                                                    |
+| 12   | iOS background region significant-change adapter | [ ] Not started             | Background/Always/region/significant-change/visit proof.                                                               |
+| 13   | Desktop location and presence hint model         | [x] Contract proof complete | `output/tracking-plan-proof/13-desktop-location-and-presence-hint-model/`.                                             |
+| 14   | Geofence rule model                              | [x] Contract proof complete | `output/tracking-plan-proof/14-geofence-rule-model/`.                                                                  |
+| 15   | Geofence transition engine                       | [ ] Contract proof partial  | `output/tracking-plan-proof/15-geofence-transition-engine/`; runtime engine remains pending.                           |
+| 16   | Expected-place schedule engine                   | [ ] Contract proof partial  | `output/tracking-plan-proof/16-expected-place-schedule-engine/`; runtime engine remains pending.                       |
+| 17   | Parent acknowledgement and exception model       | [x] Contract proof complete | `output/tracking-plan-proof/17-parent-acknowledgement-and-exception-model/`.                                           |
+| 18   | Child check-in flow                              | [x] Contract proof complete | `output/tracking-plan-proof/18-child-check-in-flow/`.                                                                  |
+| 19   | Nearby-place provider abstraction                | [x] Contract proof complete | `output/tracking-plan-proof/19-nearby-place-provider-abstraction/`.                                                    |
+| 20   | Google Places and POI provider adapter           | [ ] Not started             | Field mask, bounded radius, response mapping, provider failure tests.                                                  |
+| 21   | Place-risk taxonomy and ambiguity model          | [x] Contract proof complete | `output/tracking-plan-proof/21-place-category-taxonomy-and-ambiguity-model/`.                                          |
+| 22   | Local parent-defined place database              | [ ] Contract proof partial  | `output/tracking-plan-proof/22-local-parent-defined-place-database/`; CRUD/export/delete store remains pending.        |
+| 23   | AI location safety analysis contracts            | [x] Contract proof complete | `output/tracking-plan-proof/23-ai-location-safety-analysis-contracts/`.                                                |
+| 24   | AI provider routing                              | [x] Contract proof complete | `output/tracking-plan-proof/24-ai-provider-routing/`.                                                                  |
+| 25   | Policy compiler for tracking rules               | [ ] Contract proof partial  | `output/tracking-plan-proof/25-policy-compiler-for-tracking-rules/`; runtime compiler/evaluator remains pending.       |
+| 26   | Alert severity and notification model            | [x] Contract proof complete | `output/tracking-plan-proof/26-alert-severity-and-notification-model/`.                                                |
+| 27   | Escalation engine                                | [ ] Contract proof partial  | `output/tracking-plan-proof/27-escalation-engine/`; runtime execution remains pending.                                 |
+| 28   | Temporary live tracking mode                     | [ ] Contract proof partial  | `output/tracking-plan-proof/28-temporary-live-tracking-mode/`; live runtime/UI remains pending.                        |
+| 29   | Missing-device mode                              | [ ] Contract proof partial  | `output/tracking-plan-proof/29-missing-device-mode/`; runtime/UI remains pending.                                      |
+| 30   | Parent and child UI/UX surfaces                  | [ ] Not started             | Playwright states, accessibility, deleted-history, no-overclaim tests.                                                 |
+| 31   | Platform extension checklists and proof routing  | [x] Contract proof complete | `output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/`.                                      |
+| 32   | Journal SQLite and read-model proof              | [ ] Contract proof partial  | `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`; Rust journal/SQLite proof remains pending.       |
+| 33   | Proof gates fixtures rollout and PR gate         | [ ] Contract proof partial  | `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/`; full platform/UI/root gate remains pending. |
 
 ## Proof Pack Requirements
 
@@ -106,6 +121,14 @@ Each applicable proof pack must include:
 - [ ] `15-manual-platform-proof.md`
 - [ ] `16-validation-commands.log`
 
+Focused contract proof roots generated by
+`scripts/test/tracking-plan-contract-proof.mjs` currently include
+`00-source-snapshot.md`, `01-contract-proof.log`,
+`13-security-negative-proof.log`, `15-manual-platform-proof.md`,
+`16-validation-commands.log`, and `proof-summary.json`. Full platform,
+runtime, UI, Playwright, journal, and retention proof files remain unchecked
+until those implementations exist.
+
 ## Documentation Update Rule
 
 Every implementation workpack must update, or explicitly justify not updating:
@@ -125,11 +148,14 @@ Every implementation workpack must update, or explicitly justify not updating:
 - [x] Schema proposal exists.
 - [x] Raw tracking settings inventory exists.
 - [x] Tracking plan folder exists.
-- [ ] Location evidence contracts are not product-complete.
+- [x] Location evidence contracts have focused contract proof; runtime and UI
+      remain not product-complete.
 - [ ] Geofence transition runtime proof is not product-complete.
 - [ ] Expected-place schedule engine is not product-complete.
-- [ ] Nearby-place/AI safety analysis is not product-complete.
-- [ ] Parent acknowledgement/exception system is not product-complete.
+- [x] Nearby-place/AI safety analysis contracts have focused contract proof;
+      provider runtime and UI remain not product-complete.
+- [x] Parent acknowledgement/exception contracts have focused contract proof;
+      runtime and UI remain not product-complete.
 - [ ] Android background permission proof is not complete.
 - [ ] iOS background/region proof is not complete.
 - [ ] Retention/delete/export proof is not complete.

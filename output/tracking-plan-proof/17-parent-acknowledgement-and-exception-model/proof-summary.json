@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-06-03T03:12:57.282Z",
+  "commit": "d55d6002bfa9d66efaede0d47c13cfe4ea1860d6",
+  "workpackId": "17-parent-acknowledgement-and-exception-model",
+  "proofState": "contract-proof-complete",
+  "summary": "Parent acknowledgement and exception state is typed with critical-alert non-suppression visibility.",
+  "commands": [
+    {
+      "command": "cmd /c npm --workspace @ocentra-parent/activity-domain run build",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm --workspace @ocentra-parent/activity-domain run test -- tracking",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm --workspace @ocentra-parent/parent-domain run build",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm --workspace @ocentra-parent/parent-domain run test -- tracking-location-policy",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm run lint:schema-boundaries",
+      "exitCode": 0
+    }
+  ],
+  "productClaims": {
+    "contractProof": true,
+    "androidIosBackgroundLocationClaimed": false,
+    "preciseLocationFromLanIpWifiClaimed": false,
+    "uiCompleteClaimed": false,
+    "providerDeliveryClaimed": false,
+    "remoteSyncEnabledByDefault": false
+  }
+}

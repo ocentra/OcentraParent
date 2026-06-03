@@ -252,6 +252,10 @@
     "./tracking-control-catalog": {
       "import": "./dist/tracking-control-catalog.js",
       "types": "./dist/tracking-control-catalog.d.ts"
+    },
+    "./tracking-location-policy": {
+      "import": "./dist/tracking-location-policy.js",
+      "types": "./dist/tracking-location-policy.d.ts"
     }
   },
   "scripts": {
