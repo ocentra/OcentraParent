@@ -19,7 +19,8 @@ metadata alone.
   [policy](../expectations/policy.md),
   [enforcement](../expectations/enforcement.md).
 - Supporting docs:
-  [network settings inventory](../network-control-settings-inventory.md).
+  [network settings inventory](../network-control-settings-inventory.md),
+  [network plan](../plans/network-plan/README.md).
 - Modules: `packages/activity-domain`, `packages/parent-domain`,
   `crates/agent-core`, `crates/agent-service`.
 
@@ -54,6 +55,9 @@ compete on control while staying clear about attribution confidence and privacy.
   network-domain-observe-only result with flow evidence refs and an explicit
   host-network-domain-filter manual-required row with required apply/rollback
   artifacts, preserving the no host-filter execution boundary.
+- The full-scope network plan now records the end-state evidence,
+  intervention, event-bus, analyzer, AI audit, risk-budget, proof-tier, UI, and
+  workpack path without upgrading current runtime claims.
 - Network/domain blocking is not broadly product-complete.
 - Raw network control settings are preserved as design inputs, not
   product-complete implementation proof.
@@ -61,11 +65,14 @@ compete on control while staying clear about attribution confidence and privacy.
 ## Current Gap
 
 Real OS/domain blocking adapter proof, DNS/VPN/proxy handling, attribution
-quality, and parent-facing rule UX remain. Policy dispatch does not upgrade
-network/domain blocking beyond manual-required, and the broad-adapter proof
-and supported-adapter runtime proof keep the same manual-required host-filter
-boundary. The integrity runtime audit proves observe-only and manual-required
-state visibility, not DNS, VPN, packet, or host filter enforcement.
+quality, PCAP/analyzer fixture proof, reusable Rust eventing implementation,
+network event contracts, AI detection and audit proof, risk-budget proof,
+performance proof, and parent-facing rule UX remain. Policy dispatch does not
+upgrade network/domain blocking beyond
+manual-required, and the broad-adapter proof and supported-adapter runtime proof
+keep the same manual-required host-filter boundary. The integrity runtime audit
+proves observe-only and manual-required state visibility, not DNS, VPN, packet,
+signature alert, risk-budget, or host filter enforcement.
 
 ## Checklist
 
@@ -73,8 +80,12 @@ state visibility, not DNS, VPN, packet, or host filter enforcement.
 - [ ] Domain/IP/protocol/process attribution status.
 - [ ] VPN/proxy/tunnel indicators where available.
 - [ ] Network category/risk targets.
+- [ ] PCAP fixture, Zeek-style summary, and Suricata/Snort-compatible alert
+      proof.
+- [ ] Reusable Rust eventing, detection, AI audit, and risk-budget contracts.
 - [ ] Policy preview over stored flow evidence.
 - [ ] Adapter capability status.
+- [x] Full-scope network plan, proof tiers, UI requirements, and workpacks.
 - [ ] Real block/terminate/unavailable result.
 - [ ] No decrypted payload/page-content claim.
 
@@ -83,4 +94,7 @@ state visibility, not DNS, VPN, packet, or host filter enforcement.
 Separate observation, attribution, classification, and enforcement. Add unknown
 states instead of guessing a process, site, or category. Host network/domain
 blocking needs explicit apply, rollback, and audit artifacts before any claim
-upgrade beyond the current integrity runtime audit.
+upgrade beyond the current integrity runtime audit. Analyzer alerts and AI audit
+reports are evidence inputs only; policy and adapter proof remain the authority
+for any action. Do not wire a network-only event bus; implement the reusable
+Rust eventing plan first.

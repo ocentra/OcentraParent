@@ -21,6 +21,7 @@ policy execution, enforcement, audit, and capability state.
   [enforcement](../expectations/enforcement.md).
 - Modules: `crates/agent-service`, `crates/agent-core`,
   `crates/agent-protocol`, `packages/agent-protocol-domain`.
+- Supporting docs: [reusable Rust eventing plan](../plans/eventing-plan/README.md).
 
 ## Competitor Pressure
 
@@ -52,13 +53,18 @@ and clear degraded states.
   states across existing Android package/service/storage/permission/privileged
   proof gates and iOS entitlement proof without claiming real mobile parity.
 - Production service hardening and all adapter paths are not complete.
+- A reusable Rust eventing plan now defines the shared event bus target for
+  parent/controller and child-agent Rust runtimes. It does not upgrade runtime
+  behavior until `crates/ocentra-eventing` and its tests exist.
 
 ## Current Gap
 
 The service is real enough for local/LAN proof and local hardware visibility,
 but not yet a fully hardened consumer child-agent across signed LAN
 advertisement, capture, enforcement, notifications, updates, tamper/integrity,
-and support diagnostics.
+and support diagnostics. The Rust runtime also lacks the reusable shared event
+bus needed before network, AI, policy, enforcement, audit, parent-controller,
+and child-agent event chains should be wired broadly.
 
 ## Checklist
 
@@ -67,6 +73,8 @@ and support diagnostics.
 - [ ] LAN child-agent identity advertisement, heartbeat, and pairing proof
       across a second physical child device.
 - [ ] Evidence capture and journal writes.
+- [ ] Reusable Rust eventing crate shared by parent/controller and child-agent
+      runtimes, with UI/Vite kept view/input only.
 - [ ] Policy and AI read paths.
 - [ ] Enforcement adapter dispatch with audit.
 - [ ] Capability and degraded-state reporting. Current mobile capability proof
@@ -84,4 +92,6 @@ and support diagnostics.
 
 Do not add child-device authority to the portal. For any runtime capability,
 add the TypeScript contract, Rust protocol parity, service/core behavior, real
-tests, and portal read-state only after the service state exists.
+tests, and portal read-state only after the service state exists. The Vite/TS
+surface can send typed parent intents and render service-backed read models,
+but business event chains belong in Rust.
