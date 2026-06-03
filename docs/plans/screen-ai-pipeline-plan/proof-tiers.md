@@ -42,6 +42,13 @@ capability, such as MediaProjection consent/foreground-service behavior. Docker,
 WSL, and Android Studio are acceptable local tools for setup and validation
 where they can exercise the real adapter boundary.
 
+Current stacked branch Android proof records the emulator side of that rule at
+`output/screen-plan-proof/android-mediaprojection/proof-summary.json`: Android
+API 35 MediaProjection consent UI, foreground service, captured frame digest,
+and raw temporary frame deletion. This is adapter proof for the exercised
+emulator only. It does not satisfy P4 physical-device parity and does not claim
+silent background capture.
+
 Linux proof must split X11 and Wayland claims. X11 can claim only a real X11
 desktop/session capture. Wayland must prove the desktop-portal/PipeWire
 permission/session path. WSL/WSLg compile or fixture runs are not Linux

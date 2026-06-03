@@ -40,15 +40,23 @@ only with explicit parent settings.
   policy eligibility with focused contract tests plus
   `scripts/test/screen-evidence-settings-retention-proof.mjs`.
 - Local AI and policy can consume evidence summaries in dry-run paths.
+- Windows local adapter proof now captures active-window, selected-window, and
+  parent-opt-in primary-display scopes with encrypted temporary custody and raw
+  delete-after-success proof.
+- Android child-agent scaffold now has emulator MediaProjection proof with
+  explicit OS consent, foreground service, captured frame digest, and raw temp
+  deletion. Physical Android parity and silent background capture are not
+  claimed.
 - Product settings and quality proof are incomplete.
 - Raw screen control settings are preserved as design inputs, not
   product-complete implementation proof.
 
 ## Current Gap
 
-Opt-in UI, actual screenshot capture scheduling, OCR/vision model quality,
-runtime deletion proof, enforcement handoff, checklist status movement, and
-parent explanation UX remain.
+Opt-in UI, product screenshot capture scheduling, OCR/vision model quality,
+runtime service/read-model wiring, physical Android/iOS/macOS/Linux proof,
+enforcement handoff, checklist status movement, and parent explanation UX
+remain.
 
 ## Checklist
 
