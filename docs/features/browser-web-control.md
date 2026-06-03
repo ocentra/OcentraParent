@@ -540,10 +540,7 @@ post-analysis actions where applicable, and require adapter proof before claimin
 delivered checking, warning, block, or approval pages. They reject raw
 child-facing copy, shaming/surveillance copy claims, visual-render claims,
 state/token mismatches, rendered child pages without adapter proof, and
-warning/block/approval states without matching post-analysis actions. The
-activity-domain package subpath export remains pending while A owns
-`packages/activity-domain/package.json`; no visual UI, browser page renderer,
-runtime delivery, enforcement, or product checklist upgrade is claimed.
+warning/block/approval states without matching post-analysis actions. Activity-domain and text-domain package subpath exports are now present; no visual UI, browser page renderer, runtime delivery, enforcement, or product checklist upgrade is claimed.
 AI-20 now adds browser AI parent explanation/audit UX contracts and text-domain
 parent explanation tokens. Explanation bundles link evidence, AI analysis,
 policy decision, post-analysis action, child UX snapshot, memory/cache refs,
@@ -551,11 +548,7 @@ graph refs, and audit refs while making evidence, model runtime, prompt version,
 policy rule, action, child experience, child-saw-page, degraded/manual fallback,
 and audit visibility explicit. They reject raw page content, raw prompt text,
 portal evaluation, policy authority, direct enforcement, hidden fallback, hidden
-child engagement, missing audit sections, and mismatched source evidence. The
-activity-domain package subpath export remains pending while A owns
-`packages/activity-domain/package.json`; no parent UI component, portal visual
-rendering, runtime delivery, enforcement, or product checklist upgrade is
-claimed.
+child engagement, missing audit sections, and mismatched source evidence. Activity-domain and text-domain package subpath exports are now present; no parent UI component, portal visual rendering, runtime delivery, enforcement, or product checklist upgrade is claimed.
 AI-21 now extends deterministic YouTube parser coverage and adds a YouTube
 metadata adapter. Managed exact YouTube watch, Shorts, embed, live, channel, and
 playlist URLs can produce schema-backed shape rows, and exact YouTube video,

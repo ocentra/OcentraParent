@@ -79,8 +79,7 @@ SOCIAL-02 now adds schema-backed platform and route evidence contracts in
 `packages/activity-domain/src/browser-social-platform-route-schemas.ts`. The
 contracts reference URL-shape classification ids for managed-browser route
 evidence and preserve manual-required/bypass-only states for unmanaged or native
-app sources. Public package/barrel exports remain pending source/package
-coordination.
+app sources. Activity-domain package subpath exports are now present.
 
 SOCIAL-03 now adds
 `packages/activity-domain/src/browser-social-url-patterns.ts`, a deterministic
@@ -98,7 +97,7 @@ account-switch social routes. It can represent manual-required account-flow
 states, but it does not prove account identity, credentials, form submission,
 completed account creation, login success, parent approval decisions, policy
 decisions, UI delivery, connector access, native app control, or enforcement.
-Public package/barrel exports remain pending source/package coordination.
+Activity-domain package subpath exports are now present.
 
 SOCIAL-05 now adds
 `packages/activity-domain/src/browser-social-form-shape-detector.ts`, a
@@ -132,8 +131,7 @@ route-only classifier for dynamic feeds, short-video feed surfaces, and exact
 single-short-video routes. It consumes validated route evidence and sanitized
 surface hints only, without claiming feed content, recommendations, messages, AI
 decisions, policy decisions, connector access, native app control, UI delivery,
-or enforcement. Public package/barrel exports remain pending source/package
-coordination.
+or enforcement. Activity-domain package subpath exports are now present.
 
 SOCIAL-09 now adds
 `packages/activity-domain/src/browser-social-video-metadata.ts`, a bounded
@@ -153,8 +151,7 @@ evidence refs, candidate classifications, confidence, uncertainty, model runtime
 refs, and degraded states for managed-browser social route evidence. They reject
 raw browser/page/feed/message/transcript/screenshot/native/connector state,
 final policy actions, enforcement, raw model text/content storage, native app
-control, connector claims, and inconsistent degraded states. Public
-package/barrel exports remain pending source/package coordination.
+control, connector claims, and inconsistent degraded states. Activity-domain package subpath exports are now present.
 
 SOCIAL-11 now adds
 `packages/activity-domain/src/browser-social-riskbenefit-values.ts` and
@@ -199,7 +196,7 @@ manual-review, and unknown-warn candidates. It rejects browser navigation block
 execution, redirects, CSS/DOM hiding, tab closing, applied time limits,
 child/parent UI, final policy decisions, feed/video content capture,
 recommendation modeling, native app control, connector claims, and enforcement.
-Public package/barrel exports remain pending source/package coordination.
+Activity-domain package subpath exports are now present.
 
 SOCIAL-15 now adds
 `packages/activity-domain/src/browser-social-unmanaged-bypass-detector-values.ts`
@@ -209,8 +206,7 @@ browser-like process evidence into bypass-only social evidence with
 managed-browser-required state. It rejects exact URL proof, managed-session
 boundaries, route evidence, social account proof, feed/video route proof,
 messages, account identity, native app control, connector access, child/parent
-UI, process termination, managed browser relaunch, and enforcement. Public
-package/barrel exports remain pending source/package coordination.
+UI, process termination, managed browser relaunch, and enforcement. Activity-domain package subpath exports are now present.
 
 SOCIAL-16 now adds
 `packages/parent-domain/src/social-android-native-app-capability-matrix-values.ts`
