@@ -70,6 +70,14 @@ Expected contract families are:
 
 Stripe-specific API shapes stay behind the billing backend boundary. Runtime safety modules receive only Ocentra-owned contracts.
 
+Current endpoint proof: `billing-account-endpoint-contract-proof` defines
+endpoint-domain route ids, API paths, headers, query params, and
+contract-version labels for account status, plan/entitlement snapshot,
+subscription status, device-limit decision, and account download/update/status
+surfaces. The proof is route contract only; it does not add Stripe SDK code,
+billing provider logic, an account backend, portal UI, updater runtime, or
+child-activity custody.
+
 ## Entitlement Boundaries
 
 Entitlements may gate:
@@ -106,6 +114,10 @@ Any feature that can be disabled for billing must define its degraded local beha
 - Trial state.
 - Device limit policy.
 - Grace/failure behavior.
+- Account, entitlement, subscription, device-limit, download, update, and
+  release-status endpoint route contracts. Current
+  `billing-account-endpoint-contract-proof` covers this contract-only endpoint
+  boundary.
 
 ## Acceptance
 
@@ -118,6 +130,9 @@ Any feature that can be disabled for billing must define its degraded local beha
 ## Validation Gates
 
 - TypeScript schema tests prove valid/invalid plans, entitlement snapshots, subscription statuses, billing sync events, device-limit decisions, and failure states.
+- Endpoint-domain contract tests and `billing-account-endpoint-contract-proof`
+  prove account, entitlement, subscription, device-limit, download, update, and
+  release-status route boundaries before provider/backend code exists.
 - Backend tests prove Stripe references are isolated behind the billing boundary before provider code exists.
 - Child-device tests prove safety modules consume typed entitlement snapshots only and do not import billing provider code.
 - Failure tests cover unavailable provider, stale snapshot, expired trial, grace mode, payment required, and device-limit denial.

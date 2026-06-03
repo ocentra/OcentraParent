@@ -17,6 +17,10 @@
       "import": "./dist/constants/lan-pairing.js",
       "types": "./dist/constants/lan-pairing.d.ts"
     },
+    "./constants/billing-account": {
+      "import": "./dist/constants/billing-account.js",
+      "types": "./dist/constants/billing-account.d.ts"
+    },
     "./constants/sync-export": {
       "import": "./dist/constants/sync-export.js",
       "types": "./dist/constants/sync-export.d.ts"

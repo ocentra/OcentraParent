@@ -68,6 +68,12 @@ dev-only repo when it claims consumer readiness.
   unavailable, phone-local-model disabled, and package/signing/store
   manual-required states without promoting mobile controller authority or child
   mobile parity.
+- `billing-account-endpoint-contract-proof` defines endpoint-domain route ids,
+  API paths, headers, query params, and contract-version labels for account
+  status, plan/entitlement snapshot, subscription status, device-limit decision,
+  and account download/update/status surfaces. It is route contract proof only:
+  no Stripe SDK, billing provider backend, account backend, portal UI, updater
+  runtime, or child-activity custody is implemented.
 - Billing/support/public website/store distribution are planned or incomplete.
 
 ## Current Gap
@@ -105,7 +111,12 @@ package/runtime proof.
       controller-candidate behavior manual-required, LAN/provider routing
       unavailable, parent cache stale, parent-owned storage offline, and
       entitlement/TestFlight/device proof unclaimed.
-- [ ] Billing/subscription/account flow.
+- [ ] Billing/subscription/account flow. Current
+      `billing-account-endpoint-contract-proof` covers endpoint contracts for
+      account status, entitlement snapshot, subscription status, device-limit
+      decision, and download/update/status surfaces only; billing provider
+      integration, account backend, entitlement runtime, and UI remain
+      incomplete.
 - [ ] Privacy, retention, export/delete, and support docs.
 - [ ] Support bundle redaction proof scaffold and incident process. Current
       release-support proof requires parent consent, incident/status metadata,
