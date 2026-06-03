@@ -52,6 +52,10 @@ Proved today:
   for typed inventory, runtime, foreground, and launcher rows, including
   inventory, running-now, foreground-now, launcher, and daily rollup read-model
   projection plus invalid evidence and duplicate-duration guards.
+- App/game service read models now expose the staged journal/SQLite projection
+  through typed app-use and games activity-surface DTOs with product,
+  classification, inventory, runtime, foreground, capability, last-observed,
+  source-count, and evidence-ref fields.
 - App-control and game-control catalog/authoring contracts exist in
   `packages/parent-domain`.
 - Rust app/game session protocol mirrors exist.
@@ -69,12 +73,14 @@ Not proved today:
 - Live Microsoft Store/UWP/AppX/MSIX package enumeration, Store API integration,
   install approval, purchase approval, or package-wide blocking.
 - Live Windows process polling, process start/exit subscription, executable
-  metadata collection, publisher/signature/hash collection, service events, or
-  portal runtime rows for the new WP08 contract. Journal replay is currently
-  staged fixture proof, not live source wiring.
-- Live Windows foreground-window polling, active-window subscription, service
-  events, or portal foreground rows for the new WP09 contract. Journal replay
-  is currently staged fixture proof, not live source wiring.
+  metadata collection, publisher/signature/hash collection, or portal runtime
+  dashboard rows for the new WP08 contract. Journal replay and service
+  read-model exposure are currently staged fixture proof, not live source
+  wiring.
+- Live Windows foreground-window polling, active-window subscription, or portal
+  foreground dashboard rows for the new WP09 contract. Journal replay and
+  service read-model exposure are currently staged fixture proof, not live
+  source wiring.
 - Product-complete native game catalog, live launcher disambiguation, and game
   budgets.
 - New/unknown app and unknown game approval flow.
@@ -134,7 +140,7 @@ as:
 - live Windows foreground-window polling or subscribed foreground transition
   events;
 - live launcher manifest adapters;
-- service events and portal read-model exposure for replayed app/game rows;
+- dedicated portal dashboard rendering for replayed app/game rows;
 - foreground app evidence adapters;
 - game-specific launcher-child process disambiguation;
 - broad block-launch enforcement;
@@ -164,30 +170,34 @@ Missing portal states include:
 - App/game identity contracts are present, but runtime identity merge behavior
   and adapter-fed identity refs are not implemented yet.
 - Inventory evidence row contracts and Rust inventory-row parity are present,
-  Windows installed-record plus Store/UWP package parser proof exists, and
-  staged journal/SQLite replay proof now projects inventory rows, but live
-  platform crawling, service events, and portal rows are not implemented yet.
+  Windows installed-record plus Store/UWP package parser proof exists, staged
+  journal/SQLite replay proof now projects inventory rows, and service
+  activity-surface read models now expose typed inventory state, but live
+  platform crawling and dedicated portal dashboard rows are not implemented yet.
 - Runtime evidence contracts and Rust runtime-row parity are present, a staged
-  Windows process runtime parser proof exists, and staged journal/SQLite replay
-  proof now projects running-now rows, but live process capture, executable
-  metadata crawling, service events, and portal runtime rows are not implemented
-  yet.
+  Windows process runtime parser proof exists, staged journal/SQLite replay
+  proof now projects running-now rows, and service activity-surface read models
+  now expose typed runtime state, but live process capture, executable metadata
+  crawling, and dedicated portal runtime rows are not implemented yet.
 - Foreground evidence contracts and Rust foreground-row parity are present, a
-  staged Windows foreground-window parser proof exists, and staged
-  journal/SQLite replay proof now projects foreground-now rows, but live
-  foreground capture, service events, portal foreground rows, and content-aware
-  claims are not implemented.
+  staged Windows foreground-window parser proof exists, staged journal/SQLite
+  replay proof now projects foreground-now rows, and service activity-surface
+  read models now expose typed foreground state, but live foreground capture,
+  dedicated portal foreground rows, and content-aware claims are not
+  implemented.
 - Rust protocol parity has not yet mirrored the WP01 evidence claim, AI digest,
   app/game control authority schemas, or WP04 identity schemas.
 - Journal and SQLite ingest now covers staged app/game inventory, runtime,
-  foreground, launcher, and daily rollup rows. It does not yet store the WP01
-  evidence-claim or authority proof shapes, and it is not yet wired to live
-  source subscriptions, service events, or portal rows.
-- Portal app/game dashboard rows do not yet consume the new contracts.
-- Launcher evidence has contract/protocol/parser proof, but live launcher
-  crawling, journal/read-model ingest, service events, portal rows, and
-  game-budget policy are not product-complete. A launcher row must not become a
-  game session unless linked child-game proof exists.
+  foreground, launcher, and daily rollup rows, and the service now maps those
+  rows into app-use and games activity-surface read models. It does not yet
+  store the WP01 evidence-claim or authority proof shapes, and it is not yet
+  wired to live source subscriptions or dedicated portal dashboard rows.
+- Portal app/game dashboard rows do not yet consume the new contracts; only
+  service-facing activity-surface DTOs are wired in this slice.
+- Launcher evidence has contract/protocol/parser proof and service DTO exposure
+  from staged projection rows, but live launcher crawling, dedicated portal
+  rows, and game-budget policy are not product-complete. A launcher row must
+  not become a game session unless linked child-game proof exists.
 - Game categories, ratings, UGC, multiplayer, purchase signals, and app risk
   labels are now represented as contract-level policy inputs, but not live
   classifier output, product UI proof, or safety decisions by themselves.
@@ -241,9 +251,13 @@ Missing portal states include:
   foreground-now, launcher, and daily rollup rows. It does not add live source
   subscriptions, service events, portal dashboard rows, policy execution,
   approval flow, corruption/recovery proof, UI proof, or broad blocking.
-- Next implementation work should either add live Windows inventory source
-  readers, encrypted journal ingest plus service/read-model events, or mirror
-  the remaining WP01/WP04 TypeScript shapes into Rust protocol before
+- WP15 adds service-backed app-use and games activity-surface read-model DTOs
+  over the staged app-game journal/SQLite projection. It does not add dedicated
+  portal dashboard UI, policy/approval read models, live source subscriptions,
+  platform authority changes, UI proof, or broad blocking.
+- Next implementation work should either add dedicated portal dashboard
+  consumption of the service rows, live Windows inventory source readers, or
+  mirror the remaining WP01/WP04 TypeScript shapes into Rust protocol before
   service/runtime consumers depend on them.
 
 ## Enhancement Rule

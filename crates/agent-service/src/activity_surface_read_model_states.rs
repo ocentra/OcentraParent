@@ -89,17 +89,6 @@ pub(crate) fn offline_app_use_read_model(
     }
 }
 
-pub(crate) fn empty_games_read_model(request: ActivitySurfaceRequest) -> ActivityGamesReadModel {
-    ActivityGamesReadModel {
-        schema_version: ACTIVITY_SURFACE_SCHEMA_VERSION,
-        request,
-        state: ActivityReadModelState::Empty,
-        generated_at: timestamp_now(),
-        summary: constants::activity_surface::SUMMARY_EMPTY.to_string(),
-        rows: Vec::new(),
-    }
-}
-
 pub(crate) fn unavailable_games_read_model(
     request: ActivitySurfaceRequest,
 ) -> ActivityGamesReadModel {

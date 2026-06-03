@@ -41,10 +41,29 @@ fn journal_replay_produces_app_game_sqlite_read_model_rows() {
     let model = app_game_journal_sqlite_read_model(
         &store.connection,
         constants::activity_store::DEFAULT_RECENT_LIMIT,
+        constants::activity_store::TEST_SECOND_OBSERVED_AT,
     )
     .expect(constants::error::ACTIVITY_STORE_QUERIES);
 
     assert_eq!(lines.len(), 5);
+
+    assert_eq!(
+        model.generated_at,
+        constants::activity_store::TEST_SECOND_OBSERVED_AT
+    );
+    assert_eq!(model.inventory_returned, 1);
+    assert_eq!(model.running_now_returned, 1);
+    assert_eq!(model.foreground_now_returned, 1);
+    assert_eq!(model.launcher_returned, 1);
+    assert_eq!(model.daily_rollup_returned, 1);
+    assert_eq!(
+        model.custody_label,
+        ocentra_parent_agent_protocol::APP_GAME_JOURNAL_CUSTODY_LOCAL_SQLITE
+    );
+    assert_eq!(
+        model.replay_state,
+        ocentra_parent_agent_protocol::APP_GAME_JOURNAL_REPLAY_STATE_REPLAYED
+    );
 
     assert_eq!(model.inventory_rows.len(), 1);
     assert_eq!(model.running_now_rows.len(), 1);
@@ -160,6 +179,7 @@ fn duplicate_runtime_observations_do_not_double_count_duration_after_replay() {
     let model = app_game_journal_sqlite_read_model(
         &store.connection,
         constants::activity_store::DEFAULT_RECENT_LIMIT,
+        constants::activity_store::TEST_SECOND_OBSERVED_AT,
     )
     .expect(constants::error::ACTIVITY_STORE_QUERIES);
 

@@ -244,6 +244,27 @@ pub struct AppGameSessionReport {
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct AppGameServiceReadModel {
+    pub schema_version: u16,
+    pub generated_at: String,
+    pub limit: u64,
+    pub custody_label: String,
+    pub replay_state: String,
+    pub capability_status: String,
+    pub inventory_returned: u64,
+    pub running_now_returned: u64,
+    pub foreground_now_returned: u64,
+    pub launcher_returned: u64,
+    pub daily_rollup_returned: u64,
+    pub inventory_rows: Vec<AppGameInventoryEvidenceRow>,
+    pub running_now_rows: Vec<AppGameRuntimeEvidenceRow>,
+    pub foreground_now_rows: Vec<AppGameForegroundEvidenceRow>,
+    pub launcher_rows: Vec<AppGameLauncherEvidenceRow>,
+    pub daily_rollups: Vec<AppGameSessionDailyRollup>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct AppGameRuntimeEvidenceRow {
     pub schema_version: u16,
     pub runtime_evidence_id: String,

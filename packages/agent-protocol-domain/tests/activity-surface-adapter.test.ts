@@ -198,7 +198,8 @@ describe('activity surface adapter boundary', () => {
   specifyRequestCreation();
   specifyCommandCreation();
   specifyStorageUnavailableHistoryParsing();
-  specifyEventParsing();
+  specifyReportEventParsing();
+  specifyReadModelEventParsing();
   specifyServiceUiSpineParsing();
 });
 
@@ -326,7 +327,7 @@ function specifyCommandCreation() {
   });
 }
 
-function specifyEventParsing() {
+function specifyReportEventParsing() {
   it('creates and parses historical report list messages for the Activity UI handoff', () => {
     const command = createActivityReportHistoryCommand(commandInput());
     const parsed = parseActivityReportHistoryEvent(
@@ -370,7 +371,9 @@ function specifyEventParsing() {
     expect(parsed.ok ? parsed.state : null).toBe('unavailable');
     expect(derived.ok ? derived.state : null).toBe('unavailable');
   });
+}
 
+function specifyReadModelEventParsing() {
   it('parses typed read-model events and reports missing JSON as unavailable adapter failure', () => {
     const parsed = parseActivityReadModelEvent(
       'app-use',
@@ -395,6 +398,50 @@ function specifyEventParsing() {
     expect(missing.ok).toBe(false);
     expect(missing.ok ? null : missing.state).toBe('unavailable');
     expect(missing.ok ? null : missing.reason).toBe('missing-json-field');
+  });
+
+  it('parses service-backed app-use rows with app-game source counts', () => {
+    const parsed = parseActivityReadModelEvent(
+      'app-use',
+      eventEnvelope(AgentEvent.ActivityAppUseReadModelReported, {
+        [AgentProtocolDefaults.Field.ActivityReadModel]: JSON.stringify({
+          schemaVersion: ActivitySurfaceSchemaVersion,
+          request: Request,
+          state: 'ready',
+          generatedAt: '2026-05-27T20:10:01Z',
+          summary: 'Activity data is available from the local query store.',
+          rows: [
+            {
+              rowId: 'foreground-evidence-window-4242',
+              appName: 'ocentra-fixture.exe',
+              deviceId: 'local-dev-agent',
+              state: 'ready',
+              productKind: 'nativeApp',
+              classificationState: 'knownApp',
+              inventoryState: 'installed',
+              runtimeState: 'running',
+              foregroundState: 'foreground',
+              capabilityStatus: 'available',
+              lastObservedAt: '2026-05-27T20:09:00Z',
+              totalMs: 60000,
+              launchCount: 1,
+              inventoryRowCount: 1,
+              runningRowCount: 1,
+              foregroundRowCount: 1,
+              dailyRollupCount: 1,
+              evidence: [],
+            },
+          ],
+        }),
+      })
+    );
+
+    const row = parsed.ok
+      ? (parsed.value.rows[0] as { readonly foregroundState?: string; readonly dailyRollupCount?: number } | undefined)
+      : undefined;
+    expect(parsed.ok).toBe(true);
+    expect(row?.foregroundState).toBe('foreground');
+    expect(row?.dailyRollupCount).toBe(1);
   });
 }
 

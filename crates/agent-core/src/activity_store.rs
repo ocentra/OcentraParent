@@ -2,14 +2,14 @@ use std::path::Path;
 
 use ocentra_parent_agent_protocol::{
     constants, ActivityEvent, ActivityIngestStatus, ActivityMemoryGraphReadModel,
-    ActivityNetworkFlowReadModel, ActivityRecentSummary, AppGameSessionReport,
-    BrowserEvidenceReadModel, LocalAiParentRuleContextRef, PolicyPreviewReadModel,
-    ScreenEvidenceRecentSummary, ACTIVITY_QUERY_SCHEMA_VERSION,
+    ActivityNetworkFlowReadModel, ActivityRecentSummary, AppGameServiceReadModel,
+    AppGameSessionReport, BrowserEvidenceReadModel, LocalAiParentRuleContextRef,
+    PolicyPreviewReadModel, ScreenEvidenceRecentSummary, ACTIVITY_QUERY_SCHEMA_VERSION,
 };
 use rusqlite::{params, Connection};
 
 use crate::{
-    activity_store_app_game::app_game_session_report,
+    activity_store_app_game::{app_game_service_read_model, app_game_session_report},
     activity_store_browser::browser_evidence_read_model,
     activity_store_connection::initialize_connection,
     activity_store_memory_graph::activity_memory_graph_read_model,
@@ -20,6 +20,8 @@ use crate::{
     activity_store_screen_evidence::screen_evidence_recent_summary,
     ActivityJournal, ActivityStoreError,
 };
+
+mod internals;
 
 pub struct ActivityStore {
     pub(crate) connection: Connection,
@@ -45,11 +47,11 @@ impl ActivityStore {
         let mut ingested = 0;
         let mut duplicate_events = 0;
         for event in events {
-            if self.has_event_id(&event.event_id)? {
+            if internals::has_event_id(&self.connection, &event.event_id)? {
                 duplicate_events += 1;
                 continue;
             }
-            self.insert_event(event)?;
+            internals::insert_event(&self.connection, event)?;
             ingested += 1;
         }
 
@@ -96,6 +98,14 @@ impl ActivityStore {
         limit: u64,
     ) -> Result<AppGameSessionReport, ActivityStoreError> {
         app_game_session_report(&self.connection, limit)
+    }
+
+    pub fn app_game_service_read_model(
+        &self,
+        limit: u64,
+        generated_at: &str,
+    ) -> Result<AppGameServiceReadModel, ActivityStoreError> {
+        app_game_service_read_model(&self.connection, limit, generated_at)
     }
 
     pub fn activity_memory_graph_read_model(
@@ -146,60 +156,9 @@ impl ActivityStore {
             schema_version: ACTIVITY_QUERY_SCHEMA_VERSION,
             database_ready: true,
             events_ingested,
-            events_stored: self.event_count()?,
+            events_stored: internals::event_count(&self.connection)?,
             duplicate_events,
-            last_event_id: self.last_event_id()?,
+            last_event_id: internals::last_event_id(&self.connection)?,
         })
-    }
-
-    fn has_event_id(&self, event_id: &str) -> Result<bool, ActivityStoreError> {
-        let count: i64 = self.connection.query_row(
-            constants::sqlite::COUNT_ACTIVITY_EVENT_ID,
-            params![event_id],
-            |row| row.get(0),
-        )?;
-        Ok(count > 0)
-    }
-
-    fn insert_event(&self, event: &ActivityEvent) -> Result<(), ActivityStoreError> {
-        let fields_json = serde_json::to_string(&event.fields)?;
-        let evidence_json = serde_json::to_string(&event.evidence)?;
-        self.connection.execute(
-            constants::sqlite::INSERT_ACTIVITY_EVENT,
-            params![
-                &event.event_id,
-                &event.observed_at,
-                &event.source.device_id,
-                &event.source.platform,
-                event.source.observer.as_protocol_str(),
-                event.kind.as_protocol_str(),
-                event.subject.kind.as_protocol_str(),
-                &event.subject.subject_id,
-                event.subject.display_name.as_deref(),
-                fields_json,
-                evidence_json
-            ],
-        )?;
-        Ok(())
-    }
-
-    fn event_count(&self) -> Result<u64, ActivityStoreError> {
-        let count: i64 =
-            self.connection
-                .query_row(constants::sqlite::COUNT_ACTIVITY_EVENTS, [], |row| {
-                    row.get(0)
-                })?;
-        Ok(count as u64)
-    }
-
-    fn last_event_id(&self) -> Result<Option<String>, ActivityStoreError> {
-        let mut statement = self
-            .connection
-            .prepare(constants::sqlite::LAST_ACTIVITY_EVENT_ID)?;
-        let mut rows = statement.query([])?;
-        match rows.next()? {
-            Some(row) => Ok(Some(row.get(0)?)),
-            None => Ok(None),
-        }
     }
 }

@@ -63,6 +63,7 @@ Current app/game evidence and session contracts live in:
 - `packages/activity-domain/src/app-game-foreground.ts`
 - `packages/activity-domain/src/app-game-session-primitives.ts`
 - `packages/activity-domain/src/app-game.ts`
+- `packages/activity-domain/src/activity-surface.ts`
 - `packages/activity-domain/tests/app-game.test.ts`
 - `packages/activity-domain/tests/app-game-evidence-claim.test.ts`
 - `packages/activity-domain/tests/app-game-identity.test.ts`
@@ -70,6 +71,7 @@ Current app/game evidence and session contracts live in:
 - `packages/activity-domain/tests/app-game-category-risk.test.ts`
 - `packages/activity-domain/tests/app-game-runtime.test.ts`
 - `packages/activity-domain/tests/app-game-foreground.test.ts`
+- `packages/activity-domain/tests/activity-surface.test.ts`
 
 Current app-control and app/game policy/catalog meaning lives in:
 
@@ -103,6 +105,7 @@ Current Rust protocol and runtime proof paths include:
 - `crates/agent-protocol/src/app_game.rs`
 - `crates/agent-protocol/src/app_game_tests.rs`
 - `crates/agent-core/src/activity_store_app_game.rs`
+- `crates/agent-core/src/activity_store/internals.rs`
 - `crates/agent-core/src/activity_store_app_game/app_game_windows_inventory.rs`
 - `crates/agent-core/src/activity_store_app_game/app_game_windows_inventory_tests.rs`
 - `crates/agent-core/src/activity_store_app_game/app_game_windows_store_inventory.rs`
@@ -116,6 +119,7 @@ Current Rust protocol and runtime proof paths include:
 - `crates/agent-core/src/activity_store_app_game/app_game_session_time.rs`
 - `crates/agent-core/src/activity_store_app_game/app_game_sessionization_tests.rs`
 - `crates/agent-core/src/activity_store_app_game/app_game_journal_sqlite_ingest.rs`
+- `crates/agent-core/src/activity_store_app_game/app_game_journal_sqlite_ingest/read_model.rs`
 - `crates/agent-core/src/activity_store_app_game/app_game_journal_sqlite_ingest_tests.rs`
 - `crates/agent-core/src/activity_store_app_game_observation.rs`
 - `crates/agent-core/src/activity_store_app_game_rows.rs`
@@ -123,6 +127,13 @@ Current Rust protocol and runtime proof paths include:
 - `crates/agent-core/src/enforcement_app_time_limit.rs`
 - `crates/agent-core/src/enforcement_app_time_limit_tests.rs`
 - `crates/agent-service/src/app.rs`
+- `crates/agent-service/src/activity_surface_adapter.rs`
+- `crates/agent-service/src/activity_surface_read_models.rs`
+- `crates/agent-service/src/activity_surface_read_models/app_use.rs`
+- `crates/agent-service/src/activity_surface_read_models/app_use/source.rs`
+- `crates/agent-service/src/activity_surface_read_models/games.rs`
+- `crates/agent-service/src/activity_surface_read_models/shared.rs`
+- `crates/agent-service/src/activity_surface_store.rs`
 
 Rust protocol parity must mirror TypeScript contracts exactly for payloads that
 cross the service boundary. Platform adapter behavior belongs behind typed
@@ -277,6 +288,16 @@ adapters, service events, portal app/game dashboard rows, policy execution,
 approval flow, journal corruption/recovery, live launcher crawling, or broad
 blocking.
 
+WP15 proof on `codex/app-game-read-model-service-events` adds service-backed
+app-use and games activity-surface read-model DTO proof under
+`output/app-game-plan-proof/15-read-models-and-service-events/`. It covers
+TypeScript activity-surface row fields, Rust protocol serialization,
+`AppGameServiceReadModel` projection metadata, `agent-core` service read-model
+loading, and `agent-service` mapping from replayed inventory, running,
+foreground, launcher, and daily rollup rows. It does not prove dedicated portal
+dashboard UI, policy/approval read models, live source subscriptions, platform
+authority changes, UI screenshots, or broad blocking.
+
 ## Current Test Files
 
 - `packages/activity-domain/tests/app-game.test.ts`
@@ -286,6 +307,8 @@ blocking.
 - `packages/activity-domain/tests/app-game-category-risk.test.ts`
 - `packages/activity-domain/tests/app-game-runtime.test.ts`
 - `packages/activity-domain/tests/app-game-launcher.test.ts`
+- `packages/activity-domain/tests/activity-surface.test.ts`
+- `packages/agent-protocol-domain/tests/activity-surface-adapter.test.ts`
 - `packages/parent-domain/tests/app-control-policy-catalog.test.ts`
 - `packages/parent-domain/tests/game-control-policy-catalog.test.ts`
 - `packages/parent-domain/tests/app-game-control-authority.test.ts`

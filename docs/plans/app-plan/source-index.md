@@ -92,8 +92,11 @@ and update them only when their acceptance contract or generated data changes.
 - `packages/activity-domain/src/app-game-primitives.ts`
 - `packages/activity-domain/src/app-game-session-primitives.ts`
 - `packages/activity-domain/src/app-game-foreground.ts`
+- `packages/activity-domain/src/activity-surface.ts`
 - `packages/activity-domain/tests/app-game-foreground.test.ts`
 - `packages/activity-domain/tests/app-game.test.ts`
+- `packages/activity-domain/tests/activity-surface.test.ts`
+- `packages/agent-protocol-domain/tests/activity-surface-adapter.test.ts`
 - `packages/parent-domain/src/app-control-catalog.ts`
 - `packages/parent-domain/src/app-control-catalog-schema.ts`
 - `packages/parent-domain/src/app-control-catalog-data.ts`
@@ -116,12 +119,14 @@ split must be schema-backed, test-backed, and reconciled in this source index.
 
 - `crates/agent-protocol/src/app_game.rs`
 - `crates/agent-protocol/src/app_game_tests.rs`
+- `crates/agent-core/src/activity_store/internals.rs`
 - `crates/agent-core/src/activity_store_app_game.rs`
 - `crates/agent-core/src/activity_store_app_game/app_game_sessionization.rs`
 - `crates/agent-core/src/activity_store_app_game/app_game_session_rollups.rs`
 - `crates/agent-core/src/activity_store_app_game/app_game_session_time.rs`
 - `crates/agent-core/src/activity_store_app_game/app_game_sessionization_tests.rs`
 - `crates/agent-core/src/activity_store_app_game/app_game_journal_sqlite_ingest.rs`
+- `crates/agent-core/src/activity_store_app_game/app_game_journal_sqlite_ingest/read_model.rs`
 - `crates/agent-core/src/activity_store_app_game/app_game_journal_sqlite_ingest_tests.rs`
 - `crates/agent-core/src/activity_store_app_game/app_game_windows_foreground.rs`
 - `crates/agent-core/src/activity_store_app_game/app_game_windows_foreground_tests.rs`
@@ -131,6 +136,13 @@ split must be schema-backed, test-backed, and reconciled in this source index.
 - `crates/agent-core/src/enforcement_app_time_limit.rs`
 - `crates/agent-core/src/enforcement_app_time_limit_tests.rs`
 - `crates/agent-service/src/app.rs`
+- `crates/agent-service/src/activity_surface_adapter.rs`
+- `crates/agent-service/src/activity_surface_read_models.rs`
+- `crates/agent-service/src/activity_surface_read_models/app_use.rs`
+- `crates/agent-service/src/activity_surface_read_models/app_use/source.rs`
+- `crates/agent-service/src/activity_surface_read_models/games.rs`
+- `crates/agent-service/src/activity_surface_read_models/shared.rs`
+- `crates/agent-service/src/activity_surface_store.rs`
 
 Rust rule: TypeScript contracts come first, Rust protocol parity second,
 `agent-core` runtime/storage helpers third, and `agent-service` command/read-model
@@ -192,24 +204,29 @@ packs mirror the app/game proof roots and record product-doc decisions.
 | WP11 app category/risk taxonomy       | `output/app-plan-proof/11-app-category-and-risk-taxonomy`           | `output/app-game-plan-proof/12-app-game-category-and-risk-taxonomy`      | Category/risk contract proof only  |
 | WP12 app sessionization/duration      | `output/app-plan-proof/12-app-sessionization-and-duration-engine`   | `output/app-game-plan-proof/13-sessionization-and-duration-engine`       | SQLite-row session reducer proof   |
 | WP13 journal/SQLite app ingest        | `output/app-plan-proof/13-journal-and-sqlite-app-ingest`            | `output/app-game-plan-proof/14-journal-and-sqlite-ingest`                | Encrypted journal replay proof     |
+| WP14 app read models/service events   | `output/app-plan-proof/14-app-read-models-and-service-events`       | `output/app-game-plan-proof/15-read-models-and-service-events`           | Service read-model DTO proof       |
 
-These completed rows do not add live OS crawling, encrypted journal-file
-ingest, service events, portal rows, content knowledge, policy execution,
-install control, broad blocking, or runtime cross-platform parity. Those claims
-remain assigned to later app-plan/app-game workpacks.
+These completed rows do not add live OS crawling, dedicated portal dashboard
+rows, content knowledge, policy execution, install control, broad blocking, or
+runtime cross-platform parity. Those claims remain assigned to later
+app-plan/app-game workpacks.
 
-The WP12/WP13 sessionization proof narrows the storage gap in two stages:
+The WP12/WP13/WP14 sessionization and read-model proof narrows the storage gap
+in two stages:
 deterministic replay from stored SQLite observation rows is covered for process
 and foreground session summaries plus daily rollups, and staged encrypted
 journal-file replay is now covered for typed inventory, runtime, foreground,
-launcher, running-now, foreground-now, and daily rollup rows. Service events,
-portal rows, policy execution, live source subscriptions, journal
+launcher, running-now, foreground-now, and daily rollup rows. Service app-use
+activity-surface read-model rows now consume those projected rows. Dedicated
+portal dashboard rows, policy execution, live source subscriptions, journal
 corruption/recovery, and platform authority proof remain later work.
 
 ## Current Test Files
 
 - `packages/activity-domain/tests/app-game.test.ts`
 - `packages/activity-domain/tests/app-game-category-risk.test.ts`
+- `packages/activity-domain/tests/activity-surface.test.ts`
+- `packages/agent-protocol-domain/tests/activity-surface-adapter.test.ts`
 - `packages/parent-domain/tests/app-control-policy-catalog.test.ts`
 - `packages/parent-domain/tests/app-game-control-platform-authority.test.ts`
 - `packages/parent-domain/tests/enforcement-approval-audit.test.ts`

@@ -26,3 +26,30 @@ Portal and policy consumers receive app/game read models from the service rather
 than inventing state.
 
 Use the standard checklist in [workpacks README](README.md).
+
+## Completion Notes - 2026-06-03
+
+Completed on branch `codex/app-game-read-model-service-events` with proof under
+`output/app-game-plan-proof/15-read-models-and-service-events/`.
+
+Implemented:
+
+- TypeScript activity-surface app-use and games rows now carry app/game
+  projection state: product kind, classification, inventory, runtime,
+  foreground, capability, last-observed timestamp, source row counts, and
+  evidence refs.
+- Rust protocol now exposes `AppGameServiceReadModel` for staged journal/SQLite
+  projection groups and expands activity-surface app-use/games row structs.
+- `agent-core` now returns the app-game service read model over the existing
+  staged encrypted-journal SQLite projection.
+- `agent-service` now builds app-use and games read models from that service
+  projection instead of older summary/report shapes.
+- Focused TypeScript, Rust protocol, Rust core, and Rust service tests cover
+  serialization, parsing, no-claim state separation, and projection mapping.
+
+Still not claimed:
+
+- Dedicated portal app/game dashboard UI and screenshots.
+- Unknown approval and policy-action read models.
+- Live OS source subscriptions or platform authority changes.
+- Broad app/game blocking or launcher/game budget enforcement.

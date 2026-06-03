@@ -49,6 +49,10 @@ control with better evidence and local audit.
   foreground, and launcher evidence through SQLite and projects inventory,
   running-now, foreground-now, launcher, and daily rollup rows while preserving
   the no-use/no-content/no-launcher-promotion boundaries.
+- The service now exposes those staged app/game journal and SQLite projections
+  through typed app-use and games activity-surface read models, including
+  inventory, runtime, foreground, launcher/source-count, daily rollup,
+  capability, and evidence-ref fields.
 - Package/process identity and owned-process time-limit proof are in progress.
 - The V0.8 product-control spine separates app time-limit and scoped
   owned-process control from broad installed-app blocking, so downstream policy
@@ -93,8 +97,8 @@ control with better evidence and local audit.
 
 ## Current Gap
 
-Parent-visible app catalog, category quality, live launcher crawling,
-install/approval linkage, child request flow, broad blocking, and
+Parent-visible app catalog/dashboard UI, category quality, live launcher
+crawling, install/approval linkage, child request flow, broad blocking, and
 cross-platform parity are incomplete. Broad installed-app blocking remains
 manual-required beyond the scoped
 owned-process/app-session proof, including in the broad-adapter and
@@ -114,8 +118,9 @@ decisions.
 - [ ] App/game inventory and identity.
 - [ ] Running and foreground session evidence. Contract and local
       SQLite-row session-duration proof now exists, and staged journal-file
-      replay proof now covers typed fixture rows; live source adapters, service
-      events, portal dashboard rows, and policy integration remain.
+      replay proof now covers typed fixture rows; service app-use/games
+      read-model DTOs now expose those projected rows; live source adapters,
+      dedicated portal dashboard rows, and policy integration remain.
 - [ ] Category and unknown-state handling.
 - [ ] App/category schedule and time-budget rules.
 - [ ] Ask-parent and bonus-time flow.

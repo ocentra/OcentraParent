@@ -1,31 +1,28 @@
 use ocentra_parent_agent_protocol::{
     constants, ActivityEvent, ActivityEventKind, ActivityObserver, ActivitySource, ActivitySubject,
     ActivitySubjectKind, AppGameForegroundEvidenceRow, AppGameInventoryEvidenceRow,
-    AppGameLauncherEvidenceRow, AppGameRuntimeEvidenceRow, AppGameSessionDailyRollup,
-    LogFieldValue, LogFields, ACTIVITY_SCHEMA_VERSION,
-    APP_GAME_CAPABILITY_STATUS_PERMISSION_LIMITED, APP_GAME_CLASSIFICATION_KNOWN_GAME,
-    APP_GAME_CLASSIFICATION_KNOWN_LAUNCHER, APP_GAME_CLASSIFICATION_LAUNCHER_GAME_CANDIDATE,
-    APP_GAME_CLASSIFICATION_PERMISSION_LIMITED, APP_GAME_CONTENT_KNOWLEDGE_NOT_CLAIMED,
-    APP_GAME_FOREGROUND_BACKGROUND, APP_GAME_FOREGROUND_FOREGROUND,
-    APP_GAME_FOREGROUND_NOT_CLAIMED, APP_GAME_JOURNAL_CUSTODY_LOCAL_JOURNAL,
-    APP_GAME_JOURNAL_FIELD_CLASSIFICATION_STATE, APP_GAME_JOURNAL_FIELD_CUSTODY_LABEL,
-    APP_GAME_JOURNAL_FIELD_REPLAY_STATE, APP_GAME_JOURNAL_FIELD_ROW_JSON,
-    APP_GAME_JOURNAL_FIELD_ROW_KIND, APP_GAME_JOURNAL_INVENTORY_SUBJECT_ID,
-    APP_GAME_JOURNAL_LAUNCHER_SUBJECT_ID, APP_GAME_JOURNAL_REPLAY_STATE_STORED,
-    APP_GAME_JOURNAL_ROW_KIND_FOREGROUND, APP_GAME_JOURNAL_ROW_KIND_INVENTORY,
-    APP_GAME_JOURNAL_ROW_KIND_LAUNCHER, APP_GAME_JOURNAL_ROW_KIND_RUNTIME,
-    APP_GAME_JOURNAL_SOURCE_ID, APP_GAME_LAUNCHER_PROOF_CHILD_PROCESS_CANDIDATE,
+    AppGameLauncherEvidenceRow, AppGameRuntimeEvidenceRow, LogFieldValue, LogFields,
+    ACTIVITY_SCHEMA_VERSION, APP_GAME_CAPABILITY_STATUS_PERMISSION_LIMITED,
+    APP_GAME_CLASSIFICATION_KNOWN_GAME, APP_GAME_CLASSIFICATION_KNOWN_LAUNCHER,
+    APP_GAME_CLASSIFICATION_LAUNCHER_GAME_CANDIDATE, APP_GAME_CLASSIFICATION_PERMISSION_LIMITED,
+    APP_GAME_CONTENT_KNOWLEDGE_NOT_CLAIMED, APP_GAME_FOREGROUND_BACKGROUND,
+    APP_GAME_FOREGROUND_FOREGROUND, APP_GAME_FOREGROUND_NOT_CLAIMED,
+    APP_GAME_JOURNAL_CUSTODY_LOCAL_JOURNAL, APP_GAME_JOURNAL_FIELD_CLASSIFICATION_STATE,
+    APP_GAME_JOURNAL_FIELD_CUSTODY_LABEL, APP_GAME_JOURNAL_FIELD_REPLAY_STATE,
+    APP_GAME_JOURNAL_FIELD_ROW_JSON, APP_GAME_JOURNAL_FIELD_ROW_KIND,
+    APP_GAME_JOURNAL_INVENTORY_SUBJECT_ID, APP_GAME_JOURNAL_LAUNCHER_SUBJECT_ID,
+    APP_GAME_JOURNAL_REPLAY_STATE_STORED, APP_GAME_JOURNAL_ROW_KIND_FOREGROUND,
+    APP_GAME_JOURNAL_ROW_KIND_INVENTORY, APP_GAME_JOURNAL_ROW_KIND_LAUNCHER,
+    APP_GAME_JOURNAL_ROW_KIND_RUNTIME, APP_GAME_JOURNAL_SOURCE_ID,
+    APP_GAME_LAUNCHER_PROOF_CHILD_PROCESS_CANDIDATE,
     APP_GAME_LAUNCHER_PROOF_CLASSIFIER_BACKED_CHILD_GAME,
     APP_GAME_LAUNCHER_PROOF_DETERMINISTIC_CHILD_GAME, APP_GAME_LAUNCHER_PROOF_LAUNCHER_ONLY,
     APP_GAME_LAUNCHER_PROOF_MANIFEST_CANDIDATE, APP_GAME_OBSERVATION_MODE_FOREGROUND_WINDOW,
     APP_GAME_OBSERVATION_MODE_PROCESS_EXIT, APP_GAME_OBSERVATION_MODE_PROCESS_START,
     APP_GAME_RUNTIME_NOT_CLAIMED, APP_GAME_RUNTIME_NOT_RUNNING, APP_GAME_RUNTIME_RUNNING,
 };
-use rusqlite::{params, Connection, Row};
 
-use crate::ActivityStoreError;
-
-use super::app_game_session_daily_rollups;
+mod read_model;
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum AppGameJournalSqliteIngestError {
@@ -44,17 +41,7 @@ pub(crate) enum AppGameJournalSqliteIngestError {
     Json,
 }
 
-pub(crate) struct AppGameJournalSqliteReadModel {
-    pub inventory_rows: Vec<AppGameInventoryEvidenceRow>,
-    pub running_now_rows: Vec<AppGameRuntimeEvidenceRow>,
-    pub foreground_now_rows: Vec<AppGameForegroundEvidenceRow>,
-    pub launcher_rows: Vec<AppGameLauncherEvidenceRow>,
-    pub daily_rollups: Vec<AppGameSessionDailyRollup>,
-}
-
-struct StoredAppGameJournalRow {
-    fields: LogFields,
-}
+pub(crate) use read_model::app_game_journal_sqlite_read_model;
 
 pub(crate) fn app_game_inventory_journal_event(
     device_id: &str,
@@ -196,32 +183,6 @@ pub(crate) fn app_game_launcher_journal_event(
         fields,
         row.evidence.clone(),
     ))
-}
-
-pub(crate) fn app_game_journal_sqlite_read_model(
-    connection: &Connection,
-    limit: u64,
-) -> Result<AppGameJournalSqliteReadModel, ActivityStoreError> {
-    let mut seen_runtime_processes = Vec::new();
-    let mut seen_foreground_processes = Vec::new();
-    let mut model = AppGameJournalSqliteReadModel {
-        inventory_rows: Vec::new(),
-        running_now_rows: Vec::new(),
-        foreground_now_rows: Vec::new(),
-        launcher_rows: Vec::new(),
-        daily_rollups: app_game_session_daily_rollups(connection, limit)?,
-    };
-    let mut statement = connection.prepare(constants::sqlite::SELECT_POLICY_PREVIEW_ACTIVITY)?;
-    let rows = statement.query_map(params![limit as i64], stored_row_from_sqlite)?;
-    for row in rows {
-        project_stored_row(
-            row?,
-            &mut model,
-            &mut seen_runtime_processes,
-            &mut seen_foreground_processes,
-        )?;
-    }
-    Ok(model)
 }
 
 fn validate_inventory_row(
@@ -378,73 +339,4 @@ fn insert_number(fields: &mut LogFields, key: &str, value: u64) {
 
 fn insert_boolean(fields: &mut LogFields, key: &str, value: bool) {
     fields.insert(key.to_string(), LogFieldValue::Boolean(value));
-}
-
-fn stored_row_from_sqlite(row: &Row<'_>) -> rusqlite::Result<StoredAppGameJournalRow> {
-    let fields_json: String = row.get(5)?;
-    let fields = serde_json::from_str::<LogFields>(&fields_json).map_err(json_to_sqlite_error)?;
-    Ok(StoredAppGameJournalRow { fields })
-}
-
-fn project_stored_row(
-    row: StoredAppGameJournalRow,
-    model: &mut AppGameJournalSqliteReadModel,
-    seen_runtime_processes: &mut Vec<String>,
-    seen_foreground_processes: &mut Vec<String>,
-) -> Result<(), ActivityStoreError> {
-    let Some(row_kind) = string_field(&row.fields, APP_GAME_JOURNAL_FIELD_ROW_KIND) else {
-        return Ok(());
-    };
-    let Some(row_json) = string_field(&row.fields, APP_GAME_JOURNAL_FIELD_ROW_JSON) else {
-        return Ok(());
-    };
-    match row_kind.as_str() {
-        APP_GAME_JOURNAL_ROW_KIND_INVENTORY => model.inventory_rows.push(serde_json::from_str::<
-            AppGameInventoryEvidenceRow,
-        >(&row_json)?),
-        APP_GAME_JOURNAL_ROW_KIND_RUNTIME => {
-            let runtime = serde_json::from_str::<AppGameRuntimeEvidenceRow>(&row_json)?;
-            if !seen_runtime_processes
-                .iter()
-                .any(|candidate| candidate == &runtime.process_identity)
-            {
-                seen_runtime_processes.push(runtime.process_identity.clone());
-            } else {
-                return Ok(());
-            }
-            if runtime.runtime_state == APP_GAME_RUNTIME_RUNNING {
-                model.running_now_rows.push(runtime);
-            }
-        }
-        APP_GAME_JOURNAL_ROW_KIND_FOREGROUND => {
-            let foreground = serde_json::from_str::<AppGameForegroundEvidenceRow>(&row_json)?;
-            if !seen_foreground_processes
-                .iter()
-                .any(|candidate| candidate == &foreground.process_identity)
-            {
-                seen_foreground_processes.push(foreground.process_identity.clone());
-            } else {
-                return Ok(());
-            }
-            if foreground.foreground_state == APP_GAME_FOREGROUND_FOREGROUND {
-                model.foreground_now_rows.push(foreground);
-            }
-        }
-        APP_GAME_JOURNAL_ROW_KIND_LAUNCHER => model.launcher_rows.push(serde_json::from_str::<
-            AppGameLauncherEvidenceRow,
-        >(&row_json)?),
-        _ => {}
-    }
-    Ok(())
-}
-
-fn string_field(fields: &LogFields, key: &str) -> Option<String> {
-    match fields.get(key) {
-        Some(LogFieldValue::String(value)) => Some(value.clone()),
-        _ => None,
-    }
-}
-
-fn json_to_sqlite_error(error: serde_json::Error) -> rusqlite::Error {
-    rusqlite::Error::ToSqlConversionFailure(Box::new(error))
 }

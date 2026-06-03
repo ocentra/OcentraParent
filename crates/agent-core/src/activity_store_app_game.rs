@@ -1,6 +1,6 @@
 use ocentra_parent_agent_protocol::{
-    AppGameSessionDailyRollup, AppGameSessionReport, AppGameSessionSummary,
-    APP_GAME_CATALOG_NOT_LOADED, APP_GAME_SCHEMA_VERSION,
+    AppGameServiceReadModel, AppGameSessionDailyRollup, AppGameSessionReport,
+    AppGameSessionSummary, APP_GAME_CATALOG_NOT_LOADED, APP_GAME_SCHEMA_VERSION,
 };
 use rusqlite::Connection;
 
@@ -57,6 +57,18 @@ pub(crate) fn app_game_session_daily_rollups(
     Ok(app_game_session_rollups::daily_rollups_from_summaries(
         &summaries,
     ))
+}
+
+pub(crate) fn app_game_service_read_model(
+    connection: &Connection,
+    limit: u64,
+    generated_at: &str,
+) -> Result<AppGameServiceReadModel, ActivityStoreError> {
+    app_game_journal_sqlite_ingest::app_game_journal_sqlite_read_model(
+        connection,
+        limit,
+        generated_at,
+    )
 }
 
 fn app_game_session_summaries(

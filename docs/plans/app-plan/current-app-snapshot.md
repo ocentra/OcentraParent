@@ -104,7 +104,10 @@ docs remain in place.
 - app time-limit tests.
 
 `crates/agent-service` currently has a small `app.rs` module and uses the
-shared service/runtime paths for read-model exposure.
+shared service/runtime paths for read-model exposure. App-use activity-surface
+read models now consume the shared app-game service projection so native app
+rows can carry inventory, runtime, foreground, rollup, capability, source-count,
+and evidence-ref state from staged journal/SQLite replay.
 
 ## Portal That Exists
 
@@ -124,7 +127,7 @@ Existing portal/source areas that app work should extend:
 
 ## Proof That Exists
 
-The native app plan now mirrors the shared app/game proof spine for WP01-WP12:
+The native app plan now mirrors the shared app/game proof spine for WP01-WP14:
 
 ```text
 output/app-plan-proof/01-contract-boundary-and-effect-schemas
@@ -140,12 +143,13 @@ output/app-plan-proof/10-cross-platform-authority-matrix
 output/app-plan-proof/11-app-category-and-risk-taxonomy
 output/app-plan-proof/12-app-sessionization-and-duration-engine
 output/app-plan-proof/13-journal-and-sqlite-app-ingest
+output/app-plan-proof/14-app-read-models-and-service-events
 ```
 
 Those proof packs point back to `output/app-game-plan-proof/*` for the shared
 contract, parser, and docs evidence. They prove staged foundations only; they do
-not move product status for live app capture, storage, portal, policy,
-enforcement, install approval, or cross-platform parity.
+not move product status for live app capture, dedicated portal dashboard UI,
+policy, enforcement, install approval, or cross-platform parity.
 
 Current focused proof scripts include:
 
@@ -171,13 +175,15 @@ polished app catalog UI, install approval, or cross-platform parity.
 - Windows Store/UWP/AppX identity needs separate proof from Win32 executable
   identity.
 - Foreground evidence now has shared app/game contract/protocol/parser proof,
-  stored-row sessionization can derive foreground duration, and staged
-  journal/SQLite replay can project foreground-now rows, but live window capture
-  wiring, service events, portal rows, and explicit no-content UI labels remain
+  stored-row sessionization can derive foreground duration, staged
+  journal/SQLite replay can project foreground-now rows, and service app-use
+  read models can expose foreground state, but live window capture wiring,
+  dedicated portal dashboard rows, and explicit no-content UI labels remain
   incomplete.
 - Session duration and daily app rollups now have deterministic SQLite-row
-  replay proof plus staged encrypted journal-file ingest/replay proof, but
-  service events, portal dashboard rows, policy/report integration, live source
+  replay proof plus staged encrypted journal-file ingest/replay proof, and
+  service app-use read models can expose daily rollup counts/duration, but
+  dedicated portal dashboard rows, policy/report integration, live source
   subscriptions, and journal corruption/recovery proof remain incomplete.
 - New/unknown app approval and child request UX are incomplete.
 - App category/risk taxonomy now has contract/test proof, but live classifier
