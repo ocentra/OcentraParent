@@ -44,6 +44,11 @@ configure, explain, and preview rules.
   authorized-unavailable/authorized-degraded states. The route keeps remote/API
   AI optional, cites saved report/read-model source refs, and preserves
   `childSafetyOrEnforcementUseAllowed=false`.
+- `local-ai-parent-assistant-runtime-proof` records the focused local AI
+  assistant runtime boundary: local answers use the shared provider scheduler,
+  busy providers degrade or queue without duplicate runtime loads, unavailable
+  states remain cited and explicit, API AI stays optional, and action
+  preview/confirm cannot write policy or enforce directly.
 - Finished portal chat/action flow is not done.
 
 ## Current Gap
