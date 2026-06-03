@@ -87,6 +87,16 @@ child-activity custody, safety shutdown, and portal UI. The proof does not add
 provider integration, account storage, entitlement signing/runtime delivery,
 portal billing UI, or child-device entitlement consumption.
 
+Current subscription/device-limit/failure proof:
+`billing-subscription-device-limit-failure-proof` extends the parent-domain
+contract with subscription status proof rows for trialing, active, past-due,
+expired, grace, and unavailable states; device-limit decisions that deny new
+activation at plan capacity while allowing trusted existing-device grace/manual
+states; and failure states for provider unavailable, network unavailable, stale
+snapshot, payment required, account mismatch, and validation failed. The proof
+keeps evidence export retained, parent resolution visible, existing local safety
+continuing, and child-activity custody excluded.
+
 ## Entitlement Boundaries
 
 Entitlements may gate:
@@ -146,6 +156,10 @@ Any feature that can be disabled for billing must define its degraded local beha
   entitlement snapshot, subscription sync, device-limit, failure, provider
   boundary, export-retention, and no-safety-shutdown states before provider or
   child-device runtime code exists.
+- `billing-subscription-device-limit-failure-proof` proves degraded
+  subscription rows require failure state, new-device activation cannot pass at
+  the plan limit unless the device is already trusted, and billing failures
+  cannot drop existing local safety continuation.
 - Endpoint-domain contract tests and `billing-account-endpoint-contract-proof`
   prove account, entitlement, subscription, device-limit, download, update, and
   release-status route boundaries before provider/backend code exists.

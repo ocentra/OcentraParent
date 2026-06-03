@@ -9,6 +9,7 @@ import {
   BillingDeviceLimitDecisionIdSchema,
   BillingDeviceLimitDecisionStateSchema,
   BillingDeviceLimitReasonSchema,
+  BillingDeviceActivationBehaviorSchema,
   BillingDisplayTextTokenSchema,
   BillingEntitlementDecisionStateSchema,
   BillingEntitlementNonClaimSchema,
@@ -20,6 +21,7 @@ import {
   BillingFeatureCodeSchema,
   BillingLocalSafetyBehaviorSchema,
   BillingParentVisibleStateSchema,
+  BillingParentResolutionSchema,
   BillingPlanActiveStateSchema,
   BillingPlanIdSchema,
   BillingPortalUiClaimSchema,
@@ -32,6 +34,7 @@ import {
   BillingStripeSdkClaimSchema,
   BillingSubscriptionStatusSchema,
   BillingSyncEventIdSchema,
+  NonNegativeBillingCountSchema,
   PositiveBillingLimitSchema,
 } from './billing-entitlement-values';
 
@@ -79,6 +82,8 @@ export const BillingFailureStateSchema = withParser(
     parentVisibleState: BillingParentVisibleStateSchema,
     localSafetyBehavior: BillingLocalSafetyBehaviorSchema,
     retainEvidenceExportAccess: Schema.Boolean,
+    existingLocalSafetyContinues: Schema.Boolean,
+    parentResolution: BillingParentResolutionSchema,
     retryAllowed: Schema.Boolean,
     retryAfter: Schema.Union(ParentTimestampSchema, Schema.Null),
   }).pipe(
@@ -86,6 +91,32 @@ export const BillingFailureStateSchema = withParser(
       (failure) =>
         failure.retainEvidenceExportAccess ||
         'Expected billing failures to retain evidence export and safety-critical audit access'
+    ),
+    Schema.filter(
+      (failure) =>
+        failure.existingLocalSafetyContinues ||
+        'Expected billing failures to keep existing local safety behavior explicit'
+    )
+  )
+);
+
+export const BillingSubscriptionStatusProofRowSchema = withParser(
+  Schema.Struct({
+    schemaVersion: BillingEntitlementSchemaVersionSchema,
+    subscriptionStatus: BillingSubscriptionStatusSchema,
+    source: BillingEntitlementSourceSchema,
+    parentVisibleState: BillingParentVisibleStateSchema,
+    localSafetyBehavior: BillingLocalSafetyBehaviorSchema,
+    evidenceExportAccess: BillingEvidenceExportAccessSchema,
+    childActivityCustody: BillingChildActivityCustodySchema,
+    deviceActivationBehavior: BillingDeviceActivationBehaviorSchema,
+    failureState: Schema.Union(BillingFailureStateSchema, Schema.Null),
+  }).pipe(
+    Schema.filter(
+      (row) =>
+        !['past-due', 'expired', 'unknown', 'unavailable'].includes(row.subscriptionStatus) ||
+        row.failureState !== null ||
+        'Expected degraded subscription status rows to carry a parent-visible failure state'
     )
   )
 );
@@ -162,8 +193,12 @@ export const BillingDeviceLimitDecisionSchema = withParser(
     decisionId: BillingDeviceLimitDecisionIdSchema,
     requestedDevice: ParentDeviceReferenceSchema,
     entitlementSnapshotId: BillingEntitlementSnapshotIdSchema,
+    activeDeviceCount: NonNegativeBillingCountSchema,
+    planDeviceLimit: PositiveBillingLimitSchema,
+    requestedDeviceAlreadyTrusted: Schema.Boolean,
     decision: BillingDeviceLimitDecisionStateSchema,
     reasonCode: BillingDeviceLimitReasonSchema,
+    deviceActivationBehavior: BillingDeviceActivationBehaviorSchema,
     auditReference: BillingAuditReferenceSchema,
     existingLocalSafetyBehavior: BillingLocalSafetyBehaviorSchema,
   }).pipe(
@@ -172,6 +207,19 @@ export const BillingDeviceLimitDecisionSchema = withParser(
         decision.decision !== 'denied' ||
         decision.reasonCode !== 'within-plan' ||
         'Expected denied device-limit decisions to carry a denial reason'
+    ),
+    Schema.filter(
+      (decision) =>
+        decision.decision !== 'allowed' ||
+        decision.requestedDeviceAlreadyTrusted ||
+        decision.activeDeviceCount < decision.planDeviceLimit ||
+        'Expected new-device activation to require capacity below the plan limit'
+    ),
+    Schema.filter(
+      (decision) =>
+        decision.decision === 'allowed' ||
+        decision.existingLocalSafetyBehavior !== 'unchanged' ||
+        'Expected non-allowed device-limit decisions to keep existing local safety behavior explicit'
     )
   )
 );
@@ -181,6 +229,7 @@ export const BillingEntitlementContractProofSchema = withParser(
     schemaVersion: BillingEntitlementSchemaVersionSchema,
     plan: BillingPlanSchema,
     entitlementSnapshot: BillingEntitlementSnapshotSchema,
+    subscriptionStatusProofRows: Schema.Array(BillingSubscriptionStatusProofRowSchema),
     billingSyncEvents: Schema.Array(BillingSyncEventSchema),
     deviceLimitDecisions: Schema.Array(BillingDeviceLimitDecisionSchema),
     failureStates: Schema.Array(BillingFailureStateSchema),
@@ -201,6 +250,7 @@ export const BillingEntitlementContractProofSchema = withParser(
 
 export type BillingPlan = Infer<typeof BillingPlanSchema>;
 export type BillingEntitlementSnapshot = Infer<typeof BillingEntitlementSnapshotSchema>;
+export type BillingSubscriptionStatusProofRow = Infer<typeof BillingSubscriptionStatusProofRowSchema>;
 export type BillingSyncEvent = Infer<typeof BillingSyncEventSchema>;
 export type BillingDeviceLimitDecision = Infer<typeof BillingDeviceLimitDecisionSchema>;
 export type BillingFailureState = Infer<typeof BillingFailureStateSchema>;
@@ -212,6 +262,13 @@ function billingEntitlementProofIsHonest(proof: {
   readonly billingSyncEvents: ReadonlyArray<{ readonly failureState: BillingFailureState | null }>;
   readonly failureStates: ReadonlyArray<BillingFailureState>;
   readonly nonClaims: ReadonlyArray<string>;
+  readonly subscriptionStatusProofRows: ReadonlyArray<{ readonly subscriptionStatus: string }>;
+  readonly deviceLimitDecisions: ReadonlyArray<{
+    readonly decision: string;
+    readonly reasonCode: string;
+    readonly activeDeviceCount: number;
+    readonly planDeviceLimit: number;
+  }>;
 }): boolean {
   const requiredNonClaims = [
     'no-stripe-sdk',
@@ -221,9 +278,19 @@ function billingEntitlementProofIsHonest(proof: {
     'no-safety-shutdown',
     'no-portal-ui',
   ];
+  const requiredSubscriptionStatuses = ['trialing', 'active', 'past-due', 'expired', 'grace', 'unavailable'];
   return (
     requiredNonClaims.every((claim) => proof.nonClaims.includes(claim)) &&
+    requiredSubscriptionStatuses.every((status) =>
+      proof.subscriptionStatusProofRows.some((row) => row.subscriptionStatus === status)
+    ) &&
     proof.failureStates.length >= 3 &&
+    proof.deviceLimitDecisions.some(
+      (decision) =>
+        decision.decision === 'denied' &&
+        decision.reasonCode === 'limit-exceeded' &&
+        decision.activeDeviceCount >= decision.planDeviceLimit
+    ) &&
     proof.billingSyncEvents.every(
       (event) => event.failureState === null || event.failureState.retainEvidenceExportAccess
     )

@@ -46,6 +46,7 @@ async function main() {
     },
     planId: contract.planId,
     entitlementDecisions: contract.entitlementDecisions,
+    subscriptionStatuses: contract.subscriptionStatuses,
     deviceLimitDecisions: contract.deviceLimitDecisions,
     failureStates: contract.failureStates,
     nonClaims: [
@@ -62,7 +63,6 @@ async function main() {
       'subscription sync delivery runtime',
       'portal billing UI',
       'child-device entitlement consumption',
-      'parent-domain README and product checklist updates blocked by active locks',
     ],
   };
 
@@ -91,13 +91,17 @@ async function assertBuiltContract() {
   );
   assert.deepEqual(module.summarizeBillingFailureStates(proof.failureStates), {
     'provider-unavailable': 1,
+    'network-unavailable': 1,
     'stale-snapshot': 1,
     'payment-required': 1,
+    'account-mismatch': 1,
+    'validation-failed': 1,
   });
 
   return {
     planId: proof.plan.planId,
     entitlementDecisions: proof.entitlementSnapshot.featureDecisions.map((entry) => entry.decision),
+    subscriptionStatuses: proof.subscriptionStatusProofRows.map((entry) => entry.subscriptionStatus),
     deviceLimitDecisions: proof.deviceLimitDecisions.map((entry) => entry.decision),
     failureStates: proof.failureStates.map((entry) => entry.failureKind),
   };

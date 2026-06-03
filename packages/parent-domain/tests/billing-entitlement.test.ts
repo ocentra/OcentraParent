@@ -3,8 +3,10 @@ import {
   BillingDeviceLimitDecisionSchema,
   BillingEntitlementContractProofSchema,
   BillingEntitlementSnapshotSchema,
+  BillingFailureStateSchema,
   BillingFeatureDecisionSchema,
   BillingFeatureEntitlementSchema,
+  BillingSubscriptionStatusProofRowSchema,
   BillingSyncEventSchema,
 } from '../src/billing-entitlement';
 import {
@@ -17,8 +19,11 @@ describe('billing entitlement contracts', () => {
   rejectsPaidGatesForSafetyCriticalBehavior();
   rejectsLockedSafetyCriticalDecisionAndDroppedExportAccess();
   rejectsUnavailableSnapshotsWithoutFailureState();
+  rejectsDegradedSubscriptionRowsWithoutFailureState();
   rejectsProviderReferencesOutsideBackendBoundary();
   rejectsDeniedDeviceLimitDecisionWithAllowedReason();
+  rejectsAllowedDeviceActivationAtPlanLimit();
+  rejectsBillingFailuresThatDropLocalSafetyContinuation();
   rejectsProofOverclaims();
 });
 
@@ -29,6 +34,14 @@ function acceptsBillingEntitlementProofWithoutProviderClaims(): void {
     expect(proof.plan.planId).toBe('family-plus-monthly');
     expect(proof.plan.deviceLimit).toBe(5);
     expect(proof.entitlementSnapshot.subscriptionStatus).toBe('active');
+    expect(subscriptionStatusCounts(proof)).toEqual({
+      trialing: 1,
+      active: 1,
+      'past-due': 1,
+      expired: 1,
+      grace: 1,
+      unavailable: 1,
+    });
     expect(featureDecisionCounts(proof)).toEqual({
       available: 2,
       grace: 1,
@@ -38,11 +51,15 @@ function acceptsBillingEntitlementProofWithoutProviderClaims(): void {
       allowed: 1,
       denied: 1,
       grace: 1,
+      'manual-review': 1,
     });
     expect(summarizeBillingFailureStates(proof.failureStates)).toEqual({
       'provider-unavailable': 1,
+      'network-unavailable': 1,
       'stale-snapshot': 1,
       'payment-required': 1,
+      'account-mismatch': 1,
+      'validation-failed': 1,
     });
     expect(proof.nonClaims).toEqual([
       'no-stripe-sdk',
@@ -122,6 +139,24 @@ function rejectsUnavailableSnapshotsWithoutFailureState(): void {
   });
 }
 
+function rejectsDegradedSubscriptionRowsWithoutFailureState(): void {
+  it('rejects degraded subscription status proof rows without failure state', () => {
+    const pastDueRow = BillingEntitlementContractProofReadModel.subscriptionStatusProofRows.find(
+      (entry) => entry.subscriptionStatus === 'past-due'
+    );
+    if (pastDueRow === undefined) {
+      throw new Error('missing past-due subscription proof row');
+    }
+
+    expect(
+      BillingSubscriptionStatusProofRowSchema.safeParse({
+        ...pastDueRow,
+        failureState: null,
+      }).success
+    ).toBe(false);
+  });
+}
+
 function rejectsProviderReferencesOutsideBackendBoundary(): void {
   it('rejects provider references outside the backend boundary', () => {
     const syncEvent = BillingEntitlementContractProofReadModel.billingSyncEvents[0];
@@ -153,6 +188,49 @@ function rejectsDeniedDeviceLimitDecisionWithAllowedReason(): void {
   });
 }
 
+function rejectsAllowedDeviceActivationAtPlanLimit(): void {
+  it('rejects new-device activation when the plan device limit is already reached', () => {
+    const allowedDecision = BillingEntitlementContractProofReadModel.deviceLimitDecisions.find(
+      (entry) => entry.decision === 'allowed'
+    );
+    if (allowedDecision === undefined) {
+      throw new Error('missing allowed device-limit decision');
+    }
+
+    expect(
+      BillingDeviceLimitDecisionSchema.safeParse({
+        ...allowedDecision,
+        activeDeviceCount: 5,
+      }).success
+    ).toBe(false);
+    expect(
+      BillingDeviceLimitDecisionSchema.safeParse({
+        ...allowedDecision,
+        activeDeviceCount: 5,
+        requestedDeviceAlreadyTrusted: true,
+      }).success
+    ).toBe(true);
+  });
+}
+
+function rejectsBillingFailuresThatDropLocalSafetyContinuation(): void {
+  it('rejects billing failure states that drop existing local safety continuation', () => {
+    const paymentRequiredFailure = BillingEntitlementContractProofReadModel.failureStates.find(
+      (entry) => entry.failureKind === 'payment-required'
+    );
+    if (paymentRequiredFailure === undefined) {
+      throw new Error('missing payment-required billing failure state');
+    }
+
+    expect(
+      BillingFailureStateSchema.safeParse({
+        ...paymentRequiredFailure,
+        existingLocalSafetyContinues: false,
+      }).success
+    ).toBe(false);
+  });
+}
+
 function rejectsProofOverclaims(): void {
   it('rejects proof overclaims for SDK backend custody safety shutdown or portal UI', () => {
     const proof = BillingEntitlementContractProofReadModel;
@@ -171,6 +249,10 @@ function rejectsProofOverclaims(): void {
 
 function featureDecisionCounts(proof: typeof BillingEntitlementContractProofReadModel) {
   return countBy(proof.entitlementSnapshot.featureDecisions.map((entry) => entry.decision));
+}
+
+function subscriptionStatusCounts(proof: typeof BillingEntitlementContractProofReadModel) {
+  return countBy(proof.subscriptionStatusProofRows.map((entry) => entry.subscriptionStatus));
 }
 
 function deviceLimitDecisionCounts(proof: typeof BillingEntitlementContractProofReadModel) {

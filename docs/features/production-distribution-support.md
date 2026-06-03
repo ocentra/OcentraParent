@@ -81,6 +81,12 @@ dev-only repo when it claims consumer readiness.
   proof only: no Stripe SDK, billing provider backend, account backend,
   entitlement signing runtime, portal UI, child-device consumption, or
   child-activity custody is implemented.
+- `billing-subscription-device-limit-failure-proof` extends that contract proof
+  with subscription status proof rows, over-limit device activation denial,
+  trusted existing-device grace/manual states, all current billing failure kinds,
+  retained evidence-export access, parent-visible resolution labels, and
+  existing-local-safety continuation. It remains contract proof only and does
+  not add provider, backend, portal, or child-device runtime code.
 - Billing/support/public website/store distribution are planned or incomplete.
 
 ## Current Gap
@@ -128,6 +134,10 @@ package/runtime proof.
       behavior, evidence-export retention, and no-safety-shutdown contract proof
       only; provider integration, backend storage/signing, runtime delivery,
       portal UI, and child-device consumption remain incomplete.
+      `billing-subscription-device-limit-failure-proof` adds subscription
+      status proof rows, over-limit device-denial rules, existing-device
+      grace/manual paths, and all current billing failure kinds while keeping
+      provider/runtime work unimplemented.
 - [ ] Privacy, retention, export/delete, and support docs.
 - [ ] Support bundle redaction proof scaffold and incident process. Current
       release-support proof requires parent consent, incident/status metadata,

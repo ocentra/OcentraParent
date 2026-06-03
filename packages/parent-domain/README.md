@@ -27,6 +27,9 @@ mobile readiness, and control catalogs.
 - Local AI runtime, provider, scheduler, context, and reference contracts.
 - Parent assistant and action-preview contracts.
 - LAN pairing, device roles, controller/observer states, and provider routing.
+- Billing/subscription entitlement contracts for plan rows, subscription status,
+  device-limit decisions, failure behavior, retained evidence export, and
+  local-safety continuation without billing provider SDK ownership.
 - V0.9 signed LAN discovery/relay spine contracts that keep adapter evidence,
   signed proof rejection, route safety, relay/cache availability, parent-owned
   storage, and child-data custody claims explicit.
@@ -87,7 +90,9 @@ flowchart LR
   acknowledgement/check-in helper proof; platform adapters, provider delivery,
   notification delivery, and live UI proof remain open.
 - Store/install approval and purchase controls need platform-specific scope.
-- Billing/subscription entitlements need to stay outside core safety decisions.
+- Billing/subscription provider integration, account backend, entitlement
+  signing/delivery runtime, portal UI, and child-device consumption remain
+  unimplemented; current contracts keep billing outside core safety decisions.
 - V0.8 broad app, network/domain, exact URL, notification, and tamper controls
   remain manual-required or not-claimed until platform adapter proof exists.
 - Policy-dispatch proof is currently service/read-model proof; finished

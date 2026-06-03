@@ -5,6 +5,11 @@ const NonEmptyBillingText = Schema.String.pipe(Schema.minLength(1));
 export const PositiveBillingLimitSchema = Schema.Number.pipe(
   Schema.filter((value) => (Number.isInteger(value) && value > 0) || 'Expected billing limits to be positive integers')
 );
+export const NonNegativeBillingCountSchema = Schema.Number.pipe(
+  Schema.filter(
+    (value) => (Number.isInteger(value) && value >= 0) || 'Expected billing counts to be non-negative integers'
+  )
+);
 
 export const BillingEntitlementSchemaVersionSchema = withParser(Schema.Literal('billing-entitlement-contract-proof'));
 export const BillingPlanActiveStateSchema = withParser(
@@ -31,6 +36,9 @@ export const BillingProviderBoundarySchema = withParser(Schema.Literal('backend-
 export const BillingDeviceLimitDecisionStateSchema = withParser(
   Schema.Literal('allowed', 'denied', 'grace', 'manual-review')
 );
+export const BillingDeviceActivationBehaviorSchema = withParser(
+  Schema.Literal('allow-new-device', 'deny-new-device', 'grace-existing-devices', 'manual-review-required')
+);
 export const BillingDeviceLimitReasonSchema = withParser(
   Schema.Literal(
     'within-plan',
@@ -53,6 +61,9 @@ export const BillingFailureKindSchema = withParser(
 );
 export const BillingParentVisibleStateSchema = withParser(
   Schema.Literal('available', 'locked', 'past-due', 'grace', 'stale', 'unavailable', 'manual-review')
+);
+export const BillingParentResolutionSchema = withParser(
+  Schema.Literal('none', 'payment-update', 'manual-support-review', 'wait-for-provider')
 );
 export const BillingEntitlementNonClaimSchema = withParser(
   Schema.Literal(
