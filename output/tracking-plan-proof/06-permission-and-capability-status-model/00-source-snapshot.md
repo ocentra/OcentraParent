@@ -1,7 +1,7 @@
 # 06-permission-and-capability-status-model Source Snapshot
 
-- checkedAt: 2026-06-03T07:52:24.644Z
-- commit: e37d15f4a2f350530a9c4f5b5dc1180199e3a6b2
+- checkedAt: 2026-06-03T11:39:16.984Z
+- commit: 8bd747bb7358224251a2722e219f447d69926a5b
 - proofState: contract-proof-complete
 - summary: Permission and platform capability matrix carries manual-required/unavailable/proved states.
 - activity contracts: packages/activity-domain/src/tracking.ts

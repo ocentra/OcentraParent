@@ -1,7 +1,7 @@
 # 33-proof-gates-fixtures-rollout-and-pr-gate Source Snapshot
 
-- checkedAt: 2026-06-03T07:52:24.644Z
-- commit: e37d15f4a2f350530a9c4f5b5dc1180199e3a6b2
+- checkedAt: 2026-06-03T11:39:16.984Z
+- commit: 8bd747bb7358224251a2722e219f447d69926a5b
 - proofState: contract-proof-partial
 - summary: Focused proof scripts and minimum-MVP audit metadata exist with P1 UI artifact citations plus P2 tracking service read-model and narrow portal-consumption proof; full platform/UI/root-gate proof remains pending.
 - activity contracts: packages/activity-domain/src/tracking.ts
