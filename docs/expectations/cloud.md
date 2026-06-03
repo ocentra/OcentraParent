@@ -98,6 +98,13 @@ conflict outcome, and audit event.
 Worker/cloud runtime code must consume those contracts instead of inventing
 parallel JSON payloads.
 
+Current endpoint proof: `sync-export-endpoint-contract-proof` defines
+endpoint-domain route ids, API paths, headers, query params, and
+contract-version labels for parent-owned sync/export and remote connector
+status boundaries. The proof keeps cloud as a status/control-plane boundary
+only; it does not implement connector OAuth, upload/download, Ocentra-hosted
+family data custody, account/subscription backend, or portal UI.
+
 ## Failure Behavior
 
 - Local observation, local policy, local enforcement, local portal operation, and
@@ -152,6 +159,8 @@ parallel JSON payloads.
 
 - Contract tests for identity, route, heartbeat, relay, connector, compiler,
   conflict, and audit payloads.
+- Endpoint-domain contract tests and `sync-export-endpoint-contract-proof` for
+  parent-owned sync/export and remote connector status route boundaries.
 - Cloud runtime tests using real route handlers and auth validation boundaries,
   not unauthenticated happy-path fixtures.
 - Child-agent integration tests for accepted remote intent, rejected stale

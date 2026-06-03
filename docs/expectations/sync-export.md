@@ -56,6 +56,14 @@ must validate schema versions before applying data. Remote sync and report
 compilation must reuse the cloud route, storage connector, and identity contracts
 rather than introducing a second trust model.
 
+Current endpoint proof: `sync-export-endpoint-contract-proof` defines
+versioned endpoint-domain route ids, API paths, headers, query params, and
+contract-version labels for parent-owned export manifest/status, sync cursor,
+sync batch status, import preview, delete status, and remote connector status
+boundaries. It is contract-only proof and does not implement connector OAuth,
+upload/download, Ocentra-hosted family data custody, account/subscription
+backend, or portal UI.
+
 ## Failure Behavior
 
 - Failed sync or export leaves local journal and query store intact.
@@ -103,6 +111,8 @@ rather than introducing a second trust model.
 ## Validation Gates
 
 - Contract tests for manifests, data classes, encryption metadata, sync cursor, conflict records, and import/delete results.
+- Endpoint-domain contract tests and `sync-export-endpoint-contract-proof` for
+  parent-owned sync/export route/header/query/version boundaries.
 - Real export/import tests using the encrypted journal and SQLite rebuild path.
 - Retry/conflict tests covering interruption, duplicate batch, stale cursor, and newer local state.
 - Parent-owned storage connector tests for revoked grants, wrong account/folder,

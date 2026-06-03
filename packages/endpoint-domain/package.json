@@ -17,6 +17,10 @@
       "import": "./dist/constants/lan-pairing.js",
       "types": "./dist/constants/lan-pairing.d.ts"
     },
+    "./constants/sync-export": {
+      "import": "./dist/constants/sync-export.js",
+      "types": "./dist/constants/sync-export.d.ts"
+    },
     "./constants/versions": {
       "import": "./dist/constants/versions.js",
       "types": "./dist/constants/versions.d.ts"
