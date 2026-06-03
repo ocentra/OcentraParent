@@ -1,0 +1,14 @@
+{
+  "scenarioId": "shopping",
+  "sourceEvidenceRefs": [
+    {
+      "evidenceId": "screen-evidence-shopping",
+      "kind": "screenshot",
+      "digest": "3183b30f53718f338250b5dca0a7f562f81c5c9a79afbbeec927309dadb9c662",
+      "uri": null
+    }
+  ],
+  "promptVersion": "screen-ai-local-vlm-matrix-proof-v2",
+  "contextBuiltFromTypedCaptureMetadata": true,
+  "directOsOrBrowserScanByModel": false
+}

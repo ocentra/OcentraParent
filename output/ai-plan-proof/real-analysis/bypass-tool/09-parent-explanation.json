@@ -1,0 +1,23 @@
+{
+  "scenarioId": "bypass-tool",
+  "title": "Ocentra AI Proof VPN Bypass Tool",
+  "parentVisibleSummary": "Local AI saw bypassTool evidence and policy selected block.",
+  "category": "bypassTool",
+  "confidence": 1,
+  "action": "block",
+  "evidenceReferences": [
+    {
+      "evidenceReferenceId": "screen-analysis-evidence-bypass-tool",
+      "kind": "activity-event",
+      "observedAt": "2026-06-03T13:59:15.961Z"
+    }
+  ],
+  "parentRuleReferences": [
+    "screen-policy-bypass-tool"
+  ],
+  "rawImageRetained": false,
+  "imageDeletionState": "deleted",
+  "aiDoesNotEnforceDirectly": true,
+  "dryRun": true,
+  "nonClaim": "Proof UI snapshot is an artifact preview, not the production portal runtime."
+}

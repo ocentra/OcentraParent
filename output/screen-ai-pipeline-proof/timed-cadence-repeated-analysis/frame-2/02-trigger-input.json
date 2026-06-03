@@ -1,0 +1,5 @@
+{
+  "trigger": "cadence",
+  "source": "controlled-timed-cadence-fixture",
+  "scope": "managedBrowserWindow"
+}

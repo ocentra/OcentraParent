@@ -1,0 +1,14 @@
+{
+  "scenarioId": "browser-game",
+  "surface": "browser",
+  "fixtureKind": "controlled-browser-game-fixture",
+  "captureReason": "appGameForegroundStart",
+  "captureScope": "managedBrowserWindow",
+  "visibleTextFixture": [
+    "Browser game running",
+    "Level select and play button",
+    "Coins, score, and game lobby visible"
+  ],
+  "realWindowCapture": true,
+  "liveExternalUrl": false
+}

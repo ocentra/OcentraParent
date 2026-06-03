@@ -1,0 +1,18 @@
+{
+  "scenarioId": "youtube-education-video",
+  "journalEntryId": "journal-screen-ai-youtube-education-video",
+  "trigger": "managedUrlChange",
+  "captureResultId": "screen-capture-proof-youtube-education-video",
+  "screenAnalysisResultId": "screen-analysis-youtube-education-video",
+  "localAiResultId": "local-ai-result-youtube-education-video",
+  "policyDecisionId": "policy-decision-screen-analysis-youtube-education-video",
+  "deletionState": "deleted",
+  "readModelRows": [
+    {
+      "rowId": "parent-screen-ai-row-youtube-education-video",
+      "category": "school",
+      "action": "allow",
+      "confidence": 1
+    }
+  ]
+}

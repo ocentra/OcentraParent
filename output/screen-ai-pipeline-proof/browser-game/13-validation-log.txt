@@ -1,0 +1,3 @@
+scenario=browser-game
+category=game
+action=time-limit

@@ -1,0 +1,14 @@
+
+```json
+{
+  "primary_category": "school",
+  "visible_text": [
+    "Expected visible category: school",
+    "YouTube education video",
+    "Algebra lesson for school",
+    "Teacher explains fractions"
+  ],
+  "risk_signals": [],
+  "confidence": 1.0
+}
+```

@@ -1,0 +1,14 @@
+
+```json
+{
+  "primary_category": "chat",
+  "visible_text": [
+    "Expected visible category: chat",
+    "Facebook style social feed",
+    "Friend requests and messages",
+    "Chat and social posts visible"
+  ],
+  "risk_signals": [],
+  "confidence": 1.0
+}
+```

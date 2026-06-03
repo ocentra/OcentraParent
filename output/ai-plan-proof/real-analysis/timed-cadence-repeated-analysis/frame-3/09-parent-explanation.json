@@ -1,0 +1,23 @@
+{
+  "scenarioId": "timed-cadence-repeated-analysis-frame-3",
+  "title": "Ocentra AI Proof Timed Cadence 3",
+  "parentVisibleSummary": "Local AI saw productivity evidence and policy selected allow.",
+  "category": "productivity",
+  "confidence": 0.95,
+  "action": "allow",
+  "evidenceReferences": [
+    {
+      "evidenceReferenceId": "screen-analysis-evidence-timed-cadence-repeated-analysis-frame-3",
+      "kind": "activity-event",
+      "observedAt": "2026-06-03T14:06:08.965Z"
+    }
+  ],
+  "parentRuleReferences": [
+    "screen-policy-timed-cadence-repeated-analysis-frame-3"
+  ],
+  "rawImageRetained": false,
+  "imageDeletionState": "deleted",
+  "aiDoesNotEnforceDirectly": true,
+  "dryRun": true,
+  "nonClaim": "Proof UI snapshot is an artifact preview, not the production portal runtime."
+}

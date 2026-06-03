@@ -1,0 +1,14 @@
+{
+  "scenarioId": "native-game",
+  "sourceEvidenceRefs": [
+    {
+      "evidenceId": "screen-evidence-native-game",
+      "kind": "screenshot",
+      "digest": "65c74273f3681accc466fdf6366e8fd667e8a6923d5a188ec3157ff5387216da",
+      "uri": null
+    }
+  ],
+  "promptVersion": "screen-ai-local-vlm-matrix-proof-v2",
+  "contextBuiltFromTypedCaptureMetadata": true,
+  "directOsOrBrowserScanByModel": false
+}

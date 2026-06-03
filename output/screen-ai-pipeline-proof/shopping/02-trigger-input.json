@@ -1,0 +1,5 @@
+{
+  "trigger": "managedUrlChange",
+  "source": "controlled-shopping-fixture",
+  "scope": "managedBrowserWindow"
+}

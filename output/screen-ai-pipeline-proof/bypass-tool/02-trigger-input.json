@@ -1,0 +1,5 @@
+{
+  "trigger": "policyAmbiguity",
+  "source": "controlled-bypass-tool-fixture",
+  "scope": "managedBrowserWindow"
+}

@@ -1,0 +1,14 @@
+{
+  "scenarioId": "shopping",
+  "surface": "browser",
+  "fixtureKind": "controlled-shopping-fixture",
+  "captureReason": "managedUrlChange",
+  "captureScope": "managedBrowserWindow",
+  "visibleTextFixture": [
+    "Shopping cart checkout",
+    "Buy now and payment options",
+    "Product recommendations visible"
+  ],
+  "realWindowCapture": true,
+  "liveExternalUrl": false
+}

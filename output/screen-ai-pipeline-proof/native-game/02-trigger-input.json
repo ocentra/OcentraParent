@@ -1,0 +1,5 @@
+{
+  "trigger": "appGameForegroundStart",
+  "source": "controlled-native-game-window-fixture",
+  "scope": "activeWindow"
+}

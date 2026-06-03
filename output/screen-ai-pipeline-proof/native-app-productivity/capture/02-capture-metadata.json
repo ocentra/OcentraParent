@@ -1,0 +1,21 @@
+{
+  "actualScope": "selectedWindow",
+  "analysisTempPath": "output\\screen-ai-pipeline-proof\\native-app-productivity\\capture\\capture.png.tmp",
+  "appNameDigest": "d5617aed48f7b30c110d7e3ce3ec3954acb6db0decd9765fd43fd1bf635770aa",
+  "appNamePresent": true,
+  "captured": true,
+  "height": 748,
+  "imageByteSize": 68648,
+  "imageDigest": "10889ec733b8e16f4e909e1b080d700a81eb4b328ad2ac291e8883f774ab2139",
+  "monitorId": 65639,
+  "monitorNameDigest": "fc2b61e60bd49f1e7549634104eeb412b74b89cdbc3e2b6eebf6ca7ec8ac1a98",
+  "monitorNamePresent": true,
+  "pid": 42368,
+  "rawImagePersistedInProof": false,
+  "requestedScope": "selectedWindow",
+  "status": "available",
+  "titleDigest": "cbe0810c1446fb033d8b0fde0373720bc1b2a108fc3e05e180abe9ad00f37a2d",
+  "titlePresent": true,
+  "width": 1430,
+  "windowId": 138871620
+}

@@ -1,0 +1,14 @@
+{
+  "scenarioId": "native-app-productivity",
+  "surface": "nativeNotepad",
+  "fixtureKind": "controlled-native-app-window-fixture",
+  "captureReason": "foregroundAppChange",
+  "captureScope": "activeWindow",
+  "visibleTextFixture": [
+    "Native app productivity notes",
+    "Homework checklist",
+    "Write report and save document"
+  ],
+  "realWindowCapture": true,
+  "liveExternalUrl": false
+}

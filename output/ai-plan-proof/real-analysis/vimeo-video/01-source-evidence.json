@@ -1,0 +1,14 @@
+{
+  "scenarioId": "vimeo-video",
+  "surface": "browser",
+  "fixtureKind": "controlled-vimeo-video-fixture",
+  "captureReason": "managedUrlChange",
+  "captureScope": "managedBrowserWindow",
+  "visibleTextFixture": [
+    "Vimeo video player",
+    "Independent documentary clip",
+    "Video controls and playback timeline visible"
+  ],
+  "realWindowCapture": true,
+  "liveExternalUrl": false
+}

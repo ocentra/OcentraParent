@@ -1,0 +1,18 @@
+{
+  "scenarioId": "youtube-ordinary-video",
+  "journalEntryId": "journal-screen-ai-youtube-ordinary-video",
+  "trigger": "managedUrlChange",
+  "captureResultId": "screen-capture-proof-youtube-ordinary-video",
+  "screenAnalysisResultId": "screen-analysis-youtube-ordinary-video",
+  "localAiResultId": "local-ai-result-youtube-ordinary-video",
+  "policyDecisionId": "policy-decision-screen-analysis-youtube-ordinary-video",
+  "deletionState": "deleted",
+  "readModelRows": [
+    {
+      "rowId": "parent-screen-ai-row-youtube-ordinary-video",
+      "category": "video",
+      "action": "warn",
+      "confidence": 1
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "scenarioId": "unknown-activity",
+  "journalEntryId": "journal-screen-ai-unknown-activity",
+  "trigger": "policyAmbiguity",
+  "captureResultId": "screen-capture-proof-unknown-activity",
+  "screenAnalysisResultId": "screen-analysis-unknown-activity",
+  "localAiResultId": "local-ai-result-unknown-activity",
+  "policyDecisionId": "policy-decision-screen-analysis-unknown-activity",
+  "deletionState": "deleted",
+  "readModelRows": [
+    {
+      "rowId": "parent-screen-ai-row-unknown-activity",
+      "category": "unknown",
+      "action": "ask-parent",
+      "confidence": 0.34
+    }
+  ]
+}

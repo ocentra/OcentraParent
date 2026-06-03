@@ -1,0 +1,9 @@
+{
+  "proofTier": "P3_LOCAL_DEV_MACHINE",
+  "providerKind": "localVision",
+  "runtimeBinary": "%USERPROFILE%\\.cache\\ocentra-parent\\llama.cpp\\b9279\\llama-mtmd-cli.exe",
+  "model": "%USERPROFILE%\\.cache\\ocentra-parent\\local-ai-models\\Qwen2-VL-2B-Instruct-Q4_K_M.gguf",
+  "mmproj": "%USERPROFILE%\\.cache\\ocentra-parent\\local-ai-models\\mmproj-Qwen2-VL-2B-Instruct-Q8_0.gguf",
+  "modelSource": "ggml-org/Qwen2-VL-2B-Instruct-GGUF",
+  "loadState": "loaded"
+}

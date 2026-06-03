@@ -1,24 +1,24 @@
 {
   "schemaVersion": "v0.6",
-  "resultId": "local-ai-result-manual-browser-education-vlm",
-  "requestId": "local-ai-request-manual-browser-education-vlm",
+  "resultId": "local-ai-result-school-productivity",
+  "requestId": "local-ai-request-school-productivity",
   "action": "allow",
-  "confidence": 0.95,
+  "confidence": 1,
   "unknownState": "none",
   "degradedState": "none",
   "reasonCodes": [
     "screen-category-school"
   ],
-  "explanationReference": "screen-analysis-result:screen-analysis-manual-browser-education-vlm",
+  "explanationReference": "screen-analysis-result:screen-analysis-school-productivity",
   "evidenceReferences": [
     {
-      "evidenceReferenceId": "screen-analysis-evidence-manual-browser-education-vlm",
+      "evidenceReferenceId": "screen-analysis-evidence-school-productivity",
       "kind": "activity-event",
-      "observedAt": "2026-06-03T09:17:28.736Z"
+      "observedAt": "2026-06-03T14:00:37.324Z"
     }
   ],
   "parentRuleReferences": [
-    "screen-policy-school"
+    "screen-policy-school-productivity"
   ],
   "memoryReferences": [],
   "graphReferences": [],
@@ -38,9 +38,9 @@
     ],
     "resourceClass": "cpu",
     "degradedState": "none",
-    "lastCheckedAt": "2026-06-03T09:17:28.736Z",
+    "lastCheckedAt": "2026-06-03T14:00:37.324Z",
     "unavailableReason": null
   },
-  "promptVersion": "screen-ai-local-vlm-proof-v1",
+  "promptVersion": "screen-ai-local-vlm-matrix-proof-v2",
   "expiresAt": null
 }

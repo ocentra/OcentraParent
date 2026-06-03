@@ -1,0 +1,10 @@
+{
+  "keepRawUntilAnalysis": true,
+  "platform": "windows",
+  "proofClaim": "real-active-window-capture-custody",
+  "proofTier": "P3_LOCAL_DEV_MACHINE",
+  "requestedScope": "selectedWindow",
+  "runId": "VM4GxzGXtRgAAAAAAAAAAA",
+  "status": "available",
+  "targetWindowTitleContains": "Ocentra AI Proof Timed Cadence 1"
+}

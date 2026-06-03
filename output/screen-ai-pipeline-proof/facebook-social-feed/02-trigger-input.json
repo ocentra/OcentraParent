@@ -1,0 +1,5 @@
+{
+  "trigger": "managedUrlChange",
+  "source": "controlled-social-feed-fixture",
+  "scope": "managedBrowserWindow"
+}

@@ -1,20 +1,8 @@
 {
-  "proof": "screen-ai-local-vlm-proof",
   "scenarioId": "manual-browser-education-vlm",
-  "platform": "win32",
-  "captured": true,
-  "analyzedByRealLocalVlm": true,
-  "schemaValidated": true,
-  "localAiSafetyResultValidated": true,
-  "policyDecisionValidated": true,
-  "primaryCategory": "school",
-  "confidence": 0.95,
+  "supersededBy": "school-productivity",
+  "sourceArtifact": "output\\ai-plan-proof\\real-analysis\\school-productivity",
   "policyAction": "allow",
-  "policyDryRun": true,
-  "enforcementHandoffState": "disabled",
-  "rawImageDeletedAfterAnalysis": true,
-  "captureArtifact": "output\\screen-ai-pipeline-proof\\manual-browser-education-vlm\\capture",
-  "analysisArtifact": "output\\ai-plan-proof\\real-analysis\\manual-browser-education-vlm",
-  "degradedIsCaptureProof": false,
-  "degradedIsAiProof": false
+  "primaryCategory": "school",
+  "rawImageDeletedAfterAnalysis": true
 }

@@ -1,0 +1,14 @@
+{
+  "scenarioId": "facebook-social-feed",
+  "sourceEvidenceRefs": [
+    {
+      "evidenceId": "screen-evidence-facebook-social-feed",
+      "kind": "screenshot",
+      "digest": "9a73b0ed70c235066bfebf0eb6f8fc7db5555420ddc8139fdc90e799366acce0",
+      "uri": null
+    }
+  ],
+  "promptVersion": "screen-ai-local-vlm-matrix-proof-v2",
+  "contextBuiltFromTypedCaptureMetadata": true,
+  "directOsOrBrowserScanByModel": false
+}

@@ -1,0 +1,14 @@
+{
+  "scenarioId": "adult-or-violence-controlled-fixture",
+  "surface": "browser",
+  "fixtureKind": "controlled-safe-risk-text-fixture",
+  "captureReason": "policyAmbiguity",
+  "captureScope": "managedBrowserWindow",
+  "visibleTextFixture": [
+    "Controlled safety fixture",
+    "Violence keyword visible for detector test",
+    "No unsafe image is loaded"
+  ],
+  "realWindowCapture": true,
+  "liveExternalUrl": false
+}

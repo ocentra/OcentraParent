@@ -1,0 +1,18 @@
+{
+  "scenarioId": "shopping",
+  "journalEntryId": "journal-screen-ai-shopping",
+  "trigger": "managedUrlChange",
+  "captureResultId": "screen-capture-proof-shopping",
+  "screenAnalysisResultId": "screen-analysis-shopping",
+  "localAiResultId": "local-ai-result-shopping",
+  "policyDecisionId": "policy-decision-screen-analysis-shopping",
+  "deletionState": "deleted",
+  "readModelRows": [
+    {
+      "rowId": "parent-screen-ai-row-shopping",
+      "category": "shopping",
+      "action": "ask-parent",
+      "confidence": 1
+    }
+  ]
+}

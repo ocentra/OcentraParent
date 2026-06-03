@@ -1,0 +1,3 @@
+scenario=adult-or-violence-controlled-fixture
+category=violence
+action=block

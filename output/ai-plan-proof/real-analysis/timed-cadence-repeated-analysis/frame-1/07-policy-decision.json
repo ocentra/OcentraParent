@@ -1,0 +1,67 @@
+{
+  "familyPolicySet": {
+    "schemaVersion": "v0.6",
+    "family": {
+      "familyId": "screen-ai-proof-family"
+    },
+    "childProfiles": [
+      {
+        "childProfileId": "screen-ai-proof-child",
+        "displayName": "Proof child"
+      }
+    ],
+    "devices": [
+      {
+        "deviceId": "screen-ai-proof-device",
+        "childProfileId": "screen-ai-proof-child",
+        "label": "Windows proof desktop",
+        "platform": "windows"
+      }
+    ],
+    "policyVersion": "screen-ai-proof-policy-v1",
+    "rules": [
+      {
+        "ruleId": "screen-policy-timed-cadence-repeated-analysis-frame-1",
+        "target": {
+          "targetId": "screen-category-target-timed-cadence-repeated-analysis-frame-1",
+          "targetType": "category",
+          "targetValue": "productivity"
+        },
+        "action": "allow",
+        "scheduleId": null,
+        "priority": 100,
+        "reasonCode": "screen-category-productivity",
+        "createdBy": {
+          "actorId": "screen-ai-proof-parent",
+          "role": "parent"
+        },
+        "enabled": true,
+        "effectiveFrom": null,
+        "effectiveUntil": null
+      }
+    ],
+    "schedules": []
+  },
+  "policyDecision": {
+    "schemaVersion": "v0.6",
+    "decisionId": "policy-decision-screen-analysis-timed-cadence-repeated-analysis-frame-1",
+    "action": "allow",
+    "reasonCodes": [
+      "screen-category-productivity"
+    ],
+    "evidenceReferences": [
+      {
+        "evidenceReferenceId": "screen-analysis-evidence-timed-cadence-repeated-analysis-frame-1",
+        "kind": "activity-event",
+        "observedAt": "2026-06-03T14:04:57.960Z"
+      }
+    ],
+    "ruleIds": [
+      "screen-policy-timed-cadence-repeated-analysis-frame-1"
+    ],
+    "localAiResultId": "local-ai-result-timed-cadence-repeated-analysis-frame-1",
+    "dryRun": true,
+    "enforcementHandoffState": "disabled",
+    "expiresAt": null
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "scenarioId": "facebook-social-feed",
+  "surface": "browser",
+  "fixtureKind": "controlled-social-feed-fixture",
+  "captureReason": "managedUrlChange",
+  "captureScope": "managedBrowserWindow",
+  "visibleTextFixture": [
+    "Facebook style social feed",
+    "Friend requests and messages",
+    "Chat and social posts visible"
+  ],
+  "realWindowCapture": true,
+  "liveExternalUrl": false
+}

@@ -1,0 +1,67 @@
+{
+  "familyPolicySet": {
+    "schemaVersion": "v0.6",
+    "family": {
+      "familyId": "screen-ai-proof-family"
+    },
+    "childProfiles": [
+      {
+        "childProfileId": "screen-ai-proof-child",
+        "displayName": "Proof child"
+      }
+    ],
+    "devices": [
+      {
+        "deviceId": "screen-ai-proof-device",
+        "childProfileId": "screen-ai-proof-child",
+        "label": "Windows proof desktop",
+        "platform": "windows"
+      }
+    ],
+    "policyVersion": "screen-ai-proof-policy-v1",
+    "rules": [
+      {
+        "ruleId": "screen-policy-vimeo-video",
+        "target": {
+          "targetId": "screen-category-target-vimeo-video",
+          "targetType": "video",
+          "targetValue": "video"
+        },
+        "action": "warn",
+        "scheduleId": null,
+        "priority": 100,
+        "reasonCode": "screen-category-video",
+        "createdBy": {
+          "actorId": "screen-ai-proof-parent",
+          "role": "parent"
+        },
+        "enabled": true,
+        "effectiveFrom": null,
+        "effectiveUntil": null
+      }
+    ],
+    "schedules": []
+  },
+  "policyDecision": {
+    "schemaVersion": "v0.6",
+    "decisionId": "policy-decision-screen-analysis-vimeo-video",
+    "action": "warn",
+    "reasonCodes": [
+      "screen-category-video"
+    ],
+    "evidenceReferences": [
+      {
+        "evidenceReferenceId": "screen-analysis-evidence-vimeo-video",
+        "kind": "activity-event",
+        "observedAt": "2026-06-03T13:57:21.613Z"
+      }
+    ],
+    "ruleIds": [
+      "screen-policy-vimeo-video"
+    ],
+    "localAiResultId": "local-ai-result-vimeo-video",
+    "dryRun": true,
+    "enforcementHandoffState": "disabled",
+    "expiresAt": null
+  }
+}

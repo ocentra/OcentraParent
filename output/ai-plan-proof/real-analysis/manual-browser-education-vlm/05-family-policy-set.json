@@ -20,9 +20,9 @@
   "policyVersion": "screen-ai-proof-policy-v1",
   "rules": [
     {
-      "ruleId": "screen-policy-school",
+      "ruleId": "screen-policy-school-productivity",
       "target": {
-        "targetId": "screen-category-target-school",
+        "targetId": "screen-category-target-school-productivity",
         "targetType": "category",
         "targetValue": "school"
       },

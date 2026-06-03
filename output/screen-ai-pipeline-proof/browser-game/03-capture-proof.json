@@ -1,0 +1,24 @@
+{
+  "captureDir": "output\\screen-ai-pipeline-proof\\browser-game\\capture",
+  "captureMetadata": {
+    "actualScope": "selectedWindow",
+    "analysisTempPath": "output\\screen-ai-pipeline-proof\\browser-game\\capture\\capture.png.tmp",
+    "appNameDigest": "445d6290691548b5a602994dec2eea134cf7871217e14700d14f92437605e6f6",
+    "appNamePresent": true,
+    "captured": true,
+    "height": 721,
+    "imageByteSize": 93474,
+    "imageDigest": "1477f510f515c9dab184bcbbb3b03478db115753073d8d67bb0320561f117caa",
+    "monitorId": 65639,
+    "monitorNameDigest": "fc2b61e60bd49f1e7549634104eeb412b74b89cdbc3e2b6eebf6ca7ec8ac1a98",
+    "monitorNamePresent": true,
+    "pid": 12176,
+    "rawImagePersistedInProof": false,
+    "requestedScope": "selectedWindow",
+    "status": "available",
+    "titleDigest": "8c3031c7c74a321138c0c7eb50875d0b165e0883cdfb8733be48b9dee9665d73",
+    "titlePresent": true,
+    "width": 962,
+    "windowId": 40960710
+  }
+}

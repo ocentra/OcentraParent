@@ -1,0 +1,23 @@
+{
+  "scenarioId": "native-app-productivity",
+  "title": "Ocentra AI Proof Native App Productivity",
+  "parentVisibleSummary": "Local AI saw productivity evidence and policy selected allow.",
+  "category": "productivity",
+  "confidence": 0.95,
+  "action": "allow",
+  "evidenceReferences": [
+    {
+      "evidenceReferenceId": "screen-analysis-evidence-native-app-productivity",
+      "kind": "activity-event",
+      "observedAt": "2026-06-03T14:01:37.259Z"
+    }
+  ],
+  "parentRuleReferences": [
+    "screen-policy-native-app-productivity"
+  ],
+  "rawImageRetained": false,
+  "imageDeletionState": "deleted",
+  "aiDoesNotEnforceDirectly": true,
+  "dryRun": true,
+  "nonClaim": "Proof UI snapshot is an artifact preview, not the production portal runtime."
+}

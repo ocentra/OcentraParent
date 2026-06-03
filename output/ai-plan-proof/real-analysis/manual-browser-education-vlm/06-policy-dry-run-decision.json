@@ -1,21 +1,21 @@
 {
   "schemaVersion": "v0.6",
-  "decisionId": "policy-decision-manual-browser-education-vlm",
+  "decisionId": "policy-decision-screen-analysis-school-productivity",
   "action": "allow",
   "reasonCodes": [
     "screen-category-school"
   ],
   "evidenceReferences": [
     {
-      "evidenceReferenceId": "screen-analysis-evidence-manual-browser-education-vlm",
+      "evidenceReferenceId": "screen-analysis-evidence-school-productivity",
       "kind": "activity-event",
-      "observedAt": "2026-06-03T09:17:28.736Z"
+      "observedAt": "2026-06-03T14:00:37.324Z"
     }
   ],
   "ruleIds": [
-    "screen-policy-school"
+    "screen-policy-school-productivity"
   ],
-  "localAiResultId": "local-ai-result-manual-browser-education-vlm",
+  "localAiResultId": "local-ai-result-school-productivity",
   "dryRun": true,
   "enforcementHandoffState": "disabled",
   "expiresAt": null

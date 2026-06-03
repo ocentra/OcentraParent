@@ -1,0 +1,14 @@
+{
+  "scenarioId": "timed-cadence-repeated-analysis-frame-1",
+  "surface": "browser",
+  "fixtureKind": "controlled-timed-cadence-fixture",
+  "captureReason": "cadence",
+  "captureScope": "managedBrowserWindow",
+  "visibleTextFixture": [
+    "Timed cadence proof frame 1",
+    "Writing homework notes",
+    "Productivity activity visible"
+  ],
+  "realWindowCapture": true,
+  "liveExternalUrl": false
+}

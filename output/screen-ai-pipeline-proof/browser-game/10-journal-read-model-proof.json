@@ -1,0 +1,18 @@
+{
+  "scenarioId": "browser-game",
+  "journalEntryId": "journal-screen-ai-browser-game",
+  "trigger": "appGameForegroundStart",
+  "captureResultId": "screen-capture-proof-browser-game",
+  "screenAnalysisResultId": "screen-analysis-browser-game",
+  "localAiResultId": "local-ai-result-browser-game",
+  "policyDecisionId": "policy-decision-screen-analysis-browser-game",
+  "deletionState": "deleted",
+  "readModelRows": [
+    {
+      "rowId": "parent-screen-ai-row-browser-game",
+      "category": "game",
+      "action": "time-limit",
+      "confidence": 1
+    }
+  ]
+}

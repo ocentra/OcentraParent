@@ -1,25 +1,25 @@
 {
   "schemaVersion": 1,
-  "screenAnalysisResultId": "screen-analysis-manual-browser-education-vlm",
-  "queueJobId": "screen-capture-proof-manual-browser-education-vlm",
-  "analyzedAt": "2026-06-03T09:17:28.736Z",
+  "screenAnalysisResultId": "screen-analysis-school-productivity",
+  "queueJobId": "screen-capture-proof-school-productivity",
+  "analyzedAt": "2026-06-03T14:00:37.324Z",
   "modelRuntimeRef": "local-qwen2-vl-2b-llama-mtmd",
   "modelId": "Qwen2-VL-2B-Instruct-Q4_K_M",
   "providerKind": "localVision",
-  "promptOrTemplateVersion": "screen-ai-local-vlm-proof-v1",
+  "promptOrTemplateVersion": "screen-ai-local-vlm-matrix-proof-v2",
   "captureReason": "manualParentTestCapture",
-  "captureScope": "activeWindow",
+  "captureScope": "managedBrowserWindow",
   "capabilityStatus": "ready",
-  "summary": "School Lesson: Fractions",
+  "summary": "Ocentra AI Proof School Productivity",
   "visibleCategoryCandidates": [
     {
       "category": "school",
-      "confidence": 0.95,
+      "confidence": 1,
       "evidenceRefs": [
         {
-          "evidenceId": "screen-evidence-manual-browser-education-vlm",
+          "evidenceId": "screen-evidence-school-productivity",
           "kind": "screenshot",
-          "digest": "ed8056b43808d48adb7b403fdef664fcacb11880df679a300ab8d5cd4e0bf3d0",
+          "digest": "aaad7ed7c9c5196fa637aab9140585c1e02d18fd87e49d6dc09a2b6547c34c26",
           "uri": null
         }
       ]
@@ -29,30 +29,30 @@
   "riskSignals": [],
   "ocrTextSnippets": [
     {
-      "text": "School Lesson: Fractions",
-      "confidence": 0.95,
+      "text": "Ocentra AI Proof School Productivity",
+      "confidence": 1,
       "evidenceRefs": [
         {
-          "evidenceId": "screen-evidence-manual-browser-education-vlm",
+          "evidenceId": "screen-evidence-school-productivity",
           "kind": "screenshot",
-          "digest": "ed8056b43808d48adb7b403fdef664fcacb11880df679a300ab8d5cd4e0bf3d0",
+          "digest": "aaad7ed7c9c5196fa637aab9140585c1e02d18fd87e49d6dc09a2b6547c34c26",
           "uri": null
         }
       ]
     }
   ],
   "redactionNotes": [],
-  "confidence": 0.95,
+  "confidence": 1,
   "uncertaintyReason": null,
   "sourceEvidenceRefs": [
     {
-      "evidenceId": "screen-evidence-manual-browser-education-vlm",
+      "evidenceId": "screen-evidence-school-productivity",
       "kind": "screenshot",
-      "digest": "ed8056b43808d48adb7b403fdef664fcacb11880df679a300ab8d5cd4e0bf3d0",
+      "digest": "aaad7ed7c9c5196fa637aab9140585c1e02d18fd87e49d6dc09a2b6547c34c26",
       "uri": null
     }
   ],
-  "imageDigest": "ed8056b43808d48adb7b403fdef664fcacb11880df679a300ab8d5cd4e0bf3d0",
+  "imageDigest": "aaad7ed7c9c5196fa637aab9140585c1e02d18fd87e49d6dc09a2b6547c34c26",
   "rawImageRetained": false,
   "imageDeletionState": "deleted",
   "custodyState": "child-device-query-store",
