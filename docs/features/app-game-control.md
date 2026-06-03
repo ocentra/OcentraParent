@@ -53,6 +53,11 @@ control with better evidence and local audit.
   through typed app-use and games activity-surface read models, including
   inventory, runtime, foreground, launcher/source-count, daily rollup,
   capability, and evidence-ref fields.
+- The parent portal App/Game Sessions surface now renders those service-backed
+  app-use and games read-model rows in a dedicated dashboard intent and SVG
+  surface with separate inventory, running, foreground, launcher-only,
+  unknown-review, manual-required capability, game-budget gap, and evidence
+  counts.
 - Package/process identity and owned-process time-limit proof are in progress.
 - The V0.8 product-control spine separates app time-limit and scoped
   owned-process control from broad installed-app blocking, so downstream policy
@@ -97,10 +102,11 @@ control with better evidence and local audit.
 
 ## Current Gap
 
-Parent-visible app catalog/dashboard UI, category quality, live launcher
-crawling, install/approval linkage, child request flow, broad blocking, and
-cross-platform parity are incomplete. Broad installed-app blocking remains
-manual-required beyond the scoped
+Parent-visible app catalog/dashboard UI now has an initial service-backed
+App/Game Sessions surface, but category quality, unknown approvals, game budget
+policy, live launcher crawling, install/approval linkage, child request flow,
+broad blocking, and cross-platform parity are incomplete. Broad installed-app
+blocking remains manual-required beyond the scoped
 owned-process/app-session proof, including in the broad-adapter and
 supported-adapter runtime service proofs. The integrity runtime audit proves
 typed timer/rollback/child-status visibility for scoped app/game outcomes, but
@@ -119,8 +125,9 @@ decisions.
 - [ ] Running and foreground session evidence. Contract and local
       SQLite-row session-duration proof now exists, and staged journal-file
       replay proof now covers typed fixture rows; service app-use/games
-      read-model DTOs now expose those projected rows; live source adapters,
-      dedicated portal dashboard rows, and policy integration remain.
+      read-model DTOs now expose those projected rows; the parent portal now
+      has a dedicated app/game dashboard surface for those rows; live source
+      adapters and policy integration remain.
 - [ ] Category and unknown-state handling.
 - [ ] App/category schedule and time-budget rules.
 - [ ] Ask-parent and bonus-time flow.

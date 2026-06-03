@@ -149,21 +149,20 @@ as:
 ## Current Portal
 
 The portal can show live activity, activity timeline, policy preview, capability
-guidance, device rule scope, layout panels, and app/game navigation entry
-points. It is not yet a complete parent-facing app/game dashboard.
+guidance, device rule scope, layout panels, app/game navigation entry points,
+and a dedicated App/Game Sessions dashboard surface backed by app-use and games
+activity-surface read models. It is not yet a complete parent-facing app/game
+product flow.
 
 Missing portal states include:
 
-- installed apps and installed games without use claims;
-- running apps/games without foreground claims;
-- foreground active app/game without content claims;
-- launcher-only versus active game rows;
-- launcher-game candidate rows;
+- full app/game identity and catalog quality beyond reported read-model rows;
 - unknown app and unknown game approval requests;
-- game budget and game category rows;
+- game budget policy authoring and category rows;
 - live risk app and risk game candidate production rows;
-- platform capability matrix with manual-required proof;
-- malicious/long metadata resilience screenshots.
+- platform capability matrix rows backed by live authority proof;
+- malicious/long metadata resilience screenshots beyond the focused portal
+  route proof.
 
 ## Current Gaps
 
@@ -192,8 +191,10 @@ Missing portal states include:
   rows into app-use and games activity-surface read models. It does not yet
   store the WP01 evidence-claim or authority proof shapes, and it is not yet
   wired to live source subscriptions or dedicated portal dashboard rows.
-- Portal app/game dashboard rows do not yet consume the new contracts; only
-  service-facing activity-surface DTOs are wired in this slice.
+- Portal App/Game Sessions dashboard rows now consume the app-use and games
+  activity-surface DTOs through a shared dashboard intent, but approval,
+  policy, game-budget, live source, and platform-authority surfaces remain
+  incomplete.
 - Launcher evidence has contract/protocol/parser proof and service DTO exposure
   from staged projection rows, but live launcher crawling, dedicated portal
   rows, and game-budget policy are not product-complete. A launcher row must

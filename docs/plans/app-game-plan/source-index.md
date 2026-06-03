@@ -155,7 +155,9 @@ Current portal-related app/game surfaces include:
 - `apps/portal/src/PortalAppLayoutContentPanel.tsx`
 - `apps/portal/public/parent-nav-app.svg`
 - `apps/portal/public/parent-nav-games.svg`
+- `packages/portal-domain/src/parent-portal-data.ts`
 - `vendor/ocentra-parent-core-ui/AppPages/ParentPortal/activity-ui-intent.ts`
+- `vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-dashboard-intent.ts`
 
 Portal work must render service-backed rows or explicit UI fixtures. It must not
 scan the OS, classify apps, run timers, or call enforcement adapters.

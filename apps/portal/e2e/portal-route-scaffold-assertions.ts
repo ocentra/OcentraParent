@@ -173,7 +173,7 @@ async function assertProductRoute(
     return;
   }
   if (kind === 'activityManage') {
-    await assertActivityManageSurface(page, surface);
+    await assertActivityManageSurface(page, surface, path);
     return;
   }
   if (kind === 'lanPairing') {
@@ -394,9 +394,18 @@ async function assertBrowserPolicyDeviceTargets(page: Page, surface: ReturnType<
   }
 }
 
-async function assertActivityManageSurface(page: Page, surface: ReturnType<Page['locator']>): Promise<void> {
+async function assertActivityManageSurface(
+  page: Page,
+  surface: ReturnType<Page['locator']>,
+  path: string
+): Promise<void> {
   await expect(surface.locator('text').filter({ hasText: 'Family' }).first()).toBeVisible();
   await expect(surface.locator('text').filter({ hasText: 'Per Device' }).first()).toBeVisible();
+  if (path === '/#/app-game-sessions') {
+    await assertAppGameDashboardRouteSurface(page, surface);
+    await assertCollapsedActivitySubsurfaceRemoved(page, surface);
+    return;
+  }
   await expect(surface.locator('text').filter({ hasText: 'Reports' }).first()).toBeVisible();
   await expect(surface.locator('text').filter({ hasText: 'Screen' }).first()).toBeVisible();
   await expect(surface.locator('text').filter({ hasText: 'App Use' }).first()).toBeVisible();
@@ -414,6 +423,22 @@ async function assertActivityManageSurface(page: Page, surface: ReturnType<Page[
   await expect(surface.locator('text').filter({ hasText: 'D001' })).toHaveCount(0);
   await assertActivityReportSurface(page, surface);
   await assertCollapsedActivitySubsurfaceRemoved(page, surface);
+}
+
+async function assertAppGameDashboardRouteSurface(page: Page, surface: ReturnType<Page['locator']>): Promise<void> {
+  await expect(surface.locator('text').filter({ hasText: 'APP/GAME READ MODEL DASHBOARD' }).first()).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: 'SERVICE ROWS' }).first()).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: 'CAPABILITY MATRIX' }).first()).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: 'EVIDENCE DRAWER' }).first()).toBeVisible();
+  await expect(surface.locator('text').filter({ hasText: 'GAME BUDGETS' }).first()).toBeVisible();
+  const visibleText = await surfaceText(surface);
+  expect(visibleText).toMatch(/\b(?:INVENTORY|Inventory)\b/);
+  expect(visibleText).toMatch(/\b(?:RUNNING|Running)\b/);
+  expect(visibleText).toMatch(/\b(?:FOREGROUND|Foreground)\b/);
+  expect(visibleText).toMatch(/\b(?:LAUNCHER|Launcher)\b/);
+  await expect(page.getByRole('button', { name: 'Select Aarav laptop' })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Select Mina tablet' })).toHaveCount(0);
+  await expect(surface.locator('text').filter({ hasText: 'D001' })).toHaveCount(0);
 }
 
 async function assertActivityReportSurface(page: Page, surface: ReturnType<Page['locator']>): Promise<void> {

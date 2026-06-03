@@ -112,7 +112,10 @@ and evidence-ref state from staged journal/SQLite replay.
 ## Portal That Exists
 
 `apps/portal` already renders service-backed live activity and policy-preview
-state. There is no finished dedicated native app dashboard yet.
+state. The App/Game Sessions route now has a dedicated service-backed dashboard
+for app-use and games read-model rows, including separate native app inventory,
+running, foreground, unknown/risk/manual-required capability, duration, and
+evidence counts. It is not yet a finished native app product flow.
 
 Existing portal/source areas that app work should extend:
 
@@ -127,7 +130,7 @@ Existing portal/source areas that app work should extend:
 
 ## Proof That Exists
 
-The native app plan now mirrors the shared app/game proof spine for WP01-WP14:
+The native app plan now mirrors the shared app/game proof spine for WP01-WP15:
 
 ```text
 output/app-plan-proof/01-contract-boundary-and-effect-schemas
@@ -144,12 +147,13 @@ output/app-plan-proof/11-app-category-and-risk-taxonomy
 output/app-plan-proof/12-app-sessionization-and-duration-engine
 output/app-plan-proof/13-journal-and-sqlite-app-ingest
 output/app-plan-proof/14-app-read-models-and-service-events
+output/app-plan-proof/15-parent-portal-app-inventory-running-session-surfaces
 ```
 
 Those proof packs point back to `output/app-game-plan-proof/*` for the shared
 contract, parser, and docs evidence. They prove staged foundations only; they do
-not move product status for live app capture, dedicated portal dashboard UI,
-policy, enforcement, install approval, or cross-platform parity.
+not move product status for live app capture, policy, enforcement, install
+approval, or cross-platform parity.
 
 Current focused proof scripts include:
 
@@ -176,20 +180,22 @@ polished app catalog UI, install approval, or cross-platform parity.
   identity.
 - Foreground evidence now has shared app/game contract/protocol/parser proof,
   stored-row sessionization can derive foreground duration, staged
-  journal/SQLite replay can project foreground-now rows, and service app-use
-  read models can expose foreground state, but live window capture wiring,
-  dedicated portal dashboard rows, and explicit no-content UI labels remain
-  incomplete.
+  journal/SQLite replay can project foreground-now rows, service app-use read
+  models can expose foreground state, and the portal App/Game Sessions
+  dashboard labels foreground separately from inventory/running/content claims,
+  but live window capture wiring remains incomplete.
 - Session duration and daily app rollups now have deterministic SQLite-row
-  replay proof plus staged encrypted journal-file ingest/replay proof, and
-  service app-use read models can expose daily rollup counts/duration, but
-  dedicated portal dashboard rows, policy/report integration, live source
-  subscriptions, and journal corruption/recovery proof remain incomplete.
+  replay proof plus staged encrypted journal-file ingest/replay proof, service
+  app-use read models can expose daily rollup counts/duration, and the portal
+  dashboard shows duration/counts from those read models, but policy/report
+  integration, live source subscriptions, and journal corruption/recovery proof
+  remain incomplete.
 - New/unknown app approval and child request UX are incomplete.
 - App category/risk taxonomy now has contract/test proof, but live classifier
   enrichment, policy routing, portal category rows, and runtime app risk
   detection remain incomplete.
-- Parent app catalog/dashboard is not product-complete.
+- Parent app catalog/dashboard has an initial service-backed App/Game Sessions
+  surface, but it is not product-complete.
 - Broad app blocking remains manual-required outside scoped owned-process
   proof.
 - Platform-specific authority tiers are now modeled as shared app/game

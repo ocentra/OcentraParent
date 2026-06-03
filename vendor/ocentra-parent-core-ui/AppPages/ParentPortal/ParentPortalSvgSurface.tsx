@@ -64,6 +64,12 @@ import {
   createParentPortalLanPairingUiSlots,
   parentPortalActivityAdapterRecord,
 } from './activity-ui-intent';
+import type {
+  ParentPortalAppGameDashboardIntent,
+  ParentPortalAppGameDashboardMetric,
+  ParentPortalAppGameDashboardRow,
+  ParentPortalAppGameDashboardTone,
+} from './app-game-dashboard-intent';
 import { WeeklySchedulerScratchPage } from './WeeklySchedulerScratchPage';
 import { AnimatedSidebarIconButton } from './AnimatedSidebarIconButton';
 import { ChatBubbleSvg, estimateChatBubbleHeight } from './ParentPortalChatBubble';
@@ -4058,6 +4064,17 @@ function isReportsManageTitle(title: string): boolean {
   return assetKey(title).includes('report');
 }
 
+function isAppGameDashboardManageContext(activeNavLabel: string, selectedControlName: string, title: string): boolean {
+  const key = `${assetKey(activeNavLabel)} ${assetKey(selectedControlName)} ${assetKey(title)}`;
+  return (
+    key.includes('app-game-sessions') ||
+    key.includes('apps-games') ||
+    key.includes('app-and-game') ||
+    key.includes('app-game') ||
+    key.includes('app-use')
+  );
+}
+
 function emptyReportPlanSeatSlot(slotIndex: number): DeviceSlot {
   return {
     value: `report-empty-seat-${slotIndex + 1}`,
@@ -5706,6 +5723,288 @@ function activityRowsFromReadModels(
   ];
 }
 
+function ParentPortalAppGameDashboardPanel({
+  x,
+  y,
+  w,
+  h,
+  dashboard,
+  themeColor,
+  cfg,
+}: {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  dashboard: ParentPortalAppGameDashboardIntent;
+  themeColor?: string;
+  cfg: ParentPortalSvgControls;
+}) {
+  const color = themeColor ?? appGameDashboardToneColor(appGameDashboardStateTone(dashboard.state), cfg);
+  const compact = w < 860;
+  const headerH = 72;
+  const bodyY = y + headerH;
+  const bodyH = Math.max(1, h - headerH);
+  const metricColumns = w > 1220 ? 5 : w > 900 ? 4 : 2;
+  const metricRows = Math.ceil(Math.min(dashboard.metrics.length, compact ? 6 : 10) / metricColumns);
+  const metricGap = 8;
+  const metricH = 46;
+  const metricsH = Math.max(metricH, metricRows * metricH + Math.max(0, metricRows - 1) * metricGap);
+  const metricW = (w - metricGap * (metricColumns - 1)) / metricColumns;
+  const metrics = dashboard.metrics.slice(0, metricColumns * metricRows);
+  const lowerY = bodyY + metricsH + 14;
+  const lowerH = Math.max(1, y + h - lowerY);
+  const sideW = compact ? 0 : Math.max(280, Math.min(390, Math.round(w * 0.31)));
+  const rowsW = compact ? w : Math.max(1, w - sideW - 14);
+  const rowsColumns = rowsW > 920 ? 2 : 1;
+  const rowGap = 10;
+  const rowCardH = 84;
+  const rowCardW = (rowsW - rowGap * (rowsColumns - 1)) / rowsColumns;
+  const visibleRowCount = Math.max(1, Math.floor(Math.max(1, lowerH - 32) / (rowCardH + rowGap)) * rowsColumns);
+  const visibleRows = dashboard.rows.slice(0, visibleRowCount);
+  const sideX = x + rowsW + 14;
+  const sidePanelH = compact ? 0 : (lowerH - 10) / 2;
+  const summaryLines = wrapCardText(dashboard.summary, w - 24, 12, 2);
+
+  return (
+    <g>
+      <text x={x} y={y + 22} fontSize={18} fontWeight={950} fill={cfg.colors.bodyText}>
+        APP/GAME READ MODEL DASHBOARD
+      </text>
+      <text x={x + w} y={y + 22} textAnchor="end" fontSize={10.5} fontWeight={950} fill={color}>
+        {truncateTextForWidth(`STATE ${dashboard.state.toUpperCase()}`, Math.min(260, w * 0.28), 10.5, 0.58)}
+      </text>
+      <path d={`M ${x} ${y + 37} H ${x + w}`} stroke={color} strokeWidth={1.1} opacity={0.5} />
+      {summaryLines.map((line, index) => (
+        <text
+          key={`app-game-dashboard-summary:${index}`}
+          x={x}
+          y={y + 57 + index * 16}
+          fontSize={12}
+          fontWeight={760}
+          fill={cfg.colors.mutedText}
+        >
+          {line}
+        </text>
+      ))}
+
+      {metrics.map((metric, index) => {
+        const column = index % metricColumns;
+        const row = Math.floor(index / metricColumns);
+        return (
+          <ParentPortalAppGameDashboardMetricCard
+            key={`app-game-dashboard-metric:${metric.label}`}
+            x={x + column * (metricW + metricGap)}
+            y={bodyY + row * (metricH + metricGap)}
+            w={metricW}
+            h={metricH}
+            metric={metric}
+            cfg={cfg}
+          />
+        );
+      })}
+
+      <text x={x} y={lowerY + 14} fontSize={10.5} fontWeight={950} fill={color}>
+        SERVICE ROWS
+      </text>
+      {dashboard.rows.length === 0 ? (
+        <text x={x + 12} y={lowerY + 46} fontSize={12.4} fontWeight={780} fill={cfg.colors.mutedText}>
+          {truncateTextForWidth(dashboard.emptyMessage, rowsW - 24, 12.4, 0.58)}
+        </text>
+      ) : null}
+      {visibleRows.map((row, index) => {
+        const column = index % rowsColumns;
+        const rowIndex = Math.floor(index / rowsColumns);
+        return (
+          <ParentPortalAppGameDashboardRowCard
+            key={`app-game-dashboard-row:${row.sourceKind}:${row.rowId}`}
+            x={x + column * (rowCardW + rowGap)}
+            y={lowerY + 24 + rowIndex * (rowCardH + rowGap)}
+            w={rowCardW}
+            h={rowCardH}
+            row={row}
+            cfg={cfg}
+          />
+        );
+      })}
+
+      {compact ? null : (
+        <>
+          <ParentPortalAppGameDashboardMetricList
+            x={sideX}
+            y={lowerY}
+            w={sideW}
+            h={sidePanelH}
+            title="CAPABILITY MATRIX"
+            rows={dashboard.capabilityRows}
+            cfg={cfg}
+          />
+          <ParentPortalAppGameDashboardMetricList
+            x={sideX}
+            y={lowerY + sidePanelH + 10}
+            w={sideW}
+            h={sidePanelH}
+            title="EVIDENCE DRAWER"
+            rows={dashboard.evidenceRows}
+            cfg={cfg}
+          />
+        </>
+      )}
+    </g>
+  );
+}
+
+function ParentPortalAppGameDashboardMetricCard({
+  x,
+  y,
+  w,
+  h,
+  metric,
+  cfg,
+}: {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  metric: ParentPortalAppGameDashboardMetric;
+  cfg: ParentPortalSvgControls;
+}) {
+  const color = appGameDashboardToneColor(metric.tone, cfg);
+  return (
+    <g>
+      <path
+        d={cutRectPath(x, y, w, h, 7)}
+        fill={colorAlpha(color, '14')}
+        stroke={color}
+        strokeWidth={0.82}
+        opacity={0.94}
+      />
+      <text x={x + 12} y={y + 17} fontSize={9.2} fontWeight={950} fill={color}>
+        {truncateTextForWidth(metric.label.toUpperCase(), w - 24, 9.2, 0.58)}
+      </text>
+      <text x={x + 12} y={y + 35} fontSize={12.2} fontWeight={850} fill={cfg.colors.bodyText}>
+        {truncateTextForWidth(metric.value, w - 24, 12.2, 0.58)}
+      </text>
+    </g>
+  );
+}
+
+function ParentPortalAppGameDashboardRowCard({
+  x,
+  y,
+  w,
+  h,
+  row,
+  cfg,
+}: {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  row: ParentPortalAppGameDashboardRow;
+  cfg: ParentPortalSvgControls;
+}) {
+  const color = appGameDashboardToneColor(row.tone, cfg);
+  const titleSize = fitSingleLineTextSize(row.label, w - 30, 10.6, 14.5, 0.58);
+  const statusLine = `${row.sourceLabel} / ${row.state} / ${row.capabilityStatus}`;
+  const countsLine = `Inventory ${row.inventoryCount} / Running ${row.runningCount} / Foreground ${row.foregroundCount} / Launcher ${row.launcherCount}`;
+  const evidenceLine = `${row.totalDurationLabel} / ${row.eventCountLabel} / Evidence ${row.evidenceCount}`;
+  const warningLine = row.manualRequired
+    ? 'Manual-required capability'
+    : row.unknownApproval
+      ? 'Unknown review candidate'
+      : row.launcherOnly
+        ? 'Launcher-only, not active game'
+        : 'Service-backed row';
+
+  return (
+    <g>
+      <path
+        d={cutRectPath(x, y, w, h, 9)}
+        fill={colorAlpha(color, '12')}
+        stroke={color}
+        strokeWidth={0.9}
+        opacity={0.96}
+      />
+      <circle cx={x + 15} cy={y + 16} r={3.5} fill={color} opacity={0.96} />
+      <text x={x + 26} y={y + 18} fontSize={9.4} fontWeight={950} fill={color}>
+        {truncateTextForWidth(warningLine.toUpperCase(), w - 42, 9.4, 0.58)}
+      </text>
+      <text x={x + 14} y={y + 40} fontSize={titleSize} fontWeight={930} fill={cfg.colors.bodyText}>
+        {truncateTextForWidth(row.label, w - 28, titleSize, 0.58)}
+      </text>
+      <text x={x + 14} y={y + 58} fontSize={10.4} fontWeight={760} fill={cfg.colors.mutedText}>
+        {truncateTextForWidth(statusLine, w - 28, 10.4, 0.58)}
+      </text>
+      <text x={x + 14} y={y + 73} fontSize={9.8} fontWeight={720} fill={cfg.colors.mutedText}>
+        {truncateTextForWidth(`${countsLine} / ${evidenceLine}`, w - 28, 9.8, 0.58)}
+      </text>
+    </g>
+  );
+}
+
+function ParentPortalAppGameDashboardMetricList({
+  x,
+  y,
+  w,
+  h,
+  title,
+  rows,
+  cfg,
+}: {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  title: string;
+  rows: readonly ParentPortalAppGameDashboardMetric[];
+  cfg: ParentPortalSvgControls;
+}) {
+  const headerColor = cfg.colors.cyan;
+  const rowH = 36;
+  const visibleRows = rows.slice(0, Math.max(1, Math.floor((h - 38) / rowH)));
+  return (
+    <g>
+      <path
+        d={topRoundedRectPath(x, y, w, h, 10)}
+        fill="rgba(2, 12, 22, 0.58)"
+        stroke={headerColor}
+        strokeWidth={0.85}
+        opacity={0.94}
+      />
+      <text x={x + 14} y={y + 22} fontSize={10.4} fontWeight={950} fill={headerColor}>
+        {title}
+      </text>
+      <path d={`M ${x + 12} ${y + 32} H ${x + w - 12}`} stroke={headerColor} strokeWidth={0.7} opacity={0.32} />
+      {visibleRows.map((row, index) => {
+        const rowColor = appGameDashboardToneColor(row.tone, cfg);
+        const rowY = y + 48 + index * rowH;
+        return (
+          <g key={`app-game-dashboard-list:${title}:${row.label}:${index}`}>
+            <circle cx={x + 16} cy={rowY - 3} r={3} fill={rowColor} opacity={0.95} />
+            <text x={x + 26} y={rowY} fontSize={9.2} fontWeight={950} fill={rowColor}>
+              {truncateTextForWidth(row.label.toUpperCase(), w - 40, 9.2, 0.58)}
+            </text>
+            <text x={x + 14} y={rowY + 17} fontSize={10.4} fontWeight={760} fill={cfg.colors.bodyText}>
+              {truncateTextForWidth(row.value, w - 28, 10.4, 0.58)}
+            </text>
+          </g>
+        );
+      })}
+    </g>
+  );
+}
+
+function appGameDashboardStateTone(state: string): ParentPortalAppGameDashboardTone {
+  if (/manual|required|permission|unavailable|stale/u.test(state.toLowerCase())) return 'gold';
+  if (/review|risk|unknown/u.test(state.toLowerCase())) return 'red';
+  return 'cyan';
+}
+
+function appGameDashboardToneColor(tone: ParentPortalAppGameDashboardTone, cfg: ParentPortalSvgControls): string {
+  return toneColor(tone as Tone, cfg);
+}
+
 function manageTargetLabel(lane: ManageLaneId, selection: ManageTargetSelection): string {
   return selection.scope === 'global' ? manageGlobalTargetLabel(lane) : selection.device;
 }
@@ -6123,7 +6422,12 @@ function manageControlSpecFor(activeNavLabel: string, selectedControlName: strin
     };
   }
 
-  if (key.includes('apps-games') || key.includes('app-use') || key.includes('app-game')) {
+  if (
+    key.includes('apps-games') ||
+    key.includes('app-and-game') ||
+    key.includes('app-use') ||
+    key.includes('app-game')
+  ) {
     return {
       title: 'App Use',
       devices,
@@ -12045,6 +12349,7 @@ function ManageControlPanel({
   const controlsActive = isPortalLane || isDeviceOpsLane || overrideMode === 'perDevice';
   const isLanPairingPanel = isLanPairingManageTitle(spec.title);
   const isReportsPanel = isReportsManageTitle(spec.title);
+  const isAppGameDashboardPanel = isAppGameDashboardManageContext(activeNavLabel, selectedControlName, spec.title);
   const lanPairingReadModelSlots = useMemo(
     () => createParentPortalLanPairingUiSlots(parentPortalRows, activityState?.lanAddDeviceReadModel),
     [activityState?.lanAddDeviceReadModel, parentPortalRows]
@@ -12210,6 +12515,7 @@ function ManageControlPanel({
     () => createParentPortalActivityUiIntent(activityState, reportPlanSeatLimit),
     [activityState, reportPlanSeatLimit]
   );
+  const appGameDashboard = activityUiIntent.appGameDashboard;
   const runtimeDeviceSlots = useMemo(
     () => createParentPortalCanonicalDeviceSlots(activityUiIntent.deviceSlots, lanPairingSlots),
     [activityUiIntent.deviceSlots, lanPairingSlots]
@@ -12835,6 +13141,16 @@ function ManageControlPanel({
             }}
           />
         </>
+      ) : isAppGameDashboardPanel ? (
+        <ParentPortalAppGameDashboardPanel
+          x={x}
+          y={y}
+          w={w}
+          h={h}
+          dashboard={appGameDashboard}
+          themeColor={themeColor}
+          cfg={cfg}
+        />
       ) : isReportsPanel ? (
         <>
           <foreignObject x={reportTopX} y={reportSelectorY} width={reportAvailableW} height={reportSelectorH}>

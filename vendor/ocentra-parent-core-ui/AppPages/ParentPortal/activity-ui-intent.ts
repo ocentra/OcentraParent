@@ -4,6 +4,10 @@ import type {
   DeviceSlot,
   SelectableDeviceStatus,
 } from './DeviceChoiceGrid/DeviceChoiceGridTypes';
+import {
+  createParentPortalAppGameDashboardIntent,
+  type ParentPortalAppGameDashboardIntent,
+} from './app-game-dashboard-intent';
 
 type ActivityAdapterResultLike = {
   readonly ok?: unknown;
@@ -66,6 +70,7 @@ export type ParentPortalActivityUiIntent = {
   readonly browserReadModel: Record<string, unknown> | null;
   readonly gamesReadModel: Record<string, unknown> | null;
   readonly networkReadModel: Record<string, unknown> | null;
+  readonly appGameDashboard: ParentPortalAppGameDashboardIntent;
 };
 
 export function createParentPortalActivityUiIntent(
@@ -102,6 +107,7 @@ export function createParentPortalActivityUiIntent(
     browserReadModel,
     gamesReadModel,
     networkReadModel,
+    appGameDashboard: createParentPortalAppGameDashboardIntent(appUseReadModel, gamesReadModel),
   };
 }
 

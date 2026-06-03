@@ -220,7 +220,7 @@ export const PARENT_PORTAL_ROUTE_CONTEXT: Readonly<Partial<Record<PortalRouteVal
   [PortalRoute.ApiProviders]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.AiMemory, 'api-providers'),
   [PortalRoute.ReportsGuide]: routeContext('parentGuide', PARENT_PORTAL_NAV_LABELS.ReportsGuide, 'reports-summaries'),
   [PortalRoute.ScreenAnalysis]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Activity, 'reports-settings'),
-  [PortalRoute.AppGameSessions]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Activity, 'reports-settings'),
+  [PortalRoute.AppGameSessions]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Activity, 'app-game-sessions'),
   [PortalRoute.NetworkActivity]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Activity, 'reports-settings'),
   [PortalRoute.Devices]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Devices, 'lan-pairing'),
   [PortalRoute.LanPairing]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Devices, 'lan-pairing'),
