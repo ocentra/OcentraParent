@@ -1,7 +1,7 @@
 # 04-location-evidence-model Source Snapshot
 
-- checkedAt: 2026-06-03T03:12:57.282Z
-- commit: d55d6002bfa9d66efaede0d47c13cfe4ea1860d6
+- checkedAt: 2026-06-03T03:35:22.659Z
+- commit: a808e3a15e58ba684fdd50c91aca002dfc9434da
 - proofState: contract-proof-complete
 - summary: Location evidence carries source, time, freshness, custody, retention, permission, confidence, reason, accuracy, and hint quality.
 - activity contracts: packages/activity-domain/src/tracking.ts
