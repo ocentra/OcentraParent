@@ -32,6 +32,16 @@ async function main() {
     '--workspace',
     '@ocentra-parent/parent-domain',
     '--',
+    'v3-notification-rule-provider-retry-contract',
+  ]);
+  await runCommand('cmd', [
+    '/c',
+    'npm',
+    'run',
+    'test',
+    '--workspace',
+    '@ocentra-parent/parent-domain',
+    '--',
     'v0-8-enforcement-integrity-runtime-audit',
   ]);
   await runCommand('cmd', [
@@ -51,14 +61,19 @@ async function main() {
 
   const { V08NotificationProviderStatusBoundaryReadModel } =
     await import('../../packages/parent-domain/dist/v0-8-notification-provider-status-boundary.js');
+  const { V3NotificationRuleProviderRetryContractReadModel } =
+    await import('../../packages/parent-domain/dist/v3-notification-rule-provider-retry-contract.js');
   const { V08EnforcementIntegrityRuntimeAuditReadModel } =
     await import('../../packages/parent-domain/dist/v0-8-supported-adapter-runtime-proof.js');
   const summary = summarizeReadModel(V08NotificationProviderStatusBoundaryReadModel);
+  const v3ContractSummary = summarizeV3ContractReadModel(V3NotificationRuleProviderRetryContractReadModel);
 
   assertReadModel(
     V08NotificationProviderStatusBoundaryReadModel,
+    V3NotificationRuleProviderRetryContractReadModel,
     V08EnforcementIntegrityRuntimeAuditReadModel,
-    summary
+    summary,
+    v3ContractSummary
   );
 
   const proof = {
@@ -71,6 +86,10 @@ async function main() {
     evidence: {
       tsContract: 'packages/parent-domain/src/v0-8-notification-provider-status-boundary.ts',
       tsContractTest: 'packages/parent-domain/tests/v0-8-notification-provider-status-boundary.test.ts',
+      tsV3NotificationRuleProviderRetryContract:
+        'packages/parent-domain/src/v3-notification-rule-provider-retry-contract.ts',
+      tsV3NotificationRuleProviderRetryContractTest:
+        'packages/parent-domain/tests/v3-notification-rule-provider-retry-contract.test.ts',
       tsNestedAuditContract: 'packages/parent-domain/src/v0-8-enforcement-integrity-runtime-audit.ts',
       tsProtocolAdapter: 'packages/agent-protocol-domain/src/enforcement-supported-adapter-runtime-proof-adapter.ts',
       rustProtocol: 'crates/agent-protocol/src/notification_provider_status_boundary.rs',
@@ -84,12 +103,15 @@ async function main() {
       proofHarness: 'scripts/test/v0-8-notification-provider-status-boundary.mjs',
     },
     counts: summary,
+    v3ContractCounts: v3ContractSummary,
     claimsProved: [
       'Queued, delivered, failed, unavailable, and manual-required provider status contract states are represented',
       'Delivered remains a receipt-required contract state, not observed delivery',
       'Quiet-hours and escalation readiness states are represented with refs',
       'The existing supported-adapter runtime proof event exposes the provider status boundary through the nested integrity audit read model payload',
       'Sensitive provider payloads and provider child-evidence storage remain unclaimed',
+      'V3 notification rule/provider retry contract covers alert reason codes, provider channels, delivery attempt/result states, retry policy states, quiet-hours decisions, escalation decisions, parent preferences, audit refs, and evidence refs',
+      'V3 notification contract rows keep provider adapters, delivery execution, provider receipt observation, raw evidence payloads, and provider child-evidence storage unclaimed',
     ],
     claimsNotProved: [
       'notification provider delivery',
@@ -122,7 +144,27 @@ function summarizeReadModel(readModel) {
   };
 }
 
-function assertReadModel(readModel, auditReadModel, summary) {
+function summarizeV3ContractReadModel(readModel) {
+  return {
+    entries: readModel.entries.length,
+    byReasonCode: countBy(readModel.entries.map((entry) => entry.reasonCode)),
+    byProviderChannel: countBy(readModel.entries.map((entry) => entry.providerChannel)),
+    byDeliveryAttemptState: countBy(readModel.entries.map((entry) => entry.deliveryAttemptState)),
+    byDeliveryResultState: countBy(readModel.entries.map((entry) => entry.deliveryResultState)),
+    byRetryPolicyState: countBy(readModel.entries.map((entry) => entry.retryPolicyState)),
+    byQuietHoursDecision: countBy(readModel.entries.map((entry) => entry.quietHoursDecision)),
+    byEscalationDecision: countBy(readModel.entries.map((entry) => entry.escalationDecision)),
+    byParentPreferenceState: countBy(readModel.entries.map((entry) => entry.parentPreferenceState)),
+    providerAdapterImplemented: readModel.entries.filter((entry) => entry.providerAdapterImplemented).length,
+    deliveryAttemptExecuted: readModel.entries.filter((entry) => entry.deliveryAttemptExecuted).length,
+    providerReceiptObserved: readModel.entries.filter((entry) => entry.providerReceiptObserved).length,
+    rawEvidenceInProviderPayload: readModel.entries.filter((entry) => entry.rawEvidenceInProviderPayload).length,
+    providerStoresChildEvidenceClaimed: readModel.entries.filter((entry) => entry.providerStoresChildEvidenceClaimed)
+      .length,
+  };
+}
+
+function assertReadModel(readModel, v3ContractReadModel, auditReadModel, summary, v3ContractSummary) {
   assertEqual(readModel.readModelId, 'v0-8-notification-provider-status-boundary', 'read model id');
   assertEqual(summary.entries, 5, 'entry count');
   assertEqual(summary.byProviderStatus.queued, 1, 'queued count');
@@ -156,11 +198,47 @@ function assertReadModel(readModel, auditReadModel, summary) {
     throw new Error('delivered provider status is missing receipt/manual proof requirements');
   }
 
+  assertEqual(
+    v3ContractReadModel.readModelId,
+    'v3-notification-rule-provider-retry-contract',
+    'V3 notification rule provider retry read model id'
+  );
+  assertEqual(v3ContractSummary.entries, 6, 'V3 contract entry count');
+  assertEqual(v3ContractSummary.byReasonCode['policy-violation'], 1, 'V3 policy violation reason count');
+  assertEqual(v3ContractSummary.byReasonCode['parent-request'], 1, 'V3 parent request reason count');
+  assertEqual(v3ContractSummary.byReasonCode['suspicious-unknown'], 1, 'V3 suspicious unknown reason count');
+  assertEqual(v3ContractSummary.byReasonCode['device-offline'], 1, 'V3 device offline reason count');
+  assertEqual(v3ContractSummary.byReasonCode['sync-failure'], 1, 'V3 sync failure reason count');
+  assertEqual(v3ContractSummary.byReasonCode['provider-failure'], 1, 'V3 provider failure reason count');
+  assertEqual(v3ContractSummary.byProviderChannel.push, 1, 'V3 push provider channel count');
+  assertEqual(v3ContractSummary.byProviderChannel.email, 1, 'V3 email provider channel count');
+  assertEqual(v3ContractSummary.byProviderChannel.sms, 1, 'V3 SMS provider channel count');
+  assertEqual(v3ContractSummary.byProviderChannel.whatsapp, 1, 'V3 WhatsApp provider channel count');
+  assertEqual(v3ContractSummary.byProviderChannel['in-app'], 2, 'V3 in-app provider channel count');
+  assertEqual(v3ContractSummary.byDeliveryResultState['retryable-failure'], 1, 'V3 retryable failure count');
+  assertEqual(v3ContractSummary.byDeliveryResultState['permanent-failure'], 1, 'V3 permanent failure count');
+  assertEqual(v3ContractSummary.byDeliveryResultState['not-sent'], 1, 'V3 not sent count');
+  assertEqual(v3ContractSummary.byRetryPolicyState['exponential-backoff'], 1, 'V3 retry backoff count');
+  assertEqual(v3ContractSummary.byRetryPolicyState['quiet-hours-deferred'], 1, 'V3 quiet-hours retry count');
+  assertEqual(v3ContractSummary.byParentPreferenceState['channel-disabled'], 1, 'V3 channel disabled count');
+  assertEqual(v3ContractSummary.providerAdapterImplemented, 0, 'V3 provider implementation claim count');
+  assertEqual(v3ContractSummary.deliveryAttemptExecuted, 0, 'V3 delivery execution claim count');
+  assertEqual(v3ContractSummary.providerReceiptObserved, 0, 'V3 provider receipt observed count');
+  assertEqual(v3ContractSummary.rawEvidenceInProviderPayload, 0, 'V3 raw evidence payload claim count');
+  assertEqual(
+    v3ContractSummary.providerStoresChildEvidenceClaimed,
+    0,
+    'V3 provider child evidence storage claim count'
+  );
+
   proofLabels.push('v0.8.notification-provider-status-boundary.contract-states');
   proofLabels.push('v0.8.notification-provider-status-boundary.quiet-hours-escalation-readiness');
   proofLabels.push('v0.8.notification-provider-status-boundary.service-read-model');
   proofLabels.push('v0.8.notification-provider-status-boundary.supported-adapter-event-nesting');
   proofLabels.push('v0.8.notification-provider-status-boundary.no-provider-delivery-claim');
+  proofLabels.push('v3.notification-rule-provider-retry-contract.reason-channel-coverage');
+  proofLabels.push('v3.notification-rule-provider-retry-contract.delivery-retry-preference-coverage');
+  proofLabels.push('v3.notification-rule-provider-retry-contract.no-provider-runtime-claim');
 }
 
 async function runCommand(command, args) {

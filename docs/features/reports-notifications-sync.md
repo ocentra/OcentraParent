@@ -58,6 +58,11 @@ custody.
   delivered, failed, unavailable, and manual-required provider status contract
   states, plus quiet-hours and escalation readiness refs, through the existing
   supported-adapter runtime proof event payload.
+- V3 notification rule/provider retry contract proof now represents alert rule,
+  reason code, provider channel, delivery attempt/result, retry policy,
+  quiet-hours, escalation, parent preference, audit, and evidence refs without
+  claiming provider adapters, delivery execution, provider receipts, raw
+  evidence payloads, or provider child-evidence storage.
 - Parent-facing reports, alert delivery, and connectors are incomplete.
 
 ## Current Gap
@@ -68,9 +73,13 @@ adapters, retry execution, provider receipt ingestion, parent controls,
 connectors, retention, and delete/export controls.
 The V0.8 integrity bridge and provider status boundary prove only minimal
 notification intent/status/readiness references and audit drill-in, not provider
-delivery or UI. Activity report persistence/family fanout/MIA context proof does
-not claim physical household fanout, raw child evidence transfer, provider
-notification delivery, policy writes, or child-device enforcement.
+delivery or UI. The V3 notification rule/provider retry contract proves the
+typed notification rule, reason/channel, attempt/result, retry, preference, and
+audit/evidence contract shape, not provider adapters, actual sends, receipts,
+parent controls, or notification history UI. Activity report persistence/family
+fanout/MIA context proof does not claim physical household fanout, raw child
+evidence transfer, provider notification delivery, policy writes, or
+child-device enforcement.
 
 ## Checklist
 
@@ -79,7 +88,8 @@ notification delivery, policy writes, or child-device enforcement.
       read-model states without Vite-owned product data.
 - [ ] Evidence citations in reports.
 - [ ] Parent-owned export/sync connector status.
-- [ ] Notification rule contract.
+- [x] Notification rule/reason/channel/retry/preference contract proof exists
+      without provider delivery claims.
 - [x] Minimal payload and authenticated drill-in refs exist for V0.8 integrity
       alert/status bridge states.
 - [x] Delivery/queued/failed/unavailable/manual-required provider status
@@ -95,5 +105,7 @@ in Ocentra-hosted systems by default. Keep report source and custody labels
 visible. Treat `scripts/test/v0-8-integrity-alert-status-bridge.mjs` as
 notification intent/status proof only; require provider artifacts before claiming
 delivery. Treat `scripts/test/v0-8-notification-provider-status-boundary.mjs`
-as provider status/readiness proof only; require provider adapter, receipt,
-retry, and parent-control artifacts before claiming notification delivery.
+as provider status/readiness plus V3 notification rule/provider retry contract
+proof only; require provider adapter, real send/retry execution, receipt,
+parent-control, and notification-history artifacts before claiming notification
+delivery.

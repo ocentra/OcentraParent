@@ -47,6 +47,16 @@ short operational logs, not child evidence.
 
 Expected contracts include alert rule, notification intent, alert reason code, provider channel, delivery attempt, delivery result, retry policy, quiet-hours policy, escalation policy, parent preference, and audit event. Notification contracts reference evidence and policy ids; they do not duplicate raw evidence payloads.
 
+Current contract proof:
+`scripts/test/v0-8-notification-provider-status-boundary.mjs` validates a V3
+notification rule/provider retry read model covering alert rules, reason codes,
+provider channels, delivery attempt/result states, retry policy states,
+quiet-hours decisions, escalation decisions, parent preference states, audit
+refs, and evidence refs. This is a contract proof only: it does not claim a
+provider adapter, real send/retry execution, observed provider receipts, raw
+evidence in provider payloads, provider child-evidence storage, parent
+preference UI, or notification history UI.
+
 ## Failure Behavior
 
 - Provider failure is visible, retryable when safe, and auditable.
@@ -78,13 +88,16 @@ Expected contracts include alert rule, notification intent, alert reason code, p
   default.
 - Notification history is auditable.
 - Raw unclassified activity does not produce alerts by itself.
-- Alert rules can distinguish policy violation, ask-parent request, suspicious unknown, device offline, sync failure, and provider failure.
+- Alert rules can distinguish policy violation, parent request, suspicious unknown, device offline, sync failure, and provider failure.
 - Parent preferences and quiet hours affect delivery without deleting the underlying audit event.
 - Provider adapters can be replaced or disabled without changing core policy logic.
 
 ## Validation Gates
 
 - Contract tests for alert rules, reason codes, delivery status, retry state, quiet hours, and preferences.
+- V3 notification rule/provider retry contract proof for reason codes, provider
+  channels, delivery result states, retry policies, quiet-hours decisions,
+  escalation decisions, parent preferences, audit refs, and evidence refs.
 - Adapter boundary tests for success, retryable failure, permanent failure, webhook receipt, and disabled provider.
 - Integration tests proving notification intents reference stored evidence or policy decisions.
 - Parent-surface coverage for notification history, preference changes, quiet hours, and sensitive-detail drill-in behind authentication.
