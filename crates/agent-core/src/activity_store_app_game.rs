@@ -1,9 +1,13 @@
 use ocentra_parent_agent_protocol::{
-    AppGameSessionReport, AppGameSessionSummary, APP_GAME_CATALOG_NOT_LOADED,
-    APP_GAME_SCHEMA_VERSION,
+    AppGameSessionDailyRollup, AppGameSessionReport, AppGameSessionSummary,
+    APP_GAME_CATALOG_NOT_LOADED, APP_GAME_SCHEMA_VERSION,
 };
 use rusqlite::Connection;
 
+#[allow(dead_code)]
+pub(crate) mod app_game_journal_sqlite_ingest;
+#[cfg(test)]
+mod app_game_journal_sqlite_ingest_tests;
 mod app_game_session_rollups;
 mod app_game_session_time;
 mod app_game_sessionization;
@@ -41,9 +45,28 @@ pub(crate) fn app_game_session_report(
     connection: &Connection,
     limit: u64,
 ) -> Result<AppGameSessionReport, ActivityStoreError> {
-    let rows = app_game_rows(connection, limit)?;
-    let summaries = app_game_sessionization::session_summaries_from_rows(rows, limit);
+    let summaries = app_game_session_summaries(connection, limit)?;
     Ok(report_from_summaries(limit, &summaries))
+}
+
+pub(crate) fn app_game_session_daily_rollups(
+    connection: &Connection,
+    limit: u64,
+) -> Result<Vec<AppGameSessionDailyRollup>, ActivityStoreError> {
+    let summaries = app_game_session_summaries(connection, limit)?;
+    Ok(app_game_session_rollups::daily_rollups_from_summaries(
+        &summaries,
+    ))
+}
+
+fn app_game_session_summaries(
+    connection: &Connection,
+    limit: u64,
+) -> Result<Vec<AppGameSessionSummary>, ActivityStoreError> {
+    let rows = app_game_rows(connection, limit)?;
+    Ok(app_game_sessionization::session_summaries_from_rows(
+        rows, limit,
+    ))
 }
 
 fn report_from_summaries(limit: u64, summaries: &[AppGameSessionSummary]) -> AppGameSessionReport {

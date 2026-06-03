@@ -115,6 +115,8 @@ Current Rust protocol and runtime proof paths include:
 - `crates/agent-core/src/activity_store_app_game/app_game_session_rollups.rs`
 - `crates/agent-core/src/activity_store_app_game/app_game_session_time.rs`
 - `crates/agent-core/src/activity_store_app_game/app_game_sessionization_tests.rs`
+- `crates/agent-core/src/activity_store_app_game/app_game_journal_sqlite_ingest.rs`
+- `crates/agent-core/src/activity_store_app_game/app_game_journal_sqlite_ingest_tests.rs`
 - `crates/agent-core/src/activity_store_app_game_observation.rs`
 - `crates/agent-core/src/activity_store_app_game_rows.rs`
 - `crates/agent-core/src/activity_store_app_game_tests.rs`
@@ -264,6 +266,17 @@ prove encrypted journal-file ingest/replay, live process or foreground
 subscriptions, service events, portal app/game dashboard rows, policy
 execution, UI screenshots, live launcher crawling, or broad blocking.
 
+WP14 proof on `codex/app-game-journal-sqlite-ingest` adds staged encrypted
+journal-file append/replay plus SQLite projection proof under
+`output/app-game-plan-proof/14-journal-and-sqlite-ingest/`. It covers typed
+inventory, runtime, foreground, and launcher rows; local-journal custody labels;
+SQLite replay into inventory, running-now, foreground-now, launcher, and daily
+rollup rows; invalid inventory-use rejection before persistence; and duplicate
+runtime observations not double-counting duration. It does not prove live source
+adapters, service events, portal app/game dashboard rows, policy execution,
+approval flow, journal corruption/recovery, live launcher crawling, or broad
+blocking.
+
 ## Current Test Files
 
 - `packages/activity-domain/tests/app-game.test.ts`
@@ -280,6 +293,7 @@ execution, UI screenshots, live launcher crawling, or broad blocking.
 - `packages/parent-domain/tests/enforcement-approval-audit.test.ts`
 - `crates/agent-protocol/src/app_game_tests.rs`
 - `crates/agent-core/src/activity_store_app_game/app_game_sessionization_tests.rs`
+- `crates/agent-core/src/activity_store_app_game/app_game_journal_sqlite_ingest_tests.rs`
 - `crates/agent-core/src/activity_store_app_game_tests.rs`
 - `crates/agent-core/src/activity_store_app_game/app_game_windows_launcher_tests.rs`
 - `crates/agent-core/src/enforcement_app_time_limit_tests.rs`
