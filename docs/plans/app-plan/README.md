@@ -4,6 +4,12 @@ This folder is the single working plan location for native installed app
 evidence, app inventory, app identity, app sessions, app policy targets, app
 control authority tiers, and parent-facing app UI/UX requirements.
 
+Shared native app/game evidence-spine work and the native game product slice now
+route through [App + Game Plan](../app-game-plan/README.md). Keep this folder as
+the app-only product slice and bridge back to the shared app/game plan whenever
+implementation would otherwise duplicate low-level evidence, runtime, journal,
+policy, or proof paths.
+
 - [Native App Source Index](source-index.md)
 - [Current Native App Snapshot](current-app-snapshot.md)
 - [V0.5 Native Apps Full Scope Plan](v0-5-native-apps-full-scope-plan.md)

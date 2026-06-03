@@ -19,6 +19,8 @@ require typed policy decisions and platform adapter proof.
   [enforcement](../expectations/enforcement.md).
 - Supporting docs: [app settings inventory](../app-control-settings-inventory.md)
   and [game settings inventory](../game-control-settings-inventory.md).
+- Shared native app/game planning:
+  [app + game plan](../plans/app-game-plan/README.md).
 - Native app planning:
   [native apps plan](../plans/app-plan/README.md).
 - Browser-game planning:
