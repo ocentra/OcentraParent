@@ -7,6 +7,10 @@ traffic, inspect packets, or decrypt content.
 
 The focused implementation architecture lives in
 [Network Flow Evidence Capture Architecture](../architecture/network-flow-evidence-capture.md).
+The full-scope evidence, intervention, proof, UI, and workpack package lives in
+[Network Plan](../plans/network-plan/README.md).
+Network event routing depends on the
+[Reusable Rust Eventing Plan](../plans/eventing-plan/README.md).
 
 ## Outcome Bar
 
@@ -79,6 +83,15 @@ approves a stricter legal/privacy/security boundary:
 - Flow counter and bandwidth summary contract where supported.
 - VPN/proxy/tunnel indicator contract.
 - Network digest contract for AI/policy consumption.
+- Network event contracts for typed local flow, summary, alert, detection,
+  audit, policy, command, and adapter-result routing, implemented on the
+  reusable Rust eventing crate rather than a network-only bus.
+- Analyzer alert contract for Zeek-style summaries and Suricata/Snort-compatible
+  signature alerts where those inputs are used.
+- AI detection and AI audit report contracts for structured summaries, evidence
+  refs, uncertainty, recommendations, and unsupported-claim rejection.
+- Risk budget and cascade threshold contract before household risk budgets can
+  influence network-derived policy output.
 - Query-store read model for recent flows, top processes, top destinations,
   high-volume activity, and unusual destinations.
 - Portal recent network activity and unusual-traffic view.
@@ -128,6 +141,9 @@ The common unusual-network path should be:
   available, VPN/proxy/tunnel indicators, and unusual-flow states.
 - Policy can consume a flow summary or unusual-network digest in dry-run before
   enforcement is enabled.
+- Analyzer alerts, AI audit narratives, and risk budgets cannot authorize
+  enforcement without typed policy decisions, parent rules, adapter proof, and
+  audit.
 
 ## Done Signal
 
