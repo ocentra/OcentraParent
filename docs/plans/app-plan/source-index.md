@@ -70,7 +70,7 @@ and update them only when their acceptance contract or generated data changes.
 | `enforcement-integrity-tamper.md`    | Shared enforcement boundary. App hard controls must remain capability-gated here.                                                                                                      |
 | `evidence-store-query.md`            | Shared storage boundary. App evidence must journal/replay through shared evidence stores.                                                                                              |
 | `local-ai-safety-evaluator.md`       | Adjacent AI feature. App AI/classifier output is evidence and must not directly enforce.                                                                                               |
-| `policy-schedules-approvals.md`      | Shared approval/evaluator feature. App rules, bonus time, and ask-parent flows must use typed approval contracts.                                                                      |
+| `policy-schedules-approvals.md`      | Shared approval/evaluator feature. App rules, bonus time, and ask parent flows must use typed approval contracts.                                                                      |
 | `remote-lan-mobile-platforms.md`     | Platform routing. Android/iOS/mobile states remain platform-specific/manual-required until proof exists.                                                                               |
 | `production-distribution-support.md` | Release/support boundary. Support bundles must redact private paths, command lines, child activity, journals, SQLite, screenshots, tokens, and platform proof artifacts as configured. |
 | `social-video-control.md`            | Adjacent product feature. Native social/video apps can be detected as apps, but message/content/feed understanding remains social/video scope.                                         |
@@ -111,6 +111,9 @@ and update them only when their acceptance contract or generated data changes.
 - `packages/parent-domain/src/app-game-control-platform-authority-rules.ts`
 - `packages/parent-domain/src/app-game-policy-target-compiler.ts`
 - `packages/parent-domain/src/app-game-policy-target-compiler-rules.ts`
+- `packages/parent-domain/src/app-riskdetection.ts`
+- `packages/parent-domain/src/app-riskdetection-rules.ts`
+- `packages/parent-domain/src/app-riskdetection-data.ts`
 - `packages/parent-domain/src/app-game-time-budget-policy.ts`
 - `packages/parent-domain/src/app-game-time-budget-policy-rules.ts`
 - `packages/parent-domain/src/policy.ts`
@@ -198,6 +201,7 @@ classification, run timers, or enforce.
 - `node scripts/test/v0-8-cross-platform-enforcement-capability-proof.mjs`
 - `node scripts/test/v0-8-enforcement-timer-recovery-mvp.mjs`
 - `node scripts/test/app-game-broad-blocking-proof-gates.mjs`
+- `node scripts/test/app-riskdetection-proof.mjs`
 
 Future app-specific proof scripts should use:
 
@@ -229,6 +233,7 @@ packs mirror the app/game proof roots and record product-doc decisions.
 | WP14 app read models/service events   | `output/app-plan-proof/14-app-read-models-and-service-events`                   | `output/app-game-plan-proof/15-read-models-and-service-events`                   | Service read-model DTO proof           |
 | WP15 portal app inventory surfaces    | `output/app-plan-proof/15-parent-portal-app-inventory-running-session-surfaces` | `output/app-game-plan-proof/16-parent-portal-app-game-dashboard-surfaces`        | Portal dashboard surface proof         |
 | WP16 new/unknown app approval         | `output/app-plan-proof/16-new-app-and-unknown-app-approval-flow`                | `output/app-game-plan-proof/17-unknown-app-game-approval-flow`                   | Approval contract proof only           |
+| WP17 risk app detection               | `output/app-plan-proof/17-riskapp-detection`                                    | N/A app-only cross-record                                                        | Risk candidate contract proof only     |
 | WP18 app policy target compiler       | `output/app-plan-proof/18-policy-target-compiler-for-app-rules`                 | `output/app-game-plan-proof/19-policy-target-compiler-for-app-game-rules`        | Compiler contract proof only           |
 | WP19 app time budget integration      | `output/app-plan-proof/19-time-budget-schedule-bonus-time-integration`          | `output/app-game-plan-proof/20-time-budget-schedule-bonus-time-integration`      | Time-budget contract proof only        |
 | WP20 child app warning/request UX     | `output/app-plan-proof/20-child-facing-app-warning-block-request-ux`            | `output/app-game-plan-proof/21-child-facing-warning-and-request-ux`              | Child UX contract/text proof only      |
@@ -258,8 +263,11 @@ dry-run/manual-required handoff, and timer recovery refs before native app
 budget decisions can be represented. App child-facing UX proof now requires
 safe copy tokens, evidence refs, child reason/status refs, and no diagnostic or
 adapter-action overclaim before warning/request/manual/unavailable states can
-be represented. Broad-blocking gate proof now requires setup, authority-tier,
-rollback, audit, and platform-specific proof before
+be represented. Native app risk detection proof now requires risk candidates to
+carry evidence refs, source refs, confidence/source disclosure, local AI digest
+refs when AI contributes, no-content claims, and no-direct-enforcement guards
+before policy routing can treat them as app risk candidates. Broad-blocking gate
+proof now requires setup, authority-tier, rollback, audit, and platform-specific proof before
 block-launch/hide/suspend/shield support claims can dispatch adapters.
 Dedicated approval UI, notification delivery, service persistence/read models,
 policy runtime, game-budget, live source, live source subscriptions, journal
@@ -281,6 +289,7 @@ remain later work.
 - `packages/parent-domain/tests/app-game-time-budget-policy.test.ts`
 - `packages/parent-domain/tests/app-game-time-budget-policy-recovery.test.ts`
 - `packages/parent-domain/tests/app-game-broad-blocking-proof-gates.test.ts`
+- `packages/parent-domain/tests/app-riskdetection.test.ts`
 - `packages/parent-domain/tests/enforcement-approval-audit.test.ts`
 - `crates/agent-protocol/src/app_game_tests.rs`
 - `crates/agent-core/src/activity_store_app_game/app_game_sessionization_tests.rs`

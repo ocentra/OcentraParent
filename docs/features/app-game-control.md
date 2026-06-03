@@ -130,6 +130,12 @@ control with better evidence and local audit.
   source kind, source ref, confidence, reason code, evidence refs, parent
   display override, AI digest refs, policy-candidate action, and a
   `notEnforcement` guard.
+- Native app risk detection contracts now add app-only candidate proof for
+  known VPN/proxy, remote desktop, torrent/download, AI chatbot, unknown
+  name/publisher/hash, local AI digest, and parent display override rows with
+  confidence/source disclosure, no-content claims, no-direct-enforcement
+  guards, ask parent/manual-review routing, and risk-app category-proof policy
+  routing.
 - Broad app blocking remains manual-required or unproved by platform.
 - Raw app and game control setting inventories are preserved as design inputs,
   not product-complete implementation proof.
@@ -152,7 +158,9 @@ Security, Device Owner/Profile Owner, FamilyControls/ManagedSettings,
 cgroup/systemd, or kiosk/single-app adapter behavior. The category/risk
 taxonomy is contract proof only; it does not prove live catalog enrichment,
 local AI classifier quality, policy compiler routing, portal category UI, or
-runtime app/game category decisions.
+runtime app/game category decisions. Native app risk detection proof is also
+contract-only; it does not prove live OS scanning, live catalog enrichment,
+portal evidence drawer rendering, local model quality, or platform enforcement.
 The unknown approval proof is still contract-level: it does not yet provide
 finished parent/child approval UI, notification delivery, persisted service
 read models, live candidate creation from platform adapters, or platform hard
@@ -196,7 +204,7 @@ persistence, Rust/WebSocket parity, or platform adapter execution.
       manual-required decisions; live evaluator, UI, notification, persistence,
       and adapter execution remain.
 - [ ] Ask-parent and bonus-time flow. Contract proof now requires approval and
-      audit refs before bonus time extends a budget and keeps ask-parent/manual
+      audit refs before bonus time extends a budget and keeps ask parent/manual
       states dry-run only; notification delivery and finished parent/child UX
       remain.
 - [ ] Child-facing reason/status is referenced in the runtime audit; finished

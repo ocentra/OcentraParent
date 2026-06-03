@@ -56,7 +56,7 @@ proof.
 The owning feature is `docs/features/app-game-control.md`. It owns the app/game
 claim boundary and the current checklist for inventory, identity, running and
 foreground session evidence, category and unknown-state handling, schedules,
-time budgets, ask-parent, bonus-time, adapter capability status, and
+time budgets, ask parent, bonus-time, adapter capability status, and
 blocking/time-limit proof.
 
 Adjacent feature docs reference app control as shared context:
@@ -207,13 +207,18 @@ polished app catalog UI, install approval, or cross-platform parity.
   notifications, rollback, or adapter execution.
 - Native app time-budget integration now has shared parent-domain contract proof
   for stored session refs, running versus foreground duration modes, schedule
-  evidence, bonus-time approval/audit refs, ask-parent/manual-required dry-run
+  evidence, bonus-time approval/audit refs, ask parent/manual-required dry-run
   states, effective budget math, and restart-recovered timer refs. It does not
   yet provide live native app runtime evaluation, service persistence, portal
   budget authoring/preview UI, notification delivery, child request UX, adapter
-  execution, or broad installed-app blocking. WP17 risk app detection remains
-  open because `packages/activity-domain` was locked by `codex-a` during this
-  pass.
+  execution, or broad installed-app blocking.
+- Native app risk detection now has parent-domain contract proof for known
+  VPN/proxy, remote desktop, torrent/download, AI chatbot, unknown
+  name/publisher/hash, local AI digest, and parent display override candidates.
+  Risk candidates carry confidence/source disclosure, no-content claims,
+  no-direct-enforcement guards, and risk-app category-proof routing. It does not
+  yet provide live OS scanning, live catalog enrichment, service events, portal
+  evidence drawer UI, local model quality, or platform enforcement proof.
 - Native app child-facing warning/request UX now has shared parent-domain and
   text-domain contract proof for warning, approval-needed, time-limit, request
   submitted/approved/denied, manual-required, and unavailable states. It does
@@ -231,9 +236,10 @@ polished app catalog UI, install approval, or cross-platform parity.
   before moving up. It is not AppLocker/App Control, MDM, Endpoint Security,
   Device Owner/Profile Owner, FamilyControls/ManagedSettings, cgroup/systemd,
   or rollback execution proof.
-- App category/risk taxonomy now has contract/test proof, but live classifier
-  enrichment, policy routing, portal category rows, and runtime app risk
-  detection remain incomplete.
+- App category/risk taxonomy and native app risk detection now have
+  contract/test proof, but live classifier enrichment, portal category/risk
+  rows, runtime app risk detection, local model quality, and platform
+  enforcement remain incomplete.
 - Parent app catalog/dashboard has an initial service-backed App/Game Sessions
   surface, but it is not product-complete.
 - Broad app blocking remains manual-required outside scoped owned-process proof
