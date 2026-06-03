@@ -74,6 +74,18 @@ provider API calls, portal UI, report compiler runtime, account/subscription
 backend, raw child evidence upload by default, or Ocentra-hosted child evidence
 custody.
 
+Current local export/delete runtime proof:
+`scripts/test/parent-owned-local-export-runtime-proof.mjs` validates a
+parent-domain local runtime read model for parent-authorized Windows export and
+delete jobs. It covers export queued/running/written, delete
+requested/confirmed/failed, offline queued, and manual-required states; scoped
+data classes; encrypted local output metadata; delete confirmation; source
+evidence retention for local safety; support-safe audit refs; and failure
+behavior that does not mutate local evidence or parent-owned output. This proof
+does not implement cloud transfer, connector OAuth, provider API calls, portal
+UI, remote report compilation, child-device mutation, raw evidence upload, or
+Ocentra-hosted family-data custody.
+
 Current stateless report compiler proof:
 `scripts/test/stateless-report-compiler-status-proof.mjs` validates a
 parent-domain request/status/result read model for parent-authorized report
@@ -141,6 +153,10 @@ mutation, or Ocentra-hosted family-data custody.
   `parent-owned-sync-export-manifest-proof` for manifest data classes,
   encryption metadata, connector status, sync cursor, conflict, import/delete,
   retention/delete, and no-default-Ocentra-custody boundaries.
+- Parent-domain contract tests and `parent-owned-local-export-runtime-proof`
+  for local export queue/write/delete/failure/offline/manual states, encrypted
+  local output metadata, delete confirmation, source evidence retention for
+  local safety, and no cloud/provider/UI/custody overclaims.
 - Parent-domain contract tests and
   `stateless-report-compiler-status-proof` for parent-authorized compiler
   request scope, source connector/cursor refs, requested data classes/time

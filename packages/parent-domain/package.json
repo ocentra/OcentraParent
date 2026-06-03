@@ -209,6 +209,10 @@
       "import": "./dist/parent-owned-sync-export.js",
       "types": "./dist/parent-owned-sync-export.d.ts"
     },
+    "./parent-owned-local-export-runtime": {
+      "import": "./dist/parent-owned-local-export-runtime.js",
+      "types": "./dist/parent-owned-local-export-runtime.d.ts"
+    },
     "./stateless-report-compiler-status": {
       "import": "./dist/stateless-report-compiler-status.js",
       "types": "./dist/stateless-report-compiler-status.d.ts"
