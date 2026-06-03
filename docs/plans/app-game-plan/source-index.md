@@ -374,6 +374,16 @@ child UI, overlay rendering, portal preview screenshots, notification delivery,
 service persistence, Rust/WebSocket parity, adapter execution, or platform
 shield/block behavior.
 
+WP22 proof on `codex/app-game-read-model-service-events` extends
+`scripts/test/v0-8-windows-app-time-limit-adapter-mvp.mjs` and records evidence
+under
+`output/app-game-plan-proof/22-windows-owned-process-terminate-time-limit-proof/`.
+It uses the real Rust service/WebSocket path to prove dry-run no-action, stale
+timer action mismatch rejection before adapter execution, timer recovery/cancel
+after that rejection, owned/current expiry through the scoped process adapter,
+and broad app/game package blocking as an explicit no-claim/manual-required
+boundary.
+
 ## Current Test Files
 
 - `packages/activity-domain/tests/app-game.test.ts`

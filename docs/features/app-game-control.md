@@ -79,7 +79,10 @@ control with better evidence and local audit.
   approval-needed, time-limit, request submitted/approved/denied,
   manual-required, and unavailable states with text-domain copy tokens,
   evidence refs, child reason/status refs, and no private diagnostics.
-- Package/process identity and owned-process time-limit proof are in progress.
+- Package/process identity and owned-process time-limit proof now includes
+  scoped real-service dry-run no-action, stale timer mismatch rejection before
+  adapter execution, preserved-timer recovery/cancel, and owned/current expiry
+  proof.
 - The V0.8 product-control spine separates app time-limit and scoped
   owned-process control from broad installed-app blocking, so downstream policy
   and device surfaces can show time-limit/control-capable versus report-only or
@@ -98,6 +101,9 @@ control with better evidence and local audit.
   claim to Windows owned-process time-limit support with evidence, timer,
   rollback, and audit references while keeping package-wide app blocking
   manual-required.
+- The Windows owned-process time-limit proof now extends that same real-service
+  harness with dry-run and stale-action negative paths while preserving the
+  manual-required boundary for broad package/app blocking.
 - The V0.8 enforcement integrity runtime audit now exposes supported app/game
   time-limit success, expiry, rollback, parent override/supersede, dry-run,
   stale decision rejection, wrong-device rejection, child-status refs, timer

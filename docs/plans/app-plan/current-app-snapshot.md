@@ -219,6 +219,10 @@ polished app catalog UI, install approval, or cross-platform parity.
   not yet provide live native app child UI, portal preview screenshots, native
   overlay rendering, notification delivery, service persistence,
   Rust/WebSocket parity, adapter execution, or broad installed-app blocking.
+- Native app owned-process time-limit proof now cross-records the shared
+  app/game real-service proof for dry-run no-action, stale action mismatch
+  rejection before adapter execution, timer recovery/cancel, and scoped
+  owned/current expiry. It is still not broad app/package blocking.
 - App category/risk taxonomy now has contract/test proof, but live classifier
   enrichment, policy routing, portal category rows, and runtime app risk
   detection remain incomplete.

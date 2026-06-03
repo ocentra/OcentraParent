@@ -72,11 +72,16 @@ Proved today:
   approval-needed, time-limit, request submitted/approved/denied,
   manual-required, and unavailable states with text-domain copy tokens,
   evidence refs, child reason/status refs, and private-diagnostic guards.
+- Scoped Windows owned-process app/game time-limit proof now covers dry-run
+  no-action, stale action mismatch rejection before adapter execution,
+  recover/cancel of the preserved timer, and owned/current expiry through the
+  existing process adapter.
 - App-control and game-control catalog/authoring contracts exist in
   `packages/parent-domain`.
 - Rust app/game session protocol mirrors exist.
 - SQLite-backed app/game observation helpers exist.
-- Scoped Windows owned-process app time-limit proof exists.
+- Scoped Windows owned-process app time-limit proof exists and remains scoped to
+  owned/current process time-limit expiry, not package-wide blocking.
 - Portal live activity and policy-preview surfaces can render service-backed
   evidence and policy states.
 - Existing docs keep broad installed-app blocking manual-required.
