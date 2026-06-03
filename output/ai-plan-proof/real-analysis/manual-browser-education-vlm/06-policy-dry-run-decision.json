@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "v0.6",
+  "decisionId": "policy-decision-manual-browser-education-vlm",
+  "action": "allow",
+  "reasonCodes": [
+    "screen-category-school"
+  ],
+  "evidenceReferences": [
+    {
+      "evidenceReferenceId": "screen-analysis-evidence-manual-browser-education-vlm",
+      "kind": "activity-event",
+      "observedAt": "2026-06-03T08:46:57.379Z"
+    }
+  ],
+  "ruleIds": [
+    "screen-policy-school"
+  ],
+  "localAiResultId": "local-ai-result-manual-browser-education-vlm",
+  "dryRun": true,
+  "enforcementHandoffState": "disabled",
+  "expiresAt": null
+}

@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "v0.6",
+  "family": {
+    "familyId": "screen-ai-proof-family"
+  },
+  "childProfiles": [
+    {
+      "childProfileId": "screen-ai-proof-child",
+      "displayName": "Proof child"
+    }
+  ],
+  "devices": [
+    {
+      "deviceId": "screen-ai-proof-device",
+      "childProfileId": "screen-ai-proof-child",
+      "label": "Windows proof desktop",
+      "platform": "windows"
+    }
+  ],
+  "policyVersion": "screen-ai-proof-policy-v1",
+  "rules": [
+    {
+      "ruleId": "screen-policy-school",
+      "target": {
+        "targetId": "screen-category-target-school",
+        "targetType": "category",
+        "targetValue": "school"
+      },
+      "action": "allow",
+      "scheduleId": null,
+      "priority": 100,
+      "reasonCode": "screen-category-school",
+      "createdBy": {
+        "actorId": "screen-ai-proof-parent",
+        "role": "parent"
+      },
+      "enabled": true,
+      "effectiveFrom": null,
+      "effectiveUntil": null
+    }
+  ],
+  "schedules": []
+}

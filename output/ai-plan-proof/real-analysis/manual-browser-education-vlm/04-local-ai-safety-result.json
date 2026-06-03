@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "v0.6",
+  "resultId": "local-ai-result-manual-browser-education-vlm",
+  "requestId": "local-ai-request-manual-browser-education-vlm",
+  "action": "allow",
+  "confidence": 0.95,
+  "unknownState": "none",
+  "degradedState": "none",
+  "reasonCodes": [
+    "screen-category-school"
+  ],
+  "explanationReference": "screen-analysis-result:screen-analysis-manual-browser-education-vlm",
+  "evidenceReferences": [
+    {
+      "evidenceReferenceId": "screen-analysis-evidence-manual-browser-education-vlm",
+      "kind": "activity-event",
+      "observedAt": "2026-06-03T08:46:57.379Z"
+    }
+  ],
+  "parentRuleReferences": [
+    "screen-policy-school"
+  ],
+  "memoryReferences": [],
+  "graphReferences": [],
+  "modelRuntime": {
+    "runtimeReferenceId": "runtime-local-qwen2-vl-2b-llama-mtmd",
+    "providerId": "local-qwen2-vl",
+    "modelId": "Qwen2-VL-2B-Instruct-Q4_K_M",
+    "modelReference": "local-model-cache/Qwen2-VL-2B-Instruct-Q4_K_M.gguf",
+    "privacyMode": "local-only",
+    "adapterBoundary": "local-adapter-ready",
+    "executionState": "dry-run-ready",
+    "providerSource": "local-model-cache",
+    "loadState": "loaded",
+    "capabilityFlags": [
+      "classification",
+      "safety-decision"
+    ],
+    "resourceClass": "cpu",
+    "degradedState": "none",
+    "lastCheckedAt": "2026-06-03T08:46:57.379Z",
+    "unavailableReason": null
+  },
+  "promptVersion": "screen-ai-local-vlm-proof-v1",
+  "expiresAt": null
+}

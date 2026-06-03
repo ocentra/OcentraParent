@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "screenAnalysisResultId": "screen-analysis-manual-browser-education-vlm",
+  "queueJobId": "screen-capture-proof-manual-browser-education-vlm",
+  "analyzedAt": "2026-06-03T08:46:57.379Z",
+  "modelRuntimeRef": "local-qwen2-vl-2b-llama-mtmd",
+  "modelId": "Qwen2-VL-2B-Instruct-Q4_K_M",
+  "providerKind": "localVision",
+  "promptOrTemplateVersion": "screen-ai-local-vlm-proof-v1",
+  "captureReason": "manualParentTestCapture",
+  "captureScope": "activeWindow",
+  "capabilityStatus": "ready",
+  "summary": "School Lesson: Fractions",
+  "visibleCategoryCandidates": [
+    {
+      "category": "school",
+      "confidence": 0.95,
+      "evidenceRefs": [
+        {
+          "evidenceId": "screen-evidence-manual-browser-education-vlm",
+          "kind": "screenshot",
+          "digest": "ed8056b43808d48adb7b403fdef664fcacb11880df679a300ab8d5cd4e0bf3d0",
+          "uri": null
+        }
+      ]
+    }
+  ],
+  "primaryCategory": "school",
+  "riskSignals": [],
+  "ocrTextSnippets": [
+    {
+      "text": "School Lesson: Fractions",
+      "confidence": 0.95,
+      "evidenceRefs": [
+        {
+          "evidenceId": "screen-evidence-manual-browser-education-vlm",
+          "kind": "screenshot",
+          "digest": "ed8056b43808d48adb7b403fdef664fcacb11880df679a300ab8d5cd4e0bf3d0",
+          "uri": null
+        }
+      ]
+    }
+  ],
+  "redactionNotes": [],
+  "confidence": 0.95,
+  "uncertaintyReason": null,
+  "sourceEvidenceRefs": [
+    {
+      "evidenceId": "screen-evidence-manual-browser-education-vlm",
+      "kind": "screenshot",
+      "digest": "ed8056b43808d48adb7b403fdef664fcacb11880df679a300ab8d5cd4e0bf3d0",
+      "uri": null
+    }
+  ],
+  "imageDigest": "ed8056b43808d48adb7b403fdef664fcacb11880df679a300ab8d5cd4e0bf3d0",
+  "rawImageRetained": false,
+  "imageDeletionState": "deleted",
+  "custodyState": "child-device-query-store",
+  "policyEligible": true
+}
