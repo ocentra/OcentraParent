@@ -208,6 +208,18 @@ foreground-is-not-content guards. It does not prove live foreground polling,
 journal ingest, SQLite replay, service events, portal rows, content knowledge,
 policy execution, or broad blocking.
 
+WP10 proof on `codex/app-game-launcher-candidate-model` adds a first-class
+TypeScript launcher evidence contract, Rust protocol parity, and a staged
+`agent-core` Windows launcher evidence parser under
+`output/app-game-plan-proof/10-launcher-evidence-and-game-candidate-model/`.
+It covers launcher-only evidence, launcher foreground staying launcher-only,
+launcher-game candidate downgrade when child-game proof is missing,
+deterministic child-game proof promotion, permission-limited launcher state, and
+known-game no-claim guards. It does not prove live launcher manifest crawling,
+live child-process linking, journal ingest, SQLite replay, service events,
+portal launcher rows, game-budget policy, install/purchase approval, or broad
+blocking.
+
 ## Current Test Files
 
 - `packages/activity-domain/tests/app-game.test.ts`
@@ -215,12 +227,14 @@ policy execution, or broad blocking.
 - `packages/activity-domain/tests/app-game-identity.test.ts`
 - `packages/activity-domain/tests/app-game-inventory.test.ts`
 - `packages/activity-domain/tests/app-game-runtime.test.ts`
+- `packages/activity-domain/tests/app-game-launcher.test.ts`
 - `packages/parent-domain/tests/app-control-policy-catalog.test.ts`
 - `packages/parent-domain/tests/game-control-policy-catalog.test.ts`
 - `packages/parent-domain/tests/app-game-control-authority.test.ts`
 - `packages/parent-domain/tests/enforcement-approval-audit.test.ts`
 - `crates/agent-protocol/src/app_game_tests.rs`
 - `crates/agent-core/src/activity_store_app_game_tests.rs`
+- `crates/agent-core/src/activity_store_app_game/app_game_windows_launcher_tests.rs`
 - `crates/agent-core/src/enforcement_app_time_limit_tests.rs`
 - `apps/portal/tests/live-activity-state.test.ts`
 - `apps/portal/tests/live-activity-surface-adapter.test.ts`

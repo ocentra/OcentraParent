@@ -1,21 +1,25 @@
 use super::{
     constants, AppGameForegroundEvidenceRow, AppGameInventoryCategoryCandidate,
-    AppGameInventoryEvidenceRow, AppGameRuntimeEvidenceRow, AppGameSessionReport,
-    AppGameSessionSummary, APP_GAME_CAPABILITY_STATUS_AVAILABLE, APP_GAME_CATALOG_NOT_LOADED,
-    APP_GAME_CATALOG_READY, APP_GAME_CLASSIFICATION_KNOWN_APP, APP_GAME_CLASSIFICATION_KNOWN_GAME,
+    AppGameInventoryEvidenceRow, AppGameLauncherEvidenceRow, AppGameRuntimeEvidenceRow,
+    AppGameSessionReport, AppGameSessionSummary, APP_GAME_CAPABILITY_STATUS_AVAILABLE,
+    APP_GAME_CATALOG_NOT_LOADED, APP_GAME_CATALOG_READY, APP_GAME_CLASSIFICATION_KNOWN_APP,
+    APP_GAME_CLASSIFICATION_KNOWN_GAME, APP_GAME_CLASSIFICATION_KNOWN_LAUNCHER,
     APP_GAME_CLASSIFICATION_POSSIBLY_GAME, APP_GAME_CONFIDENCE_FOREGROUND_CANDIDATE,
     APP_GAME_CONTENT_KNOWLEDGE_NOT_CLAIMED, APP_GAME_FOREGROUND_FOREGROUND,
     APP_GAME_FOREGROUND_NOT_CLAIMED, APP_GAME_INVENTORY_CATEGORY_GAME,
     APP_GAME_INVENTORY_CUSTODY_LAUNCHER_MANIFEST, APP_GAME_INVENTORY_CUSTODY_STORE_PACKAGE,
     APP_GAME_INVENTORY_SOURCE_LAUNCHER_MANIFEST, APP_GAME_INVENTORY_SOURCE_STORE_PACKAGE,
-    APP_GAME_INVENTORY_STATE_INSTALLED, APP_GAME_OBSERVATION_MODE_FOREGROUND_WINDOW,
+    APP_GAME_INVENTORY_STATE_INSTALLED, APP_GAME_LAUNCHER_KIND_STEAM,
+    APP_GAME_LAUNCHER_PROOF_LAUNCHER_ONLY, APP_GAME_OBSERVATION_MODE_FOREGROUND_WINDOW,
     APP_GAME_OBSERVATION_MODE_PROCESS_SNAPSHOT, APP_GAME_PRODUCT_NATIVE_GAME,
     APP_GAME_RUNTIME_NOT_CLAIMED, APP_GAME_RUNTIME_RUNNING, APP_GAME_SCHEMA_VERSION,
     APP_GAME_TEST_CATALOG_REF, APP_GAME_TEST_DISPLAY_LABEL, APP_GAME_TEST_EXECUTABLE_PATH_REF,
     APP_GAME_TEST_FILE_HASH_REF, APP_GAME_TEST_FOREGROUND_EVIDENCE_ID,
-    APP_GAME_TEST_LAUNCHER_APP_ID, APP_GAME_TEST_LAUNCHER_MANIFEST_ID, APP_GAME_TEST_LAUNCHER_REF,
-    APP_GAME_TEST_LAUNCHER_SOURCE_REF, APP_GAME_TEST_PARENT_PROCESS_ID, APP_GAME_TEST_PROCESS_ID,
-    APP_GAME_TEST_PROCESS_IDENTITY, APP_GAME_TEST_PROCESS_NAME,
+    APP_GAME_TEST_LAUNCHER_APP_ID, APP_GAME_TEST_LAUNCHER_EVIDENCE_ID,
+    APP_GAME_TEST_LAUNCHER_MANIFEST_ID, APP_GAME_TEST_LAUNCHER_PROCESS_ID,
+    APP_GAME_TEST_LAUNCHER_PROCESS_IDENTITY, APP_GAME_TEST_LAUNCHER_PROCESS_NAME,
+    APP_GAME_TEST_LAUNCHER_REF, APP_GAME_TEST_LAUNCHER_SOURCE_REF, APP_GAME_TEST_PARENT_PROCESS_ID,
+    APP_GAME_TEST_PROCESS_ID, APP_GAME_TEST_PROCESS_IDENTITY, APP_GAME_TEST_PROCESS_NAME,
     APP_GAME_TEST_PUBLISHER_SIGNATURE_REF, APP_GAME_TEST_REGISTRY_SOURCE_REF,
     APP_GAME_TEST_RUNTIME_EVIDENCE_ID, APP_GAME_TEST_STORE_GAME_BUNDLE_ID,
     APP_GAME_TEST_STORE_GAME_CATALOG_REF, APP_GAME_TEST_STORE_GAME_DISPLAY_LABEL,
@@ -175,6 +179,38 @@ fn app_game_foreground_evidence_row_serializes_focus_without_content_claim() {
 }
 
 #[test]
+fn app_game_launcher_evidence_row_serializes_launcher_without_game_claim() {
+    let row = launcher_evidence_row();
+
+    let serialized = serde_json::to_value(row).expect(constants::error::AGENT_EVENT_SERIALIZES);
+
+    assert_eq!(serialized["schemaVersion"], APP_GAME_SCHEMA_VERSION);
+    assert_eq!(
+        serialized["launcherEvidenceId"],
+        APP_GAME_TEST_LAUNCHER_EVIDENCE_ID
+    );
+    assert_eq!(serialized["launcherKind"], APP_GAME_LAUNCHER_KIND_STEAM);
+    assert_eq!(serialized["launcherRef"], APP_GAME_TEST_LAUNCHER_REF);
+    assert_eq!(
+        serialized["launcherProcessIdentity"],
+        APP_GAME_TEST_LAUNCHER_PROCESS_IDENTITY
+    );
+    assert_eq!(
+        serialized["launcherProcessName"],
+        APP_GAME_TEST_LAUNCHER_PROCESS_NAME
+    );
+    assert_eq!(
+        serialized["classificationState"],
+        APP_GAME_CLASSIFICATION_KNOWN_LAUNCHER
+    );
+    assert_eq!(
+        serialized["gameProofState"],
+        APP_GAME_LAUNCHER_PROOF_LAUNCHER_ONLY
+    );
+    assert!(serialized["childGameEvidenceClaimId"].is_null());
+}
+
+#[test]
 fn app_game_inventory_row_serializes_to_typescript_contract_shape() {
     let row = launcher_inventory_row();
 
@@ -302,6 +338,35 @@ fn foreground_evidence_row() -> AppGameForegroundEvidenceRow {
         capability_status: APP_GAME_CAPABILITY_STATUS_AVAILABLE.to_string(),
         content_knowledge_state: APP_GAME_CONTENT_KNOWLEDGE_NOT_CLAIMED.to_string(),
         confidence: 0.84,
+        evidence: Vec::new(),
+    }
+}
+
+fn launcher_evidence_row() -> AppGameLauncherEvidenceRow {
+    AppGameLauncherEvidenceRow {
+        schema_version: APP_GAME_SCHEMA_VERSION,
+        launcher_evidence_id: APP_GAME_TEST_LAUNCHER_EVIDENCE_ID.to_string(),
+        observed_at: constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string(),
+        launcher_kind: APP_GAME_LAUNCHER_KIND_STEAM.to_string(),
+        launcher_ref: APP_GAME_TEST_LAUNCHER_REF.to_string(),
+        launcher_inventory_entry_id: Some(APP_GAME_TEST_LAUNCHER_SOURCE_REF.to_string()),
+        launcher_manifest_id: Some(APP_GAME_TEST_LAUNCHER_MANIFEST_ID.to_string()),
+        launcher_app_id: None,
+        launcher_process_identity: Some(APP_GAME_TEST_LAUNCHER_PROCESS_IDENTITY.to_string()),
+        launcher_process_id: Some(APP_GAME_TEST_LAUNCHER_PROCESS_ID),
+        launcher_process_name: Some(APP_GAME_TEST_LAUNCHER_PROCESS_NAME.to_string()),
+        child_process_identity: None,
+        child_inventory_entry_id: None,
+        child_game_evidence_claim_id: None,
+        catalog_ref: None,
+        runtime_state: APP_GAME_RUNTIME_RUNNING.to_string(),
+        foreground_state: APP_GAME_FOREGROUND_NOT_CLAIMED.to_string(),
+        observation_mode: APP_GAME_OBSERVATION_MODE_PROCESS_SNAPSHOT.to_string(),
+        classification_state: APP_GAME_CLASSIFICATION_KNOWN_LAUNCHER.to_string(),
+        catalog_ready_state: APP_GAME_CATALOG_NOT_LOADED.to_string(),
+        capability_status: APP_GAME_CAPABILITY_STATUS_AVAILABLE.to_string(),
+        game_proof_state: APP_GAME_LAUNCHER_PROOF_LAUNCHER_ONLY.to_string(),
+        confidence: 0.74,
         evidence: Vec::new(),
     }
 }
