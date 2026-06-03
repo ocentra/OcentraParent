@@ -58,6 +58,11 @@ compete on control while staying clear about attribution confidence and privacy.
 - The full-scope network plan now records the end-state evidence,
   intervention, event-bus, analyzer, AI audit, risk-budget, proof-tier, UI, and
   workpack path without upgrading current runtime claims.
+- E-D added the first network runtime event chain in `crates/agent-core` using
+  the reusable `ocentra-eventing` crate and protocol-owned network event
+  constants. The proof covers metadata-only flow/domain/classification,
+  AI-audit, policy, enforcement dry-run/manual-required, audit, and portal
+  read-model phases without host adapter execution.
 - Network/domain blocking is not broadly product-complete.
 - Raw network control settings are preserved as design inputs, not
   product-complete implementation proof.
@@ -72,7 +77,10 @@ upgrade network/domain blocking beyond
 manual-required, and the broad-adapter proof and supported-adapter runtime proof
 keep the same manual-required host-filter boundary. The integrity runtime audit
 proves observe-only and manual-required state visibility, not DNS, VPN, packet,
-signature alert, risk-budget, or host filter enforcement.
+signature alert, production risk-budget, or host filter enforcement. The E-D
+runtime spine removes the private-bus blocker for an in-process metadata-only
+chain, but packet/analyzer fixtures, broker delivery, portal UI, and adapter
+apply/rollback/audit artifacts remain open.
 
 ## Checklist
 
@@ -83,6 +91,9 @@ signature alert, risk-budget, or host filter enforcement.
 - [ ] PCAP fixture, Zeek-style summary, and Suricata/Snort-compatible alert
       proof.
 - [ ] Reusable Rust eventing, detection, AI audit, and risk-budget contracts.
+      First E-D runtime spine exists for metadata-only flow events and
+      manual-required/unavailable states; production analyzer, AI model, and
+      risk-budget fixtures remain.
 - [ ] Policy preview over stored flow evidence.
 - [ ] Adapter capability status.
 - [x] Full-scope network plan, proof tiers, UI requirements, and workpacks.

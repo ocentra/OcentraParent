@@ -56,6 +56,10 @@ and clear degraded states.
 - A reusable Rust eventing plan now defines the shared event bus target for
   parent/controller and child-agent Rust runtimes. It does not upgrade runtime
   behavior until `crates/ocentra-eventing` and its tests exist.
+- E-D added the first reusable Rust eventing crate, `crates/ocentra-eventing`,
+  plus an agent-core network runtime chain proof that uses typed live
+  envelopes and stored-envelope boundaries. This proves the first shared bus
+  spine, not queue/retry/request-response/journal completeness.
 
 ## Current Gap
 
@@ -63,8 +67,10 @@ The service is real enough for local/LAN proof and local hardware visibility,
 but not yet a fully hardened consumer child-agent across signed LAN
 advertisement, capture, enforcement, notifications, updates, tamper/integrity,
 and support diagnostics. The Rust runtime also lacks the reusable shared event
-bus needed before network, AI, policy, enforcement, audit, parent-controller,
-and child-agent event chains should be wired broadly.
+bus depth needed before network, AI, policy, enforcement, audit,
+parent-controller, and child-agent event chains should be wired broadly:
+queue/retry/TTL, request-response, durable journal/replay, panic isolation, and
+transport handoff remain open beyond the first typed in-process spine.
 
 ## Checklist
 
@@ -74,7 +80,9 @@ and child-agent event chains should be wired broadly.
       across a second physical child device.
 - [ ] Evidence capture and journal writes.
 - [ ] Reusable Rust eventing crate shared by parent/controller and child-agent
-      runtimes, with UI/Vite kept view/input only.
+      runtimes, with UI/Vite kept view/input only. First E-D proof exists for
+      `crates/ocentra-eventing` typed envelopes and the network runtime chain;
+      queue/retry/request-response/journal and broad runtime adoption remain.
 - [ ] Policy and AI read paths.
 - [ ] Enforcement adapter dispatch with audit.
 - [ ] Capability and degraded-state reporting. Current mobile capability proof
