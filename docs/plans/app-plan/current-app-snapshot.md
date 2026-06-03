@@ -26,6 +26,9 @@ proof.
 `packages/activity-domain` already defines:
 
 - app/game inventory entries;
+- app/game category/risk taxonomy candidates with source refs, confidence,
+  evidence refs, parent display overrides, AI digest refs, and no-direct
+  enforcement guards;
 - process observations;
 - foreground evidence rows for active-window focus as staged
   contract/protocol/parser proof;
@@ -125,6 +128,8 @@ output/app-plan-proof/06-windows-installed-app-inventory-adapter
 output/app-plan-proof/07-windows-store-uwp-appx-inventory-adapter
 output/app-plan-proof/08-windows-process-runtime-evidence-adapter
 output/app-plan-proof/09-windows-foreground-app-evidence-adapter
+output/app-plan-proof/10-cross-platform-authority-matrix
+output/app-plan-proof/11-app-category-and-risk-taxonomy
 ```
 
 Those proof packs point back to `output/app-game-plan-proof/*` for the shared
@@ -160,7 +165,9 @@ polished app catalog UI, install approval, or cross-platform parity.
   events, portal rows, and explicit no-content UI labels.
 - Session duration and daily app rollups need stronger replay proof.
 - New/unknown app approval and child request UX are incomplete.
-- Risk-app categories need source/confidence and no-content no-claim guards.
+- App category/risk taxonomy now has contract/test proof, but live classifier
+  enrichment, policy routing, portal category rows, and runtime app risk
+  detection remain incomplete.
 - Parent app catalog/dashboard is not product-complete.
 - Broad app blocking remains manual-required outside scoped owned-process
   proof.
