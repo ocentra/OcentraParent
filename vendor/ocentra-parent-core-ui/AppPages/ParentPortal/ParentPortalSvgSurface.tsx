@@ -56,7 +56,7 @@ import {
   createGoldenFrameFrameOnlySvgDataUri,
 } from './ParentPortalGoldenFrameForeignObject';
 import { DeviceChoiceGrid } from './DeviceChoiceGrid/DeviceChoiceGrid';
-import type { DeviceChoiceGridProps, DeviceSlot } from './DeviceChoiceGrid/DeviceChoiceGridTypes';
+import type { DeviceChoiceGridProps, DeviceKind, DeviceSlot } from './DeviceChoiceGrid/DeviceChoiceGridTypes';
 import {
   createParentPortalActivityUiIntent,
   createParentPortalCanonicalDeviceSlots,
@@ -81,6 +81,10 @@ import {
   browserPolicyVisibleQuestions,
   type BrowserPolicyAnswerMap,
 } from '@ocentra-parent/parent-domain/browser-control-manifest';
+import {
+  LAN_HOUSEHOLD_ACTION_DEVICE_KIND_FIELD,
+  LAN_HOUSEHOLD_DEVICE_KIND_VALUES,
+} from '@ocentra-parent/parent-domain/lan-pairing';
 import {
   AgentCommand,
   AgentProtocolDefaults,
@@ -4187,15 +4191,18 @@ const ACTIVITY_REPORT_SELECTOR_ROW_H = MANAGE_DEVICE_GRID_CELL_H + MANAGE_DEVICE
 const LAN_PAIRING_SCAN_ICON_HREF = '/images/scan.png';
 const LAN_PAIRING_HEADER_TITLE = 'Local Area Network';
 
-type LanPairingDetailTabId = 'info' | 'update' | 'capability';
+type LanPairingDetailTabId = 'info' | 'pair' | 'update' | 'capability';
 
-const LAN_PAIRING_DETAIL_TABS: readonly {
+type LanPairingDetailTab = {
   readonly id: LanPairingDetailTabId;
   readonly label: string;
   readonly icon: IconComponent;
   readonly tone: Tone;
-}[] = [
+};
+
+const LAN_PAIRING_DETAIL_TABS: readonly LanPairingDetailTab[] = [
   { id: 'info', label: 'Info', icon: OverviewListIcon, tone: 'cyan' },
+  { id: 'pair', label: 'Pair', icon: PortalGatewayIcon, tone: 'gold' },
   { id: 'update', label: 'Update', icon: UpdatesSyncDocumentIcon, tone: 'gold' },
   { id: 'capability', label: 'Capability', icon: ScreenAnalysisIcon, tone: 'purple' },
 ];
@@ -4212,7 +4219,15 @@ type LanPairingContextRow = {
   readonly tone: Tone;
 };
 
-type LanPairingActionId = 'add' | 'select' | 'rename' | 'trust' | 'ignore' | 'restore' | 'revoke';
+type LanPairingPendingDeviceIdentity = {
+  readonly householdName: string;
+  readonly detectedName: string;
+  readonly deviceKind: DeviceKind;
+};
+
+type LanPairingPendingDeviceIdentities = Record<string, LanPairingPendingDeviceIdentity>;
+
+type LanPairingActionId = 'pair' | 'add' | 'select' | 'trust' | 'ignore' | 'restore' | 'revoke';
 
 type LanPairingActionButton = {
   readonly id: LanPairingActionId;
@@ -4246,6 +4261,68 @@ function lanPairingOptionalHumanLabel(value?: string): string {
 
 function lanPairingDeviceName(slot: DeviceSlot): string {
   return lanPairingMissingDeviceValue(slot.device?.name ?? slot.label);
+}
+
+function lanPairingDetectedDeviceName(slot: DeviceSlot): string {
+  const detectedName = lanPairingMissingDeviceValue(
+    slot.device?.detectedName || slot.device?.hostname || slot.device?.model
+  );
+  return detectedName === 'Not reported' ? lanPairingDeviceName(slot) : detectedName;
+}
+
+function lanPairingHouseholdNameDraftFor(slot: DeviceSlot): string {
+  const savedName = slot.device?.householdName?.trim();
+  if (savedName) return savedName;
+  const detectedName = lanPairingDetectedDeviceName(slot);
+  const displayedName = slot.label.trim();
+  if (!displayedName || displayedName.toLowerCase().startsWith('lan ')) return '';
+  return detectedName === 'Not reported' || displayedName !== detectedName ? displayedName : '';
+}
+
+function lanPairingDeviceKindDraftFor(slot: DeviceSlot): DeviceKind {
+  return slot.device?.parentDeviceKind ?? slot.device?.type ?? 'unknown';
+}
+
+function lanPairingDeviceKindOptionLabel(kind: DeviceKind): string {
+  if (kind === 'unknown') return 'Unknown';
+  return lanPairingHumanLabel(kind);
+}
+
+function lanPairingDeviceIdentityKey(slot: DeviceSlot | null): string {
+  return slot?.device?.id || slot?.value || '';
+}
+
+function lanPairingCanEditDeviceIdentity(slot: DeviceSlot | null): boolean {
+  return Boolean(slot?.device && slot.status !== 'empty');
+}
+
+function applyLanPairingPendingIdentities(
+  slots: readonly DeviceSlot[],
+  pendingIdentities: LanPairingPendingDeviceIdentities
+): readonly DeviceSlot[] {
+  if (Object.keys(pendingIdentities).length === 0) return slots;
+  return slots.map((slot) => {
+    const identity = pendingIdentities[lanPairingDeviceIdentityKey(slot)];
+    return identity ? applyLanPairingPendingIdentity(slot, identity) : slot;
+  });
+}
+
+function applyLanPairingPendingIdentity(slot: DeviceSlot, identity: LanPairingPendingDeviceIdentity): DeviceSlot {
+  if (!slot.device) return slot;
+  const householdName = identity.householdName.trim();
+  if (!householdName) return slot;
+  return {
+    ...slot,
+    label: householdName,
+    device: {
+      ...slot.device,
+      name: householdName,
+      householdName,
+      detectedName: slot.device.detectedName || identity.detectedName,
+      parentDeviceKind: identity.deviceKind,
+      type: identity.deviceKind,
+    },
+  };
 }
 
 function lanPairingDevicePlatform(slot: DeviceSlot): string {
@@ -4347,28 +4424,301 @@ function lanPairingDeviceIsInfrastructure(slot: DeviceSlot): boolean {
   return slot.badge === 'infrastructure' || slot.device?.type === 'router' || slot.device?.platform === 'router';
 }
 
+function lanPairingDevicePairedOrConfirmed(slot: DeviceSlot | null): boolean {
+  if (!slot || slot.status === 'empty' || slot.status === 'unsupported' || lanPairingDeviceIsInfrastructure(slot)) {
+    return false;
+  }
+  const trustState = slot.device?.trustState?.trim();
+  const readinessState = slot.device?.readinessState?.trim();
+  const sourceState = slot.device?.sourceState?.trim();
+  return (
+    lanPairingDeviceHasAgent(slot) &&
+    (slot.status === 'connected' ||
+      readinessState === 'ready-for-control' ||
+      readinessState === 'ready' ||
+      trustState === 'paired' ||
+      sourceState === 'paired' ||
+      sourceState === 'ready' ||
+      Boolean(slot.device?.pairingId && slot.device?.proofDigest))
+  );
+}
+
+function lanPairingDeviceReadyForControl(slot: DeviceSlot | null): boolean {
+  if (!lanPairingDevicePairedOrConfirmed(slot) || !slot) {
+    return false;
+  }
+  const readinessState = slot.device?.readinessState?.trim();
+  const sourceState = slot.device?.sourceState?.trim();
+  return (
+    slot.status === 'connected' ||
+    readinessState === 'ready-for-control' ||
+    readinessState === 'ready' ||
+    sourceState === 'ready'
+  );
+}
+
+function lanPairingDeviceNeedsPairing(slot: DeviceSlot | null): boolean {
+  return Boolean(
+    slot &&
+    slot.status !== 'empty' &&
+    slot.status !== 'unsupported' &&
+    !lanPairingDeviceIsInfrastructure(slot) &&
+    !lanPairingDevicePairedOrConfirmed(slot)
+  );
+}
+
+function lanPairingDetailTabsFor(slot: DeviceSlot | null): readonly LanPairingDetailTab[] {
+  return LAN_PAIRING_DETAIL_TABS.filter((tab) => tab.id !== 'pair' || lanPairingDeviceNeedsPairing(slot));
+}
+
+function lanPairingDetailTabUnavailableReason(tab: LanPairingDetailTabId, slot: DeviceSlot | null): string | null {
+  if (tab !== 'update' && tab !== 'capability') return null;
+  if (!slot) return 'Select a LAN device first';
+  if (lanPairingDeviceReadyForControl(slot)) return null;
+  if (lanPairingDevicePairedOrConfirmed(slot)) return 'Paired device is not connected';
+  if (lanPairingDeviceIsInfrastructure(slot)) return 'Network infrastructure is visible only';
+  if (slot.status === 'unsupported') return 'This device cannot run the child agent';
+  return 'Pair or connect a child agent first';
+}
+
+function lanPairingSetupStatusFor(slot: DeviceSlot): string {
+  if (lanPairingDeviceReadyForControl(slot)) return 'Already connected';
+  if (lanPairingDevicePairedOrConfirmed(slot)) return 'Already paired';
+  if (slot.status === 'offline') return 'Device offline';
+  if (lanPairingAddDeviceCommandPayload(slot)) return 'Ready for pairing challenge';
+  if (lanPairingDeviceIsInfrastructure(slot)) return 'Infrastructure visible only';
+  if (slot.status === 'unsupported') return 'Unsupported for child agent';
+  return 'Install child agent first';
+}
+
+function lanPairingPairingNextStepFor(slot: DeviceSlot): string {
+  if (lanPairingDeviceReadyForControl(slot)) return 'Update and Capability are available';
+  if (lanPairingDevicePairedOrConfirmed(slot)) return 'Reconnect child agent before update or capability';
+  if (slot.status === 'offline') return 'Bring the device online before pairing';
+  if (lanPairingAddDeviceCommandPayload(slot)) return 'Start pairing, then submit child-agent proof';
+  return 'Install or run the Ocentra child agent on this device';
+}
+
+function lanPairingPairingActionStateFor(slot: DeviceSlot): string {
+  if (lanPairingPairCommandPayload(slot)) return 'Ready: sends signed add-device request';
+  if (lanPairingDeviceReadyForControl(slot)) return 'Already connected';
+  if (lanPairingDevicePairedOrConfirmed(slot)) return 'Already paired';
+  if (slot.status === 'offline') return 'Unavailable: device offline';
+  if (lanPairingDeviceIsInfrastructure(slot)) return 'Unavailable: infrastructure only';
+  if (slot.status === 'unsupported') return 'Unavailable: child agent unsupported';
+  return 'Unavailable: no child-agent route';
+}
+
+function LanPairingDeviceEditDialog({
+  cfg,
+  x,
+  y,
+  w,
+  h,
+  overlayX,
+  overlayY,
+  overlayW,
+  overlayH,
+  slot,
+  detectedName,
+  householdName,
+  deviceKind,
+  onHouseholdNameChange,
+  onDeviceKindChange,
+  onSave,
+  onClose,
+}: {
+  cfg: ParentPortalSvgControls;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  overlayX: number;
+  overlayY: number;
+  overlayW: number;
+  overlayH: number;
+  slot: DeviceSlot | null;
+  detectedName: string;
+  householdName: string;
+  deviceKind: DeviceKind;
+  onHouseholdNameChange: (value: string) => void;
+  onDeviceKindChange: (value: DeviceKind) => void;
+  onSave: () => void;
+  onClose: () => void;
+}): ReactElement | null {
+  if (!slot) return null;
+  const borderColor = toneColor('cyan', cfg);
+  const accentColor = toneColor('gold', cfg);
+  const dialogFontFamily = 'inherit';
+  const fieldStyle: CSSProperties = {
+    width: '100%',
+    boxSizing: 'border-box',
+    background: 'rgba(3, 20, 33, 0.96)',
+    border: `1px solid ${colorAlpha(borderColor, 'AA')}`,
+    borderRadius: 6,
+    color: cfg.colors.bodyText,
+    fontFamily: dialogFontFamily,
+    fontSize: 13,
+    fontWeight: 760,
+    outline: 'none',
+    padding: '8px 10px',
+  };
+
+  return (
+    <g>
+      <rect
+        x={overlayX}
+        y={overlayY}
+        width={overlayW}
+        height={overlayH}
+        fill="rgba(0, 6, 12, 0.48)"
+        rx={12}
+        onClick={(event) => {
+          event.stopPropagation();
+          onClose();
+        }}
+      />
+      <foreignObject x={x} y={y} width={w} height={h}>
+        <div
+          xmlns="http://www.w3.org/1999/xhtml"
+          onClick={(event) => event.stopPropagation()}
+          onPointerDown={(event) => event.stopPropagation()}
+          style={{
+            width: '100%',
+            height: '100%',
+            boxSizing: 'border-box',
+            background: 'linear-gradient(180deg, rgba(4, 26, 44, 0.98), rgba(2, 13, 25, 0.98))',
+            border: `1px solid ${borderColor}`,
+            borderRadius: 8,
+            boxShadow: `0 0 22px ${colorAlpha(borderColor, '66')}`,
+            color: cfg.colors.bodyText,
+            fontFamily: dialogFontFamily,
+            padding: '14px 16px 16px',
+            position: 'relative',
+          }}
+        >
+          <button
+            type="button"
+            aria-label="Close device editor"
+            onClick={onClose}
+            style={{
+              position: 'absolute',
+              right: 8,
+              top: 8,
+              width: 24,
+              height: 24,
+              border: `1px solid ${colorAlpha(borderColor, 'AA')}`,
+              borderRadius: 6,
+              background: 'rgba(2, 12, 22, 0.9)',
+              color: cfg.colors.bodyText,
+              cursor: 'pointer',
+              fontFamily: dialogFontFamily,
+              fontSize: 13,
+              fontWeight: 950,
+              lineHeight: '20px',
+              padding: 0,
+            }}
+          >
+            x
+          </button>
+          <div
+            style={{
+              color: borderColor,
+              fontSize: 13,
+              fontWeight: 950,
+              letterSpacing: 0,
+              paddingRight: 30,
+              textTransform: 'uppercase',
+            }}
+          >
+            Edit device
+          </div>
+          <div style={{ color: cfg.colors.mutedText, fontSize: 11, fontWeight: 780, marginTop: 5 }}>{slot.label}</div>
+          <label style={{ display: 'block', marginTop: 14 }}>
+            <span style={{ color: accentColor, display: 'block', fontSize: 10, fontWeight: 950, marginBottom: 5 }}>
+              Detected name
+            </span>
+            <input aria-label="Detected name" readOnly value={detectedName} style={{ ...fieldStyle, opacity: 0.74 }} />
+          </label>
+          <label style={{ display: 'block', marginTop: 10 }}>
+            <span style={{ color: borderColor, display: 'block', fontSize: 10, fontWeight: 950, marginBottom: 5 }}>
+              Household name
+            </span>
+            <input
+              aria-label="Household name"
+              value={householdName}
+              onChange={(event) => onHouseholdNameChange(event.currentTarget.value)}
+              placeholder={detectedName === 'Not reported' ? 'Name this device' : detectedName}
+              style={fieldStyle}
+            />
+          </label>
+          <label style={{ display: 'block', marginTop: 10 }}>
+            <span style={{ color: borderColor, display: 'block', fontSize: 10, fontWeight: 950, marginBottom: 5 }}>
+              Device type
+            </span>
+            <select
+              aria-label="Device type"
+              value={deviceKind}
+              onChange={(event) => onDeviceKindChange(event.currentTarget.value as DeviceKind)}
+              style={fieldStyle}
+            >
+              {LAN_HOUSEHOLD_DEVICE_KIND_VALUES.map((kind) => (
+                <option key={`lan-device-kind:${kind}`} value={kind}>
+                  {lanPairingDeviceKindOptionLabel(kind)}
+                </option>
+              ))}
+            </select>
+          </label>
+          <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 14 }}>
+            <button
+              type="button"
+              onClick={onClose}
+              style={{
+                background: 'rgba(2, 12, 22, 0.9)',
+                border: `1px solid ${colorAlpha(cfg.colors.panelStroke, 'AA')}`,
+                borderRadius: 6,
+                color: cfg.colors.mutedText,
+                cursor: 'pointer',
+                fontFamily: dialogFontFamily,
+                fontSize: 12,
+                fontWeight: 850,
+                padding: '7px 16px',
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={onSave}
+              style={{
+                background: `linear-gradient(180deg, ${colorAlpha(borderColor, 'E6')}, ${colorAlpha(borderColor, '99')})`,
+                border: `1px solid ${colorAlpha(borderColor, 'DD')}`,
+                borderRadius: 6,
+                color: '#03131f',
+                cursor: 'pointer',
+                fontFamily: dialogFontFamily,
+                fontSize: 12,
+                fontWeight: 950,
+                padding: '7px 18px',
+              }}
+            >
+              Save
+            </button>
+          </div>
+        </div>
+      </foreignObject>
+    </g>
+  );
+}
+
 function lanPairingActionButtonsFor(slot: DeviceSlot | null): readonly LanPairingActionButton[] {
   return [
-    lanPairingActionButton(
-      'add',
-      'Add',
-      'cyan',
-      AgentCommand.LanPairingAddDeviceRequest,
-      lanPairingAddDeviceCommandPayload(slot)
-    ),
     lanPairingActionButton(
       'select',
       'Select',
       'gold',
       AgentCommand.LanPairingRouteSelect,
       lanPairingRouteIntentCommandPayload(slot)
-    ),
-    lanPairingActionButton(
-      'rename',
-      'Rename',
-      'purple',
-      AgentCommand.LanPairingAddDeviceRequest,
-      lanPairingHouseholdActionCommandPayload(slot, AgentProtocolDefaults.LanHouseholdActionKind.Rename)
     ),
     lanPairingActionButton(
       'trust',
@@ -4399,6 +4749,12 @@ function lanPairingActionButtonsFor(slot: DeviceSlot | null): readonly LanPairin
       lanPairingRouteIntentCommandPayload(slot)
     ),
   ];
+}
+
+function lanPairingPairActionButtonsFor(slot: DeviceSlot | null): readonly LanPairingActionButton[] {
+  const payload = lanPairingPairCommandPayload(slot);
+  if (!payload) return [];
+  return [lanPairingActionButton('pair', 'Start pairing', 'gold', AgentCommand.LanPairingAddDeviceRequest, payload)];
 }
 
 function lanPairingActionButton(
@@ -4438,25 +4794,39 @@ function lanPairingAddDeviceCommandPayload(slot: DeviceSlot | null): Record<stri
   };
 }
 
+function lanPairingPairCommandPayload(slot: DeviceSlot | null): Record<string, string> | null {
+  if (!slot || slot.status === 'offline' || lanPairingDevicePairedOrConfirmed(slot)) return null;
+  return lanPairingAddDeviceCommandPayload(slot);
+}
+
 function lanPairingHouseholdActionCommandPayload(
   slot: DeviceSlot | null,
-  actionKind: string
+  actionKind: string,
+  override: { readonly displayName?: string; readonly deviceKind?: DeviceKind; readonly requiresRoute?: boolean } = {}
 ): Record<string, string> | null {
   if (!slot) return null;
   const basePayload = lanPairingAddDeviceCommandPayload(slot);
   const canonicalDeviceId = slot.device?.id || slot.value;
-  if (!basePayload || !canonicalDeviceId) return null;
-  const issuedAt = basePayload[AgentProtocolDefaults.Field.StartedAt];
-  const payload = {
-    ...basePayload,
+  if (override.requiresRoute !== false && !basePayload) return null;
+  if (!canonicalDeviceId) return null;
+  const issuedAt = basePayload?.[AgentProtocolDefaults.Field.StartedAt] ?? new Date().toISOString();
+  const payload: Record<string, string> = {
+    ...(basePayload ?? {}),
+    [AgentProtocolDefaults.Field.Origin]:
+      basePayload?.[AgentProtocolDefaults.Field.Origin] ??
+      (typeof window === 'undefined' ? 'http://127.0.0.1:4678' : window.location.origin),
+    [AgentProtocolDefaults.Field.StartedAt]: issuedAt,
     [AgentProtocolDefaults.Field.LanHouseholdActionId]: `lan-ui-${actionKind}-${Date.now()}`,
     [AgentProtocolDefaults.Field.LanHouseholdActionKind]: actionKind,
     [AgentProtocolDefaults.Field.LanCanonicalDeviceId]: canonicalDeviceId,
     [AgentProtocolDefaults.Field.LanParentActorId]: AgentProtocolDefaults.Peer.PortalDev.peerId,
-    [AgentProtocolDefaults.Field.LanHouseholdActionDisplayName]: lanPairingDeviceName(slot),
+    [AgentProtocolDefaults.Field.LanHouseholdActionDisplayName]: override.displayName || lanPairingDeviceName(slot),
   };
   if (slot.device?.childProfileId) {
     payload[AgentProtocolDefaults.Field.LanHouseholdActionChildProfileId] = slot.device.childProfileId;
+  }
+  if (override.deviceKind) {
+    payload[LAN_HOUSEHOLD_ACTION_DEVICE_KIND_FIELD] = override.deviceKind;
   }
   if (actionKind === AgentProtocolDefaults.LanHouseholdActionKind.Ignore) {
     payload[AgentProtocolDefaults.Field.LanHouseholdActionRevokedAt] = issuedAt;
@@ -4522,6 +4892,35 @@ function lanPairingDetailRowsFor(
     return [{ label: 'Selection', value: 'No device selected', tone: 'gold' }];
   }
 
+  if (tab === 'pair') {
+    return [
+      { label: 'Pair action', value: lanPairingPairingActionStateFor(selectedDevice), tone: 'gold' },
+      { label: 'Setup state', value: lanPairingSetupStatusFor(selectedDevice), tone: 'gold' },
+      { label: 'Next step', value: lanPairingPairingNextStepFor(selectedDevice), tone: 'cyan' },
+      { label: 'Route', value: lanPairingDeviceRoute(selectedDevice), tone: 'gold' },
+      { label: 'Signed proof', value: lanPairingDeviceSignedProof(selectedDevice), tone: 'purple' },
+      { label: 'Confirmation', value: 'Signed child-agent hello required', tone: 'gold' },
+      { label: 'Detected name', value: lanPairingDetectedDeviceName(selectedDevice), tone: 'purple' },
+      { label: 'Device type', value: lanPairingDeviceType(selectedDevice), tone: 'cyan' },
+      { label: 'IP', value: lanPairingMissingDeviceValue(selectedDevice.device?.ip), tone: 'cyan' },
+      { label: 'Host', value: lanPairingMissingDeviceValue(selectedDevice.device?.hostname), tone: 'gold' },
+    ];
+  }
+
+  const unavailableReason = lanPairingDetailTabUnavailableReason(tab, selectedDevice);
+  if (unavailableReason) {
+    return [
+      { label: 'Blocked', value: unavailableReason, tone: 'gold' },
+      { label: 'Device', value: lanPairingDeviceName(selectedDevice), tone: 'cyan' },
+      { label: 'Current state', value: lanPairingDeviceState(selectedDevice), tone: 'purple' },
+      { label: 'Control state', value: lanPairingDeviceControlState(selectedDevice), tone: 'gold' },
+      { label: 'Next step', value: lanPairingPairingNextStepFor(selectedDevice), tone: 'cyan' },
+      { label: 'Signed proof', value: lanPairingDeviceSignedProof(selectedDevice), tone: 'purple' },
+      { label: 'Route', value: lanPairingDeviceRoute(selectedDevice), tone: 'gold' },
+      { label: 'Evidence', value: lanPairingDeviceEvidence(selectedDevice), tone: 'cyan' },
+    ];
+  }
+
   const sharedRows: readonly LanPairingDetailRow[] = [
     { label: 'Name', value: lanPairingDeviceName(selectedDevice), tone: 'cyan' },
     { label: 'State', value: lanPairingDeviceState(selectedDevice), tone: 'gold' },
@@ -4582,34 +4981,13 @@ function lanPairingDetailRowsFor(
     ];
   }
   return [
-    { label: 'Name', value: lanPairingDeviceName(selectedDevice), tone: 'cyan' },
-    { label: 'Source', value: lanPairingDeviceSource(selectedDevice), tone: 'purple' },
-    { label: 'Control', value: lanPairingDeviceControlState(selectedDevice), tone: 'gold' },
-    { label: 'Route', value: lanPairingDeviceRoute(selectedDevice), tone: 'cyan' },
-    { label: 'Route state', value: lanPairingDeviceRouteState(selectedDevice), tone: 'purple' },
-    { label: 'Custody', value: lanPairingDeviceCustody(selectedDevice), tone: 'gold' },
-    { label: 'Signed proof', value: lanPairingDeviceSignedProof(selectedDevice), tone: 'cyan' },
-    { label: 'Manual proof', value: lanPairingDeviceManualProof(selectedDevice), tone: 'purple' },
+    { label: 'Display name', value: lanPairingDeviceName(selectedDevice), tone: 'cyan' },
+    { label: 'Detected name', value: lanPairingDetectedDeviceName(selectedDevice), tone: 'purple' },
+    { label: 'Device type', value: lanPairingDeviceType(selectedDevice), tone: 'gold' },
     { label: 'IP', value: lanPairingMissingDeviceValue(selectedDevice.device?.ip), tone: 'gold' },
-    { label: 'MAC', value: lanPairingMissingDeviceValue(selectedDevice.device?.mac), tone: 'purple' },
     { label: 'Host', value: lanPairingMissingDeviceValue(selectedDevice.device?.hostname), tone: 'cyan' },
-    {
-      label: 'Interface',
-      value: lanPairingMissingDeviceValue(selectedDevice.device?.networkInterface),
-      tone: 'gold',
-    },
     { label: 'State', value: lanPairingDeviceState(selectedDevice), tone: 'cyan' },
-    { label: 'Platform', value: lanPairingDevicePlatform(selectedDevice), tone: 'gold' },
-    { label: 'Type', value: lanPairingDeviceType(selectedDevice), tone: 'purple' },
-    { label: 'Agent', value: lanPairingMissingDeviceValue(selectedDevice.device?.agentStatus), tone: 'cyan' },
-    { label: 'CPU', value: lanPairingMissingDeviceValue(selectedDevice.device?.cpuModel), tone: 'gold' },
-    { label: 'GPU', value: lanPairingMissingDeviceValue(selectedDevice.device?.gpuModel), tone: 'purple' },
-    { label: 'Memory', value: lanPairingMissingDeviceValue(selectedDevice.device?.memoryTotal), tone: 'cyan' },
-    {
-      label: 'Device ID',
-      value: lanPairingMissingDeviceValue(selectedDevice.device?.id ?? selectedDevice.value),
-      tone: 'cyan',
-    },
+    { label: 'Platform', value: lanPairingDevicePlatform(selectedDevice), tone: 'purple' },
   ];
 }
 
@@ -4848,6 +5226,7 @@ function activityLanDiagnosticsRows(
   const householdDecisions = activityRecordArray(addDeviceReadModel.householdDeviceDecisions);
   const scanSummary = activityRecord(addDeviceReadModel.scanSummary);
   const signedSpine = activityRecord(addDeviceReadModel.signedDiscoveryRelaySpine);
+  const sourceMatrix = activityRecord(addDeviceReadModel.lanDiscoverySourceMatrix);
   const signedProofRow = activityLanSpineStateRow(signedSpine, 'signedProofRows');
   const routeSafetyRow = activityLanRouteSafetyRow(signedSpine, selectedDevice);
   const relayCacheRow = activityLanSpineStateRow(signedSpine, 'relayCacheRows');
@@ -4892,6 +5271,7 @@ function activityLanDiagnosticsRows(
       value: activityStateValue(addDeviceReadModel.physicalHouseholdLanState),
       tone: 'purple',
     },
+    ...activityLanSourceMatrixRows(sourceMatrix),
     {
       label: 'Selected route',
       value: `${activityStateValue(selectedReadiness?.routeId)}; ${activityStateValue(selectedReadiness?.trustState)}`,
@@ -4973,6 +5353,45 @@ function activityLanDiagnosticsRows(
       label: 'Policy targets',
       value: activityListSummary(policyTargetSurfaces),
       tone: 'gold',
+    },
+  ];
+}
+
+function activityLanSourceMatrixRows(sourceMatrix: Record<string, unknown> | null): readonly ActivityManageDetailRow[] {
+  if (!sourceMatrix) return [];
+  const workpackRows = activityRecordArray(sourceMatrix.workpackRows);
+  const sourceRows = activityRecordArray(sourceMatrix.sourceRows);
+  const implemented = workpackRows.filter((row) => activityStateValue(row.status, '') === 'implemented').length;
+  const partial = workpackRows.filter((row) => activityStateValue(row.status, '') === 'partial').length;
+  const manual = workpackRows.filter((row) => activityStateValue(row.status, '') === 'manual-required').length;
+  const missing = workpackRows.filter((row) => activityStateValue(row.status, '') === 'not-implemented').length;
+  const implementedSources = sourceRows
+    .filter((row) => activityStateValue(row.status, '') === 'implemented')
+    .map((row) => activityStateValue(row.source, ''))
+    .filter((source) => source.length > 0);
+  const weakSources = sourceRows.filter(
+    (row) => row.canConfirmChildAgent !== true && row.canAssignChildProfile !== true
+  ).length;
+  return [
+    {
+      label: 'LAN workpacks',
+      value: `${implemented}/${workpackRows.length} implemented; ${partial} partial; ${manual} manual; ${missing} missing`,
+      tone: 'cyan',
+    },
+    {
+      label: 'Source proof',
+      value: activityListSummary(implementedSources),
+      tone: 'gold',
+    },
+    {
+      label: 'Weak source fence',
+      value: `weak sources cannot confirm or assign: ${weakSources}/${sourceRows.length}`,
+      tone: 'purple',
+    },
+    {
+      label: 'Matrix generated',
+      value: activityStateValue(sourceMatrix.generatedAt),
+      tone: 'cyan',
     },
   ];
 }
@@ -11524,6 +11943,7 @@ function ManageControlPanel({
   activityState,
   parentPortalRows,
   onNavigate,
+  onAgentCommand,
   cfg,
 }: {
   x: number;
@@ -11540,6 +11960,7 @@ function ManageControlPanel({
   activityState?: ParentPortalActivityState | null;
   parentPortalRows: ParentPortalRow[];
   onNavigate?: (routePath: string) => void;
+  onAgentCommand?: (command: AgentCommandName, payload: Record<string, string>) => void;
   cfg: ParentPortalSvgControls;
 }) {
   const lane = manageLaneForKey(activeNavLabel, selectedControlName);
@@ -11552,6 +11973,10 @@ function ManageControlPanel({
   const [syncStatus, setSyncStatus] = useState('Local draft');
   const [lanPairingActiveTab, setLanPairingActiveTab] = useState<LanPairingDetailTabId>('info');
   const [lanPairingSelectedSlot, setLanPairingSelectedSlot] = useState<DeviceSlot | null>(null);
+  const [lanPairingEditSlot, setLanPairingEditSlot] = useState<DeviceSlot | null>(null);
+  const [lanPairingHouseholdNameDraft, setLanPairingHouseholdNameDraft] = useState('');
+  const [lanPairingDeviceKindDraft, setLanPairingDeviceKindDraft] = useState<DeviceKind>('unknown');
+  const [lanPairingPendingIdentities, setLanPairingPendingIdentities] = useState<LanPairingPendingDeviceIdentities>({});
   const [activityManageActiveTab, setActivityManageActiveTab] = useState<ActivityManageTabId>('reports');
   const [activityReportFrequency, setActivityReportFrequency] = useState('daily');
   const [activityReportOverrideMode, setActivityReportOverrideMode] = useState('family-defaults');
@@ -11567,6 +11992,10 @@ function ManageControlPanel({
     setSyncStatus('Local draft');
     setLanPairingActiveTab('info');
     setLanPairingSelectedSlot(null);
+    setLanPairingEditSlot(null);
+    setLanPairingHouseholdNameDraft('');
+    setLanPairingDeviceKindDraft('unknown');
+    setLanPairingPendingIdentities({});
     setActivityManageActiveTab('reports');
     setActivityReportFrequency('daily');
     setActivityReportOverrideMode('family-defaults');
@@ -11616,9 +12045,13 @@ function ManageControlPanel({
   const controlsActive = isPortalLane || isDeviceOpsLane || overrideMode === 'perDevice';
   const isLanPairingPanel = isLanPairingManageTitle(spec.title);
   const isReportsPanel = isReportsManageTitle(spec.title);
-  const lanPairingSlots = useMemo(
+  const lanPairingReadModelSlots = useMemo(
     () => createParentPortalLanPairingUiSlots(parentPortalRows, activityState?.lanAddDeviceReadModel),
     [activityState?.lanAddDeviceReadModel, parentPortalRows]
+  );
+  const lanPairingSlots = useMemo(
+    () => applyLanPairingPendingIdentities(lanPairingReadModelSlots, lanPairingPendingIdentities),
+    [lanPairingPendingIdentities, lanPairingReadModelSlots]
   );
   const lanPairingPortalIds = useMemo(() => createParentPortalLanPairingPortalIds(lanPairingSlots), [lanPairingSlots]);
   const firstLanPairingSelectableSlot = lanPairingSlots.find((slot) => slot.status !== 'empty') ?? null;
@@ -11627,11 +12060,67 @@ function ManageControlPanel({
     if (lanPairingSelectedSlot && lanPairingSlots.some((slot) => slot.value === lanPairingSelectedSlot.value)) return;
     setLanPairingSelectedSlot(firstLanPairingSelectableSlot);
   }, [firstLanPairingSelectableSlot, isLanPairingPanel, lanPairingSelectedSlot, lanPairingSlots]);
+  const openLanPairingDeviceEditDialog = useCallback(
+    (choice: DeviceSlot) => {
+      setLanPairingSelectedSlot(choice);
+      setLanPairingEditSlot(choice);
+      setLanPairingHouseholdNameDraft(lanPairingHouseholdNameDraftFor(choice));
+      setLanPairingDeviceKindDraft(lanPairingDeviceKindDraftFor(choice));
+      onTargetChange?.({ ...targetSelection, scope: 'perDevice', device: choice.label });
+      setLastAction(`${choice.label} edit`);
+      setSyncStatus('Editing device identity');
+    },
+    [onTargetChange, targetSelection]
+  );
+  const saveLanPairingDeviceEditDialog = useCallback(() => {
+    if (!lanPairingEditSlot) return;
+    const nextName = lanPairingHouseholdNameDraft.trim() || lanPairingDeviceName(lanPairingEditSlot);
+    const payload = lanPairingHouseholdActionCommandPayload(
+      lanPairingEditSlot,
+      AgentProtocolDefaults.LanHouseholdActionKind.Rename,
+      {
+        displayName: nextName,
+        deviceKind: lanPairingDeviceKindDraft,
+        requiresRoute: false,
+      }
+    );
+    if (!payload) {
+      setLastAction('Device identity save unavailable');
+      setSyncStatus('LAN device identity missing');
+      return;
+    }
+    if (!onAgentCommand) {
+      setLastAction('Device identity command unavailable');
+      setSyncStatus('Portal command sender missing');
+      return;
+    }
+    const nextIdentity = {
+      householdName: nextName,
+      detectedName: lanPairingDetectedDeviceName(lanPairingEditSlot),
+      deviceKind: lanPairingDeviceKindDraft,
+    };
+    const identityKey = lanPairingDeviceIdentityKey(lanPairingEditSlot);
+    if (identityKey) {
+      setLanPairingPendingIdentities((pendingIdentities) => ({
+        ...pendingIdentities,
+        [identityKey]: nextIdentity,
+      }));
+    }
+    setLanPairingSelectedSlot(applyLanPairingPendingIdentity(lanPairingEditSlot, nextIdentity));
+    onAgentCommand(AgentCommand.LanPairingAddDeviceRequest, payload);
+    setLanPairingEditSlot(null);
+    setLastAction(`${nextName} identity saved`);
+    setSyncStatus('LAN household decision sent');
+  }, [lanPairingDeviceKindDraft, lanPairingEditSlot, lanPairingHouseholdNameDraft, onAgentCommand]);
   const lanPairingPanelPadX = Math.max(18, Math.min(34, Math.round(w * 0.018)));
   const lanPairingPanelPadY = 0;
   const lanPairingAvailableW = Math.max(1, w - lanPairingPanelPadX * 2);
   const lanPairingAvailableH = Math.max(1, h - lanPairingPanelPadY * 2);
-  const lanPairingGridTopH = Math.max(1, lanPairingAvailableH / 2);
+  const lanPairingGridTopH = clampValue(
+    Math.round(lanPairingAvailableH * 0.42),
+    Math.min(250, Math.round(lanPairingAvailableH * 0.48)),
+    Math.max(260, lanPairingAvailableH - 360)
+  );
   const lanPairingGridW = lanPairingAvailableW;
   const lanPairingGridH = lanPairingGridTopH;
   const lanPairingGridX = x + lanPairingPanelPadX;
@@ -11641,8 +12130,13 @@ function ManageControlPanel({
     width: lanPairingGridW,
     height: lanPairingGridH,
   };
+  const lanPairingDetailTabs = useMemo(() => lanPairingDetailTabsFor(lanPairingSelectedSlot), [lanPairingSelectedSlot]);
+  useEffect(() => {
+    if (lanPairingDetailTabs.some((tab) => tab.id === lanPairingActiveTab)) return;
+    setLanPairingActiveTab(lanPairingDetailTabs[0]?.id ?? 'info');
+  }, [lanPairingActiveTab, lanPairingDetailTabs]);
   const lanPairingDetailTab =
-    LAN_PAIRING_DETAIL_TABS.find((tab) => tab.id === lanPairingActiveTab) ?? LAN_PAIRING_DETAIL_TABS[0];
+    lanPairingDetailTabs.find((tab) => tab.id === lanPairingActiveTab) ?? lanPairingDetailTabs[0];
   const lanPairingDetailColor = toneColor(lanPairingDetailTab.tone, cfg);
   const lanPairingDetailY = lanPairingDividerY + 16;
   const lanPairingDetailH = Math.max(1, y + h - lanPairingDetailY - 8);
@@ -11651,13 +12145,17 @@ function ManageControlPanel({
   const lanPairingTabInsetX = Math.max(16, Math.min(24, Math.round(lanPairingGridW * 0.012)));
   const lanPairingTabW = Math.max(
     112,
-    Math.min(180, (lanPairingGridW - lanPairingTabInsetX * 2) / LAN_PAIRING_DETAIL_TABS.length)
+    Math.min(180, (lanPairingGridW - lanPairingTabInsetX * 2) / Math.max(1, lanPairingDetailTabs.length))
   );
   const lanPairingTabsX = lanPairingGridX + lanPairingTabInsetX;
   const lanPairingBodyY = lanPairingDetailY + lanPairingTabH - 1;
   const lanPairingBodyH = Math.max(1, y + h - lanPairingBodyY - 8);
   const lanPairingBodyX = lanPairingGridX;
   const lanPairingBodyW = lanPairingGridW;
+  const lanPairingEditDialogW = Math.max(320, Math.min(440, lanPairingBodyW - 72));
+  const lanPairingEditDialogH = 312;
+  const lanPairingEditDialogX = x + (w - lanPairingEditDialogW) / 2;
+  const lanPairingEditDialogY = y + Math.max(24, (h - lanPairingEditDialogH) / 2);
   const lanPairingDetailColumnCount = lanPairingBodyW > 980 ? 3 : lanPairingBodyW > 620 ? 2 : 1;
   const lanPairingDetailRowGap = 10;
   const lanPairingDetailRowW = Math.max(
@@ -11665,9 +12163,15 @@ function ManageControlPanel({
     (lanPairingBodyW - 40 - lanPairingDetailRowGap * (lanPairingDetailColumnCount - 1)) / lanPairingDetailColumnCount
   );
   const lanPairingDetailRowH = 44;
-  const lanPairingDetailRows = lanPairingDetailRowsFor(lanPairingActiveTab, lanPairingSelectedSlot);
+  const lanPairingDetailRows = lanPairingDetailRowsFor(lanPairingDetailTab.id, lanPairingSelectedSlot);
   const lanPairingContextRows = lanPairingContextRowsFor(lanPairingSelectedSlot);
-  const lanPairingActionButtons = lanPairingActionButtonsFor(lanPairingSelectedSlot);
+  const lanPairingActionButtons =
+    lanPairingDetailTab.id === 'pair'
+      ? lanPairingPairActionButtonsFor(lanPairingSelectedSlot)
+      : lanPairingDetailTab.id === 'update' &&
+          !lanPairingDetailTabUnavailableReason(lanPairingDetailTab.id, lanPairingSelectedSlot)
+        ? lanPairingActionButtonsFor(lanPairingSelectedSlot)
+        : [];
   const lanPairingContextGap = 10;
   const lanPairingContextColumns = lanPairingBodyW > 760 ? 4 : 2;
   const lanPairingContextRowH = 38;
@@ -11675,7 +12179,12 @@ function ManageControlPanel({
     118,
     (lanPairingBodyW - 40 - lanPairingContextGap * (lanPairingContextColumns - 1)) / lanPairingContextColumns
   );
-  const lanPairingContextY = lanPairingBodyY + 22;
+  const lanPairingContextY = lanPairingBodyY + 42;
+  const lanPairingCanEditSelectedDevice = lanPairingCanEditDeviceIdentity(lanPairingSelectedSlot);
+  const lanPairingEditButtonW = 146;
+  const lanPairingEditButtonH = 28;
+  const lanPairingEditButtonX = lanPairingBodyX + lanPairingBodyW - lanPairingEditButtonW - 20;
+  const lanPairingEditButtonY = lanPairingBodyY + 8;
   const lanPairingActionGap = 8;
   const lanPairingActionColumns = lanPairingBodyW > 1120 ? 7 : lanPairingBodyW > 760 ? 4 : 2;
   const lanPairingActionRowH = 31;
@@ -11928,7 +12437,23 @@ function ManageControlPanel({
                   setLastAction(`${choice.label} add-device requested`);
                   setSyncStatus('Pending LAN proof');
                 }}
-                config={manageDeviceGridConfig(lanPairingGridW, lanPairingGridH)}
+                onEditDevice={openLanPairingDeviceEditDialog}
+                showAddControls={false}
+                config={manageDeviceGridConfig(lanPairingGridW, lanPairingGridH, {
+                  layout: {
+                    cellW: 126,
+                    cellH: 54,
+                    cellMaxW: 188,
+                    gapX: 10,
+                    selectedInfoH: 42,
+                    selectedInfoIconBox: 26,
+                    selectedInfoYGap: 10,
+                  },
+                  text: {
+                    optionSize: 13.4,
+                    selectedInfoSize: 13.4,
+                  },
+                })}
               />
             </div>
           </foreignObject>
@@ -11982,6 +12507,58 @@ function ManageControlPanel({
             <text x={lanPairingBodyX + 20} y={lanPairingBodyY + 15} fontSize={10.4} fontWeight={950} fill={color}>
               SELECTED DEVICE CONTEXT
             </text>
+            {lanPairingCanEditSelectedDevice && lanPairingSelectedSlot ? (
+              <g
+                className="parent-portal-svg-clickable"
+                role="button"
+                tabIndex={0}
+                aria-label={`Edit identity for ${lanPairingDeviceName(lanPairingSelectedSlot)}`}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  openLanPairingDeviceEditDialog(lanPairingSelectedSlot);
+                }}
+                onKeyDown={(event) => {
+                  if (event.key !== 'Enter' && event.key !== ' ') return;
+                  event.preventDefault();
+                  event.stopPropagation();
+                  openLanPairingDeviceEditDialog(lanPairingSelectedSlot);
+                }}
+              >
+                <title>Edit household name and device type</title>
+                <path
+                  d={cutRectPath(
+                    lanPairingEditButtonX,
+                    lanPairingEditButtonY,
+                    lanPairingEditButtonW,
+                    lanPairingEditButtonH,
+                    8
+                  )}
+                  fill={colorAlpha(cfg.colors.gold, '24')}
+                  stroke={cfg.colors.gold}
+                  strokeWidth={0.95}
+                />
+                <path
+                  d={`M ${lanPairingEditButtonX + 17} ${lanPairingEditButtonY + 18} L ${
+                    lanPairingEditButtonX + 22
+                  } ${lanPairingEditButtonY + 13} L ${lanPairingEditButtonX + 27} ${
+                    lanPairingEditButtonY + 18
+                  } L ${lanPairingEditButtonX + 22} ${lanPairingEditButtonY + 23} Z`}
+                  fill="none"
+                  stroke={cfg.colors.gold}
+                  strokeWidth={1.15}
+                  strokeLinejoin="round"
+                />
+                <text
+                  x={lanPairingEditButtonX + 38}
+                  y={lanPairingEditButtonY + 18}
+                  fontSize={11.5}
+                  fontWeight={920}
+                  fill={cfg.colors.bodyText}
+                >
+                  Edit identity
+                </text>
+              </g>
+            ) : null}
             {lanPairingContextRows.map((row, index) => {
               const rowColor = toneColor(row.tone, cfg);
               const column = index % lanPairingContextColumns;
@@ -12071,7 +12648,7 @@ function ManageControlPanel({
               const rowX = lanPairingBodyX + 20 + column * (lanPairingDetailRowW + lanPairingDetailRowGap);
               const rowY = lanPairingDetailRowTop + rowIndex * (lanPairingDetailRowH + 8);
               return (
-                <g key={`lan-pairing-detail:${lanPairingActiveTab}:${row.label}`}>
+                <g key={`lan-pairing-detail:${lanPairingDetailTab.id}:${row.label}`}>
                   <path
                     d={cutRectPath(rowX, rowY, lanPairingDetailRowW, lanPairingDetailRowH, 9)}
                     fill={colorAlpha(rowColor, '18')}
@@ -12097,8 +12674,10 @@ function ManageControlPanel({
               strokeWidth={0.75}
               opacity={0.32}
             />
-            {LAN_PAIRING_DETAIL_TABS.map((tab, index) => {
+            {lanPairingDetailTabs.map((tab, index) => {
               const selected = tab.id === lanPairingActiveTab;
+              const unavailableReason = lanPairingDetailTabUnavailableReason(tab.id, lanPairingSelectedSlot);
+              const muted = Boolean(unavailableReason) && !selected;
               const tabColor = toneColor(tab.tone, cfg);
               const tabX = lanPairingTabsX + index * (lanPairingTabW + lanPairingTabGap);
               const tabY = selected ? lanPairingDetailY : lanPairingDetailY + 7;
@@ -12124,16 +12703,23 @@ function ManageControlPanel({
                   onClick={(event) => {
                     event.stopPropagation();
                     setLanPairingActiveTab(tab.id);
-                    setLastAction(`${tab.label} tab`);
+                    setLastAction(unavailableReason ?? `${tab.label} tab`);
+                    if (unavailableReason) {
+                      setSyncStatus('Pairing required');
+                    }
                   }}
                   onKeyDown={(event) => {
                     if (event.key !== 'Enter' && event.key !== ' ') return;
                     event.preventDefault();
                     event.stopPropagation();
                     setLanPairingActiveTab(tab.id);
-                    setLastAction(`${tab.label} tab`);
+                    setLastAction(unavailableReason ?? `${tab.label} tab`);
+                    if (unavailableReason) {
+                      setSyncStatus('Pairing required');
+                    }
                   }}
                 >
+                  <title>{unavailableReason ?? `${tab.label} detail`}</title>
                   <rect
                     x={tabX}
                     y={lanPairingDetailY - 4}
@@ -12154,7 +12740,7 @@ function ManageControlPanel({
                   <path
                     d={topRoundedRectPath(tabX, tabY, lanPairingTabW, tabH, tabRadius)}
                     fill={selected ? colorAlpha(tabColor, '24') : 'rgba(2, 12, 22, 0.72)'}
-                    opacity={selected ? 1 : 0.78}
+                    opacity={selected ? 1 : muted ? 0.42 : 0.78}
                   />
                   <path
                     d={topRoundedRectPath(
@@ -12200,14 +12786,14 @@ function ManageControlPanel({
                     fill="none"
                     stroke={selected ? tabColor : cfg.colors.panelStroke}
                     strokeWidth={selected ? 1.25 : 0.8}
-                    opacity={selected ? 0.98 : 0.55}
+                    opacity={selected ? 0.98 : muted ? 0.3 : 0.55}
                   />
                   <path
                     d={`M ${tabX + 16} ${tabY + tabH - 6} H ${tabX + lanPairingTabW - 16}`}
                     stroke={tabColor}
                     strokeWidth={selected ? 1.8 : 1.1}
                     strokeLinecap="round"
-                    opacity={selected ? 0.95 : 0.42}
+                    opacity={selected ? 0.95 : muted ? 0.2 : 0.42}
                   />
                   <TabIcon x={tabIconX} y={tabIconY} width={tabIconSize} height={tabIconSize} />
                   <text
@@ -12217,6 +12803,7 @@ function ManageControlPanel({
                     fontSize={tabTextSize}
                     fontWeight={selected ? 950 : 850}
                     fill={selected ? cfg.colors.bodyText : cfg.colors.mutedText}
+                    opacity={muted ? 0.54 : 1}
                     pointerEvents="none"
                   >
                     {tabText}
@@ -12225,6 +12812,28 @@ function ManageControlPanel({
               );
             })}
           </g>
+          <LanPairingDeviceEditDialog
+            cfg={cfg}
+            x={lanPairingEditDialogX}
+            y={lanPairingEditDialogY}
+            w={lanPairingEditDialogW}
+            h={lanPairingEditDialogH}
+            overlayX={x}
+            overlayY={y}
+            overlayW={w}
+            overlayH={h}
+            slot={lanPairingEditSlot}
+            detectedName={lanPairingEditSlot ? lanPairingDetectedDeviceName(lanPairingEditSlot) : ''}
+            householdName={lanPairingHouseholdNameDraft}
+            deviceKind={lanPairingDeviceKindDraft}
+            onHouseholdNameChange={setLanPairingHouseholdNameDraft}
+            onDeviceKindChange={setLanPairingDeviceKindDraft}
+            onSave={saveLanPairingDeviceEditDialog}
+            onClose={() => {
+              setLanPairingEditSlot(null);
+              setLastAction('Device identity edit closed');
+            }}
+          />
         </>
       ) : isReportsPanel ? (
         <>
@@ -14331,6 +14940,7 @@ function ParentPortalDetailPanel({
   onManageTargetChange,
   activityState,
   onNavigate,
+  onAgentCommand,
   cfg,
 }: {
   x: number;
@@ -14355,6 +14965,7 @@ function ParentPortalDetailPanel({
   onManageTargetChange?: (selection: ManageTargetSelection) => void;
   activityState?: ParentPortalActivityState | null;
   onNavigate?: (routePath: string) => void;
+  onAgentCommand?: (command: AgentCommandName, payload: Record<string, string>) => void;
   cfg: ParentPortalSvgControls;
 }) {
   if (guideTopic) {
@@ -14401,13 +15012,14 @@ function ParentPortalDetailPanel({
   }
   const manageSpec = activeNavGroupId === 'manage' ? manageControlSpecFor(activeNavLabel, selectedControlName) : null;
   if (manageSpec) {
+    const manageSpecIsLanPairing = isLanPairingManageTitle(manageSpec.title);
     const routeStatusRows = productShellDisplayRowsForRoute(
       parentPortalRows,
       activeNavLabel,
       selectedControlName,
       manageSpec.title
     );
-    const showRouteStatus = routeStatusRows.length > 0 && h >= 300;
+    const showRouteStatus = routeStatusRows.length > 0 && h >= 300 && !manageSpecIsLanPairing;
     const routeStatusH = showRouteStatus ? (w < 660 ? 58 : 50) : 0;
     const routeStatusGap = showRouteStatus ? 8 : 0;
     const managePanelH = Math.max(1, h - routeStatusH - routeStatusGap);
@@ -14434,6 +15046,7 @@ function ParentPortalDetailPanel({
           activityState={activityState}
           parentPortalRows={parentPortalRows}
           onNavigate={onNavigate}
+          onAgentCommand={onAgentCommand}
           cfg={cfg}
         />
         {showRouteStatus ? (
@@ -17000,6 +17613,7 @@ function MainBoard({
                 onManageTargetChange={setManageTargetSelection}
                 activityState={activityState}
                 onNavigate={onNavigate}
+                onAgentCommand={onAgentCommand}
                 cfg={cfg}
               />
             );

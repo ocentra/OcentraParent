@@ -39,6 +39,9 @@ The Playwright check starts the Rust agent and Vite portal on the scaffold smoke
 - Sends typed intents and queries through `@ocentra-parent/agent-protocol-domain`.
 - Displays service-backed capability status, custody labels, evidence refs, and
   degraded states.
+- Displays LAN source-matrix diagnostics from the service-backed add-device read
+  model so workpack/source proof status is visible in Devices/LAN and
+  Activity/Network review.
 - Provides Playwright proof for real portal-to-Rust behavior.
 
 ## Must Not Own
@@ -63,3 +66,5 @@ The Playwright check starts the Rust agent and Vite portal on the scaffold smoke
 - Keep replacing UI-check data with service-backed read models.
 - Make every route label live/local/LAN/relay/cache/unavailable source state
   clearly.
+- Keep LAN source-matrix labels tied to service read models; do not add
+  portal-only completion claims for unimplemented discovery adapters.

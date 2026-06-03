@@ -6,6 +6,10 @@ household inventory, pairing, and related UI/UX requirements.
 - [V0.9 LAN Discovery 20-Step Plan](v0-9-lan-discovery-20-step-plan.md)
 - [V0.9 LAN Discovery Test Blueprint](v0-9-lan-discovery-test-blueprint.md)
 - [LAN Discovery UI/UX Requirements Guide](ui-ux-requirements-guide.md)
+- [LAN Plan Implementation Checklist](implementation-checklist.md)
+- [LAN Source Index](source-index.md)
+- [Current LAN Snapshot](current-lan-snapshot.md)
+- [Pasted Content Coverage Audit](pasted-content-coverage-audit.md)
 
 The rule remains:
 
@@ -61,7 +65,7 @@ the workpacks:
 - property-based tests for merge, evidence, parser robustness, events, and
   presence state;
 - proof matrix coverage, not only prose acceptance;
-- Playwright mocked-backend tests first, then real-backend UI proof later;
+- Playwright contract-fixture UI tests first, then real-backend UI proof later;
 - scan cadence and network-change triggers;
 - modular Rust LAN crate/service ownership shape;
 - platform-specific Android and iOS child-agent limits;
@@ -78,6 +82,10 @@ all screens or that ChatGPT knew the current C-lane UI implementation.
 ## Parallel Coordination Rules
 
 - Lock the workpack doc and the exact implementation paths before editing.
+- Use the [implementation checklist](implementation-checklist.md), [source
+  index](source-index.md), [current snapshot](current-lan-snapshot.md), and
+  [coverage audit](pasted-content-coverage-audit.md) before splitting work
+  across multiple agents.
 - Do not create a second source of truth. Durable state belongs in the canonical
   household device registry; read models and portal rows are derived from it.
 - Build TypeScript domain contracts first, Rust protocol/service parity second,
@@ -96,7 +104,7 @@ all screens or that ChatGPT knew the current C-lane UI implementation.
 | 03   | [Interface detection](workpacks/03-interface-detection.md)                                   | Active LAN interfaces are selected safely, with virtual/VPN/link-local interfaces excluded by default.                     |
 | 04   | [Neighbor table ingestion](workpacks/04-neighbor-table-ingestion.md)                         | Windows, Linux, and macOS neighbor output normalizes into one evidence shape.                                              |
 | 05   | [Targeted ARP checks](workpacks/05-targeted-arp-checks.md)                                   | Individual hosts can be refreshed without sweeping the whole LAN.                                                          |
-| 06   | [Bounded ARP sweep](workpacks/06-bounded-arp-sweep.md)                                       | IPv4 subnet sweep is bounded, testable with fake packet IO, and never becomes broad scanning.                              |
+| 06   | [Bounded ARP sweep](workpacks/06-bounded-arp-sweep.md)                                       | IPv4 subnet sweep is bounded, testable with controlled packet IO, and never becomes broad scanning.                        |
 | 07   | [Passive discovery listeners](workpacks/07-passive-discovery-listeners.md)                   | Passive ARP/mDNS/SSDP/LLMNR/NetBIOS evidence updates last-seen without blasting the LAN.                                   |
 | 08   | [mDNS and DNS-SD discovery](workpacks/08-mdns-dns-sd-discovery.md)                           | Service discovery enriches names, services, and Ocentra agent presence without confirming identity by itself.              |
 | 09   | [SSDP and UPnP discovery](workpacks/09-ssdp-upnp-discovery.md)                               | UPnP metadata classifies infrastructure and media devices safely.                                                          |
@@ -171,16 +179,36 @@ workpack complete unless every requirement in that workpack is complete.
 - [x] Activity/Network diagnostics now include lightweight LAN scan/evidence
       timeline rows, signed adapter/heartbeat proof state, and policy-target
       history in addition to route/evidence/decision state.
+- [x] Branch `codex/v0-9-lan-source-matrix-plan-completion` adds a typed
+      `lanDiscoverySourceMatrix` read-model field across parent-domain,
+      agent-protocol-domain, Rust protocol, and Rust service state. The matrix
+      carries all 20 workpacks and source rows with implemented, partial,
+      manual-required, and not-implemented statuses.
+- [x] `scripts/test/v0-9-lan-source-matrix-plan-completion.mjs` writes
+      `test-results/v0-9-lan-source-matrix-plan-completion/proof.json`. Latest
+      local proof shows 2 implemented workpacks, 10 partial workpacks,
+      5 manual-required workpacks, 3 not-implemented workpacks, 9 implemented
+      source rows, 5 partial source rows, 10 manual-required source rows, and
+      7 not-implemented source rows. It also proves weak sources cannot confirm
+      child-agent identity or assign a child profile.
 - [x] Live browser proof was captured on the B lane dev ports for Devices/LAN,
       Activity/Network diagnostics, and Network policy target binding:
-      `output/playwright/lan-ux-proof/devices-lan-controls.png`,
-      `output/playwright/lan-ux-proof/activity-network-diagnostics.png`, and
-      `output/playwright/lan-ux-proof/policy-network-targets.png`. This proves
-      the current service-backed surfaces render; it does not prove
-      two-physical-child household readiness.
+      `output/playwright/lan-source-matrix-plan-completion/devices-lan-source-matrix.png`,
+      `output/playwright/lan-source-matrix-plan-completion/activity-network-source-matrix.png`,
+      and
+      `output/playwright/lan-source-matrix-plan-completion/policy-network-target-binding.png`.
+      `output/playwright/lan-source-matrix-plan-completion/browser-proof.json`
+      records positive SVG-text checks for Activity/Network source-matrix rows
+      and no browser console/page errors. This proves the current
+      service-backed surfaces render; it does not prove two-physical-child
+      household readiness.
 - [ ] Real production household proof still needs a second installed child
       agent, signed hello/heartbeat artifacts, router/firewall reachability,
       and captured manual validation artifacts.
 - [ ] Cloud relay/cache, parent-owned storage, Android/iOS child parity,
       package signing, and store-distribution claims remain unavailable or
       manual-required until separate implementation proof exists.
+- [x] `docs/product-capability-checklist.md` has the matching LAN
+      source-matrix proof note. The Remote/LAN/mobile and family setup rows
+      point at the source-matrix proof script, proof JSON, and screenshot
+      artifacts above while keeping physical household proof manual-required.

@@ -86,6 +86,8 @@ pub(crate) fn household_decision(
         canonical_device_id: canonical_device_id.to_string(),
         child_profile_id: None,
         display_name: display_name.map(ToOwned::to_owned),
+        device_kind: display_name
+            .map(|_| constants::lan_pairing::HOUSEHOLD_DEVICE_KIND_DESKTOP.to_string()),
         parent_actor_id: constants::lan_pairing::PARENT_ACTOR_ID.to_string(),
         decided_at: constants::lan_pairing::OBSERVED_AT.to_string(),
         revoked_at: None,
@@ -100,6 +102,7 @@ pub(crate) fn household_restore_decision(canonical_device_id: &str) -> LanHouseh
         canonical_device_id: canonical_device_id.to_string(),
         child_profile_id: None,
         display_name: None,
+        device_kind: None,
         parent_actor_id: constants::lan_pairing::PARENT_ACTOR_ID.to_string(),
         decided_at: constants::lan_pairing::OBSERVED_AT.to_string(),
         revoked_at: None,

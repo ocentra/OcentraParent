@@ -1,5 +1,6 @@
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import { AgentDeviceIdSchema, AgentPeerIdSchema, AgentProtocolSchemaVersion, AgentTimestampSchema } from './primitives';
+import { AgentLanDiscoverySourceMatrixSchema } from './lan-discovery-source-matrix';
 import { AgentLanSignedDiscoveryRelaySpineSchema } from './lan-signed-discovery-relay-spine';
 import {
   AgentLanPairingAddressRefSchema,
@@ -130,6 +131,10 @@ export const AgentLanHouseholdDeviceActionKindSchema = withParser(
   Schema.Literal('assign', 'rename', 'ignore', 'restore', 'trust')
 );
 
+const AgentLanHouseholdDeviceKindSchema = withParser(
+  Schema.Literal('mobile', 'desktop', 'laptop', 'tablet', 'router', 'unknown')
+);
+
 export const AgentLanHouseholdDeviceDecisionSchema = withParser(
   Schema.Struct({
     schemaVersion: Schema.Literal(AgentProtocolSchemaVersion),
@@ -138,6 +143,9 @@ export const AgentLanHouseholdDeviceDecisionSchema = withParser(
     canonicalDeviceId: AgentLanCanonicalDeviceIdSchema,
     childProfileId: Schema.Union(NonEmptyLanAddDeviceText, Schema.Null),
     displayName: Schema.Union(NonEmptyLanAddDeviceText, Schema.Null),
+    deviceKind: Schema.optionalWith(Schema.Union(AgentLanHouseholdDeviceKindSchema, Schema.Null), {
+      default: () => null,
+    }),
     parentActorId: NonEmptyLanAddDeviceText,
     decidedAt: AgentTimestampSchema,
     revokedAt: Schema.Union(AgentTimestampSchema, Schema.Null),
@@ -333,6 +341,9 @@ export const AgentLanBrowserAddDeviceReadModelSchema = withParser(
       { default: () => null }
     ),
     signedDiscoveryRelaySpine: Schema.optionalWith(Schema.Union(AgentLanSignedDiscoveryRelaySpineSchema, Schema.Null), {
+      default: () => null,
+    }),
+    lanDiscoverySourceMatrix: Schema.optionalWith(Schema.Union(AgentLanDiscoverySourceMatrixSchema, Schema.Null), {
       default: () => null,
     }),
     trustedDeviceIds: Schema.Array(AgentDeviceIdSchema),

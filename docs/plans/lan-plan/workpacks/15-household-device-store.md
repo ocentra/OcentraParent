@@ -12,6 +12,13 @@ derived from LAN add-device state today. Production still needs durable device
 registry behavior that Devices, Policy, Activity, Network, Tracking, AI, and
 Account can all trust.
 
+Current B-lane proof adds service-backed household rename/type persistence for
+LAN-discovered neighbors. The portal sends canonical household decisions through
+the Rust LAN service, receives `agent.lan-pairing.add-device.reported`, and
+renders the updated add-device read model after refresh. This removes the
+portal-only optimistic identity state for this path, but does not complete full
+restart/recovery proof across every parent decision.
+
 ## Where We Want To Be
 
 The household device store is the canonical durable registry for known devices,
@@ -21,10 +28,13 @@ not own separate truth.
 
 ## Requirement Checklist
 
-- [ ] Persist device records, evidence, manual name, assigned child, trusted
-      state, ignored state, revoked state, online state, first-seen, and
-      last-seen.
-- [ ] Preserve parent decisions across rescan and restart.
+- [~] Persist device records, evidence, manual name, assigned child, trusted
+  state, ignored state, revoked state, online state, first-seen, and
+  last-seen. Manual name/device type persistence for LAN-discovered
+  neighbors is proved; broader state coverage remains open.
+- [~] Preserve parent decisions across rescan and restart. Portal refresh and
+  service readback are proved for rename/type; full restart coverage remains
+  open.
 - [ ] Support migrations and safe fallback to unpaired state when registry proof
       is unavailable.
 - [ ] Keep routers and unsupported devices visible but non-enrollable.
@@ -38,6 +48,12 @@ not own separate truth.
 - Rescan tests prove manual assignment and rename survive weak contradictory
   evidence.
 - Product docs/checklist are updated only when proof status actually moves.
+
+Current proof:
+
+- `output/lan-plan-proof/15-household-device-store/devices-identity-routing-proof.md`
+- `output/lan-plan-proof/15-household-device-store/06-ui-snapshots/devices-identity-persisted.png`
+- `output/lan-plan-proof/15-household-device-store/06-ui-snapshots/devices-update-gated.png`
 
 ## Parallel Ownership Notes
 

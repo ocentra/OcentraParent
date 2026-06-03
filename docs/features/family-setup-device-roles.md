@@ -51,6 +51,10 @@ match that usability while keeping child-device authority local.
   replayed/wrong-origin/wrong-device/revoked/anonymous rejection rows, selected
   route custody, parent decision audit rows, relay/cache unavailability,
   parent-owned storage unavailability, and no Ocentra child-data custody state.
+- The add-device read model now carries a LAN source matrix that keeps all 20
+  plan workpacks and discovery sources visible to Devices/LAN and
+  Activity/Network diagnostics. Weak sources are explicitly fenced so they
+  cannot confirm a child agent or assign a child profile.
 - Parent portal route and device surfaces exist in development form.
 - The parent portal Devices/LAN interaction now exposes command-backed add,
   route select, rename, trust, ignore, restore, and revoke controls for
@@ -59,11 +63,13 @@ match that usability while keeping child-device authority local.
   unsupported/router rows stay visible-only.
 - Live B-lane browser proof now exists for the current service-backed LAN
   surfaces: Devices/LAN controls,
-  `output/playwright/lan-ux-proof/devices-lan-controls.png`; Activity/Network
-  diagnostics,
-  `output/playwright/lan-ux-proof/activity-network-diagnostics.png`; and
+  `output/playwright/lan-source-matrix-plan-completion/devices-lan-source-matrix.png`;
+  Activity/Network source-matrix diagnostics,
+  `output/playwright/lan-source-matrix-plan-completion/activity-network-source-matrix.png`;
   Network policy targets,
-  `output/playwright/lan-ux-proof/policy-network-targets.png`.
+  `output/playwright/lan-source-matrix-plan-completion/policy-network-target-binding.png`;
+  and browser checks,
+  `output/playwright/lan-source-matrix-plan-completion/browser-proof.json`.
 - First-run consumer setup is not product-complete.
 
 ## Current Gap
@@ -80,7 +86,8 @@ source/proof state, and recover from stale/revoked/offline devices.
 - [x] Add-device/pairing read model backed by Rust service state, including
       production household proof rows for trusted registry, route custody,
       stale/offline selected-device, signed discovery/relay spine rows, relay/
-      cache non-custody rows, and manual-required real household proof.
+      cache non-custody rows, LAN source-matrix rows, and manual-required real
+      household proof.
 - [ ] First-run add-device UX that lets a parent assign, rename, ignore,
       restore, and trust a device from the portal without raw protocol fields.
 - [x] LAN selected-device details, Activity/Network diagnostics, and add-device

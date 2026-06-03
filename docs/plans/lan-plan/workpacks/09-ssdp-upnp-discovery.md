@@ -27,7 +27,7 @@ model, device type, UDN/UUID, and description URL as evidence.
 
 ## Acceptance And Proof
 
-- Fake UDP and HTTP responder tests cover TV, router, console, printer, missing
+- Controlled UDP and HTTP responder tests cover TV, router, console, printer, missing
   LOCATION, bad XML, external URL, and timeout fixtures.
 - Parser robustness tests reject recursive XML and oversized descriptions.
 - Classification uses SSDP evidence with reasons and confidence.

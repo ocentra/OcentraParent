@@ -125,6 +125,11 @@ async fn add_device_request_persists_household_decision_in_read_model() {
             [constants::lan_pairing::HOUSEHOLD_DECISION_ACTION_KIND_FIELD],
         serde_json::json!(constants::lan_pairing::HOUSEHOLD_ACTION_RENAME)
     );
+    assert_eq!(
+        read_model[constants::lan_pairing::REGISTRY_KEY_HOUSEHOLD_DEVICE_DECISIONS][0]
+            [constants::lan_pairing::HOUSEHOLD_ACTION_DEVICE_KIND_FIELD],
+        serde_json::json!(constants::lan_pairing::HOUSEHOLD_DEVICE_KIND_DESKTOP)
+    );
 }
 
 #[tokio::test]
@@ -225,6 +230,12 @@ fn household_decision_payload() -> LogFields {
             constants::lan_pairing::HOUSEHOLD_ACTION_DISPLAY_NAME_FIELD,
             LogFieldValue::String(
                 constants::lan_pairing::HOUSEHOLD_RENAMED_DEVICE_LABEL.to_string(),
+            ),
+        ),
+        (
+            constants::lan_pairing::HOUSEHOLD_ACTION_DEVICE_KIND_FIELD,
+            LogFieldValue::String(
+                constants::lan_pairing::HOUSEHOLD_DEVICE_KIND_DESKTOP.to_string(),
             ),
         ),
         (

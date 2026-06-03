@@ -5,6 +5,9 @@ import { LanPairingSchemaVersionSchema, LanPairingTimestampSchema } from './lan-
 
 const NonEmptyLanDeviceActionText = Schema.String.pipe(Schema.minLength(1));
 
+export const LAN_HOUSEHOLD_DEVICE_KIND_VALUES = ['mobile', 'desktop', 'laptop', 'tablet', 'router', 'unknown'] as const;
+export const LAN_HOUSEHOLD_ACTION_DEVICE_KIND_FIELD = 'deviceKind';
+
 export const LanHouseholdDeviceActionIdSchema = NonEmptyLanDeviceActionText.pipe(
   Schema.brand('LanHouseholdDeviceActionId')
 );
@@ -12,6 +15,8 @@ export const LanHouseholdDeviceActionIdSchema = NonEmptyLanDeviceActionText.pipe
 export const LanHouseholdDeviceActionKindSchema = withParser(
   Schema.Literal('assign', 'rename', 'ignore', 'restore', 'trust')
 );
+
+export const LanHouseholdDeviceKindSchema = withParser(Schema.Literal(...LAN_HOUSEHOLD_DEVICE_KIND_VALUES));
 
 export const LanHouseholdDeviceDecisionSchema = withParser(
   Schema.Struct({
@@ -21,6 +26,7 @@ export const LanHouseholdDeviceDecisionSchema = withParser(
     canonicalDeviceId: HouseholdCanonicalDeviceIdSchema,
     childProfileId: Schema.Union(ChildProfileIdSchema, Schema.Null),
     displayName: Schema.Union(NonEmptyLanDeviceActionText, Schema.Null),
+    deviceKind: Schema.optionalWith(Schema.Union(LanHouseholdDeviceKindSchema, Schema.Null), { default: () => null }),
     parentActorId: ParentActorIdSchema,
     decidedAt: LanPairingTimestampSchema,
     revokedAt: Schema.Union(LanPairingTimestampSchema, Schema.Null),
@@ -29,4 +35,5 @@ export const LanHouseholdDeviceDecisionSchema = withParser(
 
 export type LanHouseholdDeviceActionId = typeof LanHouseholdDeviceActionIdSchema.Type;
 export type LanHouseholdDeviceActionKind = Infer<typeof LanHouseholdDeviceActionKindSchema>;
+export type LanHouseholdDeviceKind = Infer<typeof LanHouseholdDeviceKindSchema>;
 export type LanHouseholdDeviceDecision = Infer<typeof LanHouseholdDeviceDecisionSchema>;

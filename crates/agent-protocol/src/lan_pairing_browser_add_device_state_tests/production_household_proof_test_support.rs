@@ -28,6 +28,9 @@ pub(super) fn browser_add_device_read_model_fixture() -> LanBrowserAddDeviceRead
             super::signed_discovery_relay_spine_test_support::signed_discovery_relay_spine_fixture(
             ),
         ),
+        lan_discovery_source_matrix: Some(
+            super::source_matrix_test_support::source_matrix_fixture(),
+        ),
         trusted_device_ids: Vec::new(),
         revoked_device_ids: Vec::new(),
         selected_device_readiness: selected_device_readiness_fixture(),
@@ -79,6 +82,9 @@ pub(super) fn assert_browser_add_device_read_model_json(value: &serde_json::Valu
     super::signed_discovery_relay_spine_test_support::assert_signed_discovery_relay_spine_json(
         &value["signedDiscoveryRelaySpine"],
     );
+    super::source_matrix_test_support::assert_source_matrix_json(
+        &value[constants::lan_pairing::LAN_SOURCE_MATRIX_FIELD_SUMMARY],
+    );
     assert_eq!(
         value["canonicalHouseholdDevices"][0]["policyTargetSurfaces"],
         serde_json::json!([
@@ -114,6 +120,7 @@ fn household_decision() -> LanHouseholdDeviceDecision {
         canonical_device_id: "lan-physical-mac-54271e97c331".to_string(),
         child_profile_id: None,
         display_name: Some("GAMEDEV Study PC".to_string()),
+        device_kind: Some(constants::lan_pairing::HOUSEHOLD_DEVICE_KIND_DESKTOP.to_string()),
         parent_actor_id: constants::lan_pairing::PARENT_ACTOR_ID.to_string(),
         decided_at: "2026-06-01T15:20:00.000Z".to_string(),
         revoked_at: None,

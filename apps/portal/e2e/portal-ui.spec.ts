@@ -5,10 +5,11 @@ import { assertRouteScaffolds } from './portal-route-scaffold-assertions';
 test.setTimeout(120_000);
 
 const portalShellReadyTimeoutMs = 30_000;
+const defaultPortalPort = '4490';
 
 test('portal UI connects to the real agent and renders command results', async ({ context, page }) => {
   const browserFailures = collectBrowserFailures(page);
-  await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: 'http://127.0.0.1:4490' });
+  await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: portalOrigin() });
   await page.goto('/#/commands');
   await expect(page.getByRole('button', { exact: true, name: 'Home' })).toBeVisible({
     timeout: portalShellReadyTimeoutMs,
@@ -22,6 +23,7 @@ test('portal UI connects to the real agent and renders command results', async (
 
   await assertAuthDialog(page);
   await assertCommandControls(page);
+  await assertInitialOverviewCommandDrain(page);
   await assertTabbedCommandResults(page);
   await assertRawEventLog(page);
   await assertOverview(page);
@@ -30,6 +32,25 @@ test('portal UI connects to the real agent and renders command results', async (
 
   expect(browserFailures).toEqual([]);
 });
+
+function portalOrigin(): string {
+  const portalPort = process.env['OCENTRA_PARENT_PORTAL_PORT']?.trim() || defaultPortalPort;
+  return `http://127.0.0.1:${portalPort}`;
+}
+
+function commandControlButton(page: Page, name: string): Locator {
+  return page.getByRole('button', { exact: true, name });
+}
+
+async function expectCommandControlEnabled(page: Page, name: string): Promise<void> {
+  await expect(commandControlButton(page, name)).toBeEnabled({
+    timeout: portalShellReadyTimeoutMs,
+  });
+}
+
+async function clickCommandControl(page: Page, name: string): Promise<void> {
+  await commandControlButton(page, name).click();
+}
 
 async function assertAuthDialog(page: Page): Promise<void> {
   await page.getByRole('button', { exact: true, name: 'Login' }).click();
@@ -43,56 +64,64 @@ async function assertAuthDialog(page: Page): Promise<void> {
 }
 
 async function assertCommandControls(page: Page): Promise<void> {
-  await expect(page.getByRole('button', { name: 'Reconnect' })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Check health' })).toBeEnabled();
-  await expect(page.getByRole('button', { name: 'Get log snapshot' })).toBeEnabled();
-  await expect(page.getByRole('button', { name: 'Send connectivity check' })).toBeEnabled();
-  await expect(page.getByRole('button', { name: 'Refresh browser watcher' })).toBeEnabled();
-  await expect(page.getByRole('button', { name: 'Refresh activity ingest' })).toBeEnabled();
-  await expect(page.getByRole('button', { name: 'Refresh recent activity' })).toBeEnabled();
-  await expect(page.getByRole('button', { name: 'Refresh web evidence' })).toBeEnabled();
-  await expect(page.getByRole('button', { name: 'Refresh memory links' })).toBeEnabled();
-  await expect(page.getByRole('button', { name: 'Build daily activity report' })).toBeEnabled();
-  await expect(page.getByRole('button', { name: 'Refresh activity report history' })).toBeEnabled();
-  await expect(page.getByRole('button', { name: 'Refresh activity screen' })).toBeEnabled();
-  await expect(page.getByRole('button', { name: 'Refresh activity app use' })).toBeEnabled();
-  await expect(page.getByRole('button', { name: 'Refresh activity browser' })).toBeEnabled();
-  await expect(page.getByRole('button', { name: 'Refresh activity games' })).toBeEnabled();
-  await expect(page.getByRole('button', { name: 'Refresh activity network' })).toBeEnabled();
-  await expect(page.getByRole('button', { name: 'Refresh browser protection' })).toBeEnabled();
-  await expect(page.getByRole('button', { name: 'Refresh managed browser' })).toBeEnabled();
-  await expect(page.getByRole('button', { name: 'Refresh network activity' })).toBeEnabled();
-  await expect(page.getByRole('button', { name: 'Refresh local AI' })).toBeEnabled();
-  await expect(page.getByRole('button', { name: 'Refresh policy decision' })).toBeEnabled();
+  await expect(commandControlButton(page, 'Reconnect')).toBeVisible();
+  await expectCommandControlEnabled(page, 'Check health');
+  await expectCommandControlEnabled(page, 'Get log snapshot');
+  await expectCommandControlEnabled(page, 'Send connectivity check');
+  await expectCommandControlEnabled(page, 'Refresh browser watcher');
+  await expectCommandControlEnabled(page, 'Refresh activity ingest');
+  await expectCommandControlEnabled(page, 'Refresh recent activity');
+  await expectCommandControlEnabled(page, 'Refresh web evidence');
+  await expectCommandControlEnabled(page, 'Refresh memory links');
+  await expectCommandControlEnabled(page, 'Build daily activity report');
+  await expectCommandControlEnabled(page, 'Refresh activity report history');
+  await expectCommandControlEnabled(page, 'Refresh activity screen');
+  await expectCommandControlEnabled(page, 'Refresh activity app use');
+  await expectCommandControlEnabled(page, 'Refresh activity browser');
+  await expectCommandControlEnabled(page, 'Refresh activity games');
+  await expectCommandControlEnabled(page, 'Refresh activity network');
+  await expectCommandControlEnabled(page, 'Refresh browser protection');
+  await expectCommandControlEnabled(page, 'Refresh managed browser');
+  await expectCommandControlEnabled(page, 'Refresh network activity');
+  await expectCommandControlEnabled(page, 'Refresh local AI');
+  await expectCommandControlEnabled(page, 'Refresh policy decision');
   await expect(page.getByRole('heading', { name: 'Command result' })).toBeVisible();
   await expect(page.locator('.summary')).toHaveCount(1);
 }
 
+async function assertInitialOverviewCommandDrain(page: Page): Promise<void> {
+  const commandResult = page.locator('.command-result-panel');
+  await expect(commandResult.getByText('agent.policy.preview.read-model.reported')).toHaveCount(1, {
+    timeout: portalShellReadyTimeoutMs,
+  });
+  await expect(commandResult.locator('.log')).toHaveCount(1);
+}
+
 async function assertTabbedCommandResults(page: Page): Promise<void> {
   const commandResult = page.locator('.command-result-panel');
-  await page.getByRole('button', { name: 'Check health' }).click();
-  await page.getByRole('button', { name: 'Check health' }).click();
+  await clickCommandControl(page, 'Check health');
+  await clickCommandControl(page, 'Check health');
   await expect(commandResult.getByText('agent.health.reported')).toHaveCount(1);
   await expect(commandResult.locator('.log')).toHaveCount(1);
-  await page.getByRole('button', { name: 'Get log snapshot' }).click();
-  await page.getByRole('button', { name: 'Get log snapshot' }).click();
+  await clickCommandControl(page, 'Get log snapshot');
+  await clickCommandControl(page, 'Get log snapshot');
   await expect(commandResult.getByText('agent.log.snapshot.reported')).toHaveCount(1);
   await expect(commandResult.getByText('agent.health.reported')).toHaveCount(0);
   await expect(commandResult.locator('.log')).toHaveCount(1);
-  await page.getByRole('button', { name: 'Send connectivity check' }).click();
-  await page.getByRole('button', { name: 'Send connectivity check' }).click();
+  await clickCommandControl(page, 'Send connectivity check');
+  await clickCommandControl(page, 'Send connectivity check');
   await expect(commandResult.getByText('agent.dev.echoed')).toHaveCount(1);
   await expect(commandResult.locator('.log')).toHaveCount(1);
-  await page.getByRole('button', { name: 'Refresh browser watcher' }).click();
-  await page.getByRole('button', { name: 'Refresh browser watcher' }).click();
+  await clickCommandControl(page, 'Refresh browser watcher');
+  await clickCommandControl(page, 'Refresh browser watcher');
   await expect(commandResult.getByText('agent.watch.status.reported')).toHaveCount(1);
   await expect(commandResult.locator('.log')).toHaveCount(1);
-  await page.getByRole('button', { name: 'Refresh activity ingest' }).click();
-  await page.getByRole('button', { name: 'Refresh activity ingest' }).click();
+  await clickCommandControl(page, 'Refresh activity ingest');
+  await clickCommandControl(page, 'Refresh activity ingest');
   await expect(commandResult.getByText('agent.activity.ingest.status.reported')).toHaveCount(1);
   await expect(commandResult.locator('.log')).toHaveCount(1);
-  await page.getByRole('button', { name: 'Refresh recent activity' }).click();
-  await page.getByRole('button', { name: 'Refresh recent activity' }).click();
+  await clickCommandControl(page, 'Refresh recent activity');
+  await clickCommandControl(page, 'Refresh recent activity');
   await expect(commandResult.getByText('agent.activity.recent.summary.reported')).toHaveCount(1);
   await expect(commandResult.locator('.log')).toHaveCount(1);
   await assertActivityReadModelResults(page, commandResult);
@@ -111,14 +140,14 @@ async function assertTabbedCommandResults(page: Page): Promise<void> {
 }
 
 async function assertHealthResultForCopy(page: Page, commandResult: Locator): Promise<void> {
-  await page.getByRole('button', { name: 'Check health' }).click();
+  await clickCommandControl(page, 'Check health');
   await expect(commandResult.getByText('agent.health.reported')).toHaveCount(1);
   await expect(commandResult.locator('.log')).toHaveCount(1);
 }
 
 async function assertNetworkFlowResult(page: Page, commandResult: Locator): Promise<void> {
-  await page.getByRole('button', { name: 'Refresh network activity' }).click();
-  await page.getByRole('button', { name: 'Refresh network activity' }).click();
+  await clickCommandControl(page, 'Refresh network activity');
+  await clickCommandControl(page, 'Refresh network activity');
   await expect(commandResult.getByText('agent.network.flow.read-model.reported')).toHaveCount(1);
   await expect(commandResult.locator('.log')).toHaveCount(1);
 }
@@ -207,8 +236,8 @@ async function assertCommandResult(
   commandName: string,
   eventName: string
 ): Promise<void> {
-  await page.getByRole('button', { name: commandName }).click();
-  await page.getByRole('button', { name: commandName }).click();
+  await clickCommandControl(page, commandName);
+  await clickCommandControl(page, commandName);
   await expect(commandResult.getByText(eventName)).toHaveCount(1);
   await expect(commandResult.locator('.log')).toHaveCount(1);
 }

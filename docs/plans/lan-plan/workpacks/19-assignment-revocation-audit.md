@@ -19,6 +19,12 @@ command for controllable LAN slots. First-class rename, trust, ignore, restore,
 and revoke controls still need matching command surfaces before they can be
 called product complete.
 
+Current B-lane follow-up adds the missing neighbor-only rename/type routing
+case: canonical household decisions without a child-agent id now route through
+the local-network LAN service path, return add-device reported events, and
+survive portal refresh. The installer/PIN handshake, second child-agent proof,
+and full assignment/revocation negative proof remain open.
+
 ## Where We Want To Be
 
 Parent decisions are durable and explicit. Parent assignment links a device to a
@@ -44,9 +50,15 @@ audited and survive restart.
       `agent.lan-pairing.add-device.request` for household decisions plus route
       select/revoke commands for route custody. Portal command routing now sends
       LAN commands to the selected local-network child target.
+- [x] Portal household rename/type for a LAN-discovered neighbor uses canonical
+      device identity, routes over `local-network` even without a child-agent id,
+      receives `agent.lan-pairing.add-device.reported`, and survives portal
+      refresh from service readback.
 - [ ] Reject anonymous, wrong-origin, wrong-route, wrong-device, replayed, and
       expired pairing/control requests.
-- [ ] Preserve assignment and rename through rescan and weak evidence changes.
+- [~] Preserve assignment and rename through rescan and weak evidence changes.
+  Rename/type survives portal refresh through service readback; full rescan,
+  restart, assignment, and weak-evidence contradiction proof remains open.
 - [ ] Apply revocation before any new rule, query, approval, or heartbeat
       authority is accepted.
 - [x] Show selected-device and route status clearly in parent-visible state.
@@ -58,8 +70,10 @@ audited and survive restart.
   audited command rejection.
 - Portal tests cover LAN slot metadata for parent decisions/proof fields and
   portal transport routing for LAN commands to local-network child targets.
-  Full first-run setup, editable rename input, recovery, and degraded UX tests
-  remain tracked in the family setup feature gap.
+  Focused browser proof covers editable rename/type input, refresh persistence,
+  and Update/Capability gating for an unpaired LAN neighbor. Full first-run
+  setup, recovery, and degraded UX tests remain tracked in the family setup
+  feature gap.
 - Audit records include source, route, actor, target device, reason, and
   outcome.
 

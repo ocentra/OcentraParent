@@ -115,6 +115,10 @@ pub const TEST_ROUTER_IP: &str = "192.168.2.1";
 pub const TEST_ROUTER_MAC: &str = "00-11-22-33-44-55";
 pub const TEST_HOSTNAME: &str = "GAMEDEV";
 pub const TEST_NETWORK_INTERFACE: &str = "Ethernet 2";
+pub const TEST_NAMED_NEIGHBOR_ROW_PARSE_EXPECT: &str = "named neighbor row parses";
+pub const TEST_UNNAMED_NEIGHBOR_ROW_PARSE_EXPECT: &str = "unnamed neighbor row parses";
+pub const TEST_NEIGHBOR_CACHE_LOCK_EXPECT: &str = "cache lock";
+pub const TEST_NETBIOS_STATUS_ROW_SEPARATOR: &str = " ";
 pub const NETWORK_NEIGHBOR_DEVICE_PREFIX: &str = "lan-device-";
 pub const CANONICAL_DEVICE_MAC_PREFIX: &str = "lan-physical-mac-";
 pub const CANONICAL_DEVICE_IP_PREFIX: &str = "lan-physical-ip-";
@@ -135,17 +139,42 @@ pub const HOUSEHOLD_ACTION_KIND_FIELD: &str = "householdActionKind";
 pub const HOUSEHOLD_DECISION_ACTION_KIND_FIELD: &str = "actionKind";
 pub const HOUSEHOLD_ACTION_CHILD_PROFILE_ID_FIELD: &str = "childProfileId";
 pub const HOUSEHOLD_ACTION_DISPLAY_NAME_FIELD: &str = "displayName";
+pub const HOUSEHOLD_ACTION_DEVICE_KIND_FIELD: &str = "deviceKind";
 pub const HOUSEHOLD_ACTION_REVOKED_AT_FIELD: &str = "revokedAt";
 pub const HOUSEHOLD_ACTION_ASSIGN: &str = "assign";
 pub const HOUSEHOLD_ACTION_RENAME: &str = "rename";
 pub const HOUSEHOLD_ACTION_IGNORE: &str = "ignore";
 pub const HOUSEHOLD_ACTION_RESTORE: &str = "restore";
 pub const HOUSEHOLD_ACTION_TRUST: &str = "trust";
+pub const HOUSEHOLD_DEVICE_KIND_MOBILE: &str = "mobile";
+pub const HOUSEHOLD_DEVICE_KIND_DESKTOP: &str = "desktop";
+pub const HOUSEHOLD_DEVICE_KIND_LAPTOP: &str = "laptop";
+pub const HOUSEHOLD_DEVICE_KIND_TABLET: &str = "tablet";
+pub const HOUSEHOLD_DEVICE_KIND_ROUTER: &str = "router";
+pub const HOUSEHOLD_DEVICE_KIND_UNKNOWN: &str = "unknown";
+pub const HOUSEHOLD_DEVICE_KINDS: &[&str] = &[
+    HOUSEHOLD_DEVICE_KIND_MOBILE,
+    HOUSEHOLD_DEVICE_KIND_DESKTOP,
+    HOUSEHOLD_DEVICE_KIND_LAPTOP,
+    HOUSEHOLD_DEVICE_KIND_TABLET,
+    HOUSEHOLD_DEVICE_KIND_ROUTER,
+    HOUSEHOLD_DEVICE_KIND_UNKNOWN,
+];
 pub const HOUSEHOLD_ACTION_ID: &str = "household-action-1";
 pub const HOUSEHOLD_RESTORE_ACTION_ID: &str = "household-action-restore-1";
 pub const HOUSEHOLD_RENAMED_DEVICE_LABEL: &str = "Bedroom Windows PC";
 pub const PRODUCTION_PROOF_FIELD_SUMMARY: &str = "productionHouseholdProof";
 pub const SIGNED_DISCOVERY_RELAY_FIELD_SUMMARY: &str = "signedDiscoveryRelaySpine";
+pub const LAN_SOURCE_MATRIX_FIELD_SUMMARY: &str = "lanDiscoverySourceMatrix";
+pub const LAN_SOURCE_MATRIX_FIELD_WORKPACK_ROWS: &str = "workpackRows";
+pub const LAN_SOURCE_MATRIX_FIELD_SOURCE_ROWS: &str = "sourceRows";
+pub const LAN_SOURCE_MATRIX_FIELD_WORKPACK_ID: &str = "workpackId";
+pub const LAN_SOURCE_MATRIX_FIELD_SOURCE: &str = "source";
+pub const LAN_SOURCE_MATRIX_FIELD_STATUS: &str = "status";
+pub const LAN_SOURCE_MATRIX_FIELD_AUTHORITY: &str = "authority";
+pub const LAN_SOURCE_MATRIX_FIELD_UI_SURFACE: &str = "uiSurface";
+pub const LAN_SOURCE_MATRIX_FIELD_CAN_CONFIRM: &str = "canConfirmChildAgent";
+pub const LAN_SOURCE_MATRIX_FIELD_REQUIRED_ARTIFACT: &str = "requiredArtifactSummary";
 pub const PRODUCTION_PROOF_FIELD_STATUS_ROWS: &str = "statusRows";
 pub const PRODUCTION_PROOF_FIELD_PROOF_STATE: &str = "proofState";
 pub const PRODUCTION_PROOF_FIELD_NOT_IMPLEMENTED: &str = "notImplemented";
@@ -264,6 +293,45 @@ pub const PRODUCTION_PROOF_NON_CLAIM_STORE: &str =
     "store signing remains manual-required until signing store and release artifacts are attached";
 pub const SIGNED_DISCOVERY_RELAY_NON_CLAIM_PARENT_STORAGE: &str =
     "parent-owned storage is unavailable until a parent-selected storage adapter exists";
+pub const LAN_SOURCE_MATRIX_CLAIM_READ_MODEL: &str =
+    "all LAN plan workpacks are represented in a service-backed source matrix read model";
+pub const LAN_SOURCE_MATRIX_CLAIM_WEAK_SOURCES: &str =
+    "weak LAN discovery sources cannot confirm child identity or assign child profiles";
+pub const LAN_SOURCE_MATRIX_NON_CLAIM_PACKET_MODE: &str =
+    "packet-mode ARP sweep and passive listeners remain gated until packet driver artifacts exist";
+pub const LAN_SOURCE_MATRIX_NON_CLAIM_PHYSICAL: &str =
+    "physical household LAN completion remains manual-required until real two-host proof is attached";
+pub const LAN_SOURCE_MATRIX_NON_CLAIM_MDNS_SSDP: &str =
+    "mDNS/SSDP advertisement and responder behavior remains manual-required until fixtures and LAN captures exist";
+pub const LAN_SOURCE_MATRIX_ARTIFACT_PACKET_MODE: &str =
+    "Attach packet-driver or controlled packet IO proof with selected interface, subnet cap, timing, and malformed packet fixtures.";
+pub const LAN_SOURCE_MATRIX_ARTIFACT_MDNS_SSDP: &str =
+    "Attach mDNS/DNS-SD and SSDP/UPnP fixtures or LAN captures with sanitized host/service names.";
+pub const LAN_SOURCE_MATRIX_ARTIFACT_SIGNED_CHILD: &str =
+    "Attach signed child-agent hello and heartbeat payloads with nonce, family hash, route id, and replay rejection logs.";
+pub const LAN_SOURCE_MATRIX_ARTIFACT_PHYSICAL: &str =
+    "Attach two physical child-agent host proof, router/firewall reachability, screenshots, and generated proof JSON.";
+pub const LAN_SOURCE_MATRIX_TITLE_01: &str = "Contract boundary and Effect schemas";
+pub const LAN_SOURCE_MATRIX_TITLE_02: &str = "Evidence model and device record";
+pub const LAN_SOURCE_MATRIX_TITLE_03: &str = "Interface detection";
+pub const LAN_SOURCE_MATRIX_TITLE_04: &str = "Neighbor table ingestion";
+pub const LAN_SOURCE_MATRIX_TITLE_05: &str = "Targeted ARP checks";
+pub const LAN_SOURCE_MATRIX_TITLE_06: &str = "Bounded ARP sweep";
+pub const LAN_SOURCE_MATRIX_TITLE_07: &str = "Passive discovery listeners";
+pub const LAN_SOURCE_MATRIX_TITLE_08: &str = "mDNS and DNS-SD discovery";
+pub const LAN_SOURCE_MATRIX_TITLE_09: &str = "SSDP and UPnP discovery";
+pub const LAN_SOURCE_MATRIX_TITLE_10: &str = "NetBIOS, LLMNR, and reverse DNS";
+pub const LAN_SOURCE_MATRIX_TITLE_11: &str = "Light service probing";
+pub const LAN_SOURCE_MATRIX_TITLE_12: &str = "OUI and vendor lookup";
+pub const LAN_SOURCE_MATRIX_TITLE_13: &str = "Merge and de-duplication engine";
+pub const LAN_SOURCE_MATRIX_TITLE_14: &str = "Explainable classification";
+pub const LAN_SOURCE_MATRIX_TITLE_15: &str = "Household device store";
+pub const LAN_SOURCE_MATRIX_TITLE_16: &str = "Read models and LAN events";
+pub const LAN_SOURCE_MATRIX_TITLE_17: &str = "Parent and child mDNS advertisements";
+pub const LAN_SOURCE_MATRIX_TITLE_18: &str = "Signed child hello and heartbeat";
+pub const LAN_SOURCE_MATRIX_TITLE_19: &str = "Assignment, revocation, and audit";
+pub const LAN_SOURCE_MATRIX_TITLE_20: &str = "Proof gates, fixtures, and rollout";
+pub const LAN_SOURCE_MATRIX_WORKPACK_ID_SIGNED_CHILD_HELLO: &str = "18";
 pub const NETWORK_NEIGHBOR_LABEL_PREFIX: &str = "LAN ";
 pub const NETWORK_NEIGHBOR_UNKNOWN_HOSTNAME: &str = "unknown-host";
 pub const PLATFORM_UNKNOWN: &str = "unknown";
@@ -295,6 +363,9 @@ pub const NBTSTAT_EXE: &str = "nbtstat";
 pub const NBTSTAT_CACHE_ARG: &str = "-c";
 pub const NBTSTAT_ADAPTER_STATUS_ARG: &str = "-A";
 pub const NBTSTAT_UNIQUE_MARKER: &str = "UNIQUE";
+pub const NBTSTAT_GROUP_MARKER: &str = "GROUP";
+pub const NBTSTAT_WORKSTATION_SERVICE_MARKER: &str = "<00>";
+pub const NBTSTAT_SERVER_SERVICE_MARKER: &str = "<20>";
 pub const NVIDIA_SMI_EXE: &str = "nvidia-smi";
 pub const NVIDIA_SMI_QUERY_ARG: &str = "--query-gpu=name,driver_version,memory.total";
 pub const NVIDIA_SMI_FORMAT_ARG: &str = "--format=csv,noheader,nounits";

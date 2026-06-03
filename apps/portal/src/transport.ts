@@ -111,6 +111,15 @@ export function resolvePortalCommandTarget(
         route: AgentProtocolDefaults.Target.LocalhostWindowsAgent.route,
       };
     }
+    if (
+      command === AgentLanPairingSupportedWebSocketCommand.AddDeviceRequest &&
+      hasLanHouseholdDecisionTarget(payload)
+    ) {
+      return {
+        ...baseTarget,
+        route: AgentProtocolDefaults.Target.LocalNetworkWindowsAgent.route,
+      };
+    }
     if (command !== AgentLanPairingSupportedWebSocketCommand.BrowserDiscoveryScan) {
       return baseTarget;
     }
@@ -124,4 +133,15 @@ export function resolvePortalCommandTarget(
     deviceId: decodeAgentDeviceId(childDeviceId),
     route: AgentProtocolDefaults.Target.LocalNetworkWindowsAgent.route,
   };
+}
+
+function hasLanHouseholdDecisionTarget(payload: AgentProtocolLogFields): boolean {
+  const canonicalDeviceId = payload[AgentProtocolDefaults.Field.LanCanonicalDeviceId];
+  const actionKind = payload[AgentProtocolDefaults.Field.LanHouseholdActionKind];
+  return (
+    isAgentProtocolLogText(canonicalDeviceId) &&
+    canonicalDeviceId.trim().length > 0 &&
+    isAgentProtocolLogText(actionKind) &&
+    actionKind.trim().length > 0
+  );
 }

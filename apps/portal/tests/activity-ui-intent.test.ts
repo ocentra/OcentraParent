@@ -7,7 +7,6 @@ import {
   createParentPortalLanPairingUiSlots,
   parentPortalActivityAdapterRecord,
 } from '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/activity-ui-intent';
-
 const ActivityRequest = {
   schemaVersion: ActivitySurfaceSchemaVersion,
   scope: {
@@ -19,12 +18,10 @@ const ActivityRequest = {
   rangeStart: '2026-06-01T00:00:00Z',
   rangeEnd: '2026-06-01T15:00:00Z',
 } as const;
-
 describe('parent portal Activity UI intent', () => {
   parentPortalActivityIntentTests();
   parentPortalLanPairingIntentTests();
 });
-
 function parentPortalActivityIntentTests(): void {
   it('renders service-backed device slots and report files from adapter results', () => {
     const intent = serviceBackedActivityIntent();
@@ -37,7 +34,6 @@ function parentPortalActivityIntentTests(): void {
     ]);
     expect(intent.reportFiles.map((file) => file.id)).toEqual(['activity-report-1', 'saved-report-1']);
   });
-
   it('keeps absent or failed service adapter data unavailable without creating devices', () => {
     const intent = createParentPortalActivityUiIntent(
       {
@@ -56,13 +52,11 @@ function parentPortalActivityIntentTests(): void {
     expect(intent.reportFiles).toEqual([]);
   });
 }
-
 function parentPortalLanPairingIntentTests(): void {
   parentPortalLanPairingStatusTests();
   parentPortalLanPairingReadModelTests();
   parentPortalRuntimeLanPairingIntentTests();
 }
-
 function parentPortalLanPairingStatusTests(): void {
   it('maps LAN pairing service rows into an honest status slot without discovered devices', () => {
     expect(
@@ -87,7 +81,6 @@ function parentPortalLanPairingStatusTests(): void {
     expect(createParentPortalLanPairingUiSlots([])).toEqual([]);
   });
 }
-
 function parentPortalLanPairingReadModelTests(): void {
   it('renders real LAN add-device read-model devices without synthetic fallback devices', () => {
     const slots = createParentPortalLanPairingUiSlots(
@@ -120,7 +113,6 @@ function parentPortalLanPairingReadModelTests(): void {
     expect(slots.every((slot) => slot.value !== 'lan-pairing-service-state')).toBe(true);
     expect(createParentPortalLanPairingPortalIds(slots)).toEqual(['child-android-1']);
   });
-
   it('shows read-model manual-required or unavailable states as service status when no device evidence exists', () => {
     expect(createParentPortalLanPairingUiSlots([], emptyLanAddDeviceReadModel('manual-required'))).toEqual([
       {
@@ -132,7 +124,6 @@ function parentPortalLanPairingReadModelTests(): void {
       },
     ]);
   });
-
   it('shows connected LAN service rows as scanning until the first LAN read model arrives', () => {
     expect(
       createParentPortalLanPairingUiSlots([
@@ -155,12 +146,10 @@ function parentPortalLanPairingReadModelTests(): void {
     ]);
   });
 }
-
 function parentPortalRuntimeLanPairingIntentTests(): void {
   parentPortalRuntimeNeighborTests();
   parentPortalRuntimeCanonicalTargetTests();
 }
-
 function parentPortalRuntimeNeighborTests(): void {
   it('keeps local-agent hardware separate from observed LAN neighbor network fields', () => {
     const slots = createParentPortalLanPairingUiSlots([], runtimeLanAddDeviceReadModel());
@@ -172,7 +161,6 @@ function parentPortalRuntimeNeighborTests(): void {
     ]);
     expect(slots.find((slot) => slot.value === 'lan-device-b42e993e72b9')).toBeUndefined();
     expect(createParentPortalLanPairingPortalIds(slots)).toEqual(['local-dev-agent']);
-
     expectLocalAgentRuntimeSlot(slots);
     expectLanNeighborRuntimeSlot(slots);
     expectRouterInfrastructureSlot(slots);
@@ -183,13 +171,41 @@ function parentPortalRuntimeCanonicalTargetTests(): void {
   it('uses the canonical household spine to keep LAN neighbors out of controlled-device scopes', () => {
     expectCanonicalHouseholdSpineTargetSlots();
   });
-
   it('feeds canonical policy target slots from the same service-backed device spine', () => {
     expectCanonicalPolicyTargetSlots();
   });
 
   it('surfaces signed discovery, custody, relay, and parent decision evidence from the LAN read model', () => {
     expectLanSignedDiscoveryRelaySlotEvidence();
+  });
+
+  it('applies parent LAN household name and device type overrides without losing detected names', () => {
+    const baseModel = canonicalRuntimeLanAddDeviceReadModel();
+    const slots = createParentPortalLanPairingUiSlots([], {
+      ...baseModel,
+      householdDeviceDecisions: [...baseModel.householdDeviceDecisions, lanNeighborHouseholdDecision()],
+      canonicalHouseholdDevices: [
+        localAgentCanonicalHouseholdDevice(),
+        {
+          ...lanNeighborCanonicalHouseholdDevice(),
+          displayName: 'Kitchen laptop',
+        },
+        routerCanonicalHouseholdDevice(),
+      ],
+    });
+    const neighbor = slots.find((slot) => slot.value === 'lan-physical-mac-54271e97c331');
+
+    expect(neighbor).toMatchObject({
+      label: 'Kitchen laptop',
+      device: {
+        name: 'Kitchen laptop',
+        householdName: 'Kitchen laptop',
+        detectedName: 'HPSUJAN',
+        hostname: 'HPSUJAN',
+        parentDeviceKind: 'laptop',
+        type: 'laptop',
+      },
+    });
   });
 }
 
@@ -229,6 +245,7 @@ function expectCanonicalLanNeighborSlot(slots: ReturnType<typeof createParentPor
     ip: '192.168.2.42',
     mac: '54-27-1e-97-c3-31',
     hostname: 'HPSUJAN',
+    detectedName: 'HPSUJAN',
   });
   expectNoAgentHardware(lanNeighbor?.device);
 }
@@ -286,7 +303,9 @@ function expectLanSignedDiscoveryRelaySlotEvidence(): void {
     relayCacheState: 'unavailable',
     manualProof: 'signed-child-agent-hello, signed-child-agent-heartbeat',
     claimsNotProved: 'physical household signed child hello requires second device',
-    parentDecision: 'assign',
+    parentDecision: 'assign: GAMEDEV',
+    householdName: 'GAMEDEV',
+    parentDeviceKind: 'desktop',
     auditLabel: 'Signed hello manual proof required',
     requirementLabel: 'Only trusted signed child-agent routes become controllable',
     evidenceLabel: 'Selected route remains parent-local custody',
@@ -677,8 +696,24 @@ function localAgentHouseholdDecision() {
     canonicalDeviceId: 'lan-physical-mac-b42e993e72b9',
     childProfileId: 'child-profile-1',
     displayName: 'GAMEDEV',
+    deviceKind: 'desktop',
     parentActorId: 'parent-actor-1',
     decidedAt: '2026-06-01T15:21:05Z',
+    revokedAt: null,
+  } as const;
+}
+
+function lanNeighborHouseholdDecision() {
+  return {
+    schemaVersion: 1,
+    actionId: 'lan-action-rename-hpsujan',
+    actionKind: 'rename',
+    canonicalDeviceId: 'lan-physical-mac-54271e97c331',
+    childProfileId: null,
+    displayName: 'Kitchen laptop',
+    deviceKind: 'laptop',
+    parentActorId: 'parent-actor-1',
+    decidedAt: '2026-06-01T15:22:05Z',
     revokedAt: null,
   } as const;
 }
