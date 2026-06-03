@@ -2,6 +2,25 @@ import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/ef
 import { ActivityEvidenceRefSchema } from './contracts';
 import { ActivityEvidenceDigestSchema, ActivityEvidenceIdSchema, ActivityTimestampSchema } from './primitives';
 import {
+  AppGameAppUserModelIdSchema,
+  AppGameApplicationTokenRefSchema,
+  AppGameBundleIdSchema,
+  AppGameDesktopEntryIdSchema,
+  AppGameDisplayLabelSchema,
+  AppGameExecutablePathRefSchema,
+  AppGameFileHashRefSchema,
+  AppGameIdentityConfidenceSchema,
+  AppGameIdentityDeterministicRefKindSchema,
+  AppGameIdentityIdSchema,
+  AppGameLauncherAppIdSchema,
+  AppGameLauncherManifestIdSchema,
+  AppGamePackageIdSchema,
+  AppGameParentLabelSchema,
+  AppGameProductKindSchema,
+  AppGamePublisherSignatureRefSchema,
+  AppGameStoreIdSchema,
+} from './app-game-identity-primitives';
+import {
   AppGameAiActionHintSchema,
   AppGameAiDigestRefSchema,
   AppGameCapabilityStatusSchema,
@@ -29,6 +48,7 @@ import {
   AppGameUnavailableReasonSchema,
 } from './app-game-primitives';
 
+export * from './app-game-identity-primitives';
 export * from './app-game-primitives';
 
 export const AppGameInventoryEntrySchema = withParser(
@@ -47,6 +67,98 @@ export const AppGameInventoryEntrySchema = withParser(
     confidence: AppGameConfidenceSchema,
     evidence: Schema.Array(ActivityEvidenceRefSchema),
   })
+);
+
+const AppGameIdentityBaseSchema = Schema.Struct({
+  schemaVersion: Schema.Literal(AppGameSchemaVersion),
+  identityId: AppGameIdentityIdSchema,
+  productKind: AppGameProductKindSchema,
+  displayLabel: AppGameDisplayLabelSchema,
+  parentLabel: Schema.Union(AppGameParentLabelSchema, Schema.Null),
+  confidence: AppGameIdentityConfidenceSchema,
+  classificationState: AppGameClassificationStateSchema,
+  packageId: Schema.Union(AppGamePackageIdSchema, Schema.Null),
+  bundleId: Schema.Union(AppGameBundleIdSchema, Schema.Null),
+  appUserModelId: Schema.Union(AppGameAppUserModelIdSchema, Schema.Null),
+  desktopEntryId: Schema.Union(AppGameDesktopEntryIdSchema, Schema.Null),
+  applicationTokenRef: Schema.Union(AppGameApplicationTokenRefSchema, Schema.Null),
+  executablePathRef: Schema.Union(AppGameExecutablePathRefSchema, Schema.Null),
+  publisherSignatureRef: Schema.Union(AppGamePublisherSignatureRefSchema, Schema.Null),
+  fileHashRef: Schema.Union(AppGameFileHashRefSchema, Schema.Null),
+  launcherRef: Schema.Union(AppGameLauncherRefSchema, Schema.Null),
+  launcherAppId: Schema.Union(AppGameLauncherAppIdSchema, Schema.Null),
+  launcherManifestId: Schema.Union(AppGameLauncherManifestIdSchema, Schema.Null),
+  storeId: Schema.Union(AppGameStoreIdSchema, Schema.Null),
+  catalogRef: Schema.Union(AppGameCatalogRefSchema, Schema.Null),
+  childGameEvidenceClaimId: Schema.Union(AppGameEvidenceClaimIdSchema, Schema.Null),
+  evidence: Schema.Array(ActivityEvidenceRefSchema),
+});
+
+export const AppGameIdentitySchema = withParser(
+  AppGameIdentityBaseSchema.pipe(
+    Schema.filter(
+      (identity) =>
+        appGameIdentityHasRawReference(identity) ||
+        (identity.confidence === 'weak' &&
+          identity.classificationState === 'unknownProcess' &&
+          identity.productKind === 'unknownExecutable') ||
+        'Expected display-label-only app/game identity to stay weak and unknown'
+    )
+  )
+    .pipe(
+      Schema.filter(
+        (identity) =>
+          appGameIdentityConfidenceMatchesReferences(identity) ||
+          'Expected deterministic and parent-labeled identities to include raw identity refs'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (identity) =>
+          appGameIdentityLauncherStateIsHonest(identity) ||
+          'Expected launcher-only identity to stay launcher or candidate without child-game proof'
+      )
+    )
+);
+
+const AppGameIdentityMergeProofBaseSchema = Schema.Struct({
+  schemaVersion: Schema.Literal(AppGameSchemaVersion),
+  mergeId: AppGameIdentityIdSchema,
+  targetIdentity: AppGameIdentitySchema,
+  sourceIdentityIds: Schema.Array(AppGameIdentityIdSchema),
+  mergeConfidence: AppGameConfidenceSchema,
+  displayLabelMatched: Schema.Boolean,
+  parentLabelChanged: Schema.Boolean,
+  conflictingFileHashRefs: Schema.Boolean,
+  sharedDeterministicRefs: Schema.Array(AppGameIdentityDeterministicRefKindSchema),
+  evidence: Schema.Array(ActivityEvidenceRefSchema),
+});
+
+export const AppGameIdentityMergeProofSchema = withParser(
+  AppGameIdentityMergeProofBaseSchema.pipe(
+    Schema.filter((merge) => merge.sourceIdentityIds.length >= 2 || 'Expected identity merge to cite source identities')
+  )
+    .pipe(
+      Schema.filter(
+        (merge) => !merge.conflictingFileHashRefs || 'Expected conflicting file hashes to block identity merge'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (merge) =>
+          merge.mergeConfidence <= 0.3 ||
+          merge.sharedDeterministicRefs.length > 0 ||
+          'Expected non-weak identity merge to share deterministic refs'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (merge) =>
+          !merge.parentLabelChanged ||
+          (merge.targetIdentity.parentLabel !== null && merge.sharedDeterministicRefs.length > 0) ||
+          'Expected parent labels to change display only, not raw identity'
+      )
+    )
 );
 
 const AppGameEvidenceClaimBaseSchema = Schema.Struct({
@@ -221,6 +333,8 @@ export const AppGameAiClassificationDigestSchema = withParser(
 );
 
 export type AppGameInventoryEntry = Infer<typeof AppGameInventoryEntrySchema>;
+export type AppGameIdentity = Infer<typeof AppGameIdentitySchema>;
+export type AppGameIdentityMergeProof = Infer<typeof AppGameIdentityMergeProofSchema>;
 export type AppGameEvidenceClaim = Infer<typeof AppGameEvidenceClaimSchema>;
 export type AppGameProcessObservation = Infer<typeof AppGameProcessObservationSchema>;
 export type AppGameSessionSummary = Infer<typeof AppGameSessionSummarySchema>;
@@ -229,3 +343,55 @@ export type AppGameSessionQueryResult = Infer<typeof AppGameSessionQueryResultSc
 export type AppGameSessionReport = Infer<typeof AppGameSessionReportSchema>;
 export type AppGameAiDigestReference = Infer<typeof AppGameAiDigestReferenceSchema>;
 export type AppGameAiClassificationDigest = Infer<typeof AppGameAiClassificationDigestSchema>;
+
+function appGameIdentityHasRawReference(identity: Infer<typeof AppGameIdentityBaseSchema>): boolean {
+  return (
+    appGameIdentityHasDeterministicReference(identity) ||
+    identity.launcherRef !== null ||
+    identity.launcherAppId !== null ||
+    identity.launcherManifestId !== null
+  );
+}
+
+function appGameIdentityHasDeterministicReference(identity: Infer<typeof AppGameIdentityBaseSchema>): boolean {
+  return (
+    identity.packageId !== null ||
+    identity.bundleId !== null ||
+    identity.appUserModelId !== null ||
+    identity.desktopEntryId !== null ||
+    identity.applicationTokenRef !== null ||
+    identity.executablePathRef !== null ||
+    identity.publisherSignatureRef !== null ||
+    identity.fileHashRef !== null ||
+    identity.storeId !== null ||
+    identity.catalogRef !== null ||
+    identity.childGameEvidenceClaimId !== null
+  );
+}
+
+function appGameIdentityConfidenceMatchesReferences(identity: Infer<typeof AppGameIdentityBaseSchema>): boolean {
+  if (identity.confidence === 'deterministic' || identity.confidence === 'parentLabeled') {
+    return appGameIdentityHasDeterministicReference(identity) || appGameIdentityIsDeterministicLauncher(identity);
+  }
+
+  return true;
+}
+
+function appGameIdentityIsDeterministicLauncher(identity: Infer<typeof AppGameIdentityBaseSchema>): boolean {
+  return identity.productKind === 'launcher' && appGameIdentityHasRawReference(identity);
+}
+
+function appGameIdentityLauncherStateIsHonest(identity: Infer<typeof AppGameIdentityBaseSchema>): boolean {
+  if (!appGameIdentityHasOnlyLauncherReferences(identity)) {
+    return true;
+  }
+
+  return identity.productKind === 'launcher' && identity.classificationState !== 'knownGame';
+}
+
+function appGameIdentityHasOnlyLauncherReferences(identity: Infer<typeof AppGameIdentityBaseSchema>): boolean {
+  return (
+    !appGameIdentityHasDeterministicReference(identity) &&
+    (identity.launcherRef !== null || identity.launcherAppId !== null || identity.launcherManifestId !== null)
+  );
+}
