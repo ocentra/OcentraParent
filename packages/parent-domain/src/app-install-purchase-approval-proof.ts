@@ -2,6 +2,10 @@ import {
   AppInstallPurchaseApprovalContractProofSchema,
   type AppInstallPurchaseApprovalPlatformSupportRow,
 } from './app-install-purchase-approval';
+import {
+  appInstallPurchaseApprovalAuditReportIntegration,
+  appInstallPurchaseApprovalChildFacingStates,
+} from './app-install-purchase-approval-proof-states';
 
 const Timestamp = '2026-06-03T07:10:00.000Z';
 const ExpiryTimestamp = '2026-06-10T07:10:00.000Z';
@@ -54,6 +58,14 @@ export const AppInstallPurchaseApprovalContractProofReadModel = AppInstallPurcha
     platformRow('android', 'google-play', 'manual-required', 'manual-required'),
     platformRow('ios', 'apple-app-store', 'manual-required', 'manual-required'),
   ],
+  childFacingStates: appInstallPurchaseApprovalChildFacingStates({
+    requestAuditEvent: RequestAuditEvent,
+    decisionAuditEvent: DecisionAuditEvent,
+  }),
+  auditReportIntegration: appInstallPurchaseApprovalAuditReportIntegration({
+    requestAuditEvent: RequestAuditEvent,
+    decisionAuditEvent: DecisionAuditEvent,
+  }),
   nonClaims: [
     'no-store-integration',
     'no-billing-entitlement-logic',
@@ -78,6 +90,8 @@ export const AppInstallPurchaseApprovalProofKnownGaps = [
   'Google Play, Apple App Store, Microsoft Store, Mac App Store, and package-manager integrations are not implemented.',
   'No billing entitlement state is used as child-safety approval authority.',
   'No portal approval UI exists in this proof.',
+  'Child-facing pending/result states are contract rows only; no child-device delivery adapter is implemented.',
+  'Audit/report integration is status proof only; no report UI or runtime report delivery is implemented.',
   'No platform adapter, store policy bypass, or real install/purchase interception is claimed.',
   'Generic runtime app blocking remains separate from install and purchase approval.',
 ] as const;

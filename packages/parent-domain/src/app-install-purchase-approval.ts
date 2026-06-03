@@ -1,8 +1,10 @@
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import {
   appInstallPurchaseApprovalContractProofIsHonest,
+  auditReportIntegrationIsHonest,
   approvalDecisionIsConsistent,
   approvalStateSnapshotIsConsistent,
+  childFacingStateIsConsistent,
   platformSupportRowIsHonest,
   purchaseRequestKindIsConsistent,
   storeMetadataFreshnessIsConsistent,
@@ -58,6 +60,26 @@ export const AppInstallPurchaseApprovalPurchaseKindSchema = withParser(
 );
 export const AppInstallPurchaseApprovalSubscriptionPeriodSchema = withParser(
   Schema.Literal('weekly', 'monthly', 'annual', 'unknown')
+);
+const AppInstallPurchaseApprovalChildFacingStatusSchema = withParser(
+  Schema.Literal(
+    'pending-parent-review-visible',
+    'approved-visible',
+    'denied-visible',
+    'time-box-visible',
+    'review-needed-visible'
+  )
+);
+const AppInstallPurchaseApprovalAuditReportSurfaceSchema = withParser(
+  Schema.Literal(
+    'request-audit-history',
+    'parent-decision-audit-history',
+    'child-facing-state-report',
+    'platform-limitation-report'
+  )
+);
+const AppInstallPurchaseApprovalProofIntegrationStateSchema = withParser(
+  Schema.Literal('contract-only', 'manual-required', 'unavailable')
 );
 export const AppInstallPurchaseApprovalAuditEventKindSchema = withParser(
   Schema.Literal(
@@ -129,6 +151,12 @@ const AppInstallPurchaseApprovalClaimBoundarySchema = NonEmptyInstallApprovalTex
 );
 const AppInstallPurchaseApprovalPriceDisplaySchema = NonEmptyInstallApprovalText.pipe(
   Schema.brand('AppInstallPurchaseApprovalPriceDisplay')
+);
+const AppInstallPurchaseApprovalChildStateIdSchema = NonEmptyInstallApprovalText.pipe(
+  Schema.brand('AppInstallPurchaseApprovalChildStateId')
+);
+const AppInstallPurchaseApprovalReportRefSchema = NonEmptyInstallApprovalText.pipe(
+  Schema.brand('AppInstallPurchaseApprovalReportRef')
 );
 
 export const AppInstallPurchaseApprovalAuditEventRefSchema = withParser(
@@ -271,6 +299,51 @@ export const AppInstallPurchaseApprovalDecisionSchema = withParser(
   )
 );
 
+const AppInstallPurchaseApprovalChildFacingStateBaseSchema = Schema.Struct({
+  schemaVersion: AppInstallPurchaseApprovalSchemaVersionSchema,
+  childStateId: AppInstallPurchaseApprovalChildStateIdSchema,
+  requestId: AppInstallPurchaseApprovalRequestIdSchema,
+  requestKind: AppInstallPurchaseApprovalRequestKindSchema,
+  platform: ParentPlatformSchema,
+  childVisibleStatus: AppInstallPurchaseApprovalChildFacingStatusSchema,
+  sourceApprovalState: AppInstallPurchaseApprovalStateSnapshotSchema,
+  deliveryState: AppInstallPurchaseApprovalPlatformSupportStateSchema,
+  deliveryRequirement: AppInstallPurchaseApprovalProofRequirementSchema,
+  auditEventRefs: Schema.Array(AppInstallPurchaseApprovalAuditEventRefSchema),
+  reportRefs: Schema.Array(AppInstallPurchaseApprovalReportRefSchema),
+  claimBoundary: AppInstallPurchaseApprovalClaimBoundarySchema,
+});
+
+const AppInstallPurchaseApprovalChildFacingStateSchema = withParser(
+  AppInstallPurchaseApprovalChildFacingStateBaseSchema.pipe(
+    Schema.filter(
+      (state) =>
+        childFacingStateIsConsistent(state) ||
+        'Expected child-facing install/purchase states to mirror approval state, cite audit/report refs, and avoid delivery claims'
+    )
+  )
+);
+
+const AppInstallPurchaseApprovalAuditReportIntegrationBaseSchema = Schema.Struct({
+  schemaVersion: AppInstallPurchaseApprovalSchemaVersionSchema,
+  surface: AppInstallPurchaseApprovalAuditReportSurfaceSchema,
+  integrationState: AppInstallPurchaseApprovalProofIntegrationStateSchema,
+  auditEventRefs: Schema.Array(AppInstallPurchaseApprovalAuditEventRefSchema),
+  reportRefs: Schema.Array(AppInstallPurchaseApprovalReportRefSchema),
+  proofRequirement: AppInstallPurchaseApprovalProofRequirementSchema,
+  claimBoundary: AppInstallPurchaseApprovalClaimBoundarySchema,
+});
+
+const AppInstallPurchaseApprovalAuditReportIntegrationSchema = withParser(
+  AppInstallPurchaseApprovalAuditReportIntegrationBaseSchema.pipe(
+    Schema.filter(
+      (integration) =>
+        auditReportIntegrationIsHonest(integration) ||
+        'Expected app install/purchase audit/report status rows to stay contract-only without portal runtime claims'
+    )
+  )
+);
+
 const AppInstallPurchaseApprovalPlatformSupportRowBaseSchema = Schema.Struct({
   platform: ParentPlatformSchema,
   storeSurface: AppInstallPurchaseApprovalStoreSurfaceSchema,
@@ -304,6 +377,8 @@ const AppInstallPurchaseApprovalContractProofBaseSchema = Schema.Struct({
   subscriptionRequest: PurchaseRequestSchema,
   approvalDecisions: Schema.Array(AppInstallPurchaseApprovalDecisionSchema),
   platformSupportMatrix: Schema.Array(AppInstallPurchaseApprovalPlatformSupportRowSchema),
+  childFacingStates: Schema.Array(AppInstallPurchaseApprovalChildFacingStateSchema),
+  auditReportIntegration: Schema.Array(AppInstallPurchaseApprovalAuditReportIntegrationSchema),
   nonClaims: Schema.Array(AppInstallPurchaseApprovalNonClaimSchema),
   storeIntegrationClaim: AppInstallPurchaseApprovalStoreIntegrationClaimSchema,
   billingEntitlementClaim: AppInstallPurchaseApprovalBillingEntitlementClaimSchema,

@@ -37,6 +37,19 @@ async function main() {
     parsedReadModel.approvalDecisions.map((decision) => decision.decisionAction),
     ['approve', 'deny', 'time-box', 'review-needed']
   );
+  assert.deepEqual(
+    parsedReadModel.childFacingStates.map((state) => state.childVisibleStatus),
+    ['pending-parent-review-visible', 'approved-visible', 'denied-visible', 'time-box-visible', 'review-needed-visible']
+  );
+  assert.deepEqual(
+    parsedReadModel.auditReportIntegration.map((row) => row.surface),
+    [
+      'request-audit-history',
+      'parent-decision-audit-history',
+      'child-facing-state-report',
+      'platform-limitation-report',
+    ]
+  );
 
   const proof = {
     schemaVersion: 1,
@@ -68,6 +81,18 @@ async function main() {
       childPendingState: row.childPendingState,
       approvalDeliveryState: row.approvalDeliveryState,
       proofRequirement: row.proofRequirement,
+      claimBoundary: row.claimBoundary,
+    })),
+    childFacingStates: parsedReadModel.childFacingStates.map((state) => ({
+      childVisibleStatus: state.childVisibleStatus,
+      deliveryState: state.deliveryState,
+      reportRefs: state.reportRefs,
+      claimBoundary: state.claimBoundary,
+    })),
+    auditReportIntegration: parsedReadModel.auditReportIntegration.map((row) => ({
+      surface: row.surface,
+      integrationState: row.integrationState,
+      reportRefs: row.reportRefs,
       claimBoundary: row.claimBoundary,
     })),
     nonClaims: parsedReadModel.nonClaims,

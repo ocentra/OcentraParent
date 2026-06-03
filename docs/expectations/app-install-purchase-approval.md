@@ -39,11 +39,15 @@ Expected contract families:
 - Platform support matrix is explicit.
 - Parent approvals expire or carry scope.
 - Store metadata has source and freshness status.
+- Child-facing pending/result states cite approval state, audit refs, and report
+  refs without claiming child-device delivery until platform proof exists.
+- Audit/report integration status is explicit and does not imply portal or
+  runtime report delivery.
 
 ## Validation Gates
 
-- TypeScript schema tests for requests, store metadata, approvals, policy rules,
-  and audit events.
+- TypeScript schema tests for requests, store metadata, approvals,
+  child-facing states, audit/report status, policy rules, and audit events.
 - Platform proof for Google Play, Apple App Store, Microsoft Store, or other
   store hooks before claiming integration.
 - Portal tests for approval flow when UI exists.
@@ -53,6 +57,7 @@ Expected contract families:
 - Do not bypass store policy.
 - Do not imply Apple/Google ecosystem parity without approved APIs.
 - Do not let billing entitlements decide child safety approvals.
+- Do not treat contract-only child-facing/report rows as delivered runtime UX.
 
 ## Done Signal
 
