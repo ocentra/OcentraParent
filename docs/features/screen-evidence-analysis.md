@@ -34,6 +34,11 @@ only with explicit parent settings.
 ## Current Ocentra State
 
 - Local screen-analysis queue direction and contracts exist.
+- `@ocentra-parent/activity-domain` now proves parent opt-in settings, cadence
+  and trigger gates, temporary encrypted queue custody, deletion/expiry/delete
+  failure states, raw-image non-retention, confidence/unknown handling, and
+  policy eligibility with focused contract tests plus
+  `scripts/test/screen-evidence-settings-retention-proof.mjs`.
 - Local AI and policy can consume evidence summaries in dry-run paths.
 - Product settings and quality proof are incomplete.
 - Raw screen control settings are preserved as design inputs, not
@@ -41,8 +46,9 @@ only with explicit parent settings.
 
 ## Current Gap
 
-Opt-in UI, capture cadence, OCR/vision model quality, deletion proof,
-confidence thresholds, and parent explanation UX remain.
+Opt-in UI, actual screenshot capture scheduling, OCR/vision model quality,
+runtime deletion proof, enforcement handoff, checklist status movement, and
+parent explanation UX remain.
 
 ## Checklist
 

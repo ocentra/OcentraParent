@@ -27,6 +27,7 @@ import {
 } from './screen-evidence-primitives';
 
 const RequiredFalse = Schema.Literal(false);
+const PolicyEligibleConfidenceFloor = 0.5;
 
 export const ScreenCategoryCandidateSchema = withParser(
   Schema.Struct({
@@ -87,9 +88,18 @@ export const ScreenAnalysisResultSchema = withParser(
         !value.policyEligible ||
         (value.sourceEvidenceRefs.length > 0 &&
           value.capabilityStatus === 'ready' &&
+          value.confidence >= PolicyEligibleConfidenceFloor &&
+          value.primaryCategory !== null &&
+          value.primaryCategory !== 'unknown' &&
           value.rawImageRetained === false &&
           (value.imageDeletionState === 'deleted' || value.imageDeletionState === 'expiredDeleted')) ||
-        'Expected policy-eligible screen analysis to use ready local evidence with deleted raw image custody'
+        'Expected policy-eligible screen analysis to use ready local evidence, confidence, category, and deleted raw image custody'
+    ),
+    Schema.filter(
+      (value) =>
+        (value.primaryCategory !== null && value.primaryCategory !== 'unknown') ||
+        (value.uncertaintyReason !== null && !value.policyEligible) ||
+        'Expected unknown screen analysis summaries to carry uncertainty and stay policy-ineligible'
     )
   )
 );
