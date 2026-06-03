@@ -6,13 +6,16 @@ import {
   AppInstallPurchaseApprovalStateSnapshotSchema,
   AppInstallPurchaseApprovalStoreMetadataSchema,
 } from '../src/app-install-purchase-approval';
+import { AppInstallPurchaseApprovalPlatformSourceMetadataRowSchema } from '../src/app-install-purchase-approval-platform-sources';
 import { AppInstallPurchaseApprovalContractProofReadModel } from '../src/app-install-purchase-approval-proof';
 
 describe('app install and purchase approval contracts', () => {
   acceptsTheContractOnlyInstallPurchaseAndSubscriptionProof();
+  acceptsPlatformSourceMetadataLimitationsWithoutStoreApiClaims();
   acceptsChildFacingPendingAndResultStatesWithAuditReportRefs();
   acceptsAuditAndReportIntegrationStatusWithoutRuntimeClaims();
   rejectsPlatformStoreBillingRuntimePortalAndBypassOverclaims();
+  rejectsPlatformSourceMetadataRowsThatClaimRuntimeOrOmitLimitationProof();
   rejectsChildFacingStatesThatInventDeliveryOrMismatchApprovalState();
   rejectsAuditReportIntegrationRowsThatOmitAuditReportRefsOrClaimPortalRuntime();
   rejectsUnscopedApprovalAndReviewDecisions();
@@ -62,6 +65,55 @@ function acceptsTheContractOnlyInstallPurchaseAndSubscriptionProof(): void {
       'no-real-install-or-purchase-interception',
       'not-generic-app-blocking',
     ]);
+  });
+}
+
+function acceptsPlatformSourceMetadataLimitationsWithoutStoreApiClaims(): void {
+  it('accepts platform-source metadata limitation rows without store api or interception claims', () => {
+    const proof = AppInstallPurchaseApprovalContractProofSchema.parse(AppInstallPurchaseApprovalContractProofReadModel);
+
+    expect(
+      proof.platformSourceMetadata.map((row) => [
+        row.platform,
+        row.storeSurface,
+        row.sourceAuthority,
+        row.metadataState,
+        row.sourceEvidenceState,
+      ])
+    ).toEqual([
+      ['windows', 'microsoft-store', 'microsoft-store-listing', 'manual-required', 'requires-store-artifact-proof'],
+      ['macos', 'mac-app-store', 'mac-app-store-listing', 'manual-required', 'requires-store-artifact-proof'],
+      ['linux', 'linux-package-manager', 'linux-package-manager-index', 'unavailable', 'platform-unavailable'],
+      ['android', 'google-play', 'google-play-listing', 'manual-required', 'requires-approved-api-proof'],
+      ['ios', 'apple-app-store', 'apple-app-store-listing', 'manual-required', 'requires-approved-api-proof'],
+    ]);
+    expect(proof.platformSourceMetadata.map((row) => [row.platform, row.requiredArtifacts.length])).toEqual([
+      ['windows', 3],
+      ['macos', 3],
+      ['linux', 3],
+      ['android', 3],
+      ['ios', 3],
+    ]);
+    for (const row of proof.platformSourceMetadata) {
+      expect(row.fieldsAvailableFromContract).toEqual([]);
+      expect(row.fieldsRequiringPlatformProof).toEqual([
+        'store-listing-id',
+        'app-title',
+        'publisher-name',
+        'category',
+        'age-rating',
+        'price-display',
+        'subscription-period',
+        'source-url',
+      ]);
+      expect(row.requestKindCoverage).toEqual(['install', 'purchase', 'subscription']);
+      expect(row.storeIntegrationClaim).toBe('not-claimed');
+      expect(row.platformAdapterClaim).toBe('not-implemented');
+      expect(row.interceptionClaim).toBe('not-claimed');
+      expect(row.limitationReportRef).toBe('app-install-purchase-platform-limitation-report-ref');
+      expect(row.claimBoundary).toContain('no store integration');
+      expect(row.claimBoundary).toContain('no real install or purchase interception');
+    }
   });
 }
 
@@ -116,6 +168,36 @@ function rejectsPlatformStoreBillingRuntimePortalAndBypassOverclaims(): void {
     ]) {
       expect(AppInstallPurchaseApprovalContractProofSchema.safeParse(invalidProof).success).toBe(false);
     }
+  });
+}
+
+function rejectsPlatformSourceMetadataRowsThatClaimRuntimeOrOmitLimitationProof(): void {
+  it('rejects platform-source metadata rows that claim store integration or omit limitation proof', () => {
+    const androidRow = platformSourceRowFor('android');
+
+    expect(
+      AppInstallPurchaseApprovalPlatformSourceMetadataRowSchema.safeParse({
+        ...androidRow,
+        storeIntegrationClaim: 'claimed',
+      }).success
+    ).toBe(false);
+    expect(
+      AppInstallPurchaseApprovalPlatformSourceMetadataRowSchema.safeParse({
+        ...androidRow,
+        requiredArtifacts: [],
+      }).success
+    ).toBe(false);
+    expect(
+      AppInstallPurchaseApprovalPlatformSourceMetadataRowSchema.safeParse({
+        ...androidRow,
+        sourceEvidenceState: 'platform-unavailable',
+      }).success
+    ).toBe(false);
+    expect(
+      contractProofWithPlatformSourceMetadata(
+        AppInstallPurchaseApprovalContractProofReadModel.platformSourceMetadata.slice(1)
+      ).success
+    ).toBe(false);
   });
 }
 
@@ -295,6 +377,16 @@ function platformRowFor(platform: 'android') {
   return row;
 }
 
+function platformSourceRowFor(platform: 'android') {
+  const row = AppInstallPurchaseApprovalContractProofReadModel.platformSourceMetadata.find(
+    (entry) => entry.platform === platform
+  );
+  if (row === undefined) {
+    throw new Error(`missing app install/purchase approval platform-source row: ${platform}`);
+  }
+  return row;
+}
+
 function requestKindCounts(proof: typeof AppInstallPurchaseApprovalContractProofReadModel) {
   return countBy([
     proof.installRequest.requestKind,
@@ -347,6 +439,13 @@ function contractProofWithAuditReportRow(reportRow: unknown) {
       reportRow,
       ...AppInstallPurchaseApprovalContractProofReadModel.auditReportIntegration.slice(1),
     ],
+  });
+}
+
+function contractProofWithPlatformSourceMetadata(platformSourceMetadata: unknown) {
+  return AppInstallPurchaseApprovalContractProofSchema.safeParse({
+    ...AppInstallPurchaseApprovalContractProofReadModel,
+    platformSourceMetadata,
   });
 }
 

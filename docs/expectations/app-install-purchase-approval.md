@@ -11,6 +11,8 @@ answer before claiming parity.
 - Parent can approve, deny, time-box, or mark review-needed.
 - Parent can see app age rating, category, publisher, platform source, and known
   risk/context where available.
+- Parent can see which store/source metadata fields still require platform API,
+  entitlement, package-source, or manual proof before product support is claimed.
 - Parent can see when the platform does not allow Ocentra to intercept or
   control install/purchase flow.
 
@@ -43,11 +45,16 @@ Expected contract families:
   refs without claiming child-device delivery until platform proof exists.
 - Audit/report integration status is explicit and does not imply portal or
   runtime report delivery.
+- Platform-source metadata limitation rows name the store source, required
+  artifacts, unavailable/manual-required state, limitation report ref, and
+  explicit no-store-integration/no-interception boundary.
 
 ## Validation Gates
 
 - TypeScript schema tests for requests, store metadata, approvals,
   child-facing states, audit/report status, policy rules, and audit events.
+- TypeScript schema tests for platform-source metadata limitation rows and
+  missing-platform-row rejection.
 - Platform proof for Google Play, Apple App Store, Microsoft Store, or other
   store hooks before claiming integration.
 - Portal tests for approval flow when UI exists.

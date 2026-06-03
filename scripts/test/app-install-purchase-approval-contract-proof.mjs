@@ -30,9 +30,28 @@ async function main() {
   const supportStateCounts = proofModule.summarizeAppInstallPurchaseApprovalSupportStates(
     parsedReadModel.platformSupportMatrix
   );
+  const platformSourceMetadata = parsedReadModel.platformSourceMetadata;
   assert.equal(supportStateCounts.supported > 0, true);
   assert.equal(supportStateCounts['manual-required'] > 0, true);
   assert.equal(supportStateCounts.unavailable > 0, true);
+  assert.deepEqual(
+    platformSourceMetadata.map((row) => `${row.platform}:${row.storeSurface}:${row.metadataState}`),
+    [
+      'windows:microsoft-store:manual-required',
+      'macos:mac-app-store:manual-required',
+      'linux:linux-package-manager:unavailable',
+      'android:google-play:manual-required',
+      'ios:apple-app-store:manual-required',
+    ]
+  );
+  assert.deepEqual(
+    platformSourceMetadata.map((row) => row.storeIntegrationClaim),
+    ['not-claimed', 'not-claimed', 'not-claimed', 'not-claimed', 'not-claimed']
+  );
+  assert.deepEqual(
+    platformSourceMetadata.map((row) => row.interceptionClaim),
+    ['not-claimed', 'not-claimed', 'not-claimed', 'not-claimed', 'not-claimed']
+  );
   assert.deepEqual(
     parsedReadModel.approvalDecisions.map((decision) => decision.decisionAction),
     ['approve', 'deny', 'time-box', 'review-needed']
@@ -59,6 +78,7 @@ async function main() {
     commands,
     evidence: {
       contract: 'packages/parent-domain/src/app-install-purchase-approval.ts',
+      platformSourceContract: 'packages/parent-domain/src/app-install-purchase-approval-platform-sources.ts',
       contractTest: 'packages/parent-domain/tests/app-install-purchase-approval.test.ts',
       featureDoc: 'docs/features/app-install-purchase-approval.md',
       output: relative(repoRoot, proofPath),
@@ -81,6 +101,23 @@ async function main() {
       childPendingState: row.childPendingState,
       approvalDeliveryState: row.approvalDeliveryState,
       proofRequirement: row.proofRequirement,
+      claimBoundary: row.claimBoundary,
+    })),
+    platformSourceMetadata: platformSourceMetadata.map((row) => ({
+      platform: row.platform,
+      storeSurface: row.storeSurface,
+      sourceAuthority: row.sourceAuthority,
+      metadataState: row.metadataState,
+      sourceEvidenceState: row.sourceEvidenceState,
+      fieldsAvailableFromContract: row.fieldsAvailableFromContract,
+      fieldsRequiringPlatformProof: row.fieldsRequiringPlatformProof,
+      requestKindCoverage: row.requestKindCoverage,
+      requiredArtifacts: row.requiredArtifacts,
+      limitationReason: row.limitationReason,
+      limitationReportRef: row.limitationReportRef,
+      storeIntegrationClaim: row.storeIntegrationClaim,
+      platformAdapterClaim: row.platformAdapterClaim,
+      interceptionClaim: row.interceptionClaim,
       claimBoundary: row.claimBoundary,
     })),
     childFacingStates: parsedReadModel.childFacingStates.map((state) => ({

@@ -1,3 +1,8 @@
+import {
+  appInstallPurchaseApprovalPlatformSourceMetadataRowsAreComplete,
+  type AppInstallPurchaseApprovalPlatformSourceMetadataRow,
+} from './app-install-purchase-approval-platform-sources';
+
 type AppInstallPurchaseApprovalPlatform = 'windows' | 'macos' | 'linux' | 'android' | 'ios';
 type AppInstallPurchaseApprovalRequestKind = 'install' | 'purchase' | 'subscription';
 type AppInstallPurchaseApprovalFreshness = 'fresh' | 'stale' | 'unknown' | 'manual-required' | 'unavailable';
@@ -104,6 +109,7 @@ interface AppInstallPurchaseApprovalContractProofRuleInput {
   readonly subscriptionRequest: { readonly requestKind: AppInstallPurchaseApprovalRequestKind };
   readonly approvalDecisions: readonly AppInstallPurchaseApprovalDecisionRuleInput[];
   readonly platformSupportMatrix: readonly AppInstallPurchaseApprovalPlatformSupportRowRuleInput[];
+  readonly platformSourceMetadata: readonly AppInstallPurchaseApprovalPlatformSourceMetadataRow[];
   readonly childFacingStates: readonly AppInstallPurchaseApprovalChildFacingStateRuleInput[];
   readonly auditReportIntegration: readonly AppInstallPurchaseApprovalAuditReportIntegrationRuleInput[];
   readonly nonClaims: readonly AppInstallPurchaseApprovalNonClaim[];
@@ -259,6 +265,7 @@ function appInstallPurchaseApprovalContractProofShapesAreComplete(
     decisionActionsArePresent(proof.approvalDecisions) &&
     platformMatrixIsComplete(proof.platformSupportMatrix) &&
     platformMatrixContainsAllSupportStates(proof.platformSupportMatrix) &&
+    appInstallPurchaseApprovalPlatformSourceMetadataRowsAreComplete(proof.platformSourceMetadata) &&
     childFacingStatesAreComplete(proof.childFacingStates) &&
     auditReportIntegrationIsComplete(proof.auditReportIntegration) &&
     nonClaimsAreComplete(proof.nonClaims)
