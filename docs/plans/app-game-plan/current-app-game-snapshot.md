@@ -18,6 +18,9 @@ Proved today:
 - Rust protocol now mirrors app/game inventory evidence rows, and `agent-core`
   has a typed Windows-installed inventory record adapter/parser proof that keeps
   inventory separate from runtime or foreground use.
+- Microsoft Store/UWP/AppX/MSIX package identity now has a typed `agent-core`
+  parser proof for store app/game inventory rows, deterministic package/AUMID
+  runtime merge checks, and AppUserModelId policy-target handoff.
 - App-control and game-control catalog/authoring contracts exist in
   `packages/parent-domain`.
 - Rust app/game session protocol mirrors exist.
@@ -32,6 +35,8 @@ Not proved today:
 - Product-complete app inventory and identity quality.
 - Live Windows registry, Start Menu, executable metadata, signature/hash, or
   launcher manifest crawling.
+- Live Microsoft Store/UWP/AppX/MSIX package enumeration, Store API integration,
+  install approval, purchase approval, or package-wide blocking.
 - Product-complete native game catalog, launcher disambiguation, and game
   budgets.
 - New/unknown app and unknown game approval flow.
@@ -69,12 +74,12 @@ complete shared evidence spine or a proof that broad app/game blocking works.
 ## Current Runtime
 
 `crates/agent-core` currently has SQLite-backed app/game observation and session
-helpers, a typed Windows-installed inventory record adapter/parser proof, and
-scoped Windows owned-process time-limit helpers. This is a strong base for
-workpacks 08, 12, 13, and 21, but it is not the same as:
+helpers, typed Windows installed-record and Store/UWP package
+adapter/parser proof, and scoped Windows owned-process time-limit helpers. This
+is a strong base for workpacks 08, 12, 13, and 21, but it is not the same as:
 
 - live Windows installed app inventory crawling;
-- UWP/AppX inventory adapters;
+- live UWP/AppX package inventory enumeration;
 - launcher manifest adapters;
 - foreground app evidence adapters;
 - game-specific launcher-child process disambiguation;
@@ -105,8 +110,8 @@ Missing portal states include:
 - App/game identity contracts are present, but runtime identity merge behavior
   and adapter-fed identity refs are not implemented yet.
 - Inventory evidence row contracts and Rust inventory-row parity are present,
-  and the first Windows installed-record adapter/parser proof exists, but live
-  platform crawling, journal ingest, read models, and portal rows are not
+  and Windows installed-record plus Store/UWP package parser proof exists, but
+  live platform crawling, journal ingest, read models, and portal rows are not
   implemented yet.
 - Rust protocol parity has not yet mirrored the WP01 evidence claim, AI digest,
   app/game control authority schemas, or WP04 identity schemas.
@@ -135,9 +140,13 @@ Missing portal states include:
   adapter/parser proof only. It does not add live registry crawling, shell-link
   parsing, journal ingest, service/runtime inventory events, or portal inventory
   rows.
+- WP07 adds Store/UWP/AppX/MSIX package parser proof only. It does not add live
+  package enumeration, Store API integration, install/purchase approval, journal
+  ingest, service/runtime inventory events, or portal inventory rows.
 - Next implementation work should either add live Windows inventory source
-  readers or mirror the remaining WP01/WP04 TypeScript shapes into Rust protocol
-  before service/runtime consumers depend on them.
+  readers, runtime/foreground adapters, or mirror the remaining WP01/WP04
+  TypeScript shapes into Rust protocol before service/runtime consumers depend
+  on them.
 
 ## Enhancement Rule
 
