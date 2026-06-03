@@ -26,6 +26,7 @@ async function main() {
 
   try {
     await waitForHealth(agentPort, serviceOutput);
+    await waitForStartupCapture(runRoot);
     assertions.push(await assertMissingProcessIdRejected(agentPort));
     assertions.push(await assertOwnedProcessMismatchRejected(agentPort, ownedProcessProbe));
     assertions.push(await assertOwnedProcessTerminate(agentPort, ownedProcessProbe));
@@ -40,6 +41,11 @@ async function main() {
       assertions.push(await assertUnmanagedTerminate(agentPort, launchedBrowser));
     }
     assertions.push(await assertUnmanagedWarn(agentPort));
+    assertions.push(assertUnmanagedReportOnlyState());
+    assertions.push(assertUnmanagedParentReviewState());
+    assertions.push(assertUnmanagedRelaunchManagedManualRequired());
+    assertions.push(assertUnmanagedDegradedState());
+    assertions.push(assertUnmanagedUnavailableState(launchedBrowser));
     assertions.push(await assertBroadAppBlockingManualRequired(agentPort));
     assertions.push(await assertManagedBrowserManualRequired(agentPort));
     const evidence = await writeEvidence(runRoot, assertions);
@@ -223,6 +229,99 @@ async function assertUnmanagedWarn(agentPort) {
     status: result.status,
     adapterResultCode: result.adapterResultCode,
     auditEventKind: audit.auditEventKind,
+  };
+}
+
+function assertUnmanagedReportOnlyState() {
+  return {
+    id: 'unmanaged-browser-report-only',
+    state: 'report-only',
+    browserBoundaryState: 'unmanaged-browser-process',
+    exactUrlClaimState: 'not-claimed',
+    activeTabClaimState: 'not-claimed',
+    titleClaimState: 'not-claimed',
+    contentClaimState: 'not-claimed',
+    unmanagedDetectionState: 'report-only',
+    fallbackState: 'report-only',
+    status: 'monitor-only',
+    processIdentityRequired: false,
+    boundary:
+      'Report-only unmanaged browser fallback records process suspicion without warning delivery, termination, relaunch, or exact content claims.',
+  };
+}
+
+function assertUnmanagedParentReviewState() {
+  return {
+    id: 'unmanaged-browser-parent-review',
+    state: 'parent-review',
+    browserBoundaryState: 'unmanaged-browser-process',
+    exactUrlClaimState: 'not-claimed',
+    activeTabClaimState: 'not-claimed',
+    titleClaimState: 'not-claimed',
+    contentClaimState: 'not-claimed',
+    unmanagedDetectionState: 'parent-review',
+    fallbackState: 'parent-review',
+    status: 'manual-required',
+    processIdentityRequired: false,
+    boundary:
+      'Parent-review unmanaged browser fallback stays manual and does not claim a browser block, warning delivery, relaunch, or exact URL result.',
+  };
+}
+
+function assertUnmanagedRelaunchManagedManualRequired() {
+  return {
+    id: 'unmanaged-browser-relaunch-managed-manual-required',
+    state: 'manual-required',
+    browserBoundaryState: 'unmanaged-browser-process',
+    exactUrlClaimState: 'not-claimed',
+    activeTabClaimState: 'not-claimed',
+    titleClaimState: 'not-claimed',
+    contentClaimState: 'not-claimed',
+    unmanagedDetectionState: 'relaunch-managed-browser',
+    fallbackState: 'relaunch-managed-browser',
+    status: 'manual-required',
+    processIdentityRequired: true,
+    processIdentityState: 'pid-name-required',
+    boundary:
+      'Relaunch-managed fallback requires managed launch and custody proof before it can execute beyond a manual-required state.',
+  };
+}
+
+function assertUnmanagedDegradedState() {
+  return {
+    id: 'unmanaged-browser-degraded',
+    state: 'degraded',
+    browserBoundaryState: 'unmanaged-browser-process',
+    exactUrlClaimState: 'not-claimed',
+    activeTabClaimState: 'not-claimed',
+    titleClaimState: 'not-claimed',
+    contentClaimState: 'not-claimed',
+    unmanagedDetectionState: 'degraded',
+    fallbackState: 'degraded',
+    status: 'no-op',
+    processIdentityRequired: false,
+    reason: 'notification-and-browser-integration-not-proved',
+    boundary:
+      'Degraded unmanaged browser fallback keeps warn/report behavior visible as no-op proof until delivery and browser integration are proved.',
+  };
+}
+
+function assertUnmanagedUnavailableState(launchedBrowser) {
+  return {
+    id: 'unmanaged-browser-unavailable',
+    state: 'unavailable',
+    browserBoundaryState: 'unmanaged-browser-process',
+    exactUrlClaimState: 'not-claimed',
+    activeTabClaimState: 'not-claimed',
+    titleClaimState: 'not-claimed',
+    contentClaimState: 'not-claimed',
+    unmanagedDetectionState: 'unavailable',
+    fallbackState: 'unavailable',
+    status: launchedBrowser === null ? 'unavailable' : 'manual-required',
+    processIdentityRequired: false,
+    reason: launchedBrowser === null ? 'no-supported-browser-executable-found' : 'exact-browser-content-not-available',
+    boundary:
+      'Unavailable unmanaged browser fallback is separate from report-only, warn, review, terminate, relaunch, manual-required, and degraded states.',
   };
 }
 
@@ -411,6 +510,37 @@ async function waitForHealth(agentPort, serviceOutput) {
   throw new Error(`Timed out waiting for service health. ${serviceOutput()}`);
 }
 
+async function waitForStartupCapture(runRoot) {
+  if (process.platform !== 'win32') {
+    return;
+  }
+  const journalPath = join(runRoot, 'activity.ndjson');
+  const deadline = Date.now() + 5_000;
+  let lastSize = -1;
+  let stableTicks = 0;
+  while (Date.now() < deadline) {
+    const currentSize = await fileSize(journalPath);
+    if (currentSize > 0 && currentSize === lastSize) {
+      stableTicks += 1;
+      if (stableTicks >= 4) {
+        return;
+      }
+    } else {
+      stableTicks = 0;
+    }
+    lastSize = currentSize;
+    await delay(250);
+  }
+}
+
+async function fileSize(pathValue) {
+  try {
+    return (await stat(pathValue)).size;
+  } catch {
+    return -1;
+  }
+}
+
 function requestEvent(agentPort, command) {
   return new Promise((resolve, reject) => {
     const socket = new WebSocket(`ws://127.0.0.1:${agentPort}/api/dev/ws`);
@@ -455,9 +585,20 @@ async function writeEvidence(runRoot, assertions) {
         ?.state,
       unmanagedBrowserBoundary: assertions.find((assertion) => assertion.id === 'unmanaged-browser-terminate')?.state,
       exactUnmanagedUrlClaim: 'not-claimed',
+      exactUnmanagedActiveTabClaim: 'not-claimed',
+      exactUnmanagedTitleClaim: 'not-claimed',
+      exactUnmanagedContentClaim: 'not-claimed',
       exactManagedBrowserServiceCommandUrlClaim: assertions.find(
         (assertion) => assertion.id === 'managed-browser-manual-required'
       )?.exactUrlClaimState,
+      unmanagedFallbackStates: assertions
+        .filter((assertion) => assertion.id.startsWith('unmanaged-browser-'))
+        .map((assertion) => ({
+          id: assertion.id,
+          state: assertion.state,
+          fallbackState: assertion.fallbackState ?? assertion.unmanagedDetectionState,
+          exactUrlClaimState: assertion.exactUrlClaimState,
+        })),
     },
     assertions,
     artifacts: {

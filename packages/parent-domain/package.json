@@ -129,6 +129,14 @@
       "import": "./dist/v0-8-browser-domain-adapter-proof.js",
       "types": "./dist/v0-8-browser-domain-adapter-proof.d.ts"
     },
+    "./v0-8-browser-enforcement-timer-recovery-proof": {
+      "import": "./dist/v0-8-browser-enforcement-timer-recovery-proof.js",
+      "types": "./dist/v0-8-browser-enforcement-timer-recovery-proof.d.ts"
+    },
+    "./v0-8-browser-enforcement-timer-recovery-proof-values": {
+      "import": "./dist/v0-8-browser-enforcement-timer-recovery-proof-values.js",
+      "types": "./dist/v0-8-browser-enforcement-timer-recovery-proof-values.d.ts"
+    },
     "./game-control-catalog": {
       "import": "./dist/game-control-catalog.js",
       "types": "./dist/game-control-catalog.d.ts"
