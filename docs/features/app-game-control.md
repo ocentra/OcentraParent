@@ -67,6 +67,10 @@ control with better evidence and local audit.
   running/foreground duration modes, launcher-only exclusion, parent-approved
   launcher-game candidate inclusion, advisory rating/UGC/multiplayer/purchase
   signals, dry-run preview decisions, and no-enforcement handoff guards.
+- App/game policy target compiler contracts now require identity,
+  unknown-state, category, schedule, capability, authority, device, local-user,
+  and freshness proof before accepting app/game rule compile requests, and keep
+  unproved block-launch in manual-required dry-run output.
 - Package/process identity and owned-process time-limit proof are in progress.
 - The V0.8 product-control spine separates app time-limit and scoped
   owned-process control from broad installed-app blocking, so downstream policy
@@ -134,6 +138,9 @@ blocking.
 The native game budget proof is also contract-level: it does not yet provide a
 policy target compiler, live game budget authoring UI, service persistence,
 budget notifications, bonus-time integration, or adapter execution.
+The app/game policy target compiler proof is contract-level: it does not yet
+provide runtime service evaluation, Rust/WebSocket parity, portal rule
+authoring, timer integration, notifications, rollback, or adapter execution.
 
 ## Checklist
 
@@ -150,8 +157,11 @@ budget notifications, bonus-time integration, or adapter execution.
       fields; live candidate production and parent/child UX remain.
 - [ ] App/category schedule and time-budget rules. Native game budget dry-run
       contracts now exist for known-game counts, launcher-only exclusion,
-      parent-approved candidate inclusion, and advisory signal boundaries; live
-      policy compiler, authoring UI, persistence, and enforcement remain.
+      parent-approved candidate inclusion, and advisory signal boundaries.
+      App/game policy target compiler contracts now validate identity,
+      unknown-state, category, schedule, capability, authority, device,
+      local-user, and freshness proof before dry-run decisions; live evaluator,
+      authoring UI, persistence, timers, and enforcement remain.
 - [ ] Ask-parent and bonus-time flow.
 - [ ] Child-facing reason/status is referenced in the runtime audit; finished
       child request/status UX remains.

@@ -50,19 +50,28 @@ match this usability while keeping policy local and auditable.
   with actor, device, policy decision, schedule/time-budget reference, evidence
   refs, approval state, override/audit refs, route/source state, and timer
   recovery state before reporting dispatch-ready or rejected states.
+- App/game policy target compiler contracts now validate parent-authored
+  app/game target compile requests against identity, unknown-state, category,
+  schedule, capability, authority, device, local-user, and freshness proof,
+  while keeping unproved block-launch in manual-required dry-run output.
 - Complete nontechnical authoring UX is not done.
 
 ## Current Gap
 
 Profiles, schedule builder, rule templates, conflict UX, ask-parent flow, bonus
-time, approvals, and full audit history are incomplete. The new dispatch proof
-types approval/override state and audit refs but does not claim notification
-delivery or finished parent approval UX.
+time, approvals, and full audit history are incomplete. The dispatch and
+app/game target compiler proofs type approval/override state, audit refs,
+target proof, and manual-required dry-run boundaries, but they do not claim
+notification delivery, finished parent approval UX, portal authoring, or runtime
+adapter execution.
 
 ## Checklist
 
 - [ ] Family/child/device policy scope.
-- [ ] Rule targets across app/site/category/social/video/location.
+- [ ] Rule targets across app/site/category/social/video/location. App/game
+      target compiler contracts now cover app/game target proof and dry-run
+      manual-required output; portal authoring and runtime evaluator execution
+      remain.
 - [ ] Schedule and time-budget builder.
 - [ ] Conflict resolution.
 - [ ] Dry-run preview.

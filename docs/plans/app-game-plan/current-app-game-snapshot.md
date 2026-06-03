@@ -60,6 +60,10 @@ Proved today:
   counts, launcher-only exclusion, parent-approved launcher-game candidate
   inclusion, advisory rating/UGC/multiplayer/purchase signals, and
   no-enforcement handoff.
+- App/game policy target compiler contracts now provide dry-run proof for
+  identity-backed specific targets, unknown-state targets, category/risk/game
+  signal targets, schedule proof, capability/authority refs, device/local-user
+  freshness, and manual-required block-launch output.
 - App-control and game-control catalog/authoring contracts exist in
   `packages/parent-domain`.
 - Rust app/game session protocol mirrors exist.
@@ -87,6 +91,7 @@ Not proved today:
   source wiring.
 - Product-complete native game catalog, live launcher disambiguation, and live
   game budget product behavior beyond WP18 dry-run contract proof.
+- Runtime app/game policy target evaluation beyond WP19 dry-run contract proof.
 - Live new/unknown app and unknown game approval flow beyond the WP17
   contract-level request/decision proof.
 - Live category/risk classification, catalog enrichment, policy compiler
@@ -129,11 +134,12 @@ proof plus the WP11 platform authority matrix. WP17 now adds contract-level
 unknown app/game approval candidates, child status/reason refs, response scope,
 expiry, audit-backed replay state, and manual-required outcomes. WP18 now adds
 contract-level native game budget dry-run targets, launcher inclusion policy,
-advisory signal boundaries, and no-enforcement handoff. Those catalogs,
-authority contracts, approval contracts, and budget contracts are
-product-control inputs, not a complete shared evidence spine, live approval
-workflow, live game budget product flow, or proof that broad app/game blocking
-works.
+advisory signal boundaries, and no-enforcement handoff. WP19 now adds
+contract-level app/game policy target compiler requests and compiled dry-run
+decisions. Those catalogs, authority contracts, approval contracts, budget
+contracts, and compiler contracts are product-control inputs, not a complete
+shared evidence spine, live approval workflow, live game budget product flow,
+runtime evaluator, or proof that broad app/game blocking works.
 
 ## Current Runtime
 
@@ -218,6 +224,12 @@ Missing portal states include:
   yet provide policy compiler integration, service persistence, portal budget
   authoring/preview UI, bonus-time integration, notifications, or adapter
   execution.
+- App/game policy target compiler now has parent-domain contract proof for
+  app/game targets, identity/unknown/category/schedule/capability/authority
+  proof, device/local-user/freshness rejection, dry-run-only decisions, and
+  manual-required unproved block-launch. It does not yet provide Rust/service
+  parity, runtime evaluator execution, portal rule authoring/preview UI, timer
+  integration, notifications, rollback, or adapter execution.
 - Launcher evidence has contract/protocol/parser proof and service DTO exposure
   from staged projection rows, but live launcher crawling, dedicated portal
   rows, and game-budget policy are not product-complete. A launcher row must
@@ -285,6 +297,12 @@ Missing portal states include:
   dry-run-only decisions. It does not add Rust/service parity, budget
   persistence, portal authoring/preview UI, notifications, bonus-time
   integration, platform adapter execution, or broad blocking.
+- WP19 adds parent-domain app/game policy target compiler contract/test proof
+  for specific, unknown, category/risk, game-signal, schedule, capability,
+  authority, device, local-user, and stale evidence boundaries. It does not add
+  Rust/service parity, runtime evaluator execution, portal rule authoring,
+  notifications, timers, rollback, platform adapter execution, or broad
+  blocking.
 - Next implementation work should either add dedicated portal dashboard
   consumption of the service rows, live Windows inventory source readers, or
   mirror the remaining WP01/WP04 TypeScript shapes into Rust protocol before

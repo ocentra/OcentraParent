@@ -29,3 +29,32 @@ Parent rules compile into typed decisions without inventing evidence or adapter
 authority.
 
 Use the standard checklist in [workpacks README](README.md).
+
+## Completion - 2026-06-03
+
+- Owner/lane: `codex-c`
+- Branch: `codex/app-game-read-model-service-events`
+- Proof root:
+  `output/app-game-plan-proof/19-policy-target-compiler-for-app-game-rules`
+- Contract source:
+  `packages/parent-domain/src/app-game-policy-target-compiler.ts` and
+  `packages/parent-domain/src/app-game-policy-target-compiler-rules.ts`
+- Test source:
+  `packages/parent-domain/tests/app-game-policy-target-compiler.test.ts`
+
+Completed proof:
+
+- Specific app/game targets require identity proof.
+- Unknown app/game targets compile only from unknown-state proof.
+- Category/risk/multiplayer/UGC/purchase target families require category
+  proof.
+- Scheduled rules require schedule proof.
+- Wrong-device, wrong-local-user, and stale evidence are rejected.
+- Compiled output remains dry-run and carries evidence, rule, and capability
+  refs.
+- Unproved block-launch compiles to manual-required with disabled handoff.
+
+Deferred:
+
+- Rust/service parity, runtime evaluator execution, portal authoring/preview UI,
+  timers, notifications, rollback, and adapter execution.
