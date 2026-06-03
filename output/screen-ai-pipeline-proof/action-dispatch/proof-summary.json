@@ -18,7 +18,7 @@
   "restartRecoveryBacked": true,
   "parentCancelBacked": true,
   "expiryStateCleared": true,
-  "adapterProofPath": "test-results\\v0-8-windows-app-time-limit-adapter-mvp\\2026-06-03T16-58-12-877Z.json",
+  "adapterProofPath": "test-results\\v0-8-windows-app-time-limit-adapter-mvp\\2026-06-03T17-40-24-944Z.json",
   "nonClaims": [
     "The source screen policy artifact is still a dry-run preview; this proof verifies handoff into a real adapter command path.",
     "The real adapter claim is Windows owned-process time-limit only; it does not claim browser URL blocking, network/domain blocking, or mobile child enforcement.",
