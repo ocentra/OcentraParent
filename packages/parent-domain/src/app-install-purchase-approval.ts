@@ -16,6 +16,7 @@ import {
   ParentDeviceReferenceSchema,
   ParentEvidenceReferenceSchema,
 } from './references';
+import { AppInstallPurchaseApprovalPackageSourceArtifactRowSchema } from './app-install-purchase-approval-package-sources';
 import { AppInstallPurchaseApprovalPlatformSourceMetadataRowSchema } from './app-install-purchase-approval-platform-sources';
 import { ParentPlatformSchema, ParentTimestampSchema } from './reference-primitives';
 
@@ -379,6 +380,7 @@ const AppInstallPurchaseApprovalContractProofBaseSchema = Schema.Struct({
   approvalDecisions: Schema.Array(AppInstallPurchaseApprovalDecisionSchema),
   platformSupportMatrix: Schema.Array(AppInstallPurchaseApprovalPlatformSupportRowSchema),
   platformSourceMetadata: Schema.Array(AppInstallPurchaseApprovalPlatformSourceMetadataRowSchema),
+  packageSourceArtifacts: Schema.Array(AppInstallPurchaseApprovalPackageSourceArtifactRowSchema),
   childFacingStates: Schema.Array(AppInstallPurchaseApprovalChildFacingStateSchema),
   auditReportIntegration: Schema.Array(AppInstallPurchaseApprovalAuditReportIntegrationSchema),
   nonClaims: Schema.Array(AppInstallPurchaseApprovalNonClaimSchema),

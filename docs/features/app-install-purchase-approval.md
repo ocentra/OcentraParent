@@ -41,22 +41,26 @@ generic app blocking covers this concern.
   metadata freshness/source states, approval decisions, approval expiry and
   review-needed states, audit event refs, platform
   support/manual-required/unavailable rows, platform-source metadata limitation
-  rows, child-facing pending/result state rows, audit/report integration status
-  rows, and explicit non-claims.
+  rows, package-source artifact requirement rows, child-facing pending/result
+  state rows, audit/report integration status rows, and explicit non-claims.
 - `scripts/test/app-install-purchase-approval-contract-proof.mjs` records the
   contract proof and non-claims under
   `test-results/app-install-purchase-approval-contract-proof/proof.json` when
   run.
+- `scripts/test/app-install-package-source-artifact-proof.mjs` records the
+  package-source artifact row proof under
+  `test-results/app-install-package-source-artifact-proof/proof.json` when run.
 - No product runtime claim exists yet.
 
 ## Current Gap
 
 Ocentra still needs platform adapters, approved store/API proof or package-source
-artifacts, child-device delivery for pending/result state, portal UX, runtime
-report integration, and proof for each store/platform path. The current
+artifact attachments, child-device delivery for pending/result state, portal UX,
+runtime report integration, and proof for each store/platform path. The current
 parent-domain proof does not implement Google Play, Apple App Store, Microsoft
 Store, billing entitlement, platform interception, portal, child-device
-delivery, runtime reports, or runtime app-blocking behavior.
+delivery, runtime reports, runtime app-blocking behavior, or real child-device
+package-source artifact capture.
 
 ## Checklist
 
@@ -69,6 +73,9 @@ delivery, runtime reports, or runtime app-blocking behavior.
 - [x] Platform-specific unavailable/manual-required states.
 - [x] Platform-source metadata limitation rows for Google Play, Apple App Store,
       Mac App Store, Microsoft Store, and Linux package manager.
+- [x] Package-source artifact requirement rows for Windows, macOS, Linux,
+      Android, and iOS with no attached child-device artifacts or interception
+      claim.
 - [x] Audit and report integration status contract with no portal/runtime report
       claim.
 - [ ] Portal tests and platform proof before product claim.

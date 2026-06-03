@@ -2,6 +2,7 @@ import {
   AppInstallPurchaseApprovalContractProofSchema,
   type AppInstallPurchaseApprovalPlatformSupportRow,
 } from './app-install-purchase-approval';
+import { AppInstallPurchaseApprovalPackageSourceArtifactRowSchema } from './app-install-purchase-approval-package-sources';
 import { AppInstallPurchaseApprovalPlatformSourceMetadataRowSchema } from './app-install-purchase-approval-platform-sources';
 import {
   appInstallPurchaseApprovalAuditReportIntegration,
@@ -38,6 +39,14 @@ const PlatformSourceMetadataFields = [
   'source-url',
 ] as const;
 const PlatformSourceRequestKinds = ['install', 'purchase', 'subscription'] as const;
+const PackageSourceFields = [
+  'package-identifier',
+  'installer-source',
+  'publisher-or-developer',
+  'version-or-build',
+  'signature-or-receipt',
+  'source-captured-at',
+] as const;
 
 export const AppInstallPurchaseApprovalContractProofReadModel = AppInstallPurchaseApprovalContractProofSchema.parse({
   schemaVersion: 'app-install-purchase-approval-contract-proof',
@@ -143,6 +152,83 @@ export const AppInstallPurchaseApprovalContractProofReadModel = AppInstallPurcha
       'Apple App Store install and purchase metadata require approved Apple API entitlement and review proof.'
     ),
   ],
+  packageSourceArtifacts: [
+    packageSourceArtifactRow(
+      'package-source-windows-microsoft-store',
+      'windows',
+      'microsoft-store',
+      'platform-source-windows-microsoft-store',
+      'windows-store-package-identity',
+      'manual-required',
+      'manual-required',
+      [
+        'Windows package family or app identity artifact',
+        'installer/source channel artifact linked to the child request',
+        'parent-visible limitation report before product support claim',
+      ],
+      'Windows package-source identity can support manual review only after host artifacts are attached.'
+    ),
+    packageSourceArtifactRow(
+      'package-source-macos-mac-app-store',
+      'macos',
+      'mac-app-store',
+      'platform-source-macos-mac-app-store',
+      'macos-bundle-receipt',
+      'manual-required',
+      'manual-required',
+      [
+        'macOS bundle identifier or receipt artifact',
+        'installer/source channel artifact linked to the child request',
+        'parent-visible limitation report before product support claim',
+      ],
+      'macOS package-source identity can support manual review only after bundle or receipt artifacts are attached.'
+    ),
+    packageSourceArtifactRow(
+      'package-source-linux-package-manager',
+      'linux',
+      'linux-package-manager',
+      'platform-source-linux-package-manager',
+      'linux-package-manager-record',
+      'unavailable',
+      'unavailable',
+      [
+        'target distro package-manager record',
+        'installer/source channel artifact linked to the child request',
+        'parent-visible limitation report before product support claim',
+      ],
+      'Linux package-source records are distro-specific and do not prove a common install or purchase approval path.'
+    ),
+    packageSourceArtifactRow(
+      'package-source-android-google-play',
+      'android',
+      'google-play',
+      'platform-source-android-google-play',
+      'android-package-source-record',
+      'device-proof-required',
+      'manual-required',
+      [
+        'Android package name and installer source artifact',
+        'signing certificate or Play source artifact linked to the child request',
+        'real device or managed-profile proof before product support claim',
+      ],
+      'Android package-source identity requires device or managed-profile proof before approval support can be claimed.'
+    ),
+    packageSourceArtifactRow(
+      'package-source-ios-apple-app-store',
+      'ios',
+      'apple-app-store',
+      'platform-source-ios-apple-app-store',
+      'ios-app-source-record',
+      'device-proof-required',
+      'manual-required',
+      [
+        'iOS bundle identifier and App Store source artifact',
+        'Family Controls or Screen Time entitlement artifact linked to the child request',
+        'real device or TestFlight proof before product support claim',
+      ],
+      'iOS app-source identity requires Apple entitlement and device proof before approval support can be claimed.'
+    ),
+  ],
   childFacingStates: appInstallPurchaseApprovalChildFacingStates({
     requestAuditEvent: RequestAuditEvent,
     decisionAuditEvent: DecisionAuditEvent,
@@ -174,6 +260,7 @@ export const AppInstallPurchaseApprovalContractProof = AppInstallPurchaseApprova
 export const AppInstallPurchaseApprovalProofKnownGaps = [
   'Google Play, Apple App Store, Microsoft Store, Mac App Store, and package-manager integrations are not implemented.',
   'Platform-source metadata rows are limitation proof only; no approved store API, entitlement, or package-source artifact is attached yet.',
+  'Package-source artifact rows name required package identity/source artifacts but attach no real child-device artifacts.',
   'No billing entitlement state is used as child-safety approval authority.',
   'No portal approval UI exists in this proof.',
   'Child-facing pending/result states are contract rows only; no child-device delivery adapter is implemented.',
@@ -356,6 +443,60 @@ function platformSourceMetadataRow(
     interceptionClaim: 'not-claimed',
     claimBoundary:
       'contract proof only; no store integration no platform adapter no real install or purchase interception',
+    lastCheckedAt: Timestamp,
+  });
+}
+
+function packageSourceArtifactRow(
+  artifactRowId:
+    | 'package-source-windows-microsoft-store'
+    | 'package-source-macos-mac-app-store'
+    | 'package-source-linux-package-manager'
+    | 'package-source-android-google-play'
+    | 'package-source-ios-apple-app-store',
+  platform: 'windows' | 'macos' | 'linux' | 'android' | 'ios',
+  storeSurface: 'microsoft-store' | 'mac-app-store' | 'linux-package-manager' | 'google-play' | 'apple-app-store',
+  platformSourceRowId:
+    | 'platform-source-windows-microsoft-store'
+    | 'platform-source-macos-mac-app-store'
+    | 'platform-source-linux-package-manager'
+    | 'platform-source-android-google-play'
+    | 'platform-source-ios-apple-app-store',
+  packageSourceKind:
+    | 'windows-store-package-identity'
+    | 'macos-bundle-receipt'
+    | 'linux-package-manager-record'
+    | 'android-package-source-record'
+    | 'ios-app-source-record',
+  artifactStatus: 'manual-required' | 'device-proof-required' | 'unavailable',
+  approvalPathState: 'manual-required' | 'unavailable',
+  requiredArtifacts: readonly [string, string, string],
+  limitationReason: string
+) {
+  return AppInstallPurchaseApprovalPackageSourceArtifactRowSchema.parse({
+    schemaVersion: 'app-install-purchase-approval-contract-proof',
+    artifactRowId,
+    platform,
+    storeSurface,
+    platformSourceRowId,
+    packageSourceKind,
+    artifactStatus,
+    approvalPathState,
+    packageSourceFieldsRequired: PackageSourceFields,
+    packageSourceFieldsAttached: [],
+    requestKindCoverage: PlatformSourceRequestKinds,
+    requiredArtifacts,
+    artifactEvidenceClaim: 'not-attached',
+    artifactEvidencePath: null,
+    artifactCapturedAt: null,
+    limitationReason,
+    limitationReportRef: AppInstallPurchaseApprovalReportRefs.PlatformLimitation,
+    storeIntegrationClaim: 'not-claimed',
+    platformAdapterClaim: 'not-implemented',
+    interceptionClaim: 'not-claimed',
+    childDataCustody: 'no-child-activity-data',
+    claimBoundary:
+      'contract proof only; no store integration no platform adapter no real install or purchase interception no child activity data',
     lastCheckedAt: Timestamp,
   });
 }
