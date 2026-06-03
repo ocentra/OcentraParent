@@ -97,7 +97,13 @@ export const TrackingAcknowledgementSchema = withParser(
     stillAlertForCritical: Schema.Boolean,
     reasonCodes: Schema.Array(TrackingPolicyReasonCodeSchema),
     auditRefs: Schema.Array(TrackingPolicyAuditRefSchema),
-  })
+  }).pipe(
+    Schema.filter(
+      (acknowledgement) =>
+        trackingAcknowledgementPreservesCriticalAlerts(acknowledgement) ||
+        'Tracking acknowledgement and exception states must keep critical alerts visible'
+    )
+  )
 );
 export const TrackingChildCheckInRequestSchema = withParser(
   Schema.Struct({
@@ -245,3 +251,20 @@ export * from './tracking-location-policy-primitives';
 export * from './tracking-location-policy-platform-proof';
 export * from './tracking-location-policy-runtime';
 export type * from './tracking-location-policy-types';
+
+function trackingAcknowledgementPreservesCriticalAlerts(acknowledgement: {
+  readonly state: string;
+  readonly stillAlertForCritical: boolean;
+}) {
+  if (
+    acknowledgement.state === 'acknowledged-safe' ||
+    acknowledgement.state === 'expected' ||
+    acknowledgement.state === 'holiday-mode' ||
+    acknowledgement.state === 'trip-exception' ||
+    acknowledgement.state === 'false-alarm'
+  ) {
+    return acknowledgement.stillAlertForCritical;
+  }
+
+  return true;
+}

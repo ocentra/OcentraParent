@@ -95,20 +95,28 @@ export const TrackingGeofenceRuleSchema = withParser(
   })
 );
 
+const TrackingGeofenceTransitionBaseSchema = Schema.Struct({
+  schemaVersion: Schema.Literal(TrackingEvidenceSchemaVersion),
+  transitionId: ActivityEvidenceIdSchema,
+  observedAt: ActivityTimestampSchema,
+  ruleId: TrackingRuleIdSchema,
+  geofenceId: TrackingGeofenceIdSchema,
+  locationEvidenceId: ActivityEvidenceIdSchema,
+  transition: TrackingGeofenceTransitionKindSchema,
+  capabilityStatus: TrackingCapabilityStatusSchema,
+  distanceMeters: Schema.Union(TrackingNonNegativeNumberSchema, Schema.Null),
+  reasonCodes: Schema.Array(TrackingReasonCodeSchema),
+  evidence: Schema.Array(ActivityEvidenceRefSchema),
+});
+
 export const TrackingGeofenceTransitionSchema = withParser(
-  Schema.Struct({
-    schemaVersion: Schema.Literal(TrackingEvidenceSchemaVersion),
-    transitionId: ActivityEvidenceIdSchema,
-    observedAt: ActivityTimestampSchema,
-    ruleId: TrackingRuleIdSchema,
-    geofenceId: TrackingGeofenceIdSchema,
-    locationEvidenceId: ActivityEvidenceIdSchema,
-    transition: TrackingGeofenceTransitionKindSchema,
-    capabilityStatus: TrackingCapabilityStatusSchema,
-    distanceMeters: Schema.Union(TrackingNonNegativeNumberSchema, Schema.Null),
-    reasonCodes: Schema.Array(TrackingReasonCodeSchema),
-    evidence: Schema.Array(ActivityEvidenceRefSchema),
-  })
+  TrackingGeofenceTransitionBaseSchema.pipe(
+    Schema.filter(
+      (transition) =>
+        trackingGeofenceTransitionCapabilityIsHonest(transition) ||
+        'Enter, exit, and dwell geofence transitions require live or recent location capability status'
+    )
+  )
 );
 
 export const TrackingExpectedPlaceScheduleSchema = withParser(
@@ -177,6 +185,7 @@ export type TrackingNearbyProviderKind = Infer<typeof TrackingNearbyProviderKind
 export type TrackingPlaceRiskCategory = Infer<typeof TrackingPlaceRiskCategorySchema>;
 export type TrackingAmbiguityState = Infer<typeof TrackingAmbiguityStateSchema>;
 type TrackingGeofenceShapeBase = Infer<typeof TrackingGeofenceShapeBaseSchema>;
+type TrackingGeofenceTransitionBase = Infer<typeof TrackingGeofenceTransitionBaseSchema>;
 export type TrackingGeofenceShape = Infer<typeof TrackingGeofenceShapeSchema>;
 export type TrackingGeofenceRule = Infer<typeof TrackingGeofenceRuleSchema>;
 export type TrackingGeofenceTransition = Infer<typeof TrackingGeofenceTransitionSchema>;
@@ -193,4 +202,16 @@ function trackingGeofenceShapeIsValid(shape: TrackingGeofenceShapeBase) {
   return (
     shape.center === null && shape.radiusMeters === null && shape.polygon.length >= 3 && shape.polygon.length <= 64
   );
+}
+
+function trackingGeofenceTransitionCapabilityIsHonest(transition: TrackingGeofenceTransitionBase) {
+  if (transition.transition === 'ambiguous' || transition.transition === 'missed-arrival') {
+    return true;
+  }
+
+  if (transition.transition === 'stale-at-place') {
+    return transition.capabilityStatus === 'stale' || transition.capabilityStatus === 'offline-last-known-only';
+  }
+
+  return transition.capabilityStatus === 'live' || transition.capabilityStatus === 'recent';
 }

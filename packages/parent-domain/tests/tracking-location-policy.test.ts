@@ -207,6 +207,20 @@ describe('tracking location policy contracts', () => {
     expect(readModel.platformProofRoutes[0]?.foregroundLocation).toBe('manual-required');
   });
 
+  it('parses background-permission and unsupported platform route states', () => {
+    const route = TrackingPlatformProofRouteSchema.parse({
+      ...PlatformRoute,
+      backgroundLocation: 'background-permission-required',
+      geofence: 'platform-unsupported',
+      manualRequiredReason: 'background-permission-required',
+    });
+
+    expect(route.backgroundLocation).toBe('background-permission-required');
+    expect(route.geofence).toBe('platform-unsupported');
+  });
+});
+
+describe('tracking location policy negative contracts', () => {
   it('rejects policy actions without evidence and remote AI routes without parent approval', () => {
     const noEvidenceDecision = TrackingPolicyDecisionSchema.safeParse({
       ...Decision,
@@ -225,6 +239,41 @@ describe('tracking location policy contracts', () => {
     expect(noEvidenceDecision.success).toBe(false);
     expect(unsafeRemoteRoute.success).toBe(false);
     expect(aiAuthority.success).toBe(false);
+  });
+});
+
+describe('tracking platform proof route guards', () => {
+  it('rejects contract-proved platform routes without artifact references', () => {
+    const result = TrackingPlatformProofRouteSchema.safeParse({
+      ...PlatformRoute,
+      foregroundLocation: 'contract-proved',
+      proofArtifactRefs: [],
+      manualRequiredReason: null,
+    });
+
+    expect(result.success).toBe(false);
+  });
+});
+
+describe('tracking critical acknowledgement guards', () => {
+  it('rejects tracking exceptions that would suppress critical alerts', () => {
+    const holidayMode = TrackingAcknowledgementSchema.safeParse({
+      ...Acknowledgement,
+      acknowledgementId: 'tracking-ack-holiday-critical-off',
+      state: 'holiday-mode',
+      stillAlertForCritical: false,
+      reasonCodes: ['holiday-mode-exception'],
+    });
+    const tripException = TrackingAcknowledgementSchema.safeParse({
+      ...Acknowledgement,
+      acknowledgementId: 'tracking-ack-trip-critical-off',
+      state: 'trip-exception',
+      stillAlertForCritical: false,
+      reasonCodes: ['trip-exception'],
+    });
+
+    expect(holidayMode.success).toBe(false);
+    expect(tripException.success).toBe(false);
   });
 });
 
@@ -249,6 +298,30 @@ describe('tracking location policy runtime helpers', () => {
 
     expect(infoImpact.suppressesParentAlert).toBe(true);
     expect(infoImpact.state).toBe('suppressed-by-acknowledgement');
+    expect(criticalImpact.suppressesParentAlert).toBe(false);
+    expect(criticalImpact.state).toBe('critical-still-alert');
+  });
+
+  it('keeps critical alerts non-suppressed even if an invalid exception bypasses schema parsing', () => {
+    const parsedAcknowledgement = TrackingAcknowledgementSchema.parse({
+      ...Acknowledgement,
+      state: 'open',
+      stillAlertForCritical: false,
+      reasonCodes: ['acknowledgement-open'],
+    });
+    const criticalImpact = evaluateTrackingAcknowledgementImpact({
+      alert: TrackingAlertIntentSchema.parse({
+        ...Alert,
+        alertId: 'tracking-alert-critical-trip-exception-1',
+        severity: 'critical',
+      }),
+      acknowledgement: {
+        ...parsedAcknowledgement,
+        state: 'trip-exception',
+      },
+      evaluatedAt: '2026-06-03T02:04:00.000Z',
+    });
+
     expect(criticalImpact.suppressesParentAlert).toBe(false);
     expect(criticalImpact.state).toBe('critical-still-alert');
   });

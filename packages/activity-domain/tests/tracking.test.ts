@@ -71,6 +71,28 @@ describe('tracking evidence guards', () => {
     expect(result.success).toBe(false);
   });
 
+  it('rejects hint-only source kinds even when they claim GPS-quality coordinates', () => {
+    const result = TrackingLocationEvidenceSchema.safeParse({
+      ...LocationEvidence,
+      sourceKind: 'desktop-presence-hint',
+      coordinate: {
+        latitude: 43.6532,
+        longitude: -79.3832,
+      },
+      accuracyMeters: 22,
+      hint: {
+        quality: 'gps',
+        coarseRadiusMeters: null,
+        label: null,
+      },
+      reasonCodes: ['desktop-presence-is-hint-only'],
+    });
+
+    expect(result.success).toBe(false);
+  });
+});
+
+describe('tracking shape guards', () => {
   it('rejects invalid accuracy and geofence shapes', () => {
     const badAccuracy = TrackingLocationEvidenceSchema.safeParse({
       ...LocationEvidence,
@@ -105,6 +127,28 @@ describe('tracking evidence guards', () => {
     expect(badAccuracy.success).toBe(false);
     expect(badCircle.success).toBe(false);
     expect(badPolygon.success).toBe(false);
+  });
+});
+
+describe('tracking geofence status guards', () => {
+  it('rejects non-ambiguous geofence transitions from degraded location capability', () => {
+    const staleEnter = TrackingGeofenceTransitionSchema.safeParse({
+      ...GeofenceTransition,
+      transitionId: 'offline-last-known-enter-transition',
+      transition: 'enter',
+      capabilityStatus: 'offline-last-known-only',
+      reasonCodes: ['offline-last-known-only'],
+    });
+    const unavailableDwell = TrackingGeofenceTransitionSchema.safeParse({
+      ...GeofenceTransition,
+      transitionId: 'unavailable-dwell-transition',
+      transition: 'dwell',
+      capabilityStatus: 'unavailable',
+      reasonCodes: ['location-unavailable'],
+    });
+
+    expect(staleEnter.success).toBe(false);
+    expect(unavailableDwell.success).toBe(false);
   });
 });
 
@@ -174,6 +218,25 @@ describe('tracking first-target runtime helpers', () => {
 
     expect(transition.transition).toBe('ambiguous');
     expect(transition.reasonCodes).toContain('location-accuracy-below-rule-threshold');
+  });
+
+  it('keeps stale and permission-denied geofence samples ambiguous instead of alert-ready', () => {
+    const transition = evaluateTrackingGeofenceTransition({
+      transitionId: 'runtime-permission-denied-transition',
+      observedAt: '2026-06-03T02:01:00.000Z',
+      rule: TrackingGeofenceRuleSchema.parse(CircleRule),
+      location: TrackingLocationEvidenceSchema.parse({
+        ...LocationEvidence,
+        evidenceId: 'permission-denied-location',
+        capabilityStatus: 'permission-denied',
+        permissionState: 'denied',
+        reasonCodes: ['location-permission-denied'],
+      }),
+      wasInside: false,
+    });
+
+    expect(transition.transition).toBe('ambiguous');
+    expect(transition.reasonCodes).toContain('fresh-location-required');
   });
 });
 

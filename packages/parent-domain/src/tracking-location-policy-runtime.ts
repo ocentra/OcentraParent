@@ -39,7 +39,7 @@ export function evaluateTrackingAcknowledgementImpact(input: {
     return acknowledgementImpact(input, 'expired', false, ['acknowledgement-expired']);
   }
 
-  if (input.alert.severity === 'critical' && input.acknowledgement.stillAlertForCritical) {
+  if (input.alert.severity === 'critical') {
     return acknowledgementImpact(input, 'critical-still-alert', false, ['critical-alert-not-suppressed']);
   }
 

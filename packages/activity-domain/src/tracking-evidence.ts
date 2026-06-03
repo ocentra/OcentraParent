@@ -148,13 +148,19 @@ export type TrackingCapabilityStatusMatrix = Infer<typeof TrackingCapabilityStat
 export type TrackingRetentionPolicy = Infer<typeof TrackingRetentionPolicySchema>;
 
 function trackingLocationPrecisionIsHonest(value: TrackingLocationEvidenceBase) {
-  if (
-    value.hint.quality === 'gps' ||
-    value.hint.quality === 'os-location' ||
-    value.hint.quality === 'geofence-region'
-  ) {
-    return value.coordinate === null || value.accuracyMeters !== null;
+  const carriesPreciseLocation = value.coordinate !== null || value.accuracyMeters !== null;
+  if (!carriesPreciseLocation) {
+    return true;
   }
 
-  return value.coordinate === null && value.accuracyMeters === null;
+  const preciseSourceKind =
+    value.sourceKind === 'android-fused-location' ||
+    value.sourceKind === 'android-geofence' ||
+    value.sourceKind === 'ios-core-location' ||
+    value.sourceKind === 'ios-region-monitoring' ||
+    value.sourceKind === 'desktop-os-location';
+  const preciseHintQuality =
+    value.hint.quality === 'gps' || value.hint.quality === 'os-location' || value.hint.quality === 'geofence-region';
+
+  return preciseSourceKind && preciseHintQuality && value.coordinate !== null && value.accuracyMeters !== null;
 }

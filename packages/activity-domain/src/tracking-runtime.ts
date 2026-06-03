@@ -38,6 +38,8 @@ export function evaluateTrackingGeofenceTransition(input: TrackingGeofenceEvalua
 
   if (!input.rule.enabled) {
     reasonCodes.push(reasonCode('geofence-rule-disabled'));
+  } else if (input.location.capabilityStatus !== 'live' && input.location.capabilityStatus !== 'recent') {
+    reasonCodes.push(reasonCode('fresh-location-required'));
   } else if (input.location.coordinate === null || distanceMeters === null) {
     reasonCodes.push(reasonCode('precise-location-required'));
   } else if (input.location.accuracyMeters === null || input.location.accuracyMeters > input.rule.minAccuracyMeters) {

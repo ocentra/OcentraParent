@@ -83,5 +83,13 @@ export const TrackingMissingDeviceStateSchema = withParser(
 );
 
 export const TrackingPlatformProofRouteStateSchema = withParser(
-  Schema.Literal('contract-proved', 'manual-required', 'real-device-required', 'blocked', 'not-claimed')
+  Schema.Literal(
+    'contract-proved',
+    'manual-required',
+    'real-device-required',
+    'background-permission-required',
+    'platform-unsupported',
+    'blocked',
+    'not-claimed'
+  )
 );
