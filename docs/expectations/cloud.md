@@ -105,6 +105,14 @@ status boundaries. The proof keeps cloud as a status/control-plane boundary
 only; it does not implement connector OAuth, upload/download, Ocentra-hosted
 family data custody, account/subscription backend, or portal UI.
 
+Current account endpoint proof: `billing-account-endpoint-contract-proof`
+defines endpoint-domain route ids, API paths, headers, query params, and
+contract-version labels for account status, plan/entitlement snapshot,
+subscription status, device-limit decision, and account download/update/status
+surfaces. The proof keeps cloud as an account/distribution status boundary only;
+it does not implement Stripe SDK code, billing provider logic, an account
+backend, portal UI, updater runtime, or child-activity custody.
+
 ## Failure Behavior
 
 - Local observation, local policy, local enforcement, local portal operation, and
@@ -161,6 +169,9 @@ family data custody, account/subscription backend, or portal UI.
   conflict, and audit payloads.
 - Endpoint-domain contract tests and `sync-export-endpoint-contract-proof` for
   parent-owned sync/export and remote connector status route boundaries.
+- Endpoint-domain contract tests and `billing-account-endpoint-contract-proof`
+  for account, entitlement, subscription, device-limit, download, update, and
+  release-status route boundaries.
 - Cloud runtime tests using real route handlers and auth validation boundaries,
   not unauthenticated happy-path fixtures.
 - Child-agent integration tests for accepted remote intent, rejected stale
