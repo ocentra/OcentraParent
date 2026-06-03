@@ -11,8 +11,8 @@ output/screen-plan-proof/<workpack-id>/
 ## Current Branch Proof Snapshot
 
 These entries summarize proof already produced on the current stacked branch.
-They do not claim product-complete trigger scheduling, disable suppression,
-portal UI, or managed-browser integration.
+They do not claim service-owned background watchers, disable suppression, portal
+UI, or D-lane managed-browser integration.
 
 | Proof                                    | Status                   | Artifact                                                                                           | Non-claim                                                                                                                                                                                          |
 | ---------------------------------------- | ------------------------ | -------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -23,8 +23,9 @@ portal UI, or managed-browser integration.
 | Android MediaProjection emulator capture | P3 local emulator proved | `output/screen-plan-proof/android-mediaprojection/proof-summary.json`                              | Proves explicit OS consent, foreground-service capture, frame digest, and raw-temp deletion on Android API 35 emulator only; physical-device parity and silent background capture are not claimed. |
 | Encrypted temporary queue custody        | P3 proved                | `output/screen-plan-proof/real-capture/manual-parent-test-active-window/03-encrypted-queue.ndjson` | Remaining implementation task: service scheduler integration; this local harness proof is not that claim.                                                                                          |
 | Raw image delete-after-success           | P3 proved                | `output/screen-plan-proof/real-capture/manual-parent-test-active-window/04-deletion-proof.json`    | TTL expiry and delete-failed surfacing remain.                                                                                                                                                     |
-| Browser-window trigger harness           | P3 proved                | `output/screen-plan-proof/real-capture/trigger-matrix/proof-summary.json`                          | Does not claim D-lane managed browser URL-change integration.                                                                                                                                      |
-| Timed two-frame cadence harness          | P3 proved                | `output/screen-plan-proof/real-capture/trigger-matrix/proof-summary.json`                          | Remaining implementation task: product scheduler and disabled-setting suppression; this harness proof is not that claim.                                                                           |
+| Browser-window scheduler trigger         | P3 proved                | `output/screen-plan-proof/real-capture/trigger-matrix/proof-summary.json`                          | Runs the Rust trigger scheduler before capture; does not claim D-lane managed browser URL-change integration.                                                                                      |
+| Native app foreground scheduler trigger  | P3 proved                | `output/screen-plan-proof/real-capture/trigger-matrix/proof-summary.json`                          | Proves a real Windows Notepad foreground-window capture through the scheduler; service-owned foreground watcher wiring remains.                                                                    |
+| Timed two-frame scheduler cadence        | P3 proved                | `output/screen-plan-proof/real-capture/trigger-matrix/proof-summary.json`                          | Proves cadence-due scheduler decisions and two real selected-window captures; service timer loop and disabled-setting stop remain.                                                                 |
 
 ## Main Gates
 
@@ -33,8 +34,8 @@ portal UI, or managed-browser integration.
 - [ ] MVP scope is capture/routing first, AI model-quality proof second.
 - [ ] Capture cadence and triggers are parent-controlled.
 - [ ] Capture scope is parent-controlled and platform-gated.
-- [ ] Real browser-use trigger proof exists, not only contract tests.
-- [ ] Real app-use trigger proof exists, not only contract tests.
+- [x] Real browser-use trigger proof exists, not only contract tests.
+- [x] Real app-use trigger proof exists, not only contract tests.
 - [ ] Timed cadence proof captures multiple bounded frames and stops after disable.
 - [ ] Capability status exists before capture.
 - [ ] Screen evidence is treated as cross-slice, not browser-only.
@@ -131,7 +132,7 @@ local heavy OCR/VLM jobs run without priority/resource guard
 | [ ]    | 04 Parent opt-in settings contract                 |
 | [ ]    | 05 Capability/status contract                      |
 | [~]    | 06 Capture scope model                             |
-| [ ]    | 07 Capture trigger model                           |
+| [~]    | 07 Capture trigger model                           |
 | [ ]    | 08 Platform adapter abstraction                    |
 | [~]    | 09 Windows capture adapter plan/proof              |
 | [~]    | 10 macOS capture adapter plan/proof                |
@@ -140,7 +141,7 @@ local heavy OCR/VLM jobs run without priority/resource guard
 | [ ]    | 13 iOS ReplayKit adapter plan/proof                |
 | [ ]    | 14 Protected surface detector                      |
 | [~]    | 15 Encrypted temporary image queue                 |
-| [ ]    | 16 Queue scheduler and debouncer                   |
+| [~]    | 16 Queue scheduler and debouncer                   |
 | [ ]    | 17 Local OCR/vision runtime model                  |
 | [~]    | 18 Screen analysis result schema                   |
 | [ ]    | 19 Sensitive text and redaction model              |

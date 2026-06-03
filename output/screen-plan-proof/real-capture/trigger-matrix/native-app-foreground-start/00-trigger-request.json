@@ -1,0 +1,10 @@
+{
+  "scenarioId": "native-app-foreground-start",
+  "requestedTrigger": "nativeAppForegroundStart",
+  "productTriggerWired": true,
+  "schedulerDecision": "enqueueCapture",
+  "schedulerSuppression": null,
+  "proofHarnessTrigger": "real-notepad-window-to-product-scheduler",
+  "targetTitle": "Ocentra Native App Screen Trigger Proof",
+  "expectedScope": "selectedWindow"
+}

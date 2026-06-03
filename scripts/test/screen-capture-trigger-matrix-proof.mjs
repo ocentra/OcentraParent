@@ -1,4 +1,4 @@
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -6,12 +6,14 @@ import { chromium } from 'playwright';
 
 const outputDir = join('output', 'screen-plan-proof', 'real-capture', 'trigger-matrix');
 const fixtureTitle = 'Ocentra Screen Trigger Matrix Proof';
+const nativeFixtureTitle = 'Ocentra Native App Screen Trigger Proof';
 
 rmSync(outputDir, { recursive: true, force: true });
 mkdirSync(outputDir, { recursive: true });
 
 const fixturePath = writeFixture();
 let browser;
+let nativeApp;
 
 try {
   browser = await chromium.launch({
@@ -24,11 +26,12 @@ try {
   await page.waitForTimeout(1000);
 
   const browserUse = runCaptureScenario('browser-use-active-window', {
-    requestedTrigger: 'managed_browser_url_change',
-    productTriggerWired: false,
-    proofHarnessTrigger: 'headed-playwright-window-title-match',
+    requestedTrigger: 'managedBrowserUrlChange',
+    proofHarnessTrigger: 'headed-playwright-url-change-to-product-scheduler',
     targetTitle: fixtureTitle,
   });
+
+  const nativeAppUse = await runNativeAppScenario();
 
   await page.locator('#state').evaluate((node) => {
     node.textContent = 'Timed cadence frame 1';
@@ -36,10 +39,10 @@ try {
   await page.waitForTimeout(750);
 
   const timedFirst = runCaptureScenario('timed-cadence-frame-1', {
-    requestedTrigger: 'timed_cadence',
-    productTriggerWired: false,
-    proofHarnessTrigger: 'bounded-two-frame-cadence-proof',
+    requestedTrigger: 'timedCadence',
+    proofHarnessTrigger: 'scheduler-due-cadence-proof',
     targetTitle: fixtureTitle,
+    lastCaptureAt: 1_779_999_900,
   });
 
   await page.locator('#state').evaluate((node) => {
@@ -48,13 +51,13 @@ try {
   await page.waitForTimeout(1250);
 
   const timedSecond = runCaptureScenario('timed-cadence-frame-2', {
-    requestedTrigger: 'timed_cadence',
-    productTriggerWired: false,
-    proofHarnessTrigger: 'bounded-two-frame-cadence-proof',
+    requestedTrigger: 'timedCadence',
+    proofHarnessTrigger: 'scheduler-due-cadence-proof',
     targetTitle: fixtureTitle,
+    lastCaptureAt: 1_779_999_900,
   });
 
-  const scenarios = [browserUse, timedFirst, timedSecond];
+  const scenarios = [browserUse, nativeAppUse, timedFirst, timedSecond].filter((scenario) => scenario !== null);
   const imageDigests = scenarios.map((scenario) => scenario.imageDigest).filter((imageDigest) => imageDigest !== null);
   const summary = {
     proof: 'screen-capture-trigger-matrix-proof',
@@ -62,22 +65,26 @@ try {
     platform: process.platform,
     realCaptureRuns: scenarios.length,
     capturedRuns: scenarios.filter((scenario) => scenario.captured).length,
+    productSchedulerDecisions: scenarios.filter((scenario) => scenario.productTriggerWired).length,
     allRawImagesDeleted: scenarios.every((scenario) => scenario.rawImageDeleted),
     distinctCapturedFrames: new Set(imageDigests).size === imageDigests.length,
     selectedWindowScopeMatched: scenarios.every((scenario) => scenario.actualScope === 'selectedWindow'),
-    productSchedulerImplemented: false,
-    productForegroundTriggerImplemented: false,
+    productSchedulerImplemented: true,
+    nativeAppForegroundTriggerCaptured: nativeAppUse?.captured === true,
+    productServiceForegroundWatcherImplemented: false,
+    productServiceTimerImplemented: false,
     degradedIsCaptureProof: false,
     scenarios,
     nonClaims: [
-      'This proof fires the real capture adapter from a harness; it does not claim service scheduler wiring.',
-      'This proof uses a controlled headed browser window; it does not claim managed browser-plan URL integration.',
+      'This proof runs the Rust trigger scheduler and real capture adapter from a harness; it does not claim background service timer wiring.',
+      'Browser URL ownership remains with the browser-plan lane; this proof consumes a managed-browser trigger input and captures the visible window.',
     ],
   };
   writeJson(join(outputDir, 'proof-summary.json'), summary);
   if (
     process.platform === 'win32' &&
     (summary.capturedRuns !== scenarios.length ||
+      summary.productSchedulerDecisions !== scenarios.length ||
       !summary.allRawImagesDeleted ||
       !summary.distinctCapturedFrames ||
       !summary.selectedWindowScopeMatched)
@@ -86,22 +93,49 @@ try {
   }
   console.log(JSON.stringify(summary, null, 2));
 } finally {
+  if (nativeApp !== undefined) {
+    nativeApp.kill();
+  }
   if (browser !== undefined) {
     await browser.close();
   }
 }
 
+async function runNativeAppScenario() {
+  if (process.platform !== 'win32') {
+    return null;
+  }
+  const nativeFixturePath = join(outputDir, `${nativeFixtureTitle}.txt`);
+  writeFileSync(nativeFixturePath, 'Native app foreground trigger proof');
+  nativeApp = spawn('notepad.exe', [nativeFixturePath], {
+    detached: false,
+    stdio: 'ignore',
+  });
+  await new Promise((resolve) => setTimeout(resolve, 1500));
+  return runCaptureScenario('native-app-foreground-start', {
+    requestedTrigger: 'nativeAppForegroundStart',
+    proofHarnessTrigger: 'real-notepad-window-to-product-scheduler',
+    targetTitle: nativeFixtureTitle,
+  });
+}
+
 function runCaptureScenario(scenarioId, options) {
   const scenarioDir = join(outputDir, scenarioId);
   mkdirSync(scenarioDir, { recursive: true });
+  const schedulerDecision = runScheduleDecision(scenarioDir, options);
   writeJson(join(scenarioDir, '00-trigger-request.json'), {
     scenarioId,
     requestedTrigger: options.requestedTrigger,
-    productTriggerWired: options.productTriggerWired,
+    productTriggerWired: schedulerDecision.decision === 'enqueueCapture',
+    schedulerDecision: schedulerDecision.decision,
+    schedulerSuppression: schedulerDecision.suppression,
     proofHarnessTrigger: options.proofHarnessTrigger,
     targetTitle: options.targetTitle,
     expectedScope: 'selectedWindow',
   });
+  if (schedulerDecision.decision !== 'enqueueCapture') {
+    throw new Error(`scheduler suppressed ${scenarioId}: ${JSON.stringify(schedulerDecision, null, 2)}`);
+  }
   const result = spawnSync(
     'cargo',
     ['run', '-p', 'ocentra-parent-screen-capture-adapter', '--example', 'screen_capture_real_proof', '--', scenarioDir],
@@ -125,7 +159,9 @@ function runCaptureScenario(scenarioId, options) {
   const scenarioSummary = {
     scenarioId,
     requestedTrigger: options.requestedTrigger,
-    productTriggerWired: options.productTriggerWired,
+    productTriggerWired: schedulerDecision.productSchedulerImplemented === true,
+    schedulerDecision: schedulerDecision.decision,
+    schedulerReason: schedulerDecision.reason,
     proofHarnessTrigger: options.proofHarnessTrigger,
     captured: metadata.captured === true,
     status: metadata.status,
@@ -137,6 +173,42 @@ function runCaptureScenario(scenarioId, options) {
   };
   writeJson(join(scenarioDir, '06-scenario-summary.json'), scenarioSummary);
   return scenarioSummary;
+}
+
+function runScheduleDecision(scenarioDir, options) {
+  const result = spawnSync(
+    'cargo',
+    [
+      'run',
+      '-p',
+      'ocentra-parent-screen-capture-adapter',
+      '--example',
+      'screen_capture_schedule_decision',
+      '--',
+      scenarioDir,
+    ],
+    {
+      cwd: process.cwd(),
+      encoding: 'utf8',
+      shell: process.platform === 'win32',
+      env: {
+        ...process.env,
+        OCENTRA_SCREEN_CAPTURE_TRIGGER: options.requestedTrigger,
+        OCENTRA_SCREEN_CAPTURE_ALLOWED_SCOPE: 'selectedWindow',
+        OCENTRA_SCREEN_CAPTURE_REQUESTED_SCOPE: 'selectedWindow',
+        OCENTRA_SCREEN_CAPTURE_OBSERVED_AT: '1780000000',
+        ...(options.lastCaptureAt === undefined
+          ? {}
+          : { OCENTRA_SCREEN_LAST_CAPTURE_AT: String(options.lastCaptureAt) }),
+      },
+    }
+  );
+  writeFileSync(join(scenarioDir, 'scheduler-stdout.log'), result.stdout ?? '');
+  writeFileSync(join(scenarioDir, 'scheduler-stderr.log'), result.stderr ?? '');
+  if (result.status !== 0) {
+    throw new Error(`scheduler scenario ${scenarioDir} failed with status ${result.status}`);
+  }
+  return readJson(join(scenarioDir, '00-scheduler-decision.json'));
 }
 
 function writeFixture() {

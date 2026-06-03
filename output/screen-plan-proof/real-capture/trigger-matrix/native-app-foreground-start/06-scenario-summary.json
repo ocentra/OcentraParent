@@ -1,0 +1,15 @@
+{
+  "scenarioId": "native-app-foreground-start",
+  "requestedTrigger": "nativeAppForegroundStart",
+  "productTriggerWired": true,
+  "schedulerDecision": "enqueueCapture",
+  "schedulerReason": "nativeAppForegroundStart",
+  "proofHarnessTrigger": "real-notepad-window-to-product-scheduler",
+  "captured": true,
+  "status": "available",
+  "actualScope": "selectedWindow",
+  "imageDigest": "05a12d5f33be10828b06764130387a5cd6be647664b3f38a5e8b071292b5c417",
+  "imageByteSize": 57555,
+  "rawImageDeleted": true,
+  "encryptedQueueOmitsRawDigest": true
+}

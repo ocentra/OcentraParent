@@ -2,20 +2,25 @@
   "proof": "screen-capture-trigger-matrix-proof",
   "outputDir": "output\\screen-plan-proof\\real-capture\\trigger-matrix",
   "platform": "win32",
-  "realCaptureRuns": 3,
-  "capturedRuns": 3,
+  "realCaptureRuns": 4,
+  "capturedRuns": 4,
+  "productSchedulerDecisions": 4,
   "allRawImagesDeleted": true,
   "distinctCapturedFrames": true,
   "selectedWindowScopeMatched": true,
-  "productSchedulerImplemented": false,
-  "productForegroundTriggerImplemented": false,
+  "productSchedulerImplemented": true,
+  "nativeAppForegroundTriggerCaptured": true,
+  "productServiceForegroundWatcherImplemented": false,
+  "productServiceTimerImplemented": false,
   "degradedIsCaptureProof": false,
   "scenarios": [
     {
       "scenarioId": "browser-use-active-window",
-      "requestedTrigger": "managed_browser_url_change",
-      "productTriggerWired": false,
-      "proofHarnessTrigger": "headed-playwright-window-title-match",
+      "requestedTrigger": "managedBrowserUrlChange",
+      "productTriggerWired": true,
+      "schedulerDecision": "enqueueCapture",
+      "schedulerReason": "managedBrowserUrlChange",
+      "proofHarnessTrigger": "headed-playwright-url-change-to-product-scheduler",
       "captured": true,
       "status": "available",
       "actualScope": "selectedWindow",
@@ -25,10 +30,27 @@
       "encryptedQueueOmitsRawDigest": true
     },
     {
+      "scenarioId": "native-app-foreground-start",
+      "requestedTrigger": "nativeAppForegroundStart",
+      "productTriggerWired": true,
+      "schedulerDecision": "enqueueCapture",
+      "schedulerReason": "nativeAppForegroundStart",
+      "proofHarnessTrigger": "real-notepad-window-to-product-scheduler",
+      "captured": true,
+      "status": "available",
+      "actualScope": "selectedWindow",
+      "imageDigest": "05a12d5f33be10828b06764130387a5cd6be647664b3f38a5e8b071292b5c417",
+      "imageByteSize": 57555,
+      "rawImageDeleted": true,
+      "encryptedQueueOmitsRawDigest": true
+    },
+    {
       "scenarioId": "timed-cadence-frame-1",
-      "requestedTrigger": "timed_cadence",
-      "productTriggerWired": false,
-      "proofHarnessTrigger": "bounded-two-frame-cadence-proof",
+      "requestedTrigger": "timedCadence",
+      "productTriggerWired": true,
+      "schedulerDecision": "enqueueCapture",
+      "schedulerReason": "timedCadence",
+      "proofHarnessTrigger": "scheduler-due-cadence-proof",
       "captured": true,
       "status": "available",
       "actualScope": "selectedWindow",
@@ -39,9 +61,11 @@
     },
     {
       "scenarioId": "timed-cadence-frame-2",
-      "requestedTrigger": "timed_cadence",
-      "productTriggerWired": false,
-      "proofHarnessTrigger": "bounded-two-frame-cadence-proof",
+      "requestedTrigger": "timedCadence",
+      "productTriggerWired": true,
+      "schedulerDecision": "enqueueCapture",
+      "schedulerReason": "timedCadence",
+      "proofHarnessTrigger": "scheduler-due-cadence-proof",
       "captured": true,
       "status": "available",
       "actualScope": "selectedWindow",
@@ -52,7 +76,7 @@
     }
   ],
   "nonClaims": [
-    "This proof fires the real capture adapter from a harness; it does not claim service scheduler wiring.",
-    "This proof uses a controlled headed browser window; it does not claim managed browser-plan URL integration."
+    "This proof runs the Rust trigger scheduler and real capture adapter from a harness; it does not claim background service timer wiring.",
+    "Browser URL ownership remains with the browser-plan lane; this proof consumes a managed-browser trigger input and captures the visible window."
   ]
 }
