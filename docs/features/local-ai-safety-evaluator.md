@@ -40,6 +40,10 @@ claim needs proof, not slogans.
 ## Current Ocentra State
 
 - Local AI runtime/provider status and provider scheduler proof exist.
+- `local-ai-parent-assistant-runtime-proof` now ties the provider scheduler
+  proof to Parent Assistant answer/status/action contracts, including cited
+  local answer, queued/degraded/unavailable lifecycle, child-safety priority,
+  optional API boundary, and no direct enforcement.
 - Parent Assistant provider routing proof now exposes local configured,
   degraded, unavailable, API authorized-unavailable, and API authorized-degraded
   states without making remote/API AI part of child safety decisions.
@@ -55,7 +59,7 @@ explanations, and validation against real evidence.
 
 ## Checklist
 
-- [ ] Runtime/provider status.
+- [x] Runtime/provider status.
 - [ ] Evidence context builder.
 - [ ] Parent-rule context.
 - [ ] Local result contract with confidence/degraded state.
