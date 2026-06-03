@@ -31,6 +31,11 @@ Proved today:
   active foreground focus, foreground switch closure, background no-time guards,
   omitted title refs, permission-limited metadata, launcher-only focus, unknown
   foreground process state, and foreground-is-not-content guards.
+- Launcher evidence now has a first-class TypeScript contract, Rust protocol
+  parity, and a staged `agent-core` parser proof for launcher-only rows,
+  launcher foreground staying launcher-only, launcher-game candidates, proved
+  child-game promotion, permission-limited launcher state, and
+  launcher-is-not-game guards.
 - App-control and game-control catalog/authoring contracts exist in
   `packages/parent-domain`.
 - Rust app/game session protocol mirrors exist.
@@ -54,7 +59,7 @@ Not proved today:
 - Live Windows foreground-window polling, active-window subscription, journal
   ingest, SQLite replay, service events, or portal foreground rows for the new
   WP09 contract.
-- Product-complete native game catalog, launcher disambiguation, and game
+- Product-complete native game catalog, live launcher disambiguation, and game
   budgets.
 - New/unknown app and unknown game approval flow.
 - Risk app and game-risk candidates with source/confidence.
@@ -72,8 +77,8 @@ reference, and AI classification digest contracts. These support useful
 evidence and session proof, but they do not yet cover the complete shared
 app/game contract stack from this plan:
 
-- launcher evidence and launcher-only state beyond the initial launcher
-  no-claim guards;
+- launcher evidence live source adapters beyond the staged launcher row/parser
+  proof;
 - foreground evidence rows beyond the staged foreground-window parser proof,
   including live capture, journal replay, and portal foreground rows;
 - runtime-fed native app and native game category quality beyond inventory
@@ -95,16 +100,16 @@ complete shared evidence spine or a proof that broad app/game blocking works.
 `crates/agent-core` currently has SQLite-backed app/game observation and session
 helpers, typed Windows installed-record and Store/UWP package
 adapter/parser proof, staged Windows process runtime parser proof, staged
-Windows foreground-window parser proof, and scoped Windows owned-process
-time-limit helpers. This is a strong base for workpacks 10, 12, 13, and 21, but
-it is not the same as:
+Windows foreground-window parser proof, staged Windows launcher evidence parser
+proof, and scoped Windows owned-process time-limit helpers. This is a strong
+base for workpacks 11, 12, 13, and 21, but it is not the same as:
 
 - live Windows installed app inventory crawling;
 - live UWP/AppX package inventory enumeration;
 - live Windows process runtime polling or subscribed process start/exit events;
 - live Windows foreground-window polling or subscribed foreground transition
   events;
-- launcher manifest adapters;
+- live launcher manifest adapters;
 - foreground app evidence adapters;
 - game-specific launcher-child process disambiguation;
 - broad block-launch enforcement;
@@ -150,7 +155,9 @@ Missing portal states include:
 - Journal and SQLite ingest do not yet store the new evidence claim and
   authority proof shapes.
 - Portal app/game dashboard rows do not yet consume the new contracts.
-- Launcher evidence is not product-complete. A launcher row must not become a
+- Launcher evidence has contract/protocol/parser proof, but live launcher
+  crawling, journal/read-model ingest, service events, portal rows, and
+  game-budget policy are not product-complete. A launcher row must not become a
   game session unless linked child-game proof exists.
 - Game categories, ratings, UGC, multiplayer, and purchase signals are policy
   inputs and parent-facing context, not safety decisions by themselves.
@@ -183,10 +190,14 @@ Missing portal states include:
   add live foreground-window polling, window-capture integration, journal ingest,
   SQLite replay, service/runtime events, portal foreground rows, content
   knowledge, policy execution, or broad blocking.
+- WP10 adds launcher evidence contract/protocol/parser proof only. It does not
+  add live launcher manifest crawling, live launcher-child process linking,
+  journal ingest, SQLite replay, service/runtime events, portal launcher rows,
+  game-budget policy, install/purchase approval, or broad blocking.
 - Next implementation work should either add live Windows inventory source
-  readers, launcher/game candidate adapters, journal/read-model ingest, or
-  mirror the remaining WP01/WP04 TypeScript shapes into Rust protocol before
-  service/runtime consumers depend on them.
+  readers, journal/read-model ingest, or mirror the remaining WP01/WP04
+  TypeScript shapes into Rust protocol before service/runtime consumers depend
+  on them.
 
 ## Enhancement Rule
 
