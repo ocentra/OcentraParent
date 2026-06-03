@@ -323,7 +323,12 @@ it('AgentProtocolDefaults.Field: exposes read-model payload fields', () => {
   expect(AgentProtocolDefaults.Field.DatabaseReady).toBe('databaseReady');
   expect(AgentProtocolDefaults.Field.BrowserEvidenceId).toBe('browserEvidenceId');
   expect(AgentProtocolDefaults.Field.BrowserInterventionId).toBe('browserInterventionId');
+  expect(AgentProtocolDefaults.Field.BrowserInterventionActionId).toBe('browserInterventionActionId');
+  expect(AgentProtocolDefaults.Field.BrowserInterventionAuditId).toBe('browserInterventionAuditId');
+  expect(AgentProtocolDefaults.Field.BrowserBoundaryState).toBe('browserBoundaryState');
+  expect(AgentProtocolDefaults.Field.ChildDeliveryState).toBe('childDeliveryState');
   expect(AgentProtocolDefaults.Field.DecisionSource).toBe('decisionSource');
+  expect(AgentProtocolDefaults.Field.ExactUrlClaimState).toBe('exactUrlClaimState');
   expect(AgentProtocolDefaults.Field.FreshUntil).toBe('freshUntil');
   expect(AgentProtocolDefaults.Field.InterventionAction).toBe('interventionAction');
   expect(AgentProtocolDefaults.Field.InterventionMechanism).toBe('interventionMechanism');
@@ -352,6 +357,16 @@ it('AgentProtocolDefaults.Field: exposes read-model payload fields', () => {
   expect(AgentProtocolDefaults.Field.EvidenceReferenceIds).toBe('evidenceReferenceIds');
   expect(AgentProtocolDefaults.Field.MostRecentSubjectName).toBe('mostRecentSubjectName');
   expect(AgentProtocolDefaults.Field.UnmanagedBrowserEnforcement).toBe('unmanagedBrowserEnforcement');
+  expect(AgentProtocolDefaults.Field.UnmanagedFallbackAction).toBe('unmanagedFallbackAction');
+  expect(AgentProtocolDefaults.Field.UnmanagedDetectionConfidence).toBe('unmanagedDetectionConfidence');
+  expect(AgentProtocolDefaults.Field.UnmanagedDetectionReason).toBe('unmanagedDetectionReason');
+  expect(AgentProtocolDefaults.Field.UnmanagedDetectionState).toBe('unmanagedDetectionState');
+  expect(AgentProtocolDefaults.Field.UnmanagedExecutablePathRef).toBe('unmanagedExecutablePathRef');
+  expect(AgentProtocolDefaults.Field.UnmanagedProcessHashRef).toBe('unmanagedProcessHashRef');
+  expect(AgentProtocolDefaults.Field.UnmanagedProcessKind).toBe('unmanagedProcessKind');
+  expect(AgentProtocolDefaults.Field.UnmanagedProcessName).toBe('unmanagedProcessName');
+  expect(AgentProtocolDefaults.Field.UnmanagedSignatureRef).toBe('unmanagedSignatureRef');
+  expect(AgentProtocolDefaults.Delimiter.List).toBe(',');
 });
 
 it('AgentProtocolDefaults.Field: exposes browser policy payload fields', () => {

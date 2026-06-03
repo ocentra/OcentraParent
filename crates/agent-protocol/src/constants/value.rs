@@ -4,18 +4,34 @@ pub const ACTIVITY_CAPTURE_JOURNAL_ERROR: &str = "activity-capture-journal-error
 pub const ACTIVITY_CAPTURE_STORE_ERROR: &str = "activity-capture-store-error";
 pub const BROWSER_BRIDGE_INVALID_JSON: &str = "browser-bridge-invalid-json";
 pub const BROWSER_BRIDGE_INVALID_RESPONSE: &str = "browser-bridge-invalid-response";
+pub const BROWSER_BRIDGE_INVALID_TARGET_PAYLOAD: &str = "browser-bridge-invalid-target-payload";
 pub const BROWSER_BRIDGE_IO_ERROR: &str = "browser-bridge-io-error";
 pub const BROWSER_BRIDGE_NO_PAGE_TARGETS: &str = "browser-bridge-no-page-targets";
 pub const BROWSER_BRIDGE_NON_LOOPBACK_ENDPOINT: &str = "browser-bridge-non-loopback-endpoint";
+pub const BROWSER_BRIDGE_RESPONSE_TOO_LARGE: &str = "browser-bridge-response-too-large";
+pub const BROWSER_BRIDGE_STALE_SESSION: &str = "browser-bridge-stale-session";
+pub const BROWSER_BRIDGE_TIMEOUT: &str = "browser-bridge-timeout";
+pub const BROWSER_BRIDGE_UNTRUSTED_BROWSER_IDENTITY: &str =
+    "browser-bridge-untrusted-browser-identity";
+pub const BROWSER_BRIDGE_UNTRUSTED_PORT: &str = "browser-bridge-untrusted-port";
+pub const BROWSER_BRIDGE_UNTRUSTED_PROCESS: &str = "browser-bridge-untrusted-process";
+pub const BROWSER_BRIDGE_UNTRUSTED_PROFILE: &str = "browser-bridge-untrusted-profile";
+pub const BROWSER_BRIDGE_UNTRUSTED_SESSION: &str = "browser-bridge-untrusted-session";
 pub const BROWSER_INTERVENTION_MANAGED_SESSION_REQUIRED: &str =
     "browser-intervention-managed-session-required";
 pub const BROWSER_INTERVENTION_OS_APP_CONTROL_REQUIRED: &str =
     "browser-intervention-os-app-control-required";
 pub const MANAGED_BROWSER_EXECUTABLE_MISSING: &str = "managed-browser-executable-missing";
+pub const MANAGED_BROWSER_BRIDGE_CONNECT_PENDING: &str = "managed-browser-bridge-connect-pending";
+pub const MANAGED_BROWSER_BRIDGE_PORT_UNAVAILABLE: &str = "managed-browser-bridge-port-unavailable";
 pub const MANAGED_BROWSER_INVALID_BRIDGE_PORT: &str = "managed-browser-invalid-bridge-port";
 pub const MANAGED_BROWSER_INVALID_PROFILE: &str = "managed-browser-invalid-profile";
 pub const MANAGED_BROWSER_LAUNCH_ERROR: &str = "managed-browser-launch-error";
+pub const MANAGED_BROWSER_LAUNCH_PENDING: &str = "managed-browser-launch-pending";
 pub const MANAGED_BROWSER_PROFILE_DIR_MISSING: &str = "managed-browser-profile-dir-missing";
+pub const MANAGED_BROWSER_PROFILE_METADATA_CORRUPT: &str =
+    "managed-browser-profile-metadata-corrupt";
+pub const MANAGED_BROWSER_PROFILE_STORE_IO_ERROR: &str = "managed-browser-profile-store-io-error";
 pub const MANAGED_BROWSER_UNMANAGED_PROCESS: &str = "managed-browser-unmanaged-process";
 pub const MANAGED_BROWSER_UNSUPPORTED_EXECUTABLE: &str = "managed-browser-unsupported-executable";
 pub const ACTIVITY_JOURNAL_CIPHER: &str = "xchacha20poly1305";

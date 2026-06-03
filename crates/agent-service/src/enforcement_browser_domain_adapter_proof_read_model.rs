@@ -6,6 +6,8 @@ use ocentra_parent_agent_protocol::{
     V08BrowserDomainAdapterProofReadModel, V08BrowserDomainAdapterProofSurface,
 };
 
+use crate::enforcement_browser_domain_adapter_app_control_proof_states::app_control_state_specs;
+
 pub(crate) fn v08_browser_domain_adapter_proof_read_model(
     generated_at: &str,
 ) -> V08BrowserDomainAdapterProofReadModel {
@@ -19,6 +21,7 @@ pub(crate) fn v08_browser_domain_adapter_proof_read_model(
             proof::SOURCE_OS_PRODUCT_PROOF.to_string(),
             proof::SOURCE_BROWSER_POLICY_RUNTIME.to_string(),
         ],
+        windows_app_control_states: app_control_state_specs(generated_at),
         entries: entry_specs()
             .iter()
             .map(|spec| entry_from_spec(spec, generated_at))

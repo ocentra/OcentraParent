@@ -6,7 +6,10 @@ use crate::{
     V08BrowserDomainAdapterProofCapabilityName, V08BrowserDomainAdapterProofCapabilityStatus,
     V08BrowserDomainAdapterProofClaimState, V08BrowserDomainAdapterProofEntry,
     V08BrowserDomainAdapterProofEvidenceKind, V08BrowserDomainAdapterProofReadModel,
-    V08BrowserDomainAdapterProofSurface,
+    V08BrowserDomainAdapterProofSurface, V08WindowsAppControlAdminRequirement,
+    V08WindowsAppControlEventState, V08WindowsAppControlPolicyMutationState,
+    V08WindowsAppControlProofState, V08WindowsAppControlReadinessState,
+    V08WindowsAppControlRuleIdentityKind,
 };
 
 #[test]
@@ -69,12 +72,37 @@ fn browser_domain_states_serialize_as_contract_values() {
 }
 
 #[test]
+fn windows_app_control_states_serialize_as_contract_values() {
+    assert_eq!(
+        V08WindowsAppControlReadinessState::AuditOnly.as_protocol_str(),
+        proof::APP_CONTROL_AUDIT_ONLY
+    );
+    assert_eq!(
+        V08WindowsAppControlPolicyMutationState::CreateUpdateManualRequired.as_protocol_str(),
+        proof::APP_CONTROL_POLICY_CREATE_UPDATE_MANUAL_REQUIRED
+    );
+    assert_eq!(
+        V08WindowsAppControlRuleIdentityKind::Publisher.as_protocol_str(),
+        proof::APP_CONTROL_IDENTITY_PUBLISHER
+    );
+    assert_eq!(
+        V08WindowsAppControlAdminRequirement::AdministratorRequired.as_protocol_str(),
+        proof::APP_CONTROL_ADMINISTRATOR_REQUIRED
+    );
+    assert_eq!(
+        V08WindowsAppControlEventState::FailureVisible.as_protocol_str(),
+        proof::APP_CONTROL_EVENT_FAILURE_VISIBLE
+    );
+}
+
+#[test]
 fn browser_domain_read_model_serializes_claim_boundaries_for_service_preview() {
     let read_model = V08BrowserDomainAdapterProofReadModel {
         schema_version: crate::policy_constants::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
         read_model_id: proof::READ_MODEL_ID.to_string(),
         generated_at: crate::policy_constants::TEST_EVALUATED_AT.to_string(),
         source_read_model_ids: vec![proof::SOURCE_BROAD_OS_PROOF.to_string()],
+        windows_app_control_states: vec![app_control_state()],
         entries: vec![
             entry(
                 proof::ENTRY_ID_MANAGED_INTERVENTION,
@@ -115,6 +143,12 @@ fn browser_domain_read_model_serializes_claim_boundaries_for_service_preview() {
     assert_eq!(claim_counts[proof::CLAIM_IMPLEMENTED_BOUNDARY], 1);
     assert_eq!(claim_counts[proof::CLAIM_DEGRADED_BOUNDARY], 1);
     assert_eq!(claim_counts[proof::CLAIM_MANUAL_REQUIRED], 1);
+    assert_eq!(reparsed.windows_app_control_states.len(), 1);
+    assert_eq!(
+        reparsed.windows_app_control_states[0].readiness_state,
+        V08WindowsAppControlReadinessState::AuditOnly
+    );
+    assert!(!reparsed.windows_app_control_states[0].app_control_prevention_claimed);
     assert!(reparsed
         .entries
         .iter()
@@ -123,6 +157,33 @@ fn browser_domain_read_model_serializes_claim_boundaries_for_service_preview() {
         .entries
         .iter()
         .all(|entry| !entry.network_domain_blocking_claimed));
+}
+
+fn app_control_state() -> V08WindowsAppControlProofState {
+    V08WindowsAppControlProofState {
+        proof_state_id: proof::STATE_ID_APP_CONTROL_AUDIT_ONLY.to_string(),
+        readiness_state: V08WindowsAppControlReadinessState::AuditOnly,
+        policy_mutation_state: V08WindowsAppControlPolicyMutationState::AuditOnlyVisible,
+        rule_identity_kinds: vec![
+            V08WindowsAppControlRuleIdentityKind::Publisher,
+            V08WindowsAppControlRuleIdentityKind::Path,
+            V08WindowsAppControlRuleIdentityKind::Hash,
+            V08WindowsAppControlRuleIdentityKind::Package,
+        ],
+        admin_requirement: V08WindowsAppControlAdminRequirement::AdministratorRequired,
+        event_states: vec![V08WindowsAppControlEventState::AuditVisible],
+        manual_proof_requirements: vec![
+            proof::REQUIREMENT_WINDOWS_APP_CONTROL_AUDIT_POLICY.to_string(),
+            proof::REQUIREMENT_WINDOWS_APP_CONTROL_AUDIT_QUERY.to_string(),
+        ],
+        claim_boundary: proof::CLAIM_WINDOWS_APP_CONTROL_AUDIT_ONLY.to_string(),
+        fallback_behavior: proof::FALLBACK_WINDOWS_APP_CONTROL_AUDIT_ONLY.to_string(),
+        app_control_prevention_claimed: false,
+        policy_creation_claimed: false,
+        policy_update_claimed: false,
+        rollback_claimed: false,
+        last_checked_at: crate::policy_constants::TEST_EVALUATED_AT.to_string(),
+    }
 }
 
 fn entry(

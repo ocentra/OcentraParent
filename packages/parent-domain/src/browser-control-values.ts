@@ -14,6 +14,8 @@ const BrowserControlKnownWritesToPathLiteralSchema = Schema.Literal(
   '/browserPolicy/managedBrowser/profileMode',
   '/browserPolicy/managedBrowser/bridgeRequirements',
   '/browserPolicy/managedBrowser/integrationMechanisms',
+  '/browserPolicy/managedBrowser/policyWriterControls',
+  '/browserPolicy/managedBrowser/policyWriterFallback',
   '/browserPolicy/unmanagedBrowser/mode',
   '/browserPolicy/unmanagedBrowser/graceSeconds',
   '/browserPolicy/unmanagedBrowser/allowRecoverLaunchUrl',
@@ -26,9 +28,18 @@ const BrowserControlKnownWritesToPathLiteralSchema = Schema.Literal(
   '/browserPolicy/rules/allowedTargetTypes',
   '/browserPolicy/rules/allowedActions',
   '/browserPolicy/rules/items',
+  '/browserPolicy/rules/urlAllowList',
+  '/browserPolicy/rules/urlBlockList',
   '/browserPolicy/budgets/enabled',
   '/browserPolicy/budgets/defaultDailyMinutes',
   '/browserPolicy/budgets/countingMode',
+  '/browserPolicy/browserGames/educationalGameMode',
+  '/browserPolicy/browserGames/unknownGameMode',
+  '/browserPolicy/browserGames/cloudGamingApproval',
+  '/browserPolicy/browserGames/purchaseAccountApproval',
+  '/browserPolicy/browserGames/unblockedPortalMode',
+  '/browserPolicy/browserGames/webglCanvasMode',
+  '/browserPolicy/browserGames/defaultDailyMinutes',
   '/browserPolicy/downloads/mode',
   '/browserPolicy/downloads/blockedTypes',
   '/browserPolicy/downloads/state',
@@ -124,14 +135,21 @@ export const BrowserControlManagedBrowserModeSchema = withParser(
 
 export const BrowserControlUnmanagedBrowserModeSchema = withParser(
   Schema.Literal(
+    'report-only',
     'observe-only',
     'network-domain-only',
     'manual-review',
     'allow',
+    'allowed-unmanaged-exception',
     'monitor',
+    'warn-child',
     'warn',
+    'ask-parent',
     'ask',
+    'terminate-process',
     'relaunch-managed',
+    'os-block-configured',
+    'os-block-manual-required',
     'block'
   )
 );
@@ -148,7 +166,32 @@ export const BrowserControlUrlTargetTypeSchema = withParser(
     'browser-session',
     'browser-process',
     'capability-state',
-    'download'
+    'download',
+    'social-platform',
+    'social-route-kind',
+    'social-account-creation',
+    'social-unknown-account',
+    'social-secondary-account',
+    'social-feed',
+    'social-short-video-feed',
+    'social-messaging',
+    'social-upload-post',
+    'social-livestream',
+    'unknown-social-site',
+    'browser-game',
+    'browser-game-platform',
+    'browser-game-portal',
+    'browser-game-url',
+    'educational-game',
+    'cloud-gaming',
+    'webgl-canvas-game',
+    'multiplayer-ugc-game',
+    'game-chat',
+    'game-account',
+    'game-purchase',
+    'game-loot-box',
+    'unknown-game',
+    'unblocked-game-site'
   )
 );
 
@@ -161,7 +204,13 @@ export const BrowserControlEvidenceProofLevelSchema = withParser(
     'managed-active-tab',
     'managed-tab-list',
     'fresh-managed-tab-list',
-    'fresh-managed-active-tab'
+    'fresh-managed-active-tab',
+    'classifier-category',
+    'url-shape-metadata',
+    'social-route-evidence',
+    'browser-game-runtime-signal',
+    'browser-policy-writer',
+    'adapter-action'
   )
 );
 
@@ -268,6 +317,12 @@ export const BrowserControlWritesToPath = {
   ManagedBrowserIntegrationMechanisms: BrowserControlSchemaKnownWritesToPathSchema.parse(
     '/browserPolicy/managedBrowser/integrationMechanisms'
   ),
+  ManagedBrowserPolicyWriterControls: BrowserControlSchemaKnownWritesToPathSchema.parse(
+    '/browserPolicy/managedBrowser/policyWriterControls'
+  ),
+  ManagedBrowserPolicyWriterFallback: BrowserControlSchemaKnownWritesToPathSchema.parse(
+    '/browserPolicy/managedBrowser/policyWriterFallback'
+  ),
   UnmanagedBrowserMode: BrowserControlSchemaKnownWritesToPathSchema.parse('/browserPolicy/unmanagedBrowser/mode'),
   UnmanagedBrowserGraceSeconds: BrowserControlSchemaKnownWritesToPathSchema.parse(
     '/browserPolicy/unmanagedBrowser/graceSeconds'
@@ -288,9 +343,32 @@ export const BrowserControlWritesToPath = {
   AllowedTargetTypes: BrowserControlSchemaKnownWritesToPathSchema.parse('/browserPolicy/rules/allowedTargetTypes'),
   AllowedActions: BrowserControlSchemaKnownWritesToPathSchema.parse('/browserPolicy/rules/allowedActions'),
   RuleItems: BrowserControlSchemaKnownWritesToPathSchema.parse('/browserPolicy/rules/items'),
+  UrlAllowList: BrowserControlSchemaKnownWritesToPathSchema.parse('/browserPolicy/rules/urlAllowList'),
+  UrlBlockList: BrowserControlSchemaKnownWritesToPathSchema.parse('/browserPolicy/rules/urlBlockList'),
   BudgetsEnabled: BrowserControlSchemaKnownWritesToPathSchema.parse('/browserPolicy/budgets/enabled'),
   DailyBudgetMinutes: BrowserControlSchemaKnownWritesToPathSchema.parse('/browserPolicy/budgets/defaultDailyMinutes'),
   BudgetCountingMode: BrowserControlSchemaKnownWritesToPathSchema.parse('/browserPolicy/budgets/countingMode'),
+  BrowserGameEducationalMode: BrowserControlSchemaKnownWritesToPathSchema.parse(
+    '/browserPolicy/browserGames/educationalGameMode'
+  ),
+  BrowserGameUnknownMode: BrowserControlSchemaKnownWritesToPathSchema.parse(
+    '/browserPolicy/browserGames/unknownGameMode'
+  ),
+  BrowserGameCloudGamingApproval: BrowserControlSchemaKnownWritesToPathSchema.parse(
+    '/browserPolicy/browserGames/cloudGamingApproval'
+  ),
+  BrowserGamePurchaseAccountApproval: BrowserControlSchemaKnownWritesToPathSchema.parse(
+    '/browserPolicy/browserGames/purchaseAccountApproval'
+  ),
+  BrowserGameUnblockedPortalMode: BrowserControlSchemaKnownWritesToPathSchema.parse(
+    '/browserPolicy/browserGames/unblockedPortalMode'
+  ),
+  BrowserGameWebglCanvasMode: BrowserControlSchemaKnownWritesToPathSchema.parse(
+    '/browserPolicy/browserGames/webglCanvasMode'
+  ),
+  BrowserGameDailyBudgetMinutes: BrowserControlSchemaKnownWritesToPathSchema.parse(
+    '/browserPolicy/browserGames/defaultDailyMinutes'
+  ),
   DownloadMode: BrowserControlSchemaKnownWritesToPathSchema.parse('/browserPolicy/downloads/mode'),
   DownloadBlockedTypes: BrowserControlSchemaKnownWritesToPathSchema.parse('/browserPolicy/downloads/blockedTypes'),
   DownloadState: BrowserControlSchemaKnownWritesToPathSchema.parse('/browserPolicy/downloads/state'),

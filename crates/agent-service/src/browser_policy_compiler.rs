@@ -6,6 +6,8 @@ use ocentra_parent_agent_protocol::{
     BrowserPolicyRule, BrowserPolicyUrlTargetType, BrowserPolicyValue,
 };
 
+use crate::browser_policy_compiler_assessment::{compile_rule_assessment, rule_action};
+
 pub(crate) fn compile_browser_policy(
     policy: &BrowserPolicyValue,
     revision_id: &str,
@@ -17,12 +19,22 @@ pub(crate) fn compile_browser_policy(
             .iter()
             .filter(|rule| rule.enabled)
             .map(|rule| {
-                rule_target(rule).map(|(target_type, target_value)| BrowserPolicyEffectiveRule {
-                    rule_id: rule.rule_id.clone(),
-                    target_type,
-                    target_value,
-                    default_posture: policy.default_posture,
-                    evidence: policy.evidence.clone(),
+                rule_target(rule).map(|(target_type, target_value)| {
+                    let action = rule_action(rule, policy.default_posture);
+                    let assessment = compile_rule_assessment(policy, target_type, action);
+                    BrowserPolicyEffectiveRule {
+                        rule_id: rule.rule_id.clone(),
+                        target_type,
+                        target_value,
+                        default_posture: policy.default_posture,
+                        evidence: policy.evidence.clone(),
+                        action,
+                        target_proof_requirement: assessment.target_proof_requirement,
+                        capability_state: assessment.capability_state,
+                        action_execution: assessment.action_execution,
+                        ai_authority: assessment.ai_authority,
+                        compile_note: assessment.compile_note.to_string(),
+                    }
                 })
             })
             .collect::<Result<Vec<_>, _>>()?
@@ -54,18 +66,109 @@ pub(crate) fn browser_policy_capability_registry(
     BrowserPolicyCapabilityRegistry {
         schema_version: policy_constants::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
         generated_at: generated_at.to_string(),
-        capabilities: vec![BrowserPolicyCapability {
-            capability_id: constants::browser_policy::DEFAULT_CAPABILITY_ID.to_string(),
-            state: BrowserPolicyCapabilityState::Unknown,
-            label: constants::browser_policy::DEFAULT_CAPABILITY_LABEL.to_string(),
-            affected_writes_to: vec![
-                constants::browser_policy::WRITES_TO_REQUIRED_PROOF.to_string(),
-                constants::browser_policy::WRITES_TO_WHEN_PROOF_UNAVAILABLE.to_string(),
-                constants::browser_policy::WRITES_TO_MANAGED_BROWSER_MODE.to_string(),
+        capabilities: browser_policy_capabilities(generated_at),
+    }
+}
+
+fn browser_policy_capabilities(generated_at: &str) -> Vec<BrowserPolicyCapability> {
+    vec![
+        browser_policy_capability(
+            constants::browser_policy::DEFAULT_CAPABILITY_ID,
+            constants::browser_policy::DEFAULT_CAPABILITY_LABEL,
+            BrowserPolicyCapabilityState::Unknown,
+            constants::browser_policy::DEFAULT_CAPABILITY_REASON,
+            generated_at,
+            vec![
+                constants::browser_policy::WRITES_TO_REQUIRED_PROOF,
+                constants::browser_policy::WRITES_TO_WHEN_PROOF_UNAVAILABLE,
+                constants::browser_policy::WRITES_TO_MANAGED_BROWSER_MODE,
             ],
-            checked_at: generated_at.to_string(),
-            reason: Some(constants::browser_policy::DEFAULT_CAPABILITY_REASON.to_string()),
-        }],
+        ),
+        browser_policy_capability(
+            constants::browser_policy::POLICY_WRITER_CAPABILITY_ID,
+            constants::browser_policy::POLICY_WRITER_CAPABILITY_LABEL,
+            BrowserPolicyCapabilityState::ManualRequired,
+            constants::browser_policy::POLICY_WRITER_CAPABILITY_REASON,
+            generated_at,
+            vec![
+                constants::browser_policy::WRITES_TO_MANAGED_BROWSER_POLICY_WRITER_CONTROLS,
+                constants::browser_policy::WRITES_TO_MANAGED_BROWSER_POLICY_WRITER_FALLBACK,
+                constants::browser_policy::WRITES_TO_URL_ALLOW_LIST,
+                constants::browser_policy::WRITES_TO_URL_BLOCK_LIST,
+            ],
+        ),
+        browser_policy_capability(
+            constants::browser_policy::DOMAIN_CAPABILITY_ID,
+            constants::browser_policy::DOMAIN_CAPABILITY_LABEL,
+            BrowserPolicyCapabilityState::ManualRequired,
+            constants::browser_policy::COMPILE_NOTE_DOMAIN_OR_MANAGED,
+            generated_at,
+            vec![constants::browser_policy::WRITES_TO_REQUIRED_PROOF],
+        ),
+        browser_policy_capability(
+            constants::browser_policy::CLASSIFIER_CAPABILITY_ID,
+            constants::browser_policy::CLASSIFIER_CAPABILITY_LABEL,
+            BrowserPolicyCapabilityState::ManualRequired,
+            constants::browser_policy::COMPILE_NOTE_CLASSIFIER_REQUIRED,
+            generated_at,
+            vec![constants::browser_policy::WRITES_TO_REQUIRED_PROOF],
+        ),
+        browser_policy_capability(
+            constants::browser_policy::SOCIAL_CAPABILITY_ID,
+            constants::browser_policy::SOCIAL_CAPABILITY_LABEL,
+            BrowserPolicyCapabilityState::ManualRequired,
+            constants::browser_policy::COMPILE_NOTE_SOCIAL_REQUIRED,
+            generated_at,
+            vec![constants::browser_policy::WRITES_TO_APPROVAL_STATE],
+        ),
+        browser_policy_capability(
+            constants::browser_policy::GAME_CAPABILITY_ID,
+            constants::browser_policy::GAME_CAPABILITY_LABEL,
+            BrowserPolicyCapabilityState::ManualRequired,
+            constants::browser_policy::COMPILE_NOTE_GAME_REQUIRED,
+            generated_at,
+            vec![
+                constants::browser_policy::WRITES_TO_BROWSER_GAME_CLOUD_GAMING_APPROVAL,
+                constants::browser_policy::WRITES_TO_BROWSER_GAME_DAILY_BUDGET_MINUTES,
+            ],
+        ),
+        browser_policy_capability(
+            constants::browser_policy::ACTION_ADAPTER_CAPABILITY_ID,
+            constants::browser_policy::ACTION_ADAPTER_CAPABILITY_LABEL,
+            BrowserPolicyCapabilityState::ManualRequired,
+            constants::browser_policy::COMPILE_NOTE_ACTION_ADAPTER_REQUIRED,
+            generated_at,
+            vec![constants::browser_policy::WRITES_TO_ALLOWED_ACTIONS],
+        ),
+        browser_policy_capability(
+            constants::browser_policy::PROCESS_CAPABILITY_ID,
+            constants::browser_policy::PROCESS_CAPABILITY_LABEL,
+            BrowserPolicyCapabilityState::ManualRequired,
+            constants::browser_policy::COMPILE_NOTE_PROCESS_REQUIRED,
+            generated_at,
+            vec![constants::browser_policy::WRITES_TO_UNMANAGED_BROWSER_CLASSIFICATION_TARGETS],
+        ),
+    ]
+}
+
+fn browser_policy_capability(
+    capability_id: &str,
+    label: &str,
+    state: BrowserPolicyCapabilityState,
+    reason: &str,
+    generated_at: &str,
+    affected_writes_to: Vec<&str>,
+) -> BrowserPolicyCapability {
+    BrowserPolicyCapability {
+        capability_id: capability_id.to_string(),
+        state,
+        label: label.to_string(),
+        affected_writes_to: affected_writes_to
+            .into_iter()
+            .map(ToString::to_string)
+            .collect(),
+        checked_at: generated_at.to_string(),
+        reason: Some(reason.to_string()),
     }
 }
 

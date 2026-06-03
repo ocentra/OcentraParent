@@ -201,6 +201,157 @@ impl V08BrowserDomainAdapterExecutionState {
     }
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum V08WindowsAppControlReadinessState {
+    #[serde(rename = "readiness-check")]
+    ReadinessCheck,
+    #[serde(rename = "audit-only")]
+    AuditOnly,
+    #[serde(rename = "enforced")]
+    Enforced,
+    #[serde(rename = "manual-required")]
+    ManualRequired,
+    #[serde(rename = "unavailable")]
+    Unavailable,
+    #[serde(rename = "failed")]
+    Failed,
+}
+
+impl V08WindowsAppControlReadinessState {
+    pub fn as_protocol_str(&self) -> &'static str {
+        match self {
+            Self::ReadinessCheck => proof::APP_CONTROL_READINESS_CHECK,
+            Self::AuditOnly => proof::APP_CONTROL_AUDIT_ONLY,
+            Self::Enforced => proof::APP_CONTROL_ENFORCED,
+            Self::ManualRequired => proof::APP_CONTROL_MANUAL_REQUIRED,
+            Self::Unavailable => proof::APP_CONTROL_UNAVAILABLE,
+            Self::Failed => proof::APP_CONTROL_FAILED,
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum V08WindowsAppControlPolicyMutationState {
+    #[serde(rename = "detect-only")]
+    DetectOnly,
+    #[serde(rename = "audit-only-visible")]
+    AuditOnlyVisible,
+    #[serde(rename = "create-update-manual-required")]
+    CreateUpdateManualRequired,
+    #[serde(rename = "manual-setup-required")]
+    ManualSetupRequired,
+    #[serde(rename = "unavailable")]
+    Unavailable,
+    #[serde(rename = "failed")]
+    Failed,
+}
+
+impl V08WindowsAppControlPolicyMutationState {
+    pub fn as_protocol_str(&self) -> &'static str {
+        match self {
+            Self::DetectOnly => proof::APP_CONTROL_POLICY_DETECT_ONLY,
+            Self::AuditOnlyVisible => proof::APP_CONTROL_POLICY_AUDIT_ONLY_VISIBLE,
+            Self::CreateUpdateManualRequired => {
+                proof::APP_CONTROL_POLICY_CREATE_UPDATE_MANUAL_REQUIRED
+            }
+            Self::ManualSetupRequired => proof::APP_CONTROL_POLICY_MANUAL_SETUP_REQUIRED,
+            Self::Unavailable => proof::APP_CONTROL_POLICY_UNAVAILABLE,
+            Self::Failed => proof::APP_CONTROL_POLICY_FAILED,
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum V08WindowsAppControlRuleIdentityKind {
+    #[serde(rename = "publisher")]
+    Publisher,
+    #[serde(rename = "path")]
+    Path,
+    #[serde(rename = "hash")]
+    Hash,
+    #[serde(rename = "package")]
+    Package,
+}
+
+impl V08WindowsAppControlRuleIdentityKind {
+    pub fn as_protocol_str(&self) -> &'static str {
+        match self {
+            Self::Publisher => proof::APP_CONTROL_IDENTITY_PUBLISHER,
+            Self::Path => proof::APP_CONTROL_IDENTITY_PATH,
+            Self::Hash => proof::APP_CONTROL_IDENTITY_HASH,
+            Self::Package => proof::APP_CONTROL_IDENTITY_PACKAGE,
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum V08WindowsAppControlAdminRequirement {
+    #[serde(rename = "administrator-required")]
+    AdministratorRequired,
+    #[serde(rename = "service-permission-required")]
+    ServicePermissionRequired,
+    #[serde(rename = "manual-operator-required")]
+    ManualOperatorRequired,
+    #[serde(rename = "not-applicable")]
+    NotApplicable,
+}
+
+impl V08WindowsAppControlAdminRequirement {
+    pub fn as_protocol_str(&self) -> &'static str {
+        match self {
+            Self::AdministratorRequired => proof::APP_CONTROL_ADMINISTRATOR_REQUIRED,
+            Self::ServicePermissionRequired => proof::APP_CONTROL_SERVICE_PERMISSION_REQUIRED,
+            Self::ManualOperatorRequired => proof::APP_CONTROL_MANUAL_OPERATOR_REQUIRED,
+            Self::NotApplicable => proof::APP_CONTROL_ADMIN_NOT_APPLICABLE,
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum V08WindowsAppControlEventState {
+    #[serde(rename = "audit-visible")]
+    AuditVisible,
+    #[serde(rename = "rollback-visible")]
+    RollbackVisible,
+    #[serde(rename = "failure-visible")]
+    FailureVisible,
+    #[serde(rename = "manual-proof-required")]
+    ManualProofRequired,
+    #[serde(rename = "unavailable")]
+    Unavailable,
+}
+
+impl V08WindowsAppControlEventState {
+    pub fn as_protocol_str(&self) -> &'static str {
+        match self {
+            Self::AuditVisible => proof::APP_CONTROL_EVENT_AUDIT_VISIBLE,
+            Self::RollbackVisible => proof::APP_CONTROL_EVENT_ROLLBACK_VISIBLE,
+            Self::FailureVisible => proof::APP_CONTROL_EVENT_FAILURE_VISIBLE,
+            Self::ManualProofRequired => proof::APP_CONTROL_EVENT_MANUAL_PROOF_REQUIRED,
+            Self::Unavailable => proof::APP_CONTROL_EVENT_UNAVAILABLE,
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct V08WindowsAppControlProofState {
+    pub proof_state_id: String,
+    pub readiness_state: V08WindowsAppControlReadinessState,
+    pub policy_mutation_state: V08WindowsAppControlPolicyMutationState,
+    pub rule_identity_kinds: Vec<V08WindowsAppControlRuleIdentityKind>,
+    pub admin_requirement: V08WindowsAppControlAdminRequirement,
+    pub event_states: Vec<V08WindowsAppControlEventState>,
+    pub manual_proof_requirements: Vec<String>,
+    pub claim_boundary: String,
+    pub fallback_behavior: String,
+    pub app_control_prevention_claimed: bool,
+    pub policy_creation_claimed: bool,
+    pub policy_update_claimed: bool,
+    pub rollback_claimed: bool,
+    pub last_checked_at: String,
+}
+
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct V08BrowserDomainAdapterProofEntry {
@@ -233,5 +384,6 @@ pub struct V08BrowserDomainAdapterProofReadModel {
     pub read_model_id: String,
     pub generated_at: String,
     pub source_read_model_ids: Vec<String>,
+    pub windows_app_control_states: Vec<V08WindowsAppControlProofState>,
     pub entries: Vec<V08BrowserDomainAdapterProofEntry>,
 }

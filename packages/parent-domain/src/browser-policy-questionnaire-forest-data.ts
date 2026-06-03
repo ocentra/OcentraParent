@@ -243,6 +243,7 @@ export const BrowserPolicyQuestions = [
       option('safe-search', 'Safe search'),
       option('video', 'Video'),
       option('downloads', 'Downloads'),
+      option('browser-games', 'Browser games'),
       option('session', 'Session'),
       option('app-time', 'App time'),
       option('unknown-web', 'Unknown web'),
@@ -747,6 +748,101 @@ export const BrowserPolicyQuestions = [
     ],
     [answerIncludesAny('18.1', ['standard', 'detailed', 'custom'])],
     'audit'
+  ),
+  question(
+    '19.1',
+    'How should educational browser games be handled?',
+    'single',
+    [
+      option('allow', 'Allow'),
+      option('observe', 'Observe'),
+      option('warn', 'Warn'),
+      option('ask-parent', 'Ask parent'),
+      option('limit', 'Limit'),
+      option('block', 'Block'),
+      option('manual-required', 'Manual required'),
+    ],
+    [computedFlag('browserGamesRelevant')]
+  ),
+  question(
+    '19.2',
+    'What should happen to unknown browser games?',
+    'single',
+    [
+      option('allow', 'Allow'),
+      option('observe', 'Observe'),
+      option('warn', 'Warn'),
+      option('ask-parent', 'Ask parent'),
+      option('block', 'Block'),
+      option('classify', 'Classify first'),
+      option('manual-required', 'Manual required'),
+    ],
+    [computedFlag('browserGamesRelevant')]
+  ),
+  question(
+    '19.3',
+    'How should cloud gaming be approved?',
+    'single',
+    [
+      option('allow', 'Allow'),
+      option('ask-parent', 'Ask parent'),
+      option('block', 'Block'),
+      option('manual-required', 'Manual required'),
+    ],
+    [computedFlag('browserGamesRelevant')]
+  ),
+  question(
+    '19.4',
+    'How should browser game purchases and accounts be handled?',
+    'single',
+    [
+      option('allow', 'Allow'),
+      option('ask-parent', 'Ask parent'),
+      option('block', 'Block'),
+      option('manual-required', 'Manual required'),
+    ],
+    [computedFlag('browserGamesRelevant')]
+  ),
+  question(
+    '19.5',
+    'What should happen to unblocked game portals?',
+    'single',
+    [
+      option('allow', 'Allow'),
+      option('observe', 'Observe'),
+      option('warn', 'Warn'),
+      option('ask-parent', 'Ask parent'),
+      option('block', 'Block'),
+      option('manual-required', 'Manual required'),
+    ],
+    [computedFlag('browserGamesRelevant')]
+  ),
+  question(
+    '19.6',
+    'What should happen to WebGL or canvas games?',
+    'single',
+    [
+      option('allow', 'Allow'),
+      option('observe', 'Observe'),
+      option('warn', 'Warn'),
+      option('ask-parent', 'Ask parent'),
+      option('block', 'Block'),
+      option('manual-required', 'Manual required'),
+    ],
+    [computedFlag('browserGamesRelevant')]
+  ),
+  question(
+    '19.7',
+    'Should browser games have a time budget?',
+    'single',
+    [
+      option('no', 'No'),
+      option('daily', 'Daily'),
+      option('session', 'Session'),
+      option('site', 'Per site'),
+      option('manual-required', 'Manual required'),
+    ],
+    [computedFlag('browserGamesRelevant')]
   ),
   question(
     'A1',

@@ -1,9 +1,9 @@
 use ocentra_parent_agent_protocol::{
-    constants, policy_constants as policy, ActivityEvent, BrowserActiveTabState,
-    BrowserCapabilityStatus, BrowserChannel, BrowserCustodyLabel, BrowserFamily,
-    ChildProfileReference, FamilyReference, LocalAiParentRuleContextRef, ParentActorReference,
-    ParentActorRole, ParentDeviceReference, PolicyAction, PolicyRule, PolicyTarget,
-    PolicyTargetType,
+    constants, policy_constants as policy, ActivityEvent, BrowserActiveProofSource,
+    BrowserActiveTabState, BrowserCapabilityStatus, BrowserChannel, BrowserCustodyLabel,
+    BrowserFamily, BrowserQueryVisibilityLabel, ChildProfileReference, FamilyReference,
+    LocalAiParentRuleContextRef, ParentActorReference, ParentActorRole, ParentDeviceReference,
+    PolicyAction, PolicyRule, PolicyTarget, PolicyTargetType,
 };
 
 use super::{
@@ -23,10 +23,13 @@ pub(crate) fn browser_event() -> ActivityEvent {
             tab_id: Some(constants::activity_store::TEST_BROWSER_TAB_ID.to_string()),
             window_id: None,
             active_state: BrowserActiveTabState::Unknown,
+            active_proof_source: BrowserActiveProofSource::TargetListOnly,
             url: constants::activity_store::TEST_BROWSER_URL.to_string(),
             title: Some(constants::activity_store::TEST_BROWSER_TITLE.to_string()),
             capability_status: BrowserCapabilityStatus::TabListOnly,
+            degraded_reason: None,
             custody_label: BrowserCustodyLabel::ChildDeviceLocal,
+            query_visibility: BrowserQueryVisibilityLabel::LiveLocal,
         },
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
         constants::activity_store::TEST_SECOND_OBSERVED_AT,

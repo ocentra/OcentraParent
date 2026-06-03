@@ -251,6 +251,10 @@ function browserPolicyStoredBrowserDataExists(answers: BrowserPolicyAnswerMap): 
   );
 }
 
+function browserPolicyBrowserGamesRelevant(answers: BrowserPolicyAnswerMap): boolean {
+  return browserPolicyRootAnswer(answers) === 'on' && browserPolicyHas(answers, '5.1', 'browser-games');
+}
+
 const BrowserPolicyComputedFlagEvaluators: Record<
   BrowserPolicyComputedFlagId,
   (answers: BrowserPolicyAnswerMap) => boolean
@@ -280,6 +284,7 @@ const BrowserPolicyComputedFlagEvaluators: Record<
   notificationEventsRelevant: browserPolicyNotificationEventsRelevant,
   unsupportedCapabilityRelevant: browserPolicyUnsupportedCapabilityRelevant,
   storedBrowserDataExists: browserPolicyStoredBrowserDataExists,
+  browserGamesRelevant: browserPolicyBrowserGamesRelevant,
 };
 
 export function browserPolicyForestSourceSettingIds(): ReadonlyMap<BrowserPolicyQuestionId, readonly string[]> {

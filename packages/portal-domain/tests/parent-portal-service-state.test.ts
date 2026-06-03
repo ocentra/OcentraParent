@@ -11,6 +11,7 @@ import {
   PARENT_PORTAL_CONTENT,
   PARENT_PORTAL_ROUTE_CONTEXT,
   PARENT_PORTAL_SERVICE_STATE,
+  PortalBrowserInventoryFields,
   PortalRoute,
   resolveParentPortalServiceState,
 } from '../src/contracts';
@@ -20,6 +21,7 @@ describe('portal service-backed parent portal state', () => {
   parentPortalLanAddDeviceRowTests();
   parentPortalActivityNetworkRowTests();
   parentPortalProductShellRowTests();
+  parentPortalBrowserInventoryRowTests();
 });
 
 function parentPortalServiceRowTests(): void {
@@ -124,6 +126,53 @@ function parentPortalProductShellRowTests(): void {
       readyCount: 1,
       gapCount: 0,
       trend: 'degraded',
+    });
+  });
+}
+
+function parentPortalBrowserInventoryRowTests(): void {
+  it('surfaces browser inventory capability rows without exact URL or active-tab overclaims', () => {
+    const state = resolveParentPortalServiceState({
+      connectionState: PARENT_PORTAL_SERVICE_STATE.Connection.Connected,
+      events: [
+        payloadEvent(AgentEvent.BrowserInventoryReadModelReported, {
+          [AgentProtocolDefaults.Field.Returned]: 1,
+          [AgentProtocolDefaults.Field.CapabilityStatus]: 'unmanaged-browser',
+          [PortalBrowserInventoryFields.RunningState]: 'running-unmanaged',
+          [PortalBrowserInventoryFields.ExactUrlCapability]: 'not-claimed',
+          [PortalBrowserInventoryFields.ActiveTabCapability]: 'not-claimed',
+          [PortalBrowserInventoryFields.UnmanagedFallbackCapability]: 'report-only',
+        }),
+      ],
+    });
+
+    expect(rowByLabel(state.parentPortalRows, 'Browser inventory')).toMatchObject({
+      label: 'Browser inventory',
+      primaryArea: 'Managed Web',
+      readyCount: 1,
+      gapCount: 0,
+      trend: 'running-unmanaged',
+    });
+    expect(rowByLabel(state.parentPortalRows, 'Exact URL capability')).toMatchObject({
+      label: 'Exact URL capability',
+      primaryArea: 'Managed Web',
+      readyCount: 1,
+      gapCount: 1,
+      trend: 'not-claimed',
+    });
+    expect(rowByLabel(state.parentPortalRows, 'Active tab proof')).toMatchObject({
+      label: 'Active tab proof',
+      primaryArea: 'Managed Web',
+      readyCount: 1,
+      gapCount: 1,
+      trend: 'not-claimed',
+    });
+    expect(rowByLabel(state.parentPortalRows, 'Unmanaged fallback')).toMatchObject({
+      label: 'Unmanaged fallback',
+      primaryArea: 'Managed Web',
+      readyCount: 1,
+      gapCount: 0,
+      trend: 'report-only',
     });
   });
 }
@@ -305,6 +354,10 @@ function expectedServiceRowLabels(): string[] {
     'Network tracking',
     'Household setup',
     'Household setup',
+    'Browser inventory',
+    'Exact URL capability',
+    'Active tab proof',
+    'Unmanaged fallback',
     'Managed web path',
     'Browser setup',
     'Activity store',
@@ -378,6 +431,13 @@ function selectableParentPortalTargets(): ReadonlyMap<string, { readonly name: s
 function rowByPrimaryArea(rows: readonly { readonly primaryArea?: string }[], primaryArea: string) {
   const normalized = normalizedPortalTarget(primaryArea);
   const row = rows.find((entry) => normalizedPortalTarget(entry.primaryArea ?? '') === normalized);
+  expect(row).toBeDefined();
+  return row;
+}
+
+function rowByLabel(rows: readonly { readonly label?: string }[], label: string) {
+  const normalized = normalizedPortalTarget(label);
+  const row = rows.find((entry) => normalizedPortalTarget(entry.label ?? '') === normalized);
   expect(row).toBeDefined();
   return row;
 }
