@@ -162,6 +162,18 @@ export const AppGameCatalogReadyState = {
   PermissionLimited: AppGameCatalogReadyStateSchema.parse('permissionLimited'),
 } as const;
 
+export const AppGameCapabilityStatus = {
+  Available: AppGameCapabilityStatusSchema.parse('available'),
+  Unavailable: AppGameCapabilityStatusSchema.parse('unavailable'),
+  PermissionLimited: AppGameCapabilityStatusSchema.parse('permissionLimited'),
+  UnsupportedPlatform: AppGameCapabilityStatusSchema.parse('unsupportedPlatform'),
+  AdapterError: AppGameCapabilityStatusSchema.parse('adapterError'),
+  Stale: AppGameCapabilityStatusSchema.parse('stale'),
+  Degraded: AppGameCapabilityStatusSchema.parse('degraded'),
+  ManualRequired: AppGameCapabilityStatusSchema.parse('manualRequired'),
+  NotClaimed: AppGameCapabilityStatusSchema.parse('notClaimed'),
+} as const;
+
 export const AppGameForegroundState = {
   Foreground: AppGameForegroundStateSchema.parse('foreground'),
   Background: AppGameForegroundStateSchema.parse('background'),

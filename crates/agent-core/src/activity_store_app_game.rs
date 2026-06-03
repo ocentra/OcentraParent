@@ -15,6 +15,11 @@ mod app_game_windows_inventory_tests;
 pub(crate) mod app_game_windows_store_inventory;
 #[cfg(test)]
 mod app_game_windows_store_inventory_tests;
+// WP08 stages process runtime evidence before live process capture calls it.
+#[allow(dead_code)]
+pub(crate) mod app_game_windows_process_runtime;
+#[cfg(test)]
+mod app_game_windows_process_runtime_tests;
 
 use crate::{
     activity_store_app_game_observation::AppGameObservation,
