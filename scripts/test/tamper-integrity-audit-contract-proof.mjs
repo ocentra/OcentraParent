@@ -25,9 +25,12 @@ async function main() {
     'tamper-integrity-audit',
   ]);
 
+  const { TamperIntegrityAuditRequiredPayloadFields } =
+    await import('@ocentra-parent/logging-domain/tamper-integrity-audit');
   const { TamperIntegrityAuditReadModel } =
-    await import('../../packages/logging-domain/dist/tamper-integrity-audit-read-model.js');
+    await import('@ocentra-parent/logging-domain/tamper-integrity-audit-read-model');
   const summary = summarizeReadModel(TamperIntegrityAuditReadModel);
+  assertPackageExports(TamperIntegrityAuditRequiredPayloadFields, TamperIntegrityAuditReadModel);
   assertReadModel(TamperIntegrityAuditReadModel, summary);
 
   const proof = {
@@ -45,6 +48,10 @@ async function main() {
       expectationDoc: 'docs/expectations/tamper-uninstall-protection.md',
       proofHarness: 'scripts/test/tamper-integrity-audit-contract-proof.mjs',
       proofArtifact: 'test-results/tamper-integrity-audit-contract-proof/proof.json',
+      packageExports: [
+        '@ocentra-parent/logging-domain/tamper-integrity-audit',
+        '@ocentra-parent/logging-domain/tamper-integrity-audit-read-model',
+      ],
     },
     counts: summary,
     claimsProved: [
@@ -69,6 +76,29 @@ async function main() {
   await writeFile(proofPath, `${JSON.stringify(proof, null, 2)}\n`);
   console.log(`tamper-integrity-audit-contract-proof-ok:${proofLabels.join(',')}`);
   console.log(`evidence=${relative(repoRoot, proofPath)}`);
+}
+
+function assertPackageExports(requiredPayloadFields, readModel) {
+  assertArrayEqual(
+    requiredPayloadFields,
+    [
+      'audit-entry-ref',
+      'family-scope-ref',
+      'device-scope-ref',
+      'integrity-state',
+      'signal-kind',
+      'severity',
+      'reason-code',
+      'first-seen-at',
+      'last-seen-at',
+      'parent-drill-in-ref',
+      'admin-removal-flow-ref',
+      'manual-proof-ref',
+    ],
+    'package export required payload fields'
+  );
+  assertEqual(readModel.schemaVersion, 1, 'package export read model schema version');
+  proofLabels.push('tamper-integrity-audit.package-exports');
 }
 
 function summarizeReadModel(readModel) {

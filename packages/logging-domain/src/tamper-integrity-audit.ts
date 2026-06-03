@@ -212,16 +212,60 @@ function tamperIntegrityAuditStatesAreCoherent(entry: TamperIntegrityAuditEntryC
   const manualProofPresent = entry.manualProofRequirements.length > 0;
   const adminFlowPresent = entry.adminRemovalFlowRefs.length > 0;
   return (
+    tamperIntegrityAuditHeartbeatStateIsCoherent(entry) &&
+    tamperIntegrityAuditPermissionStateIsCoherent(entry) &&
+    tamperIntegrityAuditPresenceStateIsCoherent(entry) &&
+    tamperIntegrityAuditManualStateIsCoherent(entry, manualProofPresent, adminFlowPresent)
+  );
+}
+
+function tamperIntegrityAuditHeartbeatStateIsCoherent(entry: TamperIntegrityAuditEntryCandidate): boolean {
+  return (
     (entry.signalKind !== 'heartbeat-stale' || entry.heartbeatState === 'stale') &&
-    (entry.signalKind !== 'heartbeat-offline' || entry.heartbeatState === 'offline') &&
-    (entry.signalKind !== 'permission-loss' || entry.permissionState === 'permission-lost') &&
+    (entry.signalKind !== 'heartbeat-offline' || entry.heartbeatState === 'offline')
+  );
+}
+
+function tamperIntegrityAuditPermissionStateIsCoherent(entry: TamperIntegrityAuditEntryCandidate): boolean {
+  return entry.signalKind !== 'permission-loss' || entry.permissionState === 'permission-lost';
+}
+
+function tamperIntegrityAuditPresenceStateIsCoherent(entry: TamperIntegrityAuditEntryCandidate): boolean {
+  return (
     (entry.signalKind !== 'service-stopped' || entry.servicePresenceState === 'stopped') &&
-    (entry.signalKind !== 'agent-removed' || entry.servicePresenceState === 'removed') &&
-    (entry.signalKind !== 'uninstall-detected' ||
-      (entry.uninstallState === 'detected' && adminFlowPresent && manualProofPresent)) &&
-    (entry.signalKind !== 'tamper-manual-required' ||
-      (entry.tamperState === 'manual-required' && manualProofPresent)) &&
+    (entry.signalKind !== 'agent-removed' || entry.servicePresenceState === 'removed')
+  );
+}
+
+function tamperIntegrityAuditManualStateIsCoherent(
+  entry: TamperIntegrityAuditEntryCandidate,
+  manualProofPresent: boolean,
+  adminFlowPresent: boolean
+): boolean {
+  return (
+    tamperIntegrityAuditUninstallStateIsCoherent(entry, manualProofPresent, adminFlowPresent) &&
+    tamperIntegrityAuditTamperStateIsCoherent(entry, manualProofPresent) &&
     (entry.signalKind !== 'admin-removal-flow' || adminFlowPresent)
+  );
+}
+
+function tamperIntegrityAuditUninstallStateIsCoherent(
+  entry: TamperIntegrityAuditEntryCandidate,
+  manualProofPresent: boolean,
+  adminFlowPresent: boolean
+): boolean {
+  return (
+    entry.signalKind !== 'uninstall-detected' ||
+    (entry.uninstallState === 'detected' && adminFlowPresent && manualProofPresent)
+  );
+}
+
+function tamperIntegrityAuditTamperStateIsCoherent(
+  entry: TamperIntegrityAuditEntryCandidate,
+  manualProofPresent: boolean
+): boolean {
+  return (
+    entry.signalKind !== 'tamper-manual-required' || (entry.tamperState === 'manual-required' && manualProofPresent)
   );
 }
 
