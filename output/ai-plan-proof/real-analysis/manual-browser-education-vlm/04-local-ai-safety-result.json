@@ -14,7 +14,7 @@
     {
       "evidenceReferenceId": "screen-analysis-evidence-school-productivity",
       "kind": "activity-event",
-      "observedAt": "2026-06-03T14:00:37.324Z"
+      "observedAt": "2026-06-03T14:36:01.821Z"
     }
   ],
   "parentRuleReferences": [
@@ -38,7 +38,7 @@
     ],
     "resourceClass": "cpu",
     "degradedState": "none",
-    "lastCheckedAt": "2026-06-03T14:00:37.324Z",
+    "lastCheckedAt": "2026-06-03T14:36:01.821Z",
     "unavailableReason": null
   },
   "promptVersion": "screen-ai-local-vlm-matrix-proof-v2",

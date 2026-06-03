@@ -3,7 +3,7 @@
     "schemaVersion": 1,
     "screenAnalysisResultId": "screen-analysis-native-game",
     "queueJobId": "screen-capture-proof-native-game",
-    "analyzedAt": "2026-06-03T14:02:30.629Z",
+    "analyzedAt": "2026-06-03T14:38:18.410Z",
     "modelRuntimeRef": "local-qwen2-vl-2b-llama-mtmd",
     "modelId": "Qwen2-VL-2B-Instruct-Q4_K_M",
     "providerKind": "localVision",
@@ -20,7 +20,7 @@
           {
             "evidenceId": "screen-evidence-native-game",
             "kind": "screenshot",
-            "digest": "65c74273f3681accc466fdf6366e8fd667e8a6923d5a188ec3157ff5387216da",
+            "digest": "c6c403d4d6a4328076d355c4cc1c3c382f5fdf7a656c653107bb01ebe27aed74",
             "uri": null
           }
         ]
@@ -36,7 +36,7 @@
           {
             "evidenceId": "screen-evidence-native-game",
             "kind": "screenshot",
-            "digest": "65c74273f3681accc466fdf6366e8fd667e8a6923d5a188ec3157ff5387216da",
+            "digest": "c6c403d4d6a4328076d355c4cc1c3c382f5fdf7a656c653107bb01ebe27aed74",
             "uri": null
           }
         ]
@@ -49,11 +49,11 @@
       {
         "evidenceId": "screen-evidence-native-game",
         "kind": "screenshot",
-        "digest": "65c74273f3681accc466fdf6366e8fd667e8a6923d5a188ec3157ff5387216da",
+        "digest": "c6c403d4d6a4328076d355c4cc1c3c382f5fdf7a656c653107bb01ebe27aed74",
         "uri": null
       }
     ],
-    "imageDigest": "65c74273f3681accc466fdf6366e8fd667e8a6923d5a188ec3157ff5387216da",
+    "imageDigest": "c6c403d4d6a4328076d355c4cc1c3c382f5fdf7a656c653107bb01ebe27aed74",
     "rawImageRetained": false,
     "imageDeletionState": "deleted",
     "custodyState": "child-device-query-store",
@@ -75,7 +75,7 @@
       {
         "evidenceReferenceId": "screen-analysis-evidence-native-game",
         "kind": "activity-event",
-        "observedAt": "2026-06-03T14:02:30.629Z"
+        "observedAt": "2026-06-03T14:38:18.410Z"
       }
     ],
     "parentRuleReferences": [
@@ -99,7 +99,7 @@
       ],
       "resourceClass": "cpu",
       "degradedState": "none",
-      "lastCheckedAt": "2026-06-03T14:02:30.629Z",
+      "lastCheckedAt": "2026-06-03T14:38:18.410Z",
       "unavailableReason": null
     },
     "promptVersion": "screen-ai-local-vlm-matrix-proof-v2",

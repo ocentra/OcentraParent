@@ -3,7 +3,7 @@
     "schemaVersion": 1,
     "screenAnalysisResultId": "screen-analysis-facebook-social-feed",
     "queueJobId": "screen-capture-proof-facebook-social-feed",
-    "analyzedAt": "2026-06-03T13:57:56.428Z",
+    "analyzedAt": "2026-06-03T14:33:37.772Z",
     "modelRuntimeRef": "local-qwen2-vl-2b-llama-mtmd",
     "modelId": "Qwen2-VL-2B-Instruct-Q4_K_M",
     "providerKind": "localVision",
@@ -75,7 +75,7 @@
       {
         "evidenceReferenceId": "screen-analysis-evidence-facebook-social-feed",
         "kind": "activity-event",
-        "observedAt": "2026-06-03T13:57:56.428Z"
+        "observedAt": "2026-06-03T14:33:37.772Z"
       }
     ],
     "parentRuleReferences": [
@@ -99,7 +99,7 @@
       ],
       "resourceClass": "cpu",
       "degradedState": "none",
-      "lastCheckedAt": "2026-06-03T13:57:56.428Z",
+      "lastCheckedAt": "2026-06-03T14:33:37.772Z",
       "unavailableReason": null
     },
     "promptVersion": "screen-ai-local-vlm-matrix-proof-v2",

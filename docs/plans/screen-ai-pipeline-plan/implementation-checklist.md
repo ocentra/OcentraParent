@@ -13,7 +13,7 @@ claims.
 
 | Proof                                    | Status                   | Artifact                                                                                    | Non-claim                                                                                                                                                                                          |
 | ---------------------------------------- | ------------------------ | ------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Real Windows active-window capture       | P3 proved                | `output/screen-plan-proof/real-capture/manual-parent-test-active-window/proof-summary.json` | Remaining implementation task: connect the adapter into service/runtime/read-model after crate-lock coordination; this is not a service-wiring claim.                                              |
+| Real Windows active-window capture       | P3 proved                | `output/screen-plan-proof/real-capture/manual-parent-test-active-window/proof-summary.json` | Remaining B implementation task: connect the adapter into service/runtime/read-model after crate-lock coordination; this is not a service-wiring claim.                                            |
 | Real Windows scope-matrix capture        | P3 proved                | `output/screen-plan-proof/real-capture/scope-matrix/proof-summary.json`                     | Proves adapter scopes only; parent-controlled product setting, scheduler, and disable suppression remain implementation work.                                                                      |
 | Desktop adapter path                     | P2 implementation path   | `crates/screen-capture-adapter/src/lib.rs`                                                  | Windows/macOS use `xcap`; Linux uses a real X11 command backend. Live macOS and Linux Wayland/root-display proof still must run before those platform claims are complete.                         |
 | Linux WSLg selected-window capture       | P3 local WSLg proved     | `output/screen-plan-proof/linux-wslg/proof-summary.json`                                    | Proves WSLg/X11 selected-window capture only; does not claim WSLg root display, native Wayland portal, or broad Linux compositor parity.                                                           |
@@ -24,6 +24,7 @@ claims.
 | Local VLM analysis of captured screens   | P3 proved                | `output/ai-plan-proof/real-analysis/proof-summary.json`                                     | Covers 15 real window captures across controlled video/social/game/shopping/bypass/school/native/cadence rows; live external URL/account proof remains.                                            |
 | Local AI safety result                   | P3 contract proved       | `output/ai-plan-proof/real-analysis/youtube-ordinary-video/06-ai-result.json`               | Scenario results validate local AI safety output; service runtime must still consume this result.                                                                                                  |
 | Policy dry-run decision                  | P3 contract proved       | `output/ai-plan-proof/real-analysis/browser-game/07-policy-decision.json`                   | Covers allow, warn, ask-parent, time-limit, and block dry-run actions; real enforcement adapter dispatch is still required in this pipeline scope before product-complete action claims.           |
+| Screen-to-action adapter dispatch        | P3 Windows proved        | `output/screen-ai-pipeline-proof/action-dispatch/proof-summary.json`                        | Proves screen-derived native owned-process time-limit decision handoff into the real Windows Rust service adapter path; does not claim browser, network, mobile, or broad block enforcement.       |
 | Raw image deletion after analysis        | P3 proved                | `output/ai-plan-proof/real-analysis/proof-summary.json`                                     | Every captured row deletes the raw temp image after analysis; retention/live-view opt-in modes are separate implementation work and are not claimed here.                                          |
 | Disabled no-capture no-AI suppression    | P3 proved                | `output/ai-plan-proof/real-analysis/disabled-no-capture-no-ai/01-source-evidence.json`      | Harness proof only; service-owned disabled suppression wiring remains.                                                                                                                             |
 
@@ -63,10 +64,12 @@ claims.
 - [x] Warn policy result.
 - [x] Ask-parent policy result.
 - [x] Time-limit policy result.
-- [x] Block dry-run or real adapter result.
+- [x] Block dry-run result.
+- [ ] Block real adapter result.
 - [x] Unknown/manual-required result.
 - [ ] AI cannot override stricter parent rule.
-- [ ] Real action adapter dispatch and rollback proof, owned by the screen+AI pipeline before product-complete action claims.
+- [x] Real Windows owned-process time-limit adapter dispatch, restart recovery, parent cancel, expiry, and process termination proof.
+- [ ] Browser, network, mobile, and broad block adapters proven from screen-derived decisions before product-complete action claims.
 
 ## Portal And Proof Gates
 

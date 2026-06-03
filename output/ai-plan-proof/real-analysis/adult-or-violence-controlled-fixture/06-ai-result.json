@@ -3,7 +3,7 @@
     "schemaVersion": 1,
     "screenAnalysisResultId": "screen-analysis-adult-or-violence-controlled-fixture",
     "queueJobId": "screen-capture-proof-adult-or-violence-controlled-fixture",
-    "analyzedAt": "2026-06-03T14:04:24.881Z",
+    "analyzedAt": "2026-06-03T14:41:08.640Z",
     "modelRuntimeRef": "local-qwen2-vl-2b-llama-mtmd",
     "modelId": "Qwen2-VL-2B-Instruct-Q4_K_M",
     "providerKind": "localVision",
@@ -88,7 +88,7 @@
       {
         "evidenceReferenceId": "screen-analysis-evidence-adult-or-violence-controlled-fixture",
         "kind": "activity-event",
-        "observedAt": "2026-06-03T14:04:24.881Z"
+        "observedAt": "2026-06-03T14:41:08.640Z"
       }
     ],
     "parentRuleReferences": [
@@ -112,7 +112,7 @@
       ],
       "resourceClass": "cpu",
       "degradedState": "none",
-      "lastCheckedAt": "2026-06-03T14:04:24.881Z",
+      "lastCheckedAt": "2026-06-03T14:41:08.640Z",
       "unavailableReason": null
     },
     "promptVersion": "screen-ai-local-vlm-matrix-proof-v2",

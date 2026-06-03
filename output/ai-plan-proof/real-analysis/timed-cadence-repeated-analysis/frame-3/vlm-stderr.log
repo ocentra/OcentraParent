@@ -1,5 +1,5 @@
-0.00.387.038 W load: control-looking token: 128247 '</s>' was not control-type; this is probably a bug in the model. its type will be overridden
-0.01.214.802 I mtmd_cli_context: chat template example:
+0.00.463.975 W load: control-looking token: 128247 '</s>' was not control-type; this is probably a bug in the model. its type will be overridden
+0.01.357.261 I mtmd_cli_context: chat template example:
 <|im_start|>system
 You are a helpful assistant<|im_end|>
 <|im_start|>user
@@ -10,11 +10,11 @@ Hi there<|im_end|>
 How are you?<|im_end|>
 <|im_start|>assistant
 
-0.01.218.722 W load_hparams: Qwen-VL models require at minimum 1024 image tokens to function correctly on grounding tasks
-0.01.218.730 W load_hparams: if you encounter problems with accuracy, try adding --image-min-tokens 1024
-0.01.218.731 W load_hparams: more info: https://github.com/ggml-org/llama.cpp/issues/16842
+0.01.361.010 W load_hparams: Qwen-VL models require at minimum 1024 image tokens to function correctly on grounding tasks
+0.01.361.018 W load_hparams: if you encounter problems with accuracy, try adding --image-min-tokens 1024
+0.01.361.019 W load_hparams: more info: https://github.com/ggml-org/llama.cpp/issues/16842
 
-0.01.219.129 W load_tensors: ffn up/down are swapped
-0.01.868.661 I main: loading model: C:\Users\sujan\.cache\ocentra-parent\local-ai-models\Qwen2-VL-2B-Instruct-Q4_K_M.gguf
-0.01.868.672 W WARN: This is an experimental CLI for testing multimodal capability.
-0.01.868.673 W       For normal use cases, please use the standard llama-cli
+0.01.361.412 W load_tensors: ffn up/down are swapped
+0.02.040.468 I main: loading model: C:\Users\sujan\.cache\ocentra-parent\local-ai-models\Qwen2-VL-2B-Instruct-Q4_K_M.gguf
+0.02.040.476 W WARN: This is an experimental CLI for testing multimodal capability.
+0.02.040.477 W       For normal use cases, please use the standard llama-cli

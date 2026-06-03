@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "screenAnalysisResultId": "screen-analysis-school-productivity",
   "queueJobId": "screen-capture-proof-school-productivity",
-  "analyzedAt": "2026-06-03T14:00:37.324Z",
+  "analyzedAt": "2026-06-03T14:36:01.821Z",
   "modelRuntimeRef": "local-qwen2-vl-2b-llama-mtmd",
   "modelId": "Qwen2-VL-2B-Instruct-Q4_K_M",
   "providerKind": "localVision",

@@ -149,6 +149,22 @@ const scenarios = [
     promptHint: 'Return primary_category game when a native game or game lobby is visible.',
   },
   {
+    id: 'native-owned-process-time-limit',
+    title: 'Ocentra AI Proof Native Owned Process Time Limit',
+    surface: 'nativeNotepad',
+    captureReason: 'appGameForegroundStart',
+    captureScope: 'activeWindow',
+    expectedPrimaryCategory: 'game',
+    expectedAction: 'time-limit',
+    fixtureKind: 'controlled-native-owned-process-time-limit-fixture',
+    visibleText: [
+      'Known native game session',
+      'Owned process time limit applies',
+      'Game lobby is visible and budget timer is active',
+    ],
+    promptHint: 'Return primary_category game when a known native game session with a time limit is visible.',
+  },
+  {
     id: 'unknown-activity',
     title: 'Ocentra AI Proof Unknown Activity',
     surface: 'browser',

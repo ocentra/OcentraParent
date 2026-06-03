@@ -10,12 +10,12 @@
   "monitorId": 65639,
   "monitorNameDigest": "fc2b61e60bd49f1e7549634104eeb412b74b89cdbc3e2b6eebf6ca7ec8ac1a98",
   "monitorNamePresent": true,
-  "pid": 23084,
+  "pid": 45884,
   "rawImagePersistedInProof": false,
   "requestedScope": "selectedWindow",
   "status": "available",
   "titleDigest": "12bc7e26296c016cfa68c2ba53dc3db27bd162dbe043ae267d205b373eb1b2bd",
   "titlePresent": true,
   "width": 962,
-  "windowId": 81070278
+  "windowId": 117246572
 }

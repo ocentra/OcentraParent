@@ -3,7 +3,7 @@
     "schemaVersion": 1,
     "screenAnalysisResultId": "screen-analysis-bypass-tool",
     "queueJobId": "screen-capture-proof-bypass-tool",
-    "analyzedAt": "2026-06-03T13:59:15.961Z",
+    "analyzedAt": "2026-06-03T14:34:49.542Z",
     "modelRuntimeRef": "local-qwen2-vl-2b-llama-mtmd",
     "modelId": "Qwen2-VL-2B-Instruct-Q4_K_M",
     "providerKind": "localVision",
@@ -88,7 +88,7 @@
       {
         "evidenceReferenceId": "screen-analysis-evidence-bypass-tool",
         "kind": "activity-event",
-        "observedAt": "2026-06-03T13:59:15.961Z"
+        "observedAt": "2026-06-03T14:34:49.542Z"
       }
     ],
     "parentRuleReferences": [
@@ -112,7 +112,7 @@
       ],
       "resourceClass": "cpu",
       "degradedState": "none",
-      "lastCheckedAt": "2026-06-03T13:59:15.961Z",
+      "lastCheckedAt": "2026-06-03T14:34:49.542Z",
       "unavailableReason": null
     },
     "promptVersion": "screen-ai-local-vlm-matrix-proof-v2",
