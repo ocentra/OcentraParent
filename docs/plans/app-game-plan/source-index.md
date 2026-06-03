@@ -54,9 +54,11 @@ Do not route here:
 Current app/game evidence and session contracts live in:
 
 - `packages/activity-domain/src/app-game-primitives.ts`
+- `packages/activity-domain/src/app-game-identity-primitives.ts`
 - `packages/activity-domain/src/app-game.ts`
 - `packages/activity-domain/tests/app-game.test.ts`
 - `packages/activity-domain/tests/app-game-evidence-claim.test.ts`
+- `packages/activity-domain/tests/app-game-identity.test.ts`
 
 Current app-control and app/game policy/catalog meaning lives in:
 
@@ -137,10 +139,17 @@ WP01 proof on `codex/app-plan-work` adds contract-only proof under
 proof does not replace Rust protocol parity, runtime adapter proof, portal UI
 proof, or SQLite/journal proof.
 
+WP04 proof on `codex/app-game-identity-contracts` adds contract-only identity
+and identity-merge proof under
+`output/app-game-plan-proof/04-app-game-identity-model/`. That proof does not
+replace inventory adapters, Rust protocol parity, runtime merge behavior, or
+portal identity rows.
+
 ## Current Test Files
 
 - `packages/activity-domain/tests/app-game.test.ts`
 - `packages/activity-domain/tests/app-game-evidence-claim.test.ts`
+- `packages/activity-domain/tests/app-game-identity.test.ts`
 - `packages/parent-domain/tests/app-control-policy-catalog.test.ts`
 - `packages/parent-domain/tests/game-control-policy-catalog.test.ts`
 - `packages/parent-domain/tests/app-game-control-authority.test.ts`
