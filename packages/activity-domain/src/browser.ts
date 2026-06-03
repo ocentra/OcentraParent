@@ -1,14 +1,5 @@
-import {
-  BrowserActiveTabStateSchema,
-  BrowserBridgeKindSchema,
-  BrowserCapabilityStatusSchema,
-  BrowserChannelSchema,
-  BrowserCustodyLabelSchema,
-  BrowserFamilySchema,
-  BrowserManagedStateSchema,
-  BrowserQueryVisibilityLabelSchema,
-} from './browser-schemas';
 import type {
+  BrowserActiveProofSource as BrowserActiveProofSourceType,
   BrowserActiveTabState as BrowserActiveTabStateType,
   BrowserBridgeKind as BrowserBridgeKindType,
   BrowserCapabilityStatus as BrowserCapabilityStatusType,
@@ -21,9 +12,48 @@ import type {
   BrowserManagedState as BrowserManagedStateType,
   BrowserQueryVisibilityLabel as BrowserQueryVisibilityLabelType,
   BrowserTabEvidence,
+  BrowserUnmanagedProcessEvidence,
+  BrowserUnmanagedProcessReadModel,
 } from './browser-schemas';
+import type {
+  BrowserUnmanagedDetectionConfidence as BrowserUnmanagedDetectionConfidenceType,
+  BrowserUnmanagedDetectionReason as BrowserUnmanagedDetectionReasonType,
+  BrowserUnmanagedProcessKind as BrowserUnmanagedProcessKindType,
+} from './browser-unmanaged-process-schemas';
+import type {
+  BrowserActiveTabCapability as BrowserActiveTabCapabilityType,
+  BrowserExactUrlCapability as BrowserExactUrlCapabilityType,
+  BrowserInventoryInstallState as BrowserInventoryInstallStateType,
+  BrowserInventoryReadModel,
+  BrowserInventoryRow,
+  BrowserInventoryRunningState as BrowserInventoryRunningStateType,
+  BrowserManagedProfileState as BrowserManagedProfileStateType,
+  BrowserManagementTier as BrowserManagementTierType,
+  BrowserSupportTier as BrowserSupportTierType,
+  BrowserUnmanagedFallbackCapability as BrowserUnmanagedFallbackCapabilityType,
+} from './browser-inventory-schemas';
+import type {
+  BrowserExtensionHeartbeatState as BrowserExtensionHeartbeatStateType,
+  BrowserExtensionInstallState as BrowserExtensionInstallStateType,
+  BrowserExtensionManagedProfileBinding as BrowserExtensionManagedProfileBindingType,
+  BrowserExtensionMinimumPermissionState as BrowserExtensionMinimumPermissionStateType,
+  BrowserExtensionNativeHostBoundary,
+  BrowserExtensionRuntimeSignal as BrowserExtensionRuntimeSignalType,
+  BrowserNativeHostMessageState as BrowserNativeHostMessageStateType,
+} from './browser-extension-native-host-schemas';
+import type {
+  BrowserInventoryPlatform as BrowserInventoryPlatformType,
+  BrowserInventoryPlatformMatrix as BrowserInventoryPlatformMatrixType,
+  BrowserInventoryPlatformMatrixEntry as BrowserInventoryPlatformMatrixEntryType,
+  BrowserInventoryPlatformProofRequirement as BrowserInventoryPlatformProofRequirementType,
+  BrowserInventoryPlatformProofState as BrowserInventoryPlatformProofStateType,
+} from './browser-platform-inventory-matrix';
+
+export * from './browser-values';
+export { BrowserActiveProofSource, BrowserCustodyLabel, BrowserQueryVisibilityLabel } from './browser-values';
 
 export {
+  BrowserActiveProofSourceSchema,
   BrowserActiveTabStateSchema,
   BrowserAdapterIdSchema,
   BrowserBridgeEndpointRefSchema,
@@ -47,15 +77,98 @@ export {
   BrowserQueryVisibilityLabelSchema,
   BrowserTabEvidenceSchema,
   BrowserTabIdSchema,
-  BrowserTargetIdSchema,
+  BrowserUnmanagedProcessEvidenceSchema,
+  BrowserUnmanagedProcessReadModelSchema,
   BrowserUrlSchema,
   BrowserVersionSchema,
   BrowserWindowIdSchema,
   decodeBrowserUrl,
 } from './browser-schemas';
 export {
+  BrowserUnmanagedDetectionConfidenceSchema,
+  BrowserUnmanagedDetectionReasonSchema,
+  BrowserUnmanagedExecutablePathRefSchema,
+  BrowserUnmanagedProcessHashRefSchema,
+  BrowserUnmanagedProcessKindSchema,
+  BrowserUnmanagedProcessNameSchema,
+  BrowserUnmanagedSignatureRefSchema,
+} from './browser-unmanaged-process-schemas';
+export { BrowserTargetIdSchema } from './browser-target-schemas';
+export {
+  BrowserExtensionHeartbeatStateSchema,
+  BrowserExtensionIdSchema,
+  BrowserExtensionInstallStateSchema,
+  BrowserExtensionManagedProfileBindingSchema,
+  BrowserExtensionMinimumPermissionStateSchema,
+  BrowserExtensionNativeHostBoundarySchema,
+  BrowserExtensionNativeHostSchemaVersion,
+  BrowserExtensionRuntimeSignalSchema,
+  BrowserNativeHostIdSchema,
+  BrowserNativeHostMaxMessageLengthBytes,
+  BrowserNativeHostMessageStateSchema,
+} from './browser-extension-native-host-schemas';
+export {
+  BrowserPerformanceBudgetIdSchema,
+  BrowserPerformanceBudgetProofSourceSchema,
+  BrowserPerformanceBudgetStateSchema,
+  BrowserPerformanceHealthReadModelSchema,
+  BrowserPerformanceHealthRowSchema,
+  BrowserPerformanceHealthSchemaVersion,
+  BrowserPerformanceHealthStateSchema,
+} from './browser-performance-health-schemas';
+export * from './browser-url-metadata-schemas';
+export {
+  BrowserUrlShapeClassificationIdSchema,
+  BrowserUrlShapeClassificationResultSchema,
+  BrowserUrlShapeConfidenceSchema,
+  BrowserUrlIntelligenceMemoryHitIdSchema,
+  BrowserUrlIntelligenceMemorySchemaVersion,
+  BrowserUrlIntelligenceMemoryDecisionKindSchema,
+  BrowserUrlIntelligenceMemoryHitSchema,
+  BrowserUrlIntelligenceMemoryHitStateSchema,
+  BrowserUrlIntelligenceMemoryKeyKindSchema,
+  BrowserUrlIntelligenceMemoryKeySchema,
+  BrowserUrlIntelligenceMemoryStaleReasonSchema,
+  BrowserUrlShapePlatformIdsSchema,
+  BrowserUrlShapePlatformSchema,
+  BrowserUrlShapeReasonCodeSchema,
+  BrowserUrlShapeSchemaVersion,
+  BrowserUrlShapeSourceKindSchema,
+  BrowserUrlShapeTargetKindSchema,
+  decodeBrowserUrlIntelligenceMemoryHit,
+  decodeBrowserUrlShapeClassificationResult,
+} from './browser-url-intelligence-schemas';
+export { parseBrowserUrlShape } from './browser-url-intelligence';
+export {
+  BrowserActiveTabCapabilitySchema,
+  BrowserExactUrlCapabilitySchema,
+  BrowserExecutablePathRefSchema,
+  BrowserInventoryInstallStateSchema,
+  BrowserInventoryReadModelSchema,
+  BrowserInventoryReasonCodeSchema,
+  BrowserInventoryRowIdSchema,
+  BrowserInventoryRowSchema,
+  BrowserInventoryRunningStateSchema,
+  BrowserManagedProfileStateSchema,
+  BrowserManagementTierSchema,
+  BrowserProductNameSchema,
+  BrowserSupportTierSchema,
+  BrowserUnmanagedFallbackCapabilitySchema,
+} from './browser-inventory-schemas';
+export {
+  BrowserInventoryPlatformMatrixEntrySchema,
+  BrowserInventoryPlatformMatrixSchema,
+  BrowserInventoryPlatformProofRequirementSchema,
+  BrowserInventoryPlatformProofStateSchema,
+  BrowserInventoryPlatformSchema,
+  decodeBrowserInventoryPlatformMatrix,
+  decodeBrowserInventoryPlatformMatrixEntry,
+} from './browser-platform-inventory-matrix';
+export {
   BrowserInterventionAction,
+  BrowserInterventionActionIdSchema,
   BrowserInterventionActionSchema,
+  BrowserInterventionAuditIdSchema,
   BrowserBoundaryState,
   BrowserBoundaryStateSchema,
   BrowserExactUrlClaimState,
@@ -64,6 +177,8 @@ export {
   BrowserInterventionCapabilityStateSchema,
   BrowserInterventionDecisionSource,
   BrowserInterventionDecisionSourceSchema,
+  BrowserInterventionDeliveryState,
+  BrowserInterventionDeliveryStateSchema,
   BrowserInterventionIdSchema,
   BrowserInterventionMechanism,
   BrowserInterventionMechanismSchema,
@@ -80,90 +195,56 @@ export {
   BrowserUnmanagedDetectionStateSchema,
   BrowserUnmanagedEnforcementState,
   BrowserUnmanagedEnforcementStateSchema,
+  BrowserUnmanagedFallbackActionState,
+  BrowserUnmanagedFallbackActionStateSchema,
   type BrowserBoundaryState as BrowserBoundaryStateType,
   type BrowserExactUrlClaimState as BrowserExactUrlClaimStateType,
+  type BrowserInterventionDeliveryState as BrowserInterventionDeliveryStateType,
   type BrowserInterventionReadModel,
   type BrowserInterventionRow,
   type BrowserUnmanagedDetectionState as BrowserUnmanagedDetectionStateType,
+  type BrowserUnmanagedFallbackActionState as BrowserUnmanagedFallbackActionStateType,
 } from './browser-intervention';
 
 export type BrowserActiveTabState = BrowserActiveTabStateType;
+export type BrowserActiveProofSource = BrowserActiveProofSourceType;
+export type BrowserActiveTabCapability = BrowserActiveTabCapabilityType;
 export type BrowserBridgeKind = BrowserBridgeKindType;
 export type BrowserCapabilityStatus = BrowserCapabilityStatusType;
 export type BrowserChannel = BrowserChannelType;
 export type BrowserCustodyLabel = BrowserCustodyLabelType;
-export type { BrowserEvidenceReadModel, BrowserEvidenceRecentSummary, BrowserManagedSessionStatus, BrowserTabEvidence };
+export type BrowserExtensionHeartbeatState = BrowserExtensionHeartbeatStateType;
+export type BrowserExtensionInstallState = BrowserExtensionInstallStateType;
+export type BrowserExtensionManagedProfileBinding = BrowserExtensionManagedProfileBindingType;
+export type BrowserExtensionMinimumPermissionState = BrowserExtensionMinimumPermissionStateType;
+export type BrowserExtensionRuntimeSignal = BrowserExtensionRuntimeSignalType;
+export type BrowserNativeHostMessageState = BrowserNativeHostMessageStateType;
+export type BrowserExactUrlCapability = BrowserExactUrlCapabilityType;
+export type BrowserInventoryInstallState = BrowserInventoryInstallStateType;
+export type BrowserInventoryRunningState = BrowserInventoryRunningStateType;
+export type BrowserManagedProfileState = BrowserManagedProfileStateType;
+export type BrowserManagementTier = BrowserManagementTierType;
+export type BrowserSupportTier = BrowserSupportTierType;
+export type BrowserUnmanagedFallbackCapability = BrowserUnmanagedFallbackCapabilityType;
+export type BrowserInventoryPlatform = BrowserInventoryPlatformType;
+export type BrowserInventoryPlatformMatrix = BrowserInventoryPlatformMatrixType;
+export type BrowserInventoryPlatformMatrixEntry = BrowserInventoryPlatformMatrixEntryType;
+export type BrowserInventoryPlatformProofRequirement = BrowserInventoryPlatformProofRequirementType;
+export type BrowserInventoryPlatformProofState = BrowserInventoryPlatformProofStateType;
+export type BrowserUnmanagedDetectionConfidence = BrowserUnmanagedDetectionConfidenceType;
+export type BrowserUnmanagedDetectionReason = BrowserUnmanagedDetectionReasonType;
+export type BrowserUnmanagedProcessKind = BrowserUnmanagedProcessKindType;
+export type {
+  BrowserEvidenceReadModel,
+  BrowserEvidenceRecentSummary,
+  BrowserExtensionNativeHostBoundary,
+  BrowserInventoryReadModel,
+  BrowserInventoryRow,
+  BrowserManagedSessionStatus,
+  BrowserTabEvidence,
+  BrowserUnmanagedProcessEvidence,
+  BrowserUnmanagedProcessReadModel,
+};
 export type BrowserFamily = BrowserFamilyType;
 export type BrowserManagedState = BrowserManagedStateType;
 export type BrowserQueryVisibilityLabel = BrowserQueryVisibilityLabelType;
-
-export const BrowserFamily = {
-  Edge: BrowserFamilySchema.parse('edge'),
-  Chrome: BrowserFamilySchema.parse('chrome'),
-  Brave: BrowserFamilySchema.parse('brave'),
-  Firefox: BrowserFamilySchema.parse('firefox'),
-  Opera: BrowserFamilySchema.parse('opera'),
-  UnknownChromium: BrowserFamilySchema.parse('unknown-chromium'),
-  Unknown: BrowserFamilySchema.parse('unknown'),
-} as const;
-
-export const BrowserChannel = {
-  Stable: BrowserChannelSchema.parse('stable'),
-  Beta: BrowserChannelSchema.parse('beta'),
-  Dev: BrowserChannelSchema.parse('dev'),
-  Canary: BrowserChannelSchema.parse('canary'),
-  Unknown: BrowserChannelSchema.parse('unknown'),
-} as const;
-
-export const BrowserCapabilityStatus = {
-  Available: BrowserCapabilityStatusSchema.parse('available'),
-  TabListOnly: BrowserCapabilityStatusSchema.parse('tab-list-only'),
-  UnsupportedBrowser: BrowserCapabilityStatusSchema.parse('unsupported-browser'),
-  UnmanagedBrowser: BrowserCapabilityStatusSchema.parse('unmanaged-browser'),
-  ManagedProfileMissing: BrowserCapabilityStatusSchema.parse('managed-profile-missing'),
-  BridgeMissing: BrowserCapabilityStatusSchema.parse('bridge-missing'),
-  PermissionLimited: BrowserCapabilityStatusSchema.parse('permission-limited'),
-  Stale: BrowserCapabilityStatusSchema.parse('stale'),
-  AdapterError: BrowserCapabilityStatusSchema.parse('adapter-error'),
-  DisabledByParent: BrowserCapabilityStatusSchema.parse('disabled-by-parent'),
-} as const;
-
-export const BrowserManagedState = {
-  NotInstalled: BrowserManagedStateSchema.parse('not-installed'),
-  InstalledUnsupported: BrowserManagedStateSchema.parse('installed-unsupported'),
-  InstalledSupported: BrowserManagedStateSchema.parse('installed-supported'),
-  ManagedProfileReady: BrowserManagedStateSchema.parse('managed-profile-ready'),
-  LaunchPending: BrowserManagedStateSchema.parse('launch-pending'),
-  RunningManaged: BrowserManagedStateSchema.parse('running-managed'),
-  BridgeConnected: BrowserManagedStateSchema.parse('bridge-connected'),
-  BridgeDisconnected: BrowserManagedStateSchema.parse('bridge-disconnected'),
-  PermissionRequired: BrowserManagedStateSchema.parse('permission-required'),
-  Stopped: BrowserManagedStateSchema.parse('stopped'),
-  Error: BrowserManagedStateSchema.parse('error'),
-} as const;
-
-export const BrowserBridgeKind = {
-  ChromiumDevtoolsProtocol: BrowserBridgeKindSchema.parse('chromium-devtools-protocol'),
-} as const;
-
-export const BrowserActiveTabState = {
-  KnownActive: BrowserActiveTabStateSchema.parse('known-active'),
-  KnownInactive: BrowserActiveTabStateSchema.parse('known-inactive'),
-  Unknown: BrowserActiveTabStateSchema.parse('unknown'),
-} as const;
-
-export const BrowserCustodyLabel = {
-  ChildDeviceLocal: BrowserCustodyLabelSchema.parse('child-device-local'),
-  LocalNetworkChildAgent: BrowserCustodyLabelSchema.parse('local-network-child-agent'),
-  ParentCache: BrowserCustodyLabelSchema.parse('parent-cache'),
-  ParentOwnedExport: BrowserCustodyLabelSchema.parse('parent-owned-export'),
-  Unavailable: BrowserCustodyLabelSchema.parse('unavailable'),
-} as const;
-
-export const BrowserQueryVisibilityLabel = {
-  LiveLocal: BrowserQueryVisibilityLabelSchema.parse('live-local'),
-  LiveLan: BrowserQueryVisibilityLabelSchema.parse('live-lan'),
-  ParentCache: BrowserQueryVisibilityLabelSchema.parse('parent-cache'),
-  ParentOwnedExport: BrowserQueryVisibilityLabelSchema.parse('parent-owned-export'),
-  Unavailable: BrowserQueryVisibilityLabelSchema.parse('unavailable'),
-} as const;

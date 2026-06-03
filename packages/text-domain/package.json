@@ -9,6 +9,14 @@
       "import": "./dist/contracts.js",
       "types": "./dist/contracts.d.ts"
     },
+    "./browser-child-ux": {
+      "import": "./dist/browser-child-ux.js",
+      "types": "./dist/browser-child-ux.d.ts"
+    },
+    "./browser-parent-explanation": {
+      "import": "./dist/browser-parent-explanation.js",
+      "types": "./dist/browser-parent-explanation.d.ts"
+    },
     "./portal-dev": {
       "import": "./dist/portal-dev.js",
       "types": "./dist/portal-dev.d.ts"

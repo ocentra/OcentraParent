@@ -11,6 +11,7 @@ parent-facing browser UI/UX requirements.
 - [Pasted Content Coverage Audit](pasted-content-coverage-audit.md)
 - [V0.5 Browser URL And Video AI Intelligence Plan](v0-5-browser-url-video-ai-intelligence-plan.md)
 - [V0.5 Social Platform Account Feed And Gating Plan](v0-5-social-platform-account-feed-gating-plan.md)
+- [Social Platform Account Feed Workpacks](social-platform-account-feed/README.md)
 - [V0.5 Browser Games Cloud Gaming And Game Portal Gating Plan](v0-5-browser-games-cloud-gaming-gating-plan.md)
 - [V0.5 Managed Browser Test Blueprint](v0-5-managed-browser-test-blueprint.md)
 - [Browser UI/UX Requirements Guide](ui-ux-requirements-guide.md)
@@ -90,7 +91,8 @@ flowchart TD
   `apps/portal`.
 - Existing proof scripts cover managed browser profile matrix,
   service-backed browser evidence, managed browser intervention, V0.8
-  browser/domain adapter proof, and Windows managed/unmanaged enforcement.
+  browser/domain adapter proof, Windows managed/unmanaged enforcement, browser
+  performance health, and browser-plan artifact manifest indexing.
 - Existing docs already define the claim boundary. This folder does not replace
   those source docs. It indexes them and turns them into an implementation and
   proof plan.
@@ -103,6 +105,9 @@ flowchart TD
 - The social platform/account/feed gating plan is now documented as a
   browser-owned enhancement path for managed web surfaces, with native apps,
   connectors, mobile, policy, and screen evidence kept as adjacent boundaries.
+- The social platform/account/feed workpack folder now gives those enhancement
+  rows a focused README and proof-root map without adding runtime, UI, native
+  app, connector, or enforcement claims.
 - The browser games/cloud gaming/game portal plan is now documented as a
   browser-owned enhancement path for managed web games, with native games and
   launchers kept under app/game-control evidence.

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  BrowserActiveProofSource,
   BrowserActiveTabState,
   BrowserBoundaryState,
   BrowserCapabilityStatus,
@@ -20,6 +21,7 @@ import {
   BrowserQueryVisibilityLabel,
   BrowserUnmanagedDetectionState,
   BrowserUnmanagedEnforcementState,
+  BrowserUnmanagedFallbackActionState,
 } from '../src/browser';
 
 describe('browser evidence read model contracts', () => {
@@ -65,6 +67,7 @@ describe('browser intervention read model contracts', () => {
       expect(parsed.data.rows[0].interventionMechanism).toBe('chromium-cdp-fetch');
       expect(parsed.data.rows[0].browserBoundaryState).toBe('managed-session');
       expect(parsed.data.rows[0].exactUrlClaimState).toBe('exact-url-proven');
+      expect(parsed.data.rows[0].unmanagedFallbackAction).toBe('unavailable');
       expect(parsed.data.unmanagedBrowserEnforcement).toBe('requires-os-app-control');
     }
   });
@@ -90,6 +93,7 @@ describe('browser intervention read model contracts', () => {
       expect(parsed.data.rows[0].browserBoundaryState).toBe('unmanaged-browser-process');
       expect(parsed.data.rows[0].exactUrlClaimState).toBe('not-claimed');
       expect(parsed.data.rows[0].unmanagedDetectionState).toBe('terminated');
+      expect(parsed.data.rows[0].unmanagedFallbackAction).toBe('terminate-process');
     }
   });
 
@@ -138,6 +142,7 @@ function browserTabEvidence() {
     tabId: null,
     targetId: 'target-1',
     activeState: BrowserActiveTabState.Unknown,
+    activeProofSource: BrowserActiveProofSource.TargetListOnly,
     url: 'https://example.test/learn',
     origin: 'https://example.test',
     domain: 'example.test',
@@ -204,6 +209,7 @@ function unmanagedBrowserInterventionRow() {
     browserBoundaryState: BrowserBoundaryState.UnmanagedBrowserProcess,
     exactUrlClaimState: BrowserExactUrlClaimState.NotClaimed,
     unmanagedDetectionState: BrowserUnmanagedDetectionState.Terminated,
+    unmanagedFallbackAction: BrowserUnmanagedFallbackActionState.TerminateProcess,
     reason: 'managed-browser-unmanaged-process',
     custodyLabel: BrowserCustodyLabel.ChildDeviceLocal,
     queryVisibility: BrowserQueryVisibilityLabel.LiveLocal,

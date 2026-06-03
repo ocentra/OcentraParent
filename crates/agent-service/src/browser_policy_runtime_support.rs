@@ -1,9 +1,9 @@
 use ocentra_parent_agent_protocol::{
     constants, policy_constants, BrowserPolicyApprovalState, BrowserPolicyApprovals,
-    BrowserPolicyAudit, BrowserPolicyAuditState, BrowserPolicyBudgets, BrowserPolicyChildFacing,
-    BrowserPolicyCustody, BrowserPolicyDefaultPosture, BrowserPolicyDiscovery,
-    BrowserPolicyDownloadBlockedType, BrowserPolicyDownloadState, BrowserPolicyDownloads,
-    BrowserPolicyEffectivePolicy, BrowserPolicyEvidenceNeverCollect,
+    BrowserPolicyAudit, BrowserPolicyAuditState, BrowserPolicyBrowserGames, BrowserPolicyBudgets,
+    BrowserPolicyChildFacing, BrowserPolicyCustody, BrowserPolicyDefaultPosture,
+    BrowserPolicyDiscovery, BrowserPolicyDownloadBlockedType, BrowserPolicyDownloadState,
+    BrowserPolicyDownloads, BrowserPolicyEffectivePolicy, BrowserPolicyEvidenceNeverCollect,
     BrowserPolicyEvidenceProofLevel, BrowserPolicyEvidenceRequirement,
     BrowserPolicyEvidenceUrlScope, BrowserPolicyFallbacks, BrowserPolicyManagedBrowser,
     BrowserPolicyManagedBrowserBridgeRequirement, BrowserPolicyManagedBrowserFamily,
@@ -122,6 +122,7 @@ pub(crate) fn default_policy(policy_id: String) -> BrowserPolicyValue {
             default_daily_minutes: None,
             counting_mode: Default::default(),
         },
+        browser_games: BrowserPolicyBrowserGames::default(),
         downloads: BrowserPolicyDownloads {
             mode: BrowserPolicyDownloadState::Observe,
             blocked_types: vec![
@@ -178,6 +179,8 @@ fn default_managed_browser() -> BrowserPolicyManagedBrowser {
         profile_mode: BrowserPolicyManagedBrowserProfileMode::PersistentManagedProfile,
         bridge_requirements: default_bridge_requirements(),
         integration_mechanisms: default_integration_mechanisms(),
+        policy_writer_controls: Vec::new(),
+        policy_writer_fallback: Default::default(),
     }
 }
 
@@ -204,7 +207,7 @@ fn default_integration_mechanisms() -> Vec<BrowserPolicyManagedBrowserIntegratio
 
 fn default_unmanaged_browser() -> BrowserPolicyUnmanagedBrowser {
     BrowserPolicyUnmanagedBrowser {
-        mode: BrowserPolicyUnmanagedBrowserMode::Monitor,
+        mode: BrowserPolicyUnmanagedBrowserMode::ReportOnly,
         grace_seconds: 0,
         allow_recover_launch_url: true,
         classification_targets: vec![
@@ -256,8 +259,12 @@ fn default_rules() -> BrowserPolicyRules {
             BrowserPolicyRuleAction::Ask,
             BrowserPolicyRuleAction::Limit,
             BrowserPolicyRuleAction::Block,
+            BrowserPolicyRuleAction::TerminateProcess,
+            BrowserPolicyRuleAction::RelaunchManaged,
         ],
         items: Vec::new(),
         entries: Vec::new(),
+        url_allow_list: Vec::new(),
+        url_block_list: Vec::new(),
     }
 }

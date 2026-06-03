@@ -56,7 +56,8 @@ Browser evidence may record:
 - Managed browser session id and bridge capability status.
 - Window id and tab id where available.
 - Browser target id where available.
-- Active/inactive state for windows and tabs.
+- Active/inactive/unknown state for windows and tabs, plus the proof source
+  that justifies the state.
 - Exact tab URL.
 - Normalized domain and origin.
 - Page title.
@@ -88,6 +89,10 @@ Browser evidence must not record unless a later milestone explicitly approves it
   URLs.
 - Mapping code normalizes browser evidence into shared activity/evidence
   contracts.
+- Service capture must append browser evidence to the encrypted journal first,
+  then replay journaled records into the SQLite query store and read models.
+  Duplicate event ids must not double count, and restart reads must preserve
+  stable evidence ids and stale/degraded fields.
 - Local AI and policy evaluators consume only schema-valid browser evidence with
   evidence references.
 - Portal views display browser evidence but do not run browser capture.
@@ -102,9 +107,48 @@ Browser evidence must not record unless a later milestone explicitly approves it
 - Active-tab evidence contract.
 - URL/title/domain normalization contract.
 - Browser integration status and degraded reason contract.
-- Unmanaged browser detection event and possible-bypass status.
+- Unmanaged browser detection event and possible-bypass status, including
+  process id/name, redacted executable path ref when available, signature/hash
+  refs when available, family/channel guess, process kind, confidence, and
+  detection reason.
 - Journal write and query-store ingest path.
 - Portal recent browser activity view.
+- Managed browser intervention rows with policy decision refs, intervention
+  action refs, audit refs, evidence refs, target type/value, browser boundary
+  state, exact URL claim state, unmanaged detection state, and child delivery
+  state.
+- Unmanaged browser fallback rows with explicit action state: report-only,
+  warn-child, ask-parent, terminate-process, relaunch-managed-browser,
+  OS-block configured, OS-block manual-required, allowed unmanaged exception,
+  degraded, or unavailable. These rows must not include exact unmanaged URLs,
+  social account/feed/video identifiers, browser-game titles/accounts/purchase
+  identifiers, or cloud-gaming title claims.
+- Windows AppLocker/App Control proof-state rows for readiness-check,
+  audit-only, enforced, manual-required, unavailable, and failed paths. These
+  rows may name publisher/path/hash/package identity kinds and
+  administrator/manual/service permission requirements, but they must not claim
+  launch prevention, policy creation/update, rollback, unmanaged exact URLs, or
+  broad browser control without real Windows artifacts.
+- Optional extension/native-host boundary rows for installed/enabled, disabled,
+  permission-required, native-host-missing, origin-invalid, schema-invalid,
+  length-invalid, stale-heartbeat, and managed-profile-bound states. These rows
+  may describe minimum permissions and native-message validation, but they must
+  not claim unmanaged personal-profile capture, runtime signal capture, or
+  browser-game evidence without separate package/install/native-host proof.
+- Browser performance/service-health rows for inventory scan, support-matrix
+  derivation, 100-tab CDP target mapping, journal write per event, 10000-event
+  SQLite replay, unmanaged process scan, rapid bridge reconnect, memory/cache
+  lookup invalidation, portal 100-tab render, URL/video metadata extraction,
+  local AI queue timeout, browser-game runtime signal collection, and
+  cloud-gaming heuristic timeout. Rows must distinguish fixture-backed measured
+  proof from manual-required future/runtime paths and must not set runtime
+  claims until real artifacts exist.
+- A browser evidence artifact manifest that points to managed profile,
+  intervention, unmanaged Windows, policy dry-run, performance, screenshot, and
+  manual-required proof paths. The manifest must classify rows as
+  artifact-present, partial/manual-required, or manual-required so missing model,
+  parent-decision, runtime-signal, cloud-session, unsupported-adapter, and
+  cross-platform artifacts are not mistaken for proof.
 - Tests for schema validation, URL/domain normalization, stale evidence, and
   unsupported/degraded states.
 - Manual local validation against at least one supported browser.
@@ -176,20 +220,26 @@ The Windows Rust agent should follow this procedure for browser URL/tab evidence
    page title, timestamp, evidence id, source id, adapter id, and capability
    status. Store that evidence through the encrypted journal and SQLite query
    store before the portal or local AI consumes it.
-   Active state must be `known-active`, `known-inactive`, or `unknown`. A target
-   list is not enough to claim an active tab unless the adapter has separate
-   proof for focus/activation.
+   Active state must be `known-active`, `known-inactive`, or `unknown`.
+   Evidence also records an active proof source: `target-list-only`,
+   `cdp-focus-activation`, `managed-extension-event`,
+   `foreground-correlation`, or `owned-shell-event`. Target-list-only evidence
+   must stay `unknown`; it is not enough to claim an active or inactive tab
+   unless the adapter has separate proof for focus/activation or an equivalent
+   managed source.
 
 6. Detect unmanaged browsers.
 
    Process/window capture keeps watching for browser-like processes. If
    `chrome.exe`, `msedge.exe`, `brave.exe`, Firefox, Opera, a portable browser,
    or another browser-like process is running outside the Ocentra-managed
-   session, record `unmanaged-browser-detected` with process id, process name,
-   executable path, signature/hash where available, and possible-bypass reason.
-   This is not successful URL/tab evidence.
-   The event must not include an exact URL, browser history, page body, cookies,
-   or form data.
+   session, record unmanaged browser evidence with process id, process name,
+   redacted executable path ref, signature/hash refs where available, family
+   guess, process kind, confidence, and possible-bypass reason. This is not
+   successful URL/tab evidence. The event must not include an exact URL, browser
+   history, page body, cookies, form data, exact social account/route/feed/video
+   fields, exact browser-game URL/title/account/purchase fields, or exact cloud
+   gaming title fields.
 
 7. Make the managed browser the normal child path.
 
@@ -212,8 +262,11 @@ The Windows Rust agent should follow this procedure for browser URL/tab evidence
 
 - The system can distinguish "Chrome is the foreground app" from "the active
   Chrome tab is https://example.com/".
-- The active tab has an exact URL, title, normalized domain, timestamp, evidence
-  id, source id, and adapter id.
+- Active-tab claims have an exact URL, title, normalized domain, timestamp,
+  evidence id, source id, adapter id, and explicit active proof source.
+- Target-list-only evidence can show known tab rows but must keep active state
+  `unknown` until a stronger focus/activation, extension, foreground
+  correlation, or owned-shell proof source is implemented.
 - Unsupported browsers and missing permissions are typed states, not silent
   failures.
 - Managed install, profile, bridge, permission, stale, and degraded states are
@@ -224,6 +277,199 @@ The Windows Rust agent should follow this procedure for browser URL/tab evidence
 - Browser evidence survives journal/query-store round trip before portal or AI
   use.
 - Local AI input contracts can reference browser evidence by id.
+- Managed intervention action and delivery proof can reference browser evidence
+  by id without treating AI output as an enforcement authority.
+- Unmanaged fallback action proof can reference process-only unmanaged browser
+  evidence and policy/audit ids, but exact URL, social route, feed/video,
+  browser-game, and cloud-gaming claims remain managed-browser-required or
+  not-claimed unless later adapter proof adds those sources.
+- AppLocker/App Control proof states can show readiness, audit-only, enforced,
+  manual-required, unavailable, and failed status, but app-control prevention,
+  policy create/update, rollback, and broad browser control remain unclaimed
+  until Windows policy apply, refresh, audit, rollback, failure, and identity
+  target artifacts are captured.
+- Extension/native-host boundary proof can show managed-profile-only install,
+  permission, origin, schema, length, heartbeat, and native-host-missing states,
+  but runtime signal capture, unmanaged personal-profile capture, extension
+  package install, native-host registration, and browser-game evidence remain
+  unclaimed until separate artifacts prove those routes.
+- Browser performance/service-health proof can show fixture-backed measured rows
+  for inventory, support matrix, CDP target mapping, journal write, SQLite
+  replay, unmanaged process scan, bridge reconnect, and memory/cache behavior,
+  while hardware-specific release performance, portal render timing, URL/video
+  provider behavior, local AI queue behavior, browser-game runtime signals, and
+  cloud-gaming heuristics remain unclaimed until separately measured.
+- Browser evidence artifact manifests can index existing JSON and screenshot
+  proof for managed profiles, interventions, unmanaged Windows behavior,
+  dry-run adapter behavior, and performance health, but partial/manual-required
+  rows must remain gaps until fresh service, model/provider, parent-decision,
+  runtime-signal, cloud-session, unsupported-adapter, and cross-platform
+  artifacts exist.
+- Browser rollout gates must preserve no-claim wording: base browser proof does
+  not complete AI URL/video intelligence, social account/feed approval, or
+  browser-game/cloud-gaming evidence until those enhancement tracks have
+  separate contracts, runtime proof, UI/manual artifacts, and rollout gates.
+- Browser URL shape classification contracts may identify deterministic URL
+  shape, platform, and stable ids from exact managed-browser URL evidence, but
+  they must not claim video content semantics, AI authority, policy authority,
+  unmanaged exact URLs, or network-derived exact page activity.
+- Browser URL shape parsers may deterministically map supported platforms into
+  schema-valid shape rows, but unsupported schemes, credential-bearing URLs,
+  unmanaged process rows, and network/domain rows must stay rejected,
+  unknown/non-exact, or manual-required rather than promoted to exact content
+  claims.
+- Browser URL intelligence memory rows may drive policy input only when a fresh
+  hit cites source evidence, policy version, expiry, and analysis or parent
+  action refs. Miss, stale, and manual-required rows cannot drive policy input,
+  and memory rows must never claim direct enforcement authority.
+- Browser URL metadata evidence may carry browser-title, OpenGraph, schema.org,
+  platform id, thumbnail, duration, publish date, captions availability, and
+  platform label fields as structured evidence for AI input. It must not capture
+  page body or transcript text in this contract, and it must not claim content
+  semantics, AI decisions, policy decisions, hidden-analysis proof, or platform
+  metadata as policy authority.
+- YouTube metadata adapters must start from managed exact YouTube URL shape
+  evidence before producing metadata evidence. Watch, Shorts, embed, live,
+  channel, and playlist shapes may carry platform ids and metadata refs, but
+  unmanaged process rows, generic web rows, raw transcript text, page body, and
+  platform labels as authority remain invalid.
+- Vimeo and generic video metadata adapters must start from managed exact URL
+  shape evidence before producing metadata evidence. Vimeo page and player URLs
+  may carry numeric platform video ids; generic web rows require schema.org
+  VideoObject metadata before they can claim video metadata. Unmanaged process
+  rows, generic OpenGraph-only rows, raw transcript text, page body, and platform
+  labels as authority remain invalid.
+- Dynamic social route evidence must start from managed exact URL shape evidence
+  before it can classify social feed, social post, messaging, upload/post, or
+  livestream routes. Route shape evidence may carry visible platform, route,
+  query, and post ids, but it must not claim account identity proof, feed
+  recommendation semantics, messaging/contact risk, upload monitoring,
+  livestream content analysis, AI decisions, policy decisions, or direct policy
+  authority. Dynamic feed TTL stale memory rows cannot drive policy input.
+- Hidden managed analysis profile designs must use an Ocentra-owned profile
+  separate from the child visible profile, bounded retention, timeout and
+  structured-summary budgets, and no child cookies, child session tokens,
+  autoplay audio, downloads, form submits, CAPTCHA automation, login bypass, or
+  raw page-body retention. Metadata-only and analysis-ready states require a
+  separate loader proof before they can be accepted.
+- Hidden analysis loader adapters may only plan safe isolated designs into
+  queued/loading or explicit manual-required states until a real loader proof
+  exists. Loader results must reject page-body capture, transcript text capture,
+  and metadata-only or analysis-ready states without a loader proof ref.
+- Browser URL/video AI analysis inputs must reference schema-valid evidence,
+  URL shape, metadata, memory, graph, parent rule, schedule, prompt template,
+  model preference, and custody refs only. They must not include raw browser
+  state, DevTools payloads, SQLite paths, journals, OS state, page body, or
+  transcript text.
+- Browser URL/video AI analysis outputs may recommend candidate policy input
+  and carry category/modifier, benefit/risk, confidence, uncertainty, summaries,
+  model runtime, and prompt template refs, but they must not claim final policy
+  action, enforcement action, or raw content storage authority.
+- Browser AI local-provider routing may select a child-device local runtime only
+  when the request asks for local execution and the provider capability proves
+  task support, local custody, no retention, child-device execution, and a model
+  runtime ref. Missing model, unavailable provider, resource pressure,
+  unsupported task, or manual-required states must be explicit and must not
+  silently fall through to family hub or remote/API AI.
+- Browser AI provider routes must expose data scope, retention, custody,
+  provider identity, no-retention state, and audit evidence before use. Remote AI
+  must not become default blocking, override stricter local parent rules, or
+  disable local safety when remote service is down.
+- Browser AI family hub routing must be local-household fallback only. It may
+  select a family hub only after child-device local provider routing was
+  attempted and did not serve, parent settings allow household hub routing, and
+  the hub capability proves task support, no-retention custody, a household
+  route ref, and a model runtime ref. It must not select remote providers, claim
+  remote default blocking, or bypass the local provider path.
+- Browser AI remote routing must be parent-approved before use. Remote approval,
+  capability, and route evidence must expose structured data scope, no-retention
+  mode, provider identity, explicit approval, local safety fallback, and audit
+  evidence. It must not capture raw browser state, page body, transcript text,
+  screenshots, or become default blocking authority.
+- Browser AI remote outages must not disable local safety, and parent-approved
+  remote routes must not override stricter local parent rules.
+- Browser AI provider fallback decisions must be visible to parent and child
+  surfaces, carry audit evidence, and select only the runtime proven by the
+  selected local, family-hub, or parent-approved remote route. Metadata-only and
+  no-AI fallbacks must keep runtime refs null and expose explicit fallback
+  action/reason labels. Fallback decisions must not claim AI analysis results,
+  final policy decisions, remote default blocking, disabled local safety, or
+  hidden degraded/manual-required states.
+- Browser URL/video AI proof gates must validate the enhancement-row proof pack
+  matrix before rollout claims. A passing gate may prove that AI contract,
+  parser, metadata, provider, policy-candidate, UX-state, and fallback proof
+  artifacts are present and no-claim guard text is preserved, but it must still
+  mark product rollout partial/manual-required until runtime model execution,
+  UI delivery, package exports, policy authority, and enforcement proof exist.
+- Browser AI prompt templates must be versioned by id/version and audit refs.
+  Prompt version records must expose hash refs, compatible model/runtime refs,
+  policy version refs, lifecycle state, supersession, and whether prompt changes
+  invalidate memory.
+- Browser AI prompt selection must use one active version for a task/model
+  runtime and must fail closed to manual-required when the active template is
+  missing, deprecated, retired, unsupported by the model, or unsupported by the
+  policy version. Prompt contracts must not store raw prompt text or capture raw
+  page body or transcript text.
+- Browser AI category/risk/benefit assessments must keep category, modifier,
+  benefit, risk, confidence, uncertainty, source support, and taxonomy version
+  fields explicit. Education/homework/research classifications need benefit
+  signals; high-risk classifications need matching risk signals.
+- Platform category/rating labels may be evidence inputs, but they must not be
+  used as policy authority. Structured assessments must not claim final policy
+  action or enforcement authority.
+- Browser URL/video analysis queue jobs must expose priority, status,
+  parent-owned timeout policy, queued evidence ids, and structured AI input refs.
+  Completed jobs may carry an AI result only when it matches the input request
+  id.
+- Browser URL/video queue timeout semantics must be explicit by priority:
+  P0 strict-hold uses parent policy fallback quickly, P1 may warn or ask, P2 may
+  become background-only, and P3-P5 may wait or degrade. Queue contracts must not
+  claim queue processing, worker runtime, final policy action, or enforcement.
+- Browser AI memory/cache entries must cite complete cache keys: model/prompt,
+  policy version, child profile, and at least one content locator such as
+  canonical URL, platform video id, or normalized origin/path. Fresh entries may
+  drive policy input only through the existing memory-hit contract.
+- Browser AI memory/cache entries must expose TTL class and invalidation reason.
+  Dynamic feeds, search results, homepages, social feeds, and livestreams need
+  short TTLs. Stale, expired, or invalidated entries cannot drive policy input,
+  and cache snapshots must not store raw content or claim direct enforcement.
+- Browser AI knowledge graph references must be evidence-backed node/edge
+  bundles, not an authority layer. They may cite stored browser evidence,
+  metadata, memory/cache, AI analysis, parent rule, external taxonomy, or
+  parent-approved source refs, but they must not store raw content or use
+  platform labels as policy authority.
+- Browser AI knowledge graph bundles may support candidate policy input only
+  when fresh, policy-versioned, explicitly marked for policy-candidate support,
+  and free of low-confidence hidden state, stale refs, duplicate nodes, dangling
+  edges, direct policy authority, or direct enforcement claims.
+- Browser AI policy evaluator integration inputs may hand validated browser
+  evidence, URL shape, metadata, AI result, memory/cache, graph, parent rule,
+  schedule, child profile, and evaluator mode refs to the policy layer. They
+  must not include raw model text, unvalidated AI output, portal UI state, final
+  decision claims, or direct enforcement claims.
+- Browser policy decision bundles that reference AI output must include evidence
+  refs, parent rule refs, reason codes, audit refs, fallback visibility for
+  unknown outcomes, and adapter proof before an active block decision is valid.
+  They must not treat AI output, graph refs, portal state, or the browser
+  evidence layer as direct enforcement authority.
+- Browser AI post-analysis action plans must keep after-the-fact review honest:
+  background review, continue, warning, stopped playback, parent approval,
+  future block, remembered-with-expiry, manual-required, and no-action labels
+  need evidence, policy decision, audit, timing, delivery, and adapter-proof refs
+  where applicable.
+- Browser AI post-analysis action plans must not claim real-time blocking after
+  playback has already started. Delivered warning, stop, approval, or future
+  block actions require adapter proof; remembered actions require an expiry; and
+  unknown decisions require explicit manual or parent fallback action.
+- Browser AI child-facing UX snapshots must use schema-known calm copy tokens
+  rather than arbitrary raw child copy. Checking, warning, block, and approval
+  child pages require adapter proof before they can be claimed as delivered, and
+  warning/block/approval states must link to matching post-analysis actions.
+- Browser AI parent explanation bundles must cite the same evidence carried by
+  AI analysis, policy decision, and post-analysis action records. They must make
+  model runtime, prompt version, policy rule, action, child-saw-page,
+  degraded/manual fallback, and audit refs visible without including raw page
+  content or raw prompt text.
 - Tests prove invalid URLs, missing required ids, unsupported browsers,
   unmanaged browser detections, stale evidence, permission-limited states, and
   degraded bridge states are rejected or marked degraded.

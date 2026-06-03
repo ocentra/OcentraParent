@@ -54,6 +54,9 @@ Policy input may include:
   confidence, and deletion state when screen evidence exists.
 - Parent-authored rules, schedules, overrides, grace periods, and permission-request state.
 - Local AI safety result references and confidence/degraded state when AI contributes.
+- Browser AI policy evaluator handoff refs, including validated AI result,
+  memory/cache, knowledge graph, parent rule, schedule, and evaluator mode refs
+  when browser URL/video AI contributes.
 - Time budget state, active timers, and previous policy decisions.
 
 Policy input must not include:
@@ -62,6 +65,8 @@ Policy input must not include:
 - Portal-only UI state as a decision source.
 - Untyped model text or unvalidated API AI output.
 - Derived memory or graph claims unless they carry evidence references.
+- Portal UI state, AI output, memory, or graph refs as direct policy authority
+  without deterministic evaluator reason codes and audit refs.
 
 ## Contract Boundary
 
@@ -126,6 +131,21 @@ The evaluator must define and test conflict resolution before enforcement is pos
 - Conflicting rules have deterministic resolution.
 - Policy decisions reference evidence.
 - Policy decisions reference the local AI output when AI contributed.
+- Browser policy decision bundles expose reason codes, audit refs, fallback
+  visibility for unknown outcomes, and adapter proof before active browser block
+  decisions are valid.
+- Browser post-analysis action plans distinguish what happened after review
+  from what could have happened in real time. They require adapter proof for
+  delivered warning, stop, approval, or future-block actions and expiry for
+  remembered decisions.
+- Child-facing checking/warning UX snapshots are presentation state only. They
+  must use schema-known calm copy tokens, reject raw or shaming/surveillance
+  copy claims, and must not become policy authority, direct enforcement, or a
+  visual-render claim without the matching adapter and UI proof.
+- Parent explanation/audit UX bundles are also presentation state. They must
+  cite policy decision reason codes and audit refs, reveal degraded/manual
+  fallback states, and must not let portal explanation state become policy
+  authority or enforcement authority.
 - Decision events are journaled.
 - Parent-facing explanation is stable and testable.
 - Dry-run mode can explain what would happen without enforcing it.

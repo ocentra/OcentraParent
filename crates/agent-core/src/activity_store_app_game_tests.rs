@@ -15,6 +15,7 @@ fn activity_store_reports_app_game_sessions_from_process_and_window_events() {
         ProcessObservation {
             pid: 4242,
             name: constants::activity_store::TEST_APP_GAME_PROCESS_NAME.to_string(),
+            executable_path: None,
         },
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
         0,
@@ -55,6 +56,7 @@ fn activity_store_reports_unknown_process_without_catalog_claims() {
         ProcessObservation {
             pid: 4242,
             name: constants::activity_store::TEST_PROCESS_SUBJECT_NAME.to_string(),
+            executable_path: None,
         },
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
         0,

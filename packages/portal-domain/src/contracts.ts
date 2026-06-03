@@ -2,7 +2,7 @@ import { type DisplayText } from '@ocentra-parent/text-domain/contracts';
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/text-domain/portal-dev';
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 export { PortalCommandButtons, PortalOverviewCommands } from './commands';
-export { PortalDetails, PortalReadableValues } from './details';
+export { PortalBrowserInventoryFields, PortalDetails, PortalReadableValues } from './details';
 export { PortalDiagnostics } from './diagnostics';
 export {
   PortalFrameChromeNumberFields,
