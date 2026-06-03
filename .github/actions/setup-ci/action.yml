@@ -38,11 +38,21 @@ runs:
           curl \
           file \
           libayatana-appindicator3-dev \
+          libclang-dev \
+          libdbus-1-dev \
+          libegl-dev \
+          libpipewire-0.3-dev \
           librsvg2-dev \
           libssl-dev \
           libwebkit2gtk-4.1-dev \
+          libwayland-dev \
+          libxcb1-dev \
           libxdo-dev \
-          wget
+          libxrandr-dev \
+          pkg-config \
+          wget \
+          imagemagick \
+          x11-apps
 
     - name: Install npm dependencies
       if: inputs.install-mode != 'skip'

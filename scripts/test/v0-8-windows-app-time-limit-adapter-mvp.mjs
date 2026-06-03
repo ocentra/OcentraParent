@@ -10,12 +10,25 @@ const evidenceDirectory = join(process.cwd(), 'test-results', 'v0-8-windows-app-
 const timeoutMs = envNumber('OCENTRA_PARENT_V08_APP_TIME_LIMIT_TIMEOUT_MS', 20_000);
 
 const ids = {
-  policyDecisionId: 'decision-v08-app-time-limit',
-  actionId: 'action-v08-app-time-limit',
-  resultId: 'result-v08-app-time-limit',
-  auditEventId: 'audit-v08-app-time-limit',
-  timerEventId: 'timer-v08-app-time-limit',
-  parentActionReferenceId: 'parent-action-v08-app-time-limit',
+  policyDecisionId: envText('OCENTRA_PARENT_V08_APP_TIME_LIMIT_POLICY_DECISION_ID', 'decision-v08-app-time-limit'),
+  actionId: envText('OCENTRA_PARENT_V08_APP_TIME_LIMIT_ACTION_ID', 'action-v08-app-time-limit'),
+  resultId: envText('OCENTRA_PARENT_V08_APP_TIME_LIMIT_RESULT_ID', 'result-v08-app-time-limit'),
+  auditEventId: envText('OCENTRA_PARENT_V08_APP_TIME_LIMIT_AUDIT_EVENT_ID', 'audit-v08-app-time-limit'),
+  timerEventId: envText('OCENTRA_PARENT_V08_APP_TIME_LIMIT_TIMER_EVENT_ID', 'timer-v08-app-time-limit'),
+  parentActionReferenceId: envText(
+    'OCENTRA_PARENT_V08_APP_TIME_LIMIT_PARENT_ACTION_REFERENCE_ID',
+    'parent-action-v08-app-time-limit'
+  ),
+};
+const commandRefs = {
+  evidenceReferenceIds: envText(
+    'OCENTRA_PARENT_V08_APP_TIME_LIMIT_EVIDENCE_REFERENCE_IDS',
+    'evidence-v08-app-time-limit'
+  ),
+  ruleIds: envText('OCENTRA_PARENT_V08_APP_TIME_LIMIT_RULE_IDS', 'rule-v08-app-time-limit'),
+  reasonCodes: envText('OCENTRA_PARENT_V08_APP_TIME_LIMIT_REASON_CODES', 'parent-time-limit'),
+  enforcementIntentId: envText('OCENTRA_PARENT_V08_APP_TIME_LIMIT_INTENT_ID', 'intent-v08-app-time-limit'),
+  targetId: envText('OCENTRA_PARENT_V08_APP_TIME_LIMIT_TARGET_ID', 'target-v08-app-time-limit'),
 };
 
 await main();
@@ -70,6 +83,15 @@ async function main() {
       childProcess: {
         pid: child.pid ?? null,
         expectedProcessName: executeAssertion.expectedProcessName,
+      },
+      inputRefs: {
+        policyDecisionId: ids.policyDecisionId,
+        actionId: ids.actionId,
+        evidenceReferenceIds: commandRefs.evidenceReferenceIds,
+        ruleIds: commandRefs.ruleIds,
+        reasonCodes: commandRefs.reasonCodes,
+        enforcementIntentId: commandRefs.enforcementIntentId,
+        targetId: commandRefs.targetId,
       },
       assertions: {
         execute: executeAssertion,
@@ -393,14 +415,14 @@ function commandEnvelope(kind, child) {
         ...commonPayload(now, kind),
         policyAction: 'time-limit',
         targetType: 'app',
-        targetId: 'target-v08-app-time-limit',
+        targetId: commandRefs.targetId,
         targetValue: basename(process.execPath),
         dryRun: false,
-        reasonCodes: 'parent-time-limit',
-        ruleIds: 'rule-v08-app-time-limit',
-        evidenceReferenceIds: 'evidence-v08-app-time-limit',
+        reasonCodes: commandRefs.reasonCodes,
+        ruleIds: commandRefs.ruleIds,
+        evidenceReferenceIds: commandRefs.evidenceReferenceIds,
         expiresAt: expiresAt.toISOString(),
-        enforcementIntentId: 'intent-v08-app-time-limit',
+        enforcementIntentId: commandRefs.enforcementIntentId,
         processId: child.pid,
       },
     };
@@ -468,6 +490,11 @@ function collectOutput(child) {
 function envNumber(name, fallback) {
   const parsed = Number(process.env[name]);
   return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+}
+
+function envText(name, fallback) {
+  const value = process.env[name]?.trim();
+  return value && value.length > 0 ? value : fallback;
 }
 
 function runCommand(command, args) {

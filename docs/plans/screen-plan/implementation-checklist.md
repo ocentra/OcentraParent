@@ -8,6 +8,25 @@ Expected proof pack path:
 output/screen-plan-proof/<workpack-id>/
 ```
 
+## Current Branch Proof Snapshot
+
+These entries summarize proof already produced on the current stacked branch.
+They do not claim service-owned background watchers, disable suppression, portal
+UI, or D-lane managed-browser integration.
+
+| Proof                                    | Status                   | Artifact                                                                                           | Non-claim                                                                                                                                                                                          |
+| ---------------------------------------- | ------------------------ | -------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Windows active-window adapter capture    | P3 proved                | `output/screen-plan-proof/real-capture/manual-parent-test-active-window/proof-summary.json`        | Windows local host only; macOS, iOS, Android physical parity, and broader Linux compositor proof still need real platform proof.                                                                   |
+| Windows scope-matrix adapter capture     | P3 proved                | `output/screen-plan-proof/real-capture/scope-matrix/proof-summary.json`                            | Proves active-window, selected-window, and opt-in primary-display adapter scopes; does not claim parent setting wiring.                                                                            |
+| Desktop adapter path                     | P2 implementation path   | `crates/screen-capture-adapter/src/lib.rs`                                                         | Windows/macOS use `xcap`; Linux uses a real X11 command backend. Live macOS and Linux Wayland/root-display proof still must run before those platform claims are complete.                         |
+| Linux WSLg selected-window capture       | P3 local WSLg proved     | `output/screen-plan-proof/linux-wslg/proof-summary.json`                                           | Proves WSLg/X11 selected-window capture only; does not claim WSLg root display, native Wayland portal, or broad Linux compositor parity.                                                           |
+| Android MediaProjection emulator capture | P3 local emulator proved | `output/screen-plan-proof/android-mediaprojection/proof-summary.json`                              | Proves explicit OS consent, foreground-service capture, frame digest, and raw-temp deletion on Android API 35 emulator only; physical-device parity and silent background capture are not claimed. |
+| Encrypted temporary queue custody        | P3 proved                | `output/screen-plan-proof/real-capture/manual-parent-test-active-window/03-encrypted-queue.ndjson` | Remaining implementation task: service scheduler integration; this local harness proof is not that claim.                                                                                          |
+| Raw image delete-after-success           | P3 proved                | `output/screen-plan-proof/real-capture/manual-parent-test-active-window/04-deletion-proof.json`    | TTL expiry and delete-failed surfacing remain.                                                                                                                                                     |
+| Browser-window scheduler trigger         | P3 proved                | `output/screen-plan-proof/real-capture/trigger-matrix/proof-summary.json`                          | Runs the Rust trigger scheduler before capture; does not claim D-lane managed browser URL-change integration.                                                                                      |
+| Native app foreground scheduler trigger  | P3 proved                | `output/screen-plan-proof/real-capture/trigger-matrix/proof-summary.json`                          | Proves a real Windows Notepad foreground-window capture through the scheduler; service-owned foreground watcher wiring remains.                                                                    |
+| Timed two-frame scheduler cadence        | P3 proved                | `output/screen-plan-proof/real-capture/trigger-matrix/proof-summary.json`                          | Proves cadence-due scheduler decisions and two real selected-window captures; service timer loop and disabled-setting stop remain.                                                                 |
+
 ## Main Gates
 
 - [ ] Screen analysis starts disabled.
@@ -15,8 +34,8 @@ output/screen-plan-proof/<workpack-id>/
 - [ ] MVP scope is capture/routing first, AI model-quality proof second.
 - [ ] Capture cadence and triggers are parent-controlled.
 - [ ] Capture scope is parent-controlled and platform-gated.
-- [ ] Real browser-use trigger proof exists, not only contract tests.
-- [ ] Real app-use trigger proof exists, not only contract tests.
+- [x] Real browser-use trigger proof exists, not only contract tests.
+- [x] Real app-use trigger proof exists, not only contract tests.
 - [ ] Timed cadence proof captures multiple bounded frames and stops after disable.
 - [ ] Capability status exists before capture.
 - [ ] Screen evidence is treated as cross-slice, not browser-only.
@@ -26,12 +45,12 @@ output/screen-plan-proof/<workpack-id>/
 - [ ] Guided detector prompts replace open-ended screen descriptions.
 - [ ] A capable configured local model may be used after route/cost/privacy proof.
 - [ ] Protected surfaces are skipped.
-- [ ] Temporary image queue is encrypted.
+- [x] Temporary image queue is encrypted.
 - [ ] Raw image path is redacted outside child agent.
 - [ ] Local OCR/vision returns schema-valid JSON only.
 - [ ] Invalid model output cannot drive policy.
 - [ ] Summary writes to journal/SQLite.
-- [ ] Raw image deleted after success.
+- [x] Raw image deleted after success.
 - [ ] Raw image deleted after expiry.
 - [ ] Deletion state visible.
 - [ ] Policy consumes summary/evidence refs only.
@@ -112,25 +131,25 @@ local heavy OCR/VLM jobs run without priority/resource guard
 | [~]    | 03 Contract boundary and Effect schemas            |
 | [ ]    | 04 Parent opt-in settings contract                 |
 | [ ]    | 05 Capability/status contract                      |
-| [ ]    | 06 Capture scope model                             |
-| [ ]    | 07 Capture trigger model                           |
+| [~]    | 06 Capture scope model                             |
+| [~]    | 07 Capture trigger model                           |
 | [ ]    | 08 Platform adapter abstraction                    |
-| [ ]    | 09 Windows capture adapter plan/proof              |
-| [ ]    | 10 macOS capture adapter plan/proof                |
-| [ ]    | 11 Linux capture adapter plan/proof                |
-| [ ]    | 12 Android MediaProjection adapter plan/proof      |
+| [~]    | 09 Windows capture adapter plan/proof              |
+| [~]    | 10 macOS capture adapter plan/proof                |
+| [~]    | 11 Linux capture adapter plan/proof                |
+| [~]    | 12 Android MediaProjection adapter plan/proof      |
 | [ ]    | 13 iOS ReplayKit adapter plan/proof                |
 | [ ]    | 14 Protected surface detector                      |
 | [~]    | 15 Encrypted temporary image queue                 |
-| [ ]    | 16 Queue scheduler and debouncer                   |
+| [~]    | 16 Queue scheduler and debouncer                   |
 | [ ]    | 17 Local OCR/vision runtime model                  |
 | [~]    | 18 Screen analysis result schema                   |
 | [ ]    | 19 Sensitive text and redaction model              |
 | [ ]    | 20 Result validator and invalid-output handling    |
 | [~]    | 21 Journal and SQLite ingest                       |
-| [ ]    | 22 Deletion and retention proof                    |
-| [ ]    | 23 Policy compiler for screen-derived evidence     |
-| [ ]    | 24 Enforcement handoff guard                       |
+| [~]    | 22 Deletion and retention proof                    |
+| [~]    | 23 Policy compiler for screen-derived evidence     |
+| [~]    | 24 Enforcement handoff guard                       |
 | [ ]    | 25 Parent portal summary UI                        |
 | [ ]    | 26 Child disclosure UX                             |
 | [ ]    | 27 Screenshot retention optional mode              |
@@ -142,7 +161,7 @@ local heavy OCR/VLM jobs run without priority/resource guard
 | [ ]    | 33 Managed browser CDP screenshot capture path     |
 | [ ]    | 34 OCR Tesseract baseline                          |
 | [ ]    | 35 OCR PaddleOCR/PP-OCR evaluation                 |
-| [ ]    | 36 Small VLM guided classifier evaluation          |
+| [~]    | 36 Small VLM guided classifier evaluation          |
 | [ ]    | 37 Family AI hub screen-analysis queue             |
 | [ ]    | 38 Local AI resource scheduler/priority queue      |
 | [ ]    | 39 Redacted summary-only remote boundary           |

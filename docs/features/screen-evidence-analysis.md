@@ -40,15 +40,53 @@ only with explicit parent settings.
   policy eligibility with focused contract tests plus
   `scripts/test/screen-evidence-settings-retention-proof.mjs`.
 - Local AI and policy can consume evidence summaries in dry-run paths.
+- The desktop local adapter path now uses the shared `xcap` capture API on
+  Windows/macOS and an X11 command backend on Linux. Windows proof captures
+  active-window, selected-window, and parent-opt-in primary-display scopes with
+  encrypted temporary custody and raw delete-after-success proof. Linux WSLg
+  proof captures a real X11 selected window with encrypted custody and raw
+  deletion. macOS live capture proof still requires platform execution evidence
+  before parity is claimed.
+- The screen-capture adapter crate now has a Rust trigger scheduler proof for
+  parent-enabled managed-browser trigger inputs, native app foreground trigger
+  inputs, cadence-due decisions, debounce, and disabled-parent suppression. The
+  Windows trigger matrix proof captures real browser and Notepad windows after
+  scheduler enqueue decisions and deletes raw temp images.
+- `scripts/test/screen-ai-local-vlm-proof.mjs` now runs a local Qwen2-VL proof
+  matrix over 16 real window captures plus a disabled no-capture/no-AI row. The
+  window capture, local analysis, policy, explanation, and deletion plumbing is
+  real, but most visible content is controlled fixture content for deterministic
+  harness proof. The matrix covers controlled browser video, education video,
+  Vimeo-style video, social feed/chat, browser game, bypass tool, shopping,
+  school/productivity, native app, controlled native game window, native
+  owned-process time-limit, unknown low-confidence fallback, controlled violence
+  text, and three timed cadence frames. Every captured row validates screen
+  analysis, local AI safety result, deterministic policy dry-run, parent
+  explanation artifact, and raw image deletion. Live external site/account proof
+  remains required before product-complete claims for YouTube, Vimeo, Facebook,
+  shopping, or similar real services.
+- `scripts/test/screen-ai-action-dispatch-proof.mjs` now links the
+  screen-derived native owned-process time-limit policy decision into the real
+  Windows Rust service time-limit adapter path. The proof preserves the screen
+  policy decision ID and evidence refs through dispatch, restart recovery,
+  parent cancel, expiry, and a real Windows process-termination result.
+- Android child-agent scaffold now has emulator MediaProjection proof with
+  explicit OS consent, foreground service, captured frame digest, and raw temp
+  deletion. Physical Android parity and silent background capture are not
+  claimed.
 - Product settings and quality proof are incomplete.
 - Raw screen control settings are preserved as design inputs, not
   product-complete implementation proof.
 
 ## Current Gap
 
-Opt-in UI, actual screenshot capture scheduling, OCR/vision model quality,
-runtime deletion proof, enforcement handoff, checklist status movement, and
-parent explanation UX remain.
+Opt-in UI, service-owned background timer/foreground watchers, live external
+URL/account operator proof, OCR/vision quality beyond controlled fixtures,
+runtime service/read-model wiring, physical Android/iOS proof, live macOS
+capture proof, Linux root/Wayland portal proof, browser/network/mobile/broad
+block action adapters from screen-derived decisions, checklist status movement,
+and production parent explanation UX remain. These are remaining screen+AI
+delivery items, not external handoff excuses.
 
 ## Checklist
 
