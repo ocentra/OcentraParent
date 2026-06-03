@@ -94,6 +94,9 @@ docs remain in place.
   running duration, foreground duration bounded by running duration, background
   duration, stale-gap closure, process-exit closure, replay-stable ordering, and
   daily rollup helper proof;
+- staged encrypted journal-file replay proof for typed app/game inventory,
+  runtime, foreground, launcher, running-now, foreground-now, and daily rollup
+  rows;
 - staged Windows foreground-window parser proof that can apply foreground
   duration to existing runtime summaries without claiming content;
 - scoped Windows app time-limit capability helpers;
@@ -136,6 +139,7 @@ output/app-plan-proof/09-windows-foreground-app-evidence-adapter
 output/app-plan-proof/10-cross-platform-authority-matrix
 output/app-plan-proof/11-app-category-and-risk-taxonomy
 output/app-plan-proof/12-app-sessionization-and-duration-engine
+output/app-plan-proof/13-journal-and-sqlite-app-ingest
 ```
 
 Those proof packs point back to `output/app-game-plan-proof/*` for the shared
@@ -167,12 +171,14 @@ polished app catalog UI, install approval, or cross-platform parity.
 - Windows Store/UWP/AppX identity needs separate proof from Win32 executable
   identity.
 - Foreground evidence now has shared app/game contract/protocol/parser proof,
-  and stored-row sessionization can derive foreground duration, but live window
-  capture wiring, encrypted journal-file replay, service events, portal rows,
-  and explicit no-content UI labels remain incomplete.
+  stored-row sessionization can derive foreground duration, and staged
+  journal/SQLite replay can project foreground-now rows, but live window capture
+  wiring, service events, portal rows, and explicit no-content UI labels remain
+  incomplete.
 - Session duration and daily app rollups now have deterministic SQLite-row
-  replay proof, but encrypted journal-file ingest/replay, service events,
-  portal dashboard rows, and policy/report integration remain incomplete.
+  replay proof plus staged encrypted journal-file ingest/replay proof, but
+  service events, portal dashboard rows, policy/report integration, live source
+  subscriptions, and journal corruption/recovery proof remain incomplete.
 - New/unknown app approval and child request UX are incomplete.
 - App category/risk taxonomy now has contract/test proof, but live classifier
   enrichment, policy routing, portal category rows, and runtime app risk

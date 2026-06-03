@@ -3,8 +3,8 @@ use ocentra_parent_agent_protocol::{
     APP_GAME_CATALOG_NOT_LOADED, APP_GAME_CLASSIFICATION_ADAPTER_ERROR,
     APP_GAME_CLASSIFICATION_PERMISSION_LIMITED, APP_GAME_CLASSIFICATION_POSSIBLY_GAME,
     APP_GAME_CLASSIFICATION_UNKNOWN_PROCESS, APP_GAME_CONFIDENCE_FOREGROUND_CANDIDATE,
-    APP_GAME_CONFIDENCE_UNKNOWN, APP_GAME_SCHEMA_VERSION, APP_GAME_SESSION_END_REASON_PROCESS_EXIT,
-    APP_GAME_SESSION_ID_PREFIX,
+    APP_GAME_CONFIDENCE_UNKNOWN, APP_GAME_JOURNAL_FIELD_CLASSIFICATION_STATE,
+    APP_GAME_SCHEMA_VERSION, APP_GAME_SESSION_END_REASON_PROCESS_EXIT, APP_GAME_SESSION_ID_PREFIX,
 };
 
 use crate::activity_store_app_game_rows::AppGameStoreRow;
@@ -119,6 +119,12 @@ fn display_name(row: &AppGameStoreRow) -> String {
 }
 
 fn classification_state(row: &AppGameStoreRow) -> String {
+    if let Some(classification_state) =
+        string_field(&row.fields, APP_GAME_JOURNAL_FIELD_CLASSIFICATION_STATE)
+    {
+        return classification_state;
+    }
+
     match string_field(&row.fields, constants::field::CAPABILITY_STATUS).as_deref() {
         Some(constants::activity_capture::CAPABILITY_STATUS_ACCESS_DENIED) => {
             APP_GAME_CLASSIFICATION_PERMISSION_LIMITED.to_string()

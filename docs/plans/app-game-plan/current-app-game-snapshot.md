@@ -48,6 +48,10 @@ Proved today:
 - App/game sessionization now derives deterministic running, foreground,
   background, stale-gap, process-exit, replay-stable, and daily rollup duration
   rows from stored SQLite observations with TypeScript and Rust protocol parity.
+- App/game journal/SQLite ingest now has staged encrypted-journal replay proof
+  for typed inventory, runtime, foreground, and launcher rows, including
+  inventory, running-now, foreground-now, launcher, and daily rollup read-model
+  projection plus invalid evidence and duplicate-duration guards.
 - App-control and game-control catalog/authoring contracts exist in
   `packages/parent-domain`.
 - Rust app/game session protocol mirrors exist.
@@ -65,12 +69,12 @@ Not proved today:
 - Live Microsoft Store/UWP/AppX/MSIX package enumeration, Store API integration,
   install approval, purchase approval, or package-wide blocking.
 - Live Windows process polling, process start/exit subscription, executable
-  metadata collection, publisher/signature/hash collection, encrypted
-  journal-file ingest/replay, service events, or portal runtime rows for the
-  new WP08 contract.
-- Live Windows foreground-window polling, active-window subscription, encrypted
-  journal-file ingest/replay, service events, or portal foreground rows for the
-  new WP09 contract.
+  metadata collection, publisher/signature/hash collection, service events, or
+  portal runtime rows for the new WP08 contract. Journal replay is currently
+  staged fixture proof, not live source wiring.
+- Live Windows foreground-window polling, active-window subscription, service
+  events, or portal foreground rows for the new WP09 contract. Journal replay
+  is currently staged fixture proof, not live source wiring.
 - Product-complete native game catalog, live launcher disambiguation, and game
   budgets.
 - New/unknown app and unknown game approval flow.
@@ -121,7 +125,7 @@ deterministic sessionization helpers, typed Windows installed-record and
 Store/UWP package adapter/parser proof, staged Windows process runtime parser
 proof, staged Windows foreground-window parser proof, staged Windows launcher
 evidence parser proof, and scoped Windows owned-process time-limit helpers.
-This is a strong base for workpacks 11, 12, 13, and 21, but it is not the same
+This is a strong base for workpacks 11, 12, 13, 14, and 21, but it is not the same
 as:
 
 - live Windows installed app inventory crawling;
@@ -130,6 +134,7 @@ as:
 - live Windows foreground-window polling or subscribed foreground transition
   events;
 - live launcher manifest adapters;
+- service events and portal read-model exposure for replayed app/game rows;
 - foreground app evidence adapters;
 - game-specific launcher-child process disambiguation;
 - broad block-launch enforcement;
@@ -159,21 +164,25 @@ Missing portal states include:
 - App/game identity contracts are present, but runtime identity merge behavior
   and adapter-fed identity refs are not implemented yet.
 - Inventory evidence row contracts and Rust inventory-row parity are present,
-  and Windows installed-record plus Store/UWP package parser proof exists, but
-  live platform crawling, journal ingest, read models, and portal rows are not
-  implemented yet.
-- Runtime evidence contracts and Rust runtime-row parity are present, and a
-  staged Windows process runtime parser proof exists, but live process capture,
-  executable metadata crawling, encrypted journal-file ingest, service events,
-  and portal runtime rows are not implemented yet.
-- Foreground evidence contracts and Rust foreground-row parity are present, and
-  a staged Windows foreground-window parser proof exists, but live foreground
-  capture, encrypted journal-file ingest, service events, portal foreground
-  rows, and content-aware claims are not implemented.
+  Windows installed-record plus Store/UWP package parser proof exists, and
+  staged journal/SQLite replay proof now projects inventory rows, but live
+  platform crawling, service events, and portal rows are not implemented yet.
+- Runtime evidence contracts and Rust runtime-row parity are present, a staged
+  Windows process runtime parser proof exists, and staged journal/SQLite replay
+  proof now projects running-now rows, but live process capture, executable
+  metadata crawling, service events, and portal runtime rows are not implemented
+  yet.
+- Foreground evidence contracts and Rust foreground-row parity are present, a
+  staged Windows foreground-window parser proof exists, and staged
+  journal/SQLite replay proof now projects foreground-now rows, but live
+  foreground capture, service events, portal foreground rows, and content-aware
+  claims are not implemented.
 - Rust protocol parity has not yet mirrored the WP01 evidence claim, AI digest,
   app/game control authority schemas, or WP04 identity schemas.
-- Journal and SQLite ingest do not yet store the new evidence claim and
-  authority proof shapes.
+- Journal and SQLite ingest now covers staged app/game inventory, runtime,
+  foreground, launcher, and daily rollup rows. It does not yet store the WP01
+  evidence-claim or authority proof shapes, and it is not yet wired to live
+  source subscriptions, service events, or portal rows.
 - Portal app/game dashboard rows do not yet consume the new contracts.
 - Launcher evidence has contract/protocol/parser proof, but live launcher
   crawling, journal/read-model ingest, service events, portal rows, and
@@ -227,6 +236,11 @@ Missing portal states include:
   reasons, observation gaps, and daily rollups. It does not add encrypted
   journal-file ingest/replay, live source subscriptions, service events, portal
   dashboard rows, policy execution, UI proof, or broad blocking.
+- WP14 adds staged encrypted journal-file append/replay plus SQLite projection
+  proof for typed inventory, runtime, foreground, launcher, running-now,
+  foreground-now, launcher, and daily rollup rows. It does not add live source
+  subscriptions, service events, portal dashboard rows, policy execution,
+  approval flow, corruption/recovery proof, UI proof, or broad blocking.
 - Next implementation work should either add live Windows inventory source
   readers, encrypted journal ingest plus service/read-model events, or mirror
   the remaining WP01/WP04 TypeScript shapes into Rust protocol before

@@ -25,4 +25,40 @@ enforcement evidence is journaled and replayed before consumers use it.
 
 Consumers use stored/replayed evidence, not live portal state or direct OS reads.
 
-Use the standard checklist in [workpacks README](README.md).
+## AI Worker Checklist
+
+- [x] Confirm source docs read: [folder README](../README.md), [source index](../source-index.md), [current snapshot](../current-app-game-snapshot.md), implementation checklist, app-plan bridge workpack, feature doc, app/game evidence expectation, evidence-storage expectation, architecture doc, and this workpack.
+- [x] Confirm this is shared native app/game evidence-spine scope, not browser pages or browser games.
+- [x] Hub lock covers this workpack and exact implementation/docs/proof paths.
+- [x] Existing app/game source layout inspected; no parallel app-control truth created.
+- [x] Before-state source snapshot recorded in `output/app-game-plan-proof/14-journal-and-sqlite-ingest/00-source-snapshot.md`.
+- [x] Protocol constants updated before Rust replay consumers depend on them.
+- [x] Raw evidence artifacts captured for inventory, runtime, foreground, launcher, journal, SQLite replay, and daily rollup fixture rows.
+- [x] Tests/proof listed in this workpack are implemented or explicitly marked N/A/manual-required with reason.
+- [x] Validation command outputs saved in the proof pack and summarized in [main checklist](../implementation-checklist.md).
+- [x] UI snapshots marked N/A because no portal, child UX, policy authoring, or evidence drawer UI changed.
+- [x] Security/no-claim negative proof captured: inventory is not use, running is not foreground, foreground is not content, launcher is not game, duplicate rows do not double count, and invalid evidence is rejected before SQLite.
+- [x] Manual platform proof marked N/A because no live adapter or enforcement authority changed.
+- [x] Evidence/proof artifact paths recorded in [main checklist](../implementation-checklist.md).
+- [x] Feature/expectation/product-checklist/README update decision recorded in [main checklist](../implementation-checklist.md).
+- [x] Known gaps, deferred items, and no-claim boundaries recorded before `DONE`.
+
+## Completion Notes
+
+Completed on branch `codex/app-game-journal-sqlite-ingest` with proof under
+`output/app-game-plan-proof/14-journal-and-sqlite-ingest/`.
+
+This slice proves staged typed app/game inventory, runtime, foreground, and
+launcher rows can be appended to the real encrypted journal path, replayed into
+SQLite, and projected into inventory, running-now, foreground-now, launcher, and
+daily rollup rows. It also proves invalid inventory-use claims are rejected
+before persistence and duplicate runtime observations do not double count
+duration.
+
+Still open:
+
+- live source adapters appending production rows;
+- service events and portal app/game read models;
+- policy/action/approval integration;
+- journal corruption/recovery and persisted restart proof;
+- live platform authority and broad blocking proof.

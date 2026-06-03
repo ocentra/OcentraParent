@@ -45,6 +45,10 @@ control with better evidence and local audit.
   foreground, background, stale-gap, process-exit, replay-stable, and daily
   rollup duration proof without upgrading inventory, launcher, or foreground
   evidence into content or enforcement authority.
+- Staged encrypted journal-file replay now persists typed inventory, runtime,
+  foreground, and launcher evidence through SQLite and projects inventory,
+  running-now, foreground-now, launcher, and daily rollup rows while preserving
+  the no-use/no-content/no-launcher-promotion boundaries.
 - Package/process identity and owned-process time-limit proof are in progress.
 - The V0.8 product-control spine separates app time-limit and scoped
   owned-process control from broad installed-app blocking, so downstream policy
@@ -109,8 +113,9 @@ decisions.
 
 - [ ] App/game inventory and identity.
 - [ ] Running and foreground session evidence. Contract and local
-      SQLite-row session-duration proof now exists; live journal-file ingest,
-      service events, portal dashboard rows, and policy integration remain.
+      SQLite-row session-duration proof now exists, and staged journal-file
+      replay proof now covers typed fixture rows; live source adapters, service
+      events, portal dashboard rows, and policy integration remain.
 - [ ] Category and unknown-state handling.
 - [ ] App/category schedule and time-budget rules.
 - [ ] Ask-parent and bonus-time flow.
