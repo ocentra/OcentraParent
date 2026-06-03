@@ -10,6 +10,11 @@ use rusqlite::Connection;
 pub(crate) mod app_game_windows_inventory;
 #[cfg(test)]
 mod app_game_windows_inventory_tests;
+// WP07 stages Store/UWP package parsing before live package readers call it.
+#[allow(dead_code)]
+pub(crate) mod app_game_windows_store_inventory;
+#[cfg(test)]
+mod app_game_windows_store_inventory_tests;
 
 use crate::{
     activity_store_app_game_observation::AppGameObservation,

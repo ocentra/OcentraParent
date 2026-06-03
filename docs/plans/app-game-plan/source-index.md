@@ -94,6 +94,8 @@ Current Rust protocol and runtime proof paths include:
 - `crates/agent-core/src/activity_store_app_game.rs`
 - `crates/agent-core/src/activity_store_app_game/app_game_windows_inventory.rs`
 - `crates/agent-core/src/activity_store_app_game/app_game_windows_inventory_tests.rs`
+- `crates/agent-core/src/activity_store_app_game/app_game_windows_store_inventory.rs`
+- `crates/agent-core/src/activity_store_app_game/app_game_windows_store_inventory_tests.rs`
 - `crates/agent-core/src/activity_store_app_game_observation.rs`
 - `crates/agent-core/src/activity_store_app_game_rows.rs`
 - `crates/agent-core/src/activity_store_app_game_tests.rs`
@@ -166,6 +168,15 @@ game rows, strong-identity dedupe, display-only non-merge, and no-use guards. It
 does not prove live registry crawling, shell-link parsing, executable metadata,
 signature/hash collection, journal ingest, service events, portal rows, or broad
 blocking.
+
+WP07 proof on `codex/app-game-windows-store-inventory` adds first-class
+Microsoft Store/UWP/AppX/MSIX package parser proof under
+`output/app-game-plan-proof/07-windows-store-uwp-appx-inventory-adapter/`. It
+covers store app rows, store game rows, package/AUMID deterministic runtime
+merge checks, AppUserModelId policy-target handoff, and no-use guards. It does
+not prove live package enumeration, Store API integration, package install or
+purchase approval, journal ingest, service events, portal rows, or broad
+package blocking.
 
 ## Current Test Files
 
