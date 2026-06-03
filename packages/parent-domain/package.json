@@ -13,6 +13,14 @@
       "import": "./dist/app-game-control-authority.js",
       "types": "./dist/app-game-control-authority.d.ts"
     },
+    "./app-install-purchase-approval": {
+      "import": "./dist/app-install-purchase-approval.js",
+      "types": "./dist/app-install-purchase-approval.d.ts"
+    },
+    "./app-install-purchase-approval-proof": {
+      "import": "./dist/app-install-purchase-approval-proof.js",
+      "types": "./dist/app-install-purchase-approval-proof.d.ts"
+    },
     "./browser-control-baseline-manifest": {
       "import": "./dist/browser-control-baseline-manifest.js",
       "types": "./dist/browser-control-baseline-manifest.d.ts"
