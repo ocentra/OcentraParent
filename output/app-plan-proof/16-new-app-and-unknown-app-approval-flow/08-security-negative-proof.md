@@ -16,4 +16,3 @@ No-claim boundary:
 This proof does not upgrade native app blocking. Platform hard controls remain
 manual-required until live adapter authority, rollback, audit, service, and UI
 proof exist.
-

@@ -50,4 +50,3 @@ No source changed:
 - No Rust protocol, service, portal, notification, or platform adapter code was
   changed in this contract-only slice.
 - Native app approval UI and live candidate production remain later work.
-

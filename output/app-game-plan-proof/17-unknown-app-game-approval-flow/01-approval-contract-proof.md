@@ -33,4 +33,3 @@ Boundary:
 This proof does not create live candidate production, parent/child approval UI,
 service read models, notification delivery, hard blocking, or platform adapter
 authority.
-

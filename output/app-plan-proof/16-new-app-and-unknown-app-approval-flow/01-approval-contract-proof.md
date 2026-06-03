@@ -24,4 +24,3 @@ Native app no-claim boundary:
 Shared proof root:
 
 `output/app-game-plan-proof/17-unknown-app-game-approval-flow`
-

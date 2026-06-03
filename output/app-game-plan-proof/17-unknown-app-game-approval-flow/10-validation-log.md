@@ -38,4 +38,3 @@ The new `app-game-control-approval-flow.ts` file is below the advisory band.
 `app-game-control-authority.ts` was trimmed back below 250 lines after adding
 the approval-flow bridge. Remaining source-shape warnings are pre-existing
 advisory warnings outside this slice.
-

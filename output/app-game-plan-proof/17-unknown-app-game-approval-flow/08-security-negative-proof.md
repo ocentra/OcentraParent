@@ -16,4 +16,3 @@ No-claim boundary:
 This proof does not grant new hard-control authority. Supported platform
 blocking still requires adapter proof, rollback proof, audit proof, and service
 integration in later slices.
-

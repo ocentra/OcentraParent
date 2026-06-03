@@ -38,4 +38,3 @@ This validation covers the shared parent-domain approval contract proof used by
 native app WP16. It does not prove live native app inventory/runtime candidate
 production, service persistence, notifications, parent/child approval UI, or
 platform hard-block execution.
-
