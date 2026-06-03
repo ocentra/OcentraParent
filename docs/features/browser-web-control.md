@@ -570,8 +570,7 @@ title, description, platform ids, channel name, thumbnail refs, duration, publis
 date, captions/transcript availability, category/rating/restricted signals, and
 degraded reasons. Unmanaged or non-YouTube classifications are rejected, and the
 adapter does not capture page body, transcript text, content semantics authority,
-AI decisions, policy decisions, or policy authority. Public package/barrel
-exports remain pending source/package export coordination; no network fetcher,
+AI decisions, policy decisions, or policy authority. Activity-domain package subpath exports are now present; no network fetcher,
 transcript parser, hidden page load, AI execution, policy evaluator,
 enforcement, or product checklist upgrade is claimed.
 AI-22 now extends deterministic Vimeo parser coverage and adds a Vimeo/generic
@@ -583,8 +582,7 @@ publish date, captions/transcript availability, category/rating/restricted
 signals, and degraded reasons. Unmanaged classifications and generic
 OpenGraph-only rows are rejected, and the adapter does not capture page body,
 transcript text, content semantics authority, AI decisions, policy decisions, or
-policy authority. Public package/barrel exports remain pending source/package
-export coordination; no network fetcher, transcript parser, hidden page load, AI
+policy authority. Activity-domain package subpath exports are now present; no network fetcher, transcript parser, hidden page load, AI
 execution, policy evaluator, enforcement, or product checklist upgrade is
 claimed.
 AI-23 now extends deterministic dynamic feed/social URL handling. The URL shape
@@ -596,8 +594,7 @@ dynamic-feed or social-route reasons with medium/low confidence; exact
 reels/status/posts carry post ids where visible. Unmanaged social rows remain
 unknown/non-exact, dynamic-feed TTL stale memory rows cannot drive policy input,
 and parser rows keep content semantics, AI decisions, and policy decisions
-false. Public package/barrel exports remain pending source/package export
-coordination; no account identity proof, feed recommendation analysis,
+false. Activity-domain package subpath exports are now present; no account identity proof, feed recommendation analysis,
 messaging/contact analysis, upload monitoring, livestream content analysis, UI,
 enforcement, or product checklist upgrade is claimed.
 AI-24 now adds provider degraded/fallback decision contracts for the browser AI
@@ -607,8 +604,7 @@ existing route proof. Metadata-only and no-AI fallbacks keep runtime refs null
 and expose fallback action/reason/audit refs. The contracts reject hidden
 fallback, claimed AI analysis results, claimed policy decisions, disabled local
 safety, remote default blocking, and remote outages disabling local safety.
-Public package/barrel exports remain pending source/package export
-coordination; no model execution, policy evaluator, UI, enforcement, runtime
+Activity-domain package subpath exports are now present; no model execution, policy evaluator, UI, enforcement, runtime
 delivery, or product checklist upgrade is claimed.
 AI-25 now adds a URL/video AI proof-gate script and rollout manifest. The gate
 checks AI-01 through AI-24 checklist rows, proof-pack directories, required
@@ -616,8 +612,7 @@ source/security/validation/UI-not-applicable artifacts, plan checkpoint
 mentions, and no-claim rollout guard text. It emits JSON and Markdown proof
 showing 18 contract-proof rows and six partial/manual-required rows. This closes
 the AI enhancement proof index for the current D-lane slice while keeping
-runtime model execution, UI delivery, policy authority, enforcement, public
-package exports, and product checklist completion unclaimed.
+runtime model execution, UI delivery, policy authority, enforcement, and product checklist completion unclaimed.
 SOCIAL-01 now adds the social platform account/feed workpack README under the
 browser plan. It gives managed-browser social account, feed, short-video,
 livestream, messaging-route, upload/post, and bypass rows a proof-root map while

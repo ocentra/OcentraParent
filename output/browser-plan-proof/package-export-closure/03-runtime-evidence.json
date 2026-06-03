@@ -1,0 +1,4 @@
+{
+  "applicable": false,
+  "reason": "Package export closure only; no managed browser launch, session bridge, unmanaged process adapter, or platform runtime behavior changed."
+}

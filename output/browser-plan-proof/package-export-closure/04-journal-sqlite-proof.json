@@ -1,0 +1,4 @@
+{
+  "applicable": false,
+  "reason": "No journal, SQLite replay, read-model storage, or evidence persistence behavior changed."
+}

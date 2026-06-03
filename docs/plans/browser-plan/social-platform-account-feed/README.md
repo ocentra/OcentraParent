@@ -87,8 +87,7 @@ pattern adapter from exact managed URL-shape classifications to validated
 browser social route evidence. It maps known social domains and route patterns,
 including signup/login/account-switch/settings, messaging, upload, livestream,
 feed/profile/post/video, Snapchat, and Pinterest, while rejecting unmanaged
-browser evidence and fake-domain rows. Public package/barrel exports remain
-pending source/package coordination.
+browser evidence and fake-domain rows. Package subpath exports are now present.
 
 SOCIAL-04 now adds
 `packages/activity-domain/src/browser-social-account-flow-schemas.ts`, a
@@ -105,8 +104,7 @@ sanitized control-kind detector for signup, login, and account-switch form
 shapes. It accepts account-flow route evidence plus control kinds only and
 rejects field values, raw DOM, credentials, form submission, account identity,
 parent approval decisions, policy decisions, UI delivery, connector access,
-native app control, and enforcement. Public package/barrel exports remain
-pending source/package coordination.
+native app control, and enforcement. Package subpath exports are now present.
 
 SOCIAL-06 now adds
 `packages/activity-domain/src/browser-social-account-identity-registry.ts`, a
@@ -114,16 +112,14 @@ privacy-preserving identity registry contract. It supports unverified
 route-context entries, parent-declared hash refs, and manual-required state, but
 does not capture raw handles, display names, platform account ids, credentials,
 platform verification, connector authorization, parent UI, policy decisions,
-native app control, or enforcement. Public package/barrel exports remain pending
-source/package coordination.
+native app control, or enforcement. Package subpath exports are now present.
 
 SOCIAL-07 now adds `packages/parent-domain/src/social-parent-approval.ts`, a
 parent-domain request/decision contract for social account signup, login,
 account-switch, and manual-required approval states. It references evidence ids
 without importing activity-domain and rejects raw account data, credentials,
 notification delivery, UI rendering, child notification, policy/action
-execution, connector authorization, native app control, and enforcement. Public
-package/barrel exports remain pending source/package coordination.
+execution, connector authorization, native app control, and enforcement. Package subpath exports are now present.
 
 SOCIAL-08 now adds
 `packages/activity-domain/src/browser-social-feed-route-classification.ts`, a
@@ -139,8 +135,7 @@ metadata-ref extractor for managed social video/post/feed route evidence. It can
 record title, description, author hash, thumbnail hash, duration, publish date,
 category, and restriction refs, but rejects page body, transcript text, messages,
 feed content, AI decisions, policy decisions, connector access, native app
-control, UI delivery, and enforcement. Public package/barrel exports remain
-pending source/package coordination.
+control, UI delivery, and enforcement. Package subpath exports are now present.
 
 SOCIAL-10 now adds social-specific AI analysis contracts in
 `packages/activity-domain/src/browser-social-ai-analysis-values.ts`,
@@ -161,8 +156,7 @@ results. Signal rows carry canonical risk or benefit kinds, severity, state,
 confidence, and evidence refs, while signal sets copy analysis provenance and
 degraded state. They reject raw message/feed/page/model use, account identity
 verification claims, final policy decisions, native app control, connector
-claims, UI delivery, and enforcement. Public package/barrel exports remain
-pending source/package coordination.
+claims, UI delivery, and enforcement. Package subpath exports are now present.
 
 SOCIAL-12 now adds parent-domain social policy compiler contracts in
 `packages/parent-domain/src/social-policy-compiler-values.ts` and
@@ -172,8 +166,7 @@ decision candidates for allow, warn, parent-review, block, manual-review, or
 unknown outcomes. It rejects raw signal payloads, raw model text,
 activity-domain object transfer, UI/runtime/enforcement, native app, and
 connector claims. Decision candidates are not final policy decisions or
-enforcement handoffs. Public package/barrel exports remain pending
-source/package coordination.
+enforcement handoffs. Package subpath exports are now present.
 
 SOCIAL-13 now adds
 `packages/activity-domain/src/browser-social-account-creation-gate.ts`, a
@@ -182,8 +175,7 @@ and sanitized form-shape evidence. It can model allow-navigation,
 hold-for-parent-approval, block-submit, manual-review, and unknown-warn
 candidates while rejecting browser runtime pause/block claims, child/parent UI,
 final policy decisions, credentials, form submissions, account creation, native
-app control, connector claims, and enforcement. Public package/barrel exports
-remain pending source/package coordination.
+app control, connector claims, and enforcement. Package subpath exports are now present.
 
 SOCIAL-14 now adds
 `packages/activity-domain/src/browser-social-feed-video-route-gate-values.ts`,
@@ -218,7 +210,7 @@ permission-required, manual-required, unavailable, or not-implemented states. It
 rejects native route proof, per-video/per-reel blocking, messages, account
 identity, accessibility content capture, device-owner enrollment, VPN content
 inspection, runtime adapters, connector access, UI delivery, and enforcement.
-Public package/barrel exports remain pending source/package coordination.
+Package subpath exports are now present.
 
 SOCIAL-17 now adds
 `packages/parent-domain/src/social-ios-screen-time-capability-matrix-values.ts`
