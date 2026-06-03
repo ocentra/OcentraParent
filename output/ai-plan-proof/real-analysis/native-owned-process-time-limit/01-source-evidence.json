@@ -1,0 +1,14 @@
+{
+  "scenarioId": "native-owned-process-time-limit",
+  "surface": "nativeNotepad",
+  "fixtureKind": "controlled-native-owned-process-time-limit-fixture",
+  "captureReason": "appGameForegroundStart",
+  "captureScope": "activeWindow",
+  "visibleTextFixture": [
+    "Known native game session",
+    "Owned process time limit applies",
+    "Game lobby is visible and budget timer is active"
+  ],
+  "realWindowCapture": true,
+  "liveExternalUrl": false
+}

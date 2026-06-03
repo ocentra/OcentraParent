@@ -1,0 +1,3 @@
+scenario=native-owned-process-time-limit
+category=game
+action=time-limit

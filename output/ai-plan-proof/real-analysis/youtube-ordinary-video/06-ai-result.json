@@ -3,7 +3,7 @@
     "schemaVersion": 1,
     "screenAnalysisResultId": "screen-analysis-youtube-ordinary-video",
     "queueJobId": "screen-capture-proof-youtube-ordinary-video",
-    "analyzedAt": "2026-06-03T13:56:10.726Z",
+    "analyzedAt": "2026-06-03T15:09:51.232Z",
     "modelRuntimeRef": "local-qwen2-vl-2b-llama-mtmd",
     "modelId": "Qwen2-VL-2B-Instruct-Q4_K_M",
     "providerKind": "localVision",
@@ -75,7 +75,7 @@
       {
         "evidenceReferenceId": "screen-analysis-evidence-youtube-ordinary-video",
         "kind": "activity-event",
-        "observedAt": "2026-06-03T13:56:10.726Z"
+        "observedAt": "2026-06-03T15:09:51.232Z"
       }
     ],
     "parentRuleReferences": [
@@ -99,7 +99,7 @@
       ],
       "resourceClass": "cpu",
       "degradedState": "none",
-      "lastCheckedAt": "2026-06-03T13:56:10.726Z",
+      "lastCheckedAt": "2026-06-03T15:09:51.232Z",
       "unavailableReason": null
     },
     "promptVersion": "screen-ai-local-vlm-matrix-proof-v2",

@@ -1,0 +1,24 @@
+{
+  "captureDir": "output\\screen-ai-pipeline-proof\\native-owned-process-time-limit\\capture",
+  "captureMetadata": {
+    "actualScope": "selectedWindow",
+    "analysisTempPath": "output\\screen-ai-pipeline-proof\\native-owned-process-time-limit\\capture\\capture.png.tmp",
+    "appNameDigest": "d5617aed48f7b30c110d7e3ce3ec3954acb6db0decd9765fd43fd1bf635770aa",
+    "appNamePresent": true,
+    "captured": true,
+    "height": 748,
+    "imageByteSize": 127008,
+    "imageDigest": "15a83c08d11e2338512eb9da28e5a4920e39c1c00d991cee475611ff056c3729",
+    "monitorId": 65639,
+    "monitorNameDigest": "fc2b61e60bd49f1e7549634104eeb412b74b89cdbc3e2b6eebf6ca7ec8ac1a98",
+    "monitorNamePresent": true,
+    "pid": 49424,
+    "rawImagePersistedInProof": false,
+    "requestedScope": "selectedWindow",
+    "status": "available",
+    "titleDigest": "bc8628d3ffb9d38bc2dd9592955aaf2414aec57b69d60749176fbfc95d5bc8d4",
+    "titlePresent": true,
+    "width": 1430,
+    "windowId": 114362774
+  }
+}

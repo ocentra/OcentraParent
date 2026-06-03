@@ -25,6 +25,21 @@ const scenarioFilter = new Set(
     .filter((entry) => entry.length > 0)
 );
 
+const canonicalPrimaryCategories = new Map(
+  [
+    'school',
+    'video',
+    'chat',
+    'game',
+    'adultContent',
+    'violence',
+    'bypassTool',
+    'shopping',
+    'productivity',
+    'unknown',
+  ].map((category) => [category.toLowerCase(), category])
+);
+
 const scenarios = [
   {
     id: 'youtube-ordinary-video',
@@ -147,6 +162,22 @@ const scenarios = [
     fixtureKind: 'controlled-native-game-window-fixture',
     visibleText: ['Native game window', 'Multiplayer lobby', 'Start match, chat, and store buttons visible'],
     promptHint: 'Return primary_category game when a native game or game lobby is visible.',
+  },
+  {
+    id: 'native-owned-process-time-limit',
+    title: 'Ocentra AI Proof Native Owned Process Time Limit',
+    surface: 'nativeNotepad',
+    captureReason: 'appGameForegroundStart',
+    captureScope: 'activeWindow',
+    expectedPrimaryCategory: 'game',
+    expectedAction: 'time-limit',
+    fixtureKind: 'controlled-native-owned-process-time-limit-fixture',
+    visibleText: [
+      'Known native game session',
+      'Owned process time limit applies',
+      'Game lobby is visible and budget timer is active',
+    ],
+    promptHint: 'Return primary_category game when a known native game session with a time limit is visible.',
   },
   {
     id: 'unknown-activity',
@@ -750,16 +781,15 @@ function runVlm(scenario, imagePath) {
 }
 
 function normalizeModelEvidence(scenario, parsedModel) {
+  const explicitCategory = normalizePrimaryCategory(parsedModel.primary_category ?? parsedModel.category);
   const modelText = [
-    parsedModel.primary_category,
-    parsedModel.category,
     parsedModel.visible_text,
     Array.isArray(parsedModel.risk_signals) ? parsedModel.risk_signals.join(' ') : parsedModel.risk_signals,
   ]
     .filter((value) => value !== undefined && value !== null)
     .join(' ')
     .toLowerCase();
-  const category = categoryFromText(modelText);
+  const category = explicitCategory ?? categoryFromText(modelText);
   if (category !== scenario.expectedPrimaryCategory) {
     throw new Error(
       `VLM did not classify ${scenario.id} as ${scenario.expectedPrimaryCategory}: ${JSON.stringify(parsedModel)}`
@@ -772,6 +802,17 @@ function normalizeModelEvidence(scenario, parsedModel) {
     confidence,
     riskSignals: normalizeRiskSignals(scenario, parsedModel.risk_signals),
   };
+}
+
+function normalizePrimaryCategory(value) {
+  if (value === undefined || value === null) {
+    return null;
+  }
+  const compact = String(value)
+    .trim()
+    .replace(/[\s_-]+/gu, '')
+    .toLowerCase();
+  return canonicalPrimaryCategories.get(compact) ?? null;
 }
 
 function categoryFromText(value) {

@@ -3,7 +3,7 @@
     "schemaVersion": 1,
     "screenAnalysisResultId": "screen-analysis-native-app-productivity",
     "queueJobId": "screen-capture-proof-native-app-productivity",
-    "analyzedAt": "2026-06-03T14:01:37.259Z",
+    "analyzedAt": "2026-06-03T15:15:00.075Z",
     "modelRuntimeRef": "local-qwen2-vl-2b-llama-mtmd",
     "modelId": "Qwen2-VL-2B-Instruct-Q4_K_M",
     "providerKind": "localVision",
@@ -20,7 +20,7 @@
           {
             "evidenceId": "screen-evidence-native-app-productivity",
             "kind": "screenshot",
-            "digest": "10889ec733b8e16f4e909e1b080d700a81eb4b328ad2ac291e8883f774ab2139",
+            "digest": "a0cf17818ba41e31f6d6a276d895d74931631d7363b45cdb9b5b767aa0e73050",
             "uri": null
           }
         ]
@@ -36,7 +36,7 @@
           {
             "evidenceId": "screen-evidence-native-app-productivity",
             "kind": "screenshot",
-            "digest": "10889ec733b8e16f4e909e1b080d700a81eb4b328ad2ac291e8883f774ab2139",
+            "digest": "a0cf17818ba41e31f6d6a276d895d74931631d7363b45cdb9b5b767aa0e73050",
             "uri": null
           }
         ]
@@ -49,11 +49,11 @@
       {
         "evidenceId": "screen-evidence-native-app-productivity",
         "kind": "screenshot",
-        "digest": "10889ec733b8e16f4e909e1b080d700a81eb4b328ad2ac291e8883f774ab2139",
+        "digest": "a0cf17818ba41e31f6d6a276d895d74931631d7363b45cdb9b5b767aa0e73050",
         "uri": null
       }
     ],
-    "imageDigest": "10889ec733b8e16f4e909e1b080d700a81eb4b328ad2ac291e8883f774ab2139",
+    "imageDigest": "a0cf17818ba41e31f6d6a276d895d74931631d7363b45cdb9b5b767aa0e73050",
     "rawImageRetained": false,
     "imageDeletionState": "deleted",
     "custodyState": "child-device-query-store",
@@ -75,7 +75,7 @@
       {
         "evidenceReferenceId": "screen-analysis-evidence-native-app-productivity",
         "kind": "activity-event",
-        "observedAt": "2026-06-03T14:01:37.259Z"
+        "observedAt": "2026-06-03T15:15:00.075Z"
       }
     ],
     "parentRuleReferences": [
@@ -99,7 +99,7 @@
       ],
       "resourceClass": "cpu",
       "degradedState": "none",
-      "lastCheckedAt": "2026-06-03T14:01:37.259Z",
+      "lastCheckedAt": "2026-06-03T15:15:00.075Z",
       "unavailableReason": null
     },
     "promptVersion": "screen-ai-local-vlm-matrix-proof-v2",

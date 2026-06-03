@@ -1,0 +1,10 @@
+{
+  "keepRawUntilAnalysis": true,
+  "platform": "windows",
+  "proofClaim": "real-active-window-capture-custody",
+  "proofTier": "P3_LOCAL_DEV_MACHINE",
+  "requestedScope": "selectedWindow",
+  "runId": "lMnunxibtRgAAAAAAAAAAA",
+  "status": "available",
+  "targetWindowTitleContains": "Ocentra-AI-Proof-Native-Owned-Process-Time-Limit.txt"
+}

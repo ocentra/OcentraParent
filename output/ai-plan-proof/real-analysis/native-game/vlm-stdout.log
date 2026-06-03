@@ -2,8 +2,10 @@
 ```json
 {
   "primary_category": "game",
-  "visible_text": "Native game window",
-  "risk_signals": [],
+  "visible_text": "Keep unsaved changes?",
+  "risk_signals": [
+    "There are changes to this file from another app. If you reopen the file, unsaved changes from Notepad will be discarded."
+  ],
   "confidence": 0.95
 }
 ```

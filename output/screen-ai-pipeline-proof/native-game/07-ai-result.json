@@ -3,7 +3,7 @@
     "schemaVersion": 1,
     "screenAnalysisResultId": "screen-analysis-native-game",
     "queueJobId": "screen-capture-proof-native-game",
-    "analyzedAt": "2026-06-03T14:02:30.629Z",
+    "analyzedAt": "2026-06-03T15:15:54.425Z",
     "modelRuntimeRef": "local-qwen2-vl-2b-llama-mtmd",
     "modelId": "Qwen2-VL-2B-Instruct-Q4_K_M",
     "providerKind": "localVision",
@@ -11,7 +11,7 @@
     "captureReason": "appGameForegroundStart",
     "captureScope": "activeWindow",
     "capabilityStatus": "ready",
-    "summary": "Native game window",
+    "summary": "Keep unsaved changes?",
     "visibleCategoryCandidates": [
       {
         "category": "game",
@@ -20,7 +20,7 @@
           {
             "evidenceId": "screen-evidence-native-game",
             "kind": "screenshot",
-            "digest": "65c74273f3681accc466fdf6366e8fd667e8a6923d5a188ec3157ff5387216da",
+            "digest": "4bbe5a844605c6d1781a6e1aefb5cc87e2a53c8c0aa5273f08a3550e350a50ac",
             "uri": null
           }
         ]
@@ -30,13 +30,13 @@
     "riskSignals": [],
     "ocrTextSnippets": [
       {
-        "text": "Native game window",
+        "text": "Keep unsaved changes?",
         "confidence": 0.95,
         "evidenceRefs": [
           {
             "evidenceId": "screen-evidence-native-game",
             "kind": "screenshot",
-            "digest": "65c74273f3681accc466fdf6366e8fd667e8a6923d5a188ec3157ff5387216da",
+            "digest": "4bbe5a844605c6d1781a6e1aefb5cc87e2a53c8c0aa5273f08a3550e350a50ac",
             "uri": null
           }
         ]
@@ -49,11 +49,11 @@
       {
         "evidenceId": "screen-evidence-native-game",
         "kind": "screenshot",
-        "digest": "65c74273f3681accc466fdf6366e8fd667e8a6923d5a188ec3157ff5387216da",
+        "digest": "4bbe5a844605c6d1781a6e1aefb5cc87e2a53c8c0aa5273f08a3550e350a50ac",
         "uri": null
       }
     ],
-    "imageDigest": "65c74273f3681accc466fdf6366e8fd667e8a6923d5a188ec3157ff5387216da",
+    "imageDigest": "4bbe5a844605c6d1781a6e1aefb5cc87e2a53c8c0aa5273f08a3550e350a50ac",
     "rawImageRetained": false,
     "imageDeletionState": "deleted",
     "custodyState": "child-device-query-store",
@@ -75,7 +75,7 @@
       {
         "evidenceReferenceId": "screen-analysis-evidence-native-game",
         "kind": "activity-event",
-        "observedAt": "2026-06-03T14:02:30.629Z"
+        "observedAt": "2026-06-03T15:15:54.425Z"
       }
     ],
     "parentRuleReferences": [
@@ -99,7 +99,7 @@
       ],
       "resourceClass": "cpu",
       "degradedState": "none",
-      "lastCheckedAt": "2026-06-03T14:02:30.629Z",
+      "lastCheckedAt": "2026-06-03T15:15:54.425Z",
       "unavailableReason": null
     },
     "promptVersion": "screen-ai-local-vlm-matrix-proof-v2",
@@ -107,13 +107,15 @@
   },
   "parsedModel": {
     "primary_category": "game",
-    "visible_text": "Native game window",
-    "risk_signals": [],
+    "visible_text": "Keep unsaved changes?",
+    "risk_signals": [
+      "There are changes to this file from another app. If you reopen the file, unsaved changes from Notepad will be discarded."
+    ],
     "confidence": 0.95
   },
   "normalized": {
     "primaryCategory": "game",
-    "visibleText": "Native game window",
+    "visibleText": "Keep unsaved changes?",
     "confidence": 0.95,
     "riskSignals": []
   }
