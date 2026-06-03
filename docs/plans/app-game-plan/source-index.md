@@ -8,6 +8,7 @@ be updated when implementation changes ownership, proof, or routing.
 - Owning feature: [App and game control](../../features/app-game-control.md)
 - Main expectation: [App/game evidence](../../expectations/app-game-evidence.md)
 - Main architecture: [App/game evidence sessions](../../architecture/app-game-evidence-sessions.md)
+- Shared implementation route: [app + game plan](README.md)
 - Existing native app planning: [native apps plan](../app-plan/README.md)
 - App capability guide: [app control capability guide](../../app-control-capability-guide.md)
 - App settings source: [app control settings inventory](../../app-control-settings-inventory.md)
@@ -55,6 +56,7 @@ Current app/game evidence and session contracts live in:
 - `packages/activity-domain/src/app-game-primitives.ts`
 - `packages/activity-domain/src/app-game.ts`
 - `packages/activity-domain/tests/app-game.test.ts`
+- `packages/activity-domain/tests/app-game-evidence-claim.test.ts`
 
 Current app-control and app/game policy/catalog meaning lives in:
 
@@ -66,9 +68,12 @@ Current app-control and app/game policy/catalog meaning lives in:
 - `packages/parent-domain/src/game-control-catalog-schema.ts`
 - `packages/parent-domain/src/game-control-catalog-data.ts`
 - `packages/parent-domain/src/enforcement-policy-dispatch.ts`
+- `packages/parent-domain/src/app-game-control-authority.ts`
+- `packages/parent-domain/src/app-game-control-authority-rules.ts`
 - `packages/parent-domain/src/policy.ts`
 - `packages/parent-domain/tests/app-control-policy-catalog.test.ts`
 - `packages/parent-domain/tests/game-control-policy-catalog.test.ts`
+- `packages/parent-domain/tests/app-game-control-authority.test.ts`
 - `packages/parent-domain/tests/enforcement-approval-audit.test.ts`
 
 New shared app/game schemas should extend these packages first. Do not create a
@@ -127,11 +132,18 @@ These scripts prove scoped app/game paths only. They do not prove broad
 installed-app blocking, launcher/game disambiguation, game budgets, ratings, UGC
 signals, purchases, or cross-platform parity.
 
+WP01 proof on `codex/app-plan-work` adds contract-only proof under
+`output/app-game-plan-proof/01-contract-boundary-and-effect-schemas/`. That
+proof does not replace Rust protocol parity, runtime adapter proof, portal UI
+proof, or SQLite/journal proof.
+
 ## Current Test Files
 
 - `packages/activity-domain/tests/app-game.test.ts`
+- `packages/activity-domain/tests/app-game-evidence-claim.test.ts`
 - `packages/parent-domain/tests/app-control-policy-catalog.test.ts`
 - `packages/parent-domain/tests/game-control-policy-catalog.test.ts`
+- `packages/parent-domain/tests/app-game-control-authority.test.ts`
 - `packages/parent-domain/tests/enforcement-approval-audit.test.ts`
 - `crates/agent-protocol/src/app_game_tests.rs`
 - `crates/agent-core/src/activity_store_app_game_tests.rs`
@@ -147,3 +159,19 @@ When this plan and existing feature/expectation docs differ, update the owning
 feature or expectation doc before making implementation claims. Until those
 locked docs can be edited, record the bridge gap in
 [pasted content coverage audit](pasted-content-coverage-audit.md).
+
+## Doc Reconciliation - 2026-06-02
+
+- `docs/features/app-game-control.md`,
+  `docs/expectations/app-game-evidence.md`, and
+  `docs/architecture/app-game-evidence-sessions.md` now link this shared
+  app/game implementation plan directly.
+- `docs/plans/app-plan/README.md` now points shared native app/game evidence and
+  native game product-slice work back to this folder while keeping app-only work
+  in the native app plan.
+- `docs/product-capability-checklist.md` was not changed in this slice because
+  no product status or runtime proof changed, and `codex-a` currently owns that
+  file lock.
+- Browser-game and cloud-gaming work remains routed to browser-plan. This plan
+  owns native apps, native games, launchers, process/window/package evidence,
+  app/game policy targets, and app/game proof gates.

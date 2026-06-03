@@ -2,12 +2,14 @@
 
 ## Product Claim Boundary
 
-Current merged source proves a scoped app/game evidence and enforcement path. It
-does not prove a product-complete app/game subsystem.
+Current source proves a scoped app/game evidence and enforcement path. It does
+not prove a product-complete app/game subsystem.
 
 Proved today:
 
 - App/game session contracts and read-model proof exist.
+- App/game evidence claim, AI classification digest, and parent app/game control
+  authority schemas now exist as TypeScript contract proof.
 - App-control and game-control catalog/authoring contracts exist in
   `packages/parent-domain`.
 - Rust app/game session protocol mirrors exist.
@@ -32,14 +34,15 @@ Not proved today:
 ## Current Contracts
 
 `packages/activity-domain` currently provides combined app/game primitives,
-inventory entry, process observation, session summary/query/report, and AI
-digest reference contracts. These support useful evidence and session proof, but
-they do not yet cover the complete shared app/game contract stack from this
-plan:
+inventory entry, process observation, evidence claim, session
+summary/query/report, AI digest reference, and AI classification digest
+contracts. These support useful evidence and session proof, but they do not yet
+cover the complete shared app/game contract stack from this plan:
 
-- layered app/game identity;
+- layered app/game identity beyond the initial identity-strength guard values;
 - platform-specific inventory source type;
-- launcher evidence and launcher-only state;
+- launcher evidence and launcher-only state beyond the initial launcher
+  no-claim guards;
 - native app categories;
 - native game categories, rating, UGC, multiplayer, and purchase signals;
 - policy targets for app and game product slices;
@@ -48,9 +51,10 @@ plan:
 - enforcement result and rollback proof for app/game actions.
 
 `packages/parent-domain` currently provides separate app-control and
-game-control catalog schemas/data plus enforcement policy dispatch contracts.
-Those catalogs are product-control inputs, not a complete shared evidence spine
-or a proof that broad app/game blocking works.
+game-control catalog schemas/data, enforcement policy dispatch contracts, and
+app/game control approval authority/request/decision/action-result contract
+proof. Those catalogs and authority contracts are product-control inputs, not a
+complete shared evidence spine or a proof that broad app/game blocking works.
 
 ## Current Runtime
 
@@ -87,17 +91,30 @@ Missing portal states include:
 
 ## Current Gaps
 
-- The current docs split native app planning and browser-game planning but do
-  not yet give native games a separate product slice inside a shared app/game
-  implementation plan.
 - App/game contract names are combined, but several enum values and proof gates
   still need explicit game-specific meaning.
+- Rust protocol parity has not yet mirrored the WP01 evidence claim, AI digest,
+  or app/game control authority schemas.
+- Journal and SQLite ingest do not yet store the new evidence claim and
+  authority proof shapes.
+- Portal app/game dashboard rows do not yet consume the new contracts.
 - Launcher evidence is not product-complete. A launcher row must not become a
   game session unless linked child-game proof exists.
 - Game categories, ratings, UGC, multiplayer, and purchase signals are policy
   inputs and parent-facing context, not safety decisions by themselves.
 - Existing scoped Windows owned-process time-limit proof should be reused, not
   expanded into broad blocking claims.
+
+## Worker Handoff Notes - 2026-06-02
+
+- WP01 completed the first TypeScript contract boundary on
+  `codex/app-plan-work` with proof under
+  `output/app-game-plan-proof/01-contract-boundary-and-effect-schemas/`.
+- WP02/WP03 reconcile routing and snapshot docs only. They do not change product
+  checklist status and do not claim runtime completion.
+- Next implementation work should either add richer identity/inventory contracts
+  or mirror the WP01 TypeScript shapes into Rust protocol before service/runtime
+  consumers depend on them.
 
 ## Enhancement Rule
 
