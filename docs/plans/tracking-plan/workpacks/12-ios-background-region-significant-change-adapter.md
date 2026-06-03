@@ -24,6 +24,8 @@ Proof root: `output/tracking-plan-proof/12-ios-background-region-significant-cha
 - `05-geofence-transition-proof.json`
 - `15-manual-platform-proof.md`
 - `16-validation-commands.log`
+- Pre-device plan:
+  `output/tracking-plan-proof/pre-device-gap-closure/ios-simulator-local-proof-plan.json`
 
 ## AI Worker Checklist
 
@@ -32,10 +34,18 @@ Proof root: `output/tracking-plan-proof/12-ios-background-region-significant-cha
 - [ ] Prove significant-change and visit events where claimed.
 - [ ] Prove background/terminated degraded behavior.
 - [ ] Document App Store/privacy disclosure implications before release claims.
+- [x] Generate the iOS simulator/local and physical-device proof artifact plan
+      before device work.
 
 ## Where We Are
 
-This workpack is planning-only until its implementation branch produces the proof root below. Existing source docs describe the intended capability, but runtime/product-complete behavior is not claimed yet.
+This workpack now has pre-device proof routing from
+`node scripts/test/tracking-plan-pre-device-proof.mjs`. The generated iOS
+simulator/local and physical-device plans list authorization, region definition,
+location event, region transition, alert decision, screenshot, Xcode log, and
+privacy-disclosure artifacts required before any iOS background/region claim.
+Runtime/product-complete behavior, entitlement approval, and real-device
+background behavior are still not claimed.
 
 ## Where We Want To Be
 

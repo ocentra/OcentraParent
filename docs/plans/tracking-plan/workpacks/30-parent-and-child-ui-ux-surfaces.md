@@ -27,6 +27,8 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
 - `12-playwright-proof.log`
 - `13-security-negative-proof.log`
 - `16-validation-commands.log`
+- Pre-device gate:
+  `output/tracking-plan-proof/pre-device-gap-closure/proof-summary.json`
 
 ## AI Worker Checklist
 
@@ -37,6 +39,7 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
 - [x] Keep UI rows at no-product-claim with P1 fixture status.
 - [x] Ensure deleted history disappears from the P1 parent route fixture.
 - [x] Render local proof artifact references for each parent route fixture row.
+- [x] Feed UI proof gaps into the pre-device proof gate before device work.
 - [ ] Ensure child copy avoids accusation.
 - [ ] Keep portal as authoring/display surface, not evaluator.
 
@@ -62,6 +65,9 @@ The same route now has a narrow live service summary for the P2
 and the service read-model proof script. This is not product-complete UI proof:
 child-device UI, hosted Playwright/accessibility output, richer
 service-backed citations, and physical device evidence remain pending.
+`node scripts/test/tracking-plan-pre-device-proof.mjs` now records those UI
+gaps in the aggregate pre-device gate so the next pass can run hosted
+Playwright/accessibility and child UI proof separately before any product claim.
 
 ## Where We Want To Be
 

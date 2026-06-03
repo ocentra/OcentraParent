@@ -23,6 +23,8 @@ Proof root: `output/tracking-plan-proof/10-android-battery-connectivity-and-stat
 - `04-device-status-proof.json`
 - `15-manual-platform-proof.md`
 - `16-validation-commands.log`
+- Pre-device plan:
+  `output/tracking-plan-proof/pre-device-gap-closure/android-studio-local-proof-plan.json`
 
 ## AI Worker Checklist
 
@@ -31,10 +33,17 @@ Proof root: `output/tracking-plan-proof/10-android-battery-connectivity-and-stat
 - [ ] Capture offline/network unreachable state.
 - [ ] Capture app killed/restarted behavior.
 - [ ] Keep pending upload count auditable.
+- [x] Generate the Android Studio/local and physical-device proof artifact plan
+      before device work.
 
 ## Where We Are
 
-This workpack is planning-only until its implementation branch produces the proof root below. Existing source docs describe the intended capability, but runtime/product-complete behavior is not claimed yet.
+This workpack now has pre-device proof routing from
+`node scripts/test/tracking-plan-pre-device-proof.mjs`. The generated Android
+Studio/local and physical-device plans list the device metadata, battery/status,
+offline/pending-upload, killed/reboot, screenshot, and logcat artifacts needed
+before any Android status claim. Runtime/product-complete behavior is still not
+claimed.
 
 ## Where We Want To Be
 

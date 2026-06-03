@@ -29,6 +29,8 @@ Proof root: `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`
 - `14-retention-delete-proof.json`
 - `18-service-read-model-proof.json`
 - `16-validation-commands.log`
+- Pre-device gate:
+  `output/tracking-plan-proof/pre-device-gap-closure/proof-summary.json`
 
 ## AI Worker Checklist
 
@@ -37,6 +39,7 @@ Proof root: `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`
 - [ ] Add tombstone proof.
 - [ ] Ensure AI/report/policy cite stored refs.
 - [ ] Keep Ocentra-hosted storage off by default.
+- [x] Include the P2 service read-model proof in the pre-device gate.
 
 ## Where We Are
 
@@ -50,6 +53,9 @@ route. Full UI, platform replay, deletion/tombstone replay, export, and
 physical-device product claims are not claimed beyond the proof state recorded
 in `proof-summary.json`, `10-journal-sqlite-proof.json`,
 `18-service-read-model-proof.json`, and the implementation checklist.
+The pre-device proof gate now reruns this service proof and records the
+remaining deletion/tombstone replay, richer read-model, full UI, hosted
+accessibility, and platform replay gaps before device work starts.
 
 ## Where We Want To Be
 

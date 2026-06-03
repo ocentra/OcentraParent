@@ -24,6 +24,8 @@ Proof root: `output/tracking-plan-proof/11-ios-core-location-foreground-adapter/
 - `03-runtime-location-evidence.json`
 - `15-manual-platform-proof.md`
 - `16-validation-commands.log`
+- Pre-device plan:
+  `output/tracking-plan-proof/pre-device-gap-closure/ios-simulator-local-proof-plan.json`
 
 ## AI Worker Checklist
 
@@ -32,10 +34,16 @@ Proof root: `output/tracking-plan-proof/11-ios-core-location-foreground-adapter/
 - [ ] Prove denied/restricted and services-disabled states.
 - [ ] Preserve accuracy/freshness.
 - [ ] Do not claim Always/background from this workpack.
+- [x] Generate the iOS simulator/local proof artifact plan before device work.
 
 ## Where We Are
 
-This workpack is planning-only until its implementation branch produces the proof root below. Existing source docs describe the intended capability, but runtime/product-complete behavior is not claimed yet.
+This workpack now has pre-device proof routing from
+`node scripts/test/tracking-plan-pre-device-proof.mjs`. The generated iOS
+simulator/local plan lists the simulator build, install/launch, authorization,
+foreground location-evidence, and screenshot artifacts needed before any iOS
+foreground location claim. Runtime/product-complete behavior is still not
+claimed, and Always/background behavior stays out of scope here.
 
 ## Where We Want To Be
 
