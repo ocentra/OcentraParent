@@ -30,6 +30,13 @@ fn tracking_read_model(
     let capability_status = latest
         .and_then(|row| row.capability_status.clone())
         .unwrap_or_else(|| TRACKING_READ_MODEL_STATUS_NO_TRACKING_EVENTS.to_string());
+    let evidence_reference_ids = collect_evidence_reference_ids(&read_rows);
+    let retention_tombstone_evidence_reference_ids =
+        collect_retention_tombstone_evidence_reference_ids(&read_rows);
+    let retention_tombstone_count = read_rows
+        .iter()
+        .filter(|row| row.kind == constants::activity_event_kind::TRACKING_RETENTION_DELETED)
+        .count() as u64;
 
     Ok(TrackingReadModel {
         schema_version: ACTIVITY_QUERY_SCHEMA_VERSION,
@@ -40,6 +47,9 @@ fn tracking_read_model(
         capability_status,
         latest_event_id: latest.map(|row| row.event_id.clone()),
         latest_observed_at: latest.map(|row| row.observed_at.clone()),
+        evidence_reference_ids,
+        retention_tombstone_count,
+        retention_tombstone_evidence_reference_ids,
         rows: read_rows,
     })
 }
@@ -85,6 +95,35 @@ fn split_evidence_reference_ids(value: &str) -> Vec<String> {
         .filter(|id| !id.is_empty())
         .map(ToOwned::to_owned)
         .collect()
+}
+
+fn collect_evidence_reference_ids(rows: &[TrackingReadModelRow]) -> Vec<String> {
+    let mut ids = Vec::new();
+    for row in rows {
+        push_unique_ids(&mut ids, &row.evidence_reference_ids);
+    }
+    ids
+}
+
+fn collect_retention_tombstone_evidence_reference_ids(
+    rows: &[TrackingReadModelRow],
+) -> Vec<String> {
+    let mut ids = Vec::new();
+    for row in rows
+        .iter()
+        .filter(|row| row.kind == constants::activity_event_kind::TRACKING_RETENTION_DELETED)
+    {
+        push_unique_ids(&mut ids, &row.evidence_reference_ids);
+    }
+    ids
+}
+
+fn push_unique_ids(target: &mut Vec<String>, source: &[String]) {
+    for id in source {
+        if !target.iter().any(|existing| existing == id) {
+            target.push(id.clone());
+        }
+    }
 }
 
 fn string_field(fields: &LogFields, key: &str) -> Option<String> {

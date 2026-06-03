@@ -81,6 +81,8 @@ pub const TEST_NETWORK_STORE_SUFFIX: &str = "network-flow-store";
 pub const TEST_TRACKING_CAPABILITY_STATUS_RECENT: &str = "recent";
 pub const TEST_TRACKING_CHECK_IN_EVENT_ID: &str = "tracking-child-check-in-event-1";
 pub const TEST_TRACKING_EVIDENCE_REFERENCE_ID: &str = "location-evidence-1";
+pub const TEST_TRACKING_RETENTION_TOMBSTONE_EVIDENCE_REFERENCE_ID: &str =
+    "retention-tombstone-evidence-1";
 pub const TEST_TRACKING_EXPECTED_PLACE_EVENT_ID: &str = "tracking-expected-place-event-1";
 pub const TEST_TRACKING_GEOFENCE_EVENT_ID: &str = "tracking-geofence-transition-event-1";
 pub const TEST_TRACKING_LOCATION_EVENT_ID: &str = "tracking-location-event-1";

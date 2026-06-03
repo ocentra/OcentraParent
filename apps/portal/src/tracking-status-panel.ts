@@ -39,6 +39,7 @@ export type TrackingStatusLiveSummary = {
   readonly capability: PortalDetailValue;
   readonly custody: PortalDetailValue;
   readonly evidenceReferences: PortalDetailValue;
+  readonly deletedEvidence: PortalDetailValue;
   readonly parserReason: PortalDetailValue | null;
   readonly productClaim: PortalDisplayText;
 };
@@ -143,6 +144,7 @@ export function trackingStatusLiveSummary(liveActivity: PortalLiveActivityState)
     capability: notReported(),
     custody: notReported(),
     evidenceReferences: notReported(),
+    deletedEvidence: notReported(),
     productClaim: PortalText.Resolve(PortalTextToken.TrackingNoProductClaim),
   };
 
@@ -163,7 +165,6 @@ export function trackingStatusLiveSummary(liveActivity: PortalLiveActivityState)
   }
 
   const readModel = readModelResult.value;
-  const row = readModel.rows[0] ?? null;
   return {
     ...baseSummary,
     loadState: detailFromValue(event.severity),
@@ -172,7 +173,8 @@ export function trackingStatusLiveSummary(liveActivity: PortalLiveActivityState)
     eventId: detailFromValue(readModel.latestEventId),
     capability: detailFromValue(readModel.capabilityStatus),
     custody: detailFromValue(readModel.custodyLabel),
-    evidenceReferences: evidenceReferenceDetail(row?.evidenceReferenceIds),
+    evidenceReferences: evidenceReferenceDetail(readModel.evidenceReferenceIds),
+    deletedEvidence: evidenceReferenceDetail(readModel.retentionTombstoneEvidenceReferenceIds),
     parserReason: null,
   };
 }
@@ -269,6 +271,7 @@ function renderTrackingStatusLiveSummary(summary: TrackingStatusLiveSummary): HT
   appendDetail(metadata, PortalDetails.Capability, summary.capability);
   appendDetail(metadata, PortalDetails.Custody, summary.custody);
   appendDetail(metadata, PortalDetails.EvidenceReferences, summary.evidenceReferences);
+  appendDetail(metadata, PortalDetails.DeletedEvidence, summary.deletedEvidence);
   appendDetail(metadata, PortalDetails.ProductClaim, toDetail(summary.productClaim));
   if (summary.parserReason !== null) {
     appendDetail(metadata, PortalDetails.Reason, summary.parserReason);

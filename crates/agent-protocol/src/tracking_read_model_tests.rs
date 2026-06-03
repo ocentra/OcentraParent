@@ -16,6 +16,9 @@ fn tracking_read_model_serializes_without_product_completion_claims() {
         capability_status: TRACKING_READ_MODEL_STATUS_NO_TRACKING_EVENTS.to_string(),
         latest_event_id: None,
         latest_observed_at: None,
+        evidence_reference_ids: Vec::new(),
+        retention_tombstone_count: 0,
+        retention_tombstone_evidence_reference_ids: Vec::new(),
         rows: Vec::new(),
     };
 
@@ -30,6 +33,17 @@ fn tracking_read_model_serializes_without_product_completion_claims() {
     assert_eq!(
         serialized["capabilityStatus"],
         TRACKING_READ_MODEL_STATUS_NO_TRACKING_EVENTS
+    );
+    assert_eq!(
+        serialized["evidenceReferenceIds"].as_array().map(Vec::len),
+        Some(0)
+    );
+    assert_eq!(serialized["retentionTombstoneCount"], 0);
+    assert_eq!(
+        serialized["retentionTombstoneEvidenceReferenceIds"]
+            .as_array()
+            .map(Vec::len),
+        Some(0)
     );
     assert_eq!(serialized["rows"].as_array().map(Vec::len), Some(0));
 }

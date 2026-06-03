@@ -15,6 +15,7 @@ fn activity_store_reports_tracking_read_model_from_ingested_events() {
         ActivityEventKind::LocationObserved,
         ActivityObserver::AndroidLocation,
         ActivitySubjectKind::Location,
+        constants::activity_store::TEST_TRACKING_EVIDENCE_REFERENCE_ID,
     );
     let geofence = tracking_activity_event(
         constants::activity_store::TEST_TRACKING_GEOFENCE_EVENT_ID,
@@ -22,6 +23,7 @@ fn activity_store_reports_tracking_read_model_from_ingested_events() {
         ActivityEventKind::TrackingGeofenceTransitionEvaluated,
         ActivityObserver::TrackingEngine,
         ActivitySubjectKind::TrackingRule,
+        constants::activity_store::TEST_TRACKING_EVIDENCE_REFERENCE_ID,
     );
     let expected_place = tracking_activity_event(
         constants::activity_store::TEST_TRACKING_EXPECTED_PLACE_EVENT_ID,
@@ -29,6 +31,7 @@ fn activity_store_reports_tracking_read_model_from_ingested_events() {
         ActivityEventKind::TrackingExpectedPlaceEvaluated,
         ActivityObserver::TrackingEngine,
         ActivitySubjectKind::TrackingRule,
+        constants::activity_store::TEST_TRACKING_EVIDENCE_REFERENCE_ID,
     );
 
     store
@@ -79,12 +82,62 @@ fn activity_store_reports_empty_tracking_read_model_without_inventing_rows() {
     );
 }
 
+#[test]
+fn activity_store_reports_retention_tombstone_citations_without_hiding_read_model_shape() {
+    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+    let location = tracking_activity_event(
+        constants::activity_store::TEST_TRACKING_LOCATION_EVENT_ID,
+        constants::activity_store::TEST_TRACKING_LOCATION_OBSERVED_AT,
+        ActivityEventKind::LocationObserved,
+        ActivityObserver::AndroidLocation,
+        ActivitySubjectKind::Location,
+        constants::activity_store::TEST_TRACKING_EVIDENCE_REFERENCE_ID,
+    );
+    let retention = tracking_activity_event(
+        constants::activity_store::TEST_TRACKING_RETENTION_DELETE_EVENT_ID,
+        constants::activity_store::TEST_TRACKING_RETENTION_DELETE_OBSERVED_AT,
+        ActivityEventKind::TrackingRetentionDeleted,
+        ActivityObserver::TrackingEngine,
+        ActivitySubjectKind::Retention,
+        constants::activity_store::TEST_TRACKING_RETENTION_TOMBSTONE_EVIDENCE_REFERENCE_ID,
+    );
+
+    store
+        .ingest_events(&[location, retention])
+        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+    let read_model = tracking_read_model_for_store(
+        &store,
+        constants::activity_store::DEFAULT_RECENT_LIMIT,
+        constants::activity_store::TEST_TRACKING_RETENTION_DELETE_OBSERVED_AT,
+    )
+    .expect(constants::error::ACTIVITY_STORE_QUERIES);
+
+    assert_eq!(read_model.returned, 2);
+    assert_eq!(
+        read_model.evidence_reference_ids,
+        vec![
+            constants::activity_store::TEST_TRACKING_RETENTION_TOMBSTONE_EVIDENCE_REFERENCE_ID
+                .to_string(),
+            constants::activity_store::TEST_TRACKING_EVIDENCE_REFERENCE_ID.to_string()
+        ]
+    );
+    assert_eq!(read_model.retention_tombstone_count, 1);
+    assert_eq!(
+        read_model.retention_tombstone_evidence_reference_ids,
+        vec![
+            constants::activity_store::TEST_TRACKING_RETENTION_TOMBSTONE_EVIDENCE_REFERENCE_ID
+                .to_string()
+        ]
+    );
+}
+
 fn tracking_activity_event(
     event_id: &str,
     observed_at: &str,
     kind: ActivityEventKind,
     observer: ActivityObserver,
     subject_kind: ActivitySubjectKind,
+    evidence_reference_id: &str,
 ) -> ActivityEvent {
     let mut fields = LogFields::new();
     fields.insert(
@@ -95,9 +148,7 @@ fn tracking_activity_event(
     );
     fields.insert(
         constants::field::EVIDENCE_REFERENCE_IDS.to_string(),
-        LogFieldValue::String(
-            constants::activity_store::TEST_TRACKING_EVIDENCE_REFERENCE_ID.to_string(),
-        ),
+        LogFieldValue::String(evidence_reference_id.to_string()),
     );
 
     ActivityEvent {

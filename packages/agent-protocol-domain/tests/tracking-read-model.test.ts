@@ -23,6 +23,9 @@ const TrackingReadModel = {
   capabilityStatus: 'recent',
   latestEventId: 'tracking-event-1',
   latestObservedAt: '2026-06-03T07:19:00Z',
+  evidenceReferenceIds: ['tracking-evidence-1', 'retention-tombstone-evidence-1'],
+  retentionTombstoneCount: 1,
+  retentionTombstoneEvidenceReferenceIds: ['retention-tombstone-evidence-1'],
   rows: [
     {
       schemaVersion: ActivityQuerySchemaVersion,

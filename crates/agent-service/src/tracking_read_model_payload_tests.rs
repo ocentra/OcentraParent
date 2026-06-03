@@ -22,6 +22,11 @@ fn tracking_read_model_payload_contains_contract_json_and_latest_citations() {
         latest_observed_at: Some(
             constants::activity_store::TEST_TRACKING_LOCATION_OBSERVED_AT.to_string(),
         ),
+        evidence_reference_ids: vec![
+            constants::activity_store::TEST_TRACKING_EVIDENCE_REFERENCE_ID.to_string(),
+        ],
+        retention_tombstone_count: 0,
+        retention_tombstone_evidence_reference_ids: Vec::new(),
         rows: vec![tracking_row()],
     };
 
@@ -31,6 +36,11 @@ fn tracking_read_model_payload_contains_contract_json_and_latest_citations() {
         serde_json::from_str(read_model_json).expect(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(decoded.returned, 1);
+    assert_eq!(
+        decoded.evidence_reference_ids[0],
+        constants::activity_store::TEST_TRACKING_EVIDENCE_REFERENCE_ID
+    );
+    assert_eq!(decoded.retention_tombstone_count, 0);
     assert_eq!(
         string_payload(&payload, constants::field::EVIDENCE_REFERENCE_IDS),
         constants::activity_store::TEST_TRACKING_EVIDENCE_REFERENCE_ID

@@ -57,7 +57,8 @@ expose location or device-status features. Parents expect this category.
 - P2 service-boundary proof now exists for a narrow
   `agent.activity.tracking.read-model.get` WebSocket command that reads
   tracking event rows from the shared ActivityStore SQLite query store and
-  reports citation IDs through `trackingReadModel`. The parent portal
+  reports row citation IDs, consolidated read-model citation IDs, and retention
+  tombstone citation accounting through `trackingReadModel`. The parent portal
   `policy-tracking` route now consumes that service read model as a narrow
   live summary beside the P1 fixture rows. The repeatable proof command is
   `node scripts/test/tracking-plan-service-read-model-proof.mjs`, with artifact
@@ -77,14 +78,13 @@ expose location or device-status features. Parents expect this category.
   `output/tracking-plan-proof/22-local-parent-defined-place-database/`.
 - Platform permissions, mobile physical-device proof, full runtime adapters,
   provider delivery, notification delivery, full parent/child UI, hosted screenshots,
-  accessibility, and richer live service-backed UI evidence citations remain not
+  accessibility, and full live service-backed UI evidence details remain not
   product-complete.
 - Raw tracking/location settings are preserved as design inputs, not
   product-complete implementation proof.
 
 ## Current Gap
 
-Location/geofence is now in contract, P1 fixture/runtime proof, narrow P2
 service read-model proof, narrow portal summary-consumption proof, P1 local
 parent-defined place store proof, and pre-device proof-gate progress. It
 remains a tracked product gap until platform adapters, richer product read
@@ -110,7 +110,8 @@ service-backed UI evidence citations are proved.
 - [x] Nearby-place ambiguity and AI safety evidence contracts.
 - [x] P1 ActivityStore tracking-event SQLite ingest proof.
 - [x] P2 service-backed tracking read-model command proof for SQLite journal
-      rows and citation IDs.
+      rows, consolidated citation IDs, and retention tombstone citation
+      accounting.
 - [x] Narrow parent portal summary consumption of the service-backed tracking
       read model.
 - [x] P1 local parent-defined place store proof for CRUD/import/export/delete
@@ -119,7 +120,9 @@ service-backed UI evidence citations are proved.
       and local proof artifact references.
 - [x] Pre-device gap-closure proof gate and Android Studio/iOS simulator/WSL/manual
       proof plans.
-- [ ] Richer live service-backed UI citations beyond the narrow summary.
+- [x] Narrow live service-backed consolidated citations and retention tombstone
+      citation accounting.
+- [ ] Full live service-backed UI evidence details beyond the narrow summary.
 - [ ] Live parent/child UI screenshots, hosted proof, and accessibility proof.
 
 ## Next AI Instructions

@@ -61,10 +61,12 @@ The repeatable `node scripts/test/tracking-plan-runtime-proof.mjs` command now
 captures and records the local rendered screenshot at
 `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/policy-tracking-parent-fixture.png`.
 The same route now has a narrow live service summary for the P2
-`trackingReadModel` event, covered by `apps/portal/tests/tracking-status-panel.test.ts`
-and the service read-model proof script. This is not product-complete UI proof:
-child-device UI, hosted Playwright/accessibility output, richer
-service-backed citations, and physical device evidence remain pending.
+`trackingReadModel` event, including consolidated service citation IDs and
+retention tombstone citation accounting, covered by
+`apps/portal/tests/tracking-status-panel.test.ts` and the service read-model
+proof script. This is not product-complete UI proof: child-device UI, hosted
+Playwright/accessibility output, full service-backed evidence details, and
+physical device evidence remain pending.
 `node scripts/test/tracking-plan-pre-device-proof.mjs` now records those UI
 gaps in the aggregate pre-device gate so the next pass can run hosted
 Playwright/accessibility and child UI proof separately before any product claim.
@@ -99,15 +101,28 @@ This workpack can be assigned independently, implemented against the owning doma
 ## Manual-Required Gaps
 
 - Full service-data UI, child-device UI, hosted Playwright/accessibility output,
-  richer service-backed citations, and physical-device proof remain
+  full service-backed evidence details, and physical-device proof remain
   manual-required until the assigned proof artifacts exist.
 - Any unsupported platform or provider failure must surface as degraded/manual-required state, not as a silent success.
 
 ## Fill This Before Reporting DONE Or PR-ready
 
-- [ ] Workpack id and branch.
-- [ ] Touched files.
-- [ ] Validation commands and results.
-- [ ] Proof artifacts under `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`.
-- [ ] Product doc/checklist updates or reason none were needed.
-- [ ] Known gaps/manual-required states.
+- [x] Workpack id and branch: `codex/tracking-read-model-portal-proof`.
+- [x] Touched files: `apps/portal/src/tracking-status-panel.ts`,
+      `apps/portal/src/TrackingStatusRoutePanel.tsx`,
+      `apps/portal/tests/tracking-status-panel.test.ts`, and linked WP32
+      service read-model files.
+- [x] Validation commands and results:
+      `cmd /c npm exec --workspace @ocentra-parent/portal -- vitest run tests/tracking-status-panel.test.ts`
+      passed; `node scripts/test/tracking-plan-service-read-model-proof.mjs`
+      passed.
+- [x] Proof artifacts under `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`:
+      existing P1 fixture/screenshot artifacts remain unchanged; this branch's
+      new live-summary proof is recorded through WP32
+      `18-service-read-model-proof.json`.
+- [x] Product doc/checklist updates or reason none were needed: owning feature
+      doc and implementation checklist updated; central product checklist is
+      primary-owned and not edited in this branch.
+- [x] Known gaps/manual-required states: child-device UI, full service-data UI,
+      hosted Playwright/accessibility, physical Android/iOS proof, and
+      authority-enrolled proof remain pending.

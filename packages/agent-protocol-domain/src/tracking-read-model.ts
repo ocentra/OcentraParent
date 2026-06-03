@@ -35,6 +35,9 @@ export const AgentActivityTrackingReadModelSchema = withParser(
     capabilityStatus: TrackingProtocolText,
     latestEventId: NullableTrackingProtocolText,
     latestObservedAt: NullableTrackingProtocolText,
+    evidenceReferenceIds: Schema.Array(TrackingProtocolText),
+    retentionTombstoneCount: TrackingProtocolCount,
+    retentionTombstoneEvidenceReferenceIds: Schema.Array(TrackingProtocolText),
     rows: Schema.Array(AgentActivityTrackingReadModelRowSchema),
   })
 );

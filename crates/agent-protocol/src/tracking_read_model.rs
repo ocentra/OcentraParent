@@ -34,5 +34,8 @@ pub struct TrackingReadModel {
     pub capability_status: String,
     pub latest_event_id: Option<String>,
     pub latest_observed_at: Option<String>,
+    pub evidence_reference_ids: Vec<String>,
+    pub retention_tombstone_count: u64,
+    pub retention_tombstone_evidence_reference_ids: Vec<String>,
     pub rows: Vec<TrackingReadModelRow>,
 }

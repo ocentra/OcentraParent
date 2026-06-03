@@ -11,7 +11,9 @@ await main();
 
 async function main() {
   await runNpmWorkspace('@ocentra-parent/text-domain', ['run', 'build']);
+  await runNpmWorkspace('@ocentra-parent/activity-domain', ['run', 'build']);
   await runNpmWorkspace('@ocentra-parent/agent-protocol-domain', ['run', 'build']);
+  await runNpmWorkspace('@ocentra-parent/portal-domain', ['run', 'build']);
   await runNpmWorkspace('@ocentra-parent/agent-protocol-domain', [
     'run',
     'test',
@@ -51,6 +53,9 @@ async function main() {
         'activity.tracking.retention.deleted',
       ],
       citationField: 'evidenceReferenceIds',
+      consolidatedCitationField: 'trackingReadModel.evidenceReferenceIds',
+      retentionTombstoneCountField: 'trackingReadModel.retentionTombstoneCount',
+      retentionTombstoneCitationField: 'trackingReadModel.retentionTombstoneEvidenceReferenceIds',
     },
     proofArtifacts: {
       typescriptProtocolDomain: 'packages/agent-protocol-domain/src/contracts.ts',
@@ -68,11 +73,11 @@ async function main() {
     nonClaims: [
       'This proof does not claim Android or iOS physical background tracking behavior.',
       'This proof does not claim enrolled-device authority, production pilot readiness, or provider delivery.',
-      'This proof only claims narrow portal summary consumption of the service-backed read model, not complete parent/child tracking UI.',
+      'This proof only claims portal summary consumption of service-backed rows, consolidated citations, and retention tombstone accounting, not complete parent/child tracking UI.',
     ],
     remainingGapsBeforeProductOrPrReady: [
       'Hosted portal screenshot, accessibility, and browser-to-service proof remain pending.',
-      'Richer product tracking read-model surfaces remain pending.',
+      'Full product tracking read-model surfaces remain pending beyond consolidated service citations and retention tombstone accounting.',
       'Child-device UI and device permission screenshots remain pending.',
       'Android/iOS physical background geofence proof remains manual-required.',
       'Authority-enrolled and production-pilot proof remain absent.',

@@ -29,6 +29,7 @@ async fn tracking_read_model_command_reports_service_backed_sqlite_rows() {
                 ActivityEventKind::LocationObserved,
                 ActivityObserver::AndroidLocation,
                 ActivitySubjectKind::Location,
+                constants::activity_store::TEST_TRACKING_EVIDENCE_REFERENCE_ID,
             ),
             tracking_activity_event(
                 constants::activity_store::TEST_TRACKING_GEOFENCE_EVENT_ID,
@@ -36,6 +37,15 @@ async fn tracking_read_model_command_reports_service_backed_sqlite_rows() {
                 ActivityEventKind::TrackingGeofenceTransitionEvaluated,
                 ActivityObserver::TrackingEngine,
                 ActivitySubjectKind::TrackingRule,
+                constants::activity_store::TEST_TRACKING_EVIDENCE_REFERENCE_ID,
+            ),
+            tracking_activity_event(
+                constants::activity_store::TEST_TRACKING_RETENTION_DELETE_EVENT_ID,
+                constants::activity_store::TEST_TRACKING_RETENTION_DELETE_OBSERVED_AT,
+                ActivityEventKind::TrackingRetentionDeleted,
+                ActivityObserver::TrackingEngine,
+                ActivitySubjectKind::Retention,
+                constants::activity_store::TEST_TRACKING_RETENTION_TOMBSTONE_EVIDENCE_REFERENCE_ID,
             ),
         ])
         .expect(constants::error::ACTIVITY_STORE_INGESTS);
@@ -53,13 +63,22 @@ async fn tracking_read_model_command_reports_service_backed_sqlite_rows() {
         event.event,
         AgentEventName::AgentActivityTrackingReadModelReported
     );
-    assert_eq!(read_model.returned, 2);
+    assert_eq!(read_model.returned, 3);
     assert_eq!(
         read_model.latest_event_id.as_deref(),
-        Some(constants::activity_store::TEST_TRACKING_GEOFENCE_EVENT_ID)
+        Some(constants::activity_store::TEST_TRACKING_RETENTION_DELETE_EVENT_ID)
+    );
+    assert_eq!(read_model.retention_tombstone_count, 1);
+    assert_eq!(
+        read_model.retention_tombstone_evidence_reference_ids[0],
+        constants::activity_store::TEST_TRACKING_RETENTION_TOMBSTONE_EVIDENCE_REFERENCE_ID
     );
     assert_eq!(
-        read_model.rows[0].evidence_reference_ids[0],
+        read_model.evidence_reference_ids[0],
+        constants::activity_store::TEST_TRACKING_RETENTION_TOMBSTONE_EVIDENCE_REFERENCE_ID
+    );
+    assert_eq!(
+        read_model.evidence_reference_ids[1],
         constants::activity_store::TEST_TRACKING_EVIDENCE_REFERENCE_ID
     );
 }
@@ -91,6 +110,7 @@ fn tracking_activity_event(
     kind: ActivityEventKind,
     observer: ActivityObserver,
     subject_kind: ActivitySubjectKind,
+    evidence_reference_id: &str,
 ) -> ActivityEvent {
     let mut fields = LogFields::new();
     fields.insert(
@@ -101,9 +121,7 @@ fn tracking_activity_event(
     );
     fields.insert(
         constants::field::EVIDENCE_REFERENCE_IDS.to_string(),
-        LogFieldValue::String(
-            constants::activity_store::TEST_TRACKING_EVIDENCE_REFERENCE_ID.to_string(),
-        ),
+        LogFieldValue::String(evidence_reference_id.to_string()),
     );
 
     ActivityEvent {
