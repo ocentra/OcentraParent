@@ -14,6 +14,7 @@ export const AppGameNonNegativeCountSchema = Schema.Number.pipe(
 
 export const AppGameInventoryEntryIdSchema = NonEmptyAppGameText.pipe(Schema.brand('AppGameInventoryEntryId'));
 export const AppGameEvidenceClaimIdSchema = NonEmptyAppGameText.pipe(Schema.brand('AppGameEvidenceClaimId'));
+export const AppGameRuntimeEvidenceIdSchema = NonEmptyAppGameText.pipe(Schema.brand('AppGameRuntimeEvidenceId'));
 export const AppGameProcessIdentitySchema = NonEmptyAppGameText.pipe(Schema.brand('AppGameProcessIdentity'));
 export const AppGameProcessNameSchema = NonEmptyAppGameText.pipe(Schema.brand('AppGameProcessName'));
 export const AppGameDisplayNameSchema = NonEmptyAppGameText.pipe(Schema.brand('AppGameDisplayName'));
@@ -162,6 +163,18 @@ export const AppGameCatalogReadyState = {
   PermissionLimited: AppGameCatalogReadyStateSchema.parse('permissionLimited'),
 } as const;
 
+export const AppGameCapabilityStatus = {
+  Available: AppGameCapabilityStatusSchema.parse('available'),
+  Unavailable: AppGameCapabilityStatusSchema.parse('unavailable'),
+  PermissionLimited: AppGameCapabilityStatusSchema.parse('permissionLimited'),
+  UnsupportedPlatform: AppGameCapabilityStatusSchema.parse('unsupportedPlatform'),
+  AdapterError: AppGameCapabilityStatusSchema.parse('adapterError'),
+  Stale: AppGameCapabilityStatusSchema.parse('stale'),
+  Degraded: AppGameCapabilityStatusSchema.parse('degraded'),
+  ManualRequired: AppGameCapabilityStatusSchema.parse('manualRequired'),
+  NotClaimed: AppGameCapabilityStatusSchema.parse('notClaimed'),
+} as const;
+
 export const AppGameForegroundState = {
   Foreground: AppGameForegroundStateSchema.parse('foreground'),
   Background: AppGameForegroundStateSchema.parse('background'),
@@ -229,6 +242,7 @@ export type AppGameCatalogReadyState = Infer<typeof AppGameCatalogReadyStateSche
 export type AppGameCapabilityStatus = Infer<typeof AppGameCapabilityStatusSchema>;
 export type AppGameForegroundState = Infer<typeof AppGameForegroundStateSchema>;
 export type AppGameRuntimeState = Infer<typeof AppGameRuntimeStateSchema>;
+export type AppGameRuntimeEvidenceId = Infer<typeof AppGameRuntimeEvidenceIdSchema>;
 export type AppGameEvidenceClaimKind = Infer<typeof AppGameEvidenceClaimKindSchema>;
 export type AppGameIdentityStrength = Infer<typeof AppGameIdentityStrengthSchema>;
 export type AppGameAiActionHint = Infer<typeof AppGameAiActionHintSchema>;
