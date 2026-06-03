@@ -63,6 +63,7 @@ browser/app/timed trigger
 - [AI Plan](../ai-plan/README.md)
 - [Screen Real Capture Proof Matrix](../screen-plan/v0-5-real-capture-proof-matrix.md)
 - [AI Real Analysis Proof Matrix](../ai-plan/real-ai-analysis-and-pipeline-proof-matrix.md)
+- [Proof Tiers](proof-tiers.md)
 
 ## Plan Files
 

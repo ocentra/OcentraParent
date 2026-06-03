@@ -8,6 +8,20 @@ Expected proof pack path:
 output/screen-plan-proof/<workpack-id>/
 ```
 
+## Current Branch Proof Snapshot
+
+These entries summarize proof already produced on the current stacked branch.
+They do not claim product-complete trigger scheduling, disable suppression,
+portal UI, or managed-browser integration.
+
+| Proof | Status | Artifact | Non-claim |
+| --- | --- | --- | --- |
+| Windows active-window adapter capture | P3 proved | `output/screen-plan-proof/real-capture/manual-parent-test-active-window/proof-summary.json` | Windows local host only; macOS/Linux/Android/iOS still need real platform proof. |
+| Encrypted temporary queue custody | P3 proved | `output/screen-plan-proof/real-capture/manual-parent-test-active-window/03-encrypted-queue.ndjson` | Remaining implementation task: service scheduler integration; this local harness proof is not that claim. |
+| Raw image delete-after-success | P3 proved | `output/screen-plan-proof/real-capture/manual-parent-test-active-window/04-deletion-proof.json` | TTL expiry and delete-failed surfacing remain. |
+| Browser-window trigger harness | P3 proved | `output/screen-plan-proof/real-capture/trigger-matrix/proof-summary.json` | Does not claim D-lane managed browser URL-change integration. |
+| Timed two-frame cadence harness | P3 proved | `output/screen-plan-proof/real-capture/trigger-matrix/proof-summary.json` | Remaining implementation task: product scheduler and disabled-setting suppression; this harness proof is not that claim. |
+
 ## Main Gates
 
 - [ ] Screen analysis starts disabled.
@@ -26,12 +40,12 @@ output/screen-plan-proof/<workpack-id>/
 - [ ] Guided detector prompts replace open-ended screen descriptions.
 - [ ] A capable configured local model may be used after route/cost/privacy proof.
 - [ ] Protected surfaces are skipped.
-- [ ] Temporary image queue is encrypted.
+- [x] Temporary image queue is encrypted.
 - [ ] Raw image path is redacted outside child agent.
 - [ ] Local OCR/vision returns schema-valid JSON only.
 - [ ] Invalid model output cannot drive policy.
 - [ ] Summary writes to journal/SQLite.
-- [ ] Raw image deleted after success.
+- [x] Raw image deleted after success.
 - [ ] Raw image deleted after expiry.
 - [ ] Deletion state visible.
 - [ ] Policy consumes summary/evidence refs only.
@@ -115,7 +129,7 @@ local heavy OCR/VLM jobs run without priority/resource guard
 | [ ]    | 06 Capture scope model                             |
 | [ ]    | 07 Capture trigger model                           |
 | [ ]    | 08 Platform adapter abstraction                    |
-| [ ]    | 09 Windows capture adapter plan/proof              |
+| [~]    | 09 Windows capture adapter plan/proof              |
 | [ ]    | 10 macOS capture adapter plan/proof                |
 | [ ]    | 11 Linux capture adapter plan/proof                |
 | [ ]    | 12 Android MediaProjection adapter plan/proof      |
@@ -128,9 +142,9 @@ local heavy OCR/VLM jobs run without priority/resource guard
 | [ ]    | 19 Sensitive text and redaction model              |
 | [ ]    | 20 Result validator and invalid-output handling    |
 | [~]    | 21 Journal and SQLite ingest                       |
-| [ ]    | 22 Deletion and retention proof                    |
-| [ ]    | 23 Policy compiler for screen-derived evidence     |
-| [ ]    | 24 Enforcement handoff guard                       |
+| [~]    | 22 Deletion and retention proof                    |
+| [~]    | 23 Policy compiler for screen-derived evidence     |
+| [~]    | 24 Enforcement handoff guard                       |
 | [ ]    | 25 Parent portal summary UI                        |
 | [ ]    | 26 Child disclosure UX                             |
 | [ ]    | 27 Screenshot retention optional mode              |
@@ -142,7 +156,7 @@ local heavy OCR/VLM jobs run without priority/resource guard
 | [ ]    | 33 Managed browser CDP screenshot capture path     |
 | [ ]    | 34 OCR Tesseract baseline                          |
 | [ ]    | 35 OCR PaddleOCR/PP-OCR evaluation                 |
-| [ ]    | 36 Small VLM guided classifier evaluation          |
+| [~]    | 36 Small VLM guided classifier evaluation          |
 | [ ]    | 37 Family AI hub screen-analysis queue             |
 | [ ]    | 38 Local AI resource scheduler/priority queue      |
 | [ ]    | 39 Redacted summary-only remote boundary           |

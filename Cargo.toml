@@ -4,7 +4,8 @@ members = [
   "crates/agent-core",
   "crates/agent-protocol",
   "crates/agent-service",
-  "crates/agent-updater"
+  "crates/agent-updater",
+  "crates/screen-capture-adapter"
 ]
 
 [workspace.package]
