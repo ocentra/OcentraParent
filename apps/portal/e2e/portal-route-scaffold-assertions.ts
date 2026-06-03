@@ -136,6 +136,7 @@ const productRoutes = [
 ] as const;
 
 const lanManageRoutePaths = new Set(['/#/platforms-install', '/#/install-updates']);
+const routeSurfaceReadyTimeoutMs = 30_000;
 
 export async function assertRouteScaffolds(page: Page): Promise<void> {
   for (const route of productRoutes) {
@@ -205,20 +206,46 @@ async function assertAssistantRouteSurface(
 }
 
 async function assertManageRouteSurface(surface: ReturnType<Page['locator']>, path: string): Promise<void> {
-  const visibleText = (await surface.locator('text').allTextContents()).join(' ');
-  expect(visibleText).toMatch(
+  await expectSurfaceTextToMatch(
+    surface,
     /(?:Family|Rules|Schedule|Approvals|Enforcement|Audit|Plan|Access|Support|Settings|Portal|Devices|Data|AI|Memory)/
   );
   if (lanManageRoutePaths.has(path)) {
-    expect(visibleText).toContain('Local Area Network');
-    expect(visibleText).toContain('SELECTED DEVICE CONTEXT');
+    await expectSurfaceTextToContain(surface, 'Local Area Network');
+    await expectSurfaceTextToContain(surface, 'SELECTED DEVICE CONTEXT');
     return;
   }
-  expect(visibleText).toContain('ROUTE READINESS');
-  if (path === '/#/browser-settings') expect(visibleText).toMatch(/(?:Browser setup|Managed web path)/);
-  if (path === '/#/enforcement') expect(visibleText).toContain('Enforcement readiness');
-  if (path === '/#/api-providers') expect(visibleText).toContain('API providers');
-  if (path === '/#/drive-connections') expect(visibleText).toMatch(/(?:Data custody|Drive exports)/);
+  if (path === '/#/browser-settings') {
+    await expectSurfaceTextToContain(surface, 'ROUTE READINESS');
+    await expectSurfaceTextToContain(surface, 'Browser activity');
+    await expectSurfaceTextToContain(surface, 'Managed web path');
+    await expectSurfaceTextToContain(surface, 'Browser setup');
+    await expectSurfaceTextToContain(surface, 'Enforcement readiness');
+    return;
+  }
+  if (path === '/#/enforcement') {
+    await expectSurfaceTextToContain(surface, 'Enforcement readiness');
+    return;
+  }
+  if (path === '/#/api-providers') {
+    await expectSurfaceTextToContain(surface, 'API providers');
+    return;
+  }
+  if (path === '/#/drive-connections') {
+    await expectSurfaceTextToMatch(surface, /(?:Data custody|Drive exports)/);
+  }
+}
+
+async function surfaceText(surface: ReturnType<Page['locator']>): Promise<string> {
+  return (await surface.locator('text').allTextContents()).join(' ');
+}
+
+async function expectSurfaceTextToContain(surface: ReturnType<Page['locator']>, expected: string): Promise<void> {
+  await expect.poll(() => surfaceText(surface), { timeout: routeSurfaceReadyTimeoutMs }).toContain(expected);
+}
+
+async function expectSurfaceTextToMatch(surface: ReturnType<Page['locator']>, expected: RegExp): Promise<void> {
+  await expect.poll(() => surfaceText(surface), { timeout: routeSurfaceReadyTimeoutMs }).toMatch(expected);
 }
 
 async function assertLanPairingRouteSurface(page: Page, surface: ReturnType<Page['locator']>): Promise<void> {
@@ -312,10 +339,6 @@ async function assertNoSyntheticLanDevices(page: Page, surface: ReturnType<Page[
   await expect(surface.locator('text').filter({ hasText: 'Aarav laptop' })).toHaveCount(0);
   await expect(surface.locator('text').filter({ hasText: 'Mina tablet' })).toHaveCount(0);
   await expect(surface.locator('text').filter({ hasText: 'UI check device' })).toHaveCount(0);
-}
-
-async function surfaceText(surface: ReturnType<Page['locator']>): Promise<string> {
-  return (await surface.locator('text').allTextContents()).join(' ');
 }
 
 async function assertControlRouteSurface(surface: ReturnType<Page['locator']>): Promise<void> {
