@@ -1,0 +1,54 @@
+{
+  "proof": "screen-capture-trigger-matrix-proof",
+  "outputDir": "output\\screen-plan-proof\\real-capture\\trigger-matrix",
+  "platform": "win32",
+  "realCaptureRuns": 3,
+  "capturedRuns": 3,
+  "allRawImagesDeleted": true,
+  "distinctCapturedFrames": true,
+  "productSchedulerImplemented": false,
+  "productForegroundTriggerImplemented": false,
+  "degradedIsCaptureProof": false,
+  "scenarios": [
+    {
+      "scenarioId": "browser-use-active-window",
+      "requestedTrigger": "managed_browser_url_change",
+      "productTriggerWired": false,
+      "proofHarnessTrigger": "headed-playwright-window-title-match",
+      "captured": true,
+      "status": "available",
+      "imageDigest": "60b10e66a28c4f7d9d847f008251d1f9892a774459884a43e1222723124b52e3",
+      "imageByteSize": 53600,
+      "rawImageDeleted": true,
+      "encryptedQueueOmitsRawDigest": true
+    },
+    {
+      "scenarioId": "timed-cadence-frame-1",
+      "requestedTrigger": "timed_cadence",
+      "productTriggerWired": false,
+      "proofHarnessTrigger": "bounded-two-frame-cadence-proof",
+      "captured": true,
+      "status": "available",
+      "imageDigest": "e27dbc9a7fd86a6b59baa6214401148dbfaf73ddff3da15eddf1ab7ac4735993",
+      "imageByteSize": 50273,
+      "rawImageDeleted": true,
+      "encryptedQueueOmitsRawDigest": true
+    },
+    {
+      "scenarioId": "timed-cadence-frame-2",
+      "requestedTrigger": "timed_cadence",
+      "productTriggerWired": false,
+      "proofHarnessTrigger": "bounded-two-frame-cadence-proof",
+      "captured": true,
+      "status": "available",
+      "imageDigest": "ed23e0292a266257fcd95a43ed0f48c61ea68b463464de796ec8d2abcbdf7a97",
+      "imageByteSize": 50747,
+      "rawImageDeleted": true,
+      "encryptedQueueOmitsRawDigest": true
+    }
+  ],
+  "nonClaims": [
+    "This proof fires the real capture adapter from a harness; it does not claim service scheduler wiring.",
+    "This proof uses a controlled headed browser window; it does not claim managed browser-plan URL integration."
+  ]
+}

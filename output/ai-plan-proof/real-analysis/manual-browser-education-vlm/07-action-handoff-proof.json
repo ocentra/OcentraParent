@@ -1,0 +1,9 @@
+{
+  "dryRun": true,
+  "action": "allow",
+  "enforcementHandoffState": "disabled",
+  "aiDoesNotEnforceDirectly": true,
+  "evidenceLinked": true,
+  "localAiResultLinked": true,
+  "rawImageDeletedBeforePolicyDecision": true
+}
