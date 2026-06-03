@@ -113,6 +113,17 @@ surfaces. The proof keeps cloud as an account/distribution status boundary only;
 it does not implement Stripe SDK code, billing provider logic, an account
 backend, portal UI, updater runtime, or child-activity custody.
 
+Current stateless report compiler proof:
+`stateless-report-compiler-status-proof` defines parent-domain request/status/
+result contracts for parent-authorized report compilation from parent-owned
+storage. It keeps cloud as a short-lived status/control-plane boundary with
+source connector/cursor refs, requested data classes/time window, parent-owned
+output destination, temp input/output TTL and deletion confirmation,
+redaction/minimization flags, audit refs, and non-mutating failure behavior. It
+does not implement a cloud worker, report compiler runtime, connector OAuth/
+provider API, upload/download runtime, portal UI, retained temporary child
+evidence, child-device mutation, or Ocentra-hosted family-data custody.
+
 ## Failure Behavior
 
 - Local observation, local policy, local enforcement, local portal operation, and
@@ -172,6 +183,10 @@ backend, portal UI, updater runtime, or child-activity custody.
 - Endpoint-domain contract tests and `billing-account-endpoint-contract-proof`
   for account, entitlement, subscription, device-limit, download, update, and
   release-status route boundaries.
+- Parent-domain contract tests and `stateless-report-compiler-status-proof`
+  for parent-authorized compiler request scope, status/result states,
+  temporary TTL/deletion confirmation, redaction/minimization, audit refs, and
+  non-mutating failure behavior.
 - Cloud runtime tests using real route handlers and auth validation boundaries,
   not unauthenticated happy-path fixtures.
 - Child-agent integration tests for accepted remote intent, rejected stale

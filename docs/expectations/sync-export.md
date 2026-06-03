@@ -74,6 +74,20 @@ provider API calls, portal UI, report compiler runtime, account/subscription
 backend, raw child evidence upload by default, or Ocentra-hosted child evidence
 custody.
 
+Current stateless report compiler proof:
+`scripts/test/stateless-report-compiler-status-proof.mjs` validates a
+parent-domain request/status/result read model for parent-authorized report
+compilation from parent-owned storage. It covers request id, family/account/
+device scope, source connector and cursor refs, requested data classes and time
+window, parent-owned output destination, queued/running/succeeded/failed/
+expired/manual-required lifecycle states, temporary input/output TTL and
+deletion confirmation, redaction/minimization flags, audit refs, and failure
+behavior that does not mutate local evidence or parent-owned storage. This is a
+contract proof only: it does not implement report compiler runtime, cloud
+worker, connector OAuth/provider API, upload/download, portal UI,
+account/subscription backend, retained temp child evidence, child-device
+mutation, or Ocentra-hosted family-data custody.
+
 ## Failure Behavior
 
 - Failed sync or export leaves local journal and query store intact.
@@ -127,6 +141,12 @@ custody.
   `parent-owned-sync-export-manifest-proof` for manifest data classes,
   encryption metadata, connector status, sync cursor, conflict, import/delete,
   retention/delete, and no-default-Ocentra-custody boundaries.
+- Parent-domain contract tests and
+  `stateless-report-compiler-status-proof` for parent-authorized compiler
+  request scope, source connector/cursor refs, requested data classes/time
+  window, output destination ownership, queued/running/succeeded/failed/
+  expired/manual-required states, temp TTL/deletion confirmation,
+  redaction/minimization flags, audit refs, and non-mutating failure behavior.
 - Real export/import tests using the encrypted journal and SQLite rebuild path.
 - Retry/conflict tests covering interruption, duplicate batch, stale cursor, and newer local state.
 - Parent-owned storage connector tests for revoked grants, wrong account/folder,
