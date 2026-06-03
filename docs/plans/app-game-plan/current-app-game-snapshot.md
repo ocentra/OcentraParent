@@ -26,6 +26,11 @@ Proved today:
   appearance, persistence, exit closure, unknown process state, launcher
   runtime-only state, permission-limited metadata, and runtime session-summary
   readiness without foreground claims.
+- Windows foreground app/game evidence now has a first-class TypeScript
+  contract, Rust protocol parity, and a staged `agent-core` parser proof for
+  active foreground focus, foreground switch closure, background no-time guards,
+  omitted title refs, permission-limited metadata, launcher-only focus, unknown
+  foreground process state, and foreground-is-not-content guards.
 - App-control and game-control catalog/authoring contracts exist in
   `packages/parent-domain`.
 - Rust app/game session protocol mirrors exist.
@@ -46,6 +51,9 @@ Not proved today:
   metadata collection, publisher/signature/hash collection, journal ingest,
   SQLite replay, service events, or portal runtime rows for the new WP08
   contract.
+- Live Windows foreground-window polling, active-window subscription, journal
+  ingest, SQLite replay, service events, or portal foreground rows for the new
+  WP09 contract.
 - Product-complete native game catalog, launcher disambiguation, and game
   budgets.
 - New/unknown app and unknown game approval flow.
@@ -66,6 +74,8 @@ app/game contract stack from this plan:
 
 - launcher evidence and launcher-only state beyond the initial launcher
   no-claim guards;
+- foreground evidence rows beyond the staged foreground-window parser proof,
+  including live capture, journal replay, and portal foreground rows;
 - runtime-fed native app and native game category quality beyond inventory
   candidates;
 - rating, UGC, multiplayer, and purchase signals;
@@ -84,13 +94,16 @@ complete shared evidence spine or a proof that broad app/game blocking works.
 
 `crates/agent-core` currently has SQLite-backed app/game observation and session
 helpers, typed Windows installed-record and Store/UWP package
-adapter/parser proof, staged Windows process runtime parser proof, and scoped
-Windows owned-process time-limit helpers. This is a strong base for workpacks
-09, 12, 13, and 21, but it is not the same as:
+adapter/parser proof, staged Windows process runtime parser proof, staged
+Windows foreground-window parser proof, and scoped Windows owned-process
+time-limit helpers. This is a strong base for workpacks 10, 12, 13, and 21, but
+it is not the same as:
 
 - live Windows installed app inventory crawling;
 - live UWP/AppX package inventory enumeration;
 - live Windows process runtime polling or subscribed process start/exit events;
+- live Windows foreground-window polling or subscribed foreground transition
+  events;
 - launcher manifest adapters;
 - foreground app evidence adapters;
 - game-specific launcher-child process disambiguation;
@@ -128,6 +141,10 @@ Missing portal states include:
   staged Windows process runtime parser proof exists, but live process capture,
   executable metadata crawling, journal/SQLite ingest, service events, and
   portal runtime rows are not implemented yet.
+- Foreground evidence contracts and Rust foreground-row parity are present, and
+  a staged Windows foreground-window parser proof exists, but live foreground
+  capture, journal/SQLite ingest, service events, portal foreground rows, and
+  content-aware claims are not implemented.
 - Rust protocol parity has not yet mirrored the WP01 evidence claim, AI digest,
   app/game control authority schemas, or WP04 identity schemas.
 - Journal and SQLite ingest do not yet store the new evidence claim and
@@ -162,10 +179,14 @@ Missing portal states include:
   does not add live process polling, process-capture integration, journal
   ingest, SQLite replay, service/runtime events, foreground evidence, portal
   runtime rows, policy execution, or broad blocking.
+- WP09 adds foreground evidence contract/protocol/parser proof only. It does not
+  add live foreground-window polling, window-capture integration, journal ingest,
+  SQLite replay, service/runtime events, portal foreground rows, content
+  knowledge, policy execution, or broad blocking.
 - Next implementation work should either add live Windows inventory source
-  readers, runtime/foreground adapters, or mirror the remaining WP01/WP04
-  TypeScript shapes into Rust protocol before service/runtime consumers depend
-  on them.
+  readers, launcher/game candidate adapters, journal/read-model ingest, or
+  mirror the remaining WP01/WP04 TypeScript shapes into Rust protocol before
+  service/runtime consumers depend on them.
 
 ## Enhancement Rule
 

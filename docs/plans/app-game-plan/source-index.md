@@ -58,12 +58,14 @@ Current app/game evidence and session contracts live in:
 - `packages/activity-domain/src/app-game-inventory-primitives.ts`
 - `packages/activity-domain/src/app-game-inventory.ts`
 - `packages/activity-domain/src/app-game-runtime.ts`
+- `packages/activity-domain/src/app-game-foreground.ts`
 - `packages/activity-domain/src/app-game.ts`
 - `packages/activity-domain/tests/app-game.test.ts`
 - `packages/activity-domain/tests/app-game-evidence-claim.test.ts`
 - `packages/activity-domain/tests/app-game-identity.test.ts`
 - `packages/activity-domain/tests/app-game-inventory.test.ts`
 - `packages/activity-domain/tests/app-game-runtime.test.ts`
+- `packages/activity-domain/tests/app-game-foreground.test.ts`
 
 Current app-control and app/game policy/catalog meaning lives in:
 
@@ -100,6 +102,8 @@ Current Rust protocol and runtime proof paths include:
 - `crates/agent-core/src/activity_store_app_game/app_game_windows_store_inventory_tests.rs`
 - `crates/agent-core/src/activity_store_app_game/app_game_windows_process_runtime.rs`
 - `crates/agent-core/src/activity_store_app_game/app_game_windows_process_runtime_tests.rs`
+- `crates/agent-core/src/activity_store_app_game/app_game_windows_foreground.rs`
+- `crates/agent-core/src/activity_store_app_game/app_game_windows_foreground_tests.rs`
 - `crates/agent-core/src/activity_store_app_game_observation.rs`
 - `crates/agent-core/src/activity_store_app_game_rows.rs`
 - `crates/agent-core/src/activity_store_app_game_tests.rs`
@@ -192,6 +196,17 @@ metadata, session-ready runtime summaries, and runtime-is-not-foreground guards.
 It does not prove live process polling, journal ingest, SQLite replay, service
 events, portal rows, policy execution, foreground evidence, content knowledge,
 or broad blocking.
+
+WP09 proof on `codex/app-game-windows-foreground-evidence` adds a first-class
+TypeScript app/game foreground evidence contract, Rust protocol parity, and a
+staged `agent-core` Windows foreground-window parser under
+`output/app-game-plan-proof/09-windows-foreground-evidence-adapter/`. It covers
+active foreground focus, foreground switch closure, background process no-time
+guards, omitted title refs, permission-limited foreground metadata, launcher
+focus staying launcher-only, unknown foreground process non-promotion, and
+foreground-is-not-content guards. It does not prove live foreground polling,
+journal ingest, SQLite replay, service events, portal rows, content knowledge,
+policy execution, or broad blocking.
 
 ## Current Test Files
 
