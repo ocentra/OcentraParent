@@ -63,6 +63,10 @@ control with better evidence and local audit.
   unknown game-like executables, child status/reason refs, parent response
   scope, expiry, audit-backed replay state, and manual-required block outcomes
   without dispatching unsupported adapters.
+- Native game budget policy contracts now represent game budget targets,
+  running/foreground duration modes, launcher-only exclusion, parent-approved
+  launcher-game candidate inclusion, advisory rating/UGC/multiplayer/purchase
+  signals, dry-run preview decisions, and no-enforcement handoff guards.
 - Package/process identity and owned-process time-limit proof are in progress.
 - The V0.8 product-control spine separates app time-limit and scoped
   owned-process control from broad installed-app blocking, so downstream policy
@@ -127,6 +131,9 @@ The unknown approval proof is still contract-level: it does not yet provide
 finished parent/child approval UI, notification delivery, persisted service
 read models, live candidate creation from platform adapters, or platform hard
 blocking.
+The native game budget proof is also contract-level: it does not yet provide a
+policy target compiler, live game budget authoring UI, service persistence,
+budget notifications, bonus-time integration, or adapter execution.
 
 ## Checklist
 
@@ -141,7 +148,10 @@ blocking.
       weak app/game evidence in review/report-only/manual-required states with
       evidence refs, child status refs, expiry, and audit-backed persistence
       fields; live candidate production and parent/child UX remain.
-- [ ] App/category schedule and time-budget rules.
+- [ ] App/category schedule and time-budget rules. Native game budget dry-run
+      contracts now exist for known-game counts, launcher-only exclusion,
+      parent-approved candidate inclusion, and advisory signal boundaries; live
+      policy compiler, authoring UI, persistence, and enforcement remain.
 - [ ] Ask-parent and bonus-time flow.
 - [ ] Child-facing reason/status is referenced in the runtime audit; finished
       child request/status UX remains.

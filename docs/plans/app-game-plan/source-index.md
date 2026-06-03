@@ -88,12 +88,15 @@ Current app-control and app/game policy/catalog meaning lives in:
 - `packages/parent-domain/src/app-game-control-authority-rules.ts`
 - `packages/parent-domain/src/app-game-control-platform-authority.ts`
 - `packages/parent-domain/src/app-game-control-platform-authority-rules.ts`
+- `packages/parent-domain/src/native-game-budget-policy.ts`
+- `packages/parent-domain/src/native-game-budget-policy-rules.ts`
 - `packages/parent-domain/src/policy.ts`
 - `packages/parent-domain/tests/app-control-policy-catalog.test.ts`
 - `packages/parent-domain/tests/game-control-policy-catalog.test.ts`
 - `packages/parent-domain/tests/app-game-control-authority.test.ts`
 - `packages/parent-domain/tests/app-game-unknown-approval-flow.test.ts`
 - `packages/parent-domain/tests/app-game-control-platform-authority.test.ts`
+- `packages/parent-domain/tests/native-game-budget-policy.test.ts`
 - `packages/parent-domain/tests/enforcement-approval-audit.test.ts`
 
 New shared app/game schemas should extend these packages first. Do not create a
@@ -313,6 +316,17 @@ candidate creation from source adapters, parent/child approval UI,
 notification delivery, service persistence/read models, platform adapter hard
 blocking, or broad app/game enforcement.
 
+WP18 proof on `codex/app-game-read-model-service-events` adds parent-domain
+native game budget policy contract proof under
+`output/app-game-plan-proof/18-native-game-budgets-and-launcher-policy/`. It
+covers game budget targets, running/foreground duration source selection,
+known-game session inclusion, launcher-only exclusion, parent-approved
+launcher-game candidate inclusion, rating/UGC/multiplayer/purchase advisory
+signal boundaries, dry-run preview decisions, and no adapter handoff. It does
+not prove Rust/service parity, budget persistence, portal budget authoring or
+preview UI, notifications, bonus-time integration, platform adapter execution,
+or broad app/game enforcement.
+
 ## Current Test Files
 
 - `packages/activity-domain/tests/app-game.test.ts`
@@ -329,6 +343,7 @@ blocking, or broad app/game enforcement.
 - `packages/parent-domain/tests/app-game-control-authority.test.ts`
 - `packages/parent-domain/tests/app-game-unknown-approval-flow.test.ts`
 - `packages/parent-domain/tests/app-game-control-platform-authority.test.ts`
+- `packages/parent-domain/tests/native-game-budget-policy.test.ts`
 - `packages/parent-domain/tests/enforcement-approval-audit.test.ts`
 - `crates/agent-protocol/src/app_game_tests.rs`
 - `crates/agent-core/src/activity_store_app_game/app_game_sessionization_tests.rs`

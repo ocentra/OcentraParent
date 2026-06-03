@@ -56,6 +56,10 @@ Proved today:
   through typed app-use and games activity-surface DTOs with product,
   classification, inventory, runtime, foreground, capability, last-observed,
   source-count, and evidence-ref fields.
+- Native game budget policy contracts now provide dry-run proof for known-game
+  counts, launcher-only exclusion, parent-approved launcher-game candidate
+  inclusion, advisory rating/UGC/multiplayer/purchase signals, and
+  no-enforcement handoff.
 - App-control and game-control catalog/authoring contracts exist in
   `packages/parent-domain`.
 - Rust app/game session protocol mirrors exist.
@@ -81,8 +85,8 @@ Not proved today:
   foreground dashboard rows for the new WP09 contract. Journal replay and
   service read-model exposure are currently staged fixture proof, not live
   source wiring.
-- Product-complete native game catalog, live launcher disambiguation, and game
-  budgets.
+- Product-complete native game catalog, live launcher disambiguation, and live
+  game budget product behavior beyond WP18 dry-run contract proof.
 - Live new/unknown app and unknown game approval flow beyond the WP17
   contract-level request/decision proof.
 - Live category/risk classification, catalog enrichment, policy compiler
@@ -123,9 +127,12 @@ game-control catalog schemas/data, enforcement policy dispatch contracts, and
 app/game control approval authority/request/decision/action-result contract
 proof plus the WP11 platform authority matrix. WP17 now adds contract-level
 unknown app/game approval candidates, child status/reason refs, response scope,
-expiry, audit-backed replay state, and manual-required outcomes. Those catalogs
-and authority contracts are product-control inputs, not a complete shared
-evidence spine, live approval workflow, or proof that broad app/game blocking
+expiry, audit-backed replay state, and manual-required outcomes. WP18 now adds
+contract-level native game budget dry-run targets, launcher inclusion policy,
+advisory signal boundaries, and no-enforcement handoff. Those catalogs,
+authority contracts, approval contracts, and budget contracts are
+product-control inputs, not a complete shared evidence spine, live approval
+workflow, live game budget product flow, or proof that broad app/game blocking
 works.
 
 ## Current Runtime
@@ -204,6 +211,13 @@ Missing portal states include:
   app/game candidates, child refs, response scopes, expiry, replay state, and
   manual-required blocks, but live candidate production, notification delivery,
   service read models, and parent/child approval UI remain incomplete.
+- Native game budget policy now has parent-domain contract proof for game
+  budget targets, known-game inclusion, launcher-only exclusion,
+  parent-approved launcher-game candidate inclusion, advisory rating/UGC,
+  multiplayer, and purchase signals, and dry-run-only outcomes. It does not
+  yet provide policy compiler integration, service persistence, portal budget
+  authoring/preview UI, bonus-time integration, notifications, or adapter
+  execution.
 - Launcher evidence has contract/protocol/parser proof and service DTO exposure
   from staged projection rows, but live launcher crawling, dedicated portal
   rows, and game-budget policy are not product-complete. A launcher row must
@@ -265,6 +279,12 @@ Missing portal states include:
   over the staged app-game journal/SQLite projection. It does not add dedicated
   portal dashboard UI, policy/approval read models, live source subscriptions,
   platform authority changes, UI proof, or broad blocking.
+- WP18 adds parent-domain native game budget contract/test proof for known-game
+  counts, launcher-only exclusion, parent-approved launcher-game candidate
+  inclusion, advisory rating/UGC/multiplayer/purchase signal boundaries, and
+  dry-run-only decisions. It does not add Rust/service parity, budget
+  persistence, portal authoring/preview UI, notifications, bonus-time
+  integration, platform adapter execution, or broad blocking.
 - Next implementation work should either add dedicated portal dashboard
   consumption of the service rows, live Windows inventory source readers, or
   mirror the remaining WP01/WP04 TypeScript shapes into Rust protocol before
