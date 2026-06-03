@@ -9,6 +9,14 @@ Current runtime can report managed status and detect unmanaged process fallback,
 but the product inventory model is not yet a complete parent-visible browser
 catalog.
 
+2026-06-02 codex-d progress: the activity-domain and Rust protocol now define
+browser inventory row/read-model contracts, and the Rust service can derive a
+single honest inventory row from the existing managed-session status boundary.
+This proves the read-model shape for managed target-list sessions, unmanaged
+process-only detections, and missing-browser unavailable state. It does not yet
+prove installed-browser OS scanning, mixed multi-browser catalog population, or
+portal dashboard consumption.
+
 ## Where We Want To Be
 
 The service can represent installed and running browsers with support tier,
@@ -41,23 +49,27 @@ fallback state.
 
 Fill this before reporting `DONE` or PR-ready:
 
-- [ ] Confirm source docs read: [folder README](../README.md), [source index](../source-index.md), [current snapshot](../current-browser-snapshot.md), [full scope plan](../v0-5-managed-browser-full-scope-plan.md), [test blueprint](../v0-5-managed-browser-test-blueprint.md), [UI/UX guide](../ui-ux-requirements-guide.md), [main checklist](../implementation-checklist.md), and this workpack.
-- [ ] Check enhancement overlap: URL/video AI intelligence, social platform/account/feed gating, and browser games/cloud gaming.
-- [ ] Hub lock covers this workpack and exact implementation/docs paths.
-- [ ] Existing source layout inspected; no parallel browser truth created.
-- [ ] Before-state source snapshot recorded in `output/browser-plan-proof/<workpack-id>/00-source-snapshot.md` or explicit docs-only N/A reason.
-- [ ] Contracts updated first where this workpack changes behavior.
-- [ ] Rust/service/portal parity updated only after contracts exist.
-- [ ] Raw evidence artifacts captured where applicable: bridge/CDP payloads, managed session state, unmanaged process rows, journal entries, SQLite/read-model rows, policy decisions, and action results.
-- [ ] Tests/proof listed in this workpack are implemented or explicitly marked manual-required with reason.
-- [ ] Validation command outputs saved in the proof pack and summarized in [main checklist](../implementation-checklist.md).
-- [ ] UI snapshots captured for every touched parent portal, child UX, block/warn, policy authoring, or dashboard state; if no UI changed, `ui-not-applicable.md` records why.
-- [ ] Security/no-claim negative proof captured where applicable: no default profile attach, no unowned bridge, no unmanaged exact URL claim, no raw debugger URL exposure, and no AI direct enforcement.
-- [ ] Manual platform proof captured for real browser/OS claims, including OS/browser version, command steps, screenshots/logs, and manual-required labels.
-- [ ] Evidence/proof artifact paths recorded in [main checklist](../implementation-checklist.md).
-- [ ] Feature/expectation/product-checklist/README update decision recorded in [main checklist](../implementation-checklist.md).
-- [ ] Known gaps, deferred items, and no-claim boundaries recorded before `DONE`.
+- [x] Confirm source docs read: [folder README](../README.md), [source index](../source-index.md), [current snapshot](../current-browser-snapshot.md), [full scope plan](../v0-5-managed-browser-full-scope-plan.md), [test blueprint](../v0-5-managed-browser-test-blueprint.md), [UI/UX guide](../ui-ux-requirements-guide.md), [main checklist](../implementation-checklist.md), and this workpack.
+- [x] Check enhancement overlap: URL/video AI intelligence, social platform/account/feed gating, and browser games/cloud gaming.
+- [x] Hub lock covers this workpack and exact implementation/docs paths.
+- [x] Existing source layout inspected; no parallel browser truth created.
+- [x] Before-state source snapshot recorded in `output/browser-plan-proof/03-browser-inventory-model/00-source-snapshot.md`.
+- [x] Contracts updated first where this workpack changes behavior.
+- [x] Rust/service parity updated only after contracts exist; portal parity remains deferred because no UI surface changed.
+- [x] Raw evidence artifacts captured or marked N/A for this service-derived sub-slice: existing managed status fixtures, unmanaged process rows, and missing-browser status feed the read model; no journal, SQLite, policy, or action behavior changed.
+- [x] Tests/proof listed in this workpack are implemented for contract and service row derivation; OS scanner, mixed inventory, publisher/signature/hash refs, and portal fixtures remain manual-required.
+- [x] Validation command outputs saved in the proof pack and summarized in [main checklist](../implementation-checklist.md).
+- [x] UI snapshots captured for every touched parent portal, child UX, block/warn, policy authoring, or dashboard state; no UI changed, so `ui-not-applicable.md` records why.
+- [x] Security/no-claim negative proof captured for this sub-slice: unmanaged rows cannot claim managed exact URL and managed target-list rows cannot claim active-tab support.
+- [x] Manual platform proof captured for real browser/OS claims; no new real OS/browser claim was made, so `09-manual-platform-proof.md` records the N/A boundary.
+- [x] Evidence/proof artifact paths recorded in [main checklist](../implementation-checklist.md).
+- [x] Feature/expectation/product-checklist/README update decision recorded in [main checklist](../implementation-checklist.md).
+- [x] Known gaps, deferred items, and no-claim boundaries recorded before `DONE`.
 
 ## Manual-Required Gaps
 
 Inventory does not prove URL visibility or blocking capability by itself.
+Remaining inventory work requires the Windows inventory adapter, cross-platform
+inventory matrix, real installed-browser scanning, multi-row catalog fixtures,
+publisher/signature/hash evidence refs, portal dashboard consumption, and
+manual platform proof before this workpack can be marked complete.

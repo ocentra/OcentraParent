@@ -460,6 +460,7 @@ describe('portal command contracts', () => {
       'agent.activity.recent.summary.get',
       'agent.browser.evidence.recent.get',
       'agent.browser.managed.bridge.poll',
+      'agent.browser.inventory.read-model.get',
       'agent.activity.memory-graph.get',
       'agent.activity.report.history.list',
       'agent.activity.screen.read-model.get',
@@ -490,10 +491,22 @@ describe('portal shared constants', () => {
     expect(PortalDetails.DecisionSource).toBe('Decision source');
     expect(PortalDetails.ManagedSessionIntervention).toBe('Managed session intervention');
     expect(PortalDetails.UnmanagedBrowserEnforcement).toBe('Unmanaged browser enforcement');
+    expect(PortalDetails.UnmanagedFallbackAction).toBe('Unmanaged fallback action');
     expect(PortalDetails.ParentRuleContextReferences).toBe('Parent rule context references');
     expect(PortalDetails.ParentRuleContextRefIds).toBe('Parent rule context ref IDs');
   });
 
+  it('PortalDetails: exposes browser intervention proof labels', () => {
+    expect(PortalDetails.BrowserBoundary).toBe('Browser boundary');
+    expect(PortalDetails.ExactUrlClaim).toBe('Exact URL claim');
+    expect(PortalDetails.UnmanagedDetection).toBe('Unmanaged detection');
+    expect(PortalDetails.InterventionActionId).toBe('Intervention action ID');
+    expect(PortalDetails.InterventionAuditId).toBe('Intervention audit ID');
+    expect(PortalDetails.InterventionChildDelivery).toBe('Child delivery');
+  });
+});
+
+describe('portal chrome constants', () => {
   it('PortalDom: exposes product surface class and event tokens', () => {
     expect(PortalDom.Tags.Image).toBe('img');
     expect(PortalDom.Classes.ControlCardGoldenArt).toBe('control-card-golden-art');

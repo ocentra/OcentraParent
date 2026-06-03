@@ -1,7 +1,8 @@
 use ocentra_parent_agent_protocol::{
-    constants, BrowserActiveTabState, BrowserCapabilityStatus, BrowserChannel, BrowserCustodyLabel,
-    BrowserEvidenceReadModel, BrowserFamily, BrowserQueryVisibilityLabel, BrowserTabEvidence,
-    LogFieldValue, LogFields, BROWSER_EVIDENCE_SCHEMA_VERSION,
+    constants, BrowserActiveProofSource, BrowserActiveTabState, BrowserCapabilityStatus,
+    BrowserChannel, BrowserCustodyLabel, BrowserEvidenceReadModel, BrowserFamily,
+    BrowserQueryVisibilityLabel, BrowserTabEvidence, LogFieldValue, LogFields,
+    BROWSER_EVIDENCE_SCHEMA_VERSION,
 };
 use rusqlite::{params, Connection, Row};
 
@@ -120,12 +121,15 @@ fn browser_read_row_from_store(row: BrowserStoreRow) -> Option<BrowserReadRow> {
         tab_id: string_field(fields, constants::field::TAB_ID),
         target_id: string_field(fields, constants::field::TARGET_ID),
         active_state: active_state_field(fields)?,
+        active_proof_source: active_proof_source_field(fields)
+            .unwrap_or(BrowserActiveProofSource::TargetListOnly),
         url: string_field(fields, constants::field::URL)?,
         origin: string_field(fields, constants::field::ORIGIN)?,
         domain: string_field(fields, constants::field::DOMAIN)?,
         title: string_field(fields, constants::field::TITLE),
         capability_status: capability_status_field(fields)?,
-        degraded_reason: string_field(fields, constants::field::REASON),
+        degraded_reason: string_field(fields, constants::field::DEGRADED_REASON)
+            .or_else(|| string_field(fields, constants::field::REASON)),
         stale_at,
         custody_label: custody_label_field(fields).unwrap_or(BrowserCustodyLabel::ChildDeviceLocal),
         query_visibility: query_visibility_field(fields)
@@ -168,6 +172,11 @@ fn browser_channel_field(fields: &LogFields) -> Option<BrowserChannel> {
 fn active_state_field(fields: &LogFields) -> Option<BrowserActiveTabState> {
     string_field(fields, constants::field::ACTIVE_STATE)
         .and_then(|value| BrowserActiveTabState::from_protocol_str(&value))
+}
+
+fn active_proof_source_field(fields: &LogFields) -> Option<BrowserActiveProofSource> {
+    string_field(fields, constants::field::ACTIVE_PROOF_SOURCE)
+        .and_then(|value| BrowserActiveProofSource::from_protocol_str(&value))
 }
 
 fn capability_status_field(fields: &LogFields) -> Option<BrowserCapabilityStatus> {

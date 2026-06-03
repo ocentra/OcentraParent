@@ -1,7 +1,7 @@
 use super::{
-    constants, BrowserActiveTabState, BrowserCapabilityStatus, BrowserChannel, BrowserCustodyLabel,
-    BrowserEvidenceReadModel, BrowserFamily, BrowserQueryVisibilityLabel, BrowserTabEvidence,
-    BROWSER_EVIDENCE_SCHEMA_VERSION,
+    constants, BrowserActiveProofSource, BrowserActiveTabState, BrowserCapabilityStatus,
+    BrowserChannel, BrowserCustodyLabel, BrowserEvidenceReadModel, BrowserFamily,
+    BrowserQueryVisibilityLabel, BrowserTabEvidence, BROWSER_EVIDENCE_SCHEMA_VERSION,
 };
 
 #[test]
@@ -29,6 +29,10 @@ fn browser_evidence_read_model_serializes_tab_list_only_rows() {
         constants::browser::ACTIVE_STATE_UNKNOWN
     );
     assert_eq!(
+        serialized["rows"][0]["activeProofSource"],
+        constants::browser::ACTIVE_PROOF_SOURCE_TARGET_LIST_ONLY
+    );
+    assert_eq!(
         serialized["rows"][0]["capabilityStatus"],
         constants::browser::CAPABILITY_STATUS_TAB_LIST_ONLY
     );
@@ -52,6 +56,7 @@ fn browser_tab_evidence() -> BrowserTabEvidence {
         tab_id: None,
         target_id: Some(constants::browser::DEVTOOLS_TEST_TARGET_ID.to_string()),
         active_state: BrowserActiveTabState::Unknown,
+        active_proof_source: BrowserActiveProofSource::TargetListOnly,
         url: constants::activity_store::TEST_BROWSER_URL.to_string(),
         origin: constants::activity_store::TEST_BROWSER_ORIGIN.to_string(),
         domain: constants::activity_store::TEST_BROWSER_DOMAIN.to_string(),

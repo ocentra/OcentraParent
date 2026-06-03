@@ -3,8 +3,8 @@ use super::{
     ActivityEventKind, ActivityEvidenceKind, ActivityEvidenceRef, ActivityNetworkProtocol,
     ActivityNetworkTcpState, ActivityObservationMode, ActivityObserver,
     ActivityProcessAttributionStatus, ActivitySource, ActivitySubject, ActivitySubjectKind,
-    BrowserActiveTabState, BrowserCapabilityStatus, BrowserChannel, BrowserCustodyLabel,
-    BrowserEvidenceRecentSummary, BrowserFamily, BrowserInterventionAction,
+    BrowserActiveProofSource, BrowserActiveTabState, BrowserCapabilityStatus, BrowserChannel,
+    BrowserCustodyLabel, BrowserEvidenceRecentSummary, BrowserFamily, BrowserInterventionAction,
     BrowserInterventionCapabilityState, BrowserInterventionDecisionSource,
     BrowserInterventionMechanism, BrowserUnmanagedEnforcementState, LogFieldValue, LogFields,
     ACTIVITY_SCHEMA_VERSION, BROWSER_EVIDENCE_SCHEMA_VERSION,
@@ -115,6 +115,8 @@ fn browser_evidence_values_serialize_to_typescript_contract_shape() {
         .expect(constants::error::AGENT_EVENT_SERIALIZES);
     let active_state = serde_json::to_value(BrowserActiveTabState::Unknown)
         .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let active_proof_source = serde_json::to_value(BrowserActiveProofSource::TargetListOnly)
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
     let capability = serde_json::to_value(BrowserCapabilityStatus::TabListOnly)
         .expect(constants::error::AGENT_EVENT_SERIALIZES);
     let custody = serde_json::to_value(BrowserCustodyLabel::ChildDeviceLocal)
@@ -123,6 +125,10 @@ fn browser_evidence_values_serialize_to_typescript_contract_shape() {
     assert_eq!(family, constants::browser::FAMILY_EDGE);
     assert_eq!(channel, constants::browser::CHANNEL_STABLE);
     assert_eq!(active_state, constants::browser::ACTIVE_STATE_UNKNOWN);
+    assert_eq!(
+        active_proof_source,
+        constants::browser::ACTIVE_PROOF_SOURCE_TARGET_LIST_ONLY
+    );
     assert_eq!(
         capability,
         constants::browser::CAPABILITY_STATUS_TAB_LIST_ONLY
@@ -183,6 +189,9 @@ fn browser_evidence_recent_summary_serializes_to_contract_shape() {
         managed_browser_session_id: Some(constants::browser::SESSION_ID_DEV.to_string()),
         browser_family: Some(constants::browser::FAMILY_EDGE.to_string()),
         active_state: Some(constants::browser::ACTIVE_STATE_UNKNOWN.to_string()),
+        active_proof_source: Some(
+            constants::browser::ACTIVE_PROOF_SOURCE_TARGET_LIST_ONLY.to_string(),
+        ),
         url: Some(constants::activity_store::TEST_BROWSER_URL.to_string()),
         origin: Some(constants::activity_store::TEST_BROWSER_ORIGIN.to_string()),
         domain: Some(constants::activity_store::TEST_BROWSER_DOMAIN.to_string()),
@@ -195,6 +204,10 @@ fn browser_evidence_recent_summary_serializes_to_contract_shape() {
 
     assert_eq!(serialized["schemaVersion"], BROWSER_EVIDENCE_SCHEMA_VERSION);
     assert_eq!(serialized["browserFamily"], constants::browser::FAMILY_EDGE);
+    assert_eq!(
+        serialized["activeProofSource"],
+        constants::browser::ACTIVE_PROOF_SOURCE_TARGET_LIST_ONLY
+    );
     assert_eq!(
         serialized["url"],
         constants::activity_store::TEST_BROWSER_URL

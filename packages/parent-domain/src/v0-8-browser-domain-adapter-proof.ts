@@ -79,6 +79,32 @@ export const V08BrowserDomainAdapterExecutionStateSchema = withParser(
   )
 );
 
+export const V08WindowsAppControlProofStateIdSchema = NonEmptyBrowserDomainProofText.pipe(
+  Schema.brand('V08WindowsAppControlProofStateId')
+);
+export const V08WindowsAppControlReadinessStateSchema = withParser(
+  Schema.Literal('readiness-check', 'audit-only', 'enforced', 'manual-required', 'unavailable', 'failed')
+);
+export const V08WindowsAppControlPolicyMutationStateSchema = withParser(
+  Schema.Literal(
+    'detect-only',
+    'audit-only-visible',
+    'create-update-manual-required',
+    'manual-setup-required',
+    'unavailable',
+    'failed'
+  )
+);
+export const V08WindowsAppControlRuleIdentityKindSchema = withParser(
+  Schema.Literal('publisher', 'path', 'hash', 'package')
+);
+export const V08WindowsAppControlAdminRequirementSchema = withParser(
+  Schema.Literal('administrator-required', 'service-permission-required', 'manual-operator-required', 'not-applicable')
+);
+export const V08WindowsAppControlEventStateSchema = withParser(
+  Schema.Literal('audit-visible', 'rollback-visible', 'failure-visible', 'manual-proof-required', 'unavailable')
+);
+
 const V08BrowserDomainAdapterProofEntryBaseSchema = Schema.Struct({
   schemaVersion: ParentContractSchemaVersionSchema,
   proofEntryId: V08BrowserDomainAdapterProofEntryIdSchema,
@@ -102,7 +128,25 @@ const V08BrowserDomainAdapterProofEntryBaseSchema = Schema.Struct({
   lastCheckedAt: ParentTimestampSchema,
 });
 
+const V08WindowsAppControlProofStateBaseSchema = Schema.Struct({
+  proofStateId: V08WindowsAppControlProofStateIdSchema,
+  readinessState: V08WindowsAppControlReadinessStateSchema,
+  policyMutationState: V08WindowsAppControlPolicyMutationStateSchema,
+  ruleIdentityKinds: Schema.Array(V08WindowsAppControlRuleIdentityKindSchema),
+  adminRequirement: V08WindowsAppControlAdminRequirementSchema,
+  eventStates: Schema.Array(V08WindowsAppControlEventStateSchema),
+  manualProofRequirements: Schema.Array(V08BrowserDomainAdapterProofRequirementSchema),
+  claimBoundary: V08BrowserDomainAdapterProofClaimBoundarySchema,
+  fallbackBehavior: V08BrowserDomainAdapterProofFallbackSchema,
+  appControlPreventionClaimed: Schema.Boolean,
+  policyCreationClaimed: Schema.Boolean,
+  policyUpdateClaimed: Schema.Boolean,
+  rollbackClaimed: Schema.Boolean,
+  lastCheckedAt: ParentTimestampSchema,
+});
+
 type V08BrowserDomainAdapterProofEntryCandidate = Infer<typeof V08BrowserDomainAdapterProofEntryBaseSchema>;
+type V08WindowsAppControlProofStateCandidate = Infer<typeof V08WindowsAppControlProofStateBaseSchema>;
 
 export const V08BrowserDomainAdapterProofEntrySchema = withParser(
   V08BrowserDomainAdapterProofEntryBaseSchema.pipe(
@@ -114,18 +158,34 @@ export const V08BrowserDomainAdapterProofEntrySchema = withParser(
   )
 );
 
+export const V08WindowsAppControlProofStateSchema = withParser(
+  V08WindowsAppControlProofStateBaseSchema.pipe(
+    Schema.filter(
+      (state) =>
+        windowsAppControlProofStateIsHonest(state) ||
+        'Expected Windows AppLocker/App Control proof states to represent readiness, audit-only, enforced, manual-required, unavailable, and failed states without claiming OS prevention'
+    )
+  )
+);
+
 export const V08BrowserDomainAdapterProofReadModelSchema = withParser(
   Schema.Struct({
     schemaVersion: ParentContractSchemaVersionSchema,
     readModelId: V08BrowserDomainAdapterProofReadModelIdSchema,
     generatedAt: ParentTimestampSchema,
     sourceReadModelIds: Schema.Array(V08BrowserDomainAdapterProofReferenceSchema),
+    windowsAppControlStates: Schema.Array(V08WindowsAppControlProofStateSchema),
     entries: Schema.Array(V08BrowserDomainAdapterProofEntrySchema),
   }).pipe(
     Schema.filter(
       (readModel) =>
         new Set(readModel.entries.map((entry) => entry.proofEntryId)).size === readModel.entries.length ||
         'Expected V0.8 browser/domain adapter proof entry ids to be unique'
+    ),
+    Schema.filter(
+      (readModel) =>
+        windowsAppControlProofStatesAreComplete(readModel.windowsAppControlStates) ||
+        'Expected Windows AppLocker/App Control proof states to cover readiness, audit-only, enforced, manual-required, unavailable, and failed states'
     )
   )
 );
@@ -146,6 +206,75 @@ function browserDomainAdapterEntryHasClaimUpgrade(entry: V08BrowserDomainAdapter
     entry.broadBrowserControlClaimed,
     entry.unsupportedOsClaimed,
   ].some(Boolean);
+}
+
+const requiredWindowsAppControlReadinessStates = [
+  'readiness-check',
+  'audit-only',
+  'enforced',
+  'manual-required',
+  'unavailable',
+  'failed',
+] as const;
+
+function windowsAppControlProofStatesAreComplete(states: readonly V08WindowsAppControlProofStateCandidate[]): boolean {
+  return requiredWindowsAppControlReadinessStates.every((state) =>
+    states.some((candidate) => candidate.readinessState === state)
+  );
+}
+
+function windowsAppControlProofStateIsHonest(state: V08WindowsAppControlProofStateCandidate): boolean {
+  if (
+    state.appControlPreventionClaimed ||
+    state.policyCreationClaimed ||
+    state.policyUpdateClaimed ||
+    state.rollbackClaimed
+  ) {
+    return false;
+  }
+
+  switch (state.readinessState) {
+    case 'readiness-check':
+      return appControlStateMatches(state, 'detect-only', 'administrator-required', true, 'manual-proof-required');
+    case 'audit-only':
+      return appControlStateMatches(state, 'audit-only-visible', 'administrator-required', true, 'audit-visible');
+    case 'enforced':
+      return appControlStateMatches(
+        state,
+        'create-update-manual-required',
+        'administrator-required',
+        true,
+        'rollback-visible'
+      );
+    case 'manual-required':
+      return appControlStateMatches(
+        state,
+        'manual-setup-required',
+        'manual-operator-required',
+        true,
+        'manual-proof-required'
+      );
+    case 'unavailable':
+      return appControlStateMatches(state, 'unavailable', 'service-permission-required', false, 'unavailable');
+    case 'failed':
+      return appControlStateMatches(state, 'failed', 'administrator-required', true, 'failure-visible');
+  }
+}
+
+function appControlStateMatches(
+  state: V08WindowsAppControlProofStateCandidate,
+  policyMutationState: V08WindowsAppControlPolicyMutationState,
+  adminRequirement: V08WindowsAppControlAdminRequirement,
+  requiresRuleIdentityKinds: boolean,
+  requiredEventState: V08WindowsAppControlEventState
+): boolean {
+  return (
+    state.policyMutationState === policyMutationState &&
+    state.adminRequirement === adminRequirement &&
+    state.eventStates.includes(requiredEventState) &&
+    state.manualProofRequirements.length > 0 &&
+    (requiresRuleIdentityKinds ? state.ruleIdentityKinds.length === 4 : state.ruleIdentityKinds.length === 0)
+  );
 }
 
 function browserDomainAdapterEntryMatchesSurfaceExpectation(
@@ -359,6 +488,13 @@ export type V08BrowserDomainAdapterProofSurface = Infer<typeof V08BrowserDomainA
 export type V08BrowserDomainAdapterProofEvidenceKind = Infer<typeof V08BrowserDomainAdapterProofEvidenceKindSchema>;
 export type V08BrowserDomainAdapterProofClaimState = Infer<typeof V08BrowserDomainAdapterProofClaimStateSchema>;
 export type V08BrowserDomainAdapterExecutionState = Infer<typeof V08BrowserDomainAdapterExecutionStateSchema>;
+export type V08WindowsAppControlProofStateId = typeof V08WindowsAppControlProofStateIdSchema.Type;
+export type V08WindowsAppControlReadinessState = Infer<typeof V08WindowsAppControlReadinessStateSchema>;
+export type V08WindowsAppControlPolicyMutationState = Infer<typeof V08WindowsAppControlPolicyMutationStateSchema>;
+export type V08WindowsAppControlRuleIdentityKind = Infer<typeof V08WindowsAppControlRuleIdentityKindSchema>;
+export type V08WindowsAppControlAdminRequirement = Infer<typeof V08WindowsAppControlAdminRequirementSchema>;
+export type V08WindowsAppControlEventState = Infer<typeof V08WindowsAppControlEventStateSchema>;
+export type V08WindowsAppControlProofState = Infer<typeof V08WindowsAppControlProofStateSchema>;
 export type V08BrowserDomainAdapterProofEntry = Infer<typeof V08BrowserDomainAdapterProofEntrySchema>;
 export type V08BrowserDomainAdapterProofReadModel = Infer<typeof V08BrowserDomainAdapterProofReadModelSchema>;
 
@@ -420,6 +556,7 @@ export const V08BrowserDomainAdapterProofSurface = {
 } as const;
 
 const documentedAt = '2026-05-30T20:20:00.000Z';
+const windowsAppControlRuleIdentityKinds = ['publisher', 'path', 'hash', 'package'] as const;
 
 export const V08BrowserDomainAdapterProofReadModel = V08BrowserDomainAdapterProofReadModelSchema.parse({
   schemaVersion: ParentContractSchemaVersion.V0_6,
@@ -430,6 +567,74 @@ export const V08BrowserDomainAdapterProofReadModel = V08BrowserDomainAdapterProo
     'v0-8-cross-platform-enforcement-capability-proof',
     'v0-8-os-adapter-product-proof',
     'browser-policy-runtime',
+  ],
+  windowsAppControlStates: [
+    windowsAppControlState(
+      'v0-8-windows-app-control-readiness-detect-only',
+      'readiness-check',
+      'detect-only',
+      windowsAppControlRuleIdentityKinds,
+      'administrator-required',
+      ['manual-proof-required'],
+      ['Windows edition and AppLocker or WDAC availability proof', 'administrator permission proof'],
+      'Windows AppLocker/App Control readiness can be represented only as a detect/manual setup state until host policy artifacts exist.',
+      'Return manual-required when edition, permission, policy provider, or identity-target proof is missing.'
+    ),
+    windowsAppControlState(
+      'v0-8-windows-app-control-audit-only-visible',
+      'audit-only',
+      'audit-only-visible',
+      windowsAppControlRuleIdentityKinds,
+      'administrator-required',
+      ['audit-visible'],
+      ['audit-mode policy artifact', 'AppLocker or WDAC audit event query proof'],
+      'Audit-only AppLocker/App Control state is visible as a readiness/audit proof state and does not block launch.',
+      'Keep prevention false and surface audit-only status until enforce-mode apply and rollback proof exists.'
+    ),
+    windowsAppControlState(
+      'v0-8-windows-app-control-enforced-manual-required',
+      'enforced',
+      'create-update-manual-required',
+      windowsAppControlRuleIdentityKinds,
+      'administrator-required',
+      ['audit-visible', 'rollback-visible'],
+      ['AppLocker or WDAC enforced policy apply artifact', 'policy refresh result', 'rollback result'],
+      'Enforced AppLocker/App Control mode remains manual-required until real policy create/update, refresh, audit, and rollback artifacts prove launch prevention.',
+      'Do not claim launch blocking from requested policy state; require host apply and rollback proof.'
+    ),
+    windowsAppControlState(
+      'v0-8-windows-app-control-manual-required',
+      'manual-required',
+      'manual-setup-required',
+      windowsAppControlRuleIdentityKinds,
+      'manual-operator-required',
+      ['manual-proof-required'],
+      ['parent-visible manual setup state', 'operator confirmation path', 'identity target review proof'],
+      'Manual-required AppLocker/App Control setup is represented separately from unavailable and enforced states.',
+      'Show manual setup rather than silently downgrading to process termination or browser-domain blocking.'
+    ),
+    windowsAppControlState(
+      'v0-8-windows-app-control-unavailable',
+      'unavailable',
+      'unavailable',
+      [],
+      'service-permission-required',
+      ['unavailable'],
+      ['unsupported Windows edition or missing policy provider proof', 'service permission denial event'],
+      'Unavailable AppLocker/App Control state records when the host cannot provide a policy adapter or permission path.',
+      'Return unavailable and keep unmanaged fallback manual when policy provider or service permission is absent.'
+    ),
+    windowsAppControlState(
+      'v0-8-windows-app-control-policy-failed',
+      'failed',
+      'failed',
+      windowsAppControlRuleIdentityKinds,
+      'administrator-required',
+      ['failure-visible'],
+      ['policy create or update failure event', 'policy target identity failure event', 'audit failure event'],
+      'Failed AppLocker/App Control state is parent-visible as a policy/audit failure without claiming a blocking result.',
+      'Record failure and rollback/manual setup requirements; do not treat failed apply as enforcement.'
+    ),
   ],
   entries: [
     implementedEntry(
@@ -579,6 +784,35 @@ export const V08BrowserDomainAdapterProofReadModel = V08BrowserDomainAdapterProo
     ),
   ],
 });
+
+function windowsAppControlState(
+  proofStateId: string,
+  readinessState: V08WindowsAppControlReadinessState,
+  policyMutationState: V08WindowsAppControlPolicyMutationState,
+  ruleIdentityKinds: readonly V08WindowsAppControlRuleIdentityKind[],
+  adminRequirement: V08WindowsAppControlAdminRequirement,
+  eventStates: readonly V08WindowsAppControlEventState[],
+  manualProofRequirements: readonly string[],
+  claimBoundary: string,
+  fallbackBehavior: string
+): V08WindowsAppControlProofState {
+  return V08WindowsAppControlProofStateSchema.parse({
+    proofStateId,
+    readinessState,
+    policyMutationState,
+    ruleIdentityKinds: [...ruleIdentityKinds],
+    adminRequirement,
+    eventStates: [...eventStates],
+    manualProofRequirements: [...manualProofRequirements],
+    claimBoundary,
+    fallbackBehavior,
+    appControlPreventionClaimed: false,
+    policyCreationClaimed: false,
+    policyUpdateClaimed: false,
+    rollbackClaimed: false,
+    lastCheckedAt: documentedAt,
+  });
+}
 
 function implementedEntry(
   proofEntryId: string,

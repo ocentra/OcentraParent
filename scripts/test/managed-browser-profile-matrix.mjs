@@ -16,6 +16,7 @@ const probeRoot = join(tmpdir(), `ocentra-parent-managed-browser-profile-matrix-
 
 const urls = envList('OCENTRA_PARENT_MANAGED_BROWSER_MATRIX_URLS', defaultUrls);
 const profiles = envList('OCENTRA_PARENT_MANAGED_BROWSER_MATRIX_PROFILES', defaultProfiles);
+const browserFilters = envList('OCENTRA_PARENT_MANAGED_BROWSER_MATRIX_BROWSERS', []);
 const timeoutMs = envNumber('OCENTRA_PARENT_MANAGED_BROWSER_MATRIX_TIMEOUT_MS', 45_000);
 const commandTimeoutMs = envNumber('OCENTRA_PARENT_MANAGED_BROWSER_MATRIX_COMMAND_TIMEOUT_MS', 15_000);
 const readyTimeoutMs = envNumber('OCENTRA_PARENT_MANAGED_BROWSER_MATRIX_READY_TIMEOUT_MS', 15_000);
@@ -162,6 +163,7 @@ async function launchChromiumProfile(browser, profileName) {
     port,
     profileName,
     profileDir,
+    launcherState: chromiumLauncherState(child, browser),
   };
 }
 
@@ -294,13 +296,14 @@ async function observeChromiumProfile(browser, profileRun) {
 
   return {
     profileName: profileRun.profileName,
+    launcherState: profileRun.launcherState,
     profilePathContainsManagedPrefix: profileRun.profileDir.includes('managed-browser-profile'),
     browserVersion: String(version.Browser ?? ''),
     protocolVersion: version['Protocol-Version'] === undefined ? null : String(version['Protocol-Version']),
     bridge: browser.bridge,
     devtoolsEndpoint: 'loopback-redacted',
     pageTargetCount: pageTargets.length,
-    pageTargets,
+    pageTargets: pageTargets.map(redactChromiumPageTargetForEvidence),
     activeTabChecks,
     screenshots,
     visitedUrlJournal,
@@ -317,6 +320,22 @@ async function observeChromiumProfile(browser, profileRun) {
     },
     browserFamily: browser.family,
     browserChannel: browser.channel,
+  };
+}
+
+function chromiumLauncherState(child, browser) {
+  return {
+    managedState: 'running-managed',
+    capabilityStatus: 'bridge-missing',
+    bridgeEndpointRef: 'managed-loopback-devtools-redacted',
+    bridgePortRef: 'managed-loopback-port-redacted',
+    profilePathRef: 'managed-profile-redacted',
+    custodyLabel: 'child-device-local',
+    browserFamily: browser.family,
+    browserChannel: browser.channel,
+    processId: child.pid ?? null,
+    loopbackOnly: true,
+    rawDebuggerEndpointExposed: false,
   };
 }
 
@@ -443,7 +462,7 @@ async function observeFirefoxProfile(browser, profileRun) {
       bridge: browser.bridge,
       devtoolsEndpoint: 'loopback-redacted',
       pageTargetCount: pageTargets.length,
-      pageTargets,
+      pageTargets: pageTargets.map(redactChromiumPageTargetForEvidence),
       activeTabChecks,
       screenshots,
       visitedUrlJournal,
@@ -491,6 +510,13 @@ function pageTargetsFromChromiumList(targets) {
       urlCapture: capturedUrl(target.url),
       titleCapture: capturedTitle(target.title),
     }));
+}
+
+function redactChromiumPageTargetForEvidence(target) {
+  return {
+    ...target,
+    webSocketDebuggerUrl: target.webSocketDebuggerUrl === null ? null : 'loopback-redacted',
+  };
 }
 
 function siteEvidenceForUrl(requestedUrl, pageTargets, visitedUrlJournal) {
@@ -783,7 +809,9 @@ function historyProbeUrl(url, index) {
 }
 
 async function installedSupportedBrowsers() {
-  const candidates = browserCandidates().filter((candidate) => candidate.supported);
+  const candidates = browserCandidates().filter(
+    (candidate) => candidate.supported && browserCandidateAllowed(candidate)
+  );
   const installed = [];
   const seen = new Set();
   for (const candidate of candidates) {
@@ -797,7 +825,9 @@ async function installedSupportedBrowsers() {
 }
 
 async function installedUnsupportedBrowsers() {
-  const candidates = browserCandidates().filter((candidate) => !candidate.supported);
+  const candidates = browserCandidates().filter(
+    (candidate) => !candidate.supported && browserCandidateAllowed(candidate)
+  );
   const installed = [];
   for (const candidate of candidates) {
     if (candidate.appxPackageNamePattern !== undefined) {
@@ -926,6 +956,13 @@ function browserCandidates() {
       'managed-shell-or-block-only-until-webview2-host-adapter-exists'
     ),
   ];
+}
+
+function browserCandidateAllowed(candidate) {
+  if (browserFilters.length === 0) {
+    return true;
+  }
+  return browserFilters.includes(candidate.id) || browserFilters.includes(candidate.family);
 }
 
 function chromiumCandidate(id, family, executablePath) {

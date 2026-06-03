@@ -44,6 +44,13 @@ export const BrowserPolicyQuestionIds = [
   '17.2',
   '18.1',
   '18.2',
+  '19.1',
+  '19.2',
+  '19.3',
+  '19.4',
+  '19.5',
+  '19.6',
+  '19.7',
   'A1',
   'A2',
   'A3',
@@ -74,7 +81,8 @@ export type BrowserPolicyComputedFlagId =
   | 'evidencePrivacyVisible'
   | 'notificationEventsRelevant'
   | 'unsupportedCapabilityRelevant'
-  | 'storedBrowserDataExists';
+  | 'storedBrowserDataExists'
+  | 'browserGamesRelevant';
 
 export type BrowserPolicyCondition =
   | {
