@@ -2,9 +2,11 @@ import {
   AppInstallPurchaseApprovalContractProofSchema,
   type AppInstallPurchaseApprovalPlatformSupportRow,
 } from './app-install-purchase-approval';
+import { AppInstallPurchaseApprovalPlatformSourceMetadataRowSchema } from './app-install-purchase-approval-platform-sources';
 import {
   appInstallPurchaseApprovalAuditReportIntegration,
   appInstallPurchaseApprovalChildFacingStates,
+  AppInstallPurchaseApprovalReportRefs,
 } from './app-install-purchase-approval-proof-states';
 
 const Timestamp = '2026-06-03T07:10:00.000Z';
@@ -25,6 +27,17 @@ const ParentAction = {
 } as const;
 const RequestAuditEvent = auditEvent('audit-request-recorded-1', 'request-recorded');
 const DecisionAuditEvent = auditEvent('audit-parent-decision-recorded-1', 'parent-decision-recorded');
+const PlatformSourceMetadataFields = [
+  'store-listing-id',
+  'app-title',
+  'publisher-name',
+  'category',
+  'age-rating',
+  'price-display',
+  'subscription-period',
+  'source-url',
+] as const;
+const PlatformSourceRequestKinds = ['install', 'purchase', 'subscription'] as const;
 
 export const AppInstallPurchaseApprovalContractProofReadModel = AppInstallPurchaseApprovalContractProofSchema.parse({
   schemaVersion: 'app-install-purchase-approval-contract-proof',
@@ -58,6 +71,78 @@ export const AppInstallPurchaseApprovalContractProofReadModel = AppInstallPurcha
     platformRow('android', 'google-play', 'manual-required', 'manual-required'),
     platformRow('ios', 'apple-app-store', 'manual-required', 'manual-required'),
   ],
+  platformSourceMetadata: [
+    platformSourceMetadataRow(
+      'platform-source-windows-microsoft-store',
+      'windows',
+      'microsoft-store',
+      'microsoft-store-listing',
+      'manual-required',
+      'requires-store-artifact-proof',
+      [
+        'Microsoft Store family purchase or app-request API proof',
+        'Windows child-device package source artifact with parent-visible request id',
+        'limitation report artifact before product support claim',
+      ],
+      'Microsoft Store metadata and install or purchase interception require approved Microsoft or Windows store artifacts.'
+    ),
+    platformSourceMetadataRow(
+      'platform-source-macos-mac-app-store',
+      'macos',
+      'mac-app-store',
+      'mac-app-store-listing',
+      'manual-required',
+      'requires-store-artifact-proof',
+      [
+        'Mac App Store listing source artifact',
+        'macOS child-device package or receipt artifact with parent-visible request id',
+        'limitation report artifact before product support claim',
+      ],
+      'Mac App Store metadata and purchase or install decisions require macOS-specific store and package artifacts.'
+    ),
+    platformSourceMetadataRow(
+      'platform-source-linux-package-manager',
+      'linux',
+      'linux-package-manager',
+      'linux-package-manager-index',
+      'unavailable',
+      'platform-unavailable',
+      [
+        'target distro package-manager metadata policy',
+        'Linux child-device package source artifact with parent-visible request id',
+        'limitation report artifact before product support claim',
+      ],
+      'Linux package managers do not provide one common app-store approval path in this proof.'
+    ),
+    platformSourceMetadataRow(
+      'platform-source-android-google-play',
+      'android',
+      'google-play',
+      'google-play-listing',
+      'manual-required',
+      'requires-approved-api-proof',
+      [
+        'Google Play approved API or managed-family policy proof',
+        'Android child-device package source artifact with parent-visible request id',
+        'limitation report artifact before product support claim',
+      ],
+      'Google Play install and purchase metadata require approved Play or device-management source artifacts.'
+    ),
+    platformSourceMetadataRow(
+      'platform-source-ios-apple-app-store',
+      'ios',
+      'apple-app-store',
+      'apple-app-store-listing',
+      'manual-required',
+      'requires-approved-api-proof',
+      [
+        'Apple App Store or Family Controls entitlement proof',
+        'iOS child-device app source artifact with parent-visible request id',
+        'limitation report artifact before product support claim',
+      ],
+      'Apple App Store install and purchase metadata require approved Apple API entitlement and review proof.'
+    ),
+  ],
   childFacingStates: appInstallPurchaseApprovalChildFacingStates({
     requestAuditEvent: RequestAuditEvent,
     decisionAuditEvent: DecisionAuditEvent,
@@ -88,6 +173,7 @@ export const AppInstallPurchaseApprovalContractProof = AppInstallPurchaseApprova
 
 export const AppInstallPurchaseApprovalProofKnownGaps = [
   'Google Play, Apple App Store, Microsoft Store, Mac App Store, and package-manager integrations are not implemented.',
+  'Platform-source metadata rows are limitation proof only; no approved store API, entitlement, or package-source artifact is attached yet.',
   'No billing entitlement state is used as child-safety approval authority.',
   'No portal approval UI exists in this proof.',
   'Child-facing pending/result states are contract rows only; no child-device delivery adapter is implemented.',
@@ -228,6 +314,50 @@ function platformRow(
     proofRequirement: 'contract proof only; platform adapter proof must be added before product support claims',
     claimBoundary: 'contract proof only; no platform adapter no store integration no runtime blocking',
   } as const;
+}
+
+function platformSourceMetadataRow(
+  sourceRowId:
+    | 'platform-source-windows-microsoft-store'
+    | 'platform-source-macos-mac-app-store'
+    | 'platform-source-linux-package-manager'
+    | 'platform-source-android-google-play'
+    | 'platform-source-ios-apple-app-store',
+  platform: 'windows' | 'macos' | 'linux' | 'android' | 'ios',
+  storeSurface: 'microsoft-store' | 'mac-app-store' | 'linux-package-manager' | 'google-play' | 'apple-app-store',
+  sourceAuthority:
+    | 'microsoft-store-listing'
+    | 'mac-app-store-listing'
+    | 'linux-package-manager-index'
+    | 'google-play-listing'
+    | 'apple-app-store-listing',
+  metadataState: 'manual-required' | 'unavailable',
+  sourceEvidenceState: 'requires-approved-api-proof' | 'requires-store-artifact-proof' | 'platform-unavailable',
+  requiredArtifacts: readonly [string, string, string],
+  limitationReason: string
+) {
+  return AppInstallPurchaseApprovalPlatformSourceMetadataRowSchema.parse({
+    schemaVersion: 'app-install-purchase-approval-contract-proof',
+    sourceRowId,
+    platform,
+    storeSurface,
+    sourceAuthority,
+    metadataState,
+    sourceEvidenceState,
+    fieldsAvailableFromContract: [],
+    fieldsRequiringPlatformProof: PlatformSourceMetadataFields,
+    requestKindCoverage: PlatformSourceRequestKinds,
+    requiredArtifacts,
+    limitationReason,
+    limitationReportRef: AppInstallPurchaseApprovalReportRefs.PlatformLimitation,
+    parentManualFallback: 'contract-only-parent-review',
+    storeIntegrationClaim: 'not-claimed',
+    platformAdapterClaim: 'not-implemented',
+    interceptionClaim: 'not-claimed',
+    claimBoundary:
+      'contract proof only; no store integration no platform adapter no real install or purchase interception',
+    lastCheckedAt: Timestamp,
+  });
 }
 
 function auditEvent(
