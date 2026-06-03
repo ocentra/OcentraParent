@@ -69,3 +69,33 @@ Fill this before reporting `DONE` or PR-ready:
 
 Policy compilation does not prove an adapter can enforce. Strong actions degrade
 until platform proof exists.
+
+## Completion - 2026-06-03
+
+- Owner/lane: `codex-c`
+- Branch: `codex/app-game-read-model-service-events`
+- App-plan proof root:
+  `output/app-plan-proof/18-policy-target-compiler-for-app-rules`
+- Shared app/game proof root:
+  `output/app-game-plan-proof/19-policy-target-compiler-for-app-game-rules`
+- Contract source:
+  `packages/parent-domain/src/app-game-policy-target-compiler.ts` and
+  `packages/parent-domain/src/app-game-policy-target-compiler-rules.ts`
+- Test source:
+  `packages/parent-domain/tests/app-game-policy-target-compiler.test.ts`
+
+Completed app-side proof:
+
+- Specific app, package, bundle, AppUserModelId, desktop-entry, executable-hash,
+  and publisher targets require identity proof.
+- Unknown app targets compile only from unknown-state proof.
+- App category/risk targets require category proof.
+- Scheduled app rules require schedule proof.
+- Wrong-device, wrong-local-user, and stale evidence are rejected.
+- Unproved block-launch compiles to manual-required with disabled handoff.
+
+Deferred:
+
+- App-plan WP17 risk app candidate production remains open.
+- Rust/service parity, runtime evaluator execution, portal authoring/preview UI,
+  timers, notifications, rollback, and adapter execution remain later work.

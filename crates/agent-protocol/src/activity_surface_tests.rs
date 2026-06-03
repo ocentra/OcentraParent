@@ -100,11 +100,10 @@ fn activity_history_list_carries_saved_report_metadata_and_parsed_document() {
 }
 
 #[test]
-fn activity_tab_read_models_serialize_typed_states_for_all_tabs() {
-    let request = sample_surface_request();
+fn activity_screen_read_model_serializes_foreground_and_background_ms() {
     let screen = ActivityScreenReadModel {
         schema_version: ACTIVITY_SURFACE_SCHEMA_VERSION,
-        request: request.clone(),
+        request: sample_surface_request(),
         state: ActivityReadModelState::Ready,
         generated_at: "2026-05-27T06:21:00Z".to_string(),
         summary: "Screen ready".to_string(),
@@ -119,55 +118,111 @@ fn activity_tab_read_models_serialize_typed_states_for_all_tabs() {
             evidence: vec![sample_evidence()],
         }],
     };
+
+    assert_eq!(
+        serde_json::to_value(screen).expect("screen serializes")["rows"][0]["foregroundMs"],
+        2_400_000
+    );
+}
+
+#[test]
+fn activity_app_use_read_model_serializes_app_game_projection_state() {
     let app_use = ActivityAppUseReadModel {
         schema_version: ACTIVITY_SURFACE_SCHEMA_VERSION,
-        request: request.clone(),
-        state: ActivityReadModelState::Empty,
+        request: sample_surface_request(),
+        state: ActivityReadModelState::Ready,
         generated_at: "2026-05-27T06:21:00Z".to_string(),
-        summary: "No app rows".to_string(),
-        rows: vec![],
+        summary: "App use ready".to_string(),
+        rows: vec![super::ActivityAppUseReadModelRow {
+            row_id: "inventory-app-1".to_string(),
+            app_name: "Ocentra Fixture App".to_string(),
+            device_id: "child-device-1".to_string(),
+            state: ActivityReadModelState::Ready,
+            product_kind: "nativeApp".to_string(),
+            classification_state: "knownApp".to_string(),
+            inventory_state: "installed".to_string(),
+            runtime_state: "running".to_string(),
+            foreground_state: "foreground".to_string(),
+            capability_status: "available".to_string(),
+            last_observed_at: Some("2026-05-27T06:19:00Z".to_string()),
+            total_ms: 60_000,
+            launch_count: 1,
+            inventory_row_count: 1,
+            running_row_count: 1,
+            foreground_row_count: 1,
+            daily_rollup_count: 1,
+            evidence: vec![sample_evidence()],
+        }],
     };
+
+    let app_use_json = serde_json::to_value(app_use).expect("app use serializes");
+    assert_eq!(app_use_json["rows"][0]["runtimeState"], "running");
+    assert_eq!(app_use_json["rows"][0]["foregroundState"], "foreground");
+}
+
+#[test]
+fn activity_browser_read_model_serializes_permission_required_state() {
     let browser = ActivityBrowserReadModel {
         schema_version: ACTIVITY_SURFACE_SCHEMA_VERSION,
-        request: request.clone(),
+        request: sample_surface_request(),
         state: ActivityReadModelState::PermissionRequired,
         generated_at: "2026-05-27T06:21:00Z".to_string(),
         summary: "Browser bridge permission required".to_string(),
         rows: vec![],
     };
+
+    assert_eq!(
+        serde_json::to_value(browser).expect("browser serializes")["state"],
+        "permission-required"
+    );
+}
+
+#[test]
+fn activity_games_read_model_serializes_launcher_source_counts() {
     let games = ActivityGamesReadModel {
         schema_version: ACTIVITY_SURFACE_SCHEMA_VERSION,
-        request: request.clone(),
-        state: ActivityReadModelState::ScaffoldOnly,
+        request: sample_surface_request(),
+        state: ActivityReadModelState::Ready,
         generated_at: "2026-05-27T06:21:00Z".to_string(),
-        summary: "Games catalog scaffold".to_string(),
-        rows: vec![],
+        summary: "Games ready".to_string(),
+        rows: vec![super::ActivityGamesReadModelRow {
+            row_id: "game-session-1".to_string(),
+            display_name: "Ocentra Fixture Game".to_string(),
+            device_id: "child-device-1".to_string(),
+            state: ActivityReadModelState::Ready,
+            product_kind: "nativeGame".to_string(),
+            classification_state: "knownGame".to_string(),
+            inventory_state: "detectable".to_string(),
+            runtime_state: "running".to_string(),
+            foreground_state: "notClaimed".to_string(),
+            capability_status: "available".to_string(),
+            last_observed_at: Some("2026-05-27T06:19:00Z".to_string()),
+            total_ms: 120_000,
+            session_count: 2,
+            launcher_row_count: 1,
+            running_row_count: 1,
+            foreground_row_count: 0,
+            daily_rollup_count: 1,
+            evidence: vec![sample_evidence()],
+        }],
     };
+
+    let games_json = serde_json::to_value(games).expect("games serializes");
+    assert_eq!(games_json["rows"][0]["classificationState"], "knownGame");
+    assert_eq!(games_json["rows"][0]["launcherRowCount"], 1);
+}
+
+#[test]
+fn activity_network_read_model_serializes_unavailable_state() {
     let network = ActivityNetworkReadModel {
         schema_version: ACTIVITY_SURFACE_SCHEMA_VERSION,
-        request,
+        request: sample_surface_request(),
         state: ActivityReadModelState::Unavailable,
         generated_at: "2026-05-27T06:21:00Z".to_string(),
         summary: "Network store unavailable".to_string(),
         rows: vec![],
     };
 
-    assert_eq!(
-        serde_json::to_value(screen).expect("screen serializes")["rows"][0]["foregroundMs"],
-        2_400_000
-    );
-    assert_eq!(
-        serde_json::to_value(app_use).expect("app use serializes")["state"],
-        "empty"
-    );
-    assert_eq!(
-        serde_json::to_value(browser).expect("browser serializes")["state"],
-        "permission-required"
-    );
-    assert_eq!(
-        serde_json::to_value(games).expect("games serializes")["state"],
-        "scaffold-only"
-    );
     assert_eq!(
         serde_json::to_value(network).expect("network serializes")["state"],
         "unavailable"

@@ -68,3 +68,24 @@ Fill this before reporting `DONE` or PR-ready:
 
 Detected install/uninstall state is evidence. Store purchase approval,
 package-manager control, MDM install, and uninstall blocking need separate proof.
+
+## Completion Note - 2026-06-03
+
+- Read source docs: native apps plan README, source index, current snapshot,
+  full scope plan, platform deep dive, test blueprint, UI/UX guide, main
+  checklist, app-game shared plan docs, app-install/purchase expectation, and
+  this workpack.
+- Kept scope native/installed-app and shared app/game handoff only; browser
+  pages, browser games, and E-C-owned child-facing install/purchase approval
+  files were not edited.
+- Added shared parent-domain proof through
+  `packages/parent-domain/src/app-game-install-store-handoff*.ts` and
+  `packages/parent-domain/tests/app-game-install-store-handoff.test.ts`.
+- Proof output:
+  `output/app-plan-proof/25-install-and-uninstall-approval-handoff/` and
+  `test-results/app-game-install-store-handoff-proof/proof.json`.
+- UI snapshots are not applicable because no UI source changed; the proof pack
+  records `06-ui-snapshots/ui-not-applicable.md`.
+- Product checklist unchanged because this handoff does not prove live store
+  integration, approval UI, package-manager/store interception, billing
+  entitlement logic, uninstall blocking, or anti-tamper behavior.

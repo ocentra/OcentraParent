@@ -26,8 +26,15 @@ proof.
 `packages/activity-domain` already defines:
 
 - app/game inventory entries;
+- app/game category/risk taxonomy candidates with source refs, confidence,
+  evidence refs, parent display overrides, AI digest refs, and no-direct
+  enforcement guards;
 - process observations;
-- session summaries;
+- foreground evidence rows for active-window focus as staged
+  contract/protocol/parser proof;
+- session summaries with end reasons, observation gaps, and foreground/background
+  duration evidence timestamps;
+- daily app/game session rollup contracts;
 - session query/result/report shapes;
 - AI digest references;
 - classification states such as known app, known game, known launcher, possible
@@ -49,7 +56,7 @@ proof.
 The owning feature is `docs/features/app-game-control.md`. It owns the app/game
 claim boundary and the current checklist for inventory, identity, running and
 foreground session evidence, category and unknown-state handling, schedules,
-time budgets, ask-parent, bonus-time, adapter capability status, and
+time budgets, ask parent, bonus-time, adapter capability status, and
 blocking/time-limit proof.
 
 Adjacent feature docs reference app control as shared context:
@@ -83,18 +90,32 @@ docs remain in place.
 
 - SQLite-backed app/game observation helpers;
 - app/game row mapping helpers;
-- session summary/report derivation from stored rows;
+- deterministic session summary/report derivation from stored rows, including
+  running duration, foreground duration bounded by running duration, background
+  duration, stale-gap closure, process-exit closure, replay-stable ordering, and
+  daily rollup helper proof;
+- staged encrypted journal-file replay proof for typed app/game inventory,
+  runtime, foreground, launcher, running-now, foreground-now, and daily rollup
+  rows;
+- staged Windows foreground-window parser proof that can apply foreground
+  duration to existing runtime summaries without claiming content;
 - scoped Windows app time-limit capability helpers;
 - owned-process terminate/time-limit target validation;
 - app time-limit tests.
 
 `crates/agent-service` currently has a small `app.rs` module and uses the
-shared service/runtime paths for read-model exposure.
+shared service/runtime paths for read-model exposure. App-use activity-surface
+read models now consume the shared app-game service projection so native app
+rows can carry inventory, runtime, foreground, rollup, capability, source-count,
+and evidence-ref state from staged journal/SQLite replay.
 
 ## Portal That Exists
 
 `apps/portal` already renders service-backed live activity and policy-preview
-state. There is no finished dedicated native app dashboard yet.
+state. The App/Game Sessions route now has a dedicated service-backed dashboard
+for app-use and games read-model rows, including separate native app inventory,
+running, foreground, unknown/risk/manual-required capability, duration, and
+evidence counts. It is not yet a finished native app product flow.
 
 Existing portal/source areas that app work should extend:
 
@@ -109,6 +130,42 @@ Existing portal/source areas that app work should extend:
 
 ## Proof That Exists
 
+The native app plan now mirrors the shared app/game proof spine for completed
+and cross-recorded workpacks:
+
+```text
+output/app-plan-proof/01-contract-boundary-and-effect-schemas
+output/app-plan-proof/02-source-index-and-doc-reconciliation
+output/app-plan-proof/03-current-app-snapshot-and-gap-map
+output/app-plan-proof/04-app-identity-model
+output/app-plan-proof/05-installed-app-inventory-model
+output/app-plan-proof/06-windows-installed-app-inventory-adapter
+output/app-plan-proof/07-windows-store-uwp-appx-inventory-adapter
+output/app-plan-proof/08-windows-process-runtime-evidence-adapter
+output/app-plan-proof/09-windows-foreground-app-evidence-adapter
+output/app-plan-proof/10-cross-platform-authority-matrix
+output/app-plan-proof/11-app-category-and-risk-taxonomy
+output/app-plan-proof/12-app-sessionization-and-duration-engine
+output/app-plan-proof/13-journal-and-sqlite-app-ingest
+output/app-plan-proof/14-app-read-models-and-service-events
+output/app-plan-proof/15-parent-portal-app-inventory-running-session-surfaces
+output/app-plan-proof/16-new-app-and-unknown-app-approval-flow
+output/app-plan-proof/18-policy-target-compiler-for-app-rules
+output/app-plan-proof/19-time-budget-schedule-bonus-time-integration
+output/app-plan-proof/20-child-facing-app-warning-block-request-ux
+output/app-plan-proof/23-app-ai-classifier-digest-boundary
+output/app-plan-proof/24-platform-extension-checklist-and-proof-routing
+output/app-plan-proof/25-install-and-uninstall-approval-handoff
+output/app-plan-proof/26-performance-and-service-health
+output/app-plan-proof/27-e2e-and-manual-proof-artifacts
+output/app-plan-proof/28-rollout-checklist-and-pr-gate
+```
+
+Those proof packs point back to `output/app-game-plan-proof/*` for the shared
+contract, parser, and docs evidence. They prove staged foundations only; they do
+not move product status for live app capture, policy, enforcement, install
+approval, or cross-platform parity.
+
 Current focused proof scripts include:
 
 ```text
@@ -118,9 +175,14 @@ node scripts/test/v0-8-enforcement-product-control-spine.mjs
 node scripts/test/v0-8-enforcement-integrity-runtime-audit.mjs
 node scripts/test/v0-8-cross-platform-enforcement-capability-proof.mjs
 node scripts/test/v0-8-enforcement-timer-recovery-mvp.mjs
+node scripts/test/app-game-broad-blocking-proof-gates.mjs
+node scripts/test/app-game-platform-extension-routing-proof.mjs
+node scripts/test/app-game-install-store-handoff-proof.mjs
+node scripts/test/app-game-performance-health-proof.mjs
+node scripts/test/app-game-plan-rollout-pr-gate.mjs
 ```
 
-These are scoped proof harnesses. They do not prove broad app blocking,
+These are scoped proof harnesses. They do not prove broad app blocking support,
 polished app catalog UI, install approval, or cross-platform parity.
 
 ## Current Gaps
@@ -132,18 +194,106 @@ polished app catalog UI, install approval, or cross-platform parity.
 - Windows installed-app inventory needs stronger source-specific proof.
 - Windows Store/UWP/AppX identity needs separate proof from Win32 executable
   identity.
-- Foreground evidence needs explicit no-content UI labels.
-- Session duration and daily app rollups need stronger replay proof.
-- New/unknown app approval and child request UX are incomplete.
-- Risk-app categories need source/confidence and no-content no-claim guards.
-- Parent app catalog/dashboard is not product-complete.
-- Broad app blocking remains manual-required outside scoped owned-process
-  proof.
-- Platform-specific authority tiers are not fully modeled in contracts or UI.
+- Foreground evidence now has shared app/game contract/protocol/parser proof,
+  stored-row sessionization can derive foreground duration, staged
+  journal/SQLite replay can project foreground-now rows, service app-use read
+  models can expose foreground state, and the portal App/Game Sessions
+  dashboard labels foreground separately from inventory/running/content claims,
+  but live window capture wiring remains incomplete.
+- Session duration and daily app rollups now have deterministic SQLite-row
+  replay proof plus staged encrypted journal-file ingest/replay proof, service
+  app-use read models can expose daily rollup counts/duration, and the portal
+  dashboard shows duration/counts from those read models, but policy/report
+  integration, live source subscriptions, and journal corruption/recovery proof
+  remain incomplete.
+- New/unknown app approval now has contract-level candidate, child-status,
+  response-scope, expiry, replay, and manual-required proof, but live native
+  candidate production, notification delivery, service persistence/read models,
+  parent/child approval UI, and platform hard blocking remain incomplete.
+- App policy target compiler now has shared parent-domain contract proof for
+  app targets, identity/unknown/category/schedule/capability/authority proof,
+  device/local-user/freshness rejection, dry-run-only decisions, and
+  manual-required unproved block-launch. It does not yet provide runtime
+  evaluator execution, service persistence, portal authoring/preview UI, timers,
+  notifications, rollback, or adapter execution.
+- Native app time-budget integration now has shared parent-domain contract proof
+  for stored session refs, running versus foreground duration modes, schedule
+  evidence, bonus-time approval/audit refs, ask parent/manual-required dry-run
+  states, effective budget math, and restart-recovered timer refs. It does not
+  yet provide live native app runtime evaluation, service persistence, portal
+  budget authoring/preview UI, notification delivery, child request UX, adapter
+  execution, or broad installed-app blocking.
+- Native app risk detection now has parent-domain contract proof for known
+  VPN/proxy, remote desktop, torrent/download, AI chatbot, unknown
+  name/publisher/hash, local AI digest, and parent display override candidates.
+  Risk candidates carry confidence/source disclosure, no-content claims,
+  no-direct-enforcement guards, and risk-app category-proof routing. It does not
+  yet provide live OS scanning, live catalog enrichment, service events, portal
+  evidence drawer UI, local model quality, or platform enforcement proof.
+- Native app AI classifier boundary proof now cross-records the shared app/game
+  classifier contract: stored evidence refs, confidence bounds,
+  runtime/model/prompt refs, fallback state, and evidence-only policy handoff
+  are required, while direct action, duration, and raw scan fields are rejected
+  before policy can consume classifier output. Live provider execution, service
+  events, portal rendering, policy evaluator consumption, and adapter
+  enforcement remain gaps.
+- Native app child-facing warning/request UX now has shared parent-domain and
+  text-domain contract proof for warning, approval-needed, time-limit, request
+  submitted/approved/denied, manual-required, and unavailable states. It does
+  not yet provide live native app child UI, portal preview screenshots, native
+  overlay rendering, notification delivery, service persistence,
+  Rust/WebSocket parity, adapter execution, or broad installed-app blocking.
+- Native app owned-process time-limit proof now cross-records the shared
+  app/game real-service proof for dry-run no-action, stale action mismatch
+  rejection before adapter execution, timer recovery/cancel, and scoped
+  owned/current expiry. It is still not broad app/package blocking.
+- Native app broad-blocking proof gates now cross-record the shared app/game
+  contract proof that manual-required, unavailable, and not-claimed
+  block-launch/hide/suspend/shield/process-kill states cannot dispatch adapters
+  and must name setup, authority-tier, rollback, audit, and platform proof
+  before moving up. It is not AppLocker/App Control, MDM, Endpoint Security,
+  Device Owner/Profile Owner, FamilyControls/ManagedSettings, cgroup/systemd,
+  or rollback execution proof.
+- Native app platform-extension routing now cross-records the shared app/game
+  WP25 matrix for every MAC, IOS, ANDROID, and LINUX extension row. It maps
+  authority tier, setup state, manual tags, proof packs, and cross-plan handoff,
+  but keeps every row manual-required or not-claimed until real platform proof
+  exists.
+- Native app install/uninstall approval handoff now cross-records the shared
+  app/game WP26 matrix for new inventory, installer/updater, store package
+  install, purchase signal, uninstall, and tamper candidate rows. Store and
+  purchase signals remain context-only, approval refs cite evidence, and
+  uninstall/tamper rows route to the tamper feature without adapter or policy
+  claims.
+- Native app performance-health proof now cross-records the shared app/game
+  WP27 matrix for generated inventory, runtime, foreground, journal, replay,
+  policy compile, existing dashboard intent, and degraded adapter health
+  budgets. It is generated-scale and intent-level proof only; live OS
+  throughput, encrypted journal disk/corruption, browser DOM/Playwright render,
+  live adapters, install/store approval, and broad blocking remain gaps.
+- Native app final rollout/evidence gate proof now cross-records app-plan WP27
+  and WP28 from shared app/game WP28 by validating prior proof roots, recording
+  E2E/manual scenario routing, no-claim gates, manual-platform proof
+  requirements, and PR-ready reporting requirements. It is review-gate proof
+  only and does not add live runtime or platform support.
+- App category/risk taxonomy, native app risk detection, and native app AI
+  classifier boundary now have contract/test proof, but live classifier
+  enrichment, portal category/risk/classifier rows, runtime app risk detection,
+  local model quality, and platform enforcement remain incomplete.
+- Parent app catalog/dashboard has an initial service-backed App/Game Sessions
+  surface, but it is not product-complete.
+- Broad app blocking remains manual-required outside scoped owned-process proof
+  and the focused no-claim/manual-required broad-blocking gate contract.
+- Platform-specific authority tiers are now modeled as shared app/game
+  parent-domain contract proof, but the portal UI and runtime adapter proof are
+  not complete.
 - macOS, Linux, Android, iOS, MDM, device-owner, supervised, Endpoint Security,
   AppLocker/App Control, Screen Time, ManagedSettings, cgroups/systemd,
   AppArmor/SELinux, Flatpak, Snap, signing, store, and entitlement claims need
   separate proof before product claims.
+- Live store integration, install/purchase approval UI, package-manager/store
+  interception, billing entitlement logic, uninstall blocking, and anti-tamper
+  behavior remain unproved.
 
 ## Where We Want To Be
 

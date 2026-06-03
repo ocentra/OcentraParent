@@ -6,6 +6,14 @@ import {
   ActivitySubjectNameSchema,
   ActivityTimestampSchema,
 } from './primitives';
+import {
+  AppGameCapabilityStatusSchema,
+  AppGameClassificationStateSchema,
+  AppGameForegroundStateSchema,
+  AppGameRuntimeStateSchema,
+} from './app-game-primitives';
+import { AppGameProductKindSchema } from './app-game-identity-primitives';
+import { AppGameInventoryDetectionStateSchema } from './app-game-inventory-primitives';
 
 const NonEmptyActivitySurfaceText = Schema.String.pipe(Schema.minLength(1));
 const NonNegativeActivityCount = Schema.Number.pipe(Schema.nonNegative(), Schema.int());
@@ -224,8 +232,19 @@ export const ActivityAppUseReadModelSchema = withParser(
         appName: ActivitySubjectNameSchema,
         deviceId: ActivityDeviceIdSchema,
         state: ActivityReadModelStateSchema,
+        productKind: AppGameProductKindSchema,
+        classificationState: AppGameClassificationStateSchema,
+        inventoryState: AppGameInventoryDetectionStateSchema,
+        runtimeState: AppGameRuntimeStateSchema,
+        foregroundState: AppGameForegroundStateSchema,
+        capabilityStatus: AppGameCapabilityStatusSchema,
+        lastObservedAt: Schema.Union(ActivityTimestampSchema, Schema.Null),
         totalMs: NonNegativeActivityDuration,
         launchCount: NonNegativeActivityCount,
+        inventoryRowCount: NonNegativeActivityCount,
+        runningRowCount: NonNegativeActivityCount,
+        foregroundRowCount: NonNegativeActivityCount,
+        dailyRollupCount: NonNegativeActivityCount,
         evidence: Schema.Array(ActivityEvidenceRefSchema),
       })
     ),
@@ -258,8 +277,19 @@ export const ActivityGamesReadModelSchema = withParser(
         displayName: ActivitySubjectNameSchema,
         deviceId: ActivityDeviceIdSchema,
         state: ActivityReadModelStateSchema,
+        productKind: AppGameProductKindSchema,
+        classificationState: AppGameClassificationStateSchema,
+        inventoryState: AppGameInventoryDetectionStateSchema,
+        runtimeState: AppGameRuntimeStateSchema,
+        foregroundState: AppGameForegroundStateSchema,
+        capabilityStatus: AppGameCapabilityStatusSchema,
+        lastObservedAt: Schema.Union(ActivityTimestampSchema, Schema.Null),
         totalMs: NonNegativeActivityDuration,
         sessionCount: NonNegativeActivityCount,
+        launcherRowCount: NonNegativeActivityCount,
+        runningRowCount: NonNegativeActivityCount,
+        foregroundRowCount: NonNegativeActivityCount,
+        dailyRollupCount: NonNegativeActivityCount,
         evidence: Schema.Array(ActivityEvidenceRefSchema),
       })
     ),

@@ -1,20 +1,23 @@
 use ocentra_parent_agent_protocol::{
-    constants, ActivityAppUseReadModel, ActivityAppUseReadModelRow, ActivityBrowserReadModel,
-    ActivityBrowserReadModelRow, ActivityGamesReadModel, ActivityGamesReadModelRow,
-    ActivityNetworkReadModel, ActivityNetworkReadModelRow, ActivityReadModelState,
-    ActivityRecentSummary, ActivityScreenReadModel, ActivityScreenReadModelRow,
-    ActivitySurfaceRequest, AppGameSessionReport, BrowserEvidenceReadModel,
+    constants, ActivityBrowserReadModel, ActivityBrowserReadModelRow, ActivityNetworkReadModel,
+    ActivityNetworkReadModelRow, ActivityReadModelState, ActivityScreenReadModel,
+    ActivityScreenReadModelRow, ActivitySurfaceRequest, BrowserEvidenceReadModel,
     ScreenEvidenceRecentSummary, ACTIVITY_SURFACE_SCHEMA_VERSION,
 };
 
 use crate::activity_surface_read_model_states::{
-    empty_app_use_read_model, empty_games_read_model, empty_screen_read_model,
-    offline_app_use_read_model, offline_browser_read_model, offline_games_read_model,
-    offline_network_read_model, offline_screen_read_model, request_targets_remote_device,
-    unavailable_app_use_read_model, unavailable_browser_read_model, unavailable_games_read_model,
+    empty_screen_read_model, offline_browser_read_model, offline_network_read_model,
+    offline_screen_read_model, request_targets_remote_device, unavailable_browser_read_model,
     unavailable_network_read_model, unavailable_screen_read_model,
 };
-use crate::time::timestamp_now;
+
+mod app_use;
+mod games;
+mod shared;
+
+pub(crate) use app_use::app_use_read_model;
+pub(crate) use games::games_read_model;
+use shared::row_device_id;
 
 pub(crate) fn screen_read_model(
     request: ActivitySurfaceRequest,
@@ -37,31 +40,6 @@ pub(crate) fn screen_read_model(
         },
         Some(summary) => empty_screen_read_model(request, summary.generated_at),
         None => unavailable_screen_read_model(request),
-    }
-}
-
-pub(crate) fn app_use_read_model(
-    request: ActivitySurfaceRequest,
-    summary: Option<ActivityRecentSummary>,
-) -> ActivityAppUseReadModel {
-    if request_targets_remote_device(&request) {
-        return offline_app_use_read_model(request);
-    }
-
-    match summary {
-        Some(summary) if summary.returned > 0 => {
-            let rows = vec![app_use_row(&request, summary)];
-            ActivityAppUseReadModel {
-                schema_version: ACTIVITY_SURFACE_SCHEMA_VERSION,
-                request,
-                state: ActivityReadModelState::Ready,
-                generated_at: timestamp_now(),
-                summary: constants::activity_surface::SUMMARY_READY.to_string(),
-                rows,
-            }
-        }
-        Some(_) => empty_app_use_read_model(request),
-        None => unavailable_app_use_read_model(request),
     }
 }
 
@@ -91,31 +69,6 @@ pub(crate) fn browser_read_model(
             rows: Vec::new(),
         },
         None => unavailable_browser_read_model(request),
-    }
-}
-
-pub(crate) fn games_read_model(
-    request: ActivitySurfaceRequest,
-    report: Option<AppGameSessionReport>,
-) -> ActivityGamesReadModel {
-    if request_targets_remote_device(&request) {
-        return offline_games_read_model(request);
-    }
-
-    match report {
-        Some(report) if report.returned > 0 => {
-            let rows = vec![games_row(&request, report)];
-            ActivityGamesReadModel {
-                schema_version: ACTIVITY_SURFACE_SCHEMA_VERSION,
-                request,
-                state: ActivityReadModelState::Ready,
-                generated_at: timestamp_now(),
-                summary: constants::activity_surface::SUMMARY_READY.to_string(),
-                rows,
-            }
-        }
-        Some(_) => empty_games_read_model(request),
-        None => unavailable_games_read_model(request),
     }
 }
 
@@ -170,25 +123,6 @@ fn screen_row(
     }
 }
 
-fn app_use_row(
-    request: &ActivitySurfaceRequest,
-    summary: ActivityRecentSummary,
-) -> ActivityAppUseReadModelRow {
-    ActivityAppUseReadModelRow {
-        row_id: summary
-            .last_event_id
-            .unwrap_or_else(|| constants::activity_surface::READ_MODEL_APP_USE.to_string()),
-        app_name: summary
-            .most_recent_subject_name
-            .unwrap_or_else(|| constants::activity_surface::SECTION_APP_USE.to_string()),
-        device_id: row_device_id(request),
-        state: ActivityReadModelState::Ready,
-        total_ms: 0,
-        launch_count: summary.returned,
-        evidence: Vec::new(),
-    }
-}
-
 fn browser_row(
     row: ocentra_parent_agent_protocol::BrowserTabEvidence,
 ) -> ActivityBrowserReadModelRow {
@@ -200,25 +134,6 @@ fn browser_row(
         visit_count: 1,
         total_ms: 0,
         evidence_digest: None,
-    }
-}
-
-fn games_row(
-    request: &ActivitySurfaceRequest,
-    report: AppGameSessionReport,
-) -> ActivityGamesReadModelRow {
-    ActivityGamesReadModelRow {
-        row_id: report
-            .most_recent_session_id
-            .unwrap_or_else(|| constants::activity_surface::READ_MODEL_GAMES.to_string()),
-        display_name: report
-            .most_recent_display_name
-            .unwrap_or_else(|| constants::activity_surface::SECTION_GAMES.to_string()),
-        device_id: row_device_id(request),
-        state: ActivityReadModelState::Ready,
-        total_ms: report.most_recent_running_duration_ms.unwrap_or_default(),
-        session_count: report.returned,
-        evidence: Vec::new(),
     }
 }
 
@@ -242,12 +157,4 @@ fn network_row(
             .first()
             .and_then(|evidence| evidence.digest.clone()),
     }
-}
-
-fn row_device_id(request: &ActivitySurfaceRequest) -> String {
-    request
-        .scope
-        .device_id
-        .clone()
-        .unwrap_or_else(|| constants::activity_surface::DEFAULT_DEVICE_ID.to_string())
 }

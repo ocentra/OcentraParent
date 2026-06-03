@@ -26,4 +26,12 @@ claiming content.
 Foreground evidence is separable from runtime and content, and sessionization can
 derive active duration from stored rows.
 
+## Completion Note
+
+WP09 proof on branch `codex/app-game-windows-foreground-evidence` adds
+contract/protocol/parser proof only. Live Windows foreground polling,
+journal/SQLite ingest, service events, portal foreground rows, content
+knowledge, policy execution, and broad blocking remain out of scope until later
+workpacks add proof.
+
 Use the standard checklist in [workpacks README](README.md).

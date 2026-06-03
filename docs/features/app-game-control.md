@@ -19,6 +19,8 @@ require typed policy decisions and platform adapter proof.
   [enforcement](../expectations/enforcement.md).
 - Supporting docs: [app settings inventory](../app-control-settings-inventory.md)
   and [game settings inventory](../game-control-settings-inventory.md).
+- Shared native app/game planning:
+  [app + game plan](../plans/app-game-plan/README.md).
 - Native app planning:
   [native apps plan](../plans/app-plan/README.md).
 - Browser-game planning:
@@ -39,7 +41,48 @@ control with better evidence and local audit.
 ## Current Ocentra State
 
 - App/game session contracts and read-model proof exist.
-- Package/process identity and owned-process time-limit proof are in progress.
+- Stored app/game observation rows now derive deterministic running,
+  foreground, background, stale-gap, process-exit, replay-stable, and daily
+  rollup duration proof without upgrading inventory, launcher, or foreground
+  evidence into content or enforcement authority.
+- Staged encrypted journal-file replay now persists typed inventory, runtime,
+  foreground, and launcher evidence through SQLite and projects inventory,
+  running-now, foreground-now, launcher, and daily rollup rows while preserving
+  the no-use/no-content/no-launcher-promotion boundaries.
+- The service now exposes those staged app/game journal and SQLite projections
+  through typed app-use and games activity-surface read models, including
+  inventory, runtime, foreground, launcher/source-count, daily rollup,
+  capability, and evidence-ref fields.
+- The parent portal App/Game Sessions surface now renders those service-backed
+  app-use and games read-model rows in a dedicated dashboard intent and SVG
+  surface with separate inventory, running, foreground, launcher-only,
+  unknown-review, manual-required capability, game-budget gap, and evidence
+  counts.
+- App/game unknown approval contracts now represent new inventory apps, unknown
+  runtime processes, portable/installer candidates, launcher-game candidates,
+  unknown game-like executables, child status/reason refs, parent response
+  scope, expiry, audit-backed replay state, and manual-required block outcomes
+  without dispatching unsupported adapters.
+- Native game budget policy contracts now represent game budget targets,
+  running/foreground duration modes, launcher-only exclusion, parent-approved
+  launcher-game candidate inclusion, advisory rating/UGC/multiplayer/purchase
+  signals, dry-run preview decisions, and no-enforcement handoff guards.
+- App/game policy target compiler contracts now require identity,
+  unknown-state, category, schedule, capability, authority, device, local-user,
+  and freshness proof before accepting app/game rule compile requests, and keep
+  unproved block-launch in manual-required dry-run output.
+- App/game time-budget contracts now consume stored app/game session refs,
+  schedule evidence, bonus-time approval/audit refs, dry-run/manual-required
+  handoff state, and restart-recovered timer refs before representing exceeded
+  budget decisions.
+- Child-facing app/game UX contracts now represent calm warning,
+  approval-needed, time-limit, request submitted/approved/denied,
+  manual-required, and unavailable states with text-domain copy tokens,
+  evidence refs, child reason/status refs, and no private diagnostics.
+- Package/process identity and owned-process time-limit proof now includes
+  scoped real-service dry-run no-action, stale timer mismatch rejection before
+  adapter execution, preserved-timer recovery/cancel, and owned/current expiry
+  proof.
 - The V0.8 product-control spine separates app time-limit and scoped
   owned-process control from broad installed-app blocking, so downstream policy
   and device surfaces can show time-limit/control-capable versus report-only or
@@ -58,38 +101,169 @@ control with better evidence and local audit.
   claim to Windows owned-process time-limit support with evidence, timer,
   rollback, and audit references while keeping package-wide app blocking
   manual-required.
+- The Windows owned-process time-limit proof now extends that same real-service
+  harness with dry-run and stale-action negative paths while preserving the
+  manual-required boundary for broad package/app blocking.
+- The app/game broad-blocking proof gates now add a focused parent-domain
+  matrix for block-launch, allowlist/hide/suspend/shield, AppLocker audit-only,
+  Android normal-mode hide/suspend, iOS shielding, and iOS process-kill
+  no-claim states. It proves manual-required, unavailable, and not-claimed
+  rows cannot dispatch adapters and names setup, authority-tier, rollback,
+  audit, and platform-specific proof needed before any broad blocking claim can
+  move up.
 - The V0.8 enforcement integrity runtime audit now exposes supported app/game
   time-limit success, expiry, rollback, parent override/supersede, dry-run,
   stale decision rejection, wrong-device rejection, child-status refs, timer
   refs, rollback refs, audit refs, and permission/dependency unavailable states
   through TypeScript/Rust/service proof without upgrading broad installed-app
   blocking.
+- Launcher evidence and launcher-game candidate contracts now exist with Rust
+  protocol parity and staged Windows launcher parser proof. Launcher-only,
+  launcher foreground, launcher-game candidate, and proved child-game states
+  are separated so launcher evidence cannot become fake known-game proof.
+- Cross-platform app/game authority matrix contracts now represent platform,
+  action, authority tier, setup state, proof state, parent-visible limitation,
+  proof needed to claim, and no-execute guards for Windows, macOS, Linux,
+  Android, and iOS/iPadOS hard-control rows.
+- Platform-extension routing contracts now map every MAC, IOS, ANDROID, and
+  LINUX extension checklist row to authority tier, setup state, manual tags,
+  proof-pack paths, and cross-plan handoff while keeping all current rows
+  manual-required or not-claimed.
+- Install/store handoff contracts now route new app/game inventory,
+  installer/updater processes, store package install signals, game purchase
+  signals, uninstall deltas, and tamper/uninstall candidates to app-game
+  evidence, app-install/purchase approval, or enforcement-integrity/tamper docs
+  with evidence refs, parent-visible manual-required states, and no adapter or
+  policy-decision claims.
+- App/game performance-health contracts now record generated-scale budgets for
+  inventory, runtime polling, foreground debounce, journal writes, session
+  replay, policy compile, existing dashboard intent rows, and parent-visible
+  degraded adapter health without claiming live OS, live adapter, or browser DOM
+  throughput.
+- App/game category-risk taxonomy contracts now represent native app
+  categories, native game categories, risk candidates, game context signals,
+  source kind, source ref, confidence, reason code, evidence refs, parent
+  display override, AI digest refs, policy-candidate action, and a
+  `notEnforcement` guard.
+- Native app risk detection contracts now add app-only candidate proof for
+  known VPN/proxy, remote desktop, torrent/download, AI chatbot, unknown
+  name/publisher/hash, local AI digest, and parent display override rows with
+  confidence/source disclosure, no-content claims, no-direct-enforcement
+  guards, ask parent/manual-review routing, and risk-app category-proof policy
+  routing.
+- App/game AI classifier boundary contracts now add policy-facing proof that
+  classifier output must cite stored evidence refs, stay within confidence
+  bounds, name runtime/model/prompt/fallback refs, and remain evidence-only
+  while rejecting direct action, duration, and raw scan fields before policy
+  consumption.
+- The app/game final rollout/evidence gate now checks the app-game WP01-WP27
+  and app-plan WP01-WP26 proof roots, writes final app-game WP28 and app-plan
+  WP27/WP28 proof packs, and records the E2E/manual scenario routing,
+  merge-blocking no-claim gates, product-doc decisions, and PR-ready reporting
+  requirements without promoting any live platform or broad-blocking claim.
 - Broad app blocking remains manual-required or unproved by platform.
 - Raw app and game control setting inventories are preserved as design inputs,
   not product-complete implementation proof.
 
 ## Current Gap
 
-Parent-visible app catalog, category quality, install/approval linkage, child
-request flow, broad blocking, and cross-platform parity are incomplete. Broad
-installed-app blocking remains manual-required beyond the scoped
-owned-process/app-session proof, including in the broad-adapter and
-supported-adapter runtime service proofs. The integrity runtime audit proves
-typed timer/rollback/child-status visibility for scoped app/game outcomes, but
-does not prove package-wide app blocking, polished child request UX, install
-approval, or cross-platform parity.
+Parent-visible app catalog/dashboard UI now has an initial service-backed
+App/Game Sessions surface, but category quality, unknown approvals, game budget
+policy, live launcher crawling, install/approval linkage, child request flow,
+broad blocking, and cross-platform parity are incomplete. Broad installed-app
+blocking remains manual-required beyond the scoped
+owned-process/app-session proof, including in the broad-adapter,
+supported-adapter runtime service proofs, and the focused broad-blocking gate
+matrix. The integrity runtime audit proves typed timer/rollback/child-status
+visibility for scoped app/game outcomes, but does not prove package-wide app
+blocking, polished child request UX, install approval, or runtime
+cross-platform parity. The authority and broad-blocking gate matrices are
+contract proof only; they do not prove AppLocker/App Control, MDM, Endpoint
+Security, Device Owner/Profile Owner, FamilyControls/ManagedSettings,
+cgroup/systemd, or kiosk/single-app adapter behavior. The platform-extension
+routing matrix adds proof-pack coverage for those rows, but it is also
+contract-only and does not prove runtime platform support. The category/risk
+taxonomy is contract proof only; it does not prove live catalog enrichment,
+local AI classifier quality, policy compiler routing, portal category UI, or
+runtime app/game category decisions. Native app risk detection and app/game AI
+classifier boundary proof are also contract-only; they do not prove live OS
+scanning, live catalog enrichment, runtime classifier service events, portal
+evidence/classifier rendering, local model quality/provider execution, policy
+evaluator consumption, or platform enforcement.
+The install/store handoff proof is contract-only: it does not prove live store
+integration, Google Play, Apple App Store, Microsoft Store, package-manager
+interception, billing entitlement logic, portal approval UI, platform adapter
+execution, uninstall blocking, or anti-tamper behavior.
+The performance-health proof is contract/generated-scale only: it does not
+prove live OS inventory/process/foreground throughput, encrypted journal disk
+throughput or corruption recovery, browser DOM/Playwright rendering, live
+platform adapters, approval/store behavior, or broad blocking.
+The final rollout/evidence gate is proof-review infrastructure, not runtime
+capability: it proves the branch can be reviewed with explicit proof paths and
+no-claim boundaries, but it does not add live source crawling, finished
+approval/notification UI, cross-platform platform adapters, live classifier
+quality, browser DOM proof for every UI state, or product reports.
+The unknown approval proof is still contract-level: it does not yet provide
+finished parent/child approval UI, notification delivery, persisted service
+read models, live candidate creation from platform adapters, or platform hard
+blocking.
+The native game budget proof is also contract-level: it does not yet provide a
+policy target compiler, live game budget authoring UI, service persistence,
+budget notifications, or adapter execution.
+The app/game policy target compiler proof is contract-level: it does not yet
+provide runtime service evaluation, Rust/WebSocket parity, portal rule
+authoring, timer integration, notifications, rollback, or adapter execution.
+The app/game time-budget proof is contract-level: it does not yet provide
+runtime service evaluation, Rust/WebSocket parity, portal budget authoring,
+notification delivery, child request UX, service persistence, adapter
+execution, or platform timer/rollback execution.
+The child-facing UX proof is contract/text-level: it does not yet provide a
+native child app, overlay, portal preview, notification delivery, service
+persistence, Rust/WebSocket parity, or platform adapter execution.
 
 ## Checklist
 
 - [ ] App/game inventory and identity.
-- [ ] Running and foreground session evidence.
-- [ ] Category and unknown-state handling.
-- [ ] App/category schedule and time-budget rules.
-- [ ] Ask-parent and bonus-time flow.
+- [ ] Running and foreground session evidence. Contract and local
+      SQLite-row session-duration proof now exists, and staged journal-file
+      replay proof now covers typed fixture rows; service app-use/games
+      read-model DTOs now expose those projected rows; the parent portal now
+      has a dedicated app/game dashboard surface for those rows; live source
+      adapters and policy integration remain.
+- [ ] Category and unknown-state handling. Unknown approval contracts now keep
+      weak app/game evidence in review/report-only/manual-required states with
+      evidence refs, child status refs, expiry, and audit-backed persistence
+      fields; live candidate production and parent/child UX remain.
+- [ ] App/category schedule and time-budget rules. Native game budget dry-run
+      contracts now exist for known-game counts, launcher-only exclusion,
+      parent-approved candidate inclusion, and advisory signal boundaries.
+      App/game policy target compiler contracts now validate identity,
+      unknown-state, category, schedule, capability, authority, device,
+      local-user, and freshness proof before dry-run decisions; live evaluator,
+      authoring UI, persistence, timers, and enforcement remain. App/game
+      time-budget contracts now consume stored session refs, schedule refs,
+      bonus approval/audit refs, and timer recovery refs before dry-run or
+      manual-required decisions; live evaluator, UI, notification, persistence,
+      and adapter execution remain.
+- [ ] Ask-parent and bonus-time flow. Contract proof now requires approval and
+      audit refs before bonus time extends a budget and keeps ask parent/manual
+      states dry-run only; notification delivery and finished parent/child UX
+      remain.
 - [ ] Child-facing reason/status is referenced in the runtime audit; finished
-      child request/status UX remains.
-- [ ] Adapter capability status per platform.
-- [ ] Blocking/time-limit proof before done claim.
+      child request/status UX remains. Child-facing UX contracts and
+      text-domain copy tokens now cover respectful warning, approval-needed,
+      time-limit, request, manual-required, and unavailable states with
+      evidence/child refs and no diagnostics; live child UI, notifications,
+      service persistence, and platform execution remain.
+- [ ] Adapter capability status per platform. Cross-platform authority and
+      broad-blocking gate contracts now record manual-required, unavailable,
+      and not-claimed proof requirements. Platform-extension routing now maps
+      every MAC, IOS, ANDROID, and LINUX row to proof packs and handoffs, but
+      runtime adapter capability/UI proof remains.
+- [ ] Blocking/time-limit proof before done claim. Scoped owned-process
+      time-limit proof exists; broad block-launch/hide/suspend/shield and
+      allowlist remain manual-required or not-claimed until platform setup,
+      authority-tier, rollback, audit, and platform proof are attached.
 
 ## Next AI Instructions
 

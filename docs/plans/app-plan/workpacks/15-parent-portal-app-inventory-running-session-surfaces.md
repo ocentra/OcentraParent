@@ -75,3 +75,20 @@ Fill this before reporting `DONE` or PR-ready:
 
 UI can display a capability only when service/read-model state provides that
 capability and proof state. UI cannot invent evidence or enforcement support.
+
+## Completion Notes - 2026-06-03
+
+- Branch: `codex/app-game-read-model-service-events`.
+- Proof root:
+  `output/app-plan-proof/15-parent-portal-app-inventory-running-session-surfaces`.
+- Shared proof root:
+  `output/app-game-plan-proof/16-parent-portal-app-game-dashboard-surfaces`.
+- Source docs read: folder README, source index, current snapshot, full scope
+  plan, platform deep dive, test blueprint, UI/UX guide, main checklist, and
+  this workpack.
+- Implementation: native app-use read-model rows feed the shared App/Game
+  Sessions dashboard intent and surface. The dashboard keeps installed
+  inventory, running, foreground, duration, unknown/risk/manual-required
+  capability, and evidence counts separate.
+- Product checklist: not updated because live adapters, unknown approval,
+  policy integration, platform proof, and broad blocking remain gaps.

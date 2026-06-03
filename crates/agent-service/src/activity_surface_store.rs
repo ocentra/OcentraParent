@@ -2,8 +2,8 @@ use std::path::PathBuf;
 
 use ocentra_parent_agent_core::ActivityStore;
 use ocentra_parent_agent_protocol::{
-    constants, ActivityNetworkFlowReadModel, ActivityRecentSummary, AppGameSessionReport,
-    BrowserEvidenceReadModel, ScreenEvidenceRecentSummary,
+    constants, ActivityNetworkFlowReadModel, AppGameServiceReadModel, BrowserEvidenceReadModel,
+    ScreenEvidenceRecentSummary,
 };
 
 use crate::{activity_store_path::activity_db_path, time::timestamp_now};
@@ -45,7 +45,10 @@ pub(crate) async fn local_store_snapshot_from_path(
             )
             .ok()?;
         let games = store
-            .app_game_session_report(constants::activity_store::DEFAULT_RECENT_LIMIT)
+            .app_game_service_read_model(
+                constants::activity_store::DEFAULT_RECENT_LIMIT,
+                &generated_at,
+            )
             .ok()?;
         let screen = store
             .screen_evidence_recent_summary(
@@ -60,7 +63,7 @@ pub(crate) async fn local_store_snapshot_from_path(
             last_observed_at: recent.last_observed_at,
             browser_returned: browser.returned,
             network_returned: network.returned,
-            games_returned: games.returned,
+            games_returned: games.daily_rollup_returned + games.launcher_returned,
             screen_returned: screen.returned,
         })
     })
@@ -69,11 +72,10 @@ pub(crate) async fn local_store_snapshot_from_path(
     .flatten()
 }
 
-pub(crate) async fn load_recent_summary() -> Option<ActivityRecentSummary> {
-    load_recent_summary_from_path(activity_db_path()).await
-}
-
-pub(crate) async fn load_recent_summary_from_path(path: PathBuf) -> Option<ActivityRecentSummary> {
+#[cfg(test)]
+pub(crate) async fn load_recent_summary_from_path(
+    path: PathBuf,
+) -> Option<ocentra_parent_agent_protocol::ActivityRecentSummary> {
     with_store(path, |store| {
         store
             .recent_summary(constants::activity_store::DEFAULT_RECENT_LIMIT)
@@ -120,14 +122,20 @@ pub(crate) async fn load_network_model_from_path(
     .await
 }
 
-pub(crate) async fn load_app_game_report() -> Option<AppGameSessionReport> {
-    load_app_game_report_from_path(activity_db_path()).await
+pub(crate) async fn load_app_game_model() -> Option<AppGameServiceReadModel> {
+    load_app_game_model_from_path(activity_db_path()).await
 }
 
-pub(crate) async fn load_app_game_report_from_path(path: PathBuf) -> Option<AppGameSessionReport> {
+pub(crate) async fn load_app_game_model_from_path(
+    path: PathBuf,
+) -> Option<AppGameServiceReadModel> {
     with_store(path, |store| {
+        let generated_at = timestamp_now();
         store
-            .app_game_session_report(constants::activity_store::DEFAULT_RECENT_LIMIT)
+            .app_game_service_read_model(
+                constants::activity_store::DEFAULT_RECENT_LIMIT,
+                &generated_at,
+            )
             .ok()
     })
     .await

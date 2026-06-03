@@ -11,12 +11,38 @@ interface AppGameControlApprovalAuthorityRuleInput {
 interface AppGameControlApprovalRequestRuleInput {
   readonly policyKind: 'app-control' | 'game-control';
   readonly requestedSettingRefs: readonly { readonly writesTo: unknown }[];
+  readonly unansweredFallback: 'deny' | 'expire' | 'observe-only' | 'manual-required';
+  readonly candidate: {
+    readonly candidateKind:
+      | 'new-inventory-app'
+      | 'unknown-runtime-process'
+      | 'portable-executable'
+      | 'installer-or-updater'
+      | 'launcher-game-candidate'
+      | 'unknown-game-like-executable';
+    readonly evidenceReferences: readonly unknown[];
+  } | null;
+  readonly childReasonState: 'not-requested' | 'reason-ref-backed' | 'unavailable' | 'manual-required';
+  readonly childReasonReferences: readonly unknown[];
+  readonly childStatusReferences: readonly unknown[];
 }
 
 interface AppGameControlApprovalDecisionRuleInput {
   readonly decisionState: 'approved' | 'denied' | 'expired' | 'override' | 'manual-required';
   readonly parentAction: { readonly policyVersion: unknown } | null;
   readonly policyVersion: unknown;
+  readonly responseScope:
+    | 'allow-once'
+    | 'allow-this-app-game'
+    | 'allow-category'
+    | 'ask-child-why'
+    | 'deny'
+    | 'report-only'
+    | 'block-if-supported'
+    | null;
+  readonly decisionExpiresAt: unknown | null;
+  readonly auditReferences: readonly unknown[];
+  readonly persistenceState: 'not-persisted' | 'replayable' | 'replayed' | 'storage-unavailable';
 }
 
 interface AppGameControlActionResultRuleInput {
@@ -37,6 +63,7 @@ interface AppGameControlActionResultRuleInput {
     | 'gameplay-proof'
     | 'launcher-only'
     | 'unknown-app'
+    | 'unknown-game-like'
     | 'catalog-match'
     | 'process-observation';
   readonly resultStatus:
@@ -68,6 +95,19 @@ export function requestSettingRefsMatchPolicyKind(request: AppGameControlApprova
   return request.requestedSettingRefs.every((settingRef) => String(settingRef.writesTo).startsWith(expectedPrefix));
 }
 
+export function approvalRequestCandidateRefsAreConsistent(request: AppGameControlApprovalRequestRuleInput): boolean {
+  if (request.candidate === null) {
+    return true;
+  }
+
+  return (
+    request.candidate.evidenceReferences.length > 0 &&
+    request.childStatusReferences.length > 0 &&
+    childReasonRefsMatchState(request) &&
+    weakGameCandidateFallbackIsSafe(request)
+  );
+}
+
 export function decisionPolicyVersionMatchesParentAction(decision: AppGameControlApprovalDecisionRuleInput): boolean {
   return decision.parentAction === null || decision.parentAction.policyVersion === decision.policyVersion;
 }
@@ -78,6 +118,36 @@ export function decisionParentActionPresenceIsConsistent(decision: AppGameContro
   }
 
   return decision.decisionState === 'manual-required' || decision.parentAction === null;
+}
+
+export function approvalDecisionResponseScopeIsConsistent(decision: AppGameControlApprovalDecisionRuleInput): boolean {
+  if (decision.responseScope === null) {
+    return true;
+  }
+
+  switch (decision.decisionState) {
+    case 'approved':
+    case 'override':
+      return approvedResponseScopeIsExecutable(decision.responseScope, decision.decisionExpiresAt);
+    case 'denied':
+      return decision.responseScope === 'deny';
+    case 'expired':
+      return decision.responseScope === 'allow-once' && decision.decisionExpiresAt !== null;
+    case 'manual-required':
+      return decision.responseScope === 'block-if-supported' || decision.responseScope === 'report-only';
+  }
+}
+
+export function approvalDecisionPersistenceIsConsistent(decision: AppGameControlApprovalDecisionRuleInput): boolean {
+  if (decision.persistenceState === 'storage-unavailable') {
+    return decision.auditReferences.length === 0;
+  }
+
+  if (decision.persistenceState === 'replayable' || decision.persistenceState === 'replayed') {
+    return decision.auditReferences.length > 0;
+  }
+
+  return true;
 }
 
 export function actionResultApprovalStateIsConsistent(result: AppGameControlActionResultRuleInput): boolean {
@@ -101,8 +171,10 @@ export function actionResultCapabilityIsConsistent(result: AppGameControlActionR
 export function actionResultEvidenceProofIsConsistent(result: AppGameControlActionResultRuleInput): boolean {
   const weakLauncherGameProof =
     result.evidenceProofKind === 'launcher-only' && result.request.policyKind === 'game-control';
+  const weakUnknownGameProof =
+    result.evidenceProofKind === 'unknown-game-like' && result.request.policyKind === 'game-control';
   const unknownAppProof = result.evidenceProofKind === 'unknown-app' && result.request.policyKind === 'app-control';
-  return !(actionResultClaimsDispatch(result) && (weakLauncherGameProof || unknownAppProof));
+  return !(actionResultClaimsDispatch(result) && (weakLauncherGameProof || weakUnknownGameProof || unknownAppProof));
 }
 
 function actionResultClaimsDispatch(result: AppGameControlActionResultRuleInput): boolean {
@@ -139,4 +211,38 @@ function capabilityStateAllowsResult(result: AppGameControlActionResultRuleInput
 
 function capabilityStateRequiresUnavailableResult(result: AppGameControlActionResultRuleInput): boolean {
   return result.capabilityState === 'degraded' || result.capabilityState === 'unavailable';
+}
+
+function childReasonRefsMatchState(request: AppGameControlApprovalRequestRuleInput): boolean {
+  if (request.childReasonState === 'reason-ref-backed') {
+    return request.childReasonReferences.length > 0;
+  }
+
+  return request.childReasonReferences.length === 0;
+}
+
+function weakGameCandidateFallbackIsSafe(request: AppGameControlApprovalRequestRuleInput): boolean {
+  if (request.policyKind !== 'game-control' || request.candidate === null) {
+    return true;
+  }
+
+  if (
+    request.candidate.candidateKind === 'launcher-game-candidate' ||
+    request.candidate.candidateKind === 'unknown-game-like-executable'
+  ) {
+    return request.unansweredFallback === 'observe-only' || request.unansweredFallback === 'manual-required';
+  }
+
+  return true;
+}
+
+function approvedResponseScopeIsExecutable(
+  responseScope: NonNullable<AppGameControlApprovalDecisionRuleInput['responseScope']>,
+  decisionExpiresAt: unknown | null
+): boolean {
+  if (responseScope === 'allow-once') {
+    return decisionExpiresAt !== null;
+  }
+
+  return responseScope !== 'deny' && responseScope !== 'report-only';
 }

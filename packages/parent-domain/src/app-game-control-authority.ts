@@ -1,5 +1,8 @@
 import { Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 import {
+  approvalDecisionPersistenceIsConsistent,
+  approvalDecisionResponseScopeIsConsistent,
+  approvalRequestCandidateRefsAreConsistent,
   actionResultApprovalStateIsConsistent,
   actionResultCapabilityIsConsistent,
   actionResultEvidenceProofIsConsistent,
@@ -16,6 +19,15 @@ import {
 } from './enforcement';
 import { EnforcementPolicyDispatchApprovalStateSchema } from './enforcement-policy-dispatch';
 import {
+  AppGameControlApprovalCandidateSchema,
+  AppGameControlApprovalFlowReferenceSchema,
+  AppGameControlApprovalPersistenceStateSchema,
+  AppGameControlChildReasonStateSchema,
+  AppGameControlSettingReferenceSchema,
+  AppGameControlUnansweredFallbackSchema,
+  AppGameControlParentResponseScopeSchema,
+} from './app-game-control-approval-flow';
+import {
   ParentActionReferenceSchema,
   ParentActorReferenceSchema,
   ParentDeviceReferenceSchema,
@@ -28,7 +40,11 @@ import {
 } from './reference-primitives';
 import { PolicyActionSchema, PolicyReasonCodeSchema, PolicyTargetSchema } from './policy';
 
+export * from './app-game-control-platform-authority';
+export * from './app-game-control-approval-flow';
 const NonEmptyAppGameControlText = Schema.String.pipe(Schema.minLength(1));
+const ApprovalFlowRefsSchema = Schema.Array(AppGameControlApprovalFlowReferenceSchema);
+const OptionalApprovalFlowRefsSchema = Schema.optionalWith(ApprovalFlowRefsSchema, { default: () => [] });
 
 export const AppGameControlPolicyKindSchema = withParser(Schema.Literal('app-control', 'game-control'));
 
@@ -38,10 +54,6 @@ export const AppGameControlAuthorityStateSchema = withParser(
 
 export const AppGameControlApprovalDecisionStateSchema = withParser(
   Schema.Literal('approved', 'denied', 'expired', 'override', 'manual-required')
-);
-
-export const AppGameControlUnansweredFallbackSchema = withParser(
-  Schema.Literal('deny', 'expire', 'observe-only', 'manual-required')
 );
 
 export const AppGameControlActionResultStatusSchema = withParser(
@@ -54,16 +66,10 @@ export const AppGameControlEvidenceProofKindSchema = withParser(
     'gameplay-proof',
     'launcher-only',
     'unknown-app',
+    'unknown-game-like',
     'catalog-match',
     'process-observation'
   )
-);
-
-const AppGameControlSettingReferenceSchema = withParser(
-  Schema.Struct({
-    settingId: NonEmptyAppGameControlText.pipe(Schema.brand('AppGameControlSettingId')),
-    writesTo: NonEmptyAppGameControlText.pipe(Schema.brand('AppGameControlWritePath')),
-  })
 );
 
 const AppGameControlApprovalAuthorityBaseSchema = Schema.Struct({
@@ -102,6 +108,14 @@ const AppGameControlApprovalRequestBaseSchema = Schema.Struct({
   requestedMode: Schema.Union(EnforcementModeSchema, Schema.Null),
   requestedSettingRefs: Schema.Array(AppGameControlSettingReferenceSchema),
   evidenceReferences: Schema.Array(ParentEvidenceReferenceSchema),
+  candidate: Schema.optionalWith(Schema.Union(AppGameControlApprovalCandidateSchema, Schema.Null), {
+    default: () => null,
+  }),
+  childReasonState: Schema.optionalWith(AppGameControlChildReasonStateSchema, {
+    default: () => 'not-requested' as const,
+  }),
+  childReasonReferences: OptionalApprovalFlowRefsSchema,
+  childStatusReferences: OptionalApprovalFlowRefsSchema,
   expiresAt: ParentTimestampSchema,
   unansweredFallback: AppGameControlUnansweredFallbackSchema,
 });
@@ -111,13 +125,21 @@ export const AppGameControlApprovalRequestSchema = withParser(
     Schema.filter(
       (request) => request.evidenceReferences.length > 0 || 'Expected app/game approval requests to cite evidence'
     )
-  ).pipe(
-    Schema.filter(
-      (request) =>
-        requestSettingRefsMatchPolicyKind(request) ||
-        'Expected app/game approval request setting refs to match the policy kind'
-    )
   )
+    .pipe(
+      Schema.filter(
+        (request) =>
+          requestSettingRefsMatchPolicyKind(request) ||
+          'Expected app/game approval request setting refs to match the policy kind'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (request) =>
+          approvalRequestCandidateRefsAreConsistent(request) ||
+          'Expected app/game approval candidates to carry evidence, child status refs, and safe weak-game fallback'
+      )
+    )
 );
 
 const AppGameControlApprovalDecisionBaseSchema = Schema.Struct({
@@ -130,6 +152,16 @@ const AppGameControlApprovalDecisionBaseSchema = Schema.Struct({
   reasonCodes: Schema.Array(PolicyReasonCodeSchema),
   policyVersion: ParentPolicyVersionSchema,
   evidenceReferences: Schema.Array(ParentEvidenceReferenceSchema),
+  responseScope: Schema.optionalWith(Schema.Union(AppGameControlParentResponseScopeSchema, Schema.Null), {
+    default: () => null,
+  }),
+  decisionExpiresAt: Schema.optionalWith(Schema.Union(ParentTimestampSchema, Schema.Null), {
+    default: () => null,
+  }),
+  auditReferences: OptionalApprovalFlowRefsSchema,
+  persistenceState: Schema.optionalWith(AppGameControlApprovalPersistenceStateSchema, {
+    default: () => 'not-persisted' as const,
+  }),
   decidedAt: ParentTimestampSchema,
 });
 
@@ -151,6 +183,20 @@ export const AppGameControlApprovalDecisionSchema = withParser(
         (decision) =>
           decisionParentActionPresenceIsConsistent(decision) ||
           'Expected approved or override app/game decisions to include a parent action reference'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (decision) =>
+          approvalDecisionResponseScopeIsConsistent(decision) ||
+          'Expected app/game approval decision response scope to match decision state and expiry'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (decision) =>
+          approvalDecisionPersistenceIsConsistent(decision) ||
+          'Expected replayable app/game approval decisions to carry audit refs'
       )
     )
 );

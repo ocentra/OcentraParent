@@ -270,7 +270,7 @@ describe('activity report history contracts', () => {
   });
 });
 
-describe('activity tab read-model contracts', () => {
+describe('activity screen and app-use read-model contracts', () => {
   it('ActivityScreenReadModelSchema: accepts foreground and background screen rows', () => {
     expect(
       ActivityScreenReadModelSchema.parse({
@@ -308,6 +308,44 @@ describe('activity tab read-model contracts', () => {
     ).toBe('empty');
   });
 
+  it('ActivityAppUseReadModelSchema: keeps inventory running and foreground states separate', () => {
+    const parsed = ActivityAppUseReadModelSchema.parse({
+      schemaVersion: ActivitySurfaceSchemaVersion,
+      request: ActivityRequest,
+      state: 'ready',
+      generatedAt: '2026-05-27T06:21:00Z',
+      summary: 'App use rows are projected from the service read model',
+      rows: [
+        {
+          rowId: 'inventory-app-1',
+          appName: 'Ocentra Fixture App',
+          deviceId: 'child-device-1',
+          state: 'ready',
+          productKind: 'nativeApp',
+          classificationState: 'knownApp',
+          inventoryState: 'installed',
+          runtimeState: 'running',
+          foregroundState: 'foreground',
+          capabilityStatus: 'available',
+          lastObservedAt: '2026-05-27T06:19:00Z',
+          totalMs: 60000,
+          launchCount: 1,
+          inventoryRowCount: 1,
+          runningRowCount: 1,
+          foregroundRowCount: 1,
+          dailyRollupCount: 1,
+          evidence: [EvidenceRef],
+        },
+      ],
+    });
+
+    expect(parsed.rows[0]?.runtimeState).toBe('running');
+    expect(parsed.rows[0]?.foregroundState).toBe('foreground');
+    expect(parsed.rows[0]?.inventoryRowCount).toBe(1);
+  });
+});
+
+describe('activity browser games and network read-model contracts', () => {
   it('ActivityBrowserReadModelSchema: accepts permission-required browser state', () => {
     expect(
       ActivityBrowserReadModelSchema.parse({
@@ -332,6 +370,41 @@ describe('activity tab read-model contracts', () => {
         rows: [],
       }).state
     ).toBe('scaffold-only');
+  });
+
+  it('ActivityGamesReadModelSchema: accepts launcher and session source counts', () => {
+    const parsed = ActivityGamesReadModelSchema.parse({
+      schemaVersion: ActivitySurfaceSchemaVersion,
+      request: ActivityRequest,
+      state: 'ready',
+      generatedAt: '2026-05-27T06:21:00Z',
+      summary: 'Game rows are projected from launcher and session evidence',
+      rows: [
+        {
+          rowId: 'game-session-1',
+          displayName: 'Ocentra Fixture Game',
+          deviceId: 'child-device-1',
+          state: 'ready',
+          productKind: 'nativeGame',
+          classificationState: 'knownGame',
+          inventoryState: 'detectable',
+          runtimeState: 'running',
+          foregroundState: 'notClaimed',
+          capabilityStatus: 'available',
+          lastObservedAt: '2026-05-27T06:19:00Z',
+          totalMs: 120000,
+          sessionCount: 2,
+          launcherRowCount: 1,
+          runningRowCount: 1,
+          foregroundRowCount: 0,
+          dailyRollupCount: 1,
+          evidence: [EvidenceRef],
+        },
+      ],
+    });
+
+    expect(parsed.rows[0]?.classificationState).toBe('knownGame');
+    expect(parsed.rows[0]?.launcherRowCount).toBe(1);
   });
 
   it('ActivityNetworkReadModelSchema: accepts unavailable network state', () => {

@@ -35,6 +35,9 @@ proof, fixture manifests, and explicit N/A/manual-required notes.
 
 ## Tests And Proof
 
+- `node scripts/test/app-game-plan-rollout-pr-gate.mjs` writes the native app
+  cross-record proof pack under
+  `output/app-plan-proof/27-e2e-and-manual-proof-artifacts/`.
 - Proof pack complete for assigned workpack.
 - Platform workpack proof includes `11-authority-tier-proof.md`,
   `12-permission-setup-proof.md`, and `13-rollback-proof.md`.

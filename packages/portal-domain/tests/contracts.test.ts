@@ -346,7 +346,7 @@ describe('portal collapsed manage route contracts', () => {
     });
     expect(parentPortalRouteContext(PortalRoute.AppGameSessions)).toMatchObject({
       navLabel: PARENT_PORTAL_NAV_LABELS.Activity,
-      selectedControlId: 'reports-settings',
+      selectedControlId: 'app-game-sessions',
     });
     expect(parentPortalRouteContext(PortalRoute.NetworkActivity)).toMatchObject({
       navLabel: PARENT_PORTAL_NAV_LABELS.Activity,

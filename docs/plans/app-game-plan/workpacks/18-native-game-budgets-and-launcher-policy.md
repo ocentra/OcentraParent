@@ -25,3 +25,31 @@ explicit launcher-game candidates without counting launcher-only rows as play.
 Game budgets are useful and honest without treating every launcher row as play.
 
 Use the standard checklist in [workpacks README](README.md).
+
+## Completion - 2026-06-03
+
+- Owner/lane: `codex-c`
+- Branch: `codex/app-game-read-model-service-events`
+- Proof root:
+  `output/app-game-plan-proof/18-native-game-budgets-and-launcher-policy`
+- Contract source:
+  `packages/parent-domain/src/native-game-budget-policy.ts` and
+  `packages/parent-domain/src/native-game-budget-policy-rules.ts`
+- Test source:
+  `packages/parent-domain/tests/native-game-budget-policy.test.ts`
+
+Completed proof:
+
+- Known game session rows count toward the budget.
+- Launcher-only rows remain excluded by default.
+- Launcher-game candidates count only when the parent policy explicitly allows
+  parent-approved candidate state.
+- Rating, UGC, multiplayer, and purchase signals cannot request direct
+  enforcement.
+- Native game budget decisions remain dry-run only and do not create adapter
+  handoff.
+
+Deferred:
+
+- Rust/service parity, budget persistence, portal authoring/preview UI,
+  notifications, bonus-time integration, and platform adapter execution.

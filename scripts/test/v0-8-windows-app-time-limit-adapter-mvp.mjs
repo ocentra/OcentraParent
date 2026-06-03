@@ -40,6 +40,8 @@ async function main() {
   const runRoot = await mkdtemp(join(evidenceDirectory, 'run-'));
   const agentPort = await freePort();
   const child = spawnOwnedChildProcess();
+  let dryRunChild;
+  let staleChild;
   let expiryChild;
   let service = spawnAgentService(runRoot, agentPort);
   let serviceOutput = collectOutput(service);
@@ -62,6 +64,27 @@ async function main() {
     const cancelAssertion = assertCancelEvent(cancelEvent);
     const unavailableEvent = await requestEvent(agentPort, commandEnvelope('recover', child));
     const unavailableAssertion = assertUnavailableEvent(unavailableEvent);
+
+    dryRunChild = spawnOwnedChildProcess();
+    const dryRunEvent = await requestEvent(agentPort, commandEnvelope('execute-dry-run', dryRunChild));
+    const dryRunAssertion = assertExecuteEvent(dryRunEvent, dryRunChild, {
+      adapterResultCode: 'dry-run-no-action',
+      dryRun: true,
+      status: 'would-enforce',
+    });
+    const dryRunCancelEvent = await requestEvent(agentPort, commandEnvelope('cancel-dry-run', dryRunChild));
+    const dryRunCancelAssertion = assertCancelEvent(dryRunCancelEvent);
+    assertChildStillRunning(dryRunChild);
+
+    staleChild = spawnOwnedChildProcess();
+    const executeStaleEvent = await requestEvent(agentPort, commandEnvelope('execute-stale', staleChild));
+    const executeStaleAssertion = assertExecuteEvent(executeStaleEvent, staleChild);
+    const staleRejectEvent = await requestEvent(agentPort, commandEnvelope('expire-stale-mismatch', staleChild));
+    const staleRejectAssertion = assertStaleRejectEvent(staleRejectEvent, staleChild);
+    const staleRecoverEvent = await requestEvent(agentPort, commandEnvelope('recover-stale', staleChild));
+    const staleRecoverAssertion = assertRecoverEvent(staleRecoverEvent);
+    const staleCancelEvent = await requestEvent(agentPort, commandEnvelope('cancel-stale', staleChild));
+    const staleCancelAssertion = assertCancelEvent(staleCancelEvent);
 
     expiryChild = spawnOwnedChildProcess();
     const executeExpiryEvent = await requestEvent(agentPort, commandEnvelope('execute-expire', expiryChild));
@@ -98,18 +121,34 @@ async function main() {
         recover: recoverAssertion,
         cancel: cancelAssertion,
         unavailable: unavailableAssertion,
+        dryRun: dryRunAssertion,
+        dryRunCancel: dryRunCancelAssertion,
+        executeStale: executeStaleAssertion,
+        staleReject: staleRejectAssertion,
+        staleRecover: staleRecoverAssertion,
+        staleCancel: staleCancelAssertion,
         executeExpiry: executeExpiryAssertion,
         expire: expireAssertion,
       },
       serviceScope: {
         timeLimitCreateRecoverCancelExpireProven: true,
+        dryRunNoTerminateProven: true,
+        staleTimerMismatchRejectsBeforeAdapter: true,
+        staleTimerSurvivesMismatchForRecoveryAndCancel: true,
         expiryAdapterReachedThroughService: true,
+        broadPackageBlockClaimed: false,
       },
       events: {
         execute: eventSummary(executeEvent),
         recover: eventSummary(recoverEvent),
         cancel: eventSummary(cancelEvent),
         unavailable: eventSummary(unavailableEvent),
+        dryRun: eventSummary(dryRunEvent),
+        dryRunCancel: eventSummary(dryRunCancelEvent),
+        executeStale: eventSummary(executeStaleEvent),
+        staleReject: eventSummary(staleRejectEvent),
+        staleRecover: eventSummary(staleRecoverEvent),
+        staleCancel: eventSummary(staleCancelEvent),
         executeExpiry: eventSummary(executeExpiryEvent),
         expire: eventSummary(expireEvent),
       },
@@ -129,6 +168,12 @@ async function main() {
   } finally {
     await stopProcessTreeAndWait(service);
     await stopProcessTreeAndWait(child);
+    if (dryRunChild) {
+      await stopProcessTreeAndWait(dryRunChild);
+    }
+    if (staleChild) {
+      await stopProcessTreeAndWait(staleChild);
+    }
     if (expiryChild) {
       await stopProcessTreeAndWait(expiryChild);
     }
@@ -187,6 +232,12 @@ function waitForChildExit(child) {
     };
     child.once('exit', onExit);
   });
+}
+
+function assertChildStillRunning(child) {
+  if (child.exitCode !== null || child.signalCode !== null) {
+    throw new Error(`Expected owned child process ${child.pid} to still be running.`);
+  }
 }
 
 function spawnAgentService(runRoot, agentPort) {
@@ -248,11 +299,15 @@ function requestEvent(agentPort, command) {
   });
 }
 
-function assertExecuteEvent(event, child) {
+function assertExecuteEvent(event, child, expected = {}) {
+  const expectedStatus = expected.status ?? 'no-op';
+  const expectedAdapterResultCode = expected.adapterResultCode ?? 'no-op';
+  const expectedDryRun = expected.dryRun ?? false;
+
   assertEventName(event, 'agent.enforcement.audit.reported');
   assertPayloadValue(event.payload, 'enforcementTimerEventKind', 'created');
-  assertPayloadValue(event.payload, 'enforcementStatus', 'no-op');
-  assertPayloadValue(event.payload, 'enforcementAdapterResultCode', 'no-op');
+  assertPayloadValue(event.payload, 'enforcementStatus', expectedStatus);
+  assertPayloadValue(event.payload, 'enforcementAdapterResultCode', expectedAdapterResultCode);
   assertPayloadValue(event.payload, 'enforcementRollbackState', 'not-required');
   assertStored(event.payload);
   const action = JSON.parse(event.payload.enforcementAction);
@@ -263,14 +318,19 @@ function assertExecuteEvent(event, child) {
   if (timer.actionId !== ids.actionId || timer.policyDecisionId !== ids.policyDecisionId) {
     throw new Error(`Timer did not preserve action identity: ${JSON.stringify(timer)}`);
   }
+  if (action.dryRun !== expectedDryRun) {
+    throw new Error(`Expected action.dryRun=${expectedDryRun}, received ${action.dryRun}`);
+  }
   return {
     policyDecisionId: ids.policyDecisionId,
     expectedProcessName: basename(process.execPath),
     childPid: child.pid ?? null,
     actionMode: action.mode,
+    dryRun: action.dryRun,
     targetType: action.target.targetType,
     timerEventKind: timer.timerEventKind,
     status: event.payload.enforcementStatus,
+    adapterResultCode: event.payload.enforcementAdapterResultCode,
     statePersisted: typeof event.payload.enforcementTimerState === 'string',
     databaseReady: event.payload.databaseReady,
     eventsStored: event.payload.eventsStored,
@@ -379,6 +439,19 @@ function assertUnavailableEvent(event) {
   };
 }
 
+function assertStaleRejectEvent(event, child) {
+  assertEventName(event, 'agent.command.rejected');
+  assertPayloadValue(event.payload, 'reason', 'enforcement-active-timer-state-mismatch');
+  assertChildStillRunning(child);
+  return {
+    event: event.event,
+    reason: event.payload.reason,
+    childPid: child.pid ?? null,
+    adapterSkipped: true,
+    timerStatePreservedForRecovery: true,
+  };
+}
+
 function assertStored(payload) {
   if (payload.databaseReady !== true || Number(payload.eventsStored) < 1) {
     throw new Error(`Expected journal/store proof, payload=${JSON.stringify(payload)}`);
@@ -407,7 +480,7 @@ function commandEnvelope(kind, child) {
     source: { peerId: 'portal-dev', role: 'portal' },
     target: { deviceId: 'local-dev-agent', platform: 'windows', route: 'localhost' },
   };
-  if (kind === 'execute' || kind === 'execute-expire') {
+  if (kind.startsWith('execute')) {
     return {
       ...base,
       command: 'agent.enforcement.execute',
@@ -417,7 +490,7 @@ function commandEnvelope(kind, child) {
         targetType: 'app',
         targetId: commandRefs.targetId,
         targetValue: basename(process.execPath),
-        dryRun: false,
+        dryRun: kind === 'execute-dry-run',
         reasonCodes: commandRefs.reasonCodes,
         ruleIds: commandRefs.ruleIds,
         evidenceReferenceIds: commandRefs.evidenceReferenceIds,
@@ -427,7 +500,7 @@ function commandEnvelope(kind, child) {
       },
     };
   }
-  if (kind === 'expire') {
+  if (kind === 'expire' || kind === 'expire-stale-mismatch') {
     return {
       ...base,
       command: 'agent.enforcement.timer.expire',
@@ -437,7 +510,7 @@ function commandEnvelope(kind, child) {
       },
     };
   }
-  if (kind === 'cancel') {
+  if (kind.startsWith('cancel')) {
     return {
       ...base,
       command: 'agent.enforcement.override.cancel',
@@ -462,7 +535,7 @@ function commonPayload(now, kind) {
     policyDecisionId: ids.policyDecisionId,
     policyVersion: 'policy-v08-app-time-limit',
     requestedAt: now.toISOString(),
-    enforcementActionId: ids.actionId,
+    enforcementActionId: kind === 'expire-stale-mismatch' ? 'action-v08-app-time-limit-stale-mismatch' : ids.actionId,
     enforcementResultId: `${ids.resultId}-${kind}`,
     enforcementAuditEventId: `${ids.auditEventId}-${kind}`,
     enforcementTimerEventId: `${ids.timerEventId}-${kind}`,
@@ -523,6 +596,6 @@ function printSummary(evidencePath, assertions) {
   console.log('v0-8-windows-app-time-limit-adapter-mvp-ok=true');
   console.log(`evidence=${evidencePath}`);
   console.log(
-    `execute=${assertions.execute.timerEventKind}/${assertions.execute.status} recover=${assertions.recover.timerEventKind} cancel=${assertions.cancel.auditEventKind} expire=${assertions.expire.timerEventKind}/${assertions.expire.adapterResultCode} unavailable=${assertions.unavailable.reason}`
+    `execute=${assertions.execute.timerEventKind}/${assertions.execute.status} dryRun=${assertions.dryRun.status}/${assertions.dryRun.adapterResultCode} stale=${assertions.staleReject.reason} recover=${assertions.recover.timerEventKind} cancel=${assertions.cancel.auditEventKind} expire=${assertions.expire.timerEventKind}/${assertions.expire.adapterResultCode} unavailable=${assertions.unavailable.reason}`
   );
 }

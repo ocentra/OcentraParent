@@ -10,8 +10,8 @@ use crate::{
     activity_surface_report_store::{history_list, save_report_document},
     activity_surface_request::{report_document_from_command, report_request_from_command},
     activity_surface_store::{
-        load_app_game_report, load_browser_model, load_network_model, load_recent_summary,
-        load_screen_summary, local_store_snapshot,
+        load_app_game_model, load_browser_model, load_network_model, load_screen_summary,
+        local_store_snapshot,
     },
 };
 
@@ -57,7 +57,7 @@ pub(crate) async fn build_app_use_read_model(
 ) -> ocentra_parent_agent_protocol::ActivityAppUseReadModel {
     app_use_read_model(
         crate::activity_surface_request::surface_request_from_command(command),
-        load_recent_summary().await,
+        load_app_game_model().await,
     )
 }
 
@@ -75,7 +75,7 @@ pub(crate) async fn build_games_read_model(
 ) -> ocentra_parent_agent_protocol::ActivityGamesReadModel {
     games_read_model(
         crate::activity_surface_request::surface_request_from_command(command),
-        load_app_game_report().await,
+        load_app_game_model().await,
     )
 }
 
