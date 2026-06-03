@@ -27,11 +27,25 @@ flowchart LR
 
 ## Connected Docs
 
+- [Notification expectations](../../docs/expectations/notifications.md)
 - [Data custody expectations](../../docs/expectations/data-custody.md)
 - [Static analysis and security expectations](../../docs/expectations/static-analysis-security.md)
+
+## Notification Audit History Contract
+
+`src/notification-audit-history.ts` owns the logging-domain proof for
+notification audit/history rows. It records provider status, retry lifecycle,
+receipt/manual-required refs, quiet-hours/escalation refs, redaction-safe
+payload fields, and child-data non-custody flags.
+
+This contract is metadata-only. It does not claim provider adapters, send/retry
+execution, webhook receipt ingestion, credentials, notification history UI, raw
+child data, raw evidence payloads, or Ocentra-hosted child evidence custody.
 
 ## Gaps To Fill
 
 - Keep log contracts aligned with every new remote, notification, and support
   path.
+- Add runtime writers only after the notification provider and history surfaces
+  have real contracts and validation.
 - Add explicit support-bundle redaction contracts before external support flows.

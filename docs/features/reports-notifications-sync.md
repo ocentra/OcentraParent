@@ -63,6 +63,11 @@ custody.
   quiet-hours, escalation, parent preference, audit, and evidence refs without
   claiming provider adapters, delivery execution, provider receipts, raw
   evidence payloads, or provider child-evidence storage.
+- Notification audit/history logging contract proof now represents provider
+  status, retry lifecycle, receipt/manual-required refs, quiet-hours/escalation
+  refs, redaction-safe payload fields, and child-data non-custody without
+  claiming provider adapters, send/retry execution, webhook receipt ingestion,
+  notification history UI, credentials, or Ocentra-hosted child evidence.
 - Parent-facing reports, alert delivery, and connectors are incomplete.
 
 ## Current Gap
@@ -76,10 +81,13 @@ notification intent/status/readiness references and audit drill-in, not provider
 delivery or UI. The V3 notification rule/provider retry contract proves the
 typed notification rule, reason/channel, attempt/result, retry, preference, and
 audit/evidence contract shape, not provider adapters, actual sends, receipts,
-parent controls, or notification history UI. Activity report persistence/family
-fanout/MIA context proof does not claim physical household fanout, raw child
-evidence transfer, provider notification delivery, policy writes, or
-child-device enforcement.
+parent controls, or notification history UI. The notification audit/history
+logging proof adds redaction-safe operational log history shape and child-data
+non-custody flags, but does not claim provider delivery, retry execution,
+webhook receipt ingestion, credentials, or parent-facing notification history.
+Activity report persistence/family fanout/MIA context proof does not claim
+physical household fanout, raw child evidence transfer, provider notification
+delivery, policy writes, or child-device enforcement.
 
 ## Checklist
 
@@ -96,6 +104,9 @@ child-device enforcement.
       read-model proof exists without provider delivery claims.
 - [x] Quiet-hours and escalation readiness read-model proof exists without
       parent controls or provider delivery.
+- [x] Notification audit/history logging contract proof exists with
+      redaction-safe payload fields and child-data non-custody flags, without
+      provider delivery, receipt ingestion, credentials, or history UI claims.
 - [ ] Retention/delete controls.
 
 ## Next AI Instructions
@@ -106,6 +117,8 @@ visible. Treat `scripts/test/v0-8-integrity-alert-status-bridge.mjs` as
 notification intent/status proof only; require provider artifacts before claiming
 delivery. Treat `scripts/test/v0-8-notification-provider-status-boundary.mjs`
 as provider status/readiness plus V3 notification rule/provider retry contract
-proof only; require provider adapter, real send/retry execution, receipt,
-parent-control, and notification-history artifacts before claiming notification
-delivery.
+proof only. Treat `scripts/test/notification-audit-history-contract-proof.mjs`
+as logging-domain audit/history contract proof only; require provider adapter,
+real send/retry execution, receipt ingestion, credentials, parent-control, and
+notification-history UI artifacts before claiming notification delivery or
+parent-facing notification history.
