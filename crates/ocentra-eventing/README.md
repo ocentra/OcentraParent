@@ -9,9 +9,13 @@ Reusable Rust eventing primitives for Ocentra Parent runtime code.
 - `DomainEvent` contracts, typed `EventEnvelope<E>` live dispatch, and
   `StoredEventEnvelope` serialization boundaries.
 - Explicit `EventBus` instances owned by the runtime that constructs them.
-- Sequential and concurrent typed dispatch with target-handler filtering,
-  duplicate subscriber rejection, stored-envelope journal snapshots, and
-  dead-letter capture.
+- Sequential, concurrent, and aggregate-ordered typed dispatch with
+  target-handler filtering, duplicate subscriber rejection, stored-envelope
+  journal snapshots, exact handler reports, panic-isolation dead letters, and
+  nested publish through typed `EventContext<E>`.
+- Observable detached publish, awaitable publish reports, scoped
+  `SubscriptionHandle` unsubscribe/drop behavior, and `EventRegistrar`
+  ownership/dispose lifecycle.
 
 ## Must Not Own
 
@@ -22,8 +26,8 @@ Reusable Rust eventing primitives for Ocentra Parent runtime code.
 
 ## Current Gap
 
-This first crate slice does not yet implement aggregate-ordered dispatch,
-bounded queues, TTL/retry, request-response completion, durable NDJSON journal
-replay, panic isolation, shutdown/drain lifecycle, or broker-backed delivery.
-Consumers must keep those claims manual-required until the matching eventing
-workpacks are implemented and validated.
+This crate does not yet implement bounded queues, TTL/retry, request-response
+completion, durable NDJSON journal replay, shutdown/drain lifecycle, metrics,
+tracing, or broker-backed delivery. Consumers must keep those claims
+manual-required until the matching eventing workpacks are implemented and
+validated.

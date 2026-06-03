@@ -1,35 +1,51 @@
-use std::{collections::BTreeMap, future::Future, pin::Pin, sync::Arc};
-
-use futures::future::join_all;
-use tokio::sync::RwLock;
-
-use crate::{
-    DomainEvent, EventEnvelope, EventId, EventMetadata, EventType, EventingError,
-    StoredEventEnvelope, SubscriberId, TargetHandler,
+use std::{
+    collections::BTreeMap,
+    future::Future,
+    sync::{Arc, Mutex},
 };
 
-type HandlerFuture = Pin<Box<dyn Future<Output = Result<(), EventingError>> + Send>>;
-type StoredHandler = dyn Fn(StoredEventEnvelope) -> HandlerFuture + Send + Sync;
+use tokio::{sync::Mutex as AsyncMutex, sync::RwLock, task::JoinHandle};
+
+use crate::{
+    AggregateKey, DomainEvent, EventEnvelope, EventMetadata, EventType, EventingError,
+    StoredEventEnvelope,
+};
+
+mod dispatch;
+mod publisher;
+mod reports;
+mod subscriber;
+
+use dispatch::{dispatch_concurrent, dispatch_sequential};
+use reports::dead_letters_for;
+use subscriber::{insert_subscriber, record_for, SubscriberRecord};
+
+pub use publisher::{EventContext, EventPublisher};
+pub use reports::{DeadLetter, HandlerOutcome, HandlerReport, PublishReport};
+pub use subscriber::{EventSubscriber, SubscriptionHandle, SubscriptionReport, UnsubscribeReport};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum DispatchMode {
     Sequential,
     Concurrent,
+    OrderedByAggregateKey,
 }
 
 #[derive(Clone)]
 pub struct EventBus {
-    registry: Arc<RwLock<BTreeMap<EventType, Vec<SubscriberRecord>>>>,
+    registry: Arc<Mutex<BTreeMap<EventType, Vec<SubscriberRecord>>>>,
     journal: Arc<RwLock<Vec<StoredEventEnvelope>>>,
     dead_letters: Arc<RwLock<Vec<DeadLetter>>>,
+    aggregate_locks: Arc<Mutex<BTreeMap<AggregateKey, Arc<AsyncMutex<()>>>>>,
 }
 
 impl EventBus {
     pub fn new() -> Self {
         Self {
-            registry: Arc::new(RwLock::new(BTreeMap::new())),
+            registry: Arc::new(Mutex::new(BTreeMap::new())),
             journal: Arc::new(RwLock::new(Vec::new())),
             dead_letters: Arc::new(RwLock::new(Vec::new())),
+            aggregate_locks: Arc::new(Mutex::new(BTreeMap::new())),
         }
     }
 
@@ -40,28 +56,35 @@ impl EventBus {
     ) -> Result<SubscriptionReport, EventingError>
     where
         E: DomainEvent,
-        F: Fn(EventEnvelope<E>) -> Fut + Send + Sync + 'static,
+        F: Fn(EventContext<E>) -> Fut + Send + Sync + 'static,
         Fut: Future<Output = Result<(), EventingError>> + Send + 'static,
     {
-        let callback = Arc::new(handler);
-        let record = SubscriberRecord {
-            id: subscriber.id.clone(),
+        let report = SubscriptionReport {
+            subscriber_id: subscriber.id.clone(),
             event_type: subscriber.event_type.clone(),
             target_handler: subscriber.target_handler.clone(),
-            handler: Arc::new(move |stored| {
-                let callback = Arc::clone(&callback);
-                Box::pin(async move {
-                    let envelope = stored.decode::<E>()?;
-                    callback(envelope).await
-                })
-            }),
         };
-        self.insert_subscriber(record).await?;
-        Ok(SubscriptionReport {
-            subscriber_id: subscriber.id,
-            event_type: subscriber.event_type,
-            target_handler: subscriber.target_handler,
-        })
+        self.insert_subscriber(record_for(subscriber, handler)?)?;
+        Ok(report)
+    }
+
+    pub async fn subscribe_with_handle<E, F, Fut>(
+        &self,
+        subscriber: EventSubscriber,
+        handler: F,
+    ) -> Result<SubscriptionHandle, EventingError>
+    where
+        E: DomainEvent,
+        F: Fn(EventContext<E>) -> Fut + Send + Sync + 'static,
+        Fut: Future<Output = Result<(), EventingError>> + Send + 'static,
+    {
+        let report = SubscriptionReport {
+            subscriber_id: subscriber.id.clone(),
+            event_type: subscriber.event_type.clone(),
+            target_handler: subscriber.target_handler.clone(),
+        };
+        self.insert_subscriber(record_for(subscriber, handler)?)?;
+        Ok(SubscriptionHandle::new(Arc::clone(&self.registry), report))
     }
 
     pub async fn publish<E>(
@@ -76,6 +99,30 @@ impl EventBus {
             .await
     }
 
+    pub async fn publish_and_wait<E>(
+        &self,
+        event: E,
+        metadata: EventMetadata,
+    ) -> Result<PublishReport, EventingError>
+    where
+        E: DomainEvent,
+    {
+        self.publish(event, metadata).await
+    }
+
+    pub fn publish_detached<E>(
+        &self,
+        event: E,
+        metadata: EventMetadata,
+        dispatch_mode: DispatchMode,
+    ) -> JoinHandle<Result<PublishReport, EventingError>>
+    where
+        E: DomainEvent,
+    {
+        let bus = self.clone();
+        tokio::spawn(async move { bus.publish_with_mode(event, metadata, dispatch_mode).await })
+    }
+
     pub async fn publish_with_mode<E>(
         &self,
         event: E,
@@ -87,10 +134,11 @@ impl EventBus {
     {
         let stored = EventEnvelope::from_event(event, metadata)?.store()?;
         self.journal.write().await.push(stored.clone());
-        let subscribers = self.subscribers_for(&stored).await;
-        let dead_letters = self
+        let subscribers = self.subscribers_for(&stored);
+        let handler_reports = self
             .dispatch(stored.clone(), subscribers.clone(), dispatch_mode)
             .await;
+        let dead_letters = dead_letters_for(&stored, &handler_reports);
         if !dead_letters.is_empty() {
             self.dead_letters.write().await.extend(dead_letters.clone());
         }
@@ -99,8 +147,12 @@ impl EventBus {
             event_type: stored.contract.event_type,
             dispatch_mode,
             subscriber_count: subscribers.len(),
-            handled_count: subscribers.len().saturating_sub(dead_letters.len()),
+            handled_count: handler_reports
+                .iter()
+                .filter(|report| report.outcome == HandlerOutcome::Handled)
+                .count(),
             dead_letter_count: dead_letters.len(),
+            handler_reports,
         })
     }
 
@@ -112,23 +164,12 @@ impl EventBus {
         self.dead_letters.read().await.clone()
     }
 
-    async fn insert_subscriber(&self, record: SubscriberRecord) -> Result<(), EventingError> {
-        let mut registry = self.registry.write().await;
-        let subscribers = registry.entry(record.event_type.clone()).or_default();
-        if subscribers
-            .iter()
-            .any(|subscriber| subscriber.id == record.id)
-        {
-            return Err(EventingError::DuplicateSubscriber {
-                subscriber_id: record.id.as_str().to_string(),
-            });
-        }
-        subscribers.push(record);
-        Ok(())
+    fn insert_subscriber(&self, record: SubscriberRecord) -> Result<(), EventingError> {
+        insert_subscriber(&self.registry, record)
     }
 
-    async fn subscribers_for(&self, stored: &StoredEventEnvelope) -> Vec<SubscriberRecord> {
-        let registry = self.registry.read().await;
+    fn subscribers_for(&self, stored: &StoredEventEnvelope) -> Vec<SubscriberRecord> {
+        let registry = self.registry.lock().expect("event registry lock");
         let subscribers = registry
             .get(&stored.contract.event_type)
             .cloned()
@@ -147,113 +188,37 @@ impl EventBus {
         stored: StoredEventEnvelope,
         subscribers: Vec<SubscriberRecord>,
         dispatch_mode: DispatchMode,
-    ) -> Vec<DeadLetter> {
+    ) -> Vec<HandlerReport> {
         match dispatch_mode {
-            DispatchMode::Sequential => dispatch_sequential(stored, subscribers).await,
-            DispatchMode::Concurrent => dispatch_concurrent(stored, subscribers).await,
+            DispatchMode::Sequential => {
+                dispatch_sequential(stored, subscribers, EventPublisher::new(self.clone())).await
+            }
+            DispatchMode::Concurrent => {
+                dispatch_concurrent(stored, subscribers, EventPublisher::new(self.clone())).await
+            }
+            DispatchMode::OrderedByAggregateKey => {
+                let aggregate_lock = self.aggregate_lock(&stored.aggregate_key);
+                let _aggregate_guard = aggregate_lock.lock().await;
+                dispatch_sequential(stored, subscribers, EventPublisher::new(self.clone())).await
+            }
         }
+    }
+
+    fn aggregate_lock(&self, aggregate_key: &AggregateKey) -> Arc<AsyncMutex<()>> {
+        let mut locks = self
+            .aggregate_locks
+            .lock()
+            .expect("event aggregate lock map");
+        Arc::clone(
+            locks
+                .entry(aggregate_key.clone())
+                .or_insert_with(|| Arc::new(AsyncMutex::new(()))),
+        )
     }
 }
 
 impl Default for EventBus {
     fn default() -> Self {
         Self::new()
-    }
-}
-
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub struct EventSubscriber {
-    pub id: SubscriberId,
-    pub event_type: EventType,
-    pub target_handler: TargetHandler,
-}
-
-impl EventSubscriber {
-    pub fn new(id: SubscriberId, event_type: EventType, target_handler: TargetHandler) -> Self {
-        Self {
-            id,
-            event_type,
-            target_handler,
-        }
-    }
-}
-
-#[derive(Clone)]
-struct SubscriberRecord {
-    id: SubscriberId,
-    event_type: EventType,
-    target_handler: TargetHandler,
-    handler: Arc<StoredHandler>,
-}
-
-#[derive(Clone, Debug, PartialEq)]
-pub struct DeadLetter {
-    pub envelope: StoredEventEnvelope,
-    pub target_handler: TargetHandler,
-    pub error: EventingError,
-}
-
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub struct SubscriptionReport {
-    pub subscriber_id: SubscriberId,
-    pub event_type: EventType,
-    pub target_handler: TargetHandler,
-}
-
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub struct PublishReport {
-    pub event_id: EventId,
-    pub event_type: EventType,
-    pub dispatch_mode: DispatchMode,
-    pub subscriber_count: usize,
-    pub handled_count: usize,
-    pub dead_letter_count: usize,
-}
-
-impl PublishReport {
-    pub fn no_subscribers(&self) -> bool {
-        self.subscriber_count == 0
-    }
-}
-
-async fn dispatch_sequential(
-    stored: StoredEventEnvelope,
-    subscribers: Vec<SubscriberRecord>,
-) -> Vec<DeadLetter> {
-    let mut dead_letters = Vec::new();
-    for subscriber in subscribers {
-        if let Some(dead_letter) = dispatch_one(stored.clone(), subscriber).await {
-            dead_letters.push(dead_letter);
-        }
-    }
-    dead_letters
-}
-
-async fn dispatch_concurrent(
-    stored: StoredEventEnvelope,
-    subscribers: Vec<SubscriberRecord>,
-) -> Vec<DeadLetter> {
-    join_all(
-        subscribers
-            .into_iter()
-            .map(|subscriber| dispatch_one(stored.clone(), subscriber)),
-    )
-    .await
-    .into_iter()
-    .flatten()
-    .collect()
-}
-
-async fn dispatch_one(
-    stored: StoredEventEnvelope,
-    subscriber: SubscriberRecord,
-) -> Option<DeadLetter> {
-    match (subscriber.handler)(stored.clone()).await {
-        Ok(()) => None,
-        Err(error) => Some(DeadLetter {
-            envelope: stored,
-            target_handler: subscriber.target_handler,
-            error,
-        }),
     }
 }

@@ -28,7 +28,7 @@ async function main() {
     proofLabels,
     evidence: {
       eventingCrate: 'crates/ocentra-eventing',
-      eventingTests: 'crates/ocentra-eventing/src/tests.rs',
+      eventingTests: 'crates/ocentra-eventing/src/tests',
       networkRuntime: 'crates/agent-core/src/network_event_runtime.rs',
       networkRuntimeTests: 'crates/agent-core/src/network_event_runtime_tests.rs',
       networkEventConstants: 'crates/agent-protocol/src/constants/network_flow.rs',
@@ -36,7 +36,7 @@ async function main() {
     },
     claimsProved: [
       'network runtime consumes the reusable ocentra-eventing crate instead of defining a private network bus',
-      'typed live handlers receive EventEnvelope<NetworkRuntimeEventPayload> and stored JSON stays at the envelope boundary',
+      'typed live handlers receive EventContext<NetworkRuntimeEventPayload> with EventEnvelope payloads and stored JSON stays at the envelope boundary',
       'network flow events carry custody, source, target handler, aggregate key, idempotency key, and correlation metadata',
       'metadata-only network evidence can progress through AI audit, policy, enforcement dry-run, audit, and portal read-model phases',
       'weak or unavailable network evidence stays manual-required or unavailable and does not execute an adapter action',
@@ -45,7 +45,7 @@ async function main() {
       'packet capture, raw PCAP parsing, or analyzer signature parity',
       'decrypted HTTPS payload, exact URL, search query, message, video, or page-content visibility from network metadata',
       'real DNS, firewall, WFP, VPN, nftables, or Network Extension enforcement',
-      'broker-backed delivery, durable replay, TTL/retry queueing, request-response completion, or panic isolation',
+      'broker-backed delivery, durable replay, TTL/retry queueing, or request-response completion',
       'parent portal network UI or product-ready network/domain blocking',
     ],
   };
@@ -59,13 +59,15 @@ async function assertSourceContracts() {
   const workspaceCargo = await readText('Cargo.toml');
   const agentCoreCargo = await readText('crates/agent-core/Cargo.toml');
   const eventingBusSource = await readText('crates/ocentra-eventing/src/bus.rs');
+  const eventingPublisherSource = await readText('crates/ocentra-eventing/src/bus/publisher.rs');
   const eventingEnvelopeSource = await readText('crates/ocentra-eventing/src/envelope.rs');
   const networkSource = await readText('crates/agent-core/src/network_event_runtime.rs');
   const networkTests = await readText('crates/agent-core/src/network_event_runtime_tests.rs');
 
   assertIncludes(workspaceCargo, 'crates/ocentra-eventing', 'workspace includes eventing crate');
   assertIncludes(agentCoreCargo, 'ocentra-eventing', 'agent-core depends on eventing crate');
-  assertIncludes(eventingBusSource, 'EventEnvelope<E>', 'typed event envelope handler boundary');
+  assertIncludes(eventingPublisherSource, 'pub struct EventContext<E>', 'typed event context handler boundary');
+  assertIncludes(eventingPublisherSource, 'EventEnvelope<E>', 'typed event envelope handler boundary');
   assertIncludes(eventingEnvelopeSource, 'serde_json::Value', 'stored envelope JSON boundary');
   assertDoesNotInclude(networkSource, 'struct NetworkEventBus', 'no private NetworkEventBus');
   assertDoesNotInclude(networkSource, 'adapter_action_executed: true', 'no adapter action execution');

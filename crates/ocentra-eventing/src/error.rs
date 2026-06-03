@@ -8,6 +8,8 @@ pub enum EventingError {
     PayloadDecode { event_type: String, reason: String },
     ContractMismatch { expected: String, received: String },
     DuplicateSubscriber { subscriber_id: String },
+    HandlerPanicked { subscriber_id: String },
+    RegistrarDisposed,
 }
 
 impl EventingError {
@@ -50,6 +52,10 @@ impl fmt::Display for EventingError {
             Self::DuplicateSubscriber { subscriber_id } => {
                 write!(formatter, "duplicate subscriber: {subscriber_id}")
             }
+            Self::HandlerPanicked { subscriber_id } => {
+                write!(formatter, "event handler panicked: {subscriber_id}")
+            }
+            Self::RegistrarDisposed => formatter.write_str("event registrar is disposed"),
         }
     }
 }
