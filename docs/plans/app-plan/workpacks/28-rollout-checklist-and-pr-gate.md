@@ -41,6 +41,9 @@ are coherent.
 - Focused package/crate/portal tests.
 - Root validation when requested or needed.
 - Hub/lane guards.
+- `node scripts/test/app-game-plan-rollout-pr-gate.mjs` writes the native app
+  rollout/PR-ready proof pack under
+  `output/app-plan-proof/28-rollout-checklist-and-pr-gate/`.
 - PR-ready proof pack.
 - No merge-blocking failure from the test blueprint remains unresolved.
 - Platform claims name observe-only, permission-required,

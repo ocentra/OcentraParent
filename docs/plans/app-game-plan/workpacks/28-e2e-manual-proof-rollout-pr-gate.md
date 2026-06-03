@@ -21,9 +21,16 @@ proof, validation, and documented no-claim boundaries.
 
 ## Tests And Proof
 
-- Required proof pack exists or N/A reasons are written.
-- `git diff --check`, lane/hub guards, focused package/crate tests, UI tests,
-  and requested validation pass.
+- `node scripts/test/app-game-plan-rollout-pr-gate.mjs` validates previous
+  proof roots, lane/hub guards, `git diff --check`, final E2E/manual scenario
+  routing, no-claim/security gates, manual-platform proof states, product-doc
+  decisions, and PR-ready report requirements.
+- Required final proof pack exists under
+  `output/app-game-plan-proof/28-e2e-manual-proof-rollout-pr-gate/`, with N/A
+  reasons where no UI/runtime/platform source changed.
+- App-plan cross-record proof packs exist under
+  `output/app-plan-proof/27-e2e-and-manual-proof-artifacts/` and
+  `output/app-plan-proof/28-rollout-checklist-and-pr-gate/`.
 - Product docs/checklist update decision is recorded.
 - PR body includes scope, touched files, validation, gaps, risks, and proof
   paths.

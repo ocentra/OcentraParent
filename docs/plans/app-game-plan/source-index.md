@@ -211,6 +211,7 @@ scan the OS, classify apps, run timers, or call enforcement adapters.
 - `node scripts/test/app-game-platform-extension-routing-proof.mjs`
 - `node scripts/test/app-game-install-store-handoff-proof.mjs`
 - `node scripts/test/app-game-performance-health-proof.mjs`
+- `node scripts/test/app-game-plan-rollout-pr-gate.mjs`
 
 These scripts prove scoped app/game paths only. They do not prove broad
 installed-app blocking, launcher/game disambiguation, game budgets, ratings, UGC
@@ -480,6 +481,17 @@ rows, 10,000 journal records, 100,000 replay observations, 1,000 policy compile
 parses, and 500 existing dashboard intent rows. It does not prove live OS
 throughput, encrypted journal disk or corruption recovery, browser DOM or
 Playwright rendering, live adapters, approval/store behavior, or broad blocking.
+
+WP28 proof on `codex/app-game-read-model-service-events` adds
+`scripts/test/app-game-plan-rollout-pr-gate.mjs`, then records evidence under
+`output/app-game-plan-proof/28-e2e-manual-proof-rollout-pr-gate/`. The final
+gate verifies the app-game WP01-WP27 and app-plan WP01-WP26 proof roots exist,
+routes the E2E/manual scenarios to concrete proof roots or explicit
+manual-required gaps, writes no-claim/security gates, names platform manual
+proof requirements, and records the PR-ready report requirements. It does not
+add runtime source crawling, new Rust/service/portal behavior, browser DOM
+rendering proof, live approval/notification flows, live classifier/provider
+quality, cross-platform adapters, or broad blocking support.
 
 ## Current Test Files
 

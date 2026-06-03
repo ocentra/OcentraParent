@@ -156,6 +156,11 @@ control with better evidence and local audit.
   bounds, name runtime/model/prompt/fallback refs, and remain evidence-only
   while rejecting direct action, duration, and raw scan fields before policy
   consumption.
+- The app/game final rollout/evidence gate now checks the app-game WP01-WP27
+  and app-plan WP01-WP26 proof roots, writes final app-game WP28 and app-plan
+  WP27/WP28 proof packs, and records the E2E/manual scenario routing,
+  merge-blocking no-claim gates, product-doc decisions, and PR-ready reporting
+  requirements without promoting any live platform or broad-blocking claim.
 - Broad app blocking remains manual-required or unproved by platform.
 - Raw app and game control setting inventories are preserved as design inputs,
   not product-complete implementation proof.
@@ -193,6 +198,11 @@ The performance-health proof is contract/generated-scale only: it does not
 prove live OS inventory/process/foreground throughput, encrypted journal disk
 throughput or corruption recovery, browser DOM/Playwright rendering, live
 platform adapters, approval/store behavior, or broad blocking.
+The final rollout/evidence gate is proof-review infrastructure, not runtime
+capability: it proves the branch can be reviewed with explicit proof paths and
+no-claim boundaries, but it does not add live source crawling, finished
+approval/notification UI, cross-platform platform adapters, live classifier
+quality, browser DOM proof for every UI state, or product reports.
 The unknown approval proof is still contract-level: it does not yet provide
 finished parent/child approval UI, notification delivery, persisted service
 read models, live candidate creation from platform adapters, or platform hard

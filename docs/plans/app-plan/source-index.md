@@ -222,6 +222,7 @@ classification, run timers, or enforce.
 - `node scripts/test/app-game-platform-extension-routing-proof.mjs`
 - `node scripts/test/app-game-install-store-handoff-proof.mjs`
 - `node scripts/test/app-game-performance-health-proof.mjs`
+- `node scripts/test/app-game-plan-rollout-pr-gate.mjs`
 
 Future app-specific proof scripts should use:
 
@@ -263,6 +264,8 @@ packs mirror the app/game proof roots and record product-doc decisions.
 | WP24 platform extension proof routing | `output/app-plan-proof/24-platform-extension-checklist-and-proof-routing`       | `output/app-game-plan-proof/25-platform-extension-checklist-and-proof-routing`   | Extension routing contract proof       |
 | WP25 install/uninstall handoff        | `output/app-plan-proof/25-install-and-uninstall-approval-handoff`               | `output/app-game-plan-proof/26-install-uninstall-purchase-store-handoffs`        | Install/store handoff contract proof   |
 | WP26 performance and service health   | `output/app-plan-proof/26-performance-and-service-health`                       | `output/app-game-plan-proof/27-performance-and-service-health`                   | Generated-scale performance proof      |
+| WP27 E2E/manual proof artifacts       | `output/app-plan-proof/27-e2e-and-manual-proof-artifacts`                       | `output/app-game-plan-proof/28-e2e-manual-proof-rollout-pr-gate`                 | Final evidence/manual proof gate       |
+| WP28 rollout checklist and PR gate    | `output/app-plan-proof/28-rollout-checklist-and-pr-gate`                        | `output/app-game-plan-proof/28-e2e-manual-proof-rollout-pr-gate`                 | Final rollout and PR-ready proof gate  |
 
 These completed rows do not add live OS crawling, content knowledge, policy
 execution, install control, parent/child approval UI, notification delivery,
@@ -313,6 +316,10 @@ compile, existing dashboard intent, and degraded adapter-health budgets. It is
 generated-scale and existing-intent proof only; live OS throughput, encrypted
 journal disk/corruption, browser DOM/Playwright rendering, live adapters,
 approval/store behavior, and broad blocking remain gaps.
+The final rollout/evidence gate now cross-records app-plan WP27 and WP28 from
+shared app/game WP28. It validates the existing proof roots, records E2E/manual
+scenario routing, writes no-claim and manual-platform proof, and captures PR
+body requirements without adding runtime behavior or moving product status.
 Dedicated approval UI, notification delivery, service persistence/read models,
 policy runtime, game-budget, live source, live source subscriptions, journal
 corruption/recovery, runtime platform adapters, and portal capability matrix UI

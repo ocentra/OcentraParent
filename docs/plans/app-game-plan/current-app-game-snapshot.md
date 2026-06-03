@@ -103,6 +103,11 @@ Proved today:
   journal records, 100,000 replay observations, 1,000 policy compile parses,
   500 existing dashboard intent rows, and parent-visible degraded adapter
   health without claiming live platform throughput or browser DOM render proof.
+- App/game final rollout/evidence gate proof now verifies the app-game WP01-WP27
+  and app-plan WP01-WP26 proof roots, records E2E/manual scenario routing,
+  writes final app-game WP28 and app-plan WP27/WP28 proof packs, and captures
+  no-claim/manual-required and PR-ready report requirements without claiming new
+  runtime, portal, or platform support.
 - App-control and game-control catalog/authoring contracts exist in
   `packages/parent-domain`.
 - Rust app/game session protocol mirrors exist.
@@ -165,6 +170,10 @@ Not proved today:
   throughput and corruption recovery, browser DOM/Playwright rendering for 500
   app/game rows, and live adapter health telemetry. WP27 proves generated-scale
   and existing dashboard intent bounds only.
+- Final rollout/evidence gate proof is review infrastructure only. It proves
+  proof-root completeness and no-claim routing for this branch, but it does not
+  add missing live source adapters, approval UI, notifications, policy runtime,
+  platform adapters, product reports, or browser DOM proof for every UI state.
 
 ## Current Contracts
 

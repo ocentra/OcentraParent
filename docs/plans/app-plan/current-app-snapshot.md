@@ -157,6 +157,8 @@ output/app-plan-proof/23-app-ai-classifier-digest-boundary
 output/app-plan-proof/24-platform-extension-checklist-and-proof-routing
 output/app-plan-proof/25-install-and-uninstall-approval-handoff
 output/app-plan-proof/26-performance-and-service-health
+output/app-plan-proof/27-e2e-and-manual-proof-artifacts
+output/app-plan-proof/28-rollout-checklist-and-pr-gate
 ```
 
 Those proof packs point back to `output/app-game-plan-proof/*` for the shared
@@ -177,6 +179,7 @@ node scripts/test/app-game-broad-blocking-proof-gates.mjs
 node scripts/test/app-game-platform-extension-routing-proof.mjs
 node scripts/test/app-game-install-store-handoff-proof.mjs
 node scripts/test/app-game-performance-health-proof.mjs
+node scripts/test/app-game-plan-rollout-pr-gate.mjs
 ```
 
 These are scoped proof harnesses. They do not prove broad app blocking support,
@@ -268,6 +271,11 @@ polished app catalog UI, install approval, or cross-platform parity.
   budgets. It is generated-scale and intent-level proof only; live OS
   throughput, encrypted journal disk/corruption, browser DOM/Playwright render,
   live adapters, install/store approval, and broad blocking remain gaps.
+- Native app final rollout/evidence gate proof now cross-records app-plan WP27
+  and WP28 from shared app/game WP28 by validating prior proof roots, recording
+  E2E/manual scenario routing, no-claim gates, manual-platform proof
+  requirements, and PR-ready reporting requirements. It is review-gate proof
+  only and does not add live runtime or platform support.
 - App category/risk taxonomy, native app risk detection, and native app AI
   classifier boundary now have contract/test proof, but live classifier
   enrichment, portal category/risk/classifier rows, runtime app risk detection,
