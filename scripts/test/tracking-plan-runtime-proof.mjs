@@ -643,7 +643,8 @@ async function runTrackingRouteScreenshotProof() {
     if (missingArtifact !== undefined) {
       throw new Error(`tracking route screenshot proof missing artifact reference ${missingArtifact}`);
     }
-    if (rowCount !== trackingRouteExpectedStates().length || !allRowsVisible) {
+    const expectedRowCount = trackingRouteExpectedStates().length + 1;
+    if (rowCount !== expectedRowCount || !allRowsVisible) {
       throw new Error(`tracking route screenshot proof row visibility failed: rowCount=${rowCount}`);
     }
     result = {
