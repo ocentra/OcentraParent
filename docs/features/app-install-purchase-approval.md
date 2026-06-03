@@ -36,22 +36,33 @@ generic app blocking covers this concern.
 
 - Expectation doc exists.
 - Policy and platform docs now track the requirement.
+- `packages/parent-domain/src/app-install-purchase-approval.ts` now defines
+  contract-only install requests, purchase/subscription requests, store
+  metadata freshness/source states, approval decisions, approval expiry and
+  review-needed states, audit event refs, platform
+  support/manual-required/unavailable rows, and explicit non-claims.
+- `scripts/test/app-install-purchase-approval-contract-proof.mjs` records the
+  contract proof and non-claims under
+  `test-results/app-install-purchase-approval-contract-proof/proof.json` when
+  run.
 - No product runtime claim exists yet.
 
 ## Current Gap
 
-Ocentra still needs request contracts, store metadata source/freshness,
-age-rating/category handling, parent approval states, platform limitations,
-portal UX, and proof for each store/platform path.
+Ocentra still needs platform adapters, approved store/API proof, child-facing
+pending/result state, portal UX, report integration, and proof for each
+store/platform path. The current parent-domain proof does not implement Google
+Play, Apple App Store, Microsoft Store, billing entitlement, platform
+interception, portal, or runtime app-blocking behavior.
 
 ## Checklist
 
-- [ ] Install request contract.
-- [ ] Purchase/subscription request contract.
-- [ ] Store metadata source, rating, category, publisher, freshness.
-- [ ] Parent approval/deny/time-box/review-needed flow.
+- [x] Install request contract.
+- [x] Purchase/subscription request contract.
+- [x] Store metadata source, rating, category, publisher, freshness.
+- [x] Parent approval/deny/time-box/review-needed flow contract.
 - [ ] Child-facing pending/result state where platform allows it.
-- [ ] Platform-specific unavailable/manual-required states.
+- [x] Platform-specific unavailable/manual-required states.
 - [ ] Audit and report integration.
 - [ ] Portal tests and platform proof before product claim.
 
