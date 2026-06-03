@@ -17,6 +17,7 @@ portal UI, or managed-browser integration.
 | Proof                                 | Status    | Artifact                                                                                           | Non-claim                                                                                                                |
 | ------------------------------------- | --------- | -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
 | Windows active-window adapter capture | P3 proved | `output/screen-plan-proof/real-capture/manual-parent-test-active-window/proof-summary.json`        | Windows local host only; macOS/Linux/Android/iOS still need real platform proof.                                         |
+| Windows scope-matrix adapter capture  | P3 proved | `output/screen-plan-proof/real-capture/scope-matrix/proof-summary.json`                            | Proves active-window, selected-window, and opt-in primary-display adapter scopes; does not claim parent setting wiring.  |
 | Encrypted temporary queue custody     | P3 proved | `output/screen-plan-proof/real-capture/manual-parent-test-active-window/03-encrypted-queue.ndjson` | Remaining implementation task: service scheduler integration; this local harness proof is not that claim.                |
 | Raw image delete-after-success        | P3 proved | `output/screen-plan-proof/real-capture/manual-parent-test-active-window/04-deletion-proof.json`    | TTL expiry and delete-failed surfacing remain.                                                                           |
 | Browser-window trigger harness        | P3 proved | `output/screen-plan-proof/real-capture/trigger-matrix/proof-summary.json`                          | Does not claim D-lane managed browser URL-change integration.                                                            |
@@ -126,7 +127,7 @@ local heavy OCR/VLM jobs run without priority/resource guard
 | [~]    | 03 Contract boundary and Effect schemas            |
 | [ ]    | 04 Parent opt-in settings contract                 |
 | [ ]    | 05 Capability/status contract                      |
-| [ ]    | 06 Capture scope model                             |
+| [~]    | 06 Capture scope model                             |
 | [ ]    | 07 Capture trigger model                           |
 | [ ]    | 08 Platform adapter abstraction                    |
 | [~]    | 09 Windows capture adapter plan/proof              |

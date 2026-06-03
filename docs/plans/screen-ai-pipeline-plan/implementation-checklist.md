@@ -14,6 +14,7 @@ claims.
 | Proof                                 | Status             | Artifact                                                                                          | Non-claim                                                                                                                                             |
 | ------------------------------------- | ------------------ | ------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Real Windows active-window capture    | P3 proved          | `output/screen-plan-proof/real-capture/manual-parent-test-active-window/proof-summary.json`       | Remaining implementation task: connect the adapter into service/runtime/read-model after crate-lock coordination; this is not a service-wiring claim. |
+| Real Windows scope-matrix capture     | P3 proved          | `output/screen-plan-proof/real-capture/scope-matrix/proof-summary.json`                           | Proves adapter scopes only; parent-controlled product setting, scheduler, and disable suppression remain implementation work.                         |
 | Browser-window capture harness        | P3 proved          | `output/screen-plan-proof/real-capture/trigger-matrix/proof-summary.json`                         | Does not claim browser-plan managed URL trigger integration.                                                                                          |
 | Timed two-frame cadence harness       | P3 proved          | `output/screen-plan-proof/real-capture/trigger-matrix/proof-summary.json`                         | Does not claim product scheduler/disable suppression wiring yet.                                                                                      |
 | Local VLM analysis of captured screen | P3 proved          | `output/ai-plan-proof/real-analysis/manual-browser-education-vlm/02-screen-analysis-result.json`  | Uses controlled education fixture; more real social/video/game/app cases remain.                                                                      |
@@ -78,6 +79,7 @@ claims.
 - [ ] Playwright screenshot proof run.
 - [x] Security negative tests run.
 - [x] Performance/cadence proof run.
+- [x] Dependency policy rerun after capture dependency narrowing.
 - [x] `git diff --check`.
 - [x] lane/hub guards.
 - [ ] `npm run validate` or approved omission.
