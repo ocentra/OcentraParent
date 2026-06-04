@@ -137,6 +137,75 @@ fn windows_browser_inventory_reports_running_browser_processes_as_process_only()
 }
 
 #[test]
+fn windows_browser_inventory_uses_process_executable_path_for_identity() {
+    let process = ProcessObservation {
+        pid: constants::browser::DEVTOOLS_TEST_UNMANAGED_PROCESS_ID,
+        name: constants::browser::EXECUTABLE_CHROME_WINDOWS.to_string(),
+        executable_path: Some(
+            PathBuf::from(constants::browser::DEVTOOLS_TEST_WINDOWS_BROWSER_INVENTORY_DIR)
+                .join(constants::browser::PATH_SEGMENT_GOOGLE)
+                .join(constants::browser::PATH_SEGMENT_CHROME_FOR_TESTING)
+                .join(constants::browser::PATH_SEGMENT_APPLICATION)
+                .join(constants::browser::EXECUTABLE_CHROME_WINDOWS),
+        ),
+    };
+
+    let observations = windows_browser_inventory_observations(&[], &[process], None);
+
+    assert_eq!(observations.len(), 1);
+    assert_eq!(
+        observations[0].product_name,
+        constants::browser::PRODUCT_NAME_CHROME_FOR_TESTING
+    );
+    assert_eq!(
+        observations[0].install_state,
+        BrowserInventoryInstallState::CandidateRunning
+    );
+    assert_eq!(
+        observations[0].management_tier,
+        BrowserManagementTier::Unmanaged
+    );
+    assert_eq!(
+        observations[0].exact_url_capability,
+        BrowserExactUrlCapability::NotClaimed
+    );
+}
+
+#[test]
+fn windows_browser_inventory_keeps_tor_process_path_unsupported() {
+    let process = ProcessObservation {
+        pid: constants::browser::DEVTOOLS_TEST_UNMANAGED_PROCESS_ID,
+        name: constants::browser::EXECUTABLE_FIREFOX_WINDOWS.to_string(),
+        executable_path: Some(
+            PathBuf::from(constants::browser::DEVTOOLS_TEST_WINDOWS_BROWSER_INVENTORY_DIR)
+                .join(constants::browser::PATH_SEGMENT_TOR_BROWSER)
+                .join(constants::browser::PATH_SEGMENT_BROWSER)
+                .join(constants::browser::EXECUTABLE_FIREFOX_WINDOWS),
+        ),
+    };
+
+    let observations = windows_browser_inventory_observations(&[], &[process], None);
+
+    assert_eq!(observations.len(), 1);
+    assert_eq!(
+        observations[0].product_name,
+        constants::browser::PRODUCT_NAME_TOR_BROWSER
+    );
+    assert_eq!(
+        observations[0].management_tier,
+        BrowserManagementTier::Unsupported
+    );
+    assert_eq!(
+        observations[0].support_tier,
+        BrowserSupportTier::Unsupported
+    );
+    assert_eq!(
+        observations[0].exact_url_capability,
+        BrowserExactUrlCapability::Unsupported
+    );
+}
+
+#[test]
 fn windows_browser_inventory_generates_known_candidate_paths_from_roots() {
     let root = PathBuf::from(constants::browser::DEVTOOLS_TEST_WINDOWS_BROWSER_INVENTORY_DIR);
     let paths = windows_browser_inventory_candidate_paths(&[root]);

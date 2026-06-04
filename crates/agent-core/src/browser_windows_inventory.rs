@@ -160,7 +160,7 @@ fn windows_browser_inventory_process_observation(
     if managed_process_id == Some(process.pid) {
         return None;
     }
-    let identity = windows_browser_executable_identity(Path::new(&process.name));
+    let identity = windows_browser_executable_identity(process_identity_path(process));
     match identity.support_kind {
         BrowserWindowsSupportKind::ManagedChromium | BrowserWindowsSupportKind::ManualChromium => {
             Some(unmanaged_process_observation(process, identity))
@@ -170,6 +170,14 @@ fn windows_browser_inventory_process_observation(
         }
         BrowserWindowsSupportKind::Unknown => None,
     }
+}
+
+fn process_identity_path(process: &ProcessObservation) -> &Path {
+    process
+        .executable_path
+        .as_deref()
+        .filter(|path| !path.as_os_str().is_empty())
+        .unwrap_or_else(|| Path::new(&process.name))
 }
 
 fn managed_chromium_path_observation(
