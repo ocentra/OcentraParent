@@ -15,16 +15,28 @@ pub const SCREEN_CUSTODY_JOURNAL: &str = "child-device-journal";
 pub const SCREEN_CUSTODY_QUERY_STORE: &str = "child-device-query-store";
 pub const SCREEN_SERVICE_CADENCE_RUNTIME_ENABLED_ENV: &str =
     "OCENTRA_PARENT_SCREEN_SERVICE_CADENCE_RUNTIME_ENABLED";
+pub const SCREEN_SERVICE_FOREGROUND_RUNTIME_ENABLED_ENV: &str =
+    "OCENTRA_PARENT_SCREEN_SERVICE_FOREGROUND_RUNTIME_ENABLED";
 pub const SCREEN_SERVICE_ANALYSIS_ENABLED_ENV: &str =
     "OCENTRA_PARENT_SCREEN_SERVICE_ANALYSIS_ENABLED";
 pub const SCREEN_SERVICE_CADENCE_ENABLED_ENV: &str =
     "OCENTRA_PARENT_SCREEN_SERVICE_CADENCE_ENABLED";
+pub const SCREEN_SERVICE_FOREGROUND_ENABLED_ENV: &str =
+    "OCENTRA_PARENT_SCREEN_SERVICE_FOREGROUND_ENABLED";
 pub const SCREEN_SERVICE_CADENCE_SECONDS_ENV: &str =
     "OCENTRA_PARENT_SCREEN_SERVICE_CADENCE_SECONDS";
+pub const SCREEN_SERVICE_FOREGROUND_POLL_SECONDS_ENV: &str =
+    "OCENTRA_PARENT_SCREEN_SERVICE_FOREGROUND_POLL_SECONDS";
+pub const SCREEN_SERVICE_FOREGROUND_MIN_GAP_SECONDS_ENV: &str =
+    "OCENTRA_PARENT_SCREEN_SERVICE_FOREGROUND_MIN_GAP_SECONDS";
 pub const SCREEN_SERVICE_CADENCE_MAX_CAPTURES_ENV: &str =
     "OCENTRA_PARENT_SCREEN_SERVICE_CADENCE_MAX_CAPTURES";
+pub const SCREEN_SERVICE_FOREGROUND_MAX_CAPTURES_ENV: &str =
+    "OCENTRA_PARENT_SCREEN_SERVICE_FOREGROUND_MAX_CAPTURES";
 pub const SCREEN_SERVICE_CADENCE_MAX_TICKS_ENV: &str =
     "OCENTRA_PARENT_SCREEN_SERVICE_CADENCE_MAX_TICKS";
+pub const SCREEN_SERVICE_FOREGROUND_MAX_TICKS_ENV: &str =
+    "OCENTRA_PARENT_SCREEN_SERVICE_FOREGROUND_MAX_TICKS";
 pub const SCREEN_SERVICE_QUEUE_DIR_ENV: &str = "OCENTRA_PARENT_SCREEN_SERVICE_QUEUE_DIR";
 pub const SCREEN_SERVICE_QUEUE_MAX_PENDING_ENV: &str =
     "OCENTRA_PARENT_SCREEN_SERVICE_QUEUE_MAX_PENDING";
@@ -34,15 +46,33 @@ pub const SCREEN_SERVICE_QUEUE_JOB_ID_PREFIX: &str = "screen-service-queue-job-"
 pub const SCREEN_SERVICE_RESULT_ID_PREFIX: &str = "screen-service-analysis-result-";
 pub const SCREEN_SERVICE_EVENT_ID_PREFIX: &str = "screen-service-analysis-event-";
 pub const SCREEN_SERVICE_EVIDENCE_ID_PREFIX: &str = "screen-service-screenshot-";
+pub const SCREEN_SERVICE_FOREGROUND_QUEUE_JOB_ID_PREFIX: &str =
+    "screen-service-foreground-queue-job-";
+pub const SCREEN_SERVICE_FOREGROUND_RESULT_ID_PREFIX: &str =
+    "screen-service-foreground-analysis-result-";
+pub const SCREEN_SERVICE_FOREGROUND_EVENT_ID_PREFIX: &str =
+    "screen-service-foreground-analysis-event-";
+pub const SCREEN_SERVICE_FOREGROUND_EVIDENCE_ID_PREFIX: &str =
+    "screen-service-foreground-screenshot-";
 pub const SCREEN_SERVICE_SOURCE_ID: &str = "screen-service-cadence-runtime";
+pub const SCREEN_SERVICE_FOREGROUND_SOURCE_ID: &str = "screen-service-foreground-runtime";
+pub const SCREEN_SERVICE_FOREGROUND_KEY_WINDOW_PREFIX: &str = "window-";
+pub const SCREEN_SERVICE_FOREGROUND_KEY_PID_PREFIX: &str = "pid-";
+pub const SCREEN_SERVICE_FOREGROUND_KEY_TITLE_PREFIX: &str = "title-";
+pub const SCREEN_SERVICE_FOREGROUND_KEY_APP_PREFIX: &str = "app-";
+pub const SCREEN_SERVICE_FOREGROUND_KEY_STATUS_PREFIX: &str = "status-";
 pub const SCREEN_SERVICE_ADAPTER_ID: &str = "screen-active-window-adapter";
 pub const SCREEN_SERVICE_LOCAL_USER_REF: &str = "local-user-service";
 pub const SCREEN_SERVICE_PARENT_SETTING_REF: &str = "parent-setting-screen-service";
 pub const SCREEN_SERVICE_MODEL_RUNTIME_REF: &str = "screen-service-deterministic-runtime";
 pub const SCREEN_SERVICE_MODEL_ID: &str = "screen-service-cadence-metadata-v1";
+pub const SCREEN_SERVICE_FOREGROUND_MODEL_ID: &str = "screen-service-foreground-metadata-v1";
 pub const SCREEN_SERVICE_TEMPLATE_VERSION: &str = "screen-service-cadence-summary-v1";
+pub const SCREEN_SERVICE_FOREGROUND_TEMPLATE_VERSION: &str = "screen-service-foreground-summary-v1";
 pub const SCREEN_SERVICE_SUMMARY_CAPTURED: &str =
     "Timed screen capture was queued by the local service cadence.";
+pub const SCREEN_SERVICE_FOREGROUND_SUMMARY_CAPTURED: &str =
+    "Foreground screen capture was queued by the local service watcher.";
 pub const SCREEN_SERVICE_TEST_QUEUE_RECORD_LINE: &str = "{}\n";
 pub const SCREEN_CATEGORY_UNKNOWN: &str = "unknown";
 pub const SCREEN_CATEGORY_SCHOOL: &str = "school";

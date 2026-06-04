@@ -22,6 +22,7 @@ claims.
 | Native app foreground scheduler capture  | P3 proved                | `output/screen-plan-proof/real-capture/trigger-matrix/proof-summary.json`                   | Real Windows Notepad foreground capture is proven through the scheduler; service-owned foreground watcher wiring remains.                                                                                                                                                                  |
 | Timed two-frame scheduler cadence        | P3 proved                | `output/screen-plan-proof/real-capture/trigger-matrix/proof-summary.json`                   | Scheduler-due cadence and two real captures are proven; service timer loop and disabled-setting stop remain.                                                                                                                                                                               |
 | Service-owned timed cadence runtime      | P3 local-machine proved  | `output/screen-ai-pipeline-proof/service-cadence/proof-summary.json`                        | Rust service opt-in cadence loop records three real Windows active-window captures, writes encrypted queue metadata, surfaces three Activity Screen rows over the real WebSocket read model, and proves the pending queue cap holds at three frames; it does not claim VLM classification. |
+| Service-owned native foreground runtime  | P3 local-machine proved  | `output/screen-ai-pipeline-proof/service-foreground/proof-summary.json`                     | Rust service opt-in foreground watcher records encrypted active-window captures across real Chromium-to-Notepad foreground activity and surfaces the latest Activity Screen row over the real WebSocket read model; it does not claim browser URL trigger ownership or VLM classification. |
 | Local VLM analysis of captured screens   | P3 harness proved        | `output/ai-plan-proof/real-analysis/proof-summary.json`                                     | Covers 16 real window captures of controlled video/social/game/shopping/bypass/school/native/cadence fixture content; live external URL/account proof remains before product-complete claims.                                                                                              |
 | Local AI safety result                   | P3 contract proved       | `output/ai-plan-proof/real-analysis/youtube-ordinary-video/06-ai-result.json`               | Scenario results validate local AI safety output from captured fixture evidence; service runtime and live-site proof remain separate.                                                                                                                                                      |
 | Invalid model output guard               | P3 proved                | `output/screen-ai-pipeline-proof/invalid-output/proof-summary.json`                         | Proves malformed local model output cannot become a screen analysis result or policy candidate; this is a contract guard, not a model-quality claim.                                                                                                                                       |
@@ -53,8 +54,8 @@ claims.
 - [ ] Managed browser education/video trigger. AI matrix rows exist; managed-browser URL integration remains D/browser-owned.
 - [ ] Managed browser social/feed trigger. AI matrix rows exist; managed-browser URL integration remains D/browser-owned.
 - [ ] Managed browser game/cloud-game trigger. AI matrix rows exist; managed-browser URL integration remains D/browser-owned.
-- [x] Native app foreground trigger.
-- [x] Native game or controlled game-window trigger. Controlled native window analysis exists; service-owned foreground watcher remains.
+- [x] Native app foreground trigger. Scheduler proof and service-owned foreground watcher proof exist.
+- [x] Native game or controlled game-window trigger. Controlled native window analysis exists; game-specific service classification remains.
 - [x] Unknown process/app trigger.
 - [x] Timed cadence trigger. Scheduler-due proof and service-owned three-frame timer loop proof exist; service pending-queue backpressure is proven, while model-runtime flood control remains.
 - [x] Disabled setting suppression.
@@ -102,6 +103,7 @@ claims.
 - [x] Security negative tests run.
 - [x] Performance/cadence proof run.
 - [x] Service cadence proof run: `node scripts/test/screen-ai-service-cadence-proof.mjs`.
+- [x] Service foreground proof run: `node scripts/test/screen-ai-service-foreground-proof.mjs`.
 - [x] Dependency policy rerun after capture dependency narrowing.
 - [x] Android emulator MediaProjection proof run.
 - [x] `git diff --check`.
