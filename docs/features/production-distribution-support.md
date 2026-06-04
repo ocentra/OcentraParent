@@ -114,6 +114,15 @@ dev-only repo when it claims consumer readiness.
   Stripe SDK or provider secrets in app/source, no portal billing UI, no
   child-device entitlement consumption, no child-activity custody, and visible
   local-safety fallback when the backend/provider path is unavailable.
+- `billing-support-admin-boundary-proof` adds parent-domain billing support
+  admin rows for support-case triage, account-status review, billing escalation
+  request, provider-contact manual-required state, entitlement admin override
+  manual-required state, and refund/credit manual-required state. It proves the
+  non-UI/non-provider support boundary keeps Stripe/provider code and secrets
+  absent, keeps provider contact, account backend admin runtime, entitlement
+  override runtime, refund/credit runtime, support backend upload, and portal
+  admin UI unimplemented, and excludes child activity custody while retaining
+  evidence export and local safety behavior.
 - Billing/support/public website/store distribution are planned or incomplete.
 
 ## Current Gap
@@ -169,6 +178,11 @@ package/runtime proof.
       backend/provider unavailable, and entitlement-signing manual-required
       runtime-boundary proof without adding Stripe/provider secrets, portal UI,
       child-device consumption, or child-activity custody.
+      `billing-support-admin-boundary-proof` adds support/admin boundary rows
+      for billing escalation, provider-contact manual-required, account review,
+      entitlement override manual-required, and refund/credit manual-required
+      states without adding provider contact, account backend admin runtime,
+      portal admin UI, support upload, or child-activity custody.
 - [ ] Privacy, retention, export/delete, and support docs.
 - [ ] Support bundle redaction proof scaffold and incident process. Current
       release-support proof requires parent consent, incident/status metadata,

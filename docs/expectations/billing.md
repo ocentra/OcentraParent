@@ -115,6 +115,17 @@ and account-status references, rejects provider secrets, does not contact a
 billing provider, does not execute account lookup, and keeps backend upload,
 remote support, and production SLA as manual-required or not-implemented states.
 
+Current billing/support admin boundary proof:
+`billing-support-admin-boundary-proof` adds parent-domain rows for support-case
+triage, account-status review, billing escalation request, provider-contact
+manual-required state, entitlement admin override manual-required state, and
+refund/credit manual-required state. The proof keeps Stripe/provider SDKs,
+provider secrets, provider contact execution, account backend admin runtime,
+entitlement override runtime, refund/credit runtime, support backend upload,
+portal admin UI, and child activity custody unimplemented or unsupported while
+retaining evidence export and local safety behavior in parent-visible support
+states.
+
 ## Entitlement Boundaries
 
 Entitlements may gate:
@@ -188,6 +199,12 @@ Any feature that can be disabled for billing must define its degraded local beha
   provider secrets, child activity, raw URLs, screenshots, journals, SQLite
   snapshots, private paths, command lines, keystrokes, clipboard data, or
   message contents.
+- `billing-support-admin-boundary-proof` proves support-case triage,
+  account-status review, billing escalation, provider contact, entitlement admin
+  override, and refund/credit support rows stay non-UI and non-provider, require
+  manual state where production admin action would be needed, and reject
+  provider contact, provider secrets, support upload, portal admin UI, and child
+  activity custody.
 - Endpoint-domain contract tests and `billing-account-endpoint-contract-proof`
   prove account, entitlement, subscription, device-limit, download, update, and
   release-status route boundaries before provider/backend code exists.
