@@ -91,6 +91,13 @@ and clear degraded states.
   rows 42-44 of the eventing plan. This proves protocol shape only; validated
   parent-intent publishing and parent/child transport remain separate runtime
   work.
+- E-D added the first parent/controller to child-agent runtime publisher in
+  `crates/agent-core`: validated parent intents publish through
+  `ocentra-eventing`, parent child-command forward-requested/forwarded events
+  preserve exact transport refs, and the child-agent receive path publishes
+  local accepted/capability/health events before a parent read-model projection.
+  This is in-process typed transport proof only; broker/family-hub delivery,
+  physical child-device runtime installation, and adapter execution remain open.
 - E-D added service-backed enforcement journal-before-action proof: the
   enforcement API now writes a pre-action audit activity row immediately after
   typed authorization and before adapter execution, then writes the final
@@ -108,9 +115,10 @@ queue/retry/TTL, request-response, durable journal/replay, panic isolation,
 typed envelopes, production shutdown, and runtime-owned bus lifecycle. The
 network runtime now consumes the reusable crate for typed publish,
 no-subscriber queue/drain, local typed request-response, and Rust
-protocol-facing network event contracts. The open eventing gap is
-parent/child runtime publishing, transport handoff, broker-backed delivery,
-and broad runtime adoption. The
+protocol-facing network event contracts. Parent/controller to child-agent
+in-process runtime publishing and typed local transport handoff now have proof;
+the open eventing gap is broker-backed/family-hub delivery, physical
+child-device runtime installation, and broad runtime adoption. The
 initial UI typed-intent proof keeps the Vite/TypeScript portal as a view/input
 surface while Rust remains the business event publisher. The initial AI and
 portal direct-enforcement negative proof now rejects portal-side enforcement
@@ -134,10 +142,12 @@ raw JSON/string constants, `Uuid`, and raw domain identifier fields.
       weak-network-evidence command-routing guard, type-safety source gate, and
       the network runtime chain plus queue/drain, local request-response, and
       Rust protocol-facing network event contract proof; parent/controller and
-      child-agent protocol event contract proof; the service enforcement API
-      now proves journal-before-action plus final adapter-result audit/store
-      projection. Parent/child runtime publishing, transport, and broad runtime
-      adoption remain.
+      child-agent protocol event contract proof; parent/controller validated
+      intent runtime publishing, typed local child-command handoff, and
+      child-agent local receive/publish proof; the service enforcement API now
+      proves journal-before-action plus final adapter-result audit/store
+      projection. Broker/family-hub delivery, physical child-device runtime
+      installation, and broad runtime adoption remain.
 - [ ] Policy and AI read paths.
 - [ ] Enforcement adapter dispatch with audit.
 - [ ] Capability and degraded-state reporting. Current mobile capability proof

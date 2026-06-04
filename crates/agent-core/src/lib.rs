@@ -59,6 +59,8 @@ mod network_capture_netstat;
 mod network_event_runtime;
 mod network_event_runtime_phase;
 mod network_event_runtime_state;
+mod parent_child_event_runtime;
+mod parent_child_event_runtime_phase;
 mod policy_dry_run_evaluator;
 mod process_capture;
 mod screen_evidence_queue;
@@ -145,6 +147,11 @@ pub use network_event_runtime_state::{
     NetworkAiAuditState, NetworkEvidenceGrade, NetworkEvidenceScope, NetworkInterventionState,
     NetworkRiskBudgetState, NetworkRuntimeClaimBoundary,
 };
+pub use parent_child_event_runtime::{
+    publish_parent_child_runtime_for_validated_intent, ParentChildRuntimeEventPayload,
+    ParentChildRuntimeInput, ParentChildRuntimeReport,
+};
+pub use parent_child_event_runtime_phase::ParentChildRuntimePhase;
 pub use policy_dry_run_evaluator::{evaluate_policy_dry_run, PolicyDryRunEvaluationInput};
 pub use process_capture::{
     collect_process_snapshot, process_observation_event, process_snapshot_events,
@@ -231,6 +238,8 @@ mod journal_tests;
 mod network_capture_tests;
 #[cfg(test)]
 mod network_event_runtime_tests;
+#[cfg(test)]
+mod parent_child_event_runtime_tests;
 #[cfg(test)]
 mod policy_dry_run_evaluator_edge_tests;
 #[cfg(test)]

@@ -95,6 +95,13 @@ compete on control while staying clear about attribution confidence and privacy.
   handoff shapes available before runtime publish/transport work begins. This
   does not claim broker delivery, family-hub delivery, or child-agent runtime
   execution.
+- E-D added an in-process parent/controller to child-agent runtime proof in
+  `crates/agent-core`: validated parent intent events publish through the
+  reusable event bus, child-command forward-requested/forwarded events preserve
+  exact transport refs, child-agent receive publishes accepted/capability/health
+  events, and parent read-model projection follows child runtime health. This
+  does not claim broker/family-hub delivery, live network capture, analyzer
+  execution, or host filtering.
 - E-D added a service-backed enforcement journal/action proof for the network
   manual-required chain: the enforcement API records a pre-action audit activity
   row before adapter execution, then records the final adapter-result audit row
@@ -119,10 +126,10 @@ packet capture, signature alert, production risk-budget, or host filter
 enforcement. The E-D
 runtime spine removes the private-bus blocker for an in-process metadata-only
 chain and now proves local queue/drain plus request-response consumption of the
-reusable eventing crate and service-side journal-before-action/final-audit
-ordering. Parent/controller and child-agent protocol contracts now exist, but
-flow/sessionization, analyzer fixtures, parent/child runtime transport, broker
-delivery, portal UI, and adapter apply/rollback artifacts remain open.
+reusable eventing crate, service-side journal-before-action/final-audit
+ordering, and typed in-process parent/controller to child-agent handoff.
+Flow/sessionization, analyzer fixtures, broker/family-hub delivery, portal UI,
+and adapter apply/rollback artifacts remain open.
 
 ## Checklist
 
@@ -140,10 +147,12 @@ delivery, portal UI, and adapter apply/rollback artifacts remain open.
       manual-required/unavailable states, local no-subscriber queue/drain,
       local typed request-response, and Rust protocol-facing network event
       contracts plus parent/controller and child-agent protocol event
-      contracts. Service-side enforcement audit ordering now proves
+      contracts. Parent/controller validated-intent publishing, typed local
+      child-command handoff, and child-agent receive/local publish proof now
+      exist. Service-side enforcement audit ordering now proves
       journal-before-action and final adapter-result audit/store projection;
-      production analyzer, AI model, parent/child runtime transport, broker
-      delivery, broader service wiring, and risk-budget fixtures remain.
+      production analyzer, AI model, broker/family-hub delivery, broader
+      service wiring, and risk-budget fixtures remain.
 - [ ] Policy preview over stored flow evidence.
 - [ ] Adapter capability status.
 - [x] Full-scope network plan, proof tiers, UI requirements, and workpacks.
