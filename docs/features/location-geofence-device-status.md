@@ -68,6 +68,12 @@ expose location or device-status features. Parents expect this category.
   `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/14-retention-delete-proof.json`
   and
   `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json`.
+- Hosted parent `policy-tracking` route screenshot and accessibility proof now
+  exists through `npm run test:tracking-plan-hosted-ui-proof`. It starts the
+  real Rust service against a seeded temporary ActivityStore SQLite database,
+  drives the parent route through Playwright, captures desktop and mobile
+  screenshots, writes accessibility summary output, and keeps
+  `productClaimReady=false`.
 - Pre-device gap-closure proof now exists through
   `node scripts/test/tracking-plan-pre-device-proof.mjs`. It reruns the
   tracking contract/runtime/service proofs, runs the mobile child-agent
@@ -103,9 +109,9 @@ expose location or device-status features. Parents expect this category.
   explicit `manual_required` proof instead of pretending simulator execution
   happened.
 - Platform permissions, mobile physical-device proof, full runtime adapters,
-  provider delivery, notification delivery, full parent/child UI, hosted
-  screenshots, accessibility, and broader service-backed product UI beyond the
-  current live citation rows remain not product-complete.
+  provider delivery, notification delivery, child UI, full parent/child UI
+  beyond the hosted parent route, and broader service-backed product UI beyond
+  the current live citation rows remain not product-complete.
 - Raw tracking/location settings are preserved as design inputs, not
   product-complete implementation proof.
 
@@ -113,14 +119,14 @@ expose location or device-status features. Parents expect this category.
 
 Location/geofence is now in contract, P1 fixture/runtime proof, narrow P2
 service read-model proof with retention-delete tombstone replay, narrow portal
-summary-consumption proof, live service-backed portal citation rows, P1 local
-parent-defined place store proof,
-pre-device proof-gate progress, and Android emulator package/service/status
+summary-consumption proof, live service-backed portal citation rows, hosted
+parent route screenshot/accessibility proof, P1 local parent-defined place store
+proof, pre-device proof-gate progress, Android emulator package/service/status
 scaffold proof, and P3 WSL/local replay proof. It remains a tracked product gap
 until platform location and geofence adapters, broader product read models,
 provider delivery, notifications, physical-device proof, full parent/child UI
-snapshots, accessibility, hosted UI proof, and broader service-backed product
-UI/read-model surfaces are proved.
+snapshots/accessibility beyond the hosted parent route, and broader
+service-backed product UI/read-model surfaces are proved.
 
 ## Checklist
 
@@ -155,10 +161,14 @@ UI/read-model surfaces are proved.
       linked-worktree toolchain mapping.
 - [x] P1 parent portal tracking-state fixture surface, local parent-route screenshot,
       and local proof artifact references.
+- [x] Hosted parent `policy-tracking` route screenshot and accessibility proof
+      against the real Rust service and seeded ActivityStore. This is not child
+      UI, full service-data UI, or physical-device proof.
 - [x] Pre-device gap-closure proof gate and Android Studio/iOS simulator/WSL/manual
       proof plans.
 - [ ] Full service-data tracking UI beyond the current live citation rows.
-- [ ] Live parent/child UI screenshots, hosted proof, and accessibility proof.
+- [ ] Full live parent/child UI screenshots and accessibility proof beyond the
+      hosted parent route.
 
 ## Next AI Instructions
 

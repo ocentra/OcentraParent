@@ -81,38 +81,88 @@
   padding-right: 3px;
 }
 
+.parent-portal-route .tracking-status-overlay .product-dashboard.tracking-status-overlay-grid {
+  grid-template-columns: 1fr;
+}
+
 .parent-portal-route .tracking-status-overlay .summary {
   display: grid;
-  grid-template-columns: minmax(128px, 0.22fr) minmax(0, 1fr);
+  grid-template-columns: minmax(138px, 0.24fr) minmax(0, 1fr);
   align-content: start;
-  align-items: center;
+  align-items: start;
   gap: 10px;
+  min-height: 0;
   min-width: 0;
-  padding: 8px 10px;
+  padding: 10px 12px;
+  padding-top: 10px;
+  overflow: visible;
   border-color: rgba(125, 229, 255, 0.28);
   background: rgba(7, 22, 37, 0.82);
 }
 
-.parent-portal-route .tracking-status-overlay-grid > .summary.product-status-card {
-  min-height: 0;
+.parent-portal-route
+  .tracking-status-overlay
+  .product-dashboard.tracking-status-overlay-grid
+  > .summary.product-status-card {
+  display: grid;
+  grid-template-columns: minmax(138px, 0.24fr) minmax(0, 1fr);
+  grid-template-rows: auto;
+  align-items: start;
+  min-height: auto;
+  padding: 10px 12px;
+  border-radius: 10px;
 }
 
-.parent-portal-route .tracking-status-overlay-grid > .summary.product-status-card::before,
-.parent-portal-route .tracking-status-overlay-grid > .summary.product-status-card::after {
+.parent-portal-route .tracking-status-overlay-grid > .summary::before,
+.parent-portal-route .tracking-status-overlay-grid > .summary::after {
+  content: none;
   display: none;
 }
 
 .parent-portal-route .tracking-status-overlay .summary h2 {
+  display: block;
   margin: 0;
+  max-width: none;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  clip-path: none;
   color: #ffffff;
+  font-family: inherit;
   font-size: 0.82rem;
   line-height: 1.14;
+  text-shadow: none;
+  text-transform: none;
+  background: transparent;
+  box-shadow: none;
+}
+
+.parent-portal-route
+  .tracking-status-overlay
+  .product-dashboard.tracking-status-overlay-grid
+  > .summary.product-status-card
+  h2 {
+  display: block;
+  margin: 0;
+  max-width: none;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  clip-path: none;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 0.82rem;
+  line-height: 1.14;
+  text-shadow: none;
+  text-transform: none;
+  background: transparent;
+  box-shadow: none;
 }
 
 .parent-portal-route .tracking-status-overlay-meta {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(84px, 1fr));
-  gap: 7px;
+  grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+  gap: 8px;
   margin: 0;
 }
 
@@ -127,8 +177,8 @@
   margin: 0;
   min-width: 0;
   overflow-wrap: anywhere;
-  font-size: 0.62rem;
-  line-height: 1.18;
+  font-size: 0.68rem;
+  line-height: 1.24;
 }
 
 .parent-portal-route .tracking-status-overlay-meta dt {
@@ -148,6 +198,13 @@
   }
 
   .parent-portal-route .tracking-status-overlay .summary {
+    grid-template-columns: 1fr;
+  }
+
+  .parent-portal-route
+    .tracking-status-overlay
+    .product-dashboard.tracking-status-overlay-grid
+    > .summary.product-status-card {
     grid-template-columns: 1fr;
   }
 

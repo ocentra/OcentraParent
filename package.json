@@ -64,6 +64,7 @@
     "test:tracking-plan-android-emulator-proof": "node scripts/test/tracking-plan-android-emulator-proof.mjs",
     "test:tracking-plan-wsl-local-proof": "node scripts/test/tracking-plan-wsl-local-proof.mjs",
     "test:tracking-plan-ios-simulator-proof": "node scripts/test/tracking-plan-ios-simulator-proof.mjs",
+    "test:tracking-plan-hosted-ui-proof": "node scripts/test/tracking-plan-hosted-ui-proof.mjs",
     "test:child-android-protocol-package-lifecycle-proof": "node scripts/test/child-android-protocol-package-lifecycle-proof.mjs",
     "test:child-android-permission-capability-proof": "node scripts/test/child-android-permission-capability-proof.mjs",
     "test:child-android-privileged-capability-proof": "node scripts/test/child-android-privileged-capability-proof.mjs",
