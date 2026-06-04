@@ -53,6 +53,13 @@ the parser boundary without live registry enumeration, Start Menu enumeration,
 `.lnk` binary parsing, URL/title/content/account capture, AppX/MSIX package
 enumeration, signature/hash refs, UI, or enforcement claims.
 
+2026-06-04 codex-d continuation: unquoted registry/shortcut command targets
+that include known browser executable paths plus trailing launch arguments now
+trim back to the executable path before classification. This covers
+caller-provided command target strings such as managed profile launch arguments
+without claiming live shortcut parsing, registry enumeration, URL/title/content
+capture, or default-profile attachment.
+
 ## Where We Want To Be
 
 Windows inventory can detect supported, candidate, unsupported, packaged,
@@ -92,8 +99,8 @@ Fill this before reporting `DONE` or PR-ready:
 - [x] Before-state source snapshot recorded in `output/browser-plan-proof/04-windows-browser-inventory-adapter/00-source-snapshot.md`.
 - [x] Contracts updated first where this workpack changes behavior.
 - [x] Rust/service parity updated only after contracts exist; portal parity remains deferred because no UI surface changed.
-- [x] Raw evidence artifacts captured or marked N/A for this fixture-backed/root-expansion slice: known-path fixtures, deduplicated candidate roots, packaged path-shape fixtures, process executable-path identity fixtures, duplicate installed/running executable collapse fixtures, caller-provided registry display-icon/install-location values, caller-provided shortcut target values, and process observations feed the adapter; no live registry enumeration, Start Menu enumeration, `.lnk` binary parsing, live AppX/MSIX enumeration, signature/hash, journal, SQLite, policy, or action behavior changed.
-- [x] Tests/proof listed in this workpack are implemented for known-path/process fixture parsing, deduplicated root expansion, packaged path-shape classification, process executable-path identity, duplicate installed/running executable collapse, registry display-icon/install-location target normalization, shortcut target normalization, and service row conversion; live registry enumeration, Start Menu enumeration or `.lnk` parsing, live AppX/MSIX enumeration, signatures, hashes, service inventory read-model default-root consumption, and manual platform proof remain manual-required.
+- [x] Raw evidence artifacts captured or marked N/A for this fixture-backed/root-expansion slice: known-path fixtures, deduplicated candidate roots, packaged path-shape fixtures, process executable-path identity fixtures, duplicate installed/running executable collapse fixtures, caller-provided registry display-icon/install-location values, caller-provided shortcut target values including unquoted command targets with launch arguments, and process observations feed the adapter; no live registry enumeration, Start Menu enumeration, `.lnk` binary parsing, live AppX/MSIX enumeration, signature/hash, journal, SQLite, policy, or action behavior changed.
+- [x] Tests/proof listed in this workpack are implemented for known-path/process fixture parsing, deduplicated root expansion, packaged path-shape classification, process executable-path identity, duplicate installed/running executable collapse, registry display-icon/install-location target normalization, shortcut target normalization including unquoted command target arguments, and service row conversion; live registry enumeration, Start Menu enumeration or `.lnk` parsing, live AppX/MSIX enumeration, signatures, hashes, service inventory read-model default-root consumption, and manual platform proof remain manual-required.
 - [x] Validation command outputs saved in the proof pack and summarized in [main checklist](../implementation-checklist.md).
 - [x] UI snapshots captured for every touched parent portal, child UX, block/warn, policy authoring, or dashboard state; no UI changed, so `ui-not-applicable.md` records why.
 - [x] Security/no-claim negative proof captured for this slice: unmanaged running processes remain process-only, unproved Chromium forks are manual-required, unsupported browsers stay unsupported, and no URL collection path was added.

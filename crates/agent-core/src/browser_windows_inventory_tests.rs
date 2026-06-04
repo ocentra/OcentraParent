@@ -428,6 +428,50 @@ fn windows_browser_inventory_derives_shortcut_target_candidates_without_url_clai
 }
 
 #[test]
+fn windows_browser_inventory_derives_unquoted_command_targets_without_url_claims() {
+    let root = temp_inventory_root(8);
+    let chrome = root
+        .join(constants::browser::PATH_SEGMENT_GOOGLE)
+        .join(constants::browser::PATH_SEGMENT_CHROME)
+        .join(constants::browser::PATH_SEGMENT_APPLICATION)
+        .join(constants::browser::EXECUTABLE_CHROME_WINDOWS);
+    create_executable_fixture(&chrome);
+    let mut target = String::new();
+    target.push_str(chrome.to_string_lossy().as_ref());
+    target.push(' ');
+    target.push_str(constants::browser::CHROMIUM_ARG_PROFILE_DIRECTORY_PREFIX);
+    target.push_str(constants::browser::PATH_SEGMENT_DEFAULT);
+
+    let shortcut_targets = [target.as_str()];
+    let paths = windows_browser_inventory_candidate_paths_from_sources(
+        BrowserWindowsInventoryPathSources {
+            roots: &[],
+            registry_entries: &[],
+            shortcut_targets: &shortcut_targets,
+        },
+    );
+    let observations = windows_browser_inventory_observations(&paths, &[], None);
+
+    assert_eq!(paths.as_slice(), std::slice::from_ref(&chrome));
+    assert_eq!(observations.len(), 1);
+    assert_eq!(observations[0].browser_family, BrowserFamily::Chrome);
+    assert_eq!(
+        observations[0].install_state,
+        BrowserInventoryInstallState::Installed
+    );
+    assert_eq!(
+        observations[0].exact_url_capability,
+        BrowserExactUrlCapability::Unavailable
+    );
+    assert_eq!(
+        observations[0].running_state,
+        BrowserInventoryRunningState::NotRunning
+    );
+
+    let _ = std::fs::remove_dir_all(root);
+}
+
+#[test]
 fn windows_browser_inventory_marks_windowsapps_path_as_packaged() {
     let test_root = temp_inventory_root(4);
     let root = test_root

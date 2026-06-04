@@ -237,7 +237,7 @@ fn executable_target_path(target: &str) -> Option<PathBuf> {
             .find('"')
             .map_or(unquoted, |quote_index| &unquoted[..quote_index])
     } else {
-        trimmed.split(',').next().unwrap_or(trimmed).trim()
+        unquoted_known_executable_target(trimmed)
     };
     let path = candidate.trim().trim_matches('"');
     if path.is_empty() {
@@ -245,6 +245,38 @@ fn executable_target_path(target: &str) -> Option<PathBuf> {
     } else {
         Some(PathBuf::from(path))
     }
+}
+
+fn unquoted_known_executable_target(target: &str) -> &str {
+    let normalized_target = target.to_ascii_lowercase();
+    known_browser_executable_names()
+        .iter()
+        .filter_map(|executable| {
+            normalized_target
+                .find(executable)
+                .map(|index| index + executable.len())
+        })
+        .min()
+        .map_or_else(
+            || target.split(',').next().unwrap_or(target).trim(),
+            |end_index| &target[..end_index],
+        )
+}
+
+fn known_browser_executable_names() -> [&'static str; 11] {
+    [
+        constants::browser::EXECUTABLE_MSEDGE_WINDOWS,
+        constants::browser::EXECUTABLE_CHROME_WINDOWS,
+        constants::browser::EXECUTABLE_BRAVE_WINDOWS,
+        constants::browser::EXECUTABLE_VIVALDI_WINDOWS,
+        constants::browser::EXECUTABLE_OPERA_WINDOWS,
+        constants::browser::EXECUTABLE_OPERA_GX_WINDOWS,
+        constants::browser::EXECUTABLE_CHROMIUM_WINDOWS,
+        constants::browser::EXECUTABLE_FIREFOX_WINDOWS,
+        constants::browser::EXECUTABLE_TOR_WINDOWS,
+        constants::browser::EXECUTABLE_DUCKDUCKGO_WINDOWS,
+        constants::browser::EXECUTABLE_ARC_WINDOWS,
+    ]
 }
 
 fn push_install_location_candidates(paths: &mut Vec<PathBuf>, install_location: &Path) {
