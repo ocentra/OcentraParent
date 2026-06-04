@@ -141,6 +141,254 @@
       "import": "./dist/game-control-catalog.js",
       "types": "./dist/game-control-catalog.d.ts"
     },
+    "./browser-game-account-purchase-gate-values": {
+      "import": "./dist/browser-game-account-purchase-gate-values.js",
+      "types": "./dist/browser-game-account-purchase-gate-values.d.ts"
+    },
+    "./browser-game-account-purchase-gate": {
+      "import": "./dist/browser-game-account-purchase-gate.js",
+      "types": "./dist/browser-game-account-purchase-gate.d.ts"
+    },
+    "./browser-game-ai-analysis-values": {
+      "import": "./dist/browser-game-ai-analysis-values.js",
+      "types": "./dist/browser-game-ai-analysis-values.d.ts"
+    },
+    "./browser-game-ai-analysis": {
+      "import": "./dist/browser-game-ai-analysis.js",
+      "types": "./dist/browser-game-ai-analysis.d.ts"
+    },
+    "./browser-game-android-ios-capability-matrix-values": {
+      "import": "./dist/browser-game-android-ios-capability-matrix-values.js",
+      "types": "./dist/browser-game-android-ios-capability-matrix-values.d.ts"
+    },
+    "./browser-game-android-ios-capability-matrix": {
+      "import": "./dist/browser-game-android-ios-capability-matrix.js",
+      "types": "./dist/browser-game-android-ios-capability-matrix.d.ts"
+    },
+    "./browser-game-child-checking-block-ux-values": {
+      "import": "./dist/browser-game-child-checking-block-ux-values.js",
+      "types": "./dist/browser-game-child-checking-block-ux-values.d.ts"
+    },
+    "./browser-game-child-checking-block-ux": {
+      "import": "./dist/browser-game-child-checking-block-ux.js",
+      "types": "./dist/browser-game-child-checking-block-ux.d.ts"
+    },
+    "./browser-game-cloud-gaming-gate-values": {
+      "import": "./dist/browser-game-cloud-gaming-gate-values.js",
+      "types": "./dist/browser-game-cloud-gaming-gate-values.d.ts"
+    },
+    "./browser-game-cloud-gaming-gate": {
+      "import": "./dist/browser-game-cloud-gaming-gate.js",
+      "types": "./dist/browser-game-cloud-gaming-gate.d.ts"
+    },
+    "./browser-game-cloud-pattern-library-values": {
+      "import": "./dist/browser-game-cloud-pattern-library-values.js",
+      "types": "./dist/browser-game-cloud-pattern-library-values.d.ts"
+    },
+    "./browser-game-cloud-pattern-library": {
+      "import": "./dist/browser-game-cloud-pattern-library.js",
+      "types": "./dist/browser-game-cloud-pattern-library.d.ts"
+    },
+    "./browser-game-dashboard-ux-values": {
+      "import": "./dist/browser-game-dashboard-ux-values.js",
+      "types": "./dist/browser-game-dashboard-ux-values.d.ts"
+    },
+    "./browser-game-dashboard-ux": {
+      "import": "./dist/browser-game-dashboard-ux.js",
+      "types": "./dist/browser-game-dashboard-ux.d.ts"
+    },
+    "./browser-game-educational-classifier-values": {
+      "import": "./dist/browser-game-educational-classifier-values.js",
+      "types": "./dist/browser-game-educational-classifier-values.d.ts"
+    },
+    "./browser-game-educational-classifier": {
+      "import": "./dist/browser-game-educational-classifier.js",
+      "types": "./dist/browser-game-educational-classifier.d.ts"
+    },
+    "./browser-game-hidden-analysis-profile-safety-guards": {
+      "import": "./dist/browser-game-hidden-analysis-profile-safety-guards.js",
+      "types": "./dist/browser-game-hidden-analysis-profile-safety-guards.d.ts"
+    },
+    "./browser-game-hidden-analysis-profile-safety-values": {
+      "import": "./dist/browser-game-hidden-analysis-profile-safety-values.js",
+      "types": "./dist/browser-game-hidden-analysis-profile-safety-values.d.ts"
+    },
+    "./browser-game-hidden-analysis-profile-safety": {
+      "import": "./dist/browser-game-hidden-analysis-profile-safety.js",
+      "types": "./dist/browser-game-hidden-analysis-profile-safety.d.ts"
+    },
+    "./browser-game-hold-block-adapter-guards": {
+      "import": "./dist/browser-game-hold-block-adapter-guards.js",
+      "types": "./dist/browser-game-hold-block-adapter-guards.d.ts"
+    },
+    "./browser-game-hold-block-adapter-values": {
+      "import": "./dist/browser-game-hold-block-adapter-values.js",
+      "types": "./dist/browser-game-hold-block-adapter-values.d.ts"
+    },
+    "./browser-game-hold-block-adapter": {
+      "import": "./dist/browser-game-hold-block-adapter.js",
+      "types": "./dist/browser-game-hold-block-adapter.d.ts"
+    },
+    "./browser-game-journal-sqlite-read-model-guards": {
+      "import": "./dist/browser-game-journal-sqlite-read-model-guards.js",
+      "types": "./dist/browser-game-journal-sqlite-read-model-guards.d.ts"
+    },
+    "./browser-game-journal-sqlite-read-model-values": {
+      "import": "./dist/browser-game-journal-sqlite-read-model-values.js",
+      "types": "./dist/browser-game-journal-sqlite-read-model-values.d.ts"
+    },
+    "./browser-game-journal-sqlite-read-model": {
+      "import": "./dist/browser-game-journal-sqlite-read-model.js",
+      "types": "./dist/browser-game-journal-sqlite-read-model.d.ts"
+    },
+    "./browser-game-memory-cache-values": {
+      "import": "./dist/browser-game-memory-cache-values.js",
+      "types": "./dist/browser-game-memory-cache-values.d.ts"
+    },
+    "./browser-game-memory-cache": {
+      "import": "./dist/browser-game-memory-cache.js",
+      "types": "./dist/browser-game-memory-cache.d.ts"
+    },
+    "./browser-game-metadata-extractor-values": {
+      "import": "./dist/browser-game-metadata-extractor-values.js",
+      "types": "./dist/browser-game-metadata-extractor-values.d.ts"
+    },
+    "./browser-game-metadata-extractor": {
+      "import": "./dist/browser-game-metadata-extractor.js",
+      "types": "./dist/browser-game-metadata-extractor.d.ts"
+    },
+    "./browser-game-platform-route-contract-values": {
+      "import": "./dist/browser-game-platform-route-contract-values.js",
+      "types": "./dist/browser-game-platform-route-contract-values.d.ts"
+    },
+    "./browser-game-platform-route-contracts": {
+      "import": "./dist/browser-game-platform-route-contracts.js",
+      "types": "./dist/browser-game-platform-route-contracts.d.ts"
+    },
+    "./browser-game-policy-compiler-values": {
+      "import": "./dist/browser-game-policy-compiler-values.js",
+      "types": "./dist/browser-game-policy-compiler-values.d.ts"
+    },
+    "./browser-game-policy-compiler": {
+      "import": "./dist/browser-game-policy-compiler.js",
+      "types": "./dist/browser-game-policy-compiler.d.ts"
+    },
+    "./browser-game-portal-pattern-library-values": {
+      "import": "./dist/browser-game-portal-pattern-library-values.js",
+      "types": "./dist/browser-game-portal-pattern-library-values.d.ts"
+    },
+    "./browser-game-portal-pattern-library": {
+      "import": "./dist/browser-game-portal-pattern-library.js",
+      "types": "./dist/browser-game-portal-pattern-library.d.ts"
+    },
+    "./browser-game-riskbenefit-signal-values": {
+      "import": "./dist/browser-game-riskbenefit-signal-values.js",
+      "types": "./dist/browser-game-riskbenefit-signal-values.d.ts"
+    },
+    "./browser-game-riskbenefit-signal": {
+      "import": "./dist/browser-game-riskbenefit-signal.js",
+      "types": "./dist/browser-game-riskbenefit-signal.d.ts"
+    },
+    "./browser-game-runtime-signal-detector-values": {
+      "import": "./dist/browser-game-runtime-signal-detector-values.js",
+      "types": "./dist/browser-game-runtime-signal-detector-values.d.ts"
+    },
+    "./browser-game-runtime-signal-detector": {
+      "import": "./dist/browser-game-runtime-signal-detector.js",
+      "types": "./dist/browser-game-runtime-signal-detector.d.ts"
+    },
+    "./browser-game-ugc-multiplayer-chat-risk-values": {
+      "import": "./dist/browser-game-ugc-multiplayer-chat-risk-values.js",
+      "types": "./dist/browser-game-ugc-multiplayer-chat-risk-values.d.ts"
+    },
+    "./browser-game-ugc-multiplayer-chat-risk": {
+      "import": "./dist/browser-game-ugc-multiplayer-chat-risk.js",
+      "types": "./dist/browser-game-ugc-multiplayer-chat-risk.d.ts"
+    },
+    "./browser-game-unblocked-site-detection-values": {
+      "import": "./dist/browser-game-unblocked-site-detection-values.js",
+      "types": "./dist/browser-game-unblocked-site-detection-values.d.ts"
+    },
+    "./browser-game-unblocked-site-detection": {
+      "import": "./dist/browser-game-unblocked-site-detection.js",
+      "types": "./dist/browser-game-unblocked-site-detection.d.ts"
+    },
+    "./browser-game-url-shape-parser-values": {
+      "import": "./dist/browser-game-url-shape-parser-values.js",
+      "types": "./dist/browser-game-url-shape-parser-values.d.ts"
+    },
+    "./browser-game-url-shape-parser": {
+      "import": "./dist/browser-game-url-shape-parser.js",
+      "types": "./dist/browser-game-url-shape-parser.d.ts"
+    },
+    "./social-android-native-app-capability-matrix-values": {
+      "import": "./dist/social-android-native-app-capability-matrix-values.js",
+      "types": "./dist/social-android-native-app-capability-matrix-values.d.ts"
+    },
+    "./social-android-native-app-capability-matrix": {
+      "import": "./dist/social-android-native-app-capability-matrix.js",
+      "types": "./dist/social-android-native-app-capability-matrix.d.ts"
+    },
+    "./social-audit-explanation-read-model-values": {
+      "import": "./dist/social-audit-explanation-read-model-values.js",
+      "types": "./dist/social-audit-explanation-read-model-values.d.ts"
+    },
+    "./social-audit-explanation-read-model": {
+      "import": "./dist/social-audit-explanation-read-model.js",
+      "types": "./dist/social-audit-explanation-read-model.d.ts"
+    },
+    "./social-child-approval-block-ux-values": {
+      "import": "./dist/social-child-approval-block-ux-values.js",
+      "types": "./dist/social-child-approval-block-ux-values.d.ts"
+    },
+    "./social-child-approval-block-ux": {
+      "import": "./dist/social-child-approval-block-ux.js",
+      "types": "./dist/social-child-approval-block-ux.d.ts"
+    },
+    "./social-dashboard-ux-values": {
+      "import": "./dist/social-dashboard-ux-values.js",
+      "types": "./dist/social-dashboard-ux-values.d.ts"
+    },
+    "./social-dashboard-ux": {
+      "import": "./dist/social-dashboard-ux.js",
+      "types": "./dist/social-dashboard-ux.d.ts"
+    },
+    "./social-decision-memory-cache-values": {
+      "import": "./dist/social-decision-memory-cache-values.js",
+      "types": "./dist/social-decision-memory-cache-values.d.ts"
+    },
+    "./social-decision-memory-cache": {
+      "import": "./dist/social-decision-memory-cache.js",
+      "types": "./dist/social-decision-memory-cache.d.ts"
+    },
+    "./social-ios-screen-time-capability-matrix-values": {
+      "import": "./dist/social-ios-screen-time-capability-matrix-values.js",
+      "types": "./dist/social-ios-screen-time-capability-matrix-values.d.ts"
+    },
+    "./social-ios-screen-time-capability-matrix": {
+      "import": "./dist/social-ios-screen-time-capability-matrix.js",
+      "types": "./dist/social-ios-screen-time-capability-matrix.d.ts"
+    },
+    "./social-parent-approval": {
+      "import": "./dist/social-parent-approval.js",
+      "types": "./dist/social-parent-approval.d.ts"
+    },
+    "./social-platform-connector-authorization-values": {
+      "import": "./dist/social-platform-connector-authorization-values.js",
+      "types": "./dist/social-platform-connector-authorization-values.d.ts"
+    },
+    "./social-platform-connector-authorization": {
+      "import": "./dist/social-platform-connector-authorization.js",
+      "types": "./dist/social-platform-connector-authorization.d.ts"
+    },
+    "./social-policy-compiler-values": {
+      "import": "./dist/social-policy-compiler-values.js",
+      "types": "./dist/social-policy-compiler-values.d.ts"
+    },
+    "./social-policy-compiler": {
+      "import": "./dist/social-policy-compiler.js",
+      "types": "./dist/social-policy-compiler.d.ts"
+    },
     "./local-ai": {
       "import": "./dist/local-ai.js",
       "types": "./dist/local-ai.d.ts"

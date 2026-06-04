@@ -1164,8 +1164,7 @@ worker messages before code changes. Do not mix all 24 into one PR.
   and native-app social states stay manual-required or bypass-only. The
   contracts reject account identity proof, message content, feed content
   semantics, AI decisions, policy decisions, enforcement, native app control,
-  and platform connector claims. Public package/barrel exports remain pending
-  source/package coordination; no parser, runtime adapter, policy evaluator, UI,
+  and platform connector claims. Package subpath exports are now present; no parser, runtime adapter, policy evaluator, UI,
   native app support, connector, or enforcement is claimed.
 - SOCIAL-03 now adds a deterministic social URL pattern library in
   `packages/activity-domain/src/browser-social-url-patterns.ts`. The adapter
@@ -1176,8 +1175,7 @@ worker messages before code changes. Do not mix all 24 into one PR.
   domain-pattern matches for platforms not yet first-class in the URL-shape
   parser, such as Snapchat and Pinterest. Unmanaged browser rows and fake-domain
   rows are rejected, and the output keeps account identity, message/feed content,
-  AI, policy, native app, connector, UI, and enforcement claims false. Public
-  package/barrel exports remain pending source/package coordination; no DOM/form
+  AI, policy, native app, connector, UI, and enforcement claims false. Package subpath exports are now present; no DOM/form
   detector, account identity proof, policy evaluator, runtime gate, UI, native
   app support, connector, or enforcement is claimed.
 - SOCIAL-04 now adds schema-backed signup/login/account-switch evidence
@@ -1189,8 +1187,7 @@ worker messages before code changes. Do not mix all 24 into one PR.
   identity refs, parent approval request refs, credentials, form field values,
   form submission, account creation completion, login success, account-switch
   completion, parent approval decisions, AI decisions, policy decisions, native
-  app control, connector access, and enforcement. Public package/barrel exports
-  remain pending source/package coordination; no DOM/form detector, identity
+  app control, connector access, and enforcement. Package subpath exports are now present; no DOM/form detector, identity
   registry, parent approval decision, policy evaluator, runtime gate, UI, native
   app support, connector, or enforcement is claimed.
 - SOCIAL-05 now adds a sanitized managed form-shape detector contract in
@@ -1200,8 +1197,7 @@ worker messages before code changes. Do not mix all 24 into one PR.
   forms when required controls are present. It rejects captured field values,
   raw DOM capture, weak/insufficient control sets, credentials, form submission,
   account identity, parent approval decisions, AI decisions, policy decisions,
-  native app control, connector access, and enforcement. Public package/barrel
-  exports remain pending source/package coordination; no runtime DOM adapter,
+  native app control, connector access, and enforcement. Package subpath exports are now present; no runtime DOM adapter,
   field-value capture, account identity registry, parent approval flow, policy
   evaluator, runtime gate, UI, native app support, connector, or enforcement is
   claimed.
@@ -1213,8 +1209,7 @@ worker messages before code changes. Do not mix all 24 into one PR.
   account data. It rejects raw handle, display-name, and platform-account-id
   capture, credentials, platform verification, child-declared identity, account
   creation, login success, connector authorization, AI decisions, policy
-  decisions, native app control, and enforcement. Public package/barrel exports
-  remain pending source/package coordination; no runtime registry store, raw
+  decisions, native app control, and enforcement. Package subpath exports are now present; no runtime registry store, raw
   account identity capture, platform connector verification, parent UI, policy
   evaluator, runtime gate, native app support, connector, or enforcement is
   claimed.
@@ -1225,8 +1220,7 @@ worker messages before code changes. Do not mix all 24 into one PR.
   states. They remain contract-only and reject raw messages, raw account
   identity, credentials, notification delivery, UI rendering, child
   notification, policy execution, action execution, native app control,
-  connector authorization, and enforcement. Public package/barrel exports remain
-  pending source/package coordination; no runtime approval store, parent/child
+  connector authorization, and enforcement. Package subpath exports are now present; no runtime approval store, parent/child
   UI, notification delivery, policy evaluator/executor, runtime gate, native app
   support, connector, or enforcement is claimed.
 - SOCIAL-08 now adds route-only feed/reels/shorts classification contracts in
@@ -1235,8 +1229,7 @@ worker messages before code changes. Do not mix all 24 into one PR.
   surface hints and distinguishes dynamic feeds, short-video feed surfaces, and
   exact single-short-video routes. It rejects feed content semantics,
   recommendation semantics, message content, AI decisions, policy decisions,
-  native app control, connector access, and enforcement. Public package/barrel
-  exports remain pending source/package coordination; no feed content parser,
+  native app control, connector access, and enforcement. Package subpath exports are now present; no feed content parser,
   recommender analysis, policy evaluator, runtime gate, UI, native app support,
   connector, or enforcement is claimed.
 - SOCIAL-09 now adds bounded video/social metadata extractor contracts in
@@ -1246,8 +1239,7 @@ worker messages before code changes. Do not mix all 24 into one PR.
   category, and restriction signals. Metadata can be available, partial, or
   manual-required, while page body capture, transcript text, message content,
   feed content semantics, content semantics, AI decisions, policy decisions,
-  native app control, connector access, and enforcement are rejected. Public
-  package/barrel exports remain pending source/package coordination; no network
+  native app control, connector access, and enforcement are rejected. Package subpath exports are now present; no network
   fetcher, transcript parser, feed content parser, AI analysis, policy
   evaluator, runtime gate, UI, native app support, connector, or enforcement is
   claimed.
@@ -1261,8 +1253,7 @@ worker messages before code changes. Do not mix all 24 into one PR.
   page, feed, message, transcript, screenshot, native, and connector state;
   results reject final policy actions, enforcement, raw model text/content
   storage, native app control, connector claims, and inconsistent degraded
-  states. Public package/barrel exports remain pending source/package
-  coordination; no AI model execution, runtime provider selection, SOCIAL-11
+  states. Package subpath exports are now present; no AI model execution, runtime provider selection, SOCIAL-11
   risk/benefit signal model, policy evaluator, runtime gate, UI, native app
   support, connector, or enforcement is claimed.
 - SOCIAL-11 now adds social risk/benefit signal model contracts in
@@ -1272,8 +1263,7 @@ worker messages before code changes. Do not mix all 24 into one PR.
   manual-required/unavailable states. Signal sets copy provenance from typed
   SOCIAL-10 AI analysis results while rejecting raw message/feed/page/model use,
   account identity verification claims, final policy decisions, connector/native
-  claims, and enforcement. Public package/barrel exports remain pending
-  source/package coordination; no policy compiler, runtime gate, UI, native app
+  claims, and enforcement. Package subpath exports are now present; no policy compiler, runtime gate, UI, native app
   support, connector, or enforcement is claimed.
 - SOCIAL-12 now adds parent-domain social policy compiler contracts in
   `social-policy-compiler-values.ts` and `social-policy-compiler.ts`. The
@@ -1283,8 +1273,7 @@ worker messages before code changes. Do not mix all 24 into one PR.
   raw model text, activity-domain object transfer, UI/runtime/enforcement,
   native app, and connector claims. Decision candidates remain non-final and
   non-enforcing while validating fallback and parent-approval reason
-  requirements. Public package/barrel exports remain pending source/package
-  coordination; no runtime policy gate, UI, native app support, connector, or
+  requirements. Package subpath exports are now present; no runtime policy gate, UI, native app support, connector, or
   enforcement is claimed.
 - SOCIAL-13 now adds managed-browser account creation gate contracts in
   `packages/activity-domain/src/browser-social-account-creation-gate.ts`. Gate
@@ -1294,7 +1283,7 @@ worker messages before code changes. Do not mix all 24 into one PR.
   unknown-warn candidates while rejecting runtime browser pause/block claims,
   child/parent UI claims, final policy decisions, credentials, form submissions,
   account creation, native app control, connector claims, and enforcement.
-  Public package/barrel exports remain pending source/package coordination; no
+  Package subpath exports are now present; no
   runtime browser blocking, UI, native app support, connector, or enforcement is
   claimed.
 - SOCIAL-14 now adds managed-browser feed/short/video route gate contracts in
@@ -1307,8 +1296,7 @@ worker messages before code changes. Do not mix all 24 into one PR.
   The contracts reject browser navigation block execution, redirects, CSS/DOM
   hiding, tab closing, applied time limits, child/parent UI, final policy
   decisions, feed/video content capture, recommendation modeling, native app
-  control, connector claims, and enforcement. Public package/barrel exports
-  remain pending source/package coordination; no runtime route gate, UI, native
+  control, connector claims, and enforcement. Package subpath exports are now present; no runtime route gate, UI, native
   app support, connector, or enforcement is claimed.
 - SOCIAL-15 now adds unmanaged social bypass detector contracts in
   `packages/activity-domain/src/browser-social-unmanaged-bypass-detector-values.ts`
@@ -1319,8 +1307,7 @@ worker messages before code changes. Do not mix all 24 into one PR.
   proof, managed-session boundaries, route evidence, social account proof,
   feed/video route proof, message content, account identity, native app control,
   connector claims, child/parent UI, process termination, managed browser
-  relaunch, and enforcement. Public package/barrel exports remain pending
-  source/package coordination; no runtime blocking, UI, native app support,
+  relaunch, and enforcement. Package subpath exports are now present; no runtime blocking, UI, native app support,
   connector, or enforcement is claimed.
 - SOCIAL-16 now adds Android native social app capability matrix contracts in
   `packages/parent-domain/src/social-android-native-app-capability-matrix-values.ts`
@@ -1332,8 +1319,7 @@ worker messages before code changes. Do not mix all 24 into one PR.
   platform proof exists. It rejects native route proof, per-video/per-reel
   blocking, message content, account identity, accessibility content capture,
   device-owner enrollment, VPN content inspection, runtime adapter, connector,
-  UI, and enforcement claims. Public package/barrel exports remain pending
-  source/package coordination; no Android native app implementation, connector,
+  UI, and enforcement claims. Package subpath exports are now present; no Android native app implementation, connector,
   UI, or enforcement is claimed.
 - SOCIAL-17 now adds iOS Screen Time/ManagedSettings social capability matrix
   contracts in
@@ -1347,7 +1333,7 @@ worker messages before code changes. Do not mix all 24 into one PR.
   It rejects entitlement approval, raw app identity, native route proof,
   per-video/per-reel blocking, message content, account identity, screen
   content capture, runtime adapter, connector, UI, and enforcement claims.
-  Public package/barrel exports remain pending source/package coordination; no
+  Package subpath exports are now present; no
   iOS native app implementation, Apple entitlement, device proof, connector,
   UI, or enforcement is claimed.
 - SOCIAL-18 now adds platform connector authorization boundary contracts in
@@ -1360,8 +1346,7 @@ worker messages before code changes. Do not mix all 24 into one PR.
   core gating independent. They reject token storage, OAuth client
   implementation, provider API calls, raw account data, message/feed content
   capture, account identity verification, policy decisions, AI runtime, UI,
-  native app control, connector implementation, and enforcement. Public
-  package/barrel exports remain pending source/package coordination; no
+  native app control, connector implementation, and enforcement. Package subpath exports are now present; no
   connector runtime, token store, provider API, UI, or enforcement is claimed.
 - SOCIAL-19 now adds parent-domain social decision memory-cache contracts in
   `packages/parent-domain/src/social-decision-memory-cache-values.ts` and
@@ -1375,8 +1360,7 @@ worker messages before code changes. Do not mix all 24 into one PR.
   manual-required rows cannot drive policy input. The contracts reject final
   policy decisions, runtime cache store claims, AI cache claims, raw
   account/video/message storage, connector data storage, UI, native app
-  control, and enforcement. Public package/barrel exports remain pending
-  source/package coordination; no runtime cache, activity-domain export, UI,
+  control, and enforcement. Package subpath exports are now present; no runtime cache, activity-domain export, UI,
   connector, native app control, policy execution, or enforcement is claimed.
 - SOCIAL-20 now adds parent-domain parent social dashboard UX contracts in
   `packages/parent-domain/src/social-dashboard-ux-values.ts` and
@@ -1386,8 +1370,7 @@ worker messages before code changes. Do not mix all 24 into one PR.
   contracts. It rejects rendered portal UI, notification delivery, runtime data
   fetch, policy decisions, native app control, connector authorization, and
   enforcement. This row intentionally avoids apps/portal, portal-domain, and
-  text-domain rendered UI because those areas are active in other lanes. Public
-  package/barrel exports remain pending source/package coordination; no rendered
+  text-domain rendered UI because those areas are active in other lanes. Package subpath exports are now present; no rendered
   dashboard, UI proof, runtime fetch, notification, connector authorization, or
   enforcement is claimed.
 - SOCIAL-21 now adds parent-domain child approval/block UX contracts in
@@ -1398,8 +1381,7 @@ worker messages before code changes. Do not mix all 24 into one PR.
   native-app unavailable states as child-facing state/action contracts. It
   rejects rendered child UI, notification delivery, browser navigation block
   execution, block page rendering, applied time limits, final policy decisions,
-  connector authorization, native app control, and enforcement. Public
-  package/barrel exports remain pending source/package coordination; no rendered
+  connector authorization, native app control, and enforcement. Package subpath exports are now present; no rendered
   child UI, notification, browser block page, final policy execution, connector,
   native app control, or enforcement is claimed.
 - SOCIAL-22 now adds parent-domain social audit/explanation read-model
@@ -1412,7 +1394,7 @@ worker messages before code changes. Do not mix all 24 into one PR.
   refs. It rejects runtime audit store claims, rendered explanation UI,
   notification delivery, raw account/video/message content, connector
   authorization, native app control, final policy decisions, and enforcement.
-  Public package/barrel exports remain pending source/package coordination; no
+  Package subpath exports are now present; no
   logging-domain runtime store, portal UI, notification, connector, native app
   control, final policy execution, or enforcement is claimed.
 - SOCIAL-23 now adds `scripts/test/social-platform-account-feed-proof-artifacts.mjs`,

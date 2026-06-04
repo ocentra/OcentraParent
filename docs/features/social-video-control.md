@@ -184,6 +184,11 @@ message, video, and alert coverage. This is one of Ocentra's highest-risk gaps.
 - Browser-plan SOCIAL-24 now adds rollout/manual-required status labels for
   SOCIAL-01 through SOCIAL-23. SOCIAL rollout state: partial/manual-required.
   Product completion remains unclaimed.
+- Browser-plan package export closure now exposes the existing parent-domain
+  social contract modules as public package subpaths and reconciles the
+  browser-plan docs to stop treating package exports as the remaining blocker.
+  Runtime connector behavior, native app control, rendered UI, final policy
+  execution, enforcement, and product checklist completion remain unclaimed.
 - First-class social/video product contracts and runtime proof are incomplete.
 
 ## Current Gap

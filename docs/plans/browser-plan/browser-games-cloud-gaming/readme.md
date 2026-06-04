@@ -87,8 +87,7 @@ and unknown/manual-required platforms through route surface kinds, route source
 kinds, custody labels, pattern refs, evidence refs, confidence, and status. They
 reject raw domains, raw URLs, raw paths, raw page bodies, live URL parser
 claims, runtime detection claims, AI classification claims, policy decisions,
-native game control, cloud-frame analysis, and enforcement. Public
-package/barrel exports remain pending source/package coordination.
+native game control, cloud-frame analysis, and enforcement. Package subpath exports are now present.
 
 GAME-03 now adds parent-domain browser-game portal pattern library contracts in
 `packages/parent-domain/src/browser-game-portal-pattern-library.ts`. Entries
@@ -96,8 +95,7 @@ model known-game, educational, UGC, indie, classic archive, school, and unknown
 portal families through route kinds, signal kinds, pattern fingerprints,
 evidence refs, confidence, and review states. They reject raw domains, raw URLs,
 raw page titles, raw page bodies, runtime detection claims, AI classification
-claims, policy decisions, cloud-gaming ownership, and enforcement. Public
-package/barrel exports remain pending source/package coordination.
+claims, policy decisions, cloud-gaming ownership, and enforcement. Package subpath exports are now present.
 
 GAME-04 now adds parent-domain cloud-gaming pattern library contracts in
 `packages/parent-domain/src/browser-game-cloud-pattern-library.ts`. Entries
@@ -107,8 +105,7 @@ unknown/manual-required cloud surfaces through route kinds, signal kinds,
 pattern fingerprints, evidence refs, confidence, and review states. They reject
 raw cloud domains, raw cloud URLs, raw cloud titles, raw stream frames, runtime
 detection claims, cloud-streamed frame analysis, per-game cloud-title certainty,
-native launcher/game control, final policy decisions, and enforcement. Public
-package/barrel exports remain pending source/package coordination.
+native launcher/game control, final policy decisions, and enforcement. Package subpath exports are now present.
 
 GAME-05 now adds a parent-domain redacted URL-shape parser in
 `packages/parent-domain/src/browser-game-url-shape-parser.ts`. It accepts
@@ -117,8 +114,7 @@ protocol/host/path-depth shape, route surface kind, route hint booleans,
 query/fragment shape booleans, reason codes, confidence, and a route-shape
 fingerprint. It rejects raw URL, domain, path, and query storage; browser
 navigation, runtime detection, AI classification, final policy decisions,
-cloud-frame analysis, native game control, and enforcement. Public
-package/barrel exports remain pending source/package coordination.
+cloud-frame analysis, native game control, and enforcement. Package subpath exports are now present.
 
 GAME-06 now adds parent-domain runtime signal detector contracts in
 `packages/parent-domain/src/browser-game-runtime-signal-detector.ts`. Signal
@@ -128,8 +124,7 @@ runtime shapes through fingerprints, evidence refs, source kinds, confidence,
 status, and reason codes. They reject raw DOM, canvas frame, stream frame,
 audio, and gamepad input storage; browser instrumentation, runtime detection
 execution, AI classification, final policy decisions, cloud-frame analysis,
-native game control, and enforcement. Public package/barrel exports remain
-pending source/package coordination.
+native game control, and enforcement. Package subpath exports are now present.
 
 GAME-07 now adds parent-domain metadata extractor contracts in
 `packages/parent-domain/src/browser-game-metadata-extractor.ts`. Field rows
@@ -139,8 +134,7 @@ through fingerprints, evidence refs, source kinds, confidence, status, and
 reason codes. They reject raw title, description, page body, image, and
 structured-data storage; runtime DOM extraction, platform API calls, AI
 classification, final policy decisions, cloud-frame analysis, native game
-control, and enforcement. Public package/barrel exports remain pending
-source/package coordination.
+control, and enforcement. Package subpath exports are now present.
 
 GAME-08 now adds parent-domain hidden analysis profile safety contracts in
 `packages/parent-domain/src/browser-game-hidden-analysis-profile-safety.ts`.
@@ -151,8 +145,7 @@ profile fingerprints, reason codes, confidence, and loader proof refs. They
 reject child cookie/session reuse, shared child storage, raw URL/page/game/frame
 storage or capture, browser instrumentation, hidden native control, AI
 classification, final policy decisions, UI rendering, cloud-frame analysis,
-native game control, and enforcement. Public package/barrel exports remain
-pending source/package coordination.
+native game control, and enforcement. Package subpath exports are now present.
 
 GAME-09 now adds parent-domain browser-game educational classifier contracts in
 `packages/parent-domain/src/browser-game-educational-classifier.ts`. The
@@ -165,8 +158,7 @@ recommend allow-during-homework, allow-with-time-limit, parent-review,
 block-portal, manual-review, or unknown gate inputs. They reject raw
 page/game/model payloads, account/purchase execution, platform labels as
 authority, final policy decisions, runtime gate execution, UI rendering, native
-game control, cloud-frame analysis, and enforcement. Public package/barrel
-exports remain pending source/package coordination.
+game control, cloud-frame analysis, and enforcement. Package subpath exports are now present.
 
 GAME-10 now adds parent-domain browser-game AI analysis contracts in
 `packages/parent-domain/src/browser-game-ai-analysis.ts`. Inputs consume typed
@@ -180,8 +172,7 @@ model runtime refs, prompt template version, expiry, and degraded/manual states.
 They reject raw URLs, raw page body, raw game payloads, raw screen frames, raw
 model text, account/purchase execution, native game control, cloud-frame
 analysis, final policy decisions, runtime gate execution, rendered UI, and
-enforcement. Public package/barrel exports remain pending source/package
-coordination.
+enforcement. Package subpath exports are now present.
 
 GAME-11 now adds parent-domain browser-game risk/benefit signal contracts in
 `packages/parent-domain/src/browser-game-riskbenefit-signal.ts`. The signal
@@ -193,7 +184,7 @@ parent-approved game, neutral, and unknown benefit. It returns candidate
 recommended policy inputs only and rejects raw game payloads, chat content, page
 body, raw model text, account/purchase execution, cloud-frame analysis, native
 game control, final policy decisions, runtime gate execution, and enforcement.
-Public package/barrel exports remain pending source/package coordination.
+Package subpath exports are now present.
 
 GAME-12 now adds parent-domain browser-game memory/cache contracts in
 `packages/parent-domain/src/browser-game-memory-cache.ts`. The cache uses
@@ -208,8 +199,7 @@ are present; stale/miss/manual rows cannot drive policy input. The contracts
 reject raw canonical URLs, raw platform game IDs, raw cloud game titles, raw
 game payloads, raw model text, runtime cache-store claims, AI cache claims, UI
 delivery, native game control, cloud-frame analysis, final policy decisions, and
-enforcement. Public package/barrel exports remain pending source/package
-coordination.
+enforcement. Package subpath exports are now present.
 
 GAME-13 now adds parent-domain browser-game account/signup/purchase gate
 contracts in
@@ -222,7 +212,7 @@ reject raw URLs/titles/account identifiers, credentials, form submission,
 account creation, purchase/payment execution, launcher downloads,
 notifications, rendered UI, child notification, final policy decisions, runtime
 gate execution, native game control, cloud-frame analysis, and enforcement.
-Public package/barrel exports remain pending source/package coordination.
+Package subpath exports are now present.
 
 GAME-14 now adds parent-domain browser-game cloud-gaming gate contracts in
 `packages/parent-domain/src/browser-game-cloud-gaming-gate.ts`. The contracts
@@ -234,8 +224,7 @@ gaps, and unavailable platform proof states. They reject raw cloud titles, raw
 stream frames, cloud-streamed frame analysis, per-game cloud title claims,
 native game/launcher control, game chat content, account/purchase flows,
 notifications, rendered UI, child notification, final policy decisions, runtime
-gate execution, and enforcement. Public package/barrel exports remain pending
-source/package coordination.
+gate execution, and enforcement. Package subpath exports are now present.
 
 GAME-15 now adds parent-domain browser-game unblocked-site detection contracts
 in `packages/parent-domain/src/browser-game-unblocked-site-detection.ts`. The
@@ -247,8 +236,7 @@ allow-specific-game, block-unknown-iframe, bypass-evidence-only, manual-review,
 or unknown inputs. The contracts reject raw URLs, raw page body, raw search
 queries, captured iframe content, exact unmanaged URL claims, native game
 control, cloud-frame analysis, account/purchase flows, rendered UI, final
-policy decisions, runtime gate execution, and enforcement. Public
-package/barrel exports remain pending source/package coordination.
+policy decisions, runtime gate execution, and enforcement. Package subpath exports are now present.
 
 GAME-16 now adds parent-domain browser-game UGC/multiplayer/chat risk contracts
 in `packages/parent-domain/src/browser-game-ugc-multiplayer-chat-risk.ts`. The
@@ -263,8 +251,7 @@ time-limit, purchase approval, block unknown UGC, manual review, or unknown.
 They reject raw chat content, profile content, experience identifiers, account
 identifiers, raw game payloads, web-to-app launch execution, purchase execution,
 native game control, final policy decisions, runtime gate execution, UI
-rendering, and enforcement. Public package/barrel exports remain pending
-source/package coordination.
+rendering, and enforcement. Package subpath exports are now present.
 
 GAME-17 now adds parent-domain browser-game policy compiler contracts in
 `packages/parent-domain/src/browser-game-policy-compiler.ts`. The compiler
@@ -273,8 +260,7 @@ parent rule, and schedule context rows, then returns candidate-only allow, warn,
 parent-review, block, time-limit, manual-review, or unknown decisions. It rejects
 raw game payloads, raw model text, activity-domain object transfer, final policy
 decision claims, runtime gate claims, UI claims, native game control,
-cloud-frame analysis, and enforcement. Public package/barrel exports remain
-pending source/package coordination.
+cloud-frame analysis, and enforcement. Package subpath exports are now present.
 
 GAME-18 now adds parent-domain managed browser-game hold/block adapter
 contracts in `packages/parent-domain/src/browser-game-hold-block-adapter.ts`.
@@ -285,8 +271,7 @@ manual-required cloud, and unavailable native/unmanaged rows remain
 non-executing. The contracts reject raw URL/page/game payloads, child
 cookie/session reuse, unmanaged exact URL claims, browser mutation, rendered
 child pages, notification delivery, final policy decisions, applied time
-limits, cloud-frame analysis, native game control, and enforcement. Public
-package/barrel exports remain pending source/package coordination.
+limits, cloud-frame analysis, native game control, and enforcement. Package subpath exports are now present.
 
 GAME-19 now adds parent-domain browser-game child checking/block UX contracts in
 `packages/parent-domain/src/browser-game-child-checking-block-ux.ts`. The
@@ -296,8 +281,7 @@ cloud-gaming manual-required state, and native game control unavailable state.
 It uses schema-known browser-game child text-token refs and rejects raw child
 copy, rendered child UI, notification delivery, browser navigation block,
 block-page rendering, applied time limits, final policy decisions,
-cloud-frame analysis, native game control, and enforcement. Public
-package/barrel exports remain pending source/package coordination.
+cloud-frame analysis, native game control, and enforcement. Package subpath exports are now present.
 
 GAME-20 now adds parent-domain parent browser-game dashboard UX contracts in
 `packages/parent-domain/src/browser-game-dashboard-ux.ts`. The dashboard
@@ -305,8 +289,7 @@ snapshot covers detected game review, unknown-game approval queue, cloud-gaming
 approval, educational-game allowlist, game time-budget candidates,
 mobile/native capability gaps, and manual-required gaps. It rejects rendered
 portal UI, notification delivery, runtime data fetch, final policy decisions,
-cloud-frame analysis, native game control, and enforcement. Public
-package/barrel exports remain pending source/package coordination.
+cloud-frame analysis, native game control, and enforcement. Package subpath exports are now present.
 
 GAME-21 now adds parent-domain browser-game journal/SQLite read-model contracts
 in `packages/parent-domain/src/browser-game-journal-sqlite-read-model.ts`. The
@@ -317,8 +300,7 @@ require journal entry refs, SQLite row refs, source read-model refs, proof refs,
 positive event/row counts, and matching reason codes. They reject raw
 URL/page/game/title/account/purchase storage, child cookie/session reuse, cloud
 title certainty, browser mutation, rendered UI, final policy decisions, and
-enforcement. Public package/barrel exports remain pending source/package
-coordination.
+enforcement. Package subpath exports are now present.
 
 GAME-22 now adds `scripts/test/browser-game-proof-artifacts.mjs`, a proof
 artifact gate for GAME-01 through GAME-21. It validates checklist ownership,
@@ -338,8 +320,7 @@ application-token, managed-browser, and Web Clip/PWA surfaces as manual-required
 token-limited, entitlement-required, app-level, or domain-level only. It rejects
 exact game content, cloud-streamed frame analysis, native game/launcher control,
 game chat, per-game cloud title detection, runtime signals, app-store or
-purchase control, UI delivery, and enforcement. Public package/barrel exports
-remain pending source/package coordination.
+purchase control, UI delivery, and enforcement. Package subpath exports are now present.
 
 GAME-24 now adds the browser-game rollout/manual-required gate in
 `scripts/test/browser-game-rollout-gate.mjs`. GAME rollout state:
