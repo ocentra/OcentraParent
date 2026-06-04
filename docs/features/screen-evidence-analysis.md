@@ -162,6 +162,12 @@ only with explicit parent settings.
   remains visible in queue health, retry bounds are enforced, and unsupported raw
   screenshot retention is rejected. This is contract proof; production TTL
   sweeper execution and parent retention UI remain separate.
+- `scripts/test/screen-ai-service-disabled-suppression-proof.mjs` now proves the
+  service-owned disabled setting against the real Rust service on Windows: an
+  enabled phase creates one encrypted cadence queue record, then a disabled
+  phase runs cadence, foreground, and analysis runtimes with the parent setting
+  off and proves no new screen rows, no new queue jobs, no local vision row, and
+  no pending queue drain. Product UI controls for the setting remain separate.
 - `scripts/test/screen-ai-live-operator-proof.mjs` now provides the executable
   live operator gate for this feature. It prints a required nine-scenario
   manifest template, refuses to claim live proof without operator-supplied real
@@ -197,11 +203,12 @@ authenticated-account social proof beyond public/live surface proof, OCR/vision
 quality beyond controlled fixtures and the full live operator matrix, production
 local vision adapter quality beyond the service proof adapter, service-owned
 live trigger event producers beyond the timed cadence loop and native
-active-window foreground watcher, physical Android/iOS proof, live macOS capture
-proof, Linux root/Wayland portal proof, browser/network/mobile/broad block
-action adapters from screen-derived decisions, checklist status movement, and
-production parent explanation UX remain. These are remaining screen+AI delivery
-items, not external handoff excuses.
+active-window foreground watcher, parent-facing settings UX for disabled
+capture/analysis, physical Android/iOS proof, live macOS capture proof, Linux
+root/Wayland portal proof, browser/network/mobile/broad block action adapters
+from screen-derived decisions, checklist status movement, and production parent
+explanation UX remain. These are remaining screen+AI delivery items, not
+external handoff excuses.
 
 ## Checklist
 
