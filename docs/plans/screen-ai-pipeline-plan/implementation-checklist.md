@@ -126,4 +126,4 @@ claims.
 - [x] Android emulator MediaProjection proof run.
 - [x] `git diff --check`.
 - [x] lane/hub guards.
-- [ ] `npm run validate` or approved omission.
+- [x] `npm run validate`.
