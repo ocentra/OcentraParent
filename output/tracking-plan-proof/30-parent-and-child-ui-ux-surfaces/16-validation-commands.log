@@ -1,4 +1,4 @@
-C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\sqlite3.exe C:\Users\sujan\AppData\Local\Temp\ocentra-parent-tracking-hosted-ui-Fjrhs4\activity.sqlite .read C:\Users\sujan\AppData\Local\Temp\ocentra-parent-tracking-hosted-ui-Fjrhs4\seed-tracking.sql # exit 0
+C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\sqlite3.exe C:\Users\sujan\AppData\Local\Temp\ocentra-parent-tracking-hosted-ui-LaGtok\activity.sqlite .read C:\Users\sujan\AppData\Local\Temp\ocentra-parent-tracking-hosted-ui-LaGtok\seed-tracking.sql # exit 0
 cmd /c npm run build:contracts # exit 0
 cmd /c npm --workspace @ocentra-parent/portal run test -- tracking-status-panel # exit 0
 cargo build -p ocentra-parent-agent-service # exit 0
