@@ -744,16 +744,17 @@ exist; stale, miss, and manual-required rows cannot. This does not claim a
 runtime cache store, AI cache, activity-domain export, raw content storage, UI,
 native control, enforcement, or product checklist status.
 SOCIAL-20 now adds parent-domain parent social dashboard UX section contracts
-for account approvals, feed/video gates, native app capability, connector
-boundaries, decision memory, and manual-required gaps. This does not claim a
-rendered portal dashboard, runtime data fetch, notification, connector
-authorization, native control, enforcement, or product checklist status.
-SOCIAL-21 now adds parent-domain child approval/block UX state contracts for
-approval pending, blocked route candidates, warnings, manual review, time-limit
-candidates, and native-app unavailable states. This does not claim rendered
-child UI, notifications, browser block execution, block-page rendering, applied
-time limits, final policy execution, native control, enforcement, or product
+and text-domain copy tokens for account approvals, feed/video gates, native app
+capability, connector boundaries, decision memory, and manual-required gaps.
+This does not claim a rendered portal dashboard, runtime data fetch,
+notification, connector authorization, native control, enforcement, or product
 checklist status.
+SOCIAL-21 now adds parent-domain child approval/block UX state contracts and
+text-domain calm copy tokens for approval pending, blocked route candidates,
+warnings, manual review, time-limit candidates, and native-app unavailable
+states. This does not claim rendered child UI, notifications, browser block
+execution, block-page rendering, applied time limits, final policy execution,
+native control, enforcement, or product checklist status.
 SOCIAL-22 now adds parent-domain social audit/explanation read-model contracts
 for account approval, feed/video gate, native-app gap, connector boundary,
 decision memory, and manual-required gap rows. This does not claim a runtime

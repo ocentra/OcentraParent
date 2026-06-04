@@ -1364,26 +1364,31 @@ worker messages before code changes. Do not mix all 24 into one PR.
   connector, native app control, policy execution, or enforcement is claimed.
 - SOCIAL-20 now adds parent-domain parent social dashboard UX contracts in
   `packages/parent-domain/src/social-dashboard-ux-values.ts` and
-  `packages/parent-domain/src/social-dashboard-ux.ts`. The snapshot covers
-  account approval queue, feed/video gates, native app capability, connector
-  boundaries, decision memory, and manual-required gaps as section/action/status
-  contracts. It rejects rendered portal UI, notification delivery, runtime data
-  fetch, policy decisions, native app control, connector authorization, and
-  enforcement. This row intentionally avoids apps/portal, portal-domain, and
-  text-domain rendered UI because those areas are active in other lanes. Package subpath exports are now present; no rendered
+  `packages/parent-domain/src/social-dashboard-ux.ts`, plus text-domain copy
+  tokens in `packages/text-domain/src/social-dashboard-ux-text.ts`. The
+  snapshot covers account approval queue, feed/video gates, native app
+  capability, connector boundaries, decision memory, and manual-required gaps
+  as section/action/status contracts. It rejects rendered portal UI,
+  notification delivery, runtime data fetch, policy decisions, native app
+  control, connector authorization, and enforcement. This row intentionally
+  avoids apps/portal and portal-domain rendered UI because those areas are
+  active in other lanes. Package subpath exports are now present; no rendered
   dashboard, UI proof, runtime fetch, notification, connector authorization, or
   enforcement is claimed.
 - SOCIAL-21 now adds parent-domain child approval/block UX contracts in
   `packages/parent-domain/src/social-child-approval-block-ux-values.ts` and
-  `packages/parent-domain/src/social-child-approval-block-ux.ts`. The snapshot
-  covers approval-request pending, blocked social route candidate, warning
-  social route candidate, manual-review required, time-limit candidate, and
-  native-app unavailable states as child-facing state/action contracts. It
+  `packages/parent-domain/src/social-child-approval-block-ux.ts`, plus
+  text-domain copy tokens in
+  `packages/text-domain/src/social-child-approval-block-ux-text.ts`. The
+  snapshot covers approval-request pending, blocked social route candidate,
+  warning social route candidate, manual-review required, time-limit candidate,
+  and native-app unavailable states as child-facing state/action contracts. It
   rejects rendered child UI, notification delivery, browser navigation block
   execution, block page rendering, applied time limits, final policy decisions,
-  connector authorization, native app control, and enforcement. Package subpath exports are now present; no rendered
-  child UI, notification, browser block page, final policy execution, connector,
-  native app control, or enforcement is claimed.
+  connector authorization, native app control, and enforcement. Package subpath
+  exports are now present; no rendered child UI, notification, browser block
+  page, final policy execution, connector, native app control, or enforcement is
+  claimed.
 - SOCIAL-22 now adds parent-domain social audit/explanation read-model
   contracts in
   `packages/parent-domain/src/social-audit-explanation-read-model-values.ts`
