@@ -2,6 +2,7 @@
 
 mod bus;
 mod clock;
+mod compatibility;
 mod contract_registry;
 mod envelope;
 mod error;
@@ -24,6 +25,9 @@ pub use bus::{
 pub use clock::{
     EventClock, EventClockInstant, EventClockSleep, ManualEventClock, SharedEventClock,
     SystemEventClock,
+};
+pub use compatibility::{
+    EventCompatibilityEntry, EventCompatibilityMatrix, EventCompatibilityStatus,
 };
 pub use contract_registry::{
     EventContractDescriptor, EventContractRegistry, EventContractRegistryDocumentation,

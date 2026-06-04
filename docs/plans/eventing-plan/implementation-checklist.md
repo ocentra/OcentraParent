@@ -127,6 +127,12 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       states. E-D added `EventTopologyManifest`, generated Markdown proof, and
       `output/eventing-plan-proof/70-topology-manifest/proof-summary.json` via
       `scripts/test/eventing-topology-manifest-proof.mjs`.
+- [x] Lineage compatibility proof maps Ocentra Games/TypeScript eventing
+      semantics to Rust surfaces, intentional deviations, and manual-required
+      broker delivery scope. E-D added `EventCompatibilityMatrix`, generated
+      Markdown proof, and
+      `output/eventing-plan-proof/69-compatibility-matrix/proof-summary.json`
+      via `scripts/test/eventing-compatibility-matrix-proof.mjs`.
 - [ ] Runtime owns the bus explicitly; reusable crate exposes no hidden global
       singleton.
 - [ ] Lock-held-await source audit passes.
@@ -237,7 +243,7 @@ file.
 | 66   | Ownership, mutation, and interior-mutability guard                             | [x]    | E-D        | `codex/eventing-network-runtime-implementation` | `output/eventing-plan-proof/66-76-source-safety/proof-summary.json`, `eventing-source-safety-proof.mjs`            | Handler-facing `EventContext<E>` exposes immutable accessors only; no `&mut E` or payload mutation API.    |
 | 67   | Borrow/await and no lock-held-await source audit                               | [x]    | E-D        | `codex/eventing-network-runtime-implementation` | `output/eventing-plan-proof/67-lock-await/proof-summary.json`, `eventing-lock-await-proof.mjs`                     | No production `.lock().await`; async ordering gates are explicit.                                          |
 | 68   | TypeScript/Rust branded fixture parity                                         | [ ]    | -          | -                                               | -                                                                                                                  | Open.                                                                                                      |
-| 69   | Unity/TypeScript semantics conformance matrix and compatibility suite          | [ ]    | -          | -                                               | -                                                                                                                  | Open.                                                                                                      |
+| 69   | Unity/TypeScript semantics conformance matrix and compatibility suite          | [x]    | E-D        | `codex/eventing-network-runtime-implementation` | `output/eventing-plan-proof/69-compatibility-matrix/proof-summary.json`, `eventing-compatibility-matrix-proof.mjs` | Matrix maps compatible Rust surfaces plus explicit deviations and manual-required broker delivery.         |
 | 70   | Event topology manifest and orphan publisher/subscriber audit                  | [x]    | E-D        | `codex/eventing-network-runtime-implementation` | `output/eventing-plan-proof/70-topology-manifest/proof-summary.json`, `eventing-topology-manifest-proof.mjs`       | Manifest classifies covered, no-publisher, no-subscriber, accepted one-sided, and family variant states.   |
 | 71   | Manual clock deterministic TTL, retry, deadline, and request-timeout proof     | [x]    | E-D        | `codex/eventing-network-runtime-implementation` | `output/eventing-plan-proof/71-manual-clock/proof-summary.json`, `eventing-manual-clock-proof.mjs`                 | Manual clock covers TTL, deadline, retry, handler timeout, and request-timeout proof without long sleeps.  |
 | 72   | Event contract registry and generated documentation                            | [x]    | E-D        | `codex/eventing-network-runtime-implementation` | `output/eventing-plan-proof/72-contract-registry/proof-summary.json`, `eventing-contract-registry-proof.mjs`       | Registry rejects duplicate event types and renders deterministic generated Markdown docs.                  |

@@ -1,4 +1,5 @@
 mod clock_manual;
+mod compatibility_matrix;
 mod contract_registry;
 mod family_variants;
 mod fixtures;

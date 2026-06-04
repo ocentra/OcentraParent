@@ -41,6 +41,9 @@ Reusable Rust eventing primitives for Ocentra Parent runtime code.
 - Generated `EventTopologyManifest` proof docs for registered event contracts,
   explicit publishers, subscribers, family variants, orphan states, and
   accepted one-sided states.
+- Executable `EventCompatibilityMatrix` proof docs that map Ocentra
+  Games/TypeScript eventing lineage semantics to compatible Rust surfaces,
+  intentional deviations, and manual-required broker delivery scope.
 - Durable `EventJournal` support with async NDJSON append, optional hash-chain
   records, selected journaling by event type/namespace/allowlist, replay
   cursors and filters, explicit projection-only replay mode, and journal
