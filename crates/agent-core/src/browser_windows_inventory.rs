@@ -54,9 +54,48 @@ pub fn windows_browser_inventory_observations(
         .iter()
         .filter_map(|path| windows_browser_inventory_path_observation(path))
         .collect::<Vec<_>>();
-    observations.extend(process_observations.iter().filter_map(|process| {
-        windows_browser_inventory_process_observation(process, managed_process_id)
-    }));
+    for process in process_observations {
+        let Some(process_observation) =
+            windows_browser_inventory_process_observation(process, managed_process_id)
+        else {
+            continue;
+        };
+        if let Some(process_path) = process
+            .executable_path
+            .as_deref()
+            .filter(|path| !path.as_os_str().is_empty())
+        {
+            if let Some(candidate_observation) = observations.iter_mut().find(|observation| {
+                observation
+                    .executable_path
+                    .as_deref()
+                    .is_some_and(|candidate_path| {
+                        normalized_component_names(candidate_path)
+                            == normalized_component_names(process_path)
+                    })
+            }) {
+                if candidate_observation.process_id.is_none() {
+                    candidate_observation.process_id = process_observation.process_id;
+                }
+                candidate_observation.running_state = process_observation.running_state.clone();
+                candidate_observation.management_tier = process_observation.management_tier.clone();
+                candidate_observation.support_tier = process_observation.support_tier.clone();
+                candidate_observation.exact_url_capability =
+                    process_observation.exact_url_capability.clone();
+                candidate_observation.active_tab_capability =
+                    process_observation.active_tab_capability.clone();
+                candidate_observation.managed_profile_state =
+                    process_observation.managed_profile_state.clone();
+                candidate_observation.unmanaged_fallback_capability =
+                    process_observation.unmanaged_fallback_capability.clone();
+                candidate_observation.capability_status =
+                    process_observation.capability_status.clone();
+                candidate_observation.reason_code = process_observation.reason_code;
+                continue;
+            }
+        }
+        observations.push(process_observation);
+    }
     observations.sort_by(|left, right| {
         left.product_name
             .cmp(&right.product_name)
@@ -160,7 +199,7 @@ fn windows_browser_inventory_process_observation(
     if managed_process_id == Some(process.pid) {
         return None;
     }
-    let identity = windows_browser_executable_identity(Path::new(&process.name));
+    let identity = windows_browser_executable_identity(process_identity_path(process));
     match identity.support_kind {
         BrowserWindowsSupportKind::ManagedChromium | BrowserWindowsSupportKind::ManualChromium => {
             Some(unmanaged_process_observation(process, identity))
@@ -170,6 +209,14 @@ fn windows_browser_inventory_process_observation(
         }
         BrowserWindowsSupportKind::Unknown => None,
     }
+}
+
+fn process_identity_path(process: &ProcessObservation) -> &Path {
+    process
+        .executable_path
+        .as_deref()
+        .filter(|path| !path.as_os_str().is_empty())
+        .unwrap_or_else(|| Path::new(&process.name))
 }
 
 fn managed_chromium_path_observation(
@@ -246,7 +293,11 @@ fn unmanaged_process_observation(
     identity: BrowserWindowsExecutableIdentity,
 ) -> BrowserWindowsInventoryObservation {
     BrowserWindowsInventoryObservation {
-        executable_path: None,
+        executable_path: process
+            .executable_path
+            .as_deref()
+            .filter(|path| !path.as_os_str().is_empty())
+            .map(Path::to_path_buf),
         process_id: Some(process.pid),
         product_name: identity.product_name.to_string(),
         browser_family: identity.browser_family,
@@ -269,7 +320,11 @@ fn unsupported_process_observation(
     identity: BrowserWindowsExecutableIdentity,
 ) -> BrowserWindowsInventoryObservation {
     BrowserWindowsInventoryObservation {
-        executable_path: None,
+        executable_path: process
+            .executable_path
+            .as_deref()
+            .filter(|path| !path.as_os_str().is_empty())
+            .map(Path::to_path_buf),
         process_id: Some(process.pid),
         product_name: identity.product_name.to_string(),
         browser_family: identity.browser_family,
