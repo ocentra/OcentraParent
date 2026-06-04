@@ -65,14 +65,22 @@ claim needs proof, not slogans.
   native Notepad validates `productivity`/`allow`, and protected-surface
   degraded state makes no AI or policy claim. Authenticated-account social
   proof remains separate.
+- The screen-AI browser trigger proof now composes managed-browser URL,
+  browser-video, social-feed, and cloud-game trigger rows into the existing
+  `LocalAiEvidenceContextBuildResult` path. The proof produces ready contexts
+  for managed URL/video, a partial manual-required social context, and a partial
+  unavailable cloud-game context, all without remote AI, direct policy
+  authority, enforcement, authenticated-account, cloud-frame, or mobile parity
+  claims.
 
 ## Current Gap
 
 Ocentra needs product-grade model configuration, local model artifacts,
 production screen model quality, confidence handling, degraded states,
 authenticated-account social proof beyond public/live surface proof, parent
-explanations, broader enforcement handoff, and validation against production
-external evidence variants.
+explanations, broader enforcement handoff, production browser-trigger
+producers, cloud-streamed frame proof, mobile browser parity, and validation
+against production external evidence variants.
 
 ## Checklist
 
