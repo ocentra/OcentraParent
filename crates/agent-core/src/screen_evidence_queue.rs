@@ -18,6 +18,14 @@ pub struct ScreenEvidenceQueue {
     key: JournalKey,
 }
 
+pub struct DecryptedScreenEvidenceQueueEntry {
+    pub schema_version: u16,
+    pub queue_job_id: String,
+    pub custody_state: String,
+    pub image_digest: String,
+    pub image_bytes: Vec<u8>,
+}
+
 impl ScreenEvidenceQueue {
     pub fn open(directory: impl AsRef<Path>, key: JournalKey) -> Result<Self, JournalError> {
         create_dir_all(directory.as_ref())?;
@@ -56,7 +64,7 @@ impl ScreenEvidenceQueue {
     pub fn read_decrypted_entries(
         &self,
         max_entries: usize,
-    ) -> Result<Vec<(u16, String, String, String, Vec<u8>)>, JournalError> {
+    ) -> Result<Vec<DecryptedScreenEvidenceQueueEntry>, JournalError> {
         let contents = match read_to_string(&self.path) {
             Ok(contents) => contents,
             Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(Vec::new()),
@@ -70,13 +78,13 @@ impl ScreenEvidenceQueue {
             }
             let record = EncryptedScreenEvidenceQueueRecord::from_line(line)?;
             let image_bytes = decrypt_payload(&self.key, &record.nonce, &record.ciphertext)?;
-            entries.push((
-                record.schema_version,
-                record.queue_job_id,
-                record.custody_state,
-                record.image_digest,
+            entries.push(DecryptedScreenEvidenceQueueEntry {
+                schema_version: record.schema_version,
+                queue_job_id: record.queue_job_id,
+                custody_state: record.custody_state,
+                image_digest: record.image_digest,
                 image_bytes,
-            ));
+            });
         }
         Ok(entries)
     }
