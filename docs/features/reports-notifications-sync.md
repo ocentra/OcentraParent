@@ -68,6 +68,13 @@ custody.
   refs, redaction-safe payload fields, and child-data non-custody without
   claiming provider adapters, send/retry execution, webhook receipt ingestion,
   notification history UI, credentials, or Ocentra-hosted child evidence.
+- Notification local outbox adapter-boundary proof now writes and rereads a
+  deterministic parent-owned JSONL outbox artifact with minimal alert
+  envelopes, provider-channel abstraction, quiet-hours defer, retry,
+  dead-letter, receipt-required, manual-required states, audit/evidence/policy
+  refs, and sensitive-detail minimization without claiming provider delivery,
+  receipt ingestion, credentials, cloud routing, parent notification UI, raw
+  child evidence, or sensitive provider metadata storage.
 - Parent-owned sync/export manifest contract proof now represents export
   manifest data classes, export formats, encryption metadata, retention/delete
   policy, connector status, sync cursor states, conflict records, import
@@ -108,6 +115,12 @@ parent controls, or notification history UI. The notification audit/history
 logging proof adds redaction-safe operational log history shape and child-data
 non-custody flags, but does not claim provider delivery, retry execution,
 webhook receipt ingestion, credentials, or parent-facing notification history.
+The notification local outbox adapter-boundary proof adds deterministic local
+outbox artifact writing and parsing for minimal notification envelopes and
+defer/retry/dead-letter/receipt/manual states, but does not claim provider
+delivery, receipt ingestion, credentials, cloud routing, parent notification UI,
+quiet-hours scheduler execution, retry execution, or production durable outbox
+storage.
 The parent-owned sync/export manifest proof adds typed export/retention/delete,
 connector status, cursor, conflict, import, and delete result states, but does
 not claim real export/import/upload/download runtime, connector OAuth,
@@ -157,6 +170,11 @@ delivery, policy writes, or child-device enforcement.
 - [x] Notification audit/history logging contract proof exists with
       redaction-safe payload fields and child-data non-custody flags, without
       provider delivery, receipt ingestion, credentials, or history UI claims.
+- [x] Notification local outbox adapter-boundary proof exists with deterministic
+      parent-owned JSONL artifact writing/parsing, minimal alert envelopes,
+      quiet-hours defer, retry, dead-letter, receipt-required, and manual states,
+      without provider delivery, receipt ingestion, credentials, cloud routing,
+      parent notification UI, or sensitive detail storage claims.
 - [ ] Retention/delete controls.
 
 ## Next AI Instructions
@@ -172,6 +190,11 @@ as logging-domain audit/history contract proof only; require provider adapter,
 real send/retry execution, receipt ingestion, credentials, parent-control, and
 notification-history UI artifacts before claiming notification delivery or
 parent-facing notification history. Treat
+`scripts/test/notification-local-outbox-adapter-proof.mjs` as parent-domain
+local outbox adapter-boundary proof only; require provider adapters, real
+send/retry execution, receipt ingestion, quiet-hours scheduler, parent-visible
+history/preferences UI, production durable storage, and provider smoke proof
+before claiming notification delivery or product notification runtime. Treat
 `scripts/test/parent-owned-sync-export-manifest-proof.mjs` as parent-domain
 sync/export manifest and connector-status contract proof only; require real
 transfer runtime, connector OAuth/provider artifacts, parent-visible controls,
