@@ -55,10 +55,27 @@ escalation, hidden persistence, notification provider delivery, admin-removal
 blocking, raw child data, raw evidence payloads, raw URLs, screenshots, command
 lines, private paths, or message contents.
 
+## Support Bundle Redaction Contract
+
+`src/support-bundle-redaction.ts` owns the logging-domain schema proof for
+production-support bundle redaction and incident handoff rows, while
+`src/support-bundle-redaction-read-model.ts` owns the current fixture rows. They
+record parent consent, release/package/runtime support metadata, support-safe
+diagnostic references, billing escalation manual-required state, account lookup
+manual-required state, and backend-upload/manual support boundaries.
+
+This contract is metadata-only. It does not claim support backend upload,
+billing provider contact, account lookup execution, remote support sessions,
+production SLA, provider secrets, tokens, child activity, raw URLs, screenshots,
+journals, SQLite snapshots, private paths, command lines, keystrokes, clipboard
+data, or message contents.
+
 ## Gaps To Fill
 
 - Keep log contracts aligned with every new remote, notification, and support
   path.
 - Add runtime writers only after the notification provider and history surfaces
   have real contracts and validation.
-- Add explicit support-bundle redaction contracts before external support flows.
+- Add runtime support bundle writers only after production support backend,
+  account lookup, billing escalation, remote support, and SLA workflows have
+  real contracts and validation.

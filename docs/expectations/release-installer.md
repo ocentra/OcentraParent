@@ -39,6 +39,16 @@ Release features are product features because parents need install/update paths 
   workflow, redaction summary, manual runbook, or status-row references; they
   must not point to private user paths, command logs, raw URLs, screenshots,
   journals, SQLite stores, clipboard data, or message contents.
+- Current `support-bundle-redaction-proof` records logging-domain incident rows
+  for parent consent, ready/manual review, backend-upload manual-required,
+  billing-escalation manual-required, and account-lookup manual-required states.
+  It limits support bundles to release/package/runtime, service, route,
+  capability, degraded-state, redaction, manual-proof, incident, billing-status,
+  and account-status references and rejects tokens, child activity, raw URLs,
+  screenshots, journals, SQLite snapshots, private paths, command lines,
+  keystrokes, clipboard data, message contents, provider secrets, executed
+  backend upload, billing provider contact, account lookup, remote support, and
+  production SLA claims.
 - Production support backend upload, account lookup, billing escalation, remote
   support, and production SLA remain explicit manual-required or
   not-implemented states until real support workflows exist.

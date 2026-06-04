@@ -55,6 +55,17 @@ dev-only repo when it claims consumer readiness.
   service-manager launch ownership, fixed loopback process ownership,
   connect-or-degrade behavior, signed-channel update posture, and explicit
   not-signing/not-production/non-upload non-claims.
+- `support-bundle-redaction-proof` adds logging-domain production-support
+  incident rows for parent consent, support bundle readiness, manual review,
+  backend-upload manual-required state, billing escalation manual-required
+  state, and account lookup manual-required state. It proves support-safe
+  release/package/runtime, service, route, capability, degraded-state,
+  redaction, manual-proof, incident, billing-status, and account-status
+  references while rejecting tokens, child activity, raw URLs, screenshots,
+  journals, SQLite snapshots, private paths, command lines, keystrokes,
+  clipboard data, message contents, provider secrets, backend upload execution,
+  billing provider contact, account lookup execution, remote support sessions,
+  and production SLA claims.
 - `mobile-child-agent-capability-proof` adds package/runtime hook evidence for
   Android debug APK/checksum, Android package-local status, Android device
   install/manual Play signing, iOS Xcode target, iOS simulator status, iOS
@@ -155,9 +166,12 @@ package/runtime proof.
       references, manual-required production support states, and blocks tokens,
       child activity, raw URLs, screenshots, journals, SQLite snapshots, private
       paths, commands, keystrokes, clipboard data, and message contents from
-      support output. Real support backend upload, billing/account escalation,
-      public account lookup, remote support, and production SLA remain
-      unimplemented/manual-required.
+      support output. Current `support-bundle-redaction-proof` moves that
+      support-bundle boundary into logging-domain contracts and adds explicit
+      backend-upload, billing-escalation, account-lookup, remote-support, and
+      production-SLA manual/not-implemented rows. Real support backend upload,
+      billing/account escalation, public account lookup, remote support, and
+      production SLA remain unimplemented/manual-required.
 
 ## Next AI Instructions
 
