@@ -6,6 +6,7 @@ pub mod encrypted_dns;
 pub mod fixtures;
 pub mod flow;
 pub mod http;
+pub mod managed_browser;
 pub mod packet;
 pub mod pcap;
 pub mod process;
@@ -53,6 +54,11 @@ pub use flow::{
     NetworkFlowKey, NetworkFlowPacket, NetworkFlowProtocol, NetworkFlowSession, NetworkFlowSummary,
 };
 pub use http::{parse_http_host, HttpHostObservation, HttpHostParseError};
+pub use managed_browser::{
+    correlate_managed_browser_activity, ManagedBrowserCorrelation, ManagedBrowserCorrelationBasis,
+    ManagedBrowserCorrelationError, ManagedBrowserCorrelationInput, ManagedBrowserCorrelationState,
+    ManagedBrowserPageEvidence, NetworkManagedBrowserFlowEvidence,
+};
 pub use packet::{
     parse_network_packet, udp_payload_from_ethernet_ipv4, EthernetFrameMetadata, IpProtocol,
     Ipv4PacketMetadata, PacketParseError, ParsedNetworkPacket, TransportPacketMetadata,

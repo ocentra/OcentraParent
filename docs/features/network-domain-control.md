@@ -118,6 +118,10 @@ compete on control while staying clear about attribution confidence and privacy.
   app inventory, process-name-only traffic remains a candidate, and
   adapter-unavailable/missing-process states remain explicit without browser URL
   or decrypted-content claims.
+- E-D added a managed-browser correlation bridge in
+  `ocentra-network-evidence`: exact URLs are attached only from matching managed
+  browser page evidence, while network-only domains and mismatched browser
+  evidence stay non-exact and no decrypted/page-content claim is made.
 - E-D added Rust protocol-facing network/AI/policy/enforcement/audit/portal
   event contracts in `crates/agent-protocol`. The proof serializes exact
   chain refs, no exact URL/content claim boundaries, policy-decision-gated
@@ -204,6 +208,8 @@ apply/rollback artifacts remain open.
 - [x] Full-scope network plan, proof tiers, UI requirements, and workpacks.
 - [ ] Real block/terminate/unavailable result.
 - [x] No decrypted payload/page-content claim at the network contract boundary.
+      Managed-browser correlation can attach exact URLs only from matching
+      browser evidence, not from network metadata.
 
 ## Next AI Instructions
 
