@@ -9,6 +9,7 @@ mod activity_surface;
 mod app_game;
 mod app_game_authority_classifier;
 mod app_game_boundary_read_model;
+mod app_game_notification_readiness;
 mod app_game_policy_readiness;
 mod browser;
 mod browser_intervention;
@@ -66,6 +67,7 @@ pub use activity_surface::*;
 pub use app_game::*;
 pub use app_game_authority_classifier::*;
 pub use app_game_boundary_read_model::*;
+pub use app_game_notification_readiness::*;
 pub use app_game_policy_readiness::*;
 pub use browser::*;
 pub use browser_intervention::*;
@@ -145,6 +147,8 @@ mod app_game_authority_classifier_tests;
 mod app_game_boundary_read_model_tests;
 #[cfg(test)]
 mod app_game_evidence_identity_tests;
+#[cfg(test)]
+mod app_game_notification_readiness_tests;
 #[cfg(test)]
 mod app_game_policy_readiness_tests;
 #[cfg(test)]

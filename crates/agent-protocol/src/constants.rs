@@ -88,6 +88,8 @@ pub mod event_id {
         "activity-app-game-boundary-read-model-reported";
     pub const ACTIVITY_APP_GAME_POLICY_READINESS_READ_MODEL_REPORTED: &str =
         "activity-app-game-policy-readiness-read-model-reported";
+    pub const ACTIVITY_APP_GAME_NOTIFICATION_READINESS_READ_MODEL_REPORTED: &str =
+        "activity-app-game-notification-readiness-read-model-reported";
     pub const ACTIVITY_NETWORK_READ_MODEL_REPORTED: &str = "activity-network-read-model-reported";
     pub const ACTIVITY_TRACKING_READ_MODEL_REPORTED: &str = "activity-tracking-read-model-reported";
     pub const BROWSER_INVENTORY_READ_MODEL_REPORTED: &str = "browser-inventory-read-model-reported";

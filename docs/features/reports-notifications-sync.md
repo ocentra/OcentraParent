@@ -88,6 +88,12 @@ custody.
   app/game notification intents with evidence, policy, audit, child
   reason/status, minimal payload refs, local-outbox-only readiness, and explicit
   no-provider, no-cloud, no-parent-UI, and no-adapter-dispatch claims.
+- App/game notification readiness service proof now exposes a dedicated
+  command/event that derives time-limit, approval-request, suspicious-unknown,
+  manual-required, and unavailable readiness rows from the existing app/game
+  service read model while preserving explicit no-provider-delivery,
+  no-receipt-ingestion, no-outbox-runtime, no-scheduler-runtime,
+  no-parent-UI, no-child-delivery, and no-adapter-dispatch claims.
 - Parent-owned sync/export manifest contract proof now represents export
   manifest data classes, export formats, encryption metadata, retention/delete
   policy, connector status, sync cursor states, conflict records, import
@@ -140,10 +146,10 @@ due/held/retry/dead-letter/receipt/manual states, but does not claim provider
 delivery, receipt ingestion, credentials, cloud routing, parent notification UI,
 production retry worker execution, production quiet-hours timer execution, or
 durable production outbox storage.
-The app/game notification intent proof adds typed app/game alert intent
-readiness and minimal payload boundaries, but does not claim provider delivery,
-provider receipt ingestion, service persistence, child-device delivery, parent
-notification UI, policy evaluator execution, adapter dispatch, broad app
+The app/game notification readiness service proof adds typed service rows for
+local alert readiness, but does not claim provider delivery, provider receipt
+ingestion, production local outbox or scheduler runtime, child-device delivery,
+parent notification UI, policy evaluator execution, adapter dispatch, broad app
 blocking, or platform support.
 The parent-owned sync/export manifest proof adds typed export/retention/delete,
 connector status, cursor, conflict, import, and delete result states, but does
@@ -209,6 +215,11 @@ delivery, policy writes, or child-device enforcement.
       approval request, suspicious unknown, manual-required, and unavailable
       app/game alert intents, minimal payload refs, local-outbox-only readiness,
       and explicit no-provider/no-adapter/no-UI claims.
+- [x] App/game notification readiness service proof exists with dedicated
+      command/event rows for time-limit, approval-request, suspicious-unknown,
+      manual-required, and unavailable states, without provider delivery,
+      receipts, production outbox/scheduler runtime, parent UI, child delivery,
+      or adapter claims.
 - [ ] Retention/delete controls.
 
 ## Next AI Instructions
@@ -234,6 +245,12 @@ local outbox scheduler proof only; require provider adapters, production retry
 workers, production quiet-hours timers, receipt ingestion, parent-visible
 history/preferences UI, production durable storage, and provider smoke proof
 before claiming notification delivery or product notification runtime. Treat
+`scripts/test/app-game-notification-service-read-model-proof.mjs` as
+service-backed app/game local notification-readiness proof only; require
+provider adapters, production outbox/scheduler runtime, receipt ingestion,
+parent-visible history/preferences UI, child delivery proof, and provider smoke
+proof before claiming app/game notification delivery or product notification
+runtime. Treat
 `scripts/test/parent-owned-sync-export-manifest-proof.mjs` as parent-domain
 sync/export manifest and connector-status contract proof only; require real
 transfer runtime, connector OAuth/provider artifacts, parent-visible controls,

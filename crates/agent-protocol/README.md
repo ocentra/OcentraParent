@@ -31,6 +31,9 @@ Rust protocol parity crate for data that crosses the TypeScript/Rust boundary.
 - App/game boundary read-model structs, command/event names, payload field, and
   parity tests for the service-backed authority/classifier row-count proof
   path.
+- App/game notification readiness read-model structs, command/event names,
+  payload field, no-claim booleans, and parity tests for the service-backed
+  local notification intent readiness proof path.
 - App/game activity-surface source status structs for backend app-use/games row
   freshness/count/capability proof without portal, policy, or adapter claims.
 - App/game evidence claim, AI digest reference/classification digest, identity,
@@ -112,7 +115,12 @@ flowchart LR
   core Windows shortcut, Store package, and registry sources now exist for
   inventory-only rows. Agent-service owns a recurring bounded runtime capture
   cadence, registry-backed inventory capture, source status rows on app-use and
-  games activity-surface read-models, and a dedicated app/game boundary
-  read-model event, but policy runtime, portal
-  identity/classifier/platform-authority rows, and adapter execution remain
-  separate proof-gated work.
+  games activity-surface read-models, and dedicated app/game boundary and
+  notification readiness read-model events, but policy runtime, portal
+  identity/classifier/platform-authority rows, provider delivery, child
+  delivery, and adapter execution remain separate proof-gated work.
+- App/game notification readiness read-model structs preserve local readiness
+  rows only. Provider delivery, receipt ingestion, local outbox runtime,
+  scheduler runtime, parent notification UI, child delivery, policy evaluator
+  execution, adapter dispatch, broad blocking, and platform support remain
+  unclaimed.
