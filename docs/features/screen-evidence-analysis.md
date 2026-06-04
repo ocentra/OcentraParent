@@ -156,6 +156,12 @@ only with explicit parent settings.
   WebSocket command path, and drains the processed encrypted queue record. The
   adapter command is a local proof adapter for runtime plumbing, not a production
   VLM quality claim.
+- `scripts/test/screen-ai-deletion-retention-custody-proof.mjs` now writes a
+  combined pipeline artifact proving screen queue TTL/deletion custody contracts:
+  successful deletion and expired deletion require proof, delete-failed state
+  remains visible in queue health, retry bounds are enforced, and unsupported raw
+  screenshot retention is rejected. This is contract proof; production TTL
+  sweeper execution and parent retention UI remain separate.
 - `scripts/test/screen-ai-live-operator-proof.mjs` now provides the executable
   live operator gate for this feature. It prints a required nine-scenario
   manifest template, refuses to claim live proof without operator-supplied real
@@ -186,16 +192,16 @@ only with explicit parent settings.
 
 ## Current Gap
 
-Opt-in UI, authenticated-account social proof beyond public/live surface proof,
-OCR/vision quality beyond controlled fixtures and the full live operator matrix,
-production local vision adapter quality beyond
-the service proof adapter, service-owned live trigger event producers beyond the
-timed cadence loop and native active-window foreground watcher, physical
-Android/iOS proof, live macOS capture proof, Linux root/Wayland portal proof,
-browser/network/mobile/broad block action adapters from screen-derived
-decisions, checklist status movement, and production parent explanation UX
-remain. These are remaining screen+AI delivery items, not external handoff
-excuses.
+Opt-in UI, production TTL sweeper execution, parent retention controls,
+authenticated-account social proof beyond public/live surface proof, OCR/vision
+quality beyond controlled fixtures and the full live operator matrix, production
+local vision adapter quality beyond the service proof adapter, service-owned
+live trigger event producers beyond the timed cadence loop and native
+active-window foreground watcher, physical Android/iOS proof, live macOS capture
+proof, Linux root/Wayland portal proof, browser/network/mobile/broad block
+action adapters from screen-derived decisions, checklist status movement, and
+production parent explanation UX remain. These are remaining screen+AI delivery
+items, not external handoff excuses.
 
 ## Checklist
 
