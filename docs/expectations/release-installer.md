@@ -15,6 +15,10 @@ Release features are product features because parents need install/update paths 
   boundaries, package-runtime evidence, support diagnostic redaction, CI
   artifacts, support incident handoff metadata, parent consent, safe
   support-bundle manifest disclosure, and manual proof requirements.
+- V8 release/support readiness gate that summarizes package-preview artifacts,
+  support-safe diagnostic/runbook readiness, updater rollback execution state,
+  signing/store proof state, production publishing state, and manual platform
+  gaps without promoting preview artifacts to production release evidence.
 
 ## Acceptance
 
@@ -59,6 +63,11 @@ Release features are product features because parents need install/update paths 
   connect-or-degrade behavior, blank-window guard state, and signed-channel
   update posture without treating Vite or preview CI artifacts as production
   release evidence.
+- Parent desktop release/support readiness proof records the Windows, Linux,
+  macOS, Android, and iOS package-preview artifact names but keeps production
+  publishing, signing, store upload, and updater rollback execution
+  manual-required or promotion-required until real credentials, promotion, and
+  manual platform proof exist.
 - Parent-facing install flow is understandable for non-technical users.
 - `mobile-child-agent-capability-proof` package/runtime hooks may reference
   Android debug APK/checksum and iOS simulator/Xcode artifacts, but Play

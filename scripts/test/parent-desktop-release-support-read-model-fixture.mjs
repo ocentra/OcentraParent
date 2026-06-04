@@ -19,6 +19,7 @@ export function buildReadModel(version, commit, ciArtifactProof) {
     supportDiagnostics: supportDiagnostics(version, commit),
     supportIncidentHandoff: supportIncidentHandoff(),
     manualRunbook: manualRunbook(version),
+    productionReadinessGate: productionReadinessGate(ciArtifactProof),
     updatedAt: new Date().toISOString(),
   };
 }
@@ -148,6 +149,49 @@ function supportDiagnostics(version, commit) {
 
 function diagnostic(field, value) {
   return { field, value, redactionState: 'safe' };
+}
+
+function productionReadinessGate(ciArtifactProof) {
+  return {
+    gate: 'v8-production-release-support-readiness',
+    packagePreviewArtifacts: packagePreviewArtifacts(ciArtifactProof),
+    supportDiagnosticsState: 'preview-only',
+    supportRunbookState: 'manual-required',
+    updaterRollbackExecutionState: 'rollback-unavailable',
+    signingStoreProofState: 'manual-required',
+    productionPublishingState: 'production-promotion-required',
+    claimBoundary:
+      'V8 readiness gate is package preview support readiness not production publishing not signing not store upload proof',
+    proofReferences: [
+      'test-results/parent-desktop-release-support-proof/proof.json',
+      '.github/workflows/package-preview.yml',
+    ],
+    manualRequiredGaps: [
+      'windows signing',
+      'macOS notarization',
+      'Google Play signing',
+      'TestFlight device proof',
+      'App Store proof',
+      'production updater rollback',
+      'production support runbook',
+    ],
+  };
+}
+
+function packagePreviewArtifacts(ciArtifactProof) {
+  return [
+    'ocentra-parent-windows-x64-preview',
+    'ocentra-parent-linux-amd64-preview',
+    'ocentra-parent-macos-preview',
+    'ocentra-parent-android-preview',
+    'ocentra-parent-ios-simulator-preview',
+  ].map((artifactName) => ({
+    artifactName,
+    runStatus: ciArtifactProof.runStatus,
+    artifactState: ciArtifactProof.artifactState,
+    packageReadinessClaim: 'manual-required',
+    manualProofRequirement: `${artifactName} requires manual platform signing or store proof before production readiness`,
+  }));
 }
 
 function manualRunbook(version) {

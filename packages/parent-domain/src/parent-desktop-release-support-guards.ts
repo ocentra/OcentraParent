@@ -16,6 +16,10 @@ import type {
 } from './parent-desktop-release-support';
 import { parentDesktopReleaseSupportIncidentHandoffIsHonest } from './parent-desktop-release-support-incident-guards';
 
+type ProductionReadinessGate = ParentDesktopReleaseSupportReadModel['productionReadinessGate'];
+type PackagePreviewArtifact = ProductionReadinessGate['packagePreviewArtifacts'][number];
+type PackagePreviewArtifactName = PackagePreviewArtifact['artifactName'];
+
 const RequiredOperations = [
   'read-service-state',
   'read-route-state',
@@ -64,6 +68,22 @@ const RequiredRedactedFieldLabels = [
   'clipboard data',
   'message contents',
 ] as const;
+const RequiredPackagePreviewArtifacts = [
+  'ocentra-parent-windows-x64-preview',
+  'ocentra-parent-linux-amd64-preview',
+  'ocentra-parent-macos-preview',
+  'ocentra-parent-android-preview',
+  'ocentra-parent-ios-simulator-preview',
+] as const satisfies ReadonlyArray<PackagePreviewArtifactName>;
+const RequiredReadinessManualGaps = [
+  'windows signing',
+  'macOS notarization',
+  'Google Play signing',
+  'TestFlight device proof',
+  'App Store proof',
+  'production updater rollback',
+  'production support runbook',
+] as const;
 
 export function parentDesktopReleaseSupportReadModelIsHonest(readModel: ParentDesktopReleaseSupportReadModel): boolean {
   return (
@@ -76,7 +96,8 @@ export function parentDesktopReleaseSupportReadModelIsHonest(readModel: ParentDe
     ciArtifactProofIsHonest(readModel.ciArtifactProof) &&
     supportDiagnosticsAreRedacted(readModel.supportDiagnostics) &&
     parentDesktopReleaseSupportIncidentHandoffIsHonest(readModel.supportIncidentHandoff) &&
-    manualRunbookCoversRequiredTargets(readModel.manualRunbook)
+    manualRunbookCoversRequiredTargets(readModel.manualRunbook) &&
+    readinessGateIsHonest(readModel.productionReadinessGate)
   );
 }
 
@@ -255,4 +276,43 @@ function manualRunbookCoversRequiredTargets(entries: ReadonlyArray<ParentDesktop
     RequiredTargets.every((target) => byTarget.has(target)) &&
     entries.every((entry) => entry.knownGaps.length > 0)
   );
+}
+
+function readinessGateIsHonest(gate: ProductionReadinessGate): boolean {
+  return (
+    gate.gate === 'v8-production-release-support-readiness' &&
+    readinessGatePackageArtifactsAreHonest(gate.packagePreviewArtifacts) &&
+    gate.supportDiagnosticsState !== 'unavailable' &&
+    (gate.supportRunbookState === 'manual-required' || gate.supportRunbookState === 'preview-only') &&
+    gate.updaterRollbackExecutionState === 'rollback-unavailable' &&
+    (gate.signingStoreProofState === 'manual-required' || gate.signingStoreProofState === 'signature-required') &&
+    gate.productionPublishingState === 'production-promotion-required' &&
+    readinessGateBoundaryIsHonest(gate) &&
+    readinessGateGapsAreComplete(gate.manualRequiredGaps)
+  );
+}
+
+function readinessGatePackageArtifactsAreHonest(artifacts: ReadonlyArray<PackagePreviewArtifact>): boolean {
+  const byName = new Map(artifacts.map((entry) => [entry.artifactName, entry] as const));
+  return (
+    byName.size === artifacts.length &&
+    RequiredPackagePreviewArtifacts.every((artifactName) => byName.has(artifactName)) &&
+    artifacts.every((entry) => entry.packageReadinessClaim !== 'ready' && entry.manualProofRequirement.length > 0)
+  );
+}
+
+function readinessGateBoundaryIsHonest(gate: ProductionReadinessGate): boolean {
+  return (
+    gate.claimBoundary.includes('not production publishing') &&
+    gate.claimBoundary.includes('not signing') &&
+    gate.claimBoundary.includes('not store') &&
+    gate.proofReferences.some(
+      (reference) => reference === 'test-results/parent-desktop-release-support-proof/proof.json'
+    ) &&
+    gate.proofReferences.some((reference) => reference === '.github/workflows/package-preview.yml')
+  );
+}
+
+function readinessGateGapsAreComplete(gaps: ProductionReadinessGate['manualRequiredGaps']): boolean {
+  return RequiredReadinessManualGaps.every((gap) => gaps.some((entry) => entry === gap));
 }
