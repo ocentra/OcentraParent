@@ -167,6 +167,79 @@ fn windows_browser_inventory_generates_known_candidate_paths_from_roots() {
 }
 
 #[test]
+fn windows_browser_inventory_deduplicates_candidate_roots() {
+    let root = PathBuf::from(constants::browser::DEVTOOLS_TEST_WINDOWS_BROWSER_INVENTORY_DIR)
+        .join(constants::browser::PATH_SEGMENT_DEFAULT);
+    let paths = windows_browser_inventory_candidate_paths(&[root.clone(), root.clone()]);
+    let edge_stable_count = paths
+        .iter()
+        .filter(|path| {
+            path == &&root
+                .join(constants::browser::PATH_SEGMENT_MICROSOFT)
+                .join(constants::browser::PATH_SEGMENT_EDGE)
+                .join(constants::browser::PATH_SEGMENT_APPLICATION)
+                .join(constants::browser::EXECUTABLE_MSEDGE_WINDOWS)
+        })
+        .count();
+
+    assert_eq!(edge_stable_count, 1);
+}
+
+#[test]
+fn windows_browser_inventory_generates_candidates_from_multiple_roots() {
+    let machine_root =
+        PathBuf::from(constants::browser::DEVTOOLS_TEST_WINDOWS_BROWSER_INVENTORY_DIR)
+            .join(constants::browser::PATH_SEGMENT_APPLICATION);
+    let user_root = PathBuf::from(constants::browser::DEVTOOLS_TEST_WINDOWS_BROWSER_INVENTORY_DIR)
+        .join(constants::browser::PATH_SEGMENT_USER_DATA);
+    let paths =
+        windows_browser_inventory_candidate_paths(&[machine_root.clone(), user_root.clone()]);
+
+    assert!(paths.iter().any(|path| {
+        path == &machine_root
+            .join(constants::browser::PATH_SEGMENT_MICROSOFT)
+            .join(constants::browser::PATH_SEGMENT_EDGE)
+            .join(constants::browser::PATH_SEGMENT_APPLICATION)
+            .join(constants::browser::EXECUTABLE_MSEDGE_WINDOWS)
+    }));
+    assert!(paths.iter().any(|path| {
+        path == &user_root
+            .join(constants::browser::PATH_SEGMENT_GOOGLE)
+            .join(constants::browser::PATH_SEGMENT_CHROME)
+            .join(constants::browser::PATH_SEGMENT_APPLICATION)
+            .join(constants::browser::EXECUTABLE_CHROME_WINDOWS)
+    }));
+}
+
+#[test]
+fn windows_browser_inventory_marks_windowsapps_path_as_packaged() {
+    let test_root = temp_inventory_root(4);
+    let root = test_root
+        .join(constants::browser::PATH_SEGMENT_WINDOWS_APPS)
+        .join(constants::browser::PATH_SEGMENT_MICROSOFT)
+        .join(constants::browser::PATH_SEGMENT_EDGE)
+        .join(constants::browser::PATH_SEGMENT_APPLICATION);
+    let edge = root.join(constants::browser::EXECUTABLE_MSEDGE_WINDOWS);
+    create_executable_fixture(&edge);
+
+    let observations =
+        windows_browser_inventory_observations(std::slice::from_ref(&edge), &[], None);
+
+    assert_eq!(observations.len(), 1);
+    assert_eq!(
+        observations[0].install_state,
+        BrowserInventoryInstallState::Packaged
+    );
+    assert_eq!(observations[0].browser_family, BrowserFamily::Edge);
+    assert_eq!(
+        observations[0].exact_url_capability,
+        BrowserExactUrlCapability::Unavailable
+    );
+
+    let _ = std::fs::remove_dir_all(test_root);
+}
+
+#[test]
 fn managed_discovery_identity_uses_windows_inventory_identity() {
     let identity = windows_browser_executable_identity(
         PathBuf::from(constants::browser::DEVTOOLS_TEST_MSEDGE_BETA_PATH).as_path(),

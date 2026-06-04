@@ -4,12 +4,26 @@ use ocentra_parent_agent_protocol::constants;
 
 pub fn windows_browser_inventory_candidate_paths(roots: &[PathBuf]) -> Vec<PathBuf> {
     let mut paths = Vec::new();
-    for root in roots {
+    for root in unique_roots(roots) {
         push_managed_chromium_paths(&mut paths, root);
         push_manual_chromium_paths(&mut paths, root);
         push_unsupported_browser_paths(&mut paths, root);
     }
     paths
+}
+
+fn unique_roots(roots: &[PathBuf]) -> Vec<&PathBuf> {
+    let mut unique = Vec::new();
+    for root in roots {
+        if root.as_os_str().is_empty() {
+            continue;
+        }
+        if unique.iter().any(|candidate| candidate == &root) {
+            continue;
+        }
+        unique.push(root);
+    }
+    unique
 }
 
 fn push_managed_chromium_paths(paths: &mut Vec<PathBuf>, root: &Path) {
