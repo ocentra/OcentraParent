@@ -71,6 +71,10 @@ and clear degraded states.
 - E-D hardened weak network evidence command routing: manual-required or
   unavailable network observations now skip enforcement command/result publish
   phases while still preserving audit and read-model visibility.
+- E-D added an eventing UI typed-intent boundary proof: the portal serializes
+  outbound messages only as validated `AgentCommandEnvelope` values, parses
+  service events as read models, keeps `AgentEvent` values as result metadata,
+  and does not own event-bus publish/subscribe code.
 
 ## Current Gap
 
@@ -83,9 +87,11 @@ typed envelopes, production shutdown, and runtime-owned bus lifecycle. The open
 eventing gap is Parent-specific event contracts, child/parent transport
 handoff, broker-backed delivery, journal-before-action enforcement integration,
 adapter-result audit/read-model integration, and broad runtime adoption. The
-initial AI and portal direct-enforcement negative proof now rejects portal-side
-enforcement action commands and verifies parent-assistant/AI command routing
-does not target enforcement handlers; weak network evidence no longer publishes
+initial UI typed-intent proof keeps the Vite/TypeScript portal as a view/input
+surface while Rust remains the business event publisher. The initial AI and
+portal direct-enforcement negative proof now rejects portal-side enforcement
+action commands and verifies parent-assistant/AI command routing does not
+target enforcement handlers; weak network evidence no longer publishes
 enforcement command/result events; the eventing source gate now rejects public
 raw JSON/string constants, `Uuid`, and raw domain identifier fields.
 
@@ -99,10 +105,11 @@ raw JSON/string constants, `Uuid`, and raw domain identifier fields.
 - [ ] Reusable Rust eventing crate shared by parent/controller and child-agent
       runtimes, with UI/Vite kept view/input only. First E-D proof exists for
       `crates/ocentra-eventing` typed envelopes, queue/retry/request-response,
-      journal/replay, production shutdown, portal/AI direct-enforcement
-      negative proof, weak-network-evidence command-routing guard, type-safety
-      source gate, and the network runtime chain; Parent-specific contracts and
-      broad runtime adoption remain.
+      journal/replay, production shutdown, UI typed-intent-only boundary,
+      portal/AI direct-enforcement negative proof,
+      weak-network-evidence command-routing guard, type-safety source gate, and
+      the network runtime chain; Parent-specific contracts and broad runtime
+      adoption remain.
 - [ ] Policy and AI read paths.
 - [ ] Enforcement adapter dispatch with audit.
 - [ ] Capability and degraded-state reporting. Current mobile capability proof
