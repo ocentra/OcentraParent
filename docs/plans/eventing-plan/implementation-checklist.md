@@ -100,7 +100,11 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       deadline-aware envelopes/dispatch, deterministic manual-clock tests, and
       `output/eventing-plan-proof/71-manual-clock/proof-summary.json` via
       `scripts/test/eventing-manual-clock-proof.mjs`.
-- [ ] Duplicate subscriber registration policy is explicit and tested.
+- [x] Duplicate subscriber registration policy is explicit and tested. E-D
+      proved `EventingError::DuplicateSubscriber` rejects duplicate subscriber
+      ids without replacing the existing handler via
+      `scripts/test/eventing-duplicate-subscriber-proof.mjs` and
+      `output/eventing-plan-proof/73-duplicate-subscriber/proof-summary.json`.
 - [ ] Shutdown/clear lifecycle drains, dead-letters, cancels, or test-clears
       state according to documented policy.
 - [ ] Runtime owns the bus explicitly; reusable crate exposes no hidden global
