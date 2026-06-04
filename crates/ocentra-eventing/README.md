@@ -33,6 +33,8 @@ Reusable Rust eventing primitives for Ocentra Parent runtime code.
 - Injectable `EventClock` support with a system clock for runtime paths and a
   manual clock for deterministic TTL, deadline, retry, handler-timeout, and
   request-timeout tests without long wall-clock sleeps.
+- `EventContractRegistry` descriptors for implemented event contracts, duplicate
+  event type rejection, and deterministic generated Markdown registry docs.
 - Durable `EventJournal` support with async NDJSON append, optional hash-chain
   records, selected journaling by event type/namespace/allowlist, replay
   cursors and filters, explicit projection-only replay mode, and journal
@@ -55,6 +57,6 @@ Reusable Rust eventing primitives for Ocentra Parent runtime code.
 ## Current Gap
 
 This crate does not yet implement production shutdown/drain lifecycle,
-broker-backed delivery, generated contract registry docs, or Parent-specific
-event contracts. Consumers must keep those claims manual-required until the
-matching eventing workpacks are implemented and validated.
+broker-backed delivery, event topology manifests, or Parent-specific event
+contracts. Consumers must keep those claims manual-required until the matching
+eventing workpacks are implemented and validated.

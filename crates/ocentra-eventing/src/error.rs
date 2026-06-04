@@ -7,6 +7,7 @@ pub enum EventingError {
     PayloadEncode { reason: String },
     PayloadDecode { event_type: String, reason: String },
     ContractMismatch { expected: String, received: String },
+    DuplicateEventContract { event_type: String },
     DuplicateSubscriber { subscriber_id: String },
     HandlerPanicked { subscriber_id: String },
     HandlerTimedOut { subscriber_id: String },
@@ -70,6 +71,7 @@ impl fmt::Display for EventingError {
             | Self::PayloadEncode { .. }
             | Self::PayloadDecode { .. }
             | Self::ContractMismatch { .. }
+            | Self::DuplicateEventContract { .. }
             | Self::DuplicateSubscriber { .. }
             | Self::HandlerPanicked { .. }
             | Self::HandlerTimedOut { .. }
@@ -117,6 +119,9 @@ fn fmt_core_error(error: &EventingError, formatter: &mut fmt::Formatter<'_>) -> 
                 formatter,
                 "event contract mismatch: expected {expected}, received {received}"
             )
+        }
+        EventingError::DuplicateEventContract { event_type } => {
+            write!(formatter, "duplicate event contract: {event_type}")
         }
         EventingError::DuplicateSubscriber { subscriber_id } => {
             write!(formatter, "duplicate subscriber: {subscriber_id}")

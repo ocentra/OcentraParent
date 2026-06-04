@@ -2,6 +2,7 @@
 
 mod bus;
 mod clock;
+mod contract_registry;
 mod envelope;
 mod error;
 mod execution;
@@ -22,6 +23,9 @@ pub use bus::{
 pub use clock::{
     EventClock, EventClockInstant, EventClockSleep, ManualEventClock, SharedEventClock,
     SystemEventClock,
+};
+pub use contract_registry::{
+    EventContractDescriptor, EventContractRegistry, EventContractRegistryDocumentation,
 };
 pub use envelope::{
     DomainEvent, EventContract, EventCustody, EventEnvelope, EventMetadata, EventSource,

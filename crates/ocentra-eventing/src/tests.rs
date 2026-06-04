@@ -1,4 +1,5 @@
 mod clock_manual;
+mod contract_registry;
 mod fixtures;
 mod handler_policy;
 mod journal_replay;
