@@ -2,8 +2,17 @@ use std::fs::{read, remove_file, write};
 
 use ocentra_parent_agent_core::{ActivityJournal, ActivityStore};
 use ocentra_parent_agent_protocol::{constants, ActivityEventKind, ActivityObserver};
+#[cfg(windows)]
+use ocentra_parent_agent_protocol::{
+    APP_GAME_CLASSIFICATION_UNKNOWN_PROCESS, APP_GAME_CONTENT_KNOWLEDGE_NOT_CLAIMED,
+    APP_GAME_FOREGROUND_FOREGROUND, APP_GAME_FOREGROUND_NOT_CLAIMED, APP_GAME_RUNTIME_RUNNING,
+    APP_GAME_WINDOW_REF_PREFIX, APP_GAME_WINDOW_TITLE_REF_PREFIX,
+};
 
 use crate::activity_capture::{record_activity_capture_to_paths, ActivityCaptureError};
+
+mod freshness;
+mod inventory;
 
 #[test]
 fn record_process_snapshot_writes_encrypted_journal_and_sqlite_rows() {
@@ -28,21 +37,28 @@ fn record_process_snapshot_writes_encrypted_journal_and_sqlite_rows() {
     let summary = store
         .recent_summary(constants::activity_store::DEFAULT_RECENT_LIMIT)
         .expect(constants::error::ACTIVITY_STORE_QUERIES);
+    let app_game = store
+        .app_game_service_read_model(
+            constants::activity_store::DEFAULT_RECENT_LIMIT,
+            constants::activity_store::TEST_THIRD_OBSERVED_AT,
+        )
+        .expect(constants::error::ACTIVITY_STORE_QUERIES);
 
     cleanup_paths(&journal_path, &key_path, &store_path);
 
-    assert_eq!(status.events_ingested, 3);
-    assert_eq!(status.events_stored, 3);
+    assert_capture_event_count(status.events_ingested);
+    assert_capture_event_count(status.events_stored);
     assert!(!String::from_utf8_lossy(&journal_bytes)
         .contains(constants::activity_store::TEST_PROCESS_SUBJECT_NAME));
-    assert_eq!(
+    assert!(matches!(
         summary.most_recent_kind,
-        Some(ActivityEventKind::WindowFocused)
-    );
-    assert_eq!(
+        Some(ActivityEventKind::WindowFocused) | Some(ActivityEventKind::ProcessObserved)
+    ));
+    assert!(matches!(
         summary.most_recent_observer,
-        Some(ActivityObserver::WindowsWindow)
-    );
+        Some(ActivityObserver::WindowsWindow) | Some(ActivityObserver::WindowsProcess)
+    ));
+    assert_app_game_capture_read_model(&app_game);
 }
 
 #[test]
@@ -72,6 +88,7 @@ fn record_process_snapshot_reuses_journal_key_for_replay() {
     )
     .expect(constants::error::JOURNAL_OPENS);
     let lines = journal.lines().expect(constants::error::JOURNAL_READS);
+    assert_optional_foreground_event_count(lines.len() as u64);
     let process_event = journal
         .decrypt_line(&lines[0])
         .expect(constants::error::JOURNAL_DECRYPTS);
@@ -164,4 +181,75 @@ fn cleanup_paths(
         rotated_path.set_extension(extension);
         let _ = remove_file(rotated_path);
     }
+}
+
+fn assert_capture_event_count(event_count: u64) {
+    let min_count = expected_capture_event_base_count();
+    let max_count = expected_capture_event_base_count()
+        + constants::activity_capture::APP_GAME_INVENTORY_SNAPSHOT_LIMIT as u64
+        + constants::activity_capture::APP_GAME_INVENTORY_SNAPSHOT_LIMIT as u64
+        + constants::activity_capture::APP_GAME_INVENTORY_SNAPSHOT_LIMIT as u64
+        + 1;
+    assert!(event_count >= min_count && event_count <= max_count);
+}
+
+fn assert_optional_foreground_event_count(event_count: u64) {
+    let base_count = expected_capture_event_base_count();
+    let max_count = base_count
+        + constants::activity_capture::APP_GAME_INVENTORY_SNAPSHOT_LIMIT as u64
+        + constants::activity_capture::APP_GAME_INVENTORY_SNAPSHOT_LIMIT as u64
+        + constants::activity_capture::APP_GAME_INVENTORY_SNAPSHOT_LIMIT as u64
+        + 1;
+    assert!(event_count >= base_count && event_count <= max_count);
+}
+
+#[cfg(windows)]
+fn expected_capture_event_base_count() -> u64 {
+    4
+}
+
+#[cfg(not(windows))]
+fn expected_capture_event_base_count() -> u64 {
+    3
+}
+
+#[cfg(windows)]
+fn assert_app_game_capture_read_model(
+    model: &ocentra_parent_agent_protocol::AppGameServiceReadModel,
+) {
+    assert_eq!(model.running_now_returned, 1);
+    assert_eq!(
+        model.running_now_rows[0].runtime_state,
+        APP_GAME_RUNTIME_RUNNING
+    );
+    assert_eq!(
+        model.running_now_rows[0].foreground_state,
+        APP_GAME_FOREGROUND_NOT_CLAIMED
+    );
+    assert_eq!(
+        model.running_now_rows[0].classification_state,
+        APP_GAME_CLASSIFICATION_UNKNOWN_PROCESS
+    );
+    assert!(model.foreground_now_returned <= 1);
+    if let Some(row) = model.foreground_now_rows.first() {
+        assert_eq!(row.runtime_state, APP_GAME_RUNTIME_RUNNING);
+        assert_eq!(row.foreground_state, APP_GAME_FOREGROUND_FOREGROUND);
+        assert_eq!(
+            row.content_knowledge_state,
+            APP_GAME_CONTENT_KNOWLEDGE_NOT_CLAIMED
+        );
+        if let Some(window_ref) = &row.window_ref {
+            assert!(window_ref.starts_with(APP_GAME_WINDOW_REF_PREFIX));
+        }
+        if let Some(title_ref) = &row.window_title_ref {
+            assert!(title_ref.starts_with(APP_GAME_WINDOW_TITLE_REF_PREFIX));
+        }
+    }
+}
+
+#[cfg(not(windows))]
+fn assert_app_game_capture_read_model(
+    model: &ocentra_parent_agent_protocol::AppGameServiceReadModel,
+) {
+    assert_eq!(model.running_now_returned, 0);
 }

@@ -13,7 +13,10 @@ use crate::activity_surface_read_model_states::{
     offline_games_read_model, request_targets_remote_device, unavailable_games_read_model,
 };
 
-use super::shared::{push_evidence, row_device_id, row_state};
+use super::shared::{
+    app_game_boundary_row_counts, app_game_source_status_rows, push_app_game_boundary_evidence,
+    push_evidence, row_device_id, row_state,
+};
 
 pub(crate) fn games_read_model(
     request: ActivitySurfaceRequest,
@@ -71,15 +74,11 @@ fn game_rows(
         .daily_rollups
         .iter()
         .find(|rollup| is_game_classification(&rollup.classification_state));
-    if inventory.is_none()
-        && running.is_none()
-        && foreground.is_none()
-        && launcher.is_none()
-        && rollup.is_none()
-    {
+    if !has_game_source(inventory, running, foreground, launcher, rollup) {
         return Vec::new();
     }
 
+    let boundary_counts = app_game_boundary_row_counts(model);
     vec![ActivityGamesReadModelRow {
         row_id: game_row_id(inventory, running, foreground, launcher, rollup),
         display_name: game_label(inventory, running, foreground, launcher),
@@ -121,8 +120,30 @@ fn game_rows(
             .iter()
             .filter(|rollup| is_game_classification(&rollup.classification_state))
             .count() as u64,
+        evidence_claim_row_count: boundary_counts.evidence_claim_row_count,
+        identity_row_count: boundary_counts.identity_row_count,
+        approval_authority_row_count: boundary_counts.approval_authority_row_count,
+        approval_action_result_row_count: boundary_counts.approval_action_result_row_count,
+        platform_authority_matrix_count: boundary_counts.platform_authority_matrix_count,
+        platform_authority_row_count: boundary_counts.platform_authority_row_count,
+        ai_classifier_result_row_count: boundary_counts.ai_classifier_result_row_count,
+        source_status_rows: game_source_status_rows(model),
         evidence: game_evidence(model),
     }]
+}
+
+fn has_game_source(
+    inventory: Option<&AppGameInventoryEvidenceRow>,
+    running: Option<&AppGameRuntimeEvidenceRow>,
+    foreground: Option<&AppGameForegroundEvidenceRow>,
+    launcher: Option<&ocentra_parent_agent_protocol::AppGameLauncherEvidenceRow>,
+    rollup: Option<&ocentra_parent_agent_protocol::AppGameSessionDailyRollup>,
+) -> bool {
+    inventory.is_some()
+        || running.is_some()
+        || foreground.is_some()
+        || launcher.is_some()
+        || rollup.is_some()
 }
 
 fn is_game_inventory(row: &AppGameInventoryEvidenceRow) -> bool {
@@ -145,6 +166,18 @@ fn is_game_classification(classification: &str) -> bool {
             | APP_GAME_CLASSIFICATION_KNOWN_LAUNCHER
             | APP_GAME_CLASSIFICATION_LAUNCHER_GAME_CANDIDATE
             | APP_GAME_CLASSIFICATION_POSSIBLY_GAME
+    )
+}
+
+fn game_source_status_rows(
+    model: &AppGameServiceReadModel,
+) -> Vec<ocentra_parent_agent_protocol::ActivityAppGameSourceStatusRow> {
+    app_game_source_status_rows(
+        model,
+        is_game_inventory,
+        is_game_runtime,
+        is_game_foreground,
+        true,
     )
 }
 
@@ -273,5 +306,6 @@ fn game_evidence(model: &AppGameServiceReadModel) -> Vec<ActivityEvidenceRef> {
     {
         push_evidence(&mut evidence, &row.evidence);
     }
+    push_app_game_boundary_evidence(&mut evidence, model);
     evidence
 }

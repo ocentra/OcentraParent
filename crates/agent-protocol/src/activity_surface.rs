@@ -2,6 +2,10 @@ use serde::{Deserialize, Serialize};
 
 use crate::ActivityEvidenceRef;
 
+#[path = "activity_surface/source_status.rs"]
+mod source_status;
+pub use source_status::ActivityAppGameSourceStatusRow;
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ActivitySurfaceScopeKind {
     #[serde(rename = "family")]
@@ -315,6 +319,14 @@ pub struct ActivityAppUseReadModelRow {
     pub running_row_count: u64,
     pub foreground_row_count: u64,
     pub daily_rollup_count: u64,
+    pub evidence_claim_row_count: u64,
+    pub identity_row_count: u64,
+    pub approval_authority_row_count: u64,
+    pub approval_action_result_row_count: u64,
+    pub platform_authority_matrix_count: u64,
+    pub platform_authority_row_count: u64,
+    pub ai_classifier_result_row_count: u64,
+    pub source_status_rows: Vec<ActivityAppGameSourceStatusRow>,
     pub evidence: Vec<ActivityEvidenceRef>,
 }
 
@@ -350,6 +362,14 @@ pub struct ActivityGamesReadModelRow {
     pub running_row_count: u64,
     pub foreground_row_count: u64,
     pub daily_rollup_count: u64,
+    pub evidence_claim_row_count: u64,
+    pub identity_row_count: u64,
+    pub approval_authority_row_count: u64,
+    pub approval_action_result_row_count: u64,
+    pub platform_authority_matrix_count: u64,
+    pub platform_authority_row_count: u64,
+    pub ai_classifier_result_row_count: u64,
+    pub source_status_rows: Vec<ActivityAppGameSourceStatusRow>,
     pub evidence: Vec<ActivityEvidenceRef>,
 }
 

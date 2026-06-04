@@ -37,6 +37,10 @@
       "import": "./dist/tracking-read-model.js",
       "types": "./dist/tracking-read-model.d.ts"
     },
+    "./app-game-boundary-read-model": {
+      "import": "./dist/app-game-boundary-read-model.js",
+      "types": "./dist/app-game-boundary-read-model.d.ts"
+    },
     "./contracts": {
       "import": "./dist/contracts.js",
       "types": "./dist/contracts.d.ts"

@@ -1,0 +1,3 @@
+Playwright UI proof not run for WP38.
+
+Reason: no portal UI or browser-facing route changed. The validation target is focused Rust service proof plus repository guards.

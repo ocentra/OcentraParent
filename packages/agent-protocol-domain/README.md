@@ -26,6 +26,12 @@ transports.
 - Tracking read-model command/event names and the `trackingReadModel` payload
   field for the service-backed
   `agent.activity.tracking.read-model.get` proof path.
+- App/game boundary read-model command/event names and the
+  `appGameBoundaryReadModel` payload field for the service-backed
+  authority/classifier row-count proof path.
+- Activity app-use and games read-model event parsing for backend-owned
+  app/game source freshness rows, while product semantics stay in
+  `activity-domain`.
 
 ## Must Not Own
 
@@ -89,3 +95,10 @@ flowchart LR
   payload shape, and the parser used by the narrow portal summary; product
   tracking evidence schemas remain in `activity-domain`, and full UI remains
   separate.
+- App/game boundary read-model parsing proves command/event parity and the
+  service payload shape only; product semantics stay in `activity-domain` and
+  `parent-domain`, and portal rows, policy consumption, provider execution, and
+  adapter support remain separate proof-gated work.
+- App/game source freshness row parsing proves service payload shape only; portal
+  rendering, policy decisions, provider execution, and broad OS adapter support
+  remain separate proof-gated work.

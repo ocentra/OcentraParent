@@ -22,6 +22,7 @@ use ocentra_parent_agent_protocol::{
     APP_GAME_RUNTIME_NOT_CLAIMED, APP_GAME_RUNTIME_NOT_RUNNING, APP_GAME_RUNTIME_RUNNING,
 };
 
+mod protocol_rows;
 mod read_model;
 
 #[derive(Debug, PartialEq, Eq)]
@@ -38,9 +39,20 @@ pub(crate) enum AppGameJournalSqliteIngestError {
     LauncherCandidatePromoted,
     LauncherOnlyPromoted,
     LauncherPermissionLimitedClaim,
+    EvidenceClaimInventoryClaimsUse,
+    AuthorityInactiveGrants,
+    ActionResultManualExecution,
+    PlatformAuthorityManualExecution,
+    ClassifierRequestsAction,
     Json,
 }
 
+#[cfg(test)]
+pub(crate) use protocol_rows::{
+    app_game_ai_classifier_result_journal_event, app_game_approval_action_result_journal_event,
+    app_game_approval_authority_journal_event, app_game_evidence_claim_journal_event,
+    app_game_identity_journal_event, app_game_platform_authority_matrix_journal_event,
+};
 pub(crate) use read_model::app_game_journal_sqlite_read_model;
 
 pub(crate) fn app_game_inventory_journal_event(
@@ -271,7 +283,11 @@ fn validate_launcher_row(
     Ok(())
 }
 
-fn fields_for_row(row_kind: &str, row_json: &str, classification_state: Option<&str>) -> LogFields {
+pub(super) fn fields_for_row(
+    row_kind: &str,
+    row_json: &str,
+    classification_state: Option<&str>,
+) -> LogFields {
     let mut fields = LogFields::new();
     insert_string(&mut fields, APP_GAME_JOURNAL_FIELD_ROW_KIND, row_kind);
     insert_string(
@@ -295,21 +311,21 @@ fn fields_for_row(row_kind: &str, row_json: &str, classification_state: Option<&
     fields
 }
 
-struct ActivityEventInput<'a> {
-    event_id: String,
-    observed_at: String,
-    observer: ActivityObserver,
-    kind: ActivityEventKind,
-    subject_kind: ActivitySubjectKind,
-    subject_id: String,
-    display_name: Option<String>,
-    device_id: &'a str,
-    platform: &'a str,
-    fields: LogFields,
-    evidence: Vec<ocentra_parent_agent_protocol::ActivityEvidenceRef>,
+pub(super) struct ActivityEventInput<'a> {
+    pub event_id: String,
+    pub observed_at: String,
+    pub observer: ActivityObserver,
+    pub kind: ActivityEventKind,
+    pub subject_kind: ActivitySubjectKind,
+    pub subject_id: String,
+    pub display_name: Option<String>,
+    pub device_id: &'a str,
+    pub platform: &'a str,
+    pub fields: LogFields,
+    pub evidence: Vec<ocentra_parent_agent_protocol::ActivityEvidenceRef>,
 }
 
-fn activity_event(input: ActivityEventInput<'_>) -> ActivityEvent {
+pub(super) fn activity_event(input: ActivityEventInput<'_>) -> ActivityEvent {
     ActivityEvent {
         schema_version: ACTIVITY_SCHEMA_VERSION,
         event_id: input.event_id,

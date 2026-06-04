@@ -11,6 +11,10 @@ use crate::activity_surface_read_model_states::{
     unavailable_network_read_model, unavailable_screen_read_model,
 };
 
+#[cfg(test)]
+mod app_game_boundary_evidence_tests;
+#[cfg(test)]
+mod app_game_source_status_tests;
 mod app_use;
 mod games;
 mod shared;

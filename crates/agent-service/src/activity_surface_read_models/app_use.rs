@@ -17,7 +17,10 @@ use crate::activity_surface_read_model_states::{
 };
 use crate::time::timestamp_now;
 
-use super::shared::{push_evidence, row_device_id, row_state};
+use super::shared::{
+    app_game_boundary_row_counts, app_game_source_status_rows, push_app_game_boundary_evidence,
+    push_evidence, row_device_id, row_state,
+};
 use source::AppUseReadModelSource;
 
 mod source;
@@ -34,7 +37,7 @@ where
     }
 
     match source.into() {
-        AppUseReadModelSource::AppGame(model) => app_use_model_from_app_game(request, model),
+        AppUseReadModelSource::AppGame(model) => app_use_model_from_app_game(request, *model),
         AppUseReadModelSource::Recent(summary) => {
             app_use_model_from_recent_summary(request, summary)
         }
@@ -122,6 +125,7 @@ fn app_use_rows(
         return Vec::new();
     }
 
+    let boundary_counts = app_game_boundary_row_counts(model);
     vec![ActivityAppUseReadModelRow {
         row_id: app_row_id(inventory, running, foreground, rollup),
         app_name: app_label(inventory, running, foreground),
@@ -165,6 +169,14 @@ fn app_use_rows(
             .iter()
             .filter(|rollup| is_app_classification(&rollup.classification_state))
             .count() as u64,
+        evidence_claim_row_count: boundary_counts.evidence_claim_row_count,
+        identity_row_count: boundary_counts.identity_row_count,
+        approval_authority_row_count: boundary_counts.approval_authority_row_count,
+        approval_action_result_row_count: boundary_counts.approval_action_result_row_count,
+        platform_authority_matrix_count: boundary_counts.platform_authority_matrix_count,
+        platform_authority_row_count: boundary_counts.platform_authority_row_count,
+        ai_classifier_result_row_count: boundary_counts.ai_classifier_result_row_count,
+        source_status_rows: app_use_source_status_rows(model),
         evidence: app_evidence(model),
     }]
 }
@@ -195,6 +207,14 @@ fn app_use_recent_row(
         running_row_count: 0,
         foreground_row_count: 0,
         daily_rollup_count: 0,
+        evidence_claim_row_count: 0,
+        identity_row_count: 0,
+        approval_authority_row_count: 0,
+        approval_action_result_row_count: 0,
+        platform_authority_matrix_count: 0,
+        platform_authority_row_count: 0,
+        ai_classifier_result_row_count: 0,
+        source_status_rows: Vec::new(),
         evidence: Vec::new(),
     }
 }
@@ -221,6 +241,18 @@ fn is_app_classification(classification: &str) -> bool {
             | APP_GAME_CLASSIFICATION_UNSUPPORTED_PLATFORM
             | APP_GAME_CLASSIFICATION_STALE
             | APP_GAME_CLASSIFICATION_ADAPTER_ERROR
+    )
+}
+
+fn app_use_source_status_rows(
+    model: &AppGameServiceReadModel,
+) -> Vec<ocentra_parent_agent_protocol::ActivityAppGameSourceStatusRow> {
+    app_game_source_status_rows(
+        model,
+        is_app_inventory,
+        is_app_runtime,
+        is_app_foreground,
+        false,
     )
 }
 
@@ -330,5 +362,6 @@ fn app_evidence(model: &AppGameServiceReadModel) -> Vec<ActivityEvidenceRef> {
     {
         push_evidence(&mut evidence, &row.evidence);
     }
+    push_app_game_boundary_evidence(&mut evidence, model);
     evidence
 }

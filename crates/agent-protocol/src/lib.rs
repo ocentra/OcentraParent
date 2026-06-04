@@ -7,6 +7,8 @@ mod activity_memory_graph;
 mod activity_query;
 mod activity_surface;
 mod app_game;
+mod app_game_authority_classifier;
+mod app_game_boundary_read_model;
 mod browser;
 mod browser_intervention;
 mod browser_intervention_parse;
@@ -61,6 +63,8 @@ pub use activity_memory_graph::*;
 pub use activity_query::*;
 pub use activity_surface::*;
 pub use app_game::*;
+pub use app_game_authority_classifier::*;
+pub use app_game_boundary_read_model::*;
 pub use browser::*;
 pub use browser_intervention::*;
 pub use browser_intervention_values::*;
@@ -133,6 +137,12 @@ mod activity_query_tests;
 mod activity_surface_tests;
 #[cfg(test)]
 mod activity_tests;
+#[cfg(test)]
+mod app_game_authority_classifier_tests;
+#[cfg(test)]
+mod app_game_boundary_read_model_tests;
+#[cfg(test)]
+mod app_game_evidence_identity_tests;
 #[cfg(test)]
 mod app_game_tests;
 #[cfg(test)]

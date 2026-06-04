@@ -1,0 +1,6 @@
+Rust protocol impact:
+
+- Test suffix constants and app/game capture error reason constant only.
+- No new WebSocket command or payload shape.
+
+Focused Rust validation passed before final guard rerun.
