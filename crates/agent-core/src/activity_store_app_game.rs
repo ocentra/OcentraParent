@@ -8,6 +8,8 @@ use rusqlite::Connection;
 pub(crate) mod app_game_journal_sqlite_ingest;
 #[cfg(test)]
 mod app_game_journal_sqlite_ingest_tests;
+#[cfg(test)]
+mod app_game_journal_sqlite_protocol_rows_tests;
 mod app_game_session_rollups;
 mod app_game_session_time;
 mod app_game_sessionization;
@@ -16,6 +18,11 @@ mod app_game_sessionization;
 pub(crate) mod app_game_windows_inventory;
 #[cfg(test)]
 mod app_game_windows_inventory_tests;
+// WP41 adds a bounded live Windows shortcut inventory source.
+#[allow(dead_code)]
+pub(crate) mod app_game_windows_inventory_source;
+#[cfg(test)]
+mod app_game_windows_inventory_source_tests;
 // WP07 stages Store/UWP package parsing before live package readers call it.
 #[allow(dead_code)]
 pub(crate) mod app_game_windows_store_inventory;
@@ -26,11 +33,21 @@ mod app_game_windows_store_inventory_tests;
 pub(crate) mod app_game_windows_process_runtime;
 #[cfg(test)]
 mod app_game_windows_process_runtime_tests;
+// WP32 adds a real process snapshot source that feeds the staged runtime rows.
+#[allow(dead_code)]
+pub(crate) mod app_game_windows_process_source;
+#[cfg(test)]
+mod app_game_windows_process_source_tests;
 // WP09 stages foreground-window evidence before live window capture calls it.
 #[allow(dead_code)]
 pub(crate) mod app_game_windows_foreground;
 #[cfg(test)]
 mod app_game_windows_foreground_tests;
+// WP36 adds a real foreground-window source that feeds the staged rows.
+#[allow(dead_code)]
+pub(crate) mod app_game_windows_foreground_source;
+#[cfg(test)]
+mod app_game_windows_foreground_source_tests;
 // WP10 stages launcher evidence before live launcher manifest readers call it.
 #[cfg(test)]
 mod app_game_sessionization_tests;
@@ -40,6 +57,17 @@ pub(crate) mod app_game_windows_launcher;
 mod app_game_windows_launcher_tests;
 
 use crate::{activity_store_app_game_rows::app_game_rows, ActivityStoreError};
+
+pub use app_game_windows_foreground_source::{
+    live_windows_foreground_window_journal_event, AppGameLiveForegroundWindowError,
+};
+pub use app_game_windows_inventory_source::{
+    live_windows_inventory_journal_events_from_roots,
+    live_windows_inventory_journal_events_with_limit, AppGameLiveInventorySourceError,
+};
+pub use app_game_windows_process_source::{
+    live_windows_process_snapshot_journal_events_with_limit, AppGameLiveProcessSnapshotError,
+};
 
 pub(crate) fn app_game_session_report(
     connection: &Connection,

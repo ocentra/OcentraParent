@@ -65,6 +65,12 @@ mod window_capture;
 mod window_capture_event;
 
 pub use activity_store::ActivityStore;
+pub use activity_store_app_game::{
+    live_windows_foreground_window_journal_event, live_windows_inventory_journal_events_from_roots,
+    live_windows_inventory_journal_events_with_limit,
+    live_windows_process_snapshot_journal_events_with_limit, AppGameLiveForegroundWindowError,
+    AppGameLiveInventorySourceError, AppGameLiveProcessSnapshotError,
+};
 pub use activity_store_error::ActivityStoreError;
 pub use activity_store_tracking::tracking_read_model_for_store;
 pub use browser_bridge_event::{

@@ -1,3 +1,4 @@
+pub const ACTIVITY_CAPTURE_APP_GAME_ERROR: &str = "activity-capture-app-game-error";
 pub const ACTIVITY_CAPTURE_IO_ERROR: &str = "activity-capture-io-error";
 pub const ACTIVITY_CAPTURE_INVALID_KEY_LENGTH: &str = "activity-capture-invalid-key-length";
 pub const ACTIVITY_CAPTURE_JOURNAL_ERROR: &str = "activity-capture-journal-error";

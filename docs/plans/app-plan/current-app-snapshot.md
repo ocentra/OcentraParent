@@ -84,6 +84,8 @@ docs remain in place.
 
 - app/game session summary structs;
 - app/game session report structs;
+- app/game evidence claim, AI digest reference/classification digest, identity,
+  and identity-merge structs mirrored from `packages/activity-domain`;
 - schema version and classification constants.
 
 `crates/agent-core` already has:
@@ -97,8 +99,17 @@ docs remain in place.
 - staged encrypted journal-file replay proof for typed app/game inventory,
   runtime, foreground, launcher, running-now, foreground-now, and daily rollup
   rows;
+- staged encrypted journal-file replay plus SQLite projection proof for shared
+  app/game evidence claim, identity, approval authority/action result, platform
+  authority matrix, and classifier result protocol rows;
+- service app-use/games evidence vectors that now preserve refs for those
+  staged evidence claim, identity, approval authority/action result, platform
+  authority matrix, and classifier result rows;
 - staged Windows foreground-window parser proof that can apply foreground
   duration to existing runtime summaries without claiming content;
+- core live foreground-window source proof that maps active-window metadata into
+  foreground rows and journal events with opaque window/title refs without
+  title/content capture;
 - scoped Windows app time-limit capability helpers;
 - owned-process terminate/time-limit target validation;
 - app time-limit tests.
@@ -107,7 +118,18 @@ docs remain in place.
 shared service/runtime paths for read-model exposure. App-use activity-surface
 read models now consume the shared app-game service projection so native app
 rows can carry inventory, runtime, foreground, rollup, capability, source-count,
-and evidence-ref state from staged journal/SQLite replay.
+and evidence-ref state from staged journal/SQLite replay. The service
+activity-capture startup path now repeats bounded live process capture on a
+protocol-owned cadence so native app/game runtime rows stay fresh in that same
+journal/store/read-model path without foreground, policy, or adapter claims.
+Those app-use/games read-model rows also carry staged authority/classifier
+storage refs through their existing evidence vectors, without adding live
+classifier execution, policy consumption, dedicated portal rows, or adapter
+execution.
+The core active-window foreground source separately proves foreground evidence
+row production with opaque window/title refs, and the service capture bridge can
+now append optional foreground rows when that source is available. Portal
+freshness rows, policy consumption, and adapter execution are not wired yet.
 
 ## Portal That Exists
 
@@ -159,6 +181,15 @@ output/app-plan-proof/25-install-and-uninstall-approval-handoff
 output/app-plan-proof/26-performance-and-service-health
 output/app-plan-proof/27-e2e-and-manual-proof-artifacts
 output/app-plan-proof/28-rollout-checklist-and-pr-gate
+output/app-plan-proof/29-rust-protocol-evidence-identity-parity
+output/app-plan-proof/30-rust-protocol-authority-classifier-parity
+output/app-plan-proof/31-journal-sqlite-authority-classifier-storage
+output/app-plan-proof/32-live-process-snapshot-source
+output/app-plan-proof/33-live-process-journal-sqlite-bridge
+output/app-plan-proof/34-service-capture-app-game-live-process-bridge
+output/app-plan-proof/35-service-app-game-recurring-freshness
+output/app-plan-proof/36-live-foreground-window-source
+output/app-plan-proof/37-service-foreground-capture-bridge
 ```
 
 Those proof packs point back to `output/app-game-plan-proof/*` for the shared
@@ -191,15 +222,29 @@ polished app catalog UI, install approval, or cross-platform parity.
 - The current contracts are app/game combined. The app plan may narrow app-only
   vocabulary, but it must reconcile with current `AppGame*` contracts instead
   of creating duplicate truth.
+- Shared app/game evidence claim, AI digest reference/classification digest,
+  identity, and identity-merge shapes now have Rust protocol parity. Runtime
+  identity merge behavior, live adapter identity refs, and portal identity rows
+  remain incomplete; staged journal/SQLite projection now stores evidence claim
+  and identity rows without claiming live adapters.
+- Shared app/game approval authority/action-result, platform authority matrix,
+  and classifier result boundary shapes now have Rust protocol parity and
+  staged journal/SQLite projection. Existing service app-use/games read-model
+  evidence vectors now preserve refs for those staged rows. Runtime classifier
+  execution, dedicated service event exposure, policy evaluator consumption,
+  portal authority/classifier rows, and adapter execution remain incomplete.
 - Windows installed-app inventory needs stronger source-specific proof.
 - Windows Store/UWP/AppX identity needs separate proof from Win32 executable
   identity.
 - Foreground evidence now has shared app/game contract/protocol/parser proof,
-  stored-row sessionization can derive foreground duration, staged
-  journal/SQLite replay can project foreground-now rows, service app-use read
-  models can expose foreground state, and the portal App/Game Sessions
-  dashboard labels foreground separately from inventory/running/content claims,
-  but live window capture wiring remains incomplete.
+  stored-row sessionization can derive foreground duration, core live
+  active-window source proof can emit foreground rows with opaque window/title
+  refs, journal/SQLite replay can project foreground-now rows, service app-use
+  read models can expose foreground state, and the portal App/Game Sessions
+  dashboard labels foreground separately from inventory/running/content claims.
+  Bounded service capture can now append optional foreground rows when the
+  active-window source is available; dedicated portal foreground source rows and
+  subscribed foreground transitions remain incomplete.
 - Session duration and daily app rollups now have deterministic SQLite-row
   replay proof plus staged encrypted journal-file ingest/replay proof, service
   app-use read models can expose daily rollup counts/duration, and the portal
@@ -234,9 +279,11 @@ polished app catalog UI, install approval, or cross-platform parity.
   classifier contract: stored evidence refs, confidence bounds,
   runtime/model/prompt refs, fallback state, and evidence-only policy handoff
   are required, while direct action, duration, and raw scan fields are rejected
-  before policy can consume classifier output. Live provider execution, service
-  events, portal rendering, policy evaluator consumption, and adapter
-  enforcement remain gaps.
+  before policy can consume classifier output. Rust protocol parity now mirrors
+  that boundary for serialization proof only, and service read-model evidence
+  vectors now preserve staged classifier refs. Live provider execution,
+  dedicated service events, portal rendering, policy evaluator consumption, and
+  adapter enforcement remain gaps.
 - Native app child-facing warning/request UX now has shared parent-domain and
   text-domain contract proof for warning, approval-needed, time-limit, request
   submitted/approved/denied, manual-required, and unavailable states. It does
@@ -285,8 +332,8 @@ polished app catalog UI, install approval, or cross-platform parity.
 - Broad app blocking remains manual-required outside scoped owned-process proof
   and the focused no-claim/manual-required broad-blocking gate contract.
 - Platform-specific authority tiers are now modeled as shared app/game
-  parent-domain contract proof, but the portal UI and runtime adapter proof are
-  not complete.
+  parent-domain contract proof and Rust protocol serialization proof, but the
+  portal UI and runtime adapter proof are not complete.
 - macOS, Linux, Android, iOS, MDM, device-owner, supervised, Endpoint Security,
   AppLocker/App Control, Screen Time, ManagedSettings, cgroups/systemd,
   AppArmor/SELinux, Flatpak, Snap, signing, store, and entitlement claims need
@@ -294,6 +341,24 @@ polished app catalog UI, install approval, or cross-platform parity.
 - Live store integration, install/purchase approval UI, package-manager/store
   interception, billing entitlement logic, uninstall blocking, and anti-tamper
   behavior remain unproved.
+- A real `sysinfo` process snapshot source now feeds native app/game runtime
+  record shape in core with opaque executable-path refs and runtime-only
+  classification. It now replays through the encrypted journal and SQLite
+  read-model path in core and through the service activity-capture journal/store
+  path for recurring bounded runtime rows. A real active-window source now feeds
+  native app/game foreground record shape in core with opaque window/title refs
+  and no content capture, and service capture can append optional foreground
+  rows. Staged evidence claim, identity, approval authority/action-result,
+  platform authority matrix/rows, and classifier result rows now flow into the
+  existing app-use/games service payloads as evidence refs and explicit counts,
+  and a dedicated backend app/game boundary read-model event now exposes those
+  staged counts and citation refs. Core live Windows shortcut inventory source
+  proof now maps bounded Start Menu shortcut scans into inventory-only journal
+  rows with hashed source refs, and service activity capture can append those
+  inventory-only journal events into the existing encrypted journal/store/read
+  model path. Portal source freshness polish, policy evaluation, richer
+  process/foreground subscriptions, registry/Store inventory,
+  classifier/provider execution, and adapter execution remain unproved.
 
 ## Where We Want To Be
 
