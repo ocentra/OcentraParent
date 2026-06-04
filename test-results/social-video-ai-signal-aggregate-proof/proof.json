@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-04T04:31:33.155Z",
-  "commit": "c836b278b932e51e0b315f25cfa8c3ff162b2870",
+  "checkedAt": "2026-06-04T04:59:42.544Z",
+  "commit": "85b54d0f0cdff70d09221b242c0c04f2c9445731",
   "proofMode": "social-video-ai-signal-aggregate-proof",
   "commands": [
     "cmd /c npm run build --workspace @ocentra-parent/activity-domain",
