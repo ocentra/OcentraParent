@@ -167,13 +167,15 @@ only with explicit parent settings.
   text hash/length, and blank-page rejection. The current harness readiness
   artifact is
   `output/screen-ai-pipeline-proof/live-operator/harness-readiness/proof-summary.json`;
-  a one-row live operator smoke has also proved a real YouTube ordinary video
+  a three-row live operator smoke has also proved a real YouTube ordinary video
   page through capture, local VLM `video` classification, `warn` policy dry-run,
-  and raw-image deletion at
+  and raw-image deletion; a real Notepad native-app row through `productivity`
+  classification and `allow` dry-run; and a protected-surface degraded row with
+  no raw image, AI, or policy claim at
   `output/screen-ai-pipeline-proof/live-operator/proof-summary.json`. Vimeo,
-  social, shopping, browser-game, school/productivity, native-app, protected
-  state, and full account/surface artifacts remain required before
-  product-complete live proof claims.
+  education video, social, shopping, browser-game, school/productivity, and full
+  account/surface artifacts remain required before product-complete live proof
+  claims.
 - Android child-agent scaffold now has emulator MediaProjection proof with
   explicit OS consent, foreground service, captured frame digest, and raw temp
   deletion. Physical Android parity and silent background capture are not
@@ -186,7 +188,7 @@ only with explicit parent settings.
 
 Opt-in UI, the remaining live external URL/account operator proof rows from the
 new manifest-driven harness, OCR/vision quality beyond controlled fixtures and
-the single YouTube live smoke, production local vision adapter quality beyond
+the partial YouTube/native/protected live smoke, production local vision adapter quality beyond
 the service proof adapter, service-owned live trigger event producers beyond the
 timed cadence loop and native active-window foreground watcher, physical
 Android/iOS proof, live macOS capture proof, Linux root/Wayland portal proof,

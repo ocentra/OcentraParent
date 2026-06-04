@@ -253,11 +253,17 @@ function runProtectedStateScenario(scenario) {
   const captureMetadata = readJson(captureMetadataPath);
   const expectedStatus = scenario.expectedCapabilityStatus ?? 'accessDenied';
   const acceptedStatuses = new Set([expectedStatus, ...(scenario.acceptedCapabilityStatuses ?? [])]);
-  if (!acceptedStatuses.has(captureMetadata.status) && !acceptedStatuses.has(captureMetadata.capabilityStatus)) {
+  const actualStatuses = [
+    captureMetadata.status,
+    captureMetadata.capabilityStatus,
+    captureMetadata.capabilitySnapshot?.capabilityStatus,
+  ].filter((entry) => typeof entry === 'string');
+  if (!actualStatuses.some((entry) => acceptedStatuses.has(entry))) {
     throw new Error(
       `Protected-state metadata did not prove one of ${JSON.stringify([...acceptedStatuses])}: ${JSON.stringify({
         status: captureMetadata.status,
         capabilityStatus: captureMetadata.capabilityStatus,
+        capabilitySnapshotStatus: captureMetadata.capabilitySnapshot?.capabilityStatus,
       })}`
     );
   }

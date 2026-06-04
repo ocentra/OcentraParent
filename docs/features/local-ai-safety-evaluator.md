@@ -57,18 +57,20 @@ claim needs proof, not slogans.
   owned-process adapter handoff proof. Model quality, video/social live
   coverage, and browser/category/network/mobile/broad enforcement handoff remain
   incomplete.
-- The live operator harness now has one real YouTube ordinary video smoke row
-  that records page readiness evidence, captures the focused browser window,
-  runs the local VLM path, validates `video`/`warn`, and deletes raw image
-  material. This is partial live proof only; the required Vimeo, education,
-  social, shopping, browser-game, native-app, protected-state, and full account
-  rows remain incomplete.
+- The live operator harness now has a partial three-row smoke: a real YouTube
+  ordinary video row that records page readiness evidence, captures the focused
+  browser window, runs the local VLM path, validates `video`/`warn`, and deletes
+  raw image material; a native Notepad app row that validates
+  `productivity`/`allow`; and a protected-surface degraded row that makes no AI
+  or policy claim. This is partial live proof only; the required Vimeo,
+  education, social, shopping, browser-game, school/productivity, and full
+  account rows remain incomplete.
 
 ## Current Gap
 
 Ocentra needs product-grade model configuration, local model artifacts,
 production screen model quality, confidence handling, degraded states, complete
-social/video evidence coverage beyond the single YouTube live smoke, parent
+social/video evidence coverage beyond the partial YouTube/native live smoke, parent
 explanations, broader enforcement handoff, and validation against the remaining
 real external evidence matrix.
 
