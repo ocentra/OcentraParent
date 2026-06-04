@@ -38,6 +38,13 @@ export type TrackingStatusLiveSummary = {
   readonly eventId: PortalDetailValue;
   readonly capability: PortalDetailValue;
   readonly custody: PortalDetailValue;
+  readonly device: PortalDetailValue;
+  readonly platform: PortalDetailValue;
+  readonly observer: PortalDetailValue;
+  readonly activityKind: PortalDetailValue;
+  readonly subject: PortalDetailValue;
+  readonly subjectId: PortalDetailValue;
+  readonly subjectKind: PortalDetailValue;
   readonly evidenceReferences: PortalDetailValue;
   readonly parserReason: PortalDetailValue | null;
   readonly productClaim: PortalDisplayText;
@@ -142,6 +149,13 @@ export function trackingStatusLiveSummary(liveActivity: PortalLiveActivityState)
     eventId: notReported(),
     capability: notReported(),
     custody: notReported(),
+    device: notReported(),
+    platform: notReported(),
+    observer: notReported(),
+    activityKind: notReported(),
+    subject: notReported(),
+    subjectId: notReported(),
+    subjectKind: notReported(),
     evidenceReferences: notReported(),
     productClaim: PortalText.Resolve(PortalTextToken.TrackingNoProductClaim),
   };
@@ -172,6 +186,13 @@ export function trackingStatusLiveSummary(liveActivity: PortalLiveActivityState)
     eventId: detailFromValue(readModel.latestEventId),
     capability: detailFromValue(readModel.capabilityStatus),
     custody: detailFromValue(readModel.custodyLabel),
+    device: detailFromValue(row?.deviceId),
+    platform: detailFromValue(row?.platform),
+    observer: detailFromValue(row?.observer),
+    activityKind: detailFromValue(row?.kind),
+    subject: detailFromValue(row?.subjectDisplayName),
+    subjectId: detailFromValue(row?.subjectId),
+    subjectKind: detailFromValue(row?.subjectKind),
     evidenceReferences: evidenceReferenceDetail(row?.evidenceReferenceIds),
     parserReason: null,
   };
@@ -268,6 +289,13 @@ function renderTrackingStatusLiveSummary(summary: TrackingStatusLiveSummary): HT
   appendDetail(metadata, PortalDetails.EventId, summary.eventId);
   appendDetail(metadata, PortalDetails.Capability, summary.capability);
   appendDetail(metadata, PortalDetails.Custody, summary.custody);
+  appendDetail(metadata, PortalDetails.Device, summary.device);
+  appendDetail(metadata, PortalDetails.Platform, summary.platform);
+  appendDetail(metadata, PortalDetails.Observer, summary.observer);
+  appendDetail(metadata, PortalDetails.ActivityKind, summary.activityKind);
+  appendDetail(metadata, PortalDetails.Subject, summary.subject);
+  appendDetail(metadata, PortalDetails.SubjectId, summary.subjectId);
+  appendDetail(metadata, PortalDetails.SubjectKind, summary.subjectKind);
   appendDetail(metadata, PortalDetails.EvidenceReferences, summary.evidenceReferences);
   appendDetail(metadata, PortalDetails.ProductClaim, toDetail(summary.productClaim));
   if (summary.parserReason !== null) {

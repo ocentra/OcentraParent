@@ -67,6 +67,17 @@ expose location or device-status features. Parents expect this category.
   `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/14-retention-delete-proof.json`
   and
   `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json`.
+- P2 hosted parent-route proof now exists for the `policy-tracking` route
+  rendering richer service-backed citations from a seeded temporary
+  ActivityStore SQLite database through the real Rust service and hosted Vite
+  portal. The repeatable proof command is
+  `node scripts/test/tracking-plan-hosted-ui-proof.mjs`, with artifact
+  `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/17-hosted-ui-proof.json`,
+  Playwright log `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/12-playwright-proof.log`,
+  desktop/mobile screenshots under
+  `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/`,
+  and accessibility summary
+  `test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json`.
 - Pre-device gap-closure proof now exists through
   `node scripts/test/tracking-plan-pre-device-proof.mjs`. It reruns the
   tracking contract/runtime/service proofs, runs the mobile child-agent
@@ -96,8 +107,8 @@ expose location or device-status features. Parents expect this category.
   proof, and the Rust core tracking read-model test under
   `output/tracking-plan-proof/wsl-local-replay/`.
 - Platform permissions, mobile physical-device proof, full runtime adapters,
-  provider delivery, notification delivery, full parent/child UI, hosted screenshots,
-  accessibility, and richer live service-backed UI evidence citations remain not
+  provider delivery, notification delivery, child UI, full parent/child tracking
+  UI beyond the first parent route, and authority proof remain not
   product-complete.
 - Raw tracking/location settings are preserved as design inputs, not
   product-complete implementation proof.
@@ -107,12 +118,13 @@ expose location or device-status features. Parents expect this category.
 Location/geofence is now in contract, P1 fixture/runtime proof, narrow P2
 service read-model proof with retention-delete tombstone replay, narrow portal
 summary-consumption proof, P1 local parent-defined place store proof,
-pre-device proof-gate progress, and Android emulator package/service/status
-scaffold proof, and P3 WSL/local replay proof. It remains a tracked product gap
-until platform location and geofence adapters, broader product read models,
+pre-device proof-gate progress, Android emulator package/service/status
+scaffold proof, P3 WSL/local replay proof, and hosted parent-route
+service-citation screenshot/accessibility proof. It remains a tracked product
+gap until platform location and geofence adapters, broader product read models,
 provider delivery, notifications, physical-device proof, full parent/child UI
-snapshots, accessibility, hosted UI proof, and richer live service-backed UI
-evidence citations are proved.
+surfaces beyond the first hosted parent route, child UI, authority proof, and
+production readiness are proved.
 
 ## Checklist
 
@@ -146,8 +158,11 @@ evidence citations are proved.
       and local proof artifact references.
 - [x] Pre-device gap-closure proof gate and Android Studio/iOS simulator/WSL/manual
       proof plans.
-- [ ] Richer live service-backed UI citations beyond the narrow summary.
-- [ ] Live parent/child UI screenshots, hosted proof, and accessibility proof.
+- [x] Richer live service-backed parent route citations beyond the narrow
+      summary, proved through hosted portal screenshot/accessibility artifacts
+      against a seeded real-service ActivityStore read model.
+- [ ] Live child UI screenshots, physical-device screenshots, and full
+      parent/child tracking UI accessibility proof.
 
 ## Next AI Instructions
 

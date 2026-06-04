@@ -143,6 +143,13 @@ flowchart TD
   reports citation IDs in `trackingReadModel`; the parent portal consumes that
   event as a narrow live summary, while richer product read models remain
   pending.
+- `scripts/test/tracking-plan-hosted-ui-proof.mjs` now records P2 hosted
+  parent-route proof for the `policy-tracking` route. It seeds a temporary
+  ActivityStore SQLite database, starts the real Rust service and hosted Vite
+  portal, triggers the tracking read-model command, verifies richer event,
+  device, platform, observer, activity-kind, subject, and evidence-reference
+  citations in the parent route, and writes desktop/mobile screenshots plus an
+  accessibility summary.
 - `scripts/test/tracking-plan-pre-device-proof.mjs` now closes the pre-device
   accounting gap. It reruns the tracking contract/runtime/service proof stack,
   runs the child mobile scaffold proof stack, confirms Android debug package
@@ -166,9 +173,9 @@ flowchart TD
   product-complete, PR-ready, and full-scope claims until the remaining proof
   gaps are closed.
 - Android Studio/emulator, iOS simulator, WSL/local, physical-device,
-  authority-enrolled, provider runtime, alert delivery, full portal UI, and live
-  service-backed retention UI proof remain not product-complete until their
-  listed artifacts are collected.
+  authority-enrolled, provider runtime, alert delivery, child UI, full portal
+  UI beyond the first parent route, and live service-backed retention UI proof
+  remain not product-complete until their listed artifacts are collected.
 
 ## Where We Want To Be
 
@@ -355,16 +362,16 @@ feature product-complete.
 - [ ] iOS background/region proof is not complete.
 - [ ] Journal/SQLite/read-model proof is not product-complete. A P2 service
       command/read-model proof exists for SQLite tracking rows and citation IDs,
-      and the parent portal consumes it as a narrow live summary. Deletion/tombstone
-      replay, richer read models, hosted portal proof, and platform replay proof
-      remain pending.
+      and the parent portal consumes it as a richer hosted service-citation
+      summary. Deletion/tombstone replay, richer product read models, and
+      platform replay proof remain pending.
 - [x] Retention/delete/export P1 checkpoint proof exists: delete/export proof
       and UI-visible deleted-history hiding are fixture-proved. Product
       live-service retention settings remain pending.
 - [ ] Tracking UI/UX is not product-complete; a P1 parent portal fixture exists,
-      plus a narrow P2 service-read-model summary. Live parent/child UI,
-      screenshots, accessibility, richer service-data, and richer
-      service-backed evidence-citation proof remain pending.
+      plus P2 hosted parent-route screenshot/accessibility proof for richer
+      service-backed tracking citations. Child UI, full live parent/child UI,
+      physical-device screenshots, and authority proof remain pending.
 - [x] Pre-device proof gate exists and passed locally on 2026-06-03 through
       `node scripts/test/tracking-plan-pre-device-proof.mjs`; artifact root:
       `output/tracking-plan-proof/pre-device-gap-closure/`. This does not mark

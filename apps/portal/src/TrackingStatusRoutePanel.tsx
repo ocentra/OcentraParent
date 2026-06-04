@@ -86,6 +86,13 @@ function TrackingStatusLiveSummaryCard({ summary }: { readonly summary: Tracking
         <TrackingStatusDetail label={PortalDetails.EventId} value={summary.eventId} />
         <TrackingStatusDetail label={PortalDetails.Capability} value={summary.capability} />
         <TrackingStatusDetail label={PortalDetails.Custody} value={summary.custody} />
+        <TrackingStatusDetail label={PortalDetails.Device} value={summary.device} />
+        <TrackingStatusDetail label={PortalDetails.Platform} value={summary.platform} />
+        <TrackingStatusDetail label={PortalDetails.Observer} value={summary.observer} />
+        <TrackingStatusDetail label={PortalDetails.ActivityKind} value={summary.activityKind} />
+        <TrackingStatusDetail label={PortalDetails.Subject} value={summary.subject} />
+        <TrackingStatusDetail label={PortalDetails.SubjectId} value={summary.subjectId} />
+        <TrackingStatusDetail label={PortalDetails.SubjectKind} value={summary.subjectKind} />
         <TrackingStatusDetail label={PortalDetails.EvidenceReferences} value={summary.evidenceReferences} />
         <TrackingStatusDetail label={PortalDetails.ProductClaim} value={summary.productClaim} />
         {summary.parserReason === null ? null : (

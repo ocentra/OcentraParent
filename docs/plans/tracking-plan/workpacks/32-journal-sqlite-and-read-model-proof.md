@@ -29,6 +29,8 @@ Proof root: `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`
 - `14-retention-delete-proof.json`
 - `18-service-read-model-proof.json`
 - `19-wsl-local-replay-proof.json`
+- Companion hosted parent-route proof:
+  `../30-parent-and-child-ui-ux-surfaces/17-hosted-ui-proof.json`
 - `16-validation-commands.log`
 - Pre-device gate:
   `output/tracking-plan-proof/pre-device-gap-closure/proof-summary.json`
@@ -42,6 +44,8 @@ Proof root: `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`
 - [ ] Keep Ocentra-hosted storage off by default.
 - [x] Include the P2 service read-model proof in the pre-device gate.
 - [x] Record P3 WSL/local replay proof for the read-model proof stack.
+- [x] Prove hosted parent-route rendering of service-backed tracking row
+      citations.
 
 ## Where We Are
 
@@ -53,14 +57,21 @@ SQLite tracking rows and citation IDs through `trackingReadModel`; the service
 proof now also exposes retention-delete rows as tombstone replay rows with
 active/tombstone counts, deleted-at metadata, and deleted evidence citation ID
 summaries. The parent portal consumes that event as a narrow live summary on the
-`policy-tracking` route. Full UI, platform replay, export, broader product read
-models, and physical-device product claims are not claimed beyond the proof
-state recorded in `proof-summary.json`, `10-journal-sqlite-proof.json`,
-`14-retention-delete-proof.json`, `18-service-read-model-proof.json`, and the
+`policy-tracking` route. The hosted proof command
+`node scripts/test/tracking-plan-hosted-ui-proof.mjs` seeds a temporary
+ActivityStore SQLite database, starts the real Rust service and hosted Vite
+portal, and proves the route renders row-level event, device, platform,
+observer, activity-kind, subject, and evidence-reference citations. Full child
+UI, platform replay, export, broader product read models, and physical-device
+product claims are not claimed beyond the proof state recorded in
+`proof-summary.json`, `10-journal-sqlite-proof.json`,
+`14-retention-delete-proof.json`, `18-service-read-model-proof.json`,
+`19-wsl-local-replay-proof.json`,
+`../30-parent-and-child-ui-ux-surfaces/17-hosted-ui-proof.json`, and the
 implementation checklist.
 The pre-device proof gate now reruns this service proof and records the
-remaining broader read-model, full UI, hosted accessibility, and platform replay
-gaps before device work starts.
+remaining broader read-model, full child UI, and platform replay gaps before
+device work starts.
 The WSL/local replay proof now records WSL2/Ubuntu toolchain evidence, the
 linked-worktree Git mapping required by this Windows-hosted checkout, contract
 build output, the service read-model proof, and the Rust core tracking
@@ -89,16 +100,17 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Manual-Required Gaps
 
-- Hosted portal screenshot/accessibility proof, broader product read models,
-  full UI, platform physical-device replay, export, provider, authority, and
-  production claims remain manual-required until the assigned proof artifacts
-  exist.
+- Richer product read models, full child UI, platform physical-device replay,
+  export, provider, authority, and production claims remain manual-required
+  until the assigned proof artifacts exist.
 - Any unsupported platform or provider failure must surface as degraded/manual-required state, not as a silent success.
 
 ## Fill This Before Reporting DONE Or PR-ready
 
 - [x] Workpack id and branch:
       `codex/tracking-journal-read-model-replay-proof`.
+- [x] Workpack id and branch: `codex/tracking-plan-full-scope`;
+      continuation branch `codex/tracking-hosted-ui-proof`.
 - [x] Touched files: Rust ActivityStore/protocol files, tracking
       contract/runtime files, proof scripts, tracking plan docs, checklist, and
       this workpack doc.
@@ -134,3 +146,15 @@ This workpack can be assigned independently, implemented against the owning doma
       UI/accessibility, Android/iOS physical-device proof, authority, provider
       delivery, notifications, and production proof remain proof-gated as
       applicable.
+- [x] Proof artifacts under
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`,
+      including `17-hosted-ui-proof.json`, desktop/mobile screenshots,
+      `12-playwright-proof.log`, and
+      `test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json`.
+- [x] Product doc/checklist updates: owning feature doc, tracking checklist,
+      README, WP30, WP32, and WP33 updated; central capability row delta queued
+      through the hub instead of editing `docs/product-capability-checklist.md`.
+- [x] Known gaps/manual-required states: richer product read models, full child
+      UI, platform replay, export, Android/iOS physical proof, provider
+      delivery, notifications, authority, and production proof remain
+      proof-gated as applicable.

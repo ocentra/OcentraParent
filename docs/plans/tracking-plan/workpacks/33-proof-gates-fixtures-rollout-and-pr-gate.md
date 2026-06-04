@@ -46,6 +46,8 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   `output/tracking-plan-proof/pre-device-gap-closure/proof-summary.json`
 - WSL/local replay proof:
   `17-wsl-local-proof.json`
+- Hosted parent-route proof:
+  `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/17-hosted-ui-proof.json`
 
 ## Merge Blockers
 
@@ -82,8 +84,9 @@ fixture proof only, including local UI proof artifact references; hosted
 CI/a11y, full live UI, child UI, platform physical-device proof, authority
 proof, and production-pilot proof remain unclaimed. WP32 now also has focused
 P2 service-command proof, retention-delete tombstone replay, and narrow portal
-summary consumption for the `trackingReadModel` payload; that proof does not
-upgrade the full UI, platform, authority, or production claims.
+summary consumption for the `trackingReadModel` payload, plus hosted
+parent-route service-citation rendering for that payload. Those proofs do not
+upgrade the full child UI, platform, authority, or production claims.
 The pre-device proof gate uses
 `node scripts/test/tracking-plan-pre-device-proof.mjs`, which reruns the
 tracking P0/P1/P2 stack, lower-level Android/iOS mobile scaffold proof scripts,
@@ -99,6 +102,14 @@ artifacts and captures the WSL2/Ubuntu toolchain, linked-worktree Git mapping,
 contract build output, service read-model proof, and Rust core tracking
 read-model test. It does not claim Android/iOS physical behavior, authority,
 full hosted UI/accessibility, provider delivery, or production readiness.
+The continuation branch `codex/tracking-hosted-ui-proof` adds
+`node scripts/test/tracking-plan-hosted-ui-proof.mjs`, which seeds a temporary
+ActivityStore SQLite database, starts the real Rust service and hosted Vite
+portal, runs focused Playwright against the `policy-tracking` route, and writes
+hosted parent-route screenshots, accessibility summary, Playwright log, and
+proof JSON. This closes the first hosted parent-route citation proof gap only;
+child UI, platform-local replay, physical-device behavior, authority proof, and
+production pilot proof remain open.
 
 ## Where We Want To Be
 
@@ -120,8 +131,9 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Manual-Required Gaps
 
-- Platform, provider, live UI, or runtime claims remain
-  manual-required until the assigned proof artifacts exist.
+- Platform, provider, child UI, physical-device, authority, production, or full
+  parent/child runtime claims remain manual-required until the assigned proof
+  artifacts exist.
 - Any unsupported platform or provider failure must surface as degraded/manual-required state, not as a silent success.
 
 ## Fill This Before Reporting DONE Or PR-ready
@@ -159,3 +171,29 @@ This workpack can be assigned independently, implemented against the owning doma
       full hosted UI/accessibility, production pilot, provider delivery, and
       richer live UI/read-model/product claims remain proof-gated as
       applicable.
+- [x] Known gaps/manual-required states: Android Studio/emulator runtime, iOS simulator/local, WSL/local replay, physical Android/iOS behavior, authority-enrolled proof, full child UI, full parent/child UI, production pilot, and richer product read-model claims remain proof-gated as applicable.
+- [x] Workpack id and branch: `codex/tracking-hosted-ui-proof`.
+- [x] Touched files: hosted tracking proof script, root script wiring, focused
+      Playwright proof, parent tracking status route/card, tracking status
+      tests, generated proof artifacts, tracking feature doc, tracking README,
+      implementation checklist, WP30, WP32, and this workpack doc.
+- [x] Validation commands and results: `npm run test:tracking-plan-hosted-ui-proof`
+      passed locally on lane ports 4577/4578 after building contracts, running
+      portal tracking status tests, building the Rust service, seeding
+      ActivityStore SQLite, launching the real service and Vite portal, and
+      running focused Playwright.
+- [x] Proof artifacts under
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`,
+      including `17-hosted-ui-proof.json`, `12-playwright-proof.log`,
+      `11-ui-snapshots/hosted-policy-tracking-live-summary.png`, and
+      `11-ui-snapshots/hosted-policy-tracking-live-summary-mobile.png`; plus
+      `test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json`.
+- [x] Product doc/checklist updates: owning feature doc, tracking README,
+      implementation checklist, WP30, WP32, and this workpack doc updated; the
+      central capability checklist delta is queued through hub DOC_DELTA
+      instead of editing `docs/product-capability-checklist.md`.
+- [x] Known gaps/manual-required states: Android Studio/emulator runtime, iOS
+      simulator/local, WSL/local replay, physical Android/iOS behavior,
+      authority-enrolled proof, full child UI, full parent/child UI, production
+      pilot, provider delivery, notifications, deletion/tombstone replay, and
+      richer product read models remain proof-gated as applicable.
