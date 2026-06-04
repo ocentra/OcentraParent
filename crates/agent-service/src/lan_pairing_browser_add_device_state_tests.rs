@@ -33,12 +33,12 @@ fn assert_empty_runtime_payload(payload: &ocentra_parent_agent_protocol::LogFiel
         ))
     );
     let physical_lan_state = payload.get(constants::field::LAN_PHYSICAL_HOUSEHOLD_LAN_STATE);
-    assert!(matches!(
+    assert_eq!(
         physical_lan_state,
-        Some(LogFieldValue::String(value))
-            if value == constants::value::LAN_DISCOVERY_STATE_MANUAL_REQUIRED
-                || value == constants::value::LAN_DISCOVERY_STATE_DISCOVERED
-    ));
+        Some(&LogFieldValue::String(
+            constants::value::LAN_DISCOVERY_STATE_MANUAL_REQUIRED.to_string()
+        ))
+    );
     assert_eq!(
         payload.get(constants::field::LAN_CLOUD_RELAY_STATE),
         Some(&LogFieldValue::String(

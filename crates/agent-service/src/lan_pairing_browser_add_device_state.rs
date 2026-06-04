@@ -1,5 +1,5 @@
 use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, LanBrowserAddDeviceDiscoveryDevice,
+    constants, AgentCommandEnvelope, AgentCommandName, LanBrowserAddDeviceDiscoveryDevice,
     LanBrowserAddDevicePairingRequest, LanBrowserAddDeviceReadModel, LanHouseholdDeviceDecision,
     LanPairingDeviceReachability, LanPairingDeviceRef, LanPairingDiscoveryRuntimeStatus,
     LanPairingDiscoverySource, LanPairingNetworkMode, LanPairingParentAuthority,
@@ -27,7 +27,13 @@ pub(crate) fn browser_add_device_pairs(
     command: &AgentCommandEnvelope,
     discovery_state: &str,
 ) -> Vec<(&'static str, LogFieldValue)> {
-    let model = browser_add_device_read_model(runtime, command, discovery_state);
+    let network_devices =
+        if command.command == AgentCommandName::AgentLanPairingBrowserDiscoveryScan {
+            lan_network_inventory::discover_lan_network_devices()
+        } else {
+            Vec::new()
+        };
+    let model = browser_add_device_read_model(runtime, command, discovery_state, network_devices);
     let read_model_json = serde_json::to_string(&model).unwrap_or_default();
     vec![
         (
@@ -99,12 +105,12 @@ fn browser_add_device_read_model(
     runtime: &LanPairingRuntime,
     command: &AgentCommandEnvelope,
     discovery_state: &str,
+    network_devices: Vec<lan_network_inventory::LanNetworkInventoryDevice>,
 ) -> LanBrowserAddDeviceReadModel {
     let generated_at = timestamp_now();
     let selected = runtime.selected_target();
     let trusted_device_registry = trusted_device_registry(runtime);
     let household_device_decisions = household_device_decisions(runtime);
-    let network_devices = lan_network_inventory::discover_lan_network_devices();
     let has_network_devices = !network_devices.is_empty();
     let discovery_source = if has_network_devices {
         LanPairingDiscoverySource::PhysicalHouseholdLan

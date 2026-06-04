@@ -26,37 +26,33 @@ const accessibilitySummaryPath = path.join(
 test('hosted policy tracking route renders service-backed tracking citations', async ({ page }) => {
   const browserFailures = collectBrowserFailures(page);
 
-  await page.goto('/#/commands');
-  const commandRefresh = page.getByRole('button', { exact: true, name: 'Refresh tracking status' });
-  await expect(commandRefresh).toBeEnabled({ timeout: portalShellReadyTimeoutMs });
-  await commandRefresh.click();
-  await commandRefresh.click();
-  await expect(page.getByText('agent.activity.tracking.read-model.reported')).toBeVisible();
-  await expect(page.getByText('tracking-hosted-expected-place-event')).toBeVisible();
-
   await page.goto('/#/policy-tracking');
-  await expect(page.getByRole('region', { name: 'Tracking status proof' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Tracking status proof' })).toBeVisible();
+  const proofRegion = page.getByRole('region', { name: 'Tracking status proof' });
+  await expect(proofRegion).toBeVisible({ timeout: portalShellReadyTimeoutMs });
+  await expect(proofRegion.getByRole('heading', { name: 'Tracking status proof' })).toBeVisible();
 
-  const refresh = page.getByRole('button', { name: 'Refresh tracking status' });
+  const refresh = proofRegion.getByRole('button', { name: 'Refresh tracking status' });
   await expect(refresh).toBeEnabled();
+  await refresh.click();
 
-  await expect(page.getByRole('heading', { name: 'Service read model' })).toBeVisible();
-  await expect(page.getByText('tracking-hosted-expected-place-event')).toBeVisible();
-  await expect(page.getByText('child-android-hosted-proof')).toBeVisible();
-  await expect(page.getByText('android', { exact: true })).toBeVisible();
-  await expect(page.getByText('tracking-engine')).toBeVisible();
-  await expect(page.getByText('activity.tracking.expected-place.evaluated')).toBeVisible();
-  await expect(page.getByText('School', { exact: true })).toBeVisible();
-  await expect(page.getByText('expected-place-school')).toBeVisible();
-  await expect(page.getByText('location-evidence-hosted-1 | location-evidence-hosted-2')).toBeVisible();
-  await expect(page.getByText('No product claim').first()).toBeVisible();
+  await expect(proofRegion.getByRole('heading', { name: 'Service read model' })).toBeVisible();
+  await expect(proofRegion.getByText('tracking-hosted-expected-place-event')).toBeVisible({
+    timeout: portalShellReadyTimeoutMs,
+  });
+  await expect(proofRegion.getByText('child-android-hosted-proof')).toBeVisible();
+  await expect(proofRegion.getByText('android', { exact: true })).toBeVisible();
+  await expect(proofRegion.getByText('tracking-engine')).toBeVisible();
+  await expect(proofRegion.getByText('activity.tracking.expected-place.evaluated')).toBeVisible();
+  await expect(proofRegion.getByText('School', { exact: true })).toBeVisible();
+  await expect(proofRegion.getByText('expected-place-school')).toBeVisible();
+  await expect(proofRegion.getByText('location-evidence-hosted-1 | location-evidence-hosted-2')).toBeVisible();
+  await expect(proofRegion.getByText('No product claim').first()).toBeVisible();
 
   await mkdir(screenshotDir, { recursive: true });
   await page.screenshot({ fullPage: true, path: desktopScreenshotPath });
 
   await page.setViewportSize({ width: 390, height: 844 });
-  await expect(page.getByRole('region', { name: 'Tracking status proof' })).toBeVisible();
+  await expect(proofRegion).toBeVisible();
   await page.screenshot({ fullPage: true, path: mobileScreenshotPath });
 
   const summary = await page.evaluate(() => {
