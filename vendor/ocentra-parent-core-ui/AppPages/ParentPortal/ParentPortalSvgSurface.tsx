@@ -492,6 +492,14 @@ const ASSISTANT_NEW_CHAT_NAV_ITEM = {
   routePath: `${ASSISTANT_NAV_ROUTE_PREFIX}new-chat`,
 };
 
+function assistantHistoryNavItem(action: AssistantQuickAction): NavItem {
+  return {
+    ...assistantQuickActionNavItem(action, ASSISTANT_PANEL_TAB.History),
+    label: `${action.label.toUpperCase()} HISTORY`,
+    detail: `Review previous ${action.label.toLowerCase()} assistant prompts.`,
+  };
+}
+
 function assistantQuickActionNavGroups(navGroups: NavGroup[]): NavGroup[] {
   return navGroups
     .map((group) => {
@@ -3548,15 +3556,14 @@ function AssistantQuickActionPanel({
   }
 
   if (activePanelTab === ASSISTANT_PANEL_TAB.History) {
-    const historyActions = ASSISTANT_QUICK_ACTIONS.filter((action) => action.id === 'report' || action.id === 'rules');
-    historyActions.forEach((action) => {
+    ASSISTANT_QUICK_ACTIONS.forEach((action) => {
       if (cursorY + rowH > panelBottom) return;
       const itemY = cursorY;
       cursorY += rowStep;
       panelRows.push(
         <NavRow
           key={`assistant:history:${action.id}`}
-          item={assistantQuickActionNavItem(action, ASSISTANT_PANEL_TAB.History)}
+          item={assistantHistoryNavItem(action)}
           active={false}
           x={x + 8}
           w={w - 8}

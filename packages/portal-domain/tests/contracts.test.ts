@@ -33,7 +33,10 @@ import {
 } from '../src/contracts';
 
 function routeFromHashPath(routePath: ParentPortalHashRoutePath): PortalRoute {
-  return PortalRouteSchema.parse(routePath.slice(2));
+  const [routeId = PortalDom.EmptyHashRoute] = routePath
+    .slice(PortalDom.HashPrefix.length)
+    .split(PortalDom.HashQuerySeparator);
+  return PortalRouteSchema.parse(routeId);
 }
 
 function selectableParentPortalTargetIds(): ReadonlySet<string> {
@@ -47,6 +50,13 @@ function expectNavRouteLabelsToMatchContexts(): void {
     expect(routePath).toBeDefined();
     const route = routeFromHashPath(routePath);
     const routeContext = PARENT_PORTAL_ROUTE_CONTEXT[route];
+    if (routePath.includes(PortalDom.HashQuerySeparator)) {
+      expect(routePath).toBe(
+        `${PortalDom.HashPrefix}${PortalRoute.FrameTuner}${PortalDom.HashQuerySeparator}${PortalDom.BackgroundDevToolHashFlag}`
+      );
+      expect(item.label).toBe(PARENT_PORTAL_NAV_LABELS.Background);
+      continue;
+    }
     expect(routeContext?.navLabel).toBe(item.label);
   }
 }
@@ -235,6 +245,7 @@ describe('portal route schema contracts', () => {
       'app-layout',
       'commands',
       'events',
+      'logs',
     ]);
     expect(PortalRouteSchema.safeParse('commands').success).toBe(true);
     expect(PortalRouteSchema.safeParse('settings-rules').success).toBe(true);
@@ -565,8 +576,8 @@ describe('portal chrome constants', () => {
   });
 
   it('PortalAssets: exposes auth assets and external links', () => {
-    expect(PortalAssets.HeaderHomeIcon).toBe('/nav-overview.svg');
-    expect(PortalAssets.HeaderLoginIcon).toBe('/header-login.svg');
+    expect(PortalAssets.HeaderHomeIcon).toBe('/images/home.png');
+    expect(PortalAssets.HeaderLoginIcon).toBe('/images/login.png');
     expect(PortalAssets.HeaderLogo).toBe('/ocentra-logo.svg');
     expect(PortalExternalLinks.Ocentra).toBe('https://ocentra.ca');
     expect(decodePortalClipboardText('copy payload')).toBe('copy payload');

@@ -1,4 +1,5 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
+import { AgentEvent } from '@ocentra-parent/agent-protocol-domain/contracts';
 import { PortalTheme } from '@ocentra-parent/portal-domain/contracts';
 import { collectBrowserFailures } from './browser-failures';
 import { assertRouteScaffolds } from './portal-route-scaffold-assertions';
@@ -27,7 +28,7 @@ test('portal UI connects to the real agent and renders command results', async (
   await assertHeaderThemeToggle(page);
   await assertAuthDialog(page);
   await assertCommandControls(page);
-  await assertInitialOverviewCommandDrain(page);
+  await assertInitialCommandRouteDrain(page);
   await assertTabbedCommandResults(page);
   await assertRawEventLog(page);
   await assertOverview(page);
@@ -103,9 +104,9 @@ async function assertCommandControls(page: Page): Promise<void> {
   await expect(page.locator('.summary')).toHaveCount(1);
 }
 
-async function assertInitialOverviewCommandDrain(page: Page): Promise<void> {
+async function assertInitialCommandRouteDrain(page: Page): Promise<void> {
   const commandResult = page.locator('.command-result-panel');
-  await expect(commandResult.getByText('agent.policy.preview.read-model.reported')).toHaveCount(1, {
+  await expect(commandResult.getByText(AgentEvent.LogSnapshotReported)).toHaveCount(1, {
     timeout: portalShellReadyTimeoutMs,
   });
   await expect(commandResult.locator('.log')).toHaveCount(1);
