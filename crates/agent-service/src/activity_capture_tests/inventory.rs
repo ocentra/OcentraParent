@@ -6,17 +6,21 @@ use std::{
 use ocentra_parent_agent_core::ActivityJournal;
 use ocentra_parent_agent_protocol::{
     constants, ActivityEvent, ActivityEventKind, AppGameServiceReadModel,
-    APP_GAME_FOREGROUND_NOT_CLAIMED, APP_GAME_INVENTORY_SOURCE_SHORTCUT,
-    APP_GAME_INVENTORY_SOURCE_STORE_PACKAGE, APP_GAME_INVENTORY_STATE_INSTALLED,
-    APP_GAME_JOURNAL_INVENTORY_SUBJECT_ID, APP_GAME_RUNTIME_NOT_CLAIMED,
-    APP_GAME_TEST_LIVE_INVENTORY_SUFFIX, APP_GAME_TEST_SHORTCUT_FILE_NAME,
-    APP_GAME_TEST_STORE_APP_DISPLAY_LABEL, APP_GAME_TEST_STORE_APP_PACKAGE_ID,
-    APP_GAME_TEST_STORE_PACKAGE_MANIFEST_USER_MODEL_ID, APP_GAME_TEST_STORE_PACKAGE_MANIFEST_XML,
-    APP_GAME_WINDOWS_APPX_MANIFEST_FILE_NAME,
+    APP_GAME_FOREGROUND_NOT_CLAIMED, APP_GAME_INVENTORY_SOURCE_OS_INSTALLED_RECORD,
+    APP_GAME_INVENTORY_SOURCE_SHORTCUT, APP_GAME_INVENTORY_SOURCE_STORE_PACKAGE,
+    APP_GAME_INVENTORY_STATE_INSTALLED, APP_GAME_JOURNAL_INVENTORY_SUBJECT_ID,
+    APP_GAME_RUNTIME_NOT_CLAIMED, APP_GAME_TEST_DISPLAY_LABEL, APP_GAME_TEST_LIVE_INVENTORY_SUFFIX,
+    APP_GAME_TEST_SHORTCUT_FILE_NAME, APP_GAME_TEST_STORE_APP_DISPLAY_LABEL,
+    APP_GAME_TEST_STORE_APP_PACKAGE_ID, APP_GAME_TEST_STORE_PACKAGE_MANIFEST_USER_MODEL_ID,
+    APP_GAME_TEST_STORE_PACKAGE_MANIFEST_XML, APP_GAME_WINDOWS_APPX_MANIFEST_FILE_NAME,
+    APP_GAME_WINDOWS_REGISTRY_DISPLAY_NAME_VALUE, APP_GAME_WINDOWS_REGISTRY_EXPORT_HEADER,
+    APP_GAME_WINDOWS_REGISTRY_FILE_EXTENSION, APP_GAME_WINDOWS_REGISTRY_INSTALL_LOCATION_VALUE,
+    APP_GAME_WINDOWS_REGISTRY_LOCAL_MACHINE_HIVE, APP_GAME_WINDOWS_REGISTRY_UNINSTALL_PATH,
 };
 
 use crate::activity_capture::capture_events::{
     record_activity_capture_to_paths_at_with_inventory_roots,
+    record_activity_capture_to_paths_at_with_registry_inventory_roots,
     record_activity_capture_to_paths_at_with_store_package_roots,
 };
 
@@ -149,6 +153,69 @@ fn record_capture_with_store_package_root_writes_inventory_journal_and_sqlite_ro
     );
 }
 
+#[test]
+fn record_capture_with_registry_root_writes_inventory_journal_and_sqlite_rows() {
+    let journal_path = temp_path(
+        constants::activity_store::TEST_CAPTURE_REGISTRY_INVENTORY_JOURNAL_SUFFIX,
+        constants::journal::FILE_EXTENSION,
+    );
+    let key_path = temp_path(
+        constants::activity_store::TEST_CAPTURE_REGISTRY_INVENTORY_KEY_SUFFIX,
+        constants::activity_store::FILE_EXTENSION,
+    );
+    let store_path = temp_path(
+        constants::activity_store::TEST_CAPTURE_REGISTRY_INVENTORY_STORE_SUFFIX,
+        constants::activity_store::FILE_EXTENSION,
+    );
+    let registry_root = temp_registry_inventory_root();
+    cleanup_paths(&journal_path, &key_path, &store_path);
+    cleanup_inventory_root(&registry_root);
+    write_registry_inventory_export(&registry_root);
+
+    let status = record_activity_capture_to_paths_at_with_registry_inventory_roots(
+        &journal_path,
+        &key_path,
+        &store_path,
+        1,
+        1,
+        constants::activity_store::TEST_FIRST_OBSERVED_AT,
+        std::slice::from_ref(&registry_root),
+    )
+    .expect(constants::error::ACTIVITY_CAPTURE_RECORDS);
+    let events = decrypted_events(&journal_path, &key_path);
+    let app_game = app_game_read_model(&store_path);
+
+    cleanup_paths(&journal_path, &key_path, &store_path);
+    cleanup_inventory_root(&registry_root);
+
+    assert_eq!(status.events_ingested, status.events_stored);
+    assert!(events.iter().any(
+        |event| event.kind == ActivityEventKind::DeviceIdleStateObserved
+            && event.subject.subject_id == APP_GAME_JOURNAL_INVENTORY_SUBJECT_ID
+    ));
+    assert_eq!(app_game.inventory_returned, 1);
+    assert_eq!(
+        app_game.inventory_rows[0].display_label,
+        APP_GAME_TEST_DISPLAY_LABEL
+    );
+    assert_eq!(
+        app_game.inventory_rows[0].source_kind,
+        APP_GAME_INVENTORY_SOURCE_OS_INSTALLED_RECORD
+    );
+    assert_eq!(
+        app_game.inventory_rows[0].inventory_state,
+        APP_GAME_INVENTORY_STATE_INSTALLED
+    );
+    assert_eq!(
+        app_game.inventory_rows[0].runtime_state,
+        APP_GAME_RUNTIME_NOT_CLAIMED
+    );
+    assert_eq!(
+        app_game.inventory_rows[0].foreground_state,
+        APP_GAME_FOREGROUND_NOT_CLAIMED
+    );
+}
+
 fn temp_path(suffix: &str, extension: &str) -> PathBuf {
     let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
     name.push_str(&std::process::id().to_string());
@@ -177,6 +244,17 @@ fn temp_store_package_root() -> PathBuf {
     name.push_str(&std::process::id().to_string());
     name.push(constants::delimiter::HYPHEN);
     name.push_str(constants::activity_store::TEST_APP_GAME_STORE_PACKAGE_MANIFEST_SUFFIX);
+
+    let mut path = std::env::temp_dir();
+    path.push(name);
+    path
+}
+
+fn temp_registry_inventory_root() -> PathBuf {
+    let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
+    name.push_str(&std::process::id().to_string());
+    name.push(constants::delimiter::HYPHEN);
+    name.push_str(constants::activity_store::TEST_CAPTURE_REGISTRY_INVENTORY_STORE_SUFFIX);
 
     let mut path = std::env::temp_dir();
     path.push(name);
@@ -217,6 +295,60 @@ fn write_store_package_manifest(root: &Path) {
     let mut path = root.to_path_buf();
     path.push(APP_GAME_WINDOWS_APPX_MANIFEST_FILE_NAME);
     write(path, APP_GAME_TEST_STORE_PACKAGE_MANIFEST_XML).expect(constants::error::JOURNAL_APPENDS);
+}
+
+fn write_registry_inventory_export(root: &Path) {
+    create_dir_all(root).expect(constants::error::JOURNAL_APPENDS);
+    write(registry_export_path(root), registry_inventory_export())
+        .expect(constants::error::JOURNAL_APPENDS);
+}
+
+fn registry_export_path(root: &Path) -> PathBuf {
+    let mut path = root.to_path_buf();
+    path.push(constants::activity_store::TEST_CAPTURE_REGISTRY_INVENTORY_STORE_SUFFIX);
+    path.set_extension(APP_GAME_WINDOWS_REGISTRY_FILE_EXTENSION);
+    path
+}
+
+fn registry_inventory_export() -> String {
+    let mut export = String::from(APP_GAME_WINDOWS_REGISTRY_EXPORT_HEADER);
+    export.push(constants::delimiter::NEWLINE);
+    export.push_str(&registry_key());
+    export.push(constants::delimiter::NEWLINE);
+    push_registry_value(
+        &mut export,
+        APP_GAME_WINDOWS_REGISTRY_DISPLAY_NAME_VALUE,
+        APP_GAME_TEST_DISPLAY_LABEL,
+    );
+    push_registry_value(
+        &mut export,
+        APP_GAME_WINDOWS_REGISTRY_INSTALL_LOCATION_VALUE,
+        constants::activity_store::TEST_APP_GAME_PROCESS_PATH,
+    );
+    export
+}
+
+fn registry_key() -> String {
+    let mut key = String::new();
+    key.push(constants::delimiter::OPEN_BRACKET);
+    key.push_str(APP_GAME_WINDOWS_REGISTRY_LOCAL_MACHINE_HIVE);
+    key.push(constants::delimiter::BACKSLASH);
+    key.push_str(APP_GAME_WINDOWS_REGISTRY_UNINSTALL_PATH);
+    key.push(constants::delimiter::BACKSLASH);
+    key.push_str(constants::activity_store::TEST_APP_GAME_SESSION_ID);
+    key.push(constants::delimiter::CLOSE_BRACKET);
+    key
+}
+
+fn push_registry_value(export: &mut String, name: &str, value: &str) {
+    export.push(constants::delimiter::QUOTE);
+    export.push_str(name);
+    export.push(constants::delimiter::QUOTE);
+    export.push(constants::delimiter::EQUALS);
+    export.push(constants::delimiter::QUOTE);
+    export.push_str(value);
+    export.push(constants::delimiter::QUOTE);
+    export.push(constants::delimiter::NEWLINE);
 }
 
 fn cleanup_paths(journal_path: &Path, key_path: &Path, store_path: &Path) {

@@ -95,6 +95,7 @@ fn assert_optional_foreground_event_count(event_count: u64) {
     let max_count = (expected_capture_event_base_count()
         + constants::activity_capture::APP_GAME_INVENTORY_SNAPSHOT_LIMIT as u64
         + constants::activity_capture::APP_GAME_INVENTORY_SNAPSHOT_LIMIT as u64
+        + constants::activity_capture::APP_GAME_INVENTORY_SNAPSHOT_LIMIT as u64
         + 1)
         * 2;
     assert!(event_count >= min_count && event_count <= max_count);
@@ -103,6 +104,7 @@ fn assert_optional_foreground_event_count(event_count: u64) {
 fn assert_optional_latest_ingest_count(event_count: u64) {
     let min_count = expected_capture_event_base_count();
     let max_count = expected_capture_event_base_count()
+        + constants::activity_capture::APP_GAME_INVENTORY_SNAPSHOT_LIMIT as u64
         + constants::activity_capture::APP_GAME_INVENTORY_SNAPSHOT_LIMIT as u64
         + constants::activity_capture::APP_GAME_INVENTORY_SNAPSHOT_LIMIT as u64
         + 1;

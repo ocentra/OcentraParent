@@ -209,6 +209,10 @@ control with better evidence and local audit.
   `.reg` export fixtures in tests, hashes registry/source/path details into
   opaque refs, filters hidden system components, and keeps those rows
   inventory-only.
+- The service activity-capture path now appends bounded Windows Uninstall
+  registry inventory events into the encrypted journal and ActivityStore, so the
+  existing app-use/games read-model path can query registry-backed
+  inventory-only rows without runtime, foreground, policy, or adapter claims.
 - The app/game final rollout/evidence gate now checks the app-game WP01-WP27
   and app-plan WP01-WP26 proof roots, writes final app-game WP28 and app-plan
   WP27/WP28 proof packs, and records the E2E/manual scenario routing,
@@ -251,15 +255,16 @@ inventory-only rows and journal events with hashed source refs, and the service
 capture path can append those packaged-app inventory events into the existing
 encrypted journal/store/read-model path. Core registry crawling now maps Windows
 Uninstall registry evidence into inventory-only rows and journal events with
-hashed source/path refs, but it does not prove service capture of registry rows,
-portal evidence/classifier rendering, local model quality/provider execution,
-policy evaluator consumption, or platform enforcement. Live process snapshots
-now replay through the local journal/SQLite path in core and through the service
-activity-capture journal/store path for bounded runtime rows; recurring service
-capture freshness is now proved, and the service capture bridge can also append
-optional app/game foreground rows from the core active-window source with opaque
-window/title refs. Richer process start/exit and foreground transition
-subscriptions, portal source freshness polish, registry service capture,
+hashed source/path refs, and the service capture path can append those
+registry-backed inventory rows into the same journal/store/read-model path.
+Portal evidence/classifier rendering, local model quality/provider execution,
+policy evaluator consumption, and platform enforcement remain unproved. Live
+process snapshots now replay through the local journal/SQLite path in core and
+through the service activity-capture journal/store path for bounded runtime
+rows; recurring service capture freshness is now proved, and the service
+capture bridge can also append optional app/game foreground rows from the core
+active-window source with opaque window/title refs. Richer process start/exit
+and foreground transition subscriptions, portal source freshness polish,
 policy/runtime consumers, and adapter execution remain separate gaps.
 The install/store handoff proof is contract-only: it does not prove live store
 integration, Google Play, Apple App Store, Microsoft Store, package-manager
@@ -317,8 +322,9 @@ persistence, Rust/WebSocket parity, or platform adapter execution.
       inventory-only rows, and service capture can append those packaged-app
       rows into the journal/store/read-model path. Core Windows registry source
       proof now maps Uninstall registry evidence into inventory-only rows with
-      hashed source/path refs. Portal freshness polish, richer source
-      subscriptions, registry service capture, and policy integration remain.
+      hashed source/path refs, and service capture can append those registry
+      rows into the journal/store/read-model path. Portal freshness polish,
+      richer source subscriptions, and policy integration remain.
 - [ ] Category and unknown-state handling. Unknown approval contracts now keep
       weak app/game evidence in review/report-only/manual-required states with
       evidence refs, child status refs, expiry, and audit-backed persistence

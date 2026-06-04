@@ -39,6 +39,10 @@ pub const TEST_CAPTURE_REPLAY_STORE_SUFFIX: &str = "capture-replay-store";
 pub const TEST_CAPTURE_STORE_PACKAGE_JOURNAL_SUFFIX: &str = "capture-store-package-journal";
 pub const TEST_CAPTURE_STORE_PACKAGE_KEY_SUFFIX: &str = "capture-store-package-key";
 pub const TEST_CAPTURE_STORE_PACKAGE_STORE_SUFFIX: &str = "capture-store-package-store";
+pub const TEST_CAPTURE_REGISTRY_INVENTORY_JOURNAL_SUFFIX: &str =
+    "capture-registry-inventory-journal";
+pub const TEST_CAPTURE_REGISTRY_INVENTORY_KEY_SUFFIX: &str = "capture-registry-inventory-key";
+pub const TEST_CAPTURE_REGISTRY_INVENTORY_STORE_SUFFIX: &str = "capture-registry-inventory-store";
 pub const TEST_CAPTURE_STORE_SUFFIX: &str = "capture-store";
 pub const TEST_BROWSER_DOMAIN: &str = "example.test";
 pub const TEST_BROWSER_CREDENTIAL_URL: &str = "https://child:secret@example.test/learn";

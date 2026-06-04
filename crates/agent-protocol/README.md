@@ -109,6 +109,7 @@ flowchart LR
   rows, core live foreground-window source proof exists for foreground rows, and
   core Windows shortcut, Store package, and registry sources now exist for
   inventory-only rows. Agent-service owns a recurring bounded runtime capture
-  cadence plus a dedicated app/game boundary read-model event, but registry
-  service capture, policy runtime, portal identity/classifier/platform-authority
-  rows, and adapter execution remain separate proof-gated work.
+  cadence, registry-backed inventory capture, and a dedicated app/game boundary
+  read-model event, but policy runtime, portal
+  identity/classifier/platform-authority rows, and adapter execution remain
+  separate proof-gated work.

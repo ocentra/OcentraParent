@@ -1,6 +1,7 @@
 use ocentra_parent_agent_core::{
     ActivityStoreError, AppGameLiveForegroundWindowError, AppGameLiveInventorySourceError,
-    AppGameLiveProcessSnapshotError, AppGameLiveStorePackageSourceError, JournalError,
+    AppGameLiveProcessSnapshotError, AppGameLiveRegistryInventorySourceError,
+    AppGameLiveStorePackageSourceError, JournalError,
 };
 use ocentra_parent_agent_protocol::constants;
 
@@ -63,6 +64,12 @@ impl From<AppGameLiveInventorySourceError> for ActivityCaptureError {
 
 impl From<AppGameLiveStorePackageSourceError> for ActivityCaptureError {
     fn from(_: AppGameLiveStorePackageSourceError) -> Self {
+        Self::AppGameRuntime
+    }
+}
+
+impl From<AppGameLiveRegistryInventorySourceError> for ActivityCaptureError {
+    fn from(_: AppGameLiveRegistryInventorySourceError) -> Self {
         Self::AppGameRuntime
     }
 }

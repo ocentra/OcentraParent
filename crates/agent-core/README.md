@@ -80,7 +80,7 @@ flowchart LR
   foreground-window source proof, live shortcut inventory source proof, live
   packaged-app manifest source proof, and live registry inventory source proof
   are staged core proof only; bounded runtime, shortcut-inventory, and
-  packaged-app rows now feed service capture, while registry service capture,
+  packaged-app and registry inventory rows now feed service capture, while
   portal authority/classifier/source rows, policy consumption, and adapter
   execution remain separate gaps.
 - Tracking read-model queries are query-store proof only; narrow portal summary

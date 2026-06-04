@@ -54,6 +54,10 @@ development paths and orchestrates runtime commands.
 - Bounded app/game live Windows packaged-app manifest capture through the same
   activity-capture journal/store path, exposing Store/UWP inventory-only rows
   with hashed source refs and no runtime, foreground, policy, or adapter claims.
+- Bounded app/game live Windows registry inventory capture through the same
+  activity-capture journal/store path, exposing Uninstall registry
+  inventory-only rows with hashed source/path refs and no runtime, foreground,
+  policy, or adapter claims.
 - App/game app-use/games read-model evidence refs for staged evidence-claim,
   identity, approval authority/action-result, platform authority matrix, and AI
   classifier result rows from the existing `AppGameServiceReadModel`, without
@@ -127,10 +131,11 @@ flowchart LR
 - Tracking read-model output is consumed by a narrow parent portal summary only;
   child UI, richer product read models, physical-device proof, and
   provider/notification delivery remain separate gaps.
-- App/game live process, optional foreground, Windows shortcut inventory, and
-  Windows packaged-app manifest capture have bounded service proof; subscribed
-  foreground transitions, registry inventory, policy consumption, portal
-  source/status polish, and adapter execution remain separate gaps.
+- App/game live process, optional foreground, Windows shortcut inventory,
+  Windows packaged-app manifest capture, and Windows registry inventory capture
+  have bounded service proof; subscribed foreground transitions, policy
+  consumption, portal source/status polish, and adapter execution remain
+  separate gaps.
 - App/game authority/classifier surface evidence is transport-only in the
   app-use/games evidence vector, explicit count fields, and the dedicated
   backend boundary read-model event; portal rows, policy consumption, provider
