@@ -123,6 +123,14 @@ only with explicit parent settings.
   raw image deletion, custody, queue, digest, and evidence refs. This is
   service-to-portal chain proof from a seeded local activity event, not live
   external-account trigger proof.
+- `scripts/test/screen-ai-service-cadence-proof.mjs` now proves an explicit
+  opt-in Rust service cadence loop on Windows: it opens a real foreground
+  browser fixture, records three timed active-window captures through the
+  service, writes encrypted queue metadata, holds the pending queue at three
+  records after the cap, ingests three `ScreenAnalysisSummarized` events into
+  the local ActivityStore, and reads three Activity Screen rows back through the
+  real WebSocket command path. The provider is `serviceCaptureMetadata`, so this
+  is capture/read-model cadence proof, not a VLM quality or policy-action claim.
 - Android child-agent scaffold now has emulator MediaProjection proof with
   explicit OS consent, foreground service, captured frame digest, and raw temp
   deletion. Physical Android parity and silent background capture are not
@@ -133,9 +141,9 @@ only with explicit parent settings.
 
 ## Current Gap
 
-Opt-in UI, service-owned background timer/foreground watchers, live external
-URL/account operator proof, OCR/vision quality beyond controlled fixtures,
-service-owned live trigger/event producers beyond seeded proof, physical
+Opt-in UI, service-owned foreground watchers, live external URL/account operator
+proof, OCR/vision quality beyond controlled fixtures, service-owned live trigger
+event producers beyond the timed cadence loop, physical
 Android/iOS proof, live macOS capture proof, Linux root/Wayland portal proof,
 browser/network/mobile/broad block action adapters from screen-derived
 decisions, checklist status movement, and production parent explanation UX

@@ -2174,11 +2174,14 @@ name = "ocentra-parent-agent-service"
 version = "0.1.1"
 dependencies = [
  "axum",
+ "base64",
  "chrono",
  "ocentra-parent-agent-core",
  "ocentra-parent-agent-protocol",
+ "ocentra-parent-screen-capture-adapter",
  "serde",
  "serde_json",
+ "sha2",
  "tokio",
  "tower-http",
 ]
