@@ -209,6 +209,14 @@ only with explicit parent settings.
   explicit OS consent, foreground service, captured frame digest, and raw temp
   deletion. Physical Android parity and silent background capture are not
   claimed.
+- The screen-AI browser trigger proof now validates managed-browser URL,
+  browser-video, social-feed, and cloud-game trigger rows through
+  activity-domain browser AI and screen-analysis schemas, then proves local-AI
+  context builder consumption via
+  `test-results/screen-ai-browser-trigger-proof/proof.json`. The social row is
+  manual-required and the cloud-game row is unavailable/scaffold-only, so this
+  does not claim authenticated social, cloud-frame, mobile parity, UI, or
+  enforcement support.
 - Product settings and quality proof are incomplete.
 - Raw screen control settings are preserved as design inputs, not
   product-complete implementation proof.
@@ -224,8 +232,9 @@ settings UX for disabled capture/analysis, physical Android/iOS proof, live
 macOS capture proof, Linux root/Wayland portal proof,
 browser/network/mobile/broad block action adapters from screen-derived
 decisions, checklist status movement, and production parent explanation UX
-remain. These are remaining screen+AI delivery items, not external handoff
-excuses.
+remain. Browser-trigger proof now covers contract flow into screen evidence and
+local-AI context only; live trigger producers, authenticated surfaces,
+cloud-streamed frames, mobile parity, and UI remain separate proof gates.
 
 ## Checklist
 
