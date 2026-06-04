@@ -20,7 +20,10 @@ export const AgentActivityTrackingReadModelRowSchema = withParser(
     subjectId: TrackingProtocolText,
     subjectDisplayName: NullableTrackingProtocolText,
     capabilityStatus: NullableTrackingProtocolText,
+    queryVisibility: TrackingProtocolText,
+    deletedAt: NullableTrackingProtocolText,
     evidenceReferenceIds: Schema.Array(TrackingProtocolText),
+    deletedEvidenceReferenceIds: Schema.Array(TrackingProtocolText),
     evidence: Schema.Array(ActivityEvidenceRefSchema),
   })
 );
@@ -32,9 +35,14 @@ export const AgentActivityTrackingReadModelSchema = withParser(
     custodyLabel: TrackingProtocolText,
     limit: TrackingProtocolCount,
     returned: TrackingProtocolCount,
+    activeRows: TrackingProtocolCount,
+    tombstoneRows: TrackingProtocolCount,
     capabilityStatus: TrackingProtocolText,
     latestEventId: NullableTrackingProtocolText,
     latestObservedAt: NullableTrackingProtocolText,
+    latestTombstoneEventId: NullableTrackingProtocolText,
+    latestTombstoneObservedAt: NullableTrackingProtocolText,
+    deletedEvidenceReferenceIds: Schema.Array(TrackingProtocolText),
     rows: Schema.Array(AgentActivityTrackingReadModelRowSchema),
   })
 );

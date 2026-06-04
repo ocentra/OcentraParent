@@ -1,5 +1,10 @@
 use ocentra_parent_agent_protocol::{
     constants, LogFieldValue, LogFields, TrackingReadModel, TrackingReadModelRow,
+    TRACKING_READ_MODEL_FIELD_ACTIVE_ROWS,
+    TRACKING_READ_MODEL_FIELD_DELETED_EVIDENCE_REFERENCE_IDS,
+    TRACKING_READ_MODEL_FIELD_LATEST_TOMBSTONE_EVENT_ID,
+    TRACKING_READ_MODEL_FIELD_LATEST_TOMBSTONE_OBSERVED_AT,
+    TRACKING_READ_MODEL_FIELD_TOMBSTONE_ROWS,
 };
 
 use crate::fields::fields_from_pairs;
@@ -14,6 +19,7 @@ pub fn tracking_read_model_payload(read_model: &TrackingReadModel) -> LogFields 
 }
 
 fn read_model_pairs(read_model: &TrackingReadModel) -> Vec<FieldPair> {
+    let separator = constants::delimiter::LIST.to_string();
     vec![
         (
             constants::field::GENERATED_AT,
@@ -32,6 +38,14 @@ fn read_model_pairs(read_model: &TrackingReadModel) -> Vec<FieldPair> {
             LogFieldValue::Number(read_model.returned as f64),
         ),
         (
+            TRACKING_READ_MODEL_FIELD_ACTIVE_ROWS,
+            LogFieldValue::Number(read_model.active_rows as f64),
+        ),
+        (
+            TRACKING_READ_MODEL_FIELD_TOMBSTONE_ROWS,
+            LogFieldValue::Number(read_model.tombstone_rows as f64),
+        ),
+        (
             constants::field::CAPABILITY_STATUS,
             LogFieldValue::String(read_model.capability_status.clone()),
         ),
@@ -42,6 +56,18 @@ fn read_model_pairs(read_model: &TrackingReadModel) -> Vec<FieldPair> {
         (
             constants::field::LATEST_OBSERVED_AT,
             optional_string(read_model.latest_observed_at.as_ref()),
+        ),
+        (
+            TRACKING_READ_MODEL_FIELD_LATEST_TOMBSTONE_EVENT_ID,
+            optional_string(read_model.latest_tombstone_event_id.as_ref()),
+        ),
+        (
+            TRACKING_READ_MODEL_FIELD_LATEST_TOMBSTONE_OBSERVED_AT,
+            optional_string(read_model.latest_tombstone_observed_at.as_ref()),
+        ),
+        (
+            TRACKING_READ_MODEL_FIELD_DELETED_EVIDENCE_REFERENCE_IDS,
+            LogFieldValue::String(read_model.deleted_evidence_reference_ids.join(&separator)),
         ),
         (
             constants::field::ACTIVITY_TRACKING_READ_MODEL,
@@ -81,6 +107,14 @@ fn latest_row_pairs(row: Option<&TrackingReadModelRow>) -> Vec<FieldPair> {
         (
             constants::field::EVIDENCE_REFERENCE_IDS,
             LogFieldValue::String(join_evidence_ids(row)),
+        ),
+        (
+            constants::field::QUERY_VISIBILITY,
+            optional_string(row.map(|value| &value.query_visibility)),
+        ),
+        (
+            constants::field::DELETED_AT,
+            optional_string(row.and_then(|value| value.deleted_at.as_ref())),
         ),
     ]
 }

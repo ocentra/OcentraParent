@@ -1,6 +1,8 @@
 use ocentra_parent_agent_protocol::{
     constants, LogFieldValue, TrackingReadModel, TrackingReadModelRow,
     ACTIVITY_QUERY_SCHEMA_VERSION, TRACKING_READ_MODEL_CUSTODY_CHILD_DEVICE_QUERY_STORE,
+    TRACKING_READ_MODEL_FIELD_ACTIVE_ROWS, TRACKING_READ_MODEL_FIELD_TOMBSTONE_ROWS,
+    TRACKING_READ_MODEL_ROW_VISIBILITY_ACTIVE,
 };
 
 use super::tracking_read_model_payload::tracking_read_model_payload;
@@ -14,6 +16,8 @@ fn tracking_read_model_payload_contains_contract_json_and_latest_citations() {
         custody_label: TRACKING_READ_MODEL_CUSTODY_CHILD_DEVICE_QUERY_STORE.to_string(),
         limit: constants::activity_store::DEFAULT_RECENT_LIMIT,
         returned: 1,
+        active_rows: 1,
+        tombstone_rows: 0,
         capability_status: constants::activity_store::TEST_TRACKING_CAPABILITY_STATUS_RECENT
             .to_string(),
         latest_event_id: Some(
@@ -22,6 +26,9 @@ fn tracking_read_model_payload_contains_contract_json_and_latest_citations() {
         latest_observed_at: Some(
             constants::activity_store::TEST_TRACKING_LOCATION_OBSERVED_AT.to_string(),
         ),
+        latest_tombstone_event_id: None,
+        latest_tombstone_observed_at: None,
+        deleted_evidence_reference_ids: Vec::new(),
         rows: vec![tracking_row()],
     };
 
@@ -38,6 +45,18 @@ fn tracking_read_model_payload_contains_contract_json_and_latest_citations() {
     assert_eq!(
         string_payload(&payload, constants::field::LATEST_EVENT_ID),
         constants::activity_store::TEST_TRACKING_LOCATION_EVENT_ID
+    );
+    assert_eq!(
+        number_payload(&payload, TRACKING_READ_MODEL_FIELD_ACTIVE_ROWS),
+        1.0
+    );
+    assert_eq!(
+        number_payload(&payload, TRACKING_READ_MODEL_FIELD_TOMBSTONE_ROWS),
+        0.0
+    );
+    assert_eq!(
+        string_payload(&payload, constants::field::QUERY_VISIBILITY),
+        TRACKING_READ_MODEL_ROW_VISIBILITY_ACTIVE
     );
 }
 
@@ -58,9 +77,12 @@ fn tracking_row() -> TrackingReadModelRow {
         capability_status: Some(
             constants::activity_store::TEST_TRACKING_CAPABILITY_STATUS_RECENT.to_string(),
         ),
+        query_visibility: TRACKING_READ_MODEL_ROW_VISIBILITY_ACTIVE.to_string(),
+        deleted_at: None,
         evidence_reference_ids: vec![
             constants::activity_store::TEST_TRACKING_EVIDENCE_REFERENCE_ID.to_string(),
         ],
+        deleted_evidence_reference_ids: Vec::new(),
         evidence: Vec::new(),
     }
 }
@@ -68,6 +90,13 @@ fn tracking_row() -> TrackingReadModelRow {
 fn string_payload<'a>(payload: &'a ocentra_parent_agent_protocol::LogFields, key: &str) -> &'a str {
     match payload.get(key) {
         Some(LogFieldValue::String(value)) => value.as_str(),
+        _ => std::panic::panic_any(constants::error::AGENT_EVENT_SERIALIZES),
+    }
+}
+
+fn number_payload(payload: &ocentra_parent_agent_protocol::LogFields, key: &str) -> f64 {
+    match payload.get(key) {
+        Some(LogFieldValue::Number(value)) => *value,
         _ => std::panic::panic_any(constants::error::AGENT_EVENT_SERIALIZES),
     }
 }
