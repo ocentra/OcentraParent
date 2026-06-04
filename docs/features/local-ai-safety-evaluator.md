@@ -53,15 +53,17 @@ claim needs proof, not slogans.
   degraded, unavailable, API authorized-unavailable, and API authorized-degraded
   states without making remote/API AI part of child safety decisions.
 - Dry-run policy evaluator and evidence context builder exist in proof form.
-- Model quality, video/social coverage, and enforcement handoff remain
+- Screen-derived time-limit and block decisions now have Windows
+  owned-process adapter handoff proof. Model quality, video/social live
+  coverage, and browser/category/network/mobile/broad enforcement handoff remain
   incomplete.
 
 ## Current Gap
 
 Ocentra needs product-grade model configuration, local model artifacts,
 production screen model quality, confidence handling, degraded states,
-social/video evidence coverage, parent explanations, and validation against real
-external evidence.
+social/video evidence coverage, parent explanations, broader enforcement
+handoff, and validation against real external evidence.
 
 ## Checklist
 

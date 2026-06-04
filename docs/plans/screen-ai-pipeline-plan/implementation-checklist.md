@@ -30,6 +30,7 @@ claims.
 | Stricter parent policy guard             | P3 proved                | `output/screen-ai-pipeline-proof/stricter-rule/proof-summary.json`                          | Proves local AI recommendations cannot weaken stricter parent policy actions before policy handoff; enforcement adapter execution remains a separate gate.                                                                                                                                   |
 | Policy dry-run decision                  | P3 contract proved       | `output/ai-plan-proof/real-analysis/browser-game/07-policy-decision.json`                   | Covers allow, warn, ask-parent, time-limit, and block dry-run actions; real enforcement adapter dispatch is still required in this pipeline scope before product-complete action claims.                                                                                                     |
 | Screen-to-action adapter dispatch        | P3 Windows proved        | `output/screen-ai-pipeline-proof/action-dispatch/proof-summary.json`                        | Proves screen-derived native owned-process time-limit decision handoff into the real Windows Rust service adapter path; does not claim browser, network, mobile, or broad block enforcement.                                                                                                 |
+| Screen-to-block adapter dispatch         | P3 Windows proved        | `output/screen-ai-pipeline-proof/block-action-dispatch/proof-summary.json`                  | Proves a screen-derived block decision can hand off into the real Windows Rust service owned-process block adapter and terminate a controlled owned process; category/browser/network/mobile/broad block adapters remain separate.                                                           |
 | Parent portal screen chain               | P3 proved                | `output/screen-ai-pipeline-proof/portal-chain/proof-summary.json`                           | Proves real service-to-portal Activity Screen read-model rendering of trigger, capture, AI, policy, deletion, custody, queue, digest, and evidence refs; live external account proof remains.                                                                                                |
 | Live operator proof harness readiness    | P2 executable gate       | `output/screen-ai-pipeline-proof/live-operator/harness-readiness/proof-summary.json`        | Proves the live operator harness exists, covers the required nine scenario ids, and refuses to claim live proof without an operator manifest. It does not claim real YouTube/Vimeo/social/shopping/game/account proof until manifest-run artifacts exist.                                    |
 | Unknown native process trigger           | P3 local-machine proved  | `output/screen-ai-pipeline-proof/unknown-native-process/03-capture-proof.json`              | Proves a controlled unknown native process window can trigger selected-window capture, local VLM unknown classification, low-confidence handling, and ask-parent dry-run without retaining raw image.                                                                                        |
@@ -81,7 +82,7 @@ claims.
 - [x] Ask-parent policy result.
 - [x] Time-limit policy result.
 - [x] Block dry-run result.
-- [ ] Block real adapter result.
+- [x] Block real adapter result for the owned-process Windows adapter path.
 - [x] Unknown/manual-required result.
 - [x] AI cannot override stricter parent rule.
 - [x] Real Windows owned-process time-limit adapter dispatch, restart recovery, parent cancel, expiry, and process termination proof.
@@ -111,6 +112,9 @@ claims.
 - [x] Service foreground proof run: `node scripts/test/screen-ai-service-foreground-proof.mjs`.
 - [x] Service analysis proof run: `node --check scripts/test/screen-ai-service-analysis-proof.mjs` and
       `node scripts/test/screen-ai-service-analysis-proof.mjs`.
+- [x] Screen-derived block adapter proof run: `node --check scripts/test/screen-ai-block-action-dispatch-proof.mjs`,
+      `OCENTRA_SCREEN_AI_SCENARIOS=bypass-tool node scripts/test/screen-ai-local-vlm-proof.mjs`,
+      and `node scripts/test/screen-ai-block-action-dispatch-proof.mjs`.
 - [x] Live operator harness readiness run:
       `node --check scripts/test/screen-ai-live-operator-proof.mjs`,
       `node scripts/test/screen-ai-live-operator-proof.mjs --verify-harness`,
