@@ -24,8 +24,17 @@ describe('enforcement policy dispatch adapter', () => {
 
     expect(result.status).toBe('accepted');
     if (result.status === 'accepted') {
-      expect(result.readModel.entries[0]?.matrixRow.proofLevel).toBe('implemented');
-      expect(result.readModel.entries[3]?.matrixRow.outcomeState).toBe('manual-required');
+      expect(result.readModel.entries.some((entry) => entry.matrixRow.proofLevel === 'implemented')).toBe(true);
+      expect(
+        result.readModel.entries.some(
+          (entry) =>
+            entry.intent.intentId === 'dispatch-app-game-category-risk-dry-run' &&
+            entry.matrixRow.outcomeState === 'dry-run-only' &&
+            entry.intent.dryRun &&
+            entry.dispatchedAt === null
+        )
+      ).toBe(true);
+      expect(result.readModel.entries.some((entry) => entry.matrixRow.outcomeState === 'manual-required')).toBe(true);
     }
   });
 

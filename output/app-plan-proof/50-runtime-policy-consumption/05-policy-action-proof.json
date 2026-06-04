@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "policyConsumption": {
+    "intentId": "dispatch-app-game-category-risk-dry-run",
+    "surface": "windows-policy-dry-run-preview",
+    "target": {
+      "targetId": "target-dispatch-app-game-category-risk-dry-run",
+      "targetType": "app",
+      "targetValue": "app-category:category-risk-route"
+    },
+    "requestedParentAction": "dry-run-preview",
+    "dryRun": true,
+    "outcomeState": "dry-run-only",
+    "adapterDispatch": "not-dispatched"
+  },
+  "noClaimBoundary": {
+    "adapterDispatch": "not-dispatched",
+    "dryRunOnly": true,
+    "platformEnforcementClaimed": false,
+    "broadBlockingClaimed": false
+  }
+}

@@ -1,0 +1,8 @@
+Validation run:
+
+- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS
+- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- enforcement-policy-dispatch: PASS
+- cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- enforcement-policy-dispatch-adapter: PASS
+- cargo test -p ocentra-parent-agent-protocol enforcement_policy_dispatch: PASS
+- cargo test -p ocentra-parent-agent-service policy_dispatch: PASS
+- node scripts/test/app-game-runtime-policy-consumption-proof.mjs: PASS

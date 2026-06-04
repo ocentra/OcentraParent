@@ -19,6 +19,9 @@ development paths and orchestrates runtime commands.
 - V0.8 policy-dispatch runtime reports through
   `agent.enforcement.policy-dispatch.get` with validated capability matrix,
   evidence refs, timers, approvals, audit refs, and child reason codes.
+- App/game category-risk policy consumption through the same policy-dispatch
+  runtime report as a dry-run-only row with evidence refs and no adapter
+  dispatch.
 - V0.8 supported-adapter runtime proof reports through
   `agent.enforcement.supported-adapter-runtime-proof.get`, including the
   enforcement integrity runtime audit read model for supported action results,
@@ -112,8 +115,10 @@ flowchart LR
   remote routing.
 - Product-complete broad app, network/domain, exact URL, notification, and
   tamper enforcement still require platform-specific adapter proof.
-- Policy-dispatch read models are backend proof hooks; C-owned visual UX and
-  D-owned packaging/release proof remain outside this crate's scope.
+- Policy-dispatch read models are backend proof hooks; the app/game
+  category-risk row is dry-run-only policy consumption and not adapter
+  execution. C-owned visual UX and D-owned packaging/release proof remain
+  outside this crate's scope.
 - Integrity runtime audit read models are backend proof hooks only; broad
   app/domain/browser blocking, notification delivery, tamper resistance, mobile
   enforcement, stealth/persistence, and privilege escalation remain unclaimed
@@ -136,13 +141,14 @@ flowchart LR
   provider/notification delivery remain separate gaps.
 - App/game live process, optional foreground, Windows shortcut inventory,
   Windows packaged-app manifest capture, and Windows registry inventory capture
-  have bounded service proof; subscribed foreground transitions, policy
-  consumption, portal source/status polish, and adapter execution remain
-  separate gaps.
+  have bounded service proof; category-risk policy consumption now has a
+  dry-run policy-dispatch row, while subscribed foreground transitions,
+  remaining policy/runtime consumers, portal source/status polish, and adapter
+  execution remain separate gaps.
 - App/game authority/classifier surface evidence is transport-only in the
   app-use/games evidence vector, explicit count fields, and the dedicated
   backend boundary read-model event; portal rows, policy consumption, provider
   execution, and adapter proof remain separate gaps.
 - App/game source status rows are backend read-model summaries only; polished
-  portal rendering, policy consumption, richer subscriptions, adapter
-  execution, and broad blocking remain separate gaps.
+  portal rendering, remaining policy/runtime consumers, richer subscriptions,
+  adapter execution, and broad blocking remain separate gaps.

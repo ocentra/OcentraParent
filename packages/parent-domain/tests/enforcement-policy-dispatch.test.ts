@@ -15,6 +15,7 @@ describe('enforcement policy dispatch contracts', () => {
       'implemented',
       'implemented',
       'report-only',
+      'scaffold',
       'manual-required',
       'scaffold',
     ]);
@@ -24,8 +25,12 @@ describe('enforcement policy dispatch contracts', () => {
     );
     expect(parsed.entries[1]?.timerState).toBe('restart-recovered');
     expect(parsed.entries[2]?.intent.dryRun).toBe(true);
-    expect(parsed.entries[3]?.matrixRow.rejectionReason).toBe('adapter-manual-required');
-    expect(parsed.entries[4]?.childReasonCode).toBe('child-reason-integrity-proof-required');
+    expect(parsed.entries[3]?.matrixRow.outcomeState).toBe('dry-run-only');
+    expect(parsed.entries[3]?.intent.dryRun).toBe(true);
+    expect(parsed.entries[3]?.dispatchedAt).toBe(null);
+    expect(parsed.entries[3]?.intent.target.targetValue).toBe('app-category:category-risk-route');
+    expect(parsed.entries[4]?.matrixRow.rejectionReason).toBe('adapter-manual-required');
+    expect(parsed.entries[5]?.childReasonCode).toBe('child-reason-integrity-proof-required');
   });
 
   it('rejects dispatch intents without evidence references', () => {

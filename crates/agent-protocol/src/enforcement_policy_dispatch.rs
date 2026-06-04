@@ -93,7 +93,7 @@ impl EnforcementPolicyDispatchOutcomeState {
             Self::ReportOnly => dispatch::OUTCOME_REPORT_ONLY,
             Self::ManualRequired => dispatch::OUTCOME_MANUAL_REQUIRED,
             Self::Rejected => dispatch::OUTCOME_REJECTED,
-            Self::DryRunOnly => "dry-run-only",
+            Self::DryRunOnly => dispatch::OUTCOME_DRY_RUN_ONLY,
             Self::Degraded => "degraded",
             Self::Unavailable => "unavailable",
         }

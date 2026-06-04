@@ -53,7 +53,9 @@ before `DONE` or PR-ready reporting.
 45. Live Windows registry inventory source.
 46. Service Windows registry capture bridge.
 47. Backend source freshness read-model rows.
-48. Category/risk policy routing.
+48. Reserved app/game checkpoint slot; no workpack file is currently assigned.
+49. Category/risk policy routing.
+50. Runtime policy consumption.
 
 ## Standard AI Worker Checklist
 

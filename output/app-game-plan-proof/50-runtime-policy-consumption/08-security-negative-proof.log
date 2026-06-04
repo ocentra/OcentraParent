@@ -1,0 +1,6 @@
+Security/no-claim proof:
+
+- Category/risk policy consumption is represented as a dry-run policy preview only.
+- The app/game row does not set dispatchedAt and does not create timer refs.
+- The row cites evidence refs but does not execute adapters or broad blocking.
+- Portal rendering, notifications, child UX, provider execution, and platform support remain separate gaps.

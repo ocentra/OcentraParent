@@ -1,0 +1,6 @@
+Contract proof:
+
+- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS
+- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- enforcement-policy-dispatch: PASS
+- cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- enforcement-policy-dispatch-adapter: PASS
+- App/game category-risk policy row is dry-run-only, has evidence refs, and leaves dispatchedAt null.

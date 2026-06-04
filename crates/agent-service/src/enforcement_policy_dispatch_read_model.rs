@@ -30,6 +30,7 @@ pub(crate) fn v08_enforcement_policy_dispatch_read_model(
 fn policy_dispatch_entries(generated_at: &str) -> Vec<EnforcementPolicyDispatchReadModelEntry> {
     let mut entries = implemented_dispatch_entries(generated_at);
     entries.push(report_only_dispatch_entry(generated_at));
+    entries.push(app_game_category_risk_dry_run_entry(generated_at));
     entries.push(manual_required_dispatch_entry(generated_at));
     entries.push(scaffold_dispatch_entry(generated_at));
     entries
@@ -109,6 +110,34 @@ fn report_only_dispatch_entry(generated_at: &str) -> EnforcementPolicyDispatchRe
             target_type: PolicyTargetType::Site,
             target_value: dispatch::TARGET_UNMANAGED_BROWSER_PROCESS,
             evidence_reference_id: dispatch::EVIDENCE_UNMANAGED_BROWSER_PROCESS,
+            dry_run: true,
+        },
+    )
+}
+
+fn app_game_category_risk_dry_run_entry(
+    generated_at: &str,
+) -> EnforcementPolicyDispatchReadModelEntry {
+    dispatch_entry(
+        generated_at,
+        DispatchEntryInput {
+            intent_id: dispatch::INTENT_APP_GAME_CATEGORY_RISK_DRY_RUN,
+            matrix_id: dispatch::MATRIX_APP_GAME_CATEGORY_RISK_DRY_RUN,
+            surface: V08EnforcementProductControlSurface::WindowsPolicyDryRunPreview,
+            adapter_kind: EnforcementAdapterKind::ProcessControl,
+            requested_action: V08EnforcementProductControlParentAction::DryRunPreview,
+            mode: EnforcementMode::ObserveOnly,
+            capability_state: EnforcementCapabilityState::DryRun,
+            proof_level: EnforcementPolicyDispatchProofLevel::Scaffold,
+            outcome_state: EnforcementPolicyDispatchOutcomeState::DryRunOnly,
+            rejection_reason: EnforcementPolicyDispatchRejectionReason::None,
+            source_state: EnforcementPolicyDispatchSourceState::Ready,
+            approval_state: EnforcementPolicyDispatchApprovalState::NotRequired,
+            timer_state: EnforcementPolicyDispatchTimerState::NotRequired,
+            child_reason_code: dispatch::CHILD_REASON_CATEGORY_RISK_POLICY_PREVIEW,
+            target_type: PolicyTargetType::App,
+            target_value: dispatch::TARGET_APP_GAME_CATEGORY_RISK_ROUTE,
+            evidence_reference_id: dispatch::EVIDENCE_APP_GAME_CATEGORY_RISK_POLICY_ROUTE,
             dry_run: true,
         },
     )

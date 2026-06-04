@@ -1,0 +1,6 @@
+Rust/service protocol proof:
+
+- cargo test -p ocentra-parent-agent-protocol enforcement_policy_dispatch: PASS
+- cargo test -p ocentra-parent-agent-service policy_dispatch: PASS
+- Rust constants include the app/game category-risk dry-run intent, matrix, target, evidence, and child reason.
+- The websocket service command returns six policy-dispatch rows including the dry-run app/game row.

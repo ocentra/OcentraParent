@@ -1,0 +1,5 @@
+{
+  "schemaVersion": 1,
+  "journalSqliteChanged": false,
+  "reason": "The runtime policy consumption row is a service read-model proof and does not create journal or SQLite mutations."
+}

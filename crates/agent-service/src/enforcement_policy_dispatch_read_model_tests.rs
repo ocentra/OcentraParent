@@ -21,12 +21,21 @@ fn policy_dispatch_read_model_exposes_validation_and_non_claim_states() {
         read_model.read_model_id,
         constants::v08_enforcement_policy_dispatch::READ_MODEL_ID
     );
-    assert_eq!(read_model.entries.len(), 5);
+    assert_eq!(read_model.entries.len(), 6);
     assert_eq!(validation.dispatch_ready_count, 2);
     assert_eq!(validation.manual_required_count, 1);
     assert_eq!(validation.report_only_count, 1);
     assert_eq!(validation.rejected_count, 1);
     assert_eq!(validation.recovery_needed_count, 1);
+    assert!(read_model.entries.iter().any(|entry| {
+        entry.intent.intent_id
+            == constants::v08_enforcement_policy_dispatch::INTENT_APP_GAME_CATEGORY_RISK_DRY_RUN
+            && entry.intent.dry_run
+            && entry.intent.target.target_value
+                == constants::v08_enforcement_policy_dispatch::TARGET_APP_GAME_CATEGORY_RISK_ROUTE
+            && entry.matrix_row.outcome_state == EnforcementPolicyDispatchOutcomeState::DryRunOnly
+            && entry.dispatched_at.is_none()
+    }));
     assert!(read_model.entries.iter().any(|entry| {
         entry.matrix_row.outcome_state == EnforcementPolicyDispatchOutcomeState::ManualRequired
     }));
@@ -50,7 +59,7 @@ async fn policy_dispatch_websocket_command_returns_service_read_model() {
     );
     assert_eq!(
         number_payload_field(&event, constants::field::RETURNED),
-        5.0
+        6.0
     );
 
     let read_model: EnforcementPolicyDispatchReadModel =
@@ -68,8 +77,31 @@ async fn policy_dispatch_websocket_command_returns_service_read_model() {
         read_model.entries[0].intent.device.device_id,
         constants::peer::LOCAL_DEV_AGENT
     );
+    let dry_run_entry = read_model
+        .entries
+        .iter()
+        .find(|entry| {
+            entry.intent.intent_id
+                == constants::v08_enforcement_policy_dispatch::INTENT_APP_GAME_CATEGORY_RISK_DRY_RUN
+        })
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
     assert_eq!(
-        read_model.entries[3]
+        dry_run_entry.matrix_row.outcome_state.as_protocol_str(),
+        constants::v08_enforcement_policy_dispatch::OUTCOME_DRY_RUN_ONLY
+    );
+    assert!(dry_run_entry.intent.dry_run);
+    assert!(dry_run_entry.dispatched_at.is_none());
+
+    let manual_required_entry = read_model
+        .entries
+        .iter()
+        .find(|entry| {
+            entry.matrix_row.rejection_reason.as_protocol_str()
+                == constants::v08_enforcement_policy_dispatch::REJECTION_ADAPTER_MANUAL_REQUIRED
+        })
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    assert_eq!(
+        manual_required_entry
             .matrix_row
             .rejection_reason
             .as_protocol_str(),

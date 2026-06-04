@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "proofMode": "app-game-runtime-policy-consumption",
+  "checkedAt": "2026-06-04T16:01:35.965Z",
+  "commit": "eda388e62ce1552b014de411b6e2d03d83de67e6",
+  "commands": [
+    "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
+    "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- enforcement-policy-dispatch",
+    "cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- enforcement-policy-dispatch-adapter",
+    "cargo test -p ocentra-parent-agent-protocol enforcement_policy_dispatch",
+    "cargo test -p ocentra-parent-agent-service policy_dispatch"
+  ],
+  "summary": {
+    "readModelId": "v0-8-enforcement-policy-dispatch",
+    "entryCount": 6,
+    "appGameCategoryRiskEntry": {
+      "intentId": "dispatch-app-game-category-risk-dry-run",
+      "surface": "windows-policy-dry-run-preview",
+      "target": {
+        "targetId": "target-dispatch-app-game-category-risk-dry-run",
+        "targetType": "app",
+        "targetValue": "app-category:category-risk-route"
+      },
+      "requestedParentAction": "dry-run-preview",
+      "dryRun": true,
+      "outcomeState": "dry-run-only",
+      "adapterDispatch": "not-dispatched"
+    }
+  },
+  "claimsProved": [
+    "service-backed enforcement policy-dispatch read model carries an app/game category-risk policy consumption row",
+    "category/risk policy consumption stays dry-run-only through the runtime policy-dispatch command path",
+    "the app/game category-risk row cites policy-route evidence and does not set dispatchedAt",
+    "the TypeScript protocol adapter accepts the service read model event with the new dry-run row",
+    "Rust protocol parity serializes the policy-dispatch read model without row-state claim upgrades",
+    "focused Rust service tests prove the websocket command returns the service read model"
+  ],
+  "claimsNotProved": [
+    "portal category/risk UI rendering",
+    "live classifier/provider execution",
+    "notification or child request delivery",
+    "adapter execution, process termination, broad installed-app blocking, or platform enforcement support"
+  ],
+  "evidence": {
+    "contract": "packages/parent-domain/src/enforcement-policy-dispatch.ts",
+    "contractTest": "packages/parent-domain/tests/enforcement-policy-dispatch.test.ts",
+    "protocolAdapterTest": "packages/agent-protocol-domain/tests/enforcement-policy-dispatch-adapter.test.ts",
+    "rustConstants": "crates/agent-protocol/src/constants/v08_enforcement_policy_dispatch.rs",
+    "rustProtocol": "crates/agent-protocol/src/enforcement_policy_dispatch.rs",
+    "rustService": "crates/agent-service/src/enforcement_policy_dispatch_read_model.rs",
+    "rustServiceTest": "crates/agent-service/src/enforcement_policy_dispatch_read_model_tests.rs",
+    "harness": "scripts/test/app-game-runtime-policy-consumption-proof.mjs",
+    "appGameProofPack": "output/app-game-plan-proof/50-runtime-policy-consumption",
+    "appProofPack": "output/app-plan-proof/50-runtime-policy-consumption"
+  }
+}

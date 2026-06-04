@@ -224,6 +224,10 @@ control with better evidence and local audit.
   confidence/source disclosure, supporting evidence refs, local-AI digest refs
   where applicable, manual-review/manual-required state, and
   `adapterDispatchState: not-dispatched`.
+- The existing V0.8 enforcement policy-dispatch service read model now exposes
+  an app/game category-risk dry-run policy consumption row through
+  `agent.enforcement.policy-dispatch.get`, with evidence refs, `dryRun: true`,
+  `outcomeState: dry-run-only`, and no adapter dispatch.
 - The app/game final rollout/evidence gate now checks the app-game WP01-WP27
   and app-plan WP01-WP26 proof roots, writes final app-game WP28 and app-plan
   WP27/WP28 proof packs, and records the E2E/manual scenario routing,
@@ -273,15 +277,16 @@ freshness/status rows for inventory, runtime, foreground, and launcher sources,
 and parent-domain category/risk routing now turns category, risk, and
 game-context candidates into soft/manual policy target inputs only when active
 category proof and supporting evidence refs exist. Portal source/category
-rendering, local model quality/provider execution, policy evaluator consumption,
-runtime service policy evaluation, and platform enforcement remain unproved. Live
+rendering, local model quality/provider execution, full policy evaluator
+consumption beyond the category/risk dry-run preview row, timer/approval service
+persistence, and platform enforcement remain unproved. Live
 process snapshots now replay through the local journal/SQLite path in core and
 through the service activity-capture journal/store path for bounded runtime
 rows; recurring service capture freshness is now proved, and the service
 capture bridge can also append optional app/game foreground rows from the core
 active-window source with opaque window/title refs. Richer process start/exit
 and foreground transition subscriptions, portal source freshness polish,
-policy/runtime consumers, and adapter execution remain separate gaps.
+remaining policy/runtime consumers, and adapter execution remain separate gaps.
 The install/store handoff proof is contract-only: it does not prove live store
 integration, Google Play, Apple App Store, Microsoft Store, package-manager
 interception, billing entitlement logic, portal approval UI, platform adapter
@@ -348,8 +353,9 @@ persistence, Rust/WebSocket parity, or platform adapter execution.
       evidence refs, child status refs, expiry, and audit-backed persistence
       fields. Category/risk routing contracts now keep category, risk, and
       game-context candidates as evidence-backed soft/manual policy inputs; live
-      candidate production, runtime service consumption, portal category UI, and
-      parent/child UX remain.
+      candidate production, portal category UI, and parent/child UX remain. The
+      V0.8 service policy-dispatch read model now consumes the category/risk
+      row as dry-run-only policy preview evidence without adapter dispatch.
 - [ ] App/category schedule and time-budget rules. Native game budget dry-run
       contracts now exist for known-game counts, launcher-only exclusion,
       parent-approved candidate inclusion, and advisory signal boundaries.
@@ -357,8 +363,10 @@ persistence, Rust/WebSocket parity, or platform adapter execution.
       unknown-state, category, schedule, capability, authority, device,
       local-user, and freshness proof before dry-run decisions, and category/risk
       policy-routing contracts now map category/risk candidates into matching
-      compiler target kinds without adapter dispatch; live evaluator, authoring
-      UI, persistence, timers, and enforcement remain. Rust protocol
+      compiler target kinds without adapter dispatch; the runtime
+      policy-dispatch read model now carries the category/risk route as a
+      dry-run-only service row. Live evaluator breadth, authoring UI,
+      persistence, timers, and enforcement remain. Rust protocol
       parity now exists for approval authority/action-result, platform
       authority matrix, and classifier boundary shapes, and staged
       journal/SQLite projection plus service read-model evidence refs/counts

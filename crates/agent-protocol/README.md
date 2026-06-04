@@ -11,6 +11,9 @@ Rust protocol parity crate for data that crosses the TypeScript/Rust boundary.
   constants shared by the Rust service and TypeScript protocol adapter.
 - V0.8 enforcement policy-dispatch read-model, command, event, and payload
   constants shared by the Rust service and TypeScript protocol adapter.
+- App/game category-risk dry-run policy-dispatch constants that let the service
+  expose runtime policy consumption without upgrading category routes into
+  adapter execution authority.
 - V0.8 supported-adapter runtime proof and enforcement integrity runtime audit
   structs/constants, including no-claim fields mirrored into the service event
   payload.
@@ -77,9 +80,9 @@ flowchart LR
 - Keep constants granular so service/core code does not invent strings.
 - Product-control no-claim boundaries must stay explicit in protocol structs
   until platform adapter evidence proves a broader claim.
-- Policy-dispatch structs must preserve implemented, report-only, degraded,
-  unavailable, manual-required, and scaffold states without upgrading broad
-  adapter claims.
+- Policy-dispatch structs must preserve implemented, dry-run-only, report-only,
+  degraded, unavailable, manual-required, and scaffold states without upgrading
+  app/game category routes or broad adapter claims into enforcement authority.
 - Integrity runtime audit structs must preserve unsupported, unavailable,
   manual-required, dry-run, observe-only, stale/rejected, timer recovery,
   rollback, child-status, parent-override, permission-loss, heartbeat, and
@@ -112,7 +115,7 @@ flowchart LR
   core Windows shortcut, Store package, and registry sources now exist for
   inventory-only rows. Agent-service owns a recurring bounded runtime capture
   cadence, registry-backed inventory capture, source status rows on app-use and
-  games activity-surface read-models, and a dedicated app/game boundary
-  read-model event, but policy runtime, portal
-  identity/classifier/platform-authority rows, and adapter execution remain
-  separate proof-gated work.
+  games activity-surface read-models, a dedicated app/game boundary read-model
+  event, and a dry-run category-risk policy-dispatch consumption row, but full
+  policy evaluator breadth, portal identity/classifier/platform-authority rows,
+  and adapter execution remain separate proof-gated work.
