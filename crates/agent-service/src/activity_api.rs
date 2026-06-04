@@ -13,6 +13,7 @@ use crate::{
         activity_store_error_payload, ingest_status_payload, recent_summary_payload,
     },
     activity_store_path::activity_db_path,
+    activity_surface_store::load_app_game_model,
     browser_evidence_payload::browser_evidence_read_model_payload,
     browser_inventory_read_model::browser_inventory_read_model_from_windows_inventory,
     browser_payload::browser_inventory_read_model_payload,
@@ -23,8 +24,17 @@ use crate::{
 };
 
 mod activity_memory_graph_report;
+mod app_game_boundary_read_model_payload;
+#[cfg(test)]
+mod app_game_boundary_read_model_payload_tests;
+#[cfg(test)]
+mod app_game_boundary_read_model_service_tests;
 mod browser_intervention_payload;
 mod browser_intervention_report;
+
+use self::app_game_boundary_read_model_payload::{
+    app_game_boundary_read_model_from_service_model, app_game_boundary_read_model_payload,
+};
 
 pub use activity_memory_graph_report::build_activity_memory_graph_report;
 pub use browser_intervention_report::build_browser_intervention_read_model_report;
@@ -145,6 +155,30 @@ pub async fn build_activity_tracking_read_model_report(
             command,
             constants::event_id::ACTIVITY_TRACKING_READ_MODEL_REPORTED,
             AgentEventName::AgentActivityTrackingReadModelReported,
+        ),
+    }
+}
+
+pub async fn build_activity_app_game_boundary_read_model_report(
+    command: AgentCommandEnvelope,
+) -> AgentEventEnvelope {
+    match load_app_game_model().await {
+        Some(model) => {
+            let read_model = app_game_boundary_read_model_from_service_model(model);
+            build_event(
+                constants::event_id::ACTIVITY_APP_GAME_BOUNDARY_READ_MODEL_REPORTED,
+                &command.message_id,
+                command.source,
+                AgentEventName::AgentActivityAppGameBoundaryReadModelReported,
+                LogLevel::Info,
+                app_game_boundary_read_model_payload(&read_model),
+                None,
+            )
+        }
+        None => activity_store_error_event(
+            command,
+            constants::event_id::ACTIVITY_APP_GAME_BOUNDARY_READ_MODEL_REPORTED,
+            AgentEventName::AgentActivityAppGameBoundaryReadModelReported,
         ),
     }
 }

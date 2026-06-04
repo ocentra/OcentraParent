@@ -1,0 +1,9 @@
+{
+  "workpack": "40-app-game-boundary-read-model-event",
+  "nativeAppCrossRecord": true,
+  "runtimeClaim": "dedicated-backend-boundary-read-model-event",
+  "portalRows": false,
+  "policyConsumption": false,
+  "adapterExecution": false,
+  "platformSupportClaim": false
+}

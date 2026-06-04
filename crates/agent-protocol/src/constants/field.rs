@@ -8,6 +8,7 @@ pub const ACTIVITY_FAMILY_SOURCES: &str = "activityFamilySources";
 pub const ACTIVITY_READ_MODEL: &str = "activityReadModel";
 pub const ACTIVITY_READ_MODEL_KIND: &str = "activityReadModelKind";
 pub const ACTIVITY_SURFACE_STATE: &str = "activitySurfaceState";
+pub const APP_GAME_BOUNDARY_READ_MODEL: &str = "appGameBoundaryReadModel";
 pub const ACTIVITY_TRACKING_READ_MODEL: &str = "trackingReadModel";
 pub const ACTIVE_TAB_CAPABILITY: &str = "activeTabCapability";
 pub const ACTIVE_PROOF_SOURCE: &str = "activeProofSource";

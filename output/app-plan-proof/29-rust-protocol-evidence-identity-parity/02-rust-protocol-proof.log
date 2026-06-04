@@ -1,0 +1,17 @@
+Command:
+cargo test -p ocentra-parent-agent-protocol app_game
+
+Result:
+PASS
+
+Evidence:
+- 17 passed
+- 0 failed
+- 144 filtered out
+
+Cross-recorded shapes:
+- AppGameEvidenceClaim
+- AppGameAiDigestReference
+- AppGameAiClassificationDigest
+- AppGameIdentity
+- AppGameIdentityMergeProof

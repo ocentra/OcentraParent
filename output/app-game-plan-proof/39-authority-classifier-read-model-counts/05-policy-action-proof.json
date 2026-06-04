@@ -1,0 +1,8 @@
+{
+  "workpack": "39-authority-classifier-read-model-counts",
+  "policyDecisionAdded": false,
+  "policyConsumptionAdded": false,
+  "directActionRequested": false,
+  "adapterDispatchAdded": false,
+  "scope": "read-model payload count exposure only"
+}

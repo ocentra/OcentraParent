@@ -126,37 +126,8 @@ fn app_game_session_report_serializes_flat_portal_visibility_shape() {
 
 #[test]
 fn app_game_service_read_model_serializes_replayed_row_groups_for_service_events() {
-    let model = AppGameServiceReadModel {
-        schema_version: APP_GAME_SCHEMA_VERSION,
-        generated_at: constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string(),
-        limit: constants::activity_store::DEFAULT_RECENT_LIMIT,
-        custody_label: APP_GAME_JOURNAL_CUSTODY_LOCAL_SQLITE.to_string(),
-        replay_state: APP_GAME_JOURNAL_REPLAY_STATE_REPLAYED.to_string(),
-        capability_status: APP_GAME_CAPABILITY_STATUS_AVAILABLE.to_string(),
-        inventory_returned: 1,
-        running_now_returned: 1,
-        foreground_now_returned: 1,
-        launcher_returned: 1,
-        daily_rollup_returned: 1,
-        inventory_rows: vec![launcher_inventory_row()],
-        running_now_rows: vec![runtime_evidence_row()],
-        foreground_now_rows: vec![foreground_evidence_row()],
-        launcher_rows: vec![launcher_evidence_row()],
-        daily_rollups: vec![AppGameSessionDailyRollup {
-            schema_version: APP_GAME_SCHEMA_VERSION,
-            rollup_date: "2026-05-20".to_string(),
-            classification_state: APP_GAME_CLASSIFICATION_KNOWN_APP.to_string(),
-            session_count: 1,
-            running_duration_ms: 60000,
-            foreground_duration_ms: 60000,
-            background_duration_ms: 0,
-            evidence_count: 1,
-            session_ids: vec![constants::activity_store::TEST_APP_GAME_SESSION_ID.to_string()],
-            evidence: Vec::new(),
-        }],
-    };
-
-    let serialized = serde_json::to_value(model).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized = serde_json::to_value(replayed_row_group_read_model())
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(serialized["schemaVersion"], APP_GAME_SCHEMA_VERSION);
     assert_eq!(
@@ -172,6 +143,12 @@ fn app_game_service_read_model_serializes_replayed_row_groups_for_service_events
     assert_eq!(serialized["foregroundNowReturned"], 1);
     assert_eq!(serialized["launcherReturned"], 1);
     assert_eq!(serialized["dailyRollupReturned"], 1);
+    assert_eq!(serialized["evidenceClaimReturned"], 0);
+    assert_eq!(serialized["identityReturned"], 0);
+    assert_eq!(serialized["approvalAuthorityReturned"], 0);
+    assert_eq!(serialized["approvalActionResultReturned"], 0);
+    assert_eq!(serialized["platformAuthorityMatrixReturned"], 0);
+    assert_eq!(serialized["aiClassifierResultReturned"], 0);
     assert_eq!(
         serialized["inventoryRows"][0]["runtimeState"],
         APP_GAME_RUNTIME_NOT_CLAIMED
@@ -188,6 +165,54 @@ fn app_game_service_read_model_serializes_replayed_row_groups_for_service_events
         serialized["launcherRows"][0]["gameProofState"],
         APP_GAME_LAUNCHER_PROOF_LAUNCHER_ONLY
     );
+}
+
+fn replayed_row_group_read_model() -> AppGameServiceReadModel {
+    AppGameServiceReadModel {
+        schema_version: APP_GAME_SCHEMA_VERSION,
+        generated_at: constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string(),
+        limit: constants::activity_store::DEFAULT_RECENT_LIMIT,
+        custody_label: APP_GAME_JOURNAL_CUSTODY_LOCAL_SQLITE.to_string(),
+        replay_state: APP_GAME_JOURNAL_REPLAY_STATE_REPLAYED.to_string(),
+        capability_status: APP_GAME_CAPABILITY_STATUS_AVAILABLE.to_string(),
+        inventory_returned: 1,
+        running_now_returned: 1,
+        foreground_now_returned: 1,
+        launcher_returned: 1,
+        daily_rollup_returned: 1,
+        evidence_claim_returned: 0,
+        identity_returned: 0,
+        approval_authority_returned: 0,
+        approval_action_result_returned: 0,
+        platform_authority_matrix_returned: 0,
+        ai_classifier_result_returned: 0,
+        inventory_rows: vec![launcher_inventory_row()],
+        running_now_rows: vec![runtime_evidence_row()],
+        foreground_now_rows: vec![foreground_evidence_row()],
+        launcher_rows: vec![launcher_evidence_row()],
+        daily_rollups: vec![known_app_daily_rollup()],
+        evidence_claim_rows: Vec::new(),
+        identity_rows: Vec::new(),
+        approval_authority_rows: Vec::new(),
+        approval_action_result_rows: Vec::new(),
+        platform_authority_matrices: Vec::new(),
+        ai_classifier_result_rows: Vec::new(),
+    }
+}
+
+fn known_app_daily_rollup() -> AppGameSessionDailyRollup {
+    AppGameSessionDailyRollup {
+        schema_version: APP_GAME_SCHEMA_VERSION,
+        rollup_date: "2026-05-20".to_string(),
+        classification_state: APP_GAME_CLASSIFICATION_KNOWN_APP.to_string(),
+        session_count: 1,
+        running_duration_ms: 60000,
+        foreground_duration_ms: 60000,
+        background_duration_ms: 0,
+        evidence_count: 1,
+        session_ids: vec![constants::activity_store::TEST_APP_GAME_SESSION_ID.to_string()],
+        evidence: Vec::new(),
+    }
 }
 
 #[test]

@@ -41,6 +41,16 @@ const EvidenceRef = {
   uri: null,
 } as const;
 
+const AppGameBoundaryCounts = {
+  evidenceClaimRowCount: 1,
+  identityRowCount: 1,
+  approvalAuthorityRowCount: 1,
+  approvalActionResultRowCount: 1,
+  platformAuthorityMatrixCount: 1,
+  platformAuthorityRowCount: 1,
+  aiClassifierResultRowCount: 1,
+} as const;
+
 const ScreenChainFields = {
   captureReason: 'nativeAppForegroundStart',
   captureScope: 'activeWindow',
@@ -386,6 +396,7 @@ function specifyActivityAppUseReadModelContracts() {
           runningRowCount: 1,
           foregroundRowCount: 1,
           dailyRollupCount: 1,
+          ...AppGameBoundaryCounts,
           evidence: [EvidenceRef],
         },
       ],
@@ -394,6 +405,8 @@ function specifyActivityAppUseReadModelContracts() {
     expect(parsed.rows[0]?.runtimeState).toBe('running');
     expect(parsed.rows[0]?.foregroundState).toBe('foreground');
     expect(parsed.rows[0]?.inventoryRowCount).toBe(1);
+    expect(parsed.rows[0]?.approvalAuthorityRowCount).toBe(1);
+    expect(parsed.rows[0]?.aiClassifierResultRowCount).toBe(1);
   });
 }
 
@@ -450,6 +463,7 @@ describe('activity browser games and network read-model contracts', () => {
           runningRowCount: 1,
           foregroundRowCount: 0,
           dailyRollupCount: 1,
+          ...AppGameBoundaryCounts,
           evidence: [EvidenceRef],
         },
       ],
@@ -457,6 +471,8 @@ describe('activity browser games and network read-model contracts', () => {
 
     expect(parsed.rows[0]?.classificationState).toBe('knownGame');
     expect(parsed.rows[0]?.launcherRowCount).toBe(1);
+    expect(parsed.rows[0]?.platformAuthorityRowCount).toBe(1);
+    expect(parsed.rows[0]?.aiClassifierResultRowCount).toBe(1);
   });
 
   it('ActivityNetworkReadModelSchema: accepts unavailable network state', () => {

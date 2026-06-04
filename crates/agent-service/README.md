@@ -37,6 +37,35 @@ development paths and orchestrates runtime commands.
 - Tracking service read-model reports through
   `agent.activity.tracking.read-model.get`, backed by ActivityStore SQLite rows
   and citation IDs in the `trackingReadModel` payload field.
+- App/game live process capture bridge rows through the existing activity
+  capture journal/store path, exposing runtime-only app/game rows to the
+  existing app-use/games read models without foreground, policy, or adapter
+  claims.
+- Recurring bounded app/game live process capture cadence that keeps the same
+  journal/store/read-model path fresh without upgrading runtime rows into
+  foreground, policy, or adapter authority.
+- Optional app/game live foreground capture bridge through the same bounded
+  activity-capture journal/store path, exposing foreground rows only when the
+  active-window source is available and still avoiding content, policy, adapter,
+  or platform support claims.
+- Bounded app/game live Windows shortcut inventory capture through the same
+  activity-capture journal/store path, exposing inventory-only rows with hashed
+  source refs and no runtime, foreground, policy, or adapter claims.
+- Bounded app/game live Windows packaged-app manifest capture through the same
+  activity-capture journal/store path, exposing Store/UWP inventory-only rows
+  with hashed source refs and no runtime, foreground, policy, or adapter claims.
+- App/game app-use/games read-model evidence refs for staged evidence-claim,
+  identity, approval authority/action-result, platform authority matrix, and AI
+  classifier result rows from the existing `AppGameServiceReadModel`, without
+  adding policy, portal UI, live classifier/provider, or adapter claims.
+- App/game app-use/games read-model staged boundary row counts for evidence
+  claim, identity, approval authority/action-result, platform authority
+  matrix/rows, and AI classifier result rows in the existing read-model payloads.
+- Dedicated app/game boundary read-model reports through
+  `agent.activity.app-game.boundary.read-model.get`, backed by the same
+  `AppGameServiceReadModel` and exposing staged authority/classifier row
+  counts plus citation refs without portal UI, policy, provider, or adapter
+  claims.
 
 ## Must Not Own
 
@@ -98,3 +127,11 @@ flowchart LR
 - Tracking read-model output is consumed by a narrow parent portal summary only;
   child UI, richer product read models, physical-device proof, and
   provider/notification delivery remain separate gaps.
+- App/game live process, optional foreground, Windows shortcut inventory, and
+  Windows packaged-app manifest capture have bounded service proof; subscribed
+  foreground transitions, registry inventory, policy consumption, portal
+  source/status polish, and adapter execution remain separate gaps.
+- App/game authority/classifier surface evidence is transport-only in the
+  app-use/games evidence vector, explicit count fields, and the dedicated
+  backend boundary read-model event; portal rows, policy consumption, provider
+  execution, and adapter proof remain separate gaps.

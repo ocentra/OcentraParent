@@ -1,0 +1,8 @@
+{
+  "workpack": "WP38",
+  "nativeAppCrossRecord": true,
+  "policyDecisionAdded": false,
+  "policyEvaluatorConsumptionAdded": false,
+  "adapterExecutionAdded": false,
+  "manualRequiredBoundary": "Native app boundary refs remain evidence transport only."
+}

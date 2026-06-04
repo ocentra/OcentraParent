@@ -1,0 +1,18 @@
+{
+  "status": "manual-required-storage-proof-only",
+  "policyEvaluatorConsumptionClaimed": false,
+  "adapterExecutionClaimed": false,
+  "actionResultBoundary": {
+    "resultStatus": "manual-required",
+    "enforcementResultAllowed": false
+  },
+  "platformAuthorityBoundary": {
+    "authorityTier": "manual-required",
+    "canExecuteAdapter": false
+  },
+  "classifierBoundary": {
+    "directActionRequested": false,
+    "rawScanIncluded": false,
+    "contentClaimIncluded": false
+  }
+}

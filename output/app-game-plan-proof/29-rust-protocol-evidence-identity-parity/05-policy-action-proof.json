@@ -1,0 +1,7 @@
+{
+  "appGameWorkpack": "29-rust-protocol-evidence-identity-parity",
+  "policyOrActionChanged": false,
+  "reason": "This is protocol parity for evidence and identity only.",
+  "manualRequiredBoundaryPreserved": true,
+  "adapterDispatchAdded": false
+}

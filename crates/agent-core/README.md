@@ -7,6 +7,9 @@ service shell.
 
 - Platform-neutral core helpers.
 - Evidence/journal/query-store runtime support.
+- App/game journal and SQLite read-model projection for typed evidence,
+  identity, authority, action-result, platform-authority, and classifier
+  protocol rows without upgrading them into live policy or adapter authority.
 - Tracking read-model queries over ActivityStore SQLite rows for
   location/geofence/expected-place/check-in/retention journal evidence.
 - Local adapter logic that can be tested without WebSocket transport.
@@ -15,6 +18,27 @@ service shell.
   dispatch-ready state.
 - Windows-specific capture/enforcement helpers when they are behind explicit
   platform boundaries.
+- App/game live process snapshot helpers that turn real local process metadata
+  into runtime evidence records without claiming foreground, content, policy, or
+  adapter authority.
+- App/game live process journal bridge helpers that turn those runtime records
+  into encrypted-journal events and SQLite read-model rows without adding a
+  service subscription or policy consumer.
+- Bounded app/game live process event helpers that let the service capture path
+  append runtime-only rows without exposing raw executable paths or foreground
+  claims.
+- App/game live foreground-window source helpers that turn active-window
+  metadata into foreground evidence records and journal events with opaque
+  window/title refs, without content capture, service capture, policy, or
+  adapter authority.
+- App/game live Windows shortcut inventory source helpers that turn bounded
+  Start Menu shortcut scans into inventory-only rows and journal events with
+  hashed source/desktop-entry refs, without registry, Store package, runtime,
+  foreground, policy, or adapter claims.
+- App/game live Windows packaged-app manifest source helpers that turn bounded
+  `AppxManifest.xml` evidence into inventory-only store-package rows and journal
+  events with hashed source refs, without registry, service capture, runtime,
+  foreground, policy, or adapter claims.
 
 ## Must Not Own
 
@@ -48,6 +72,12 @@ flowchart LR
 - Keep long-running capture/enforcement work nonblocking for service health.
 - Keep policy-dispatch validation platform-neutral and deterministic; adapter
   execution stays behind explicit proof boundaries.
+- App/game protocol-row storage, live process journal replay, live
+  foreground-window source proof, live shortcut inventory source proof, and live
+  packaged-app manifest source proof are staged core proof only; bounded runtime
+  and shortcut-inventory rows now feed service capture, while packaged-app
+  service capture, registry crawling, portal authority/classifier/source rows,
+  policy consumption, and adapter execution remain separate gaps.
 - Tracking read-model queries are query-store proof only; narrow portal summary
   consumption exists, while platform replay, deletion/tombstone behavior, richer
   UI, and physical-device artifacts remain separate proof gaps.

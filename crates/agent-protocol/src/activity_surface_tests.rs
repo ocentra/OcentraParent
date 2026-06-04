@@ -168,6 +168,13 @@ fn activity_app_use_read_model_serializes_app_game_projection_state() {
             running_row_count: 1,
             foreground_row_count: 1,
             daily_rollup_count: 1,
+            evidence_claim_row_count: 1,
+            identity_row_count: 1,
+            approval_authority_row_count: 1,
+            approval_action_result_row_count: 1,
+            platform_authority_matrix_count: 1,
+            platform_authority_row_count: 1,
+            ai_classifier_result_row_count: 1,
             evidence: vec![sample_evidence()],
         }],
     };
@@ -175,6 +182,8 @@ fn activity_app_use_read_model_serializes_app_game_projection_state() {
     let app_use_json = serde_json::to_value(app_use).expect("app use serializes");
     assert_eq!(app_use_json["rows"][0]["runtimeState"], "running");
     assert_eq!(app_use_json["rows"][0]["foregroundState"], "foreground");
+    assert_eq!(app_use_json["rows"][0]["approvalAuthorityRowCount"], 1);
+    assert_eq!(app_use_json["rows"][0]["aiClassifierResultRowCount"], 1);
 }
 
 #[test]
@@ -220,6 +229,13 @@ fn activity_games_read_model_serializes_launcher_source_counts() {
             running_row_count: 1,
             foreground_row_count: 0,
             daily_rollup_count: 1,
+            evidence_claim_row_count: 1,
+            identity_row_count: 1,
+            approval_authority_row_count: 1,
+            approval_action_result_row_count: 1,
+            platform_authority_matrix_count: 1,
+            platform_authority_row_count: 1,
+            ai_classifier_result_row_count: 1,
             evidence: vec![sample_evidence()],
         }],
     };
@@ -227,6 +243,8 @@ fn activity_games_read_model_serializes_launcher_source_counts() {
     let games_json = serde_json::to_value(games).expect("games serializes");
     assert_eq!(games_json["rows"][0]["classificationState"], "knownGame");
     assert_eq!(games_json["rows"][0]["launcherRowCount"], 1);
+    assert_eq!(games_json["rows"][0]["platformAuthorityRowCount"], 1);
+    assert_eq!(games_json["rows"][0]["aiClassifierResultRowCount"], 1);
 }
 
 #[test]

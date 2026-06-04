@@ -1,0 +1,6 @@
+{
+  "status": "protocol-only",
+  "policyRuntimeAdded": false,
+  "adapterExecutionAdded": false,
+  "nativeAppPlanTruth": "shared-app-game-protocol"
+}
