@@ -69,6 +69,12 @@ expose location or device-status features. Parents expect this category.
   Android proof scripts, and writes the aggregate artifact
   `output/tracking-plan-proof/pre-device-gap-closure/proof-summary.json` plus
   Android Studio, iOS simulator, WSL/local, and physical-device proof plans.
+- P1 local parent-defined place store proof now exists through
+  `npm run test:tracking-plan-local-place-store-proof`. It proves
+  schema-backed local CRUD/import/export/delete helper behavior for
+  parent-defined safe and restricted places, keeps default storage
+  parent-device-local with remote sync disabled, and writes artifacts under
+  `output/tracking-plan-proof/22-local-parent-defined-place-database/`.
 - Platform permissions, mobile physical-device proof, full runtime adapters,
   provider delivery, notification delivery, full parent/child UI, hosted screenshots,
   accessibility, and richer live service-backed UI evidence citations remain not
@@ -79,11 +85,12 @@ expose location or device-status features. Parents expect this category.
 ## Current Gap
 
 Location/geofence is now in contract, P1 fixture/runtime proof, narrow P2
-service read-model proof, narrow portal summary-consumption proof, and
-pre-device proof-gate progress. It remains a tracked product gap until platform
-adapters, richer product read models, provider delivery, notifications,
-physical-device proof, full parent/child UI snapshots, accessibility, hosted UI
-proof, and richer live service-backed UI evidence citations are proved.
+service read-model proof, narrow portal summary-consumption proof, P1 local
+parent-defined place store proof, and pre-device proof-gate progress. It
+remains a tracked product gap until platform adapters, richer product read
+models, provider delivery, notifications, physical-device proof, full
+parent/child UI snapshots, accessibility, hosted UI proof, and richer live
+service-backed UI evidence citations are proved.
 
 ## Checklist
 
@@ -106,6 +113,8 @@ proof, and richer live service-backed UI evidence citations are proved.
       rows and citation IDs.
 - [x] Narrow parent portal summary consumption of the service-backed tracking
       read model.
+- [x] P1 local parent-defined place store proof for CRUD/import/export/delete
+      with parent-device-local default storage and remote sync disabled.
 - [x] P1 parent portal tracking-state fixture surface, local parent-route screenshot,
       and local proof artifact references.
 - [x] Pre-device gap-closure proof gate and Android Studio/iOS simulator/WSL/manual

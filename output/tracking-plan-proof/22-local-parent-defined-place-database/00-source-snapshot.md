@@ -1,10 +1,7 @@
 # 22-local-parent-defined-place-database Source Snapshot
 
-- checkedAt: 2026-06-03T17:22:17.415Z
-- commit: 8467bedfff418ab63a16d066e84bab527ec340f6
-- proofState: contract-proof-partial
-- summary: Parent-defined place record contract exists; CRUD/export/delete store remains pending.
-- activity contracts: packages/activity-domain/src/tracking.ts
-- parent contracts: packages/parent-domain/src/tracking-location-policy.ts
-- activity tests: packages/activity-domain/tests/tracking.test.ts
-- parent tests: packages/parent-domain/tests/tracking-location-policy.test.ts
+- checkedAt: 2026-06-04T07:05:54.840Z
+- commit: 245da15c99101703d860b611552191b6724121b1
+- source: packages/activity-domain/src/tracking-local-place-store.ts
+- test: packages/activity-domain/tests/tracking-local-place-store.test.ts
+- command: npm run test:tracking-plan-local-place-store-proof

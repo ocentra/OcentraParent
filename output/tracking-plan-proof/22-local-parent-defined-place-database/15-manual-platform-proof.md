@@ -1,4 +1,4 @@
-# 22-local-parent-defined-place-database Manual Platform Proof
+# WP22 Manual Platform Boundary
 
-This focused proof does not claim Android/iOS background tracking, foreground samples, real geofence delivery, provider delivery, UI completion, or precise desktop location.
-Platform rows remain manual-required or real-device-required until real device, entitlement, permission, store/privacy, and screenshot evidence is attached.
+This proof does not claim Android/iOS location capture, background geofence behavior, hosted UI, or physical-device behavior.
+It proves only local parent-defined place store CRUD/import/export/delete and parent-defined nearby-place evidence shape at P1 fixture tier.
