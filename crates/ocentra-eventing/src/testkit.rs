@@ -29,7 +29,10 @@ where
             .subscribe_with_handle::<E, _, _>(subscriber, move |context| {
                 let recorded_events = Arc::clone(&recorded_events);
                 async move {
-                    recorded_events.lock().await.push(context.envelope);
+                    recorded_events
+                        .lock()
+                        .await
+                        .push(context.envelope().clone());
                     Ok(())
                 }
             })

@@ -20,12 +20,12 @@ async fn ordered_dispatch_serializes_same_aggregate_transitions() {
             observed
                 .lock()
                 .await
-                .push(format!("{}:start", context.envelope.payload.label));
+                .push(format!("{}:start", context.payload().label));
             tokio::time::sleep(Duration::from_millis(10)).await;
             observed
                 .lock()
                 .await
-                .push(format!("{}:end", context.envelope.payload.label));
+                .push(format!("{}:end", context.payload().label));
             Ok(())
         }
     })
@@ -109,7 +109,7 @@ async fn nested_publish_uses_context_publisher_without_deadlock() {
         subscriber(TEST_SUBSCRIBER, TEST_TARGET),
         move |context| async move {
             context
-                .publisher
+                .publisher()
                 .publish(
                     test_event_for_type("nested", OTHER_EVENT_TYPE),
                     metadata(OTHER_TARGET),
@@ -125,7 +125,7 @@ async fn nested_publish_uses_context_publisher_without_deadlock() {
         move |context| {
             let handled = Arc::clone(&nested_handled);
             async move {
-                handled.lock().await.push(context.envelope.payload.label);
+                handled.lock().await.push(context.payload().label.clone());
                 Ok(())
             }
         },

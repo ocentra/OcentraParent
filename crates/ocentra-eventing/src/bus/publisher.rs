@@ -63,8 +63,8 @@ pub struct EventContext<E>
 where
     E: DomainEvent,
 {
-    pub envelope: EventEnvelope<E>,
-    pub publisher: EventPublisher,
+    envelope: EventEnvelope<E>,
+    publisher: EventPublisher,
 }
 
 impl<E> EventContext<E>
@@ -77,6 +77,18 @@ where
             publisher,
         }
     }
+
+    pub fn envelope(&self) -> &EventEnvelope<E> {
+        &self.envelope
+    }
+
+    pub fn payload(&self) -> &E {
+        &self.envelope.payload
+    }
+
+    pub fn publisher(&self) -> &EventPublisher {
+        &self.publisher
+    }
 }
 
 impl<E> EventContext<E>
@@ -88,7 +100,7 @@ where
         response: E::Response,
     ) -> Result<RequestCompletionReport, EventingError> {
         self.publisher
-            .complete_request::<E>(self.envelope.payload.request_id()?, response)
+            .complete_request::<E>(self.payload().request_id()?, response)
             .await
     }
 }

@@ -25,7 +25,7 @@ async fn no_subscriber_queue_drains_after_subscriber_registers() {
     bus.subscribe::<TestEvent, _, _>(subscriber(TEST_SUBSCRIBER, TEST_TARGET), move |context| {
         let handled = Arc::clone(&handled_clone);
         async move {
-            handled.lock().await.push(context.envelope.payload.label);
+            handled.lock().await.push(context.payload().label.clone());
             Ok(())
         }
     })

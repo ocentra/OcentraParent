@@ -31,6 +31,9 @@ Reusable Rust eventing primitives for Ocentra Parent runtime code.
   records, selected journaling by event type/namespace/allowlist, replay
   cursors and filters, explicit projection-only replay mode, and journal
   before/after dispatch policy hooks.
+- Immutable handler-facing `EventContext<E>` accessors so handlers can inspect
+  typed envelopes, payloads, and publishers without receiving mutable payload
+  references or payload-carried completion/resource handles.
 
 ## Must Not Own
 

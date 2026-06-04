@@ -166,7 +166,7 @@ async fn durable_result_event_pattern_remains_separate_from_local_completion() {
         subscriber_for_event("request-subscriber", TEST_TARGET, REQUEST_EVENT_TYPE),
         move |context| async move {
             context
-                .publisher
+                .publisher()
                 .publish(test_result_event(), metadata(TEST_TARGET))
                 .await?;
             context.complete_request(TestResponse::approved()).await?;

@@ -18,7 +18,7 @@ async fn event_bus_dispatches_typed_envelope_and_stores_serialized_boundary() {
     bus.subscribe::<TestEvent, _, _>(subscriber(TEST_SUBSCRIBER, TEST_TARGET), move |context| {
         let handled = Arc::clone(&handled_clone);
         async move {
-            handled.lock().await.push(context.envelope.payload.label);
+            handled.lock().await.push(context.payload().label.clone());
             Ok(())
         }
     })
