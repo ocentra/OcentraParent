@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "proofMode": "app-game-policy-readiness-service-read-model",
-  "checkedAt": "2026-06-04T16:49:50.580Z",
-  "commit": "e9b096e28525a28c4d2ae288eaf6696eb883289e",
+  "checkedAt": "2026-06-04T17:15:46.267Z",
+  "commit": "5ec73e31bd10cca2b80cdcd8c4a3ef8bf71e1670",
   "commands": [
     "cmd /c npm run build --workspace @ocentra-parent/agent-protocol-domain",
     "cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- app-game-policy-readiness",
