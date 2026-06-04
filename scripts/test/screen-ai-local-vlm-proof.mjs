@@ -786,7 +786,7 @@ function runVlm(scenario, imagePath) {
 }
 
 function normalizeModelEvidence(scenario, parsedModel) {
-  const modelOutput = ScreenLocalModelOutputSchema.parse(parsedModel);
+  const modelOutput = ScreenLocalModelOutputSchema.parse(normalizeModelOutputShape(parsedModel));
   const explicitCategory = modelOutput.primary_category;
   const modelText = [modelOutput.visible_text, modelOutput.risk_signals.join(' ')]
     .filter((value) => value !== undefined && value !== null)
@@ -804,6 +804,18 @@ function normalizeModelEvidence(scenario, parsedModel) {
     visibleText: modelOutput.visible_text,
     confidence,
     riskSignals: normalizeRiskSignals(scenario, modelOutput.risk_signals),
+  };
+}
+
+function normalizeModelOutputShape(parsedModel) {
+  if (!Array.isArray(parsedModel?.visible_text)) {
+    return parsedModel;
+  }
+  return {
+    ...parsedModel,
+    visible_text: parsedModel.visible_text
+      .filter((entry) => typeof entry === 'string' && entry.trim().length > 0)
+      .join(' '),
   };
 }
 
