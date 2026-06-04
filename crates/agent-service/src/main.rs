@@ -216,6 +216,9 @@ mod screen_ai_foreground_runtime;
 mod screen_ai_foreground_runtime_config;
 #[cfg(test)]
 mod screen_ai_foreground_runtime_tests;
+mod screen_ai_retention_sweeper_runtime;
+#[cfg(test)]
+mod screen_ai_retention_sweeper_runtime_tests;
 mod screen_ai_service_capture_event_builder;
 mod snapshot;
 mod time;
@@ -256,6 +259,7 @@ async fn main() {
     screen_ai_cadence_runtime::spawn_screen_ai_cadence_runtime();
     screen_ai_foreground_runtime::spawn_screen_ai_foreground_runtime();
     screen_ai_analysis_runtime::spawn_screen_ai_analysis_runtime();
+    screen_ai_retention_sweeper_runtime::spawn_screen_ai_retention_sweeper_runtime();
 
     axum::serve(listener, app::router(network))
         .await

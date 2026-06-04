@@ -10,7 +10,7 @@ use crate::{
     screen_ai_service_capture_event_builder::{
         screen_analysis_event, screen_queue_job, ScreenAiServiceCaptureIds,
     },
-    time::timestamp_now,
+    time::{timestamp_after_epoch_seconds, timestamp_now},
 };
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -42,6 +42,7 @@ pub(crate) struct ScreenAiServiceCaptureRecord<'a> {
     pub(crate) summary: &'static str,
     pub(crate) model_id: &'static str,
     pub(crate) template_version: &'static str,
+    pub(crate) temporary_image_ttl_seconds: u64,
 }
 
 pub(crate) fn record_captured_screen_image_to_paths(
@@ -88,6 +89,10 @@ impl ScreenAiServiceCaptureClock {
                 .unwrap_or_default(),
             timestamp: timestamp_now(),
         }
+    }
+
+    pub(crate) fn expires_after_seconds(&self, seconds: u64) -> String {
+        timestamp_after_epoch_seconds(self.epoch_seconds, seconds)
     }
 }
 

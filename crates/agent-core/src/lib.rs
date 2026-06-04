@@ -128,7 +128,9 @@ pub use process_capture::{
     collect_process_snapshot, process_observation_event, process_snapshot_events,
     ProcessObservation,
 };
-pub use screen_evidence_queue::ScreenEvidenceQueue;
+pub use screen_evidence_queue::{
+    ScreenEvidenceExpiredQueueEntry, ScreenEvidenceQueue, ScreenEvidenceQueueSweep,
+};
 pub use trusted_device_registry::TrustedDeviceRegistry;
 pub use window_capture::{collect_foreground_window_observation, ForegroundWindowObservation};
 pub use window_capture_event::{foreground_window_event, foreground_window_observation_event};
