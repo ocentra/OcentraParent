@@ -464,7 +464,10 @@ function browserResultMatchesInput(row: ScreenAiBrowserTriggerProofRowCandidate)
 
 function screenEvidenceIsLinked(row: ScreenAiBrowserTriggerProofRowCandidate): boolean {
   const screenEvidenceIds = new Set(row.screenAnalysis.sourceEvidenceRefs.map((reference) => reference.evidenceId));
-  return row.browserInput.screenEvidenceRefs.every((evidenceId) => screenEvidenceIds.has(evidenceId));
+  return (
+    row.browserInput.screenEvidenceRefs.length > 0 &&
+    row.browserInput.screenEvidenceRefs.every((evidenceId) => screenEvidenceIds.has(evidenceId))
+  );
 }
 
 function rowStateMatchesContracts(row: ScreenAiBrowserTriggerProofRowCandidate): boolean {

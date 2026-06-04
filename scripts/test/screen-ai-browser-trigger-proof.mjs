@@ -60,10 +60,20 @@ async function main() {
 }
 
 function buildWorkspace(workspace) {
-  execFileSync('cmd', ['/c', 'npm', 'run', 'build', '--workspace', workspace], {
+  const command = workspaceBuildCommand(workspace);
+
+  execFileSync(command.executable, command.args, {
     cwd: root,
     stdio: 'inherit',
   });
+}
+
+function workspaceBuildCommand(workspace) {
+  if (process.platform === 'win32') {
+    return { executable: 'cmd', args: ['/c', 'npm', 'run', 'build', '--workspace', workspace] };
+  }
+
+  return { executable: 'npm', args: ['run', 'build', '--workspace', workspace] };
 }
 
 function localAiRow(row, buildLocalAiEvidenceContext) {
@@ -133,8 +143,11 @@ function localAiContextInput(row, browserRefId, screenRefId) {
 
 function contextEvidence(row, evidenceRefId, evidenceKind, custody, capabilityStatus) {
   const observedAt = row.browserInput.requestedAt;
-  const sourceEvidence = row.sourceEvidenceRefs.find((reference) =>
-    evidenceKind === 'browser' ? reference.evidenceId.includes('browser') : reference.evidenceId.includes('screen')
+  const sourceEvidenceKind = evidenceKind === 'browser' ? 'journal-entry' : 'local-db-row';
+  const sourceEvidenceId =
+    evidenceKind === 'browser' ? row.browserInput.sourceEvidenceIds[0] : row.browserInput.screenEvidenceRefs[0];
+  const sourceEvidence = row.sourceEvidenceRefs.find(
+    (reference) => reference.evidenceId === sourceEvidenceId && reference.kind === sourceEvidenceKind
   );
 
   return {

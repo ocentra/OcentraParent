@@ -88,6 +88,16 @@ function rejectsClaimUpgrades() {
   expect(
     ScreenAiBrowserTriggerProofRowSchema.safeParse({
       ...base,
+      browserInput: {
+        ...base.browserInput,
+        screenEvidenceRefs: [],
+      },
+    }).success
+  ).toBe(false);
+
+  expect(
+    ScreenAiBrowserTriggerProofRowSchema.safeParse({
+      ...base,
       noClaimFlags: {
         ...base.noClaimFlags,
         enforcementClaimed: true,
