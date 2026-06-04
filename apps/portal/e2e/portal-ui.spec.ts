@@ -1,8 +1,9 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
+import { PortalTheme } from '@ocentra-parent/portal-domain/contracts';
 import { collectBrowserFailures } from './browser-failures';
 import { assertRouteScaffolds } from './portal-route-scaffold-assertions';
 
-test.setTimeout(180_000);
+test.setTimeout(300_000);
 
 const portalShellReadyTimeoutMs = 90_000;
 const defaultPortalPort = '4490';
@@ -11,16 +12,19 @@ test('portal UI connects to the real agent and renders command results', async (
   const browserFailures = collectBrowserFailures(page);
   await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: portalOrigin() });
   await page.goto('/#/commands');
+  await page.evaluate((storageKey) => window.localStorage.removeItem(storageKey), PortalTheme.LocalStorageKey);
+  await page.reload();
   await expect(page.getByRole('button', { exact: true, name: 'Home' })).toBeVisible({
     timeout: portalShellReadyTimeoutMs,
   });
   await expect(page.getByRole('button', { exact: true, name: 'Login' })).toBeVisible({
     timeout: portalShellReadyTimeoutMs,
   });
-  await expect(page.getByRole('heading', { name: 'Controls' })).toBeVisible({
+  await expect(page.getByRole('heading', { exact: true, name: 'Controls' })).toBeVisible({
     timeout: portalShellReadyTimeoutMs,
   });
 
+  await assertHeaderThemeToggle(page);
   await assertAuthDialog(page);
   await assertCommandControls(page);
   await assertInitialOverviewCommandDrain(page);
@@ -50,6 +54,16 @@ async function expectCommandControlEnabled(page: Page, name: string): Promise<vo
 
 async function clickCommandControl(page: Page, name: string): Promise<void> {
   await commandControlButton(page, name).click();
+}
+
+async function assertHeaderThemeToggle(page: Page): Promise<void> {
+  await expect(page.locator('html')).toHaveAttribute('data-theme', PortalTheme.Dark);
+  await page.getByRole('button', { exact: true, name: 'Light' }).click();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', PortalTheme.Light);
+  await page.reload();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', PortalTheme.Light);
+  await page.getByRole('button', { exact: true, name: 'Dark' }).click();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', PortalTheme.Dark);
 }
 
 async function assertAuthDialog(page: Page): Promise<void> {

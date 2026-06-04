@@ -10,6 +10,7 @@ export const PortalProductText: Record<PortalProductTextTokenValue, DisplayText>
   [PortalProductTextToken.NavGroupMonitor]: decodeDisplayText('Today'),
   [PortalProductTextToken.NavGroupGuide]: decodeDisplayText('Guide'),
   [PortalProductTextToken.NavGroupOperate]: decodeDisplayText('Manage'),
+  [PortalProductTextToken.NavGroupDevTools]: decodeDisplayText('Dev tools'),
   [PortalProductTextToken.Overview]: decodeDisplayText('Overview'),
   [PortalProductTextToken.ParentPortal]: decodeDisplayText('Start here'),
   [PortalProductTextToken.Activity]: decodeDisplayText('Activity'),
@@ -23,6 +24,7 @@ export const PortalProductText: Record<PortalProductTextTokenValue, DisplayText>
   [PortalProductTextToken.FrameTuner]: decodeDisplayText('App layout'),
   [PortalProductTextToken.Commands]: decodeDisplayText('Controls'),
   [PortalProductTextToken.Events]: decodeDisplayText('Audit'),
+  [PortalProductTextToken.Logs]: decodeDisplayText('Logs'),
   [PortalProductTextToken.OverviewDescription]: decodeDisplayText('Daily command'),
   [PortalProductTextToken.ParentPortalDescription]: decodeDisplayText('Setup and controls map'),
   [PortalProductTextToken.ActivityDescription]: decodeDisplayText('Stored activity'),
@@ -42,6 +44,7 @@ export const PortalProductText: Record<PortalProductTextTokenValue, DisplayText>
   [PortalProductTextToken.EventsDescription]: decodeDisplayText(
     'Validated child-device audit entries from the local service.'
   ),
+  [PortalProductTextToken.LogsDescription]: decodeDisplayText('Local portal and agent service log snapshots.'),
   [PortalProductTextToken.Connected]: decodeDisplayText('Child device connected'),
   [PortalProductTextToken.Unavailable]: decodeDisplayText('Child device not connected'),
   [PortalProductTextToken.PendingTypedIntent]: decodeDisplayText('Setup'),

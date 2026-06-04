@@ -16,15 +16,16 @@ import {
   NetworkEvidenceDrawerRoutePanel,
   shouldRenderNetworkEvidenceDrawerRoute,
 } from './NetworkEvidenceDrawerRoutePanel';
+import { openPortalFrameTunerWindow } from './portal-dev-tool-window';
 import type { PortalRenderActions } from './portal-actions';
 import type { PortalRuntimeState } from './portal-state';
 import { ScreenSettingsRoutePanel, shouldRenderScreenSettingsRoute } from './ScreenSettingsRoutePanel';
 import { shouldRenderTrackingStatusRoute, TrackingStatusRoutePanel } from './TrackingStatusRoutePanel';
-import './styles/parent-portal-route.css';
 
 type ParentPortalRouteProps = {
   readonly actions: PortalRenderActions;
   readonly controls: ParentPortalSvgControls;
+  readonly lanPairingAutoScanSequence: number;
   readonly onProductSurfaceReady: () => void;
   readonly route: PortalRouteValue;
   readonly state: PortalRuntimeState;
@@ -33,6 +34,7 @@ type ParentPortalRouteProps = {
 export function ParentPortalRoute({
   actions,
   controls,
+  lanPairingAutoScanSequence,
   onProductSurfaceReady,
   route,
   state,
@@ -62,11 +64,16 @@ export function ParentPortalRoute({
         assistantRoutePath={PARENT_PORTAL_ROUTE.HashRoutes.Assistant}
         assistantReturnRoutePath={PARENT_PORTAL_ROUTE.HashRoutes.Overview}
         activityState={activityState}
+        lanPairingAutoScanSequence={lanPairingAutoScanSequence}
         onInitialLayoutReady={onProductSurfaceReady}
         onRefreshParentPortal={actions.reconnect}
         onMatchmaking={actions.reconnect}
         onNavigate={(routePath) => {
           if (!routePath.startsWith(PortalDom.HashPrefix)) {
+            return;
+          }
+          if (routePath === `${PortalDom.HashPrefix}${PortalRoute.FrameTuner}`) {
+            void openPortalFrameTunerWindow();
             return;
           }
           window.location.hash = routePath;

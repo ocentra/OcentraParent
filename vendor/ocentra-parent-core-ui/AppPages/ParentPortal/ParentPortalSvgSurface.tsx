@@ -79,6 +79,9 @@ import {
   PARENT_PORTAL_GUIDE_QUERY,
   PARENT_PORTAL_POLICY_GUIDE_TAB_PAGES,
   PARENT_PORTAL_POLICY_GUIDE_TOPIC_IDS,
+  PortalAssets,
+  PortalLanPairingScan,
+  PortalUnifiedChrome,
   type ParentAssistantPortalQuickActionId,
 } from '@ocentra-parent/portal-domain/contracts';
 import {
@@ -95,6 +98,7 @@ import {
   AgentCommand,
   AgentProtocolDefaults,
   type AgentCommandName,
+  type AgentEventId,
 } from '@ocentra-parent/agent-protocol-domain/contracts';
 import { ParentPortalPanelFrame } from './ParentPortalPanelFrame';
 import {
@@ -225,6 +229,7 @@ type ParentPortalSvgSurfaceProps = {
   assistantRoutePath?: string;
   assistantReturnRoutePath?: string;
   activityState?: ParentPortalActivityState | null;
+  lanPairingAutoScanSequence?: number;
   onRefreshParentPortal: (controlCode: number) => void;
   onMatchmaking: () => void;
   onNavigate?: (routePath: string) => void;
@@ -247,6 +252,7 @@ type ParentPortalActivityState = {
   activityMemoryGraphReadModel?: Record<string, unknown> | null;
   browserInterventionReadModel?: Record<string, unknown> | null;
   networkFlowReadModel?: Record<string, unknown> | null;
+  lanPairingBrowserDiscoveryEvent?: { eventId?: AgentEventId } | null;
   lanAddDeviceReadModel?: Record<string, unknown> | null;
   screenEvidenceRecentSummary?: Record<string, unknown> | null;
   appGameSessionReport?: Record<string, unknown> | null;
@@ -709,6 +715,30 @@ function toneColor(tone: Tone, cfg: ParentPortalSvgControls): string {
 function colorAlpha(color: string, alphaHex: string): string {
   return color.startsWith('#') ? `${color}${alphaHex}` : color;
 }
+
+const PARENT_PORTAL_GLASS = {
+  panelFill: PortalUnifiedChrome.CssVarRefs.FrameSurfaceFill,
+  panelFillSoft: PortalUnifiedChrome.CssVarRefs.FrameSurfaceFill,
+  panelFillStrong: PortalUnifiedChrome.CssVarRefs.FrameSurfaceFill,
+  panelFillDeep: PortalUnifiedChrome.CssVarRefs.FrameSurfaceFill,
+  cardFill: PortalUnifiedChrome.CssVarRefs.FrameSurfaceFill,
+  cardFillStrong: PortalUnifiedChrome.CssVarRefs.FrameSurfaceFill,
+  controlFill: PortalUnifiedChrome.CssVarRefs.FrameSurfaceFill,
+  dialogFill: PortalUnifiedChrome.CssVarRefs.FrameSurfaceFill,
+  dialogFillStrongTop: PortalUnifiedChrome.CssVarRefs.FrameSurfaceFill,
+  dialogFillStrongBottom: PortalUnifiedChrome.CssVarRefs.FrameSurfaceFill,
+  dialogScrim: PortalUnifiedChrome.CssVarRefs.FrameScrimFill,
+} as const;
+
+const PARENT_PORTAL_FRAME_MATERIAL = {
+  bodyFill: PortalUnifiedChrome.CssVarRefs.FrameBodyFill,
+  bodyStrokeOpacity: PortalUnifiedChrome.CssVarRefs.FrameBodyStrokeOpacity,
+  disabledFillOpacity: PortalUnifiedChrome.CssVarRefs.FrameSurfaceDisabledFillOpacity,
+  fillOpacity: PortalUnifiedChrome.CssVarRefs.FrameSurfaceFillOpacity,
+  footerLineOpacity: PortalUnifiedChrome.CssVarRefs.FrameFooterLineOpacity,
+  headerLineOpacity: PortalUnifiedChrome.CssVarRefs.FrameHeaderLineOpacity,
+  transparentFill: PortalUnifiedChrome.CssVarRefs.FrameTransparentFill,
+} as const;
 
 function assetKey(value?: string): string {
   return (value ?? '')
@@ -1260,7 +1290,7 @@ function productShellRouteKeywords(routeKey: string): readonly string[] {
   if (routeKey.includes('network')) return ['network-activity', 'network-tracking', 'enforcement-readiness'];
   if (routeKey.includes('tracking')) return ['tracking-policy', 'remote-access', 'manual-required'];
   if (routeKey.includes('device') || routeKey.includes('lan') || routeKey.includes('capability')) {
-    return ['device-pairing', 'lan-discovery', 'household-setup', 'capability-status'];
+    return ['lan-discovery', 'household-setup', 'capability-status'];
   }
   if (routeKey.includes('remote')) return ['remote-access', 'remote-screen-policy', 'backend-not-connected'];
   if (routeKey.includes('report') || routeKey.includes('activity')) {
@@ -1526,7 +1556,9 @@ function SurfacePanel({
   const color = accentColor ?? toneColor(tone, cfg);
   const interactive = Boolean(onClick) && !disabled;
   const active = selected || hovered;
-  const fill = selected ? cfg.colors.selectedFill : hovered ? `${color}20` : cfg.colors.panelFill;
+  const frameFillOpacity = disabled
+    ? PARENT_PORTAL_FRAME_MATERIAL.disabledFillOpacity
+    : PARENT_PORTAL_FRAME_MATERIAL.fillOpacity;
   const handleClick = (event: MouseEvent<SVGGElement>) => {
     if (!interactive) return;
     event.stopPropagation();
@@ -1552,7 +1584,6 @@ function SurfacePanel({
     >
       {frame === 'deckSide' ? (
         <>
-          <path d={cutRectPath(x + 5, y + 5, w - 10, h - 10, 18)} fill="#020b14" stroke="none" pointerEvents="none" />
           <ParentPortalPanelFrame
             x={x}
             y={y}
@@ -1560,6 +1591,8 @@ function SurfacePanel({
             h={h}
             color={color}
             active={active}
+            fill={PARENT_PORTAL_GLASS.panelFill}
+            fillOpacity={frameFillOpacity}
             cornerThicknessScale={frameCornerThicknessScale}
             outerTabWidth={frameOuterTabWidth ?? cfg.chrome.frameOuterBulgeWidth}
             innerTabWidth={frameInnerTabWidth ?? cfg.chrome.frameInnerBulgeWidth}
@@ -1567,52 +1600,19 @@ function SurfacePanel({
         </>
       ) : (
         <>
-          {hovered && !selected ? (
-            <path
-              d={cutRectPath(
-                x - cfg.chrome.hoverPad,
-                y - cfg.chrome.hoverPad,
-                w + cfg.chrome.hoverPad * 2,
-                h + cfg.chrome.hoverPad * 2,
-                cfg.chrome.panelCut
-              )}
-              fill="none"
-              stroke={color}
-              strokeWidth={2.2}
-              opacity={cfg.chrome.glowOpacity}
-              filter="url(#parentPortalGlow)"
-            />
-          ) : null}
-          <path
-            d={cutRectPath(x, y, w, h, active ? cfg.chrome.panelCut + 2 : cfg.chrome.panelCut)}
-            fill={fill}
-            stroke={color}
-            strokeWidth={active ? cfg.chrome.panelStrokeWidth + 0.5 : cfg.chrome.panelStrokeWidth}
-            opacity={disabled ? 0.48 : 0.97}
+          <ParentPortalPanelFrame
+            x={x}
+            y={y}
+            w={w}
+            h={h}
+            color={color}
+            active={active}
+            fill={PARENT_PORTAL_GLASS.panelFill}
+            fillOpacity={frameFillOpacity}
+            cornerThicknessScale={frameCornerThicknessScale}
+            outerTabWidth={frameOuterTabWidth ?? cfg.chrome.frameOuterBulgeWidth}
+            innerTabWidth={frameInnerTabWidth ?? cfg.chrome.frameInnerBulgeWidth}
           />
-          <path
-            d={cutRectPath(
-              x + cfg.chrome.panelInnerInset,
-              y + cfg.chrome.panelInnerInset,
-              w - cfg.chrome.panelInnerInset * 2,
-              h - cfg.chrome.panelInnerInset * 2,
-              Math.max(4, cfg.chrome.panelCut - 4)
-            )}
-            fill="none"
-            stroke={color}
-            strokeWidth={0.7}
-            opacity={active ? 0.52 : 0.25}
-          />
-          {selected ? (
-            <path
-              d={cutRectPath(x, y, w, h, cfg.chrome.panelCut + 2)}
-              fill="none"
-              stroke={color}
-              strokeWidth={5}
-              opacity={0.16}
-              filter="url(#parentPortalGlow)"
-            />
-          ) : null}
         </>
       )}
       {children}
@@ -1859,7 +1859,7 @@ function ParentPortalHeaderAction({
         width={w}
         height={h}
         rx={3}
-        fill={lit ? `${color}24` : 'rgba(4, 18, 31, 0.88)'}
+        fill={lit ? `${color}24` : PARENT_PORTAL_GLASS.panelFill}
         stroke={color}
         strokeWidth={lit ? 1.35 : 0.9}
         strokeOpacity={lit ? 0.95 : 0.64}
@@ -1984,9 +1984,9 @@ function ParentPortalSectionFrame({
   bodyInset,
   fullHeaderLine = false,
   innerStrokeOpacity = 0.6,
-  bodyStrokeOpacity = 0.72,
-  bodyFill = 'rgba(7, 30, 48, 0.38)',
-  footerLineOpacity = 0.42,
+  bodyStrokeOpacity = PARENT_PORTAL_FRAME_MATERIAL.bodyStrokeOpacity,
+  bodyFill = PARENT_PORTAL_FRAME_MATERIAL.bodyFill,
+  footerLineOpacity = PARENT_PORTAL_FRAME_MATERIAL.footerLineOpacity,
   showSideHandles = false,
   sideDisabled = false,
   onPrevious,
@@ -2017,9 +2017,9 @@ function ParentPortalSectionFrame({
   bodyInset?: number;
   fullHeaderLine?: boolean;
   innerStrokeOpacity?: number;
-  bodyStrokeOpacity?: number;
+  bodyStrokeOpacity?: number | string;
   bodyFill?: string;
-  footerLineOpacity?: number;
+  footerLineOpacity?: number | string;
   showSideHandles?: boolean;
   sideDisabled?: boolean;
   onPrevious?: () => void;
@@ -2098,6 +2098,7 @@ function ParentPortalSectionFrame({
   const sideHandleY = body.y + Math.max(12, (body.h - sideHandleH) / 2);
   const leftHandleX = x - sideHandleW + PARENT_PORTAL_SIDE_HANDLE_OVERLAP;
   const rightHandleX = x + w - PARENT_PORTAL_SIDE_HANDLE_OVERLAP;
+  const showFooterLine = footerLineOpacity !== 0 && footerLineOpacity !== '0';
   const handleSelect = (event: MouseEvent<SVGGElement>) => {
     if (!interactive) return;
     event.stopPropagation();
@@ -2133,16 +2134,10 @@ function ParentPortalSectionFrame({
         color={color}
         active={active}
         fill="url(#parentPortalFrameFill)"
-        fillOpacity={selected ? 0.98 : 0.92}
+        fillOpacity={PARENT_PORTAL_FRAME_MATERIAL.fillOpacity}
         cornerThicknessScale={0.86}
         outerTabWidth={cfg.chrome.frameOuterBulgeWidth}
         innerTabWidth={cfg.chrome.frameInnerBulgeWidth}
-      />
-      <path
-        d={cutRectPath(x + 8, y + 8, w - 16, Math.min(62, resolvedHeaderH + 10), Math.max(4, cut - 5))}
-        fill="url(#parentPortalFrameShine)"
-        opacity={active ? 0.56 : 0.42}
-        pointerEvents="none"
       />
       {headerSlot ? (
         headerSlot
@@ -2179,7 +2174,7 @@ function ParentPortalSectionFrame({
             y2={headerLineY}
             stroke={color}
             strokeWidth={1.1}
-            opacity={0.5}
+            opacity={PARENT_PORTAL_FRAME_MATERIAL.headerLineOpacity}
           />
           {headerInfoLabel && onHeaderInfoClick ? (
             <ParentPortalInfoButton
@@ -2208,7 +2203,7 @@ function ParentPortalSectionFrame({
         strokeOpacity={bodyStrokeOpacity}
       />
       {children(body)}
-      {footerLineOpacity > 0 ? (
+      {showFooterLine ? (
         <line
           x1={footerRect.x + 12}
           y1={footerRect.y + 3}
@@ -2285,7 +2280,7 @@ function ArtworkSlot({
   const primaryText = compact ? 'MISS' : 'MISSING';
   const primaryFontSize = compact ? Math.min(7, Math.max(4.5, w * 0.24)) : Math.min(11, Math.max(7.5, w * 0.09));
   const secondaryFontSize = Math.min(8.5, Math.max(6.5, w * 0.06));
-  const fill = imageUrl ? 'rgba(3, 13, 24, 0.82)' : 'rgba(48, 12, 23, 0.72)';
+  const fill = imageUrl ? PARENT_PORTAL_GLASS.panelFillDeep : 'rgba(48, 12, 23, 0.72)';
   const renderShape = (shapeFill: string, shapeStroke: string, dash = '') => {
     if (shape === 'circle') {
       return (
@@ -3124,7 +3119,7 @@ function NavPanel({
   };
   if (assistantOpen) {
     return (
-      <g>
+      <g className="parent-portal-study-side-pane">
         <AssistantQuickActionPanel
           x={outerPad}
           y={sideTopY}
@@ -3140,7 +3135,7 @@ function NavPanel({
   }
   let cursorY = rowTop;
   return (
-    <g>
+    <g className="parent-portal-study-side-pane">
       <SurfacePanel x={outerPad} y={sideTopY} w={leftW} h={navH} tone="cyan" frame="deckSide" cfg={cfg}>
         <defs>
           <clipPath id={navClipId}>
@@ -3502,7 +3497,7 @@ function AssistantSidePanelTab({ x, y, w, h, label, selected, onSelect, cfg }) {
             ? colorAlpha(cfg.colors.cyan, '32')
             : hovered
               ? colorAlpha(cfg.colors.cyan, '22')
-              : 'rgba(4, 18, 31, 0.72)'
+              : PARENT_PORTAL_GLASS.cardFill
         }
         stroke={selected || hovered ? cfg.colors.cyan : cfg.colors.panelStroke}
         strokeWidth={selected ? 1.15 : 0.9}
@@ -3949,7 +3944,6 @@ function manageLaneForKey(activeNavLabel: string, selectedControlName: string): 
     key.includes('platform') ||
     key.includes('update') ||
     key.includes('install') ||
-    key.includes('device-pairing') ||
     key.includes('devices')
   ) {
     return 'deviceOps';
@@ -4205,8 +4199,6 @@ const ACTIVITY_REPORT_BASIC_CHILD_DEVICE_SEATS = Math.max(1, LAN_PAIRING_BASIC_P
 const ACTIVITY_REPORT_MAX_CHILD_DEVICE_SEATS = 10;
 const ACTIVITY_REPORT_SELECTOR_BASE_H = 146;
 const ACTIVITY_REPORT_SELECTOR_ROW_H = MANAGE_DEVICE_GRID_CELL_H + MANAGE_DEVICE_GRID_GAP_Y;
-const LAN_PAIRING_SCAN_ICON_HREF = '/images/scan.png';
-const LAN_PAIRING_HEADER_TITLE = 'Local Area Network';
 
 type LanPairingDetailTabId = 'info' | 'pair' | 'update' | 'capability';
 
@@ -4570,7 +4562,7 @@ function LanPairingDeviceEditDialog({
   const fieldStyle: CSSProperties = {
     width: '100%',
     boxSizing: 'border-box',
-    background: 'rgba(3, 20, 33, 0.96)',
+    background: PARENT_PORTAL_GLASS.dialogFill,
     border: `1px solid ${colorAlpha(borderColor, 'AA')}`,
     borderRadius: 6,
     color: cfg.colors.bodyText,
@@ -4588,7 +4580,7 @@ function LanPairingDeviceEditDialog({
         y={overlayY}
         width={overlayW}
         height={overlayH}
-        fill="rgba(0, 6, 12, 0.48)"
+        fill={PARENT_PORTAL_GLASS.dialogScrim}
         rx={12}
         onClick={(event) => {
           event.stopPropagation();
@@ -4604,14 +4596,16 @@ function LanPairingDeviceEditDialog({
             width: '100%',
             height: '100%',
             boxSizing: 'border-box',
-            background: 'linear-gradient(180deg, rgba(4, 26, 44, 0.98), rgba(2, 13, 25, 0.98))',
+            background: `linear-gradient(180deg, ${PARENT_PORTAL_GLASS.dialogFillStrongTop}, ${PARENT_PORTAL_GLASS.dialogFillStrongBottom})`,
             border: `1px solid ${borderColor}`,
             borderRadius: 8,
-            boxShadow: `0 0 22px ${colorAlpha(borderColor, '66')}`,
+            boxShadow: `0 16px 42px rgba(0, 0, 0, 0.42), 0 0 22px ${colorAlpha(borderColor, '44')}`,
             color: cfg.colors.bodyText,
             fontFamily: dialogFontFamily,
             padding: '14px 16px 16px',
             position: 'relative',
+            WebkitBackdropFilter: 'blur(10px)',
+            backdropFilter: 'blur(10px)',
           }}
         >
           <button
@@ -4626,7 +4620,7 @@ function LanPairingDeviceEditDialog({
               height: 24,
               border: `1px solid ${colorAlpha(borderColor, 'AA')}`,
               borderRadius: 6,
-              background: 'rgba(2, 12, 22, 0.9)',
+              background: PARENT_PORTAL_GLASS.panelFillStrong,
               color: cfg.colors.bodyText,
               cursor: 'pointer',
               fontFamily: dialogFontFamily,
@@ -4691,7 +4685,7 @@ function LanPairingDeviceEditDialog({
               type="button"
               onClick={onClose}
               style={{
-                background: 'rgba(2, 12, 22, 0.9)',
+                background: PARENT_PORTAL_GLASS.panelFillStrong,
                 border: `1px solid ${colorAlpha(cfg.colors.panelStroke, 'AA')}`,
                 borderRadius: 6,
                 color: cfg.colors.mutedText,
@@ -6326,40 +6320,6 @@ function manageControlSpecFor(activeNavLabel: string, selectedControlName: strin
         { label: 'Start pairing', detail: 'Begin a trusted local pairing challenge.', tone: 'gold' },
         { label: 'Select child', detail: 'Make this device the active control target.', tone: 'cyan' },
         { label: 'Revoke trust', detail: 'Stop accepting control intents from this device.', tone: 'red' },
-      ],
-      status: baseStatus,
-    };
-  }
-
-  if (key.includes('device')) {
-    return {
-      title: 'Devices',
-      devices,
-      modes: [
-        { label: 'Selected', detail: 'Use this device as the active target.', tone: 'cyan' },
-        { label: 'Pair', detail: 'Add a child device.', tone: 'gold' },
-        { label: 'Suspend', detail: 'Stop sending commands to this device.', tone: 'red' },
-      ],
-      options: [
-        { label: 'Show offline', detail: 'Keep stale devices visible but marked.', enabled: true, tone: 'cyan' },
-        {
-          label: 'Per-device overrides',
-          detail: 'Allow this child to differ from family defaults.',
-          enabled: true,
-          tone: 'gold',
-        },
-        {
-          label: 'Require parent session',
-          detail: 'Protect device changes behind parent login.',
-          enabled: true,
-          tone: 'red',
-        },
-        { label: 'Capability badges', detail: 'Show supported, degraded, unavailable.', enabled: true, tone: 'purple' },
-      ],
-      actions: [
-        { label: 'Pair device', detail: 'Start local pairing.', tone: 'gold' },
-        { label: 'Set active', detail: 'Use selected child for controls.', tone: 'cyan' },
-        { label: 'Open capability', detail: 'Review what this device supports.', tone: 'purple' },
       ],
       status: baseStatus,
     };
@@ -8911,7 +8871,7 @@ function ManageSupportContactForm({
     <g>
       <path
         d={cutRectPath(x, y, w, h, 10)}
-        fill="rgba(3, 17, 31, 0.9)"
+        fill="rgba(3, 17, 31, 0.72)"
         stroke={color}
         strokeWidth={1.05}
         opacity={0.98}
@@ -8946,7 +8906,7 @@ function ManageSupportContactForm({
 
       <path
         d={cutRectPath(x + pad, composerY, w - pad * 2, composerH, 8)}
-        fill="rgba(4, 20, 35, 0.86)"
+        fill={PARENT_PORTAL_GLASS.controlFill}
         stroke={cyan}
         strokeWidth={0.86}
         opacity={0.94}
@@ -8984,7 +8944,7 @@ function ManageSupportContactForm({
         width={w - pad * 2}
         height={messageH}
         rx={5}
-        fill="rgba(2, 13, 24, 0.82)"
+        fill="rgba(2, 13, 24, 0.66)"
         stroke={color}
         strokeWidth={0.78}
         opacity={0.95}
@@ -9019,7 +8979,7 @@ function ManageSupportContactForm({
         width={actionW}
         height={28}
         rx={4}
-        fill="rgba(3, 18, 32, 0.9)"
+        fill="rgba(3, 18, 32, 0.72)"
         stroke={gold}
         strokeWidth={0.9}
       />
@@ -9739,7 +9699,7 @@ function BrowserPolicyMatrixShell({
         width={w}
         height={h}
         rx={5}
-        fill="rgba(2, 19, 35, 0.88)"
+        fill="rgba(2, 19, 35, 0.72)"
         stroke={cfg.colors.gold}
         strokeWidth={0.9}
       />
@@ -9809,7 +9769,13 @@ function BrowserPolicyBudgetMatrix({
       cfg={cfg}
     >
       <g transform={`translate(${tableX}, ${tableY})`}>
-        <rect width={tableW} height={tableH} rx={5} fill="rgba(4, 20, 37, 0.92)" stroke={cfg.colors.panelStroke} />
+        <rect
+          width={tableW}
+          height={tableH}
+          rx={5}
+          fill={PARENT_PORTAL_GLASS.panelFill}
+          stroke={cfg.colors.panelStroke}
+        />
         <g transform={`translate(8, ${guideY - 18})`}>
           {[
             ['Family default', 'applies first', cfg.colors.cyan],
@@ -9824,7 +9790,7 @@ function BrowserPolicyBudgetMatrix({
                   width={pillW}
                   height={26}
                   rx={4}
-                  fill="rgba(5, 27, 46, 0.86)"
+                  fill="rgba(5, 27, 46, 0.64)"
                   stroke={item[2]}
                   strokeWidth={0.72}
                   opacity={0.95}
@@ -10066,7 +10032,7 @@ function BrowserPolicyScheduleMatrix({
         width={boardW}
         height={boardH}
         rx={5}
-        fill="rgba(4, 20, 37, 0.9)"
+        fill={PARENT_PORTAL_GLASS.panelFill}
         stroke={cfg.colors.panelStroke}
         strokeWidth={0.9}
       />
@@ -10144,7 +10110,7 @@ function BrowserPolicyScheduleMatrix({
                 width={index === 1 ? 32 : 24}
                 height={20}
                 rx={5}
-                fill="rgba(5, 21, 38, 0.96)"
+                fill="rgba(5, 21, 38, 0.76)"
                 stroke={cfg.colors.cyan}
                 strokeWidth={0.8}
               />
@@ -10167,7 +10133,7 @@ function BrowserPolicyScheduleMatrix({
         y={headerY}
         width={bodyViewportW}
         height={cellSize}
-        fill="rgba(5, 22, 39, 0.94)"
+        fill="rgba(5, 22, 39, 0.72)"
         stroke={cfg.colors.panelStroke}
         strokeWidth={0.7}
       />
@@ -10176,7 +10142,7 @@ function BrowserPolicyScheduleMatrix({
         y={bodyY}
         width={labelW}
         height={bodyViewportH}
-        fill="rgba(5, 22, 39, 0.94)"
+        fill="rgba(5, 22, 39, 0.72)"
         stroke={cfg.colors.panelStroke}
         strokeWidth={0.7}
       />
@@ -10185,7 +10151,7 @@ function BrowserPolicyScheduleMatrix({
         y={bodyY}
         width={bodyViewportW}
         height={bodyViewportH}
-        fill="rgba(2, 16, 30, 0.86)"
+        fill="rgba(2, 16, 30, 0.68)"
         stroke={cfg.colors.cyan}
         strokeWidth={0.75}
       />
@@ -10199,7 +10165,7 @@ function BrowserPolicyScheduleMatrix({
                 width={cellSize - 2}
                 height={cellSize - 2}
                 rx={5}
-                fill="rgba(8, 26, 47, 0.9)"
+                fill="rgba(8, 26, 47, 0.68)"
                 stroke={cfg.colors.panelStroke}
                 strokeWidth={0.72}
               />
@@ -10228,7 +10194,7 @@ function BrowserPolicyScheduleMatrix({
                 width={labelW - 4}
                 height={cellSize - 2}
                 rx={5}
-                fill="rgba(8, 26, 47, 0.82)"
+                fill="rgba(8, 26, 47, 0.62)"
                 stroke={cfg.colors.panelStroke}
                 strokeWidth={0.68}
               />
@@ -10262,7 +10228,11 @@ function BrowserPolicyScheduleMatrix({
                       width={cellSize - 2}
                       height={cellSize - 2}
                       rx={5}
-                      fill={isDefaultMode ? 'rgba(4, 18, 32, 0.32)' : colorAlpha(color, mode === 'Block' ? '36' : '45')}
+                      fill={
+                        isDefaultMode
+                          ? PARENT_PORTAL_GLASS.panelFillSoft
+                          : colorAlpha(color, mode === 'Block' ? '36' : '45')
+                      }
                       stroke={isDefaultMode ? cfg.colors.panelStroke : color}
                       strokeWidth={isDefaultMode ? 0.7 : 0.76}
                     />
@@ -10310,7 +10280,7 @@ function BrowserPolicyScheduleMatrix({
             width={bodyViewportW}
             height={7}
             rx={3.5}
-            fill="rgba(8, 24, 42, 0.94)"
+            fill="rgba(8, 24, 42, 0.7)"
             stroke={cfg.colors.panelStroke}
             strokeWidth={0.7}
           />
@@ -10336,7 +10306,7 @@ function BrowserPolicyScheduleMatrix({
               width={22}
               height={15}
               rx={4}
-              fill="rgba(5, 21, 38, 0.96)"
+              fill="rgba(5, 21, 38, 0.76)"
               stroke={cfg.colors.cyan}
             />
             <path
@@ -10358,7 +10328,7 @@ function BrowserPolicyScheduleMatrix({
               width={22}
               height={15}
               rx={4}
-              fill="rgba(5, 21, 38, 0.96)"
+              fill="rgba(5, 21, 38, 0.76)"
               stroke={cfg.colors.cyan}
             />
             <path
@@ -10378,7 +10348,7 @@ function BrowserPolicyScheduleMatrix({
             width={7}
             height={bodyViewportH}
             rx={3.5}
-            fill="rgba(8, 24, 42, 0.94)"
+            fill="rgba(8, 24, 42, 0.7)"
             stroke={cfg.colors.panelStroke}
             strokeWidth={0.7}
           />
@@ -10404,7 +10374,7 @@ function BrowserPolicyScheduleMatrix({
               width={15}
               height={15}
               rx={4}
-              fill="rgba(5, 21, 38, 0.96)"
+              fill="rgba(5, 21, 38, 0.76)"
               stroke={cfg.colors.cyan}
             />
             <path
@@ -10426,7 +10396,7 @@ function BrowserPolicyScheduleMatrix({
               width={15}
               height={15}
               rx={4}
-              fill="rgba(5, 21, 38, 0.96)"
+              fill="rgba(5, 21, 38, 0.76)"
               stroke={cfg.colors.cyan}
             />
             <path
@@ -10481,7 +10451,13 @@ function BrowserPolicyApprovalsMatrix({
       cfg={cfg}
     >
       <g transform={`translate(${tableX}, ${tableY})`}>
-        <rect width={tableW} height={tableH} rx={5} fill="rgba(4, 20, 37, 0.92)" stroke={cfg.colors.panelStroke} />
+        <rect
+          width={tableW}
+          height={tableH}
+          rx={5}
+          fill={PARENT_PORTAL_GLASS.panelFill}
+          stroke={cfg.colors.panelStroke}
+        />
         {visibleColumns.map((column, index) => (
           <text
             key={`browser-policy-approval-column:${column}`}
@@ -10577,7 +10553,13 @@ function BrowserPolicyAuditMatrix({
       cfg={cfg}
     >
       <g transform={`translate(${tableX}, ${tableY})`}>
-        <rect width={tableW} height={tableH} rx={5} fill="rgba(4, 20, 37, 0.92)" stroke={cfg.colors.panelStroke} />
+        <rect
+          width={tableW}
+          height={tableH}
+          rx={5}
+          fill={PARENT_PORTAL_GLASS.panelFill}
+          stroke={cfg.colors.panelStroke}
+        />
         {visibleColumns.map((column, index) => (
           <text
             key={`browser-policy-audit-column:${column}`}
@@ -10857,7 +10839,7 @@ function BrowserPolicyDecisionForestPrototype({
             width={mapW - 56}
             height={74}
             rx={7}
-            fill="rgba(2, 8, 16, 0.84)"
+            fill="rgba(2, 8, 16, 0.66)"
             stroke="#ffd36a"
             strokeWidth={0.9}
           />
@@ -10929,7 +10911,11 @@ function BrowserPolicyForestNodeCard({
   onClick: () => void;
 }) {
   const stroke = active ? '#ffd36a' : disabled ? '#35616c' : '#29e6ff';
-  const fill = active ? 'rgba(14, 54, 48, 0.88)' : disabled ? 'rgba(4, 17, 28, 0.44)' : 'rgba(4, 23, 39, 0.82)';
+  const fill = active
+    ? colorAlpha(cfg.colors.cyan, '2e')
+    : disabled
+      ? PARENT_PORTAL_GLASS.panelFillSoft
+      : PARENT_PORTAL_GLASS.panelFill;
   const text = disabled ? '#6f91a0' : '#e7fbff';
   const status = disabled ? 'Disabled' : node.status;
   return (
@@ -11201,7 +11187,7 @@ function BrowserPolicyForestChipRow({
               width={chipW}
               height={chipH}
               rx={6}
-              fill={active ? '#8fe7ff' : 'rgba(8, 23, 40, 0.92)'}
+              fill={active ? '#8fe7ff' : PARENT_PORTAL_GLASS.cardFill}
               stroke={active ? '#f5fdff' : '#5c7b96'}
               strokeWidth={active ? 1.2 : 0.78}
               filter={active ? 'url(#parentPortalGlow)' : undefined}
@@ -11245,7 +11231,7 @@ function BrowserPolicyForestStaticChoices({
             width={w}
             height={26}
             rx={5}
-            fill="rgba(5, 23, 39, 0.82)"
+            fill="rgba(5, 23, 39, 0.62)"
             stroke="#426f87"
             strokeWidth={0.75}
           />
@@ -11635,7 +11621,7 @@ function ManageWorkspacePanel({
               ) : null}
               <path
                 d={topRoundedRectPath(tabX, tabY, tabW, currentTabH, tabRadius)}
-                fill={selected ? colorAlpha(tabColor, '26') : 'rgba(2, 12, 22, 0.74)'}
+                fill={selected ? colorAlpha(tabColor, '26') : PARENT_PORTAL_GLASS.panelFill}
                 stroke={selected ? tabColor : cfg.colors.panelStroke}
                 strokeWidth={selected ? 1.2 : 0.75}
                 opacity={selected ? 1 : 0.82}
@@ -11685,7 +11671,7 @@ function ManageWorkspacePanel({
                     cx={tabInfoCx}
                     cy={tabInfoCy}
                     r={tabInfoR}
-                    fill={selected ? colorAlpha(tabColor, '36') : 'rgba(2, 12, 22, 0.86)'}
+                    fill={selected ? colorAlpha(tabColor, '36') : PARENT_PORTAL_GLASS.panelFillStrong}
                     stroke={selected ? cfg.colors.bodyText : tabColor}
                     strokeWidth={selected ? 1.1 : 0.85}
                     opacity={selected ? 0.95 : 0.76}
@@ -11709,10 +11695,10 @@ function ManageWorkspacePanel({
       </g>
       <path
         d={topRoundedRectPath(workspaceBodyX, bodyY, workspaceBodyW, bodyH, 10)}
-        fill={cfg.colors.panelFill}
+        fill={PARENT_PORTAL_GLASS.panelFill}
         stroke={activeColor}
         strokeWidth={1.12}
-        opacity={0.97}
+        opacity={0.78}
       />
       <path
         d={`M ${workspaceBodyX + 10} ${bodyY} H ${workspaceBodyX + workspaceBodyW - 10}`}
@@ -11772,7 +11758,7 @@ function ManageWorkspacePanel({
             width={targetSelectorW}
             height={targetSelectorH}
             rx={7}
-            fill="rgba(6, 24, 37, 0.9)"
+            fill="rgba(6, 24, 37, 0.68)"
             stroke={cfg.colors.panelStroke}
             strokeWidth={0.72}
             opacity={0.96}
@@ -11939,7 +11925,7 @@ function ManageWorkspacePanel({
                 width={policyRowW}
                 height={policyRowH}
                 rx={4}
-                fill="rgba(3, 18, 32, 0.86)"
+                fill="rgba(3, 18, 32, 0.68)"
                 stroke={rowColor}
                 strokeWidth={0.82}
                 opacity={0.95}
@@ -12110,7 +12096,7 @@ function ManageTargetPanel({
         width={scopeTrackW}
         height={scopeTrackH}
         rx={15}
-        fill="rgba(2, 12, 22, 0.88)"
+        fill="rgba(2, 12, 22, 0.68)"
         stroke={color}
         strokeWidth={0.9}
         strokeOpacity={0.72}
@@ -12812,10 +12798,10 @@ function ManageControlPanel({
             />
             <path
               d={topRoundedRectPath(lanPairingBodyX, lanPairingBodyY, lanPairingBodyW, lanPairingBodyH, 12)}
-              fill={cfg.colors.panelFill}
+              fill={PARENT_PORTAL_GLASS.panelFill}
               stroke={lanPairingDetailColor}
               strokeWidth={1.15}
-              opacity={0.97}
+              opacity={0.78}
             />
             <path
               d={topRoundedRectPath(
@@ -13242,10 +13228,10 @@ function ManageControlPanel({
             />
             <path
               d={topRoundedRectPath(activityBodyPanelX, activityBodyPanelY, activityBodyPanelW, activityBodyPanelH, 12)}
-              fill={cfg.colors.panelFill}
+              fill={PARENT_PORTAL_GLASS.panelFill}
               stroke={activityManageTabColor}
               strokeWidth={1.15}
-              opacity={0.97}
+              opacity={0.78}
             />
             <path
               d={topRoundedRectPath(
@@ -14449,7 +14435,7 @@ function AssistantChatFrame({ x, y, w, h, underlineX, underlineW, children, cfg 
   const headerH = 62;
   return (
     <g>
-      <ParentPortalPanelFrame x={x} y={y} w={w} h={h} color={cfg.colors.cyan} active fill="rgba(5, 20, 34, 0.94)" />
+      <ParentPortalPanelFrame x={x} y={y} w={w} h={h} color={cfg.colors.cyan} active fill="rgba(5, 20, 34, 0.72)" />
       <AssistantHeaderDivider
         x={x}
         y={y + headerH - 2}
@@ -14727,7 +14713,7 @@ function AssistantFollowUpPanel({ x, y, w, label, questions, onSelect, cfg }) {
   const labelW = label.length * 8.9 + 20;
   return (
     <g role="group" aria-label="Follow-up questions">
-      <rect x={x} y={y} width={w} height={h} rx={10} fill="rgba(4, 18, 31, 0.18)" opacity={0.78} />
+      <rect x={x} y={y} width={w} height={h} rx={10} fill={PARENT_PORTAL_GLASS.panelFillSoft} opacity={0.78} />
       <path d={`M ${x + 8} ${labelY - 4} H ${x + 34}`} stroke={cfg.colors.bodyText} strokeWidth={0.8} opacity={0.76} />
       <text x={x + 44} y={labelY} fontSize={15.2} fontWeight={970} fill={cfg.colors.bodyText}>
         {label}
@@ -14885,7 +14871,7 @@ function AssistantComposer({ x, y, w, h, prompt, onSend, cfg }) {
     <g>
       <path
         d={topRoundedRectPath(x, y, w, h, 14)}
-        fill="rgba(2, 12, 20, 0.82)"
+        fill="rgba(2, 12, 20, 0.66)"
         stroke={cfg.colors.cyan}
         strokeWidth={0.95}
       />
@@ -15188,7 +15174,7 @@ function ProductShellRouteReadinessStrip({
     <g aria-label="Route readiness product shell status" pointerEvents="none">
       <path
         d={cutRectPath(x, y, w, h, 9)}
-        fill={colorAlpha(cfg.colors.panelFill, 'f2')}
+        fill={PARENT_PORTAL_GLASS.panelFill}
         stroke={color}
         strokeWidth={1}
         strokeOpacity={0.58}
@@ -15443,7 +15429,12 @@ function ParentPortalDetailPanel({
       <text x={x} y={y + 24} fontSize={titleSize} fontWeight={950} fill={cfg.colors.bodyText}>
         {title}
       </text>
-      <path d={`M ${x} ${y + 39} H ${x + w}`} stroke={color} strokeWidth={1.1} opacity={0.5} />
+      <path
+        d={`M ${x} ${y + 39} H ${x + w}`}
+        stroke={color}
+        strokeWidth={1.1}
+        opacity={PARENT_PORTAL_FRAME_MATERIAL.headerLineOpacity}
+      />
       {bodyLines.map((line, index) => (
         <text
           key={`${line}:${index}`}
@@ -15549,7 +15540,7 @@ function GuideQuickTab({
       <ClickableCardHoverChrome x={x} y={y} w={w} h={h} color={color} active={active} hovered={hovered} arrow={false} />
       <path
         d={cutRectPath(x, y, w, h, 7)}
-        fill={lit ? colorAlpha(color, active ? '42' : '24') : 'rgba(5, 19, 32, 0.86)'}
+        fill={lit ? colorAlpha(color, active ? '42' : '24') : PARENT_PORTAL_GLASS.cardFillStrong}
         stroke={lit ? color : cfg.colors.panelStroke}
         strokeWidth={active ? 1.25 : 0.85}
       />
@@ -15822,7 +15813,7 @@ function GuideTopicDetailPanel({
                 >
                   <path
                     d={cutRectPath(pillX, y + mainH - 30, pillW, 18, 5)}
-                    fill={selected ? colorAlpha(color, '44') : 'rgba(3, 12, 22, 0.82)'}
+                    fill={selected ? colorAlpha(color, '44') : PARENT_PORTAL_GLASS.panelFillSoft}
                     stroke={color}
                     strokeWidth={selected ? 1.2 : 0.75}
                   />
@@ -16058,7 +16049,7 @@ function GuideOverviewDashboard({
             />
             <path
               d={cutRectPath(cardX, cardY, cardW, cardH, 10)}
-              fill={selected ? colorAlpha(color, '2e') : 'rgba(5, 18, 31, 0.86)'}
+              fill={selected ? colorAlpha(color, '2e') : PARENT_PORTAL_GLASS.cardFillStrong}
               stroke={color}
               strokeWidth={selected ? 1.7 : 0.95}
               strokeOpacity={selected ? 0.92 : 0.62}
@@ -16388,7 +16379,7 @@ function ParentPortalTopCarouselCard({
         <>
           <path
             d={cutRectPath(x, y, w, h, 12)}
-            fill={active ? colorAlpha(color, selected ? '2e' : '20') : 'rgba(5, 17, 30, 0.88)'}
+            fill={active ? colorAlpha(color, selected ? '2e' : '20') : PARENT_PORTAL_GLASS.cardFillStrong}
             stroke={color}
             strokeWidth={selected ? 2 : hovered ? 1.55 : 1.05}
             strokeOpacity={selected ? 0.92 : hovered ? 0.8 : 0.56}
@@ -16480,7 +16471,7 @@ function ParentPortalTopCarouselCard({
             <>
               <path
                 d={cutRectPath(controlX, controlY, controlW, controlH, 8)}
-                fill={selected ? colorAlpha(color, '30') : 'rgba(4, 16, 28, 0.82)'}
+                fill={selected ? colorAlpha(color, '30') : PARENT_PORTAL_GLASS.controlFill}
                 stroke={color}
                 strokeWidth={selected ? 1.65 : 0.95}
                 strokeOpacity={selected ? 0.96 : 0.7}
@@ -16562,7 +16553,7 @@ function ParentPortalTopCarouselCard({
               ) : null}
               <path
                 d={cutRectPath(controlX, controlY, controlW, controlH, 15)}
-                fill={active ? colorAlpha(color, selected ? '24' : '18') : 'rgba(6, 18, 31, 0.95)'}
+                fill={active ? colorAlpha(color, selected ? '24' : '18') : PARENT_PORTAL_GLASS.controlFill}
                 stroke={active ? color : cfg.colors.panelStroke}
                 strokeWidth={selected ? 2 : hovered ? 1.65 : 1.05}
                 strokeOpacity={active ? 0.94 : 0.68}
@@ -16643,7 +16634,7 @@ function ParentPortalTopCarouselCard({
                   20,
                   6
                 )}
-                fill="rgba(4, 11, 24, 0.72)"
+                fill={PARENT_PORTAL_GLASS.panelFillDeep}
                 stroke="rgba(255,255,255,0.16)"
                 strokeWidth={0.7}
                 pointerEvents="none"
@@ -16812,7 +16803,9 @@ function ControlCategoryCard({
       <ClickableCardHoverChrome x={x} y={y} w={w} h={h} color={color} active={selected} hovered={hovered} />
       <path
         d={cutRectPath(x, y, w, h, 8)}
-        fill={selected ? colorAlpha(color, '30') : hovered ? colorAlpha(color, '22') : 'rgba(4, 16, 28, 0.78)'}
+        fill={
+          selected ? colorAlpha(color, '30') : hovered ? colorAlpha(color, '22') : PARENT_PORTAL_GLASS.cardFillStrong
+        }
         stroke={color}
         strokeWidth={selected ? 1.65 : hovered ? 1.35 : 0.95}
         strokeOpacity={active ? 0.96 : 0.68}
@@ -16997,7 +16990,7 @@ function ControlSubcategoryGrid({
           const color = themeColor ?? toneColor(subcategory.tone, cfg);
           const style = {
             '--parent-portal-subcategory-color': color,
-            '--parent-portal-subcategory-fill': selected ? colorAlpha(color, '30') : 'rgba(5, 19, 32, 0.9)',
+            '--parent-portal-subcategory-fill': selected ? colorAlpha(color, '30') : PARENT_PORTAL_GLASS.cardFill,
             '--parent-portal-subcategory-border': color,
           } as CSSProperties;
           return (
@@ -17098,6 +17091,7 @@ function MainBoard({
   onAgentCommand,
   onSelectNavLabel,
   activityState,
+  lanPairingAutoScanSequence,
   cfg,
   mainX,
   mainW,
@@ -17132,6 +17126,7 @@ function MainBoard({
   onAgentCommand?: (command: AgentCommandName, payload: Record<string, string>) => void;
   onSelectNavLabel: (navLabel: string) => void;
   activityState?: ParentPortalActivityState | null;
+  lanPairingAutoScanSequence: number;
   cfg: ParentPortalSvgControls;
   mainX: number;
   mainW: number;
@@ -17242,6 +17237,8 @@ function MainBoard({
   const [expandedCategoryId, setExpandedCategoryId] = useState<string | null>(null);
   const [hoveredTopControlKey, setHoveredControlAreaKey] = useState<string | null>(null);
   const [lanPairingScanRequestedAtMs, setLanPairingScanRequestedAtMs] = useState<number | null>(null);
+  const lanPairingScanStartedAfterEventIdRef = useRef<AgentEventId | null>(null);
+  const latestLanPairingScanEventIdRef = useRef<AgentEventId | null>(null);
   const manageLane = selectedQuickControl ? manageLaneForControl(selectedQuickControl) : 'childPolicy';
   const selectedControlCategoryId =
     selectedCategoryIdOverride ??
@@ -17320,7 +17317,7 @@ function MainBoard({
   const manageTargetContextKey = `${manageMode ? 'manage' : 'browse'}:${activeNavLabel}:${selectedControlName}:${
     manageCurrentSpec?.title ?? ''
   }:${manageLane}`;
-  const previousManageTargetContextKeyRef = useRef('');
+  const previousManageTargetContextKeyRef = useRef<string | null>(null);
   useEffect(() => {
     if (!manageMode || !manageCurrentSpec) return;
     const contextChanged = previousManageTargetContextKeyRef.current !== manageTargetContextKey;
@@ -17404,14 +17401,30 @@ function MainBoard({
   const activityManageGridMode =
     manageMode && manageCurrentSpec ? isReportsManageTitle(manageCurrentSpec.title) : false;
   const manageDeviceGridMode = lanPairingDeviceGridMode || activityManageGridMode;
-  const latestLanPairingEventId = activityState?.lanPairingStatusEvent?.eventId ?? '';
+  const latestLanPairingScanEventId = activityState?.lanPairingBrowserDiscoveryEvent?.eventId ?? null;
   useEffect(() => {
-    if (!latestLanPairingEventId) return;
+    latestLanPairingScanEventIdRef.current = latestLanPairingScanEventId;
+  }, [latestLanPairingScanEventId]);
+  useEffect(() => {
+    if (!lanPairingDeviceGridMode || lanPairingAutoScanSequence <= 0) return;
+    lanPairingScanStartedAfterEventIdRef.current = latestLanPairingScanEventIdRef.current;
+    setLanPairingScanRequestedAtMs(Date.now());
+  }, [lanPairingAutoScanSequence, lanPairingDeviceGridMode]);
+  useEffect(() => {
+    if (
+      latestLanPairingScanEventId === null ||
+      latestLanPairingScanEventId === lanPairingScanStartedAfterEventIdRef.current
+    ) {
+      return;
+    }
     setLanPairingScanRequestedAtMs(null);
-  }, [latestLanPairingEventId]);
+  }, [latestLanPairingScanEventId]);
   useEffect(() => {
     if (lanPairingScanRequestedAtMs === null) return;
-    const timeoutId = window.setTimeout(() => setLanPairingScanRequestedAtMs(null), 8000);
+    const timeoutId = window.setTimeout(
+      () => setLanPairingScanRequestedAtMs(null),
+      PortalLanPairingScan.PendingIndicatorMs
+    );
     return () => window.clearTimeout(timeoutId);
   }, [lanPairingScanRequestedAtMs]);
   const manageSharedWorkspaceFrameMode = manageDeviceGridMode || manageWorkspaceFullFrameMode;
@@ -17614,11 +17627,11 @@ function MainBoard({
       accentColor={activeGroupThemeColor}
       active
       label={
-        lanPairingDeviceGridMode && (lanPairingScanRequestedAtMs !== null || !activityState?.lanAddDeviceReadModel)
-          ? 'SCANNING'
-          : 'SCAN'
+        lanPairingDeviceGridMode && lanPairingScanRequestedAtMs !== null
+          ? PortalLanPairingScan.Text.Scanning
+          : PortalLanPairingScan.Text.Scan
       }
-      iconHref={LAN_PAIRING_SCAN_ICON_HREF}
+      iconHref={PortalAssets.LanPairingScanIcon}
       onClick={() => {
         if (lanPairingDeviceGridMode) {
           setLanPairingScanRequestedAtMs(Date.now());
@@ -17630,14 +17643,14 @@ function MainBoard({
           }
         );
       }}
-      ariaLabel="Scan Local Area Network"
+      ariaLabel={PortalLanPairingScan.Text.ScanLocalAreaNetwork}
       cfg={cfg}
     />
   ) : null;
   const manageHeaderInfoLabel =
     manageMode && manageCurrentSpec && manageGuideRoutePath
       ? lanPairingDeviceGridMode
-        ? 'Open Local Area Network guide'
+        ? PortalLanPairingScan.Text.OpenLocalAreaNetworkGuide
         : `Open ${manageControlDisplayTitle(manageCurrentSpec.title)} guide`
       : undefined;
   const tableHeaderAction =
@@ -17685,7 +17698,7 @@ function MainBoard({
       />
     ) : null;
   return (
-    <g>
+    <g className="parent-portal-study-main-board">
       {showTopSection ? (
         <ParentPortalSectionFrame
           x={selectorX}
@@ -17709,7 +17722,7 @@ function MainBoard({
           footerH={topFrameFooterH}
           innerStrokeOpacity={manageMode ? 0.34 : controlBrowserMode ? 0.24 : undefined}
           bodyStrokeOpacity={manageMode || controlBrowserMode ? 0 : undefined}
-          bodyFill={manageMode || controlBrowserMode ? 'transparent' : undefined}
+          bodyFill={manageMode || controlBrowserMode ? PARENT_PORTAL_FRAME_MATERIAL.transparentFill : undefined}
           footerLineOpacity={topFramePaged && !controlBrowserMode ? undefined : 0}
           headerRight={null}
           showSideHandles={topFramePaged && !controlBrowserMode}
@@ -17898,7 +17911,7 @@ function MainBoard({
           h={bottomPanelH}
           title={
             lanPairingDeviceGridMode
-              ? LAN_PAIRING_HEADER_TITLE
+              ? PortalLanPairingScan.Text.HeaderTitle
               : manageSharedWorkspaceFrameMode
                 ? manageWorkspaceHeaderTitle.toUpperCase()
                 : manageWorkspaceHeaderTitle
@@ -17916,7 +17929,7 @@ function MainBoard({
           bodyInset={manageSharedWorkspaceFrameMode ? 0 : undefined}
           fullHeaderLine={manageSharedWorkspaceFrameMode}
           bodyStrokeOpacity={0}
-          bodyFill="transparent"
+          bodyFill={PARENT_PORTAL_FRAME_MATERIAL.transparentFill}
           footerLineOpacity={manageSharedWorkspaceFrameMode ? 0 : undefined}
           selected={detailPanelCanFocus ? tableFocused : false}
           onSelect={detailPanelCanFocus ? () => setFocusedSection('table') : undefined}
@@ -18055,14 +18068,14 @@ function DetailOverlay({
     <g role="dialog" aria-label={title}>
       <path
         d={cutRectPath(x - 8, y - 8, w + 16, h + 16, 18)}
-        fill="rgba(1, 5, 12, 0.72)"
+        fill="rgba(1, 5, 12, 0.58)"
         stroke={color}
         strokeWidth={1.2}
         opacity={0.98}
       />
       <path
         d={cutRectPath(x, y, w, h, 16)}
-        fill="rgba(5, 17, 30, 0.97)"
+        fill="rgba(5, 17, 30, 0.76)"
         stroke={color}
         strokeWidth={1.4}
         filter="url(#parentPortalGlow)"
@@ -18157,20 +18170,29 @@ function Defs() {
         <stop offset="70%" stopColor="rgb(0, 50, 100)" />
         <stop offset="100%" stopColor="rgb(0, 5, 15)" />
       </radialGradient>
-      <linearGradient id="parentPortalFrameFill" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#08243a" stopOpacity="0.94" />
-        <stop offset="48%" stopColor="#041624" stopOpacity="0.96" />
-        <stop offset="100%" stopColor="#061d31" stopOpacity="0.92" />
+      <linearGradient id="parentPortalFrameFill" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop
+          offset="0%"
+          stopColor={PortalUnifiedChrome.CssVarRefs.FrameSurfaceColor}
+          stopOpacity={PortalUnifiedChrome.CssVarRefs.FrameSurfaceOpacity}
+        />
+        <stop
+          offset="100%"
+          stopColor={PortalUnifiedChrome.CssVarRefs.FrameSurfaceColor}
+          stopOpacity={PortalUnifiedChrome.CssVarRefs.FrameSurfaceOpacity}
+        />
       </linearGradient>
-      <linearGradient id="parentPortalFrameGlass" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#123f59" stopOpacity="0.32" />
-        <stop offset="52%" stopColor="#061525" stopOpacity="0.24" />
-        <stop offset="100%" stopColor="#0b2445" stopOpacity="0.28" />
-      </linearGradient>
-      <linearGradient id="parentPortalFrameShine" x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop offset="0%" stopColor="#ffffff" stopOpacity="0.14" />
-        <stop offset="42%" stopColor="#42e8ff" stopOpacity="0.07" />
-        <stop offset="100%" stopColor="#42e8ff" stopOpacity="0" />
+      <linearGradient id="parentPortalFrameGlass" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop
+          offset="0%"
+          stopColor={PortalUnifiedChrome.CssVarRefs.FrameGlassColor}
+          stopOpacity={PortalUnifiedChrome.CssVarRefs.FrameGlassOpacity}
+        />
+        <stop
+          offset="100%"
+          stopColor={PortalUnifiedChrome.CssVarRefs.FrameGlassColor}
+          stopOpacity={PortalUnifiedChrome.CssVarRefs.FrameGlassOpacity}
+        />
       </linearGradient>
       <linearGradient id="parentPortalCardBannerShade" x1="0%" y1="0%" x2="0%" y2="100%">
         <stop offset="0%" stopColor="#07111f" stopOpacity="0.16" />
@@ -18210,6 +18232,7 @@ export function ParentPortalSvgSurface({
   assistantRoutePath = '#/assistant',
   assistantReturnRoutePath = '#/overview',
   activityState = null,
+  lanPairingAutoScanSequence = 0,
   onRefreshParentPortal,
   onNavigate,
   onAssistantCommand,
@@ -18702,6 +18725,7 @@ export function ParentPortalSvgSurface({
               activateNavLabel(navLabel);
             }}
             activityState={activityState}
+            lanPairingAutoScanSequence={lanPairingAutoScanSequence}
             cfg={cfg}
             mainX={mainX}
             mainW={mainW}
@@ -18717,7 +18741,7 @@ export function ParentPortalSvgSurface({
               width={mainW - 56}
               height={82}
               rx={6}
-              fill="rgba(3, 7, 18, 0.82)"
+              fill="rgba(3, 7, 18, 0.66)"
               stroke={error ? cfg.colors.red : cfg.colors.cyan}
               strokeWidth={1.2}
             />

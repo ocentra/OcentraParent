@@ -504,17 +504,6 @@ export const PARENT_PORTAL_MANAGE_QUICK_CONTROLS: ParentPortalContent['quickCont
     routePath: '#/platforms-install',
   },
   {
-    id: 'device-pairing',
-    name: 'DEVICE',
-    detail: 'Child device pairing',
-    icon: 'devices',
-    tone: 'cyan',
-    category: 'Devices',
-    subcategory: 'Selected child device',
-    controlCode: 7,
-    routePath: '#/devices',
-  },
-  {
     id: 'lan-pairing',
     name: 'LAN PAIRING',
     detail: 'Paired local devices only',

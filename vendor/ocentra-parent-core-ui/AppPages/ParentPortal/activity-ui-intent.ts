@@ -273,7 +273,12 @@ function pendingServiceScan(
   addDeviceReadModel?: Record<string, unknown> | null
 ): boolean {
   if (addDeviceReadModel) return false;
-  return numberValue(deviceRow?.signalScore) === 0 || numberValue(discoveryRow?.signalScore) === 0;
+  const trend = `${stringValue(deviceRow?.trend) ?? ''} ${stringValue(discoveryRow?.trend) ?? ''}`.toLowerCase();
+  if (trend.includes('scan') || trend.includes('pending')) {
+    return true;
+  }
+  const hasLanRow = deviceRow !== null || discoveryRow !== null;
+  return hasLanRow && !trend.includes('offline') && !trend.includes('unavailable');
 }
 
 function lanDeviceSlots(readModel: Record<string, unknown>): readonly DeviceSlot[] {

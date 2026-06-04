@@ -1,4 +1,4 @@
-import { type DisplayText } from '@ocentra-parent/text-domain/contracts';
+import { decodeDisplayText, type DisplayText } from '@ocentra-parent/text-domain/contracts';
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/text-domain/portal-dev';
 import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
 export { PortalCommandButtons, PortalOverviewCommands } from './commands';
@@ -113,6 +113,7 @@ export {
 } from './activity-memory-graph';
 export {
   PortalRoute,
+  PortalDevToolWindow,
   PortalRouteDescriptors,
   PortalRouteGroup,
   PortalRoutes,
@@ -149,6 +150,7 @@ export const PortalDom = {
   RootSelector: '#app',
   HashPrefix: '#/',
   HashQuerySeparator: '?',
+  BackgroundDevToolHashFlag: 'bg-only=1',
   EmptyHashRoute: '',
   Ids: {
     AppLoading: 'app-loading',
@@ -352,6 +354,17 @@ export const PortalFormatting = {
   CorrelationPrefix: 'correlation ',
   EndpointSeparator: ':',
   GraphEdgeSeparator: ' -> ',
+} as const;
+
+export const PortalLanPairingScan = {
+  PendingIndicatorMs: 8000,
+  Text: {
+    HeaderTitle: decodeDisplayText('Local Area Network'),
+    Scan: decodeDisplayText('SCAN'),
+    Scanning: decodeDisplayText('SCANNING'),
+    ScanLocalAreaNetwork: decodeDisplayText('Scan Local Area Network'),
+    OpenLocalAreaNetworkGuide: decodeDisplayText('Open Local Area Network guide'),
+  },
 } as const;
 
 export const PortalTiming = {

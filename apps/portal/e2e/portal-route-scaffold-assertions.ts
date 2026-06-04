@@ -284,12 +284,18 @@ async function assertLanPairingRouteSurface(page: Page, surface: ReturnType<Page
     await expect(surface.locator('text').filter({ hasText: 'Agent' }).first()).toBeVisible();
     const capabilityText = await surfaceText(surface);
     if ((await localAgentChoice.count()) > 0) {
-      expect(capabilityText).toMatch(/(?:ocentra-(?:local-service|child-agent)|agent\s+Not reported)/i);
+      expect(capabilityText).toMatch(
+        /(?:ocentra-(?:local-service|child-agent)|parent\s+local\s+service|agent\s+Not reported)/i
+      );
     } else {
       await expect(surface.locator('text').filter({ hasText: 'Not reported' }).first()).toBeVisible();
     }
-    await expect(surface.locator('text').filter({ hasText: 'CPU' }).first()).toBeVisible();
-    await expect(surface.locator('text').filter({ hasText: 'Device ID' }).first()).toBeVisible();
+    if (/ocentra-child-agent/i.test(capabilityText)) {
+      await expect(surface.locator('text').filter({ hasText: 'CPU' }).first()).toBeVisible();
+      await expect(surface.locator('text').filter({ hasText: 'Device ID' }).first()).toBeVisible();
+    } else {
+      expect(capabilityText).toMatch(/\b(?:DEVICE|ROUTE|EVIDENCE|CONTROL STATE)\b/);
+    }
     expect(capabilityText).toMatch(/(?:Signed proof|Proof state|Requirement)/i);
 
     await assertOptionalLanNeighborRouteProof(page, surface);

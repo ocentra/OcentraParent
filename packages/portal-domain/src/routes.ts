@@ -49,7 +49,8 @@ export const PortalRouteSchema = withParser(
     'settings-rules',
     'app-layout',
     'commands',
-    'events'
+    'events',
+    'logs'
   )
 );
 export type PortalRoute = Infer<typeof PortalRouteSchema>;
@@ -101,6 +102,7 @@ export const PortalRoute = {
   FrameTuner: PortalRouteSchema.parse('app-layout'),
   Commands: PortalRouteSchema.parse('commands'),
   Events: PortalRouteSchema.parse('events'),
+  Logs: PortalRouteSchema.parse('logs'),
 } as const;
 
 export const PortalRoutes = [
@@ -150,12 +152,23 @@ export const PortalRoutes = [
   PortalRoute.FrameTuner,
   PortalRoute.Commands,
   PortalRoute.Events,
+  PortalRoute.Logs,
 ] as const;
+
+export const PortalDevToolWindow = {
+  FrameTunerHeight: 900,
+  FrameTunerLabel: 'portal-app-layout',
+  FrameTunerWidth: 1280,
+  PopupFeatures: 'popup=yes,width=1280,height=900,resizable=yes,scrollbars=yes',
+  TauriErrorEvent: 'tauri://error',
+  TauriInternalKey: '__TAURI_INTERNALS__',
+} as const;
 
 export const PortalRouteGroup = {
   Monitor: resolvePortalDevText(PortalDevTextToken.NavGroupMonitor),
   Guide: resolvePortalDevText(PortalDevTextToken.NavGroupGuide),
   Operate: resolvePortalDevText(PortalDevTextToken.NavGroupOperate),
+  DevTools: resolvePortalDevText(PortalDevTextToken.NavGroupDevTools),
 } as const;
 
 export type PortalRouteGroupValue = (typeof PortalRouteGroup)[keyof typeof PortalRouteGroup];
@@ -430,7 +443,25 @@ export const PortalRouteDescriptors: readonly PortalRouteDescriptor[] = [
     PortalRoute.FrameTuner,
     PortalDevTextToken.FrameTuner,
     PortalDevTextToken.FrameTunerDescription,
-    PortalRouteGroup.Operate
+    PortalRouteGroup.DevTools
+  ),
+  routeDescriptor(
+    PortalRoute.Commands,
+    PortalDevTextToken.Commands,
+    PortalDevTextToken.CommandsDescription,
+    PortalRouteGroup.DevTools
+  ),
+  routeDescriptor(
+    PortalRoute.Events,
+    PortalDevTextToken.Events,
+    PortalDevTextToken.EventsDescription,
+    PortalRouteGroup.DevTools
+  ),
+  routeDescriptor(
+    PortalRoute.Logs,
+    PortalDevTextToken.Logs,
+    PortalDevTextToken.LogsDescription,
+    PortalRouteGroup.DevTools
   ),
 ] as const;
 

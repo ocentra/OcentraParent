@@ -163,20 +163,7 @@
 }
 
 body {
-  background:
-    linear-gradient(90deg, rgb(84 226 255 / 8%) 1px, transparent 1px),
-    linear-gradient(rgb(84 226 255 / 7%) 1px, transparent 1px),
-    radial-gradient(circle at 50% -20rem, rgb(0 119 154 / 60%), transparent 38rem),
-    radial-gradient(circle at 12% 10rem, rgb(0 208 170 / 20%), transparent 28rem),
-    radial-gradient(circle at 88% 14rem, rgb(76 93 255 / 20%), transparent 26rem),
-    linear-gradient(135deg, var(--app-bg), var(--app-bg-soft) 52%, var(--app-bg));
-  background-size:
-    58px 58px,
-    58px 58px,
-    auto,
-    auto,
-    auto,
-    auto;
+  background: var(--portal-app-background);
 }
 
 .app-frame {
