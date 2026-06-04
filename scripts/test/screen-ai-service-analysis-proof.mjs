@@ -319,12 +319,19 @@ function commandEnvelope() {
 }
 
 function assertProof(readModel, queueRecords) {
-  if (readModel.state !== 'ready' || readModel.rows.length < 2) {
-    throw new Error(`Screen read model did not expose metadata plus analysis rows: ${JSON.stringify(readModel)}`);
+  if (readModel.state !== 'ready' || !Array.isArray(readModel.rows) || readModel.rows.length === 0) {
+    throw new Error(`Screen read model did not expose analysis rows: ${JSON.stringify(readModel)}`);
   }
   const analysisRow = localVisionRow(readModel);
   if (!analysisRow) {
     throw new Error(`Read model did not include local adapter analysis: ${JSON.stringify(readModel)}`);
+  }
+  if (
+    analysisRow.queueJobId === undefined ||
+    analysisRow.captureReason === undefined ||
+    analysisRow.imageDigest === undefined
+  ) {
+    throw new Error(`Adapter analysis did not surface capture metadata: ${JSON.stringify(analysisRow)}`);
   }
   if (analysisRow.primaryCategory !== 'school') {
     throw new Error(`Adapter category was not surfaced: ${JSON.stringify(analysisRow)}`);
