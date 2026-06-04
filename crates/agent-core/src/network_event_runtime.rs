@@ -20,6 +20,15 @@ use crate::{
     NetworkObservation,
 };
 
+mod queue;
+mod review;
+
+pub use queue::{queue_network_runtime_flow_until_subscriber, NetworkRuntimeQueueDrainReport};
+pub use review::{
+    request_network_runtime_review_for_observation, NetworkRuntimeReviewReport,
+    NetworkRuntimeReviewResponse,
+};
+
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct NetworkRuntimeEventPayload {
     pub phase: NetworkRuntimePhase,
@@ -154,9 +163,6 @@ impl NetworkRuntimeSpine {
         observation: NetworkObservation,
         observed_at: &str,
     ) -> Result<NetworkRuntimeReport, EventingError> {
-        let correlation_id =
-            CorrelationId::parse(network_correlation_id(&observation, observed_at))?;
-        let recorded_at = RecordedAt::parse(observed_at)?;
         let mut reports = Vec::new();
         for phase in NetworkRuntimePhase::ordered_chain()
             .iter()
@@ -165,13 +171,8 @@ impl NetworkRuntimeSpine {
         {
             let payload =
                 NetworkRuntimeEventPayload::from_observation(phase, &observation, observed_at);
-            let metadata = EventMetadata::from_parts(
-                EventId::generated(),
-                correlation_id.clone(),
-                network_event_source(phase, &observation)?,
-                recorded_at.clone(),
-                Some(TargetHandler::parse(phase.target_handler())?),
-            );
+            let metadata =
+                network_event_metadata(phase, &observation, observed_at, phase.target_handler())?;
             reports.push(self.bus.publish(payload, metadata).await?);
         }
         Ok(NetworkRuntimeReport {
@@ -180,6 +181,21 @@ impl NetworkRuntimeSpine {
             dead_letters: self.bus.dead_letters().await,
         })
     }
+}
+
+fn network_event_metadata(
+    phase: NetworkRuntimePhase,
+    observation: &NetworkObservation,
+    observed_at: &str,
+    target_handler: &str,
+) -> Result<EventMetadata, EventingError> {
+    Ok(EventMetadata::from_parts(
+        EventId::generated(),
+        CorrelationId::parse(network_correlation_id(observation, observed_at))?,
+        network_event_source(phase, observation)?,
+        RecordedAt::parse(observed_at)?,
+        Some(TargetHandler::parse(target_handler)?),
+    ))
 }
 
 fn should_publish_phase(phase: NetworkRuntimePhase, observation: &NetworkObservation) -> bool {

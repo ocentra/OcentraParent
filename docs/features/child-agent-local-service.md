@@ -59,7 +59,12 @@ and clear degraded states.
 - E-D added the first reusable Rust eventing crate, `crates/ocentra-eventing`,
   plus an agent-core network runtime chain proof that uses typed live
   envelopes and stored-envelope boundaries. This proves the first shared bus
-  spine, not queue/retry/request-response/journal completeness.
+  spine.
+- E-D extended the network runtime's reusable eventing consumption with
+  no-subscriber queue/drain proof and a typed local review request-response
+  proof. This proves local in-process network runtime usage of the reusable
+  crate, not broker/family-hub delivery or broad parent/child transport
+  adoption.
 - E-D extended `crates/ocentra-eventing` with production shutdown lifecycle
   proof: runtime-owned shutdown can drain queued work, dead-letter queued work,
   cancel pending local requests, clear subscriptions and aggregate gates, and
@@ -83,9 +88,11 @@ but not yet a fully hardened consumer child-agent across signed LAN
 advertisement, capture, enforcement, notifications, updates, tamper/integrity,
 and support diagnostics. The reusable Rust eventing crate now has proof for
 queue/retry/TTL, request-response, durable journal/replay, panic isolation,
-typed envelopes, production shutdown, and runtime-owned bus lifecycle. The open
-eventing gap is Parent-specific event contracts, child/parent transport
-handoff, broker-backed delivery, journal-before-action enforcement integration,
+typed envelopes, production shutdown, and runtime-owned bus lifecycle. The
+network runtime now consumes the reusable crate for typed publish,
+no-subscriber queue/drain, and local typed request-response. The open eventing
+gap is Parent-specific event contracts, child/parent transport handoff,
+broker-backed delivery, journal-before-action enforcement integration,
 adapter-result audit/read-model integration, and broad runtime adoption. The
 initial UI typed-intent proof keeps the Vite/TypeScript portal as a view/input
 surface while Rust remains the business event publisher. The initial AI and
@@ -108,8 +115,8 @@ raw JSON/string constants, `Uuid`, and raw domain identifier fields.
       journal/replay, production shutdown, UI typed-intent-only boundary,
       portal/AI direct-enforcement negative proof,
       weak-network-evidence command-routing guard, type-safety source gate, and
-      the network runtime chain; Parent-specific contracts and broad runtime
-      adoption remain.
+      the network runtime chain plus queue/drain and local request-response
+      proof; Parent-specific contracts and broad runtime adoption remain.
 - [ ] Policy and AI read paths.
 - [ ] Enforcement adapter dispatch with audit.
 - [ ] Capability and degraded-state reporting. Current mobile capability proof

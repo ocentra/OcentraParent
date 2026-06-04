@@ -12,6 +12,13 @@ const weakEvidenceOutputDir = join(
   '59-weak-network-evidence-command-routing'
 );
 const weakEvidenceProofPath = join(weakEvidenceOutputDir, 'proof-summary.json');
+const reusableRuntimeOutputDir = join(
+  repoRoot,
+  'output',
+  'eventing-plan-proof',
+  '57-network-workpack-10-reusable-crate'
+);
+const reusableRuntimeProofPath = join(reusableRuntimeOutputDir, 'proof-summary.json');
 const planOutputDir = join(repoRoot, 'output', 'eventing-plan-proof', '62-network-proof-links');
 const planProofPath = join(planOutputDir, 'proof-summary.json');
 const commands = [];
@@ -21,6 +28,7 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
+  await mkdir(reusableRuntimeOutputDir, { recursive: true });
   await mkdir(weakEvidenceOutputDir, { recursive: true });
   await mkdir(planOutputDir, { recursive: true });
 
@@ -41,10 +49,15 @@ async function main() {
       eventingCrate: 'crates/ocentra-eventing',
       eventingTests: 'crates/ocentra-eventing/src/tests',
       networkRuntime: 'crates/agent-core/src/network_event_runtime.rs',
+      networkRuntimeQueue: 'crates/agent-core/src/network_event_runtime/queue.rs',
+      networkRuntimeReview: 'crates/agent-core/src/network_event_runtime/review.rs',
       networkRuntimeTests: 'crates/agent-core/src/network_event_runtime_tests.rs',
       networkEventConstants: 'crates/agent-protocol/src/constants/network_flow.rs',
       proofHarness: 'scripts/test/eventing-network-runtime-proof.mjs',
+      reusableNetworkRuntimePlanRow: 'docs/plans/eventing-plan/implementation-checklist.md#row-57',
       weakNetworkEvidencePlanRow: 'docs/plans/eventing-plan/implementation-checklist.md#row-59',
+      reusableNetworkRuntimeProofSummary:
+        'output/eventing-plan-proof/57-network-workpack-10-reusable-crate/proof-summary.json',
       weakNetworkEvidenceProofSummary:
         'output/eventing-plan-proof/59-weak-network-evidence-command-routing/proof-summary.json',
       eventingPlanRow: 'docs/plans/eventing-plan/implementation-checklist.md#row-62',
@@ -55,6 +68,8 @@ async function main() {
       'network runtime consumes the reusable ocentra-eventing crate instead of defining a private network bus',
       'typed live handlers receive EventContext<NetworkRuntimeEventPayload> with EventEnvelope payloads and stored JSON stays at the envelope boundary',
       'network flow events carry custody, source, target handler, aggregate key, idempotency key, and correlation metadata',
+      'network runtime uses the reusable ocentra-eventing no-subscriber queue and drains queued flow events after subscriber registration',
+      'network runtime uses the reusable ocentra-eventing request registry for typed local review request and associated response completion',
       'metadata-only network evidence can progress through AI audit, policy, enforcement dry-run, audit, and portal read-model phases',
       'weak or unavailable network evidence stays manual-required or unavailable, does not publish enforcement command/result events, and does not execute an adapter action',
     ],
@@ -62,16 +77,18 @@ async function main() {
       'packet capture, raw PCAP parsing, or analyzer signature parity',
       'decrypted HTTPS payload, exact URL, search query, message, video, or page-content visibility from network metadata',
       'real DNS, firewall, WFP, VPN, nftables, or Network Extension enforcement',
-      'broker-backed delivery, durable replay, TTL/retry queueing, or request-response completion',
+      'broker-backed delivery, cross-process durable replay/retention, or family-hub delivery for network events',
       'parent portal network UI or product-ready network/domain blocking',
     ],
   };
 
   await writeFile(proofPath, `${JSON.stringify(proof, null, 2)}\n`);
+  await writeFile(reusableRuntimeProofPath, `${JSON.stringify(reusableRuntimeProof(proof), null, 2)}\n`);
   await writeFile(weakEvidenceProofPath, `${JSON.stringify(weakEvidenceProof(proof), null, 2)}\n`);
   await writeFile(planProofPath, `${JSON.stringify(planProof(proof), null, 2)}\n`);
   console.log(`eventing-network-runtime-proof-ok:${proofLabels.join(',')}`);
   console.log(`evidence=${relative(repoRoot, proofPath)}`);
+  console.log(`reusableRuntime=${relative(repoRoot, reusableRuntimeProofPath)}`);
   console.log(`weakEvidence=${relative(repoRoot, weakEvidenceProofPath)}`);
   console.log(`planEvidence=${relative(repoRoot, planProofPath)}`);
 }
@@ -83,6 +100,8 @@ async function assertSourceContracts() {
   const eventingPublisherSource = await readText('crates/ocentra-eventing/src/bus/publisher.rs');
   const eventingEnvelopeSource = await readText('crates/ocentra-eventing/src/envelope.rs');
   const networkSource = await readText('crates/agent-core/src/network_event_runtime.rs');
+  const networkQueueSource = await readText('crates/agent-core/src/network_event_runtime/queue.rs');
+  const networkReviewSource = await readText('crates/agent-core/src/network_event_runtime/review.rs');
   const networkTests = await readText('crates/agent-core/src/network_event_runtime_tests.rs');
   const eventingChecklist = await readText('docs/plans/eventing-plan/implementation-checklist.md');
 
@@ -93,8 +112,30 @@ async function assertSourceContracts() {
   assertIncludes(eventingEnvelopeSource, 'serde_json::Value', 'stored envelope JSON boundary');
   assertIncludes(eventingEnvelopeSource, 'pub payload: StoredEventPayload', 'stored envelope JSON wrapper boundary');
   assertIncludes(networkSource, 'should_publish_phase', 'network runtime command phase filter');
+  assertIncludes(
+    networkQueueSource,
+    'EventQueuePolicy::no_subscriber_queue',
+    'network runtime uses reusable no-subscriber queue policy'
+  );
+  assertIncludes(networkQueueSource, 'drain_queued', 'network runtime drains queued reusable eventing records');
+  assertIncludes(networkReviewSource, 'publish_request', 'network runtime uses reusable request-response registry');
+  assertIncludes(
+    networkReviewSource,
+    'EVENT_NETWORK_REVIEW_REQUESTED',
+    'network runtime has typed review request event contract'
+  );
   assertDoesNotInclude(networkSource, 'struct NetworkEventBus', 'no private NetworkEventBus');
   assertDoesNotInclude(networkSource, 'adapter_action_executed: true', 'no adapter action execution');
+  assertIncludes(
+    networkTests,
+    'network_runtime_queues_flow_until_subscriber_drains',
+    'network tests assert no-subscriber queue drains through reusable eventing'
+  );
+  assertIncludes(
+    networkTests,
+    'network_runtime_review_request_resolves_associated_response',
+    'network tests assert reusable request-response completion'
+  );
   assertIncludes(
     networkTests,
     'manual_required_network_evidence_does_not_publish_enforcement_command',
@@ -121,8 +162,11 @@ async function assertSourceContracts() {
   proofLabels.push('eventing.workspace.crate-added');
   proofLabels.push('eventing.typed-envelope.boundary');
   proofLabels.push('network.reuses-generic-eventing');
+  proofLabels.push('network.reusable-eventing.queue-drain');
+  proofLabels.push('network.reusable-eventing.request-response');
   proofLabels.push('network.metadata-only.no-exact-url');
   proofLabels.push('network.manual-required.no-adapter-action');
+  proofLabels.push('eventing.row-57.network-reusable-crate-consumption');
   proofLabels.push('eventing.row-59.weak-evidence-no-enforcement-command');
   proofLabels.push('eventing.row-62.network-proof-links');
 }
@@ -190,6 +234,35 @@ function weakEvidenceProof(proof) {
   };
 }
 
+function reusableRuntimeProof(proof) {
+  return {
+    proof: 'eventing-row-57-network-workpack-10-reusable-crate',
+    checkedAt: proof.checkedAt,
+    commit: proof.commit,
+    commands: proof.commands,
+    proofLabels: proof.proofLabels,
+    linkedArtifacts: {
+      runtimeProof: relative(repoRoot, proofPath),
+      row57Proof: relative(repoRoot, reusableRuntimeProofPath),
+      networkRuntime: proof.evidence.networkRuntime,
+      networkRuntimeQueue: proof.evidence.networkRuntimeQueue,
+      networkRuntimeReview: proof.evidence.networkRuntimeReview,
+      networkRuntimeTests: proof.evidence.networkRuntimeTests,
+      networkEventConstants: proof.evidence.networkEventConstants,
+      eventingPlanChecklist: 'docs/plans/eventing-plan/implementation-checklist.md',
+      networkPlanChecklist: 'docs/plans/network-plan/implementation-checklist.md',
+    },
+    provenRows: ['57 Network Workpack 10 consumes reusable crate'],
+    claimsProved: [
+      'network runtime imports and uses the reusable ocentra-eventing crate rather than a private network event bus',
+      'network runtime queues an unsubscribed network flow event through EventQueuePolicy::no_subscriber_queue and drains it after subscriber registration',
+      'network runtime completes a typed local review request through RequestEvent, EventResponseContract, and publish_request',
+      'network runtime request and queue proofs keep adapter_action_executed false and do not claim broker or family-hub delivery',
+    ],
+    claimsNotProved: proof.claimsNotProved,
+  };
+}
+
 function planProof(proof) {
   return {
     proof: 'eventing-row-62-network-proof-links',
@@ -199,18 +272,23 @@ function planProof(proof) {
     proofLabels: proof.proofLabels,
     linkedArtifacts: {
       runtimeProof: relative(repoRoot, proofPath),
+      reusableNetworkRuntimeProof: relative(repoRoot, reusableRuntimeProofPath),
       weakNetworkEvidenceProof: relative(repoRoot, weakEvidenceProofPath),
       eventingPlanProof: relative(repoRoot, planProofPath),
       networkRuntime: proof.evidence.networkRuntime,
+      networkRuntimeQueue: proof.evidence.networkRuntimeQueue,
+      networkRuntimeReview: proof.evidence.networkRuntimeReview,
       networkRuntimeTests: proof.evidence.networkRuntimeTests,
       networkEventConstants: proof.evidence.networkEventConstants,
       eventingPlanChecklist: 'docs/plans/eventing-plan/implementation-checklist.md',
       networkPlanChecklist: 'docs/plans/network-plan/implementation-checklist.md',
     },
     provenRows: ['62 Network event proof artifacts linked back to eventing plan'],
-    linkedCompletedRows: ['59 Weak-network-evidence cannot publish enforcement command'],
-    linkedPartialRows: [
+    linkedCompletedRows: [
       '57 Network Workpack 10 consumes reusable crate',
+      '59 Weak-network-evidence cannot publish enforcement command',
+    ],
+    linkedPartialRows: [
       '58 Network to AI to policy to enforcement event-chain proof',
       'network-plan row 10 NetworkActivityEvent contracts and reusable Rust eventing consumption',
     ],

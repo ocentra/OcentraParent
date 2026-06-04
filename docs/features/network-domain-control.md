@@ -63,6 +63,11 @@ compete on control while staying clear about attribution confidence and privacy.
   constants. The proof covers metadata-only flow/domain/classification,
   AI-audit, policy, enforcement dry-run/manual-required, audit, and portal
   read-model phases without host adapter execution.
+- E-D extended the network runtime eventing proof to use the reusable
+  `ocentra-eventing` no-subscriber queue/drain path and local typed
+  request-response registry for a network review request. The proof remains
+  in-process and does not claim broker/family-hub delivery, production
+  retention, or host filtering.
 - E-D added the first `activity-domain` network contract boundary proof for
   flow evidence, domain evidence, activity classification, A/B/C/D evidence
   grades, and policy/action capability gating. The proof keeps network-only
@@ -97,8 +102,9 @@ proves observe-only and manual-required state visibility, not live DNS, VPN,
 packet capture, signature alert, production risk-budget, or host filter
 enforcement. The E-D
 runtime spine removes the private-bus blocker for an in-process metadata-only
-chain, but flow/sessionization, analyzer fixtures, broker delivery, portal UI,
-and adapter apply/rollback/audit artifacts remain open.
+chain and now proves local queue/drain plus request-response consumption of the
+reusable eventing crate, but flow/sessionization, analyzer fixtures, broker
+delivery, portal UI, and adapter apply/rollback/audit artifacts remain open.
 
 ## Checklist
 
@@ -112,9 +118,10 @@ and adapter apply/rollback/audit artifacts remain open.
       and TLS/HTTP/QUIC/DoH visibility fixtures exist; analyzer comparison and
       signature alerts remain open.
 - [ ] Reusable Rust eventing, detection, AI audit, and risk-budget contracts.
-      First E-D runtime spine exists for metadata-only flow events and
-      manual-required/unavailable states; production analyzer, AI model, and
-      risk-budget fixtures remain.
+      First E-D runtime spine exists for metadata-only flow events,
+      manual-required/unavailable states, local no-subscriber queue/drain, and
+      local typed request-response; production analyzer, AI model, broker
+      delivery, and risk-budget fixtures remain.
 - [ ] Policy preview over stored flow evidence.
 - [ ] Adapter capability status.
 - [x] Full-scope network plan, proof tiers, UI requirements, and workpacks.

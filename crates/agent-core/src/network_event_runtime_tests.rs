@@ -2,6 +2,11 @@ use ocentra_parent_agent_protocol::{
     constants, ActivityCaptureCapabilityStatus, ActivityNetworkProtocol, ActivityNetworkTcpState,
 };
 
+use crate::network_event_runtime::{
+    queue_network_runtime_flow_until_subscriber, request_network_runtime_review_for_observation,
+    NetworkRuntimeQueueDrainReport, NetworkRuntimeReviewReport, NetworkRuntimeReviewResponse,
+};
+
 use super::{
     publish_network_runtime_chain_for_observation, NetworkAiAuditState, NetworkEvidenceGrade,
     NetworkEvidenceScope, NetworkInterventionState, NetworkObservation, NetworkRiskBudgetState,
@@ -132,6 +137,75 @@ async fn degraded_adapter_flow_stays_unavailable_without_adapter_action() {
             && !payload.claim_boundary.decrypted_https_payload_available
             && !payload.claim_boundary.adapter_action_executed
     }));
+}
+
+#[tokio::test]
+async fn network_runtime_queues_flow_until_subscriber_drains() {
+    let report: NetworkRuntimeQueueDrainReport = queue_network_runtime_flow_until_subscriber(
+        complete_domain_observation(),
+        constants::activity_store::TEST_FIRST_OBSERVED_AT,
+    )
+    .await
+    .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_QUEUE_DRAINS);
+
+    assert_eq!(
+        report.queued_publish_report.event_type.as_str(),
+        constants::network_flow::EVENT_NETWORK_FLOW_OBSERVED
+    );
+    assert_eq!(
+        report.queued_publish_report.queue_report.disposition,
+        ocentra_eventing::QueueDisposition::QueuedNoSubscriber
+    );
+    assert_eq!(report.queued_publish_report.queue_report.queued_count, 1);
+    assert_eq!(report.queued_publish_report.subscriber_count, 0);
+    assert_eq!(report.drain_report.queued_before, 1);
+    assert_eq!(report.drain_report.dispatched_count, 1);
+    assert_eq!(report.drain_report.expired_count, 0);
+    assert_eq!(report.drain_report.remaining_count, 0);
+    assert_eq!(report.drain_report.dispatch_reports[0].handled_count, 1);
+    assert_eq!(
+        report.drain_report.dispatch_reports[0].event_type.as_str(),
+        constants::network_flow::EVENT_NETWORK_FLOW_OBSERVED
+    );
+    assert_eq!(report.stored_events.len(), 1);
+    assert!(report.dead_letters.is_empty());
+}
+
+#[tokio::test]
+async fn network_runtime_review_request_resolves_associated_response() {
+    let report: NetworkRuntimeReviewReport = request_network_runtime_review_for_observation(
+        ip_only_unknown_process_observation(),
+        constants::activity_store::TEST_FIRST_OBSERVED_AT,
+    )
+    .await
+    .expect(constants::network_flow::ERROR_NETWORK_RUNTIME_REVIEW_COMPLETES);
+    let response: &NetworkRuntimeReviewResponse = &report.request_report.response;
+
+    assert_eq!(
+        report.request_report.publish_report.event_type.as_str(),
+        constants::network_flow::EVENT_NETWORK_REVIEW_REQUESTED
+    );
+    assert_eq!(report.request_report.publish_report.handled_count, 1);
+    assert_eq!(
+        response.evidence_grade,
+        NetworkEvidenceGrade::IpOrProcessPartialMetadata
+    );
+    assert_eq!(
+        response.risk_budget_state,
+        NetworkRiskBudgetState::ManualReviewRequired
+    );
+    assert_eq!(
+        response.intervention_state,
+        NetworkInterventionState::ManualRequired
+    );
+    assert!(response.review_required);
+    assert!(!response.claim_boundary.adapter_action_executed);
+    assert_eq!(report.stored_events.len(), 1);
+    assert_eq!(
+        report.stored_events[0].contract.event_type.as_str(),
+        constants::network_flow::EVENT_NETWORK_REVIEW_REQUESTED
+    );
+    assert!(report.dead_letters.is_empty());
 }
 
 fn decode_payloads(report: &NetworkRuntimeReport) -> Vec<NetworkRuntimeEventPayload> {
