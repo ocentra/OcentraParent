@@ -88,6 +88,11 @@ PASS.
 cmd /c npm run validate
 PASS: release version alignment, pre-AI proof, lint/schema/source/test-double gates, Turbo lint/type-check/test tasks, validate:rust, local/LAN WebSocket integration smoke, portal local smoke, and 2 portal Playwright E2E tests.
 
+Post-PR_READY proof hardening for real live host evidence:
+
+cmd /c node scripts/test/windows-browser-inventory-source-proof.mjs
+PASS: proof JSON now includes path-redacted live Windows host counts. Registry evidence captured 3 readable roots, 958 uninstall entries scanned, 6 browser-like registry entries, 5 browser-like display-icon entries, and 6 browser-like install-location entries. Start Menu evidence captured 2 readable roots, 270 shortcut files, and 5 browser-named shortcuts. Raw executable and shortcut paths are intentionally not written.
+
 2026-06-04 live Windows registry and Start Menu source ingestion continuation:
 
 cargo test -p ocentra-parent-agent-core browser_windows_inventory --quiet

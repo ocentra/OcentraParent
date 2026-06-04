@@ -91,6 +91,13 @@ full `.lnk` shell parsing, AppX/MSIX enumeration, signature/hash extraction,
 portal UI, enforcement actions, or product-complete manual Windows inventory
 evidence.
 
+2026-06-04 proof hardening: the generated proof JSON now records redacted live
+host evidence counts from this Windows machine instead of relying only on
+fixture tests. It captured 3 readable registry roots, 958 scanned uninstall
+entries, 6 browser-like registry entries, 2 readable Start Menu roots, 270
+shortcut files, and 5 browser-named shortcuts. Raw local paths are not written,
+and the counts do not upgrade the manual-required gaps listed below.
+
 ## Where We Want To Be
 
 Windows inventory can detect supported, candidate, unsupported, packaged,
@@ -131,7 +138,7 @@ Fill this before reporting `DONE` or PR-ready:
 - [x] Before-state source snapshot recorded in `output/browser-plan-proof/04-windows-browser-inventory-adapter/00-source-snapshot.md`.
 - [x] Contracts updated first where this workpack changes behavior.
 - [x] Rust/service parity updated only after contracts exist; portal parity remains deferred because no UI surface changed.
-- [x] Raw evidence artifacts captured or marked N/A for this fixture-backed/root-expansion/live-source slice: known-path fixtures, deduplicated candidate roots, packaged path-shape fixtures, process executable-path identity fixtures, duplicate installed/running executable collapse fixtures, caller-provided registry display-icon/install-location values, caller-provided shortcut target values including unquoted command targets with launch arguments and leading environment-variable prefixes, bounded live Windows Uninstall registry source collection, bounded Start Menu shortcut target extraction, default-root service read-model consumption through temp `PROGRAMFILES` fixture roots, and process observations feed the adapter; no full `.lnk` shell parsing, live AppX/MSIX enumeration, signature/hash, journal, SQLite, policy, or action behavior changed.
+- [x] Raw evidence artifacts captured or marked N/A for this fixture-backed/root-expansion/live-source slice: known-path fixtures, deduplicated candidate roots, packaged path-shape fixtures, process executable-path identity fixtures, duplicate installed/running executable collapse fixtures, caller-provided registry display-icon/install-location values, caller-provided shortcut target values including unquoted command targets with launch arguments and leading environment-variable prefixes, bounded live Windows Uninstall registry source collection, bounded Start Menu shortcut target extraction, redacted live host registry and Start Menu source counts, default-root service read-model consumption through temp `PROGRAMFILES` fixture roots, and process observations feed the adapter; no full `.lnk` shell parsing, live AppX/MSIX enumeration, signature/hash, journal, SQLite, policy, or action behavior changed.
 - [x] Tests/proof listed in this workpack are implemented for known-path/process fixture parsing, deduplicated root expansion, packaged path-shape classification, process executable-path identity, duplicate installed/running executable collapse, registry display-icon/install-location target normalization, shortcut target normalization including unquoted command target arguments and leading environment-variable prefixes, bounded Start Menu UTF-16 `.lnk` known-target extraction, service default-root/live-source candidate consumption, and service row conversion; full `.lnk` shell parsing, live AppX/MSIX enumeration, signatures, hashes, and product-complete manual platform proof remain manual-required.
 - [x] Validation command outputs saved in the proof pack and summarized in [main checklist](../implementation-checklist.md).
 - [x] UI snapshots captured for every touched parent portal, child UX, block/warn, policy authoring, or dashboard state; no UI changed, so `ui-not-applicable.md` records why.

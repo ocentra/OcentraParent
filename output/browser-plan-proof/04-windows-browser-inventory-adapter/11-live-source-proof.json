@@ -1,6 +1,6 @@
 {
   "proofId": "windows-browser-inventory-source-proof",
-  "generatedAt": "2026-06-04T23:00:24.314Z",
+  "generatedAt": "2026-06-04T23:16:37.579Z",
   "platform": "win32",
   "passed": true,
   "commands": [
@@ -9,12 +9,12 @@
       "command": "cargo test -p ocentra-parent-agent-core browser_windows_inventory --quiet",
       "status": 0,
       "signal": null,
-      "startedAt": "2026-06-04T23:00:20.588Z",
-      "completedAt": "2026-06-04T23:00:21.617Z",
+      "startedAt": "2026-06-04T23:16:32.323Z",
+      "completedAt": "2026-06-04T23:16:33.199Z",
       "stdoutTail": [
         "running 17 tests",
         ".................",
-        "test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 218 filtered out; finished in 0.05s"
+        "test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 218 filtered out; finished in 0.04s"
       ],
       "stderrTail": []
     },
@@ -23,12 +23,12 @@
       "command": "cargo test -p ocentra-parent-agent-service browser_inventory_read_model --quiet",
       "status": 0,
       "signal": null,
-      "startedAt": "2026-06-04T23:00:21.618Z",
-      "completedAt": "2026-06-04T23:00:24.312Z",
+      "startedAt": "2026-06-04T23:16:33.199Z",
+      "completedAt": "2026-06-04T23:16:35.563Z",
       "stdoutTail": [
         "running 6 tests",
         "......",
-        "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 241 filtered out; finished in 1.42s"
+        "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 241 filtered out; finished in 1.40s"
       ],
       "stderrTail": []
     }
@@ -65,6 +65,28 @@
       "missing": []
     }
   ],
+  "liveHostEvidence": {
+    "platform": "win32",
+    "captured": true,
+    "registry": {
+      "ok": true,
+      "rootsChecked": 3,
+      "rootsReadable": 3,
+      "entriesScanned": 958,
+      "browserLikeEntries": 6,
+      "browserLikeDisplayIconEntries": 5,
+      "browserLikeInstallLocationEntries": 6,
+      "rawPathsRedacted": true
+    },
+    "startMenu": {
+      "rootsChecked": 2,
+      "rootsReadable": 2,
+      "shortcutFiles": 270,
+      "browserNamedShortcutFiles": 5,
+      "rawPathsRedacted": true
+    },
+    "privacyBoundary": "counts and booleans only; executable and shortcut paths are not written"
+  },
   "claims": {
     "registrySource": "bounded Windows Uninstall registry source feeds known browser executable candidates when available",
     "startMenuSource": "bounded Start Menu shortcut target extraction feeds known browser executable candidates when available",
