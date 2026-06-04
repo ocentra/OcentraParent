@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "proofMode": "v0-8-windows-adapter-artifact-status-proof",
-  "checkedAt": "2026-06-04T22:29:34.841Z",
-  "commit": "cecc715e7fb8af34f877a1d796b65bd1c9611e01",
+  "checkedAt": "2026-06-04T22:39:12.638Z",
+  "commit": "3abfc4866deb383e8cd52c76c520ecdcc5cb6de7",
   "commands": [
     "node scripts/test/v0-8-windows-adapter-capability-proof.mjs",
     "node scripts/test/v0-8-windows-adapter-artifact-gate.mjs",
