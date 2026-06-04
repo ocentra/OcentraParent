@@ -24,9 +24,13 @@ does not upload raw screenshots remotely.
 - Current proof artifacts:
   `output/screen-ai-pipeline-proof/service-cadence/proof-summary.json`,
   `output/screen-ai-pipeline-proof/service-analysis/proof-summary.json`,
+  `output/screen-ai-pipeline-proof/service-retention-sweeper/proof-summary.json`,
   `output/ai-plan-proof/real-analysis/proof-summary.json`, and
   `output/screen-ai-pipeline-proof/live-operator/proof-summary.json`.
 - TTL/delete-failure/retention-mode contract proof:
   `output/screen-ai-pipeline-proof/deletion-retention-custody/proof-summary.json`.
-- The retention proof rejects unsupported raw screenshot retention. Production
-  parent UI retention controls and a background TTL sweeper remain non-claims.
+- The service retention sweeper proof removes an expired encrypted queue record
+  and records an `expiredDeleted` Activity Screen row through the real Rust
+  service/WebSocket path. The retention proof rejects unsupported raw
+  screenshot retention. Production parent UI retention controls remain a
+  non-claim.

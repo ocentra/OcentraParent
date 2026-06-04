@@ -7,9 +7,11 @@ pub const SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW: &str = "activeWindow";
 pub const SCREEN_CAPABILITY_READY: &str = "ready";
 pub const SCREEN_CAPABILITY_DISABLED_BY_PARENT: &str = "disabledByParent";
 pub const SCREEN_QUEUE_STATUS_QUEUED: &str = "queued";
+pub const SCREEN_QUEUE_STATUS_EXPIRED: &str = "expired";
 pub const SCREEN_QUEUE_STATUS_DELETED: &str = "deleted";
 pub const SCREEN_DELETION_REQUIRED: &str = "deletionRequired";
 pub const SCREEN_DELETION_DELETED: &str = "deleted";
+pub const SCREEN_DELETION_EXPIRED_DELETED: &str = "expiredDeleted";
 pub const SCREEN_CUSTODY_TEMP_QUEUE: &str = "child-device-temp-queue";
 pub const SCREEN_CUSTODY_JOURNAL: &str = "child-device-journal";
 pub const SCREEN_CUSTODY_QUERY_STORE: &str = "child-device-query-store";
@@ -31,6 +33,14 @@ pub const SCREEN_SERVICE_ANALYSIS_MAX_TICKS_ENV: &str =
     "OCENTRA_PARENT_SCREEN_SERVICE_ANALYSIS_MAX_TICKS";
 pub const SCREEN_SERVICE_ANALYSIS_ADAPTER_TIMEOUT_MS_ENV: &str =
     "OCENTRA_PARENT_SCREEN_SERVICE_ANALYSIS_ADAPTER_TIMEOUT_MS";
+pub const SCREEN_SERVICE_RETENTION_SWEEPER_RUNTIME_ENABLED_ENV: &str =
+    "OCENTRA_PARENT_SCREEN_SERVICE_RETENTION_SWEEPER_RUNTIME_ENABLED";
+pub const SCREEN_SERVICE_RETENTION_SWEEPER_POLL_SECONDS_ENV: &str =
+    "OCENTRA_PARENT_SCREEN_SERVICE_RETENTION_SWEEPER_POLL_SECONDS";
+pub const SCREEN_SERVICE_RETENTION_SWEEPER_MAX_SWEEPS_ENV: &str =
+    "OCENTRA_PARENT_SCREEN_SERVICE_RETENTION_SWEEPER_MAX_SWEEPS";
+pub const SCREEN_SERVICE_RETENTION_SWEEPER_MAX_TICKS_ENV: &str =
+    "OCENTRA_PARENT_SCREEN_SERVICE_RETENTION_SWEEPER_MAX_TICKS";
 pub const SCREEN_SERVICE_CADENCE_ENABLED_ENV: &str =
     "OCENTRA_PARENT_SCREEN_SERVICE_CADENCE_ENABLED";
 pub const SCREEN_SERVICE_FOREGROUND_ENABLED_ENV: &str =
@@ -53,6 +63,9 @@ pub const SCREEN_SERVICE_QUEUE_DIR_ENV: &str = "OCENTRA_PARENT_SCREEN_SERVICE_QU
 pub const SCREEN_SERVICE_QUEUE_MAX_PENDING_ENV: &str =
     "OCENTRA_PARENT_SCREEN_SERVICE_QUEUE_MAX_PENDING";
 pub const SCREEN_SERVICE_QUEUE_MAX_PENDING_DEFAULT: u64 = 3;
+pub const SCREEN_SERVICE_TEMPORARY_IMAGE_TTL_SECONDS_ENV: &str =
+    "OCENTRA_PARENT_SCREEN_SERVICE_TEMPORARY_IMAGE_TTL_SECONDS";
+pub const SCREEN_SERVICE_TEMPORARY_IMAGE_TTL_SECONDS_DEFAULT: u64 = 300;
 pub const SCREEN_SERVICE_DEFAULT_QUEUE_DIR_NAME: &str = "ocentra-parent-screen-evidence";
 pub const SCREEN_SERVICE_QUEUE_JOB_ID_PREFIX: &str = "screen-service-queue-job-";
 pub const SCREEN_SERVICE_RESULT_ID_PREFIX: &str = "screen-service-analysis-result-";
@@ -92,6 +105,18 @@ pub const SCREEN_SERVICE_ANALYSIS_MODEL_REFERENCE: &str = "artifact:screen_servi
 pub const SCREEN_SERVICE_ANALYSIS_MODEL_ID: &str = "screen-service-local-analysis-v1";
 pub const SCREEN_SERVICE_ANALYSIS_TEMPLATE_VERSION: &str = "screen-service-analysis-adapter-v1";
 pub const SCREEN_SERVICE_ANALYSIS_FIELD_IMAGE_BASE64: &str = "imageBase64";
+pub const SCREEN_SERVICE_RETENTION_SWEEPER_SOURCE_ID: &str =
+    "screen-service-retention-sweeper-runtime";
+pub const SCREEN_SERVICE_RETENTION_DELETE_PROOF_ID_PREFIX: &str =
+    "screen-service-retention-delete-proof-";
+pub const SCREEN_SERVICE_RETENTION_RESULT_ID_PREFIX: &str = "screen-service-retention-result-";
+pub const SCREEN_SERVICE_RETENTION_EVENT_ID_PREFIX: &str = "screen-service-retention-event-";
+pub const SCREEN_SERVICE_RETENTION_EVIDENCE_ID_PREFIX: &str = "screen-service-retention-evidence-";
+pub const SCREEN_SERVICE_RETENTION_MODEL_RUNTIME_REF: &str = "screen-service-retention-sweeper";
+pub const SCREEN_SERVICE_RETENTION_MODEL_ID: &str = "screen-service-retention-sweeper-v1";
+pub const SCREEN_SERVICE_RETENTION_TEMPLATE_VERSION: &str = "screen-service-retention-expiry-v1";
+pub const SCREEN_SERVICE_RETENTION_SUMMARY_EXPIRED_DELETED: &str =
+    "Expired screen evidence was deleted by the local retention sweeper.";
 pub const SCREEN_SERVICE_ANALYSIS_SUMMARY_UNAVAILABLE: &str =
     "Local screen analysis adapter is unavailable for this queued capture.";
 pub const SCREEN_SERVICE_ANALYSIS_SUMMARY_INVALID: &str =

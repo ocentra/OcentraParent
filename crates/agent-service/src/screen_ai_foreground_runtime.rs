@@ -183,5 +183,6 @@ pub(crate) fn record_screen_ai_foreground_captured_image(
         summary: SCREEN_SERVICE_FOREGROUND_SUMMARY_CAPTURED,
         model_id: SCREEN_SERVICE_FOREGROUND_MODEL_ID,
         template_version: SCREEN_SERVICE_FOREGROUND_TEMPLATE_VERSION,
+        temporary_image_ttl_seconds: config.temporary_image_ttl_seconds,
     })
 }

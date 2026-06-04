@@ -62,6 +62,8 @@ fn screen_foreground_capture_writes_native_trigger_queue_and_read_model_event() 
         max_captures: Some(1),
         max_ticks: Some(1),
         max_pending_queue_records: 3,
+        temporary_image_ttl_seconds:
+            ocentra_parent_agent_protocol::SCREEN_SERVICE_TEMPORARY_IMAGE_TTL_SECONDS_DEFAULT,
         queue_dir: root.join(constants::activity_store::TEST_SCREEN_QUEUE_SUFFIX),
         journal_path: root.join(constants::activity_store::TEST_CAPTURE_JOURNAL_SUFFIX),
         journal_key_path: root.join(constants::activity_store::TEST_CAPTURE_KEY_SUFFIX),

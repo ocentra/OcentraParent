@@ -126,6 +126,8 @@ fn record_test_capture(config: &ScreenAiAnalysisRuntimeConfig) -> String {
         summary: SCREEN_SERVICE_SUMMARY_CAPTURED,
         model_id: SCREEN_SERVICE_MODEL_ID,
         template_version: SCREEN_SERVICE_TEMPLATE_VERSION,
+        temporary_image_ttl_seconds:
+            ocentra_parent_agent_protocol::SCREEN_SERVICE_TEMPORARY_IMAGE_TTL_SECONDS_DEFAULT,
     })
     .expect(constants::error::ACTIVITY_STORE_INGESTS)
 }

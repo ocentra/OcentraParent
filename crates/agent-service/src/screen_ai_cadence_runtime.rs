@@ -13,7 +13,8 @@ use ocentra_parent_agent_protocol::{
     SCREEN_SERVICE_QUEUE_DIR_ENV, SCREEN_SERVICE_QUEUE_JOB_ID_PREFIX,
     SCREEN_SERVICE_QUEUE_MAX_PENDING_DEFAULT, SCREEN_SERVICE_QUEUE_MAX_PENDING_ENV,
     SCREEN_SERVICE_RESULT_ID_PREFIX, SCREEN_SERVICE_SOURCE_ID, SCREEN_SERVICE_SUMMARY_CAPTURED,
-    SCREEN_SERVICE_TEMPLATE_VERSION,
+    SCREEN_SERVICE_TEMPLATE_VERSION, SCREEN_SERVICE_TEMPORARY_IMAGE_TTL_SECONDS_DEFAULT,
+    SCREEN_SERVICE_TEMPORARY_IMAGE_TTL_SECONDS_ENV,
 };
 use ocentra_parent_screen_capture_adapter::{
     capture_active_window_png,
@@ -44,6 +45,7 @@ pub(crate) struct ScreenAiCadenceRuntimeConfig {
     pub(crate) max_captures: Option<u64>,
     pub(crate) max_ticks: Option<u64>,
     pub(crate) max_pending_queue_records: u64,
+    pub(crate) temporary_image_ttl_seconds: u64,
     pub(crate) queue_dir: PathBuf,
     pub(crate) journal_path: PathBuf,
     pub(crate) journal_key_path: PathBuf,
@@ -152,6 +154,7 @@ pub(crate) fn record_screen_ai_cadence_tick(
                     summary: SCREEN_SERVICE_SUMMARY_CAPTURED,
                     model_id: SCREEN_SERVICE_MODEL_ID,
                     template_version: SCREEN_SERVICE_TEMPLATE_VERSION,
+                    temporary_image_ttl_seconds: config.temporary_image_ttl_seconds,
                 })?;
             Ok(ScreenAiCadenceTickOutcome::Recorded { queue_job_id })
         }
@@ -177,6 +180,10 @@ impl ScreenAiCadenceRuntimeConfig {
             max_pending_queue_records: env_u64(
                 SCREEN_SERVICE_QUEUE_MAX_PENDING_ENV,
                 SCREEN_SERVICE_QUEUE_MAX_PENDING_DEFAULT,
+            ),
+            temporary_image_ttl_seconds: env_u64(
+                SCREEN_SERVICE_TEMPORARY_IMAGE_TTL_SECONDS_ENV,
+                SCREEN_SERVICE_TEMPORARY_IMAGE_TTL_SECONDS_DEFAULT,
             ),
             queue_dir: env_path(SCREEN_SERVICE_QUEUE_DIR_ENV).unwrap_or_else(default_queue_dir),
             journal_path: activity_journal_path(),
