@@ -209,14 +209,15 @@ only with explicit parent settings.
   explicit OS consent, foreground service, captured frame digest, and raw temp
   deletion. Physical Android parity and silent background capture are not
   claimed.
-- The screen-AI browser trigger proof now validates managed-browser URL,
+- The screen-AI browser trigger proof validates managed-browser URL,
   browser-video, social-feed, and cloud-game trigger rows through
   activity-domain browser AI and screen-analysis schemas, then proves local-AI
-  context builder consumption via
-  `test-results/screen-ai-browser-trigger-proof/proof.json`. The social row is
-  manual-required and the cloud-game row is unavailable/scaffold-only, so this
-  does not claim authenticated social, cloud-frame, mobile parity, UI, or
-  enforcement support.
+  context builder consumption through the executable proof path. The previously
+  referenced `test-results/screen-ai-browser-trigger-proof/proof.json` artifact
+  is not present in the current checkout, so browser-trigger artifact closure
+  remains a D/browser-lane handoff item. The social row is manual-required and
+  the cloud-game row is unavailable/scaffold-only, so this does not claim
+  authenticated social, cloud-frame, mobile parity, UI, or enforcement support.
 - Product settings and quality proof are incomplete.
 - Raw screen control settings are preserved as design inputs, not
   product-complete implementation proof.
@@ -229,10 +230,10 @@ full live operator matrix, production local vision adapter quality beyond the
 service proof adapter, service-owned live trigger event producers beyond the
 timed cadence loop and native active-window foreground watcher, parent-facing
 settings UX for disabled capture/analysis, physical Android/iOS proof, live
-macOS capture proof, Linux root/Wayland portal proof,
-browser/network/mobile/broad block action adapters from screen-derived
-decisions, checklist status movement, and production parent explanation UX
-remain. Browser-trigger proof now covers contract flow into screen evidence and
+macOS capture proof, Linux root/Wayland portal proof, browser-trigger artifact
+closure, browser/network/mobile/broad block action adapters from screen-derived
+decisions, and production parent explanation UX remain. Browser-trigger proof
+now covers contract flow into screen evidence and
 local-AI context only; live trigger producers, authenticated surfaces,
 cloud-streamed frames, mobile parity, and UI remain separate proof gates.
 
