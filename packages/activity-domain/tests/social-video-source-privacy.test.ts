@@ -8,6 +8,7 @@ describe('social video source privacy summary contract', () => {
   it('accepts managed browser, parent-provided, connector, and screen-summary refs only', acceptsTypedRefs);
   it('accepts native and platform manual-required source states without policy use', acceptsManualRequiredStates);
   it('rejects source type and source ref mismatches', rejectsSourceRefMismatches);
+  it('rejects arbitrary manual-required reason text', rejectsArbitraryManualReasonText);
   it(
     'rejects raw content, media, connector token, native control, policy, and enforcement claims',
     rejectsForbiddenClaims
@@ -87,6 +88,30 @@ function rejectsSourceRefMismatches() {
 
   for (const invalid of invalidRows) {
     expect(SocialVideoSourcePrivacySummarySchema.safeParse(summaryCandidate(invalid)).success).toBe(false);
+  }
+}
+
+function rejectsArbitraryManualReasonText() {
+  const invalidReasons = ['needs manual review because child typed it', 'raw platform reason text'];
+
+  for (const manualRequiredReason of invalidReasons) {
+    expect(
+      SocialVideoSourcePrivacySummarySchema.safeParse(
+        summaryCandidate({
+          sourceTypes: ['android-native-manual-required'],
+          socialRouteEvidenceIds: [],
+          socialVideoMetadataEvidenceIds: [],
+          parentProvidedUrlRefs: [],
+          parentProvidedChannelRefs: [],
+          screenSummaryEvidenceRefs: [],
+          connectorAuthorizationRefs: [],
+          manualRequiredReason,
+          confidence: 'unknown',
+          degradedState: 'manual-required',
+          permittedDownstreamUses: ['manual-review', 'audit-summary'],
+        })
+      ).success
+    ).toBe(false);
   }
 }
 

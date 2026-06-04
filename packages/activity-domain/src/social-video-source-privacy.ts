@@ -14,7 +14,6 @@ import {
 } from './primitives';
 
 const NonEmptySocialVideoSourcePrivacyText = Schema.String.pipe(Schema.minLength(1));
-const OptionalSocialVideoSourcePrivacyTextSchema = Schema.Union(NonEmptySocialVideoSourcePrivacyText, Schema.Null);
 const SourcePrivacySourceEvidenceIdsSchema = Schema.Array(ActivityEvidenceIdSchema).pipe(
   Schema.filter((value) => value.length > 0 || 'Expected social/video source privacy source evidence ids')
 );
@@ -68,6 +67,7 @@ export const SocialVideoManualRequiredReasonSchema = withParser(
     'parent-review-required'
   )
 );
+const OptionalSocialVideoManualRequiredReasonSchema = Schema.Union(SocialVideoManualRequiredReasonSchema, Schema.Null);
 
 const SocialVideoSourceTypesSchema = Schema.Array(SocialVideoSourceTypeSchema).pipe(
   Schema.filter((value) => value.length > 0 || 'Expected at least one social/video source type')
@@ -92,7 +92,7 @@ const SocialVideoSourcePrivacySummaryBaseSchema = Schema.Struct({
   parentProvidedChannelRefs: Schema.Array(SocialVideoParentProvidedTargetRefSchema),
   screenSummaryEvidenceRefs: Schema.Array(ActivityEvidenceIdSchema),
   connectorAuthorizationRefs: Schema.Array(SocialVideoConnectorAuthorizationRefSchema),
-  manualRequiredReason: OptionalSocialVideoSourcePrivacyTextSchema,
+  manualRequiredReason: OptionalSocialVideoManualRequiredReasonSchema,
   custodyLabel: BrowserCustodyLabelSchema,
   confidence: BrowserAiConfidenceSchema,
   degradedState: BrowserAiDegradedStateSchema,
