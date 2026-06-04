@@ -205,6 +205,9 @@ mod policy_preview_api;
 mod policy_preview_payload;
 #[cfg(test)]
 mod policy_preview_tests;
+mod screen_ai_analysis_runtime;
+#[cfg(test)]
+mod screen_ai_analysis_runtime_tests;
 mod screen_ai_cadence_runtime;
 mod screen_ai_cadence_runtime_event;
 #[cfg(test)]
@@ -252,6 +255,7 @@ async fn main() {
     activity_capture::spawn_startup_activity_capture();
     screen_ai_cadence_runtime::spawn_screen_ai_cadence_runtime();
     screen_ai_foreground_runtime::spawn_screen_ai_foreground_runtime();
+    screen_ai_analysis_runtime::spawn_screen_ai_analysis_runtime();
 
     axum::serve(listener, app::router(network))
         .await

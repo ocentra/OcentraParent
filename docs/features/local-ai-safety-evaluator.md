@@ -40,6 +40,11 @@ claim needs proof, not slogans.
 ## Current Ocentra State
 
 - Local AI runtime/provider status and provider scheduler proof exist.
+- The screen service analysis runtime now consumes an encrypted screen queue job,
+  runs through the local provider scheduler and service-owned local adapter
+  command boundary, records `localVision` or explicit unavailable/invalid output
+  Activity Screen rows, and drains processed queue records. The current proof
+  adapter validates runtime plumbing and custody, not production model quality.
 - `local-ai-parent-assistant-runtime-proof` now ties the provider scheduler
   proof to Parent Assistant answer/status/action contracts, including cited
   local answer, queued/degraded/unavailable lifecycle, child-safety priority,
@@ -54,8 +59,9 @@ claim needs proof, not slogans.
 ## Current Gap
 
 Ocentra needs product-grade model configuration, local model artifacts,
-confidence handling, degraded states, social/video evidence coverage, parent
-explanations, and validation against real evidence.
+production screen model quality, confidence handling, degraded states,
+social/video evidence coverage, parent explanations, and validation against real
+external evidence.
 
 ## Checklist
 
