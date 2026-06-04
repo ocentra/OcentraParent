@@ -77,13 +77,17 @@ external evidence variants.
 ## Checklist
 
 - [x] Runtime/provider status.
-- [ ] Evidence context builder.
-- [ ] Parent-rule context.
-- [ ] Local result contract with confidence/degraded state.
-- [ ] Deterministic policy integration.
-- [ ] Social/video and screen summary handling.
-- [ ] Parent explanation and audit.
-- [ ] Tests with real stored evidence.
+- [x] Evidence context builder proof path.
+- [x] Parent-rule context proof path.
+- [x] Local result contract with confidence/degraded state.
+- [x] Deterministic policy integration.
+- [x] Social/video and screen summary handling proof path.
+- [x] Parent explanation and audit proof path.
+- [x] Tests with real stored evidence.
+
+Product-grade model configuration, model artifacts, production model quality,
+authenticated-account social proof, and broad enforcement handoff remain in the
+Current Gap section above.
 
 ## Next AI Instructions
 

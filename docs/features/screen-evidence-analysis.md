@@ -229,14 +229,18 @@ excuses.
 
 ## Checklist
 
-- [ ] Parent opt-in setting.
-- [ ] Capability/status contract.
-- [ ] Encrypted temporary image queue.
-- [ ] Local OCR/vision summary.
-- [ ] Image deletion and retention state.
-- [ ] Confidence and unknown handling.
-- [ ] Policy decision references summary evidence.
-- [ ] Portal explanation and audit.
+- [x] Parent opt-in setting contract and service runtime gates.
+- [x] Capability/status contract.
+- [x] Encrypted temporary image queue.
+- [x] Local OCR/vision summary proof route.
+- [x] Image deletion and retention state proof.
+- [x] Confidence and unknown handling.
+- [x] Policy decision references summary evidence.
+- [x] Portal read-model explanation and audit proof.
+
+Product-facing opt-in UI, retention controls, production OCR/VLM quality,
+authenticated-account social proof, broad adapters, and production explanation
+UX remain in the Current Gap section above.
 
 ## Next AI Instructions
 
