@@ -83,6 +83,7 @@ try {
   await waitForHttp(healthUrl, serviceOutput);
   await focusNativeWindow(nativeWindow.pid, fixtureTitle);
   const foregroundQueueRecords = await waitForQueueRecords(1);
+  await delay(1500);
   await stopProcessTreeAndWait(service);
   service = undefined;
 
@@ -230,12 +231,14 @@ function serviceForegroundEnv() {
 function serviceAnalysisEnv() {
   return {
     ...baseServiceEnv(),
+    OCENTRA_PARENT_SCREEN_SERVICE_CADENCE_RUNTIME_ENABLED: 'false',
     OCENTRA_PARENT_SCREEN_SERVICE_FOREGROUND_RUNTIME_ENABLED: 'false',
+    OCENTRA_PARENT_SCREEN_SERVICE_RETENTION_SWEEPER_RUNTIME_ENABLED: 'false',
     OCENTRA_PARENT_SCREEN_SERVICE_ANALYSIS_RUNTIME_ENABLED: 'true',
     OCENTRA_PARENT_SCREEN_SERVICE_ANALYSIS_ENABLED: 'true',
     OCENTRA_PARENT_SCREEN_SERVICE_ANALYSIS_POLL_SECONDS: '1',
     OCENTRA_PARENT_SCREEN_SERVICE_ANALYSIS_MAX_JOBS: '1',
-    OCENTRA_PARENT_SCREEN_SERVICE_ANALYSIS_MAX_TICKS: '8',
+    OCENTRA_PARENT_SCREEN_SERVICE_ANALYSIS_MAX_TICKS: '30',
     OCENTRA_PARENT_SCREEN_SERVICE_ANALYSIS_ADAPTER_TIMEOUT_MS: '10000',
     OCENTRA_PARENT_SCREEN_SERVICE_ANALYSIS_ADAPTER_COMMAND: adapterCommandPath,
   };
