@@ -68,24 +68,29 @@ compete on control while staying clear about attribution confidence and privacy.
   grades, and policy/action capability gating. The proof keeps network-only
   exact URL/content claims rejected and keeps dry-run/manual-required states
   from authorizing adapter calls.
+- E-D added `ocentra-network-evidence`, a reusable Rust network metadata crate,
+  plus the first deterministic PCAP replay proof for classic
+  Ethernet/IPv4/UDP DNS query metadata. The proof writes a fixture PCAP,
+  expected domain evidence, and must-not-claim artifact without live capture or
+  content inspection claims.
 - Network/domain blocking is not broadly product-complete.
 - Raw network control settings are preserved as design inputs, not
   product-complete implementation proof.
 
 ## Current Gap
 
-Real OS/domain blocking adapter proof, DNS/VPN/proxy handling, attribution
-quality, PCAP/analyzer fixture proof, Rust protocol parity for network
-contracts, AI detection and audit proof, risk-budget proof, performance proof,
-and parent-facing rule UX remain. Policy dispatch does not upgrade
+Real OS/domain blocking adapter proof, broader DNS/VPN/proxy handling,
+attribution quality, live PCAP/analyzer fixture proof, Rust protocol parity for
+network contracts, AI detection and audit proof, risk-budget proof, performance
+proof, and parent-facing rule UX remain. Policy dispatch does not upgrade
 network/domain blocking beyond
 manual-required, and the broad-adapter proof and supported-adapter runtime proof
 keep the same manual-required host-filter boundary. The integrity runtime audit
 proves observe-only and manual-required state visibility, not DNS, VPN, packet,
 signature alert, production risk-budget, or host filter enforcement. The E-D
 runtime spine removes the private-bus blocker for an in-process metadata-only
-chain, but packet/analyzer fixtures, broker delivery, portal UI, and adapter
-apply/rollback/audit artifacts remain open.
+chain, but full packet/analyzer fixtures, broker delivery, portal UI, and
+adapter apply/rollback/audit artifacts remain open.
 
 ## Checklist
 
@@ -95,6 +100,8 @@ apply/rollback/audit artifacts remain open.
 - [ ] Network category/risk targets.
 - [ ] PCAP fixture, Zeek-style summary, and Suricata/Snort-compatible alert
       proof.
+      First deterministic DNS query PCAP replay exists; analyzer comparison and
+      signature alerts remain open.
 - [ ] Reusable Rust eventing, detection, AI audit, and risk-budget contracts.
       First E-D runtime spine exists for metadata-only flow events and
       manual-required/unavailable states; production analyzer, AI model, and
