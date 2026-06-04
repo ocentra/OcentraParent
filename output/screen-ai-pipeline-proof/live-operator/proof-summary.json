@@ -1,0 +1,78 @@
+{
+  "proof": "screen-ai-live-operator-proof",
+  "proofTier": "P3_LOCAL_OPERATOR_MACHINE",
+  "generatedAt": "2026-06-04T09:27:08.762Z",
+  "scenarioCount": 3,
+  "passedScenarioCount": 3,
+  "fullRequiredMatrixComplete": false,
+  "requiredScenarioStatus": {
+    "youtube-ordinary-video": true,
+    "youtube-education-video": false,
+    "vimeo-video": false,
+    "facebook-social-surface": false,
+    "browser-game": false,
+    "shopping-page": false,
+    "school-productivity": false,
+    "native-app": true,
+    "protected-unsupported-state": true
+  },
+  "rawImagesDeletedAfterAnalysis": true,
+  "liveExternalUrlProof": true,
+  "localVlmAnalysisProof": true,
+  "policyDryRunProof": true,
+  "controlledFixtureProof": false,
+  "managedBrowserTriggerOwnershipClaimed": false,
+  "productCompleteClaimed": false,
+  "nonClaims": [
+    "This harness opens operator-supplied live URLs/apps and captures the focused local window; it does not own managed-browser URL trigger integration.",
+    "A product-complete live proof claim requires every required scenario id to pass with real operator-supplied URLs/apps.",
+    "Raw screenshots are temporary inputs and are deleted after local analysis; artifacts store redacted source evidence and summaries only."
+  ],
+  "scenarios": [
+    {
+      "scenarioId": "youtube-ordinary-video",
+      "status": "passed",
+      "surface": "browser",
+      "sourceKind": "operator-live-url",
+      "captureReason": "managedBrowserUrlChange",
+      "captureScope": "active-window",
+      "liveExternalUrlProof": true,
+      "analyzedByRealLocalVlm": true,
+      "schemaValidated": true,
+      "policyDecisionValidated": true,
+      "primaryCategory": "video",
+      "confidence": 1,
+      "policyAction": "warn",
+      "rawImagesDeletedAfterAnalysis": true,
+      "parentExplanationScreenshot": "output\\ai-plan-proof\\live-operator\\youtube-ordinary-video\\10-parent-explanation.png"
+    },
+    {
+      "scenarioId": "native-app",
+      "status": "passed",
+      "surface": "nativeApp",
+      "sourceKind": "operator-native-app",
+      "captureReason": "nativeAppForegroundStart",
+      "captureScope": "active-window",
+      "liveExternalUrlProof": false,
+      "analyzedByRealLocalVlm": true,
+      "schemaValidated": true,
+      "policyDecisionValidated": true,
+      "primaryCategory": "productivity",
+      "confidence": 0.95,
+      "policyAction": "allow",
+      "rawImagesDeletedAfterAnalysis": true,
+      "parentExplanationScreenshot": "output\\ai-plan-proof\\live-operator\\native-app\\10-parent-explanation.png"
+    },
+    {
+      "scenarioId": "protected-unsupported-state",
+      "status": "passed",
+      "surface": "protectedState",
+      "sourceKind": "protected-state-metadata",
+      "liveExternalUrlProof": false,
+      "analyzedByRealLocalVlm": false,
+      "policyDecisionValidated": false,
+      "rawImagesDeletedAfterAnalysis": true,
+      "protectedOrUnsupportedState": "protectedSurface"
+    }
+  ]
+}
