@@ -8,10 +8,12 @@ use tokio::{sync::Mutex as AsyncMutex, sync::RwLock};
 
 use crate::{
     queue::EventQueue, AggregateKey, DomainEvent, EventQueuePolicy, EventType, EventingError,
-    HandlerExecutionPolicy, RequestRegistry, StoredEventEnvelope,
+    HandlerExecutionPolicy, JournalPolicy, RequestRegistry, SharedEventJournal,
+    StoredEventEnvelope,
 };
 
 mod dispatch;
+mod journaling;
 mod publish;
 mod publisher;
 mod reports;
@@ -36,24 +38,28 @@ pub enum DispatchMode {
 #[derive(Clone)]
 pub struct EventBus {
     registry: Arc<Mutex<BTreeMap<EventType, Vec<SubscriberRecord>>>>,
-    journal: Arc<RwLock<Vec<StoredEventEnvelope>>>,
+    stored_journal: Arc<RwLock<Vec<StoredEventEnvelope>>>,
     dead_letters: Arc<RwLock<Vec<DeadLetter>>>,
     aggregate_locks: Arc<Mutex<BTreeMap<AggregateKey, Arc<AsyncMutex<()>>>>>,
     handler_policy: HandlerExecutionPolicy,
     queue: EventQueue,
     requests: RequestRegistry,
+    journal_policy: JournalPolicy,
+    event_journal: Option<SharedEventJournal>,
 }
 
 impl EventBus {
     pub fn new() -> Self {
         Self {
             registry: Arc::new(Mutex::new(BTreeMap::new())),
-            journal: Arc::new(RwLock::new(Vec::new())),
+            stored_journal: Arc::new(RwLock::new(Vec::new())),
             dead_letters: Arc::new(RwLock::new(Vec::new())),
             aggregate_locks: Arc::new(Mutex::new(BTreeMap::new())),
             handler_policy: HandlerExecutionPolicy::default(),
             queue: EventQueue::new(EventQueuePolicy::default()),
             requests: RequestRegistry::default(),
+            journal_policy: JournalPolicy::default(),
+            event_journal: None,
         }
     }
 
@@ -78,6 +84,14 @@ impl EventBus {
         Self {
             handler_policy,
             queue: EventQueue::new(queue_policy),
+            ..Self::new()
+        }
+    }
+
+    pub fn with_journal(policy: JournalPolicy, journal: SharedEventJournal) -> Self {
+        Self {
+            journal_policy: policy,
+            event_journal: Some(journal),
             ..Self::new()
         }
     }

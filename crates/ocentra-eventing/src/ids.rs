@@ -12,9 +12,11 @@ const EVENT_ID_PREFIX: &str = "event-";
 const REQUEST_ID_PREFIX: &str = "request-";
 const EVENT_ID_SEPARATOR: &str = "-";
 const EVENT_TYPE_LABEL: &str = "event_type";
+const EVENT_NAMESPACE_LABEL: &str = "event_namespace";
 const EVENT_ID_LABEL: &str = "event_id";
 const CORRELATION_ID_LABEL: &str = "correlation_id";
 const REQUEST_ID_LABEL: &str = "request_id";
+const JOURNAL_HASH_LABEL: &str = "journal_hash";
 const AGGREGATE_KEY_LABEL: &str = "aggregate_key";
 const IDEMPOTENCY_KEY_LABEL: &str = "idempotency_key";
 const SUBSCRIBER_ID_LABEL: &str = "subscriber_id";
@@ -57,9 +59,11 @@ macro_rules! text_identifier {
 }
 
 text_identifier!(EventType, EVENT_TYPE_LABEL);
+text_identifier!(EventNamespace, EVENT_NAMESPACE_LABEL);
 text_identifier!(EventId, EVENT_ID_LABEL);
 text_identifier!(CorrelationId, CORRELATION_ID_LABEL);
 text_identifier!(RequestId, REQUEST_ID_LABEL);
+text_identifier!(JournalHash, JOURNAL_HASH_LABEL);
 text_identifier!(AggregateKey, AGGREGATE_KEY_LABEL);
 text_identifier!(IdempotencyKey, IDEMPOTENCY_KEY_LABEL);
 text_identifier!(SubscriberId, SUBSCRIBER_ID_LABEL);
@@ -80,6 +84,25 @@ impl EventId {
                 .to_string(),
         );
         Self(value)
+    }
+}
+
+impl EventNamespace {
+    pub fn from_event_type(event_type: &EventType) -> Result<Self, EventingError> {
+        let namespace = event_type
+            .as_str()
+            .split('.')
+            .next()
+            .ok_or_else(|| EventingError::empty_value(EVENT_NAMESPACE_LABEL))?;
+        Self::parse(namespace)
+    }
+
+    pub fn matches_event_type(&self, event_type: &EventType) -> bool {
+        event_type.as_str() == self.as_str()
+            || event_type
+                .as_str()
+                .strip_prefix(self.as_str())
+                .is_some_and(|suffix| suffix.starts_with('.'))
     }
 }
 

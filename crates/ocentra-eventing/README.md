@@ -27,6 +27,10 @@ Reusable Rust eventing primitives for Ocentra Parent runtime code.
   response validation through `EventResponseContract`, timeout reporting,
   late-response and double-completion reports, and durable result-event tests
   kept separate from local completion.
+- Durable `EventJournal` support with async NDJSON append, optional hash-chain
+  records, selected journaling by event type/namespace/allowlist, replay
+  cursors and filters, explicit projection-only replay mode, and journal
+  before/after dispatch policy hooks.
 
 ## Must Not Own
 
@@ -38,7 +42,8 @@ Reusable Rust eventing primitives for Ocentra Parent runtime code.
 
 ## Current Gap
 
-This crate does not yet implement durable NDJSON journal replay, shutdown/drain
-lifecycle, broker-backed delivery, or manual-clock-driven request timeout proof.
-Consumers must keep those claims manual-required until the matching eventing
-workpacks are implemented and validated.
+This crate does not yet implement shutdown/drain lifecycle, broker-backed
+delivery, manual-clock-driven timeout proof, generated contract registry docs,
+or Parent-specific event contracts. Consumers must keep those claims
+manual-required until the matching eventing workpacks are implemented and
+validated.

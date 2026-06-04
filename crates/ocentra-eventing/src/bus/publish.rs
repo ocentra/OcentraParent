@@ -4,8 +4,8 @@ use tokio::{sync::Mutex as AsyncMutex, task::JoinHandle};
 
 use crate::{
     queue::NoSubscriberQueueDecision, AggregateKey, DomainEvent, EventEnvelope, EventMetadata,
-    EventingError, QueueDisposition, RequestCompletionReport, RequestEvent, RequestId,
-    RequestOptions, RequestReport, StoredEventEnvelope,
+    EventingError, JournalDispatchPhase, QueueDisposition, RequestCompletionReport, RequestEvent,
+    RequestId, RequestOptions, RequestReport, StoredEventEnvelope,
 };
 
 use super::{
@@ -165,7 +165,7 @@ impl EventBus {
     }
 
     pub async fn journal(&self) -> Vec<StoredEventEnvelope> {
-        self.journal.read().await.clone()
+        self.stored_journal.read().await.clone()
     }
 
     pub async fn dead_letters(&self) -> Vec<DeadLetter> {
@@ -191,7 +191,11 @@ impl EventBus {
         match self.queue.enqueue_no_subscriber(stored.clone())? {
             NoSubscriberQueueDecision::Dispatch(queue_report)
             | NoSubscriberQueueDecision::Queued(queue_report) => {
-                self.journal.write().await.push(stored.clone());
+                self.record_stored_snapshot(&stored).await;
+                self.append_journal_phase(&stored, JournalDispatchPhase::BeforeDispatch)
+                    .await?;
+                self.append_journal_phase(&stored, JournalDispatchPhase::AfterDispatch)
+                    .await?;
                 Ok(empty_publish_report(
                     &stored,
                     dispatch_mode,
@@ -200,10 +204,14 @@ impl EventBus {
                 ))
             }
             NoSubscriberQueueDecision::DeadLetter(queue_report, reason, error) => {
-                self.journal.write().await.push(stored.clone());
+                self.record_stored_snapshot(&stored).await;
+                self.append_journal_phase(&stored, JournalDispatchPhase::BeforeDispatch)
+                    .await?;
                 let dead_letter = DeadLetter::for_queue(&stored, reason, error);
                 self.queue.mark_completed(stored.idempotency_key.clone());
                 self.dead_letters.write().await.push(dead_letter);
+                self.append_journal_phase(&stored, JournalDispatchPhase::AfterDispatch)
+                    .await?;
                 Ok(empty_publish_report(
                     &stored,
                     dispatch_mode,
@@ -214,7 +222,7 @@ impl EventBus {
         }
     }
 
-    async fn dispatch_stored(
+    pub(super) async fn dispatch_stored(
         &self,
         stored: StoredEventEnvelope,
         subscribers: Vec<SubscriberRecord>,
@@ -224,8 +232,10 @@ impl EventBus {
     ) -> Result<PublishReport, EventingError> {
         let reservation = self.queue.reserve_dispatch(&stored)?;
         if write_journal {
-            self.journal.write().await.push(stored.clone());
+            self.record_stored_snapshot(&stored).await;
         }
+        self.append_journal_phase(&stored, JournalDispatchPhase::BeforeDispatch)
+            .await?;
         let handler_reports = self
             .dispatch(stored.clone(), subscribers.clone(), dispatch_mode)
             .await;
@@ -234,6 +244,8 @@ impl EventBus {
         if !dead_letters.is_empty() {
             self.dead_letters.write().await.extend(dead_letters.clone());
         }
+        self.append_journal_phase(&stored, JournalDispatchPhase::AfterDispatch)
+            .await?;
         Ok(PublishReport {
             event_id: stored.event_id,
             event_type: stored.contract.event_type,
@@ -249,7 +261,7 @@ impl EventBus {
         })
     }
 
-    fn subscribers_for(&self, stored: &StoredEventEnvelope) -> Vec<SubscriberRecord> {
+    pub(super) fn subscribers_for(&self, stored: &StoredEventEnvelope) -> Vec<SubscriberRecord> {
         let registry = self.registry.lock().expect("event registry lock");
         let subscribers = registry
             .get(&stored.contract.event_type)

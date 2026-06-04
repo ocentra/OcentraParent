@@ -5,8 +5,10 @@ mod envelope;
 mod error;
 mod execution;
 mod ids;
+mod journal;
 mod queue;
 mod registrar;
+mod replay;
 mod request;
 mod testkit;
 
@@ -23,13 +25,20 @@ pub use envelope::{
 pub use error::EventingError;
 pub use execution::HandlerExecutionPolicy;
 pub use ids::{
-    AggregateKey, CorrelationId, EventId, EventType, IdempotencyKey, RecordedAt, RequestId,
-    RuntimeInstanceId, SchemaVersion, SourceComponent, SourceService, SubscriberId, TargetHandler,
+    AggregateKey, CorrelationId, EventId, EventNamespace, EventType, IdempotencyKey, JournalHash,
+    RecordedAt, RequestId, RuntimeInstanceId, SchemaVersion, SourceComponent, SourceService,
+    SubscriberId, TargetHandler,
+};
+pub use journal::{
+    EventJournal, JournalAppend, JournalDispatchPhase, JournalFlushPolicy, JournalHashChain,
+    JournalMode, JournalPolicy, JournalSelector, NdjsonEventJournal, NdjsonJournalEntry,
+    NdjsonJournalOptions, SharedEventJournal,
 };
 pub use queue::{
     EventQueuePolicy, NoSubscriberQueuePolicy, QueueDisposition, QueueOverflowPolicy, QueueReport,
 };
 pub use registrar::{EventRegistrar, RegistrarDisposeReport};
+pub use replay::{ReplayCursor, ReplayFilter, ReplayMode, ReplayReadReport, ReplayRecord};
 pub(crate) use request::RequestRegistry;
 pub use request::{
     EventResponseContract, RequestCompletionOutcome, RequestCompletionReport, RequestEvent,
