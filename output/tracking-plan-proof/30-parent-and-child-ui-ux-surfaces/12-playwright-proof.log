@@ -62,4 +62,3 @@ Server output:
   VITE v7.3.3  ready in 775 ms
     Local:   http://127.0.0.1:63993/
 [BABEL] Note: The code generator has deoptimised the styling of C:\Users\sujan\.codex\worktrees\ocentra-parent-codex-a\OcentraParent\vendor\ocentra-parent-core-ui\AppPages\ParentPortal\ParentPortalSvgSurface.tsx as it exceeds the max of 500KB.
-
