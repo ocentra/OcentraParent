@@ -501,13 +501,16 @@ pub mod parent_assistant;
 
 pub mod delimiter {
     pub const BANG: char = '!';
+    pub const BACKSLASH: char = '\\';
     pub const CLOSE_BRACKET: char = ']';
     pub const COLON: char = ':';
     pub const DOT: char = '.';
+    pub const EQUALS: char = '=';
     pub const HYPHEN: char = '-';
     pub const LIST: char = ',';
     pub const NEWLINE: char = '\n';
     pub const OPEN_BRACKET: char = '[';
+    pub const QUOTE: char = '"';
     pub const SLASH: char = '/';
     pub const AT: char = '@';
     pub const UNDERSCORE: char = '_';

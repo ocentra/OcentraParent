@@ -23,6 +23,17 @@ mod app_game_windows_inventory_tests;
 pub(crate) mod app_game_windows_inventory_source;
 #[cfg(test)]
 mod app_game_windows_inventory_source_tests;
+// WP45 adds a bounded live Windows installed-app registry source.
+mod app_game_windows_registry_export;
+#[cfg(windows)]
+mod app_game_windows_registry_live;
+mod app_game_windows_registry_record;
+#[allow(dead_code)]
+pub(crate) mod app_game_windows_registry_source;
+#[cfg(test)]
+mod app_game_windows_registry_source_test_support;
+#[cfg(test)]
+mod app_game_windows_registry_source_tests;
 // WP07 stages Store/UWP package parsing before live package readers call it.
 #[allow(dead_code)]
 pub(crate) mod app_game_windows_store_inventory;
@@ -74,6 +85,11 @@ pub use app_game_windows_inventory_source::{
 };
 pub use app_game_windows_process_source::{
     live_windows_process_snapshot_journal_events_with_limit, AppGameLiveProcessSnapshotError,
+};
+pub use app_game_windows_registry_source::{
+    live_windows_registry_inventory_journal_events_from_roots,
+    live_windows_registry_inventory_journal_events_with_limit,
+    AppGameLiveRegistryInventorySourceError,
 };
 pub use app_game_windows_store_package_source::{
     live_windows_store_package_journal_events_from_roots,

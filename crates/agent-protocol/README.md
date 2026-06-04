@@ -40,6 +40,9 @@ Rust protocol parity crate for data that crosses the TypeScript/Rust boundary.
 - App/game foreground evidence/window-ref/title-ref prefixes used by core
   foreground source readers so window identity and title evidence can be
   represented without raw window or content strings.
+- App/game Windows registry constants used by core installed-app source readers
+  so registry paths, value names, confidence, and hashed path refs stay
+  protocol-owned rather than invented in runtime code.
 
 ## Must Not Own
 
@@ -104,7 +107,8 @@ flowchart LR
 - App/game evidence/identity/authority/classifier parity structs preserve
   serialization proof only; core live process snapshots now exist for runtime
   rows, core live foreground-window source proof exists for foreground rows, and
-  agent-service owns a recurring bounded runtime capture cadence plus a
-  dedicated app/game boundary read-model event, but foreground service capture
-  subscriptions, policy runtime, portal identity/classifier/platform-authority
+  core Windows shortcut, Store package, and registry sources now exist for
+  inventory-only rows. Agent-service owns a recurring bounded runtime capture
+  cadence plus a dedicated app/game boundary read-model event, but registry
+  service capture, policy runtime, portal identity/classifier/platform-authority
   rows, and adapter execution remain separate proof-gated work.

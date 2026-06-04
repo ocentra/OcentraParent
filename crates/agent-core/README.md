@@ -39,6 +39,10 @@ service shell.
   `AppxManifest.xml` evidence into inventory-only store-package rows and journal
   events with hashed source refs, without registry, service capture, runtime,
   foreground, policy, or adapter claims.
+- App/game live Windows installed-app registry source helpers that turn bounded
+  Windows Uninstall registry evidence into inventory-only rows and journal
+  events with hashed source/path refs, without service capture, runtime,
+  foreground, policy, or adapter claims.
 
 ## Must Not Own
 
@@ -73,11 +77,12 @@ flowchart LR
 - Keep policy-dispatch validation platform-neutral and deterministic; adapter
   execution stays behind explicit proof boundaries.
 - App/game protocol-row storage, live process journal replay, live
-  foreground-window source proof, live shortcut inventory source proof, and live
-  packaged-app manifest source proof are staged core proof only; bounded runtime
-  and shortcut-inventory rows now feed service capture, while packaged-app
-  service capture, registry crawling, portal authority/classifier/source rows,
-  policy consumption, and adapter execution remain separate gaps.
+  foreground-window source proof, live shortcut inventory source proof, live
+  packaged-app manifest source proof, and live registry inventory source proof
+  are staged core proof only; bounded runtime, shortcut-inventory, and
+  packaged-app rows now feed service capture, while registry service capture,
+  portal authority/classifier/source rows, policy consumption, and adapter
+  execution remain separate gaps.
 - Tracking read-model queries are query-store proof only; narrow portal summary
   consumption exists, while platform replay, deletion/tombstone behavior, richer
   UI, and physical-device artifacts remain separate proof gaps.

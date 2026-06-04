@@ -1,0 +1,9 @@
+{
+  "claim": "bounded Windows native app registry source",
+  "source": "Windows Uninstall registry keys",
+  "runtimeUseClaimed": false,
+  "foregroundUseClaimed": false,
+  "defaultUnsupportedPlatformBehavior": "empty event list",
+  "rawRegistryKeyExposure": "hashed source refs only",
+  "rawPathExposure": "hashed executable path refs only"
+}
