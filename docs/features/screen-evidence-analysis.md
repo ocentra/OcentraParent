@@ -117,12 +117,65 @@ only with explicit parent settings.
   Windows Rust service time-limit adapter path. The proof preserves the screen
   policy decision ID and evidence refs through dispatch, restart recovery,
   parent cancel, expiry, and a real Windows process-termination result.
+- `scripts/test/screen-ai-block-action-dispatch-proof.mjs` now links a
+  screen-derived block decision into the real Windows Rust service
+  owned-process block adapter path. The proof preserves the screen policy
+  decision ID, local AI result ID, and evidence refs through dispatch and
+  terminates a controlled owned process. It intentionally does not claim
+  category, browser, network/domain, mobile, or broad block adapters.
 - `scripts/test/screen-ai-portal-chain-proof.mjs` now proves the real Rust
   service read model reaches the parent portal Activity Screen tab and renders
   trigger, capture scope, AI provider/category/confidence, policy eligibility,
   raw image deletion, custody, queue, digest, and evidence refs. This is
   service-to-portal chain proof from a seeded local activity event, not live
   external-account trigger proof.
+- `scripts/test/screen-ai-service-cadence-proof.mjs` now proves an explicit
+  opt-in Rust service cadence loop on Windows: it opens a real foreground
+  browser fixture, records three timed active-window captures through the
+  service, writes encrypted queue metadata, holds the pending queue at three
+  records after the cap, ingests three `ScreenAnalysisSummarized` events into
+  the local ActivityStore, and reads three Activity Screen rows back through the
+  real WebSocket command path. The provider is `serviceCaptureMetadata`, so this
+  is capture/read-model cadence proof, not a VLM quality or policy-action claim.
+- `scripts/test/screen-ai-service-foreground-proof.mjs` now proves an explicit
+  opt-in Rust service foreground watcher on Windows: it starts from a real
+  Chromium active window, launches/focuses a native Notepad window, requires the
+  encrypted screen queue to grow after that foreground action, deletes the raw
+  temporary image material after queue handoff, and reads the latest foreground
+  Activity Screen row through the real WebSocket command path. The provider is
+  `serviceCaptureMetadata`, so this is native foreground capture/read-model
+  proof, not browser URL trigger ownership, game classification, VLM quality, or
+  policy-action proof.
+- `scripts/test/screen-ai-service-analysis-proof.mjs` now proves an explicit
+  opt-in Rust service analysis loop on Windows: it opens a real foreground
+  browser fixture, lets service cadence enqueue one encrypted active-window
+  capture, invokes a local adapter command through the service analysis runtime,
+  records a `localVision` Activity Screen read-model row with capture reason,
+  scope, queue job, model runtime ref, category, confidence, evidence digest,
+  policy eligibility, and deleted-image state, reads it back over the real
+  WebSocket command path, and drains the processed encrypted queue record. The
+  adapter command is a local proof adapter for runtime plumbing, not a production
+  VLM quality claim.
+- `scripts/test/screen-ai-live-operator-proof.mjs` now provides the executable
+  live operator gate for this feature. It prints a required nine-scenario
+  manifest template, refuses to claim live proof without operator-supplied real
+  URLs/apps, opens/focuses those surfaces when a manifest is supplied, captures
+  the selected browser window or active native window, runs the local VLM path, validates screen AI and
+  policy dry-run contracts, deletes raw image material, and writes redacted
+  proof artifacts. Browser live rows now also record page readiness evidence
+  before capture: final hostname, redacted final URL, title hash/length, visible
+  text hash/length, and blank-page rejection. The current harness readiness
+  artifact is
+  `output/screen-ai-pipeline-proof/live-operator/harness-readiness/proof-summary.json`;
+  a full nine-row live operator run now proves ordinary YouTube `video`/`warn`,
+  education YouTube `school`/`allow`, Vimeo `video`/`warn`, Facebook/social
+  `chat`/`warn`, browser game `game`/`time-limit`, shopping
+  `shopping`/`ask-parent`, school/productivity `school`/`allow`, native Notepad
+  `productivity`/`allow`, and protected-surface degraded state with no raw
+  image, AI, or policy claim at
+  `output/screen-ai-pipeline-proof/live-operator/proof-summary.json`.
+  Authenticated-account social proof remains separate from this public/live
+  surface proof.
 - Android child-agent scaffold now has emulator MediaProjection proof with
   explicit OS consent, foreground service, captured frame digest, and raw temp
   deletion. Physical Android parity and silent background capture are not
@@ -133,9 +186,11 @@ only with explicit parent settings.
 
 ## Current Gap
 
-Opt-in UI, service-owned background timer/foreground watchers, live external
-URL/account operator proof, OCR/vision quality beyond controlled fixtures,
-service-owned live trigger/event producers beyond seeded proof, physical
+Opt-in UI, authenticated-account social proof beyond public/live surface proof,
+OCR/vision quality beyond controlled fixtures and the full live operator matrix,
+production local vision adapter quality beyond
+the service proof adapter, service-owned live trigger event producers beyond the
+timed cadence loop and native active-window foreground watcher, physical
 Android/iOS proof, live macOS capture proof, Linux root/Wayland portal proof,
 browser/network/mobile/broad block action adapters from screen-derived
 decisions, checklist status movement, and production parent explanation UX

@@ -11,15 +11,27 @@ real capture job or a real structured-skip proof.
 - [ ] Browser education/video trigger.
 - [ ] Browser social/feed trigger.
 - [ ] Browser game/cloud-game trigger.
-- [ ] Native app foreground trigger.
-- [ ] Native game/controlled game trigger.
-- [ ] Unknown process/app trigger.
-- [ ] Timed cadence trigger.
-- [ ] Disabled setting prevents new jobs.
+- [x] Native app foreground trigger.
+- [x] Native game/controlled game trigger.
+- [x] Unknown process/app trigger.
+- [x] Timed cadence trigger.
+- [x] Disabled setting prevents new jobs.
 
 ## Proof
 
-- Trigger input artifact.
-- Capture job artifact.
-- Queue proof artifact.
-- Deletion proof artifact.
+- Trigger input artifact: `output/screen-ai-pipeline-proof/service-foreground/proof-summary.json`
+  for native foreground and `output/screen-ai-pipeline-proof/service-cadence/proof-summary.json`
+  for cadence.
+- Capture job artifact: `output/screen-ai-pipeline-proof/service-foreground/queue-records.json`
+  and `output/screen-ai-pipeline-proof/service-cadence/queue-records.json`.
+- Queue proof artifact: foreground proof requires queue growth after a native
+  Notepad foreground action; cadence proof requires three queued timed captures
+  plus pending-queue backpressure.
+- Deletion proof artifact: both service proofs require `imageDeletionState:
+deleted` and sanitized `<ephemeral-screen-queue>` evidence refs.
+- Controlled native game proof:
+  `output/screen-ai-pipeline-proof/native-game/03-capture-proof.json`.
+- Unknown native process proof:
+  `output/screen-ai-pipeline-proof/unknown-native-process/03-capture-proof.json`.
+- Disabled no-capture/no-AI proof:
+  `output/ai-plan-proof/real-analysis/disabled-no-capture-no-ai/01-source-evidence.json`.

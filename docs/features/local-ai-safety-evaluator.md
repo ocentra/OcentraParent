@@ -40,6 +40,11 @@ claim needs proof, not slogans.
 ## Current Ocentra State
 
 - Local AI runtime/provider status and provider scheduler proof exist.
+- The screen service analysis runtime now consumes an encrypted screen queue job,
+  runs through the local provider scheduler and service-owned local adapter
+  command boundary, records `localVision` or explicit unavailable/invalid output
+  Activity Screen rows, and drains processed queue records. The current proof
+  adapter validates runtime plumbing and custody, not production model quality.
 - `local-ai-parent-assistant-runtime-proof` now ties the provider scheduler
   proof to Parent Assistant answer/status/action contracts, including cited
   local answer, queued/degraded/unavailable lifecycle, child-safety priority,
@@ -48,14 +53,26 @@ claim needs proof, not slogans.
   degraded, unavailable, API authorized-unavailable, and API authorized-degraded
   states without making remote/API AI part of child safety decisions.
 - Dry-run policy evaluator and evidence context builder exist in proof form.
-- Model quality, video/social coverage, and enforcement handoff remain
+- Screen-derived time-limit and block decisions now have Windows
+  owned-process adapter handoff proof. Model quality, video/social live
+  coverage, and browser/category/network/mobile/broad enforcement handoff remain
   incomplete.
+- The live operator harness now has a full nine-row public/live surface proof:
+  ordinary YouTube validates `video`/`warn`, education YouTube validates
+  `school`/`allow`, Vimeo validates `video`/`warn`, Facebook/social validates
+  `chat`/`warn`, browser game validates `game`/`time-limit`, shopping validates
+  `shopping`/`ask-parent`, school/productivity validates `school`/`allow`,
+  native Notepad validates `productivity`/`allow`, and protected-surface
+  degraded state makes no AI or policy claim. Authenticated-account social
+  proof remains separate.
 
 ## Current Gap
 
 Ocentra needs product-grade model configuration, local model artifacts,
-confidence handling, degraded states, social/video evidence coverage, parent
-explanations, and validation against real evidence.
+production screen model quality, confidence handling, degraded states,
+authenticated-account social proof beyond public/live surface proof, parent
+explanations, broader enforcement handoff, and validation against production
+external evidence variants.
 
 ## Checklist
 

@@ -1,8 +1,13 @@
-use std::fs::{read_to_string, remove_dir_all};
+use std::{
+    fs::{read_to_string, remove_dir_all},
+    sync::atomic::{AtomicU64, Ordering},
+};
 
 use ocentra_parent_agent_protocol::constants;
 
 use crate::{JournalKey, ScreenEvidenceQueue, JOURNAL_KEY_BYTES};
+
+static TEST_SEQUENCE: AtomicU64 = AtomicU64::new(0);
 
 #[test]
 fn screen_evidence_queue_encrypts_image_bytes_before_durable_write() {
@@ -24,10 +29,96 @@ fn screen_evidence_queue_encrypts_image_bytes_before_durable_write() {
     assert!(!raw.contains(constants::activity_store::TEST_SCREEN_SUMMARY));
 }
 
+#[test]
+fn screen_evidence_queue_reads_decrypted_entries_for_local_analysis() {
+    let directory = temp_queue_dir();
+    let _ = remove_dir_all(&directory);
+    let queue =
+        ScreenEvidenceQueue::open(&directory, JournalKey::from_bytes([7; JOURNAL_KEY_BYTES]))
+            .expect(constants::error::JOURNAL_OPENS);
+    let plaintext = constants::activity_store::TEST_SCREEN_PLAINTEXT_MARKER.as_bytes();
+
+    queue
+        .append_encrypted_image(&screen_queue_job(), plaintext)
+        .expect(constants::error::JOURNAL_APPENDS);
+    let raw = read_to_string(queue.path()).expect(constants::error::JOURNAL_READS);
+    let entries = queue
+        .read_decrypted_entries(1)
+        .expect(constants::error::JOURNAL_READS);
+    let _ = remove_dir_all(&directory);
+
+    assert!(!raw.contains(constants::activity_store::TEST_SCREEN_PLAINTEXT_MARKER));
+    assert_eq!(entries.len(), 1);
+    let entry = &entries[0];
+    assert_eq!(
+        entry.schema_version,
+        ocentra_parent_agent_protocol::SCREEN_EVIDENCE_SCHEMA_VERSION
+    );
+    assert_eq!(
+        entry.queue_job_id,
+        constants::activity_store::TEST_SCREEN_QUEUE_JOB_ID
+    );
+    assert_eq!(entry.image_bytes, plaintext);
+    assert_eq!(
+        entry.custody_state,
+        ocentra_parent_agent_protocol::SCREEN_CUSTODY_TEMP_QUEUE
+    );
+}
+
+#[test]
+fn screen_evidence_queue_removes_processed_entries_without_touching_pending_entries() {
+    let directory = temp_queue_dir();
+    let _ = remove_dir_all(&directory);
+    let queue =
+        ScreenEvidenceQueue::open(&directory, JournalKey::from_bytes([8; JOURNAL_KEY_BYTES]))
+            .expect(constants::error::JOURNAL_OPENS);
+    let first_job = screen_queue_job();
+    let mut second_queue_job_id = String::from(constants::activity_store::TEST_SCREEN_QUEUE_JOB_ID);
+    second_queue_job_id.push(constants::delimiter::HYPHEN);
+    second_queue_job_id.push_str(constants::activity_store::TEST_SCREEN_QUEUE_SUFFIX);
+    let second_job = screen_queue_job_with_id(&second_queue_job_id);
+
+    queue
+        .append_encrypted_image(
+            &first_job,
+            constants::activity_store::TEST_SCREEN_PLAINTEXT_MARKER.as_bytes(),
+        )
+        .expect(constants::error::JOURNAL_APPENDS);
+    queue
+        .append_encrypted_image(
+            &second_job,
+            constants::activity_store::TEST_SCREEN_SUMMARY.as_bytes(),
+        )
+        .expect(constants::error::JOURNAL_APPENDS);
+
+    let removed = queue
+        .remove_entries(std::slice::from_ref(&first_job.queue_job_id))
+        .expect(constants::error::JOURNAL_APPENDS);
+    let entries = queue
+        .read_decrypted_entries(4)
+        .expect(constants::error::JOURNAL_READS);
+    let _ = remove_dir_all(&directory);
+
+    assert_eq!(removed, 1);
+    assert_eq!(entries.len(), 1);
+    let entry = &entries[0];
+    assert_eq!(entry.queue_job_id, second_job.queue_job_id);
+    assert_eq!(
+        entry.image_bytes,
+        constants::activity_store::TEST_SCREEN_SUMMARY.as_bytes()
+    );
+}
+
 fn screen_queue_job() -> ocentra_parent_agent_protocol::ScreenAnalysisQueueJob {
+    screen_queue_job_with_id(constants::activity_store::TEST_SCREEN_QUEUE_JOB_ID)
+}
+
+fn screen_queue_job_with_id(
+    queue_job_id: &str,
+) -> ocentra_parent_agent_protocol::ScreenAnalysisQueueJob {
     ocentra_parent_agent_protocol::ScreenAnalysisQueueJob {
         schema_version: ocentra_parent_agent_protocol::SCREEN_EVIDENCE_SCHEMA_VERSION,
-        queue_job_id: constants::activity_store::TEST_SCREEN_QUEUE_JOB_ID.to_string(),
+        queue_job_id: queue_job_id.to_string(),
         created_at: constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
         not_before: constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
         expires_at: constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string(),
@@ -63,6 +154,8 @@ fn screen_queue_job() -> ocentra_parent_agent_protocol::ScreenAnalysisQueueJob {
 fn temp_queue_dir() -> std::path::PathBuf {
     let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
     name.push_str(&std::process::id().to_string());
+    name.push(constants::delimiter::HYPHEN);
+    name.push_str(&TEST_SEQUENCE.fetch_add(1, Ordering::Relaxed).to_string());
     name.push(constants::delimiter::HYPHEN);
     name.push_str(constants::activity_store::TEST_SCREEN_QUEUE_SUFFIX);
     let mut path = std::env::temp_dir();
