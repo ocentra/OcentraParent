@@ -134,7 +134,7 @@ fn assert_unavailable_analysis_summary(config: &ScreenAiAnalysisRuntimeConfig, q
         SCREEN_PROVIDER_LOCAL_VISION_UNAVAILABLE
     );
     assert_eq!(latest.summary, SCREEN_SERVICE_ANALYSIS_SUMMARY_UNAVAILABLE);
-    assert_eq!(latest.policy_eligible, false);
+    assert!(!latest.policy_eligible);
     assert_eq!(
         latest.capture_reason,
         constants::activity_capture::SCREEN_TRIGGER_TIMED_CADENCE

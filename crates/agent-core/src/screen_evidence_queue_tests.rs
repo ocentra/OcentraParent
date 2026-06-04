@@ -49,14 +49,18 @@ fn screen_evidence_queue_reads_decrypted_entries_for_local_analysis() {
 
     assert!(!raw.contains(constants::activity_store::TEST_SCREEN_PLAINTEXT_MARKER));
     assert_eq!(entries.len(), 1);
-    let (_, queue_job_id, custody_state, _, image_bytes) = &entries[0];
+    let entry = &entries[0];
     assert_eq!(
-        queue_job_id,
+        entry.schema_version,
+        ocentra_parent_agent_protocol::SCREEN_EVIDENCE_SCHEMA_VERSION
+    );
+    assert_eq!(
+        entry.queue_job_id,
         constants::activity_store::TEST_SCREEN_QUEUE_JOB_ID
     );
-    assert_eq!(image_bytes, plaintext);
+    assert_eq!(entry.image_bytes, plaintext);
     assert_eq!(
-        custody_state,
+        entry.custody_state,
         ocentra_parent_agent_protocol::SCREEN_CUSTODY_TEMP_QUEUE
     );
 }
@@ -97,10 +101,10 @@ fn screen_evidence_queue_removes_processed_entries_without_touching_pending_entr
 
     assert_eq!(removed, 1);
     assert_eq!(entries.len(), 1);
-    let (_, queue_job_id, _, _, image_bytes) = &entries[0];
-    assert_eq!(queue_job_id, &second_job.queue_job_id);
+    let entry = &entries[0];
+    assert_eq!(entry.queue_job_id, second_job.queue_job_id);
     assert_eq!(
-        image_bytes,
+        entry.image_bytes,
         constants::activity_store::TEST_SCREEN_SUMMARY.as_bytes()
     );
 }

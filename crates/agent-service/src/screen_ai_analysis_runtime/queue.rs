@@ -25,16 +25,12 @@ pub(super) fn first_queued_screen_image(
         .read_decrypted_entries(max_queue_scan)?
         .into_iter()
         .next()
-        .map(
-            |(_schema_version, queue_job_id, custody_state, image_digest, image_bytes)| {
-                QueuedScreenImage {
-                    queue_job_id,
-                    custody_state,
-                    image_digest,
-                    image_bytes,
-                }
-            },
-        ))
+        .map(|entry| QueuedScreenImage {
+            queue_job_id: entry.queue_job_id,
+            custody_state: entry.custody_state,
+            image_digest: entry.image_digest,
+            image_bytes: entry.image_bytes,
+        }))
 }
 
 pub(super) fn metadata_result_for_queue_job(
