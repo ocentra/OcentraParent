@@ -1,0 +1,6 @@
+
+Running 1 test using 1 worker
+
+  ok 1 [chromium] › e2e\tracking-hosted-ui-proof.spec.ts:116:1 › hosted policy tracking route renders service-backed tracking citations (18.1s)
+
+  1 passed (19.5s)

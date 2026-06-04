@@ -24,9 +24,14 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
 - `11-ui-snapshots/`
 - `11-ui-fixture-state-matrix.json`
 - `11-ui-snapshots/policy-tracking-parent-fixture.png`
+- `11-ui-snapshots/hosted-policy-tracking-live-summary.png`
+- `11-ui-snapshots/hosted-policy-tracking-live-summary-mobile.png`
 - `12-playwright-proof.log`
 - `13-security-negative-proof.log`
 - `16-validation-commands.log`
+- `17-hosted-ui-proof.json`
+- Accessibility summary:
+  `test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json`
 - Pre-device gate:
   `output/tracking-plan-proof/pre-device-gap-closure/proof-summary.json`
 
@@ -34,6 +39,10 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
 
 - [ ] Add Playwright coverage for all required screens and badges.
 - [ ] Add no-overlap/no-overclaim screenshot proof.
+- [x] Add hosted Playwright coverage for the narrow service-backed parent route
+      summary and rendered citation labels.
+- [x] Capture desktop/mobile hosted parent-route screenshots and accessibility
+      summary output for the service-backed summary.
 - [x] Add first-target parent route tracking state fixture surface.
 - [x] Capture local rendered parent-route fixture screenshot.
 - [x] Keep UI rows at no-product-claim with P1 fixture status.
@@ -65,9 +74,19 @@ The same route now has a narrow live service summary for the P2
 and the service read-model proof script. This is not product-complete UI proof:
 child-device UI, hosted Playwright/accessibility output, richer
 service-backed citations, and physical device evidence remain pending.
-`node scripts/test/tracking-plan-pre-device-proof.mjs` now records those UI
-gaps in the aggregate pre-device gate so the next pass can run hosted
-Playwright/accessibility and child UI proof separately before any product claim.
+`npm run test:tracking-plan-hosted-ui-proof` now starts the real Rust service
+against a seeded temporary ActivityStore SQLite database, starts the Vite
+portal, runs Playwright on `#/policy-tracking`, proves the service-backed
+summary labels/values, records no-product-claim state, and captures desktop and
+mobile screenshots plus accessibility summary output. It writes
+`output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/17-hosted-ui-proof.json`,
+`output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/12-playwright-proof.log`,
+and `test-results/tracking-plan-hosted-ui-proof/accessibility-summary.json`.
+This closes the narrow hosted parent-route proof gap only. `node
+scripts/test/tracking-plan-pre-device-proof.mjs` still records the broader UI
+gaps in the aggregate pre-device gate so future passes can cover child UI,
+richer live service-backed citations, and full product accessibility before any
+product claim.
 
 ## Where We Want To Be
 
@@ -98,16 +117,34 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Manual-Required Gaps
 
-- Full service-data UI, child-device UI, hosted Playwright/accessibility output,
-  richer service-backed citations, and physical-device proof remain
-  manual-required until the assigned proof artifacts exist.
+- Full service-data UI beyond the narrow hosted parent summary, child-device UI,
+  broader accessibility, richer service-backed citations, and physical-device
+  proof remain manual-required until the assigned proof artifacts exist.
 - Any unsupported platform or provider failure must surface as degraded/manual-required state, not as a silent success.
 
 ## Fill This Before Reporting DONE Or PR-ready
 
-- [ ] Workpack id and branch.
-- [ ] Touched files.
-- [ ] Validation commands and results.
-- [ ] Proof artifacts under `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`.
-- [ ] Product doc/checklist updates or reason none were needed.
-- [ ] Known gaps/manual-required states.
+- [x] Workpack id and branch:
+      `30-parent-and-child-ui-ux-surfaces`,
+      `codex/tracking-hosted-ui-accessibility-proof`.
+- [x] Touched files: hosted proof script, hosted Playwright spec, package script
+      wiring, tracking feature doc, tracking README/checklist, this workpack,
+      WP32, WP33, and hosted proof artifacts.
+- [x] Validation commands and results: `node --check scripts/test/tracking-plan-hosted-ui-proof.mjs`
+      passed; `npx prettier --check ...` passed for touched files;
+      `git diff --check` passed;
+      `npm run test:tracking-plan-hosted-ui-proof` passed locally;
+      `npm run format:check` passed; `npm run lint:schema-boundaries` passed
+      with existing source-shape advisory warnings only; `npm run lanes:guard`
+      passed; `npm run hub:guard` passed.
+- [x] Proof artifacts under
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`,
+      including `17-hosted-ui-proof.json`, `12-playwright-proof.log`, and
+      hosted desktop/mobile screenshots.
+- [x] Product doc/checklist updates: owning feature doc and tracking checklist
+      updated; central product capability checklist update is queued through the
+      hub DOC_DELTA queue because this worker must not edit that file.
+- [x] Known gaps/manual-required states: full child/parent UI beyond the narrow
+      hosted parent route, broader accessibility, richer live citations,
+      Android/iOS physical behavior, authority, provider delivery, and
+      production proof remain proof-gated.

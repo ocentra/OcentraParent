@@ -134,8 +134,9 @@ flowchart TD
   route and test for first-target UI states, renders local proof artifact
   references, and captures a local rendered parent-route screenshot under
   `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`. Live
-  parent/child UI, hosted screenshots, accessibility, and live service-backed
-  evidence citations are not product-complete.
+  parent/child UI beyond the narrow hosted parent route, broader
+  accessibility, and live service-backed evidence citations are not
+  product-complete.
 - `scripts/test/tracking-plan-service-read-model-proof.mjs` now records P2
   service-boundary proof for the narrow
   `agent.activity.tracking.read-model.get` command. The Rust service reads
@@ -143,6 +144,14 @@ flowchart TD
   reports citation IDs in `trackingReadModel`; the parent portal consumes that
   event as a narrow live summary, while richer product read models remain
   pending.
+- `npm run test:tracking-plan-hosted-ui-proof` now records P2 hosted
+  parent-route proof for the same service-backed tracking summary. The proof
+  starts the real Rust service against a seeded temporary ActivityStore SQLite
+  database, starts the Vite portal, runs Playwright against
+  `#/policy-tracking`, captures desktop/mobile screenshots, records
+  accessibility summary output, and writes
+  `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/17-hosted-ui-proof.json`
+  plus `12-playwright-proof.log`. `productClaimReady` remains false.
 - `scripts/test/tracking-plan-pre-device-proof.mjs` now closes the pre-device
   accounting gap. It reruns the tracking contract/runtime/service proof stack,
   runs the child mobile scaffold proof stack, confirms Android debug package
@@ -206,8 +215,9 @@ The pre-device gate is also not final scope. Passing
 `node scripts/test/tracking-plan-pre-device-proof.mjs` means the CI/local
 tracking proof stack, mobile scaffold proof stack, Android package artifact
 gate, and manual proof plans are in order before device work starts. It does
-not prove physical Android/iOS behavior, enrolled-device authority, hosted full
-UI accessibility, or production readiness.
+not prove physical Android/iOS behavior, enrolled-device authority, full
+child/parent hosted UI accessibility beyond the narrow parent tracking route,
+or production readiness.
 
 ## Parallel Coordination Rules
 
@@ -339,18 +349,21 @@ feature product-complete.
 - [ ] iOS background/region proof is not complete.
 - [ ] Journal/SQLite/read-model proof is not product-complete. A P2 service
       command/read-model proof exists for SQLite tracking rows and citation IDs,
-      and the parent portal consumes it as a narrow live summary. Deletion/tombstone
-      replay, richer read models, hosted portal proof, and platform replay proof
-      remain pending.
+      the parent portal consumes it as a narrow live summary, and hosted
+      parent-route Playwright proof now captures that summary. Deletion/tombstone
+      replay, richer read models, full UI, and platform replay proof remain
+      pending.
 - [x] Retention/delete/export P1 checkpoint proof exists: delete/export proof
       and UI-visible deleted-history hiding are fixture-proved. Product
       live-service retention settings remain pending.
 - [ ] Tracking UI/UX is not product-complete; a P1 parent portal fixture exists,
-      plus a narrow P2 service-read-model summary. Live parent/child UI,
-      screenshots, accessibility, richer service-data, and richer
-      service-backed evidence-citation proof remain pending.
+      plus a narrow P2 service-read-model summary and P2 hosted parent-route
+      screenshot/accessibility proof for that summary. Full live parent/child UI,
+      broader accessibility, richer service-data, and richer service-backed
+      evidence-citation proof remain pending.
 - [x] Pre-device proof gate exists and passed locally on 2026-06-03 through
       `node scripts/test/tracking-plan-pre-device-proof.mjs`; artifact root:
       `output/tracking-plan-proof/pre-device-gap-closure/`. This does not mark
       Android Studio/emulator, iOS simulator, physical-device, authority,
-      hosted full UI accessibility, or production-pilot proof complete.
+      full hosted child/parent UI accessibility, or production-pilot proof
+      complete.
