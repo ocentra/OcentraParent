@@ -37,6 +37,10 @@
       "import": "./dist/billing-entitlement.js",
       "types": "./dist/billing-entitlement.d.ts"
     },
+    "./billing-entitlement-runtime-proof": {
+      "import": "./dist/billing-entitlement-runtime-proof.js",
+      "types": "./dist/billing-entitlement-runtime-proof.d.ts"
+    },
     "./browser-control-baseline-manifest": {
       "import": "./dist/browser-control-baseline-manifest.js",
       "types": "./dist/browser-control-baseline-manifest.d.ts"

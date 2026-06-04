@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-06-04T23:46:22.317Z",
+  "commit": "1f79f46a5a6d560aaf4ce8572f2fe9f7776d4b2b",
+  "proofMode": "billing-entitlement-runtime-proof",
+  "commands": [
+    "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
+    "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tests/billing-entitlement-runtime-proof.test.ts"
+  ],
+  "evidence": {
+    "contract": "packages/parent-domain/src/billing-entitlement-runtime-proof.ts",
+    "values": "packages/parent-domain/src/billing-entitlement-runtime-proof-values.ts",
+    "contractTest": "packages/parent-domain/tests/billing-entitlement-runtime-proof.test.ts",
+    "packageExport": "@ocentra-parent/parent-domain/billing-entitlement-runtime-proof",
+    "documentation": [
+      "docs/features/production-distribution-support.md",
+      "docs/expectations/billing.md"
+    ],
+    "output": "test-results/billing-entitlement-runtime-proof/proof.json"
+  },
+  "runtimeStates": [
+    "snapshot-active",
+    "snapshot-stale",
+    "payment-required",
+    "provider-unavailable"
+  ],
+  "deviceLimitConsumptionStates": [
+    "accepted-local",
+    "blocked-new-device",
+    "accepted-grace",
+    "manual-required"
+  ],
+  "failureConsumptions": [
+    "provider-unavailable",
+    "stale-snapshot",
+    "payment-required",
+    "validation-failed"
+  ],
+  "nonClaims": [
+    "Stripe SDK",
+    "live provider execution",
+    "provider contact",
+    "refund or credit runtime",
+    "child activity custody",
+    "production billing claim",
+    "portal UI"
+  ],
+  "knownGaps": [
+    "Stripe/live provider execution",
+    "provider contact execution",
+    "refund and credit execution",
+    "entitlement signing/delivery runtime",
+    "child-device entitlement consumption",
+    "production subscription support claim"
+  ]
+}
