@@ -149,6 +149,12 @@ flowchart TD
   proof through the existing Android artifact gate, and writes
   `output/tracking-plan-proof/pre-device-gap-closure/proof-summary.json` plus
   Android Studio, iOS simulator, WSL/local, and physical-device proof plans.
+- `scripts/test/tracking-plan-wsl-local-proof.mjs` now records WSL/local replay
+  evidence. It proves WSL2/Ubuntu availability, maps the Windows linked
+  worktree Git dir for WSL, runs `npm run build:contracts`, and runs
+  `cargo test -p ocentra-parent-agent-core tracking_read_model`. The WSL JS
+  service read-model proof is still blocked by the missing Linux Rolldown
+  optional dependency in this Windows-installed `node_modules`.
 - WP33 tracked `proof-summary.json` records `minimumSeriousMvpAuditSummary`;
   the runtime proof also writes the full `minimumSeriousMvpAudit` into
   generated
@@ -159,7 +165,8 @@ flowchart TD
 - Android Studio/emulator, iOS simulator, WSL/local, physical-device,
   authority-enrolled, provider runtime, alert delivery, full portal UI, and live
   service-backed retention UI proof remain not product-complete until their
-  listed artifacts are collected.
+  listed artifacts are collected. The current WSL/local artifact is partial and
+  keeps product claims blocked.
 
 ## Where We Want To Be
 
@@ -354,3 +361,9 @@ feature product-complete.
       `output/tracking-plan-proof/pre-device-gap-closure/`. This does not mark
       Android Studio/emulator, iOS simulator, physical-device, authority,
       hosted full UI accessibility, or production-pilot proof complete.
+- [x] WSL/local replay harness exists and passed as an honest partial proof on
+      2026-06-04 through `npm run test:tracking-plan-wsl-local-proof`;
+      artifact root: `output/tracking-plan-proof/wsl-local-replay/`. WSL
+      contract build and Rust core read-model replay passed; WSL JS service
+      proof remains dependency-blocked until Linux optional Node dependencies
+      are installed without disturbing Windows validation.

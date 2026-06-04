@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-06-04T05:44:00.869Z",
+  "commit": "d3e137b2e034bfd8cfff06e91aefe48165354b87",
+  "proofMode": "tracking-plan-wsl-local-proof",
+  "workpackIds": [
+    "32-journal-sqlite-and-read-model-proof",
+    "33-proof-gates-fixtures-rollout-and-pr-gate"
+  ],
+  "requiredProofTier": "P3_LOCAL_DEV_MACHINE",
+  "currentProofTier": "P3_LOCAL_DEV_MACHINE_PARTIAL",
+  "currentStatus": "partial_proof_blocked_by_wsl_optional_node_dependency",
+  "productClaimReady": false,
+  "wslLocalReplayReady": false,
+  "wsl": {
+    "repoPath": "/mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent",
+    "mappedGitDir": "/mnt/e/OcentraParent/.git/worktrees/OcentraParent",
+    "linkedWorktreeGitdirMappingRequired": true,
+    "probes": {
+      "status": {
+        "id": "wsl-status",
+        "command": "wsl.exe --status",
+        "exitCode": 0,
+        "stdout": "Default Distribution: Ubuntu-22.04\nDefault Version: 2",
+        "stderr": "",
+        "logPath": "output/tracking-plan-proof/wsl-local-replay/wsl-status.log"
+      },
+      "distros": {
+        "id": "wsl-distros",
+        "command": "wsl.exe -l -v",
+        "exitCode": 0,
+        "stdout": "  NAME              STATE           VERSION\n* Ubuntu-22.04      Stopped         2\n  docker-desktop    Stopped         2",
+        "stderr": "",
+        "logPath": "output/tracking-plan-proof/wsl-local-replay/wsl-distros.log"
+      },
+      "toolchain": {
+        "id": "wsl-toolchain",
+        "command": "wsl.exe sh -lc pwd && uname -a && node --version && npm --version && cargo --version && rustc --version && git --version",
+        "exitCode": 0,
+        "stdout": "/mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent\nLinux GameDev 5.15.167.4-microsoft-standard-WSL2 #1 SMP Tue Nov 5 00:21:55 UTC 2024 x86_64 x86_64 x86_64 GNU/Linux\nv22.22.0\n10.9.4\ncargo 1.90.0 (840b83a10 2025-07-30)\nrustc 1.90.0 (1159e78c4 2025-09-14)\ngit version 2.34.1",
+        "stderr": "",
+        "logPath": "output/tracking-plan-proof/wsl-local-replay/wsl-toolchain.log"
+      },
+      "plainGit": {
+        "id": "plain-linked-worktree-git-probe",
+        "command": "wsl.exe sh -lc cd '/mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent' && git rev-parse --show-toplevel && git rev-parse HEAD",
+        "exitCode": 128,
+        "stdout": "",
+        "stderr": "fatal: not a git repository: /mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/E:/OcentraParent/.git/worktrees/OcentraParent",
+        "logPath": "output/tracking-plan-proof/wsl-local-replay/plain-linked-worktree-git-probe.log"
+      },
+      "mappedGit": {
+        "id": "mapped-linked-worktree-git-probe",
+        "command": "wsl.exe sh -lc cd '/mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent' && GIT_DIR='/mnt/e/OcentraParent/.git/worktrees/OcentraParent' GIT_WORK_TREE='/mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent' git rev-parse --show-toplevel && GIT_DIR='/mnt/e/OcentraParent/.git/worktrees/OcentraParent' GIT_WORK_TREE='/mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent' git rev-parse HEAD",
+        "exitCode": 0,
+        "stdout": "/mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent\nd3e137b2e034bfd8cfff06e91aefe48165354b87",
+        "stderr": "",
+        "logPath": "output/tracking-plan-proof/wsl-local-replay/mapped-linked-worktree-git-probe.log"
+      }
+    }
+  },
+  "commands": [
+    {
+      "id": "build-contracts",
+      "command": "wsl.exe sh -lc cd '/mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent' && GIT_DIR='/mnt/e/OcentraParent/.git/worktrees/OcentraParent' GIT_WORK_TREE='/mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent' 'npm' 'run' 'build:contracts'",
+      "exitCode": 0,
+      "stdout": "\n> @ocentra-parent/workspace@0.1.1 build:contracts\n> npm run build --workspace @ocentra-parent/schema-domain && npm run build --workspace @ocentra-parent/logging-domain && npm run build --workspace @ocentra-parent/parent-domain && npm run build --workspace @ocentra-parent/activity-domain && npm run build --workspace @ocentra-parent/agent-protocol-domain && npm run build --workspace @ocentra-parent/text-domain && npm run build --workspace @ocentra-parent/portal-domain\n\n\n> @ocentra-parent/schema-domain@0.1.1 build\n> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist\n\n\n> @ocentra-parent/logging-domain@0.1.1 build\n> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist\n\n\n> @ocentra-parent/parent-domain@0.1.1 build\n> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist\n\n\n> @ocentra-parent/activity-domain@0.1.1 build\n> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist\n\n\n> @ocentra-parent/agent-protocol-domain@0.1.1 build\n> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist\n\n\n> @ocentra-parent/text-domain@0.1.1 build\n> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist\n\n\n> @ocentra-parent/portal-domain@0.1.1 build\n> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist",
+      "stderr": "",
+      "logPath": "output/tracking-plan-proof/wsl-local-replay/build-contracts.log",
+      "blocker": "none"
+    },
+    {
+      "id": "service-read-model-proof",
+      "command": "wsl.exe sh -lc cd '/mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent' && GIT_DIR='/mnt/e/OcentraParent/.git/worktrees/OcentraParent' GIT_WORK_TREE='/mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent' 'node' 'scripts/test/tracking-plan-service-read-model-proof.mjs'",
+      "exitCode": 1,
+      "stdout": "\n> @ocentra-parent/text-domain@0.1.1 build\n> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist\n\n\n> @ocentra-parent/agent-protocol-domain@0.1.1 build\n> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist\n\n\n> @ocentra-parent/agent-protocol-domain@0.1.1 test\n> vitest run tracking-read-model contracts",
+      "stderr": "\n Startup Error\nError: Cannot find native binding. npm has a bug related to optional dependencies (https://github.com/npm/cli/issues/4828). Please try `npm i` again after removing both package-lock.json and node_modules directory.\n    at file:///mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/node_modules/rolldown/dist/shared/binding-C9S351wt.mjs:507:36\n    at file:///mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/node_modules/rolldown/dist/shared/binding-C9S351wt.mjs:9:49\n    at file:///mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/node_modules/rolldown/dist/shared/parse-Ch28GO2f.mjs:3:46\n    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:665:26)\n    at async start (file:///mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/node_modules/vitest/dist/chunks/cac.CVxlyDFd.js:2339:27)\n    at async CAC.run (file:///mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/node_modules/vitest/dist/chunks/cac.CVxlyDFd.js:2318:2) {\n  [cause]: Error: Cannot find module '@rolldown/binding-linux-x64-gnu'\n  Require stack:\n  - /mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/node_modules/rolldown/dist/shared/binding-C9S351wt.mjs\n      at Function._resolveFilename (node:internal/modules/cjs/loader:1383:15)\n      ... 6 lines matching cause stack trace ...\n      at require (node:internal/modules/helpers:147:16)\n      at requireNative (file:///mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/node_modules/rolldown/dist/shared/binding-C9S351wt.mjs:277:21)\n      at file:///mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/node_modules/rolldown/dist/shared/binding-C9S351wt.mjs:475:18 {\n    code: 'MODULE_NOT_FOUND',\n    requireStack: [\n      '/mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/node_modules/rolldown/dist/shared/binding-C9S351wt.mjs'\n    ],\n    cause: Error: Cannot find module '../rolldown-binding.linux-x64-gnu.node'\n    Require stack:\n    - /mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/node_modules/rolldown/dist/shared/binding-C9S351wt.mjs\n        at Function._resolveFilename (node:internal/modules/cjs/loader:1383:15)\n        at defaultResolveImpl (node:internal/modules/cjs/loader:1025:19)\n        at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1030:22)\n        at Function._load (node:internal/modules/cjs/loader:1192:37)\n        at TracingChannel.traceSync (node:diagnostics_channel:328:14)\n        at wrapModuleLoad (node:internal/modules/cjs/loader:237:24)\n        at Module.require (node:internal/modules/cjs/loader:1463:12)\n        at require (node:internal/modules/helpers:147:16)\n        at requireNative (file:///mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/node_modules/rolldown/dist/shared/binding-C9S351wt.mjs:272:12)\n        at file:///mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/node_modules/rolldown/dist/shared/binding-C9S351wt.mjs:475:18 {\n      code: 'MODULE_NOT_FOUND',\n      requireStack: [Array]\n    }\n  }\n}\n\n\n\nnpm error Lifecycle script `test` failed with error:\nnpm error code 1\nnpm error path /mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/agent-protocol-domain\nnpm error workspace @ocentra-parent/agent-protocol-domain@0.1.1\nnpm error location /mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/agent-protocol-domain\nnpm error command failed\nnpm error command sh -c vitest run tracking-read-model contracts\nfile:///mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/scripts/test/tracking-plan-service-read-model-proof.mjs:106\n      code === 0 ? resolve() : reject(new Error(`${commandLine} exited with ${code}`));\n                                      ^\n\nError: npm -\n[truncated]",
+      "logPath": "output/tracking-plan-proof/wsl-local-replay/service-read-model-proof.log",
+      "blocker": "wsl_linux_optional_node_dependency_missing"
+    },
+    {
+      "id": "rust-core-read-model-test",
+      "command": "wsl.exe sh -lc cd '/mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent' && GIT_DIR='/mnt/e/OcentraParent/.git/worktrees/OcentraParent' GIT_WORK_TREE='/mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent' 'cargo' 'test' '-p' 'ocentra-parent-agent-core' 'tracking_read_model'",
+      "exitCode": 0,
+      "stdout": "\nrunning 2 tests\ntest activity_store_tracking_tests::activity_store_reports_empty_tracking_read_model_without_inventing_rows ... ok\ntest activity_store_tracking_tests::activity_store_reports_tracking_read_model_from_ingested_events ... ok\n\ntest result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 192 filtered out; finished in 0.16s",
+      "stderr": "    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.32s\n     Running unittests src/lib.rs (target/debug/deps/ocentra_parent_agent_core-c9d415be1f060baf)",
+      "logPath": "output/tracking-plan-proof/wsl-local-replay/rust-core-read-model-test.log",
+      "blocker": "none"
+    }
+  ],
+  "docs": {
+    "featureDoc": "docs/features/location-geofence-device-status.md",
+    "implementationChecklist": "docs/plans/tracking-plan/implementation-checklist.md",
+    "productCapabilityChecklist": "not edited by this worker; deltas are queued through hub DOC_DELTA"
+  },
+  "nonClaims": [
+    "WSL/local replay does not prove Android or iOS physical background behavior.",
+    "WSL/local replay does not prove mobile permission grants, geofence delivery, killed-app behavior, reboot behavior, or OEM background reliability.",
+    "WSL/local replay does not prove enrolled-device authority, notification provider delivery, hosted UI accessibility, or production pilot readiness."
+  ],
+  "nextSteps": [
+    "Install Linux optional Node dependencies in a WSL-specific dependency tree or rerun npm install from WSL without disturbing Windows validation.",
+    "Rerun node scripts/test/tracking-plan-service-read-model-proof.mjs from WSL after the Rolldown Linux binding is present."
+  ]
+}

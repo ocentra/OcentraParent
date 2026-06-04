@@ -69,6 +69,14 @@ expose location or device-status features. Parents expect this category.
   Android proof scripts, and writes the aggregate artifact
   `output/tracking-plan-proof/pre-device-gap-closure/proof-summary.json` plus
   Android Studio, iOS simulator, WSL/local, and physical-device proof plans.
+- WSL/local replay proof now exists through
+  `npm run test:tracking-plan-wsl-local-proof`. It records WSL2/Ubuntu
+  toolchain state, maps this Windows linked worktree Git dir for WSL, proves
+  `npm run build:contracts`, and proves
+  `cargo test -p ocentra-parent-agent-core tracking_read_model`. The JS service
+  read-model proof is still blocked in WSL by the missing Linux Rolldown native
+  optional dependency in this Windows-installed `node_modules`, so the artifact
+  is partial local proof, not product readiness.
 - Platform permissions, mobile physical-device proof, full runtime adapters,
   provider delivery, notification delivery, full parent/child UI, hosted screenshots,
   accessibility, and richer live service-backed UI evidence citations remain not
@@ -80,8 +88,9 @@ expose location or device-status features. Parents expect this category.
 
 Location/geofence is now in contract, P1 fixture/runtime proof, narrow P2
 service read-model proof, narrow portal summary-consumption proof, and
-pre-device proof-gate progress. It remains a tracked product gap until platform
-adapters, richer product read models, provider delivery, notifications,
+pre-device proof-gate progress, and partial WSL/local replay evidence. It
+remains a tracked product gap until platform adapters, richer product read
+models, WSL-local JS dependency replay, provider delivery, notifications,
 physical-device proof, full parent/child UI snapshots, accessibility, hosted UI
 proof, and richer live service-backed UI evidence citations are proved.
 
@@ -110,6 +119,7 @@ proof, and richer live service-backed UI evidence citations are proved.
       and local proof artifact references.
 - [x] Pre-device gap-closure proof gate and Android Studio/iOS simulator/WSL/manual
       proof plans.
+- [x] WSL/local replay harness and partial local proof artifact.
 - [ ] Richer live service-backed UI citations beyond the narrow summary.
 - [ ] Live parent/child UI screenshots, hosted proof, and accessibility proof.
 
@@ -119,8 +129,9 @@ Do not infer precise location from IP/network data. Treat mobile permission,
 background execution, retention, and custody as first-class requirements.
 Use `docs/plans/tracking-plan/README.md` for implementation sequencing and
 workpack ownership. Keep AI as evidence, not authority, and keep LAN/IP/Wi-Fi
-presence as hints only. The pre-device proof gate is now repeatable; the next
-implementation layers are richer tracking journal/read-model surfaces, full
-portal UI snapshots/accessibility, Android Studio/local proof, WSL/local replay
-where useful, then physical Android/iOS proof and authority proof only when
-matching devices are enrolled.
+presence as hints only. The pre-device proof gate is now repeatable, and the
+WSL/local replay harness now records the current partial state. The next
+implementation layers are clearing the WSL-local JS optional dependency
+blocker where useful, richer tracking journal/read-model surfaces, full portal
+UI snapshots/accessibility, Android Studio/local proof, then physical
+Android/iOS proof and authority proof only when matching devices are enrolled.

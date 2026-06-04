@@ -1,0 +1,79 @@
+id=service-read-model-proof
+command=wsl.exe sh -lc cd '/mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent' && GIT_DIR='/mnt/e/OcentraParent/.git/worktrees/OcentraParent' GIT_WORK_TREE='/mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent' 'node' 'scripts/test/tracking-plan-service-read-model-proof.mjs'
+exit=1
+
+[stdout]
+
+> @ocentra-parent/text-domain@0.1.1 build
+> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist
+
+
+> @ocentra-parent/agent-protocol-domain@0.1.1 build
+> tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist
+
+
+> @ocentra-parent/agent-protocol-domain@0.1.1 test
+> vitest run tracking-read-model contracts
+
+[stderr]
+
+ Startup Error
+Error: Cannot find native binding. npm has a bug related to optional dependencies (https://github.com/npm/cli/issues/4828). Please try `npm i` again after removing both package-lock.json and node_modules directory.
+    at file:///mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/node_modules/rolldown/dist/shared/binding-C9S351wt.mjs:507:36
+    at file:///mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/node_modules/rolldown/dist/shared/binding-C9S351wt.mjs:9:49
+    at file:///mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/node_modules/rolldown/dist/shared/parse-Ch28GO2f.mjs:3:46
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:665:26)
+    at async start (file:///mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/node_modules/vitest/dist/chunks/cac.CVxlyDFd.js:2339:27)
+    at async CAC.run (file:///mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/node_modules/vitest/dist/chunks/cac.CVxlyDFd.js:2318:2) {
+  [cause]: Error: Cannot find module '@rolldown/binding-linux-x64-gnu'
+  Require stack:
+  - /mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/node_modules/rolldown/dist/shared/binding-C9S351wt.mjs
+      at Function._resolveFilename (node:internal/modules/cjs/loader:1383:15)
+      ... 6 lines matching cause stack trace ...
+      at require (node:internal/modules/helpers:147:16)
+      at requireNative (file:///mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/node_modules/rolldown/dist/shared/binding-C9S351wt.mjs:277:21)
+      at file:///mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/node_modules/rolldown/dist/shared/binding-C9S351wt.mjs:475:18 {
+    code: 'MODULE_NOT_FOUND',
+    requireStack: [
+      '/mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/node_modules/rolldown/dist/shared/binding-C9S351wt.mjs'
+    ],
+    cause: Error: Cannot find module '../rolldown-binding.linux-x64-gnu.node'
+    Require stack:
+    - /mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/node_modules/rolldown/dist/shared/binding-C9S351wt.mjs
+        at Function._resolveFilename (node:internal/modules/cjs/loader:1383:15)
+        at defaultResolveImpl (node:internal/modules/cjs/loader:1025:19)
+        at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1030:22)
+        at Function._load (node:internal/modules/cjs/loader:1192:37)
+        at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+        at wrapModuleLoad (node:internal/modules/cjs/loader:237:24)
+        at Module.require (node:internal/modules/cjs/loader:1463:12)
+        at require (node:internal/modules/helpers:147:16)
+        at requireNative (file:///mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/node_modules/rolldown/dist/shared/binding-C9S351wt.mjs:272:12)
+        at file:///mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/node_modules/rolldown/dist/shared/binding-C9S351wt.mjs:475:18 {
+      code: 'MODULE_NOT_FOUND',
+      requireStack: [Array]
+    }
+  }
+}
+
+
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/agent-protocol-domain
+npm error workspace @ocentra-parent/agent-protocol-domain@0.1.1
+npm error location /mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/agent-protocol-domain
+npm error command failed
+npm error command sh -c vitest run tracking-read-model contracts
+file:///mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/scripts/test/tracking-plan-service-read-model-proof.mjs:106
+      code === 0 ? resolve() : reject(new Error(`${commandLine} exited with ${code}`));
+                                      ^
+
+Error: npm --workspace @ocentra-parent/agent-protocol-domain run test -- tracking-read-model contracts exited with 1
+    at ChildProcess.<anonymous> (file:///mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/scripts/test/tracking-plan-service-read-model-proof.mjs:106:39)
+    at Object.onceWrapper (node:events:634:26)
+    at ChildProcess.emit (node:events:519:28)
+    at ChildProcess._handle.onexit (node:internal/child_process:293:12)
+
+Node.js v22.22.0
