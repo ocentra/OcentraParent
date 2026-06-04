@@ -18,9 +18,13 @@ fixtures.
 
 ## Current Slice
 
-The first slice parses classic PCAP files with Ethernet/IPv4/UDP DNS query
-metadata. It records source/destination IPs and ports, DNS question name/type,
-and explicit false exact-content/decrypted-payload claim flags.
+The current slices parse classic PCAP files with Ethernet/IPv4 metadata, DNS
+query/response metadata, TLS ClientHello SNI visibility, plain HTTP Host
+visibility, QUIC limited-visibility candidates, DoH/DoT resolver candidates, and
+flow/session summaries. Flow aggregation merges reverse-direction packets into a
+single five-tuple session, splits sessions by idle timeout, and records
+packet/byte counters with explicit false exact-content/decrypted-payload claim
+flags.
 
-Live Npcap/libpcap capture, TCP/TLS/QUIC parsing, analyzer comparison, policy
-handoff, and adapter execution remain separate proof-gated workpacks.
+Live Npcap/libpcap capture, analyzer comparison, policy handoff, and adapter
+execution remain separate proof-gated workpacks.

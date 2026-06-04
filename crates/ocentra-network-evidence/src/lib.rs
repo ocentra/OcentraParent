@@ -1,6 +1,7 @@
 pub mod dns;
 pub mod encrypted_dns;
 pub mod fixtures;
+pub mod flow;
 pub mod http;
 pub mod packet;
 pub mod pcap;
@@ -23,6 +24,10 @@ pub use fixtures::{
     dns_response_payload_fixture, http_host_request_fixture, icmp_echo_frame_fixture,
     quic_initial_payload_fixture, tcp_syn_frame_fixture, tls_client_hello_no_sni_fixture,
     tls_client_hello_sni_fixture,
+};
+pub use flow::{
+    aggregate_network_flows, aggregate_pcap_flows, flow_packets_from_pcap, NetworkFlowError,
+    NetworkFlowKey, NetworkFlowPacket, NetworkFlowProtocol, NetworkFlowSession, NetworkFlowSummary,
 };
 pub use http::{parse_http_host, HttpHostObservation, HttpHostParseError};
 pub use packet::{

@@ -85,6 +85,11 @@ compete on control while staying clear about attribution confidence and privacy.
   HTTP Host, QUIC limited-visibility detection, and DoH/DoT resolver-candidate
   detection. These parsers keep exact URL, visited domain, page content, and
   decrypted payload unavailable unless stronger evidence exists.
+- E-D added deterministic flow aggregation/sessionization in
+  `ocentra-network-evidence`: parsed packet metadata rolls up into five-tuple
+  sessions, reverse-direction traffic merges into the same session, idle
+  timeouts split sessions, and packet/byte counters stay metadata-only without
+  exact URL or decrypted payload claims.
 - E-D added Rust protocol-facing network/AI/policy/enforcement/audit/portal
   event contracts in `crates/agent-protocol`. The proof serializes exact
   chain refs, no exact URL/content claim boundaries, policy-decision-gated
@@ -128,8 +133,8 @@ runtime spine removes the private-bus blocker for an in-process metadata-only
 chain and now proves local queue/drain plus request-response consumption of the
 reusable eventing crate, service-side journal-before-action/final-audit
 ordering, and typed in-process parent/controller to child-agent handoff.
-Flow/sessionization, analyzer fixtures, broker/family-hub delivery, portal UI,
-and adapter apply/rollback artifacts remain open.
+Analyzer fixtures, broker/family-hub delivery, portal UI, and adapter
+apply/rollback artifacts remain open.
 
 ## Checklist
 
@@ -140,8 +145,8 @@ and adapter apply/rollback artifacts remain open.
 - [ ] PCAP fixture, Zeek-style summary, and Suricata/Snort-compatible alert
       proof.
       First deterministic DNS query PCAP replay, packet/DNS parser fixtures,
-      and TLS/HTTP/QUIC/DoH visibility fixtures exist; analyzer comparison and
-      signature alerts remain open.
+      TLS/HTTP/QUIC/DoH visibility fixtures, and flow/sessionization proof
+      exist; analyzer comparison and signature alerts remain open.
 - [ ] Reusable Rust eventing, detection, AI audit, and risk-budget contracts.
       First E-D runtime spine exists for metadata-only flow events,
       manual-required/unavailable states, local no-subscriber queue/drain,
