@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-04T12:55:03.730Z",
-  "commit": "43cdf8a875cf2caf4d2b3d66599933eb0f7bdab3",
+  "checkedAt": "2026-06-04T13:36:15.704Z",
+  "commit": "f2bf36e0c634cde657d28ed4f92a162d60dc1fd9",
   "proofMode": "billing-support-admin-boundary-proof",
   "commands": [
     "cmd /c npm run build --workspace @ocentra-parent/parent-domain",

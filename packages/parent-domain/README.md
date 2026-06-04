@@ -41,6 +41,10 @@ mobile readiness, and control catalogs.
 - Billing/subscription entitlement contracts for plan rows, subscription status,
   device-limit decisions, failure behavior, retained evidence export, and
   local-safety continuation without billing provider SDK ownership.
+- Billing support/admin boundary proof contracts for support-case triage,
+  account-status review, billing escalation request, provider-contact/manual,
+  entitlement-admin-override/manual, refund-credit/manual states, redaction
+  audit refs, and no provider/backend/admin runtime claims.
 - Parent-owned sync/export and stateless report compiler status contracts for
   parent-authorized remote compilation from parent-owned storage, source
   connector/cursor refs, requested data classes and time windows, temp TTL and
@@ -128,8 +132,11 @@ flowchart LR
   adapters, real child-device package artifacts, child delivery, portal UX, and
   report runtime delivery remain unimplemented.
 - Billing/subscription provider integration, account backend, entitlement
-  signing/delivery runtime, portal UI, and child-device consumption remain
-  unimplemented; current contracts keep billing outside core safety decisions.
+  signing/delivery runtime, provider-contact execution, entitlement admin
+  override runtime, refund/credit runtime, portal billing/admin UI, support
+  backend upload, and child-device consumption remain unimplemented; current
+  contracts keep billing outside core safety decisions and support/admin actions
+  manual-required or not implemented.
 - Parent-owned sync/export and stateless report compiler proofs remain
   contract/status proof only; real compiler runtime/cloud worker, connector
   OAuth/provider APIs, portal controls/UI, upload/download, deletion execution,
