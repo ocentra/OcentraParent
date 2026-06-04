@@ -7,6 +7,10 @@ use ocentra_parent_agent_protocol::{
 };
 
 use crate::{
+    browser_windows_inventory_paths::{
+        windows_browser_inventory_candidate_paths_from_sources, BrowserWindowsInventoryPathSources,
+        BrowserWindowsRegistryInstallEntry,
+    },
     windows_browser_executable_identity, windows_browser_inventory_candidate_paths,
     windows_browser_inventory_observations, ProcessObservation,
 };
@@ -329,6 +333,98 @@ fn windows_browser_inventory_generates_candidates_from_multiple_roots() {
             .join(constants::browser::PATH_SEGMENT_APPLICATION)
             .join(constants::browser::EXECUTABLE_CHROME_WINDOWS)
     }));
+}
+
+#[test]
+fn windows_browser_inventory_derives_registry_candidates_from_display_icon_and_install_location() {
+    let root = temp_inventory_root(6);
+    let edge = root
+        .join(constants::browser::PATH_SEGMENT_MICROSOFT)
+        .join(constants::browser::PATH_SEGMENT_EDGE)
+        .join(constants::browser::PATH_SEGMENT_APPLICATION)
+        .join(constants::browser::EXECUTABLE_MSEDGE_WINDOWS);
+    let chrome_root = root
+        .join(constants::browser::PATH_SEGMENT_GOOGLE)
+        .join(constants::browser::PATH_SEGMENT_CHROME);
+    let chrome = chrome_root
+        .join(constants::browser::PATH_SEGMENT_APPLICATION)
+        .join(constants::browser::EXECUTABLE_CHROME_WINDOWS);
+    create_executable_fixture(&edge);
+    create_executable_fixture(&chrome);
+    let mut display_icon = String::new();
+    display_icon.push('"');
+    display_icon.push_str(edge.to_string_lossy().as_ref());
+    display_icon.push('"');
+    display_icon.push(',');
+    display_icon.push('0');
+    let entries = [BrowserWindowsRegistryInstallEntry {
+        display_icon: Some(display_icon.as_str()),
+        install_location: Some(chrome_root.as_path()),
+    }];
+
+    let paths = windows_browser_inventory_candidate_paths_from_sources(
+        BrowserWindowsInventoryPathSources {
+            roots: &[],
+            registry_entries: &entries,
+            shortcut_targets: &[],
+        },
+    );
+    let observations = windows_browser_inventory_observations(&paths, &[], None);
+
+    assert!(observations.iter().any(|observation| {
+        observation.browser_family == BrowserFamily::Edge
+            && observation.install_state == BrowserInventoryInstallState::Installed
+            && observation.exact_url_capability == BrowserExactUrlCapability::Unavailable
+    }));
+    assert!(observations.iter().any(|observation| {
+        observation.browser_family == BrowserFamily::Chrome
+            && observation.product_name == constants::browser::PRODUCT_NAME_GOOGLE_CHROME
+            && observation.management_tier == BrowserManagementTier::Managed
+    }));
+
+    let _ = std::fs::remove_dir_all(root);
+}
+
+#[test]
+fn windows_browser_inventory_derives_shortcut_target_candidates_without_url_claims() {
+    let root = temp_inventory_root(7);
+    let brave = root
+        .join(constants::browser::PATH_SEGMENT_BRAVE_SOFTWARE)
+        .join(constants::browser::PATH_SEGMENT_BRAVE_BROWSER)
+        .join(constants::browser::PATH_SEGMENT_APPLICATION)
+        .join(constants::browser::EXECUTABLE_BRAVE_WINDOWS);
+    create_executable_fixture(&brave);
+    let mut target = String::new();
+    target.push('"');
+    target.push_str(brave.to_string_lossy().as_ref());
+    target.push('"');
+
+    let shortcut_targets = [target.as_str()];
+    let paths = windows_browser_inventory_candidate_paths_from_sources(
+        BrowserWindowsInventoryPathSources {
+            roots: &[],
+            registry_entries: &[],
+            shortcut_targets: &shortcut_targets,
+        },
+    );
+    let observations = windows_browser_inventory_observations(&paths, &[], None);
+
+    assert_eq!(observations.len(), 1);
+    assert_eq!(observations[0].browser_family, BrowserFamily::Brave);
+    assert_eq!(
+        observations[0].management_tier,
+        BrowserManagementTier::ManualRequired
+    );
+    assert_eq!(
+        observations[0].exact_url_capability,
+        BrowserExactUrlCapability::ManualRequired
+    );
+    assert_eq!(
+        observations[0].running_state,
+        BrowserInventoryRunningState::NotRunning
+    );
+
+    let _ = std::fs::remove_dir_all(root);
 }
 
 #[test]

@@ -2,14 +2,68 @@ use std::path::{Path, PathBuf};
 
 use ocentra_parent_agent_protocol::constants;
 
+use crate::browser_windows_inventory::windows_browser_executable_identity;
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) struct BrowserWindowsRegistryInstallEntry<'a> {
+    pub display_icon: Option<&'a str>,
+    pub install_location: Option<&'a Path>,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) struct BrowserWindowsInventoryPathSources<'a> {
+    pub roots: &'a [PathBuf],
+    pub registry_entries: &'a [BrowserWindowsRegistryInstallEntry<'a>],
+    pub shortcut_targets: &'a [&'a str],
+}
+
 pub fn windows_browser_inventory_candidate_paths(roots: &[PathBuf]) -> Vec<PathBuf> {
+    windows_browser_inventory_candidate_paths_from_sources(BrowserWindowsInventoryPathSources {
+        roots,
+        registry_entries: &[],
+        shortcut_targets: &[],
+    })
+}
+
+pub(crate) fn windows_browser_inventory_candidate_paths_from_sources(
+    sources: BrowserWindowsInventoryPathSources<'_>,
+) -> Vec<PathBuf> {
     let mut paths = Vec::new();
-    for root in unique_roots(roots) {
+    for root in unique_roots(sources.roots) {
         push_managed_chromium_paths(&mut paths, root);
         push_manual_chromium_paths(&mut paths, root);
         push_unsupported_browser_paths(&mut paths, root);
     }
-    paths
+    paths.extend(windows_browser_inventory_registry_candidate_paths(
+        sources.registry_entries,
+    ));
+    paths.extend(windows_browser_inventory_shortcut_candidate_paths(
+        sources.shortcut_targets,
+    ));
+    deduplicated_paths(paths)
+}
+
+fn windows_browser_inventory_registry_candidate_paths(
+    entries: &[BrowserWindowsRegistryInstallEntry<'_>],
+) -> Vec<PathBuf> {
+    let mut paths = Vec::new();
+    for entry in entries {
+        if let Some(display_icon) = entry.display_icon {
+            push_known_executable_target(&mut paths, display_icon);
+        }
+        if let Some(install_location) = entry.install_location {
+            push_install_location_candidates(&mut paths, install_location);
+        }
+    }
+    deduplicated_paths(paths)
+}
+
+fn windows_browser_inventory_shortcut_candidate_paths(targets: &[&str]) -> Vec<PathBuf> {
+    let mut paths = Vec::new();
+    for target in targets {
+        push_known_executable_target(&mut paths, target);
+    }
+    deduplicated_paths(paths)
 }
 
 fn unique_roots(roots: &[PathBuf]) -> Vec<&PathBuf> {
@@ -161,6 +215,78 @@ fn push_unsupported_browser_paths(paths: &mut Vec<PathBuf>, root: &Path) {
         &[constants::browser::PATH_SEGMENT_ARC],
         constants::browser::EXECUTABLE_ARC_WINDOWS,
     );
+}
+
+fn push_known_executable_target(paths: &mut Vec<PathBuf>, target: &str) {
+    let Some(path) = executable_target_path(target) else {
+        return;
+    };
+    if windows_browser_executable_identity(&path).product_name != constants::browser::FAMILY_UNKNOWN
+    {
+        paths.push(path);
+    }
+}
+
+fn executable_target_path(target: &str) -> Option<PathBuf> {
+    let trimmed = target.trim();
+    if trimmed.is_empty() {
+        return None;
+    }
+    let candidate = if let Some(unquoted) = trimmed.strip_prefix('"') {
+        unquoted
+            .find('"')
+            .map_or(unquoted, |quote_index| &unquoted[..quote_index])
+    } else {
+        trimmed.split(',').next().unwrap_or(trimmed).trim()
+    };
+    let path = candidate.trim().trim_matches('"');
+    if path.is_empty() {
+        None
+    } else {
+        Some(PathBuf::from(path))
+    }
+}
+
+fn push_install_location_candidates(paths: &mut Vec<PathBuf>, install_location: &Path) {
+    if windows_browser_executable_identity(install_location).product_name
+        != constants::browser::FAMILY_UNKNOWN
+    {
+        paths.push(install_location.to_path_buf());
+    }
+    for executable in [
+        constants::browser::EXECUTABLE_MSEDGE_WINDOWS,
+        constants::browser::EXECUTABLE_CHROME_WINDOWS,
+        constants::browser::EXECUTABLE_BRAVE_WINDOWS,
+        constants::browser::EXECUTABLE_VIVALDI_WINDOWS,
+        constants::browser::EXECUTABLE_OPERA_WINDOWS,
+        constants::browser::EXECUTABLE_OPERA_GX_WINDOWS,
+        constants::browser::EXECUTABLE_CHROMIUM_WINDOWS,
+        constants::browser::EXECUTABLE_FIREFOX_WINDOWS,
+        constants::browser::EXECUTABLE_TOR_WINDOWS,
+        constants::browser::EXECUTABLE_DUCKDUCKGO_WINDOWS,
+        constants::browser::EXECUTABLE_ARC_WINDOWS,
+    ] {
+        paths.push(install_location.join(executable));
+        paths.push(
+            install_location
+                .join(constants::browser::PATH_SEGMENT_APPLICATION)
+                .join(executable),
+        );
+    }
+}
+
+fn deduplicated_paths(paths: Vec<PathBuf>) -> Vec<PathBuf> {
+    let mut unique = Vec::new();
+    for path in paths {
+        if path.as_os_str().is_empty() {
+            continue;
+        }
+        if unique.iter().any(|candidate| candidate == &path) {
+            continue;
+        }
+        unique.push(path);
+    }
+    unique
 }
 
 fn push_application_path(
