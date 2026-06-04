@@ -1,4 +1,5 @@
 pub mod dns;
+pub mod domain;
 pub mod encrypted_dns;
 pub mod fixtures;
 pub mod flow;
@@ -14,6 +15,10 @@ pub use dns::{
     parse_dns_message, replay_dns_observations, DnsMessage, DnsObservation, DnsQueryType,
     DnsQuestion, DnsRecordData, DnsResourceRecord, NetworkEvidenceGrade, NetworkReplayError,
     NetworkReplaySummary,
+};
+pub use domain::{
+    normalize_domain_with_public_suffix, DomainNormalizationError, NormalizedDomainEvidence,
+    PublicSuffixModel,
 };
 pub use encrypted_dns::{
     detect_encrypted_dns_candidate, detect_quic_http3_limitation, EncryptedDnsCandidate,

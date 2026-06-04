@@ -6,6 +6,7 @@ use crate::{
     PcapReplayError, TransportPacketMetadata,
 };
 
+mod domain;
 mod flow;
 mod visibility;
 

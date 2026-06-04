@@ -90,6 +90,10 @@ compete on control while staying clear about attribution confidence and privacy.
   sessions, reverse-direction traffic merges into the same session, idle
   timeouts split sessions, and packet/byte counters stay metadata-only without
   exact URL or decrypted payload claims.
+- E-D added deterministic domain normalization and public-suffix proof in
+  `ocentra-network-evidence`: DNS/SNI/HTTP-host style domain evidence can be
+  lowercased, label-validated, matched to the longest known suffix, and reduced
+  to a registrable domain without claiming exact URLs or decrypted content.
 - E-D added Rust protocol-facing network/AI/policy/enforcement/audit/portal
   event contracts in `crates/agent-protocol`. The proof serializes exact
   chain refs, no exact URL/content claim boundaries, policy-decision-gated
@@ -142,6 +146,8 @@ apply/rollback artifacts remain open.
 - [x] Domain/IP/protocol/process attribution status contracts.
 - [ ] VPN/proxy/tunnel indicators where available.
 - [ ] Network category/risk targets.
+      Domain normalization and public-suffix proof now exist; category
+      intelligence and risk targets remain open.
 - [ ] PCAP fixture, Zeek-style summary, and Suricata/Snort-compatible alert
       proof.
       First deterministic DNS query PCAP replay, packet/DNS parser fixtures,
