@@ -184,7 +184,6 @@ export function trackingStatusLiveSummary(liveActivity: PortalLiveActivityState)
   }
 
   const readModel = readModelResult.value;
-  const row = readModel.rows[0] ?? null;
   return {
     ...baseSummary,
     loadState: detailFromValue(event.severity),
