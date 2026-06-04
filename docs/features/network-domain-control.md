@@ -94,6 +94,11 @@ compete on control while staying clear about attribution confidence and privacy.
   `ocentra-network-evidence`: DNS/SNI/HTTP-host style domain evidence can be
   lowercased, label-validated, matched to the longest known suffix, and reduced
   to a registrable domain without claiming exact URLs or decrypted content.
+- E-D added deterministic domain/category intelligence in
+  `ocentra-network-evidence`: exact or registrable domains can be matched to
+  source-custody category records, freshness/staleness is explicit, and signed
+  snapshot update policy rejects unsigned or older inputs without claiming live
+  vendor feeds, exact URLs, or decrypted content.
 - E-D added Rust protocol-facing network/AI/policy/enforcement/audit/portal
   event contracts in `crates/agent-protocol`. The proof serializes exact
   chain refs, no exact URL/content claim boundaries, policy-decision-gated
@@ -146,8 +151,9 @@ apply/rollback artifacts remain open.
 - [x] Domain/IP/protocol/process attribution status contracts.
 - [ ] VPN/proxy/tunnel indicators where available.
 - [ ] Network category/risk targets.
-      Domain normalization and public-suffix proof now exist; category
-      intelligence and risk targets remain open.
+      Domain normalization, public-suffix, and source-custody category
+      intelligence proof now exist; broader social/video/game/cloud-gaming
+      classifier behavior and risk targets remain open.
 - [ ] PCAP fixture, Zeek-style summary, and Suricata/Snort-compatible alert
       proof.
       First deterministic DNS query PCAP replay, packet/DNS parser fixtures,

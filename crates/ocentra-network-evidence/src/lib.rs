@@ -1,3 +1,4 @@
+pub mod category;
 pub mod dns;
 pub mod domain;
 pub mod encrypted_dns;
@@ -11,6 +12,12 @@ pub mod tls;
 #[cfg(test)]
 mod tests;
 
+pub use category::{
+    evaluate_category_source_update, lookup_domain_category, CategoryFreshnessState,
+    CategoryMatchKind, CategorySourceCustody, CategoryUpdateDecision, DomainCategoryDatabase,
+    DomainCategoryError, DomainCategoryLookup, DomainCategoryRecord, DomainCategorySource,
+    NetworkCategory,
+};
 pub use dns::{
     parse_dns_message, replay_dns_observations, DnsMessage, DnsObservation, DnsQueryType,
     DnsQuestion, DnsRecordData, DnsResourceRecord, NetworkEvidenceGrade, NetworkReplayError,

@@ -20,13 +20,16 @@ fixtures.
 
 The current slices parse classic PCAP files with Ethernet/IPv4 metadata, DNS
 query/response metadata, TLS ClientHello SNI visibility, plain HTTP Host
-visibility, QUIC limited-visibility candidates, DoH/DoT resolver candidates, and
-flow/session summaries. Domain normalization lowercases and validates
-metadata-derived domains, matches a deterministic public suffix model, and
-derives registrable domains without upgrading to exact URL or content claims.
-Flow aggregation merges reverse-direction packets into a single five-tuple
-session, splits sessions by idle timeout, and records packet/byte counters with
-explicit false exact-content/decrypted-payload claim flags.
+visibility, QUIC limited-visibility candidates, DoH/DoT resolver candidates,
+flow/session summaries, and deterministic domain/category metadata. Domain
+normalization lowercases and validates metadata-derived domains, matches a
+deterministic public suffix model, and derives registrable domains without
+upgrading to exact URL or content claims. Flow aggregation merges
+reverse-direction packets into a single five-tuple session, splits sessions by
+idle timeout, and records packet/byte counters with explicit false
+exact-content/decrypted-payload claim flags. Category lookup matches exact or
+registrable domains against source-custody records, reports freshness/staleness,
+and rejects unsigned or older category snapshot updates.
 
-Live Npcap/libpcap capture, analyzer comparison, policy handoff, and adapter
-execution remain separate proof-gated workpacks.
+Live Npcap/libpcap capture, full vendor category feeds, analyzer comparison,
+policy handoff, and adapter execution remain separate proof-gated workpacks.
