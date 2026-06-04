@@ -75,10 +75,17 @@ expose location or device-status features. Parents expect this category.
   parent-defined safe and restricted places, keeps default storage
   parent-device-local with remote sync disabled, and writes artifacts under
   `output/tracking-plan-proof/22-local-parent-defined-place-database/`.
+- P1 Google Places/POI provider adapter proof now exists through
+  `npm run test:tracking-plan-poi-provider-adapter-proof`. It proves bounded
+  nearby requests, minimal production field masks, category/distance/confidence
+  mapping, ambiguity for multiple candidates, and unavailable-provider
+  degradation under
+  `output/tracking-plan-proof/20-google-places-and-poi-provider-adapter/`.
 - Platform permissions, mobile physical-device proof, full runtime adapters,
-  provider delivery, notification delivery, full parent/child UI, hosted screenshots,
-  accessibility, and richer live service-backed UI evidence citations remain not
-  product-complete.
+  live provider credentials, production provider setup, provider delivery,
+  notification delivery, full parent/child UI, hosted screenshots,
+  accessibility, and richer live service-backed UI evidence citations remain
+  not product-complete.
 - Raw tracking/location settings are preserved as design inputs, not
   product-complete implementation proof.
 
@@ -86,11 +93,13 @@ expose location or device-status features. Parents expect this category.
 
 Location/geofence is now in contract, P1 fixture/runtime proof, narrow P2
 service read-model proof, narrow portal summary-consumption proof, P1 local
-parent-defined place store proof, and pre-device proof-gate progress. It
+parent-defined place store proof, P1 provider-adapter proof, and pre-device
+proof-gate progress. It
 remains a tracked product gap until platform adapters, richer product read
-models, provider delivery, notifications, physical-device proof, full
-parent/child UI snapshots, accessibility, hosted UI proof, and richer live
-service-backed UI evidence citations are proved.
+models, live provider credentials, production provider setup, provider
+delivery, notifications, physical-device proof, full parent/child UI snapshots,
+accessibility, hosted UI proof, and richer live service-backed UI evidence
+citations are proved.
 
 ## Checklist
 
@@ -108,6 +117,9 @@ service-backed UI evidence citations are proved.
 - [x] Expected-place schedule and exception contracts.
 - [x] Parent acknowledgement and escalation contracts.
 - [x] Nearby-place ambiguity and AI safety evidence contracts.
+- [x] P1 Google Places/POI provider adapter proof for bounded requests,
+      minimal production field masks, category mapping, ambiguity, and
+      provider-unavailable degradation.
 - [x] P1 ActivityStore tracking-event SQLite ingest proof.
 - [x] P2 service-backed tracking read-model command proof for SQLite journal
       rows and citation IDs.
@@ -130,6 +142,6 @@ Use `docs/plans/tracking-plan/README.md` for implementation sequencing and
 workpack ownership. Keep AI as evidence, not authority, and keep LAN/IP/Wi-Fi
 presence as hints only. The pre-device proof gate is now repeatable; the next
 implementation layers are richer tracking journal/read-model surfaces, full
-portal UI snapshots/accessibility, Android Studio/local proof, WSL/local replay
-where useful, then physical Android/iOS proof and authority proof only when
-matching devices are enrolled.
+portal UI snapshots/accessibility, live provider credentials and delivery
+proof, Android Studio/local proof, WSL/local replay where useful, then physical
+Android/iOS proof and authority proof only when matching devices are enrolled.

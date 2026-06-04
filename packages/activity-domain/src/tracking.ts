@@ -1,6 +1,7 @@
 export * from './tracking-primitives';
 export * from './tracking-evidence';
 export * from './tracking-geofence';
+export * from './tracking-poi-provider-adapter';
 export * from './tracking-local-place-store-schemas';
 export * from './tracking-local-place-store';
 export * from './tracking-read-model';

@@ -1,0 +1,6 @@
+workpack=20-google-places-and-poi-provider-adapter
+activity-domain tracking POI provider adapter test passed
+fieldMaskHeader=places.id,places.location,places.primaryType,places.types
+mappedCategory=cinema
+ambiguousState=multiple-candidates
+unavailableState=provider-unavailable

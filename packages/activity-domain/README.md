@@ -64,8 +64,11 @@ flowchart LR
   remain open.
 - Tracking evidence now has focused contract proof plus P1 deterministic
   runtime, local parent-defined place store proof, and Rust ActivityStore ingest
-  proof; platform adapters, provider runtime, and live service-backed UI proof
-  remain open.
+  proof. Tracking POI provider adapter proof now covers bounded Google Places
+  nearby requests, minimal production field masks, category mapping, ambiguity,
+  and unavailable-provider degradation; live provider credentials, production
+  provider setup, provider delivery, platform adapters, and live service-backed
+  UI proof remain open.
 - Activity reports need complete parent-facing history, trend, and assistant
   query flows.
 - Evidence contracts must keep unknown/degraded/unavailable states explicit.

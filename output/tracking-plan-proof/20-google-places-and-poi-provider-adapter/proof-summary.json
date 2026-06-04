@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-06-04T10:10:02.059Z",
+  "commit": "3c0d90f68f34c37a77caa4c8d3e93b78ef4356c9",
+  "workpackId": "20-google-places-and-poi-provider-adapter",
+  "requiredProofTier": "P1_FIXTURE_SIMULATION",
+  "currentProofTier": "P1_FIXTURE_SIMULATION",
+  "currentStatus": "simulated",
+  "productClaimReady": false,
+  "summary": "POI provider adapter proof passes for bounded Google Places nearby requests, minimal production field masks, deterministic category mapping, ambiguity, and provider failure degradation.",
+  "proofArtifacts": [
+    "output/tracking-plan-proof/20-google-places-and-poi-provider-adapter/07-nearby-place-proof.json",
+    "output/tracking-plan-proof/20-google-places-and-poi-provider-adapter/13-security-negative-proof.log"
+  ],
+  "commands": [
+    {
+      "command": "cmd /c npm --workspace @ocentra-parent/activity-domain run build",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm exec --workspace @ocentra-parent/activity-domain -- vitest run tests/tracking-poi-provider-adapter.test.ts",
+      "exitCode": 0
+    }
+  ],
+  "productClaims": {
+    "boundedProviderRequestProved": true,
+    "minimalProductionFieldMaskProved": true,
+    "providerFailureDegrades": true,
+    "liveGooglePlacesApiClaimed": false,
+    "providerCredentialsClaimed": false,
+    "providerDeliveryClaimed": false,
+    "exactChildPlaceClaimed": false,
+    "androidIosBackgroundLocationClaimed": false,
+    "hostedUiAccessibilityClaimed": false,
+    "ocentraHostedDefaultStorage": false
+  },
+  "missingProofReason": "This is P1 contract/runtime helper proof. It does not call Google Places, prove provider credentials, prove production billing/terms configuration, render UI, or prove mobile physical-device background behavior."
+}

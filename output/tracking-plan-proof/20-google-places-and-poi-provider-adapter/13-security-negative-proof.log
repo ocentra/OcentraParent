@@ -1,0 +1,7 @@
+workpack=20-google-places-and-poi-provider-adapter
+wildcardProductionFieldMaskRejected=true
+broadProductionFieldRejected=true
+zeroRadiusRejected=true
+maxRadiusRejected=true
+conflictingTypesRejected=true
+No API key, live Google request, Ocentra-hosted storage, or exact-place claim is used by this proof.

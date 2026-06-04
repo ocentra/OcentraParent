@@ -1,0 +1,2 @@
+cmd /c npm --workspace @ocentra-parent/activity-domain run build
+cmd /c npm exec --workspace @ocentra-parent/activity-domain -- vitest run tests/tracking-poi-provider-adapter.test.ts

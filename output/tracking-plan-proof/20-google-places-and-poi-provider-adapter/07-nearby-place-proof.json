@@ -1,0 +1,121 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-06-04T10:10:02.059Z",
+  "workpackId": "20-google-places-and-poi-provider-adapter",
+  "requiredProofTier": "P1_FIXTURE_SIMULATION",
+  "currentProofTier": "P1_FIXTURE_SIMULATION",
+  "currentStatus": "simulated",
+  "productClaimReady": false,
+  "missingProofReason": "Live provider credentials, provider delivery, UI, hosted accessibility, and physical-device behavior remain outside this proof.",
+  "payload": {
+    "request": {
+      "schemaVersion": 1,
+      "requestId": "google-places-nearby-request-proof",
+      "requestedAt": "2026-06-04T09:59:00.000Z",
+      "providerKind": "google-places",
+      "providerRef": "google-places-nearby-search",
+      "locationEvidenceId": "location-evidence-1",
+      "center": {
+        "latitude": 43.6532,
+        "longitude": -79.3832
+      },
+      "radiusMeters": 1000,
+      "includedTypes": [
+        "school",
+        "movie_theater",
+        "park"
+      ],
+      "excludedTypes": [
+        "bar",
+        "night_club"
+      ],
+      "fieldMask": [
+        "places.id",
+        "places.location",
+        "places.primaryType",
+        "places.types"
+      ],
+      "maxResultCount": 5,
+      "rankPreference": "DISTANCE",
+      "productionUse": true,
+      "auditRefs": [
+        "google-places-nearby-request-proof"
+      ]
+    },
+    "fieldMaskHeader": "places.id,places.location,places.primaryType,places.types",
+    "mappedEvidence": {
+      "schemaVersion": 1,
+      "evidenceId": "google-places-nearby-cinema-proof",
+      "observedAt": "2026-06-04T10:00:00.000Z",
+      "locationEvidenceId": "location-evidence-1",
+      "providerKind": "google-places",
+      "providerRef": "places/provider-cinema",
+      "queryRadiusMeters": 1000,
+      "distanceMeters": 118,
+      "category": "cinema",
+      "confidence": 0.82,
+      "ambiguityState": "clear",
+      "reasonCodes": [
+        "google-places-nearby-mapped"
+      ],
+      "evidence": [
+        {
+          "evidenceId": "tracking-location-row-1",
+          "kind": "journal-entry",
+          "digest": "sha256:tracking-poi-provider-proof",
+          "uri": null
+        }
+      ]
+    },
+    "ambiguousEvidence": {
+      "schemaVersion": 1,
+      "evidenceId": "google-places-nearby-ambiguous-proof",
+      "observedAt": "2026-06-04T10:02:00.000Z",
+      "locationEvidenceId": "location-evidence-1",
+      "providerKind": "google-places",
+      "providerRef": "places/provider-school",
+      "queryRadiusMeters": 1000,
+      "distanceMeters": 142,
+      "category": "school",
+      "confidence": 0.56,
+      "ambiguityState": "multiple-candidates",
+      "reasonCodes": [
+        "google-places-nearby-mapped",
+        "nearby-place-multiple-candidates"
+      ],
+      "evidence": [
+        {
+          "evidenceId": "tracking-location-row-1",
+          "kind": "journal-entry",
+          "digest": "sha256:tracking-poi-provider-proof",
+          "uri": null
+        }
+      ]
+    },
+    "unavailableEvidence": {
+      "schemaVersion": 1,
+      "evidenceId": "google-places-nearby-unavailable-proof",
+      "observedAt": "2026-06-04T10:03:00.000Z",
+      "locationEvidenceId": "location-evidence-1",
+      "providerKind": "unavailable",
+      "providerRef": "google-places-nearby-search",
+      "queryRadiusMeters": 1000,
+      "distanceMeters": null,
+      "category": "unknown",
+      "confidence": 0,
+      "ambiguityState": "provider-unavailable",
+      "reasonCodes": [
+        "quota-exhausted",
+        "provider-degraded"
+      ],
+      "evidence": [
+        {
+          "evidenceId": "tracking-location-row-1",
+          "kind": "journal-entry",
+          "digest": "sha256:tracking-poi-provider-proof",
+          "uri": null
+        }
+      ]
+    }
+  }
+}
