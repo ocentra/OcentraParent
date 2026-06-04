@@ -28,6 +28,7 @@ Proof root: `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`
 - `10-journal-sqlite-proof.json`
 - `14-retention-delete-proof.json`
 - `18-service-read-model-proof.json`
+- `19-wsl-local-replay-proof.json`
 - `16-validation-commands.log`
 - Pre-device gate:
   `output/tracking-plan-proof/pre-device-gap-closure/proof-summary.json`
@@ -40,6 +41,7 @@ Proof root: `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`
 - [ ] Ensure AI/report/policy cite stored refs.
 - [ ] Keep Ocentra-hosted storage off by default.
 - [x] Include the P2 service read-model proof in the pre-device gate.
+- [x] Record P3 WSL/local replay proof for the read-model proof stack.
 
 ## Where We Are
 
@@ -59,6 +61,13 @@ implementation checklist.
 The pre-device proof gate now reruns this service proof and records the
 remaining broader read-model, full UI, hosted accessibility, and platform replay
 gaps before device work starts.
+The WSL/local replay proof now records WSL2/Ubuntu toolchain evidence, the
+linked-worktree Git mapping required by this Windows-hosted checkout, contract
+build output, the service read-model proof, and the Rust core tracking
+read-model test in `19-wsl-local-replay-proof.json` and
+`output/tracking-plan-proof/wsl-local-replay/proof.json`. That proof is P3
+local-machine evidence only; it does not claim Android/iOS physical behavior,
+authority, hosted UI/accessibility, provider delivery, or production readiness.
 
 ## Where We Want To Be
 
@@ -81,9 +90,9 @@ This workpack can be assigned independently, implemented against the owning doma
 ## Manual-Required Gaps
 
 - Hosted portal screenshot/accessibility proof, broader product read models,
-  full UI, platform replay, export, provider, and physical-device claims remain
-  manual-required until the assigned proof
-  artifacts exist.
+  full UI, platform physical-device replay, export, provider, authority, and
+  production claims remain manual-required until the assigned proof artifacts
+  exist.
 - Any unsupported platform or provider failure must surface as degraded/manual-required state, not as a silent success.
 
 ## Fill This Before Reporting DONE Or PR-ready
@@ -109,3 +118,19 @@ This workpack can be assigned independently, implemented against the owning doma
       proof, broader read models, full UI, platform replay, export,
       Android/iOS physical proof, provider delivery, and notifications remain
       proof-gated as applicable.
+- [x] Workpack id and branch: `codex/tracking-wsl-local-replay-proof`.
+- [x] Touched files: WSL proof script, root test script wiring, tracking
+      feature doc, tracking README, implementation checklist, WP32, WP33, and
+      generated WSL proof artifacts.
+- [x] Validation commands and results:
+      `npm run test:tracking-plan-wsl-local-proof` passed locally.
+- [x] Proof artifacts under
+      `output/tracking-plan-proof/wsl-local-replay/` and
+      `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/19-wsl-local-replay-proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, tracking checklist,
+      README, WP32, and WP33 updated; central capability row delta queued
+      through the hub instead of editing `docs/product-capability-checklist.md`.
+- [x] Known gaps/manual-required states: richer read models, full UI, hosted
+      UI/accessibility, Android/iOS physical-device proof, authority, provider
+      delivery, notifications, and production proof remain proof-gated as
+      applicable.

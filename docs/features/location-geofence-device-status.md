@@ -89,6 +89,12 @@ expose location or device-status features. Parents expect this category.
   `output/tracking-plan-proof/09-android-background-location-and-geofence-adapter/`,
   `output/tracking-plan-proof/10-android-battery-connectivity-and-status-adapter/`,
   and `test-results/tracking-plan-android-emulator-proof/`.
+- P3 WSL/local replay proof now exists through
+  `npm run test:tracking-plan-wsl-local-proof`. It records WSL2/Ubuntu
+  toolchain evidence, the linked-worktree Git mapping needed for this
+  Windows-hosted worktree, the tracking contracts build, the service read-model
+  proof, and the Rust core tracking read-model test under
+  `output/tracking-plan-proof/wsl-local-replay/`.
 - Platform permissions, mobile physical-device proof, full runtime adapters,
   provider delivery, notification delivery, full parent/child UI, hosted screenshots,
   accessibility, and richer live service-backed UI evidence citations remain not
@@ -102,11 +108,11 @@ Location/geofence is now in contract, P1 fixture/runtime proof, narrow P2
 service read-model proof with retention-delete tombstone replay, narrow portal
 summary-consumption proof, P1 local parent-defined place store proof,
 pre-device proof-gate progress, and Android emulator package/service/status
-scaffold proof. It remains a tracked product gap until platform location and
-geofence adapters, broader product read models, provider delivery,
-notifications, physical-device proof, full parent/child UI snapshots,
-accessibility, hosted UI proof, and richer live service-backed UI evidence
-citations are proved.
+scaffold proof, and P3 WSL/local replay proof. It remains a tracked product gap
+until platform location and geofence adapters, broader product read models,
+provider delivery, notifications, physical-device proof, full parent/child UI
+snapshots, accessibility, hosted UI proof, and richer live service-backed UI
+evidence citations are proved.
 
 ## Checklist
 
@@ -134,6 +140,8 @@ citations are proved.
       read model.
 - [x] P1 local parent-defined place store proof for CRUD/import/export/delete
       with parent-device-local default storage and remote sync disabled.
+- [x] P3 WSL/local replay proof for the tracking read-model proof stack and
+      linked-worktree toolchain mapping.
 - [x] P1 parent portal tracking-state fixture surface, local parent-route screenshot,
       and local proof artifact references.
 - [x] Pre-device gap-closure proof gate and Android Studio/iOS simulator/WSL/manual
@@ -148,7 +156,7 @@ background execution, retention, and custody as first-class requirements.
 Use `docs/plans/tracking-plan/README.md` for implementation sequencing and
 workpack ownership. Keep AI as evidence, not authority, and keep LAN/IP/Wi-Fi
 presence as hints only. The pre-device proof gate is now repeatable; the next
-implementation layers are broader tracking journal/read-model surfaces, full
+implementation layers are richer tracking journal/read-model surfaces, full
 portal UI snapshots/accessibility, remaining Android foreground-location and
-background/geofence runtime proof, WSL/local replay where useful, then physical
+background/geofence runtime proof, iOS simulator/local proof, then physical
 Android/iOS proof and authority proof only when matching devices are enrolled.
