@@ -38,6 +38,8 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
 - `14-retention-delete-proof.json`
 - `15-manual-platform-proof.md`
 - `16-validation-commands.log`
+- WP30 hosted parent route proof:
+  `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/17-accessibility-proof.json`
 - WP32 companion proof:
   `../32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json`
 - Pre-device aggregate proof:
@@ -79,14 +81,25 @@ proof, and production-pilot proof remain unclaimed. WP32 now also has focused
 P2 service-command proof plus narrow portal summary consumption for the
 `trackingReadModel` payload; that proof does not upgrade the full UI, platform,
 authority, or production claims.
+WP30 now has narrow P2 hosted browser proof for the parent portal
+`policy-tracking` route through `node scripts/test/tracking-plan-hosted-ui-proof.mjs`.
+The proof writes
+`output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/17-accessibility-proof.json`,
+`output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/12-playwright-proof.log`,
+and
+`output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/policy-tracking-hosted-ui-proof.png`;
+it proves first-target parent route browser rendering and accessibility
+basics only, not child-device UI, full live UI, physical device behavior, or
+authority.
 This branch adds
 `node scripts/test/tracking-plan-pre-device-proof.mjs`, which reruns the
-tracking P0/P1/P2 stack, lower-level Android/iOS mobile scaffold proof scripts,
-Android debug package artifact gate, and mobile aggregate proof. It writes
+tracking P0/P1/P2 stack, hosted parent route UI proof, lower-level Android/iOS
+mobile scaffold proof scripts, Android debug package artifact gate, and mobile
+aggregate proof. It writes
 `output/tracking-plan-proof/pre-device-gap-closure/` with explicit Android
 Studio, iOS simulator, WSL/local, physical-device, and authority proof plans.
 Those artifacts close the pre-device accounting gap only; they do not claim
-device, authority, full hosted UI/accessibility, or production readiness.
+device, authority, full parent/child UI accessibility, or production readiness.
 
 ## Where We Want To Be
 
@@ -103,7 +116,10 @@ This workpack can be assigned independently, implemented against the owning doma
 
 - docs/plans/tracking-plan/workpacks/33-proof-gates-fixtures-rollout-and-pr-gate.md
 - docs/plans/tracking-plan/implementation-checklist.md
+- scripts/test/tracking-plan-hosted-ui-proof.mjs
+- scripts/test/tracking-plan-pre-device-proof.mjs
 - `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/`
+- `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/17-accessibility-proof.json`
 - Implementation paths listed by the worker before editing.
 
 ## Manual-Required Gaps
@@ -126,3 +142,24 @@ This workpack can be assigned independently, implemented against the owning doma
 - [x] Proof artifacts under `output/tracking-plan-proof/pre-device-gap-closure/`, including `proof-summary.json`, `android-studio-local-proof-plan.json`, `ios-simulator-local-proof-plan.json`, `wsl-local-proof-plan.json`, `physical-device-manual-proof-plan.json`, and `16-validation-commands.log`.
 - [x] Product doc/checklist updates: owning feature doc and tracking checklist updated; the central `docs/product-capability-checklist.md` row update is queued through the hub DOC_DELTA queue with the pre-device proof gate while keeping Android Studio/emulator, iOS simulator, WSL/local, physical-device, authority, hosted UI, and production proof as gaps.
 - [x] Known gaps/manual-required states: Android Studio/emulator runtime, iOS simulator/local, WSL/local replay, physical Android/iOS behavior, authority-enrolled proof, full hosted UI/accessibility, production pilot, and richer live UI/read-model/product claims remain proof-gated as applicable.
+- [x] Workpack id and branch: `codex/tracking-read-model-portal-proof`.
+- [x] Touched files: `scripts/test/tracking-plan-hosted-ui-proof.mjs`,
+      `scripts/test/tracking-plan-pre-device-proof.mjs`, `package.json`,
+      WP30/WP33/checklist docs, feature doc, tracking README, and generated
+      WP30/pre-device proof artifacts.
+- [x] Validation commands and results:
+      `cmd /c npm run test:tracking-plan-hosted-ui-proof` passed;
+      `cmd /c npm run test:tracking-plan-pre-device-proof` passed.
+- [x] Proof artifacts:
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/17-accessibility-proof.json`;
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/policy-tracking-hosted-ui-proof.png`;
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/12-playwright-proof.log`;
+      refreshed `output/tracking-plan-proof/pre-device-gap-closure/proof-summary.json`.
+- [x] Product doc/checklist updates: owning feature doc, tracking README,
+      implementation checklist, WP30, and WP33 updated. Central product
+      checklist remains primary-owned and was not edited in this branch.
+- [x] Known gaps/manual-required states: child-device UI, full live
+      service-backed tracking UI, Android Studio/emulator runtime proof,
+      iOS simulator/local proof, WSL/local replay, physical Android/iOS
+      behavior, authority-enrolled proof, and production pilot remain
+      proof-gated.

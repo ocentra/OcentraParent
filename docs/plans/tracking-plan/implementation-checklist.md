@@ -79,6 +79,11 @@ Every checked item must cite one or more proof artifacts.
       Studio/iOS simulator/WSL/physical-device proof plans before device work.
       Aggregate proof:
       `output/tracking-plan-proof/pre-device-gap-closure/proof-summary.json`.
+- [x] Narrow hosted parent portal screenshot/accessibility proof exists for the
+      first-target `policy-tracking` route. Hosted UI proof:
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/17-accessibility-proof.json`;
+      screenshot:
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/policy-tracking-hosted-ui-proof.png`.
 
 ## Proof Tier Gates
 
@@ -96,7 +101,8 @@ Use [Tracking Proof Tiers](proof-tiers.md) for every checklist item.
 | Parent policy is alert/action authority                                   | P1_FIXTURE_SIMULATION        | P0_CONTRACT           | simulated          | `output/tracking-plan-proof/25-policy-compiler-for-tracking-rules/`                                                                                                                                                                                                                                       | runtime compiler/evaluator proof remains pending                                                                                                                   |
 | Retention/delete/export behavior                                          | P1_FIXTURE_SIMULATION        | P1_FIXTURE_SIMULATION | simulated          | `output/tracking-plan-proof/07-retention-and-custody-model/14-retention-delete-proof.json`; `output/tracking-plan-proof/07-retention-and-custody-model/17-retention-export-proof.json`; `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-fixture-state-matrix.json`                   | product live service-backed retention settings remain pending                                                                                                      |
 | Tracking service read-model command                                       | P2_HOSTED_CI                 | P2_HOSTED_CI          | proved             | `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json`                                                                                                                                                                                                      | consolidated service citations and retention tombstone accounting proved; full product read models, full deletion replay, hosted UI/accessibility, and platform replay proof remain pending |
-| Tracking pre-device proof gate                                            | P2_HOSTED_CI                 | P2_HOSTED_CI          | proved             | `output/tracking-plan-proof/pre-device-gap-closure/proof-summary.json`                                                                                                                                                                                                                                    | Android Studio/emulator, iOS simulator, WSL/local replay, physical-device, authority, hosted full UI accessibility, and production-pilot artifacts remain separate |
+| Tracking hosted parent route UI/accessibility                             | P2_HOSTED_CI                 | P2_HOSTED_CI          | proved             | `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/17-accessibility-proof.json`; `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/policy-tracking-hosted-ui-proof.png`                                                                                       | first-target parent route proved; child UI, full service-backed tracking UI, full product accessibility, and physical-device proof remain pending                  |
+| Tracking pre-device proof gate                                            | P2_HOSTED_CI                 | P2_HOSTED_CI          | proved             | `output/tracking-plan-proof/pre-device-gap-closure/proof-summary.json`                                                                                                                                                                                                                                    | Android Studio/emulator, iOS simulator, WSL/local replay, physical-device, authority, full UI accessibility, and production-pilot artifacts remain separate        |
 | Android background behavior                                               | P4_PHYSICAL_DEVICE           | P2_HOSTED_CI          | manual_required    | `output/tracking-plan-proof/android-background-geofence/`                                                                                                                                                                                                                                                 | physical Android background geofence artifact missing                                                                                                              |
 | iOS background/region behavior                                            | P4_PHYSICAL_DEVICE           | P2_HOSTED_CI          | manual_required    | `output/tracking-plan-proof/ios-region-monitoring/`                                                                                                                                                                                                                                                       | physical iOS region/background artifact missing                                                                                                                    |
 | Authority hard-control behavior                                           | P5_AUTHORITY_ENROLLED_DEVICE | P0_CONTRACT           | authority_required | no artifact yet                                                                                                                                                                                                                                                                                           | Device Owner, supervised/MDM, AppLocker/App Control, or equivalent authority proof missing                                                                         |
@@ -134,10 +140,10 @@ Use [Tracking Proof Tiers](proof-tiers.md) for every checklist item.
 | 27   | Escalation engine                                | [ ] Contract proof partial         | P1_FIXTURE_SIMULATION | P0_CONTRACT           | simulated            | `output/tracking-plan-proof/27-escalation-engine/`                                                                                                                                                                                                                                                        | runtime execution proof remains pending                                                                                                                             |
 | 28   | Temporary live tracking mode                     | [ ] Contract proof partial         | P3_LOCAL_DEV_MACHINE  | P0_CONTRACT           | manual_required      | `output/tracking-plan-proof/28-temporary-live-tracking-mode/`                                                                                                                                                                                                                                             | live runtime/UI and battery proof missing                                                                                                                           |
 | 29   | Missing-device mode                              | [ ] Contract proof partial         | P3_LOCAL_DEV_MACHINE  | P0_CONTRACT           | manual_required      | `output/tracking-plan-proof/29-missing-device-mode/`                                                                                                                                                                                                                                                      | runtime/UI and offline proof missing                                                                                                                                |
-| 30   | Parent and child UI/UX surfaces                  | [ ] Fixture proof partial          | P2_HOSTED_CI          | P1_FIXTURE_SIMULATION | simulated            | `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-fixture-state-matrix.json`; `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/policy-tracking-parent-fixture.png`                                                                                       | full service-data UI, child-device UI, hosted Playwright/accessibility, richer live service-backed citations, and physical-device proof remain pending              |
+| 30   | Parent and child UI/UX surfaces                  | [ ] Hosted parent proof partial    | P2_HOSTED_CI          | P2_HOSTED_CI          | proved partial       | `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-fixture-state-matrix.json`; `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/policy-tracking-parent-fixture.png`; `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/17-accessibility-proof.json`; `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/policy-tracking-hosted-ui-proof.png` | first-target parent route hosted proof exists; full service-data UI, child-device UI, full live service-backed evidence details, full product accessibility, and physical-device proof remain pending |
 | 31   | Platform extension checklists and proof routing  | [x] Contract proof complete        | P0_CONTRACT           | P0_CONTRACT           | proved               | `output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/`                                                                                                                                                                                                                          | none                                                                                                                                                                |
 | 32   | Journal SQLite and read-model proof              | [ ] P2 service proof partial       | P2_HOSTED_CI          | P2_HOSTED_CI          | proved               | `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/10-journal-sqlite-proof.json`; `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json`                                                                                                    | consolidated service citations and retention tombstone accounting proved; full deletion replay, full product read models, full UI, hosted UI/accessibility, and platform replay proof remain pending |
-| 33   | Proof gates fixtures rollout and PR gate         | [x] Pre-device proof gate complete | P2_HOSTED_CI          | P2_HOSTED_CI          | proved               | `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/proof-summary.json`; generated runtime artifact `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/00-run-metadata.json`; `output/tracking-plan-proof/pre-device-gap-closure/proof-summary.json`             | hosted full UI/a11y, live UI, platform-local, physical-device, authority, and production proof remain pending                                                       |
+| 33   | Proof gates fixtures rollout and PR gate         | [x] Pre-device proof gate complete | P2_HOSTED_CI          | P2_HOSTED_CI          | proved               | `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/proof-summary.json`; generated runtime artifact `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/00-run-metadata.json`; `output/tracking-plan-proof/pre-device-gap-closure/proof-summary.json`             | hosted first-target parent route proof exists; full live UI, child UI, platform-local, physical-device, authority, and production proof remain pending              |
 
 ## Proof Pack Requirements
 
@@ -160,6 +166,7 @@ Each applicable proof pack must include:
 - [ ] `14-retention-delete-proof.json`
 - [ ] `15-manual-platform-proof.md`
 - [ ] `16-validation-commands.log`
+- [ ] `17-accessibility-proof.json`
 
 Focused contract proof roots generated by
 `scripts/test/tracking-plan-contract-proof.mjs` currently include
@@ -171,13 +178,17 @@ those implementations exist. WP30 additionally has P1 parent portal
 fixture evidence in `11-ui-fixture-state-matrix.json`; the repeatable
 `node scripts/test/tracking-plan-runtime-proof.mjs` command also captures a
 local rendered route screenshot at
-`11-ui-snapshots/policy-tracking-parent-fixture.png`; accessibility, child UI,
-richer service-data UI, and hosted Playwright proof remain pending.
+`11-ui-snapshots/policy-tracking-parent-fixture.png`. The repeatable
+`node scripts/test/tracking-plan-hosted-ui-proof.mjs` command now records the
+narrow hosted parent route screenshot at
+`11-ui-snapshots/policy-tracking-hosted-ui-proof.png` and accessibility proof
+at `17-accessibility-proof.json`; child UI, richer service-data UI, and full
+product accessibility remain pending.
 WP32 additionally has P2 service-command plus narrow portal summary-consumption
 proof from `node scripts/test/tracking-plan-service-read-model-proof.mjs`,
 written to `18-service-read-model-proof.json`; this includes consolidated
 service citation IDs and retention tombstone accounting. Full product read
-models, full deletion replay, and hosted portal proof remain pending.
+models, full deletion replay, and full live UI proof remain pending.
 WP33 `proof-summary.json` records a tracked `minimumSeriousMvpAuditSummary`.
 The runtime proof command also records the full `minimumSeriousMvpAudit` in
 generated `00-run-metadata.json`; both are first-checkpoint P1
@@ -235,13 +246,14 @@ Every implementation workpack must update, or explicitly justify not updating:
 - [x] Tracking service read-model command has P2 proof for SQLite tracking rows,
       row citation IDs, consolidated citation IDs, retention tombstone
       accounting through `trackingReadModel`, and narrow parent portal summary
-      consumption; full deletion replay, full product read models, hosted
-      UI/accessibility, and platform replay proof remain pending.
+      consumption; full deletion replay, full product read models, full live
+      UI, and platform replay proof remain pending.
 - [ ] Tracking UI/UX is not product-complete. A P1 parent portal tracking-state
-      fixture and local parent-route screenshot exist; live parent/child UI,
-      accessibility, full service-data UI, hosted proof, and physical-device
-      proof remain pending. The narrow live service summary now shows
-      consolidated service citations and retention tombstone citation
+      fixture, local parent-route screenshot, and narrow P2 hosted browser
+      screenshot/accessibility proof exist for `policy-tracking`; live
+      parent/child UI, full service-data UI, full product accessibility, and
+      physical-device proof remain pending. The narrow live service summary now
+      shows consolidated service citations and retention tombstone citation
       accounting.
 - [x] Minimum Serious MVP first-checkpoint audit exists in tracked
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/proof-summary.json`
@@ -254,15 +266,15 @@ Every implementation workpack must update, or explicitly justify not updating:
       `output/tracking-plan-proof/pre-device-gap-closure/proof-summary.json`
       and was generated by
       `node scripts/test/tracking-plan-pre-device-proof.mjs`; it proves the
-      current tracking P0/P1/P2 stack and mobile scaffold/package proof stack
-      while preserving Android Studio/emulator, iOS simulator, WSL/local,
-      physical-device, authority, hosted full UI accessibility, and production
-      proof as separate gates.
+      current tracking P0/P1/P2 stack, narrow hosted parent route proof, and
+      mobile scaffold/package proof stack while preserving Android
+      Studio/emulator, iOS simulator, WSL/local, physical-device, authority,
+      full UI accessibility, and production proof as separate gates.
 - [x] Product capability checklist row update is queued through the hub
       DOC_DELTA queue instead of this worker branch; the queued row records the
       pre-device proof gate and remaining Android Studio/emulator, iOS
-      simulator, WSL/local, physical-device, authority, hosted UI, and
-      production gaps.
+      simulator, WSL/local, physical-device, authority, full UI, and production
+      gaps.
 
 ## UI Snapshot Gates
 
@@ -271,15 +283,22 @@ Every implementation workpack must update, or explicitly justify not updating:
       exception, child check-in, temporary live, missing device, and
       retention-deleted states at P1 with local proof artifact references. The
       runtime proof command captures a local rendered parent-route screenshot;
-      live-data screenshots, hosted Playwright/a11y proof, and child UI remain
+      live-data screenshots, full product accessibility, and child UI remain
       pending.
+- [x] Narrow hosted parent route screenshot/accessibility proof is stored under
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/17-accessibility-proof.json`
+      and
+      `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/policy-tracking-hosted-ui-proof.png`.
 - [ ] Child snapshots cover check-in, disclosure, safe/help responses, and
       location-share consent.
 - [ ] Screenshots are stored under the assigned proof root. The runtime proof
       command captures the local parent fixture screenshot at
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/policy-tracking-parent-fixture.png`;
-      child, live-data, and hosted screenshots remain pending.
-- [ ] Accessibility output is stored with the UI proof.
+      the hosted parent route screenshot now exists; child and live-data
+      screenshots remain pending.
+- [ ] Full parent/child accessibility output is stored with the UI proof. The
+      narrow hosted parent route accessibility artifact exists, but full product
+      accessibility remains pending.
 
 ## Evidence Quality Gates
 

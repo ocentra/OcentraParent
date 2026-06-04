@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-03T17:25:12.201Z",
-  "commit": "8467bedfff418ab63a16d066e84bab527ec340f6",
+  "checkedAt": "2026-06-04T00:40:37.253Z",
+  "commit": "9dfb17d31c9bc2e1501a0ff5d8576d39f015f797",
   "proofMode": "tracking-plan-pre-device-proof",
   "commands": [
     {
@@ -14,6 +14,10 @@
     },
     {
       "command": "node scripts/test/tracking-plan-service-read-model-proof.mjs",
+      "exitCode": 0
+    },
+    {
+      "command": "node scripts/test/tracking-plan-hosted-ui-proof.mjs",
       "exitCode": 0
     },
     {
@@ -57,7 +61,15 @@
       "currentProofTier": "P2_HOSTED_CI",
       "currentStatus": "proved",
       "artifactPath": "output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json",
-      "missingProofReason": "richer read models, deletion/tombstone replay, hosted UI/a11y, and platform replay remain pending"
+      "missingProofReason": "richer read models, deletion/tombstone replay, full live UI, and platform replay remain pending"
+    },
+    {
+      "id": "tracking-hosted-ui-accessibility",
+      "requiredProofTier": "P2_HOSTED_CI",
+      "currentProofTier": "P2_HOSTED_CI",
+      "currentStatus": "proved",
+      "artifactPath": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/17-accessibility-proof.json",
+      "missingProofReason": "child-device UI, full live service-backed tracking UI, and physical-device proof remain pending"
     },
     {
       "id": "mobile-child-agent-scaffold",

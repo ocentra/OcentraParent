@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-06-04T00:41:11.004Z",
+  "workpackId": "30-parent-and-child-ui-ux-surfaces",
+  "requiredProofTier": "P2_HOSTED_CI",
+  "currentProofTier": "P2_HOSTED_CI",
+  "currentStatus": "proved",
+  "productClaimReady": false,
+  "screenshotPath": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/policy-tracking-hosted-ui-proof.png",
+  "logPath": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/12-playwright-proof.log",
+  "commands": [
+    {
+      "command": "npm run build:contracts",
+      "exitCode": 0
+    },
+    {
+      "command": "npm exec --workspace @ocentra-parent/portal -- vite --host 127.0.0.1 --port 55049 --strictPort",
+      "exitCode": 0
+    }
+  ],
+  "proof": {
+    "route": "http://127.0.0.1:55049/#/policy-tracking",
+    "viewport": "1440x1100",
+    "expectedStates": [
+      "Tracking off",
+      "Permission required",
+      "Stale last known",
+      "Offline last known",
+      "Low accuracy",
+      "Nearby place ambiguous",
+      "Policy alert",
+      "Parent acknowledged",
+      "Exception active",
+      "Child check-in",
+      "Temporary live",
+      "Missing device",
+      "Retention deleted"
+    ],
+    "accessibility": {
+      "sectionLabel": "Tracking status proof",
+      "firstHeading": "Tracking status proof",
+      "buttonName": "Refresh tracking status",
+      "cardCount": 14,
+      "headingCount": 14,
+      "definitionListCount": 14,
+      "productClaimCount": 14,
+      "visibleCardCount": 14,
+      "overlappingCards": 0,
+      "allCardsHaveHeadings": true,
+      "allCardsHaveDefinitionLists": true,
+      "allCardsHaveNoClaimCopy": true,
+      "noVisibleOverlap": true
+    },
+    "deletedEvidenceRendered": false,
+    "screenshotPath": "output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/policy-tracking-hosted-ui-proof.png"
+  },
+  "nonClaims": [
+    "This proof does not claim Android or iOS physical background behavior.",
+    "This proof does not claim child-device UI completion.",
+    "This proof does not claim full live service-backed tracking UI completion.",
+    "This proof does not claim authority-enrolled or production-pilot readiness."
+  ]
+}

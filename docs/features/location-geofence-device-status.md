@@ -76,20 +76,31 @@ expose location or device-status features. Parents expect this category.
   parent-defined safe and restricted places, keeps default storage
   parent-device-local with remote sync disabled, and writes artifacts under
   `output/tracking-plan-proof/22-local-parent-defined-place-database/`.
+- Narrow hosted browser proof now exists for the parent portal
+  `policy-tracking` route through `node scripts/test/tracking-plan-hosted-ui-proof.mjs`.
+  It renders the real Vite portal route, captures
+  `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/policy-tracking-hosted-ui-proof.png`,
+  and writes
+  `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/17-accessibility-proof.json`
+  proving section labels, headings, button text, definition-list metadata,
+  no-product-claim copy, no visible card overlap, and hidden deleted evidence
+  for the first-target parent tracking state matrix.
 - Platform permissions, mobile physical-device proof, full runtime adapters,
-  provider delivery, notification delivery, full parent/child UI, hosted screenshots,
-  accessibility, and full live service-backed UI evidence details remain not
+  provider delivery, notification delivery, full parent/child UI, full live
+  service-backed UI evidence details, and full product accessibility remain not
   product-complete.
 - Raw tracking/location settings are preserved as design inputs, not
   product-complete implementation proof.
 
 ## Current Gap
 
+Location/geofence is now in contract, P1 fixture/runtime proof, narrow P2
 service read-model proof, narrow portal summary-consumption proof, P1 local
-parent-defined place store proof, and pre-device proof-gate progress. It
-remains a tracked product gap until platform adapters, richer product read
-models, provider delivery, notifications, physical-device proof, full
-parent/child UI snapshots, accessibility, hosted UI proof, and richer live
+parent-defined place store proof, pre-device proof-gate progress, and narrow
+hosted browser screenshot/accessibility proof for the parent `policy-tracking`
+route. It remains a tracked product gap until platform adapters, richer product
+read models, provider delivery, notifications, physical-device proof, full
+parent/child UI snapshots, full product accessibility, and richer live
 service-backed UI evidence citations are proved.
 
 ## Checklist
@@ -122,8 +133,10 @@ service-backed UI evidence citations are proved.
       proof plans.
 - [x] Narrow live service-backed consolidated citations and retention tombstone
       citation accounting.
+- [x] Narrow hosted parent portal screenshot/accessibility proof for the
+      first-target `policy-tracking` route.
 - [ ] Full live service-backed UI evidence details beyond the narrow summary.
-- [ ] Live parent/child UI screenshots, hosted proof, and accessibility proof.
+- [ ] Full live parent/child UI screenshots and full product accessibility proof.
 
 ## Next AI Instructions
 
@@ -133,6 +146,6 @@ Use `docs/plans/tracking-plan/README.md` for implementation sequencing and
 workpack ownership. Keep AI as evidence, not authority, and keep LAN/IP/Wi-Fi
 presence as hints only. The pre-device proof gate is now repeatable; the next
 implementation layers are richer tracking journal/read-model surfaces, full
-portal UI snapshots/accessibility, Android Studio/local proof, WSL/local replay
-where useful, then physical Android/iOS proof and authority proof only when
-matching devices are enrolled.
+portal UI snapshots/accessibility beyond the narrow hosted parent route proof,
+Android Studio/local proof, WSL/local replay where useful, then physical
+Android/iOS proof and authority proof only when matching devices are enrolled.

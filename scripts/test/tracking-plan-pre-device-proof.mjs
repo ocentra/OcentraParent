@@ -13,6 +13,7 @@ const proofCommands = [
   ['tracking-contract', 'node', ['scripts/test/tracking-plan-contract-proof.mjs']],
   ['tracking-runtime', 'node', ['scripts/test/tracking-plan-runtime-proof.mjs']],
   ['tracking-service-read-model', 'node', ['scripts/test/tracking-plan-service-read-model-proof.mjs']],
+  ['tracking-hosted-ui', 'node', ['scripts/test/tracking-plan-hosted-ui-proof.mjs']],
   ['android-device-artifact-gate', 'npm', ['run', 'test:child-android-device-proof-artifact-gate']],
   ['ios-entitlement-capability', 'npm', ['run', 'test:child-ios-entitlement-capability-proof']],
   ['mobile-child-agent-capability', 'npm', ['run', 'test:mobile-child-agent-capability-proof']],
@@ -87,6 +88,9 @@ async function loadProofs() {
   const service = await readJson(
     'output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json'
   );
+  const hostedUi = await readJson(
+    'output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/17-accessibility-proof.json'
+  );
   const mobile = await readJson('test-results/mobile-child-agent-capability-proof/proof.json');
   const android = await readJson('test-results/child-android-device-proof-artifact-gate/proof.json');
   const ios = await readJson('test-results/child-ios-entitlement-capability-proof/proof.json');
@@ -97,6 +101,9 @@ async function loadProofs() {
   if (service.productClaimReady !== false) {
     throw new Error('Tracking service proof must remain not product-claim-ready.');
   }
+  if (hostedUi.productClaimReady !== false || hostedUi.currentStatus !== 'proved') {
+    throw new Error('Hosted tracking UI proof must prove browser UI without product completion.');
+  }
   if (android.runtimeReadModel.childAndroidDeviceReadinessState !== 'manual-required') {
     throw new Error('Android device readiness must remain manual-required before device proof.');
   }
@@ -104,7 +111,7 @@ async function loadProofs() {
     throw new Error('iOS entitlement proof must keep background execution as a non-claim.');
   }
 
-  return { runtime, service, mobile, android, ios };
+  return { runtime, service, hostedUi, mobile, android, ios };
 }
 
 async function assertDocsStillBlockDeviceClaims() {
@@ -136,7 +143,7 @@ async function assertDocsStillBlockDeviceClaims() {
   };
 }
 
-function buildPreDeviceMatrix({ runtime, service, mobile, android, ios }) {
+function buildPreDeviceMatrix({ runtime, service, hostedUi, mobile, android, ios }) {
   return [
     matrixRow('tracking-contracts', 'P0_CONTRACT', 'P0_CONTRACT', 'proved', 'output/tracking-plan-proof/', 'none'),
     matrixRow(
@@ -153,7 +160,15 @@ function buildPreDeviceMatrix({ runtime, service, mobile, android, ios }) {
       service.currentProofTier,
       service.currentStatus,
       'output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json',
-      'richer read models, deletion/tombstone replay, hosted UI/a11y, and platform replay remain pending'
+      'richer read models, deletion/tombstone replay, full live UI, and platform replay remain pending'
+    ),
+    matrixRow(
+      'tracking-hosted-ui-accessibility',
+      'P2_HOSTED_CI',
+      hostedUi.currentProofTier,
+      hostedUi.currentStatus,
+      'output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/17-accessibility-proof.json',
+      'child-device UI, full live service-backed tracking UI, and physical-device proof remain pending'
     ),
     matrixRow(
       'mobile-child-agent-scaffold',

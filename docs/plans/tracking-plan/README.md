@@ -149,6 +149,14 @@ flowchart TD
   proof through the existing Android artifact gate, and writes
   `output/tracking-plan-proof/pre-device-gap-closure/proof-summary.json` plus
   Android Studio, iOS simulator, WSL/local, and physical-device proof plans.
+- `scripts/test/tracking-plan-hosted-ui-proof.mjs` now records narrow hosted
+  browser proof for the parent portal `policy-tracking` route. It starts the
+  real Vite portal, renders the first-target tracking state matrix, captures
+  `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/policy-tracking-hosted-ui-proof.png`,
+  writes
+  `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/17-accessibility-proof.json`,
+  and is included in the pre-device aggregate matrix as
+  `tracking-hosted-ui-accessibility`.
 - WP33 tracked `proof-summary.json` records `minimumSeriousMvpAuditSummary`;
   the runtime proof also writes the full `minimumSeriousMvpAudit` into
   generated
@@ -159,7 +167,9 @@ flowchart TD
 - Android Studio/emulator, iOS simulator, WSL/local, physical-device,
   authority-enrolled, provider runtime, alert delivery, full portal UI, and live
   service-backed retention UI proof remain not product-complete until their
-  listed artifacts are collected.
+  listed artifacts are collected. The hosted proof above is only the narrow
+  parent route proof and does not prove child-device UI, full live service data,
+  mobile background behavior, or authority.
 
 ## Where We Want To Be
 
