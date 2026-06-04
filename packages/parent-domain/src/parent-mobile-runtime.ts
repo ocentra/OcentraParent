@@ -10,6 +10,7 @@ export const ParentMobilePlatformSchema = withParser(Schema.Literal('android', '
 export const ParentMobilePackageStateSchema = withParser(
   Schema.Literal('ci-mechanical-proof', 'manual-required', 'scaffold-only', 'unavailable')
 );
+export const ParentMobilePackageLifecycleStateSchema = withParser(Schema.Literal('manual-required', 'unavailable'));
 export const ParentMobileSigningStateSchema = withParser(Schema.Literal('manual-required', 'unavailable'));
 export const ParentMobileStoreDistributionStateSchema = withParser(Schema.Literal('manual-required', 'planned'));
 export const ParentMobileControllerStateSchema = withParser(
@@ -22,6 +23,9 @@ export const ParentMobileCommandAuthorityStateSchema = withParser(
     'controller-takeover-manual-required',
     'unavailable'
   )
+);
+export const ParentMobileControllerRequestBoundarySchema = withParser(
+  Schema.Literal('observer-read-only', 'backend-controller-owned', 'request-first-manual-required', 'unavailable')
 );
 export const ParentMobileServiceAvailabilityStateSchema = withParser(
   Schema.Literal('available', 'degraded', 'unavailable', 'manual-required', 'not-implemented', 'stale', 'offline')
@@ -45,10 +49,16 @@ const ParentMobilePackageLaunchTargetSchema = NonEmptyParentMobileText.pipe(
 const ParentMobilePackageProofCommandSchema = NonEmptyParentMobileText.pipe(
   Schema.brand('ParentMobilePackageProofCommand')
 );
+const ParentMobilePackageLifecycleProofRequirementSchema = NonEmptyParentMobileText.pipe(
+  Schema.brand('ParentMobilePackageLifecycleProofRequirement')
+);
 const ParentMobileControllerLeaseIdSchema = NonEmptyParentMobileText.pipe(
   Schema.brand('ParentMobileControllerLeaseId')
 );
 const ParentMobileRouteIdSchema = NonEmptyParentMobileText.pipe(Schema.brand('ParentMobileRouteId'));
+const ParentMobileRouteStatusReasonSchema = NonEmptyParentMobileText.pipe(
+  Schema.brand('ParentMobileRouteStatusReason')
+);
 const ParentMobileProviderIdSchema = NonEmptyParentMobileText.pipe(Schema.brand('ParentMobileProviderId'));
 const ParentMobileCapabilityNameSchema = NonEmptyParentMobileText.pipe(Schema.brand('ParentMobileCapabilityName'));
 const ParentMobileUnavailableReasonSchema = NonEmptyParentMobileText.pipe(
@@ -68,6 +78,8 @@ export const ParentMobilePackageProofSchema = withParser(
     packageState: ParentMobilePackageStateSchema,
     launchTarget: ParentMobilePackageLaunchTargetSchema,
     proofCommand: ParentMobilePackageProofCommandSchema,
+    packageLifecycleState: ParentMobilePackageLifecycleStateSchema,
+    packageLifecycleProofRequirement: ParentMobilePackageLifecycleProofRequirementSchema,
     signingState: ParentMobileSigningStateSchema,
     storeDistributionState: ParentMobileStoreDistributionStateSchema,
   })
@@ -88,6 +100,7 @@ export const ParentMobileServiceRouteStatusSchema = withParser(
     state: ParentMobileServiceAvailabilityStateSchema,
     custody: ParentMobileServiceRouteCustodySchema,
     selectedRouteId: Schema.Union(ParentMobileRouteIdSchema, Schema.Null),
+    statusReason: ParentMobileRouteStatusReasonSchema,
     proofRequirement: ParentMobileRouteProofRequirementSchema,
   })
 );
@@ -110,6 +123,7 @@ export const ParentMobileControllerProofSchema = withParser(
     controllerLeaseId: Schema.Union(ParentMobileControllerLeaseIdSchema, Schema.Null),
     takeoverRequestAllowed: Schema.Boolean,
     commandAuthorityState: ParentMobileCommandAuthorityStateSchema,
+    requestBoundary: ParentMobileControllerRequestBoundarySchema,
   })
 );
 
@@ -149,6 +163,50 @@ const RequiredParentMobileRouteKinds = [
   'parent-owned-storage',
 ] as const satisfies ReadonlyArray<ParentMobileServiceRouteKind>;
 
+const ParentMobileStaticRouteExpectations = {
+  'cloud-relay': {
+    state: 'not-implemented',
+    custody: 'unavailable',
+  },
+  'parent-cache': {
+    state: 'stale',
+    custody: 'parent-cache',
+  },
+  'parent-owned-storage': {
+    state: 'offline',
+    custody: 'parent-owned-storage',
+  },
+} as const;
+
+type ParentMobileStaticRouteKind = keyof typeof ParentMobileStaticRouteExpectations;
+
+const ParentMobileControllerStateExpectations = {
+  'active-controller': {
+    controllerLease: 'required',
+    takeoverRequestAllowed: true,
+    commandAuthorityState: 'active-controller-backend-proof',
+    requestBoundary: 'backend-controller-owned',
+  },
+  observer: {
+    controllerLease: 'absent',
+    takeoverRequestAllowed: false,
+    commandAuthorityState: 'observer-read-only',
+    requestBoundary: 'observer-read-only',
+  },
+  'manual-required': {
+    controllerLease: 'absent',
+    takeoverRequestAllowed: true,
+    commandAuthorityState: 'controller-takeover-manual-required',
+    requestBoundary: 'request-first-manual-required',
+  },
+  unavailable: {
+    controllerLease: 'absent',
+    takeoverRequestAllowed: false,
+    commandAuthorityState: 'unavailable',
+    requestBoundary: 'unavailable',
+  },
+} as const;
+
 export const ParentMobileRuntimeReadModelSchema = withParser(
   ParentMobileRuntimeReadModelBaseSchema.pipe(
     Schema.filter(
@@ -161,6 +219,10 @@ export const ParentMobileRuntimeReadModelSchema = withParser(
 
 function parentMobileRuntimeReadModelIsConsistent(readModel: ParentMobileRuntimeReadModelCandidate): boolean {
   if (readModel.packageProof.platform !== readModel.platform) {
+    return false;
+  }
+
+  if (!parentMobilePackageProofIsConsistent(readModel.packageProof)) {
     return false;
   }
 
@@ -224,40 +286,91 @@ function parentMobileRouteStatusesAreConsistent(
   );
 }
 
+function parentMobilePackageProofIsConsistent(
+  packageProof: ParentMobileRuntimeReadModelCandidate['packageProof']
+): boolean {
+  if (packageProof.packageState === 'unavailable') {
+    return packageProof.packageLifecycleState === 'unavailable';
+  }
+
+  return packageProof.packageLifecycleState === 'manual-required';
+}
+
 function parentMobileRouteStatusMatchesAvailability(
   serviceAvailability: ParentMobileRuntimeReadModelCandidate['serviceAvailability'],
   routeStatus: ParentMobileServiceRouteStatus | undefined
 ): boolean {
-  if (
-    routeStatus === undefined ||
-    routeStatus.state !== expectedParentMobileRouteState(serviceAvailability, routeStatus.routeKind)
-  ) {
+  if (routeStatus === undefined) {
     return false;
   }
 
+  if (routeStatus.state !== expectedParentMobileRouteState(serviceAvailability, routeStatus.routeKind)) {
+    return false;
+  }
+
+  if (routeStatus.statusReason !== expectedParentMobileRouteStatusReason(routeStatus)) {
+    return false;
+  }
+
+  return parentMobileRouteStatusCustodyMatches(routeStatus);
+}
+
+function parentMobileRouteStatusCustodyMatches(routeStatus: ParentMobileServiceRouteStatus): boolean {
+  if (routeStatus.state === 'unavailable') {
+    return routeStatus.custody === 'unavailable' && routeStatus.selectedRouteId === null;
+  }
+
+  const staticExpectation = parentMobileStaticRouteExpectation(routeStatus.routeKind);
+  return staticExpectation === null
+    ? routeStatus.custody === routeStatus.routeKind
+    : routeStatus.state === staticExpectation.state &&
+        routeStatus.custody === staticExpectation.custody &&
+        routeStatus.selectedRouteId === null;
+}
+
+function parentMobileStaticRouteExpectation(routeKind: ParentMobileServiceRouteKind) {
+  return routeKind in ParentMobileStaticRouteExpectations
+    ? ParentMobileStaticRouteExpectations[routeKind as ParentMobileStaticRouteKind]
+    : null;
+}
+
+function expectedParentMobileRouteStatusReason(routeStatus: ParentMobileServiceRouteStatus): string {
+  if (routeStatus.routeKind === 'local-service') {
+    return parentMobileLiveRouteStatusReason('local-service', routeStatus.state);
+  }
+
+  if (routeStatus.routeKind === 'lan-service') {
+    return parentMobileLiveRouteStatusReason('lan-service', routeStatus.state);
+  }
+
   if (routeStatus.routeKind === 'cloud-relay') {
-    return (
-      routeStatus.state === 'not-implemented' &&
-      routeStatus.custody === 'unavailable' &&
-      routeStatus.selectedRouteId === null
-    );
+    return 'cloud-relay-not-implemented';
   }
 
   if (routeStatus.routeKind === 'parent-cache') {
-    return (
-      routeStatus.state === 'stale' && routeStatus.custody === 'parent-cache' && routeStatus.selectedRouteId === null
-    );
+    return routeStatus.state === 'unavailable' ? 'parent-cache-unavailable' : 'parent-cache-stale';
   }
 
-  if (routeStatus.routeKind === 'parent-owned-storage') {
-    return (
-      routeStatus.state === 'offline' &&
-      routeStatus.custody === 'parent-owned-storage' &&
-      routeStatus.selectedRouteId === null
-    );
+  return routeStatus.state === 'unavailable' ? 'parent-owned-storage-unavailable' : 'parent-owned-storage-offline';
+}
+
+function parentMobileLiveRouteStatusReason(
+  routeKind: 'local-service' | 'lan-service',
+  state: ParentMobileServiceAvailabilityState
+): string {
+  if (state === 'available') {
+    return `${routeKind}-available`;
   }
 
-  return routeStatus.custody === routeStatus.routeKind;
+  if (state === 'degraded') {
+    return `${routeKind}-degraded`;
+  }
+
+  if (state === 'unavailable') {
+    return `${routeKind}-unavailable`;
+  }
+
+  return `${routeKind}-proof-required`;
 }
 
 function expectedParentMobileRouteState(
@@ -286,29 +399,18 @@ function expectedParentMobileRouteState(
 function parentMobileControllerProofIsConsistent(
   controllerProof: ParentMobileRuntimeReadModelCandidate['controllerProof']
 ): boolean {
-  if (controllerProof.controllerState === 'active-controller') {
-    return (
-      controllerProof.controllerLeaseId !== null &&
-      controllerProof.commandAuthorityState === 'active-controller-backend-proof'
-    );
-  }
+  const expected = ParentMobileControllerStateExpectations[controllerProof.controllerState];
+  const leaseMatches =
+    expected.controllerLease === 'required'
+      ? controllerProof.controllerLeaseId !== null
+      : controllerProof.controllerLeaseId === null;
 
-  if (controllerProof.controllerState === 'observer') {
-    return (
-      controllerProof.controllerLeaseId === null &&
-      controllerProof.takeoverRequestAllowed === false &&
-      controllerProof.commandAuthorityState === 'observer-read-only'
-    );
-  }
-
-  if (controllerProof.controllerState === 'manual-required') {
-    return (
-      controllerProof.controllerLeaseId === null &&
-      controllerProof.commandAuthorityState === 'controller-takeover-manual-required'
-    );
-  }
-
-  return controllerProof.controllerLeaseId === null && controllerProof.commandAuthorityState === 'unavailable';
+  return (
+    leaseMatches &&
+    controllerProof.takeoverRequestAllowed === expected.takeoverRequestAllowed &&
+    controllerProof.commandAuthorityState === expected.commandAuthorityState &&
+    controllerProof.requestBoundary === expected.requestBoundary
+  );
 }
 
 function parentMobileLanAiProviderJobIsConsistent(
@@ -348,10 +450,12 @@ function parentMobileCapabilityProofsAreConsistent(readModel: ParentMobileRuntim
 
 export type ParentMobilePlatform = Infer<typeof ParentMobilePlatformSchema>;
 export type ParentMobilePackageState = Infer<typeof ParentMobilePackageStateSchema>;
+export type ParentMobilePackageLifecycleState = Infer<typeof ParentMobilePackageLifecycleStateSchema>;
 export type ParentMobileSigningState = Infer<typeof ParentMobileSigningStateSchema>;
 export type ParentMobileStoreDistributionState = Infer<typeof ParentMobileStoreDistributionStateSchema>;
 export type ParentMobileControllerState = Infer<typeof ParentMobileControllerStateSchema>;
 export type ParentMobileCommandAuthorityState = Infer<typeof ParentMobileCommandAuthorityStateSchema>;
+export type ParentMobileControllerRequestBoundary = Infer<typeof ParentMobileControllerRequestBoundarySchema>;
 export type ParentMobileServiceAvailabilityState = Infer<typeof ParentMobileServiceAvailabilityStateSchema>;
 export type ParentMobileServiceRouteKind = Infer<typeof ParentMobileServiceRouteKindSchema>;
 export type ParentMobileServiceRouteCustody = Infer<typeof ParentMobileServiceRouteCustodySchema>;
