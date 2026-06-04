@@ -295,7 +295,7 @@ fn unquoted_known_executable_target(target: &str) -> &str {
         )
 }
 
-fn known_browser_executable_names() -> [&'static str; 11] {
+pub(crate) fn known_browser_executable_names() -> [&'static str; 11] {
     [
         constants::browser::EXECUTABLE_MSEDGE_WINDOWS,
         constants::browser::EXECUTABLE_CHROME_WINDOWS,

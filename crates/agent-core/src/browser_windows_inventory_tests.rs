@@ -11,6 +11,10 @@ use crate::{
         windows_browser_inventory_candidate_paths_from_sources, BrowserWindowsInventoryPathSources,
         BrowserWindowsRegistryInstallEntry,
     },
+    browser_windows_inventory_shortcut_sources::windows_browser_shortcut_targets_from_roots,
+    browser_windows_inventory_test_support::{
+        create_executable_fixture, temp_inventory_root, write_utf16_shortcut_fixture,
+    },
     windows_browser_executable_identity, windows_browser_inventory_candidate_paths,
     windows_browser_inventory_observations, ProcessObservation,
 };
@@ -428,6 +432,51 @@ fn windows_browser_inventory_derives_shortcut_target_candidates_without_url_clai
 }
 
 #[test]
+fn windows_browser_inventory_reads_start_menu_shortcut_targets_without_url_claims() {
+    let root = temp_inventory_root(10);
+    let chrome = root
+        .join(constants::browser::PATH_SEGMENT_GOOGLE)
+        .join(constants::browser::PATH_SEGMENT_CHROME)
+        .join(constants::browser::PATH_SEGMENT_APPLICATION)
+        .join(constants::browser::EXECUTABLE_CHROME_WINDOWS);
+    create_executable_fixture(&chrome);
+    let shortcut = root
+        .join(constants::browser::EXECUTABLE_CHROME_WINDOWS)
+        .with_extension(constants::browser::WINDOWS_SHORTCUT_EXTENSION);
+    write_utf16_shortcut_fixture(&shortcut, &chrome);
+
+    let targets = windows_browser_shortcut_targets_from_roots(std::slice::from_ref(&root), 4);
+    let shortcut_targets = targets.iter().map(String::as_str).collect::<Vec<_>>();
+    let paths = windows_browser_inventory_candidate_paths_from_sources(
+        BrowserWindowsInventoryPathSources {
+            roots: &[],
+            registry_entries: &[],
+            shortcut_targets: &shortcut_targets,
+        },
+    );
+    let observations = windows_browser_inventory_observations(&paths, &[], None);
+
+    assert_eq!(targets, vec![chrome.to_string_lossy().into_owned()]);
+    assert_eq!(paths, vec![chrome.clone()]);
+    assert_eq!(observations.len(), 1);
+    assert_eq!(observations[0].browser_family, BrowserFamily::Chrome);
+    assert_eq!(
+        observations[0].install_state,
+        BrowserInventoryInstallState::Installed
+    );
+    assert_eq!(
+        observations[0].exact_url_capability,
+        BrowserExactUrlCapability::Unavailable
+    );
+    assert_eq!(
+        observations[0].running_state,
+        BrowserInventoryRunningState::NotRunning
+    );
+
+    let _ = std::fs::remove_dir_all(root);
+}
+
+#[test]
 fn windows_browser_inventory_derives_unquoted_command_targets_without_url_claims() {
     let root = temp_inventory_root(8);
     let chrome = root
@@ -569,22 +618,4 @@ fn managed_discovery_identity_uses_windows_inventory_identity() {
 
     assert_eq!(identity.browser_family, BrowserFamily::Edge);
     assert!(identity.supports_managed_cdp);
-}
-
-fn temp_inventory_root(suffix: u32) -> PathBuf {
-    let root = std::env::temp_dir()
-        .join(constants::browser::DEVTOOLS_TEST_WINDOWS_BROWSER_INVENTORY_DIR)
-        .join(std::process::id().to_string())
-        .join(suffix.to_string());
-    let _ = std::fs::remove_dir_all(&root);
-    root
-}
-
-fn create_executable_fixture(path: &PathBuf) {
-    std::fs::create_dir_all(
-        path.parent()
-            .expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET),
-    )
-    .expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET);
-    std::fs::write(path, []).expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET);
 }

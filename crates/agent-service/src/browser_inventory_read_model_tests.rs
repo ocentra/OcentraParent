@@ -194,9 +194,19 @@ async fn browser_inventory_service_default_roots_feed_windows_inventory_without_
     let previous_program_files = std::env::var_os(constants::env_var::PROGRAM_FILES);
     let previous_program_files_x86 = std::env::var_os(constants::env_var::PROGRAM_FILES_X86);
     let previous_local_app_data = std::env::var_os(constants::env_var::LOCAL_APP_DATA);
+    let previous_program_data = std::env::var_os(constants::env_var::PROGRAM_DATA);
+    let previous_app_data = std::env::var_os(constants::env_var::APP_DATA);
     std::env::set_var(constants::env_var::PROGRAM_FILES, &root);
     std::env::remove_var(constants::env_var::PROGRAM_FILES_X86);
     std::env::remove_var(constants::env_var::LOCAL_APP_DATA);
+    std::env::set_var(
+        constants::env_var::PROGRAM_DATA,
+        root.join(constants::env_var::PROGRAM_DATA),
+    );
+    std::env::set_var(
+        constants::env_var::APP_DATA,
+        root.join(constants::env_var::APP_DATA),
+    );
 
     let read_model = browser_inventory_read_model_from_service_defaults(
         constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
@@ -209,11 +219,25 @@ async fn browser_inventory_service_default_roots_feed_windows_inventory_without_
         previous_program_files_x86,
     );
     restore_env_var(constants::env_var::LOCAL_APP_DATA, previous_local_app_data);
+    restore_env_var(constants::env_var::PROGRAM_DATA, previous_program_data);
+    restore_env_var(constants::env_var::APP_DATA, previous_app_data);
     let _ = std::fs::remove_dir_all(root);
-    assert_eq!(read_model.returned, 1);
-    let row = &read_model.rows[0];
+    assert_eq!(read_model.returned, read_model.rows.len() as u64);
+    for row in &read_model.rows {
+        assert!(row.claim_boundary_is_honest());
+    }
+    let row = read_model
+        .rows
+        .iter()
+        .find(|row| {
+            row.product_name == constants::browser::PRODUCT_NAME_MICROSOFT_EDGE
+                && row.browser_family == BrowserFamily::Edge
+                && row.install_state == BrowserInventoryInstallState::Installed
+                && row.management_tier == BrowserManagementTier::Managed
+                && row.process_id.is_none()
+        })
+        .expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET);
 
-    assert!(row.claim_boundary_is_honest());
     assert_eq!(
         row.product_name,
         constants::browser::PRODUCT_NAME_MICROSOFT_EDGE

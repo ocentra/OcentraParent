@@ -1,0 +1,289 @@
+cargo test -p ocentra-parent-agent-core windows_browser_inventory
+PASS: 5 tests.
+
+cargo test -p ocentra-parent-agent-core managed_browser
+PASS: 7 tests.
+
+cargo test -p ocentra-parent-agent-service browser_inventory_read_model
+PASS: 4 tests.
+
+cargo test -p ocentra-parent-agent-protocol browser_inventory
+PASS: 3 tests.
+
+cmd /c npm run lint:schema-boundaries
+PASS: all boundary checks passed; source-shape emitted advisory warnings only.
+
+git diff --check
+PASS.
+
+cmd /c npm run validate
+FAIL: websocket-lan-smoke timed out while default port 4477 was owned by another worktree service.
+
+OCENTRA_PARENT_AGENT_PORT=4777 OCENTRA_PARENT_PORTAL_PORT=4778 cmd /c npm run validate
+PASS: release version, pre-AI proof, lint/schema/source/test-double gates, Turbo lint/type-check, TypeScript/Rust tests, validate:rust, local/LAN WebSocket integration smoke, portal local smoke, and portal Playwright E2E passed.
+
+2026-06-04 continuation:
+
+cmd /c cargo fmt --check -p ocentra-parent-agent-core
+PASS.
+
+cmd /c cargo test -p ocentra-parent-agent-core windows_browser_inventory
+PASS: 8 tests.
+
+2026-06-04 continuation:
+
+cmd /c cargo fmt --check
+PASS.
+
+cmd /c cargo test -p ocentra-parent-agent-core windows_browser_inventory
+PASS: 13 tests.
+
+cmd /c node scripts/check-source-shape.mjs
+PASS: source shape guard passed with pre-existing advisory warnings.
+
+cmd /c node scripts/check-rust-string-boundaries.mjs
+PASS: no inline Rust service/core string literals found.
+
+cmd /c cargo clippy --workspace --all-targets -- -D warnings
+PASS.
+
+cmd /c npx prettier --check docs/plans/browser-plan/workpacks/04-windows-browser-inventory-adapter.md docs/plans/browser-plan/implementation-checklist.md
+PASS.
+
+git diff --check
+PASS.
+
+2026-06-04 continuation:
+
+cmd /c cargo fmt --check
+PASS.
+
+cmd /c cargo test -p ocentra-parent-agent-core windows_browser_inventory
+PASS: 14 tests.
+
+cmd /c cargo clippy -p ocentra-parent-agent-core --all-targets -- -D warnings
+PASS.
+
+cmd /c cargo clippy --workspace --all-targets -- -D warnings
+PASS.
+
+cmd /c npx prettier --check docs/plans/browser-plan/workpacks/04-windows-browser-inventory-adapter.md docs/plans/browser-plan/implementation-checklist.md
+PASS after formatting implementation-checklist.md with Prettier.
+
+cmd /c node scripts/check-rust-string-boundaries.mjs
+PASS.
+
+cmd /c node scripts/check-source-shape.mjs
+PASS with pre-existing advisory warnings.
+
+git diff --check
+PASS.
+
+cmd /c npm run lanes:guard
+PASS.
+
+cmd /c npm run hub:guard
+PASS.
+
+cmd /c npm run validate
+PASS: release version alignment, pre-AI proof, lint/schema/source/test-double gates, Turbo lint/type-check/test tasks, validate:rust, local/LAN WebSocket integration smoke, portal local smoke, and 2 portal Playwright E2E tests.
+
+2026-06-04 live Windows registry and Start Menu source ingestion continuation:
+
+cargo test -p ocentra-parent-agent-core browser_windows_inventory --quiet
+PASS: 17 tests.
+
+cargo test -p ocentra-parent-agent-service browser_inventory_read_model --quiet
+INITIAL FAIL: default-root read-model test assumed one fixture row, but the new live Windows registry source surfaced host browser rows. Test was tightened to require honest claim boundaries for every returned row and still assert the exact temp Edge fixture row.
+
+cargo test -p ocentra-parent-agent-service browser_inventory_read_model --quiet
+PASS after host-aware assertion update: 6 tests.
+
+cargo fmt --check
+INITIAL FAIL: formatting after new Rust source module.
+
+cargo fmt
+PASS.
+
+cargo fmt --check
+PASS.
+
+cmd /c node scripts/check-source-shape.mjs
+INITIAL FAIL: new browser_windows_inventory_sources.rs and existing browser_windows_inventory_tests.rs crossed function-count limits. Split registry and Start Menu shortcut source helpers into focused modules and moved test fixture helpers to browser_windows_inventory_test_support.rs.
+
+cmd /c node scripts/check-source-shape.mjs
+PASS with pre-existing advisory warnings only.
+
+cmd /c node scripts/check-rust-string-boundaries.mjs
+PASS: no inline Rust service/core string literals found across 389 checked files.
+
+cargo clippy -p ocentra-parent-agent-core -p ocentra-parent-agent-service --all-targets -- -D warnings
+PASS.
+
+cmd /c node scripts/test/windows-browser-inventory-source-proof.mjs
+INITIAL FAIL after source split: proof script still checked the Start Menu shortcut extractor in the old orchestrator module. Updated script to check orchestrator, registry-source, and shortcut-source modules separately.
+
+cmd /c node scripts/test/windows-browser-inventory-source-proof.mjs
+PASS: wrote test-results/windows-browser-inventory-source-proof/proof.json and output/browser-plan-proof/04-windows-browser-inventory-adapter/11-live-source-proof.json.
+
+cmd /c npx prettier --check docs/plans/browser-plan/implementation-checklist.md docs/plans/browser-plan/workpacks/04-windows-browser-inventory-adapter.md docs/features/browser-web-control.md crates/agent-core/README.md crates/agent-service/README.md scripts/test/windows-browser-inventory-source-proof.mjs output/browser-plan-proof/04-windows-browser-inventory-adapter/00-source-snapshot.md output/browser-plan-proof/04-windows-browser-inventory-adapter/09-manual-platform-proof.md output/browser-plan-proof/04-windows-browser-inventory-adapter/10-validation-commands.log
+PASS.
+
+git diff --check
+PASS.
+
+cmd /c npm run lanes:guard
+PASS.
+
+cmd /c npm run hub:guard
+PASS.
+
+2026-06-04 live registry and Start Menu source continuation:
+
+cargo test -p ocentra-parent-agent-core browser_windows_inventory --quiet
+PASS: 17 tests.
+
+cargo test -p ocentra-parent-agent-service browser_inventory_read_model --quiet
+INITIAL FAIL: service default-root test assumed one row, but live Windows
+registry source collection returned additional host rows.
+
+cargo test -p ocentra-parent-agent-service browser_inventory_read_model --quiet
+PASS: 6 tests after making the service assertion host-aware while requiring all
+returned rows to pass claim_boundary_is_honest and the temp Edge fixture to stay
+exact URL unavailable.
+
+cmd /c node scripts/test/windows-browser-inventory-source-proof.mjs
+PASS: wrote test-results/windows-browser-inventory-source-proof/proof.json and
+output/browser-plan-proof/04-windows-browser-inventory-adapter/11-live-source-proof.json.
+
+OCENTRA_PARENT_AGENT_PORT=4777 OCENTRA_PARENT_PORTAL_PORT=4778 cmd /c npm run validate
+FAIL: websocket-lan-smoke timed out after agent.connection.ready during integration smoke.
+
+OCENTRA_PARENT_AGENT_PORT=4877 OCENTRA_PARENT_PORTAL_PORT=4878 cmd /c node scripts/test/websocket-lan-smoke.mjs
+PASS.
+
+OCENTRA_PARENT_AGENT_PORT=4877 OCENTRA_PARENT_PORTAL_PORT=4878 cmd /c npm run validate
+PASS: release version, pre-AI proof, lint/schema/source/test-double gates, Turbo lint/type-check/test, TypeScript/Rust tests, validate:rust, local/LAN WebSocket integration smoke, portal local smoke, and portal Playwright E2E passed.
+
+2026-06-04 post-main-advance rebase:
+
+git rebase origin/main --autostash
+PASS: rebased onto origin/main 245da15c99101703d860b611552191b6724121b1 after PR275/PR276 merge wave; WP04 changes reapplied cleanly from autostash.
+
+cmd /c cargo test -p ocentra-parent-agent-core windows_browser_inventory
+PASS: 14 tests.
+
+cmd /c cargo clippy --workspace --all-targets -- -D warnings
+PASS.
+
+cmd /c npx prettier --check docs/plans/browser-plan/workpacks/04-windows-browser-inventory-adapter.md docs/plans/browser-plan/implementation-checklist.md
+PASS.
+
+git diff --check
+PASS.
+
+OCENTRA_PARENT_AGENT_PORT=4877 OCENTRA_PARENT_PORTAL_PORT=4878 cmd /c npm run validate
+FAIL: websocket-lan-smoke timed out after agent.connection.ready during integration smoke.
+
+OCENTRA_PARENT_AGENT_PORT=4977 OCENTRA_PARENT_PORTAL_PORT=4978 cmd /c node scripts/test/websocket-lan-smoke.mjs
+PASS.
+
+OCENTRA_PARENT_AGENT_PORT=4977 OCENTRA_PARENT_PORTAL_PORT=4978 cmd /c npm run validate
+PASS: release version, pre-AI proof, lint/schema/source/test-double gates, Turbo lint/type-check/test, TypeScript/Rust tests, validate:rust, local/LAN WebSocket integration smoke, portal local smoke, and portal Playwright E2E passed.
+
+2026-06-04 post-PR277 rebase and env-var target continuation:
+
+git rebase origin/main --autostash
+PASS: rebased onto origin/main 3c0d90f68f34c37a77caa4c8d3e93b78ef4356c9.
+
+cmd /c npm run hub:lock -- --paths crates/agent-service/src/activity_api.rs,crates/agent-service/src/browser_runtime_paths.rs,crates/agent-service/src/browser_inventory_read_model_tests.rs,crates/agent-core/src/lib.rs,docs/plans/browser-plan/workpacks/04-windows-browser-inventory-adapter.md,docs/plans/browser-plan/implementation-checklist.md,output/browser-plan-proof/04-windows-browser-inventory-adapter --reason "WP04 service default-root browser inventory consumption"
+FAIL: codex-c owns crates/agent-service/src/activity_api.rs and crates/agent-core/src/lib.rs.
+
+cmd /c cargo fmt --check
+PASS.
+
+cmd /c cargo test -p ocentra-parent-agent-core windows_browser_inventory
+PASS: 15 tests.
+
+cmd /c cargo fmt --check
+PASS.
+
+cmd /c node scripts/check-source-shape.mjs
+PASS with pre-existing advisory warnings only.
+
+cmd /c cargo clippy --workspace --all-targets -- -D warnings
+PASS.
+
+cmd /c node scripts/check-rust-string-boundaries.mjs
+PASS.
+
+cmd /c npx prettier --check docs/plans/browser-plan/workpacks/04-windows-browser-inventory-adapter.md docs/plans/browser-plan/implementation-checklist.md
+PASS.
+
+git diff --check
+PASS.
+
+cmd /c npm run lanes:guard
+PASS.
+
+cmd /c npm run hub:guard
+PASS.
+
+cmd /c node scripts/test/websocket-local-smoke.mjs
+PASS: websocket-local-smoke-ok with agent.connection.ready, agent.health.reported, and agent.activity.ingest.status.reported.
+
+cmd /c node scripts/test/websocket-lan-smoke.mjs
+PASS: websocket-lan-smoke-ok with pairing status, paired health, and anonymous command rejection.
+
+cmd /c npm run test:integration
+PASS after the managed port guard killed one stale Parent agent process on fixed smoke port 4491.
+
+cmd /c npm run validate
+FAIL: final portal Playwright phase failed after Vite/agent exited mid-run with connection-refused and outdated optimize dependency browser errors. Earlier validate stages passed through release version, pre-AI proof, lint/schema/source/test-double gates, Turbo lint/type-check/test, validate:rust, and local/LAN WebSocket integration smoke.
+
+cmd /c npm run test:e2e
+PASS on immediate focused rerun: portal-local-smoke-ok and 2 Playwright tests passed.
+
+2026-06-04 service default-root inventory consumption continuation:
+
+git rebase origin/main
+PASS: branch codex/browser-inventory-default-root-service-proof was already current with origin/main 71d95688ef89c820d69e4c8de78bd351506a6bd1.
+
+cmd /c cargo fmt --check
+PASS.
+
+cmd /c cargo test -p ocentra-parent-agent-service browser_inventory_read_model -- --nocapture
+PASS: 6 tests, including browser_inventory_service_default_roots_feed_windows_inventory_without_url_claims.
+
+cmd /c cargo test -p ocentra-parent-agent-core windows_browser_inventory -- --nocapture
+PASS: 15 tests.
+
+git diff --check
+PASS.
+
+cmd /c node scripts/check-source-shape.mjs
+PASS with pre-existing advisory warnings only.
+
+cmd /c npx prettier --check docs/features/browser-web-control.md docs/plans/browser-plan/workpacks/04-windows-browser-inventory-adapter.md docs/plans/browser-plan/implementation-checklist.md output/browser-plan-proof/04-windows-browser-inventory-adapter/00-source-snapshot.md output/browser-plan-proof/04-windows-browser-inventory-adapter/03-runtime-evidence.json output/browser-plan-proof/04-windows-browser-inventory-adapter/09-manual-platform-proof.md
+INITIAL FAIL: implementation-checklist.md row formatting after doc update.
+
+cmd /c npx prettier --write docs/plans/browser-plan/implementation-checklist.md
+PASS.
+
+cmd /c node scripts/check-rust-string-boundaries.mjs
+INITIAL FAIL: raw empty env var string in service test setup.
+
+cmd /c node scripts/check-rust-string-boundaries.mjs
+PASS after replacing empty env var assignment with env var removal/restoration.
+
+cmd /c npx prettier --check docs/features/browser-web-control.md docs/plans/browser-plan/workpacks/04-windows-browser-inventory-adapter.md docs/plans/browser-plan/implementation-checklist.md output/browser-plan-proof/04-windows-browser-inventory-adapter/00-source-snapshot.md output/browser-plan-proof/04-windows-browser-inventory-adapter/03-runtime-evidence.json output/browser-plan-proof/04-windows-browser-inventory-adapter/09-manual-platform-proof.md
+PASS.
+
+cmd /c cargo clippy --workspace --all-targets -- -D warnings
+PASS.
+
+cmd /c npm run lanes:guard
+PASS.
+
+cmd /c npm run hub:guard
+PASS.
