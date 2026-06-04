@@ -1,5 +1,12 @@
 use crate::dns::{DnsObservation, DnsQueryType, NetworkEvidenceGrade};
 
+mod visibility;
+
+pub use visibility::{
+    http_host_request_fixture, quic_initial_payload_fixture, tls_client_hello_no_sni_fixture,
+    tls_client_hello_sni_fixture,
+};
+
 pub fn dns_query_pcap_fixture() -> Vec<u8> {
     let frame = dns_query_frame_fixture();
     let mut pcap = Vec::new();

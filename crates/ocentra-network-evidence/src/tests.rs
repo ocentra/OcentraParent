@@ -6,6 +6,8 @@ use crate::{
     PcapReplayError, TransportPacketMetadata,
 };
 
+mod visibility;
+
 #[test]
 fn deterministic_pcap_replay_extracts_metadata_only_dns_query() {
     let fixture = dns_query_pcap_fixture();

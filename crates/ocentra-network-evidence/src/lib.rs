@@ -1,7 +1,10 @@
 pub mod dns;
+pub mod encrypted_dns;
 pub mod fixtures;
+pub mod http;
 pub mod packet;
 pub mod pcap;
+pub mod tls;
 
 #[cfg(test)]
 mod tests;
@@ -11,13 +14,21 @@ pub use dns::{
     DnsQuestion, DnsRecordData, DnsResourceRecord, NetworkEvidenceGrade, NetworkReplayError,
     NetworkReplaySummary,
 };
+pub use encrypted_dns::{
+    detect_encrypted_dns_candidate, detect_quic_http3_limitation, EncryptedDnsCandidate,
+    EncryptedDnsProtocol, QuicVisibilityLimitation,
+};
 pub use fixtures::{
     dns_query_frame_fixture, dns_query_pcap_fixture, dns_query_replay_expected,
-    dns_response_payload_fixture, icmp_echo_frame_fixture, tcp_syn_frame_fixture,
+    dns_response_payload_fixture, http_host_request_fixture, icmp_echo_frame_fixture,
+    quic_initial_payload_fixture, tcp_syn_frame_fixture, tls_client_hello_no_sni_fixture,
+    tls_client_hello_sni_fixture,
 };
+pub use http::{parse_http_host, HttpHostObservation, HttpHostParseError};
 pub use packet::{
     parse_network_packet, udp_payload_from_ethernet_ipv4, EthernetFrameMetadata, IpProtocol,
     Ipv4PacketMetadata, PacketParseError, ParsedNetworkPacket, TransportPacketMetadata,
     UdpPayloadView,
 };
 pub use pcap::{parse_pcap_packets, PcapPacket, PcapReplayError};
+pub use tls::{parse_tls_client_hello_sni, TlsClientHelloError, TlsClientHelloVisibility};
