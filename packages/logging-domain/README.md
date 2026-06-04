@@ -70,6 +70,23 @@ production SLA, provider secrets, tokens, child activity, raw URLs, screenshots,
 journals, SQLite snapshots, private paths, command lines, keystrokes, clipboard
 data, or message contents.
 
+## Support Incident Workflow Contract
+
+`src/support-incident-workflow.ts` owns the logging-domain schema proof for the
+production support incident privacy/legal workflow, while
+`src/support-incident-workflow-read-model.ts` owns the current fixture rows.
+They record parent consent gating, privacy/legal disclosure before export,
+redaction and custody audit refs, support-safe incident workflow state, backend
+upload manual-required state, billing escalation manual-required state, and
+account lookup manual-required state.
+
+This contract is metadata-only. It does not claim support backend upload,
+billing provider contact, account lookup execution, remote support sessions,
+production SLA, public privacy policy publication, provider secrets, tokens,
+child activity, raw URLs, screenshots, journals, SQLite snapshots, private
+paths, command lines, keystrokes, clipboard data, message contents, or
+Ocentra-hosted child activity custody.
+
 ## Gaps To Fill
 
 - Keep log contracts aligned with every new remote, notification, and support
@@ -77,5 +94,5 @@ data, or message contents.
 - Add runtime writers only after the notification provider and history surfaces
   have real contracts and validation.
 - Add runtime support bundle writers only after production support backend,
-  account lookup, billing escalation, remote support, and SLA workflows have
-  real contracts and validation.
+  account lookup, billing escalation, remote support, privacy/legal publication,
+  and SLA workflows have real contracts and validation.

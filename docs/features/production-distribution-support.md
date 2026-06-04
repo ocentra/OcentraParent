@@ -66,6 +66,16 @@ dev-only repo when it claims consumer readiness.
   clipboard data, message contents, provider secrets, backend upload execution,
   billing provider contact, account lookup execution, remote support sessions,
   and production SLA claims.
+- `support-incident-workflow-proof` adds logging-domain production support
+  incident workflow rows for parent consent gating, privacy/legal disclosure
+  before export, redaction and custody audit review, backend-upload
+  manual-required state, billing-escalation manual-required state, and
+  account-lookup manual-required state. It proves support-safe incident
+  workflow metadata while rejecting tokens, child activity, raw URLs,
+  screenshots, journals, SQLite snapshots, private paths, command lines,
+  keystrokes, clipboard data, message contents, provider secrets, backend upload
+  execution, billing provider contact, account lookup execution, remote support
+  sessions, production SLA claims, and Ocentra-hosted child activity custody.
 - `mobile-child-agent-capability-proof` adds package/runtime hook evidence for
   Android debug APK/checksum, Android package-local status, Android device
   install/manual Play signing, iOS Xcode target, iOS simulator status, iOS
@@ -172,6 +182,14 @@ package/runtime proof.
       production-SLA manual/not-implemented rows. Real support backend upload,
       billing/account escalation, public account lookup, remote support, and
       production SLA remain unimplemented/manual-required.
+- [ ] Production support incident privacy/legal workflow proof. Current
+      `support-incident-workflow-proof` covers parent consent gating,
+      privacy/legal disclosure before export, redaction and custody audit refs,
+      support-safe incident workflow state, and backend-upload/billing/account
+      manual-required states. Real support backend upload, account lookup,
+      billing provider contact, remote support sessions, production SLA, public
+      privacy policy publication, and Ocentra-hosted child activity custody
+      remain unimplemented/unclaimed.
 
 ## Next AI Instructions
 
