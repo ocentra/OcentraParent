@@ -53,7 +53,7 @@ before `DONE` or PR-ready reporting.
 45. Live Windows registry inventory source.
 46. Service Windows registry capture bridge.
 47. Backend source freshness read-model rows.
-49. Category/risk policy routing.
+48. Category/risk policy routing.
 
 ## Standard AI Worker Checklist
 
