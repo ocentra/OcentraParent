@@ -188,6 +188,20 @@ describe('screen evidence retention contracts', () => {
     expect(ScreenAnalysisQueueJobSchema.safeParse({ ...QueueJob, expiresAt: '2026-05-21T06:50:00Z' }).success).toBe(
       false
     );
+    expect(
+      ScreenAnalysisQueueJobSchema.safeParse({
+        ...DeleteFailedQueueJob,
+        deletionStatus: 'deleted',
+        deletedAt: '2026-05-21T06:56:30Z',
+        deletionProofRef: 'screen-delete-proof-false-success',
+      }).success
+    ).toBe(false);
+    expect(
+      ScreenAnalysisQueueJobSchema.safeParse({
+        ...ExpiredQueueJob,
+        status: 'failed',
+      }).success
+    ).toBe(false);
     expect(ScreenAnalysisResultSchema.safeParse({ ...AnalysisResult, rawImageRetained: true }).success).toBe(false);
     expect(ScreenAnalysisResultSchema.safeParse({ ...UnknownAnalysisResult, policyEligible: true }).success).toBe(
       false
