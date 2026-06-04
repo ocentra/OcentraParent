@@ -1,4 +1,7 @@
-use std::path::{Path, PathBuf};
+use std::{
+    env,
+    path::{Path, PathBuf},
+};
 
 use ocentra_parent_agent_protocol::constants;
 
@@ -239,12 +242,41 @@ fn executable_target_path(target: &str) -> Option<PathBuf> {
     } else {
         unquoted_known_executable_target(trimmed)
     };
-    let path = candidate.trim().trim_matches('"');
+    let expanded = expand_leading_windows_env_var(candidate.trim().trim_matches('"'));
+    let path = expanded.trim();
     if path.is_empty() {
         None
     } else {
         Some(PathBuf::from(path))
     }
+}
+
+fn expand_leading_windows_env_var(path: &str) -> String {
+    let Some(rest) = path.strip_prefix('%') else {
+        return path.to_string();
+    };
+    let Some(end_index) = rest.find('%') else {
+        return path.to_string();
+    };
+    let variable = &rest[..end_index];
+    if variable.is_empty() {
+        return path.to_string();
+    }
+    let Ok(value) = env::var(variable) else {
+        return path.to_string();
+    };
+    if value.trim().is_empty() {
+        return path.to_string();
+    }
+    let remainder = &rest[(end_index + 1)..];
+    let mut expanded = PathBuf::from(value);
+    for component in remainder
+        .split(['/', '\\'])
+        .filter(|component| !component.is_empty())
+    {
+        expanded.push(component);
+    }
+    expanded.to_string_lossy().into_owned()
 }
 
 fn unquoted_known_executable_target(target: &str) -> &str {
