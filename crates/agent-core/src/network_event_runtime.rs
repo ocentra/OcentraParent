@@ -21,9 +21,11 @@ use crate::{
 };
 
 mod queue;
+mod refs;
 mod review;
 
 pub use queue::{queue_network_runtime_flow_until_subscriber, NetworkRuntimeQueueDrainReport};
+use refs::NetworkRuntimeChainRefs;
 pub use review::{
     request_network_runtime_review_for_observation, NetworkRuntimeReviewReport,
     NetworkRuntimeReviewResponse,
@@ -50,6 +52,16 @@ pub struct NetworkRuntimeEventPayload {
     pub risk_budget_state: NetworkRiskBudgetState,
     pub intervention_state: NetworkInterventionState,
     pub claim_boundary: NetworkRuntimeClaimBoundary,
+    pub previous_phase_ref: Option<String>,
+    pub evidence_ref: String,
+    pub ai_request_ref: Option<String>,
+    pub ai_analysis_ref: Option<String>,
+    pub policy_evaluation_ref: Option<String>,
+    pub policy_decision_ref: Option<String>,
+    pub adapter_capability_ref: Option<String>,
+    pub enforcement_command_ref: Option<String>,
+    pub enforcement_result_ref: Option<String>,
+    pub audit_entry_ref: Option<String>,
     pub observed_at: String,
 }
 
@@ -59,6 +71,7 @@ impl NetworkRuntimeEventPayload {
         observation: &NetworkObservation,
         observed_at: &str,
     ) -> Self {
+        let chain_refs = NetworkRuntimeChainRefs::for_phase(phase, observation, observed_at);
         Self {
             phase,
             capability_status: observation.status.clone(),
@@ -79,6 +92,16 @@ impl NetworkRuntimeEventPayload {
             risk_budget_state: risk_budget_state(observation),
             intervention_state: intervention_state(observation),
             claim_boundary: NetworkRuntimeClaimBoundary::metadata_only(),
+            previous_phase_ref: chain_refs.previous_phase_ref,
+            evidence_ref: chain_refs.evidence_ref,
+            ai_request_ref: chain_refs.ai_request_ref,
+            ai_analysis_ref: chain_refs.ai_analysis_ref,
+            policy_evaluation_ref: chain_refs.policy_evaluation_ref,
+            policy_decision_ref: chain_refs.policy_decision_ref,
+            adapter_capability_ref: chain_refs.adapter_capability_ref,
+            enforcement_command_ref: chain_refs.enforcement_command_ref,
+            enforcement_result_ref: chain_refs.enforcement_result_ref,
+            audit_entry_ref: chain_refs.audit_entry_ref,
             observed_at: observed_at.to_string(),
         }
     }
