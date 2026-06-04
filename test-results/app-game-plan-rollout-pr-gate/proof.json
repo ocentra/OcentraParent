@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "proofMode": "app-game-plan-rollout-pr-gate",
-  "checkedAt": "2026-06-04T13:21:06.107Z",
+  "checkedAt": "2026-06-04T13:35:17.172Z",
   "branch": "codex/app-game-source-freshness-policy-consumption",
-  "commit": "1e345098c7fdde82ca8741a30355c0d4779da3fa",
-  "statusShort": "M scripts/test/app-game-plan-rollout-pr-gate.mjs\n?? .codex/app-game-dashboard-dev/\n?? .codex/browser-policy-forest-limit.png\n?? .codex/browser-policy-forest-prototype.png\n?? .codex/browser-rules-coverage-qa.png\n?? .codex/browser-rules-coverage-scroll-qa.png\n?? .codex/browser-rules-current.png\n?? .codex/browser-rules-enforce-restored.png\n?? .codex/browser-rules-four-demo-clicked.png\n?? .codex/browser-rules-four-demo.png\n?? .codex/browser-rules-four-grid-demo.png\n?? .codex/browser-rules-left-tab-fixed.png\n?? .codex/browser-rules-three-demo.png\n?? .codex/chrome-flicker/\n?? .codex/portal-product-shell-proof/\n?? .codex/scheduler-proof/\n?? .codex/validation/\n?? .playwright-cli/",
+  "commit": "cf8b9f8dd05b0f5bf17000534e4f83ee313a7433",
+  "statusShort": "?? .codex/app-game-dashboard-dev/\n?? .codex/browser-policy-forest-limit.png\n?? .codex/browser-policy-forest-prototype.png\n?? .codex/browser-rules-coverage-qa.png\n?? .codex/browser-rules-coverage-scroll-qa.png\n?? .codex/browser-rules-current.png\n?? .codex/browser-rules-enforce-restored.png\n?? .codex/browser-rules-four-demo-clicked.png\n?? .codex/browser-rules-four-demo.png\n?? .codex/browser-rules-four-grid-demo.png\n?? .codex/browser-rules-left-tab-fixed.png\n?? .codex/browser-rules-three-demo.png\n?? .codex/chrome-flicker/\n?? .codex/portal-product-shell-proof/\n?? .codex/scheduler-proof/\n?? .codex/validation/\n?? .playwright-cli/",
   "commands": [
     "git diff --check",
     "cmd /c npm run lanes:guard",
