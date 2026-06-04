@@ -2,123 +2,14 @@ import { describe, expect, it } from 'vitest';
 import type { ParentMobileServiceAvailabilityState } from '../src/parent-mobile-runtime';
 import {
   V09MobileControllerObserverRuntimeReadModelSchema,
+  type V09MobileControllerObserverOperation,
   type V09MobileControllerObserverRouteKind,
 } from '../src/v0-9-mobile-controller-observer-runtime';
 
 const CheckedAt = '2026-05-29T20:35:00.000Z';
 
-const OperationProofs = [
-  {
-    operation: 'observe-status',
-    intentKind: 'health-query',
-    responseState: 'completed',
-    operationState: 'allowed-read-only',
-    runtimeOwner: 'parent-mobile-shell',
-    rejectionReason: null,
-    proofLabel: 'parent-mobile:observer-status-read-model',
-    proofRequirement: 'typed parent mobile shell can read status without control authority',
-    evidenceReferenceIds: ['activity-event-parent-mobile-proof'],
-  },
-  {
-    operation: 'preview-policy-draft',
-    intentKind: 'rule-query',
-    responseState: 'completed',
-    operationState: 'allowed-read-only',
-    runtimeOwner: 'parent-mobile-shell',
-    rejectionReason: null,
-    proofLabel: 'parent-mobile:observer-policy-preview-read-model',
-    proofRequirement: 'policy preview is read-only and does not write child runtime state',
-    evidenceReferenceIds: ['activity-event-parent-mobile-proof'],
-  },
-  {
-    operation: 'refresh-capabilities',
-    intentKind: 'lan-ai-provider-status',
-    responseState: 'completed',
-    operationState: 'allowed-read-only',
-    runtimeOwner: 'parent-mobile-shell',
-    rejectionReason: null,
-    proofLabel: 'parent-mobile:capability-refresh-read-model',
-    proofRequirement: 'capability refresh only updates observer readiness labels',
-    evidenceReferenceIds: ['activity-event-parent-mobile-proof'],
-  },
-  {
-    operation: 'request-controller-takeover',
-    intentKind: 'controller-lease-takeover',
-    responseState: 'rejected',
-    operationState: 'manual-required-mobile-package',
-    runtimeOwner: 'manual-proof',
-    rejectionReason: 'takeover-denied',
-    proofLabel: 'first-child-agent:controller-lease-takeover-denied',
-    proofRequirement: 'real Android or iOS package/device proof before parent mobile takeover can be accepted',
-    evidenceReferenceIds: ['activity-event-parent-mobile-proof'],
-  },
-  {
-    operation: 'release-controller-lease',
-    intentKind: 'controller-lease-release',
-    responseState: 'completed',
-    operationState: 'proved-local-service',
-    runtimeOwner: 'agent-service',
-    rejectionReason: null,
-    proofLabel: 'first-child-agent:controller-lease-released',
-    proofRequirement: 'backend release transition is covered by local real-service proof, not mobile authority proof',
-    evidenceReferenceIds: ['activity-event-parent-mobile-proof'],
-  },
-  {
-    operation: 'submit-lan-ai-job',
-    intentKind: 'lan-ai-job-submit',
-    responseState: 'degraded',
-    operationState: 'degraded-provider',
-    runtimeOwner: 'lan-ai-provider',
-    rejectionReason: 'lan-ai-provider-unavailable',
-    proofLabel: 'parent-mobile-observer-scaffold:controller-job-degraded-with-provider-unavailable',
-    proofRequirement: 'LAN AI job submission stays degraded or unavailable until a real mobile package bridge exists',
-    evidenceReferenceIds: ['activity-event-parent-mobile-proof'],
-  },
-  {
-    operation: 'write-policy',
-    intentKind: 'rule-update',
-    responseState: 'rejected',
-    operationState: 'rejected-observer-read-only',
-    runtimeOwner: 'agent-service',
-    rejectionReason: 'observer-read-only',
-    proofLabel: 'first-child-agent:observer-policy-write-rejected',
-    proofRequirement: 'observer mobile surface cannot write rules',
-    evidenceReferenceIds: ['activity-event-parent-mobile-proof'],
-  },
-  {
-    operation: 'approve-override',
-    intentKind: 'approval-decision',
-    responseState: 'rejected',
-    operationState: 'rejected-observer-read-only',
-    runtimeOwner: 'agent-service',
-    rejectionReason: 'observer-read-only',
-    proofLabel: 'first-child-agent:observer-approval-rejected',
-    proofRequirement: 'observer mobile surface cannot approve overrides',
-    evidenceReferenceIds: ['activity-event-parent-mobile-proof'],
-  },
-  {
-    operation: 'pair-device',
-    intentKind: 'configuration-update',
-    responseState: 'rejected',
-    operationState: 'rejected-observer-read-only',
-    runtimeOwner: 'agent-service',
-    rejectionReason: 'observer-read-only',
-    proofLabel: 'first-child-agent:observer-pair-device-rejected',
-    proofRequirement: 'observer mobile surface cannot pair devices',
-    evidenceReferenceIds: ['activity-event-parent-mobile-proof'],
-  },
-  {
-    operation: 'revoke-device',
-    intentKind: 'configuration-update',
-    responseState: 'rejected',
-    operationState: 'rejected-observer-read-only',
-    runtimeOwner: 'agent-service',
-    rejectionReason: 'observer-read-only',
-    proofLabel: 'first-child-agent:observer-revoke-device-rejected',
-    proofRequirement: 'observer mobile surface cannot revoke devices',
-    evidenceReferenceIds: ['activity-event-parent-mobile-proof'],
-  },
-] as const;
+const AndroidOperationProofs = operationProofs('degraded');
+const IosOperationProofs = operationProofs('unavailable');
 
 const AndroidReadModel = {
   platform: 'android',
@@ -126,6 +17,12 @@ const AndroidReadModel = {
   role: 'observer',
   controllerState: 'observer',
   commandAuthorityState: 'observer-read-only',
+  controllerLeaseProof: {
+    leaseState: 'visible-read-only',
+    controllerLeaseVisible: true,
+    controllerLeaseId: 'lease-parent-desktop-controller-read-only',
+    proofRequirement: 'parent mobile can see the controller lease but cannot write with it',
+  },
   serviceState: 'degraded',
   routeStatuses: routeStatuses('manual-required', 'degraded', 'route-parent-mobile-lan-provider'),
   packageReadiness: {
@@ -157,7 +54,7 @@ const AndroidReadModel = {
       claimBoundary: 'no parent mobile write authority is claimed from scaffold state',
     },
   ],
-  operationProofs: OperationProofs,
+  operationProofs: AndroidOperationProofs,
 } as const;
 
 const IosReadModel = {
@@ -167,6 +64,12 @@ const IosReadModel = {
   role: 'controller-candidate',
   controllerState: 'manual-required',
   commandAuthorityState: 'controller-takeover-manual-required',
+  controllerLeaseProof: {
+    leaseState: 'manual-required',
+    controllerLeaseVisible: false,
+    controllerLeaseId: null,
+    proofRequirement: 'iOS controller lease visibility requires signed package and device proof',
+  },
   serviceState: 'manual-required',
   routeStatuses: routeStatuses('manual-required', 'manual-required', null),
   packageReadiness: {
@@ -185,6 +88,7 @@ const IosReadModel = {
       'store-distribution',
     ],
   },
+  operationProofs: IosOperationProofs,
 } as const;
 
 const RuntimeReadModel = {
@@ -217,6 +121,8 @@ const RuntimeReadModel = {
     physicalHouseholdLan: 'manual-required until two physical devices and router/firewall artifacts exist',
     cloudRelay: 'not implemented and not counted as LAN proof',
     childAgentBehavior: 'not claimed by parent mobile observer runtime proof',
+    mobileChildAgentParity:
+      'not claimed; parent mobile observer runtime does not prove Android or iOS child-agent parity',
     signingStoresEntitlements: 'manual-required until signing store and entitlement artifacts exist',
     cUiOwnership: 'C UI can render the contract later but this proof does not touch UI or vendor paths',
   },
@@ -236,6 +142,8 @@ function registerAcceptedStateTests(): void {
 
     expect(parsed.cloudRelayState).toBe('not-implemented');
     expect(parsed.mobileReadModels.map((readModel) => readModel.platform)).toEqual(['android', 'ios']);
+    expect(parsed.mobileReadModels[0]?.controllerLeaseProof.leaseState).toBe('visible-read-only');
+    expect(parsed.mobileReadModels[1]?.controllerLeaseProof.leaseState).toBe('manual-required');
     expect(parsed.mobileReadModels[0]?.routeStatuses.map((route) => route.routeKind)).toEqual([
       'local-service',
       'lan-service',
@@ -255,6 +163,12 @@ function registerAcceptedStateTests(): void {
       'pair-device',
       'revoke-device',
     ]);
+    expect(
+      parsed.mobileReadModels.map(
+        (readModel) =>
+          readModel.operationProofs.find((proof) => proof.operation === 'submit-lan-ai-job')?.operationState
+      )
+    ).toEqual(['degraded-provider', 'unavailable']);
     expect(parsed.proofHarness.sourceProofs.map((proof) => proof.source)).toEqual([
       'parent-mobile-shell-runtime-proof',
       'v0-9-production-lan-mobile-controller-proof',
@@ -279,6 +193,27 @@ function registerAuthorityGuardrailTests(): void {
     };
 
     expect(V09MobileControllerObserverRuntimeReadModelSchema.safeParse(activeControllerClaim).success).toBe(false);
+  });
+
+  it('rejects hidden controller lease write authority on an observer route', () => {
+    const writableLeaseClaim = {
+      ...RuntimeReadModel,
+      mobileReadModels: RuntimeReadModel.mobileReadModels.map((readModel) =>
+        readModel.platform === 'android'
+          ? {
+              ...readModel,
+              controllerLeaseProof: {
+                ...readModel.controllerLeaseProof,
+                leaseState: 'visible-read-only',
+                controllerLeaseVisible: true,
+                controllerLeaseId: null,
+              },
+            }
+          : readModel
+      ),
+    };
+
+    expect(V09MobileControllerObserverRuntimeReadModelSchema.safeParse(writableLeaseClaim).success).toBe(false);
   });
 }
 
@@ -317,6 +252,26 @@ function registerOperationGuardrailTests(): void {
     };
 
     expect(V09MobileControllerObserverRuntimeReadModelSchema.safeParse(missingOperations).success).toBe(false);
+  });
+
+  it('rejects proofs that do not cover both degraded and unavailable LAN AI provider states', () => {
+    const missingUnavailableState = {
+      ...RuntimeReadModel,
+      mobileReadModels: RuntimeReadModel.mobileReadModels.map((readModel) => ({
+        ...readModel,
+        operationProofs: readModel.operationProofs.map((proof) =>
+          proof.operation === 'submit-lan-ai-job'
+            ? {
+                ...proof,
+                responseState: 'degraded',
+                operationState: 'degraded-provider',
+              }
+            : proof
+        ),
+      })),
+    };
+
+    expect(V09MobileControllerObserverRuntimeReadModelSchema.safeParse(missingUnavailableState).success).toBe(false);
   });
 }
 
@@ -374,7 +329,159 @@ function registerProofHarnessGuardrailTests(): void {
   });
 }
 
-function withOperation(operation: (typeof OperationProofs)[number]['operation'], patch: object) {
+function operationProofs(aiState: 'degraded' | 'unavailable') {
+  return [
+    ...readOnlyOperationProofs(),
+    ...controllerOperationProofs(),
+    lanAiOperationProof(aiState),
+    ...observerRejectedOperationProofs(),
+  ] as const;
+}
+
+function readOnlyOperationProofs() {
+  return [
+    operationProof(
+      'observe-status',
+      'health-query',
+      'completed',
+      'allowed-read-only',
+      'parent-mobile-shell',
+      null,
+      'parent-mobile:observer-status-read-model',
+      'typed parent mobile shell can read status without control authority'
+    ),
+    operationProof(
+      'preview-policy-draft',
+      'rule-query',
+      'completed',
+      'allowed-read-only',
+      'parent-mobile-shell',
+      null,
+      'parent-mobile:observer-policy-preview-read-model',
+      'policy preview is read-only and does not write child runtime state'
+    ),
+    operationProof(
+      'refresh-capabilities',
+      'lan-ai-provider-status',
+      'completed',
+      'allowed-read-only',
+      'parent-mobile-shell',
+      null,
+      'parent-mobile:capability-refresh-read-model',
+      'capability refresh only updates observer readiness labels'
+    ),
+  ] as const;
+}
+
+function controllerOperationProofs() {
+  return [
+    operationProof(
+      'request-controller-takeover',
+      'controller-lease-takeover',
+      'rejected',
+      'manual-required-mobile-package',
+      'manual-proof',
+      'takeover-denied',
+      'first-child-agent:controller-lease-takeover-denied',
+      'real Android or iOS package/device proof before parent mobile takeover can be accepted'
+    ),
+    operationProof(
+      'release-controller-lease',
+      'controller-lease-release',
+      'completed',
+      'proved-local-service',
+      'agent-service',
+      null,
+      'first-child-agent:controller-lease-released',
+      'backend release transition is covered by local real-service proof, not mobile authority proof'
+    ),
+  ] as const;
+}
+
+function observerRejectedOperationProofs() {
+  return [
+    operationProof(
+      'write-policy',
+      'rule-update',
+      'rejected',
+      'rejected-observer-read-only',
+      'agent-service',
+      'observer-read-only',
+      'first-child-agent:observer-policy-write-rejected',
+      'observer mobile surface cannot write rules'
+    ),
+    operationProof(
+      'approve-override',
+      'approval-decision',
+      'rejected',
+      'rejected-observer-read-only',
+      'agent-service',
+      'observer-read-only',
+      'first-child-agent:observer-approval-rejected',
+      'observer mobile surface cannot approve overrides'
+    ),
+    operationProof(
+      'pair-device',
+      'configuration-update',
+      'rejected',
+      'rejected-observer-read-only',
+      'agent-service',
+      'observer-read-only',
+      'first-child-agent:observer-pair-device-rejected',
+      'observer mobile surface cannot pair devices'
+    ),
+    operationProof(
+      'revoke-device',
+      'configuration-update',
+      'rejected',
+      'rejected-observer-read-only',
+      'agent-service',
+      'observer-read-only',
+      'first-child-agent:observer-revoke-device-rejected',
+      'observer mobile surface cannot revoke devices'
+    ),
+  ] as const;
+}
+
+function lanAiOperationProof(aiState: 'degraded' | 'unavailable') {
+  return operationProof(
+    'submit-lan-ai-job',
+    'lan-ai-job-submit',
+    'degraded',
+    aiState === 'degraded' ? 'degraded-provider' : 'unavailable',
+    'lan-ai-provider',
+    'lan-ai-provider-unavailable',
+    aiState === 'degraded'
+      ? 'parent-mobile-observer-scaffold:controller-job-degraded-with-provider-unavailable'
+      : 'parent-mobile-observer-scaffold:controller-job-unavailable-with-provider-unavailable',
+    'LAN AI job submission stays degraded or unavailable until a real mobile package bridge exists'
+  );
+}
+
+function operationProof(
+  operation: V09MobileControllerObserverOperation,
+  intentKind: string,
+  responseState: string,
+  operationState: string,
+  runtimeOwner: string,
+  rejectionReason: string | null,
+  proofLabel: string,
+  proofRequirement: string
+) {
+  return {
+    operation,
+    intentKind,
+    responseState,
+    operationState,
+    runtimeOwner,
+    rejectionReason,
+    proofLabel,
+    proofRequirement,
+    evidenceReferenceIds: ['activity-event-parent-mobile-proof'],
+  };
+}
+
+function withOperation(operation: V09MobileControllerObserverOperation, patch: object) {
   return {
     ...RuntimeReadModel,
     mobileReadModels: RuntimeReadModel.mobileReadModels.map((readModel) => ({

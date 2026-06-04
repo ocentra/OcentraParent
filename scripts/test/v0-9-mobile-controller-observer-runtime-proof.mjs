@@ -47,6 +47,13 @@ async function main() {
     '--',
     'tests/v0-9-mobile-controller-observer-runtime.test.ts',
   ]);
+  await ensureParentMobileProofArtifact();
+  await ensureProofArtifact(productionMobileProofPath, 'v0-9-production-lan-mobile-controller-proof', [
+    'cmd',
+    '/c',
+    'node',
+    'scripts/test/v0-9-production-lan-mobile-controller-proof.mjs',
+  ]);
   await ensureProofArtifact(discoveryRuntimeProofPath, 'v0-9-mobile-controller-discovery-runtime-proof', [
     'cmd',
     '/c',
@@ -141,6 +148,8 @@ function buildRuntimeReadModel(parentMobileProof, productionMobileProof, discove
       physicalHouseholdLan: discoveryRuntimeProof.runtimeReadModel.claimBoundaries.physicalHouseholdLan,
       cloudRelay: discoveryRuntimeProof.runtimeReadModel.claimBoundaries.cloudRelay,
       childAgentBehavior: discoveryRuntimeProof.runtimeReadModel.claimBoundaries.mobileChildAgentBehavior,
+      mobileChildAgentParity:
+        'not claimed; parent mobile observer runtime does not prove Android or iOS child-agent parity',
       signingStoresEntitlements: discoveryRuntimeProof.runtimeReadModel.claimBoundaries.storesSigningEntitlements,
       cUiOwnership: 'C UI can render this contract later; this proof does not touch C UI or vendor paths',
     },
@@ -155,6 +164,7 @@ function buildMobileReadModel(platform, mobileSummary) {
     role: platform === 'android' ? 'observer' : 'controller-candidate',
     controllerState: mobileSummary.controllerState,
     commandAuthorityState: mobileSummary.commandAuthorityState,
+    controllerLeaseProof: controllerLeaseProof(platform, mobileSummary),
     serviceState: mobileSummary.lanService,
     routeStatuses: routeStatuses(mobileSummary),
     packageReadiness: {
@@ -167,7 +177,34 @@ function buildMobileReadModel(platform, mobileSummary) {
       missingCapabilityProofs: missingCapabilityProofs(mobileSummary.capabilityStates),
     },
     capabilities: capabilityStates(mobileSummary.capabilityStates),
-    operationProofs: operationProofs(),
+    operationProofs: operationProofs(mobileSummary.assistantJobState),
+  };
+}
+
+function controllerLeaseProof(platform, mobileSummary) {
+  if (mobileSummary.controllerState === 'observer') {
+    return {
+      leaseState: 'visible-read-only',
+      controllerLeaseVisible: true,
+      controllerLeaseId: 'lease-parent-desktop-controller-read-only',
+      proofRequirement: `${platform} parent mobile can observe the active controller lease but cannot write with it`,
+    };
+  }
+
+  if (mobileSummary.controllerState === 'manual-required') {
+    return {
+      leaseState: 'manual-required',
+      controllerLeaseVisible: false,
+      controllerLeaseId: null,
+      proofRequirement: `${platform} parent mobile controller lease visibility requires signed package and device proof`,
+    };
+  }
+
+  return {
+    leaseState: 'unavailable',
+    controllerLeaseVisible: false,
+    controllerLeaseId: null,
+    proofRequirement: `${platform} parent mobile controller lease is unavailable in this proof`,
   };
 }
 
@@ -211,7 +248,7 @@ function routeStatus(routeKind, state, selectedRouteId) {
   };
 }
 
-function operationProofs() {
+function operationProofs(aiState) {
   return [
     operationProof(
       'observe-status',
@@ -267,10 +304,12 @@ function operationProofs() {
       'submit-lan-ai-job',
       'lan-ai-job-submit',
       'degraded',
-      'degraded-provider',
+      aiState === 'degraded' ? 'degraded-provider' : 'unavailable',
       'lan-ai-provider',
       'lan-ai-provider-unavailable',
-      'parent-mobile-observer-scaffold:controller-job-degraded-with-provider-unavailable',
+      aiState === 'degraded'
+        ? 'parent-mobile-observer-scaffold:controller-job-degraded-with-provider-unavailable'
+        : 'parent-mobile-observer-scaffold:controller-job-unavailable-with-provider-unavailable',
       'LAN AI job submission stays degraded or unavailable until a real mobile package bridge exists'
     ),
     operationProof(
@@ -408,8 +447,22 @@ function assertRuntimeReadModel(readModel) {
       'takeover request state'
     );
     assertEqual(operationStates['release-controller-lease'], 'proved-local-service', 'release state');
-    assertEqual(operationStates['submit-lan-ai-job'], 'degraded-provider', 'LAN AI job state');
+    if (
+      operationStates['submit-lan-ai-job'] !== 'degraded-provider' &&
+      operationStates['submit-lan-ai-job'] !== 'unavailable'
+    ) {
+      throw new Error(`${readModelEntry.platform} LAN AI job state: expected degraded-provider or unavailable`);
+    }
   }
+  const lanAiStates = new Set(
+    readModel.mobileReadModels.map(
+      (entry) =>
+        Object.fromEntries(entry.operationProofs.map((proof) => [proof.operation, proof]))['submit-lan-ai-job']
+          .operationState
+    )
+  );
+  assertArrayIncludes([...lanAiStates], 'degraded-provider', 'observer LAN AI state coverage');
+  assertArrayIncludes([...lanAiStates], 'unavailable', 'observer LAN AI state coverage');
   proofLabels.push('v0.9.mobile-controller-observer-runtime-read-model');
 }
 
@@ -467,10 +520,27 @@ async function ensureProofArtifact(path, expectedMode, commandSpec) {
   await runCommand(commandName, args);
 }
 
+async function ensureParentMobileProofArtifact() {
+  if (await parentMobileProofArtifactMatches(parentMobileProofPath)) {
+    commands.push(`reuse-proof ${relative(repoRoot, parentMobileProofPath).replaceAll('\\', '/')}`);
+    return;
+  }
+  await runCommand('cmd', ['/c', 'node', 'scripts/test/parent-mobile-shell-runtime-proof.mjs']);
+}
+
 async function proofArtifactMatches(path, expectedMode) {
   try {
     const proof = await readJson(path);
     return proof.proofMode === expectedMode;
+  } catch {
+    return false;
+  }
+}
+
+async function parentMobileProofArtifactMatches(path) {
+  try {
+    const proof = await readJson(path);
+    return proof.runtimeProof?.childAgentBehaviorClaim === 'not-claimed';
   } catch {
     return false;
   }
