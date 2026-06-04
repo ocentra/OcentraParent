@@ -55,6 +55,25 @@ async function main() {
         'activity.tracking.retention.deleted',
       ],
       citationField: 'evidenceReferenceIds',
+      portalCitationSurface: {
+        consumer: 'trackingStatusLiveSummary',
+        citationRows: 'TrackingStatusLiveCitation[]',
+        citedFields: [
+          'eventId',
+          'observedAt',
+          'deviceId',
+          'platform',
+          'observer',
+          'kind',
+          'subjectKind',
+          'subjectId',
+          'queryVisibility',
+          'capabilityStatus',
+          'evidenceReferenceIds',
+          'deletedEvidenceReferenceIds',
+        ],
+        productClaimReady: false,
+      },
       tombstoneReplay: {
         rowVisibilityField: 'queryVisibility',
         activeRowValue: 'active',
@@ -88,11 +107,11 @@ async function main() {
     nonClaims: [
       'This proof does not claim Android or iOS physical background tracking behavior.',
       'This proof does not claim enrolled-device authority, production pilot readiness, or provider delivery.',
-      'This proof only claims narrow portal summary consumption of the service-backed read model, not complete parent/child tracking UI.',
+      'This proof claims live service-backed portal citation rows for the tracking read model, not complete parent/child tracking UI.',
     ],
     remainingGapsBeforeProductOrPrReady: [
       'Hosted portal screenshot, accessibility, and browser-to-service proof remain pending.',
-      'Broader product tracking read-model surfaces beyond the service-backed tombstone replay/citation summary remain pending.',
+      'Broader product tracking read-model surfaces beyond the service-backed tombstone replay and portal citation rows remain pending.',
       'Child-device UI and device permission screenshots remain pending.',
       'Android/iOS physical background geofence proof remains manual-required.',
       'Authority-enrolled and production-pilot proof remain absent.',
@@ -119,6 +138,7 @@ async function main() {
       'Retention-delete rows are exposed as tombstone queryVisibility rows instead of active tracking history rows.',
       'Deleted evidence reference ids are preserved on tombstone rows and summarized on the read model.',
       'Latest tombstone event id and observed timestamp are serialized through the Rust protocol and TypeScript parser.',
+      'The portal citation surface renders deleted evidence refs only as tombstone metadata and keeps productClaimReady=false.',
       'The proof does not claim Android/iOS physical background behavior, provider delivery, complete UI, or authority enrollment.',
     ],
     artifacts: {
@@ -143,7 +163,7 @@ async function main() {
     workpackId: '32-journal-sqlite-and-read-model-proof',
     proofState: 'p2-service-read-model-tombstone-replay-proof',
     summary:
-      'Tracking service read-model proof now includes ActivityStore SQLite retention-delete tombstone replay, active/tombstone row counts, deleted evidence citation summaries, and narrow portal summary parsing. Hosted UI/accessibility, broader product read models, platform replay, and physical-device proof remain pending.',
+      'Tracking service read-model proof now includes ActivityStore SQLite retention-delete tombstone replay, active/tombstone row counts, deleted evidence citation summaries, and live portal citation rows. Hosted UI/accessibility, broader product read models, platform replay, and physical-device proof remain pending.',
     commands,
     proofArtifacts: {
       retentionDeleteProof:
@@ -156,6 +176,7 @@ async function main() {
     productClaims: {
       contractProof: true,
       serviceTombstoneReplayProof: true,
+      livePortalCitationRows: true,
       androidIosBackgroundLocationClaimed: false,
       preciseLocationFromLanIpWifiClaimed: false,
       uiCompleteClaimed: false,
