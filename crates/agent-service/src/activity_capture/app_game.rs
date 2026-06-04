@@ -1,6 +1,7 @@
 #[cfg(test)]
 use std::path::PathBuf;
 
+#[cfg(windows)]
 use ocentra_parent_agent_core::{
     live_windows_foreground_window_journal_event, live_windows_inventory_journal_events_with_limit,
     live_windows_process_snapshot_journal_events_with_limit,
@@ -13,7 +14,9 @@ use ocentra_parent_agent_core::{
     live_windows_registry_inventory_journal_events_from_roots,
     live_windows_store_package_journal_events_from_roots,
 };
-use ocentra_parent_agent_protocol::{constants, ActivityEvent};
+#[cfg(any(windows, test))]
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::ActivityEvent;
 
 use super::ActivityCaptureError;
 

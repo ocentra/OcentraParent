@@ -1,11 +1,12 @@
 use std::fs::{read, remove_file, write};
 
 use ocentra_parent_agent_core::{ActivityJournal, ActivityStore};
+use ocentra_parent_agent_protocol::{constants, ActivityEventKind, ActivityObserver};
+#[cfg(windows)]
 use ocentra_parent_agent_protocol::{
-    constants, ActivityEventKind, ActivityObserver, APP_GAME_CLASSIFICATION_UNKNOWN_PROCESS,
-    APP_GAME_CONTENT_KNOWLEDGE_NOT_CLAIMED, APP_GAME_FOREGROUND_FOREGROUND,
-    APP_GAME_FOREGROUND_NOT_CLAIMED, APP_GAME_RUNTIME_RUNNING, APP_GAME_WINDOW_REF_PREFIX,
-    APP_GAME_WINDOW_TITLE_REF_PREFIX,
+    APP_GAME_CLASSIFICATION_UNKNOWN_PROCESS, APP_GAME_CONTENT_KNOWLEDGE_NOT_CLAIMED,
+    APP_GAME_FOREGROUND_FOREGROUND, APP_GAME_FOREGROUND_NOT_CLAIMED, APP_GAME_RUNTIME_RUNNING,
+    APP_GAME_WINDOW_REF_PREFIX, APP_GAME_WINDOW_TITLE_REF_PREFIX,
 };
 
 use crate::activity_capture::{record_activity_capture_to_paths, ActivityCaptureError};
