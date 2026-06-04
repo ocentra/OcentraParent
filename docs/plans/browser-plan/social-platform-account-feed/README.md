@@ -238,21 +238,25 @@ reasons exist; stale, miss, and manual-required rows cannot. It does not claim a
 runtime cache store, raw content storage, connector data storage, UI, native
 control, final policy decisions, or enforcement.
 
-SOCIAL-20 now adds `packages/parent-domain/src/social-dashboard-ux-values.ts`
-and `packages/parent-domain/src/social-dashboard-ux.ts`, parent social dashboard
-UX section contracts for account approvals, feed/video gates, native app
-capability, connector boundaries, decision memory, and manual-required gaps. It
-does not claim rendered portal UI, runtime fetches, notifications, connector
-authorization, native control, policy execution, or enforcement.
+SOCIAL-20 now adds `packages/parent-domain/src/social-dashboard-ux-values.ts`,
+`packages/parent-domain/src/social-dashboard-ux.ts`, and
+`packages/text-domain/src/social-dashboard-ux-text.ts`, parent social dashboard
+UX section contracts and schema-backed copy tokens for account approvals,
+feed/video gates, native app capability, connector boundaries, decision memory,
+and manual-required gaps. It does not claim rendered portal UI, runtime
+fetches, notifications, connector authorization, native control, policy
+execution, or enforcement.
 
 SOCIAL-21 now adds
-`packages/parent-domain/src/social-child-approval-block-ux-values.ts` and
-`packages/parent-domain/src/social-child-approval-block-ux.ts`, child-facing
-approval/block UX state/action contracts for approval pending, blocked route
-candidates, warnings, manual review, time-limit candidates, and native app
-unavailable states. It does not claim rendered child UI, notifications, browser
-block execution, block-page rendering, time-limit application, policy execution,
-native control, connector authorization, or enforcement.
+`packages/parent-domain/src/social-child-approval-block-ux-values.ts`,
+`packages/parent-domain/src/social-child-approval-block-ux.ts`, and
+`packages/text-domain/src/social-child-approval-block-ux-text.ts`, child-facing
+approval/block UX state/action contracts and schema-backed calm copy tokens for
+approval pending, blocked route candidates, warnings, manual review, time-limit
+candidates, and native app unavailable states. It does not claim rendered child
+UI, notifications, browser block execution, block-page rendering, time-limit
+application, policy execution, native control, connector authorization, or
+enforcement.
 
 SOCIAL-22 now adds
 `packages/parent-domain/src/social-audit-explanation-read-model-values.ts` and

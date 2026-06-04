@@ -17,6 +17,14 @@
       "import": "./dist/browser-parent-explanation.js",
       "types": "./dist/browser-parent-explanation.d.ts"
     },
+    "./social-dashboard-ux-text": {
+      "import": "./dist/social-dashboard-ux-text.js",
+      "types": "./dist/social-dashboard-ux-text.d.ts"
+    },
+    "./social-child-approval-block-ux-text": {
+      "import": "./dist/social-child-approval-block-ux-text.js",
+      "types": "./dist/social-child-approval-block-ux-text.d.ts"
+    },
     "./portal-dev": {
       "import": "./dist/portal-dev.js",
       "types": "./dist/portal-dev.d.ts"
