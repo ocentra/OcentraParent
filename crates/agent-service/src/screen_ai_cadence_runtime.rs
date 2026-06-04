@@ -1,7 +1,7 @@
 use std::{
     env, fs,
     path::{Path, PathBuf},
-    time::{Duration, SystemTime, UNIX_EPOCH},
+    time::Duration,
 };
 
 use ocentra_parent_agent_protocol::{
@@ -9,8 +9,11 @@ use ocentra_parent_agent_protocol::{
     SCREEN_SERVICE_CADENCE_ENABLED_ENV, SCREEN_SERVICE_CADENCE_MAX_CAPTURES_ENV,
     SCREEN_SERVICE_CADENCE_MAX_TICKS_ENV, SCREEN_SERVICE_CADENCE_RUNTIME_ENABLED_ENV,
     SCREEN_SERVICE_CADENCE_SECONDS_ENV, SCREEN_SERVICE_DEFAULT_QUEUE_DIR_NAME,
-    SCREEN_SERVICE_QUEUE_DIR_ENV, SCREEN_SERVICE_QUEUE_MAX_PENDING_DEFAULT,
-    SCREEN_SERVICE_QUEUE_MAX_PENDING_ENV,
+    SCREEN_SERVICE_EVENT_ID_PREFIX, SCREEN_SERVICE_EVIDENCE_ID_PREFIX, SCREEN_SERVICE_MODEL_ID,
+    SCREEN_SERVICE_QUEUE_DIR_ENV, SCREEN_SERVICE_QUEUE_JOB_ID_PREFIX,
+    SCREEN_SERVICE_QUEUE_MAX_PENDING_DEFAULT, SCREEN_SERVICE_QUEUE_MAX_PENDING_ENV,
+    SCREEN_SERVICE_RESULT_ID_PREFIX, SCREEN_SERVICE_SOURCE_ID, SCREEN_SERVICE_SUMMARY_CAPTURED,
+    SCREEN_SERVICE_TEMPLATE_VERSION,
 };
 use ocentra_parent_screen_capture_adapter::{
     capture_active_window_png,
@@ -25,8 +28,10 @@ use ocentra_parent_screen_capture_adapter::{
 use crate::{
     activity_capture::ActivityCaptureError,
     activity_store_path::{activity_db_path, activity_journal_key_path, activity_journal_path},
-    screen_ai_cadence_runtime_event::record_captured_screen_image_to_paths,
-    time::timestamp_now,
+    screen_ai_cadence_runtime_event::{
+        record_captured_screen_image_to_paths, ScreenAiServiceCaptureClock,
+        ScreenAiServiceCapturePaths, ScreenAiServiceCaptureRecord,
+    },
 };
 
 const DEFAULT_CADENCE_SECONDS: u64 = 60;
@@ -60,11 +65,7 @@ pub(crate) enum ScreenAiCadenceTickOutcome {
     },
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub(crate) struct ScreenAiCadenceTickClock {
-    pub(crate) epoch_seconds: u64,
-    pub(crate) timestamp: String,
-}
+pub(crate) type ScreenAiCadenceTickClock = ScreenAiServiceCaptureClock;
 
 pub(crate) fn spawn_screen_ai_cadence_runtime() {
     if let Some(config) = ScreenAiCadenceRuntimeConfig::from_environment() {
@@ -132,7 +133,26 @@ pub(crate) fn record_screen_ai_cadence_tick(
     match capture_active_window_png() {
         ScreenCaptureAttempt::Captured(image) => {
             let queue_job_id =
-                record_captured_screen_image_to_paths(config, &image, clock, tick_index)?;
+                record_captured_screen_image_to_paths(ScreenAiServiceCaptureRecord {
+                    paths: ScreenAiServiceCapturePaths {
+                        queue_dir: &config.queue_dir,
+                        journal_path: &config.journal_path,
+                        journal_key_path: &config.journal_key_path,
+                        store_path: &config.store_path,
+                    },
+                    image: &image,
+                    clock,
+                    sequence_index: tick_index,
+                    capture_reason: constants::activity_capture::SCREEN_TRIGGER_TIMED_CADENCE,
+                    source_id: SCREEN_SERVICE_SOURCE_ID,
+                    queue_job_id_prefix: SCREEN_SERVICE_QUEUE_JOB_ID_PREFIX,
+                    result_id_prefix: SCREEN_SERVICE_RESULT_ID_PREFIX,
+                    event_id_prefix: SCREEN_SERVICE_EVENT_ID_PREFIX,
+                    evidence_id_prefix: SCREEN_SERVICE_EVIDENCE_ID_PREFIX,
+                    summary: SCREEN_SERVICE_SUMMARY_CAPTURED,
+                    model_id: SCREEN_SERVICE_MODEL_ID,
+                    template_version: SCREEN_SERVICE_TEMPLATE_VERSION,
+                })?;
             Ok(ScreenAiCadenceTickOutcome::Recorded { queue_job_id })
         }
         ScreenCaptureAttempt::Degraded(metadata) => {
@@ -174,18 +194,6 @@ impl ScreenAiCadenceRuntimeConfig {
             cadence_seconds: self.cadence_seconds,
             min_trigger_gap_seconds: self.cadence_seconds,
             enabled_triggers: &[ScreenCaptureScheduleTrigger::TimedCadence],
-        }
-    }
-}
-
-impl ScreenAiCadenceTickClock {
-    fn from_system_time() -> Self {
-        Self {
-            epoch_seconds: SystemTime::now()
-                .duration_since(UNIX_EPOCH)
-                .map(|duration| duration.as_secs())
-                .unwrap_or_default(),
-            timestamp: timestamp_now(),
         }
     }
 }

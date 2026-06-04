@@ -131,6 +131,15 @@ only with explicit parent settings.
   the local ActivityStore, and reads three Activity Screen rows back through the
   real WebSocket command path. The provider is `serviceCaptureMetadata`, so this
   is capture/read-model cadence proof, not a VLM quality or policy-action claim.
+- `scripts/test/screen-ai-service-foreground-proof.mjs` now proves an explicit
+  opt-in Rust service foreground watcher on Windows: it starts from a real
+  Chromium active window, launches/focuses a native Notepad window, requires the
+  encrypted screen queue to grow after that foreground action, deletes the raw
+  temporary image material after queue handoff, and reads the latest foreground
+  Activity Screen row through the real WebSocket command path. The provider is
+  `serviceCaptureMetadata`, so this is native foreground capture/read-model
+  proof, not browser URL trigger ownership, game classification, VLM quality, or
+  policy-action proof.
 - Android child-agent scaffold now has emulator MediaProjection proof with
   explicit OS consent, foreground service, captured frame digest, and raw temp
   deletion. Physical Android parity and silent background capture are not
@@ -141,9 +150,9 @@ only with explicit parent settings.
 
 ## Current Gap
 
-Opt-in UI, service-owned foreground watchers, live external URL/account operator
-proof, OCR/vision quality beyond controlled fixtures, service-owned live trigger
-event producers beyond the timed cadence loop, physical
+Opt-in UI, live external URL/account operator proof, OCR/vision quality beyond
+controlled fixtures, service-owned live trigger event producers beyond the timed
+cadence loop and native active-window foreground watcher, physical
 Android/iOS proof, live macOS capture proof, Linux root/Wayland portal proof,
 browser/network/mobile/broad block action adapters from screen-derived
 decisions, checklist status movement, and production parent explanation UX
