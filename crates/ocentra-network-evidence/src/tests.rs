@@ -1,6 +1,9 @@
 use crate::{
-    dns_query_pcap_fixture, dns_query_replay_expected, parse_pcap_packets, replay_dns_observations,
-    NetworkEvidenceGrade, NetworkReplayError, PcapReplayError,
+    dns_query_frame_fixture, dns_query_pcap_fixture, dns_query_replay_expected,
+    dns_response_payload_fixture, icmp_echo_frame_fixture, parse_dns_message, parse_network_packet,
+    parse_pcap_packets, replay_dns_observations, tcp_syn_frame_fixture, DnsQueryType,
+    DnsRecordData, IpProtocol, NetworkEvidenceGrade, NetworkReplayError, PacketParseError,
+    PcapReplayError, TransportPacketMetadata,
 };
 
 #[test]
@@ -17,6 +20,93 @@ fn deterministic_pcap_replay_extracts_metadata_only_dns_query() {
     );
     assert!(!summary.dns_observations[0].exact_url_available);
     assert!(!summary.dns_observations[0].decrypted_payload_available);
+}
+
+#[test]
+fn packet_parser_extracts_ethernet_ipv4_udp_metadata() {
+    let parsed = parse_network_packet(&dns_query_frame_fixture()).expect("udp frame should parse");
+    let ipv4 = parsed.ipv4.expect("fixture is IPv4");
+
+    assert_eq!(parsed.ethernet.destination_mac, "aa:bb:cc:dd:ee:ff");
+    assert_eq!(parsed.ethernet.source_mac, "10:20:30:40:50:60");
+    assert_eq!(parsed.ethernet.ether_type, 0x0800);
+    assert_eq!(ipv4.source_ip, "192.168.1.25");
+    assert_eq!(ipv4.destination_ip, "1.1.1.1");
+    assert_eq!(ipv4.protocol, IpProtocol::Udp);
+    assert_eq!(ipv4.header_len, 20);
+    assert!(matches!(
+        parsed.transport,
+        Some(TransportPacketMetadata::Udp {
+            source_port: 53_000,
+            destination_port: 53,
+            payload_len: 36
+        })
+    ));
+}
+
+#[test]
+fn packet_parser_extracts_tcp_metadata() {
+    let parsed = parse_network_packet(&tcp_syn_frame_fixture()).expect("tcp frame should parse");
+
+    assert!(matches!(
+        parsed.transport,
+        Some(TransportPacketMetadata::Tcp {
+            source_port: 53_001,
+            destination_port: 443,
+            header_len: 20,
+            payload_len: 0
+        })
+    ));
+}
+
+#[test]
+fn packet_parser_extracts_icmp_metadata() {
+    let parsed = parse_network_packet(&icmp_echo_frame_fixture()).expect("icmp frame should parse");
+
+    assert!(matches!(
+        parsed.transport,
+        Some(TransportPacketMetadata::Icmp {
+            icmp_type: 8,
+            code: 0,
+            payload_len: 4
+        })
+    ));
+}
+
+#[test]
+fn packet_parser_rejects_truncated_ethernet_frame() {
+    let result = parse_network_packet(&[0; 13]);
+
+    assert_eq!(result, Err(PacketParseError::EthernetFrameTooShort));
+}
+
+#[test]
+fn dns_parser_extracts_query_and_compressed_response_answer() {
+    let message =
+        parse_dns_message(&dns_response_payload_fixture()).expect("dns response should parse");
+
+    assert_eq!(message.transaction_id, 0x1234);
+    assert!(message.is_response);
+    assert_eq!(message.questions.len(), 1);
+    assert_eq!(message.questions[0].query_name, "video.example.test");
+    assert_eq!(message.questions[0].query_type, DnsQueryType::A);
+    assert_eq!(message.answers.len(), 1);
+    assert_eq!(message.answers[0].record_name, "video.example.test");
+    assert_eq!(message.answers[0].ttl_seconds, 300);
+    assert_eq!(
+        message.answers[0].data,
+        DnsRecordData::Ipv4Address("203.0.113.7".to_owned())
+    );
+}
+
+#[test]
+fn dns_parser_rejects_truncated_answer_data() {
+    let mut response = dns_response_payload_fixture();
+    response.truncate(response.len() - 2);
+
+    let result = parse_dns_message(&response);
+
+    assert_eq!(result, Err(NetworkReplayError::DnsResourceRecordTruncated));
 }
 
 #[test]

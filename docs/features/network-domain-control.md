@@ -73,6 +73,9 @@ compete on control while staying clear about attribution confidence and privacy.
   Ethernet/IPv4/UDP DNS query metadata. The proof writes a fixture PCAP,
   expected domain evidence, and must-not-claim artifact without live capture or
   content inspection claims.
+- E-D extended `ocentra-network-evidence` with fixture-backed packet parsing
+  for Ethernet/IPv4 UDP, TCP, and ICMP plus DNS query/response parsing,
+  including compressed response answer names and malformed-packet rejection.
 - Network/domain blocking is not broadly product-complete.
 - Raw network control settings are preserved as design inputs, not
   product-complete implementation proof.
@@ -86,10 +89,11 @@ proof, and parent-facing rule UX remain. Policy dispatch does not upgrade
 network/domain blocking beyond
 manual-required, and the broad-adapter proof and supported-adapter runtime proof
 keep the same manual-required host-filter boundary. The integrity runtime audit
-proves observe-only and manual-required state visibility, not DNS, VPN, packet,
-signature alert, production risk-budget, or host filter enforcement. The E-D
+proves observe-only and manual-required state visibility, not live DNS, VPN,
+packet capture, signature alert, production risk-budget, or host filter
+enforcement. The E-D
 runtime spine removes the private-bus blocker for an in-process metadata-only
-chain, but full packet/analyzer fixtures, broker delivery, portal UI, and
+chain, but TLS/QUIC/HTTP/analyzer fixtures, broker delivery, portal UI, and
 adapter apply/rollback/audit artifacts remain open.
 
 ## Checklist
@@ -100,8 +104,8 @@ adapter apply/rollback/audit artifacts remain open.
 - [ ] Network category/risk targets.
 - [ ] PCAP fixture, Zeek-style summary, and Suricata/Snort-compatible alert
       proof.
-      First deterministic DNS query PCAP replay exists; analyzer comparison and
-      signature alerts remain open.
+      First deterministic DNS query PCAP replay and packet/DNS parser fixtures
+      exist; analyzer comparison and signature alerts remain open.
 - [ ] Reusable Rust eventing, detection, AI audit, and risk-budget contracts.
       First E-D runtime spine exists for metadata-only flow events and
       manual-required/unavailable states; production analyzer, AI model, and
