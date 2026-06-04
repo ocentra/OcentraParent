@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-04T04:35:28.255Z",
-  "commit": "00599ab2d27c1793b145bf81d958ec635db4eccc",
+  "checkedAt": "2026-06-04T05:56:20.138Z",
+  "commit": "595da709f0f6f974e1227967f71c358d5ffc2d67",
   "workpackIds": [
     "30-parent-and-child-ui-ux-surfaces",
     "32-journal-sqlite-and-read-model-proof",
@@ -13,8 +13,8 @@
   "currentStatus": "proved",
   "productClaimReady": false,
   "ports": {
-    "agent": 4577,
-    "portal": 4578
+    "agent": 4489,
+    "portal": 4490
   },
   "activityStoreSeed": {
     "path": "temporary ActivityStore SQLite database",
@@ -275,7 +275,7 @@
   },
   "commands": [
     {
-      "command": "C:\\Users\\sujan\\AppData\\Local\\Android\\Sdk\\platform-tools\\sqlite3.exe C:\\Users\\sujan\\AppData\\Local\\Temp\\ocentra-parent-tracking-hosted-ui-rukod4\\activity.sqlite .read C:\\Users\\sujan\\AppData\\Local\\Temp\\ocentra-parent-tracking-hosted-ui-rukod4\\seed-tracking.sql",
+      "command": "C:\\Users\\sujan\\AppData\\Local\\Android\\Sdk\\platform-tools\\sqlite3.exe C:\\Users\\sujan\\AppData\\Local\\Temp\\ocentra-parent-tracking-hosted-ui-dGx6N5\\activity.sqlite .read C:\\Users\\sujan\\AppData\\Local\\Temp\\ocentra-parent-tracking-hosted-ui-dGx6N5\\seed-tracking.sql",
       "exitCode": 0
     },
     {
