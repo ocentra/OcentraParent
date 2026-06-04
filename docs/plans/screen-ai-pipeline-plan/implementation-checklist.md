@@ -30,6 +30,7 @@ claims.
 | Policy dry-run decision                  | P3 contract proved       | `output/ai-plan-proof/real-analysis/browser-game/07-policy-decision.json`                   | Covers allow, warn, ask-parent, time-limit, and block dry-run actions; real enforcement adapter dispatch is still required in this pipeline scope before product-complete action claims.                                                                                                   |
 | Screen-to-action adapter dispatch        | P3 Windows proved        | `output/screen-ai-pipeline-proof/action-dispatch/proof-summary.json`                        | Proves screen-derived native owned-process time-limit decision handoff into the real Windows Rust service adapter path; does not claim browser, network, mobile, or broad block enforcement.                                                                                               |
 | Parent portal screen chain               | P3 proved                | `output/screen-ai-pipeline-proof/portal-chain/proof-summary.json`                           | Proves real service-to-portal Activity Screen read-model rendering of trigger, capture, AI, policy, deletion, custody, queue, digest, and evidence refs; live external account proof remains.                                                                                              |
+| Live operator proof harness readiness    | P2 executable gate       | `output/screen-ai-pipeline-proof/live-operator/harness-readiness/proof-summary.json`        | Proves the live operator harness exists, covers the required nine scenario ids, and refuses to claim live proof without an operator manifest. It does not claim real YouTube/Vimeo/social/shopping/game/account proof until manifest-run artifacts exist.                                  |
 | Unknown native process trigger           | P3 local-machine proved  | `output/screen-ai-pipeline-proof/unknown-native-process/03-capture-proof.json`              | Proves a controlled unknown native process window can trigger selected-window capture, local VLM unknown classification, low-confidence handling, and ask-parent dry-run without retaining raw image.                                                                                      |
 | OCR visible-text route                   | P3 contract proved       | `output/screen-ai-pipeline-proof/ocr-route/proof-summary.json`                              | Proves typed local OCR text evidence can produce schema-valid screen analysis and policy dry-run without a vision model or retained raw image; production OCR adapter remains separate.                                                                                                    |
 | Local text typed-context route           | P3 contract proved       | `output/screen-ai-pipeline-proof/local-text-route/proof-summary.json`                       | Proves screen-derived typed activity evidence can enter Local AI safety input/result contracts with local-only runtime status and dry-run policy handoff; live model inference remains separate.                                                                                           |
@@ -91,6 +92,8 @@ claims.
 - [x] Parent explanation cites evidence and rules.
 - [x] Raw image deletion proof linked.
 - [x] Remote/cloud screenshot upload disabled.
+- [x] Live operator proof harness readiness artifact exists:
+      `output/screen-ai-pipeline-proof/live-operator/harness-readiness/proof-summary.json`.
 - [ ] Operator live proof completed before product-complete claim.
 - [ ] Live external URL/account proof completed for real YouTube/Vimeo/social/shopping/browser-game surfaces; controlled fixture rows are harness proof only.
 
@@ -104,6 +107,10 @@ claims.
 - [x] Performance/cadence proof run.
 - [x] Service cadence proof run: `node scripts/test/screen-ai-service-cadence-proof.mjs`.
 - [x] Service foreground proof run: `node scripts/test/screen-ai-service-foreground-proof.mjs`.
+- [x] Live operator harness readiness run:
+      `node --check scripts/test/screen-ai-live-operator-proof.mjs`,
+      `node scripts/test/screen-ai-live-operator-proof.mjs --verify-harness`,
+      and `node scripts/test/screen-ai-live-operator-proof.mjs --print-template`.
 - [x] Dependency policy rerun after capture dependency narrowing.
 - [x] Android emulator MediaProjection proof run.
 - [x] `git diff --check`.
