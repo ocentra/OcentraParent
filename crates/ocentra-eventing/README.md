@@ -16,6 +16,9 @@ Reusable Rust eventing primitives for Ocentra Parent runtime code.
 - Observable detached publish, awaitable publish reports, scoped
   `SubscriptionHandle` unsubscribe/drop behavior, and `EventRegistrar`
   ownership/dispose lifecycle.
+- Handler execution policy for timeout and retry attempts, handler trace fields
+  for event id/type/correlation/handler/outcome, and a real-subscription
+  `EventRecorder<E>` testkit helper.
 
 ## Must Not Own
 
@@ -26,8 +29,8 @@ Reusable Rust eventing primitives for Ocentra Parent runtime code.
 
 ## Current Gap
 
-This crate does not yet implement bounded queues, TTL/retry, request-response
-completion, durable NDJSON journal replay, shutdown/drain lifecycle, metrics,
-tracing, or broker-backed delivery. Consumers must keep those claims
+This crate does not yet implement bounded queues, TTL/deadline queue expiry,
+request-response completion, durable NDJSON journal replay, shutdown/drain
+lifecycle, or broker-backed delivery. Consumers must keep those claims
 manual-required until the matching eventing workpacks are implemented and
 validated.

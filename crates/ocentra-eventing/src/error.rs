@@ -9,6 +9,8 @@ pub enum EventingError {
     ContractMismatch { expected: String, received: String },
     DuplicateSubscriber { subscriber_id: String },
     HandlerPanicked { subscriber_id: String },
+    HandlerTimedOut { subscriber_id: String },
+    InvalidHandlerPolicy { reason: String },
     RegistrarDisposed,
 }
 
@@ -54,6 +56,12 @@ impl fmt::Display for EventingError {
             }
             Self::HandlerPanicked { subscriber_id } => {
                 write!(formatter, "event handler panicked: {subscriber_id}")
+            }
+            Self::HandlerTimedOut { subscriber_id } => {
+                write!(formatter, "event handler timed out: {subscriber_id}")
+            }
+            Self::InvalidHandlerPolicy { reason } => {
+                write!(formatter, "invalid event handler policy: {reason}")
             }
             Self::RegistrarDisposed => formatter.write_str("event registrar is disposed"),
         }

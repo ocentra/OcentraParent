@@ -8,7 +8,7 @@ use tokio::{sync::Mutex as AsyncMutex, sync::RwLock, task::JoinHandle};
 
 use crate::{
     AggregateKey, DomainEvent, EventEnvelope, EventMetadata, EventType, EventingError,
-    StoredEventEnvelope,
+    HandlerExecutionPolicy, StoredEventEnvelope,
 };
 
 mod dispatch;
@@ -21,7 +21,7 @@ use reports::dead_letters_for;
 use subscriber::{insert_subscriber, record_for, SubscriberRecord};
 
 pub use publisher::{EventContext, EventPublisher};
-pub use reports::{DeadLetter, HandlerOutcome, HandlerReport, PublishReport};
+pub use reports::{DeadLetter, EventTraceFields, HandlerOutcome, HandlerReport, PublishReport};
 pub use subscriber::{EventSubscriber, SubscriptionHandle, SubscriptionReport, UnsubscribeReport};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -37,6 +37,7 @@ pub struct EventBus {
     journal: Arc<RwLock<Vec<StoredEventEnvelope>>>,
     dead_letters: Arc<RwLock<Vec<DeadLetter>>>,
     aggregate_locks: Arc<Mutex<BTreeMap<AggregateKey, Arc<AsyncMutex<()>>>>>,
+    handler_policy: HandlerExecutionPolicy,
 }
 
 impl EventBus {
@@ -46,6 +47,14 @@ impl EventBus {
             journal: Arc::new(RwLock::new(Vec::new())),
             dead_letters: Arc::new(RwLock::new(Vec::new())),
             aggregate_locks: Arc::new(Mutex::new(BTreeMap::new())),
+            handler_policy: HandlerExecutionPolicy::default(),
+        }
+    }
+
+    pub fn with_handler_policy(policy: HandlerExecutionPolicy) -> Self {
+        Self {
+            handler_policy: policy,
+            ..Self::new()
         }
     }
 
@@ -191,15 +200,33 @@ impl EventBus {
     ) -> Vec<HandlerReport> {
         match dispatch_mode {
             DispatchMode::Sequential => {
-                dispatch_sequential(stored, subscribers, EventPublisher::new(self.clone())).await
+                dispatch_sequential(
+                    stored,
+                    subscribers,
+                    EventPublisher::new(self.clone()),
+                    self.handler_policy.clone(),
+                )
+                .await
             }
             DispatchMode::Concurrent => {
-                dispatch_concurrent(stored, subscribers, EventPublisher::new(self.clone())).await
+                dispatch_concurrent(
+                    stored,
+                    subscribers,
+                    EventPublisher::new(self.clone()),
+                    self.handler_policy.clone(),
+                )
+                .await
             }
             DispatchMode::OrderedByAggregateKey => {
                 let aggregate_lock = self.aggregate_lock(&stored.aggregate_key);
                 let _aggregate_guard = aggregate_lock.lock().await;
-                dispatch_sequential(stored, subscribers, EventPublisher::new(self.clone())).await
+                dispatch_sequential(
+                    stored,
+                    subscribers,
+                    EventPublisher::new(self.clone()),
+                    self.handler_policy.clone(),
+                )
+                .await
             }
         }
     }
