@@ -95,6 +95,12 @@ expose location or device-status features. Parents expect this category.
   Windows-hosted worktree, the tracking contracts build, the service read-model
   proof, and the Rust core tracking read-model test under
   `output/tracking-plan-proof/wsl-local-replay/`.
+- iOS simulator package proof is now routed through
+  `npm run test:tracking-plan-ios-simulator-proof`. On macOS package-preview CI
+  it writes tracking-specific proof artifacts after the existing Xcode
+  simulator build and simctl install/launch smoke. On non-macOS hosts it writes
+  explicit `manual_required` proof instead of pretending simulator execution
+  happened.
 - Platform permissions, mobile physical-device proof, full runtime adapters,
   provider delivery, notification delivery, full parent/child UI, hosted screenshots,
   accessibility, and richer live service-backed UI evidence citations remain not
@@ -129,6 +135,9 @@ evidence citations are proved.
 - [x] Android emulator package launch, foreground-service scaffold, battery,
       and connectivity proof. This is not foreground location or geofence
       proof.
+- [x] iOS simulator package build/install/launch proof routing. This is not
+      Core Location, entitlement, background region, notification, physical-device,
+      or child-agent parity proof.
 - [ ] iOS entitlement/background proof.
 - [x] Expected-place schedule and exception contracts.
 - [x] Parent acknowledgement and escalation contracts.
@@ -158,5 +167,6 @@ workpack ownership. Keep AI as evidence, not authority, and keep LAN/IP/Wi-Fi
 presence as hints only. The pre-device proof gate is now repeatable; the next
 implementation layers are richer tracking journal/read-model surfaces, full
 portal UI snapshots/accessibility, remaining Android foreground-location and
-background/geofence runtime proof, iOS simulator/local proof, then physical
-Android/iOS proof and authority proof only when matching devices are enrolled.
+background/geofence runtime proof, iOS Core Location/region proof beyond
+simulator package launch, then physical Android/iOS proof and authority proof
+only when matching devices are enrolled.

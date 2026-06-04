@@ -24,8 +24,11 @@ Proof root: `output/tracking-plan-proof/12-ios-background-region-significant-cha
 - `05-geofence-transition-proof.json`
 - `15-manual-platform-proof.md`
 - `16-validation-commands.log`
+- `18-ios-simulator-proof.json`
 - Pre-device plan:
   `output/tracking-plan-proof/pre-device-gap-closure/ios-simulator-local-proof-plan.json`
+- Proof command:
+  `npm run test:tracking-plan-ios-simulator-proof`
 
 ## AI Worker Checklist
 
@@ -36,6 +39,9 @@ Proof root: `output/tracking-plan-proof/12-ios-background-region-significant-cha
 - [ ] Document App Store/privacy disclosure implications before release claims.
 - [x] Generate the iOS simulator/local and physical-device proof artifact plan
       before device work.
+- [x] Route simulator package build/install/launch proof through the tracking
+      proof harness while preserving Always/background/region behavior as
+      physical-device manual-required.
 
 ## Where We Are
 
@@ -46,6 +52,11 @@ location event, region transition, alert decision, screenshot, Xcode log, and
 privacy-disclosure artifacts required before any iOS background/region claim.
 Runtime/product-complete behavior, entitlement approval, and real-device
 background behavior are still not claimed.
+`npm run test:tracking-plan-ios-simulator-proof` now writes package-mechanics
+proof into this workpack root. It can prove the simulator package build and
+install/launch path on macOS, but simulator package launch is not Always
+authorization, region monitoring, significant-change, visits, low-power,
+terminated/relaunch, notification, entitlement, or physical-device proof.
 
 ## Where We Want To Be
 
@@ -62,6 +73,7 @@ This workpack can be assigned independently, implemented against the owning doma
 
 - docs/plans/tracking-plan/workpacks/12-ios-background-region-significant-change-adapter.md
 - docs/plans/tracking-plan/implementation-checklist.md
+- scripts/test/tracking-plan-ios-simulator-proof.mjs
 - `output/tracking-plan-proof/12-ios-background-region-significant-change-adapter/`
 - Implementation paths listed by the worker before editing.
 
@@ -73,8 +85,16 @@ This workpack can be assigned independently, implemented against the owning doma
 ## Fill This Before Reporting DONE Or PR-ready
 
 - [ ] Workpack id and branch.
-- [ ] Touched files.
-- [ ] Validation commands and results.
-- [ ] Proof artifacts under `output/tracking-plan-proof/12-ios-background-region-significant-change-adapter/`.
-- [ ] Product doc/checklist updates or reason none were needed.
-- [ ] Known gaps/manual-required states.
+- [x] Touched files: proof script, root script wiring, package-preview CI
+      upload wiring, feature doc, checklist, and this workpack doc.
+- [x] Validation commands and results: `npm run test:tracking-plan-ios-simulator-proof`
+      writes local proof; macOS package-preview runs it with
+      `--require-simulator` after the real iOS simulator smoke.
+- [x] Proof artifacts under `output/tracking-plan-proof/12-ios-background-region-significant-change-adapter/`.
+- [x] Product doc/checklist updates or reason none were needed: feature doc and
+      tracking checklist updated; central product checklist delta remains
+      primary-owned through hub.
+- [x] Known gaps/manual-required states: Always authorization, region
+      monitoring, significant-change, visits, background delivery, low-power,
+      terminated/relaunch, notification delivery, physical-device, and
+      authority proof remain unclaimed.

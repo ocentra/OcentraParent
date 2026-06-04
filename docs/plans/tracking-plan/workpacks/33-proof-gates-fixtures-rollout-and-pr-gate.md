@@ -46,6 +46,8 @@ Proof root: `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-g
   `output/tracking-plan-proof/pre-device-gap-closure/proof-summary.json`
 - WSL/local replay proof:
   `17-wsl-local-proof.json`
+- iOS simulator package proof:
+  `test-results/tracking-plan-ios-simulator-proof/proof.json`
 
 ## Merge Blockers
 
@@ -100,6 +102,14 @@ contract build output, service read-model proof, and Rust core tracking
 read-model test. It does not claim Android/iOS physical behavior, authority,
 full hosted UI/accessibility, provider delivery, or production readiness.
 
+This branch adds `npm run test:tracking-plan-ios-simulator-proof`, which writes
+tracking-specific iOS simulator package proof artifacts. On macOS
+package-preview CI it runs after the existing iOS simulator build and simctl
+install/launch smoke with `--require-simulator`; on non-macOS hosts it writes
+manual-required output. It is a package-mechanics proof gate only and does not
+upgrade Core Location, background/region, entitlement, physical-device, or
+authority claims.
+
 ## Where We Want To Be
 
 This workpack can be assigned independently, implemented against the owning domain boundaries, validated with real contracts or platform proof, and reported without leaving unclear tracking claims behind.
@@ -115,6 +125,7 @@ This workpack can be assigned independently, implemented against the owning doma
 
 - docs/plans/tracking-plan/workpacks/33-proof-gates-fixtures-rollout-and-pr-gate.md
 - docs/plans/tracking-plan/implementation-checklist.md
+- scripts/test/tracking-plan-ios-simulator-proof.mjs
 - `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/`
 - Implementation paths listed by the worker before editing.
 
@@ -159,3 +170,20 @@ This workpack can be assigned independently, implemented against the owning doma
       full hosted UI/accessibility, production pilot, provider delivery, and
       richer live UI/read-model/product claims remain proof-gated as
       applicable.
+- [x] Workpack id and branch: `codex/tracking-ios-simulator-proof`.
+- [x] Touched files: iOS simulator proof script, root script wiring,
+      package-preview CI artifact wiring, tracking feature doc, implementation
+      checklist, WP11, WP12, WP31, WP33, and generated tracking iOS proof
+      artifacts.
+- [x] Validation commands and results: `npm run test:tracking-plan-ios-simulator-proof`
+      writes local proof; macOS package-preview runs the proof with
+      `--require-simulator` after the real iOS simulator smoke.
+- [x] Proof artifacts under `test-results/tracking-plan-ios-simulator-proof/`,
+      WP11, WP12, and WP31 proof roots.
+- [x] Product doc/checklist updates: owning feature doc and tracking checklist
+      updated; central capability checklist delta remains primary-owned through
+      hub.
+- [x] Known gaps/manual-required states: Core Location authorization/sample,
+      background/region, notifications, entitlements, signing/TestFlight/App
+      Store, physical-device, authority, hosted full UI/accessibility, and
+      production proof remain unclaimed.

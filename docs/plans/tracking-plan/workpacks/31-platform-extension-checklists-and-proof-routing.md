@@ -23,6 +23,7 @@ Proof root: `output/tracking-plan-proof/31-platform-extension-checklists-and-pro
 - `02-platform-permission-proof.md`
 - `15-manual-platform-proof.md`
 - `16-validation-commands.log`
+- `18-ios-simulator-proof.json`
 
 ## AI Worker Checklist
 
@@ -31,6 +32,8 @@ Proof root: `output/tracking-plan-proof/31-platform-extension-checklists-and-pro
 - [ ] Maintain desktop extension rows.
 - [ ] Add managed-device proof only when real enrollment/control exists.
 - [ ] Keep CI/package proof separate from real device capability proof.
+- [x] Route iOS simulator package build/install/launch proof separately from
+      iOS Core Location, background, entitlement, and physical-device claims.
 
 ## Where We Are
 
@@ -42,6 +45,14 @@ to `test-results/tracking-plan-android-emulator-proof/`, fills WP08/WP09/WP10
 proof roots, and preserves no-claim states for foreground location samples,
 background/geofence transitions, notification delivery, physical-device proof,
 and authority proof.
+
+iOS simulator package proof routing now exists through
+`npm run test:tracking-plan-ios-simulator-proof`. It validates the existing
+Xcode build and simctl smoke scripts, writes local manual-required proof on
+non-macOS hosts, and is wired into the macOS package-preview job after the real
+iOS simulator build/install/launch smoke. It keeps Core Location,
+background/region, notification, entitlement, signing, TestFlight/App Store,
+physical-device, and authority behavior as separate manual-required claims.
 
 ## Where We Want To Be
 
@@ -58,6 +69,7 @@ This workpack can be assigned independently, implemented against the owning doma
 
 - docs/plans/tracking-plan/workpacks/31-platform-extension-checklists-and-proof-routing.md
 - docs/plans/tracking-plan/implementation-checklist.md
+- scripts/test/tracking-plan-ios-simulator-proof.mjs
 - `output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/`
 - Implementation paths listed by the worker before editing.
 
@@ -74,3 +86,17 @@ This workpack can be assigned independently, implemented against the owning doma
 - [x] Proof artifacts under `output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/`.
 - [x] Product doc/checklist updates: owning feature doc, feature list, capability checklist, implementation checklist, tracking snapshot, and package READMEs updated.
 - [x] Known gaps/manual-required states: Android/iOS, precise desktop, provider delivery, runtime engines, retention/delete/export, Rust journal/SQLite, notifications, and UI remain proof-gated as applicable.
+- [x] Workpack id and branch: `codex/tracking-ios-simulator-proof`.
+- [x] Touched files: iOS simulator proof script, root script wiring,
+      package-preview CI artifact wiring, tracking feature doc, implementation
+      checklist, WP11, WP12, WP31, and generated tracking iOS proof artifacts.
+- [x] Validation commands and results: `npm run test:tracking-plan-ios-simulator-proof`
+      writes local proof; macOS package-preview runs the same proof with
+      `--require-simulator` after the real iOS simulator smoke.
+- [x] Proof artifacts under `output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/`.
+- [x] Product doc/checklist updates: owning feature doc and tracking checklist
+      updated; central capability checklist delta remains primary-owned through
+      hub.
+- [x] Known gaps/manual-required states: Core Location, background/region,
+      notifications, entitlements, signing/TestFlight/App Store, physical-device,
+      authority, and production proof remain unclaimed.
