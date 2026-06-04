@@ -34,4 +34,8 @@ deleted` and sanitized `<ephemeral-screen-queue>` evidence refs.
 - Unknown native process proof:
   `output/screen-ai-pipeline-proof/unknown-native-process/03-capture-proof.json`.
 - Disabled no-capture/no-AI proof:
-  `output/ai-plan-proof/real-analysis/disabled-no-capture-no-ai/01-source-evidence.json`.
+  `output/screen-ai-pipeline-proof/service-disabled-suppression/proof-summary.json`.
+  The proof starts from one enabled encrypted cadence queue record, then runs
+  cadence, foreground, and analysis service runtimes with the parent disabled
+  setting off and requires no new capture rows, no new queue records, no local
+  vision row, and no pending queue drain.
