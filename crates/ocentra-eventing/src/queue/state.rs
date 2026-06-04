@@ -52,7 +52,7 @@ impl EventQueue {
                 self.report(QueueDisposition::DeadLetteredNoSubscriber),
                 DeadLetterReason::NoSubscriber,
                 EventingError::NoSubscriber {
-                    event_type: stored.contract.event_type.as_str().to_string(),
+                    event_type: stored.contract.event_type.clone(),
                 },
             )),
             NoSubscriberQueuePolicy::Queue => self.try_enqueue(stored, now),
@@ -70,12 +70,12 @@ impl EventQueue {
         let key = stored.idempotency_key.clone();
         if state.completed_keys.contains(&key) || state.queued_keys.contains(&key) {
             return Err(EventingError::DuplicateIdempotencyKey {
-                idempotency_key: key.as_str().to_string(),
+                idempotency_key: key,
             });
         }
         if !state.in_flight_keys.insert(key.clone()) {
             return Err(EventingError::DuplicateInFlight {
-                idempotency_key: key.as_str().to_string(),
+                idempotency_key: key,
             });
         }
         Ok(DispatchReservation::new(self.clone(), Some(key)))
@@ -140,7 +140,7 @@ impl EventQueue {
                 || state.in_flight_keys.contains(&key))
         {
             return Err(EventingError::DuplicateIdempotencyKey {
-                idempotency_key: key.as_str().to_string(),
+                idempotency_key: key,
             });
         }
         if state.queued.len() >= capacity {
@@ -168,7 +168,7 @@ impl EventQueue {
     ) -> Result<NoSubscriberQueueDecision, EventingError> {
         match self.policy.overflow() {
             QueueOverflowPolicy::RejectPublish => Err(EventingError::QueueCapacityExceeded {
-                event_type: stored.contract.event_type.as_str().to_string(),
+                event_type: stored.contract.event_type.clone(),
                 capacity,
             }),
             QueueOverflowPolicy::DeadLetterRejected => Ok(NoSubscriberQueueDecision::DeadLetter(
@@ -179,7 +179,7 @@ impl EventQueue {
                 },
                 DeadLetterReason::QueueOverflow,
                 EventingError::QueueCapacityExceeded {
-                    event_type: stored.contract.event_type.as_str().to_string(),
+                    event_type: stored.contract.event_type.clone(),
                     capacity,
                 },
             )),

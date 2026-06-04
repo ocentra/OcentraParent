@@ -24,8 +24,8 @@ use subscriber::{insert_subscriber, record_for, SubscriberRecord};
 
 pub use publisher::{EventContext, EventPublisher};
 pub use reports::{
-    DeadLetter, DeadLetterEvent, DeadLetterReason, EventTraceFields, HandlerOutcome, HandlerReport,
-    PublishReport, QueueDrainReport, DEAD_LETTER_RECORDED_EVENT_TYPE,
+    dead_letter_recorded_event_type, DeadLetter, DeadLetterEvent, DeadLetterReason,
+    EventTraceFields, HandlerOutcome, HandlerReport, PublishReport, QueueDrainReport,
 };
 pub use subscriber::{EventSubscriber, SubscriptionHandle, SubscriptionReport, UnsubscribeReport};
 

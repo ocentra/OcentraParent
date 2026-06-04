@@ -17,10 +17,10 @@ mod testkit;
 mod topology;
 
 pub use bus::{
-    DeadLetter, DeadLetterEvent, DeadLetterReason, DispatchMode, EventBus, EventBusClearReport,
-    EventBusShutdownReport, EventContext, EventPublisher, EventSubscriber, EventTraceFields,
-    HandlerOutcome, HandlerReport, PublishReport, QueueDrainReport, ShutdownMode,
-    SubscriptionHandle, SubscriptionReport, UnsubscribeReport, DEAD_LETTER_RECORDED_EVENT_TYPE,
+    dead_letter_recorded_event_type, DeadLetter, DeadLetterEvent, DeadLetterReason, DispatchMode,
+    EventBus, EventBusClearReport, EventBusShutdownReport, EventContext, EventPublisher,
+    EventSubscriber, EventTraceFields, HandlerOutcome, HandlerReport, PublishReport,
+    QueueDrainReport, ShutdownMode, SubscriptionHandle, SubscriptionReport, UnsubscribeReport,
 };
 pub use clock::{
     EventClock, EventClockInstant, EventClockSleep, ManualEventClock, SharedEventClock,
@@ -34,7 +34,7 @@ pub use contract_registry::{
 };
 pub use envelope::{
     DomainEvent, EventContract, EventCustody, EventEnvelope, EventMetadata, EventSource,
-    RuntimeRole, StoredEventEnvelope,
+    RuntimeRole, StoredEventEnvelope, StoredEventPayload,
 };
 pub use error::EventingError;
 pub use execution::HandlerExecutionPolicy;

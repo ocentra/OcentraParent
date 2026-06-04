@@ -168,8 +168,32 @@ where
             observed_at: self.observed_at.clone(),
             target_handler: self.target_handler.clone(),
             deadline: self.deadline,
-            payload: serde_json::to_value(&self.payload).map_err(EventingError::payload_encode)?,
+            payload: StoredEventPayload::from_event(&self.payload)?,
         })
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(transparent)]
+pub struct StoredEventPayload {
+    value: serde_json::Value,
+}
+
+impl StoredEventPayload {
+    fn from_event<E>(payload: &E) -> Result<Self, EventingError>
+    where
+        E: Serialize,
+    {
+        Ok(Self {
+            value: serde_json::to_value(payload).map_err(EventingError::payload_encode)?,
+        })
+    }
+
+    fn decode<E>(&self) -> Result<E, serde_json::Error>
+    where
+        E: DeserializeOwned,
+    {
+        serde_json::from_value(self.value.clone())
     }
 }
 
@@ -185,7 +209,7 @@ pub struct StoredEventEnvelope {
     pub target_handler: Option<TargetHandler>,
     #[serde(default)]
     pub deadline: Option<EventClockInstant>,
-    pub payload: serde_json::Value,
+    pub payload: StoredEventPayload,
 }
 
 impl StoredEventEnvelope {
@@ -193,14 +217,14 @@ impl StoredEventEnvelope {
     where
         E: DomainEvent,
     {
-        let payload: E = serde_json::from_value(self.payload.clone()).map_err(|error| {
-            EventingError::payload_decode(self.contract.event_type.as_str().to_string(), error)
+        let payload: E = self.payload.decode().map_err(|error| {
+            EventingError::payload_decode(self.contract.event_type.clone(), error)
         })?;
         let expected = payload.contract()?;
         if expected != self.contract {
             return Err(EventingError::ContractMismatch {
-                expected: expected.event_type.as_str().to_string(),
-                received: self.contract.event_type.as_str().to_string(),
+                expected: expected.event_type,
+                received: self.contract.event_type.clone(),
             });
         }
         Ok(EventEnvelope {

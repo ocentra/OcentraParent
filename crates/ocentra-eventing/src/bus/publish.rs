@@ -71,9 +71,7 @@ impl EventBus {
         };
         let Some(payload) = payload else {
             self.requests.timeout(&request_id);
-            return Err(EventingError::RequestTimedOut {
-                request_id: request_id.as_str().to_string(),
-            });
+            return Err(EventingError::RequestTimedOut { request_id });
         };
         let response = payload.decode::<E::Response>(&request_id)?;
         Ok(RequestReport {
@@ -140,12 +138,7 @@ impl EventBus {
                     &queued_envelope.stored,
                     DeadLetterReason::DeadlineExpired,
                     EventingError::EventDeadlineExpired {
-                        event_type: queued_envelope
-                            .stored
-                            .contract
-                            .event_type
-                            .as_str()
-                            .to_string(),
+                        event_type: queued_envelope.stored.contract.event_type.clone(),
                     },
                 );
                 self.queue
@@ -159,12 +152,7 @@ impl EventBus {
                     &queued_envelope.stored,
                     DeadLetterReason::QueueExpired,
                     EventingError::NoSubscriber {
-                        event_type: queued_envelope
-                            .stored
-                            .contract
-                            .event_type
-                            .as_str()
-                            .to_string(),
+                        event_type: queued_envelope.stored.contract.event_type.clone(),
                     },
                 );
                 self.queue
@@ -273,7 +261,7 @@ impl EventBus {
             &stored,
             DeadLetterReason::DeadlineExpired,
             EventingError::EventDeadlineExpired {
-                event_type: stored.contract.event_type.as_str().to_string(),
+                event_type: stored.contract.event_type.clone(),
             },
         );
         self.queue.mark_completed(stored.idempotency_key.clone());

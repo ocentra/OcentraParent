@@ -65,7 +65,7 @@ async fn dispatch_one(
                 target_handler,
                 HandlerOutcome::DeadlineExpired,
                 Some(EventingError::EventDeadlineExpired {
-                    event_type: stored.contract.event_type.as_str().to_string(),
+                    event_type: stored.contract.event_type.clone(),
                 }),
                 attempt - 1,
             );
@@ -106,7 +106,7 @@ async fn dispatch_one(
                     target_handler,
                     HandlerOutcome::TimedOut,
                     Some(EventingError::HandlerTimedOut {
-                        subscriber_id: subscriber_id.as_str().to_string(),
+                        subscriber_id: subscriber_id.clone(),
                     }),
                     attempt,
                 );
@@ -118,7 +118,7 @@ async fn dispatch_one(
                     target_handler,
                     HandlerOutcome::Panicked,
                     Some(EventingError::HandlerPanicked {
-                        subscriber_id: subscriber_id.as_str().to_string(),
+                        subscriber_id: subscriber_id.clone(),
                     }),
                     attempt,
                 );

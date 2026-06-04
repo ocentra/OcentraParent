@@ -66,7 +66,7 @@ impl EventContractRegistry {
         let event_type = descriptor.event_type().clone();
         if self.descriptors.contains_key(&event_type) {
             return Err(EventingError::DuplicateEventContract {
-                event_type: event_type.as_str().to_string(),
+                event_type: event_type.clone(),
             });
         }
         self.descriptors.insert(event_type.clone(), descriptor);

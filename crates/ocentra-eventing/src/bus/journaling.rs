@@ -38,8 +38,8 @@ impl EventBus {
         if mode != ReplayMode::ActionHandlersAllowed {
             let event_type = records
                 .first()
-                .map(|record| record.envelope.contract.event_type.as_str().to_string())
-                .unwrap_or_else(|| String::from(PROJECTION_ONLY_REPLAY_EVENT_TYPE));
+                .map(|record| record.envelope.contract.event_type.clone())
+                .unwrap_or(crate::EventType::parse(PROJECTION_ONLY_REPLAY_EVENT_TYPE)?);
             return Err(EventingError::ReplayActionNotAllowed { event_type });
         }
 

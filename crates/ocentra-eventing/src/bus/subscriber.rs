@@ -137,7 +137,7 @@ pub(super) fn insert_subscriber(
         .any(|subscriber| subscriber.id == record.id)
     {
         return Err(EventingError::DuplicateSubscriber {
-            subscriber_id: record.id.as_str().to_string(),
+            subscriber_id: record.id.clone(),
         });
     }
     subscribers.push(record);

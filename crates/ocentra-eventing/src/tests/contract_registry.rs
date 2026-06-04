@@ -1,6 +1,6 @@
 use crate::{
     tests::fixtures::{test_event, test_event_for_type, OTHER_EVENT_TYPE, TEST_EVENT_TYPE},
-    EventContractRegistry, EventingError,
+    EventContractRegistry, EventType, EventingError,
 };
 
 #[test]
@@ -51,7 +51,7 @@ fn contract_registry_rejects_duplicate_event_type() {
     assert_eq!(
         duplicate,
         EventingError::DuplicateEventContract {
-            event_type: TEST_EVENT_TYPE.to_string()
+            event_type: EventType::parse(TEST_EVENT_TYPE).expect("test event type parses")
         }
     );
 }

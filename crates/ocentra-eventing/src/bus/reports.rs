@@ -7,10 +7,14 @@ use crate::{
 
 use super::DispatchMode;
 
-pub const DEAD_LETTER_RECORDED_EVENT_TYPE: &str = "eventing.dead_letter.recorded";
+const DEAD_LETTER_RECORDED_EVENT_TYPE: &str = "eventing.dead_letter.recorded";
 const DEAD_LETTER_RECORDED_SCHEMA_VERSION: u16 = 1;
 const DEAD_LETTER_IDEMPOTENCY_PREFIX: &str = "dead-letter";
 const DEAD_LETTER_IDEMPOTENCY_SEPARATOR: &str = "-";
+
+pub fn dead_letter_recorded_event_type() -> Result<EventType, EventingError> {
+    EventType::parse(DEAD_LETTER_RECORDED_EVENT_TYPE)
+}
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct DeadLetter {
@@ -104,7 +108,7 @@ pub struct DeadLetterEvent {
 impl DomainEvent for DeadLetterEvent {
     fn contract(&self) -> Result<EventContract, EventingError> {
         Ok(EventContract::new(
-            EventType::parse(DEAD_LETTER_RECORDED_EVENT_TYPE)?,
+            dead_letter_recorded_event_type()?,
             SchemaVersion::new(DEAD_LETTER_RECORDED_SCHEMA_VERSION)?,
         ))
     }

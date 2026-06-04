@@ -80,7 +80,7 @@ impl RequestRegistry {
         let mut entries = self.entries.lock().expect("request registry lock");
         if entries.contains_key(&request_id) {
             return Err(EventingError::DuplicateRequest {
-                request_id: request_id.as_str().to_string(),
+                request_id: request_id.clone(),
             });
         }
         entries.insert(request_id, RequestEntry::pending(sender));
@@ -214,7 +214,7 @@ impl RequestPayload {
         response.validate()?;
         let value = serde_json::to_value(response).map_err(|error| {
             EventingError::RequestResponseEncode {
-                request_id: request_id.as_str().to_string(),
+                request_id: request_id.clone(),
                 reason: error.to_string(),
             }
         })?;
@@ -227,7 +227,7 @@ impl RequestPayload {
     {
         let response: R = serde_json::from_value(self.value).map_err(|error| {
             EventingError::RequestResponseDecode {
-                request_id: request_id.as_str().to_string(),
+                request_id: request_id.clone(),
                 reason: error.to_string(),
             }
         })?;

@@ -64,6 +64,10 @@ and clear degraded states.
   proof: runtime-owned shutdown can drain queued work, dead-letter queued work,
   cancel pending local requests, clear subscriptions and aggregate gates, and
   reject later publish/subscribe calls.
+- E-D added the eventing type-safety source gate proof: public eventing error
+  identity fields use validated event/request/subscriber/idempotency newtypes,
+  stored JSON is wrapped behind `StoredEventPayload`, and the raw public
+  `&str` dead-letter event-type export was replaced by a typed constructor.
 
 ## Current Gap
 
@@ -75,10 +79,11 @@ queue/retry/TTL, request-response, durable journal/replay, panic isolation,
 typed envelopes, production shutdown, and runtime-owned bus lifecycle. The open
 eventing gap is Parent-specific event contracts, child/parent transport
 handoff, broker-backed delivery, journal-before-action enforcement integration,
-adapter-result audit/read-model integration, command-routing hardening, and
-broad runtime adoption. The initial AI and portal direct-enforcement negative
-proof now rejects portal-side enforcement action commands and verifies
-parent-assistant/AI command routing does not target enforcement handlers.
+adapter-result audit/read-model integration, and broad runtime adoption. The
+initial AI and portal direct-enforcement negative proof now rejects portal-side
+enforcement action commands and verifies parent-assistant/AI command routing
+does not target enforcement handlers; the eventing source gate now rejects
+public raw JSON/string constants, `Uuid`, and raw domain identifier fields.
 
 ## Checklist
 
@@ -91,8 +96,8 @@ parent-assistant/AI command routing does not target enforcement handlers.
       runtimes, with UI/Vite kept view/input only. First E-D proof exists for
       `crates/ocentra-eventing` typed envelopes, queue/retry/request-response,
       journal/replay, production shutdown, portal/AI direct-enforcement
-      negative proof, and the network runtime chain; Parent-specific contracts
-      and broad runtime adoption remain.
+      negative proof, type-safety source gate, and the network runtime chain;
+      Parent-specific contracts and broad runtime adoption remain.
 - [ ] Policy and AI read paths.
 - [ ] Enforcement adapter dispatch with audit.
 - [ ] Capability and degraded-state reporting. Current mobile capability proof

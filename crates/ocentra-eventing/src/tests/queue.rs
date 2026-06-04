@@ -72,6 +72,8 @@ async fn bounded_queue_overflow_dead_letters_rejected_event() {
         .expect("overflow becomes dead letter");
     let dead_letters = bus.dead_letters().await;
     let dead_letter_event = dead_letters[0].as_event();
+    let expected_dead_letter_type =
+        crate::dead_letter_recorded_event_type().expect("dead-letter event type parses");
 
     assert_eq!(
         report.queue_report.disposition,
@@ -87,9 +89,8 @@ async fn bounded_queue_overflow_dead_letters_rejected_event() {
         dead_letter_event
             .contract()
             .expect("dead-letter event contract exists")
-            .event_type
-            .as_str(),
-        crate::DEAD_LETTER_RECORDED_EVENT_TYPE
+            .event_type,
+        expected_dead_letter_type
     );
 }
 
