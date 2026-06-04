@@ -24,19 +24,32 @@ Proof root: `output/tracking-plan-proof/25-policy-compiler-for-tracking-rules/`
 - `09-policy-alert-proof.json`
 - `13-security-negative-proof.log`
 - `16-validation-commands.log`
+- `proof-summary.json`
+- `test-results/tracking-plan-policy-compiler-proof/proof.json`
 
 ## AI Worker Checklist
 
-- [ ] Parent policy is final action authority.
-- [ ] Compile observe, notify, ask child, ask parent ack, live tracking,
+- [x] Parent policy is final action authority.
+- [x] Compile observe, notify, ask child, ask parent ack, live tracking,
       escalate, critical alert, suppress, and manual-required.
-- [ ] Add deterministic conflict tests.
-- [ ] Prevent AI-only alert/escalation.
-- [ ] Preserve dry-run/preview where applicable.
+- [x] Add deterministic conflict tests.
+- [x] Prevent AI-only alert/escalation.
+- [x] Preserve dry-run/preview where applicable.
 
 ## Where We Are
 
-This workpack has focused contract proof from `codex/tracking-plan-full-scope` under the proof root below. Runtime, platform, provider, and UI behavior is not claimed beyond the proof state recorded in `proof-summary.json` and the implementation checklist.
+This workpack has focused contract proof from `codex/tracking-plan-full-scope`
+and P1 compiler/evaluator proof from
+`codex/tracking-policy-compiler-runtime-proof` under the proof root below. The
+runtime proof compiles parent-rule decisions for observe, notify-parent,
+ask-child-check-in, parent-acknowledgement request, temporary live tracking,
+escalation, critical-alert, suppress/no-action, and manual-required paths. It
+also proves AI evidence cannot become final action authority, stale/missing
+confirmation/manual-required inputs degrade to non-enforcing outcomes, and
+disabled rules compile to no-action. Platform adapters, provider delivery,
+notification delivery, UI, physical-device behavior, and production enforcement
+remain unclaimed beyond the proof state recorded in `proof-summary.json` and the
+implementation checklist.
 
 ## Where We Want To Be
 
@@ -58,14 +71,27 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Manual-Required Gaps
 
-- Platform, provider, UI, retention, or runtime claims remain manual-required until the assigned proof artifacts exist.
+- Platform, provider, UI, retention, production-enforcement, and physical-device
+  claims remain manual-required until the assigned proof artifacts exist.
 - Any unsupported platform or provider failure must surface as degraded/manual-required state, not as a silent success.
 
 ## Fill This Before Reporting DONE Or PR-ready
 
-- [x] Workpack id and branch: `codex/tracking-plan-full-scope`.
-- [x] Touched files: tracking contract files, proof script, product docs, checklist, and this workpack doc.
-- [x] Validation commands and results: `node scripts/test/tracking-plan-contract-proof.mjs` passed.
-- [x] Proof artifacts under `output/tracking-plan-proof/25-policy-compiler-for-tracking-rules/`.
-- [x] Product doc/checklist updates: owning feature doc, feature list, capability checklist, implementation checklist, tracking snapshot, and package READMEs updated.
-- [x] Known gaps/manual-required states: Android/iOS, precise desktop, provider delivery, runtime engines, retention/delete/export, Rust journal/SQLite, notifications, and UI remain proof-gated as applicable.
+- [x] Workpack id and branch:
+      `codex/tracking-policy-compiler-runtime-proof`.
+- [x] Touched files: parent-domain compiler and focused tests, proof script,
+      product docs, implementation checklist, this workpack doc, proof output,
+      and root package script.
+- [x] Validation commands and results:
+      `cmd /c npm run test:tracking-plan-policy-compiler-proof` passed.
+- [x] Proof artifacts under
+      `output/tracking-plan-proof/25-policy-compiler-for-tracking-rules/` and
+      `test-results/tracking-plan-policy-compiler-proof/proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, and this workpack doc updated. Product capability checklist
+      delta will be written to hub `doc-deltas.ndjson` because
+      `docs/product-capability-checklist.md` is reserved.
+- [x] Known gaps/manual-required states: provider delivery, notification
+      delivery, portal UI, platform adapters, physical Android/iOS behavior,
+      production enforcement, and authority-enrolled hard-control proof remain
+      proof-gated as applicable.

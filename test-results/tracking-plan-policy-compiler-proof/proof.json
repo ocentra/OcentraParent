@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-06-04T07:39:33.841Z",
+  "workpackId": "25-policy-compiler-for-tracking-rules",
+  "currentStatus": "simulated",
+  "currentProofTier": "P1_FIXTURE_SIMULATION",
+  "resultCount": 10,
+  "productClaims": {
+    "parentPolicyFinalAuthorityProved": true,
+    "aiFinalAuthorityClaimed": false,
+    "runtimeEnforcementClaimed": false,
+    "providerDeliveryClaimed": false,
+    "platformAdapterClaimed": false,
+    "uiCompleteClaimed": false,
+    "physicalDeviceClaimed": false
+  }
+}

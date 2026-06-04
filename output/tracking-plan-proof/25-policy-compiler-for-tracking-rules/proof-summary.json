@@ -1,38 +1,31 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-03T17:22:17.415Z",
-  "commit": "8467bedfff418ab63a16d066e84bab527ec340f6",
+  "checkedAt": "2026-06-04T07:39:33.841Z",
+  "commit": "245da15c99101703d860b611552191b6724121b1",
   "workpackId": "25-policy-compiler-for-tracking-rules",
-  "proofState": "contract-proof-partial",
-  "summary": "Tracking policy rule and decision contracts exist; runtime compiler/evaluator remains pending.",
+  "proofState": "runtime-proof-complete",
+  "requiredProofTier": "P1_FIXTURE_SIMULATION",
+  "currentProofTier": "P1_FIXTURE_SIMULATION",
+  "currentStatus": "simulated",
+  "summary": "Tracking policy compiler runtime proof covers parent policy final authority, deterministic action compilation, AI non-authority, manual-required fallback, and non-enforcement/provider non-claims.",
   "commands": [
-    {
-      "command": "cmd /c npm --workspace @ocentra-parent/activity-domain run build",
-      "exitCode": 0
-    },
-    {
-      "command": "cmd /c npm --workspace @ocentra-parent/activity-domain run test -- tracking",
-      "exitCode": 0
-    },
     {
       "command": "cmd /c npm --workspace @ocentra-parent/parent-domain run build",
       "exitCode": 0
     },
     {
-      "command": "cmd /c npm --workspace @ocentra-parent/parent-domain run test -- tracking-location-policy",
-      "exitCode": 0
-    },
-    {
-      "command": "cmd /c npm run lint:schema-boundaries",
+      "command": "cmd /c npm exec --workspace @ocentra-parent/parent-domain -- vitest run tests/tracking-location-policy-compiler.test.ts",
       "exitCode": 0
     }
   ],
   "productClaims": {
-    "contractProof": true,
-    "androidIosBackgroundLocationClaimed": false,
-    "preciseLocationFromLanIpWifiClaimed": false,
-    "uiCompleteClaimed": false,
+    "parentPolicyFinalAuthorityProved": true,
+    "aiFinalAuthorityClaimed": false,
+    "runtimeEnforcementClaimed": false,
     "providerDeliveryClaimed": false,
-    "remoteSyncEnabledByDefault": false
-  }
+    "platformAdapterClaimed": false,
+    "uiCompleteClaimed": false,
+    "physicalDeviceClaimed": false
+  },
+  "resultCount": 10
 }

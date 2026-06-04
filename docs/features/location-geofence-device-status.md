@@ -62,6 +62,13 @@ expose location or device-status features. Parents expect this category.
   live summary beside the P1 fixture rows. The repeatable proof command is
   `node scripts/test/tracking-plan-service-read-model-proof.mjs`, with artifact
   `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json`.
+- P1 parent-policy compiler/evaluator proof now exists through
+  `node scripts/test/tracking-plan-policy-compiler-proof.mjs`. It compiles
+  observe, notify-parent, ask-child-check-in, parent-acknowledgement request,
+  temporary live tracking, escalation, critical-alert, suppress/no-action, and
+  manual-required paths from parent rules, records AI as evidence only, and
+  writes
+  `output/tracking-plan-proof/25-policy-compiler-for-tracking-rules/09-policy-alert-proof.json`.
 - Pre-device gap-closure proof now exists through
   `node scripts/test/tracking-plan-pre-device-proof.mjs`. It reruns the
   tracking contract/runtime/service proofs, runs the mobile child-agent
@@ -70,20 +77,21 @@ expose location or device-status features. Parents expect this category.
   `output/tracking-plan-proof/pre-device-gap-closure/proof-summary.json` plus
   Android Studio, iOS simulator, WSL/local, and physical-device proof plans.
 - Platform permissions, mobile physical-device proof, full runtime adapters,
-  provider delivery, notification delivery, full parent/child UI, hosted screenshots,
-  accessibility, and richer live service-backed UI evidence citations remain not
-  product-complete.
+  provider delivery, notification delivery, full parent/child UI, hosted
+  screenshots, accessibility, richer live service-backed UI evidence citations,
+  and production enforcement remain not product-complete.
 - Raw tracking/location settings are preserved as design inputs, not
   product-complete implementation proof.
 
 ## Current Gap
 
-Location/geofence is now in contract, P1 fixture/runtime proof, narrow P2
-service read-model proof, narrow portal summary-consumption proof, and
-pre-device proof-gate progress. It remains a tracked product gap until platform
-adapters, richer product read models, provider delivery, notifications,
-physical-device proof, full parent/child UI snapshots, accessibility, hosted UI
-proof, and richer live service-backed UI evidence citations are proved.
+Location/geofence is now in contract, P1 fixture/runtime proof, P1
+parent-policy compiler/evaluator proof, narrow P2 service read-model proof,
+narrow portal summary-consumption proof, and pre-device proof-gate progress. It
+remains a tracked product gap until platform adapters, richer product read
+models, provider delivery, notifications, physical-device proof, full
+parent/child UI snapshots, accessibility, hosted UI proof, richer live
+service-backed UI evidence citations, and production enforcement are proved.
 
 ## Checklist
 
@@ -100,6 +108,9 @@ proof, and richer live service-backed UI evidence citations are proved.
 - [ ] iOS entitlement/background proof.
 - [x] Expected-place schedule and exception contracts.
 - [x] Parent acknowledgement and escalation contracts.
+- [x] P1 parent-policy compiler/evaluator proof for parent rule final
+      authority, deterministic action compilation, and AI evidence
+      non-authority.
 - [x] Nearby-place ambiguity and AI safety evidence contracts.
 - [x] P1 ActivityStore tracking-event SQLite ingest proof.
 - [x] P2 service-backed tracking read-model command proof for SQLite journal
@@ -122,5 +133,5 @@ workpack ownership. Keep AI as evidence, not authority, and keep LAN/IP/Wi-Fi
 presence as hints only. The pre-device proof gate is now repeatable; the next
 implementation layers are richer tracking journal/read-model surfaces, full
 portal UI snapshots/accessibility, Android Studio/local proof, WSL/local replay
-where useful, then physical Android/iOS proof and authority proof only when
-matching devices are enrolled.
+where useful, then physical Android/iOS proof and authority-enrolled hard-control
+proof only when matching devices are enrolled.

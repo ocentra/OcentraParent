@@ -1,6 +1,5 @@
 workpack=25-policy-compiler-for-tracking-rules
-proofState=contract-proof-partial
-activity-domain tracking tests passed
-parent-domain tracking-location-policy tests passed
-schema-boundary guard passed
-Tracking policy rule and decision contracts exist; runtime compiler/evaluator remains pending.
+proofState=runtime-proof-complete
+parent-domain build passed
+tracking-location-policy-compiler focused tests passed
+compiler outputs parse through existing tracking policy schemas

@@ -1,10 +1,8 @@
 # 25-policy-compiler-for-tracking-rules Source Snapshot
 
-- checkedAt: 2026-06-03T17:22:17.415Z
-- commit: 8467bedfff418ab63a16d066e84bab527ec340f6
-- proofState: contract-proof-partial
-- summary: Tracking policy rule and decision contracts exist; runtime compiler/evaluator remains pending.
-- activity contracts: packages/activity-domain/src/tracking.ts
-- parent contracts: packages/parent-domain/src/tracking-location-policy.ts
-- activity tests: packages/activity-domain/tests/tracking.test.ts
-- parent tests: packages/parent-domain/tests/tracking-location-policy.test.ts
+- checkedAt: 2026-06-04T07:39:33.841Z
+- commit: 245da15c99101703d860b611552191b6724121b1
+- source: packages/parent-domain/src/tracking-location-policy-compiler-contracts.ts
+- source: packages/parent-domain/src/tracking-location-policy-compiler.ts
+- test: packages/parent-domain/tests/tracking-location-policy-compiler.test.ts
+- command: npm run test:tracking-plan-policy-compiler-proof
