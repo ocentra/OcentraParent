@@ -39,9 +39,11 @@ const keyPath = join(activityRoot, 'activity-journal.key');
 const storePath = join(activityRoot, 'activity.sqlite');
 const firstFixturePath = join(activityRoot, 'screen-ai-foreground-first.html');
 const secondFixturePath = join(activityRoot, 'screen-ai-foreground-second.txt');
+const secondFixtureTitle = 'screen-ai-foreground-second.txt';
 const queuePath = join(queueDir, 'screen-evidence-queue.ndjson');
 const healthUrl = createAgentHealthUrl(agentPort);
 const wsUrl = createAgentWebSocketUrl(agentPort);
+const readModelTimeoutMs = Number(process.env.OCENTRA_SCREEN_AI_FOREGROUND_READ_MODEL_TIMEOUT_MS ?? 30000);
 
 if (process.platform !== 'win32') {
   throw new Error('screen-ai-service-foreground-proof requires a real Windows desktop capture surface.');
@@ -86,9 +88,9 @@ try {
     stdio: ['ignore', 'pipe', 'pipe'],
     windowsHide: false,
   });
-  await delay(750);
-  await focusProcessWindow(notepadProcess.pid).catch(() => undefined);
-  await delay(1750);
+  await delay(1000);
+  await focusProcessWindow(notepadProcess.pid, secondFixtureTitle);
+  await delay(4500);
 
   await waitForQueueRecords(queueRecordsBeforeSecondFocus.length + 1);
   const readModel = await waitForScreenReadModelRows(1);
@@ -221,7 +223,7 @@ function serviceEnv() {
     OCENTRA_PARENT_SCREEN_SERVICE_FOREGROUND_POLL_SECONDS: '1',
     OCENTRA_PARENT_SCREEN_SERVICE_FOREGROUND_MIN_GAP_SECONDS: '1',
     OCENTRA_PARENT_SCREEN_SERVICE_FOREGROUND_MAX_CAPTURES: '5',
-    OCENTRA_PARENT_SCREEN_SERVICE_FOREGROUND_MAX_TICKS: '18',
+    OCENTRA_PARENT_SCREEN_SERVICE_FOREGROUND_MAX_TICKS: '30',
     OCENTRA_PARENT_SCREEN_SERVICE_QUEUE_MAX_PENDING: '6',
     OCENTRA_PARENT_SCREEN_SERVICE_QUEUE_DIR: queueDir,
   };
@@ -313,7 +315,7 @@ async function requestScreenReadModel() {
 async function waitForScreenReadModelRows(count) {
   const startedAt = Date.now();
   let lastReadModel;
-  while (Date.now() - startedAt < 10000) {
+  while (Date.now() - startedAt < readModelTimeoutMs) {
     lastReadModel = await requestScreenReadModel();
     if (lastReadModel.state === 'ready' && Array.isArray(lastReadModel.rows) && lastReadModel.rows.length >= count) {
       return lastReadModel;
@@ -463,7 +465,7 @@ function runQuietCommand(command, args) {
       cwd: repoRoot,
       env: process.env,
       stdio: ['ignore', 'pipe', 'pipe'],
-      shell: process.platform === 'win32',
+      shell: false,
       windowsHide: true,
     });
     let stderr = '';
@@ -481,13 +483,15 @@ function runQuietCommand(command, args) {
   });
 }
 
-async function focusProcessWindow(pid) {
+async function focusProcessWindow(pid, titleContains) {
+  const expectedTitle = String(titleContains ?? '').replace(/'/g, "''");
   const command = [
     '$shell = New-Object -ComObject WScript.Shell;',
-    `for ($i = 0; $i -lt 12; $i++) {`,
-    Number.isInteger(pid) ? `if ($shell.AppActivate(${pid})) { Start-Sleep -Milliseconds 500; exit 0 };` : '',
-    `$process = Get-Process -Name notepad -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowHandle -ne 0 } | Select-Object -First 1;`,
-    `if ($process -and $shell.AppActivate($process.Id)) { Start-Sleep -Milliseconds 500; exit 0 };`,
+    `$expectedTitle = '${expectedTitle}';`,
+    `for ($i = 0; $i -lt 20; $i++) {`,
+    `$process = Get-Process -Name notepad -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowHandle -ne 0 -and $_.MainWindowTitle -like "*$expectedTitle*" } | Select-Object -First 1;`,
+    `if ($process -and $shell.AppActivate($process.Id)) { Start-Sleep -Milliseconds 750; exit 0 };`,
+    Number.isInteger(pid) ? `if ($shell.AppActivate(${pid})) { Start-Sleep -Milliseconds 750; exit 0 };` : '',
     `Start-Sleep -Milliseconds 250;`,
     `};`,
     'exit 1;',

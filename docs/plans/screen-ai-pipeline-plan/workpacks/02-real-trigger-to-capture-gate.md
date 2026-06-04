@@ -12,10 +12,10 @@ real capture job or a real structured-skip proof.
 - [ ] Browser social/feed trigger.
 - [ ] Browser game/cloud-game trigger.
 - [x] Native app foreground trigger.
-- [ ] Native game/controlled game trigger.
-- [ ] Unknown process/app trigger.
+- [x] Native game/controlled game trigger.
+- [x] Unknown process/app trigger.
 - [x] Timed cadence trigger.
-- [ ] Disabled setting prevents new jobs.
+- [x] Disabled setting prevents new jobs.
 
 ## Proof
 
@@ -29,3 +29,9 @@ real capture job or a real structured-skip proof.
   plus pending-queue backpressure.
 - Deletion proof artifact: both service proofs require `imageDeletionState:
 deleted` and sanitized `<ephemeral-screen-queue>` evidence refs.
+- Controlled native game proof:
+  `output/screen-ai-pipeline-proof/native-game/03-capture-proof.json`.
+- Unknown native process proof:
+  `output/screen-ai-pipeline-proof/unknown-native-process/03-capture-proof.json`.
+- Disabled no-capture/no-AI proof:
+  `output/ai-plan-proof/real-analysis/disabled-no-capture-no-ai/01-source-evidence.json`.
