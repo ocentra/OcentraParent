@@ -166,6 +166,9 @@ jobs:
       - name: Smoke iOS simulator app install and launch
         run: bash scripts/smoke/ios-simulator-smoke.sh target/ios-derived-data/Build/Products/Debug-iphonesimulator/OcentraParentAgent.app
 
+      - name: Write tracking iOS simulator proof
+        run: npm run test:tracking-plan-ios-simulator-proof -- --require-simulator --skip-build --app-path target/ios-derived-data/Build/Products/Debug-iphonesimulator/OcentraParentAgent.app
+
       - name: Upload iOS simulator preview
         uses: actions/upload-artifact@v6
         with:
@@ -173,3 +176,7 @@ jobs:
           path: |
             target/release-packages/ios/*.zip
             target/release-packages/ios/*.sha256
+            test-results/tracking-plan-ios-simulator-proof/**
+            output/tracking-plan-proof/11-ios-core-location-foreground-adapter/18-ios-simulator-proof.json
+            output/tracking-plan-proof/12-ios-background-region-significant-change-adapter/18-ios-simulator-proof.json
+            output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/18-ios-simulator-proof.json
