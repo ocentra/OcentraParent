@@ -12,6 +12,7 @@ import {
   ScreenEvidenceCadenceSecondsSchema,
   ScreenEvidenceParentSettingRefSchema,
   ScreenEvidenceReasonSchema,
+  ScreenEvidenceRemoteApprovalRefSchema,
   ScreenEvidenceRetryCountSchema,
   ScreenEvidenceSchemaVersion,
   ScreenEvidenceSettingVersionSchema,
@@ -21,6 +22,8 @@ import {
 
 const RequiredFalse = Schema.Literal(false);
 const RequiredTrue = Schema.Literal(true);
+const ScreenDisabledMode = Schema.Literal('disabled');
+const ScreenRemoteSummaryModeSchema = withParser(Schema.Literal('disabled', 'parentApprovedRedactedSummary'));
 
 export const ScreenAnalysisParentSettingSchema = withParser(
   Schema.Struct({
@@ -90,5 +93,42 @@ export const ScreenCapabilitySnapshotSchema = withParser(
   })
 );
 
+export const ScreenEvidenceRemoteBoundarySettingSchema = withParser(
+  Schema.Struct({
+    schemaVersion: Schema.Literal(ScreenEvidenceSchemaVersion),
+    parentSettingRef: ScreenEvidenceParentSettingRefSchema,
+    settingVersion: ScreenEvidenceSettingVersionSchema,
+    rawScreenshotRetentionMode: ScreenDisabledMode,
+    liveViewMode: ScreenDisabledMode,
+    rawScreenshotRemoteUploadEnabled: RequiredFalse,
+    remoteSummaryMode: ScreenRemoteSummaryModeSchema,
+    remoteSummaryRedactedOnly: RequiredTrue,
+    parentApprovedRemoteSummary: Schema.Boolean,
+    remoteSummaryApprovalRef: Schema.Union(ScreenEvidenceRemoteApprovalRefSchema, Schema.Null),
+    remoteSummaryDestinationCustodyState: ScreenEvidenceCustodyStateSchema,
+    changedByParentRef: ScreenEvidenceParentSettingRefSchema,
+    changedAt: ActivityTimestampSchema,
+    reason: Schema.Union(ScreenEvidenceReasonSchema, Schema.Null),
+  }).pipe(
+    Schema.filter(
+      (value) =>
+        value.remoteSummaryMode !== 'parentApprovedRedactedSummary' ||
+        (value.parentApprovedRemoteSummary &&
+          value.remoteSummaryApprovalRef !== null &&
+          value.remoteSummaryDestinationCustodyState === 'parent-owned-export') ||
+        'Expected remote screen summaries to require parent approval, audit ref, and parent-owned export custody'
+    ),
+    Schema.filter(
+      (value) =>
+        value.remoteSummaryMode !== 'disabled' ||
+        (!value.parentApprovedRemoteSummary &&
+          value.remoteSummaryApprovalRef === null &&
+          value.remoteSummaryDestinationCustodyState === 'unavailable') ||
+        'Expected disabled remote screen summaries to have no approval ref or destination custody'
+    )
+  )
+);
+
 export type ScreenAnalysisParentSetting = Infer<typeof ScreenAnalysisParentSettingSchema>;
 export type ScreenCapabilitySnapshot = Infer<typeof ScreenCapabilitySnapshotSchema>;
+export type ScreenEvidenceRemoteBoundarySetting = Infer<typeof ScreenEvidenceRemoteBoundarySettingSchema>;

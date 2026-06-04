@@ -18,6 +18,9 @@ Shared activity and evidence contracts for child-device observations.
   evidence refs without UI or policy claims.
 - Network flow summary contracts.
 - Screen evidence summary contracts.
+- Screen evidence remote/retention/live-view boundary contracts that keep raw
+  screenshot retention, live view, and raw remote upload outside the default
+  local summary path.
 - Screen-AI browser trigger proof rows that compose typed browser AI
   input/result contracts with screen-analysis result contracts for managed URL,
   browser-video, social-feed, and cloud-game trigger states without claiming UI,

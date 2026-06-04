@@ -9,12 +9,15 @@ import {
   ScreenAnalysisQueueJobSchema,
   ScreenAnalysisResultSchema,
   ScreenEvidenceRecentSummarySchema,
+  ScreenEvidenceRemoteBoundarySettingSchema,
   ScreenEvidenceSchemaVersion,
 } from '../../packages/activity-domain/dist/screen-evidence.js';
 
 const repoRoot = fileURLToPath(new URL('../..', import.meta.url));
 const outputDir = join(repoRoot, 'test-results', 'screen-evidence-settings-retention-proof');
 const outputPath = join(outputDir, 'proof.json');
+const planOutputDir = join(repoRoot, 'output', 'screen-plan-proof', 'remote-retention-boundary');
+const planOutputPath = join(planOutputDir, 'proof-summary.json');
 
 const evidenceRef = {
   evidenceId: 'journal-entry-screen-proof-1',
@@ -160,11 +163,41 @@ const recentSummary = {
   results: [analysisResult, unknownResult],
 };
 
+const disabledRemoteBoundary = {
+  schemaVersion: ScreenEvidenceSchemaVersion,
+  parentSettingRef: 'parent-setting-screen-proof-1',
+  settingVersion: 2,
+  rawScreenshotRetentionMode: 'disabled',
+  liveViewMode: 'disabled',
+  rawScreenshotRemoteUploadEnabled: false,
+  remoteSummaryMode: 'disabled',
+  remoteSummaryRedactedOnly: true,
+  parentApprovedRemoteSummary: false,
+  remoteSummaryApprovalRef: null,
+  remoteSummaryDestinationCustodyState: 'unavailable',
+  changedByParentRef: 'parent-setting-screen-proof-1',
+  changedAt: '2026-05-21T06:50:00Z',
+  reason: 'default local screen evidence boundary',
+};
+
+const approvedRemoteSummaryBoundary = {
+  ...disabledRemoteBoundary,
+  settingVersion: 3,
+  remoteSummaryMode: 'parentApprovedRedactedSummary',
+  parentApprovedRemoteSummary: true,
+  remoteSummaryApprovalRef: 'screen-remote-summary-approval-proof-1',
+  remoteSummaryDestinationCustodyState: 'parent-owned-export',
+  reason: 'parent approved redacted screen summary export',
+};
+
 const parsedSetting = ScreenAnalysisParentSettingSchema.parse(parentSetting);
 const parsedQueueJob = ScreenAnalysisQueueJobSchema.parse(queueJob);
 const parsedResult = ScreenAnalysisResultSchema.parse(analysisResult);
 const parsedUnknownResult = ScreenAnalysisResultSchema.parse(unknownResult);
 const parsedSummary = ScreenEvidenceRecentSummarySchema.parse(recentSummary);
+const parsedDisabledRemoteBoundary = ScreenEvidenceRemoteBoundarySettingSchema.parse(disabledRemoteBoundary);
+const parsedApprovedRemoteSummaryBoundary =
+  ScreenEvidenceRemoteBoundarySettingSchema.parse(approvedRemoteSummaryBoundary);
 
 const invalidDisabledCapture = ScreenAnalysisParentSettingSchema.safeParse({
   ...parentSetting,
@@ -183,6 +216,26 @@ const invalidLowConfidencePolicy = ScreenAnalysisResultSchema.safeParse({
   ...unknownResult,
   policyEligible: true,
 });
+const invalidRawRetentionBoundary = ScreenEvidenceRemoteBoundarySettingSchema.safeParse({
+  ...disabledRemoteBoundary,
+  rawScreenshotRetentionMode: 'retainRawScreenshot',
+});
+const invalidLiveViewBoundary = ScreenEvidenceRemoteBoundarySettingSchema.safeParse({
+  ...disabledRemoteBoundary,
+  liveViewMode: 'relayBackedLiveView',
+});
+const invalidRawRemoteUploadBoundary = ScreenEvidenceRemoteBoundarySettingSchema.safeParse({
+  ...disabledRemoteBoundary,
+  rawScreenshotRemoteUploadEnabled: true,
+});
+const invalidRemoteSummaryApprovalBoundary = ScreenEvidenceRemoteBoundarySettingSchema.safeParse({
+  ...approvedRemoteSummaryBoundary,
+  remoteSummaryApprovalRef: null,
+});
+const invalidRemoteSummaryCustodyBoundary = ScreenEvidenceRemoteBoundarySettingSchema.safeParse({
+  ...approvedRemoteSummaryBoundary,
+  remoteSummaryDestinationCustodyState: 'ocentra-hosted-non-activity',
+});
 
 assert.equal(parsedSetting.policyUseEnabled, true);
 assert.equal(parsedSetting.retainRawImage, false);
@@ -194,10 +247,20 @@ assert.equal(parsedUnknownResult.policyEligible, false);
 assert.equal(parsedUnknownResult.primaryCategory, 'unknown');
 assert.equal(parsedSummary.queueHealth.expiredCount, 1);
 assert.equal(parsedSummary.queueHealth.deleteFailedCount, 1);
+assert.equal(parsedDisabledRemoteBoundary.rawScreenshotRetentionMode, 'disabled');
+assert.equal(parsedDisabledRemoteBoundary.liveViewMode, 'disabled');
+assert.equal(parsedDisabledRemoteBoundary.rawScreenshotRemoteUploadEnabled, false);
+assert.equal(parsedApprovedRemoteSummaryBoundary.remoteSummaryMode, 'parentApprovedRedactedSummary');
+assert.equal(parsedApprovedRemoteSummaryBoundary.remoteSummaryDestinationCustodyState, 'parent-owned-export');
 assert.equal(invalidDisabledCapture.success, false);
 assert.equal(invalidRetryOverflow.success, false);
 assert.equal(invalidDeleteProof.success, false);
 assert.equal(invalidLowConfidencePolicy.success, false);
+assert.equal(invalidRawRetentionBoundary.success, false);
+assert.equal(invalidLiveViewBoundary.success, false);
+assert.equal(invalidRawRemoteUploadBoundary.success, false);
+assert.equal(invalidRemoteSummaryApprovalBoundary.success, false);
+assert.equal(invalidRemoteSummaryCustodyBoundary.success, false);
 
 const proof = {
   proofId: 'screen-evidence-settings-retention-proof',
@@ -212,6 +275,11 @@ const proof = {
     'rawImageRetained is schema-forced false for policy evidence',
     'low-confidence unknown summaries remain policy-ineligible',
     'policyEligible requires ready local evidence, confidence, category, and deleted raw-image custody',
+    'raw screenshot retention remains disabled in the remote boundary setting',
+    'live view remains disabled in the remote boundary setting',
+    'raw screenshot remote upload is schema-forced false',
+    'remote screen summaries require parent approval, an audit ref, redaction, and parent-owned export custody',
+    'Ocentra-hosted non-activity custody cannot be used for child screen summary export',
   ],
   parsed: {
     settingVersion: parsedSetting.settingVersion,
@@ -220,9 +288,14 @@ const proof = {
     unknownResultId: parsedUnknownResult.screenAnalysisResultId,
     queueExpiredCount: parsedSummary.queueHealth.expiredCount,
     queueDeleteFailedCount: parsedSummary.queueHealth.deleteFailedCount,
+    remoteDefaultMode: parsedDisabledRemoteBoundary.remoteSummaryMode,
+    remoteApprovedMode: parsedApprovedRemoteSummaryBoundary.remoteSummaryMode,
+    remoteApprovedCustody: parsedApprovedRemoteSummaryBoundary.remoteSummaryDestinationCustodyState,
   },
 };
 
 mkdirSync(outputDir, { recursive: true });
+mkdirSync(planOutputDir, { recursive: true });
 writeFileSync(outputPath, `${JSON.stringify(proof, null, 2)}\n`);
+writeFileSync(planOutputPath, `${JSON.stringify(proof, null, 2)}\n`);
 console.log(`screen-evidence-settings-retention-proof-ok: ${outputPath}`);

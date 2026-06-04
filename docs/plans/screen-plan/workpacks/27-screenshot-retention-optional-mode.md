@@ -7,18 +7,23 @@ Separate opt-in raw screenshot retention design exists with custody, TTL, disclo
 ## Current State
 
 Raw screenshot retention is not default and not product-complete.
+`ScreenEvidenceRemoteBoundarySettingSchema` now records the current product
+decision as disabled for raw screenshot retention, and
+`scripts/test/screen-evidence-settings-retention-proof.mjs` proves the schema
+rejects any raw-retention mode outside that disabled state.
 
 ## Checklist
 
-- [ ] Record product decision.
-- [ ] Keep default `retainRawImage=false`.
+- [x] Record product decision.
+- [x] Keep default `retainRawImage=false`.
 - [ ] Define explicit opt-in setting if approved.
 - [ ] Define custody and TTL.
 - [ ] Define export/delete behavior.
 - [ ] Define disclosure/audit.
-- [ ] Add separate proof.
+- [x] Add separate proof.
 
 ## Proof
 
 - Feature/checklist update.
 - Tests proving retention cannot silently enable.
+- `output/screen-plan-proof/remote-retention-boundary/proof-summary.json`.

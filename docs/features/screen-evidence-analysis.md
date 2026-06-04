@@ -180,6 +180,15 @@ only with explicit parent settings.
   remains visible in queue health, retry bounds are enforced, and unsupported raw
   screenshot retention is rejected. This is contract proof; production TTL
   sweeper execution and parent retention UI remain separate.
+- `ScreenEvidenceRemoteBoundarySettingSchema` and
+  `scripts/test/screen-evidence-settings-retention-proof.mjs` now prove the
+  explicit raw-retention/live-view/remote boundary for local screen summaries:
+  raw screenshot retention and live view are disabled in this mode, raw
+  screenshot remote upload is schema-forced false, and the only accepted remote
+  path is a parent-approved redacted summary with an audit ref and
+  parent-owned-export custody. The proof writes
+  `output/screen-plan-proof/remote-retention-boundary/proof-summary.json`.
+  This is not live-view transport, retention UI, or privacy/legal approval.
 - `scripts/test/screen-ai-service-disabled-suppression-proof.mjs` now proves the
   service-owned disabled setting against the real Rust service on Windows: an
   enabled phase creates one encrypted cadence queue record, then a disabled
@@ -257,6 +266,8 @@ cloud-streamed frames, mobile parity, and UI remain separate proof gates.
 - [x] Policy decision references summary evidence.
 - [x] Portal read-model explanation and audit proof.
 - [x] Parent Settings route renders read-only Screen settings/capability proof.
+- [x] Raw-retention/live-view/remote boundary rejects raw screenshot retention,
+      live view, and raw remote upload by default.
 
 Product-facing writable opt-in UI, retention controls, production OCR/VLM
 quality, authenticated-account social proof, broad adapters, and production

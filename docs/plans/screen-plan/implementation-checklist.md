@@ -34,6 +34,7 @@ trigger ownership unless the row explicitly says so.
 | Live operator capture-to-AI matrix       | P3 proved                | `output/screen-ai-pipeline-proof/live-operator/proof-summary.json`                                 | Proves nine real URL/app scenarios through capture, local VLM, schema validation, policy dry-run, and deletion; authenticated-account social proof remains.                                        |
 | Portal screen read-model proof           | P3 proved                | `output/screen-ai-pipeline-proof/portal-chain/proof-summary.json`                                  | Proves service-backed screen rows render in the portal; product-complete UX and broad adapters remain.                                                                                             |
 | Settings route screen catalog proof      | P3 proved                | `output/screen-plan-proof/settings-ui/proof-summary.json`                                          | Proves the real portal Settings route renders read-only Screen settings/capability catalog proof; writable opt-in and retention controls remain.                                                   |
+| Remote/retention/live boundary proof     | P2 contract proved       | `output/screen-plan-proof/remote-retention-boundary/proof-summary.json`                            | Proves raw screenshot retention, live view, and raw remote upload are disabled in the local-summary boundary; no live transport or writable retention UI claimed.                                  |
 
 ## Main Gates
 
@@ -65,8 +66,8 @@ trigger ownership unless the row explicitly says so.
 - [x] Portal does not show raw screenshots by default.
 - [ ] Screenshot retention is separate opt-in mode.
 - [ ] Live view is separate opt-in mode.
-- [ ] Remote/cloud screenshot upload disabled by default.
-- [ ] Remote/API path accepts only parent-approved redacted summaries by default.
+- [x] Remote/cloud screenshot upload disabled by default.
+- [x] Remote/API path accepts only parent-approved redacted summaries by default.
 - [ ] Local AI resource scheduler prevents multiple heavy jobs on normal PCs.
 - [ ] Family AI hub is used before remote/API for hard visual cases.
 - [x] Platform capture proof exists before platform claim.
@@ -160,8 +161,8 @@ local heavy OCR/VLM jobs run without priority/resource guard
 | [~]    | 24 Enforcement handoff guard                       |
 | [~]    | 25 Parent portal summary UI                        |
 | [ ]    | 26 Child disclosure UX                             |
-| [ ]    | 27 Screenshot retention optional mode              |
-| [ ]    | 28 Live view optional mode                         |
+| [~]    | 27 Screenshot retention optional mode              |
+| [~]    | 28 Live view optional mode                         |
 | [x]    | 29 Proof tiers and proof packs                     |
 | [~]    | 30 Test suite, Playwright, rollout, PR gate        |
 | [~]    | 31 Screen intelligence router                      |
@@ -172,5 +173,5 @@ local heavy OCR/VLM jobs run without priority/resource guard
 | [~]    | 36 Small VLM guided classifier evaluation          |
 | [ ]    | 37 Family AI hub screen-analysis queue             |
 | [ ]    | 38 Local AI resource scheduler/priority queue      |
-| [ ]    | 39 Redacted summary-only remote boundary           |
+| [x]    | 39 Redacted summary-only remote boundary           |
 | [~]    | 40 Detector prompt packs and schema tests          |
