@@ -644,7 +644,17 @@ async function writeJson(filePath, value) {
 }
 
 async function writeText(filePath, value) {
-  await writeFile(filePath, value.endsWith('\n') ? value : `${value}\n`, 'utf8');
+  await writeFile(filePath, normalizeText(value), 'utf8');
+}
+
+function normalizeText(value) {
+  const normalizedLines = value
+    .replaceAll('\r\n', '\n')
+    .replaceAll('\r', '\n')
+    .split('\n')
+    .map((line) => line.replace(/[ \t]+$/u, ''));
+  const normalized = normalizedLines.join('\n');
+  return normalized.endsWith('\n') ? normalized : `${normalized}\n`;
 }
 
 function assertFileExists(filePath, label) {
