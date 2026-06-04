@@ -50,9 +50,17 @@ area.
   parent-cache stale, parent-owned-storage offline, observer read-only, and
   controller-takeover manual-required states without claiming Device Owner,
   foreground child-agent runtime, Play signing, store release, or phone-local AI.
+- `tracking-plan-platform-local-proof` now proves local emulator scaffold
+  runtime for tracking pre-device work: `Pixel_9_Pro_XL_API_35` booted, the
+  debug APK built and installed, `ca.ocentra.parent.agent/.MainActivity`
+  launched, the status surface rendered scaffold labels, the app process was
+  observed, and `OcentraParentAgentService` appeared in `dumpsys`. Artifact
+  root: `output/tracking-plan-proof/platform-local-proof/`.
 
 ## Gaps To Fill
 
 - Child-agent runtime parity is manual-required.
 - Store/signing and policy proof are incomplete.
 - Android parent app and Android child agent must stay separate in docs and UI.
+- Location/geofence/background behavior is still unproved by the emulator
+  scaffold proof.

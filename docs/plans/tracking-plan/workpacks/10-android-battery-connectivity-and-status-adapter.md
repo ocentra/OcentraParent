@@ -44,6 +44,10 @@ Studio/local and physical-device plans list the device metadata, battery/status,
 offline/pending-upload, killed/reboot, screenshot, and logcat artifacts needed
 before any Android status claim. Runtime/product-complete behavior is still not
 claimed.
+`node scripts/test/tracking-plan-platform-local-proof.mjs` now adds emulator
+install/launch/status-screen/logcat proof for the Android package scaffold.
+It does not collect battery, connectivity, offline, pending-upload, killed-app,
+or reboot evidence.
 
 ## Where We Want To Be
 

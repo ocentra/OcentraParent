@@ -44,6 +44,12 @@ Studio/local plan lists the APK build, `adb`, permission-state, runtime
 location-evidence, and status artifacts that must be collected before any
 foreground Android location claim. Runtime/product-complete behavior is still
 not claimed.
+`node scripts/test/tracking-plan-platform-local-proof.mjs` now proves the first
+Android Studio/emulator scaffold runtime pass on `Pixel_9_Pro_XL_API_35`: debug
+APK build/install, app launch, status surface, process observation, screenshot,
+logcat tail, and foreground service visibility. This does not satisfy the
+foreground location sample requirement; fused/current/last-known location
+evidence and permission UX remain pending.
 
 ## Where We Want To Be
 
@@ -60,6 +66,7 @@ This workpack can be assigned independently, implemented against the owning doma
 
 - docs/plans/tracking-plan/workpacks/08-android-foreground-location-adapter.md
 - docs/plans/tracking-plan/implementation-checklist.md
+- `output/tracking-plan-proof/platform-local-proof/android-emulator-local-proof.json`
 - `output/tracking-plan-proof/08-android-foreground-location-adapter/`
 - Implementation paths listed by the worker before editing.
 

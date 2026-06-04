@@ -44,6 +44,9 @@ simulator/local plan lists the simulator build, install/launch, authorization,
 foreground location-evidence, and screenshot artifacts needed before any iOS
 foreground location claim. Runtime/product-complete behavior is still not
 claimed, and Always/background behavior stays out of scope here.
+`node scripts/test/tracking-plan-platform-local-proof.mjs` now records that the
+codex-a lane is Windows-based and cannot run `xcrun`/Xcode simulator proof.
+Mac-hosted iOS simulator and foreground Core Location evidence remain pending.
 
 ## Where We Want To Be
 

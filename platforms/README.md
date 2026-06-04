@@ -37,7 +37,11 @@ network filtering, location, notification delivery, or store readiness.
 
 ## Current Gaps
 
-- Android needs real device/emulator proof for privileged behavior.
+- Android now has local emulator scaffold proof for package install, launch,
+  status surface, and foreground-service visibility through
+  `npm run test:tracking-plan-platform-local-proof`; privileged behavior,
+  location/geofence/background behavior, and physical-device behavior remain
+  unproved.
 - iOS needs entitlement, signing, and approved API proof before child-agent
   claims.
 - Parent mobile and child mobile are separate products and must not be merged

@@ -46,6 +46,10 @@ location event, region transition, alert decision, screenshot, Xcode log, and
 privacy-disclosure artifacts required before any iOS background/region claim.
 Runtime/product-complete behavior, entitlement approval, and real-device
 background behavior are still not claimed.
+`node scripts/test/tracking-plan-platform-local-proof.mjs` now records iOS
+simulator proof as blocked on this Windows lane. Always authorization, region
+monitoring, significant-change, visits, background modes, entitlement approval,
+and real-device behavior remain Mac/device-gated.
 
 ## Where We Want To Be
 

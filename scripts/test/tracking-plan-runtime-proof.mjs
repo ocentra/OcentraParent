@@ -14,6 +14,7 @@ await main();
 async function main() {
   await runNpm(['--workspace', '@ocentra-parent/activity-domain', 'run', 'build']);
   await runNpm(['--workspace', '@ocentra-parent/parent-domain', 'run', 'build']);
+  await runNpm(['--workspace', '@ocentra-parent/agent-protocol-domain', 'run', 'build']);
   await runNpm(['--workspace', '@ocentra-parent/text-domain', 'run', 'build']);
   await runNpm(['--workspace', '@ocentra-parent/portal-domain', 'run', 'build']);
   await runPackageBoundaryProof();

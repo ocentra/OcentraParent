@@ -50,6 +50,9 @@ area.
   cloud-relay not-implemented, parent-cache stale, parent-owned-storage offline,
   local model execution disabled, and signing/TestFlight/device proof
   unclaimed.
+- `tracking-plan-platform-local-proof` records iOS simulator proof as blocked
+  on the Windows `codex-a` lane because `xcrun`/Xcode are unavailable. This is
+  an explicit non-claim, not an iOS runtime proof.
 
 ## Gaps To Fill
 

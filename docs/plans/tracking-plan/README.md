@@ -149,6 +149,15 @@ flowchart TD
   proof through the existing Android artifact gate, and writes
   `output/tracking-plan-proof/pre-device-gap-closure/proof-summary.json` plus
   Android Studio, iOS simulator, WSL/local, and physical-device proof plans.
+- `scripts/test/tracking-plan-platform-local-proof.mjs` now closes the first
+  local pre-device execution gap. It asserts the existing pre-device summary,
+  runs WSL Rust tracking read-model replay on Ubuntu 22.04, builds and installs
+  the Android debug APK on the local `Pixel_9_Pro_XL_API_35` emulator, launches
+  the app, verifies the status surface and foreground service, and writes
+  `output/tracking-plan-proof/platform-local-proof/proof-summary.json`. This is
+  scaffold/local proof only; it does not claim Android location/geofence,
+  background behavior, physical-device behavior, iOS simulator behavior, or
+  authority-enrolled control.
 - WP33 tracked `proof-summary.json` records `minimumSeriousMvpAuditSummary`;
   the runtime proof also writes the full `minimumSeriousMvpAudit` into
   generated
@@ -156,10 +165,11 @@ flowchart TD
   These audits are first-checkpoint reconciliations only; they explicitly block
   product-complete, PR-ready, and full-scope claims until the remaining proof
   gaps are closed.
-- Android Studio/emulator, iOS simulator, WSL/local, physical-device,
-  authority-enrolled, provider runtime, alert delivery, full portal UI, and live
-  service-backed retention UI proof remain not product-complete until their
-  listed artifacts are collected.
+- iOS simulator, physical-device, authority-enrolled, provider runtime, alert
+  delivery, full portal UI, and live service-backed retention UI proof remain
+  not product-complete until their listed artifacts are collected. WSL replay
+  and Android emulator scaffold runtime now have P3 local proof, but Android
+  location/geofence/background behavior still does not.
 
 ## Where We Want To Be
 
@@ -208,6 +218,13 @@ tracking proof stack, mobile scaffold proof stack, Android package artifact
 gate, and manual proof plans are in order before device work starts. It does
 not prove physical Android/iOS behavior, enrolled-device authority, hosted full
 UI accessibility, or production readiness.
+
+The platform-local gate is narrower than physical proof. Passing
+`node scripts/test/tracking-plan-platform-local-proof.mjs` means the local
+Windows lane proved WSL Rust replay plus Android emulator package scaffold
+install/launch/status/foreground-service visibility. It still does not prove
+mobile OS location permission behavior, geofence delivery, killed-app/reboot
+behavior, iOS simulator behavior, physical-device behavior, or authority.
 
 ## Parallel Coordination Rules
 

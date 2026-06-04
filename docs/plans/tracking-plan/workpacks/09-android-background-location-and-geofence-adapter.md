@@ -45,6 +45,11 @@ Studio/local and physical-device plans list the permission, geofence definition,
 location event, transition, alert decision, screenshot, and logcat artifacts
 required before any Android background/geofence claim. Background runtime and
 product-complete behavior are still not claimed.
+`node scripts/test/tracking-plan-platform-local-proof.mjs` now proves only the
+Android emulator package scaffold runtime and foreground service visibility.
+It does not prove Android background permission, geofence transition delivery,
+Doze, killed-app, reboot, OEM background reliability, or physical-device
+behavior.
 
 ## Where We Want To Be
 

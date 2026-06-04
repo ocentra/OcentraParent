@@ -87,6 +87,15 @@ Android debug package artifact gate, and mobile aggregate proof. It writes
 Studio, iOS simulator, WSL/local, physical-device, and authority proof plans.
 Those artifacts close the pre-device accounting gap only; they do not claim
 device, authority, full hosted UI/accessibility, or production readiness.
+This branch adds
+`node scripts/test/tracking-plan-platform-local-proof.mjs`, which asserts the
+pre-device summary, runs WSL Rust tracking read-model replay, builds and
+installs the Android debug APK on the local `Pixel_9_Pro_XL_API_35` emulator,
+launches the app, verifies process/status/foreground-service visibility, and
+writes `output/tracking-plan-proof/platform-local-proof/`. Those artifacts close
+the first P3 local execution gap only; they do not claim Android
+location/geofence/background behavior, iOS simulator behavior, physical-device
+behavior, authority, full UI accessibility, or production readiness.
 
 ## Where We Want To Be
 
@@ -103,7 +112,9 @@ This workpack can be assigned independently, implemented against the owning doma
 
 - docs/plans/tracking-plan/workpacks/33-proof-gates-fixtures-rollout-and-pr-gate.md
 - docs/plans/tracking-plan/implementation-checklist.md
+- scripts/test/tracking-plan-platform-local-proof.mjs
 - `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/`
+- `output/tracking-plan-proof/platform-local-proof/`
 - Implementation paths listed by the worker before editing.
 
 ## Manual-Required Gaps
@@ -126,3 +137,26 @@ This workpack can be assigned independently, implemented against the owning doma
 - [x] Proof artifacts under `output/tracking-plan-proof/pre-device-gap-closure/`, including `proof-summary.json`, `android-studio-local-proof-plan.json`, `ios-simulator-local-proof-plan.json`, `wsl-local-proof-plan.json`, `physical-device-manual-proof-plan.json`, and `16-validation-commands.log`.
 - [x] Product doc/checklist updates: owning feature doc and tracking checklist updated; the central `docs/product-capability-checklist.md` row update is queued through the hub DOC_DELTA queue with the pre-device proof gate while keeping Android Studio/emulator, iOS simulator, WSL/local, physical-device, authority, hosted UI, and production proof as gaps.
 - [x] Known gaps/manual-required states: Android Studio/emulator runtime, iOS simulator/local, WSL/local replay, physical Android/iOS behavior, authority-enrolled proof, full hosted UI/accessibility, production pilot, and richer live UI/read-model/product claims remain proof-gated as applicable.
+- [x] Workpack id and branch: `codex/tracking-platform-local-proof`.
+- [x] Touched files: platform-local proof script, runtime proof build ordering,
+      root script wiring, feature/tracking/platform docs, and generated
+      platform-local proof artifacts.
+- [x] Validation commands and results:
+      `cmd /c npm run test:tracking-plan-platform-local-proof` passed.
+- [x] Proof artifacts:
+      `output/tracking-plan-proof/platform-local-proof/proof-summary.json`;
+      `output/tracking-plan-proof/platform-local-proof/wsl-local-replay-proof.json`;
+      `output/tracking-plan-proof/platform-local-proof/android-emulator-local-proof.json`;
+      `output/tracking-plan-proof/platform-local-proof/android-emulator-status-screen.png`;
+      `output/tracking-plan-proof/platform-local-proof/android-emulator-uiautomator.xml`;
+      `output/tracking-plan-proof/platform-local-proof/android-emulator-service-dump.txt`;
+      `output/tracking-plan-proof/platform-local-proof/android-emulator-logcat-tail.txt`;
+      `output/tracking-plan-proof/platform-local-proof/ios-simulator-local-proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, tracking README,
+      implementation checklist, WP08-WP12, WP31, WP33, and platform READMEs
+      updated. Central product checklist remains primary-owned and was not
+      edited in this branch.
+- [x] Known gaps/manual-required states: Android location/geofence/background,
+      iOS simulator on macOS, physical Android/iOS behavior, authority-enrolled
+      proof, full parent/child UI, provider delivery, notification delivery,
+      hosted full UI/accessibility, and production pilot remain proof-gated.

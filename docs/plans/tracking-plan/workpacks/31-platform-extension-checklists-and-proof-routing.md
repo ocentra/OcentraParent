@@ -35,6 +35,12 @@ Proof root: `output/tracking-plan-proof/31-platform-extension-checklists-and-pro
 ## Where We Are
 
 This workpack has focused contract proof from `codex/tracking-plan-full-scope` under the proof root below. Runtime, platform, provider, and UI behavior is not claimed beyond the proof state recorded in `proof-summary.json` and the implementation checklist.
+It also now has P3 local pre-device execution proof from
+`codex/tracking-platform-local-proof` under
+`output/tracking-plan-proof/platform-local-proof/`: WSL Rust tracking
+read-model replay passed, Android emulator package scaffold install/launch,
+status UI, screenshot, logcat tail, and foreground-service visibility passed,
+and iOS simulator proof is explicitly blocked on this Windows lane.
 
 ## Where We Want To Be
 
@@ -51,12 +57,16 @@ This workpack can be assigned independently, implemented against the owning doma
 
 - docs/plans/tracking-plan/workpacks/31-platform-extension-checklists-and-proof-routing.md
 - docs/plans/tracking-plan/implementation-checklist.md
+- `output/tracking-plan-proof/platform-local-proof/`
 - `output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/`
 - Implementation paths listed by the worker before editing.
 
 ## Manual-Required Gaps
 
 - Platform, provider, UI, retention, or runtime claims remain manual-required until the assigned proof artifacts exist.
+- Android location/geofence/background, iOS simulator/device, physical-device,
+  and enrolled-authority claims remain manual-required or authority-required
+  despite the P3 local scaffold proof.
 - Any unsupported platform or provider failure must surface as degraded/manual-required state, not as a silent success.
 
 ## Fill This Before Reporting DONE Or PR-ready
@@ -67,3 +77,22 @@ This workpack can be assigned independently, implemented against the owning doma
 - [x] Proof artifacts under `output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/`.
 - [x] Product doc/checklist updates: owning feature doc, feature list, capability checklist, implementation checklist, tracking snapshot, and package READMEs updated.
 - [x] Known gaps/manual-required states: Android/iOS, precise desktop, provider delivery, runtime engines, retention/delete/export, Rust journal/SQLite, notifications, and UI remain proof-gated as applicable.
+- [x] Workpack id and branch: `codex/tracking-platform-local-proof`.
+- [x] Touched files: platform-local proof script, runtime proof build ordering,
+      tracking plan docs/workpacks, platform READMEs, and generated
+      platform-local proof artifacts.
+- [x] Validation commands and results:
+      `cmd /c npm run test:tracking-plan-platform-local-proof` passed.
+- [x] Proof artifacts under
+      `output/tracking-plan-proof/platform-local-proof/`, including
+      `proof-summary.json`, `wsl-local-replay-proof.json`,
+      `android-emulator-local-proof.json`, `ios-simulator-local-proof.json`,
+      Android screenshot, UI tree, service dump, and logcat tail.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, tracking README, WP08-WP12, WP31, WP33, and platform READMEs
+      updated. Central product checklist remains primary-owned and was not
+      edited in this branch.
+- [x] Known gaps/manual-required states: Android location/geofence/background
+      behavior, iOS simulator on macOS, physical Android/iOS behavior,
+      authority-enrolled proof, full UI, provider delivery, notifications, and
+      production pilot remain proof-gated.

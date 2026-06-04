@@ -69,6 +69,13 @@ expose location or device-status features. Parents expect this category.
   Android proof scripts, and writes the aggregate artifact
   `output/tracking-plan-proof/pre-device-gap-closure/proof-summary.json` plus
   Android Studio, iOS simulator, WSL/local, and physical-device proof plans.
+- Platform-local pre-device proof now exists through
+  `node scripts/test/tracking-plan-platform-local-proof.mjs`. It proves WSL
+  Rust tracking read-model replay on Ubuntu 22.04 and Android emulator package
+  scaffold runtime on `Pixel_9_Pro_XL_API_35`: debug APK build/install,
+  app launch, status surface, process, screenshot, logcat tail, and foreground
+  service visibility. This is Android scaffold/runtime proof only, not Android
+  location, geofence, background, physical-device, or authority proof.
 - Platform permissions, mobile physical-device proof, full runtime adapters,
   provider delivery, notification delivery, full parent/child UI, hosted screenshots,
   accessibility, and richer live service-backed UI evidence citations remain not
@@ -80,10 +87,12 @@ expose location or device-status features. Parents expect this category.
 
 Location/geofence is now in contract, P1 fixture/runtime proof, narrow P2
 service read-model proof, narrow portal summary-consumption proof, and
-pre-device proof-gate progress. It remains a tracked product gap until platform
-adapters, richer product read models, provider delivery, notifications,
-physical-device proof, full parent/child UI snapshots, accessibility, hosted UI
-proof, and richer live service-backed UI evidence citations are proved.
+pre-device proof-gate progress, with P3 WSL replay and Android emulator
+scaffold runtime proof for the local pre-device pass. It remains a tracked
+product gap until actual location/geofence platform adapters, richer product
+read models, provider delivery, notifications, physical-device proof, full
+parent/child UI snapshots, accessibility, hosted UI proof, and richer live
+service-backed UI evidence citations are proved.
 
 ## Checklist
 
@@ -110,6 +119,8 @@ proof, and richer live service-backed UI evidence citations are proved.
       and local proof artifact references.
 - [x] Pre-device gap-closure proof gate and Android Studio/iOS simulator/WSL/manual
       proof plans.
+- [x] P3 platform-local pre-device proof for WSL Rust replay and Android emulator
+      package scaffold install/launch/status/foreground-service visibility.
 - [ ] Richer live service-backed UI citations beyond the narrow summary.
 - [ ] Live parent/child UI screenshots, hosted proof, and accessibility proof.
 
@@ -119,8 +130,8 @@ Do not infer precise location from IP/network data. Treat mobile permission,
 background execution, retention, and custody as first-class requirements.
 Use `docs/plans/tracking-plan/README.md` for implementation sequencing and
 workpack ownership. Keep AI as evidence, not authority, and keep LAN/IP/Wi-Fi
-presence as hints only. The pre-device proof gate is now repeatable; the next
-implementation layers are richer tracking journal/read-model surfaces, full
-portal UI snapshots/accessibility, Android Studio/local proof, WSL/local replay
-where useful, then physical Android/iOS proof and authority proof only when
-matching devices are enrolled.
+presence as hints only. The pre-device and platform-local proof gates are now
+repeatable; the next implementation layers are richer tracking journal/read-model
+surfaces, full portal UI snapshots/accessibility, Android location/geofence
+adapter proof, Mac-hosted iOS simulator proof, then physical Android/iOS proof
+and authority proof only when matching devices are enrolled.
