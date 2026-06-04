@@ -53,8 +53,9 @@ before `DONE` or PR-ready reporting.
 45. Live Windows registry inventory source.
 46. Service Windows registry capture bridge.
 47. Backend source freshness read-model rows.
-48. Category/risk policy routing.
-49. Policy readiness service read model.
+48. WP49 category/risk policy routing.
+49. WP52 policy readiness service read model.
+50. WP53 app/game notification intent contract.
 
 ## Standard AI Worker Checklist
 
