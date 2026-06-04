@@ -31,6 +31,12 @@ real capture job or a real structured-skip proof.
 deleted` and sanitized `<ephemeral-screen-queue>` evidence refs.
 - Controlled native game proof:
   `output/screen-ai-pipeline-proof/native-game/03-capture-proof.json`.
+- Service native game classification proof:
+  `output/screen-ai-pipeline-proof/service-native-game-analysis/proof-summary.json`.
+  This proves the service foreground runtime can capture a controlled native
+  game-like active window and the service analysis runtime can classify the
+  encrypted queue job as `game`; dedicated installed-game identity detection
+  remains app/game evidence scope.
 - Unknown native process proof:
   `output/screen-ai-pipeline-proof/unknown-native-process/03-capture-proof.json`.
 - Disabled no-capture/no-AI proof:
