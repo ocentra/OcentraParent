@@ -63,6 +63,8 @@ await ensurePortFree(agentPort, isLikelyParentAgentOccupant, console.log);
 
 let browser;
 let service;
+let serviceOutput = () => '';
+let lastObservedReadModel = null;
 
 try {
   await runCommand('cargo', ['build', '-p', 'ocentra-parent-agent-service'], {
@@ -75,7 +77,7 @@ try {
   await page.waitForTimeout(750);
 
   service = startService(serviceCaptureEnv());
-  let serviceOutput = collectOutput(service);
+  serviceOutput = collectOutput(service);
   await waitForHttp(healthUrl, serviceOutput);
   await waitForQueueRecords(1);
   await stopProcessTreeAndWait(service);
@@ -129,6 +131,9 @@ try {
   writeJson(join(outputDir, 'screen-read-model.json'), sanitizedReadModel);
   writeJson(join(outputDir, 'queue-records-after-analysis.json'), sanitizedQueueRecords);
   console.log(`screen-ai-service-analysis-proof-ok:${analysisRow.providerKind}:${queueRecords.length}`);
+} catch (error) {
+  writeFailureArtifacts(error);
+  throw error;
 } finally {
   await Promise.allSettled([
     browser === undefined ? Promise.resolve() : browser.close(),
@@ -277,6 +282,7 @@ async function waitForAnalyzedScreenReadModel() {
   let lastReadModel;
   while (Date.now() - startedAt < 45000) {
     lastReadModel = await requestScreenReadModel();
+    lastObservedReadModel = lastReadModel;
     if (
       lastReadModel.state === 'ready' &&
       Array.isArray(lastReadModel.rows) &&
@@ -480,6 +486,26 @@ function collectOutput(child) {
 
 function readOptional(path) {
   return existsSync(path) ? readFileSync(path, 'utf8') : '';
+}
+
+function writeFailureArtifacts(error) {
+  let queueRecords = [];
+  try {
+    queueRecords = sanitizeQueueRecords(readQueueRecordsAllowEmpty());
+  } catch {
+    queueRecords = [];
+  }
+  writeJson(join(outputDir, 'failure-summary.json'), {
+    proof: 'screen-ai-service-analysis-proof',
+    error: error instanceof Error ? error.message : String(error),
+    queueRecordCount: queueRecords.length,
+    queueRecords,
+    lastObservedReadModel,
+    journalBytes: readOptional(journalPath).length,
+    keyBytes: readOptional(keyPath).length,
+    storePresent: existsSync(storePath),
+    serviceOutputTail: serviceOutput().slice(-6000),
+  });
 }
 
 function writeJson(path, value) {
