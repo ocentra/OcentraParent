@@ -1,7 +1,7 @@
 # Android tracking emulator source snapshot
 
-- Checked at: 2026-06-04T06:14:27.428Z
-- Commit: 243ae3edd8702351e3426d9faffd165e3775aa4b
+- Checked at: 2026-06-04T14:11:20.301Z
+- Commit: 7f59604f57f114fa4b31547db3a6f7716647d5a6
 - Branch: codex/tracking-android-emulator-proof
 - Proof command: `npm run test:tracking-plan-android-emulator-proof`
 - Proof script: `scripts/test/tracking-plan-android-emulator-proof.mjs`

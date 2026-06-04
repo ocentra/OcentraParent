@@ -1,7 +1,7 @@
 # Android foreground permission proof
 
-- Checked at: 2026-06-04T06:14:27.428Z
-- Commit: 243ae3edd8702351e3426d9faffd165e3775aa4b
+- Checked at: 2026-06-04T14:11:20.301Z
+- Commit: 7f59604f57f114fa4b31547db3a6f7716647d5a6
 - Device: sdk_gphone64_x86_64 / Android 15 API 35
 - Package: ca.ocentra.parent.agent
 - Resolved activity: priority=0 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=false

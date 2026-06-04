@@ -28,5 +28,5 @@ PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe -s emulator
 PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe -s emulator-5554 shell dumpsys connectivity
 PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe -s emulator-5554 exec-out uiautomator dump /dev/tty
 PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe -s emulator-5554 shell pidof -s ca.ocentra.parent.agent
-PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe -s emulator-5554 logcat --pid 4547 -d
+PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe -s emulator-5554 logcat --pid 4536 -d
 PASS C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\adb.exe -s emulator-5554 exec-out screencap -p
