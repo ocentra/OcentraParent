@@ -24,6 +24,8 @@ Proof root: `output/tracking-plan-proof/09-android-background-location-and-geofe
 - `05-geofence-transition-proof.json`
 - `15-manual-platform-proof.md`
 - `16-validation-commands.log`
+- Local emulator proof command:
+  `npm run test:tracking-plan-android-emulator-proof`
 - Pre-device plan:
   `output/tracking-plan-proof/pre-device-gap-closure/android-studio-local-proof-plan.json`
 
@@ -34,6 +36,8 @@ Proof root: `output/tracking-plan-proof/09-android-background-location-and-geofe
 - [ ] Prove enter, exit, and dwell transitions.
 - [ ] Represent active geofence limit.
 - [ ] Add battery/background degraded proof before claims.
+- [x] Record emulator package/service scaffold proof and explicit
+      no-geofence-transition state before physical-device work.
 - [x] Generate the Android Studio/local and physical-device proof artifact plan
       before device work.
 
@@ -45,6 +49,13 @@ Studio/local and physical-device plans list the permission, geofence definition,
 location event, transition, alert decision, screenshot, and logcat artifacts
 required before any Android background/geofence claim. Background runtime and
 product-complete behavior are still not claimed.
+
+`npm run test:tracking-plan-android-emulator-proof` now fills the local
+emulator scaffold layer for this workpack. The generated
+`05-geofence-transition-proof.json` records package launch and foreground
+service observation while keeping `geofenceTransitionCount` at `0` and
+`currentStatus` as `manual_required` when background permission and transition
+adapters are absent. This is not Android background/geofence proof.
 
 ## Where We Want To Be
 

@@ -36,6 +36,13 @@ Proof root: `output/tracking-plan-proof/31-platform-extension-checklists-and-pro
 
 This workpack has focused contract proof from `codex/tracking-plan-full-scope` under the proof root below. Runtime, platform, provider, and UI behavior is not claimed beyond the proof state recorded in `proof-summary.json` and the implementation checklist.
 
+Android emulator package/service/status proof routing now exists through
+`npm run test:tracking-plan-android-emulator-proof`. It writes raw adb evidence
+to `test-results/tracking-plan-android-emulator-proof/`, fills WP08/WP09/WP10
+proof roots, and preserves no-claim states for foreground location samples,
+background/geofence transitions, notification delivery, physical-device proof,
+and authority proof.
+
 ## Where We Want To Be
 
 This workpack can be assigned independently, implemented against the owning domain boundaries, validated with real contracts or platform proof, and reported without leaving unclear tracking claims behind.

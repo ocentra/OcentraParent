@@ -23,16 +23,20 @@ Proof root: `output/tracking-plan-proof/10-android-battery-connectivity-and-stat
 - `04-device-status-proof.json`
 - `15-manual-platform-proof.md`
 - `16-validation-commands.log`
+- Local emulator proof command:
+  `npm run test:tracking-plan-android-emulator-proof`
 - Pre-device plan:
   `output/tracking-plan-proof/pre-device-gap-closure/android-studio-local-proof-plan.json`
 
 ## AI Worker Checklist
 
-- [ ] Capture battery percentage and charging state where available.
+- [x] Capture emulator battery percentage and charging state where available.
 - [ ] Capture low-power/battery-saver degraded state.
-- [ ] Capture offline/network unreachable state.
+- [x] Capture emulator connectivity dump and active-network summary.
 - [ ] Capture app killed/restarted behavior.
 - [ ] Keep pending upload count auditable.
+- [x] Capture Android package launch, foreground-service scaffold, UI tree,
+      screenshot, and logcat for local status proof.
 - [x] Generate the Android Studio/local and physical-device proof artifact plan
       before device work.
 
@@ -44,6 +48,13 @@ Studio/local and physical-device plans list the device metadata, battery/status,
 offline/pending-upload, killed/reboot, screenshot, and logcat artifacts needed
 before any Android status claim. Runtime/product-complete behavior is still not
 claimed.
+
+`npm run test:tracking-plan-android-emulator-proof` now fills the first local
+status layer. The generated `04-device-status-proof.json` captures emulator
+device metadata, foreground service state, battery dump, connectivity summary,
+UI tree, screenshot path, and logcat findings. This is emulator scaffold proof
+only; offline, killed/restarted, pending-upload, physical-device, and
+production tracking freshness claims remain pending.
 
 ## Where We Want To Be
 
