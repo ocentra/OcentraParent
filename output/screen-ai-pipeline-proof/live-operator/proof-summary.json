@@ -1,16 +1,16 @@
 {
   "proof": "screen-ai-live-operator-proof",
   "proofTier": "P3_LOCAL_OPERATOR_MACHINE",
-  "generatedAt": "2026-06-04T09:27:08.762Z",
-  "scenarioCount": 3,
-  "passedScenarioCount": 3,
+  "generatedAt": "2026-06-04T10:07:58.717Z",
+  "scenarioCount": 4,
+  "passedScenarioCount": 4,
   "fullRequiredMatrixComplete": false,
   "requiredScenarioStatus": {
     "youtube-ordinary-video": true,
     "youtube-education-video": false,
     "vimeo-video": false,
     "facebook-social-surface": false,
-    "browser-game": false,
+    "browser-game": true,
     "shopping-page": false,
     "school-productivity": false,
     "native-app": true,
@@ -41,7 +41,7 @@
       "schemaValidated": true,
       "policyDecisionValidated": true,
       "primaryCategory": "video",
-      "confidence": 1,
+      "confidence": 0.95,
       "policyAction": "warn",
       "rawImagesDeletedAfterAnalysis": true,
       "parentExplanationScreenshot": "output\\ai-plan-proof\\live-operator\\youtube-ordinary-video\\10-parent-explanation.png"
@@ -62,6 +62,23 @@
       "policyAction": "allow",
       "rawImagesDeletedAfterAnalysis": true,
       "parentExplanationScreenshot": "output\\ai-plan-proof\\live-operator\\native-app\\10-parent-explanation.png"
+    },
+    {
+      "scenarioId": "browser-game",
+      "status": "passed",
+      "surface": "browser",
+      "sourceKind": "operator-live-url",
+      "captureReason": "browserGameDetected",
+      "captureScope": "active-window",
+      "liveExternalUrlProof": true,
+      "analyzedByRealLocalVlm": true,
+      "schemaValidated": true,
+      "policyDecisionValidated": true,
+      "primaryCategory": "game",
+      "confidence": 0.95,
+      "policyAction": "time-limit",
+      "rawImagesDeletedAfterAnalysis": true,
+      "parentExplanationScreenshot": "output\\ai-plan-proof\\live-operator\\browser-game\\10-parent-explanation.png"
     },
     {
       "scenarioId": "protected-unsupported-state",

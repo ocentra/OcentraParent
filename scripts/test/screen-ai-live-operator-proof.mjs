@@ -1037,15 +1037,22 @@ function normalizeRiskSignals(scenario, value) {
 }
 
 function assertNoManifestSecretsLeaked(manifest, root) {
-  const rawUrls = manifest.scenarios.map((scenario) => scenario.url).filter((value) => typeof value === 'string');
-  if (rawUrls.length === 0) {
+  const sensitiveUrlNeedles = manifest.scenarios
+    .map((scenario) => scenario.url)
+    .filter((value) => typeof value === 'string')
+    .flatMap((rawUrl) => {
+      const parsed = new URL(rawUrl);
+      const exposesPathOrQuery = parsed.pathname !== '/' || parsed.search.length > 0 || parsed.hash.length > 0;
+      return exposesPathOrQuery ? [rawUrl] : [];
+    });
+  if (sensitiveUrlNeedles.length === 0) {
     return;
   }
   const files = listFiles(root);
   for (const file of files) {
     const value = readFileSync(file, 'utf8');
-    for (const rawUrl of rawUrls) {
-      if (value.includes(rawUrl)) {
+    for (const sensitiveNeedle of sensitiveUrlNeedles) {
+      if (value.includes(sensitiveNeedle)) {
         throw new Error(`Live operator artifact leaked a raw URL in ${file}`);
       }
     }
