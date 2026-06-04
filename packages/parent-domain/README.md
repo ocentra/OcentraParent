@@ -39,6 +39,11 @@ mobile readiness, and control catalogs.
   parent-authorized Windows local export queues, encrypted local output
   metadata, delete confirmation/failure, offline/manual states, source evidence
   retention for local safety, and no cloud/provider/UI/custody overclaims.
+- App install/purchase runtime proof boundary contracts that link platform/store
+  metadata requirements, package-source artifact requirements, child
+  pending/result delivery rows, and report integration rows while keeping
+  provider/store, child-device delivery, runtime report delivery, and app
+  blocking unclaimed.
 - V0.9 signed LAN discovery/relay spine contracts that keep adapter evidence,
   signed proof rejection, route safety, relay/cache availability, parent-owned
   storage, and child-data custody claims explicit.
@@ -98,7 +103,10 @@ flowchart LR
 - Location/geofence/SOS/battery now has tracking contract proof plus P1
   acknowledgement/check-in helper proof; platform adapters, provider delivery,
   notification delivery, and live UI proof remain open.
-- Store/install approval and purchase controls need platform-specific scope.
+- Store/install approval and purchase controls now have contract, package-source
+  artifact, and runtime-boundary proof; platform/store adapters, real
+  child-device package artifacts, child delivery, portal UX, and report runtime
+  delivery remain unimplemented.
 - Billing/subscription provider integration, account backend, entitlement
   signing/delivery runtime, portal UI, and child-device consumption remain
   unimplemented; current contracts keep billing outside core safety decisions.
