@@ -24,6 +24,11 @@ mobile readiness, and control catalogs.
   delivered, failed, unavailable, and manual-required provider states plus
   quiet-hours/escalation readiness as read-model proof without provider
   delivery claims.
+- Notification local outbox adapter-boundary contracts that represent a
+  parent-owned local outbox artifact, minimal alert envelopes, provider-channel
+  abstraction, quiet-hours defer, retry, dead-letter, receipt-required, and
+  manual-required states without provider delivery, receipt ingestion,
+  credentials, cloud routing, parent UI, or sensitive detail storage claims.
 - Local AI runtime, provider, scheduler, context, and reference contracts.
 - Parent assistant and action-preview contracts.
 - LAN pairing, device roles, controller/observer states, and provider routing.
@@ -135,9 +140,12 @@ flowchart LR
 - Signed LAN hello/heartbeat and physical household readiness remain
   manual-required until real second-child-agent artifacts are attached.
 - Notification provider status boundary proof remains status/readiness
-  contract/read-model proof only; provider adapters, provider receipts,
-  delivered receipt ingestion, retry execution, quiet-hours scheduling,
-  escalation delivery, parent controls, and notification UI remain unclaimed.
+  contract/read-model proof only; notification local outbox proof remains
+  deterministic parent-owned JSONL artifact proof only; provider adapters,
+  provider receipts, delivered receipt ingestion, retry execution, quiet-hours
+  scheduling, escalation delivery, parent controls, notification UI, provider
+  credentials, cloud routing, and production durable outbox storage remain
+  unclaimed.
 - LAN source-matrix proof is contract/read-model proof. It does not implement
   targeted ARP, bounded ARP sweep, packet listeners, real mDNS/SSDP
   advertisements, relay/cache, or physical household validation.

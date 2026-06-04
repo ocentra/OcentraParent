@@ -125,6 +125,10 @@
       "import": "./dist/v3-notification-rule-provider-retry-contract.js",
       "types": "./dist/v3-notification-rule-provider-retry-contract.d.ts"
     },
+    "./notification-local-outbox-adapter-proof": {
+      "import": "./dist/notification-local-outbox-adapter-proof.js",
+      "types": "./dist/notification-local-outbox-adapter-proof.d.ts"
+    },
     "./v0-8-browser-domain-adapter-proof": {
       "import": "./dist/v0-8-browser-domain-adapter-proof.js",
       "types": "./dist/v0-8-browser-domain-adapter-proof.d.ts"

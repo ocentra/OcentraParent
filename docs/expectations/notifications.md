@@ -65,6 +65,16 @@ contract proof only: it does not claim provider adapters, send/retry execution,
 webhook receipt ingestion, notification history UI, credentials, raw child data,
 or Ocentra-hosted child evidence custody.
 
+`scripts/test/notification-local-outbox-adapter-proof.mjs` validates a
+parent-domain local outbox adapter-boundary proof that writes and rereads a
+deterministic parent-owned JSONL outbox artifact. It covers minimal alert
+envelopes, provider-channel abstraction, quiet-hours defer, retry,
+dead-letter, receipt-required, manual-required, audit/evidence/policy refs, and
+sensitive-detail minimization. This is a local outbox proof only: it does not
+claim provider delivery, webhook receipt ingestion, provider credentials, cloud
+routing, parent notification UI, raw child evidence, raw URLs/titles/message
+text, screenshots, reports, or sensitive provider metadata storage.
+
 ## Failure Behavior
 
 - Provider failure is visible, retryable when safe, and auditable.
@@ -109,6 +119,10 @@ or Ocentra-hosted child evidence custody.
 - Logging-domain notification audit/history contract proof for provider status,
   retry lifecycle, receipt/manual-required refs, quiet-hours/escalation refs,
   redaction-safe payload fields, and child-data non-custody.
+- Parent-domain notification local outbox adapter-boundary proof for
+  deterministic local outbox artifact writing/parsing, minimal alert envelopes,
+  quiet-hours defer, retry, dead-letter, receipt-required, manual-required, and
+  sensitive-detail minimization without provider delivery claims.
 - Adapter boundary tests for success, retryable failure, permanent failure, webhook receipt, and disabled provider.
 - Integration tests proving notification intents reference stored evidence or policy decisions.
 - Parent-surface coverage for notification history, preference changes, quiet hours, and sensitive-detail drill-in behind authentication.
