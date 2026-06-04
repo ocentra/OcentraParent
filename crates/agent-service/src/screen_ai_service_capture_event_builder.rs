@@ -52,7 +52,9 @@ pub(crate) fn screen_queue_job(
         queue_job_id: ids.queue_job_id.clone(),
         created_at: record.clock.timestamp.clone(),
         not_before: record.clock.timestamp.clone(),
-        expires_at: record.clock.timestamp.clone(),
+        expires_at: record
+            .clock
+            .expires_after_seconds(record.temporary_image_ttl_seconds),
         last_attempt_at: None,
         capture_reason: record.capture_reason.to_string(),
         capture_scope: SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW.to_string(),

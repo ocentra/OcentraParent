@@ -13,6 +13,8 @@ use ocentra_parent_agent_protocol::{
     SCREEN_SERVICE_FOREGROUND_MIN_GAP_SECONDS_ENV, SCREEN_SERVICE_FOREGROUND_POLL_SECONDS_ENV,
     SCREEN_SERVICE_FOREGROUND_RUNTIME_ENABLED_ENV, SCREEN_SERVICE_QUEUE_DIR_ENV,
     SCREEN_SERVICE_QUEUE_MAX_PENDING_DEFAULT, SCREEN_SERVICE_QUEUE_MAX_PENDING_ENV,
+    SCREEN_SERVICE_TEMPORARY_IMAGE_TTL_SECONDS_DEFAULT,
+    SCREEN_SERVICE_TEMPORARY_IMAGE_TTL_SECONDS_ENV,
 };
 use ocentra_parent_screen_capture_adapter::{
     trigger_scheduler::{ScreenCaptureScheduleTrigger, ScreenCaptureSchedulerSettings},
@@ -38,6 +40,7 @@ pub(crate) struct ScreenAiForegroundRuntimeConfig {
     pub(crate) max_captures: Option<u64>,
     pub(crate) max_ticks: Option<u64>,
     pub(crate) max_pending_queue_records: u64,
+    pub(crate) temporary_image_ttl_seconds: u64,
     pub(crate) queue_dir: PathBuf,
     pub(crate) journal_path: PathBuf,
     pub(crate) journal_key_path: PathBuf,
@@ -65,6 +68,10 @@ impl ScreenAiForegroundRuntimeConfig {
             max_pending_queue_records: env_u64(
                 SCREEN_SERVICE_QUEUE_MAX_PENDING_ENV,
                 SCREEN_SERVICE_QUEUE_MAX_PENDING_DEFAULT,
+            ),
+            temporary_image_ttl_seconds: env_u64(
+                SCREEN_SERVICE_TEMPORARY_IMAGE_TTL_SECONDS_ENV,
+                SCREEN_SERVICE_TEMPORARY_IMAGE_TTL_SECONDS_DEFAULT,
             ),
             queue_dir: env_path(SCREEN_SERVICE_QUEUE_DIR_ENV).unwrap_or_else(default_queue_dir),
             journal_path: activity_journal_path(),

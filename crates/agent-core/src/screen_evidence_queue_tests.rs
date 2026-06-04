@@ -25,6 +25,8 @@ fn screen_evidence_queue_encrypts_image_bytes_before_durable_write() {
     let _ = remove_dir_all(&directory);
 
     assert!(raw.contains(constants::activity_store::TEST_SCREEN_QUEUE_JOB_ID));
+    assert!(raw.contains(constants::field::CREATED_AT));
+    assert!(raw.contains(constants::field::EXPIRES_AT));
     assert!(!raw.contains(constants::activity_store::TEST_SCREEN_PLAINTEXT_MARKER));
     assert!(!raw.contains(constants::activity_store::TEST_SCREEN_SUMMARY));
 }
@@ -58,11 +60,86 @@ fn screen_evidence_queue_reads_decrypted_entries_for_local_analysis() {
         entry.queue_job_id,
         constants::activity_store::TEST_SCREEN_QUEUE_JOB_ID
     );
+    assert_eq!(
+        entry.created_at.as_deref(),
+        Some(constants::activity_store::TEST_FIRST_OBSERVED_AT)
+    );
+    assert_eq!(
+        entry.expires_at.as_deref(),
+        Some(constants::activity_store::TEST_SECOND_OBSERVED_AT)
+    );
+    assert_eq!(
+        entry.status,
+        ocentra_parent_agent_protocol::SCREEN_QUEUE_STATUS_QUEUED
+    );
+    assert!(entry.deletion_required);
+    assert_eq!(
+        entry.deletion_status,
+        ocentra_parent_agent_protocol::SCREEN_DELETION_REQUIRED
+    );
+    assert_eq!(entry.deletion_proof_ref, None);
     assert_eq!(entry.image_bytes, plaintext);
     assert_eq!(
         entry.custody_state,
         ocentra_parent_agent_protocol::SCREEN_CUSTODY_TEMP_QUEUE
     );
+}
+
+#[test]
+fn screen_evidence_queue_sweeps_only_expired_entries_with_delete_proof_refs() {
+    let directory = temp_queue_dir();
+    let _ = remove_dir_all(&directory);
+    let queue =
+        ScreenEvidenceQueue::open(&directory, JournalKey::from_bytes([6; JOURNAL_KEY_BYTES]))
+            .expect(constants::error::JOURNAL_OPENS);
+    let expired_job = screen_queue_job();
+    let mut fresh_queue_job_id = String::from(constants::activity_store::TEST_SCREEN_QUEUE_JOB_ID);
+    fresh_queue_job_id.push(constants::delimiter::HYPHEN);
+    fresh_queue_job_id.push_str(constants::activity_store::TEST_THIRD_OBSERVED_AT);
+    let fresh_job = screen_queue_job_with_expiry(
+        &fresh_queue_job_id,
+        constants::activity_store::TEST_THIRD_OBSERVED_AT,
+    );
+
+    queue
+        .append_encrypted_image(
+            &expired_job,
+            constants::activity_store::TEST_SCREEN_PLAINTEXT_MARKER.as_bytes(),
+        )
+        .expect(constants::error::JOURNAL_APPENDS);
+    queue
+        .append_encrypted_image(
+            &fresh_job,
+            constants::activity_store::TEST_SCREEN_SUMMARY.as_bytes(),
+        )
+        .expect(constants::error::JOURNAL_APPENDS);
+
+    let sweep = queue
+        .remove_expired_entries(
+            constants::activity_store::TEST_SECOND_OBSERVED_AT,
+            ocentra_parent_agent_protocol::SCREEN_SERVICE_RETENTION_DELETE_PROOF_ID_PREFIX,
+        )
+        .expect(constants::error::JOURNAL_APPENDS);
+    let entries = queue
+        .read_decrypted_entries(4)
+        .expect(constants::error::JOURNAL_READS);
+    let _ = remove_dir_all(&directory);
+
+    assert_eq!(sweep.expired_entries.len(), 1);
+    assert_eq!(sweep.retained_count, 1);
+    assert_eq!(
+        sweep.expired_entries[0].queue_job_id,
+        expired_job.queue_job_id
+    );
+    assert_eq!(
+        sweep.expired_entries[0].expires_at,
+        constants::activity_store::TEST_SECOND_OBSERVED_AT
+    );
+    assert!(sweep.expired_entries[0]
+        .deletion_proof_ref
+        .contains(ocentra_parent_agent_protocol::SCREEN_SERVICE_RETENTION_DELETE_PROOF_ID_PREFIX));
+    assert_eq!(entries.len(), 1);
+    assert_eq!(entries[0].queue_job_id, fresh_job.queue_job_id);
 }
 
 #[test]
@@ -116,12 +193,22 @@ fn screen_queue_job() -> ocentra_parent_agent_protocol::ScreenAnalysisQueueJob {
 fn screen_queue_job_with_id(
     queue_job_id: &str,
 ) -> ocentra_parent_agent_protocol::ScreenAnalysisQueueJob {
+    screen_queue_job_with_expiry(
+        queue_job_id,
+        constants::activity_store::TEST_SECOND_OBSERVED_AT,
+    )
+}
+
+fn screen_queue_job_with_expiry(
+    queue_job_id: &str,
+    expires_at: &str,
+) -> ocentra_parent_agent_protocol::ScreenAnalysisQueueJob {
     ocentra_parent_agent_protocol::ScreenAnalysisQueueJob {
         schema_version: ocentra_parent_agent_protocol::SCREEN_EVIDENCE_SCHEMA_VERSION,
         queue_job_id: queue_job_id.to_string(),
         created_at: constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
         not_before: constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
-        expires_at: constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string(),
+        expires_at: expires_at.to_string(),
         last_attempt_at: None,
         capture_reason: ocentra_parent_agent_protocol::SCREEN_CAPTURE_REASON_MANUAL_PARENT_TEST
             .to_string(),
