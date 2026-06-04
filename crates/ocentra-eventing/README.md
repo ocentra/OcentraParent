@@ -35,6 +35,9 @@ Reusable Rust eventing primitives for Ocentra Parent runtime code.
   request-timeout tests without long wall-clock sleeps.
 - `EventContractRegistry` descriptors for implemented event contracts, duplicate
   event type rejection, and deterministic generated Markdown registry docs.
+- Typed event-family enum/wrapper variants for lineage patterns where one
+  family subscriber handles concrete variants without downcasts, loose strings,
+  or JSON shape inspection.
 - Durable `EventJournal` support with async NDJSON append, optional hash-chain
   records, selected journaling by event type/namespace/allowlist, replay
   cursors and filters, explicit projection-only replay mode, and journal

@@ -116,6 +116,12 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       deterministic generated Markdown docs, duplicate `EventType` rejection,
       and `output/eventing-plan-proof/72-contract-registry/proof-summary.json`
       via `scripts/test/eventing-contract-registry-proof.mjs`.
+- [x] Event-family enum/wrapper variants preserve inherited/generic lineage
+      patterns without downcasts, loose strings, or JSON shape inspection. E-D
+      added typed `DecisionFamilyEvent` variant proof, distinct registry
+      descriptors, stored-contract mismatch rejection, and
+      `output/eventing-plan-proof/75-family-variants/proof-summary.json` via
+      `scripts/test/eventing-family-variant-proof.mjs`.
 - [ ] Runtime owns the bus explicitly; reusable crate exposes no hidden global
       singleton.
 - [ ] Lock-held-await source audit passes.
@@ -232,7 +238,7 @@ file.
 | 72   | Event contract registry and generated documentation                            | [x]    | E-D        | `codex/eventing-network-runtime-implementation` | `output/eventing-plan-proof/72-contract-registry/proof-summary.json`, `eventing-contract-registry-proof.mjs`       | Registry rejects duplicate event types and renders deterministic generated Markdown docs.                  |
 | 73   | Duplicate subscription policy and constrained force/republish override         | [x]    | E-D        | `codex/eventing-network-runtime-implementation` | `output/eventing-plan-proof/73-duplicate-subscriber/proof-summary.json`, `eventing-duplicate-subscriber-proof.mjs` | Duplicate subscriber ids reject with explicit error; constrained republish override remains unclaimed.     |
 | 74   | Bus shutdown, drain, dead-letter, and test clear lifecycle                     | [x]    | E-D        | `codex/eventing-network-runtime-implementation` | `output/eventing-plan-proof/74-lifecycle-clear/proof-summary.json`, `eventing-lifecycle-clear-proof.mjs`           | Test clear lifecycle resets local state; production shutdown/drain remains unclaimed.                      |
-| 75   | Event-family enum/wrapper variant proof for inherited/generic lineage patterns | [ ]    | -          | -                                               | -                                                                                                                  | Open.                                                                                                      |
+| 75   | Event-family enum/wrapper variant proof for inherited/generic lineage patterns | [x]    | E-D        | `codex/eventing-network-runtime-implementation` | `output/eventing-plan-proof/75-family-variants/proof-summary.json`, `eventing-family-variant-proof.mjs`            | Family subscribers use typed enum/wrapper variants; no downcast, loose string, or JSON-shape routing.      |
 | 76   | No payload-carried deferred, cancellation, handle, or resource source gate     | [x]    | E-D        | `codex/eventing-network-runtime-implementation` | `output/eventing-plan-proof/66-76-source-safety/proof-summary.json`, `eventing-source-safety-proof.mjs`            | Local request senders stay in `RequestRegistry`; event/request payload boundaries carry serialized values. |
 | 77   | Selected journaling by event type, namespace/family, and allowlist             | [x]    | E-D        | `codex/eventing-network-runtime-implementation` | `bus_journal_policy_honors_before_after_and_selected_journaling`, journal/replay proof harness                     | Journal selector deterministically supports exact event type, namespace/family prefix, and allowlist.      |
 | 78   | Runtime-owned bus handle and no hidden global singleton proof                  | [x]    | E-D        | `codex/eventing-network-runtime-implementation` | `crates/ocentra-eventing/src/bus.rs`, `crates/agent-core/src/network_event_runtime.rs`                             | Bus is constructed and owned explicitly; no hidden global singleton.                                       |
