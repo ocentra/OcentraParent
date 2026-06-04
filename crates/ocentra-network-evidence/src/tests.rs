@@ -12,6 +12,7 @@ mod category;
 mod classifier;
 mod domain;
 mod flow;
+mod local_ai_queue;
 mod managed_browser;
 mod process;
 mod transfer;

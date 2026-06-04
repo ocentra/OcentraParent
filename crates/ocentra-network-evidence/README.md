@@ -51,10 +51,14 @@ never authorizes policy or adapter action. The cross-slice evidence bundle
 builder assembles trigger refs plus domain/category, managed-browser,
 process/app, screen, and local-AI suggestion refs into one downstream bundle
 after cascade routing while rejecting decrypted payload, network-only exact URL,
-policy-authority, or adapter-authority claims.
+policy-authority, or adapter-authority claims. The network-triggered local-AI
+queue planner can turn a local-AI-recommended bundle into a queued job that
+carries only trigger, evidence, summary, queue, and model-runtime refs. Disabled,
+model-unavailable, queue-unavailable, and not-recommended states remain explicit
+and do not carry jobs.
 
 Live Npcap/libpcap capture, full vendor category feeds, analyzer comparison,
 production CDN intelligence, unmanaged browser URL correlation, foreground
 session correlation, network adapter enforcement, file/content inspection,
-local-AI queue execution, policy handoff, and adapter execution remain separate
-proof-gated workpacks.
+local-AI model execution/worker runtime, policy handoff, and adapter execution
+remain separate proof-gated workpacks.

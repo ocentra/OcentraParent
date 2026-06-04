@@ -134,6 +134,13 @@ compete on control while staying clear about attribution confidence and privacy.
   browser evidence, recommends local-AI review for weak signals, and rejects
   decrypted payload, network-only exact URL, policy-authority, or
   adapter-authority claims.
+- E-D added a network-triggered local-AI queue planner in
+  `ocentra-network-evidence`: weak or review-recommended bundles can enqueue a
+  local-AI review job that carries only trigger refs, evidence refs, summary
+  refs, queue refs, and model-runtime refs. Disabled, model-unavailable,
+  queue-unavailable, and not-recommended states are explicit and do not carry a
+  queue job, and the planner rejects raw packet payload, page content,
+  decrypted payload, policy-authority, or adapter-authority claims.
 - E-D added Rust protocol-facing network/AI/policy/enforcement/audit/portal
   event contracts in `crates/agent-protocol`. The proof serializes exact
   chain refs, no exact URL/content claim boundaries, policy-decision-gated
@@ -177,9 +184,10 @@ runtime spine removes the private-bus blocker for an in-process metadata-only
 chain and now proves local queue/drain plus request-response consumption of the
 reusable eventing crate, service-side journal-before-action/final-audit
 ordering, typed in-process parent/controller to child-agent handoff, and
-cross-slice evidence bundle construction after cascade routing. Analyzer
-fixtures, broker/family-hub delivery, local-AI queue execution, portal UI, and
-adapter apply/rollback artifacts remain open.
+cross-slice evidence bundle construction after cascade routing, plus
+network-triggered local-AI queue planning with refs-only AI inputs. Analyzer
+fixtures, broker/family-hub delivery, local-AI model execution/worker runtime,
+portal UI, and adapter apply/rollback artifacts remain open.
 
 ## Checklist
 
@@ -214,8 +222,9 @@ adapter apply/rollback artifacts remain open.
       child-command handoff, and child-agent receive/local publish proof now
       exist. Service-side enforcement audit ordering now proves
       journal-before-action and final adapter-result audit/store projection;
-      production analyzer, AI model, broker/family-hub delivery, broader
-      service wiring, and risk-budget fixtures remain.
+      network-triggered local-AI queue planning now keeps AI inputs to refs
+      only. Production analyzer, AI model execution, broker/family-hub
+      delivery, broader service wiring, and risk-budget fixtures remain.
 - [ ] Policy preview over stored flow evidence.
 - [ ] Adapter capability status.
 - [x] Full-scope network plan, proof tiers, UI requirements, and workpacks.

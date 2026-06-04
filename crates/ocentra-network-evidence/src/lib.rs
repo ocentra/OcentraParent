@@ -8,6 +8,7 @@ pub mod encrypted_dns;
 pub mod fixtures;
 pub mod flow;
 pub mod http;
+pub mod local_ai_queue;
 pub mod managed_browser;
 pub mod packet;
 pub mod pcap;
@@ -66,6 +67,11 @@ pub use flow::{
     NetworkFlowKey, NetworkFlowPacket, NetworkFlowProtocol, NetworkFlowSession, NetworkFlowSummary,
 };
 pub use http::{parse_http_host, HttpHostObservation, HttpHostParseError};
+pub use local_ai_queue::{
+    plan_network_local_ai_queue, NetworkLocalAiQueueError, NetworkLocalAiQueueInput,
+    NetworkLocalAiQueueInputKind, NetworkLocalAiQueueJob, NetworkLocalAiQueuePlan,
+    NetworkLocalAiQueueStatus,
+};
 pub use managed_browser::{
     correlate_managed_browser_activity, ManagedBrowserCorrelation, ManagedBrowserCorrelationBasis,
     ManagedBrowserCorrelationError, ManagedBrowserCorrelationInput, ManagedBrowserCorrelationState,
