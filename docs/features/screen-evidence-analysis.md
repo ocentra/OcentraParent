@@ -140,6 +140,16 @@ only with explicit parent settings.
   `serviceCaptureMetadata`, so this is native foreground capture/read-model
   proof, not browser URL trigger ownership, game classification, VLM quality, or
   policy-action proof.
+- `scripts/test/screen-ai-service-analysis-proof.mjs` now proves an explicit
+  opt-in Rust service analysis loop on Windows: it opens a real foreground
+  browser fixture, lets service cadence enqueue one encrypted active-window
+  capture, invokes a local adapter command through the service analysis runtime,
+  records a `localVision` Activity Screen read-model row with capture reason,
+  scope, queue job, model runtime ref, category, confidence, evidence digest,
+  policy eligibility, and deleted-image state, reads it back over the real
+  WebSocket command path, and drains the processed encrypted queue record. The
+  adapter command is a local proof adapter for runtime plumbing, not a production
+  VLM quality claim.
 - `scripts/test/screen-ai-live-operator-proof.mjs` now provides the executable
   live operator gate for this feature. It prints a required nine-scenario
   manifest template, refuses to claim live proof without operator-supplied real
@@ -162,6 +172,7 @@ only with explicit parent settings.
 
 Opt-in UI, live external URL/account operator proof artifacts from the new
 manifest-driven harness, OCR/vision quality beyond controlled fixtures,
+production local vision adapter quality beyond the service proof adapter,
 service-owned live trigger event producers beyond the timed cadence loop and
 native active-window foreground watcher, physical
 Android/iOS proof, live macOS capture proof, Linux root/Wayland portal proof,
