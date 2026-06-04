@@ -35,8 +35,8 @@ Proof root: `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`
 ## AI Worker Checklist
 
 - [ ] Journal evidence before portal/policy/AI use.
-- [ ] Add replay/query/delete tests.
-- [ ] Add tombstone proof.
+- [x] Add replay/query/delete tests.
+- [x] Add tombstone proof.
 - [ ] Ensure AI/report/policy cite stored refs.
 - [ ] Keep Ocentra-hosted storage off by default.
 - [x] Include the P2 service read-model proof in the pre-device gate.
@@ -47,15 +47,18 @@ This workpack has P0 contract proof, P1 Rust ActivityStore SQLite ingest proof,
 and P2 service-command proof for tracking event kinds from
 `codex/tracking-plan-full-scope` under the proof root below. The service proof
 adds a narrow `agent.activity.tracking.read-model.get` command that returns
-SQLite tracking rows and citation IDs through `trackingReadModel`; the parent
-portal now consumes that event as a narrow live summary on the `policy-tracking`
-route. Full UI, platform replay, deletion/tombstone replay, export, and
-physical-device product claims are not claimed beyond the proof state recorded
-in `proof-summary.json`, `10-journal-sqlite-proof.json`,
-`18-service-read-model-proof.json`, and the implementation checklist.
+SQLite tracking rows and citation IDs through `trackingReadModel`; the service
+proof now also exposes retention-delete rows as tombstone replay rows with
+active/tombstone counts, deleted-at metadata, and deleted evidence citation ID
+summaries. The parent portal consumes that event as a narrow live summary on the
+`policy-tracking` route. Full UI, platform replay, export, broader product read
+models, and physical-device product claims are not claimed beyond the proof
+state recorded in `proof-summary.json`, `10-journal-sqlite-proof.json`,
+`14-retention-delete-proof.json`, `18-service-read-model-proof.json`, and the
+implementation checklist.
 The pre-device proof gate now reruns this service proof and records the
-remaining deletion/tombstone replay, richer read-model, full UI, hosted
-accessibility, and platform replay gaps before device work starts.
+remaining broader read-model, full UI, hosted accessibility, and platform replay
+gaps before device work starts.
 
 ## Where We Want To Be
 
@@ -77,30 +80,32 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Manual-Required Gaps
 
-- Hosted portal screenshot/accessibility proof, deletion/tombstone replay,
-  richer product read models, full UI, platform replay, export, provider, and
-  physical-device claims remain manual-required until the assigned proof
+- Hosted portal screenshot/accessibility proof, broader product read models,
+  full UI, platform replay, export, provider, and physical-device claims remain
+  manual-required until the assigned proof
   artifacts exist.
 - Any unsupported platform or provider failure must surface as degraded/manual-required state, not as a silent success.
 
 ## Fill This Before Reporting DONE Or PR-ready
 
-- [x] Workpack id and branch: `codex/tracking-plan-full-scope`.
+- [x] Workpack id and branch:
+      `codex/tracking-journal-read-model-replay-proof`.
 - [x] Touched files: Rust ActivityStore/protocol files, tracking
       contract/runtime files, proof scripts, tracking plan docs, checklist, and
       this workpack doc.
 - [x] Validation commands and results:
-      `node scripts/test/tracking-plan-runtime-proof.mjs` passed; focused
-      service proof command
+      focused service proof command
       `node scripts/test/tracking-plan-service-read-model-proof.mjs` passed.
 - [x] Proof artifacts under
       `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`,
-      including `10-journal-sqlite-proof.json` and
+      including `10-journal-sqlite-proof.json`,
+      `14-retention-delete-proof.json`, and
       `18-service-read-model-proof.json`.
-- [x] Product doc/checklist updates: owning feature doc, feature list, product
-      capability checklist, implementation checklist, and this workpack doc
-      updated for the P2 service read-model proof.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, and this workpack doc updated for the P2 service-backed
+      tombstone replay proof; product capability checklist update remains a
+      primary-owned DOC_DELTA.
 - [x] Known gaps/manual-required states: hosted portal screenshot/accessibility
-      proof, deletion/tombstone replay, richer read models, full UI, platform
-      replay, export, Android/iOS physical proof, provider delivery, and
-      notifications remain proof-gated as applicable.
+      proof, broader read models, full UI, platform replay, export,
+      Android/iOS physical proof, provider delivery, and notifications remain
+      proof-gated as applicable.

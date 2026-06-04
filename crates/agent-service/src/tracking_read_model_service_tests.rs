@@ -37,6 +37,13 @@ async fn tracking_read_model_command_reports_service_backed_sqlite_rows() {
                 ActivityObserver::TrackingEngine,
                 ActivitySubjectKind::TrackingRule,
             ),
+            tracking_activity_event(
+                constants::activity_store::TEST_TRACKING_RETENTION_DELETE_EVENT_ID,
+                constants::activity_store::TEST_TRACKING_RETENTION_DELETE_OBSERVED_AT,
+                ActivityEventKind::TrackingRetentionDeleted,
+                ActivityObserver::TrackingEngine,
+                ActivitySubjectKind::Retention,
+            ),
         ])
         .expect(constants::error::ACTIVITY_STORE_INGESTS);
 
@@ -53,14 +60,28 @@ async fn tracking_read_model_command_reports_service_backed_sqlite_rows() {
         event.event,
         AgentEventName::AgentActivityTrackingReadModelReported
     );
-    assert_eq!(read_model.returned, 2);
+    assert_eq!(read_model.returned, 3);
+    assert_eq!(read_model.active_rows, 2);
+    assert_eq!(read_model.tombstone_rows, 1);
     assert_eq!(
         read_model.latest_event_id.as_deref(),
-        Some(constants::activity_store::TEST_TRACKING_GEOFENCE_EVENT_ID)
+        Some(constants::activity_store::TEST_TRACKING_RETENTION_DELETE_EVENT_ID)
+    );
+    assert_eq!(
+        read_model.latest_tombstone_event_id.as_deref(),
+        Some(constants::activity_store::TEST_TRACKING_RETENTION_DELETE_EVENT_ID)
+    );
+    assert_eq!(
+        read_model.deleted_evidence_reference_ids,
+        vec![constants::activity_store::TEST_TRACKING_EVIDENCE_REFERENCE_ID.to_string()]
     );
     assert_eq!(
         read_model.rows[0].evidence_reference_ids[0],
         constants::activity_store::TEST_TRACKING_EVIDENCE_REFERENCE_ID
+    );
+    assert_eq!(
+        read_model.rows[0].query_visibility,
+        ocentra_parent_agent_protocol::TRACKING_READ_MODEL_ROW_VISIBILITY_TOMBSTONE
     );
 }
 

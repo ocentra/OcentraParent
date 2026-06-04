@@ -4,7 +4,11 @@ import { join, relative } from 'node:path';
 
 const repoRoot = process.cwd();
 const proofRoot = join(repoRoot, 'output', 'tracking-plan-proof');
-const proofPath = join(proofRoot, '32-journal-sqlite-and-read-model-proof', '18-service-read-model-proof.json');
+const workpackRoot = join(proofRoot, '32-journal-sqlite-and-read-model-proof');
+const retentionDeleteProofPath = join(workpackRoot, '14-retention-delete-proof.json');
+const validationCommandsPath = join(workpackRoot, '16-validation-commands.log');
+const serviceProofPath = join(workpackRoot, '18-service-read-model-proof.json');
+const proofSummaryPath = join(workpackRoot, 'proof-summary.json');
 const commands = [];
 
 await main();
@@ -51,6 +55,22 @@ async function main() {
         'activity.tracking.retention.deleted',
       ],
       citationField: 'evidenceReferenceIds',
+      tombstoneReplay: {
+        rowVisibilityField: 'queryVisibility',
+        activeRowValue: 'active',
+        tombstoneRowValue: 'tombstone',
+        deletedAtField: 'deletedAt',
+        deletedEvidenceReferenceIdsField: 'deletedEvidenceReferenceIds',
+        summaryFields: [
+          'activeRows',
+          'tombstoneRows',
+          'latestTombstoneEventId',
+          'latestTombstoneObservedAt',
+          'deletedEvidenceReferenceIds',
+        ],
+        retentionEventKind: 'activity.tracking.retention.deleted',
+        sourceOfTruth: 'ActivityStore SQLite rows replayed from journaled ActivityEvent records',
+      },
     },
     proofArtifacts: {
       typescriptProtocolDomain: 'packages/agent-protocol-domain/src/contracts.ts',
@@ -72,17 +92,89 @@ async function main() {
     ],
     remainingGapsBeforeProductOrPrReady: [
       'Hosted portal screenshot, accessibility, and browser-to-service proof remain pending.',
-      'Richer product tracking read-model surfaces remain pending.',
+      'Broader product tracking read-model surfaces beyond the service-backed tombstone replay/citation summary remain pending.',
       'Child-device UI and device permission screenshots remain pending.',
       'Android/iOS physical background geofence proof remains manual-required.',
       'Authority-enrolled and production-pilot proof remain absent.',
     ],
   };
 
-  await mkdir(join(proofPath, '..'), { recursive: true });
-  await writeFile(proofPath, `${JSON.stringify(proof, null, 2)}\n`);
+  const retentionDeleteProof = {
+    schemaVersion: 1,
+    checkedAt,
+    commit: proof.commit,
+    workpackId: '32-journal-sqlite-and-read-model-proof',
+    proofMode: 'tracking-service-retention-tombstone-replay',
+    requiredProofTier: 'P2_HOSTED_CI',
+    currentProofTier: 'P2_HOSTED_CI',
+    currentStatus: 'proved',
+    productClaimReady: false,
+    commands,
+    serviceCommand: proof.serviceBoundary.command,
+    event: proof.serviceBoundary.event,
+    payloadField: proof.serviceBoundary.payloadField,
+    provedFields: proof.serviceBoundary.tombstoneReplay,
+    assertions: [
+      'Rust ActivityStore includes activity.tracking.retention.deleted rows in the tracking read model query.',
+      'Retention-delete rows are exposed as tombstone queryVisibility rows instead of active tracking history rows.',
+      'Deleted evidence reference ids are preserved on tombstone rows and summarized on the read model.',
+      'Latest tombstone event id and observed timestamp are serialized through the Rust protocol and TypeScript parser.',
+      'The proof does not claim Android/iOS physical background behavior, provider delivery, complete UI, or authority enrollment.',
+    ],
+    artifacts: {
+      typescriptParserTest: 'packages/agent-protocol-domain/tests/tracking-read-model.test.ts',
+      rustProtocolTest: 'crates/agent-protocol/src/tracking_read_model_tests.rs',
+      rustCoreReadModelTest: 'crates/agent-core/src/activity_store_tracking_tests.rs',
+      rustServiceCommandTest: 'crates/agent-service/src/tracking_read_model_service_tests.rs',
+      serviceProof:
+        'output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json',
+    },
+    manualRequiredGaps: [
+      'Live parent/child UI delete controls and hosted accessibility proof remain pending.',
+      'Platform replay from Android Studio, WSL/local, iOS simulator, and physical devices remains separate proof.',
+      'Android/iOS physical background geofence and authority-enrolled behavior remain manual-required.',
+    ],
+  };
+
+  const proofSummary = {
+    schemaVersion: 1,
+    checkedAt,
+    commit: proof.commit,
+    workpackId: '32-journal-sqlite-and-read-model-proof',
+    proofState: 'p2-service-read-model-tombstone-replay-proof',
+    summary:
+      'Tracking service read-model proof now includes ActivityStore SQLite retention-delete tombstone replay, active/tombstone row counts, deleted evidence citation summaries, and narrow portal summary parsing. Hosted UI/accessibility, broader product read models, platform replay, and physical-device proof remain pending.',
+    commands,
+    proofArtifacts: {
+      retentionDeleteProof:
+        'output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/14-retention-delete-proof.json',
+      validationCommands:
+        'output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/16-validation-commands.log',
+      serviceReadModelProof:
+        'output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json',
+    },
+    productClaims: {
+      contractProof: true,
+      serviceTombstoneReplayProof: true,
+      androidIosBackgroundLocationClaimed: false,
+      preciseLocationFromLanIpWifiClaimed: false,
+      uiCompleteClaimed: false,
+      providerDeliveryClaimed: false,
+      remoteSyncEnabledByDefault: false,
+    },
+  };
+
+  await mkdir(workpackRoot, { recursive: true });
+  await writeFile(retentionDeleteProofPath, `${JSON.stringify(retentionDeleteProof, null, 2)}\n`);
+  await writeFile(
+    validationCommandsPath,
+    `${commands.map(({ command, exitCode }) => `${command} # exit ${exitCode}`).join('\n')}\n`
+  );
+  await writeFile(serviceProofPath, `${JSON.stringify(proof, null, 2)}\n`);
+  await writeFile(proofSummaryPath, `${JSON.stringify(proofSummary, null, 2)}\n`);
   console.log('tracking-plan-service-read-model-proof-ok');
-  console.log(`evidence=${relative(repoRoot, proofPath).replace(/\\/gu, '/')}`);
+  console.log(`evidence=${relative(repoRoot, serviceProofPath).replace(/\\/gu, '/')}`);
+  console.log(`retention=${relative(repoRoot, retentionDeleteProofPath).replace(/\\/gu, '/')}`);
 }
 
 async function runNpmWorkspace(workspaceName, args) {

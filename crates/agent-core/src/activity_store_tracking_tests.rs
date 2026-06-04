@@ -30,9 +30,16 @@ fn activity_store_reports_tracking_read_model_from_ingested_events() {
         ActivityObserver::TrackingEngine,
         ActivitySubjectKind::TrackingRule,
     );
+    let retention_delete = tracking_activity_event(
+        constants::activity_store::TEST_TRACKING_RETENTION_DELETE_EVENT_ID,
+        constants::activity_store::TEST_TRACKING_RETENTION_DELETE_OBSERVED_AT,
+        ActivityEventKind::TrackingRetentionDeleted,
+        ActivityObserver::TrackingEngine,
+        ActivitySubjectKind::Retention,
+    );
 
     store
-        .ingest_events(&[location, geofence, expected_place])
+        .ingest_events(&[location, geofence, expected_place, retention_delete])
         .expect(constants::error::ACTIVITY_STORE_INGESTS);
     let read_model = tracking_read_model_for_store(
         &store,
@@ -41,14 +48,24 @@ fn activity_store_reports_tracking_read_model_from_ingested_events() {
     )
     .expect(constants::error::ACTIVITY_STORE_QUERIES);
 
-    assert_eq!(read_model.returned, 3);
+    assert_eq!(read_model.returned, 4);
+    assert_eq!(read_model.active_rows, 3);
+    assert_eq!(read_model.tombstone_rows, 1);
     assert_eq!(
         read_model.latest_event_id.as_deref(),
-        Some(constants::activity_store::TEST_TRACKING_EXPECTED_PLACE_EVENT_ID)
+        Some(constants::activity_store::TEST_TRACKING_RETENTION_DELETE_EVENT_ID)
+    );
+    assert_eq!(
+        read_model.latest_tombstone_event_id.as_deref(),
+        Some(constants::activity_store::TEST_TRACKING_RETENTION_DELETE_EVENT_ID)
     );
     assert_eq!(
         read_model.capability_status,
         constants::activity_store::TEST_TRACKING_CAPABILITY_STATUS_RECENT
+    );
+    assert_eq!(
+        read_model.deleted_evidence_reference_ids,
+        vec![constants::activity_store::TEST_TRACKING_EVIDENCE_REFERENCE_ID.to_string()]
     );
     assert_eq!(
         read_model.rows[0].evidence_reference_ids,
@@ -56,7 +73,15 @@ fn activity_store_reports_tracking_read_model_from_ingested_events() {
     );
     assert_eq!(
         read_model.rows[0].kind,
-        constants::activity_event_kind::TRACKING_EXPECTED_PLACE_EVALUATED
+        constants::activity_event_kind::TRACKING_RETENTION_DELETED
+    );
+    assert_eq!(
+        read_model.rows[0].query_visibility,
+        ocentra_parent_agent_protocol::TRACKING_READ_MODEL_ROW_VISIBILITY_TOMBSTONE
+    );
+    assert_eq!(
+        read_model.rows[0].deleted_at.as_deref(),
+        Some(constants::activity_store::TEST_TRACKING_RETENTION_DELETE_OBSERVED_AT)
     );
 }
 
@@ -72,7 +97,10 @@ fn activity_store_reports_empty_tracking_read_model_without_inventing_rows() {
     .expect(constants::error::ACTIVITY_STORE_QUERIES);
 
     assert_eq!(read_model.returned, 0);
+    assert_eq!(read_model.active_rows, 0);
+    assert_eq!(read_model.tombstone_rows, 0);
     assert_eq!(read_model.rows.len(), 0);
+    assert!(read_model.deleted_evidence_reference_ids.is_empty());
     assert_eq!(
         read_model.capability_status,
         TRACKING_READ_MODEL_STATUS_NO_TRACKING_EVENTS

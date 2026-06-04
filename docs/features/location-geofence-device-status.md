@@ -57,10 +57,15 @@ expose location or device-status features. Parents expect this category.
 - P2 service-boundary proof now exists for a narrow
   `agent.activity.tracking.read-model.get` WebSocket command that reads
   tracking event rows from the shared ActivityStore SQLite query store and
-  reports citation IDs through `trackingReadModel`. The parent portal
-  `policy-tracking` route now consumes that service read model as a narrow
+  reports citation IDs through `trackingReadModel`. That P2 proof now also
+  exposes retention-delete rows as tombstone replay rows with active/tombstone
+  counts, deleted-at metadata, and deleted evidence citation IDs. The parent
+  portal `policy-tracking` route consumes that service read model as a narrow
   live summary beside the P1 fixture rows. The repeatable proof command is
-  `node scripts/test/tracking-plan-service-read-model-proof.mjs`, with artifact
+  `node scripts/test/tracking-plan-service-read-model-proof.mjs`, with
+  artifacts
+  `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/14-retention-delete-proof.json`
+  and
   `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json`.
 - Pre-device gap-closure proof now exists through
   `node scripts/test/tracking-plan-pre-device-proof.mjs`. It reruns the
@@ -94,13 +99,14 @@ expose location or device-status features. Parents expect this category.
 ## Current Gap
 
 Location/geofence is now in contract, P1 fixture/runtime proof, narrow P2
-service read-model proof, narrow portal summary-consumption proof, P1 local
-parent-defined place store proof, pre-device proof-gate progress, and Android
-emulator package/service/status scaffold proof. It remains a tracked product
-gap until platform location and geofence adapters, richer product read models,
-provider delivery, notifications, physical-device proof, full parent/child UI
-snapshots, accessibility, hosted UI proof, and richer live service-backed UI
-evidence citations are proved.
+service read-model proof with retention-delete tombstone replay, narrow portal
+summary-consumption proof, P1 local parent-defined place store proof,
+pre-device proof-gate progress, and Android emulator package/service/status
+scaffold proof. It remains a tracked product gap until platform location and
+geofence adapters, broader product read models, provider delivery,
+notifications, physical-device proof, full parent/child UI snapshots,
+accessibility, hosted UI proof, and richer live service-backed UI evidence
+citations are proved.
 
 ## Checklist
 
@@ -123,7 +129,7 @@ evidence citations are proved.
 - [x] Nearby-place ambiguity and AI safety evidence contracts.
 - [x] P1 ActivityStore tracking-event SQLite ingest proof.
 - [x] P2 service-backed tracking read-model command proof for SQLite journal
-      rows and citation IDs.
+      rows, citation IDs, and retention-delete tombstone replay.
 - [x] Narrow parent portal summary consumption of the service-backed tracking
       read model.
 - [x] P1 local parent-defined place store proof for CRUD/import/export/delete
@@ -142,7 +148,7 @@ background execution, retention, and custody as first-class requirements.
 Use `docs/plans/tracking-plan/README.md` for implementation sequencing and
 workpack ownership. Keep AI as evidence, not authority, and keep LAN/IP/Wi-Fi
 presence as hints only. The pre-device proof gate is now repeatable; the next
-implementation layers are richer tracking journal/read-model surfaces, full
+implementation layers are broader tracking journal/read-model surfaces, full
 portal UI snapshots/accessibility, remaining Android foreground-location and
 background/geofence runtime proof, WSL/local replay where useful, then physical
 Android/iOS proof and authority proof only when matching devices are enrolled.
