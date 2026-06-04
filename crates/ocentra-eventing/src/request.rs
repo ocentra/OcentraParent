@@ -145,6 +145,32 @@ impl RequestRegistry {
             }
         }
     }
+
+    pub(crate) fn clear_for_test(&self) -> RequestRegistryClearReport {
+        let mut entries = self.entries.lock().expect("request registry lock");
+        let report = RequestRegistryClearReport {
+            pending_request_count: entries
+                .values()
+                .filter(|entry| entry.state == RequestState::Pending)
+                .count(),
+            completed_request_count: entries
+                .values()
+                .filter(|entry| entry.state == RequestState::Completed)
+                .count(),
+            timed_out_request_count: entries
+                .values()
+                .filter(|entry| entry.state == RequestState::TimedOut)
+                .count(),
+        };
+        entries.clear();
+        report
+    }
+}
+
+pub(crate) struct RequestRegistryClearReport {
+    pub(crate) pending_request_count: usize,
+    pub(crate) completed_request_count: usize,
+    pub(crate) timed_out_request_count: usize,
 }
 
 struct RequestEntry {

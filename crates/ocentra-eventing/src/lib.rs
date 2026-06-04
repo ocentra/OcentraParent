@@ -14,8 +14,8 @@ mod request;
 mod testkit;
 
 pub use bus::{
-    DeadLetter, DeadLetterEvent, DeadLetterReason, DispatchMode, EventBus, EventContext,
-    EventPublisher, EventSubscriber, EventTraceFields, HandlerOutcome, HandlerReport,
+    DeadLetter, DeadLetterEvent, DeadLetterReason, DispatchMode, EventBus, EventBusClearReport,
+    EventContext, EventPublisher, EventSubscriber, EventTraceFields, HandlerOutcome, HandlerReport,
     PublishReport, QueueDrainReport, SubscriptionHandle, SubscriptionReport, UnsubscribeReport,
     DEAD_LETTER_RECORDED_EVENT_TYPE,
 };

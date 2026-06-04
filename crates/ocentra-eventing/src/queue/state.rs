@@ -107,6 +107,21 @@ impl EventQueue {
         state.in_flight_keys.remove(key);
     }
 
+    pub(crate) fn clear_for_test(&self) -> EventQueueClearReport {
+        let mut state = self.state.lock().expect("event queue lock");
+        let report = EventQueueClearReport {
+            queued_event_count: state.queued.len(),
+            queued_idempotency_key_count: state.queued_keys.len(),
+            in_flight_idempotency_key_count: state.in_flight_keys.len(),
+            completed_idempotency_key_count: state.completed_keys.len(),
+        };
+        state.queued.clear();
+        state.queued_keys.clear();
+        state.in_flight_keys.clear();
+        state.completed_keys.clear();
+        report
+    }
+
     fn try_enqueue(
         &self,
         stored: StoredEventEnvelope,
@@ -200,6 +215,13 @@ pub(crate) enum NoSubscriberQueueDecision {
 pub(crate) struct DispatchReservation {
     queue: EventQueue,
     key: Option<IdempotencyKey>,
+}
+
+pub(crate) struct EventQueueClearReport {
+    pub(crate) queued_event_count: usize,
+    pub(crate) queued_idempotency_key_count: usize,
+    pub(crate) in_flight_idempotency_key_count: usize,
+    pub(crate) completed_idempotency_key_count: usize,
 }
 
 impl DispatchReservation {

@@ -105,8 +105,12 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       ids without replacing the existing handler via
       `scripts/test/eventing-duplicate-subscriber-proof.mjs` and
       `output/eventing-plan-proof/73-duplicate-subscriber/proof-summary.json`.
-- [ ] Shutdown/clear lifecycle drains, dead-letters, cancels, or test-clears
-      state according to documented policy.
+- [x] Shutdown/clear lifecycle drains, dead-letters, cancels, or test-clears
+      state according to documented policy. E-D added the explicit
+      `EventBus::clear_for_test` local lifecycle with reset and pending request
+      cancellation proof in
+      `output/eventing-plan-proof/74-lifecycle-clear/proof-summary.json`;
+      production shutdown/drain remains a non-claim.
 - [ ] Runtime owns the bus explicitly; reusable crate exposes no hidden global
       singleton.
 - [ ] Lock-held-await source audit passes.

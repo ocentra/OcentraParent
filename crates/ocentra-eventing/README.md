@@ -19,6 +19,9 @@ Reusable Rust eventing primitives for Ocentra Parent runtime code.
 - Handler execution policy for timeout and retry attempts, handler trace fields
   for event id/type/correlation/handler/outcome, and a real-subscription
   `EventRecorder<E>` testkit helper.
+- `EventBus::clear_for_test` lifecycle for deterministic tests: it reports and
+  clears local subscriptions, in-memory journal snapshots, dead letters,
+  aggregate gates, queue/idempotency state, and pending request completions.
 - Local bounded no-subscriber queue policy with observable drain reports,
   overflow rejection/dead-letter behavior, queue TTL expiry before dispatch,
   in-flight duplicate rejection, optional completed idempotency registry, and
@@ -51,7 +54,7 @@ Reusable Rust eventing primitives for Ocentra Parent runtime code.
 
 ## Current Gap
 
-This crate does not yet implement shutdown/drain lifecycle, broker-backed
-delivery, generated contract registry docs, or Parent-specific event contracts.
-Consumers must keep those claims manual-required until the matching eventing
-workpacks are implemented and validated.
+This crate does not yet implement production shutdown/drain lifecycle,
+broker-backed delivery, generated contract registry docs, or Parent-specific
+event contracts. Consumers must keep those claims manual-required until the
+matching eventing workpacks are implemented and validated.

@@ -14,6 +14,7 @@ use crate::{
 
 mod dispatch;
 mod journaling;
+mod lifecycle;
 mod publish;
 mod publisher;
 mod reports;
@@ -33,6 +34,21 @@ pub enum DispatchMode {
     Sequential,
     Concurrent,
     OrderedByAggregateKey,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct EventBusClearReport {
+    pub subscription_count: usize,
+    pub stored_journal_count: usize,
+    pub dead_letter_count: usize,
+    pub aggregate_gate_count: usize,
+    pub queued_event_count: usize,
+    pub queued_idempotency_key_count: usize,
+    pub in_flight_idempotency_key_count: usize,
+    pub completed_idempotency_key_count: usize,
+    pub pending_request_count: usize,
+    pub completed_request_count: usize,
+    pub timed_out_request_count: usize,
 }
 
 #[derive(Clone)]
