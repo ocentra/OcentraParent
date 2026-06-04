@@ -90,6 +90,11 @@ compete on control while staying clear about attribution confidence and privacy.
   chain refs, no exact URL/content claim boundaries, policy-decision-gated
   enforcement commands, manual-required adapter results, audit refs, and portal
   visibility state without claiming service delivery or host filtering.
+- E-D added protocol-facing parent/controller and child-agent event contracts
+  in `crates/agent-protocol` so the network cascade has typed parent/child
+  handoff shapes available before runtime publish/transport work begins. This
+  does not claim broker delivery, family-hub delivery, or child-agent runtime
+  execution.
 - E-D added a service-backed enforcement journal/action proof for the network
   manual-required chain: the enforcement API records a pre-action audit activity
   row before adapter execution, then records the final adapter-result audit row
@@ -115,8 +120,9 @@ enforcement. The E-D
 runtime spine removes the private-bus blocker for an in-process metadata-only
 chain and now proves local queue/drain plus request-response consumption of the
 reusable eventing crate and service-side journal-before-action/final-audit
-ordering, but flow/sessionization, analyzer fixtures, broker delivery, portal
-UI, and adapter apply/rollback artifacts remain open.
+ordering. Parent/controller and child-agent protocol contracts now exist, but
+flow/sessionization, analyzer fixtures, parent/child runtime transport, broker
+delivery, portal UI, and adapter apply/rollback artifacts remain open.
 
 ## Checklist
 
@@ -133,10 +139,11 @@ UI, and adapter apply/rollback artifacts remain open.
       First E-D runtime spine exists for metadata-only flow events,
       manual-required/unavailable states, local no-subscriber queue/drain,
       local typed request-response, and Rust protocol-facing network event
+      contracts plus parent/controller and child-agent protocol event
       contracts. Service-side enforcement audit ordering now proves
       journal-before-action and final adapter-result audit/store projection;
-      production analyzer, AI model, broker delivery, broader service wiring,
-      and risk-budget fixtures remain.
+      production analyzer, AI model, parent/child runtime transport, broker
+      delivery, broader service wiring, and risk-budget fixtures remain.
 - [ ] Policy preview over stored flow evidence.
 - [ ] Adapter capability status.
 - [x] Full-scope network plan, proof tiers, UI requirements, and workpacks.

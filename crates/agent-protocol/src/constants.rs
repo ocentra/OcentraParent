@@ -179,6 +179,8 @@ pub mod activity_subject_kind;
 pub mod activity_surface;
 #[path = "constants/browser.rs"]
 pub mod browser;
+#[path = "constants/child_agent.rs"]
+pub mod child_agent;
 #[path = "constants/enforcement_broad_adapter_proof.rs"]
 pub mod enforcement_broad_adapter_proof;
 #[path = "constants/host_identity.rs"]
@@ -502,6 +504,8 @@ pub mod local_ai_runtime;
 pub mod local_ai_runtime_provider_proof;
 #[path = "constants/parent_assistant.rs"]
 pub mod parent_assistant;
+#[path = "constants/parent_controller.rs"]
+pub mod parent_controller;
 
 pub mod delimiter {
     pub const BANG: char = '!';
