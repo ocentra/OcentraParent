@@ -4,6 +4,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
+import { inflateSync } from 'node:zlib';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const proofMode = 'tracking-plan-android-emulator-proof';
@@ -56,6 +57,8 @@ async function main() {
   await adb(tools, selectedSerial, ['install', '-r', apkPath], {
     artifact: path.join(resultDir, '01-adb-install.txt'),
   });
+  await adb(tools, selectedSerial, ['shell', 'input', 'keyevent', '224']);
+  await adb(tools, selectedSerial, ['shell', 'wm', 'dismiss-keyguard']);
 
   const device = await readDeviceMetadata(tools, selectedSerial);
   const packageDump = await adbText(tools, selectedSerial, ['shell', 'dumpsys', 'package', packageName]);
@@ -73,6 +76,8 @@ async function main() {
   await adb(tools, selectedSerial, ['shell', 'am', 'start', '-n', expectedActivity], {
     artifact: path.join(resultDir, '03-launch-activity.txt'),
   });
+  await adb(tools, selectedSerial, ['shell', 'input', 'keyevent', '224']);
+  await adb(tools, selectedSerial, ['shell', 'wm', 'dismiss-keyguard']);
   await delay(3_000);
 
   const runtime = await collectRuntimeArtifacts(tools, selectedSerial);
@@ -219,6 +224,7 @@ async function collectRuntimeArtifacts(tools, serial) {
       ? await adbText(tools, serial, ['logcat', '--pid', pid, '-d'])
       : await adbText(tools, serial, ['logcat', '-d']);
   const screenshot = await adbBuffer(tools, serial, ['exec-out', 'screencap', '-p']);
+  const screenshotInspection = inspectPngVisual(screenshot);
 
   await writeText(path.join(resultDir, '03-package-dump.txt'), packageDump);
   await writeText(path.join(resultDir, '04-service-dump.txt'), serviceDump);
@@ -229,6 +235,7 @@ async function collectRuntimeArtifacts(tools, serial) {
   await writeText(path.join(resultDir, '09-ui.xml'), uiDump);
   await writeFile(path.join(resultDir, '10-screen.png'), screenshot);
   await writeText(path.join(resultDir, '11-logcat.txt'), logcat);
+  await writeJson(path.join(resultDir, '12-screenshot-inspection.json'), screenshotInspection);
 
   return {
     pid,
@@ -238,6 +245,7 @@ async function collectRuntimeArtifacts(tools, serial) {
     battery: parseKeyValueDump(batteryDump),
     connectivitySummary: summarizeConnectivity(connectivityDump),
     ui: parseUiState(uiDump),
+    screenshotInspection,
     logcatFindings: parseLogcat(logcat),
     artifacts: runtimeArtifactPaths(),
   };
@@ -292,6 +300,242 @@ function parseUiState(uiDump) {
   };
 }
 
+function inspectPngVisual(buffer) {
+  const signature = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+  if (!buffer.subarray(0, signature.length).equals(signature)) {
+    return screenshotInspectionResult({
+      reason: 'screencap output is not a PNG',
+      visualClaimReady: false,
+    });
+  }
+
+  const parsed = parsePngChunks(buffer);
+  if (parsed.ihdr === null || parsed.idat.length === 0) {
+    return screenshotInspectionResult({
+      reason: 'PNG is missing IHDR or IDAT chunks',
+      visualClaimReady: false,
+    });
+  }
+
+  const { width, height, bitDepth, colorType, compression, filter, interlace } = parsed.ihdr;
+  if (bitDepth !== 8 || compression !== 0 || filter !== 0 || interlace !== 0) {
+    return screenshotInspectionResult({
+      width,
+      height,
+      bitDepth,
+      colorType,
+      reason: 'PNG format is unsupported for contrast inspection',
+      visualClaimReady: false,
+    });
+  }
+
+  const bytesPerPixel = pngBytesPerPixel(colorType);
+  if (bytesPerPixel === null) {
+    return screenshotInspectionResult({
+      width,
+      height,
+      bitDepth,
+      colorType,
+      reason: 'PNG color type is unsupported for contrast inspection',
+      visualClaimReady: false,
+    });
+  }
+
+  const rowBytes = width * bytesPerPixel;
+  const inflated = inflateSync(Buffer.concat(parsed.idat));
+  const expectedBytes = height * (rowBytes + 1);
+  if (inflated.length < expectedBytes) {
+    return screenshotInspectionResult({
+      width,
+      height,
+      bitDepth,
+      colorType,
+      reason: 'PNG image data is shorter than expected',
+      visualClaimReady: false,
+    });
+  }
+
+  let sourceOffset = 0;
+  let previousRow = Buffer.alloc(rowBytes);
+  let minLuma = 255;
+  let maxLuma = 0;
+  let nonBlackPixelCount = 0;
+  let transparentPixelCount = 0;
+  const distinctColors = new Set();
+
+  for (let rowIndex = 0; rowIndex < height; rowIndex += 1) {
+    const filterType = inflated[sourceOffset];
+    sourceOffset += 1;
+    const encodedRow = inflated.subarray(sourceOffset, sourceOffset + rowBytes);
+    sourceOffset += rowBytes;
+    const row = unfilterPngRow(encodedRow, previousRow, bytesPerPixel, filterType);
+    for (let pixelOffset = 0; pixelOffset < rowBytes; pixelOffset += bytesPerPixel) {
+      const pixel = pngPixelRgb(row, pixelOffset, colorType);
+      if (pixel.alpha === 0) {
+        transparentPixelCount += 1;
+        continue;
+      }
+      if (pixel.red !== 0 || pixel.green !== 0 || pixel.blue !== 0) {
+        nonBlackPixelCount += 1;
+      }
+      const luma = Math.round(0.2126 * pixel.red + 0.7152 * pixel.green + 0.0722 * pixel.blue);
+      minLuma = Math.min(minLuma, luma);
+      maxLuma = Math.max(maxLuma, luma);
+      if (distinctColors.size < 64) {
+        distinctColors.add(`${pixel.red},${pixel.green},${pixel.blue},${pixel.alpha}`);
+      }
+    }
+    previousRow = row;
+  }
+
+  const pixelCount = width * height;
+  const visiblePixelCount = pixelCount - transparentPixelCount;
+  const lumaRange = visiblePixelCount > 0 ? maxLuma - minLuma : 0;
+  const isAllBlack = visiblePixelCount === 0 || nonBlackPixelCount === 0;
+  const visualClaimReady = !isAllBlack && lumaRange >= 16 && distinctColors.size > 1;
+  return screenshotInspectionResult({
+    width,
+    height,
+    bitDepth,
+    colorType,
+    pixelCount,
+    visiblePixelCount,
+    nonBlackPixelCount,
+    transparentPixelCount,
+    distinctColorSampleCount: distinctColors.size,
+    minLuma: visiblePixelCount > 0 ? minLuma : null,
+    maxLuma: visiblePixelCount > 0 ? maxLuma : null,
+    lumaRange,
+    isAllBlack,
+    visualClaimReady,
+    reason: visualClaimReady
+      ? 'PNG contains non-black pixels and visible luminance contrast'
+      : visiblePixelCount === 0
+        ? 'PNG has no visible pixels, so the headless screenshot cannot be claimed as visual evidence'
+        : 'PNG did not contain enough visible contrast to claim screenshot evidence',
+  });
+}
+
+function parsePngChunks(buffer) {
+  let offset = 8;
+  const idat = [];
+  let ihdr = null;
+  while (offset + 12 <= buffer.length) {
+    const length = buffer.readUInt32BE(offset);
+    const type = buffer.subarray(offset + 4, offset + 8).toString('ascii');
+    const dataStart = offset + 8;
+    const dataEnd = dataStart + length;
+    if (dataEnd + 4 > buffer.length) {
+      break;
+    }
+    const data = buffer.subarray(dataStart, dataEnd);
+    if (type === 'IHDR') {
+      ihdr = {
+        width: data.readUInt32BE(0),
+        height: data.readUInt32BE(4),
+        bitDepth: data[8],
+        colorType: data[9],
+        compression: data[10],
+        filter: data[11],
+        interlace: data[12],
+      };
+    } else if (type === 'IDAT') {
+      idat.push(Buffer.from(data));
+    } else if (type === 'IEND') {
+      break;
+    }
+    offset = dataEnd + 4;
+  }
+  return { ihdr, idat };
+}
+
+function pngBytesPerPixel(colorType) {
+  if (colorType === 0) {
+    return 1;
+  }
+  if (colorType === 2) {
+    return 3;
+  }
+  if (colorType === 4) {
+    return 2;
+  }
+  if (colorType === 6) {
+    return 4;
+  }
+  return null;
+}
+
+function unfilterPngRow(encodedRow, previousRow, bytesPerPixel, filterType) {
+  const row = Buffer.alloc(encodedRow.length);
+  for (let index = 0; index < encodedRow.length; index += 1) {
+    const left = index >= bytesPerPixel ? row[index - bytesPerPixel] : 0;
+    const up = previousRow[index] ?? 0;
+    const upLeft = index >= bytesPerPixel ? previousRow[index - bytesPerPixel] : 0;
+    row[index] = (encodedRow[index] + pngFilterAdjustment(filterType, left, up, upLeft)) & 0xff;
+  }
+  return row;
+}
+
+function pngFilterAdjustment(filterType, left, up, upLeft) {
+  if (filterType === 0) {
+    return 0;
+  }
+  if (filterType === 1) {
+    return left;
+  }
+  if (filterType === 2) {
+    return up;
+  }
+  if (filterType === 3) {
+    return Math.floor((left + up) / 2);
+  }
+  if (filterType === 4) {
+    return pngPaethPredictor(left, up, upLeft);
+  }
+  throw new Error(`Unsupported PNG filter type: ${filterType}`);
+}
+
+function pngPaethPredictor(left, up, upLeft) {
+  const predicted = left + up - upLeft;
+  const leftDistance = Math.abs(predicted - left);
+  const upDistance = Math.abs(predicted - up);
+  const upLeftDistance = Math.abs(predicted - upLeft);
+  if (leftDistance <= upDistance && leftDistance <= upLeftDistance) {
+    return left;
+  }
+  if (upDistance <= upLeftDistance) {
+    return up;
+  }
+  return upLeft;
+}
+
+function pngPixelRgb(row, pixelOffset, colorType) {
+  if (colorType === 0) {
+    const gray = row[pixelOffset];
+    return { red: gray, green: gray, blue: gray, alpha: 255 };
+  }
+  if (colorType === 2) {
+    return { red: row[pixelOffset], green: row[pixelOffset + 1], blue: row[pixelOffset + 2], alpha: 255 };
+  }
+  if (colorType === 4) {
+    const gray = row[pixelOffset];
+    return { red: gray, green: gray, blue: gray, alpha: row[pixelOffset + 1] };
+  }
+  return {
+    red: row[pixelOffset],
+    green: row[pixelOffset + 1],
+    blue: row[pixelOffset + 2],
+    alpha: row[pixelOffset + 3],
+  };
+}
+
+function screenshotInspectionResult(result) {
+  return {
+    schemaVersion: 1,
+    ...result,
+  };
+}
+
 function parseLogcat(logcat) {
   return {
     fatalExceptionCount: countMatches(logcat, /FATAL EXCEPTION/gu),
@@ -330,6 +574,7 @@ function runtimeArtifactPaths() {
     ui: relativePath(path.join(resultDir, '09-ui.xml')),
     screenshot: relativePath(path.join(resultDir, '10-screen.png')),
     logcat: relativePath(path.join(resultDir, '11-logcat.txt')),
+    screenshotInspection: relativePath(path.join(resultDir, '12-screenshot-inspection.json')),
   };
 }
 
@@ -342,7 +587,9 @@ function buildProof({ device, packageDump, permissionState, resolvedActivity, ru
     proofMode,
     requiredProofTier: 'P3_LOCAL_DEV_MACHINE',
     currentProofTier: 'P3_LOCAL_DEV_MACHINE',
-    currentStatus: 'emulator_scaffold_observed',
+    currentStatus: runtime.screenshotInspection.visualClaimReady
+      ? 'emulator_scaffold_observed'
+      : 'emulator_scaffold_observed_nonvisual_screenshot',
     productClaimReady: false,
     androidSdkRoot: tools.sdkRoot,
     package: {
@@ -497,6 +744,7 @@ function deviceStatusProof(proof) {
     battery: proof.runtime.battery,
     connectivitySummary: proof.runtime.connectivitySummary,
     ui: proof.runtime.ui,
+    screenshotInspection: proof.runtime.screenshotInspection,
     logcatFindings: proof.runtime.logcatFindings,
     device: proof.device,
     artifacts: proof.runtime.artifacts,
@@ -540,6 +788,7 @@ This proof was generated by \`npm run test:tracking-plan-android-emulator-proof\
 - Foreground service observed: ${String(proof.runtime.service.isForeground)}.
 - Battery and connectivity dumps collected.
 - UI tree collected and contains scaffold/manual-consent text: ${String(proof.runtime.ui.hasLaunchText)}.
+- Screenshot visual contrast observed: ${String(proof.runtime.screenshotInspection.visualClaimReady)}.
 
 ## Not claimed
 

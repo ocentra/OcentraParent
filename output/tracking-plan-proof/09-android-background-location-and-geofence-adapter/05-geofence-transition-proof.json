@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-04T05:10:03.966Z",
-  "commit": "009a7e0a62cd65d5fd171e5aaacfaa0a3ad54de3",
+  "checkedAt": "2026-06-04T06:14:27.428Z",
+  "commit": "243ae3edd8702351e3426d9faffd165e3775aa4b",
   "requiredProofTier": "P3_LOCAL_DEV_MACHINE",
   "currentProofTier": "P3_LOCAL_DEV_MACHINE",
   "currentStatus": "manual_required",
@@ -28,6 +28,7 @@
     "connectivity": "test-results/tracking-plan-android-emulator-proof/08-connectivity.txt",
     "ui": "test-results/tracking-plan-android-emulator-proof/09-ui.xml",
     "screenshot": "test-results/tracking-plan-android-emulator-proof/10-screen.png",
-    "logcat": "test-results/tracking-plan-android-emulator-proof/11-logcat.txt"
+    "logcat": "test-results/tracking-plan-android-emulator-proof/11-logcat.txt",
+    "screenshotInspection": "test-results/tracking-plan-android-emulator-proof/12-screenshot-inspection.json"
   }
 }
