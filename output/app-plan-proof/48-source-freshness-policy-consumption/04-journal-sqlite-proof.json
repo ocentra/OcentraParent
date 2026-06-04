@@ -1,0 +1,5 @@
+{
+  "schemaVersion": 1,
+  "journalSqliteClaim": "not-applicable",
+  "reason": "WP48 consumes backend read-model rows from WP47 and does not add journal or SQLite storage."
+}

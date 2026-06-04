@@ -137,6 +137,10 @@ The common game-control path should be:
   OS or invent duration.
 - A parent game/category time-limit policy can consume a session summary and
   produce a dry-run decision before enforcement is enabled.
+- A parent app/game policy readiness check can consume grouped
+  `sourceStatusRows` and block policy compile when inventory, runtime,
+  foreground, or launcher source rows are stale, missing, permission-limited,
+  unavailable, manual-required, or not-claimed.
 - Enforcement, when enabled, records whether the game/app was terminated, already
   exited, unavailable, blocked, or left running in observe-only mode.
 

@@ -218,6 +218,12 @@ control with better evidence and local audit.
   evidence by source kind, row count, latest observed time, capability state,
   and evidence refs without adding portal UI, policy consumption, or adapter
   claims.
+- Parent-domain source freshness policy-readiness contracts now consume those
+  backend `sourceStatusRows`, map concrete source kinds into inventory,
+  runtime, foreground, and launcher requirements, allow policy compile only
+  when rows are fresh/evidence-backed/available, and keep stale, missing,
+  permission-limited, unavailable, adapter-error, manual-required, and
+  not-claimed rows manual-required before compile without adapter dispatch.
 - The app/game final rollout/evidence gate now checks the app-game WP01-WP27
   and app-plan WP01-WP26 proof roots, writes final app-game WP28 and app-plan
   WP27/WP28 proof packs, and records the E2E/manual scenario routing,
@@ -264,15 +270,17 @@ hashed source/path refs, and the service capture path can append those
 registry-backed inventory rows into the same journal/store/read-model path.
 Backend app-use/games read-model rows now include grouped source
 freshness/status rows for inventory, runtime, foreground, and launcher sources,
-but portal source rendering, local model quality/provider execution, policy
-evaluator consumption, and platform enforcement remain unproved. Live
+and parent-domain source freshness policy-readiness now consumes those rows for
+contract-level policy compile gating, but portal source rendering, local model
+quality/provider execution, runtime service policy evaluation, and platform
+enforcement remain unproved. Live
 process snapshots now replay through the local journal/SQLite path in core and
 through the service activity-capture journal/store path for bounded runtime
 rows; recurring service capture freshness is now proved, and the service
 capture bridge can also append optional app/game foreground rows from the core
 active-window source with opaque window/title refs. Richer process start/exit
 and foreground transition subscriptions, portal source freshness polish,
-policy/runtime consumers, and adapter execution remain separate gaps.
+runtime service consumers, and adapter execution remain separate gaps.
 The install/store handoff proof is contract-only: it does not prove live store
 integration, Google Play, Apple App Store, Microsoft Store, package-manager
 interception, billing entitlement logic, portal approval UI, platform adapter
