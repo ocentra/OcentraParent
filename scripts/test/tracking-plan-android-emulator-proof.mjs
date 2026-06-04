@@ -213,9 +213,12 @@ async function collectRuntimeArtifacts(tools, serial) {
   const batteryDump = await adbText(tools, serial, ['shell', 'dumpsys', 'battery']);
   const connectivityDump = await adbText(tools, serial, ['shell', 'dumpsys', 'connectivity']);
   const uiDump = await adbText(tools, serial, ['exec-out', 'uiautomator', 'dump', '/dev/tty']);
-  const logcat = await adbText(tools, serial, ['logcat', '-d']);
-  const screenshot = await adbBuffer(tools, serial, ['exec-out', 'screencap', '-p']);
   const pid = (await adbText(tools, serial, ['shell', 'pidof', '-s', packageName])).trim();
+  const logcat =
+    pid.length > 0
+      ? await adbText(tools, serial, ['logcat', '--pid', pid, '-d'])
+      : await adbText(tools, serial, ['logcat', '-d']);
+  const screenshot = await adbBuffer(tools, serial, ['exec-out', 'screencap', '-p']);
 
   await writeText(path.join(resultDir, '03-package-dump.txt'), packageDump);
   await writeText(path.join(resultDir, '04-service-dump.txt'), serviceDump);
