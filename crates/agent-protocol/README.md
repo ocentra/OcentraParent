@@ -28,6 +28,18 @@ Rust protocol parity crate for data that crosses the TypeScript/Rust boundary.
 - Tracking journal read-model structs, command/event names, payload field, and
   parity tests for the narrow service-backed
   `agent.activity.tracking.read-model.get` proof path.
+- App/game boundary read-model structs, command/event names, payload field, and
+  parity tests for the service-backed authority/classifier row-count proof
+  path.
+- App/game evidence claim, AI digest reference/classification digest, identity,
+  identity-merge, control authority/action-result, platform authority matrix,
+  and classifier boundary structs/constants mirrored from the TypeScript domain
+  packages for Rust-crossing serialization proof.
+- App/game runtime evidence/path-ref prefixes used by core source readers so
+  executable paths can be represented as opaque refs instead of raw UI strings.
+- App/game foreground evidence/window-ref/title-ref prefixes used by core
+  foreground source readers so window identity and title evidence can be
+  represented without raw window or content strings.
 
 ## Must Not Own
 
@@ -89,3 +101,10 @@ flowchart LR
 - Tracking read-model structs preserve journal row and citation-id evidence
   only; they do not claim mobile background behavior, provider delivery, or
   product-complete tracking UI beyond narrow portal summary consumption.
+- App/game evidence/identity/authority/classifier parity structs preserve
+  serialization proof only; core live process snapshots now exist for runtime
+  rows, core live foreground-window source proof exists for foreground rows, and
+  agent-service owns a recurring bounded runtime capture cadence plus a
+  dedicated app/game boundary read-model event, but foreground service capture
+  subscriptions, policy runtime, portal identity/classifier/platform-authority
+  rows, and adapter execution remain separate proof-gated work.

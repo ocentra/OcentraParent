@@ -1,8 +1,9 @@
-use std::{fs, path::Path};
+use std::{fs, path::Path, time::Duration};
 
 use ocentra_parent_agent_core::{
-    foreground_window_event, network_snapshot_events, process_snapshot_events, ActivityJournal,
-    ActivityStore, ActivityStoreError, JournalError, JournalKey, JOURNAL_KEY_BYTES,
+    ActivityJournal, ActivityStore, ActivityStoreError, AppGameLiveForegroundWindowError,
+    AppGameLiveInventorySourceError, AppGameLiveProcessSnapshotError, JournalError, JournalKey,
+    JOURNAL_KEY_BYTES,
 };
 use ocentra_parent_agent_protocol::{
     constants, ActivityEvent, ActivityIngestStatus, LogFieldValue,
@@ -14,12 +15,19 @@ use crate::{
     time::timestamp_now,
 };
 
+mod app_game;
+pub(crate) mod capture_events;
+
+#[cfg(test)]
+pub(crate) mod freshness;
+
 #[derive(Debug, PartialEq, Eq)]
 pub enum ActivityCaptureError {
     Store,
     Journal,
     Io,
     InvalidKeyLength,
+    AppGameRuntime,
 }
 
 impl ActivityCaptureError {
@@ -29,6 +37,7 @@ impl ActivityCaptureError {
             Self::Journal => constants::value::ACTIVITY_CAPTURE_JOURNAL_ERROR,
             Self::Io => constants::value::ACTIVITY_CAPTURE_IO_ERROR,
             Self::InvalidKeyLength => constants::value::ACTIVITY_CAPTURE_INVALID_KEY_LENGTH,
+            Self::AppGameRuntime => constants::value::ACTIVITY_CAPTURE_APP_GAME_ERROR,
         }
     }
 }
@@ -51,20 +60,55 @@ impl From<std::io::Error> for ActivityCaptureError {
     }
 }
 
+impl From<AppGameLiveProcessSnapshotError> for ActivityCaptureError {
+    fn from(_: AppGameLiveProcessSnapshotError) -> Self {
+        Self::AppGameRuntime
+    }
+}
+
+impl From<AppGameLiveForegroundWindowError> for ActivityCaptureError {
+    fn from(_: AppGameLiveForegroundWindowError) -> Self {
+        Self::AppGameRuntime
+    }
+}
+
+impl From<AppGameLiveInventorySourceError> for ActivityCaptureError {
+    fn from(_: AppGameLiveInventorySourceError) -> Self {
+        Self::AppGameRuntime
+    }
+}
+
 pub fn spawn_startup_activity_capture() {
     if windows_activity_capture_supported() {
-        tokio::task::spawn_blocking(|| {
-            if let Err(error) = record_activity_capture_once() {
-                let _ = crate::dev_log::write_agent_info(
-                    constants::dev_log_message::ACTIVITY_CAPTURE_FAILED,
-                    fields_from_pairs(vec![(
-                        constants::field::REASON,
-                        LogFieldValue::String(error.reason().to_string()),
-                    )]),
-                );
+        tokio::task::spawn(async {
+            loop {
+                run_activity_capture_once_blocking().await;
+                tokio::time::sleep(Duration::from_millis(
+                    constants::activity_capture::RECURRING_CAPTURE_INTERVAL_MS,
+                ))
+                .await;
             }
         });
     }
+}
+
+async fn run_activity_capture_once_blocking() {
+    let _ = tokio::task::spawn_blocking(|| {
+        if let Err(error) = record_activity_capture_once() {
+            log_activity_capture_error(&error);
+        }
+    })
+    .await;
+}
+
+fn log_activity_capture_error(error: &ActivityCaptureError) {
+    let _ = crate::dev_log::write_agent_info(
+        constants::dev_log_message::ACTIVITY_CAPTURE_FAILED,
+        fields_from_pairs(vec![(
+            constants::field::REASON,
+            LogFieldValue::String(error.reason().to_string()),
+        )]),
+    );
 }
 
 pub fn record_activity_capture_once() -> Result<ActivityIngestStatus, ActivityCaptureError> {
@@ -95,9 +139,26 @@ pub fn record_activity_capture_to_paths(
     network_limit: usize,
 ) -> Result<ActivityIngestStatus, ActivityCaptureError> {
     let observed_at = timestamp_now();
-    let mut events = process_snapshot_events(&observed_at, process_limit);
-    events.push(foreground_window_event(&observed_at));
-    events.extend(network_snapshot_events(&observed_at, network_limit));
+    record_activity_capture_to_paths_at(
+        journal_path,
+        key_path,
+        store_path,
+        process_limit,
+        network_limit,
+        &observed_at,
+    )
+}
+
+pub(crate) fn record_activity_capture_to_paths_at(
+    journal_path: &Path,
+    key_path: &Path,
+    store_path: &Path,
+    process_limit: usize,
+    network_limit: usize,
+    observed_at: &str,
+) -> Result<ActivityIngestStatus, ActivityCaptureError> {
+    let events =
+        capture_events::activity_capture_events(observed_at, process_limit, network_limit)?;
     record_activity_events_to_paths(journal_path, key_path, store_path, &events)
 }
 

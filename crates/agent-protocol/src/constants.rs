@@ -16,6 +16,7 @@ pub mod env_var {
     pub const ACTIVITY_DB_PATH: &str = "OCENTRA_PARENT_ACTIVITY_DB_PATH";
     pub const ACTIVITY_JOURNAL_KEY_PATH: &str = "OCENTRA_PARENT_ACTIVITY_JOURNAL_KEY_PATH";
     pub const ACTIVITY_JOURNAL_PATH: &str = "OCENTRA_PARENT_ACTIVITY_JOURNAL_PATH";
+    pub const APP_DATA: &str = "APPDATA";
     pub const LOCAL_APP_DATA: &str = "LOCALAPPDATA";
     pub const MANAGED_BROWSER_BRIDGE_PORT: &str = "OCENTRA_PARENT_MANAGED_BROWSER_BRIDGE_PORT";
     pub const MANAGED_BROWSER_EXECUTABLE: &str = "OCENTRA_PARENT_MANAGED_BROWSER_EXECUTABLE";
@@ -24,6 +25,7 @@ pub mod env_var {
     pub const MANAGED_BROWSER_PROFILE_DIR: &str = "OCENTRA_PARENT_MANAGED_BROWSER_PROFILE_DIR";
     pub const PROGRAM_FILES: &str = "PROGRAMFILES";
     pub const PROGRAM_FILES_X86: &str = "ProgramFiles(x86)";
+    pub const PROGRAM_DATA: &str = "PROGRAMDATA";
     pub const LOCAL_AI_RUNTIME_BINARY: &str = "OCENTRA_PARENT_LOCAL_AI_RUNTIME_BINARY";
     pub const LOCAL_AI_MODEL_ID: &str = "OCENTRA_PARENT_LOCAL_AI_MODEL_ID";
     pub const LOCAL_AI_MODEL_FILE: &str = "OCENTRA_PARENT_LOCAL_AI_MODEL_FILE";
@@ -82,6 +84,8 @@ pub mod event_id {
     pub const ACTIVITY_APP_USE_READ_MODEL_REPORTED: &str = "activity-app-use-read-model-reported";
     pub const ACTIVITY_BROWSER_READ_MODEL_REPORTED: &str = "activity-browser-read-model-reported";
     pub const ACTIVITY_GAMES_READ_MODEL_REPORTED: &str = "activity-games-read-model-reported";
+    pub const ACTIVITY_APP_GAME_BOUNDARY_READ_MODEL_REPORTED: &str =
+        "activity-app-game-boundary-read-model-reported";
     pub const ACTIVITY_NETWORK_READ_MODEL_REPORTED: &str = "activity-network-read-model-reported";
     pub const ACTIVITY_TRACKING_READ_MODEL_REPORTED: &str = "activity-tracking-read-model-reported";
     pub const BROWSER_INVENTORY_READ_MODEL_REPORTED: &str = "browser-inventory-read-model-reported";
@@ -146,7 +150,11 @@ pub mod journal {
     pub const SEGMENT_ID_PREFIX: &str = "journal-segment-";
     pub const TEST_FILE_PREFIX: &str = "ocentra-parent-journal-test-";
     pub const TEST_APPEND_SUFFIX: &str = "append";
+    pub const TEST_PROTOCOL_ROWS_SUFFIX: &str = "-protocol-rows";
+    pub const TEST_LIVE_PROCESS_SUFFIX: &str = "live-process";
+    pub const TEST_LIVE_FOREGROUND_SUFFIX: &str = "live-foreground";
     pub const TEST_REPLAY_SUFFIX: &str = "replay";
+    pub const ROTATED_EXTENSION_SEPARATOR: &str = ".";
     pub const TEST_ROTATION_SUFFIX: &str = "rotation";
     pub const TEST_TAMPER_SUFFIX: &str = "tamper";
     pub const TEST_ROTATION_BYTES: u64 = 1;

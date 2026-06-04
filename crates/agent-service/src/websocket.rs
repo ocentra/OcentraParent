@@ -6,10 +6,11 @@ use ocentra_parent_agent_protocol::{
 
 use crate::{
     activity_api::{
-        build_activity_ingest_status_report, build_activity_memory_graph_report,
-        build_activity_recent_summary_report, build_activity_tracking_read_model_report,
-        build_browser_evidence_recent_report, build_browser_intervention_read_model_report,
-        build_browser_inventory_read_model_report, build_network_flow_read_model_report,
+        build_activity_app_game_boundary_read_model_report, build_activity_ingest_status_report,
+        build_activity_memory_graph_report, build_activity_recent_summary_report,
+        build_activity_tracking_read_model_report, build_browser_evidence_recent_report,
+        build_browser_intervention_read_model_report, build_browser_inventory_read_model_report,
+        build_network_flow_read_model_report,
     },
     activity_surface_api::{
         build_activity_app_use_read_model, build_activity_browser_read_model,
@@ -180,6 +181,7 @@ async fn build_command_event(
         | AgentCommandName::AgentActivityAppUseReadModelGet
         | AgentCommandName::AgentActivityBrowserReadModelGet
         | AgentCommandName::AgentActivityGamesReadModelGet
+        | AgentCommandName::AgentActivityAppGameBoundaryReadModelGet
         | AgentCommandName::AgentActivityNetworkReadModelGet
         | AgentCommandName::AgentActivityTrackingReadModelGet => {
             build_activity_command_report(command).await
@@ -309,6 +311,9 @@ async fn build_activity_command_report(command: AgentCommandEnvelope) -> AgentEv
         }
         AgentCommandName::AgentActivityGamesReadModelGet => {
             build_activity_games_read_model(command).await
+        }
+        AgentCommandName::AgentActivityAppGameBoundaryReadModelGet => {
+            build_activity_app_game_boundary_read_model_report(command).await
         }
         AgentCommandName::AgentActivityNetworkReadModelGet => {
             build_activity_network_read_model(command).await

@@ -17,7 +17,10 @@ use crate::activity_surface_read_model_states::{
 };
 use crate::time::timestamp_now;
 
-use super::shared::{push_evidence, row_device_id, row_state};
+use super::shared::{
+    app_game_boundary_row_counts, push_app_game_boundary_evidence, push_evidence, row_device_id,
+    row_state,
+};
 use source::AppUseReadModelSource;
 
 mod source;
@@ -122,6 +125,7 @@ fn app_use_rows(
         return Vec::new();
     }
 
+    let boundary_counts = app_game_boundary_row_counts(model);
     vec![ActivityAppUseReadModelRow {
         row_id: app_row_id(inventory, running, foreground, rollup),
         app_name: app_label(inventory, running, foreground),
@@ -165,6 +169,13 @@ fn app_use_rows(
             .iter()
             .filter(|rollup| is_app_classification(&rollup.classification_state))
             .count() as u64,
+        evidence_claim_row_count: boundary_counts.evidence_claim_row_count,
+        identity_row_count: boundary_counts.identity_row_count,
+        approval_authority_row_count: boundary_counts.approval_authority_row_count,
+        approval_action_result_row_count: boundary_counts.approval_action_result_row_count,
+        platform_authority_matrix_count: boundary_counts.platform_authority_matrix_count,
+        platform_authority_row_count: boundary_counts.platform_authority_row_count,
+        ai_classifier_result_row_count: boundary_counts.ai_classifier_result_row_count,
         evidence: app_evidence(model),
     }]
 }
@@ -195,6 +206,13 @@ fn app_use_recent_row(
         running_row_count: 0,
         foreground_row_count: 0,
         daily_rollup_count: 0,
+        evidence_claim_row_count: 0,
+        identity_row_count: 0,
+        approval_authority_row_count: 0,
+        approval_action_result_row_count: 0,
+        platform_authority_matrix_count: 0,
+        platform_authority_row_count: 0,
+        ai_classifier_result_row_count: 0,
         evidence: Vec::new(),
     }
 }
@@ -330,5 +348,6 @@ fn app_evidence(model: &AppGameServiceReadModel) -> Vec<ActivityEvidenceRef> {
     {
         push_evidence(&mut evidence, &row.evidence);
     }
+    push_app_game_boundary_evidence(&mut evidence, model);
     evidence
 }
