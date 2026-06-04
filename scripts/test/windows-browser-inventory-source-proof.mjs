@@ -1,10 +1,11 @@
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
+import { mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { basename, dirname, extname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const resultPath = join(root, 'test-results', 'windows-browser-inventory-source-proof', 'proof.json');
+const browserNameHints = ['edge', 'chrome', 'brave', 'firefox', 'opera', 'vivaldi'];
 const proofPackPath = join(
   root,
   'output',
@@ -66,6 +67,7 @@ const sourceChecks = [
 const results = commands.map(runCommand);
 const checks = sourceChecks.map(checkSource);
 const passed = results.every((result) => result.status === 0) && checks.every((check) => check.ok);
+const liveHostEvidence = captureLiveHostEvidence();
 
 const proof = {
   proofId: 'windows-browser-inventory-source-proof',
@@ -74,6 +76,7 @@ const proof = {
   passed,
   commands: results,
   sourceChecks: checks,
+  liveHostEvidence,
   claims: {
     registrySource:
       'bounded Windows Uninstall registry source feeds known browser executable candidates when available',
@@ -130,6 +133,134 @@ function checkSource(entry) {
     ok: missing.length === 0,
     missing,
   };
+}
+
+function captureLiveHostEvidence() {
+  if (process.platform !== 'win32') {
+    return {
+      platform: process.platform,
+      captured: false,
+      reason: 'non-windows-host',
+    };
+  }
+  return {
+    platform: process.platform,
+    captured: true,
+    registry: captureRegistryEvidence(),
+    startMenu: captureStartMenuEvidence(),
+    privacyBoundary: 'counts and booleans only; executable and shortcut paths are not written',
+  };
+}
+
+function captureRegistryEvidence() {
+  const script = `
+$roots = @(
+  'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*',
+  'HKLM:\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*',
+  'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*'
+)
+$items = @()
+$rootsReadable = 0
+foreach ($root in $roots) {
+  $batch = @(Get-ItemProperty -Path $root -ErrorAction SilentlyContinue)
+  if ($batch.Count -gt 0) { $rootsReadable += 1 }
+  $items += $batch
+}
+$browserPattern = '(?i)(msedge|chrome|brave|firefox|opera|vivaldi)\\.exe|microsoft edge|google chrome|brave|firefox|opera|vivaldi'
+$browserItems = @($items | Where-Object {
+  (@($_.DisplayName, $_.DisplayIcon, $_.InstallLocation) -join ' ') -match $browserPattern
+})
+$displayIconItems = @($browserItems | Where-Object { $_.DisplayIcon })
+$installLocationItems = @($browserItems | Where-Object { $_.InstallLocation })
+[pscustomobject]@{
+  rootsChecked = $roots.Count
+  rootsReadable = $rootsReadable
+  entriesScanned = $items.Count
+  browserLikeEntries = $browserItems.Count
+  browserLikeDisplayIconEntries = $displayIconItems.Count
+  browserLikeInstallLocationEntries = $installLocationItems.Count
+  rawPathsRedacted = $true
+} | ConvertTo-Json -Compress
+`;
+  return runPowerShellJson(script);
+}
+
+function captureStartMenuEvidence() {
+  const roots = [process.env.PROGRAMDATA, process.env.APPDATA]
+    .filter(Boolean)
+    .map((envRoot) => join(envRoot, 'Microsoft', 'Windows', 'Start Menu', 'Programs'));
+  const summary = {
+    rootsChecked: roots.length,
+    rootsReadable: 0,
+    shortcutFiles: 0,
+    browserNamedShortcutFiles: 0,
+    rawPathsRedacted: true,
+  };
+  for (const rootPath of roots) {
+    const rootCounts = countShortcutFiles(rootPath);
+    if (rootCounts.readable) {
+      summary.rootsReadable += 1;
+    }
+    summary.shortcutFiles += rootCounts.shortcutFiles;
+    summary.browserNamedShortcutFiles += rootCounts.browserNamedShortcutFiles;
+  }
+  return summary;
+}
+
+function countShortcutFiles(rootPath) {
+  const counts = {
+    readable: false,
+    shortcutFiles: 0,
+    browserNamedShortcutFiles: 0,
+  };
+  try {
+    for (const entry of readdirSync(rootPath)) {
+      const path = join(rootPath, entry);
+      const stats = statSync(path);
+      if (stats.isDirectory()) {
+        const nested = countShortcutFiles(path);
+        counts.shortcutFiles += nested.shortcutFiles;
+        counts.browserNamedShortcutFiles += nested.browserNamedShortcutFiles;
+      } else if (extname(entry).toLowerCase() === '.lnk') {
+        counts.shortcutFiles += 1;
+        if (browserNameHints.some((hint) => basename(entry).toLowerCase().includes(hint))) {
+          counts.browserNamedShortcutFiles += 1;
+        }
+      }
+    }
+    counts.readable = true;
+  } catch {
+    counts.readable = false;
+  }
+  return counts;
+}
+
+function runPowerShellJson(script) {
+  const result = spawnSync('powershell.exe', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', script], {
+    cwd: root,
+    encoding: 'utf8',
+  });
+  if (result.status !== 0) {
+    return {
+      ok: false,
+      status: result.status,
+      stderrLineCount: tail(result.stderr).length,
+      rawPathsRedacted: true,
+    };
+  }
+  try {
+    return {
+      ok: true,
+      ...JSON.parse(result.stdout),
+    };
+  } catch {
+    return {
+      ok: false,
+      status: result.status,
+      parseFailed: true,
+      rawPathsRedacted: true,
+    };
+  }
 }
 
 function tail(value) {

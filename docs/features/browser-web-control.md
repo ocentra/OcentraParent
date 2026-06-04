@@ -121,6 +121,11 @@ control while being more honest about managed versus unmanaged sources.
   claim-boundary-honest and still does not claim full shell `.lnk` parsing,
   AppX/MSIX enumeration, signature/hash extraction, portal UI, enforcement, or
   product-complete manual Windows inventory evidence.
+- WP04 proof JSON now records path-redacted live Windows source counts from the
+  D lane host: 3 readable registry roots, 958 scanned uninstall entries, 6
+  browser-like registry entries, 2 readable Start Menu roots, 270 shortcut
+  files, and 5 browser-named shortcuts. Raw executable and shortcut paths are
+  not written.
 - Browser-plan WP14 now surfaces the browser inventory read model in the parent
   portal route through service-backed inventory, exact URL capability, active-tab
   proof, and unmanaged fallback rows. The visible route shows inventory, exact

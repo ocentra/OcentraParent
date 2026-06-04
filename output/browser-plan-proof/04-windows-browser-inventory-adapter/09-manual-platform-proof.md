@@ -27,6 +27,12 @@ test is host-aware: if live registry rows are present, every returned row must
 still pass `claim_boundary_is_honest`, and the temp Edge fixture remains exact
 URL unavailable.
 
+The proof JSON includes redacted live host evidence counts rather than
+fabricated proof pages: 3 Windows registry roots readable, 958 uninstall
+entries scanned, 6 browser-like registry entries found, 2 Start Menu roots
+readable, 270 shortcut files scanned, and 5 browser-named shortcuts found. Raw
+registry paths, executable paths, and shortcut paths are not written.
+
 A later pass must capture product-complete Windows version and installed
 browser evidence, full shell `.lnk` parser artifacts beyond known executable
 target extraction, live AppX/MSIX inputs, redacted executable refs,

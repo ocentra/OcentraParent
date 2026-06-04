@@ -42,6 +42,11 @@
   before process observations. Focused proof covers UTF-16 `.lnk` target
   extraction, host-aware service rows when live registry rows are present, and
   claim-boundary honesty for every returned row.
+- 2026-06-04 live host proof refinement: the generated proof JSON now includes
+  redacted Windows host-source counts from this machine. It scanned 3 registry
+  roots with 958 uninstall entries and 6 browser-like entries, and it scanned 2
+  Start Menu roots with 270 shortcut files and 5 browser-named shortcuts. Raw
+  executable and shortcut paths are intentionally not written.
 - Not claimed: full shell `.lnk` parsing, live AppX/MSIX enumeration,
   signature/hash refs, product-complete Windows manual inventory capture,
   portal display, URL visibility, or app-control blocking.
