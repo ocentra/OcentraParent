@@ -104,6 +104,10 @@ compete on control while staying clear about attribution confidence and privacy.
   CDN/process hints remain browser-confirmation-required, and matching browser
   confirmation can promote a candidate without network-only exact URL or
   decrypted-content claims.
+- E-D added deterministic VPN/proxy/Tor/tunnel indicator classification in
+  `ocentra-network-evidence`: adapter, proxy-port, Tor, and tunnel-protocol
+  indicators produce candidate labels while encrypted-DNS-only evidence remains a
+  negative tunnel proof and hidden destinations stay unclaimed.
 - E-D added Rust protocol-facing network/AI/policy/enforcement/audit/portal
   event contracts in `crates/agent-protocol`. The proof serializes exact
   chain refs, no exact URL/content claim boundaries, policy-decision-gated
@@ -155,11 +159,14 @@ apply/rollback artifacts remain open.
 - [x] Flow summary and flow-evidence contracts.
 - [x] Domain/IP/protocol/process attribution status contracts.
 - [ ] VPN/proxy/tunnel indicators where available.
+      Deterministic indicator classification now exists for VPN adapter,
+      proxy-port, Tor, and tunnel-protocol candidates, with encrypted-DNS-only
+      negative proof and no hidden-destination claim.
 - [ ] Network category/risk targets.
       Domain normalization, public-suffix, and source-custody category
       intelligence proof now exist, along with deterministic
-      social/video/game/cloud-gaming classifier candidates. VPN/proxy/tunnel,
-      broader anomaly/risk targets, and policy handoff remain open.
+      social/video/game/cloud-gaming classifier candidates. Broader anomaly/risk
+      targets and policy handoff remain open.
 - [ ] PCAP fixture, Zeek-style summary, and Suricata/Snort-compatible alert
       proof.
       First deterministic DNS query PCAP replay, packet/DNS parser fixtures,
