@@ -10,6 +10,7 @@ use ocentra_parent_agent_protocol::{
 };
 
 use crate::{
+    activity_api::browser_inventory_read_model_from_service_defaults,
     browser_inventory_read_model::{
         browser_inventory_read_model_from_status,
         browser_inventory_read_model_from_windows_inventory,
@@ -166,6 +167,55 @@ async fn browser_inventory_read_model_command_reports_replayable_service_event()
     assert_eq!(event.payload.get(constants::field::ACTIVE_STATE), None);
 }
 
+#[tokio::test]
+async fn browser_inventory_service_default_roots_feed_windows_inventory_without_url_claims() {
+    let _guard = crate::activity_report_env_lock::REPORT_ENV_LOCK
+        .lock()
+        .await;
+    let root = temp_service_inventory_root();
+    let edge = root
+        .join(constants::browser::PATH_SEGMENT_MICROSOFT)
+        .join(constants::browser::PATH_SEGMENT_EDGE)
+        .join(constants::browser::PATH_SEGMENT_APPLICATION)
+        .join(constants::browser::EXECUTABLE_MSEDGE_WINDOWS);
+    create_executable_fixture(&edge);
+    let previous_program_files = std::env::var_os(constants::env_var::PROGRAM_FILES);
+    let previous_program_files_x86 = std::env::var_os(constants::env_var::PROGRAM_FILES_X86);
+    let previous_local_app_data = std::env::var_os(constants::env_var::LOCAL_APP_DATA);
+    std::env::set_var(constants::env_var::PROGRAM_FILES, &root);
+    std::env::remove_var(constants::env_var::PROGRAM_FILES_X86);
+    std::env::remove_var(constants::env_var::LOCAL_APP_DATA);
+
+    let read_model = browser_inventory_read_model_from_service_defaults(
+        constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
+        Vec::new(),
+    );
+
+    restore_env_var(constants::env_var::PROGRAM_FILES, previous_program_files);
+    restore_env_var(
+        constants::env_var::PROGRAM_FILES_X86,
+        previous_program_files_x86,
+    );
+    restore_env_var(constants::env_var::LOCAL_APP_DATA, previous_local_app_data);
+    let _ = std::fs::remove_dir_all(root);
+    assert_eq!(read_model.returned, 1);
+    let row = &read_model.rows[0];
+
+    assert!(row.claim_boundary_is_honest());
+    assert_eq!(
+        row.product_name,
+        constants::browser::PRODUCT_NAME_MICROSOFT_EDGE
+    );
+    assert_eq!(row.browser_family, BrowserFamily::Edge);
+    assert_eq!(row.install_state, BrowserInventoryInstallState::Installed);
+    assert_eq!(row.management_tier, BrowserManagementTier::Managed);
+    assert_eq!(
+        row.exact_url_capability,
+        BrowserExactUrlCapability::Unavailable
+    );
+    assert_eq!(row.process_id, None);
+}
+
 fn inventory_command() -> AgentCommandEnvelope {
     AgentCommandEnvelope {
         schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
@@ -199,5 +249,30 @@ fn unmanaged_process_observation() -> BrowserUnmanagedProcessObservation {
         process_kind: BrowserUnmanagedProcessKind::SupportedBrowser,
         detection_confidence: BrowserUnmanagedDetectionConfidence::High,
         detection_reason: BrowserUnmanagedDetectionReason::SupportedBrowserOutsideManagedSession,
+    }
+}
+
+fn temp_service_inventory_root() -> std::path::PathBuf {
+    let root = std::env::temp_dir()
+        .join(constants::browser::DEVTOOLS_TEST_WINDOWS_BROWSER_INVENTORY_DIR)
+        .join(std::process::id().to_string())
+        .join(constants::browser::PATH_SEGMENT_DEFAULT);
+    let _ = std::fs::remove_dir_all(&root);
+    root
+}
+
+fn create_executable_fixture(path: &std::path::PathBuf) {
+    std::fs::create_dir_all(
+        path.parent()
+            .expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET),
+    )
+    .expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET);
+    std::fs::write(path, []).expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET);
+}
+
+fn restore_env_var(name: &str, value: Option<std::ffi::OsString>) {
+    match value {
+        Some(previous) => std::env::set_var(name, previous),
+        None => std::env::remove_var(name),
     }
 }

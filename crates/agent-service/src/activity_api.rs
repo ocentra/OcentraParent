@@ -1,6 +1,6 @@
 use ocentra_parent_agent_core::{
     collect_process_snapshot, tracking_read_model_for_store,
-    windows_browser_inventory_observations, ActivityStore,
+    windows_browser_inventory_observations, ActivityStore, ProcessObservation,
 };
 use ocentra_parent_agent_protocol::{
     constants, ActivityIngestStatus, ActivityRecentSummary, AgentCommandEnvelope,
@@ -16,6 +16,7 @@ use crate::{
     browser_evidence_payload::browser_evidence_read_model_payload,
     browser_inventory_read_model::browser_inventory_read_model_from_windows_inventory,
     browser_payload::browser_inventory_read_model_payload,
+    browser_runtime_paths::system_browser_candidate_paths,
     event_builder::build_event,
     time::timestamp_now,
     tracking_read_model_payload::tracking_read_model_payload,
@@ -154,13 +155,22 @@ async fn load_browser_inventory_read_model() -> BrowserInventoryReadModel {
     tokio::task::spawn_blocking(move || {
         let process_observations =
             collect_process_snapshot(constants::browser::PROCESS_SCAN_LIMIT_BROWSER_DISCOVERY);
-        let observations = windows_browser_inventory_observations(&[], &process_observations, None);
-        browser_inventory_read_model_from_windows_inventory(generated_at, &observations)
+        browser_inventory_read_model_from_service_defaults(generated_at, process_observations)
     })
     .await
     .unwrap_or_else(|_| {
         browser_inventory_read_model_from_windows_inventory(fallback_generated_at, &[])
     })
+}
+
+pub(crate) fn browser_inventory_read_model_from_service_defaults(
+    generated_at: String,
+    process_observations: Vec<ProcessObservation>,
+) -> BrowserInventoryReadModel {
+    let candidate_paths = system_browser_candidate_paths();
+    let observations =
+        windows_browser_inventory_observations(&candidate_paths, &process_observations, None);
+    browser_inventory_read_model_from_windows_inventory(generated_at, &observations)
 }
 
 async fn load_activity_ingest_status() -> Option<ActivityIngestStatus> {

@@ -103,6 +103,11 @@ control while being more honest about managed versus unmanaged sources.
   keeps managed, unmanaged, active-tab, exact-URL, stale, degraded, and custody
   labels separate; it does not upgrade portal UI, SQLite inventory storage, or
   real browser/platform proof claims.
+- Browser-plan WP04 default-root service proof now feeds the service inventory
+  read-model scan with default Windows candidate roots before process
+  observations. Fixture proof shows a default-root Edge install becomes a
+  managed candidate row with exact URL still unavailable, without live registry,
+  Start Menu, `.lnk`, AppX/MSIX, signature, UI, or enforcement claims.
 - Browser-plan WP14 now surfaces the browser inventory read model in the parent
   portal route through service-backed inventory, exact URL capability, active-tab
   proof, and unmanaged fallback rows. The visible route shows inventory, exact
