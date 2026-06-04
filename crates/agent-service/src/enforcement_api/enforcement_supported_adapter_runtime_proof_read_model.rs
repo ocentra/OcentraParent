@@ -20,6 +20,9 @@ pub(crate) fn v08_supported_adapter_runtime_proof_read_model(
             proof::SOURCE_POLICY_DISPATCH_PROOF.to_string(),
             proof::SOURCE_PRODUCT_CONTROL_PROOF.to_string(),
             proof::SOURCE_NETWORK_FLOW_EVIDENCE.to_string(),
+            proof::SOURCE_WINDOWS_ADAPTER_CAPABILITY_PROOF.to_string(),
+            proof::SOURCE_WINDOWS_ADAPTER_ARTIFACT_GATE.to_string(),
+            proof::SOURCE_WINDOWS_ADAPTER_ARTIFACT_INGESTION_PROOF.to_string(),
         ],
         entries: entry_specs()
             .iter()
@@ -73,9 +76,40 @@ struct ManualSpecInput {
 }
 
 fn entry_specs() -> Vec<EntrySpec> {
-    vec![
-        app_game_timer_spec(),
-        network_observe_spec(),
+    let mut specs = vec![app_game_timer_spec(), network_observe_spec()];
+    specs.extend(manual_gate_specs());
+    specs.extend(artifact_status_specs());
+    specs.extend([
+        exact_active_tab_not_claimed_spec(),
+        permission_dependency_degraded_spec(),
+        unavailable_spec(),
+        unsupported_spec(),
+        mobile_manual_spec(
+            proof::ENTRY_ID_ANDROID_MANUAL,
+            V08SupportedAdapterRuntimeBoundary::AndroidMobileControlManualGate,
+            ParentPlatform::Android,
+            &[
+                proof::REQUIREMENT_ANDROID_DEVICE_OWNER,
+                proof::REQUIREMENT_ANDROID_USAGE_STATS,
+                proof::REQUIREMENT_ANDROID_ACCESSIBILITY_VPN_DNS,
+            ],
+        ),
+        mobile_manual_spec(
+            proof::ENTRY_ID_IOS_MANUAL,
+            V08SupportedAdapterRuntimeBoundary::IosMobileControlManualGate,
+            ParentPlatform::Ios,
+            &[
+                proof::REQUIREMENT_IOS_FAMILY_CONTROLS,
+                proof::REQUIREMENT_IOS_DEVICE_ACTIVITY,
+                proof::REQUIREMENT_IOS_NETWORK_EXTENSION,
+            ],
+        ),
+    ]);
+    specs
+}
+
+fn manual_gate_specs() -> [EntrySpec; 2] {
+    [
         manual_spec(ManualSpecInput {
             proof_entry_id: proof::ENTRY_ID_BROAD_APP_MANUAL,
             runtime_boundary:
@@ -109,30 +143,53 @@ fn entry_specs() -> Vec<EntrySpec> {
             claim_boundary: proof::CLAIM_HOST_NETWORK_MANUAL,
             fallback_behavior: proof::FALLBACK_HOST_NETWORK_MANUAL,
         }),
-        exact_active_tab_not_claimed_spec(),
-        permission_dependency_degraded_spec(),
-        unavailable_spec(),
-        unsupported_spec(),
-        mobile_manual_spec(
-            proof::ENTRY_ID_ANDROID_MANUAL,
-            V08SupportedAdapterRuntimeBoundary::AndroidMobileControlManualGate,
-            ParentPlatform::Android,
-            &[
-                proof::REQUIREMENT_ANDROID_DEVICE_OWNER,
-                proof::REQUIREMENT_ANDROID_USAGE_STATS,
-                proof::REQUIREMENT_ANDROID_ACCESSIBILITY_VPN_DNS,
+    ]
+}
+
+fn artifact_status_specs() -> [EntrySpec; 3] {
+    [
+        artifact_status_spec(ArtifactStatusSpecInput {
+            proof_entry_id: proof::ENTRY_ID_BROAD_APP_ARTIFACT_STATUS,
+            runtime_boundary:
+                V08SupportedAdapterRuntimeBoundary::WindowsBroadInstalledAppArtifactStatus,
+            adapter_capability: V08SupportedAdapterCapability::BroadInstalledAppArtifactStatus,
+            manual_proof_requirements: &[
+                proof::REQUIREMENT_SAME_IDENTITY_APP_PACKAGE_EVIDENCE,
+                proof::REQUIREMENT_ADAPTER_APPLY_RESULT,
+                proof::REQUIREMENT_ADAPTER_ROLLBACK_RESULT,
+                proof::REQUIREMENT_AUDIT_CUSTODY_EVENT,
+                proof::REQUIREMENT_MANUAL_REVIEW_AFTER_ARTIFACT_GATE,
             ],
-        ),
-        mobile_manual_spec(
-            proof::ENTRY_ID_IOS_MANUAL,
-            V08SupportedAdapterRuntimeBoundary::IosMobileControlManualGate,
-            ParentPlatform::Ios,
-            &[
-                proof::REQUIREMENT_IOS_FAMILY_CONTROLS,
-                proof::REQUIREMENT_IOS_DEVICE_ACTIVITY,
-                proof::REQUIREMENT_IOS_NETWORK_EXTENSION,
+            claim_boundary: proof::CLAIM_BROAD_APP_ARTIFACT_STATUS,
+            fallback_behavior: proof::FALLBACK_BROAD_APP_ARTIFACT_STATUS,
+        }),
+        artifact_status_spec(ArtifactStatusSpecInput {
+            proof_entry_id: proof::ENTRY_ID_HOST_NETWORK_ARTIFACT_STATUS,
+            runtime_boundary:
+                V08SupportedAdapterRuntimeBoundary::WindowsHostNetworkDomainArtifactStatus,
+            adapter_capability: V08SupportedAdapterCapability::HostNetworkDomainArtifactStatus,
+            manual_proof_requirements: &[
+                proof::REQUIREMENT_HOST_DNS_OR_FILTER_APPLY,
+                proof::REQUIREMENT_NETWORK_FILTER_ROLLBACK,
+                proof::REQUIREMENT_AUDIT_CUSTODY_EVENT,
+                proof::REQUIREMENT_MANUAL_REVIEW_AFTER_ARTIFACT_GATE,
             ],
-        ),
+            claim_boundary: proof::CLAIM_HOST_NETWORK_ARTIFACT_STATUS,
+            fallback_behavior: proof::FALLBACK_HOST_NETWORK_ARTIFACT_STATUS,
+        }),
+        artifact_status_spec(ArtifactStatusSpecInput {
+            proof_entry_id: proof::ENTRY_ID_MANAGED_BROWSER_ARTIFACT_STATUS,
+            runtime_boundary:
+                V08SupportedAdapterRuntimeBoundary::WindowsManagedBrowserArtifactStatus,
+            adapter_capability: V08SupportedAdapterCapability::ManagedBrowserArtifactStatus,
+            manual_proof_requirements: &[
+                proof::REQUIREMENT_MANAGED_BROWSER_EXACT_URL_EVIDENCE,
+                proof::REQUIREMENT_AUDIT_CUSTODY_EVENT,
+                proof::REQUIREMENT_MANUAL_REVIEW_AFTER_ARTIFACT_GATE,
+            ],
+            claim_boundary: proof::CLAIM_MANAGED_BROWSER_ARTIFACT_STATUS,
+            fallback_behavior: proof::FALLBACK_MANAGED_BROWSER_ARTIFACT_STATUS,
+        }),
     ]
 }
 
@@ -290,6 +347,48 @@ fn unsupported_spec() -> EntrySpec {
         ],
         claim_boundary: proof::CLAIM_MACOS_UNSUPPORTED,
         fallback_behavior: proof::FALLBACK_MACOS_UNSUPPORTED,
+    }
+}
+
+struct ArtifactStatusSpecInput {
+    proof_entry_id: &'static str,
+    runtime_boundary: V08SupportedAdapterRuntimeBoundary,
+    adapter_capability: V08SupportedAdapterCapability,
+    manual_proof_requirements: &'static [&'static str],
+    claim_boundary: &'static str,
+    fallback_behavior: &'static str,
+}
+
+fn artifact_status_spec(input: ArtifactStatusSpecInput) -> EntrySpec {
+    EntrySpec {
+        proof_entry_id: input.proof_entry_id,
+        runtime_boundary: input.runtime_boundary,
+        platform: ParentPlatform::Windows,
+        adapter_capability: input.adapter_capability,
+        runtime_state: V08SupportedAdapterRuntimeState::ManualRequired,
+        adapter_result: V08SupportedAdapterResult::ManualProofRequired,
+        platform_support_state: V08SupportedAdapterPlatformSupportState::ManualRequired,
+        target_identity_state: V08SupportedAdapterTargetIdentityState::InsufficientForBroadTarget,
+        rollback_reference_state: V08SupportedAdapterRollbackReferenceState::ManualRequired,
+        audit_reference_state: V08SupportedAdapterAuditReferenceState::ManualRequired,
+        refusal_reason: V08SupportedAdapterRefusalReason::ManualArtifactRequired,
+        evidence_refs: &[
+            proof::REF_WINDOWS_ADAPTER_ARTIFACT_GATE,
+            proof::REF_WINDOWS_ADAPTER_ARTIFACT_INGESTION,
+        ],
+        linked_proof_commands: &[
+            proof::COMMAND_WINDOWS_ADAPTER_CAPABILITY_PROOF,
+            proof::COMMAND_WINDOWS_ADAPTER_ARTIFACT_GATE,
+            proof::COMMAND_WINDOWS_ADAPTER_ARTIFACT_INGESTION_PROOF,
+        ],
+        linked_proof_artifacts: &[
+            proof::ARTIFACT_WINDOWS_ADAPTER_CAPABILITY_PROOF,
+            proof::ARTIFACT_WINDOWS_ADAPTER_ARTIFACT_GATE,
+            proof::ARTIFACT_WINDOWS_ADAPTER_ARTIFACT_INGESTION_PROOF,
+        ],
+        manual_proof_requirements: input.manual_proof_requirements,
+        claim_boundary: input.claim_boundary,
+        fallback_behavior: input.fallback_behavior,
     }
 }
 

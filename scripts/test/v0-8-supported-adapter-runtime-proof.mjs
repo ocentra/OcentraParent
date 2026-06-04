@@ -79,8 +79,9 @@ async function main() {
     counts: summary,
     claimsProved: [
       'Supported adapter runtime proof is contract-backed across TypeScript and Rust protocol structs',
-      'Service WebSocket command returns a ten-entry supported adapter proof read model',
+      'Service WebSocket command returns a 13-entry supported adapter proof read model',
       'Windows app/game owned-process time-limit and Windows network observe-only policy handoff are implemented-boundary',
+      'Windows app, network/domain, and managed-browser artifact status rows link capability, gate, and ingestion proof without claim upgrades',
       'Broad installed-app blocking, host network/domain blocking, mobile control, and exact active-tab enforcement remain gated',
       'Linux support is unavailable, macOS support is unsupported, and permission/dependency loss is degraded',
       'No broad app, network/domain, exact active-tab, notification, tamper, mobile, or unsupported-platform claim flag is upgraded',
@@ -121,14 +122,14 @@ function summarizeReadModel(readModel) {
 
 function assertReadModel(readModel, summary) {
   assertEqual(readModel.readModelId, 'v0-8-supported-adapter-runtime-proof', 'read model id');
-  assertEqual(summary.entries, 10, 'entry count');
-  assertEqual(summary.byPlatform.windows, 6, 'Windows entry count');
+  assertEqual(summary.entries, 13, 'entry count');
+  assertEqual(summary.byPlatform.windows, 9, 'Windows entry count');
   assertEqual(summary.byPlatform.linux, 1, 'Linux entry count');
   assertEqual(summary.byPlatform.macos, 1, 'macOS entry count');
   assertEqual(summary.byPlatform.android, 1, 'Android entry count');
   assertEqual(summary.byPlatform.ios, 1, 'iOS entry count');
   assertEqual(summary.byRuntimeState['implemented-boundary'], 2, 'implemented-boundary count');
-  assertEqual(summary.byRuntimeState['manual-required'], 4, 'manual-required count');
+  assertEqual(summary.byRuntimeState['manual-required'], 7, 'manual-required count');
   assertEqual(summary.byRuntimeState['not-claimed'], 1, 'not-claimed count');
   assertEqual(summary.byRuntimeState.degraded, 1, 'degraded count');
   assertEqual(summary.byRuntimeState.unavailable, 1, 'unavailable count');
@@ -146,6 +147,9 @@ function assertReadModel(readModel, summary) {
     'v0-8-enforcement-policy-dispatch-proof',
     'v0-8-enforcement-product-control-spine',
     'network-flow-read-model',
+    'v0-8-windows-adapter-capability-proof',
+    'v0-8-windows-adapter-artifact-gate',
+    'v0-8-windows-adapter-artifact-ingestion-proof',
   ]) {
     assertSetHas(new Set(readModel.sourceReadModelIds), sourceReadModelId, 'source read model ids');
   }
@@ -166,6 +170,18 @@ function assertReadModel(readModel, summary) {
     runtimeState: 'manual-required',
     adapterResult: 'manual-proof-required',
   });
+  assertEntry(readModel, 'windows-broad-installed-app-artifact-status', {
+    runtimeState: 'manual-required',
+    adapterResult: 'manual-proof-required',
+  });
+  assertEntry(readModel, 'windows-host-network-domain-artifact-status', {
+    runtimeState: 'manual-required',
+    adapterResult: 'manual-proof-required',
+  });
+  assertEntry(readModel, 'windows-managed-browser-artifact-status', {
+    runtimeState: 'manual-required',
+    adapterResult: 'manual-proof-required',
+  });
   assertEntry(readModel, 'windows-managed-exact-active-tab-not-claimed', {
     runtimeState: 'not-claimed',
     adapterResult: 'not-claimed',
@@ -181,6 +197,7 @@ function assertReadModel(readModel, summary) {
 
   proofLabels.push('v0.8.supported-adapter-runtime-proof.service-command');
   proofLabels.push('v0.8.supported-adapter-runtime-proof.runtime-read-model');
+  proofLabels.push('v0.8.supported-adapter-runtime-proof.windows-artifact-status');
   proofLabels.push('v0.8.supported-adapter-runtime-proof.supported-boundaries');
   proofLabels.push('v0.8.supported-adapter-runtime-proof.no-claim-upgrade');
   proofLabels.push('v0.8.supported-adapter-runtime-proof.platform-boundaries');

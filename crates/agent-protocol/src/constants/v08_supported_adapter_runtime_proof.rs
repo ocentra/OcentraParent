@@ -4,6 +4,11 @@ pub const ENTRY_ID_APP_GAME_TIMER: &str = "windows-app-game-owned-process-time-l
 pub const ENTRY_ID_NETWORK_OBSERVE: &str = "windows-network-flow-observe-policy-handoff";
 pub const ENTRY_ID_BROAD_APP_MANUAL: &str = "windows-broad-installed-app-blocking-manual-gate";
 pub const ENTRY_ID_HOST_NETWORK_MANUAL: &str = "windows-host-network-domain-blocking-manual-gate";
+pub const ENTRY_ID_BROAD_APP_ARTIFACT_STATUS: &str = "windows-broad-installed-app-artifact-status";
+pub const ENTRY_ID_HOST_NETWORK_ARTIFACT_STATUS: &str =
+    "windows-host-network-domain-artifact-status";
+pub const ENTRY_ID_MANAGED_BROWSER_ARTIFACT_STATUS: &str =
+    "windows-managed-browser-artifact-status";
 pub const ENTRY_ID_EXACT_ACTIVE_TAB_NOT_CLAIMED: &str =
     "windows-managed-exact-active-tab-not-claimed";
 pub const ENTRY_ID_PERMISSION_DEGRADED: &str = "windows-adapter-permission-dependency-degraded";
@@ -16,6 +21,9 @@ pub const CAPABILITY_APP_GAME_TIMER: &str = "app-game-owned-process-time-limit";
 pub const CAPABILITY_NETWORK_OBSERVE: &str = "network-flow-observe-policy-handoff";
 pub const CAPABILITY_BROAD_APP_BLOCKING: &str = "broad-installed-app-blocking";
 pub const CAPABILITY_HOST_NETWORK_BLOCKING: &str = "host-network-domain-blocking";
+pub const CAPABILITY_BROAD_APP_ARTIFACT_STATUS: &str = "broad-installed-app-artifact-status";
+pub const CAPABILITY_HOST_NETWORK_ARTIFACT_STATUS: &str = "host-network-domain-artifact-status";
+pub const CAPABILITY_MANAGED_BROWSER_ARTIFACT_STATUS: &str = "managed-browser-artifact-status";
 pub const CAPABILITY_MANAGED_EXACT_ACTIVE_TAB: &str = "managed-exact-active-tab-enforcement";
 pub const CAPABILITY_PERMISSION_DEPENDENCY: &str = "adapter-permission-dependency";
 pub const CAPABILITY_DESKTOP_HOST: &str = "desktop-host-platform-adapter";
@@ -69,6 +77,10 @@ pub const SOURCE_BROAD_ADAPTER_PROOF: &str = "v0-8-broad-os-adapter-runtime-proo
 pub const SOURCE_POLICY_DISPATCH_PROOF: &str = "v0-8-enforcement-policy-dispatch-proof";
 pub const SOURCE_PRODUCT_CONTROL_PROOF: &str = "v0-8-enforcement-product-control-spine";
 pub const SOURCE_NETWORK_FLOW_EVIDENCE: &str = "network-flow-read-model";
+pub const SOURCE_WINDOWS_ADAPTER_CAPABILITY_PROOF: &str = "v0-8-windows-adapter-capability-proof";
+pub const SOURCE_WINDOWS_ADAPTER_ARTIFACT_GATE: &str = "v0-8-windows-adapter-artifact-gate";
+pub const SOURCE_WINDOWS_ADAPTER_ARTIFACT_INGESTION_PROOF: &str =
+    "v0-8-windows-adapter-artifact-ingestion-proof";
 
 pub const COMMAND_APP_TIME_LIMIT_ADAPTER: &str =
     "node scripts/test/v0-8-windows-app-time-limit-adapter-mvp.mjs";
@@ -82,6 +94,10 @@ pub const COMMAND_BROWSER_DOMAIN_ADAPTER_PROOF: &str =
     "node scripts/test/v0-8-browser-domain-adapter-proof.mjs";
 pub const COMMAND_WINDOWS_ADAPTER_CAPABILITY_PROOF: &str =
     "node scripts/test/v0-8-windows-adapter-capability-proof.mjs";
+pub const COMMAND_WINDOWS_ADAPTER_ARTIFACT_GATE: &str =
+    "node scripts/test/v0-8-windows-adapter-artifact-gate.mjs";
+pub const COMMAND_WINDOWS_ADAPTER_ARTIFACT_INGESTION_PROOF: &str =
+    "node scripts/test/v0-8-windows-adapter-artifact-ingestion-proof.mjs";
 
 pub const ARTIFACT_APP_TIME_LIMIT_PROOF: &str =
     "test-results/v0-8-windows-app-time-limit-adapter-mvp/proof.json";
@@ -94,6 +110,10 @@ pub const ARTIFACT_BROWSER_DOMAIN_ADAPTER_PROOF: &str =
     "test-results/v0-8-browser-domain-adapter-proof/proof.json";
 pub const ARTIFACT_WINDOWS_ADAPTER_CAPABILITY_PROOF: &str =
     "test-results/v0-8-windows-adapter-capability-proof/proof.json";
+pub const ARTIFACT_WINDOWS_ADAPTER_ARTIFACT_GATE: &str =
+    "test-results/v0-8-windows-adapter-artifact-gate/proof.json";
+pub const ARTIFACT_WINDOWS_ADAPTER_ARTIFACT_INGESTION_PROOF: &str =
+    "test-results/v0-8-windows-adapter-artifact-ingestion-proof/proof.json";
 
 pub const REF_APP_SESSION_EVIDENCE: &str = "app-game-session-evidence-ref";
 pub const REF_OWNED_PROCESS_IDENTITY: &str = "owned-process-identity-ref";
@@ -102,6 +122,8 @@ pub const REF_NETWORK_FLOW_SUMMARY: &str = "network-flow-summary-ref";
 pub const REF_DOMAIN_ATTRIBUTION_STATE: &str = "domain-attribution-state-ref";
 pub const REF_POLICY_PREVIEW: &str = "policy-preview-ref";
 pub const REF_ADAPTER_CAPABILITY_STATE: &str = "adapter-capability-state-ref";
+pub const REF_WINDOWS_ADAPTER_ARTIFACT_GATE: &str = "windows-adapter-artifact-gate-ref";
+pub const REF_WINDOWS_ADAPTER_ARTIFACT_INGESTION: &str = "windows-adapter-artifact-ingestion-ref";
 
 pub const REQUIREMENT_SAME_APP_IDENTITY: &str = "same app identity proof";
 pub const REQUIREMENT_HOST_BLOCK_APPLY: &str = "host block apply artifact";
@@ -110,6 +132,15 @@ pub const REQUIREMENT_AUDIT_CUSTODY: &str = "audit custody artifact";
 pub const REQUIREMENT_HOST_DNS_OR_FILTER_APPLY: &str = "host DNS or filter apply artifact";
 pub const REQUIREMENT_MANAGED_ACTIVE_TAB: &str = "managed active-tab evidence artifact";
 pub const REQUIREMENT_EXACT_URL_APPLY: &str = "exact URL apply artifact";
+pub const REQUIREMENT_SAME_IDENTITY_APP_PACKAGE_EVIDENCE: &str =
+    "same-identity app package evidence";
+pub const REQUIREMENT_ADAPTER_APPLY_RESULT: &str = "adapter apply result";
+pub const REQUIREMENT_ADAPTER_ROLLBACK_RESULT: &str = "adapter rollback result";
+pub const REQUIREMENT_NETWORK_FILTER_ROLLBACK: &str = "network/domain filter rollback result";
+pub const REQUIREMENT_AUDIT_CUSTODY_EVENT: &str = "audit custody event";
+pub const REQUIREMENT_MANUAL_REVIEW_AFTER_ARTIFACT_GATE: &str = "manual review after artifact gate";
+pub const REQUIREMENT_MANAGED_BROWSER_EXACT_URL_EVIDENCE: &str =
+    "managed-browser exact URL evidence";
 pub const REQUIREMENT_PERMISSION_RESTORE: &str = "permission restoration artifact";
 pub const REQUIREMENT_DEPENDENCY_REINSTALL: &str = "dependency reinstall artifact";
 pub const REQUIREMENT_OPERATOR_DEGRADED_STATE: &str = "operator-visible degraded state";
@@ -134,6 +165,12 @@ pub const CLAIM_BROAD_APP_MANUAL: &str =
     "Broad installed-app blocking remains manual-required because scoped process/timer proof does not prove package-wide blocking.";
 pub const CLAIM_HOST_NETWORK_MANUAL: &str =
     "Host network/domain blocking remains manual-required because flow evidence and policy handoff are not filter apply proof.";
+pub const CLAIM_BROAD_APP_ARTIFACT_STATUS: &str =
+    "Windows app artifacts can make a broad-app target ready for manual review only; they do not prove broad installed-app blocking.";
+pub const CLAIM_HOST_NETWORK_ARTIFACT_STATUS: &str =
+    "Windows network/domain artifacts can make a host-filter target ready for manual review only; they do not prove DNS, VPN, packet, or domain blocking.";
+pub const CLAIM_MANAGED_BROWSER_ARTIFACT_STATUS: &str =
+    "Windows managed-browser artifacts can make exact-URL control ready for manual review only; they do not prove active-tab enforcement.";
 pub const CLAIM_EXACT_ACTIVE_TAB_NOT_CLAIMED: &str =
     "Exact active-tab enforcement is not claimed by supported app/game or network observe-only runtime proof.";
 pub const CLAIM_PERMISSION_DEGRADED: &str =
@@ -153,6 +190,12 @@ pub const FALLBACK_BROAD_APP_MANUAL: &str =
     "The runtime refuses broad app blocking claims until target host apply, rollback, and audit artifacts exist.";
 pub const FALLBACK_HOST_NETWORK_MANUAL: &str =
     "The runtime refuses network/domain blocking claims until a host filter or DNS adapter proves apply and rollback.";
+pub const FALLBACK_BROAD_APP_ARTIFACT_STATUS: &str =
+    "Missing, mismatched, or uncustodied app artifacts stay refused and complete artifact sets remain manual-review-only.";
+pub const FALLBACK_HOST_NETWORK_ARTIFACT_STATUS: &str =
+    "Missing, mismatched, or uncustodied network artifacts stay refused and complete artifact sets remain manual-review-only.";
+pub const FALLBACK_MANAGED_BROWSER_ARTIFACT_STATUS: &str =
+    "Missing, mismatched, or uncustodied managed-browser artifacts stay refused and complete artifact sets remain manual-review-only.";
 pub const FALLBACK_EXACT_ACTIVE_TAB_NOT_CLAIMED: &str =
     "The runtime may report managed-session or process fallback states, but exact active-tab enforcement remains not-claimed.";
 pub const FALLBACK_PERMISSION_DEGRADED: &str =

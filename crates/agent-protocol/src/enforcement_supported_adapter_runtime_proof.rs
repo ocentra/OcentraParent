@@ -12,6 +12,12 @@ pub enum V08SupportedAdapterRuntimeBoundary {
     WindowsBroadInstalledAppBlockingManualGate,
     #[serde(rename = "windows-host-network-domain-blocking-manual-gate")]
     WindowsHostNetworkDomainBlockingManualGate,
+    #[serde(rename = "windows-broad-installed-app-artifact-status")]
+    WindowsBroadInstalledAppArtifactStatus,
+    #[serde(rename = "windows-host-network-domain-artifact-status")]
+    WindowsHostNetworkDomainArtifactStatus,
+    #[serde(rename = "windows-managed-browser-artifact-status")]
+    WindowsManagedBrowserArtifactStatus,
     #[serde(rename = "windows-managed-exact-active-tab-not-claimed")]
     WindowsManagedExactActiveTabNotClaimed,
     #[serde(rename = "windows-adapter-permission-dependency-degraded")]
@@ -33,6 +39,15 @@ impl V08SupportedAdapterRuntimeBoundary {
             Self::WindowsNetworkFlowObservePolicyHandoff => proof::ENTRY_ID_NETWORK_OBSERVE,
             Self::WindowsBroadInstalledAppBlockingManualGate => proof::ENTRY_ID_BROAD_APP_MANUAL,
             Self::WindowsHostNetworkDomainBlockingManualGate => proof::ENTRY_ID_HOST_NETWORK_MANUAL,
+            Self::WindowsBroadInstalledAppArtifactStatus => {
+                proof::ENTRY_ID_BROAD_APP_ARTIFACT_STATUS
+            }
+            Self::WindowsHostNetworkDomainArtifactStatus => {
+                proof::ENTRY_ID_HOST_NETWORK_ARTIFACT_STATUS
+            }
+            Self::WindowsManagedBrowserArtifactStatus => {
+                proof::ENTRY_ID_MANAGED_BROWSER_ARTIFACT_STATUS
+            }
             Self::WindowsManagedExactActiveTabNotClaimed => {
                 proof::ENTRY_ID_EXACT_ACTIVE_TAB_NOT_CLAIMED
             }
@@ -55,6 +70,12 @@ pub enum V08SupportedAdapterCapability {
     BroadInstalledAppBlocking,
     #[serde(rename = "host-network-domain-blocking")]
     HostNetworkDomainBlocking,
+    #[serde(rename = "broad-installed-app-artifact-status")]
+    BroadInstalledAppArtifactStatus,
+    #[serde(rename = "host-network-domain-artifact-status")]
+    HostNetworkDomainArtifactStatus,
+    #[serde(rename = "managed-browser-artifact-status")]
+    ManagedBrowserArtifactStatus,
     #[serde(rename = "managed-exact-active-tab-enforcement")]
     ManagedExactActiveTabEnforcement,
     #[serde(rename = "adapter-permission-dependency")]
@@ -72,6 +93,9 @@ impl V08SupportedAdapterCapability {
             Self::NetworkFlowObservePolicyHandoff => proof::CAPABILITY_NETWORK_OBSERVE,
             Self::BroadInstalledAppBlocking => proof::CAPABILITY_BROAD_APP_BLOCKING,
             Self::HostNetworkDomainBlocking => proof::CAPABILITY_HOST_NETWORK_BLOCKING,
+            Self::BroadInstalledAppArtifactStatus => proof::CAPABILITY_BROAD_APP_ARTIFACT_STATUS,
+            Self::HostNetworkDomainArtifactStatus => proof::CAPABILITY_HOST_NETWORK_ARTIFACT_STATUS,
+            Self::ManagedBrowserArtifactStatus => proof::CAPABILITY_MANAGED_BROWSER_ARTIFACT_STATUS,
             Self::ManagedExactActiveTabEnforcement => proof::CAPABILITY_MANAGED_EXACT_ACTIVE_TAB,
             Self::AdapterPermissionDependency => proof::CAPABILITY_PERMISSION_DEPENDENCY,
             Self::DesktopHostPlatformAdapter => proof::CAPABILITY_DESKTOP_HOST,

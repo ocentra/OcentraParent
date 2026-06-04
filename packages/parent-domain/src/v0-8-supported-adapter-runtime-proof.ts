@@ -37,6 +37,9 @@ export const V08SupportedAdapterRuntimeBoundarySchema = withParser(
     'windows-network-flow-observe-policy-handoff',
     'windows-broad-installed-app-blocking-manual-gate',
     'windows-host-network-domain-blocking-manual-gate',
+    'windows-broad-installed-app-artifact-status',
+    'windows-host-network-domain-artifact-status',
+    'windows-managed-browser-artifact-status',
     'windows-managed-exact-active-tab-not-claimed',
     'windows-adapter-permission-dependency-degraded',
     'linux-host-adapter-unavailable',
@@ -52,6 +55,9 @@ export const V08SupportedAdapterCapabilitySchema = withParser(
     'network-flow-observe-policy-handoff',
     'broad-installed-app-blocking',
     'host-network-domain-blocking',
+    'broad-installed-app-artifact-status',
+    'host-network-domain-artifact-status',
+    'managed-browser-artifact-status',
     'managed-exact-active-tab-enforcement',
     'adapter-permission-dependency',
     'desktop-host-platform-adapter',
@@ -309,6 +315,15 @@ export const V08SupportedAdapterRuntimeBoundary = {
   WindowsHostNetworkDomainBlockingManualGate: V08SupportedAdapterRuntimeBoundarySchema.parse(
     'windows-host-network-domain-blocking-manual-gate'
   ),
+  WindowsBroadInstalledAppArtifactStatus: V08SupportedAdapterRuntimeBoundarySchema.parse(
+    'windows-broad-installed-app-artifact-status'
+  ),
+  WindowsHostNetworkDomainArtifactStatus: V08SupportedAdapterRuntimeBoundarySchema.parse(
+    'windows-host-network-domain-artifact-status'
+  ),
+  WindowsManagedBrowserArtifactStatus: V08SupportedAdapterRuntimeBoundarySchema.parse(
+    'windows-managed-browser-artifact-status'
+  ),
   WindowsManagedExactActiveTabNotClaimed: V08SupportedAdapterRuntimeBoundarySchema.parse(
     'windows-managed-exact-active-tab-not-claimed'
   ),
@@ -326,6 +341,9 @@ const SourceReadModelIds = {
   PolicyDispatchProof: 'v0-8-enforcement-policy-dispatch-proof',
   ProductControlProof: 'v0-8-enforcement-product-control-spine',
   NetworkFlowEvidence: 'network-flow-read-model',
+  WindowsAdapterCapabilityProof: 'v0-8-windows-adapter-capability-proof',
+  WindowsAdapterArtifactGate: 'v0-8-windows-adapter-artifact-gate',
+  WindowsAdapterArtifactIngestionProof: 'v0-8-windows-adapter-artifact-ingestion-proof',
 } as const;
 
 const generatedAt = '2026-06-02T09:03:36.000Z';
@@ -409,6 +427,44 @@ export const V08SupportedAdapterRuntimeProofReadModel = V08SupportedAdapterRunti
       ['host DNS or filter apply artifact', 'rollback artifact', 'audit custody artifact'],
       'Host network/domain blocking remains manual-required because flow evidence and policy handoff are not filter apply proof.',
       'The runtime refuses network/domain blocking claims until a host filter or DNS adapter proves apply and rollback.'
+    ),
+    artifactStatusEntry(
+      'windows-broad-installed-app-artifact-status',
+      V08SupportedAdapterRuntimeBoundary.WindowsBroadInstalledAppArtifactStatus,
+      'broad-installed-app-artifact-status',
+      'insufficient-for-broad-target',
+      [
+        'same-identity app package evidence',
+        'adapter apply result',
+        'adapter rollback result',
+        'audit custody event',
+        'manual review after artifact gate',
+      ],
+      'Windows app artifacts can make a broad-app target ready for manual review only; they do not prove broad installed-app blocking.',
+      'Missing, mismatched, or uncustodied app artifacts stay refused and complete artifact sets remain manual-review-only.'
+    ),
+    artifactStatusEntry(
+      'windows-host-network-domain-artifact-status',
+      V08SupportedAdapterRuntimeBoundary.WindowsHostNetworkDomainArtifactStatus,
+      'host-network-domain-artifact-status',
+      'insufficient-for-broad-target',
+      [
+        'network/domain filter apply result',
+        'network/domain filter rollback result',
+        'audit custody event',
+        'manual review after artifact gate',
+      ],
+      'Windows network/domain artifacts can make a host-filter target ready for manual review only; they do not prove DNS, VPN, packet, or domain blocking.',
+      'Missing, mismatched, or uncustodied network artifacts stay refused and complete artifact sets remain manual-review-only.'
+    ),
+    artifactStatusEntry(
+      'windows-managed-browser-artifact-status',
+      V08SupportedAdapterRuntimeBoundary.WindowsManagedBrowserArtifactStatus,
+      'managed-browser-artifact-status',
+      'insufficient-for-broad-target',
+      ['managed-browser exact URL evidence', 'audit custody event', 'manual review after artifact gate'],
+      'Windows managed-browser artifacts can make exact-URL control ready for manual review only; they do not prove active-tab enforcement.',
+      'Missing, mismatched, or uncustodied managed-browser artifacts stay refused and complete artifact sets remain manual-review-only.'
     ),
     entry({
       proofEntryId: 'windows-managed-exact-active-tab-not-claimed',
@@ -546,6 +602,44 @@ function manualEntry(
     evidenceRefs: [],
     linkedProofCommands: [],
     linkedProofArtifacts: [],
+    manualProofRequirements,
+    claimBoundary,
+    fallbackBehavior,
+  });
+}
+
+function artifactStatusEntry(
+  proofEntryId: string,
+  runtimeBoundary: V08SupportedAdapterRuntimeBoundary,
+  adapterCapability: V08SupportedAdapterCapability,
+  targetIdentityState: V08SupportedAdapterTargetIdentityState,
+  manualProofRequirements: readonly string[],
+  claimBoundary: string,
+  fallbackBehavior: string
+): V08SupportedAdapterRuntimeProofEntry {
+  return entry({
+    proofEntryId,
+    runtimeBoundary,
+    platform: 'windows',
+    adapterCapability,
+    runtimeState: 'manual-required',
+    adapterResult: 'manual-proof-required',
+    platformSupportState: 'manual-required',
+    targetIdentityState,
+    rollbackReferenceState: 'manual-required',
+    auditReferenceState: 'manual-required',
+    refusalReason: 'manual-artifact-required',
+    evidenceRefs: ['windows-adapter-artifact-gate-ref', 'windows-adapter-artifact-ingestion-ref'],
+    linkedProofCommands: [
+      'node scripts/test/v0-8-windows-adapter-capability-proof.mjs',
+      'node scripts/test/v0-8-windows-adapter-artifact-gate.mjs',
+      'node scripts/test/v0-8-windows-adapter-artifact-ingestion-proof.mjs',
+    ],
+    linkedProofArtifacts: [
+      'test-results/v0-8-windows-adapter-capability-proof/proof.json',
+      'test-results/v0-8-windows-adapter-artifact-gate/proof.json',
+      'test-results/v0-8-windows-adapter-artifact-ingestion-proof/proof.json',
+    ],
     manualProofRequirements,
     claimBoundary,
     fallbackBehavior,

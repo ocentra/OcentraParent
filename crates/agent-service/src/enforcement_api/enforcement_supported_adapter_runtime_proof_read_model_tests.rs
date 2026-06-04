@@ -20,12 +20,12 @@ fn supported_adapter_runtime_proof_read_model_preserves_honest_states() {
     let platform_counts = count_platforms(&read_model.entries);
 
     assert_eq!(read_model.read_model_id, proof::READ_MODEL_ID);
-    assert_eq!(read_model.entries.len(), 10);
+    assert_eq!(read_model.entries.len(), 13);
     assert_eq!(
         state_count(&state_counts, proof::STATE_IMPLEMENTED_BOUNDARY),
         2
     );
-    assert_eq!(state_count(&state_counts, proof::STATE_MANUAL_REQUIRED), 4);
+    assert_eq!(state_count(&state_counts, proof::STATE_MANUAL_REQUIRED), 7);
     assert_eq!(state_count(&state_counts, proof::STATE_NOT_CLAIMED), 1);
     assert_eq!(state_count(&state_counts, proof::STATE_DEGRADED), 1);
     assert_eq!(state_count(&state_counts, proof::STATE_UNAVAILABLE), 1);
@@ -35,7 +35,7 @@ fn supported_adapter_runtime_proof_read_model_preserves_honest_states() {
             &platform_counts,
             policy_constants::TEST_PARENT_DEVICE_PLATFORM_WINDOWS
         ),
-        6
+        9
     );
     assert_eq!(
         platform_count(&platform_counts, ParentPlatform::Linux.as_protocol_str()),
@@ -59,6 +59,9 @@ fn supported_adapter_runtime_proof_read_model_preserves_honest_states() {
     assert!(read_model
         .source_read_model_ids
         .contains(&proof::SOURCE_NETWORK_FLOW_EVIDENCE.to_string()));
+    assert!(read_model
+        .source_read_model_ids
+        .contains(&proof::SOURCE_WINDOWS_ADAPTER_ARTIFACT_INGESTION_PROOF.to_string()));
 }
 
 #[test]
@@ -85,6 +88,21 @@ fn supported_adapter_runtime_proof_keeps_exact_boundaries() {
         &read_model.entries,
         V08SupportedAdapterRuntimeBoundary::WindowsManagedExactActiveTabNotClaimed,
         V08SupportedAdapterRuntimeState::NotClaimed,
+    );
+    assert_boundary_state(
+        &read_model.entries,
+        V08SupportedAdapterRuntimeBoundary::WindowsBroadInstalledAppArtifactStatus,
+        V08SupportedAdapterRuntimeState::ManualRequired,
+    );
+    assert_boundary_state(
+        &read_model.entries,
+        V08SupportedAdapterRuntimeBoundary::WindowsHostNetworkDomainArtifactStatus,
+        V08SupportedAdapterRuntimeState::ManualRequired,
+    );
+    assert_boundary_state(
+        &read_model.entries,
+        V08SupportedAdapterRuntimeBoundary::WindowsManagedBrowserArtifactStatus,
+        V08SupportedAdapterRuntimeState::ManualRequired,
     );
     assert_boundary_state(
         &read_model.entries,
@@ -152,7 +170,7 @@ async fn supported_adapter_runtime_proof_websocket_command_returns_service_read_
     );
     assert_eq!(
         number_payload_field(&event, constants::field::RETURNED),
-        10.0
+        13.0
     );
 
     let read_model: V08SupportedAdapterRuntimeProofReadModel =
@@ -167,7 +185,7 @@ async fn supported_adapter_runtime_proof_websocket_command_returns_service_read_
     );
 
     assert_eq!(read_model.read_model_id, proof::READ_MODEL_ID);
-    assert_eq!(read_model.entries.len(), 10);
+    assert_eq!(read_model.entries.len(), 13);
     assert_eq!(
         host_network.runtime_state,
         V08SupportedAdapterRuntimeState::ManualRequired
@@ -175,6 +193,16 @@ async fn supported_adapter_runtime_proof_websocket_command_returns_service_read_
     assert!(host_network
         .manual_proof_requirements
         .contains(&proof::REQUIREMENT_HOST_DNS_OR_FILTER_APPLY.to_string()));
+    let managed_browser_artifacts = entry_for(
+        &read_model.entries,
+        V08SupportedAdapterRuntimeBoundary::WindowsManagedBrowserArtifactStatus,
+    );
+    assert!(managed_browser_artifacts
+        .linked_proof_artifacts
+        .contains(&proof::ARTIFACT_WINDOWS_ADAPTER_ARTIFACT_INGESTION_PROOF.to_string()));
+    assert!(managed_browser_artifacts
+        .manual_proof_requirements
+        .contains(&proof::REQUIREMENT_MANAGED_BROWSER_EXACT_URL_EVIDENCE.to_string()));
 }
 
 async fn send_supported_adapter_runtime_proof_command() -> AgentEventEnvelope {
