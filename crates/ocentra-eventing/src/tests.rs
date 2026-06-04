@@ -2,6 +2,7 @@ mod clock_manual;
 mod compatibility_matrix;
 mod contract_registry;
 mod family_variants;
+mod fixture_parity;
 mod fixtures;
 mod handler_policy;
 mod journal_replay;

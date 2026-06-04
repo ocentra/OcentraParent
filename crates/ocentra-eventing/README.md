@@ -44,6 +44,9 @@ Reusable Rust eventing primitives for Ocentra Parent runtime code.
 - Executable `EventCompatibilityMatrix` proof docs that map Ocentra
   Games/TypeScript eventing lineage semantics to compatible Rust surfaces,
   intentional deviations, and manual-required broker delivery scope.
+- Shared TypeScript/Rust branded scalar fixture parity for eventing identifiers:
+  Effect Schema brands and Rust newtypes accept and reject the same canonical
+  fixture values.
 - Durable `EventJournal` support with async NDJSON append, optional hash-chain
   records, selected journaling by event type/namespace/allowlist, replay
   cursors and filters, explicit projection-only replay mode, and journal
