@@ -499,6 +499,8 @@ describe('portal shared constants', () => {
     expect(PortalDetails.UnmanagedFallbackAction).toBe('Unmanaged fallback action');
     expect(PortalDetails.ParentRuleContextReferences).toBe('Parent rule context references');
     expect(PortalDetails.ParentRuleContextRefIds).toBe('Parent rule context ref IDs');
+    expect(PortalDetails.LatestRowEvidenceReferences).toBe('Latest row evidence references');
+    expect(PortalDetails.RetentionTombstones).toBe('Retention tombstones');
   });
 
   it('PortalDetails: exposes browser intervention proof labels', () => {

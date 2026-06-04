@@ -88,6 +88,7 @@ async function writeProofLog({ startedAt, route, output, proof }) {
     '- Verified no-product-claim copy remains visible.',
     '- Verified retention-deleted safety copy is visible and deleted evidence id is hidden.',
     '- Verified section label, heading, button name, card headings, definition lists, no-claim copy, and no visible card overlap.',
+    '- Verified service read-model latest-row detail labels are present without requiring device proof.',
     '',
     'Non-claims:',
     '- This does not prove Android/iOS physical background behavior.',

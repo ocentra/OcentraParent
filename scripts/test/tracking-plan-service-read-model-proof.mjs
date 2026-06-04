@@ -56,6 +56,18 @@ async function main() {
       consolidatedCitationField: 'trackingReadModel.evidenceReferenceIds',
       retentionTombstoneCountField: 'trackingReadModel.retentionTombstoneCount',
       retentionTombstoneCitationField: 'trackingReadModel.retentionTombstoneEvidenceReferenceIds',
+      portalLatestRowDetailFields: [
+        'generatedAt',
+        'retentionTombstoneCount',
+        'rows[0].kind',
+        'rows[0].subjectDisplayName',
+        'rows[0].subjectKind',
+        'rows[0].subjectId',
+        'rows[0].deviceId',
+        'rows[0].platform',
+        'rows[0].observer',
+        'rows[0].evidenceReferenceIds',
+      ],
     },
     proofArtifacts: {
       typescriptProtocolDomain: 'packages/agent-protocol-domain/src/contracts.ts',
@@ -73,11 +85,11 @@ async function main() {
     nonClaims: [
       'This proof does not claim Android or iOS physical background tracking behavior.',
       'This proof does not claim enrolled-device authority, production pilot readiness, or provider delivery.',
-      'This proof only claims portal summary consumption of service-backed rows, consolidated citations, and retention tombstone accounting, not complete parent/child tracking UI.',
+      'This proof only claims portal summary and latest-row detail consumption of service-backed rows, consolidated citations, and retention tombstone accounting, not complete parent/child tracking UI.',
     ],
     remainingGapsBeforeProductOrPrReady: [
-      'Hosted portal screenshot, accessibility, and browser-to-service proof remain pending.',
-      'Full product tracking read-model surfaces remain pending beyond consolidated service citations and retention tombstone accounting.',
+      'Hosted portal screenshot and accessibility proof exists for the first-target parent route, but browser-to-service live-data screenshot proof remains pending.',
+      'Full product tracking read-model surfaces remain pending beyond consolidated service citations, latest-row detail rendering, and retention tombstone accounting.',
       'Child-device UI and device permission screenshots remain pending.',
       'Android/iOS physical background geofence proof remains manual-required.',
       'Authority-enrolled and production-pilot proof remain absent.',

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-04T00:38:01.085Z",
-  "commit": "9dfb17d31c9bc2e1501a0ff5d8576d39f015f797",
+  "checkedAt": "2026-06-04T01:33:54.832Z",
+  "commit": "903e267437745cff7155ac3ef9a2350d42225f86",
   "workpackId": "32-journal-sqlite-and-read-model-proof",
   "proofMode": "tracking-service-read-model",
   "requiredProofTier": "P2_HOSTED_CI",
@@ -66,7 +66,19 @@
     "citationField": "evidenceReferenceIds",
     "consolidatedCitationField": "trackingReadModel.evidenceReferenceIds",
     "retentionTombstoneCountField": "trackingReadModel.retentionTombstoneCount",
-    "retentionTombstoneCitationField": "trackingReadModel.retentionTombstoneEvidenceReferenceIds"
+    "retentionTombstoneCitationField": "trackingReadModel.retentionTombstoneEvidenceReferenceIds",
+    "portalLatestRowDetailFields": [
+      "generatedAt",
+      "retentionTombstoneCount",
+      "rows[0].kind",
+      "rows[0].subjectDisplayName",
+      "rows[0].subjectKind",
+      "rows[0].subjectId",
+      "rows[0].deviceId",
+      "rows[0].platform",
+      "rows[0].observer",
+      "rows[0].evidenceReferenceIds"
+    ]
   },
   "proofArtifacts": {
     "typescriptProtocolDomain": "packages/agent-protocol-domain/src/contracts.ts",
@@ -84,11 +96,11 @@
   "nonClaims": [
     "This proof does not claim Android or iOS physical background tracking behavior.",
     "This proof does not claim enrolled-device authority, production pilot readiness, or provider delivery.",
-    "This proof only claims portal summary consumption of service-backed rows, consolidated citations, and retention tombstone accounting, not complete parent/child tracking UI."
+    "This proof only claims portal summary and latest-row detail consumption of service-backed rows, consolidated citations, and retention tombstone accounting, not complete parent/child tracking UI."
   ],
   "remainingGapsBeforeProductOrPrReady": [
-    "Hosted portal screenshot, accessibility, and browser-to-service proof remain pending.",
-    "Full product tracking read-model surfaces remain pending beyond consolidated service citations and retention tombstone accounting.",
+    "Hosted portal screenshot and accessibility proof exists for the first-target parent route, but browser-to-service live-data screenshot proof remains pending.",
+    "Full product tracking read-model surfaces remain pending beyond consolidated service citations, latest-row detail rendering, and retention tombstone accounting.",
     "Child-device UI and device permission screenshots remain pending.",
     "Android/iOS physical background geofence proof remains manual-required.",
     "Authority-enrolled and production-pilot proof remain absent."

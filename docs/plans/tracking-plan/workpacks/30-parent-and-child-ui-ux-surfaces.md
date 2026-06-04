@@ -64,8 +64,9 @@ The repeatable `node scripts/test/tracking-plan-runtime-proof.mjs` command now
 captures and records the local rendered screenshot at
 `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/policy-tracking-parent-fixture.png`.
 The same route now has a narrow live service summary for the P2
-`trackingReadModel` event, including consolidated service citation IDs and
-retention tombstone citation accounting, covered by
+`trackingReadModel` event, including consolidated service citation IDs,
+latest-row kind, subject, device/platform/observer, latest-row evidence refs,
+and retention tombstone citation accounting, covered by
 `apps/portal/tests/tracking-status-panel.test.ts` and the service read-model
 proof script. `node scripts/test/tracking-plan-hosted-ui-proof.mjs` now starts
 the real Vite portal, renders the `policy-tracking` route, verifies every
@@ -76,8 +77,8 @@ no visible card overlap, and hidden deleted evidence id, then writes
 and
 `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/policy-tracking-hosted-ui-proof.png`.
 This is not product-complete UI proof: child-device UI, full service-backed
-evidence details, full product accessibility, and physical device evidence
-remain pending.
+evidence drawer/detail UI, browser-to-service live-data screenshots, full
+product accessibility, and physical device evidence remain pending.
 `node scripts/test/tracking-plan-pre-device-proof.mjs` now records those UI
 gaps in the aggregate pre-device gate so the next pass can run child UI,
 full live UI, and full product accessibility proof separately before any
@@ -102,6 +103,7 @@ This workpack can be assigned independently, implemented against the owning doma
 - scripts/test/tracking-plan-hosted-ui-proof.mjs
 - apps/portal/src/ParentPortalRoute.tsx
 - apps/portal/src/TrackingStatusRoutePanel.tsx
+- apps/portal/README.md
 - apps/portal/src/portal-route-content.ts
 - apps/portal/src/tracking-status-panel.ts
 - apps/portal/src/styles/parent-portal-route.css
@@ -114,9 +116,10 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Manual-Required Gaps
 
-- Full service-data UI, child-device UI, full service-backed evidence details,
-  full product accessibility, and physical-device proof remain manual-required
-  until the assigned proof artifacts exist.
+- Browser-to-service live-data screenshot proof, child-device UI, full
+  service-backed evidence drawer/detail UI, full product accessibility, and
+  physical-device proof remain manual-required until the assigned proof
+  artifacts exist.
 - Any unsupported platform or provider failure must surface as degraded/manual-required state, not as a silent success.
 
 ## Fill This Before Reporting DONE Or PR-ready
@@ -131,8 +134,8 @@ This workpack can be assigned independently, implemented against the owning doma
       passed; `node scripts/test/tracking-plan-service-read-model-proof.mjs`
       passed.
 - [x] Proof artifacts under `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`:
-      existing P1 fixture/screenshot artifacts remain unchanged; this branch's
-      new live-summary proof is recorded through WP32
+      existing P1 fixture/screenshot artifacts remain; this branch's
+      live-summary/latest-row detail proof is recorded through WP32
       `18-service-read-model-proof.json`.
 - [x] Narrow hosted browser proof artifacts:
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/17-accessibility-proof.json`;
@@ -141,6 +144,7 @@ This workpack can be assigned independently, implemented against the owning doma
 - [x] Product doc/checklist updates or reason none were needed: owning feature
       doc and implementation checklist updated; central product checklist is
       primary-owned and not edited in this branch.
-- [x] Known gaps/manual-required states: child-device UI, full service-data UI,
+- [x] Known gaps/manual-required states: child-device UI,
+      browser-to-service live-data screenshots, full evidence drawer/detail UI,
       full product accessibility, physical Android/iOS proof, and
       authority-enrolled proof remain pending.

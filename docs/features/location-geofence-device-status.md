@@ -57,10 +57,12 @@ expose location or device-status features. Parents expect this category.
 - P2 service-boundary proof now exists for a narrow
   `agent.activity.tracking.read-model.get` WebSocket command that reads
   tracking event rows from the shared ActivityStore SQLite query store and
-  reports row citation IDs, consolidated read-model citation IDs, and retention
-  tombstone citation accounting through `trackingReadModel`. The parent portal
-  `policy-tracking` route now consumes that service read model as a narrow
-  live summary beside the P1 fixture rows. The repeatable proof command is
+  reports row citation IDs, consolidated read-model citation IDs, latest-row
+  subject/kind/device/platform/observer details, and retention tombstone
+  citation accounting through `trackingReadModel`. The parent portal
+  `policy-tracking` route now consumes that service read model as a narrow live
+  summary plus latest-row detail surface beside the P1 fixture rows. The
+  repeatable proof command is
   `node scripts/test/tracking-plan-service-read-model-proof.mjs`, with artifact
   `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json`.
 - Pre-device gap-closure proof now exists through
@@ -86,22 +88,23 @@ expose location or device-status features. Parents expect this category.
   no-product-claim copy, no visible card overlap, and hidden deleted evidence
   for the first-target parent tracking state matrix.
 - Platform permissions, mobile physical-device proof, full runtime adapters,
-  provider delivery, notification delivery, full parent/child UI, full live
-  service-backed UI evidence details, and full product accessibility remain not
-  product-complete.
+  provider delivery, notification delivery, full parent/child UI,
+  browser-to-service live-data screenshot proof, full evidence drawer/detail UI,
+  and full product accessibility remain not product-complete.
 - Raw tracking/location settings are preserved as design inputs, not
   product-complete implementation proof.
 
 ## Current Gap
 
 Location/geofence is now in contract, P1 fixture/runtime proof, narrow P2
-service read-model proof, narrow portal summary-consumption proof, P1 local
-parent-defined place store proof, pre-device proof-gate progress, and narrow
-hosted browser screenshot/accessibility proof for the parent `policy-tracking`
-route. It remains a tracked product gap until platform adapters, richer product
-read models, provider delivery, notifications, physical-device proof, full
-parent/child UI snapshots, full product accessibility, and richer live
-service-backed UI evidence citations are proved.
+service read-model proof, narrow portal summary/latest-row detail consumption,
+P1 local parent-defined place store proof, pre-device proof-gate progress, and
+narrow hosted browser screenshot/accessibility proof for the parent
+`policy-tracking` route. It remains a tracked product gap until platform
+adapters, richer product read models, provider delivery, notifications,
+physical-device proof, full parent/child UI snapshots, full product
+accessibility, browser-to-service live-data screenshot proof, and full evidence
+drawer/detail UI are proved.
 
 ## Checklist
 
@@ -123,8 +126,8 @@ service-backed UI evidence citations are proved.
 - [x] P2 service-backed tracking read-model command proof for SQLite journal
       rows, consolidated citation IDs, and retention tombstone citation
       accounting.
-- [x] Narrow parent portal summary consumption of the service-backed tracking
-      read model.
+- [x] Narrow parent portal summary/latest-row detail consumption of the
+      service-backed tracking read model.
 - [x] P1 local parent-defined place store proof for CRUD/import/export/delete
       with parent-device-local default storage and remote sync disabled.
 - [x] P1 parent portal tracking-state fixture surface, local parent-route screenshot,
@@ -133,9 +136,12 @@ service-backed UI evidence citations are proved.
       proof plans.
 - [x] Narrow live service-backed consolidated citations and retention tombstone
       citation accounting.
+- [x] Narrow live service-backed latest-row evidence details for the parent
+      `policy-tracking` route.
 - [x] Narrow hosted parent portal screenshot/accessibility proof for the
       first-target `policy-tracking` route.
-- [ ] Full live service-backed UI evidence details beyond the narrow summary.
+- [ ] Full live service-backed evidence drawer/detail UI beyond the latest-row
+      summary.
 - [ ] Full live parent/child UI screenshots and full product accessibility proof.
 
 ## Next AI Instructions

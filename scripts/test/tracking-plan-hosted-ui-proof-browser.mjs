@@ -22,7 +22,23 @@ export async function runHostedTrackingUiBrowserProof({ route, screenshotPath })
     assertTextIncludesAll(overlayText, expectedTrackingStates, 'tracking state');
     assertTextIncludesAll(
       overlayText,
-      ['Service read model', 'Evidence references', 'Runtime reference', 'Missing proof', 'Product claim'],
+      [
+        'Service read model',
+        'Generated at',
+        'Retention tombstones',
+        'Activity kind',
+        'Subject',
+        'Subject kind',
+        'Subject ID',
+        'Device',
+        'Platform',
+        'Observer',
+        'Latest row evidence references',
+        'Evidence references',
+        'Runtime reference',
+        'Missing proof',
+        'Product claim',
+      ],
       'tracking detail label'
     );
     assertSafetyCopy(overlayText);

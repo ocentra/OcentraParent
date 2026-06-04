@@ -81,13 +81,26 @@ function TrackingStatusLiveSummaryCard({ summary }: { readonly summary: Tracking
       <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
         <TrackingStatusDetail label={PortalDetails.LoadState} value={summary.loadState} />
         <TrackingStatusDetail label={PortalDetails.ProofTier} value={summary.proofTier} />
+        <TrackingStatusDetail label={PortalDetails.GeneratedAt} value={summary.generatedAt} />
         <TrackingStatusDetail label={PortalDetails.RowsReturned} value={summary.rowsReturned} />
+        <TrackingStatusDetail label={PortalDetails.RetentionTombstones} value={summary.retentionTombstones} />
         <TrackingStatusDetail label={PortalDetails.LastObserved} value={summary.lastObserved} />
         <TrackingStatusDetail label={PortalDetails.EventId} value={summary.eventId} />
         <TrackingStatusDetail label={PortalDetails.Capability} value={summary.capability} />
         <TrackingStatusDetail label={PortalDetails.Custody} value={summary.custody} />
         <TrackingStatusDetail label={PortalDetails.EvidenceReferences} value={summary.evidenceReferences} />
         <TrackingStatusDetail label={PortalDetails.DeletedEvidence} value={summary.deletedEvidence} />
+        <TrackingStatusDetail label={PortalDetails.ActivityKind} value={summary.latestRowKind} />
+        <TrackingStatusDetail label={PortalDetails.Subject} value={summary.latestRowSubject} />
+        <TrackingStatusDetail label={PortalDetails.SubjectKind} value={summary.latestRowSubjectKind} />
+        <TrackingStatusDetail label={PortalDetails.SubjectId} value={summary.latestRowSubjectId} />
+        <TrackingStatusDetail label={PortalDetails.Device} value={summary.latestRowDevice} />
+        <TrackingStatusDetail label={PortalDetails.Platform} value={summary.latestRowPlatform} />
+        <TrackingStatusDetail label={PortalDetails.Observer} value={summary.latestRowObserver} />
+        <TrackingStatusDetail
+          label={PortalDetails.LatestRowEvidenceReferences}
+          value={summary.latestRowEvidenceReferences}
+        />
         <TrackingStatusDetail label={PortalDetails.ProductClaim} value={summary.productClaim} />
         {summary.parserReason === null ? null : (
           <TrackingStatusDetail label={PortalDetails.Reason} value={summary.parserReason} />

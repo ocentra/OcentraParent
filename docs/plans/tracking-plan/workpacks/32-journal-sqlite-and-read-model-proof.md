@@ -48,15 +48,18 @@ and P2 service-command proof for tracking event kinds from
 `codex/tracking-plan-full-scope` under the proof root below. The service proof
 adds a narrow `agent.activity.tracking.read-model.get` command that returns
 SQLite tracking rows, row citation IDs, consolidated read-model citation IDs,
-and retention tombstone citation accounting through `trackingReadModel`; the
-parent portal now consumes that event as a narrow live summary on the
-`policy-tracking` route. Full UI, platform replay, full deletion replay,
-export, and physical-device product claims are not claimed beyond the proof
-state recorded in `proof-summary.json`, `10-journal-sqlite-proof.json`,
-`18-service-read-model-proof.json`, and the implementation checklist.
+latest-row kind/subject/device/platform/observer details, latest-row evidence
+refs, and retention tombstone citation accounting through `trackingReadModel`;
+the parent portal now consumes that event as a narrow live summary plus
+latest-row detail surface on the `policy-tracking` route. Full UI, platform
+replay, full deletion replay, export, and physical-device product claims are
+not claimed beyond the proof state recorded in `proof-summary.json`,
+`10-journal-sqlite-proof.json`, `18-service-read-model-proof.json`, and the
+implementation checklist.
 The pre-device proof gate now reruns this service proof and records the
-remaining full deletion replay, full product read-model, full UI, hosted
-accessibility, and platform replay gaps before device work starts.
+remaining full deletion replay, full product read-model, full evidence drawer
+UI, browser-to-service live-data screenshot, full accessibility, and platform
+replay gaps before device work starts.
 
 ## Where We Want To Be
 
@@ -78,10 +81,10 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Manual-Required Gaps
 
-- Hosted portal screenshot/accessibility proof, full deletion replay, full
-  product read models, full UI, platform replay, export, provider, and
-  physical-device claims remain manual-required until the assigned proof
-  artifacts exist.
+- Full deletion replay, full product read models, full evidence drawer UI,
+  browser-to-service live-data screenshot proof, platform replay, export,
+  provider, and physical-device claims remain manual-required until the
+  assigned proof artifacts exist.
 - Any unsupported platform or provider failure must surface as degraded/manual-required state, not as a silent success.
 
 ## Fill This Before Reporting DONE Or PR-ready
@@ -102,7 +105,7 @@ This workpack can be assigned independently, implemented against the owning doma
 - [x] Product doc/checklist updates: owning feature doc, feature list, product
       capability checklist, implementation checklist, and this workpack doc
       updated for the P2 service read-model proof.
-- [x] Known gaps/manual-required states: hosted portal screenshot/accessibility
-      proof, full deletion replay, full product read models, full UI, platform
-      replay, export, Android/iOS physical proof, provider delivery, and
-      notifications remain proof-gated as applicable.
+- [x] Known gaps/manual-required states: full deletion replay, full product
+      read models, full evidence drawer UI, browser-to-service live-data
+      screenshot proof, platform replay, export, Android/iOS physical proof,
+      provider delivery, and notifications remain proof-gated as applicable.

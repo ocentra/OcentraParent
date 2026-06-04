@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-04T00:41:11.004Z",
+  "checkedAt": "2026-06-04T01:34:06.389Z",
   "workpackId": "30-parent-and-child-ui-ux-surfaces",
   "requiredProofTier": "P2_HOSTED_CI",
   "currentProofTier": "P2_HOSTED_CI",
@@ -14,12 +14,12 @@
       "exitCode": 0
     },
     {
-      "command": "npm exec --workspace @ocentra-parent/portal -- vite --host 127.0.0.1 --port 55049 --strictPort",
+      "command": "npm exec --workspace @ocentra-parent/portal -- vite --host 127.0.0.1 --port 63400 --strictPort",
       "exitCode": 0
     }
   ],
   "proof": {
-    "route": "http://127.0.0.1:55049/#/policy-tracking",
+    "route": "http://127.0.0.1:63400/#/policy-tracking",
     "viewport": "1440x1100",
     "expectedStates": [
       "Tracking off",

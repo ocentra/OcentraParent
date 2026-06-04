@@ -10,7 +10,10 @@ import {
   type PortalDisplayText,
   type TrackingStatusProofArtifact,
 } from '@ocentra-parent/portal-domain/contracts';
-import type { AgentActivityTrackingEvidenceReferenceIds } from '@ocentra-parent/agent-protocol-domain/tracking-read-model';
+import type {
+  AgentActivityTrackingEvidenceReferenceIds,
+  AgentActivityTrackingReadModelRow,
+} from '@ocentra-parent/agent-protocol-domain/tracking-read-model';
 import { appendDetail } from './detail-list';
 import type { PortalLiveActivityState } from './live-activity-state';
 import { renderDashboard } from './portal-dashboard';
@@ -33,13 +36,23 @@ export type TrackingStatusLiveSummary = {
   readonly title: PortalDisplayText;
   readonly loadState: PortalDetailValue;
   readonly proofTier: PortalDisplayText;
+  readonly generatedAt: PortalDetailValue;
   readonly rowsReturned: PortalDetailValue;
+  readonly retentionTombstones: PortalDetailValue;
   readonly lastObserved: PortalDetailValue;
   readonly eventId: PortalDetailValue;
   readonly capability: PortalDetailValue;
   readonly custody: PortalDetailValue;
   readonly evidenceReferences: PortalDetailValue;
   readonly deletedEvidence: PortalDetailValue;
+  readonly latestRowKind: PortalDetailValue;
+  readonly latestRowSubject: PortalDetailValue;
+  readonly latestRowSubjectKind: PortalDetailValue;
+  readonly latestRowSubjectId: PortalDetailValue;
+  readonly latestRowDevice: PortalDetailValue;
+  readonly latestRowPlatform: PortalDetailValue;
+  readonly latestRowObserver: PortalDetailValue;
+  readonly latestRowEvidenceReferences: PortalDetailValue;
   readonly parserReason: PortalDetailValue | null;
   readonly productClaim: PortalDisplayText;
 };
@@ -138,13 +151,23 @@ export function trackingStatusLiveSummary(liveActivity: PortalLiveActivityState)
   const baseSummary = {
     title: PortalText.Resolve(PortalTextToken.TrackingServiceReadModel),
     proofTier: PortalText.Resolve(PortalTextToken.TrackingProofService),
+    generatedAt: notReported(),
     rowsReturned: notReported(),
+    retentionTombstones: notReported(),
     lastObserved: notReported(),
     eventId: notReported(),
     capability: notReported(),
     custody: notReported(),
     evidenceReferences: notReported(),
     deletedEvidence: notReported(),
+    latestRowKind: notReported(),
+    latestRowSubject: notReported(),
+    latestRowSubjectKind: notReported(),
+    latestRowSubjectId: notReported(),
+    latestRowDevice: notReported(),
+    latestRowPlatform: notReported(),
+    latestRowObserver: notReported(),
+    latestRowEvidenceReferences: notReported(),
     productClaim: PortalText.Resolve(PortalTextToken.TrackingNoProductClaim),
   };
 
@@ -165,16 +188,27 @@ export function trackingStatusLiveSummary(liveActivity: PortalLiveActivityState)
   }
 
   const readModel = readModelResult.value;
+  const latestRow = readModel.rows[0];
   return {
     ...baseSummary,
     loadState: detailFromValue(event.severity),
+    generatedAt: detailFromValue(readModel.generatedAt),
     rowsReturned: detailFromValue(readModel.returned),
+    retentionTombstones: detailFromValue(readModel.retentionTombstoneCount),
     lastObserved: detailFromValue(readModel.latestObservedAt),
     eventId: detailFromValue(readModel.latestEventId),
     capability: detailFromValue(readModel.capabilityStatus),
     custody: detailFromValue(readModel.custodyLabel),
     evidenceReferences: evidenceReferenceDetail(readModel.evidenceReferenceIds),
     deletedEvidence: evidenceReferenceDetail(readModel.retentionTombstoneEvidenceReferenceIds),
+    latestRowKind: latestRowDetail(latestRow, (rowValue) => rowValue.kind),
+    latestRowSubject: latestRowDetail(latestRow, (rowValue) => rowValue.subjectDisplayName ?? rowValue.subjectId),
+    latestRowSubjectKind: latestRowDetail(latestRow, (rowValue) => rowValue.subjectKind),
+    latestRowSubjectId: latestRowDetail(latestRow, (rowValue) => rowValue.subjectId),
+    latestRowDevice: latestRowDetail(latestRow, (rowValue) => rowValue.deviceId),
+    latestRowPlatform: latestRowDetail(latestRow, (rowValue) => rowValue.platform),
+    latestRowObserver: latestRowDetail(latestRow, (rowValue) => rowValue.observer),
+    latestRowEvidenceReferences: evidenceReferenceDetail(latestRow?.evidenceReferenceIds),
     parserReason: null,
   };
 }
@@ -265,13 +299,23 @@ function renderTrackingStatusLiveSummary(summary: TrackingStatusLiveSummary): HT
   const metadata = document.createElement(PortalDom.Tags.DefinitionList);
   appendDetail(metadata, PortalDetails.LoadState, summary.loadState);
   appendDetail(metadata, PortalDetails.ProofTier, toDetail(summary.proofTier));
+  appendDetail(metadata, PortalDetails.GeneratedAt, summary.generatedAt);
   appendDetail(metadata, PortalDetails.RowsReturned, summary.rowsReturned);
+  appendDetail(metadata, PortalDetails.RetentionTombstones, summary.retentionTombstones);
   appendDetail(metadata, PortalDetails.LastObserved, summary.lastObserved);
   appendDetail(metadata, PortalDetails.EventId, summary.eventId);
   appendDetail(metadata, PortalDetails.Capability, summary.capability);
   appendDetail(metadata, PortalDetails.Custody, summary.custody);
   appendDetail(metadata, PortalDetails.EvidenceReferences, summary.evidenceReferences);
   appendDetail(metadata, PortalDetails.DeletedEvidence, summary.deletedEvidence);
+  appendDetail(metadata, PortalDetails.ActivityKind, summary.latestRowKind);
+  appendDetail(metadata, PortalDetails.Subject, summary.latestRowSubject);
+  appendDetail(metadata, PortalDetails.SubjectKind, summary.latestRowSubjectKind);
+  appendDetail(metadata, PortalDetails.SubjectId, summary.latestRowSubjectId);
+  appendDetail(metadata, PortalDetails.Device, summary.latestRowDevice);
+  appendDetail(metadata, PortalDetails.Platform, summary.latestRowPlatform);
+  appendDetail(metadata, PortalDetails.Observer, summary.latestRowObserver);
+  appendDetail(metadata, PortalDetails.LatestRowEvidenceReferences, summary.latestRowEvidenceReferences);
   appendDetail(metadata, PortalDetails.ProductClaim, toDetail(summary.productClaim));
   if (summary.parserReason !== null) {
     appendDetail(metadata, PortalDetails.Reason, summary.parserReason);
@@ -299,6 +343,16 @@ function evidenceReferenceDetail(
     return notReported();
   }
   return detailFromValue(evidenceReferenceIds.join(PortalFormatting.EventDetailSeparator));
+}
+
+function latestRowDetail(
+  rowValue: AgentActivityTrackingReadModelRow | undefined,
+  select: (rowValue: AgentActivityTrackingReadModelRow) => unknown
+): PortalDetailValue {
+  if (rowValue === undefined) {
+    return notReported();
+  }
+  return detailFromValue(select(rowValue));
 }
 
 function notReported(): PortalDetailValue {

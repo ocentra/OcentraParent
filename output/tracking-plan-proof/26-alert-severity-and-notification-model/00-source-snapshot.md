@@ -1,7 +1,7 @@
 # 26-alert-severity-and-notification-model Source Snapshot
 
-- checkedAt: 2026-06-04T00:37:10.635Z
-- commit: 9dfb17d31c9bc2e1501a0ff5d8576d39f015f797
+- checkedAt: 2026-06-04T01:33:08.525Z
+- commit: 903e267437745cff7155ac3ef9a2350d42225f86
 - proofState: contract-proof-complete
 - summary: Tracking alert intents cite policy decisions, evidence refs, severity, minimal detail mode, and notification refs.
 - activity contracts: packages/activity-domain/src/tracking.ts
