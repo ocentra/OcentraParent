@@ -60,17 +60,22 @@ and clear degraded states.
   plus an agent-core network runtime chain proof that uses typed live
   envelopes and stored-envelope boundaries. This proves the first shared bus
   spine, not queue/retry/request-response/journal completeness.
+- E-D extended `crates/ocentra-eventing` with production shutdown lifecycle
+  proof: runtime-owned shutdown can drain queued work, dead-letter queued work,
+  cancel pending local requests, clear subscriptions and aggregate gates, and
+  reject later publish/subscribe calls.
 
 ## Current Gap
 
 The service is real enough for local/LAN proof and local hardware visibility,
 but not yet a fully hardened consumer child-agent across signed LAN
 advertisement, capture, enforcement, notifications, updates, tamper/integrity,
-and support diagnostics. The Rust runtime also lacks the reusable shared event
-bus depth needed before network, AI, policy, enforcement, audit,
-parent-controller, and child-agent event chains should be wired broadly:
-queue/retry/TTL, request-response, durable journal/replay, panic isolation, and
-transport handoff remain open beyond the first typed in-process spine.
+and support diagnostics. The reusable Rust eventing crate now has proof for
+queue/retry/TTL, request-response, durable journal/replay, panic isolation,
+typed envelopes, production shutdown, and runtime-owned bus lifecycle. The open
+eventing gap is Parent-specific event contracts, child/parent transport
+handoff, broker-backed delivery, UI/AI/enforcement negative integration proof,
+and broad runtime adoption.
 
 ## Checklist
 
@@ -81,8 +86,9 @@ transport handoff remain open beyond the first typed in-process spine.
 - [ ] Evidence capture and journal writes.
 - [ ] Reusable Rust eventing crate shared by parent/controller and child-agent
       runtimes, with UI/Vite kept view/input only. First E-D proof exists for
-      `crates/ocentra-eventing` typed envelopes and the network runtime chain;
-      queue/retry/request-response/journal and broad runtime adoption remain.
+      `crates/ocentra-eventing` typed envelopes, queue/retry/request-response,
+      journal/replay, production shutdown, and the network runtime chain;
+      Parent-specific contracts and broad runtime adoption remain.
 - [ ] Policy and AI read paths.
 - [ ] Enforcement adapter dispatch with audit.
 - [ ] Capability and degraded-state reporting. Current mobile capability proof

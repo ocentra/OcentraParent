@@ -23,6 +23,7 @@ pub enum EventingError {
     RequestTimedOut { request_id: String },
     RequestResponseEncode { request_id: String, reason: String },
     RequestResponseDecode { request_id: String, reason: String },
+    BusShutdown,
     JournalIo { path: String, reason: String },
     JournalEncode { reason: String },
     JournalDecode { reason: String },
@@ -86,7 +87,8 @@ impl fmt::Display for EventingError {
             | Self::DuplicateRequest { .. }
             | Self::RequestTimedOut { .. }
             | Self::RequestResponseEncode { .. }
-            | Self::RequestResponseDecode { .. } => fmt_request_error(self, formatter),
+            | Self::RequestResponseDecode { .. }
+            | Self::BusShutdown => fmt_request_error(self, formatter),
             Self::JournalIo { .. }
             | Self::JournalEncode { .. }
             | Self::JournalDecode { .. }
@@ -184,6 +186,7 @@ fn fmt_request_error(error: &EventingError, formatter: &mut fmt::Formatter<'_>) 
                 "event request response decode failed for {request_id}: {reason}"
             )
         }
+        EventingError::BusShutdown => formatter.write_str("event bus is shut down"),
         _ => unreachable!("request error formatter received non-request error"),
     }
 }

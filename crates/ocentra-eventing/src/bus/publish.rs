@@ -61,6 +61,7 @@ impl EventBus {
     where
         E: RequestEvent,
     {
+        self.ensure_active()?;
         let request_id = event.request_id()?;
         let receiver = self.requests.register(request_id.clone())?;
         let publish_report = self.publish(event, metadata).await?;
@@ -91,6 +92,7 @@ impl EventBus {
     where
         E: DomainEvent,
     {
+        self.ensure_active()?;
         let stored = EventEnvelope::from_event(event, metadata)?.store()?;
         if stored.is_deadline_expired(self.clock.now()) {
             return self
@@ -114,6 +116,14 @@ impl EventBus {
     }
 
     pub async fn drain_queued(
+        &self,
+        dispatch_mode: DispatchMode,
+    ) -> Result<QueueDrainReport, EventingError> {
+        self.ensure_active()?;
+        self.drain_queued_unchecked(dispatch_mode).await
+    }
+
+    pub(super) async fn drain_queued_unchecked(
         &self,
         dispatch_mode: DispatchMode,
     ) -> Result<QueueDrainReport, EventingError> {

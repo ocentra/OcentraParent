@@ -72,6 +72,7 @@ pub enum DeadLetterReason {
     QueueOverflow,
     QueueExpired,
     DeadlineExpired,
+    Shutdown,
 }
 
 impl DeadLetterReason {
@@ -85,6 +86,7 @@ impl DeadLetterReason {
             Self::QueueOverflow => "queue-overflow",
             Self::QueueExpired => "queue-expired",
             Self::DeadlineExpired => "deadline-expired",
+            Self::Shutdown => "shutdown",
         }
     }
 }

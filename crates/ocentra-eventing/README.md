@@ -22,6 +22,10 @@ Reusable Rust eventing primitives for Ocentra Parent runtime code.
 - `EventBus::clear_for_test` lifecycle for deterministic tests: it reports and
   clears local subscriptions, in-memory journal snapshots, dead letters,
   aggregate gates, queue/idempotency state, and pending request completions.
+- `EventBus::shutdown` lifecycle for owned runtime shutdown: it supports
+  production drain, production queued dead-letter, and explicit test-only queued
+  drop modes, cancels pending local requests, clears subscriptions and
+  aggregate gates, and rejects later publish/subscribe calls.
 - Local bounded no-subscriber queue policy with observable drain reports,
   overflow rejection/dead-letter behavior, queue TTL expiry before dispatch,
   in-flight duplicate rejection, optional completed idempotency registry, and
@@ -68,8 +72,8 @@ Reusable Rust eventing primitives for Ocentra Parent runtime code.
 
 ## Current Gap
 
-This crate does not yet implement production shutdown/drain lifecycle,
-broker-backed delivery, Parent-specific event contracts, or whole-repo source
-scanning for topology discovery. Consumers must keep those claims
-manual-required until the matching eventing workpacks are implemented and
-validated.
+This crate does not yet implement broker-backed delivery, Parent-specific event
+contracts, cross-process transport shutdown, platform adapter rollback
+execution, or whole-repo source scanning for topology discovery. Consumers must
+keep those claims manual-required until the matching eventing workpacks are
+implemented and validated.

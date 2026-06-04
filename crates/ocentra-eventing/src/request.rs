@@ -147,6 +147,14 @@ impl RequestRegistry {
     }
 
     pub(crate) fn clear_for_test(&self) -> RequestRegistryClearReport {
+        self.clear_entries()
+    }
+
+    pub(crate) fn cancel_for_shutdown(&self) -> RequestRegistryClearReport {
+        self.clear_entries()
+    }
+
+    fn clear_entries(&self) -> RequestRegistryClearReport {
         let mut entries = self.entries.lock().expect("request registry lock");
         let report = RequestRegistryClearReport {
             pending_request_count: entries

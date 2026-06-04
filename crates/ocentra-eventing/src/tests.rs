@@ -8,6 +8,7 @@ mod handler_policy;
 mod journal_replay;
 mod lifecycle;
 mod lifecycle_clear;
+mod production_shutdown;
 mod queue;
 mod request_response;
 mod topology_manifest;

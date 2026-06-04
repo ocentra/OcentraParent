@@ -51,6 +51,29 @@ pub struct EventBusClearReport {
     pub timed_out_request_count: usize,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ShutdownMode {
+    Drain,
+    DeadLetterQueued,
+    DropQueuedForTestOnly,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct EventBusShutdownReport {
+    pub mode: ShutdownMode,
+    pub already_shutdown: bool,
+    pub subscription_count: usize,
+    pub aggregate_gate_count: usize,
+    pub queued_event_count: usize,
+    pub queued_dispatched_count: usize,
+    pub queued_expired_count: usize,
+    pub queued_dead_lettered_count: usize,
+    pub queued_dropped_count: usize,
+    pub pending_request_count: usize,
+    pub completed_request_count: usize,
+    pub timed_out_request_count: usize,
+}
+
 #[derive(Clone)]
 pub struct EventBus {
     registry: Arc<Mutex<BTreeMap<EventType, Vec<SubscriberRecord>>>>,
@@ -63,6 +86,7 @@ pub struct EventBus {
     journal_policy: JournalPolicy,
     event_journal: Option<SharedEventJournal>,
     clock: SharedEventClock,
+    shutdown: Arc<Mutex<bool>>,
 }
 
 impl EventBus {
@@ -78,6 +102,7 @@ impl EventBus {
             journal_policy: JournalPolicy::default(),
             event_journal: None,
             clock: crate::SystemEventClock::shared(),
+            shutdown: Arc::new(Mutex::new(false)),
         }
     }
 
@@ -192,7 +217,23 @@ impl EventBus {
     }
 
     fn insert_subscriber(&self, record: SubscriberRecord) -> Result<(), EventingError> {
+        self.ensure_active()?;
         insert_subscriber(&self.registry, record)
+    }
+
+    fn ensure_active(&self) -> Result<(), EventingError> {
+        if *self.shutdown.lock().expect("event bus shutdown lock") {
+            return Err(EventingError::BusShutdown);
+        }
+        Ok(())
+    }
+
+    fn is_shutdown(&self) -> bool {
+        *self.shutdown.lock().expect("event bus shutdown lock")
+    }
+
+    fn mark_shutdown(&self) {
+        *self.shutdown.lock().expect("event bus shutdown lock") = true;
     }
 }
 
