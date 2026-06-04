@@ -29,6 +29,12 @@ mobile readiness, and control catalogs.
   abstraction, quiet-hours defer, retry, dead-letter, receipt-required, and
   manual-required states without provider delivery, receipt ingestion,
   credentials, cloud routing, parent UI, or sensitive detail storage claims.
+- Notification local outbox scheduler proof contracts that represent
+  deterministic due, held quiet-hours, retry-window, dead-letter review,
+  receipt-required, and manual-required scheduler states with parent-owned
+  artifact write/read proof, without provider delivery, receipt ingestion,
+  credentials, cloud routing, parent UI, production durable storage, or
+  sensitive detail storage claims.
 - Local AI runtime, provider, scheduler, context, and reference contracts.
 - Parent assistant and action-preview contracts.
 - LAN pairing, device roles, controller/observer states, and provider routing.
@@ -141,11 +147,13 @@ flowchart LR
   manual-required until real second-child-agent artifacts are attached.
 - Notification provider status boundary proof remains status/readiness
   contract/read-model proof only; notification local outbox proof remains
-  deterministic parent-owned JSONL artifact proof only; provider adapters,
-  provider receipts, delivered receipt ingestion, retry execution, quiet-hours
-  scheduling, escalation delivery, parent controls, notification UI, provider
-  credentials, cloud routing, and production durable outbox storage remain
-  unclaimed.
+  deterministic parent-owned JSONL artifact proof only; notification local
+  outbox scheduler proof covers deterministic due/held/retry/dead-letter/
+  receipt/manual scheduler rows and parent-owned artifact write/read proof only.
+  Provider adapters, provider receipts, delivered receipt ingestion, production
+  retry workers, production quiet-hours timers, escalation delivery, parent
+  controls, notification UI, provider credentials, cloud routing, and durable
+  production outbox storage remain unclaimed.
 - LAN source-matrix proof is contract/read-model proof. It does not implement
   targeted ARP, bounded ARP sweep, packet listeners, real mDNS/SSDP
   advertisements, relay/cache, or physical household validation.

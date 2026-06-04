@@ -75,6 +75,19 @@ claim provider delivery, webhook receipt ingestion, provider credentials, cloud
 routing, parent notification UI, raw child evidence, raw URLs/titles/message
 text, screenshots, reports, or sensitive provider metadata storage.
 
+`scripts/test/notification-local-outbox-scheduler-proof.mjs` validates a
+parent-domain local outbox scheduler proof that writes and rereads a
+deterministic parent-owned JSONL scheduler artifact. It covers due, held
+quiet-hours, retry-window scheduled, dead-letter review, receipt-required, and
+manual-required scheduler states, deterministic `nextAttemptAt` and retry
+window rows, provider-channel abstraction, parent-owned artifact refs, and
+sensitive-detail minimization. This is a scheduler proof only: it does not
+claim provider delivery, retry worker execution, quiet-hours timer execution,
+webhook receipt ingestion, provider credentials, cloud routing, parent
+notification UI, durable production outbox storage, raw child evidence, raw
+URLs/titles/message text, screenshots, reports, or sensitive provider metadata
+storage.
+
 ## Failure Behavior
 
 - Provider failure is visible, retryable when safe, and auditable.
@@ -123,6 +136,11 @@ text, screenshots, reports, or sensitive provider metadata storage.
   deterministic local outbox artifact writing/parsing, minimal alert envelopes,
   quiet-hours defer, retry, dead-letter, receipt-required, manual-required, and
   sensitive-detail minimization without provider delivery claims.
+- Parent-domain notification local outbox scheduler proof for deterministic
+  due/held quiet-hours/retry-window/dead-letter/receipt/manual scheduler states,
+  parent-owned scheduler artifact writing/parsing, deterministic next-at/retry
+  window behavior, and sensitive-detail minimization without provider delivery
+  claims.
 - Adapter boundary tests for success, retryable failure, permanent failure, webhook receipt, and disabled provider.
 - Integration tests proving notification intents reference stored evidence or policy decisions.
 - Parent-surface coverage for notification history, preference changes, quiet hours, and sensitive-detail drill-in behind authentication.
