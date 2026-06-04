@@ -8,11 +8,13 @@ use super::{
     app_game_windows_registry_export::{
         collect_records_from_registry_export_path, registry_export_paths_from_roots,
     },
-    app_game_windows_registry_record::{journal_events_from_records, record_from_registry_entry},
+    app_game_windows_registry_record::journal_events_from_records,
 };
 
 #[cfg(windows)]
 use super::app_game_windows_registry_live::registry_install_entries;
+#[cfg(windows)]
+use super::app_game_windows_registry_record::record_from_registry_entry;
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum AppGameLiveRegistryInventorySourceError {
