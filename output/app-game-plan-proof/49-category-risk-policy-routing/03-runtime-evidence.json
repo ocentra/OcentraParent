@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "proofMode": "app-game-category-risk-policy-routing",
-  "checkedAt": "2026-06-04T14:18:11.468Z",
-  "commit": "2b646f7277301ac995c8e9400ca856676979c251",
+  "checkedAt": "2026-06-04T14:30:27.595Z",
+  "commit": "0f5f4148672a85407bcbc910ca2bac9dfc9c16a7",
   "commands": [
     "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
     "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-category-risk-policy-routing"
