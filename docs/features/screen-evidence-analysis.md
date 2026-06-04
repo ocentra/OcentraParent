@@ -162,10 +162,18 @@ only with explicit parent settings.
   URLs/apps, opens/focuses those surfaces when a manifest is supplied, captures
   the active local window, runs the local VLM path, validates screen AI and
   policy dry-run contracts, deletes raw image material, and writes redacted
-  proof artifacts. The current harness readiness artifact is
+  proof artifacts. Browser live rows now also record page readiness evidence
+  before capture: final hostname, redacted final URL, title hash/length, visible
+  text hash/length, and blank-page rejection. The current harness readiness
+  artifact is
   `output/screen-ai-pipeline-proof/live-operator/harness-readiness/proof-summary.json`;
-  real YouTube/Vimeo/social/shopping/game/account artifacts remain required
-  before product-complete live proof claims.
+  a one-row live operator smoke has also proved a real YouTube ordinary video
+  page through capture, local VLM `video` classification, `warn` policy dry-run,
+  and raw-image deletion at
+  `output/screen-ai-pipeline-proof/live-operator/proof-summary.json`. Vimeo,
+  social, shopping, browser-game, school/productivity, native-app, protected
+  state, and full account/surface artifacts remain required before
+  product-complete live proof claims.
 - Android child-agent scaffold now has emulator MediaProjection proof with
   explicit OS consent, foreground service, captured frame digest, and raw temp
   deletion. Physical Android parity and silent background capture are not
@@ -176,11 +184,11 @@ only with explicit parent settings.
 
 ## Current Gap
 
-Opt-in UI, live external URL/account operator proof artifacts from the new
-manifest-driven harness, OCR/vision quality beyond controlled fixtures,
-production local vision adapter quality beyond the service proof adapter,
-service-owned live trigger event producers beyond the timed cadence loop and
-native active-window foreground watcher, physical
+Opt-in UI, the remaining live external URL/account operator proof rows from the
+new manifest-driven harness, OCR/vision quality beyond controlled fixtures and
+the single YouTube live smoke, production local vision adapter quality beyond
+the service proof adapter, service-owned live trigger event producers beyond the
+timed cadence loop and native active-window foreground watcher, physical
 Android/iOS proof, live macOS capture proof, Linux root/Wayland portal proof,
 browser/network/mobile/broad block action adapters from screen-derived
 decisions, checklist status movement, and production parent explanation UX

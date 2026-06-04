@@ -311,9 +311,76 @@ async function openBrowserSurface(scenario) {
       await page.goto(scenario.url, { waitUntil: 'domcontentloaded', timeout: scenario.navigationTimeoutMs });
       await page.bringToFront();
       await page.waitForTimeout(scenario.waitMs);
+      sourceEvidence.pageReadiness = await collectBrowserReadinessEvidence(page, scenario);
     },
     close: async () => {
       await browser.close();
+    },
+  };
+}
+
+async function collectBrowserReadinessEvidence(page, scenario) {
+  const finalUrl = page.url();
+  const final = new URL(finalUrl);
+  const expected = new URL(scenario.url);
+  const title = await page.title();
+  const visibleText = await page
+    .locator('body')
+    .innerText({ timeout: 5000 })
+    .catch(() => '');
+  const trimmedText = visibleText.replace(/\s+/gu, ' ').trim();
+  const titleMatches =
+    scenario.expectedTitleContains === undefined ||
+    title.toLowerCase().includes(String(scenario.expectedTitleContains).toLowerCase());
+  const textMatches =
+    scenario.expectedVisibleTextContains === undefined ||
+    trimmedText.toLowerCase().includes(String(scenario.expectedVisibleTextContains).toLowerCase());
+  const hostnameMatches = final.hostname === expected.hostname;
+  const loaded = final.protocol !== 'about:' && (title.trim().length > 0 || trimmedText.length > 0);
+  if (!loaded) {
+    throw new Error(
+      `Live operator browser surface stayed blank for ${scenario.id}: ${JSON.stringify({
+        finalHostname: final.hostname,
+        titleLength: title.length,
+        visibleTextLength: trimmedText.length,
+      })}`
+    );
+  }
+  if (!hostnameMatches) {
+    throw new Error(
+      `Live operator browser surface navigated away from expected host for ${scenario.id}: ${JSON.stringify({
+        expectedHostname: expected.hostname,
+        finalHostname: final.hostname,
+      })}`
+    );
+  }
+  if (!titleMatches || !textMatches) {
+    throw new Error(
+      `Live operator browser surface did not satisfy manifest readiness assertions for ${scenario.id}: ${JSON.stringify(
+        {
+          expectedTitleContains: scenario.expectedTitleContains ?? null,
+          expectedVisibleTextContains: scenario.expectedVisibleTextContains ?? null,
+          titleMatches,
+          textMatches,
+          titleLength: title.length,
+          visibleTextLength: trimmedText.length,
+        }
+      )}`
+    );
+  }
+  return {
+    loaded: true,
+    finalHostname: final.hostname,
+    finalProtocol: final.protocol.replace(':', ''),
+    redactedFinalUrl: `${final.protocol}//${final.hostname}/<redacted>`,
+    titleHash: sha256(title),
+    titleLength: title.length,
+    visibleTextHash: sha256(trimmedText),
+    visibleTextLength: trimmedText.length,
+    readinessAssertions: {
+      hostnameMatches,
+      titleMatches,
+      textMatches,
     },
   };
 }
@@ -431,7 +498,7 @@ function runVlm(scenario, imagePath) {
 }
 
 function normalizeModelEvidence(scenario, parsedModel) {
-  const modelOutput = ScreenLocalModelOutputSchema.parse(parsedModel);
+  const modelOutput = ScreenLocalModelOutputSchema.parse(normalizeModelOutputShape(parsedModel));
   const modelText = [modelOutput.visible_text, modelOutput.risk_signals.join(' ')]
     .filter((value) => value !== undefined && value !== null)
     .join(' ')
@@ -449,6 +516,43 @@ function normalizeModelEvidence(scenario, parsedModel) {
     confidence,
     riskSignals: normalizeRiskSignals(scenario, modelOutput.risk_signals),
   };
+}
+
+function normalizeModelOutputShape(parsedModel) {
+  if (parsedModel === null || typeof parsedModel !== 'object' || Array.isArray(parsedModel)) {
+    return parsedModel;
+  }
+  const visibleText = Array.isArray(parsedModel.visible_text)
+    ? parsedModel.visible_text.join(' ')
+    : parsedModel.visible_text;
+  const riskSignals = Array.isArray(parsedModel.risk_signals)
+    ? parsedModel.risk_signals.map(normalizeRawRiskSignal).filter((value) => value !== null)
+    : [];
+  return {
+    ...parsedModel,
+    visible_text: visibleText,
+    risk_signals: riskSignals,
+  };
+}
+
+function normalizeRawRiskSignal(value) {
+  const raw =
+    typeof value === 'string'
+      ? value
+      : value !== null && typeof value === 'object' && typeof value.risk === 'string'
+        ? value.risk
+        : null;
+  if (raw === null) {
+    return null;
+  }
+  const normalized = raw.toLowerCase();
+  if (/\bbypass\b|\bvpn\b|\bproxy\b/iu.test(normalized)) return 'possibleBypassTool';
+  if (/\bcredential\b|\blogin\b|\bpassword\b/iu.test(normalized)) return 'credentialPrompt';
+  if (/\bself[-_\s]?harm\b|\bsuicide\b/iu.test(normalized)) return 'selfHarmSignal';
+  if (/\badult\b|\bexplicit\b|\bsexual\b/iu.test(normalized)) return 'explicitContentSignal';
+  if (/\bviolence\b|\bviolent\b|\bcombat\b|\bunsafe\b/iu.test(normalized)) return 'unsafeVisibleContent';
+  if (normalized === 'unknown') return 'unknown';
+  return 'unknown';
 }
 
 function buildScreenAnalysisResult(scenario, captureMetadata, modelEvidence) {
