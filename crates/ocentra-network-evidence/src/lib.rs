@@ -1,3 +1,4 @@
+pub mod cascade;
 pub mod category;
 pub mod classifier;
 pub mod dns;
@@ -19,6 +20,11 @@ mod process_support;
 #[cfg(test)]
 mod tests;
 
+pub use cascade::{
+    route_network_evidence_cascade, NetworkCascadeNextCheck, NetworkCascadeSignalStrength,
+    NetworkCascadeSource, NetworkCascadeSourceKind, NetworkEvidenceCascadeDecision,
+    NetworkEvidenceCascadeError, NetworkEvidenceCascadeInput,
+};
 pub use category::{
     evaluate_category_source_update, lookup_domain_category, CategoryFreshnessState,
     CategoryMatchKind, CategorySourceCustody, CategoryUpdateDecision, DomainCategoryDatabase,

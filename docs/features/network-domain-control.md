@@ -122,6 +122,10 @@ compete on control while staying clear about attribution confidence and privacy.
   `ocentra-network-evidence`: exact URLs are attached only from matching managed
   browser page evidence, while network-only domains and mismatched browser
   evidence stay non-exact and no decrypted/page-content claim is made.
+- E-D added a deterministic evidence cascade router in
+  `ocentra-network-evidence`: confirmed/candidate/weak signals are ranked,
+  weak hints route to managed-browser/process/screen/local-AI next checks, and
+  the router never authorizes policy or adapter action.
 - E-D added Rust protocol-facing network/AI/policy/enforcement/audit/portal
   event contracts in `crates/agent-protocol`. The proof serializes exact
   chain refs, no exact URL/content claim boundaries, policy-decision-gated
