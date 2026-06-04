@@ -35,6 +35,11 @@ mobile readiness, and control catalogs.
   artifact write/read proof, without provider delivery, receipt ingestion,
   credentials, cloud routing, parent UI, production durable storage, or
   sensitive detail storage claims.
+- App/game notification scheduler handoff contracts that map eligible app/game
+  local outbox bridge rows into `due-local` scheduler rows while preserving
+  blocked manual/unavailable intents and keeping provider, timer, UI, adapter,
+  durable persistence, child delivery, broad blocking, and platform claims
+  false.
 - Local AI runtime, provider, scheduler, context, and reference contracts.
 - Parent assistant and action-preview contracts.
 - LAN pairing, device roles, controller/observer states, and provider routing.
@@ -172,10 +177,13 @@ flowchart LR
   deterministic parent-owned JSONL artifact proof only; notification local
   outbox scheduler proof covers deterministic due/held/retry/dead-letter/
   receipt/manual scheduler rows and parent-owned artifact write/read proof only.
-  Provider adapters, provider receipts, delivered receipt ingestion, production
-  retry workers, production quiet-hours timers, escalation delivery, parent
-  controls, notification UI, provider credentials, cloud routing, and durable
-  production outbox storage remain unclaimed.
+  App/game notification scheduler handoff proof maps eligible app/game outbox
+  bridge rows to due-local scheduler records only. Provider adapters, provider
+  receipts, delivered receipt ingestion, production retry workers, production
+  quiet-hours timers, escalation delivery, parent controls, notification UI,
+  provider credentials, cloud routing, durable production outbox storage,
+  service persistence, child delivery, broad blocking, and platform support
+  remain unclaimed.
 - LAN source-matrix proof is contract/read-model proof. It does not implement
   targeted ARP, bounded ARP sweep, packet listeners, real mDNS/SSDP
   advertisements, relay/cache, or physical household validation.

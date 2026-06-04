@@ -1,0 +1,13 @@
+Validation run:
+- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS
+- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tests/app-game-notification-scheduler-handoff.test.ts: PASS
+- node scripts/test/app-game-notification-scheduler-handoff-proof.mjs: PASS
+- cmd /c npm run lanes:status: PASS
+- cmd /c npm run lanes:guard: PASS
+- cmd /c npm run hub:status: PASS
+- cmd /c npm run hub:guard: PASS
+- cmd /c npm run lint --workspace @ocentra-parent/parent-domain: PASS
+- git diff --check: PASS
+- git diff --cached --check: PASS
+- node scripts/check-source-shape.mjs: PASS with existing advisory warnings
+- git commit pre-commit hook: PASS

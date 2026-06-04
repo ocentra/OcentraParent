@@ -1,0 +1,493 @@
+{
+  "schemaVersion": 1,
+  "proofMode": "app-game-notification-scheduler-handoff-proof",
+  "checkedAt": "2026-06-04T22:52:58.620Z",
+  "commit": "87a00603e7b1f63e12d708d035074144b3614fde",
+  "branch": "codex/app-game-notification-outbox-bridge",
+  "commands": [
+    {
+      "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
+      "startedAt": "2026-06-04T22:52:53.899Z",
+      "exitCode": 0
+    },
+    {
+      "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tests/app-game-notification-scheduler-handoff.test.ts",
+      "startedAt": "2026-06-04T22:52:56.241Z",
+      "exitCode": 0
+    }
+  ],
+  "summary": {
+    "sourceBridgeRecords": 3,
+    "scheduledIntentCount": 3,
+    "blockedIntentCount": 2,
+    "schedulerRecordCount": 3,
+    "dueLocalRecordCount": 3,
+    "stateCounts": {
+      "due-local": 3,
+      "held-quiet-hours": 0,
+      "retry-window-scheduled": 0,
+      "dead-letter-review": 0,
+      "receipt-required": 0,
+      "manual-required": 0
+    },
+    "channelCounts": {
+      "push": 1,
+      "email": 1,
+      "sms": 0,
+      "whatsapp": 0,
+      "in-app": 1
+    },
+    "blockedReasons": {
+      "manual-required-no-local-outbox": 1,
+      "capability-unavailable-no-local-outbox": 1
+    },
+    "nonClaims": [
+      "no-provider-delivery",
+      "no-provider-receipt-ingestion",
+      "no-provider-credentials",
+      "no-cloud-routing",
+      "no-parent-notification-ui",
+      "no-retry-worker-execution",
+      "no-quiet-hours-timer-runtime",
+      "no-production-durable-outbox-storage",
+      "no-durable-service-persistence",
+      "no-child-device-delivery",
+      "no-adapter-dispatch",
+      "no-broad-app-blocking",
+      "no-platform-support",
+      "no-raw-child-evidence"
+    ]
+  },
+  "claimsProved": [
+    "app/game local outbox bridge rows are transformed into scheduler-ready due-local records",
+    "scheduler rows preserve local outbox source entry refs, reason codes, provider channel preferences, severity, and parent-owned artifact refs",
+    "manual-required and capability-unavailable app/game notification intents remain blocked and are not scheduled",
+    "scheduler JSONL evidence rereads through the shared NotificationLocalOutboxSchedulerRecord schema",
+    "provider delivery, provider receipts, credentials, cloud routing, parent notification UI, retry worker execution, quiet-hours timer execution, production durable storage, service persistence, child delivery, adapter dispatch, broad blocking, and platform support remain false"
+  ],
+  "claimsNotProved": [
+    "production scheduler timer loop or retry worker execution",
+    "quiet-hours runtime enforcement",
+    "external push/email/SMS/WhatsApp/in-app provider delivery",
+    "provider receipt ingestion or credentials",
+    "parent notification UI, history, or preferences",
+    "durable service persistence or WebSocket notification read model",
+    "child app or overlay delivery",
+    "policy evaluator execution, adapter dispatch, broad app blocking, or platform support"
+  ],
+  "evidence": {
+    "contract": "packages/parent-domain/src/app-game-notification-scheduler-handoff.ts",
+    "bridgeContract": "packages/parent-domain/src/app-game-notification-local-outbox-bridge.ts",
+    "schedulerContract": "packages/parent-domain/src/notification-local-outbox-scheduler-proof.ts",
+    "test": "packages/parent-domain/tests/app-game-notification-scheduler-handoff.test.ts",
+    "harness": "scripts/test/app-game-notification-scheduler-handoff-proof.mjs",
+    "appGameProofPack": "output/app-game-plan-proof/55-notification-scheduler-handoff",
+    "appProofPack": "output/app-plan-proof/55-notification-scheduler-handoff",
+    "schedulerJsonl": "test-results/app-game-notification-scheduler-handoff-proof/local-scheduler/scheduler.jsonl",
+    "schedulerManifest": "test-results/app-game-notification-scheduler-handoff-proof/local-scheduler/manifest.json",
+    "packageExport": "@ocentra-parent/parent-domain/app-game-notification-scheduler-handoff"
+  },
+  "schedulerArtifact": {
+    "schedulerFile": "test-results/app-game-notification-scheduler-handoff-proof/local-scheduler/scheduler.jsonl",
+    "manifest": "test-results/app-game-notification-scheduler-handoff-proof/local-scheduler/manifest.json",
+    "recordsWritten": 3,
+    "schedulerEntryIds": [
+      "app-game-scheduler-due-local-outbox-record-scheduler-game-limit",
+      "app-game-scheduler-due-local-outbox-record-scheduler-approval-request",
+      "app-game-scheduler-due-local-outbox-record-scheduler-suspicious-unknown"
+    ]
+  },
+  "proofReadModel": {
+    "schemaVersion": "app-game-notification-scheduler-handoff",
+    "contractVersion": "v0.6",
+    "sourceBridgeSchemaVersion": "app-game-notification-local-outbox-bridge",
+    "readModelId": "app-game-notification-scheduler-handoff",
+    "generatedAt": "2026-06-04T19:14:00Z",
+    "schedulerNowAt": "2026-06-04T19:15:00Z",
+    "sourceBridgeReadModelRef": "app-game-notification-local-outbox-bridge",
+    "sourceIntentReadModelRef": "app-game-notification-intent-contract-proof",
+    "localOutboxReadModelRef": "notification-local-outbox-adapter-proof",
+    "schedulerArtifactRootRef": "parent-owned-app-game-notification-scheduler-root",
+    "scheduledIntentRefs": [
+      {
+        "notificationIntentRef": "notification-intent-scheduler-time-limit",
+        "localOutboxRecordRef": "local-outbox-record-scheduler-game-limit",
+        "schedulerEntryRef": "app-game-scheduler-due-local-outbox-record-scheduler-game-limit",
+        "intentKind": "time-limit-reached",
+        "outboxReasonCode": "policy-violation",
+        "providerChannel": "push",
+        "schedulerState": "due-local"
+      },
+      {
+        "notificationIntentRef": "notification-intent-scheduler-approval-request",
+        "localOutboxRecordRef": "local-outbox-record-scheduler-approval-request",
+        "schedulerEntryRef": "app-game-scheduler-due-local-outbox-record-scheduler-approval-request",
+        "intentKind": "approval-requested",
+        "outboxReasonCode": "parent-request",
+        "providerChannel": "in-app",
+        "schedulerState": "due-local"
+      },
+      {
+        "notificationIntentRef": "notification-intent-scheduler-suspicious-unknown",
+        "localOutboxRecordRef": "local-outbox-record-scheduler-suspicious-unknown",
+        "schedulerEntryRef": "app-game-scheduler-due-local-outbox-record-scheduler-suspicious-unknown",
+        "intentKind": "suspicious-unknown",
+        "outboxReasonCode": "suspicious-unknown",
+        "providerChannel": "email",
+        "schedulerState": "due-local"
+      }
+    ],
+    "blockedIntentRefs": [
+      {
+        "notificationIntentRef": "notification-intent-scheduler-manual-required",
+        "blockReason": "manual-required-no-local-outbox",
+        "manualProofRequirements": [
+          "parent manual review required"
+        ]
+      },
+      {
+        "notificationIntentRef": "notification-intent-scheduler-unavailable",
+        "blockReason": "capability-unavailable-no-local-outbox",
+        "manualProofRequirements": [
+          "provider or capability availability proof required"
+        ]
+      }
+    ],
+    "sourceLocalOutboxRecords": [
+      {
+        "entryId": "local-outbox-record-scheduler-game-limit",
+        "state": "queued-local",
+        "envelope": {
+          "alertRef": "notification-intent-scheduler-time-limit",
+          "family": {
+            "familyId": "family-app-game-notification-scheduler"
+          },
+          "device": {
+            "deviceId": "device-app-game-notification-scheduler",
+            "childProfileId": "child-app-game-notification-scheduler",
+            "label": "Study PC",
+            "platform": "windows"
+          },
+          "parentAction": {
+            "actionReferenceId": "parent-action-app-game-notification-scheduler",
+            "actor": {
+              "actorId": "parent-app-game-notification-scheduler",
+              "role": "parent"
+            },
+            "policyVersion": "policy-app-game-notification-scheduler-v1",
+            "createdAt": "2026-06-04T19:14:00Z"
+          },
+          "severity": "urgent",
+          "reasonCode": "policy-violation",
+          "providerChannel": "push",
+          "evidenceRefs": [
+            {
+              "evidenceReferenceId": "evidence-app-game-notification-scheduler-session",
+              "kind": "policy-decision",
+              "observedAt": "2026-06-04T19:14:00Z"
+            }
+          ],
+          "policyRefs": [
+            "policy-ref-game-limit"
+          ],
+          "auditRefs": [
+            "audit-ref-game-limit-notification"
+          ],
+          "payloadTemplateRef": "app-game-notification-template-appGame.notification.timeLimit.title",
+          "providerPayloadPreview": "app-game alert ref notification-intent-scheduler-time-limit reason policy-violation evidence and policy refs only",
+          "sensitiveDetailMinimized": true,
+          "rawChildEvidenceIncluded": false,
+          "rawUrlOrTitleIncluded": false,
+          "rawMessageTextIncluded": false,
+          "screenshotOrReportIncluded": false
+        },
+        "outboxFileRef": "parent-owned-app-game-notification-outbox-jsonl-ref",
+        "localDataPathRef": "parent-owned-app-game-notification-local-data-path-ref",
+        "deliveryClaimState": "local-outbox-only",
+        "visibleAfterAt": null,
+        "retryAttemptCount": 0,
+        "quietHoursRef": null,
+        "retryPolicyRef": null,
+        "deadLetterRef": null,
+        "providerReceiptRef": null,
+        "manualProofRequirements": [],
+        "manualActionRequired": false,
+        "providerDeliveryAttempted": false,
+        "providerDeliveryObserved": false,
+        "providerReceiptIngested": false,
+        "providerCredentialsStored": false,
+        "cloudRoutingClaimed": false,
+        "parentNotificationUiClaimed": false,
+        "sensitiveProviderMetadataStored": false
+      },
+      {
+        "entryId": "local-outbox-record-scheduler-approval-request",
+        "state": "queued-local",
+        "envelope": {
+          "alertRef": "notification-intent-scheduler-approval-request",
+          "family": {
+            "familyId": "family-app-game-notification-scheduler"
+          },
+          "device": {
+            "deviceId": "device-app-game-notification-scheduler",
+            "childProfileId": "child-app-game-notification-scheduler",
+            "label": "Study PC",
+            "platform": "windows"
+          },
+          "parentAction": {
+            "actionReferenceId": "parent-action-app-game-notification-scheduler",
+            "actor": {
+              "actorId": "parent-app-game-notification-scheduler",
+              "role": "parent"
+            },
+            "policyVersion": "policy-app-game-notification-scheduler-v1",
+            "createdAt": "2026-06-04T19:14:00Z"
+          },
+          "severity": "attention",
+          "reasonCode": "parent-request",
+          "providerChannel": "in-app",
+          "evidenceRefs": [
+            {
+              "evidenceReferenceId": "evidence-app-game-notification-scheduler-session",
+              "kind": "policy-decision",
+              "observedAt": "2026-06-04T19:14:00Z"
+            }
+          ],
+          "policyRefs": [
+            "policy-ref-game-limit"
+          ],
+          "auditRefs": [
+            "audit-ref-game-limit-notification"
+          ],
+          "payloadTemplateRef": "app-game-notification-template-appGame.notification.approval.title",
+          "providerPayloadPreview": "app-game alert ref notification-intent-scheduler-approval-request reason parent-request evidence and policy refs only",
+          "sensitiveDetailMinimized": true,
+          "rawChildEvidenceIncluded": false,
+          "rawUrlOrTitleIncluded": false,
+          "rawMessageTextIncluded": false,
+          "screenshotOrReportIncluded": false
+        },
+        "outboxFileRef": "parent-owned-app-game-notification-outbox-jsonl-ref",
+        "localDataPathRef": "parent-owned-app-game-notification-local-data-path-ref",
+        "deliveryClaimState": "local-outbox-only",
+        "visibleAfterAt": null,
+        "retryAttemptCount": 0,
+        "quietHoursRef": null,
+        "retryPolicyRef": null,
+        "deadLetterRef": null,
+        "providerReceiptRef": null,
+        "manualProofRequirements": [],
+        "manualActionRequired": false,
+        "providerDeliveryAttempted": false,
+        "providerDeliveryObserved": false,
+        "providerReceiptIngested": false,
+        "providerCredentialsStored": false,
+        "cloudRoutingClaimed": false,
+        "parentNotificationUiClaimed": false,
+        "sensitiveProviderMetadataStored": false
+      },
+      {
+        "entryId": "local-outbox-record-scheduler-suspicious-unknown",
+        "state": "queued-local",
+        "envelope": {
+          "alertRef": "notification-intent-scheduler-suspicious-unknown",
+          "family": {
+            "familyId": "family-app-game-notification-scheduler"
+          },
+          "device": {
+            "deviceId": "device-app-game-notification-scheduler",
+            "childProfileId": "child-app-game-notification-scheduler",
+            "label": "Study PC",
+            "platform": "windows"
+          },
+          "parentAction": {
+            "actionReferenceId": "parent-action-app-game-notification-scheduler",
+            "actor": {
+              "actorId": "parent-app-game-notification-scheduler",
+              "role": "parent"
+            },
+            "policyVersion": "policy-app-game-notification-scheduler-v1",
+            "createdAt": "2026-06-04T19:14:00Z"
+          },
+          "severity": "attention",
+          "reasonCode": "suspicious-unknown",
+          "providerChannel": "email",
+          "evidenceRefs": [
+            {
+              "evidenceReferenceId": "evidence-app-game-notification-scheduler-session",
+              "kind": "policy-decision",
+              "observedAt": "2026-06-04T19:14:00Z"
+            }
+          ],
+          "policyRefs": [
+            "policy-ref-game-limit"
+          ],
+          "auditRefs": [
+            "audit-ref-game-limit-notification"
+          ],
+          "payloadTemplateRef": "app-game-notification-template-appGame.notification.suspiciousUnknown.title",
+          "providerPayloadPreview": "app-game alert ref notification-intent-scheduler-suspicious-unknown reason suspicious-unknown evidence and policy refs only",
+          "sensitiveDetailMinimized": true,
+          "rawChildEvidenceIncluded": false,
+          "rawUrlOrTitleIncluded": false,
+          "rawMessageTextIncluded": false,
+          "screenshotOrReportIncluded": false
+        },
+        "outboxFileRef": "parent-owned-app-game-notification-outbox-jsonl-ref",
+        "localDataPathRef": "parent-owned-app-game-notification-local-data-path-ref",
+        "deliveryClaimState": "local-outbox-only",
+        "visibleAfterAt": null,
+        "retryAttemptCount": 0,
+        "quietHoursRef": null,
+        "retryPolicyRef": null,
+        "deadLetterRef": null,
+        "providerReceiptRef": null,
+        "manualProofRequirements": [],
+        "manualActionRequired": false,
+        "providerDeliveryAttempted": false,
+        "providerDeliveryObserved": false,
+        "providerReceiptIngested": false,
+        "providerCredentialsStored": false,
+        "cloudRoutingClaimed": false,
+        "parentNotificationUiClaimed": false,
+        "sensitiveProviderMetadataStored": false
+      }
+    ],
+    "records": [
+      {
+        "schedulerEntryId": "app-game-scheduler-due-local-outbox-record-scheduler-game-limit",
+        "sourceEntryId": "local-outbox-record-scheduler-game-limit",
+        "sourceState": "queued-local",
+        "schedulerState": "due-local",
+        "reasonCode": "policy-violation",
+        "providerChannel": "push",
+        "severity": "urgent",
+        "schedulerDecisionRef": "app-game-scheduler-decision-notification-intent-scheduler-time-limit",
+        "schedulerArtifactRef": "parent-owned-app-game-notification-scheduler-root-notification-intent-scheduler-time-limit",
+        "sourceOutboxFileRef": "parent-owned-app-game-notification-outbox-jsonl-ref",
+        "localDataPathRef": "parent-owned-app-game-notification-local-data-path-ref",
+        "schedulerNowAt": "2026-06-04T19:15:00Z",
+        "nextAttemptAt": "2026-06-04T19:15:00Z",
+        "quietHoursWindow": null,
+        "retryWindow": null,
+        "deadLetterReviewRef": null,
+        "providerReceiptRef": null,
+        "manualProofRequirements": [],
+        "manualActionRequired": false,
+        "parentOwnedArtifactWritten": true,
+        "rawChildEvidenceIncluded": false,
+        "rawUrlOrTitleIncluded": false,
+        "rawMessageTextIncluded": false,
+        "screenshotOrReportIncluded": false,
+        "providerDeliveryAttempted": false,
+        "providerDeliveryObserved": false,
+        "providerReceiptIngested": false,
+        "providerCredentialsStored": false,
+        "cloudRoutingClaimed": false,
+        "parentNotificationUiClaimed": false,
+        "productionDurableOutboxStorageClaimed": false,
+        "sensitiveProviderMetadataStored": false,
+        "schedulerPayloadPreview": "app-game alert ref notification-intent-scheduler-time-limit due locally with policy-violation refs only"
+      },
+      {
+        "schedulerEntryId": "app-game-scheduler-due-local-outbox-record-scheduler-approval-request",
+        "sourceEntryId": "local-outbox-record-scheduler-approval-request",
+        "sourceState": "queued-local",
+        "schedulerState": "due-local",
+        "reasonCode": "parent-request",
+        "providerChannel": "in-app",
+        "severity": "attention",
+        "schedulerDecisionRef": "app-game-scheduler-decision-notification-intent-scheduler-approval-request",
+        "schedulerArtifactRef": "parent-owned-app-game-notification-scheduler-root-notification-intent-scheduler-approval-request",
+        "sourceOutboxFileRef": "parent-owned-app-game-notification-outbox-jsonl-ref",
+        "localDataPathRef": "parent-owned-app-game-notification-local-data-path-ref",
+        "schedulerNowAt": "2026-06-04T19:15:00Z",
+        "nextAttemptAt": "2026-06-04T19:15:00Z",
+        "quietHoursWindow": null,
+        "retryWindow": null,
+        "deadLetterReviewRef": null,
+        "providerReceiptRef": null,
+        "manualProofRequirements": [],
+        "manualActionRequired": false,
+        "parentOwnedArtifactWritten": true,
+        "rawChildEvidenceIncluded": false,
+        "rawUrlOrTitleIncluded": false,
+        "rawMessageTextIncluded": false,
+        "screenshotOrReportIncluded": false,
+        "providerDeliveryAttempted": false,
+        "providerDeliveryObserved": false,
+        "providerReceiptIngested": false,
+        "providerCredentialsStored": false,
+        "cloudRoutingClaimed": false,
+        "parentNotificationUiClaimed": false,
+        "productionDurableOutboxStorageClaimed": false,
+        "sensitiveProviderMetadataStored": false,
+        "schedulerPayloadPreview": "app-game alert ref notification-intent-scheduler-approval-request due locally with parent-request refs only"
+      },
+      {
+        "schedulerEntryId": "app-game-scheduler-due-local-outbox-record-scheduler-suspicious-unknown",
+        "sourceEntryId": "local-outbox-record-scheduler-suspicious-unknown",
+        "sourceState": "queued-local",
+        "schedulerState": "due-local",
+        "reasonCode": "suspicious-unknown",
+        "providerChannel": "email",
+        "severity": "attention",
+        "schedulerDecisionRef": "app-game-scheduler-decision-notification-intent-scheduler-suspicious-unknown",
+        "schedulerArtifactRef": "parent-owned-app-game-notification-scheduler-root-notification-intent-scheduler-suspicious-unknown",
+        "sourceOutboxFileRef": "parent-owned-app-game-notification-outbox-jsonl-ref",
+        "localDataPathRef": "parent-owned-app-game-notification-local-data-path-ref",
+        "schedulerNowAt": "2026-06-04T19:15:00Z",
+        "nextAttemptAt": "2026-06-04T19:15:00Z",
+        "quietHoursWindow": null,
+        "retryWindow": null,
+        "deadLetterReviewRef": null,
+        "providerReceiptRef": null,
+        "manualProofRequirements": [],
+        "manualActionRequired": false,
+        "parentOwnedArtifactWritten": true,
+        "rawChildEvidenceIncluded": false,
+        "rawUrlOrTitleIncluded": false,
+        "rawMessageTextIncluded": false,
+        "screenshotOrReportIncluded": false,
+        "providerDeliveryAttempted": false,
+        "providerDeliveryObserved": false,
+        "providerReceiptIngested": false,
+        "providerCredentialsStored": false,
+        "cloudRoutingClaimed": false,
+        "parentNotificationUiClaimed": false,
+        "productionDurableOutboxStorageClaimed": false,
+        "sensitiveProviderMetadataStored": false,
+        "schedulerPayloadPreview": "app-game alert ref notification-intent-scheduler-suspicious-unknown due locally with suspicious-unknown refs only"
+      }
+    ],
+    "nonClaims": [
+      "no-provider-delivery",
+      "no-provider-receipt-ingestion",
+      "no-provider-credentials",
+      "no-cloud-routing",
+      "no-parent-notification-ui",
+      "no-retry-worker-execution",
+      "no-quiet-hours-timer-runtime",
+      "no-production-durable-outbox-storage",
+      "no-durable-service-persistence",
+      "no-child-device-delivery",
+      "no-adapter-dispatch",
+      "no-broad-app-blocking",
+      "no-platform-support",
+      "no-raw-child-evidence"
+    ],
+    "providerDeliveryRuntimeClaimed": false,
+    "providerReceiptIngestionClaimed": false,
+    "providerCredentialsClaimed": false,
+    "cloudRoutingClaimed": false,
+    "parentNotificationUiClaimed": false,
+    "retryExecutionRuntimeClaimed": false,
+    "quietHoursTimerRuntimeClaimed": false,
+    "productionDurableOutboxStorageClaimed": false,
+    "durableServicePersistenceClaimed": false,
+    "childDeviceDeliveryClaimed": false,
+    "adapterDispatchClaimed": false,
+    "broadAppBlockingClaimed": false,
+    "platformSupportClaimed": false
+  }
+}

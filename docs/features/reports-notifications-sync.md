@@ -94,6 +94,11 @@ custody.
   intents as blocked, without provider delivery, parent notification UI,
   adapter dispatch, durable service persistence, broad blocking, or platform
   claims.
+- App/game notification scheduler handoff proof now maps those eligible
+  app/game local outbox bridge rows into `due-local` scheduler records with
+  parent-owned scheduler artifact refs, while manual-required/unavailable
+  app/game intents remain blocked from scheduler rows and provider/runtime
+  claims stay false.
 - Parent-owned sync/export manifest contract proof now represents export
   manifest data classes, export formats, encryption metadata, retention/delete
   policy, connector status, sync cursor states, conflict records, import
@@ -154,6 +159,12 @@ blocking, or platform support.
 The app/game notification local outbox bridge proof adds a typed bridge from
 eligible app/game intents into parent-owned local outbox records, but does not
 claim provider delivery, receipt ingestion, durable service persistence,
+child-device delivery, parent notification UI, policy evaluator execution,
+adapter dispatch, broad app blocking, or platform support.
+The app/game notification scheduler handoff proof adds a typed handoff from
+eligible app/game local outbox bridge rows into due-local scheduler records,
+but does not claim production retry workers, quiet-hours timer execution,
+provider delivery, receipt ingestion, credentials, durable service persistence,
 child-device delivery, parent notification UI, policy evaluator execution,
 adapter dispatch, broad app blocking, or platform support.
 The parent-owned sync/export manifest proof adds typed export/retention/delete,
@@ -225,6 +236,12 @@ delivery, policy writes, or child-device enforcement.
       and manual-required/unavailable intents blocked from outbox records,
       without provider delivery, adapter dispatch, durable service persistence,
       parent notification UI, broad blocking, or platform claims.
+- [x] App/game notification scheduler handoff proof exists with eligible
+      app/game local outbox bridge rows mapped to `due-local` scheduler records
+      and manual-required/unavailable intents blocked from scheduler rows,
+      without provider delivery, provider receipt ingestion, credentials,
+      production retry workers, quiet-hours timer execution, durable service
+      persistence, parent notification UI, broad blocking, or platform claims.
 - [ ] Retention/delete controls.
 
 ## Next AI Instructions

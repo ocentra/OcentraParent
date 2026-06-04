@@ -21,6 +21,10 @@
       "import": "./dist/app-game-notification-local-outbox-bridge.js",
       "types": "./dist/app-game-notification-local-outbox-bridge.d.ts"
     },
+    "./app-game-notification-scheduler-handoff": {
+      "import": "./dist/app-game-notification-scheduler-handoff.js",
+      "types": "./dist/app-game-notification-scheduler-handoff.d.ts"
+    },
     "./app-install-purchase-approval": {
       "import": "./dist/app-install-purchase-approval.js",
       "types": "./dist/app-install-purchase-approval.d.ts"

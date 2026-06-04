@@ -57,6 +57,7 @@ before `DONE` or PR-ready reporting.
 49. WP52 policy readiness service read model.
 50. WP53 app/game notification intent contract.
 51. WP54 app/game notification local outbox bridge.
+52. WP55 app/game notification scheduler handoff.
 
 ## Standard AI Worker Checklist
 

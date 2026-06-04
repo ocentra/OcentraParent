@@ -1,0 +1,8 @@
+{
+  "proofMode": "app-game-notification-scheduler-handoff-proof",
+  "schedulerFile": "test-results/app-game-notification-scheduler-handoff-proof/local-scheduler/scheduler.jsonl",
+  "recordCount": 3,
+  "schedulerArtifactRef": "parent-owned-app-game-notification-scheduler-root-notification-intent-scheduler-time-limit",
+  "localDataPathRef": "parent-owned-app-game-notification-local-data-path-ref",
+  "generatedAt": "2026-06-04T22:52:58.618Z"
+}

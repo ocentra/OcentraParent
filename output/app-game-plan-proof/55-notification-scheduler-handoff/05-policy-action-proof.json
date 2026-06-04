@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "stateCounts": {
+    "due-local": 3,
+    "held-quiet-hours": 0,
+    "retry-window-scheduled": 0,
+    "dead-letter-review": 0,
+    "receipt-required": 0,
+    "manual-required": 0
+  },
+  "channelCounts": {
+    "push": 1,
+    "email": 1,
+    "sms": 0,
+    "whatsapp": 0,
+    "in-app": 1
+  },
+  "policyEvaluatorExecuted": false,
+  "adapterDispatchClaimed": false,
+  "broadAppBlockingClaimed": false
+}

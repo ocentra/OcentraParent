@@ -1,0 +1,6 @@
+Contract proof:
+- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS
+- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tests/app-game-notification-scheduler-handoff.test.ts: PASS
+- App/game local outbox bridge rows create due-local scheduler rows.
+- Manual-required and unavailable app/game notification intents remain blocked from scheduler rows.
+- Invalid provider, timer, UI, persistence, broad-blocking, platform, and scheduler-link claims are rejected.

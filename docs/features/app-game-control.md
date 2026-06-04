@@ -200,6 +200,10 @@ control with better evidence and local audit.
   time-limit, approval request, and suspicious unknown intents into queued
   parent-owned local outbox records with minimal ref-only envelopes, while
   manual-required and unavailable intents remain blocked from outbox records.
+- App/game notification scheduler handoff proof now maps those eligible local
+  outbox bridge rows into `due-local` scheduler records with parent-owned
+  artifact refs, while manual-required and unavailable intents remain blocked
+  from scheduler rows.
 - The Rust core now has a live `sysinfo` process snapshot source that reads the
   current local process table into the existing app/game runtime record shape,
   uses opaque executable-path refs, and keeps runtime evidence from becoming
@@ -338,6 +342,11 @@ The app/game notification local outbox bridge proof is also contract-level: it
 does not provide provider delivery, receipt ingestion, durable service
 persistence, parent notification UI, child-device delivery, policy evaluator
 execution, adapter dispatch, broad blocking, or platform support.
+The app/game notification scheduler handoff proof is also contract-level: it
+does not provide provider delivery, receipt ingestion, provider credentials,
+production retry workers, quiet-hours timer execution, durable service
+persistence, parent notification UI, child-device delivery, policy evaluator
+execution, adapter dispatch, broad blocking, or platform support.
 
 ## Checklist
 
@@ -402,8 +411,10 @@ execution, adapter dispatch, broad blocking, or platform support.
       approval/time-limit/manual/unavailable alert readiness to evidence,
       policy, audit, child reason/status, and minimal payload refs. The local
       outbox bridge now queues eligible intent refs into parent-owned local
-      outbox records and blocks manual/unavailable intents, but provider
-      delivery and finished parent/child UX remain.
+      outbox records and blocks manual/unavailable intents; the scheduler
+      handoff maps eligible bridge rows to due-local scheduler records only.
+      Provider delivery, runtime scheduler execution, and finished parent/child
+      UX remain.
 - [ ] Child-facing reason/status is referenced in the runtime audit; finished
       child request/status UX remains. Child-facing UX contracts and
       text-domain copy tokens now cover respectful warning, approval-needed,

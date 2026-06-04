@@ -1,0 +1,5 @@
+Security/no-claim proof:
+- Scheduler rows carry refs only and exclude raw child evidence.
+- Manual-required and unavailable intents are not scheduled.
+- Provider delivery, provider receipts, credentials, cloud routing, parent notification UI, retry execution, quiet-hours timer execution, durable storage, service persistence, child-device delivery, adapter dispatch, broad app blocking, and platform support remain false.
+- Scheduler JSONL proof artifact is scanned for forbidden raw-detail fragments.
