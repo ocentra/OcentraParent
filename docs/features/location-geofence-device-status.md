@@ -61,7 +61,8 @@ expose location or device-status features. Parents expect this category.
   exposes retention-delete rows as tombstone replay rows with active/tombstone
   counts, deleted-at metadata, and deleted evidence citation IDs. The parent
   portal `policy-tracking` route consumes that service read model as a narrow
-  live summary beside the P1 fixture rows. The repeatable proof command is
+  live summary plus live service-backed citation rows beside the P1 fixture
+  rows. The repeatable proof command is
   `node scripts/test/tracking-plan-service-read-model-proof.mjs`, with
   artifacts
   `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/14-retention-delete-proof.json`
@@ -102,9 +103,9 @@ expose location or device-status features. Parents expect this category.
   explicit `manual_required` proof instead of pretending simulator execution
   happened.
 - Platform permissions, mobile physical-device proof, full runtime adapters,
-  provider delivery, notification delivery, full parent/child UI, hosted screenshots,
-  accessibility, and richer live service-backed UI evidence citations remain not
-  product-complete.
+  provider delivery, notification delivery, full parent/child UI, hosted
+  screenshots, accessibility, and broader service-backed product UI beyond the
+  current live citation rows remain not product-complete.
 - Raw tracking/location settings are preserved as design inputs, not
   product-complete implementation proof.
 
@@ -112,13 +113,14 @@ expose location or device-status features. Parents expect this category.
 
 Location/geofence is now in contract, P1 fixture/runtime proof, narrow P2
 service read-model proof with retention-delete tombstone replay, narrow portal
-summary-consumption proof, P1 local parent-defined place store proof,
+summary-consumption proof, live service-backed portal citation rows, P1 local
+parent-defined place store proof,
 pre-device proof-gate progress, and Android emulator package/service/status
 scaffold proof, and P3 WSL/local replay proof. It remains a tracked product gap
 until platform location and geofence adapters, broader product read models,
 provider delivery, notifications, physical-device proof, full parent/child UI
-snapshots, accessibility, hosted UI proof, and richer live service-backed UI
-evidence citations are proved.
+snapshots, accessibility, hosted UI proof, and broader service-backed product
+UI/read-model surfaces are proved.
 
 ## Checklist
 
@@ -145,8 +147,8 @@ evidence citations are proved.
 - [x] P1 ActivityStore tracking-event SQLite ingest proof.
 - [x] P2 service-backed tracking read-model command proof for SQLite journal
       rows, citation IDs, and retention-delete tombstone replay.
-- [x] Narrow parent portal summary consumption of the service-backed tracking
-      read model.
+- [x] Narrow parent portal summary consumption and live citation rows for the
+      service-backed tracking read model.
 - [x] P1 local parent-defined place store proof for CRUD/import/export/delete
       with parent-device-local default storage and remote sync disabled.
 - [x] P3 WSL/local replay proof for the tracking read-model proof stack and
@@ -155,7 +157,7 @@ evidence citations are proved.
       and local proof artifact references.
 - [x] Pre-device gap-closure proof gate and Android Studio/iOS simulator/WSL/manual
       proof plans.
-- [ ] Richer live service-backed UI citations beyond the narrow summary.
+- [ ] Full service-data tracking UI beyond the current live citation rows.
 - [ ] Live parent/child UI screenshots, hosted proof, and accessibility proof.
 
 ## Next AI Instructions
@@ -165,7 +167,7 @@ background execution, retention, and custody as first-class requirements.
 Use `docs/plans/tracking-plan/README.md` for implementation sequencing and
 workpack ownership. Keep AI as evidence, not authority, and keep LAN/IP/Wi-Fi
 presence as hints only. The pre-device proof gate is now repeatable; the next
-implementation layers are richer tracking journal/read-model surfaces, full
+implementation layers are broader tracking journal/read-model product surfaces, full
 portal UI snapshots/accessibility, remaining Android foreground-location and
 background/geofence runtime proof, iOS Core Location/region proof beyond
 simulator package launch, then physical Android/iOS proof and authority proof

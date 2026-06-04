@@ -10,7 +10,11 @@ import {
   type PortalDisplayText,
   type TrackingStatusProofArtifact,
 } from '@ocentra-parent/portal-domain/contracts';
-import type { AgentActivityTrackingEvidenceReferenceIds } from '@ocentra-parent/agent-protocol-domain/tracking-read-model';
+import type {
+  AgentActivityTrackingEvidenceReferenceIds,
+  AgentActivityTrackingReadModel,
+  AgentActivityTrackingReadModelRow,
+} from '@ocentra-parent/agent-protocol-domain/tracking-read-model';
 import { appendDetail } from './detail-list';
 import type { PortalLiveActivityState } from './live-activity-state';
 import { renderDashboard } from './portal-dashboard';
@@ -40,6 +44,22 @@ export type TrackingStatusLiveSummary = {
   readonly custody: PortalDetailValue;
   readonly evidenceReferences: PortalDetailValue;
   readonly parserReason: PortalDetailValue | null;
+  readonly productClaim: PortalDisplayText;
+  readonly citations: readonly TrackingStatusLiveCitation[];
+};
+
+export type TrackingStatusLiveCitation = {
+  readonly title: PortalDetailValue;
+  readonly eventId: PortalDetailValue;
+  readonly observedAt: PortalDetailValue;
+  readonly device: PortalDetailValue;
+  readonly platform: PortalDetailValue;
+  readonly observer: PortalDetailValue;
+  readonly activityKind: PortalDetailValue;
+  readonly subject: PortalDetailValue;
+  readonly status: PortalDetailValue;
+  readonly evidenceReferences: PortalDetailValue;
+  readonly deletedEvidence: PortalDetailValue;
   readonly productClaim: PortalDisplayText;
 };
 
@@ -144,6 +164,7 @@ export function trackingStatusLiveSummary(liveActivity: PortalLiveActivityState)
     custody: notReported(),
     evidenceReferences: notReported(),
     productClaim: PortalText.Resolve(PortalTextToken.TrackingNoProductClaim),
+    citations: [],
   };
 
   if (event === null || readModelResult === null) {
@@ -163,7 +184,6 @@ export function trackingStatusLiveSummary(liveActivity: PortalLiveActivityState)
   }
 
   const readModel = readModelResult.value;
-  const row = readModel.rows[0] ?? null;
   return {
     ...baseSummary,
     loadState: detailFromValue(event.severity),
@@ -172,8 +192,9 @@ export function trackingStatusLiveSummary(liveActivity: PortalLiveActivityState)
     eventId: detailFromValue(readModel.latestEventId),
     capability: detailFromValue(readModel.capabilityStatus),
     custody: detailFromValue(readModel.custodyLabel),
-    evidenceReferences: evidenceReferenceDetail(row?.evidenceReferenceIds),
+    evidenceReferences: readModelEvidenceReferences(readModel),
     parserReason: null,
+    citations: readModel.rows.map((readModelRow) => liveCitation(readModelRow)),
   };
 }
 
@@ -192,7 +213,11 @@ export function renderTrackingStatusSurface(container: HTMLElement, liveActivity
   container.append(intro);
 
   renderDashboard(container, (dashboard) => {
-    dashboard.append(renderTrackingStatusLiveSummary(trackingStatusLiveSummary(liveActivity)));
+    const liveSummary = trackingStatusLiveSummary(liveActivity);
+    dashboard.append(renderTrackingStatusLiveSummary(liveSummary));
+    for (const citation of liveSummary.citations) {
+      dashboard.append(renderTrackingStatusLiveCitation(citation));
+    }
     for (const proofRow of trackingStatusProofRows()) {
       dashboard.append(renderTrackingStatusRow(proofRow));
     }
@@ -278,6 +303,30 @@ function renderTrackingStatusLiveSummary(summary: TrackingStatusLiveSummary): HT
   return panel;
 }
 
+function renderTrackingStatusLiveCitation(citation: TrackingStatusLiveCitation): HTMLElement {
+  const panel = document.createElement(PortalDom.Tags.Section);
+  panel.className = PortalDom.Classes.Summary;
+
+  const title = document.createElement(PortalDom.Tags.HeadingTwo);
+  title.textContent = citation.title;
+
+  const metadata = document.createElement(PortalDom.Tags.DefinitionList);
+  appendDetail(metadata, PortalDetails.EventId, citation.eventId);
+  appendDetail(metadata, PortalDetails.LastObserved, citation.observedAt);
+  appendDetail(metadata, PortalDetails.Device, citation.device);
+  appendDetail(metadata, PortalDetails.Platform, citation.platform);
+  appendDetail(metadata, PortalDetails.Observer, citation.observer);
+  appendDetail(metadata, PortalDetails.ActivityKind, citation.activityKind);
+  appendDetail(metadata, PortalDetails.Subject, citation.subject);
+  appendDetail(metadata, PortalDetails.Status, citation.status);
+  appendDetail(metadata, PortalDetails.EvidenceReferences, citation.evidenceReferences);
+  appendDetail(metadata, PortalDetails.DeletedEvidence, citation.deletedEvidence);
+  appendDetail(metadata, PortalDetails.ProductClaim, toDetail(citation.productClaim));
+
+  panel.append(title, metadata);
+  return panel;
+}
+
 function toDetail(value: PortalDisplayText | TrackingStatusProofArtifact): PortalDetailValue {
   return detailFromValue(value);
 }
@@ -290,12 +339,49 @@ function detailFromValue(value: unknown): PortalDetailValue {
 }
 
 function evidenceReferenceDetail(
-  evidenceReferenceIds: AgentActivityTrackingEvidenceReferenceIds | undefined
+  evidenceReferenceIds: readonly AgentActivityTrackingEvidenceReferenceIds[number][] | undefined
 ): PortalDetailValue {
   if (evidenceReferenceIds === undefined || evidenceReferenceIds.length === 0) {
     return notReported();
   }
   return detailFromValue(evidenceReferenceIds.join(PortalFormatting.EventDetailSeparator));
+}
+
+function readModelEvidenceReferences(readModel: AgentActivityTrackingReadModel): PortalDetailValue {
+  const references = new Set<AgentActivityTrackingEvidenceReferenceIds[number]>();
+  for (const row of readModel.rows) {
+    for (const evidenceReferenceId of row.evidenceReferenceIds) {
+      references.add(evidenceReferenceId);
+    }
+    for (const evidenceReferenceId of row.deletedEvidenceReferenceIds) {
+      references.add(evidenceReferenceId);
+    }
+  }
+  for (const evidenceReferenceId of readModel.deletedEvidenceReferenceIds) {
+    references.add(evidenceReferenceId);
+  }
+  return evidenceReferenceDetail([...references]);
+}
+
+function liveCitation(row: AgentActivityTrackingReadModelRow): TrackingStatusLiveCitation {
+  return {
+    title: detailFromValue(row.subjectDisplayName ?? row.kind),
+    eventId: detailFromValue(row.eventId),
+    observedAt: detailFromValue(row.observedAt),
+    device: detailFromValue(row.deviceId),
+    platform: detailFromValue(row.platform),
+    observer: detailFromValue(row.observer),
+    activityKind: detailFromValue(row.kind),
+    subject: detailFromValue([row.subjectKind, row.subjectId].join(PortalFormatting.EventDetailSeparator)),
+    status: detailFromValue(
+      [row.queryVisibility, row.capabilityStatus]
+        .filter((part) => part !== null && part !== undefined)
+        .join(PortalFormatting.EventDetailSeparator)
+    ),
+    evidenceReferences: evidenceReferenceDetail(row.evidenceReferenceIds),
+    deletedEvidence: evidenceReferenceDetail(row.deletedEvidenceReferenceIds),
+    productClaim: PortalText.Resolve(PortalTextToken.TrackingNoProductClaim),
+  };
 }
 
 function notReported(): PortalDetailValue {

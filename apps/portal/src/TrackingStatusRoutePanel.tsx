@@ -16,6 +16,7 @@ import type { PortalLiveActivityState } from './live-activity-state';
 import {
   trackingStatusLiveSummary,
   trackingStatusProofRows,
+  type TrackingStatusLiveCitation,
   type TrackingStatusLiveSummary,
   type TrackingStatusProofRow,
 } from './tracking-status-panel';
@@ -62,6 +63,9 @@ export function TrackingStatusRoutePanel({
           )}
         >
           <TrackingStatusLiveSummaryCard summary={liveSummary} />
+          {liveSummary.citations.map((citation) => (
+            <TrackingStatusLiveCitationCard key={String(citation.eventId)} citation={citation} />
+          ))}
           {trackingStatusProofRows().map((proofRow) => (
             <TrackingStatusRouteRow key={String(proofRow.title)} proofRow={proofRow} />
           ))}
@@ -91,6 +95,30 @@ function TrackingStatusLiveSummaryCard({ summary }: { readonly summary: Tracking
         {summary.parserReason === null ? null : (
           <TrackingStatusDetail label={PortalDetails.Reason} value={summary.parserReason} />
         )}
+      </dl>
+    </article>
+  );
+}
+
+function TrackingStatusLiveCitationCard({ citation }: { readonly citation: TrackingStatusLiveCitation }): ReactElement {
+  const className = [PortalDom.Classes.Summary, PortalDom.Classes.ProductStatusCard].join(
+    PortalDom.Classes.ClassNameSeparator
+  );
+  return (
+    <article className={className}>
+      <h2>{citation.title}</h2>
+      <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
+        <TrackingStatusDetail label={PortalDetails.EventId} value={citation.eventId} />
+        <TrackingStatusDetail label={PortalDetails.LastObserved} value={citation.observedAt} />
+        <TrackingStatusDetail label={PortalDetails.Device} value={citation.device} />
+        <TrackingStatusDetail label={PortalDetails.Platform} value={citation.platform} />
+        <TrackingStatusDetail label={PortalDetails.Observer} value={citation.observer} />
+        <TrackingStatusDetail label={PortalDetails.ActivityKind} value={citation.activityKind} />
+        <TrackingStatusDetail label={PortalDetails.Subject} value={citation.subject} />
+        <TrackingStatusDetail label={PortalDetails.Status} value={citation.status} />
+        <TrackingStatusDetail label={PortalDetails.EvidenceReferences} value={citation.evidenceReferences} />
+        <TrackingStatusDetail label={PortalDetails.DeletedEvidence} value={citation.deletedEvidence} />
+        <TrackingStatusDetail label={PortalDetails.ProductClaim} value={citation.productClaim} />
       </dl>
     </article>
   );
