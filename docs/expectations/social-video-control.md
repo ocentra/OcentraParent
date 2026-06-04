@@ -83,6 +83,16 @@ raw content, raw messages, raw video, screenshots, connector tokens, connector
 API payloads, native app control state, final policy decisions, or enforcement
 state. Current proof: `social-video-source-privacy-proof`.
 
+Social/video AI signal aggregate contracts may link source/privacy summary refs
+to existing bounded social AI analysis result refs, candidate risk/benefit
+signal-set refs, and managed-browser route gate/action candidate refs. They may
+carry aggregate confidence, degraded/manual-required state, custody labels,
+recommended policy input candidates, and parent-review/action candidate refs.
+They must not collect raw browser/page/feed/message/video content, screenshots,
+connector tokens, connector API payloads, native app control state, final policy
+decisions, alert delivery state, rendered UI state, or enforcement state.
+Current proof: `social-video-ai-signal-aggregate-proof`.
+
 Social URL pattern libraries may map exact managed URL-shape classifications and
 normalized social domains to route evidence, but they must reject unmanaged
 browser rows and fake-domain rows. Domain and path patterns can prove route

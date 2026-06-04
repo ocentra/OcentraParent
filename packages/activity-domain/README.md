@@ -9,6 +9,9 @@ Shared activity and evidence contracts for child-device observations.
 - Social/video source privacy evidence summaries that cite typed managed-browser,
   parent-provided, connector-authorization, screen-summary, and manual-required
   source refs without raw content custody.
+- Social/video AI signal aggregate summaries that link source/privacy refs to
+  candidate AI analysis, risk/benefit signal, and route gate/action refs without
+  raw content, final policy, UI, alert delivery, or enforcement claims.
 - App/game identity, inventory, and session contracts.
 - Network flow summary contracts.
 - Screen evidence summary contracts.
@@ -54,6 +57,10 @@ flowchart LR
 - Social/video source privacy summaries now have
   `social-video-source-privacy-proof`; first-class UI, notification, connector,
   native adapter, final policy, and enforcement proof remain open.
+- Social/video AI signal aggregate summaries now have
+  `social-video-ai-signal-aggregate-proof`; runtime AI execution, rendered UI,
+  alert delivery, connector/native adapters, final policy, and enforcement proof
+  remain open.
 - Tracking evidence now has focused contract proof plus P1 deterministic
   runtime and Rust ActivityStore ingest proof; platform adapters, provider
   runtime, and live service-backed UI proof remain open.
