@@ -156,6 +156,15 @@ only with explicit parent settings.
   WebSocket command path, and drains the processed encrypted queue record. The
   adapter command is a local proof adapter for runtime plumbing, not a production
   VLM quality claim.
+- `scripts/test/screen-ai-service-native-game-analysis-proof.mjs` now proves
+  the service-owned native game classification path on Windows: it focuses a
+  controlled native game-like window, lets the opt-in foreground runtime enqueue
+  the encrypted active-window capture, then runs the opt-in analysis runtime
+  with a local adapter command that records a `localVision` Activity Screen row
+  with `primaryCategory: game`, preserved queue job, capture reason, scope,
+  digest, policy eligibility, and deleted-image state. This proves service
+  capture-to-analysis plumbing for a native game-like surface; installed
+  commercial-game identity detection remains app/game evidence scope.
 - `scripts/test/screen-ai-deletion-retention-custody-proof.mjs` now writes a
   combined pipeline artifact proving screen queue TTL/deletion custody contracts:
   successful deletion and expired deletion require proof, delete-failed state
