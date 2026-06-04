@@ -68,6 +68,10 @@ development paths and orchestrates runtime commands.
   activity-capture journal/store path, exposing Uninstall registry
   inventory-only rows with hashed source/path refs and no runtime, foreground,
   policy, or adapter claims.
+- Bounded browser live Windows inventory source consumption through the browser
+  inventory read model, exposing registry and Start Menu discovered browser
+  candidates through existing redacted inventory rows with no URL, active-tab,
+  UI, policy, or enforcement claims.
 - App/game app-use/games read-model evidence refs for staged evidence-claim,
   identity, approval authority/action-result, platform authority matrix, and AI
   classifier result rows from the existing `AppGameServiceReadModel`, without
@@ -153,6 +157,10 @@ flowchart LR
   have bounded service proof; subscribed foreground transitions, policy
   consumption, portal source/status polish, and adapter execution remain
   separate gaps.
+- Browser live registry and Start Menu inventory source consumption is a
+  service-backed read-model proof only; full shell shortcut parsing, AppX/MSIX,
+  signature/hash extraction, product manual artifacts, portal UX, and adapter
+  execution remain separate gaps.
 - App/game authority/classifier surface evidence is transport-only in the
   app-use/games evidence vector, explicit count fields, and the dedicated
   backend boundary read-model event; portal rows, policy consumption, provider

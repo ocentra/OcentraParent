@@ -2,7 +2,7 @@ use std::{env, path::PathBuf};
 
 use ocentra_parent_agent_core::{
     create_or_repair_managed_browser_profile_store, installed_managed_browser_candidates,
-    windows_browser_inventory_candidate_paths, BrowserManagedInstallCandidate,
+    windows_browser_inventory_live_candidate_paths, BrowserManagedInstallCandidate,
     BrowserManagedProfileStoreConfig, BrowserManagedProfileStoreRecord,
 };
 use ocentra_parent_agent_protocol::{constants, BrowserChannel, BrowserFamily};
@@ -55,15 +55,5 @@ fn default_managed_browser_profile_root_dir() -> PathBuf {
 }
 
 pub(crate) fn system_browser_candidate_paths() -> Vec<PathBuf> {
-    let mut roots = Vec::new();
-    if let Ok(root) = env::var(constants::env_var::PROGRAM_FILES) {
-        roots.push(PathBuf::from(root));
-    }
-    if let Ok(root) = env::var(constants::env_var::PROGRAM_FILES_X86) {
-        roots.push(PathBuf::from(root));
-    }
-    if let Ok(root) = env::var(constants::env_var::LOCAL_APP_DATA) {
-        roots.push(PathBuf::from(root));
-    }
-    windows_browser_inventory_candidate_paths(&roots)
+    windows_browser_inventory_live_candidate_paths(constants::browser::INVENTORY_SOURCE_SCAN_LIMIT)
 }

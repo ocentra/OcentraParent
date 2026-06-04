@@ -183,6 +183,7 @@ pub const INVENTORY_ROW_ID_MANAGED_CHROME: &str = "browser-inventory-chrome-mana
 pub const INVENTORY_ROW_ID_PREFIX_WINDOWS: &str = "browser-inventory-windows";
 pub const INVENTORY_ROW_ID_UNKNOWN_BROWSER: &str = "browser-inventory-unknown-browser";
 pub const INVENTORY_ROW_ID_UNMANAGED_CHROME: &str = "browser-inventory-chrome-unmanaged";
+pub const INVENTORY_SOURCE_SCAN_LIMIT: usize = 256;
 pub const MANAGEMENT_TIER_MANAGED: &str = "managed";
 pub const MANAGEMENT_TIER_MANAGED_PROFILE_EXTENSION: &str = "managed-profile-extension";
 pub const MANAGEMENT_TIER_MANUAL_REQUIRED: &str = "manual-required";
@@ -487,6 +488,19 @@ pub const PATH_SEPARATOR_COLON: &str = ":";
 pub const PATH_SEPARATOR_FORWARD: &str = "/";
 pub const PATH_SEPARATOR_BACKSLASH: &str = "\\";
 pub const PROCESS_SCAN_LIMIT_BROWSER_DISCOVERY: usize = 256;
+pub const WINDOWS_PATH_MICROSOFT: &str = "Microsoft";
+pub const WINDOWS_PATH_WINDOWS: &str = "Windows";
+pub const WINDOWS_PATH_START_MENU: &str = "Start Menu";
+pub const WINDOWS_PATH_PROGRAMS: &str = "Programs";
+pub const WINDOWS_REGISTRY_LOCAL_MACHINE_HIVE: &str = "HKEY_LOCAL_MACHINE";
+pub const WINDOWS_REGISTRY_CURRENT_USER_HIVE: &str = "HKEY_CURRENT_USER";
+pub const WINDOWS_REGISTRY_UNINSTALL_PATH: &str =
+    "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall";
+pub const WINDOWS_REGISTRY_WOW6432_UNINSTALL_PATH: &str =
+    "Software\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall";
+pub const WINDOWS_REGISTRY_DISPLAY_ICON_VALUE: &str = "DisplayIcon";
+pub const WINDOWS_REGISTRY_INSTALL_LOCATION_VALUE: &str = "InstallLocation";
+pub const WINDOWS_SHORTCUT_EXTENSION: &str = "lnk";
 pub const PROFILE_DIRECTORY_MANAGED_CHILD: &str = "OcentraManagedChild";
 pub const PROFILE_ID_PREFIX_MANAGED: &str = "managed-browser-profile";
 pub const URL_SCHEME_SEPARATOR: &str = "://";

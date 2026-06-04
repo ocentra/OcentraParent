@@ -43,6 +43,10 @@ service shell.
   Windows Uninstall registry evidence into inventory-only rows and journal
   events with hashed source/path refs, without service capture, runtime,
   foreground, policy, or adapter claims.
+- Browser live Windows inventory source helpers that turn bounded Uninstall
+  registry display-icon/install-location values and Start Menu shortcut targets
+  into candidate browser executable paths for the existing browser inventory
+  adapter, without URL, active-tab, UI, policy, or enforcement claims.
 
 ## Must Not Own
 
@@ -83,6 +87,10 @@ flowchart LR
   packaged-app and registry inventory rows now feed service capture, while
   portal authority/classifier/source rows, policy consumption, and adapter
   execution remain separate gaps.
+- Browser live registry and Start Menu inventory source proof feeds service
+  browser inventory candidate paths, while full shortcut shell parsing,
+  AppX/MSIX enumeration, signature/hash extraction, portal rendering, and
+  blocking remain separate gaps.
 - Tracking read-model queries are query-store proof only; narrow portal summary
   consumption exists, while platform replay, deletion/tombstone behavior, richer
   UI, and physical-device artifacts remain separate proof gaps.
