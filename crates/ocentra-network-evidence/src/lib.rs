@@ -9,6 +9,7 @@ pub mod http;
 pub mod packet;
 pub mod pcap;
 pub mod tls;
+pub mod transfer;
 pub mod tunnel;
 
 #[cfg(test)]
@@ -56,6 +57,11 @@ pub use packet::{
 };
 pub use pcap::{parse_pcap_packets, PcapPacket, PcapReplayError};
 pub use tls::{parse_tls_client_hello_sni, TlsClientHelloError, TlsClientHelloVisibility};
+pub use transfer::{
+    classify_remote_torrent_download_activity, NetworkTransferActivityKind, NetworkTransferBasis,
+    NetworkTransferClassification, NetworkTransferClassifierError, NetworkTransferClassifierInput,
+    NetworkTransferIndicator, NetworkTransferIndicatorEvidence, NetworkTransferUncertainty,
+};
 pub use tunnel::{
     classify_vpn_proxy_tunnel_activity, NetworkTunnelBasis, NetworkTunnelClassification,
     NetworkTunnelClassifierError, NetworkTunnelClassifierInput, NetworkTunnelIndicator,

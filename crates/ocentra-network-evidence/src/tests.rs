@@ -10,6 +10,7 @@ mod category;
 mod classifier;
 mod domain;
 mod flow;
+mod transfer;
 mod tunnel;
 mod visibility;
 

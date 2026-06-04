@@ -108,6 +108,11 @@ compete on control while staying clear about attribution confidence and privacy.
   `ocentra-network-evidence`: adapter, proxy-port, Tor, and tunnel-protocol
   indicators produce candidate labels while encrypted-DNS-only evidence remains a
   negative tunnel proof and hidden destinations stay unclaimed.
+- E-D added deterministic remote desktop/torrent/download candidate
+  classification in `ocentra-network-evidence`: remote desktop, torrent, and
+  large-download indicators produce candidate labels, while unattributed
+  high-volume traffic stays uncertain and file names, exact URLs, and content
+  stay unavailable.
 - E-D added Rust protocol-facing network/AI/policy/enforcement/audit/portal
   event contracts in `crates/agent-protocol`. The proof serializes exact
   chain refs, no exact URL/content claim boundaries, policy-decision-gated
@@ -172,6 +177,10 @@ apply/rollback artifacts remain open.
       First deterministic DNS query PCAP replay, packet/DNS parser fixtures,
       TLS/HTTP/QUIC/DoH visibility fixtures, and flow/sessionization proof
       exist; analyzer comparison and signature alerts remain open.
+- [x] Remote desktop/torrent/download candidate classifier.
+      Deterministic indicator proof exists for remote desktop, torrent, and
+      large-download candidates, with unattributed high-volume uncertainty and
+      no file-name/content claim.
 - [ ] Reusable Rust eventing, detection, AI audit, and risk-budget contracts.
       First E-D runtime spine exists for metadata-only flow events,
       manual-required/unavailable states, local no-subscriber queue/drain,
