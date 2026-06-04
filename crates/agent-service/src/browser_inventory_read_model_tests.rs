@@ -87,6 +87,18 @@ fn browser_inventory_read_model_keeps_unmanaged_processes_process_only() {
             constants::browser::INVENTORY_EXECUTABLE_PATH_REF_WINDOWS_REDACTED.to_string()
         )
     );
+    assert_eq!(
+        payload[constants::field::PUBLISHER_SIGNATURE_REF],
+        LogFieldValue::String(
+            constants::browser::INVENTORY_PUBLISHER_SIGNATURE_REF_WINDOWS_REDACTED.to_string()
+        )
+    );
+    assert_eq!(
+        payload[constants::field::FILE_HASH_REF],
+        LogFieldValue::String(
+            constants::browser::INVENTORY_FILE_HASH_REF_WINDOWS_REDACTED.to_string()
+        )
+    );
 }
 
 #[test]
@@ -242,8 +254,12 @@ fn unmanaged_process_observation() -> BrowserUnmanagedProcessObservation {
         executable_path_ref: Some(
             constants::browser::INVENTORY_EXECUTABLE_PATH_REF_WINDOWS_REDACTED.to_string(),
         ),
-        signature_ref: None,
-        process_hash_ref: None,
+        signature_ref: Some(
+            constants::browser::INVENTORY_PUBLISHER_SIGNATURE_REF_WINDOWS_REDACTED.to_string(),
+        ),
+        process_hash_ref: Some(
+            constants::browser::INVENTORY_FILE_HASH_REF_WINDOWS_REDACTED.to_string(),
+        ),
         browser_family: BrowserFamily::Chrome,
         browser_channel: BrowserChannel::Stable,
         process_kind: BrowserUnmanagedProcessKind::SupportedBrowser,

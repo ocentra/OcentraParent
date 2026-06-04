@@ -79,6 +79,8 @@ fn browser_inventory_row_from_status(status: &BrowserManagedSessionStatus) -> Br
         managed_profile_state: inventory_state.managed_profile_state,
         unmanaged_fallback_capability: inventory_state.unmanaged_fallback_capability,
         executable_path_ref: executable_path_ref(status),
+        publisher_signature_ref: status.unmanaged_signature_ref.clone(),
+        file_hash_ref: status.unmanaged_process_hash_ref.clone(),
         profile_id: status.profile_id.clone(),
         process_id: status.process_id,
         capability_status: status.capability_status.clone(),
@@ -113,6 +115,8 @@ fn browser_inventory_row_from_windows_observation(
         executable_path_ref: observation.executable_path.as_ref().map(|_| {
             constants::browser::INVENTORY_EXECUTABLE_PATH_REF_WINDOWS_REDACTED.to_string()
         }),
+        publisher_signature_ref: None,
+        file_hash_ref: None,
         profile_id: None,
         process_id: observation.process_id,
         capability_status: observation.capability_status.clone(),

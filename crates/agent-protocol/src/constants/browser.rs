@@ -439,6 +439,9 @@ pub const EXECUTABLE_TOR_WINDOWS: &str = "tor.exe";
 pub const EXECUTABLE_VIVALDI_WINDOWS: &str = "vivaldi.exe";
 pub const INVENTORY_EXECUTABLE_PATH_REF_WINDOWS_REDACTED: &str =
     "windows-browser-executable-redacted";
+pub const INVENTORY_FILE_HASH_REF_WINDOWS_REDACTED: &str = "windows-browser-file-hash-redacted";
+pub const INVENTORY_PUBLISHER_SIGNATURE_REF_WINDOWS_REDACTED: &str =
+    "windows-browser-publisher-signature-redacted";
 pub const PATH_SEGMENT_APPLICATION: &str = "Application";
 pub const PATH_SEGMENT_ARC: &str = "Arc";
 pub const PATH_SEGMENT_BRAVE_BROWSER: &str = "Brave-Browser";
