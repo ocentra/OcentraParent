@@ -141,6 +141,12 @@ compete on control while staying clear about attribution confidence and privacy.
   queue-unavailable, and not-recommended states are explicit and do not carry a
   queue job, and the planner rejects raw packet payload, page content,
   decrypted payload, policy-authority, or adapter-authority claims.
+- E-D added an evidence-grade policy mapper in `ocentra-network-evidence`:
+  A/B/C/D evidence plus parent rule refs, policy decision refs, evidence refs,
+  and optional local-AI result refs map to dry-run, parent-review, or
+  observe-only handoff states. The mapper never authorizes adapter actions or
+  enforcement commands; B-grade block/limit requests route to parent review, and
+  C/D grades remain non-enforcing.
 - E-D added Rust protocol-facing network/AI/policy/enforcement/audit/portal
   event contracts in `crates/agent-protocol`. The proof serializes exact
   chain refs, no exact URL/content claim boundaries, policy-decision-gated
@@ -185,8 +191,9 @@ chain and now proves local queue/drain plus request-response consumption of the
 reusable eventing crate, service-side journal-before-action/final-audit
 ordering, typed in-process parent/controller to child-agent handoff, and
 cross-slice evidence bundle construction after cascade routing, plus
-network-triggered local-AI queue planning with refs-only AI inputs. Analyzer
-fixtures, broker/family-hub delivery, local-AI model execution/worker runtime,
+network-triggered local-AI queue planning with refs-only AI inputs and
+evidence-grade policy handoff mapping. Analyzer fixtures, broker/family-hub
+delivery, local-AI model execution/worker runtime, full policy engine execution,
 portal UI, and adapter apply/rollback artifacts remain open.
 
 ## Checklist
@@ -223,8 +230,10 @@ portal UI, and adapter apply/rollback artifacts remain open.
       exist. Service-side enforcement audit ordering now proves
       journal-before-action and final adapter-result audit/store projection;
       network-triggered local-AI queue planning now keeps AI inputs to refs
-      only. Production analyzer, AI model execution, broker/family-hub
-      delivery, broader service wiring, and risk-budget fixtures remain.
+      only, and evidence-grade policy mapping now proves dry-run/parent-review/
+      observe-only handoffs with parent rule refs. Production analyzer, AI model
+      execution, broker/family-hub delivery, broader service wiring, full policy
+      engine execution, and risk-budget fixtures remain.
 - [ ] Policy preview over stored flow evidence.
 - [ ] Adapter capability status.
 - [x] Full-scope network plan, proof tiers, UI requirements, and workpacks.

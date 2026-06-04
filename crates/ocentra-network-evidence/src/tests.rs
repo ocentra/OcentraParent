@@ -14,6 +14,7 @@ mod domain;
 mod flow;
 mod local_ai_queue;
 mod managed_browser;
+mod policy;
 mod process;
 mod transfer;
 mod tunnel;

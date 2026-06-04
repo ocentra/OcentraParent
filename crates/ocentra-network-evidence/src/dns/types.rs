@@ -63,6 +63,7 @@ pub enum DnsQueryType {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum NetworkEvidenceGrade {
+    A,
     B,
     C,
     D,

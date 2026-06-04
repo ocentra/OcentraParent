@@ -145,6 +145,7 @@ fn kind_score(kind: NetworkCascadeSourceKind) -> u16 {
 
 fn grade_score(grade: NetworkEvidenceGrade) -> u16 {
     match grade {
+        NetworkEvidenceGrade::A => 4,
         NetworkEvidenceGrade::B => 3,
         NetworkEvidenceGrade::C => 2,
         NetworkEvidenceGrade::D => 1,

@@ -12,6 +12,7 @@ pub mod local_ai_queue;
 pub mod managed_browser;
 pub mod packet;
 pub mod pcap;
+pub mod policy;
 pub mod process;
 pub mod tls;
 pub mod transfer;
@@ -83,6 +84,11 @@ pub use packet::{
     UdpPayloadView,
 };
 pub use pcap::{parse_pcap_packets, PcapPacket, PcapReplayError};
+pub use policy::{
+    map_network_evidence_grade_to_policy, NetworkEvidencePolicyAction,
+    NetworkEvidencePolicyMapping, NetworkEvidencePolicyMappingError,
+    NetworkEvidencePolicyMappingInput, NetworkEvidencePolicyMode,
+};
 pub use process::{
     correlate_process_app_activity, NetworkAppInventoryEntry, NetworkFlowProcessObservation,
     NetworkProcessAppCorrelation, NetworkProcessAppCorrelationInput,
