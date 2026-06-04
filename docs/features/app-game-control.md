@@ -186,6 +186,11 @@ control with better evidence and local audit.
   result counts plus citation refs, without adding portal UI, policy
   consumption, provider execution, adapter execution, or platform support
   claims.
+- The service now exposes a dedicated app/game policy readiness read-model
+  command/event that derives policy evidence, approval authority, approval
+  action history, platform authority, and AI classifier readiness rows from the
+  existing app/game service model, keeps missing inputs visible as
+  missing/manual-required, and fixes `adapterDispatchClaimed=false`.
 - The Rust core now has a live `sysinfo` process snapshot source that reads the
   current local process table into the existing app/game runtime record shape,
   uses opaque executable-path refs, and keeps runtime evidence from becoming
@@ -272,9 +277,13 @@ Backend app-use/games read-model rows now include grouped source
 freshness/status rows for inventory, runtime, foreground, and launcher sources,
 and parent-domain category/risk routing now turns category, risk, and
 game-context candidates into soft/manual policy target inputs only when active
-category proof and supporting evidence refs exist. Portal source/category
-rendering, local model quality/provider execution, policy evaluator consumption,
-runtime service policy evaluation, and platform enforcement remain unproved. Live
+category proof and supporting evidence refs exist. A service-backed policy
+readiness read model can now report whether the required evidence, approval
+authority, and platform authority rows are available before evaluator
+consumption, while action history/classifier gaps remain manual-required. Portal
+source/category/readiness rendering, local model quality/provider execution,
+policy evaluator consumption, runtime service policy evaluation, and platform
+enforcement remain unproved. Live
 process snapshots now replay through the local journal/SQLite path in core and
 through the service activity-capture journal/store path for bounded runtime
 rows; recurring service capture freshness is now proved, and the service
@@ -357,8 +366,10 @@ persistence, Rust/WebSocket parity, or platform adapter execution.
       unknown-state, category, schedule, capability, authority, device,
       local-user, and freshness proof before dry-run decisions, and category/risk
       policy-routing contracts now map category/risk candidates into matching
-      compiler target kinds without adapter dispatch; live evaluator, authoring
-      UI, persistence, timers, and enforcement remain. Rust protocol
+      compiler target kinds without adapter dispatch. The service now has a
+      policy readiness read-model command/event for required app/game policy
+      input row availability, but live evaluator, authoring UI, persistence,
+      timers, and enforcement remain. Rust protocol
       parity now exists for approval authority/action-result, platform
       authority matrix, and classifier boundary shapes, and staged
       journal/SQLite projection plus service read-model evidence refs/counts

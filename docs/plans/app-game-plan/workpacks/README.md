@@ -54,6 +54,7 @@ before `DONE` or PR-ready reporting.
 46. Service Windows registry capture bridge.
 47. Backend source freshness read-model rows.
 48. Category/risk policy routing.
+49. Policy readiness service read model.
 
 ## Standard AI Worker Checklist
 

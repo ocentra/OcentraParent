@@ -209,6 +209,7 @@ export const AgentCommandNameSchema = withParser(
     'agent.activity.browser.read-model.get',
     'agent.activity.games.read-model.get',
     'agent.activity.app-game.boundary.read-model.get',
+    'agent.activity.app-game.policy-readiness.read-model.get',
     'agent.activity.network.read-model.get',
     'agent.activity.tracking.read-model.get',
     'agent.browser.inventory.read-model.get',
@@ -276,6 +277,7 @@ export const AgentEventNameSchema = withParser(
     'agent.activity.browser.read-model.reported',
     'agent.activity.games.read-model.reported',
     'agent.activity.app-game.boundary.read-model.reported',
+    'agent.activity.app-game.policy-readiness.read-model.reported',
     'agent.activity.network.read-model.reported',
     'agent.activity.tracking.read-model.reported',
     'agent.browser.inventory.read-model.reported',
@@ -381,6 +383,9 @@ export const AgentCommand = {
   ActivityBrowserReadModelGet: AgentCommandNameSchema.parse('agent.activity.browser.read-model.get'),
   ActivityGamesReadModelGet: AgentCommandNameSchema.parse('agent.activity.games.read-model.get'),
   ActivityAppGameBoundaryReadModelGet: AgentCommandNameSchema.parse('agent.activity.app-game.boundary.read-model.get'),
+  ActivityAppGamePolicyReadinessReadModelGet: AgentCommandNameSchema.parse(
+    'agent.activity.app-game.policy-readiness.read-model.get'
+  ),
   ActivityNetworkReadModelGet: AgentCommandNameSchema.parse('agent.activity.network.read-model.get'),
   ActivityTrackingReadModelGet: AgentCommandNameSchema.parse('agent.activity.tracking.read-model.get'),
   BrowserInventoryReadModelGet: AgentCommandNameSchema.parse('agent.browser.inventory.read-model.get'),
@@ -463,6 +468,9 @@ export const AgentEvent = {
   ActivityGamesReadModelReported: AgentEventNameSchema.parse('agent.activity.games.read-model.reported'),
   ActivityAppGameBoundaryReadModelReported: AgentEventNameSchema.parse(
     'agent.activity.app-game.boundary.read-model.reported'
+  ),
+  ActivityAppGamePolicyReadinessReadModelReported: AgentEventNameSchema.parse(
+    'agent.activity.app-game.policy-readiness.read-model.reported'
   ),
   ActivityNetworkReadModelReported: AgentEventNameSchema.parse('agent.activity.network.read-model.reported'),
   ActivityTrackingReadModelReported: AgentEventNameSchema.parse('agent.activity.tracking.read-model.reported'),

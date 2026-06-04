@@ -41,6 +41,10 @@
       "import": "./dist/app-game-boundary-read-model.js",
       "types": "./dist/app-game-boundary-read-model.d.ts"
     },
+    "./app-game-policy-readiness": {
+      "import": "./dist/app-game-policy-readiness.js",
+      "types": "./dist/app-game-policy-readiness.d.ts"
+    },
     "./contracts": {
       "import": "./dist/contracts.js",
       "types": "./dist/contracts.d.ts"
