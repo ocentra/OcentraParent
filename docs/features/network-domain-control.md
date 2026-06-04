@@ -126,6 +126,14 @@ compete on control while staying clear about attribution confidence and privacy.
   `ocentra-network-evidence`: confirmed/candidate/weak signals are ranked,
   weak hints route to managed-browser/process/screen/local-AI next checks, and
   the router never authorizes policy or adapter action.
+- E-D added a cross-slice evidence bundle builder in
+  `ocentra-network-evidence`: trigger refs plus domain/category,
+  managed-browser, process/app, screen, and local-AI suggestion refs can be
+  assembled into one downstream evidence bundle after cascade routing. The
+  builder preserves all evidence refs, records exact URL refs only from managed
+  browser evidence, recommends local-AI review for weak signals, and rejects
+  decrypted payload, network-only exact URL, policy-authority, or
+  adapter-authority claims.
 - E-D added Rust protocol-facing network/AI/policy/enforcement/audit/portal
   event contracts in `crates/agent-protocol`. The proof serializes exact
   chain refs, no exact URL/content claim boundaries, policy-decision-gated
@@ -168,9 +176,10 @@ enforcement. The E-D
 runtime spine removes the private-bus blocker for an in-process metadata-only
 chain and now proves local queue/drain plus request-response consumption of the
 reusable eventing crate, service-side journal-before-action/final-audit
-ordering, and typed in-process parent/controller to child-agent handoff.
-Analyzer fixtures, broker/family-hub delivery, portal UI, and adapter
-apply/rollback artifacts remain open.
+ordering, typed in-process parent/controller to child-agent handoff, and
+cross-slice evidence bundle construction after cascade routing. Analyzer
+fixtures, broker/family-hub delivery, local-AI queue execution, portal UI, and
+adapter apply/rollback artifacts remain open.
 
 ## Checklist
 

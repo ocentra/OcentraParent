@@ -26,14 +26,25 @@ async function main() {
   await runCommand('cmd', [
     '/c',
     'npm',
-    'run',
-    'test',
+    'exec',
     '--workspace',
     '@ocentra-parent/portal',
     '--',
+    'vitest',
+    'run',
     'tests/transport-lan-target.test.ts',
   ]);
-  await runCommand('cmd', ['/c', 'npm', 'run', 'lint:exec', '--workspace', '@ocentra-parent/portal']);
+  await runCommand('cmd', [
+    '/c',
+    'npm',
+    'exec',
+    '--workspace',
+    '@ocentra-parent/portal',
+    '--',
+    'eslint',
+    'src/transport.ts',
+    'tests/transport-lan-target.test.ts',
+  ]);
   await runCommand('node', ['scripts/check-source-shape.mjs']);
 
   await assertSourceContracts();

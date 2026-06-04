@@ -47,9 +47,14 @@ missing-process states stay explicit. The managed-browser bridge can attach
 exact URL evidence only when a managed browser page record matches the
 network-observed domain; network-only domain evidence remains domain-only. The
 cascade router ranks available evidence, orders next checks for weak hints, and
-never authorizes policy or adapter action.
+never authorizes policy or adapter action. The cross-slice evidence bundle
+builder assembles trigger refs plus domain/category, managed-browser,
+process/app, screen, and local-AI suggestion refs into one downstream bundle
+after cascade routing while rejecting decrypted payload, network-only exact URL,
+policy-authority, or adapter-authority claims.
 
 Live Npcap/libpcap capture, full vendor category feeds, analyzer comparison,
 production CDN intelligence, unmanaged browser URL correlation, foreground
 session correlation, network adapter enforcement, file/content inspection,
-policy handoff, and adapter execution remain separate proof-gated workpacks.
+local-AI queue execution, policy handoff, and adapter execution remain separate
+proof-gated workpacks.

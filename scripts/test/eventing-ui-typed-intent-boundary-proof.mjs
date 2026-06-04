@@ -44,14 +44,30 @@ async function main() {
   await runCommand('cmd', [
     '/c',
     'npm',
-    'run',
-    'test',
+    'exec',
     '--workspace',
     '@ocentra-parent/portal',
     '--',
+    'vitest',
+    'run',
     'tests/transport-lan-target.test.ts',
   ]);
-  await runCommand('cmd', ['/c', 'npm', 'run', 'lint:exec', '--workspace', '@ocentra-parent/portal']);
+  await runCommand('cmd', [
+    '/c',
+    'npm',
+    'exec',
+    '--workspace',
+    '@ocentra-parent/portal',
+    '--',
+    'eslint',
+    'src/agent-client.ts',
+    'src/transport.ts',
+    'src/main.ts',
+    'src/portal-actions.ts',
+    'src/portal-command-controls.ts',
+    'src/TrackingStatusRoutePanel.tsx',
+    '../../packages/portal-domain/src/commands.ts',
+  ]);
   await runCommand('node', ['scripts/check-source-shape.mjs']);
 
   const scannedFiles = await assertPortalTypedIntentBoundary();

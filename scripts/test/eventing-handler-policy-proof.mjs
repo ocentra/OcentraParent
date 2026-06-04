@@ -49,7 +49,10 @@ const handlerPolicyTests = readFileSync('crates/ocentra-eventing/src/tests/handl
 
 const sourceAssertions = [
   ['handler-execution-policy', executionSource.includes('pub struct HandlerExecutionPolicy')],
-  ['handler-timeout-wrapper', dispatchSource.includes('tokio::time::timeout')],
+  [
+    'handler-timeout-wrapper',
+    dispatchSource.includes('clock.sleep(timeout)') && dispatchSource.includes('AttemptOutcome::TimedOut'),
+  ],
   ['handler-timeout-outcome', reportsSource.includes('TimedOut')],
   ['event-trace-fields', reportsSource.includes('pub struct EventTraceFields')],
   ['event-recorder-testkit', testkitSource.includes('pub struct EventRecorder<E>')],

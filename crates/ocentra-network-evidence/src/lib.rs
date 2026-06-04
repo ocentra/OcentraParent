@@ -1,3 +1,4 @@
+pub mod bundle;
 pub mod cascade;
 pub mod category;
 pub mod classifier;
@@ -20,6 +21,11 @@ mod process_support;
 #[cfg(test)]
 mod tests;
 
+pub use bundle::{
+    build_network_cross_slice_evidence_bundle, NetworkCrossSliceEvidenceBundle,
+    NetworkCrossSliceEvidenceBundleError, NetworkCrossSliceEvidenceBundleInput,
+    NetworkCrossSliceEvidenceSource,
+};
 pub use cascade::{
     route_network_evidence_cascade, NetworkCascadeNextCheck, NetworkCascadeSignalStrength,
     NetworkCascadeSource, NetworkCascadeSourceKind, NetworkEvidenceCascadeDecision,

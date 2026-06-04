@@ -6,6 +6,7 @@ use crate::{
     PcapReplayError, TransportPacketMetadata,
 };
 
+mod bundle;
 mod cascade;
 mod category;
 mod classifier;

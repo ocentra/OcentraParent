@@ -53,7 +53,7 @@ const sourceAssertions = [
   ['event-queue-policy', queuePolicySource.includes('pub struct EventQueuePolicy')],
   ['no-subscriber-queue-policy', queuePolicySource.includes('NoSubscriberQueuePolicy::Queue')],
   ['bounded-overflow-policy', queuePolicySource.includes('QueueOverflowPolicy::DeadLetterRejected')],
-  ['queue-ttl-expiry', publishSource.includes('is_expired(self.queue.policy().ttl())')],
+  ['queue-ttl-expiry', publishSource.includes('is_expired(now, self.queue.policy().ttl())')],
   ['in-flight-duplicate-guard', queueStateSource.includes('DuplicateInFlight')],
   ['idempotency-registry', queueStateSource.includes('completed_keys')],
   ['queue-drain-report', reportsSource.includes('pub struct QueueDrainReport')],
