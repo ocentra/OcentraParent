@@ -218,6 +218,12 @@ control with better evidence and local audit.
   evidence by source kind, row count, latest observed time, capability state,
   and evidence refs without adding portal UI, policy consumption, or adapter
   claims.
+- Parent-domain category/risk policy-routing contracts now map native app
+  categories, risk candidates, native game categories, and game context signals
+  into matching app/game policy target kinds with active category proof,
+  confidence/source disclosure, supporting evidence refs, local-AI digest refs
+  where applicable, manual-review/manual-required state, and
+  `adapterDispatchState: not-dispatched`.
 - The app/game final rollout/evidence gate now checks the app-game WP01-WP27
   and app-plan WP01-WP26 proof roots, writes final app-game WP28 and app-plan
   WP27/WP28 proof packs, and records the E2E/manual scenario routing,
@@ -264,8 +270,11 @@ hashed source/path refs, and the service capture path can append those
 registry-backed inventory rows into the same journal/store/read-model path.
 Backend app-use/games read-model rows now include grouped source
 freshness/status rows for inventory, runtime, foreground, and launcher sources,
-but portal source rendering, local model quality/provider execution, policy
-evaluator consumption, and platform enforcement remain unproved. Live
+and parent-domain category/risk routing now turns category, risk, and
+game-context candidates into soft/manual policy target inputs only when active
+category proof and supporting evidence refs exist. Portal source/category
+rendering, local model quality/provider execution, policy evaluator consumption,
+runtime service policy evaluation, and platform enforcement remain unproved. Live
 process snapshots now replay through the local journal/SQLite path in core and
 through the service activity-capture journal/store path for bounded runtime
 rows; recurring service capture freshness is now proved, and the service
@@ -337,14 +346,19 @@ persistence, Rust/WebSocket parity, or platform adapter execution.
 - [ ] Category and unknown-state handling. Unknown approval contracts now keep
       weak app/game evidence in review/report-only/manual-required states with
       evidence refs, child status refs, expiry, and audit-backed persistence
-      fields; live candidate production and parent/child UX remain.
+      fields. Category/risk routing contracts now keep category, risk, and
+      game-context candidates as evidence-backed soft/manual policy inputs; live
+      candidate production, runtime service consumption, portal category UI, and
+      parent/child UX remain.
 - [ ] App/category schedule and time-budget rules. Native game budget dry-run
       contracts now exist for known-game counts, launcher-only exclusion,
       parent-approved candidate inclusion, and advisory signal boundaries.
       App/game policy target compiler contracts now validate identity,
       unknown-state, category, schedule, capability, authority, device,
-      local-user, and freshness proof before dry-run decisions; live evaluator,
-      authoring UI, persistence, timers, and enforcement remain. Rust protocol
+      local-user, and freshness proof before dry-run decisions, and category/risk
+      policy-routing contracts now map category/risk candidates into matching
+      compiler target kinds without adapter dispatch; live evaluator, authoring
+      UI, persistence, timers, and enforcement remain. Rust protocol
       parity now exists for approval authority/action-result, platform
       authority matrix, and classifier boundary shapes, and staged
       journal/SQLite projection plus service read-model evidence refs/counts
