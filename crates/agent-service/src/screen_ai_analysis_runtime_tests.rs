@@ -1,6 +1,6 @@
 use std::{
     fs,
-    path::PathBuf,
+    path::{Path, PathBuf},
     sync::atomic::{AtomicU64, Ordering},
 };
 
@@ -88,6 +88,7 @@ async fn screen_analysis_cycle_records_unavailable_result_and_removes_queue_entr
 
 fn test_analysis_config() -> ScreenAiAnalysisRuntimeConfig {
     let root = test_path(constants::activity_store::TEST_SCREEN_QUEUE_SUFFIX);
+    reset_test_path(&root);
     ScreenAiAnalysisRuntimeConfig {
         screen_analysis_enabled: true,
         poll_seconds: 1,
@@ -100,6 +101,12 @@ fn test_analysis_config() -> ScreenAiAnalysisRuntimeConfig {
         journal_path: root.join(constants::activity_store::TEST_CAPTURE_JOURNAL_SUFFIX),
         journal_key_path: root.join(constants::activity_store::TEST_CAPTURE_KEY_SUFFIX),
         store_path: root.join(constants::activity_store::TEST_CAPTURE_STORE_SUFFIX),
+    }
+}
+
+fn reset_test_path(path: &Path) {
+    if path.exists() {
+        fs::remove_dir_all(path).expect(constants::error::ACTIVITY_STORE_OPENS);
     }
 }
 
