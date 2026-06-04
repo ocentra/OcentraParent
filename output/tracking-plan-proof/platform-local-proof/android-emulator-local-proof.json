@@ -1,0 +1,41 @@
+{
+  "requiredProofTier": "P3_LOCAL_DEV_MACHINE",
+  "currentProofTier": "P3_LOCAL_DEV_MACHINE",
+  "currentStatus": "proved",
+  "artifactPath": "output/tracking-plan-proof/platform-local-proof/android-emulator-local-proof.json",
+  "avdName": "Pixel_9_Pro_XL_API_35",
+  "initialDevices": [],
+  "startedEmulator": true,
+  "serial": "emulator-5554",
+  "packageName": "ca.ocentra.parent.agent",
+  "launchActivity": "ca.ocentra.parent.agent/.MainActivity",
+  "apkPath": "target/release-packages/android/ocentra-parent-agent-android-debug-latest.apk",
+  "artifacts": {
+    "uiXml": "output/tracking-plan-proof/platform-local-proof/android-emulator-uiautomator.xml",
+    "serviceDump": "output/tracking-plan-proof/platform-local-proof/android-emulator-service-dump.txt",
+    "logcatTail": "output/tracking-plan-proof/platform-local-proof/android-emulator-logcat-tail.txt",
+    "screenshot": "output/tracking-plan-proof/platform-local-proof/android-emulator-status-screen.png"
+  },
+  "checks": [
+    {
+      "id": "pid_observed",
+      "ok": true,
+      "details": "1949"
+    },
+    {
+      "id": "status_surface_observed",
+      "ok": true,
+      "details": "uiautomator status text includes scaffold labels"
+    },
+    {
+      "id": "foreground_service_observed",
+      "ok": true,
+      "details": "dumpsys services includes OcentraParentAgentService"
+    }
+  ],
+  "nonClaims": [
+    "This proves Android package scaffold install/launch only when currentStatus is proved.",
+    "This does not prove Android location, geofence, background reliability, UsageStats, Accessibility, VPN/DNS, Device Owner, managed profile, Play signing, or physical-device behavior."
+  ],
+  "missingProofReason": "Location/geofence/background proof remains separate; this local proof only proves package scaffold install, launch, status UI, and foreground service visibility on an emulator."
+}

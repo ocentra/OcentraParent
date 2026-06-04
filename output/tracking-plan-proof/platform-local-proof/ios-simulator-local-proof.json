@@ -1,0 +1,13 @@
+{
+  "requiredProofTier": "P3_LOCAL_DEV_MACHINE",
+  "currentProofTier": "P2_HOSTED_CI",
+  "currentStatus": "blocked_on_windows_local_machine",
+  "artifactPath": "output/tracking-plan-proof/platform-local-proof/ios-simulator-local-proof.json",
+  "command": "where.exe xcrun",
+  "missingProofReason": "This codex-a lane is running on Windows; iOS simulator proof requires macOS/Xcode.",
+  "environmentPlatform": "win32",
+  "nonClaims": [
+    "No iOS simulator launch proof was collected in this Windows lane.",
+    "No Apple entitlement, signing, TestFlight, App Store, or physical-device behavior is claimed."
+  ]
+}
