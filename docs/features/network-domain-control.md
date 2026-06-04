@@ -90,6 +90,11 @@ compete on control while staying clear about attribution confidence and privacy.
   chain refs, no exact URL/content claim boundaries, policy-decision-gated
   enforcement commands, manual-required adapter results, audit refs, and portal
   visibility state without claiming service delivery or host filtering.
+- E-D added a service-backed enforcement journal/action proof for the network
+  manual-required chain: the enforcement API records a pre-action audit activity
+  row before adapter execution, then records the final adapter-result audit row
+  into the encrypted journal and SQLite store. This proves local audit/read-model
+  projection ordering, not host DNS/filter execution.
 - Network/domain blocking is not broadly product-complete.
 - Raw network control settings are preserved as design inputs, not
   product-complete implementation proof.
@@ -109,8 +114,9 @@ packet capture, signature alert, production risk-budget, or host filter
 enforcement. The E-D
 runtime spine removes the private-bus blocker for an in-process metadata-only
 chain and now proves local queue/drain plus request-response consumption of the
-reusable eventing crate, but flow/sessionization, analyzer fixtures, broker
-delivery, portal UI, and adapter apply/rollback/audit artifacts remain open.
+reusable eventing crate and service-side journal-before-action/final-audit
+ordering, but flow/sessionization, analyzer fixtures, broker delivery, portal
+UI, and adapter apply/rollback artifacts remain open.
 
 ## Checklist
 
@@ -127,8 +133,10 @@ delivery, portal UI, and adapter apply/rollback/audit artifacts remain open.
       First E-D runtime spine exists for metadata-only flow events,
       manual-required/unavailable states, local no-subscriber queue/drain,
       local typed request-response, and Rust protocol-facing network event
-      contracts; production analyzer, AI model, broker delivery, service
-      wiring, and risk-budget fixtures remain.
+      contracts. Service-side enforcement audit ordering now proves
+      journal-before-action and final adapter-result audit/store projection;
+      production analyzer, AI model, broker delivery, broader service wiring,
+      and risk-budget fixtures remain.
 - [ ] Policy preview over stored flow evidence.
 - [ ] Adapter capability status.
 - [x] Full-scope network plan, proof tiers, UI requirements, and workpacks.

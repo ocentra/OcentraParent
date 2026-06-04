@@ -85,6 +85,12 @@ and clear degraded states.
   no exact URL/content/adapter-action claim boundaries. This proves protocol
   shape only; service delivery, parent/controller transport, and adapter
   execution remain separate work.
+- E-D added service-backed enforcement journal-before-action proof: the
+  enforcement API now writes a pre-action audit activity row immediately after
+  typed authorization and before adapter execution, then writes the final
+  adapter-result audit row. This proves local service ordering and audit/store
+  projection only; it does not add parent/child transport or new adapter
+  capabilities.
 
 ## Current Gap
 
@@ -98,8 +104,7 @@ network runtime now consumes the reusable crate for typed publish,
 no-subscriber queue/drain, local typed request-response, and Rust
 protocol-facing network event contracts. The open eventing gap is
 Parent-specific event contracts, child/parent transport handoff, broker-backed
-delivery, journal-before-action enforcement integration, adapter-result
-audit/read-model integration, and broad runtime adoption. The
+delivery, and broad runtime adoption. The
 initial UI typed-intent proof keeps the Vite/TypeScript portal as a view/input
 surface while Rust remains the business event publisher. The initial AI and
 portal direct-enforcement negative proof now rejects portal-side enforcement
@@ -122,8 +127,10 @@ raw JSON/string constants, `Uuid`, and raw domain identifier fields.
       portal/AI direct-enforcement negative proof,
       weak-network-evidence command-routing guard, type-safety source gate, and
       the network runtime chain plus queue/drain, local request-response, and
-      Rust protocol-facing network event contract proof; Parent-specific
-      contracts and broad runtime adoption remain.
+      Rust protocol-facing network event contract proof; the service
+      enforcement API now proves journal-before-action plus final adapter-result
+      audit/store projection. Parent-specific contracts, parent/child
+      transport, and broad runtime adoption remain.
 - [ ] Policy and AI read paths.
 - [ ] Enforcement adapter dispatch with audit.
 - [ ] Capability and degraded-state reporting. Current mobile capability proof

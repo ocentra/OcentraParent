@@ -33,6 +33,7 @@ mod enforcement_broad_adapter_proof_report;
 mod enforcement_integrity_runtime_audit_read_model;
 #[cfg(test)]
 mod enforcement_integrity_runtime_audit_read_model_tests;
+mod enforcement_pre_action_journal;
 mod enforcement_product_control_payload;
 mod enforcement_supported_adapter_runtime_proof_read_model;
 #[cfg(test)]
@@ -46,6 +47,7 @@ mod notification_provider_status_boundary_read_model;
 mod notification_provider_status_boundary_read_model_tests;
 
 pub use self::enforcement_broad_adapter_proof_report::build_enforcement_broad_adapter_proof_report;
+use self::enforcement_pre_action_journal::journal_before_action_outcome;
 use self::enforcement_product_control_payload::{
     enforcement_policy_dispatch_payload, enforcement_product_control_spine_payload,
 };
@@ -146,8 +148,11 @@ async fn execute_enforcement_command(
     let request = parse_enforcement_command_payload(&command, &observed_at)?;
     let authorization = authorize_enforcement_boundary(request.input.clone())
         .map_err(|error| error.as_protocol_str())?;
+    let before_action_outcome =
+        journal_before_action_outcome(&request, &authorization.action, &observed_at);
+    record_enforcement_audit(&request, &before_action_outcome, &paths).await?;
     let completed_at = timestamp_now();
-    let adapter_outcome = match authorization.adapter_request {
+    let adapter_outcome = match authorization.adapter_request.as_ref() {
         Some(adapter_request) => Some(adapter_outcome_for_request(
             &request,
             &authorization.action,
