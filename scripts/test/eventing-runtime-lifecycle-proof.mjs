@@ -42,6 +42,7 @@ const commandResults = commands.map((entry) => {
 });
 
 const busSource = readFileSync('crates/ocentra-eventing/src/bus.rs', 'utf8');
+const publishSource = readFileSync('crates/ocentra-eventing/src/bus/publish.rs', 'utf8');
 const publisherSource = readFileSync('crates/ocentra-eventing/src/bus/publisher.rs', 'utf8');
 const dispatchSource = readFileSync('crates/ocentra-eventing/src/bus/dispatch.rs', 'utf8');
 const subscriberSource = readFileSync('crates/ocentra-eventing/src/bus/subscriber.rs', 'utf8');
@@ -52,7 +53,7 @@ const sourceAssertions = [
   ['ordered-dispatch-api', busSource.includes('OrderedByAggregateKey')],
   ['typed-context-api', publisherSource.includes('pub struct EventContext<E>')],
   ['nested-publisher-api', publisherSource.includes('pub struct EventPublisher')],
-  ['detached-publish-api', busSource.includes('publish_detached')],
+  ['detached-publish-api', publishSource.includes('publish_detached')],
   ['panic-isolation', dispatchSource.includes('catch_unwind')],
   ['subscription-handle', subscriberSource.includes('pub struct SubscriptionHandle')],
   ['registrar-lifecycle', registrarSource.includes('pub struct EventRegistrar')],
@@ -87,7 +88,7 @@ const proof = {
     '18 handler timeout and retry policy',
     '20 metrics and tracing fields',
     '24 testkit bus construction and event recorder',
-    '25-41 queue request journal replay',
+    '31-41 request journal replay',
   ],
 };
 

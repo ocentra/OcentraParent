@@ -60,15 +60,38 @@ pub(super) fn test_event_for_type(label: &str, event_type: &str) -> TestEvent {
     test_event_for_type_with_aggregate(label, TEST_AGGREGATE, event_type)
 }
 
+pub(super) fn test_event_with_idempotency(label: &str, idempotency_key: &str) -> TestEvent {
+    test_event_for_type_with_aggregate_and_idempotency(
+        label,
+        TEST_AGGREGATE,
+        TEST_EVENT_TYPE,
+        idempotency_key,
+    )
+}
+
 fn test_event_for_type_with_aggregate(
     label: &str,
     aggregate_key: &str,
     event_type: &str,
 ) -> TestEvent {
+    test_event_for_type_with_aggregate_and_idempotency(
+        label,
+        aggregate_key,
+        event_type,
+        TEST_IDEMPOTENCY,
+    )
+}
+
+fn test_event_for_type_with_aggregate_and_idempotency(
+    label: &str,
+    aggregate_key: &str,
+    event_type: &str,
+    idempotency_key: &str,
+) -> TestEvent {
     TestEvent {
         label: label.to_string(),
         aggregate_key: AggregateKey::parse(aggregate_key).expect("aggregate key parses"),
-        idempotency_key: IdempotencyKey::parse(TEST_IDEMPOTENCY).expect("idempotency key parses"),
+        idempotency_key: IdempotencyKey::parse(idempotency_key).expect("idempotency key parses"),
         event_type: EventType::parse(event_type).expect("event type parses"),
     }
 }

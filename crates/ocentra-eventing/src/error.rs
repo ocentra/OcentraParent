@@ -11,6 +11,11 @@ pub enum EventingError {
     HandlerPanicked { subscriber_id: String },
     HandlerTimedOut { subscriber_id: String },
     InvalidHandlerPolicy { reason: String },
+    InvalidQueuePolicy { reason: String },
+    NoSubscriber { event_type: String },
+    QueueCapacityExceeded { event_type: String, capacity: usize },
+    DuplicateInFlight { idempotency_key: String },
+    DuplicateIdempotencyKey { idempotency_key: String },
     RegistrarDisposed,
 }
 
@@ -62,6 +67,27 @@ impl fmt::Display for EventingError {
             }
             Self::InvalidHandlerPolicy { reason } => {
                 write!(formatter, "invalid event handler policy: {reason}")
+            }
+            Self::InvalidQueuePolicy { reason } => {
+                write!(formatter, "invalid event queue policy: {reason}")
+            }
+            Self::NoSubscriber { event_type } => {
+                write!(formatter, "no subscriber for event type: {event_type}")
+            }
+            Self::QueueCapacityExceeded {
+                event_type,
+                capacity,
+            } => {
+                write!(
+                    formatter,
+                    "event queue capacity exceeded for {event_type}: {capacity}"
+                )
+            }
+            Self::DuplicateInFlight { idempotency_key } => {
+                write!(formatter, "duplicate in-flight event: {idempotency_key}")
+            }
+            Self::DuplicateIdempotencyKey { idempotency_key } => {
+                write!(formatter, "duplicate idempotency key: {idempotency_key}")
             }
             Self::RegistrarDisposed => formatter.write_str("event registrar is disposed"),
         }

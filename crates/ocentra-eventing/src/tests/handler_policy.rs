@@ -78,7 +78,14 @@ async fn timeout_policy_retries_then_dead_letters_final_timeout() {
     assert_eq!(report.handler_reports[0].outcome, HandlerOutcome::TimedOut);
     assert_eq!(report.handler_reports[0].attempts, 2);
     assert_eq!(report.dead_letter_count, 1);
-    assert_eq!(dead_letters[0].subscriber_id.as_str(), TEST_SUBSCRIBER);
+    assert_eq!(
+        dead_letters[0]
+            .subscriber_id
+            .as_ref()
+            .expect("handler dead letter has subscriber")
+            .as_str(),
+        TEST_SUBSCRIBER
+    );
     assert_eq!(attempts.load(Ordering::SeqCst), 2);
 }
 

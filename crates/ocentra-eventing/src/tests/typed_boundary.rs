@@ -90,7 +90,14 @@ async fn concurrent_dispatch_records_handler_dead_letter_without_losing_journal(
     assert_eq!(report.dead_letter_count, 1);
     assert_eq!(report.handled_count, 0);
     assert_eq!(bus.journal().await.len(), 1);
-    assert_eq!(dead_letters[0].target_handler.as_str(), TEST_TARGET);
+    assert_eq!(
+        dead_letters[0]
+            .target_handler
+            .as_ref()
+            .expect("handler dead letter has target")
+            .as_str(),
+        TEST_TARGET
+    );
 }
 
 #[tokio::test]

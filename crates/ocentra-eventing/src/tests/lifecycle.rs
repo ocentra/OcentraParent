@@ -186,7 +186,14 @@ async fn panicking_handler_isolated_as_dead_letter_report() {
     assert_eq!(report.handler_reports[0].outcome, HandlerOutcome::Panicked);
     assert_eq!(report.handled_count, 0);
     assert_eq!(report.dead_letter_count, 1);
-    assert_eq!(dead_letters[0].subscriber_id.as_str(), TEST_SUBSCRIBER);
+    assert_eq!(
+        dead_letters[0]
+            .subscriber_id
+            .as_ref()
+            .expect("handler dead letter has subscriber")
+            .as_str(),
+        TEST_SUBSCRIBER
+    );
 }
 
 #[tokio::test]

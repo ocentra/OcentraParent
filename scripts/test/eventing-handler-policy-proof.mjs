@@ -75,7 +75,6 @@ const proof = {
     '24 testkit bus construction and event recorder',
   ],
   notClaimed: [
-    '25-30 queue, overflow, TTL/deadline, duplicate guard, idempotency, dead-letter event',
     '31-35 request completion and durable result-event patterns',
     '36-41 durable journal and replay semantics',
   ],
