@@ -40,6 +40,8 @@ describe('portal live browser status', () => {
     expect(latestRow?.exactUrlCapability).toBe('not-claimed');
     expect(latestRow?.activeTabCapability).toBe('not-claimed');
     expect(latestRow?.unmanagedFallbackCapability).toBe('report-only');
+    expect(latestRow?.publisherSignatureRef).toBe('chrome-publisher-signature-ref');
+    expect(latestRow?.fileHashRef).toBe('chrome-file-hash-ref');
     expect(latestRow?.reasonCode).toBe('managed-browser-unmanaged-process');
   });
 
@@ -202,6 +204,8 @@ function browserInventoryReadModelEvent() {
       managedProfileState: 'not-applicable',
       unmanagedFallbackCapability: 'report-only',
       executablePathRef: null,
+      publisherSignatureRef: 'chrome-publisher-signature-ref',
+      fileHashRef: 'chrome-file-hash-ref',
       profileId: null,
       processId: 5150,
       reason: 'managed-browser-unmanaged-process',

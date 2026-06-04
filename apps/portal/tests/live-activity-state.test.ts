@@ -49,6 +49,8 @@ describe('portal live activity state', () => {
     expect(latestRow?.exactUrlCapability).toBe('managed-target-list-only');
     expect(latestRow?.activeTabCapability).toBe('target-list-only');
     expect(latestRow?.unmanagedFallbackCapability).toBe('report-only');
+    expect(latestRow?.publisherSignatureRef).toBeNull();
+    expect(latestRow?.fileHashRef).toBeNull();
   });
 
   it('uses the latest matching events for portal live activity state', () => {
@@ -325,6 +327,8 @@ function browserInventoryEvent() {
       managedProfileState: 'ready',
       unmanagedFallbackCapability: 'report-only',
       reason: 'managed-target-list-only',
+      publisherSignatureRef: null,
+      fileHashRef: null,
     },
     snapshot: null,
   });
