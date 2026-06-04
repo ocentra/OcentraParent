@@ -157,12 +157,22 @@ export const PortalRoutes = [
 
 export const PortalDevToolWindow = {
   FrameTunerHeight: 900,
+  FrameTunerHash: '#/app-layout',
   FrameTunerLabel: 'portal-app-layout',
   FrameTunerWidth: 1280,
   PopupFeatures: 'popup=yes,width=1280,height=900,resizable=yes,scrollbars=yes',
   TauriErrorEvent: 'tauri://error',
   TauriInternalKey: '__TAURI_INTERNALS__',
 } as const;
+
+export const PortalDevToolUrlSchema = withParser(
+  Schema.String.pipe(Schema.minLength(1), Schema.brand('PortalDevToolUrl'))
+);
+export type PortalDevToolUrl = Infer<typeof PortalDevToolUrlSchema>;
+
+export function portalDevToolUrl(origin: string, pathname: string, route: PortalRoute): PortalDevToolUrl {
+  return PortalDevToolUrlSchema.parse(`${origin}${pathname}#/${route}`);
+}
 
 export const PortalRouteGroup = {
   Monitor: resolvePortalDevText(PortalDevTextToken.NavGroupMonitor),

@@ -119,9 +119,30 @@ export {
   PortalRoutes,
   PortalRouteSchema,
   PortalSidebarRouteDescriptors,
+  PortalDevToolUrlSchema,
+  portalDevToolUrl,
+  type PortalDevToolUrl,
   type PortalRouteDescriptor,
   type PortalRouteGroupValue,
 } from './routes';
+export {
+  DEFAULT_PORTAL_BACKGROUND_CONFIG,
+  DEFAULT_PORTAL_BACKGROUND_DARK_COLORS,
+  DEFAULT_PORTAL_BACKGROUND_LIGHT_COLORS,
+  PortalBackgroundRuntime,
+  normalizePortalBackgroundConfig,
+  portalBackgroundAppRenderConfig,
+  portalBackgroundRenderConfig,
+  type PortalBackgroundConfig,
+  type PortalBackgroundRenderConfig,
+  type PortalBackgroundThemeColors,
+} from './portal-background';
+export {
+  PORTAL_BACKGROUND_SVG_HEIGHT,
+  PORTAL_BACKGROUND_SVG_WIDTH,
+  portalBackgroundSvgContent,
+  portalBackgroundSvgMarkup,
+} from './portal-background-svg-markup';
 
 const NonEmptyPortalText = Schema.String.pipe(Schema.minLength(1));
 

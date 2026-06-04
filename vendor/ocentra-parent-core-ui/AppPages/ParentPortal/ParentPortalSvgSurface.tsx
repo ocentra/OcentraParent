@@ -370,6 +370,13 @@ type AssistantQuickAction = {
   readonly iconAssetUrl: AssistantQuickActionIconAssetUrl;
 };
 
+type AssistantPanelTab = 'history' | 'quickAction';
+
+const ASSISTANT_PANEL_TAB = {
+  History: 'history',
+  QuickAction: 'quickAction',
+} as const satisfies Record<string, AssistantPanelTab>;
+
 type AssistantTranscriptMessage = {
   readonly id: string;
   readonly sender: 'assistant' | 'user';
@@ -464,6 +471,71 @@ function assistantMessageCommandPayload(
 
 function assistantQuickActionById(id: AssistantQuickActionId | null): AssistantQuickAction | null {
   return ASSISTANT_QUICK_ACTIONS.find((action) => action.id === id) ?? null;
+}
+
+const ASSISTANT_NAV_ROUTE_PREFIX = 'assistant-action:';
+
+const ASSISTANT_NAV_GROUP_ACTION_IDS = {
+  quickGlance: ['report', 'browser-state'],
+  guide: ['rules', 'ai-setup'],
+  manage: ['drives', 'support-api'],
+} as const;
+
+const ASSISTANT_NEW_CHAT_NAV_ITEM = {
+  label: 'NEW CHAT',
+  detail: 'Start fresh with MIA',
+  icon: AiGuideIdeaIcon,
+  imageUrl: '',
+  tabId: 'aiStatus',
+  groupId: 'quickGlance',
+  tone: 'cyan',
+  routePath: `${ASSISTANT_NAV_ROUTE_PREFIX}new-chat`,
+};
+
+function assistantQuickActionNavGroups(navGroups: NavGroup[]): NavGroup[] {
+  return navGroups
+    .map((group) => {
+      const actionIds = ASSISTANT_NAV_GROUP_ACTION_IDS[group.id as keyof typeof ASSISTANT_NAV_GROUP_ACTION_IDS];
+      if (!actionIds) return null;
+      return {
+        ...group,
+        items: actionIds
+          .map((actionId) => assistantQuickActionById(actionId))
+          .filter(Boolean)
+          .map((action) => assistantQuickActionNavItem(action as AssistantQuickAction, group.id)),
+      };
+    })
+    .filter((group) => group && group.items.length > 0);
+}
+
+function assistantQuickActionNavItem(action: AssistantQuickAction, groupId: string): NavItem {
+  return {
+    label: action.label.toUpperCase(),
+    detail: action.detail,
+    icon: assistantIconComponentForQuickAction(action.id),
+    imageUrl: action.iconAssetUrl,
+    tabId: 'aiStatus',
+    groupId,
+    tone: action.tone,
+    routePath: `${ASSISTANT_NAV_ROUTE_PREFIX}${action.id}`,
+  };
+}
+
+function assistantActionIdForNavItem(item: NavItem): AssistantQuickActionId | null {
+  const routePath = item.routePath ?? '';
+  if (!routePath.startsWith(ASSISTANT_NAV_ROUTE_PREFIX)) return null;
+  const actionId = routePath.slice(ASSISTANT_NAV_ROUTE_PREFIX.length);
+  return ASSISTANT_QUICK_ACTIONS.some((action) => action.id === actionId) ? (actionId as AssistantQuickActionId) : null;
+}
+
+function assistantIconComponentForQuickAction(id: AssistantQuickActionId): IconComponent {
+  if (id === 'report') return ReportDocumentIcon;
+  if (id === 'browser-state') return BrowserStackIcon;
+  if (id === 'rules') return RulesGavelDocumentIcon;
+  if (id === 'ai-setup') return AiMemorySetBrainIcon;
+  if (id === 'drives') return DrivesCloudIcon;
+  if (id === 'support-api') return AccountProfileIcon;
+  return AiGuideIdeaIcon;
 }
 
 const ASSISTANT_INCOMING_CHAT_BUBBLE_CONFIG = {
@@ -2404,6 +2476,7 @@ function NavRow({
   iconSize,
   nested = false,
   branchColor,
+  ariaLabel,
   onSelect,
   cfg,
 }: {
@@ -2416,6 +2489,7 @@ function NavRow({
   iconSize: number;
   nested?: boolean;
   branchColor?: string;
+  ariaLabel?: string;
   onSelect: () => void;
   cfg: ParentPortalSvgControls;
 }) {
@@ -2455,7 +2529,7 @@ function NavRow({
       }}
       role="button"
       tabIndex={0}
-      aria-label={`Open ${item.label}`}
+      aria-label={ariaLabel ?? `Open ${item.label}`}
     >
       <rect x={rowX - 6} y={y - 4} width={rowW + 28} height={rowH + 8} fill="transparent" pointerEvents="all" />
       {nested ? (
@@ -3125,6 +3199,7 @@ function NavPanel({
           y={sideTopY}
           w={leftW}
           h={assistantPanelH}
+          navGroups={navGroups}
           selectedActionId={selectedAssistantActionId}
           onNewChat={onAssistantNewChat}
           onActionSelect={onAssistantActionSelect}
@@ -3385,6 +3460,7 @@ function AssistantQuickActionPanel({
   y,
   w,
   h,
+  navGroups,
   selectedActionId,
   onNewChat,
   onActionSelect,
@@ -3394,282 +3470,256 @@ function AssistantQuickActionPanel({
   y: number;
   w: number;
   h: number;
+  navGroups: NavGroup[];
   selectedActionId: AssistantQuickActionId | null;
   onNewChat: () => void;
   onActionSelect: (actionId: AssistantQuickActionId) => void;
   cfg: ParentPortalSvgControls;
 }) {
-  const [activePanelTab, setActivePanelTab] = useState<'quick' | 'history'>('quick');
-  const tabY = y + 30;
-  const rowTop = y + 72;
-  const rowH = 56;
-  const rowGap = 7;
-  const tabGap = 8;
-  const tabW = (w - 44 - tabGap) / 2;
-  return (
-    <SurfacePanel x={x} y={y} w={w} h={h} tone="cyan" frame="deckSide" selected cfg={cfg}>
-      <AssistantSidePanelTab
-        x={x + 22}
+  const assistantGroups = assistantQuickActionNavGroups(navGroups);
+  const [activePanelTab, setActivePanelTab] = useState<AssistantPanelTab>(ASSISTANT_PANEL_TAB.QuickAction);
+  const [openActionGroupIds, setOpenActionGroupIds] = useState(() =>
+    Object.fromEntries(assistantGroups.map((group) => [group.id, true]))
+  );
+  const tabY = y + 24;
+  const tabH = 30;
+  const tabGap = 6;
+  const tabW = (w - 24 - tabGap) / 2;
+  const rowTop = y + 66;
+  const rowH = 38;
+  const rowStep = 40;
+  const iconSize = 34;
+  const groupH = 46;
+  const groupGap = 7;
+  const panelBottom = y + h - 18;
+  const panelRows: ReactNode[] = [];
+  let cursorY = rowTop;
+
+  const toggleActionGroup = (groupId: string) => {
+    setOpenActionGroupIds((current) => ({
+      ...current,
+      [groupId]: !(current[groupId] ?? true),
+    }));
+  };
+
+  panelRows.push(
+    <g key="assistant:panel-tabs" role="tablist" aria-label="Assistant side panel">
+      <AssistantPanelTabButton
+        x={x + 12}
         y={tabY}
         w={tabW}
-        h={28}
-        label="Quick Action"
-        selected={activePanelTab === 'quick'}
-        onSelect={() => setActivePanelTab('quick')}
-        cfg={cfg}
-      />
-      <AssistantSidePanelTab
-        x={x + 22 + tabW + tabGap}
-        y={tabY}
-        w={tabW}
-        h={28}
+        h={tabH}
         label="History"
-        selected={activePanelTab === 'history'}
-        onSelect={() => setActivePanelTab('history')}
+        active={activePanelTab === ASSISTANT_PANEL_TAB.History}
+        onSelect={() => setActivePanelTab(ASSISTANT_PANEL_TAB.History)}
         cfg={cfg}
       />
-      <path
-        d={`M ${x + 18} ${rowTop - 14} H ${x + w - 18}`}
-        stroke={cfg.colors.panelStroke}
-        strokeWidth={0.8}
-        opacity={0.72}
+      <AssistantPanelTabButton
+        x={x + 12 + tabW + tabGap}
+        y={tabY}
+        w={tabW}
+        h={tabH}
+        label="Quick Action"
+        active={activePanelTab === ASSISTANT_PANEL_TAB.QuickAction}
+        onSelect={() => setActivePanelTab(ASSISTANT_PANEL_TAB.QuickAction)}
+        cfg={cfg}
       />
-      {activePanelTab === 'quick' ? (
-        <>
-          <AssistantNewChatRow x={x + 14} y={rowTop} w={w - 28} h={rowH} onSelect={onNewChat} cfg={cfg} />
-          {ASSISTANT_QUICK_ACTIONS.map((action, index) => {
-            const rowY = rowTop + (index + 1) * (rowH + rowGap);
-            if (rowY + rowH > y + h - 18) return null;
-            const selected = action.id === selectedActionId;
-            return (
-              <AssistantQuickActionRow
-                key={action.id}
-                action={action}
-                selected={selected}
-                x={x + 14}
-                y={rowY}
-                w={w - 28}
-                h={rowH}
-                onSelect={() => onActionSelect(action.id)}
-                cfg={cfg}
-              />
-            );
-          })}
-        </>
-      ) : (
-        <AssistantHistoryPanelContent
-          x={x + 14}
-          y={rowTop}
-          w={w - 28}
-          h={Math.max(120, y + h - rowTop - 18)}
-          selectedActionId={selectedActionId}
+    </g>
+  );
+
+  if (cursorY + rowH <= panelBottom) {
+    panelRows.push(
+      <NavRow
+        key="assistant:new-chat"
+        item={ASSISTANT_NEW_CHAT_NAV_ITEM}
+        active={false}
+        x={x + 8}
+        w={w - 8}
+        y={cursorY}
+        rowH={rowH}
+        iconSize={iconSize}
+        branchColor={cfg.colors.cyan}
+        ariaLabel="Start new MIA chat"
+        onSelect={onNewChat}
+        cfg={cfg}
+      />
+    );
+    cursorY += rowStep + groupGap;
+  }
+
+  if (activePanelTab === ASSISTANT_PANEL_TAB.History) {
+    const historyActions = ASSISTANT_QUICK_ACTIONS.filter((action) => action.id === 'report' || action.id === 'rules');
+    historyActions.forEach((action) => {
+      if (cursorY + rowH > panelBottom) return;
+      const itemY = cursorY;
+      cursorY += rowStep;
+      panelRows.push(
+        <NavRow
+          key={`assistant:history:${action.id}`}
+          item={assistantQuickActionNavItem(action, ASSISTANT_PANEL_TAB.History)}
+          active={false}
+          x={x + 8}
+          w={w - 8}
+          y={itemY}
+          rowH={rowH}
+          iconSize={iconSize}
+          branchColor={toneColor(action.tone, cfg)}
+          ariaLabel={`${action.label} history`}
+          onSelect={() => onActionSelect(action.id)}
           cfg={cfg}
         />
-      )}
+      );
+    });
+    return (
+      <SurfacePanel x={x} y={y} w={w} h={h} tone="cyan" frame="deckSide" selected cfg={cfg}>
+        {panelRows}
+      </SurfacePanel>
+    );
+  }
+
+  assistantGroups.forEach((group) => {
+    if (cursorY + groupH > panelBottom) return;
+    const groupY = cursorY;
+    const open = openActionGroupIds[group.id] ?? true;
+    const groupAccent = navGroupThemeColor(group.id, cfg);
+    cursorY += groupH;
+
+    const itemRows: ReactNode[] = [];
+    const childStartY = cursorY;
+    if (open) {
+      for (const item of group.items) {
+        const itemY = cursorY;
+        if (itemY + rowH > panelBottom) break;
+        cursorY += rowStep;
+        const actionId = assistantActionIdForNavItem(item);
+        const actionLabel = actionId ? assistantQuickActionById(actionId)?.label : null;
+        itemRows.push(
+          <NavRow
+            key={navItemKey(item)}
+            item={item}
+            active={actionId === selectedActionId}
+            x={x + 8}
+            w={w - 8}
+            y={itemY}
+            rowH={rowH}
+            iconSize={iconSize}
+            branchColor={groupAccent}
+            ariaLabel={`Ask MIA about ${actionLabel ?? item.label}`}
+            onSelect={() => {
+              if (actionId) onActionSelect(actionId);
+            }}
+            cfg={cfg}
+          />
+        );
+      }
+    }
+
+    const childEndY = cursorY;
+    const childRailH = Math.max(0, childEndY - childStartY - 2);
+    cursorY += groupGap;
+
+    panelRows.push(
+      <g key={group.id}>
+        {open && childRailH > 0 ? (
+          <g pointerEvents="none">
+            <path
+              d={cutRectPath(x + 22, childStartY + 3, w - 35, childRailH, 9)}
+              fill="rgba(2, 12, 20, 0.34)"
+              stroke={groupAccent}
+              strokeWidth={0.85}
+              strokeOpacity={0.38}
+            />
+            <path
+              d={`M ${x + 28} ${childStartY + 9} V ${childStartY + childRailH - 6}`}
+              stroke={groupAccent}
+              strokeWidth={1.45}
+              strokeLinecap="round"
+              opacity={0.58}
+            />
+          </g>
+        ) : null}
+        {itemRows}
+        <NavGroupHeader
+          group={group}
+          open={open}
+          x={x}
+          w={w}
+          y={groupY}
+          h={groupH}
+          onToggle={() => toggleActionGroup(group.id)}
+          cfg={cfg}
+        />
+      </g>
+    );
+  });
+
+  return (
+    <SurfacePanel x={x} y={y} w={w} h={h} tone="cyan" frame="deckSide" selected cfg={cfg}>
+      {panelRows}
     </SurfacePanel>
   );
 }
 
-function AssistantSidePanelTab({ x, y, w, h, label, selected, onSelect, cfg }) {
+function AssistantPanelTabButton({
+  x,
+  y,
+  w,
+  h,
+  label,
+  active,
+  onSelect,
+  cfg,
+}: {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  label: string;
+  active: boolean;
+  onSelect: () => void;
+  cfg: ParentPortalSvgControls;
+}) {
   const [hovered, setHovered] = useState(false);
+  const fill = active
+    ? colorAlpha(cfg.colors.cyan, '34')
+    : hovered
+      ? colorAlpha(cfg.colors.cyan, '20')
+      : colorAlpha(cfg.colors.cyan, '12');
   return (
     <g
       className="parent-portal-svg-clickable"
       role="tab"
       tabIndex={0}
-      aria-selected={selected}
       aria-label={label}
+      aria-selected={active}
       onClick={onSelect}
+      onKeyDown={(event) => {
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        event.preventDefault();
+        onSelect();
+      }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       onFocus={() => setHovered(true)}
       onBlur={() => setHovered(false)}
     >
       <title>{label}</title>
-      <rect
-        x={x}
-        y={y}
-        width={w}
-        height={h}
-        rx={8}
-        fill={
-          selected
-            ? colorAlpha(cfg.colors.cyan, '32')
-            : hovered
-              ? colorAlpha(cfg.colors.cyan, '22')
-              : PARENT_PORTAL_GLASS.cardFill
-        }
-        stroke={selected || hovered ? cfg.colors.cyan : cfg.colors.panelStroke}
-        strokeWidth={selected ? 1.15 : 0.9}
+      <path
+        d={cutRectPath(x, y, w, h, 8)}
+        fill={fill}
+        stroke={active || hovered ? cfg.colors.cyan : cfg.colors.panelStroke}
+        strokeWidth={active ? 1.15 : 0.82}
+        opacity={active ? 1 : 0.82}
       />
       <text
         x={x + w / 2}
-        y={y + 18}
+        y={y + h / 2 + 4}
         textAnchor="middle"
-        fontSize={10.5}
-        fontWeight={920}
-        fill={selected ? cfg.colors.bodyText : cfg.colors.mutedText}
+        fontSize={10.8}
+        fontWeight={960}
+        fill={cfg.colors.bodyText}
       >
-        {truncateTextForWidth(label.toUpperCase(), w - 12, 10.5, 0.58)}
-      </text>
-    </g>
-  );
-}
-
-function AssistantNewChatRow({ x, y, w, h, onSelect, cfg }) {
-  const [hovered, setHovered] = useState(false);
-  const color = cfg.colors.cyan;
-  const iconCx = x + 26;
-  const iconCy = y + h / 2;
-  const lit = hovered;
-  return (
-    <g
-      className="parent-portal-svg-clickable"
-      role="button"
-      tabIndex={0}
-      aria-label="Start new MIA chat"
-      onClick={onSelect}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      onFocus={() => setHovered(true)}
-      onBlur={() => setHovered(false)}
-    >
-      <title>Start new MIA chat</title>
-      <rect x={x - 4} y={y - 3} width={w + 8} height={h + 6} fill="transparent" pointerEvents="all" />
-      <path
-        d={cutRectPath(x, y, w, h, 8)}
-        fill={hovered ? colorAlpha(color, '2a') : colorAlpha(color, '18')}
-        stroke={lit ? color : 'transparent'}
-        strokeWidth={lit ? 1.15 : 0}
-        filter={hovered ? 'url(#parentPortalGlow)' : undefined}
-      />
-      <path
-        d={`M ${iconCx} ${iconCy - 11} V ${iconCy + 11} M ${iconCx - 11} ${iconCy} H ${iconCx + 11}`}
-        stroke={color}
-        strokeWidth={2}
-        strokeLinecap="round"
-        filter={hovered ? 'url(#parentPortalGlow)' : undefined}
-      />
-      <text x={x + 56} y={y + h / 2 + 5} fontSize={13.4} fontWeight={950} fill={cfg.colors.bodyText}>
-        NEW CHAT
-      </text>
-    </g>
-  );
-}
-
-function AssistantQuickActionRow({ action, selected, x, y, w, h, onSelect, cfg }) {
-  const [hovered, setHovered] = useState(false);
-  const color = toneColor(action.tone, cfg);
-  const lit = selected || hovered;
-  const iconSize = 28;
-  const iconX = x + 14;
-  const iconY = y + (h - iconSize) / 2;
-  return (
-    <g
-      className="parent-portal-svg-clickable"
-      role="button"
-      tabIndex={0}
-      aria-label={`Ask MIA about ${action.label}`}
-      onClick={onSelect}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      onFocus={() => setHovered(true)}
-      onBlur={() => setHovered(false)}
-    >
-      <title>{`${action.label}: ${action.detail}`}</title>
-      <rect x={x - 4} y={y - 3} width={w + 8} height={h + 6} fill="transparent" pointerEvents="all" />
-      <path
-        d={cutRectPath(x, y, w, h, 8)}
-        fill={selected ? colorAlpha(color, '34') : hovered ? colorAlpha(color, '1f') : 'rgba(2, 12, 20, 0.58)'}
-        stroke={lit ? color : 'transparent'}
-        strokeWidth={selected ? 1.25 : hovered ? 1.05 : 0}
-        filter={lit ? 'url(#parentPortalGlow)' : undefined}
-      />
-      <image
-        href={action.iconAssetUrl}
-        x={iconX}
-        y={iconY}
-        width={iconSize}
-        height={iconSize}
-        preserveAspectRatio="xMidYMid meet"
-        pointerEvents="none"
-        filter={lit ? 'url(#parentPortalGlow)' : undefined}
-      />
-      <text x={x + 56} y={y + h / 2 + 5} fontSize={13.4} fontWeight={950} fill={cfg.colors.bodyText}>
-        {truncateTextForWidth(action.label.toUpperCase(), w - 70, 13.4, 0.58)}
-      </text>
-    </g>
-  );
-}
-
-function AssistantHistoryPanelContent({ x, y, w, h, selectedActionId, cfg }) {
-  const rowGap = 8;
-  const rowH = 66;
-  return (
-    <g role="group" aria-label="Assistant chat history">
-      {ASSISTANT_QUICK_ACTIONS.map((action, index) => {
-        const rowY = y + index * (rowH + rowGap);
-        if (rowY + rowH > y + h) return null;
-        return (
-          <AssistantHistoryFolder
-            key={action.id}
-            x={x}
-            y={rowY}
-            w={w}
-            h={rowH}
-            action={action}
-            active={action.id === selectedActionId}
-            cfg={cfg}
-          />
-        );
-      })}
-    </g>
-  );
-}
-
-function AssistantHistoryFolder({ x, y, w, h, action, active, cfg }) {
-  const [hovered, setHovered] = useState(false);
-  const color = toneColor(action.tone, cfg);
-  const threadLabel = active ? 'Current chat' : 'No saved thread yet';
-  return (
-    <g
-      className="parent-portal-svg-clickable"
-      role="button"
-      tabIndex={0}
-      aria-label={`${action.label} history`}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      onFocus={() => setHovered(true)}
-      onBlur={() => setHovered(false)}
-    >
-      <title>{`${action.label} history`}</title>
-      <rect
-        x={x}
-        y={y}
-        width={w}
-        height={h}
-        rx={8}
-        fill={active ? colorAlpha(color, '34') : hovered ? colorAlpha(color, '1f') : 'rgba(2, 12, 20, 0.68)'}
-        stroke={active || hovered ? color : cfg.colors.panelStroke}
-        strokeWidth={active ? 1.15 : 0.9}
-      />
-      <path
-        d={`M ${x + 14} ${y + 22} H ${x + 25} L ${x + 31} ${y + 16} H ${x + 48} Q ${x + 53} ${y + 16} ${x + 53} ${y + 21} V ${y + 45} Q ${x + 53} ${y + 50} ${x + 48} ${y + 50} H ${x + 14} Q ${x + 9} ${y + 50} ${x + 9} ${y + 45} V ${y + 27} Q ${x + 9} ${y + 22} ${x + 14} ${y + 22} Z`}
-        fill={colorAlpha(color, active ? '34' : '18')}
-        stroke={active || hovered ? color : cfg.colors.panelStroke}
-        strokeWidth={0.85}
-      />
-      <text x={x + 66} y={y + 27} fontSize={13} fontWeight={940} fill={cfg.colors.bodyText}>
-        {truncateTextForWidth(action.label.toUpperCase(), w - 82, 13, 0.58)}
-      </text>
-      <text
-        x={x + 66}
-        y={y + 48}
-        fontSize={10.5}
-        fontWeight={760}
-        fill={active ? cfg.colors.bodyText : cfg.colors.mutedText}
-      >
-        {truncateTextForWidth(threadLabel, w - 82, 10.5, 0.58)}
+        {truncateTextForWidth(label.toUpperCase(), w - 16, 10.8, 0.58)}
       </text>
     </g>
   );

@@ -1,7 +1,7 @@
 import { useMemo, type ReactElement } from 'react';
 import { type PortalThemeValue } from '@ocentra-parent/portal-domain/contracts';
 import { PortalBackgroundSvg } from './PortalBackgroundSvg';
-import { portalBackgroundRenderConfig } from './portal-background-config';
+import { portalBackgroundAppRenderConfig } from './portal-background-config';
 import { usePortalBackgroundConfig } from './use-portal-background-config';
 
 type PortalBackgroundLayerProps = {
@@ -10,7 +10,7 @@ type PortalBackgroundLayerProps = {
 
 export function PortalBackgroundLayer({ theme }: PortalBackgroundLayerProps): ReactElement {
   const [config] = usePortalBackgroundConfig();
-  const renderConfig = useMemo(() => portalBackgroundRenderConfig(config, theme), [config, theme]);
+  const renderConfig = useMemo(() => portalBackgroundAppRenderConfig(config, theme), [config, theme]);
 
   return (
     <PortalBackgroundSvg

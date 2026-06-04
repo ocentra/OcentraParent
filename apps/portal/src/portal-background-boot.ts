@@ -1,4 +1,9 @@
-import { PortalDom, PortalTheme, type PortalThemeValue } from '@ocentra-parent/portal-domain/contracts';
+import {
+  PortalBackgroundRuntime,
+  PortalDom,
+  PortalTheme,
+  type PortalThemeValue,
+} from '@ocentra-parent/portal-domain/contracts';
 import {
   loadPortalBackgroundConfig,
   portalBackgroundRenderConfig,
@@ -6,15 +11,8 @@ import {
 } from './portal-background-config';
 import { portalBackgroundSvgMarkup } from './portal-background-svg-markup';
 
-export const PortalBackgroundBoot = {
-  ReadyAttribute: 'data-portal-bg-boot-ready',
-  ThemeAttribute: 'data-theme',
-  Id: 'portal-background-boot',
-  Style: 'display:block;height:100%;inset:0;position:absolute;width:100%;pointer-events:none',
-} as const;
-
 export function mountPortalBackgroundBootLayer(): void {
-  if (typeof document === 'undefined') {
+  if (typeof document === PortalDom.Runtime.Undefined) {
     return;
   }
   const host = ensurePortalBackgroundBootHost();
@@ -25,21 +23,21 @@ export function mountPortalBackgroundBootLayer(): void {
 }
 
 export function removePortalBackgroundBootLayer(): void {
-  document.getElementById(PortalBackgroundBoot.Id)?.remove();
-  document.documentElement.removeAttribute(PortalBackgroundBoot.ReadyAttribute);
+  document.getElementById(PortalBackgroundRuntime.Boot.Id)?.remove();
+  document.documentElement.removeAttribute(PortalBackgroundRuntime.Boot.ReadyAttribute);
 }
 
 export function fadePortalBackgroundBootLayer(): void {
-  document.getElementById(PortalBackgroundBoot.Id)?.classList.add(PortalDom.Classes.AppLoadingHide);
+  document.getElementById(PortalBackgroundRuntime.Boot.Id)?.classList.add(PortalDom.Classes.AppLoadingHide);
 }
 
 function ensurePortalBackgroundBootHost(): HTMLDivElement {
-  const existing = document.getElementById(PortalBackgroundBoot.Id);
+  const existing = document.getElementById(PortalBackgroundRuntime.Boot.Id);
   if (existing instanceof HTMLDivElement) {
     return existing;
   }
-  const host = document.createElement('div');
-  host.id = PortalBackgroundBoot.Id;
+  const host = document.createElement(PortalDom.Tags.Division);
+  host.id = PortalBackgroundRuntime.Boot.Id;
   document.body.prepend(host);
   return host;
 }
@@ -50,17 +48,17 @@ function renderPortalBackgroundBootHost(
 ): void {
   host.innerHTML = portalBackgroundSvgMarkup({
     ariaHidden: true,
-    ariaLabel: 'Portal background',
-    idPrefix: 'portalBackgroundBoot',
-    preserveAspectRatio: 'xMidYMid slice',
+    ariaLabel: PortalBackgroundRuntime.Boot.AriaLabel,
+    idPrefix: PortalBackgroundRuntime.Boot.IdPrefix,
+    preserveAspectRatio: PortalBackgroundRuntime.Boot.PreserveAspectRatio,
     renderConfig: portalBackgroundRenderConfig(config, currentPortalBackgroundTheme()),
-    style: PortalBackgroundBoot.Style,
+    style: PortalBackgroundRuntime.Boot.Style,
   });
-  document.documentElement.setAttribute(PortalBackgroundBoot.ReadyAttribute, 'true');
+  document.documentElement.setAttribute(PortalBackgroundRuntime.Boot.ReadyAttribute, PortalDom.Attributes.True);
 }
 
 function currentPortalBackgroundTheme(): PortalThemeValue {
-  return document.documentElement.getAttribute(PortalBackgroundBoot.ThemeAttribute) === PortalTheme.Light
+  return document.documentElement.getAttribute(PortalDom.Attributes.DataTheme) === PortalTheme.Light
     ? PortalTheme.Light
     : PortalTheme.Dark;
 }

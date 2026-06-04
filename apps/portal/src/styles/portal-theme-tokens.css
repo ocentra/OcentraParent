@@ -4,14 +4,19 @@
   --portal-frame-body-stroke-opacity: 0.72;
   --portal-frame-footer-line-opacity: 0.42;
   --portal-frame-glass-color: #092033;
-  --portal-frame-glass-opacity: 0.24;
+  --portal-frame-glass-highlight-opacity: 0.08;
+  --portal-frame-glass-opacity: 0.2;
   --portal-frame-header-line-opacity: 0.5;
+  --portal-frame-material-blur: 13px;
+  --portal-frame-material-fill-alpha: 0.62;
+  --portal-frame-material-fill-alpha-soft: 0.52;
+  --portal-frame-material-fill-alpha-strong: 0.72;
   --portal-frame-scrim-fill: rgb(0 6 12 / 42%);
   --portal-frame-surface-color: #041624;
   --portal-frame-surface-disabled-fill-opacity: 0.58;
-  --portal-frame-surface-fill: rgb(4 22 36 / 78%);
+  --portal-frame-surface-fill: rgb(4 22 36 / var(--portal-frame-material-fill-alpha));
   --portal-frame-surface-fill-opacity: 1;
-  --portal-frame-surface-opacity: 0.78;
+  --portal-frame-surface-opacity: var(--portal-frame-material-fill-alpha);
   --portal-frame-transparent-fill: transparent;
   --portal-outline-header-action-content-hover-filter: drop-shadow(0 0 4px rgb(255 255 255 / 54%))
     drop-shadow(0 0 9px rgb(47 221 255 / 42%));
@@ -27,7 +32,7 @@
   --portal-outline-header-connector-filter: none;
   --portal-outline-header-connector-stroke: #2fddff;
   --portal-outline-header-frame-fill: var(--portal-frame-surface-fill);
-  --portal-outline-header-frame-fill-blur: blur(9px);
+  --portal-outline-header-frame-fill-blur: blur(var(--portal-frame-material-blur));
   --portal-outline-header-frame-line-filter: none;
   --portal-outline-header-frame-line-stroke: #2fddff;
   --portal-outline-header-frame-outer-stroke: rgb(4 88 118 / 92%);
@@ -40,6 +45,12 @@
 
 :root[data-theme='light'] {
   --portal-app-background: #f3f7fb;
+  --portal-frame-glass-highlight-opacity: 0.1;
+  --portal-frame-glass-opacity: 0.18;
+  --portal-frame-material-blur: 14px;
+  --portal-frame-material-fill-alpha: 0.58;
+  --portal-frame-material-fill-alpha-soft: 0.5;
+  --portal-frame-material-fill-alpha-strong: 0.68;
   --portal-outline-header-action-content-hover-filter: drop-shadow(0 1px 1px rgb(0 8 14 / 58%))
     drop-shadow(0 0 5px rgb(255 211 106 / 32%));
   --portal-outline-header-brand-logo-bg: rgb(2 10 18 / 78%);

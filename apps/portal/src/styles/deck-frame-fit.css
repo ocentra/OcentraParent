@@ -3,8 +3,17 @@
   --portal-rail-width: clamp(238px, 18.5vw, 270px);
   --portal-shell-edge: 8px;
   --portal-body-inset: clamp(15px, 1.35vw, 22px);
-  --portal-frame-bg: linear-gradient(180deg, rgb(4 35 57 / 92%), rgb(1 8 18 / 98%) 44%, rgb(1 8 18 / 99%));
-  --portal-frame-glass: linear-gradient(180deg, rgb(74 218 255 / 8%), transparent 11rem);
+  --portal-frame-bg: linear-gradient(
+    180deg,
+    rgb(4 35 57 / var(--portal-frame-material-fill-alpha-strong)),
+    rgb(1 8 18 / var(--portal-frame-material-fill-alpha)) 44%,
+    rgb(1 8 18 / var(--portal-frame-material-fill-alpha-strong))
+  );
+  --portal-frame-glass: linear-gradient(
+    180deg,
+    rgb(74 218 255 / var(--portal-frame-glass-highlight-opacity)),
+    transparent 11rem
+  );
 }
 
 .app-frame {
@@ -413,11 +422,15 @@
 :root[data-theme='light'] {
   --portal-frame-bg: linear-gradient(
     180deg,
-    rgb(230 247 255 / 96%),
-    rgb(202 232 245 / 94%) 44%,
-    rgb(238 249 253 / 98%)
+    rgb(205 231 244 / var(--portal-frame-material-fill-alpha-strong)),
+    rgb(169 209 230 / var(--portal-frame-material-fill-alpha)) 44%,
+    rgb(216 238 248 / var(--portal-frame-material-fill-alpha-strong))
   );
-  --portal-frame-glass: linear-gradient(180deg, rgb(8 126 164 / 8%), transparent 11rem);
+  --portal-frame-glass: linear-gradient(
+    180deg,
+    rgb(8 126 164 / var(--portal-frame-glass-highlight-opacity)),
+    transparent 11rem
+  );
 }
 
 @media (max-width: 980px) {
