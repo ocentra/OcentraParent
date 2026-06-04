@@ -140,6 +140,16 @@ only with explicit parent settings.
   `serviceCaptureMetadata`, so this is native foreground capture/read-model
   proof, not browser URL trigger ownership, game classification, VLM quality, or
   policy-action proof.
+- `scripts/test/screen-ai-live-operator-proof.mjs` now provides the executable
+  live operator gate for this feature. It prints a required nine-scenario
+  manifest template, refuses to claim live proof without operator-supplied real
+  URLs/apps, opens/focuses those surfaces when a manifest is supplied, captures
+  the active local window, runs the local VLM path, validates screen AI and
+  policy dry-run contracts, deletes raw image material, and writes redacted
+  proof artifacts. The current harness readiness artifact is
+  `output/screen-ai-pipeline-proof/live-operator/harness-readiness/proof-summary.json`;
+  real YouTube/Vimeo/social/shopping/game/account artifacts remain required
+  before product-complete live proof claims.
 - Android child-agent scaffold now has emulator MediaProjection proof with
   explicit OS consent, foreground service, captured frame digest, and raw temp
   deletion. Physical Android parity and silent background capture are not
@@ -150,9 +160,10 @@ only with explicit parent settings.
 
 ## Current Gap
 
-Opt-in UI, live external URL/account operator proof, OCR/vision quality beyond
-controlled fixtures, service-owned live trigger event producers beyond the timed
-cadence loop and native active-window foreground watcher, physical
+Opt-in UI, live external URL/account operator proof artifacts from the new
+manifest-driven harness, OCR/vision quality beyond controlled fixtures,
+service-owned live trigger event producers beyond the timed cadence loop and
+native active-window foreground watcher, physical
 Android/iOS proof, live macOS capture proof, Linux root/Wayland portal proof,
 browser/network/mobile/broad block action adapters from screen-derived
 decisions, checklist status movement, and production parent explanation UX
