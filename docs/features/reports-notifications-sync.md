@@ -75,6 +75,14 @@ custody.
   refs, and sensitive-detail minimization without claiming provider delivery,
   receipt ingestion, credentials, cloud routing, parent notification UI, raw
   child evidence, or sensitive provider metadata storage.
+- Notification local outbox scheduler proof now writes and rereads a
+  deterministic parent-owned JSONL scheduler artifact for due, held
+  quiet-hours, retry-window scheduled, dead-letter review, receipt-required, and
+  manual-required states. It proves deterministic `nextAttemptAt` and retry
+  window rows while keeping provider delivery, receipt ingestion, credentials,
+  cloud routing, parent notification UI, production retry workers, production
+  quiet-hours timers, durable production outbox storage, raw child evidence, and
+  sensitive provider metadata unclaimed.
 - Parent-owned sync/export manifest contract proof now represents export
   manifest data classes, export formats, encryption metadata, retention/delete
   policy, connector status, sync cursor states, conflict records, import
@@ -121,6 +129,12 @@ defer/retry/dead-letter/receipt/manual states, but does not claim provider
 delivery, receipt ingestion, credentials, cloud routing, parent notification UI,
 quiet-hours scheduler execution, retry execution, or production durable outbox
 storage.
+The notification local outbox scheduler proof adds deterministic scheduler
+read-model rows and parent-owned scheduler artifact writing/parsing for
+due/held/retry/dead-letter/receipt/manual states, but does not claim provider
+delivery, receipt ingestion, credentials, cloud routing, parent notification UI,
+production retry worker execution, production quiet-hours timer execution, or
+durable production outbox storage.
 The parent-owned sync/export manifest proof adds typed export/retention/delete,
 connector status, cursor, conflict, import, and delete result states, but does
 not claim real export/import/upload/download runtime, connector OAuth,
@@ -175,6 +189,12 @@ delivery, policy writes, or child-device enforcement.
       quiet-hours defer, retry, dead-letter, receipt-required, and manual states,
       without provider delivery, receipt ingestion, credentials, cloud routing,
       parent notification UI, or sensitive detail storage claims.
+- [x] Notification local outbox scheduler proof exists with deterministic
+      due/held quiet-hours/retry-window/dead-letter/receipt/manual scheduler
+      states and parent-owned JSONL artifact writing/parsing, without provider
+      delivery, receipt ingestion, credentials, cloud routing, parent
+      notification UI, production retry workers, production quiet-hours timers,
+      durable production outbox storage, or sensitive detail storage claims.
 - [ ] Retention/delete controls.
 
 ## Next AI Instructions
@@ -193,6 +213,11 @@ parent-facing notification history. Treat
 `scripts/test/notification-local-outbox-adapter-proof.mjs` as parent-domain
 local outbox adapter-boundary proof only; require provider adapters, real
 send/retry execution, receipt ingestion, quiet-hours scheduler, parent-visible
+history/preferences UI, production durable storage, and provider smoke proof
+before claiming notification delivery or product notification runtime. Treat
+`scripts/test/notification-local-outbox-scheduler-proof.mjs` as parent-domain
+local outbox scheduler proof only; require provider adapters, production retry
+workers, production quiet-hours timers, receipt ingestion, parent-visible
 history/preferences UI, production durable storage, and provider smoke proof
 before claiming notification delivery or product notification runtime. Treat
 `scripts/test/parent-owned-sync-export-manifest-proof.mjs` as parent-domain
