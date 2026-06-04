@@ -18,6 +18,9 @@ use crate::{
         build_activity_report_history, build_activity_report_save,
         build_activity_screen_read_model, build_activity_weekly_report,
     },
+    browser_ai_ux_read_model_payload::{
+        browser_ai_ux_read_model_payload, modeled_browser_ai_ux_read_model,
+    },
     browser_policy_api::build_browser_policy_event,
     browser_policy_runtime::BrowserPolicyRuntime,
     browser_runtime::build_browser_managed_status_report,
@@ -38,6 +41,7 @@ use crate::{
     parent_assistant_runtime::build_parent_assistant_answer_report,
     policy_preview_api::build_policy_preview_read_model_report,
     snapshot::build_dev_log_snapshot,
+    time::timestamp_now,
 };
 
 pub async fn handle_socket(
@@ -193,6 +197,7 @@ async fn build_command_event(
         }
         AgentCommandName::AgentLocalAiRuntimeStatusGet
         | AgentCommandName::AgentLocalAiChatGenerate
+        | AgentCommandName::AgentBrowserAiUxReadModelGet
         | AgentCommandName::AgentParentAssistantAnswerGenerate
         | AgentCommandName::AgentParentAssistantMessageSend
         | AgentCommandName::AgentParentAssistantQuickActionStart
@@ -349,6 +354,9 @@ async fn build_ai_command_report(command: AgentCommandEnvelope) -> AgentEventEnv
         AgentCommandName::AgentLocalAiChatGenerate => {
             build_local_ai_chat_generation_report(command).await
         }
+        AgentCommandName::AgentBrowserAiUxReadModelGet => {
+            build_browser_ai_ux_read_model_report(command).await
+        }
         AgentCommandName::AgentParentAssistantAnswerGenerate
         | AgentCommandName::AgentParentAssistantMessageSend
         | AgentCommandName::AgentParentAssistantQuickActionStart => {
@@ -359,6 +367,21 @@ async fn build_ai_command_report(command: AgentCommandEnvelope) -> AgentEventEnv
         }
         _ => build_log_snapshot_report(command),
     }
+}
+
+async fn build_browser_ai_ux_read_model_report(
+    command: AgentCommandEnvelope,
+) -> AgentEventEnvelope {
+    let read_model = modeled_browser_ai_ux_read_model(timestamp_now());
+    build_event(
+        constants::event_id::BROWSER_AI_UX_READ_MODEL_REPORTED,
+        &command.message_id,
+        command.source,
+        AgentEventName::AgentBrowserAiUxReadModelReported,
+        LogLevel::Info,
+        browser_ai_ux_read_model_payload(&read_model),
+        None,
+    )
 }
 
 fn build_dev_echo_report(command: AgentCommandEnvelope) -> AgentEventEnvelope {

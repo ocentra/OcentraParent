@@ -37,6 +37,11 @@ mod activity_surface_request;
 mod activity_surface_store;
 mod app;
 mod browser_evidence_payload;
+mod browser_ai_ux_read_model_payload;
+#[cfg(test)]
+mod browser_ai_ux_read_model_payload_tests;
+#[cfg(test)]
+mod browser_ai_ux_read_model_service_tests;
 #[cfg_attr(not(test), allow(dead_code))]
 mod browser_inventory_read_model;
 #[cfg(test)]

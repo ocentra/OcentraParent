@@ -90,6 +90,7 @@ pub mod event_id {
     pub const NETWORK_FLOW_READ_MODEL_REPORTED: &str = "network-flow-read-model-reported";
     pub const LOCAL_AI_RUNTIME_STATUS_REPORTED: &str = "local-ai-runtime-status-reported";
     pub const LOCAL_AI_CHAT_GENERATION_REPORTED: &str = "local-ai-chat-generation-reported";
+    pub const BROWSER_AI_UX_READ_MODEL_REPORTED: &str = "browser-ai-ux-read-model-reported";
     pub const PARENT_ASSISTANT_ANSWER_REPORTED: &str = "parent-assistant-answer-reported";
     pub const POLICY_PREVIEW_READ_MODEL_REPORTED: &str = "policy-preview-read-model-reported";
     pub const BROWSER_POLICY_REPORTED: &str = "browser-policy-reported";
@@ -195,6 +196,37 @@ pub mod windows_adapter_artifact_gate;
 pub mod windows_adapter_artifact_ingestion;
 #[path = "constants/windows_adapter_capability.rs"]
 pub mod windows_adapter_capability;
+
+pub mod browser_ai_ux_read_model {
+    pub const COMMAND_GET: &str = "agent.browser-ai.ux-read-model.get";
+    pub const EVENT_REPORTED: &str = "agent.browser-ai.ux-read-model.reported";
+    pub const ROW_CHECKING_ID: &str = "browser-ai-ux-row-checking";
+    pub const ROW_MANUAL_REQUIRED_ID: &str = "browser-ai-ux-row-manual-required";
+    pub const CHILD_DEVICE_SERVICE_MODELED: &str = "child-device-service-modeled";
+    pub const STATUS_SERVICE_BACKED_MANUAL_REQUIRED: &str = "service-backed-manual-required";
+    pub const EVIDENCE_YOUTUBE_VIDEO: &str = "browser-evidence-youtube-video";
+    pub const EVIDENCE_GENERIC_VIDEO: &str = "browser-evidence-generic-video";
+    pub const CHILD_SNAPSHOT_YOUTUBE_VIDEO: &str = "browser-child-ux-youtube-video";
+    pub const CHILD_SNAPSHOT_GENERIC_VIDEO: &str = "browser-child-ux-generic-video";
+    pub const CHILD_STATE_CHECKING: &str = "checking";
+    pub const CHILD_STATE_MANUAL_REQUIRED: &str = "manual_required";
+    pub const CHILD_TOKEN_CHECKING: &str = "browser.child.checking.title";
+    pub const CHILD_TOKEN_MANUAL: &str = "browser.child.manual.title";
+    pub const CHILD_DELIVERY_CHECKING_HOLD_RENDERED: &str = "checking-hold-rendered";
+    pub const CHILD_DELIVERY_PORTAL_ROW_ONLY: &str = "portal-row-only";
+    pub const ADAPTER_PROOF_CHECKING_PAGE: &str = "managed-browser-checking-page-proof";
+    pub const PARENT_EXPLANATION_YOUTUBE_VIDEO: &str = "browser-parent-explanation-youtube-video";
+    pub const PARENT_EXPLANATION_GENERIC_VIDEO: &str = "browser-parent-explanation-generic-video";
+    pub const PARENT_STATE_PREVIEW: &str = "preview";
+    pub const PARENT_STATE_MANUAL_REQUIRED: &str = "manual_required";
+    pub const PARENT_TOKEN_TITLE: &str = "browser.parent.explanation.title";
+    pub const PARENT_TOKEN_DEGRADED: &str = "browser.parent.explanation.degraded";
+    pub const AUDIT_YOUTUBE_VIDEO: &str = "browser-parent-explanation-audit-youtube-video";
+    pub const AUDIT_GENERIC_VIDEO: &str = "browser-parent-explanation-audit-generic-video";
+    pub const GENERATED_AT: &str = "2026-06-04T03:12:00Z";
+    pub const COMMAND_MESSAGE_ID: &str = "cmd-browser-ai-ux-read-model";
+    pub const TEST_SENT_AT: &str = "2026-06-04T03:12:01Z";
+}
 
 pub mod browser_policy {
     pub const COMMAND_GET: &str = "agent.browser-policy.get";

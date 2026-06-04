@@ -166,6 +166,7 @@ export const AgentProtocolDefaults = {
     BrowserPolicyRejectionReason: 'browserPolicyRejectionReason',
     BrowserPolicyEffectivePolicy: 'browserPolicyEffectivePolicy',
     BrowserPolicyCapabilityRegistry: 'browserPolicyCapabilityRegistry',
+    BrowserAiUxReadModel: 'browserAiUxReadModel',
     BrowserVersion: 'browserVersion',
     BytesReceived: 'bytesReceived',
     BytesSent: 'bytesSent',

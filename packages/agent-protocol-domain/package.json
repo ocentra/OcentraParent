@@ -13,6 +13,10 @@
       "import": "./dist/browser-policy-adapter.js",
       "types": "./dist/browser-policy-adapter.d.ts"
     },
+    "./browser-ai-ux-read-model": {
+      "import": "./dist/browser-ai-ux-read-model.js",
+      "types": "./dist/browser-ai-ux-read-model.d.ts"
+    },
     "./enforcement-product-control-adapter": {
       "import": "./dist/enforcement-product-control-adapter.js",
       "types": "./dist/enforcement-product-control-adapter.d.ts"

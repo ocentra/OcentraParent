@@ -122,6 +122,8 @@ pub enum AgentCommandName {
     AgentLocalAiRuntimeStatusGet,
     #[serde(rename = "agent.local-ai.chat.generate")]
     AgentLocalAiChatGenerate,
+    #[serde(rename = "agent.browser-ai.ux-read-model.get")]
+    AgentBrowserAiUxReadModelGet,
     #[serde(rename = "agent.parent-assistant.answer.generate")]
     AgentParentAssistantAnswerGenerate,
     #[serde(rename = "agent.policy.preview.read-model.get")]
@@ -248,6 +250,8 @@ pub enum AgentEventName {
     AgentLocalAiRuntimeStatusReported,
     #[serde(rename = "agent.local-ai.chat.generation.reported")]
     AgentLocalAiChatGenerationReported,
+    #[serde(rename = "agent.browser-ai.ux-read-model.reported")]
+    AgentBrowserAiUxReadModelReported,
     #[serde(rename = "agent.parent-assistant.answer.reported")]
     AgentParentAssistantAnswerReported,
     #[serde(rename = "agent.policy.preview.read-model.reported")]

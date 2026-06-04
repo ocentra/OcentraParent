@@ -697,6 +697,7 @@ This intelligence layer can be assigned as sub-workpacks under the browser plan:
 23. Dynamic feed/social URL handling.
 24. Provider degraded/fallback behavior.
 25. Proof gates, fixtures, tests, and rollout.
+26. Service-backed child/parent AI UX read model.
 
 ## Implementation Checkpoint - 2026-06-03
 
@@ -860,9 +861,8 @@ This intelligence layer can be assigned as sub-workpacks under the browser plan:
   be claimed. The contracts reject raw copy, shaming/surveillance copy claims,
   visual-render claims, state/token mismatches, rendered page delivery without
   adapter proof, and warning/block/approval states without matching
-  post-analysis actions. The activity-domain package subpath export is pending
-  the A-owned `packages/activity-domain/package.json` tracking export
-  coordination; no visual component, browser page renderer, runtime delivery,
+  post-analysis actions. The activity-domain package subpath export is present;
+  no visual component, browser page renderer, runtime delivery,
   enforcement, or product checklist update is claimed.
 - AI-20 now has schema-backed parent explanation/audit UX contracts in
   `packages/activity-domain/src/browser-ai-parent-explanation-schemas.ts` and
@@ -875,8 +875,7 @@ This intelligence layer can be assigned as sub-workpacks under the browser plan:
   fields when applicable. They reject raw page content, raw prompt text, portal
   evaluation, policy authority, direct enforcement, hidden fallback, hidden child
   engagement, missing audit sections, and mismatched source evidence. The
-  activity-domain package subpath export is pending the A-owned
-  `packages/activity-domain/package.json` tracking export coordination; no parent
+  activity-domain package subpath export is present; no parent
   UI component, portal visual rendering, runtime delivery, enforcement, or
   product checklist update is claimed.
 - AI-21 now extends deterministic YouTube URL parser coverage and adds a YouTube
@@ -889,8 +888,8 @@ This intelligence layer can be assigned as sub-workpacks under the browser plan:
   category/rating/restricted signals, and degraded reasons. It rejects unmanaged
   or non-YouTube classifications and does not capture page body, transcript text,
   content semantics authority, AI decisions, policy decisions, or policy
-  authority. Public package/barrel exports are pending source/package export
-  coordination; no network fetcher, transcript parser, hidden page load, AI
+  authority. Public package subpath exports are present without expanding the
+  browser barrel; no network fetcher, transcript parser, hidden page load, AI
   execution, policy evaluator, enforcement, or product checklist update is
   claimed.
 - AI-22 now extends Vimeo URL parser coverage and adds a Vimeo/generic video
@@ -904,8 +903,8 @@ This intelligence layer can be assigned as sub-workpacks under the browser plan:
   signals, and degraded reasons. It rejects unmanaged classifications and
   generic OpenGraph-only rows, and it does not capture page body, transcript
   text, content semantics authority, AI decisions, policy decisions, or policy
-  authority. Public package/barrel exports are pending source/package export
-  coordination; no network fetcher, transcript parser, hidden page load, AI
+  authority. Public package subpath exports are present without expanding the
+  browser barrel; no network fetcher, transcript parser, hidden page load, AI
   execution, policy evaluator, enforcement, or product checklist update is
   claimed.
 - AI-23 now extends URL shape contracts and parser coverage for dynamic
@@ -918,8 +917,8 @@ This intelligence layer can be assigned as sub-workpacks under the browser plan:
   confidence. Exact reels/status/posts carry post ids where visible. Unmanaged
   social rows remain unknown/non-exact, dynamic-feed TTL stale memory rows
   cannot drive policy input, and parser rows keep content semantics, AI
-  decisions, and policy decisions false. Public package/barrel exports remain
-  pending source/package coordination; no account identity proof, feed
+  decisions, and policy decisions false. Public package subpath exports are
+  present; no account identity proof, feed
   recommendation analysis, messaging/contact analysis, upload monitoring,
   livestream content analysis, UI, enforcement, or product checklist update is
   claimed.
@@ -932,8 +931,8 @@ This intelligence layer can be assigned as sub-workpacks under the browser plan:
   fallback. Metadata-only and no-AI fallbacks keep runtime refs null and expose
   fallback action/reason labels. Decisions reject hidden fallback, claimed AI
   analysis results, claimed policy decisions, disabled local safety, remote
-  default blocking, and remote outage disables local safety. Public
-  package/barrel exports remain pending source/package coordination; no model
+  default blocking, and remote outage disables local safety. Public package
+  subpath exports are present; no model
   execution, policy evaluator, UI, enforcement, runtime delivery, or product
   checklist update is claimed.
 - AI-25 now adds a deterministic proof-gate script in
@@ -946,6 +945,16 @@ This intelligence layer can be assigned as sub-workpacks under the browser plan:
   partial/manual-required. No runtime model execution, UI delivery, policy
   authority, enforcement, package export completion, or product checklist update
   is claimed.
+- AI-26 now adds a service-backed browser AI UX read-model proof for AI-19 and
+  AI-20 in `packages/agent-protocol-domain`, `crates/agent-protocol`, and
+  `crates/agent-service`. The WebSocket command
+  `agent.browser-ai.ux-read-model.get` returns
+  `agent.browser-ai.ux-read-model.reported` with a JSON
+  `browserAiUxReadModel` payload carrying child UX state, parent explanation
+  state, source evidence refs, audit refs, visibility flags, adapter-proof refs,
+  and explicit no-claim booleans. This is a non-visual read model only: no model
+  execution, browser page renderer, portal component, runtime delivery,
+  final policy authority, or enforcement is claimed.
 
 If these become implementation assignments, create focused workpack files or
 worker messages before code changes. Do not mix all 25 into one PR.
