@@ -137,6 +137,7 @@ fn test_path(suffix: &str) -> PathBuf {
     let mut path = std::env::temp_dir();
     path.push(constants::activity_store::TEST_FILE_PREFIX);
     path.push(std::process::id().to_string());
+    path.push(constants::activity_capture::SCREEN_TRIGGER_NATIVE_APP_FOREGROUND_START);
     path.push(TEST_SEQUENCE.fetch_add(1, Ordering::Relaxed).to_string());
     path.push(suffix);
     path
