@@ -158,13 +158,17 @@ impl NetworkRuntimeSpine {
             CorrelationId::parse(network_correlation_id(&observation, observed_at))?;
         let recorded_at = RecordedAt::parse(observed_at)?;
         let mut reports = Vec::new();
-        for phase in NetworkRuntimePhase::ordered_chain() {
+        for phase in NetworkRuntimePhase::ordered_chain()
+            .iter()
+            .copied()
+            .filter(|phase| should_publish_phase(*phase, &observation))
+        {
             let payload =
-                NetworkRuntimeEventPayload::from_observation(*phase, &observation, observed_at);
+                NetworkRuntimeEventPayload::from_observation(phase, &observation, observed_at);
             let metadata = EventMetadata::from_parts(
                 EventId::generated(),
                 correlation_id.clone(),
-                network_event_source(*phase, &observation)?,
+                network_event_source(phase, &observation)?,
                 recorded_at.clone(),
                 Some(TargetHandler::parse(phase.target_handler())?),
             );
@@ -175,6 +179,19 @@ impl NetworkRuntimeSpine {
             stored_events: self.bus.journal().await,
             dead_letters: self.bus.dead_letters().await,
         })
+    }
+}
+
+fn should_publish_phase(phase: NetworkRuntimePhase, observation: &NetworkObservation) -> bool {
+    match intervention_state(observation) {
+        NetworkInterventionState::DryRunOnly => true,
+        NetworkInterventionState::ManualRequired | NetworkInterventionState::Unavailable => {
+            !matches!(
+                phase,
+                NetworkRuntimePhase::EnforcementCommandIssued
+                    | NetworkRuntimePhase::EnforcementResultObserved
+            )
+        }
     }
 }
 

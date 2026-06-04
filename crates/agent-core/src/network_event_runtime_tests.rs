@@ -5,7 +5,7 @@ use ocentra_parent_agent_protocol::{
 use super::{
     publish_network_runtime_chain_for_observation, NetworkAiAuditState, NetworkEvidenceGrade,
     NetworkEvidenceScope, NetworkInterventionState, NetworkObservation, NetworkRiskBudgetState,
-    NetworkRuntimeEventPayload, NetworkRuntimePhase,
+    NetworkRuntimeEventPayload, NetworkRuntimePhase, NetworkRuntimeReport,
 };
 
 #[tokio::test]
@@ -31,6 +31,20 @@ async fn network_runtime_chain_publishes_full_metadata_only_flow() {
     assert_eq!(payloads[0].phase, NetworkRuntimePhase::FlowObserved);
     assert_eq!(payloads[3].ai_audit_state, NetworkAiAuditState::Requested);
     assert_eq!(payloads[4].ai_audit_state, NetworkAiAuditState::Completed);
+    assert_eq!(
+        count_event_type(
+            &report,
+            constants::network_flow::EVENT_ENFORCEMENT_COMMAND_ISSUED
+        ),
+        1
+    );
+    assert_eq!(
+        count_event_type(
+            &report,
+            constants::network_flow::EVENT_ENFORCEMENT_RESULT_OBSERVED
+        ),
+        1
+    );
     assert!(payloads.iter().all(|payload| {
         payload.evidence_scope == NetworkEvidenceScope::MetadataOnly
             && payload.evidence_grade == NetworkEvidenceGrade::DomainAndProcessMetadata
@@ -44,7 +58,7 @@ async fn network_runtime_chain_publishes_full_metadata_only_flow() {
 }
 
 #[tokio::test]
-async fn ip_only_or_unknown_process_flow_requires_manual_review() {
+async fn manual_required_network_evidence_does_not_publish_enforcement_command() {
     let report = publish_network_runtime_chain_for_observation(
         ip_only_unknown_process_observation(),
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
@@ -54,6 +68,24 @@ async fn ip_only_or_unknown_process_flow_requires_manual_review() {
     let payloads = decode_payloads(&report);
 
     assert!(report.manual_required());
+    assert_eq!(
+        report.publish_reports.len(),
+        NetworkRuntimePhase::ordered_chain().len() - 2
+    );
+    assert_eq!(
+        count_event_type(
+            &report,
+            constants::network_flow::EVENT_ENFORCEMENT_COMMAND_ISSUED
+        ),
+        0
+    );
+    assert_eq!(
+        count_event_type(
+            &report,
+            constants::network_flow::EVENT_ENFORCEMENT_RESULT_OBSERVED
+        ),
+        0
+    );
     assert!(payloads.iter().all(|payload| {
         payload.evidence_grade == NetworkEvidenceGrade::IpOrProcessPartialMetadata
             && payload.risk_budget_state == NetworkRiskBudgetState::ManualReviewRequired
@@ -74,6 +106,24 @@ async fn degraded_adapter_flow_stays_unavailable_without_adapter_action() {
     let payloads = decode_payloads(&report);
 
     assert!(!report.manual_required());
+    assert_eq!(
+        report.publish_reports.len(),
+        NetworkRuntimePhase::ordered_chain().len() - 2
+    );
+    assert_eq!(
+        count_event_type(
+            &report,
+            constants::network_flow::EVENT_ENFORCEMENT_COMMAND_ISSUED
+        ),
+        0
+    );
+    assert_eq!(
+        count_event_type(
+            &report,
+            constants::network_flow::EVENT_ENFORCEMENT_RESULT_OBSERVED
+        ),
+        0
+    );
     assert!(payloads.iter().all(|payload| {
         payload.evidence_scope == NetworkEvidenceScope::AdapterUnavailable
             && payload.evidence_grade == NetworkEvidenceGrade::AdapterUnavailable
@@ -84,7 +134,7 @@ async fn degraded_adapter_flow_stays_unavailable_without_adapter_action() {
     }));
 }
 
-fn decode_payloads(report: &super::NetworkRuntimeReport) -> Vec<NetworkRuntimeEventPayload> {
+fn decode_payloads(report: &NetworkRuntimeReport) -> Vec<NetworkRuntimeEventPayload> {
     report
         .stored_events
         .iter()
@@ -95,6 +145,14 @@ fn decode_payloads(report: &super::NetworkRuntimeReport) -> Vec<NetworkRuntimeEv
             envelope.payload
         })
         .collect()
+}
+
+fn count_event_type(report: &NetworkRuntimeReport, event_type: &str) -> usize {
+    report
+        .stored_events
+        .iter()
+        .filter(|event| event.contract.event_type.as_str() == event_type)
+        .count()
 }
 
 fn complete_domain_observation() -> NetworkObservation {

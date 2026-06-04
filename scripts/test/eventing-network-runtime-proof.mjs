@@ -5,6 +5,13 @@ import { join, relative } from 'node:path';
 const repoRoot = process.cwd();
 const outputDir = join(repoRoot, 'test-results', 'eventing-network-runtime-proof');
 const proofPath = join(outputDir, 'proof.json');
+const weakEvidenceOutputDir = join(
+  repoRoot,
+  'output',
+  'eventing-plan-proof',
+  '59-weak-network-evidence-command-routing'
+);
+const weakEvidenceProofPath = join(weakEvidenceOutputDir, 'proof-summary.json');
 const planOutputDir = join(repoRoot, 'output', 'eventing-plan-proof', '62-network-proof-links');
 const planProofPath = join(planOutputDir, 'proof-summary.json');
 const commands = [];
@@ -14,6 +21,7 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
+  await mkdir(weakEvidenceOutputDir, { recursive: true });
   await mkdir(planOutputDir, { recursive: true });
 
   await runCommand('cargo', ['test', '-p', 'ocentra-eventing']);
@@ -36,6 +44,9 @@ async function main() {
       networkRuntimeTests: 'crates/agent-core/src/network_event_runtime_tests.rs',
       networkEventConstants: 'crates/agent-protocol/src/constants/network_flow.rs',
       proofHarness: 'scripts/test/eventing-network-runtime-proof.mjs',
+      weakNetworkEvidencePlanRow: 'docs/plans/eventing-plan/implementation-checklist.md#row-59',
+      weakNetworkEvidenceProofSummary:
+        'output/eventing-plan-proof/59-weak-network-evidence-command-routing/proof-summary.json',
       eventingPlanRow: 'docs/plans/eventing-plan/implementation-checklist.md#row-62',
       networkPlanRow: 'docs/plans/network-plan/implementation-checklist.md#row-10',
       eventingPlanProofSummary: 'output/eventing-plan-proof/62-network-proof-links/proof-summary.json',
@@ -45,7 +56,7 @@ async function main() {
       'typed live handlers receive EventContext<NetworkRuntimeEventPayload> with EventEnvelope payloads and stored JSON stays at the envelope boundary',
       'network flow events carry custody, source, target handler, aggregate key, idempotency key, and correlation metadata',
       'metadata-only network evidence can progress through AI audit, policy, enforcement dry-run, audit, and portal read-model phases',
-      'weak or unavailable network evidence stays manual-required or unavailable and does not execute an adapter action',
+      'weak or unavailable network evidence stays manual-required or unavailable, does not publish enforcement command/result events, and does not execute an adapter action',
     ],
     claimsNotProved: [
       'packet capture, raw PCAP parsing, or analyzer signature parity',
@@ -57,9 +68,11 @@ async function main() {
   };
 
   await writeFile(proofPath, `${JSON.stringify(proof, null, 2)}\n`);
+  await writeFile(weakEvidenceProofPath, `${JSON.stringify(weakEvidenceProof(proof), null, 2)}\n`);
   await writeFile(planProofPath, `${JSON.stringify(planProof(proof), null, 2)}\n`);
   console.log(`eventing-network-runtime-proof-ok:${proofLabels.join(',')}`);
   console.log(`evidence=${relative(repoRoot, proofPath)}`);
+  console.log(`weakEvidence=${relative(repoRoot, weakEvidenceProofPath)}`);
   console.log(`planEvidence=${relative(repoRoot, planProofPath)}`);
 }
 
@@ -79,10 +92,26 @@ async function assertSourceContracts() {
   assertIncludes(eventingPublisherSource, 'EventEnvelope<E>', 'typed event envelope handler boundary');
   assertIncludes(eventingEnvelopeSource, 'serde_json::Value', 'stored envelope JSON boundary');
   assertIncludes(eventingEnvelopeSource, 'pub payload: StoredEventPayload', 'stored envelope JSON wrapper boundary');
+  assertIncludes(networkSource, 'should_publish_phase', 'network runtime command phase filter');
   assertDoesNotInclude(networkSource, 'struct NetworkEventBus', 'no private NetworkEventBus');
   assertDoesNotInclude(networkSource, 'adapter_action_executed: true', 'no adapter action execution');
+  assertIncludes(
+    networkTests,
+    'manual_required_network_evidence_does_not_publish_enforcement_command',
+    'network tests assert weak evidence command-routing guard'
+  );
+  assertIncludes(
+    networkTests,
+    'EVENT_ENFORCEMENT_COMMAND_ISSUED',
+    'network tests assert enforcement command event absence'
+  );
   assertIncludes(networkTests, 'exact_url_available', 'network tests assert exact URL non-claim');
   assertIncludes(networkTests, 'decrypted_https_payload_available', 'network tests assert HTTPS payload non-claim');
+  assertIncludes(
+    eventingChecklist,
+    'output/eventing-plan-proof/59-weak-network-evidence-command-routing/proof-summary.json',
+    'eventing checklist row 59 links command-routing proof'
+  );
   assertIncludes(
     eventingChecklist,
     'output/eventing-plan-proof/62-network-proof-links/proof-summary.json',
@@ -94,6 +123,7 @@ async function assertSourceContracts() {
   proofLabels.push('network.reuses-generic-eventing');
   proofLabels.push('network.metadata-only.no-exact-url');
   proofLabels.push('network.manual-required.no-adapter-action');
+  proofLabels.push('eventing.row-59.weak-evidence-no-enforcement-command');
   proofLabels.push('eventing.row-62.network-proof-links');
 }
 
@@ -135,6 +165,31 @@ function assertDoesNotInclude(text, unexpected, label) {
   }
 }
 
+function weakEvidenceProof(proof) {
+  return {
+    proof: 'eventing-row-59-weak-network-evidence-command-routing',
+    checkedAt: proof.checkedAt,
+    commit: proof.commit,
+    commands: proof.commands,
+    proofLabels: proof.proofLabels,
+    linkedArtifacts: {
+      runtimeProof: relative(repoRoot, proofPath),
+      row59Proof: relative(repoRoot, weakEvidenceProofPath),
+      networkRuntime: proof.evidence.networkRuntime,
+      networkRuntimeTests: proof.evidence.networkRuntimeTests,
+      eventingPlanChecklist: 'docs/plans/eventing-plan/implementation-checklist.md',
+    },
+    provenRows: ['59 Weak-network-evidence cannot publish enforcement command'],
+    claimsProved: [
+      'manual-required network evidence filters enforcement command and enforcement result phases before publish',
+      'adapter-unavailable network evidence filters enforcement command and enforcement result phases before publish',
+      'weak and unavailable network evidence still writes audit and portal-read-model phases for review visibility',
+      'weak and unavailable network evidence keeps adapter_action_executed false',
+    ],
+    claimsNotProved: proof.claimsNotProved,
+  };
+}
+
 function planProof(proof) {
   return {
     proof: 'eventing-row-62-network-proof-links',
@@ -144,6 +199,7 @@ function planProof(proof) {
     proofLabels: proof.proofLabels,
     linkedArtifacts: {
       runtimeProof: relative(repoRoot, proofPath),
+      weakNetworkEvidenceProof: relative(repoRoot, weakEvidenceProofPath),
       eventingPlanProof: relative(repoRoot, planProofPath),
       networkRuntime: proof.evidence.networkRuntime,
       networkRuntimeTests: proof.evidence.networkRuntimeTests,
@@ -152,10 +208,10 @@ function planProof(proof) {
       networkPlanChecklist: 'docs/plans/network-plan/implementation-checklist.md',
     },
     provenRows: ['62 Network event proof artifacts linked back to eventing plan'],
+    linkedCompletedRows: ['59 Weak-network-evidence cannot publish enforcement command'],
     linkedPartialRows: [
       '57 Network Workpack 10 consumes reusable crate',
       '58 Network to AI to policy to enforcement event-chain proof',
-      '59 Weak-network-evidence cannot publish enforcement command',
       'network-plan row 10 NetworkActivityEvent contracts and reusable Rust eventing consumption',
     ],
     claimsProved: proof.claimsProved,

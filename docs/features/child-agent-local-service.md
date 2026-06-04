@@ -68,6 +68,9 @@ and clear degraded states.
   identity fields use validated event/request/subscriber/idempotency newtypes,
   stored JSON is wrapped behind `StoredEventPayload`, and the raw public
   `&str` dead-letter event-type export was replaced by a typed constructor.
+- E-D hardened weak network evidence command routing: manual-required or
+  unavailable network observations now skip enforcement command/result publish
+  phases while still preserving audit and read-model visibility.
 
 ## Current Gap
 
@@ -82,8 +85,9 @@ handoff, broker-backed delivery, journal-before-action enforcement integration,
 adapter-result audit/read-model integration, and broad runtime adoption. The
 initial AI and portal direct-enforcement negative proof now rejects portal-side
 enforcement action commands and verifies parent-assistant/AI command routing
-does not target enforcement handlers; the eventing source gate now rejects
-public raw JSON/string constants, `Uuid`, and raw domain identifier fields.
+does not target enforcement handlers; weak network evidence no longer publishes
+enforcement command/result events; the eventing source gate now rejects public
+raw JSON/string constants, `Uuid`, and raw domain identifier fields.
 
 ## Checklist
 
@@ -96,8 +100,9 @@ public raw JSON/string constants, `Uuid`, and raw domain identifier fields.
       runtimes, with UI/Vite kept view/input only. First E-D proof exists for
       `crates/ocentra-eventing` typed envelopes, queue/retry/request-response,
       journal/replay, production shutdown, portal/AI direct-enforcement
-      negative proof, type-safety source gate, and the network runtime chain;
-      Parent-specific contracts and broad runtime adoption remain.
+      negative proof, weak-network-evidence command-routing guard, type-safety
+      source gate, and the network runtime chain; Parent-specific contracts and
+      broad runtime adoption remain.
 - [ ] Policy and AI read paths.
 - [ ] Enforcement adapter dispatch with audit.
 - [ ] Capability and degraded-state reporting. Current mobile capability proof
