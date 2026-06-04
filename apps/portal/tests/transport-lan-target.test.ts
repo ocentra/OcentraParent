@@ -1,6 +1,30 @@
 import { expect, it } from 'vitest';
 import { AgentCommand, AgentProtocolDefaults } from '@ocentra-parent/agent-protocol-domain/contracts';
-import { resolvePortalCommandTarget } from '../src/transport';
+import { PortalCommandButtons, PortalOverviewCommands } from '@ocentra-parent/portal-domain/contracts';
+import { isPortalDirectEnforcementActionCommand, resolvePortalCommandTarget } from '../src/transport';
+
+it('isPortalDirectEnforcementActionCommand: rejects portal-side enforcement action commands', () => {
+  expect(isPortalDirectEnforcementActionCommand(AgentCommand.EnforcementExecute)).toBe(true);
+  expect(isPortalDirectEnforcementActionCommand(AgentCommand.EnforcementTimerRecover)).toBe(true);
+  expect(isPortalDirectEnforcementActionCommand(AgentCommand.EnforcementTimerExpire)).toBe(true);
+  expect(isPortalDirectEnforcementActionCommand(AgentCommand.EnforcementOverrideCancel)).toBe(true);
+});
+
+it('isPortalDirectEnforcementActionCommand: allows portal read-model and proof commands', () => {
+  expect(isPortalDirectEnforcementActionCommand(AgentCommand.EnforcementProductControlSpineGet)).toBe(false);
+  expect(isPortalDirectEnforcementActionCommand(AgentCommand.EnforcementPolicyDispatchGet)).toBe(false);
+  expect(isPortalDirectEnforcementActionCommand(AgentCommand.EnforcementBroadAdapterProofGet)).toBe(false);
+  expect(isPortalDirectEnforcementActionCommand(AgentCommand.EnforcementSupportedAdapterRuntimeProofGet)).toBe(false);
+});
+
+it('portal command inventory: contains no direct enforcement action command', () => {
+  const commandInventory = [
+    ...PortalOverviewCommands.map((command) => command.command),
+    ...PortalCommandButtons.map((command) => command.command),
+  ];
+
+  expect(commandInventory.filter(isPortalDirectEnforcementActionCommand)).toStrictEqual([]);
+});
 
 it('resolvePortalCommandTarget: routes LAN commands to the selected local-network child device', () => {
   const target = resolvePortalCommandTarget(
