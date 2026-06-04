@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "proofMode": "app-game-plan-rollout-pr-gate",
-  "checkedAt": "2026-06-03T15:01:46.257Z",
-  "branch": "codex/app-game-read-model-service-events",
-  "commit": "cdf53deb5a0e50c54a37eefef1a034ebc8fba675",
-  "statusShort": "M docs/features/app-game-control.md\n M docs/plans/app-game-plan/current-app-game-snapshot.md\n M docs/plans/app-game-plan/implementation-checklist.md\n M docs/plans/app-game-plan/source-index.md\n M docs/plans/app-game-plan/workpacks/28-e2e-manual-proof-rollout-pr-gate.md\n M docs/plans/app-plan/current-app-snapshot.md\n M docs/plans/app-plan/implementation-checklist.md\n M docs/plans/app-plan/source-index.md\n M docs/plans/app-plan/workpacks/27-e2e-and-manual-proof-artifacts.md\n M docs/plans/app-plan/workpacks/28-rollout-checklist-and-pr-gate.md\n M docs/product-capability-checklist.md\n?? .codex/app-game-dashboard-dev/\n?? .codex/browser-policy-forest-limit.png\n?? .codex/browser-policy-forest-prototype.png\n?? .codex/browser-rules-coverage-qa.png\n?? .codex/browser-rules-coverage-scroll-qa.png\n?? .codex/browser-rules-current.png\n?? .codex/browser-rules-enforce-restored.png\n?? .codex/browser-rules-four-demo-clicked.png\n?? .codex/browser-rules-four-demo.png\n?? .codex/browser-rules-four-grid-demo.png\n?? .codex/browser-rules-left-tab-fixed.png\n?? .codex/browser-rules-three-demo.png\n?? .codex/chrome-flicker/\n?? .codex/portal-product-shell-proof/\n?? .codex/scheduler-proof/\n?? .playwright-cli/\n?? scripts/test/app-game-plan-rollout-pr-gate.mjs",
+  "checkedAt": "2026-06-04T13:21:06.107Z",
+  "branch": "codex/app-game-source-freshness-policy-consumption",
+  "commit": "1e345098c7fdde82ca8741a30355c0d4779da3fa",
+  "statusShort": "M scripts/test/app-game-plan-rollout-pr-gate.mjs\n?? .codex/app-game-dashboard-dev/\n?? .codex/browser-policy-forest-limit.png\n?? .codex/browser-policy-forest-prototype.png\n?? .codex/browser-rules-coverage-qa.png\n?? .codex/browser-rules-coverage-scroll-qa.png\n?? .codex/browser-rules-current.png\n?? .codex/browser-rules-enforce-restored.png\n?? .codex/browser-rules-four-demo-clicked.png\n?? .codex/browser-rules-four-demo.png\n?? .codex/browser-rules-four-grid-demo.png\n?? .codex/browser-rules-left-tab-fixed.png\n?? .codex/browser-rules-three-demo.png\n?? .codex/chrome-flicker/\n?? .codex/portal-product-shell-proof/\n?? .codex/scheduler-proof/\n?? .codex/validation/\n?? .playwright-cli/",
   "commands": [
     "git diff --check",
     "cmd /c npm run lanes:guard",
@@ -12,8 +12,8 @@
   ],
   "previousProof": {
     "appGame": {
-      "expectedCount": 27,
-      "presentCount": 27,
+      "expectedCount": 47,
+      "presentCount": 47,
       "roots": [
         {
           "root": "01-contract-boundary-and-effect-schemas",
@@ -257,13 +257,193 @@
           "sourceSnapshotPresent": true,
           "validationLogPresent": true,
           "uiSnapshotPresent": true
+        },
+        {
+          "root": "29-rust-protocol-evidence-identity-parity",
+          "path": "output/app-game-plan-proof/29-rust-protocol-evidence-identity-parity",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "30-rust-protocol-authority-classifier-parity",
+          "path": "output/app-game-plan-proof/30-rust-protocol-authority-classifier-parity",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "31-journal-sqlite-authority-classifier-storage",
+          "path": "output/app-game-plan-proof/31-journal-sqlite-authority-classifier-storage",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "32-live-process-snapshot-source",
+          "path": "output/app-game-plan-proof/32-live-process-snapshot-source",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "33-live-process-journal-sqlite-bridge",
+          "path": "output/app-game-plan-proof/33-live-process-journal-sqlite-bridge",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "34-service-capture-app-game-live-process-bridge",
+          "path": "output/app-game-plan-proof/34-service-capture-app-game-live-process-bridge",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "35-service-app-game-recurring-freshness",
+          "path": "output/app-game-plan-proof/35-service-app-game-recurring-freshness",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "36-live-foreground-window-source",
+          "path": "output/app-game-plan-proof/36-live-foreground-window-source",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "37-service-foreground-capture-bridge",
+          "path": "output/app-game-plan-proof/37-service-foreground-capture-bridge",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "38-service-authority-classifier-surface-evidence",
+          "path": "output/app-game-plan-proof/38-service-authority-classifier-surface-evidence",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "39-authority-classifier-read-model-counts",
+          "path": "output/app-game-plan-proof/39-authority-classifier-read-model-counts",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "40-app-game-boundary-read-model-event",
+          "path": "output/app-game-plan-proof/40-app-game-boundary-read-model-event",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "41-live-windows-inventory-source",
+          "path": "output/app-game-plan-proof/41-live-windows-inventory-source",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "42-service-windows-inventory-capture-bridge",
+          "path": "output/app-game-plan-proof/42-service-windows-inventory-capture-bridge",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "43-live-windows-store-package-source",
+          "path": "output/app-game-plan-proof/43-live-windows-store-package-source",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "44-service-windows-store-package-capture-bridge",
+          "path": "output/app-game-plan-proof/44-service-windows-store-package-capture-bridge",
+          "present": true,
+          "entryCount": 9,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "45-live-windows-registry-inventory-source",
+          "path": "output/app-game-plan-proof/45-live-windows-registry-inventory-source",
+          "present": true,
+          "entryCount": 12,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": false
+        },
+        {
+          "root": "46-service-windows-registry-capture-bridge",
+          "path": "output/app-game-plan-proof/46-service-windows-registry-capture-bridge",
+          "present": true,
+          "entryCount": 12,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": false
+        },
+        {
+          "root": "47-backend-source-freshness-read-model",
+          "path": "output/app-game-plan-proof/47-backend-source-freshness-read-model",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "48-source-freshness-policy-consumption",
+          "path": "output/app-game-plan-proof/48-source-freshness-policy-consumption",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
         }
       ],
       "missing": []
     },
     "app": {
-      "expectedCount": 26,
-      "presentCount": 26,
+      "expectedCount": 46,
+      "presentCount": 46,
       "roots": [
         {
           "root": "01-contract-boundary-and-effect-schemas",
@@ -498,6 +678,186 @@
           "sourceSnapshotPresent": true,
           "validationLogPresent": true,
           "uiSnapshotPresent": true
+        },
+        {
+          "root": "29-rust-protocol-evidence-identity-parity",
+          "path": "output/app-plan-proof/29-rust-protocol-evidence-identity-parity",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "30-rust-protocol-authority-classifier-parity",
+          "path": "output/app-plan-proof/30-rust-protocol-authority-classifier-parity",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "31-journal-sqlite-authority-classifier-storage",
+          "path": "output/app-plan-proof/31-journal-sqlite-authority-classifier-storage",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "32-live-process-snapshot-source",
+          "path": "output/app-plan-proof/32-live-process-snapshot-source",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "33-live-process-journal-sqlite-bridge",
+          "path": "output/app-plan-proof/33-live-process-journal-sqlite-bridge",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "34-service-capture-app-game-live-process-bridge",
+          "path": "output/app-plan-proof/34-service-capture-app-game-live-process-bridge",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "35-service-app-game-recurring-freshness",
+          "path": "output/app-plan-proof/35-service-app-game-recurring-freshness",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "36-live-foreground-window-source",
+          "path": "output/app-plan-proof/36-live-foreground-window-source",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "37-service-foreground-capture-bridge",
+          "path": "output/app-plan-proof/37-service-foreground-capture-bridge",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "38-service-authority-classifier-surface-evidence",
+          "path": "output/app-plan-proof/38-service-authority-classifier-surface-evidence",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "39-authority-classifier-read-model-counts",
+          "path": "output/app-plan-proof/39-authority-classifier-read-model-counts",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "40-app-game-boundary-read-model-event",
+          "path": "output/app-plan-proof/40-app-game-boundary-read-model-event",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "41-live-windows-inventory-source",
+          "path": "output/app-plan-proof/41-live-windows-inventory-source",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "42-service-windows-inventory-capture-bridge",
+          "path": "output/app-plan-proof/42-service-windows-inventory-capture-bridge",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "43-live-windows-store-package-source",
+          "path": "output/app-plan-proof/43-live-windows-store-package-source",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "44-service-windows-store-package-capture-bridge",
+          "path": "output/app-plan-proof/44-service-windows-store-package-capture-bridge",
+          "present": true,
+          "entryCount": 3,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "45-live-windows-registry-inventory-source",
+          "path": "output/app-plan-proof/45-live-windows-registry-inventory-source",
+          "present": true,
+          "entryCount": 12,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": false
+        },
+        {
+          "root": "46-service-windows-registry-capture-bridge",
+          "path": "output/app-plan-proof/46-service-windows-registry-capture-bridge",
+          "present": true,
+          "entryCount": 12,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": false
+        },
+        {
+          "root": "47-backend-source-freshness-read-model",
+          "path": "output/app-plan-proof/47-backend-source-freshness-read-model",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "48-source-freshness-policy-consumption",
+          "path": "output/app-plan-proof/48-source-freshness-policy-consumption",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
         }
       ],
       "missing": []
@@ -636,7 +996,8 @@
     ]
   },
   "claimsProved": [
-    "app-game WP01-WP27 proof roots and app-plan WP01-WP26 proof roots exist before the final gate",
+    "app-game and app-plan checklist proof roots exist before the final gate, excluding only proof packs regenerated by this gate",
+    "app-game WP29-WP48 and app-plan WP29-WP48 continuation proof roots are included in the final rollout gate audit",
     "final gate routes E2E/manual proof scenarios to existing proof roots or explicit manual-required gaps",
     "merge-blocking no-claim gates are listed in machine-readable proof and final proof packs",
     "platform extension rows remain manual-required or not-claimed until authority, setup, rollback, and manual platform proof exists",

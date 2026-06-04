@@ -88,8 +88,8 @@
   ],
   "previousProof": {
     "appGame": {
-      "expectedCount": 27,
-      "presentCount": 27,
+      "expectedCount": 47,
+      "presentCount": 47,
       "roots": [
         {
           "root": "01-contract-boundary-and-effect-schemas",
@@ -333,13 +333,193 @@
           "sourceSnapshotPresent": true,
           "validationLogPresent": true,
           "uiSnapshotPresent": true
+        },
+        {
+          "root": "29-rust-protocol-evidence-identity-parity",
+          "path": "output/app-game-plan-proof/29-rust-protocol-evidence-identity-parity",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "30-rust-protocol-authority-classifier-parity",
+          "path": "output/app-game-plan-proof/30-rust-protocol-authority-classifier-parity",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "31-journal-sqlite-authority-classifier-storage",
+          "path": "output/app-game-plan-proof/31-journal-sqlite-authority-classifier-storage",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "32-live-process-snapshot-source",
+          "path": "output/app-game-plan-proof/32-live-process-snapshot-source",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "33-live-process-journal-sqlite-bridge",
+          "path": "output/app-game-plan-proof/33-live-process-journal-sqlite-bridge",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "34-service-capture-app-game-live-process-bridge",
+          "path": "output/app-game-plan-proof/34-service-capture-app-game-live-process-bridge",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "35-service-app-game-recurring-freshness",
+          "path": "output/app-game-plan-proof/35-service-app-game-recurring-freshness",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "36-live-foreground-window-source",
+          "path": "output/app-game-plan-proof/36-live-foreground-window-source",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "37-service-foreground-capture-bridge",
+          "path": "output/app-game-plan-proof/37-service-foreground-capture-bridge",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "38-service-authority-classifier-surface-evidence",
+          "path": "output/app-game-plan-proof/38-service-authority-classifier-surface-evidence",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "39-authority-classifier-read-model-counts",
+          "path": "output/app-game-plan-proof/39-authority-classifier-read-model-counts",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "40-app-game-boundary-read-model-event",
+          "path": "output/app-game-plan-proof/40-app-game-boundary-read-model-event",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "41-live-windows-inventory-source",
+          "path": "output/app-game-plan-proof/41-live-windows-inventory-source",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "42-service-windows-inventory-capture-bridge",
+          "path": "output/app-game-plan-proof/42-service-windows-inventory-capture-bridge",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "43-live-windows-store-package-source",
+          "path": "output/app-game-plan-proof/43-live-windows-store-package-source",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "44-service-windows-store-package-capture-bridge",
+          "path": "output/app-game-plan-proof/44-service-windows-store-package-capture-bridge",
+          "present": true,
+          "entryCount": 9,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "45-live-windows-registry-inventory-source",
+          "path": "output/app-game-plan-proof/45-live-windows-registry-inventory-source",
+          "present": true,
+          "entryCount": 12,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": false
+        },
+        {
+          "root": "46-service-windows-registry-capture-bridge",
+          "path": "output/app-game-plan-proof/46-service-windows-registry-capture-bridge",
+          "present": true,
+          "entryCount": 12,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": false
+        },
+        {
+          "root": "47-backend-source-freshness-read-model",
+          "path": "output/app-game-plan-proof/47-backend-source-freshness-read-model",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "48-source-freshness-policy-consumption",
+          "path": "output/app-game-plan-proof/48-source-freshness-policy-consumption",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
         }
       ],
       "missing": []
     },
     "app": {
-      "expectedCount": 26,
-      "presentCount": 26,
+      "expectedCount": 46,
+      "presentCount": 46,
       "roots": [
         {
           "root": "01-contract-boundary-and-effect-schemas",
@@ -571,6 +751,186 @@
           "path": "output/app-plan-proof/26-performance-and-service-health",
           "present": true,
           "entryCount": 11,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "29-rust-protocol-evidence-identity-parity",
+          "path": "output/app-plan-proof/29-rust-protocol-evidence-identity-parity",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "30-rust-protocol-authority-classifier-parity",
+          "path": "output/app-plan-proof/30-rust-protocol-authority-classifier-parity",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "31-journal-sqlite-authority-classifier-storage",
+          "path": "output/app-plan-proof/31-journal-sqlite-authority-classifier-storage",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "32-live-process-snapshot-source",
+          "path": "output/app-plan-proof/32-live-process-snapshot-source",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "33-live-process-journal-sqlite-bridge",
+          "path": "output/app-plan-proof/33-live-process-journal-sqlite-bridge",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "34-service-capture-app-game-live-process-bridge",
+          "path": "output/app-plan-proof/34-service-capture-app-game-live-process-bridge",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "35-service-app-game-recurring-freshness",
+          "path": "output/app-plan-proof/35-service-app-game-recurring-freshness",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "36-live-foreground-window-source",
+          "path": "output/app-plan-proof/36-live-foreground-window-source",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "37-service-foreground-capture-bridge",
+          "path": "output/app-plan-proof/37-service-foreground-capture-bridge",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "38-service-authority-classifier-surface-evidence",
+          "path": "output/app-plan-proof/38-service-authority-classifier-surface-evidence",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "39-authority-classifier-read-model-counts",
+          "path": "output/app-plan-proof/39-authority-classifier-read-model-counts",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "40-app-game-boundary-read-model-event",
+          "path": "output/app-plan-proof/40-app-game-boundary-read-model-event",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "41-live-windows-inventory-source",
+          "path": "output/app-plan-proof/41-live-windows-inventory-source",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "42-service-windows-inventory-capture-bridge",
+          "path": "output/app-plan-proof/42-service-windows-inventory-capture-bridge",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "43-live-windows-store-package-source",
+          "path": "output/app-plan-proof/43-live-windows-store-package-source",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "44-service-windows-store-package-capture-bridge",
+          "path": "output/app-plan-proof/44-service-windows-store-package-capture-bridge",
+          "present": true,
+          "entryCount": 3,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "45-live-windows-registry-inventory-source",
+          "path": "output/app-plan-proof/45-live-windows-registry-inventory-source",
+          "present": true,
+          "entryCount": 12,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": false
+        },
+        {
+          "root": "46-service-windows-registry-capture-bridge",
+          "path": "output/app-plan-proof/46-service-windows-registry-capture-bridge",
+          "present": true,
+          "entryCount": 12,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": false
+        },
+        {
+          "root": "47-backend-source-freshness-read-model",
+          "path": "output/app-plan-proof/47-backend-source-freshness-read-model",
+          "present": true,
+          "entryCount": 13,
+          "sourceSnapshotPresent": true,
+          "validationLogPresent": true,
+          "uiSnapshotPresent": true
+        },
+        {
+          "root": "48-source-freshness-policy-consumption",
+          "path": "output/app-plan-proof/48-source-freshness-policy-consumption",
+          "present": true,
+          "entryCount": 13,
           "sourceSnapshotPresent": true,
           "validationLogPresent": true,
           "uiSnapshotPresent": true
