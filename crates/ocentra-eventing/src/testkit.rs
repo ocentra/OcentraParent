@@ -1,6 +1,7 @@
-use std::{marker::PhantomData, sync::Arc};
-
-use tokio::sync::Mutex;
+use std::{
+    marker::PhantomData,
+    sync::{Arc, Mutex},
+};
 
 use crate::{
     DomainEvent, EventBus, EventEnvelope, EventSubscriber, EventingError, SubscriptionHandle,
@@ -31,7 +32,7 @@ where
                 async move {
                     recorded_events
                         .lock()
-                        .await
+                        .expect("event recorder lock")
                         .push(context.envelope().clone());
                     Ok(())
                 }
@@ -45,7 +46,7 @@ where
     }
 
     pub async fn recorded(&self) -> Vec<EventEnvelope<E>> {
-        self.events.lock().await.clone()
+        self.events.lock().expect("event recorder lock").clone()
     }
 
     pub fn unsubscribe(&self) -> bool {

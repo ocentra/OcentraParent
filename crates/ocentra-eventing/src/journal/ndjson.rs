@@ -2,11 +2,11 @@ use std::{
     collections::hash_map::DefaultHasher,
     hash::{Hash, Hasher},
     path::{Path, PathBuf},
-    sync::Arc,
+    sync::{Arc, Mutex},
 };
 
 use serde::{Deserialize, Serialize};
-use tokio::{fs::OpenOptions, io::AsyncWriteExt, sync::Mutex};
+use tokio::{fs::OpenOptions, io::AsyncWriteExt, sync::Semaphore};
 
 use crate::{EventingError, JournalHash, StoredEventEnvelope};
 
@@ -55,6 +55,7 @@ pub struct NdjsonEventJournal {
     path: PathBuf,
     options: NdjsonJournalOptions,
     state: Arc<Mutex<NdjsonJournalState>>,
+    append_gate: Arc<Semaphore>,
 }
 
 impl NdjsonEventJournal {
@@ -67,6 +68,7 @@ impl NdjsonEventJournal {
             path: path.into(),
             options,
             state: Arc::new(Mutex::new(NdjsonJournalState::default())),
+            append_gate: Arc::new(Semaphore::new(1)),
         }
     }
 
@@ -82,18 +84,24 @@ impl NdjsonEventJournal {
         &self,
         envelope: &StoredEventEnvelope,
     ) -> Result<JournalAppend, EventingError> {
-        let mut state = self.state.lock().await;
-        state.next_sequence += 1;
-        let previous_hash = previous_hash(&self.options, &state);
-        let current_hash =
-            current_hash(&self.options, state.next_sequence, &previous_hash, envelope)?;
-        let append = JournalAppend {
-            sequence: state.next_sequence,
-            previous_hash,
-            current_hash: current_hash.clone(),
+        let _append_permit = Arc::clone(&self.append_gate)
+            .acquire_owned()
+            .await
+            .expect("journal append gate remains open");
+        let append = {
+            let mut state = self.state.lock().expect("journal state lock");
+            state.next_sequence += 1;
+            let previous_hash = previous_hash(&self.options, &state);
+            let current_hash =
+                current_hash(&self.options, state.next_sequence, &previous_hash, envelope)?;
+            JournalAppend {
+                sequence: state.next_sequence,
+                previous_hash,
+                current_hash,
+            }
         };
         self.write_entry(&append, envelope).await?;
-        state.previous_hash = current_hash;
+        self.state.lock().expect("journal state lock").previous_hash = append.current_hash.clone();
         Ok(append)
     }
 

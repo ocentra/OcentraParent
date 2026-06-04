@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use tokio::{sync::Mutex as AsyncMutex, task::JoinHandle};
+use tokio::{sync::Semaphore, task::JoinHandle};
 
 use crate::{
     queue::NoSubscriberQueueDecision, AggregateKey, DomainEvent, EventEnvelope, EventMetadata,
@@ -302,8 +302,11 @@ impl EventBus {
                 .await
             }
             DispatchMode::OrderedByAggregateKey => {
-                let aggregate_lock = self.aggregate_lock(&stored.aggregate_key);
-                let _aggregate_guard = aggregate_lock.lock().await;
+                let aggregate_gate = self.aggregate_gate(&stored.aggregate_key);
+                let _aggregate_permit = aggregate_gate
+                    .acquire_owned()
+                    .await
+                    .expect("aggregate ordering gate remains open");
                 dispatch_sequential(
                     stored,
                     subscribers,
@@ -315,15 +318,15 @@ impl EventBus {
         }
     }
 
-    fn aggregate_lock(&self, aggregate_key: &AggregateKey) -> Arc<AsyncMutex<()>> {
-        let mut locks = self
-            .aggregate_locks
+    fn aggregate_gate(&self, aggregate_key: &AggregateKey) -> Arc<Semaphore> {
+        let mut gates = self
+            .aggregate_gates
             .lock()
-            .expect("event aggregate lock map");
+            .expect("event aggregate gate map");
         Arc::clone(
-            locks
+            gates
                 .entry(aggregate_key.clone())
-                .or_insert_with(|| Arc::new(AsyncMutex::new(()))),
+                .or_insert_with(|| Arc::new(Semaphore::new(1))),
         )
     }
 }

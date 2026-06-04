@@ -34,6 +34,9 @@ Reusable Rust eventing primitives for Ocentra Parent runtime code.
 - Immutable handler-facing `EventContext<E>` accessors so handlers can inspect
   typed envelopes, payloads, and publishers without receiving mutable payload
   references or payload-carried completion/resource handles.
+- No production `.lock().await` in the reusable crate: registry, queue, request,
+  journal state, and aggregate ordering use short synchronous state locks plus
+  explicit async semaphore gates where ordering must cross awaits.
 
 ## Must Not Own
 

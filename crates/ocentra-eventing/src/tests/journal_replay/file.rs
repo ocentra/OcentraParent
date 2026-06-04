@@ -35,3 +35,45 @@ async fn ndjson_journal_appends_one_object_per_line_with_hash_chain() {
     );
     cleanup(&path).await;
 }
+
+#[tokio::test]
+async fn concurrent_ndjson_appends_do_not_hold_state_lock_across_file_write() {
+    let path = journal_path("concurrent-hash-chain");
+    let journal = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());
+    let handles = (0..4)
+        .map(|index| {
+            let journal = journal.clone();
+            tokio::spawn(async move {
+                let event = stored_event(test_event_for_type(
+                    &format!("parallel event {index}"),
+                    OTHER_EVENT_TYPE,
+                ));
+                journal.append(&event).await.expect("append succeeds")
+            })
+        })
+        .collect::<Vec<_>>();
+
+    for handle in handles {
+        handle.await.expect("append task joins");
+    }
+
+    let lines = read_lines(&path).await;
+    let entries = lines
+        .iter()
+        .map(|line| serde_json::from_str::<NdjsonJournalEntry>(line).expect("line decodes"))
+        .collect::<Vec<_>>();
+
+    assert_eq!(entries.len(), 4);
+    for (index, entry) in entries.iter().enumerate() {
+        assert_eq!(entry.append.sequence, index as u64 + 1);
+        if index == 0 {
+            assert!(entry.append.previous_hash.is_none());
+        } else {
+            assert_eq!(
+                entry.append.previous_hash,
+                entries[index - 1].append.current_hash
+            );
+        }
+    }
+    cleanup(&path).await;
+}

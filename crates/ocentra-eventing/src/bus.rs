@@ -4,7 +4,7 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use tokio::{sync::Mutex as AsyncMutex, sync::RwLock};
+use tokio::sync::{RwLock, Semaphore};
 
 use crate::{
     queue::EventQueue, AggregateKey, DomainEvent, EventQueuePolicy, EventType, EventingError,
@@ -40,7 +40,7 @@ pub struct EventBus {
     registry: Arc<Mutex<BTreeMap<EventType, Vec<SubscriberRecord>>>>,
     stored_journal: Arc<RwLock<Vec<StoredEventEnvelope>>>,
     dead_letters: Arc<RwLock<Vec<DeadLetter>>>,
-    aggregate_locks: Arc<Mutex<BTreeMap<AggregateKey, Arc<AsyncMutex<()>>>>>,
+    aggregate_gates: Arc<Mutex<BTreeMap<AggregateKey, Arc<Semaphore>>>>,
     handler_policy: HandlerExecutionPolicy,
     queue: EventQueue,
     requests: RequestRegistry,
@@ -54,7 +54,7 @@ impl EventBus {
             registry: Arc::new(Mutex::new(BTreeMap::new())),
             stored_journal: Arc::new(RwLock::new(Vec::new())),
             dead_letters: Arc::new(RwLock::new(Vec::new())),
-            aggregate_locks: Arc::new(Mutex::new(BTreeMap::new())),
+            aggregate_gates: Arc::new(Mutex::new(BTreeMap::new())),
             handler_policy: HandlerExecutionPolicy::default(),
             queue: EventQueue::new(EventQueuePolicy::default()),
             requests: RequestRegistry::default(),
