@@ -191,6 +191,11 @@ control with better evidence and local audit.
   action history, platform authority, and AI classifier readiness rows from the
   existing app/game service model, keeps missing inputs visible as
   missing/manual-required, and fixes `adapterDispatchClaimed=false`.
+- App/game notification intent contracts now represent parent notification
+  readiness for time-limit, approval request, suspicious unknown,
+  manual-required, and unavailable app/game states with evidence, policy, audit,
+  child reason/status, minimal-payload, local-outbox-only, and
+  no-provider/no-adapter claim guards.
 - The Rust core now has a live `sysinfo` process snapshot source that reads the
   current local process table into the existing app/game runtime record shape,
   uses opaque executable-path refs, and keeps runtime evidence from becoming
@@ -321,6 +326,10 @@ execution, or platform timer/rollback execution.
 The child-facing UX proof is contract/text-level: it does not yet provide a
 native child app, overlay, portal preview, notification delivery, service
 persistence, Rust/WebSocket parity, or platform adapter execution.
+The app/game notification intent proof is contract-level: it does not provide
+provider delivery, provider receipt ingestion, parent notification UI, service
+persistence, child app/overlay delivery, policy evaluator execution, adapter
+dispatch, broad blocking, or platform support.
 
 ## Checklist
 
@@ -381,8 +390,10 @@ persistence, Rust/WebSocket parity, or platform adapter execution.
       and adapter execution remain.
 - [ ] Ask-parent and bonus-time flow. Contract proof now requires approval and
       audit refs before bonus time extends a budget and keeps ask parent/manual
-      states dry-run only; notification delivery and finished parent/child UX
-      remain.
+      states dry-run only. App/game notification intent contracts now tie
+      approval/time-limit/manual/unavailable alert readiness to evidence,
+      policy, audit, child reason/status, and minimal payload refs, but
+      provider delivery and finished parent/child UX remain.
 - [ ] Child-facing reason/status is referenced in the runtime audit; finished
       child request/status UX remains. Child-facing UX contracts and
       text-domain copy tokens now cover respectful warning, approval-needed,

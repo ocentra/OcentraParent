@@ -83,6 +83,11 @@ custody.
   cloud routing, parent notification UI, production retry workers, production
   quiet-hours timers, durable production outbox storage, raw child evidence, and
   sensitive provider metadata unclaimed.
+- App/game notification intent contract proof now represents time-limit,
+  approval request, suspicious unknown, manual-required, and unavailable
+  app/game notification intents with evidence, policy, audit, child
+  reason/status, minimal payload refs, local-outbox-only readiness, and explicit
+  no-provider, no-cloud, no-parent-UI, and no-adapter-dispatch claims.
 - Parent-owned sync/export manifest contract proof now represents export
   manifest data classes, export formats, encryption metadata, retention/delete
   policy, connector status, sync cursor states, conflict records, import
@@ -135,6 +140,11 @@ due/held/retry/dead-letter/receipt/manual states, but does not claim provider
 delivery, receipt ingestion, credentials, cloud routing, parent notification UI,
 production retry worker execution, production quiet-hours timer execution, or
 durable production outbox storage.
+The app/game notification intent proof adds typed app/game alert intent
+readiness and minimal payload boundaries, but does not claim provider delivery,
+provider receipt ingestion, service persistence, child-device delivery, parent
+notification UI, policy evaluator execution, adapter dispatch, broad app
+blocking, or platform support.
 The parent-owned sync/export manifest proof adds typed export/retention/delete,
 connector status, cursor, conflict, import, and delete result states, but does
 not claim real export/import/upload/download runtime, connector OAuth,
@@ -195,6 +205,10 @@ delivery, policy writes, or child-device enforcement.
       delivery, receipt ingestion, credentials, cloud routing, parent
       notification UI, production retry workers, production quiet-hours timers,
       durable production outbox storage, or sensitive detail storage claims.
+- [x] App/game notification intent contract proof exists with time-limit,
+      approval request, suspicious unknown, manual-required, and unavailable
+      app/game alert intents, minimal payload refs, local-outbox-only readiness,
+      and explicit no-provider/no-adapter/no-UI claims.
 - [ ] Retention/delete controls.
 
 ## Next AI Instructions

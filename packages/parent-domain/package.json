@@ -13,6 +13,10 @@
       "import": "./dist/app-game-control-authority.js",
       "types": "./dist/app-game-control-authority.d.ts"
     },
+    "./app-game-notification-intent": {
+      "import": "./dist/app-game-notification-intent.js",
+      "types": "./dist/app-game-notification-intent.d.ts"
+    },
     "./app-install-purchase-approval": {
       "import": "./dist/app-install-purchase-approval.js",
       "types": "./dist/app-install-purchase-approval.d.ts"
