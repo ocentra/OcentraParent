@@ -40,6 +40,7 @@ import {
 
 export * from './billing-entitlement-values';
 export * from './billing-account-runtime-boundary';
+export * from './billing-support-admin-boundary';
 
 export const BillingFeatureEntitlementSchema = withParser(
   Schema.Struct({
