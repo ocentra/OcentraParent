@@ -4,7 +4,8 @@ use tokio::{sync::Mutex as AsyncMutex, task::JoinHandle};
 
 use crate::{
     queue::NoSubscriberQueueDecision, AggregateKey, DomainEvent, EventEnvelope, EventMetadata,
-    EventingError, QueueDisposition, StoredEventEnvelope,
+    EventingError, QueueDisposition, RequestCompletionReport, RequestEvent, RequestId,
+    RequestOptions, RequestReport, StoredEventEnvelope,
 };
 
 use super::{
@@ -49,6 +50,35 @@ impl EventBus {
     {
         let bus = self.clone();
         tokio::spawn(async move { bus.publish_with_mode(event, metadata, dispatch_mode).await })
+    }
+
+    pub async fn publish_request<E>(
+        &self,
+        event: E,
+        metadata: EventMetadata,
+        options: RequestOptions,
+    ) -> Result<RequestReport<E::Response>, EventingError>
+    where
+        E: RequestEvent,
+    {
+        let request_id = event.request_id()?;
+        let receiver = self.requests.register(request_id.clone())?;
+        let publish_report = self.publish(event, metadata).await?;
+        let payload = match tokio::time::timeout(options.timeout(), receiver).await {
+            Ok(Ok(payload)) => payload,
+            Ok(Err(_)) | Err(_) => {
+                self.requests.timeout(&request_id);
+                return Err(EventingError::RequestTimedOut {
+                    request_id: request_id.as_str().to_string(),
+                });
+            }
+        };
+        let response = payload.decode::<E::Response>(&request_id)?;
+        Ok(RequestReport {
+            request_id,
+            response,
+            publish_report,
+        })
     }
 
     pub async fn publish_with_mode<E>(
@@ -140,6 +170,17 @@ impl EventBus {
 
     pub async fn dead_letters(&self) -> Vec<DeadLetter> {
         self.dead_letters.read().await.clone()
+    }
+
+    pub(super) async fn complete_request<E>(
+        &self,
+        request_id: RequestId,
+        response: E::Response,
+    ) -> Result<RequestCompletionReport, EventingError>
+    where
+        E: RequestEvent,
+    {
+        self.requests.complete(request_id, response)
     }
 
     async fn publish_without_subscribers(

@@ -23,6 +23,10 @@ Reusable Rust eventing primitives for Ocentra Parent runtime code.
   overflow rejection/dead-letter behavior, queue TTL expiry before dispatch,
   in-flight duplicate rejection, optional completed idempotency registry, and
   typed dead-letter event conversion.
+- Local request/response completion with `RequestEvent::Response` type binding,
+  response validation through `EventResponseContract`, timeout reporting,
+  late-response and double-completion reports, and durable result-event tests
+  kept separate from local completion.
 
 ## Must Not Own
 
@@ -34,7 +38,7 @@ Reusable Rust eventing primitives for Ocentra Parent runtime code.
 
 ## Current Gap
 
-This crate does not yet implement request-response completion, durable NDJSON
-journal replay, shutdown/drain lifecycle, or broker-backed delivery. Consumers
-must keep those claims manual-required until the matching eventing workpacks are
-implemented and validated.
+This crate does not yet implement durable NDJSON journal replay, shutdown/drain
+lifecycle, broker-backed delivery, or manual-clock-driven request timeout proof.
+Consumers must keep those claims manual-required until the matching eventing
+workpacks are implemented and validated.

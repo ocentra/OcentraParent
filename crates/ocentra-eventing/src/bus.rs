@@ -8,7 +8,7 @@ use tokio::{sync::Mutex as AsyncMutex, sync::RwLock};
 
 use crate::{
     queue::EventQueue, AggregateKey, DomainEvent, EventQueuePolicy, EventType, EventingError,
-    HandlerExecutionPolicy, StoredEventEnvelope,
+    HandlerExecutionPolicy, RequestRegistry, StoredEventEnvelope,
 };
 
 mod dispatch;
@@ -41,6 +41,7 @@ pub struct EventBus {
     aggregate_locks: Arc<Mutex<BTreeMap<AggregateKey, Arc<AsyncMutex<()>>>>>,
     handler_policy: HandlerExecutionPolicy,
     queue: EventQueue,
+    requests: RequestRegistry,
 }
 
 impl EventBus {
@@ -52,6 +53,7 @@ impl EventBus {
             aggregate_locks: Arc::new(Mutex::new(BTreeMap::new())),
             handler_policy: HandlerExecutionPolicy::default(),
             queue: EventQueue::new(EventQueuePolicy::default()),
+            requests: RequestRegistry::default(),
         }
     }
 

@@ -6,12 +6,15 @@ use serde::{Deserialize, Serialize};
 use crate::EventingError;
 
 static EVENT_ID_SEQUENCE: AtomicU64 = AtomicU64::new(1);
+static REQUEST_ID_SEQUENCE: AtomicU64 = AtomicU64::new(1);
 
 const EVENT_ID_PREFIX: &str = "event-";
+const REQUEST_ID_PREFIX: &str = "request-";
 const EVENT_ID_SEPARATOR: &str = "-";
 const EVENT_TYPE_LABEL: &str = "event_type";
 const EVENT_ID_LABEL: &str = "event_id";
 const CORRELATION_ID_LABEL: &str = "correlation_id";
+const REQUEST_ID_LABEL: &str = "request_id";
 const AGGREGATE_KEY_LABEL: &str = "aggregate_key";
 const IDEMPOTENCY_KEY_LABEL: &str = "idempotency_key";
 const SUBSCRIBER_ID_LABEL: &str = "subscriber_id";
@@ -56,6 +59,7 @@ macro_rules! text_identifier {
 text_identifier!(EventType, EVENT_TYPE_LABEL);
 text_identifier!(EventId, EVENT_ID_LABEL);
 text_identifier!(CorrelationId, CORRELATION_ID_LABEL);
+text_identifier!(RequestId, REQUEST_ID_LABEL);
 text_identifier!(AggregateKey, AGGREGATE_KEY_LABEL);
 text_identifier!(IdempotencyKey, IDEMPOTENCY_KEY_LABEL);
 text_identifier!(SubscriberId, SUBSCRIBER_ID_LABEL);
@@ -72,6 +76,20 @@ impl EventId {
         value.push_str(EVENT_ID_SEPARATOR);
         value.push_str(
             &EVENT_ID_SEQUENCE
+                .fetch_add(1, Ordering::Relaxed)
+                .to_string(),
+        );
+        Self(value)
+    }
+}
+
+impl RequestId {
+    pub fn generated() -> Self {
+        let mut value = String::from(REQUEST_ID_PREFIX);
+        value.push_str(&Utc::now().timestamp_micros().to_string());
+        value.push_str(EVENT_ID_SEPARATOR);
+        value.push_str(
+            &REQUEST_ID_SEQUENCE
                 .fetch_add(1, Ordering::Relaxed)
                 .to_string(),
         );

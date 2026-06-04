@@ -16,6 +16,11 @@ pub enum EventingError {
     QueueCapacityExceeded { event_type: String, capacity: usize },
     DuplicateInFlight { idempotency_key: String },
     DuplicateIdempotencyKey { idempotency_key: String },
+    InvalidRequestOptions { reason: String },
+    DuplicateRequest { request_id: String },
+    RequestTimedOut { request_id: String },
+    RequestResponseEncode { request_id: String, reason: String },
+    RequestResponseDecode { request_id: String, reason: String },
     RegistrarDisposed,
 }
 
@@ -88,6 +93,27 @@ impl fmt::Display for EventingError {
             }
             Self::DuplicateIdempotencyKey { idempotency_key } => {
                 write!(formatter, "duplicate idempotency key: {idempotency_key}")
+            }
+            Self::InvalidRequestOptions { reason } => {
+                write!(formatter, "invalid event request options: {reason}")
+            }
+            Self::DuplicateRequest { request_id } => {
+                write!(formatter, "duplicate request id: {request_id}")
+            }
+            Self::RequestTimedOut { request_id } => {
+                write!(formatter, "event request timed out: {request_id}")
+            }
+            Self::RequestResponseEncode { request_id, reason } => {
+                write!(
+                    formatter,
+                    "event request response encode failed for {request_id}: {reason}"
+                )
+            }
+            Self::RequestResponseDecode { request_id, reason } => {
+                write!(
+                    formatter,
+                    "event request response decode failed for {request_id}: {reason}"
+                )
             }
             Self::RegistrarDisposed => formatter.write_str("event registrar is disposed"),
         }

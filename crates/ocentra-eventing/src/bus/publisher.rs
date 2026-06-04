@@ -1,4 +1,7 @@
-use crate::{DomainEvent, EventEnvelope, EventMetadata, EventingError};
+use crate::{
+    DomainEvent, EventEnvelope, EventMetadata, EventingError, RequestCompletionReport,
+    RequestEvent, RequestId,
+};
 
 use super::{DispatchMode, EventBus, PublishReport};
 
@@ -36,6 +39,17 @@ impl EventPublisher {
             .publish_with_mode(event, metadata, dispatch_mode)
             .await
     }
+
+    pub async fn complete_request<E>(
+        &self,
+        request_id: RequestId,
+        response: E::Response,
+    ) -> Result<RequestCompletionReport, EventingError>
+    where
+        E: RequestEvent,
+    {
+        self.bus.complete_request::<E>(request_id, response).await
+    }
 }
 
 impl std::fmt::Debug for EventPublisher {
@@ -62,5 +76,19 @@ where
             envelope,
             publisher,
         }
+    }
+}
+
+impl<E> EventContext<E>
+where
+    E: RequestEvent,
+{
+    pub async fn complete_request(
+        &self,
+        response: E::Response,
+    ) -> Result<RequestCompletionReport, EventingError> {
+        self.publisher
+            .complete_request::<E>(self.envelope.payload.request_id()?, response)
+            .await
     }
 }
