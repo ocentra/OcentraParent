@@ -64,6 +64,11 @@ Expected contract families:
   boundary without claiming provider APIs, store integration, platform adapters,
   child-device delivery, runtime report delivery, real interception, or app
   blocking.
+- Child artifact/delivery proof rows attach child package-source artifact refs
+  to platform/report artifact proof rows and child pending/result delivery
+  boundaries without claiming child-device runtime capture, child-device
+  delivery, provider APIs, store integration, platform adapters, runtime report
+  delivery, real interception, child activity data custody, or app blocking.
 
 ## Validation Gates
 
@@ -81,6 +86,10 @@ Expected contract families:
   missing platform/report artifact coverage rejection, provider/API/adapter/
   delivery/report/app-blocking overclaim rejection, and required non-claim
   coverage.
+- TypeScript schema tests and a proof harness for child artifact/delivery rows,
+  missing child artifact/delivery coverage rejection, runtime capture/provider/
+  adapter/delivery/report/app-blocking overclaim rejection, and required
+  non-claim coverage.
 - Platform proof for Google Play, Apple App Store, Microsoft Store, or other
   store hooks before claiming integration.
 - Portal tests for approval flow when UI exists.
@@ -97,6 +106,10 @@ Expected contract families:
   child-device delivery, runtime report delivery, or app blocking.
 - Do not treat parent-owned platform artifact proof refs as approved store APIs,
   platform adapters, child-device package captures, runtime report delivery, or
+  app blocking.
+- Do not treat child artifact/delivery proof refs as production child-device
+  package capture, provider/store integration, platform adapters, child-device
+  delivery, runtime report delivery, child activity custody, interception, or
   app blocking.
 
 ## Done Signal

@@ -69,17 +69,29 @@ generic app blocking covers this concern.
   platform artifact proof under
   `test-results/app-install-purchase-platform-artifact-proof/proof.json` when
   run.
+- `packages/parent-domain/src/app-install-purchase-child-artifact-delivery-proof.ts`
+  now links child package-source artifact refs to platform/report artifact
+  proof rows and child pending/result delivery boundaries while preserving
+  no-runtime-capture, no-child-device-delivery, no-provider-API,
+  no-platform-adapter, no-runtime-report-delivery, no-interception,
+  no-child-activity-data, and not-generic-app-blocking non-claims.
+- `scripts/test/app-install-purchase-child-artifact-delivery-proof.mjs` records
+  that child artifact/delivery boundary proof under
+  `test-results/app-install-purchase-child-artifact-delivery-proof/proof.json`
+  when run.
 
 ## Current Gap
 
-Ocentra still needs platform adapters, approved store/API proof,
-child-device package-source artifact capture, child-device delivery for
+Ocentra still needs platform adapters, approved store/API proof, production
+child-device package-source artifact capture, real child-device delivery for
 pending/result state, portal UX, runtime report delivery, and proof for each
-store/platform path. The current parent-domain proof attaches parent-owned
-platform/report artifact refs to runtime boundary rows but does not implement
-Google Play, Apple App Store, Microsoft Store, billing entitlement, platform
-interception, portal, child-device delivery, runtime report delivery, runtime
-app-blocking behavior, or real child-device package-source artifact capture.
+store/platform path. The current parent-domain proofs attach parent-owned
+platform/report artifact refs plus child package-source artifact refs to runtime
+boundary rows but do not implement Google Play, Apple App Store,
+Microsoft Store, billing entitlement, platform interception, portal,
+child-device runtime capture, child-device delivery, runtime report delivery,
+runtime app-blocking behavior, or production child-device package-source
+artifact capture.
 
 ## Checklist
 
@@ -103,13 +115,17 @@ app-blocking behavior, or real child-device package-source artifact capture.
       metadata artifact refs and report-runtime evidence refs without
       provider/store, adapter, child-delivery, report-delivery, interception, or
       app-blocking claims.
+- [x] Child artifact/delivery boundary proof linking child package-source
+      artifact refs to pending/result delivery rows without runtime capture,
+      provider/store, adapter, child delivery, report delivery, interception,
+      child activity data, or app-blocking claims.
 - [ ] Portal tests and platform proof before product claim.
 
 ## Next AI Instructions
 
 Do not fold this into generic app blocking. The next proof should add approved
-API/entitlement evidence, real child-device package-source artifacts, real
-portal/report runtime delivery, or platform adapters before upgrading
-manual-required source rows, child delivery, or report status. If the OS/store
-does not allow interception, document the limitation and offer the closest safe
-parent workflow.
+API/entitlement evidence, production child-device package-source capture, real
+portal/report runtime delivery, real child delivery, or platform adapters before
+upgrading manual-required source rows, child delivery, or report status. If the
+OS/store does not allow interception, document the limitation and offer the
+closest safe parent workflow.
