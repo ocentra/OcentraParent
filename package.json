@@ -60,6 +60,7 @@
     "test:parent-mobile-service-bridge": "node scripts/test/parent-mobile-service-bridge-proof.mjs",
     "test:parent-mobile-controller-observer-handoff": "node scripts/test/parent-mobile-controller-observer-handoff-proof.mjs",
     "test:tracking-plan-pre-device-proof": "node scripts/test/tracking-plan-pre-device-proof.mjs",
+    "test:tracking-plan-local-place-store-proof": "node scripts/test/tracking-plan-local-place-store-proof.mjs",
     "test:child-android-protocol-package-lifecycle-proof": "node scripts/test/child-android-protocol-package-lifecycle-proof.mjs",
     "test:child-android-permission-capability-proof": "node scripts/test/child-android-permission-capability-proof.mjs",
     "test:child-android-privileged-capability-proof": "node scripts/test/child-android-privileged-capability-proof.mjs",

@@ -23,6 +23,7 @@ Proof root: `output/tracking-plan-proof/22-local-parent-defined-place-database/`
 - `01-contract-proof.log`
 - `07-nearby-place-proof.json`
 - `14-retention-delete-proof.json`
+- `17-parent-owned-export-proof.json`
 - `16-validation-commands.log`
 
 ## AI Worker Checklist
@@ -34,7 +35,16 @@ Proof root: `output/tracking-plan-proof/22-local-parent-defined-place-database/`
 
 ## Where We Are
 
-This workpack has focused contract proof from `codex/tracking-plan-full-scope` under the proof root below. Runtime, platform, provider, and UI behavior is not claimed beyond the proof state recorded in `proof-summary.json` and the implementation checklist.
+This workpack has focused contract proof from `codex/tracking-plan-full-scope`
+and P1 local parent-defined place store proof from
+`codex/tracking-local-place-store-proof` under the proof root below. The P1
+proof covers schema-backed local create/update/import/export/delete helper
+behavior, parent-device-local default storage, parent-owned export, deletion
+tombstones, and safe/restricted parent-defined nearby-place policy signals.
+Platform adapters, provider delivery, live UI, hosted accessibility,
+physical-device background location, and production persistence are not claimed
+beyond the proof state recorded in `proof-summary.json` and the implementation
+checklist.
 
 ## Where We Want To Be
 
@@ -56,14 +66,31 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Manual-Required Gaps
 
-- Platform, provider, UI, retention, or runtime claims remain manual-required until the assigned proof artifacts exist.
+- Platform, provider, UI, production persistence, or physical-device claims
+  remain manual-required until the assigned proof artifacts exist.
 - Any unsupported platform or provider failure must surface as degraded/manual-required state, not as a silent success.
 
 ## Fill This Before Reporting DONE Or PR-ready
 
-- [x] Workpack id and branch: `codex/tracking-plan-full-scope`.
-- [x] Touched files: tracking contract files, proof script, product docs, checklist, and this workpack doc.
-- [x] Validation commands and results: `node scripts/test/tracking-plan-contract-proof.mjs` passed.
-- [x] Proof artifacts under `output/tracking-plan-proof/22-local-parent-defined-place-database/`.
-- [x] Product doc/checklist updates: owning feature doc, feature list, capability checklist, implementation checklist, tracking snapshot, and package READMEs updated.
-- [x] Known gaps/manual-required states: Android/iOS, precise desktop, provider delivery, runtime engines, retention/delete/export, Rust journal/SQLite, notifications, and UI remain proof-gated as applicable.
+- [x] Workpack id and branch: `codex/tracking-local-place-store-proof`.
+- [x] Touched files: `packages/activity-domain/src/tracking-local-place-store.ts`,
+      `packages/activity-domain/src/tracking.ts`,
+      `packages/activity-domain/tests/tracking-local-place-store.test.ts`,
+      `scripts/test/tracking-plan-local-place-store-proof.mjs`, root
+      `package.json`, this workpack doc, implementation checklist, feature doc,
+      activity-domain README, and WP22 proof artifacts.
+- [x] Validation commands and results:
+      `npm run test:tracking-plan-local-place-store-proof` passed.
+- [x] Proof artifacts under
+      `output/tracking-plan-proof/22-local-parent-defined-place-database/`,
+      including `07-nearby-place-proof.json`,
+      `14-retention-delete-proof.json`, and
+      `17-parent-owned-export-proof.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, this workpack doc, and activity-domain README updated.
+      Central product capability checklist movement is queued through the hub
+      DOC_DELTA flow instead of editing `docs/product-capability-checklist.md`.
+- [x] Known gaps/manual-required states: Android/iOS physical proof, precise
+      desktop OS location, provider delivery, production persistence, live UI,
+      hosted accessibility, notifications, and authority-enrolled behavior
+      remain proof-gated as applicable.
