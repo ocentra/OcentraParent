@@ -57,22 +57,22 @@ claim needs proof, not slogans.
   owned-process adapter handoff proof. Model quality, video/social live
   coverage, and browser/category/network/mobile/broad enforcement handoff remain
   incomplete.
-- The live operator harness now has a partial four-row smoke: a real YouTube
-  ordinary video row that records page readiness evidence, captures the focused
-  browser window, runs the local VLM path, validates `video`/`warn`, and deletes
-  raw image material; a browser-game row that validates `game`/`time-limit`; a
-  native Notepad app row that validates `productivity`/`allow`; and a
-  protected-surface degraded row that makes no AI or policy claim. This is
-  partial live proof only; the required Vimeo, education, social, shopping,
-  school/productivity, and full account rows remain incomplete.
+- The live operator harness now has a full nine-row public/live surface proof:
+  ordinary YouTube validates `video`/`warn`, education YouTube validates
+  `school`/`allow`, Vimeo validates `video`/`warn`, Facebook/social validates
+  `chat`/`warn`, browser game validates `game`/`time-limit`, shopping validates
+  `shopping`/`ask-parent`, school/productivity validates `school`/`allow`,
+  native Notepad validates `productivity`/`allow`, and protected-surface
+  degraded state makes no AI or policy claim. Authenticated-account social
+  proof remains separate.
 
 ## Current Gap
 
 Ocentra needs product-grade model configuration, local model artifacts,
-production screen model quality, confidence handling, degraded states, complete
-social/video evidence coverage beyond the partial YouTube/browser-game/native live smoke, parent
-explanations, broader enforcement handoff, and validation against the remaining
-real external evidence matrix.
+production screen model quality, confidence handling, degraded states,
+authenticated-account social proof beyond public/live surface proof, parent
+explanations, broader enforcement handoff, and validation against production
+external evidence variants.
 
 ## Checklist
 
