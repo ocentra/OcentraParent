@@ -168,6 +168,14 @@ only with explicit parent settings.
   phase runs cadence, foreground, and analysis runtimes with the parent setting
   off and proves no new screen rows, no new queue jobs, no local vision row, and
   no pending queue drain. Product UI controls for the setting remain separate.
+- `scripts/test/screen-ai-service-retention-sweeper-proof.mjs` now proves an
+  explicit opt-in Rust service retention sweeper on Windows: an enabled cadence
+  phase creates one encrypted active-window queue record with temporary-image
+  TTL metadata, then a sweeper-only phase runs with capture and analysis
+  disabled, removes the expired queue record, and reads an `expiredDeleted`
+  Activity Screen row for the original queue job over the real WebSocket command
+  path. Product UI controls for retention duration and cloud retention policy
+  remain separate.
 - `scripts/test/screen-ai-live-operator-proof.mjs` now provides the executable
   live operator gate for this feature. It prints a required nine-scenario
   manifest template, refuses to claim live proof without operator-supplied real
@@ -198,17 +206,17 @@ only with explicit parent settings.
 
 ## Current Gap
 
-Opt-in UI, production TTL sweeper execution, parent retention controls,
-authenticated-account social proof beyond public/live surface proof, OCR/vision
-quality beyond controlled fixtures and the full live operator matrix, production
-local vision adapter quality beyond the service proof adapter, service-owned
-live trigger event producers beyond the timed cadence loop and native
-active-window foreground watcher, parent-facing settings UX for disabled
-capture/analysis, physical Android/iOS proof, live macOS capture proof, Linux
-root/Wayland portal proof, browser/network/mobile/broad block action adapters
-from screen-derived decisions, checklist status movement, and production parent
-explanation UX remain. These are remaining screen+AI delivery items, not
-external handoff excuses.
+Opt-in UI, parent retention controls, authenticated-account social proof beyond
+public/live surface proof, OCR/vision quality beyond controlled fixtures and the
+full live operator matrix, production local vision adapter quality beyond the
+service proof adapter, service-owned live trigger event producers beyond the
+timed cadence loop and native active-window foreground watcher, parent-facing
+settings UX for disabled capture/analysis, physical Android/iOS proof, live
+macOS capture proof, Linux root/Wayland portal proof,
+browser/network/mobile/broad block action adapters from screen-derived
+decisions, checklist status movement, and production parent explanation UX
+remain. These are remaining screen+AI delivery items, not external handoff
+excuses.
 
 ## Checklist
 
