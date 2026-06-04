@@ -78,9 +78,9 @@ writes generated `00-run-metadata.json` with the full
 fixture proof only, including local UI proof artifact references; hosted
 CI/a11y, full live UI, child UI, platform physical-device proof, authority
 proof, and production-pilot proof remain unclaimed. WP32 now also has focused
-P2 service-command proof plus narrow portal summary/latest-row detail
-consumption for the `trackingReadModel` payload; that proof does not upgrade
-the full UI, platform, authority, or production claims.
+P2 service-command proof plus narrow portal summary/latest-row detail/evidence
+drawer consumption for the `trackingReadModel` payload; that proof does not
+upgrade the full UI, platform, authority, or production claims.
 WP30 now has narrow P2 hosted browser proof for the parent portal
 `policy-tracking` route through `node scripts/test/tracking-plan-hosted-ui-proof.mjs`.
 The proof writes
@@ -89,8 +89,9 @@ The proof writes
 and
 `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/policy-tracking-hosted-ui-proof.png`;
 it proves first-target parent route browser rendering, service-detail labels,
-and accessibility basics only, not child-device UI, browser-to-service live-data
-screenshots, full live UI, physical device behavior, or authority.
+service-row evidence drawer labels, and accessibility basics only, not
+child-device UI, browser-to-service live-data screenshots, full live UI,
+physical device behavior, or authority.
 This branch adds
 `node scripts/test/tracking-plan-pre-device-proof.mjs`, which reruns the
 tracking P0/P1/P2 stack, hosted parent route UI proof, lower-level Android/iOS
@@ -135,7 +136,7 @@ This workpack can be assigned independently, implemented against the owning doma
 - [x] Validation commands and results: `node scripts/test/tracking-plan-contract-proof.mjs`, `node scripts/test/tracking-plan-runtime-proof.mjs`, and `node scripts/test/tracking-plan-service-read-model-proof.mjs` passed locally.
 - [x] Proof artifacts under `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/`, including tracked `proof-summary.json` with `minimumSeriousMvpAuditSummary` and generated `00-run-metadata.json` with `minimumSeriousMvpAudit`.
 - [x] Product doc/checklist updates: owning feature doc, feature list, capability checklist, implementation checklist, tracking snapshot, and package READMEs updated.
-- [x] Known gaps/manual-required states: Android/iOS physical behavior, precise desktop location, provider delivery, full live parent/child UI, browser-to-service live-data screenshots, full evidence drawer UI, authority proof, production pilot, and full root-gate validation remain proof-gated as applicable.
+- [x] Known gaps/manual-required states: Android/iOS physical behavior, precise desktop location, provider delivery, full live parent/child UI, browser-to-service live-data screenshots, full product evidence drawer UI, authority proof, production pilot, and full root-gate validation remain proof-gated as applicable.
 - [x] Workpack id and branch: `codex/tracking-proof-gap-closure`.
 - [x] Touched files: pre-device proof script, root test script wiring, tracking feature doc, tracking README, implementation checklist, WP08-WP12, WP30, WP32, WP33, and generated pre-device proof artifacts.
 - [x] Validation commands and results: `npm run test:tracking-plan-pre-device-proof` passed locally; it reran tracking contract/runtime/service proof, child Android device artifact gate, child iOS entitlement proof, and mobile child-agent aggregate proof.
@@ -159,7 +160,7 @@ This workpack can be assigned independently, implemented against the owning doma
       implementation checklist, WP30, and WP33 updated. Central product
       checklist remains primary-owned and was not edited in this branch.
 - [x] Known gaps/manual-required states: child-device UI, browser-to-service
-      live-data screenshots, full evidence drawer UI, Android Studio/emulator
+      live-data screenshots, full product evidence drawer UI, Android Studio/emulator
       runtime proof, iOS simulator/local proof, WSL/local replay, physical
       Android/iOS behavior, authority-enrolled proof, and production pilot
       remain proof-gated.

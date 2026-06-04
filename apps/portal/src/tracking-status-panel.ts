@@ -57,6 +57,23 @@ export type TrackingStatusLiveSummary = {
   readonly productClaim: PortalDisplayText;
 };
 
+export type TrackingStatusEvidenceDrawerRow = {
+  readonly title: PortalDetailValue;
+  readonly proofTier: PortalDisplayText;
+  readonly eventId: PortalDetailValue;
+  readonly observedAt: PortalDetailValue;
+  readonly activityKind: PortalDetailValue;
+  readonly subject: PortalDetailValue;
+  readonly subjectKind: PortalDetailValue;
+  readonly subjectId: PortalDetailValue;
+  readonly device: PortalDetailValue;
+  readonly platform: PortalDetailValue;
+  readonly observer: PortalDetailValue;
+  readonly capability: PortalDetailValue;
+  readonly evidenceReferences: PortalDetailValue;
+  readonly productClaim: PortalDisplayText;
+};
+
 type TrackingStatusRetentionProofDefinition = {
   readonly historyVisibility: PortalTextTokenValue;
   readonly deletedEvidence: PortalTextTokenValue;
@@ -201,16 +218,41 @@ export function trackingStatusLiveSummary(liveActivity: PortalLiveActivityState)
     custody: detailFromValue(readModel.custodyLabel),
     evidenceReferences: evidenceReferenceDetail(readModel.evidenceReferenceIds),
     deletedEvidence: evidenceReferenceDetail(readModel.retentionTombstoneEvidenceReferenceIds),
-    latestRowKind: latestRowDetail(latestRow, (rowValue) => rowValue.kind),
-    latestRowSubject: latestRowDetail(latestRow, (rowValue) => rowValue.subjectDisplayName ?? rowValue.subjectId),
-    latestRowSubjectKind: latestRowDetail(latestRow, (rowValue) => rowValue.subjectKind),
-    latestRowSubjectId: latestRowDetail(latestRow, (rowValue) => rowValue.subjectId),
-    latestRowDevice: latestRowDetail(latestRow, (rowValue) => rowValue.deviceId),
-    latestRowPlatform: latestRowDetail(latestRow, (rowValue) => rowValue.platform),
-    latestRowObserver: latestRowDetail(latestRow, (rowValue) => rowValue.observer),
+    latestRowKind: readModelRowDetail(latestRow, (rowValue) => rowValue.kind),
+    latestRowSubject: readModelRowDetail(latestRow, (rowValue) => rowValue.subjectDisplayName ?? rowValue.subjectId),
+    latestRowSubjectKind: readModelRowDetail(latestRow, (rowValue) => rowValue.subjectKind),
+    latestRowSubjectId: readModelRowDetail(latestRow, (rowValue) => rowValue.subjectId),
+    latestRowDevice: readModelRowDetail(latestRow, (rowValue) => rowValue.deviceId),
+    latestRowPlatform: readModelRowDetail(latestRow, (rowValue) => rowValue.platform),
+    latestRowObserver: readModelRowDetail(latestRow, (rowValue) => rowValue.observer),
     latestRowEvidenceReferences: evidenceReferenceDetail(latestRow?.evidenceReferenceIds),
     parserReason: null,
   };
+}
+
+export function trackingStatusEvidenceDrawerRows(
+  liveActivity: PortalLiveActivityState
+): readonly TrackingStatusEvidenceDrawerRow[] {
+  const readModelResult = liveActivity.activityTrackingReadModel;
+  if (readModelResult === null || !readModelResult.ok) {
+    return [];
+  }
+  return readModelResult.value.rows.map((rowValue) => ({
+    title: readModelRowDetail(rowValue, (value) => value.subjectDisplayName ?? value.subjectId),
+    proofTier: PortalText.Resolve(PortalTextToken.TrackingProofService),
+    eventId: readModelRowDetail(rowValue, (value) => value.eventId),
+    observedAt: readModelRowDetail(rowValue, (value) => value.observedAt),
+    activityKind: readModelRowDetail(rowValue, (value) => value.kind),
+    subject: readModelRowDetail(rowValue, (value) => value.subjectDisplayName ?? value.subjectId),
+    subjectKind: readModelRowDetail(rowValue, (value) => value.subjectKind),
+    subjectId: readModelRowDetail(rowValue, (value) => value.subjectId),
+    device: readModelRowDetail(rowValue, (value) => value.deviceId),
+    platform: readModelRowDetail(rowValue, (value) => value.platform),
+    observer: readModelRowDetail(rowValue, (value) => value.observer),
+    capability: readModelRowDetail(rowValue, (value) => value.capabilityStatus),
+    evidenceReferences: evidenceReferenceDetail(rowValue.evidenceReferenceIds),
+    productClaim: PortalText.Resolve(PortalTextToken.TrackingNoProductClaim),
+  }));
 }
 
 export function renderTrackingStatusSurface(container: HTMLElement, liveActivity: PortalLiveActivityState): void {
@@ -229,6 +271,9 @@ export function renderTrackingStatusSurface(container: HTMLElement, liveActivity
 
   renderDashboard(container, (dashboard) => {
     dashboard.append(renderTrackingStatusLiveSummary(trackingStatusLiveSummary(liveActivity)));
+    for (const evidenceDrawerRow of trackingStatusEvidenceDrawerRows(liveActivity)) {
+      dashboard.append(renderTrackingStatusEvidenceDrawerRow(evidenceDrawerRow));
+    }
     for (const proofRow of trackingStatusProofRows()) {
       dashboard.append(renderTrackingStatusRow(proofRow));
     }
@@ -325,6 +370,32 @@ function renderTrackingStatusLiveSummary(summary: TrackingStatusLiveSummary): HT
   return panel;
 }
 
+function renderTrackingStatusEvidenceDrawerRow(evidenceDrawerRow: TrackingStatusEvidenceDrawerRow): HTMLElement {
+  const panel = document.createElement(PortalDom.Tags.Section);
+  panel.className = PortalDom.Classes.Summary;
+
+  const title = document.createElement(PortalDom.Tags.HeadingTwo);
+  title.textContent = evidenceDrawerRow.title;
+
+  const metadata = document.createElement(PortalDom.Tags.DefinitionList);
+  appendDetail(metadata, PortalDetails.ServiceEvidenceDrawer, toDetail(evidenceDrawerRow.proofTier));
+  appendDetail(metadata, PortalDetails.EventId, evidenceDrawerRow.eventId);
+  appendDetail(metadata, PortalDetails.ObservedAt, evidenceDrawerRow.observedAt);
+  appendDetail(metadata, PortalDetails.ActivityKind, evidenceDrawerRow.activityKind);
+  appendDetail(metadata, PortalDetails.Subject, evidenceDrawerRow.subject);
+  appendDetail(metadata, PortalDetails.SubjectKind, evidenceDrawerRow.subjectKind);
+  appendDetail(metadata, PortalDetails.SubjectId, evidenceDrawerRow.subjectId);
+  appendDetail(metadata, PortalDetails.Device, evidenceDrawerRow.device);
+  appendDetail(metadata, PortalDetails.Platform, evidenceDrawerRow.platform);
+  appendDetail(metadata, PortalDetails.Observer, evidenceDrawerRow.observer);
+  appendDetail(metadata, PortalDetails.Capability, evidenceDrawerRow.capability);
+  appendDetail(metadata, PortalDetails.RowEvidenceReferences, evidenceDrawerRow.evidenceReferences);
+  appendDetail(metadata, PortalDetails.ProductClaim, toDetail(evidenceDrawerRow.productClaim));
+
+  panel.append(title, metadata);
+  return panel;
+}
+
 function toDetail(value: PortalDisplayText | TrackingStatusProofArtifact): PortalDetailValue {
   return detailFromValue(value);
 }
@@ -345,7 +416,7 @@ function evidenceReferenceDetail(
   return detailFromValue(evidenceReferenceIds.join(PortalFormatting.EventDetailSeparator));
 }
 
-function latestRowDetail(
+function readModelRowDetail(
   rowValue: AgentActivityTrackingReadModelRow | undefined,
   select: (rowValue: AgentActivityTrackingReadModelRow) => unknown
 ): PortalDetailValue {

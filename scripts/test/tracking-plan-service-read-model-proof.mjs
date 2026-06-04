@@ -68,6 +68,19 @@ async function main() {
         'rows[0].observer',
         'rows[0].evidenceReferenceIds',
       ],
+      portalEvidenceDrawerRowFields: [
+        'rows[].eventId',
+        'rows[].observedAt',
+        'rows[].kind',
+        'rows[].subjectDisplayName',
+        'rows[].subjectKind',
+        'rows[].subjectId',
+        'rows[].deviceId',
+        'rows[].platform',
+        'rows[].observer',
+        'rows[].capabilityStatus',
+        'rows[].evidenceReferenceIds',
+      ],
     },
     proofArtifacts: {
       typescriptProtocolDomain: 'packages/agent-protocol-domain/src/contracts.ts',
@@ -85,11 +98,11 @@ async function main() {
     nonClaims: [
       'This proof does not claim Android or iOS physical background tracking behavior.',
       'This proof does not claim enrolled-device authority, production pilot readiness, or provider delivery.',
-      'This proof only claims portal summary and latest-row detail consumption of service-backed rows, consolidated citations, and retention tombstone accounting, not complete parent/child tracking UI.',
+      'This proof only claims portal summary, latest-row detail, and evidence drawer consumption of service-backed rows, consolidated citations, and retention tombstone accounting, not complete parent/child tracking UI.',
     ],
     remainingGapsBeforeProductOrPrReady: [
       'Hosted portal screenshot and accessibility proof exists for the first-target parent route, but browser-to-service live-data screenshot proof remains pending.',
-      'Full product tracking read-model surfaces remain pending beyond consolidated service citations, latest-row detail rendering, and retention tombstone accounting.',
+      'Full product tracking read-model surfaces remain pending beyond consolidated service citations, latest-row detail rendering, row evidence drawer rendering, and retention tombstone accounting.',
       'Child-device UI and device permission screenshots remain pending.',
       'Android/iOS physical background geofence proof remains manual-required.',
       'Authority-enrolled and production-pilot proof remain absent.',

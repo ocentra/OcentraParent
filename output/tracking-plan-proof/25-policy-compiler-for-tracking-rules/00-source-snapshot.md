@@ -1,7 +1,7 @@
 # 25-policy-compiler-for-tracking-rules Source Snapshot
 
-- checkedAt: 2026-06-04T01:33:08.525Z
-- commit: 903e267437745cff7155ac3ef9a2350d42225f86
+- checkedAt: 2026-06-04T02:34:23.857Z
+- commit: f1f0c13f74a233d012dfdf997c672dc8e564626a
 - proofState: contract-proof-partial
 - summary: Tracking policy rule and decision contracts exist; runtime compiler/evaluator remains pending.
 - activity contracts: packages/activity-domain/src/tracking.ts

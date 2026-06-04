@@ -10,7 +10,11 @@ import {
 import { PortalRoute, TrackingStatusProofArtifacts } from '@ocentra-parent/portal-domain/contracts';
 import { resolveLiveActivityState } from '../src/live-activity-state';
 import { shouldRenderTrackingStatusRoute } from '../src/TrackingStatusRoutePanel';
-import { trackingStatusLiveSummary, trackingStatusProofRows } from '../src/tracking-status-panel';
+import {
+  trackingStatusEvidenceDrawerRows,
+  trackingStatusLiveSummary,
+  trackingStatusProofRows,
+} from '../src/tracking-status-panel';
 
 const ExpectedTrackingStateTitles = [
   'Tracking off',
@@ -155,6 +159,53 @@ describe('tracking status proof surface', () => {
       parserReason: null,
       productClaim: 'No product claim',
     });
+  });
+});
+
+describe('tracking status evidence drawer', () => {
+  it('renders every service-backed tracking read-model row as drawer evidence without product claims', () => {
+    const liveActivity = resolveLiveActivityState([trackingEvent(JSON.stringify(TrackingReadModel))]);
+
+    expect(trackingStatusEvidenceDrawerRows(liveActivity)).toEqual([
+      {
+        title: 'Tracking retention window',
+        proofTier: 'P2 service proof',
+        eventId: 'tracking-retention-delete-event-1',
+        observedAt: '2026-06-03T07:25:00Z',
+        activityKind: 'activity.tracking.retention.deleted',
+        subject: 'Tracking retention window',
+        subjectKind: 'retention',
+        subjectId: 'tracking-retention-window',
+        device: 'child-device-1',
+        platform: 'android',
+        observer: 'tracking-engine',
+        capability: 'recent',
+        evidenceReferences: 'retention-tombstone-evidence-1',
+        productClaim: 'No product claim',
+      },
+      {
+        title: 'School',
+        proofTier: 'P2 service proof',
+        eventId: 'tracking-event-1',
+        observedAt: '2026-06-03T07:24:00Z',
+        activityKind: 'activity.tracking.expected-place.evaluated',
+        subject: 'School',
+        subjectKind: 'tracking-rule',
+        subjectId: 'expected-place-school',
+        device: 'child-device-1',
+        platform: 'android',
+        observer: 'tracking-engine',
+        capability: 'recent',
+        evidenceReferences: 'tracking-evidence-1',
+        productClaim: 'No product claim',
+      },
+    ]);
+  });
+
+  it('does not synthesize evidence drawer rows when the service read model is absent', () => {
+    const liveActivity = resolveLiveActivityState([]);
+
+    expect(trackingStatusEvidenceDrawerRows(liveActivity)).toEqual([]);
   });
 });
 

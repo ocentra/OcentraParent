@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-04T01:34:06.389Z",
+  "checkedAt": "2026-06-04T02:35:49.894Z",
   "workpackId": "30-parent-and-child-ui-ux-surfaces",
   "requiredProofTier": "P2_HOSTED_CI",
   "currentProofTier": "P2_HOSTED_CI",
@@ -14,12 +14,16 @@
       "exitCode": 0
     },
     {
-      "command": "npm exec --workspace @ocentra-parent/portal -- vite --host 127.0.0.1 --port 63400 --strictPort",
+      "command": "tracking read-model proof WebSocket event server ws://127.0.0.1:63994/api/dev/ws",
+      "exitCode": 0
+    },
+    {
+      "command": "npm exec --workspace @ocentra-parent/portal -- vite --host 127.0.0.1 --port 63993 --strictPort",
       "exitCode": 0
     }
   ],
   "proof": {
-    "route": "http://127.0.0.1:63400/#/policy-tracking",
+    "route": "http://127.0.0.1:63993/#/policy-tracking",
     "viewport": "1440x1100",
     "expectedStates": [
       "Tracking off",
@@ -40,11 +44,11 @@
       "sectionLabel": "Tracking status proof",
       "firstHeading": "Tracking status proof",
       "buttonName": "Refresh tracking status",
-      "cardCount": 14,
-      "headingCount": 14,
-      "definitionListCount": 14,
-      "productClaimCount": 14,
-      "visibleCardCount": 14,
+      "cardCount": 16,
+      "headingCount": 16,
+      "definitionListCount": 16,
+      "productClaimCount": 16,
+      "visibleCardCount": 16,
       "overlappingCards": 0,
       "allCardsHaveHeadings": true,
       "allCardsHaveDefinitionLists": true,
@@ -57,7 +61,8 @@
   "nonClaims": [
     "This proof does not claim Android or iOS physical background behavior.",
     "This proof does not claim child-device UI completion.",
-    "This proof does not claim full live service-backed tracking UI completion.",
+    "This proof claims only hosted service-read-model summary and evidence drawer rendering, not full live service-backed tracking UI completion.",
+    "This proof does not claim browser-to-service live-data screenshot coverage.",
     "This proof does not claim authority-enrolled or production-pilot readiness."
   ]
 }

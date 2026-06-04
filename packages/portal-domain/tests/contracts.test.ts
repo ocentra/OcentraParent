@@ -501,6 +501,9 @@ describe('portal shared constants', () => {
     expect(PortalDetails.ParentRuleContextRefIds).toBe('Parent rule context ref IDs');
     expect(PortalDetails.LatestRowEvidenceReferences).toBe('Latest row evidence references');
     expect(PortalDetails.RetentionTombstones).toBe('Retention tombstones');
+    expect(PortalDetails.ObservedAt).toBe('Observed at');
+    expect(PortalDetails.RowEvidenceReferences).toBe('Row evidence references');
+    expect(PortalDetails.ServiceEvidenceDrawer).toBe('Service evidence drawer');
   });
 
   it('PortalDetails: exposes browser intervention proof labels', () => {

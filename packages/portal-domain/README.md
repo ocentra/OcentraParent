@@ -10,6 +10,8 @@ contracts.
 - Parent portal nav and section descriptors.
 - Service-state display rows and dev command descriptors, including the
   tracking read-model refresh command consumed by the Policy Tracking route.
+- Shared detail labels used by the tracking service read-model summary and
+  service-row evidence drawer.
 
 ## Must Not Own
 

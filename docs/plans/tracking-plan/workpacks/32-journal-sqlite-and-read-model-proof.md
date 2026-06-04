@@ -49,17 +49,18 @@ and P2 service-command proof for tracking event kinds from
 adds a narrow `agent.activity.tracking.read-model.get` command that returns
 SQLite tracking rows, row citation IDs, consolidated read-model citation IDs,
 latest-row kind/subject/device/platform/observer details, latest-row evidence
-refs, and retention tombstone citation accounting through `trackingReadModel`;
-the parent portal now consumes that event as a narrow live summary plus
-latest-row detail surface on the `policy-tracking` route. Full UI, platform
+refs, service-row evidence drawer fields, and retention tombstone citation
+accounting through `trackingReadModel`; the parent portal now consumes that
+event as a narrow live summary plus latest-row detail/evidence drawer surface on
+the `policy-tracking` route. Full UI, platform
 replay, full deletion replay, export, and physical-device product claims are
 not claimed beyond the proof state recorded in `proof-summary.json`,
 `10-journal-sqlite-proof.json`, `18-service-read-model-proof.json`, and the
 implementation checklist.
 The pre-device proof gate now reruns this service proof and records the
-remaining full deletion replay, full product read-model, full evidence drawer
-UI, browser-to-service live-data screenshot, full accessibility, and platform
-replay gaps before device work starts.
+remaining full deletion replay, full product read-model, full product evidence
+drawer UI, browser-to-service live-data screenshot, full accessibility, and
+platform replay gaps before device work starts.
 
 ## Where We Want To Be
 
@@ -81,7 +82,7 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Manual-Required Gaps
 
-- Full deletion replay, full product read models, full evidence drawer UI,
+- Full deletion replay, full product read models, full product evidence drawer UI,
   browser-to-service live-data screenshot proof, platform replay, export,
   provider, and physical-device claims remain manual-required until the
   assigned proof artifacts exist.
@@ -102,10 +103,11 @@ This workpack can be assigned independently, implemented against the owning doma
       `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`,
       including `10-journal-sqlite-proof.json` and
       `18-service-read-model-proof.json`.
-- [x] Product doc/checklist updates: owning feature doc, feature list, product
-      capability checklist, implementation checklist, and this workpack doc
-      updated for the P2 service read-model proof.
+- [x] Product doc/checklist updates: owning feature doc, feature list,
+      implementation checklist, and this workpack doc updated for the P2
+      service read-model proof; central capability checklist deltas are queued
+      through the hub DOC_DELTA path.
 - [x] Known gaps/manual-required states: full deletion replay, full product
-      read models, full evidence drawer UI, browser-to-service live-data
+      read models, full product evidence drawer UI, browser-to-service live-data
       screenshot proof, platform replay, export, Android/iOS physical proof,
       provider delivery, and notifications remain proof-gated as applicable.

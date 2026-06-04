@@ -5,7 +5,9 @@ import {
   availablePort,
   sanitizeServerOutput,
   startPortalServer,
+  startTrackingReadModelEventServer,
   stopProcessTree,
+  trackingReadModelProofEvent,
   runHostedTrackingUiBrowserProof,
   waitForHttp,
 } from './tracking-plan-hosted-ui-proof-browser.mjs';
@@ -27,8 +29,16 @@ async function main() {
   const startedAt = new Date().toISOString();
   const host = '127.0.0.1';
   const port = await availablePort(Number.parseInt(process.env.TRACKING_PLAN_PORTAL_PORT ?? '4578', 10));
+  const agentPort = await availablePort(Number.parseInt(process.env.TRACKING_PLAN_AGENT_PORT ?? '4577', 10));
   const route = `http://${host}:${port}/#/policy-tracking`;
-  const { child: server, commandLine } = startPortalServer({ repoRoot, host, port });
+  const agentWebSocketUrl = `ws://${host}:${agentPort}/api/dev/ws`;
+  const eventServer = await startTrackingReadModelEventServer({
+    host,
+    port: agentPort,
+    event: trackingReadModelProofEvent(),
+  });
+  const { child: server, commandLine } = startPortalServer({ repoRoot, host, port, agentWebSocketUrl });
+  commands.push({ command: `tracking read-model proof WebSocket event server ${agentWebSocketUrl}`, exitCode: 0 });
   commands.push({ command: commandLine, exitCode: 0 });
 
   const output = [];
@@ -41,6 +51,7 @@ async function main() {
     proof = await runHostedTrackingUiBrowserProof({ route, screenshotPath });
   } finally {
     await stopProcessTree({ repoRoot, child: server });
+    await closeServer(eventServer);
   }
 
   const artifact = hostedUiArtifact({ startedAt, proof });
@@ -49,6 +60,12 @@ async function main() {
   console.log('tracking-plan-hosted-ui-proof-ok');
   console.log(`evidence=${proofRelative(accessibilityPath)}`);
   console.log(`screenshot=${proofRelative(screenshotPath)}`);
+}
+
+async function closeServer(server) {
+  await new Promise((resolve) => {
+    server.close(() => resolve());
+  });
 }
 
 function hostedUiArtifact({ startedAt, proof }) {
@@ -67,7 +84,8 @@ function hostedUiArtifact({ startedAt, proof }) {
     nonClaims: [
       'This proof does not claim Android or iOS physical background behavior.',
       'This proof does not claim child-device UI completion.',
-      'This proof does not claim full live service-backed tracking UI completion.',
+      'This proof claims only hosted service-read-model summary and evidence drawer rendering, not full live service-backed tracking UI completion.',
+      'This proof does not claim browser-to-service live-data screenshot coverage.',
       'This proof does not claim authority-enrolled or production-pilot readiness.',
     ],
   };
@@ -84,15 +102,18 @@ async function writeProofLog({ startedAt, route, output, proof }) {
     '',
     'Checks:',
     '- Rendered the Policy Tracking route through the real Vite portal.',
+    '- Delivered a contract-shaped trackingReadModel event over the proof-local WebSocket event source.',
     '- Verified every first-target tracking state is visible.',
     '- Verified no-product-claim copy remains visible.',
     '- Verified retention-deleted safety copy is visible and deleted evidence id is hidden.',
+    '- Verified service read-model evidence drawer rows and row evidence references are visible.',
     '- Verified section label, heading, button name, card headings, definition lists, no-claim copy, and no visible card overlap.',
-    '- Verified service read-model latest-row detail labels are present without requiring device proof.',
+    '- Verified service read-model latest-row detail and evidence drawer labels are present without requiring device proof.',
     '',
     'Non-claims:',
     '- This does not prove Android/iOS physical background behavior.',
     '- This does not prove child-device UI completion.',
+    '- This does not prove browser-to-service live-data screenshots.',
     '- This does not prove full live service-backed tracking UI completion.',
     '',
     'Browser proof:',

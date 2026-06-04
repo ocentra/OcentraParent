@@ -14,8 +14,10 @@ import {
 import type { PortalRenderActions } from './portal-actions';
 import type { PortalLiveActivityState } from './live-activity-state';
 import {
+  trackingStatusEvidenceDrawerRows,
   trackingStatusLiveSummary,
   trackingStatusProofRows,
+  type TrackingStatusEvidenceDrawerRow,
   type TrackingStatusLiveSummary,
   type TrackingStatusProofRow,
 } from './tracking-status-panel';
@@ -34,6 +36,7 @@ export function TrackingStatusRoutePanel({
   readonly liveActivity: PortalLiveActivityState;
 }): ReactElement {
   const liveSummary = trackingStatusLiveSummary(liveActivity);
+  const evidenceDrawerRows = trackingStatusEvidenceDrawerRows(liveActivity);
   return (
     <section
       aria-label={PortalText.Resolve(PortalTextToken.TrackingStatusSurface)}
@@ -62,6 +65,12 @@ export function TrackingStatusRoutePanel({
           )}
         >
           <TrackingStatusLiveSummaryCard summary={liveSummary} />
+          {evidenceDrawerRows.map((evidenceDrawerRow) => (
+            <TrackingStatusEvidenceDrawerRowCard
+              key={String(evidenceDrawerRow.eventId)}
+              evidenceDrawerRow={evidenceDrawerRow}
+            />
+          ))}
           {trackingStatusProofRows().map((proofRow) => (
             <TrackingStatusRouteRow key={String(proofRow.title)} proofRow={proofRow} />
           ))}
@@ -105,6 +114,39 @@ function TrackingStatusLiveSummaryCard({ summary }: { readonly summary: Tracking
         {summary.parserReason === null ? null : (
           <TrackingStatusDetail label={PortalDetails.Reason} value={summary.parserReason} />
         )}
+      </dl>
+    </article>
+  );
+}
+
+function TrackingStatusEvidenceDrawerRowCard({
+  evidenceDrawerRow,
+}: {
+  readonly evidenceDrawerRow: TrackingStatusEvidenceDrawerRow;
+}): ReactElement {
+  const className = [PortalDom.Classes.Summary, PortalDom.Classes.ProductStatusCard].join(
+    PortalDom.Classes.ClassNameSeparator
+  );
+  return (
+    <article className={className}>
+      <h2>{evidenceDrawerRow.title}</h2>
+      <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
+        <TrackingStatusDetail label={PortalDetails.ServiceEvidenceDrawer} value={evidenceDrawerRow.proofTier} />
+        <TrackingStatusDetail label={PortalDetails.EventId} value={evidenceDrawerRow.eventId} />
+        <TrackingStatusDetail label={PortalDetails.ObservedAt} value={evidenceDrawerRow.observedAt} />
+        <TrackingStatusDetail label={PortalDetails.ActivityKind} value={evidenceDrawerRow.activityKind} />
+        <TrackingStatusDetail label={PortalDetails.Subject} value={evidenceDrawerRow.subject} />
+        <TrackingStatusDetail label={PortalDetails.SubjectKind} value={evidenceDrawerRow.subjectKind} />
+        <TrackingStatusDetail label={PortalDetails.SubjectId} value={evidenceDrawerRow.subjectId} />
+        <TrackingStatusDetail label={PortalDetails.Device} value={evidenceDrawerRow.device} />
+        <TrackingStatusDetail label={PortalDetails.Platform} value={evidenceDrawerRow.platform} />
+        <TrackingStatusDetail label={PortalDetails.Observer} value={evidenceDrawerRow.observer} />
+        <TrackingStatusDetail label={PortalDetails.Capability} value={evidenceDrawerRow.capability} />
+        <TrackingStatusDetail
+          label={PortalDetails.RowEvidenceReferences}
+          value={evidenceDrawerRow.evidenceReferences}
+        />
+        <TrackingStatusDetail label={PortalDetails.ProductClaim} value={evidenceDrawerRow.productClaim} />
       </dl>
     </article>
   );

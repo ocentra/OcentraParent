@@ -1,26 +1,29 @@
 Tracking Plan WP30 hosted portal UI proof
 
-Date: 2026-06-04T01:34:06.389Z
-Route: http://127.0.0.1:63400/#/policy-tracking
+Date: 2026-06-04T02:35:49.894Z
+Route: http://127.0.0.1:63993/#/policy-tracking
 Screenshot: output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/policy-tracking-hosted-ui-proof.png
 Accessibility proof: output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/17-accessibility-proof.json
 
 Checks:
 - Rendered the Policy Tracking route through the real Vite portal.
+- Delivered a contract-shaped trackingReadModel event over the proof-local WebSocket event source.
 - Verified every first-target tracking state is visible.
 - Verified no-product-claim copy remains visible.
 - Verified retention-deleted safety copy is visible and deleted evidence id is hidden.
+- Verified service read-model evidence drawer rows and row evidence references are visible.
 - Verified section label, heading, button name, card headings, definition lists, no-claim copy, and no visible card overlap.
-- Verified service read-model latest-row detail labels are present without requiring device proof.
+- Verified service read-model latest-row detail and evidence drawer labels are present without requiring device proof.
 
 Non-claims:
 - This does not prove Android/iOS physical background behavior.
 - This does not prove child-device UI completion.
+- This does not prove browser-to-service live-data screenshots.
 - This does not prove full live service-backed tracking UI completion.
 
 Browser proof:
 {
-  "route": "http://127.0.0.1:63400/#/policy-tracking",
+  "route": "http://127.0.0.1:63993/#/policy-tracking",
   "viewport": "1440x1100",
   "expectedStates": [
     "Tracking off",
@@ -41,11 +44,11 @@ Browser proof:
     "sectionLabel": "Tracking status proof",
     "firstHeading": "Tracking status proof",
     "buttonName": "Refresh tracking status",
-    "cardCount": 14,
-    "headingCount": 14,
-    "definitionListCount": 14,
-    "productClaimCount": 14,
-    "visibleCardCount": 14,
+    "cardCount": 16,
+    "headingCount": 16,
+    "definitionListCount": 16,
+    "productClaimCount": 16,
+    "visibleCardCount": 16,
     "overlappingCards": 0,
     "allCardsHaveHeadings": true,
     "allCardsHaveDefinitionLists": true,
@@ -56,7 +59,7 @@ Browser proof:
 }
 
 Server output:
-  VITE v7.3.3  ready in 764 ms
-    Local:   http://127.0.0.1:63400/
+  VITE v7.3.3  ready in 775 ms
+    Local:   http://127.0.0.1:63993/
 [BABEL] Note: The code generator has deoptimised the styling of C:\Users\sujan\.codex\worktrees\ocentra-parent-codex-a\OcentraParent\vendor\ocentra-parent-core-ui\AppPages\ParentPortal\ParentPortalSvgSurface.tsx as it exceeds the max of 500KB.
 

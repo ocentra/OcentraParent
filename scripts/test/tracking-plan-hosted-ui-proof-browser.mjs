@@ -1,4 +1,5 @@
 import { spawn } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import net from 'node:net';
 
 export const expectedTrackingStates = [
@@ -24,8 +25,10 @@ export async function runHostedTrackingUiBrowserProof({ route, screenshotPath })
       overlayText,
       [
         'Service read model',
+        'Service evidence drawer',
         'Generated at',
         'Retention tombstones',
+        'Observed at',
         'Activity kind',
         'Subject',
         'Subject kind',
@@ -34,12 +37,18 @@ export async function runHostedTrackingUiBrowserProof({ route, screenshotPath })
         'Platform',
         'Observer',
         'Latest row evidence references',
+        'Row evidence references',
         'Evidence references',
         'Runtime reference',
         'Missing proof',
         'Product claim',
       ],
       'tracking detail label'
+    );
+    assertTextIncludesAll(
+      overlayText,
+      ['Tracking retention window', 'retention-tombstone-evidence-1', 'School', 'tracking-evidence-1'],
+      'service evidence drawer row'
     );
     assertSafetyCopy(overlayText);
 
@@ -57,7 +66,7 @@ export async function runHostedTrackingUiBrowserProof({ route, screenshotPath })
   }
 }
 
-export function startPortalServer({ repoRoot, host, port }) {
+export function startPortalServer({ repoRoot, host, port, agentWebSocketUrl }) {
   const args = [
     'exec',
     '--workspace',
@@ -72,7 +81,10 @@ export function startPortalServer({ repoRoot, host, port }) {
   ];
   const options = {
     cwd: repoRoot,
-    env: { ...process.env, VITE_AGENT_WS_URL: process.env.VITE_AGENT_WS_URL ?? `ws://${host}:4577/api/dev/ws` },
+    env: {
+      ...process.env,
+      VITE_AGENT_WS_URL: agentWebSocketUrl ?? process.env.VITE_AGENT_WS_URL ?? `ws://${host}:4577/api/dev/ws`,
+    },
     stdio: ['ignore', 'pipe', 'pipe'],
     windowsHide: true,
   };
@@ -85,6 +97,95 @@ export function startPortalServer({ repoRoot, host, port }) {
   return {
     commandLine: ['npm', ...args].join(' '),
     child: spawn('npm', args, options),
+  };
+}
+
+export async function startTrackingReadModelEventServer({ host, port, event }) {
+  const eventText = JSON.stringify(event);
+  const server = net.createServer((socket) => {
+    socket.once('data', (chunk) => {
+      const upgradeRequest = String(chunk);
+      const webSocketKey = webSocketUpgradeKey(upgradeRequest);
+      if (webSocketKey === null) {
+        socket.destroy();
+        return;
+      }
+      socket.write(webSocketUpgradeResponse(webSocketKey));
+      socket.write(webSocketTextFrame(eventText));
+    });
+    socket.on('error', () => undefined);
+  });
+  await new Promise((resolve, reject) => {
+    server.once('error', reject);
+    server.listen(port, host, resolve);
+  });
+  return server;
+}
+
+export function trackingReadModelProofEvent() {
+  return {
+    schemaVersion: 1,
+    eventId: 'tracking-read-model-event',
+    correlationId: 'tracking-read-model-command',
+    sentAt: '2026-06-03T07:25:01Z',
+    source: {
+      peerId: 'agent-service',
+      role: 'agent-service',
+    },
+    target: {
+      peerId: 'portal-dev',
+      role: 'portal',
+    },
+    event: 'agent.activity.tracking.read-model.reported',
+    severity: 'info',
+    payload: {
+      trackingReadModel: JSON.stringify({
+        schemaVersion: 1,
+        generatedAt: '2026-06-03T07:25:00Z',
+        custodyLabel: 'child-device-query-store',
+        limit: 20,
+        returned: 2,
+        capabilityStatus: 'recent',
+        latestEventId: 'tracking-retention-delete-event-1',
+        latestObservedAt: '2026-06-03T07:25:00Z',
+        evidenceReferenceIds: ['retention-tombstone-evidence-1', 'tracking-evidence-1'],
+        retentionTombstoneCount: 1,
+        retentionTombstoneEvidenceReferenceIds: ['retention-tombstone-evidence-1'],
+        rows: [
+          {
+            schemaVersion: 1,
+            eventId: 'tracking-retention-delete-event-1',
+            observedAt: '2026-06-03T07:25:00Z',
+            deviceId: 'child-device-1',
+            platform: 'android',
+            observer: 'tracking-engine',
+            kind: 'activity.tracking.retention.deleted',
+            subjectKind: 'retention',
+            subjectId: 'tracking-retention-window',
+            subjectDisplayName: 'Tracking retention window',
+            capabilityStatus: 'recent',
+            evidenceReferenceIds: ['retention-tombstone-evidence-1'],
+            evidence: [],
+          },
+          {
+            schemaVersion: 1,
+            eventId: 'tracking-event-1',
+            observedAt: '2026-06-03T07:24:00Z',
+            deviceId: 'child-device-1',
+            platform: 'android',
+            observer: 'tracking-engine',
+            kind: 'activity.tracking.expected-place.evaluated',
+            subjectKind: 'tracking-rule',
+            subjectId: 'expected-place-school',
+            subjectDisplayName: 'School',
+            capabilityStatus: 'recent',
+            evidenceReferenceIds: ['tracking-evidence-1'],
+            evidence: [],
+          },
+        ],
+      }),
+    },
+    snapshot: null,
   };
 }
 
@@ -257,4 +358,46 @@ async function canListen(port) {
       server.close(() => resolve(true));
     });
   });
+}
+
+function webSocketUpgradeKey(upgradeRequest) {
+  const keyLine = upgradeRequest
+    .split(/\r?\n/u)
+    .find((line) => line.toLocaleLowerCase('en-US').startsWith('sec-websocket-key:'));
+  if (keyLine === undefined) {
+    return null;
+  }
+  const [, key] = keyLine.split(/:\s*/u);
+  return key?.trim() ?? null;
+}
+
+function webSocketUpgradeResponse(key) {
+  const accept = createHash('sha1').update(`${key}258EAFA5-E914-47DA-95CA-C5AB0DC85B11`).digest('base64');
+  return [
+    'HTTP/1.1 101 Switching Protocols',
+    'Connection: Upgrade',
+    'Upgrade: websocket',
+    `Sec-WebSocket-Accept: ${accept}`,
+    '',
+    '',
+  ].join('\r\n');
+}
+
+function webSocketTextFrame(text) {
+  const payload = Buffer.from(text);
+  if (payload.length < 126) {
+    return Buffer.concat([Buffer.from([0x81, payload.length]), payload]);
+  }
+  if (payload.length <= 0xffff) {
+    const header = Buffer.alloc(4);
+    header[0] = 0x81;
+    header[1] = 126;
+    header.writeUInt16BE(payload.length, 2);
+    return Buffer.concat([header, payload]);
+  }
+  const header = Buffer.alloc(10);
+  header[0] = 0x81;
+  header[1] = 127;
+  header.writeBigUInt64BE(BigInt(payload.length), 2);
+  return Buffer.concat([header, payload]);
 }

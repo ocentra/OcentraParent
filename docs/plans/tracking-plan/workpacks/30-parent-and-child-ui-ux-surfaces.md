@@ -66,19 +66,22 @@ captures and records the local rendered screenshot at
 The same route now has a narrow live service summary for the P2
 `trackingReadModel` event, including consolidated service citation IDs,
 latest-row kind, subject, device/platform/observer, latest-row evidence refs,
-and retention tombstone citation accounting, covered by
+service-row evidence drawer fields, and retention tombstone citation
+accounting, covered by
 `apps/portal/tests/tracking-status-panel.test.ts` and the service read-model
 proof script. `node scripts/test/tracking-plan-hosted-ui-proof.mjs` now starts
 the real Vite portal, renders the `policy-tracking` route, verifies every
 first-target tracking state, no-product-claim copy, retention-deleted safety
-copy, section label, heading, button name, card headings, definition lists,
-no visible card overlap, and hidden deleted evidence id, then writes
+copy, service-row evidence drawer labels, section label, heading, button name,
+card headings, definition lists, no visible card overlap, and hidden deleted
+evidence id, then writes
 `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/17-accessibility-proof.json`
 and
 `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/policy-tracking-hosted-ui-proof.png`.
-This is not product-complete UI proof: child-device UI, full service-backed
-evidence drawer/detail UI, browser-to-service live-data screenshots, full
-product accessibility, and physical device evidence remain pending.
+This is not product-complete UI proof: child-device UI, full product evidence
+drawer/detail UI beyond the narrow service-row drawer, browser-to-service
+live-data screenshots, full product accessibility, and physical device evidence
+remain pending.
 `node scripts/test/tracking-plan-pre-device-proof.mjs` now records those UI
 gaps in the aggregate pre-device gate so the next pass can run child UI,
 full live UI, and full product accessibility proof separately before any
@@ -116,8 +119,8 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Manual-Required Gaps
 
-- Browser-to-service live-data screenshot proof, child-device UI, full
-  service-backed evidence drawer/detail UI, full product accessibility, and
+- Browser-to-service live-data screenshot proof, child-device UI, full product
+  evidence drawer/detail UI, full product accessibility, and
   physical-device proof remain manual-required until the assigned proof
   artifacts exist.
 - Any unsupported platform or provider failure must surface as degraded/manual-required state, not as a silent success.
@@ -135,7 +138,7 @@ This workpack can be assigned independently, implemented against the owning doma
       passed.
 - [x] Proof artifacts under `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`:
       existing P1 fixture/screenshot artifacts remain; this branch's
-      live-summary/latest-row detail proof is recorded through WP32
+      live-summary/latest-row detail/evidence drawer proof is recorded through WP32
       `18-service-read-model-proof.json`.
 - [x] Narrow hosted browser proof artifacts:
       `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/17-accessibility-proof.json`;
@@ -145,6 +148,6 @@ This workpack can be assigned independently, implemented against the owning doma
       doc and implementation checklist updated; central product checklist is
       primary-owned and not edited in this branch.
 - [x] Known gaps/manual-required states: child-device UI,
-      browser-to-service live-data screenshots, full evidence drawer/detail UI,
-      full product accessibility, physical Android/iOS proof, and
+      browser-to-service live-data screenshots, full product evidence
+      drawer/detail UI, full product accessibility, physical Android/iOS proof, and
       authority-enrolled proof remain pending.
