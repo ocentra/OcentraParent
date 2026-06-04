@@ -40,6 +40,8 @@ Proof root: `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`
 - [x] Ensure deleted history disappears from the P1 parent route fixture.
 - [x] Render local proof artifact references for each parent route fixture row.
 - [x] Feed UI proof gaps into the pre-device proof gate before device work.
+- [x] Render live service-backed read-model citation rows with evidence refs
+      and retention tombstone refs.
 - [ ] Ensure child copy avoids accusation.
 - [ ] Keep portal as authoring/display surface, not evaluator.
 
@@ -60,11 +62,12 @@ covered by `apps/portal/tests/tracking-status-panel.test.ts`, and recorded in
 The repeatable `node scripts/test/tracking-plan-runtime-proof.mjs` command now
 captures and records the local rendered screenshot at
 `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/policy-tracking-parent-fixture.png`.
-The same route now has a narrow live service summary for the P2
-`trackingReadModel` event, covered by `apps/portal/tests/tracking-status-panel.test.ts`
-and the service read-model proof script. This is not product-complete UI proof:
-child-device UI, hosted Playwright/accessibility output, richer
-service-backed citations, and physical device evidence remain pending.
+The same route now has a narrow live service summary and service-backed
+citation rows for the P2 `trackingReadModel` event, covered by
+`apps/portal/tests/tracking-status-panel.test.ts` and the service read-model
+proof script. This is not product-complete UI proof: full service-data UI
+beyond the citation rows, child-device UI, hosted Playwright/accessibility
+output, and physical device evidence remain pending.
 `node scripts/test/tracking-plan-pre-device-proof.mjs` now records those UI
 gaps in the aggregate pre-device gate so the next pass can run hosted
 Playwright/accessibility and child UI proof separately before any product claim.
@@ -98,16 +101,28 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Manual-Required Gaps
 
-- Full service-data UI, child-device UI, hosted Playwright/accessibility output,
-  richer service-backed citations, and physical-device proof remain
+- Full service-data UI beyond the live citation rows, child-device UI, hosted
+  Playwright/accessibility output, and physical-device proof remain
   manual-required until the assigned proof artifacts exist.
 - Any unsupported platform or provider failure must surface as degraded/manual-required state, not as a silent success.
 
 ## Fill This Before Reporting DONE Or PR-ready
 
-- [ ] Workpack id and branch.
-- [ ] Touched files.
-- [ ] Validation commands and results.
-- [ ] Proof artifacts under `output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/`.
-- [ ] Product doc/checklist updates or reason none were needed.
-- [ ] Known gaps/manual-required states.
+- [x] Workpack id and branch:
+      `codex/tracking-live-service-citation-proof`.
+- [x] Touched files: portal tracking status renderer/tests, service proof
+      script, tracking feature doc, implementation checklist, WP30, WP32,
+      WP33, and generated WP32 proof artifacts.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-plan-service-read-model-proof.mjs` passed.
+- [x] Proof artifacts under
+      `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json`
+      and companion WP32 proof files.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, WP30, WP32, and WP33 updated; central capability checklist
+      row delta queued through the hub instead of editing
+      `docs/product-capability-checklist.md`.
+- [x] Known gaps/manual-required states: full parent/child UI, hosted
+      Playwright/accessibility output, Android/iOS physical-device proof,
+      authority, provider delivery, notifications, and production proof remain
+      proof-gated.

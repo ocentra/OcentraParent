@@ -187,3 +187,22 @@ This workpack can be assigned independently, implemented against the owning doma
       background/region, notifications, entitlements, signing/TestFlight/App
       Store, physical-device, authority, hosted full UI/accessibility, and
       production proof remain unclaimed.
+- [x] Workpack id and branch:
+      `codex/tracking-live-service-citation-proof`.
+- [x] Touched files: portal tracking status renderer/tests, service proof
+      script, tracking feature doc, implementation checklist, WP30, WP32,
+      WP33, and generated WP32 proof artifacts.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-plan-service-read-model-proof.mjs` passed.
+- [x] Proof artifacts under
+      `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`,
+      including `14-retention-delete-proof.json`,
+      `18-service-read-model-proof.json`, and `proof-summary.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, WP30, WP32, and WP33 updated; central capability row delta
+      queued through the hub instead of editing
+      `docs/product-capability-checklist.md`.
+- [x] Known gaps/manual-required states: hosted full UI/accessibility, full
+      parent/child UI, broader product read models, Android/iOS physical-device
+      proof, authority, provider delivery, notifications, and production proof
+      remain proof-gated.

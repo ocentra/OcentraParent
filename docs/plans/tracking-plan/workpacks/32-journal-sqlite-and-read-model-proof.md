@@ -42,6 +42,8 @@ Proof root: `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`
 - [ ] Keep Ocentra-hosted storage off by default.
 - [x] Include the P2 service read-model proof in the pre-device gate.
 - [x] Record P3 WSL/local replay proof for the read-model proof stack.
+- [x] Expose live portal citation rows for service-backed read-model rows and
+      retention tombstones.
 
 ## Where We Are
 
@@ -52,9 +54,10 @@ adds a narrow `agent.activity.tracking.read-model.get` command that returns
 SQLite tracking rows and citation IDs through `trackingReadModel`; the service
 proof now also exposes retention-delete rows as tombstone replay rows with
 active/tombstone counts, deleted-at metadata, and deleted evidence citation ID
-summaries. The parent portal consumes that event as a narrow live summary on the
-`policy-tracking` route. Full UI, platform replay, export, broader product read
-models, and physical-device product claims are not claimed beyond the proof
+summaries. The parent portal consumes that event as a narrow live summary plus
+live citation rows on the `policy-tracking` route. Full UI, platform replay,
+export, broader product read models, and physical-device product claims are not
+claimed beyond the proof
 state recorded in `proof-summary.json`, `10-journal-sqlite-proof.json`,
 `14-retention-delete-proof.json`, `18-service-read-model-proof.json`, and the
 implementation checklist.
@@ -134,3 +137,22 @@ This workpack can be assigned independently, implemented against the owning doma
       UI/accessibility, Android/iOS physical-device proof, authority, provider
       delivery, notifications, and production proof remain proof-gated as
       applicable.
+- [x] Workpack id and branch:
+      `codex/tracking-live-service-citation-proof`.
+- [x] Touched files: portal tracking status renderer/tests, service proof
+      script, tracking feature doc, implementation checklist, WP30, WP32,
+      WP33, and generated WP32 proof artifacts.
+- [x] Validation commands and results:
+      `node scripts/test/tracking-plan-service-read-model-proof.mjs` passed.
+- [x] Proof artifacts under
+      `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`,
+      including `14-retention-delete-proof.json`,
+      `18-service-read-model-proof.json`, and `proof-summary.json`.
+- [x] Product doc/checklist updates: owning feature doc, implementation
+      checklist, WP30, WP32, and WP33 updated; central capability row delta
+      queued through the hub instead of editing
+      `docs/product-capability-checklist.md`.
+- [x] Known gaps/manual-required states: broader product read models, full
+      parent/child UI, hosted UI/accessibility, Android/iOS physical-device
+      proof, authority, provider delivery, notifications, and production proof
+      remain proof-gated.
