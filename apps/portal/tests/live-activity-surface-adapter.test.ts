@@ -81,6 +81,12 @@ function activityAdapterReadModelTests(): void {
     expectAdapterState(state.activityScreenReadModel, 'ready');
     if (state.activityScreenReadModel?.ok) {
       expect(state.activityScreenReadModel.value.rows).toHaveLength(1);
+      expect(state.activityScreenReadModel.value.rows[0]).toMatchObject({
+        captureReason: 'nativeAppForegroundStart',
+        providerKind: 'localVision',
+        imageDeletionState: 'deleted',
+        policyEligible: true,
+      });
     }
 
     expectAdapterState(state.activityAppUseReadModel, 'empty');
@@ -278,6 +284,18 @@ function screenReadModel() {
         totalMs: 3600000,
         foregroundMs: 2400000,
         backgroundMs: 1200000,
+        captureReason: 'nativeAppForegroundStart',
+        captureScope: 'activeWindow',
+        capabilityStatus: 'ready',
+        queueJobId: 'screen-queue-job-1',
+        modelRuntimeRef: 'local-vision-runtime-1',
+        providerKind: 'localVision',
+        primaryCategory: 'productivity',
+        confidence: 0.91,
+        imageDeletionState: 'deleted',
+        policyEligible: true,
+        imageDigest: 'sha256:screen-image-digest',
+        custodyState: 'child-device-journal',
         evidence: [],
       },
     ],

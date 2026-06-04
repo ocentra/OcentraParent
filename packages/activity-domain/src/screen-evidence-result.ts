@@ -53,6 +53,15 @@ export const ScreenOcrTextSnippetSchema = withParser(
   })
 );
 
+export const ScreenLocalModelOutputSchema = withParser(
+  Schema.Struct({
+    primary_category: ScreenVisibleCategorySchema,
+    confidence: ScreenEvidenceConfidenceSchema,
+    visible_text: ScreenEvidenceSummaryTextSchema,
+    risk_signals: Schema.Array(ScreenRiskSignalSchema),
+  })
+);
+
 const ScreenAnalysisResultBaseSchema = Schema.Struct({
   schemaVersion: Schema.Literal(ScreenEvidenceSchemaVersion),
   screenAnalysisResultId: ScreenEvidenceResultIdSchema,
@@ -86,13 +95,8 @@ export const ScreenAnalysisResultSchema = withParser(
     Schema.filter(
       (value) =>
         !value.policyEligible ||
-        (value.sourceEvidenceRefs.length > 0 &&
-          value.capabilityStatus === 'ready' &&
-          value.confidence >= PolicyEligibleConfidenceFloor &&
-          value.primaryCategory !== null &&
-          value.primaryCategory !== 'unknown' &&
-          value.rawImageRetained === false &&
-          (value.imageDeletionState === 'deleted' || value.imageDeletionState === 'expiredDeleted')) ||
+        imageBackedResultIsPolicyEligible(value) ||
+        deterministicResultIsPolicyEligible(value) ||
         'Expected policy-eligible screen analysis to use ready local evidence, confidence, category, and deleted raw image custody'
     ),
     Schema.filter(
@@ -104,7 +108,35 @@ export const ScreenAnalysisResultSchema = withParser(
   )
 );
 
+function basePolicyEligibleFieldsAreValid(value: Infer<typeof ScreenAnalysisResultBaseSchema>): boolean {
+  return (
+    value.sourceEvidenceRefs.length > 0 &&
+    value.capabilityStatus === 'ready' &&
+    value.confidence >= PolicyEligibleConfidenceFloor &&
+    value.primaryCategory !== null &&
+    value.primaryCategory !== 'unknown' &&
+    value.rawImageRetained === false
+  );
+}
+
+function imageBackedResultIsPolicyEligible(value: Infer<typeof ScreenAnalysisResultBaseSchema>): boolean {
+  return (
+    value.providerKind !== 'deterministicRules' &&
+    basePolicyEligibleFieldsAreValid(value) &&
+    (value.imageDeletionState === 'deleted' || value.imageDeletionState === 'expiredDeleted')
+  );
+}
+
+function deterministicResultIsPolicyEligible(value: Infer<typeof ScreenAnalysisResultBaseSchema>): boolean {
+  return (
+    value.providerKind === 'deterministicRules' &&
+    basePolicyEligibleFieldsAreValid(value) &&
+    value.imageDeletionState === 'unavailableNoImage'
+  );
+}
+
 export type ScreenCategoryCandidate = Infer<typeof ScreenCategoryCandidateSchema>;
 export type ScreenRiskSignalCandidate = Infer<typeof ScreenRiskSignalCandidateSchema>;
 export type ScreenOcrTextSnippet = Infer<typeof ScreenOcrTextSnippetSchema>;
+export type ScreenLocalModelOutput = Infer<typeof ScreenLocalModelOutputSchema>;
 export type ScreenAnalysisResult = Infer<typeof ScreenAnalysisResultSchema>;

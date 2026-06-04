@@ -374,6 +374,12 @@ function specifyReportEventParsing() {
 }
 
 function specifyReadModelEventParsing() {
+  specifyReadModelAdapterFailureParsing();
+  specifyAppUseReadModelEventParsing();
+  specifyScreenReadModelEventParsing();
+}
+
+function specifyReadModelAdapterFailureParsing() {
   it('parses typed read-model events and reports missing JSON as unavailable adapter failure', () => {
     const parsed = parseActivityReadModelEvent(
       'app-use',
@@ -399,7 +405,9 @@ function specifyReadModelEventParsing() {
     expect(missing.ok ? null : missing.state).toBe('unavailable');
     expect(missing.ok ? null : missing.reason).toBe('missing-json-field');
   });
+}
 
+function specifyAppUseReadModelEventParsing() {
   it('parses service-backed app-use rows with app-game source counts', () => {
     const parsed = parseActivityReadModelEvent(
       'app-use',
@@ -442,6 +450,23 @@ function specifyReadModelEventParsing() {
     expect(parsed.ok).toBe(true);
     expect(row?.foregroundState).toBe('foreground');
     expect(row?.dailyRollupCount).toBe(1);
+  });
+}
+
+function specifyScreenReadModelEventParsing() {
+  it('parses screen read-model events with capture, AI, policy, and deletion chain fields', () => {
+    const parsed = parseActivityReadModelEvent(
+      'screen',
+      eventEnvelope(AgentEvent.ActivityScreenReadModelReported, {
+        [AgentProtocolDefaults.Field.ActivityReadModel]: JSON.stringify(screenReadModel()),
+      })
+    );
+
+    expect(parsed.ok).toBe(true);
+    expect(parsed.ok ? parsed.value.rows[0]?.captureReason : null).toBe('nativeAppForegroundStart');
+    expect(parsed.ok ? parsed.value.rows[0]?.providerKind : null).toBe('localVision');
+    expect(parsed.ok ? parsed.value.rows[0]?.imageDeletionState : null).toBe('deleted');
+    expect(parsed.ok ? parsed.value.rows[0]?.policyEligible : null).toBe(true);
   });
 }
 
@@ -542,6 +567,40 @@ function browserReadModel(domainLabel = 'example.test') {
         visitCount: 1,
         totalMs: 0,
         evidenceDigest: null,
+      },
+    ],
+  } as const;
+}
+
+function screenReadModel() {
+  return {
+    schemaVersion: ActivitySurfaceSchemaVersion,
+    request: Request,
+    state: 'ready',
+    generatedAt: '2026-05-27T20:10:01Z',
+    summary: 'Screen summary is available from the local capture journal.',
+    rows: [
+      {
+        rowId: 'screen-row-1',
+        label: 'Visible activity summary',
+        deviceId: 'local-dev-agent',
+        state: 'ready',
+        totalMs: 60000,
+        foregroundMs: 60000,
+        backgroundMs: 0,
+        captureReason: 'nativeAppForegroundStart',
+        captureScope: 'activeWindow',
+        capabilityStatus: 'ready',
+        queueJobId: 'screen-queue-job-1',
+        modelRuntimeRef: 'local-vision-runtime-1',
+        providerKind: 'localVision',
+        primaryCategory: 'productivity',
+        confidence: 0.91,
+        imageDeletionState: 'deleted',
+        policyEligible: true,
+        imageDigest: 'sha256:screen-image-digest',
+        custodyState: 'child-device-journal',
+        evidence: [],
       },
     ],
   } as const;

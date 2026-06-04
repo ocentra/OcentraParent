@@ -119,6 +119,18 @@ fn screen_row(
         total_ms: 0,
         foreground_ms: 0,
         background_ms: 0,
+        capture_reason: result.capture_reason,
+        capture_scope: result.capture_scope,
+        capability_status: result.capability_status,
+        queue_job_id: result.queue_job_id,
+        model_runtime_ref: result.model_runtime_ref,
+        provider_kind: result.provider_kind,
+        primary_category: result.primary_category,
+        confidence: result.confidence,
+        image_deletion_state: result.image_deletion_state,
+        policy_eligible: result.policy_eligible,
+        image_digest: result.image_digest,
+        custody_state: result.custody_state,
         evidence: result.source_evidence_refs,
     }
 }
