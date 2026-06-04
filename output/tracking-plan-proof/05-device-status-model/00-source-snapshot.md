@@ -1,7 +1,7 @@
 # 05-device-status-model Source Snapshot
 
-- checkedAt: 2026-06-04T02:34:23.857Z
-- commit: f1f0c13f74a233d012dfdf997c672dc8e564626a
+- checkedAt: 2026-06-04T08:21:17.817Z
+- commit: af03010b9d1dc12f7f152ebf49560593a19fbf2d
 - proofState: contract-proof-complete
 - summary: Device status evidence carries heartbeat, battery, connectivity, pending upload, stale, and degraded state.
 - activity contracts: packages/activity-domain/src/tracking.ts

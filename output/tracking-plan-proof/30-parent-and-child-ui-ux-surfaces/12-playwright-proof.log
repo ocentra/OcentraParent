@@ -1,7 +1,7 @@
 Tracking Plan WP30 hosted portal UI proof
 
-Date: 2026-06-04T02:35:49.894Z
-Route: http://127.0.0.1:63993/#/policy-tracking
+Date: 2026-06-04T08:22:59.839Z
+Route: http://127.0.0.1:4578/#/policy-tracking
 Screenshot: output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/11-ui-snapshots/policy-tracking-hosted-ui-proof.png
 Accessibility proof: output/tracking-plan-proof/30-parent-and-child-ui-ux-surfaces/17-accessibility-proof.json
 
@@ -23,7 +23,7 @@ Non-claims:
 
 Browser proof:
 {
-  "route": "http://127.0.0.1:63993/#/policy-tracking",
+  "route": "http://127.0.0.1:4578/#/policy-tracking",
   "viewport": "1440x1100",
   "expectedStates": [
     "Tracking off",
@@ -59,6 +59,6 @@ Browser proof:
 }
 
 Server output:
-  VITE v7.3.3  ready in 775 ms
-    Local:   http://127.0.0.1:63993/
+  VITE v7.3.3  ready in 1221 ms
+    Local:   http://127.0.0.1:4578/
 [BABEL] Note: The code generator has deoptimised the styling of C:\Users\sujan\.codex\worktrees\ocentra-parent-codex-a\OcentraParent\vendor\ocentra-parent-core-ui\AppPages\ParentPortal\ParentPortalSvgSurface.tsx as it exceeds the max of 500KB.

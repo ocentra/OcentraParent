@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-04T02:35:49.894Z",
+  "checkedAt": "2026-06-04T08:22:59.839Z",
   "workpackId": "30-parent-and-child-ui-ux-surfaces",
   "requiredProofTier": "P2_HOSTED_CI",
   "currentProofTier": "P2_HOSTED_CI",
@@ -14,16 +14,16 @@
       "exitCode": 0
     },
     {
-      "command": "tracking read-model proof WebSocket event server ws://127.0.0.1:63994/api/dev/ws",
+      "command": "tracking read-model proof WebSocket event server ws://127.0.0.1:4577/api/dev/ws",
       "exitCode": 0
     },
     {
-      "command": "npm exec --workspace @ocentra-parent/portal -- vite --host 127.0.0.1 --port 63993 --strictPort",
+      "command": "npm exec --workspace @ocentra-parent/portal -- vite --host 127.0.0.1 --port 4578 --strictPort",
       "exitCode": 0
     }
   ],
   "proof": {
-    "route": "http://127.0.0.1:63993/#/policy-tracking",
+    "route": "http://127.0.0.1:4578/#/policy-tracking",
     "viewport": "1440x1100",
     "expectedStates": [
       "Tracking off",

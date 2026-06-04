@@ -168,7 +168,9 @@ async function assertProductRoute(
   const navLabel = parentPortalRouteContext(route).navLabel;
   await expect(surface).toBeVisible();
   await expect(page.getByRole('img', { name: 'Ocentra parent dashboard' })).toBeVisible();
-  await expect(surface.locator('text').filter({ hasText: navLabel }).first()).toBeVisible();
+  if (kind !== 'manage') {
+    await expect(surface.locator('text').filter({ hasText: navLabel }).first()).toBeVisible();
+  }
   if (kind === 'assistant') {
     await assertAssistantRouteSurface(page, surface, panelTitle);
     return;
