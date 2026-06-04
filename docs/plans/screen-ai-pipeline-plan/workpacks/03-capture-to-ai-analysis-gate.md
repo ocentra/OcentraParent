@@ -24,6 +24,11 @@ analysis through the AI queue/router.
   proves the service-owned encrypted queue job, adapter runtime route,
   `localVision` read-model row, evidence digest, policy eligibility, and queue
   deletion path for one captured active-window job.
+- `output/screen-ai-pipeline-proof/service-native-game-analysis/proof-summary.json`
+  proves a service-owned native foreground active-window capture can flow
+  through the service-owned local adapter analysis runtime into a
+  `localVision` game read-model row, preserving the queue job, capture reason,
+  active-window scope, digest, policy eligibility, and queue deletion path.
 - `output/screen-ai-pipeline-proof/ocr-route/proof-summary.json`
 - `output/screen-ai-pipeline-proof/local-text-route/proof-summary.json`
 - `output/screen-ai-pipeline-proof/deterministic-route/proof-summary.json`

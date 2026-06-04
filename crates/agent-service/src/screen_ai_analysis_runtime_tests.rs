@@ -1,13 +1,13 @@
 use std::{
     fs,
-    path::PathBuf,
+    path::{Path, PathBuf},
     sync::atomic::{AtomicU64, Ordering},
 };
 
 use ocentra_parent_agent_core::ActivityStore;
 use ocentra_parent_agent_protocol::{
     constants, ActivityCaptureCapabilityStatus, SCREEN_PROVIDER_LOCAL_VISION_UNAVAILABLE,
-    SCREEN_SERVICE_ANALYSIS_DEFAULT_ADAPTER_TIMEOUT_MS,
+    SCREEN_PROVIDER_SERVICE_METADATA, SCREEN_SERVICE_ANALYSIS_DEFAULT_ADAPTER_TIMEOUT_MS,
     SCREEN_SERVICE_ANALYSIS_DEFAULT_MAX_QUEUE_SCAN, SCREEN_SERVICE_ANALYSIS_RUNTIME_ENABLED_ENV,
     SCREEN_SERVICE_ANALYSIS_SUMMARY_UNAVAILABLE, SCREEN_SERVICE_EVENT_ID_PREFIX,
     SCREEN_SERVICE_EVIDENCE_ID_PREFIX, SCREEN_SERVICE_MODEL_ID, SCREEN_SERVICE_QUEUE_JOB_ID_PREFIX,
@@ -39,6 +39,29 @@ fn screen_analysis_runtime_is_disabled_without_explicit_parent_setting() {
 }
 
 #[tokio::test]
+async fn screen_analysis_cycle_respects_disabled_screen_analysis_setting() {
+    let config = ScreenAiAnalysisRuntimeConfig {
+        screen_analysis_enabled: false,
+        ..test_analysis_config()
+    };
+    let queue_job_id = record_test_capture(&config);
+
+    let outcome = record_screen_ai_analysis_cycle(
+        &config,
+        ScreenAiAnalysisCycleClock::from_parts(
+            3,
+            constants::activity_store::TEST_THIRD_OBSERVED_AT.to_string(),
+        ),
+    )
+    .await
+    .expect(constants::error::ACTIVITY_STORE_INGESTS);
+
+    assert_eq!(outcome, ScreenAiAnalysisCycleOutcome::Suppressed);
+    assert_queue_contains(&config, &queue_job_id);
+    assert_only_service_metadata_summary(&config, &queue_job_id);
+}
+
+#[tokio::test]
 async fn screen_analysis_cycle_records_unavailable_result_and_removes_queue_entry() {
     let config = test_analysis_config();
     let queue_job_id = record_test_capture(&config);
@@ -65,6 +88,7 @@ async fn screen_analysis_cycle_records_unavailable_result_and_removes_queue_entr
 
 fn test_analysis_config() -> ScreenAiAnalysisRuntimeConfig {
     let root = test_path(constants::activity_store::TEST_SCREEN_QUEUE_SUFFIX);
+    reset_test_path(&root);
     ScreenAiAnalysisRuntimeConfig {
         screen_analysis_enabled: true,
         poll_seconds: 1,
@@ -77,6 +101,12 @@ fn test_analysis_config() -> ScreenAiAnalysisRuntimeConfig {
         journal_path: root.join(constants::activity_store::TEST_CAPTURE_JOURNAL_SUFFIX),
         journal_key_path: root.join(constants::activity_store::TEST_CAPTURE_KEY_SUFFIX),
         store_path: root.join(constants::activity_store::TEST_CAPTURE_STORE_SUFFIX),
+    }
+}
+
+fn reset_test_path(path: &Path) {
+    if path.exists() {
+        fs::remove_dir_all(path).expect(constants::error::ACTIVITY_STORE_OPENS);
     }
 }
 
@@ -103,6 +133,8 @@ fn record_test_capture(config: &ScreenAiAnalysisRuntimeConfig) -> String {
         summary: SCREEN_SERVICE_SUMMARY_CAPTURED,
         model_id: SCREEN_SERVICE_MODEL_ID,
         template_version: SCREEN_SERVICE_TEMPLATE_VERSION,
+        temporary_image_ttl_seconds:
+            ocentra_parent_agent_protocol::SCREEN_SERVICE_TEMPORARY_IMAGE_TTL_SECONDS_DEFAULT,
     })
     .expect(constants::error::ACTIVITY_STORE_INGESTS)
 }
@@ -114,6 +146,39 @@ fn assert_queue_drained(config: &ScreenAiAnalysisRuntimeConfig) {
     let queue_record =
         fs::read_to_string(queue_file).expect(constants::error::ACTIVITY_STORE_OPENS);
     assert!(queue_record.trim().is_empty());
+}
+
+fn assert_queue_contains(config: &ScreenAiAnalysisRuntimeConfig, queue_job_id: &str) {
+    let queue_file = config
+        .queue_dir
+        .join(constants::activity_store::SCREEN_EVIDENCE_QUEUE_FILE_NAME);
+    let queue_record =
+        fs::read_to_string(queue_file).expect(constants::error::ACTIVITY_STORE_OPENS);
+    assert!(queue_record.contains(queue_job_id));
+}
+
+fn assert_only_service_metadata_summary(
+    config: &ScreenAiAnalysisRuntimeConfig,
+    queue_job_id: &str,
+) {
+    let store =
+        ActivityStore::open(&config.store_path).expect(constants::error::ACTIVITY_STORE_OPENS);
+    let summary = store
+        .screen_evidence_recent_summary(
+            constants::activity_store::DEFAULT_RECENT_LIMIT,
+            constants::activity_store::TEST_THIRD_OBSERVED_AT,
+        )
+        .expect(constants::error::ACTIVITY_STORE_QUERIES);
+    let latest = &summary.results[0];
+
+    assert_eq!(summary.returned, 1);
+    assert_eq!(latest.queue_job_id, queue_job_id);
+    assert_eq!(latest.provider_kind, SCREEN_PROVIDER_SERVICE_METADATA);
+    assert_eq!(
+        latest.capture_reason,
+        constants::activity_capture::SCREEN_TRIGGER_TIMED_CADENCE
+    );
+    assert!(!latest.policy_eligible);
 }
 
 fn assert_unavailable_analysis_summary(config: &ScreenAiAnalysisRuntimeConfig, queue_job_id: &str) {

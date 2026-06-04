@@ -1,5 +1,5 @@
 import { spawn } from 'node:child_process';
-import { chmodSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { mkdtemp } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
@@ -25,46 +25,35 @@ import { ensurePortFree } from '../dev/port-utils.mjs';
 import { removeDirectoryWithRetry, stopProcessTreeAndWait } from './agent-service-process.mjs';
 
 const repoRoot = process.cwd();
-const outputDir = join(repoRoot, 'output', 'screen-ai-pipeline-proof', 'service-analysis');
+const outputDir = join(repoRoot, 'output', 'screen-ai-pipeline-proof', 'service-disabled-suppression');
 const agentPort = resolveParentDevPort(
-  process.env.OCENTRA_SCREEN_AI_ANALYSIS_PROOF_AGENT_PORT,
-  4689,
-  'OCENTRA_SCREEN_AI_ANALYSIS_PROOF_AGENT_PORT'
+  process.env.OCENTRA_SCREEN_AI_DISABLED_SUPPRESSION_AGENT_PORT,
+  4691,
+  'OCENTRA_SCREEN_AI_DISABLED_SUPPRESSION_AGENT_PORT'
 );
-const buildRoot = await mkdtemp(join(tmpdir(), 'ocentra-screen-ai-analysis-target-'));
-const activityRoot = await mkdtemp(join(tmpdir(), 'ocentra-screen-ai-analysis-'));
+const buildRoot = await mkdtemp(join(tmpdir(), 'ocentra-screen-ai-disabled-target-'));
+const activityRoot = await mkdtemp(join(tmpdir(), 'ocentra-screen-ai-disabled-'));
 const queueDir = join(activityRoot, 'screen-queue');
 const journalPath = join(activityRoot, 'activity.ndjson');
 const keyPath = join(activityRoot, 'activity-journal.key');
 const storePath = join(activityRoot, 'activity.sqlite');
-const fixturePath = join(activityRoot, 'screen-ai-service-analysis-fixture.html');
-const adapterCommandPath = join(
-  activityRoot,
-  process.platform === 'win32' ? 'screen-ai-adapter.cmd' : 'screen-ai-adapter.sh'
-);
-const adapterScriptPath = join(
-  activityRoot,
-  process.platform === 'win32' ? 'screen-ai-adapter.ps1' : 'screen-ai-adapter-node.mjs'
-);
+const fixturePath = join(activityRoot, 'screen-ai-service-disabled-fixture.html');
 const queuePath = join(queueDir, 'screen-evidence-queue.ndjson');
 const healthUrl = createAgentHealthUrl(agentPort);
 const wsUrl = createAgentWebSocketUrl(agentPort);
 
 if (process.platform !== 'win32') {
-  throw new Error('screen-ai-service-analysis-proof requires a real Windows desktop capture surface.');
+  throw new Error('screen-ai-service-disabled-suppression-proof requires a real Windows desktop capture surface.');
 }
 
 rmSync(outputDir, { recursive: true, force: true });
 mkdirSync(outputDir, { recursive: true });
 writeFixture();
-writeAdapterCommand();
 
 await ensurePortFree(agentPort, isLikelyParentAgentOccupant, console.log);
 
 let browser;
 let service;
-let serviceOutput = () => '';
-let lastObservedReadModel = null;
 
 try {
   await runCommand('cargo', ['build', '-p', 'ocentra-parent-agent-service'], {
@@ -76,65 +65,80 @@ try {
   await page.bringToFront();
   await page.waitForTimeout(750);
 
-  service = startService(serviceCaptureEnv());
-  serviceOutput = collectOutput(service);
+  service = startService(enabledCaptureEnv());
+  let serviceOutput = collectOutput(service);
   await waitForHttp(healthUrl, serviceOutput);
-  await waitForQueueRecords(1);
-  await delay(1500);
+  await waitForQueueRecordCount(1);
+  const baselineReadModel = await waitForScreenReadModelRows(1);
+  const baselineQueueRecords = readQueueRecordsAllowEmpty();
+  assertBaselineCapture(baselineReadModel, baselineQueueRecords);
   await stopProcessTreeAndWait(service);
   service = undefined;
 
   await ensurePortFree(agentPort, isLikelyParentAgentOccupant, console.log);
-  service = startService(serviceAnalysisEnv());
+  service = startService(disabledSuppressionEnv());
   serviceOutput = collectOutput(service);
   await waitForHttp(healthUrl, serviceOutput);
-  const readModel = await waitForAnalyzedScreenReadModel();
-  const analyzedQueueJobId = localVisionRow(readModel)?.queueJobId;
-  await waitForAnalyzedQueueRemoval(analyzedQueueJobId);
-  const queueRecords = readQueueRecordsAllowEmpty();
-  assertProof(readModel, queueRecords);
+  await delay(4500);
+  const disabledReadModel = await requestScreenReadModel();
+  const disabledQueueRecords = readQueueRecordsAllowEmpty();
+  assertDisabledSuppression({
+    baselineReadModel,
+    baselineQueueRecords,
+    disabledReadModel,
+    disabledQueueRecords,
+  });
 
-  const sanitizedReadModel = sanitizeReadModel(readModel);
-  const sanitizedQueueRecords = sanitizeQueueRecords(queueRecords);
-  const analysisRow = localVisionRow(sanitizedReadModel);
+  const sanitizedBaselineReadModel = sanitizeReadModel(baselineReadModel);
+  const sanitizedDisabledReadModel = sanitizeReadModel(disabledReadModel);
+  const sanitizedBaselineQueueRecords = sanitizeQueueRecords(baselineQueueRecords);
+  const sanitizedDisabledQueueRecords = sanitizeQueueRecords(disabledQueueRecords);
   const summary = {
-    proof: 'screen-ai-service-analysis-proof',
+    proof: 'screen-ai-service-disabled-suppression-proof',
     proofTier: 'P3_LOCAL_DEV_MACHINE',
     platform: process.platform,
     agentPort,
-    analysisRow,
-    queueRecordsAfterAnalysis: queueRecords.length,
+    baselineQueueRecords: baselineQueueRecords.length,
+    disabledQueueRecords: disabledQueueRecords.length,
+    baselineScreenRows: baselineReadModel.rows.length,
+    disabledScreenRows: disabledReadModel.rows.length,
+    firstRow: sanitizedDisabledReadModel.rows[0],
     artifacts: {
       proofSummary: relative(repoRoot, join(outputDir, 'proof-summary.json')),
-      screenReadModel: relative(repoRoot, join(outputDir, 'screen-read-model.json')),
-      queueRecordMetadataAfterAnalysis: relative(repoRoot, join(outputDir, 'queue-records-after-analysis.json')),
+      baselineReadModel: relative(repoRoot, join(outputDir, 'baseline-screen-read-model.json')),
+      disabledReadModel: relative(repoRoot, join(outputDir, 'disabled-screen-read-model.json')),
+      baselineQueueRecords: relative(repoRoot, join(outputDir, 'baseline-queue-records.json')),
+      disabledQueueRecords: relative(repoRoot, join(outputDir, 'disabled-queue-records.json')),
     },
     ephemeralPathsDeletedAfterProof: true,
     assertions: {
       realWindowsServiceCaptureRequired: true,
-      localAdapterCommandExecutedThroughServiceRuntime: analysisRow.providerKind === 'localVision',
-      captureReasonPreserved: analysisRow.captureReason === 'timedCadence',
-      activeWindowScopePreserved: analysisRow.captureScope === 'activeWindow',
-      adapterOutputAcceptedAbovePolicyThreshold: analysisRow.confidence >= 0.88 && analysisRow.policyEligible === true,
-      encryptedQueueDrainedAfterAnalysis: queueRecords.length === 0,
-      rawFixtureTextNotRetainedInQueue:
-        !readOptional(queuePath).includes('Ocentra Service Analysis Proof') &&
-        !readOptional(queuePath).includes('Expected visible category'),
-      activityReadModelReachedViaWebSocket: readModel.state === 'ready',
+      enabledPhaseCreatedEncryptedQueueRecord: baselineQueueRecords.length === 1,
+      disabledPhaseCreatedNoNewCaptureRows: disabledReadModel.rows.length === baselineReadModel.rows.length,
+      disabledPhaseCreatedNoNewQueueRecords: disabledQueueRecords.length === baselineQueueRecords.length,
+      disabledPhaseDidNotDrainPendingQueue: disabledQueueRecords[0]?.queueJobId === baselineQueueRecords[0]?.queueJobId,
+      disabledPhaseCreatedNoLocalVisionRows: disabledReadModel.rows.every(
+        (row) => row.providerKind !== 'localVision' && row.providerKind !== 'localVisionUnavailable'
+      ),
+      encryptedQueueDoesNotContainVisibleFixtureText:
+        !readOptional(queuePath).includes('Ocentra Service Disabled Suppression Proof') &&
+        !readOptional(queuePath).includes('Disabled parent setting must stop service capture and AI analysis'),
+      activityReadModelReachedViaWebSocket: disabledReadModel.state === 'ready',
     },
     nonClaims: [
-      'This proves the service-owned capture-to-analysis handoff, local adapter process boundary, Activity Screen read-model surfacing, and queue deletion after analysis.',
-      'The adapter command is a local proof adapter for runtime plumbing; it is not a claim of production VLM quality.',
-      'Browser URL-change triggers remain browser-plan scope; this proof uses service timed cadence active-window capture.',
+      'This proves the service-owned parent-disabled setting suppresses cadence capture, foreground capture, and queued analysis processing.',
+      'The enabled phase intentionally leaves one encrypted queue record pending so the disabled phase can prove AI analysis does not consume it.',
+      'This does not claim product UI controls for the setting, browser URL trigger ownership, or VLM quality.',
     ],
   };
   writeJson(join(outputDir, 'proof-summary.json'), summary);
-  writeJson(join(outputDir, 'screen-read-model.json'), sanitizedReadModel);
-  writeJson(join(outputDir, 'queue-records-after-analysis.json'), sanitizedQueueRecords);
-  console.log(`screen-ai-service-analysis-proof-ok:${analysisRow.providerKind}:${queueRecords.length}`);
-} catch (error) {
-  writeFailureArtifacts(error);
-  throw error;
+  writeJson(join(outputDir, 'baseline-screen-read-model.json'), sanitizedBaselineReadModel);
+  writeJson(join(outputDir, 'disabled-screen-read-model.json'), sanitizedDisabledReadModel);
+  writeJson(join(outputDir, 'baseline-queue-records.json'), sanitizedBaselineQueueRecords);
+  writeJson(join(outputDir, 'disabled-queue-records.json'), sanitizedDisabledQueueRecords);
+  console.log(
+    `screen-ai-service-disabled-suppression-proof-ok:${baselineQueueRecords.length}:${disabledQueueRecords.length}`
+  );
 } finally {
   await Promise.allSettled([
     browser === undefined ? Promise.resolve() : browser.close(),
@@ -151,7 +155,7 @@ function writeFixture() {
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Ocentra Service Analysis Proof</title>
+  <title>Ocentra Service Disabled Suppression Proof</title>
   <style>
     body {
       margin: 0;
@@ -178,37 +182,14 @@ function writeFixture() {
 </head>
 <body>
   <main>
-    <h1>Ocentra Service Analysis Proof</h1>
-    <p>Expected visible category: school</p>
-    <p>Algebra worksheet and teacher notes are visible for real Windows capture.</p>
+    <h1>Ocentra Service Disabled Suppression Proof</h1>
+    <p>Disabled parent setting must stop service capture and AI analysis.</p>
+    <p>This text must only appear inside encrypted screen evidence custody.</p>
   </main>
 </body>
 </html>
 `
   );
-}
-
-function writeAdapterCommand() {
-  writeFileSync(
-    adapterScriptPath,
-    [
-      '$inputPayload = [Console]::In.ReadToEnd()',
-      '$null = $inputPayload | ConvertFrom-Json',
-      '$output = @{',
-      "  summary = 'Local adapter classified a school worksheet from the queued capture.'",
-      "  primaryCategory = 'school'",
-      '  confidence = 0.91',
-      '  policyEligible = $true',
-      '} | ConvertTo-Json -Compress',
-      '[Console]::Out.WriteLine($output)',
-      '',
-    ].join('\r\n')
-  );
-  writeFileSync(
-    adapterCommandPath,
-    ['@echo off', 'powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0screen-ai-adapter.ps1"', ''].join('\r\n')
-  );
-  chmodSync(adapterCommandPath, 0o755);
 }
 
 function startService(env) {
@@ -220,32 +201,39 @@ function startService(env) {
   });
 }
 
-function serviceCaptureEnv() {
+function enabledCaptureEnv() {
   return {
     ...baseServiceEnv(),
     OCENTRA_PARENT_SCREEN_SERVICE_CADENCE_RUNTIME_ENABLED: 'true',
     OCENTRA_PARENT_SCREEN_SERVICE_ANALYSIS_RUNTIME_ENABLED: 'false',
+    OCENTRA_PARENT_SCREEN_SERVICE_FOREGROUND_RUNTIME_ENABLED: 'false',
     OCENTRA_PARENT_SCREEN_SERVICE_ANALYSIS_ENABLED: 'true',
     OCENTRA_PARENT_SCREEN_SERVICE_CADENCE_ENABLED: 'true',
     OCENTRA_PARENT_SCREEN_SERVICE_CADENCE_SECONDS: '1',
     OCENTRA_PARENT_SCREEN_SERVICE_CADENCE_MAX_CAPTURES: '1',
-    OCENTRA_PARENT_SCREEN_SERVICE_CADENCE_MAX_TICKS: '4',
+    OCENTRA_PARENT_SCREEN_SERVICE_CADENCE_MAX_TICKS: '3',
   };
 }
 
-function serviceAnalysisEnv() {
+function disabledSuppressionEnv() {
   return {
     ...baseServiceEnv(),
-    OCENTRA_PARENT_SCREEN_SERVICE_CADENCE_RUNTIME_ENABLED: 'false',
-    OCENTRA_PARENT_SCREEN_SERVICE_FOREGROUND_RUNTIME_ENABLED: 'false',
-    OCENTRA_PARENT_SCREEN_SERVICE_RETENTION_SWEEPER_RUNTIME_ENABLED: 'false',
+    OCENTRA_PARENT_SCREEN_SERVICE_CADENCE_RUNTIME_ENABLED: 'true',
     OCENTRA_PARENT_SCREEN_SERVICE_ANALYSIS_RUNTIME_ENABLED: 'true',
-    OCENTRA_PARENT_SCREEN_SERVICE_ANALYSIS_ENABLED: 'true',
+    OCENTRA_PARENT_SCREEN_SERVICE_FOREGROUND_RUNTIME_ENABLED: 'true',
+    OCENTRA_PARENT_SCREEN_SERVICE_ANALYSIS_ENABLED: 'false',
+    OCENTRA_PARENT_SCREEN_SERVICE_CADENCE_ENABLED: 'true',
+    OCENTRA_PARENT_SCREEN_SERVICE_FOREGROUND_ENABLED: 'true',
+    OCENTRA_PARENT_SCREEN_SERVICE_CADENCE_SECONDS: '1',
+    OCENTRA_PARENT_SCREEN_SERVICE_CADENCE_MAX_CAPTURES: '2',
+    OCENTRA_PARENT_SCREEN_SERVICE_CADENCE_MAX_TICKS: '4',
     OCENTRA_PARENT_SCREEN_SERVICE_ANALYSIS_POLL_SECONDS: '1',
-    OCENTRA_PARENT_SCREEN_SERVICE_ANALYSIS_MAX_JOBS: '1',
-    OCENTRA_PARENT_SCREEN_SERVICE_ANALYSIS_MAX_TICKS: '30',
-    OCENTRA_PARENT_SCREEN_SERVICE_ANALYSIS_ADAPTER_TIMEOUT_MS: '10000',
-    OCENTRA_PARENT_SCREEN_SERVICE_ANALYSIS_ADAPTER_COMMAND: adapterCommandPath,
+    OCENTRA_PARENT_SCREEN_SERVICE_ANALYSIS_MAX_JOBS: '2',
+    OCENTRA_PARENT_SCREEN_SERVICE_ANALYSIS_MAX_TICKS: '4',
+    OCENTRA_PARENT_SCREEN_SERVICE_FOREGROUND_POLL_SECONDS: '1',
+    OCENTRA_PARENT_SCREEN_SERVICE_FOREGROUND_MIN_GAP_SECONDS: '1',
+    OCENTRA_PARENT_SCREEN_SERVICE_FOREGROUND_MAX_CAPTURES: '2',
+    OCENTRA_PARENT_SCREEN_SERVICE_FOREGROUND_MAX_TICKS: '4',
   };
 }
 
@@ -256,61 +244,34 @@ function baseServiceEnv() {
     [ParentDevEnv.ActivityDbPath]: storePath,
     OCENTRA_PARENT_ACTIVITY_JOURNAL_PATH: journalPath,
     OCENTRA_PARENT_ACTIVITY_JOURNAL_KEY_PATH: keyPath,
-    OCENTRA_PARENT_SCREEN_SERVICE_QUEUE_MAX_PENDING: '2',
+    OCENTRA_PARENT_SCREEN_SERVICE_QUEUE_MAX_PENDING: '3',
     OCENTRA_PARENT_SCREEN_SERVICE_QUEUE_DIR: queueDir,
   };
 }
 
-async function waitForQueueRecords(count) {
+async function waitForQueueRecordCount(count) {
   const startedAt = Date.now();
   while (Date.now() - startedAt < 30000) {
-    if (existsSync(queuePath)) {
-      try {
-        const records = readQueueRecordsAllowEmpty();
-        if (records.length >= count) {
-          return;
-        }
-      } catch {
-        await delay(250);
-        continue;
-      }
+    const records = existsSync(queuePath) ? tryReadQueueRecords() : null;
+    if (records !== null && records.length >= count) {
+      return;
     }
     await delay(250);
   }
   throw new Error(`Timed out waiting for ${count} screen queue records.\n${readOptional(queuePath)}`);
 }
 
-async function waitForAnalyzedScreenReadModel() {
+async function waitForScreenReadModelRows(rowCount) {
   const startedAt = Date.now();
   let lastReadModel;
-  while (Date.now() - startedAt < 45000) {
+  while (Date.now() - startedAt < 30000) {
     lastReadModel = await requestScreenReadModel();
-    lastObservedReadModel = lastReadModel;
-    if (
-      lastReadModel.state === 'ready' &&
-      Array.isArray(lastReadModel.rows) &&
-      lastReadModel.rows.some((row) => row.providerKind === 'localVision')
-    ) {
+    if (lastReadModel.state === 'ready' && Array.isArray(lastReadModel.rows) && lastReadModel.rows.length >= rowCount) {
       return lastReadModel;
     }
     await delay(250);
   }
-  throw new Error(`Timed out waiting for localVision analysis row: ${JSON.stringify(lastReadModel)}`);
-}
-
-async function waitForAnalyzedQueueRemoval(queueJobId) {
-  if (typeof queueJobId !== 'string' || queueJobId.length === 0) {
-    throw new Error('Cannot wait for queue removal without analyzed queue job id.');
-  }
-  const startedAt = Date.now();
-  while (Date.now() - startedAt < 10000) {
-    const records = readQueueRecordsAllowEmpty();
-    if (!records.some((record) => record.queueJobId === queueJobId)) {
-      return;
-    }
-    await delay(100);
-  }
-  throw new Error(`Timed out waiting for analyzed queue job removal: ${queueJobId}`);
+  throw new Error(`Timed out waiting for ${rowCount} screen rows: ${JSON.stringify(lastReadModel)}`);
 }
 
 async function requestScreenReadModel() {
@@ -318,7 +279,7 @@ async function requestScreenReadModel() {
     const socket = new WebSocket(wsUrl);
     const timer = setTimeout(() => {
       socket.close();
-      reject(new Error('Screen analysis read-model WebSocket proof timed out.'));
+      reject(new Error('Disabled suppression screen read-model WebSocket proof timed out.'));
     }, 10000);
 
     socket.addEventListener('open', () => {
@@ -348,9 +309,10 @@ async function requestScreenReadModel() {
       }
     });
 
-    socket.addEventListener('error', () => {
+    socket.addEventListener('error', (error) => {
       clearTimeout(timer);
-      reject(new Error('Screen analysis read-model WebSocket failed.'));
+      socket.close();
+      reject(error);
     });
   });
 }
@@ -358,7 +320,7 @@ async function requestScreenReadModel() {
 function commandEnvelope() {
   return {
     schemaVersion: 1,
-    messageId: 'cmd-screen-ai-service-analysis-read-model',
+    messageId: 'cmd-screen-ai-service-disabled-suppression-read-model',
     sentAt: new Date().toISOString(),
     source: { peerId: 'portal-dev', role: 'portal' },
     target: { deviceId: 'local-dev-agent', platform: 'windows', route: 'localhost' },
@@ -372,45 +334,84 @@ function commandEnvelope() {
   };
 }
 
-function assertProof(readModel, queueRecords) {
-  if (readModel.state !== 'ready' || !Array.isArray(readModel.rows) || readModel.rows.length === 0) {
-    throw new Error(`Screen read model did not expose analysis rows: ${JSON.stringify(readModel)}`);
+function assertBaselineCapture(readModel, queueRecords) {
+  if (readModel.state !== 'ready' || readModel.rows.length !== 1) {
+    throw new Error(`Enabled phase did not expose one service-capture row: ${JSON.stringify(readModel)}`);
   }
-  const analysisRow = localVisionRow(readModel);
-  if (!analysisRow) {
-    throw new Error(`Read model did not include local adapter analysis: ${JSON.stringify(readModel)}`);
+  if (queueRecords.length !== 1) {
+    throw new Error(`Enabled phase did not leave one encrypted queue record: ${JSON.stringify(queueRecords)}`);
   }
-  if (
-    analysisRow.queueJobId === undefined ||
-    analysisRow.captureReason === undefined ||
-    analysisRow.imageDigest === undefined
-  ) {
-    throw new Error(`Adapter analysis did not surface capture metadata: ${JSON.stringify(analysisRow)}`);
+  const row = readModel.rows[0];
+  if (row.providerKind !== 'serviceCaptureMetadata' || row.policyEligible !== false) {
+    throw new Error(`Enabled phase row was not service metadata only: ${JSON.stringify(row)}`);
   }
-  if (analysisRow.primaryCategory !== 'school') {
-    throw new Error(`Adapter category was not surfaced: ${JSON.stringify(analysisRow)}`);
+  if (row.queueJobId !== queueRecords[0].queueJobId) {
+    throw new Error(`Read model and queue job IDs diverged: ${row.queueJobId} !== ${queueRecords[0].queueJobId}`);
   }
-  if (analysisRow.policyEligible !== true) {
-    throw new Error(`Adapter analysis was not policy eligible after threshold: ${JSON.stringify(analysisRow)}`);
-  }
-  if (queueRecords.length !== 0) {
-    throw new Error(`Queue was not drained after analysis: ${JSON.stringify(queueRecords)}`);
+  if (readOptional(queuePath).includes('Ocentra Service Disabled Suppression Proof')) {
+    throw new Error('Encrypted screen queue retained visible fixture text.');
   }
 }
 
-function localVisionRow(readModel) {
-  return readModel.rows.find((row) => row.providerKind === 'localVision');
+function assertDisabledSuppression({
+  baselineReadModel,
+  baselineQueueRecords,
+  disabledReadModel,
+  disabledQueueRecords,
+}) {
+  if (disabledReadModel.state !== 'ready') {
+    throw new Error(`Disabled phase read model was not ready: ${JSON.stringify(disabledReadModel)}`);
+  }
+  if (disabledReadModel.rows.length !== baselineReadModel.rows.length) {
+    throw new Error(`Disabled phase created new screen rows: ${JSON.stringify(disabledReadModel)}`);
+  }
+  if (disabledQueueRecords.length !== baselineQueueRecords.length) {
+    throw new Error(`Disabled phase changed queue length: ${JSON.stringify(disabledQueueRecords)}`);
+  }
+  if (disabledQueueRecords[0]?.queueJobId !== baselineQueueRecords[0]?.queueJobId) {
+    throw new Error(
+      `Disabled phase consumed or replaced the pending queue job: ${JSON.stringify(disabledQueueRecords)}`
+    );
+  }
+  if (
+    disabledReadModel.rows.some(
+      (row) => row.providerKind === 'localVision' || row.providerKind === 'localVisionUnavailable'
+    )
+  ) {
+    throw new Error(`Disabled phase ran local vision analysis: ${JSON.stringify(disabledReadModel)}`);
+  }
 }
 
 function readQueueRecordsAllowEmpty() {
-  const raw = readOptional(queuePath).trim();
-  if (raw.length === 0) {
+  if (!existsSync(queuePath)) {
     return [];
   }
-  return raw
+  const contents = readFileSync(queuePath, 'utf8').trim();
+  if (contents.length === 0) {
+    return [];
+  }
+  return contents.split('\n').map((line) => JSON.parse(line));
+}
+
+function tryReadQueueRecords() {
+  return readFileSync(queuePath, 'utf8')
+    .trim()
     .split('\n')
     .filter((line) => line.length > 0)
-    .map((line) => JSON.parse(line));
+    .map((line) => {
+      try {
+        return JSON.parse(line);
+      } catch {
+        return null;
+      }
+    })
+    .reduce((records, record) => {
+      if (records === null || record === null) {
+        return null;
+      }
+      records.push(record);
+      return records;
+    }, []);
 }
 
 function sanitizeReadModel(readModel) {
@@ -489,26 +490,6 @@ function collectOutput(child) {
 
 function readOptional(path) {
   return existsSync(path) ? readFileSync(path, 'utf8') : '';
-}
-
-function writeFailureArtifacts(error) {
-  let queueRecords = [];
-  try {
-    queueRecords = sanitizeQueueRecords(readQueueRecordsAllowEmpty());
-  } catch {
-    queueRecords = [];
-  }
-  writeJson(join(outputDir, 'failure-summary.json'), {
-    proof: 'screen-ai-service-analysis-proof',
-    error: error instanceof Error ? error.message : String(error),
-    queueRecordCount: queueRecords.length,
-    queueRecords,
-    lastObservedReadModel,
-    journalBytes: readOptional(journalPath).length,
-    keyBytes: readOptional(keyPath).length,
-    storePresent: existsSync(storePath),
-    serviceOutputTail: serviceOutput().slice(-6000),
-  });
 }
 
 function writeJson(path, value) {

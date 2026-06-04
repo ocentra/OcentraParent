@@ -46,6 +46,8 @@ fn screen_cadence_tick_respects_disabled_screen_analysis_setting() {
         max_captures: Some(1),
         max_ticks: Some(1),
         max_pending_queue_records: 1,
+        temporary_image_ttl_seconds:
+            ocentra_parent_agent_protocol::SCREEN_SERVICE_TEMPORARY_IMAGE_TTL_SECONDS_DEFAULT,
         queue_dir: test_path(constants::activity_store::TEST_SCREEN_QUEUE_SUFFIX),
         journal_path: test_path(constants::activity_store::TEST_CAPTURE_JOURNAL_SUFFIX),
         journal_key_path: test_path(constants::activity_store::TEST_CAPTURE_KEY_SUFFIX),
@@ -80,6 +82,8 @@ fn screen_cadence_capture_writes_encrypted_queue_and_read_model_event() {
         max_captures: Some(1),
         max_ticks: Some(1),
         max_pending_queue_records: 3,
+        temporary_image_ttl_seconds:
+            ocentra_parent_agent_protocol::SCREEN_SERVICE_TEMPORARY_IMAGE_TTL_SECONDS_DEFAULT,
         queue_dir: root.join(constants::activity_store::TEST_SCREEN_QUEUE_SUFFIX),
         journal_path: root.join(constants::activity_store::TEST_CAPTURE_JOURNAL_SUFFIX),
         journal_key_path: root.join(constants::activity_store::TEST_CAPTURE_KEY_SUFFIX),
@@ -109,6 +113,7 @@ fn screen_cadence_capture_writes_encrypted_queue_and_read_model_event() {
         summary: SCREEN_SERVICE_SUMMARY_CAPTURED,
         model_id: SCREEN_SERVICE_MODEL_ID,
         template_version: SCREEN_SERVICE_TEMPLATE_VERSION,
+        temporary_image_ttl_seconds: config.temporary_image_ttl_seconds,
     })
     .expect(constants::error::ACTIVITY_STORE_INGESTS);
 
@@ -162,6 +167,8 @@ fn screen_cadence_tick_suppresses_when_pending_queue_is_full() {
         max_captures: Some(1),
         max_ticks: Some(1),
         max_pending_queue_records: 1,
+        temporary_image_ttl_seconds:
+            ocentra_parent_agent_protocol::SCREEN_SERVICE_TEMPORARY_IMAGE_TTL_SECONDS_DEFAULT,
         queue_dir,
         journal_path: root.join(constants::activity_store::TEST_CAPTURE_JOURNAL_SUFFIX),
         journal_key_path: root.join(constants::activity_store::TEST_CAPTURE_KEY_SUFFIX),
