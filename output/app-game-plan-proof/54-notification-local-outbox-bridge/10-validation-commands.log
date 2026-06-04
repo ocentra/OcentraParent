@@ -1,0 +1,4 @@
+Validation run:
+- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS
+- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tests/app-game-notification-local-outbox-bridge.test.ts: PASS
+- node scripts/test/app-game-notification-local-outbox-bridge-proof.mjs: PASS

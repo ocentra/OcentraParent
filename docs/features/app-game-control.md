@@ -196,6 +196,10 @@ control with better evidence and local audit.
   manual-required, and unavailable app/game states with evidence, policy, audit,
   child reason/status, minimal-payload, local-outbox-only, and
   no-provider/no-adapter claim guards.
+- App/game notification local outbox bridge proof now maps local-outbox-eligible
+  time-limit, approval request, and suspicious unknown intents into queued
+  parent-owned local outbox records with minimal ref-only envelopes, while
+  manual-required and unavailable intents remain blocked from outbox records.
 - The Rust core now has a live `sysinfo` process snapshot source that reads the
   current local process table into the existing app/game runtime record shape,
   uses opaque executable-path refs, and keeps runtime evidence from becoming
@@ -330,6 +334,10 @@ The app/game notification intent proof is contract-level: it does not provide
 provider delivery, provider receipt ingestion, parent notification UI, service
 persistence, child app/overlay delivery, policy evaluator execution, adapter
 dispatch, broad blocking, or platform support.
+The app/game notification local outbox bridge proof is also contract-level: it
+does not provide provider delivery, receipt ingestion, durable service
+persistence, parent notification UI, child-device delivery, policy evaluator
+execution, adapter dispatch, broad blocking, or platform support.
 
 ## Checklist
 
@@ -392,8 +400,10 @@ dispatch, broad blocking, or platform support.
       audit refs before bonus time extends a budget and keeps ask parent/manual
       states dry-run only. App/game notification intent contracts now tie
       approval/time-limit/manual/unavailable alert readiness to evidence,
-      policy, audit, child reason/status, and minimal payload refs, but
-      provider delivery and finished parent/child UX remain.
+      policy, audit, child reason/status, and minimal payload refs. The local
+      outbox bridge now queues eligible intent refs into parent-owned local
+      outbox records and blocks manual/unavailable intents, but provider
+      delivery and finished parent/child UX remain.
 - [ ] Child-facing reason/status is referenced in the runtime audit; finished
       child request/status UX remains. Child-facing UX contracts and
       text-domain copy tokens now cover respectful warning, approval-needed,

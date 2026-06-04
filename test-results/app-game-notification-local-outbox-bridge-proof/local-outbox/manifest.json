@@ -1,0 +1,8 @@
+{
+  "proofMode": "app-game-notification-local-outbox-bridge-proof",
+  "outboxFile": "test-results/app-game-notification-local-outbox-bridge-proof/local-outbox/outbox.jsonl",
+  "recordCount": 3,
+  "outboxFileRef": "parent-owned-app-game-notification-outbox-jsonl-ref",
+  "localDataPathRef": "parent-owned-app-game-notification-local-data-path-ref",
+  "generatedAt": "2026-06-04T19:20:52.347Z"
+}

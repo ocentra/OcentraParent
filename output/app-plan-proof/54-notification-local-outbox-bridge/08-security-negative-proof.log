@@ -1,0 +1,5 @@
+Security/no-claim proof:
+- Bridged outbox records carry refs only and exclude raw child evidence.
+- Manual-required and unavailable intents do not create outbox records.
+- Provider delivery, provider receipts, cloud routing, parent notification UI, adapter dispatch, child-device delivery, broad app blocking, and platform support remain false.
+- Local outbox JSONL proof artifact is scanned for forbidden raw-detail fragments.

@@ -1,0 +1,6 @@
+Contract proof:
+- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS
+- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tests/app-game-notification-local-outbox-bridge.test.ts: PASS
+- Local-outbox-eligible app/game notification intents create queued local outbox records.
+- Manual-required and unavailable app/game notification intents are blocked from local outbox records.
+- Invalid provider, receipt, adapter, UI, persistence, and bridge coherence claims are rejected.

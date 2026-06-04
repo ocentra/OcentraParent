@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "reasonCounts": {
+    "policy-violation": 1,
+    "parent-request": 1,
+    "suspicious-unknown": 1,
+    "device-offline": 0,
+    "sync-failure": 0,
+    "provider-failure": 0
+  },
+  "channelCounts": {
+    "push": 1,
+    "email": 1,
+    "sms": 0,
+    "whatsapp": 0,
+    "in-app": 1
+  },
+  "policyEvaluatorExecuted": false,
+  "adapterDispatchClaimed": false,
+  "broadAppBlockingClaimed": false
+}

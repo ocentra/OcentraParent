@@ -17,6 +17,10 @@
       "import": "./dist/app-game-notification-intent.js",
       "types": "./dist/app-game-notification-intent.d.ts"
     },
+    "./app-game-notification-local-outbox-bridge": {
+      "import": "./dist/app-game-notification-local-outbox-bridge.js",
+      "types": "./dist/app-game-notification-local-outbox-bridge.d.ts"
+    },
     "./app-install-purchase-approval": {
       "import": "./dist/app-install-purchase-approval.js",
       "types": "./dist/app-install-purchase-approval.d.ts"

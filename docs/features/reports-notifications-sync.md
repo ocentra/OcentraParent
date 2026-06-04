@@ -88,6 +88,12 @@ custody.
   app/game notification intents with evidence, policy, audit, child
   reason/status, minimal payload refs, local-outbox-only readiness, and explicit
   no-provider, no-cloud, no-parent-UI, and no-adapter-dispatch claims.
+- App/game notification local outbox bridge proof now maps eligible app/game
+  notification intents into queued parent-owned local outbox records with
+  minimal ref-only envelopes and records manual-required/unavailable app/game
+  intents as blocked, without provider delivery, parent notification UI,
+  adapter dispatch, durable service persistence, broad blocking, or platform
+  claims.
 - Parent-owned sync/export manifest contract proof now represents export
   manifest data classes, export formats, encryption metadata, retention/delete
   policy, connector status, sync cursor states, conflict records, import
@@ -145,6 +151,11 @@ readiness and minimal payload boundaries, but does not claim provider delivery,
 provider receipt ingestion, service persistence, child-device delivery, parent
 notification UI, policy evaluator execution, adapter dispatch, broad app
 blocking, or platform support.
+The app/game notification local outbox bridge proof adds a typed bridge from
+eligible app/game intents into parent-owned local outbox records, but does not
+claim provider delivery, receipt ingestion, durable service persistence,
+child-device delivery, parent notification UI, policy evaluator execution,
+adapter dispatch, broad app blocking, or platform support.
 The parent-owned sync/export manifest proof adds typed export/retention/delete,
 connector status, cursor, conflict, import, and delete result states, but does
 not claim real export/import/upload/download runtime, connector OAuth,
@@ -209,6 +220,11 @@ delivery, policy writes, or child-device enforcement.
       approval request, suspicious unknown, manual-required, and unavailable
       app/game alert intents, minimal payload refs, local-outbox-only readiness,
       and explicit no-provider/no-adapter/no-UI claims.
+- [x] App/game notification local outbox bridge proof exists with eligible
+      app/game alert intents mapped to queued parent-owned local outbox records
+      and manual-required/unavailable intents blocked from outbox records,
+      without provider delivery, adapter dispatch, durable service persistence,
+      parent notification UI, broad blocking, or platform claims.
 - [ ] Retention/delete controls.
 
 ## Next AI Instructions
@@ -234,6 +250,12 @@ local outbox scheduler proof only; require provider adapters, production retry
 workers, production quiet-hours timers, receipt ingestion, parent-visible
 history/preferences UI, production durable storage, and provider smoke proof
 before claiming notification delivery or product notification runtime. Treat
+`scripts/test/app-game-notification-local-outbox-bridge-proof.mjs` as
+parent-domain app/game intent-to-local-outbox bridge proof only; require service
+persistence, provider adapters, real send/retry execution, receipt ingestion,
+parent-visible notification UI, child-device delivery, adapter dispatch, broad
+blocking, and platform proof before claiming product notification runtime for
+app/game controls. Treat
 `scripts/test/parent-owned-sync-export-manifest-proof.mjs` as parent-domain
 sync/export manifest and connector-status contract proof only; require real
 transfer runtime, connector OAuth/provider artifacts, parent-visible controls,
