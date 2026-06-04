@@ -39,6 +39,9 @@ The Playwright check starts the Rust agent and Vite portal on the scaffold smoke
 - Sends typed intents and queries through `@ocentra-parent/agent-protocol-domain`.
 - Displays service-backed capability status, custody labels, evidence refs, and
   degraded states.
+- Displays the read-only Screen settings/capability catalog proof on the
+  Settings route while leaving writable opt-in and retention controls to the
+  product settings flow.
 - Displays LAN source-matrix diagnostics from the service-backed add-device read
   model so workpack/source proof status is visible in Devices/LAN and
   Activity/Network review.

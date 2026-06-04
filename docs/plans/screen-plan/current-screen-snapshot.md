@@ -43,11 +43,12 @@ static JSON-only claims, or fixture screenshots used as final proof.
 | Retention sweeper                             | `output/screen-ai-pipeline-proof/service-retention-sweeper/proof-summary.json`                                                                                       | Expired encrypted queue records are removed and visible as `expiredDeleted` screen rows over WebSocket.                                                                          | Parent retention-duration UI and cloud retention policy remain separate.                                   |
 | Live operator matrix                          | `output/screen-ai-pipeline-proof/live-operator/proof-summary.json`                                                                                                   | Nine real operator-supplied URL/app scenarios passed through real capture, local VLM, schema validation, policy dry-run, and raw image deletion.                                 | Authenticated-account social proof and managed-browser trigger ownership remain separate.                  |
 | Parent portal rendering                       | `output/screen-ai-pipeline-proof/portal-chain/proof-summary.json`                                                                                                    | Service-backed screen read model renders trigger, scope, AI/provider/category/confidence, policy eligibility, deletion, custody, queue, digest, and evidence refs in the portal. | Does not prove product-complete background watcher or broad adapters.                                      |
+| Parent Settings catalog proof                 | `output/screen-plan-proof/settings-ui/proof-summary.json`                                                                                                            | Real Rust agent plus Vite portal render the Settings route with the 474-setting Screen catalog, proof-required controls, unavailable sensitive modes, and fail-closed gates.     | Read-only catalog proof; writable opt-in/retention controls remain separate.                               |
 
 ## Known Gaps
 
-- Parent opt-in and retention UI.
-- Capability/status UI.
+- Writable parent opt-in and retention controls.
+- Live capability/status UI beyond the read-only Screen catalog proof.
 - Production OCR/VLM quality beyond controlled fixtures, proof adapters, and the
   live operator matrix.
 - Authenticated-account social proof beyond public/live surface proof.

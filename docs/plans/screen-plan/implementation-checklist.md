@@ -33,6 +33,7 @@ trigger ownership unless the row explicitly says so.
 | Retention sweeper deletion visibility    | P3 proved                | `output/screen-ai-pipeline-proof/service-retention-sweeper/proof-summary.json`                     | Proves expired queue removal and visible `expiredDeleted` rows; parent retention-duration UI and cloud retention policy remain.                                                                    |
 | Live operator capture-to-AI matrix       | P3 proved                | `output/screen-ai-pipeline-proof/live-operator/proof-summary.json`                                 | Proves nine real URL/app scenarios through capture, local VLM, schema validation, policy dry-run, and deletion; authenticated-account social proof remains.                                        |
 | Portal screen read-model proof           | P3 proved                | `output/screen-ai-pipeline-proof/portal-chain/proof-summary.json`                                  | Proves service-backed screen rows render in the portal; product-complete UX and broad adapters remain.                                                                                             |
+| Settings route screen catalog proof      | P3 proved                | `output/screen-plan-proof/settings-ui/proof-summary.json`                                          | Proves the real portal Settings route renders read-only Screen settings/capability catalog proof; writable opt-in and retention controls remain.                                                   |
 
 ## Main Gates
 
