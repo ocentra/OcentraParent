@@ -1,10 +1,12 @@
 use std::{
     collections::{BTreeSet, VecDeque},
     sync::{Arc, Mutex},
-    time::{Duration, Instant},
+    time::Duration,
 };
 
-use crate::{DeadLetterReason, EventingError, IdempotencyKey, StoredEventEnvelope};
+use crate::{
+    DeadLetterReason, EventClockInstant, EventingError, IdempotencyKey, StoredEventEnvelope,
+};
 
 use super::{
     EventQueuePolicy, NoSubscriberQueuePolicy, QueueDisposition, QueueOverflowPolicy, QueueReport,
@@ -40,6 +42,7 @@ impl EventQueue {
     pub(crate) fn enqueue_no_subscriber(
         &self,
         stored: StoredEventEnvelope,
+        now: EventClockInstant,
     ) -> Result<NoSubscriberQueueDecision, EventingError> {
         match self.policy.no_subscriber() {
             NoSubscriberQueuePolicy::DispatchWithoutSubscribers => Ok(
@@ -52,7 +55,7 @@ impl EventQueue {
                     event_type: stored.contract.event_type.as_str().to_string(),
                 },
             )),
-            NoSubscriberQueuePolicy::Queue => self.try_enqueue(stored),
+            NoSubscriberQueuePolicy::Queue => self.try_enqueue(stored, now),
         }
     }
 
@@ -107,6 +110,7 @@ impl EventQueue {
     fn try_enqueue(
         &self,
         stored: StoredEventEnvelope,
+        now: EventClockInstant,
     ) -> Result<NoSubscriberQueueDecision, EventingError> {
         let Some(capacity) = self.policy.capacity() else {
             return Err(EventingError::InvalidQueuePolicy {
@@ -132,7 +136,7 @@ impl EventQueue {
         }
         state.queued.push_back(QueuedEnvelope {
             stored,
-            enqueued_at: Instant::now(),
+            enqueued_at: now,
         });
         Ok(NoSubscriberQueueDecision::Queued(QueueReport {
             disposition: QueueDisposition::QueuedNoSubscriber,
@@ -178,12 +182,12 @@ struct EventQueueState {
 
 pub(crate) struct QueuedEnvelope {
     pub(crate) stored: StoredEventEnvelope,
-    enqueued_at: Instant,
+    enqueued_at: EventClockInstant,
 }
 
 impl QueuedEnvelope {
-    pub(crate) fn is_expired(&self, ttl: Option<Duration>) -> bool {
-        ttl.is_some_and(|ttl| self.enqueued_at.elapsed() >= ttl)
+    pub(crate) fn is_expired(&self, now: EventClockInstant, ttl: Option<Duration>) -> bool {
+        ttl.is_some_and(|ttl| now.duration_since(self.enqueued_at) >= ttl)
     }
 }
 

@@ -64,14 +64,15 @@ impl EventBus {
         let request_id = event.request_id()?;
         let receiver = self.requests.register(request_id.clone())?;
         let publish_report = self.publish(event, metadata).await?;
-        let payload = match tokio::time::timeout(options.timeout(), receiver).await {
-            Ok(Ok(payload)) => payload,
-            Ok(Err(_)) | Err(_) => {
-                self.requests.timeout(&request_id);
-                return Err(EventingError::RequestTimedOut {
-                    request_id: request_id.as_str().to_string(),
-                });
-            }
+        let payload = tokio::select! {
+            payload = receiver => payload.ok(),
+            _ = self.clock.sleep(options.timeout()) => None,
+        };
+        let Some(payload) = payload else {
+            self.requests.timeout(&request_id);
+            return Err(EventingError::RequestTimedOut {
+                request_id: request_id.as_str().to_string(),
+            });
         };
         let response = payload.decode::<E::Response>(&request_id)?;
         Ok(RequestReport {
@@ -91,6 +92,11 @@ impl EventBus {
         E: DomainEvent,
     {
         let stored = EventEnvelope::from_event(event, metadata)?.store()?;
+        if stored.is_deadline_expired(self.clock.now()) {
+            return self
+                .dead_letter_expired_deadline(stored, dispatch_mode)
+                .await;
+        }
         let subscribers = self.subscribers_for(&stored);
         if subscribers.is_empty() {
             return self
@@ -117,7 +123,27 @@ impl EventBus {
         let mut dispatch_reports = Vec::new();
 
         for queued_envelope in queued {
-            if queued_envelope.is_expired(self.queue.policy().ttl()) {
+            let now = self.clock.now();
+            if queued_envelope.stored.is_deadline_expired(now) {
+                expired_count += 1;
+                let dead_letter = DeadLetter::for_queue(
+                    &queued_envelope.stored,
+                    DeadLetterReason::DeadlineExpired,
+                    EventingError::EventDeadlineExpired {
+                        event_type: queued_envelope
+                            .stored
+                            .contract
+                            .event_type
+                            .as_str()
+                            .to_string(),
+                    },
+                );
+                self.queue
+                    .mark_completed(queued_envelope.stored.idempotency_key.clone());
+                self.dead_letters.write().await.push(dead_letter);
+                continue;
+            }
+            if queued_envelope.is_expired(now, self.queue.policy().ttl()) {
                 expired_count += 1;
                 let dead_letter = DeadLetter::for_queue(
                     &queued_envelope.stored,
@@ -188,7 +214,10 @@ impl EventBus {
         stored: StoredEventEnvelope,
         dispatch_mode: DispatchMode,
     ) -> Result<PublishReport, EventingError> {
-        match self.queue.enqueue_no_subscriber(stored.clone())? {
+        match self
+            .queue
+            .enqueue_no_subscriber(stored.clone(), self.clock.now())?
+        {
             NoSubscriberQueueDecision::Dispatch(queue_report)
             | NoSubscriberQueueDecision::Queued(queue_report) => {
                 self.record_stored_snapshot(&stored).await;
@@ -220,6 +249,34 @@ impl EventBus {
                 ))
             }
         }
+    }
+
+    async fn dead_letter_expired_deadline(
+        &self,
+        stored: StoredEventEnvelope,
+        dispatch_mode: DispatchMode,
+    ) -> Result<PublishReport, EventingError> {
+        self.record_stored_snapshot(&stored).await;
+        self.append_journal_phase(&stored, JournalDispatchPhase::BeforeDispatch)
+            .await?;
+        let dead_letter = DeadLetter::for_queue(
+            &stored,
+            DeadLetterReason::DeadlineExpired,
+            EventingError::EventDeadlineExpired {
+                event_type: stored.contract.event_type.as_str().to_string(),
+            },
+        );
+        self.queue.mark_completed(stored.idempotency_key.clone());
+        self.dead_letters.write().await.push(dead_letter);
+        self.append_journal_phase(&stored, JournalDispatchPhase::AfterDispatch)
+            .await?;
+        Ok(empty_publish_report(
+            &stored,
+            dispatch_mode,
+            self.queue
+                .report(QueueDisposition::DeadLetteredDeadlineExpired),
+            1,
+        ))
     }
 
     pub(super) async fn dispatch_stored(
@@ -289,6 +346,7 @@ impl EventBus {
                     subscribers,
                     EventPublisher::new(self.clone()),
                     self.handler_policy.clone(),
+                    self.clock.clone(),
                 )
                 .await
             }
@@ -298,6 +356,7 @@ impl EventBus {
                     subscribers,
                     EventPublisher::new(self.clone()),
                     self.handler_policy.clone(),
+                    self.clock.clone(),
                 )
                 .await
             }
@@ -312,6 +371,7 @@ impl EventBus {
                     subscribers,
                     EventPublisher::new(self.clone()),
                     self.handler_policy.clone(),
+                    self.clock.clone(),
                 )
                 .await
             }

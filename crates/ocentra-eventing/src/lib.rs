@@ -1,6 +1,7 @@
 #![forbid(unsafe_code)]
 
 mod bus;
+mod clock;
 mod envelope;
 mod error;
 mod execution;
@@ -17,6 +18,10 @@ pub use bus::{
     EventPublisher, EventSubscriber, EventTraceFields, HandlerOutcome, HandlerReport,
     PublishReport, QueueDrainReport, SubscriptionHandle, SubscriptionReport, UnsubscribeReport,
     DEAD_LETTER_RECORDED_EVENT_TYPE,
+};
+pub use clock::{
+    EventClock, EventClockInstant, EventClockSleep, ManualEventClock, SharedEventClock,
+    SystemEventClock,
 };
 pub use envelope::{
     DomainEvent, EventContract, EventCustody, EventEnvelope, EventMetadata, EventSource,

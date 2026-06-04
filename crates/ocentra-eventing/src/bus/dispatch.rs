@@ -2,7 +2,7 @@ use std::panic::AssertUnwindSafe;
 
 use futures::{future::join_all, FutureExt};
 
-use crate::{EventingError, HandlerExecutionPolicy, StoredEventEnvelope};
+use crate::{EventingError, HandlerExecutionPolicy, SharedEventClock, StoredEventEnvelope};
 
 use super::{EventPublisher, HandlerOutcome, HandlerReport, SubscriberRecord};
 
@@ -11,6 +11,7 @@ pub(super) async fn dispatch_sequential(
     subscribers: Vec<SubscriberRecord>,
     publisher: EventPublisher,
     policy: HandlerExecutionPolicy,
+    clock: SharedEventClock,
 ) -> Vec<HandlerReport> {
     let mut reports = Vec::new();
     for subscriber in subscribers {
@@ -20,6 +21,7 @@ pub(super) async fn dispatch_sequential(
                 subscriber,
                 publisher.clone(),
                 policy.clone(),
+                clock.clone(),
             )
             .await,
         );
@@ -32,6 +34,7 @@ pub(super) async fn dispatch_concurrent(
     subscribers: Vec<SubscriberRecord>,
     publisher: EventPublisher,
     policy: HandlerExecutionPolicy,
+    clock: SharedEventClock,
 ) -> Vec<HandlerReport> {
     join_all(subscribers.into_iter().map(|subscriber| {
         dispatch_one(
@@ -39,6 +42,7 @@ pub(super) async fn dispatch_concurrent(
             subscriber,
             publisher.clone(),
             policy.clone(),
+            clock.clone(),
         )
     }))
     .await
@@ -49,11 +53,32 @@ async fn dispatch_one(
     subscriber: SubscriberRecord,
     publisher: EventPublisher,
     policy: HandlerExecutionPolicy,
+    clock: SharedEventClock,
 ) -> HandlerReport {
     let subscriber_id = subscriber.id.clone();
     let target_handler = subscriber.target_handler.clone();
     for attempt in 1..=policy.max_attempts() {
-        match dispatch_attempt(stored.clone(), &subscriber, publisher.clone(), &policy).await {
+        if stored.is_deadline_expired(clock.now()) {
+            return HandlerReport::new(
+                &stored,
+                subscriber_id,
+                target_handler,
+                HandlerOutcome::DeadlineExpired,
+                Some(EventingError::EventDeadlineExpired {
+                    event_type: stored.contract.event_type.as_str().to_string(),
+                }),
+                attempt - 1,
+            );
+        }
+        match dispatch_attempt(
+            stored.clone(),
+            &subscriber,
+            publisher.clone(),
+            &policy,
+            clock.clone(),
+        )
+        .await
+        {
             AttemptOutcome::Handled => {
                 return HandlerReport::new(
                     &stored,
@@ -109,12 +134,16 @@ async fn dispatch_attempt(
     subscriber: &SubscriberRecord,
     publisher: EventPublisher,
     policy: &HandlerExecutionPolicy,
+    clock: SharedEventClock,
 ) -> AttemptOutcome {
     let attempt = AssertUnwindSafe((subscriber.handler)(stored, publisher)).catch_unwind();
     let result = match policy.timeout() {
-        Some(timeout) => tokio::time::timeout(timeout, attempt)
-            .await
-            .map_err(|_| AttemptOutcome::TimedOut),
+        Some(timeout) => {
+            tokio::select! {
+                result = attempt => Ok(result),
+                _ = clock.sleep(timeout) => Err(AttemptOutcome::TimedOut),
+            }
+        }
         None => Ok(attempt.await),
     };
     match result {

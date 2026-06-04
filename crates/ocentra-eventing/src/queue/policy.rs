@@ -111,6 +111,7 @@ pub enum QueueDisposition {
     QueuedNoSubscriber,
     DeadLetteredNoSubscriber,
     DeadLetteredQueueOverflow,
+    DeadLetteredDeadlineExpired,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]

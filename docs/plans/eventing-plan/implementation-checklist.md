@@ -95,8 +95,11 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
 - [ ] Event payloads do not carry deferred/completion handles, cancellation
       handles, disposable resources, file/socket/task handles, service
       pointers, or cleanup callbacks.
-- [ ] Manual clock controls TTL, retry, deadline, queue expiry, and request
-      timeout tests.
+- [x] Manual clock controls TTL, retry, deadline, queue expiry, and request
+      timeout tests. E-D added injectable `EventClock`, `ManualEventClock`,
+      deadline-aware envelopes/dispatch, deterministic manual-clock tests, and
+      `output/eventing-plan-proof/71-manual-clock/proof-summary.json` via
+      `scripts/test/eventing-manual-clock-proof.mjs`.
 - [ ] Duplicate subscriber registration policy is explicit and tested.
 - [ ] Shutdown/clear lifecycle drains, dead-letters, cancels, or test-clears
       state according to documented policy.

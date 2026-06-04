@@ -8,7 +8,7 @@ use tokio::sync::{RwLock, Semaphore};
 
 use crate::{
     queue::EventQueue, AggregateKey, DomainEvent, EventQueuePolicy, EventType, EventingError,
-    HandlerExecutionPolicy, JournalPolicy, RequestRegistry, SharedEventJournal,
+    HandlerExecutionPolicy, JournalPolicy, RequestRegistry, SharedEventClock, SharedEventJournal,
     StoredEventEnvelope,
 };
 
@@ -46,6 +46,7 @@ pub struct EventBus {
     requests: RequestRegistry,
     journal_policy: JournalPolicy,
     event_journal: Option<SharedEventJournal>,
+    clock: SharedEventClock,
 }
 
 impl EventBus {
@@ -60,12 +61,31 @@ impl EventBus {
             requests: RequestRegistry::default(),
             journal_policy: JournalPolicy::default(),
             event_journal: None,
+            clock: crate::SystemEventClock::shared(),
+        }
+    }
+
+    pub fn with_clock(clock: SharedEventClock) -> Self {
+        Self {
+            clock,
+            ..Self::new()
         }
     }
 
     pub fn with_handler_policy(policy: HandlerExecutionPolicy) -> Self {
         Self {
             handler_policy: policy,
+            ..Self::new()
+        }
+    }
+
+    pub fn with_handler_policy_and_clock(
+        policy: HandlerExecutionPolicy,
+        clock: SharedEventClock,
+    ) -> Self {
+        Self {
+            handler_policy: policy,
+            clock,
             ..Self::new()
         }
     }
@@ -77,6 +97,14 @@ impl EventBus {
         }
     }
 
+    pub fn with_queue_policy_and_clock(policy: EventQueuePolicy, clock: SharedEventClock) -> Self {
+        Self {
+            queue: EventQueue::new(policy),
+            clock,
+            ..Self::new()
+        }
+    }
+
     pub fn with_policies(
         handler_policy: HandlerExecutionPolicy,
         queue_policy: EventQueuePolicy,
@@ -84,6 +112,19 @@ impl EventBus {
         Self {
             handler_policy,
             queue: EventQueue::new(queue_policy),
+            ..Self::new()
+        }
+    }
+
+    pub fn with_policies_and_clock(
+        handler_policy: HandlerExecutionPolicy,
+        queue_policy: EventQueuePolicy,
+        clock: SharedEventClock,
+    ) -> Self {
+        Self {
+            handler_policy,
+            queue: EventQueue::new(queue_policy),
+            clock,
             ..Self::new()
         }
     }

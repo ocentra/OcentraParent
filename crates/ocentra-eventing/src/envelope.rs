@@ -1,8 +1,9 @@
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
 use crate::{
-    AggregateKey, CorrelationId, EventId, EventType, EventingError, IdempotencyKey, RecordedAt,
-    RuntimeInstanceId, SchemaVersion, SourceComponent, SourceService, TargetHandler,
+    AggregateKey, CorrelationId, EventClockInstant, EventId, EventType, EventingError,
+    IdempotencyKey, RecordedAt, RuntimeInstanceId, SchemaVersion, SourceComponent, SourceService,
+    TargetHandler,
 };
 
 pub trait DomainEvent: Clone + Send + Sync + Serialize + DeserializeOwned + 'static {
@@ -83,6 +84,8 @@ pub struct EventMetadata {
     pub source: EventSource,
     pub observed_at: RecordedAt,
     pub target_handler: Option<TargetHandler>,
+    #[serde(default)]
+    pub deadline: Option<EventClockInstant>,
 }
 
 impl EventMetadata {
@@ -93,6 +96,7 @@ impl EventMetadata {
             source,
             observed_at: RecordedAt::now_utc(),
             target_handler: None,
+            deadline: None,
         }
     }
 
@@ -109,7 +113,13 @@ impl EventMetadata {
             source,
             observed_at,
             target_handler,
+            deadline: None,
         }
+    }
+
+    pub fn with_deadline(mut self, deadline: EventClockInstant) -> Self {
+        self.deadline = Some(deadline);
+        self
     }
 }
 
@@ -123,6 +133,8 @@ pub struct EventEnvelope<E> {
     pub source: EventSource,
     pub observed_at: RecordedAt,
     pub target_handler: Option<TargetHandler>,
+    #[serde(default)]
+    pub deadline: Option<EventClockInstant>,
     pub payload: E,
 }
 
@@ -140,6 +152,7 @@ where
             source: metadata.source,
             observed_at: metadata.observed_at,
             target_handler: metadata.target_handler,
+            deadline: metadata.deadline,
             payload,
         })
     }
@@ -154,6 +167,7 @@ where
             source: self.source.clone(),
             observed_at: self.observed_at.clone(),
             target_handler: self.target_handler.clone(),
+            deadline: self.deadline,
             payload: serde_json::to_value(&self.payload).map_err(EventingError::payload_encode)?,
         })
     }
@@ -169,6 +183,8 @@ pub struct StoredEventEnvelope {
     pub source: EventSource,
     pub observed_at: RecordedAt,
     pub target_handler: Option<TargetHandler>,
+    #[serde(default)]
+    pub deadline: Option<EventClockInstant>,
     pub payload: serde_json::Value,
 }
 
@@ -196,7 +212,12 @@ impl StoredEventEnvelope {
             source: self.source.clone(),
             observed_at: self.observed_at.clone(),
             target_handler: self.target_handler.clone(),
+            deadline: self.deadline,
             payload,
         })
+    }
+
+    pub fn is_deadline_expired(&self, now: EventClockInstant) -> bool {
+        self.deadline.is_some_and(|deadline| now >= deadline)
     }
 }

@@ -14,6 +14,7 @@ pub enum EventingError {
     InvalidQueuePolicy { reason: String },
     NoSubscriber { event_type: String },
     QueueCapacityExceeded { event_type: String, capacity: usize },
+    EventDeadlineExpired { event_type: String },
     DuplicateInFlight { idempotency_key: String },
     DuplicateIdempotencyKey { idempotency_key: String },
     InvalidRequestOptions { reason: String },
@@ -76,6 +77,7 @@ impl fmt::Display for EventingError {
             | Self::InvalidQueuePolicy { .. }
             | Self::NoSubscriber { .. }
             | Self::QueueCapacityExceeded { .. }
+            | Self::EventDeadlineExpired { .. }
             | Self::DuplicateInFlight { .. }
             | Self::DuplicateIdempotencyKey { .. } => fmt_core_error(self, formatter),
             Self::InvalidRequestOptions { .. }
@@ -141,6 +143,9 @@ fn fmt_core_error(error: &EventingError, formatter: &mut fmt::Formatter<'_>) -> 
             formatter,
             "event queue capacity exceeded for {event_type}: {capacity}"
         ),
+        EventingError::EventDeadlineExpired { event_type } => {
+            write!(formatter, "event deadline expired for {event_type}")
+        }
         EventingError::DuplicateInFlight { idempotency_key } => {
             write!(formatter, "duplicate in-flight event: {idempotency_key}")
         }

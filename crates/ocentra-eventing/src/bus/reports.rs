@@ -66,10 +66,12 @@ impl DeadLetter {
 pub enum DeadLetterReason {
     HandlerFailed,
     HandlerTimedOut,
+    HandlerDeadlineExpired,
     HandlerPanicked,
     NoSubscriber,
     QueueOverflow,
     QueueExpired,
+    DeadlineExpired,
 }
 
 impl DeadLetterReason {
@@ -77,10 +79,12 @@ impl DeadLetterReason {
         match self {
             Self::HandlerFailed => "handler-failed",
             Self::HandlerTimedOut => "handler-timed-out",
+            Self::HandlerDeadlineExpired => "handler-deadline-expired",
             Self::HandlerPanicked => "handler-panicked",
             Self::NoSubscriber => "no-subscriber",
             Self::QueueOverflow => "queue-overflow",
             Self::QueueExpired => "queue-expired",
+            Self::DeadlineExpired => "deadline-expired",
         }
     }
 }
@@ -122,6 +126,7 @@ pub enum HandlerOutcome {
     Handled,
     Failed,
     TimedOut,
+    DeadlineExpired,
     Panicked,
 }
 
@@ -131,6 +136,7 @@ impl HandlerOutcome {
             Self::Handled => DeadLetterReason::HandlerFailed,
             Self::Failed => DeadLetterReason::HandlerFailed,
             Self::TimedOut => DeadLetterReason::HandlerTimedOut,
+            Self::DeadlineExpired => DeadLetterReason::HandlerDeadlineExpired,
             Self::Panicked => DeadLetterReason::HandlerPanicked,
         }
     }
