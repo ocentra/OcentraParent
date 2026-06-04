@@ -87,3 +87,8 @@ pub struct ActivityNetworkFlowDigest {
     pub top_destinations: Vec<ActivityNetworkFlowRollup>,
     pub unusual_indicators: Vec<ActivityNetworkFlowIndicator>,
 }
+
+#[path = "network_flow_events.rs"]
+mod network_flow_events;
+
+pub use network_flow_events::*;

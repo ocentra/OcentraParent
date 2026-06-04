@@ -80,6 +80,11 @@ and clear degraded states.
   outbound messages only as validated `AgentCommandEnvelope` values, parses
   service events as read models, keeps `AgentEvent` values as result metadata,
   and does not own event-bus publish/subscribe code.
+- E-D added Rust protocol-facing network/AI/policy/enforcement/audit/portal
+  event contracts in `crates/agent-protocol`, preserving exact chain refs and
+  no exact URL/content/adapter-action claim boundaries. This proves protocol
+  shape only; service delivery, parent/controller transport, and adapter
+  execution remain separate work.
 
 ## Current Gap
 
@@ -90,10 +95,11 @@ and support diagnostics. The reusable Rust eventing crate now has proof for
 queue/retry/TTL, request-response, durable journal/replay, panic isolation,
 typed envelopes, production shutdown, and runtime-owned bus lifecycle. The
 network runtime now consumes the reusable crate for typed publish,
-no-subscriber queue/drain, and local typed request-response. The open eventing
-gap is Parent-specific event contracts, child/parent transport handoff,
-broker-backed delivery, journal-before-action enforcement integration,
-adapter-result audit/read-model integration, and broad runtime adoption. The
+no-subscriber queue/drain, local typed request-response, and Rust
+protocol-facing network event contracts. The open eventing gap is
+Parent-specific event contracts, child/parent transport handoff, broker-backed
+delivery, journal-before-action enforcement integration, adapter-result
+audit/read-model integration, and broad runtime adoption. The
 initial UI typed-intent proof keeps the Vite/TypeScript portal as a view/input
 surface while Rust remains the business event publisher. The initial AI and
 portal direct-enforcement negative proof now rejects portal-side enforcement
@@ -115,8 +121,9 @@ raw JSON/string constants, `Uuid`, and raw domain identifier fields.
       journal/replay, production shutdown, UI typed-intent-only boundary,
       portal/AI direct-enforcement negative proof,
       weak-network-evidence command-routing guard, type-safety source gate, and
-      the network runtime chain plus queue/drain and local request-response
-      proof; Parent-specific contracts and broad runtime adoption remain.
+      the network runtime chain plus queue/drain, local request-response, and
+      Rust protocol-facing network event contract proof; Parent-specific
+      contracts and broad runtime adoption remain.
 - [ ] Policy and AI read paths.
 - [ ] Enforcement adapter dispatch with audit.
 - [ ] Capability and degraded-state reporting. Current mobile capability proof

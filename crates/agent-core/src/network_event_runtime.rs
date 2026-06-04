@@ -20,12 +20,16 @@ use crate::{
     NetworkObservation,
 };
 
+#[cfg(test)]
 mod queue;
 mod refs;
+#[cfg(test)]
 mod review;
 
+#[cfg(test)]
 pub use queue::{queue_network_runtime_flow_until_subscriber, NetworkRuntimeQueueDrainReport};
 use refs::NetworkRuntimeChainRefs;
+#[cfg(test)]
 pub use review::{
     request_network_runtime_review_for_observation, NetworkRuntimeReviewReport,
     NetworkRuntimeReviewResponse,

@@ -85,6 +85,11 @@ compete on control while staying clear about attribution confidence and privacy.
   HTTP Host, QUIC limited-visibility detection, and DoH/DoT resolver-candidate
   detection. These parsers keep exact URL, visited domain, page content, and
   decrypted payload unavailable unless stronger evidence exists.
+- E-D added Rust protocol-facing network/AI/policy/enforcement/audit/portal
+  event contracts in `crates/agent-protocol`. The proof serializes exact
+  chain refs, no exact URL/content claim boundaries, policy-decision-gated
+  enforcement commands, manual-required adapter results, audit refs, and portal
+  visibility state without claiming service delivery or host filtering.
 - Network/domain blocking is not broadly product-complete.
 - Raw network control settings are preserved as design inputs, not
   product-complete implementation proof.
@@ -92,9 +97,10 @@ compete on control while staying clear about attribution confidence and privacy.
 ## Current Gap
 
 Real OS/domain blocking adapter proof, broader DNS/VPN/proxy handling,
-attribution quality, live PCAP/analyzer fixture proof, Rust protocol parity for
-network contracts, AI detection and audit proof, risk-budget proof, performance
-proof, and parent-facing rule UX remain. Policy dispatch does not upgrade
+attribution quality, live PCAP/analyzer fixture proof, TypeScript/public export
+parity and service wiring for network event contracts, AI detection and audit
+proof, risk-budget proof, performance proof, and parent-facing rule UX remain.
+Policy dispatch does not upgrade
 network/domain blocking beyond
 manual-required, and the broad-adapter proof and supported-adapter runtime proof
 keep the same manual-required host-filter boundary. The integrity runtime audit
@@ -119,9 +125,10 @@ delivery, portal UI, and adapter apply/rollback/audit artifacts remain open.
       signature alerts remain open.
 - [ ] Reusable Rust eventing, detection, AI audit, and risk-budget contracts.
       First E-D runtime spine exists for metadata-only flow events,
-      manual-required/unavailable states, local no-subscriber queue/drain, and
-      local typed request-response; production analyzer, AI model, broker
-      delivery, and risk-budget fixtures remain.
+      manual-required/unavailable states, local no-subscriber queue/drain,
+      local typed request-response, and Rust protocol-facing network event
+      contracts; production analyzer, AI model, broker delivery, service
+      wiring, and risk-budget fixtures remain.
 - [ ] Policy preview over stored flow evidence.
 - [ ] Adapter capability status.
 - [x] Full-scope network plan, proof tiers, UI requirements, and workpacks.
