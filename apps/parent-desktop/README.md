@@ -8,7 +8,9 @@ Parent mobile runtime proof uses the same contract boundary as a shell wrapper:
 Android and iOS package mechanics may prove launch scaffolds, but parent mobile
 remains observer/request-first, routes assistant/report work to LAN service
 providers when available, exposes stale/offline cache and parent-owned storage
-states as unavailable custody paths, and never runs local model execution by
+states as unavailable custody paths, records per-route status reasons and
+selected route state, keeps package lifecycle manual-required until real
+install/update/uninstall proof exists, and never runs local model execution by
 default.
 
 Useful commands:
@@ -49,6 +51,11 @@ runtime boundary used by smoke tests:
   version/commit/platform/package/service/route fields, and the platform matrix
   keeps parent desktop, Android parent mobile, iOS parent mobile, Android child
   agent, iOS child agent, signing, store, cache/storage, and relay rows split;
+- parent mobile route-status proof: Android/iOS shell rows keep local service,
+  LAN service, cloud relay, parent cache, parent-owned storage, degraded LAN AI,
+  unavailable LAN AI, package lifecycle, and observer/request-first boundaries
+  explicit without upgrading parent mobile UX, controller authority, cloud relay,
+  store signing, or child mobile agent claims;
 - port conflict policy: package/runtime proof records fixed Ocentra Parent ports
   and does not reclaim unrelated processes.
 

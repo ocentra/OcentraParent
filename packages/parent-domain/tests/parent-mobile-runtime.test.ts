@@ -5,6 +5,7 @@ import {
   AndroidParentMobileCapabilities,
   IosObserverReadModel,
   SubmittedLanProviderReadModel,
+  UnavailableLanProviderReadModel,
 } from './parent-mobile-runtime-fixtures';
 
 describe('parent mobile runtime read model contracts', () => {
@@ -40,6 +41,15 @@ function registerAcceptedStateTests(): void {
     ]);
     expect(parsed.serviceAvailability.parentCache).toBe('stale');
     expect(parsed.serviceAvailability.parentOwnedStorage).toBe('offline');
+    expect(parsed.packageProof.packageLifecycleState).toBe('manual-required');
+    expect(parsed.controllerProof.requestBoundary).toBe('observer-read-only');
+    expect(parsed.serviceAvailability.routeStatuses.map((entry) => [entry.routeKind, entry.statusReason])).toEqual([
+      ['local-service', 'local-service-proof-required'],
+      ['lan-service', 'lan-service-degraded'],
+      ['cloud-relay', 'cloud-relay-not-implemented'],
+      ['parent-cache', 'parent-cache-stale'],
+      ['parent-owned-storage', 'parent-owned-storage-offline'],
+    ]);
   });
 
   it('ParentMobileRuntimeReadModelSchema: accepts submitted LAN provider job with provider identity', () => {
@@ -50,12 +60,27 @@ function registerAcceptedStateTests(): void {
     expect(parsed.assistantJobProof.unavailableReason).toBeNull();
   });
 
+  it('ParentMobileRuntimeReadModelSchema: accepts unavailable LAN provider route without selected custody', () => {
+    const parsed = ParentMobileRuntimeReadModelSchema.parse(UnavailableLanProviderReadModel);
+
+    const lanRoute = parsed.serviceAvailability.routeStatuses.find((entry) => entry.routeKind === 'lan-service');
+
+    expect(parsed.serviceAvailability.selectedRouteId).toBeNull();
+    expect(parsed.assistantJobProof.jobState).toBe('unavailable');
+    expect(parsed.assistantJobProof.unavailableReason).toBe('lan-ai-provider-unavailable');
+    expect(lanRoute?.state).toBe('unavailable');
+    expect(lanRoute?.custody).toBe('unavailable');
+    expect(lanRoute?.statusReason).toBe('lan-service-unavailable');
+  });
+
   it('ParentMobileRuntimeReadModelSchema: accepts iOS manual-required package state without cloud relay claim', () => {
     const parsed = ParentMobileRuntimeReadModelSchema.parse(IosObserverReadModel);
 
     expect(parsed.platform).toBe('ios');
     expect(parsed.serviceAvailability.cloudRelay).toBe('not-implemented');
     expect(parsed.assistantJobProof.jobState).toBe('unavailable');
+    expect(parsed.packageProof.packageLifecycleState).toBe('manual-required');
+    expect(parsed.controllerProof.requestBoundary).toBe('request-first-manual-required');
     expect(parsed.platformCapabilities.find((entry) => entry.capability === 'foreground-mobile-service')?.status).toBe(
       'unavailable'
     );
@@ -77,6 +102,18 @@ function registerModelClaimGuardrailTests(): void {
       ParentMobileRuntimeReadModelSchema.safeParse({
         ...AndroidObserverReadModel,
         childAgentBehaviorClaim: 'foreground-child-agent',
+      }).success
+    ).toBe(false);
+  });
+
+  it('ParentMobileRuntimeReadModelSchema: rejects package lifecycle support claims from launch scaffold proof', () => {
+    expect(
+      ParentMobileRuntimeReadModelSchema.safeParse({
+        ...AndroidObserverReadModel,
+        packageProof: {
+          ...AndroidObserverReadModel.packageProof,
+          packageLifecycleState: 'unavailable',
+        },
       }).success
     ).toBe(false);
   });
@@ -136,6 +173,19 @@ function registerControllerGuardrailTests(): void {
           controllerLeaseId: 'controller-lease-from-mobile',
           takeoverRequestAllowed: false,
           commandAuthorityState: 'active-controller-backend-proof',
+          requestBoundary: 'backend-controller-owned',
+        },
+      }).success
+    ).toBe(false);
+  });
+
+  it('ParentMobileRuntimeReadModelSchema: rejects observer state with request-first boundary', () => {
+    expect(
+      ParentMobileRuntimeReadModelSchema.safeParse({
+        ...AndroidObserverReadModel,
+        controllerProof: {
+          ...AndroidObserverReadModel.controllerProof,
+          requestBoundary: 'request-first-manual-required',
         },
       }).success
     ).toBe(false);
@@ -180,11 +230,13 @@ function registerCapabilityGuardrailTests(): void {
         controllerLeaseId: 'controller-lease-parent-mobile-proof',
         takeoverRequestAllowed: true,
         commandAuthorityState: 'active-controller-backend-proof',
+        requestBoundary: 'backend-controller-owned',
       },
     });
 
     expect(parsed.controllerProof.controllerLeaseId).toBe('controller-lease-parent-mobile-proof');
     expect(parsed.controllerProof.commandAuthorityState).toBe('active-controller-backend-proof');
+    expect(parsed.controllerProof.requestBoundary).toBe('backend-controller-owned');
     expect(parsed.childAgentBehaviorClaim).toBe('not-claimed');
   });
 }

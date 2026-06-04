@@ -87,6 +87,13 @@ PC while preserving local-first custody.
   LAN, relay, parent-cache, and parent-owned-storage route states explicit in
   `test-results/v0-9-mobile-controller-observer-runtime-proof/proof.json` and
   `test-results/parent-mobile-service-bridge-proof/proof.json`.
+- The parent mobile shell runtime proof now requires per-route status reasons,
+  custody, and selected-route state for Android/iOS local service, LAN service,
+  cloud relay, parent cache, and parent-owned storage. It also records package
+  lifecycle as manual-required, keeps Android observer/request boundary
+  read-only, keeps iOS controller takeover request-first/manual-required, and
+  proves degraded and unavailable LAN AI provider rows in
+  `test-results/parent-mobile-shell-runtime-proof/proof.json`.
 - Android/iOS package scaffolds and proof gates exist.
 - Parent desktop release-support proof separates parent mobile bridge state from
   child Android/iOS agent claims and keeps signing, stores, TestFlight, Play,
@@ -149,9 +156,13 @@ distribution remain.
 - [ ] Route status: local, LAN, relay, cache, stale, offline, unavailable.
       Current parent-mobile observer/service-bridge proofs cover explicit local,
       LAN, cloud-relay, parent-cache, and parent-owned-storage route states, with
-      LAN AI degraded and unavailable provider states separated. Real cloud
-      relay, parent-owned storage/cache freshness, and physical household LAN
-      remain unimplemented or manual-required.
+      LAN AI degraded and unavailable provider states separated. The parent
+      mobile shell runtime proof now adds route status reasons, custody, selected
+      route ids, stale cache, offline parent-owned storage, cloud relay
+      not-implemented, package lifecycle manual-required, and controller
+      observer/request-first boundaries. Real cloud relay, parent-owned
+      storage/cache freshness, and physical household LAN remain unimplemented
+      or manual-required.
 - [ ] Optional relay without default child-data custody. Current production LAN
       proof and signed discovery/relay spine explicitly mark relay route, queued
       relay, cache route, and parent-owned storage unavailable/not implemented
@@ -174,9 +185,9 @@ distribution remain.
 - [ ] Parent mobile app proof separated from child mobile agent proof.
       Current release-support and V0.9 parent-mobile observer proofs model this
       split for handoff/reporting, route status, controller lease, LAN AI
-      provider state, and explicit no-child-agent-parity claims, but real parent
-      mobile UX, store signing, controller authority, and child mobile agent
-      proof remain.
+      provider state, package lifecycle, and explicit no-child-agent-parity
+      claims, but real parent mobile UX, store signing, controller authority,
+      and child mobile agent proof remain.
 
 ## Next AI Instructions
 

@@ -116,6 +116,14 @@ async function main() {
   const scriptProof = await assertScriptWiring();
 
   assertRuntimeModel(runtimeModels.androidObserver, 'android');
+  assertRuntimeModel(runtimeModels.androidLanUnavailable, 'android');
+  assertRouteState(runtimeModels.androidLanUnavailable, 'lan-service', 'unavailable', 'Android LAN route unavailable');
+  assertRouteReason(
+    runtimeModels.androidLanUnavailable,
+    'lan-service',
+    'lan-service-unavailable',
+    'Android LAN route unavailable reason'
+  );
   assertRuntimeModel(runtimeModels.iosObserver, 'ios');
 
   const proof = {
@@ -138,6 +146,7 @@ async function main() {
     },
     runtimeProof: {
       androidObserver: summarizeRuntimeModel(runtimeModels.androidObserver),
+      androidLanUnavailable: summarizeRuntimeModel(runtimeModels.androidLanUnavailable),
       iosObserver: summarizeRuntimeModel(runtimeModels.iosObserver),
       platformCapabilities: capabilityProof,
       localModelExecutionDefault: 'disabled-by-default',
@@ -178,6 +187,8 @@ async function parentMobileRuntimeModels() {
       packageState: 'ci-mechanical-proof',
       launchTarget: 'ca.ocentra.parent.agent/.MainActivity',
       proofCommand: 'cmd /c npm run release:package:android',
+      packageLifecycleState: 'manual-required',
+      packageLifecycleProofRequirement: 'Android install launch background update and uninstall proof',
       signingState: 'manual-required',
       storeDistributionState: 'manual-required',
     },
@@ -187,6 +198,7 @@ async function parentMobileRuntimeModels() {
       controllerLeaseId: null,
       takeoverRequestAllowed: false,
       commandAuthorityState: 'observer-read-only',
+      requestBoundary: 'observer-read-only',
     },
     assistantJobProof: {
       route: 'lan-ai-provider',
@@ -202,6 +214,16 @@ async function parentMobileRuntimeModels() {
     platformCapabilities: androidParentMobileCapabilities,
     updatedAt: '2026-05-28T16:00:00.000Z',
   });
+  const androidLanUnavailable = module.ParentMobileRuntimeReadModelSchema.parse({
+    ...androidObserver,
+    serviceAvailability: serviceAvailability('manual-required', 'unavailable', null),
+    assistantJobProof: {
+      ...androidObserver.assistantJobProof,
+      jobState: 'unavailable',
+      providerId: null,
+      unavailableReason: 'lan-ai-provider-unavailable',
+    },
+  });
   const iosObserver = module.ParentMobileRuntimeReadModelSchema.parse({
     schemaVersion: 'v0.9-parent-mobile-shell',
     parentDeviceId: 'parent-mobile-ios-observer',
@@ -211,6 +233,8 @@ async function parentMobileRuntimeModels() {
       packageState: 'ci-mechanical-proof',
       launchTarget: 'ca.ocentra.parent.agent',
       proofCommand: 'bash scripts/release/ios/build-simulator-app.sh',
+      packageLifecycleState: 'manual-required',
+      packageLifecycleProofRequirement: 'iOS install launch background update and uninstall proof',
       signingState: 'manual-required',
       storeDistributionState: 'manual-required',
     },
@@ -220,6 +244,7 @@ async function parentMobileRuntimeModels() {
       controllerLeaseId: null,
       takeoverRequestAllowed: true,
       commandAuthorityState: 'controller-takeover-manual-required',
+      requestBoundary: 'request-first-manual-required',
     },
     assistantJobProof: {
       route: 'unavailable',
@@ -236,7 +261,7 @@ async function parentMobileRuntimeModels() {
     updatedAt: '2026-05-28T16:00:00.000Z',
   });
   proofLabels.push('parent-mobile-runtime.contract-parse');
-  return { androidObserver, iosObserver };
+  return { androidObserver, androidLanUnavailable, iosObserver };
 }
 
 async function assertPackageShells() {
@@ -269,6 +294,7 @@ async function assertPackageShells() {
       state: 'ci-mechanical-proof',
       launchTarget: 'ca.ocentra.parent.agent/.MainActivity',
       packageCommand: 'cmd /c npm run release:package:android',
+      packageLifecycleState: 'manual-required',
       evidenceFiles: [
         'platforms/android/agent/app/src/main/AndroidManifest.xml',
         'platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/MainActivity.java',
@@ -279,6 +305,7 @@ async function assertPackageShells() {
       state: 'ci-mechanical-proof',
       launchTarget: 'ca.ocentra.parent.agent',
       packageCommand: 'bash scripts/release/ios/build-simulator-app.sh',
+      packageLifecycleState: 'manual-required',
       evidenceFiles: [
         'platforms/ios/OcentraParentAgent.xcodeproj/project.pbxproj',
         'platforms/ios/OcentraParentAgent/AgentStatusViewController.swift',
@@ -375,13 +402,29 @@ function assertRuntimeModel(readModel, platform) {
   if (readModel.serviceAvailability.cloudRelay !== 'not-implemented') {
     throw new Error(`${platform} parent mobile model must keep cloud relay not implemented.`);
   }
+  if (readModel.packageProof.packageLifecycleState !== 'manual-required') {
+    throw new Error(`${platform} parent mobile package lifecycle must remain manual-required.`);
+  }
   assertRouteState(readModel, 'parent-cache', 'stale', `${platform} parent cache state`);
+  assertRouteReason(readModel, 'parent-cache', 'parent-cache-stale', `${platform} parent cache reason`);
   assertRouteState(readModel, 'parent-owned-storage', 'offline', `${platform} parent-owned storage state`);
+  assertRouteReason(
+    readModel,
+    'parent-owned-storage',
+    'parent-owned-storage-offline',
+    `${platform} parent-owned storage reason`
+  );
   if (platform === 'android' && readModel.controllerProof.commandAuthorityState !== 'observer-read-only') {
     throw new Error('Android parent mobile proof must remain observer read-only until real package proof exists.');
   }
+  if (platform === 'android' && readModel.controllerProof.requestBoundary !== 'observer-read-only') {
+    throw new Error('Android parent mobile proof must keep observer request boundary read-only.');
+  }
   if (platform === 'ios' && readModel.controllerProof.commandAuthorityState !== 'controller-takeover-manual-required') {
     throw new Error('iOS parent mobile proof must keep controller takeover manual-required.');
+  }
+  if (platform === 'ios' && readModel.controllerProof.requestBoundary !== 'request-first-manual-required') {
+    throw new Error('iOS parent mobile proof must keep controller takeover request-first manual-required.');
   }
 }
 
@@ -389,17 +432,17 @@ function summarizeRuntimeModel(readModel) {
   return {
     platform: readModel.platform,
     packageState: readModel.packageProof.packageState,
+    packageLifecycleState: readModel.packageProof.packageLifecycleState,
     controllerState: readModel.controllerProof.controllerState,
     takeoverRequestAllowed: readModel.controllerProof.takeoverRequestAllowed,
     commandAuthorityState: readModel.controllerProof.commandAuthorityState,
+    requestBoundary: readModel.controllerProof.requestBoundary,
     localService: readModel.serviceAvailability.localService,
     lanService: readModel.serviceAvailability.lanService,
     cloudRelay: readModel.serviceAvailability.cloudRelay,
     parentCache: readModel.serviceAvailability.parentCache,
     parentOwnedStorage: readModel.serviceAvailability.parentOwnedStorage,
-    routeStatuses: Object.fromEntries(
-      readModel.serviceAvailability.routeStatuses.map((entry) => [entry.routeKind, entry.state])
-    ),
+    routeStatuses: Object.fromEntries(readModel.serviceAvailability.routeStatuses.map(routeStatusSummary)),
     assistantJobRoute: readModel.assistantJobProof.route,
     assistantJobState: readModel.assistantJobProof.jobState,
     capabilityStates: summarizeCapabilityStates(readModel.platformCapabilities),
@@ -410,6 +453,18 @@ function summarizeRuntimeModel(readModel) {
 
 function summarizeCapabilityStates(entries) {
   return Object.fromEntries(entries.map((entry) => [entry.capability, entry.status]));
+}
+
+function routeStatusSummary(entry) {
+  return [
+    entry.routeKind,
+    {
+      state: entry.state,
+      custody: entry.custody,
+      selectedRouteId: entry.selectedRouteId,
+      statusReason: entry.statusReason,
+    },
+  ];
 }
 
 function capabilityProof(capability, status, proofRequirement, claimBoundary) {
@@ -425,8 +480,18 @@ function serviceAvailability(localService, lanService, selectedRouteId) {
     parentOwnedStorage: 'offline',
     selectedRouteId,
     routeStatuses: [
-      routeStatus('local-service', localService, 'local-service', null),
-      routeStatus('lan-service', lanService, 'lan-service', selectedRouteId),
+      routeStatus(
+        'local-service',
+        localService,
+        localService === 'unavailable' ? 'unavailable' : 'local-service',
+        null
+      ),
+      routeStatus(
+        'lan-service',
+        lanService,
+        lanService === 'unavailable' ? 'unavailable' : 'lan-service',
+        selectedRouteId
+      ),
       routeStatus('cloud-relay', 'not-implemented', 'unavailable', null),
       routeStatus('parent-cache', 'stale', 'parent-cache', null),
       routeStatus('parent-owned-storage', 'offline', 'parent-owned-storage', null),
@@ -440,6 +505,7 @@ function routeStatus(routeKind, state, custody, selectedRouteId) {
     state,
     custody,
     selectedRouteId,
+    statusReason: routeStatusReason(routeKind, state),
     proofRequirement: `${routeKind} status must stay explicit in the parent mobile shell read model`,
   };
 }
@@ -449,6 +515,41 @@ function assertRouteState(readModel, routeKind, expectedState, label) {
   if (routeStatus?.state !== expectedState) {
     throw new Error(`${label}: expected ${expectedState}, received ${routeStatus?.state ?? 'missing'}`);
   }
+}
+
+function assertRouteReason(readModel, routeKind, expectedReason, label) {
+  const routeStatus = readModel.serviceAvailability.routeStatuses.find((entry) => entry.routeKind === routeKind);
+  if (routeStatus?.statusReason !== expectedReason) {
+    throw new Error(`${label}: expected ${expectedReason}, received ${routeStatus?.statusReason ?? 'missing'}`);
+  }
+}
+
+function routeStatusReason(routeKind, state) {
+  if (routeKind === 'cloud-relay') {
+    return 'cloud-relay-not-implemented';
+  }
+
+  if (routeKind === 'parent-cache') {
+    return state === 'unavailable' ? 'parent-cache-unavailable' : 'parent-cache-stale';
+  }
+
+  if (routeKind === 'parent-owned-storage') {
+    return state === 'unavailable' ? 'parent-owned-storage-unavailable' : 'parent-owned-storage-offline';
+  }
+
+  if (state === 'available') {
+    return `${routeKind}-available`;
+  }
+
+  if (state === 'degraded') {
+    return `${routeKind}-degraded`;
+  }
+
+  if (state === 'unavailable') {
+    return `${routeKind}-unavailable`;
+  }
+
+  return `${routeKind}-proof-required`;
 }
 
 async function readRepoFile(path) {

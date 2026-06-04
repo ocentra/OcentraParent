@@ -42,3 +42,8 @@ network filtering, location, notification delivery, or store readiness.
   claims.
 - Parent mobile and child mobile are separate products and must not be merged
   into one vague "mobile support" claim.
+- Parent mobile shell route-status proof is contract/CI proof only: it keeps
+  local service, LAN service, relay, cache, storage, package lifecycle, degraded
+  and unavailable LAN AI, and observer/request-first boundaries explicit, but
+  real mobile UX, controller authority, signing, stores, and child mobile agent
+  runtime support remain unclaimed.

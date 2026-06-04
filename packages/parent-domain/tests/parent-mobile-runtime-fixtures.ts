@@ -102,6 +102,8 @@ export const AndroidObserverReadModel = {
     packageState: 'ci-mechanical-proof',
     launchTarget: 'ca.ocentra.parent.agent/.MainActivity',
     proofCommand: 'cmd /c npm run release:package:android',
+    packageLifecycleState: 'manual-required',
+    packageLifecycleProofRequirement: 'Android install launch background update and uninstall proof',
     signingState: 'manual-required',
     storeDistributionState: 'manual-required',
   },
@@ -111,6 +113,7 @@ export const AndroidObserverReadModel = {
     controllerLeaseId: null,
     takeoverRequestAllowed: false,
     commandAuthorityState: 'observer-read-only',
+    requestBoundary: 'observer-read-only',
   },
   assistantJobProof: {
     route: 'lan-ai-provider',
@@ -136,6 +139,8 @@ export const IosObserverReadModel = {
     packageState: 'ci-mechanical-proof',
     launchTarget: 'ca.ocentra.parent.agent',
     proofCommand: 'bash scripts/release/ios/build-simulator-app.sh',
+    packageLifecycleState: 'manual-required',
+    packageLifecycleProofRequirement: 'iOS install launch background update and uninstall proof',
     signingState: 'manual-required',
     storeDistributionState: 'manual-required',
   },
@@ -145,6 +150,7 @@ export const IosObserverReadModel = {
     controllerLeaseId: null,
     takeoverRequestAllowed: true,
     commandAuthorityState: 'controller-takeover-manual-required',
+    requestBoundary: 'request-first-manual-required',
   },
   assistantJobProof: {
     route: 'unavailable',
@@ -172,6 +178,22 @@ export const SubmittedLanProviderReadModel = {
   },
 } as const;
 
+export const UnavailableLanProviderReadModel = {
+  ...AndroidObserverReadModel,
+  serviceAvailability: {
+    ...AndroidObserverReadModel.serviceAvailability,
+    lanService: 'unavailable',
+    selectedRouteId: null,
+    routeStatuses: parentMobileRouteStatuses('manual-required', 'unavailable', null),
+  },
+  assistantJobProof: {
+    ...AndroidObserverReadModel.assistantJobProof,
+    jobState: 'unavailable',
+    providerId: null,
+    unavailableReason: 'lan-ai-provider-unavailable',
+  },
+} as const;
+
 function serviceAvailability(
   localService: ParentMobileServiceAvailabilityState,
   lanService: ParentMobileServiceAvailabilityState,
@@ -194,8 +216,13 @@ function parentMobileRouteStatuses(
   selectedRouteId: ParentMobileFixtureRouteId
 ) {
   return [
-    routeStatus('local-service', localService, 'local-service', null),
-    routeStatus('lan-service', lanService, 'lan-service', selectedRouteId),
+    routeStatus('local-service', localService, localService === 'unavailable' ? 'unavailable' : 'local-service', null),
+    routeStatus(
+      'lan-service',
+      lanService,
+      lanService === 'unavailable' ? 'unavailable' : 'lan-service',
+      selectedRouteId
+    ),
     routeStatus('cloud-relay', 'not-implemented', 'unavailable', null),
     routeStatus('parent-cache', 'stale', 'parent-cache', null),
     routeStatus('parent-owned-storage', 'offline', 'parent-owned-storage', null),
@@ -213,6 +240,38 @@ function routeStatus(
     state,
     custody,
     selectedRouteId,
+    statusReason: routeStatusReason(routeKind, state),
     proofRequirement: `${routeKind} status must stay explicit in the parent mobile shell read model`,
   };
+}
+
+function routeStatusReason(
+  routeKind: 'local-service' | 'lan-service' | 'cloud-relay' | 'parent-cache' | 'parent-owned-storage',
+  state: ParentMobileServiceAvailabilityState
+) {
+  if (routeKind === 'cloud-relay') {
+    return 'cloud-relay-not-implemented';
+  }
+
+  if (routeKind === 'parent-cache') {
+    return state === 'unavailable' ? 'parent-cache-unavailable' : 'parent-cache-stale';
+  }
+
+  if (routeKind === 'parent-owned-storage') {
+    return state === 'unavailable' ? 'parent-owned-storage-unavailable' : 'parent-owned-storage-offline';
+  }
+
+  if (state === 'available') {
+    return `${routeKind}-available`;
+  }
+
+  if (state === 'degraded') {
+    return `${routeKind}-degraded`;
+  }
+
+  if (state === 'unavailable') {
+    return `${routeKind}-unavailable`;
+  }
+
+  return `${routeKind}-proof-required`;
 }
