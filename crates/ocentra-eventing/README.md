@@ -38,6 +38,9 @@ Reusable Rust eventing primitives for Ocentra Parent runtime code.
 - Typed event-family enum/wrapper variants for lineage patterns where one
   family subscriber handles concrete variants without downcasts, loose strings,
   or JSON shape inspection.
+- Generated `EventTopologyManifest` proof docs for registered event contracts,
+  explicit publishers, subscribers, family variants, orphan states, and
+  accepted one-sided states.
 - Durable `EventJournal` support with async NDJSON append, optional hash-chain
   records, selected journaling by event type/namespace/allowlist, replay
   cursors and filters, explicit projection-only replay mode, and journal
@@ -60,6 +63,7 @@ Reusable Rust eventing primitives for Ocentra Parent runtime code.
 ## Current Gap
 
 This crate does not yet implement production shutdown/drain lifecycle,
-broker-backed delivery, event topology manifests, or Parent-specific event
-contracts. Consumers must keep those claims manual-required until the matching
-eventing workpacks are implemented and validated.
+broker-backed delivery, Parent-specific event contracts, or whole-repo source
+scanning for topology discovery. Consumers must keep those claims
+manual-required until the matching eventing workpacks are implemented and
+validated.

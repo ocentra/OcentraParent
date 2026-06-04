@@ -122,6 +122,11 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       descriptors, stored-contract mismatch rejection, and
       `output/eventing-plan-proof/75-family-variants/proof-summary.json` via
       `scripts/test/eventing-family-variant-proof.mjs`.
+- [x] Event topology manifest records publishers, subscribers, event-family
+      variants, no-publisher, no-subscriber, and accepted one-sided event
+      states. E-D added `EventTopologyManifest`, generated Markdown proof, and
+      `output/eventing-plan-proof/70-topology-manifest/proof-summary.json` via
+      `scripts/test/eventing-topology-manifest-proof.mjs`.
 - [ ] Runtime owns the bus explicitly; reusable crate exposes no hidden global
       singleton.
 - [ ] Lock-held-await source audit passes.
@@ -233,7 +238,7 @@ file.
 | 67   | Borrow/await and no lock-held-await source audit                               | [x]    | E-D        | `codex/eventing-network-runtime-implementation` | `output/eventing-plan-proof/67-lock-await/proof-summary.json`, `eventing-lock-await-proof.mjs`                     | No production `.lock().await`; async ordering gates are explicit.                                          |
 | 68   | TypeScript/Rust branded fixture parity                                         | [ ]    | -          | -                                               | -                                                                                                                  | Open.                                                                                                      |
 | 69   | Unity/TypeScript semantics conformance matrix and compatibility suite          | [ ]    | -          | -                                               | -                                                                                                                  | Open.                                                                                                      |
-| 70   | Event topology manifest and orphan publisher/subscriber audit                  | [ ]    | -          | -                                               | -                                                                                                                  | Open.                                                                                                      |
+| 70   | Event topology manifest and orphan publisher/subscriber audit                  | [x]    | E-D        | `codex/eventing-network-runtime-implementation` | `output/eventing-plan-proof/70-topology-manifest/proof-summary.json`, `eventing-topology-manifest-proof.mjs`       | Manifest classifies covered, no-publisher, no-subscriber, accepted one-sided, and family variant states.   |
 | 71   | Manual clock deterministic TTL, retry, deadline, and request-timeout proof     | [x]    | E-D        | `codex/eventing-network-runtime-implementation` | `output/eventing-plan-proof/71-manual-clock/proof-summary.json`, `eventing-manual-clock-proof.mjs`                 | Manual clock covers TTL, deadline, retry, handler timeout, and request-timeout proof without long sleeps.  |
 | 72   | Event contract registry and generated documentation                            | [x]    | E-D        | `codex/eventing-network-runtime-implementation` | `output/eventing-plan-proof/72-contract-registry/proof-summary.json`, `eventing-contract-registry-proof.mjs`       | Registry rejects duplicate event types and renders deterministic generated Markdown docs.                  |
 | 73   | Duplicate subscription policy and constrained force/republish override         | [x]    | E-D        | `codex/eventing-network-runtime-implementation` | `output/eventing-plan-proof/73-duplicate-subscriber/proof-summary.json`, `eventing-duplicate-subscriber-proof.mjs` | Duplicate subscriber ids reject with explicit error; constrained republish override remains unclaimed.     |

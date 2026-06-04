@@ -13,6 +13,7 @@ mod registrar;
 mod replay;
 mod request;
 mod testkit;
+mod topology;
 
 pub use bus::{
     DeadLetter, DeadLetterEvent, DeadLetterReason, DispatchMode, EventBus, EventBusClearReport,
@@ -54,6 +55,10 @@ pub use request::{
     RequestOptions, RequestReport,
 };
 pub use testkit::EventRecorder;
+pub use topology::{
+    EventTopologyEntry, EventTopologyFamilyVariant, EventTopologyManifest, EventTopologyPublisher,
+    EventTopologyStatus, EventTopologySubscriber, EventTopologySubscriberTarget,
+};
 
 #[cfg(test)]
 mod tests;

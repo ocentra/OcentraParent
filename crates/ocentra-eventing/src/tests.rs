@@ -8,4 +8,5 @@ mod lifecycle;
 mod lifecycle_clear;
 mod queue;
 mod request_response;
+mod topology_manifest;
 mod typed_boundary;
