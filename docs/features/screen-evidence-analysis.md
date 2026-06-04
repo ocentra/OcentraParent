@@ -117,6 +117,12 @@ only with explicit parent settings.
   Windows Rust service time-limit adapter path. The proof preserves the screen
   policy decision ID and evidence refs through dispatch, restart recovery,
   parent cancel, expiry, and a real Windows process-termination result.
+- `scripts/test/screen-ai-block-action-dispatch-proof.mjs` now links a
+  screen-derived block decision into the real Windows Rust service
+  owned-process block adapter path. The proof preserves the screen policy
+  decision ID, local AI result ID, and evidence refs through dispatch and
+  terminates a controlled owned process. It intentionally does not claim
+  category, browser, network/domain, mobile, or broad block adapters.
 - `scripts/test/screen-ai-portal-chain-proof.mjs` now proves the real Rust
   service read model reaches the parent portal Activity Screen tab and renders
   trigger, capture scope, AI provider/category/confidence, policy eligibility,
