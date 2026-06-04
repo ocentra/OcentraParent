@@ -70,6 +70,8 @@ pub const ACTION_PREVIEW_TIME_LIMIT_SUMMARY: &str =
 pub const ACTION_PREVIEW_NONE_SUMMARY: &str = "No backend action is prepared from this answer.";
 pub const ACTION_PREVIEW_DRAFT_REASON: &str =
     "Action preview is a draft only. Controller lease and child-agent contract are required before changes.";
+pub const ACTION_PREVIEW_AUDIT_REASON: &str =
+    "Preview generated from cited parent-owned evidence; child-agent validation is still required.";
 pub const THREAD_TITLE_DEFAULT: &str = "Parent Assistant local thread";
 pub const THREAD_STORAGE_DIR: &str = "parent-assistant-threads";
 pub const THREAD_STORAGE_FILE: &str = "threads.json";
@@ -83,6 +85,12 @@ pub const THREAD_STORAGE_UNAVAILABLE_REASON: &str = "parent-assistant-thread-sto
 pub const RUN_NOT_RUNNING_REASON: &str = "parent-assistant-run-not-running";
 pub const ACTION_CONFIRM_CONTRACT_REQUIRED_REASON: &str =
     "Controller lease and child-agent policy contract are required before applying this action.";
+pub const ACTION_CONFIRM_PREVIEW_REQUIRED_REASON: &str =
+    "Action confirmation rejected because no matching preview id was provided.";
+pub const ACTION_CONFIRM_RAW_PROSE_REJECTED_REASON: &str =
+    "Action confirmation rejected because raw assistant prose is not an executable action intent.";
+pub const ACTION_CONFIRM_AUDIT_REASON: &str =
+    "Parent confirmation cannot write policy until child-agent validation is wired.";
 pub const REQUIRED_CHILD_CONTRACT_POLICY_WRITE: &str = "child-agent-policy-write-contract";
 pub const QUESTION_POLICY_HINT: &str = "policy";
 pub const QUESTION_RULE_HINT: &str = "rule";

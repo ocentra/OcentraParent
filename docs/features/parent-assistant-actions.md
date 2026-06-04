@@ -49,6 +49,11 @@ configure, explain, and preview rules.
   busy providers degrade or queue without duplicate runtime loads, unavailable
   states remain cited and explicit, API AI stays optional, and action
   preview/confirm cannot write policy or enforce directly.
+- Parent Assistant action preview/confirm now has a service-backed boundary that
+  requires a preview id before confirmation, rejects raw assistant prose as an
+  executable action, preserves cited source refs and audit reason, and returns
+  explicit child-agent contract-required/unavailable state without writing
+  policy or enforcing.
 - Finished portal chat/action flow is not done.
 
 ## Current Gap
@@ -56,16 +61,18 @@ configure, explain, and preview rules.
 Assistant threads, provider status UI, parent approval, child-agent validation,
 real API provider adapters, and rule-writing flow are incomplete as one product
 flow. Saved report citations, cited answers, action previews, and backend
-provider routing have runtime proof, but the portal chat surface still needs
-C-owned integration. MIA evidence context remains read-model/report citation
-context only; it does not transfer raw child evidence, write policy, or enforce
-on child devices.
+provider routing have runtime proof, and preview-before-confirm is now enforced
+at the service boundary, but the portal chat surface still needs C-owned
+integration. MIA evidence context remains read-model/report citation context
+only; it does not transfer raw child evidence, write policy, enforce on child
+devices, or validate actions through a real child-agent policy contract.
 
 ## Checklist
 
 - [ ] Assistant thread contract.
 - [x] Evidence-cited answer contract.
 - [x] Action preview contract.
+- [x] Preview-before-confirm backend boundary.
 - [ ] Draft rule/schedule/approval actions.
 - [x] Provider status and degraded state.
 - [ ] Parent confirmation before write.

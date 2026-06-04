@@ -11,15 +11,15 @@ use ocentra_parent_agent_protocol::{
     ActivityReportSourceState, ActivitySavedReportMetadata, ActivitySavedReportState,
     ActivitySurfaceScope, ActivitySurfaceScopeKind, AgentCommandEnvelope, AgentCommandName,
     AgentEventName, AgentMessageTarget, AgentPeer, AgentPeerRole, AgentRoute, LogFieldValue,
-    LogLevel, ParentAssistantActionConfirmResult, ParentAssistantActionPreviewKind,
-    ParentAssistantActionPreviewResult, ParentAssistantActionPreviewState,
-    ParentAssistantApiAuthorizationState, ParentAssistantApiProviderAccessState,
-    ParentAssistantBackendState, ParentAssistantEvidenceContext,
-    ParentAssistantProviderRoutingState, ParentAssistantProviderSelection,
-    ParentAssistantProviderState, ParentAssistantProviderStatus, ParentAssistantRunCancelResult,
-    ParentAssistantRunCancelState, ParentAssistantRunState, ParentAssistantThreadResponse,
-    ParentAssistantThreadState, ParentEvidenceReference, ParentEvidenceReferenceKind,
-    AGENT_PROTOCOL_SCHEMA_VERSION,
+    LogLevel, ParentAssistantActionConfirmResult, ParentAssistantActionConfirmState,
+    ParentAssistantActionPreviewKind, ParentAssistantActionPreviewResult,
+    ParentAssistantActionPreviewState, ParentAssistantApiAuthorizationState,
+    ParentAssistantApiProviderAccessState, ParentAssistantBackendState,
+    ParentAssistantEvidenceContext, ParentAssistantProviderRoutingState,
+    ParentAssistantProviderSelection, ParentAssistantProviderState, ParentAssistantProviderStatus,
+    ParentAssistantRunCancelResult, ParentAssistantRunCancelState, ParentAssistantRunState,
+    ParentAssistantThreadResponse, ParentAssistantThreadState, ParentEvidenceReference,
+    ParentEvidenceReferenceKind, AGENT_PROTOCOL_SCHEMA_VERSION,
 };
 
 use crate::{
@@ -338,7 +338,13 @@ fn parent_assistant_action_preview_returns_draft_without_policy_write_or_enforce
         ParentAssistantActionPreviewKind::PolicySuggestion
     );
     assert!(result.requires_controller_lease);
+    assert!(result.preview_required);
+    assert!(result.preview_satisfied);
+    assert!(!result.raw_assistant_prose_accepted);
+    assert!(result.parent_confirmation_required);
+    assert!(!result.parent_confirmation_recorded);
     assert_eq!(result.evidence_context.len(), 2);
+    assert_eq!(result.source_refs.len(), 2);
     let report_context = result
         .evidence_context
         .iter()
@@ -368,16 +374,32 @@ fn parent_assistant_action_preview_returns_draft_without_policy_write_or_enforce
     assert!(!result.preview.enforcement_applied);
 }
 
+macro_rules! assert_rejected_action_confirm {
+    ($result:expr, $reason:expr) => {{
+        assert_eq!(
+            $result.confirm_state,
+            ParentAssistantActionConfirmState::Rejected
+        );
+        assert!(!$result.preview_satisfied);
+        assert_eq!($result.reason, $reason);
+        assert!(!$result.enforcement_applied);
+        assert!(!$result.policy_written);
+    }};
+}
+
 #[test]
 fn parent_assistant_action_confirm_requires_child_contract_without_enforcement() {
+    let intent = (
+        constants::parent_assistant::FIELD_ACTION_INTENT_ID,
+        LogFieldValue::String(constants::parent_assistant::DEFAULT_ACTION_INTENT_ID.to_string()),
+    );
+    let preview = (
+        constants::field::PARENT_ASSISTANT_ACTION_PREVIEW_ID,
+        LogFieldValue::String(constants::parent_assistant::DEFAULT_PREVIEW_ID.to_string()),
+    );
     let event = build_parent_assistant_scaffold_event(command(
         AgentCommandName::AgentParentAssistantActionConfirm,
-        fields_from_pairs(vec![(
-            constants::parent_assistant::FIELD_ACTION_INTENT_ID,
-            LogFieldValue::String(
-                constants::parent_assistant::DEFAULT_ACTION_INTENT_ID.to_string(),
-            ),
-        )]),
+        fields_from_pairs(vec![intent.clone(), preview.clone()]),
     ));
     let result = action_confirm_payload(
         &event.payload[constants::parent_assistant::FIELD_ACTION_CONFIRM_RESULT],
@@ -391,10 +413,59 @@ fn parent_assistant_action_confirm_requires_child_contract_without_enforcement()
         result.backend_state,
         ParentAssistantBackendState::ContractRequired
     );
+    assert_eq!(
+        result.confirm_state,
+        ParentAssistantActionConfirmState::ContractRequired
+    );
+    assert_eq!(
+        result.preview_id.as_deref(),
+        Some(constants::parent_assistant::DEFAULT_PREVIEW_ID)
+    );
+    assert!(result.preview_required);
+    assert!(result.preview_satisfied);
+    assert!(!result.raw_assistant_prose_accepted);
+    assert!(result.parent_confirmation_required);
+    assert!(!result.parent_confirmation_recorded);
+    assert_eq!(result.source_refs.len(), 1);
     assert!(result.requires_controller_lease);
     assert!(result.child_agent_contract_required);
     assert!(!result.enforcement_applied);
     assert!(!result.policy_written);
+
+    let missing_preview_event = build_parent_assistant_scaffold_event(command(
+        AgentCommandName::AgentParentAssistantActionConfirm,
+        fields_from_pairs(vec![intent.clone()]),
+    ));
+    let missing_preview = action_confirm_payload(
+        &missing_preview_event.payload[constants::parent_assistant::FIELD_ACTION_CONFIRM_RESULT],
+    );
+    assert_rejected_action_confirm!(
+        missing_preview,
+        constants::parent_assistant::ACTION_CONFIRM_PREVIEW_REQUIRED_REASON
+    );
+    assert!(missing_preview.preview_required);
+
+    let raw_event = build_parent_assistant_scaffold_event(command(
+        AgentCommandName::AgentParentAssistantActionConfirm,
+        fields_from_pairs(vec![
+            intent,
+            preview,
+            (
+                constants::field::PARENT_ASSISTANT_ACTION_RAW_PROSE,
+                LogFieldValue::String(
+                    constants::parent_assistant::TEST_POLICY_QUESTION.to_string(),
+                ),
+            ),
+        ]),
+    ));
+    let raw = action_confirm_payload(
+        &raw_event.payload[constants::parent_assistant::FIELD_ACTION_CONFIRM_RESULT],
+    );
+    assert_rejected_action_confirm!(
+        raw,
+        constants::parent_assistant::ACTION_CONFIRM_RAW_PROSE_REJECTED_REASON
+    );
+    assert!(!raw.raw_assistant_prose_accepted);
 }
 
 fn command(

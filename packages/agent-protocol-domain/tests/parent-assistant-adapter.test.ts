@@ -83,6 +83,13 @@ it('creates thread, cancel, and confirm commands with stable payload fields', ()
   expect(confirm.payload[AgentProtocolDefaults.Field.ParentAssistantActionIntentId]).toBe(
     'parent-assistant-action-intent-1'
   );
+  expect(confirm.payload[AgentProtocolDefaults.Field.ParentAssistantActionPreviewId]).toBe(
+    'parent-assistant-action-preview-local'
+  );
+  expect(confirm.payload[AgentProtocolDefaults.Field.ParentAssistantActionAuditReason]).toBe(
+    'Parent confirmed a preview-only action boundary.'
+  );
+  expect(confirm.payload[AgentProtocolDefaults.Field.ParentAssistantQuestion]).toBeUndefined();
 });
 
 it('parses full answer payloads with citations, preview, and API custody boundary', () => {
@@ -178,6 +185,8 @@ function commandInput() {
     threadId: 'parent-assistant-thread-1',
     runId: 'parent-assistant-run-1',
     actionIntentId: 'parent-assistant-action-intent-1',
+    previewId: 'parent-assistant-action-preview-local',
+    actionAuditReason: 'Parent confirmed a preview-only action boundary.',
     question: 'Suggest a policy rule from recent activity.',
     evidenceSummary: 'Recent Activity evidence is available.',
     maxOutputTokens: 120,
@@ -246,6 +255,14 @@ function actionConfirmResult() {
     previewId: 'parent-assistant-action-preview-local',
     actionKind: 'policy-suggestion',
     confirmState: 'contract-required',
+    previewRequired: true,
+    previewSatisfied: true,
+    rawAssistantProseAccepted: false,
+    parentConfirmationRequired: true,
+    parentConfirmationRecorded: false,
+    childAgentValidationState: 'child-agent-contract-required',
+    sourceRefs: [answerPayload().citations[0].evidence],
+    auditReason: 'Parent confirmed a preview-only action boundary.',
     requiresControllerLease: true,
     childAgentContractRequired: true,
     enforcementApplied: false,
@@ -271,6 +288,14 @@ function actionPreviewResult() {
       enforcementApplied: false,
     },
     evidenceContext: [answerPayload().citations[0]],
+    previewRequired: true,
+    previewSatisfied: true,
+    rawAssistantProseAccepted: false,
+    parentConfirmationRequired: true,
+    parentConfirmationRecorded: false,
+    childAgentValidationState: 'child-agent-contract-required',
+    sourceRefs: [answerPayload().citations[0].evidence],
+    auditReason: 'Preview generated from cited parent-owned Activity evidence.',
     requiresControllerLease: true,
     childAgentContractRequired: true,
     enforcementApplied: false,

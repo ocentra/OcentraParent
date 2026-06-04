@@ -44,6 +44,8 @@ const EvidenceContext = {
   directEnforcementAllowed: false,
 } as const;
 
+const SourceRefs = [EvidenceContext.evidence] as const;
+
 const Request = {
   schemaVersion: ParentContractSchemaVersion.V0_6,
   requestId: 'parent-assistant-request-1',
@@ -126,7 +128,9 @@ describe('parent assistant request contracts', () => {
       }).success
     ).toBe(false);
   });
+});
 
+describe('parent assistant action preview contracts', () => {
   it('ParentAssistantActionPreviewSchema: forbids direct enforcement output', () => {
     expect(ParentAssistantActionPreviewSchema.parse(ActionPreview).enforcementApplied).toBe(false);
     expect(
@@ -145,6 +149,14 @@ describe('parent assistant request contracts', () => {
       previewState: 'draft',
       preview: ActionPreview,
       evidenceContext: [EvidenceContext],
+      previewRequired: true,
+      previewSatisfied: true,
+      rawAssistantProseAccepted: false,
+      parentConfirmationRequired: true,
+      parentConfirmationRecorded: false,
+      childAgentValidationState: 'child-agent-contract-required',
+      sourceRefs: SourceRefs,
+      auditReason: 'Preview generated from cited parent-owned Activity evidence.',
       requiresControllerLease: true,
       childAgentContractRequired: true,
       enforcementApplied: false,
@@ -159,6 +171,32 @@ describe('parent assistant request contracts', () => {
       ParentAssistantActionPreviewResultSchema.safeParse({
         ...parsed,
         policyWritten: true,
+      }).success
+    ).toBe(false);
+  });
+
+  it('ParentAssistantActionPreviewResultSchema: rejects raw assistant prose as action input', () => {
+    expect(
+      ParentAssistantActionPreviewResultSchema.safeParse({
+        schemaVersion: ParentContractSchemaVersion.V0_6,
+        backendState: 'runtime-backed',
+        actionIntentId: 'parent-assistant-action-intent-1',
+        previewState: 'draft',
+        preview: ActionPreview,
+        evidenceContext: [EvidenceContext],
+        previewRequired: true,
+        previewSatisfied: true,
+        rawAssistantProseAccepted: true,
+        parentConfirmationRequired: true,
+        parentConfirmationRecorded: false,
+        childAgentValidationState: 'child-agent-contract-required',
+        sourceRefs: SourceRefs,
+        auditReason: 'Preview generated from cited parent-owned Activity evidence.',
+        requiresControllerLease: true,
+        childAgentContractRequired: true,
+        enforcementApplied: false,
+        policyWritten: false,
+        reason: 'Preview only. Controller lease and child-agent contract are required before applying this action.',
       }).success
     ).toBe(false);
   });
@@ -464,6 +502,14 @@ describe('parent assistant runtime result contracts', () => {
       previewId: 'parent-assistant-preview-1',
       actionKind: 'policy-suggestion',
       confirmState: 'contract-required',
+      previewRequired: true,
+      previewSatisfied: true,
+      rawAssistantProseAccepted: false,
+      parentConfirmationRequired: true,
+      parentConfirmationRecorded: false,
+      childAgentValidationState: 'child-agent-contract-required',
+      sourceRefs: SourceRefs,
+      auditReason: 'Parent confirmation cannot write policy until child-agent validation is wired.',
       requiresControllerLease: true,
       childAgentContractRequired: true,
       enforcementApplied: false,
@@ -478,6 +524,34 @@ describe('parent assistant runtime result contracts', () => {
         enforcementApplied: true,
       }).success
     ).toBe(false);
+  });
+
+  it('ParentAssistantActionConfirmResultSchema: accepts rejected confirmation when preview is missing', () => {
+    const parsed = ParentAssistantActionConfirmResultSchema.parse({
+      schemaVersion: ParentContractSchemaVersion.V0_6,
+      backendState: 'contract-required',
+      actionIntentId: 'parent-assistant-action-intent-1',
+      previewId: null,
+      actionKind: 'policy-suggestion',
+      confirmState: 'rejected',
+      previewRequired: true,
+      previewSatisfied: false,
+      rawAssistantProseAccepted: false,
+      parentConfirmationRequired: true,
+      parentConfirmationRecorded: false,
+      childAgentValidationState: 'child-agent-unavailable',
+      sourceRefs: SourceRefs,
+      auditReason: 'Preview is required before parent confirmation.',
+      requiresControllerLease: true,
+      childAgentContractRequired: true,
+      enforcementApplied: false,
+      policyWritten: false,
+      reason: 'Action confirmation rejected because no matching preview id was provided.',
+    });
+
+    expect(parsed.confirmState).toBe('rejected');
+    expect(parsed.previewSatisfied).toBe(false);
+    expect(parsed.policyWritten).toBe(false);
   });
 });
 

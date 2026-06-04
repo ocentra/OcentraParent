@@ -4,10 +4,10 @@ use ocentra_parent_agent_protocol::{
     LocalAiProviderSchedulerLifecycle, LogFieldValue, LogLevel, ParentAssistantActionConfirmResult,
     ParentAssistantActionConfirmState, ParentAssistantActionPreviewKind,
     ParentAssistantActionPreviewResult, ParentAssistantActionPreviewState,
-    ParentAssistantBackendState, ParentAssistantEvidenceContext, ParentAssistantProviderState,
-    ParentAssistantProviderStatus, ParentAssistantRunCancelResult, ParentAssistantRunCancelState,
-    ParentAssistantRunState, ParentAssistantThreadResponse, ParentEvidenceReference,
-    ParentEvidenceReferenceKind,
+    ParentAssistantBackendState, ParentAssistantChildAgentValidationState,
+    ParentAssistantEvidenceContext, ParentAssistantProviderState, ParentAssistantProviderStatus,
+    ParentAssistantRunCancelResult, ParentAssistantRunCancelState, ParentAssistantRunState,
+    ParentAssistantThreadResponse, ParentEvidenceReference, ParentEvidenceReferenceKind,
 };
 
 use crate::{
@@ -233,22 +233,97 @@ fn run_cancel_result_for_command(command: &AgentCommandEnvelope) -> ParentAssist
 fn action_confirm_result_for_command(
     command: &AgentCommandEnvelope,
 ) -> ParentAssistantActionConfirmResult {
+    let action_intent_id =
+        string_payload_field(command, constants::parent_assistant::FIELD_ACTION_INTENT_ID)
+            .unwrap_or_else(|| constants::parent_assistant::DEFAULT_ACTION_INTENT_ID.to_string());
+    let preview_id = string_payload_field(
+        command,
+        constants::field::PARENT_ASSISTANT_ACTION_PREVIEW_ID,
+    );
+    let audit_reason = string_payload_field(
+        command,
+        constants::field::PARENT_ASSISTANT_ACTION_AUDIT_REASON,
+    )
+    .unwrap_or_else(|| constants::parent_assistant::ACTION_CONFIRM_AUDIT_REASON.to_string());
+    let source_refs = source_refs_from_contexts(&evidence_contexts_from_command(
+        command,
+        None,
+        None,
+        timestamp_now(),
+    ));
+    let raw_prose_present =
+        string_payload_field(command, constants::field::PARENT_ASSISTANT_ACTION_RAW_PROSE)
+            .is_some();
+
+    if raw_prose_present {
+        return rejected_action_confirm_result(
+            action_intent_id,
+            source_refs,
+            audit_reason,
+            constants::parent_assistant::ACTION_CONFIRM_RAW_PROSE_REJECTED_REASON,
+        );
+    }
+
+    let Some(preview_id) = preview_id else {
+        return rejected_action_confirm_result(
+            action_intent_id,
+            source_refs,
+            audit_reason,
+            constants::parent_assistant::ACTION_CONFIRM_PREVIEW_REQUIRED_REASON,
+        );
+    };
+
     ParentAssistantActionConfirmResult {
         schema_version: policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
         backend_state: ParentAssistantBackendState::ContractRequired,
-        action_intent_id: string_payload_field(
-            command,
-            constants::parent_assistant::FIELD_ACTION_INTENT_ID,
-        )
-        .unwrap_or_else(|| constants::parent_assistant::DEFAULT_ACTION_INTENT_ID.to_string()),
-        preview_id: Some(constants::parent_assistant::DEFAULT_PREVIEW_ID.to_string()),
+        action_intent_id,
+        preview_id: Some(preview_id),
         action_kind: ParentAssistantActionPreviewKind::PolicySuggestion,
         confirm_state: ParentAssistantActionConfirmState::ContractRequired,
+        preview_required: true,
+        preview_satisfied: true,
+        raw_assistant_prose_accepted: false,
+        parent_confirmation_required: true,
+        parent_confirmation_recorded: false,
+        child_agent_validation_state:
+            ParentAssistantChildAgentValidationState::ChildAgentContractRequired,
+        source_refs,
+        audit_reason,
         requires_controller_lease: true,
         child_agent_contract_required: true,
         enforcement_applied: false,
         policy_written: false,
         reason: constants::parent_assistant::ACTION_CONFIRM_CONTRACT_REQUIRED_REASON.to_string(),
+    }
+}
+
+fn rejected_action_confirm_result(
+    action_intent_id: String,
+    source_refs: Vec<ParentEvidenceReference>,
+    audit_reason: String,
+    reason: &'static str,
+) -> ParentAssistantActionConfirmResult {
+    ParentAssistantActionConfirmResult {
+        schema_version: policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
+        backend_state: ParentAssistantBackendState::ContractRequired,
+        action_intent_id,
+        preview_id: None,
+        action_kind: ParentAssistantActionPreviewKind::PolicySuggestion,
+        confirm_state: ParentAssistantActionConfirmState::Rejected,
+        preview_required: true,
+        preview_satisfied: false,
+        raw_assistant_prose_accepted: false,
+        parent_confirmation_required: true,
+        parent_confirmation_recorded: false,
+        child_agent_validation_state:
+            ParentAssistantChildAgentValidationState::ChildAgentUnavailable,
+        source_refs,
+        audit_reason,
+        requires_controller_lease: true,
+        child_agent_contract_required: true,
+        enforcement_applied: false,
+        policy_written: false,
+        reason: reason.to_string(),
     }
 }
 
@@ -259,6 +334,8 @@ fn action_preview_result_for_command(
     let question = string_payload_field(command, constants::field::PARENT_ASSISTANT_QUESTION)
         .unwrap_or_else(|| constants::parent_assistant::DEFAULT_QUESTION.to_string());
     let preview = preview_only_action(&question);
+    let evidence_context = evidence_contexts_from_command(command, None, None, previewed_at);
+    let source_refs = source_refs_from_contexts(&evidence_context);
     ParentAssistantActionPreviewResult {
         schema_version: policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
         backend_state: ParentAssistantBackendState::RuntimeBacked,
@@ -268,7 +345,16 @@ fn action_preview_result_for_command(
         )
         .unwrap_or_else(|| constants::parent_assistant::DEFAULT_ACTION_INTENT_ID.to_string()),
         preview_state: ParentAssistantActionPreviewState::Draft,
-        evidence_context: evidence_contexts_from_command(command, None, None, previewed_at),
+        evidence_context,
+        preview_required: true,
+        preview_satisfied: true,
+        raw_assistant_prose_accepted: false,
+        parent_confirmation_required: true,
+        parent_confirmation_recorded: false,
+        child_agent_validation_state:
+            ParentAssistantChildAgentValidationState::ChildAgentContractRequired,
+        source_refs,
+        audit_reason: constants::parent_assistant::ACTION_PREVIEW_AUDIT_REASON.to_string(),
         requires_controller_lease: preview.requires_controller_lease,
         child_agent_contract_required: true,
         enforcement_applied: false,
@@ -276,6 +362,15 @@ fn action_preview_result_for_command(
         preview,
         reason: constants::parent_assistant::ACTION_PREVIEW_DRAFT_REASON.to_string(),
     }
+}
+
+fn source_refs_from_contexts(
+    evidence_context: &[ParentAssistantEvidenceContext],
+) -> Vec<ParentEvidenceReference> {
+    evidence_context
+        .iter()
+        .map(|context| context.evidence.clone())
+        .collect()
 }
 
 fn default_evidence_context() -> ParentAssistantEvidenceContext {

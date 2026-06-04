@@ -67,12 +67,22 @@ it('preserves explicit unavailable and optional API boundaries without child-saf
 it('keeps action preview and confirmation contract-required and non-enforcing', () => {
   const action = entryFor('action-preview-confirm-requires-child-contract');
 
-  expect(action.actionPreviewResult?.policyWritten).toBe(false);
-  expect(action.actionPreviewResult?.enforcementApplied).toBe(false);
-  expect(action.actionConfirmResult?.confirmState).toBe('contract-required');
-  expect(action.actionConfirmResult?.childAgentContractRequired).toBe(true);
-  expect(action.actionConfirmResult?.policyWritten).toBe(false);
-  expect(action.actionConfirmResult?.enforcementApplied).toBe(false);
+  expect(action.actionPreviewResult).toMatchObject({
+    enforcementApplied: false,
+    policyWritten: false,
+    previewRequired: true,
+    previewSatisfied: true,
+    rawAssistantProseAccepted: false,
+  });
+  expect(action.actionConfirmResult).toMatchObject({
+    childAgentContractRequired: true,
+    confirmState: 'contract-required',
+    enforcementApplied: false,
+    policyWritten: false,
+    previewRequired: true,
+    previewSatisfied: true,
+    rawAssistantProseAccepted: false,
+  });
 });
 
 it('rejects source mismatches, remote overclaims, and direct action writes', () => {
