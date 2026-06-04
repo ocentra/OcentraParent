@@ -8,13 +8,13 @@ use super::{
     ParentAssistantActionPreviewResult, ParentAssistantActionPreviewState, ParentAssistantAnswer,
     ParentAssistantAnswerState, ParentAssistantApiAuthorizationState,
     ParentAssistantApiProviderAccessState, ParentAssistantApiProviderBoundary,
-    ParentAssistantBackendState, ParentAssistantEvidenceContext, ParentAssistantGenerateRequest,
-    ParentAssistantProviderRoute, ParentAssistantProviderRoutingState,
-    ParentAssistantProviderSelection, ParentAssistantProviderState, ParentAssistantProviderStatus,
-    ParentAssistantRunCancelResult, ParentAssistantRunCancelState, ParentAssistantRunState,
-    ParentAssistantScope, ParentAssistantThreadRecord, ParentAssistantThreadResponse,
-    ParentAssistantThreadState, ParentDeviceReference, ParentEvidenceReference,
-    ParentEvidenceReferenceKind,
+    ParentAssistantBackendState, ParentAssistantChildAgentValidationState,
+    ParentAssistantEvidenceContext, ParentAssistantGenerateRequest, ParentAssistantProviderRoute,
+    ParentAssistantProviderRoutingState, ParentAssistantProviderSelection,
+    ParentAssistantProviderState, ParentAssistantProviderStatus, ParentAssistantRunCancelResult,
+    ParentAssistantRunCancelState, ParentAssistantRunState, ParentAssistantScope,
+    ParentAssistantThreadRecord, ParentAssistantThreadResponse, ParentAssistantThreadState,
+    ParentDeviceReference, ParentEvidenceReference, ParentEvidenceReferenceKind,
 };
 
 #[test]
@@ -109,6 +109,15 @@ fn parent_assistant_action_preview_result_serializes_draft_without_enforcement()
         preview_state: ParentAssistantActionPreviewState::Draft,
         preview: sample_action_preview(false),
         evidence_context: vec![sample_evidence_context()],
+        preview_required: true,
+        preview_satisfied: true,
+        raw_assistant_prose_accepted: false,
+        parent_confirmation_required: true,
+        parent_confirmation_recorded: false,
+        child_agent_validation_state:
+            ParentAssistantChildAgentValidationState::ChildAgentContractRequired,
+        source_refs: vec![sample_evidence_context().evidence],
+        audit_reason: "Preview generated from cited parent-owned Activity evidence.".to_string(),
         requires_controller_lease: true,
         child_agent_contract_required: true,
         enforcement_applied: false,
@@ -125,6 +134,17 @@ fn parent_assistant_action_preview_result_serializes_draft_without_enforcement()
     );
     assert_eq!(serialized["policyWritten"], false);
     assert_eq!(serialized["childAgentContractRequired"], true);
+    assert_eq!(serialized["previewRequired"], true);
+    assert_eq!(serialized["previewSatisfied"], true);
+    assert_eq!(serialized["rawAssistantProseAccepted"], false);
+    assert_eq!(
+        serialized["childAgentValidationState"],
+        "child-agent-contract-required"
+    );
+    assert_eq!(
+        serialized["sourceRefs"][0]["evidenceReferenceId"],
+        "activity-summary-1"
+    );
 }
 
 #[test]
@@ -265,6 +285,17 @@ fn parent_assistant_cancel_and_confirm_results_do_not_claim_enforcement() {
         preview_id: Some("parent-assistant-preview-1".to_string()),
         action_kind: ParentAssistantActionPreviewKind::PolicySuggestion,
         confirm_state: ParentAssistantActionConfirmState::ContractRequired,
+        preview_required: true,
+        preview_satisfied: true,
+        raw_assistant_prose_accepted: false,
+        parent_confirmation_required: true,
+        parent_confirmation_recorded: false,
+        child_agent_validation_state:
+            ParentAssistantChildAgentValidationState::ChildAgentContractRequired,
+        source_refs: vec![sample_evidence_context().evidence],
+        audit_reason:
+            "Parent confirmation cannot write policy until child-agent validation is wired."
+                .to_string(),
         requires_controller_lease: true,
         child_agent_contract_required: true,
         enforcement_applied: false,
@@ -276,6 +307,8 @@ fn parent_assistant_cancel_and_confirm_results_do_not_claim_enforcement() {
 
     assert_eq!(cancel_json["cancelState"], "not-running");
     assert_eq!(confirm_json["confirmState"], "contract-required");
+    assert_eq!(confirm_json["previewSatisfied"], true);
+    assert_eq!(confirm_json["rawAssistantProseAccepted"], false);
     assert_eq!(confirm_json["enforcementApplied"], false);
     assert_eq!(confirm_json["policyWritten"], false);
 }

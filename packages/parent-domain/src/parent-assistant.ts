@@ -105,6 +105,17 @@ export const ParentAssistantRunCancelStateSchema = withParser(
 export const ParentAssistantActionConfirmStateSchema = withParser(
   Schema.Literal('contract-required', 'not-applied', 'rejected')
 );
+const ParentAssistantChildAgentValidationStateSchema = withParser(
+  Schema.Literal(
+    'child-agent-contract-required',
+    'child-agent-offline',
+    'child-agent-unavailable',
+    'child-agent-degraded'
+  )
+);
+const ParentAssistantActionAuditReasonSchema = NonEmptyParentAssistantText.pipe(
+  Schema.brand('ParentAssistantActionAuditReason')
+);
 
 export const ParentAssistantScopeSchema = withParser(
   Schema.Struct({
@@ -144,6 +155,14 @@ const ParentAssistantActionPreviewResultBaseSchema = Schema.Struct({
   previewState: ParentAssistantActionPreviewStateSchema,
   preview: ParentAssistantActionPreviewSchema,
   evidenceContext: Schema.Array(ParentAssistantEvidenceContextSchema),
+  previewRequired: Schema.Literal(true),
+  previewSatisfied: Schema.Boolean,
+  rawAssistantProseAccepted: Schema.Literal(false),
+  parentConfirmationRequired: Schema.Literal(true),
+  parentConfirmationRecorded: Schema.Literal(false),
+  childAgentValidationState: ParentAssistantChildAgentValidationStateSchema,
+  sourceRefs: Schema.Array(ParentEvidenceReferenceSchema),
+  auditReason: ParentAssistantActionAuditReasonSchema,
   requiresControllerLease: Schema.Boolean,
   childAgentContractRequired: Schema.Literal(true),
   enforcementApplied: Schema.Literal(false),
@@ -406,6 +425,14 @@ const ParentAssistantActionConfirmResultBaseSchema = Schema.Struct({
   previewId: Schema.Union(ParentAssistantActionPreviewIdSchema, Schema.Null),
   actionKind: ParentAssistantActionPreviewKindSchema,
   confirmState: ParentAssistantActionConfirmStateSchema,
+  previewRequired: Schema.Literal(true),
+  previewSatisfied: Schema.Boolean,
+  rawAssistantProseAccepted: Schema.Literal(false),
+  parentConfirmationRequired: Schema.Literal(true),
+  parentConfirmationRecorded: Schema.Literal(false),
+  childAgentValidationState: ParentAssistantChildAgentValidationStateSchema,
+  sourceRefs: Schema.Array(ParentEvidenceReferenceSchema),
+  auditReason: ParentAssistantActionAuditReasonSchema,
   requiresControllerLease: Schema.Literal(true),
   childAgentContractRequired: Schema.Literal(true),
   enforcementApplied: Schema.Literal(false),
@@ -624,27 +651,72 @@ function authorizedDegradedApiProviderBoundaryIsConsistent(
 }
 
 function parentAssistantActionConfirmResultIsSafe(result: ParentAssistantActionConfirmResultCandidate): boolean {
+  if (!parentAssistantActionConfirmBaseIsSafe(result)) {
+    return false;
+  }
+
+  return result.confirmState === 'rejected'
+    ? parentAssistantRejectedActionConfirmIsSafe(result)
+    : parentAssistantContractRequiredActionConfirmIsSafe(result);
+}
+
+function parentAssistantActionConfirmBaseIsSafe(result: ParentAssistantActionConfirmResultCandidate): boolean {
   return (
-    result.requiresControllerLease === true &&
+    result.previewRequired === true &&
+    result.rawAssistantProseAccepted === false &&
+    result.parentConfirmationRequired === true &&
+    result.parentConfirmationRecorded === false &&
     result.childAgentContractRequired === true &&
     result.enforcementApplied === false &&
     result.policyWritten === false &&
-    result.confirmState === 'contract-required'
+    result.sourceRefs.length > 0
+  );
+}
+
+function parentAssistantRejectedActionConfirmIsSafe(result: ParentAssistantActionConfirmResultCandidate): boolean {
+  return result.previewSatisfied === false && result.previewId === null;
+}
+
+function parentAssistantContractRequiredActionConfirmIsSafe(
+  result: ParentAssistantActionConfirmResultCandidate
+): boolean {
+  return (
+    result.requiresControllerLease === true &&
+    result.confirmState === 'contract-required' &&
+    result.previewSatisfied === true &&
+    result.previewId !== null &&
+    result.childAgentValidationState === 'child-agent-contract-required'
   );
 }
 
 function parentAssistantActionPreviewResultIsSafe(result: ParentAssistantActionPreviewResultCandidate): boolean {
-  const cannotApplyDirectly =
-    result.childAgentContractRequired === true &&
-    result.enforcementApplied === false &&
-    result.policyWritten === false &&
-    result.preview.enforcementApplied === false;
-
-  if (!cannotApplyDirectly) {
+  if (!parentAssistantActionPreviewBaseIsSafe(result)) {
     return false;
   }
 
-  return (result.previewState !== 'draft' || result.preview.previewId !== null) && result.evidenceContext.length > 0;
+  return parentAssistantActionPreviewEvidenceIsSafe(result);
+}
+
+function parentAssistantActionPreviewBaseIsSafe(result: ParentAssistantActionPreviewResultCandidate): boolean {
+  return (
+    result.previewRequired === true &&
+    result.previewSatisfied === true &&
+    result.rawAssistantProseAccepted === false &&
+    result.parentConfirmationRequired === true &&
+    result.parentConfirmationRecorded === false &&
+    result.childAgentContractRequired === true &&
+    result.enforcementApplied === false &&
+    result.policyWritten === false &&
+    result.preview.enforcementApplied === false
+  );
+}
+
+function parentAssistantActionPreviewEvidenceIsSafe(result: ParentAssistantActionPreviewResultCandidate): boolean {
+  return (
+    (result.previewState !== 'draft' || result.preview.previewId !== null) &&
+    result.evidenceContext.length > 0 &&
+    result.sourceRefs.length > 0
+  );
 }
 
 export type ParentAssistantScope = Infer<typeof ParentAssistantScopeSchema>;

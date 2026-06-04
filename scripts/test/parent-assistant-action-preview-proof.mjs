@@ -55,6 +55,7 @@ function runActionPreviewProof() {
   return new Promise((resolve, reject) => {
     const socket = new WebSocket(wsUrl);
     let settled = false;
+    let phase = 'preview';
     const timer = setTimeout(() => fail(new Error('Parent Assistant action-preview proof timed out')), 30000);
 
     const fail = (error) => {
@@ -87,12 +88,33 @@ function runActionPreviewProof() {
         if (parsed.event === AgentEvent.ConnectionReady) {
           return;
         }
-        if (parsed.event !== AgentEvent.ParentAssistantActionPreviewed) {
-          fail(new Error(`Expected ${AgentEvent.ParentAssistantActionPreviewed}, received ${parsed.event}`));
+        if (phase === 'preview') {
+          if (parsed.event !== AgentEvent.ParentAssistantActionPreviewed) {
+            fail(new Error(`Expected ${AgentEvent.ParentAssistantActionPreviewed}, received ${parsed.event}`));
+            return;
+          }
+          const result = assertActionPreviewResult(parsed.payload);
+          phase = 'confirm';
+          socket.send(JSON.stringify(actionConfirmCommand(result.preview.previewId)));
           return;
         }
 
-        assertActionPreviewResult(parsed.payload);
+        if (phase === 'confirm') {
+          if (parsed.event !== AgentEvent.ParentAssistantActionConfirmed) {
+            fail(new Error(`Expected ${AgentEvent.ParentAssistantActionConfirmed}, received ${parsed.event}`));
+            return;
+          }
+          assertActionConfirmResult(parsed.payload);
+          phase = 'raw-prose';
+          socket.send(JSON.stringify(rawProseActionConfirmCommand()));
+          return;
+        }
+
+        if (parsed.event !== AgentEvent.ParentAssistantActionConfirmed) {
+          fail(new Error(`Expected raw-prose ${AgentEvent.ParentAssistantActionConfirmed}, received ${parsed.event}`));
+          return;
+        }
+        assertRawProseConfirmRejected(parsed.payload);
         complete();
       } catch (error) {
         fail(error instanceof Error ? error : new Error(String(error)));
@@ -110,8 +132,16 @@ function assertActionPreviewResult(payload) {
     result.preview?.actionKind !== 'policy-suggestion' ||
     result.requiresControllerLease !== true ||
     result.childAgentContractRequired !== true ||
+    result.previewRequired !== true ||
+    result.previewSatisfied !== true ||
+    result.rawAssistantProseAccepted !== false ||
+    result.parentConfirmationRequired !== true ||
+    result.parentConfirmationRecorded !== false ||
+    result.childAgentValidationState !== 'child-agent-contract-required' ||
     !Array.isArray(result.evidenceContext) ||
-    result.evidenceContext.length < 2
+    result.evidenceContext.length < 2 ||
+    !Array.isArray(result.sourceRefs) ||
+    result.sourceRefs.length < 2
   ) {
     throw new Error(`Parent Assistant action preview was not a policy draft: ${JSON.stringify(result)}`);
   }
@@ -139,6 +169,45 @@ function assertActionPreviewResult(payload) {
   ) {
     throw new Error(`Parent Assistant action preview applied enforcement or wrote policy: ${JSON.stringify(result)}`);
   }
+  return result;
+}
+
+function assertActionConfirmResult(payload) {
+  const result = parseJsonField(payload, AgentProtocolDefaults.Field.ParentAssistantActionConfirmResult);
+  if (
+    result.confirmState !== 'contract-required' ||
+    result.previewId !== 'parent-assistant-action-preview-local' ||
+    result.previewRequired !== true ||
+    result.previewSatisfied !== true ||
+    result.rawAssistantProseAccepted !== false ||
+    result.parentConfirmationRequired !== true ||
+    result.parentConfirmationRecorded !== false ||
+    result.childAgentValidationState !== 'child-agent-contract-required' ||
+    !Array.isArray(result.sourceRefs) ||
+    result.sourceRefs.length < 2
+  ) {
+    throw new Error(`Parent Assistant action confirm did not require child contract: ${JSON.stringify(result)}`);
+  }
+  if (result.enforcementApplied !== false || result.policyWritten !== false) {
+    throw new Error(`Parent Assistant action confirm applied enforcement or wrote policy: ${JSON.stringify(result)}`);
+  }
+}
+
+function assertRawProseConfirmRejected(payload) {
+  const result = parseJsonField(payload, AgentProtocolDefaults.Field.ParentAssistantActionConfirmResult);
+  if (
+    result.confirmState !== 'rejected' ||
+    result.previewSatisfied !== false ||
+    result.rawAssistantProseAccepted !== false ||
+    result.reason !== 'Action confirmation rejected because raw assistant prose is not an executable action intent.'
+  ) {
+    throw new Error(`Parent Assistant raw-prose confirm was not rejected: ${JSON.stringify(result)}`);
+  }
+  if (result.enforcementApplied !== false || result.policyWritten !== false) {
+    throw new Error(
+      `Parent Assistant raw-prose confirm applied enforcement or wrote policy: ${JSON.stringify(result)}`
+    );
+  }
 }
 
 function actionPreviewCommand() {
@@ -152,6 +221,41 @@ function actionPreviewCommand() {
     payload: {
       [AgentProtocolDefaults.Field.ParentAssistantActionIntentId]: 'parent-assistant-action-intent-proof',
       [AgentProtocolDefaults.Field.ParentAssistantQuestion]: 'Suggest a policy rule from recent activity.',
+      [AgentProtocolDefaults.Field.ActivityReportDocument]: JSON.stringify(activityReport()),
+    },
+  };
+}
+
+function actionConfirmCommand(previewId) {
+  return {
+    schemaVersion: 1,
+    messageId: 'cmd-parent-assistant-action-confirm-proof',
+    sentAt: new Date().toISOString(),
+    source: { peerId: 'portal-dev', role: 'portal' },
+    target: { deviceId: 'local-dev-agent', platform: 'windows', route: 'localhost' },
+    command: AgentCommand.ParentAssistantActionConfirm,
+    payload: {
+      [AgentProtocolDefaults.Field.ParentAssistantActionIntentId]: 'parent-assistant-action-intent-proof',
+      [AgentProtocolDefaults.Field.ParentAssistantActionPreviewId]: previewId,
+      [AgentProtocolDefaults.Field.ParentAssistantActionAuditReason]:
+        'Parent confirmed a preview-only action boundary.',
+      [AgentProtocolDefaults.Field.ActivityReportDocument]: JSON.stringify(activityReport()),
+    },
+  };
+}
+
+function rawProseActionConfirmCommand() {
+  return {
+    schemaVersion: 1,
+    messageId: 'cmd-parent-assistant-action-raw-prose-proof',
+    sentAt: new Date().toISOString(),
+    source: { peerId: 'portal-dev', role: 'portal' },
+    target: { deviceId: 'local-dev-agent', platform: 'windows', route: 'localhost' },
+    command: AgentCommand.ParentAssistantActionConfirm,
+    payload: {
+      [AgentProtocolDefaults.Field.ParentAssistantActionIntentId]: 'parent-assistant-action-intent-proof',
+      [AgentProtocolDefaults.Field.ParentAssistantActionPreviewId]: 'parent-assistant-action-preview-local',
+      [AgentProtocolDefaults.Field.ParentAssistantActionRawProse]: 'Please just block games tonight.',
       [AgentProtocolDefaults.Field.ActivityReportDocument]: JSON.stringify(activityReport()),
     },
   };

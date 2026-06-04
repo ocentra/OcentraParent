@@ -27,7 +27,7 @@ import { AgentProtocolSchemaVersion, type AgentRoute } from './primitives';
 
 export const ParentAssistantAdapterPayloadField = {
   ActionPreview: AgentProtocolDefaults.Field.ParentAssistantActionPreview,
-  ActionConfirmResult: 'parentAssistantActionConfirmResult',
+  ActionConfirmResult: AgentProtocolDefaults.Field.ParentAssistantActionConfirmResult,
   ProviderRoute: AgentProtocolDefaults.Field.ParentAssistantProviderRoute,
   ProviderStatus: 'parentAssistantProviderStatus',
   RunCancelResult: 'parentAssistantRunCancelResult',
@@ -129,6 +129,9 @@ export type CreateParentAssistantCommandInput = {
   readonly threadId?: string;
   readonly runId?: string;
   readonly actionIntentId?: string;
+  readonly previewId?: string;
+  readonly actionAuditReason?: string;
+  readonly rawAssistantProse?: string;
   readonly evidenceSummary?: string;
   readonly activityReport?: ActivityReportDocument;
   readonly apiAuthorizationContext?: ParentAssistantApiAuthorizationContextInput;
@@ -136,6 +139,9 @@ export type CreateParentAssistantCommandInput = {
   readonly maxOutputTokens?: number;
   readonly timeoutMs?: number;
 };
+
+type ParentAssistantCommandPayload = Record<string, string | number | boolean | null>;
+type ParentAssistantCommandPayloadValue = ParentAssistantCommandPayload[string];
 
 export function createParentAssistantRuntimeCommand(
   kind: ParentAssistantRuntimeCommandKind,
@@ -148,7 +154,7 @@ export function createParentAssistantRuntimeCommand(
     source: input.source,
     target: input.target,
     command: commandForKind(kind),
-    payload: commandPayload(input),
+    payload: commandPayload(kind, input),
   });
 }
 
@@ -276,45 +282,60 @@ export function parseParentAssistantActionPreviewEvent(
   };
 }
 
-function commandPayload(input: CreateParentAssistantCommandInput): AgentCommandEnvelope['payload'] {
-  const payload: Record<string, string | number | boolean | null> = {
+function commandPayload(
+  kind: ParentAssistantRuntimeCommandKind,
+  input: CreateParentAssistantCommandInput
+): AgentCommandEnvelope['payload'] {
+  const payload: ParentAssistantCommandPayload = {
     [AgentProtocolDefaults.Field.ParentAssistantRequestId]: input.requestId,
-    [AgentProtocolDefaults.Field.ParentAssistantQuestion]: input.question,
   };
-  if (input.evidenceSummary !== undefined) {
-    payload[AgentProtocolDefaults.Field.ParentAssistantEvidenceSummary] = input.evidenceSummary;
-  }
-  if (input.activityReport !== undefined) {
-    payload[AgentProtocolDefaults.Field.ActivityReportDocument] = JSON.stringify(input.activityReport);
-  }
-  if (input.apiAuthorizationContext !== undefined) {
-    payload[AgentProtocolDefaults.Field.ParentAssistantApiAuthorizationState] =
-      input.apiAuthorizationContext.authorizationState;
-    payload[AgentProtocolDefaults.Field.ParentAssistantApiCustodyLabel] = input.apiAuthorizationContext.custodyLabel;
-    payload[AgentProtocolDefaults.Field.ParentAssistantApiRetentionState] =
-      input.apiAuthorizationContext.retentionState;
-    payload[AgentProtocolDefaults.Field.ParentAssistantApiDeletionState] = input.apiAuthorizationContext.deletionState;
-  }
-  if (input.threadId !== undefined) {
-    payload[AgentProtocolDefaults.Field.ParentAssistantThreadId] = input.threadId;
-  }
-  if (input.runId !== undefined) {
-    payload[AgentProtocolDefaults.Field.ParentAssistantRunId] = input.runId;
-  }
-  if (input.actionIntentId !== undefined) {
-    payload[AgentProtocolDefaults.Field.ParentAssistantActionIntentId] = input.actionIntentId;
-  }
-  if (input.modelId !== undefined) {
-    payload[AgentProtocolDefaults.Field.LocalAiModelId] = input.modelId;
-  }
-  if (input.maxOutputTokens !== undefined) {
-    payload[AgentProtocolDefaults.Field.LocalAiMaxOutputTokens] = input.maxOutputTokens;
-  }
-  if (input.timeoutMs !== undefined) {
-    payload[AgentProtocolDefaults.Field.LocalAiTimeoutMs] = input.timeoutMs;
-  }
+  assignDefinedPayload(
+    payload,
+    AgentProtocolDefaults.Field.ParentAssistantQuestion,
+    kind === 'action-confirm' ? undefined : input.question
+  );
+  assignDefinedPayload(payload, AgentProtocolDefaults.Field.ParentAssistantEvidenceSummary, input.evidenceSummary);
+  assignDefinedPayload(
+    payload,
+    AgentProtocolDefaults.Field.ActivityReportDocument,
+    input.activityReport === undefined ? undefined : JSON.stringify(input.activityReport)
+  );
+  assignApiAuthorizationPayload(payload, input.apiAuthorizationContext);
+  assignDefinedPayload(payload, AgentProtocolDefaults.Field.ParentAssistantThreadId, input.threadId);
+  assignDefinedPayload(payload, AgentProtocolDefaults.Field.ParentAssistantRunId, input.runId);
+  assignDefinedPayload(payload, AgentProtocolDefaults.Field.ParentAssistantActionIntentId, input.actionIntentId);
+  assignDefinedPayload(payload, AgentProtocolDefaults.Field.ParentAssistantActionPreviewId, input.previewId);
+  assignDefinedPayload(payload, AgentProtocolDefaults.Field.ParentAssistantActionAuditReason, input.actionAuditReason);
+  assignDefinedPayload(payload, AgentProtocolDefaults.Field.ParentAssistantActionRawProse, input.rawAssistantProse);
+  assignDefinedPayload(payload, AgentProtocolDefaults.Field.LocalAiModelId, input.modelId);
+  assignDefinedPayload(payload, AgentProtocolDefaults.Field.LocalAiMaxOutputTokens, input.maxOutputTokens);
+  assignDefinedPayload(payload, AgentProtocolDefaults.Field.LocalAiTimeoutMs, input.timeoutMs);
 
   return payload;
+}
+
+function assignDefinedPayload(
+  payload: ParentAssistantCommandPayload,
+  field: string,
+  value: ParentAssistantCommandPayloadValue | undefined
+): void {
+  if (value !== undefined) {
+    payload[field] = value;
+  }
+}
+
+function assignApiAuthorizationPayload(
+  payload: ParentAssistantCommandPayload,
+  context: ParentAssistantApiAuthorizationContextInput | undefined
+): void {
+  if (context === undefined) {
+    return;
+  }
+
+  payload[AgentProtocolDefaults.Field.ParentAssistantApiAuthorizationState] = context.authorizationState;
+  payload[AgentProtocolDefaults.Field.ParentAssistantApiCustodyLabel] = context.custodyLabel;
+  payload[AgentProtocolDefaults.Field.ParentAssistantApiRetentionState] = context.retentionState;
+  payload[AgentProtocolDefaults.Field.ParentAssistantApiDeletionState] = context.deletionState;
 }
 
 function commandForKind(kind: ParentAssistantRuntimeCommandKind): AgentCommandEnvelope['command'] {
