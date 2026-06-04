@@ -172,6 +172,57 @@ fn windows_browser_inventory_uses_process_executable_path_for_identity() {
 }
 
 #[test]
+fn windows_browser_inventory_collapses_installed_candidate_and_running_process() {
+    let root = temp_inventory_root(5);
+    let edge = root
+        .join(constants::browser::PATH_SEGMENT_MICROSOFT)
+        .join(constants::browser::PATH_SEGMENT_EDGE)
+        .join(constants::browser::PATH_SEGMENT_APPLICATION)
+        .join(constants::browser::EXECUTABLE_MSEDGE_WINDOWS);
+    create_executable_fixture(&edge);
+    let process = ProcessObservation {
+        pid: constants::browser::DEVTOOLS_TEST_UNMANAGED_PROCESS_ID,
+        name: constants::browser::EXECUTABLE_MSEDGE_WINDOWS.to_string(),
+        executable_path: Some(edge.clone()),
+    };
+
+    let observations =
+        windows_browser_inventory_observations(std::slice::from_ref(&edge), &[process], None);
+
+    assert_eq!(observations.len(), 1);
+    assert_eq!(
+        observations[0].executable_path.as_deref(),
+        Some(edge.as_path())
+    );
+    assert_eq!(
+        observations[0].install_state,
+        BrowserInventoryInstallState::Installed
+    );
+    assert_eq!(
+        observations[0].running_state,
+        BrowserInventoryRunningState::RunningUnmanaged
+    );
+    assert_eq!(
+        observations[0].process_id,
+        Some(constants::browser::DEVTOOLS_TEST_UNMANAGED_PROCESS_ID)
+    );
+    assert_eq!(
+        observations[0].management_tier,
+        BrowserManagementTier::Unmanaged
+    );
+    assert_eq!(
+        observations[0].exact_url_capability,
+        BrowserExactUrlCapability::NotClaimed
+    );
+    assert_eq!(
+        observations[0].capability_status,
+        BrowserCapabilityStatus::UnmanagedBrowser
+    );
+
+    let _ = std::fs::remove_dir_all(root);
+}
+
+#[test]
 fn windows_browser_inventory_keeps_tor_process_path_unsupported() {
     let process = ProcessObservation {
         pid: constants::browser::DEVTOOLS_TEST_UNMANAGED_PROCESS_ID,
