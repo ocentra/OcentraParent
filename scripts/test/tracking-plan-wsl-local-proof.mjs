@@ -105,13 +105,34 @@ async function runProbes(wslRepoPath, wslGitDir) {
 }
 
 async function runPlannedCommands(wslRepoPath, wslGitDir) {
-  const results = [];
+  const results = await ensureWslOptionalNodeDependencies(wslRepoPath, wslGitDir);
   for (const [id, command, args] of plannedCommands) {
     const result = await runWslAndLog(
       id,
       `cd ${shQuote(wslRepoPath)} && ${wslGitEnv(wslGitDir, wslRepoPath)} ${[command, ...args].map(shQuote).join(' ')}`
     );
     results.push({ ...result, blocker: blockerFor(result) });
+  }
+  return results;
+}
+
+async function ensureWslOptionalNodeDependencies(wslRepoPath, wslGitDir) {
+  const results = [];
+  const bindingPackage = '@rolldown/binding-linux-x64-gnu';
+  const probe = await runWslAndLog(
+    'rolldown-linux-binding-probe',
+    `cd ${shQuote(wslRepoPath)} && if [ -d node_modules/${bindingPackage} ]; then echo present; else echo missing; fi`
+  );
+  results.push({ ...probe, blocker: 'none' });
+  if (probe.stdout.trim() === 'missing') {
+    const repair = await runWslAndLog(
+      'rolldown-linux-binding-repair',
+      `cd ${shQuote(wslRepoPath)} && ${wslGitEnv(
+        wslGitDir,
+        wslRepoPath
+      )} npm install --no-save --ignore-scripts ${bindingPackage}@1.0.1`
+    );
+    results.push({ ...repair, blocker: blockerFor(repair) });
   }
   return results;
 }

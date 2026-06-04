@@ -8,8 +8,8 @@ running 2 tests
 test activity_store_tracking_tests::activity_store_reports_empty_tracking_read_model_without_inventing_rows ... ok
 test activity_store_tracking_tests::activity_store_reports_tracking_read_model_from_ingested_events ... ok
 
-test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 192 filtered out; finished in 0.16s
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 192 filtered out; finished in 0.12s
 
 [stderr]
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.32s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.97s
      Running unittests src/lib.rs (target/debug/deps/ocentra_parent_agent_core-c9d415be1f060baf)

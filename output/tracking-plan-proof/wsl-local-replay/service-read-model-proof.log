@@ -1,6 +1,6 @@
 id=service-read-model-proof
 command=wsl.exe sh -lc cd '/mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent' && GIT_DIR='/mnt/e/OcentraParent/.git/worktrees/OcentraParent' GIT_WORK_TREE='/mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent' 'node' 'scripts/test/tracking-plan-service-read-model-proof.mjs'
-exit=1
+exit=0
 
 [stdout]
 
@@ -15,65 +15,120 @@ exit=1
 > @ocentra-parent/agent-protocol-domain@0.1.1 test
 > vitest run tracking-read-model contracts
 
+
+ RUN  v4.1.6 /mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/agent-protocol-domain
+
+  tests/policy-preview-contracts.test.ts (4 tests) 4ms
+  tests/browser-inventory-contracts.test.ts (6 tests) 9ms
+  tests/contracts.test.ts (16 tests) 19ms
+  tests/tracking-read-model.test.ts (2 tests) 8ms
+  tests/lan-pairing-multidevice-contracts.test.ts (7 tests) 15ms
+
+ Test Files  5 passed (5)
+      Tests  35 passed (35)
+   Start at  02:32:49
+   Duration  7.60s (transform 3.41s, setup 0ms, import 28.09s, tests 57ms, environment 0ms)
+
+
+> @ocentra-parent/portal-domain@0.1.1 test
+> vitest run contracts
+
+
+ RUN  v4.1.6 /mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/portal-domain
+
+  tests/contracts.test.ts (12 tests) 30ms
+
+ Test Files  1 passed (1)
+      Tests  12 passed (12)
+   Start at  02:33:01
+   Duration  15.31s (transform 1.88s, setup 0ms, import 13.28s, tests 30ms, environment 0ms)
+
+
+> @ocentra-parent/portal@0.1.1 test
+> vitest run tests tracking-status-panel
+
+
+ RUN  v4.1.6 /mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/apps/portal
+
+  tests/agent-log-contract.test.ts (3 tests) 6ms
+  tests/activity-ui-app-game-dashboard-intent.test.ts (2 tests) 23ms
+  tests/activity-ui-intent.test.ts (11 tests) 36ms
+  tests/transport-lan-target.test.ts (6 tests) 5ms
+  tests/live-activity-network-flow.test.ts (2 tests) 7ms
+  tests/live-activity-memory-graph.test.ts (2 tests) 13ms
+  tests/policy-preview-live-activity-state.test.ts (5 tests) 14ms
+  tests/live-activity-browser-status.test.ts (4 tests) 15ms
+  tests/live-activity-surface-adapter.test.ts (4 tests) 21ms
+  tests/live-activity-state.test.ts (5 tests) 25ms
+  tests/tracking-status-panel.test.ts (4 tests) 7ms
+  tests/diagnostics-export.test.ts (1 test) 7ms
+  tests/portal-state-target.test.ts (1 test) 4ms
+
+ Test Files  13 passed (13)
+      Tests  50 passed (50)
+   Start at  02:33:33
+   Duration  22.32s (transform 41.78s, setup 0ms, import 160.25s, tests 184ms, environment 2ms)
+
+
+running 2 tests
+test tracking_read_model_tests::tracking_read_model_serializes_without_product_completion_claims ... ok
+test tracking_read_model_tests::tracking_read_model_row_serializes_journal_citation_ids ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 154 filtered out; finished in 0.06s
+
+
+running 2 tests
+test activity_store_tracking_tests::activity_store_reports_empty_tracking_read_model_without_inventing_rows ... ok
+test activity_store_tracking_tests::activity_store_reports_tracking_read_model_from_ingested_events ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 192 filtered out; finished in 0.14s
+
+
+running 2 tests
+test tracking_read_model_payload_tests::tracking_read_model_payload_contains_contract_json_and_latest_citations ... ok
+test tracking_read_model_service_tests::tracking_read_model_command_reports_service_backed_sqlite_rows ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 219 filtered out; finished in 0.31s
+
+tracking-plan-service-read-model-proof-ok
+evidence=output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/18-service-read-model-proof.json
+
 [stderr]
-
- Startup Error
-Error: Cannot find native binding. npm has a bug related to optional dependencies (https://github.com/npm/cli/issues/4828). Please try `npm i` again after removing both package-lock.json and node_modules directory.
-    at file:///mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/node_modules/rolldown/dist/shared/binding-C9S351wt.mjs:507:36
-    at file:///mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/node_modules/rolldown/dist/shared/binding-C9S351wt.mjs:9:49
-    at file:///mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/node_modules/rolldown/dist/shared/parse-Ch28GO2f.mjs:3:46
-    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
-    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:665:26)
-    at async start (file:///mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/node_modules/vitest/dist/chunks/cac.CVxlyDFd.js:2339:27)
-    at async CAC.run (file:///mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/node_modules/vitest/dist/chunks/cac.CVxlyDFd.js:2318:2) {
-  [cause]: Error: Cannot find module '@rolldown/binding-linux-x64-gnu'
-  Require stack:
-  - /mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/node_modules/rolldown/dist/shared/binding-C9S351wt.mjs
-      at Function._resolveFilename (node:internal/modules/cjs/loader:1383:15)
-      ... 6 lines matching cause stack trace ...
-      at require (node:internal/modules/helpers:147:16)
-      at requireNative (file:///mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/node_modules/rolldown/dist/shared/binding-C9S351wt.mjs:277:21)
-      at file:///mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/node_modules/rolldown/dist/shared/binding-C9S351wt.mjs:475:18 {
-    code: 'MODULE_NOT_FOUND',
-    requireStack: [
-      '/mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/node_modules/rolldown/dist/shared/binding-C9S351wt.mjs'
-    ],
-    cause: Error: Cannot find module '../rolldown-binding.linux-x64-gnu.node'
-    Require stack:
-    - /mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/node_modules/rolldown/dist/shared/binding-C9S351wt.mjs
-        at Function._resolveFilename (node:internal/modules/cjs/loader:1383:15)
-        at defaultResolveImpl (node:internal/modules/cjs/loader:1025:19)
-        at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1030:22)
-        at Function._load (node:internal/modules/cjs/loader:1192:37)
-        at TracingChannel.traceSync (node:diagnostics_channel:328:14)
-        at wrapModuleLoad (node:internal/modules/cjs/loader:237:24)
-        at Module.require (node:internal/modules/cjs/loader:1463:12)
-        at require (node:internal/modules/helpers:147:16)
-        at requireNative (file:///mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/node_modules/rolldown/dist/shared/binding-C9S351wt.mjs:272:12)
-        at file:///mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/node_modules/rolldown/dist/shared/binding-C9S351wt.mjs:475:18 {
-      code: 'MODULE_NOT_FOUND',
-      requireStack: [Array]
-    }
-  }
-}
-
-
-
-npm error Lifecycle script `test` failed with error:
-npm error code 1
-npm error path /mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/agent-protocol-domain
-npm error workspace @ocentra-parent/agent-protocol-domain@0.1.1
-npm error location /mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/packages/agent-protocol-domain
-npm error command failed
-npm error command sh -c vitest run tracking-read-model contracts
-file:///mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/scripts/test/tracking-plan-service-read-model-proof.mjs:106
-      code === 0 ? resolve() : reject(new Error(`${commandLine} exited with ${code}`));
-                                      ^
-
-Error: npm --workspace @ocentra-parent/agent-protocol-domain run test -- tracking-read-model contracts exited with 1
-    at ChildProcess.<anonymous> (file:///mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/scripts/test/tracking-plan-service-read-model-proof.mjs:106:39)
-    at Object.onceWrapper (node:events:634:26)
-    at ChildProcess.emit (node:events:519:28)
-    at ChildProcess._handle.onexit (node:internal/child_process:293:12)
-
-Node.js v22.22.0
+2:33:33 AM [vite] warning: `esbuild` option was specified by "vite:react-babel" plugin. This option is deprecated, please use `oxc` instead.
+2:33:33 AM [vite] warning: `optimizeDeps.esbuildOptions` option was specified by "vite:react-babel" plugin. This option is deprecated, please use `optimizeDeps.rolldownOptions` instead.
+Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ jsx: 'automatic', jsxImportSource: undefined }`
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.17s
+     Running unittests src/lib.rs (target/debug/deps/ocentra_parent_agent_protocol-4059bafc0582e2fd)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.14s
+     Running unittests src/lib.rs (target/debug/deps/ocentra_parent_agent_core-c9d415be1f060baf)
+   Compiling proc-macro2 v1.0.106
+   Compiling quote v1.0.45
+   Compiling serde_core v1.0.228
+   Compiling getrandom v0.3.4
+   Compiling zerocopy v0.8.48
+   Compiling httparse v1.10.1
+   Compiling thiserror v2.0.18
+   Compiling rand_core v0.9.5
+   Compiling syn v2.0.117
+   Compiling serde_json v1.0.149
+   Compiling serde_path_to_error v0.1.20
+   Compiling ppv-lite86 v0.2.21
+   Compiling tokio-macros v2.7.0
+   Compiling serde_derive v1.0.228
+   Compiling thiserror-impl v2.0.18
+   Compiling rand_chacha v0.9.0
+   Compiling rand v0.9.4
+   Compiling tokio v1.52.3
+   Compiling tungstenite v0.28.0
+   Compiling serde v1.0.228
+   Compiling ocentra-parent-agent-protocol v0.1.1 (/mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/crates/agent-protocol)
+   Compiling serde_urlencoded v0.7.1
+   Compiling hyper v1.9.0
+   Compiling tokio-tungstenite v0.28.0
+   Compiling tower v0.5.3
+   Compiling hyper-util v0.1.20
+   Compiling axum v0.8.7
+   Compiling ocentra-parent-agent-core v0.1.1 (/mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/crates/agent-core)
+   Compiling ocentra-parent-agent-service v0.1.1 (/mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/crates/agent-service)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1m 17s
+     Running unittests src/main.rs (target/debug/deps/ocentra_parent_agent_service-a7ad0e1127299daf)

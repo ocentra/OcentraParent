@@ -91,11 +91,11 @@ Those artifacts close the pre-device accounting gap only; they do not claim
 device, authority, full hosted UI/accessibility, or production readiness.
 This branch adds `node scripts/test/tracking-plan-wsl-local-proof.mjs`, which
 turns the WSL/local proof plan into an evidence-backed local artifact. It
-records WSL2/Ubuntu, linked-worktree Git mapping, contract build, and Rust core
-read-model test results. The WSL JS service read-model proof remains blocked by
-the missing Linux Rolldown native optional dependency in this
-Windows-installed `node_modules`, so the proof gate remains partial and does
-not upgrade device, hosted UI, authority, or product claims.
+records WSL2/Ubuntu, linked-worktree Git mapping, lockfile-declared Linux
+optional dependency availability, contract build, JS service read-model proof,
+and Rust core read-model test results. The proof gate is now proved for
+WSL/local replay of the narrow tracking read-model path; it still does not
+upgrade device, hosted UI, authority, or product claims.
 
 ## Where We Want To Be
 
@@ -117,7 +117,7 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Manual-Required Gaps
 
-- Platform, provider, live UI, WSL JS service replay, or runtime claims remain
+- Platform, provider, live UI, and broader runtime claims remain
   manual-required until the assigned proof artifacts exist.
 - Any unsupported platform or provider failure must surface as degraded/manual-required state, not as a silent success.
 
@@ -140,11 +140,11 @@ This workpack can be assigned independently, implemented against the owning doma
       feature doc, tracking README, implementation checklist, WP32, this
       workpack doc, and generated WSL proof artifacts.
 - [x] Validation commands and results:
-      `npm run test:tracking-plan-wsl-local-proof` passed as an honest partial proof.
+      `npm run test:tracking-plan-wsl-local-proof` passed as P3 local replay proof.
       WSL2/Ubuntu, linked-worktree Git mapping, `npm run build:contracts`, and
-      `cargo test -p ocentra-parent-agent-core tracking_read_model` passed.
-      WSL JS service proof remains blocked by the missing Linux Rolldown optional
-      dependency.
+      `cargo test -p ocentra-parent-agent-core tracking_read_model` passed, and
+      the JS service read-model proof passed after the WSL Linux optional
+      dependency was present.
 - [x] Proof artifacts under `output/tracking-plan-proof/wsl-local-replay/` and
       `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/`,
       including `17-wsl-local-proof.json`.
@@ -152,8 +152,7 @@ This workpack can be assigned independently, implemented against the owning doma
       implementation checklist, WP32, and this workpack doc updated. Central
       product capability checklist update is queued through DOC_DELTA instead
       of editing `docs/product-capability-checklist.md`.
-- [x] Known gaps/manual-required states: WSL JS service replay dependency,
-      Android Studio/emulator runtime, iOS simulator/local, physical
-      Android/iOS behavior, authority-enrolled proof, full hosted
-      UI/accessibility, production pilot, and richer live
+- [x] Known gaps/manual-required states: Android Studio/emulator runtime, iOS
+      simulator/local, physical Android/iOS behavior, authority-enrolled proof,
+      full hosted UI/accessibility, production pilot, and richer live
       UI/read-model/product claims remain proof-gated.

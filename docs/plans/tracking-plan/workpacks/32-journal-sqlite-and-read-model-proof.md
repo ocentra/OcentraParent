@@ -61,11 +61,11 @@ accessibility, and platform replay gaps before device work starts.
 WSL/local replay now has evidence through
 `npm run test:tracking-plan-wsl-local-proof`. That harness proves WSL2/Ubuntu
 availability, maps this Windows linked worktree Git dir for WSL, runs
-`npm run build:contracts`, and passes
-`cargo test -p ocentra-parent-agent-core tracking_read_model`. The WSL JS
-service read-model proof is still blocked by the missing Linux Rolldown native
-optional dependency in this Windows-installed `node_modules`, so the WSL
-artifact is partial and does not upgrade product readiness.
+`npm run build:contracts`, passes the JS service read-model proof after the
+lockfile-declared Linux Rolldown optional binding is present for WSL, and
+passes `cargo test -p ocentra-parent-agent-core tracking_read_model`. This
+proves WSL/local replay for the narrow read-model path; it does not upgrade
+mobile, hosted UI, authority, production, or full product readiness.
 
 ## Where We Want To Be
 
@@ -87,10 +87,10 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Manual-Required Gaps
 
-- Hosted portal screenshot/accessibility proof, WSL JS service replay,
-  deletion/tombstone replay, richer product read models, full UI, platform
-  replay, export, provider, and physical-device claims remain manual-required
-  until the assigned proof artifacts exist.
+- Hosted portal screenshot/accessibility proof, deletion/tombstone replay,
+  richer product read models, full UI, platform replay, export, provider, and
+  physical-device claims remain manual-required until the assigned proof
+  artifacts exist.
 - Any unsupported platform or provider failure must surface as degraded/manual-required state, not as a silent success.
 
 ## Fill This Before Reporting DONE Or PR-ready
@@ -119,11 +119,11 @@ This workpack can be assigned independently, implemented against the owning doma
       feature doc, tracking README, implementation checklist, this workpack
       doc, and generated WSL proof artifacts.
 - [x] Validation commands and results:
-      `npm run test:tracking-plan-wsl-local-proof` passed as an honest partial proof.
+      `npm run test:tracking-plan-wsl-local-proof` passed as P3 local replay proof.
       WSL2/Ubuntu, linked-worktree Git mapping, `npm run build:contracts`, and
-      `cargo test -p ocentra-parent-agent-core tracking_read_model` passed.
-      WSL JS service proof remains blocked by the missing Linux Rolldown optional
-      dependency.
+      `cargo test -p ocentra-parent-agent-core tracking_read_model` passed, and
+      the JS service read-model proof passed after the WSL Linux optional
+      dependency was present.
 - [x] Proof artifacts under
       `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/`,
       including `19-wsl-local-replay-proof.json`.
@@ -131,7 +131,7 @@ This workpack can be assigned independently, implemented against the owning doma
       implementation checklist, and this workpack doc updated. Central product
       capability checklist update is queued through DOC_DELTA instead of
       editing `docs/product-capability-checklist.md`.
-- [x] Known gaps/manual-required states: WSL JS service replay dependency,
-      hosted portal screenshot/accessibility proof, deletion/tombstone replay,
-      richer read models, full UI, platform replay, export, Android/iOS
-      physical proof, provider delivery, and notifications remain proof-gated.
+- [x] Known gaps/manual-required states: hosted portal screenshot/accessibility
+      proof, deletion/tombstone replay, richer read models, full UI, platform
+      replay, export, Android/iOS physical proof, provider delivery, and
+      notifications remain proof-gated.
