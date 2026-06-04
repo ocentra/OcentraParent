@@ -50,6 +50,7 @@ Expected contract families:
 - `ChannelTarget`
 - `SocialEvidenceSummary`
 - `VideoEvidenceSummary`
+- `SocialVideoSourcePrivacySummary`
 - `SocialRiskSignal`
 - `VideoRiskSignal`
 - `SocialVideoPolicyRule`
@@ -70,6 +71,17 @@ and native app social state remains manual-required until platform-specific app
 proof exists. Route contracts must not claim account identity, message content,
 feed content semantics, AI decisions, policy decisions, connector access, native
 app control, or enforcement.
+
+Social/video source privacy evidence-summary contracts may cite existing
+managed-browser social route refs, bounded social/video metadata refs,
+parent-provided URL or channel refs, optional connector authorization refs,
+screen-summary refs, and native/platform manual-required states. They may
+declare custody labels, source types, confidence, degraded/manual-required
+state, and permitted downstream uses for AI candidate input, policy candidate
+input, parent explanation, manual review, or audit summary. They must not store
+raw content, raw messages, raw video, screenshots, connector tokens, connector
+API payloads, native app control state, final policy decisions, or enforcement
+state. Current proof: `social-video-source-privacy-proof`.
 
 Social URL pattern libraries may map exact managed URL-shape classifications and
 normalized social domains to route evidence, but they must reject unmanaged
@@ -253,6 +265,9 @@ control, connector authority, or enforcement.
 
 - TypeScript schema tests for targets, evidence summaries, risk signals, rules,
   decisions, alerts, and degraded states.
+- `social-video-source-privacy-proof` for source/privacy evidence-summary refs,
+  custody flags, confidence/degraded/manual-required states, downstream-use
+  limits, package export visibility, and no-raw-content guarantees.
 - Integration tests with real stored evidence summaries.
 - Portal tests for rule authoring and explanation state when UI exists.
 - Platform/manual proof for any source that depends on app, account, browser,
