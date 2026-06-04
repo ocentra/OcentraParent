@@ -254,12 +254,7 @@ if (!existsSync(vlmBinary) || !existsSync(vlmModel) || !existsSync(vlmMmproj)) {
   );
 }
 
-rmSync(outputRoot, { recursive: true, force: true });
-rmSync(aiOutputRoot, { recursive: true, force: true });
-mkdirSync(outputRoot, { recursive: true });
-mkdirSync(aiOutputRoot, { recursive: true });
-mkdirSync(fixtureRoot, { recursive: true });
-mkdirSync(nativeFixtureRoot, { recursive: true });
+prepareOutputRoots();
 
 await runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/activity-domain']);
 await runCommand('cmd', ['/c', 'npm', 'run', 'build', '--workspace', '@ocentra-parent/parent-domain']);
@@ -416,6 +411,34 @@ async function runScenario(scenario) {
       );
     }
     await surface.close();
+  }
+}
+
+function prepareOutputRoots() {
+  mkdirSync(outputRoot, { recursive: true });
+  mkdirSync(aiOutputRoot, { recursive: true });
+  rmSync(join(outputRoot, 'proof-summary.json'), { force: true });
+  rmSync(join(aiOutputRoot, 'proof-summary.json'), { force: true });
+  rmSync(fixtureRoot, { recursive: true, force: true });
+  mkdirSync(fixtureRoot, { recursive: true });
+  mkdirSync(nativeFixtureRoot, { recursive: true });
+  for (const scenario of selectedScenarios) {
+    removeScenarioArtifacts(scenario);
+  }
+  if (includeCadence) {
+    removeScenarioArtifacts(cadenceScenario);
+  }
+  if (includeDisabled) {
+    removeScenarioArtifacts(disabledScenario);
+  }
+}
+
+function removeScenarioArtifacts(scenario) {
+  rmSync(join(outputRoot, scenario.id), { recursive: true, force: true });
+  rmSync(join(aiOutputRoot, scenario.id), { recursive: true, force: true });
+  if (scenario.compatibilityId !== undefined) {
+    rmSync(join(outputRoot, scenario.compatibilityId), { recursive: true, force: true });
+    rmSync(join(aiOutputRoot, scenario.compatibilityId), { recursive: true, force: true });
   }
 }
 
@@ -808,15 +831,40 @@ function normalizeModelEvidence(scenario, parsedModel) {
 }
 
 function normalizeModelOutputShape(parsedModel) {
-  if (!Array.isArray(parsedModel?.visible_text)) {
+  if (parsedModel === null || typeof parsedModel !== 'object' || Array.isArray(parsedModel)) {
     return parsedModel;
   }
+  const visibleText = Array.isArray(parsedModel.visible_text)
+    ? parsedModel.visible_text.filter((entry) => typeof entry === 'string' && entry.trim().length > 0).join(' ')
+    : parsedModel.visible_text;
+  const riskSignals = Array.isArray(parsedModel.risk_signals)
+    ? parsedModel.risk_signals.map(normalizeRawRiskSignal).filter((value) => value !== null)
+    : [];
   return {
     ...parsedModel,
-    visible_text: parsedModel.visible_text
-      .filter((entry) => typeof entry === 'string' && entry.trim().length > 0)
-      .join(' '),
+    visible_text: visibleText,
+    risk_signals: riskSignals,
   };
+}
+
+function normalizeRawRiskSignal(value) {
+  const raw =
+    typeof value === 'string'
+      ? value
+      : value !== null && typeof value === 'object' && typeof value.risk === 'string'
+        ? value.risk
+        : null;
+  if (raw === null) {
+    return null;
+  }
+  const normalized = raw.toLowerCase();
+  if (/\bbypass\b|\bvpn\b|\bproxy\b/iu.test(normalized)) return 'possibleBypassTool';
+  if (/\bcredential\b|\blogin\b|\bpassword\b/iu.test(normalized)) return 'credentialPrompt';
+  if (/\bself[-_\s]?harm\b|\bsuicide\b/iu.test(normalized)) return 'selfHarmSignal';
+  if (/\badult\b|\bexplicit\b|\bsexual\b/iu.test(normalized)) return 'explicitContentSignal';
+  if (/\bviolence\b|\bviolent\b|\bcombat\b|\bunsafe\b/iu.test(normalized)) return 'unsafeVisibleContent';
+  if (normalized === 'unknown') return 'unknown';
+  return 'unknown';
 }
 
 function categoryFromText(value) {

@@ -42,6 +42,7 @@ const secondFixturePath = join(activityRoot, 'screen-ai-foreground-second.txt');
 const queuePath = join(queueDir, 'screen-evidence-queue.ndjson');
 const healthUrl = createAgentHealthUrl(agentPort);
 const wsUrl = createAgentWebSocketUrl(agentPort);
+const readModelTimeoutMs = Number(process.env.OCENTRA_SCREEN_AI_FOREGROUND_READ_MODEL_TIMEOUT_MS ?? 30000);
 
 if (process.platform !== 'win32') {
   throw new Error('screen-ai-service-foreground-proof requires a real Windows desktop capture surface.');
@@ -313,7 +314,7 @@ async function requestScreenReadModel() {
 async function waitForScreenReadModelRows(count) {
   const startedAt = Date.now();
   let lastReadModel;
-  while (Date.now() - startedAt < 10000) {
+  while (Date.now() - startedAt < readModelTimeoutMs) {
     lastReadModel = await requestScreenReadModel();
     if (lastReadModel.state === 'ready' && Array.isArray(lastReadModel.rows) && lastReadModel.rows.length >= count) {
       return lastReadModel;
