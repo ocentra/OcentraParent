@@ -32,6 +32,9 @@ fn supported_adapter_runtime_states_have_stable_protocol_strings() {
         V08SupportedAdapterRuntimeBoundary::WindowsNetworkFlowObservePolicyHandoff,
         V08SupportedAdapterRuntimeBoundary::WindowsBroadInstalledAppBlockingManualGate,
         V08SupportedAdapterRuntimeBoundary::WindowsHostNetworkDomainBlockingManualGate,
+        V08SupportedAdapterRuntimeBoundary::WindowsBroadInstalledAppArtifactStatus,
+        V08SupportedAdapterRuntimeBoundary::WindowsHostNetworkDomainArtifactStatus,
+        V08SupportedAdapterRuntimeBoundary::WindowsManagedBrowserArtifactStatus,
         V08SupportedAdapterRuntimeBoundary::WindowsManagedExactActiveTabNotClaimed,
         V08SupportedAdapterRuntimeBoundary::WindowsAdapterPermissionDependencyDegraded,
         V08SupportedAdapterRuntimeBoundary::LinuxHostAdapterUnavailable,
@@ -47,13 +50,21 @@ fn supported_adapter_runtime_states_have_stable_protocol_strings() {
             .as_array()
             .expect(constants::error::AGENT_EVENT_SERIALIZES)
             .len(),
-        10
+        13
     );
     assert_eq!(
         boundaries[0].as_protocol_str(),
         proof::ENTRY_ID_APP_GAME_TIMER
     );
-    assert_eq!(boundaries[9].as_protocol_str(), proof::ENTRY_ID_IOS_MANUAL);
+    assert_eq!(
+        boundaries[4].as_protocol_str(),
+        proof::ENTRY_ID_BROAD_APP_ARTIFACT_STATUS
+    );
+    assert_eq!(
+        boundaries[5].as_protocol_str(),
+        proof::ENTRY_ID_HOST_NETWORK_ARTIFACT_STATUS
+    );
+    assert_eq!(boundaries[12].as_protocol_str(), proof::ENTRY_ID_IOS_MANUAL);
     assert_eq!(
         V08SupportedAdapterRuntimeState::ImplementedBoundary.as_protocol_str(),
         proof::STATE_IMPLEMENTED_BOUNDARY
@@ -69,6 +80,10 @@ fn supported_adapter_runtime_states_have_stable_protocol_strings() {
     assert_eq!(
         V08SupportedAdapterCapability::NetworkFlowObservePolicyHandoff.as_protocol_str(),
         proof::CAPABILITY_NETWORK_OBSERVE
+    );
+    assert_eq!(
+        V08SupportedAdapterCapability::ManagedBrowserArtifactStatus.as_protocol_str(),
+        proof::CAPABILITY_MANAGED_BROWSER_ARTIFACT_STATUS
     );
 }
 

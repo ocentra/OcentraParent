@@ -6,6 +6,11 @@ import { describe, expect, it } from 'vitest';
 import { AgentEvent, AgentEventEnvelopeSchema, AgentProtocolDefaults } from '../src/contracts';
 import { parseEnforcementSupportedAdapterRuntimeProofEvent } from '../src/enforcement-supported-adapter-runtime-proof-adapter';
 
+type AcceptedSupportedAdapterProofEvent = Extract<
+  ReturnType<typeof parseEnforcementSupportedAdapterRuntimeProofEvent>,
+  { status: 'accepted' }
+>;
+
 describe('enforcement supported adapter runtime proof adapter', () => {
   registerAcceptedProofEventTest();
   registerSupportedAdapterRejectionTest();
@@ -27,67 +32,84 @@ function registerAcceptedProofEventTest() {
 
     expect(parsed.status).toBe('accepted');
     if (parsed.status === 'accepted') {
-      expect(parsed.readModel.readModelId).toBe('v0-8-supported-adapter-runtime-proof');
-      expect(parsed.readModel.entries).toHaveLength(10);
-      expect(countBy(parsed.readModel.entries.map((entry) => entry.runtimeState))).toEqual({
-        'implemented-boundary': 2,
-        'manual-required': 4,
-        'not-claimed': 1,
-        degraded: 1,
-        unavailable: 1,
-        unsupported: 1,
-      });
-      expect(parsed.readModel.entries.every((entry) => !entry.broadInstalledAppBlockingClaimed)).toBe(true);
-      expect(parsed.readModel.entries.every((entry) => !entry.networkDomainBlockingClaimed)).toBe(true);
-      expect(parsed.readModel.entries.every((entry) => !entry.exactActiveTabEnforcementClaimed)).toBe(true);
-      expect(parsed.readModel.entries.every((entry) => !entry.notificationDeliveryClaimed)).toBe(true);
-      expect(parsed.readModel.entries.every((entry) => !entry.tamperHardeningClaimed)).toBe(true);
-      expect(parsed.readModel.entries.every((entry) => !entry.mobileControlClaimed)).toBe(true);
-      expect(parsed.readModel.entries.every((entry) => !entry.unsupportedPlatformBehaviorClaimed)).toBe(true);
-      expect(parsed.integrityAuditReadModel.readModelId).toBe('v0-8-enforcement-integrity-runtime-audit');
-      expect(parsed.integrityAuditReadModel.entries).toHaveLength(14);
-      expect(parsed.integrityAlertStatusBridge.readModelId).toBe('v0-8-integrity-alert-status-bridge');
-      expect(parsed.integrityAlertStatusBridge.entries).toHaveLength(4);
-      expect(parsed.notificationProviderStatusBoundary.readModelId).toBe('v0-8-notification-provider-status-boundary');
-      expect(parsed.notificationProviderStatusBoundary.entries).toHaveLength(5);
-      expect(countBy(parsed.notificationProviderStatusBoundary.entries.map((entry) => entry.providerStatus))).toEqual({
-        queued: 1,
-        delivered: 1,
-        failed: 1,
-        unavailable: 1,
-        'manual-required': 1,
-      });
-      expect(parsed.integrityAlertStatusBridge.entries.map((entry) => entry.integrityAlertState)).toEqual([
-        'permission-loss',
-        'stale-heartbeat',
-        'stopped-or-removed',
-        'tamper-manual-required',
-      ]);
-      expect(countBy(parsed.integrityAuditReadModel.entries.map((entry) => entry.result))).toEqual({
-        succeeded: 1,
-        expired: 1,
-        'rolled-back': 1,
-        superseded: 1,
-        'no-op': 1,
-        failed: 2,
-        'observe-only': 1,
-        'manual-required': 2,
-        unavailable: 3,
-        unsupported: 1,
-      });
-      expect(parsed.integrityAuditReadModel.entries.every((entry) => !entry.tamperHardeningClaimed)).toBe(true);
-      expect(parsed.integrityAuditReadModel.entries.every((entry) => !entry.stealthPersistenceClaimed)).toBe(true);
-      expect(parsed.integrityAuditReadModel.entries.every((entry) => !entry.privilegeEscalationClaimed)).toBe(true);
-      expect(parsed.integrityAlertStatusBridge.entries.every((entry) => !entry.providerDeliveryClaimed)).toBe(true);
-      expect(parsed.integrityAlertStatusBridge.entries.every((entry) => !entry.tamperResistanceClaimed)).toBe(true);
-      expect(parsed.notificationProviderStatusBoundary.entries.every((entry) => !entry.providerDeliveryObserved)).toBe(
-        true
-      );
-      expect(
-        parsed.notificationProviderStatusBoundary.entries.every((entry) => !entry.deliveredNotificationClaimed)
-      ).toBe(true);
+      assertSupportedAdapterReadModel(parsed);
+      assertIntegrityAndNotificationReadModels(parsed);
     }
   });
+}
+
+function assertSupportedAdapterReadModel(parsed: AcceptedSupportedAdapterProofEvent) {
+  expect(parsed.readModel.readModelId).toBe('v0-8-supported-adapter-runtime-proof');
+  expect(parsed.readModel.entries).toHaveLength(13);
+  expect(countBy(parsed.readModel.entries.map((entry) => entry.runtimeState))).toEqual({
+    'implemented-boundary': 2,
+    'manual-required': 7,
+    'not-claimed': 1,
+    degraded: 1,
+    unavailable: 1,
+    unsupported: 1,
+  });
+  expect(parsed.readModel.entries.every((entry) => !entry.broadInstalledAppBlockingClaimed)).toBe(true);
+  expect(parsed.readModel.entries.every((entry) => !entry.networkDomainBlockingClaimed)).toBe(true);
+  expect(parsed.readModel.entries.every((entry) => !entry.exactActiveTabEnforcementClaimed)).toBe(true);
+  expect(parsed.readModel.entries.every((entry) => !entry.notificationDeliveryClaimed)).toBe(true);
+  expect(parsed.readModel.entries.every((entry) => !entry.tamperHardeningClaimed)).toBe(true);
+  expect(parsed.readModel.entries.every((entry) => !entry.mobileControlClaimed)).toBe(true);
+  expect(parsed.readModel.entries.every((entry) => !entry.unsupportedPlatformBehaviorClaimed)).toBe(true);
+  expect(
+    parsed.readModel.entries
+      .filter((entry) => entry.proofEntryId.endsWith('artifact-status'))
+      .map((entry) => entry.adapterCapability)
+  ).toEqual([
+    'broad-installed-app-artifact-status',
+    'host-network-domain-artifact-status',
+    'managed-browser-artifact-status',
+  ]);
+}
+
+function assertIntegrityAndNotificationReadModels(parsed: AcceptedSupportedAdapterProofEvent) {
+  expect(parsed.integrityAuditReadModel.readModelId).toBe('v0-8-enforcement-integrity-runtime-audit');
+  expect(parsed.integrityAuditReadModel.entries).toHaveLength(14);
+  expect(parsed.integrityAlertStatusBridge.readModelId).toBe('v0-8-integrity-alert-status-bridge');
+  expect(parsed.integrityAlertStatusBridge.entries).toHaveLength(4);
+  expect(parsed.notificationProviderStatusBoundary.readModelId).toBe('v0-8-notification-provider-status-boundary');
+  expect(parsed.notificationProviderStatusBoundary.entries).toHaveLength(5);
+  expect(countBy(parsed.notificationProviderStatusBoundary.entries.map((entry) => entry.providerStatus))).toEqual({
+    queued: 1,
+    delivered: 1,
+    failed: 1,
+    unavailable: 1,
+    'manual-required': 1,
+  });
+  expect(parsed.integrityAlertStatusBridge.entries.map((entry) => entry.integrityAlertState)).toEqual([
+    'permission-loss',
+    'stale-heartbeat',
+    'stopped-or-removed',
+    'tamper-manual-required',
+  ]);
+  expect(countBy(parsed.integrityAuditReadModel.entries.map((entry) => entry.result))).toEqual({
+    succeeded: 1,
+    expired: 1,
+    'rolled-back': 1,
+    superseded: 1,
+    'no-op': 1,
+    failed: 2,
+    'observe-only': 1,
+    'manual-required': 2,
+    unavailable: 3,
+    unsupported: 1,
+  });
+  expect(parsed.integrityAuditReadModel.entries.every((entry) => !entry.tamperHardeningClaimed)).toBe(true);
+  expect(parsed.integrityAuditReadModel.entries.every((entry) => !entry.stealthPersistenceClaimed)).toBe(true);
+  expect(parsed.integrityAuditReadModel.entries.every((entry) => !entry.privilegeEscalationClaimed)).toBe(true);
+  expect(parsed.integrityAlertStatusBridge.entries.every((entry) => !entry.providerDeliveryClaimed)).toBe(true);
+  expect(parsed.integrityAlertStatusBridge.entries.every((entry) => !entry.tamperResistanceClaimed)).toBe(true);
+  expect(parsed.notificationProviderStatusBoundary.entries.every((entry) => !entry.providerDeliveryObserved)).toBe(
+    true
+  );
+  expect(parsed.notificationProviderStatusBoundary.entries.every((entry) => !entry.deliveredNotificationClaimed)).toBe(
+    true
+  );
 }
 
 function registerSupportedAdapterRejectionTest() {

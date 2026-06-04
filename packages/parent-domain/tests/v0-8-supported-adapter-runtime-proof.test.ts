@@ -19,17 +19,17 @@ function registerRuntimeStateTests() {
     const readModel = V08SupportedAdapterRuntimeProofReadModelSchema.parse(V08SupportedAdapterRuntimeProofReadModel);
 
     expect(readModel.readModelId).toBe('v0-8-supported-adapter-runtime-proof');
-    expect(readModel.entries).toHaveLength(10);
+    expect(readModel.entries).toHaveLength(13);
     expect(countBy(readModel.entries.map((entry) => entry.runtimeState))).toEqual({
       'implemented-boundary': 2,
-      'manual-required': 4,
+      'manual-required': 7,
       'not-claimed': 1,
       degraded: 1,
       unavailable: 1,
       unsupported: 1,
     });
     expect(countBy(readModel.entries.map((entry) => entry.platform))).toEqual({
-      windows: 6,
+      windows: 9,
       linux: 1,
       macos: 1,
       android: 1,
@@ -75,6 +75,9 @@ function registerManualGateTests() {
   it('keeps broad app host network exact active tab and mobile states proof gated', () => {
     const broadApp = entryFor(V08SupportedAdapterRuntimeBoundary.WindowsBroadInstalledAppBlockingManualGate);
     const hostNetwork = entryFor(V08SupportedAdapterRuntimeBoundary.WindowsHostNetworkDomainBlockingManualGate);
+    const broadAppArtifact = entryFor(V08SupportedAdapterRuntimeBoundary.WindowsBroadInstalledAppArtifactStatus);
+    const networkArtifact = entryFor(V08SupportedAdapterRuntimeBoundary.WindowsHostNetworkDomainArtifactStatus);
+    const managedBrowserArtifact = entryFor(V08SupportedAdapterRuntimeBoundary.WindowsManagedBrowserArtifactStatus);
     const exactActiveTab = entryFor(V08SupportedAdapterRuntimeBoundary.WindowsManagedExactActiveTabNotClaimed);
     const android = entryFor(V08SupportedAdapterRuntimeBoundary.AndroidMobileControlManualGate);
     const ios = entryFor(V08SupportedAdapterRuntimeBoundary.IosMobileControlManualGate);
@@ -83,6 +86,19 @@ function registerManualGateTests() {
     expect(broadApp.manualProofRequirements).toContain('host block apply artifact');
     expect(hostNetwork.runtimeState).toBe('manual-required');
     expect(hostNetwork.manualProofRequirements).toContain('host DNS or filter apply artifact');
+    expect(broadAppArtifact).toMatchObject({
+      runtimeState: 'manual-required',
+      adapterCapability: 'broad-installed-app-artifact-status',
+      adapterResult: 'manual-proof-required',
+    });
+    expect(broadAppArtifact.linkedProofCommands).toContain(
+      'node scripts/test/v0-8-windows-adapter-artifact-ingestion-proof.mjs'
+    );
+    expect(broadAppArtifact.claimBoundary).toContain('manual review only');
+    expect(networkArtifact.adapterCapability).toBe('host-network-domain-artifact-status');
+    expect(networkArtifact.manualProofRequirements).toContain('network/domain filter rollback result');
+    expect(managedBrowserArtifact.adapterCapability).toBe('managed-browser-artifact-status');
+    expect(managedBrowserArtifact.claimBoundary).toContain('active-tab enforcement');
     expect(exactActiveTab).toMatchObject({
       runtimeState: 'not-claimed',
       adapterResult: 'not-claimed',

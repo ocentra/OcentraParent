@@ -61,12 +61,15 @@ without fake anti-tamper claims.
   WebSocket command/event, TypeScript protocol adapter, and proof JSON that
   separates implemented-boundary, manual-required, unavailable, and not-claimed
   outcomes without upgrading broad app/browser/domain or mobile privilege claims.
-- Supported-adapter runtime proof now adds a schema-backed ten-entry read model,
+- Supported-adapter runtime proof now adds a schema-backed 13-entry read model,
   WebSocket command/event, TypeScript protocol adapter, and proof JSON that
   distinguishes implemented-boundary, manual-required, unavailable,
   not-claimed, unsupported, and degraded states without upgrading broad app,
   network/domain, exact active-tab, notification, tamper, mobile, or unsupported
-  platform behavior claims.
+  platform behavior claims. The Windows artifact-status rows link broad
+  installed-app, host network/domain, and managed-browser status to the existing
+  capability, artifact-gate, and artifact-ingestion proof outputs while keeping
+  those capabilities manual-review-only.
 - Enforcement integrity runtime audit now adds a schema-backed 14-entry read
   model, Rust protocol parity, service event payload, TypeScript protocol
   adapter parsing, and proof harness for supported action results, dry-run,
@@ -109,11 +112,13 @@ anti-tamper behavior are still manual-required or unavailable. Timer restart
 recovery, expiry, recovery-needed, and rollback-completed/unavailable states now
 have focused V0.8 proof, but they do not prove anti-tamper behavior. Tamper/uninstall
 is represented as manual-required/rejected state, not as anti-tamper behavior.
-The broad-adapter, supported-adapter, integrity audit, and alert/status bridge
-proofs plus the logging-domain tamper integrity audit proof and parent-domain
-tamper uninstall artifact status proof give service/logging/product visibility
-into adapter gaps but do not prove anti-tamper behavior, real uninstall artifact
-capture, admin-removal blocking, or notification provider delivery.
+The broad-adapter, supported-adapter, Windows artifact-status, integrity audit,
+and alert/status bridge proofs plus the logging-domain tamper integrity audit
+proof and parent-domain tamper uninstall artifact status proof give
+service/logging/product visibility into adapter gaps but do not prove broad
+installed-app blocking, host network/domain blocking, exact active-tab
+enforcement, anti-tamper behavior, real uninstall artifact capture,
+admin-removal blocking, or notification provider delivery.
 
 ## Checklist
 
@@ -140,6 +145,11 @@ capture, admin-removal blocking, or notification provider delivery.
       manual-required artifacts, mobile device-proof-required artifacts, and
       documented admin-removal flow refs without claiming artifact capture,
       stealth, privilege escalation, provider delivery, or removal blocking.
+- [x] Windows adapter artifact-status rows expose broad installed-app,
+      host network/domain, and managed-browser status through service-backed
+      supported-adapter runtime proof without claiming broad blocking, fake
+      browser/domain enforcement, stealth, privilege escalation, or mobile
+      entitlement authority.
 - [ ] No stealth or privilege-escalation behavior.
 
 ## Next AI Instructions
@@ -153,6 +163,8 @@ runtime audit and alert/status visibility. Use
 proof for redaction-safe tamper/integrity audit rows. Use
 `scripts/test/tamper-uninstall-artifact-status-proof.mjs` as the parent-domain
 proof for manual-required/device-proof-required uninstall artifact statuses, and
+`scripts/test/v0-8-windows-adapter-artifact-status-proof.mjs` as the Windows
+adapter artifact-status proof that composes capability/gate/ingestion status;
 require new platform artifacts before upgrading broad blocking, notification
 delivery, mobile, service-persistence, uninstall detection, admin-removal
 blocking, or tamper claims.
