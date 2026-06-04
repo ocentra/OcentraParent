@@ -78,9 +78,21 @@ export const ScreenAnalysisQueueJobSchema = withParser(
     ),
     Schema.filter(
       (value) =>
+        value.deletionStatus !== 'deleted' ||
+        value.status === 'deleted' ||
+        'Expected deleted screen evidence queue custody to match a deleted queue job status'
+    ),
+    Schema.filter(
+      (value) =>
         value.status !== 'expired' ||
         (value.deletionStatus === 'expiredDeleted' && value.deletedAt !== null && value.deletionProofRef !== null) ||
         'Expected expired screen evidence queue jobs to prove expired image deletion'
+    ),
+    Schema.filter(
+      (value) =>
+        value.deletionStatus !== 'expiredDeleted' ||
+        value.status === 'expired' ||
+        'Expected expired-deleted screen evidence queue custody to match an expired queue job status'
     ),
     Schema.filter(
       (value) =>
