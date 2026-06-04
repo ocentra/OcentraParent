@@ -6,6 +6,9 @@ Shared activity and evidence contracts for child-device observations.
 
 - Capture source and status contracts.
 - Browser URL/tab evidence shapes.
+- Social/video source privacy evidence summaries that cite typed managed-browser,
+  parent-provided, connector-authorization, screen-summary, and manual-required
+  source refs without raw content custody.
 - App/game identity, inventory, and session contracts.
 - Network flow summary contracts.
 - Screen evidence summary contracts.
@@ -48,7 +51,9 @@ flowchart LR
 
 ## Gaps To Fill
 
-- Social evidence needs first-class expectation docs and contracts.
+- Social/video source privacy summaries now have
+  `social-video-source-privacy-proof`; first-class UI, notification, connector,
+  native adapter, final policy, and enforcement proof remain open.
 - Tracking evidence now has focused contract proof plus P1 deterministic
   runtime and Rust ActivityStore ingest proof; platform adapters, provider
   runtime, and live service-backed UI proof remain open.

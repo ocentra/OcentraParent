@@ -189,6 +189,14 @@ message, video, and alert coverage. This is one of Ocentra's highest-risk gaps.
   browser-plan docs to stop treating package exports as the remaining blocker.
   Runtime connector behavior, native app control, rendered UI, final policy
   execution, enforcement, and product checklist completion remain unclaimed.
+- `social-video-source-privacy-proof` now adds an activity-domain source/privacy
+  evidence-summary contract for first-class social/video source refs. It can
+  cite managed-browser social route refs, bounded social/video metadata refs,
+  parent-provided URL/channel refs, optional connector authorization refs,
+  screen-summary refs, and platform/native manual-required states while
+  rejecting raw content, raw messages, raw video, screenshots, connector tokens,
+  connector API calls, native app control, final policy decisions, and
+  enforcement.
 - First-class social/video product contracts and runtime proof are incomplete.
 
 ## Current Gap
@@ -199,8 +207,11 @@ settings, alert contracts, confidence handling, platform proof, or parent UI.
 ## Checklist
 
 - [ ] Social platform and video target contracts.
-- [ ] Source permissions and custody settings.
-- [ ] URL/video/channel/app evidence summaries.
+- [ ] Source permissions and custody settings. Source/privacy evidence-summary
+      proof exists; parent settings UI and runtime custody settings remain.
+- [ ] URL/video/channel/app evidence summaries. Source/privacy summary proof can
+      cite URL/channel refs and existing managed-browser refs; full app/native
+      and rendered explanation proof remain.
 - [ ] Local AI analysis path with confidence.
 - [ ] Parent sensitivity settings.
 - [ ] Alert and report integration.

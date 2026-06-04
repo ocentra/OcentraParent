@@ -181,6 +181,10 @@
       "import": "./dist/browser-social-unmanaged-bypass-detector.js",
       "types": "./dist/browser-social-unmanaged-bypass-detector.d.ts"
     },
+    "./social-video-source-privacy": {
+      "import": "./dist/social-video-source-privacy.js",
+      "types": "./dist/social-video-source-privacy.d.ts"
+    },
     "./capture": {
       "import": "./dist/capture.js",
       "types": "./dist/capture.d.ts"
