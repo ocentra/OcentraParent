@@ -2,7 +2,9 @@ package ca.ocentra.parent.agent;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.widget.TextView;
 
 public final class MainActivity extends Activity {
@@ -38,7 +40,10 @@ public final class MainActivity extends Activity {
             "\n" +
             screenProof.getString(ChildAndroidScreenCaptureProof.FIELD_SCREEN_CAPTURE_STATE);
         status.setText(statusText);
+        status.setBackgroundColor(Color.rgb(249, 250, 251));
+        status.setTextColor(Color.rgb(17, 24, 39));
         status.setTextSize(18);
+        status.setGravity(Gravity.CENTER);
         status.setPadding(32, 32, 32, 32);
         setContentView(status);
     }

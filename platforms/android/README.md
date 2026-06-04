@@ -50,6 +50,12 @@ area.
   parent-cache stale, parent-owned-storage offline, observer read-only, and
   controller-takeover manual-required states without claiming Device Owner,
   foreground child-agent runtime, Play signing, store release, or phone-local AI.
+- `test:tracking-plan-android-emulator-proof` covers tracking-plan Android
+  emulator package mechanics: debug APK build, install, launch, foreground
+  service observation, UI tree, screenshot, logcat, battery dump, and
+  connectivity dump. It records foreground location, background/geofence,
+  notification delivery, physical-device, Device Owner, and managed-profile
+  behavior as not claimed/manual-required.
 
 ## Gaps To Fill
 

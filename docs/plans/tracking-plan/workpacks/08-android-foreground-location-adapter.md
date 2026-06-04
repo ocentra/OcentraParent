@@ -24,6 +24,8 @@ Proof root: `output/tracking-plan-proof/08-android-foreground-location-adapter/`
 - `03-runtime-location-evidence.json`
 - `15-manual-platform-proof.md`
 - `16-validation-commands.log`
+- Local emulator proof command:
+  `npm run test:tracking-plan-android-emulator-proof`
 - Pre-device plan:
   `output/tracking-plan-proof/pre-device-gap-closure/android-studio-local-proof-plan.json`
 
@@ -33,7 +35,8 @@ Proof root: `output/tracking-plan-proof/08-android-foreground-location-adapter/`
 - [ ] Prove fused/current sample.
 - [ ] Prove last-known sample or unavailable state.
 - [ ] Preserve accuracy and timestamp from provider.
-- [ ] Document device, OS version, app build, and proof commands.
+- [x] Document emulator device, OS version, app build, foreground service
+      scaffold, and proof commands without claiming location samples.
 - [x] Generate the Android Studio/local proof artifact plan before device work.
 
 ## Where We Are
@@ -44,6 +47,15 @@ Studio/local plan lists the APK build, `adb`, permission-state, runtime
 location-evidence, and status artifacts that must be collected before any
 foreground Android location claim. Runtime/product-complete behavior is still
 not claimed.
+
+`npm run test:tracking-plan-android-emulator-proof` now fills the local
+emulator scaffold layer: it builds the Android debug APK, installs and launches
+it on an emulator, captures foreground-service state, UI tree, screenshot,
+logcat, device metadata, and writes
+`03-runtime-location-evidence.json` as `manual_required` when foreground
+location permission/sample evidence is still absent. This proves the package
+and service shell can be observed locally; it does not prove foreground Android
+location.
 
 ## Where We Want To Be
 
