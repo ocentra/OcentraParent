@@ -1,15 +1,15 @@
 ACTIVITY MANAGER ACTIVITIES (dumpsys activity activities)
 Display #0 (activities from top to bottom):
-  * Task{3116a2d #28 type=standard A=10212:ca.ocentra.parent.agent U=0 visible=true visibleRequested=true mode=fullscreen translucent=false sz=1}
+  * Task{b9656f1 #28 type=standard A=10212:ca.ocentra.parent.agent U=0 visible=true visibleRequested=true mode=fullscreen translucent=false sz=1}
     mLastNonFullscreenBounds=Rect(345, 867 - 999, 2211)
     isSleeping=false
-    topResumedActivity=ActivityRecord{95ff50a u0 ca.ocentra.parent.agent/.MainActivity t28}
-    * Hist  #0: ActivityRecord{95ff50a u0 ca.ocentra.parent.agent/.MainActivity t28}
+    topResumedActivity=ActivityRecord{fa629b9 u0 ca.ocentra.parent.agent/.MainActivity t28}
+    * Hist  #0: ActivityRecord{fa629b9 u0 ca.ocentra.parent.agent/.MainActivity t28}
       packageName=ca.ocentra.parent.agent processName=ca.ocentra.parent.agent
       launchedFromUid=2000 launchedFromPackage=com.android.shell launchedFromFeature=null userId=0
-      app=ProcessRecord{34f7306 4536:ca.ocentra.parent.agent/u0a212}
+      app=ProcessRecord{fe7cb72 4525:ca.ocentra.parent.agent/u0a212}
       Intent { flg=0x10000000 cmp=ca.ocentra.parent.agent/.MainActivity }
-      rootOfTask=true task=Task{3116a2d #28 type=standard A=10212:ca.ocentra.parent.agent}
+      rootOfTask=true task=Task{b9656f1 #28 type=standard A=10212:ca.ocentra.parent.agent}
       taskAffinity=10212:ca.ocentra.parent.agent
       mActivityComponent=ca.ocentra.parent.agent/.MainActivity
       baseDir=/data/app/~~GWT3GDfBtE1Kjkebn6_yfQ==/ca.ocentra.parent.agent-cVH6vgpH66KW4GN4-eZ1bA==/base.apk
@@ -26,14 +26,14 @@ Display #0 (activities from top to bottom):
       taskDescription: label="null" icon=null iconResource=/0 iconFilename=null primaryColor=fff5f5f5
         backgroundColor=fffafafa statusBarColor=ff757575 navigationBarColor=808080
        backgroundColorFloating=ffffffff
-      launchFailed=false launchCount=1 lastLaunchTime=-1s998ms
+      launchFailed=false launchCount=1 lastLaunchTime=-1s785ms
       mHaveState=false mIcicle=null
       state=RESUMED delayedResume=false finishing=false
       keysPaused=false inHistory=true idle=true
       occludesParent=true noDisplay=false immersive=false launchMode=0
       mActivityType=standard
       mImeInsetsFrozenUntilStartInput=false
-      windows=[Window{3047578 u0 ca.ocentra.parent.agent/ca.ocentra.parent.agent.MainActivity}]
+      windows=[Window{c31bbcb u0 ca.ocentra.parent.agent/ca.ocentra.parent.agent.MainActivity}]
       windowType=2
       mOccludesParent=true
       overrideOrientation=SCREEN_ORIENTATION_UNSPECIFIED
@@ -41,7 +41,7 @@ Display #0 (activities from top to bottom):
       mVisibleRequested=true mVisible=true mClientVisible=true reportedDrawn=true reportedVisible=true
       mNumInterestingWindows=1 mNumDrawnWindows=1 allDrawn=true lastAllDrawn=false)
       startingData=null firstWindowDrawn=true mIsExiting=false
-      nowVisible=true lastVisibleTime=-309ms
+      nowVisible=true lastVisibleTime=-409ms
       resizeMode=RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION
       mLastReportedMultiWindowMode=false mLastReportedPictureInPictureMode=false
       supportsSizeChanges=SIZE_CHANGES_UNSUPPORTED_METADATA
@@ -77,7 +77,7 @@ Display #0 (activities from top to bottom):
       taskDescription: label="null" icon=null iconResource=/0 iconFilename=null primaryColor=fff1f0f7
         backgroundColor=fffafafa statusBarColor=ff757575 navigationBarColor=808080
        backgroundColorFloating=ffffffff
-      launchFailed=false launchCount=0 lastLaunchTime=-7m55s345ms
+      launchFailed=false launchCount=0 lastLaunchTime=-7m55s801ms
       mHaveState=true mIcicle=Bundle[mParcelledData.dataSize=4608]
       state=STOPPED delayedResume=false finishing=false
       keysPaused=false inHistory=true idle=true
@@ -92,7 +92,7 @@ Display #0 (activities from top to bottom):
       mVisibleRequested=false mVisible=false mClientVisible=false reportedDrawn=false reportedVisible=false
       mAppStopped=true
       mNumInterestingWindows=1 mNumDrawnWindows=1 allDrawn=true lastAllDrawn=false)
-      nowVisible=false lastVisibleTime=-44s542ms
+      nowVisible=false lastVisibleTime=-44s998ms
       resizeMode=RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION
       mLastReportedMultiWindowMode=false mLastReportedPictureInPictureMode=false
       supportsSizeChanges=SIZE_CHANGES_UNSUPPORTED_METADATA
@@ -128,7 +128,7 @@ Display #0 (activities from top to bottom):
         taskDescription: label="null" icon=null iconResource=/0 iconFilename=null primaryColor=fff1f0f7
           backgroundColor=fff1f0f7 statusBarColor=0 navigationBarColor=0
          backgroundColorFloating=fff1f0f7
-        launchFailed=false launchCount=0 lastLaunchTime=-7m38s181ms
+        launchFailed=false launchCount=0 lastLaunchTime=-7m38s664ms
         mHaveState=true mIcicle=Bundle[mParcelledData.dataSize=6204]
         state=STOPPED delayedResume=false finishing=false
         keysPaused=false inHistory=true idle=true
@@ -143,7 +143,7 @@ Display #0 (activities from top to bottom):
         mVisibleRequested=false mVisible=false mClientVisible=false reportedDrawn=false reportedVisible=false
         mAppStopped=true
         mNumInterestingWindows=1 mNumDrawnWindows=0 allDrawn=false lastAllDrawn=false)
-        nowVisible=false lastVisibleTime=-7m56s166ms
+        nowVisible=false lastVisibleTime=-7m56s649ms
         connections={ConnectionRecord{a27d9f1 u0 com.google.android.apps.nexuslauncher/com.android.quickstep.TouchInteractionService:@69dd98 flags=0x0}}
         resizeMode=RESIZE_MODE_RESIZEABLE
         mLastReportedMultiWindowMode=false mLastReportedPictureInPictureMode=false
@@ -167,24 +167,24 @@ Display #0 (activities from top to bottom):
       isSleeping=false
 
   Resumed activities in task display areas (from top to bottom):
-    Resumed: ActivityRecord{95ff50a u0 ca.ocentra.parent.agent/.MainActivity t28}
+    Resumed: ActivityRecord{fa629b9 u0 ca.ocentra.parent.agent/.MainActivity t28}
 
-  ResumedActivity: ActivityRecord{95ff50a u0 ca.ocentra.parent.agent/.MainActivity t28}
+  ResumedActivity: ActivityRecord{fa629b9 u0 ca.ocentra.parent.agent/.MainActivity t28}
 
 ActivityTaskSupervisor state:
-  topDisplayFocusedRootTask=Task{3116a2d #28 type=standard A=10212:ca.ocentra.parent.agent}
+  topDisplayFocusedRootTask=Task{b9656f1 #28 type=standard A=10212:ca.ocentra.parent.agent}
   Display: mDisplayId=0 (organized)
     init=1344x2992 480dpi mMinSizeOfResizeableTaskDp=220 cur=1344x2992 app=1344x2992 rng=1344x1344-2992x2992
     deferred=false mLayoutNeeded=false
   mLastOrientationSource=WindowedMagnification:0:31@117329599
-  deepestLastOrientationSource=ActivityRecord{95ff50a u0 ca.ocentra.parent.agent/.MainActivity t28}
+  deepestLastOrientationSource=ActivityRecord{fa629b9 u0 ca.ocentra.parent.agent/.MainActivity t28}
   overrideConfig={1.0 310mcc260mnc [en_US] ldltr sw448dp w448dp h997dp 480dpi nrml long port finger qwerty/v/v dpad/v winConfig={ mBounds=Rect(0, 0 - 1344, 2992) mAppBounds=Rect(0, 0 - 1344, 2992) mMaxBounds=Rect(0, 0 - 1344, 2992) mDisplayRotation=ROTATION_0 mWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} as.3 s.54 fontWeightAdjustment=0}
   mLayoutSeq=134
-  mCurrentFocus=Window{3047578 u0 ca.ocentra.parent.agent/ca.ocentra.parent.agent.MainActivity}
-  mFocusedApp=ActivityRecord{95ff50a u0 ca.ocentra.parent.agent/.MainActivity t28}
+  mCurrentFocus=Window{c31bbcb u0 ca.ocentra.parent.agent/ca.ocentra.parent.agent.MainActivity}
+  mFocusedApp=ActivityRecord{fa629b9 u0 ca.ocentra.parent.agent/.MainActivity t28}
 
   mHoldScreenWindow=null
-  mObscuringWindow=Window{3047578 u0 ca.ocentra.parent.agent/ca.ocentra.parent.agent.MainActivity}
+  mObscuringWindow=Window{c31bbcb u0 ca.ocentra.parent.agent/ca.ocentra.parent.agent.MainActivity}
   mLastWakeLockHoldingWindow=null
   mLastWakeLockObscuringWindow=Window{38b8e0f u0 com.android.systemui.wallpapers.ImageWallpaper}
 
@@ -247,12 +247,12 @@ ActivityTaskSupervisor state:
   Task display areas in top down Z order:
     TaskDisplayArea DefaultTaskDisplayArea
       overrideConfig={0.0 ?mcc0mnc ?localeList ?layoutDir ?swdp ?wdp ?hdp ?density ?lsize ?long ?ldr ?wideColorGamut ?orien ?uimode ?night ?touch ?keyb/?/? ?nav/? winConfig={ mBounds=Rect(0, 0 - 0, 0) mAppBounds=null mMaxBounds=Rect(0, 0 - 0, 0) mDisplayRotation=undefined mWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=undefined} ?fontWeightAdjustment}
-      mPreferredTopFocusableRootTask=Task{3116a2d #28 type=standard A=10212:ca.ocentra.parent.agent}
-      mLastFocusedRootTask=Task{3116a2d #28 type=standard A=10212:ca.ocentra.parent.agent}
+      mPreferredTopFocusableRootTask=Task{b9656f1 #28 type=standard A=10212:ca.ocentra.parent.agent}
+      mLastFocusedRootTask=Task{b9656f1 #28 type=standard A=10212:ca.ocentra.parent.agent}
       Application tokens in top down Z order:
-      * Task{3116a2d #28 type=standard A=10212:ca.ocentra.parent.agent U=0 visible=true visibleRequested=true mode=fullscreen translucent=false sz=1}
+      * Task{b9656f1 #28 type=standard A=10212:ca.ocentra.parent.agent U=0 visible=true visibleRequested=true mode=fullscreen translucent=false sz=1}
         bounds=[0,0][1344,2992]
-        * ActivityRecord{95ff50a u0 ca.ocentra.parent.agent/.MainActivity t28}
+        * ActivityRecord{fa629b9 u0 ca.ocentra.parent.agent/.MainActivity t28}
       * Task{35c292b #27 type=standard A=10211:com.ocentra.claim U=0 visible=false visibleRequested=false mode=fullscreen translucent=true sz=1}
         bounds=[0,0][1344,2992]
         * ActivityRecord{1e2e470 u0 com.ocentra.claim/.MainActivity t27}
@@ -302,16 +302,16 @@ ActivityTaskSupervisor state:
     mTopGestureHost=Window{f579388 u0 StatusBar}
     mRightGestureHost=Window{9078b3a u0 Taskbar}
     mBottomGestureHost=Window{9078b3a u0 Taskbar}
-    mFocusedWindow=Window{3047578 u0 ca.ocentra.parent.agent/ca.ocentra.parent.agent.MainActivity}
-    mTopFullscreenOpaqueWindowState=Window{3047578 u0 ca.ocentra.parent.agent/ca.ocentra.parent.agent.MainActivity}
-    mSystemBarColorApps={ActivityRecord{95ff50a u0 ca.ocentra.parent.agent/.MainActivity t28}}
-    mNavBarColorWindowCandidate=Window{3047578 u0 ca.ocentra.parent.agent/ca.ocentra.parent.agent.MainActivity}
-    mNavBarBackgroundWindowCandidate=Window{3047578 u0 ca.ocentra.parent.agent/ca.ocentra.parent.agent.MainActivity}
+    mFocusedWindow=Window{c31bbcb u0 ca.ocentra.parent.agent/ca.ocentra.parent.agent.MainActivity}
+    mTopFullscreenOpaqueWindowState=Window{c31bbcb u0 ca.ocentra.parent.agent/ca.ocentra.parent.agent.MainActivity}
+    mSystemBarColorApps={ActivityRecord{fa629b9 u0 ca.ocentra.parent.agent/.MainActivity t28}}
+    mNavBarColorWindowCandidate=Window{c31bbcb u0 ca.ocentra.parent.agent/ca.ocentra.parent.agent.MainActivity}
+    mNavBarBackgroundWindowCandidate=Window{c31bbcb u0 ca.ocentra.parent.agent/ca.ocentra.parent.agent.MainActivity}
     mLastStatusBarAppearanceRegions=
       AppearanceRegion{ bounds=[0,0][1344,2992]}
     mLastLetterboxDetails=
     mStatusBarBackgroundWindows=
-      Window{3047578 u0 ca.ocentra.parent.agent/ca.ocentra.parent.agent.MainActivity}
+      Window{c31bbcb u0 ca.ocentra.parent.agent/ca.ocentra.parent.agent.MainActivity}
     mTopIsFullscreen=false
     mImeInsetsConsumed=false
     mForceShowNavigationBarEnabled=false mAllowLockscreenWhenOn=false
@@ -345,7 +345,7 @@ ActivityTaskSupervisor state:
         mLastFilteredX=0.0
         mLastFilteredY=9.776321
         mLastFilteredZ=0.812345
-        mLastFilteredTimestampNanos=502943188800 (47.6878ms ago)
+        mLastFilteredTimestampNanos=503409857800 (45.8851ms ago)
         mTiltHistory={last: 5.0}
         mFlat=false
         mSwinging=false
@@ -389,7 +389,7 @@ ActivityTaskSupervisor state:
         InsetsSource id=3bf00006 type=tappableElement frame=[0,0][0,0] visible=true flags= sideHint=NONE boundingRects=null
         InsetsSource id=3bf00024 type=systemGestures frame=[1254,0][1344,2992] visible=true flags= sideHint=RIGHT boundingRects=null
     Control map:
-      Window{3047578 u0 ca.ocentra.parent.agent/ca.ocentra.parent.agent.MainActivity}:
+      Window{c31bbcb u0 ca.ocentra.parent.agent/ca.ocentra.parent.agent.MainActivity}:
         InsetsSourceControl: {3 mType=ime mSurfacePosition=Point(192, 2848) mInsetsHint=Insets{left=0, top=0, right=0, bottom=0}}
         InsetsSourceControl: {d4440000 mType=statusBars initiallyVisible mSurfacePosition=Point(0, 0) mInsetsHint=Insets{left=0, top=159, right=0, bottom=0}}
         InsetsSourceControl: {3bf00001 mType=navigationBars initiallyVisible mSurfacePosition=Point(0, 2920) mInsetsHint=Insets{left=0, top=0, right=0, bottom=72}}
@@ -420,21 +420,21 @@ ActivityTaskSupervisor state:
         mSource=InsetsSource id=3bf00001 type=navigationBars frame=[0,2920][1344,2992] visible=true flags=SUPPRESS_SCRIM|ANIMATE_RESIZING sideHint=BOTTOM boundingRects=null
         mSourceFrame=Rect(0, 2920 - 1344, 2992)
         mOverrideFrames={2011=Rect(0, 2920 - 1344, 2992), 2031=Rect(0, 2920 - 1344, 2992)}
-        mControl=InsetsSourceControl mId=3bf00001 mType=navigationBars mLeash=Surface(name=Surface(name=9078b3a Taskbar)/@0xfc1e53b - animation-leash of insets_animation)/@0xfaf81b5 mInitiallyVisible=true mSurfacePosition=Point(0, 2920) mInsetsHint=Insets{left=0, top=0, right=0, bottom=72} mSkipAnimationOnce=false
+        mControl=InsetsSourceControl mId=3bf00001 mType=navigationBars mLeash=Surface(name=Surface(name=9078b3a Taskbar)/@0xfc1e53b - animation-leash of insets_animation)/@0x9311382 mInitiallyVisible=true mSurfacePosition=Point(0, 2920) mInsetsHint=Insets{left=0, top=0, right=0, bottom=72} mSkipAnimationOnce=false
         mInsetsHint=Insets{left=0, top=0, right=0, bottom=72}
         mIsLeashReadyForDispatching=true mHasPendingPosition=false
         mWindowContainer=Window{9078b3a u0 Taskbar}
-        mAdapter=ControlAdapter mCapturedLeash=Surface(name=Surface(name=9078b3a Taskbar)/@0xfc1e53b - animation-leash of insets_animation)/@0xfaf81b5
-        mControlTarget=Window{3047578 u0 ca.ocentra.parent.agent/ca.ocentra.parent.agent.MainActivity}
+        mAdapter=ControlAdapter mCapturedLeash=Surface(name=Surface(name=9078b3a Taskbar)/@0xfc1e53b - animation-leash of insets_animation)/@0x9311382
+        mControlTarget=Window{c31bbcb u0 ca.ocentra.parent.agent/ca.ocentra.parent.agent.MainActivity}
       ImeInsetsSourceProvider
         mSource=InsetsSource id=3 type=ime frame=[0,0][0,0] visible=false flags= sideHint=NONE boundingRects=null
         mSourceFrame=Rect(192, 2848 - 1152, 2992)
-        mControl=InsetsSourceControl mId=3 mType=ime mLeash=Surface(name=Surface(name=e8e993c InputMethod)/@0x1c6d3d4 - animation-leash of insets_animation)/@0xe3d904a mInitiallyVisible=false mSurfacePosition=Point(192, 2848) mInsetsHint=Insets{left=0, top=0, right=0, bottom=0} mSkipAnimationOnce=false
+        mControl=InsetsSourceControl mId=3 mType=ime mLeash=Surface(name=Surface(name=e8e993c InputMethod)/@0x1c6d3d4 - animation-leash of insets_animation)/@0x6631a93 mInitiallyVisible=false mSurfacePosition=Point(192, 2848) mInsetsHint=Insets{left=0, top=0, right=0, bottom=0} mSkipAnimationOnce=false
         mInsetsHint=Insets{left=0, top=0, right=0, bottom=0} stale
         mIsLeashReadyForDispatching=true mHasPendingPosition=false
         mWindowContainer=Window{e8e993c u0 InputMethod}
-        mAdapter=ControlAdapter mCapturedLeash=Surface(name=Surface(name=e8e993c InputMethod)/@0x1c6d3d4 - animation-leash of insets_animation)/@0xe3d904a
-        mControlTarget=Window{3047578 u0 ca.ocentra.parent.agent/ca.ocentra.parent.agent.MainActivity}
+        mAdapter=ControlAdapter mCapturedLeash=Surface(name=Surface(name=e8e993c InputMethod)/@0x1c6d3d4 - animation-leash of insets_animation)/@0x6631a93
+        mControlTarget=Window{c31bbcb u0 ca.ocentra.parent.agent/ca.ocentra.parent.agent.MainActivity}
         mImeShowing=false        showImePostLayout not scheduled, mImeRequester=null
 
       InsetsSourceProvider
@@ -450,12 +450,12 @@ ActivityTaskSupervisor state:
       InsetsSourceProvider
         mSource=InsetsSource id=d4440000 type=statusBars frame=[0,0][1344,159] visible=true flags= sideHint=TOP boundingRects=null
         mSourceFrame=Rect(0, 0 - 1344, 159)
-        mControl=InsetsSourceControl mId=d4440000 mType=statusBars mLeash=Surface(name=Surface(name=f579388 StatusBar)/@0x78efe5d - animation-leash of insets_animation)/@0x5692bbb mInitiallyVisible=true mSurfacePosition=Point(0, 0) mInsetsHint=Insets{left=0, top=159, right=0, bottom=0} mSkipAnimationOnce=false
+        mControl=InsetsSourceControl mId=d4440000 mType=statusBars mLeash=Surface(name=Surface(name=f579388 StatusBar)/@0x78efe5d - animation-leash of insets_animation)/@0xafd4ad0 mInitiallyVisible=true mSurfacePosition=Point(0, 0) mInsetsHint=Insets{left=0, top=159, right=0, bottom=0} mSkipAnimationOnce=false
         mInsetsHint=Insets{left=0, top=159, right=0, bottom=0}
         mIsLeashReadyForDispatching=true mHasPendingPosition=false
         mWindowContainer=Window{f579388 u0 StatusBar}
-        mAdapter=ControlAdapter mCapturedLeash=Surface(name=Surface(name=f579388 StatusBar)/@0x78efe5d - animation-leash of insets_animation)/@0x5692bbb
-        mControlTarget=Window{3047578 u0 ca.ocentra.parent.agent/ca.ocentra.parent.agent.MainActivity}
+        mAdapter=ControlAdapter mCapturedLeash=Surface(name=Surface(name=f579388 StatusBar)/@0x78efe5d - animation-leash of insets_animation)/@0xafd4ad0
+        mControlTarget=Window{c31bbcb u0 ca.ocentra.parent.agent/ca.ocentra.parent.agent.MainActivity}
   InsetsPolicy
     status: WINDOW_STATE_SHOWING
     nav: WINDOW_STATE_SHOWING
@@ -479,13 +479,13 @@ ActivityTaskSupervisor state:
   mNoHistoryActivities=[]
 
   TaskOrganizerController:
-      android.window.ITaskOrganizer$Stub$Proxy@6bcc8d8 uid=10181 (active):
+      android.window.ITaskOrganizer$Stub$Proxy@c60e5ce uid=10181 (active):
         (fullscreen) Task{6748d5 #1 type=home}
         (fullscreen) Task{11baaa3 #2 type=undefined}
         (multi-window) Task{3d781a0 #3 type=undefined}
         (multi-window) Task{bb750c7 #4 type=undefined}
         (fullscreen) Task{35c292b #27 type=standard A=10211:com.ocentra.claim}
-        (fullscreen) Task{3116a2d #28 type=standard A=10212:ca.ocentra.parent.agent}
+        (fullscreen) Task{b9656f1 #28 type=standard A=10212:ca.ocentra.parent.agent}
 
-  VisibleActivityProcess:[ ProcessRecord{34f7306 4536:ca.ocentra.parent.agent/u0a212}]
+  VisibleActivityProcess:[ ProcessRecord{fe7cb72 4525:ca.ocentra.parent.agent/u0a212}]
   NumNonAppVisibleWindowUidMap:[ 10181:3 10176:1]

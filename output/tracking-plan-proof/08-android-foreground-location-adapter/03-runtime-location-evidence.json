@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-04T14:11:20.301Z",
-  "commit": "7f59604f57f114fa4b31547db3a6f7716647d5a6",
+  "checkedAt": "2026-06-04T15:19:02.543Z",
+  "commit": "d2ebdf2f87602d9860fc90f9eec1c9ab485679ab",
   "requiredProofTier": "P3_LOCAL_DEV_MACHINE",
   "currentProofTier": "P3_LOCAL_DEV_MACHINE",
   "currentStatus": "manual_required",
