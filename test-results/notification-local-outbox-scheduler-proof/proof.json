@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-06-04T04:09:16.487Z",
-  "commit": "d3e137b2e034bfd8cfff06e91aefe48165354b87",
+  "checkedAt": "2026-06-04T04:59:41.119Z",
+  "commit": "7b24180c3f52bdb9995b8504b02903d37a35f06a",
   "proofMode": "notification-local-outbox-scheduler-proof",
   "commands": [
     {
       "command": "cmd /c npm run build --workspace @ocentra-parent/parent-domain",
-      "startedAt": "2026-06-04T04:09:05.301Z",
+      "startedAt": "2026-06-04T04:59:36.740Z",
       "exitCode": 0
     },
     {
       "command": "cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tests/notification-local-outbox-scheduler-proof.test.ts",
-      "startedAt": "2026-06-04T04:09:11.640Z",
+      "startedAt": "2026-06-04T04:59:38.856Z",
       "exitCode": 0
     }
   ],

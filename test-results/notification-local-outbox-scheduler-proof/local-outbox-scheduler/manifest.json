@@ -4,5 +4,5 @@
   "recordCount": 6,
   "schedulerArtifactRef": "parent-owned-local-notification-outbox-scheduler-jsonl-ref",
   "localDataPathRef": "parent-owned-local-notification-outbox-data-path-ref",
-  "generatedAt": "2026-06-04T04:09:16.484Z"
+  "generatedAt": "2026-06-04T04:59:41.115Z"
 }
