@@ -54,7 +54,7 @@ fn default_managed_browser_profile_root_dir() -> PathBuf {
         .join(constants::browser::PATH_SEGMENT_MANAGED_BROWSER)
 }
 
-fn system_browser_candidate_paths() -> Vec<PathBuf> {
+pub(crate) fn system_browser_candidate_paths() -> Vec<PathBuf> {
     let mut roots = Vec::new();
     if let Ok(root) = env::var(constants::env_var::PROGRAM_FILES) {
         roots.push(PathBuf::from(root));
