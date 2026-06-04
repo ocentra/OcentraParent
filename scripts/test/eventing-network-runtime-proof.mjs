@@ -5,6 +5,8 @@ import { join, relative } from 'node:path';
 const repoRoot = process.cwd();
 const outputDir = join(repoRoot, 'test-results', 'eventing-network-runtime-proof');
 const proofPath = join(outputDir, 'proof.json');
+const planOutputDir = join(repoRoot, 'output', 'eventing-plan-proof', '62-network-proof-links');
+const planProofPath = join(planOutputDir, 'proof-summary.json');
 const commands = [];
 const proofLabels = [];
 
@@ -12,6 +14,7 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
+  await mkdir(planOutputDir, { recursive: true });
 
   await runCommand('cargo', ['test', '-p', 'ocentra-eventing']);
   await runCommand('cargo', ['test', '-p', 'ocentra-parent-agent-core', 'network_event_runtime']);
@@ -33,6 +36,9 @@ async function main() {
       networkRuntimeTests: 'crates/agent-core/src/network_event_runtime_tests.rs',
       networkEventConstants: 'crates/agent-protocol/src/constants/network_flow.rs',
       proofHarness: 'scripts/test/eventing-network-runtime-proof.mjs',
+      eventingPlanRow: 'docs/plans/eventing-plan/implementation-checklist.md#row-62',
+      networkPlanRow: 'docs/plans/network-plan/implementation-checklist.md#row-10',
+      eventingPlanProofSummary: 'output/eventing-plan-proof/62-network-proof-links/proof-summary.json',
     },
     claimsProved: [
       'network runtime consumes the reusable ocentra-eventing crate instead of defining a private network bus',
@@ -51,8 +57,10 @@ async function main() {
   };
 
   await writeFile(proofPath, `${JSON.stringify(proof, null, 2)}\n`);
+  await writeFile(planProofPath, `${JSON.stringify(planProof(proof), null, 2)}\n`);
   console.log(`eventing-network-runtime-proof-ok:${proofLabels.join(',')}`);
   console.log(`evidence=${relative(repoRoot, proofPath)}`);
+  console.log(`planEvidence=${relative(repoRoot, planProofPath)}`);
 }
 
 async function assertSourceContracts() {
@@ -63,22 +71,30 @@ async function assertSourceContracts() {
   const eventingEnvelopeSource = await readText('crates/ocentra-eventing/src/envelope.rs');
   const networkSource = await readText('crates/agent-core/src/network_event_runtime.rs');
   const networkTests = await readText('crates/agent-core/src/network_event_runtime_tests.rs');
+  const eventingChecklist = await readText('docs/plans/eventing-plan/implementation-checklist.md');
 
   assertIncludes(workspaceCargo, 'crates/ocentra-eventing', 'workspace includes eventing crate');
   assertIncludes(agentCoreCargo, 'ocentra-eventing', 'agent-core depends on eventing crate');
   assertIncludes(eventingPublisherSource, 'pub struct EventContext<E>', 'typed event context handler boundary');
   assertIncludes(eventingPublisherSource, 'EventEnvelope<E>', 'typed event envelope handler boundary');
   assertIncludes(eventingEnvelopeSource, 'serde_json::Value', 'stored envelope JSON boundary');
+  assertIncludes(eventingEnvelopeSource, 'pub payload: StoredEventPayload', 'stored envelope JSON wrapper boundary');
   assertDoesNotInclude(networkSource, 'struct NetworkEventBus', 'no private NetworkEventBus');
   assertDoesNotInclude(networkSource, 'adapter_action_executed: true', 'no adapter action execution');
   assertIncludes(networkTests, 'exact_url_available', 'network tests assert exact URL non-claim');
   assertIncludes(networkTests, 'decrypted_https_payload_available', 'network tests assert HTTPS payload non-claim');
+  assertIncludes(
+    eventingChecklist,
+    'output/eventing-plan-proof/62-network-proof-links/proof-summary.json',
+    'eventing checklist row 62 links plan proof'
+  );
 
   proofLabels.push('eventing.workspace.crate-added');
   proofLabels.push('eventing.typed-envelope.boundary');
   proofLabels.push('network.reuses-generic-eventing');
   proofLabels.push('network.metadata-only.no-exact-url');
   proofLabels.push('network.manual-required.no-adapter-action');
+  proofLabels.push('eventing.row-62.network-proof-links');
 }
 
 async function runCommand(command, args) {
@@ -117,4 +133,32 @@ function assertDoesNotInclude(text, unexpected, label) {
   if (text.includes(unexpected)) {
     throw new Error(`${label}: found ${unexpected}`);
   }
+}
+
+function planProof(proof) {
+  return {
+    proof: 'eventing-row-62-network-proof-links',
+    checkedAt: proof.checkedAt,
+    commit: proof.commit,
+    commands: proof.commands,
+    proofLabels: proof.proofLabels,
+    linkedArtifacts: {
+      runtimeProof: relative(repoRoot, proofPath),
+      eventingPlanProof: relative(repoRoot, planProofPath),
+      networkRuntime: proof.evidence.networkRuntime,
+      networkRuntimeTests: proof.evidence.networkRuntimeTests,
+      networkEventConstants: proof.evidence.networkEventConstants,
+      eventingPlanChecklist: 'docs/plans/eventing-plan/implementation-checklist.md',
+      networkPlanChecklist: 'docs/plans/network-plan/implementation-checklist.md',
+    },
+    provenRows: ['62 Network event proof artifacts linked back to eventing plan'],
+    linkedPartialRows: [
+      '57 Network Workpack 10 consumes reusable crate',
+      '58 Network to AI to policy to enforcement event-chain proof',
+      '59 Weak-network-evidence cannot publish enforcement command',
+      'network-plan row 10 NetworkActivityEvent contracts and reusable Rust eventing consumption',
+    ],
+    claimsProved: proof.claimsProved,
+    claimsNotProved: proof.claimsNotProved,
+  };
 }
