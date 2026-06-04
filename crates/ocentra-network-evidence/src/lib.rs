@@ -8,9 +8,12 @@ pub mod flow;
 pub mod http;
 pub mod packet;
 pub mod pcap;
+pub mod process;
 pub mod tls;
 pub mod transfer;
 pub mod tunnel;
+
+mod process_support;
 
 #[cfg(test)]
 mod tests;
@@ -56,6 +59,12 @@ pub use packet::{
     UdpPayloadView,
 };
 pub use pcap::{parse_pcap_packets, PcapPacket, PcapReplayError};
+pub use process::{
+    correlate_process_app_activity, NetworkAppInventoryEntry, NetworkFlowProcessObservation,
+    NetworkProcessAppCorrelation, NetworkProcessAppCorrelationInput,
+    NetworkProcessCorrelationBasis, NetworkProcessCorrelationError, NetworkProcessCorrelationState,
+    NetworkProcessCorrelationUncertainty, NetworkProcessSnapshot,
+};
 pub use tls::{parse_tls_client_hello_sni, TlsClientHelloError, TlsClientHelloVisibility};
 pub use transfer::{
     classify_remote_torrent_download_activity, NetworkTransferActivityKind, NetworkTransferBasis,

@@ -113,6 +113,11 @@ compete on control while staying clear about attribution confidence and privacy.
   large-download indicators produce candidate labels, while unattributed
   high-volume traffic stays uncertain and file names, exact URLs, and content
   stay unavailable.
+- E-D added replay-backed process/app correlation in
+  `ocentra-network-evidence`: PID flow evidence links to process snapshots and
+  app inventory, process-name-only traffic remains a candidate, and
+  adapter-unavailable/missing-process states remain explicit without browser URL
+  or decrypted-content claims.
 - E-D added Rust protocol-facing network/AI/policy/enforcement/audit/portal
   event contracts in `crates/agent-protocol`. The proof serializes exact
   chain refs, no exact URL/content claim boundaries, policy-decision-gated
@@ -163,6 +168,8 @@ apply/rollback artifacts remain open.
 
 - [x] Flow summary and flow-evidence contracts.
 - [x] Domain/IP/protocol/process attribution status contracts.
+      Replay-backed process/app correlation now links PID flow evidence to
+      process snapshots and app inventory without claiming browser URL/content.
 - [ ] VPN/proxy/tunnel indicators where available.
       Deterministic indicator classification now exists for VPN adapter,
       proxy-port, Tor, and tunnel-protocol candidates, with encrypted-DNS-only
