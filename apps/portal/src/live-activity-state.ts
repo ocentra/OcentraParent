@@ -401,6 +401,8 @@ function browserInventoryRow(payload: AgentProtocolLogFields) {
     managedProfileState: payload[PortalBrowserInventoryFields.ManagedProfileState],
     unmanagedFallbackCapability: payload[PortalBrowserInventoryFields.UnmanagedFallbackCapability],
     executablePathRef: nullIfMissing(payload[PortalBrowserInventoryFields.ExecutablePathRef]),
+    publisherSignatureRef: nullIfMissing(payload[PortalBrowserInventoryFields.PublisherSignatureRef]),
+    fileHashRef: nullIfMissing(payload[PortalBrowserInventoryFields.FileHashRef]),
     profileId: nullIfMissing(payload[AgentProtocolDefaults.Field.ProfileId]),
     processId: nullIfMissing(payload[AgentProtocolDefaults.Field.ProcessId]),
     capabilityStatus: payload[AgentProtocolDefaults.Field.CapabilityStatus],

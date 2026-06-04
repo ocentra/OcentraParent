@@ -103,6 +103,12 @@ control while being more honest about managed versus unmanaged sources.
   keeps managed, unmanaged, active-tab, exact-URL, stale, degraded, and custody
   labels separate; it does not upgrade portal UI, SQLite inventory storage, or
   real browser/platform proof claims.
+- Browser-plan WP03 now carries publisher-signature and file-hash evidence refs
+  through activity-domain inventory contracts, Rust protocol, and service
+  payload/read-model proof. Contract tests cover mixed managed, unmanaged, and
+  unsupported catalog rows and reject empty identity refs. This does not upgrade
+  live OS scanning, live signature/hash extraction, portal dashboard rendering,
+  exact URL evidence, or blocking claims.
 - Browser-plan WP04 default-root service proof now feeds the service inventory
   read-model scan with default Windows candidate roots before process
   observations. Fixture proof shows a default-root Edge install becomes a

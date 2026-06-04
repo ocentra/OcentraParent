@@ -143,6 +143,7 @@ export {
   BrowserActiveTabCapabilitySchema,
   BrowserExactUrlCapabilitySchema,
   BrowserExecutablePathRefSchema,
+  BrowserFileHashRefSchema,
   BrowserInventoryInstallStateSchema,
   BrowserInventoryReadModelSchema,
   BrowserInventoryReasonCodeSchema,
@@ -152,6 +153,7 @@ export {
   BrowserManagedProfileStateSchema,
   BrowserManagementTierSchema,
   BrowserProductNameSchema,
+  BrowserPublisherSignatureRefSchema,
   BrowserSupportTierSchema,
   BrowserUnmanagedFallbackCapabilitySchema,
 } from './browser-inventory-schemas';

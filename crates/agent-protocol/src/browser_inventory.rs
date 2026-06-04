@@ -273,6 +273,8 @@ pub struct BrowserInventoryRow {
     pub managed_profile_state: BrowserManagedProfileState,
     pub unmanaged_fallback_capability: BrowserUnmanagedFallbackCapability,
     pub executable_path_ref: Option<String>,
+    pub publisher_signature_ref: Option<String>,
+    pub file_hash_ref: Option<String>,
     pub profile_id: Option<String>,
     pub process_id: Option<u32>,
     pub capability_status: BrowserCapabilityStatus,

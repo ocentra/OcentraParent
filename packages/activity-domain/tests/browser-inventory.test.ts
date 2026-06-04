@@ -76,6 +76,41 @@ describe('browser inventory contracts', () => {
   });
 });
 
+describe('browser inventory catalog refs', () => {
+  it('accepts mixed inventory catalog rows with publisher and hash refs', () => {
+    const parsed = BrowserInventoryReadModelSchema.safeParse({
+      schemaVersion: BrowserEvidenceSchemaVersion,
+      generatedAt: '2026-06-02T18:40:00Z',
+      limit: 10,
+      returned: 3,
+      latestObservedAt: '2026-06-02T18:39:59Z',
+      capabilityStatus: null,
+      custodyLabel: BrowserCustodyLabel.ChildDeviceLocal,
+      queryVisibility: BrowserQueryVisibilityLabel.LiveLocal,
+      rows: [managedEdgeInventoryRow(), unmanagedChromeInventoryRow(), unsupportedFirefoxInventoryRow()],
+    });
+
+    expect(parsed.success).toBe(true);
+    if (parsed.success) {
+      expect(parsed.data.rows).toHaveLength(3);
+      expect(parsed.data.rows[1].publisherSignatureRef).toBe('chrome-publisher-signature-ref');
+      expect(parsed.data.rows[1].fileHashRef).toBe('chrome-file-hash-ref');
+      expect(parsed.data.rows[1].exactUrlCapability).toBe('not-claimed');
+    }
+  });
+
+  it('rejects empty inventory identity refs', () => {
+    const row = {
+      ...unmanagedChromeInventoryRow(),
+      fileHashRef: '',
+    };
+
+    const parsed = BrowserInventoryRowSchema.safeParse(row);
+
+    expect(parsed.success).toBe(false);
+  });
+});
+
 function managedEdgeInventoryRow() {
   return {
     schemaVersion: BrowserEvidenceSchemaVersion,
@@ -95,6 +130,8 @@ function managedEdgeInventoryRow() {
     managedProfileState: BrowserManagedProfileState.Ready,
     unmanagedFallbackCapability: BrowserUnmanagedFallbackCapability.OsBlockManualRequired,
     executablePathRef: 'edge-stable-redacted-path',
+    publisherSignatureRef: null,
+    fileHashRef: null,
     profileId: 'managed-browser-profile-dev',
     processId: 4242,
     capabilityStatus: BrowserCapabilityStatus.TabListOnly,
@@ -123,6 +160,8 @@ function unmanagedChromeInventoryRow() {
     managedProfileState: BrowserManagedProfileState.NotApplicable,
     unmanagedFallbackCapability: BrowserUnmanagedFallbackCapability.ReportOnly,
     executablePathRef: 'chrome-unmanaged-redacted-path',
+    publisherSignatureRef: 'chrome-publisher-signature-ref',
+    fileHashRef: 'chrome-file-hash-ref',
     profileId: null,
     processId: 5150,
     capabilityStatus: BrowserCapabilityStatus.UnmanagedBrowser,
@@ -151,6 +190,8 @@ function unsupportedFirefoxInventoryRow() {
     managedProfileState: BrowserManagedProfileState.NotApplicable,
     unmanagedFallbackCapability: BrowserUnmanagedFallbackCapability.Unsupported,
     executablePathRef: 'firefox-redacted-path',
+    publisherSignatureRef: 'firefox-publisher-signature-ref',
+    fileHashRef: null,
     profileId: null,
     processId: null,
     capabilityStatus: BrowserCapabilityStatus.UnsupportedBrowser,

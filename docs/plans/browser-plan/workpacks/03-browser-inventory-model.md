@@ -17,6 +17,14 @@ process-only detections, and missing-browser unavailable state. It does not yet
 prove installed-browser OS scanning, mixed multi-browser catalog population, or
 portal dashboard consumption.
 
+2026-06-04 codex-d progress: the inventory row contract now carries
+publisher-signature and file-hash evidence refs, and Rust protocol/service
+payload proof preserves those refs for unmanaged process-derived rows. Focused
+contract tests now cover mixed managed, unmanaged, and unsupported catalog rows
+and reject empty identity refs. This is still reference-level proof only: live
+OS scanning, live publisher/signature/hash extraction, portal dashboard
+consumption, and manual platform artifacts remain outside this sub-slice.
+
 ## Where We Want To Be
 
 The service can represent installed and running browsers with support tier,
@@ -43,7 +51,8 @@ fallback state.
 
 - Unit tests for support matrix and reason-code derivation.
 - Contract tests for inventory rows.
-- Portal fixtures for mixed inventory.
+- Contract fixtures for mixed inventory and identity refs.
+- Portal fixtures for mixed inventory remain deferred.
 
 ## AI Worker Checklist
 
@@ -57,7 +66,7 @@ Fill this before reporting `DONE` or PR-ready:
 - [x] Contracts updated first where this workpack changes behavior.
 - [x] Rust/service parity updated only after contracts exist; portal parity remains deferred because no UI surface changed.
 - [x] Raw evidence artifacts captured or marked N/A for this service-derived sub-slice: existing managed status fixtures, unmanaged process rows, and missing-browser status feed the read model; no journal, SQLite, policy, or action behavior changed.
-- [x] Tests/proof listed in this workpack are implemented for contract and service row derivation; OS scanner, mixed inventory, publisher/signature/hash refs, and portal fixtures remain manual-required.
+- [x] Tests/proof listed in this workpack are implemented for contract and service row derivation; mixed inventory and identity-ref contract proof now exists, while live OS scanner extraction, portal fixtures, and manual platform proof remain manual-required.
 - [x] Validation command outputs saved in the proof pack and summarized in [main checklist](../implementation-checklist.md).
 - [x] UI snapshots captured for every touched parent portal, child UX, block/warn, policy authoring, or dashboard state; no UI changed, so `ui-not-applicable.md` records why.
 - [x] Security/no-claim negative proof captured for this sub-slice: unmanaged rows cannot claim managed exact URL and managed target-list rows cannot claim active-tab support.
@@ -70,6 +79,6 @@ Fill this before reporting `DONE` or PR-ready:
 
 Inventory does not prove URL visibility or blocking capability by itself.
 Remaining inventory work requires the Windows inventory adapter, cross-platform
-inventory matrix, real installed-browser scanning, multi-row catalog fixtures,
-publisher/signature/hash evidence refs, portal dashboard consumption, and
-manual platform proof before this workpack can be marked complete.
+inventory matrix, real installed-browser scanning, live publisher/signature/hash
+extraction artifacts, portal dashboard consumption, and manual platform proof
+before this workpack can be marked complete.

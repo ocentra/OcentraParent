@@ -94,6 +94,14 @@ fn browser_inventory_latest_identity_pairs(row: Option<&BrowserInventoryRow>) ->
             constants::field::EXECUTABLE_PATH_REF,
             optional_string(&row.and_then(|value| value.executable_path_ref.clone())),
         ),
+        (
+            constants::field::PUBLISHER_SIGNATURE_REF,
+            optional_string(&row.and_then(|value| value.publisher_signature_ref.clone())),
+        ),
+        (
+            constants::field::FILE_HASH_REF,
+            optional_string(&row.and_then(|value| value.file_hash_ref.clone())),
+        ),
     ]
 }
 

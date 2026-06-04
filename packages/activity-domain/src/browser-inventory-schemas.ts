@@ -79,6 +79,9 @@ export const BrowserUnmanagedFallbackCapabilitySchema = withParser(
 export const BrowserExecutablePathRefSchema = withParser(
   NonEmptyBrowserInventoryText.pipe(Schema.brand('BrowserExecutablePathRef'))
 );
+export const BrowserFileHashRefSchema = withParser(
+  NonEmptyBrowserInventoryText.pipe(Schema.brand('BrowserFileHashRef'))
+);
 export const BrowserInventoryReasonCodeSchema = withParser(
   NonEmptyBrowserInventoryText.pipe(Schema.brand('BrowserInventoryReasonCode'))
 );
@@ -87,6 +90,9 @@ export const BrowserInventoryRowIdSchema = withParser(
 );
 export const BrowserProductNameSchema = withParser(
   NonEmptyBrowserInventoryText.pipe(Schema.brand('BrowserProductName'))
+);
+export const BrowserPublisherSignatureRefSchema = withParser(
+  NonEmptyBrowserInventoryText.pipe(Schema.brand('BrowserPublisherSignatureRef'))
 );
 
 const BrowserInventoryRowBaseSchema = Schema.Struct({
@@ -107,6 +113,8 @@ const BrowserInventoryRowBaseSchema = Schema.Struct({
   managedProfileState: BrowserManagedProfileStateSchema,
   unmanagedFallbackCapability: BrowserUnmanagedFallbackCapabilitySchema,
   executablePathRef: Schema.Union(BrowserExecutablePathRefSchema, Schema.Null),
+  publisherSignatureRef: Schema.Union(BrowserPublisherSignatureRefSchema, Schema.Null),
+  fileHashRef: Schema.Union(BrowserFileHashRefSchema, Schema.Null),
   profileId: Schema.Union(BrowserProfileIdSchema, Schema.Null),
   processId: Schema.Union(Schema.Number, Schema.Null),
   capabilityStatus: BrowserCapabilityStatusSchema,
@@ -143,6 +151,8 @@ export type BrowserExactUrlCapability = Infer<typeof BrowserExactUrlCapabilitySc
 export type BrowserActiveTabCapability = Infer<typeof BrowserActiveTabCapabilitySchema>;
 export type BrowserManagedProfileState = Infer<typeof BrowserManagedProfileStateSchema>;
 export type BrowserUnmanagedFallbackCapability = Infer<typeof BrowserUnmanagedFallbackCapabilitySchema>;
+export type BrowserFileHashRef = Infer<typeof BrowserFileHashRefSchema>;
+export type BrowserPublisherSignatureRef = Infer<typeof BrowserPublisherSignatureRefSchema>;
 export type BrowserInventoryRow = Infer<typeof BrowserInventoryRowSchema>;
 export type BrowserInventoryReadModel = Infer<typeof BrowserInventoryReadModelSchema>;
 

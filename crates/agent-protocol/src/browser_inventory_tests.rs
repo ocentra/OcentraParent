@@ -36,6 +36,14 @@ fn browser_inventory_read_model_serializes_managed_target_list_boundary() {
         serialized["rows"][0]["activeTabCapability"],
         constants::browser::ACTIVE_TAB_CAPABILITY_TARGET_LIST_ONLY
     );
+    assert_eq!(
+        serialized["rows"][0]["publisherSignatureRef"],
+        serde_json::Value::Null
+    );
+    assert_eq!(
+        serialized["rows"][0]["fileHashRef"],
+        serde_json::Value::Null
+    );
 }
 
 #[test]
@@ -50,6 +58,14 @@ fn browser_inventory_rows_keep_unmanaged_exact_url_unclaimed() {
     assert_eq!(
         row.management_tier.as_protocol_str(),
         constants::browser::MANAGEMENT_TIER_UNMANAGED
+    );
+    assert_eq!(
+        row.publisher_signature_ref.as_deref(),
+        Some(constants::browser::INVENTORY_PUBLISHER_SIGNATURE_REF_WINDOWS_REDACTED)
+    );
+    assert_eq!(
+        row.file_hash_ref.as_deref(),
+        Some(constants::browser::INVENTORY_FILE_HASH_REF_WINDOWS_REDACTED)
     );
 }
 
@@ -81,6 +97,8 @@ fn managed_edge_inventory_row() -> BrowserInventoryRow {
         managed_profile_state: BrowserManagedProfileState::Ready,
         unmanaged_fallback_capability: BrowserUnmanagedFallbackCapability::OsBlockManualRequired,
         executable_path_ref: Some(constants::browser::DEVTOOLS_TEST_MSEDGE_BETA_PATH.to_string()),
+        publisher_signature_ref: None,
+        file_hash_ref: None,
         profile_id: Some(constants::browser::PROFILE_ID_DEV.to_string()),
         process_id: Some(constants::browser::PROCESS_ID_UNKNOWN),
         capability_status: BrowserCapabilityStatus::TabListOnly,
@@ -110,6 +128,12 @@ fn unmanaged_chrome_inventory_row() -> BrowserInventoryRow {
         managed_profile_state: BrowserManagedProfileState::NotApplicable,
         unmanaged_fallback_capability: BrowserUnmanagedFallbackCapability::ReportOnly,
         executable_path_ref: Some(constants::browser::DEVTOOLS_TEST_EXECUTABLE_PATH.to_string()),
+        publisher_signature_ref: Some(
+            constants::browser::INVENTORY_PUBLISHER_SIGNATURE_REF_WINDOWS_REDACTED.to_string(),
+        ),
+        file_hash_ref: Some(
+            constants::browser::INVENTORY_FILE_HASH_REF_WINDOWS_REDACTED.to_string(),
+        ),
         profile_id: None,
         process_id: Some(constants::browser::DEVTOOLS_TEST_UNMANAGED_PROCESS_ID),
         capability_status: BrowserCapabilityStatus::UnmanagedBrowser,
