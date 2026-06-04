@@ -618,6 +618,16 @@ mentions, and no-claim rollout guard text. It emits JSON and Markdown proof
 showing 18 contract-proof rows and six partial/manual-required rows. This closes
 the AI enhancement proof index for the current D-lane slice while keeping
 runtime model execution, UI delivery, policy authority, enforcement, and product checklist completion unclaimed.
+The screen-AI browser trigger proof now adds an activity-domain contract plus
+`scripts/test/screen-ai-browser-trigger-proof.mjs` for managed-browser URL,
+browser-video, social-feed, and cloud-game trigger rows. The proof composes
+typed browser AI input/result rows with screen-analysis result rows and the
+parent-domain local-AI context builder, producing two ready local-AI contexts,
+one social manual-required context, and one cloud-game unavailable context at
+`test-results/screen-ai-browser-trigger-proof/proof.json`. It does not claim
+portal UI, broad browser enforcement, authenticated-account social proof,
+cloud-frame analysis, mobile browser parity, remote AI, or product checklist
+completion.
 SOCIAL-01 now adds the social platform account/feed workpack README under the
 browser plan. It gives managed-browser social account, feed, short-video,
 livestream, messaging-route, upload/post, and bypass rows a proof-root map while

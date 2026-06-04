@@ -18,6 +18,10 @@ Shared activity and evidence contracts for child-device observations.
   evidence refs without UI or policy claims.
 - Network flow summary contracts.
 - Screen evidence summary contracts.
+- Screen-AI browser trigger proof rows that compose typed browser AI
+  input/result contracts with screen-analysis result contracts for managed URL,
+  browser-video, social-feed, and cloud-game trigger states without claiming UI,
+  enforcement, remote AI, authenticated social, cloud-frame, or mobile parity.
 - Tracking location, device-status, geofence, nearby-place, and read-model
   evidence contracts plus P1 deterministic geofence, expected-place, retention
   delete, parent-owned export, local parent-defined place store, and tracking
@@ -65,6 +69,10 @@ flowchart LR
   `social-video-ai-signal-aggregate-proof`; runtime AI execution, rendered UI,
   alert delivery, connector/native adapters, final policy, and enforcement proof
   remain open.
+- Screen-AI browser trigger proof now has
+  `screen-ai-browser-trigger-proof`; live trigger producers, authenticated
+  social surfaces, cloud-streamed frame analysis, mobile browser parity, UI,
+  final policy, and enforcement proof remain open.
 - Tracking evidence now has focused contract proof plus P1 deterministic
   runtime, local parent-defined place store proof, and Rust ActivityStore ingest
   proof; platform adapters, provider runtime, and live service-backed UI proof
